@@ -45,22 +45,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommandShowStatusServer class implements processing of the
- * "show status server" console command.
+ * The PSConsoleCommandShowStatusServer class implements processing of the "show status server"
+ * console command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConsoleCommandShowStatusServer extends PSConsoleCommandShowStatusHandler {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
-   *
+   * @param cmdArgs the argument string to use when executing this command
    */
   public PSConsoleCommandShowStatusServer(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -73,11 +70,11 @@ public class PSConsoleCommandShowStatusServer extends PSConsoleCommandShowStatus
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText, PSXServerStatus?)&gt;
    *
@@ -99,14 +96,10 @@ public class PSConsoleCommandShowStatusServer extends PSConsoleCommandShowStatus
    *      &lt;ELEMENT PSXServerStatus            (PSXStatistics)&gt;
    * </CODE></PRE>
    *
-   * @param      request                     the requestor object
-   *
-   * @return                                 the result document
-   *
-   * @exception   PSConsoleCommandException   if an error occurs during
-   *                                          execution
-   *
-   * @see         PSConsoleCommandShowStatusHandler#createStatistics
+   * @param request the requestor object
+   * @return the result document
+   * @exception PSConsoleCommandException if an error occurs during execution
+   * @see PSConsoleCommandShowStatusHandler#createStatistics
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -126,8 +119,6 @@ public class PSConsoleCommandShowStatusServer extends PSConsoleCommandShowStatus
     return respDoc;
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "show status server";
 }

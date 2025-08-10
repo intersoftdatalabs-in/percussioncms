@@ -15,163 +15,140 @@
  * limitations under the License.
  */
 
-
 package com.percussion.deployer.objectstore;
-
-import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit test class for the <code>PSDbmsInfo</code> class.
- */
-public class PSDbmsInfoTest
-{
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.IOException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-   @Rule
-   public Path temporaryFolder;
-   private String rxdeploydir;
+/** Unit test class for the <code>PSDbmsInfo</code> class. */
+public class PSDbmsInfoTest {
 
-   @BeforeEach 
-   public void setup() throws IOException {
+  @Rule public Path temporaryFolder;
+  private String rxdeploydir;
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
-   }
+  @BeforeEach
+  public void setup() throws IOException {
 
-   @AfterEach
-   public void teardown(){
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
 
-   /**
-    * Construct this unit test
-    *
-    */
-   public PSDbmsInfoTest()
-   {
+  @AfterEach
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-   }
-   
-   /**
-    * Test constructing this object using parameters
-    * 
-    * @throws Exception If there are any errors.
-    */
-   @Test
-   public void testConstructor() throws Exception
-   {
-      // these should work fine
-      assertTrue(testCtorValid("RhythmyxData", "inetdae7", "foo", null, null,
-            null, null, false));
-      assertTrue(testCtorValid("RhythmyxData", "inetdae7", "foo", "", "", "",
-            "", true));
+  /** Construct this unit test */
+  public PSDbmsInfoTest() {}
 
-      // should be a problem
-      assertTrue(!testCtorValid("RhythmyxData", null, "foo", "", "", "", "",
-            true));
-      assertTrue(!testCtorValid("RhythmyxData", "", "foo", "", "", "", "", true));
-      assertTrue(!testCtorValid("RhythmyxData", "inetdae7", null, "", "", "",
-            "", true));
-      assertTrue(!testCtorValid("RhythmyxData", "inetdae7", "", "", "", "", "",
-            true));
-   }
-   
-   /**
-    * Tests the equals and copy from methods
-    * 
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testEquals() throws Exception
-   {
-      PSDbmsInfo info1 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo",
-            "bar", "dbo", "sa", "demo", false);
+  /**
+   * Test constructing this object using parameters
+   *
+   * @throws Exception If there are any errors.
+   */
+  @Test
+  public void testConstructor() throws Exception {
+    // these should work fine
+    assertTrue(testCtorValid("RhythmyxData", "inetdae7", "foo", null, null, null, null, false));
+    assertTrue(testCtorValid("RhythmyxData", "inetdae7", "foo", "", "", "", "", true));
 
-      PSDbmsInfo info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo",
-            "bar", "dbo", "sa", "demo", false);
+    // should be a problem
+    assertTrue(!testCtorValid("RhythmyxData", null, "foo", "", "", "", "", true));
+    assertTrue(!testCtorValid("RhythmyxData", "", "foo", "", "", "", "", true));
+    assertTrue(!testCtorValid("RhythmyxData", "inetdae7", null, "", "", "", "", true));
+    assertTrue(!testCtorValid("RhythmyxData", "inetdae7", "", "", "", "", "", true));
+  }
 
-      assertEquals(info1, info2);
+  /**
+   * Tests the equals and copy from methods
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testEquals() throws Exception {
+    PSDbmsInfo info1 =
+        new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo", "sa", "demo", false);
 
-      info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo",
-            "sa1", "demo", false);
-      assertTrue(!info1.equals(info2));
-      assertTrue(info1.isSameDb(info2));
+    PSDbmsInfo info2 =
+        new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo", "sa", "demo", false);
 
-      info2.copyFrom(info1);
-      assertEquals(info1, info2);
+    assertEquals(info1, info2);
 
-      info2 = new PSDbmsInfo(info1.getDatasource(), info1.getDriver(), info1
-            .getServer(), info1.getDatabase(), info1.getOrigin(), info1
-            .getUserId(), info1.getPassword(true), true);
-      assertEquals(info1, info2);
+    info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo", "sa1", "demo", false);
+    assertTrue(!info1.equals(info2));
+    assertTrue(info1.isSameDb(info2));
 
+    info2.copyFrom(info1);
+    assertEquals(info1, info2);
 
-      info1 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", null, null,
-            null, null, false);
-      info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "", "", "", "",
-            false);
-      assertEquals(info1, info2);
-      info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "bar", "", "", "", "",
-            false);
-      assertTrue(!info1.isSameDb(info2));
+    info2 =
+        new PSDbmsInfo(
+            info1.getDatasource(),
+            info1.getDriver(),
+            info1.getServer(),
+            info1.getDatabase(),
+            info1.getOrigin(),
+            info1.getUserId(),
+            info1.getPassword(true),
+            true);
+    assertEquals(info1, info2);
 
-      // test copy
-      info1 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo",
-            "sa", "demo", false);
-      assertEquals(info1, new PSDbmsInfo(info1));
-      
-   }
-   
-   /**
-    * Tests all Xml functions, and uses equals as well.
-    * 
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-      PSDbmsInfo src = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar",
-            "dbo", "sa", "demo", false);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element srcEl = src.toXml(doc);
-      PSDbmsInfo tgt = new PSDbmsInfo(srcEl);
-      assertTrue(src.equals(tgt));
-   }   
-   
-   /**
-    * Constructs a <code>PSDbmsInfo</code> object using the supplied params and
-    * catches any exception.  For params, see {@link PSDbmsInfo} ctor.
-    * 
-    * @return <code>true</code> if no exceptions were caught, <code>false</code>
-    * otherwise.
-    */
-   private boolean testCtorValid(String datasrc, String driver, String server,
-         String database, String origin, String uid, String pwd,
-         boolean isPwdEncrypted)
-   {
-      try
-      {
-         PSDbmsInfo info = new PSDbmsInfo(datasrc, driver, server, database,
-               origin, uid, pwd, isPwdEncrypted);
-      }
-      catch (Exception ex)
-      {
-         return false;
-      }
+    info1 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", null, null, null, null, false);
+    info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "", "", "", "", false);
+    assertEquals(info1, info2);
+    info2 = new PSDbmsInfo("RhythmyxData", "inetdae7", "bar", "", "", "", "", false);
+    assertTrue(!info1.isSameDb(info2));
 
-      return true;
-   }
-   
+    // test copy
+    info1 = new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo", "sa", "demo", false);
+    assertEquals(info1, new PSDbmsInfo(info1));
+  }
+
+  /**
+   * Tests all Xml functions, and uses equals as well.
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
+    PSDbmsInfo src =
+        new PSDbmsInfo("RhythmyxData", "inetdae7", "foo", "bar", "dbo", "sa", "demo", false);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element srcEl = src.toXml(doc);
+    PSDbmsInfo tgt = new PSDbmsInfo(srcEl);
+    assertTrue(src.equals(tgt));
+  }
+
+  /**
+   * Constructs a <code>PSDbmsInfo</code> object using the supplied params and catches any
+   * exception. For params, see {@link PSDbmsInfo} ctor.
+   *
+   * @return <code>true</code> if no exceptions were caught, <code>false</code> otherwise.
+   */
+  private boolean testCtorValid(
+      String datasrc,
+      String driver,
+      String server,
+      String database,
+      String origin,
+      String uid,
+      String pwd,
+      boolean isPwdEncrypted) {
+    try {
+      PSDbmsInfo info =
+          new PSDbmsInfo(datasrc, driver, server, database, origin, uid, pwd, isPwdEncrypted);
+    } catch (Exception ex) {
+      return false;
+    }
+
+    return true;
+  }
 }

@@ -18,10 +18,10 @@
 package com.percussion.design.objectstore;
 
 /**
- * The IPSObjectStoreErrors inteface is provided as a convenient mechanism
- * for accessing the various object store related error codes. Object
- * Store errors are in the range 2001 - 3000. Within this range, errors are
- * further broken down as follows:
+ * The IPSObjectStoreErrors inteface is provided as a convenient mechanism for accessing the various
+ * object store related error codes. Object Store errors are in the range 2001 - 3000. Within this
+ * range, errors are further broken down as follows:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>2001 - 2100</TD><TD>general errors used all over</TD></TR>
@@ -32,16 +32,17 @@ package com.percussion.design.objectstore;
  * <TR><TD>2801 - 3000</TD><TD>object store server handlers</TD></TR>
  * </TABLE>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSObjectStoreErrors {
 
   /**
    * null specified as the Element in fromXml.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected XML Element tag</TD></TR>
@@ -51,8 +52,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the specified element in fromXml is not of the expected type.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag expected</TD></TR>
@@ -63,8 +65,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the id attribute of the element is missing or invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
@@ -75,8 +78,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a required attribute of the XML element is missing or invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
@@ -88,8 +92,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a required child element of the XML element is missing or invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
@@ -101,8 +106,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the value stored in an XML element was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the object</TD></TR>
@@ -114,8 +120,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the collection specified contains objects of an inappropriate type.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the human readable collection type</TD></TR>
@@ -126,10 +133,10 @@ public interface IPSObjectStoreErrors {
   public static final int COLL_BAD_CONTENT_TYPE = 2017;
 
   /**
-   * the collection could not be constructed as the content type's
-   * class could not be found
-   * <p>
-   * The arguments passed in for this message are:
+   * the collection could not be constructed as the content type's class could not be found
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the desired content class</TD></TR>
@@ -138,10 +145,10 @@ public interface IPSObjectStoreErrors {
   public static final int COLL_CONTENT_TYPE_NOT_FOUND = 2018;
 
   /**
-   * An object of the given class was asked to validate itself but it does not support
-   * validation.
-   * <p>
-   * The arguments passed in for this message are:
+   * An object of the given class was asked to validate itself but it does not support validation.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class</TD></TR>
@@ -150,10 +157,10 @@ public interface IPSObjectStoreErrors {
   public static final int VALIDATION_NOT_IMPLEMENTED = 2019;
 
   /**
-   * The saved version of an application does not correspond to
-   * the version that is to be saved.
-   * <p>
-   * The arguments passed in for this message are:
+   * The saved version of an application does not correspond to the version that is to be saved.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
@@ -168,8 +175,8 @@ public interface IPSObjectStoreErrors {
   /**
    * Object does not allow cloning.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object type</TD></TR>
@@ -179,8 +186,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * no log entries could be found using the specified search criteria
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
@@ -191,17 +199,17 @@ public interface IPSObjectStoreErrors {
   public static final int GET_APP_LOG_NO_DATA = 2101;
 
   /**
-   * the PSObjectStore constructor was called with null
-   * as the PSDesignerConnection object
-   * <p>
-   * No arguments are passed for this message.
+   * the PSObjectStore constructor was called with null as the PSDesignerConnection object
+   *
+   * <p>No arguments are passed for this message.
    */
   public static final int CONN_OBJ_NULL = 2102;
 
   /**
    * The document returned for a request was invalid or unknown.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the document root name, or null if not found</TD></TR>
@@ -211,37 +219,37 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSPipe name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int PIPE_NAME_EMPTY = 2200;
 
   /**
    * null specified in call to PSAcl.setEntries.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int ACL_ENTRYLIST_NULL = 2201;
 
   /**
    * empty collection specified in call to PSAcl.setEntries.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int ACL_ENTRYLIST_EMPTY = 2202;
 
   /**
    * PSApplication.setAcl was called with no full design access ACL entries.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int APP_ACL_NO_MANAGER = 2203;
 
   /**
-   * the collection specified in call to PSAcl.setEntries
-   * contains duplicate PSAclEntry objects.
-   * <p>
-   * The arguments passed in for this message are:
+   * the collection specified in call to PSAcl.setEntries contains duplicate PSAclEntry objects.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>entry name</TD></TR>
@@ -252,16 +260,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * null or empty name specified in call to PSAclEntry.setName.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int ACL_ENTRY_NAME_EMPTY = 2205;
 
   /**
-   * the provider specified in a call to
-   * PSAclEntry.setSecurityProviderType is invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * the provider specified in a call to PSAclEntry.setSecurityProviderType is invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type</TD></TR>
@@ -270,10 +278,10 @@ public interface IPSObjectStoreErrors {
   public static final int ACL_ENTRY_SP_INVALID = 2206;
 
   /**
-   * the provider instance name is too long in a call to
-   * PSAclEntry.setSecurityProviderInstance
-   * <p>
-   * The arguments passed in for this message are:
+   * the provider instance name is too long in a call to PSAclEntry.setSecurityProviderInstance
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -283,24 +291,24 @@ public interface IPSObjectStoreErrors {
   public static final int ACL_ENTRY_SPINST_TOO_BIG = 2207;
 
   /**
-   * the PSXAclEntry object must contain a serverAccessLevel or
-   * applicationAccessLevel entry.
-   * <p>
-   * No arguments are passed in for this message.
+   * the PSXAclEntry object must contain a serverAccessLevel or applicationAccessLevel entry.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int ACL_ENTRY_LEVEL_NOT_FOUND = 2208;
 
   /**
    * the PSApplication object name was empty.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int APP_NAME_EMPTY = 2209;
 
   /**
    * the PSApplication object name was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -311,8 +319,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSApplication object description was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -323,8 +332,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSApplication object request root was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -335,29 +345,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * PSApplication.setAcl was called with a null ACL.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int APP_ACL_NULL = 2213;
 
   /**
    * PSApplication.setAcl was called with no ACL entries.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int APP_ACL_EMPTY = 2214;
 
   /**
    * the PSBackEndCredential object alias name was null or empty.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_CRED_ALIAS_NULL = 2215;
 
   /**
    * the PSBackEndCredential object alias name was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -368,8 +379,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSBackEndCredential object comment was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -380,8 +392,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the entry name is too long in a call to PSAclEntry.setName
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -391,10 +404,10 @@ public interface IPSObjectStoreErrors {
   public static final int ACL_ENTRY_NAME_TOO_BIG = 2218;
 
   /**
-   * the value passed to PSApplication.setRequestTypeHtmlParamName
-   * is too large
-   * <p>
-   * The arguments passed in for this message are:
+   * the value passed to PSApplication.setRequestTypeHtmlParamName is too large
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -404,10 +417,10 @@ public interface IPSObjectStoreErrors {
   public static final int APP_REQ_PARAM_HTML_TOO_BIG = 2219;
 
   /**
-   * the value passed to PSApplication.setRequestTypeValueXXX
-   * is too large
-   * <p>
-   * The arguments passed in for this message are:
+   * the value passed to PSApplication.setRequestTypeValueXXX is too large
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -419,15 +432,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the value passed to PSBackEndColumn.setColumn is null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_COL_NAME_EMPTY = 2221;
 
   /**
    * the value passed to PSBackEndColumn.setColumn is too large
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -438,15 +452,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end driver name was null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_DRIVER_NULL = 2223;
 
   /**
    * the back-end driver name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -457,8 +472,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end server name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -469,8 +485,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end userid was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -481,8 +498,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end password was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -493,29 +511,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the right side column of a back-end join was null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_JOIN_RCOL_NULL = 2228;
 
   /**
    * the left side column of a back-end join was null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_JOIN_LCOL_NULL = 2229;
 
   /**
    * the UDF exit must not be null when defining a UDF call
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UDFCALL_EXIT_NULL = 2230;
 
   /**
    * the UDF exit must not be null when defining a UDF call
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the valid class type</TD></TR>
@@ -526,15 +545,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end table alias name was null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_TABLE_ALIAS_NULL = 2232;
 
   /**
    * the back-end table alias name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -545,8 +565,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end database name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -557,8 +578,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end origin name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -569,8 +591,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the back-end table name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -581,29 +604,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSCustomError error code was null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int CUSTOM_ERROR_CODE_EMPTY = 2237;
 
   /**
    * PSDataEncryptor had encryption enabled but no key strength set
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATAENC_KEY_STRENGTH_REQD = 2238;
 
   /**
    * the XML field being mapped in the PSDataMapping was null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATAMAPPING_XML_FIELD_EMPTY = 2239;
 
   /**
    * the XML field name in the PSDataMapping was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -614,22 +638,23 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSBackEndColumn being mapped in the PSDataMapping was null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATAMAPPING_BE_COL_NULL = 2241;
 
   /**
    * the PSDataSet name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASET_NAME_NULL = 2242;
 
   /**
    * the PSDataSet name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -640,8 +665,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSDataSet description was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -652,43 +678,44 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSDataSet PSPageDataTank object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASET_PAGE_TANK_NULL = 2245;
 
   /**
    * the PSDataSet PSRequestor object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASET_REQUESTOR_NULL = 2246;
 
   /**
    * the PSDataSet PSResultPageSet object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASET_RESULT_PAGES_NULL = 2247;
 
   /**
    * the PSDataSet PSRequestLink object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASET_REQUEST_LINK_NULL = 2248;
 
   /**
    * the PSPageDataTank source schema was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int PAGE_TANK_SCHEMA_NULL = 2249;
 
   /**
    * the action type XML field name set in the PSPageDataTank was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -699,8 +726,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSPipe name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -711,8 +739,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSPipe description was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -723,29 +752,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSPipe PSBackEndDataTank object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int PIPE_BE_TANK_NULL = 2254;
 
   /**
    * the PSUpdatePipe PSDataSynchronizer object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UPDATEPIPE_DATA_SYNC_NULL = 2255;
 
   /**
    * an invalid action type was specified for the PSSimpleActionExit object
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SIMPLE_EXIT_INVALID_TYPE = 2256;
 
   /**
    * the PSNotifier provider type was set to an invalid value
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type specified</TD></TR>
@@ -755,15 +785,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSNotifier server name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int NOTIFIER_SERVER_NULL = 2258;
 
   /**
    * the PSNotifier server name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -774,8 +805,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSNotifier from name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -786,15 +818,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSRole name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int ROLE_NAME_EMPTY = 2261;
 
   /**
    * the PSRole name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -805,29 +838,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the UDF exit name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UDFEXIT_NAME_EMPTY = 2263;
 
   /**
    * the UDF exit body was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UDFEXIT_BODY_EMPTY = 2264;
 
   /**
    * the PSRecipient entry name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int RECIPIENT_NAME_EMPTY = 2265;
 
   /**
    * the PSRecipient entry name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -838,22 +872,23 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSRequestor object's page name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int REQUESTOR_PAGE_NAME_NULL = 2267;
 
   /**
    * the PSRequestLink object's data set name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int REQLINK_DATA_SET_NULL = 2268;
 
   /**
    * the PSRequestLink object's target XML field name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -864,15 +899,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSBackEndDataTank tables were empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_DATATANK_TABLES_EMPTY = 2270;
 
   /**
    * the PSBackEndDataTank contains duplicate table names
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>table alias</TD></TR>
@@ -882,15 +918,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the IPSExtensionDef class name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int JAVA_EXIT_CLASS_NULL = 2272;
 
   /**
    * the IPSExtensionDef class name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -901,8 +938,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSRoleSet security provider type is invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the security provider type</TD></TR>
@@ -912,8 +950,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSRoleSet security provider instance name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -924,15 +963,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSConditional variable name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int COND_VAR_NAME_EMPTY = 2276;
 
   /**
    * the PSConditional variable name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -943,8 +983,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSConditional operator was unknown (unsupported by E2)
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>operator specified</TD></TR>
@@ -954,15 +995,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSExtensionParamDef parameter name was set to null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int EXIT_PARAM_NAME_EMPTY = 2279;
 
   /**
    * the PSExtensionParamDef parameter name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -973,8 +1015,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSExtensionParamDef parameter data type name was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -985,8 +1028,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSExtensionParamDef parameter description was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -997,39 +1041,38 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSSortedColumn's PSBackEndColumn object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SORTEDCOL_COL_NULL = 2283;
 
   /**
    * the PSUpdateColumn's PSBackEndColumn object was set to null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UPDATECOL_COL_NULL = 2284;
 
   /**
-   * the PSDataSelector requires a native statement as that selection
-   * method is currently set
-   * <p>
-   * No arguments are passed in for this message.
+   * the PSDataSelector requires a native statement as that selection method is currently set
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASEL_NATIVE_STMT_REQD = 2285;
 
   /**
-   * the PSDataSelector requires a cache type setting as caching is
-   * enabled
-   * <p>
-   * No arguments are passed in for this message.
+   * the PSDataSelector requires a cache type setting as caching is enabled
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int DATASEL_CACHE_TYPE_REQD = 2286;
 
   /**
-   * the number of parameters specified for the PSExtensionCall do not match
-   * the number of parameters defined in the IPSExtensionDef
-   * <p>
-   * The arguments passed in for this message are:
+   * the number of parameters specified for the PSExtensionCall do not match the number of
+   * parameters defined in the IPSExtensionDef
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of params in the UDF exit def</TD></TR>
@@ -1040,43 +1083,44 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the name of the CGI variable may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int CGI_VAR_NAME_EMPTY = 2288;
 
   /**
    * the name of the HTML parameter may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int HTML_PARAM_NAME_EMPTY = 2289;
 
   /**
    * the name of the XML field may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int XML_FIELD_NAME_EMPTY = 2290;
 
   /**
    * the name of the cookie may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int COOKIE_NAME_EMPTY = 2291;
 
   /**
    * The parameter passed to the copyFrom method may not be null.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int INVALID_OBJECT_FOR_COPY = 2292;
 
   /**
    * the PSConditional boolean operator was unknown (unsupported by E2)
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>boolean operator specified</TD></TR>
@@ -1086,8 +1130,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the date specified for a PSDateLiteral was invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the date specified</TD></TR>
@@ -1097,8 +1142,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the date specified for a PSDateLiteral was invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the format specified</TD></TR>
@@ -1108,8 +1154,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the number specified for a PSNumericLiteral was invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number specified</TD></TR>
@@ -1119,8 +1166,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the number specified for a PSNumericLiteral was invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the format specified</TD></TR>
@@ -1130,8 +1178,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the IPSExtensionDef description was too long
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -1142,8 +1191,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSApplication object request root is required.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
@@ -1153,8 +1203,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSPageDataTank contains a source schema with an invalid URL
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
@@ -1166,8 +1217,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the style sheet specified on the PSResultPage has an invalid URL
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
@@ -1179,15 +1231,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the exit must not be null when defining an exit call
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int EXITCALL_EXIT_NULL = 2302;
 
   /**
    * the specified exit does not implement any of our interfaces
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>exit name</TD></TR>
@@ -1198,8 +1251,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the specified class is not a known exit handler (we don't support it)
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>class of object specified as an exit</TD></TR>
@@ -1209,8 +1263,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An unknown or unsupported join type was specified.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type code</TD></TR>
@@ -1220,29 +1275,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The URL for a custom error was empty.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int CUSTOM_ERROR_URL_EMPTY = 2306;
 
   /**
    * The back end table object was null
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int BE_TABLE_NULL = 2307;
 
   /**
    * The JDBC driver class name was null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int JDBC_DRIVER_CLASS_NULL = 2308;
 
   /**
    * The JDBC driver class could not be loaded.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
@@ -1252,10 +1308,10 @@ public interface IPSObjectStoreErrors {
   public static final int JDBC_DRIVER_CLASS_LOAD_ERROR = 2309;
 
   /**
-   * The maximum connection parameter of the PSBackEndConnection
-   * object was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * The maximum connection parameter of the PSBackEndConnection object was invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
@@ -1265,10 +1321,10 @@ public interface IPSObjectStoreErrors {
   public static final int BE_CONN_MAXCONN_INVALID = 2310;
 
   /**
-   * The minimum connection parameter of the PSBackEndConnection
-   * object was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * The minimum connection parameter of the PSBackEndConnection object was invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
@@ -1278,10 +1334,10 @@ public interface IPSObjectStoreErrors {
   public static final int BE_CONN_MINCONN_INVALID = 2311;
 
   /**
-   * The idle timeout parameter of the PSBackEndConnection
-   * object was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * The idle timeout parameter of the PSBackEndConnection object was invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the alias</TD></TR>
@@ -1292,15 +1348,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The value parameter of the PSExtensionParamValue was null.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int EXIT_PARAM_VALUE_NULL = 2313;
 
   /**
    * The data selector's selection type is invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>selection type</TD></TR>
@@ -1310,8 +1367,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The data selector's cache type is invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>cache type</TD></TR>
@@ -1321,8 +1379,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The data selector's cache age interval is invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>cache age interval (in minutes)</TD></TR>
@@ -1332,15 +1391,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The URL of a login web page was null or empty.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int LOGIN_WEBPAGE_URL_EMPTY = 2317;
 
   /**
    * The logger options were invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the option bits</TD></TR>
@@ -1350,24 +1410,24 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The recipients of a notifier were null or empty.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int NOTIFIER_RECIPIENTS_EMPTY = 2319;
 
   /**
-   * The data updater of an update pipe must allow at
-   * least one of the following types: insert, update, or delete.
-   * <p>
-   * No arguments are passed in for this message.
+   * The data updater of an update pipe must allow at least one of the following types: insert,
+   * update, or delete.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int UPDATEPIPE_NO_SYNC_TYPES = 2320;
 
   /**
-   * The PSConditional value was null or missing, but the
-   * conditional's operator requires a value.
-   * <p>
-   * The arguments passed in for this message are:
+   * The PSConditional value was null or missing, but the conditional's operator requires a value.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the operator</TD></TR>
@@ -1377,8 +1437,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The referenced UDF has not been defined.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exit name</TD></TR>
@@ -1387,10 +1448,10 @@ public interface IPSObjectStoreErrors {
   public static final int UDFCALL_EXIT_UNDEFINED = 2322;
 
   /**
-   * There are not enough joins to relate all of the tables
-   * in the data tank.
-   * <p>
-   * The arguments passed in for this message are:
+   * There are not enough joins to relate all of the tables in the data tank.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the dataset containing the tank</TD></TR>
@@ -1403,8 +1464,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The group ID for the data mapping was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid ID</TD></TR>
@@ -1414,8 +1476,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The data selector's cache age time is required.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the data set to whose pipe the selector is
@@ -1426,8 +1489,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The data updater requires at least one update column.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the data set to whose pipe the
@@ -1438,8 +1502,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The ACL type was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The name of the user, group, or role</TD></TR>
@@ -1450,8 +1515,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The type of a PSXParam was not valid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The XML fieldname</TD></TR>
@@ -1462,22 +1528,23 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The name of the relationship property may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int RELATIONSHIP_PROPERTY_NAME_EMPTY = 2329;
 
   /**
    * The macro name may not be null or empty
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int MACRO_NAME_EMPTY = 2330;
 
   /**
    * the PSServerConfiguration object request root was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -1488,30 +1555,30 @@ public interface IPSObjectStoreErrors {
 
   /**
    * PSServerConfiguration.setAcl was called with a null ACL.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SRV_ACL_NULL = 2351;
 
   /**
    * PSServerConfiguration.setAcl was called with no ACL entries.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SRV_ACL_EMPTY = 2352;
 
   /**
-   * PSServerConfiguration.setAcl was called with no admin
-   * access ACL entries.
-   * <p>
-   * No arguments are passed in for this message.
+   * PSServerConfiguration.setAcl was called with no admin access ACL entries.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SRV_ACL_NO_ADMIN = 2353;
 
   /**
    * the PSSecurityProviderInstance object name was too long.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>max length permitted</TD></TR>
@@ -1522,8 +1589,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the PSSecurityProviderInstance object type was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the type specified</TD></TR>
@@ -1532,10 +1600,10 @@ public interface IPSObjectStoreErrors {
   public static final int SPINST_TYPE_INVALID = 2355;
 
   /**
-   * Tried to set PSAclEntry access level with to an invalid
-   * access level.
-   * <p>
-   * The arguments passed in for this message are:
+   * Tried to set PSAclEntry access level with to an invalid access level.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the access level</TD></TR>
@@ -1544,10 +1612,10 @@ public interface IPSObjectStoreErrors {
   public static final int ACL_SECURITY_LEVEL_INVALID = 2356;
 
   /**
-   * The version of the PSApplication object was
-   * null or invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * The version of the PSApplication object was null or invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid version</TD></TR>
@@ -1557,15 +1625,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The Java exit handler was null.
-   * <p>
-   * No arguments.
+   *
+   * <p>No arguments.
    */
   public static final int JAVA_EXIT_HANDLER_NULL = 2358;
 
   /**
    * A param def for the specified Java exit was null.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the exit handler</TD></TR>
@@ -1576,8 +1645,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The application has no data sets.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
@@ -1587,8 +1657,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Application contains data sets with duplicate request pages.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
@@ -1601,8 +1672,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Application contains data sets with duplicate names.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
@@ -1612,32 +1684,31 @@ public interface IPSObjectStoreErrors {
   public static final int APP_DATASET_NAMES_DUP = 2362;
 
   /**
-   * For an extension call with a parameter, the paramater value should
-   * should not be null.
-   * <p>
-   * No arguments are passed in for this message.
+   * For an extension call with a parameter, the paramater value should should not be null.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int EXT_CALL_PARAM_VALUE_NULL = 2363;
 
   /**
-   * Native select statements are not currently supported for
-   * heterogenous joins.
-   * <p>
-   * No arguments are passed in for this message.
+   * Native select statements are not currently supported for heterogenous joins.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int HETERO_NATIVE_SELECT_NOT_SUPPORTED = 2364;
 
   /**
    * The data selector cannot be NULL.
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int QPIPE_DATA_SELECTOR_NULL = 2365;
 
   /**
    * The URL for a custom error page is invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>application name</TD></TR>
@@ -1649,9 +1720,10 @@ public interface IPSObjectStoreErrors {
   public static final int CUSTOM_ERROR_URL_INVALID = 2366;
 
   /**
-   * the PSDataSet contains an Xml field which is mapped into two different
-   * request links.
+   * the PSDataSet contains an Xml field which is mapped into two different request links.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the xml field</TD></TR>
@@ -1661,8 +1733,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The Subject type was invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the user or group</TD></TR>
@@ -1672,10 +1745,11 @@ public interface IPSObjectStoreErrors {
   public static final int SUBJECT_TYPE_INVALID = 2368;
 
   /**
-   * The number of parameters specified for the database function call does not
-   * match the number of parameters defined in the database function definition
-   * <p>
-   * The arguments passed in for this message are:
+   * The number of parameters specified for the database function call does not match the number of
+   * parameters defined in the database function definition
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the number of params specified</TD></TR>
@@ -1687,7 +1761,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * NULL specified as a parameter value for database function call.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
@@ -1696,10 +1772,10 @@ public interface IPSObjectStoreErrors {
   public static final int DATABASE_FUNCTION_PARAM_VALUE_NULL = 2371;
 
   /**
-   * Database function definition not found for the specified function and
-   * driver.
-   * <p>
-   * The arguments passed in for this message are:
+   * Database function definition not found for the specified function and driver.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
@@ -1710,7 +1786,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Unsupported database function parameter type.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>parameter type</TD></TR>
@@ -1721,7 +1799,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Error while parsing database function body.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the database function name</TD></TR>
@@ -1731,10 +1811,10 @@ public interface IPSObjectStoreErrors {
   public static final int DATABASE_FUNCTION_PARSE_ERROR = 2374;
 
   /**
-   * The request name is not unique, and there are
-   * no selection parameters to distinguish them
-   * <P>
-   * The arguments passed in for this message are:
+   * The request name is not unique, and there are no selection parameters to distinguish them
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the page in question</TD></TR>
@@ -1745,8 +1825,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * A JDBC driver configuration could not be located or created.
-   * <P>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The driver name</TD></TR>
@@ -1756,8 +1837,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * A JNDI datasource could not be located or created.
-   * <P>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The driver name</TD></TR>
@@ -1768,8 +1850,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * A datasource connection configuration could not be located or created.
-   * <P>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The JNDI datasource name</TD></TR>
@@ -1780,10 +1863,10 @@ public interface IPSObjectStoreErrors {
   public static final int NO_DATASOURCE_CONNECTION = 2378;
 
   /**
-   * An application contains local backend credentials which are no longer
-   * supported.
-   * <P>
-   * The arguments passed in for this message are:
+   * An application contains local backend credentials which are no longer supported.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
@@ -1793,8 +1876,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An application contains a custom login page which is no longer supported.
-   * <P>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
@@ -1803,9 +1887,10 @@ public interface IPSObjectStoreErrors {
   public static final int APP_LOGIN_PAGE_NOT_SUPPORTED = 2380;
 
   /**
-   * the PSField / PSFieldSet name is not unique accross all item fields /
-   * field sets.
+   * the PSField / PSFieldSet name is not unique accross all item fields / field sets.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the field / field set name</TD></TR>
@@ -1815,7 +1900,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported field type.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed field types</TD></TR>
@@ -1825,7 +1912,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported occurrence dimension
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed occurrence dimension types</TD></TR>
@@ -1835,7 +1924,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported occurrence multi valued type
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>null or the pipe class</TD></TR>
@@ -1845,7 +1936,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * invalid content editor content type
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>content type</TD></TR>
@@ -1855,7 +1948,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * invalid content editor workflow ID
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>workflow ID</TD></TR>
@@ -1864,9 +1959,10 @@ public interface IPSObjectStoreErrors {
   public static final int INVALID_WORKFLOW_ID = 2406;
 
   /**
-   * content editor shared definition needs a collection of group fields
-   * with at least one entry.
+   * content editor shared definition needs a collection of group fields with at least one entry.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1875,7 +1971,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported PSChoice type
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
@@ -1885,7 +1983,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported sort order
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed sort orders</TD></TR>
@@ -1895,7 +1995,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * invalid global table ID
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the table ID</TD></TR>
@@ -1905,7 +2007,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the local choices are <code>null</code> or empty.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1914,7 +2018,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the lookup choices are <code>null</code>
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1923,7 +2029,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * an application flow must have at least one redirect
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1932,7 +2040,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the command handler must have at least one stylesheet
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1941,7 +2051,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a conditional exist must have a valid extension call set
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1950,7 +2062,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a conditional request must have at least one valid rule
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1959,7 +2073,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a conditional stylesheet must have at least one valid rule
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1968,7 +2084,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * a conatiner locator must have at least one valid table set.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1977,7 +2095,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the command handler reference is invalid
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1986,7 +2106,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The redirector is invalid. Must at least conatain a default request.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -1995,7 +2117,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * each command handler must have at least one redirect
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2004,7 +2128,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The URL request is invalid. Must have the parts or the UDF.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2013,7 +2139,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The content editor mapper must have a filed set and a UI definition.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2022,7 +2150,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The content editor pipe must have a locator and mapper.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2031,7 +2161,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The control reference name is required.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2040,7 +2172,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported PSDefaultSelected type
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
@@ -2050,7 +2184,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The default selected is invalid (misses a required field)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2059,7 +2195,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported PSFieldSet type
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
@@ -2069,7 +2207,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported PSFieldSet repeatability
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed repeatability settings</TD></TR>
@@ -2079,7 +2219,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The field set is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2088,7 +2230,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The display mapper is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2097,7 +2241,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The display mapping is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2106,7 +2252,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The display text is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2115,7 +2263,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The entry is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2124,7 +2274,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The field is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2133,7 +2285,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The field translation is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2142,7 +2296,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported include when attribute
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed types</TD></TR>
@@ -2152,7 +2308,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The parameter is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2161,7 +2319,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The shared field group is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2170,7 +2330,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The stylesheet is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2179,7 +2341,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The table locator is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2188,7 +2352,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The table reference is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2197,7 +2363,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The table set is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2206,7 +2374,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The default UI is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2215,7 +2385,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * unsupported data hiding option
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>allowed data hiding options</TD></TR>
@@ -2225,7 +2397,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The form action is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2234,7 +2408,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The action link is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2243,7 +2419,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The action link location is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2252,7 +2430,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The custom action group is invalid (misses a required element)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2261,7 +2441,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * System table in ContentEditorSystemDef not found.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>
@@ -2270,8 +2452,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The fieldset is only allowed to have a specified number of fields.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The fieldset name.</TD></TR>
@@ -2283,8 +2466,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The specified object type is not allowed to contain fieldsets.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The object type name.</TD></TR>
@@ -2293,10 +2477,10 @@ public interface IPSObjectStoreErrors {
   public static final int CE_CANNOT_HAVE_FIELDSETS = 2452;
 
   /**
-   * The tables referred by fieldsets in content editor do not exist in
-   * database.
-   * <p>
-   * The arguments passed in for this message are:
+   * The tables referred by fieldsets in content editor do not exist in database.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The List of table names separated by ',' which do not
@@ -2307,8 +2491,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The table to be created already exists in the database.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>Table Name</TD></TR>
@@ -2316,20 +2501,17 @@ public interface IPSObjectStoreErrors {
    */
   public static final int CREATE_TABLE_EXISTS = 2454;
 
-  /**
-   * The Content Editor System Definition file does not exist.
-   */
+  /** The Content Editor System Definition file does not exist. */
   public static final int CE_SYSTEM_DEF_NOT_FOUND = 2455;
 
-  /**
-   * The Content Editor Shared Definition files do not exist.
-   */
+  /** The Content Editor Shared Definition files do not exist. */
   public static final int CE_SHARED_DEF_NOT_FOUND = 2456;
 
   /**
    * The field is missing required element for some action.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>field name</TD></TR>
@@ -2339,10 +2521,10 @@ public interface IPSObjectStoreErrors {
   public static final int CE_MISSING_FIELD_ELEMENT = 2457;
 
   /**
-   * A shared def group included by a local def does not exist in the shared
-   * def.
-   * <p>
-   * The arguments passed in for this message are:
+   * A shared def group included by a local def does not exist in the shared def.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The group name</TD></TR>
@@ -2351,10 +2533,10 @@ public interface IPSObjectStoreErrors {
   public static final int CE_INCLUDED_GROUP_INVALID = 2458;
 
   /**
-   * A shared group has been included but the shared def is not found or is
-   * invalid.
-   * <p>
-   * The arguments passed in for this message are:
+   * A shared group has been included but the shared def is not found or is invalid.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The group name.</TD></TR>
@@ -2363,10 +2545,10 @@ public interface IPSObjectStoreErrors {
   public static final int CE_SHARED_GROUP_NO_DEF = 2459;
 
   /**
-   * One or more shared field that are excluded is not found in any included
-   * shared groups.
-   * <p>
-   * The arguments passed in for this message are:
+   * One or more shared field that are excluded is not found in any included shared groups.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The field name(s).</TD></TR>
@@ -2376,8 +2558,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * One or more system fields that are excluded is not found in system def.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>The field name(s).</TD></TR>
@@ -2387,8 +2570,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Field specified in the excluded list is not found
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
@@ -2397,10 +2581,11 @@ public interface IPSObjectStoreErrors {
   public static final int CE_EXCLUDED_FIELD_MISSING = 2462;
 
   /**
-   * Display Mapping in content editor pipe with child mapper references
-   * system/shared def field mapping without one
-   * <p>
-   * The arguments passed in for this message are:
+   * Display Mapping in content editor pipe with child mapper references system/shared def field
+   * mapping without one
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
@@ -2409,10 +2594,11 @@ public interface IPSObjectStoreErrors {
   public static final int CE_MAPPING_INVALID_CHILD = 2463;
 
   /**
-   * Display Mapping in content editor pipe with child mapper references
-   * system/shared def field mapping without one
-   * <p>
-   * The arguments passed in for this message are:
+   * Display Mapping in content editor pipe with child mapper references system/shared def field
+   * mapping without one
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The field</TD></TR>
@@ -2422,8 +2608,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Display Mapping in content editor pipe references invalid default uiset
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The default UISet name</TD></TR>
@@ -2432,12 +2619,12 @@ public interface IPSObjectStoreErrors {
   public static final int CE_MAPPING_INVALID_DEFAULT_UISET = 2465;
 
   /**
-   * While merging fields from system or shared def, the field name was
-   * already found in the content editor, but the object type was different.
-   * A PSFieldSet and a PSField within the same PSFieldSet may not have the
-   * same name.
-   * <p>
-   * The arguments passed in for this message are:
+   * While merging fields from system or shared def, the field name was already found in the content
+   * editor, but the object type was different. A PSFieldSet and a PSField within the same
+   * PSFieldSet may not have the same name.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the duplicate field</TD></TR>
@@ -2446,11 +2633,12 @@ public interface IPSObjectStoreErrors {
   public static final int CE_DUPLICATE_MERGED_FIELD_NAME = 2466;
 
   /**
-   * While merging fields from system or shared def, a field definition was
-   * overridden in the local def, but some values supplied attempted to
-   * override an invalid member of the field from the source field.
-   * <p>
-   * The arguments passed in for this message are:
+   * While merging fields from system or shared def, a field definition was overridden in the local
+   * def, but some values supplied attempted to override an invalid member of the field from the
+   * source field.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the field</TD></TR>
@@ -2461,10 +2649,11 @@ public interface IPSObjectStoreErrors {
   public static final int CE_INVALID_FIELD_OVERRIDE = 2467;
 
   /**
-   * Shared group display mappers must have parent mappings in the item's
-   * display mapper with a matching fieldSetRef.
-   * <p>
-   * The arguments passed in for this message are:
+   * Shared group display mappers must have parent mappings in the item's display mapper with a
+   * matching fieldSetRef.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The name of the fieldset ref</TD></TR>
@@ -2474,8 +2663,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Shared groups cannot contain parent fieldsets.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the shared group</TD></TR>
@@ -2485,9 +2675,11 @@ public interface IPSObjectStoreErrors {
   public static final int CE_INVALID_SHARED_FIELDSET_TYPE = 2469;
 
   /**
-   * Shared field set is missing required child display mapping in shared
-   * definition or the mapping is invalid.
+   * Shared field set is missing required child display mapping in shared definition or the mapping
+   * is invalid.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>fieldset name</TD></TR>
@@ -2497,7 +2689,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Shared group name and its fieldSet must have matching names.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Shared group name</TD></TR>
@@ -2507,7 +2701,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * FieldSet name and DisplayMappers FieldSetRef must match.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Shared group name</TD></TR>
@@ -2517,7 +2713,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Shared field set is missing required child display mapping in shared definition.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>fieldset name</TD></TR>
@@ -2527,8 +2725,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Choice Filter is missing a required child element.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child element name</TD></TR>
@@ -2538,8 +2737,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Choice Filter DependentField missing required attribute.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The attribute name</TD></TR>
@@ -2549,8 +2749,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the specified method is not yet supported
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the unsupported method</TD></TR>
@@ -2560,8 +2761,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the specified application object could not be found
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the app</TD></TR>
@@ -2571,8 +2773,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * an application of the specified name already exists
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the app</TD></TR>
@@ -2582,8 +2785,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * an exception occurred while loading the application
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the application name</TD></TR>
@@ -2594,15 +2798,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the server configuration could not be found
-   * <p>
-   * No arguments are passed in for this message.
+   *
+   * <p>No arguments are passed in for this message.
    */
   public static final int SERVER_CFG_NOT_FOUND = 2805;
 
   /**
    * an exception occurred while loading the server configuration
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
@@ -2612,8 +2817,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the user configuration could not be found
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the user</TD></TR>
@@ -2623,8 +2829,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * an exception occurred while loading the user configuration
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the user</TD></TR>
@@ -2635,8 +2842,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The application file was not found.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
@@ -2647,8 +2855,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The application directory was not found.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
@@ -2658,10 +2867,10 @@ public interface IPSObjectStoreErrors {
   public static final int APP_DIR_NOT_FOUND = 2810;
 
   /**
-   * The subdirectory for the application file could not
-   * be created.
-   * <p>
-   * The arguments passed in for this message are:
+   * The subdirectory for the application file could not be created.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the application</TD></TR>
@@ -2672,8 +2881,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The object was already exclusively locked by someone else.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
@@ -2686,15 +2896,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * Interrupted while waiting for a lock.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int LOCK_WAIT_INTERRUPTED = 2813;
 
   /**
    * An invalid lock key was specified.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the key</TD></TR>
@@ -2704,8 +2915,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An invalid locker ID was specified.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the locker id</TD></TR>
@@ -2715,8 +2927,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An invalid expiration was specified.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value of the expiration (in ms)</TD></TR>
@@ -2726,8 +2939,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * A lock was requested for an object that cannot be locked.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The class of the object, or "null"</TD></TR>
@@ -2737,8 +2951,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An invalid lock type was specified.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The invalid lock type</TD></TR>
@@ -2748,30 +2963,31 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The name of the (application or extension) file was null or empty.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int APP_FILE_NAME_NULL = 2819;
 
   /**
    * The (application or extension) file input stream was null or invalid.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int APP_FILE_STREAM_NULL = 2820;
 
   /**
-   * More than one read was attempted from a file stream. The file could be an
-   * application file, or an extension file, or any other kind of file.
-   * <p>
-   * There are no arguments for this message.
+   * More than one read was attempted from a file stream. The file could be an application file, or
+   * an extension file, or any other kind of file.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int APP_FILE_STREAM_EXHAUSTED = 2821;
 
   /**
    * An IO error occurred while reading from, encoding, or decoding a file.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name</TD></TR>
@@ -2782,8 +2998,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An object store handler received a request it did not understand.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
@@ -2793,16 +3010,16 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An object store handler received a request with a null document.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int REQ_DOCUMENT_NULL = 2824;
 
   /**
-   * An attempt to rename an application root directory failed for
-   * unknown reasons.
-   * <p>
-   * The arguments passed in for this message are:
+   * An attempt to rename an application root directory failed for unknown reasons.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The original application root directory</TD></TR>
@@ -2812,10 +3029,10 @@ public interface IPSObjectStoreErrors {
   public static final int APP_ROOT_RENAME_FAILED = 2825;
 
   /**
-   * An IO error occurred while reading or writing
-   * to the object store.
-   * <p>
-   * The arguments passed in for this message are:
+   * An IO error occurred while reading or writing to the object store.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The app file name</TD></TR>
@@ -2825,10 +3042,10 @@ public interface IPSObjectStoreErrors {
   public static final int HANDLER_IO_ERROR = 2826;
 
   /**
-   * The application file name does not match the application
-   * request root.
-   * <p>
-   * The arguments passed in for this message are:
+   * The application file name does not match the application request root.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The app file name</TD></TR>
@@ -2839,15 +3056,15 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The object store handler was constructed with null properties.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int HANDLER_PROPERTIES_NULL = 2828;
 
   /**
-   * The XML object store handler was constructed with a null or
-   * invalid object dir.
-   * The arguments passed in for this message are:
+   * The XML object store handler was constructed with a null or invalid object dir. The arguments
+   * passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The object dir, or null</TD></TR>
@@ -2857,8 +3074,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An unexpected exception occurred in the object store handler.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The exception text</TD></TR>
@@ -2868,8 +3086,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An unexpected exception occurred while validating an application.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The application name</TD></TR>
@@ -2880,8 +3099,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * A lockfile is corrupt.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The lock file name</TD></TR>
@@ -2891,8 +3111,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An IO error occurred while locking or unlocking an object.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The lock file name</TD></TR>
@@ -2902,10 +3123,11 @@ public interface IPSObjectStoreErrors {
   public static final int LOCK_IO_EXCEPTION = 2833;
 
   /**
-   * The object was already exclusively locked by the user requesting
-   * the lock, but under a different user session.
-   * <p>
-   * The arguments passed in for this message are:
+   * The object was already exclusively locked by the user requesting the lock, but under a
+   * different user session.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
@@ -2918,10 +3140,11 @@ public interface IPSObjectStoreErrors {
   public static final int LOCK_ALREADY_HELD_SAME_USER = 2834;
 
   /**
-   * The application object could not be converted to an appropriate format
-   * for the current Rhythmyx version.
-   * <p>
-   * The arguments passed in for this message are:
+   * The application object could not be converted to an appropriate format for the current Rhythmyx
+   * version.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The version of the application</TD></TR>
@@ -2931,16 +3154,14 @@ public interface IPSObjectStoreErrors {
    */
   public static final int DOC_CONVERSION_FAILED = 2835;
 
-  /**
-   *The mapper do not have mappings
-   *
-   */
+  /** The mapper do not have mappings */
   public static final int APP_MAPPER_EMPTY = 2836;
 
   /**
    * the character encoding map could not be found
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name we were looking for.</TD></TR>
@@ -2950,8 +3171,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the character encoding map could not be loaded
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The file name we tried to load.</TD></TR>
@@ -2960,10 +3182,11 @@ public interface IPSObjectStoreErrors {
   public static final int CHARACTER_SET_LOAD_EXCEPTION = 2838;
 
   /**
-   * the feature set document could not be loaded.  This is not
-   * the same as the file not existing - that is not an error
-   * <p>
-   * The arguments passed in for this message are:
+   * the feature set document could not be loaded. This is not the same as the file not existing -
+   * that is not an error
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The description of the error. </TD></TR>
@@ -2973,8 +3196,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the resource should be locked by the current session but is not
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the locked object</TD></TR>
@@ -2984,8 +3208,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An exception occurred while loading the role configuration.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
@@ -2995,8 +3220,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An exception occurred while generating an id for a new component.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception text</TD></TR>
@@ -3006,8 +3232,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An exception occurred while attempting to load the specified component.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the component type</TD></TR>
@@ -3018,8 +3245,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An exception occurred while attempting to load a related component.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the relation type</TD></TR>
@@ -3031,10 +3259,11 @@ public interface IPSObjectStoreErrors {
   public static final int RELATED_DB_COMPONENT_LOAD_EXCEPTION = 2844;
 
   /**
-   * A minor validation exception occurred while validating CE included shared
-   * groups where duplicate field names were detected.
-   * <p>
-   * The arguments passed in for this message are:
+   * A minor validation exception occurred while validating CE included shared groups where
+   * duplicate field names were detected.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>duplicate shared field name</TD></TR>
@@ -3045,8 +3274,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * An error that occurred while cataloging CE fields' choices
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Content type</TD></TR>
@@ -3059,8 +3289,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The appfile cannot be renamed because it already exists
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>old path</TD></TR>
@@ -3071,8 +3302,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * The server does not support application roles any more
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    *    <TR><TH>Arg</TH><TH>Description</TH></TR>
    *    <TR><TD>0</TD><TD>Comma separated list of roles as a String</TD></TR>
@@ -3082,7 +3314,9 @@ public interface IPSObjectStoreErrors {
 
   /**
    * the lookup choices are <code>null</code>
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * </TABLE>

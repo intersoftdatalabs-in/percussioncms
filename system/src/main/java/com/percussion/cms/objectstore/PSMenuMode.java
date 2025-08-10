@@ -24,21 +24,20 @@ import com.percussion.utils.guid.IPSGuid;
 import org.w3c.dom.Element;
 
 /**
- * This class provides an object representation of the Mode concept for menus.
- * This is a read-only class. It can only be instantiated from xml.
- * <p>It doesn't need to override the clone methods because all its members
- * are immutable.
+ * This class provides an object representation of the Mode concept for menus. This is a read-only
+ * class. It can only be instantiated from xml.
+ *
+ * <p>It doesn't need to override the clone methods because all its members are immutable.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSMenuMode extends PSName {
   /**
-   * Since this object is read-only, it can only be instantiated from an
-   * existing object, obtained from the processor load method.
+   * Since this object is read-only, it can only be instantiated from an existing object, obtained
+   * from the processor load method.
    *
    * @param src Never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException See fromXml();
    */
   public PSMenuMode(Element src) throws PSUnknownNodeTypeException {
@@ -47,8 +46,8 @@ public class PSMenuMode extends PSName {
   }
 
   /**
-   * This constructor should only be used for testing and debugging
-   * purposes.
+   * This constructor should only be used for testing and debugging purposes.
+   *
    * @param id
    * @param name
    * @param dname
@@ -59,12 +58,9 @@ public class PSMenuMode extends PSName {
   }
 
   /**
-   * Gets the menu mode id (which is saved in the repository) from a
-   * GUID object.
+   * Gets the menu mode id (which is saved in the repository) from a GUID object.
    *
-   * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE}
-   *    type.
-   *
+   * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE} type.
    * @return the UUID of the guid.
    */
   public static int getIdFromGuid(IPSGuid guid) {
@@ -79,7 +75,6 @@ public class PSMenuMode extends PSName {
    * Creates a GUID from an id.
    *
    * @param id the menu mode id, which is saved in the repository.
-   *
    * @return the created GUID, never <code>null</code>.
    */
   public static PSDesignGuid getGuidFromId(int id) {
@@ -99,8 +94,6 @@ public class PSMenuMode extends PSName {
     return key;
   }
 
-  /**
-   * The name of the table column that is the primary key.
-   */
+  /** The name of the table column that is the primary key. */
   static final String PRIMARY_KEY = "MODEID";
 }

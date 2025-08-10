@@ -33,9 +33,9 @@ import java.util.Map;
 
 /**
  * This action is used to add a snippet to a slot.
- * <p>
- * Expects the following parameters:
- * </p>
+ *
+ * <p>Expects the following parameters:
+ *
  * <table border="1" cellspacing="0" cellpadding="5">
  * <thead>
  * <th>Name</th><th>Allowed Values</th><th>Details</th>
@@ -111,9 +111,7 @@ public class PSAddSnippetAction extends PSAAActionBase {
     return new PSActionResponse(rid, PSActionResponse.RESPONSE_TYPE_PLAIN);
   }
 
-  /**
-   * Parameter names of this action.
-   */
+  /** Parameter names of this action. */
   public static String OWNER_ID = "ownerId";
 
   public static String DEPENDENT_ID = "dependentId";

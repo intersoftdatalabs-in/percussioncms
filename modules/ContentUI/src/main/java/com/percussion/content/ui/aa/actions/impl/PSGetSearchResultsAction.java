@@ -22,13 +22,9 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.search.PSSearchResult;
 import java.util.Map;
 
-/**
- * Implementation of the get search results action.
- */
+/** Implementation of the get search results action. */
 public class PSGetSearchResultsAction extends PSAAActionBase {
-  /**
-   * todo document the required and optional parameters in the map.
-   */
+  /** todo document the required and optional parameters in the map. */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
       return new PSActionResponse(

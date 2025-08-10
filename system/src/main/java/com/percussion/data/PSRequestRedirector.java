@@ -36,26 +36,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The PSRequestRedirector class takes the current request context, adds
- * any additional data, then fires the chained request. This is most
- * commonly used by the update handler to return an update query result set
- * upon successful updating.
+ * The PSRequestRedirector class takes the current request context, adds any additional data, then
+ * fires the chained request. This is most commonly used by the update handler to return an update
+ * query result set upon successful updating.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestRedirector implements IPSResultGenerator {
   /**
-   * Construct a request redirector. This takes the current request
-   * context, adds any additional data, then fires the chained request.
-   * This is most commonly used by the update handler to return an update
-   * query result set upon successful updating.
+   * Construct a request redirector. This takes the current request context, adds any additional
+   * data, then fires the chained request. This is most commonly used by the update handler to
+   * return an update query result set upon successful updating.
    *
-   * @param      app      the application containing the data set we will
-   *                      be linking to
-   *
-   * @param      link     the link definition
+   * @param app the application containing the data set we will be linking to
+   * @param link the link definition
    */
   public PSRequestRedirector(PSApplicationHandler ah, PSRequestLink link)
       throws PSNotFoundException, PSIllegalArgumentException {
@@ -107,8 +103,8 @@ public class PSRequestRedirector implements IPSResultGenerator {
   /**
    * Generate the results for this request.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
    */
   public void generateResults(PSExecutionData data) {
     PSRequest request = data.getRequest();
@@ -159,8 +155,7 @@ public class PSRequestRedirector implements IPSResultGenerator {
   /**
    * Send a redirect (See Other) message for this request.
    *
-   * @param request The request context associated with this request, not
-   *    <code>null</code>.
+   * @param request The request context associated with this request, not <code>null</code>.
    * @param url The url associated with this request, not <code>null</code>
    */
   public void sendHttpRedirectResponse(PSRequest request, String url) {
@@ -230,10 +225,9 @@ public class PSRequestRedirector implements IPSResultGenerator {
   protected PSApplicationHandler m_appHandler;
 
   /**
-   * Should this redirection be done with http redirect codes?
-   * <code>true</code> indicates that it should, <code>false</code> indicates
-   * to use the app handler directly.  Set at construction time based on the
-   * PSRequestLink's setting.
+   * Should this redirection be done with http redirect codes? <code>true</code> indicates that it
+   * should, <code>false</code> indicates to use the app handler directly. Set at construction time
+   * based on the PSRequestLink's setting.
    */
   protected boolean m_useHttpRedirectResponse;
 }

@@ -25,15 +25,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class wraps the functionality of translation unit DOM element as
- * an easy to use TMX node. The TMX counterpart provides methods to manipulate
- * the translation unit, the most important one being to merge two nodes
- * appying the merge configuration.
+ * This class wraps the functionality of translation unit DOM element as an easy to use TMX node.
+ * The TMX counterpart provides methods to manipulate the translation unit, the most important one
+ * being to merge two nodes appying the merge configuration.
  */
 public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslationUnit {
   /**
-   * Convenience version that calls
-   * {@link #PSTmxTranslationUnit(IPSTmxDocument, Element, boolean}
+   * Convenience version that calls {@link #PSTmxTranslationUnit(IPSTmxDocument, Element, boolean}
    * PSTmxTranslationUnit(tmxdoc, tu, true)}.
    */
   PSTmxTranslationUnit(IPSTmxDocument tmxdoc, Element tu) {
@@ -41,17 +39,15 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Constructor. Takes the parent TMX document object and the DOM element
-   * representing the translation unit. All the components of the translation
-   * unit variant are optionally constructed from the given DOM element.
+   * Constructor. Takes the parent TMX document object and the DOM element representing the
+   * translation unit. All the components of the translation unit variant are optionally constructed
+   * from the given DOM element.
    *
    * @param tmxdoc parent TMX document, nust not be <code>null</code>.
-   * @param tu DOM element for the translation unit to be contstructed, must
-   * not be <code>null</code>.
-   * @param createDefault If <code>true</code>, a variant is also
-   * added for the default language if it does not already exist.  If
-   * <code>false</code>, no default is  added.
-   *
+   * @param tu DOM element for the translation unit to be contstructed, must not be <code>null
+   *     </code>.
+   * @param createDefault If <code>true</code>, a variant is also added for the default language if
+   *     it does not already exist. If <code>false</code>, no default is added.
    * @throws IllegalArgumentException if tmxDoc or tu is <code>null</code>
    */
   PSTmxTranslationUnit(IPSTmxDocument tmxdoc, Element tu, boolean createDefault) {
@@ -151,12 +147,11 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Helper method to merge the TMX note object from the supplied TMX
-   * translation unit variant object with that of the current TMX node applying
-   * the merge rules. Uniqueness of the note object is established based on
-   * the language value of the note object.
-   * @param tu translation unit variant object to be merged. Must not be
-   * <code>null</code>.
+   * Helper method to merge the TMX note object from the supplied TMX translation unit variant
+   * object with that of the current TMX node applying the merge rules. Uniqueness of the note
+   * object is established based on the language value of the note object.
+   *
+   * @param tu translation unit variant object to be merged. Must not be <code>null</code>.
    * @throws IllegalArgumentException if tu is <code>null</code>
    */
   private void mergeNotes(IPSTmxTranslationUnit tu) {
@@ -201,10 +196,10 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Helper method to merge the TMX property object from the supplied TMX
-   * translation unit object with that of the current TMX node applying the
-   * merge rules. Uniqueness of the property object is established based on
-   * the property type values.
+   * Helper method to merge the TMX property object from the supplied TMX translation unit object
+   * with that of the current TMX node applying the merge rules. Uniqueness of the property object
+   * is established based on the property type values.
+   *
    * @param tu translation unit object to be merged. Must not be <code>null</code>.
    * @throws IllegalArgumentException if tu is <code>null</code>
    */
@@ -252,10 +247,10 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Helper method to merge the TMX translation unit variant object from the
-   * supplied TMX translation unit object with that of the current TMX node
-   * applying the merge rules. Uniqueness of the property object is established
-   * based on language value associated with node.
+   * Helper method to merge the TMX translation unit variant object from the supplied TMX
+   * translation unit object with that of the current TMX node applying the merge rules. Uniqueness
+   * of the property object is established based on language value associated with node.
+   *
    * @param tu translation unit object to be merged. Must not be <code>null</code>.
    * @throws IllegalArgumentException if tu is <code>null</code>
    */
@@ -303,12 +298,12 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Helper method to remove the translation unit variant node matching with
-   * supplied TMX Node.
-   * @param tuv TMX translation unit variant to be removed from this node.
-   * Nothing happens if <code>null</code> is supplied or matching node does not
-   * exist in the current node. Two translation unit variants are assumed to be
-   * matching if the language associated with the nodes are the same.
+   * Helper method to remove the translation unit variant node matching with supplied TMX Node.
+   *
+   * @param tuv TMX translation unit variant to be removed from this node. Nothing happens if <code>
+   *     null</code> is supplied or matching node does not exist in the current node. Two
+   *     translation unit variants are assumed to be matching if the language associated with the
+   *     nodes are the same.
    */
   private void removeTuv(IPSTmxTranslationUnitVariant tuv) {
     if (tuv == null) return;
@@ -325,10 +320,10 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
 
   /**
    * Helper method to remove the note node matching with supplied TMX Node.
-   * @param note TMX note to be removed from this node. Nothing happens if
-   * <code>null</code> is supplied or matching note does not exist in the
-   * current node. Two notes are assumed to be matching if the language
-   * associated with the notes are the same.
+   *
+   * @param note TMX note to be removed from this node. Nothing happens if <code>null</code> is
+   *     supplied or matching note does not exist in the current node. Two notes are assumed to be
+   *     matching if the language associated with the notes are the same.
    */
   private void removeNote(IPSTmxNote note) {
     if (note == null) return;
@@ -343,10 +338,10 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
 
   /**
    * Helper method to remove the property node matching with supplied TMX Node.
-   * @param prop TMX property to be removed from this node. Nothing happens if
-   * <code>null</code> is supplied or matching property does not exist in the
-   * current node.Two properties are assumed to be matching if the type
-   * associated with the properties are the same.
+   *
+   * @param prop TMX property to be removed from this node. Nothing happens if <code>null</code> is
+   *     supplied or matching property does not exist in the current node.Two properties are assumed
+   *     to be matching if the type associated with the properties are the same.
    */
   private void removeProperty(IPSTmxProperty prop) {
     if (prop == null) return;
@@ -412,20 +407,20 @@ public class PSTmxTranslationUnit extends PSTmxNode implements IPSTmxTranslation
   }
 
   /**
-   * Map of all TMX notes associated with this node. Never <code>null</code>,
-   * can be <code>empty</code>.
+   * Map of all TMX notes associated with this node. Never <code>null</code>, can be <code>empty
+   * </code>.
    */
   protected Map m_Notes = new HashMap();
 
   /**
-   * Map of all TMX properties associated with this node. Never <code>null</code>,
-   * can be <code>empty</code>.
+   * Map of all TMX properties associated with this node. Never <code>null</code>, can be <code>
+   * empty</code>.
    */
   protected Map m_Properties = new HashMap();
 
   /**
-   * Map of all TMX translation unit variants associated with this node.
-   * Never <code>null</code>, can be <code>empty</code>.
+   * Map of all TMX translation unit variants associated with this node. Never <code>null</code>,
+   * can be <code>empty</code>.
    */
   protected Map m_TransUnitVariants = new HashMap();
 }

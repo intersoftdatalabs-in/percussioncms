@@ -25,9 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implementation for the PSXUIDefinition DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXUIDefinition DTD in BasicObjects.dtd. */
 public class PSUIDefinition extends PSComponent {
   /**
    * Creates a new UI definition.
@@ -42,8 +40,7 @@ public class PSUIDefinition extends PSComponent {
    * Creates a new UI definition.
    *
    * @param mapper a display mapper, not <code>null</code>.
-   * @param defaultUI a collection of PSUISet objects, may be
-   *    <code>null</code> but not empty.
+   * @param defaultUI a collection of PSUISet objects, may be <code>null</code> but not empty.
    */
   public PSUIDefinition(PSDisplayMapper mapper, PSCollection defaultUI) {
     setDisplayMapper(mapper);
@@ -53,23 +50,17 @@ public class PSUIDefinition extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUIDefinition(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSUIDefinition() {}
 
   /**
@@ -85,10 +76,9 @@ public class PSUIDefinition extends PSComponent {
   /**
    * Set a new default UI collection.
    *
-   * @param defaultUI the new defaul UI collection, may be <code>null</code>
-   *    but not empty.
-   * @throws IllegalArgumentException if the provided defaultUI is
-   *    <code>null</code>, empty or of wrong object type.
+   * @param defaultUI the new defaul UI collection, may be <code>null</code> but not empty.
+   * @throws IllegalArgumentException if the provided defaultUI is <code>null</code>, empty or of
+   *     wrong object type.
    */
   public void setDefaultUI(PSCollection defaultUI) {
     if (defaultUI != null && defaultUI.isEmpty())
@@ -132,8 +122,7 @@ public class PSUIDefinition extends PSComponent {
    * Appends mapping to the supplied mapper.
    *
    * @param mapper the mapper to append the mapping to, not <code>null</code>
-   * @param mapping the mapping to append to the mapper, not
-   *    <code>null</code>.
+   * @param mapping the mapping to append to the mapper, not <code>null</code>.
    * @return the index the mapping was appended at.
    */
   public int appendMapping(PSDisplayMapper mapper, PSDisplayMapping mapping) {
@@ -146,17 +135,12 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Inserts the provided mapping into the mapper supplied at the given
-   * position.
+   * Inserts the provided mapping into the mapper supplied at the given position.
    *
-   * @param index the index to insert the mapping at, must be a valid
-   *    index for the provided mapper.
-   * @param mapper the mapper to insert the mapping to, not
-   *    <code>null</code>.
-   * @param mapping the mapping to insert into the mapper, not
-   *    <code>null</code>.
-   * @throws ArrayIndexOutOfBoundsException if the position is not valid for
-   *    the provieded mapper.
+   * @param index the index to insert the mapping at, must be a valid index for the provided mapper.
+   * @param mapper the mapper to insert the mapping to, not <code>null</code>.
+   * @param mapping the mapping to insert into the mapper, not <code>null</code>.
+   * @throws ArrayIndexOutOfBoundsException if the position is not valid for the provieded mapper.
    */
   public void insertMapping(int index, PSDisplayMapper mapper, PSDisplayMapping mapping) {
     if (mapper == null || mapping == null)
@@ -166,17 +150,13 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Peplaces the provided mapping in the mapper supplied at the given
-   * position.
+   * Peplaces the provided mapping in the mapper supplied at the given position.
    *
-   * @param index the index to replace the mapping at, must be a valid
-   *    index for the provided mapper.
-   * @param mapper the mapper to replace the mapping in, not
-   *    <code>null</code>.
-   * @param mapping the mapping to replace in the mapper, not
-   *    <code>null</code>.
-   * @throws ArrayIndexOutOfBoundsException if the position is not valid for
-   *    the provieded mapper.
+   * @param index the index to replace the mapping at, must be a valid index for the provided
+   *     mapper.
+   * @param mapper the mapper to replace the mapping in, not <code>null</code>.
+   * @param mapping the mapping to replace in the mapper, not <code>null</code>.
+   * @throws ArrayIndexOutOfBoundsException if the position is not valid for the provieded mapper.
    */
   public void replaceMapping(int index, PSDisplayMapper mapper, PSDisplayMapping mapping) {
     if (mapper == null || mapping == null)
@@ -186,12 +166,12 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Replaces the given mapping for the supplied field reference. Goes
-   * through all mappings and replaces the one with a matching fieldRew.
+   * Replaces the given mapping for the supplied field reference. Goes through all mappings and
+   * replaces the one with a matching fieldRew.
    *
    * @param fieldRef the field reference, not <code>null</code> or empty.
-   * @param mapping the new mapping which will replace the referenced
-   *    mapping, not <code>null</code>.
+   * @param mapping the new mapping which will replace the referenced mapping, not <code>null</code>
+   *     .
    */
   public void replaceMapping(String fieldRef, PSDisplayMapping mapping) {
     if (fieldRef == null || fieldRef.trim().length() == 0)
@@ -216,8 +196,7 @@ public class PSUIDefinition extends PSComponent {
    * Get the mapping for the provided field reference.
    *
    * @param fieldRef the field refernence to get the mapping for.
-   * @return the mapping found for the provided field
-   *    reference or <code>null</code> if not found.
+   * @return the mapping found for the provided field reference or <code>null</code> if not found.
    */
   public PSDisplayMapping getMapping(String fieldRef) {
     Iterator it = getDisplayMapper().iterator();
@@ -230,13 +209,11 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Get the mapper for the supplied name, recursing all mappings. The match
-   * is done as a case sensitive compare of the field set name against the
-   * supplied name.
+   * Get the mapper for the supplied name, recursing all mappings. The match is done as a case
+   * sensitive compare of the field set name against the supplied name.
    *
    * @param fieldSetRef the mapper fieldSetRef we are looking for
-   * @return the mapper found for the provieded id or <code>null</code> if
-   *    not found.
+   * @return the mapper found for the provieded id or <code>null</code> if not found.
    */
   public PSDisplayMapper getDisplayMapper(String fieldSetRef) {
     PSDisplayMapper mapper = getDisplayMapper();
@@ -246,14 +223,12 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Get the display mapper for the provided name and display mapper. Checks
-   * the supplied mapper and all contained mappers recursively.
+   * Get the display mapper for the provided name and display mapper. Checks the supplied mapper and
+   * all contained mappers recursively.
    *
    * @param fieldSetRef the name of the display mapper we are looking for.
-   * @param mapper the display mapper we are looking in, may be
-   *    <code>null</code>.
-   * @return the display mapper found or <code>null</code>
-   *    if not found.
+   * @param mapper the display mapper we are looking in, may be <code>null</code>.
+   * @return the display mapper found or <code>null</code> if not found.
    */
   private PSDisplayMapper getDisplayMapper(String fieldSetRef, PSDisplayMapper mapper) {
     if (mapper == null) return null;
@@ -273,8 +248,7 @@ public class PSUIDefinition extends PSComponent {
    * Get the mapper for the supplied id, recursing all mappings.
    *
    * @param id the mapper id we are looking for.
-   * @return the mapper found for the provieded id or <code>null</code> if
-   *    not found.
+   * @return the mapper found for the provieded id or <code>null</code> if not found.
    */
   public PSDisplayMapper getDisplayMapper(int id) {
     PSDisplayMapper mapper = getDisplayMapper();
@@ -287,10 +261,8 @@ public class PSUIDefinition extends PSComponent {
    * Get the display mapper for the provided id and display mapper.
    *
    * @param id the id of the display mapper we are looking for.
-   * @param mapper the display mapper we are looking in, may be
-   *    <code>null</code>.
-   * @return the display mapper found or <code>null</code>
-   *    if not found.
+   * @param mapper the display mapper we are looking in, may be <code>null</code>.
+   * @return the display mapper found or <code>null</code> if not found.
    */
   private PSDisplayMapper getDisplayMapper(int id, PSDisplayMapper mapper) {
     if (mapper == null) return null;
@@ -308,9 +280,8 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSUIDefinition, not <code>null</code>.
    */
@@ -402,7 +373,6 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -443,27 +413,22 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Gets a copy of this UI definition merged with supplied source UI
-   * definition. Merges/adds the mappings corresponding to all the fields of
-   * the source fieldset exlcuding the fields defined in <code>fieldExcludes
+   * Gets a copy of this UI definition merged with supplied source UI definition. Merges/adds the
+   * mappings corresponding to all the fields of the source fieldset exlcuding the fields defined in
+   * <code>fieldExcludes
    * </code>.
    *
-   * @param sourceUIDef the source definition to be merged with, may not be
-   * <code>null</code>
-   * @param mergeChild if <code>true</code> merges the display mapper supplied
-   * in sourceUIDef with the child mapper of matching mapping in the main
-   * display mapper of this UI Definition, otherwise with the main display
-   * mapper.
-   * @param fieldExcludes the list of fields as <code>String</code>s to be
-   * excluded while merging, may not be <code>null</code>, can be empty.
-   * @param mergeDefault if <code>true</code> the UI set provided for
-   * placeholder of source field mapping in this definition is merged with its
-   * default UI set before merging with the UI set defined in the source
-   * definition(the UI set merged with its default), otherwise it simply merges
-   * with UI set defined in the source definition.
-   *
+   * @param sourceUIDef the source definition to be merged with, may not be <code>null</code>
+   * @param mergeChild if <code>true</code> merges the display mapper supplied in sourceUIDef with
+   *     the child mapper of matching mapping in the main display mapper of this UI Definition,
+   *     otherwise with the main display mapper.
+   * @param fieldExcludes the list of fields as <code>String</code>s to be excluded while merging,
+   *     may not be <code>null</code>, can be empty.
+   * @param mergeDefault if <code>true</code> the UI set provided for placeholder of source field
+   *     mapping in this definition is merged with its default UI set before merging with the UI set
+   *     defined in the source definition(the UI set merged with its default), otherwise it simply
+   *     merges with UI set defined in the source definition.
    * @return the merged UI definition, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in merging.
    */
   public PSUIDefinition merge(
@@ -493,26 +458,21 @@ public class PSUIDefinition extends PSComponent {
   }
 
   /**
-   * Gets a copy of this UI definition demerged with supplied source UI
-   * definition. Demerges the mappings corresponding to all the fields of
-   * the source fieldset excluding the fields defined in <code>fieldExcludes
+   * Gets a copy of this UI definition demerged with supplied source UI definition. Demerges the
+   * mappings corresponding to all the fields of the source fieldset excluding the fields defined in
+   * <code>fieldExcludes
    * </code>.
    *
-   * @param sourceUIDef the source definition to demerge from, may not be
-   * <code>null</code>
-   * @param demergeChild if <code>true</code> demerges the display mapper
-   * supplied in sourceUIDef from the child mapper of the matching mapping in
-   * the main display mapper of this UI Definition, otherwise with the main
-   * display mapper.
-   * @param fieldExcludes the list of fields as Strings to be ignored while
-   * demerging, may not be <code>null</code>, can be empty.
-   * @param demergeDefault supply <code>true</code> if the UI set of the merged
-   * source field mapping in this definition is merged with its Default UI set
-   * before merging with UI set defined in source definition(the UI set merged
-   * with its default), otherwise supply <code>false</code>
-   *
+   * @param sourceUIDef the source definition to demerge from, may not be <code>null</code>
+   * @param demergeChild if <code>true</code> demerges the display mapper supplied in sourceUIDef
+   *     from the child mapper of the matching mapping in the main display mapper of this UI
+   *     Definition, otherwise with the main display mapper.
+   * @param fieldExcludes the list of fields as Strings to be ignored while demerging, may not be
+   *     <code>null</code>, can be empty.
+   * @param demergeDefault supply <code>true</code> if the UI set of the merged source field mapping
+   *     in this definition is merged with its Default UI set before merging with UI set defined in
+   *     source definition(the UI set merged with its default), otherwise supply <code>false</code>
    * @return the demerged UI definition, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in merging.
    */
   public PSUIDefinition demerge(
@@ -545,9 +505,9 @@ public class PSUIDefinition extends PSComponent {
   public static final String XML_NODE_NAME = "PSXUIDefinition";
 
   /**
-   * A collection of PSUISet objects, gets initialized when this object is
-   * read from xml, may be <code>null</code> if the xml does not define this
-   * element. If it is not <code>null</code> it is never empty.
+   * A collection of PSUISet objects, gets initialized when this object is read from xml, may be
+   * <code>null</code> if the xml does not define this element. If it is not <code>null</code> it is
+   * never empty.
    */
   private PSCollection m_defaultUI = null;
 

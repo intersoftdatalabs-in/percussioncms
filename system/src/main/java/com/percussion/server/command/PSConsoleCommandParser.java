@@ -42,19 +42,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSConsoleCommandParser class is used to parse console commands into
- * executable objects.
+ * The PSConsoleCommandParser class is used to parse console commands into executable objects.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConsoleCommandParser {
   /**
    * Parse the specified console command string into an executable object.
-   * <P>
-   * Currently supported commands are:
-   *   <TABLE BORDER="1">
+   *
+   * <p>Currently supported commands are:
+   *
+   * <TABLE BORDER="1">
    *      <TR>
    *         <TH>Command</TH>
    *         <TH>Parameters</TH>
@@ -125,11 +125,9 @@ public class PSConsoleCommandParser {
    *      </TR>
    * </TABLE>
    *
-   * @param   command      the command string to parse
-   *
-   * @exception   PSIllegalArgumentException
-   *                           if command is <code>null</code>, empty or
-   *                           specifies an invalid command syntax
+   * @param command the command string to parse
+   * @exception PSIllegalArgumentException if command is <code>null</code>, empty or specifies an
+   *     invalid command syntax
    */
   public static IPSConsoleCommand parse(String command) throws PSIllegalArgumentException {
     if (command == null) throw new PSIllegalArgumentException(IPSServerErrors.RCONSOLE_CMD_EMPTY);
@@ -215,11 +213,11 @@ public class PSConsoleCommandParser {
   }
 
   /**
-   * We store the command set by setting a key with a String containing the
-   * valid sub-commands if it requires sub-commands or an
-   * IPSConsoleCommand object's class if it is a command we can respond to.
+   * We store the command set by setting a key with a String containing the valid sub-commands if it
+   * requires sub-commands or an IPSConsoleCommand object's class if it is a command we can respond
+   * to.
    *
-   * Search for the key "" to get the list of valid base commands.
+   * <p>Search for the key "" to get the list of valid base commands.
    */
   private static final ConcurrentHashMap ms_cmdSet;
 

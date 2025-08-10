@@ -17,53 +17,50 @@
 
 package com.percussion.rest.sites;
 
-/**
- * Adaptor interface for Site operations.
- * Sunny Sal: "Site ka adaptor, content ka navigator!"
- */
+/** Adaptor interface for Site operations. Sunny Sal: "Site ka adaptor, content ka navigator!" */
 public interface ISiteAdaptor {
 
-    /**
-     * Finds all sites.
-     *
-     * @return SiteList of all sites
-     */
-    SiteList findAllSites();
+  /**
+   * Finds all sites.
+   *
+   * @return SiteList of all sites
+   */
+  SiteList findAllSites();
 
-    /**
-     * Saves a site.
-     *
-     * @param site the site to save
-     */
-    void saveSite(Site site);
+  /**
+   * Saves a site.
+   *
+   * @param site the site to save
+   */
+  void saveSite(Site site);
 
-    /**
-     * Finds a site by name.
-     *
-     * @param name the site name
-     * @return the Site, or null if not found
-     */
-    Site findByName(String name);
+  /**
+   * Finds a site by name.
+   *
+   * @param name the site name
+   * @return the Site, or null if not found
+   */
+  Site findByName(String name);
 
-    /**
-     * Finds a site by GUID.
-     *
-     * @param guid the site GUID
-     * @return the Site, or null if not found
-     */
-    Site findByGuid(String guid);
+  /**
+   * Finds a site by GUID.
+   *
+   * @param guid the site GUID
+   * @return the Site, or null if not found
+   */
+  Site findByGuid(String guid);
 
-    /**
-     * Deletes the given site.
-     *
-     * @param site the site to delete
-     */
-    void deleteSite(Site site);
+  /**
+   * Deletes the given site.
+   *
+   * @param site the site to delete
+   */
+  void deleteSite(Site site);
 
-    /**
-     * Creates a new Site.
-     *
-     * @return the new Site
-     */
-    Site createSite();
+  /**
+   * Creates a new Site.
+   *
+   * @return the new Site
+   */
+  Site createSite();
 }

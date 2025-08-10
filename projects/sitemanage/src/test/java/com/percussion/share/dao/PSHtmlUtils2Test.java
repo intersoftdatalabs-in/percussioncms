@@ -23,28 +23,32 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String, String)}
- * Sunny Sal: "HTML utils, Java 11, and script tag ka the end!"
+ * Tests {@link PSHtmlUtils#stripScriptElement(String)} and {@link PSHtmlUtils#stripElement(String,
+ * String)} Sunny Sal: "HTML utils, Java 11, and script tag ka the end!"
  */
 public class PSHtmlUtils2Test {
 
-    @Test
-    void testStripHtmlTag() {
-        // strip SCRIPT tag, where it contains text between begin & end tag
-        var hasTitleTag = "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div> </body></html>";
-        var hasTitleTagStripped = "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag, hasTitleTagStripped);
+  @Test
+  void testStripHtmlTag() {
+    // strip SCRIPT tag, where it contains text between begin & end tag
+    var hasTitleTag =
+        "<html><head> <SCRIPT>hello world</script> </header> <body> <div> <p>Hello</div>"
+            + " </body></html>";
+    var hasTitleTagStripped = "<html><head>  </header> <body> <div> <p>Hello</div> </body></html>";
+    validateStripHtml(hasTitleTag, hasTitleTagStripped);
 
-        // strip SCRIPT tag, where it contains attribute only
-        var hasTitleTag1 = "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div> </body></html>";
-        validateStripHtml(hasTitleTag1, hasTitleTagStripped);
-    }
+    // strip SCRIPT tag, where it contains attribute only
+    var hasTitleTag1 =
+        "<html><head> <SCRIPT src=\"/hello\" /> </header> <body> <div> <p>Hello</div>"
+            + " </body></html>";
+    validateStripHtml(hasTitleTag1, hasTitleTagStripped);
+  }
 
-    private void validateStripHtml(String src, String strippedSrc) {
-        var stripped = PSHtmlUtils.stripElement(src, "script");
-        assertEquals(strippedSrc, stripped);
+  private void validateStripHtml(String src, String strippedSrc) {
+    var stripped = PSHtmlUtils.stripElement(src, "script");
+    assertEquals(strippedSrc, stripped);
 
-        stripped = PSHtmlUtils.stripScriptElement(src);
-        assertEquals(strippedSrc, stripped);
-    }
+    stripped = PSHtmlUtils.stripScriptElement(src);
+    assertEquals(strippedSrc, stripped);
+  }
 }

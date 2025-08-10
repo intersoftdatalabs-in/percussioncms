@@ -18,12 +18,9 @@
 package com.percussion.server.webservices.crosssite;
 
 /**
- *
- * The message object used for cross site processing of folder removal.
- * See parent class.
+ * The message object used for cross site processing of folder removal. See parent class.
  *
  * @author adamgent
- *
  */
 public class PSCrossSiteFolderRemoveActionData extends PSCrossSiteFolderActionData {
   private static final long serialVersionUID = 1L;

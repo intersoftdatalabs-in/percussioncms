@@ -18,18 +18,16 @@
 package com.percussion.relationship;
 
 /**
- * This class may define additional methods to pass sufficient informtion as
- * recover result to relationship engine after executing the
- * {@link IPSEffect#recover() method}. This information includes whether to
- * test for dependents' processing and error details if the test fails for
- * some reason.
+ * This class may define additional methods to pass sufficient informtion as recover result to
+ * relationship engine after executing the {@link IPSEffect#recover() method}. This information
+ * includes whether to test for dependents' processing and error details if the test fails for some
+ * reason.
  */
 public class PSRecoverResult extends PSEffectResult {
   /**
-   * Implementation for an abstract method, that does NOT allow to set a
-   * recursion flag by always throwing UnsupportedOperationException.
-   * This is to indicate to the effect implementer that it is an illegal
-   * operation for the recover method.
+   * Implementation for an abstract method, that does NOT allow to set a recursion flag by always
+   * throwing UnsupportedOperationException. This is to indicate to the effect implementer that it
+   * is an illegal operation for the recover method.
    *
    * @param recurseDependents
    * @throws UnsupportedOperationException always.

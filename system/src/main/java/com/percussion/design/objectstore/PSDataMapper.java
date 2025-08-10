@@ -23,40 +23,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataMapper class provides a way to map XML elements and attributes
- * to their corresponding back-end columns. JavaScript can also be used in
- * lieu of a back-end column. This allows an XML element or attribute to be
- * mapped to a dynamically computed value.
- * <p>
- * PSDataMapper is a collection of PSDataMapping objects, and as such
- * are derived from the PSCollection class. Simply use the methods defined
- * in PSCollection to gain access to the PSDataMapping objects defined for
- * the mapper.
+ * The PSDataMapper class provides a way to map XML elements and attributes to their corresponding
+ * back-end columns. JavaScript can also be used in lieu of a back-end column. This allows an XML
+ * element or attribute to be mapped to a dynamically computed value.
+ *
+ * <p>PSDataMapper is a collection of PSDataMapping objects, and as such are derived from the
+ * PSCollection class. Simply use the methods defined in PSCollection to gain access to the
+ * PSDataMapping objects defined for the mapper.
  *
  * @see PSPipe#getDataMapper
  * @see PSDataMapping
  * @see com.percussion.util.PSCollection
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataMapper extends PSCollectionComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataMapper(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -64,17 +54,14 @@ public class PSDataMapper extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructs an empty mapper.
-   */
+  /** Constructs an empty mapper. */
   public PSDataMapper() {
     super((new PSDataMapping()).getClass());
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param mapper a valid PSDataMapper.
    */
@@ -87,10 +74,11 @@ public class PSDataMapper extends PSCollectionComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataMapper XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataMapper XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataMapper provides a way to map XML elements and attributes
@@ -102,7 +90,7 @@ public class PSDataMapper extends PSCollectionComponent {
    *    &lt;!ELEMENT PSXDataMapper (PSXDataMapping*)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataMapper XML element node
+   * @return the newly created PSXDataMapper XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -120,12 +108,10 @@ public class PSDataMapper extends PSCollectionComponent {
   }
 
   /**
-   * This method is called to populate a PSDataMapper Java object
-   * from a PSXDataMapper XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataMapper Java object from a PSXDataMapper XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataMapper
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapper
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -176,18 +162,15 @@ public class PSDataMapper extends PSCollectionComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSValiditionException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSValiditionException, but the implementation must not directly throw any exceptions.
+   * Instead, it should register any errors with the validation context, which will decide whether
+   * to throw the exception (in which case the implementation of <CODE>validate</CODE> should not
+   * catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -199,32 +182,29 @@ public class PSDataMapper extends PSCollectionComponent {
     super.validate(cxt);
   }
 
-  /** Does this mapper allow an empty xml document to be returned
-   *  on a null result set?
+  /**
+   * Does this mapper allow an empty xml document to be returned on a null result set?
    *
-   * @return  <code>true</code> if it does or <code>false</code>
-   *          if one row containing <code>null</code> columns is desired
-   *          in the empty result set condition.
+   * @return <code>true</code> if it does or <code>false</code> if one row containing <code>null
+   *     </code> columns is desired in the empty result set condition.
    */
   public boolean allowsEmptyDocReturn() {
     return m_returnEmptyXml;
   }
 
-  /** Set whether or not this mapper allows an empty document to
-   *   be returned when an empty result set is detected.
+  /**
+   * Set whether or not this mapper allows an empty document to be returned when an empty result set
+   * is detected.
    *
-   * @param   allow Use <code>true</code> to allow an empty document
-   *          to be returned (1.1 behavior) or <code>false</code> to
-   *          indicate that on an empty result set, to map one row
-   *          containing all <code>null</code> columns.
+   * @param allow Use <code>true</code> to allow an empty document to be returned (1.1 behavior) or
+   *     <code>false</code> to indicate that on an empty result set, to map one row containing all
+   *     <code>null</code> columns.
    */
   public void setAllowEmptyDocReturn(boolean allow) {
     m_returnEmptyXml = allow;
   }
 
-  /** Does this mapper allow empty xml to be returned?
-   * Defaults to <code>false</code>
-   */
+  /** Does this mapper allow empty xml to be returned? Defaults to <code>false</code> */
   private boolean m_returnEmptyXml = false;
 
   /* package access on this so they may reference each other in fromXml */

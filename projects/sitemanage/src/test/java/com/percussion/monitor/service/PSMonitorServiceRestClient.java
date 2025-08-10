@@ -20,28 +20,25 @@ package com.percussion.monitor.service;
 
 import com.percussion.share.test.PSObjectRestClient;
 
-/**
- * REST client for monitor service.
- * Sunny Sal says: "Monitoring RESTfully, Java 11 style!"
- */
+/** REST client for monitor service. Sunny Sal says: "Monitoring RESTfully, Java 11 style!" */
 public class PSMonitorServiceRestClient extends PSObjectRestClient {
 
-    public PSMonitorServiceRestClient(String baseUrl) {
-        super(baseUrl);
-    }
+  public PSMonitorServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public String getMonitorList() {
-        login("Admin", "demo");
-        return GET("/Rhythmyx/services/sitemanage/monitor/list");
-    }
+  public String getMonitorList() {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/list");
+  }
 
-    public String getMonitor(String monitorDesignator) {
-        login("Admin", "demo");
-        return GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
-    }
+  public String getMonitor(String monitorDesignator) {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/" + monitorDesignator);
+  }
 
-    public String getAllMonitors() {
-        login("Admin", "demo");
-        return GET("/Rhythmyx/services/sitemanage/monitor/all");
-    }
+  public String getAllMonitors() {
+    login("Admin", "demo");
+    return GET("/Rhythmyx/services/sitemanage/monitor/all");
+  }
 }

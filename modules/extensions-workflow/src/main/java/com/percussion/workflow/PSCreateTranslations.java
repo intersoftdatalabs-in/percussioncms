@@ -43,17 +43,15 @@ import java.util.*;
 import org.w3c.dom.*;
 
 /**
- * This workflow action translates the current item to ALL untranslated
- * locales. This action is typically attached to a transition from a wait
- * state. A wait state is a workflow state from where the translations
- * from the original locale are created automatically. Which means, any item
- * that takes this transition path will execute this action which creates
- * items with all untranslated locales.
- * <p>
- * This effect makes use of a configuration file (Java properties file) in
- * which, one can specify a list of locales to exclude for translation and
- * also the relationship type to create.  Only one type of relationship can
- * be specified per server installation.
+ * This workflow action translates the current item to ALL untranslated locales. This action is
+ * typically attached to a transition from a wait state. A wait state is a workflow state from where
+ * the translations from the original locale are created automatically. Which means, any item that
+ * takes this transition path will execute this action which creates items with all untranslated
+ * locales.
+ *
+ * <p>This effect makes use of a configuration file (Java properties file) in which, one can specify
+ * a list of locales to exclude for translation and also the relationship type to create. Only one
+ * type of relationship can be specified per server installation.
  *
  * @author RammohanVangapalli
  */
@@ -177,16 +175,15 @@ public class PSCreateTranslations implements IPSWorkflowAction {
   }
 
   /**
-   * Helper method to create translations of a given item to specified
-   * locales with specified relationship type of category
-   * {@link PSRelationshipConfig#CATEGORY_TRANSLATION}.
+   * Helper method to create translations of a given item to specified locales with specified
+   * relationship type of category {@link PSRelationshipConfig#CATEGORY_TRANSLATION}.
+   *
    * @param request request context object, assumed not <code>null</code>.
-   * @param locator A valid locator for the item to be translated, assumed
-   * not <code>null</code>.
-   * @param locales iterator of locale strings to create translations for,
-   * assumed not <code>null</code>.
-   * @param relationshipType A registered relationship type name, assumed to
-   * be of {@link PSRelationshipConfig#CATEGORY_TRANSLATION category}.
+   * @param locator A valid locator for the item to be translated, assumed not <code>null</code>.
+   * @param locales iterator of locale strings to create translations for, assumed not <code>null
+   *     </code>.
+   * @param relationshipType A registered relationship type name, assumed to be of {@link
+   *     PSRelationshipConfig#CATEGORY_TRANSLATION category}.
    * @throws PSCmsException
    */
   private void createTranslation(
@@ -229,12 +226,12 @@ public class PSCreateTranslations implements IPSWorkflowAction {
   }
 
   /**
-   * Helper method to get the list of locales configured and enabled in the
-   * CMS. Obtained by making an internal requets to a Rhythmyx resource.
-   * @param request request object used to make internal request, assumed
-   * not <code>null</code>code.
-   * @return List of internal names of all configured and enabled locales
-   * in the system. Never <code>null</code> or empty.
+   * Helper method to get the list of locales configured and enabled in the CMS. Obtained by making
+   * an internal requets to a Rhythmyx resource.
+   *
+   * @param request request object used to make internal request, assumed not <code>null</code>code.
+   * @return List of internal names of all configured and enabled locales in the system. Never
+   *     <code>null</code> or empty.
    */
   private List getCmsLocales(IPSRequestContext request) throws PSExtensionProcessingException {
     IPSInternalRequest ir = null;
@@ -272,34 +269,24 @@ public class PSCreateTranslations implements IPSWorkflowAction {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * XML element name for one language unit in the locale lookup result
-   * document.
-   */
+  /** XML element name for one language unit in the locale lookup result document. */
   public static final String ELEM_VALUE = "Value";
 
-  /**
-   * The Rhythmyx resource to get the all locales'information.
-   * document.
-   */
+  /** The Rhythmyx resource to get the all locales'information. document. */
   public static final String LOCALE_RESOURCE = "sys_i18nSupport/languagelookup";
 
   /**
-   * Parameter name in the configuration file to specify a list of locales
-   * to exclude for translations.
+   * Parameter name in the configuration file to specify a list of locales to exclude for
+   * translations.
    */
   public static final String EXCLUDE_LOCALE_LIST = "sys_excludelocales";
 
-  /**
-   * File name to specify the exclude locale list and relationship type
-   * name for translation.
-   */
+  /** File name to specify the exclude locale list and relationship type name for translation. */
   public static final String CONFIG_FILE_NAME = "sys_createTranslations.properties";
 
   /**
-   * Configuration properties for the effect to use. Loads properties from
-   * the {@link #CONFIG_FILE_NAME config file} which must be locaed in the
-   * rxconfig/I18n directory.
+   * Configuration properties for the effect to use. Loads properties from the {@link
+   * #CONFIG_FILE_NAME config file} which must be locaed in the rxconfig/I18n directory.
    */
   private static Properties ms_props = new Properties();
 

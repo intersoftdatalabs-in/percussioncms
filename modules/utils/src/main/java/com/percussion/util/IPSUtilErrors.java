@@ -18,9 +18,9 @@
 package com.percussion.util;
 
 /**
- * The IPSUtilErrors inteface is provided as a convenient mechanism
- * for accessing the various util related error codes. The util error
- * code ranges are:
+ * The IPSUtilErrors inteface is provided as a convenient mechanism for accessing the various util
+ * related error codes. The util error code ranges are:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>10001 - 10050</TD><TD>encode/decoder class errors</TD></TR>
@@ -29,15 +29,16 @@ package com.percussion.util;
  * <TR><TD>10151 - 11000</TD><TD>-not assigned-</TD></TR>
  * </TABLE>
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSUtilErrors {
   /**
    * The Base64 encoding processes encountered an unexpected exception
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>input string</TD></TR>
@@ -48,8 +49,9 @@ public interface IPSUtilErrors {
 
   /**
    * The Base64 decoding processes encountered an unexpected exception
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>input string</TD></TR>
@@ -60,8 +62,9 @@ public interface IPSUtilErrors {
 
   /**
    * The class to use as the collection content was not found
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
@@ -71,15 +74,16 @@ public interface IPSUtilErrors {
 
   /**
    * a file exists where we expected the purgable temp directory to be
-   * <p>
-   * No arguments.
+   *
+   * <p>No arguments.
    */
   public static final int PURGABLE_TEMP_DIR_IS_FILE = 10101;
 
   /**
    * Received less data than expected when get response from server.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The received number of bytes</TD></TR>
@@ -90,8 +94,9 @@ public interface IPSUtilErrors {
 
   /**
    * Fail to post data through HTTP protocol.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>received error code</TD></TR>

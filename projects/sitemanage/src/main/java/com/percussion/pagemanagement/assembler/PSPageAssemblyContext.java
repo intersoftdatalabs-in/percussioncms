@@ -25,158 +25,145 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
- * 
  * The model for rendering a page.
- * 
+ *
  * @author adamgent
  * @see #getRegions()
- *
  */
-public class PSPageAssemblyContext extends PSAbstractAssemblyContext
-{
-    /**
-     * never <code>null</code>.
-     * @see #getRegions()
-     */
-    private Map<String, List<PSRegionResult>> regions = new ConcurrentHashMap<>();
+public class PSPageAssemblyContext extends PSAbstractAssemblyContext {
+  /**
+   * never <code>null</code>.
+   *
+   * @see #getRegions()
+   */
+  private Map<String, List<PSRegionResult>> regions = new ConcurrentHashMap<>();
 
-    private RenderResult renderResult = null;
+  private RenderResult renderResult = null;
+
+  /**
+   * The rendering results of a region. Once a region is assembled the results are stored in this
+   * map.
+   *
+   * <p>Since the region has to be assembled first this method is only applicable for template
+   * developers. Widget code should not call this method as the results are undefined during widget
+   * assembly.
+   *
+   * <p>The region macro:
+   *
+   * <pre>
+   * #region('regionId' '' '' '' '')
+   * </pre>
+   *
+   * Is an example of template code that calls this method to get the results of a reigon.
+   *
+   * @return a map where the key is the region id and the value is render results of the region.
+   */
+  public Map<String, List<PSRegionResult>> getRegions() {
+    return regions;
+  }
+
+  public void setRegions(Map<String, List<PSRegionResult>> regions) {
+    this.regions = regions;
+  }
+
+  /**
+   * Gets the rendered page result. The caller must call this after {@link #setRegions(Map)}, or
+   * {@link #getRegions()} is not <code>null</code>.
+   *
+   * @return the rendered result, never <code>null</code>.
+   */
+  public RenderResult getRenderResult() {
+    notNull(regions);
+
+    if (renderResult == null) {
+      renderResult = new RenderResult();
+    }
+
+    return renderResult;
+  }
+
+  /**
+   * The rendered result for all regions and widgets. This is primarily used for exporting the
+   * rendered result to database. In order to make sure the data can be exported, each data type
+   * must be returned in a list. And all list must in the same order.
+   *
+   * @author YuBingChen
+   */
+  public class RenderResult {
+    private final List<RenderedWidget> renderedWidgets;
+
+    public RenderResult() {
+      renderedWidgets = new ArrayList<>();
+      for (var regionId : regions.keySet()) {
+        for (var r : regions.get(regionId)) {
+          var w = new RenderedWidget(regionId, r);
+          renderedWidgets.add(w);
+        }
+      }
+    }
 
     /**
-     * The rendering results of a region.
-     * Once a region is assembled the results are stored in this map.
-     * <p>
-     * Since the region has to be assembled first this method is only applicable for
-     * template developers. Widget code should not call this method as the results are undefined
-     * during widget assembly.
-     * <p>
-     * The region macro:
-     * <pre>
-     * #region('regionId' '' '' '' '')
-     * </pre>
-     * Is an example of template code that calls this method to get the results of a reigon.
+     * Gets the widget IDs of the page.
      *
-     * @return a map where the key is the region id and the value is render results of the region.
+     * @return widget IDs, never <code>null</code>, may be empty.
      */
-    public Map<String, List<PSRegionResult>> getRegions()
-    {
-        return regions;
-    }
-
-    public void setRegions(Map<String, List<PSRegionResult>> regions)
-    {
-        this.regions = regions;
+    public List<Long> getWidgetIds() {
+      return renderedWidgets.stream().map(w -> w.widgetId).toList();
     }
 
     /**
-     * Gets the rendered page result. The caller must call this after {@link #setRegions(Map)},
-     * or {@link #getRegions()} is not <code>null</code>.
+     * Gets the widget names of the page.
      *
-     * @return the rendered result, never <code>null</code>.
+     * @return widget names, never <code>null</code>, may be empty.
      */
-    public RenderResult getRenderResult()
-    {
-        notNull(regions);
-
-        if (renderResult == null) {
-            renderResult = new RenderResult();
-        }
-
-        return renderResult;
+    public List<String> getWidgetNames() {
+      return renderedWidgets.stream().map(w -> w.widgetName).toList();
     }
 
     /**
-     * The rendered result for all regions and widgets.
-     * This is primarily used for exporting the rendered result to database.
-     * In order to make sure the data can be exported, each data type must be returned
-     * in a list. And all list must in the same order.
+     * Gets the content of the rendered widget.
      *
-     * @author YuBingChen
+     * @return the contents, never <code>null</code>, may be empty.
      */
-    public class RenderResult
-    {
-        private final List<RenderedWidget> renderedWidgets;
-
-        public RenderResult()
-        {
-            renderedWidgets = new ArrayList<>();
-            for (var regionId : regions.keySet())
-            {
-                for (var r : regions.get(regionId))
-                {
-                    var w = new RenderedWidget(regionId, r);
-                    renderedWidgets.add(w);
-                }
-            }
-        }
-
-        /**
-         * Gets the widget IDs of the page.
-         * @return widget IDs, never <code>null</code>, may be empty.
-         */
-        public List<Long> getWidgetIds()
-        {
-            return renderedWidgets.stream().map(w -> w.widgetId).toList();
-        }
-
-        /**
-         * Gets the widget names of the page.
-         * @return widget names, never <code>null</code>, may be empty.
-         */
-        public List<String> getWidgetNames()
-        {
-            return renderedWidgets.stream().map(w -> w.widgetName).toList();
-        }
-
-        /**
-         * Gets the content of the rendered widget.
-         * @return the contents, never <code>null</code>, may be empty.
-         */
-        public List<String> getWidgetContents()
-        {
-            return renderedWidgets.stream().map(w -> w.content).toList();
-        }
-
-        /**
-         * Gets the types of the widgets on the page.
-         * @return widget types, never <code>null</code>, may be empty.
-         */
-        public List<String> getWidgetTypes()
-        {
-            return renderedWidgets.stream().map(w -> w.widgetType).toList();
-        }
-
-        /**
-         * Gets the region IDs of the rendered widgets.
-         * @return region IDs, never <code>null</code>, may be empty.
-         */
-        public List<String> getRegionIds()
-        {
-            return renderedWidgets.stream().map(w -> w.regionId).toList();
-        }
-
-        /**
-         * Represent a single widget rendering result.
-         */
-        public class RenderedWidget
-        {
-            final String regionId;
-            final Long widgetId;
-            final String widgetName;
-            final String widgetType;
-            final String content;
-
-            public RenderedWidget(String regionId, PSRegionResult result)
-            {
-                this.regionId = regionId;
-                final var wId = result.getWidget().getItem().getId();
-                widgetId = (isNotBlank(wId) && isNumeric(wId)) ? Long.parseLong(wId) : -1L;
-                widgetName = result.getWidget().getItem().getName();
-                widgetType = result.getWidget().getDefinition().getId();
-                content = result.getResult();
-            }
-        }
+    public List<String> getWidgetContents() {
+      return renderedWidgets.stream().map(w -> w.content).toList();
     }
+
+    /**
+     * Gets the types of the widgets on the page.
+     *
+     * @return widget types, never <code>null</code>, may be empty.
+     */
+    public List<String> getWidgetTypes() {
+      return renderedWidgets.stream().map(w -> w.widgetType).toList();
+    }
+
+    /**
+     * Gets the region IDs of the rendered widgets.
+     *
+     * @return region IDs, never <code>null</code>, may be empty.
+     */
+    public List<String> getRegionIds() {
+      return renderedWidgets.stream().map(w -> w.regionId).toList();
+    }
+
+    /** Represent a single widget rendering result. */
+    public class RenderedWidget {
+      final String regionId;
+      final Long widgetId;
+      final String widgetName;
+      final String widgetType;
+      final String content;
+
+      public RenderedWidget(String regionId, PSRegionResult result) {
+        this.regionId = regionId;
+        final var wId = result.getWidget().getItem().getId();
+        widgetId = (isNotBlank(wId) && isNumeric(wId)) ? Long.parseLong(wId) : -1L;
+        widgetName = result.getWidget().getItem().getName();
+        widgetType = result.getWidget().getDefinition().getId();
+        content = result.getResult();
+      }
+    }
+  }
 }

@@ -17,10 +17,9 @@
 package com.percussion.system.utils;
 
 /**
- * Implements a singleton object that stores a session counter. Each time it
- * is called, a different number will be returned. The counter resets for
- * each new session. To guarantee uniqueness within the session, a long
- * lived object must take ownership of a reference to keep the class from
+ * Implements a singleton object that stores a session counter. Each time it is called, a different
+ * number will be returned. The counter resets for each new session. To guarantee uniqueness within
+ * the session, a long lived object must take ownership of a reference to keep the class from
  * getting garbage collected.
  */
 public class PSUniqueObjectGenerator {
@@ -35,18 +34,16 @@ public class PSUniqueObjectGenerator {
   }
 
   /**
-   * Creates a unique identifier within this session of the server and
-   * appends it to the supplied root. A very simple algorithm of an
-   * incrementing counter value converted to a string is used.
-   * <p>Note:</p>
-   * <p>It is possible to get non-unique names by supplying different roots
-   * at the right time. For example, if you first submitted 'rx1' as the root,
-   * then, 10 counts later, submitted 'rx' as the root, both would return
-   * 'rx11'.
+   * Creates a unique identifier within this session of the server and appends it to the supplied
+   * root. A very simple algorithm of an incrementing counter value converted to a string is used.
    *
-   * @param root The base of the unique name. If <code>null</code> or empty,
-   *    "rxname" is used.
+   * <p>Note:
    *
+   * <p>It is possible to get non-unique names by supplying different roots at the right time. For
+   * example, if you first submitted 'rx1' as the root, then, 10 counts later, submitted 'rx' as the
+   * root, both would return 'rx11'.
+   *
+   * @param root The base of the unique name. If <code>null</code> or empty, "rxname" is used.
    * @return The unique name.
    */
   public static String makeUniqueName(String root) {
@@ -58,19 +55,15 @@ public class PSUniqueObjectGenerator {
     return root + count;
   }
 
-  /**
-   * A counter used to generate the unique values.
-   */
+  /** A counter used to generate the unique values. */
   private static int ms_counter = 1;
 
   /**
-   * The one and only instance of this object. <code>null</code> until
-   * <code>getInstance</code> is called the first time. Then immutable.
+   * The one and only instance of this object. <code>null</code> until <code>getInstance</code> is
+   * called the first time. Then immutable.
    */
   private static volatile PSUniqueObjectGenerator ms_instance;
 
-  /**
-   * Private to implement the singleton pattern.
-   */
+  /** Private to implement the singleton pattern. */
   private PSUniqueObjectGenerator() {}
 }

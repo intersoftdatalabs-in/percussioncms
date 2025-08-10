@@ -19,8 +19,8 @@ package com.percussion.workflow;
 import com.percussion.services.workflow.data.PSState;
 
 /**
- * Represents a workflow state in the system. This object is not cached at this
- * time as it may be updated via the XML applications.
+ * Represents a workflow state in the system. This object is not cached at this time as it may be
+ * updated via the XML applications.
  */
 public class PSStatesContext implements IPSStatesContext {
   private PSStatesContextPK m_statePK = null;
@@ -28,9 +28,7 @@ public class PSStatesContext implements IPSStatesContext {
   private String m_nStateDesc = null;
   private String m_contentValidValue = null;
 
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSStatesContext() {}
 
   /**
@@ -49,8 +47,8 @@ public class PSStatesContext implements IPSStatesContext {
 
   /**
    * Get the primary key
-   * @return the primary key, never <code>null</code> on a persisted
-   * object
+   *
+   * @return the primary key, never <code>null</code> on a persisted object
    */
   public PSStatesContextPK getStatePK() {
     return m_statePK;
@@ -58,6 +56,7 @@ public class PSStatesContext implements IPSStatesContext {
 
   /**
    * Set the primary key on a new object
+   *
    * @param pk the primary key, never <code>null</code>
    */
   public void setStatePK(PSStatesContextPK pk) {

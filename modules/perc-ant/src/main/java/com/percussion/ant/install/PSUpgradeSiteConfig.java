@@ -29,14 +29,14 @@ public class PSUpgradeSiteConfig extends PSAction {
   Logger log = LogManager.getLogger(PSUpgradeSiteConfig.class);
 
   /**
-   * The relative path (from the root install dir) of the source folder where
-   * the default secure sites configurations files are stored.
+   * The relative path (from the root install dir) of the source folder where the default secure
+   * sites configurations files are stored.
    */
   public static final String SECURE_FILES_SOURCE_FOLDER = "sys_resources/webapps/secure/WEB-INF";
 
   /**
-   * The relative path (from the root install dir) of the source folder where
-   * the default non secure sites configurations files are stored.
+   * The relative path (from the root install dir) of the source folder where the default non secure
+   * sites configurations files are stored.
    */
   public static final String NON_SECURE_FILES_SOURCE_FOLDER =
       "sys_resources/webapps/non-secure/WEB-INF";

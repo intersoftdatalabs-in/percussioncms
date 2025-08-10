@@ -33,15 +33,15 @@ import java.util.Iterator;
 
 /**
  * This UDF formats a content item title for a new clone.
- * <p>
- * If the HTML parameter {@link IPSHtmlParameters#SYS_TITLE_OVERRIDE} is not
- * <code>null</code> or empty, then return the value of the parameter. The
- * parameter will be removed afterwards. Otherwise, it will do the following.
- * <p>
- * It queries CMS relationships in order to determine how many clones already
- * exist of an original item / owner, then, given java MessageFormat string
- * with or without insertion items and one or more dynamic parameters, formats
- * the final title for a new cloned item.
+ *
+ * <p>If the HTML parameter {@link IPSHtmlParameters#SYS_TITLE_OVERRIDE} is not <code>null</code> or
+ * empty, then return the value of the parameter. The parameter will be removed afterwards.
+ * Otherwise, it will do the following.
+ *
+ * <p>It queries CMS relationships in order to determine how many clones already exist of an
+ * original item / owner, then, given java MessageFormat string with or without insertion items and
+ * one or more dynamic parameters, formats the final title for a new cloned item.
+ *
  * <pre>
  * <p>
  * Param1: (required) MessageFormat string, ie: [{0}]Copy $clone_count of {1}
@@ -70,9 +70,8 @@ import java.util.Iterator;
  *
  * </pre>
  *
- * Note: if the number of {inserts} in the MessageFormat string does not
- * match the number of paremeters (after format) given to this UDF, then
- * it will throw the PSConversionException.
+ * Note: if the number of {inserts} in the MessageFormat string does not match the number of
+ * paremeters (after format) given to this UDF, then it will throw the PSConversionException.
  *
  * @author Vitaly.
  */
@@ -129,10 +128,8 @@ public class PSSimpleJavaUdf_cloneTitle extends PSSimpleJavaUdfExtension {
    * Returns a number of clones of a supplied contentid that already exist in the system.
    *
    * @param request request context, never <code>null</code>.
-   *
-   * @return a positive number of the existing clones of a SYS_CONTENTID
-   * that is set on the given request.
-   *
+   * @return a positive number of the existing clones of a SYS_CONTENTID that is set on the given
+   *     request.
    * @throws PSCmsException if ProcessorProxy fails to fetch or parse the doc.
    */
   private int calculateCloneCount(IPSRequestContext request) throws PSCmsException {

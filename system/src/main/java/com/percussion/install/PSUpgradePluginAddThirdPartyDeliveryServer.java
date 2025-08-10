@@ -20,19 +20,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Adds another deliveryServer entry for cloud server, with third-party-service
- * in the list of available services
+ * Adds another deliveryServer entry for cloud server, with third-party-service in the list of
+ * available services
  *
  * @author LucasPiccoli
- *
  */
 public class PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginDeliveryServersBase {
 
   /**
-   * Creates a new DeliveryServer entry for the cloud server, with all the
-   * configuration elements (URL / username, etc)
-   * // REFACTORED: CP-JAVA11
-   * public class PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginDeliveryServersBase
+   * Creates a new DeliveryServer entry for the cloud server, with all the configuration elements
+   * (URL / username, etc) // REFACTORED: CP-JAVA11 public class
+   * PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginDeliveryServersBase
    */
   @Override
   protected void upgradeDeliveryServers(Document doc) {
@@ -66,6 +64,7 @@ public class PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginD
 
   /**
    * Adds available services to the deliveryServer.
+   *
    * @param doc w3c.DOM parsed documment for delivery-servers.xml
    * @param deliveryServer The cloud delivery server in which to add the services.
    */

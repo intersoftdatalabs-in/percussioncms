@@ -22,20 +22,17 @@ import com.percussion.design.objectstore.PSTableLocator;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-/**
- * Class to convert v5.x {@link PSLegacyTableLocator} to use datasources.
- */
+/** Class to convert v5.x {@link PSLegacyTableLocator} to use datasources. */
 public class PSTableLocatorConverter extends PSBaseComponentConverter {
 
   /**
    * Construct the converter.
    *
-   * @param configCtx Supplies the configurations required for conversion, may
-   * not be <code>null</code>.
-   * @param updateConfig <code>true</code> to create required configurations
-   * if they are not found in the configurations supplied by the
-   * <code>configCtx</code>, <code>false</code> to throw an exception if
-   * the required configurations are not found.
+   * @param configCtx Supplies the configurations required for conversion, may not be <code>null
+   *     </code>.
+   * @param updateConfig <code>true</code> to create required configurations if they are not found
+   *     in the configurations supplied by the <code>configCtx</code>, <code>false</code> to throw
+   *     an exception if the required configurations are not found.
    */
   public PSTableLocatorConverter(PSConfigurationCtx configCtx, boolean updateConfig) {
     super(configCtx, null, updateConfig);
@@ -124,16 +121,12 @@ public class PSTableLocatorConverter extends PSBaseComponentConverter {
   }
 
   /**
-   * Creates a table locator from the supplied legacy table locator using the
-   * specified datasource name.  The supplied locator should have been
-   * constructed with backend credentials
+   * Creates a table locator from the supplied legacy table locator using the specified datasource
+   * name. The supplied locator should have been constructed with backend credentials
    *
-   * @param dsName The datasource name to use, may be <code>null</code> or
-   * empty.
-   * @param oldTableLoc The table locator on which the new locator is based,
-   * assumed not <code>null</code> and to have been constructed with backend
-   * credentials.
-   *
+   * @param dsName The datasource name to use, may be <code>null</code> or empty.
+   * @param oldTableLoc The table locator on which the new locator is based, assumed not <code>null
+   *     </code> and to have been constructed with backend credentials.
    * @return The new locator, never <code>null</code>.
    */
   private PSTableLocator createTableLoc(String dsName, PSLegacyTableLocator oldTableLoc) {
@@ -147,12 +140,11 @@ public class PSTableLocatorConverter extends PSBaseComponentConverter {
   }
 
   /**
-   * Creates a new table loactor based on an old locator that was constructed
-   * with an alias ref as opposed to backend credentials.
+   * Creates a new table loactor based on an old locator that was constructed with an alias ref as
+   * opposed to backend credentials.
    *
-   * @param oldTableLoc The old table locator, assumed not <code>null</code>
-   * and to have been constructed with an alias ref.
-   *
+   * @param oldTableLoc The old table locator, assumed not <code>null</code> and to have been
+   *     constructed with an alias ref.
    * @return The new locator, never <code>null</code>.
    */
   private PSTableLocator createTableLoc(PSLegacyTableLocator oldTableLoc) {
@@ -163,26 +155,22 @@ public class PSTableLocatorConverter extends PSBaseComponentConverter {
   }
 
   /**
-   * Returns <code>true</code> for type of {@link PSLegacyTableLocator}.  See
-   * {@link IPSComponentConverter} for more info.
+   * Returns <code>true</code> for type of {@link PSLegacyTableLocator}. See {@link
+   * IPSComponentConverter} for more info.
    */
   public boolean canConvertComponent(Class type) {
     return type.getName().equals(PSTableLocator.class.getName());
   }
 
   /**
-   * Resolves the connection information in the supplied table locator to a
-   * datasource. If no configuration is found and {@link #shouldUpdateConfig()}
-   * is <code>true</code>, will create the required configurations.
+   * Resolves the connection information in the supplied table locator to a datasource. If no
+   * configuration is found and {@link #shouldUpdateConfig()} is <code>true</code>, will create the
+   * required configurations.
    *
-   * @param oldTableLoc The table locator to convert, assumed not
-   * <code>null</code>.
-   *
-   * @return The datasource name, <code>null</code> if it is the respository
-   * datasource, never empty.
-   *
-   * @throws PSUnknownNodeTypeException If the datasource name cannot be
-   * resolved.
+   * @param oldTableLoc The table locator to convert, assumed not <code>null</code>.
+   * @return The datasource name, <code>null</code> if it is the respository datasource, never
+   *     empty.
+   * @throws PSUnknownNodeTypeException If the datasource name cannot be resolved.
    */
   private String resolveToDatasource(PSLegacyTableLocator oldTableLoc)
       throws PSUnknownNodeTypeException {

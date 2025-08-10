@@ -22,19 +22,16 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.extensions.Extension;
 import com.percussion.rest.extensions.ExtensionFilterOptions;
 import com.percussion.rest.extensions.IExtensionAdaptor;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
-/**
- * Test adaptor for Extension API bridge.
- */
+/** Test adaptor for Extension API bridge. */
 @Component
 public class TestExtensionAdaptor implements IExtensionAdaptor {
 
-    @Override
-    public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
-        return null;
-    }
+  @Override
+  public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
+    return null;
+  }
 }

@@ -39,27 +39,23 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This effect attaches a new clone based on a relationship list from the
- * predefined list of relationships to the folder specified via an HTML
- * parameter in the request.
- * <p>
- * The effect will be active for the situations meeting the following
- * conditions:
- * <ol>
- * <li>The context must be relationship creation</li>
- * <li>Non <code>null</code> and non empty HTML parameter {@link
- * com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} must exist in the
- * request. If more than one value exists the clone will be addedd to all
- * target folders</li>
- * <li>The originating and current relationship must be the same. This assures
- * that the effect is processed only once in the request life time</li>
- * </ol>
- * <p>
- * This effect typically goes on to the relationships which allow creation of
- * clones from the user interface such as "New Copy", "Promotable Version" etc.
- * Note that it does not check if the clone is already attached to a requested
- * target folder.
+ * This effect attaches a new clone based on a relationship list from the predefined list of
+ * relationships to the folder specified via an HTML parameter in the request.
  *
+ * <p>The effect will be active for the situations meeting the following conditions:
+ *
+ * <ol>
+ *   <li>The context must be relationship creation
+ *   <li>Non <code>null</code> and non empty HTML parameter {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} must exist in the request. If
+ *       more than one value exists the clone will be addedd to all target folders
+ *   <li>The originating and current relationship must be the same. This assures that the effect is
+ *       processed only once in the request life time
+ * </ol>
+ *
+ * <p>This effect typically goes on to the relationships which allow creation of clones from the
+ * user interface such as "New Copy", "Promotable Version" etc. Note that it does not check if the
+ * clone is already attached to a requested target folder.
  */
 @PSHandlesEffectContext(required = PSEffectContext.PRE_CONSTRUCTION)
 public class PSAttachCloneToFolder extends PSEffect {
@@ -174,13 +170,13 @@ public class PSAttachCloneToFolder extends PSEffect {
   }
 
   /**
-   * Predefined list of categories for which the new clone needs to be
-   * attached to the supplied folder. This list cuurently contains three
-   * categories:
+   * Predefined list of categories for which the new clone needs to be attached to the supplied
+   * folder. This list cuurently contains three categories:
+   *
    * <ol>
-   * <li>{@link PSRelationshipConfig.CATEGORY_COPY New Copy}</li>
-   * <li>{@link PSRelationshipConfig.CATEGORY_PROMOTABLE Promotable Version}</li>
-   * <li>{@link PSRelationshipConfig.CATEGORY_TRANSLATION Translation}</li>
+   *   <li>{@link PSRelationshipConfig.CATEGORY_COPY New Copy}
+   *   <li>{@link PSRelationshipConfig.CATEGORY_PROMOTABLE Promotable Version}
+   *   <li>{@link PSRelationshipConfig.CATEGORY_TRANSLATION Translation}
    * </ol>
    */
   static Set ms_cloneRelCategories = new HashSet();

@@ -26,14 +26,12 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit tests for <code>PSJdbcDataTypeMapping</code>.
- */
+/** Unit tests for <code>PSJdbcDataTypeMapping</code>. */
 public class PSJdbcDataTypeMappingTest {
 
   /**
-   * Tests the various permutations of illegal parameters to the ctor to make
-   * sure they all throw IllegalArgumentExceptions.
+   * Tests the various permutations of illegal parameters to the ctor to make sure they all throw
+   * IllegalArgumentExceptions.
    */
   @Test
   public void testIllegalCtors() throws Exception {
@@ -71,8 +69,8 @@ public class PSJdbcDataTypeMappingTest {
   }
 
   /**
-   * Constructs a PSJdbcDataTypeMapping with arguments assumed to be illegal
-   * and makes sure an IllegalArgumentException is thrown.
+   * Constructs a PSJdbcDataTypeMapping with arguments assumed to be illegal and makes sure an
+   * IllegalArgumentException is thrown.
    */
   private void testIllegalCtor(
       String jdbc, String nativeStr, String defaultSize, String defaultScale, String suffix) {
@@ -87,8 +85,8 @@ public class PSJdbcDataTypeMappingTest {
   }
 
   /**
-   * Constructs a PSJdbcDataTypeMapping from an XML representation assumed to
-   * be invalid and makes sure an PSJdbcTableFactoryException is thrown.
+   * Constructs a PSJdbcDataTypeMapping from an XML representation assumed to be invalid and makes
+   * sure an PSJdbcTableFactoryException is thrown.
    */
   private void testIllegalCtor(Element sourceNode) {
     boolean didThrow = false;
@@ -100,10 +98,7 @@ public class PSJdbcDataTypeMappingTest {
     assertTrue(didThrow, "Expected PSJdbcTableFactoryException for invalid XML ctor");
   }
 
-  /**
-   * Tests the ctor with a various parameters and makes sure the parameters
-   * are assigned.
-   */
+  /** Tests the ctor with a various parameters and makes sure the parameters are assigned. */
   @Test
   public void testCtorAndGetters() throws Exception {
     testCtorsAndGetters("BIT", "BIT", null, null, null);
@@ -113,10 +108,9 @@ public class PSJdbcDataTypeMappingTest {
   }
 
   /**
-   * Constructs a PSJdbcDataTypeMapping with the supplied parameters and makes
-   * sure the getters methods return the values assigned.  Also performs an
-   * XML representation copy and make sure the copy's getters methods return
-   * the same values.
+   * Constructs a PSJdbcDataTypeMapping with the supplied parameters and makes sure the getters
+   * methods return the values assigned. Also performs an XML representation copy and make sure the
+   * copy's getters methods return the same values.
    */
   private void testCtorsAndGetters(
       String jdbc, String nativeStr, String defaultSize, String defaultScale, String suffix)
@@ -130,10 +124,7 @@ public class PSJdbcDataTypeMappingTest {
     assertInstanceValues(mappingCopy, jdbc, nativeStr, defaultSize, defaultScale, suffix);
   }
 
-  /**
-   * Tests a particular instance to make sure its getter methods return
-   * the supplied values.
-   */
+  /** Tests a particular instance to make sure its getter methods return the supplied values. */
   private static void assertInstanceValues(
       PSJdbcDataTypeMapping dataType,
       String jdbc,

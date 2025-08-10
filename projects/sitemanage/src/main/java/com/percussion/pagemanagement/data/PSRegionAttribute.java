@@ -17,64 +17,59 @@
 
 package com.percussion.pagemanagement.data;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Objects;
 
-/**
- * Represents an attribute for a region (e.g., HTML attribute).
- */
+/** Represents an attribute for a region (e.g., HTML attribute). */
 @XmlRootElement(name = "RegionAttribute")
 public class PSRegionAttribute {
 
-    private String name;
-    private String value;
+  private String name;
+  private String value;
 
-    public PSRegionAttribute() {
-        // Required JaxB no-arg constructor
-    }
+  public PSRegionAttribute() {
+    // Required JaxB no-arg constructor
+  }
 
-    public PSRegionAttribute(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
+  public PSRegionAttribute(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    @XmlElement
-    public String getName() {
-        return name;
-    }
+  @XmlElement
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @XmlElement
-    public String getValue() {
-        return value;
-    }
+  @XmlElement
+  public String getValue() {
+    return value;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSRegionAttribute)) return false;
-        var that = (PSRegionAttribute) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getValue(), that.getValue());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSRegionAttribute)) return false;
+    var that = (PSRegionAttribute) o;
+    return Objects.equals(getName(), that.getName()) && Objects.equals(getValue(), that.getValue());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getValue());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getValue());
+  }
 
-    @Override
-    public String toString() {
-        return "PSRegionAttribute{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSRegionAttribute{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
+  }
 }

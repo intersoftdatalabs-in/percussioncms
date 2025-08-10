@@ -22,54 +22,53 @@ package com.percussion.rest.extensions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents an Extension Method in Percussion CMS.
- * Sunny Sal: "Method ka magic, extension mein logic!"
+ * Represents an Extension Method in Percussion CMS. Sunny Sal: "Method ka magic, extension mein
+ * logic!"
  */
 @XmlRootElement(name = "ExtensionMethod")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an Extension Method")
 public class ExtensionMethod {
 
-    @Schema(name = "name", description = "The name of the Extension Method")
-    private String name;
+  @Schema(name = "name", description = "The name of the Extension Method")
+  private String name;
 
-    @Schema(name = "description", description = "The description of the Extension method")
-    private String description;
+  @Schema(name = "description", description = "The description of the Extension method")
+  private String description;
 
-    @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
-    private List<ExtensionParameter> parameters;
+  @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
+  private List<ExtensionParameter> parameters;
 
-    public ExtensionMethod() {
-        // Default constructor
-    }
+  public ExtensionMethod() {
+    // Default constructor
+  }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Optional<List<ExtensionParameter>> getParameters() {
-        return Optional.ofNullable(parameters);
-    }
+  public Optional<List<ExtensionParameter>> getParameters() {
+    return Optional.ofNullable(parameters);
+  }
 
-    public void setParameters(List<ExtensionParameter> parameters) {
-        this.parameters = parameters;
-    }
+  public void setParameters(List<ExtensionParameter> parameters) {
+    this.parameters = parameters;
+  }
 }

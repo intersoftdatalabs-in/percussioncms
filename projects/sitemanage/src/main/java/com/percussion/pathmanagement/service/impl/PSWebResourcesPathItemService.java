@@ -21,51 +21,48 @@ import com.percussion.designmanagement.service.IPSFileSystemService;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.ui.service.IPSListViewHelper;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Path item service for the "web_resources" directory of the CM1 root dir.
- */
+/** Path item service for the "web_resources" directory of the CM1 root dir. */
 public class PSWebResourcesPathItemService extends PSFileSystemPathItemService {
 
-    public PSWebResourcesPathItemService(
-            IPSFolderHelper folderHelper,
-            IPSFileSystemService fileSystemManagerService,
-            IPSListViewHelper listViewHelper) {
-        super(folderHelper, fileSystemManagerService, listViewHelper);
+  public PSWebResourcesPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSFileSystemService fileSystemManagerService,
+      IPSListViewHelper listViewHelper) {
+    super(folderHelper, fileSystemManagerService, listViewHelper);
+  }
+
+  @Override
+  protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
+    PSPathUtils.validatePath(path);
+    var fullFolderPath = WEB_RESOURCES_ROOT;
+    if (!"/".equals(path)) {
+      fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
     }
+    return fullFolderPath;
+  }
 
-    @Override
-    protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
-        PSPathUtils.validatePath(path);
-        var fullFolderPath = WEB_RESOURCES_ROOT;
-        if (!"/".equals(path)) {
-            fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
-        }
-        return fullFolderPath;
-    }
+  @Override
+  protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
+    var rootItem = findItem("/");
+    rootItem.setName(rootName);
+    var fullFolderPath = getFullFolderPath("/");
+    rootItem.setFolderPath(fullFolderPath);
 
-    @Override
-    protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
-        var rootItem = findItem("/");
-        rootItem.setName(rootName);
-        var fullFolderPath = getFullFolderPath("/");
-        rootItem.setFolderPath(fullFolderPath);
+    // FIXME This "Design" value should not be here. See PSPathService for proper handling.
+    rootItem.setFolderPaths(Arrays.asList("//Design"));
 
-        // FIXME This "Design" value should not be here. See PSPathService for proper handling.
-        rootItem.setFolderPaths(Arrays.asList("//Design"));
+    Map<String, String> displayProperties = new HashMap<>();
+    displayProperties.put(IPSListViewHelper.TITLE_NAME, rootName);
+    rootItem.setDisplayProperties(displayProperties);
 
-        Map<String, String> displayProperties = new HashMap<>();
-        displayProperties.put(IPSListViewHelper.TITLE_NAME, rootName);
-        rootItem.setDisplayProperties(displayProperties);
+    return rootItem;
+  }
 
-        return rootItem;
-    }
-
-    // FIXME These values here should not have "Design" in them. However, it doesn't work without it.
-    public static final String WEB_RESOURCES_ROOT_SUB = "/Design/web_resources";
-    public static final String WEB_RESOURCES_ROOT = "/" + WEB_RESOURCES_ROOT_SUB;
+  // FIXME These values here should not have "Design" in them. However, it doesn't work without it.
+  public static final String WEB_RESOURCES_ROOT_SUB = "/Design/web_resources";
+  public static final String WEB_RESOURCES_ROOT = "/" + WEB_RESOURCES_ROOT_SUB;
 }

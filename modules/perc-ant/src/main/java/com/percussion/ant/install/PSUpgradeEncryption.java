@@ -21,9 +21,9 @@ import org.apache.tools.ant.BuildException;
 
 /**
  * This class is responsible for updating encryption from legacy algorithms to new ones on upgrade.
- * It will check for a configuration file that contains the currently configured algorithm and if that
- * setting does not exist all existing files and passwords will be decrypted using old algorithm and then
- * re-encrypted using the new one.
+ * It will check for a configuration file that contains the currently configured algorithm and if
+ * that setting does not exist all existing files and passwords will be decrypted using old
+ * algorithm and then re-encrypted using the new one.
  */
 public class PSUpgradeEncryption extends PSAction {
 
@@ -36,10 +36,9 @@ public class PSUpgradeEncryption extends PSAction {
   */
 
   /**
-   * This will handle initialization of the install logger, loading of
-   * PreviousVersion.properties for upgrades, and setting of the entity
-   * resolver's resolution home used to find DTD's.  It also determines if
-   * all files should be refreshed by date.
+   * This will handle initialization of the install logger, loading of PreviousVersion.properties
+   * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
+   * determines if all files should be refreshed by date.
    */
   @Override
   public void execute() throws BuildException {

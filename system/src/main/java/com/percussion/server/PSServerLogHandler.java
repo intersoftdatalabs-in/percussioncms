@@ -39,20 +39,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSServerLogHandler class provides logging utilities for use within
- * the server core. It mainly provides convenience routines for common
- * type of logging.
+ * The PSServerLogHandler class provides logging utilities for use within the server core. It mainly
+ * provides convenience routines for common type of logging.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSServerLogHandler {
   private static final Logger ms_logger = LogManager.getLogger(PSServerLogHandler.class);
 
-  /**
-   * Construction of this class is not permitted.
-   */
+  /** Construction of this class is not permitted. */
   private PSServerLogHandler() {
     super();
   }
@@ -60,9 +57,8 @@ public class PSServerLogHandler {
   /**
    * Log an exception caught during request pre-processing.
    *
-   * @param   conn            the requestor's connection
-   *
-   * @param   error            the exception that was thrown
+   * @param conn the requestor's connection
+   * @param error the exception that was thrown
    */
   public static void handlePreProcessingError(IPSConnection conn, Exception error) {
     if (error instanceof PSRequestParsingException) {
@@ -82,18 +78,14 @@ public class PSServerLogHandler {
 
   /**
    * Log an error encountered during request pre-processing.
-   * <p>
-   * The error string is formatted by loading the string
-   * associated with the error code and passing it the array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
    *
-   * @param   conn            the requestor connection
+   * <p>The error string is formatted by loading the string associated with the error code and
+   * passing it the array of arguments. Be sure to store the arguments in the correct order in the
+   * array, where {0} in the string is array element 0, etc.
    *
-   * @param   errorCode      the associated error code
-   *
-   * @param   args            the array of arguments to use as the arguments
-   *                                                                                 in the error message
+   * @param conn the requestor connection
+   * @param errorCode the associated error code
+   * @param args the array of arguments to use as the arguments in the error message
    */
   public static void handlePreProcessingError(IPSConnection conn, int errorCode, Object[] args) {
     InetAddress host = null;
@@ -107,10 +99,10 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Handle the user request removal from the queue list due to the expiration of
-   * request waiting time
+   * Handle the user request removal from the queue list due to the expiration of request waiting
+   * time
    *
-   * @param conn     the requestor's connection
+   * @param conn the requestor's connection
    */
   public static void handleRequestWaitingTimeExpired(IPSConnection conn) {
     int applId = 0;
@@ -120,9 +112,7 @@ public class PSServerLogHandler {
     reportError(conn, new PSRequestWaitTooLongError(applId, sessionId, size));
   }
 
-  /**
-   * Handle error occurance when trying to check a user's access level
-   */
+  /** Handle error occurance when trying to check a user's access level */
   public static void handleAccessError(
       PSRequest request,
       int applId,
@@ -137,17 +127,16 @@ public class PSServerLogHandler {
 
   /**
    * Handle a terminal exception, which will cause server shut-down.
-   * <P><EM>Note:</EM> A call to this method will never return.
-   * <P>
-   * The error string is formatted by loading the string
-   * associated with the error code and passing it the array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   *
+   * <p><EM>Note:</EM> A call to this method will never return.
+   *
+   * <p>The error string is formatted by loading the string associated with the error code and
+   * passing it the array of arguments. Be sure to store the arguments in the correct order in the
+   * array, where {0} in the string is array element 0, etc.
    *
    * @param errorCode the associated error code
-   *
-   * @param args the array of arguments to use as the arguments
-   * in the error message. May be <code>null</code>.
+   * @param args the array of arguments to use as the arguments in the error message. May be <code>
+   *     null</code>.
    */
   public static void handleTerminalError(int errorCode, Object[] args) {
     PSFatalError err = new PSFatalError(errorCode, args);
@@ -164,13 +153,12 @@ public class PSServerLogHandler {
 
   /**
    * Log an error encountered during request pre-processing.
-   * <p>
-   * The error string is formatted by loading the string
-   * associated with the error code and passing it the array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
    *
-   * @param   conn            the requestor's connection
+   * <p>The error string is formatted by loading the string associated with the error code and
+   * passing it the array of arguments. Be sure to store the arguments in the correct order in the
+   * array, where {0} in the string is array element 0, etc.
+   *
+   * @param conn the requestor's connection
    */
   public static void handleServerShuttingDown(IPSConnection conn) {
     try {
@@ -190,7 +178,7 @@ public class PSServerLogHandler {
   /**
    * The request handler could not be found for the specified request.
    *
-   * @param   req         the request object
+   * @param req the request object
    */
   public static void handleRequestHandlerNotFound(PSRequest req) {
     // log the user activity to tie back the error
@@ -207,11 +195,9 @@ public class PSServerLogHandler {
   /**
    * The data set could not be found for the specified request.
    *
-   * @param   req         the request object
-   *
-   * @param   applId      the id of the application
-   *
-   * @param   applName      the name of the application
+   * @param req the request object
+   * @param applId the id of the application
+   * @param applName the name of the application
    */
   public static void handleDataSetNotFound(PSRequest req, int applId, java.lang.String applName) {
     // log the user activity to tie back the error
@@ -230,18 +216,13 @@ public class PSServerLogHandler {
   }
 
   /**
-   * The data set request handler could not be found for the
-   * specified request.
+   * The data set request handler could not be found for the specified request.
    *
-   * @param   req         the request object
-   *
-   * @param   applId      the id of the application
-   *
-   * @param   applName      the name of the application
-   *
-   * @param   dataSetName   the name of the data set
-   *
-   * @param   requestType   the type of request
+   * @param req the request object
+   * @param applId the id of the application
+   * @param applName the name of the application
+   * @param dataSetName the name of the data set
+   * @param requestType the type of request
    */
   public static void handleDataSetHandlerNotFound(
       PSRequest req,
@@ -268,9 +249,8 @@ public class PSServerLogHandler {
   /**
    * Report an application validation error.
    *
-   * @param   applId      the id of the application
-   *
-   * @param   e            the validation exception to report
+   * @param applId the id of the application
+   * @param e the validation exception to report
    */
   public static void handleValidationError(int applId, PSSystemValidationException e) {
     org.w3c.dom.Element xmlData = null;
@@ -291,10 +271,10 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Log the specified message using the server's log handler. If
-   * logging of the specified action is disabled, it is not performed.
+   * Log the specified message using the server's log handler. If logging of the specified action is
+   * disabled, it is not performed.
    *
-   * @param   msg      the message to log
+   * @param msg the message to log
    */
   public static void logMessage(PSLogInformation msg) {
     ms_logger.info(
@@ -306,14 +286,13 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Log the specified exception message using the server's log handler.
-   * The log message includes a full stack trace and a localized message.
-   * If logging of the specified action is disabled, it is not performed.
+   * Log the specified exception message using the server's log handler. The log message includes a
+   * full stack trace and a localized message. If logging of the specified action is disabled, it is
+   * not performed.
    *
-   * @param message   the message to log before the stack trace, may be
-   * <code>null</code> or <code>empty</code>.
+   * @param message the message to log before the stack trace, may be <code>null</code> or <code>
+   *     empty</code>.
    * @param t an exception object, never <code>null</code>.
-   *
    * @return log error with the full message logged, never <code>null</code>.
    */
   public static PSLogError logException(String message, Throwable t) {
@@ -332,12 +311,10 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Report an error which does not have a request or response object
-   * associated with it.
+   * Report an error which does not have a request or response object associated with it.
    *
-   * @param   conn         the connection which encountered the error
-   *
-   * @param   error         the PSLogError subclass describing the error
+   * @param conn the connection which encountered the error
+   * @param error the PSLogError subclass describing the error
    */
   private static void reportError(IPSConnection conn, PSLogError error) {
     PSResponse resp = null;
@@ -354,12 +331,10 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Report an error which does not have a request or response object
-   * associated with it.
+   * Report an error which does not have a request or response object associated with it.
    *
-   * @param   req         the request which encountered the error
-   *
-   * @param   error         the PSLogError subclass describing the error
+   * @param req the request which encountered the error
+   * @param error the PSLogError subclass describing the error
    */
   private static void reportError(PSRequest req, PSLogError error) {
     /* We are now grabbing the error/log handlers from the request
@@ -378,18 +353,12 @@ public class PSServerLogHandler {
   }
 
   /**
-   * Report an error which does not have a request or response object
-   * associated with it.
+   * Report an error which does not have a request or response object associated with it.
    *
-   * @param   eh            the error handler to report through
-   *                                                                              (or null to use the servers)
-   *
-   * @param   lh            the log handler to report through
-   *                                                                              (or null to use the servers)
-   *
-   * @param   resp         the response object to report the error to
-   *
-   * @param   error         the PSLogError subclass describing the error
+   * @param eh the error handler to report through (or null to use the servers)
+   * @param lh the log handler to report through (or null to use the servers)
+   * @param resp the response object to report the error to
+   * @param error the PSLogError subclass describing the error
    */
   private static void reportError(
       PSErrorHandler eh, PSLogHandler lh, PSResponse resp, PSLogError error) {
@@ -409,7 +378,7 @@ public class PSServerLogHandler {
   /**
    * Log the specified error's sub-messages to the screen.
    *
-   * @param   err      the error to log
+   * @param err the error to log
    */
   private static void logToScreen(PSLogInformation err) {
     PSLogSubMessage[] msgs = err.getSubMessages();

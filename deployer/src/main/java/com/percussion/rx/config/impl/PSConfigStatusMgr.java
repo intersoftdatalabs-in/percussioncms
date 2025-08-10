@@ -24,138 +24,138 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.util.PSBaseBean;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @PSBaseBean("sys_configStatusMgr")
 public class PSConfigStatusMgr implements IPSConfigStatusMgr {
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    private Session getSession() {
-        return entityManager.unwrap(Session.class);
+  private Session getSession() {
+    return entityManager.unwrap(Session.class);
+  }
+
+  @Override
+  public PSConfigStatus createConfigStatus(String configName) {
+    if (StringUtils.isBlank(configName))
+      throw new IllegalArgumentException("configName must not be blank");
+    var cs = new PSConfigStatus();
+    IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
+    int stid = gmgr.createId("CONFIG_STATUS_ID");
+    cs.setStatusId(stid);
+    cs.setConfigName(configName);
+    return cs;
+  }
+
+  @Override
+  public void saveConfigStatus(PSConfigStatus obj) {
+    if (obj == null) throw new IllegalArgumentException("obj may not be null");
+    getSession().saveOrUpdate(obj);
+  }
+
+  @Override
+  public PSConfigStatus loadConfigStatus(long statusID) throws PSNotFoundException {
+    return loadConfigStatusModifiable(statusID);
+  }
+
+  @Override
+  public PSConfigStatus loadConfigStatusModifiable(long statusID) throws PSNotFoundException {
+    Session session = getSession();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+    CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+    Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+    criteria.where(builder.equal(critRoot.get("statusid"), statusID));
+    var cfgStatus = entityManager.createQuery(criteria).getSingleResult();
+
+    if (cfgStatus == null) {
+      var msg = "Failed to find config status for supplied status id ({0})";
+      throw new PSNotFoundException(MessageFormat.format(msg, statusID));
     }
+    return cfgStatus;
+  }
 
-    @Override
-    public PSConfigStatus createConfigStatus(String configName) {
-        if (StringUtils.isBlank(configName))
-            throw new IllegalArgumentException("configName must not be blank");
-        var cs = new PSConfigStatus();
-        IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-        int stid = gmgr.createId("CONFIG_STATUS_ID");
-        cs.setStatusId(stid);
-        cs.setConfigName(configName);
-        return cs;
-    }
+  @Override
+  public List<PSConfigStatus> findConfigStatus(String nameFilter) {
+    if (StringUtils.isBlank(nameFilter))
+      throw new IllegalArgumentException("nameFilter may not be null or empty string");
 
-    @Override
-    public void saveConfigStatus(PSConfigStatus obj) {
-        if (obj == null)
-            throw new IllegalArgumentException("obj may not be null");
-        getSession().saveOrUpdate(obj);
-    }
+    Session session = getSession();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+    CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+    Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+    criteria.where(
+        builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
+    criteria.orderBy(
+        builder.asc(critRoot.get("configName")), builder.desc(critRoot.get("dateApplied")));
+    return entityManager.createQuery(criteria).getResultList();
+  }
 
-    @Override
-    public PSConfigStatus loadConfigStatus(long statusID) throws PSNotFoundException {
-        return loadConfigStatusModifiable(statusID);
-    }
+  @Override
+  public List<PSConfigStatus> findLatestConfigStatus(String nameFilter) {
+    if (StringUtils.isBlank(nameFilter))
+      throw new IllegalArgumentException("nameFilter may not be null or empty string");
 
-    @Override
-    public PSConfigStatus loadConfigStatusModifiable(long statusID) throws PSNotFoundException {
-        Session session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-        criteria.where(builder.equal(critRoot.get("statusid"), statusID));
-        var cfgStatus = entityManager.createQuery(criteria).getSingleResult();
-
-        if (cfgStatus == null) {
-            var msg = "Failed to find config status for supplied status id ({0})";
-            throw new PSNotFoundException(MessageFormat.format(msg, statusID));
+    var resultList = new ArrayList<PSConfigStatus>();
+    var cfgStatusList = findConfigStatus(nameFilter);
+    if (!cfgStatusList.isEmpty()) {
+      var currPkg = cfgStatusList.get(0);
+      resultList.add(currPkg);
+      for (var status : cfgStatusList) {
+        if (!currPkg.getConfigName().equalsIgnoreCase(status.getConfigName())) {
+          resultList.add(status);
+          currPkg = status;
         }
-        return cfgStatus;
+      }
     }
+    return resultList;
+  }
 
-    @Override
-    public List<PSConfigStatus> findConfigStatus(String nameFilter) {
-        if (StringUtils.isBlank(nameFilter))
-            throw new IllegalArgumentException("nameFilter may not be null or empty string");
+  @Override
+  public void deleteConfigStatus(long statusID) throws PSNotFoundException {
+    var cfgStatus = loadConfigStatusModifiable(statusID);
+    getSession().delete(cfgStatus);
+  }
 
-        Session session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-        criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
-        criteria.orderBy(builder.asc(critRoot.get("configName")), builder.desc(critRoot.get("dateApplied")));
-        return entityManager.createQuery(criteria).getResultList();
-    }
+  @Override
+  public void deleteConfigStatus(String nameFilter) {
+    if (StringUtils.isBlank(nameFilter))
+      throw new IllegalArgumentException("nameFilter may not be null or empty string");
 
-    @Override
-    public List<PSConfigStatus> findLatestConfigStatus(String nameFilter) {
-        if (StringUtils.isBlank(nameFilter))
-            throw new IllegalArgumentException("nameFilter may not be null or empty string");
+    Session sess = getSession();
+    CriteriaBuilder builder = sess.getCriteriaBuilder();
+    CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+    Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+    criteria.where(
+        builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
+    criteria.orderBy(
+        builder.asc(critRoot.get("configName")), builder.asc(critRoot.get("dateApplied")));
+    entityManager.createQuery(criteria).getResultList().forEach(sess::delete);
+  }
 
-        var resultList = new ArrayList<PSConfigStatus>();
-        var cfgStatusList = findConfigStatus(nameFilter);
-        if (!cfgStatusList.isEmpty()) {
-            var currPkg = cfgStatusList.get(0);
-            resultList.add(currPkg);
-            for (var status : cfgStatusList) {
-                if (!currPkg.getConfigName().equalsIgnoreCase(status.getConfigName())) {
-                    resultList.add(status);
-                    currPkg = status;
-                }
-            }
-        }
-        return resultList;
-    }
-
-    @Override
-    public void deleteConfigStatus(long statusID) throws PSNotFoundException {
-        var cfgStatus = loadConfigStatusModifiable(statusID);
-        getSession().delete(cfgStatus);
-    }
-
-    @Override
-    public void deleteConfigStatus(String nameFilter) {
-        if (StringUtils.isBlank(nameFilter))
-            throw new IllegalArgumentException("nameFilter may not be null or empty string");
-
-        Session sess = getSession();
-        CriteriaBuilder builder = sess.getCriteriaBuilder();
-        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-        criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
-        criteria.orderBy(builder.asc(critRoot.get("configName")), builder.asc(critRoot.get("dateApplied")));
-        entityManager.createQuery(criteria).getResultList().forEach(sess::delete);
-    }
-
-    @Override
-    public PSConfigStatus findLastSuccessfulConfigStatus(String configName) {
-        if (StringUtils.isBlank(configName))
-            throw new IllegalArgumentException("configName may not be null or empty string");
-        Session session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-        criteria.where(
-                builder.equal(critRoot.get("configName"), configName),
-                builder.equal(critRoot.get("status"), PSConfigStatus.ConfigStatus.SUCCESS)
-        );
-        criteria.orderBy(builder.desc(critRoot.get("dateApplied")));
-        entityManager.createQuery(criteria).setMaxResults(1);
-        var cfgList = entityManager.createQuery(criteria).getResultList();
-        return cfgList.isEmpty() ? null : cfgList.get(0);
-    }
+  @Override
+  public PSConfigStatus findLastSuccessfulConfigStatus(String configName) {
+    if (StringUtils.isBlank(configName))
+      throw new IllegalArgumentException("configName may not be null or empty string");
+    Session session = getSession();
+    CriteriaBuilder builder = session.getCriteriaBuilder();
+    CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+    Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+    criteria.where(
+        builder.equal(critRoot.get("configName"), configName),
+        builder.equal(critRoot.get("status"), PSConfigStatus.ConfigStatus.SUCCESS));
+    criteria.orderBy(builder.desc(critRoot.get("dateApplied")));
+    entityManager.createQuery(criteria).setMaxResults(1);
+    var cfgList = entityManager.createQuery(criteria).getResultList();
+    return cfgList.isEmpty() ? null : cfgList.get(0);
+  }
 }

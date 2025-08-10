@@ -48,29 +48,24 @@ import org.xml.sax.SAXParseException;
 /**
  * A set of utility routines for the XML document processing extensions.
  *
- * All of these utils are static methods designed for use only within the
- * com.percussion.xmldom package.
- **/
+ * <p>All of these utils are static methods designed for use only within the com.percussion.xmldom
+ * package.
+ */
 public class PSXmlDomUtils {
 
-  /**
-   * this class should never be instantiated.
-   **/
+  /** this class should never be instantiated. */
   private PSXmlDomUtils() {
     // don't construct this
   }
 
   /**
-   * Load the XML document from a File.  The file optionally run through Tidy
-   * to clean up all of the non-XML compliant structures and then
-   * ServerPageTags to remove other non-essential "junk" added by certain
-   * applications (e.g. Word 2000)
+   * Load the XML document from a File. The file optionally run through Tidy to clean up all of the
+   * non-XML compliant structures and then ServerPageTags to remove other non-essential "junk" added
+   * by certain applications (e.g. Word 2000)
    *
    * @param cx the PSXmlDomContext for this request.
    * @param incomingFile The file which contains the XML/HTML document.
-   * @return the parsed Document as an XML tree; may be <code>null</code>
-   * or empty.
-   *
+   * @return the parsed Document as an XML tree; may be <code>null</code> or empty.
    * @throws IOException
    * @throws Exception
    */
@@ -82,21 +77,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Load the XML document from a File.  The file is optionally run through
-   * Tidy to clean up all of the non-XML compliant structures, and then
-   * ServerPageTags to remove other non-essential "junk" added by certain
-   * applications (e.g. Word 2000)
+   * Load the XML document from a File. The file is optionally run through Tidy to clean up all of
+   * the non-XML compliant structures, and then ServerPageTags to remove other non-essential "junk"
+   * added by certain applications (e.g. Word 2000)
    *
-   *
-   * @param      cx      the PSXmlDomContext for this request.
-   *
-   * @param      incomingFile    The file which contains the XML/HTML document.
-   *
-   * @param      encoding    the character encoding to use
-   *
-   * @return    the parsed Document as an XML tree.
-   *
-   **/
+   * @param cx the PSXmlDomContext for this request.
+   * @param incomingFile The file which contains the XML/HTML document.
+   * @param encoding the character encoding to use
+   * @return the parsed Document as an XML tree.
+   */
   public static Document loadXmlDocument(PSXmlDomContext cx, File incomingFile, String encoding)
       throws IOException, PSExtensionProcessingException, SAXException {
     String HTMLString = readInFile(incomingFile, encoding);
@@ -105,19 +94,16 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Parses an XML Document from the given String. Depending on the settings
-   * in the supplied context, the String will first be run through Tidy and
-   * server page tags processing.  The context also determines if a
-   * validating or non-validating parser will be used.
+   * Parses an XML Document from the given String. Depending on the settings in the supplied
+   * context, the String will first be run through Tidy and server page tags processing. The context
+   * also determines if a validating or non-validating parser will be used.
    *
    * @param cx the PSXmlDomContext for this request; cannot be <code>null
    * </code>
-   * @param HTMLString the source HTML or XML document as a String; may be
-   * <code>null</code> or empty.
-   *
-   * @return the parsed org.w3c.dom.Document.  Will be <code>null</code> if
-   * the source string is empty.
-   *
+   * @param HTMLString the source HTML or XML document as a String; may be <code>null</code> or
+   *     empty.
+   * @return the parsed org.w3c.dom.Document. Will be <code>null</code> if the source string is
+   *     empty.
    * @throws IOException if an IO error occurs while "tidy" the source HTML.
    * @throws SAXException if error occurs while creating DOM from string.
    * @throws PSExtensionProcessingException if an error occurs from tidy.
@@ -187,18 +173,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Put a string into the result document, at a particular node location,
-   * which can be a compound name: category/nodelevel1/nodelevel2.
+   * Put a string into the result document, at a particular node location, which can be a compound
+   * name: category/nodelevel1/nodelevel2.
    *
-   * @param  cx  @see(PSXmlDomContext) for the current request
-   *
-   * @param  resultDoc the DOM document where the node is to be added
-   *
-   * @param nodeName the name of the node to add under the root document. This
-   * name may be a compound name (e.g. category/nodevalue)
-   *
+   * @param cx @see(PSXmlDomContext) for the current request
+   * @param resultDoc the DOM document where the node is to be added
+   * @param nodeName the name of the node to add under the root document. This name may be a
+   *     compound name (e.g. category/nodevalue)
    * @param nodeValue the string value to add
-   **/
+   */
   protected static void addResultNode(
       PSXmlDomContext cx, Document resultDoc, String nodeName, String nodeValue) {
 
@@ -244,19 +227,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Replace all of the TEXT nodes underneath a given element
-   * with a single new text node.  If the node has markup, it may not
-   * be preserved. Comments, CDATA sections, and other children of the
+   * Replace all of the TEXT nodes underneath a given element with a single new text node. If the
+   * node has markup, it may not be preserved. Comments, CDATA sections, and other children of the
    * node are not changed.
    *
    * @param parentDoc the document that the element belongs to
-   *
    * @param elementNode the element to be replaced
-   *
    * @param newValue the string which contains the new value
-   *
    * @return the original Element.
-   **/
+   */
   public static Element replaceText(Document parentDoc, Element elementNode, String newValue) {
     int i;
     if (elementNode.hasChildNodes()) {
@@ -287,20 +266,15 @@ public class PSXmlDomUtils {
   ;
 
   /**
-   * Copy the text from a specified document or node into a String.
-   * If the source is a document, the entire document is converted to a string,
-   * tags and all.
-   * If the source is a node, the <code>Text</code> nodes that are direct
-   * children of this node are concatenated to form a String. This string will
-   * not contain any tags or other markup.
+   * Copy the text from a specified document or node into a String. If the source is a document, the
+   * entire document is converted to a string, tags and all. If the source is a node, the <code>Text
+   * </code> nodes that are direct children of this node are concatenated to form a String. This
+   * string will not contain any tags or other markup.
    *
    * @param sourceDocument the document to read from
-   *
-   * @param sourceNodeName the name of the node, or NULL if the entire
-   * document is to be copied
-   *
+   * @param sourceNodeName the name of the node, or NULL if the entire document is to be copied
    * @return the text representation of the document or node
-   **/
+   */
   static String copyTextFromDocument(
       PSXmlDomContext cx, Document sourceDocument, String sourceNodeName) {
 
@@ -328,10 +302,9 @@ public class PSXmlDomUtils {
   /**
    * check a Node to see if it contains only whitespace
    *
-   * @param x  the Node to test
-   *
-   * @return  true if the node is a TEXT node with just whitespace in it
-   **/
+   * @param x the Node to test
+   * @return true if the node is a TEXT node with just whitespace in it
+   */
   static boolean isOnlyWhiteSpace(Node x) {
     if (x.getNodeType() != Node.TEXT_NODE) return false; // not a text node, can't be whitespace
     if (x.getNodeValue().trim().length() > 0) return false; // has text in it
@@ -339,8 +312,8 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * This method resolves a stylesheet name. The general rules for stylesheet
-   * names are:
+   * This method resolves a stylesheet name. The general rules for stylesheet names are:
+   *
    * <table>
    * <th>Prototype</th><th>Description</th>
    * <tr><td>filename.xsl</td><td> A file in the application
@@ -351,12 +324,9 @@ public class PSXmlDomUtils {
    *
    * @param stylesheetName - the input from the exit parameter list
    * @param appName - the application name from request context
-   *
    * @returns the resolved name
-   *
    * @todo migrate to PSXmlDomUtils
-   *
-   **/
+   */
   static String getFullStyleName(String stylesheetName, String appName) {
     if (stylesheetName.startsWith("../")) {
       return "file:" + stylesheetName.substring(3); // skip the "../"
@@ -368,16 +338,13 @@ public class PSXmlDomUtils {
   /**
    * Read a file into a string, in chunks.
    *
-   * @param inFile    The incoming file
-   *
-   * @param encoding  The standard Java name for the file's encoding method
-   *
-   * @throws     FileNotFoundException
-   * @throws     UnsupportedEncodingException
-   * @throws     java.io.IOException
-   *
-   * @return     The file as a <code>String</code>, never <code>null</code>
-   **/
+   * @param inFile The incoming file
+   * @param encoding The standard Java name for the file's encoding method
+   * @throws FileNotFoundException
+   * @throws UnsupportedEncodingException
+   * @throws java.io.IOException
+   * @return The file as a <code>String</code>, never <code>null</code>
+   */
   protected static String readInFile(File inFile, String encoding) throws IOException {
     StringBuilder buff = new StringBuilder(BUFFERSIZE);
     try (InputStreamReader rdr = new InputStreamReader(new FileInputStream(inFile), encoding)) {
@@ -397,17 +364,14 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Read a file into a <code>String</code>, in chunks,
-   * using the default encoding.
+   * Read a file into a <code>String</code>, in chunks, using the default encoding.
    *
-   * @param inFile       the incoming file
-   *
-   * @throws     FileNotFoundException
-   * @throws     UnsupportedEncodingException
-   * @throws     java.io.IOException
-   *
-   * @return     The file as a <code>String</code>, never <code>null</code>
-   **/
+   * @param inFile the incoming file
+   * @throws FileNotFoundException
+   * @throws UnsupportedEncodingException
+   * @throws java.io.IOException
+   * @return The file as a <code>String</code>, never <code>null</code>
+   */
   protected static String readInFile(File inFile) throws IOException {
     StringBuilder buff = new StringBuilder(BUFFERSIZE);
     try (FileInputStream fis = new FileInputStream(inFile)) {
@@ -428,12 +392,11 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Checks if an XML document string already has a
-   * <code>&lt;?xml ...&gt;</code> or <code>&lt!DOCTYPE...&gt;</code> header.
+   * Checks if an XML document string already has a <code>&lt;?xml ...&gt;</code> or <code>
+   * &lt!DOCTYPE...&gt;</code> header.
    *
    * @param xmlString the XML document to check.
-   * @returns <code>true</code> if an XML header is found,
-   * <code>false</code> otherwise.
+   * @returns <code>true</code> if an XML header is found, <code>false</code> otherwise.
    */
   private static boolean hasXMLHeaders(String xmlString) {
     String subString =
@@ -451,10 +414,10 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Gets the element from the specified documement that matches the specified
-   * name.
-   * @param elementName name of an element within the specified document, or
-   * "." to match the root element; cannot be <code>null</code> or empty
+   * Gets the element from the specified documement that matches the specified name.
+   *
+   * @param elementName name of an element within the specified document, or "." to match the root
+   *     element; cannot be <code>null</code> or empty
    * @param doc document to search; cannot be <code>null</code>
    * @return Element within <code>doc</code> that matches <code>elementName
    * </code>, or <code>null</code> if no matching element was found
@@ -475,22 +438,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Get a parameter from the parameter list, and return it as a trimmed
-   * string.  This is a utility function intended for the
-   * <code>com.percussion.xmldom</code> extensions.
+   * Get a parameter from the parameter list, and return it as a trimmed string. This is a utility
+   * function intended for the <code>com.percussion.xmldom</code> extensions.
    *
    * @param params array of parameter objects from the calling function.
-   *
    * @param pindex the integer index into the parameters
-   *
-   * @param defValue the default value of the parameter (may be
-   * <code>null</code>)
-   *
-   * @return If index'ed parameter exits, it is <code>trim</code>ed and
-   * return. If that parameter is not provided, then <code>defValue</code>
-   * is returned.
-   *
-   **/
+   * @param defValue the default value of the parameter (may be <code>null</code>)
+   * @return If index'ed parameter exits, it is <code>trim</code>ed and return. If that parameter is
+   *     not provided, then <code>defValue</code> is returned.
+   */
   protected static String getParameter(Object[] params, int pindex, String defValue) {
     if (params.length < pindex + 1
         || null == params[pindex]
@@ -502,18 +458,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Get a parameter from the parameter list, and return it as an Object.
-   * The object will retain its original class type.
-   * This is a utility function intended for the
-   * <code>com.percussion.xmldom</code> extensions.
+   * Get a parameter from the parameter list, and return it as an Object. The object will retain its
+   * original class type. This is a utility function intended for the <code>com.percussion.xmldom
+   * </code> extensions.
    *
    * @param params array of parameter objects from the calling function.
-   *
    * @param pindex the integer index into the parameters
-   *
-   * @return the parameter as a object, unless the parameter is not present,
-   * in which case the return value is <code>null</code>
-   **/
+   * @return the parameter as a object, unless the parameter is not present, in which case the
+   *     return value is <code>null</code>
+   */
   protected static Object getParameter(Object[] params, int pindex) {
     if (params.length < pindex + 1 || null == params[pindex]) {
       return null;
@@ -523,11 +476,10 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Add the entity references required by the parser.  Since we are always
-   * running as a server extension, the current directory is /Rhythmyx,  and
-   * the DTD directory resides immediately below it.
-   *
-   **/
+   * Add the entity references required by the parser. Since we are always running as a server
+   * extension, the current directory is /Rhythmyx, and the DTD directory resides immediately below
+   * it.
+   */
   private static String getDefaultEntities(String serverRoot) {
     return "\t<!ENTITY % HTMLlat1 SYSTEM \"http://"
         + serverRoot
@@ -549,34 +501,27 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * NEWLINEs in XML are always <code>&lt;CR&gt;&lt;LF&gt;</code>,
-   * even on platforms where &lt;LF&gt; is normally used
-   **/
+   * NEWLINEs in XML are always <code>&lt;CR&gt;&lt;LF&gt;</code>, even on platforms where
+   * &lt;LF&gt; is normally used
+   */
   private static final String NEWLINE = "\r\n";
 
   private static final int BUFFERSIZE = 20000;
 
-  /**
-   *ENCODING is always ISO 8859-1 for all Word HTML files.
-   **/
+  /** ENCODING is always ISO 8859-1 for all Word HTML files. */
   public static final String ENCODING = "UTF8";
 
-  /**
-   *Default name for all Private Objects is "XMLDOM"
-   **/
+  /** Default name for all Private Objects is "XMLDOM" */
   public static final String DEFAULT_PRIVATE_OBJECT = "XMLDOM";
 
-  /**
-   *The encoding for all "debugging" files
-   **/
+  /** The encoding for all "debugging" files */
   public static final String DEBUG_ENCODING = "UTF8";
 
   /**
-   * This section is copied directly from PSXmlDocumentBuilder.  We need to
-   * print out the Parser errors (and warnings), but the default routine
-   * does not do this.  We cannot overload this because of Obfuscation;
-   * we must copy it here and change it.
-   **/
+   * This section is copied directly from PSXmlDocumentBuilder. We need to print out the Parser
+   * errors (and warnings), but the default routine does not do this. We cannot overload this
+   * because of Obfuscation; we must copy it here and change it.
+   */
   private static Document createXmlDocument(InputSource in, boolean validate, PrintWriter errorLog)
       throws java.io.IOException, org.xml.sax.SAXException {
     Document doc = null;
@@ -604,20 +549,15 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Determines which character encoding to use for the given file.
-   * 1. from the file
-   * 2. from the exit parameters
-   * 3. from the platform default
+   * Determines which character encoding to use for the given file. 1. from the file 2. from the
+   * exit parameters 3. from the platform default
    *
-   * @param contxt encapsulation of the logging functions; assumed not
-   *        <code>null</code>
-   * @param inputSourceFile file to determine character encoding; assumed not
-   *        <code>null</code>
-   * @param encodingDefault name of character encoding to use if it cannot be
-   *        determined from the file (not used if <code>null</code> or empty)
-   *
-   * @return name of the character encoding to use, or <code>null</code> if
-   *         the platform default should be used.
+   * @param contxt encapsulation of the logging functions; assumed not <code>null</code>
+   * @param inputSourceFile file to determine character encoding; assumed not <code>null</code>
+   * @param encodingDefault name of character encoding to use if it cannot be determined from the
+   *     file (not used if <code>null</code> or empty)
+   * @return name of the character encoding to use, or <code>null</code> if the platform default
+   *     should be used.
    */
   static Charset determineCharacterEncoding(
       PSXmlDomContext contxt, PSPurgableTempFile inputSourceFile, String encodingDefault) {
@@ -636,12 +576,12 @@ public class PSXmlDomUtils {
   }
 
   /**
-   * Adds all the namespaces, defined in the TidyProperties file
-   * under 'add-namespaces' key, to the given htmlTagName.
-   * @param htmlString source string containing an html document,
-   * never <code>null</code>.
-   * @param htmlTagName tag name to which the namespaces will be added,
-   * never <code>null</code> or <code>empty</code>.
+   * Adds all the namespaces, defined in the TidyProperties file under 'add-namespaces' key, to the
+   * given htmlTagName.
+   *
+   * @param htmlString source string containing an html document, never <code>null</code>.
+   * @param htmlTagName tag name to which the namespaces will be added, never <code>null</code> or
+   *     <code>empty</code>.
    * @param contxt current XmlDomContext, never <code>null</code>.
    * @return
    */
@@ -672,8 +612,6 @@ public class PSXmlDomUtils {
     return sb.toString();
   }
 
-  /**
-   * a tag name for a list of namespaces that would be added to the body.
-   */
+  /** a tag name for a list of namespaces that would be added to the body. */
   public static final String ADD_NAMESPACE_LIST = "add-namespaces";
 }

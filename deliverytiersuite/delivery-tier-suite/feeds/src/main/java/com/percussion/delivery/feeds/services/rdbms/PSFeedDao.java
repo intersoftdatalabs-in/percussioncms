@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author erikserating
- *
  */
 @Repository
 public class PSFeedDao extends HibernateDaoSupport implements IPSFeedDao {

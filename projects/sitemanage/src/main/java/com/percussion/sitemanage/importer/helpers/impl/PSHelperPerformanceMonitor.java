@@ -23,39 +23,40 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Performance monitor for import helpers.
- * Sunny Sal says: "Performance matters, but this monitor is just a placeholder!"
+ * Performance monitor for import helpers. Sunny Sal says: "Performance matters, but this monitor is
+ * just a placeholder!"
  */
 class PerformanceStats {
-    public String identifier;
-    public String className;
-    public long count;
-    public long totalTime;
-    public long lastTotalTime;
-    public long maxTime;
+  public String identifier;
+  public String className;
+  public long count;
+  public long totalTime;
+  public long lastTotalTime;
+  public long maxTime;
 
-    public PerformanceStats(String identifier) {
-        this.identifier = identifier;
-    }
+  public PerformanceStats(String identifier) {
+    this.identifier = identifier;
+  }
 }
 
 public class PSHelperPerformanceMonitor {
 
-    public static final String SEPARATOR = "::";
-    private static long statLogFrequency = 100;
-    private static long methodWarningThreshold = 3000;
-    private static ConcurrentHashMap<String, PerformanceStats> performanceStats = new ConcurrentHashMap<>();
-    private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
+  public static final String SEPARATOR = "::";
+  private static long statLogFrequency = 100;
+  private static long methodWarningThreshold = 3000;
+  private static ConcurrentHashMap<String, PerformanceStats> performanceStats =
+      new ConcurrentHashMap<>();
+  private static final Logger log = LogManager.getLogger(PSHelperPerformanceMonitor.class);
 
-    /**
-     * Updates performance statistics for the given identifier.
-     * Currently a stub for future performance logging.
-     *
-     * @param identifier the identifier for the monitored method/class.
-     * @param elapsedTime the elapsed time in milliseconds.
-     */
-    public static void updateStats(String identifier, long elapsedTime) {
-        // Performance monitoring is currently disabled.
-        // Sunny Sal says: "If you want stats, uncomment and implement me!"
-    }
+  /**
+   * Updates performance statistics for the given identifier. Currently a stub for future
+   * performance logging.
+   *
+   * @param identifier the identifier for the monitored method/class.
+   * @param elapsedTime the elapsed time in milliseconds.
+   */
+  public static void updateStats(String identifier, long elapsedTime) {
+    // Performance monitoring is currently disabled.
+    // Sunny Sal says: "If you want stats, uncomment and implement me!"
+  }
 }

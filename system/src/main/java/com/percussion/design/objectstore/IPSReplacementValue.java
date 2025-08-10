@@ -18,35 +18,27 @@
 package com.percussion.design.objectstore;
 
 /**
- * The IPSReplacementValue interface must be implemented by any class which
- * can be used as a replacement value for conditionals or exit parameters
- * at run-time.
+ * The IPSReplacementValue interface must be implemented by any class which can be used as a
+ * replacement value for conditionals or exit parameters at run-time.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSReplacementValue extends Cloneable {
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType();
 
-  /**
-   * Get the text which can be displayed to represent this value.
-   */
+  /** Get the text which can be displayed to represent this value. */
   public String getValueDisplayText();
 
-  /**
-   * Get the implementation specific text which for this value.
-   */
+  /** Get the implementation specific text which for this value. */
   public String getValueText();
 
   /**
-   * Creates a new instance of this object, deep copying all member variables.
-   * If an implementing class has mutable member variables, it must override
-   * this method and clone() each of those variables.  This method will create
-   * a shallow copy if it is not overridden.
+   * Creates a new instance of this object, deep copying all member variables. If an implementing
+   * class has mutable member variables, it must override this method and clone() each of those
+   * variables. This method will create a shallow copy if it is not overridden.
    *
    * @return a deep-copy clone of this instance, never <code>null</code>.
    */

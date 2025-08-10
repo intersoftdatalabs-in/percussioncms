@@ -43,9 +43,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-/**
- * Base class for test cases that read, write, and compare XML configurations.
- */
+/** Base class for test cases that read, write, and compare XML configurations. */
 public abstract class PSBaseXmlConfigTest {
   /**
    * Get the prefix to use when creating temp XML files.
@@ -58,7 +56,6 @@ public abstract class PSBaseXmlConfigTest {
    * Get an XML temp file
    *
    * @return The file, never <code>null</code>
-   *
    * @throws IOException if an error occurs
    */
   protected File getTempXmlFile() throws IOException {
@@ -68,9 +65,7 @@ public abstract class PSBaseXmlConfigTest {
     return file;
   }
 
-  /**
-   * Delete all temp files we've created
-   */
+  /** Delete all temp files we've created */
   protected void deleteTmpFiles() {
     for (File file : m_tmpFiles) {
       if (file.exists()) file.delete();
@@ -78,24 +73,20 @@ public abstract class PSBaseXmlConfigTest {
   }
 
   /**
-   * Convenience method, calls {@link #compareXmlDocs(File, File, boolean)
-   * compareXmlDocs(srcFile, tgtFile, true)}
+   * Convenience method, calls {@link #compareXmlDocs(File, File, boolean) compareXmlDocs(srcFile,
+   * tgtFile, true)}
    */
   protected void compareXmlDocs(File srcFile, File tgtFile) throws Exception {
     compareXmlDocs(srcFile, tgtFile, true);
   }
 
   /**
-   * Compares two Xml docs, attempting to account for formatting and white
-   * space.
+   * Compares two Xml docs, attempting to account for formatting and white space.
    *
-   * @param srcFile The src xml file, not <code>null</code> and must
-   * exist.
-   * @param tgtFile The tgt xml file, not <code>null</code> and must
-   * exist.
-   * @param shouldMatch <code>true</code> if they should match,
-   * <code>false</code> if they should not match.
-   *
+   * @param srcFile The src xml file, not <code>null</code> and must exist.
+   * @param tgtFile The tgt xml file, not <code>null</code> and must exist.
+   * @param shouldMatch <code>true</code> if they should match, <code>false</code> if they should
+   *     not match.
    * @throws Exception if the compare fails or there are any errors.
    */
   public static void compareXmlDocs(File srcFile, File tgtFile, boolean shouldMatch)
@@ -117,13 +108,11 @@ public abstract class PSBaseXmlConfigTest {
   }
 
   /**
-   * Copies the specfiied XML file, by way of convert to a DOM and rewriting
-   * to attempt to do some cleaning.
+   * Copies the specfiied XML file, by way of convert to a DOM and rewriting to attempt to do some
+   * cleaning.
    *
-   * @param src The src xml file, assumed not <code>null</code> and to
-   * exist.
+   * @param src The src xml file, assumed not <code>null</code> and to exist.
    * @param tgt The tgt xml file, assumed not <code>null</code>.
-   *
    * @throws Exception if the copy fails.
    */
   protected void copyXmlFile(File src, File tgt) throws Exception {
@@ -152,16 +141,14 @@ public abstract class PSBaseXmlConfigTest {
   }
 
   /**
-   * Gets clean xml stream from passed in xml stream ignoring white spaces not
-   * in the content.
+   * Gets clean xml stream from passed in xml stream ignoring white spaces not in the content.
    *
-   * @param in input xml stream, assumed not <code>null</code> and closes this
-   *    stream and sends the new stream with cleaned data.
-   * @return cleaned xml stream, never <code>null</code>, caller is
-   *    responsible for closing the stream
+   * @param in input xml stream, assumed not <code>null</code> and closes this stream and sends the
+   *     new stream with cleaned data.
+   * @return cleaned xml stream, never <code>null</code>, caller is responsible for closing the
+   *     stream
    * @throws IOException when error happens in reading/writing to streams.
-   * @throws SAXException when error happens while building document out from
-   *    input stream
+   * @throws SAXException when error happens while building document out from input stream
    */
   private static InputStream getCleanXmlStream(InputStream in) throws IOException, SAXException {
     /*
@@ -199,9 +186,8 @@ public abstract class PSBaseXmlConfigTest {
   }
 
   /**
-   * Traverse the DOM searching for text nodes that only contain whitespace
-   * and remove them. Does not remove text nodes from a "leaf" element no matter
-   * what.
+   * Traverse the DOM searching for text nodes that only contain whitespace and remove them. Does
+   * not remove text nodes from a "leaf" element no matter what.
    *
    * @param el the current element, never <code>null</code>
    */
@@ -242,8 +228,6 @@ public abstract class PSBaseXmlConfigTest {
     }
   }
 
-  /**
-   * List of temp files created by this test.
-   */
+  /** List of temp files created by this test. */
   private List<File> m_tmpFiles = new ArrayList<File>();
 }

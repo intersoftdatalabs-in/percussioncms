@@ -23,35 +23,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSLiteralSet class is used to maintain a grouping of literals. The
- * number of objects permitted can be limited, such as when using a
- * BETWEEN clause which requires two values.
+ * The PSLiteralSet class is used to maintain a grouping of literals. The number of objects
+ * permitted can be limited, such as when using a BETWEEN clause which requires two values.
  *
- * @author       Tas Giakouminakis
- * @version     1.0
- * @since       1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLiteralSet extends PSCollectionComponent implements IPSReplacementValue {
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "LiteralSet";
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLiteralSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -68,10 +58,10 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
   }
 
   /**
-   * Convert the PSLiteralSet object into a string, which is a comma separated list
-   * of all the elements. For example, suppose there is a PSLiteralSet object
-   * mySet which has three elements, firstName, midName, and lastName. Calling
-   * mySet.toString() yields a string "firstName, midName, lastName".
+   * Convert the PSLiteralSet object into a string, which is a comma separated list of all the
+   * elements. For example, suppose there is a PSLiteralSet object mySet which has three elements,
+   * firstName, midName, and lastName. Calling mySet.toString() yields a string "firstName, midName,
+   * lastName".
    */
   public String toString() {
     String oneString = "";
@@ -84,23 +74,17 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
 
   // *********** IPSReplacementValue Interface Implementation ***********
 
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
-  /**
-   * Get the text which can be displayed to represent this value.
-   */
+  /** Get the text which can be displayed to represent this value. */
   public String getValueDisplayText() {
     return getValueText();
   }
 
-  /**
-   * Get the implementation specific text which for this value.
-   */
+  /** Get the implementation specific text which for this value. */
   public String getValueText() {
     // Return a comma separated list of the value text from each element.
     StringBuilder buf = new StringBuilder(4 * size());
@@ -179,18 +163,15 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -207,14 +188,11 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
   }
 
   /**
-   * The maximum number of entries that this set can hold. Addition
-   * of an element will fail (returning false) when the added
-   * object would cause the number of entries to exceed this value.
+   * The maximum number of entries that this set can hold. Addition of an element will fail
+   * (returning false) when the added object would cause the number of entries to exceed this value.
    */
   private int m_maxEntries;
 
-  /**
-   * package access on this so they may reference each other in fromXml
-   */
+  /** package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXLiteralSet";
 }

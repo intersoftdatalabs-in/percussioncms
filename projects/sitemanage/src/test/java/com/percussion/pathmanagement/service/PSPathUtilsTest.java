@@ -18,80 +18,81 @@
 
 package com.percussion.pathmanagement.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.pathmanagement.service.impl.PSSitePathItemService;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class PSPathUtilsTest {
 
-    /**
-     * Tests the {@link PSPathUtils#getFinderPath(String)} and {@link PSPathUtils#getFolderPath(String)} methods.
-     */
-    @Test
-    public void testGetPath() {
-        var asset = "testAsset";
-        var site = "testSite";
-        var assetFolderPath = PSAssetPathItemService.ASSET_ROOT + '/' + asset;
-        var siteFolderPath = PSSitePathItemService.SITE_ROOT + '/' + site;
-        var assetFinderPath = PSPathUtils.ASSETS_FINDER_ROOT + '/' + asset;
-        var siteFinderPath = PSPathUtils.SITES_FINDER_ROOT + '/' + site;
-        var folderPath = "//path";
-        var finderPath = "/path";
+  /**
+   * Tests the {@link PSPathUtils#getFinderPath(String)} and {@link
+   * PSPathUtils#getFolderPath(String)} methods.
+   */
+  @Test
+  public void testGetPath() {
+    var asset = "testAsset";
+    var site = "testSite";
+    var assetFolderPath = PSAssetPathItemService.ASSET_ROOT + '/' + asset;
+    var siteFolderPath = PSSitePathItemService.SITE_ROOT + '/' + site;
+    var assetFinderPath = PSPathUtils.ASSETS_FINDER_ROOT + '/' + asset;
+    var siteFinderPath = PSPathUtils.SITES_FINDER_ROOT + '/' + site;
+    var folderPath = "//path";
+    var finderPath = "/path";
 
-        assertEquals(assetFinderPath, PSPathUtils.getFinderPath(assetFolderPath));
-        assertEquals(siteFinderPath, PSPathUtils.getFinderPath(siteFolderPath));
-        assertEquals(assetFolderPath, PSPathUtils.getFolderPath(assetFinderPath));
-        assertEquals(siteFolderPath, PSPathUtils.getFolderPath(siteFinderPath));
-        assertEquals(finderPath, PSPathUtils.getFinderPath(folderPath));
-        assertEquals(folderPath, PSPathUtils.getFolderPath(finderPath));
-        assertEquals(finderPath, PSPathUtils.getFinderPath("////path"));
-        assertEquals(folderPath, PSPathUtils.getFolderPath("////path"));
-    }
+    assertEquals(assetFinderPath, PSPathUtils.getFinderPath(assetFolderPath));
+    assertEquals(siteFinderPath, PSPathUtils.getFinderPath(siteFolderPath));
+    assertEquals(assetFolderPath, PSPathUtils.getFolderPath(assetFinderPath));
+    assertEquals(siteFolderPath, PSPathUtils.getFolderPath(siteFinderPath));
+    assertEquals(finderPath, PSPathUtils.getFinderPath(folderPath));
+    assertEquals(folderPath, PSPathUtils.getFolderPath(finderPath));
+    assertEquals(finderPath, PSPathUtils.getFinderPath("////path"));
+    assertEquals(folderPath, PSPathUtils.getFolderPath("////path"));
+  }
 
-    @Test
-    public void testGetBasePath() {
-        var trailing = "/Sites/mysite/mymain/mysecond/";
-        var doubleleading = "//Sites/mysite/mymain/mysecond/";
-        var page = "//Sites/mysite/mymain/mysecond/mypage";
+  @Test
+  public void testGetBasePath() {
+    var trailing = "/Sites/mysite/mymain/mysecond/";
+    var doubleleading = "//Sites/mysite/mymain/mysecond/";
+    var page = "//Sites/mysite/mymain/mysecond/mypage";
 
-        assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(trailing));
-        assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(doubleleading));
-        assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(page));
-    }
+    assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(trailing));
+    assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(doubleleading));
+    assertEquals("mymain/mysecond", PSPathUtils.getBaseFolderFromPath(page));
+  }
 
-    @Test
-    public void testChopTrailingSlash() {
-        var trailing = "/Sites/mysite/";
-        var doubleTrail = "/Sites/mysite//";
-        var notrail = "/Sites/mysite";
+  @Test
+  public void testChopTrailingSlash() {
+    var trailing = "/Sites/mysite/";
+    var doubleTrail = "/Sites/mysite//";
+    var notrail = "/Sites/mysite";
 
-        assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(trailing));
-        assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(doubleTrail));
-        assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(notrail));
-    }
+    assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(trailing));
+    assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(doubleTrail));
+    assertEquals("/Sites/mysite", PSPathUtils.chopTrailingSlash(notrail));
+  }
 
-    @Test
-    public void testGetFolderName() {
-        var trailing = "/Sites/mysite/myfolder/";
-        var doubleTrail = "/Sites/mysite/myfolder//";
-        var notrail = "/Sites/mysite/myfolder";
+  @Test
+  public void testGetFolderName() {
+    var trailing = "/Sites/mysite/myfolder/";
+    var doubleTrail = "/Sites/mysite/myfolder//";
+    var notrail = "/Sites/mysite/myfolder";
 
-        assertEquals("myfolder", PSPathUtils.getFolderName(trailing));
-        assertEquals("myfolder", PSPathUtils.getFolderName(doubleTrail));
-        assertEquals("myfolder", PSPathUtils.getFolderName(notrail));
-    }
+    assertEquals("myfolder", PSPathUtils.getFolderName(trailing));
+    assertEquals("myfolder", PSPathUtils.getFolderName(doubleTrail));
+    assertEquals("myfolder", PSPathUtils.getFolderName(notrail));
+  }
 
-    @Test
-    public void testStripFolderName() {
-        var trailing = "/Sites/mysite/myfolder/";
-        var doubleTrail = "/Sites/mysite//myfolder//";
-        var notrail = "//Sites/mysite/myfolder";
+  @Test
+  public void testStripFolderName() {
+    var trailing = "/Sites/mysite/myfolder/";
+    var doubleTrail = "/Sites/mysite//myfolder//";
+    var notrail = "//Sites/mysite/myfolder";
 
-        assertEquals("/Sites/mysite", PSPathUtils.stripFolderNameFromPath(trailing));
-        assertEquals("/Sites/mysite", PSPathUtils.stripFolderNameFromPath(doubleTrail));
-        assertEquals("//Sites/mysite", PSPathUtils.stripFolderNameFromPath(notrail));
-    }
+    assertEquals("/Sites/mysite", PSPathUtils.stripFolderNameFromPath(trailing));
+    assertEquals("/Sites/mysite", PSPathUtils.stripFolderNameFromPath(doubleTrail));
+    assertEquals("//Sites/mysite", PSPathUtils.stripFolderNameFromPath(notrail));
+  }
 }

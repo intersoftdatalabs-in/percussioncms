@@ -29,19 +29,16 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Iterator;
 
 /**
- * Class to handle packaging and deploying a menu action category.  This
- * includes menu categories, but not menu items or dynamic menus.
+ * Class to handle packaging and deploying a menu action category. This includes menu categories,
+ * but not menu items or dynamic menus.
  */
 public class PSMenuActionCategoryDependencyHandler extends PSMenuActionObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -87,8 +84,6 @@ public class PSMenuActionCategoryDependencyHandler extends PSMenuActionObjectDep
     return false;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "MenuActionCategory";
 }

@@ -23,17 +23,17 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * Adaptor interface for Template operations.
- * Sunny Sal: "Template adaptor ka hero, assembly ka zero!"
+ * Adaptor interface for Template operations. Sunny Sal: "Template adaptor ka hero, assembly ka
+ * zero!"
  */
 public interface ITemplatesAdaptor {
 
-    /**
-     * Lists template summaries for the given filter.
-     *
-     * @param baseUri the base URI
-     * @param filter the filter to apply
-     * @return list of template summaries
-     */
-    List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
+  /**
+   * Lists template summaries for the given filter.
+   *
+   * @param baseUri the base URI
+   * @param filter the filter to apply
+   * @return list of template summaries
+   */
+  List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter);
 }

@@ -24,12 +24,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSAttributesCatalogHandler class implements cataloging of
- * attributes. This request type is used to locate the attributes
- * associated with an object defined in the specified security provider.
- * <p>
- * Attribute catalog requests are sent to the server using the
- * PSXSecurityAttributesCatalog XML document. Its definition is as follows:
+ * The PSAttributesCatalogHandler class implements cataloging of attributes. This request type is
+ * used to locate the attributes associated with an object defined in the specified security
+ * provider.
+ *
+ * <p>Attribute catalog requests are sent to the server using the PSXSecurityAttributesCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityAttributesCatalog (instanceName, objectType*)&gt;
  *
@@ -45,8 +46,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT objectType       (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityAttributesCatalogResults XML document is sent as the
- * response. Its definition is as follows:
+ * The PSXSecurityAttributesCatalogResults XML document is sent as the response. Its definition is
+ * as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityAttributesCatalogResults (instanceName, Attributes*)&gt;
  *
@@ -68,21 +70,20 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name               (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSAttributesCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSAttributesCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <TABLE border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -104,11 +105,8 @@ public class PSAttributesCatalogHandler implements IPSCatalogHandler {
    *     <td>yes</td></tr>
    * </TABLE>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

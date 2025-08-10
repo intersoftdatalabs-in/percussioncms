@@ -32,16 +32,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Represents the collection of holidays entered into Mitre's Rhythmyx
- * calendaring system.
+ * Represents the collection of holidays entered into Mitre's Rhythmyx calendaring system.
  *
  * @author James Schultz
  */
 public class PSHolidays {
 
   /**
-   * Constructs the holidays object, loading all holidays currently registered
-   * with the system.
+   * Constructs the holidays object, loading all holidays currently registered with the system.
    *
    * @param request used to make internal request to fetch holidays
    */
@@ -50,14 +48,13 @@ public class PSHolidays {
   }
 
   /**
-   * Checks each holiday against the specified date, returning true if the
-   * specified date matches a known holiday. Only year, month, and date are
-   * compared, any time component (hour, minute, second, millisecond) is
-   * ignored.
+   * Checks each holiday against the specified date, returning true if the specified date matches a
+   * known holiday. Only year, month, and date are compared, any time component (hour, minute,
+   * second, millisecond) is ignored.
    *
    * @param d the date to be tested, not <code>null</code>.
-   * @return <code>true</code> if the specified m_date matches a known
-   *         holiday, <code>false</code> otherwise.
+   * @return <code>true</code> if the specified m_date matches a known holiday, <code>false</code>
+   *     otherwise.
    */
   public boolean isHoliday(Date d) {
     if (d == null) throw new IllegalArgumentException("m_date may not be null");
@@ -73,8 +70,8 @@ public class PSHolidays {
    * Gets the name of the holiday that matches the specified date, if any.
    *
    * @param d the date to be tested, not <code>null</code>.
-   * @return the name of the holiday scheduled for the specified date, or
-   *         <code>null</code> if not holiday is scheduled.
+   * @return the name of the holiday scheduled for the specified date, or <code>null</code> if not
+   *     holiday is scheduled.
    */
   public String getHoliday(Date d) {
     if (d == null) throw new IllegalArgumentException("date may not be null");
@@ -87,9 +84,9 @@ public class PSHolidays {
   }
 
   /**
-   * Makes an internal request to {@link #HOLIDAY_CATALOGER}to retrieve and
-   * XML document that contains the name and date of all holidays. The XML
-   * document will conform to the following structure: <code><pre>
+   * Makes an internal request to {@link #HOLIDAY_CATALOGER}to retrieve and XML document that
+   * contains the name and date of all holidays. The XML document will conform to the following
+   * structure: <code><pre>
    *
    *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
    *  &lt;!ELEMENT holidays (holiday*)&gt;
@@ -99,15 +96,14 @@ public class PSHolidays {
    *  &gt;
    *
    * </pre></code>
-   * <p>
-   * This method is protected so it can be overridden by the test framework, to
-   * allow testing the rest of the class without a running Rhythmyx server.
    *
-   * @param request the current request object, used for logging and resolving
-   *           the internal request, must not be <code>null</code>.
-   * @return An XML document containing the name and date of all holidays. Will
-   *         be <code>null</code> if the internal request fails. Will be
-   *         empty if no holidays have been registered.
+   * <p>This method is protected so it can be overridden by the test framework, to allow testing the
+   * rest of the class without a running Rhythmyx server.
+   *
+   * @param request the current request object, used for logging and resolving the internal request,
+   *     must not be <code>null</code>.
+   * @return An XML document containing the name and date of all holidays. Will be <code>null</code>
+   *     if the internal request fails. Will be empty if no holidays have been registered.
    */
   protected Document executeCatalogerQuery(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("Must provide the request context");
@@ -136,14 +132,13 @@ public class PSHolidays {
 
   /**
    * Loads the holidays.
-   * <p>
-   * This method is protected so it can be overridden by the test framework, to
-   * allow testing the rest of the class without a running Rhythmyx server.
    *
-   * @param request request the current request object, used for logging and
-   *           resolving the internal request, must not be <code>null</code>.
-   * @return a set of <code>Holiday</code> objects, never <code>null</code>
-   *         but may be empty.
+   * <p>This method is protected so it can be overridden by the test framework, to allow testing the
+   * rest of the class without a running Rhythmyx server.
+   *
+   * @param request request the current request object, used for logging and resolving the internal
+   *     request, must not be <code>null</code>.
+   * @return a set of <code>Holiday</code> objects, never <code>null</code> but may be empty.
    */
   protected Set loadHolidays(IPSRequestContext request) {
     Set holidays = new HashSet();
@@ -172,27 +167,22 @@ public class PSHolidays {
     return holidays;
   }
 
-  /**
-   * Path to the Rhythmyx query resource used for cataloging holidays.
-   */
+  /** Path to the Rhythmyx query resource used for cataloging holidays. */
   private static final String HOLIDAY_CATALOGER = "mii_autoCalendar/holidays.xml";
 
   /**
-   * Stores <code>Holiday</code> objects. Never <code>null</code> after
-   * construction, but may be empty.
+   * Stores <code>Holiday</code> objects. Never <code>null</code> after construction, but may be
+   * empty.
    */
   private Set m_holidays;
 
-  /**
-   * Inner class to represent a single holiday object.
-   */
+  /** Inner class to represent a single holiday object. */
   class Holiday {
     /**
      * Ctor. Takes the date and name of the holiday.
      *
      * @param date date, must not eb <code>null</code>.
-     * @param name name of the holiday, must not be <code>null</code> or
-     *           empty.
+     * @param name name of the holiday, must not be <code>null</code> or empty.
      */
     public Holiday(Date date, String name) {
       if (date == null) throw new IllegalArgumentException("date may not be null");
@@ -204,12 +194,12 @@ public class PSHolidays {
     }
 
     /**
-     * Compares the date of this holiday against the supplied date, ignoring
-     * any time setting (hour/minute/second/millisecond).
+     * Compares the date of this holiday against the supplied date, ignoring any time setting
+     * (hour/minute/second/millisecond).
      *
      * @param d the date to be tested, not <code>null</code>.
-     * @return <code>true</code> if the two dates have the same year, month,
-     *         and date, <code>false</code> otherwise.
+     * @return <code>true</code> if the two dates have the same year, month, and date, <code>false
+     *     </code> otherwise.
      */
     public boolean isSameDate(Date d) {
       if (d == null) throw new IllegalArgumentException("date may not be null");
@@ -233,16 +223,10 @@ public class PSHolidays {
       return m_name;
     }
 
-    /**
-     * The date when this holiday occurs. Never <code>null</code> after
-     * construction.
-     */
+    /** The date when this holiday occurs. Never <code>null</code> after construction. */
     private Date m_date;
 
-    /**
-     * The name of this holiday. Never <code>null</code> or empty after
-     * construction.
-     */
+    /** The name of this holiday. Never <code>null</code> or empty after construction. */
     private String m_name;
   }
 }

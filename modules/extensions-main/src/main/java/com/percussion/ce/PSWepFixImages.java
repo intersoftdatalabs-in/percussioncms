@@ -36,18 +36,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class is a Rhythmyx pre-exit which examines incoming Xml,
- * gets HTML content from 'wepbodyhtml' parameter; Parses it, then
- * looks for all the 'img' tags and for each of those first checks
- * whether height and width attributes are already set; if those are
- * not set then it grabs the actual image, calculates its dimentions
- * and sets width, height, rxwidth and rxheight on the img tag.
+ * This class is a Rhythmyx pre-exit which examines incoming Xml, gets HTML content from
+ * 'wepbodyhtml' parameter; Parses it, then looks for all the 'img' tags and for each of those first
+ * checks whether height and width attributes are already set; if those are not set then it grabs
+ * the actual image, calculates its dimentions and sets width, height, rxwidth and rxheight on the
+ * img tag.
  */
 public class PSWepFixImages extends PSFileInfo implements IPSRequestPreProcessor {
 
-  /**
-   * Pre processes the request.
-   */
+  /** Pre processes the request. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,
@@ -111,8 +108,6 @@ public class PSWepFixImages extends PSFileInfo implements IPSRequestPreProcessor
     }
   }
 
-  /**
-   * Image Source.
-   */
+  /** Image Source. */
   public static final String IMAGE_SRC = "src";
 }

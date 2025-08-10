@@ -29,10 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Linkback controller to redirect to Rhythmyx Active Assembly. Use the latest
- * revision (current or edit) of the item. The redirect path is internal (hard
- * coded), so there is no need to specify <code>redirectPath</code> in bean
- * configuration. Recommend to set <code>helpViewName</code>.
+ * Linkback controller to redirect to Rhythmyx Active Assembly. Use the latest revision (current or
+ * edit) of the item. The redirect path is internal (hard coded), so there is no need to specify
+ * <code>redirectPath</code> in bean configuration. Recommend to set <code>helpViewName</code>.
  */
 public class ActiveAssemblyLinkbackController extends GenericLinkbackController {
 
@@ -45,10 +44,9 @@ public class ActiveAssemblyLinkbackController extends GenericLinkbackController 
   private ItemSummaryFinder itemSummaryFinder;
 
   /**
-   * Return a ModelAndView to the active assembly. Verify sys_contentid,
-   * sys_template, sys_folderid, and sys_siteid are in the map. Use the latest
-   * revision of the item, which may or may not be checked out by current
-   * user.
+   * Return a ModelAndView to the active assembly. Verify sys_contentid, sys_template, sys_folderid,
+   * and sys_siteid are in the map. Use the latest revision of the item, which may or may not be
+   * checked out by current user.
    */
   @Override
   protected ModelAndView handleLinkBackRedirect(Map<String, String> params) {
@@ -131,9 +129,8 @@ public class ActiveAssemblyLinkbackController extends GenericLinkbackController 
   }
 
   /**
-   * Set this property in the bean config. If "true" (default), use
-   * IPSHtmlParameters.SYS_VARIANTID to submit the template ID; otherwise, use
-   * IPSHtmlParameters.SYS_TEMPLATE.
+   * Set this property in the bean config. If "true" (default), use IPSHtmlParameters.SYS_VARIANTID
+   * to submit the template ID; otherwise, use IPSHtmlParameters.SYS_TEMPLATE.
    *
    * @param useVariantId
    */

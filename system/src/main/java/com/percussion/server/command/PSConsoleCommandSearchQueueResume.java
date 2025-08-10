@@ -39,19 +39,14 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
-/**
- * Command to resume the queue processing if it is paused.  Noop if
- * queue is not paused.
- *
- */
+/** Command to resume the queue processing if it is paused. Noop if queue is not paused. */
 public class PSConsoleCommandSearchQueueResume extends PSConsoleCommand {
 
   /**
-   * The constructor for this class. The command arguments are ignored for this
-   * command.
+   * The constructor for this class. The command arguments are ignored for this command.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   public PSConsoleCommandSearchQueueResume(String cmdArgs) {
     super(cmdArgs);
@@ -77,8 +72,6 @@ public class PSConsoleCommandSearchQueueResume extends PSConsoleCommand {
     return COMMAND_NAME;
   }
 
-  /**
-   * The full command that launched this handler.
-   */
+  /** The full command that launched this handler. */
   private static final String COMMAND_NAME = "search queue resume";
 }

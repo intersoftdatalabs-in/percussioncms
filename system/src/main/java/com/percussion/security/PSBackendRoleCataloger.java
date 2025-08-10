@@ -25,10 +25,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-/**
- * A role cataloger using the backend role/subject data as directory
- * source.
- */
+/** A role cataloger using the backend role/subject data as directory source. */
 public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInternalRoleCataloger {
   /**
    * Convenience constructor that calls
@@ -42,12 +39,9 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
   /**
    * Constructs a new backend role cataloger.
    *
-   * @param properties required parameter for instantiation only, may be
-   *    <code>null</code> or empty.
-   * @param config required parameter for instantiation only, may be
-   *    <code>null</code> or empty.
-   * @throws PSSecurityException if the referenced role provider was not
-   *    found.
+   * @param properties required parameter for instantiation only, may be <code>null</code> or empty.
+   * @param config required parameter for instantiation only, may be <code>null</code> or empty.
+   * @throws PSSecurityException if the referenced role provider was not found.
    */
   public PSBackendRoleCataloger(Properties properties, PSServerConfiguration config)
       throws PSSecurityException {
@@ -61,23 +55,31 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
       ;
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public List getRoles(String subjectName, int subjectType) {
     return getRhythmyxRoles(subjectName, subjectType);
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public PSRoleProvider getProvider() {
     return new PSRoleProvider(
         "sys_backendrolecataloger", PSRoleProvider.TYPE_BACKEND, (String) null);
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public Set getSubjects(String roleName, String subjectNameFilter) {
     return getSubjects(roleName, subjectNameFilter, 0, null, true);
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public Set getSubjects(
       String roleName,
       String subjectNameFilter,
@@ -102,15 +104,9 @@ public class PSBackendRoleCataloger extends PSBackendCataloger implements IPSInt
     return new HashSet(results);
   }
 
-  /**
-   * Role cataloger configuration properties supplied at construction time.
-   * Currently not used.
-   */
+  /** Role cataloger configuration properties supplied at construction time. Currently not used. */
   private Properties m_properties = null;
 
-  /**
-   * The rhythmyx server configuration supplied at construction time. Currently
-   * not used.
-   */
+  /** The rhythmyx server configuration supplied at construction time. Currently not used. */
   private PSServerConfiguration m_config = null;
 }

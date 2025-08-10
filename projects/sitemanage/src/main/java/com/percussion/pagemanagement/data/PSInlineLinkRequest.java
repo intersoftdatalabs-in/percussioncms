@@ -17,60 +17,59 @@
  */
 package com.percussion.pagemanagement.data;
 
+import com.percussion.share.data.PSAbstractDataObject;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import com.percussion.share.data.PSAbstractDataObject;
-
 /**
- * Represents a request to get an inline resource link.
- * The link service will convert this object to a {@link PSInlineRenderLink}.
- * This object can use legacy template names instead of resource definitions for the inline link generator.
+ * Represents a request to get an inline resource link. The link service will convert this object to
+ * a {@link PSInlineRenderLink}. This object can use legacy template names instead of resource
+ * definitions for the inline link generator.
+ *
  * @author adamgent
  * @see PSInlineRenderLink
  */
 @XmlRootElement(name = "InlineLinkRequest")
 public class PSInlineLinkRequest extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @NotNull
-    @NotBlank
-    private String targetId;
-    private String resourceDefinitionId;
-    private String thumbResourceDefinitionId;
+  @NotNull @NotBlank private String targetId;
+  private String resourceDefinitionId;
+  private String thumbResourceDefinitionId;
 
-    /**
-     * Gets the ID of the asset resource that we are linking to.
-     * @return never {@code null}.
-     */
-    public String getTargetId() {
-        return targetId;
-    }
+  /**
+   * Gets the ID of the asset resource that we are linking to.
+   *
+   * @return never {@code null}.
+   */
+  public String getTargetId() {
+    return targetId;
+  }
 
-    public void setTargetId(String contentId) {
-        this.targetId = contentId;
-    }
+  public void setTargetId(String contentId) {
+    this.targetId = contentId;
+  }
 
-    public String getThumbResourceDefinitionId() {
-        return thumbResourceDefinitionId;
-    }
+  public String getThumbResourceDefinitionId() {
+    return thumbResourceDefinitionId;
+  }
 
-    public void setThumbResourceDefinitionId(String thumbResourceDefinitionId) {
-        this.thumbResourceDefinitionId = thumbResourceDefinitionId;
-    }
+  public void setThumbResourceDefinitionId(String thumbResourceDefinitionId) {
+    this.thumbResourceDefinitionId = thumbResourceDefinitionId;
+  }
 
-    /**
-     * Gets the fully qualified resource definition ID.
-     * @return may be {@code null}.
-     */
-    public String getResourceDefinitionId() {
-        return resourceDefinitionId;
-    }
+  /**
+   * Gets the fully qualified resource definition ID.
+   *
+   * @return may be {@code null}.
+   */
+  public String getResourceDefinitionId() {
+    return resourceDefinitionId;
+  }
 
-    public void setResourceDefinitionId(String resourceDefinitionId) {
-        this.resourceDefinitionId = resourceDefinitionId;
-    }
+  public void setResourceDefinitionId(String resourceDefinitionId) {
+    this.resourceDefinitionId = resourceDefinitionId;
+  }
 }

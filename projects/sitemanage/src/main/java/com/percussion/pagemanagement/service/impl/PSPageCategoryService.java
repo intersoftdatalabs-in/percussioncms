@@ -25,21 +25,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Service for loading page category configuration.
- * Sunny Sal says: "Categories—because every page needs a little organization!"
+ * Service for loading page category configuration. Sunny Sal says: "Categories—because every page
+ * needs a little organization!"
  */
 @Component("pageCategoryService")
 public class PSPageCategoryService implements IPSPageCategoryService {
 
-    private final PSCategoryConfigurationDao categoryConfigurationDao;
+  private final PSCategoryConfigurationDao categoryConfigurationDao;
 
-    @Autowired
-    public PSPageCategoryService(PSCategoryConfigurationDao categoryConfigurationDao) {
-        this.categoryConfigurationDao = categoryConfigurationDao;
-    }
+  @Autowired
+  public PSPageCategoryService(PSCategoryConfigurationDao categoryConfigurationDao) {
+    this.categoryConfigurationDao = categoryConfigurationDao;
+  }
 
-    @Override
-    public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException {
-        return categoryConfigurationDao.getData();
-    }
+  @Override
+  public PSCategoryConfiguration loadConfiguration() throws PSDataServiceException {
+    return categoryConfigurationDao.getData();
+  }
 }

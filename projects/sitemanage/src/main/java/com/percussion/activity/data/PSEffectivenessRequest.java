@@ -23,8 +23,8 @@ import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
 import java.util.Optional;
 
 /**
- * A request object used for getting the effectiveness data from the rest service.  Extends the content activity
- * request by adding additional fields for usage and threshold.
+ * A request object used for getting the effectiveness data from the rest service. Extends the
+ * content activity request by adding additional fields for usage and threshold.
  */
 @JsonRootName(value = "EffectivenessRequest")
 public class PSEffectivenessRequest extends PSContentActivityRequest {

@@ -31,52 +31,49 @@ import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
-
+import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashSet;
-import java.util.Set;
-
-/**
- * Notified on relationship changes; re-indexes pages affected by shared asset deletion.
- */
+/** Notified on relationship changes; re-indexes pages affected by shared asset deletion. */
 @PSSiteManageBean("sharedRelationshipDeleteListener")
 public class PSSharedRelationshipDeleteListener implements IPSNotificationListener {
-    private final IPSPageIndexService indexService;
+  private final IPSPageIndexService indexService;
 
-    @Autowired
-    public PSSharedRelationshipDeleteListener(
-            IPSNotificationService notificationService,
-            IPSPageIndexService indexService) {
-        if (notificationService != null) {
-            notificationService.addListener(EventType.RELATIONSHIP_CHANGED, this);
-        }
-        this.indexService = indexService;
+  @Autowired
+  public PSSharedRelationshipDeleteListener(
+      IPSNotificationService notificationService, IPSPageIndexService indexService) {
+    if (notificationService != null) {
+      notificationService.addListener(EventType.RELATIONSHIP_CHANGED, this);
+    }
+    this.indexService = indexService;
+  }
+
+  @Override
+  public void notifyEvent(PSNotificationEvent event) throws PSValidationException {
+    notNull(event, "event");
+    isTrue(
+        EventType.RELATIONSHIP_CHANGED == event.getType(),
+        "Should only be registered for relationship changes.");
+
+    // filter out all relationship changes except delete
+    var relEvent = (PSRelationshipChangeEvent) event.getTarget();
+    if (relEvent.getAction() != PSRelationshipChangeEvent.ACTION_REMOVE) {
+      return;
     }
 
-    @Override
-    public void notifyEvent(PSNotificationEvent event) throws PSValidationException {
-        notNull(event, "event");
-        isTrue(EventType.RELATIONSHIP_CHANGED == event.getType(),
-                "Should only be registered for relationship changes.");
-
-        // filter out all relationship changes except delete
-        var relEvent = (PSRelationshipChangeEvent) event.getTarget();
-        if (relEvent.getAction() != PSRelationshipChangeEvent.ACTION_REMOVE) {
-            return;
-        }
-
-        // filter out all relationships except shared
-        var sharedOwnerIds = new HashSet<Integer>();
-        for (var obj : relEvent.getRelationships()) {
-            var rel = (PSRelationship) obj;
-            if (rel.getConfig().getName().equals(PSWidgetAssetRelationshipService.SHARED_ASSET_WIDGET_REL_TYPE)) {
-                sharedOwnerIds.add(rel.getOwner().getId());
-            }
-        }
-
-        if (!sharedOwnerIds.isEmpty()) {
-            indexService.index(sharedOwnerIds);
-        }
+    // filter out all relationships except shared
+    var sharedOwnerIds = new HashSet<Integer>();
+    for (var obj : relEvent.getRelationships()) {
+      var rel = (PSRelationship) obj;
+      if (rel.getConfig()
+          .getName()
+          .equals(PSWidgetAssetRelationshipService.SHARED_ASSET_WIDGET_REL_TYPE)) {
+        sharedOwnerIds.add(rel.getOwner().getId());
+      }
     }
+
+    if (!sharedOwnerIds.isEmpty()) {
+      indexService.index(sharedOwnerIds);
+    }
+  }
 }

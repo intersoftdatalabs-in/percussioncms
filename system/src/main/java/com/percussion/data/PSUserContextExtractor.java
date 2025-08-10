@@ -46,11 +46,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUserContextExtractor class is used to extract data from the
- * user session associated with the request.
- * <P>
- * The user context object uses the following XML structure:
- * <P>
+ * The PSUserContextExtractor class is used to extract data from the user session associated with
+ * the request.
+ *
+ * <p>The user context object uses the following XML structure:
+ *
+ * <p>
+ *
  * <TABLE BORDER="1">
  *    <TR><TH>Element</TH><TH>Description</TH></TR>
  *    <TR>
@@ -151,15 +153,15 @@ import org.w3c.dom.Element;
  *    </TR>
  * </TABLE>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param   source      the object defining the source of this value
+   * @param source the object defining the source of this value
    */
   public PSUserContextExtractor(PSUserContext source) {
     super(source);
@@ -179,10 +181,9 @@ public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Get the integer type code based on the name of the field.
    *
-   * @param  contextFieldName  the name of the user context/attribute desired
-   *
-   * @return the integer type code representing the type of context
-   *    information, or <code>0</code> if it is unknown.
+   * @param contextFieldName the name of the user context/attribute desired
+   * @return the integer type code representing the type of context information, or <code>0</code>
+   *     if it is unknown.
    */
   private static int getType(String contextFieldName) {
     int sourceType = TOK_UNKNOWN;
@@ -236,16 +237,11 @@ public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return              the associated value; <code>null</code> if a
-   *                      value is not found
-   *
-   * @throws  PSDataExtractionException
-   *                      if an error condition causes the extraction to
-   *                      fail. This is not thrown if the requested data
-   *                      does not exist.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
+   * @throws PSDataExtractionException if an error condition causes the extraction to fail. This is
+   *     not thrown if the requested data does not exist.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
@@ -254,18 +250,12 @@ public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue    the default value to use if a value is not found
-   *
-   * @return              the associated value; <code>defValue</code> if a
-   *                      value is not found
-   *
-   * @throws  PSDataExtractionException
-   *                      if an error condition causes the extraction to
-   *                      fail. This is not thrown if the requested data
-   *                      does not exist.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
+   * @throws PSDataExtractionException if an error condition causes the extraction to fail. This is
+   *     not thrown if the requested data does not exist.
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     return getUserContextInfo(m_sourceType, m_sourceName, data, defValue);
@@ -274,25 +264,15 @@ public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   sourceType  the source type code for the context information
-   *                      requested, must be one of the values returned by
-   *                      {@link #getType(String)}
-   *
-   * @param   sourceName  the name representing the context information
-   *                         desired
-   *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue    the default value to use if a value is not found
-   *
-   * @return              the associated value; <code>defValue</code> if a
-   *                      value is not found
-   *
-   * @throws  PSDataExtractionException
-   *                      if an error condition causes the extraction to
-   *                      fail. This is not thrown if the requested data
-   *                      does not exist.
+   * @param sourceType the source type code for the context information requested, must be one of
+   *     the values returned by {@link #getType(String)}
+   * @param sourceName the name representing the context information desired
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
+   * @throws PSDataExtractionException if an error condition causes the extraction to fail. This is
+   *     not thrown if the requested data does not exist.
    */
   public static Object getUserContextInfo(
       int sourceType, String sourceName, PSExecutionData data, Object defValue)
@@ -305,27 +285,15 @@ public class PSUserContextExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the request and user session data.
    *
-   * @param   sourceType  the source type code for the context information
-   *                      requested, must be one of the values returned by
-   *                      {@link #getType(String)}
-   *
-   * @param   sourceName  the name representing the context information
-   *                      desired
-   *
-   * @param   request     the request information associates with the current
-   *                      execution data; if <code>null</code>, it is not
-   *                      possible to extract data and the defValue will be
-   *                      returned
-   *
-   * @param   defValue    the default value to use if a value is not found
-   *
-   * @return              the associated value; <code>defValue</code> if a
-   *                      value is not found
-   *
-   * @throws  PSDataExtractionException
-   *                      if an error condition causes the extraction to
-   *                      fail, or if an invalid type is specified. This is not
-   *                      thrown if the requested data does not exist.
+   * @param sourceType the source type code for the context information requested, must be one of
+   *     the values returned by {@link #getType(String)}
+   * @param sourceName the name representing the context information desired
+   * @param request the request information associates with the current execution data; if <code>
+   *     null</code>, it is not possible to extract data and the defValue will be returned
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
+   * @throws PSDataExtractionException if an error condition causes the extraction to fail, or if an
+   *     invalid type is specified. This is not thrown if the requested data does not exist.
    */
   public static Object getUserContextInfo(
       int sourceType, String sourceName, PSRequest request, Object defValue)
@@ -568,8 +536,9 @@ public class PSUserContextExtractor extends PSDataExtractor {
   }
 
   /**
-   * Returns an xml element containing all user context information extracted
-   * from the given request.  Format of the xml is:
+   * Returns an xml element containing all user context information extracted from the given
+   * request. Format of the xml is:
+   *
    * <pre><code>
    * &lt;!--
    * PSXUserContextExtractor defines all data that can be
@@ -642,9 +611,9 @@ public class PSUserContextExtractor extends PSDataExtractor {
    * updateDesign (1 | 0) '0'
    * deleteDesign (1 | 0) '0'&gt;
    * </code></pre>
-   * @param request the request from which to extract the user context
-   * information.
-   * May not be <code>null</code>.
+   *
+   * @param request the request from which to extract the user context information. May not be
+   *     <code>null</code>.
    */
   public static Element toXml(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -693,10 +662,7 @@ public class PSUserContextExtractor extends PSDataExtractor {
                     users[i].getName(), PSSubject.SUBJECT_TYPE_USER, null, null);
 
         if (subjects.size() > 0) {
-          /**
-           * The call made to get the subject list should only return
-           * one entry.
-           */
+          /** The call made to get the subject list should only return one entry. */
           PSSubject subject = (PSSubject) subjects.get(0);
           PSAttributeList attributeList = subject.getAttributes();
           Iterator attrs = attributeList.iterator();
@@ -792,18 +758,15 @@ public class PSUserContextExtractor extends PSDataExtractor {
   }
 
   /**
-   * Gets the role specific subject attribute values that meet the supplied
-   * criteria.
+   * Gets the role specific subject attribute values that meet the supplied criteria.
    *
-   * @param entry An authenticated  Assumed not <code>null</code>.
-   * @param roleName The role which refers to the specific attributes.
-   *    Assumed not <code>null</code>.
+   * @param entry An authenticated Assumed not <code>null</code>.
+   * @param roleName The role which refers to the specific attributes. Assumed not <code>null</code>
+   *     .
    * @param attribName The particular attribute. Assumed not <code>null
    *    </code>.
-   * @return A valid list containing 0 or more values assigned to the
-   *    specified attribute.
-   * @throws PSSecurityException If any problems occur trying to get the
-   *    meta data.
+   * @return A valid list containing 0 or more values assigned to the specified attribute.
+   * @throws PSSecurityException If any problems occur trying to get the meta data.
    */
   private static List getRoleSubjectAttributeValues(
       PSUserEntry entry, String roleName, String attribName) throws PSSecurityException {
@@ -824,16 +787,13 @@ public class PSUserContextExtractor extends PSDataExtractor {
   }
 
   /**
-   * Gets the global subject attribute values that meet the supplied
-   * criteria.
+   * Gets the global subject attribute values that meet the supplied criteria.
    *
-   * @param entry An authenticated  Assumed not <code>null</code>.
+   * @param entry An authenticated Assumed not <code>null</code>.
    * @param attribName The particular attribute. Assumed not <code>null
    *    </code>.
-   * @return A valid list containing 0 or more values (Strings) assigned to
-   *    the specified attribute.
-   * @throws PSSecurityException If any problems occur trying to get the
-   *    meta data.
+   * @return A valid list containing 0 or more values (Strings) assigned to the specified attribute.
+   * @throws PSSecurityException If any problems occur trying to get the meta data.
    */
   public static List<String> getSubjectAttributeValues(PSUserEntry entry, String attribName)
       throws PSSecurityException {
@@ -854,8 +814,8 @@ public class PSUserContextExtractor extends PSDataExtractor {
   }
 
   /**
-   * Convert an object array into a PSLiteralSet object. This result will be returned
-   * by method extract() and makes data comparison relatively easier.
+   * Convert an object array into a PSLiteralSet object. This result will be returned by method
+   * extract() and makes data comparison relatively easier.
    */
   private static PSLiteralSet convertToLiteralSet(Object[] objArray) {
     if (objArray == null) return null;
@@ -874,19 +834,13 @@ public class PSUserContextExtractor extends PSDataExtractor {
   }
 
   /**
-   * Static method to directly return user context information
-   *    to an outside calling class.
+   * Static method to directly return user context information to an outside calling class.
    *
-   * @param  userContextField the name of the user context/attribute desired
-   *
-   * @param   request    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue    the default value to use if a value is not found
-   *
-   * @return              the associated value; <code>defValue</code> if a
-   *                      value is not found
-   *
+   * @param userContextField the name of the user context/attribute desired
+   * @param request the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
    */
   public static Object getUserContextInformation(
       String userContextField, PSRequest request, Object defValue)
@@ -902,132 +856,101 @@ public class PSUserContextExtractor extends PSDataExtractor {
     return getUserContextInfo(type, field, request, defValue);
   }
 
-  /**
-   * session create time date format
-   */
+  /** session create time date format */
   public static final String SESSION_CREATE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-  /**
-   * root node name for toXml
-   */
+  /** root node name for toXml */
   public static final String NODE_NAME = "PSXUserContextExtractor";
 
-  /**
-   * Prefix of context token used to specify a particular user attribute.
-   */
+  /** Prefix of context token used to specify a particular user attribute. */
   public static final String PREFIX_USER_ATTRIBUTES = "user/attributes/";
 
-  /**
-   * Prefix of context token used to specify a session object.
-   */
+  /** Prefix of context token used to specify a session object. */
   public static final String PREFIX_USER_SESSION_OBJECT = "user/sessionobject/";
 
-  /**
-   * Unkown - represents an undefined or unrecognized token.
-   */
+  /** Unkown - represents an undefined or unrecognized token. */
   private static final int TOK_UNKNOWN = 0;
 
-  /**
-   * SessionId - The session identifier associated with this request.
-   */
+  /** SessionId - The session identifier associated with this request. */
   private static final int TOK_SESSION_ID = 1;
 
-  /**
-   * User/Name - The name of this user.
-   */
+  /** User/Name - The name of this user. */
   private static final int TOK_USER_NAME = 2;
 
-  /**
-   * User/SecurityProvider - The security provider this user has
-   * authenticated through.
-   */
+  /** User/SecurityProvider - The security provider this user has authenticated through. */
   private static final int TOK_SEC_PROVIDER = 3;
 
   /**
-   * User/SecurityProviderTypeId - The security provider type id this user has
-   * authenticated through.
+   * User/SecurityProviderTypeId - The security provider type id this user has authenticated
+   * through.
    */
   private static final int TOK_SEC_PROVIDER_TYPE_ID = 4;
 
   /**
-   * User/SecurityProviderInstance - The security provider instance name
-   * this user has authenticated through.
+   * User/SecurityProviderInstance - The security provider instance name this user has authenticated
+   * through.
    */
   private static final int TOK_SEC_PROVIDER_INST = 5;
 
   /**
-   * User/Attributes - The attributes associated with this user
-   * (security provider specific.
-   * <P>
-   * This type requires we also store the attribute name as attributes
-   * are security provider specific so we haven't defined them all here.
+   * User/Attributes - The attributes associated with this user (security provider specific.
+   *
+   * <p>This type requires we also store the attribute name as attributes are security provider
+   * specific so we haven't defined them all here.
    */
   private static final int TOK_USER_ATTRIBUTE = 6;
 
-  /**
-   * Roles/RoleName - The name of the role the requestor is a member of.
-   */
+  /** Roles/RoleName - The name of the role the requestor is a member of. */
   private static final int TOK_ROLE_NAME = 7;
 
-  /**
-   * DataAccessRights/query - 1 if the requestor can query; 0 otherwise.
-   */
+  /** DataAccessRights/query - 1 if the requestor can query; 0 otherwise. */
   private static final int TOK_DATA_ACC_QUERY = 8;
 
-  /**
-   * DataAccessRights/insert - 1 if the requestor can insert; 0 otherwise.
-   */
+  /** DataAccessRights/insert - 1 if the requestor can insert; 0 otherwise. */
   private static final int TOK_DATA_ACC_INSERT = 9;
 
-  /**
-   * DataAccessRights/update - 1 if the requestor can update; 0 otherwise.
-   */
+  /** DataAccessRights/update - 1 if the requestor can update; 0 otherwise. */
   private static final int TOK_DATA_ACC_UPDATE = 10;
 
-  /**
-   * DataAccessRights/delete - 1 if the requestor can delete; 0 otherwise.
-   */
+  /** DataAccessRights/delete - 1 if the requestor can delete; 0 otherwise. */
   private static final int TOK_DATA_ACC_DELETE = 11;
 
   /**
-   * DesignAccessRights/modifyAcl - 1 if the requestor can modify the
-   * applciation's ACL; 0 otherwise.
+   * DesignAccessRights/modifyAcl - 1 if the requestor can modify the applciation's ACL; 0
+   * otherwise.
    */
   private static final int TOK_DESIGN_ACC_MOD_ACL = 12;
 
   /**
-   * DesignAccessRights/readDesign - 1 if the requestor can read the
-   * application design; 0 otherwise.
+   * DesignAccessRights/readDesign - 1 if the requestor can read the application design; 0
+   * otherwise.
    */
   private static final int TOK_DESIGN_ACC_READ = 13;
 
   /**
-   * DesignAccessRights/updateDesign - 1 if the requestor can update the
-   * application design; 0 otherwise.
+   * DesignAccessRights/updateDesign - 1 if the requestor can update the application design; 0
+   * otherwise.
    */
   private static final int TOK_DESIGN_ACC_UPDATE = 14;
 
   /**
-   * DesignAccessRights/deleteDesign - 1 if the requestor can delete the
-   * application design; 0 otherwise.
+   * DesignAccessRights/deleteDesign - 1 if the requestor can delete the application design; 0
+   * otherwise.
    */
   private static final int TOK_DESIGN_ACC_DELETE = 15;
 
   /**
-   * User/SessionObject - The session private objects associated with this user
-   * (security provider specific).
+   * User/SessionObject - The session private objects associated with this user (security provider
+   * specific).
    */
   private static final int TOK_USER_SESSIONOBJECT = 16;
 
-  /**
-   * SessionCreateTime - The create time stamp for the session associated
-   * with this request
-   */
+  /** SessionCreateTime - The create time stamp for the session associated with this request */
   private static final int TOK_SESSION_CREATE_TIME = 17;
 
   /**
-   * Roles/RoleNameinclause - The list of roles the requestor is a member of,
-   * formatted into an SQL "IN" clause string.
+   * Roles/RoleNameinclause - The list of roles the requestor is a member of, formatted into an SQL
+   * "IN" clause string.
    */
   private static final int TOK_ROLE_NAME_INCLAUSE = 18;
 
@@ -1035,39 +958,38 @@ public class PSUserContextExtractor extends PSDataExtractor {
   private String m_sourceName;
 
   /**
-   * ServerAccessRights/noaccess is 1 if the requestor has no access to
-   * server; 0 otherwise. This flag will not be used as it is not required
-   * since user would not have come this far without server access.
+   * ServerAccessRights/noaccess is 1 if the requestor has no access to server; 0 otherwise. This
+   * flag will not be used as it is not required since user would not have come this far without
+   * server access.
    */
   private static final int TOK_SERVER_NO_ACCESS = 20;
 
   /**
-   * ServerAccessRights/dataAccess is 1 if the requestor has data access on the
-   * server; 0 otherwise.
+   * ServerAccessRights/dataAccess is 1 if the requestor has data access on the server; 0 otherwise.
    */
   private static final int TOK_SERVER_DATA_ACCESS = 21;
 
   /**
-   * ServerAccessRights/designAccess is 1 if the requestor has design access on
-   * the server; 0 otherwise.
+   * ServerAccessRights/designAccess is 1 if the requestor has design access on the server; 0
+   * otherwise.
    */
   private static final int TOK_SERVER_DESIGN_ACCESS = 22;
 
   /**
-   * ServerAccessRights/createApplications is 1 if the requestor can create new
-   * applications on the server; 0 otherwise.
+   * ServerAccessRights/createApplications is 1 if the requestor can create new applications on the
+   * server; 0 otherwise.
    */
   private static final int TOK_SERVER_CREATEAPPLICATIONS_ACCESS = 23;
 
   /**
-   * ServerAccessRights/deleteApplications is 1 if the requestor can delete
-   * applications on the server; 0 otherwise.
+   * ServerAccessRights/deleteApplications is 1 if the requestor can delete applications on the
+   * server; 0 otherwise.
    */
   private static final int TOK_SERVER_DELETEAPPLICATIONS_ACCESS = 24;
 
   /**
-   * ServerAccessRights/administerServer is 1 if the requestor has
-   * administrator access to the server; 0 otherwise.
+   * ServerAccessRights/administerServer is 1 if the requestor has administrator access to the
+   * server; 0 otherwise.
    */
   private static final int TOK_SERVER_ADMIN_ACCESS = 25;
 }

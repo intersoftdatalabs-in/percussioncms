@@ -27,17 +27,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Context to represent an item in an application identified only by its name.
- */
+/** Context to represent an item in an application identified only by its name. */
 public class PSAppNamedItemIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from its name and type.
    *
    * @param type One of the <code>TYPE_xxx</code> values.
-   * @param name The name of the item to which this context refers.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param name The name of the item to which this context refers. May not be <code>null</code> or
+   *     empty.
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   public PSAppNamedItemIdContext(int type, String name) {
@@ -53,12 +50,9 @@ public class PSAppNamedItemIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppNamedItemIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -116,12 +110,13 @@ public class PSAppNamedItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppNamedItemIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppNamedItemIdContext
@@ -145,9 +140,8 @@ public class PSAppNamedItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -217,131 +211,91 @@ public class PSAppNamedItemIdContext extends PSApplicationIdContext {
    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
    *
    * @param type The value to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean validateType(int type) {
     return type >= 0 && type < TYPE_ENUM.length;
   }
 
   /**
-   * Name of the field this context represents, never <code>null</code> or
-   * empty after ctor, may be modified by a call to <code>copyFrom()</code>.
+   * Name of the field this context represents, never <code>null</code> or empty after ctor, may be
+   * modified by a call to <code>copyFrom()</code>.
    */
   private String m_name;
 
   /**
-   * Indicates which part of an application this object represents, one
-   * of the <code>TYPE_XXX</code> values.  Initialized during construction,
-   * only modified by a call to <code>copyFrom()</code>.
+   * Indicates which part of an application this object represents, one of the <code>TYPE_XXX</code>
+   * values. Initialized during construction, only modified by a call to <code>copyFrom()</code>.
    */
   private int m_type;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppNamedItemIdContext";
 
-  /**
-   * Constant to indicate this context represents a content editor field.
-   */
+  /** Constant to indicate this context represents a content editor field. */
   public static final int TYPE_CE_FIELD = 0;
 
-  /**
-   * Constant to indicate this context represents a control in a ui set.
-   */
+  /** Constant to indicate this context represents a control in a ui set. */
   public static final int TYPE_CONTROL = 1;
 
-  /**
-   * Constant to indicate this context represents a content editor display
-   * mapping.
-   */
+  /** Constant to indicate this context represents a content editor display mapping. */
   public static final int TYPE_DISPLAY_MAPPING = 2;
 
-  /**
-   * Constant to indicate this context represents a content editor field set.
-   */
+  /** Constant to indicate this context represents a content editor field set. */
   public static final int TYPE_FIELD_SET = 3;
 
-  /**
-   * Constant to indicate this context represents a <code>PSParam</code>
-   * object.
-   */
+  /** Constant to indicate this context represents a <code>PSParam</code> object. */
   public static final int TYPE_PARAM = 4;
 
-  /**
-   * Constant to indicate this context represents an applciation flow
-   * object.
-   */
+  /** Constant to indicate this context represents an applciation flow object. */
   public static final int TYPE_APP_FLOW = 5;
 
-  /**
-   * Constant to indicate this context represents an stylesheet set
-   * object.
-   */
+  /** Constant to indicate this context represents an stylesheet set object. */
   public static final int TYPE_STYLESHEET_SET = 6;
 
-  /**
-   * Constant to indicate this context represents a result page object.
-   */
+  /** Constant to indicate this context represents a result page object. */
   public static final int TYPE_RESULT_PAGE = 7;
 
   /**
-   * Constant to indicate this context represents a set of input data exits
-   * for a command in the system def.
+   * Constant to indicate this context represents a set of input data exits for a command in the
+   * system def.
    */
   public static final int TYPE_SYS_DEF_INPUT_DATA_EXITS = 8;
 
   /**
-   * Constant to indicate this context represents a set of result data exits
-   * for a command in the system def.
+   * Constant to indicate this context represents a set of result data exits for a command in the
+   * system def.
    */
   public static final int TYPE_SYS_DEF_RESULT_DATA_EXITS = 9;
 
   /**
-   * Constant to indicate this context represents a set of init params
-   * for a command in the system def.
+   * Constant to indicate this context represents a set of init params for a command in the system
+   * def.
    */
   public static final int TYPE_SYS_DEF_INIT_PARAMS = 10;
 
-  /**
-   * Constant to indicate this context represents a <code>PSProperty</code>
-   * object
-   */
+  /** Constant to indicate this context represents a <code>PSProperty</code> object */
   public static final int TYPE_PSPROPERTY = 11;
 
-  /**
-   * Constant to indicate this context represents a <code>PSFunctionCall</code>
-   * object
-   */
+  /** Constant to indicate this context represents a <code>PSFunctionCall</code> object */
   public static final int TYPE_FUNCTION_CALL = 12;
 
-  /**
-   * Constant to indicate this context represents a <code>PSProcessCheck</code>
-   * object
-   */
+  /** Constant to indicate this context represents a <code>PSProcessCheck</code> object */
   public static final int TYPE_PROCESS_CHECK = 13;
 
-  /**
-   * Constant to indicate this context represents a content item field
-   */
+  /** Constant to indicate this context represents a content item field */
   public static final int TYPE_ITEM_FIELD = 14;
 
-  /**
-   * Constant to indicate this context represents a child item
-   */
+  /** Constant to indicate this context represents a child item */
   public static final int TYPE_CHILD_ITEM = 15;
 
-  /**
-   * Constant to indicate this context represents a child item
-   */
+  /** Constant to indicate this context represents a child item */
   public static final int TYPE_SIMPLE_CHILD_VALUE = 16;
 
   /**
-   * Enumeration of string constants representing each of the
-   * <code>TYPE_XXX</code> values, for Xml serialization.  Index of each value
-   * must match its corresponding <code>TYPE_xxx</code> constant value.
+   * Enumeration of string constants representing each of the <code>TYPE_XXX</code> values, for Xml
+   * serialization. Index of each value must match its corresponding <code>TYPE_xxx</code> constant
+   * value.
    */
   private static final String[] TYPE_ENUM = {
     "CEField",

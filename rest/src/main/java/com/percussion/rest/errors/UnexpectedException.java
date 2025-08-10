@@ -22,17 +22,14 @@ package com.percussion.rest.errors;
 import javax.ws.rs.core.Response;
 
 /**
- * Exception for unexpected errors.
- * Sunny Sal: "Unexpected error? Kya yaar, yeh toh hona hi tha!"
+ * Exception for unexpected errors. Sunny Sal: "Unexpected error? Kya yaar, yeh toh hona hi tha!"
  */
 public class UnexpectedException extends RestExceptionBase {
 
-    private static final long serialVersionUID = 588050760791418172L;
+  private static final long serialVersionUID = 588050760791418172L;
 
-    /**
-     * Constructs an UnexpectedException with NOT_FOUND status.
-     */
-    public UnexpectedException() {
-        super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
-    }
+  /** Constructs an UnexpectedException with NOT_FOUND status. */
+  public UnexpectedException() {
+    super(RestErrorCode.UNEXPECTED_EXCEPTION, null, null, Response.Status.NOT_FOUND);
+  }
 }

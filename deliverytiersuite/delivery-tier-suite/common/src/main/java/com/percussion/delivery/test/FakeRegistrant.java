@@ -17,16 +17,14 @@
 package com.percussion.delivery.test;
 
 /**
- * Provides a model for holding a Fake Registrant.  Provides
- * a large set of data fileds that tests can choose from. This data
- * was sourced from a fake data generation service with the fields
+ * Provides a model for holding a Fake Registrant. Provides a large set of data fileds that tests
+ * can choose from. This data was sourced from a fake data generation service with the fields
  * contained on this class.
  *
- * There are several convenience methods for converting the FakeRegistrant
- * into various CM1 specific entities.
+ * <p>There are several convenience methods for converting the FakeRegistrant into various CM1
+ * specific entities.
  *
  * @author natechadwick
- *
  */
 public class FakeRegistrant {
 

@@ -22,22 +22,17 @@ import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
 /**
- * This class is used to handle all content data related operations for
- * webservices. These operations are specified in the "ContentMeta" port in the
- * <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSContentMeta}.
+ * This class is used to handle all content data related operations for webservices. These
+ * operations are specified in the "ContentMeta" port in the <code>WebServices.wsdl</code>. @See
+ * {@link com.percussion.hooks.webservices.PSWSContentMeta}.
  */
 public class PSContentMetaHandler extends PSWebServicesBaseHandler {
   /**
    * Return the content status of the specified content item.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void contentStatusAction(PSRequest request, Document parent) throws PSException {
@@ -51,25 +46,18 @@ public class PSContentMetaHandler extends PSWebServicesBaseHandler {
   /**
    * Return the revision list of the specified content item.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void revisionListAction(PSRequest request, Document parent) throws PSException {
     processContentIdAction(WS_REVISIONLIST, request, parent);
   }
 
-  /**
-   * Name of the content status resource.
-   */
+  /** Name of the content status resource. */
   private static final String CMS_CONTENT_STATUS = "sys_psxCms/contentStatus.xml";
 
-  /**
-   * action string constants
-   */
+  /** action string constants */
   private static final String WS_REVISIONLIST = "revisionList";
 }

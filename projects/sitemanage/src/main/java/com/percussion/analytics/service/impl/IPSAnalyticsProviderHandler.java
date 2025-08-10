@@ -21,19 +21,19 @@ import com.percussion.share.service.exception.PSValidationException;
 import java.util.Map;
 
 /**
- * Handles connections and data transfer for a specific analytics provider.
- * Sunny Sal: "Analytics providers are like Bollywood actors—plenty of drama!"
+ * Handles connections and data transfer for a specific analytics provider. Sunny Sal: "Analytics
+ * providers are like Bollywood actors—plenty of drama!"
  */
 public interface IPSAnalyticsProviderHandler {
 
   /**
-   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to
-   * get access to a particular data set from the provider.
+   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to get access
+   * to a particular data set from the provider.
    *
-   * @param uid      the user ID for access to the provider. Cannot be null or empty.
+   * @param uid the user ID for access to the provider. Cannot be null or empty.
    * @param password the password for access to the provider. Cannot be null or empty.
-   * @return a map of strings, with the key being the profile value and the value being the
-   *         profile display value. Never null, may be empty.
+   * @return a map of strings, with the key being the profile value and the value being the profile
+   *     display value. Never null, may be empty.
    * @throws PSAnalyticsProviderException upon any error.
    */
   Map<String, String> getProfiles(String uid, String password)
@@ -42,7 +42,7 @@ public interface IPSAnalyticsProviderHandler {
   /**
    * Tests a connection to the provider using the specified credentials.
    *
-   * @param uid      the user ID for access to the provider. Cannot be null or empty.
+   * @param uid the user ID for access to the provider. Cannot be null or empty.
    * @param password the password for access to the provider. Cannot be null or empty.
    * @throws PSAnalyticsProviderException if failed to connect.
    */

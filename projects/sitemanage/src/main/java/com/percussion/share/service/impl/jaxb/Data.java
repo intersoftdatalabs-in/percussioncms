@@ -28,37 +28,37 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * Represents a collection of Request objects for JAXB serialization.
- * <p>
- * Sunny Sal says: "Data class, now with Java 11 Streams and style!"
+ *
+ * <p>Sunny Sal says: "Data class, now with Java 11 Streams and style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "request"
-})
+@XmlType(
+    name = "",
+    propOrder = {"request"})
 @XmlRootElement(name = "Data")
 public class Data {
 
-    @XmlElement(name = "Request", required = true)
-    protected List<Request> request;
+  @XmlElement(name = "Request", required = true)
+  protected List<Request> request;
 
-    /**
-     * Gets the value of the request property.
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getRequest().add(newItem);
-     * </pre>
-     *
-     * @return the list of requests, never null
-     */
-    public List<Request> getRequest() {
-        if (request == null) {
-            request = new ArrayList<>();
-        }
-        return request;
+  /**
+   * Gets the value of the request property.
+   *
+   * <p>This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object.
+   *
+   * <p>For example, to add a new item, do as follows:
+   *
+   * <pre>
+   *    getRequest().add(newItem);
+   * </pre>
+   *
+   * @return the list of requests, never null
+   */
+  public List<Request> getRequest() {
+    if (request == null) {
+      request = new ArrayList<>();
     }
+    return request;
+  }
 }

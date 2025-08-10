@@ -28,14 +28,12 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.util.FileUtils;
 
-/**
- * Propagates a file to any number of directories specified in
- * a directory set.
- */
+/** Propagates a file to any number of directories specified in a directory set. */
 public class PSPropagateFile extends Task {
 
   /**
    * Sets the source file path
+   *
    * @param src should not be <code>null</code>.
    */
   public void setSrc(File src) {
@@ -44,15 +42,14 @@ public class PSPropagateFile extends Task {
 
   /**
    * Allow the adding of directory sets
+   *
    * @param ds the directory set , may be <ocd>null</code>.
    */
   public void addDirset(DirSet ds) {
     if (ds != null) m_fileSets.add(ds);
   }
 
-  /**
-   * Executes the file propagation
-   */
+  /** Executes the file propagation */
   @Override
   public void execute() throws BuildException {
 

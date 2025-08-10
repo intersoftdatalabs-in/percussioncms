@@ -26,11 +26,11 @@ import java.io.File;
  * @author YuBingChen
  */
 public interface IPSBeanPropertiesInternal extends IPSBeanProperties {
-    /**
-     * Gets the properties file. This is not exposed through the interface, but
-     * can be called directly, e.g., from unit tests.
-     *
-     * @return the properties file, never {@code null}.
-     */
-    File getPropertiesFile();
+  /**
+   * Gets the properties file. This is not exposed through the interface, but can be called
+   * directly, e.g., from unit tests.
+   *
+   * @return the properties file, never {@code null}.
+   */
+  File getPropertiesFile();
 }

@@ -36,7 +36,7 @@ public class ASTSortKey extends SimpleNode {
 
   private int m_ordinal = -1;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

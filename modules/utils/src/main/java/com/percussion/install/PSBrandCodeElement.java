@@ -26,23 +26,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class stores the tag name of the wrapped element and the name and value
- * of all the attribute of this element defined in the component map xml.
+ * This class stores the tag name of the wrapped element and the name and value of all the attribute
+ * of this element defined in the component map xml.
  */
 public class PSBrandCodeElement {
   /**
    * Constructor.
-   * @param sourceNode the Xml representation of this object, may not
-   * be <code>null</code>
-   * @param reqAttrNames array containing the names of required attributes,
-   * may be <code>null</code> or empty array
-   * @param optionalAttrNames array containing the names of optional attributes,
-   * may be <code>null</code> or empty array
-   * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * or if any element of reqAttrNames or optionalAttrNames is
-   * <code>null</code> or empty, if these arrays are not <code>null</code>
-   * @throws CodeException if the element does not have all the attributes
-   * defined as specified in the <code>reqAttrNames</code> array.
+   *
+   * @param sourceNode the Xml representation of this object, may not be <code>null</code>
+   * @param reqAttrNames array containing the names of required attributes, may be <code>null</code>
+   *     or empty array
+   * @param optionalAttrNames array containing the names of optional attributes, may be <code>null
+   *     </code> or empty array
+   * @throws IllegalArgumentException if sourceNode is <code>null</code> or if any element of
+   *     reqAttrNames or optionalAttrNames is <code>null</code> or empty, if these arrays are not
+   *     <code>null</code>
+   * @throws CodeException if the element does not have all the attributes defined as specified in
+   *     the <code>reqAttrNames</code> array.
    */
   public PSBrandCodeElement(Element sourceNode, String[] reqAttrNames, String[] optionalAttrNames)
       throws CodeException {
@@ -67,11 +67,11 @@ public class PSBrandCodeElement {
 
   /**
    * Restore this object from an Xml representation.
-   * @param sourceNode reference of the element which should be wrapped by
-   * this object
+   *
+   * @param sourceNode reference of the element which should be wrapped by this object
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * @throws CodeException if the element does not have all the attributes
-   * defined as specified in the <code>m_reqAttrNames</code> array.
+   * @throws CodeException if the element does not have all the attributes defined as specified in
+   *     the <code>m_reqAttrNames</code> array.
    */
   public void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -95,10 +95,9 @@ public class PSBrandCodeElement {
 
   /**
    * Serializes this object's state to Xml.
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>
-   * @return the element containing this object's state,
-   * never <code>null</code>
+   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>
+   * @return the element containing this object's state, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -114,22 +113,15 @@ public class PSBrandCodeElement {
   }
 
   /**
-   * Returns <code>true</code> if this element has the specified value
-   * for the specified attribute name, <code>false</code> otherwise. The
-   * comparison of attribute value is case-insensitive.
+   * Returns <code>true</code> if this element has the specified value for the specified attribute
+   * name, <code>false</code> otherwise. The comparison of attribute value is case-insensitive.
    *
-   * @param attrName the name of the attribute, may not be <code>null</code>
-   * or empty
-   * @param attrValue the value of the attribute, may not be
-   * <code>null</code> or empty
-   *
-   * @return <code>true</code> if this element has the specified value
-   * for the specified attribute name. Returns <code>false</code> if this
-   * element does not have the specified attribute or if the value of the
-   * attribute does not match the specified attribute.
-   *
-   * @throws IllegalArgumentException if attrName or attrValue is
-   * <code>null</code> or empty
+   * @param attrName the name of the attribute, may not be <code>null</code> or empty
+   * @param attrValue the value of the attribute, may not be <code>null</code> or empty
+   * @return <code>true</code> if this element has the specified value for the specified attribute
+   *     name. Returns <code>false</code> if this element does not have the specified attribute or
+   *     if the value of the attribute does not match the specified attribute.
+   * @throws IllegalArgumentException if attrName or attrValue is <code>null</code> or empty
    */
   public boolean hasAttributeWithValue(String attrName, String attrValue) {
     if ((attrValue == null) || (attrValue.trim().length() < 1))
@@ -143,18 +135,16 @@ public class PSBrandCodeElement {
 
   /**
    * Returns the value of the specified attribute.
-   * @param attrName the name of the attribute, may not be <code>null</code>
-   * or empty
-   * @param required If <code>true</code> and this element does not have the
-   * specified attribute, then CodeException is thrown.
-   * If required is <code>false</code> and this element does not have the
-   * specified attribute then <code>null</code> is returned.
    *
-   * @return the value of the specified attribute, may be <code>null</code>
-   * if required is <code>true</code>.
+   * @param attrName the name of the attribute, may not be <code>null</code> or empty
+   * @param required If <code>true</code> and this element does not have the specified attribute,
+   *     then CodeException is thrown. If required is <code>false</code> and this element does not
+   *     have the specified attribute then <code>null</code> is returned.
+   * @return the value of the specified attribute, may be <code>null</code> if required is <code>
+   *     true</code>.
    * @throws IllegalArgumentException if attrName is <code>null</code> or empty
-   * @throws CodeException if required is <code>true</code> and this element
-   * does not have the specified attribute.
+   * @throws CodeException if required is <code>true</code> and this element does not have the
+   *     specified attribute.
    */
   public String getAttributeValue(String attrName, boolean required) throws CodeException {
     if (hasAttribute(attrName)) return (String) m_attrMap.get(attrName);
@@ -166,12 +156,12 @@ public class PSBrandCodeElement {
   }
 
   /**
-   * Returns <code>true</code> if this element has the specified attribute,
-   * <code>false</code> otherwise.
-   * @param attrName the name of the attribute, may not be <code>null</code>
-   * or empty
-   * @return <code>true</code> if this element has the specified attribute,
-   * <code>false</code> otherwise.
+   * Returns <code>true</code> if this element has the specified attribute, <code>false</code>
+   * otherwise.
+   *
+   * @param attrName the name of the attribute, may not be <code>null</code> or empty
+   * @return <code>true</code> if this element has the specified attribute, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if attrName is <code>null</code> or empty
    */
   private boolean hasAttribute(String attrName) {
@@ -182,30 +172,27 @@ public class PSBrandCodeElement {
   }
 
   /**
-   * array containing the names of required attributes,
-   * initialized in the constructor,
-   * may be <code>null</code> or empty.
+   * array containing the names of required attributes, initialized in the constructor, may be
+   * <code>null</code> or empty.
    */
   private String[] m_reqAttrNames = null;
 
   /**
-   * array containing the names of optional attributes,
-   * initialized in the constructor,
-   * may be <code>null</code> or empty.
+   * array containing the names of optional attributes, initialized in the constructor, may be
+   * <code>null</code> or empty.
    */
   private String[] m_optionalAttrNames = null;
 
   /**
-   * Map for storing the name and value of the attributes of this element.
-   * initialized in the <code>fromXml</code> method, never empty after
-   * initialization. The attribute name is used as the key of the map,
-   * and the attribute value is used as the value.
+   * Map for storing the name and value of the attributes of this element. initialized in the <code>
+   * fromXml</code> method, never empty after initialization. The attribute name is used as the key
+   * of the map, and the attribute value is used as the value.
    */
   private Map m_attrMap = new HashMap();
 
   /**
-   * tag name of the elememt, initialized in the <code>fromXml</code> method,
-   * never <code>null</code> or empty after initialization.
+   * tag name of the elememt, initialized in the <code>fromXml</code> method, never <code>null
+   * </code> or empty after initialization.
    */
   private String m_name = null;
 }

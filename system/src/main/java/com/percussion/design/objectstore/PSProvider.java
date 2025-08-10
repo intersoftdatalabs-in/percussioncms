@@ -22,21 +22,15 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Container class used to define directory or role provider catalogers.
- */
+/** Container class used to define directory or role provider catalogers. */
 public class PSProvider extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSProvider(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -46,10 +40,9 @@ public class PSProvider extends PSComponent {
   /**
    * Construct a new provider for the supplied parameters.
    *
-   * @param className the fully qualified class name of the provider,
-   *    not <code>null</code> or empty.
-   * @param type the provider type to create, one of
-   *    <code>TYPE_ENUM</code>.
+   * @param className the fully qualified class name of the provider, not <code>null</code> or
+   *     empty.
+   * @param type the provider type to create, one of <code>TYPE_ENUM</code>.
    * @param reference the provider reference, may be <code>null</code>.
    */
   public PSProvider(String className, String type, PSReference reference) {
@@ -59,8 +52,7 @@ public class PSProvider extends PSComponent {
   }
 
   /**
-   * @return the fully qualified provider class name, never
-   *    <code>null</code> or empty.
+   * @return the fully qualified provider class name, never <code>null</code> or empty.
    */
   public String getClassName() {
     return m_class;
@@ -69,8 +61,7 @@ public class PSProvider extends PSComponent {
   /**
    * Set the fully qualified provider class name.
    *
-   * @param className the new class name to set, not <code>null</code>
-   *    or empty.
+   * @param className the new class name to set, not <code>null</code> or empty.
    */
   public void setClassName(String className) {
     if (className == null) throw new IllegalArgumentException("className cannot be null");
@@ -85,8 +76,8 @@ public class PSProvider extends PSComponent {
    * Test if this provider is a provider for the supplied class name.
    *
    * @param className the class name to test for, may be <code>null</Code>.
-   * @return <code>true</code> if this provider is for the speccified class
-   *    name, <code>false</code> otherwise.
+   * @return <code>true</code> if this provider is for the speccified class name, <code>false</code>
+   *     otherwise.
    */
   public boolean isProviderFor(String className) {
     if (className == null) return false;
@@ -138,7 +129,9 @@ public class PSProvider extends PSComponent {
     m_reference = reference;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -158,7 +151,9 @@ public class PSProvider extends PSComponent {
     if (reference != null) m_reference = new PSReference(reference, parentDoc, parentComponents);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(PROVIDER_CLASS_ATTR, m_class);
@@ -169,12 +164,16 @@ public class PSProvider extends PSComponent {
     return root;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Object clone() {
     return super.clone();
   }
 
-  /** @see PSComponent */
+  /**
+   * @see PSComponent
+   */
   public void copyFrom(PSComponent c) {
     super.copyFrom(c);
 
@@ -207,36 +206,28 @@ public class PSProvider extends PSComponent {
   /** The XML node name */
   public static final String XML_NODE_NAME = "PSXProvider";
 
-  /**
-   * A constant for directory providers.
-   */
+  /** A constant for directory providers. */
   public static final String TYPE_DIRECTORY = "directory";
 
-  /**
-   * A constant for role providers.
-   */
+  /** A constant for role providers. */
   public static final String TYPE_ROLE = "role";
 
-  /**
-   * An enumeration with all valid provider types.
-   */
+  /** An enumeration with all valid provider types. */
   public static final String[] TYPE_ENUM = {TYPE_DIRECTORY, TYPE_ROLE};
 
   /**
-   * The provider type, initialized while constructed, never changed after
-   * that. One of <code>Provider.TYPE_ENUM</code>.
+   * The provider type, initialized while constructed, never changed after that. One of <code>
+   * Provider.TYPE_ENUM</code>.
    */
   private String m_type = null;
 
   /**
-   * The fully qualified provider class name. Initialized during
-   * construction, never <code>null</code>, empty or changed after that.
+   * The fully qualified provider class name. Initialized during construction, never <code>null
+   * </code>, empty or changed after that.
    */
   private String m_class = null;
 
-  /**
-   * The provider definition reference, might be <code>null</code>.
-   */
+  /** The provider definition reference, might be <code>null</code>. */
   private PSReference m_reference = null;
 
   // XML element and attribute constants.

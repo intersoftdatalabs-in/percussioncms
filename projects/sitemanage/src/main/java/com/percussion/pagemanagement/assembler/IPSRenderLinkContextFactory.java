@@ -35,54 +35,56 @@ import com.percussion.share.service.exception.PSValidationException;
  */
 public interface IPSRenderLinkContextFactory {
 
-    /**
-     * Creates a link context for a content list item.
-     * Used by the template expander during content list generation.
-     *
-     * @param listItem never {@code null}
-     * @param item never {@code null}
-     * @return never {@code null}
-     * @throws IPSDataService.DataServiceLoadException if loading fails
-     * @throws IPSDataService.DataServiceNotFoundException if not found
-     * @throws PSValidationException if validation fails
-     */
-    PSRenderLinkContext create(
-            PSContentListItem listItem,
-            IPSLinkableItem item
-    ) throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException, PSValidationException;
+  /**
+   * Creates a link context for a content list item. Used by the template expander during content
+   * list generation.
+   *
+   * @param listItem never {@code null}
+   * @param item never {@code null}
+   * @return never {@code null}
+   * @throws IPSDataService.DataServiceLoadException if loading fails
+   * @throws IPSDataService.DataServiceNotFoundException if not found
+   * @throws PSValidationException if validation fails
+   */
+  PSRenderLinkContext create(PSContentListItem listItem, IPSLinkableItem item)
+      throws IPSDataService.DataServiceLoadException,
+          IPSDataService.DataServiceNotFoundException,
+          PSValidationException;
 
-    /**
-     * Creates a link context that has not been validated yet.
-     *
-     * @param assemblyItem never {@code null}
-     * @param item never {@code null}
-     * @return never {@code null}
-     * @throws IPSDataService.DataServiceLoadException if loading fails
-     * @throws IPSDataService.DataServiceNotFoundException if not found
-     * @throws PSFilterException if filtering fails
-     * @throws PSValidationException if validation fails
-     */
-    PSRenderLinkContext create(
-            IPSAssemblyItem assemblyItem,
-            IPSLinkableItem item
-    ) throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException, PSFilterException, PSValidationException;
+  /**
+   * Creates a link context that has not been validated yet.
+   *
+   * @param assemblyItem never {@code null}
+   * @param item never {@code null}
+   * @return never {@code null}
+   * @throws IPSDataService.DataServiceLoadException if loading fails
+   * @throws IPSDataService.DataServiceNotFoundException if not found
+   * @throws PSFilterException if filtering fails
+   * @throws PSValidationException if validation fails
+   */
+  PSRenderLinkContext create(IPSAssemblyItem assemblyItem, IPSLinkableItem item)
+      throws IPSDataService.DataServiceLoadException,
+          IPSDataService.DataServiceNotFoundException,
+          PSFilterException,
+          PSValidationException;
 
-    /**
-     * Creates a preview link context for a page.
-     *
-     * @param page never {@code null}
-     * @return never {@code null}
-     * @throws IPSDataService.DataServiceNotFoundException if not found
-     * @throws PSValidationException if validation fails
-     */
-    PSRenderLinkContext createPreview(PSPage page) throws IPSDataService.DataServiceNotFoundException, PSValidationException;
+  /**
+   * Creates a preview link context for a page.
+   *
+   * @param page never {@code null}
+   * @return never {@code null}
+   * @throws IPSDataService.DataServiceNotFoundException if not found
+   * @throws PSValidationException if validation fails
+   */
+  PSRenderLinkContext createPreview(PSPage page)
+      throws IPSDataService.DataServiceNotFoundException, PSValidationException;
 
-    /**
-     * Creates a link context for an image asset preview.
-     *
-     * @param folderPath never {@code null}
-     * @param asset never {@code null}
-     * @return never {@code null}
-     */
-    PSRenderLinkContext createAssetPreview(String folderPath, PSAssetSummary asset);
+  /**
+   * Creates a link context for an image asset preview.
+   *
+   * @param folderPath never {@code null}
+   * @param asset never {@code null}
+   * @return never {@code null}
+   */
+  PSRenderLinkContext createAssetPreview(String folderPath, PSAssetSummary asset);
 }

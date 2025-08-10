@@ -27,10 +27,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * Task to get around a bug that when viewed via eclipse a
- * javascript error is occurring. This error is not affecting any functionality
- * but is annoying. To supress this error we inject a javascript error handler
- * into the index.html file that will supress all javascript errors.
+ * Task to get around a bug that when viewed via eclipse a javascript error is occurring. This error
+ * is not affecting any functionality but is annoying. To supress this error we inject a javascript
+ * error handler into the index.html file that will supress all javascript errors.
  */
 public class PSAddJavaDocErrorSupression extends Task {
 
@@ -38,6 +37,7 @@ public class PSAddJavaDocErrorSupression extends Task {
 
   /**
    * The directory where the javadoc is contained
+   *
    * @param dir cannot be <code>null</code>.
    */
   public void setDir(File dir) {
@@ -68,8 +68,8 @@ public class PSAddJavaDocErrorSupression extends Task {
   }
 
   /**
-   * Helper method to find the index of a string ignoring
-   * case.
+   * Helper method to find the index of a string ignoring case.
+   *
    * @param sb assumed not <code>null</code>.
    * @param str assumed not <code>null</code>.
    * @return the index position or -1 if not found.
@@ -80,8 +80,8 @@ public class PSAddJavaDocErrorSupression extends Task {
   }
 
   /**
-   * Retrieves the contents of the index html file as a
-   * <code>StringBuilder</code>.
+   * Retrieves the contents of the index html file as a <code>StringBuilder</code>.
+   *
    * @return never <code>null</code>.
    * @throws IOException on any error.
    */
@@ -104,6 +104,7 @@ public class PSAddJavaDocErrorSupression extends Task {
 
   /**
    * Saves the updated content back into the index.html file
+   *
    * @param contents assumed not <code>null</code>.
    * @throws IOException upon any error.
    */
@@ -130,20 +131,15 @@ public class PSAddJavaDocErrorSupression extends Task {
   }
 
   /**
-   * The directory where the javadoc is contained, set
-   * in {@link #setDir(File)}, never <code>null</code> after
-   * that.
+   * The directory where the javadoc is contained, set in {@link #setDir(File)}, never <code>null
+   * </code> after that.
    */
   private File m_dir;
 
-  /**
-   * Constant for the name of the index.html file
-   */
+  /** Constant for the name of the index.html file */
   private static final String INDEX_HTML_FILE = "index.html";
 
-  /**
-   * Constant for error suppression string
-   */
+  /** Constant for error suppression string */
   private static final String ERROR_SUPPRESS_STRING =
       "\n<SCRIPT type=\"text/javascript\">\nwindow.onerror = new Function"
           + ""

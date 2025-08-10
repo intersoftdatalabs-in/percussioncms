@@ -18,68 +18,64 @@
 package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * REST data class for logging information on the server.
- * Immutable, Java 11 style.
+ * REST data class for logging information on the server. Immutable, Java 11 style.
  *
- * <p>Sunny Sal says: Logging is like pizza—always good, but better with toppings (context)!</p>
+ * <p>Sunny Sal says: Logging is like pizza—always good, but better with toppings (context)!
  */
 @XmlRootElement(name = "LogData")
 @JsonRootName("LogData")
 public final class PSLogData {
 
-    private final String type;
-    private final String category;
-    private final String message;
+  private final String type;
+  private final String category;
+  private final String message;
 
-    /**
-     * Constructs a new PSLogData.
-     *
-     * @param type     the log type (e.g., INFO, ERROR)
-     * @param category the log category
-     * @param message  the log message
-     */
-    public PSLogData(String type, String category, String message) {
-        this.type = type;
-        this.category = category;
-        this.message = message;
-    }
+  /**
+   * Constructs a new PSLogData.
+   *
+   * @param type the log type (e.g., INFO, ERROR)
+   * @param category the log category
+   * @param message the log message
+   */
+  public PSLogData(String type, String category, String message) {
+    this.type = type;
+    this.category = category;
+    this.message = message;
+  }
 
-    /**
-     * Default constructor for frameworks.
-     */
-    public PSLogData() {
-        this(null, null, null);
-    }
+  /** Default constructor for frameworks. */
+  public PSLogData() {
+    this(null, null, null);
+  }
 
-    /**
-     * Gets the log type.
-     *
-     * @return an Optional containing the log type if present
-     */
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
+  /**
+   * Gets the log type.
+   *
+   * @return an Optional containing the log type if present
+   */
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    /**
-     * Gets the log category.
-     *
-     * @return an Optional containing the log category if present
-     */
-    public Optional<String> getCategory() {
-        return Optional.ofNullable(category);
-    }
+  /**
+   * Gets the log category.
+   *
+   * @return an Optional containing the log category if present
+   */
+  public Optional<String> getCategory() {
+    return Optional.ofNullable(category);
+  }
 
-    /**
-     * Gets the log message.
-     *
-     * @return an Optional containing the log message if present
-     */
-    public Optional<String> getMessage() {
-        return Optional.ofNullable(message);
-    }
+  /**
+   * Gets the log message.
+   *
+   * @return an Optional containing the log message if present
+   */
+  public Optional<String> getMessage() {
+    return Optional.ofNullable(message);
+  }
 }

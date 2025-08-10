@@ -116,10 +116,10 @@ public class PSGetReleaseDocumentsPath extends Task {
 
   /**
    * Returns a list of all numeric version directories under root
-   * @param rootdir the root directory where all of the version directories are located
-   * , cannot be <code>null</code>.
-   * @return a list of all version directories, never <code>null</code>, and should not
-   * be empty.
+   *
+   * @param rootdir the root directory where all of the version directories are located , cannot be
+   *     <code>null</code>.
+   * @return a list of all version directories, never <code>null</code>, and should not be empty.
    */
   private List getAllVersionDirectories(File rootdir) {
     if (rootdir == null) throw new IllegalArgumentException("rootdir cannot be null.");
@@ -137,6 +137,7 @@ public class PSGetReleaseDocumentsPath extends Task {
 
   /**
    * Determines if the string passed in is a numeric
+   *
    * @param s the string to evaluate, cannot be <code>null</code>.
    * @return <code>true</code> if the string is a numeric
    */

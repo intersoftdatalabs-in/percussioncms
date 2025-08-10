@@ -29,13 +29,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * An object representation of the StandardItem.xsd Child element.  Which is a
- * Complex child, meaning it has 1 or more columns and 0 or more rows, which
- * will be referred to in this class as 'childEntries'.  In order for
- * childEntries to be added to the child the childEntries are validated to
- * ensure that they have the same field definitions, if they do they can be
- * added to the Child.  Therefore it is possible that childEntries, defined
- * appropriately, may be shared across Child objects.
+ * An object representation of the StandardItem.xsd Child element. Which is a Complex child, meaning
+ * it has 1 or more columns and 0 or more rows, which will be referred to in this class as
+ * 'childEntries'. In order for childEntries to be added to the child the childEntries are validated
+ * to ensure that they have the same field definitions, if they do they can be added to the Child.
+ * Therefore it is possible that childEntries, defined appropriately, may be shared across Child
+ * objects.
  */
 public class PSItemChild extends PSItemComponent {
   /**
@@ -43,9 +42,8 @@ public class PSItemChild extends PSItemComponent {
    *
    * @param fieldSet - the definition of this object. Must not be <code>null
    * </code>.
-   * @param displayMapping - the display mapping defining the ui representation
-   * of this object. Must not be <code>null</code>, must contain a child
-   * mapper.
+   * @param displayMapping - the display mapping defining the ui representation of this object. Must
+   *     not be <code>null</code>, must contain a child mapper.
    */
   public PSItemChild(PSFieldSet fieldSet, PSDisplayMapping displayMapping) {
     if (fieldSet == null) throw new IllegalArgumentException("fieldset must not be null");
@@ -63,16 +61,14 @@ public class PSItemChild extends PSItemComponent {
     init();
   }
 
-  /**
-   * Initialize lifetime objects.
-   */
+  /** Initialize lifetime objects. */
   private void init() {
     m_entryList = new ArrayList<>();
   }
 
   /**
-   * Each <code>PSItemChild</code> has an associated name.  This method
-   * returns this <code>PSItemChild</code> object's name.
+   * Each <code>PSItemChild</code> has an associated name. This method returns this <code>
+   * PSItemChild</code> object's name.
    *
    * @return child name, never <code>null</code> or empty.
    */
@@ -90,8 +86,8 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * Each <code>PSItemChild</code> may have an associated a display name.
-   * This method returns this <code>PSItemChild</code> objects display name.
+   * Each <code>PSItemChild</code> may have an associated a display name. This method returns this
+   * <code>PSItemChild</code> objects display name.
    *
    * @return display name may be <code>null</code> never empty.
    */
@@ -108,16 +104,15 @@ public class PSItemChild extends PSItemComponent {
   /**
    * The total number of childEntries in this child.
    *
-   * @return total number of <code>PSItemChildEntry</code>. If 0, then
-   * there are no <code>PSItemChildEntry</code> objects.
+   * @return total number of <code>PSItemChildEntry</code>. If 0, then there are no <code>
+   *     PSItemChildEntry</code> objects.
    */
   public int childEntryCount() {
     return m_entryList.size();
   }
 
   /**
-   * Gets the <code>PSItemChildEntry</code> by the specified row id.  This is
-   * called by update.
+   * Gets the <code>PSItemChildEntry</code> by the specified row id. This is called by update.
    *
    * @param childRowId must be >= 0.
    * @return may return <code>null</code>
@@ -135,9 +130,8 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * Creates a valid <code>PSItemChildEntry</code>.  This
-   * <code>PSItemChildEntry</code> is not automatically added to this
-   * <code>PSItemChild</code>.
+   * Creates a valid <code>PSItemChildEntry</code>. This <code>PSItemChildEntry</code> is not
+   * automatically added to this <code>PSItemChild</code>.
    *
    * @return a valid <code>PSItemChildEntry</code>
    */
@@ -166,52 +160,46 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * Every <code>PSItemChild</code> may have a field or a collection
-   * of <code>PSItemChildEntry</code> fields.  This returns the entire
-   * collection.
+   * Every <code>PSItemChild</code> may have a field or a collection of <code>PSItemChildEntry
+   * </code> fields. This returns the entire collection.
    *
-   * @return unmodifiable <code>Iterator</code> of
-   * <code>PSItemChildEntry</code> objects owned by this class. Any
-   * modifications to them will affect the childEntry in this class.  May be
-   * empty but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of <code>PSItemChildEntry</code> objects owned by
+   *     this class. Any modifications to them will affect the childEntry in this class. May be
+   *     empty but not <code>null</code>.
    */
   public Iterator<PSItemChildEntry> getAllEntries() {
     return Collections.unmodifiableList(m_entryList).iterator();
   }
 
   /**
-   * Moves a <code>PSItemChildEntry</code> up one in the index of all child
-   * entries.  If it can't move any higher (meaning index 0) then it won't do
-   * anything.
+   * Moves a <code>PSItemChildEntry</code> up one in the index of all child entries. If it can't
+   * move any higher (meaning index 0) then it won't do anything.
    *
-   * @param childEntry the entry to move up.  Must not be <code>null</code>.
+   * @param childEntry the entry to move up. Must not be <code>null</code>.
    */
   public void moveUp(PSItemChildEntry childEntry) {
     move(childEntry, -1);
   }
 
   /**
-   * Moves a <code>PSItemChildEntry</code> down one in the index of all child
-   * entries.  If it can't move any lower (meaning the index size) then it
-   * won't do anything.
+   * Moves a <code>PSItemChildEntry</code> down one in the index of all child entries. If it can't
+   * move any lower (meaning the index size) then it won't do anything.
    *
-   * @param childEntry the entry to move up.  Must not be <code>null</code>.
+   * @param childEntry the entry to move up. Must not be <code>null</code>.
    */
   public void moveDown(PSItemChildEntry childEntry) {
     move(childEntry, 1);
   }
 
   /**
-   * If sequencing is enabled for this child, the order of the entries is
-   * preserved. childEntries are sequenced starting from 0 to n-1,
-   * where n is thenumber of entries contained by this child. 0 is considered
-   * the 'top' of the list. To move an item towards the top,
-   * supply a negative number.
+   * If sequencing is enabled for this child, the order of the entries is preserved. childEntries
+   * are sequenced starting from 0 to n-1, where n is thenumber of entries contained by this child.
+   * 0 is considered the 'top' of the list. To move an item towards the top, supply a negative
+   * number.
    *
    * @param childEntry - the childEntry object to move.
-   * @param upDown -1 is up and 1 is down etc.  The result of this +
-   * <code>childEntryCount()</code>, must be > 0 and
-   *  < <code>childEntryCount()</code>
+   * @param upDown -1 is up and 1 is down etc. The result of this + <code>childEntryCount()</code>,
+   *     must be > 0 and < <code>childEntryCount()</code>
    */
   @SuppressWarnings("unchecked")
   public void move(PSItemChildEntry childEntry, int upDown) {
@@ -232,12 +220,11 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * Moves the supplied child entry from its current position to the specified
-   * position.  {@link #isSequenced()} must return <code>true</code>.
+   * Moves the supplied child entry from its current position to the specified position. {@link
+   * #isSequenced()} must return <code>true</code>.
    *
    * @param childEntry The entry to move, must be found in the current list.
-   * @param position The new position, must be > 0 and <
-   * {@link #childEntryCount()}.
+   * @param position The new position, must be > 0 and < {@link #childEntryCount()}.
    */
   public void moveToPosition(PSItemChildEntry childEntry, int position) {
     if (!isSequenced()) throw new IllegalStateException("sequencing not enabled");
@@ -253,21 +240,22 @@ public class PSItemChild extends PSItemComponent {
     }
   }
 
-  /** @todo add method that adds a child entry to a specific position **/
   /**
-   * Adds a <code>PSItemChildEntry</code> to the collection.  The
-   * <code>PSItemChildEntry</code> must have valid
-   * <code>PSItemField</code> objects.  That is one that was created by
-   * this object or one that has the same <code>PSItemField</code>
-   * as a <code>PSItemChildEntry</code> that is created by this object.
-   * <p />
-   * To ensure that the <code>PSItemChildEntry</code> is valid,
-   * use {@link  #createChildEntry()  createChildEntry()} to create the
-   * <code>PSItemChildEntry</code>.
-   * <p />
+   * @todo add method that adds a child entry to a specific position *
+   */
+  /**
+   * Adds a <code>PSItemChildEntry</code> to the collection. The <code>PSItemChildEntry</code> must
+   * have valid <code>PSItemField</code> objects. That is one that was created by this object or one
+   * that has the same <code>PSItemField</code> as a <code>PSItemChildEntry</code> that is created
+   * by this object.
    *
-   * @param childEntry the object to add.  Must not be <code>null</code> must
-   * have valid <code>PSItemField</code> objects.
+   * <p>To ensure that the <code>PSItemChildEntry</code> is valid, use {@link #createChildEntry()
+   * createChildEntry()} to create the <code>PSItemChildEntry</code>.
+   *
+   * <p>
+   *
+   * @param childEntry the object to add. Must not be <code>null</code> must have valid <code>
+   *     PSItemField</code> objects.
    */
   @SuppressWarnings("unchecked")
   public void addEntry(PSItemChildEntry childEntry) {
@@ -282,9 +270,9 @@ public class PSItemChild extends PSItemComponent {
   /**
    * Replaces the current entry with the same childrowid.
    *
-   * @param childEntry The entry with which the current entry is replaced, may
-   * not be <code>null</code>, must have a matching field structure and must
-   * have a childRowId that matches an existing entry.
+   * @param childEntry The entry with which the current entry is replaced, may not be <code>null
+   *     </code>, must have a matching field structure and must have a childRowId that matches an
+   *     existing entry.
    */
   public void replaceEntry(PSItemChildEntry childEntry) {
     if (childEntry == null) throw new IllegalArgumentException("childEntry may not be null");
@@ -307,13 +295,11 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * This method compares all the fields in the Template Entry, to the
-   * childEntry argument.  If all of the fields <code>PSItemFieldMeta</code>
-   * match then it is a valid entry and <code>true</code> will be returned,
-   * otherwise <code>false</code>.
+   * This method compares all the fields in the Template Entry, to the childEntry argument. If all
+   * of the fields <code>PSItemFieldMeta</code> match then it is a valid entry and <code>true</code>
+   * will be returned, otherwise <code>false</code>.
    *
-   * @param childEntry the entry to compare against the template.  Assumed
-   * not <code>null</code>.
+   * @param childEntry the entry to compare against the template. Assumed not <code>null</code>.
    * @return if the childEntry matches.
    */
   private boolean validateEntry(PSItemChildEntry childEntry) {
@@ -336,7 +322,7 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * Are the child entries sequenced?  Default is <code>false</code>.
+   * Are the child entries sequenced? Default is <code>false</code>.
    *
    * @return <code>true</code> if yes otherwise <code>false</code>.
    */
@@ -367,6 +353,7 @@ public class PSItemChild extends PSItemComponent {
 
   /**
    * Convenience method to <code>toXml(doc, null)</code>
+   *
    * @see #toXml(Document, PSAcceptElements)
    */
   public Element toXml(Document doc) {
@@ -434,16 +421,16 @@ public class PSItemChild extends PSItemComponent {
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
-   * An element node may contain a hierarchical structure, including child
+   * This method is called to populate an object from its XML representation. It assumes that the
+   * object may already have a complete data structure, therefore method only overlays the data onto
+   * the existing object. An element node may contain a hierarchical structure, including child
    * objects. The element node can also be a child of another element node.
+   *
    * <p>
-   * @param sourceNode   the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by this class.
    */
   public void loadXmlData(Element sourceNode) throws PSUnknownNodeTypeException {
     loadXmlData(sourceNode, false);
@@ -484,40 +471,35 @@ public class PSItemChild extends PSItemComponent {
    *
    * @param el the element to retrieve the child name from, must not be <code>
    * null</code>
-   *
    * @return the name of this child element
    */
   static String getName(Element el) {
     return el.getAttribute(ATTR_NAME);
   }
 
-  /**
-   * Definition of this child fields, initialized in ctor, never
-   *  <code>null</code>
-   */
+  /** Definition of this child fields, initialized in ctor, never <code>null</code> */
   private PSFieldSet m_fieldSetDef;
 
-  /**
-   * Definition of child UI data, initialized in ctor, never <code>null</code>
-   */
+  /** Definition of child UI data, initialized in ctor, never <code>null</code> */
   private PSUISet m_uiDef;
 
   /**
-   * The id uniquely identifying this child within its parent item.  Set during
-   * the ctor, never modified after that.
+   * The id uniquely identifying this child within its parent item. Set during the ctor, never
+   * modified after that.
    */
   private int m_childId;
 
   /**
    * List of entries, never <code>null</code> may be empty.
+   *
    * @see #getAllEntries()
    */
   private List<PSItemChildEntry> m_entryList;
 
   /**
-   * childEntry from which all are created.  This is initialized when this
-   * child get's populated from the definition, never <code>null</code> and
-   * is invariant.
+   * childEntry from which all are created. This is initialized when this child get's populated from
+   * the definition, never <code>null</code> and is invariant.
+   *
    * @see #createEntry()
    */
   private PSItemChildEntry m_template_entry;

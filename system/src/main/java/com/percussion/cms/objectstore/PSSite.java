@@ -35,16 +35,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * This object represents a site definition. See {@link #toXml(Document)} for
- * the expected DTD.
- */
+/** This object represents a site definition. See {@link #toXml(Document)} for the expected DTD. */
 public class PSSite extends PSComponent {
   /**
    * Constructs the site from its XML representation.
    *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter
-   *    descriptions.
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter descriptions.
    */
   public PSSite(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -123,24 +119,11 @@ public class PSSite extends PSComponent {
   }
 
   /**
-   * Creates the XML presentation of this object conforming to the following
-   * DTD:
-   * &lt;!ELEMENT Sites (PSXSite*)&gt;
-   * &lt;!ATTLIST Site
-   *    id CDATA #IMPLIED
-   *    name CDATA #REQUIRED
-   *    description CDATA #IMPLIED
-   *    baseUrl CDATA #IMPLIED
-   *    homePageUrl CDATA #IMPLIED
-   *    folderRoot CDATA #IMPLIED
-   *    globalTemplate CDATA #IMPLIED
-   *    ipAddress CDATA #IMPLIED
-   *    navTheme CDATA #IMPLIED
-   *    password CDATA #IMPLIED
-   *    port CDATA #IMPLIED
-   *    root CDATA #IMPLIED
-   *    state CDATA #REQUIRED
-   *    userId CDATA #IMPLIED
+   * Creates the XML presentation of this object conforming to the following DTD: &lt;!ELEMENT Sites
+   * (PSXSite*)&gt; &lt;!ATTLIST Site id CDATA #IMPLIED name CDATA #REQUIRED description CDATA
+   * #IMPLIED baseUrl CDATA #IMPLIED homePageUrl CDATA #IMPLIED folderRoot CDATA #IMPLIED
+   * globalTemplate CDATA #IMPLIED ipAddress CDATA #IMPLIED navTheme CDATA #IMPLIED password CDATA
+   * #IMPLIED port CDATA #IMPLIED root CDATA #IMPLIED state CDATA #REQUIRED userId CDATA #IMPLIED
    * &gt;
    *
    * @see IPSComponent#fromXml(Element, IPSDocument, List)
@@ -280,8 +263,8 @@ public class PSSite extends PSComponent {
   /**
    * Get the global template name.
    *
-   * @return the global template name, which is the global template file
-   *    name without the file suffix '.xsl', may be <code>null</code>.
+   * @return the global template name, which is the global template file name without the file
+   *     suffix '.xsl', may be <code>null</code>.
    */
   public String getGlobalTemplateName() {
     if (m_globalTemplate != null) {
@@ -296,13 +279,12 @@ public class PSSite extends PSComponent {
   /**
    * Get a list with all requested site definitions.
    *
-   * @param request the request to be used for the lookup, assumed not
-   *    <code>null</code>. The selection filters <code>sys_siteid</code>,
-   *    <code>sys_sitename</code> and <code>sys_folderroot</code> can be
-   *    set as HTML parameters. Not provided parameters will be omitted for
-   *    the selection.
-   * @return a list of <code>PSSite</code> objects with all requested site
-   *    definitions, never <code>null</code>, may be empty.
+   * @param request the request to be used for the lookup, assumed not <code>null</code>. The
+   *     selection filters <code>sys_siteid</code>, <code>sys_sitename</code> and <code>
+   *     sys_folderroot</code> can be set as HTML parameters. Not provided parameters will be
+   *     omitted for the selection.
+   * @return a list of <code>PSSite</code> objects with all requested site definitions, never <code>
+   *     null</code>, may be empty.
    * @throws PSCmsException for any error.
    */
   public static List getSites(IPSRequestContext request) throws PSCmsException {
@@ -336,9 +318,7 @@ public class PSSite extends PSComponent {
     }
   }
 
-  /**
-   * Returns the site name, never <code>null</code> or empty.
-   */
+  /** Returns the site name, never <code>null</code> or empty. */
   @Override
   public String toString() {
     return getName();
@@ -348,10 +328,9 @@ public class PSSite extends PSComponent {
    * Tests if the supplied value is defined in the supplied array.
    *
    * @param value the value to test.
-   * @param validValues an array with all valid values, assumed not
-   *    <code>null</code>.
-   * @return <code>true</code> if the supplied value is defined in the
-   *    provided values array, <code>false</code> otherwise.
+   * @param validValues an array with all valid values, assumed not <code>null</code>.
+   * @return <code>true</code> if the supplied value is defined in the provided values array, <code>
+   *     false</code> otherwise.
    */
   private boolean isValid(int value, int[] validValues) {
     boolean isValid = false;
@@ -361,115 +340,81 @@ public class PSSite extends PSComponent {
   }
 
   /**
-   * The site name, initialized during construction, never <code>null</code>
-   * or empty after that.
+   * The site name, initialized during construction, never <code>null</code> or empty after that.
    */
   private String m_name = null;
 
-  /**
-   * The site description, may be <code>null</code> or empty.
-   */
+  /** The site description, may be <code>null</code> or empty. */
   private String m_description = null;
 
-  /**
-   * The site base url, may be <code>null</code> or empty.
-   */
+  /** The site base url, may be <code>null</code> or empty. */
   private String m_baseUrl = null;
 
-  /**
-   * The site root, may be <code>null</code> or empty.
-   */
+  /** The site root, may be <code>null</code> or empty. */
   private String m_root = null;
 
-  /**
-   * The sites IP address, may be <code>null</code> or empty.
-   */
+  /** The sites IP address, may be <code>null</code> or empty. */
   private String m_ipAddress = null;
 
-  /**
-   * The sites port, may be <code>null</code> or empty.
-   */
+  /** The sites port, may be <code>null</code> or empty. */
   private String m_port = null;
 
-  /**
-   * The sites FTP user name, may be <code>null</code> or empty.
-   */
+  /** The sites FTP user name, may be <code>null</code> or empty. */
   private String m_userId = null;
 
-  /**
-   * The sites FTP password, may be <code>null</code> or empty.
-   */
+  /** The sites FTP password, may be <code>null</code> or empty. */
   private String m_password = null;
 
-  /**
-   * The sites status, may be <code>null</code> or empty.
-   */
+  /** The sites status, may be <code>null</code> or empty. */
   private String m_state = null;
 
-  /**
-   * The sites folder root, may be <code>null</code> or empty.
-   */
+  /** The sites folder root, may be <code>null</code> or empty. */
   private String m_folderRoot = null;
 
-  /**
-   * The sites navigation theme, may be <code>null</code> or empty.
-   */
+  /** The sites navigation theme, may be <code>null</code> or empty. */
   private String m_navTheme = null;
 
-  /**
-   * The sites global template, may be <code>null</code> or empty.
-   */
+  /** The sites global template, may be <code>null</code> or empty. */
   private String m_globalTemplate = null;
 
   private boolean isPageBased = false;
 
-  /**
-   * Constant to indicate the inactive site state.
-   */
+  /** Constant to indicate the inactive site state. */
   public static final int STATE_INACTIVE = 0;
 
-  /**
-   * Constant to indicate the active site state.
-   */
+  /** Constant to indicate the active site state. */
   public static final int STATE_ACTIVE = 1;
 
-  /**
-   * An array with all valid state values.
-   */
+  /** An array with all valid state values. */
   public static final int[] VALID_STATES = {STATE_INACTIVE, STATE_ACTIVE};
 
-  /**
-   * The resource to query sites.
-   */
+  /** The resource to query sites. */
   public static final String GET_SITE_RESOURCE = "sys_pubSites/getSites";
 
   /**
-   * The parameter name used to pass the site name as HTML parameter
-   * to the {@link #GET_SITE_RESOURCE} query resource.
+   * The parameter name used to pass the site name as HTML parameter to the {@link
+   * #GET_SITE_RESOURCE} query resource.
    */
   public static final String SYS_SITENAME = "sys_sitename";
 
   /**
-   * The parameter name used to pass the folder root as HTML parameter
-   * to the {@link #GET_SITE_RESOURCE} query resource.
+   * The parameter name used to pass the folder root as HTML parameter to the {@link
+   * #GET_SITE_RESOURCE} query resource.
    */
   public static final String SYS_FOLDERROOT = "sys_folderroot";
 
   /**
-   * The parameter name used to pass the site id as HTML parameter
-   * to the {@link #GET_SITE_RESOURCE} query resource.
+   * The parameter name used to pass the site id as HTML parameter to the {@link #GET_SITE_RESOURCE}
+   * query resource.
    */
   public static final String SYS_SITEID = IPSHtmlParameters.SYS_SITEID;
 
   /**
-   * This is a list of all possible HTML parameters for
-   * {@link #GET_SITE_RESOURCE} query resource.
+   * This is a list of all possible HTML parameters for {@link #GET_SITE_RESOURCE} query resource.
    */
   public static final String[] ALL_PARAMS = {SYS_SITENAME, SYS_FOLDERROOT, SYS_SITEID};
 
-  /**
-   * The XML document node name.
-   */
+  /** The XML document node name. */
   public static final String XML_NODE_NAME = "PSXSite";
 
   // XML element and attribute names

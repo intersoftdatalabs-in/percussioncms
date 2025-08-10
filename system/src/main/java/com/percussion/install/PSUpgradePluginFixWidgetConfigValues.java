@@ -28,17 +28,17 @@ import org.w3c.dom.Element;
 
 /**
  * Fix widget configurating values for existing widgets.
- * @author erikserating
  *
+ * @author erikserating
  */
 public class PSUpgradePluginFixWidgetConfigValues implements IPSUpgradePlugin {
 
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -71,8 +71,9 @@ public class PSUpgradePluginFixWidgetConfigValues implements IPSUpgradePlugin {
   }
 
   /**
-   * Fixes post date enums by changing all "rx:sys_contentcreatedate" to "rx:sys_contentpostdate"
-   * in the REGION_OVERRIDES column of the CT_PAGE table.
+   * Fixes post date enums by changing all "rx:sys_contentcreatedate" to "rx:sys_contentpostdate" in
+   * the REGION_OVERRIDES column of the CT_PAGE table.
+   *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
    */
@@ -114,8 +115,8 @@ public class PSUpgradePluginFixWidgetConfigValues implements IPSUpgradePlugin {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */

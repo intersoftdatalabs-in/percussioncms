@@ -27,41 +27,32 @@ import java.net.Socket;
 /**
  * The PSSmtpMailProvider class implements support for sending SMTP mail.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSmtpMailProvider extends PSMailProvider {
-  /**
-   * The property name for the SMTP host to use for routing messages.
-   */
+  /** The property name for the SMTP host to use for routing messages. */
   public static final String PROPERTY_HOST = "host";
 
-  /**
-   * The description text for the PROPERTY_HOST property.
-   */
+  /** The description text for the PROPERTY_HOST property. */
   public static final String PROPERTY_DESC_HOST = "The host to use for routing SMTP mail messages.";
 
-  /**
-   * The name of this provider.
-   */
+  /** The name of this provider. */
   public static final String PROVIDER_NAME = "SMTP";
 
-  /**
-   * The full name of this provider.
-   */
+  /** The full name of this provider. */
   public static final String PROVIDER_FULLNAME = "Simple Mail Transfer Protocol";
 
-  /**
-   * The description of this provider.
-   */
+  /** The description of this provider. */
   public static final String PROVIDER_DESCRIPTION =
       "Simple Mail Transfer Protocol (SMTP) implementation for sending mail messages.";
 
   /**
    * Construct an SMTP mail provider.
-   * <P>
-   * The following properties must be specified:
+   *
+   * <p>The following properties must be specified:
+   *
    * <TABLE BORDER="1">
    *      <TR><TH>Key</TH><TH>Description</TH></TR>
    *      <TR>
@@ -70,10 +61,8 @@ public class PSSmtpMailProvider extends PSMailProvider {
    *      </TR>
    * </TABLE>
    *
-   * @param      props      the properties to use when constructing the server
-   *
-   * @exception   PSIllegalArgumentException
-   *                        if the required properties are not specified
+   * @param props the properties to use when constructing the server
+   * @exception PSIllegalArgumentException if the required properties are not specified
    */
   public PSSmtpMailProvider(java.util.Properties props) throws PSIllegalArgumentException {
     super();
@@ -85,9 +74,8 @@ public class PSSmtpMailProvider extends PSMailProvider {
   }
 
   /**
-   * Construct an SMTP mail provider without defining the properties
-   * required for use. In this state, the object can only be
-   * used for cataloging. If sending messages is required, call
+   * Construct an SMTP mail provider without defining the properties required for use. In this
+   * state, the object can only be used for cataloging. If sending messages is required, call
    * setProperty or use the appropriate constructor.
    */
   public PSSmtpMailProvider() {
@@ -96,8 +84,9 @@ public class PSSmtpMailProvider extends PSMailProvider {
 
   /**
    * Construct an SMTP mail provider.
-   * <P>
-   * The following properties must be specified:
+   *
+   * <p>The following properties must be specified:
+   *
    * <TABLE BORDER="1">
    *      <TR><TH>Key</TH><TH>Description</TH></TR>
    *      <TR>
@@ -106,10 +95,8 @@ public class PSSmtpMailProvider extends PSMailProvider {
    *      </TR>
    * </TABLE>
    *
-   * @param      props      the properties to use when constructing the server
-   *
-   * @exception   PSIllegalArgumentException
-   *                        if the required properties are not specified
+   * @param props the properties to use when constructing the server
+   * @exception PSIllegalArgumentException if the required properties are not specified
    */
   public void setProperties(java.util.Properties props) throws PSIllegalArgumentException {
     String host = props.getProperty(PROPERTY_HOST);
@@ -121,21 +108,20 @@ public class PSSmtpMailProvider extends PSMailProvider {
   }
 
   /**
-   * Get the name of this mail provider. This is the name to use
-   * wherever a mail provider name is required.
+   * Get the name of this mail provider. This is the name to use wherever a mail provider name is
+   * required.
    *
-   * @return      the provider name
+   * @return the provider name
    */
   public String getName() {
     return PROVIDER_NAME;
   }
 
   /**
-   * Get the full name of this mail provider.
-   * Many providers use acronyms as their name, so this is often
-   * the expanded acronym.
+   * Get the full name of this mail provider. Many providers use acronyms as their name, so this is
+   * often the expanded acronym.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return PROVIDER_FULLNAME;
@@ -144,19 +130,18 @@ public class PSSmtpMailProvider extends PSMailProvider {
   /**
    * Get a brief the description of this mail provider.
    *
-   * @return      the brief description
+   * @return the brief description
    */
   public String getDescription() {
     return PROVIDER_DESCRIPTION;
   }
 
   /**
-   * Get the property definitions for this provider. The key is set to
-   * the name of the property and the value is set to the description
-   * of the property. These properties must be set to instantiate the
-   * provider.
+   * Get the property definitions for this provider. The key is set to the name of the property and
+   * the value is set to the description of the property. These properties must be set to
+   * instantiate the provider.
    *
-   * @return      the properties required by this provider
+   * @return the properties required by this provider
    */
   public java.util.Properties getPropertyDefs() {
     java.util.Properties props = new java.util.Properties();
@@ -167,13 +152,9 @@ public class PSSmtpMailProvider extends PSMailProvider {
   /**
    * Send a mail message through this provider.
    *
-   * @param      msg      the message to send
-   *
-   * @exception   java.io.IOException
-   *                        if an I/O error occurs
-   *
-   * @exception   PSMailSendException
-   *                        if an error occurs sending the message
+   * @param msg the message to send
+   * @exception java.io.IOException if an I/O error occurs
+   * @exception PSMailSendException if an error occurs sending the message
    */
   public void send(PSMailMessage msg) throws java.io.IOException, PSMailSendException {
     if (m_host == null) {
@@ -261,9 +242,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
     sendLine(out, in, "QUIT", "221");
   }
 
-  /**
-   * Send a line of data for which the specified response is expected.
-   */
+  /** Send a line of data for which the specified response is expected. */
   private static void sendLine(
       BufferedWriter out, BufferedReader in, String outData, String expectedResponseCode)
       throws java.io.IOException, PSMailSendException {
@@ -286,9 +265,7 @@ public class PSSmtpMailProvider extends PSMailProvider {
     }
   }
 
-  /**
-   * Send a line of data for which no response is expected.
-   */
+  /** Send a line of data for which no response is expected. */
   private static void sendLine(BufferedWriter out, String outData) throws java.io.IOException {
     out.write(outData);
     out.write("\r\n");

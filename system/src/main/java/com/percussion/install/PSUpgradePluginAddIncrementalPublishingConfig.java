@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
 
 /**
  * @author JaySeletz
- *
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddIncrementalPublishingConfig extends PSSpringUpgradePluginBase {

@@ -21,15 +21,13 @@ package com.percussion.pagemanagement.service;
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import com.percussion.share.service.exception.PSDataServiceException;
 
-/**
- * Service for loading page category configuration.
- */
+/** Service for loading page category configuration. */
 public interface IPSPageCategoryService {
-    /**
-     * Loads the category configuration.
-     *
-     * @return The category configuration.
-     * @throws PSDataServiceException If a data service error occurs.
-     */
-    PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
+  /**
+   * Loads the category configuration.
+   *
+   * @return The category configuration.
+   * @throws PSDataServiceException If a data service error occurs.
+   */
+  PSCategoryConfiguration loadConfiguration() throws PSDataServiceException;
 }

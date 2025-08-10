@@ -50,17 +50,14 @@ import javax.naming.NamingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Builds and manages a dependency tree of related content items.
- */
+/** Builds and manages a dependency tree of related content items. */
 public class PSContentItemDependencyTree {
   /**
-   * Makes an internal request to query the server for all rows in the
-   * relationship tables using the relationship command handler and stores the
-   * results.
+   * Makes an internal request to query the server for all rows in the relationship tables using the
+   * relationship command handler and stores the results.
    *
-   * @throws PSCacheException if no internal request handler was found and for
-   *    all internal request execution errors caught.
+   * @throws PSCacheException if no internal request handler was found and for all internal request
+   *     execution errors caught.
    */
   PSContentItemDependencyTree() throws PSCacheException {
     ms_itemDependencyTree = this;
@@ -69,8 +66,7 @@ public class PSContentItemDependencyTree {
       m_dependencyMap = initDependencyMap();
     } catch (Exception e) {
       /**
-       * The internal request failed for some reason. Passing this
-       * exception up to the next level.
+       * The internal request failed for some reason. Passing this exception up to the next level.
        */
       Object[] args = {e.getLocalizedMessage()};
       throw new PSCacheException(IPSServerErrors.CACHE_UNEXPECTED_EXCEPTION, args);
@@ -78,18 +74,15 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Get the instance of the item dependency tree. This method must be called
-   * after this instance has been initialized by the cache manager.
-   * <p>
-   * This API is a <b>HACK</b> to access the cached (active assembly)
-   * relationships. Do not depend on this API, it is subject to be changed
-   * after the "proper" API is available in the future.
+   * Get the instance of the item dependency tree. This method must be called after this instance
+   * has been initialized by the cache manager.
    *
-   * @return The single instance of the dependency tree,
-   *    never <code>null</code>.
+   * <p>This API is a <b>HACK</b> to access the cached (active assembly) relationships. Do not
+   * depend on this API, it is subject to be changed after the "proper" API is available in the
+   * future.
    *
-   * @throws IllegalStateException if it has not been initialized by the
-   *    cache manager.
+   * @return The single instance of the dependency tree, never <code>null</code>.
+   * @throws IllegalStateException if it has not been initialized by the cache manager.
    */
   public static PSContentItemDependencyTree getInstance() {
     if (ms_itemDependencyTree == null)
@@ -101,10 +94,10 @@ public class PSContentItemDependencyTree {
   /**
    * Package private constructor to be used for test purposes only.
    *
-   * @param relationships the relationship set to use to construct this tree,
-   *    may not be <code>null</code>.
-   * @throws PSCacheException if no internal request handler was found and for
-   *    all internal request execution errors caught.
+   * @param relationships the relationship set to use to construct this tree, may not be <code>null
+   *     </code>.
+   * @throws PSCacheException if no internal request handler was found and for all internal request
+   *     execution errors caught.
    */
   PSContentItemDependencyTree(PSRelationshipSet relationships) throws PSCacheException {
     if (relationships == null) throw new IllegalArgumentException("relationships cannot be null");
@@ -113,18 +106,13 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Initializes a dependency map from the database and returns it.
-   * It does not use the relationship processer, but uses JDBC API to
-   * to retrieve all "Active Assembly" relationships from the
-   * {@link IPSConstants#PSX_RELATIONSHIPS} view. It speeds up loading the
-   * relationship tree.
+   * Initializes a dependency map from the database and returns it. It does not use the relationship
+   * processer, but uses JDBC API to to retrieve all "Active Assembly" relationships from the {@link
+   * IPSConstants#PSX_RELATIONSHIPS} view. It speeds up loading the relationship tree.
    *
-   * @return the dependency map initialized, never <code>null</code>, may be
-   *    empty.
-   *
-   * @throws NamingException if the default connection details cannot be
-   * obtained.
-   * @throws SQLException if SQL error occurs.    *
+   * @return the dependency map initialized, never <code>null</code>, may be empty.
+   * @throws NamingException if the default connection details cannot be obtained.
+   * @throws SQLException if SQL error occurs. *
    * @throws PSException if any other error occurs.
    */
   private Map initDependencyMap() throws SQLException, PSException, NamingException {
@@ -156,9 +144,8 @@ public class PSContentItemDependencyTree {
           variantId = Integer.parseInt(temp);
         } catch (NumberFormatException e) {
           /**
-           * This should never happen, but if it does we would like
-           * to know. Also if this happens we will continue
-           * constructing the dependency tree.
+           * This should never happen, but if it does we would like to know. Also if this happens we
+           * will continue constructing the dependency tree.
            */
           Object[] args = {String.valueOf(sysId), e.getLocalizedMessage()};
           PSCacheException ce =
@@ -206,8 +193,8 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * @return the query that catalog the dependency info from all
-   * Active Assembly (category) relationships
+   * @return the query that catalog the dependency info from all Active Assembly (category)
+   *     relationships
    */
   private String getAAInfoQuery() {
     // get all relationship configs for the Active Assebly category
@@ -258,16 +245,11 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Initializes a dependency map from the supplied relationships and returns
-   * it.
+   * Initializes a dependency map from the supplied relationships and returns it.
    *
-   * @param relationships the relationships to initialize from, assumed not
-   *    <code>null</code>.
-   * @return the dependency map initialized, never <code>null</code>, may be
-   *    empty.
-   *
-   * @deprecated This should not be used, it is too slow.
-   *    Use {@link #initDependencyMap()} instead.
+   * @param relationships the relationships to initialize from, assumed not <code>null</code>.
+   * @return the dependency map initialized, never <code>null</code>, may be empty.
+   * @deprecated This should not be used, it is too slow. Use {@link #initDependencyMap()} instead.
    */
   private Map initDependencyMap(PSRelationshipSet relationships) {
     Map dependencyMap = new ConcurrentHashMap();
@@ -278,10 +260,7 @@ public class PSContentItemDependencyTree {
     while (iterator.hasNext()) {
       PSRelationship relationship = (PSRelationship) iterator.next();
 
-      /**
-       * We are only interested in relationship changes for Active Assembly
-       * categorys.
-       */
+      /** We are only interested in relationship changes for Active Assembly categorys. */
       String category = relationship.getConfig().getCategory();
       if (category == null || !category.equals(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))
         continue;
@@ -309,9 +288,8 @@ public class PSContentItemDependencyTree {
         value.add(dependency);
       } catch (NumberFormatException e) {
         /**
-         * This should never happen, but if it does we would like
-         * to know. Also if this happens we will continue
-         * constructing the dependency tree.
+         * This should never happen, but if it does we would like to know. Also if this happens we
+         * will continue constructing the dependency tree.
          */
         Object[] args = {String.valueOf(sysId), e.getLocalizedMessage()};
         PSCacheException ce = new PSCacheException(IPSServerErrors.CACHE_DEPENDENCY_SKIPPED, args);
@@ -323,22 +301,21 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Adds a dependency to the tree and returns all affected items above it in
-   * the related content tree.
+   * Adds a dependency to the tree and returns all affected items above it in the related content
+   * tree.
    *
    * @param sysId The id used to uniquely identify this dependency.
    * @param contentId The content id of the dependent item in the tree.
    * @param revisionId The revision id of the dependent item in the tree.
    * @param variantId The variant id of the dependent item in the tree.
    * @param relatedId The content id of the related item.
-   * @param done a map of related content id / revision id pairs as Integers
-   *    that have been processed, never <code>null</code>. This map is used to
-   *    avoid endless loops or re-process the same content id. Caller should
-   *    pass the same map object when processing multiple relationships.
-   *
-   * @return The items "above" the dependent added item as a <code>List</code>
-   *    with a 2-dimensional array, [0] the contentid and [1] the revisionid,
-   *    both specified as Strings. Never <code>null</code>, may be empty.
+   * @param done a map of related content id / revision id pairs as Integers that have been
+   *     processed, never <code>null</code>. This map is used to avoid endless loops or re-process
+   *     the same content id. Caller should pass the same map object when processing multiple
+   *     relationships.
+   * @return The items "above" the dependent added item as a <code>List</code> with a 2-dimensional
+   *     array, [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>
+   *     null</code>, may be empty.
    */
   List addDependency(
       int sysId, int contentId, int revisionId, int relatedId, int variantId, Map done) {
@@ -370,12 +347,10 @@ public class PSContentItemDependencyTree {
   /**
    * Convert a set of items to a list.
    *
-   * @param resultSet A set of <code>Item</code> objects, assume not
-   *    <code>null</code>, but may be empty.
-   *
-   * @return The converted list. Each element in the list is a
-   *    <code>String[2]</code> object, where [0] is the contentid and [1] is
-   *    the revision number. Never <code>null</code>, may be empty.
+   * @param resultSet A set of <code>Item</code> objects, assume not <code>null</code>, but may be
+   *     empty.
+   * @return The converted list. Each element in the list is a <code>String[2]</code> object, where
+   *     [0] is the contentid and [1] is the revision number. Never <code>null</code>, may be empty.
    */
   private List convertSetToList(Set resultSet) {
     List result = new ArrayList();
@@ -391,19 +366,17 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Removes a dependency from the tree and returns all affected items above
-   * it including itself in the related content tree.
+   * Removes a dependency from the tree and returns all affected items above it including itself in
+   * the related content tree.
    *
    * @param sysId The id used to uniquely identify this dependency.
-   * @param done a map of related content id / revision id pairs as Integers
-   *    that have been processed, never <code>null</code>. This map is used to
-   *    avoid endless loops or re-process the same content id. Caller should
-   *    pass the same map object when processing multiple relationships.
-   *
-   * @return The items "above" the removed item including the removed item
-   *    as a <code>List</code> with a 2-dimensional array, [0] the contentid
-   *    and [1] the revisionid, both specified as Strings. Never
-   *    <code>null</code>, may be empty.
+   * @param done a map of related content id / revision id pairs as Integers that have been
+   *     processed, never <code>null</code>. This map is used to avoid endless loops or re-process
+   *     the same content id. Caller should pass the same map object when processing multiple
+   *     relationships.
+   * @return The items "above" the removed item including the removed item as a <code>List</code>
+   *     with a 2-dimensional array, [0] the contentid and [1] the revisionid, both specified as
+   *     Strings. Never <code>null</code>, may be empty.
    */
   List removeDependency(int sysId, Map done) {
     if (done == null) throw new IllegalArgumentException("done may not be null.");
@@ -432,22 +405,21 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Updates the dependencies for the supplied parameters. Will add a new
-   * dependency if none was found.
+   * Updates the dependencies for the supplied parameters. Will add a new dependency if none was
+   * found.
    *
    * @param sysId The id used to uniquely identify this dependency.
    * @param contentId The content id of the item in the tree.
    * @param revisionId The revision id of the item in the tree.
    * @param relatedId The content id of the related item.
    * @param variantId The variant id of the item in the tree.
-   * @param done a map of related content id / revision id pairs as Integers
-   *    that have been processed, never <code>null</code>. This map is used to
-   *    avoid endless loops or re-process the same content id. Caller should
-   *    pass the same map object when processing multiple relationships.
-   *
-   * @return The items "above" the updated item as a <code>List</code> with
-   *    a 2-dimensional array, [0] the contentid and [1] the revisionid, both
-   *    specified as Strings. Never <code>null</code>, may be empty.
+   * @param done a map of related content id / revision id pairs as Integers that have been
+   *     processed, never <code>null</code>. This map is used to avoid endless loops or re-process
+   *     the same content id. Caller should pass the same map object when processing multiple
+   *     relationships.
+   * @return The items "above" the updated item as a <code>List</code> with a 2-dimensional array,
+   *     [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>null
+   *     </code>, may be empty.
    */
   List updateDependency(
       int sysId, int contentId, int revisionId, int relatedId, int variantId, Map done) {
@@ -478,33 +450,28 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Gets the items above the specified item in the related content tree.
-   * Three parameter combinations are supported. Parameters not used must be
-   * set to -1. These are the supported cases:
-   * <ol><li>
-   * Only contentId is provided: all revisions of the item will used for the
-   * selection process. If a variant id is provided, it will be ignored.
-   * </li>
-   * <li>
-   * ContentId and revisionId are provided: the supplied content id and
-   * revision id will be used for the selection process. If a variantid is
-   * provided, it will be ignored.
-   * </li>
-   * <li>
-   * Only variantId is provided: the variant id is used for the selection
-   * process only if content id is specified as -1.
-   * </li></ol>
+   * Gets the items above the specified item in the related content tree. Three parameter
+   * combinations are supported. Parameters not used must be set to -1. These are the supported
+   * cases:
    *
-   * @param contentId The content id of the item in the tree, provide -1 if
-   *    not used for the selection process.
-   * @param revisionId The revision id of the item in the tree, provide -1 if
-   *    not used for the selection process.
-   * @param variantId The variant id of the item in the tree, provide -1 if
-   *    not used for the selection process.
+   * <ol>
+   *   <li>Only contentId is provided: all revisions of the item will used for the selection
+   *       process. If a variant id is provided, it will be ignored.
+   *   <li>ContentId and revisionId are provided: the supplied content id and revision id will be
+   *       used for the selection process. If a variantid is provided, it will be ignored.
+   *   <li>Only variantId is provided: the variant id is used for the selection process only if
+   *       content id is specified as -1.
+   * </ol>
    *
-   * @return The items "above" the supplied item as a <code>List</code> with
-   *    a 2-dimensional array, [0] the contentid and [1] the revisionid, both
-   *    specified as Strings. Never <code>null</code>, may be empty.
+   * @param contentId The content id of the item in the tree, provide -1 if not used for the
+   *     selection process.
+   * @param revisionId The revision id of the item in the tree, provide -1 if not used for the
+   *     selection process.
+   * @param variantId The variant id of the item in the tree, provide -1 if not used for the
+   *     selection process.
+   * @return The items "above" the supplied item as a <code>List</code> with a 2-dimensional array,
+   *     [0] the contentid and [1] the revisionid, both specified as Strings. Never <code>null
+   *     </code>, may be empty.
    */
   List getDependentItems(int contentId, int revisionId, int variantId) {
     ItemSet result = new ItemSet(contentId, revisionId);
@@ -540,18 +507,16 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Add the related item for the supplied content id and revision to the
-   * provided target list. This is called recursively.
+   * Add the related item for the supplied content id and revision to the provided target list. This
+   * is called recursively.
    *
-   * @param cid the related content id for which to add all dependents to the
-   *    target list, assumed not <code>null</code>.
-   * @param rid the related revision id for which to add all dependents to the
-   *    target list, assumed not <code>null</code>.
-   * @param target the list to which all  dependents are added, assumed not
-   *    <code>null</code>.
-   * @param done a map of related content id / revision id pairs as Integers
-   *    that have been processed, assumed not <code>null</code>. This map is
-   *    used to avoid endless loops.
+   * @param cid the related content id for which to add all dependents to the target list, assumed
+   *     not <code>null</code>.
+   * @param rid the related revision id for which to add all dependents to the target list, assumed
+   *     not <code>null</code>.
+   * @param target the list to which all dependents are added, assumed not <code>null</code>.
+   * @param done a map of related content id / revision id pairs as Integers that have been
+   *     processed, assumed not <code>null</code>. This map is used to avoid endless loops.
    */
   private void add(Integer cid, Integer rid, ItemSet target, Map<Integer, Integer> done) {
     if (done.get(cid) != null) return;
@@ -568,13 +533,12 @@ public class PSContentItemDependencyTree {
 
   /**
    * Get the owners of the given content id.
-   * <p>
-   * This API is a <b>HACK</b> see {@link #getInstance()} for detail
+   *
+   * <p>This API is a <b>HACK</b> see {@link #getInstance()} for detail
    *
    * @param contentid The dependent id, never <code>null</code>.
-   *
-   * @return An iterator over zero or more owner ids in <code>Integer</code>
-   *    objects, never <code>null</code>.
+   * @return An iterator over zero or more owner ids in <code>Integer</code> objects, never <code>
+   *     null</code>.
    */
   public Iterator getOwners(Integer contentid) {
     List ownerList = (List) m_dependencyMap.get(contentid);
@@ -590,8 +554,8 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Creates a String representation of this object. Currently this is the
-   * <code>m_dependencyMap</code> member. Used for testing.
+   * Creates a String representation of this object. Currently this is the <code>m_dependencyMap
+   * </code> member. Used for testing.
    *
    * @return the String representation of this object, never <code>null</code>.
    */
@@ -619,18 +583,15 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Maps the relationships between all related content items.  Initialized
-   * during construction.  Each key is an <code>Integer</code>, specifying
-   * the content id of a related item.  Each value a List of content items that
-   * are related to the contentid specified by the key, each as a
-   * {@link PSItemDependency} object.  Never <code>null</code> after
-   * construction.
+   * Maps the relationships between all related content items. Initialized during construction. Each
+   * key is an <code>Integer</code>, specifying the content id of a related item. Each value a List
+   * of content items that are related to the contentid specified by the key, each as a {@link
+   * PSItemDependency} object. Never <code>null</code> after construction.
    */
   private Map<Integer, List<PSItemDependency>> m_dependencyMap = null;
 
   /**
-   * Encapsulates data describing a content relationship from a dependent item
-   * to its related item.
+   * Encapsulates data describing a content relationship from a dependent item to its related item.
    */
   private class PSItemDependency {
     /**
@@ -639,8 +600,7 @@ public class PSContentItemDependencyTree {
      * @param contentId The content id of the dependent item.
      * @param revisionId The revision id of the dependent item.
      * @param relatedContentId The content id of the related item.
-     * @param sysId The id that uniquely identifies this relationship in the
-     *    database.
+     * @param sysId The id that uniquely identifies this relationship in the database.
      * @param variantId The variantId of the dependent item.
      */
     public PSItemDependency(
@@ -701,8 +661,7 @@ public class PSContentItemDependencyTree {
      * Produces a String representation of this class. Used for testing.
      *
      * @return "dependency=(#<i>sysId</i>:(<i>ownerId</i>,<i>ownerRevision</i>)
-     *         &lt;-<i>dependentId</i>[<i>variantId</i>])", never
-     *         <code>null</code>.
+     *     &lt;-<i>dependentId</i>[<i>variantId</i>])", never <code>null</code>.
      */
     public String toString() {
       StringBuilder buf = new StringBuilder();
@@ -716,54 +675,46 @@ public class PSContentItemDependencyTree {
     }
 
     /**
-     * The id that uniquely identifies this relationship in the database,
-     * initialized in the constructor, never changed after that.
+     * The id that uniquely identifies this relationship in the database, initialized in the
+     * constructor, never changed after that.
      */
     private int m_sysId = 0;
 
     /**
-     * The content id of the dependent item, initialized in the constructor,
-     * never changed after that.
+     * The content id of the dependent item, initialized in the constructor, never changed after
+     * that.
      */
     private int m_contentId = 0;
 
     /**
-     * The revision id of the dependent item, initialized in the constructor,
-     * never changed after that.
+     * The revision id of the dependent item, initialized in the constructor, never changed after
+     * that.
      */
     private int m_revisionId = 0;
 
     /**
-     * The content id of the related item, initialized in the constructor,
-     * never changed after that.
+     * The content id of the related item, initialized in the constructor, never changed after that.
      */
     private int m_relatedContentId = 0;
 
     /**
-     * The variant id of the related item, initialized in the constructor,
-     * never changed after that.
+     * The variant id of the related item, initialized in the constructor, never changed after that.
      */
     private int m_variantId = 0;
   }
 
   /**
-   * Inner class to create a set of <code>Item</code> objects returned by
-   * various interface methods.
+   * Inner class to create a set of <code>Item</code> objects returned by various interface methods.
    */
   private class ItemSet extends HashSet {
-    /**
-     * Generated serial number
-     */
+    /** Generated serial number */
     private static final long serialVersionUID = -9072684561956368546L;
 
-    /**
-     * The default constructor, creates an empty set.
-     */
+    /** The default constructor, creates an empty set. */
     public ItemSet() {}
 
     /**
-     * Creates an empty set with the supplied content id / revision id
-     * excluded.
+     * Creates an empty set with the supplied content id / revision id excluded.
      *
      * @param cid the content id to exclude from this list.
      * @param rid the revision id to exclude from this list.
@@ -774,8 +725,8 @@ public class PSContentItemDependencyTree {
     }
 
     /**
-     * Adds a new entry for the provided contentId and revisionId. The
-     * entry is not added if it matches the exclude signature.
+     * Adds a new entry for the provided contentId and revisionId. The entry is not added if it
+     * matches the exclude signature.
      *
      * @param contentId the contentId to add.
      * @param revisionId the revisionId to add.
@@ -789,13 +740,12 @@ public class PSContentItemDependencyTree {
     }
 
     /**
-     * Should we include an entry for the supplied content id / revision id
-     * in this set.
+     * Should we include an entry for the supplied content id / revision id in this set.
      *
      * @param cid the content id to test.
      * @param rid the revision id to test.
-     * @return <code>true</code> if an entry for the supplied parameters
-     *    should be included, <code>false</code> otherwise.
+     * @return <code>true</code> if an entry for the supplied parameters should be included, <code>
+     *     false</code> otherwise.
      */
     private boolean include(int cid, int rid) {
       if (m_cid == -1 || m_rid == -1) return true;
@@ -805,20 +755,14 @@ public class PSContentItemDependencyTree {
       return true;
     }
 
-    /**
-     * The content id for the item to be excluded in this list.
-     */
+    /** The content id for the item to be excluded in this list. */
     private int m_cid = -1;
 
-    /**
-     * The revision id for the item to be excluded in this list.
-     */
+    /** The revision id for the item to be excluded in this list. */
     private int m_rid = -1;
   }
 
-  /**
-   * The inner class to contain the content id and revision for a given item.
-   */
+  /** The inner class to contain the content id and revision for a given item. */
   private class Item {
     /**
      * Constructs an item from a id and revision.
@@ -860,13 +804,11 @@ public class PSContentItemDependencyTree {
   }
 
   /**
-   * Singleton instance of the item dependency tree.  Not <code>null</code>
-   * after call to ctor by the server.
+   * Singleton instance of the item dependency tree. Not <code>null</code> after call to ctor by the
+   * server.
    */
   private static PSContentItemDependencyTree ms_itemDependencyTree = null;
 
-  /**
-   * The log4j logger used for this class.
-   */
+  /** The log4j logger used for this class. */
   private static final Logger log = LogManager.getLogger(PSContentItemDependencyTree.class);
 }

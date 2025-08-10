@@ -17,91 +17,95 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Represents a rendered link.
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "RenderLink")
 public class PSRenderLink {
 
-    private String url;
-    private transient PSResourceDefinition resourceDefinition;
-    private PSResourceDefinitionType resourceType;
-    private String resourceDefinitionId;
+  private String url;
+  private transient PSResourceDefinition resourceDefinition;
+  private PSResourceDefinitionType resourceType;
+  private String resourceDefinitionId;
 
-    public PSRenderLink() {
-        // Default constructor
-    }
+  public PSRenderLink() {
+    // Default constructor
+  }
 
-    public PSRenderLink(String url, PSResourceDefinition resourceDefinition) {
-        this.url = url;
-        setResourceDefinition(resourceDefinition);
-    }
+  public PSRenderLink(String url, PSResourceDefinition resourceDefinition) {
+    this.url = url;
+    setResourceDefinition(resourceDefinition);
+  }
 
-    @XmlTransient
-    public Optional<PSResourceDefinition> getResourceDefinition() {
-        return Optional.ofNullable(resourceDefinition);
-    }
+  @XmlTransient
+  public Optional<PSResourceDefinition> getResourceDefinition() {
+    return Optional.ofNullable(resourceDefinition);
+  }
 
-    public void setResourceDefinition(PSResourceDefinition resourceDefinition) {
-        this.resourceDefinition = resourceDefinition;
-        if (resourceDefinition != null) {
-            setResourceType(resourceDefinition.getResourceType());
-            setResourceDefinitionId(resourceDefinition.getUniqueId());
-        }
+  public void setResourceDefinition(PSResourceDefinition resourceDefinition) {
+    this.resourceDefinition = resourceDefinition;
+    if (resourceDefinition != null) {
+      setResourceType(resourceDefinition.getResourceType());
+      setResourceDefinitionId(resourceDefinition.getUniqueId());
     }
+  }
 
-    /**
-     * Gets the URL for this link.
-     * @return maybe {@code null}.
-     */
-    public String getUrl() {
-        return url;
-    }
+  /**
+   * Gets the URL for this link.
+   *
+   * @return maybe {@code null}.
+   */
+  public String getUrl() {
+    return url;
+  }
 
-    /**
-     * Sets the URL for this link.
-     * @param url the URL string
-     */
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  /**
+   * Sets the URL for this link.
+   *
+   * @param url the URL string
+   */
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    /**
-     * Gets the resource definition unique id for this link.
-     * This may be null if the link was created outside of the link service.
-     * @return maybe {@code null}.
-     */
-    public String getResourceDefinitionId() {
-        return resourceDefinitionId;
-    }
+  /**
+   * Gets the resource definition unique id for this link. This may be null if the link was created
+   * outside of the link service.
+   *
+   * @return maybe {@code null}.
+   */
+  public String getResourceDefinitionId() {
+    return resourceDefinitionId;
+  }
 
-    public void setResourceDefinitionId(String resourceDefinitionId) {
-        this.resourceDefinitionId = resourceDefinitionId;
-    }
+  public void setResourceDefinitionId(String resourceDefinitionId) {
+    this.resourceDefinitionId = resourceDefinitionId;
+  }
 
-    /**
-     * Gets the resource type.
-     * @return maybe {@code null}.
-     */
-    public PSResourceDefinitionType getResourceType() {
-        return resourceType;
-    }
+  /**
+   * Gets the resource type.
+   *
+   * @return maybe {@code null}.
+   */
+  public PSResourceDefinitionType getResourceType() {
+    return resourceType;
+  }
 
-    public void setResourceType(PSResourceDefinitionType resourceType) {
-        this.resourceType = resourceType;
-    }
+  public void setResourceType(PSResourceDefinitionType resourceType) {
+    this.resourceType = resourceType;
+  }
 
-    @Override
-    public String toString() {
-        return Objects.toString(url, "");
-    }
+  @Override
+  public String toString() {
+    return Objects.toString(url, "");
+  }
 }

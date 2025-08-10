@@ -17,42 +17,40 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
+import com.percussion.pagemanagement.data.PSRegion;
+import com.percussion.share.service.exception.PSBeanValidationException;
+import com.percussion.share.validation.PSAbstractBeanValidator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.percussion.pagemanagement.data.PSRegion;
-import com.percussion.share.service.exception.PSBeanValidationException;
-import com.percussion.share.validation.PSAbstractBeanValidator;
-
 /**
- * Validates Regions for duplicate ids.
- * Ensures there are no duplicate regionIds.
+ * Validates Regions for duplicate ids. Ensures there are no duplicate regionIds.
  *
  * @param <BEAN> bean type to validate
  * @author adamgent
  */
 public abstract class PSRegionsValidator<BEAN> extends PSAbstractBeanValidator<BEAN> {
 
-    @Override
-    protected void doValidation(BEAN bean, PSBeanValidationException e) {
-        var regions = getRegions(bean, e);
-        if (regions != null) {
-            doRegions(regions, e);
-        }
+  @Override
+  protected void doValidation(BEAN bean, PSBeanValidationException e) {
+    var regions = getRegions(bean, e);
+    if (regions != null) {
+      doRegions(regions, e);
     }
+  }
 
-    public abstract String getField();
+  public abstract String getField();
 
-    public abstract Iterator<PSRegion> getRegions(BEAN wa, PSBeanValidationException e);
+  public abstract Iterator<PSRegion> getRegions(BEAN wa, PSBeanValidationException e);
 
-    protected void doRegions(Iterator<PSRegion> it, PSBeanValidationException e) {
-        Set<String> ids = new HashSet<>();
-        while (it.hasNext()) {
-            var region = it.next();
-            if (!ids.add(region.getRegionId())) {
-                e.reject("region.dupIds", "Duplicate ids for region");
-            }
-        }
+  protected void doRegions(Iterator<PSRegion> it, PSBeanValidationException e) {
+    Set<String> ids = new HashSet<>();
+    while (it.hasNext()) {
+      var region = it.next();
+      if (!ids.add(region.getRegionId())) {
+        e.reject("region.dupIds", "Duplicate ids for region");
+      }
     }
+  }
 }

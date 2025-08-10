@@ -29,14 +29,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The purpose of this exit is to add image height and width as attributes
- * to the root of result document. This exit expects urlstring and inlinetype
- * attributes on the root element of the result document.
- * If the value of inlinetype attribute is not image, no modification takes
- * place, the result document will be returned as is.
- * If the urlstring produces a binary image then its height and width
- * will be added as attributes to the root element of the result document
- * otherwise no modification takes place.
+ * The purpose of this exit is to add image height and width as attributes to the root of result
+ * document. This exit expects urlstring and inlinetype attributes on the root element of the result
+ * document. If the value of inlinetype attribute is not image, no modification takes place, the
+ * result document will be returned as is. If the urlstring produces a binary image then its height
+ * and width will be added as attributes to the root element of the result document otherwise no
+ * modification takes place.
  */
 public class PSInlineImageSizeExtractor implements IPSResultDocumentProcessor {
   /*
@@ -101,8 +99,6 @@ public class PSInlineImageSizeExtractor implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 }

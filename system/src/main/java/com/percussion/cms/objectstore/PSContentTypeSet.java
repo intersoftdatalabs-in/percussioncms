@@ -22,22 +22,19 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 /**
- * This class is a thin wrapper of the PSDbComponentSet that
- * represents a set of PSContentType objects.
+ * This class is a thin wrapper of the PSDbComponentSet that represents a set of PSContentType
+ * objects.
  */
 public class PSContentTypeSet extends PSDbComponentSet {
-  /**
-   * Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)}
-   * for more details.
-   */
+  /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   @SuppressWarnings("unused")
   public PSContentTypeSet() throws PSCmsException {
     super(PSContentType.class);
   }
 
   /**
-   * Ctor for reserializing. See {@link
-   * PSDbComponentList#PSDbComponentList(Element) base ctor} for more details.
+   * Ctor for reserializing. See {@link PSDbComponentList#PSDbComponentList(Element) base ctor} for
+   * more details.
    */
   public PSContentTypeSet(Element src) throws PSUnknownNodeTypeException {
     super(src);
@@ -51,8 +48,8 @@ public class PSContentTypeSet extends PSDbComponentSet {
 
   /**
    * Find the content type by name.
-   * @param name name of the content type to find, must not be
-   * <code>null</code> or empty.
+   *
+   * @param name name of the content type to find, must not be <code>null</code> or empty.
    * @return matching content type if found. May be <code>null</code>.
    */
   public PSContentType getContentTypeByName(String name) {
@@ -69,6 +66,7 @@ public class PSContentTypeSet extends PSDbComponentSet {
 
   /**
    * Find the content type by content type id.
+   *
    * @param contentTypeId type id of the content type to find, must be > 0.
    * @return matching content type if found. May be <code>null</code>.
    */
@@ -93,8 +91,6 @@ public class PSContentTypeSet extends PSDbComponentSet {
     super(items, PSContentType.class);
   }
 
-  /**
-   * Root element of the XML document representing this object;
-   */
+  /** Root element of the XML document representing this object; */
   public static final String XML_NODE_NAME = "PSXContentTypeSet";
 }

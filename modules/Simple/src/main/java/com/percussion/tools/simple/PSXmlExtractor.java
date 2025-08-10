@@ -44,55 +44,39 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * This class is used to extract an element from an XML file and write it to
- * a new file.  A DTD may optionally be specified, and if so it is used to
- * validate the new Xml after it has been extracted.  This class has a main
- * method so that it may be used both from java or from the command line.
+ * This class is used to extract an element from an XML file and write it to a new file. A DTD may
+ * optionally be specified, and if so it is used to validate the new Xml after it has been
+ * extracted. This class has a main method so that it may be used both from java or from the command
+ * line.
  */
 public class PSXmlExtractor {
 
   private static final Logger log = LogManager.getLogger(PSXmlExtractor.class);
 
   /**
-   * Uses the specified Element to extract xml from the source file and write
-   * it to the target file.  If a dtd is supplied, that is used to validate the
-   * target.
+   * Uses the specified Element to extract xml from the source file and write it to the target file.
+   * If a dtd is supplied, that is used to validate the target.
    *
-   * @param source The source Xml file, may not be <code>null</code>.  Must
-   * point to an existing Xml file.  File is assumed to be in UTF-8.
-   *
-   * @param target The file to write the extracted Xml to.  May not be <code>
-   * null</code>.  File pointed to may or may not exist.  If it does not, then
-   * it is created, including any necessary directories.  If it exists, it will
-   * be overwritten.
-   *
-   * @param element The element to extract.  Must exist in the source document.
-   * May not be <code>null</code> or empty.  Will extract the first instance of
-   * this element that is found.
-   *
-   * @param dtd An optional dtd to use to validate or add it to the target.
-   * May be <code>null</code>. This must be provided if <code>dtdPath</code>
-   * is not <code>null</code>
-   *
-   * @param excludeList a list of element names as Strings to exclude from the
-   * extracted element.  May be <code>null</code>.  All elements matching this
-   * name will be excluded.
-   *
-   * @param addList  a map of elements to add with parent element tag name as
-   * key and the <code>Element</code> object as value. All elements will be
-   * added after removing the elements from exclude list if provided. Adds the
-   * element to all elements matching the parent element name. May be
-   * <code>null</code>
-   *
-   * @param dtdPath The path of the dtd to use to add a <code>DOCTYPE</code>
-   * element to the output document.  May be <code>null</code>, in which case
-   * the element is not added.  May only be specified if the <code>dtd</code>
-   * parameter is not <code>null</code>.
-   *
-   * @return <code>null</code> if dtd is supplied and extracted xml is
-   * successfully validated, or if no dtd is supplid. Returns an error message
-   * if a dtd is supplied and validation fails.
-   *
+   * @param source The source Xml file, may not be <code>null</code>. Must point to an existing Xml
+   *     file. File is assumed to be in UTF-8.
+   * @param target The file to write the extracted Xml to. May not be <code>
+   * null</code>. File pointed to may or may not exist. If it does not, then it is created,
+   *     including any necessary directories. If it exists, it will be overwritten.
+   * @param element The element to extract. Must exist in the source document. May not be <code>null
+   *     </code> or empty. Will extract the first instance of this element that is found.
+   * @param dtd An optional dtd to use to validate or add it to the target. May be <code>null</code>
+   *     . This must be provided if <code>dtdPath</code> is not <code>null</code>
+   * @param excludeList a list of element names as Strings to exclude from the extracted element.
+   *     May be <code>null</code>. All elements matching this name will be excluded.
+   * @param addList a map of elements to add with parent element tag name as key and the <code>
+   *     Element</code> object as value. All elements will be added after removing the elements from
+   *     exclude list if provided. Adds the element to all elements matching the parent element
+   *     name. May be <code>null</code>
+   * @param dtdPath The path of the dtd to use to add a <code>DOCTYPE</code> element to the output
+   *     document. May be <code>null</code>, in which case the element is not added. May only be
+   *     specified if the <code>dtd</code> parameter is not <code>null</code>.
+   * @return <code>null</code> if dtd is supplied and extracted xml is successfully validated, or if
+   *     no dtd is supplid. Returns an error message if a dtd is supplied and validation fails.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs
    * @throws FileNotFoundException if any file cannot be located.
@@ -173,44 +157,29 @@ public class PSXmlExtractor {
   }
 
   /**
-   * Uses the specified Element to extract xml from the source file and write
-   * it to the target file.  If a dtd is supplied, that is used to validate the
-   * target.
+   * Uses the specified Element to extract xml from the source file and write it to the target file.
+   * If a dtd is supplied, that is used to validate the target.
    *
-   * @param source The source Xml file, may not be <code>null</code>.  Must
-   * point to an existing Xml file.  File is assumed to be in UTF-8.
-   *
-   * @param target The file to write the extracted Xml to.  May not be <code>
-   * null</code>.  File pointed to may or may not exist.  If it does not, then
-   * it is created, including any necessary directories.  If it exists, it will
-   * be overwritten.
-   *
-   * @param element The element to extract.  Must exist in the source document.
-   * May not be <code>null</code> or empty.  Will extract the first instance of
-   * this element that is found.
-   *
-   * @param dtd An optional dtd to use to validate or add it to the target.
-   * May be <code>null</code>. This must be provided if <code>addDtd</code>
-   * is specified as <code>true</code>
-   *
-   * @param excludeList a list of element names as Strings to exclude from the
-   * extracted element.  May be <code>null</code>.  All elements matching this
-   * name will be excluded.
-   *
-   * @param addList  a map of elements to add with parent element tag name as
-   * key and the <code>Element</code> object as value. All elements will be
-   * added after removing the elements from exclude list if provided. Adds the
-   * element to all elements matching the parent element name. May be
-   * <code>null</code>
-   *
-   * @param addDtd if <code>true</code> the dtd must be specified and it
-   * validates the target with the dtd and adds the dtd to the target,
-   * otherwise it validates the target if the dtd is specified.
-   *
-   * @return <code>null</code> if dtd is supplied and extracted xml is
-   * successfully validated, or if no dtd is supplid. Returns an error message
-   * if a dtd is supplied and validation fails.
-   *
+   * @param source The source Xml file, may not be <code>null</code>. Must point to an existing Xml
+   *     file. File is assumed to be in UTF-8.
+   * @param target The file to write the extracted Xml to. May not be <code>
+   * null</code>. File pointed to may or may not exist. If it does not, then it is created,
+   *     including any necessary directories. If it exists, it will be overwritten.
+   * @param element The element to extract. Must exist in the source document. May not be <code>null
+   *     </code> or empty. Will extract the first instance of this element that is found.
+   * @param dtd An optional dtd to use to validate or add it to the target. May be <code>null</code>
+   *     . This must be provided if <code>addDtd</code> is specified as <code>true</code>
+   * @param excludeList a list of element names as Strings to exclude from the extracted element.
+   *     May be <code>null</code>. All elements matching this name will be excluded.
+   * @param addList a map of elements to add with parent element tag name as key and the <code>
+   *     Element</code> object as value. All elements will be added after removing the elements from
+   *     exclude list if provided. Adds the element to all elements matching the parent element
+   *     name. May be <code>null</code>
+   * @param addDtd if <code>true</code> the dtd must be specified and it validates the target with
+   *     the dtd and adds the dtd to the target, otherwise it validates the target if the dtd is
+   *     specified.
+   * @return <code>null</code> if dtd is supplied and extracted xml is successfully validated, or if
+   *     no dtd is supplid. Returns an error message if a dtd is supplied and validation fails.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs
    * @throws FileNotFoundException if any file cannot be located.
@@ -242,9 +211,8 @@ public class PSXmlExtractor {
   }
 
   /**
-   * Convenience Version for
-   * {@link #extract(File, File, String, URL, List, Map)}. Assumes
-   * <code>null</code> for <code>addList</code> parameter.
+   * Convenience Version for {@link #extract(File, File, String, URL, List, Map)}. Assumes <code>
+   * null</code> for <code>addList</code> parameter.
    */
   public static String extract(File source, File target, String element, URL dtd, List excludeList)
       throws IOException, FileNotFoundException, SAXException {
@@ -252,8 +220,7 @@ public class PSXmlExtractor {
   }
 
   /**
-   * Convenience Version for
-   * {@link #extract(File, File, String, URL, List, Map, boolean)}. Assumes
+   * Convenience Version for {@link #extract(File, File, String, URL, List, Map, boolean)}. Assumes
    * <code>false</code> for <code>addDtd</code> parameter.
    */
   public static String extract(
@@ -267,9 +234,7 @@ public class PSXmlExtractor {
    *
    * @param doc The doc to validate, assumed not <code>null</code>.
    * @param dtd The dtd to use, assumed not <code>null</code>.
-   *
    * @return <code>null</code> if doc validates, an error message if not.
-   *
    * @throws IOException if any io error occurs
    */
   private static String validate(Document doc, URL dtd) throws IOException {
@@ -332,9 +297,8 @@ public class PSXmlExtractor {
   /**
    * Removes all occurences of the specified element from the document.
    *
-   * @param doc The document from which to remove the element.  Assumed not
-   * <code>null</code>.
-   * @param elementName The name of the element to remove.  Assumed not <code>
+   * @param doc The document from which to remove the element. Assumed not <code>null</code>.
+   * @param elementName The name of the element to remove. Assumed not <code>
    * null</code>.
    */
   private static void removeElement(Document doc, String elementName) {
@@ -351,10 +315,9 @@ public class PSXmlExtractor {
   /**
    * Adds the element to all occurrences of specified element in the document.
    *
-   * @param doc The document to which add the element.  Assumed not to be
-   * <code>null</code>.
-   * @param elementName The name of the parent element to which the element to
-   * add.  Assumed not to be <code>null</code> or empty.
+   * @param doc The document to which add the element. Assumed not to be <code>null</code>.
+   * @param elementName The name of the parent element to which the element to add. Assumed not to
+   *     be <code>null</code> or empty.
    * @param element the element to add, Assumed not to be <code>null</code>
    */
   private static void addElement(Document doc, String elementName, Element element) {
@@ -369,28 +332,21 @@ public class PSXmlExtractor {
   }
 
   /**
-   * This class may be used from the command line.  This is essentially a
-   * wrapper for {@link #extract(File, File, String, URL, List)}.  Arguments
-   * expected are:
+   * This class may be used from the command line. This is essentially a wrapper for {@link
+   * #extract(File, File, String, URL, List)}. Arguments expected are:
    *
    * <ol>
-   * <li>source: The source Xml file.  Must point to an existing Xml file.
-   * File is assumed to be in UTF-8.</li>
-   *
-   * <li> target: The file to write the extracted Xml to.  May not be <code>
-   * null</code>.  File pointed to may or may not exist.  If it does not, then
-   * it is created, including any necessary directories.  If it exists, it will
-   * be overwritten.</li>
-   *
-   * <li> element: The element to extract.  Must exist in the source document.
-   * Will extract the first instance of this element that is found.
-   *
-   * <li>dtd: Optional. dtd to use to validate the target, specifed as a file.
-   * If specifying any excludes, use "null" as a placeholder</li>
-   *
-   * <li>excludes: Optional. one or more elements to exclude from the extracted
-   * element, separated by spaces as separate arguments.
-   * </li>
+   *   <li>source: The source Xml file. Must point to an existing Xml file. File is assumed to be in
+   *       UTF-8.
+   *   <li>target: The file to write the extracted Xml to. May not be <code>
+   * null</code>. File pointed to may or may not exist. If it does not, then it is created,
+   *       including any necessary directories. If it exists, it will be overwritten.
+   *   <li>element: The element to extract. Must exist in the source document. Will extract the
+   *       first instance of this element that is found.
+   *   <li>dtd: Optional. dtd to use to validate the target, specifed as a file. If specifying any
+   *       excludes, use "null" as a placeholder
+   *   <li>excludes: Optional. one or more elements to exclude from the extracted element, separated
+   *       by spaces as separate arguments.
    * </ol>
    *
    * Any errors are written to System.out
@@ -442,9 +398,7 @@ public class PSXmlExtractor {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSXmlExtractor ");

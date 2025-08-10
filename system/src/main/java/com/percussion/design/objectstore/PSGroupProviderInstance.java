@@ -24,29 +24,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Base class for all group provider instances.  Provides
- * wrapper element Xml services, and serves as a factory class
- * as well.
+ * Base class for all group provider instances. Provides wrapper element Xml services, and serves as
+ * a factory class as well.
  */
 public abstract class PSGroupProviderInstance extends PSComponent
     implements IPSGroupProviderInstance {
 
   /**
-   * Parameterless constructor for this class.  Used for serialization.
-   * Should always call <code>fromXml</code> following use of this constructor.
+   * Parameterless constructor for this class. Used for serialization. Should always call <code>
+   * fromXml</code> following use of this constructor.
    */
   protected PSGroupProviderInstance() {}
 
   /**
-   * Constructor for this class.  Initializes common base class member values.
+   * Constructor for this class. Initializes common base class member values.
    *
-   * @param name The name of this group provider.  May not be <code>null</code>
-   * or empty.
-   * @param type The security provider type this instance uses.  Must be one of
-   * the PSSecurityprovider.SP_TYPE_xxx types.
-   * @param className The name of the derived class that should be instantiated
-   * to handle serialization of the content of this element.  May not be
-   * <code>null</code> or empty.
+   * @param name The name of this group provider. May not be <code>null</code> or empty.
+   * @param type The security provider type this instance uses. Must be one of the
+   *     PSSecurityprovider.SP_TYPE_xxx types.
+   * @param className The name of the derived class that should be instantiated to handle
+   *     serialization of the content of this element. May not be <code>null</code> or empty.
    */
   public PSGroupProviderInstance(String name, int type, String className) {
     if (name == null || name.trim().length() == 0)
@@ -73,11 +70,10 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Serializes the base PSXGroupProviderInstance element and delegates the
-   * serialization of the content of that element to the derived class by a
-   * call to {@link #toXmlEx(Document) toXmlEx}.
+   * Serializes the base PSXGroupProviderInstance element and delegates the serialization of the
+   * content of that element to the derived class by a call to {@link #toXmlEx(Document) toXmlEx}.
    *
-   * see {@link IPSGroupProviderInstance#toXml(Document)} for more information.
+   * <p>see {@link IPSGroupProviderInstance#toXml(Document)} for more information.
    */
   public final Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
@@ -91,14 +87,13 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Restores this class's state from its Xml representation.  Restores base
-   * class state and then calls {@link #fromXmlEx(Element) fromXmlEx} to
-   * delegate the restoration of the derived class state.
-   * See {@link IPSComponent#fromXml(Element, IPSDocument, List)
-   * IPSComponent.fromXml} and {@link #fromXml(Element) fromXml}for more info.
+   * Restores this class's state from its Xml representation. Restores base class state and then
+   * calls {@link #fromXmlEx(Element) fromXmlEx} to delegate the restoration of the derived class
+   * state. See {@link IPSComponent#fromXml(Element, IPSDocument, List) IPSComponent.fromXml} and
+   * {@link #fromXml(Element) fromXml}for more info.
    *
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported or does not contain valid attribute values.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     or does not contain valid attribute values.
    */
   public final void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -135,32 +130,27 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Called by base class to allow derived classes to serialize their own
-   * state.
+   * Called by base class to allow derived classes to serialize their own state.
    *
-   * @param doc The document to use when creating the element containing the
-   * state of this group provider.  May not be <code>null</code>.
-   *
-   * @return The element containing the derived class's state.  Never
-   * <code>null</code>.
+   * @param doc The document to use when creating the element containing the state of this group
+   *     provider. May not be <code>null</code>.
+   * @return The element containing the derived class's state. Never <code>null</code>.
    */
   protected abstract Element toXmlEx(Document doc);
 
   /**
    * Called by base class to allow derived classes to restore their own state.
    *
-   * @param source The PSXGroupProviderInstance element that contains the
-   * derived class state.  May not be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported or does not contain valid attribute values.
+   * @param source The PSXGroupProviderInstance element that contains the derived class state. May
+   *     not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     or does not contain valid attribute values.
    */
   protected abstract void fromXmlEx(Element source) throws PSUnknownNodeTypeException;
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSGroupProviderInstance. May not be <code>null</code>.
    */
@@ -184,16 +174,14 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Creates an instance of an IPSGroupProviderInstance using the correct
-   * derived class based on the supplied element.
+   * Creates an instance of an IPSGroupProviderInstance using the correct derived class based on the
+   * supplied element.
    *
-   * @param source The source PSXGroupProviderInstance element used to
-   * instantiate the class.  May not be <code>null</code>.
-   *
+   * @param source The source PSXGroupProviderInstance element used to instantiate the class. May
+   *     not be <code>null</code>.
    * @return The group provider instance, never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported or does not contain valid attribute values.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     or does not contain valid attribute values.
    */
   public static IPSGroupProviderInstance newInstance(Element source)
       throws PSUnknownNodeTypeException {
@@ -221,11 +209,10 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Validates that the supplied type is one of the valid
-   * <code>PSSecurityProvider.SP_TYPE_xxx</code> types.
+   * Validates that the supplied type is one of the valid <code>PSSecurityProvider.SP_TYPE_xxx
+   * </code> types.
    *
    * @param type The type to validate.
-   *
    * @return <code>true</code> if the type is valid, <code>false</code> if not.
    */
   private boolean validateType(int type) {
@@ -233,8 +220,7 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Validates that the supplied class is an instance of a
-   * PSGroupProviderInstance.
+   * Validates that the supplied class is an instance of a PSGroupProviderInstance.
    *
    * @param cls The Class to check, assumed not <code>null</code>.
    */
@@ -243,11 +229,10 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Validates that the supplied class name represents a class that is an
-   * instance of a PSGroupProviderInstance.
+   * Validates that the supplied class name represents a class that is an instance of a
+   * PSGroupProviderInstance.
    *
-   * @param className The name of the Class to check, assumed not
-   * <code>null</code> or empty.
+   * @param className The name of the Class to check, assumed not <code>null</code> or empty.
    */
   private static boolean validateClass(String className) {
     Class cls = null;
@@ -288,22 +273,20 @@ public abstract class PSGroupProviderInstance extends PSComponent
   }
 
   /**
-   * Name of this group provider.  Never <code>null</code>, empty, or modified
-   * after construction.
+   * Name of this group provider. Never <code>null</code>, empty, or modified after construction.
    */
   private String m_name = null;
 
   /**
-   * The type of security provider that may use this group provider.  Intially
-   * {@link PSSecurityProvider#SP_TYPE_ANY}, it is set to a valid type in the
-   * ctor, never modified after that.
+   * The type of security provider that may use this group provider. Intially {@link
+   * PSSecurityProvider#SP_TYPE_ANY}, it is set to a valid type in the ctor, never modified after
+   * that.
    */
   private int m_type = PSSecurityProvider.SP_TYPE_ANY;
 
   /**
-   * The name of the derived class that should be instantiated to handle
-   * serialization of the content of this element.  Never <code>null</code>,
-   * empty, or modified after construction.
+   * The name of the derived class that should be instantiated to handle serialization of the
+   * content of this element. Never <code>null</code>, empty, or modified after construction.
    */
   private String m_className = null;
 

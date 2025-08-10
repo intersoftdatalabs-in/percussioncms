@@ -20,12 +20,9 @@ package com.percussion.debug;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the Output Convesion trace message type (0x4000).  Includes:
- * When loading XSL file, display all URL conversions
- * For each request:
- * Is conversion being done
- * Type of conversion
- * If HTML, display XSL URL
+ * Used to generate trace messages for the Output Convesion trace message type (0x4000). Includes:
+ * When loading XSL file, display all URL conversions For each request: Is conversion being done
+ * Type of conversion If HTML, display XSL URL
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceOutputConversion extends PSTraceMessage {
@@ -46,13 +43,11 @@ public class PSTraceOutputConversion extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an array of objects containing the information required for the
-   * trace message:
-   * - String type (i.e. "html")
-   * - String stylesheet name
+   * @param source an array of objects containing the information required for the trace message: -
+   *     String type (i.e. "html") - String stylesheet name
    * @return the message body
    * @roseuid 39FEE2F402FD
    */

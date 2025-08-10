@@ -23,13 +23,10 @@ import java.util.Properties;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSPropertyCondition is a condition which
- * performs a comparison of the specified property in a properies file to
- * the actual property value in the properties file.
+ * PSPropertyCondition is a condition which performs a comparison of the specified property in a
+ * properies file to the actual property value in the properties file. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -54,7 +51,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSPropertyCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -109,25 +105,21 @@ public class PSPropertyCondition extends PSAction implements Condition {
    ***************************************************************/
 
   /**
-   * Returns the path of the property file relative to the Rhythmyx root
-   * directory.
+   * Returns the path of the property file relative to the Rhythmyx root directory.
    *
-   * @return the property file path relative to the installation root directory,
-   * never <code>null</code> or empty
+   * @return the property file path relative to the installation root directory, never <code>null
+   *     </code> or empty
    */
   public String getPropertyFile() {
     return propertyFile;
   }
 
   /**
-   * Sets the path of the property file relative to the Rhythmyx root
-   * directory.
+   * Sets the path of the property file relative to the Rhythmyx root directory.
    *
-   * @param propertyFile the property file path relative to the installation
-   * root directory, may not be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if propertyFile is <code>null</code>
-   * or empty
+   * @param propertyFile the property file path relative to the installation root directory, may not
+   *     be <code>null</code> or empty
+   * @throws IllegalArgumentException if propertyFile is <code>null</code> or empty
    */
   public void setPropertyFile(String propertyFile) {
     if ((propertyFile == null) || (propertyFile.trim().length() == 0))
@@ -138,8 +130,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
   /**
    * Returns the key of the property whose value is to be verified.
    *
-   * @return the key of the property whose value is to be verified,
-   * never <code>null</code> or empty
+   * @return the key of the property whose value is to be verified, never <code>null</code> or empty
    */
   public String getPropertyName() {
     return propertyName;
@@ -148,11 +139,9 @@ public class PSPropertyCondition extends PSAction implements Condition {
   /**
    * Sets the key of the property whose value is to be verified.
    *
-   * @param propertyName the key of the property whose value is to be verified,
-   * may not be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if propertyName is <code>null</code>
-   * or empty
+   * @param propertyName the key of the property whose value is to be verified, may not be <code>
+   *     null</code> or empty
+   * @throws IllegalArgumentException if propertyName is <code>null</code> or empty
    */
   public void setPropertyName(String propertyName) {
     if ((propertyName == null) || (propertyName.trim().length() == 0))
@@ -161,23 +150,23 @@ public class PSPropertyCondition extends PSAction implements Condition {
   }
 
   /**
-   * Returns the value of the property which should be compared to the actual
-   * value in the properties file.
+   * Returns the value of the property which should be compared to the actual value in the
+   * properties file.
    *
-   * @return the value of the property which should be compared to the actual
-   * value in the properties file, never <code>null</code>, may be empty
+   * @return the value of the property which should be compared to the actual value in the
+   *     properties file, never <code>null</code>, may be empty
    */
   public String getLeftSideValue() {
     return leftSideValue;
   }
 
   /**
-   * Sets the value of the property which should be compared to the actual
-   * value in the properties file.
+   * Sets the value of the property which should be compared to the actual value in the properties
+   * file.
    *
-   * @param propertyValue the value of the property which should be compared to
-   * the actual value in the properties file,* may be <code>null</code> or empty,
-   * if <code>null</code> then set to empty
+   * @param propertyValue the value of the property which should be compared to the actual value in
+   *     the properties file,* may be <code>null</code> or empty, if <code>null</code> then set to
+   *     empty
    */
   public void setLeftSideValue(String propertyValue) {
     if (propertyValue == null) propertyValue = "";
@@ -185,19 +174,17 @@ public class PSPropertyCondition extends PSAction implements Condition {
   }
 
   /**
-   * Returns whether the comparison of the specified property value and the
-   * actual value in the property file should be case-sensitive or not.
+   * Returns whether the comparison of the specified property value and the actual value in the
+   * property file should be case-sensitive or not.
    *
-   * @return <code>true</code> if the comparison of the specified property
-   * value and the actual value in the property file should be case-sensitive,
-   * otherwise <code>false</code>.
+   * @return <code>true</code> if the comparison of the specified property value and the actual
+   *     value in the property file should be case-sensitive, otherwise <code>false</code>.
    */
   public boolean getIsCaseSensitive() {
     return m_caseSensitive;
   }
 
   /**
-   *
    * @param b
    * @return
    */
@@ -206,12 +193,12 @@ public class PSPropertyCondition extends PSAction implements Condition {
   }
 
   /**
-   * Sets whether the comparison of the specified property value and the
-   * actual value in the property file should be case-sensitive or not.
+   * Sets whether the comparison of the specified property value and the actual value in the
+   * property file should be case-sensitive or not.
    *
-   * @param isCaseSensitive <code>true</code> if the comparison of the
-   * specified property value and the actual value in the property file should
-   * be case-sensitive, otherwise <code>false</code>.
+   * @param isCaseSensitive <code>true</code> if the comparison of the specified property value and
+   *     the actual value in the property file should be case-sensitive, otherwise <code>false
+   *     </code>.
    */
   public void getIsCaseSensitive(boolean isCaseSensitive) {
     this.m_caseSensitive = isCaseSensitive;
@@ -222,35 +209,33 @@ public class PSPropertyCondition extends PSAction implements Condition {
    ***************************************************************/
 
   /**
-   * The path of the properties file relative to the root
-   * installation directory. The actual value will be set through the
-   * Installshield UI. May not be <code>null</code> or empty.
+   * The path of the properties file relative to the root installation directory. The actual value
+   * will be set through the Installshield UI. May not be <code>null</code> or empty.
    */
   private String propertyFile = "someversion.properties";
 
   /**
-   * Key of the property whose value is to be verified. The actual value
-   * will be set through Installshield UI. May not be <code>null</code>
-   * or empty.
+   * Key of the property whose value is to be verified. The actual value will be set through
+   * Installshield UI. May not be <code>null</code> or empty.
    */
   private String propertyName = "cVERSION";
 
   /**
-   * Value of the property which should be compared to the actual value in the
-   * properties file. The actual value will be set through Installshield UI.
-   * Never <code>null</code>, may be empty.
+   * Value of the property which should be compared to the actual value in the properties file. The
+   * actual value will be set through Installshield UI. Never <code>null</code>, may be empty.
    */
   private String leftSideValue = "3,1,0,7";
 
   /**
-   * Whether the comparison of the specified property value and the actual
-   * value in the property file should be case-sensitive or not. If
-   * <code>true</code> the comparision is case-sensitive, otherwise not.
+   * Whether the comparison of the specified property value and the actual value in the property
+   * file should be case-sensitive or not. If <code>true</code> the comparision is case-sensitive,
+   * otherwise not.
    */
   private boolean m_caseSensitive;
 
   /**
    * Getter for the allowed ops.
+   *
    * @return
    */
   public String[] getSupportedOperators() {
@@ -259,6 +244,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
 
   /**
    * Getter for the ip.
+   *
    * @return
    */
   public String getCompareOperator() {
@@ -267,6 +253,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
 
   /**
    * Sets only compare op. Validated against the allowed set.
+   *
    * @param op
    */
   public void setCompareOperator(String op) {
@@ -286,6 +273,7 @@ public class PSPropertyCondition extends PSAction implements Condition {
 
   /**
    * Is Match?.
+   *
    * @param equalsResult
    * @return
    */
@@ -301,14 +289,10 @@ public class PSPropertyCondition extends PSAction implements Condition {
     return false;
   }
 
-  /**
-   * Comp. Op.
-   */
+  /** Comp. Op. */
   private String m_compareOp = "==";
 
-  /**
-   * Compare operators to chose from.
-   */
+  /** Compare operators to chose from. */
   private static final String[] m_compareOperators = {
     "==", "!=",
     "<", "<=",

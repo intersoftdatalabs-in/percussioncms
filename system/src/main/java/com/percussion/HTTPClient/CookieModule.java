@@ -33,39 +33,33 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This module handles Netscape cookies (also called Version 0 cookies)
- * and Version 1 cookies. Specifically is reads the <var>Set-Cookie</var>
- * and <var>Set-Cookie2</var> response headers and sets the <var>Cookie</var>
- * and <var>Cookie2</var> headers as neccessary.
+ * This module handles Netscape cookies (also called Version 0 cookies) and Version 1 cookies.
+ * Specifically is reads the <var>Set-Cookie</var> and <var>Set-Cookie2</var> response headers and
+ * sets the <var>Cookie</var> and <var>Cookie2</var> headers as neccessary.
  *
- * <P>The accepting and sending of cookies is controlled by a
- * <var>CookiePolicyHandler</var>. This allows you to fine tune your privacy
- * preferences. A cookie is only added to the cookie list if the handler
- * allows it, and a cookie from the cookie list is only sent if the handler
- * allows it.
+ * <p>The accepting and sending of cookies is controlled by a <var>CookiePolicyHandler</var>. This
+ * allows you to fine tune your privacy preferences. A cookie is only added to the cookie list if
+ * the handler allows it, and a cookie from the cookie list is only sent if the handler allows it.
  *
- * <P>This module expects to be the only one handling cookies. Specifically, it
- * will remove any <var>Cookie</var> and <var>Cookie2</var> header fields found
- * in the request, and it will remove the <var>Set-Cookie</var> and
- * <var>Set-Cookie2</var> header fields in the response (after processing them).
- * In order to add cookies to a request or to prevent cookies from being sent,
- * you can use the {@link #addCookie(Cookie)} addCookie} and {@link
- * #removeCookie(Cookie) removeCookie} methods to manipulate the
- * module's list of cookies.
+ * <p>This module expects to be the only one handling cookies. Specifically, it will remove any
+ * <var>Cookie</var> and <var>Cookie2</var> header fields found in the request, and it will remove
+ * the <var>Set-Cookie</var> and <var>Set-Cookie2</var> header fields in the response (after
+ * processing them). In order to add cookies to a request or to prevent cookies from being sent, you
+ * can use the {@link #addCookie(Cookie)} addCookie} and {@link #removeCookie(Cookie) removeCookie}
+ * methods to manipulate the module's list of cookies.
  *
- * <P>A cookie jar can be used to store cookies between sessions. This file is
- * read when this class is loaded and is written when the application exits;
- * only cookies from the default context are saved. The name of the file is
- * controlled by the system property <var>HTTPClient.cookies.jar</var> and
- * defaults to a system dependent name. The reading and saving of cookies is
- * enabled by setting the system property <var>HTTPClient.cookies.save</var>
- * to <var>true</var>.
+ * <p>A cookie jar can be used to store cookies between sessions. This file is read when this class
+ * is loaded and is written when the application exits; only cookies from the default context are
+ * saved. The name of the file is controlled by the system property
+ * <var>HTTPClient.cookies.jar</var> and defaults to a system dependent name. The reading and saving
+ * of cookies is enabled by setting the system property <var>HTTPClient.cookies.save</var> to
+ * <var>true</var>.
  *
  * @see <a href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's cookie spec</a>
  * @see <a href="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</a>
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 public class CookieModule implements HTTPClientModule {
@@ -184,9 +178,7 @@ public class CookieModule implements HTTPClientModule {
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) {
     // First remove any Cookie headers we might have set for a previous
     // request
@@ -286,9 +278,7 @@ public class CookieModule implements HTTPClientModule {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) throws IOException {
     String set_cookie = resp.getHeader("Set-Cookie");
     String set_cookie2 = resp.getHeader("Set-Cookie2");
@@ -308,21 +298,15 @@ public class CookieModule implements HTTPClientModule {
     if (set_cookie2 != null) handleCookie(set_cookie2, true, req, resp);
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) {
     return RSP_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) throws IOException {
     String set_cookie = resp.getTrailer("Set-Cookie");
     String set_cookie2 = resp.getTrailer("Set-Cookie2");
@@ -364,16 +348,15 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Discard all cookies for all contexts. Cookies stored in persistent
-   * storage are not affected.
+   * Discard all cookies for all contexts. Cookies stored in persistent storage are not affected.
    */
   public static void discardAllCookies() {
     cookie_cntxt_list.clear();
   }
 
   /**
-   * Discard all cookies for the given context. Cookies stored in persistent
-   * storage are not affected.
+   * Discard all cookies for the given context. Cookies stored in persistent storage are not
+   * affected.
    *
    * @param context the context Object
    */
@@ -409,7 +392,7 @@ public class CookieModule implements HTTPClientModule {
   /**
    * List all stored cookies for a given context.
    *
-   * @param  context the context Object.
+   * @param context the context Object.
    * @return an array of Cookies
    * @since V0.3-1
    */
@@ -426,9 +409,9 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Add the specified cookie to the list of cookies in the default context.
-   * If a compatible cookie (as defined by <var>Cookie.equals()</var>)
-   * already exists in the list then it is replaced with the new cookie.
+   * Add the specified cookie to the list of cookies in the default context. If a compatible cookie
+   * (as defined by <var>Cookie.equals()</var>) already exists in the list then it is replaced with
+   * the new cookie.
    *
    * @param cookie the Cookie to add
    * @since V0.3-1
@@ -440,12 +423,11 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Add the specified cookie to the list of cookies for the specified
-   * context. If a compatible cookie (as defined by
-   * <var>Cookie.equals()</var>) already exists in the list then it is
+   * Add the specified cookie to the list of cookies for the specified context. If a compatible
+   * cookie (as defined by <var>Cookie.equals()</var>) already exists in the list then it is
    * replaced with the new cookie.
    *
-   * @param cookie  the cookie to add
+   * @param cookie the cookie to add
    * @param context the context Object.
    * @since V0.3-1
    */
@@ -455,9 +437,8 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Remove the specified cookie from the list of cookies in the default
-   * context. If the cookie is not found in the list then this method does
-   * nothing.
+   * Remove the specified cookie from the list of cookies in the default context. If the cookie is
+   * not found in the list then this method does nothing.
    *
    * @param cookie the Cookie to remove
    * @since V0.3-1
@@ -469,11 +450,10 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Remove the specified cookie from the list of cookies for the specified
-   * context. If the cookie is not found in the list then this method does
-   * nothing.
+   * Remove the specified cookie from the list of cookies for the specified context. If the cookie
+   * is not found in the list then this method does nothing.
    *
-   * @param cookie  the cookie to remove
+   * @param cookie the cookie to remove
    * @param context the context Object
    * @since V0.3-1
    */
@@ -483,43 +463,34 @@ public class CookieModule implements HTTPClientModule {
   }
 
   /**
-   * Sets a new cookie policy handler. This handler will be called for each
-   * cookie that a server wishes to set and for each cookie that this
-   * module wishes to send with a request. In either case the handler may
-   * allow or reject the operation. If you wish to blindly accept and send
-   * all cookies then just disable the handler with
-   * <code>CookieModule.setCookiePolicyHandler(null);</code>.
+   * Sets a new cookie policy handler. This handler will be called for each cookie that a server
+   * wishes to set and for each cookie that this module wishes to send with a request. In either
+   * case the handler may allow or reject the operation. If you wish to blindly accept and send all
+   * cookies then just disable the handler with <code>CookieModule.setCookiePolicyHandler(null);
+   * </code>.
    *
-   * <P>At initialization time a default handler is installed. This
-   * handler allows all cookies to be sent. For any cookie that a server
-   * wishes to be set two lists are consulted. If the server matches any
-   * host or domain in the reject list then the cookie is rejected; if
-   * the server matches any host or domain in the accept list then the
-   * cookie is accepted (in that order). If no host or domain match is
-   * found in either of these two lists and user interaction is allowed
-   * then a dialog box is poped up to ask the user whether to accept or
-   * reject the cookie; if user interaction is not allowed the cookie is
-   * accepted.
+   * <p>At initialization time a default handler is installed. This handler allows all cookies to be
+   * sent. For any cookie that a server wishes to be set two lists are consulted. If the server
+   * matches any host or domain in the reject list then the cookie is rejected; if the server
+   * matches any host or domain in the accept list then the cookie is accepted (in that order). If
+   * no host or domain match is found in either of these two lists and user interaction is allowed
+   * then a dialog box is poped up to ask the user whether to accept or reject the cookie; if user
+   * interaction is not allowed the cookie is accepted.
    *
-   * <P>The accept and reject lists in the default handler are initialized
-   * at startup from the two properties
-   * <var>HTTPClient.cookies.hosts.accept</var> and
-   * <var>HTTPClient.cookies.hosts.reject</var>. These properties must
-   * contain a "|" separated list of host and domain names. All names
-   * beginning with a "." are treated as domain names, all others as host
-   * names. An empty string will match all hosts. The two lists are
-   * further expanded if the user chooses one of the "Accept All from
-   * Domain" or "Reject All from Domain" buttons in the dialog box.
+   * <p>The accept and reject lists in the default handler are initialized at startup from the two
+   * properties <var>HTTPClient.cookies.hosts.accept</var> and
+   * <var>HTTPClient.cookies.hosts.reject</var>. These properties must contain a "|" separated list
+   * of host and domain names. All names beginning with a "." are treated as domain names, all
+   * others as host names. An empty string will match all hosts. The two lists are further expanded
+   * if the user chooses one of the "Accept All from Domain" or "Reject All from Domain" buttons in
+   * the dialog box.
    *
-   * <P>Note: the default handler does not implement the rules concerning
-   * unverifiable transactions (section 3.3.6, <A
-   * HREF="http://www.ietf.org/rfc/rfc2965.txt">RFC-2965</A>). The reason
-   * for this is simple: the default handler knows nothing about the
-   * application using this client, and it therefore does not have enough
-   * information to determine when a request is verifiable and when not. You
-   * are therefore encouraged to provide your own handler which implements
-   * section 3.3.6 (use the <code>CookiePolicyHandler.sendCookie</code>
-   * method for this).
+   * <p>Note: the default handler does not implement the rules concerning unverifiable transactions
+   * (section 3.3.6, <A HREF="http://www.ietf.org/rfc/rfc2965.txt">RFC-2965</A>). The reason for
+   * this is simple: the default handler knows nothing about the application using this client, and
+   * it therefore does not have enough information to determine when a request is verifiable and
+   * when not. You are therefore encouraged to provide your own handler which implements section
+   * 3.3.6 (use the <code>CookiePolicyHandler.sendCookie</code> method for this).
    *
    * @param handler the new policy handler
    * @return the previous policy handler
@@ -532,9 +503,7 @@ public class CookieModule implements HTTPClientModule {
   }
 }
 
-/**
- * A simple cookie policy handler.
- */
+/** A simple cookie policy handler. */
 class DefaultCookiePolicyHandler implements CookiePolicyHandler {
   /** a list of all hosts and domains from which to silently accept cookies */
   private String[] accept_domains = new String[0];
@@ -567,13 +536,13 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler {
   }
 
   /**
-   * returns whether this cookie should be accepted. First checks the
-   * stored lists of accept and reject domains, and if it is neither
-   * accepted nor rejected by these then query the user via a popup.
+   * returns whether this cookie should be accepted. First checks the stored lists of accept and
+   * reject domains, and if it is neither accepted nor rejected by these then query the user via a
+   * popup.
    *
-   * @param cookie   the cookie in question
-   * @param req      the request
-   * @param resp     the response
+   * @param cookie the cookie in question
+   * @param req the request
+   * @param resp the response
    * @return true if we accept this cookie.
    */
   public boolean acceptCookie(Cookie cookie, RoRequest req, RoResponse resp) {
@@ -606,8 +575,8 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler {
   }
 
   /**
-   * This handler just allows all cookies to be sent which were accepted
-   * (i.e. no further restrictions are placed on the sending of cookies).
+   * This handler just allows all cookies to be sent which were accepted (i.e. no further
+   * restrictions are placed on the sending of cookies).
    *
    * @return true
    */
@@ -646,11 +615,11 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler {
 }
 
 /**
- * A simple popup that asks whether the cookie should be accepted or rejected,
- * or if cookies from whole domains should be silently accepted or rejected.
+ * A simple popup that asks whether the cookie should be accepted or rejected, or if cookies from
+ * whole domains should be silently accepted or rejected.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 class BasicCookieBox extends Frame {
   private static final String title = "Set Cookie Request";
@@ -674,9 +643,7 @@ class BasicCookieBox extends Frame {
   private boolean accept;
   private boolean accept_domain;
 
-  /**
-   * Constructs the popup.
-   */
+  /** Constructs the popup. */
   BasicCookieBox() {
     super(title);
 
@@ -769,9 +736,7 @@ class BasicCookieBox extends Frame {
     return new Dimension(screen.width * 3 / 4, screen.height * 3 / 4);
   }
 
-  /**
-   * our event handlers
-   */
+  /** our event handlers */
   private class Accept implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
       accept = true;
@@ -933,9 +898,7 @@ class BasicCookieBox extends Frame {
   }
 }
 
-/**
- * A simple separator element.
- */
+/** A simple separator element. */
 class Separator extends Panel {
   public void paint(Graphics g) {
     int w = getSize().width, h = getSize().height / 2;

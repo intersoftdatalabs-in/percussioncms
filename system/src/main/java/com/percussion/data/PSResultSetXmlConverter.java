@@ -69,24 +69,21 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 /**
- * The PSResultSetXmlConverter class implements the IPSResultSetConverter
- * interface, and provides conversion to an XML document.
+ * The PSResultSetXmlConverter class implements the IPSResultSetConverter interface, and provides
+ * conversion to an XML document.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Construct a result set to XML converter.
    *
-   * @param      app   the application containing the data set
-   *
-   * @param      def   the data set definition
-   *
-   * @exception  PSNotFoundException  if the application or request is not found
-   *
-   * @exception  PSCatalogException   if catalog processing error occurs
+   * @param app the application containing the data set
+   * @param def the data set definition
+   * @exception PSNotFoundException if the application or request is not found
+   * @exception PSCatalogException if catalog processing error occurs
    */
   public PSResultSetXmlConverter(PSApplicationHandler app, PSDataSet def)
       throws PSNotFoundException, PSCatalogException, PSExtensionException {
@@ -224,9 +221,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
                 // now we'll create the XML node and store it as the
                 // link generator object
                 /**
-                 * The <code>addXmlNode</code> is used for the generic
-                 * functionality. It is not meant to add the new node
-                 * to the data mappings, so we must remove it afterwards.
+                 * The <code>addXmlNode</code> is used for the generic functionality. It is not
+                 * meant to add the new node to the data mappings, so we must remove it afterwards.
                  */
                 node = addXmlNode(xmlField, genLink, null, null);
                 m_DataMappings.remove(xmlField);
@@ -256,26 +252,21 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /* ********** IPSResultSetConverter Interface Implementation ********** */
 
   /**
-   * See {@link IPSResultSetConverter#convert(PSExecutionData,
-   * IPSResultSetDataFilter) base class} for full details. More specifically,
-   * this class performs the following steps during conversion:
+   * See {@link IPSResultSetConverter#convert(PSExecutionData, IPSResultSetDataFilter) base class}
+   * for full details. More specifically, this class performs the following steps during conversion:
+   *
    * <ol>
-   * <li>verify reqUrl is supported</li>
-   * <li>create the XML document</li>
-   * <li>initialize the output with the appropriate header info
-   * (content type, etc.)</li>
-   * <li>set the XML data on the Response</li>
+   *   <li>verify reqUrl is supported
+   *   <li>create the XML document
+   *   <li>initialize the output with the appropriate header info (content type, etc.)
+   *   <li>set the XML data on the Response
    * </ol>
    *
-   *
-   * @param      data   the execution data associated with this request.
-   *                    This includes all context data, result sets, etc.
-   *
-   * @exception  PSConversionException if the conversion fails
-   *
-   * @exception  PSUnsupportedConversionException
-   *             if conversion to the format required by the
-   *             specified request URL is not supported
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @exception PSConversionException if the conversion fails
+   * @exception PSUnsupportedConversionException if conversion to the format required by the
+   *     specified request URL is not supported
    */
   public void convert(PSExecutionData data, IPSResultSetDataFilter filter)
       throws PSConversionException, PSUnsupportedConversionException {
@@ -334,20 +325,18 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Get the default MIME type of this converter.
    *
-   * @return              the default MIME type
+   * @return the default MIME type
    */
   public String getDefaultMimeType() {
     return IPSMimeContentTypes.MIME_TYPE_TEXT_XML;
   }
 
   /**
-   * Evaluate any result page conditionals to determine the index of
-   * the result page to use.
+   * Evaluate any result page conditionals to determine the index of the result page to use.
    *
-   * @param   data        the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return              the 0-based index of the result page or -1
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @return the 0-based index of the result page or -1
    */
   public int getResultPageIndex(PSExecutionData data) {
     int index = -1;
@@ -383,14 +372,11 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Generate the results for this request.
    *
-   * @param   data        the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @exception  PSConversionException if the conversion fails
-   *
-   * @exception  PSUnsupportedConversionException
-   *              if conversion to the format required by the
-   *              specified request URL is not supported
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @exception PSConversionException if the conversion fails
+   * @exception PSUnsupportedConversionException if conversion to the format required by the
+   *     specified request URL is not supported
    */
   public void generateResults(PSExecutionData data)
       throws PSConversionException, PSUnsupportedConversionException {
@@ -400,8 +386,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
   /**
    * Get the character encoding value of the dataset requestor.
-   * @return the character encoding value, May be <code>null</code> if
-   * no requestor exists.
+   *
+   * @return the character encoding value, May be <code>null</code> if no requestor exists.
    */
   public String getRequestorCharacterEncoding() {
     return m_requestor == null ? null : m_requestor.getCharacterEncoding();
@@ -410,15 +396,11 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /* *********************  Protected Implementation ******************** */
 
   /**
-   * Determine whether the request URL is supported by this converter. The request URL may
-   * contain an extension. When it does, this is used in defining the
-   * output which will be returned.
+   * Determine whether the request URL is supported by this converter. The request URL may contain
+   * an extension. When it does, this is used in defining the output which will be returned.
    *
-   * @param   reqUrl      the URL which was specified when making this
-   *                                         request
-   *
-   * @return             <code>true</code> if conversion is supported,
-   *                                         <code>false</code> otherwise
+   * @param reqUrl the URL which was specified when making this request
+   * @return <code>true</code> if conversion is supported, <code>false</code> otherwise
    */
   protected boolean isSupported(String reqPageURL) {
     /* check the URL to see if it matches the XML conversion rules */
@@ -433,21 +415,15 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Build the XML document from the specified ResultSet.
    *
-   * @param data the execution data associated with this request. This includes
-   *    all context data, result sets, etc.
-   *
-   * @param filter See {@link convert(PSExecutionData, IPSResultSetDataFilter)
-   *    here} for description.
-   *
-   * @param   fixupURL    <code>true</code> to convert a file based URL to
-   *                      a remote accessible (http) URL
-   *
-   * @return              the generated document. If an extension processes
-   *                      the document, it may return <code>null</code>
-   *                      as its output, meaning the caller should act as
-   *                      though the request was not processed.
-   *
-   * @exception  PSConversionException if a conversion error occurs
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param filter See {@link convert(PSExecutionData, IPSResultSetDataFilter) here} for
+   *     description.
+   * @param fixupURL <code>true</code> to convert a file based URL to a remote accessible (http) URL
+   * @return the generated document. If an extension processes the document, it may return <code>
+   *     null</code> as its output, meaning the caller should act as though the request was not
+   *     processed.
+   * @exception PSConversionException if a conversion error occurs
    */
   protected Document createXmlDocument(
       PSExecutionData data, IPSResultSetDataFilter filter, boolean fixupURL)
@@ -781,13 +757,12 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   }
 
   /**
-   * Check the supplied node for a stylesheet processing instruction, and if
-   * not found, recursively checks all child nodes.
+   * Check the supplied node for a stylesheet processing instruction, and if not found, recursively
+   * checks all child nodes.
    *
    * @param node The node to check, may be <code>null</code>.
-   *
-   * @return <code>true</code> if a stylesheet processing instruction is found,
-   * <code>false</code> if not or if the supplied node is <code>null</code>.
+   * @return <code>true</code> if a stylesheet processing instruction is found, <code>false</code>
+   *     if not or if the supplied node is <code>null</code>.
    */
   private boolean processNodes(Node node) {
     if (node == null) return false;
@@ -814,9 +789,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   }
 
   /**
-   * Apply the style sheet conditions to the XML document. The
-   * stylesheet processing instruction will be set in the XML document
-   * and the link generators associated with the stylesheet will be
+   * Apply the style sheet conditions to the XML document. The stylesheet processing instruction
+   * will be set in the XML document and the link generators associated with the stylesheet will be
    * returned.
    */
   private void applyStylesheetConditions(PSExecutionData data, Document doc, boolean fixupURL) {
@@ -1136,11 +1110,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Get the encoding for the specified request page.
    *
-   * @arg  index the offset of the request page in the page set
-   *
-   * @return the character encoding desired or <code>null</code>
-   *          if no encoding has been set for this resource, or
-   *          if no request page resource for the data exists.
+   * @arg index the offset of the request page in the page set
+   * @return the character encoding desired or <code>null</code> if no encoding has been set for
+   *     this resource, or if no request page resource for the data exists.
    */
   public String getEncodingForRequestPage(int index) {
     PSResultPage page = getResultPage(index);
@@ -1152,11 +1124,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   /**
    * Get the MIME type for the specified request page.
    *
-   * @arg  index the offset of the request page in the page set
-   *
-   * @return the mime type desired or <code>null</code>
-   *          if no encoding has been set for this resource, or
-   *          if no request page resource for the data exists.
+   * @arg index the offset of the request page in the page set
+   * @return the mime type desired or <code>null</code> if no encoding has been set for this
+   *     resource, or if no request page resource for the data exists.
    */
   public String getMimeTypeForRequestPage(int index, PSExecutionData data) {
     PSResultPage page = getResultPage(index);
@@ -1185,8 +1155,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
    * Returns the indexed result page from the result page set.
    *
    * @param index the index of the requested result page
-   * @return the result page or <code>null</code> if it does
-   * not exist.
+   * @return the result page or <code>null</code> if it does not exist.
    */
   public PSResultPage getResultPage(int index) {
     if (index < 0) return null;
@@ -1202,12 +1171,11 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   }
 
   /**
-   * Returns flag indicating if the XHTML compliant namespace cleanup
-   * is allowed to run for the result page specified.
+   * Returns flag indicating if the XHTML compliant namespace cleanup is allowed to run for the
+   * result page specified.
    *
    * @param index the index of the requested result page
-   * @return <code>true</code> if the namespace cleanup is allowed to
-   * run for this result page.
+   * @return <code>true</code> if the namespace cleanup is allowed to run for this result page.
    */
   public boolean isNamespaceCleanupAllowedForResultPage(int index) {
     PSResultPage page = getResultPage(index);
@@ -1336,9 +1304,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
 
   class PSXmlNode {
     /**
-     * See {@link #PSXmlNode(String, int, PSXmlNode, IPSDataExtractor, PSCollection, Format, boolean)}
-     * this (nodeName, nodeId, parent, dataSource, conditionals, textFormatter, true)
-     * for a description.
+     * See {@link #PSXmlNode(String, int, PSXmlNode, IPSDataExtractor, PSCollection, Format,
+     * boolean)} this (nodeName, nodeId, parent, dataSource, conditionals, textFormatter, true) for
+     * a description.
      */
     PSXmlNode(
         String nodeName,
@@ -1355,15 +1323,13 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
      *
      * @param nodeName the simple node name, assumed not <code>null</code>.
      * @param nodeId the node identifier, a unique number accross all nodes.
-     * @param parent the parent node, is <code>null</code> if this is the
-     *    parent.
+     * @param parent the parent node, is <code>null</code> if this is the parent.
      * @param dataSource the data source, may be <code>null</code>.
-     * @param conditionals the conditionals for this node, may be
-     *    <code>null</code>.
-     * @param textFormatter a text formatter to be used to format the output,
-     *    may be <code>null</code>.
-     * @param addAsChild <code>true</code> specifies to add this node as
-     *    a child to the parent, <code>false</code> otherwise.
+     * @param conditionals the conditionals for this node, may be <code>null</code>.
+     * @param textFormatter a text formatter to be used to format the output, may be <code>null
+     *     </code>.
+     * @param addAsChild <code>true</code> specifies to add this node as a child to the parent,
+     *     <code>false</code> otherwise.
      */
     PSXmlNode(
         String nodeName,
@@ -1535,18 +1501,16 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     }
 
     /**
-     * Set the output value for this xml node in the supplied document for the
-     * current execution data.
+     * Set the output value for this xml node in the supplied document for the current execution
+     * data.
      *
-     * @param data the execution data from which to extract the nodes value,
-     *    assumed not <code>null</code>.
-     * @param doc the document in which to set the xml node value, assumed
-     *    not <code>null</code>.
-     * @param dataStructs an array of node data objects of already processed
-     *    nodes, assumed not <code>null</code>.
-     * @return <code>true</code> if this node has conditionals and setting
-     *    its value was processed because the conditionals evaluated to
-     *    <code>true</code>, <code>false</code> otherwise.
+     * @param data the execution data from which to extract the nodes value, assumed not <code>null
+     *     </code>.
+     * @param doc the document in which to set the xml node value, assumed not <code>null</code>.
+     * @param dataStructs an array of node data objects of already processed nodes, assumed not
+     *     <code>null</code>.
+     * @return <code>true</code> if this node has conditionals and setting its value was processed
+     *     because the conditionals evaluated to <code>true</code>, <code>false</code> otherwise.
      * @throws PSDataExtractionException if the data extraction fails.
      */
     void setValue(PSExecutionData data, Document doc, PSXmlNodeData[] dataStructs)
@@ -1563,18 +1527,16 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     }
 
     /**
-     * Set the output value for this xml node in the supplied document for the
-     * current execution data.
+     * Set the output value for this xml node in the supplied document for the current execution
+     * data.
      *
-     * @param data the execution data from which to extract the nodes value,
-     *    assumed not <code>null</code>.
-     * @param doc the document in which to set the xml node value, assumed
-     *    not <code>null</code>.
-     * @param dataStructs an array of node data objects of already processed
-     *    nodes, assumed not <code>null</code>.
-     * @return <code>true</code> if this node has conditionals and setting
-     *    its value was processed because the conditionals evaluated to
-     *    <code>true</code>, <code>false</code> otherwise.
+     * @param data the execution data from which to extract the nodes value, assumed not <code>null
+     *     </code>.
+     * @param doc the document in which to set the xml node value, assumed not <code>null</code>.
+     * @param dataStructs an array of node data objects of already processed nodes, assumed not
+     *     <code>null</code>.
+     * @return <code>true</code> if this node has conditionals and setting its value was processed
+     *     because the conditionals evaluated to <code>true</code>, <code>false</code> otherwise.
      * @throws PSDataExtractionException if the data extraction fails.
      */
     private boolean setConditionalValue(
@@ -1740,9 +1702,7 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
       }
     }
 
-    /**
-     * Get the value currently stored with this node.
-     */
+    /** Get the value currently stored with this node. */
     Object getValue(PSXmlNodeData[] dataStructs) {
       Object curValue = dataStructs[m_nodeId].m_curValue;
 
@@ -1750,11 +1710,10 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     }
 
     /**
-     * Compute the current value for this node without storing it
-     * internally.
+     * Compute the current value for this node without storing it internally.
      *
-     * @param data the execution data from which to compute the value,
-     *    assumed not <code>null</code>.
+     * @param data the execution data from which to compute the value, assumed not <code>null</code>
+     *     .
      * @return Object the computed object, never <code>null</code>.
      */
     Object computeValue(PSExecutionData data) throws com.percussion.data.PSDataExtractionException {
@@ -1829,11 +1788,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     }
 
     /**
-     * Adds a new conditional node to the internal list of conditional xml
-     * nodes.
+     * Adds a new conditional node to the internal list of conditional xml nodes.
      *
-     * @param node to node to be added, not <code>null</code>, must contain
-     *    conditions.
+     * @param node to node to be added, not <code>null</code>, must contain conditions.
      */
     public void addConditionalNode(PSXmlNode node) {
       if (node == null) throw new IllegalArgumentException("conditional node cannot be null");
@@ -1849,9 +1806,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     /**
      * Get all conditional nodes.
      *
-     * @return an <code>Iterator</code> over <code>PSXmlNode</code> objects
-     *    representing all conditional nodes, never <code>null</code>, may
-     *    be empty.
+     * @return an <code>Iterator</code> over <code>PSXmlNode</code> objects representing all
+     *     conditional nodes, never <code>null</code>, may be empty.
      */
     public Iterator getConditionalNodes() {
       if (m_conditionalNodes == null) return PSIteratorUtils.emptyIterator();
@@ -1871,10 +1827,9 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
     java.text.Format m_textFormatter;
 
     /**
-     * A list of conditional xml nodes, initialized in the first call to
-     * <code>addConditionalNode(PSXmlNode)</code>. May be <code>null</code>
-     * if there are no conditional nodes. The order of this list is the
-     * order in which the nodes will be processed.
+     * A list of conditional xml nodes, initialized in the first call to <code>
+     * addConditionalNode(PSXmlNode)</code>. May be <code>null</code> if there are no conditional
+     * nodes. The order of this list is the order in which the nodes will be processed.
      */
     private List m_conditionalNodes = null;
   }
@@ -1928,8 +1883,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   protected PSRequestor m_requestor;
 
   /**
-   * Result page set. Initialized to empty. May be reinitialized in the ctor.
-   * Never <code>null</code> may be empty.
+   * Result page set. Initialized to empty. May be reinitialized in the ctor. Never <code>null
+   * </code> may be empty.
    */
   protected PSResultPageSet m_resultPageSet = new PSResultPageSet();
 
@@ -1940,8 +1895,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   private java.net.URL m_DTD;
 
   /**
-   * A map with all data mappings, the key is the fully qualified XML name
-   * while the value is a <code>PSXmlNode</code>.
+   * A map with all data mappings, the key is the fully qualified XML name while the value is a
+   * <code>PSXmlNode</code>.
    */
   private HashMap m_DataMappings;
 
@@ -1969,8 +1924,8 @@ public class PSResultSetXmlConverter implements IPSResultSetConverter {
   private PSPagedRequestLinkGenerator m_indexLink = null;
 
   /**
-   * Attribute in the request that indicates which row in the ResultSet
-   * will be used as the first row on the page.
+   * Attribute in the request that indicates which row in the ResultSet will be used as the first
+   * row on the page.
    */
   public static final String FIRST_QUERY_INDEX_PARAMETER_NAME = "psfirst";
 }

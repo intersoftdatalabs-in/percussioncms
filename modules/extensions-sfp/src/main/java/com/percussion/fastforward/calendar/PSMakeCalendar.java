@@ -34,16 +34,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit takes the result document and replaces the RelatedContent portion
- * of the sys_AssemblerInfo node in the document with another document fragment
- * (based on calendar.dtd) that is used by the stylesheet to generate the
- * graphical representation of a monthly calendar.
+ * This exit takes the result document and replaces the RelatedContent portion of the
+ * sys_AssemblerInfo node in the document with another document fragment (based on calendar.dtd)
+ * that is used by the stylesheet to generate the graphical representation of a monthly calendar.
  *
  * @author Roy Kiesler
  * @version 1.0
- * @deprecated Use a Velocity template paired with
- * {@link com.percussion.fastforward.calendar.PSCalendarMonthModel
- * PSCalendarMonthModel} instead.
+ * @deprecated Use a Velocity template paired with {@link
+ *     com.percussion.fastforward.calendar.PSCalendarMonthModel PSCalendarMonthModel} instead.
  */
 public class PSMakeCalendar implements IPSResultDocumentProcessor {
   /*

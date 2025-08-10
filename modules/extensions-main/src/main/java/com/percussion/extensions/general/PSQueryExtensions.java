@@ -31,8 +31,7 @@ import org.w3c.dom.Node;
 
 /**
  * @author dougrand
- *
- * Query the extension manager to provide a list of matching extensions.
+ *     <p>Query the extension manager to provide a list of matching extensions.
  */
 public class PSQueryExtensions extends PSSimpleJavaUdfExtension {
 

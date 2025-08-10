@@ -45,7 +45,7 @@ public class ASTColumnReference extends SimpleNode {
   private String m_column = null;
   private String m_table = null;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

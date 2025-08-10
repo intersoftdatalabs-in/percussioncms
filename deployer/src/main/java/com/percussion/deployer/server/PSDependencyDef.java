@@ -25,40 +25,35 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Represents the definition of a dependency type. Each dependency instance
- * represents one of the types defined by this class.
+ * Represents the definition of a dependency type. Each dependency instance represents one of the
+ * types defined by this class.
  */
 public class PSDependencyDef {
   /**
    * Construct this object from its member values.
    *
-   * @param objectType The type of object this class defines.  May not be
-   * <code>null</code> or empty, and should be unique across all instances of
-   * this class.
-   * @param objectTypeName The user facing displayable form of the
-   * <code>objecType</code>, never <code>null</code> or empty.
-   * @param handlerClass The name of the class that handles this dependency
-   * type at runtime.  May not be <code>null</code> or empty.
-   * @param supportsIdTypes If <code>true</code>, this dependency type supports
-   * id type mappings, otherwise it does not.  See {@link #supportsIdTypes()}
-   * for more info.
-   * @param supportsIdMapping If <code>true</code>, the dependency id of a
-   * dependency of this type may be mapped from one server to another,
-   * otherwise it does not.  See {@link #supportsIdMapping()} for more info.
-   * @param supportsUserDependencies If <code>true</code>, this type allows
-   * user defined dependencies to be added as children, <code>false</code>
-   * otherwise.
-   * @param isDeployableElement If <code>true</code>, this type represents a
-   * deployable element, <code>false</code> otherwise.
-   * @param canBeAncestor If <code>true</code>, dependencies of this type
-   * may be returned as an ancestor of another dependency, <code>false</code>
-   * if not.
-   * @param supportsParentId If <code>true</code>, this type allows a parent id
-   * to be specified, <code>false</code> otherwise.
-   * @param autoExpand If <code>true</code>, the dependency tree in the UI
-   * will auto-expand local dependency nodes.  If <code>false</code>,
-   * the nodes will not auto-expand to display all local dependencies.
-   *
+   * @param objectType The type of object this class defines. May not be <code>null</code> or empty,
+   *     and should be unique across all instances of this class.
+   * @param objectTypeName The user facing displayable form of the <code>objecType</code>, never
+   *     <code>null</code> or empty.
+   * @param handlerClass The name of the class that handles this dependency type at runtime. May not
+   *     be <code>null</code> or empty.
+   * @param supportsIdTypes If <code>true</code>, this dependency type supports id type mappings,
+   *     otherwise it does not. See {@link #supportsIdTypes()} for more info.
+   * @param supportsIdMapping If <code>true</code>, the dependency id of a dependency of this type
+   *     may be mapped from one server to another, otherwise it does not. See {@link
+   *     #supportsIdMapping()} for more info.
+   * @param supportsUserDependencies If <code>true</code>, this type allows user defined
+   *     dependencies to be added as children, <code>false</code> otherwise.
+   * @param isDeployableElement If <code>true</code>, this type represents a deployable element,
+   *     <code>false</code> otherwise.
+   * @param canBeAncestor If <code>true</code>, dependencies of this type may be returned as an
+   *     ancestor of another dependency, <code>false</code> if not.
+   * @param supportsParentId If <code>true</code>, this type allows a parent id to be specified,
+   *     <code>false</code> otherwise.
+   * @param autoExpand If <code>true</code>, the dependency tree in the UI will auto-expand local
+   *     dependency nodes. If <code>false</code>, the nodes will not auto-expand to display all
+   *     local dependencies.
    * @throws IllegalArgumentException if any param is invalid
    */
   public PSDependencyDef(
@@ -96,10 +91,9 @@ public class PSDependencyDef {
   /**
    * Construct this defintion from its XML representataion.
    *
-   * @param sourceNode The element containing this objects XML state.  May not
-   * be <code>null</code>.  Format is:
-   *
-   * <pre><code>
+   * @param sourceNode The element containing this objects XML state. May not be <code>null</code>.
+   *     Format is:
+   *     <pre><code>
    * &lt;ELEMENT PSXDependencyDef EMPTY >
    * &lt;ATTLIST PSXDependencyDef
    *    objectType CDATA #REQUIRED
@@ -116,10 +110,8 @@ public class PSDependencyDef {
    * >
    * </code></pre>
    *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if <code>sourceNOde</code> is
-   * malformed.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>sourceNOde</code> is malformed.
    */
   public PSDependencyDef(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -167,35 +159,29 @@ public class PSDependencyDef {
   }
 
   /**
-   * Determines if the type this class defines supports ID types.  See
-   * {@link com.percussion.deployer.objectstore.PSApplicationIDTypes
-   * PSApplicationIDTypes} for more info.
+   * Determines if the type this class defines supports ID types. See {@link
+   * com.percussion.deployer.objectstore.PSApplicationIDTypes PSApplicationIDTypes} for more info.
    *
-   * @return <code>true</code> if it supports Id Types, <code>false</code> if
-   * it does not.
+   * @return <code>true</code> if it supports Id Types, <code>false</code> if it does not.
    */
   public boolean supportsIdTypes() {
     return m_supportsIdTypes;
   }
 
   /**
-   * Determines if the dependency id of a dependency of this type may be mapped
-   * from one server to another.  See
-   * {@link com.percussion.deployer.objectstore.PSIdMap PSIdMap} for more info.
+   * Determines if the dependency id of a dependency of this type may be mapped from one server to
+   * another. See {@link com.percussion.deployer.objectstore.PSIdMap PSIdMap} for more info.
    *
-   * @return <code>true</code> if it supports Id mapping, <code>false</code> if
-   * it does not.
+   * @return <code>true</code> if it supports Id mapping, <code>false</code> if it does not.
    */
   public boolean supportsIdMapping() {
     return m_supportsIdMapping;
   }
 
   /**
-   * Determines if this dependency type supports adding user depedencies as
-   * child dependencies..
+   * Determines if this dependency type supports adding user depedencies as child dependencies..
    *
-   * @return <code>true</code> if it is suppported, <code>false</code> if
-   * it does not.
+   * @return <code>true</code> if it is suppported, <code>false</code> if it does not.
    */
   public boolean supportsUserDependencies() {
     return m_supportsUserDependencies;
@@ -213,49 +199,44 @@ public class PSDependencyDef {
   /**
    * Determines if this def represents a deployable element.
    *
-   * @return <code>true</code> if it represents a deployable element,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if it represents a deployable element, <code>false</code> otherwise.
    */
   public boolean isDeployableElement() {
     return m_isDeployableElement;
   }
 
   /**
-   * Determines if this def represents a dependency that can be returned as an
-   * ancestor of another dependency.
+   * Determines if this def represents a dependency that can be returned as an ancestor of another
+   * dependency.
    *
-   * @return <code>true</code> if it can be an ancestor,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if it can be an ancestor, <code>false</code> otherwise.
    */
   public boolean canBeAncestor() {
     return m_canBeAncestor;
   }
 
   /**
-   * Determines if this def represents a dependency that can have a parent id
-   * specified.
+   * Determines if this def represents a dependency that can have a parent id specified.
    *
-   * @return <code>true</code> if it supports specifying a parent id,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if it supports specifying a parent id, <code>false</code> otherwise.
    */
   public boolean supportsParentId() {
     return m_supportsParentId;
   }
 
   /**
-   * Determines if this def represents a dependency that should auto-expand in
-   * to display all local dependencies in the dependency tree in the UI.
+   * Determines if this def represents a dependency that should auto-expand in to display all local
+   * dependencies in the dependency tree in the UI.
    *
-   * @return <code>true</code> if it should auto-expand, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it should auto-expand, <code>false</code> otherwise.
    */
   public boolean shouldAutoExpand() {
     return m_autoExpand;
   }
 
   /**
-   * Get guid type that corresponds to this def's object type, may be used to
-   * construct a <code>PSTypeEnum</code>.
+   * Get guid type that corresponds to this def's object type, may be used to construct a <code>
+   * PSTypeEnum</code>.
    *
    * @return The type, may be <code>null</code>, never empty.
    */
@@ -263,85 +244,74 @@ public class PSDependencyDef {
     return m_guidType;
   }
 
-  /**
-   * Constant for this object's root XML node.
-   */
+  /** Constant for this object's root XML node. */
   public static final String XML_NODE_NAME = "PSXDependencyDef";
 
   /**
-   * The type of object this class defines. Initialized during the ctor, never
-   * <code>null</code> or empty or modified after that.
+   * The type of object this class defines. Initialized during the ctor, never <code>null</code> or
+   * empty or modified after that.
    */
   private String m_objectType;
 
   /**
-   * The name of the type of object this class defines. Initialized during the
-   * ctor, never <code>null</code> or empty or modified after that.
+   * The name of the type of object this class defines. Initialized during the ctor, never <code>
+   * null</code> or empty or modified after that.
    */
   private String m_objectTypeName;
 
   /**
-   * The name of the class that handles this dependency type at runtime.
-   * Initialized during the ctor, never <code>null</code> or empty or modified
-   * after that.
+   * The name of the class that handles this dependency type at runtime. Initialized during the
+   * ctor, never <code>null</code> or empty or modified after that.
    */
   private String m_handlerClass;
 
   /**
-   * <code>true</code> if this dependency type supports Id type definitions,
-   * <code>false</code> otherwise.  Initialized during the ctor, never
-   * modified after that.
+   * <code>true</code> if this dependency type supports Id type definitions, <code>false</code>
+   * otherwise. Initialized during the ctor, never modified after that.
    */
   private boolean m_supportsIdTypes = false;
 
   /**
-   * <code>true</code> if this dependency type supports Id mapping,
-   * <code>false</code> otherwise.  Initialized during the ctor, never
-   * modified after that.
+   * <code>true</code> if this dependency type supports Id mapping, <code>false</code> otherwise.
+   * Initialized during the ctor, never modified after that.
    */
   private boolean m_supportsIdMapping = false;
 
   /**
-   * <code>true</code> if this dependency type supports adding user
-   * dependencies, <code>false</code> otherwise.  Initialized during the ctor,
-   * modified after that.
+   * <code>true</code> if this dependency type supports adding user dependencies, <code>false</code>
+   * otherwise. Initialized during the ctor, modified after that.
    */
   private boolean m_supportsUserDependencies = false;
 
   /**
-   * <code>true</code> if this dependency type represents a deployable element,
-   * <code>false</code> otherwise.  Initialized during the ctor,
-   * modified after that.
+   * <code>true</code> if this dependency type represents a deployable element, <code>false</code>
+   * otherwise. Initialized during the ctor, modified after that.
    */
   private boolean m_isDeployableElement = false;
 
   /**
-   * <code>true</code> if this dependency type can be an ancestor of another
-   * type, <code>false</code> otherwise.  Used to avoid searching on extremely
-   * large numbers of possible ancestors. Initialized during the ctor,
-   * modified after that.
+   * <code>true</code> if this dependency type can be an ancestor of another type, <code>false
+   * </code> otherwise. Used to avoid searching on extremely large numbers of possible ancestors.
+   * Initialized during the ctor, modified after that.
    */
   private boolean m_canBeAncestor = true;
 
   /**
-   * <code>true</code> if a dependency of this type can specify a parent id,
-   * <code>false</code> otherwise.  Initialized during the ctor, never
-   * modified after that.
+   * <code>true</code> if a dependency of this type can specify a parent id, <code>false</code>
+   * otherwise. Initialized during the ctor, never modified after that.
    */
   private boolean m_supportsParentId = true;
 
   /**
-   * <code>true</code> if the dependency tree in the UI should auto-expand
-   * to display all local dependencies, <code>false</code> if it should not
-   * auto-expand.  Defaults to <code>true</code>, set during the ctor, never
-   * modified after that.
+   * <code>true</code> if the dependency tree in the UI should auto-expand to display all local
+   * dependencies, <code>false</code> if it should not auto-expand. Defaults to <code>true</code>,
+   * set during the ctor, never modified after that.
    */
   private boolean m_autoExpand = true;
 
   /**
-   * Guid type in it's string format, used to map the dependency type to a
-   * <code>PSTypeEnum</code> type, may be <code>null</code> if the type cannot
-   * be mapped.
+   * Guid type in it's string format, used to map the dependency type to a <code>PSTypeEnum</code>
+   * type, may be <code>null</code> if the type cannot be mapped.
    */
   private String m_guidType = null;
 

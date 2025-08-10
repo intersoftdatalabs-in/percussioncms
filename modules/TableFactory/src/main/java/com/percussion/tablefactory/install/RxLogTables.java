@@ -37,13 +37,13 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * This class provides all functionality to create/maintain the logging tables
- * used in rhythmyx server.
+ * This class provides all functionality to create/maintain the logging tables used in rhythmyx
+ * server.
  */
 public class RxLogTables {
   /**
-   * Create all tables for the rhythmyx logging system. If the logging tables
-   * already exist we skip that steps.
+   * Create all tables for the rhythmyx logging system. If the logging tables already exist we skip
+   * that steps.
    *
    * @param driver the db driver type, not <code>null</code> or empty
    * @param server the database server, not <code>null</code> or empty
@@ -174,16 +174,15 @@ public class RxLogTables {
   }
 
   /**
-   * Create a new database connection for the provided driver type. Use the
-   * given server configuration to get the driver class. The caller of this
-   * function is responsible for closing the connection.
+   * Create a new database connection for the provided driver type. Use the given server
+   * configuration to get the driver class. The caller of this function is responsible for closing
+   * the connection.
    *
    * @param driver the db driver type
    * @param server the database server
    * @param db the database to be used
    * @param uid the user Id
-   * @param pw the user password
-   * return the created connection, may be <code>null</code>
+   * @param pw the user password return the created connection, may be <code>null</code>
    * @throws SQLException if any database related error occurred
    */
   public static Connection createConnection(
@@ -235,15 +234,14 @@ public class RxLogTables {
   }
 
   /**
-   * Returns a newly created database connection. The caller of this function
-   * is responsible for closing the connection.
-   * @param props contains the required database connection parameters,
-   * never <code>null</code>
+   * Returns a newly created database connection. The caller of this function is responsible for
+   * closing the connection.
+   *
+   * @param props contains the required database connection parameters, never <code>null</code>
    * @return a newly created database connection, never <code>null</code>
-   * @throws SQLException if database connection using the parameters
-   * specified in the property file fails.
-   * @throws PSJdbcTableFactoryException if database connection using the
-   * datasource object fails.
+   * @throws SQLException if database connection using the parameters specified in the property file
+   *     fails.
+   * @throws PSJdbcTableFactoryException if database connection using the datasource object fails.
    * @throws IllegalArgumentException if props is <code>null</code>
    */
   public static Connection createConnection(Properties props)
@@ -258,9 +256,8 @@ public class RxLogTables {
   }
 
   /**
-   * Tests if a table with the given name exists in the current database. Three
-   * attempts are made: 1st we try the name as is, 2nd we try the name all
-   * uppercase and last we try it all lower case.
+   * Tests if a table with the given name exists in the current database. Three attempts are made:
+   * 1st we try the name as is, 2nd we try the name all uppercase and last we try it all lower case.
    *
    * @param md the database meta data to use
    * @param table the table name we are looking for
@@ -292,8 +289,9 @@ public class RxLogTables {
 
   /**
    * Adds the jar file URL to the internal list of jdbc driver URLs.
-   * @param jarUrl the jar file URL to be added to the internal list of
-   * jdbc driver URLs, may not be <code>null</code>
+   *
+   * @param jarUrl the jar file URL to be added to the internal list of jdbc driver URLs, may not be
+   *     <code>null</code>
    * @throws IllegalArgumentException if jarUrl is <code>null</code>
    */
   public static void addJarFileUrl(URL jarUrl) {
@@ -302,8 +300,6 @@ public class RxLogTables {
     m_jarUrls.add(jarUrl);
   }
 
-  /**
-   * the list of jar file URLs for jdbc drivers, initially <code>null</code>
-   */
+  /** the list of jar file URLs for jdbc drivers, initially <code>null</code> */
   private static List m_jarUrls = null;
 }

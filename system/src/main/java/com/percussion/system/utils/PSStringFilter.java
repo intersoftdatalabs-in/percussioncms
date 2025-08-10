@@ -21,35 +21,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * This class wraps 1 or more PSPatternMatcher objects to create a filter
- * for any arbitrary string. The filters use SQL LIKE syntax for pattern
- * matching: % matches 0 or more chars, _ matches any single char.
+ * This class wraps 1 or more PSPatternMatcher objects to create a filter for any arbitrary string.
+ * The filters use SQL LIKE syntax for pattern matching: % matches 0 or more chars, _ matches any
+ * single char.
  */
 public class PSStringFilter {
   /**
-   * Creates a filter that will check any text against all of the supplied
-   * patterns, OR'd together. For example, to find all users whose name
-   * begins with a or b, you would supply 2 patterns (assuming you were
-   * using SQL LIKE syntax):
+   * Creates a filter that will check any text against all of the supplied patterns, OR'd together.
+   * For example, to find all users whose name begins with a or b, you would supply 2 patterns
+   * (assuming you were using SQL LIKE syntax):
+   *
    * <ul>
-   *    <li>a%</li>
-   *    <li>b%</li>
+   *   <li>a%
+   *   <li>b%
    * </ul>
    *
-   * @param filterPatterns A set of patterns to use when filtering text.
-   *    All patterns are OR'd together. A <code>null</code> string or an
-   *    empty or <code>null</code> array matches nothing.
-   *
-   * @param matchOne The character to use in a filter pattern to match any
-   *    single character in the filtered text. For SQL, this is _, for
-   *    DOS it's ?.
-   *
-   * @param matchZeroOrMore The character to use in a filter pattern to
-   *    match 0 or more characters in the filtered text. For SQL this is
-   *    %, for DOS it's *.
-   *
-   * @param caseSensitive if <code>true</code> case sensitive match is done,
-   *    otherwise not.
+   * @param filterPatterns A set of patterns to use when filtering text. All patterns are OR'd
+   *     together. A <code>null</code> string or an empty or <code>null</code> array matches
+   *     nothing.
+   * @param matchOne The character to use in a filter pattern to match any single character in the
+   *     filtered text. For SQL, this is _, for DOS it's ?.
+   * @param matchZeroOrMore The character to use in a filter pattern to match 0 or more characters
+   *     in the filtered text. For SQL this is %, for DOS it's *.
+   * @param caseSensitive if <code>true</code> case sensitive match is done, otherwise not.
    */
   public PSStringFilter(
       String[] filterPatterns, char matchOne, char matchZeroOrMore, boolean caseSensitive) {
@@ -64,14 +58,10 @@ public class PSStringFilter {
   }
 
   /**
-   * Determines whether the supplied text matches the pattern as specified
-   * in the ctor.
+   * Determines whether the supplied text matches the pattern as specified in the ctor.
    *
-   * @param text The string to match against the pattern. May not be
-   *    <code>null</code>.
-   *
+   * @param text The string to match against the pattern. May not be <code>null</code>.
    * @return <code>true</code> if it matches, <code>false</code> otherwise
-   *
    * @throws IllegalArgumentException if text is <code>null</code>.
    */
   public boolean accept(String text) {
@@ -88,17 +78,14 @@ public class PSStringFilter {
   }
 
   /**
-   * Create a String filter from a semicolon delimited list of filter patterns.
-   * For each pattern '_' will be used to indicate to match any one character
-   * and '%' will be used to indicate to match any sequence of zero or more
-   * characters. Note that semi-colon may be used to escape a semi-colon,
-   * allowing semi-colons to be part of a filter pattern. Comparison is case
-   * sensitive while matching the pattern.
+   * Create a String filter from a semicolon delimited list of filter patterns. For each pattern '_'
+   * will be used to indicate to match any one character and '%' will be used to indicate to match
+   * any sequence of zero or more characters. Note that semi-colon may be used to escape a
+   * semi-colon, allowing semi-colons to be part of a filter pattern. Comparison is case sensitive
+   * while matching the pattern.
    *
-   * @param filter The filter to use.  <code>null</code> will indicate
-   * that ALL strings are a match. Empty will indicate that only empty strings
-   * are a match.
-   *
+   * @param filter The filter to use. <code>null</code> will indicate that ALL strings are a match.
+   *     Empty will indicate that only empty strings are a match.
    * @see #PSStringFilter(String[], char, char, boolean)
    */
   public PSStringFilter(String filter) {
@@ -106,20 +93,16 @@ public class PSStringFilter {
   }
 
   /**
-   * Takes a character delimited list and converts it to an array. The
-   * caller specifies the delimiter and the delimiter escape char.
+   * Takes a character delimited list and converts it to an array. The caller specifies the
+   * delimiter and the delimiter escape char.
    *
-   * @param delimitedList A list of items delimited by the specified char.
-   *    May be <code>null</code>.
-   *
+   * @param delimitedList A list of items delimited by the specified char. May be <code>null</code>.
    * @param delim The char used to separate the items in the supplied list.
-   *
-   * @param delimEscape The char used to escape the delim if it needs to be
-   *    included as part of an item.
-   *
-   * @return An array of strings. The length of the array will be equal to
-   *    one greater than the number of unescaped delimiters. If the supplied
-   *    list is <code>null</code>, <code>null</code> is returned.
+   * @param delimEscape The char used to escape the delim if it needs to be included as part of an
+   *     item.
+   * @return An array of strings. The length of the array will be equal to one greater than the
+   *     number of unescaped delimiters. If the supplied list is <code>null</code>, <code>null
+   *     </code> is returned.
    */
   public static String[] parseDelimitedList(String delimitedList, char delim, char delimEscape) {
     if (null == delimitedList) return null;

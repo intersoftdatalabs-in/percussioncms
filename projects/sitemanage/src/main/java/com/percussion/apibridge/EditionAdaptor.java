@@ -29,9 +29,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Adaptor for managing Editions and publishing jobs in Percussion CMS.
- */
+/** Adaptor for managing Editions and publishing jobs in Percussion CMS. */
 @PSSiteManageBean
 public class EditionAdaptor implements IEditionsAdaptor {
 

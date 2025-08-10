@@ -35,11 +35,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Finds the default page template for a given content item (by content type)
- * on a specified site.
+ * Finds the default page template for a given content item (by content type) on a specified site.
  *
  * @author DavidBenua
- *
  */
 public class DefaultPageTemplateBean implements ItemTemplateService {
 
@@ -58,11 +56,12 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
   }
 
   /**
-   * Finds the first default page (or binary) template for the content type of the indicated content item that is
-   * available on the site.
+   * Finds the first default page (or binary) template for the content type of the indicated content
+   * item that is available on the site.
+   *
    * @param site the site
    * @param contentId the content item.
-   * @return the default template.  Never <code>null</code>.
+   * @return the default template. Never <code>null</code>.
    * @throws SiteLookUpException when the template cannot be located or a service error occurs.
    */
   public IPSAssemblyTemplate findTemplate(IPSSite site, IPSGuid contentId)

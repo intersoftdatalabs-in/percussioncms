@@ -25,61 +25,57 @@ import java.util.List;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Container object for a list of resource files (JS or CSS).
- */
+/** Container object for a list of resource files (JS or CSS). */
 @XmlRootElement(name = "WidgetBuilderResourceListData")
 @JsonRootName("WidgetBuilderResourceListData")
 public class PSWidgetBuilderResourceListData extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private List<String> resourceList = new ArrayList<>();
+  private List<String> resourceList = new ArrayList<>();
 
-    public static PSWidgetBuilderResourceListData fromXml(String resourceXml) {
-        return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
-    }
+  public static PSWidgetBuilderResourceListData fromXml(String resourceXml) {
+    return PSSerializerUtils.unmarshal(resourceXml, PSWidgetBuilderResourceListData.class);
+  }
 
-    public String toXml() {
-        return PSSerializerUtils.marshal(this);
-    }
+  public String toXml() {
+    return PSSerializerUtils.marshal(this);
+  }
 
-    /**
-     * Get the list of resources in this list.
-     *
-     * @return The list, not {@code null}, may be empty.
-     */
-    public List<String> getResourceList() {
-        return resourceList;
-    }
+  /**
+   * Get the list of resources in this list.
+   *
+   * @return The list, not {@code null}, may be empty.
+   */
+  public List<String> getResourceList() {
+    return resourceList;
+  }
 
-    /**
-     * Set the list of resources.
-     *
-     * @param resourceList The list, not {@code null}, may be empty.
-     */
-    public void setResourceList(List<String> resourceList) {
-        Objects.requireNonNull(resourceList, "resourceList must not be null");
-        this.resourceList = resourceList;
-    }
+  /**
+   * Set the list of resources.
+   *
+   * @param resourceList The list, not {@code null}, may be empty.
+   */
+  public void setResourceList(List<String> resourceList) {
+    Objects.requireNonNull(resourceList, "resourceList must not be null");
+    this.resourceList = resourceList;
+  }
 
-    @Override
-    public String toString() {
-        return "PSWidgetBuilderResourceListData{" +
-                "resourceList=" + resourceList +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderResourceListData{" + "resourceList=" + resourceList + '}';
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
-        var that = (PSWidgetBuilderResourceListData) o;
-        return Objects.equals(getResourceList(), that.getResourceList());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderResourceListData)) return false;
+    var that = (PSWidgetBuilderResourceListData) o;
+    return Objects.equals(getResourceList(), that.getResourceList());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getResourceList());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getResourceList());
+  }
 }

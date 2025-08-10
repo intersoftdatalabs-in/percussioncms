@@ -24,18 +24,17 @@ import java.util.Locale;
 /**
  * The PSDataEncryptionError class is used to report an encryption error.
  *
- *
- * @author      Chad Loder
- * @version      1.0
- * @since      1.0
+ * @author Chad Loder
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataEncryptionError extends PSLogError {
 
   /**
    * Report a data encryption exception
    *
-   * @param      errorCode   the specific error code returned
-   * @param   args the error arguments
+   * @param errorCode the specific error code returned
+   * @param args the error arguments
    */
   public PSDataEncryptionError(int errorCode, Object[] args) {
     super(0);
@@ -43,10 +42,7 @@ public class PSDataEncryptionError extends PSLogError {
     m_errorArgs = args;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

@@ -21,39 +21,29 @@ import com.percussion.log.PSLogError;
 import java.util.Objects;
 
 /**
- * The PSBackEndError class is the base class for all back-end (database)
- * error classes.
+ * The PSBackEndError class is the base class for all back-end (database) error classes.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSBackEndError extends PSLogError {
   /**
-   * Report an error encountered against the specified
-   * back-end (database).
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
+   * Report an error encountered against the specified back-end (database).
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      errorCode   the error code reported by the back-end
-   *                           (database)
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param applId the id of the application that generated the error
+   * @param errorCode the error code reported by the back-end (database)
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   protected PSBackEndError(int applId, int errorCode, Object[] errorParams) {
     super(applId);
@@ -83,7 +73,6 @@ public abstract class PSBackEndError extends PSLogError {
    * Compares this object with another for equality.
    *
    * @param obj The object to compare with.
-   *
    * @return {@code true} if the objects are equal, {@code false} otherwise.
    */
   @Override

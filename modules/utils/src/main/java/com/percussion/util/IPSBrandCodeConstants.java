@@ -22,9 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Constants representing the IDs of components.
- */
+/** Constants representing the IDs of components. */
 public interface IPSBrandCodeConstants {
   public static final int REPOSITORY = 1;
   public static final int SERVER = 2;
@@ -45,47 +43,31 @@ public interface IPSBrandCodeConstants {
   public static final int EKTRON_WEP_XML = 65536;
   public static final int EKTRON_WEBIMAGEFX = 131072;
 
-  /**
-   * Represents types of servers for which codes can be generated.
-   */
+  /** Represents types of servers for which codes can be generated. */
   public enum ServerTypes {
-    /**
-     * Development server
-     */
+    /** Development server */
     DEVELOPMENT(0, "Development"),
 
-    /**
-     * Production server
-     */
+    /** Production server */
     PRODUCTION(1, "Production"),
 
-    /**
-     * Test server
-     */
+    /** Test server */
     TEST(2, "Test"),
 
-    /**
-     * Failover server
-     */
+    /** Failover server */
     FAIL0VER(3, "Fail Over"),
 
-    /**
-     * Disaster Recovery server
-     */
+    /** Disaster Recovery server */
     DISATER_RECOVERY(4, "Disaster Recovery"),
 
-    /**
-     * Publishing Hub
-     */
+    /** Publishing Hub */
     PUBLISHING_HUB(5, "Publishing Hub");
 
     /**
      * Constructor
      *
      * @param value The integer representation of this type.
-     *
-     * @param displayName The display name, assumed not <code>null</code> or
-     * empty.
+     * @param displayName The display name, assumed not <code>null</code> or empty.
      */
     private ServerTypes(int value, String displayName) {
       mi_value = value;
@@ -112,26 +94,21 @@ public interface IPSBrandCodeConstants {
     }
 
     /**
-     * Determine if this type is an extended server type.  These are types
-     * that are not available for codes that don't support extended product
-     * info.
+     * Determine if this type is an extended server type. These are types that are not available for
+     * codes that don't support extended product info.
      *
-     * @return <code>true</code> if it is extended, <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if it is extended, <code>false</code> otherwise.
      */
     public boolean isExtendedServerType() {
       return mi_value > PRODUCTION.mi_value;
     }
 
     /**
-     * Lookup enum value by ordinal. Ordinals should be unique. If they are
-     * not unique, then the first enum value with a matching ordinal is
-     * returned.
+     * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the
+     * first enum value with a matching ordinal is returned.
      *
      * @param s The enum value
-     *
      * @return an enumerated value, never <code>null</code>.
-     *
      * @throws IllegalArgumentException if the value does not match
      */
     public static ServerTypes valueOf(int s) throws IllegalArgumentException {
@@ -143,8 +120,7 @@ public interface IPSBrandCodeConstants {
     }
 
     /**
-     * Gets list of server types sorted on display name ascending
-     * case-insensitive.
+     * Gets list of server types sorted on display name ascending case-insensitive.
      *
      * @return The list, never <code>null</code> or empty.
      */
@@ -164,53 +140,35 @@ public interface IPSBrandCodeConstants {
       return sortedTypes;
     }
 
-    /**
-     * The value supplied during construction, immutable.
-     */
+    /** The value supplied during construction, immutable. */
     private int mi_value;
 
-    /**
-     * The display name supplied during construction, immutable.
-     */
+    /** The display name supplied during construction, immutable. */
     private String mi_name;
   }
 
-  /**
-   * Represents types of evals for which codes can be generated.
-   */
+  /** Represents types of evals for which codes can be generated. */
   public enum EvalTypes {
-    /**
-     * Development server
-     */
+    /** Development server */
     NOT_EVAL(0, "Non-Eval"),
 
-    /**
-     * Production server
-     */
+    /** Production server */
     M30_DAY(1, "30 Day Eval"),
 
-    /**
-     * Test server
-     */
+    /** Test server */
     M60_DAY(2, "60 Day Eval"),
 
-    /**
-     * Failover server
-     */
+    /** Failover server */
     M90_DAY(3, "90 Day Eval"),
 
-    /**
-     * Disaster Recovery server
-     */
+    /** Disaster Recovery server */
     TERM(4, "Term License");
 
     /**
      * Constructor
      *
      * @param value The integer representation of this type.
-     *
-     * @param displayName The display name, assumed not <code>null</code> or
-     * empty.
+     * @param displayName The display name, assumed not <code>null</code> or empty.
      */
     private EvalTypes(int value, String displayName) {
       mi_value = value;
@@ -237,26 +195,21 @@ public interface IPSBrandCodeConstants {
     }
 
     /**
-     * Determine if this type is an extended server type.  These are types
-     * that are not available for codes that don't support extended product
-     * info.
+     * Determine if this type is an extended server type. These are types that are not available for
+     * codes that don't support extended product info.
      *
-     * @return <code>true</code> if it is extended, <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if it is extended, <code>false</code> otherwise.
      */
     public boolean isExtendedEvalType() {
       return mi_value > M90_DAY.mi_value;
     }
 
     /**
-     * Lookup enum value by ordinal. Ordinals should be unique. If they are
-     * not unique, then the first enum value with a matching ordinal is
-     * returned.
+     * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the
+     * first enum value with a matching ordinal is returned.
      *
      * @param s The enum value
-     *
      * @return an enumerated value, never <code>null</code>.
-     *
      * @throws IllegalArgumentException if the value does not match
      */
     public static EvalTypes valueOf(int s) throws IllegalArgumentException {
@@ -267,14 +220,10 @@ public interface IPSBrandCodeConstants {
       throw new IllegalArgumentException("No match for value: " + s);
     }
 
-    /**
-     * The value supplied during construction, immutable.
-     */
+    /** The value supplied during construction, immutable. */
     private int mi_value;
 
-    /**
-     * The display name supplied during construction, immutable.
-     */
+    /** The display name supplied during construction, immutable. */
     private String mi_name;
   }
 }

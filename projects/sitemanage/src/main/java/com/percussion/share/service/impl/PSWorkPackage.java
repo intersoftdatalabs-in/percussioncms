@@ -24,76 +24,76 @@ import com.percussion.share.service.impl.PSThumbnailRunner.Function;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
 /**
- * Represents a unit of work for thumbnail generation.
- * Sunny Sal says: "Work packages—because even code needs a to-do list!"
+ * Represents a unit of work for thumbnail generation. Sunny Sal says: "Work packages—because even
+ * code needs a to-do list!"
  */
 public class PSWorkPackage {
-    private Function function;
-    private String id;
-    private PSPage page;
-    private PSTemplateSummary template;
-    private String siteFolderPath;
-    private PSSiteSummary site;
-    private String fileSuffix;
+  private Function function;
+  private String id;
+  private PSPage page;
+  private PSTemplateSummary template;
+  private String siteFolderPath;
+  private PSSiteSummary site;
+  private String fileSuffix;
 
-    public PSWorkPackage(String id, Function function) {
-        this.id = id;
-        this.function = function;
-    }
+  public PSWorkPackage(String id, Function function) {
+    this.id = id;
+    this.function = function;
+  }
 
-    public Function getFunction() {
-        return function;
-    }
+  public Function getFunction() {
+    return function;
+  }
 
-    public void setFunction(Function function) {
-        this.function = function;
-    }
+  public void setFunction(Function function) {
+    this.function = function;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public PSTemplateSummary getTemplate() {
-        return template;
-    }
+  public PSTemplateSummary getTemplate() {
+    return template;
+  }
 
-    public void setTemplate(PSTemplateSummary template) {
-        this.template = template;
-    }
+  public void setTemplate(PSTemplateSummary template) {
+    this.template = template;
+  }
 
-    public PSPage getPage() {
-        return page;
-    }
+  public PSPage getPage() {
+    return page;
+  }
 
-    public void setPage(PSPage page) {
-        this.page = page;
-    }
+  public void setPage(PSPage page) {
+    this.page = page;
+  }
 
-    public String getSiteFolderPath() {
-        return siteFolderPath;
-    }
+  public String getSiteFolderPath() {
+    return siteFolderPath;
+  }
 
-    public void setSiteFolderPath(String siteFolderPath) {
-        this.siteFolderPath = siteFolderPath;
-    }
+  public void setSiteFolderPath(String siteFolderPath) {
+    this.siteFolderPath = siteFolderPath;
+  }
 
-    public PSSiteSummary getSite() {
-        return site;
-    }
+  public PSSiteSummary getSite() {
+    return site;
+  }
 
-    public void setSite(PSSiteSummary site) {
-        this.site = site;
-    }
+  public void setSite(PSSiteSummary site) {
+    this.site = site;
+  }
 
-    public String getFileSuffix() {
-        return fileSuffix;
-    }
+  public String getFileSuffix() {
+    return fileSuffix;
+  }
 
-    public void setFileSuffix(String fileSuffix) {
-        this.fileSuffix = fileSuffix;
-    }
+  public void setFileSuffix(String fileSuffix) {
+    this.fileSuffix = fileSuffix;
+  }
 }

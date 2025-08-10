@@ -20,22 +20,18 @@ package com.percussion.server;
 import java.util.Date;
 
 /**
- * Represents a request to lock the server.  May represent either a requested
- * lock that did not succeed, or a successfully acquired lock.
- * {@link #getLockId()} will return <code>-1</code> if this lock was not
- * successfully acquired.
+ * Represents a request to lock the server. May represent either a requested lock that did not
+ * succeed, or a successfully acquired lock. {@link #getLockId()} will return <code>-1</code> if
+ * this lock was not successfully acquired.
  */
 public class PSServerLock {
   /**
    * Constructs a server lock.
    *
    * @param lockId The lock id, <code>-1</code> to indicate a failed lock.
-   * @param locker The owner of the lock, may not be <code>null</code> or
-   * empty.
-   * @param lockedResources An array of locked resource flags, each entry is
-   * one of the <code>RESOURCE_xxx</code> flags, may not be
-   * <code>null</code> or empty.
-   *
+   * @param locker The owner of the lock, may not be <code>null</code> or empty.
+   * @param lockedResources An array of locked resource flags, each entry is one of the <code>
+   *     RESOURCE_xxx</code> flags, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
   PSServerLock(int lockId, String locker, int[] lockedResources) {
@@ -72,9 +68,8 @@ public class PSServerLock {
   /**
    * Get the resources that were requested to be locked.
    *
-   * @return An array of resource flags, each one of the
-   * <code>PSServerLockManager.RESOURCE_XXX</code> flags, never
-   * <code>null</code> or empty.
+   * @return An array of resource flags, each one of the <code>PSServerLockManager.RESOURCE_XXX
+   *     </code> flags, never <code>null</code> or empty.
    */
   public int[] getLockedResources() {
     int[] result = new int[m_resources.length];
@@ -85,11 +80,10 @@ public class PSServerLock {
   /**
    * Determine if the specified resource was to be locked.
    *
-   * @param resource The resource to check, should be one of the
-   * <code>PSServerLockManager.RESOURCE_XXX</code> flags.
-   *
-   * @return <code>true</code> if this lock was to lock the specified
-   * <code>resource</code>, <code>false</code> otherwise.
+   * @param resource The resource to check, should be one of the <code>
+   *     PSServerLockManager.RESOURCE_XXX</code> flags.
+   * @return <code>true</code> if this lock was to lock the specified <code>resource</code>, <code>
+   *     false</code> otherwise.
    */
   public boolean isResourceLocked(int resource) {
     boolean isLocked = false;
@@ -118,43 +112,40 @@ public class PSServerLock {
   /**
    * Get the time at which this lock was created.
    *
-   * @return The point in time when this object was constructed, never
-   * <code>null</code>.
+   * @return The point in time when this object was constructed, never <code>null</code>.
    */
   public Date getLockTime() {
     return m_lockTime;
   }
 
   /**
-   * Returns string representation of this lock.  Format is
-   * [lockId]([flags]) - [locker] e.g. "25(0x1) - EnterpriseMgr:admin1"
+   * Returns string representation of this lock. Format is [lockId]([flags]) - [locker] e.g.
+   * "25(0x1) - EnterpriseMgr:admin1"
+   *
    * @return The string, never <code>null</code> or empty.
    */
   public String toString() {
     return m_lockId + " (" + getResourceFlagString() + ") - " + m_locker;
   }
 
-  /**
-   * The id of this lock, initialized during construction,
-   * never modified after that.
-   */
+  /** The id of this lock, initialized during construction, never modified after that. */
   private int m_lockId;
 
   /**
-   * The name of the entitiy requesting this lock, initialized during
-   * construction, never <code>null</code>, empty, or modified after that.
+   * The name of the entitiy requesting this lock, initialized during construction, never <code>null
+   * </code>, empty, or modified after that.
    */
   private String m_locker;
 
   /**
-   * The list of resources to be locked by this lock, initialized during
-   * construction, never <code>null</code>, empty, or modified after that.
+   * The list of resources to be locked by this lock, initialized during construction, never <code>
+   * null</code>, empty, or modified after that.
    */
   private int[] m_resources;
 
   /**
-   * The point in time when this object was created, never <code>null</code>
-   * never <code>null</code> or modified after that.
+   * The point in time when this object was created, never <code>null</code> never <code>null</code>
+   * or modified after that.
    */
   private Date m_lockTime;
 }

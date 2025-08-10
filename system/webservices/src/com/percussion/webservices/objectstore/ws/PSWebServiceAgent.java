@@ -1,18 +1,17 @@
 /*
  * Copyright 1999-2025 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the License for the specific language governing permissions and limitations under the
+ * License.
  */
 package com.percussion.cms.objectstore.ws;
 
@@ -36,26 +35,25 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 /**
- * This class is used to handle the communications between the WebServices
- * and the client. It also contains utility methods that handles soap related
- * operations, such as building soap message/envelopes.
+ * This class is used to handle the communications between the WebServices and the client. It also
+ * contains utility methods that handles soap related operations, such as building soap
+ * message/envelopes.
  */
 public class PSWebServiceAgent {
 
   /**
    * Constructs an instance with connection information.
    *
-   * @param protocol The protocol of the server (of the web service), it must
-   *    be either "http" or "https".
-   * @param server The server name of the web service, may not be
-   *    <code>null</code> or empty.
+   * @param protocol The protocol of the server (of the web service), it must be either "http" or
+   *        "https".
+   * @param server The server name of the web service, may not be <code>null</code> or empty.
    * @param port The port of the web service server.
-   * @param user The user name for the Rhythmyx server, may not be
-   *    <code>null</code> or empty.
+   * @param user The user name for the Rhythmyx server, may not be <code>null</code> or empty.
    * @param password The password of the <code>user</code>.
    */
   public PSWebServiceAgent(String protocol, String server, int port, String user, String password) {
-    if (protocol == null) throw new IllegalArgumentException("protocol may not be null");
+    if (protocol == null)
+      throw new IllegalArgumentException("protocol may not be null");
     if ((!protocol.equals(PROTOCOL_HTTP)) && (!protocol.equals(PROTOCOL_HTTPS)))
       throw new IllegalArgumentException("protocol must be http or https");
     if (server == null || server.trim().length() == 0)
@@ -73,19 +71,18 @@ public class PSWebServiceAgent {
   }
 
   /**
-   * Constructs an instance with connection information, and headers to be
-   * included in the new request.
+   * Constructs an instance with connection information, and headers to be included in the new
+   * request.
    *
-   * @param protocol The protocol of the server (of the web service), it must
-   *    be either "http" or "https".
-   * @param server The server name of the web service, may not be
-   *    <code>null</code> or empty.
+   * @param protocol The protocol of the server (of the web service), it must be either "http" or
+   *        "https".
+   * @param server The server name of the web service, may not be <code>null</code> or empty.
    * @param port The port of the web service server.
-   * @param headers The headers to be set for the request,
-   *    may be <code>null</code>.
+   * @param headers The headers to be set for the request, may be <code>null</code>.
    */
   public PSWebServiceAgent(String protocol, String server, int port, Hashtable headers) {
-    if (protocol == null) throw new IllegalArgumentException("protocol may not be null");
+    if (protocol == null)
+      throw new IllegalArgumentException("protocol may not be null");
     if ((!protocol.equals(PROTOCOL_HTTP)) && (!protocol.equals(PROTOCOL_HTTPS)))
       throw new IllegalArgumentException("protocol must be http or https");
     if (server == null || server.trim().length() == 0)
@@ -100,11 +97,9 @@ public class PSWebServiceAgent {
   /**
    * Creates an operation element from a given name of the operation.
    *
-   * @param operationName The name of the operation, assume not
-   *    <code>null</code> or empty.
+   * @param operationName The name of the operation, assume not <code>null</code> or empty.
    *
-   * @param wsdlPortName The port name of the WSDL. Assume not
-   *    <code>null</code> or empty.
+   * @param wsdlPortName The port name of the WSDL. Assume not <code>null</code> or empty.
    *
    * @return The created XML element, never <code>null</code>.
    */
@@ -118,14 +113,11 @@ public class PSWebServiceAgent {
   /**
    * Creates a soap body for a given operation name and parameters
    *
-   * @param operationName The name of the operation. It may not be
-   *    <code>null</code> or empty.
+   * @param operationName The name of the operation. It may not be <code>null</code> or empty.
    *
-   * @param wsdlPortName The port name of the WSDL. It may not be
-   *    <code>null</code> or empty.
+   * @param wsdlPortName The port name of the WSDL. It may not be <code>null</code> or empty.
    *
-   * @param params The parameters for the created soap body. It may not be
-   *    <code>null</code>.
+   * @param params The parameters for the created soap body. It may not be <code>null</code>.
    *
    * @return The created soap body, never <code>null</code>.
    */
@@ -134,7 +126,8 @@ public class PSWebServiceAgent {
       throw new IllegalArgumentException("operationName may not be null or empty");
     if (wsdlPortName == null || wsdlPortName.trim().length() == 0)
       throw new IllegalArgumentException("wsdlPortName may not be null or empty");
-    if (params == null) throw new IllegalArgumentException("params may not be null");
+    if (params == null)
+      throw new IllegalArgumentException("params may not be null");
 
     Body body = new Body();
     Vector bodyEntries = new Vector();
@@ -151,10 +144,9 @@ public class PSWebServiceAgent {
   }
 
   /**
-   * Get the authenticate header of the soap envelope. It will contain
-   * user name or password if there is no session-id yet, otherwise it will
-   * create the header with the session-id. The session-id can be retrieved
-   * and set from the result of a successful login.
+   * Get the authenticate header of the soap envelope. It will contain user name or password if
+   * there is no session-id yet, otherwise it will create the header with the session-id. The
+   * session-id can be retrieved and set from the result of a successful login.
    *
    * @return The created header, never <code>null</code>
    */
@@ -191,17 +183,14 @@ public class PSWebServiceAgent {
   /**
    * Send a soap body through webservices layer.
    *
-   * @param bodyMsg The soap body that needs to be send. It may not be
-   *    <code>null</code>.
+   * @param bodyMsg The soap body that needs to be send. It may not be <code>null</code>.
    *
-   * @param responseElName The expected element name from the responsed msg.
-   *    It may not be <code>null</code> or empty.
+   * @param responseElName The expected element name from the responsed msg. It may not be
+   *        <code>null</code> or empty.
    *
-   * @return The expected XML element in the responsed envelope body. Never
-   *    <code>null</code>.
+   * @return The expected XML element in the responsed envelope body. Never <code>null</code>.
    *
-   * @throws PSCmsException if received un-expected XML element or an error
-   *    occurs.
+   * @throws PSCmsException if received un-expected XML element or an error occurs.
    */
   public Element sendSoapBody(Body bodyMsg, String responseElName) throws PSCmsException {
     Envelope msgEnv = new Envelope();
@@ -220,26 +209,23 @@ public class PSWebServiceAgent {
   }
 
   /**
-   * Sends an envelope and validates the received envelope with a specified
-   * XML node. In case it unable to send the envelope with an expired
-   * session-id, it will do an automatically relogin and send the
-   * original envelope body the 2nd time. The automatical (re)login is done
-   * by setting the envelope header with user name and password.
-   * The session id from the auto (re)login will be used by all subsequent
-   * communications with the web service server.
+   * Sends an envelope and validates the received envelope with a specified XML node. In case it
+   * unable to send the envelope with an expired session-id, it will do an automatically relogin and
+   * send the original envelope body the 2nd time. The automatical (re)login is done by setting the
+   * envelope header with user name and password. The session id from the auto (re)login will be
+   * used by all subsequent communications with the web service server.
    *
-   * @param msgEnv The to be send message envelope. It may not be
-   *    <code>null</code>
+   * @param msgEnv The to be send message envelope. It may not be <code>null</code>
    *
-   * @param respElName The expected XML node name from the responsed envelope.
-   *    It may not be <code>null</code> or empty.
+   * @param respElName The expected XML node name from the responsed envelope. It may not be
+   *        <code>null</code> or empty.
    *
-   * @return The 1st element of the responsed (or received) envelope body,
-   *    never <code>null</code>.
+   * @return The 1st element of the responsed (or received) envelope body, never <code>null</code>.
    *
    */
   public Element sendEnvelope(Envelope msgEnv, String respElName) throws PSCmsException {
-    if (msgEnv == null) throw new IllegalArgumentException("msgEnv may not be null");
+    if (msgEnv == null)
+      throw new IllegalArgumentException("msgEnv may not be null");
     if (respElName == null || respElName.trim().length() == 0)
       throw new IllegalArgumentException("respElName may not be null or empty");
 
@@ -253,7 +239,8 @@ public class PSWebServiceAgent {
       responseEl = doSendEnvelope(msgEnv);
     }
 
-    if (!hasSessionId) setSessionId(responseEl);
+    if (!hasSessionId)
+      setSessionId(responseEl);
 
     if (!responseEl.getNodeName().equals(respElName)) {
       Object[] args = {respElName, PSXmlDocumentBuilder.toString(responseEl)};
@@ -264,11 +251,10 @@ public class PSWebServiceAgent {
   }
 
   /**
-   * Set the session based on the response, each response always contains
-   * the session cookie as well as all other defined cookies.
+   * Set the session based on the response, each response always contains the session cookie as well
+   * as all other defined cookies.
    *
-   * @param el the response data to be scanned for the sessionid, assumed not
-   * <code>null</code>
+   * @param el the response data to be scanned for the sessionid, assumed not <code>null</code>
    */
   private void setSessionId(Element el) {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(el);
@@ -277,14 +263,12 @@ public class PSWebServiceAgent {
   }
 
   /**
-   * Determines whether the given response element is caused by an expired
-   * session-id.
+   * Determines whether the given response element is caused by an expired session-id.
    *
-   * @param responseEl The to be validated XML element, assume not
-   *    <code>null</code>
+   * @param responseEl The to be validated XML element, assume not <code>null</code>
    *
-   * @return <code>true</code> if the response element is caused by an
-   *    expired session-id; <code>false</code> otherwise.
+   * @return <code>true</code> if the response element is caused by an expired session-id;
+   *         <code>false</code> otherwise.
    */
   private boolean isSessionExpireResponse(Element responseEl) {
     boolean isSessionExpire = false;
@@ -312,8 +296,7 @@ public class PSWebServiceAgent {
   /**
    * Sends a message envelope to the server of web services.
    *
-   * @param msgEnv The to be send message envelope, assume not
-   *    <code>null</code>
+   * @param msgEnv The to be send message envelope, assume not <code>null</code>
    *
    * @return The 1st XML element in the body of the responsed envelope.
    *
@@ -363,50 +346,43 @@ public class PSWebServiceAgent {
    * @throws java.net.MalformedURLException if an error occurs.
    */
   private URL getURL() throws java.net.MalformedURLException {
-    String sUrl =
-        m_protocol
-            + "://"
-            + m_server
-            + ":"
-            + Integer.toString(m_port)
-            + "/RxServices/servlet/messagerouter";
+    String sUrl = m_protocol + "://" + m_server + ":" + Integer.toString(m_port)
+        + "/RxServices/servlet/messagerouter";
     return new URL(sUrl);
   }
 
   /**
-   * The protocol of the web service server, initialized by constructor,
-   * it is either <code>PROTOCOL_HTTP</code> or <code>PROTOCOL_HTTPS</code>
-   * and never modified after that.
+   * The protocol of the web service server, initialized by constructor, it is either
+   * <code>PROTOCOL_HTTP</code> or <code>PROTOCOL_HTTPS</code> and never modified after that.
    */
   private String m_protocol;
 
   /**
-   * The server name of the web services, initialized by constructor, never
-   * modified, <code>null</code> or empty after that.
+   * The server name of the web services, initialized by constructor, never modified,
+   * <code>null</code> or empty after that.
    */
   private String m_server;
 
   /**
-   * The port of the web services, initialized by constructor, never modified
-   * after that.
+   * The port of the web services, initialized by constructor, never modified after that.
    */
   private int m_port;
 
   /**
-   * The user name of the Rhythmyx server, initialized by constructor, never
-   * modified, <code>null</code> or empty after that.
+   * The user name of the Rhythmyx server, initialized by constructor, never modified,
+   * <code>null</code> or empty after that.
    */
   private String m_user;
 
   /**
-   * The password of the user, initialized by constructor, never modified,
-   * <code>null</code> or empty after that.
+   * The password of the user, initialized by constructor, never modified, <code>null</code> or
+   * empty after that.
    */
   private String m_password;
 
   /**
-   * The session id from a successful login. It may be <code>null</code> if
-   * has not done a successful login yet.
+   * The session id from a successful login. It may be <code>null</code> if has not done a
+   * successful login yet.
    */
   private String m_sessionId = null;
 

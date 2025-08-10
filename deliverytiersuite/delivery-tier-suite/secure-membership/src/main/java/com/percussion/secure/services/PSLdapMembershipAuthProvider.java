@@ -53,11 +53,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * Works to provide authentication for Active Directory users
- * using Spring Security
+ * Works to provide authentication for Active Directory users using Spring Security
  *
  * @author Shweta Patel
- *
  */
 public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProvider {
   private static final Pattern SUB_ERROR_CODE = Pattern.compile(".*data\\s([0-9a-f]{3,4}).*");
@@ -172,8 +170,8 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
   }
 
   /**
-   * Creates the user authority list from the values of the {@code memberOf} attribute obtained from the user's
-   * Active Directory entry.
+   * Creates the user authority list from the values of the {@code memberOf} attribute obtained from
+   * the user's Active Directory entry.
    */
   @Override
   protected Collection<? extends GrantedAuthority> loadUserAuthorities(
@@ -345,14 +343,17 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
   }
 
   /**
-   * By default, a failed authentication (LDAP error 49) will result in a {@code BadCredentialsException}.
-   * <p>
-   * If this property is set to {@code true}, the exception message from a failed bind attempt will be parsed
-   * for the AD-specific error code and a {@link CredentialsExpiredException}, {@link DisabledException},
-   * {@link AccountExpiredException} or {@link LockedException} will be thrown for the corresponding codes. All
-   * other codes will result in the default {@code BadCredentialsException}.
+   * By default, a failed authentication (LDAP error 49) will result in a {@code
+   * BadCredentialsException}.
    *
-   * @param convertSubErrorCodesToExceptions {@code true} to raise an exception based on the AD error code.
+   * <p>If this property is set to {@code true}, the exception message from a failed bind attempt
+   * will be parsed for the AD-specific error code and a {@link CredentialsExpiredException}, {@link
+   * DisabledException}, {@link AccountExpiredException} or {@link LockedException} will be thrown
+   * for the corresponding codes. All other codes will result in the default {@code
+   * BadCredentialsException}.
+   *
+   * @param convertSubErrorCodesToExceptions {@code true} to raise an exception based on the AD
+   *     error code.
    */
   public void setConvertSubErrorCodesToExceptions(boolean convertSubErrorCodesToExceptions) {
     this.convertSubErrorCodesToExceptions = convertSubErrorCodesToExceptions;

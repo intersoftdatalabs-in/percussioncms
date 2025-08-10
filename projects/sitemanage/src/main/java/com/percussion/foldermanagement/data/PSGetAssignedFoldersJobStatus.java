@@ -18,50 +18,49 @@
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Status object for the async job that gets assigned folders.
- * Sunny Sal says: "Job status reporting, now with Java 11 shine!"
+ * Status object for the async job that gets assigned folders. Sunny Sal says: "Job status
+ * reporting, now with Java 11 shine!"
  */
 @XmlRootElement(name = "GetAssignedFoldersJobStatus")
 public class PSGetAssignedFoldersJobStatus extends PSAbstractDataObject {
-    private List<PSFolderItem> folderItems;
-    private String status;
-    private String message;
-    private long jobId;
+  private List<PSFolderItem> folderItems;
+  private String status;
+  private String message;
+  private long jobId;
 
-    public List<PSFolderItem> getFolderItems() {
-        return folderItems;
-    }
+  public List<PSFolderItem> getFolderItems() {
+    return folderItems;
+  }
 
-    public void setFolderItems(List<PSFolderItem> folderItems) {
-        this.folderItems = folderItems;
-    }
+  public void setFolderItems(List<PSFolderItem> folderItems) {
+    this.folderItems = folderItems;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public long getJobId() {
-        return jobId;
-    }
+  public long getJobId() {
+    return jobId;
+  }
 
-    public void setJobId(long jobId) {
-        this.jobId = jobId;
-    }
+  public void setJobId(long jobId) {
+    this.jobId = jobId;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

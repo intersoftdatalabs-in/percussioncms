@@ -27,30 +27,21 @@ import au.id.jericho.lib.html.Tag;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-/**
- * A Utility class that contains useful cleanup methods for
- * pre and post processing a stylesheet
- */
+/** A Utility class that contains useful cleanup methods for pre and post processing a stylesheet */
 public class PSStylesheetCleanupUtils {
 
-  /**
-   * Private constructor so this class won't be instantiated
-   */
+  /** Private constructor so this class won't be instantiated */
   private PSStylesheetCleanupUtils() {}
 
   /**
-   * Cleans up HTML string to make it valid XHTML based on the rules
-   * specified in the passed in stylesheet cleanup filter.
+   * Cleans up HTML string to make it valid XHTML based on the rules specified in the passed in
+   * stylesheet cleanup filter.
    *
-   * @param htmlText the html/xhtml source to process, may be
-   * <code>null</code> or empty.
-   *
-   * @param filter the stylesheet cleanup filter that specifies the
-   * allowed namespace pieces, cannot be <code>null</code>
-   *
-   * @return filtered text string, may be <code>null</code>
-   * or empty if the supplied <code>htmlText</code> is
-   * <code>null</code> or empty
+   * @param htmlText the html/xhtml source to process, may be <code>null</code> or empty.
+   * @param filter the stylesheet cleanup filter that specifies the allowed namespace pieces, cannot
+   *     be <code>null</code>
+   * @return filtered text string, may be <code>null</code> or empty if the supplied <code>htmlText
+   *     </code> is <code>null</code> or empty
    */
   public static String namespaceCleanup(String htmlText, PSStylesheetCleanupFilter filter) {
     if (filter == null)
@@ -132,9 +123,9 @@ public class PSStylesheetCleanupUtils {
   }
 
   /**
-   * Determines if this markup tag is just a plain markup tag as
-   * opposed to an XML declaration tag or a server side scripting tag
-   * or a doc type tag.
+   * Determines if this markup tag is just a plain markup tag as opposed to an XML declaration tag
+   * or a server side scripting tag or a doc type tag.
+   *
    * @param tag the tag to be checked, assumed not <code>null</code>.
    * @return <code>true</code> if this is a normal markup tag.
    */
@@ -154,10 +145,9 @@ public class PSStylesheetCleanupUtils {
 
   /**
    * Returns the tags name as cased in the source
-   * @param tag the tag from which to parse the name,
-   * assumed not <Code>null</code>.
-   * @return the tag name as appears in the original
-   * source.
+   *
+   * @param tag the tag from which to parse the name, assumed not <Code>null</code>.
+   * @return the tag name as appears in the original source.
    */
   private static String getTagNameAsIs(Tag tag) {
     String source = tag.getSourceText();
@@ -169,14 +159,18 @@ public class PSStylesheetCleanupUtils {
   }
 
   /**
-   * Parses out the qualified name for an element, attribute or namespace
-   * declaration and returns the parts in an array.
-   * <p><pre>
+   * Parses out the qualified name for an element, attribute or namespace declaration and returns
+   * the parts in an array.
+   *
+   * <p>
+   *
+   * <pre>
    * [0] = the namespace, will be null if no namespace
    * [1] = the name
-   * </pre></p>
-   * @param name the name of an element or attribute (i.e. foo:test),
-   * cannot be <code>null</code> or empty.
+   * </pre>
+   *
+   * @param name the name of an element or attribute (i.e. foo:test), cannot be <code>null</code> or
+   *     empty.
    * @return array of name parts, never <code>null</code>
    */
   private static String[] parseQName(String name) {

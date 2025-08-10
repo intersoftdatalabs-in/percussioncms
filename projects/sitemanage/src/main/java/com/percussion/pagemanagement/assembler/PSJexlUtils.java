@@ -22,66 +22,72 @@ import com.percussion.utils.jexl.PSJexlEvaluator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Utility methods for JEXL expression evaluation and binding.
- */
+/** Utility methods for JEXL expression evaluation and binding. */
 public class PSJexlUtils {
 
-    /**
-     * Gets a JEXL evaluator with the bindings from the given assembly item.
-     * @param item the assembly item
-     * @return a JEXL evaluator
-     */
-    public static PSJexlEvaluator getBindings(IPSAssemblyItem item) {
-        return new PSJexlEvaluator(item.getBindings());
-    }
+  /**
+   * Gets a JEXL evaluator with the bindings from the given assembly item.
+   *
+   * @param item the assembly item
+   * @return a JEXL evaluator
+   */
+  public static PSJexlEvaluator getBindings(IPSAssemblyItem item) {
+    return new PSJexlEvaluator(item.getBindings());
+  }
 
-    /**
-     * Binds an expression to a value if not already set, or returns the existing value.
-     * @param eval the JEXL evaluator
-     * @param exp the script expression
-     * @param value the value to bind
-     * @param <T> the type of the value
-     * @return the bound or existing value
-     * @throws Exception if evaluation or binding fails
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T bindExpression(PSJexlEvaluator eval, IPSScript exp, T value) throws Exception {
-        var original = eval.evaluate(exp);
-        T rvalue;
-        if (original == null) {
-            if (log.isTraceEnabled()) {
-                log.trace("Binding expression: {} to {}", exp.getSourceText(), value);
-            }
-            eval.bind(exp.getSourceText(), value);
-            rvalue = value;
-        } else {
-            log.debug("{} is already set to: {}", exp.getSourceText(), original);
-            if (value != null && !original.getClass().isInstance(value)) {
-                throw new RuntimeException(exp.getSourceText() + " should be of type: " + value.getClass() +
-                        " but is type: " + original.getClass());
-            }
-            rvalue = (T) original;
-        }
-        return rvalue;
+  /**
+   * Binds an expression to a value if not already set, or returns the existing value.
+   *
+   * @param eval the JEXL evaluator
+   * @param exp the script expression
+   * @param value the value to bind
+   * @param <T> the type of the value
+   * @return the bound or existing value
+   * @throws Exception if evaluation or binding fails
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T bindExpression(PSJexlEvaluator eval, IPSScript exp, T value)
+      throws Exception {
+    var original = eval.evaluate(exp);
+    T rvalue;
+    if (original == null) {
+      if (log.isTraceEnabled()) {
+        log.trace("Binding expression: {} to {}", exp.getSourceText(), value);
+      }
+      eval.bind(exp.getSourceText(), value);
+      rvalue = value;
+    } else {
+      log.debug("{} is already set to: {}", exp.getSourceText(), original);
+      if (value != null && !original.getClass().isInstance(value)) {
+        throw new RuntimeException(
+            exp.getSourceText()
+                + " should be of type: "
+                + value.getClass()
+                + " but is type: "
+                + original.getClass());
+      }
+      rvalue = (T) original;
     }
+    return rvalue;
+  }
 
-    /**
-     * Evaluates an expression and returns the result.
-     * @param eval the JEXL evaluator
-     * @param exp the script expression
-     * @param k the expected class (unused, for type inference)
-     * @param <T> the type of the result
-     * @return the evaluated result
-     * @throws Exception if evaluation fails
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T evalExpression(PSJexlEvaluator eval, IPSScript exp, @SuppressWarnings("unused") Class<T> k) throws Exception {
-        return (T) eval.evaluate(exp);
-    }
+  /**
+   * Evaluates an expression and returns the result.
+   *
+   * @param eval the JEXL evaluator
+   * @param exp the script expression
+   * @param k the expected class (unused, for type inference)
+   * @param <T> the type of the result
+   * @return the evaluated result
+   * @throws Exception if evaluation fails
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T evalExpression(
+      PSJexlEvaluator eval, IPSScript exp, @SuppressWarnings("unused") Class<T> k)
+      throws Exception {
+    return (T) eval.evaluate(exp);
+  }
 
-    /**
-     * The log instance to use for this class, never {@code null}.
-     */
-    private static final Logger log = LogManager.getLogger(PSJexlUtils.class);
+  /** The log instance to use for this class, never {@code null}. */
+  private static final Logger log = LogManager.getLogger(PSJexlUtils.class);
 }

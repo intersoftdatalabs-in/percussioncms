@@ -22,47 +22,43 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @Disabled("SUT are not used")
-public class PSUserProfileServiceTest extends PSRestTestCase<PSUserProfileServiceTest.UserProfileRestClient> {
-    
+public class PSUserProfileServiceTest
+    extends PSRestTestCase<PSUserProfileServiceTest.UserProfileRestClient> {
 
-    @Test
-    public void testGet() throws Exception {
-        PSUserProfile userProfile = restClient.get("test");
-        assertNotNull(userProfile);
-        assertEquals("test", userProfile.getUserName());
+  @Test
+  public void testGet() throws Exception {
+    PSUserProfile userProfile = restClient.get("test");
+    assertNotNull(userProfile);
+    assertEquals("test", userProfile.getUserName());
+  }
+
+  @Test
+  public void testSave() throws Exception {
+    PSUserProfile userProfile = new PSUserProfile();
+    userProfile.setUserName("test2");
+    PSUserProfile actual = restClient.save(userProfile);
+    assertNotNull(actual);
+    assertEquals(userProfile.getUserName(), actual.getUserName());
+  }
+
+  @Override
+  protected UserProfileRestClient getRestClient(String baseUrl) {
+    restClient = new UserProfileRestClient(baseUrl);
+    return restClient;
+  }
+
+  public static class UserProfileRestClient extends PSDataServiceRestClient<PSUserProfile> {
+    public UserProfileRestClient(String url) {
+      super(PSUserProfile.class, url, "/Rhythmyx/services/dashboardmanagement/userprofile/");
     }
-    
-    @Test
-    public void testSave() throws Exception {
-        PSUserProfile userProfile = new PSUserProfile();
-        userProfile.setUserName("test2");
-        PSUserProfile actual = restClient.save(userProfile);
-        assertNotNull(actual);
-        assertEquals(userProfile.getUserName(), actual.getUserName());
-    }
-    
+
     @Override
-    protected UserProfileRestClient getRestClient(String baseUrl) {
-        restClient = new UserProfileRestClient(baseUrl);
-        return restClient;
+    protected String getGetPath(String id) {
+      return getPath() + "user/" + id;
     }
-    
-    
-    public static class UserProfileRestClient extends PSDataServiceRestClient<PSUserProfile> {
-        public UserProfileRestClient(String url) {
-            super(PSUserProfile.class, url, "/Rhythmyx/services/dashboardmanagement/userprofile/");
-        }
-        
-        @Override
-        protected String getGetPath(String id) {
-            return getPath() + "user/" + id;
-        }  
-        
-    }
-
+  }
 }

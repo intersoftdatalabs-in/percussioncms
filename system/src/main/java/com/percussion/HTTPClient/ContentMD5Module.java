@@ -20,15 +20,14 @@ package com.percussion.HTTPClient;
 import java.io.IOException;
 
 /**
- * This module handles the Content-MD5 response header. If this header was
- * sent with a response and the entity isn't encoded using an unknown
- * transport encoding then an MD5InputStream is wrapped around the response
- * input stream. The MD5InputStream keeps a running digest and checks this
- * against the expected digest from the Content-MD5 header the stream is
- * closed. An IOException is thrown at that point if the digests don't match.
+ * This module handles the Content-MD5 response header. If this header was sent with a response and
+ * the entity isn't encoded using an unknown transport encoding then an MD5InputStream is wrapped
+ * around the response input stream. The MD5InputStream keeps a running digest and checks this
+ * against the expected digest from the Content-MD5 header the stream is closed. An IOException is
+ * thrown at that point if the digests don't match.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class ContentMD5Module implements HTTPClientModule {
@@ -38,28 +37,20 @@ class ContentMD5Module implements HTTPClientModule {
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) {
     return RSP_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req)
       throws IOException, ModuleException {
     if (req.getMethod().equals("HEAD")) return;
@@ -82,9 +73,7 @@ class ContentMD5Module implements HTTPClientModule {
     resp.inp_stream = new MD5InputStream(resp.inp_stream, new VerifyMD5(resp));
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 }
 
@@ -116,9 +105,7 @@ class VerifyMD5 implements HashVerifier {
     Log.write(Log.MODS, "CMD5M: hash successfully verified");
   }
 
-  /**
-   * Produce a string of the form "A5:22:F1:0B:53"
-   */
+  /** Produce a string of the form "A5:22:F1:0B:53" */
   private static String hex(byte[] buf) {
     StringBuilder str = new StringBuilder(buf.length * 3);
     for (int idx = 0; idx < buf.length; idx++) {

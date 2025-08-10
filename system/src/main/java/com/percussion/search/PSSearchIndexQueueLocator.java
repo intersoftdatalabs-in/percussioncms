@@ -20,9 +20,8 @@ import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.PSBaseServiceLocator;
 
 /**
- * Class description - locates the service for using hibernate to read, write
- * and delete FTS Search Index Queue Items
- *
+ * Class description - locates the service for using hibernate to read, write and delete FTS Search
+ * Index Queue Items
  *
  * @author BillLanglais
  */
@@ -33,11 +32,9 @@ public class PSSearchIndexQueueLocator extends PSBaseServiceLocator {
   /**
    * Get the relationship service (singleton) object.
    *
-   * @return the hibernate object for FTS Search Index Queue Items, never
-   * <code>null</code>.
-   *
-   * @throws PSMissingBeanConfigurationException if system configuration error
-   * occurred during locating the service object.
+   * @return the hibernate object for FTS Search Index Queue Items, never <code>null</code>.
+   * @throws PSMissingBeanConfigurationException if system configuration error occurred during
+   *     locating the service object.
    */
   public static IPSSearchIndexQueue getPSSearchIndexQueue()
       throws PSMissingBeanConfigurationException {

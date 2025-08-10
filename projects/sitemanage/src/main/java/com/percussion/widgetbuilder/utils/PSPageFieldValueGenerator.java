@@ -26,38 +26,39 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * Generates a page field binding for a widget field.
- * <p>
- * Sunny Sal says: "Page fields—turn the page, but keep the binding strong!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Page fields—turn the page, but keep the binding strong!"
  */
-public class PSPageFieldValueGenerator extends PSBasicFieldValueGenerator implements IPSBindingGenerator {
+public class PSPageFieldValueGenerator extends PSBasicFieldValueGenerator
+    implements IPSBindingGenerator {
 
-    private static String template;
+  private static String template;
 
-    @Override
-    public boolean accept(PSWidgetBuilderFieldData field) {
-        return FieldType.PAGE.name().equals(field.getType());
+  @Override
+  public boolean accept(PSWidgetBuilderFieldData field) {
+    return FieldType.PAGE.name().equals(field.getType());
+  }
+
+  @Override
+  public String generateBinding(PSWidgetBuilderFieldData field) {
+    Validate.isTrue(accept(field));
+    return MessageFormat.format(getTemplate(), field.getName());
+  }
+
+  /**
+   * Gets the cached template, lazily loading from a resource file and caching on first access.
+   *
+   * @return The template, not {@code null}.
+   */
+  private String getTemplate() {
+    if (template == null) {
+      try {
+        template = IOUtils.toString(this.getClass().getResourceAsStream("PageFieldTemplate.txt"));
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Failed to load page field binding template: " + e.getLocalizedMessage(), e);
+      }
     }
-
-    @Override
-    public String generateBinding(PSWidgetBuilderFieldData field) {
-        Validate.isTrue(accept(field));
-        return MessageFormat.format(getTemplate(), field.getName());
-    }
-
-    /**
-     * Gets the cached template, lazily loading from a resource file and caching on first access.
-     *
-     * @return The template, not {@code null}.
-     */
-    private String getTemplate() {
-        if (template == null) {
-            try {
-                template = IOUtils.toString(this.getClass().getResourceAsStream("PageFieldTemplate.txt"));
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load page field binding template: " + e.getLocalizedMessage(), e);
-            }
-        }
-        return template;
-    }
+    return template;
+  }
 }

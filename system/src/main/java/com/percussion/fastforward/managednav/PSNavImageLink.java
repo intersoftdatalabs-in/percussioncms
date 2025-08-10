@@ -31,11 +31,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A link to a navigation image. All Navigation images under a Navon w3il have
- * image links.
+ * A link to a navigation image. All Navigation images under a Navon w3il have image links.
  *
  * @author DavidBenua
- *
  */
 public class PSNavImageLink extends PSNavLink {
 
@@ -45,8 +43,8 @@ public class PSNavImageLink extends PSNavLink {
    * Construct a image link from a relationship.
    *
    * @param req the parent request context
-   * @param relation an Active Assembly relationship between the Navon and the
-   *           desired NavImage item.
+   * @param relation an Active Assembly relationship between the Navon and the desired NavImage
+   *     item.
    * @throws PSNavException when any error occurs.
    */
   public PSNavImageLink(IPSRequestContext req, PSAaRelationship relation) throws PSNavException {
@@ -75,11 +73,10 @@ public class PSNavImageLink extends PSNavLink {
   }
 
   /**
-   * returns an XML element for the Image Link. This XML documnet will be added
-   * to the NavTree XML document.
+   * returns an XML element for the Image Link. This XML documnet will be added to the NavTree XML
+   * document.
    *
-   * @param parentElem the containing Navon element in the NavTree XML
-   *           document.
+   * @param parentElem the containing Navon element in the NavTree XML document.
    * @return
    */
   public Element toXML(Element parentElem) {
@@ -95,8 +92,7 @@ public class PSNavImageLink extends PSNavLink {
    * Gets the color selector value from the database.
    *
    * @param id the contentid of the NavImage item.
-   * @return the color selector value or <code>null</code> if one does not
-   *         exist.
+   * @return the color selector value or <code>null</code> if one does not exist.
    * @throws PSNavException
    */
   private String getSelector(int id) throws PSNavException {
@@ -122,32 +118,22 @@ public class PSNavImageLink extends PSNavLink {
     return selector;
   }
 
-  /**
-   * The color selector for this link.
-   */
+  /** The color selector for this link. */
   private String m_imageSelector = null;
 
-  /**
-   * Configuration instance.
-   */
+  /** Configuration instance. */
   private final PSNavConfig m_config = PSNavConfig.getInstance();
 
-  /**
-   * SQL Statement for loading the NavImage item data
-   */
+  /** SQL Statement for loading the NavImage item data */
   private static final String SQL_LOAD =
       "select nav.SELECTOR  from "
           + "RXS_CT_NAVIGATIONIMAGETRIPLE nav, CONTENTSTATUS cs where "
           + "cs.CONTENTID = nav.CONTENTID and cs.CURRENTREVISION = "
           + "nav.REVISIONID and cs.CONTENTID = ?";
 
-  /**
-   * XML Element name for the image link
-   */
+  /** XML Element name for the image link */
   public static final String XML_ELEM_IMAGELINK = "image-link";
 
-  /**
-   * XML attribute name for the color selector
-   */
+  /** XML attribute name for the color selector */
   public static final String XML_ATTR_SELECTOR = "selector";
 }

@@ -27,40 +27,28 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The evaluator creates an environment where a number of expressions can be
- * evaluated. Before evaluation the {@link #bind(String, Object)} may be called
- * as needed to bind initial values into the context for use in expressions.
- * After a number of expressions are evaluated using
- * {@link #evaluate(String, IPSScript)} , the results can be extracted by
- * calling {@link #getVars()}.
+ * The evaluator creates an environment where a number of expressions can be evaluated. Before
+ * evaluation the {@link #bind(String, Object)} may be called as needed to bind initial values into
+ * the context for use in expressions. After a number of expressions are evaluated using {@link
+ * #evaluate(String, IPSScript)} , the results can be extracted by calling {@link #getVars()}.
  *
  * @author dougrand
  */
 @SuppressWarnings(value = "unchecked")
 public class PSJexlEvaluator {
-  /**
-   * Commons logger for evaluator
-   */
+  /** Commons logger for evaluator */
   private static final Logger log = LogManager.getLogger(PSJexlEvaluator.class);
 
-  /**
-   * Regex pattern
-   */
+  /** Regex pattern */
   private static final String SQUARE_BRACKET_PATTERN = "[\\x5B\\x5D]";
 
-  /**
-   * Regex pattern
-   */
+  /** Regex pattern */
   private static final String PERIOD_PATTERN = "\\x2e";
 
-  /**
-   * Internal context which is modified after each call to
-   */
+  /** Internal context which is modified after each call to */
   private Map<String, Object> m_vars = new HashMap<>();
 
-  /**
-   * Create an evaluator with no prebound values
-   */
+  /** Create an evaluator with no prebound values */
   public PSJexlEvaluator() {}
 
   /**
@@ -85,9 +73,8 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Get the context, callers should understand that the returned context is
-   * not a copy and that any modifications will be reflected in the evaluator's
-   * context
+   * Get the context, callers should understand that the returned context is not a copy and that any
+   * modifications will be reflected in the evaluator's context
    *
    * @return get the context, never <code>null</code>
    */
@@ -96,11 +83,11 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Evaluate a jexl expression within the evaluator's context. See
-   * {@link #bind(String, Object)} for a description of the binding process.
+   * Evaluate a jexl expression within the evaluator's context. See {@link #bind(String, Object)}
+   * for a description of the binding process.
    *
-   * @param var the variable to bind the result of the expression to, may be
-   *           <code>null</code> or empty if no binding is to be done.
+   * @param var the variable to bind the result of the expression to, may be <code>null</code> or
+   *     empty if no binding is to be done.
    * @param jexlexpression the expression, never <code>null</code>
    */
   public void evaluate(String var, IPSScript jexlexpression) {
@@ -116,8 +103,7 @@ public class PSJexlEvaluator {
    *
    * @param var an expression, never <code>null</code>
    * @param defaultval a default value, may be <code>null</code>
-   * @param required if <code>true</code> then a missing value will cause an
-   *           exception
+   * @param required if <code>true</code> then a missing value will cause an exception
    * @return the value, could be <code>null</code> or empty
    */
   public String getStringValue(IPSScript var, String defaultval, boolean required) {
@@ -139,8 +125,7 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Evaluate the given expression within the current context, and return the
-   * result.
+   * Evaluate the given expression within the current context, and return the result.
    *
    * @param jexlexpression the expression to evaluate
    * @return the value of the evaluated expression
@@ -162,21 +147,18 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Bind a variable of arbitrary complexity, creating the variable and
-   * subcomponents as necessary. If a non-matching component is found, throw an
-   * <code>IllegalStateException</code> noting where in the variable we were.
+   * Bind a variable of arbitrary complexity, creating the variable and subcomponents as necessary.
+   * If a non-matching component is found, throw an <code>IllegalStateException</code> noting where
+   * in the variable we were.
    *
-   * @param var a path that may have one or more components. Each component can
-   *           be a name, or a subscripted name such as id[3]. Components are
-   *           separated by dots. Each dot denotes a <code>Map</code>.
-   *           Rebinding at any level is possible, but it is an error if the
-   *           path finds the wrong stored data, i.e. finds a Map, but expects
-   *           a List, in traversing the context. Never <code>null</code> and
-   *           must not be empty
-   * @param value the new value to bind, if <code>null</code> then the
-   *           particular variable will be set to <code>null</code>
-   * @throws IllegalStateException if the var path is wrong or doesn't match
-   *            the actual var
+   * @param var a path that may have one or more components. Each component can be a name, or a
+   *     subscripted name such as id[3]. Components are separated by dots. Each dot denotes a <code>
+   *     Map</code>. Rebinding at any level is possible, but it is an error if the path finds the
+   *     wrong stored data, i.e. finds a Map, but expects a List, in traversing the context. Never
+   *     <code>null</code> and must not be empty
+   * @param value the new value to bind, if <code>null</code> then the particular variable will be
+   *     set to <code>null</code>
+   * @throws IllegalStateException if the var path is wrong or doesn't match the actual var
    */
   public void bind(String var, Object value) throws IllegalStateException {
     if (StringUtils.isBlank(var)) {
@@ -274,16 +256,11 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Method that folds the additional bindings into the map referenced by the
-   * variable.
+   * Method that folds the additional bindings into the map referenced by the variable.
    *
-   * @param var the variable to bind the resulting map to, never
-   *           <code>null</code> or empty
-   *
-   * @param varexp the expression, must evaluate to a map, never
-   *           <code>null</code>
-   * @param bindings a set of additional bindings to add in, never
-   *           <code>null</code>
+   * @param var the variable to bind the resulting map to, never <code>null</code> or empty
+   * @param varexp the expression, must evaluate to a map, never <code>null</code>
+   * @param bindings a set of additional bindings to add in, never <code>null</code>
    */
   public void add(String var, IPSScript varexp, Map<String, Object> bindings) {
     if (StringUtils.isBlank(var)) {
@@ -333,8 +310,7 @@ public class PSJexlEvaluator {
    * Dereference map
    *
    * @param obj object to be dereferences, assumed not <code>null</code>
-   * @param component the named component, assumed not <code>null</code> or
-   *           empty
+   * @param component the named component, assumed not <code>null</code> or empty
    * @return the dereferenced value
    */
   private static Object dereferenceMap(Object obj, String component) {
@@ -361,8 +337,7 @@ public class PSJexlEvaluator {
   /**
    * Output variable bindings for aid in debugging
    *
-   * @return a string representation of the bindings, never <code>null</code>
-   *         or empty
+   * @return a string representation of the bindings, never <code>null</code> or empty
    */
   public String bindingsToString() {
     return bindingsToString(m_vars, "");
@@ -372,10 +347,8 @@ public class PSJexlEvaluator {
    * Output variable bindings for aid in debugging
    *
    * @param data the map data
-   * @param prefix the prefix to use when outputting the key, never
-   *           <code>null</code> or empty
-   * @return a string representation, one variable per line, never
-   *         <code>null</code> or empty
+   * @param prefix the prefix to use when outputting the key, never <code>null</code> or empty
+   * @return a string representation, one variable per line, never <code>null</code> or empty
    */
   private String bindingsToString(Map<String, Object> data, String prefix) {
     if (data == null) return "";
@@ -406,31 +379,26 @@ public class PSJexlEvaluator {
   }
 
   /**
-   * Create an expression using the expression factory. If this expression has
-   * already been parsed, and is in the cache, then the original expression is
-   * returned.
-   * Added support for a cache. We cannot add Ehcache here as this utils
-   * package does not have access. Cache manager will be injected on startup
+   * Create an expression using the expression factory. If this expression has already been parsed,
+   * and is in the cache, then the original expression is returned. Added support for a cache. We
+   * cannot add Ehcache here as this utils package does not have access. Cache manager will be
+   * injected on startup
    *
    * @param expression the expression, never <code>null</code> or empty
-   *
-   * @return the expression object, never <code>null</code>, may be shared with
-   *         other threads, care must be used if any methods are called that
-   *         modify this object
+   * @return the expression object, never <code>null</code>, may be shared with other threads, care
+   *     must be used if any methods are called that modify this object
    */
   public static IPSScript createExpression(String expression) {
     return new PSScript(expression);
   }
 
   /**
-   * Create a script using the script factory. If this script has already been
-   * parsed, and is in the cache, then the original script is returned.
+   * Create a script using the script factory. If this script has already been parsed, and is in the
+   * cache, then the original script is returned.
    *
    * @param script the script, never <code>null</code> or empty
-   *
-   * @return the script object, never <code>null</code>, may be shared with
-   *         other threads, care must be used if any methods are called that
-   *         modify this object
+   * @return the script object, never <code>null</code>, may be shared with other threads, care must
+   *     be used if any methods are called that modify this object
    */
   public static IPSScript createScript(String script) {
     return new PSScript(script);

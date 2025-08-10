@@ -135,8 +135,8 @@ public class PercArgs {
   }
 
   /**
-   * Converts the list of command-line arguments and converts
-   * them to a String array.
+   * Converts the list of command-line arguments and converts them to a String array.
+   *
    * @return the list of arguments in a String array.
    */
   public String[] getFilteredArgs() {

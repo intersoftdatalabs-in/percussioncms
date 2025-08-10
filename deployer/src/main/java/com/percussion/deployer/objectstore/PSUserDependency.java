@@ -27,20 +27,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a file dependency that must be specified by the user as it may not
- * be automatically discovered by the Rhythmyx server.
+ * Represents a file dependency that must be specified by the user as it may not be automatically
+ * discovered by the Rhythmyx server.
  */
 public class PSUserDependency extends PSDeployableObject {
 
   /**
-   * Package private ctor.  User dependencies should always be created using
-   * {@link PSDependency#addUserDependency(String) addUserDependency} on its
-   * intended parent dependency.
+   * Package private ctor. User dependencies should always be created using {@link
+   * PSDependency#addUserDependency(String) addUserDependency} on its intended parent dependency.
    *
-   * @param path The path of the dependency file relative to the Rhythmyx
-   * server root directory.  May not be <code>null</code>.
-   * @param parent  The parent dependency, may not be <code>null</code>.
-   *
+   * @param path The path of the dependency file relative to the Rhythmyx server root directory. May
+   *     not be <code>null</code>.
+   * @param parent The parent dependency, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   PSUserDependency(File path, PSDependency parent) {
@@ -73,13 +71,10 @@ public class PSUserDependency extends PSDeployableObject {
   /**
    * Constructs this object from its XML representation.
    *
-   * @param src The source element.  Format expected is defined by
-   * {@link #toXml(Document)}.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param src The source element. Format expected is defined by {@link #toXml(Document)}.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSUserDependency(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -115,10 +110,9 @@ public class PSUserDependency extends PSDeployableObject {
   }
 
   /**
-   * Returns a unique key for this dependency. Overriden for
-   * this object since the default implementation returns a key that includes
-   * the dependency id, and for this class that is a file path.  This key may
-   * be used to create directory names in some cases, and so returning a file
+   * Returns a unique key for this dependency. Overriden for this object since the default
+   * implementation returns a key that includes the dependency id, and for this class that is a file
+   * path. This key may be used to create directory names in some cases, and so returning a file
    * path as part of this key would be problematic.
    *
    * @return The key, never <code>null</code> or empty.
@@ -131,8 +125,7 @@ public class PSUserDependency extends PSDeployableObject {
   }
 
   /**
-   * Returns the value of {@link PSDependency#getKey()} for this dependency's
-   * parent.
+   * Returns the value of {@link PSDependency#getKey()} for this dependency's parent.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -141,8 +134,9 @@ public class PSUserDependency extends PSDeployableObject {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. Format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. Format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXUserDependency (PSXDeployableObject)>
    * &lt;!ATTLIST PSXUserDependency
@@ -153,11 +147,8 @@ public class PSUserDependency extends PSDeployableObject {
    * >
    * </pre></code>
    *
-   * @param doc The document to use to create the element, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -178,13 +169,11 @@ public class PSUserDependency extends PSDeployableObject {
   /**
    * This method is called to populate this object from its XML representation.
    *
-   * @param sourceNode the XML element node to populate from, not
-   * <code>null</code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param sourceNode the XML element node to populate from, not <code>null</code>. See {@link
+   *     #toXml(Document)} for the format expected.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -261,46 +250,36 @@ public class PSUserDependency extends PSDeployableObject {
     return isEqual;
   }
 
-  /**
-   * Constant for this object's root XML node.
-   */
+  /** Constant for this object's root XML node. */
   public static final String XML_NODE_NAME = "PSXUserDependency";
 
-  /**
-   * Constant for the object type of a user depednecy.
-   */
+  /** Constant for the object type of a user depednecy. */
   public static final String USER_DEPENDENCY_TYPE = "sys_UserDependency";
 
-  /**
-   * Constant for the name of the object type of a user depednecy.
-   */
+  /** Constant for the name of the object type of a user depednecy. */
   public static final String USER_DEPENDENCY_TYPE_NAME = "User Dependency";
 
   /**
-   * File reference to the resource that this user dependency represents.
-   * Initialized during ctor, never <code>null</code> after that, may be
-   * modified by a call to <code>copyFrom()</code>.
+   * File reference to the resource that this user dependency represents. Initialized during ctor,
+   * never <code>null</code> after that, may be modified by a call to <code>copyFrom()</code>.
    */
   private File m_path;
 
   /**
-   * Type of object the owner of this dependency represents.
-   * Initialized during ctor, never <code>null</code> after that, may be
-   * modified by a call to <code>copyFrom()</code>.
+   * Type of object the owner of this dependency represents. Initialized during ctor, never <code>
+   * null</code> after that, may be modified by a call to <code>copyFrom()</code>.
    */
   private String m_parentType;
 
   /**
-   * Id of the object the owner of this dependency represents.
-   * Initialized during ctor, never <code>null</code> after that, may be
-   * modified by a call to <code>copyFrom()</code>.
+   * Id of the object the owner of this dependency represents. Initialized during ctor, never <code>
+   * null</code> after that, may be modified by a call to <code>copyFrom()</code>.
    */
   private String m_parentId;
 
   /**
-   * Key of the object the owner of this dependency represents.
-   * Initialized during ctor, never <code>null</code> after that, may be
-   * modified by a call to <code>copyFrom()</code>.
+   * Key of the object the owner of this dependency represents. Initialized during ctor, never
+   * <code>null</code> after that, may be modified by a call to <code>copyFrom()</code>.
    */
   private String m_parentKey;
 

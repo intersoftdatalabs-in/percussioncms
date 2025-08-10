@@ -36,51 +36,43 @@ import javax.swing.*;
 import javax.swing.event.MenuEvent;
 
 /**
- * The main frame window for the application. Provides menu, toolbar buttons,
- * and status bar. The frame maintains a list of actions that are currently in
- * the menu or toolbar.
- * <p>
- * This class also provides a mechanism to enable or disable the actions that
- * can be performed depending on selected nodes in the tree table and their
- * current states.
+ * The main frame window for the application. Provides menu, toolbar buttons, and status bar. The
+ * frame maintains a list of actions that are currently in the menu or toolbar.
+ *
+ * <p>This class also provides a mechanism to enable or disable the actions that can be performed
+ * depending on selected nodes in the tree table and their current states.
+ *
  * <p>
  */
 public class MainFrame extends JFrame {
   // all UI related variables/constants here
 
-  /**
-   * Scroll pane is the container for the tree table to provide scrolling.
-   */
+  /** Scroll pane is the container for the tree table to provide scrolling. */
   private JScrollPane m_ScrollPane = new JScrollPane();
 
   private JMenuBar m_MenuBar = new JMenuBar();
   private PSToolBar m_ToolBar = new PSToolBar();
   private static JLabel ms_StatusBar = new JLabel();
 
-  /**
-   * A map of all actions that shared by the menu bar and tool bar.
-   */
+  /** A map of all actions that shared by the menu bar and tool bar. */
   private HashMap m_actions = new HashMap(30);
 
-  /**
-   * A reusable wait cursor.
-   */
+  /** A reusable wait cursor. */
   private static final Cursor WAITCURSOR = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
 
   /**
-   * This is the main and only component (besides menu, tool and status bars)
-   * that fills the main window. Whenever the tree table model is refreshed
-   * with a new content list from the server, this object will be recreated
-   * discarding the old one.
+   * This is the main and only component (besides menu, tool and status bars) that fills the main
+   * window. Whenever the tree table model is refreshed with a new content list from the server,
+   * this object will be recreated discarding the old one.
    *
-   * Never <code>null</code>.
+   * <p>Never <code>null</code>.
    */
   private PSFUDJTreeTable m_TreeTable = null;
 
   /**
-   * Initializes the main window and prompts for user info to connect to
-   * Rhythmyx server to get the content item list metadata. If the query
-   * fails for some reason user can press CANCEL button to work offline if
+   * Initializes the main window and prompts for user info to connect to Rhythmyx server to get the
+   * content item list metadata. If the query fails for some reason user can press CANCEL button to
+   * work offline if
    */
   public MainFrame() {
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -88,19 +80,14 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Component initialization. initializes all components, viz. actions,
-   * toolbar, menubar statusbar in the main window and prompts the user for
-   * connection information.
-   * <p>
-   * Menu/toolbar model.
-   * A map contains all Actions that will be used in the menu and/or toolbar,
-   * except those that need JMenuCheckBox.
-   * The key to each entry in the map will be the internal name of the action,
-   * the value will be the Action object.
-   * The menu is built using the desired actions in the desired order, as is
-   * the toolbar.
-   * To add new menuitems/toolbar buttons, add the action, then add the action
-   * to the menu/toolbar as needed.
+   * Component initialization. initializes all components, viz. actions, toolbar, menubar statusbar
+   * in the main window and prompts the user for connection information.
+   *
+   * <p>Menu/toolbar model. A map contains all Actions that will be used in the menu and/or toolbar,
+   * except those that need JMenuCheckBox. The key to each entry in the map will be the internal
+   * name of the action, the value will be the Action object. The menu is built using the desired
+   * actions in the desired order, as is the toolbar. To add new menuitems/toolbar buttons, add the
+   * action, then add the action to the menu/toolbar as needed.
    */
   private void init() {
     URL url = getClass().getResource("images/fudmgr.gif");
@@ -318,8 +305,8 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Initialization routine for tree alone. This will be called whenever the
-   * model is refreshed with a new content item list from the server.
+   * Initialization routine for tree alone. This will be called whenever the model is refreshed with
+   * a new content item list from the server.
    */
   private void treeInit() throws PSFUDNullElementException {
     if (null != m_TreeTable) {
@@ -341,12 +328,11 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The method is called during application initialization and whenever user
-   * performs action connect from the menubar or tool bar. Displays connect
-   * dialog box for the connection information. Continues to display till the
-   * connection succeeds or user clicks CANCEL buttn. Pressing cancel button
-   * puts the application in offline mode if local copy (snapshot file) exists
-   * or exits the application.
+   * The method is called during application initialization and whenever user performs action
+   * connect from the menubar or tool bar. Displays connect dialog box for the connection
+   * information. Continues to display till the connection succeeds or user clicks CANCEL buttn.
+   * Pressing cancel button puts the application in offline mode if local copy (snapshot file)
+   * exists or exits the application.
    */
   private void fileConnect() {
     PSFUDConnectDlg dlg = null;
@@ -430,11 +416,10 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The method is called when user performs action file|exit or during system
-   * close. The configuration document and a snapshot of the current content
-   * item list document are saved just before closing the application. If any
-   * of these save actions fail for any reason user will be given a choice to
-   * quit or resume.
+   * The method is called when user performs action file|exit or during system close. The
+   * configuration document and a snapshot of the current content item list document are saved just
+   * before closing the application. If any of these save actions fail for any reason user will be
+   * given a choice to quit or resume.
    */
   private void fileExit() {
     try {
@@ -456,10 +441,9 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The method is called when user performs action view|refresh. The
-   * application will be refreshed using the existing connection information.
-   * The new content item list document from the server shall be merged with
-   * the one in  memory according merging rules in the functional spec. If
+   * The method is called when user performs action view|refresh. The application will be refreshed
+   * using the existing connection information. The new content item list document from the server
+   * shall be merged with the one in memory according merging rules in the functional spec. If
    * refresh fails, user shall be prompted with appropriate error message.
    */
   private void viewRefresh() {
@@ -489,19 +473,17 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Helper function to display the tree table expanded. This function is not
-   * really required now but may be required when we give a menu item to
-   * exapnd all.
+   * Helper function to display the tree table expanded. This function is not really required now
+   * but may be required when we give a menu item to exapnd all.
    */
   public void viewExpandAll() {
     m_TreeTable.expandAll(true);
   }
 
   /**
-   * The method is called when user performs action view|options. The
-   * application will be refreshed using the existing connection information.
-   * The new content item list document from the server shall be merged with
-   * the one in  memory according merging rules in the functional spec. If
+   * The method is called when user performs action view|options. The application will be refreshed
+   * using the existing connection information. The new content item list document from the server
+   * shall be merged with the one in memory according merging rules in the functional spec. If
    * refresh fails, user shall be prompted with appropriate error message.
    */
   public void viewOptions() {
@@ -517,10 +499,9 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * This method wraps all four action possible, viz. LAUNCH, DOWNLOAD, UPLOAD
-   * and PURGELOCAL and shall be called by action listener with appropriate
-   * action string. If any action changes the snapshot dicument the document
-   * shall be written to disk.
+   * This method wraps all four action possible, viz. LAUNCH, DOWNLOAD, UPLOAD and PURGELOCAL and
+   * shall be called by action listener with appropriate action string. If any action changes the
+   * snapshot dicument the document shall be written to disk.
    */
   private void performAction(String action) {
     setCursor(getWaitCursor());
@@ -629,8 +610,8 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The method is called when user performs action help|about. Displays
-   * the standard about dialog box.
+   * The method is called when user performs action help|about. Displays the standard about dialog
+   * box.
    */
   private void helpAbout() {
     AboutDialog dlg = new AboutDialog(MainFrame.this, "About " + APPTITLE);
@@ -638,9 +619,7 @@ public class MainFrame extends JFrame {
     dlg.show();
   }
 
-  /**
-   * Overridden so we can exit on System Close
-   */
+  /** Overridden so we can exit on System Close */
   protected void processWindowEvent(WindowEvent e) {
     super.processWindowEvent(e);
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -649,10 +628,9 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The menu/actions are enabled or disabled depending on the what type of
-   * nodes user selected in the tree table and what state the nodes are in.
-   * This is called whenever a menu item is selected or right mouse button
-   * clicked or selection is changed using mouse.
+   * The menu/actions are enabled or disabled depending on the what type of nodes user selected in
+   * the tree table and what state the nodes are in. This is called whenever a menu item is selected
+   * or right mouse button clicked or selection is changed using mouse.
    */
   public void updateMenu() {
     ArrayList fileNodes = m_TreeTable.getSelectedFileList();
@@ -690,11 +668,10 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Get the program resources. Loads if not yet loaded. Application quits
-   * (with a an error message) if fails to load resource bundle.
+   * Get the program resources. Loads if not yet loaded. Application quits (with a an error message)
+   * if fails to load resource bundle.
    *
    * @return resource bundle as ResourceBundle never <code>null</code>.
-   *
    */
   public static ResourceBundle getRes() {
     if (null != ms_res) return ms_res;
@@ -720,12 +697,10 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Get the configuration object. Tries to create on if not created yet.
-   * Application quits (with an error message) if fails to load the
-   * configuration file.
+   * Get the configuration object. Tries to create on if not created yet. Application quits (with an
+   * error message) if fails to load the configuration file.
    *
    * @return the instance of PSFUDConfig never <code>null</code>
-   *
    */
   public static PSFUDConfig getConfig() {
     if (null != ms_FUDConfig) return ms_FUDConfig;
@@ -747,11 +722,10 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * Sets the supplied text in the status bar. If <code>null</code> is
-   * specified, idle message ('Ready'") is displayed.
+   * Sets the supplied text in the status bar. If <code>null</code> is specified, idle message
+   * ('Ready'") is displayed.
    *
    * @param msg as String can be <code>null</code>
-   *
    */
   public static void setStatus(String msg) {
     if (null == msg) ms_StatusBar.setText(STATUS_IDLE);
@@ -762,36 +736,29 @@ public class MainFrame extends JFrame {
    * Get mothod for wait cursor
    *
    * @return wait cursor as Cursor never <code>null</code>
-   *
    */
   public static Cursor getWaitCursor() {
     return WAITCURSOR;
   }
 
   /**
-   * This adapter is constructed to handle the situations when user moves
-   * mouse over the menu items the status bar displays the description of
-   * actions, and, to handle three situations for tree table, namely:
-   * <p>
-   * User clicks the left mouse button -> menu is updated,
-   * User clicks the right mouse button -> context menu is shown,
-   * User double clicks the left mouse button -> file is launced if possible,
-   * and when mouse enters the tree table the status bar is set to have
-   * STATUS_IDLE.
+   * This adapter is constructed to handle the situations when user moves mouse over the menu items
+   * the status bar displays the description of actions, and, to handle three situations for tree
+   * table, namely:
+   *
+   * <p>User clicks the left mouse button -> menu is updated, User clicks the right mouse button ->
+   * context menu is shown, User double clicks the left mouse button -> file is launced if possible,
+   * and when mouse enters the tree table the status bar is set to have STATUS_IDLE.
    */
   private class MouseHandler extends MouseAdapter {
-    /**
-     * Constructor for the adapter.
-     */
+    /** Constructor for the adapter. */
     public MouseHandler() {}
 
     /**
-     * Called by frame work when user clicks right mouse button. If the
-     * source is tree table, actions are updated and context menu is
-     * displayed.
+     * Called by frame work when user clicks right mouse button. If the source is tree table,
+     * actions are updated and context menu is displayed.
      *
      * @param event MouseEvent
-     *
      */
     public void mouseReleased(MouseEvent event) {
       if (m_contextMenu != null && event.isPopupTrigger()) {
@@ -802,12 +769,10 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * Called by frame work when user clicks or double clicks left mouse.
-     * Updates the actions. If doubleclicked in tree table, tries lauch
-     * the selected file, if applicable.
+     * Called by frame work when user clicks or double clicks left mouse. Updates the actions. If
+     * doubleclicked in tree table, tries lauch the selected file, if applicable.
      *
      * @param event MouseEvent
-     *
      */
     public void mouseClicked(MouseEvent event) {
       updateMenu();
@@ -817,8 +782,8 @@ public class MainFrame extends JFrame {
     }
 
     /**
-     * If mouse enters the menu items, the status bar is updated to display
-     * the description of each item, otherwise idle message.
+     * If mouse enters the menu items, the status bar is updated to display the description of each
+     * item, otherwise idle message.
      */
     public void mouseEntered(MouseEvent evt) {
       setStatus(null);
@@ -833,8 +798,8 @@ public class MainFrame extends JFrame {
   /**
    * Returns the version string displayable in several dialog boxes
    *
-   * @return  version string as String never <code>null</code>. Empty  string
-   *          if fails to load version resources.
+   * @return version string as String never <code>null</code>. Empty string if fails to load version
+   *     resources.
    */
   public static String getVersionString() {
     ResourceBundle res =
@@ -854,46 +819,33 @@ public class MainFrame extends JFrame {
   }
 
   /**
-   * The application node object that wraps the root element in the content
-   * list document this handles loading remote, merging with snapshot and
-   * saving besides being part of the tree table model for displaying in the
-   * tree table.
+   * The application node object that wraps the root element in the content list document this
+   * handles loading remote, merging with snapshot and saving besides being part of the tree table
+   * model for displaying in the tree table.
    */
   private PSFUDApplication m_fudApplication = null;
 
-  /**
-   * The program resources.
-   */
+  /** The program resources. */
   private static ResourceBundle ms_res = null;
 
-  /**
-   * Reference to PSFUDConfig object that wraps Configuration XML document.
-   */
+  /** Reference to PSFUDConfig object that wraps Configuration XML document. */
   public static PSFUDConfig ms_FUDConfig = null;
 
-  /**
-   * The title of the application
-   */
+  /** The title of the application */
   public static final String APPTITLE = "Rhythmyx File Tracker";
 
-  /**
-   * Idle status text
-   */
+  /** Idle status text */
   private static final String STATUS_IDLE = "Ready";
 
-  /**
-   * Title for Warning message boxes.
-   */
+  /** Title for Warning message boxes. */
   private static final String WARNING = "Warning";
 
-  /**
-   * Title for Error message boxes.
-   */
+  /** Title for Error message boxes. */
   private static final String ERROR = "Error";
 
   /**
-   * Action names. The names must be unique within the set of all actions. The
-   * names should not be tied to any particular main menu item.
+   * Action names. The names must be unique within the set of all actions. The names should not be
+   * tied to any particular main menu item.
    */
   private static final String CONNECT = "connect";
 
@@ -906,14 +858,9 @@ public class MainFrame extends JFrame {
   private static final String PURGELOCAL = "purgelocal";
   private static final String ABOUT = "about";
 
-  /**
-   * The context menu valid for the selected tab.
-   */
+  /** The context menu valid for the selected tab. */
   private JPopupMenu m_contextMenu = null;
 
-  /**
-   * This adapter handles Mouse over messages on toolbar buttons and
-   * menu items.
-   */
+  /** This adapter handles Mouse over messages on toolbar buttons and menu items. */
   private MouseHandler m_MouseHandler;
 }

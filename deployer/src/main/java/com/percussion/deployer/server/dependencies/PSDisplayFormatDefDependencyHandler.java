@@ -43,19 +43,14 @@ import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Element;
 
-/**
- * Class to handle packaging and deploying a display format definition.
- */
+/** Class to handle packaging and deploying a display format definition. */
 public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -119,15 +114,15 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Community</li>
+   *   <li>Community
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
@@ -212,9 +207,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
    *
    * @param proc The processor to use, may not be <code>null</code>.
    * @param id The id of the format, may not be <code>null</code> or empty.
-   *
    * @return The format, or <code>null</code> if no matching format is found.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -242,14 +235,11 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   }
 
   /**
-   * Loads the display format specified by the supplied id. A wrapper for
-   * doFindDisplayFormatById()
+   * Loads the display format specified by the supplied id. A wrapper for doFindDisplayFormatById()
    *
    * @param tok The security token, never <code>null</code>
    * @param depId The display ID of the format
-   *
    * @return The format, or <code>null</code> if no matching format is found.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -264,9 +254,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
    *
    * @param proc The processor to use, may not be <code>null</code>.
    * @param depId The display ID of the format
-   *
    * @return The format, or <code>null</code> if no matching format is found.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -303,10 +291,8 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   /**
    * Transforms the child ids in the supplied display format.
    *
-   * @param ctx The context to use to get id mappings, assumed not
-   * <code>null</code>.
+   * @param ctx The context to use to get id mappings, assumed not <code>null</code>.
    * @param df The display format to transform, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors
    */
   private void transformIds(PSImportCtx ctx, PSDisplayFormat df) throws PSDeployException {
@@ -320,9 +306,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
    * Loads all display formats.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   *
    * @return An iterator over zero or more formats, never <code>null</code>.
-   *
    * @throws PSDeployException If there are any errors.
    */
   public Iterator<PSDisplayFormat> loadAll(PSComponentProcessorProxy proc)
@@ -342,14 +326,11 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   }
 
   /**
-   * Gets the property containing defined communities, unless the property
-   * specifies "all" communities.
+   * Gets the property containing defined communities, unless the property specifies "all"
+   * communities.
    *
-   * @param df The format object to get the property from, assumed not
-   * <code>null</code>.
-   *
-   * @return The property, or <code>null</code> if "all" is defined or the
-   * property does not exist.
+   * @param df The format object to get the property from, assumed not <code>null</code>.
+   * @return The property, or <code>null</code> if "all" is defined or the property does not exist.
    */
   private PSDFMultiProperty getCommunityProperty(PSDisplayFormat df) {
     PSDFMultiProperty result = null;
@@ -386,15 +367,10 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "DisplayFormatDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

@@ -16,14 +16,11 @@
  */
 package com.percussion.cms.objectstore;
 
-/**
- * The value of an <code>PSItemField</code> that is treated as a
- * <code>String</code> value.
- */
+/** The value of an <code>PSItemField</code> that is treated as a <code>String</code> value. */
 public class PSTextValue extends PSFieldValue {
   /**
-   * Creates a new instance with the <code>textValue</code> as its value.
-   * The text, may be <code>null</code> or empty.
+   * Creates a new instance with the <code>textValue</code> as its value. The text, may be <code>
+   * null</code> or empty.
    *
    * @see #setText(String)
    * @param textValue - may be <code>null</code> or empty.
@@ -35,8 +32,8 @@ public class PSTextValue extends PSFieldValue {
   /**
    * Sets the text this value contains.
    *
-   * @param textValue - may be <code>null</code> or empty, if
-   * <code>null</code> is supplied empty is stored("").
+   * @param textValue - may be <code>null</code> or empty, if <code>null</code> is supplied empty is
+   *     stored("").
    */
   public void setText(String textValue) {
     if (textValue == null) textValue = "";
@@ -45,10 +42,9 @@ public class PSTextValue extends PSFieldValue {
   }
 
   /**
-   * In order to implement the <code>IPSFieldValue</code> interface we must
-   * have a <code>getValue</code> that returns an <code>Object</code>.  The
-   * value stored in this class is a <code>String</code> so instead of
-   * calling <code>getValue</code> and having to cast, this convenience method
+   * In order to implement the <code>IPSFieldValue</code> interface we must have a <code>getValue
+   * </code> that returns an <code>Object</code>. The value stored in this class is a <code>String
+   * </code> so instead of calling <code>getValue</code> and having to cast, this convenience method
    * is supplied that returns the <code>String</code>.
    *
    * @return the <code>String</code> never <code>null</code> may be empty.
@@ -58,7 +54,7 @@ public class PSTextValue extends PSFieldValue {
   }
 
   /**
-   * Clones this objects.  Makes a deep copy.
+   * Clones this objects. Makes a deep copy.
    *
    * @return deep copy of this object.
    */
@@ -70,7 +66,9 @@ public class PSTextValue extends PSFieldValue {
     return copy;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;
 
@@ -80,7 +78,9 @@ public class PSTextValue extends PSFieldValue {
     return true;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public int hashCode() {
     int hash = 0;
 
@@ -91,17 +91,14 @@ public class PSTextValue extends PSFieldValue {
   }
 
   /**
-   * Implements the interface.  Gets the text this value contains.
+   * Implements the interface. Gets the text this value contains.
    *
-   * @return The value as a <code>String</code>, may be empty,
-   * never <code>null</code>.
+   * @return The value as a <code>String</code>, may be empty, never <code>null</code>.
    */
   public Object getValue() {
     return m_value;
   }
 
-  /**
-   * The value of this class, never <code>null</code>, may be empty.
-   */
+  /** The value of this class, never <code>null</code>, may be empty. */
   private String m_value = "";
 }

@@ -405,13 +405,12 @@ public class PSDateRangeTest {
   }
 
   /**
-   * Compares the year/month/day parts of two dates for equality. The time
-   * component is ignored.
+   * Compares the year/month/day parts of two dates for equality. The time component is ignored.
    *
    * @param d1 Assumed not <code>null</code>.
    * @param d2 Assumed not <code>null</code>.
-   * @return <code>true</code> if the date parts of the supplied dates are
-   *         the same, otherwise <code>false</code>.
+   * @return <code>true</code> if the date parts of the supplied dates are the same, otherwise
+   *     <code>false</code>.
    */
   private boolean datesAreEqual(Date d1, Date d2) {
     DateTime actual = new DateTime(d1);

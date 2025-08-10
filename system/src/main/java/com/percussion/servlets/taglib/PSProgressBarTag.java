@@ -18,13 +18,9 @@ package com.percussion.servlets.taglib;
 
 import javax.faces.component.UIComponent;
 
-/**
- * The tag that implements the progress bar.
- */
+/** The tag that implements the progress bar. */
 public class PSProgressBarTag extends PSJSFBaseTag {
-  /**
-   * It holds the value of "percent" attribute.
-   */
+  /** It holds the value of "percent" attribute. */
   private String m_percent;
 
   @Override
@@ -43,8 +39,7 @@ public class PSProgressBarTag extends PSJSFBaseTag {
   }
 
   /**
-   * @return the value of "percent" attribute, may be <code>null</code> or
-   * empty.
+   * @return the value of "percent" attribute, may be <code>null</code> or empty.
    */
   public String getPercent() {
     return m_percent;

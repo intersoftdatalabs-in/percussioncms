@@ -22,7 +22,6 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.system.utils.PSSiteManageBean;
-import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,37 +29,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PSSiteManageBean("itemIdResolver")
 public class PSItemIdResolver {
 
-    IPSContentDesignWs contentDesignWs;
-    IPSIdMapper idMapper;
+  IPSContentDesignWs contentDesignWs;
+  IPSIdMapper idMapper;
 
-    @Autowired
-    public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper) {
-        super();
-        this.contentDesignWs = contentDesignWs;
-        this.idMapper = idMapper;
-    }
+  @Autowired
+  public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper) {
+    super();
+    this.contentDesignWs = contentDesignWs;
+    this.idMapper = idMapper;
+  }
 
-    public String getId(IPSAssemblyItem item) {
-        var pageGuid = item.getId();
-        var id = idMapper.getString(pageGuid);
-        return id;
-    }
+  public String getId(IPSAssemblyItem item) {
+    var pageGuid = item.getId();
+    var id = idMapper.getString(pageGuid);
+    return id;
+  }
 
-    public String getId(PSAbstractPersistantObject item) {
-        notNull(item.getId(), "item id");
-        var guid = idMapper.getGuid(item.getId());
-        guid = contentDesignWs.getItemGuid(guid);
-        var pageId = idMapper.getString(guid);
-        return pageId;
-    }
+  public String getId(PSAbstractPersistantObject item) {
+    notNull(item.getId(), "item id");
+    var guid = idMapper.getGuid(item.getId());
+    guid = contentDesignWs.getItemGuid(guid);
+    var pageId = idMapper.getString(guid);
+    return pageId;
+  }
 
-    public void updateItemId(PSAbstractPersistantObject item) {
-        if (item.getId() != null) {
-            /*
-             * We need to set the proper revisioned id on the item.
-             */
-            var pageId = getId(item);
-            item.setId(pageId);
-        }
+  public void updateItemId(PSAbstractPersistantObject item) {
+    if (item.getId() != null) {
+      /*
+       * We need to set the proper revisioned id on the item.
+       */
+      var pageId = getId(item);
+      item.setId(pageId);
     }
+  }
 }

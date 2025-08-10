@@ -24,17 +24,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This class provides methods to get a list of all files based on the supplied
- * filter. If the filter includes the directories then it recurses into the
- * directories to search for the files. For example, this class allows to search
- * for all  *.xsl files under Rhythmyx root directory recursing into every
- * subdirectory. {@link FilenameFilter} controls whether to include the
+ * This class provides methods to get a list of all files based on the supplied filter. If the
+ * filter includes the directories then it recurses into the directories to search for the files.
+ * For example, this class allows to search for all *.xsl files under Rhythmyx root directory
+ * recursing into every subdirectory. {@link FilenameFilter} controls whether to include the
  * directories while search or not.
+ *
  * @see FilenameFilter
  */
 public class PSFilteredFileList {
   /**
    * Constructor which takes FilenameFilter object.
+   *
    * @param filter must not be <code>null</code>
    * @throws IllegalArgumentException if the argument supplied is <code>null</code>
    * @see FilenameFilter
@@ -46,10 +47,9 @@ public class PSFilteredFileList {
 
   /**
    * Method to get a list files matching the filter criteria.
-   * @param dirName Name of the directory to search for the files, must not be
-   * <code>null</code>
-   * @return List of files satisfying the criteria, may be <code>null</code>
-   * or <code>empty</code>.
+   *
+   * @param dirName Name of the directory to search for the files, must not be <code>null</code>
+   * @return List of files satisfying the criteria, may be <code>null</code> or <code>empty</code>.
    * @throws IllegalArgumentException if the argument supplied is <code>null</code>
    */
   public List getFiles(String dirName) {
@@ -62,9 +62,9 @@ public class PSFilteredFileList {
 
   /**
    * Method to get a list files matching the filter criteria.
+   *
    * @param dir Directory to search for the files, must not be <code>null</code>
-   * @return List of files satisfying the criteria, may be <code>null</code>
-   * or <code>empty</code>.
+   * @return List of files satisfying the criteria, may be <code>null</code> or <code>empty</code>.
    * @throws IllegalArgumentException if the argument supplied is <code>null</code>
    */
   public List getFiles(File dir) {
@@ -84,12 +84,11 @@ public class PSFilteredFileList {
   }
 
   /**
-   * Helper method to recurse through the subdirectories to get the files
-   * matching the filtering criteria.
-   * @param dir Directory to search from, if <code>null</code> returned doing
-   * nothing.
-   * @param list List object to which the new files will be added. Must not be
-   * <code>null</code>
+   * Helper method to recurse through the subdirectories to get the files matching the filtering
+   * criteria.
+   *
+   * @param dir Directory to search from, if <code>null</code> returned doing nothing.
+   * @param list List object to which the new files will be added. Must not be <code>null</code>
    * @throws IllegalArgumentException if the argument <em>list</em>is <code>null</code>
    */
   private void getFiles(File dir, List list) {
@@ -110,8 +109,8 @@ public class PSFilteredFileList {
   }
 
   /**
-   * File name filter applied during the search. Never <code>null</code> after
-   * this class object is initialized.
+   * File name filter applied during the search. Never <code>null</code> after this class object is
+   * initialized.
    */
   protected FilenameFilter m_FileNameFilter = null;
 

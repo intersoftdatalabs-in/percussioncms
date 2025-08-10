@@ -18,35 +18,32 @@
 package com.percussion.ui.data;
 
 import com.percussion.pathmanagement.data.PSPathItem;
-
 import java.util.List;
 
-/**
- * Criteria for display properties in UI lists.
- */
+/** Criteria for display properties in UI lists. */
 public class PSDisplayPropertiesCriteria {
-    private List<PSPathItem> items;
-    private PSSimpleDisplayFormat format;
-    private boolean displayFormatRequired = true;
+  private List<PSPathItem> items;
+  private PSSimpleDisplayFormat format;
+  private boolean displayFormatRequired = true;
 
-    public PSDisplayPropertiesCriteria(List<PSPathItem> items, PSSimpleDisplayFormat format) {
-        this.items = items;
-        this.format = format;
-    }
+  public PSDisplayPropertiesCriteria(List<PSPathItem> items, PSSimpleDisplayFormat format) {
+    this.items = items;
+    this.format = format;
+  }
 
-    public List<PSPathItem> getItems() {
-        return items;
-    }
+  public List<PSPathItem> getItems() {
+    return items;
+  }
 
-    public PSSimpleDisplayFormat getFormat() {
-        return format;
-    }
+  public PSSimpleDisplayFormat getFormat() {
+    return format;
+  }
 
-    public boolean isDisplayFormatRequired() {
-        return displayFormatRequired;
-    }
+  public boolean isDisplayFormatRequired() {
+    return displayFormatRequired;
+  }
 
-    public void setDisplayFormatRequired(boolean displayFormatRequired) {
-        this.displayFormatRequired = displayFormatRequired;
-    }
+  public void setDisplayFormatRequired(boolean displayFormatRequired) {
+    this.displayFormatRequired = displayFormatRequired;
+  }
 }

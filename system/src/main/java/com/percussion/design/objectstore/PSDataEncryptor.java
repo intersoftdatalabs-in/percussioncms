@@ -25,44 +25,35 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataEncryptor class defines how data should be encrypted when
- * communicating with a client. Data can be sent in the clear or using a
- * Secure Socket Layer (SSL) connection. When using SSL, the required
- * key strength can also be defined. The key strength is the number of bits
- * in the key. The most common algorithms use 40-bit or 128-bit keys, where
- * 128-bit keys are significantly more secure than 40-bit keys.
- * <p>
- * The lowest level object the PSDataEncryptor object is associated with
- * overrides any settings of a higher level object. The hierarchy is as
- * follows:
+ * The PSDataEncryptor class defines how data should be encrypted when communicating with a client.
+ * Data can be sent in the clear or using a Secure Socket Layer (SSL) connection. When using SSL,
+ * the required key strength can also be defined. The key strength is the number of bits in the key.
+ * The most common algorithms use 40-bit or 128-bit keys, where 128-bit keys are significantly more
+ * secure than 40-bit keys.
+ *
+ * <p>The lowest level object the PSDataEncryptor object is associated with overrides any settings
+ * of a higher level object. The hierarchy is as follows:
+ *
  * <ul>
- * <li>Server</li>
- * <li>Application (overrides Server)</li>
- * <li>Data Set (overrides Application)</li>
+ *   <li>Server
+ *   <li>Application (overrides Server)
+ *   <li>Data Set (overrides Application)
  *
  * @see PSDataSet#getDataEncryptor
  * @see PSApplication#getDataEncryptor
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataEncryptor extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataEncryptor(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -71,18 +62,15 @@ public class PSDataEncryptor extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Default constructor for fromXml, serialization, etc.
-   */
+  /** Default constructor for fromXml, serialization, etc. */
   PSDataEncryptor() {
     this(DEFAULT_KEY_STRENGTH);
   }
 
   /**
-   * Constructs a data encryptor object requiring SSL connections using the
-   * specified key strength.
+   * Constructs a data encryptor object requiring SSL connections using the specified key strength.
    *
-   * @param   keyStrength    the minimum number of bits required in the key
+   * @param keyStrength the minimum number of bits required in the key
    */
   public PSDataEncryptor(int keyStrength) {
     super();
@@ -91,12 +79,10 @@ public class PSDataEncryptor extends PSComponent {
   }
 
   /**
-   * Constructs a data encryptor object. If require is true, SSL connections
-   * are required using the default key strength of 40 bits. Otherwise,
-   * SSL connections are not required.
+   * Constructs a data encryptor object. If require is true, SSL connections are required using the
+   * default key strength of 40 bits. Otherwise, SSL connections are not required.
    *
-   * @param   require   <code>true</code> to require SSL connections,
-   *                   <code>false</code> otherwise
+   * @param require <code>true</code> to require SSL connections, <code>false</code> otherwise
    */
   public PSDataEncryptor(boolean require) {
     super();
@@ -107,55 +93,48 @@ public class PSDataEncryptor extends PSComponent {
   /**
    * Is an SSL connection required to secure the data being transferred?
    *
-   * @return      <code>true</code> if SSL is required,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if SSL is required, <code>false</code> otherwise
    */
   public boolean isSSLRequired() {
     return m_encryption;
   }
 
   /**
-   * Enable or disable requiring SSL connections to secure the data
-   * being transferred. If SSL is being required and a key strength
-   * was not previously set, the default key strength of 40 bits
+   * Enable or disable requiring SSL connections to secure the data being transferred. If SSL is
+   * being required and a key strength was not previously set, the default key strength of 40 bits
    * will be used.
    *
-   * @param   enable   <code>true</code> to require SSL connections,
-   *                   <code>false</code> otherwise
+   * @param enable <code>true</code> to require SSL connections, <code>false</code> otherwise
    */
   public void setSSLRequired(boolean enable) {
     m_encryption = enable;
   }
 
   /**
-   * Get the minimum SSL key strength which must be used for data
-   * encryption. Key strengths are specified by their size in bits.
-   * The most common algorithms use 40-bit or 128-bit keys.
+   * Get the minimum SSL key strength which must be used for data encryption. Key strengths are
+   * specified by their size in bits. The most common algorithms use 40-bit or 128-bit keys.
    *
-   * @return      the minimum number of bits in the key
+   * @return the minimum number of bits in the key
    */
   public int getKeyStrength() {
     return m_keyStrength;
   }
 
   /**
-   * Set the minimum SSL key strength which must be used for data
-   * encryption. Key strengths are specified by their size in bits.
-   * The most common algorithms use 40-bit or 128-bit keys.
+   * Set the minimum SSL key strength which must be used for data encryption. Key strengths are
+   * specified by their size in bits. The most common algorithms use 40-bit or 128-bit keys.
    *
-   * @param   bits   the minimum number of bits required in the key
+   * @param bits the minimum number of bits required in the key
    */
   public void setKeyStrength(int bits) {
     m_keyStrength = bits;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param encryptor a valid PSDataEncryptor.
-   *
    */
   public void copyFrom(PSDataEncryptor encryptor) {
     copyFrom((PSComponent) encryptor);
@@ -180,10 +159,11 @@ public class PSDataEncryptor extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataEncryptor XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataEncryptor XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataEncryptor defines how data should be encrypted when
@@ -217,7 +197,7 @@ public class PSDataEncryptor extends PSComponent {
    *    &lt;!ELEMENT keyStrength      (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataEncryptor XML element node
+   * @return the newly created PSXDataEncryptor XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -233,12 +213,11 @@ public class PSDataEncryptor extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSDataEncryptor Java object
-   * from a PSXDataEncryptor XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataEncryptor Java object from a PSXDataEncryptor XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataEncryptor
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataEncryptor
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -279,18 +258,15 @@ public class PSDataEncryptor extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSValiditionException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSValiditionException, but the implementation must not directly throw any exceptions.
+   * Instead, it should register any errors with the validation context, which will decide whether
+   * to throw the exception (in which case the implementation of <CODE>validate</CODE> should not
+   * catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

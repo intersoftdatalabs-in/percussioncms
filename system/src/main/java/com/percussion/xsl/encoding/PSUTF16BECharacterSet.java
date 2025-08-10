@@ -19,10 +19,7 @@ package com.percussion.xsl.encoding;
 
 import com.icl.saxon.charcode.PluggableCharacterSet;
 
-/**
- * Defines the UTF-16BE (big endian) character encoding for the Saxon XSLT
- * processor.
- */
+/** Defines the UTF-16BE (big endian) character encoding for the Saxon XSLT processor. */
 public final class PSUTF16BECharacterSet implements PluggableCharacterSet {
   /**
    * Gets Java's name for the character encoding supported by this class.
@@ -34,12 +31,11 @@ public final class PSUTF16BECharacterSet implements PluggableCharacterSet {
   }
 
   /**
-   * Every Unicode character can be represented in this encoding, so this
-   * method always returns <code>true</code>.
+   * Every Unicode character can be represented in this encoding, so this method always returns
+   * <code>true</code>.
    *
    * @param i the Unicode of the character to be tested
-   * @return <code>true</code> unless the character is one half of a surrogate
-   * pair.
+   * @return <code>true</code> unless the character is one half of a surrogate pair.
    */
   public boolean inCharset(int i) {
     // return true unless the character is one half of a surrogate pair

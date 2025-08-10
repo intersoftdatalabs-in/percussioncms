@@ -20,82 +20,77 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.data.PSItemProperties;
-import net.sf.oval.constraint.NotEmpty;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import net.sf.oval.constraint.NotEmpty;
 
-/**
- * This class contains post information for a blog.
- */
+/** This class contains post information for a blog. */
 @XmlRootElement(name = "SiteBlogPosts")
 @JsonRootName("SiteBlogPosts")
 public class PSSiteBlogPosts extends PSAbstractDataObject {
 
-    @NotEmpty
-    private String blogTitle;
+  @NotEmpty private String blogTitle;
 
-    @NotEmpty
-    private String blogSectionPath;
+  @NotEmpty private String blogSectionPath;
 
-    private List<PSItemProperties> posts;
+  private List<PSItemProperties> posts;
 
-    @NotEmpty
-    private String blogPostTemplateId;
+  @NotEmpty private String blogPostTemplateId;
 
-    /**
-     * @return the blog link text
-     */
-    public String getBlogTitle() {
-        return blogTitle;
-    }
+  /**
+   * @return the blog link text
+   */
+  public String getBlogTitle() {
+    return blogTitle;
+  }
 
-    /**
-     * @param blogTitle the blog link text to set
-     */
-    public void setBlogTitle(String blogTitle) {
-        this.blogTitle = blogTitle;
-    }
+  /**
+   * @param blogTitle the blog link text to set
+   */
+  public void setBlogTitle(String blogTitle) {
+    this.blogTitle = blogTitle;
+  }
 
-    /**
-     * @return the folder path of the blog section
-     */
-    public String getBlogSectionPath() {
-        return blogSectionPath;
-    }
+  /**
+   * @return the folder path of the blog section
+   */
+  public String getBlogSectionPath() {
+    return blogSectionPath;
+  }
 
-    /**
-     * @param blogSectionPath the folder path of the blog section to set
-     */
-    public void setBlogSectionPath(String blogSectionPath) {
-        this.blogSectionPath = blogSectionPath;
-    }
+  /**
+   * @param blogSectionPath the folder path of the blog section to set
+   */
+  public void setBlogSectionPath(String blogSectionPath) {
+    this.blogSectionPath = blogSectionPath;
+  }
 
-    /**
-     * @return the blog posts as Optional
-     */
-    public Optional<List<PSItemProperties>> getPosts() {
-        return Optional.ofNullable(posts);
-    }
+  /**
+   * @return the blog posts as Optional
+   */
+  public Optional<List<PSItemProperties>> getPosts() {
+    return Optional.ofNullable(posts);
+  }
 
-    /**
-     * @param posts the blog posts to set
-     */
-    public void setPosts(List<PSItemProperties> posts) {
-        this.posts = posts;
-    }
+  /**
+   * @param posts the blog posts to set
+   */
+  public void setPosts(List<PSItemProperties> posts) {
+    this.posts = posts;
+  }
 
-    /**
-     * @return the id of the blog post template
-     */
-    public String getBlogPostTemplateId() {
-        return blogPostTemplateId;
-    }
+  /**
+   * @return the id of the blog post template
+   */
+  public String getBlogPostTemplateId() {
+    return blogPostTemplateId;
+  }
 
-    /**
-     * @param blogPostTemplateId the id of the blog post template to set
-     */
-    public void setBlogPostTemplateId(String blogPostTemplateId) {
-        this.blogPostTemplateId = blogPostTemplateId;
-    }
+  /**
+   * @param blogPostTemplateId the id of the blog post template to set
+   */
+  public void setBlogPostTemplateId(String blogPostTemplateId) {
+    this.blogPostTemplateId = blogPostTemplateId;
+  }
 }

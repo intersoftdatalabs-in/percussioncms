@@ -47,10 +47,9 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
   Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
   /**
-   * This is an inner class to encapsulate the parameters. We cannot keep
-   * these as class variables due to threading issues. We instantiate this
-   * object in the main processrequest method (called by server) and pass
-   * around the methods. This is meant for convenience only.
+   * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
+   * due to threading issues. We instantiate this object in the main processrequest method (called
+   * by server) and pass around the methods. This is meant for convenience only.
    */
   private static class AuthParams {
     public int m_workflowAppID = 0;
@@ -69,15 +68,12 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
     public IPSRequestContext m_request = null;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String m_fullExtensionName = "";
 
   /**
-   * This is used as a flag to indicate that the class hasn't been initialized
-   * yet. There are certain cases where init can be called more than once
-   * on the same loaded instance of a class.
+   * This is used as a flag to indicate that the class hasn't been initialized yet. There are
+   * certain cases where init can be called more than once on the same loaded instance of a class.
    */
   private static int ms_correctParamCount = IPSExtension.NOT_INITIALIZED;
 
@@ -274,33 +270,32 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
   /**
    * Does the work of authenticating the user.
    *
-   * @param connection              open connection to back-end database
-   *                                May not be <CODE>null</CODE>
-   * @param localParams             the local parameters object
-   *                                <ul>members used as input:
-   *                                <li>m_request</li>
-   *                                <li>m_isNewItem</li>
-   *                                <li>m_contentID</li>
-   *                                <li>m_userName</li>
-   *                                <li>m_roleNameList</li>
-   *                                <li>m_checkInOutCondition</li>
-   *                                <li>m_requiredAccessLevel</li>
-   *                                <li>m_assignmentType</li></ul>
-   *                                <ul>members modified:
-   *                                <li>m_assignmentType</li>
-   *                                <li>m_checkedOutUser</li>
-   *                                <li>m_checkedOut</li>
-   *                                <li>m_checkoutStatus</li>
-   *                                <li>m_request</li></ul>
+   * @param connection open connection to back-end database May not be <CODE>null</CODE>
+   * @param localParams the local parameters object
+   *     <ul>
+   *       members used as input:
+   *       <li>m_request
+   *       <li>m_isNewItem
+   *       <li>m_contentID
+   *       <li>m_userName
+   *       <li>m_roleNameList
+   *       <li>m_checkInOutCondition
+   *       <li>m_requiredAccessLevel
+   *       <li>m_assignmentType
+   *     </ul>
+   *     <ul>
+   *       members modified:
+   *       <li>m_assignmentType
+   *       <li>m_checkedOutUser
+   *       <li>m_checkedOut
+   *       <li>m_checkoutStatus
+   *       <li>m_request
+   *     </ul>
    *
-   * @throws                        SQLException if an error occurs
-   * @throws                        PSAuthorizationException if an
-   *                                authorization error occurs
-   *
-   * @throws                        PSEntryNotFoundException if a database
-   *                                record is not found
-   * @throws                        PSRoleException if any role-related error
-   *                                occurs
+   * @throws SQLException if an error occurs
+   * @throws PSAuthorizationException if an authorization error occurs
+   * @throws PSEntryNotFoundException if a database record is not found
+   * @throws PSRoleException if any role-related error occurs
    */
   private void authenticateUser(String lang, Connection connection, AuthParams localParams)
       throws SQLException,
@@ -518,19 +513,16 @@ public class PSExitAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * Determines if the user is able to access an item once it is created and
-   * entered into the initial state of its workflow.
+   * Determines if the user is able to access an item once it is created and entered into the
+   * initial state of its workflow.
    *
    * @param connection The connection to use for queries, assumed not <code>
    * null</code>.
-   * @param localParams The local param context containing the current state
-   * of this exit, assumed not <code>null</code> and that all required values
-   * have been set.
-   *
-   * @return <code>true</code> if one of the user role's has the required
-   * access level for editing the document in the initial state, <code>false
+   * @param localParams The local param context containing the current state of this exit, assumed
+   *     not <code>null</code> and that all required values have been set.
+   * @return <code>true</code> if one of the user role's has the required access level for editing
+   *     the document in the initial state, <code>false
    * </code> if not.
-   *
    * @throws SQLException if there are any errors retrieving backend data.
    * @throws PSEntryNotFoundException if there is no state information found.
    */

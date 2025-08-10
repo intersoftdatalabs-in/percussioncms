@@ -19,12 +19,10 @@ package com.percussion.delivery.multitenant;
 import java.util.Date;
 
 /**
- *
- * Represents information about an authorized tenant and maintains
- * the state of the tenant between requests.
+ * Represents information about an authorized tenant and maintains the state of the tenant between
+ * requests.
  *
  * @author natechadwick
- *
  */
 public class PSTenantInfo implements IPSTenantInfo {
 
@@ -58,7 +56,9 @@ public class PSTenantInfo implements IPSTenantInfo {
     return this.api_counter;
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see com.percussion.delivery.multitenant.IPSTenantInfo#addAPIUsage(long)
    */
   @Override
@@ -100,7 +100,8 @@ public class PSTenantInfo implements IPSTenantInfo {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantInfo#setLastAuthorizationCheckDate(java.util.Date)
+   * @see
+   *     com.percussion.delivery.multitenant.IPSTenantInfo#setLastAuthorizationCheckDate(java.util.Date)
    */
   @Override
   public void setLastAuthorizationCheckDate(Date date) {
@@ -116,7 +117,8 @@ public class PSTenantInfo implements IPSTenantInfo {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantInfo#setLicenseStatus(com.percussion.delivery.multitenant.PSLicenseStatus)
+   * @see
+   *     com.percussion.delivery.multitenant.IPSTenantInfo#setLicenseStatus(com.percussion.delivery.multitenant.PSLicenseStatus)
    */
   @Override
   public void setLicenseStatus(PSLicenseStatus status) {

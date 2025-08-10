@@ -27,19 +27,15 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * The PSMailMessage class is used to create message which can be sent to
- * one or more users through the mail providers E2 mail providers. At this
- * time, only SMTP mail is supported.
+ * The PSMailMessage class is used to create message which can be sent to one or more users through
+ * the mail providers E2 mail providers. At this time, only SMTP mail is supported.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSMailMessage implements IPSMailErrors {
-  /**
-   * Construct an empty mail message. At least one name to send to must
-   * be added.
-   */
+  /** Construct an empty mail message. At least one name to send to must be added. */
   public PSMailMessage() {
     super();
 
@@ -56,18 +52,13 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Add a user to the list of users to send to. This name will be added
-   * to the <code>To</code> header, unless <code>setToHeaderString</code>
-   * is called
+   * Add a user to the list of users to send to. This name will be added to the <code>To</code>
+   * header, unless <code>setToHeaderString</code> is called
    *
-   * @param      name   the name of the user to send the message to, in
-   *                     <code>user@domain</code> format
-   *
-   * @exception   PSIllegalArgumentException
-   *                     if name is null, empty or is not in
-   *                     <code>user@domain</code> format
-   *
-   * @see         #setToHeaderString
+   * @param name the name of the user to send the message to, in <code>user@domain</code> format
+   * @exception PSIllegalArgumentException if name is null, empty or is not in <code>user@domain
+   *     </code> format
+   * @see #setToHeaderString
    */
   public void addSendTo(String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateEmailAddress(name);
@@ -77,18 +68,13 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Add a user to the list of users to copy. This name will be added
-   * to the <code>cc</code> header, unless <code>setToHeaderString</code>
-   * is called
+   * Add a user to the list of users to copy. This name will be added to the <code>cc</code> header,
+   * unless <code>setToHeaderString</code> is called
    *
-   * @param      name   the name of the user to copy on the message, in
-   *                     <code>user@domain</code> format
-   *
-   * @exception   PSIllegalArgumentException
-   *                     if name is null, empty or is not in
-   *                     <code>user@domain</code> format
-   *
-   * @see         #setToHeaderString
+   * @param name the name of the user to copy on the message, in <code>user@domain</code> format
+   * @exception PSIllegalArgumentException if name is null, empty or is not in <code>user@domain
+   *     </code> format
+   * @see #setToHeaderString
    */
   public void addCopyTo(String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateEmailAddress(name);
@@ -98,15 +84,12 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Add a user to the list of users to blind copy. If a user is
-   * blind copied, their name will not appear in the message text.
+   * Add a user to the list of users to blind copy. If a user is blind copied, their name will not
+   * appear in the message text.
    *
-   * @param      name   the name of the user to copy on the message, in
-   *                     <code>user@domain</code> format
-   *
-   * @exception   PSIllegalArgumentException
-   *                     if name is null, empty or is not in
-   *                     <code>user@domain</code> format
+   * @param name the name of the user to copy on the message, in <code>user@domain</code> format
+   * @exception PSIllegalArgumentException if name is null, empty or is not in <code>user@domain
+   *     </code> format
    */
   public void addBlindCopyTo(String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateEmailAddress(name);
@@ -118,7 +101,8 @@ public class PSMailMessage implements IPSMailErrors {
   /**
    * Validates an email address according to RFC 822 (single address)
    *
-   * The syntax of an email address is:
+   * <p>The syntax of an email address is:
+   *
    * <PRE>
    * addr-spec   =  local-part "@" domain        ; global address
    *
@@ -136,13 +120,11 @@ public class PSMailMessage implements IPSMailErrors {
    * atom        =  1*<any CHAR except specials, SPACE and CTLs>
    *
    * </PRE>
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.4 1999/06/17
-   *
-   * @param   name
-   *
-   * @return   PSIllegalArgumentException
+   * @param name
+   * @return PSIllegalArgumentException
    */
   private static PSIllegalArgumentException validateEmailAddress(String name) {
     if (name == null || name.length() == 0) {
@@ -165,22 +147,19 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Override the text displayed instead of the <code>To</code> and
-   * <code>cc</code> headers of the message.
-   * <P>
-   * The default behavior is to display all names added through
-   * <code>addSendTo</code> in the <code>To</code> header and all names
-   * added through <code>addCopyTo</code> in the <code>cc</code> header,
-   * and all names added through <code>addBlindCopyTo</code> in the
-   * <code>bcc</code> header.
-   * <P>
-   * This should be used to display a text message, such as
-   * "All Employees" instead of each particular name.
+   * Override the text displayed instead of the <code>To</code> and <code>cc</code> headers of the
+   * message.
    *
-   * @param      displayText      the text to use
+   * <p>The default behavior is to display all names added through <code>addSendTo</code> in the
+   * <code>To</code> header and all names added through <code>addCopyTo</code> in the <code>cc
+   * </code> header, and all names added through <code>addBlindCopyTo</code> in the <code>bcc</code>
+   * header.
    *
-   * @exception   PSIllegalArgumentException
-   *                              if displayText is null or empty
+   * <p>This should be used to display a text message, such as "All Employees" instead of each
+   * particular name.
+   *
+   * @param displayText the text to use
+   * @exception PSIllegalArgumentException if displayText is null or empty
    */
   public void setToHeaderString(String displayText) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateToHeaderString(displayText);
@@ -206,7 +185,7 @@ public class PSMailMessage implements IPSMailErrors {
   /**
    * Get the originator to use for the message.
    *
-   * @return      the originator to use
+   * @return the originator to use
    */
   public String getFrom() {
     return m_from;
@@ -215,11 +194,9 @@ public class PSMailMessage implements IPSMailErrors {
   /**
    * Set the originator to use for the message.
    *
-   * @param      from      the originator to use
-   *
-   * @exception   PSIllegalArgumentException
-   *                     if from is null, empty or is not in
-   *                     <code>user@domain</code> format
+   * @param from the originator to use
+   * @exception PSIllegalArgumentException if from is null, empty or is not in <code>user@domain
+   *     </code> format
    */
   public void setFrom(String from) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateEmailAddress(from);
@@ -231,19 +208,18 @@ public class PSMailMessage implements IPSMailErrors {
   /**
    * Set the text to use as the subject line for the message.
    *
-   * @param      subject      the subject line (may be null)
+   * @param subject the subject line (may be null)
    */
   public void setSubject(String subject) {
     m_subject = subject;
   }
 
   /**
-   * Set the the date to use as when the message was created. The date
-   * and time this object was constructed is used by default.
+   * Set the the date to use as when the message was created. The date and time this object was
+   * constructed is used by default.
    *
-   * @param      date                           the date to use
-   *
-   * @exception   PSIllegalArgumentException      if date is null
+   * @param date the date to use
+   * @exception PSIllegalArgumentException if date is null
    */
   public void setCreationDate(java.util.Date date) throws PSIllegalArgumentException {
     if (date != null) m_creationDate = date;
@@ -252,24 +228,22 @@ public class PSMailMessage implements IPSMailErrors {
   /**
    * Set the specified stream as the source of the body.
    *
-   * @param      in      the stream to use
+   * @param in the stream to use
    */
   public void setBody(java.io.InputStream in) throws java.io.IOException {
     m_bodyIn = in;
   }
 
   /**
-   * The text to append to the message. In a subclass PSQueuedNotification,
-   * the appendBodyText method is added into carriage return and newline
-   * for each appended text. This will make each newly appended text display
-   * from a new line.
+   * The text to append to the message. In a subclass PSQueuedNotification, the appendBodyText
+   * method is added into carriage return and newline for each appended text. This will make each
+   * newly appended text display from a new line.
    *
-   * <em>Note: </em>If an input stream has been previously defined using
-   * setBody, its contents will be read into the buffer used to store
-   * the message's text body. This may prove inefficient (high memory
-   * usage). Use only setBody whenever possible.
+   * <p><em>Note: </em>If an input stream has been previously defined using setBody, its contents
+   * will be read into the buffer used to store the message's text body. This may prove inefficient
+   * (high memory usage). Use only setBody whenever possible.
    *
-   * @param      text      the text to append
+   * @param text the text to append
    */
   public void appendBodyText(String text) throws java.io.IOException {
     if (m_bodyIn != null) {
@@ -361,20 +335,17 @@ public class PSMailMessage implements IPSMailErrors {
     return m_bodyBuf.toString();
   }
 
-  /**
-   * Remove the appended message after the message has been sent.
-   */
+  /** Remove the appended message after the message has been sent. */
   public void resetBodyText() {
     m_bodyBuf.setLength(0);
     m_afterLastBreak = 0;
   }
 
   /**
-   * Get the list of recipients for this message. This can be used by
-   * the mail provider when sending the message to determine each user
-   * names the message must be sent to.
+   * Get the list of recipients for this message. This can be used by the mail provider when sending
+   * the message to determine each user names the message must be sent to.
    *
-   * @return      the names to receive this message
+   * @return the names to receive this message
    */
   public String[] getRecipients() {
     // go through the to, cc and bcc headers for this and create the
@@ -395,14 +366,12 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Write this message to the specified stream (writer). This uses
-   * the message format defined in
-   * <A HREF="http://www.cis.ohio-state.edu/htbin/rfc/rfc822.html">RFC 822</A>
-   * for sending text messages.
+   * Write this message to the specified stream (writer). This uses the message format defined in <A
+   * HREF="http://www.cis.ohio-state.edu/htbin/rfc/rfc822.html">RFC 822</A> for sending text
+   * messages.
    *
-   * @param      writer               the stream (writer) to write to
-   *
-   * @exception   java.io.IOException   if an I/O error occurs
+   * @param writer the stream (writer) to write to
+   * @exception java.io.IOException if an I/O error occurs
    */
   public void write(Writer writer) throws java.io.IOException {
     // 1. send the Date header
@@ -488,51 +457,37 @@ public class PSMailMessage implements IPSMailErrors {
   }
 
   /**
-   * Sets the character encoding that will be used to send this
-   * message.
+   * Sets the character encoding that will be used to send this message.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.7 1999/07/30
-   *
-   *
-   * @param   enc
-   *
+   * @param enc
    */
   public void setCharEncoding(String enc) {
     m_charEncoding = PSCharSets.getJavaName(enc);
   }
 
   /**
-   * Gets the character encoding that will be used to send this
-   * message.
+   * Gets the character encoding that will be used to send this message.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.7 1999/07/30
-   *
-   *
    */
   public String getCharEncoding() {
     return m_charEncoding;
   }
 
   /**
-   * Sends our standard MIME headers for content type, encoding, disposition,
-   * and MIME version. The encoding is (and must be) the same encoding we
-   * created the writer with.
-   * <p>
-   * CAUTION: When we support attachments, be sure to modify the Content-Disposition
-   * header from inline to whatever else is appropriate.
+   * Sends our standard MIME headers for content type, encoding, disposition, and MIME version. The
+   * encoding is (and must be) the same encoding we created the writer with.
    *
-   * @author   chadloder
+   * <p>CAUTION: When we support attachments, be sure to modify the Content-Disposition header from
+   * inline to whatever else is appropriate.
    *
+   * @author chadloder
    * @version 1.8 1999/07/30
-   *
-   * @param   out
-   *
-   * @throws   java.io.IOException
-   *
+   * @param out
+   * @throws java.io.IOException
    */
   private void sendMimeHeaders(Writer out) throws java.io.IOException {
     out.write("MIME-Version: 1.0\r\n");

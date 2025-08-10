@@ -19,16 +19,14 @@ package com.percussion.sitemanage.service;
 import java.util.Collection;
 import java.util.Set;
 
-/**
- * Helper service for site publishing operations.
- */
+/** Helper service for site publishing operations. */
 public interface IPSSitePublishServiceHelper {
 
-    /**
-     * Finds all related IDs for the supplied list of content IDs.
-     *
-     * @param contentIds set of content IDs, never blank.
-     * @return collection of related item IDs, never null, may be empty.
-     */
-    Collection<Integer> findRelatedItemIds(Set<Integer> contentIds);
+  /**
+   * Finds all related IDs for the supplied list of content IDs.
+   *
+   * @param contentIds set of content IDs, never blank.
+   * @return collection of related item IDs, never null, may be empty.
+   */
+  Collection<Integer> findRelatedItemIds(Set<Integer> contentIds);
 }

@@ -20,7 +20,9 @@ import javax.crypto.SecretKey;
  */
 /**
  * Represents a key for encryption/decryption algorithms used within the product.
- *<p>
+ *
+ * <p>
+ *
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0

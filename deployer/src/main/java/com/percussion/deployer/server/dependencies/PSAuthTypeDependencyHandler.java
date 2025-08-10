@@ -44,19 +44,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
-/**
- * Class to handle packaging and deploying authtypes.
- */
+/** Class to handle packaging and deploying authtypes. */
 public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAuthTypeDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -152,10 +147,8 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Get a map of all authtype names.
    *
-   * @return The map, with the authtype as the key and the display name as the
-   * value, both as <code>String</code> objects, never <code>null</code>, may
-   * be empty.
-   *
+   * @return The map, with the authtype as the key and the display name as the value, both as <code>
+   *     String</code> objects, never <code>null</code>, may be empty.
    * @throws PSDeployException If the names cannot be retrieved.
    */
   private Map<String, String> getAuthtypeNames() throws PSDeployException {
@@ -180,12 +173,10 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
    * Get the app dependency represented by the supplied resource string.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param resource The resource, assumed not <code>null</code> or empty and
-   * in the form app/resource.
-   *
-   * @return The dependency, or <code>null</code> if the supplied
-   * <code>resource</code> does not locate an application.
-   *
+   * @param resource The resource, assumed not <code>null</code> or empty and in the form
+   *     app/resource.
+   * @return The dependency, or <code>null</code> if the supplied <code>resource</code> does not
+   *     locate an application.
    * @throws PSDeployException if there are any errors.
    */
   private PSDependency getAppDep(PSSecurityToken tok, String resource)
@@ -203,11 +194,9 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Get the key used to find the authtype entry in the properties file from
-   * the authtype id.
+   * Get the key used to find the authtype entry in the properties file from the authtype id.
    *
    * @param id The id, assumed not <code>null</code> or empty.
-   *
    * @return The key, never <code>null</code> or empty.
    */
   private String getPropKey(String id) {
@@ -217,11 +206,9 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Get the authtype from the supplied key.
    *
-   * @param key The key from the properties file, assumed not <code>null</code>
-   * or empty.
-   *
-   * @return The portion of the key that defines the authtype, or
-   * <code>null</code> if the key does not specify one, never empty.
+   * @param key The key from the properties file, assumed not <code>null</code> or empty.
+   * @return The portion of the key that defines the authtype, or <code>null</code> if the key does
+   *     not specify one, never empty.
    */
   private String getAuthType(String key) {
     String authType = null;
@@ -236,7 +223,6 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
    * Load the authtypes properties file
    *
    * @return The properties, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors
    */
   private Properties getAuthTypesProps() throws PSDeployException {
@@ -252,16 +238,16 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Keyword</li>
+   *   <li>Application
+   *   <li>Keyword
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -307,20 +293,13 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler {
     // noop - will always have required data as local dependencies
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "AuthType";
 
-  /**
-   * Constant for the id of the authtype keyword group
-   */
+  /** Constant for the id of the authtype keyword group */
   private static final String AUTH_TYPE_LOOKUP_ID = "10";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

@@ -51,27 +51,22 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 /**
- * The PSRelationshipHelper contains a series of functions that are commonly
- * performed in Effects and other code that manipulates relatiohships.
- * <p>
- * This helper is useful only in Rhythmyx Extensions and Effects, which run in
- * the same JVM environment as the Rhythmyx Server itself. Much of this
- * functionality is also available to Client and Web Service programs, through
- * the underlying API.
- * </p>
- * <p>
- * The helper also has internal flags to control the Authtype when searching
- * active assembly relationships, and the community searching when examining
- * folder relationships. The default setting for Authtype is
- * <code>ALL CONTENT</code> and the default for communities is
- * <code>ignore</code>.
- * </p>
+ * The PSRelationshipHelper contains a series of functions that are commonly performed in Effects
+ * and other code that manipulates relatiohships.
  *
+ * <p>This helper is useful only in Rhythmyx Extensions and Effects, which run in the same JVM
+ * environment as the Rhythmyx Server itself. Much of this functionality is also available to Client
+ * and Web Service programs, through the underlying API.
+ *
+ * <p>The helper also has internal flags to control the Authtype when searching active assembly
+ * relationships, and the community searching when examining folder relationships. The default
+ * setting for Authtype is <code>ALL CONTENT</code> and the default for communities is <code>ignore
+ * </code>.
  */
 public class PSRelationshipHelper {
   /**
-   * Constructs a new relationship helper, using the specified request as the
-   * context for resolving relationship queries.
+   * Constructs a new relationship helper, using the specified request as the context for resolving
+   * relationship queries.
    *
    * @param request request context object, must nto be <code>null</code>.
    */
@@ -83,13 +78,11 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Constructs a new helper with the specified values for auth type and
-   * community.
+   * Constructs a new helper with the specified values for auth type and community.
    *
    * @param request the callers request
    * @param authType the authentication type.
-   * @param useCommunities if <code>true</code> this helper filters results
-   *           by community.
+   * @param useCommunities if <code>true</code> this helper filters results by community.
    */
   public PSRelationshipHelper(IPSRequestContext request, int authType, boolean useCommunities) {
     this(request);
@@ -116,8 +109,7 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Sets the authtype from the supplied string. The authtype value is parsed
-   * and stored.
+   * Sets the authtype from the supplied string. The authtype value is parsed and stored.
    *
    * @param atype the authtype to set as string, must be parsable as integer.
    */
@@ -129,8 +121,8 @@ public class PSRelationshipHelper {
   /**
    * Gets the current community filtering flag.
    *
-   * @return Returns <code>true</code> if this helper uses community
-   *         filtering, <code>false</code> otherwise.
+   * @return Returns <code>true</code> if this helper uses community filtering, <code>false</code>
+   *     otherwise.
    */
   public boolean usesCommunities() {
     return m_useCommunities;
@@ -139,9 +131,8 @@ public class PSRelationshipHelper {
   /**
    * Sets the community filtering flag.
    *
-   * @param useCommunities the new community filter setting. Use
-   *           <code>true</code> to filter results to the current community,
-   *           <code>false</code> otherwise.
+   * @param useCommunities the new community filter setting. Use <code>true</code> to filter results
+   *     to the current community, <code>false</code> otherwise.
    */
   public void setCommunities(boolean useCommunities) {
     m_useCommunities = useCommunities;
@@ -180,7 +171,6 @@ public class PSRelationshipHelper {
    * Gets the Relationship Processor for the server side relationship.
    *
    * @return the server relationship processor, never <code>null</code>.
-   *
    * @throws PSCmsException if the proxy cannot be created.
    */
   public synchronized PSRelationshipProcessor getRelationshipProcessor() throws PSCmsException {
@@ -222,10 +212,8 @@ public class PSRelationshipHelper {
    * Gets the locator from the supplied folder path.
    *
    * @param pathname the folder path, never <code>null</code> or empty.
-   *
-   * @return the locator of the folder with revision <code>1</code>. It may
-   *    be <code>null</code> if cannot find a folder with the supplied path.
-   *
+   * @return the locator of the folder with revision <code>1</code>. It may be <code>null</code> if
+   *     cannot find a folder with the supplied path.
    * @throws PSCmsException if an error occurs.
    */
   public PSLocator getFolderLocatorByPath(String pathname) throws PSCmsException {
@@ -244,8 +232,7 @@ public class PSRelationshipHelper {
    * Gets a folder by path name.
    *
    * @param pathname the full path. Must not be empty or <code>null</code>.
-   * @return the specified folder, or <code>null</code> if the folder cannot
-   *         be found.
+   * @return the specified folder, or <code>null</code> if the folder cannot be found.
    * @throws PSUnknownNodeTypeException
    * @throws PSCmsException
    * @throws PSExtensionProcessingException
@@ -262,11 +249,10 @@ public class PSRelationshipHelper {
   /**
    * Gets the Component Summary for a specified item or folder.
    *
-   * @param locator the locator, which must include a valid revision. If
-   *           <code>null</code> the return value will be <code>null</code>.
-   * @return the summary object for the specified item or folder,
-   *         <code>null</code> only if the supplied locator is
-   *         <code>null</code>.
+   * @param locator the locator, which must include a valid revision. If <code>null</code> the
+   *     return value will be <code>null</code>.
+   * @return the summary object for the specified item or folder, <code>null</code> only if the
+   *     supplied locator is <code>null</code>.
    * @throws PSExtensionProcessingException if failed to load.
    */
   public PSComponentSummary getComponentSummary(PSLocator locator)
@@ -312,16 +298,12 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the published filename for the supplied folder locator. If the
-   * folder property named {@link PSFolder#PROPERTY_PUB_FILE_NAME} is present,
-   * its value will be used as the file name for this folder. If this
-   * property is not defined, the folder name is returned.
+   * Gets the published filename for the supplied folder locator. If the folder property named
+   * {@link PSFolder#PROPERTY_PUB_FILE_NAME} is present, its value will be used as the file name for
+   * this folder. If this property is not defined, the folder name is returned.
    *
    * @param locator the locator for the folder, must not be <code>null</code>.
-   *
-   * @return the file name for this folder as described above, never
-   *         <code>null</code> or empty.
-   *
+   * @return the file name for this folder as described above, never <code>null</code> or empty.
    * @throws PSCmsException if an error occurs
    */
   public String getFolderFileName(PSLocator locator) throws PSCmsException {
@@ -331,12 +313,11 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Validates that the locator can be used in relationship operations. If the
-   * locator does not have a revision, the current revision is fetched.
+   * Validates that the locator can be used in relationship operations. If the locator does not have
+   * a revision, the current revision is fetched.
    *
    * @param loc the locator to check, must not be <code>null</code>.
-   * @return the locator with current revision filled if missing, never
-   *         <code>null</code>.
+   * @return the locator with current revision filled if missing, never <code>null</code>.
    * @throws PSCmsException
    * @throws PSUnknownNodeTypeException
    * @throws PSExtensionProcessingException
@@ -352,14 +333,13 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the set of all variants defined in the system. This set can further
-   * be used to find any variant by name or by id.
+   * Gets the set of all variants defined in the system. This set can further be used to find any
+   * variant by name or by id.
    *
    * @return the set of variants, never <code>null</code> may be empty.
    * @throws PSCmsException if loading of variants fails for any reason.
-   * @throws PSUnknownNodeTypeException if the serialization of objects from
-   *            XML document fails because of invalid DTD.
-   *
+   * @throws PSUnknownNodeTypeException if the serialization of objects from XML document fails
+   *     because of invalid DTD.
    */
   public PSContentTypeVariantSet getVariantSet() throws PSCmsException, PSUnknownNodeTypeException {
     m_log.debug("get Variant Set");
@@ -367,14 +347,13 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the set of all slots defined in the system. This set can be further
-   * used to find any slot by name or by id.
+   * Gets the set of all slots defined in the system. This set can be further used to find any slot
+   * by name or by id.
    *
    * @return the set of slots, never <code>null</code> may be empty.
    * @throws PSCmsException if loading of slots fails for any reason.
-   * @throws PSUnknownNodeTypeException if the serialization of objects from
-   *            XML document fails because of invalid DTD.
-   *
+   * @throws PSUnknownNodeTypeException if the serialization of objects from XML document fails
+   *     because of invalid DTD.
    */
   public PSSlotTypeSet getSlotSet() throws PSCmsException, PSUnknownNodeTypeException {
     m_log.debug("get Slot Set");
@@ -413,13 +392,11 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Determines if the specified folder is a decendent of the site folder or
-   * not.
+   * Determines if the specified folder is a decendent of the site folder or not.
    *
-   * @param folder the locator of the folder to be examined, must not be
-   *           <code>null</code>.
-   * @return <code>true</code> if the folder is a decendent of the site
-   *         folder, <code>false</code> otherwise.
+   * @param folder the locator of the folder to be examined, must not be <code>null</code>.
+   * @return <code>true</code> if the folder is a decendent of the site folder, <code>false</code>
+   *     otherwise.
    * @throws PSCmsException when the folder cannot be loaded.
    */
   public boolean isSiteFolder(PSLocator folder) throws PSCmsException {
@@ -430,12 +407,10 @@ public class PSRelationshipHelper {
   /**
    * Determines if a folder descends from a specified root folder.
    *
-   * @param root Locator of the root folder to check, must not be
-   *           <code>null</code>.
-   * @param folder Locator of the descendent folder to check, must not be
-   *           <code>null</code>.
-   * @return <code>true</code> if the folder descends from the specified
-   *         root, <code>false</code> otherwise.
+   * @param root Locator of the root folder to check, must not be <code>null</code>.
+   * @param folder Locator of the descendent folder to check, must not be <code>null</code>.
+   * @return <code>true</code> if the folder descends from the specified root, <code>false</code>
+   *     otherwise.
    * @throws PSCmsException
    */
   public boolean isFolderDescendent(PSLocator root, PSLocator folder) throws PSCmsException {
@@ -452,13 +427,11 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the possible folder paths for this object. The object may be a folder
-   * or a content item. If the object is a folder, it will have a single parent
-   * path. If the object is a content item, it may have zero or more folder
-   * paths.
+   * Gets the possible folder paths for this object. The object may be a folder or a content item.
+   * If the object is a folder, it will have a single parent path. If the object is a content item,
+   * it may have zero or more folder paths.
    *
-   * @param locator the object whose paths are desired, must not be
-   *           <code>null</code>.
+   * @param locator the object whose paths are desired, must not be <code>null</code>.
    * @return the parent paths, never <code>null</code> may be empty.
    * @throws PSCmsException when the folders cannot be located.
    */
@@ -478,8 +451,7 @@ public class PSRelationshipHelper {
    * Gets the containing site folders for an item or folder.
    *
    * @param locator the content item or folder, must not be <code>null</code>.
-   * @return a Set of PSFolders objects. Never <code>null</code> may be
-   *         <code>empty</code>
+   * @return a Set of PSFolders objects. Never <code>null</code> may be <code>empty</code>
    * @throws PSCmsException
    * @throws PSUnknownNodeTypeException
    * @throws PSExtensionProcessingException
@@ -495,8 +467,7 @@ public class PSRelationshipHelper {
   /**
    * Gets all folders that contain this item or folder.
    *
-   * @param locator the content item or folder to search, must not be
-   *           <code>null</code>.
+   * @param locator the content item or folder to search, must not be <code>null</code>.
    * @return a Set of PSFolder objects that contain this item.
    * @throws PSUnknownNodeTypeException
    * @throws PSCmsException
@@ -513,10 +484,8 @@ public class PSRelationshipHelper {
   /**
    * Gets folders that contain an object.
    *
-   * @param locator the item or folder to search for, must not be
-   * <code>null</code>.
-   * @param allFolders if <code>true</code> return all folders. Otherwise
-   *           only return site folders.
+   * @param locator the item or folder to search for, must not be <code>null</code>.
+   * @param allFolders if <code>true</code> return all folders. Otherwise only return site folders.
    * @return a Set of PSFolder objects.
    * @throws PSUnknownNodeTypeException
    * @throws PSCmsException
@@ -547,16 +516,14 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the contents of a slot, by name. This method returns a list of
-   * PSComponentSummary objects, rather than a PSComponentSummaries because
-   * PSComponentSummaries is a Set not a List, and the order of items within
-   * the slot would not preserved.
+   * Gets the contents of a slot, by name. This method returns a list of PSComponentSummary objects,
+   * rather than a PSComponentSummaries because PSComponentSummaries is a Set not a List, and the
+   * order of items within the slot would not preserved.
    *
    * @param item the parent item, must not be <code>null</code>.
-   * @param slotName the specified slot name, must not be <code>null</code>
-   *           or empty.
-   * @return a List of PSComponentSummary objects representing the slot
-   *         contents. May be <code>empty</code> but never <code>null</code>
+   * @param slotName the specified slot name, must not be <code>null</code> or empty.
+   * @return a List of PSComponentSummary objects representing the slot contents. May be <code>empty
+   *     </code> but never <code>null</code>
    * @throws PSCmsException
    * @throws PSExtensionProcessingException when the slot cannot be found.
    * @throws PSUnknownNodeTypeException
@@ -578,19 +545,18 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the contents of a slot. Uses the Authtype specified in the calling
-   * request. This method returns a list of PSComponentSummary objects, rather
-   * than a PSComponentSummaries because PSComponentSummaries is a Set not a
-   * List, and the order of items within the slot would not preserved.
+   * Gets the contents of a slot. Uses the Authtype specified in the calling request. This method
+   * returns a list of PSComponentSummary objects, rather than a PSComponentSummaries because
+   * PSComponentSummaries is a Set not a List, and the order of items within the slot would not
+   * preserved.
    *
    * @param item locator the parent item, must not be <code>null</code>.
    * @param slot the specified slot, must not be <code>null</code>.
-   * @return a List of PSComponentSummary objects representing the slot
-   *         contents. May be <code>empty</code> but never <code>null</code>
+   * @return a List of PSComponentSummary objects representing the slot contents. May be <code>empty
+   *     </code> but never <code>null</code>
    * @throws PSCmsException
    * @throws PSUnknownNodeTypeException
    * @throws PSExtensionProcessingException
-   *
    */
   public List getSlotContents(PSLocator item, PSSlotType slot)
       throws PSCmsException, PSUnknownNodeTypeException, PSExtensionProcessingException {
@@ -608,23 +574,17 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Gets the parentitems for the specified item and relationship name or
-   * category name.
-   * <p>
-   * Normally, this method will be called with either a relationship name or a
-   * category name. If either parameter is <code>null</code> or
-   * <code>empty</code> it will be ignored. It is possible to specify both a
-   * relationship name and a category name, but this is not likely to return
+   * Gets the parentitems for the specified item and relationship name or category name.
+   *
+   * <p>Normally, this method will be called with either a relationship name or a category name. If
+   * either parameter is <code>null</code> or <code>empty</code> it will be ignored. It is possible
+   * to specify both a relationship name and a category name, but this is not likely to return
    * useful results.
-   * </p>
    *
    * @param item locator of the item, must not be <code>null</code>.
-   * @param category the relationship category, may be <code>null</code> or
-   *           empty.
-   * @param relationship the name of the relationship, may be <code>null</code>
-   *           or empty.
-   * @return the parent items. May be <code>empty</code> but never
-   *         <code>null</code>
+   * @param category the relationship category, may be <code>null</code> or empty.
+   * @param relationship the name of the relationship, may be <code>null</code> or empty.
+   * @return the parent items. May be <code>empty</code> but never <code>null</code>
    * @throws PSCmsException
    */
   public PSComponentSummaries getParentItems(PSLocator item, String category, String relationship)
@@ -643,14 +603,12 @@ public class PSRelationshipHelper {
 
   /**
    * Determines if two relationships are the same.
-   * <p>
-   * Relationship effects are called before the current relationship is fully
-   * constructed. This means that you cannot compare the original relationship
-   * with the current relationship using the equals() method, as the dependent
-   * item is missing. Instead, use this method to compare the relationship
-   * owner and config. If these are the same, then the two relationships refer
-   * to the same items.
-   * </p>
+   *
+   * <p>Relationship effects are called before the current relationship is fully constructed. This
+   * means that you cannot compare the original relationship with the current relationship using the
+   * equals() method, as the dependent item is missing. Instead, use this method to compare the
+   * relationship owner and config. If these are the same, then the two relationships refer to the
+   * same items.
    *
    * @param r1 the first relationship. Must not be <code>null</code>.
    * @param r2 the second relationship Must not be <code>null</code>.
@@ -665,53 +623,45 @@ public class PSRelationshipHelper {
   }
 
   /**
-   * Reference to the request context object to be possibly used to instantiate
-   * the API proxies. Initialized in the constructor and never
-   * <code>null</code> after that.
+   * Reference to the request context object to be possibly used to instantiate the API proxies.
+   * Initialized in the constructor and never <code>null</code> after that.
    */
   private IPSRequestContext m_request = null;
 
   /**
-   * Reference to the component processor proxy initialized during first call
-   * to {@link #getCompProxy()}. Never <code>null</code> after that.
+   * Reference to the component processor proxy initialized during first call to {@link
+   * #getCompProxy()}. Never <code>null</code> after that.
    */
   private PSComponentProcessorProxy m_compProxy = null;
 
   /**
-   * Reference to the AA processor proxy initialized during first call to
-   * {@link #getAaProxy()}. Never <code>null</code> after that.
+   * Reference to the AA processor proxy initialized during first call to {@link #getAaProxy()}.
+   * Never <code>null</code> after that.
    */
   private PSActiveAssemblyProcessorProxy m_aaProxy = null;
 
   /**
-   * Reference to the server relationship processor initialized during first
-   * call to {@link #getRelationshipProcessor()}. Never <code>null</code>
-   * after that.
+   * Reference to the server relationship processor initialized during first call to {@link
+   * #getRelationshipProcessor()}. Never <code>null</code> after that.
    */
   private PSRelationshipProcessor m_relProcessor = null;
 
   /**
-   * The folder processor, initialized during first call to
-   * {@link #getFolderProcessor()}, never <code>null</code> after that.
+   * The folder processor, initialized during first call to {@link #getFolderProcessor()}, never
+   * <code>null</code> after that.
    */
   private PSServerFolderProcessor m_folderProcessor = null;
 
-  /**
-   * Internal flag to indicate if community filtering is on, default is
-   * <code>false</code>.
-   */
+  /** Internal flag to indicate if community filtering is on, default is <code>false</code>. */
   private boolean m_useCommunities = false;
 
   /**
-   * Authtype value which will be used to filter related items using
-   * {@link #getSlotContents(PSLocator, PSSlotType)}or
-   * {@link #getSlotContents(PSLocator, String)}. Default is 0 which means all
-   * related items via Active Assembly category of relationship.
+   * Authtype value which will be used to filter related items using {@link
+   * #getSlotContents(PSLocator, PSSlotType)}or {@link #getSlotContents(PSLocator, String)}. Default
+   * is 0 which means all related items via Active Assembly category of relationship.
    */
   private int m_authType = 0;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger m_log = LogManager.getLogger(PSRelationshipHelper.class);
 }

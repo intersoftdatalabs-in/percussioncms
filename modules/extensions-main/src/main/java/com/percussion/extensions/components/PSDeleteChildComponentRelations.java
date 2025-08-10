@@ -26,13 +26,11 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This is a special exit for deleting the childcomponentraltions in
- * RXSYSCOMPONENTRELATIONS table. When a component is deleted from
- * RXSYSCOMPONENT table its parent and child relations must be deleted
- * from RXSYSCOMPONENTRELATIONS table. A regualr resource can remove
- * only one relation (in this case PARENTRELATION), inorder to remove the other
- * relation this exit makes an internal request to another resource
- * which deletes the other relation(CHILDRELATION).
+ * This is a special exit for deleting the childcomponentraltions in RXSYSCOMPONENTRELATIONS table.
+ * When a component is deleted from RXSYSCOMPONENT table its parent and child relations must be
+ * deleted from RXSYSCOMPONENTRELATIONS table. A regualr resource can remove only one relation (in
+ * this case PARENTRELATION), inorder to remove the other relation this exit makes an internal
+ * request to another resource which deletes the other relation(CHILDRELATION).
  */
 public class PSDeleteChildComponentRelations implements IPSResultDocumentProcessor {
   /*
@@ -75,8 +73,6 @@ public class PSDeleteChildComponentRelations implements IPSResultDocumentProcess
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String ms_fullExtensionName = "";
 }

@@ -34,12 +34,11 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Test the extractor. This currently just tests a particular error case
- * found in 5.5 development, it should be filled out with other tests.
+ * Test the extractor. This currently just tests a particular error case found in 5.5 development,
+ * it should be filled out with other tests.
  *
- * Note that this test must be run with the working directory set to the
- * root of the development tree. Also note that the referenced xml file
- * should be replaced if necessary.
+ * <p>Note that this test must be run with the working directory set to the root of the development
+ * tree. Also note that the referenced xml file should be replaced if necessary.
  */
 @TestInstance(Lifecycle.PER_CLASS)
 public class PSXmlExtractorTest {
@@ -60,8 +59,8 @@ public class PSXmlExtractorTest {
   }
 
   /**
-   * Quick test to check that the create document call can be called
-   * without a system or public id
+   * Quick test to check that the create document call can be called without a system or public id
+   *
    * @throws Exception
    */
   @Test
@@ -71,6 +70,7 @@ public class PSXmlExtractorTest {
 
   /**
    * Test extracting a content editor with validation.
+   *
    * @throws Exception
    */
   @Test
@@ -98,6 +98,7 @@ public class PSXmlExtractorTest {
 
   /**
    * Test extracting a content editor without validation.
+   *
    * @throws Exception
    */
   @Test
@@ -137,8 +138,6 @@ public class PSXmlExtractorTest {
     assertTrue(result == null);
   }
 
-  /**
-   * The tag name of root content editor element.
-   */
+  /** The tag name of root content editor element. */
   private static final String CE_ROOT_ELEMENT_NAME = "PSXContentEditor";
 }

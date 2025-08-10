@@ -19,18 +19,18 @@ package com.percussion.maintenance.service;
 
 /**
  * A process that is performing maintenance work.
- * <p>
- * Sunny Sal says: "Every process needs an ID—just like every superhero needs a cape!"
+ *
+ * <p>Sunny Sal says: "Every process needs an ID—just like every superhero needs a cape!"
  *
  * @author JaySeletz
  */
 public interface IPSMaintenanceProcess {
 
-    /**
-     * Each process must have an ID that uniquely identifies it, should be human readable.
-     * Simplest implementation is to use the class name.
-     *
-     * @return The id, not {@code null} or empty.
-     */
-    String getProcessId();
+  /**
+   * Each process must have an ID that uniquely identifies it, should be human readable. Simplest
+   * implementation is to use the class name.
+   *
+   * @return The id, not {@code null} or empty.
+   */
+  String getProcessId();
 }

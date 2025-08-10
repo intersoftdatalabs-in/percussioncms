@@ -25,15 +25,17 @@ import java.util.List;
  */
 
 /**
- * Tool for working with Lists and arrays in Velocity templates.
- * It provides a method to get and set specified elements.
- * Also provides methods to perform the following actions to Lists and arrays:
+ * Tool for working with Lists and arrays in Velocity templates. It provides a method to get and set
+ * specified elements. Also provides methods to perform the following actions to Lists and arrays:
+ *
  * <ul>
- *   <li>Check if it is empty.</li>
- *   <li>Check if it contains a certain element.</li>
+ *   <li>Check if it is empty.
+ *   <li>Check if it contains a certain element.
  * </ul>
  *
- * <p><pre>
+ * <p>
+ *
+ * <pre>
  * Example uses:
  *  $primes                    -> new int[] {2, 3, 5, 7}
  *  $list.size($primes)        -> 4
@@ -49,11 +51,10 @@ import java.util.List;
  *   &lt;scope&gt;application&lt;/scope&gt;
  *   &lt;class&gt;org.apache.velocity.tools.generic.ListTool&lt;/class&gt;
  * &lt;/tool&gt;
- * </pre></p>
+ * </pre>
  *
- * <p>This tool is entirely threadsafe, and has no instance members.
- * It may be used in any scope (request, session, or application).
- * </p>
+ * <p>This tool is entirely threadsafe, and has no instance members. It may be used in any scope
+ * (request, session, or application).
  *
  * @author <a href="mailto:shinobu@ieee.org">Shinobu Kawai</a>
  * @version $Id: $
@@ -62,19 +63,18 @@ import java.util.List;
 @Deprecated
 public class PSVelocityListTool {
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSVelocityListTool() {}
 
   /**
-   * Gets the specified element of a List/array.
-   * It will return null under the following conditions:
+   * Gets the specified element of a List/array. It will return null under the following conditions:
+   *
    * <ul>
-   *   <li><code>list</code> is null.</li>
-   *   <li><code>list</code> is not a List/array.</li>
-   *   <li><code>list</code> doesn't have an <code>index</code>th value.</li>
+   *   <li><code>list</code> is null.
+   *   <li><code>list</code> is not a List/array.
+   *   <li><code>list</code> doesn't have an <code>index</code>th value.
    * </ul>
+   *
    * @param list the List/array object.
    * @param index the index of the List/array to get.
    * @return the specified element of the List/array.
@@ -97,6 +97,7 @@ public class PSVelocityListTool {
 
   /**
    * Gets the specified element of an array.
+   *
    * @param array the array object.
    * @param index the index of the array to get.
    * @return the specified element of the array.
@@ -111,13 +112,14 @@ public class PSVelocityListTool {
   }
 
   /**
-   * Sets the specified element of a List/array.
-   * It will return null under the following conditions:
+   * Sets the specified element of a List/array. It will return null under the following conditions:
+   *
    * <ul>
-   *   <li><code>list</code> is null.</li>
-   *   <li><code>list</code> is not a List/array.</li>
-   *   <li><code>list</code> doesn't have an <code>index</code>th value.</li>
+   *   <li><code>list</code> is null.
+   *   <li><code>list</code> is not a List/array.
+   *   <li><code>list</code> doesn't have an <code>index</code>th value.
    * </ul>
+   *
    * @param list the List/array object.
    * @param index the index of the List/array to set.
    * @param value the element to set.
@@ -142,6 +144,7 @@ public class PSVelocityListTool {
 
   /**
    * Sets the specified element of an array.
+   *
    * @param array the array object.
    * @param index the index of the array to set.
    * @param value the element to set.
@@ -158,12 +161,13 @@ public class PSVelocityListTool {
   }
 
   /**
-   * Gets the size of a List/array.
-   * It will return null under the following conditions:
+   * Gets the size of a List/array. It will return null under the following conditions:
+   *
    * <ul>
-   *   <li><code>list</code> is null.</li>
-   *   <li><code>list</code> is not a List/array.</li>
+   *   <li><code>list</code> is null.
+   *   <li><code>list</code> is not a List/array.
    * </ul>
+   *
    * @param list the List object.
    * @return the size of the List.
    */
@@ -181,6 +185,7 @@ public class PSVelocityListTool {
 
   /**
    * Checks if an object is an array.
+   *
    * @param object the object to check.
    * @return <code>true</code> if the object is an array.
    */
@@ -193,6 +198,7 @@ public class PSVelocityListTool {
 
   /**
    * Checks if an object is a List.
+   *
    * @param object the object to check.
    * @return <code>true</code> if the object is a List.
    */
@@ -202,6 +208,7 @@ public class PSVelocityListTool {
 
   /**
    * Checks if a List/array is empty.
+   *
    * @param list the List/array to check.
    * @return <code>true</code> if the List/array is empty.
    */
@@ -216,6 +223,7 @@ public class PSVelocityListTool {
 
   /**
    * Checks if a List/array contains a certain element.
+   *
    * @param list the List/array to check.
    * @param element the element to check.
    * @return <code>true</code> if the List/array contains the element.
@@ -233,6 +241,7 @@ public class PSVelocityListTool {
 
   /**
    * Checks if an array contains a certain element.
+   *
    * @param array the array to check.
    * @param element the element to check.
    * @return <code>true</code> if the array contains the element.
@@ -250,6 +259,7 @@ public class PSVelocityListTool {
 
   /**
    * Check if two objects are equal.
+   *
    * @param what an object
    * @param with another object.
    * @return <code>true</code> if the two objects are equal.

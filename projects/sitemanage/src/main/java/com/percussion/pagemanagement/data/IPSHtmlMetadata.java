@@ -18,93 +18,108 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * HTML metadata for templates and pages.
- * Provides accessors for doc type, protected regions, and additional HTML content.
+ * HTML metadata for templates and pages. Provides accessors for doc type, protected regions, and
+ * additional HTML content.
+ *
  * @author adamgent
  */
 public interface IPSHtmlMetadata {
 
-    /**
-     * Gets the custom doc type to be used in the template.
-     * Example: &lt;!DOCTYPE html&gt;
-     * @return never {@code null}, but may be empty.
-     */
-    PSMetadataDocType getDocType();
+  /**
+   * Gets the custom doc type to be used in the template. Example: &lt;!DOCTYPE html&gt;
+   *
+   * @return never {@code null}, but may be empty.
+   */
+  PSMetadataDocType getDocType();
 
-    /**
-     * Sets the custom doc type to be used in the template.
-     * Example: &lt;!DOCTYPE html&gt;
-     * @param docType the doc type of the template, never {@code null}
-     */
-    void setDocType(PSMetadataDocType docType);
+  /**
+   * Sets the custom doc type to be used in the template. Example: &lt;!DOCTYPE html&gt;
+   *
+   * @param docType the doc type of the template, never {@code null}
+   */
+  void setDocType(PSMetadataDocType docType);
 
-    /**
-     * Gets the protected region name used to hide content in delivery-published pages.
-     * Example: "header"
-     * @return never {@code null}, but may be empty.
-     */
-    String getProtectedRegion();
+  /**
+   * Gets the protected region name used to hide content in delivery-published pages. Example:
+   * "header"
+   *
+   * @return never {@code null}, but may be empty.
+   */
+  String getProtectedRegion();
 
-    /**
-     * Sets the protected region name used to hide content in delivery-published pages.
-     * Example: "header"
-     * @param protectedRegion the name of the protected region, never {@code null}
-     */
-    void setProtectedRegion(String protectedRegion);
+  /**
+   * Sets the protected region name used to hide content in delivery-published pages. Example:
+   * "header"
+   *
+   * @param protectedRegion the name of the protected region, never {@code null}
+   */
+  void setProtectedRegion(String protectedRegion);
 
-    /**
-     * Gets the text to show instead of the code in the protected region when the user is not logged in.
-     * Example: "You're not authorized to see this content"
-     * @return never {@code null}, but may be empty.
-     */
-    String getProtectedRegionText();
+  /**
+   * Gets the text to show instead of the code in the protected region when the user is not logged
+   * in. Example: "You're not authorized to see this content"
+   *
+   * @return never {@code null}, but may be empty.
+   */
+  String getProtectedRegionText();
 
-    /**
-     * Sets the text to show instead of the code in the protected region when the user is not logged in.
-     * Example: "You're not authorized to see this content"
-     * @param protectedRegionText the text to place instead of the content in the protected region, never {@code null}
-     */
-    void setProtectedRegionText(String protectedRegionText);
+  /**
+   * Sets the text to show instead of the code in the protected region when the user is not logged
+   * in. Example: "You're not authorized to see this content"
+   *
+   * @param protectedRegionText the text to place instead of the content in the protected region,
+   *     never {@code null}
+   */
+  void setProtectedRegionText(String protectedRegionText);
 
-    /**
-     * Gets additional HTML that will go in the &lt;head&gt;&lt;/head&gt;.
-     * @return never {@code null}, but may be empty.
-     */
-    String getAdditionalHeadContent();
+  /**
+   * Gets additional HTML that will go in the &lt;head&gt;&lt;/head&gt;.
+   *
+   * @return never {@code null}, but may be empty.
+   */
+  String getAdditionalHeadContent();
 
-    /**
-     * Sets additional HTML that will go in the &lt;head&gt;&lt;/head&gt;.
-     * @param additionalHeadContent additional head content of the page, never {@code null}
-     */
-    void setAdditionalHeadContent(String additionalHeadContent);
+  /**
+   * Sets additional HTML that will go in the &lt;head&gt;&lt;/head&gt;.
+   *
+   * @param additionalHeadContent additional head content of the page, never {@code null}
+   */
+  void setAdditionalHeadContent(String additionalHeadContent);
 
-    /**
-     * Gets the header of the page. Intended to be used within the HTML right after the &lt;body&gt; tag.
-     * @return the header of the page, never {@code null}, but may be empty.
-     */
-    String getAfterBodyStartContent();
+  /**
+   * Gets the header of the page. Intended to be used within the HTML right after the &lt;body&gt;
+   * tag.
+   *
+   * @return the header of the page, never {@code null}, but may be empty.
+   */
+  String getAfterBodyStartContent();
 
-    /**
-     * Sets the header of the page.
-     * @param header the new header of the page, may be {@code null} or empty.
-     */
-    void setAfterBodyStartContent(String header);
+  /**
+   * Sets the header of the page.
+   *
+   * @param header the new header of the page, may be {@code null} or empty.
+   */
+  void setAfterBodyStartContent(String header);
 
-    /**
-     * Gets the footer of the page. Intended to be used right before the &lt;/body&gt; tag in an HTML page.
-     * @return the footer of the page, never {@code null}, but may be empty.
-     */
-    String getBeforeBodyCloseContent();
+  /**
+   * Gets the footer of the page. Intended to be used right before the &lt;/body&gt; tag in an HTML
+   * page.
+   *
+   * @return the footer of the page, never {@code null}, but may be empty.
+   */
+  String getBeforeBodyCloseContent();
 
-    /**
-     * Sets the footer of the page.
-     * @param footer the new footer of the page, may be {@code null} or empty.
-     */
-    void setBeforeBodyCloseContent(String footer);
+  /**
+   * Sets the footer of the page.
+   *
+   * @param footer the new footer of the page, may be {@code null} or empty.
+   */
+  void setBeforeBodyCloseContent(String footer);
 
-    /**
-     * Sets the description.
-     * @param description may be {@code null} or empty.
-     */
-    void setDescription(String description);
+  /**
+   * Sets the description.
+   *
+   * @param description may be {@code null} or empty.
+   */
+  void setDescription(String description);
 }

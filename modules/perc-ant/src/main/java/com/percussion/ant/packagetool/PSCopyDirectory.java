@@ -55,18 +55,12 @@ public class PSCopyDirectory extends Copy {
     super.execute();
   }
 
-  /**
-   * Destination directory
-   */
+  /** Destination directory */
   private String destDir;
 
-  /**
-   * Root directory path for packages
-   */
+  /** Root directory path for packages */
   private String rootDirPath;
 
-  /**
-   * Package name
-   */
+  /** Package name */
   private String packageName;
 }

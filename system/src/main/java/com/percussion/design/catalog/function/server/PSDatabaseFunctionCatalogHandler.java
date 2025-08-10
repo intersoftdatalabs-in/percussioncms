@@ -70,15 +70,12 @@ public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
   }
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are sent using <code>PSResponse</code> object in
-   * the supplied request object.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * sent using <code>PSResponse</code> object in the supplied request object.
    *
-   * @param request the request object containing all context data associated
-   * with the request, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is
-   * <code>null</code>.
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is <code>null</code>.
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -134,9 +131,7 @@ public class PSDatabaseFunctionCatalogHandler extends PSCatalogRequestHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

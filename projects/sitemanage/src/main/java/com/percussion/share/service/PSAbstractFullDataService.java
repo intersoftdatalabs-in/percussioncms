@@ -29,29 +29,25 @@ import com.percussion.share.service.exception.PSDataServiceException;
  * @param <SUM> Summary type (must implement IPSItemSummary)
  */
 public abstract class PSAbstractFullDataService<FULL, SUM extends IPSItemSummary>
-    extends PSAbstractDataService<FULL, SUM, String>
-    implements IPSDataService<FULL, SUM, String> {
+    extends PSAbstractDataService<FULL, SUM, String> implements IPSDataService<FULL, SUM, String> {
 
-    protected final IPSDataItemSummaryService itemSummaryService;
+  protected final IPSDataItemSummaryService itemSummaryService;
 
-    public PSAbstractFullDataService(
-            IPSDataItemSummaryService itemSummaryService,
-            IPSGenericDao<FULL, String> dao) {
-        super(dao);
-        this.itemSummaryService = itemSummaryService;
-    }
+  public PSAbstractFullDataService(
+      IPSDataItemSummaryService itemSummaryService, IPSGenericDao<FULL, String> dao) {
+    super(dao);
+    this.itemSummaryService = itemSummaryService;
+  }
 
-    @Override
-    public SUM find(String id) throws PSDataServiceException {
-        validateIdParameter("find", id);
-        var itemSummary = itemSummaryService.find(id);
-        var sum = createSummary(id);
-        PSItemSummaryUtils.copyProperties(itemSummary, sum);
-        return sum;
-    }
+  @Override
+  public SUM find(String id) throws PSDataServiceException {
+    validateIdParameter("find", id);
+    var itemSummary = itemSummaryService.find(id);
+    var sum = createSummary(id);
+    PSItemSummaryUtils.copyProperties(itemSummary, sum);
+    return sum;
+  }
 
-    /**
-     * Create a new summary instance for the given id.
-     */
-    protected abstract SUM createSummary(String id);
+  /** Create a new summary instance for the given id. */
+  protected abstract SUM createSummary(String id);
 }

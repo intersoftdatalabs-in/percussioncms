@@ -28,31 +28,26 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * This class represents a database function definition for a particular driver.
- * A database function is uniquely identified by its name (case-insensitive),
- * such as "SUBSTR", and the jdbc subprotocol used by the driver
- * (case-insensitive), such as "inetdae7".
+ * This class represents a database function definition for a particular driver. A database function
+ * is uniquely identified by its name (case-insensitive), such as "SUBSTR", and the jdbc subprotocol
+ * used by the driver (case-insensitive), such as "inetdae7".
  */
 public class PSDatabaseFunctionDef implements Cloneable {
   /**
    * Constructs this object from its XML representation.
    *
-   * @param type of database function definition, should be one of
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
-   * @param sourceNode the XML element from which to load this object, may
-   * not be <code>null</code>
-   * @param canBeDefault <code>true</code> if this function definition can
-   * be the default definition for this function, <code>false</code> otherwise.
-   * If this is a default function definition, and this parameter value
-   * is <code>false</code> then <code>PSUnknownNodeTypeException</code>
-   * is thrown. Default function defintions have the driver of type
-   * <code>*</code>.
-   * See {@link#isDefault()}
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code> or if <code>type</code> is invalid
-   * @throws PSUnknownNodeTypeException If the specified element content does
-   * not conform to the DTD specified in {@link#toXml(Document) toXml()}
+   * @param type of database function definition, should be one of <code>
+   *     PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
+   * @param sourceNode the XML element from which to load this object, may not be <code>null</code>
+   * @param canBeDefault <code>true</code> if this function definition can be the default definition
+   *     for this function, <code>false</code> otherwise. If this is a default function definition,
+   *     and this parameter value is <code>false</code> then <code>PSUnknownNodeTypeException</code>
+   *     is thrown. Default function defintions have the driver of type <code>*</code>. See
+   *     {@link#isDefault()}
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code> or if <code>
+   *     type</code> is invalid
+   * @throws PSUnknownNodeTypeException If the specified element content does not conform to the DTD
+   *     specified in {@link#toXml(Document) toXml()}
    */
   public PSDatabaseFunctionDef(int type, Element sourceNode, boolean canBeDefault)
       throws PSUnknownNodeTypeException {
@@ -64,24 +59,15 @@ public class PSDatabaseFunctionDef implements Cloneable {
   /**
    * Constructs database functions definition using the specified parameters.
    *
-   * @param type of database function definition, should be one of
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
-   *
-   * @param name name of the database function, may not be <code>null</code>
-   * or empty
-   *
-   * @param driver database driver, may not be <code>null</code>
-   * or empty
-   *
-   * @param body body of the database function, may not be <code>null</code>
-   * or empty
-   *
-   * @param description description for this database function definition,
-   * may be <code>null</code> or empty. If <code>null</code> then set to empty
-   *
-   * @param params list containing the function parameters
-   * (<code>PSDatabaseFunctionDefParam</code> objects), may be
-   * <code>null</code> or empty, if <code>null</code> then set to empty
+   * @param type of database function definition, should be one of <code>
+   *     PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
+   * @param name name of the database function, may not be <code>null</code> or empty
+   * @param driver database driver, may not be <code>null</code> or empty
+   * @param body body of the database function, may not be <code>null</code> or empty
+   * @param description description for this database function definition, may be <code>null</code>
+   *     or empty. If <code>null</code> then set to empty
+   * @param params list containing the function parameters (<code>PSDatabaseFunctionDefParam</code>
+   *     objects), may be <code>null</code> or empty, if <code>null</code> then set to empty
    */
   private PSDatabaseFunctionDef(
       int type, String name, String driver, String body, String description, List params) {
@@ -107,28 +93,21 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Loads the database function definition from the supplied element.
-   * See {@link#toXml(Document) toXml()} for the expected form of XML.
+   * Loads the database function definition from the supplied element. See {@link#toXml(Document)
+   * toXml()} for the expected form of XML.
    *
    * @param sourceNode the element to load from, may not be <code>null</code>
-   *
-   * @param canBeDefault <code>true</code> if this function definition can
-   * be the default definition for this function, <code>false</code> otherwise.
-   * If this is a default function definition, and this parameter value
-   * is <code>false</code> then <code>PSUnknownNodeTypeException</code>
-   * is thrown. Default function defintions have the driver of type
-   * <code>*</code>.
-   * See {@link#isDefault()}
-   *
-   * @param fromDefault <code>true</code> if this object is being constructed
-   * from a default database function definition, <code>false</code> otherwise.
-   * The function body, description and parameters is optional if this is
-   * <code>true</code>
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>
-   * @throws PSUnknownNodeTypeException If the specified element does not
-   * conform to the DTD specified in {@link#toXml(Document) toXml()}
+   * @param canBeDefault <code>true</code> if this function definition can be the default definition
+   *     for this function, <code>false</code> otherwise. If this is a default function definition,
+   *     and this parameter value is <code>false</code> then <code>PSUnknownNodeTypeException</code>
+   *     is thrown. Default function defintions have the driver of type <code>*</code>. See
+   *     {@link#isDefault()}
+   * @param fromDefault <code>true</code> if this object is being constructed from a default
+   *     database function definition, <code>false</code> otherwise. The function body, description
+   *     and parameters is optional if this is <code>true</code>
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>
+   * @throws PSUnknownNodeTypeException If the specified element does not conform to the DTD
+   *     specified in {@link#toXml(Document) toXml()}
    */
   void fromXml(Element sourceNode, boolean canBeDefault, boolean fromDefault)
       throws PSUnknownNodeTypeException {
@@ -209,16 +188,13 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Serializes this object's state to Xml conforming to the DTD of the
-   * "PSXDatabaseFunctionDef" element as defined in the
-   * "sys_DatabaseFunctionDefs.dtd" file.
+   * Serializes this object's state to Xml conforming to the DTD of the "PSXDatabaseFunctionDef"
+   * element as defined in the "sys_DatabaseFunctionDefs.dtd" file.
    *
    * @param doc The document to use when creating elements, may not be <code>
    *  null</code>.
-   *
    * @return The element containing this object's state, never <code>
    * null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -241,17 +217,14 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Sets the internal members of this database function definition equal to
-   * the specified database function definition.
+   * Sets the internal members of this database function definition equal to the specified database
+   * function definition.
    *
-   * @param dbFuncDef the database function definition whose values should be
-   * used to set the value of the internal members of this object, may not
-   * be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbFuncDef</code> is
-   * <code>null</code> or if the type or name (case-insensitive) or
-   * driver (case-insensitive) of the specified function definition does not
-   * match the type of this function definition.
+   * @param dbFuncDef the database function definition whose values should be used to set the value
+   *     of the internal members of this object, may not be <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncDef</code> is <code>null</code> or if the type
+   *     or name (case-insensitive) or driver (case-insensitive) of the specified function
+   *     definition does not match the type of this function definition.
    */
   public void copyFrom(PSDatabaseFunctionDef dbFuncDef) {
     if (dbFuncDef == null) throw new IllegalArgumentException("dbFuncDef may not be null");
@@ -299,22 +272,16 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Compares the name (case-insensitive) and type and driver
-   * (case-insensitive) of this object with the specified object. This method
-   * excludes the body, description and the parameters from the comparison.
-   * This is done so that
-   * <code>PSDatabaseFunction.contains(PSDatabaseFunctionDef)</code> method
-   * can return meaningful result.
+   * Compares the name (case-insensitive) and type and driver (case-insensitive) of this object with
+   * the specified object. This method excludes the body, description and the parameters from the
+   * comparison. This is done so that <code>PSDatabaseFunction.contains(PSDatabaseFunctionDef)
+   * </code> method can return meaningful result.
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <false> if the specified object is not an instance of this class.
-   * <code>true</code> if the name and driver of this object
-   * matches that of the specified object, <code>false</code> otherwise.
-   *
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
+   *     the name and driver of this object matches that of the specified object, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
-   *
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -333,24 +300,17 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Compares this object with the specified object. Details of the
-   * comparison is shown below:
+   * Compares this object with the specified object. Details of the comparison is shown below:
    *
-   * name - case insensitive string comparison
-   * type - numeric comparison
-   * driver - case insensitive string comparison
-   * body - case sensitive string comparison
-   * param - <code>List</code> comparison
+   * <p>name - case insensitive string comparison type - numeric comparison driver - case
+   * insensitive string comparison body - case sensitive string comparison param - <code>List</code>
+   * comparison
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <false> if the specified object is not an instance of this class.
-   * <code>true</code> if the parameters listed above match that of the
-   * specified object, <code>false</code> otherwise.
-   *
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
+   *     the parameters listed above match that of the specified object, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
-   *
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {
@@ -366,11 +326,10 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Computes the hash code for this object using the name
-   * (converted to lowercase) and type and driver (converted to lowercase)
+   * Computes the hash code for this object using the name (converted to lowercase) and type and
+   * driver (converted to lowercase)
    *
    * @return the hash code for this object
-   *
    * @see hashCodeFull()
    */
   public int hashCode() {
@@ -378,12 +337,10 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Computes the hash code for this object using the name
-   * (converted to lowercase) and type and driver (converted to lowercase),
-   * body, description and the function parameters
+   * Computes the hash code for this object using the name (converted to lowercase) and type and
+   * driver (converted to lowercase), body, description and the function parameters
    *
    * @return the hash code for this object
-   *
    * @see hashCode()
    */
   public int hashCodeFull() {
@@ -391,12 +348,10 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Returns the tag name of the root element from which this object can be
-   * constructed.
+   * Returns the tag name of the root element from which this object can be constructed.
    *
-   * @return the name of the root node of the XML document returned by a call
-   * to {@link#toXml(Document) toXml()} method.
-   *
+   * @return the name of the root node of the XML document returned by a call to
+   *     {@link#toXml(Document) toXml()} method.
    * @see toXml(Document)
    */
   public static String getNodeName() {
@@ -404,50 +359,42 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Returns the name of this database function. The database function name
-   * is case-insensitive.
+   * Returns the name of this database function. The database function name is case-insensitive.
    *
-   * @return the name of this database function, never <code>null</code> or
-   * empty
+   * @return the name of this database function, never <code>null</code> or empty
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * Returns the type of database function definition,
-   * user-defined or system-defined.
+   * Returns the type of database function definition, user-defined or system-defined.
    *
-   * @return one of <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code>
-   * values
+   * @return one of <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
    */
   public int getType() {
     return m_type;
   }
 
   /**
-   * The database driver for which this database function has been defined.
-   * The driver name is case-insensitive.
+   * The database driver for which this database function has been defined. The driver name is
+   * case-insensitive.
    *
-   * @return the database driver supported by this function, never
-   * <code>null</code> or empty
+   * @return the database driver supported by this function, never <code>null</code> or empty
    */
   public String getDriver() {
     return m_driver;
   }
 
   /**
-   * Determines whether this database function has been defined for the
-   * specified driver. The driver name comparison is case-insensitive.
+   * Determines whether this database function has been defined for the specified driver. The driver
+   * name comparison is case-insensitive.
    *
-   * @param driver the database driver to test for support against this
-   * database function, may not be <code>null</code> or empty
-   *
-   * @return <code>true</code> if this database function supports the specified
-   * driver, <code>false</code> otherwise
-   *
-   * @throws IllegalArgumentException if <code>driver</code> is
-   * <code>null</code> or empty
+   * @param driver the database driver to test for support against this database function, may not
+   *     be <code>null</code> or empty
+   * @return <code>true</code> if this database function supports the specified driver, <code>false
+   *     </code> otherwise
+   * @throws IllegalArgumentException if <code>driver</code> is <code>null</code> or empty
    */
   public boolean isDriver(String driver) {
     if ((driver == null) || (driver.trim().length() < 1))
@@ -456,23 +403,20 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Determines whether this is the default funcion definition.
-   * Default function definition either does not have the
-   * driver specified or the driver is specified as "*".
+   * Determines whether this is the default funcion definition. Default function definition either
+   * does not have the driver specified or the driver is specified as "*".
    *
-   * @return <code>true</code> if this the default funcion definition,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this the default funcion definition, <code>false</code> otherwise.
    */
   public boolean isDefault() {
     return m_driver.equals(DRIVER_TYPE_DEFAULT);
   }
 
   /**
-   * Returns the body of the database function. For example, the body of
-   * the database function "SUBSTR" would be "SUBSTR({0}, {1}, {2})"
+   * Returns the body of the database function. For example, the body of the database function
+   * "SUBSTR" would be "SUBSTR({0}, {1}, {2})"
    *
-   * @return the body of the database function, never <code>null</code> or
-   * empty
+   * @return the body of the database function, never <code>null</code> or empty
    */
   public String getBody() {
     return m_body;
@@ -481,8 +425,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
   /**
    * Returns the description of the database function.
    *
-   * @return the description of the database function, never <code>null</code>,
-   * may be empty
+   * @return the description of the database function, never <code>null</code>, may be empty
    */
   public String getDescription() {
     return m_desc;
@@ -498,11 +441,10 @@ public class PSDatabaseFunctionDef implements Cloneable {
   }
 
   /**
-   * Returns an iterator over a list of zero or more parameters.
-   * (<code>PSDatabaseFunctionDefParam</code> object).
+   * Returns an iterator over a list of zero or more parameters. (<code>PSDatabaseFunctionDefParam
+   * </code> object).
    *
-   * @return an iterator over a list of parameters, never
-   * <code>null</code>, the list may be empty
+   * @return an iterator over a list of parameters, never <code>null</code>, the list may be empty
    */
   public Iterator getParams() {
     return m_params.iterator();
@@ -511,12 +453,9 @@ public class PSDatabaseFunctionDef implements Cloneable {
   /**
    * Returns the function parameter at the specified index.
    *
-   * @param index the index of the function paramater, must be valid
-   * (non-negative and less than the number of parameters)
-   *
-   * @return the function parameter at the specified index, never
-   * <code>null</code>
-   *
+   * @param index the index of the function paramater, must be valid (non-negative and less than the
+   *     number of parameters)
+   * @return the function parameter at the specified index, never <code>null</code>
    * @throws IllegalArgumentException if <code>index</code> is invalid
    */
   public PSDatabaseFunctionDefParam getParamAtIndex(int index) {
@@ -525,9 +464,7 @@ public class PSDatabaseFunctionDef implements Cloneable {
     return (PSDatabaseFunctionDefParam) m_params.get(index);
   }
 
-  /**
-   * Constant to be used for driver for default database function definition
-   */
+  /** Constant to be used for driver for default database function definition */
   public static final String DRIVER_TYPE_DEFAULT = "*";
 
   // Constants for XML element and attributes
@@ -538,31 +475,28 @@ public class PSDatabaseFunctionDef implements Cloneable {
   private static final String ATTR_DRIVER = "driver";
 
   /**
-   * name of the database function (is case-insensitive), initialized in the
-   * ctor, never <code>null</code> or empty, modified in the
-   * <code>fromXml()</code> and <code>copyFrom()</code> methods.
+   * name of the database function (is case-insensitive), initialized in the ctor, never <code>null
+   * </code> or empty, modified in the <code>fromXml()</code> and <code>copyFrom()</code> methods.
    */
   private String m_name;
 
   /**
-   * the database driver supported by this database function
-   * (is case-insensitive), initialized in the ctor, never <code>null</code>
-   * or empty after that, modified in the <code>fromXml()</code> and
-   * <code>copyFrom()</code> methods.
+   * the database driver supported by this database function (is case-insensitive), initialized in
+   * the ctor, never <code>null</code> or empty after that, modified in the <code>fromXml()</code>
+   * and <code>copyFrom()</code> methods.
    */
   private String m_driver;
 
   /**
-   * body of the database function, initialized in the ctor,
-   * never <code>null</code> or empty after that, modified in the
-   * <code>fromXml()</code> and <code>copyFrom()</code> methods.
+   * body of the database function, initialized in the ctor, never <code>null</code> or empty after
+   * that, modified in the <code>fromXml()</code> and <code>copyFrom()</code> methods.
    */
   private String m_body;
 
   /**
-   * description for this database function, initialized to empty string,
-   * then set in the ctor, modified in the <code>fromXml()</code> and
-   * <code>copyFrom()</code> methods. Never <code>null</code>, may be empty
+   * description for this database function, initialized to empty string, then set in the ctor,
+   * modified in the <code>fromXml()</code> and <code>copyFrom()</code> methods. Never <code>null
+   * </code>, may be empty
    */
   private String m_desc = "";
 
@@ -575,10 +509,9 @@ public class PSDatabaseFunctionDef implements Cloneable {
   private List m_params = new ArrayList();
 
   /**
-   * type of database function, initialized in the ctor, modified in the
-   * <code>fromXml()</code> and <code>copyFrom()</code> methods. Valid values
-   * for type are one of the
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
+   * type of database function, initialized in the ctor, modified in the <code>fromXml()</code> and
+   * <code>copyFrom()</code> methods. Valid values for type are one of the <code>
+   * PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
    */
   private int m_type;
 }

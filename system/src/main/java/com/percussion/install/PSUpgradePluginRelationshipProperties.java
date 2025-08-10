@@ -28,7 +28,6 @@ import org.w3c.dom.Element;
  * This plugin is used to update the relationships user defined properties.
  *
  * @author Santiago M. Murchio
- *
  */
 public class PSUpgradePluginRelationshipProperties extends PSUpgradePluginRelationship
     implements IPSUpgradePlugin {
@@ -70,11 +69,8 @@ public class PSUpgradePluginRelationshipProperties extends PSUpgradePluginRelati
   }
 
   /**
-   *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the connection object; assumed not <code>null</code>.
-   *
    * @throws Exception if any error occurs.
    */
   private void upgradeRelationshipProperties(PrintStream logger, Connection conn) throws Exception {
@@ -86,8 +82,8 @@ public class PSUpgradePluginRelationshipProperties extends PSUpgradePluginRelati
   }
 
   /**
-   * Creates a JDBC connection, calling {@link RxUpgrade#getJdbcConnection()}
-   * and setting the auto-commit to <code>false</code>.
+   * Creates a JDBC connection, calling {@link RxUpgrade#getJdbcConnection()} and setting the
+   * auto-commit to <code>false</code>.
    *
    * @return {@link Connection} never <code>null</code>.
    * @throws Exception if an error occurs while creating the connection.
@@ -99,8 +95,7 @@ public class PSUpgradePluginRelationshipProperties extends PSUpgradePluginRelati
   }
 
   /**
-   * Closes a JDBC connection. If an error occurs while closing it, it ignores
-   * it.
+   * Closes a JDBC connection. If an error occurs while closing it, it ignores it.
    *
    * @param conn a {@link Connection}, may be <code>null</code>.
    */
@@ -114,9 +109,8 @@ public class PSUpgradePluginRelationshipProperties extends PSUpgradePluginRelati
   }
 
   /**
-   * Rolls back a connection if an error occurred while using the connection
-   * elsewhere. If an error occurs while rolling back the connection, it
-   * ignores it.
+   * Rolls back a connection if an error occurred while using the connection elsewhere. If an error
+   * occurs while rolling back the connection, it ignores it.
    *
    * @param conn a {@link Connection}, may be <code>null</code>
    */

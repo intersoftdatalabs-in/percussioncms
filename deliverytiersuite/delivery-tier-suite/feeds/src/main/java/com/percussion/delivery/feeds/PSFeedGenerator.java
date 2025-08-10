@@ -36,7 +36,6 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * @author erikserating
- *
  */
 public class PSFeedGenerator {
   public String makeFeedContent(IPSFeedDescriptor desc, String host, List<PSFeedItem> items)
@@ -81,7 +80,6 @@ public class PSFeedGenerator {
    * @param link
    * @param host
    * @return The link
-   *
    * @throws FeedException
    */
   private String fixupHost(String link, String host) throws FeedException {
@@ -103,8 +101,9 @@ public class PSFeedGenerator {
   }
 
   /**
-   * Helper method to return the proper rome feed type string for the feed type
-   * set on the passed in descriptor.
+   * Helper method to return the proper rome feed type string for the feed type set on the passed in
+   * descriptor.
+   *
    * @param desc assumed not <code>null</code>.
    * @return the feed type string, never <code>null</code> or empty.
    */

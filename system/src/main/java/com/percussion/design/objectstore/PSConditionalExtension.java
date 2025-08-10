@@ -24,22 +24,15 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXConditionalEffect element defined in
- * sys_RelationshipConfig.dtd.
- */
+/** Implements the PSXConditionalEffect element defined in sys_RelationshipConfig.dtd. */
 public class PSConditionalExtension extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type.
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
   public PSConditionalExtension(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -62,8 +55,7 @@ public class PSConditionalExtension extends PSComponent {
   /**
    * Sets the conditions to be satisfied to execute this object's extension.
    *
-   * @param conds list of conditions, may not be <code>null</code>, can be
-   * empty.
+   * @param conds list of conditions, may not be <code>null</code>, can be empty.
    */
   public void setConditions(Iterator conds) {
     if (conds == null) throw new IllegalArgumentException("conds may not be null.");
@@ -73,9 +65,8 @@ public class PSConditionalExtension extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSConditionalExtension, not <code>null</code>.
    */
@@ -128,17 +119,17 @@ public class PSConditionalExtension extends PSComponent {
   }
 
   /**
-   * Get the current collection of conditions (a collection of {@link PSRule}
-   * objects).
+   * Get the current collection of conditions (a collection of {@link PSRule} objects).
    *
-   * @return the collection of conditions {@link PSRule}, never
-   *    <code>null</code>, may be empty.
+   * @return the collection of conditions {@link PSRule}, never <code>null</code>, may be empty.
    */
   public Iterator getConditions() {
     return m_conditions.iterator();
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -186,7 +177,9 @@ public class PSConditionalExtension extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
 
@@ -209,16 +202,15 @@ public class PSConditionalExtension extends PSComponent {
   public static final String XML_NODE_NAME = "PSXConditionalExtension";
 
   /**
-   * Holds the extension to be executed, initialized in ctor, never changed
-   * or <code>null</code> after that.
+   * Holds the extension to be executed, initialized in ctor, never changed or <code>null</code>
+   * after that.
    */
   private PSExtensionCall m_extension = null;
 
   /**
-   * A collection of conditions ({@link PSRule} objects) that specify if the
-   * extension is being executed or not. Initialized in the ctor, may be
-   * modified through a call to <code>setConditions(Iterator)</code>.
-   * Never <code>null</code>, might be empty.
+   * A collection of conditions ({@link PSRule} objects) that specify if the extension is being
+   * executed or not. Initialized in the ctor, may be modified through a call to <code>
+   * setConditions(Iterator)</code>. Never <code>null</code>, might be empty.
    */
   private PSCollection m_conditions = new PSCollection(PSRule.class);
 

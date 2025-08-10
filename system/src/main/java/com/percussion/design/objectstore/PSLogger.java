@@ -23,33 +23,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSLogger class defines the log settings for an application or
- * server. Various levels of logging can be defined, which may be used
- * for a variety of tasks ranging from usage tracking to application
- * debugging.
+ * The PSLogger class defines the log settings for an application or server. Various levels of
+ * logging can be defined, which may be used for a variety of tasks ranging from usage tracking to
+ * application debugging.
  *
  * @see PSApplication#getLogger
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogger extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLogger(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -57,9 +48,7 @@ public class PSLogger extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Construct a logger object. No log settings are enabled by default.
-   */
+  /** Construct a logger object. No log settings are enabled by default. */
   public PSLogger() {
     super();
     m_options = 0;
@@ -68,8 +57,8 @@ public class PSLogger extends PSComponent {
   /**
    * Is the logging of errors enabled?
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isErrorLoggingEnabled() {
     return ((m_options & LOG_ERRORS) == LOG_ERRORS);
@@ -78,8 +67,8 @@ public class PSLogger extends PSComponent {
   /**
    * Enable or disable logging errors.
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setErrorLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_ERRORS;
@@ -89,8 +78,8 @@ public class PSLogger extends PSComponent {
   /**
    * Is the logging of server startup and shutdown events enabled?
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isServerStartStopLoggingEnabled() {
     return ((m_options & LOG_SERVER_START_STOP) == LOG_SERVER_START_STOP);
@@ -99,8 +88,8 @@ public class PSLogger extends PSComponent {
   /**
    * Enable or disable the logging of server startup and shutdown events.
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setServerStartStopLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_SERVER_START_STOP;
@@ -110,19 +99,18 @@ public class PSLogger extends PSComponent {
   /**
    * Is the logging of application startup and shutdown events enabled?
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppStartStopLoggingEnabled() {
     return ((m_options & LOG_APP_START_STOP) == LOG_APP_START_STOP);
   }
 
   /**
-   * Enable or disable the logging of application startup and shutdown
-   * events.
+   * Enable or disable the logging of application startup and shutdown events.
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setAppStartStopLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_APP_START_STOP;
@@ -130,47 +118,48 @@ public class PSLogger extends PSComponent {
   }
 
   /**
-   * Is the logging of application statistics when the application
-   * shuts down enabled?
-   * <p>
-   * The following information is logged:
+   * Is the logging of application statistics when the application shuts down enabled?
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the amount of time the application was up for</li>
-   * <li>the number of events processed</li>
-   * <li>the number of events left pending</li>
-   * <li>the number of events failed</li>
-   * <li>the number of query cache hits</li>
-   * <li>the number of query cache misses</li>
-   * <li>the minimum amount of time to process an event</li>
-   * <li>the maximum amount of time to process an event</li>
-   * <li>the average amount of time to process an event</li>
+   *   <li>the amount of time the application was up for
+   *   <li>the number of events processed
+   *   <li>the number of events left pending
+   *   <li>the number of events failed
+   *   <li>the number of query cache hits
+   *   <li>the number of query cache misses
+   *   <li>the minimum amount of time to process an event
+   *   <li>the maximum amount of time to process an event
+   *   <li>the average amount of time to process an event
    * </ul>
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppStatisticsLoggingEnabled() {
     return ((m_options & LOG_APP_STATISTICS) == LOG_APP_STATISTICS);
   }
 
   /**
-   * Enable or disable the logging of application statistics when the
-   * application shuts down enabled?
-   * <p>
-   * The following information is logged:
+   * Enable or disable the logging of application statistics when the application shuts down
+   * enabled?
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the amount of time the application was up for</li>
-   * <li>the number of events processed</li>
-   * <li>the number of events left pending</li>
-   * <li>the number of query cache hits</li>
-   * <li>the number of query cache misses</li>
-   * <li>the minimum amount of time to process an event</li>
-   * <li>the maximum amount of time to process an event</li>
-   * <li>the average amount of time to process an event</li>
+   *   <li>the amount of time the application was up for
+   *   <li>the number of events processed
+   *   <li>the number of events left pending
+   *   <li>the number of query cache hits
+   *   <li>the number of query cache misses
+   *   <li>the minimum amount of time to process an event
+   *   <li>the maximum amount of time to process an event
+   *   <li>the average amount of time to process an event
    * </ul>
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setAppStatisticsLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_APP_STATISTICS;
@@ -179,36 +168,37 @@ public class PSLogger extends PSComponent {
 
   /**
    * Is the execution plan logged when an application is started?
-   * <p>
-   * All information deemed relevant for understanding what will be done
-   * is logged. This includes, but is not limited to:
+   *
+   * <p>All information deemed relevant for understanding what will be done is logged. This
+   * includes, but is not limited to:
+   *
    * <ul>
-   * <li>prepared statements</li>
-   * <li>statistics used to build join plans</li>
-   * <li>DTD information used to build XML document structures</li>
+   *   <li>prepared statements
+   *   <li>statistics used to build join plans
+   *   <li>DTD information used to build XML document structures
    * </ul>
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isExecutionPlanLoggingEnabled() {
     return ((m_options & LOG_EXECUTION_PLAN) == LOG_EXECUTION_PLAN);
   }
 
   /**
-   * Enable or disable the logging of
-   * the execution plan logged when an application is started.
-   * <p>
-   * All information deemed relevant for understanding what will be done
-   * is logged. This includes, but is not limited to:
+   * Enable or disable the logging of the execution plan logged when an application is started.
+   *
+   * <p>All information deemed relevant for understanding what will be done is logged. This
+   * includes, but is not limited to:
+   *
    * <ul>
-   * <li>prepared statements</li>
-   * <li>statistics used to build join plans</li>
-   * <li>DTD information used to build XML document structures</li>
+   *   <li>prepared statements
+   *   <li>statistics used to build join plans
+   *   <li>DTD information used to build XML document structures
    * </ul>
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setExecutionPlanLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_EXECUTION_PLAN;
@@ -217,17 +207,18 @@ public class PSLogger extends PSComponent {
 
   /**
    * Is the logging of basic user activity enabled?
-   * <p>
-   * The following information is logged:
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>the host address of the requestor</li>
-   * <li>the user name of the requestor (if authenticated)</li>
-   * <li>the requested URL</li>
+   *   <li>the session id of the user making this request
+   *   <li>the host address of the requestor
+   *   <li>the user name of the requestor (if authenticated)
+   *   <li>the requested URL
    * </ul>
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBasicUserActivityLoggingEnabled() {
     return ((m_options & LOG_BASIC_USER_ACTIVITY) == LOG_BASIC_USER_ACTIVITY);
@@ -235,17 +226,18 @@ public class PSLogger extends PSComponent {
 
   /**
    * Enable or disable the logging of basic user activity.
-   * <p>
-   * The following information is logged:
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>the host address of the requestor</li>
-   * <li>the user name of the requestor (if authenticated)</li>
-   * <li>the requested URL</li>
+   *   <li>the session id of the user making this request
+   *   <li>the host address of the requestor
+   *   <li>the user name of the requestor (if authenticated)
+   *   <li>the requested URL
    * </ul>
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setBasicUserActivityLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_BASIC_USER_ACTIVITY;
@@ -254,19 +246,21 @@ public class PSLogger extends PSComponent {
 
   /**
    * Is the logging of detailed user activity enabled?
-   * <p>
-   * The following information is logged:
-   * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>all data submitted with the request (POST body or XML file)</li>
-   * <li>request statistics (rows processed, etc.)</li>
-   * </ul>
-   * All basic user activity logging information is also logged. Enabling
-   * detailed logging automatically enables basic logging as well.
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
-   * @see         #setBasicUserActivityLoggingEnabled
+   * <p>The following information is logged:
+   *
+   * <ul>
+   *   <li>the session id of the user making this request
+   *   <li>all data submitted with the request (POST body or XML file)
+   *   <li>request statistics (rows processed, etc.)
+   * </ul>
+   *
+   * All basic user activity logging information is also logged. Enabling detailed logging
+   * automatically enables basic logging as well.
+   *
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
+   * @see #setBasicUserActivityLoggingEnabled
    */
   public boolean isDetailedUserActivityLoggingEnabled() {
     return ((m_options & LOG_DETAILED_USER_ACTIVITY) == LOG_DETAILED_USER_ACTIVITY);
@@ -274,18 +268,20 @@ public class PSLogger extends PSComponent {
 
   /**
    * Enable or disable the logging of detailed user activity.
-   * <p>
-   * The following information is logged:
-   * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>all data submitted with the request (POST body or XML file)</li>
-   * <li>request statistics (rows processed, etc.)</li>
-   * </ul>
-   * All basic user activity logging information is also logged. Enabling
-   * detailed logging automatically enables basic logging as well.
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * <p>The following information is logged:
+   *
+   * <ul>
+   *   <li>the session id of the user making this request
+   *   <li>all data submitted with the request (POST body or XML file)
+   *   <li>request statistics (rows processed, etc.)
+   * </ul>
+   *
+   * All basic user activity logging information is also logged. Enabling detailed logging
+   * automatically enables basic logging as well.
+   *
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setDetailedUserActivityLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_DETAILED_USER_ACTIVITY;
@@ -294,21 +290,21 @@ public class PSLogger extends PSComponent {
 
   /**
    * Is the logging of full user activity enabled?
-   * <p>
-   * The following information is logged:
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>any useful information encountered during the execution of the request</li>
+   *   <li>the session id of the user making this request
+   *   <li>any useful information encountered during the execution of the request
    * </ul>
-   * All basic and detailed user activity logging information is also
-   * logged. Enabling full logging automatically enables basic
-   * and detailed logging as well.
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * All basic and detailed user activity logging information is also logged. Enabling full logging
+   * automatically enables basic and detailed logging as well.
    *
-   * @see         #setBasicUserActivityLoggingEnabled
-   * @see         #setDetailedUserActivityLoggingEnabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
+   * @see #setBasicUserActivityLoggingEnabled
+   * @see #setDetailedUserActivityLoggingEnabled
    */
   public boolean isFullUserActivityLoggingEnabled() {
     return ((m_options & LOG_FULL_USER_ACTIVITY) == LOG_FULL_USER_ACTIVITY);
@@ -316,18 +312,19 @@ public class PSLogger extends PSComponent {
 
   /**
    * Enable or disable the logging of full user activity.
-   * <p>
-   * The following information is logged:
-   * <ul>
-   * <li>the session id of the user making this request</li>
-   * <li>any useful information encountered during the execution of the request</li>
-   * </ul>
-   * All basic and detailed user activity logging information is also
-   * logged. Enabling full logging automatically enables basic
-   * and detailed logging as well.
    *
-   * @param   enable   <code>true</code> to enable this type of logging,
-   *                   <code>false</code> to disable it
+   * <p>The following information is logged:
+   *
+   * <ul>
+   *   <li>the session id of the user making this request
+   *   <li>any useful information encountered during the execution of the request
+   * </ul>
+   *
+   * All basic and detailed user activity logging information is also logged. Enabling full logging
+   * automatically enables basic and detailed logging as well.
+   *
+   * @param enable <code>true</code> to enable this type of logging, <code>false</code> to disable
+   *     it
    */
   public void setFullUserActivityLoggingEnabled(boolean enable) {
     if (enable) m_options |= LOG_FULL_USER_ACTIVITY;
@@ -335,52 +332,44 @@ public class PSLogger extends PSComponent {
   }
 
   /**
-   * Is the detection and logging of multiple handlers for a request
-   * enabled?
-   * <p>
-   * When processing requests, the first data set matching the request
-   * criteria handles it. If other data sets exist which are alse
-   * interested in the request, they will be ignored. This may cause
-   * confusion to end users and application designers. By enabling logging,
-   * E2 will check subsequent applications and log a message for each
-   * application also matching the request criteria. This should only be
-   * used for debugging purposes as it may impact performance.
-   * <p>
-   * The following information is logged:
+   * Is the detection and logging of multiple handlers for a request enabled?
+   *
+   * <p>When processing requests, the first data set matching the request criteria handles it. If
+   * other data sets exist which are alse interested in the request, they will be ignored. This may
+   * cause confusion to end users and application designers. By enabling logging, E2 will check
+   * subsequent applications and log a message for each application also matching the request
+   * criteria. This should only be used for debugging purposes as it may impact performance.
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the name of each application/dataset matching the request
-   *     criteria</li>
-   * <li>the session id of the user making this request. This can be used to
-   *     map back to the request when logging detailed user activity is
-   *     enabled.</li>
+   *   <li>the name of each application/dataset matching the request criteria
+   *   <li>the session id of the user making this request. This can be used to map back to the
+   *       request when logging detailed user activity is enabled.
    * </ul>
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isMultipleHandlerLoggingEnabled() {
     return ((m_options & LOG_MULTIPLE_HANDLERS) == LOG_MULTIPLE_HANDLERS);
   }
 
   /**
-   * Enable or disable the detection and logging of multiple handlers for
-   * a request.
-   * <p>
-   * When processing requests, the first data set matching the request
-   * criteria handles it. If other data sets exist which are alse
-   * interested in the request, they will be ignored. This may cause
-   * confusion to end users and application designers. By enabling logging,
-   * E2 will check subsequent applications and log a message for each
-   * application also matching the request criteria. This should only be
-   * used for debugging purposes as it may impact performance.
-   * <p>
-   * The following information is logged:
+   * Enable or disable the detection and logging of multiple handlers for a request.
+   *
+   * <p>When processing requests, the first data set matching the request criteria handles it. If
+   * other data sets exist which are alse interested in the request, they will be ignored. This may
+   * cause confusion to end users and application designers. By enabling logging, E2 will check
+   * subsequent applications and log a message for each application also matching the request
+   * criteria. This should only be used for debugging purposes as it may impact performance.
+   *
+   * <p>The following information is logged:
+   *
    * <ul>
-   * <li>the name of each application/dataset matching the request
-   *     criteria</li>
-   * <li>the session id of the user making this request. This can be used to
-   *     map back to the request when logging detailed user activity is
-   *     enabled.</li>
+   *   <li>the name of each application/dataset matching the request criteria
+   *   <li>the session id of the user making this request. This can be used to map back to the
+   *       request when logging detailed user activity is enabled.
    * </ul>
    */
   public void setMultipleHandlerLoggingEnabled(boolean enable) {
@@ -391,10 +380,11 @@ public class PSLogger extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXLogger XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXLogger XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXLogger defines the log settings for an application or server.
@@ -452,7 +442,7 @@ public class PSLogger extends PSComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXLogger XML element node
+   * @return the newly created PSXLogger XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -481,12 +471,10 @@ public class PSLogger extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSLogger Java object
-   * from a PSXLogger XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSLogger Java object from a PSXLogger XML element node. See
+   * the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXLogger
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXLogger
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -541,18 +529,15 @@ public class PSLogger extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -584,17 +569,15 @@ public class PSLogger extends PSComponent {
     return true;
   }
 
-  /**
-   * Generates hash code for the object.
-   */
+  /** Generates hash code for the object. */
   @Override
   public int hashCode() {
     return m_options;
   }
 
   /**
-   * Operator to OR the provided logger to this logger. Nothing is changed if
-   * the provided logger is <code>null</code>.
+   * Operator to OR the provided logger to this logger. Nothing is changed if the provided logger is
+   * <code>null</code>.
    *
    * @param logger the logger we want to OR to this.
    */

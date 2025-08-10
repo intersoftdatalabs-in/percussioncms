@@ -20,18 +20,16 @@ package com.percussion.design.objectstore;
 import com.percussion.util.PSCollection;
 
 /**
- * The PSObjectFactory abstract class provides mechanisms for creating
- * base objects, such as PSApplication objects. This is intended for use
- * by the com.percussion.design.objectstore.server package only.
+ * The PSObjectFactory abstract class provides mechanisms for creating base objects, such as
+ * PSApplication objects. This is intended for use by the com.percussion.design.objectstore.server
+ * package only.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSObjectFactory {
-  /**
-   * Create an empty application object.
-   */
+  /** Create an empty application object. */
   protected static PSApplication createApplication() {
     return createApplication(false);
   }
@@ -39,12 +37,12 @@ public abstract class PSObjectFactory {
   /**
    * Create an empty application object.
    *
-   * @param initialize if <code>true</code>, then some basic elements are
-   * created and set on the app.  Currently these are:
-   * <ol>
-   * <li>An Acl with an anonymous entry that has full data access and a
-   * default entry that has full data and design access</li>
-   * </ol>
+   * @param initialize if <code>true</code>, then some basic elements are created and set on the
+   *     app. Currently these are:
+   *     <ol>
+   *       <li>An Acl with an anonymous entry that has full data access and a default entry that has
+   *           full data and design access
+   *     </ol>
    *
    * @return the application.
    */
@@ -93,16 +91,12 @@ public abstract class PSObjectFactory {
     }
   }
 
-  /**
-   * Create an empty user configuration object for the specified user.
-   */
+  /** Create an empty user configuration object for the specified user. */
   protected static PSUserConfiguration createUserConfiguration(String userName) {
     return new PSUserConfiguration(userName);
   }
 
-  /**
-   * Create an empty user configuration object.
-   */
+  /** Create an empty user configuration object. */
   protected static PSUserConfiguration createUserConfiguration() {
     return new PSUserConfiguration();
   }

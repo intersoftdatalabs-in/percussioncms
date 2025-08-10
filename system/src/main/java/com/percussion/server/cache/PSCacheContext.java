@@ -23,20 +23,16 @@ import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 
 /**
- * Represents the current runtime environment for the handling of a request that
- * is to be cached.
+ * Represents the current runtime environment for the handling of a request that is to be cached.
  */
 public class PSCacheContext {
   /**
    * Construct a cache context.
    *
-   * @param request The request for which a response may be cached, may not be
-   * <code>null</code>.
-   * @param dataSet The dataset identified by the current the request, may not
-   * be <code>null</code>.
-   * @param appHandler The application handler that is handling the request,
-   * may not be <code>null</code>.
-   *
+   * @param request The request for which a response may be cached, may not be <code>null</code>.
+   * @param dataSet The dataset identified by the current the request, may not be <code>null</code>.
+   * @param appHandler The application handler that is handling the request, may not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSCacheContext(PSRequest request, PSDataSet dataSet, PSApplicationHandler appHandler) {
@@ -70,9 +66,8 @@ public class PSCacheContext {
   }
 
   /**
-   * Clone the request stored in this object and store the clone instead.  Used
-   * to prevent modifications to the request by subsequent request handler
-   * processing.
+   * Clone the request stored in this object and store the clone instead. Used to prevent
+   * modifications to the request by subsequent request handler processing.
    */
   public void cloneRequest() {
     m_request = m_request.cloneRequest();
@@ -88,8 +83,8 @@ public class PSCacheContext {
   }
 
   /**
-   * Get execution data for the current request.  The data returned is not
-   * necessarily the same data used to process the request by the data handler.
+   * Get execution data for the current request. The data returned is not necessarily the same data
+   * used to process the request by the data handler.
    *
    * @return The data, never <code>null</code>.
    */
@@ -99,21 +94,20 @@ public class PSCacheContext {
   }
 
   /**
-   * The current request, initialized during construction, never
-   * <code>null</code> after that.  May be modified by calls to
-   * <code>cloneRequest()</code>.
+   * The current request, initialized during construction, never <code>null</code> after that. May
+   * be modified by calls to <code>cloneRequest()</code>.
    */
   private PSRequest m_request;
 
   /**
-   * The dataset identified by the current request.  Intialized during
-   * construction, never <code>null</code> or modified after that.
+   * The dataset identified by the current request. Intialized during construction, never <code>null
+   * </code> or modified after that.
    */
   private PSDataSet m_dataSet;
 
   /**
-   * The application handler processing the current request.  Intialized during
-   * construction, never <code>null</code> or modified after that.
+   * The application handler processing the current request. Intialized during construction, never
+   * <code>null</code> or modified after that.
    */
   private PSApplicationHandler m_appHandler;
 }

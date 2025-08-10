@@ -42,15 +42,13 @@ public interface IPSSearchHandler extends IPSPortActionHandler {
   void executeKeyFieldSearch(PSRequest request, PSServerItem updateItem) throws PSException;
 
   /**
-   * Iterator for a delimited list of values formated for an external search
-   * with an "in" operator.
+   * Iterator for a delimited list of values formated for an external search with an "in" operator.
    */
   public static class PSExternalInValuesIterator implements Iterator<String> {
     /**
      * Construct the iterator
      *
-     * @param val The delimited list, assumed not <code>null</code>, may be
-     *            empty.
+     * @param val The delimited list, assumed not <code>null</code>, may be empty.
      */
     PSExternalInValuesIterator(String val) {
       mi_toker = new StringTokenizer(val, " ");
@@ -73,9 +71,7 @@ public interface IPSSearchHandler extends IPSPortActionHandler {
       throw new UnsupportedOperationException("remove not supported");
     }
 
-    /**
-     * Checks ahead to determine the next possible value
-     */
+    /** Checks ahead to determine the next possible value */
     private void getNext() {
       String next = null;
       while (mi_toker.hasMoreTokens()) {
@@ -89,14 +85,14 @@ public interface IPSSearchHandler extends IPSPortActionHandler {
     }
 
     /**
-     * Used to walk the string supplied during construction to return values.
-     * never <code>null</code> or modified after construction.
+     * Used to walk the string supplied during construction to return values. never <code>null
+     * </code> or modified after construction.
      */
     private final StringTokenizer mi_toker;
 
     /**
-     * The next value to return, modified by calls to {@link #getNext()},
-     * <code>null</code> if there are no values left to return.
+     * The next value to return, modified by calls to {@link #getNext()}, <code>null</code> if there
+     * are no values left to return.
      */
     private String mi_next;
   }

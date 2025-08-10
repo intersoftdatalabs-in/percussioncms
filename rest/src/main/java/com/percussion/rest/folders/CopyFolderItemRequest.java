@@ -22,59 +22,55 @@ package com.percussion.rest.folders;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a request to copy a folder or item.
- * Sunny Sal: "Copy ka request aaya, boss!"
- */
+/** Represents a request to copy a folder or item. Sunny Sal: "Copy ka request aaya, boss!" */
 @XmlRootElement
 @Schema(description = "Represents a request to copy a folder or item")
 public class CopyFolderItemRequest {
 
-    @Schema(name = "targetFolderPath", required = true, description = "Target folder path")
-    private String targetFolderPath;
+  @Schema(name = "targetFolderPath", required = true, description = "Target folder path")
+  private String targetFolderPath;
 
-    @Schema(name = "itemPath", required = true, description = "Item path")
-    private String itemPath;
+  @Schema(name = "itemPath", required = true, description = "Item path")
+  private String itemPath;
 
-    public CopyFolderItemRequest() {
-        // Default constructor
-    }
+  public CopyFolderItemRequest() {
+    // Default constructor
+  }
 
-    @JsonCreator
-    public CopyFolderItemRequest(
-            @JsonProperty(value = "targetFolderPath") String targetFolderPath,
-            @JsonProperty(value = "itemPath") String itemPath) {
-        this.targetFolderPath = targetFolderPath;
-        this.itemPath = itemPath;
-    }
+  @JsonCreator
+  public CopyFolderItemRequest(
+      @JsonProperty(value = "targetFolderPath") String targetFolderPath,
+      @JsonProperty(value = "itemPath") String itemPath) {
+    this.targetFolderPath = targetFolderPath;
+    this.itemPath = itemPath;
+  }
 
-    /**
-     * Gets the target folder path.
-     *
-     * @return Optional containing the target folder path if present
-     */
-    public Optional<String> getTargetFolderPath() {
-        return Optional.ofNullable(targetFolderPath);
-    }
+  /**
+   * Gets the target folder path.
+   *
+   * @return Optional containing the target folder path if present
+   */
+  public Optional<String> getTargetFolderPath() {
+    return Optional.ofNullable(targetFolderPath);
+  }
 
-    public void setTargetFolderPath(String targetFolderPath) {
-        this.targetFolderPath = targetFolderPath;
-    }
+  public void setTargetFolderPath(String targetFolderPath) {
+    this.targetFolderPath = targetFolderPath;
+  }
 
-    /**
-     * Gets the item path.
-     *
-     * @return Optional containing the item path if present
-     */
-    public Optional<String> getItemPath() {
-        return Optional.ofNullable(itemPath);
-    }
+  /**
+   * Gets the item path.
+   *
+   * @return Optional containing the item path if present
+   */
+  public Optional<String> getItemPath() {
+    return Optional.ofNullable(itemPath);
+  }
 
-    public void setItemPath(String itemPath) {
-        this.itemPath = itemPath;
-    }
+  public void setItemPath(String itemPath) {
+    this.itemPath = itemPath;
+  }
 }

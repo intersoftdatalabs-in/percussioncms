@@ -20,41 +20,41 @@ package com.percussion.rest.communities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
-/**
- * List of CommunityVisibility instances with their visible objects.
- */
+/** List of CommunityVisibility instances with their visible objects. */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CommunityVisibilityList")
 @XmlSeeAlso({CommunityVisibility.class})
-@ArraySchema(schema = @Schema(implementation = CommunityVisibility.class,
-        description = "A List of CommunityVisibility instances with their visible objects"))
+@ArraySchema(
+    schema =
+        @Schema(
+            implementation = CommunityVisibility.class,
+            description = "A List of CommunityVisibility instances with their visible objects"))
 public class CommunityVisibilityList extends ArrayList<CommunityVisibility> {
 
-    public CommunityVisibilityList(Collection<? extends CommunityVisibility> c) {
-        super(c);
-    }
+  public CommunityVisibilityList(Collection<? extends CommunityVisibility> c) {
+    super(c);
+  }
 
-    public CommunityVisibilityList() {}
+  public CommunityVisibilityList() {}
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof CommunityVisibilityList && super.equals(o);
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof CommunityVisibilityList && super.equals(o);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 
-    @Override
-    public String toString() {
-        return "CommunityVisibilityList" + super.toString();
-    }
+  @Override
+  public String toString() {
+    return "CommunityVisibilityList" + super.toString();
+  }
 }

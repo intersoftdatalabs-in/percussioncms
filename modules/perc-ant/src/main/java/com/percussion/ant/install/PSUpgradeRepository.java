@@ -28,12 +28,9 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 /**
- * PSUpgradeRepository is a task that upgrades the repository file
- * in case of upgrade
+ * PSUpgradeRepository is a task that upgrades the repository file in case of upgrade <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -51,7 +48,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpgradeRepository extends PSAction {
   // see base class
@@ -61,12 +57,10 @@ public class PSUpgradeRepository extends PSAction {
   }
 
   /**
-   * Updates the rxrepository.properties file used by the installer with the
-   * current Rhythmyx repository information. The original file will be backed
-   * up and restored if an error occurs.
+   * Updates the rxrepository.properties file used by the installer with the current Rhythmyx
+   * repository information. The original file will be backed up and restored if an error occurs.
    *
-   * @param strRootDir the Rhythmyx root directory, may not be
-   *           <code>null</code> or empty.
+   * @param strRootDir the Rhythmyx root directory, may not be <code>null</code> or empty.
    */
   public static void upgradeRepository(String strRootDir) {
     if (strRootDir == null || strRootDir.trim().length() == 0) {

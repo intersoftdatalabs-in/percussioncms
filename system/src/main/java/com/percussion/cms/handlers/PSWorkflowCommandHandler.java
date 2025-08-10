@@ -101,33 +101,27 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * This class encapsulates behaviour to handle all workflow related commands.
- */
+/** This class encapsulates behaviour to handle all workflow related commands. */
 public class PSWorkflowCommandHandler extends PSCommandHandler {
   private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
   private PSWorkflowEvent psWorkflowEvent;
 
-  /**
-   * Logger
-   */
+  /** Logger */
   private static final Logger ms_logger = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
   /**
-   * Looks in the system def for pre/post exits assigned to this handler and
-   * initializes them, prepares all redirects and then creates the update
-   * application which handles all workflow actions.
+   * Looks in the system def for pre/post exits assigned to this handler and initializes them,
+   * prepares all redirects and then creates the update application which handles all workflow
+   * actions.
    *
-   * @param ah The handler for the application that contains this editor
-   *    resource.
+   * @param ah The handler for the application that contains this editor resource.
    * @param ceh The parent handler of this handler.
    * @param ce The definition of the editor.
-   * @param app Any resources that are created dynamically will be added to
-   *    this application. Never <code>null</code>.
+   * @param app Any resources that are created dynamically will be added to this application. Never
+   *     <code>null</code>.
    * @throws PSNotFoundException If an exit cannot be found.
-   * @throws PSIllegalArgumentException  todo: get rid of this?
-   * @throws PSExtensionException If any problems occur druing extension
-   *    initialization.
+   * @throws PSIllegalArgumentException todo: get rid of this?
+   * @throws PSExtensionException If any problems occur druing extension initialization.
    * @throws IllegalArgumentException if app is <code>null</code>.
    */
   public PSWorkflowCommandHandler(
@@ -249,10 +243,10 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Determines if the item should be validated or not
-   * when the item is not checked in or checked out during workflow transition.
-   * The item will always be validated unless the item is in a public state and the server property
-   * <code>allowItemValidationOnPublicItems</code> is not set to <code>true</code> or <code>yes</code>.
+   * Determines if the item should be validated or not when the item is not checked in or checked
+   * out during workflow transition. The item will always be validated unless the item is in a
+   * public state and the server property <code>allowItemValidationOnPublicItems</code> is not set
+   * to <code>true</code> or <code>yes</code>.
    *
    * @param req not null.
    * @return <code>true</code> if validation is needed.
@@ -267,9 +261,8 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * If the parameter <code>sys_transitionid</code> is missing, then
-   * calculate the value required from <code>WFAction</code> and set the
-   * <code>sys_transitionid</code> parameter on the request.
+   * If the parameter <code>sys_transitionid</code> is missing, then calculate the value required
+   * from <code>WFAction</code> and set the <code>sys_transitionid</code> parameter on the request.
    *
    * @param req the request, assumed not <code>null</code>.
    * @throws Exception when something goes wrong.
@@ -404,30 +397,25 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
    *
    * @param req the request to be executed, assumed not <code>null</code>.
    * @param execData the execution data to use, assumed not <code>null</code>.
-   * @param isCheckin <code>true</code> if this is a checkin request,
-   *    <code>false</code> otherwise.
-   * @param isCheckout <code>true</code> if this is a checkout request,
-   *    <code>false</code> otherwise.
+   * @param isCheckin <code>true</code> if this is a checkin request, <code>false</code> otherwise.
+   * @param isCheckout <code>true</code> if this is a checkout request, <code>false</code>
+   *     otherwise.
    * @throws PSErrorException for any errors occurred.
    * @throws PSRequestValidationException for invalid requests.
-   * @throws PSAuthorizationException if the user is not authorize to perform
-   *    the request.
+   * @throws PSAuthorizationException if the user is not authorize to perform the request.
    * @throws PSRequestValidationException for any failed request validation.
    * @throws SQLException for any failed SQL operation.
    * @throws PSNotFoundException for any file not found.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSAuthenticationFailedException if the user failed to
-   *    authenticate.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    * @throws PSSystemValidationException for any failed validation.
    * @throws IOException for any IO error occurred.
-   * @throws PSUnknownNodeTypeException if the requested document does not
-   *    contain a valid relationship set.
-   * @throws PSCmsException if anything goes wrong looking up existing
-   *    relationships.
-   * @throws PSRelationshipProcessorException if anything goes wrong executing
-   *    relationship effects.
+   * @throws PSUnknownNodeTypeException if the requested document does not contain a valid
+   *     relationship set.
+   * @throws PSCmsException if anything goes wrong looking up existing relationships.
+   * @throws PSRelationshipProcessorException if anything goes wrong executing relationship effects.
    * @throws PSRejectTransition is never thrown.
    */
   private PSExecutionData executeWorkflowRequest(
@@ -577,8 +565,7 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Creates dataset used to perform the actual updates against the backend
-   * data.
+   * Creates dataset used to perform the actual updates against the backend data.
    *
    * @throws PSSystemValidationException if there the app is not properly defined.
    */
@@ -606,33 +593,25 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Checks to see if the base revision matches the current revision, and if
-   * not creates a new revision by copying the current revision.
+   * Checks to see if the base revision matches the current revision, and if not creates a new
+   * revision by copying the current revision.
    *
-   * @param data The execution data for this request.  Assumed not <code>
+   * @param data The execution data for this request. Assumed not <code>
    * null</code>.
-   *
-   * @return <code>true</code> if this is a new revision has been created,
-   * <code>false</code> if not.
-   *
-   * @throws PSRequestValidationException if there are any errors extracting
-   * parameters.
-   * @throws PSNotFoundException if the content and revision ids do not
-   * specify an existing content item revision.
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   * the copy.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   * copy.
-   * @throws SQLException if there is an error generating new Ids for any
-   * item children.
+   * @return <code>true</code> if this is a new revision has been created, <code>false</code> if
+   *     not.
+   * @throws PSRequestValidationException if there are any errors extracting parameters.
+   * @throws PSNotFoundException if the content and revision ids do not specify an existing content
+   *     item revision.
+   * @throws PSAuthorizationException if the user is not authorized to execute the copy.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the copy.
+   * @throws SQLException if there is an error generating new Ids for any item children.
    * @throws PSSystemValidationException for any failed validation.
    * @throws IOException for any IO error occurred.
-   * @throws PSUnknownNodeTypeException if the requested document does not
-   *    contain a valid relationship set.
-   * @throws PSCmsException if anything goes wrong looking up existing
-   *    relationships.
+   * @throws PSUnknownNodeTypeException if the requested document does not contain a valid
+   *     relationship set.
+   * @throws PSCmsException if anything goes wrong looking up existing relationships.
    */
   @SuppressWarnings("unchecked")
   private boolean createCheckedOutRevision(PSExecutionData data)
@@ -704,15 +683,13 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Does a field level validation to check the occurrence settings. For any
-   * missing field an error is produced to the m_errorCollector. If field
-   * validation was successful, item level validation is performed. Also
-   * item level errors will be added to the m_errorCollector.
+   * Does a field level validation to check the occurrence settings. For any missing field an error
+   * is produced to the m_errorCollector. If field validation was successful, item level validation
+   * is performed. Also item level errors will be added to the m_errorCollector.
    *
    * @param validator the ItemValidator for the current request
-   *
-   * @return <code>true</code> if the validations pass, or the validator is
-   *          <code>null</code>; <code>false</code> if the validations fail
+   * @return <code>true</code> if the validations pass, or the validator is <code>null</code>;
+   *     <code>false</code> if the validations fail
    * @throws RuntimeException if any error occurs during validation
    */
   private static boolean validate(ItemValidator validator) {
@@ -739,19 +716,17 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Creates and caches the error page for the supplied error collector. The
-   * error is always recorded into the request supplied through the execution
-   * data. Then the called is redirected to the cached error page if so
-   * requested.
+   * Creates and caches the error page for the supplied error collector. The error is always
+   * recorded into the request supplied through the execution data. Then the called is redirected to
+   * the cached error page if so requested.
    *
-   * @param data the execution data for which to record the validation error,
-   *    assumed not <code>null</code>.
-   * @param errorCollector the error collector object that contains the
-   *    validation errors, assumed not <code>null</code>.
-   * @param redirect <code>true</code> to redirect to the cached error page
-   *    created, <code>false</code> otherwise.
-   * @throws PSDataExtractionException if the redirect URL could not be
-   *    extracted.
+   * @param data the execution data for which to record the validation error, assumed not <code>null
+   *     </code>.
+   * @param errorCollector the error collector object that contains the validation errors, assumed
+   *     not <code>null</code>.
+   * @param redirect <code>true</code> to redirect to the cached error page created, <code>false
+   *     </code> otherwise.
+   * @throws PSDataExtractionException if the redirect URL could not be extracted.
    * @throws IOException if the redirection failed.
    */
   private void recordErrorToRequest(
@@ -791,47 +766,40 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "workflow";
 
   /**
-   * The base dataset name of the contentstatus_update resource. This
-   * dataset is used to update the last modified columns in the CONTENTSTATUS
-   * table.
+   * The base dataset name of the contentstatus_update resource. This dataset is used to update the
+   * last modified columns in the CONTENTSTATUS table.
    */
   private static final String CONTENTSTATUS_UPDATE = "contentstatus_update";
 
   /**
-   * Used to perform the actual copying of the item.  Initialized in the ctor,
-   * never <code>null</code> after that.
+   * Used to perform the actual copying of the item. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSCopyHandler m_copyHandler = null;
 
   /**
-   * The name of the dataset to use to update the content status table.
-   * Set during construction, never <code>null</code> or modified after that.
+   * The name of the dataset to use to update the content status table. Set during construction,
+   * never <code>null</code> or modified after that.
    */
   private String m_updateStatusResource = null;
 
-  /**
-   * Wrapper for all item level validation functionality.
-   */
+  /** Wrapper for all item level validation functionality. */
   private class ItemValidator {
     /**
      * Constructs a new item validator.
      *
-     * @param data the execution data to construct the validator for, not
-     *    <code>null</code>.
-     * @param itemEvaluator the item evaluator which performs the actual
-     *    item validation, not <code>null</code>.
-     * @throws IllegalArgumentException if any parameter except lang is
-     *    <code>null</code>.
-     * @throws PSRequestValidationException if the data does not contain the
-     * necessary parameters.
-     * @throws PSCmsException If there is an error loading item data for
-     * validation.
+     * @param data the execution data to construct the validator for, not <code>null</code>.
+     * @param itemEvaluator the item evaluator which performs the actual item validation, not <code>
+     *     null</code>.
+     * @throws IllegalArgumentException if any parameter except lang is <code>null</code>.
+     * @throws PSRequestValidationException if the data does not contain the necessary parameters.
+     * @throws PSCmsException If there is an error loading item data for validation.
      */
     public ItemValidator(PSExecutionData data, PSValidationRulesEvaluator itemEvaluator)
         throws PSCmsException, PSRequestValidationException {
@@ -844,14 +812,11 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * Checks if any validation errors occurred and redirects the client
-     * to an error page if so.
+     * Checks if any validation errors occurred and redirects the client to an error page if so.
      *
      * @param data the execution data, not <code>null</code>.
-     * @throws IllegalArgumentException if the provided data is
-     *    <code>null</code>.
-     * @throws PSDataExtractionException if the redirect URL could not be
-     *    extracted.
+     * @throws IllegalArgumentException if the provided data is <code>null</code>.
+     * @throws PSDataExtractionException if the redirect URL could not be extracted.
      * @throws IOException if the redirection failed.
      */
     public void redirectToError(PSExecutionData data)
@@ -862,8 +827,8 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * Get the error collector containing all collected errors occurred
-     * during validation. Should be used as read only.
+     * Get the error collector containing all collected errors occurred during validation. Should be
+     * used as read only.
      *
      * @return the error collector, never <code>null</code>.
      */
@@ -872,32 +837,25 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * After item validation is done and validation errors occurred, use
-     * this method to create the appropriate error messages in the error
-     * collector using the provided item document.
+     * After item validation is done and validation errors occurred, use this method to create the
+     * appropriate error messages in the error collector using the provided item document.
      *
-     * @throws IllegalArgumentException if the provided item document is
-     *    <code>null</code>.
+     * @throws IllegalArgumentException if the provided item document is <code>null</code>.
      */
     public void createItemErrors() {
       mi_errorCollector.createItemErrors(mi_pageMap);
     }
 
     /**
-     * Prepares the validation process. Makes an internal request to all pages
-     * within the current item. Parses the summary page to determine the
-     * sys_pageid and row id for complex child pages.
-     * Each page XML document is stored in a map.
-     * An XML document containing the entire item will also be created. This
-     * is used in the validation process.
+     * Prepares the validation process. Makes an internal request to all pages within the current
+     * item. Parses the summary page to determine the sys_pageid and row id for complex child pages.
+     * Each page XML document is stored in a map. An XML document containing the entire item will
+     * also be created. This is used in the validation process.
      *
-     * @param data the execution data to prepare the validation process for,
-     *    assumed not <code>null</code>.
-     *
-     * @throws PSRequestValidationException if the data does not contain the
-     * necessary parameters.
-     * @throws PSCmsException If there is an error loading item data for
-     * validation.
+     * @param data the execution data to prepare the validation process for, assumed not <code>null
+     *     </code>.
+     * @throws PSRequestValidationException if the data does not contain the necessary parameters.
+     * @throws PSCmsException If there is an error loading item data for validation.
      */
     @SuppressWarnings("unchecked")
     private void initValidation(PSExecutionData data)
@@ -987,16 +945,15 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * Using the supplied request, sets the revision html param with the value
-     * of the tip revision of the specified content id.
+     * Using the supplied request, sets the revision html param with the value of the tip revision
+     * of the specified content id.
      *
-     * @param req The request that specifies the content id and in which the
-     * revision is set, assumed not <code>null</code>.
-     *
-     * @throws PSRequestValidationException if the content id is not specified
-     * in the supplied request.
-     * @throws PSCmsException If the items summary cannot be loaded in order
-     * to determine the tip revision.
+     * @param req The request that specifies the content id and in which the revision is set,
+     *     assumed not <code>null</code>.
+     * @throws PSRequestValidationException if the content id is not specified in the supplied
+     *     request.
+     * @throws PSCmsException If the items summary cannot be loaded in order to determine the tip
+     *     revision.
      */
     private void setTipRevision(PSRequest req) throws PSCmsException, PSRequestValidationException {
       String contentIdParam =
@@ -1020,26 +977,19 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * Given a map of item screens this will create a document containing all
-     * item information combined.
-     * <ol><li>
-     *    The ContentEditor element will be taken from the first page.
-     * </li>
-     * <li>
-     *    The ControlNameSet element will be recreated with all ControlName
-     *    elements found in every page. This is not really necessary, but
-     *    makes the produced document conform to the sys_ContentEditor.dtd.
-     * </li>
-     * <li>
-     *    The ItemContent element will be recreated with all DisplayFields
-     *    found in every page. The DisplayFields are ordered from page 0 to n.
-     * </li>
-     * <li>
-     *    The UserStatus element will be added from the first page.
-     * </li>
-     * <li>
-     *    The Workflow element will be taken from the first page.
-     * </li></ol>
+     * Given a map of item screens this will create a document containing all item information
+     * combined.
+     *
+     * <ol>
+     *   <li>The ContentEditor element will be taken from the first page.
+     *   <li>The ControlNameSet element will be recreated with all ControlName elements found in
+     *       every page. This is not really necessary, but makes the produced document conform to
+     *       the sys_ContentEditor.dtd.
+     *   <li>The ItemContent element will be recreated with all DisplayFields found in every page.
+     *       The DisplayFields are ordered from page 0 to n.
+     *   <li>The UserStatus element will be added from the first page.
+     *   <li>The Workflow element will be taken from the first page.
+     * </ol>
      */
     private Document createItemDocument() {
       Document item = PSXmlDocumentBuilder.createXmlDocument();
@@ -1109,10 +1059,8 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     /**
      * Validate the item.
      *
-     * @return <code>true</code> if successful, <code>false</code>
-     *    otherwise.
-     * @throws @link IPSResultDocumentProcessor#processResultDocument for
-     *    exception description.
+     * @return <code>true</code> if successful, <code>false</code> otherwise.
+     * @throws @link IPSResultDocumentProcessor#processResultDocument for exception description.
      */
     public boolean validateItem()
         throws PSExtensionProcessingException,
@@ -1122,36 +1070,33 @@ public class PSWorkflowCommandHandler extends PSCommandHandler {
     }
 
     /**
-     * The error collector used in this validator. Initialized during
-     * construction, never <code>null</code> after that.
+     * The error collector used in this validator. Initialized during construction, never <code>null
+     * </code> after that.
      */
     private PSErrorCollector mi_errorCollector = null;
 
     /**
-     * A map of item screen pages, queried during construction. The key is
-     * is the pageid as Integer and the value is a map between row id
-     * and the page XML as Document. If there is no row id the the map will
-     * have key of parent page and the new page as a Document. For parent page
-     * the map  will contain parent page id and parent page document
-     * Never <code>null</code> or empty after construction.
+     * A map of item screen pages, queried during construction. The key is is the pageid as Integer
+     * and the value is a map between row id and the page XML as Document. If there is no row id the
+     * the map will have key of parent page and the new page as a Document. For parent page the map
+     * will contain parent page id and parent page document Never <code>null</code> or empty after
+     * construction.
      */
     private Map<Integer, Map<Integer, Document>> mi_pageMap = null;
 
     /**
-     * The execution data used for this item validator. Initialized during
-     * constuction, never <code>null</code> after that.
+     * The execution data used for this item validator. Initialized during constuction, never <code>
+     * null</code> after that.
      */
     private PSExecutionData mi_data = null;
 
     /**
-     * The combined item document needed for item validation. Created
-     * during construction, never <code>null</code> after that.
+     * The combined item document needed for item validation. Created during construction, never
+     * <code>null</code> after that.
      */
     private Document mi_item = null;
 
-    /**
-     * See {@link PSCommandHandler#m_itemEvaluator} for the description.
-     */
+    /** See {@link PSCommandHandler#m_itemEvaluator} for the description. */
     private PSValidationRulesEvaluator mi_itemEvaluator = null;
   }
 }

@@ -19,16 +19,15 @@ package com.percussion.cx.error;
 import com.percussion.error.PSStandaloneException;
 
 /**
- * This class is used when an error occurs during PSOption handling (loading,
- * persisting, creating etc).
+ * This class is used when an error occurs during PSOption handling (loading, persisting, creating
+ * etc).
  */
 public class PSOptionException extends PSStandaloneException {
 
   /**
    * Construct an exception for messages taking no arguments.
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
+   * @param msgCode - the error string to load. There is no validation on this value.
    */
   public PSOptionException(int msgCode) {
     super(msgCode);
@@ -37,10 +36,8 @@ public class PSOptionException extends PSStandaloneException {
   /**
    * Construct an exception for messages taking multiple arguments
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
-   * @param singleMessage the sole of argument to use as the arguments in the
-   *    error message
+   * @param msgCode - the error string to load. There is no validation on this value.
+   * @param singleMessage the sole of argument to use as the arguments in the error message
    */
   public PSOptionException(int msgCode, String singleMessage) {
     super(msgCode, singleMessage);
@@ -49,10 +46,8 @@ public class PSOptionException extends PSStandaloneException {
   /**
    * Construct an exception for messages taking multiple arguments
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
-   * @param arrayArgs the array of arguments to use as the arguments in the
-   *    error message
+   * @param msgCode - the error string to load. There is no validation on this value.
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    */
   public PSOptionException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
@@ -65,15 +60,11 @@ public class PSOptionException extends PSStandaloneException {
     return getClass().getPackage().getName() + "." + STRING_BUNDLE_NAME;
   }
 
-  /**
-   * See {@link PSStandaloneException#getXmlNodeName()}
-   */
+  /** See {@link PSStandaloneException#getXmlNodeName()} */
   protected String getXmlNodeName() {
     return "PSXOptionException";
   }
 
-  /**
-   * The String bundle used with this Exception.
-   */
+  /** The String bundle used with this Exception. */
   public static final String STRING_BUNDLE_NAME = "PSContentExplorerErrorStringBundle.properties";
 }

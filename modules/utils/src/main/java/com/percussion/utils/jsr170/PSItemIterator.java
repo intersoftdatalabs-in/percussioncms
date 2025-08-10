@@ -23,38 +23,32 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.iterators.FilterIterator;
 
 /**
- * A base abstract class used to implement the JCR iterators required for the
- * implementation. The base iterator implements a wrapper on the standard
- * Java iterator that allows the additional common methods to be implemented.
+ * A base abstract class used to implement the JCR iterators required for the implementation. The
+ * base iterator implements a wrapper on the standard Java iterator that allows the additional
+ * common methods to be implemented.
  *
  * @param <M>
- *
  * @author dougrand
  */
 public abstract class PSItemIterator<M> implements Iterator {
-  /**
-   * Hold the current position
-   */
+  /** Hold the current position */
   int m_current = 0;
 
-  /**
-   * The current "real" iterator on the values
-   */
+  /** The current "real" iterator on the values */
   Iterator<M> m_iter = null;
 
   /**
-   * The original map that's being iterated. Needs to be kept to enable
-   * this to return the size of the collection.
+   * The original map that's being iterated. Needs to be kept to enable this to return the size of
+   * the collection.
    */
   Map m_map = null;
 
-  /**
-   * The filter, may be <code>null</code> as the filter is not required
-   */
+  /** The filter, may be <code>null</code> as the filter is not required */
   Predicate m_filter = null;
 
   /**
    * Ctor, may only be used from subclasses
+   *
    * @param things the map of things, never <code>null</code>
    * @param filterpattern the filter pattern, may be <code>null</code>
    */
@@ -73,6 +67,7 @@ public abstract class PSItemIterator<M> implements Iterator {
 
   /**
    * Create the right iterator over the values
+   *
    * @return an iterator, never <code>null</code>
    */
   @SuppressWarnings("unchecked")
@@ -98,8 +93,7 @@ public abstract class PSItemIterator<M> implements Iterator {
   /**
    * Base implementation for node and property iterators from JCR
    *
-   * @param count skip a count of entries, must be greater than zero to have
-   * an effect.
+   * @param count skip a count of entries, must be greater than zero to have an effect.
    */
   public void skip(long count) {
     for (int i = 0; i < count; i++) {
@@ -110,8 +104,8 @@ public abstract class PSItemIterator<M> implements Iterator {
   /**
    * Base implementation for node and property iterators from JCR.
    *
-   * @return the total count of items in the represented group. Does not affect
-   * the existing iterator.
+   * @return the total count of items in the represented group. Does not affect the existing
+   *     iterator.
    */
   public long getSize() {
     // Get a fresh iterator and exhaust it
@@ -143,9 +137,9 @@ public abstract class PSItemIterator<M> implements Iterator {
   }
 
   /**
-   * Method made available to allow access to the underlying structure
-   * being iterated. This is for internal use of the assembly engine only.
-   * <b>Never modify this map! Always use the set method with a copy!</b>
+   * Method made available to allow access to the underlying structure being iterated. This is for
+   * internal use of the assembly engine only. <b>Never modify this map! Always use the set method
+   * with a copy!</b>
    *
    * @return the map, never <code>null</code>
    */
@@ -154,9 +148,10 @@ public abstract class PSItemIterator<M> implements Iterator {
   }
 
   /**
-   * Method made available to allow replacement to the underlying structure
-   * being iterated. This is for internal use of the assembly engine only.
-   * <b>You must copy the map from {@link #getMap()}!</b>
+   * Method made available to allow replacement to the underlying structure being iterated. This is
+   * for internal use of the assembly engine only. <b>You must copy the map from {@link
+   * #getMap()}!</b>
+   *
    * @param newmap
    */
   public void setMap(Map newmap) {

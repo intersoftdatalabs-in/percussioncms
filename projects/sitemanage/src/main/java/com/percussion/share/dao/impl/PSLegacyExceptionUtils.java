@@ -19,22 +19,20 @@ package com.percussion.share.dao.impl;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 
-/**
- * Utility for converting legacy web service exceptions to decorated exceptions.
- */
+/** Utility for converting legacy web service exceptions to decorated exceptions. */
 public class PSLegacyExceptionUtils {
 
-    private PSLegacyExceptionUtils() {
-        // Utility class, do not instantiate
-    }
+  private PSLegacyExceptionUtils() {
+    // Utility class, do not instantiate
+  }
 
-    public static Exception convertException(Exception e) {
-        if (e instanceof PSErrorResultsException) {
-            return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
-        }
-        if (e instanceof PSErrorsException) {
-            return new PSErrorsExceptionDecorator((PSErrorsException) e);
-        }
-        return e;
+  public static Exception convertException(Exception e) {
+    if (e instanceof PSErrorResultsException) {
+      return new PSErrorResultsExceptionDecorator((PSErrorResultsException) e);
     }
+    if (e instanceof PSErrorsException) {
+      return new PSErrorsExceptionDecorator((PSErrorsException) e);
+    }
+    return e;
+  }
 }

@@ -39,9 +39,8 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author dougrand
- *
- * Check the tmx file for correct data. The classes in the tmx file must
- * actually exist. Spit out errors for the ones that don't exist.
+ *     <p>Check the tmx file for correct data. The classes in the tmx file must actually exist. Spit
+ *     out errors for the ones that don't exist.
  */
 public class PSCheckTmxFile extends Task {
 
@@ -68,11 +67,11 @@ public class PSCheckTmxFile extends Task {
   }
 
   /**
-   * Sets a list of property file paths that will be checked agaist the tmx file
-   * for duplicate entries.
+   * Sets a list of property file paths that will be checked agaist the tmx file for duplicate
+   * entries.
    *
-   * @param files a comma delimited list of property file paths. May
-   * be empty. Assumed to never be <code>null</code>
+   * @param files a comma delimited list of property file paths. May be empty. Assumed to never be
+   *     <code>null</code>
    */
   public void setPropertyFiles(String files) {
     if (files.trim().length() == 0) return;
@@ -166,8 +165,9 @@ public class PSCheckTmxFile extends Task {
   }
 
   /**
-   * Checks for duplicate entries (i.e. entries sharing the same key) between
-   * the specified property files and the TMX file.
+   * Checks for duplicate entries (i.e. entries sharing the same key) between the specified property
+   * files and the TMX file.
+   *
    * @throws BuildException if an IO error occurs
    */
   private void checkForDupesInPropertyFiles() throws BuildException {
@@ -210,11 +210,9 @@ public class PSCheckTmxFile extends Task {
   }
 
   /**
-   * Loads properties file into a <code>Properties</code>
-   * object.
+   * Loads properties file into a <code>Properties</code> object.
    *
-   * @param file the properties file to be loaded, assumed
-   * not <code>null</code>.
+   * @param file the properties file to be loaded, assumed not <code>null</code>.
    */
   private Properties loadProperties(File file) throws IOException {
     Properties props = new Properties();
@@ -226,35 +224,27 @@ public class PSCheckTmxFile extends Task {
     return props;
   }
 
-  /**
-   * Where to find the tmx source file
-   */
+  /** Where to find the tmx source file */
   private String m_tmxPath = null;
 
-  /**
-   * Class path directory
-   */
+  /** Class path directory */
   private String m_classdir = null;
 
   /**
-   * List of property files to compare against the tmx file
-   * looking for duplicates. Never <code>null</code>, may be empty.
+   * List of property files to compare against the tmx file looking for duplicates. Never <code>null
+   * </code>, may be empty.
    */
   private List<String> m_propertyFiles = new ArrayList<String>();
 
   /**
-   * List of all ids in the tmx file, the values are added in the
-   * {@link #execute()} method. Never <code>null</code>.
+   * List of all ids in the tmx file, the values are added in the {@link #execute()} method. Never
+   * <code>null</code>.
    */
   private List<String> m_tmxIds = new ArrayList<String>();
 
-  /**
-   * Flag indicating that we should fail on error. Defaults to <code>true</code>.
-   */
+  /** Flag indicating that we should fail on error. Defaults to <code>true</code>. */
   private boolean m_failOnError = true;
 
-  /**
-   * Flag indicating that errors were found
-   */
+  /** Flag indicating that errors were found */
   private boolean m_foundErrors = false;
 }

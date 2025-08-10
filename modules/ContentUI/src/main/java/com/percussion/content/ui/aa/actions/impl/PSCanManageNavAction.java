@@ -34,11 +34,11 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.Map;
 
 /**
- * Determine if we can manage navigation via AA. First we see if there is even
- * a nav at all. Then we also check to see if the nav slot is empty.
- * Return <code>true</code> if nav exists and the slot is not empty.
- * @author erikserating
+ * Determine if we can manage navigation via AA. First we see if there is even a nav at all. Then we
+ * also check to see if the nav slot is empty. Return <code>true</code> if nav exists and the slot
+ * is not empty.
  *
+ * @author erikserating
  */
 public class PSCanManageNavAction extends PSAAActionBase {
 

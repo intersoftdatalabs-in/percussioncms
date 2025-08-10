@@ -18,25 +18,26 @@
 package com.percussion.share.web.service;
 
 /**
- * REST service path constants for Percussion CMS.
- * Sunny Sal says: "Keep your paths straight and your constants final!"
+ * REST service path constants for Percussion CMS. Sunny Sal says: "Keep your paths straight and
+ * your constants final!"
  */
 public class PSRestServicePathConstants {
 
-    public static final String ID_PATH_PARAM = "id";
-    public static final String JOB_ID_PARAM = "jobId";
+  public static final String ID_PATH_PARAM = "id";
+  public static final String JOB_ID_PARAM = "jobId";
 
-    private static final String BASE_PATH = "/";
-    private static final String ID_PATH = BASE_PATH + "{" + ID_PATH_PARAM + "}";
+  private static final String BASE_PATH = "/";
+  private static final String ID_PATH = BASE_PATH + "{" + ID_PATH_PARAM + "}";
 
-    public static final String DELETE_PATH = ID_PATH;
-    public static final String FIND_PATH = BASE_PATH + "summary/{" + ID_PATH_PARAM + "}";
-    public static final String FIND_ALL_PATH = BASE_PATH;
-    public static final String LOAD_PATH = ID_PATH;
-    public static final String RENDER_PREVIEW_LINK = BASE_PATH + "preview" + ID_PATH;
-    public static final String SAVE_PATH = BASE_PATH;
-    public static final String IMPORT_SITE_FROM_URL_PATH = BASE_PATH + "importFromUrl";
-    public static final String IMPORT_SITE_FROM_URL_PATH_ASYNC = BASE_PATH + "importFromUrlAsync";
-    public static final String VALIDATE_PATH = BASE_PATH + "validate";
-    public static final String GET_IMPORTED_SITE_PATH = BASE_PATH + "getImportedSite/{" + JOB_ID_PARAM + "}";
+  public static final String DELETE_PATH = ID_PATH;
+  public static final String FIND_PATH = BASE_PATH + "summary/{" + ID_PATH_PARAM + "}";
+  public static final String FIND_ALL_PATH = BASE_PATH;
+  public static final String LOAD_PATH = ID_PATH;
+  public static final String RENDER_PREVIEW_LINK = BASE_PATH + "preview" + ID_PATH;
+  public static final String SAVE_PATH = BASE_PATH;
+  public static final String IMPORT_SITE_FROM_URL_PATH = BASE_PATH + "importFromUrl";
+  public static final String IMPORT_SITE_FROM_URL_PATH_ASYNC = BASE_PATH + "importFromUrlAsync";
+  public static final String VALIDATE_PATH = BASE_PATH + "validate";
+  public static final String GET_IMPORTED_SITE_PATH =
+      BASE_PATH + "getImportedSite/{" + JOB_ID_PARAM + "}";
 }

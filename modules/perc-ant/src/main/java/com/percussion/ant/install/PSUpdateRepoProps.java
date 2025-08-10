@@ -34,15 +34,13 @@ import java.util.Properties;
 /**
  * PSUpdateRepoProps is a class which configures the default datasource.
  *
- * The rxrepository.properties file is used to gather the appropriate information,
- * then the JNDI datasource and datasource connection are configured
+ * <p>The rxrepository.properties file is used to gather the appropriate information, then the JNDI
+ * datasource and datasource connection are configured
  *
- * This class will update the rxrepository.properties based upon the current datasource configuration
+ * <p>This class will update the rxrepository.properties based upon the current datasource
+ * configuration <br>
+ * Example Usage: <br>
  *
- *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -60,7 +58,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpdateRepoProps extends PSAction {
 
@@ -119,9 +116,7 @@ public class PSUpdateRepoProps extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /**
-   * Accessor for the repository location
-   */
+  /** Accessor for the repository location */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
@@ -134,8 +129,6 @@ public class PSUpdateRepoProps extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   * The repository location, relative to the Rhythmyx root.
-   */
+  /** The repository location, relative to the Rhythmyx root. */
   private String m_strRepositoryLocation = "rxconfig/Installer/rxrepository.properties";
 }

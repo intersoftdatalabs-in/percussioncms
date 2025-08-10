@@ -22,132 +22,129 @@ package com.percussion.assetmanagement.data;
 import com.percussion.share.data.PSAbstractBaseCSVReportRow;
 import java.util.Optional;
 
-/**
- * Represents a line in the asset import preview report.
- * Provides CSV export for reporting.
- */
+/** Represents a line in the asset import preview report. Provides CSV export for reporting. */
 public class PSAssetImportPreviewReportLine extends PSAbstractBaseCSVReportRow {
 
-    private String folderToBeImported;
-    private String fileToBeImported;
-    private String targetAssetType;
-    private String folderInCMS;
-    private String fileInCMS;
-    private boolean fileWillBeImported;
-    private String importReason;
-    private boolean assetWillBeReplaced;
-    private String replaceReason;
-    private String assetWillBeApproved;
+  private String folderToBeImported;
+  private String fileToBeImported;
+  private String targetAssetType;
+  private String folderInCMS;
+  private String fileInCMS;
+  private boolean fileWillBeImported;
+  private String importReason;
+  private boolean assetWillBeReplaced;
+  private String replaceReason;
+  private String assetWillBeApproved;
 
-    @Override
-    public String getHeaderRow() {
-        return String.join(",",
-                "FolderToBeImported",
-                "FileToBeImported",
-                "TargetAssetType",
-                "FolderInCMS",
-                "FileInCMS",
-                "FileWillBeImported",
-                "ImportReason",
-                "AssetWillBeReplaced",
-                "ReplaceReason",
-                "AssetWillBeApproved"
-        );
-    }
+  @Override
+  public String getHeaderRow() {
+    return String.join(
+        ",",
+        "FolderToBeImported",
+        "FileToBeImported",
+        "TargetAssetType",
+        "FolderInCMS",
+        "FileInCMS",
+        "FileWillBeImported",
+        "ImportReason",
+        "AssetWillBeReplaced",
+        "ReplaceReason",
+        "AssetWillBeApproved");
+  }
 
-    @Override
-    public String toCSVRow() {
-        return String.join(",",
-                Optional.ofNullable(folderToBeImported).orElse(""),
-                Optional.ofNullable(fileToBeImported).orElse(""),
-                Optional.ofNullable(targetAssetType).orElse(""),
-                Optional.ofNullable(folderInCMS).orElse(""),
-                Optional.ofNullable(fileInCMS).orElse(""),
-                String.valueOf(fileWillBeImported),
-                Optional.ofNullable(importReason).orElse(""),
-                String.valueOf(assetWillBeReplaced),
-                Optional.ofNullable(replaceReason).orElse(""),
-                Optional.ofNullable(assetWillBeApproved).orElse("")
-        );
-    }
+  @Override
+  public String toCSVRow() {
+    return String.join(
+        ",",
+        Optional.ofNullable(folderToBeImported).orElse(""),
+        Optional.ofNullable(fileToBeImported).orElse(""),
+        Optional.ofNullable(targetAssetType).orElse(""),
+        Optional.ofNullable(folderInCMS).orElse(""),
+        Optional.ofNullable(fileInCMS).orElse(""),
+        String.valueOf(fileWillBeImported),
+        Optional.ofNullable(importReason).orElse(""),
+        String.valueOf(assetWillBeReplaced),
+        Optional.ofNullable(replaceReason).orElse(""),
+        Optional.ofNullable(assetWillBeApproved).orElse(""));
+  }
 
-    public String getFolderToBeImported() {
-        return folderToBeImported;
-    }
+  public String getFolderToBeImported() {
+    return folderToBeImported;
+  }
 
-    public void setFolderToBeImported(String folderToBeImported) {
-        this.folderToBeImported = folderToBeImported;
-    }
+  public void setFolderToBeImported(String folderToBeImported) {
+    this.folderToBeImported = folderToBeImported;
+  }
 
-    public String getFileToBeImported() {
-        return fileToBeImported;
-    }
+  public String getFileToBeImported() {
+    return fileToBeImported;
+  }
 
-    public void setFileToBeImported(String fileToBeImported) {
-        this.fileToBeImported = fileToBeImported;
-    }
+  public void setFileToBeImported(String fileToBeImported) {
+    this.fileToBeImported = fileToBeImported;
+  }
 
-    public String getTargetAssetType() {
-        return targetAssetType;
-    }
+  public String getTargetAssetType() {
+    return targetAssetType;
+  }
 
-    public void setTargetAssetType(String targetAssetType) {
-        this.targetAssetType = targetAssetType;
-    }
+  public void setTargetAssetType(String targetAssetType) {
+    this.targetAssetType = targetAssetType;
+  }
 
-    public String getFolderInCMS() {
-        return folderInCMS;
-    }
+  public String getFolderInCMS() {
+    return folderInCMS;
+  }
 
-    public void setFolderInCMS(String folderInCMS) {
-        this.folderInCMS = folderInCMS;
-    }
+  public void setFolderInCMS(String folderInCMS) {
+    this.folderInCMS = folderInCMS;
+  }
 
-    public String getFileInCMS() {
-        return fileInCMS;
-    }
+  public String getFileInCMS() {
+    return fileInCMS;
+  }
 
-    public void setFileInCMS(String fileInCMS) {
-        this.fileInCMS = fileInCMS;
-    }
+  public void setFileInCMS(String fileInCMS) {
+    this.fileInCMS = fileInCMS;
+  }
 
-    public boolean isFileWillBeImported() {
-        return fileWillBeImported;
-    }
+  public boolean isFileWillBeImported() {
+    return fileWillBeImported;
+  }
 
-    public void setFileWillBeImported(boolean fileWillBeImported) {
-        this.fileWillBeImported = fileWillBeImported;
-    }
+  public void setFileWillBeImported(boolean fileWillBeImported) {
+    this.fileWillBeImported = fileWillBeImported;
+  }
 
-    public String getImportReason() {
-        return importReason;
-    }
+  public String getImportReason() {
+    return importReason;
+  }
 
-    public void setImportReason(String importReason) {
-        this.importReason = importReason;
-    }
+  public void setImportReason(String importReason) {
+    this.importReason = importReason;
+  }
 
-    public boolean isAssetWillBeReplaced() {
-        return assetWillBeReplaced;
-    }
+  public boolean isAssetWillBeReplaced() {
+    return assetWillBeReplaced;
+  }
 
-    public void setAssetWillBeReplaced(boolean assetWillBeReplaced) {
-        this.assetWillBeReplaced = assetWillBeReplaced;
-    }
+  public void setAssetWillBeReplaced(boolean assetWillBeReplaced) {
+    this.assetWillBeReplaced = assetWillBeReplaced;
+  }
 
-    public String getReplaceReason() {
-        return replaceReason;
-    }
+  public String getReplaceReason() {
+    return replaceReason;
+  }
 
-    public void setReplaceReason(String replaceReason) {
-        this.replaceReason = replaceReason;
-    }
+  public void setReplaceReason(String replaceReason) {
+    this.replaceReason = replaceReason;
+  }
 
-    public String getAssetWillBeApproved() {
-        return assetWillBeApproved;
-    }
+  public String getAssetWillBeApproved() {
+    return assetWillBeApproved;
+  }
 
-    public void setAssetWillBeApproved(String assetWillBeApproved) {
-        this.assetWillBeApproved = assetWillBeApproved;
-    }
+  public void setAssetWillBeApproved(String assetWillBeApproved) {
+    this.assetWillBeApproved = assetWillBeApproved;
+  }
 }

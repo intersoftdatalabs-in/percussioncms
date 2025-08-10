@@ -39,8 +39,8 @@ import javax.naming.NamingException;
  */
 class PSTableStatistics {
   /**
-   * Creates the statistices with the estimated rows. The created object has
-   * an empty index statistics.
+   * Creates the statistices with the estimated rows. The created object has an empty index
+   * statistics.
    *
    * @param login the login info; it may not be <code>null</code>.
    * @param table the table info; it may not be <code>null</code>.
@@ -63,13 +63,11 @@ class PSTableStatistics {
   }
 
   /**
-   * Create the statistics required by the optimizer for the specified
-   * table.
+   * Create the statistics required by the optimizer for the specified table.
    *
-   * @param login The login info, may be <code>null</code> to indicate the
-   * default connection.
+   * @param login The login info, may be <code>null</code> to indicate the default connection.
    * @param table The table info, may not be <code>null</code>.
-   * @param dmd   The meta data from which we cull the statistics
+   * @param dmd The meta data from which we cull the statistics
    */
   public PSTableStatistics(PSBackEndLogin login, PSBackEndTable table, DatabaseMetaData dmd)
       throws SQLException {
@@ -172,7 +170,7 @@ class PSTableStatistics {
   /**
    * Get the index statistics for this table.
    *
-   * @return            an array of index statistics
+   * @return an array of index statistics
    */
   public PSIndexStatistics[] getIndexStatistics() {
     return m_indexStatistics;
@@ -181,20 +179,18 @@ class PSTableStatistics {
   /**
    * Get the back-end table associated with this object.
    *
-   * @return            the back-end table object
+   * @return the back-end table object
    */
   public PSBackEndTable getTable() {
     return m_table;
   }
 
   /**
-   * Get the cardinality (row count) for this table, if available.
-   * Note that this cardinality might be out of date with respect
-   * to the actual table, depending on when this statistics object
-   * was produced. This value might be an estimate.
+   * Get the cardinality (row count) for this table, if available. Note that this cardinality might
+   * be out of date with respect to the actual table, depending on when this statistics object was
+   * produced. This value might be an estimate.
    *
-   * @return The cardinality of the table, or -1 if the cardinality
-   * is not available.
+   * @return The cardinality of the table, or -1 if the cardinality is not available.
    */
   public int getCardinality() {
     return m_cardinality;
@@ -202,31 +198,23 @@ class PSTableStatistics {
 
   /**
    * @author chadloder
-   *
-   * Gets the number of distinct rows for the given column.
-   *
-   * @param   col
-   *
-   * @return int The number of distinct rows for the given
-   * column, or -1 if it could not be calculated.
-   *
+   *     <p>Gets the number of distinct rows for the given column.
+   * @param col
+   * @return int The number of distinct rows for the given column, or -1 if it could not be
+   *     calculated.
    * @see #getDistinctRows(String[])
-   *
    * @since 1.2 1999/4/29
-   *
    */
   public int getDistinctRows(String col) throws SQLException {
     return getDistinctRows(new String[] {col});
   }
 
   /**
-   * Create the list of columns, comma separated. It appears we can't
-   * compare String[] objects in the Map, so we will use the comma
-   * separated list to do so.
+   * Create the list of columns, comma separated. It appears we can't compare String[] objects in
+   * the Map, so we will use the comma separated list to do so.
    *
-   * @param      cols      the list of columns
-   *
-   * @return               a string containing Col1, Col2, ..., ColN
+   * @param cols the list of columns
+   * @return a string containing Col1, Col2, ..., ColN
    */
   public String getColumnListString(String[] cols) {
     // avg col name length (on traditional systems) is around 10, so ....
@@ -242,22 +230,14 @@ class PSTableStatistics {
 
   /**
    * @author chadloder
-   *
-   * Get the number of distinct rows in the table, distinguishing
-   * on all columns whose names are listed in <CODE>cols</CODE>.
-   *
-   * Note that calling this method could result in a query being sent
-   * to the server.
-   *
-   * @param   cols   An array of names of columns in the table. No column
-   * should be specified more than once. Every column must be the
-   * name of a column in this table. If <CODE>null</CODE> is passed,
-   * then all columns will distinguish (equivalent to SELECT COUNT DISTINCT)
-   *
-   * @return the estimated row if this is an estimated statistics; otherwise
-   *    return the number of distinct rows in the table for the given
-   *   columns, or -1 if an error occurred.
-   *
+   *     <p>Get the number of distinct rows in the table, distinguishing on all columns whose names
+   *     are listed in <CODE>cols</CODE>.
+   *     <p>Note that calling this method could result in a query being sent to the server.
+   * @param cols An array of names of columns in the table. No column should be specified more than
+   *     once. Every column must be the name of a column in this table. If <CODE>null</CODE> is
+   *     passed, then all columns will distinguish (equivalent to SELECT COUNT DISTINCT)
+   * @return the estimated row if this is an estimated statistics; otherwise return the number of
+   *     distinct rows in the table for the given columns, or -1 if an error occurred.
    * @see #getDistinctRows(String)
    * @throws SQLException if error occurred during executing SQL query.
    */
@@ -325,9 +305,8 @@ class PSTableStatistics {
   private int m_cardinality;
 
   /**
-   * The backend table supplied during construction, never <code>null</code>,
-   * and for which {@link PSBackEndTable#getConnectionDetail()} will never
-   * return <code>null</code>.
+   * The backend table supplied during construction, never <code>null</code>, and for which {@link
+   * PSBackEndTable#getConnectionDetail()} will never return <code>null</code>.
    */
   private PSBackEndTable m_table;
 
@@ -339,8 +318,8 @@ class PSTableStatistics {
   private Map m_uniqueCounts;
 
   /**
-   * Determines whether this is an estimated object, <code>true</code> if it
-   * is an estimated object. Defaults to <code>false</code>.
+   * Determines whether this is an estimated object, <code>true</code> if it is an estimated object.
+   * Defaults to <code>false</code>.
    */
   private boolean m_isEstimated = false;
 }

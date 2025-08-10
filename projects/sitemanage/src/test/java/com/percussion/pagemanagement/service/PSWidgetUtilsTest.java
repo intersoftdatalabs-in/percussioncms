@@ -21,51 +21,53 @@ package com.percussion.pagemanagement.service;
 import static com.percussion.pagemanagement.service.impl.PSWidgetUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
-import com.percussion.pagemanagement.service.impl.PSWidgetUtils.PSWidgetPropertyCoercionException;
 import com.percussion.pagemanagement.service.impl.PSWidgetUtils.PSWidgetPropertyBlankStringCoercionException;
+import com.percussion.pagemanagement.service.impl.PSWidgetUtils.PSWidgetPropertyCoercionException;
+import org.junit.jupiter.api.Test;
 
-/**
- * Test widget utils.
- */
+/** Test widget utils. */
 class PSWidgetUtilsTest {
 
-    @Test
-    void testCoerceString() {
-        var actual = coerceProperty("my", "true", String.class);
-        assertEquals("true", actual);
-    }
+  @Test
+  void testCoerceString() {
+    var actual = coerceProperty("my", "true", String.class);
+    assertEquals("true", actual);
+  }
 
-    @Test
-    void testCoerceBadString() {
-        assertThrows(PSWidgetPropertyCoercionException.class, () -> coerceProperty("my", 1, String.class));
-    }
+  @Test
+  void testCoerceBadString() {
+    assertThrows(
+        PSWidgetPropertyCoercionException.class, () -> coerceProperty("my", 1, String.class));
+  }
 
-    @Test
-    void testCoerceBoolean() {
-        var actual = coerceProperty("my", "true", Boolean.class);
-        assertTrue(actual);
+  @Test
+  void testCoerceBoolean() {
+    var actual = coerceProperty("my", "true", Boolean.class);
+    assertTrue(actual);
 
-        actual = coerceProperty("my", true, Boolean.class);
-        assertTrue(actual);
-    }
+    actual = coerceProperty("my", true, Boolean.class);
+    assertTrue(actual);
+  }
 
-    @Test
-    void testCoerceNumber() {
-        var actual = coerceProperty("my", 1, Number.class);
-        assertEquals(1, actual);
+  @Test
+  void testCoerceNumber() {
+    var actual = coerceProperty("my", 1, Number.class);
+    assertEquals(1, actual);
 
-        actual = coerceProperty("my", "1", Number.class);
-        assertEquals(1, actual);
-    }
+    actual = coerceProperty("my", "1", Number.class);
+    assertEquals(1, actual);
+  }
 
-    @Test
-    void testCoerceBlankSpaces() {
-        assertThrows(PSWidgetPropertyCoercionException.class, () -> coerceProperty("my", "  ", Number.class));
-    }
+  @Test
+  void testCoerceBlankSpaces() {
+    assertThrows(
+        PSWidgetPropertyCoercionException.class, () -> coerceProperty("my", "  ", Number.class));
+  }
 
-    @Test
-    void testCoerceBlankString() {
-        assertThrows(PSWidgetPropertyBlankStringCoercionException.class, () -> coerceProperty("my", "", Number.class));
-    }
+  @Test
+  void testCoerceBlankString() {
+    assertThrows(
+        PSWidgetPropertyBlankStringCoercionException.class,
+        () -> coerceProperty("my", "", Number.class));
+  }
 }

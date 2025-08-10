@@ -28,97 +28,94 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.transformer.PSCategoryXmlTransform;
 import com.percussion.server.PSServer;
-import org.apache.commons.io.IOUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-
 @Component("categoryUnmarshaller")
 @Lazy
 public class PSCategoryUnMarshaller {
 
-    private static final String LEGACY_ADD_TOP_LEVEL_CATEGORIES = "Add Top Level Categories";
-    private static final Logger log = LogManager.getLogger(PSCategoryUnMarshaller.class);
+  private static final String LEGACY_ADD_TOP_LEVEL_CATEGORIES = "Add Top Level Categories";
+  private static final Logger log = LogManager.getLogger(PSCategoryUnMarshaller.class);
 
-    public PSCategory unMarshal() {
-        PSCategory category = null;
-        var file = createCategoryFileIfNotExisting();
+  public PSCategory unMarshal() {
+    PSCategory category = null;
+    var file = createCategoryFileIfNotExisting();
 
-        if (file == null)
-            category = getEmptyCategory();
+    if (file == null) category = getEmptyCategory();
 
-        if (category == null) {
-            try {
-                var jaxbContext = JAXBContext.newInstance(PSCategory.class);
-                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                category = (PSCategory) jaxbUnmarshaller.unmarshal(file);
-                removeTopLevelNode(category);
-            } catch (JAXBException e) {
-                throw new RuntimeException("Invalid category.xml file " + file.getPath(), e);
-            }
-        }
-        return category;
+    if (category == null) {
+      try {
+        var jaxbContext = JAXBContext.newInstance(PSCategory.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        category = (PSCategory) jaxbUnmarshaller.unmarshal(file);
+        removeTopLevelNode(category);
+      } catch (JAXBException e) {
+        throw new RuntimeException("Invalid category.xml file " + file.getPath(), e);
+      }
     }
+    return category;
+  }
 
-    private void removeTopLevelNode(PSCategory category) {
-        var nodes = new ArrayList<PSCategoryNode>();
-        for (var node : category.getTopLevelNodes()) {
-            if (!StringUtils.equals(node.getTitle(), LEGACY_ADD_TOP_LEVEL_CATEGORIES))
-                nodes.add(node);
-            else if (log.isDebugEnabled())
-                log.debug("Removing old " + LEGACY_ADD_TOP_LEVEL_CATEGORIES + " category ");
-        }
-        category.setTopLevelNodes(nodes);
+  private void removeTopLevelNode(PSCategory category) {
+    var nodes = new ArrayList<PSCategoryNode>();
+    for (var node : category.getTopLevelNodes()) {
+      if (!StringUtils.equals(node.getTitle(), LEGACY_ADD_TOP_LEVEL_CATEGORIES)) nodes.add(node);
+      else if (log.isDebugEnabled())
+        log.debug("Removing old " + LEGACY_ADD_TOP_LEVEL_CATEGORIES + " category ");
     }
+    category.setTopLevelNodes(nodes);
+  }
 
-    public static File createCategoryFileIfNotExisting() {
-        var file = new File(PSServer.getRxDir(), "rx_resources/category/category.xml");
+  public static File createCategoryFileIfNotExisting() {
+    var file = new File(PSServer.getRxDir(), "rx_resources/category/category.xml");
 
-        if (!file.exists()) {
-            var fromFile = new File(PSServer.getRxDir(), "/web_resources/categories/tree.xml");
+    if (!file.exists()) {
+      var fromFile = new File(PSServer.getRxDir(), "/web_resources/categories/tree.xml");
 
-            if (!fromFile.exists()) {
-                var marshaller = new PSCategoryMarshaller();
-                marshaller.setCategory(PSCategoryUnMarshaller.getEmptyCategory());
-                marshaller.marshal();
-            } else {
-                log.info("Transforming old categories tree.xml to new category.xml");
-                var transformer = new PSCategoryXmlTransform();
-                transformer.transformXml(fromFile, file);
-            }
-        }
-        return file;
+      if (!fromFile.exists()) {
+        var marshaller = new PSCategoryMarshaller();
+        marshaller.setCategory(PSCategoryUnMarshaller.getEmptyCategory());
+        marshaller.marshal();
+      } else {
+        log.info("Transforming old categories tree.xml to new category.xml");
+        var transformer = new PSCategoryXmlTransform();
+        transformer.transformXml(fromFile, file);
+      }
     }
+    return file;
+  }
 
-    public static PSCategory getEmptyCategory() {
-        var category = new PSCategory();
-        category.setTopLevelNodes(new ArrayList<>());
-        return category;
-    }
+  public static PSCategory getEmptyCategory() {
+    var category = new PSCategory();
+    category.setTopLevelNodes(new ArrayList<>());
+    return category;
+  }
 
-    public static PSCategory unMarshalFromString(String categoryJson) {
-        try (Reader reader = new StringReader(categoryJson)) {
-            var mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-            AnnotationIntrospector introspector = new XmlJaxbAnnotationIntrospector(mapper.getTypeFactory());
-            mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(introspector);
-            return mapper.readValue(categoryJson, PSCategory.class);
-        } catch (IOException e) {
-            log.error("Error parsing category JSON: " + categoryJson, e);
-            throw new RuntimeException("Unexpected error processing categories", e);
-        }
+  public static PSCategory unMarshalFromString(String categoryJson) {
+    try (Reader reader = new StringReader(categoryJson)) {
+      var mapper = new ObjectMapper();
+      mapper.registerModule(new JavaTimeModule());
+      mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+      mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+      AnnotationIntrospector introspector =
+          new XmlJaxbAnnotationIntrospector(mapper.getTypeFactory());
+      mapper.getDeserializationConfig().withAppendedAnnotationIntrospector(introspector);
+      return mapper.readValue(categoryJson, PSCategory.class);
+    } catch (IOException e) {
+      log.error("Error parsing category JSON: " + categoryJson, e);
+      throw new RuntimeException("Unexpected error processing categories", e);
     }
+  }
 }

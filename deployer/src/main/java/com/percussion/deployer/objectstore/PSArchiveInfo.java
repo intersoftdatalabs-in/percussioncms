@@ -28,9 +28,7 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Contains all high level info describing an archive file.
- */
+/** Contains all high level info describing an archive file. */
 // TODO: reconcile differences with
 // system/src/main/java/com/percussion/deploy/objectstore/PSArchiveInfo.java
 public class PSArchiveInfo implements IPSDeployComponent {
@@ -38,9 +36,8 @@ public class PSArchiveInfo implements IPSDeployComponent {
   /**
    * Construct this object from its XML representation.
    *
-   * @param src The source element, may not be <code>null</code>.  See
-   * {@link #toXml(Document)} for the format expected.
-   *
+   * @param src The source element, may not be <code>null</code>. See {@link #toXml(Document)} for
+   *     the format expected.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -52,19 +49,14 @@ public class PSArchiveInfo implements IPSDeployComponent {
   /**
    * Creates a new instance with all required parameters.
    *
-   * @param archiveRef The name used to identify the archive, may not be
-   * <code>null</code> or empty.
-   * @param serverName The name of the server on which the archive is being
-   * created.  May not be <code>null</code> or empty.
-   * @param serverInfo The server version information, may not be
-   * <code>null</code>.
-   * @param repository The source repository dbms info, may not be
-   * <code>null</code>.
-   * @param userName The name of the user who initiated the request to create
-   * this archive.  May not be <code>null</code> or empty.
-   * @param category The category of the archive, may not be <code>null</code>
-   * or empty.
-   *
+   * @param archiveRef The name used to identify the archive, may not be <code>null</code> or empty.
+   * @param serverName The name of the server on which the archive is being created. May not be
+   *     <code>null</code> or empty.
+   * @param serverInfo The server version information, may not be <code>null</code>.
+   * @param repository The source repository dbms info, may not be <code>null</code>.
+   * @param userName The name of the user who initiated the request to create this archive. May not
+   *     be <code>null</code> or empty.
+   * @param category The category of the archive, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSArchiveInfo(
@@ -129,8 +121,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * Gets the build date of the server where this archive was created in the 8
-   * digit form YYYYMMDD.
+   * Gets the build date of the server where this archive was created in the 8 digit form YYYYMMDD.
    *
    * @return The build number, never <code>null</code> or empty.
    */
@@ -170,7 +161,6 @@ public class PSArchiveInfo implements IPSDeployComponent {
    * Sets the name used to identify this archive on the server
    *
    * @param archiveRef The name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>archiveRef</code> is invalid.
    */
   public void setArchiveRef(String archiveRef) {
@@ -181,7 +171,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * Set if a package is editable.  Defaults to true.
+   * Set if a package is editable. Defaults to true.
    *
    * @param value boolean
    */
@@ -189,9 +179,7 @@ public class PSArchiveInfo implements IPSDeployComponent {
     m_editable = value;
   }
 
-  /**
-   * Returns <code>true</code> if package is editable.
-   */
+  /** Returns <code>true</code> if package is editable. */
   public boolean isEditable() {
     return m_editable;
   }
@@ -208,18 +196,17 @@ public class PSArchiveInfo implements IPSDeployComponent {
   /**
    * Get the object containing lower-level detail regarding this archive.
    *
-   * @return The archive detail, may be <code>null</code> if one has not
-   * been set or if it has been cleared.
+   * @return The archive detail, may be <code>null</code> if one has not been set or if it has been
+   *     cleared.
    */
   public PSArchiveDetail getArchiveDetail() {
     return m_detail;
   }
 
   /**
-   * Sets the archive detail.  See {@link #getArchiveDetail()} for more info.
+   * Sets the archive detail. See {@link #getArchiveDetail()} for more info.
    *
-   * @param detail The detail object to set, may be <code>null</code> to clear
-   * the detail.
+   * @param detail The detail object to set, may be <code>null</code> to clear the detail.
    */
   public void setArchiveDetail(PSArchiveDetail detail) {
     m_detail = detail;
@@ -244,7 +231,8 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXArchiveInfo (PSXFormatVersion, PSXDbmsInfo,
    *    PSXArchiveDetail?)>
@@ -278,9 +266,8 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -353,8 +340,8 @@ public class PSArchiveInfo implements IPSDeployComponent {
   }
 
   /**
-   * Retrieves the category that this archive info represents.  The category
-   * distinguishes it as either SYSTEM or USER.
+   * Retrieves the category that this archive info represents. The category distinguishes it as
+   * either SYSTEM or USER.
    *
    * @return The category, never <code>null</code> or empty.
    */
@@ -392,64 +379,57 @@ public class PSArchiveInfo implements IPSDeployComponent {
         m_created);
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXArchiveInfo";
 
   /**
-   * Name used to identify this archive on the server, never <code>null</code>
-   * or empty after construction, may be modified by a call to
-   * <code>setArchiveRef()</code>.
+   * Name used to identify this archive on the server, never <code>null</code> or empty after
+   * construction, may be modified by a call to <code>setArchiveRef()</code>.
    */
   private String m_archiveRef;
 
   /**
-   * Name of the server where this archive was created, never
-   * <code>null</code>, empty, or modified after ctor.
+   * Name of the server where this archive was created, never <code>null</code>, empty, or modified
+   * after ctor.
    */
   private String m_serverName;
 
   /**
-   * Version info of the server where this archive was created, never
-   * <code>null</code> or modified after ctor.
+   * Version info of the server where this archive was created, never <code>null</code> or modified
+   * after ctor.
    */
   private PSFormatVersion m_serverInfo;
 
   /**
-   * Name of the user that created this archive, never <code>null</code>,
-   * empty, or modified after ctor.
+   * Name of the user that created this archive, never <code>null</code>, empty, or modified after
+   * ctor.
    */
   private String m_userName;
 
   /**
-   * Low-level details of the archive info, may be <code>null</code>, modified
-   * by a call to {@link #setArchiveDetail(PSArchiveDetail)}.
+   * Low-level details of the archive info, may be <code>null</code>, modified by a call to {@link
+   * #setArchiveDetail(PSArchiveDetail)}.
    */
   private PSArchiveDetail m_detail;
 
   /**
-   * Source server repository info.  Initialized during ctor, never
-   * <code>null</code> after that, may be modified by a call to
-   * <code>copyFrom()</code>.
+   * Source server repository info. Initialized during ctor, never <code>null</code> after that, may
+   * be modified by a call to <code>copyFrom()</code>.
    */
   private PSDbmsInfo m_repository;
 
   /**
-   * Initialized during ctor, never <code>null</code> or empty after that, may
-   * be modified by a call to <code>copyFrom()</code>.
+   * Initialized during ctor, never <code>null</code> or empty after that, may be modified by a call
+   * to <code>copyFrom()</code>.
+   *
    * @see #getCategory()
    */
   private String m_category;
 
-  /**
-   * Flag to allow development of installed package
-   */
+  /** Flag to allow development of installed package */
   private boolean m_editable = true;
 
-  /**
-   * Archive creation timestamp. Will be -1 if not yet set.
-   */
+  /** Archive creation timestamp. Will be -1 if not yet set. */
   private long m_created = -1;
 
   // private XML constants

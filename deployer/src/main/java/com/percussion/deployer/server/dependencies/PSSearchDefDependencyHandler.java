@@ -22,19 +22,14 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.error.PSDeployException;
 
-/**
- * Class to handle packaging and deploying a search definition.
- */
+/** Class to handle packaging and deploying a search definition. */
 public class PSSearchDefDependencyHandler extends PSSearchObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -55,8 +50,6 @@ public class PSSearchDefDependencyHandler extends PSSearchObjectDependencyHandle
     return search.isStandardSearch() || search.isCustomSearch();
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "SearchDef";
 }

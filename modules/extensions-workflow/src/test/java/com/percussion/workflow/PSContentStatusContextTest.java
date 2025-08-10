@@ -25,10 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
-/**
- * The PSContentStatusContextTest class is a test class for the class
- * PSContentStatusContext.
- */
+/** The PSContentStatusContextTest class is a test class for the class PSContentStatusContext. */
 @Tag("IntegrationTest")
 public class PSContentStatusContextTest extends PSAbstractWorkflowTest {
 
@@ -37,8 +34,7 @@ public class PSContentStatusContextTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - see  {@link #HelpMessage}
-   *               for options.
+   * @param args command line arguments - see {@link #HelpMessage} for options.
    */
   public PSContentStatusContextTest(String[] args) {
     m_sArgs = args;

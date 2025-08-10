@@ -18,24 +18,23 @@ package percussion.soln.jcr;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
-
 import org.mockito.Mockito;
 
-/**
- * // REFACTORED: CP-JAVA11
- */
+/** // REFACTORED: CP-JAVA11 */
 public class JCRMocks {
-    public static Property mockProperty(String mockName, Node node, String name, String value) throws Exception {
-        var property = Mockito.mock(Property.class, mockName);
-        Mockito.when(node.getProperty(name)).thenReturn(property);
-        Mockito.when(property.getString()).thenReturn(value);
-        return property;
-    }
+  public static Property mockProperty(String mockName, Node node, String name, String value)
+      throws Exception {
+    var property = Mockito.mock(Property.class, mockName);
+    Mockito.when(node.getProperty(name)).thenReturn(property);
+    Mockito.when(property.getString()).thenReturn(value);
+    return property;
+  }
 
-    public static Property mockProperty(String mockName, Node node, String name, long value) throws Exception {
-        var property = Mockito.mock(Property.class, mockName);
-        Mockito.when(node.getProperty(name)).thenReturn(property);
-        Mockito.when(property.getLong()).thenReturn(value);
-        return property;
-    }
+  public static Property mockProperty(String mockName, Node node, String name, long value)
+      throws Exception {
+    var property = Mockito.mock(Property.class, mockName);
+    Mockito.when(node.getProperty(name)).thenReturn(property);
+    Mockito.when(property.getLong()).thenReturn(value);
+    return property;
+  }
 }

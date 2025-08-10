@@ -27,11 +27,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A wrapper around the Java <code>Process</code> class that adds output
- * stream management. When an instance of this class is created, a new
- * thread is created in which the process is run. A new thread is also
- * created to read the standard and error output of the process and buffer
- * it locally for consumption by the caller as they desire.
+ * A wrapper around the Java <code>Process</code> class that adds output stream management. When an
+ * instance of this class is created, a new thread is created in which the process is run. A new
+ * thread is also created to read the standard and error output of the process and buffer it locally
+ * for consumption by the caller as they desire.
  */
 public class PSProcessAction implements Runnable {
   private static final Logger log = LogManager.getLogger(PSProcessAction.class);
@@ -73,44 +72,37 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Buffer this many characters of output before starting truncation of
-   * the output. Truncation is done as a fraction of this buffering count.
+   * Buffer this many characters of output before starting truncation of the output. Truncation is
+   * done as a fraction of this buffering count.
    */
   public static final int BUFFERING_COUNT = 10000;
 
   /**
-   * An arbitrary return code that is used if the {@link #waitFor()} method
-   * returns before the process has finished. The value is -998877, chosen
-   * as unlikely to be a real return code.
+   * An arbitrary return code that is used if the {@link #waitFor()} method returns before the
+   * process has finished. The value is -998877, chosen as unlikely to be a real return code.
    */
   public static final int RC_NOT_FINISHED = -998877;
 
   /**
-   * Executes the specified command and arguments in a separate process with
-   * the specified environment.
-   * <p>
-   * Given an array of strings <code>cmdarray</code>, representing the tokens
-   * of a command line, and an array of strings <code>envp</code>,
-   * representing "environment" variable settings, this method creates a new
-   * process in which to execute the specified command.
-   * <p>
-   * If <code>envp</code> is <code>null</code>, the subprocess inherits the
-   * environment settings of the current process.
-   * <p>
-   * The working directory of the new subprocess is specified by
-   * <code>dir</code>. If <code>null</code>, the subprocess inherits the
-   * current working directory of the current process.
+   * Executes the specified command and arguments in a separate process with the specified
+   * environment.
    *
-   * @param cmdarray array containing the command to call and its arguments,
-   * may not be <code>null</code> or empty
+   * <p>Given an array of strings <code>cmdarray</code>, representing the tokens of a command line,
+   * and an array of strings <code>envp</code>, representing "environment" variable settings, this
+   * method creates a new process in which to execute the specified command.
    *
-   * @param envp array of strings, each element of which has environment
-   * variable settings in format name=value, may be <code>null</code> or empty
+   * <p>If <code>envp</code> is <code>null</code>, the subprocess inherits the environment settings
+   * of the current process.
    *
-   * @param dir the working directory of the process, or <code>null</code>
-   * if the process should inherit the working directory of the current
-   * process
+   * <p>The working directory of the new subprocess is specified by <code>dir</code>. If <code>null
+   * </code>, the subprocess inherits the current working directory of the current process.
    *
+   * @param cmdarray array containing the command to call and its arguments, may not be <code>null
+   *     </code> or empty
+   * @param envp array of strings, each element of which has environment variable settings in format
+   *     name=value, may be <code>null</code> or empty
+   * @param dir the working directory of the process, or <code>null</code> if the process should
+   *     inherit the working directory of the current process
    * @throws PSProcessException if any error occurs starting the process
    */
   public PSProcessAction(String[] cmdArray, String[] envp, File dir) throws PSProcessException {
@@ -183,11 +175,12 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Returns all text that has been read from the standard output stream of
-   * the running process since the last time this method was called.
-   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally
-   * before the buffer is truncated. If all output from the process is
-   * required, you may need to poll this method frequently.
+   * Returns all text that has been read from the standard output stream of the running process
+   * since the last time this method was called.
+   *
+   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally before the buffer is
+   * truncated. If all output from the process is required, you may need to poll this method
+   * frequently.
    *
    * @return Never <code>null</code>, may be empty.
    * @see #getStdErrorText()
@@ -197,11 +190,12 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Returns all text that has been read from the standard error stream of
-   * the running process since the last time this method was called.
-   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally
-   * before the buffer is truncated. If all output from the process is
-   * required, you may need to poll this method frequently.
+   * Returns all text that has been read from the standard error stream of the running process since
+   * the last time this method was called.
+   *
+   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally before the buffer is
+   * truncated. If all output from the process is required, you may need to poll this method
+   * frequently.
    *
    * @return Never <code>null</code>, may be empty.
    * @see #getStdOutText()
@@ -211,27 +205,22 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Returns the data in <code>content</code>, synchronizing on the object.
-   * If the process has finished (as indicated by <code>getStatus</code>),
-   * the supplied thread will be <code>join</code>ed to make sure all output
-   * has been read.
-   * <p>Every time this call is made, the current output is returned, and
-   * the buffer is cleared.
-   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally
-   * before the buffer is truncated. If all output from the process is
-   * required, you may need to poll this method frequently.
+   * Returns the data in <code>content</code>, synchronizing on the object. If the process has
+   * finished (as indicated by <code>getStatus</code>), the supplied thread will be <code>join
+   * </code>ed to make sure all output has been read.
    *
-   * @param reader The thread used to read content into the supplied buffer.
-   * If the process is finished, the thread is joined for 1 second for any
-   * final processing it may need to do.
+   * <p>Every time this call is made, the current output is returned, and the buffer is cleared.
    *
-   * @param content Buffer that contains the data to return. The buffer is
-   * cleared after the content is read. The read/clear is a synchronized
-   * operation.
+   * <p>Note that at most, {@link #BUFFERING_COUNT} bytes are kept locally before the buffer is
+   * truncated. If all output from the process is required, you may need to poll this method
+   * frequently.
    *
-   * @return the command output, never <code>null</code>, but may be empty.
-   * The action of calling this method empties the stored output.
-   *
+   * @param reader The thread used to read content into the supplied buffer. If the process is
+   *     finished, the thread is joined for 1 second for any final processing it may need to do.
+   * @param content Buffer that contains the data to return. The buffer is cleared after the content
+   *     is read. The read/clear is a synchronized operation.
+   * @return the command output, never <code>null</code>, but may be empty. The action of calling
+   *     this method empties the stored output.
    * @throws IllegalStateException if the process has not been started.
    */
   private String getOutput(Thread reader, StringBuilder content) {
@@ -255,24 +244,20 @@ public class PSProcessAction implements Runnable {
     return rval;
   }
 
-  /**
-   * Convenience method that calls {@link #waitFor(int) waitFor(0)}.
-   */
+  /** Convenience method that calls {@link #waitFor(int) waitFor(0)}. */
   public int waitFor() {
     return waitFor(0);
   }
 
   /**
-   * Returns the exit value for the process. This method waits for the
-   * process thread to complete, and then obtains the return value.
+   * Returns the exit value for the process. This method waits for the process thread to complete,
+   * and then obtains the return value.
    *
-   * @param wait Waits at most this many milliseconds for the thread to
-   * finish. A value of 0 means wait forever.
-   *
-   * @return the exit value of the process. By convention, the value
-   * <code>0</code> indicates normal termination. If this method returns
-   * before the process has completed, the value returned is
-   * <code>RC_NOT_FINISHED</code>.
+   * @param wait Waits at most this many milliseconds for the thread to finish. A value of 0 means
+   *     wait forever.
+   * @return the exit value of the process. By convention, the value <code>0</code> indicates normal
+   *     termination. If this method returns before the process has completed, the value returned is
+   *     <code>RC_NOT_FINISHED</code>.
    */
   public int waitFor(int millis) {
     try {
@@ -298,9 +283,11 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Creates a string representation of the actual command being executed by
-   * this action, in the form
+   * Creates a string representation of the actual command being executed by this action, in the
+   * form
+   *
    * <p>cmd p1 p2 p3 ...
+   *
    * <p>where pN is the nth parameter.
    *
    * @return Never <code>null</code> or empty.
@@ -315,97 +302,89 @@ public class PSProcessAction implements Runnable {
   }
 
   /**
-   * Stores the command line arguments, initialized in the ctor, never
-   * <code>null</code> or modified after that.
+   * Stores the command line arguments, initialized in the ctor, never <code>null</code> or modified
+   * after that.
    */
   private String[] m_cmdArray = null;
 
   /**
-   * Stores the environment settings, initialized in the ctor then never
-   * changed, may be <code>null</code>.
+   * Stores the environment settings, initialized in the ctor then never changed, may be <code>null
+   * </code>.
    */
   private String[] m_envp = null;
 
   /**
-   * Stores the working directory, initialized in the ctor then never
-   * changed, may be <code>null</code>.
+   * Stores the working directory, initialized in the ctor then never changed, may be <code>null
+   * </code>.
    */
   private File m_dir = null;
 
   /**
-   * Stores the process status, initialized in the ctor, never
-   * <code>null</code>, modified in the <code>run</code> method.
+   * Stores the process status, initialized in the ctor, never <code>null</code>, modified in the
+   * <code>run</code> method.
    */
   private PSProcessStatus m_status = null;
 
   /**
-   * Stores the handle to process, initialized in the <code>run</code>
-   * method, never <code>null</code> or modified after that.
+   * Stores the handle to process, initialized in the <code>run</code> method, never <code>null
+   * </code> or modified after that.
    */
   private Process m_process = null;
 
   /**
-   * Stores the exit code of the process, initialized to
-   * <code>RC_NOT_FINISHED</code>, modified in the <code>run</code>
-   * method.
+   * Stores the exit code of the process, initialized to <code>RC_NOT_FINISHED</code>, modified in
+   * the <code>run</code> method.
    */
   private int m_exitValue = RC_NOT_FINISHED;
 
   /**
-   * Thread that is reading the standard output from the process. Initialized
-   * in the <code>run</code> method, never <code>null</code> or modified after
-   * that. The output read by this thread is stored in {@link #m_stdOutBuf}.
+   * Thread that is reading the standard output from the process. Initialized in the <code>run
+   * </code> method, never <code>null</code> or modified after that. The output read by this thread
+   * is stored in {@link #m_stdOutBuf}.
    */
   private Thread m_stdOutputReader = null;
 
   /**
-   * Thread that is reading the standard error from the process. Initialized
-   * in the <code>run</code> method, never <code>null</code> or modified after
-   * that. The output read by this thread is stored in {@link #m_stdErrBuf}.
+   * Thread that is reading the standard error from the process. Initialized in the <code>run</code>
+   * method, never <code>null</code> or modified after that. The output read by this thread is
+   * stored in {@link #m_stdErrBuf}.
    */
   private Thread m_stdErrorReader = null;
 
   /**
-   * String buffer to store output from the process from the time the thread
-   * reads it until it is read by a call to {@link #getStdOutText()}. Never
-   * <code>null</code>. All accesses must be synchronized.
+   * String buffer to store output from the process from the time the thread reads it until it is
+   * read by a call to {@link #getStdOutText()}. Never <code>null</code>. All accesses must be
+   * synchronized.
    */
   private StringBuilder m_stdOutBuf = new StringBuilder();
 
   /**
-   * String buffer to store output from the process from the time the thread
-   * reads it until it is read by a call to {@link #getStdErrText()}. Never
-   * <code>null</code>. All accesses must be synchronized.
+   * String buffer to store output from the process from the time the thread reads it until it is
+   * read by a call to {@link #getStdErrText()}. Never <code>null</code>. All accesses must be
+   * synchronized.
    */
   private StringBuilder m_stdErrBuf = new StringBuilder();
 
-  /**
-   * Holds the execution thread for this process. Never <code>null</code>
-   * after ctor.
-   */
+  /** Holds the execution thread for this process. Never <code>null</code> after ctor. */
   private Thread m_thread;
 }
 
 /**
- * Reads data from a stream and writes it to a supplied buffer until the
- * stream is exhausted or exceptions. Originally designed for reading
- * the std In and std Err streams associated with a <code>Process</code>.
+ * Reads data from a stream and writes it to a supplied buffer until the stream is exhausted or
+ * exceptions. Originally designed for reading the std In and std Err streams associated with a
+ * <code>Process</code>.
  */
 class OutputReader extends Thread {
   /**
-   * Stores the supplied params for later use. The thread is set to be
-   * a daemon thread.
+   * Stores the supplied params for later use. The thread is set to be a daemon thread.
    *
-   * @param source Data is read from this object until end of stream, or
-   * an <code>IOException</code> occurs, at which time this thread exits.
-   * Never <code>null</code>. The stream is closed when the thread exits.
-   *
-   * @param buf All data read from <code>source</code> is written to this
-   * object. All writes are synchronized on the object itself. Never
-   * <code>null</code>.
-   *
-   * @param name Use as the name for this thread. If <code>null</code> or
-   * empty, "Input Reader" is used.
+   * @param source Data is read from this object until end of stream, or an <code>IOException</code>
+   *     occurs, at which time this thread exits. Never <code>null</code>. The stream is closed when
+   *     the thread exits.
+   * @param buf All data read from <code>source</code> is written to this object. All writes are
+   *     synchronized on the object itself. Never <code>null</code>.
+   * @param name Use as the name for this thread. If <code>null</code> or empty, "Input Reader" is
+   *     used.
    */
   public OutputReader(InputStream source, StringBuilder buf, String name) {
     if (null == source) {
@@ -423,12 +402,10 @@ class OutputReader extends Thread {
   }
 
   /**
-   * Attempts are made to read chunks of data at a time from the stream
-   * supplied in the ctor until the stream is exhausted. As each chunk is
-   * read, it is appended to the buffer supplied in the ctor. The stream
-   * is read in 1000 byte chunks. If the buffer is longer than
-   * <code>BUFFERING_COUNT</code>, it is truncated before adding the new
-   * data.
+   * Attempts are made to read chunks of data at a time from the stream supplied in the ctor until
+   * the stream is exhausted. As each chunk is read, it is appended to the buffer supplied in the
+   * ctor. The stream is read in 1000 byte chunks. If the buffer is longer than <code>
+   * BUFFERING_COUNT</code>, it is truncated before adding the new data.
    */
   public void run() {
     int count = -1;
@@ -467,8 +444,7 @@ class OutputReader extends Thread {
   private InputStream m_source;
 
   /**
-   * The <code>buf</code> parameter supplied in ctor. Never
-   * <code>null</code> after construction.
+   * The <code>buf</code> parameter supplied in ctor. Never <code>null</code> after construction.
    */
   private StringBuilder m_buffer;
 

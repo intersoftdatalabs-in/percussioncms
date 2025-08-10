@@ -28,20 +28,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Class to handle packaging and deploying a content deployable element.
- */
+/** Class to handle packaging and deploying a content deployable element. */
 public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -121,15 +116,15 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentDef</li>
+   *   <li>ContentDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -152,10 +147,12 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * See {@link com.percussion.deployer.server.dependencies.PSDependencyHandler#isRequiredChild(String)} for details.
+   * See {@link
+   * com.percussion.deployer.server.dependencies.PSDependencyHandler#isRequiredChild(String)} for
+   * details.
    *
-   * @return <code>false</code> always as all items of the content types
-   * represented by this handler are not required if not included.
+   * @return <code>false</code> always as all items of the content types represented by this handler
+   *     are not required if not included.
    */
   public boolean isRequiredChild(String type) {
     // delegate validation
@@ -165,12 +162,10 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Get the Content Type handler. Initialize the handler if it has not been
-   * set. This is doing a lazy load of the handler because it may not be
-   * available when constructing this object.
+   * Get the Content Type handler. Initialize the handler if it has not been set. This is doing a
+   * lazy load of the handler because it may not be available when constructing this object.
    *
-   * @return The content type handler object. It will never be
-   * <code>null</code>.
+   * @return The content type handler object. It will never be <code>null</code>.
    */
   private com.percussion.deployer.server.dependencies.PSDependencyHandler getContentTypeHandler() {
     if (m_ctHandler == null)
@@ -179,22 +174,16 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler {
     return m_ctHandler;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "Content";
 
   /**
-   * The content type handler, initialized by
-   * <code>getContentTypeHandler()</code> if it is <code>null</code>,
-   * will never be <code>null</code> after that.
+   * The content type handler, initialized by <code>getContentTypeHandler()</code> if it is <code>
+   * null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_ctHandler = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   private static final String CONTENT_ID = "CONTENTID";

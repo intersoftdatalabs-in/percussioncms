@@ -41,17 +41,16 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
- * This class is a Rhythmyx pre-exit which examines the incoming HTML
- * parameters for attached files.  When an attached file is found, the file
- * name, MIME Type and character encoding (as reported by the web browser) are
- * added as additional HTML parameters.  When the clear binary parameter (named
- * by adding "_clear" to the end of the parameter that contains the file) is
- * true, the additional HTML parameters are added as null values. This exit
- * also handles the parsing of delimited multi value fields that are passed
- * in by the webImageFx component.
- * <p>
- * The name of the each new parameter is formed by adding a suffix onto the
- * end of the HTML parameter that contains the attached file.
+ * This class is a Rhythmyx pre-exit which examines the incoming HTML parameters for attached files.
+ * When an attached file is found, the file name, MIME Type and character encoding (as reported by
+ * the web browser) are added as additional HTML parameters. When the clear binary parameter (named
+ * by adding "_clear" to the end of the parameter that contains the file) is true, the additional
+ * HTML parameters are added as null values. This exit also handles the parsing of delimited multi
+ * value fields that are passed in by the webImageFx component.
+ *
+ * <p>The name of the each new parameter is formed by adding a suffix onto the end of the HTML
+ * parameter that contains the attached file.
+ *
  * <table>
  * <tr><th>Suffix</th><th>Meaning</th></tr>
  * <tr>
@@ -79,10 +78,10 @@ import java.util.StringTokenizer;
  *   <td>the length of the file, in bytes</td>
  * </tr>
  * </table>
- * It is important to remember that these values are reported by the Web
- * browser, and some web browsers may not report some or all of these values.
- * If the value is not present (or the file length is 0), the corresponding
- * parameter will not be added to the server's parameter map.
+ *
+ * It is important to remember that these values are reported by the Web browser, and some web
+ * browsers may not report some or all of these values. If the value is not present (or the file
+ * length is 0), the corresponding parameter will not be added to the server's parameter map.
  */
 public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProcessor {
 
@@ -90,14 +89,12 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
    * This method handles the pre-exit request.
    *
    * @param params This method does not use any parameters.
-   *
    * @param request the request context for this request
-   *
    * @throws PSAuthorizationException Never.
    * @throws PSRequestValidationException Never.
    * @throws PSParameterMismatchException Never.
    * @throws PSExtensionProcessingException Never.
-   **/
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,
@@ -208,16 +205,12 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
   /**
    * Returns the filename portion of the provided fully qualified path.
    *
-   * @param fullPathname The full path of the file, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param fullPathname The full path of the file, assumed not <code>null</code> or empty.
    * @param pathSep The path separator to use, assumed not <code>null
    * </code>.
-   *
-   * @return The filename portion of the full path, based on the pathSep, or
-   * the fullPathname if the provided pathSep is not found in the provided
-   * fullPathname.  Never <code>null</code>, may be emtpy if the fullPathname
-   * ends in the pathSep.
+   * @return The filename portion of the full path, based on the pathSep, or the fullPathname if the
+   *     provided pathSep is not found in the provided fullPathname. Never <code>null</code>, may be
+   *     emtpy if the fullPathname ends in the pathSep.
    */
   private static String getFilename(String fullPathname, String pathSep) {
     String fileName = "";
@@ -231,18 +224,15 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
   }
 
   /**
-   * This method tries to make a more intelligent decision to determine
-   * the appropriate Mime type by looking at both the type guess made
-   * by the browser and the file extension. Some browser do not always
-   * correctly determine an uploaded files Mime type for HTML files. If the
-   * type guessed by the browser is text or octet-stream and the file extension
-   * is one of the well known extensions then we use that extensions
-   * Mime type.
+   * This method tries to make a more intelligent decision to determine the appropriate Mime type by
+   * looking at both the type guess made by the browser and the file extension. Some browser do not
+   * always correctly determine an uploaded files Mime type for HTML files. If the type guessed by
+   * the browser is text or octet-stream and the file extension is one of the well known extensions
+   * then we use that extensions Mime type.
    *
    * @param type the Mime type guessed by the browser, cannot be <code>
    * null</code> or empty.
-   * @param filename the filename for the uploaded file, cannot be
-   * <code>null</code> or empty.
+   * @param filename the filename for the uploaded file, cannot be <code>null</code> or empty.
    * @return the Mime type, never <code>null</code> or empty.
    */
   private static String determineMimeType(String type, String filename) {
@@ -263,10 +253,9 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
   }
 
   /**
-   * Parses any delimited wifx multi value form fields that have been
-   * passed in.
-   * @param request the request being processed , assumed
-   * not <code>null</code>.
+   * Parses any delimited wifx multi value form fields that have been passed in.
+   *
+   * @param request the request being processed , assumed not <code>null</code>.
    * @throws PSExtensionProcessingException on any error
    */
   private void parseWifxMultiValueFields(IPSRequestContext request)
@@ -296,15 +285,11 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
   }
 
   /**
-   * Changes a delimited request parameter to a list of
-   * parameter values.
+   * Changes a delimited request parameter to a list of parameter values.
    *
-   * @param request the request being processed , assumed
-   * not <code>null</code>.
-   * @param name the name of the parameter to be processed.
-   * Cannot be <code>null</code> or empty.
-   * @param delimiter the delimiter to be used, cannot be <code>null</code>
-   * or empty.
+   * @param request the request being processed , assumed not <code>null</code>.
+   * @param name the name of the parameter to be processed. Cannot be <code>null</code> or empty.
+   * @param delimiter the delimiter to be used, cannot be <code>null</code> or empty.
    */
   private void delimitedParameterToList(IPSRequestContext request, String name, String delimiter) {
     if (name == null || name.trim().length() == 0)
@@ -325,29 +310,24 @@ public class PSFileInfo extends PSDefaultExtension implements IPSRequestPreProce
     request.setParameter(name, obj);
   }
 
-  /**
-   * Constant that will map to <code>null</code>; used to clear the file
-   * info parameters.
-   */
+  /** Constant that will map to <code>null</code>; used to clear the file info parameters. */
   private static final String EMPTY = "";
 
   /**
-   * Constant for value of the binary clear parameter if it is to indicate that
-   * the field should be cleared.  Never <code>null</code> or empty.
+   * Constant for value of the binary clear parameter if it is to indicate that the field should be
+   * cleared. Never <code>null</code> or empty.
    */
   private static final String CLEAR_PARAM_TRUE = "yes";
 
   /**
-   * Constant string that will be appended to the binary field name to form
-   * the clear parameter name
+   * Constant string that will be appended to the binary field name to form the clear parameter name
    */
   private static final String CLEAR_BINARY_PARAM_SUFFIX = "_clear";
 
   /**
-   * These are a map of well know file extensions that the browser should not guess
-   * as either text or octet-stream Mime types, but some browser like IE can make
-   * a mistake with these. This list should be expanded as we find other problem
-   * extension types.
+   * These are a map of well know file extensions that the browser should not guess as either text
+   * or octet-stream Mime types, but some browser like IE can make a mistake with these. This list
+   * should be expanded as we find other problem extension types.
    */
   private static final Map<String, String> ms_wellKnownExts = new HashMap<>(2);
 

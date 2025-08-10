@@ -19,18 +19,13 @@ package com.percussion.cms.handlers;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
-/**
- * This interface gives command handlers the ability to perform internal
- * requests.
- */
+/** This interface gives command handlers the ability to perform internal requests. */
 public interface IPSInternalCommandRequestHandler {
   /**
-   * Makes an internal request using the provided request for the supplied
-   * command.
+   * Makes an internal request using the provided request for the supplied command.
    *
    * @param request the request to use, not <code>null</code>.
-   * @param command the command handler name, not <code>null</code> or
-   *    empty.
+   * @param command the command handler name, not <code>null</code> or empty.
    * @return the result XML document, never <code>null</code>.
    */
   public Document makeInternalRequest(PSRequest request, String command);

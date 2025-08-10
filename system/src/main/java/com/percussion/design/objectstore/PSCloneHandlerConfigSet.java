@@ -24,21 +24,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A collection of PSCloneHandlerConfig objects. It creates or
- * reads documents conforming to the sys_CloneHandlerConfig.dtd.
+ * A collection of PSCloneHandlerConfig objects. It creates or reads documents conforming to the
+ * sys_CloneHandlerConfig.dtd.
  */
 public class PSCloneHandlerConfigSet extends PSCollectionComponent implements IPSConfig {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCloneHandlerConfigSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -50,12 +46,9 @@ public class PSCloneHandlerConfigSet extends PSCollectionComponent implements IP
   /**
    * Get the clone handler configuration for the supplied name.
    *
-   * @param name the clone handler configuration name, not <code>null</code>
-   *    or empty.
-   * @return the clone handler configuration, might be <code>null</code>
-   *    if not found for name.
-   * @throws IllegalArgumentException if the supplied name is <code>null</code>
-   *    or empty.
+   * @param name the clone handler configuration name, not <code>null</code> or empty.
+   * @return the clone handler configuration, might be <code>null</code> if not found for name.
+   * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
    */
   public PSCloneHandlerConfig getConfig(String name) {
     if (name == null || name.trim().length() == 0)
@@ -70,7 +63,9 @@ public class PSCloneHandlerConfigSet extends PSCollectionComponent implements IP
     return null;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -118,7 +113,9 @@ public class PSCloneHandlerConfigSet extends PSCollectionComponent implements IP
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     for (int i = 0; i < size(); i++) {

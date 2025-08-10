@@ -24,9 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSDtdElement class contains element declaration information
- * references by Element nodes in our internal DTD tree.  This class
- * contains attribute and content model information.
+ * The PSDtdElement class contains element declaration information references by Element nodes in
+ * our internal DTD tree. This class contains attribute and content model information.
  */
 public class PSDtdElement implements Serializable {
   private static final Logger log = LogManager.getLogger(PSDtdElement.class);
@@ -34,8 +33,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Construct a Dtd Element which corresponds to a Element decl in the Dtd
    *
-   * @param   name      the name of this element
-   *
+   * @param name the name of this element
    */
   PSDtdElement(String name) {
     m_name = name;
@@ -47,11 +45,9 @@ public class PSDtdElement implements Serializable {
   /**
    * Set the content for this Dtd Element
    *
-   * @param   content   the content of this element, null if EMPTY or ANY
-   *
-   * @param   isAny    if null content, setting this true will mark this
-   *                                                                  element as ANY, this is ignored if content is
-   *                                                                  provided (not null)
+   * @param content the content of this element, null if EMPTY or ANY
+   * @param isAny if null content, setting this true will mark this element as ANY, this is ignored
+   *     if content is provided (not null)
    */
   public void setContent(PSDtdNode content, boolean isAny) {
     m_content = content;
@@ -63,8 +59,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Set the attributes for this Dtd Element
    *
-   * @param   dtd   the parsed DTD in which the attributes will be looked up
-   *
+   * @param dtd the parsed DTD in which the attributes will be looked up
    */
   public void setAttributes(PSDtd dtd) {
     m_attributes = new ArrayList();
@@ -74,9 +69,7 @@ public class PSDtdElement implements Serializable {
     }
   }
 
-  /**
-   * A simple clear method.
-   */
+  /** A simple clear method. */
   public void resetAttributes() {
     m_attributes = new ArrayList();
   }
@@ -90,8 +83,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Get the number of attributes contained in this element definition
    *
-   * @return   the number of attributes for this element
-   *
+   * @return the number of attributes for this element
    */
   public int getNumAttributes() {
     if (m_attributes == null) return 0;
@@ -101,20 +93,14 @@ public class PSDtdElement implements Serializable {
   /**
    * Gets the attribute
    *
-   * @param   index   attribute index
-   *
-   * @return   the attributes at the specified index
-   *
+   * @param index attribute index
+   * @return the attributes at the specified index
    */
   public PSDtdAttribute getAttribute(int index) {
     return (PSDtdAttribute) m_attributes.get(index);
   }
 
-  /**
-   * Gets the attribute with the given name, or null if no
-   * such attribute is found.
-   *
-   */
+  /** Gets the attribute with the given name, or null if no such attribute is found. */
   public PSDtdAttribute getAttribute(String name) {
     for (int i = 0; i < m_attributes.size(); i++) {
       PSDtdAttribute attr = getAttribute(i);
@@ -126,8 +112,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Return the content model for this element
    *
-   * @return   the content model
-   *
+   * @return the content model
    */
   public PSDtdNode getContent() {
     return m_content;
@@ -136,8 +121,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Return the name this element
    *
-   * @return   the name
-   *
+   * @return the name
    */
   public String getName() {
     return m_name;
@@ -155,9 +139,7 @@ public class PSDtdElement implements Serializable {
   /**
    * Is this element declared as EMPTY?
    *
-   * @return   <code>true</code> it is empty
-   *                                                      <code>false</code> it is not empty
-   *
+   * @return <code>true</code> it is empty <code>false</code> it is not empty
    */
   public boolean isEmpty() {
     return ((m_content == null) && !m_isAny);
@@ -166,18 +148,13 @@ public class PSDtdElement implements Serializable {
   /**
    * Is this element declared as ANY?
    *
-   * @return   <code>true</code> it is any
-   *                                                      <code>false</code> it is not any
-   *
+   * @return <code>true</code> it is any <code>false</code> it is not any
    */
   public boolean isAny() {
     return ((m_content == null) && m_isAny);
   }
 
-  /**
-   * print is used for manually watching debugging DTDs
-   *
-   */
+  /** print is used for manually watching debugging DTDs */
   public void print(String tab, String occurrenceString) {
     log.info(tab + m_name + " element " + occurrenceString);
     if (isAny()) {
@@ -191,10 +168,11 @@ public class PSDtdElement implements Serializable {
 
   /**
    * Add the attributes from this element to the catalog list
-   * @param   catalogList   the catalog list being built
-   * @param   cur         the current name to expand on
-   * @param   sep         the element separator string
-   * @param   attribId      the string used to identify an attribute entry
+   *
+   * @param catalogList the catalog list being built
+   * @param cur the current name to expand on
+   * @param sep the element separator string
+   * @param attribId the string used to identify an attribute entry
    */
   public void catalogAttributes(List catalogList, String cur, String sep, String attribId) {
     if (m_attributes == null) return;
@@ -207,30 +185,22 @@ public class PSDtdElement implements Serializable {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.4 1999/06/02
-   *
-   * Returns true if this node could ever possibly have character data.
-   *
-   * @return   boolean
+   *     <p>Returns true if this node could ever possibly have character data.
+   * @return boolean
    */
   public boolean hasCharacterData() {
     return m_hasCharData;
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.4 1999/06/02
-   *
-   * Private utility method to see if the given node could ever possibly
-   * be or directly contain PCDATA.
-   *
-   * @param   node   The node
-   *
-   * @return   boolean   true if this node could ever be or directly contain
-   * PCDATA.
+   *     <p>Private utility method to see if the given node could ever possibly be or directly
+   *     contain PCDATA.
+   * @param node The node
+   * @return boolean true if this node could ever be or directly contain PCDATA.
    */
   private boolean checkForCharData(PSDtdNode node) {
     if (node instanceof PSDtdDataElement) return true;

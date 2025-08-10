@@ -25,16 +25,12 @@ import javax.faces.webapp.UIComponentTag;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Base class for our JSF tags, provides basic implementations inspired by
- * the core jsf book.
+ * Base class for our JSF tags, provides basic implementations inspired by the core jsf book.
  *
  * @author dougrand
- *
  */
 public abstract class PSJSFBaseTag extends UIComponentTag {
-  /**
-   * The label for the component.
-   */
+  /** The label for the component. */
   private String m_label;
 
   @Override
@@ -53,6 +49,7 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
 
   /**
    * Process the value binding, and set the property on the component.
+   *
    * @param comp the component
    * @param name the name of the property, never <code>null</code> or empty
    * @param value the value, may be <code>null</code> or empty
@@ -84,8 +81,7 @@ public abstract class PSJSFBaseTag extends UIComponentTag {
    * @param comp the component, never <code>null</code>
    * @param name the name of the property, never <code>null</code> or empty.
    * @param value the value, may be <code>null</code> or empty.
-   * @param params the parameter classes used by the called method,
-   *   or <code>null</code>
+   * @param params the parameter classes used by the called method, or <code>null</code>
    */
   @SuppressWarnings("unchecked")
   protected void setMethodBinding(UIComponent comp, String name, String value, Class[] params) {

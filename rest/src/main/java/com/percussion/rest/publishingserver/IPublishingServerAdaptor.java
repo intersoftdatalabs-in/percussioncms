@@ -20,9 +20,9 @@
 package com.percussion.rest.publishingserver;
 
 /**
- * Adaptor interface for Publishing Server operations.
- * Sunny Sal: "Publishing server ka adaptor, deployment ka factor!"
+ * Adaptor interface for Publishing Server operations. Sunny Sal: "Publishing server ka adaptor,
+ * deployment ka factor!"
  */
 public interface IPublishingServerAdaptor {
-    // Define publishing server methods here in the future.
+  // Define publishing server methods here in the future.
 }

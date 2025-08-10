@@ -35,31 +35,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Data handler object which makes all the values of the column (specified in
- * the handler's Xml) unique for adding unique constraint on this column.
+ * Data handler object which makes all the values of the column (specified in the handler's Xml)
+ * unique for adding unique constraint on this column.
  *
- * All the <code>null</code> values in this column are modified based on the
- * value specified in the handler's Xml.
- * The first <code>null</code> value is assigned a value obtained by
- * concatenation of strings <code>m_value</code> and "0". For example, if
- * <code>m_value</code> is "CONTENTTYPENAME", then first <code>null</code>
- * value is modified to "CONTENTTYPENAME0", the second <code>null</code> value
- * is modified to "CONTENTTYPENAME1" and so on.
+ * <p>All the <code>null</code> values in this column are modified based on the value specified in
+ * the handler's Xml. The first <code>null</code> value is assigned a value obtained by
+ * concatenation of strings <code>m_value</code> and "0". For example, if <code>m_value</code> is
+ * "CONTENTTYPENAME", then first <code>null</code> value is modified to "CONTENTTYPENAME0", the
+ * second <code>null</code> value is modified to "CONTENTTYPENAME1" and so on.
  *
- * If any duplicate value is found, then an index is added to the value to
- * make the value unique. For example, if the column has three rows with value
- * "Article", then the three values after modification are "Article", "Article1"
- * and "Article2".
+ * <p>If any duplicate value is found, then an index is added to the value to make the value unique.
+ * For example, if the column has three rows with value "Article", then the three values after
+ * modification are "Article", "Article1" and "Article2".
  *
- * NOTE : DB2 does not allow unique constraint on nullable columns. So all
- * columns which comprise of a unique key constraint should be non-nullable.
+ * <p>NOTE : DB2 does not allow unique constraint on nullable columns. So all columns which comprise
+ * of a unique key constraint should be non-nullable.
  */
 public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
   /**
    * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>destTableSchema</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>destTableSchema</code> is
+   *     <code>null</code>
    */
   public void init(
       PSJdbcDbmsDef dbmsDef,
@@ -115,14 +111,11 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * Returns a column data object containing the modified value for the
-   * column which is being made altered.
+   * Returns a column data object containing the modified value for the column which is being made
+   * altered.
    *
-   * @param value the current value of the column in the database, may be
-   * <code>null</code>
-   *
+   * @param value the current value of the column in the database, may be <code>null</code>
    * @return the modified column value, may not be <code>null</code>
-   *
    * @see getUniqueColumnValue
    */
   protected PSJdbcColumnData getColumnValue(String value) {
@@ -130,20 +123,16 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * Checks if the value specified by <code>value</code> already exists
-   * in the list <code>m_colValues</code>. If the value already exists then
-   * it is modified appropriately. If <code>value</code> is non-<code>null</code>
-   * then an index is added to the column value to make it unique. If value
-   * is <code>null</code> then a value based on <code>m_value</code> is
-   * returned.
+   * Checks if the value specified by <code>value</code> already exists in the list <code>
+   * m_colValues</code>. If the value already exists then it is modified appropriately. If <code>
+   * value</code> is non-<code>null</code> then an index is added to the column value to make it
+   * unique. If value is <code>null</code> then a value based on <code>m_value</code> is returned.
    *
-   * @param value the value of the column <code>m_column</code>, may be
-   * <code>null</code> or empty. It is <code>null</code> if the paramter
-   * <code>row</code> to the <code>execute()</code> method does not contain
-   * the column <code>m_column</code>.
-   *
-   * @return column data object containing the modified value of column
-   * <code>m_column</code>, never <code>null</code>
+   * @param value the value of the column <code>m_column</code>, may be <code>null</code> or empty.
+   *     It is <code>null</code> if the paramter <code>row</code> to the <code>execute()</code>
+   *     method does not contain the column <code>m_column</code>.
+   * @return column data object containing the modified value of column <code>m_column</code>, never
+   *     <code>null</code>
    */
   private PSJdbcColumnData getUniqueColumnValue(String value) {
     String colValue = null;
@@ -171,9 +160,8 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
   public void close(Connection conn) throws PSJdbcTableFactoryException {}
 
   /**
-   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   * See {@link #toXml(Document)} for the DTD that <code>sourceNode</code>
-   * should follow.
+   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler See {@link #toXml(Document)} for the
+   *     DTD that <code>sourceNode</code> should follow.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -213,25 +201,12 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
 
   /**
    * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   *
-   * The child element of the datahandler element
-   * <code>IPSJdbcTableDataHandler.NODE_NAME</code> is based on the following
-   * DTD :
-   *
-   * &lt;!--
-   * Specifies the column whose values should be made unique.
-   * Attributes:
-   * name - The name of the column
-   * value - Base value to be used for <code>null</code> values in the
-   * specified column
-   * -->
-   *
-   * &lt;!ELEMENT column>
-   * &lt;!ATTLIST column
-   *    name CDATA #REQUIRED
-   *    value CDATA #REQUIRED
-   * >
-   *
+   *     <p>The child element of the datahandler element <code>IPSJdbcTableDataHandler.NODE_NAME
+   *     </code> is based on the following DTD :
+   *     <p>&lt;!-- Specifies the column whose values should be made unique. Attributes: name - The
+   *     name of the column value - Base value to be used for <code>null</code> values in the
+   *     specified column -->
+   *     <p>&lt;!ELEMENT column> &lt;!ATTLIST column name CDATA #REQUIRED value CDATA #REQUIRED >
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -250,39 +225,34 @@ public class PSJdbcUniqueColumn implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * provides the database/schema information for the table, initialized in the
-   * <code>init()</code> method, never <code>null</code> after initialization
+   * provides the database/schema information for the table, initialized in the <code>init()</code>
+   * method, never <code>null</code> after initialization
    */
   protected PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * Schema of the table which contains the column specified by
-   * <code>m_column</code>, initialized in the <code>init()</code> method,
-   * never <code>null</code> after initialization. This table schema should
-   * contain the column specified by <code>m_column</code>.
+   * Schema of the table which contains the column specified by <code>m_column</code>, initialized
+   * in the <code>init()</code> method, never <code>null</code> after initialization. This table
+   * schema should contain the column specified by <code>m_column</code>.
    */
   protected PSJdbcTableSchema m_tblSchema = null;
 
   /**
-   * Name of the column whose values are to be made unique, initialized in the
-   * <code>fromXml()</code> method, never <code>null</code> or empty after
-   * initialization
+   * Name of the column whose values are to be made unique, initialized in the <code>fromXml()
+   * </code> method, never <code>null</code> or empty after initialization
    */
   protected String m_column = null;
 
   /**
-   * Base value to be used for <code>null</code> values in the specified
-   * column, initialized in the <code>fromXml()</code> method,
-   * never <code>null</code> after initialization, may be empty.
+   * Base value to be used for <code>null</code> values in the specified column, initialized in the
+   * <code>fromXml()</code> method, never <code>null</code> after initialization, may be empty.
    */
   protected String m_value = null;
 
   /**
-   * List of values for the column <code>m_column</code> obtained from the
-   * row of data <code>row</code> passed as argument to the
-   * <code>execute()</code> method. Column values are stored as
-   * <code>String</code> objects in UPPERCASE. This list is never
-   * <code>null</code>, may be empty.
+   * List of values for the column <code>m_column</code> obtained from the row of data <code>row
+   * </code> passed as argument to the <code>execute()</code> method. Column values are stored as
+   * <code>String</code> objects in UPPERCASE. This list is never <code>null</code>, may be empty.
    */
   private Set m_colValues = new HashSet();
 

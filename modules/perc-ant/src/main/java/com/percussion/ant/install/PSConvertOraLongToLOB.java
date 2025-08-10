@@ -31,16 +31,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * PSConvertOraLongToLOB is a task which uses the
- * <code>com.percussion.install.PSOraConvertLONG2LOBTool</code> class to
- * convert the LONG column in the specified tables to LOB column. The tables
- * which need to be converted are specified in the <code>tableNames</code>
- * member variable using <code>setTableNames()</code>.
+ * PSConvertOraLongToLOB is a task which uses the <code>
+ * com.percussion.install.PSOraConvertLONG2LOBTool</code> class to convert the LONG column in the
+ * specified tables to LOB column. The tables which need to be converted are specified in the <code>
+ * tableNames</code> member variable using <code>setTableNames()</code>. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -57,7 +54,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSConvertOraLongToLOB extends PSAction {
   // see base class
@@ -150,23 +146,23 @@ public class PSConvertOraLongToLOB extends PSAction {
    *******************************************************************/
 
   /**
-   * Returns the names of tables which have a LONG column and the column needs
-   * to be converted into LOB column.
+   * Returns the names of tables which have a LONG column and the column needs to be converted into
+   * LOB column.
    *
-   * @return names of tables which have a LONG column and the column needs to
-   * be converted into LOB column, never <code>null</code>, may be empty
+   * @return names of tables which have a LONG column and the column needs to be converted into LOB
+   *     column, never <code>null</code>, may be empty
    */
   public String[] getTableNames() {
     return tableNames;
   }
 
   /**
-   * Sets the names of tables which have a LONG column and the column needs to
-   * be converted into LOB column.
+   * Sets the names of tables which have a LONG column and the column needs to be converted into LOB
+   * column.
    *
-   * @param tableNames names of tables which have a LONG column and the column
-   * needs to be converted into LOB column, may be <code>null</code> or empty,
-   * if <code>null</code> then set to empty array.
+   * @param tableNames names of tables which have a LONG column and the column needs to be converted
+   *     into LOB column, may be <code>null</code> or empty, if <code>null</code> then set to empty
+   *     array.
    */
   public void setTableNames(String tableNames) {
     this.tableNames = convertToArray(tableNames);
@@ -177,8 +173,8 @@ public class PSConvertOraLongToLOB extends PSAction {
    *******************************************************************/
 
   /**
-   * names of tables which have a LONG column and the column needs to be
-   * converted into LOB column, never <code>null</code>, may be empty.
+   * names of tables which have a LONG column and the column needs to be converted into LOB column,
+   * never <code>null</code>, may be empty.
    */
   private String[] tableNames = new String[0];
 

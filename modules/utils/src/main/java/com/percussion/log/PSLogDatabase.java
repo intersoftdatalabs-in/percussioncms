@@ -20,8 +20,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * This is a utility class providing common functionality/definitions for
- * the rhythmyx logging databases.
+ * This is a utility class providing common functionality/definitions for the rhythmyx logging
+ * databases.
  */
 public class PSLogDatabase {
   /**
@@ -70,7 +70,7 @@ public class PSLogDatabase {
   /** the log table sequence field. */
   public static final String COL_LOG_SEQ = "log_seq";
 
-  /** the log table subtable  field. */
+  /** the log table subtable field. */
   public static final String COL_LOG_SUBT = "log_subt";
 
   /** the log table subsequence field */

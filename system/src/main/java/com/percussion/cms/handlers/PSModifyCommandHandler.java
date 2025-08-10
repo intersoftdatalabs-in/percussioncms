@@ -111,28 +111,23 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class encapsulates behavior required to handle all Modify related
- * commands.  Performs all updates for ContentEditors.
+ * This class encapsulates behavior required to handle all Modify related commands. Performs all
+ * updates for ContentEditors.
  */
 public class PSModifyCommandHandler extends PSCommandHandler {
   /**
-   * Constructor for this class.  Prepares all extensions and creates and
-   * starts the application used to update backend data.
+   * Constructor for this class. Prepares all extensions and creates and starts the application used
+   * to update backend data.
    *
-   * @param appHandler The application handler for this app.  May not be
-   * <code>null</code>.
-   * @param ceh The content editor handler for this dataset.  May not be
-   * <code>null</code>.
-   * @param ds The dataset this command handler will process modify commands
-   * for.  Must be a PSContentEditor.  May not be <code>null</code>.
-   * @param app The application created by the PSContentEditor for each
-   * command handler to add datasets to.  The app is started and stopped by the
-   * ContentEditorHandler.
-   *
+   * @param appHandler The application handler for this app. May not be <code>null</code>.
+   * @param ceh The content editor handler for this dataset. May not be <code>null</code>.
+   * @param ds The dataset this command handler will process modify commands for. Must be a
+   *     PSContentEditor. May not be <code>null</code>.
+   * @param app The application created by the PSContentEditor for each command handler to add
+   *     datasets to. The app is started and stopped by the ContentEditorHandler.
    * @throws PSExtensionException if there is an error preparing an extension.
    * @throws PSNotFoundException if a udf or extension cannot be located.
-   * @throws PSSystemValidationException if there is a problem starting an internal
-   * application.
+   * @throws PSSystemValidationException if there is a problem starting an internal application.
    */
   public PSModifyCommandHandler(
       PSApplicationHandler appHandler, PSContentEditorHandler ceh, PSDataSet ds, PSApplication app)
@@ -202,26 +197,19 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Prepare a map of fields that need special processing for inline links.
-   * Walks the supplied fieldset recursivly looking for fields that may
-   * contain inline links and adds them to the map being returned. This also
-   * initializes a flat map mapping field names to field objects, see
-   * {@link #m_flatInlinelinkFields} for details of this map.
-   * Works in concert with {@link #prepareInlineLinkFields(PSFieldSet, List,
-   * Map)} to accomplish the recursive processing.
+   * Prepare a map of fields that need special processing for inline links. Walks the supplied
+   * fieldset recursivly looking for fields that may contain inline links and adds them to the map
+   * being returned. This also initializes a flat map mapping field names to field objects, see
+   * {@link #m_flatInlinelinkFields} for details of this map. Works in concert with {@link
+   * #prepareInlineLinkFields(PSFieldSet, List, Map)} to accomplish the recursive processing.
    *
-   * @param fieldSet the fieldset to walk, assumed not <code>null</code>, may
-   * be empty.
-   *
-   * @param allLinkFields a map to which all fields will be added that
-   *    may have inline links, may be <code>null</code> or empty. If
-   *    <code>null</code> is supplied, a new map will be created. See
-   *    {@link #m_inlineLinkFields} for detailed info on the map.
-   *
-   * @return a map of <code>List</code> of <code>PSField</code> objects that
-   *    need special processing for inline links, never <code>null</code>,
-   *    may be empty. See {@link #m_inlineLinkFields} for detailed info on
-   *    the map.
+   * @param fieldSet the fieldset to walk, assumed not <code>null</code>, may be empty.
+   * @param allLinkFields a map to which all fields will be added that may have inline links, may be
+   *     <code>null</code> or empty. If <code>null</code> is supplied, a new map will be created.
+   *     See {@link #m_inlineLinkFields} for detailed info on the map.
+   * @return a map of <code>List</code> of <code>PSField</code> objects that need special processing
+   *     for inline links, never <code>null</code>, may be empty. See {@link #m_inlineLinkFields}
+   *     for detailed info on the map.
    */
   private Map<String, List<PSField>> prepareInlineLinkFields(
       PSFieldSet fieldSet, Map<String, List<PSField>> allLinkFields) {
@@ -237,22 +225,16 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * This method is used in concert with the {@link #prepareInlineLinkFields(
-   * PSFieldSet, Map)} method to support recursive processing. This method
-   * walks the supplied fieldset and calls either this method or the other
-   * one if a member of the supplied set is a field set itself (depending
-   * on the fieldset type) or it adds the field to the supplied list.
+   * This method is used in concert with the {@link #prepareInlineLinkFields( PSFieldSet, Map)}
+   * method to support recursive processing. This method walks the supplied fieldset and calls
+   * either this method or the other one if a member of the supplied set is a field set itself
+   * (depending on the fieldset type) or it adds the field to the supplied list.
    *
    * @param fs The field set to process. Assumed not <code>null</code>.
-   *
-   * @param linkFields The list to which the <code>PSField</code> objects
-   * found in fs will be added if they can contain inline links. Assumed not
-   * <code>null</code>.
-   *
-   * @param allLinkFields This is used for recursion. If a complex child
-   * field set is found in <code>fs</code>, this is passed back to the other
-   * method in a recursive call.
-   *
+   * @param linkFields The list to which the <code>PSField</code> objects found in fs will be added
+   *     if they can contain inline links. Assumed not <code>null</code>.
+   * @param allLinkFields This is used for recursion. If a complex child field set is found in
+   *     <code>fs</code>, this is passed back to the other method in a recursive call.
    * @return Always <code>allLinkFields</code>.
    */
   private Map<String, List<PSField>> prepareInlineLinkFields(
@@ -283,22 +265,18 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    *
    * @param request the request to be processed, assumed not <code>null</code>.
    * @param execData the execution data to use, assumed not <code>null</code>.
-   *
-   * @return the number of steps executed.  If a field validation error halted
-   * the execution of the modify request, <code>-1</code> is returned.
-   *
+   * @return the number of steps executed. If a field validation error halted the execution of the
+   *     modify request, <code>-1</code> is returned.
    * @throws PSErrorException for any errors occurred.
    * @throws PSRequestValidationException for invalid requests.
-   * @throws PSAuthorizationException if the user is not authorize to perform
-   *    the request.
+   * @throws PSAuthorizationException if the user is not authorize to perform the request.
    * @throws PSRequestValidationException for any failed request validation.
    * @throws PSSystemValidationException for any failed validation.
    * @throws SQLException for any failed SQL operation.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSAuthenticationFailedException if the user failed to
-   *    authenticate.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    * @throws PSCmsException if anything fails while processing inline links.
    */
   private int executeModifyRequest(PSRequest request, PSExecutionData execData)
@@ -540,13 +518,13 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Processes all fields that may contain inline links before the document
-   * is submitted to the database.
+   * Processes all fields that may contain inline links before the document is submitted to the
+   * database.
    *
-   * @param request the request for which to pre-process all fields with
-   *    possible inline links, assumed not <code>null</code>.
-   * @param id the id of the display mapper for which to process the inline
-   *    links. This method does nothing if an invalid mapper id is supplied.
+   * @param request the request for which to pre-process all fields with possible inline links,
+   *     assumed not <code>null</code>.
+   * @param id the id of the display mapper for which to process the inline links. This method does
+   *     nothing if an invalid mapper id is supplied.
    * @throws IOException for any I/O errors.
    * @throws PSCmsException for all other errors.
    */
@@ -630,11 +608,11 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Processes all fields that may contain inline links after the document
-   * was submitted to the database.
+   * Processes all fields that may contain inline links after the document was submitted to the
+   * database.
    *
-   * @param request the request for which to post-process all fields with
-   *    possible inline links, assumed not <code>null</code>.
+   * @param request the request for which to post-process all fields with possible inline links,
+   *     assumed not <code>null</code>.
    * @throws IOException for any I/O errors.
    * @throws PSCmsException for all other errors.
    */
@@ -649,24 +627,23 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a content editor modify request using the input context
-   * information and data.
-   * <p>
-   * The following steps are performed to handle the request:
+   * Process a content editor modify request using the input context information and data.
+   *
+   * <p>The following steps are performed to handle the request:
+   *
    * <ol>
-   * <li>Extracts the execution data</li>
-   * <li>runs all preprocessing exits</li>
-   * <li>runs item translation exits</li>
-   * <li>performs datatype validations</li>
-   * <li>performs field validations</li>
-   * <li>runs item validation exits</li>
-   * <li>performs the require updates to the backend database</li>
-   * <li>runs post-processing exits</li>
-   * <li>redirects to the appropriate URL</li>
+   *   <li>Extracts the execution data
+   *   <li>runs all preprocessing exits
+   *   <li>runs item translation exits
+   *   <li>performs datatype validations
+   *   <li>performs field validations
+   *   <li>runs item validation exits
+   *   <li>performs the require updates to the backend database
+   *   <li>runs post-processing exits
+   *   <li>redirects to the appropriate URL
    * </ol>
    *
-   * @param request the request object containing all context   data associated
-   * with the request.
+   * @param request the request object containing all context data associated with the request.
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -721,13 +698,11 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Process all input field translations for the provided execution data
-   * and childid.
+   * Process all input field translations for the provided execution data and childid.
    *
-   * @param data the execution data to run the translations for, assumed
-   *    not <code>null</code>.
-   * @param childId the childid for which we have to run the translations,
-   *    assumed not <code>null</code>.
+   * @param data the execution data to run the translations for, assumed not <code>null</code>.
+   * @param childId the childid for which we have to run the translations, assumed not <code>null
+   *     </code>.
    */
   private void processFieldTranslations(PSExecutionData data, String childId)
       throws PSConversionException, PSDataExtractionException {
@@ -761,22 +736,17 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Make an internal request to the edit handler of the current contentid,
-   * revision and pageid to get the XML document. The result XML document is
-   * updated with the parameter values provided to this request.
-   * The DisplayError element will be inserted to the top of the root with
-   * a generic message.
-   * All DisplayField element labels of fields with errors will be replaced
-   * with the error label and its type attribute set to error.
+   * Make an internal request to the edit handler of the current contentid, revision and pageid to
+   * get the XML document. The result XML document is updated with the parameter values provided to
+   * this request. The DisplayError element will be inserted to the top of the root with a generic
+   * message. All DisplayField element labels of fields with errors will be replaced with the error
+   * label and its type attribute set to error.
    *
-   * @param data the execution data which produced the error, assumed not
-   *    <code>null</code>.
-   * @param errorCollector the error collector containing all information
-   *    necessary to create the error page.
+   * @param data the execution data which produced the error, assumed not <code>null</code>.
+   * @param errorCollector the error collector containing all information necessary to create the
+   *     error page.
    * @param pageId the originating pageid, assumed not <code>null</code>.
-   *
-   * @throws PSDataExtractionException if there are any problems processing
-   * the data.
+   * @throws PSDataExtractionException if there are any problems processing the data.
    * @throws IOException if there are any problems sending the redirect.
    */
   private void redirectToError(
@@ -859,10 +829,8 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * Record the error message into the supplied request.
    *
    * @param request The request, assume not <code>null</code>.
-   *
-   * @param errorDoc The error document, assume not <code>null</code> and
-   *    the error is in the <code>PSErrorCollector.DISPLAY_ERROR_ELEM</code>
-   *    element of the document.
+   * @param errorDoc The error document, assume not <code>null</code> and the error is in the <code>
+   *     PSErrorCollector.DISPLAY_ERROR_ELEM</code> element of the document.
    */
   private void recordErrorToRequest(PSRequest request, Document errorDoc) {
     NodeList list = errorDoc.getElementsByTagName(PSErrorCollector.DISPLAY_ERROR_ELEM);
@@ -879,22 +847,20 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Sets the value element of each control in the supplied document (which
-   * must conform to sys_ContentEditor.dtd) to the value of the matching
-   * parameter in the supplied request.
-   * <p>
-   * The provided document is the result of an internal query request made to
-   * the same editor which caused the validation error.  After this method
-   * merges, the document is exactly the same as the one that was submitted
-   * to cause the validation exception.
-   * <p>
-   * If either method parameter is <code>null</code>, this method does nothing.
+   * Sets the value element of each control in the supplied document (which must conform to
+   * sys_ContentEditor.dtd) to the value of the matching parameter in the supplied request.
    *
-   * @param doc the document to be updated with the actual parameter values
-   *    supplied with the request, may be <code>null</code>. A document
-   *    conforming to the sys_ContentEditor.dtd is expected.
-   * @param request the request containing the parameters from where to
-   *    update the provided document, may be <code>null</code>.
+   * <p>The provided document is the result of an internal query request made to the same editor
+   * which caused the validation error. After this method merges, the document is exactly the same
+   * as the one that was submitted to cause the validation exception.
+   *
+   * <p>If either method parameter is <code>null</code>, this method does nothing.
+   *
+   * @param doc the document to be updated with the actual parameter values supplied with the
+   *     request, may be <code>null</code>. A document conforming to the sys_ContentEditor.dtd is
+   *     expected.
+   * @param request the request containing the parameters from where to update the provided
+   *     document, may be <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   private void mergeParameters(Document doc, PSRequest request) {
@@ -1009,9 +975,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
     }
   }
 
-  /**
-   * Shutdown the command handler, freeing any associated resources.
-   */
+  /** Shutdown the command handler, freeing any associated resources. */
   public void shutdown() {
     // nothing to do
   }
@@ -1029,18 +993,15 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   /**
    * The modify handler does field validation only.
    *
-   * @param data the execution data to validation against, assumed not
-   *    <code>null</code>.
-   * @param pageId the pageid to be validated, assumed not
-   *    <code>null</code>.
-   * @param lang the language/locale string to be used to produce the localized
-   *    error message. This must follow the XML notation for language or locale
-   *    string. See {@link PSI18nUtils#getLocaleFromString} for details. May be
-   *    <code>null</code> or <code>empty</code>.
-   * @return <code>null</code> if no error occurred, a PSErrorCollector
-   *    object otherwise.
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    values from the execution data.
+   * @param data the execution data to validation against, assumed not <code>null</code>.
+   * @param pageId the pageid to be validated, assumed not <code>null</code>.
+   * @param lang the language/locale string to be used to produce the localized error message. This
+   *     must follow the XML notation for language or locale string. See {@link
+   *     PSI18nUtils#getLocaleFromString} for details. May be <code>null</code> or <code>empty
+   *     </code>.
+   * @return <code>null</code> if no error occurred, a PSErrorCollector object otherwise.
+   * @throws PSDataExtractionException If any problems occur while getting values from the execution
+   *     data.
    */
   private PSErrorCollector processValidation(PSExecutionData data, Integer pageId, String lang)
       throws PSDataExtractionException {
@@ -1059,20 +1020,16 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Creates and adds datasets to the update application to perform all
-   * necessary updates.  Builds execution plans for each type of modify
-   * that may be performed, adding steps that include the required dataset
-   * into each plan.
+   * Creates and adds datasets to the update application to perform all necessary updates. Builds
+   * execution plans for each type of modify that may be performed, adding steps that include the
+   * required dataset into each plan.
    *
-   * @param mapper The parent display mapper.  Assumed not <code>null</code>.
-   *
-   * @param mainFieldSet The parent fieldSet.  Assumed not <code>null</code>.
-   *
+   * @param mapper The parent display mapper. Assumed not <code>null</code>.
+   * @param mainFieldSet The parent fieldSet. Assumed not <code>null</code>.
    * @throws SQLException if there is an error determining a column's datatype.
    * @throws PSSystemValidationException if there is an error creating a dataset.
    * @throws PSNotFoundException if a udf or extension cannot be located.
-   * @throws PSSystemValidationException if there is a problem starting an internal
-   *    application.
+   * @throws PSSystemValidationException if there is a problem starting an internal application.
    */
   @SuppressWarnings("unchecked")
   private void createDataSets(PSDisplayMapper mapper, PSFieldSet mainFieldSet)
@@ -1167,16 +1124,13 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Creates a query dataset for getting current sortrank values in a
-   * complex child table.  All parameters assumed not <code>null</code>.
+   * Creates a query dataset for getting current sortrank values in a complex child table. All
+   * parameters assumed not <code>null</code>.
    *
-   * @param mapper The PSDisplayMapper that references the fieldset that
-   * supports sequencing.
+   * @param mapper The PSDisplayMapper that references the fieldset that supports sequencing.
    * @param fieldSet The fieldSet that supports sequencing.
-   *
-   * @return The resource name of a query resource that will query
-   * for SYSID and SORTRANK, with SYSID as the key.
-   *
+   * @return The resource name of a query resource that will query for SYSID and SORTRANK, with
+   *     SYSID as the key.
    * @throws PSSystemValidationException if there is an error creating the dataset.
    */
   @SuppressWarnings("unchecked")
@@ -1228,13 +1182,9 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * Determines the correct plan to execute.
    *
    * @param data The execution data, assumed not <code>null</code>.
-   *
-   * @return The plan type to execute, one of the
-   * <code>PSModifyPlan.TYPE_xxx</code> values.  See
-   * {@link com.percussion.cms.PSModifyPlan} for info on plan types.
-   *
-   * @throws PSRequestValidationException if the plan type cannot be
-   * determined.
+   * @return The plan type to execute, one of the <code>PSModifyPlan.TYPE_xxx</code> values. See
+   *     {@link com.percussion.cms.PSModifyPlan} for info on plan types.
+   * @throws PSRequestValidationException if the plan type cannot be determined.
    */
   private int getPlanType(PSExecutionData data) throws PSRequestValidationException {
     int planType;
@@ -1265,16 +1215,15 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Calculates a change event action from the plan type.
-   * The calculated value is used as a parameter for editor change listenrs.
-   * @param planType the plan type being executed.
-   * One of the <code>PSModifyPlan.TYPE_xxx</code> values.
-   * @param request current request.
-   * Assumed not <code>null</code>.
-   * @return the action for the change event.  One of the
-   * <code>PSEditorChangeEvent.ACTION_xxx</code> values.
-   * If the returned value is {@link PSEditorChangeEvent#ACTION_UNDEFINED},
-   * the listeners should not be notified.
+   * Calculates a change event action from the plan type. The calculated value is used as a
+   * parameter for editor change listenrs.
+   *
+   * @param planType the plan type being executed. One of the <code>PSModifyPlan.TYPE_xxx</code>
+   *     values.
+   * @param request current request. Assumed not <code>null</code>.
+   * @return the action for the change event. One of the <code>PSEditorChangeEvent.ACTION_xxx</code>
+   *     values. If the returned value is {@link PSEditorChangeEvent#ACTION_UNDEFINED}, the
+   *     listeners should not be notified.
    * @see #getPlanType(PSExecutionData)
    */
   static int getAction(final int planType, final PSRequest request) {
@@ -1302,22 +1251,19 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Retreives and validates the content, revision, and child ids.  If both
-   * content and revision ids are not found, assume it's an insert, generate
-   * new values and add them to the params.
+   * Retreives and validates the content, revision, and child ids. If both content and revision ids
+   * are not found, assume it's an insert, generate new values and add them to the params.
    *
-   * @param planType The plan type, assumed to be one of the
-   * <code>PSModifyPlan.TYPE_xxx_PLAN</code> values.
+   * @param planType The plan type, assumed to be one of the <code>PSModifyPlan.TYPE_xxx_PLAN</code>
+   *     values.
    * @param data The execution data
-   * @throws PSRequestValidationException if an id is missing or cannot be
-   * converted to an integer.
+   * @throws PSRequestValidationException if an id is missing or cannot be converted to an integer.
    * @throws SQLException if there is an error creating a new id.
-   * @throws PSAuthorizationException if performing a sequence update and the
-   * user is not authorized to query the database.
-   * @throws PSInternalRequestCallException if performing a sequence update and
-   * an error occurs querying the database.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
+   * @throws PSAuthorizationException if performing a sequence update and the user is not authorized
+   *     to query the database.
+   * @throws PSInternalRequestCallException if performing a sequence update and an error occurs
+   *     querying the database.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
    */
   @SuppressWarnings("unchecked")
   private void prepareModifyPlan(int planType, PSExecutionData data)
@@ -1533,13 +1479,11 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Set the workflow id into a given request object (as
-   * <code>IPSHtmlParameters.SYS_WORKFLOWID</code> according to the object
-   * type of the current content editor. Set it to
-   * <code>IPSConstant.INVALIDE_WORKFLOW_ID</code> if the object type of the
-   * content editor is not workflowable; otherwise if the workflow id not exist
-   * in the request object, its value is set by calculating the default
-   * workflow from the user's community and available workflows for this
+   * Set the workflow id into a given request object (as <code>IPSHtmlParameters.SYS_WORKFLOWID
+   * </code> according to the object type of the current content editor. Set it to <code>
+   * IPSConstant.INVALIDE_WORKFLOW_ID</code> if the object type of the content editor is not
+   * workflowable; otherwise if the workflow id not exist in the request object, its value is set by
+   * calculating the default workflow from the user's community and available workflows for this
    * content editor.
    *
    * @param request The request object, assume not <code>null</code>.
@@ -1578,22 +1522,17 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Queries the correct table and retrieves a resultset of sysid and
-   * sortrank columns, sorted by sortrank ascending.
+   * Queries the correct table and retrieves a resultset of sysid and sortrank columns, sorted by
+   * sortrank ascending.
    *
    * @param mapperId The id of the display mapper that is being processed.
-   * @param data The execution data.  Assumed not <code>null</code>.
-   *
-   * @return A two dimensional integer array, forming a two column table.  The
-   * first column is sysId, the second column is sortrank.  May be
-   * <code>null</code> if no handler was found for the specified mapperId.
-   *
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   * the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   * query.
+   * @param data The execution data. Assumed not <code>null</code>.
+   * @return A two dimensional integer array, forming a two column table. The first column is sysId,
+   *     the second column is sortrank. May be <code>null</code> if no handler was found for the
+   *     specified mapperId.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the query.
    * @throws SQLException if there is an error reading the query results.
    */
   @SuppressWarnings("unchecked")
@@ -1642,18 +1581,17 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Determine what rows require resequencing, and add arrays of sysid and
-   * sortrank values to the param map in the request to cause multiple rows
-   * to be updated.  First truncates the parameter map so that we don't
-   * have any lists submitted with the original request.
+   * Determine what rows require resequencing, and add arrays of sysid and sortrank values to the
+   * param map in the request to cause multiple rows to be updated. First truncates the parameter
+   * map so that we don't have any lists submitted with the original request.
    *
    * @param sysId The childRowId of the row being moved up or down.
-   * @param seqRows A two dimensional integer array, representing rows of
-   * two columns each, sysId and sortRank respectively.
-   * @param dbActionType The value specified to either incrememnt or decrement
-   * the sortRank of the row specified by the sysId.  Must be either
-   * {@link PSContentEditorHandler#DB_ACTION_SEQUENCE_INCREMENT} or
-   * {@link PSContentEditorHandler#DB_ACTION_SEQUENCE_DECREMENT}
+   * @param seqRows A two dimensional integer array, representing rows of two columns each, sysId
+   *     and sortRank respectively.
+   * @param dbActionType The value specified to either incrememnt or decrement the sortRank of the
+   *     row specified by the sysId. Must be either {@link
+   *     PSContentEditorHandler#DB_ACTION_SEQUENCE_INCREMENT} or {@link
+   *     PSContentEditorHandler#DB_ACTION_SEQUENCE_DECREMENT}
    * @param request The request context, assumed not <code>null</code>.
    */
   @SuppressWarnings("unchecked")
@@ -1725,16 +1663,14 @@ public class PSModifyCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Add arrays of sysid and sortrank values to the param map in the
-   * request to cause multiple rows to be updated.  First truncates
-   * the parameter map so that we don't have any lists submitted with
+   * Add arrays of sysid and sortrank values to the param map in the request to cause multiple rows
+   * to be updated. First truncates the parameter map so that we don't have any lists submitted with
    * the original request.
    *
-   * @param sysIdMap The childRowIds of the rows as the key(String) and
-   * the sort rank as the value(String), assumed not <code>null</code>.
-   * @param seqRows A two dimensional integer array, representing rows of
-   * two columns each, sysId and sortRank respectively, assumed
-   * not <code>null</code>.
+   * @param sysIdMap The childRowIds of the rows as the key(String) and the sort rank as the
+   *     value(String), assumed not <code>null</code>.
+   * @param seqRows A two dimensional integer array, representing rows of two columns each, sysId
+   *     and sortRank respectively, assumed not <code>null</code>.
    * @param request The request context, assumed not <code>null</code>.
    */
   @SuppressWarnings("unchecked")
@@ -1762,9 +1698,7 @@ public class PSModifyCommandHandler extends PSCommandHandler {
    * Returns the field set for a given mapper id.
    *
    * @param mapperId The id of the mapper.
-   *
-   * @return The mapper's fieldset, may be <code>null</code> if it cannot be
-   *         located.
+   * @return The mapper's fieldset, may be <code>null</code> if it cannot be located.
    */
   private PSFieldSet getMapperFieldSet(int mapperId) {
     PSFieldSet fieldSet = null;
@@ -1777,128 +1711,119 @@ public class PSModifyCommandHandler extends PSCommandHandler {
     return fieldSet;
   }
 
-  /**
-   * Constant for this handler's command name.
-   */
+  /** Constant for this handler's command name. */
   public static final String COMMAND_NAME = "modify";
 
   /**
-   * Map of PSModifyPlanSets to use when performing updates. The key is the
-   * child id of the display mapper.
+   * Map of PSModifyPlanSets to use when performing updates. The key is the child id of the display
+   * mapper.
    */
   private Map m_modifyPlanSets = new HashMap();
 
   /**
-   * Map of resourceNames to use to query for sequence ids. The key is the
-   * child id of the display mapper and value is the request name to use.
+   * Map of resourceNames to use to query for sequence ids. The key is the child id of the display
+   * mapper and value is the request name to use.
    */
   private Map m_seqQueryResources = new HashMap();
 
   /**
-   * Plan builder to create update modify plans. Initialized in the ctor, never
-   * <code>null</code> after that.
+   * Plan builder to create update modify plans. Initialized in the ctor, never <code>null</code>
+   * after that.
    */
   private PSModifyPlanBuilder m_updatePlanBuilder = null;
 
   /**
-   * Plan builder to create insert modify plans. Initialized in the ctor, never
-   * <code>null</code> after that.
+   * Plan builder to create insert modify plans. Initialized in the ctor, never <code>null</code>
+   * after that.
    */
   private PSModifyPlanBuilder m_insertPlanBuilder = null;
 
   /**
-   * Plan builder to create delete modify plans. Initialized in the ctor, never
-   * <code>null</code> after that.
+   * Plan builder to create delete modify plans. Initialized in the ctor, never <code>null</code>
+   * after that.
    */
   private PSModifyPlanBuilder m_deletePlanBuilder = null;
 
   /**
-   * Plan builder to create child insert modify plans. Initialized in the ctor,
-   * never <code>null</code> after that.
+   * Plan builder to create child insert modify plans. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSModifyPlanBuilder m_childInsertPlanBuilder = null;
 
   /**
-   * Plan builder to create child delete modify plans. Initialized in the ctor,
-   * never <code>null</code> after that.
+   * Plan builder to create child delete modify plans. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSModifyPlanBuilder m_childDeletePlanBuilder = null;
 
   /**
-   * Plan builder to create sequence update modify plans. Initialized in the
-   * ctor, never <code>null</code> after that.
+   * Plan builder to create sequence update modify plans. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSModifyPlanBuilder m_sequencePlanBuilder = null;
 
   /**
-   * Plan builder to create simple child delete modify plans. Initialized in
-   * the ctor, never <code>null</code> after that.
+   * Plan builder to create simple child delete modify plans. Initialized in the ctor, never <code>
+   * null</code> after that.
    */
   private PSModifyPlanBuilder m_simpleDeletePlanBuilder = null;
 
   /**
-   * Plan builder to create simple child insert modify plans. Initialized in
-   * the ctor, never <code>null</code> after that.
+   * Plan builder to create simple child insert modify plans. Initialized in the ctor, never <code>
+   * null</code> after that.
    */
   private PSModifyPlanBuilder m_simpleInsertPlanBuilder = null;
 
   /**
-   * Used to get correct view when redirecting to error page. Initialized
-   * during construction, never <code>null</code> after that.
+   * Used to get correct view when redirecting to error page. Initialized during construction, never
+   * <code>null</code> after that.
    */
   private PSViewEvaluator m_viewEvaluator;
 
   /**
-   * Name of the control to use for creating hidden fields in an error document
-   * before caching it. Intialized during construction, never <code>null</code>
-   * or empty after that.
+   * Name of the control to use for creating hidden fields in an error document before caching it.
+   * Intialized during construction, never <code>null</code> or empty after that.
    */
   private String m_hiddenControlName;
 
   /**
-   * A map of <code>List</code> of <code>PSField</code> objects that need
-   * special inline link processing. The map key is the field set name and the
-   * map value is a <code>List</code> of <code>PSField</code> objects found
-   * in that field set which need special inline handling. The map value list
-   * is never <code>null</code> but may be empty. There is one entry for the
-   * parent and each complex child. All other child types are included in their
-   * respective parent lists. Initialized in constructor, never
-   * <code>null</code> or changed after that, may be empty.
+   * A map of <code>List</code> of <code>PSField</code> objects that need special inline link
+   * processing. The map key is the field set name and the map value is a <code>List</code> of
+   * <code>PSField</code> objects found in that field set which need special inline handling. The
+   * map value list is never <code>null</code> but may be empty. There is one entry for the parent
+   * and each complex child. All other child types are included in their respective parent lists.
+   * Initialized in constructor, never <code>null</code> or changed after that, may be empty.
    */
   private Map<String, List<PSField>> m_inlineLinkFields = null;
 
   /**
-   * A map of fields that need special inline link processing. The map key is
-   * the field name as <code>String</code> while the map value is the
-   * complete field as <code>PSField</code> object. Never <code>null</code>
-   * but may be empty. Initialized in {@link #prepareInlineLinkFields(
+   * A map of fields that need special inline link processing. The map key is the field name as
+   * <code>String</code> while the map value is the complete field as <code>PSField</code> object.
+   * Never <code>null</code> but may be empty. Initialized in {@link #prepareInlineLinkFields(
    * PSFieldSet, Map)}, never changed after that.
    */
   private Map<String, PSField> m_flatInlinelinkFields = new HashMap<>();
 
   /**
-   * A Thread local object to store a <code>Boolean</code> object,
-   * <code>true</code> if it is modifying parent fields; <code>false</code>
-   * if it is modifying child fields. It is set in {@link #prepareModifyPlan},
-   * never <code>null</code> after that.
+   * A Thread local object to store a <code>Boolean</code> object, <code>true</code> if it is
+   * modifying parent fields; <code>false</code> if it is modifying child fields. It is set in
+   * {@link #prepareModifyPlan}, never <code>null</code> after that.
    */
   private static ThreadLocal m_modifyParent = new ThreadLocal();
 
   /**
-   * Thread local object to store the to be deleted relationships,
-   * <code>PSRelationshipSet</code>, which is set in the
-   * {@link #preProcessInlineLinks}. This provides a thread safe way of
-   * providing the preprocessed relationships to subsequent processing, e.g.
-   * post processing, never code>null</code>.
+   * Thread local object to store the to be deleted relationships, <code>PSRelationshipSet</code>,
+   * which is set in the {@link #preProcessInlineLinks}. This provides a thread safe way of
+   * providing the preprocessed relationships to subsequent processing, e.g. post processing, never
+   * code>null</code>.
    */
   private static ThreadLocal m_tlInlineLinkDeletes = new ThreadLocal();
 
   /**
-   * Thread local object to store the to be modified relationships,
-   * <code>PSRelationshipSet</code>, which is set in the
-   * {@link #preProcessInlineLinks}. This provides a thread safe way of
-   * providing the preprocessed relationships to subsequent processing, e.g.
-   * post processing, never code>null</code>.
+   * Thread local object to store the to be modified relationships, <code>PSRelationshipSet</code>,
+   * which is set in the {@link #preProcessInlineLinks}. This provides a thread safe way of
+   * providing the preprocessed relationships to subsequent processing, e.g. post processing, never
+   * code>null</code>.
    */
   private static ThreadLocal m_tlInlineLinkModifies = new ThreadLocal();
 }

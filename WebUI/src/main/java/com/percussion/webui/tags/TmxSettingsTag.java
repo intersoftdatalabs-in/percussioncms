@@ -66,9 +66,9 @@ public class TmxSettingsTag extends TagSupport {
   /**
    * Loads the tmx keys for the specified lang and prefixes if not yet cached.
    *
-   * @throws IOException                  if IO error occurs
+   * @throws IOException if IO error occurs
    * @throws ParserConfigurationException if parser config error occurs
-   * @throws SAXException                 if XML error occurs
+   * @throws SAXException if XML error occurs
    */
   private void loadTmx() throws IOException, ParserConfigurationException, SAXException {
     TmxCache cache = TmxCache.getInstance();
@@ -94,7 +94,7 @@ public class TmxSettingsTag extends TagSupport {
    * Checks if the key starts with any of the given prefixes.
    *
    * @param prefixes array of prefixes
-   * @param key      key to check
+   * @param key key to check
    * @return true if key matches any prefix
    */
   public boolean accept(String[] prefixes, String key) {

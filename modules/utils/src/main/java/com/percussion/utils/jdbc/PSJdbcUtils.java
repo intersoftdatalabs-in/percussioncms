@@ -24,70 +24,50 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Utility class for JDBC operations
- */
+/** Utility class for JDBC operations */
 public class PSJdbcUtils {
 
   // NOTE: the following driver constants must match the names used in the
   // server configuration (config.xml).
   /**
-   * Constant for "jtds:sqlserver".
-   * Part of the JDBC URL required to connect to the MS SQL Server database
-   * using JTds driver
+   * Constant for "jtds:sqlserver". Part of the JDBC URL required to connect to the MS SQL Server
+   * database using JTds driver
    */
   public static final String JTDS_DRIVER = "jtds:sqlserver";
 
-  /**
-   * constant for the Oracle thin driver type.
-   */
+  /** constant for the Oracle thin driver type. */
   public static final String ORACLE_DRIVER = "oracle:thin";
 
-  /**
-   *  constant for the MySQL driver type.
-   */
+  /** constant for the MySQL driver type. */
   public static final String MYSQL_DRIVER = "mysql";
 
-  /**
-   *  constant for the Embedded Apache Derby driver type.
-   */
+  /** constant for the Embedded Apache Derby driver type. */
   public static final String DERBY_DRIVER = "derby";
 
-  /**
-   * constant for the DB2 driver type.
-   */
+  /** constant for the DB2 driver type. */
   public static final String DB2_DRIVER = "db2";
 
-  /**
-   * SPRINTA driver type for MS SQL Server database.
-   */
+  /** SPRINTA driver type for MS SQL Server database. */
   public static final String SPRINTA_DRIVER = "inetdae7";
 
   /**
-   * Constant for "sqlserver".
-   * Part of the JDBC URL required to connect to the MS SQL Server database
-   * using Microsoft driver
+   * Constant for "sqlserver". Part of the JDBC URL required to connect to the MS SQL Server
+   * database using Microsoft driver
    */
   public static final String MICROSOFT_DRIVER = "sqlserver";
 
-  /**
-   * constant for the ODBC driver type.
-   */
+  /** constant for the ODBC driver type. */
   public static final String ODBC = "odbc";
 
-  /**
-   * constant for the DB2 driver type.
-   */
+  /** constant for the DB2 driver type. */
   public static final String DB2 = DB2_DRIVER;
 
   /**
-   * Constant for the oracle driver types. Only includes the primary part of
-   * the sub-protocol (with trailing colon). Oracle sub-protocols contain 2
-   * parts. E.g. oracle:thin and oracle:oci8. Unlike the other constants, you
-   * compare this by using the <code>startsWith</code> method on the driver
-   * being tested rather than equals. [The colon is included in the string to
-   * help prevent false matches against other drivers that could possibly begin
-   * with the same characters.]
+   * Constant for the oracle driver types. Only includes the primary part of the sub-protocol (with
+   * trailing colon). Oracle sub-protocols contain 2 parts. E.g. oracle:thin and oracle:oci8. Unlike
+   * the other constants, you compare this by using the <code>startsWith</code> method on the driver
+   * being tested rather than equals. [The colon is included in the string to help prevent false
+   * matches against other drivers that could possibly begin with the same characters.]
    */
   public static final String ORACLE_PRIMARY = "oracle:";
 
@@ -116,67 +96,44 @@ public class PSJdbcUtils {
   public static final String MYSQL = MYSQL_DRIVER;
 
   /**
-   * Constant for "microsoft". Will need it for various hacks to make the
-   * MS Sql Server JDBC driver work.
+   * Constant for "microsoft". Will need it for various hacks to make the MS Sql Server JDBC driver
+   * work.
    */
   public static final String MICR0SOFT = "microsoft";
 
   /**
-   * Constant for "jtds". Will need it for various hacks to make the
-   * JTDS Sql Server JDBC driver work.
+   * Constant for "jtds". Will need it for various hacks to make the JTDS Sql Server JDBC driver
+   * work.
    */
   public static final String JTDS = "jtds";
 
-  /**
-   * Constant for sprinta db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
+  /** Constant for sprinta db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
   public static final String SPRINTA_DB_BACKEND = "MSSQL";
 
-  /**
-   * Constant for db2 db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
+  /** Constant for db2 db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
   public static final String DB2_DB_BACKEND = "db2";
 
-  /**
-   * Constant for jtds db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
+  /** Constant for jtds db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
   public static final String JTDS_DB_BACKEND = "MSSQL";
 
-  /**
-   * Constant for oracle db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
+  /** Constant for oracle db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
   public static final String ORACLE_DB_BACKEND = "ORACLE";
 
   /**
-   * Constant for Apache Derby db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
+   * Constant for Apache Derby db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
    */
   public static final String DERBY_DB_BACKEND = "DERBY";
 
-  /**
-   * Constant for MYSQL db backend property,
-   * see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY}
-   */
+  /** Constant for MYSQL db backend property, see {@link PSJdbcDbmsDef#DB_BACKEND_PROPERTY} */
   public static final String MYSQL_DB_BACKEND = "MYSQL";
 
-  /**
-   * Constant for transaction isolation level read uncommitted
-   */
+  /** Constant for transaction isolation level read uncommitted */
   public static final String TRANSACTION_READ_UNCOMMITTED = "TRANSACTION_READ_UNCOMMITTED";
 
-  /**
-   * Constant numeric representation of transaction isolation level read
-   * uncommitted
-   */
+  /** Constant numeric representation of transaction isolation level read uncommitted */
   public static final String TRANSACTION_READ_UNCOMMITTED_VALUE = "1";
 
-  /**
-   * The path to the mysql database driver, relative to the root directory.
-   */
+  /** The path to the mysql database driver, relative to the root directory. */
   public static final String MYSQL_DRIVER_LOCATION = "/jetty/base/lib/jdbc/mysql-connector.jar";
 
   public static final String MYSQL_DTS_DRIVER_LOCATION =
@@ -193,21 +150,17 @@ public class PSJdbcUtils {
   public static final String MICROSOFT_SQL_DRIVER_CLASSNAME =
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
-  /**
-   * Additional connection url parameters required to use unicode (UTF-8) with mysql.
-   */
+  /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
   public static String MYSQL_CONN_PARAMS =
       "?useUnicode=yes&characterEncoding=UTF-8&useSSL=true&requireSSL=false&verifyServerCertificate=false";
 
   /**
-   * Parses the specified database URL and returns the driver for which this
-   * is a valid URL.
+   * Parses the specified database URL and returns the driver for which this is a valid URL.
    *
-   * @param url database url, usually specified when connecting to the
-   * database, may not be <code>null</code> or empty
-   *
-   * @return the driver for which the specified database url is a valid
-   * url, never <code>null</code> or empty
+   * @param url database url, usually specified when connecting to the database, may not be <code>
+   *     null</code> or empty
+   * @return the driver for which the specified database url is a valid url, never <code>null</code>
+   *     or empty
    */
   public static String getDriverFromUrl(String url) {
     if ((url == null) || (url.trim().length() == 0)) {
@@ -242,14 +195,12 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Parses the specified database URL and returns the server for which this
-   * is a valid URL.
+   * Parses the specified database URL and returns the server for which this is a valid URL.
    *
-   * @param url database url, usually specified when connecting to the
-   * database, may not be <code>null</code> or empty
-   *
-   * @return the server for which the specified database url is a valid
-   * url, never <code>null</code> or empty
+   * @param url database url, usually specified when connecting to the database, may not be <code>
+   *     null</code> or empty
+   * @return the server for which the specified database url is a valid url, never <code>null</code>
+   *     or empty
    */
   public static String getServerFromUrl(String url) {
     if ((url == null) || (url.trim().length() == 0)) {
@@ -287,9 +238,9 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Gets the database name from a given JDBC URL. This should not be used
-   * for Oracle JDBC driver, but for jTDS (SQLServer), SPRINTA (SQLServer),
-   * MySQL and DB2.
+   * Gets the database name from a given JDBC URL. This should not be used for Oracle JDBC driver,
+   * but for jTDS (SQLServer), SPRINTA (SQLServer), MySQL and DB2.
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Driver</TH><TH>Expected URL format</TH></TR>
    * <TR><TD>jTDS</TD><TD>jdbc:jtds:sqlserver://&lt;host>:&lt;port>[/db-name];user=u;password=p</TD></TR>
@@ -300,12 +251,9 @@ public class PSJdbcUtils {
    * <TR><TD>Oracle</TD><TD>jdbc:oracle:thin:@&lt;host>:1521:&lt;sid></TD></TR>
    * </TABLE>
    *
-   * @param url the JDBC url in question, it may not be <code>null</code> or
-   *    empty.
-   *
-   * @return the database name defined in the URL. It may be <code>null</code>
-   *    if the database name is not specified in the URL or the URL is for
-   *    Oracle driver.
+   * @param url the JDBC url in question, it may not be <code>null</code> or empty.
+   * @return the database name defined in the URL. It may be <code>null</code> if the database name
+   *     is not specified in the URL or the URL is for Oracle driver.
    */
   public static String getDatabaseFromUrl(String url) {
     // Skip driver part
@@ -337,13 +285,10 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Gets the database name from a given (partial) URL in the format of
-   * "&lt;db-name>;...", "&lt;db-name>?...",  "&lt;db-name>&..."
-   * or "&lt;db-name>"
+   * Gets the database name from a given (partial) URL in the format of "&lt;db-name>;...",
+   * "&lt;db-name>?...", "&lt;db-name>&..." or "&lt;db-name>"
    *
-   * @param partialUrl the partial URL in question, assumed not
-   *    <code>null</code> or empty.
-   *
+   * @param partialUrl the partial URL in question, assumed not <code>null</code> or empty.
    * @return the retrieved database name, never <code>null</code> or empty.
    */
   private static String getDbName(String partialUrl) {
@@ -360,13 +305,13 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Construct a jdbc url string from a given driver name and server name.
-   * Correctly deals with cases where the name of the driver is not the
-   * name of the second component in the jdbc url string.
+   * Construct a jdbc url string from a given driver name and server name. Correctly deals with
+   * cases where the name of the driver is not the name of the second component in the jdbc url
+   * string.
    *
    * @param driverName Name of the driver, must never be <code>null</code>
-   * @param serverNameOrConnUrl Name of the server or connection string,
-   * must never be <code>null</code>
+   * @param serverNameOrConnUrl Name of the server or connection string, must never be <code>null
+   *     </code>
    * @return a string, never <code>null</code> or empty.
    */
   public static String getJdbcUrl(String driverName, String serverNameOrConnUrl) {
@@ -399,10 +344,8 @@ public class PSJdbcUtils {
   /**
    * Get the appropriate db backend for the specified driver.
    *
-   * @param driver the driver type, may not be <code>null</code>.  Assumed to be
-   * one of the following: {@link #SPRINTA}, {@link #DB2}, {@link #JTDS_DRIVER},
-   * {@link #ORACLE}
-   *
+   * @param driver the driver type, may not be <code>null</code>. Assumed to be one of the
+   *     following: {@link #SPRINTA}, {@link #DB2}, {@link #JTDS_DRIVER}, {@link #ORACLE}
    * @return the db backend, never <code>null</code> or empty.
    */
   public static String getDBBackendForDriver(String driver) {
@@ -423,8 +366,9 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Returns List of all database drivers that can only be used for
-   * database publishing and not as Rhythmyx repositories.
+   * Returns List of all database drivers that can only be used for database publishing and not as
+   * Rhythmyx repositories.
+   *
    * @return the list never <code>null</code>, may be empty.
    */
   public static List<String> getDbPubOnlyDrivers() {
@@ -432,25 +376,22 @@ public class PSJdbcUtils {
   }
 
   /**
-   * Determines if the specified driver is external, which means
-   * that it is not distributed with the server.
-   * @return <code>true</code> if the driver is external,
-   * <code>false</code> otherwise.
+   * Determines if the specified driver is external, which means that it is not distributed with the
+   * server.
+   *
+   * @return <code>true</code> if the driver is external, <code>false</code> otherwise.
    */
   public static boolean isExternalDriver(String driver) {
     return ms_externalDrivers.contains(driver);
   }
 
   /**
-   * Define a map from jdbc url to driver, never <code>null</code> or empty.
-   * Initialized in the static initializer, never modified after that.
+   * Define a map from jdbc url to driver, never <code>null</code> or empty. Initialized in the
+   * static initializer, never modified after that.
    */
   private static Map<String, String> ms_jdbcUrlToDriverMap = new HashMap<String, String>();
 
-  /**
-   * Set of all database drivers that are not distributed
-   * with the server.
-   */
+  /** Set of all database drivers that are not distributed with the server. */
   private static final Set<String> ms_externalDrivers = new HashSet<String>();
 
   // Initialize the hashmap that maps jdbc url to driver as well as
@@ -482,8 +423,8 @@ public class PSJdbcUtils {
   }
 
   /**
-   * List of all database drivers that can only be used for
-   * database publishing and not as a Rhythmyx repository.
+   * List of all database drivers that can only be used for database publishing and not as a
+   * Rhythmyx repository.
    */
   private static final List<String> ms_dbPubOnlyDrivers = new ArrayList<String>();
 }

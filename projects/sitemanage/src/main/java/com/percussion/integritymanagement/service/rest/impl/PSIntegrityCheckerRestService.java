@@ -18,110 +18,107 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integritymanagement.service.rest.impl;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
 import com.percussion.integritymanagement.data.PSIntegrityStatus.Status;
 import com.percussion.integritymanagement.data.PSIntegrityStatusList;
 import com.percussion.integritymanagement.service.IPSIntegrityCheckerService.IntegrityTaskType;
 import com.percussion.integritymanagement.service.impl.PSIntegrityCheckerService;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.util.List;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.List;
-
-/**
- * REST service for integrity checker operations.
- */
+/** REST service for integrity checker operations. */
 @Service("pSIntegrityCheckerRestService")
 @Path("/integritycheck")
 public class PSIntegrityCheckerRestService {
 
-    private static final Logger log = LogManager.getLogger(PSIntegrityCheckerRestService.class);
+  private static final Logger log = LogManager.getLogger(PSIntegrityCheckerRestService.class);
 
-    private final PSIntegrityCheckerService integrityCheckerService;
+  private final PSIntegrityCheckerService integrityCheckerService;
 
-    @Autowired
-    public PSIntegrityCheckerRestService(PSIntegrityCheckerService integrityCheckerService) {
-        this.integrityCheckerService = integrityCheckerService;
+  @Autowired
+  public PSIntegrityCheckerRestService(PSIntegrityCheckerService integrityCheckerService) {
+    this.integrityCheckerService = integrityCheckerService;
+  }
+
+  @POST
+  @Produces({MediaType.TEXT_HTML})
+  public String start(@QueryParam("type") String type) {
+    try {
+      var taskType = IntegrityTaskType.all;
+      try {
+        taskType = IntegrityTaskType.valueOf(StringUtils.defaultString(type));
+      } catch (Exception e) {
+        // default to all
+      }
+      return integrityCheckerService.start(taskType);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
+  }
 
-    @POST
-    @Produces({MediaType.TEXT_HTML})
-    public String start(@QueryParam("type") String type) {
-        try {
-            var taskType = IntegrityTaskType.all;
-            try {
-                taskType = IntegrityTaskType.valueOf(StringUtils.defaultString(type));
-            } catch (Exception e) {
-                // default to all
-            }
-            return integrityCheckerService.start(taskType);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @POST
+  @Path("/stop")
+  public void stop() {
+    try {
+      integrityCheckerService.stop();
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
+  }
 
-    @POST
-    @Path("/stop")
-    public void stop() {
-        try {
-            integrityCheckerService.stop();
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @GET
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Path("/token/{id}")
+  public PSIntegrityStatus status(@PathParam("id") String id) {
+    try {
+      return integrityCheckerService.getStatus(id);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
+  }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/token/{id}")
-    public PSIntegrityStatus status(@PathParam("id") String id) {
-        try {
-            return integrityCheckerService.getStatus(id);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @GET
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Path("/history")
+  public List<PSIntegrityStatus> history(@QueryParam("type") String type) {
+    try {
+      Status st = null;
+      try {
+        st = Status.valueOf(StringUtils.defaultString(type));
+      } catch (Exception e) {
+        // default to null
+      }
+      return new PSIntegrityStatusList(integrityCheckerService.getHistory(st));
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
+  }
 
-    @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Path("/history")
-    public List<PSIntegrityStatus> history(@QueryParam("type") String type) {
-        try {
-            Status st = null;
-            try {
-                st = Status.valueOf(StringUtils.defaultString(type));
-            } catch (Exception e) {
-                // default to null
-            }
-            return new PSIntegrityStatusList(integrityCheckerService.getHistory(st));
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
+  @DELETE
+  @Path("/token/{id}")
+  public void delete(@PathParam("id") String id) {
+    try {
+      integrityCheckerService.delete(id);
+    } catch (PSDataServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
-
-    @DELETE
-    @Path("/token/{id}")
-    public void delete(@PathParam("id") String id) {
-        try {
-            integrityCheckerService.delete(id);
-        } catch (PSDataServiceException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
-    }
+  }
 }

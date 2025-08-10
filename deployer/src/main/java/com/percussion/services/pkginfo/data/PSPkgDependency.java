@@ -21,168 +21,164 @@ package com.percussion.services.pkginfo.data;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
-
 /**
- * Represents a package element dependency object, used to hold
- * information about dependencies between design objects in a "solution" package
- * created or installed on a server.
- * Sunny Sal says: "Dependencies are like friends—sometimes implied, sometimes explicit!"
+ * Represents a package element dependency object, used to hold information about dependencies
+ * between design objects in a "solution" package created or installed on a server. Sunny Sal says:
+ * "Dependencies are like friends—sometimes implied, sometimes explicit!"
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSPkgDependency")
 @Table(name = "PSX_PKG_DEPENDENCY")
 public class PSPkgDependency implements Serializable {
 
-    private static final long serialVersionUID = -6026221348840514395L;
+  private static final long serialVersionUID = -6026221348840514395L;
 
-    /**
-     * @return the id of the PSPkgDependency object
-     */
-    public long getId() {
-        return pkgDependencyId;
+  /**
+   * @return the id of the PSPkgDependency object
+   */
+  public long getId() {
+    return pkgDependencyId;
+  }
+
+  /**
+   * Gets the GUID to the package that has the dependency.
+   *
+   * @return the ownerPackageGuid. Never null.
+   */
+  public IPSGuid getOwnerPackageGuid() {
+    return new PSGuid(PSTypeEnum.PACKAGE_INFO, ownerPackageGuid);
+  }
+
+  /**
+   * Gets the GUID to the package to which there is a dependency.
+   *
+   * @return the dependentPackageGuid. May be null.
+   */
+  public IPSGuid getDependentPackageGuid() {
+    if (dependentPackageGuid == 0) {
+      return null;
     }
+    return new PSGuid(PSTypeEnum.PACKAGE_INFO, dependentPackageGuid);
+  }
 
-    /**
-     * Gets the GUID to the package that has the dependency.
-     *
-     * @return the ownerPackageGuid. Never null.
-     */
-    public IPSGuid getOwnerPackageGuid() {
-        return new PSGuid(PSTypeEnum.PACKAGE_INFO, ownerPackageGuid);
+  /**
+   * @return true if the dependency is implied, false if user defined.
+   */
+  public Boolean isImpliedDep() {
+    return impliedDep;
+  }
+
+  // ------------------------------------------------------------------------------
+
+  /**
+   * Sets the id of the PSPkgDependency object.
+   *
+   * @param id the guid to set. Never null.
+   */
+  public void setId(long id) {
+    pkgDependencyId = id;
+  }
+
+  /**
+   * Sets the GUID to the package that has the dependency.
+   *
+   * @param ownerPackageGuid the ownerPackageGuid to set. Never null.
+   */
+  public void setOwnerPackageGuid(IPSGuid ownerPackageGuid) {
+    if (ownerPackageGuid == null) {
+      throw new IllegalArgumentException("Owner Package GUID may not be null");
     }
+    this.ownerPackageGuid = ownerPackageGuid.longValue();
+  }
 
-    /**
-     * Gets the GUID to the package to which there is a dependency.
-     *
-     * @return the dependentPackageGuid. May be null.
-     */
-    public IPSGuid getDependentPackageGuid() {
-        if (dependentPackageGuid == 0) {
-            return null;
-        }
-        return new PSGuid(PSTypeEnum.PACKAGE_INFO, dependentPackageGuid);
+  /**
+   * Sets the GUID to the package to which there is a dependency.
+   *
+   * @param dependentPackageGuid the dependentPackageGuid to set. Never null.
+   */
+  public void setDependentPackageGuid(IPSGuid dependentPackageGuid) {
+    if (dependentPackageGuid == null) {
+      throw new IllegalArgumentException("Dependent Package GUID may not be null");
     }
+    this.dependentPackageGuid = dependentPackageGuid.longValue();
+  }
 
-    /**
-     * @return true if the dependency is implied, false if user defined.
-     */
-    public Boolean isImpliedDep() {
-        return impliedDep;
+  /**
+   * Sets the type of the dependency, whether it is implied or user defined.
+   *
+   * @param impliedDep true if it is implied dependency, otherwise false.
+   */
+  public void setImpliedDep(Boolean impliedDep) {
+    this.impliedDep = impliedDep;
+  }
+
+  @Override
+  public boolean equals(Object b) {
+    if (!(b instanceof PSPkgDependency)) {
+      return false;
     }
+    var second = (PSPkgDependency) b;
+    return new EqualsBuilder()
+        .append(pkgDependencyId, second.pkgDependencyId)
+        .append(ownerPackageGuid, second.ownerPackageGuid)
+        .append(dependentPackageGuid, second.dependentPackageGuid)
+        .append(impliedDep, second.impliedDep)
+        .isEquals();
+  }
 
-    // ------------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(pkgDependencyId)
+        .append(ownerPackageGuid)
+        .append(dependentPackageGuid)
+        .append(impliedDep)
+        .toHashCode();
+  }
 
-    /**
-     * Sets the id of the PSPkgDependency object.
-     *
-     * @param id the guid to set. Never null.
-     */
-    public void setId(long id) {
-        pkgDependencyId = id;
-    }
+  @Override
+  public String toString() {
+    return "PSPkgDependency{"
+        + "pkgDependencyId="
+        + pkgDependencyId
+        + ", ownerPackageGuid="
+        + ownerPackageGuid
+        + ", dependentPackageGuid="
+        + dependentPackageGuid
+        + ", impliedDep="
+        + impliedDep
+        + '}';
+  }
 
-    /**
-     * Sets the GUID to the package that has the dependency.
-     *
-     * @param ownerPackageGuid the ownerPackageGuid to set. Never null.
-     */
-    public void setOwnerPackageGuid(IPSGuid ownerPackageGuid) {
-        if (ownerPackageGuid == null) {
-            throw new IllegalArgumentException("Owner Package GUID may not be null");
-        }
-        this.ownerPackageGuid = ownerPackageGuid.longValue();
-    }
+  // ------------------------------------------------------------------------------
 
-    /**
-     * Sets the GUID to the package to which there is a dependency.
-     *
-     * @param dependentPackageGuid the dependentPackageGuid to set. Never null.
-     */
-    public void setDependentPackageGuid(IPSGuid dependentPackageGuid) {
-        if (dependentPackageGuid == null) {
-            throw new IllegalArgumentException("Dependent Package GUID may not be null");
-        }
-        this.dependentPackageGuid = dependentPackageGuid.longValue();
-    }
+  /** This id of the package dependency table rows. */
+  @Id
+  @Column(name = "PKG_DEPENDENCY_ID", nullable = false)
+  private long pkgDependencyId;
 
-    /**
-     * Sets the type of the dependency, whether it is implied or user defined.
-     *
-     * @param impliedDep true if it is implied dependency, otherwise false.
-     */
-    public void setImpliedDep(Boolean impliedDep) {
-        this.impliedDep = impliedDep;
-    }
+  /** GUID of the package who has the dependency. */
+  @Column(name = "OWNER_PACKAGE_GUID", nullable = false)
+  private long ownerPackageGuid;
 
-    @Override
-    public boolean equals(Object b) {
-        if (!(b instanceof PSPkgDependency)) {
-            return false;
-        }
-        var second = (PSPkgDependency) b;
-        return new EqualsBuilder()
-                .append(pkgDependencyId, second.pkgDependencyId)
-                .append(ownerPackageGuid, second.ownerPackageGuid)
-                .append(dependentPackageGuid, second.dependentPackageGuid)
-                .append(impliedDep, second.impliedDep)
-                .isEquals();
-    }
+  /** GUID of the package upon which there is a dependency. */
+  @Column(name = "DEPENDENT_PACKAGE_GUID", nullable = true)
+  private long dependentPackageGuid;
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder()
-                .append(pkgDependencyId)
-                .append(ownerPackageGuid)
-                .append(dependentPackageGuid)
-                .append(impliedDep)
-                .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "PSPkgDependency{" +
-                "pkgDependencyId=" + pkgDependencyId +
-                ", ownerPackageGuid=" + ownerPackageGuid +
-                ", dependentPackageGuid=" + dependentPackageGuid +
-                ", impliedDep=" + impliedDep +
-                '}';
-    }
-
-    // ------------------------------------------------------------------------------
-
-    /**
-     * This id of the package dependency table rows.
-     */
-    @Id
-    @Column(name = "PKG_DEPENDENCY_ID", nullable = false)
-    private long pkgDependencyId;
-
-    /**
-     * GUID of the package who has the dependency.
-     */
-    @Column(name = "OWNER_PACKAGE_GUID", nullable = false)
-    private long ownerPackageGuid;
-
-    /**
-     * GUID of the package upon which there is a dependency.
-     */
-    @Column(name = "DEPENDENT_PACKAGE_GUID", nullable = true)
-    private long dependentPackageGuid;
-
-    /**
-     * A flag to indicate whether the dependency is implied by the objects of
-     * the package or user defined.
-     */
-    @Column(name = "IMPLIED_DEP", nullable = false)
-    private Boolean impliedDep;
+  /**
+   * A flag to indicate whether the dependency is implied by the objects of the package or user
+   * defined.
+   */
+  @Column(name = "IMPLIED_DEP", nullable = false)
+  private Boolean impliedDep;
 }

@@ -30,21 +30,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class represents a process definition. This can be used to obtain
- * the following:
+ * This class represents a process definition. This can be used to obtain the following:
+ *
  * <ul>
- *    <li>working directory of the process</li>
- *    <li>executable name/path</li>
- *    <li>command line arguments of the process</li>
- *    <li>environment settings for the process</li>
+ *   <li>working directory of the process
+ *   <li>executable name/path
+ *   <li>command line arguments of the process
+ *   <li>environment settings for the process
  * </ul>
  */
 public class PSProcessDef {
   /**
    * Constructs the process definition from the specified element
    *
-   * @param el the element containing the process definition, may not be
-   * <code>null</code>. See {@link #fromXml(Element)} for more details.
+   * @param el the element containing the process definition, may not be <code>null</code>. See
+   *     {@link #fromXml(Element)} for more details.
    */
   public PSProcessDef(Element el) throws PSProcessException {
     fromXml(el);
@@ -53,12 +53,10 @@ public class PSProcessDef {
   /**
    * Constructs the process definition from the specified element,
    *
-   * @param el the element containing the process definition, may not be
-   * <code>null</code>. Must conform to the PSXProcessDef element as
-   * defined in sys_processes.dtd.
-   *
-   * @throws PSProcessException if any error occurs constructing the state
-   * from the specified element.
+   * @param el the element containing the process definition, may not be <code>null</code>. Must
+   *     conform to the PSXProcessDef element as defined in sys_processes.dtd.
+   * @throws PSProcessException if any error occurs constructing the state from the specified
+   *     element.
    */
   private void fromXml(Element el) throws PSProcessException {
     if (el == null) throw new IllegalArgumentException("element may not be null");
@@ -116,14 +114,11 @@ public class PSProcessDef {
   /**
    * Returns the resolved working directory for this process definition.
    *
-   * @param ctx a {@link java.util.Map map}, which contains data for
-   * executing the process, may not be <code>null</code>
-   *
-   * @return the resolved working directory for this process, may be
-   * <code>null</code> if no working directory is defined.
-   *
-   * @throws PSResolveException if any error occurs resolving the working
-   * directory
+   * @param ctx a {@link java.util.Map map}, which contains data for executing the process, may not
+   *     be <code>null</code>
+   * @return the resolved working directory for this process, may be <code>null</code> if no working
+   *     directory is defined.
+   * @throws PSResolveException if any error occurs resolving the working directory
    * @throws PSProcessException if the resolver cannot be obtained
    */
   public File getWorkingDir(Map ctx) throws PSResolveException, PSProcessException {
@@ -141,11 +136,9 @@ public class PSProcessDef {
   /**
    * Returns the resolved executable for this process definition.
    *
-   * @param ctx a {@link java.util.Map map}, contains data for executing the
-   * process, may not be <code>null</code>
-   *
+   * @param ctx a {@link java.util.Map map}, contains data for executing the process, may not be
+   *     <code>null</code>
    * @return the resolved executable for this process, never <code>null</code>
-   *
    * @throws PSResolveException if any error occurs resolving the executable
    * @throws PSProcessException if the resolver cannot be obtained
    */
@@ -158,14 +151,10 @@ public class PSProcessDef {
   /**
    * Returns the resolved command line arguments for this process definition.
    *
-   * @param ctx a {@link Map map}, contains data for executing the
-   * process, may not be <code>null</code>
-   *
-   * @return The resolved command parameters, never <code>null</code>, may be
-   * empty.
-   *
-   * @throws PSResolveException if any error occurs resolving the command
-   * parameters
+   * @param ctx a {@link Map map}, contains data for executing the process, may not be <code>null
+   *     </code>
+   * @return The resolved command parameters, never <code>null</code>, may be empty.
+   * @throws PSResolveException if any error occurs resolving the command parameters
    * @throws PSProcessException if the resolver cannot be obtained
    */
   public String[] getCommandParams(Map ctx) throws PSResolveException, PSProcessException {
@@ -241,18 +230,14 @@ public class PSProcessDef {
   }
 
   /**
-   * Returns the resolved environmental parameters for this process definition.
-   * Each element of the returned array has environment variable settings in
-   * the format "name=value".
+   * Returns the resolved environmental parameters for this process definition. Each element of the
+   * returned array has environment variable settings in the format "name=value".
    *
-   * @param ctx a {@link java.util.Map map}, which contains data for
-   * executing the process, may not be <code>null</code>
-   *
-   * @return the resolved environmental parameters, may be <code>null</code>
-   * if no environment setting is specified.
-   *
-   * @throws PSResolveException if any error occurs resolving the environment
-   * parameters
+   * @param ctx a {@link java.util.Map map}, which contains data for executing the process, may not
+   *     be <code>null</code>
+   * @return the resolved environmental parameters, may be <code>null</code> if no environment
+   *     setting is specified.
+   * @throws PSResolveException if any error occurs resolving the environment parameters
    * @throws PSProcessException if a resolver cannot be obtained.
    */
   public String[] getEnvParams(Map ctx) throws PSResolveException, PSProcessException {
@@ -276,15 +261,11 @@ public class PSProcessDef {
   }
 
   /**
-   * Resolves the value of the supplied resolvable value using its defined
-   * resolver.
+   * Resolves the value of the supplied resolvable value using its defined resolver.
    *
    * @param val The value to resolve, assumed not <code>null</code>.
-   * @param ctx The context to use, assumed not <code>null</code>, may be
-   * emtpy.
-   *
+   * @param ctx The context to use, assumed not <code>null</code>, may be emtpy.
    * @return The resolved value, never <code>null</code>, may be empty.
-   *
    * @throws PSResolveException If there is an error resolving the value.
    * @throws PSProcessException If there is an error creating the resolver.
    */
@@ -296,13 +277,9 @@ public class PSProcessDef {
   /**
    * Creates the variable resolver specified by the resolvable value.
    *
-   * @param val the value specifying the resolver to be created,
-   * assumed not <code>null</code>
-   *
+   * @param val the value specifying the resolver to be created, assumed not <code>null</code>
    * @return the variable resolver, never <code>null</code>
-   *
-   * @throws PSProcessException if the specified resolver cannot be
-   * instantiated.
+   * @throws PSProcessException if the specified resolver cannot be instantiated.
    */
   private IPSVariableResolver createResolver(PSResolvableValue val) throws PSProcessException {
     String resolverClass = val.getResolver();
@@ -328,15 +305,11 @@ public class PSProcessDef {
   }
 
   /**
-   * Creates the param defs specified by the element
-   * <code>childEl</code>. Creates a def for every
+   * Creates the param defs specified by the element <code>childEl</code>. Creates a def for every
    * {@link PSParamDef#XML_NODE_NAME} child element of the specified element.
    *
-   * @param childEl the element specifying the params to be created,
-   * assumed not <code>null</code>
-   *
+   * @param childEl the element specifying the params to be created, assumed not <code>null</code>
    * @return the param defs, never <code>null</code>, may be empty
-   *
    * @throws PSProcessException if the element is invalid
    */
   private PSParamDef[] createParams(Element childEl) throws PSProcessException {
@@ -372,59 +345,52 @@ public class PSProcessDef {
   /**
    * Returns the supported operating systems.
    *
-   * @return the array containing <code>PSProcessManager.OS_XXX</code>
-   * constants for the operating systems for which this process is defined.
+   * @return the array containing <code>PSProcessManager.OS_XXX</code> constants for the operating
+   *     systems for which this process is defined.
    */
   public int[] getSupportedOS() {
     return m_supportedOS;
   }
 
   /**
-   * Stores the supported operating systems, initialized in the
-   * <code>fromXml</code> method, never modified or <code>null</code> after
-   * that.
+   * Stores the supported operating systems, initialized in the <code>fromXml</code> method, never
+   * modified or <code>null</code> after that.
    */
   private int[] m_supportedOS = null;
 
   /**
-   * Stores the resolvable value used to resolve the working directory,
-   * initialized in the <code>fromXml</code> method, may be <code>null</code>
-   * if no working directory is set.
+   * Stores the resolvable value used to resolve the working directory, initialized in the <code>
+   * fromXml</code> method, may be <code>null</code> if no working directory is set.
    */
   private PSResolvableValue m_dirValue;
 
   /**
-   * Stores the resolvable value used to resolve the executable,
-   * initialized in the <code>fromXml</code> method, never <code>null</code>
-   * or modified after initialization.
+   * Stores the resolvable value used to resolve the executable, initialized in the <code>fromXml
+   * </code> method, never <code>null</code> or modified after initialization.
    */
   private PSResolvableValue m_execValue;
 
   /**
-   * Stores the param defs used to resolve the process command parameters,
-   * initialized in the <code>fromXml</code> method, may be <code>null</code>
-   * if no process parameters are set.
+   * Stores the param defs used to resolve the process command parameters, initialized in the <code>
+   * fromXml</code> method, may be <code>null</code> if no process parameters are set.
    */
   private PSParamDef[] m_cmdParams;
 
   /**
-   * Stores the param defs used to resolve the environment to set
-   * when executing the process, initialized in the <code>fromXml</code>
-   * method, may be <code>null</code> if no environment setting is specified.
+   * Stores the param defs used to resolve the environment to set when executing the process,
+   * initialized in the <code>fromXml</code> method, may be <code>null</code> if no environment
+   * setting is specified.
    */
   private PSParamDef[] m_envParams;
 
   /**
-   * Map of cached resolvers, key is the class name as a <code>String</code>
-   * and value is the <code>IPSVariableResolver</code>.  Never
-   * <code>null</code>, entries are added by calls to
-   * {@link #createResolver(PSResolvableValue)}.
+   * Map of cached resolvers, key is the class name as a <code>String</code> and value is the <code>
+   * IPSVariableResolver</code>. Never <code>null</code>, entries are added by calls to {@link
+   * #createResolver(PSResolvableValue)}.
    */
   private static Map ms_resolvers = new ConcurrentHashMap();
 
-  /**
-   * Constant for the default resolver class.
-   */
+  /** Constant for the default resolver class. */
   public static final String DEFAULT_RESOLVER = "com.percussion.process.PSLiteralResolver";
 
   // Constants for XML element and attribute names

@@ -55,49 +55,39 @@ import org.xml.sax.SAXException;
 
 /**
  * This is a workflow action that runs an edition.
- * <p>
- * One common example of this is when a user has a staging server, and the
- * requirement that all content should show up there immediately upon approval
- * into some staging state.
- * <p>
- * The edition that is run depends on the <code>Workflow ID</code> and
- * <code>Transition Id</code> of the transition that causes this action to
- * execute. The edition id is obtained from the file
+ *
+ * <p>One common example of this is when a user has a staging server, and the requirement that all
+ * content should show up there immediately upon approval into some staging state.
+ *
+ * <p>The edition that is run depends on the <code>Workflow ID</code> and <code>Transition Id</code>
+ * of the transition that causes this action to execute. The edition id is obtained from the file
  * <code>/Rhythmyx/rxconfig/Workflow/publish.xml</code>
- * <p>
- * Note that the Transition Id is unique only within the Workflow, not across
- * Workflows
- * <p>
- * Note that unlike the PSPublishEditionForPreview, this exit is
- * <em>asynchronous</em>. It initiates the publication and moves on, it does
- * not wait for the publication to complete. Also, the edition can be any
- * edition. Normally, it will be an incremental edition, not a manual edition.
- * <p>
- * If there are many requests to publish the same edition, this extension will
- * ingnore all except for one in addion to that is already running. The idea
- * behind this is that it does not make sense to publish one edition several
- * times in succession. Consider an example of an incremental edition. The
- * worklfow action is attached to a transition that sends the item to a public
- * state. If 10 items go to public state using this transition, there will be
- * 10 requests to publish the same edition. However, it will be adequate to
- * honor the first (which is in progress) and the last requests.
+ *
+ * <p>Note that the Transition Id is unique only within the Workflow, not across Workflows
+ *
+ * <p>Note that unlike the PSPublishEditionForPreview, this exit is <em>asynchronous</em>. It
+ * initiates the publication and moves on, it does not wait for the publication to complete. Also,
+ * the edition can be any edition. Normally, it will be an incremental edition, not a manual
+ * edition.
+ *
+ * <p>If there are many requests to publish the same edition, this extension will ingnore all except
+ * for one in addion to that is already running. The idea behind this is that it does not make sense
+ * to publish one edition several times in succession. Consider an example of an incremental
+ * edition. The worklfow action is attached to a transition that sends the item to a public state.
+ * If 10 items go to public state using this transition, there will be 10 requests to publish the
+ * same edition. However, it will be adequate to honor the first (which is in progress) and the last
+ * requests.
  */
 public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowAction {
 
   private static final Logger log = LogManager.getLogger(PSPublishContent.class);
 
-  /**
-   * Key to lookup an edition id from a workflow and transition
-   */
+  /** Key to lookup an edition id from a workflow and transition */
   private static class PSPCKey {
-    /**
-     * Workflow id of the key
-     */
+    /** Workflow id of the key */
     public int mi_workflowId;
 
-    /**
-     * Transition id of the key
-     */
+    /** Transition id of the key */
     public int mi_transitionId;
 
     @Override
@@ -114,9 +104,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
     }
   }
 
-  /**
-   * The relative path of the publish.properties file.
-   */
+  /** The relative path of the publish.properties file. */
   private static final String CONFIG_FILE = "rxconfig/Workflow/publish.xml";
 
   /*
@@ -129,15 +117,14 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
   private static final String ATTR_POLLING_TIME = "polling-time";
 
   /**
-   * The publish properties identifies the edition to publish for a
-   * given pair of transitionId and workflowId. These are read from
-   * an XML file in rxconfig/Workflow/publishcontent.xml
+   * The publish properties identifies the edition to publish for a given pair of transitionId and
+   * workflowId. These are read from an XML file in rxconfig/Workflow/publishcontent.xml
    */
   private Map m_publishProps = null;
 
   /**
-   * Default polling time in milli seconds, which is the interval between two
-   * consecutive attempts to publish an edition when it is already running.
+   * Default polling time in milli seconds, which is the interval between two consecutive attempts
+   * to publish an edition when it is already running.
    */
   private static int m_pollingTime = 1500;
 
@@ -148,8 +135,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    *
    * @param def extension definition, must never be <code>null</code>
    * @param codeRoot code root, ignored
-   * @throws PSExtensionException if there is an error reading the properties
-   *            file.
+   * @throws PSExtensionException if there is an error reading the properties file.
    * @see PSDefaultExtension#init(IPSExtensionDef, File)
    */
   @Override
@@ -172,9 +158,10 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
   }
 
   /**
-   * Performs the action. Called by the workflow system when a document makes
-   * a particular workflow transition.
-   * @param wfContext  the Workflow Context for this transition
+   * Performs the action. Called by the workflow system when a document makes a particular workflow
+   * transition.
+   *
+   * @param wfContext the Workflow Context for this transition
    * @param request the Request Context for the calling user
    * @throws PSExtensionProcessingException when an IO or URL error occurs.
    */
@@ -229,12 +216,11 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
   }
 
   /**
-   * Publish the edition by making the request to server using the URL object.
-   * The edition that is in progress will be stored as session private object.
+   * Publish the edition by making the request to server using the URL object. The edition that is
+   * in progress will be stored as session private object.
    *
    * @param request request context object, assumed not <code>null</code>.
-   * @param pubUrl url object to publish the edition, assumed not
-   *           <code>null</code>.
+   * @param pubUrl url object to publish the edition, assumed not <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   private void publishUrl(IPSRequestContext request, URL pubUrl) {
@@ -255,13 +241,11 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
    * Load the publisher properties from the file.
    *
    * @return the publisher properties as an object.
-   * @throws PSExtensionException if the required data in the config file is
-   *            missing.
-   * @throws SAXException if there is any error parsing the config file as an
-   *            XML document.
+   * @throws PSExtensionException if the required data in the config file is missing.
+   * @throws SAXException if there is any error parsing the config file as an XML document.
    * @throws IOException when there is an error reading the file
-   * @throws ParserConfigurationException if there is any error parsing the
-   *            config file as an XML document.
+   * @throws ParserConfigurationException if there is any error parsing the config file as an XML
+   *     document.
    * @throws FileNotFoundException when the file does not exist
    */
   @SuppressWarnings("unchecked")
@@ -346,6 +330,7 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
 
   /**
    * Build the PubHandler URL. This URL will be used to start the PubHandler.
+   *
    * @param req the request context
    * @param editionId the edition to publish
    * @return the PubHandler start URL.
@@ -369,27 +354,24 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
   private static final String PUB_URLS_IN_PROGRESS = "key_pubUrlsInProgress";
 
   /**
-   * A private inner class used to spawn a separate thread.  The Workflow
-   * action completes, the main request runs to completion. The separate thread
-   * wakes up and initiates the publication of the edition.  The delay allows
-   * the workflow to complete the transition and adjust the state of any items
-   * <em>before</em> the publication starts.
-   *
+   * A private inner class used to spawn a separate thread. The Workflow action completes, the main
+   * request runs to completion. The separate thread wakes up and initiates the publication of the
+   * edition. The delay allows the workflow to complete the transition and adjust the state of any
+   * items <em>before</em> the publication starts.
    */
   private class PublishEdition implements Runnable {
-    /**
-     * The publisher URL. Accessing this URL will start the publisher.
-     */
+    /** The publisher URL. Accessing this URL will start the publisher. */
     private URL pubUrl;
 
     /**
-     * Reference to request context object that is initialized in the ctor.
-     * Used to ccess the session object. Never <code>null</code> after that.
+     * Reference to request context object that is initialized in the ctor. Used to ccess the
+     * session object. Never <code>null</code> after that.
      */
     private IPSRequestContext request = null;
 
     /**
      * Constructor for the publishEdition runner class.
+     *
      * @param req request context object, must notbe <code>null</code>
      * @param url the publisher URL, must not be <code>null</code>
      */
@@ -399,9 +381,8 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
     }
 
     /**
-     * Implements the method in the interface {@link Runnable#run()}. Runs
-     * the publisher by executing the URL. The URL that is published will be
-     * removed from the session private object.
+     * Implements the method in the interface {@link Runnable#run()}. Runs the publisher by
+     * executing the URL. The URL that is published will be removed from the session private object.
      */
     public void run() {
 
@@ -422,16 +403,14 @@ public class PSPublishContent extends PSDefaultExtension implements IPSWorkflowA
     }
 
     /**
-     * Execute the supplied URL. This assumes the URL points to a publish
-     * request and the respose to URL request is an XML document. If the
-     * supplied edition is already running, attempt is made continually to
-     * initiate publishing with a specifie interval of time.
+     * Execute the supplied URL. This assumes the URL points to a publish request and the respose to
+     * URL request is an XML document. If the supplied edition is already running, attempt is made
+     * continually to initiate publishing with a specifie interval of time.
      *
      * @param url the URL object to execute, assumed niot <code>null</code>.
      * @throws InterruptedException if this thread is interrupted by system.
      * @throws IOException any error executiong the URL.
-     * @throws SAXException if there us an error parsing the response as XML
-     *            document.
+     * @throws SAXException if there us an error parsing the response as XML document.
      */
     private void executeUrl(URL url) throws InterruptedException, IOException, SAXException {
       String code = "";

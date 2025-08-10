@@ -44,25 +44,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The input validator filter "intercepts" a pre-defined set of input parameters
- * and validates them, making sure they comply to their restriction type.
- * If a single parameter value or parameter name
- * fails validation then a response will be sent to the client of status 422. This is to
- * help prevent spoofing the url for malicious purposes such as inserting HTML in the request parameters.
- * <p>
- * The validator is enabled through the property {@link #VALIDATOR_ENABLE_PROP_NAME}.
- * <p>
- * The validator also has a property specifying a URL to a custom configuration resource called:
- * {@link #VALIDATOR_CONFIG_RESOURCE_PROP_NAME}.
- * The format of the custom configuration resource is a property file whose property name
- * is the parameter name and the value is either a CSV of {@link RestrictType} or a quoted regex.
- * <p>
- * The configuration properties of enabling and location of configuration
- * mentioned above are retrieved first from the following places (higher up takes precedence.)
+ * The input validator filter "intercepts" a pre-defined set of input parameters and validates them,
+ * making sure they comply to their restriction type. If a single parameter value or parameter name
+ * fails validation then a response will be sent to the client of status 422. This is to help
+ * prevent spoofing the url for malicious purposes such as inserting HTML in the request parameters.
+ *
+ * <p>The validator is enabled through the property {@link #VALIDATOR_ENABLE_PROP_NAME}.
+ *
+ * <p>The validator also has a property specifying a URL to a custom configuration resource called:
+ * {@link #VALIDATOR_CONFIG_RESOURCE_PROP_NAME}. The format of the custom configuration resource is
+ * a property file whose property name is the parameter name and the value is either a CSV of {@link
+ * RestrictType} or a quoted regex.
+ *
+ * <p>The configuration properties of enabling and location of configuration mentioned above are
+ * retrieved first from the following places (higher up takes precedence.)
+ *
  * <ol>
- * <li>System Properties</li>
- * <li>Filter Init Parameters in web.xml</li>
- * <li>Servlet Context init parameters from web.xml or context.xml (Tomcat).</li>
+ *   <li>System Properties
+ *   <li>Filter Init Parameters in web.xml
+ *   <li>Servlet Context init parameters from web.xml or context.xml (Tomcat).
  * </ol>
  *
  * @author erikserating
@@ -80,21 +80,16 @@ public class PSInputValidatorFilter implements Filter {
   public static final String VALIDATOR_CONFIG_RESOURCE_PROP_NAME =
       "PSInputValidatorFilter.configResource";
 
-  /**
-   * log to use, never <code>null</code>.
-   */
+  /** log to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSInputValidatorFilter.class.getName());
 
   /**
-   * Map of params that need to be validated. The key is the parameter name
-   * the value is the restriction type to validate against.
+   * Map of params that need to be validated. The key is the parameter name the value is the
+   * restriction type to validate against.
    */
   private static final Map<String, String[]> restrictionProps = new HashMap<>();
 
-  /**
-   * Restriction type enumeration. Defines types that a parameter should be
-   * restricted to.
-   */
+  /** Restriction type enumeration. Defines types that a parameter should be restricted to. */
   private enum RestrictType {
     // Only allow true, false, yes, or no
     BOOLEAN(Pattern.compile("yes|no|true|false", Pattern.CASE_INSENSITIVE)),
@@ -123,12 +118,10 @@ public class PSInputValidatorFilter implements Filter {
   }
 
   /**
-   *
-   * @param request the original request, whose parameters may need
-   * to be cleansed. Assumed not <code>null</code>.
-   *
-   * @return the cleansed request if the cleansed feature is enabled;
-   * otherwise it is the specified request, not <code>null</code>.
+   * @param request the original request, whose parameters may need to be cleansed. Assumed not
+   *     <code>null</code>.
+   * @return the cleansed request if the cleansed feature is enabled; otherwise it is the specified
+   *     request, not <code>null</code>.
    */
   private boolean handleParamValidation(HttpServletRequest request, HttpServletResponse response) {
     ParamError badParam = this.validateRequest(request);
@@ -194,9 +187,8 @@ public class PSInputValidatorFilter implements Filter {
   }
 
   /**
-   * Validates and cleanses the 'known' request input parameters. Invalid
-   * input parameter values will be stripped and a warning message will be
-   * logged.
+   * Validates and cleanses the 'known' request input parameters. Invalid input parameter values
+   * will be stripped and a warning message will be logged.
    *
    * @param request assumed not <code>null</code>.
    * @return the first found error<code>null</code>.
@@ -238,10 +230,11 @@ public class PSInputValidatorFilter implements Filter {
   }
 
   /**
-   * Load the properties for the input filter that contains field restrictions. Properties will overwrite
-   * any existing properties at the time of this call.
-   * @param is the inputstream to the properties file, there is
-   * no need to close the stream as this method will handle that. Cannot be <code>null</code>.
+   * Load the properties for the input filter that contains field restrictions. Properties will
+   * overwrite any existing properties at the time of this call.
+   *
+   * @param is the inputstream to the properties file, there is no need to close the stream as this
+   *     method will handle that. Cannot be <code>null</code>.
    */
   private void doLoadProperties(InputStream is) {
     notNull(is, "Input stream cannot be null.");
@@ -270,9 +263,9 @@ public class PSInputValidatorFilter implements Filter {
 
   /**
    * Helper method to parse property values.
+   *
    * @param rawVal may be <code>null</code> or empty.
-   * @return split and trimmed values, never <code>null</code>, may
-   * be empty.
+   * @return split and trimmed values, never <code>null</code>, may be empty.
    */
   private static String[] parsePropertyValues(String rawVal) {
     String[] results = splitByComma(rawVal);
@@ -283,11 +276,10 @@ public class PSInputValidatorFilter implements Filter {
   }
 
   /**
-   * Helper method to split a string by a comma delimiter, except
-   * for commas inside of quotes.
+   * Helper method to split a string by a comma delimiter, except for commas inside of quotes.
+   *
    * @param val may be <code>null</code> or empty.
-   * @return string array of original string split be commas, never <code>null</code> may be
-   * empty.
+   * @return string array of original string split be commas, never <code>null</code> may be empty.
    */
   private static String[] splitByComma(String val) {
     if (val == null) return new String[] {};
@@ -318,8 +310,9 @@ public class PSInputValidatorFilter implements Filter {
   }
 
   /**
-   * Runs all restriction checks on the property value to determine if it is considered a
-   * valid input value.
+   * Runs all restriction checks on the property value to determine if it is considered a valid
+   * input value.
+   *
    * @param key param name, assumed not <code>null</code>.
    * @param value may be <code>null</code> or empty.
    * @return <code>null</code> if valid or parameter error if invalid.
@@ -411,12 +404,12 @@ public class PSInputValidatorFilter implements Filter {
 
   /**
    * The config properties are retrieved in the following order
+   *
    * <ol>
-   * <li>System Properties</li>
-   * <li>Filter Init Parameters in web.xml</li>
-   * <li>Servlet Context init parameters from web.xml or context.xml (Tomcat).
-   * </li>
-   * <li>default value</li>
+   *   <li>System Properties
+   *   <li>Filter Init Parameters in web.xml
+   *   <li>Servlet Context init parameters from web.xml or context.xml (Tomcat).
+   *   <li>default value
    * </ol>
    *
    * @param filterConfig not <code>null</code>

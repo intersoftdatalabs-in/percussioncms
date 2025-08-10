@@ -28,25 +28,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-/**
- * Utility class for DOM XML processing
- */
+/** Utility class for DOM XML processing */
 public class PSXmlUtils {
   /**
    * Get the element data
    *
    * @param source The element, may be <code>null</code>.
-   * @param name The name of the expected element, may not be <code>null</code>
-   * or empty.
-   * @param required <code>true</code> if an value is required,
-   * <code>false</code> if not.
-   *
-   * @return The data, <code>null</code> if the element is <code>null</code>,
-   * may be empty if the value of the element is empty.
-   *
-   * @throws PSInvalidXmlException if <code>required</code>
-   * is <code>true</code> and either the supplied element is
-   * <code>null</code> or the value of the element is empty.
+   * @param name The name of the expected element, may not be <code>null</code> or empty.
+   * @param required <code>true</code> if an value is required, <code>false</code> if not.
+   * @return The data, <code>null</code> if the element is <code>null</code>, may be empty if the
+   *     value of the element is empty.
+   * @throws PSInvalidXmlException if <code>required</code> is <code>true</code> and either the
+   *     supplied element is <code>null</code> or the value of the element is empty.
    */
   public static String getElementData(Element source, String name, boolean required)
       throws PSInvalidXmlException {
@@ -77,20 +70,12 @@ public class PSXmlUtils {
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   *
    * @param name the name of the attribute to retrieve, must not be <code>
-   * null</code>
-   *           or empty
-   *
-   * @param required a boolean flag to determine if we throw an error if it
-   *           does not exist or just return blank, if true, we throw an error,
-   *           otherwise we just return "" if not found
-   *
-   * @return the value of the specified attribute or blank if not found and not
-   *         required
-   *
-   * @throws PSInvalidXmlException if the attribute was not found and was
-   *            required
+   * null</code> or empty
+   * @param required a boolean flag to determine if we throw an error if it does not exist or just
+   *     return blank, if true, we throw an error, otherwise we just return "" if not found
+   * @return the value of the specified attribute or blank if not found and not required
+   * @throws PSInvalidXmlException if the attribute was not found and was required
    */
   public static String checkAttribute(Element el, String name, boolean required)
       throws PSInvalidXmlException {
@@ -106,28 +91,18 @@ public class PSXmlUtils {
   }
 
   /**
-   * Static helper method to check an attribute of a specific element and
-   * returns an integer of that value.
+   * Static helper method to check an attribute of a specific element and returns an integer of that
+   * value.
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   *
    * @param name the name of the attribute to retrieve, must not be <code>
-   * null</code>
-   *           or empty
-   *
-   * @param required a boolean flag to determine if we throw an error if it
-   *           does not exist or just return -1, if true, we throw an error,
-   *           otherwise we just return -1 if not found
-   *
-   * @return the value of the specified attribute or -1 if not found and not
-   *         required
-   *
-   * @throws PSInvalidXmlException if the attribute was not found and was
-   *            required
-   *
-   * @throws NumberFormatException if the value does not contain a parsable
-   *            integer
+   * null</code> or empty
+   * @param required a boolean flag to determine if we throw an error if it does not exist or just
+   *     return -1, if true, we throw an error, otherwise we just return -1 if not found
+   * @return the value of the specified attribute or -1 if not found and not required
+   * @throws PSInvalidXmlException if the attribute was not found and was required
+   * @throws NumberFormatException if the value does not contain a parsable integer
    */
   public static int checkAttributeInt(Element el, String name, boolean required)
       throws PSInvalidXmlException, NumberFormatException {
@@ -144,7 +119,6 @@ public class PSXmlUtils {
    *
    * @param serverFile The file to save to, may not be<code>null</code>.
    * @param doc The doc to save, may not be <code>null</code>.
-   *
    * @throws FileNotFoundException If the file cannot be opened for edit.
    * @throws IOException If there is an error writing to the file.
    */
@@ -169,11 +143,8 @@ public class PSXmlUtils {
   /**
    * Loads the supplied file as a document.
    *
-   * @param serverFile The file to load, may not be <code>null</code> and must
-   * exist.
-   *
+   * @param serverFile The file to load, may not be <code>null</code> and must exist.
    * @return The document, never <code>null</code>.
-   *
    * @throws IOException If there is an error reading from the file.
    * @throws SAXException If the file is malformed.
    */

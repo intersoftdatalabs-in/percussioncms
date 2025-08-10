@@ -25,14 +25,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-/**
- * A multimap class for storing HTTP headers (which can be 1:many).
- */
+/** A multimap class for storing HTTP headers (which can be 1:many). */
 public class PSHttpHeaders {
   private final Map<String, Object> headers = new HashMap<>();
 
   /**
    * Adds a header value.
+   *
    * @param headerName header name
    * @param headerValue header value
    */
@@ -42,6 +41,7 @@ public class PSHttpHeaders {
 
   /**
    * Replaces a header value.
+   *
    * @param headerName header name
    * @param headerValue header value
    */
@@ -51,6 +51,7 @@ public class PSHttpHeaders {
 
   /**
    * Gets all values for a header name.
+   *
    * @param headerName header name
    * @return iterator of header values
    */
@@ -60,6 +61,7 @@ public class PSHttpHeaders {
 
   /**
    * Gets the first value for a header name.
+   *
    * @param headerName header name
    * @return first header value or null
    */
@@ -74,6 +76,7 @@ public class PSHttpHeaders {
 
   /**
    * Gets all header names.
+   *
    * @return set of header names
    */
   public Set<String> getHeaderNames() {
@@ -82,6 +85,7 @@ public class PSHttpHeaders {
 
   /**
    * Adds all headers from another PSHttpHeaders instance.
+   *
    * @param otherHeaders headers to add
    */
   public void addAll(PSHttpHeaders otherHeaders) {
@@ -96,20 +100,19 @@ public class PSHttpHeaders {
   }
 
   /**
-   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many
-   * mappings will be Lists containing values.
+   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many mappings will be Lists
+   * containing values.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @param	m
-   * @param	key
-   * @param	value
-   *
+   * @param m
+   * @param key
+   * @param value
    */
   /**
-   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many mappings will be Lists containing values.
+   * Adds a value to a Map in a 1:1 or 1:many way, if applicable. 1:many mappings will be Lists
+   * containing values.
+   *
    * @param m map to add to
    * @param key header name
    * @param value header value
@@ -137,18 +140,15 @@ public class PSHttpHeaders {
   /**
    * Gets all the values out of the multimap for a particular key
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @param	m
-   * @param	key
-   *
-   * @return	Iterator
+   * @param m
+   * @param key
+   * @return Iterator
    */
   /**
    * Gets all the values out of the multimap for a particular key.
+   *
    * @param m map to get from
    * @param key header name
    * @return iterator of header values

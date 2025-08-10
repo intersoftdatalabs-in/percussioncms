@@ -28,7 +28,6 @@ import javax.net.ssl.TrustManager;
  * Common helper class to return a HTTP client.
  *
  * @author leonardohildt
- *
  */
 @ToDoVulnerability
 @Deprecated

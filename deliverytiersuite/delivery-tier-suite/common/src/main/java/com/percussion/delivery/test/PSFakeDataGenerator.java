@@ -27,9 +27,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is responsible for parsing test data
- * from the data files, or using in memory algorithms to generate
- * in memory lists of fake data to be used in unit tests.
+ * This class is responsible for parsing test data from the data files, or using in memory
+ * algorithms to generate in memory lists of fake data to be used in unit tests.
  *
  * @author natechadwick
  */

@@ -18,10 +18,7 @@ package com.percussion.utils.jdbc;
 
 import com.percussion.utils.spring.IPSBeanConfig;
 
-/**
- * Interface to describe the configuration used to obtain and use a database
- * connection.
- */
+/** Interface to describe the configuration used to obtain and use a database connection. */
 public interface IPSDatasourceConfig extends IPSBeanConfig {
   /**
    * Get the name used to reference this datasource configuration.

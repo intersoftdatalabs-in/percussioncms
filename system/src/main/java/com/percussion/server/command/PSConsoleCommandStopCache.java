@@ -44,30 +44,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements the execution of 'stop cache' console command and
- * dumps the results as an XML document to the console.
+ * This class implements the execution of 'stop cache' console command and dumps the results as an
+ * XML document to the console.
  */
 public class PSConsoleCommandStopCache extends PSConsoleCommandCache {
   /**
-   * The constructor for this class. If the command argument is specified as
-   * 'debug' it turns off the cache debugging mode irrespective of cache is
-   * running or not when executing this command. If there is no argument it
-   * stops the cache. If there is any argument other than 'debug' it is
+   * The constructor for this class. If the command argument is specified as 'debug' it turns off
+   * the cache debugging mode irrespective of cache is running or not when executing this command.
+   * If there is no argument it stops the cache. If there is any argument other than 'debug' it is
    * ignored and behaves same as no argument supplied.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   public PSConsoleCommandStopCache(String cmdArgs) {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure: (includes the cache statistics also).
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure: (includes the
+   * cache statistics also).
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, CacheStatistics,
    *    resultCode, resultText)&gt;
@@ -95,10 +95,8 @@ public class PSConsoleCommandStopCache extends PSConsoleCommandCache {
    * </CODE></PRE>
    *
    * @param request the requestor object, may be <code>null</code>
-   *
    * @return the result document, never <code>null</code>
-   *
-   * @throws PSConsoleCommandException   if an error occurs during execution
+   * @throws PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document respDoc = getResultsDocument();
@@ -161,8 +159,6 @@ public class PSConsoleCommandStopCache extends PSConsoleCommandCache {
     return ms_cmdName;
   }
 
-  /**
-   * The command executed by this class.
-   */
+  /** The command executed by this class. */
   public static final String ms_cmdName = "stop cache";
 }

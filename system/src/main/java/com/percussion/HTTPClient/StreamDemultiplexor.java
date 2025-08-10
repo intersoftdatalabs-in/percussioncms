@@ -24,11 +24,11 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * This class handles the demultiplexing of input stream. This is needed
- * for things like keep-alive in HTTP/1.0, persist in HTTP/1.1 and in HTTP-NG.
+ * This class handles the demultiplexing of input stream. This is needed for things like keep-alive
+ * in HTTP/1.0, persist in HTTP/1.1 and in HTTP-NG.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class StreamDemultiplexor implements GlobalConstants {
@@ -94,8 +94,8 @@ class StreamDemultiplexor implements GlobalConstants {
   /**
    * a simple contructor.
    *
-   * @param protocol   the protocol used on this stream.
-   * @param sock       the socket which we're to demux.
+   * @param protocol the protocol used on this stream.
+   * @param sock the socket which we're to demux.
    * @param connection the http-connection this socket belongs to.
    */
   StreamDemultiplexor(int protocol, Socket sock, HTTPConnection connection) throws IOException {
@@ -108,7 +108,7 @@ class StreamDemultiplexor implements GlobalConstants {
   /**
    * Initializes the demultiplexor with a new socket.
    *
-   * @param stream   the stream to demultiplex
+   * @param stream the stream to demultiplex
    */
   private void init(Socket sock) throws IOException {
     Log.write(Log.DEMUX, "Demux: Initializing Stream Demultiplexor (" + this.hashCode() + ")");
@@ -126,9 +126,7 @@ class StreamDemultiplexor implements GlobalConstants {
 
   // Methods
 
-  /**
-   * Each Response must register with us.
-   */
+  /** Each Response must register with us. */
   void register(Response resp_handler, Request req) throws RetryException {
     synchronized (RespHandlerList) {
       if (Sock == null) throw new RetryException();
@@ -157,17 +155,12 @@ class StreamDemultiplexor implements GlobalConstants {
     else return null;
   }
 
-  /**
-   * Restarts the timer thread that will close an unused socket after
-   * 60 seconds.
-   */
+  /** Restarts the timer thread that will close an unused socket after 60 seconds. */
   void restartTimer() {
     if (Timer != null) Timer.reset();
   }
 
-  /**
-   * reads an array of bytes from the master stream.
-   */
+  /** reads an array of bytes from the master stream. */
   int read(byte[] b, int off, int len, ResponseHandler resph, int timeout) throws IOException {
     if (resph.exception != null) {
       resph.exception.fillInStackTrace();
@@ -310,8 +303,8 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * skips a number of bytes in the master stream. This is done via a
-   * dummy read, as the socket input stream doesn't like skip()'s.
+   * skips a number of bytes in the master stream. This is done via a dummy read, as the socket
+   * input stream doesn't like skip()'s.
    */
   synchronized long skip(long num, ResponseHandler resph) throws IOException {
     if (resph.exception != null) {
@@ -328,8 +321,8 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Determines the number of available bytes. If <var>resph</var> is null, return
-   * available bytes on the socket stream itself (used by HTTPConnection).
+   * Determines the number of available bytes. If <var>resph</var> is null, return available bytes
+   * on the socket stream itself (used by HTTPConnection).
    */
   synchronized int available(ResponseHandler resph) throws IOException {
     if (resph != null && resph.exception != null) {
@@ -369,20 +362,17 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Closes the socket and all associated streams. If <var>exception</var>
-   * is not null then all active requests are retried.
+   * Closes the socket and all associated streams. If <var>exception</var> is not null then all
+   * active requests are retried.
    *
-   * <P>There are five ways this method may be activated. 1) if an exception
-   * occurs during read or write. 2) if the stream is marked for close but
-   * no responses are outstanding (e.g. due to a timeout). 3) when the
-   * markedForClose response is closed. 4) if all response streams up until
-   * and including the markedForClose response have been closed. 5) if this
-   * demux is finalized.
+   * <p>There are five ways this method may be activated. 1) if an exception occurs during read or
+   * write. 2) if the stream is marked for close but no responses are outstanding (e.g. due to a
+   * timeout). 3) when the markedForClose response is closed. 4) if all response streams up until
+   * and including the markedForClose response have been closed. 5) if this demux is finalized.
    *
    * @param exception the IOException to be sent to the streams.
-   * @param was_reset if true then the exception is due to a connection
-   *                  reset; otherwise it means we generated the exception
-   *                  ourselves and this is a "normal" close.
+   * @param was_reset if true then the exception is due to a connection reset; otherwise it means we
+   *     generated the exception ourselves and this is a "normal" close.
    */
   synchronized void close(IOException exception, boolean was_reset) {
     if (Sock == null) // already cleaned up
@@ -416,14 +406,12 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Retries outstanding requests. Well, actually the RetryModule does
-   * that. Here we just throw a RetryException for each request so that
-   * the RetryModule can catch and handle them.
+   * Retries outstanding requests. Well, actually the RetryModule does that. Here we just throw a
+   * RetryException for each request so that the RetryModule can catch and handle them.
    *
    * @param exception the exception that led to this call.
-   * @param was_reset this flag is passed to the RetryException and is
-   *                  used by the RetryModule to distinguish abnormal closes
-   *                  from expected closes.
+   * @param was_reset this flag is passed to the RetryException and is used by the RetryModule to
+   *     distinguish abnormal closes from expected closes.
    */
   private void retry_requests(IOException exception, boolean was_reset) {
     RetryException first = null, prev = null;
@@ -457,8 +445,8 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Closes the associated stream. If this one has been markedForClose then
-   * the socket is closed; else closeSocketIfAllStreamsClosed is invoked.
+   * Closes the associated stream. If this one has been markedForClose then the socket is closed;
+   * else closeSocketIfAllStreamsClosed is invoked.
    */
   private void close(ResponseHandler resph) {
     synchronized (RespHandlerList) {
@@ -477,24 +465,20 @@ class StreamDemultiplexor implements GlobalConstants {
   /**
    * Close the socket if all the streams have been closed.
    *
-   * <P>When a stream reaches eof it is removed from the response handler
-   * list, but when somebody close()'s the response stream it is just
-   * marked as such. This means that all responses in the list have either
-   * not been read at all or only partially read, but they might have been
-   * close()'d meaning that nobody is interested in the data. So If all the
-   * response streams up till and including the one markedForClose have
-   * been close()'d then we can remove them from our list and close the
-   * socket.
+   * <p>When a stream reaches eof it is removed from the response handler list, but when somebody
+   * close()'s the response stream it is just marked as such. This means that all responses in the
+   * list have either not been read at all or only partially read, but they might have been
+   * close()'d meaning that nobody is interested in the data. So If all the response streams up till
+   * and including the one markedForClose have been close()'d then we can remove them from our list
+   * and close the socket.
    *
-   * <P>Note: if the response list is emtpy or if no response is
-   * markedForClose then this method does nothing. Specifically it does
-   * not close the socket. We only want to close the socket if we've been
-   * told to do so.
+   * <p>Note: if the response list is emtpy or if no response is markedForClose then this method
+   * does nothing. Specifically it does not close the socket. We only want to close the socket if
+   * we've been told to do so.
    *
-   * <P>Also note that there might still be responses in the list after
-   * the markedForClose one. These are due to us having pipelined more
-   * requests to the server than it's willing to serve on a single
-   * connection. These requests will be retried if possible.
+   * <p>Also note that there might still be responses in the list after the markedForClose one.
+   * These are due to us having pipelined more requests to the server than it's willing to serve on
+   * a single connection. These requests will be retried if possible.
    */
   synchronized void closeSocketIfAllStreamsClosed() {
     synchronized (RespHandlerList) {
@@ -519,9 +503,7 @@ class StreamDemultiplexor implements GlobalConstants {
     }
   }
 
-  /**
-   * returns the socket associated with this demux
-   */
+  /** returns the socket associated with this demux */
   synchronized Socket getSocket() {
     if (MarkedForClose != null) return null;
 
@@ -530,12 +512,11 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Mark this demux to not accept any more request and to close the
-   * stream after this <var>resp</var>onse or all requests have been
-   * processed, or close immediately if no requests are registered.
+   * Mark this demux to not accept any more request and to close the stream after this
+   * <var>resp</var>onse or all requests have been processed, or close immediately if no requests
+   * are registered.
    *
-   * @param response the Response after which the connection should
-   *                 be closed.
+   * @param response the Response after which the connection should be closed.
    */
   synchronized void markForClose(Response resp) {
     synchronized (RespHandlerList) {
@@ -579,8 +560,7 @@ class StreamDemultiplexor implements GlobalConstants {
   }
 
   /**
-   * Emergency stop. Closes the socket and notifies the responses that
-   * the requests are aborted.
+   * Emergency stop. Closes the socket and notifies the responses that the requests are aborted.
    *
    * @since V0.3
    */
@@ -631,9 +611,7 @@ class StreamDemultiplexor implements GlobalConstants {
     }
   }
 
-  /**
-   * A safety net to close the connection.
-   */
+  /** A safety net to close the connection. */
   protected void finalize() throws Throwable {
     close((IOException) null, false);
     super.finalize();
@@ -641,6 +619,7 @@ class StreamDemultiplexor implements GlobalConstants {
 
   /**
    * produces a string.
+   *
    * @return a string containing the class name and protocol number
    */
   public String toString() {
@@ -668,19 +647,16 @@ class StreamDemultiplexor implements GlobalConstants {
 }
 
 /**
- * This thread is used to reap idle connections. It is NOT used to timeout
- * reads or writes on a socket. It keeps a list of timer entries and expires
- * them after a given time.
+ * This thread is used to reap idle connections. It is NOT used to timeout reads or writes on a
+ * socket. It keeps a list of timer entries and expires them after a given time.
  */
 class SocketTimeout extends Thread {
   private boolean alive = true;
 
   /**
-   * This class represents a timer entry. It is used to close an
-   * inactive socket after n seconds. Once running, the timer may be
-   * suspended (hyber()), restarted (reset()), or aborted (kill()).
-   * When the timer expires it invokes markForClose() on the
-   * associated stream demultipexer.
+   * This class represents a timer entry. It is used to close an inactive socket after n seconds.
+   * Once running, the timer may be suspended (hyber()), restarted (reset()), or aborted (kill()).
+   * When the timer expires it invokes markForClose() on the associated stream demultipexer.
    */
   class TimeoutEntry {
     boolean restart = false, hyber = false, alive = true;
@@ -761,10 +737,7 @@ class SocketTimeout extends Thread {
     return entry;
   }
 
-  /**
-   * This timer is implemented by sleeping for 1 second and then
-   * checking the timer list.
-   */
+  /** This timer is implemented by sleeping for 1 second and then checking the timer list. */
   public void run() {
     TimeoutEntry marked = null;
 
@@ -812,9 +785,7 @@ class SocketTimeout extends Thread {
     }
   }
 
-  /**
-   * Stop the timer thread.
-   */
+  /** Stop the timer thread. */
   public void kill() {
     alive = false;
   }

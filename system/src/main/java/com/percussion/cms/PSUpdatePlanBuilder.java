@@ -40,9 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Plan builder for performing updates.
- */
+/** Plan builder for performing updates. */
 public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSUpdatePlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
@@ -50,10 +48,9 @@ public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform an update of the item or child specified
-   * by the supplied mapper. Any binary fields are added as separate
-   * conditional steps and are only updated if data is supplied.  See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
+   * Creates a plan that will perform an update of the item or child specified by the supplied
+   * mapper. Any binary fields are added as separate conditional steps and are only updated if data
+   * is supplied. See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
    * super.createModifyPlan()} for details.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
@@ -183,13 +180,10 @@ public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Locates a mapping for the supplied field name, compare is case
-   * insensitive.
+   * Locates a mapping for the supplied field name, compare is case insensitive.
    *
    * @param mapper The display mapper to check, may not be <code>null</code>.
-   * @param fieldName The submit name of the field, may not be
-   * <code>null</code> or empty.
-   *
+   * @param fieldName The submit name of the field, may not be <code>null</code> or empty.
    * @return The display mapping if found, <code>null</code> if not.
    */
   private PSDisplayMapping getMapping(PSDisplayMapper mapper, String fieldName) {
@@ -206,15 +200,12 @@ public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Given a binary field, creates a collection of conditionals that will
-   * evaluate to <code>true</code> only if the binary field data is supplied
-   * and a "clear" has not been specified.
+   * Given a binary field, creates a collection of conditionals that will evaluate to <code>true
+   * </code> only if the binary field data is supplied and a "clear" has not been specified.
    *
-   * @param field The binary field.   Either it has forceBinary flag or the
-   * backend datatype is binary.  Assumed not <code>null</code>.
-   *
-   * @return A collection of PSConditional objects, never <code>null</code> or
-   * empty.
+   * @param field The binary field. Either it has forceBinary flag or the backend datatype is
+   *     binary. Assumed not <code>null</code>.
+   * @return A collection of PSConditional objects, never <code>null</code> or empty.
    */
   private PSCollection createBinaryUpdateConditional(PSField binField) {
     PSCollection conditionals = new PSCollection(PSConditional.class);
@@ -250,16 +241,13 @@ public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Given a binary field, creates a collection of conditionals that will
-   * evaluate to <code>true</code> only if the binary field is to be
-   * cleared.
+   * Given a binary field, creates a collection of conditionals that will evaluate to <code>true
+   * </code> only if the binary field is to be cleared.
    *
-   * @param field The binary field.   Either it has forceBinary flag or the
-   * backend datatype is binary.  Assumed not <code>null</code>.
-   *
-   * @return A collection of PSConditional objects.  Never empty.  If the
-   * binField does not specifiy a clearParamName, then <code>null</code> is
-   * returned.
+   * @param field The binary field. Either it has forceBinary flag or the backend datatype is
+   *     binary. Assumed not <code>null</code>.
+   * @return A collection of PSConditional objects. Never empty. If the binField does not specifiy a
+   *     clearParamName, then <code>null</code> is returned.
    */
   private PSCollection createBinaryClearConditional(PSField binField) {
     PSCollection conditionals = null;
@@ -285,8 +273,8 @@ public class PSUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Constant for value of the binary clear parameter if it is to indicate that
-   * the field should be cleared.  Never <code>null</code> or empty.
+   * Constant for value of the binary clear parameter if it is to indicate that the field should be
+   * cleared. Never <code>null</code> or empty.
    */
   private static final String CLEAR_PARAM_TRUE = "yes";
 }

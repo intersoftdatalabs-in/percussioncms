@@ -21,18 +21,19 @@ import org.springframework.core.task.TaskExecutor;
 
 /**
  * Abstract class for updating directory file data in a thread-safe manner.
+ *
  * @param <T> the type of data being updated.
  */
 public abstract class PSDirectoryFileDataUpdater<T> {
 
-    protected final AtomicReference<T> atom = new AtomicReference<>();
-    protected TaskExecutor taskExecutor;
+  protected final AtomicReference<T> atom = new AtomicReference<>();
+  protected TaskExecutor taskExecutor;
 
-    public T get() {
-        return atom.get();
-    }
+  public T get() {
+    return atom.get();
+  }
 
-    protected void update(T data) {
-        atom.set(data);
-    }
+  protected void update(T data) {
+    atom.set(data);
+  }
 }

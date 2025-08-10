@@ -29,40 +29,31 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataSelector class defines how data is being selected through
- * a particular query pipe (PSQueryPipe). Data is selected through one
- * of the following mechanisms:
+ * The PSDataSelector class defines how data is being selected through a particular query pipe
+ * (PSQueryPipe). Data is selected through one of the following mechanisms:
+ *
  * <ul>
- * <li>defining WHERE clauses</li>
- * <li>using a native SELECT statement</li>
- * <p>
- * The data selector can also be used to define how data is cached. Since
- * performance is critical, the results of requests which may be repeated
- * often can be cached for better performance.
+ *   <li>defining WHERE clauses
+ *   <li>using a native SELECT statement
+ *       <p>The data selector can also be used to define how data is cached. Since performance is
+ *       critical, the results of requests which may be repeated often can be cached for better
+ *       performance.
  *
  * @see PSQueryPipe#getDataSelector
  * @see PSQueryPipe
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataSelector extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataSelector(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -73,14 +64,13 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Construct a data selector object.
-   * <p>
-   * The object is set to use WHERE clauses by default. No WHERE clauses
-   * are initially set, which will cause all data to be selected. Be sure
-   * to add WHERE clauses or change the selection method to the
-   * appropriate type.
-   * <p>
-   * Caching is disabled by default. The cache type is, however, set to
-   * be interval based. A default interval of 15 minutes is also set.
+   *
+   * <p>The object is set to use WHERE clauses by default. No WHERE clauses are initially set, which
+   * will cause all data to be selected. Be sure to add WHERE clauses or change the selection method
+   * to the appropriate type.
+   *
+   * <p>Caching is disabled by default. The cache type is, however, set to be interval based. A
+   * default interval of 15 minutes is also set.
    */
   public PSDataSelector() {
     super();
@@ -94,30 +84,25 @@ public class PSDataSelector extends PSComponent {
   }
 
   /**
-   * Are unique (distinct) values returned by the SELECT? Only one row will
-   * be returned for each unique set of values defined by the SELECT's
-   * column list. If a native SELECT statement is being used, this may
-   * return <code>true</code> even though non-unique values will be
-   * returned. It is up to the native SELECT statement to use the
-   * appropriate syntax to generate unique result set values.
+   * Are unique (distinct) values returned by the SELECT? Only one row will be returned for each
+   * unique set of values defined by the SELECT's column list. If a native SELECT statement is being
+   * used, this may return <code>true</code> even though non-unique values will be returned. It is
+   * up to the native SELECT statement to use the appropriate syntax to generate unique result set
+   * values.
    *
-   * @return      <code>true</code> if unique values are returned;
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if unique values are returned; <code>false</code> otherwise
    */
   public boolean isSelectUnique() {
     return ((m_selector & DS_DISTINCT) == DS_DISTINCT);
   }
 
   /**
-   * Enable or disable returning only unique (distinct) values for the
-   * SELECT. Only one row will be returned for each unique set of values
-   * defined by the SELECT's column list. If a native SELECT statement is
-   * being used, this setting will be ignored. It is up to the native
-   * SELECT statement to use the appropriate syntax to generate unique
-   * result set values.
+   * Enable or disable returning only unique (distinct) values for the SELECT. Only one row will be
+   * returned for each unique set of values defined by the SELECT's column list. If a native SELECT
+   * statement is being used, this setting will be ignored. It is up to the native SELECT statement
+   * to use the appropriate syntax to generate unique result set values.
    *
-   * @param enable       <code>true</code> if unique values are returned;
-   *                    <code>false</code> otherwise
+   * @param enable <code>true</code> if unique values are returned; <code>false</code> otherwise
    */
   public void setSelectUnique(boolean enable) {
     if (enable) m_selector |= DS_DISTINCT;
@@ -127,49 +112,43 @@ public class PSDataSelector extends PSComponent {
   /**
    * Is data being selecting by defining WHERE clauses?
    *
-   * @return      <code>true</code> if this is the method being used,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is the method being used, <code>false</code> otherwise
    */
   public boolean isSelectByWhereClause() {
     return ((m_selector & DS_BY_WHERE_CLAUSE) == DS_BY_WHERE_CLAUSE);
   }
 
   /**
-   * Enable selecting data using the defined WHERE clauses. If no
-   * WHERE clauses are defined, all data is selected.
+   * Enable selecting data using the defined WHERE clauses. If no WHERE clauses are defined, all
+   * data is selected.
    */
   public void setSelectByWhereClause() {
     m_selector = DS_BY_WHERE_CLAUSE | (m_selector & DS_FLAGS);
   }
 
   /**
-   * Get the collection of WHERE clauses used to select data. This will
-   * return the associated WHERE clauses, even if they are not being
-   * used. Be sure to call the isSelectByWhereClause method to verify
-   * that the WHERE clauses are being used for data selection.
+   * Get the collection of WHERE clauses used to select data. This will return the associated WHERE
+   * clauses, even if they are not being used. Be sure to call the isSelectByWhereClause method to
+   * verify that the WHERE clauses are being used for data selection.
    *
-   * @return      a collection containing the WHERE clauses
-   *             (PSWhereClause objects)
-   * @see         #isSelectByWhereClause
+   * @return a collection containing the WHERE clauses (PSWhereClause objects)
+   * @see #isSelectByWhereClause
    */
   public com.percussion.util.PSCollection getWhereClauses() {
     return m_whereClauses;
   }
 
   /**
-   * This overwrite the WHERE clauses associated with this object with
-   * the specified collection. If you only want to modify certain clauses,
-   * add a new clause, etc. use getWhereClauses to get the existing
-   * collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSDataSelector object. Any subsequent changes made to the object
-   * by the caller will also effect the selector.
+   * This overwrite the WHERE clauses associated with this object with the specified collection. If
+   * you only want to modify certain clauses, add a new clause, etc. use getWhereClauses to get the
+   * existing collection and modify the returned collection directly.
    *
-   * @param clauses    the new WHERE clauses to use for this selector
+   * <p>The PSCollection object supplied to this method will be stored with the PSDataSelector
+   * object. Any subsequent changes made to the object by the caller will also effect the selector.
    *
-   * @see         #getWhereClauses
-   * @see         PSWhereClause
+   * @param clauses the new WHERE clauses to use for this selector
+   * @see #getWhereClauses
+   * @see PSWhereClause
    */
   public void setWhereClauses(com.percussion.util.PSCollection clauses) {
     if (clauses != null) {
@@ -184,34 +163,27 @@ public class PSDataSelector extends PSComponent {
   }
 
   /**
-   * Get the collection of columns being used to sort the data. The columns
-   * will be sorted in the order in which they are defined in the
-   * collection.
+   * Get the collection of columns being used to sort the data. The columns will be sorted in the
+   * order in which they are defined in the collection.
    *
-   * @return      a collection containing the sorted columns
-   *             (PSSortedColumn objects)
-   *
-   * @see         com.percussion.design.objectstore.PSSortedColumn
+   * @return a collection containing the sorted columns (PSSortedColumn objects)
+   * @see com.percussion.design.objectstore.PSSortedColumn
    */
   public com.percussion.util.PSCollection getSortedColumns() {
     return m_sortedColumns;
   }
 
   /**
-   * This overwrite the sorted columns associated with this object with
-   * the specified collection. If you only want to modify certain sorted
-   * columns, add a new sorted column, etc. use getSortedColumns to get
-   * the existing collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSDataSelector object. Any subsequent changes made to the object
-   * by the caller will also effect the selector.
+   * This overwrite the sorted columns associated with this object with the specified collection. If
+   * you only want to modify certain sorted columns, add a new sorted column, etc. use
+   * getSortedColumns to get the existing collection and modify the returned collection directly.
    *
-   * @param cols     the new sorted columns to use for this selector
+   * <p>The PSCollection object supplied to this method will be stored with the PSDataSelector
+   * object. Any subsequent changes made to the object by the caller will also effect the selector.
    *
-   * @see             #getSortedColumns
-   *
-   * @see             PSSortedColumn
+   * @param cols the new sorted columns to use for this selector
+   * @see #getSortedColumns
+   * @see PSSortedColumn
    */
   public void setSortedColumns(com.percussion.util.PSCollection cols) {
     if (cols != null) {
@@ -229,16 +201,13 @@ public class PSDataSelector extends PSComponent {
   /**
    * Is data being selecting by using a native SELECT statement?
    *
-   * @return      <code>true</code> if this is the method being used,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is the method being used, <code>false</code> otherwise
    */
   public boolean isSelectByNativeStatement() {
     return ((m_selector & DS_BY_NATIVE_STATEMENT) == DS_BY_NATIVE_STATEMENT);
   }
 
-  /**
-   * Enable selecting data by using a native SELECT statement.
-   */
+  /** Enable selecting data by using a native SELECT statement. */
   public void setSelectByNativeStatement() {
     m_selector = DS_BY_NATIVE_STATEMENT | (m_selector & DS_FLAGS);
   }
@@ -246,21 +215,19 @@ public class PSDataSelector extends PSComponent {
   /**
    * Get the text of the native SELECT statement to use.
    *
-   * @return     the text of the native SELECT statement to use
+   * @return the text of the native SELECT statement to use
    */
   public java.lang.String getNativeStatement() {
     return m_nativeStatement;
   }
 
   /**
-   * Set the text of the native SELECT statement to use. The SELECT
-   * statement should be in the native syntax supported by the back-end
-   * this selector is associated with. When joining across heterogeneous
-   * data stores, use the E2 SELECT syntax.
+   * Set the text of the native SELECT statement to use. The SELECT statement should be in the
+   * native syntax supported by the back-end this selector is associated with. When joining across
+   * heterogeneous data stores, use the E2 SELECT syntax.
    *
-   * @param      text   the text of the native SELECT statement to use
-   *
-   * @see         #isSelectByNativeStatement
+   * @param text the text of the native SELECT statement to use
+   * @see #isSelectByNativeStatement
    */
   public void setNativeStatement(java.lang.String text) {
     IllegalArgumentException ex = validateNativeStatement(text);
@@ -279,8 +246,7 @@ public class PSDataSelector extends PSComponent {
   /**
    * Is result caching enabled?
    *
-   * @return      <code>true</code> if caching is enabled,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if caching is enabled, <code>false</code> otherwise
    */
   public boolean isCacheEnabled() {
     return m_caching;
@@ -288,12 +254,11 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Enable or disable result caching.
-   * <p>
-   * Since performance is critical, the results of requests which may be
-   * repeated often can be cached for better performance.
    *
-   * @param   enable   <code>true</code> to enable result caching,
-   *                   <code>false</code> to disable it
+   * <p>Since performance is critical, the results of requests which may be repeated often can be
+   * cached for better performance.
+   *
+   * @param enable <code>true</code> to enable result caching, <code>false</code> to disable it
    */
   public void setCacheEnabled(boolean enable) {
     m_caching = enable;
@@ -301,18 +266,15 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Is caching interval based?
-   * <p>
-   * When interval based caching is in use, requests will be aged out
-   * of the cache after the specified interval elapses. Let's assume an
-   * interval of 15 minutes is set. If a user makes a request at 12:00,
-   * a query will be executed and the results will be stored in the cache
-   * until 12:15. If another request comes in before that time, the cached
-   * entry will be used. The first request received after 12:15 will cause
-   * a new query to be executed. It will then be added to the cache for
-   * 15 minutes.
    *
-   * @return      <code>true</code> if interval based caching is enabled,
-   *             <code>false</code> otherwise
+   * <p>When interval based caching is in use, requests will be aged out of the cache after the
+   * specified interval elapses. Let's assume an interval of 15 minutes is set. If a user makes a
+   * request at 12:00, a query will be executed and the results will be stored in the cache until
+   * 12:15. If another request comes in before that time, the cached entry will be used. The first
+   * request received after 12:15 will cause a new query to be executed. It will then be added to
+   * the cache for 15 minutes.
+   *
+   * @return <code>true</code> if interval based caching is enabled, <code>false</code> otherwise
    */
   public boolean isCacheOnInterval() {
     return (DS_CACHE_TYPE_INTERVAL == m_cacheType);
@@ -320,15 +282,13 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Enable interval based caching.
-   * <p>
-   * When interval based caching is in use, requests will be aged out
-   * of the cache after the specified interval elapses. Let's assume an
-   * interval of 15 minutes is set. If a user makes a request at 12:00,
-   * a query will be executed and the results will be stored in the cache
-   * until 12:15. If another request comes in before that time, the cached
-   * entry will be used. The first request received after 12:15 will cause
-   * a new query to be executed. It will then be added to the cache for
-   * 15 minutes. Use setCacheAgeInterval to set the interval.
+   *
+   * <p>When interval based caching is in use, requests will be aged out of the cache after the
+   * specified interval elapses. Let's assume an interval of 15 minutes is set. If a user makes a
+   * request at 12:00, a query will be executed and the results will be stored in the cache until
+   * 12:15. If another request comes in before that time, the cached entry will be used. The first
+   * request received after 12:15 will cause a new query to be executed. It will then be added to
+   * the cache for 15 minutes. Use setCacheAgeInterval to set the interval.
    *
    * @see #setCacheAgeInterval
    */
@@ -339,9 +299,9 @@ public class PSDataSelector extends PSComponent {
   /**
    * Get the cache aging interval.
    *
-   * @return      the cache aging interval, in minutes
-   * @see   #setCacheOnInterval
-   * @see   #setCacheOnTimeAndInterval
+   * @return the cache aging interval, in minutes
+   * @see #setCacheOnInterval
+   * @see #setCacheOnTimeAndInterval
    */
   public int getCacheAgeInterval() {
     return m_cacheAgeInterval;
@@ -350,9 +310,9 @@ public class PSDataSelector extends PSComponent {
   /**
    * Set the cache aging interval.
    *
-   * @param   interval    the cache aging interval, in minutes
-   * @see   #setCacheOnInterval
-   * @see   #setCacheOnTimeAndInterval
+   * @param interval the cache aging interval, in minutes
+   * @see #setCacheOnInterval
+   * @see #setCacheOnTimeAndInterval
    */
   public void setCacheAgeInterval(int interval) {
     m_cacheAgeInterval = interval;
@@ -360,19 +320,16 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Is caching based upon a specified time of the day?
-   * <p>
-   * When time based caching is in use, requests will be aged out
-   * of the cache on or after the specified time. Let's assume a
-   * time of 12:00 is set. The first user to make a request will cause
-   * a query to be executed and the results will be stored in the cache
-   * until 12:00. If the first user made the request at 11:50, the results
-   * will be cached for 10 minutes. The next request received after 12:00
-   * will cause a new query to be submitted. If the next request is at
-   * 12:10, the results from that query will be held for 23 hours and 50
-   * minutes -- that is, until 12:00 the next day.
    *
-   * @return      <code>true</code> if time based caching is enabled,
-   *             <code>false</code> otherwise
+   * <p>When time based caching is in use, requests will be aged out of the cache on or after the
+   * specified time. Let's assume a time of 12:00 is set. The first user to make a request will
+   * cause a query to be executed and the results will be stored in the cache until 12:00. If the
+   * first user made the request at 11:50, the results will be cached for 10 minutes. The next
+   * request received after 12:00 will cause a new query to be submitted. If the next request is at
+   * 12:10, the results from that query will be held for 23 hours and 50 minutes -- that is, until
+   * 12:00 the next day.
+   *
+   * @return <code>true</code> if time based caching is enabled, <code>false</code> otherwise
    */
   public boolean isCacheOnTime() {
     return (DS_CACHE_TYPE_TIME == m_cacheType);
@@ -380,17 +337,14 @@ public class PSDataSelector extends PSComponent {
 
   /**
    * Enable caching based upon a specified time of the day.
-   * <p>
-   * When time based caching is in use, requests will be aged out
-   * of the cache on or after the specified time. Let's assume a
-   * time of 12:00 is set. The first user to make a request will cause
-   * a query to be executed and the results will be stored in the cache
-   * until 12:00. If the first user made the request at 11:50, the results
-   * will be cached for 10 minutes. The next request received after 12:00
-   * will cause a new query to be submitted. If the next request is at
-   * 12:10, the results from that query will be held for 23 hours and 50
-   * minutes -- that is, until 12:00 the next day. Use
-   * setCacheAgeTime to set the aging time.
+   *
+   * <p>When time based caching is in use, requests will be aged out of the cache on or after the
+   * specified time. Let's assume a time of 12:00 is set. The first user to make a request will
+   * cause a query to be executed and the results will be stored in the cache until 12:00. If the
+   * first user made the request at 11:50, the results will be cached for 10 minutes. The next
+   * request received after 12:00 will cause a new query to be submitted. If the next request is at
+   * 12:10, the results from that query will be held for 23 hours and 50 minutes -- that is, until
+   * 12:00 the next day. Use setCacheAgeTime to set the aging time.
    *
    * @see #setCacheAgeTime
    */
@@ -401,11 +355,9 @@ public class PSDataSelector extends PSComponent {
   /**
    * Get the time of day to age the cache at.
    *
-   * @return      the time of day to age the cache at. Only the hours and
-   *             minutes will be set.
-   *
-   * @see   #setCacheOnTime
-   * @see   #setCacheOnTimeAndInterval
+   * @return the time of day to age the cache at. Only the hours and minutes will be set.
+   * @see #setCacheOnTime
+   * @see #setCacheOnTimeAndInterval
    */
   public java.util.Date getCacheAgeTime() {
     return m_cacheAgeTime;
@@ -414,63 +366,52 @@ public class PSDataSelector extends PSComponent {
   /**
    * Set the time of day to age the cache at.
    *
-   * @param   time      the time of day to age the cache at. Only the hours
-   *                   and minutes will be used. All other components
-   *                   will be cleared from the time.
-   * @see   #setCacheOnTime
-   * @see   #setCacheOnTimeAndInterval
+   * @param time the time of day to age the cache at. Only the hours and minutes will be used. All
+   *     other components will be cleared from the time.
+   * @see #setCacheOnTime
+   * @see #setCacheOnTimeAndInterval
    */
   public void setCacheAgeTime(java.util.Date time) {
     m_cacheAgeTime = time;
   }
 
   /**
-   * Is caching based upon both an interval and a specified time
-   * of the day?
-   * <p>
-   * When both time and interval based caching are enabled, requests will
-   * be aged out of the cache based upon an interval from a specified
-   * starting time. Let's use the start time of 12:00 and an interval of
-   * 15 minutes. If the first query is submitted at 12:10. This will be
-   * processed against the back-end and held in cache until 12:15. At
-   * that point, it will be aged out of the cache. If the next request
-   * comes along at 12:35 that will cause a new query. That request will
-   * be aged at 12:45. As you can see, the interval is used to specify a
-   * time of day rather than the amount of time the entry should remain
-   * in cache. To have the query fire at even hours, specify an even start
-   * point (eg, 12:00) and 120 minutes as the interval. If E2 starts at
-   * 3:35, the first user request will be cached. The next request after
-   * 4:00 will go against the back-end rather than cache. The cache will
-   * then be used until 6:00, at which time the cache will be aged, and
-   * so-on.
+   * Is caching based upon both an interval and a specified time of the day?
    *
-   * @return      <code>true</code> if time and interval based caching is
-   *             enabled, <code>false</code> otherwise
+   * <p>When both time and interval based caching are enabled, requests will be aged out of the
+   * cache based upon an interval from a specified starting time. Let's use the start time of 12:00
+   * and an interval of 15 minutes. If the first query is submitted at 12:10. This will be processed
+   * against the back-end and held in cache until 12:15. At that point, it will be aged out of the
+   * cache. If the next request comes along at 12:35 that will cause a new query. That request will
+   * be aged at 12:45. As you can see, the interval is used to specify a time of day rather than the
+   * amount of time the entry should remain in cache. To have the query fire at even hours, specify
+   * an even start point (eg, 12:00) and 120 minutes as the interval. If E2 starts at 3:35, the
+   * first user request will be cached. The next request after 4:00 will go against the back-end
+   * rather than cache. The cache will then be used until 6:00, at which time the cache will be
+   * aged, and so-on.
+   *
+   * @return <code>true</code> if time and interval based caching is enabled, <code>false</code>
+   *     otherwise
    */
   public boolean isCacheOnTimeAndInterval() {
     return (DS_CACHE_TYPE_TIME_INTERVAL == m_cacheType);
   }
 
   /**
-   * Enable caching based upon both an interval and a specified time
-   * of the day.
-   * <p>
-   * When both time and interval based caching are enabled, requests will
-   * be aged out of the cache based upon an interval from a specified
-   * starting time. Let's use the start time of 12:00 and an interval of
-   * 15 minutes. If the first query is submitted at 12:10. This will be
-   * processed against the back-end and held in cache until 12:15. At
-   * that point, it will be aged out of the cache. If the next request
-   * comes along at 12:35 that will cause a new query. That request will
-   * be aged at 12:45. As you can see, the interval is used to specify a
-   * time of day rather than the amount of time the entry should remain
-   * in cache. To have the query fire at even hours, specify an even start
-   * point (eg, 12:00) and 120 minutes as the interval. If E2 starts at
-   * 3:35, the first user request will be cached. The next request after
-   * 4:00 will go against the back-end rather than cache. The cache will
-   * then be used until 6:00, at which time the cache will be aged, and
-   * so-on. Use setCacheAgeTime to set the aging time and
-   * setCacheAgeInterval to set the interval.
+   * Enable caching based upon both an interval and a specified time of the day.
+   *
+   * <p>When both time and interval based caching are enabled, requests will be aged out of the
+   * cache based upon an interval from a specified starting time. Let's use the start time of 12:00
+   * and an interval of 15 minutes. If the first query is submitted at 12:10. This will be processed
+   * against the back-end and held in cache until 12:15. At that point, it will be aged out of the
+   * cache. If the next request comes along at 12:35 that will cause a new query. That request will
+   * be aged at 12:45. As you can see, the interval is used to specify a time of day rather than the
+   * amount of time the entry should remain in cache. To have the query fire at even hours, specify
+   * an even start point (eg, 12:00) and 120 minutes as the interval. If E2 starts at 3:35, the
+   * first user request will be cached. The next request after 4:00 will go against the back-end
+   * rather than cache. The cache will then be used until 6:00, at which time the cache will be
+   * aged, and so-on. Use setCacheAgeTime to set the aging time and setCacheAgeInterval to set the
+   * interval.
    *
    * @see #setCacheAgeTime
    * @see #setCacheAgeInterval
@@ -480,9 +421,8 @@ public class PSDataSelector extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param selector a valid PSDataSelector.
    */
@@ -504,10 +444,11 @@ public class PSDataSelector extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataSelector XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataSelector XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataSelector defines how data is being selected through a
@@ -625,7 +566,7 @@ public class PSDataSelector extends PSComponent {
    *    &lt;!ELEMENT ageTime          (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataSelector XML element node
+   * @return the newly created PSXDataSelector XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -686,12 +627,11 @@ public class PSDataSelector extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSDataSelector Java object
-   * from a PSXDataSelector XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataSelector Java object from a PSXDataSelector XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataSelector
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataSelector
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -835,18 +775,15 @@ public class PSDataSelector extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

@@ -25,35 +25,33 @@ import com.percussion.system.utils.PSUrlUtils;
 import java.util.HashMap;
 
 /**
- * This class implements the UDF processor interface so it can be used as a
- * Rhythmyx function. See {@link #processUdf(Object[], IPSRequestContext)
- * processUdf} for a description.
+ * This class implements the UDF processor interface so it can be used as a Rhythmyx function. See
+ * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description.
  */
 public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
   /**
-   * Creates a URL from the supplied parameters and returns it. Upto 6 name/
-   * value pairs may be specified for the arguments. For example,
-   * if the following were supplied as arguments:
+   * Creates a URL from the supplied parameters and returns it. Upto 6 name/ value pairs may be
+   * specified for the arguments. For example, if the following were supplied as arguments:
+   *
    * <ul>
-   *   <li>base = query1.html</li>
-   *   <li>param1 = city</li>
-   *   <li>value1 = Boston</li>
-   *   <li>param2 = state</li>
-   *   <li>value2 = MA</li>
+   *   <li>base = query1.html
+   *   <li>param1 = city
+   *   <li>value1 = Boston
+   *   <li>param2 = state
+   *   <li>value2 = MA
    * </ul>
+   *
    * then the following URL would be generated:
-   *   <p>query1f.html?city=Boston&state=MA</p>
    *
-   *   <p>Note: The base may contain parameters defined on it,
-   *       in which case the supplied parameters will be appended right after
-   *       the last parameter defined therein.
+   * <p>query1f.html?city=Boston&state=MA
    *
-   * @param params An array with upto 13 elements as defined below. The array
-   * is processed from beginning to end. As soon as the first <code>null</code>
-   * parameter is encountered (<code>null</code> values allowed), processing
-   * of the parameters will stop.
+   * <p>Note: The base may contain parameters defined on it, in which case the supplied parameters
+   * will be appended right after the last parameter defined therein.
    *
-   * <table border="1">
+   * @param params An array with upto 13 elements as defined below. The array is processed from
+   *     beginning to end. As soon as the first <code>null</code> parameter is encountered (<code>
+   *     null</code> values allowed), processing of the parameters will stop.
+   *     <table border="1">
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><tr>
    *   <tr>
    *     <td>1</td>
@@ -73,11 +71,8 @@ public class PSMakeLink extends PSSimpleJavaUdfExtension implements IPSUdfProces
    * </table>
    *
    * @param request The current request context.
-   *
-   * @return The url-string created from the supplied base, parameters and
-   *    values. If the resource is empty or <code>null</code>, an empty
-   *    string will be returned.
-   *
+   * @return The url-string created from the supplied base, parameters and values. If the resource
+   *     is empty or <code>null</code>, an empty string will be returned.
    * @throws PSConversionException if the url cannot be constructed.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)

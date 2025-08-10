@@ -35,22 +35,17 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * Plugin class to modify RXLOCATIONSCHEMEPARAMS table.
- * Two new columns have been added to the above table, both are
- * non-nullable columns. The regular installation process creates a backup table
- * but fails to add the data. This plugin takes the data from the backup table
- * and then generates a sequential number for the newly added SCHEMEPARAMID
- * column and values for CONTEXTID column it picks it from LOCATIONSCHEME Table.
+ * Plugin class to modify RXLOCATIONSCHEMEPARAMS table. Two new columns have been added to the above
+ * table, both are non-nullable columns. The regular installation process creates a backup table but
+ * fails to add the data. This plugin takes the data from the backup table and then generates a
+ * sequential number for the newly added SCHEMEPARAMID column and values for CONTEXTID column it
+ * picks it from LOCATIONSCHEME Table.
  */
 public class PSUpgradePluginLocationSchemeTable implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginLocationSchemeTable() {}
 
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     config.getLogStream().println("inside the process() of the plugin...");
 
@@ -165,18 +160,12 @@ public class PSUpgradePluginLocationSchemeTable implements IPSUpgradePlugin {
 
   /**
    * Helper function returns contextid.
-   * @param elemSchemeParam
-   * @param nlSchemes rows with the following DTD
-   * <row>
-   * <column name="SCHEMEID">1</column>
-   * <column name="SCHEMENAME">Article</column>
-   * <column name="DESCRIPTION">Article scheme</column>
-   * <column name="VARIANTID">1</column>
-   * <column name="CONTENTTYPEID">1</column>
-   * <column name="CONTEXTID">1</column>
-   * <column name="GENERATOR">Java/global/percussion</column>
-   * </row>
    *
+   * @param elemSchemeParam
+   * @param nlSchemes rows with the following DTD <row> <column name="SCHEMEID">1</column> <column
+   *     name="SCHEMENAME">Article</column> <column name="DESCRIPTION">Article scheme</column>
+   *     <column name="VARIANTID">1</column> <column name="CONTENTTYPEID">1</column> <column
+   *     name="CONTEXTID">1</column> <column name="GENERATOR">Java/global/percussion</column> </row>
    */
   private String getContextId(Element elemSchemeParam, NodeList nlSchemes) {
     NodeList nl = elemSchemeParam.getElementsByTagName("column");

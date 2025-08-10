@@ -71,17 +71,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Cataloger used on the server side to make a request to the server on behalf
- * of a component on the server side e.g a loadable handler could request system
- * shared or local fields from this class rather than requesting directly from
- * the server.
+ * Cataloger used on the server side to make a request to the server on behalf of a component on the
+ * server side e.g a loadable handler could request system shared or local fields from this class
+ * rather than requesting directly from the server.
  */
 public class PSLocalCataloger implements IPSCataloger {
   /**
    * Construct an instance with a request object.
    *
-   * @param psRequest The request object. It may not be <code>null</code>
-   *    It must be an instance of <code>PSRequest</code>.
+   * @param psRequest The request object. It may not be <code>null</code> It must be an instance of
+   *     <code>PSRequest</code>.
    */
   public PSLocalCataloger(Object psRequest) {
     if (psRequest == null) throw new IllegalArgumentException("request may not be null");
@@ -93,19 +92,17 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * You get the same fields you would get if calling
-   * {@link #getCEFieldXml(int)}, but only system fields are processed. This
-   * is much more efficient than using the previously mentioned method and the
-   * class that processes the document returned by that method.
-   * <p>
-   * This method differs slightly from the other one in that you will always
-   * get fields back, even if there were no content editors defined in the
-   * system. In all practical situations, this will never occur.
+   * You get the same fields you would get if calling {@link #getCEFieldXml(int)}, but only system
+   * fields are processed. This is much more efficient than using the previously mentioned method
+   * and the class that processes the document returned by that method.
+   *
+   * <p>This method differs slightly from the other one in that you will always get fields back,
+   * even if there were no content editors defined in the system. In all practical situations, this
+   * will never occur.
    *
    * @param controlFlags See {@link #getCEFieldXml(int)} for description.
-   *
-   * @return Never <code>null</code>. Each entry is the internal name of a
-   * system field that matches the supplied flags.
+   * @return Never <code>null</code>. Each entry is the internal name of a system field that matches
+   *     the supplied flags.
    */
   @SuppressWarnings("unchecked")
   public Set getSystemFields(int controlFlags) {
@@ -176,11 +173,11 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Adds fields to the shared map for all shared fields specified by the
-   * {@link #m_sharedFields} map.
+   * Adds fields to the shared map for all shared fields specified by the {@link #m_sharedFields}
+   * map.
    *
-   * @param sharedDef The shared def to use, may be <code>null</code> in which
-   * case this method simply returns.
+   * @param sharedDef The shared def to use, may be <code>null</code> in which case this method
+   *     simply returns.
    * @param controlFlags The control flags to use to filter fields.
    */
   private void addSharedFields(PSContentEditorSharedDef sharedDef, int controlFlags) {
@@ -231,9 +228,7 @@ public class PSLocalCataloger implements IPSCataloger {
     return conf.getSearchConfig();
   }
 
-  /**
-   * See {@link IPSCataloger#getRelationshipInfoSet() interface}
-   */
+  /** See {@link IPSCataloger#getRelationshipInfoSet() interface} */
   @SuppressWarnings("unused")
   public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException {
     PSRelationshipInfoSet infoSet = new PSRelationshipInfoSet();
@@ -248,16 +243,14 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Scans the supplied set looking for read-only fields. All readonly fields
-   * are processed the same as those that had been included in the content
-   * editors. So called read-only fields are populated by the content
-   * editor engine and not allowed to be modified directly by users.
+   * Scans the supplied set looking for read-only fields. All readonly fields are processed the same
+   * as those that had been included in the content editors. So called read-only fields are
+   * populated by the content editor engine and not allowed to be modified directly by users.
    *
-   * @param sysDef The system def. Assumed not <code>null</code>.  If its
-   * fieldset is <code>null</code>, returns immediately.
-   *
-   * @param controlFlags A set of flags to indicate whether to include certain
-   * fields. Composed of the <code>FLAG_xxx</code> values or'd together.
+   * @param sysDef The system def. Assumed not <code>null</code>. If its fieldset is <code>null
+   *     </code>, returns immediately.
+   * @param controlFlags A set of flags to indicate whether to include certain fields. Composed of
+   *     the <code>FLAG_xxx</code> values or'd together.
    */
   private void processSystemOnlyFields(PSContentEditorSystemDef sysDef, int controlFlags) {
     PSFieldSet fs = sysDef.getFieldSet();
@@ -291,17 +284,16 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Recurse through each mapper within a mapping to populate
-   * <code>m_systemMap</code>, <code>m_sharedMap</code> and
-   * <code>m_localMap</code> with the corresponding content editor fields.
+   * Recurse through each mapper within a mapping to populate <code>m_systemMap</code>, <code>
+   * m_sharedMap</code> and <code>m_localMap</code> with the corresponding content editor fields.
    * See the documentation for the respective maps.
    *
    * @param dispMapper assumed to be <code>null</code>.
    * @param mapper assumed to be <code>null</code>.
-   * @param contentType The unique (text) identifier of the content editor type
-   *    that owns this display mapping. Assumed not <code>null</code> or empty.
-   * @param controlFlags a set of flags to indicate whether to include certain
-   *    fields. Composed of the <code>FLAG_xxx</code> values or'd together.
+   * @param contentType The unique (text) identifier of the content editor type that owns this
+   *     display mapping. Assumed not <code>null</code> or empty.
+   * @param controlFlags a set of flags to indicate whether to include certain fields. Composed of
+   *     the <code>FLAG_xxx</code> values or'd together.
    */
   private void recurseMapping(
       PSDisplayMapper dispMapper,
@@ -376,14 +368,13 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Processes the supplied field and after filtering by the control flags adds
-   * it to the correct map.
+   * Processes the supplied field and after filtering by the control flags adds it to the correct
+   * map.
    *
    * @param contentType The content type, ignored for system and shared fields.
    * @param controlFlags The flags to use to restrict which fields are added.
    * @param uiSet The ui set for the field, may be <code>null</code>.
-   * @param fieldName The name of the field, assumed not <code>null</code> or
-   * empty.
+   * @param fieldName The name of the field, assumed not <code>null</code> or empty.
    * @param field The field object, assumed not <code>null</code>.
    */
   private void processField(
@@ -411,15 +402,13 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * We only want to process a given system field once. Extracting
-   * choices is expensive and processing once per content type is wasteful of
-   * bandwidth as well in the returned document.
+   * We only want to process a given system field once. Extracting choices is expensive and
+   * processing once per content type is wasteful of bandwidth as well in the returned document.
    *
    * @param field the field, assumed not <code>null</code>
-   * @param internalName the internal name of the field used to store data in
-   *           the maps, assumed not <code>null</code> or empty
-   * @return <code>true</code> if the field is a system and
-   *         has already been recorded.
+   * @param internalName the internal name of the field used to store data in the maps, assumed not
+   *     <code>null</code> or empty
+   * @return <code>true</code> if the field is a system and has already been recorded.
    */
   private boolean alreadyhaveSystemOrSharedInfo(PSField field, String internalName) {
     if (field.isSystemField()) {
@@ -430,29 +419,26 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Populates system, shared and local fields in their respective maps. See
-   * {@link #recurseMapping(PSDisplayMapper, PSContentEditorMapper, String,
-   * int)}. If the includeAll flag is <code>false</code>, then all fields
-   * whose user searchable property is <code>true</code> will be returned. If
-   * <code>true</code>, then additional fields whose searchable property is
-   * <code>false</code> but are not read only will also be included. Binary
-   * fields are never included.
+   * Populates system, shared and local fields in their respective maps. See {@link
+   * #recurseMapping(PSDisplayMapper, PSContentEditorMapper, String, int)}. If the includeAll flag
+   * is <code>false</code>, then all fields whose user searchable property is <code>true</code> will
+   * be returned. If <code>true</code>, then additional fields whose searchable property is <code>
+   * false</code> but are not read only will also be included. Binary fields are never included.
    *
-   * @param field {@link com.percussion.design.objectstore.PSField}, assumed
-   * to be not <code>null</code>.
+   * @param field {@link com.percussion.design.objectstore.PSField}, assumed to be not <code>null
+   *     </code>.
    * @param internalName internal name of the field, assumed to be not <code>
    *    null</code>.
    * @param displayName display name of the field, assumed to be not <code>
    *    null</code>.
-   * @param mnemonic the menmonic for the display name, assumed not
-   * <code>null</code>.
-   * @param id content id of the field. Supply "-1" if there isn't one (
-   * example system and shared fields).
-   * @param choices An optional set of choices to use with the field. May be
-   * <code>null</code>. If <code>null</code> and the supplied
-   * <code>field</code> supplies its own choices, those will be used instead.
-   * @param controlFlags A set of flags to indicate whether to include certain
-   * fields. Composed of the <code>FLAG_xxx</code> values or'd together.
+   * @param mnemonic the menmonic for the display name, assumed not <code>null</code>.
+   * @param id content id of the field. Supply "-1" if there isn't one ( example system and shared
+   *     fields).
+   * @param choices An optional set of choices to use with the field. May be <code>null</code>. If
+   *     <code>null</code> and the supplied <code>field</code> supplies its own choices, those will
+   *     be used instead.
+   * @param controlFlags A set of flags to indicate whether to include certain fields. Composed of
+   *     the <code>FLAG_xxx</code> values or'd together.
    */
   private void populateMap(
       PSField field,
@@ -518,20 +504,18 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Localizes the supplied choices using the specified language.  If the
-   * <code>choices</code> object is <code>null</code> or does not define any
-   * local choice entries, the supplied object is returned unmodified.
-   * Otherwise a copy is returned with the display text of the local choice
+   * Localizes the supplied choices using the specified language. If the <code>choices</code> object
+   * is <code>null</code> or does not define any local choice entries, the supplied object is
+   * returned unmodified. Otherwise a copy is returned with the display text of the local choice
    * entries translated.
    *
    * @param choices The choices, assumed not <code>null</code>.
-   * @param lang The language string to use for the translation, assumed not
-   * <code>null</code> or empty.
-   * @param keyBase The base of the key to use when getting the translation
-   * from the bundle.  Specifies everything up through the "@", and the label
-   * of each local entry is appended onto this to build the full key used to
-   * retrieve the translation.  Assumed not <code>null</code> or empty.
-   *
+   * @param lang The language string to use for the translation, assumed not <code>null</code> or
+   *     empty.
+   * @param keyBase The base of the key to use when getting the translation from the bundle.
+   *     Specifies everything up through the "@", and the label of each local entry is appended onto
+   *     this to build the full key used to retrieve the translation. Assumed not <code>null</code>
+   *     or empty.
    * @return The localized choices, never <code>null</code>.
    */
   private PSChoices localizeChoices(PSChoices choices, String lang, String keyBase) {
@@ -563,17 +547,13 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Looks for entries in map with the supplied key. If found, expected to
-   * be a Collection. If found, f is added to this collection. If not found,
-   * a new collection is created and added to the map and f is added to this
-   * new collection.
+   * Looks for entries in map with the supplied key. If found, expected to be a Collection. If
+   * found, f is added to this collection. If not found, a new collection is created and added to
+   * the map and f is added to this new collection.
    *
    * @param map Assumed not <code>null</code>.
-   *
    * @param f Assumed not <code>null</code>.
-   *
-   * @param key Assumed not <code>null</code> or empty. Lowercased before
-   *    performing search on map.
+   * @param key Assumed not <code>null</code> or empty. Lowercased before performing search on map.
    */
   @SuppressWarnings("unchecked")
   private void addToMap(Map map, FieldObject f, String key) {
@@ -587,12 +567,10 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Converts the data in the shared, system and local maps to an Xml element
-   * conforming to a DTD in {@link com.percussion.cms.objectstore.IPSCataloger
-   * #getCEFieldXml(int)}
-   * @param controlFlags The control flags supplied to the
-   * {@link #getCEFieldXml(int)} request.
+   * Converts the data in the shared, system and local maps to an Xml element conforming to a DTD in
+   * {@link com.percussion.cms.objectstore.IPSCataloger #getCEFieldXml(int)}
    *
+   * @param controlFlags The control flags supplied to the {@link #getCEFieldXml(int)} request.
    * @return element containing content editor fields, never <code>null</code>.
    */
   private Element toXml(int controlFlags) {
@@ -609,19 +587,11 @@ public class PSLocalCataloger implements IPSCataloger {
   /**
    * Convenience method to add shared and local elements to the root document.
    *
-   * @param type content type - shared, system or local, assumed to be not
-   * <code>null</code>.
-   *
-   * @param root root element, <code>ROOT_ELEM</code>, assumed to be not
-   * <code>null</code>.
-   *
-   * @param map shared or local map, assumed to be not <code>null</code> or
-   * empty.
-   *
+   * @param type content type - shared, system or local, assumed to be not <code>null</code>.
+   * @param root root element, <code>ROOT_ELEM</code>, assumed to be not <code>null</code>.
+   * @param map shared or local map, assumed to be not <code>null</code> or empty.
    * @param doc parent document, assumed to be not <code>null</code>.
-   *
-   * @param controlFlags The control flags supplied to
-   * {@link #getCEFieldXml(int)}
+   * @param controlFlags The control flags supplied to {@link #getCEFieldXml(int)}
    */
   private void addElement(String type, Element root, Map map, Document doc, int controlFlags) {
     Element elem = doc.createElement(type);
@@ -721,22 +691,17 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Determine if the specified field is to be included based on the set of
-   * field names supplied when the catalog was requested.
+   * Determine if the specified field is to be included based on the set of field names supplied
+   * when the catalog was requested.
    *
-   * @param fieldName The field name to check, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if the field is included, <code>false</code> if
-   * not.
+   * @param fieldName The field name to check, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if the field is included, <code>false</code> if not.
    */
   private boolean isFieldIncluded(String fieldName) {
     return m_fieldNames == null || m_fieldNames.isEmpty() || m_fieldNames.contains(fieldName);
   }
 
-  /**
-   * Resets any state in preparation for a new call to catalog fields.
-   */
+  /** Resets any state in preparation for a new call to catalog fields. */
   private void initFieldCatalog() {
     m_fieldNames = null;
     m_localMap.clear();
@@ -746,9 +711,9 @@ public class PSLocalCataloger implements IPSCataloger {
   }
 
   /**
-   * Convenience class abstracting the display name, datatype and id of a
-   * content field. It's being used as a value in <code>m_sharedMap</code>
-   * <code>m_localMap</code> with field's internal name as the key.
+   * Convenience class abstracting the display name, datatype and id of a content field. It's being
+   * used as a value in <code>m_sharedMap</code> <code>m_localMap</code> with field's internal name
+   * as the key.
    */
   private class FieldObject {
     /**
@@ -758,12 +723,10 @@ public class PSLocalCataloger implements IPSCataloger {
      *    null</code>.
      * @param dispName the display name, assumed to be not <code>
      *    null</code>.
-     * @param mnemonic the menmonic assigend to the display name, assumed
-     *    not <code>null</code>.
+     * @param mnemonic the menmonic assigend to the display name, assumed not <code>null</code>.
      * @param id the id of the field, assumed to be not <code>
      *    null</code>.
-     * @param readOnly <code>true</code> if the field is read only,
-     *    <code>false</code> otherwise.
+     * @param readOnly <code>true</code> if the field is read only, <code>false</code> otherwise.
      * @param choices The choices for the field, may be <code>null</code>.
      */
     FieldObject(
@@ -786,15 +749,11 @@ public class PSLocalCataloger implements IPSCataloger {
      *
      * @param dataType the data type of the field, assumed to be not <code>
      * null</code>.
-     *
      * @param dispName the display name, assumed to be not <code>
      * null</code>.
-     *
      * @param id the id of the field, assumed to be not <code>
      * null</code>.
-     *
-     * @param readOnly <code>true</code> if the field is read only,
-     * <code>false</code> otherwise.
+     * @param readOnly <code>true</code> if the field is read only, <code>false</code> otherwise.
      */
     FieldObject(String dataType, String dispName, String id, boolean readOnly) {
       this(dataType, dispName, "", id, readOnly, null);
@@ -805,7 +764,6 @@ public class PSLocalCataloger implements IPSCataloger {
      *
      * @param dataType the data type of the field, assumed to be not <code>
      * null</code>.
-     *
      * @param id the id of the field, assumed to be not <code>
      * null</code>.
      */
@@ -850,8 +808,8 @@ public class PSLocalCataloger implements IPSCataloger {
     }
 
     /**
-     * Indicates whether the field described by this summary is read-only,
-     * meaning it can't be used in a search field, only as a result.
+     * Indicates whether the field described by this summary is read-only, meaning it can't be used
+     * in a search field, only as a result.
      *
      * @return <code>true</code> if it is read only, <code>false</code> if not
      */
@@ -880,76 +838,59 @@ public class PSLocalCataloger implements IPSCataloger {
      */
     private String m_dataType;
 
-    /**
-     * Display name of the field, initialized in one of the ctors, may be <
-     * code>null</code>.
-     */
+    /** Display name of the field, initialized in one of the ctors, may be < code>null</code>. */
     private String m_displayName;
 
     /**
-     * Mnemonic of the field, initialized in one of the ctors, not
-     * <code>null</code>, may be empty.
+     * Mnemonic of the field, initialized in one of the ctors, not <code>null</code>, may be empty.
      */
     private String m_mnemonic;
 
-    /**
-     * See {@link #isReadOnly()}. Set in ctor, then never modified.
-     */
+    /** See {@link #isReadOnly()}. Set in ctor, then never modified. */
     private boolean m_readOnly;
 
-    /**
-     * Optional choices for the field's value, may be <code>null</code>.
-     */
+    /** Optional choices for the field's value, may be <code>null</code>. */
     private PSChoices m_choices;
   }
 
-  /**
-   * The request supplied to the ctor.  Never <code>null</code> or modified
-   * directly after that.
-   */
+  /** The request supplied to the ctor. Never <code>null</code> or modified directly after that. */
   private PSRequest m_request = null;
 
   /**
-   * System map for system content editor fields. The key is the internal name
-   * of the field and the value is a Collection containing <code>FieldObject
-   * </code> types, abstracting display name, data type and content type id.
-   * Never <code>null</code>.
+   * System map for system content editor fields. The key is the internal name of the field and the
+   * value is a Collection containing <code>FieldObject
+   * </code> types, abstracting display name, data type and content type id. Never <code>null</code>
+   * .
    */
   private Map m_systemMap = new HashMap();
 
   /**
-   * Shared map for shared content editor fields. The key is the internal name
-   * of the field and the value is a List containing <code>FieldObject</code>
-   * types, abstracting display name, data type and content type id. Since
-   * any given name could occur in multiple editors, we provide all the data
-   * so the client can display the results in different ways. Never
-   * <code>null</code>.
+   * Shared map for shared content editor fields. The key is the internal name of the field and the
+   * value is a List containing <code>FieldObject</code> types, abstracting display name, data type
+   * and content type id. Since any given name could occur in multiple editors, we provide all the
+   * data so the client can display the results in different ways. Never <code>null</code>.
    */
   private Map m_sharedMap = new HashMap();
 
   /**
-   * Local map for local fields. See <code>m_sharedMap</code> for details.
-   * Never <code>null</code>.
+   * Local map for local fields. See <code>m_sharedMap</code> for details. Never <code>null</code>.
    */
   private Map m_localMap = new HashMap();
 
   /**
-   * Map of shared fields to process in order to use the source field rather
-   * than the overriden field defintion.  Key is the fieldset name as a
-   * <code>String</code>, value is a <code>Set</code> of field names as
-   * <code>String</code> objects.
+   * Map of shared fields to process in order to use the source field rather than the overriden
+   * field defintion. Key is the fieldset name as a <code>String</code>, value is a <code>Set</code>
+   * of field names as <code>String</code> objects.
    */
   private Map<String, Set<String>> m_sharedFields = new HashMap<>();
 
   /**
-   * Set of names to include specified when the catalog is requested.   May be
-   * <code>null</code> or empty to allow all fields.
+   * Set of names to include specified when the catalog is requested. May be <code>null</code> or
+   * empty to allow all fields.
    */
   private Set<String> m_fieldNames;
 
-  /**
-   * Used to represent that there is not content type associated with a field.
-   */
+  /** Used to represent that there is not content type associated with a field. */
   private static final String INVALID_CONTENT_TYPE = "-1";
 
   // node names

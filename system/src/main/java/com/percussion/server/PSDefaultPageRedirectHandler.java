@@ -19,8 +19,8 @@ package com.percussion.server;
 import java.io.IOException;
 
 /**
- * Handles a request for the default page of an application by generating
- * a HTTP_MOVED_TEMPORARILY response that redirects to the default page
+ * Handles a request for the default page of an application by generating a HTTP_MOVED_TEMPORARILY
+ * response that redirects to the default page
  *
  * @author James Schultz
  * @since 4.0
@@ -29,13 +29,12 @@ public class PSDefaultPageRedirectHandler implements IPSRequestHandler {
   /**
    * Creates a new PSDefaultPageRedirectHandler
    *
-   * @param fullRequestRoot includes the server and application root (don't
-   *    include a trailing slash); must not be <code>null</code> or empty;
-   *    for example, "/Rhythmyx/sys_ca" (uses the same format as the output
-   *    from <code>PSServer.makeRequestRoot</code>)
-   * @param defaultPage the resource (page) within an application to use;
-   *    must not be <code>null</code> or empty; for example,
-   *    "camain.html?sys_componentname=ca_inbox&sys_pagename=ca_inbox"
+   * @param fullRequestRoot includes the server and application root (don't include a trailing
+   *     slash); must not be <code>null</code> or empty; for example, "/Rhythmyx/sys_ca" (uses the
+   *     same format as the output from <code>PSServer.makeRequestRoot</code>)
+   * @param defaultPage the resource (page) within an application to use; must not be <code>null
+   *     </code> or empty; for example,
+   *     "camain.html?sys_componentname=ca_inbox&sys_pagename=ca_inbox"
    */
   public PSDefaultPageRedirectHandler(String fullRequestRoot, String defaultPage) {
     if (null == fullRequestRoot
@@ -63,8 +62,8 @@ public class PSDefaultPageRedirectHandler implements IPSRequestHandler {
   }
 
   /**
-   * Stores the redirection URL to which this handler will send requests.
-   * Never <code>null</code> or empty.
+   * Stores the redirection URL to which this handler will send requests. Never <code>null</code> or
+   * empty.
    */
   private String m_url = "/index.htm";
 }

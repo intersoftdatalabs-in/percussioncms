@@ -61,29 +61,23 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class is the main class for upgrade process and its process method is
- * called from InstallShield.
+ * This class is the main class for upgrade process and its process method is called from
+ * InstallShield.
  */
 public class RxUpgrade {
-  /**
-   * Constructor used to initialize the current upgrade date for writing log
-   * files.
-   */
+  /** Constructor used to initialize the current upgrade date for writing log files. */
   public RxUpgrade() {
     initDate();
   }
 
   /**
-   * Takes the configuration file and rhythmyx root directory, creates an
-   * instance of PSUpgradeConfig by passing the configuration file then loops
-   * through all the valid modules and process the Plugins, Transform Files
-   * and property files.
+   * Takes the configuration file and rhythmyx root directory, creates an instance of
+   * PSUpgradeConfig by passing the configuration file then loops through all the valid modules and
+   * process the Plugins, Transform Files and property files.
    *
-   * @param rxRoot The root directory of the installed Rhythmyx, may not be
-   * <code>null</code> or empty
-   *
-   * @param cfgDoc document with the plugins, may not be
-   * <code>null</code>.
+   * @param rxRoot The root directory of the installed Rhythmyx, may not be <code>null</code> or
+   *     empty
+   * @param cfgDoc document with the plugins, may not be <code>null</code>.
    */
   public void process(String rxRoot, Document cfgDoc) {
     if ((rxRoot == null) || (rxRoot.trim().length() < 1))
@@ -105,16 +99,13 @@ public class RxUpgrade {
   }
 
   /**
-   * Takes the configuration file and rhythmyx root directory, creates an
-   * instance of PSUpgradeConfig by passing the configuration file then loops
-   * through all the valid modules and process the Plugins, Transform Files
-   * and property files.
+   * Takes the configuration file and rhythmyx root directory, creates an instance of
+   * PSUpgradeConfig by passing the configuration file then loops through all the valid modules and
+   * process the Plugins, Transform Files and property files.
    *
-   * @param rxRoot The root directory of the installed Rhythmyx, may not be
-   * <code>null</code> or empty
-   *
-   * @param cfgFile Name of the configuration file, may not be
-   * <code>null</code> or empty
+   * @param rxRoot The root directory of the installed Rhythmyx, may not be <code>null</code> or
+   *     empty
+   * @param cfgFile Name of the configuration file, may not be <code>null</code> or empty
    */
   public void process(String rxRoot, String cfgFile) {
     if ((rxRoot == null) || (rxRoot.trim().length() < 1))
@@ -157,6 +148,7 @@ public class RxUpgrade {
 
   /**
    * Executes all plugin modules found in the supplied upgrade config collection.
+   *
    * @param upgradeConfig, never <code>null</code>.
    */
   private void execute(IPSUpgradeConfig upgradeConfig) {
@@ -198,28 +190,18 @@ public class RxUpgrade {
   }
 
   /**
-   * Handles the propertyfiles files based on the following DTD
-   * <!ELEMENT propertyfiles (file*)>
-   * <!ELEMENT file (variable*)>
-   * <!ATTLIST file path CDATA #REQUIRED>
-   * <!ATTLIST file status CDATA #REQUIRED>
-   * <!ELEMENT variable (#PCDATA)>
-   * <!ATTLIST variable name CDATA #REQUIRED>
-   * <!ATTLIST variable action CDATA #REQUIRED>
-   * <!ATTLIST variable modifyifexist CDATA #REQUIRED>
-   * Accepts three kinds of actions for properties add, delete and modify
-   * 1) action delete simply removes the property,
-   * 2) action add adds if the property does not exist and if exists changes
-   *    its value based on condition modifyifexist.
-   *    modifyifexist=yes changes property value
-   *    modifyifexist=no does not change property value
-   * 3) action modify modifies if exists and if does not exists adds based on
-   *     condition addifnotexist
-   *    addifnotexist=yes adds property
-   *    addifnotexist=no does not add property
+   * Handles the propertyfiles files based on the following DTD <!ELEMENT propertyfiles (file*)>
+   * <!ELEMENT file (variable*)> <!ATTLIST file path CDATA #REQUIRED> <!ATTLIST file status CDATA
+   * #REQUIRED> <!ELEMENT variable (#PCDATA)> <!ATTLIST variable name CDATA #REQUIRED> <!ATTLIST
+   * variable action CDATA #REQUIRED> <!ATTLIST variable modifyifexist CDATA #REQUIRED> Accepts
+   * three kinds of actions for properties add, delete and modify 1) action delete simply removes
+   * the property, 2) action add adds if the property does not exist and if exists changes its value
+   * based on condition modifyifexist. modifyifexist=yes changes property value modifyifexist=no
+   * does not change property value 3) action modify modifies if exists and if does not exists adds
+   * based on condition addifnotexist addifnotexist=yes adds property addifnotexist=no does not add
+   * property
    *
-   * @param config, the upgrade module
-   * May not be <code>null</code>.
+   * @param config, the upgrade module May not be <code>null</code>.
    */
   private void handlePropertyFiles(IPSUpgradeModule config) {
     config.getLogStream().println("Running property file updates...");
@@ -322,11 +304,10 @@ public class RxUpgrade {
   }
 
   /**
-   * Loops through all the plugins in a module and calls execute method of
-   * PSUpgradePluginMgr class by passing the plugin element.
+   * Loops through all the plugins in a module and calls execute method of PSUpgradePluginMgr class
+   * by passing the plugin element.
    *
-   * @param config, the upgrade module
-   * May not be <code>null</code>.
+   * @param config, the upgrade module May not be <code>null</code>.
    */
   private void handlePlugins(IPSUpgradeModule config) {
     config.getLogStream().println("Running plugins...");
@@ -352,7 +333,7 @@ public class RxUpgrade {
   }
 
   /**
-   * Checks if pre-upgrade plugins are about to run.  Sets flag accordingly.
+   * Checks if pre-upgrade plugins are about to run. Sets flag accordingly.
    *
    * @param config, the upgrade module.
    */
@@ -368,27 +349,23 @@ public class RxUpgrade {
 
   /**
    * Handles the Transform Files based on the following DTD
+   *
+   * <p>&lt;!ELEMENT transformfiles (file*)> &lt;!ELEMENT file (#PCDATA)> &lt;!ATTLIST file path
+   * CDATA #REQUIRED> &lt;!ATTLIST file transformxsl CDATA #REQUIRED> &lt;!ATTLIST file status CDATA
+   * #REQUIRED> &lt;!ATTLIST file type CDATA #IMPLIED>
+   *
+   * <p>If the file specified by the <code>path</code> attribute of the <code>file</code> element is
+   * a directory then the stylesheet is applied to all the XML files in the directory.
+   *
+   * <p>The <code>type</code> attribute of the <code>file</code> element specifies the type of XML
+   * files to which the stylesheet should be applied. Current only one type "ContentEditor" is
+   * supported. This attribute is optional and by default the stylesheet is applied to all the files
+   * in the directory. If the type is specified as "ContentEditor" then the stylesheet is applied to
+   * only those XML files in the specified path which contain "PSXContentEditor" element. If type is
+   * specified then it must either be empty or equal (case-insensitive) "ContentEditor".
+   *
    * <p>
-   * &lt;!ELEMENT transformfiles (file*)>
-   * &lt;!ELEMENT file (#PCDATA)>
-   * &lt;!ATTLIST file path CDATA #REQUIRED>
-   * &lt;!ATTLIST file transformxsl CDATA #REQUIRED>
-   * &lt;!ATTLIST file status CDATA #REQUIRED>
-   * &lt;!ATTLIST file type CDATA #IMPLIED>
-   * <p>
-   * If the file specified by the <code>path</code> attribute of the
-   * <code>file</code> element is a directory then the stylesheet is applied
-   * to all the XML files in the directory.
-   * <p>
-   * The <code>type</code> attribute of the <code>file</code> element
-   * specifies the type of XML files to which the stylesheet should be
-   * applied. Current only one type "ContentEditor" is supported. This
-   * attribute is optional and by default the stylesheet is applied to all
-   * the files in the directory. If the type is specified as "ContentEditor"
-   * then the stylesheet is applied to only those XML files in the specified
-   * path which contain "PSXContentEditor" element. If type is specified then
-   * it must either be empty or equal (case-insensitive) "ContentEditor".
-   * <p>
+   *
    * @param config, the upgrade module, assumed not <code>null</code>
    */
   private void handleTransformFiles(IPSUpgradeModule config) {
@@ -438,20 +415,16 @@ public class RxUpgrade {
   }
 
   /**
-   * Returns an iterator over a list of file paths. All the file paths
-   * are valid and point to an existing file on the system.
+   * Returns an iterator over a list of file paths. All the file paths are valid and point to an
+   * existing file on the system.
    *
-   * @param file the path of an Xml file or a directory containing xml, may
-   * not be <code>null</code> or empty
-   *
-   * @param type specifies the type of XML file which should be returned,
-   * should either be <code>null</code> or empty or equal "ContentEditor"
-   *
+   * @param file the path of an Xml file or a directory containing xml, may not be <code>null</code>
+   *     or empty
+   * @param type specifies the type of XML file which should be returned, should either be <code>
+   *     null</code> or empty or equal "ContentEditor"
    * @param ps stream for logging, assumed not <code>null</code>
-   *
-   * @return an iteror over a list of file paths (<code>String</code>),
-   * never <code>null</code>, may be empty
-   *
+   * @return an iteror over a list of file paths (<code>String</code>), never <code>null</code>, may
+   *     be empty
    * @throws IllegalArgumentException if any param is invalid
    */
   private Iterator getXmlFiles(String file, String type, PrintStream ps) {
@@ -486,18 +459,14 @@ public class RxUpgrade {
   }
 
   /**
-   * Determines whether the specified file is a Rhythmyx Content Editor
-   * application file. Returns <code>true</code> if the root element
-   * equals "PSXApplication" and contains atleast one "PSXContentEditor"
-   * element.
+   * Determines whether the specified file is a Rhythmyx Content Editor application file. Returns
+   * <code>true</code> if the root element equals "PSXApplication" and contains atleast one
+   * "PSXContentEditor" element.
    *
-   * @param file the file to test for Content Editor, may not be
-   * <code>null</code> or non-empty
-   *
+   * @param file the file to test for Content Editor, may not be <code>null</code> or non-empty
    * @param ps stream for logging, may not be <code>null</code>
-   *
-   * @return <code>true</code> is the specified file is a Rhythmyx Content
-   * Editor application file, <code>false</code> otherwise.
+   * @return <code>true</code> is the specified file is a Rhythmyx Content Editor application file,
+   *     <code>false</code> otherwise.
    */
   public static boolean isContentEditorApp(File file, PrintStream ps)
       throws IllegalArgumentException {
@@ -536,9 +505,8 @@ public class RxUpgrade {
   }
 
   /**
-   * Show how to transform a DOM tree into another DOM tree.
-   * This uses the javax.xml.parsers to parse an XML file into a
-   * DOM, and create an output DOM.
+   * Show how to transform a DOM tree into another DOM tree. This uses the javax.xml.parsers to
+   * parse an XML file into a DOM, and create an output DOM.
    *
    * @param srcDoc source document, must not be <code>null</code>.
    * @param xslFile xsl file for transforming, must not be <code>null</code>.
@@ -582,9 +550,8 @@ public class RxUpgrade {
   }
 
   /**
-   * Show how to transform a DOM tree into another DOM tree.
-   * This uses the javax.xml.parsers to parse an XML file into a
-   * DOM, and create an output DOM.
+   * Show how to transform a DOM tree into another DOM tree. This uses the javax.xml.parsers to
+   * parse an XML file into a DOM, and create an output DOM.
    *
    * @param sourceID source XML file, must not be <code>null</code>.
    * @param xslID xsl file for transforming, must not be <code>null</code>.
@@ -613,15 +580,13 @@ public class RxUpgrade {
   }
 
   /**
-   * Write the XML document to the specified output file. If
-   * <code>dtd</code> is specified (not <code>null</code> and non-empty) then
-   * the output document will contain a DOCTYPE with the
+   * Write the XML document to the specified output file. If <code>dtd</code> is specified (not
+   * <code>null</code> and non-empty) then the output document will contain a DOCTYPE with the
    * specified <code>dtd</code>.
    *
    * @param doc the XML document to be written, may not be <code>null</code>.
    * @param outputFile the file to write to, may not be <code>null</code>.
    * @param dtd the path of dtd file, may be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs while writting the document.
    */
@@ -676,13 +641,11 @@ public class RxUpgrade {
   }
 
   /**
-   * This is a quick way to execute your plugin. It needs two arguments
-   * 1. root directory which needs to be upgraded
-   * 2. a plugin configuration file that needs to run your plugin
-   * Note: Configuration file must reside in the %RX_INSTALL_DIR%/upgrade. If
-   * config file is testUpgrage.xml, pathname is appended as
-   * %RX_INSTALL_DIR%/upgrade/testUpgrade.xml
-   * Main method for testing purpose and to run upgrade as batch file if needed.
+   * This is a quick way to execute your plugin. It needs two arguments 1. root directory which
+   * needs to be upgraded 2. a plugin configuration file that needs to run your plugin Note:
+   * Configuration file must reside in the %RX_INSTALL_DIR%/upgrade. If config file is
+   * testUpgrage.xml, pathname is appended as %RX_INSTALL_DIR%/upgrade/testUpgrade.xml Main method
+   * for testing purpose and to run upgrade as batch file if needed.
    */
   public static void main(String[] args) {
     try {
@@ -705,16 +668,12 @@ public class RxUpgrade {
     }
   }
 
-  /**
-   * Returns the full path of upgrade directory
-   */
+  /** Returns the full path of upgrade directory */
   public static String getUpgradeRoot() {
     return m_RxRootDir + File.separator + UPGRADE_DIR + File.separator;
   }
 
-  /**
-   * Returns the root directory of Rhythmyx
-   */
+  /** Returns the root directory of Rhythmyx */
   public static String getRxRoot() {
     if (m_RxRootDir.isEmpty()) {
       m_RxRootDir = PathUtils.getRxDir(null).getAbsolutePath();
@@ -723,12 +682,11 @@ public class RxUpgrade {
   }
 
   /**
-   * The connection to the backend repository. It uses the connection
-   * information from {@link #getRxRepositoryProps()}.
+   * The connection to the backend repository. It uses the connection information from {@link
+   * #getRxRepositoryProps()}.
    *
-   * @return the connection to the backend repository. Note, it is caller's
-   *   resposibility to close this connection.
-   *
+   * @return the connection to the backend repository. Note, it is caller's resposibility to close
+   *     this connection.
    * @throws Exception if an error occurs while creating the connection.
    */
   public static Connection getJdbcConnection() throws Exception {
@@ -756,16 +714,13 @@ public class RxUpgrade {
   }
 
   /**
-   * Gets repository properties which contains the information for creating
-   * JDBC connections. The location of the properties file is assumed at
-   * "rxconfig/Installer/rxrepository.properties" under the installed
-   * directory.
+   * Gets repository properties which contains the information for creating JDBC connections. The
+   * location of the properties file is assumed at "rxconfig/Installer/rxrepository.properties"
+   * under the installed directory.
    *
    * @return the repository properties, never <code>null</code>.
-   *
    * @throws IOException if cannot access the properties file.
-   * @throws FileNotFoundException if cannot find the properties file
-   *   described above file.
+   * @throws FileNotFoundException if cannot find the properties file described above file.
    */
   public static Properties getRxRepositoryProps() throws FileNotFoundException, IOException {
     Properties repprops = new Properties();
@@ -780,13 +735,11 @@ public class RxUpgrade {
   }
 
   /**
-   * Gets the objectstore directory by looking in server.properties for the
-   * objectstore properties file, then reading the objectstore directory
-   * property in the properties file.
+   * Gets the objectstore directory by looking in server.properties for the objectstore properties
+   * file, then reading the objectstore directory property in the properties file.
    *
-   * @return The file representing the objectstore directory, never
-   * <code>null</code>.  If any errors are encountered, <RxRoot>/ObjectStore
-   * will be returned.
+   * @return The file representing the objectstore directory, never <code>null</code>. If any errors
+   *     are encountered, <RxRoot>/ObjectStore will be returned.
    */
   public static File getObjectStoreDir() {
     String rxRoot = getRxRoot();
@@ -811,16 +764,13 @@ public class RxUpgrade {
   }
 
   /**
-   * Gets previous version properties which contains the previous version
-   * information. The location of the properties file is assumed at
-   * "PreviousVersion.properties" under the installed
+   * Gets previous version properties which contains the previous version information. The location
+   * of the properties file is assumed at "PreviousVersion.properties" under the installed
    * directory.
    *
    * @return the previous version properties, never <code>null</code>.
-   *
    * @throws IOException if cannot access the properties file.
-   * @throws FileNotFoundException if cannot find the properties file
-   *   described above file.
+   * @throws FileNotFoundException if cannot find the properties file described above file.
    */
   public static Properties getRxPreviousVersionProps() throws FileNotFoundException, IOException {
     Properties previousprops = new Properties();
@@ -831,15 +781,12 @@ public class RxUpgrade {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
-   * @param table the table name to qualify, must be valid and not
-   * <code>null</code>.
-   *
+   * @param table the table name to qualify, must be valid and not <code>null</code>.
    * @throws IOException if an error occurs loading repository properties.
-   * @throws FileNotFoundException if the repository properties can not be
-   * found.
+   * @throws FileNotFoundException if the repository properties can not be found.
    */
   public static String qualifyTableName(String table) throws FileNotFoundException, IOException {
     Properties dbProps = getRxRepositoryProps();
@@ -851,8 +798,8 @@ public class RxUpgrade {
   }
 
   /**
-   * Initializes the date of the current upgrade to the form yyyy-mm-dd only if
-   * it has not been initialized.
+   * Initializes the date of the current upgrade to the form yyyy-mm-dd only if it has not been
+   * initialized.
    */
   private static void initDate() {
     if (ms_date == null) {
@@ -862,10 +809,7 @@ public class RxUpgrade {
     }
   }
 
-  /**
-   * Creates the pre and post upgrade log file directories if they do not
-   * exist.
-   */
+  /** Creates the pre and post upgrade log file directories if they do not exist. */
   private static void initLogFileDirs() {
     File preLogFileDir = new File(getPreLogFileDir());
     if (!preLogFileDir.exists()) preLogFileDir.mkdirs();
@@ -875,8 +819,8 @@ public class RxUpgrade {
   }
 
   /**
-   * Gets the folder for the upgrade plugin log files.  This will be in the
-   * form [RxRoot]/upgrade/logs/yyyy-mm-dd/.
+   * Gets the folder for the upgrade plugin log files. This will be in the form
+   * [RxRoot]/upgrade/logs/yyyy-mm-dd/.
    */
   public static String getLogFileDir() {
     initDate();
@@ -885,108 +829,70 @@ public class RxUpgrade {
   }
 
   /**
-   * Gets the folder for the pre-upgrade log files for the current upgrade.
-   * Includes trailing '/'.
+   * Gets the folder for the pre-upgrade log files for the current upgrade. Includes trailing '/'.
    */
   public static String getPreLogFileDir() {
     return getLogFileDir() + PRE_DIR + File.separator;
   }
 
   /**
-   * Gets the folder for the post-upgrade log files for the current upgrade.
-   * Includes trailing '/'.
+   * Gets the folder for the post-upgrade log files for the current upgrade. Includes trailing '/'.
    */
   public static String getPostLogFileDir() {
     return getLogFileDir() + POST_DIR + File.separator;
   }
 
-  /**
-   * Constant for the name of the PROP_ACTION_ADD property.
-   */
+  /** Constant for the name of the PROP_ACTION_ADD property. */
   public static final String PROP_ACTION_ADD = "add";
 
-  /**
-   * Constant for the name of the PROP_ACTION_DELETE property.
-   */
+  /** Constant for the name of the PROP_ACTION_DELETE property. */
   public static final String PROP_ACTION_DELETE = "delete";
 
-  /**
-   * Constant for the name of the PROP_ACTION_MODIFY property.
-   */
+  /** Constant for the name of the PROP_ACTION_MODIFY property. */
   public static final String PROP_ACTION_MODIFY = "modify";
 
-  /**
-   * Constant for the name of the PROP_CONDITION_MODIFYIFEXIST property.
-   */
+  /** Constant for the name of the PROP_CONDITION_MODIFYIFEXIST property. */
   public static final String PROP_CONDITION_MODIFYIFEXIST = "modifyifexist";
 
-  /**
-   * Constant for the name of the PROP_CONDITION_ADDIFNOTEXIST property.
-   */
+  /** Constant for the name of the PROP_CONDITION_ADDIFNOTEXIST property. */
   public static final String PROP_CONDITION_ADDIFNOTEXIST = "addifnotexist";
 
-  /**
-   * Constant for the name of the YES property.
-   */
+  /** Constant for the name of the YES property. */
   public static final String YES = "yes";
 
-  /**
-   * Constant for the name of the NO property.
-   */
+  /** Constant for the name of the NO property. */
   public static final String NO = "no";
 
-  /**
-   * Name of the Rhythmyx root directory initialized in process function
-   */
+  /** Name of the Rhythmyx root directory initialized in process function */
   private static String m_RxRootDir = "";
 
-  /**
-   * Upgrade directory name
-   */
+  /** Upgrade directory name */
   public static final String UPGRADE_DIR = "upgrade";
 
-  /**
-   * Upgrade plugins log files directory
-   */
+  /** Upgrade plugins log files directory */
   public static final String LOGS_DIR = "logs";
 
-  /**
-   * Pre-upgrade plugins directory
-   */
+  /** Pre-upgrade plugins directory */
   public static final String PRE_DIR = "preupgrade";
 
-  /**
-   * Post-upgrade plugins directory
-   */
+  /** Post-upgrade plugins directory */
   public static final String POST_DIR = "postupgrade";
 
-  /**
-   * Flag for pre-upgrade plugins
-   */
+  /** Flag for pre-upgrade plugins */
   public static boolean ms_bPreUpgrade = false;
 
-  /**
-   * Pre-upgrade plugin response object storage
-   */
+  /** Pre-upgrade plugin response object storage */
   public static ArrayList ms_pluginResponses = new ArrayList();
 
-  /**
-   * The objectstore property name in server.properties
-   */
+  /** The objectstore property name in server.properties */
   private static final String PROPS_OBJECT_STORE_VAR = "objectStoreProperties";
 
-  /**
-   * The default objectstore properties file
-   */
+  /** The default objectstore properties file */
   private static final String PROPS_OBJECT_STORE = "rxconfig/Server/objectstore.properties";
 
-  /**
-   * The objectstore directory property name in objectstore.properties
-   */
+  /** The objectstore directory property name in objectstore.properties */
   private static final String PROPS_OBJECT_STORE_DIR = "objectDirectory";
 
-  /**
-   * Date of current upgrade in the form yyyy-mm-dd initialized in ctor.
-   */
+  /** Date of current upgrade in the form yyyy-mm-dd initialized in ctor. */
   private static String ms_date = null;
 }

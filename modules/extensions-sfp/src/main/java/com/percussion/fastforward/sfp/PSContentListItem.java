@@ -33,56 +33,39 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Represents a single content item/variant in a publishing content list.
- */
+/** Represents a single content item/variant in a publishing content list. */
 public class PSContentListItem implements Comparable {
   /**
-   * Ctor taking all the attributes of a content list item to be
-   * published/previewed
+   * Ctor taking all the attributes of a content list item to be published/previewed
    *
-   * @param contentId ContentId of the item to be published, must not be
-   *           <code>null</code>.
-   * @param revision Revision of the item to be published, must not be
-   *           <code>null</code>. It is important to note that when the item
-   *           is serielized as an XML document using
-   *           {@link #toXml(Document, IPSRequestContext)}, the revision is
-   *           corrected to represent the last public revision if the item is
-   *           in "i" state (Quick Edit).
-   * @param variantId VariantId of the item to be published, must not be
-   *           <code>null</code>.
-   * @param variantBase Assembly url for the variant specified by the
-   *           variantid, must not be <code>null</code>
-   * @param contentTitle content title of the item, may be <code>null</code>
-   *           or empty.
-   * @param folderId Item's parent fodlerid, may be <code>null</code> or
-   *           empty.
-   * @param lastModifiedDate item's last modified date, may be
-   *           <code>null</code>.
+   * @param contentId ContentId of the item to be published, must not be <code>null</code>.
+   * @param revision Revision of the item to be published, must not be <code>null</code>. It is
+   *     important to note that when the item is serielized as an XML document using {@link
+   *     #toXml(Document, IPSRequestContext)}, the revision is corrected to represent the last
+   *     public revision if the item is in "i" state (Quick Edit).
+   * @param variantId VariantId of the item to be published, must not be <code>null</code>.
+   * @param variantBase Assembly url for the variant specified by the variantid, must not be <code>
+   *     null</code>
+   * @param contentTitle content title of the item, may be <code>null</code> or empty.
+   * @param folderId Item's parent fodlerid, may be <code>null</code> or empty.
+   * @param lastModifiedDate item's last modified date, may be <code>null</code>.
    * @param expiryDate item's expiry, may be <code>null</code>.
-   * @param lastModifier last modifer's name, may be <code>null</code> or
-   *           empty.
-   * @param contentTypeId content typeid of the item, may be <code>null</code>
-   *           or empty.
+   * @param lastModifier last modifer's name, may be <code>null</code> or empty.
+   * @param contentTypeId content typeid of the item, may be <code>null</code> or empty.
    * @param filenameContext context value, may be <code>null</code> or empty.
-   * @param folderPath item's parent folder path, may be <code>null</code> or
-   *           empty.
+   * @param folderPath item's parent folder path, may be <code>null</code> or empty.
    * @param linkGenerator link generator object, must not be <code>null</code>.
-   * @param unpublishValue unpublish attribute value, may be <code>null</code>
-   *           or empty.
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
+   * @param unpublishValue unpublish attribute value, may be <code>null</code> or empty.
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
    * @param port the port number to use when creating content URLs
-   * @param paramSetToPass Set of names of non-standard HTML parameters to pass
-   *           from request context to each content item url in the content
-   *           list, may be <code>null</code> or empty.
-   * @param getLastPubRev4QEState <code>true</code> if need to get the last
-   *           public revision when invoking
-   *           {@link #toXml(Document, IPSRequestContext)}. This flag will
-   *           set to <code>false</code> by
-   *           {@link #setLastPublicRevision(String)}.
+   * @param paramSetToPass Set of names of non-standard HTML parameters to pass from request context
+   *     to each content item url in the content list, may be <code>null</code> or empty.
+   * @param getLastPubRev4QEState <code>true</code> if need to get the last public revision when
+   *     invoking {@link #toXml(Document, IPSRequestContext)}. This flag will set to <code>false
+   *     </code> by {@link #setLastPublicRevision(String)}.
    */
   public PSContentListItem(
       String contentId,
@@ -142,8 +125,9 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * Create an instance of the class from its XML representation. The XML
-   * representation is in the format below:
+   * Create an instance of the class from its XML representation. The XML representation is in the
+   * format below:
+   *
    * <pre><code>
    * &lt;!ELEMENT contentitem (title?, contenturl, delivery, modifydate,
    *                            modifyuser, expiredate, contenttype )>
@@ -160,15 +144,13 @@ public class PSContentListItem implements Comparable {
    * &lt;!ATTLIST  contentitem unpublish CDATA #REQUIRED>
    * &lt;!ATTLIST  contentitem revision CDATA #REQUIRED>
    * </code></pre>
-   * Note, must not call {@link #isContentUrlNull()} from this instance, since
-   * that data is undetermined. The "title" element is an optional element.
    *
-   * @param src the XML representcation of the instance, never
-   *    <code>null</code>. It must conform with described above, which is
-   *    specified in {@link #fromXml(Element)}.
+   * Note, must not call {@link #isContentUrlNull()} from this instance, since that data is
+   * undetermined. The "title" element is an optional element.
    *
-   * @throws PSUnknownNodeTypeException if the src does not conform with
-   *    dtd described above.
+   * @param src the XML representcation of the instance, never <code>null</code>. It must conform
+   *     with described above, which is specified in {@link #fromXml(Element)}.
+   * @throws PSUnknownNodeTypeException if the src does not conform with dtd described above.
    */
   public PSContentListItem(Element src) throws PSUnknownNodeTypeException {
     fromXml(src);
@@ -177,12 +159,10 @@ public class PSContentListItem implements Comparable {
   /**
    * Set the instance according to the supplied XML representation.
    *
-   * @param src the XML representation of the instance,
-   *    assumed not <code>null</code>, it must conform with the dtd described
-   *    in {@link #PSContentListItem(Element)}.
-   *
-   * @throws PSUnknownNodeTypeException if the src does not conform with the
-   *    dtd described in {@link #PSContentListItem(Element)}.
+   * @param src the XML representation of the instance, assumed not <code>null</code>, it must
+   *     conform with the dtd described in {@link #PSContentListItem(Element)}.
+   * @throws PSUnknownNodeTypeException if the src does not conform with the dtd described in {@link
+   *     #PSContentListItem(Element)}.
    */
   private void fromXml(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src must not be null");
@@ -247,16 +227,16 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * Generates a XML representation of the content item to be published,
-   * conforming to the Rhythmyx contentlist DTD. A request context is required
-   * because the assembler URL and delivery location path will be generated.
+   * Generates a XML representation of the content item to be published, conforming to the Rhythmyx
+   * contentlist DTD. A request context is required because the assembler URL and delivery location
+   * path will be generated.
    *
-   * @param doc the XML document that will generate the content item element,
-   * must not be <code>null</code>.
-   * @param request the current request context, used to generate assembler URL
-   * and delivery location path, must not be <code>null</code>.
-   * @return a XML representation of the content item to be published,
-   * conforming to the Rhythmyx contentlist DTD.  Never <code>null</code>.
+   * @param doc the XML document that will generate the content item element, must not be <code>null
+   *     </code>.
+   * @param request the current request context, used to generate assembler URL and delivery
+   *     location path, must not be <code>null</code>.
+   * @return a XML representation of the content item to be published, conforming to the Rhythmyx
+   *     contentlist DTD. Never <code>null</code>.
    */
   public Element toXml(Document doc, IPSRequestContext request) {
     if (doc == null) throw new IllegalArgumentException("XML document may not be null");
@@ -392,8 +372,8 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * Helper method to Make a null content url and append as an XML comment node
-   * to the element node supplied.
+   * Helper method to Make a null content url and append as an XML comment node to the element node
+   * supplied.
    *
    * @param doc the parentXML document, assumed not <code>null</code>.
    * @param request request context, assumed not <code>null</code>
@@ -416,11 +396,10 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * Set the revision to the supplied new revision, which should be the last
-   * public revision of the item.
+   * Set the revision to the supplied new revision, which should be the last public revision of the
+   * item.
    *
-   * @param revision
-   *    the last public revision, never <code>null</code> or empty.
+   * @param revision the last public revision, never <code>null</code> or empty.
    */
   public void setLastPublicRevision(String revision) {
     if (revision == null || revision.trim().length() == 0)
@@ -445,16 +424,14 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * @return Unpublish attribute of the item, may be <code>null</code> or
-   *         empty.
+   * @return Unpublish attribute of the item, may be <code>null</code> or empty.
    */
   public String getUnpublishValue() {
     return m_unpublishValue;
   }
 
   /**
-   * @return If the Url is null then return <code>true</code>
-   *         otherwise <code>false</code>.
+   * @return If the Url is null then return <code>true</code> otherwise <code>false</code>.
    */
   public boolean isContentUrlNull() {
     if (m_contenturl != null)
@@ -466,9 +443,9 @@ public class PSContentListItem implements Comparable {
 
   /**
    * Get last modified date as string.
-   * @return last modifed date as string, may be <code>null</code>. If not
-   *         <code>null</code>, it will be formatted as per the pattern
-   *         {@link #DATE_FORMAT_PATTERN}.
+   *
+   * @return last modifed date as string, may be <code>null</code>. If not <code>null</code>, it
+   *     will be formatted as per the pattern {@link #DATE_FORMAT_PATTERN}.
    */
   public String getLastModifiedDateAsString() {
     if (m_lastModifiedDate != null) {
@@ -481,10 +458,9 @@ public class PSContentListItem implements Comparable {
    * Get delivery location using the link generator.
    *
    * @param request request context object, must not be <code>null</code>.
-   * @return Deliverty location as generated by the link generator supplied to
-   *         the constructor.
-   * @see PSSiteFolderContentListLinkGenerator#generatePubLocation(String,
-   *      String, String, String, String, IPSRequestContext)
+   * @return Deliverty location as generated by the link generator supplied to the constructor.
+   * @see PSSiteFolderContentListLinkGenerator#generatePubLocation(String, String, String, String,
+   *     String, IPSRequestContext)
    */
   public String getDeliveryLocation(IPSRequestContext request) {
     if (request == null) {
@@ -525,36 +501,30 @@ public class PSContentListItem implements Comparable {
   }
 
   /**
-   * The key used to compare 2 different <code>PSContentListItem</code>
-   * objects. This is used by <code>PSContentList</code> to sort
-   * the items by contentId and its variantId
+   * The key used to compare 2 different <code>PSContentListItem</code> objects. This is used by
+   * <code>PSContentList</code> to sort the items by contentId and its variantId
    */
   private String m_compareKey = null;
 
   /**
-   * Protocol for the HTTP request to be constructed for the content URL.
-   * Never <code>null</code> or empty after construction. Never modified
-   * after construction.
+   * Protocol for the HTTP request to be constructed for the content URL. Never <code>null</code> or
+   * empty after construction. Never modified after construction.
    */
   private String m_protocol;
 
   /**
-   * Host ip address or name for the HTTP request to be constructed for the
-   * content URL. Never <code>null</code> or empty after construction. Never
-   * modified after construction.
+   * Host ip address or name for the HTTP request to be constructed for the content URL. Never
+   * <code>null</code> or empty after construction. Never modified after construction.
    */
   private String m_host;
 
   /**
-   * Port number for the HTTP request to be constructed for the content URL.
-   * Never modified after construction.
+   * Port number for the HTTP request to be constructed for the content URL. Never modified after
+   * construction.
    */
   private int m_port;
 
-  /**
-   * Constant for the pattern used to format the last modified and expiration
-   * dates.
-   */
+  /** Constant for the pattern used to format the last modified and expiration dates. */
   private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
   // Attributes of each item that is part of the content list for publishing.
@@ -576,33 +546,27 @@ public class PSContentListItem implements Comparable {
   private boolean m_nullUrl;
 
   /**
-   * The data of "contenturl" element. It may be <code>null</code> if did not
-   * set by the ctor. It is only set by {@link #fromXml(Element)}.
+   * The data of "contenturl" element. It may be <code>null</code> if did not set by the ctor. It is
+   * only set by {@link #fromXml(Element)}.
    */
   private String m_contenturl = null;
 
-  /**
-   * String constant for content valid flag "i", indicates the item is in
-   * Quick-Edit state.
-   */
+  /** String constant for content valid flag "i", indicates the item is in Quick-Edit state. */
   public static final char CONTENTVALID_FLAG_I = 'i';
 
   /**
-   * Set of optional parameter names that need to be appended to the contenturl
-   * for the item. Could be initialized in the ctor, may be <code>null</code>
-   * or empty.
+   * Set of optional parameter names that need to be appended to the contenturl for the item. Could
+   * be initialized in the ctor, may be <code>null</code> or empty.
    */
   private Set m_paramSetToPass = null;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSContentListItem.class);
 
   /**
-   * This is used to determine whether it needs get the last public revision
-   * if the current item is in quick edit state. Initialized by ctor and set
-   * to <code>false</code> by {@link #setLastPublicRevision(String)}
+   * This is used to determine whether it needs get the last public revision if the current item is
+   * in quick edit state. Initialized by ctor and set to <code>false</code> by {@link
+   * #setLastPublicRevision(String)}
    */
   private boolean m_getLastPubRev4QEState;
 }

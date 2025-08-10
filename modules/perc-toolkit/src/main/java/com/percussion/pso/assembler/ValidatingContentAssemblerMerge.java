@@ -32,16 +32,14 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.tidy.Tidy;
 
 /**
- * This class can be used by content assemblers to validate rendered content
- * with the JTIDY class library.
+ * This class can be used by content assemblers to validate rendered content with the JTIDY class
+ * library.
  *
  * @author natechadwick
  */
 public class ValidatingContentAssemblerMerge {
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(ValidatingContentAssemblerMerge.class);
 
   private ValidatingContentAssemblerMerge() {}

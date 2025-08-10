@@ -20,12 +20,10 @@ package com.percussion.debug;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the Mapper trace message type (0x0080).
- * Includes:
- * Each mapping that was skipped (query only)
- * For each UDF:
- * Value of each input param (by doing a toString on it) in the form 'param=value'.
- * The value returned (by doing a toString on it) in the form 'return=value'
+ * Used to generate trace messages for the Mapper trace message type (0x0080). Includes: Each
+ * mapping that was skipped (query only) For each UDF: Value of each input param (by doing a
+ * toString on it) in the form 'param=value'. The value returned (by doing a toString on it) in the
+ * form 'return=value'
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceMapper extends PSTraceMessage {
@@ -46,17 +44,13 @@ public class PSTraceMapper extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an object containing the information required for the trace
-   * message.  Three different cases handled:
-   * For skipped/used mappings on a query:
-   * - Boolean: used or not
-   * For before and after params for a UDF:
-   * - String udfName, object[] args, object result
-   * For mapping itself:
-   * - columnname, nodename
+   * @param source an object containing the information required for the trace message. Three
+   *     different cases handled: For skipped/used mappings on a query: - Boolean: used or not For
+   *     before and after params for a UDF: - String udfName, object[] args, object result For
+   *     mapping itself: - columnname, nodename
    * @return the message body
    * @roseuid 39FEE2F30242
    */

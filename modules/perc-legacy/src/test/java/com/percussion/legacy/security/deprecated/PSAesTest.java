@@ -27,18 +27,15 @@ import org.junit.jupiter.api.Test;
 
 @Deprecated
 public class PSAesTest {
-  /**
-   * Encryption key used to test AES functionality. Must be 16 bytes
-   */
+  /** Encryption key used to test AES functionality. Must be 16 bytes */
   final String encryptionKey = "0123456789abcdef";
 
   private SecretKey testKey;
   private PSAesCBC aes;
 
   /**
-   * Assert that the encrypt method returns a String that is different from
-   * the input. Assert that the decrypt method returns a String equal to the
-   * original input of the encrypt method.
+   * Assert that the encrypt method returns a String that is different from the input. Assert that
+   * the decrypt method returns a String equal to the original input of the encrypt method.
    *
    * @throws Exception
    */
@@ -76,8 +73,8 @@ public class PSAesTest {
   }
 
   /**
-   * PSAesCBC.decrypt(byte[], String) expects a non-empty key; for random-IV byte[] mode
-   * the implementation currently requires a key string. Use a constant test key.
+   * PSAesCBC.decrypt(byte[], String) expects a non-empty key; for random-IV byte[] mode the
+   * implementation currently requires a key string. Use a constant test key.
    */
   @Test
   @org.junit.jupiter.api.Disabled(

@@ -22,19 +22,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * This class represents a sql statement that is a step in a
- * PSJdbcExecutionPlan, and contains all the info it requires to be executed at
- * run-time.
+ * This class represents a sql statement that is a step in a PSJdbcExecutionPlan, and contains all
+ * the info it requires to be executed at run-time.
  */
 public class PSJdbcSqlStatement extends PSJdbcExecutionStep {
   /**
    * Constructs Sql statement to execute.
    *
-   * @param statement The statement to execute, may not be <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalArgumentException if statement is <code>null</code> or
-   * empty.
+   * @param statement The statement to execute, may not be <code>null</code> or empty.
+   * @throws IllegalArgumentException if statement is <code>null</code> or empty.
    */
   public PSJdbcSqlStatement(String statement) {
     if (statement == null || statement.trim().length() == 0)
@@ -89,9 +85,6 @@ public class PSJdbcSqlStatement extends PSJdbcExecutionStep {
     return updateCount;
   }
 
-  /**
-   * The statement to execute, initialized in ctor, never <code>null</code> or
-   * empty.
-   */
+  /** The statement to execute, initialized in ctor, never <code>null</code> or empty. */
   protected String m_statement;
 }

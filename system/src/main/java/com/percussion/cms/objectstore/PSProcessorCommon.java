@@ -29,13 +29,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is the base class for a set of processors that use applications to
- * perform their work. This class performs various processing work that is
- * independent of how the data is submitted to the server. It calls various
- * doXXX methods passing in the resource name and the processed data. This
- * class manages the configuration properties and passes on the appropriate
- * ones.
+ * This is the base class for a set of processors that use applications to perform their work. This
+ * class performs various processing work that is independent of how the data is submitted to the
+ * server. It calls various doXXX methods passing in the resource name and the processed data. This
+ * class manages the configuration properties and passes on the appropriate ones.
+ *
  * <p>The following properties must be specified in the processor config.
+ *
  * <table>
  *    <tr>
  *       <th>Property name</th>
@@ -140,35 +140,26 @@ import org.w3c.dom.Element;
  * @version 1.0
  */
 public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKeyGenerator {
-  /**
-   * The maximum number of ids that can be pre-allocated or requested in a
-   * single request.
-   */
+  /** The maximum number of ids that can be pre-allocated or requested in a single request. */
   public static final int MAX_IDS = 1000;
 
-  /**
-   * Default consructor
-   */
+  /** Default consructor */
   protected PSProcessorCommon() {}
 
   /**
-   * Constructor that stores the supplied props for later use. Implementors
-   * should not instantiate this class directly.
+   * Constructor that stores the supplied props for later use. Implementors should not instantiate
+   * this class directly.
    *
-   * @param props The set of required and optional properties for all
-   *    component types, as specified in the class description. Each entry
-   *    in the map has a String (component type) as the key and Map,
-   *    as the value. Each map entry has a String key and String (standard
-   *    property) or Element (custom property) value.
-   *    <p>Properties come in 1 of 2 flavors, standard
-   *    or custom. Standard properties are stored in the collection as
-   *    Strings, custom properties as Elements. Never <code>null</code>.
-   *    Missing properties will not be discovered until an operation is
-   *    activated. A ref to this map is stored in this instance for
-   *    later use, the map and the collections it contains are never modified
-   *    by this class.
-   *    <p>All key names should be lowercased to allow case-insensitive
-   *    compares.
+   * @param props The set of required and optional properties for all component types, as specified
+   *     in the class description. Each entry in the map has a String (component type) as the key
+   *     and Map, as the value. Each map entry has a String key and String (standard property) or
+   *     Element (custom property) value.
+   *     <p>Properties come in 1 of 2 flavors, standard or custom. Standard properties are stored in
+   *     the collection as Strings, custom properties as Elements. Never <code>null</code>. Missing
+   *     properties will not be discovered until an operation is activated. A ref to this map is
+   *     stored in this instance for later use, the map and the collections it contains are never
+   *     modified by this class.
+   *     <p>All key names should be lowercased to allow case-insensitive compares.
    */
   protected PSProcessorCommon(Map props) {
     if (null == props) throw new IllegalArgumentException("A property map must be supplied.");
@@ -176,18 +167,17 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * See {@link IPSComponentProcessor#save(IPSDbComponent[]) interface} for
-   * general description.
+   * See {@link IPSComponentProcessor#save(IPSDbComponent[]) interface} for general description.
+   *
    * <p>More specifically, this class performs the following steps:
+   *
    * <ol>
-   *    <li>Get the component type from the component, if the type cannot
-   *       be found in the props, or any required props are missing, an
-   *       exception is thrown.</li>
-   *    <li>Call <code>toDbXml</code> and create a document whose root
-   *       element name was supplied in the props.</li>
-   *    <li>Call the derived class to perform the actual save.</li>
-   *    <li>If successful, call <code>setPersisted</code> on the components.
-   *       </li>
+   *   <li>Get the component type from the component, if the type cannot be found in the props, or
+   *       any required props are missing, an exception is thrown.
+   *   <li>Call <code>toDbXml</code> and create a document whose root element name was supplied in
+   *       the props.
+   *   <li>Call the derived class to perform the actual save.
+   *   <li>If successful, call <code>setPersisted</code> on the components.
    * </ol>
    */
   @SuppressWarnings("unchecked")
@@ -240,15 +230,10 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   /**
    * Derived classes add the communication to the server.
    *
-   * @param resourceName Never <code>null</code> or empty. The name of the
-   *    Rhythmyx resource in the format "appName/resourceName.xml". A query
-   *    string is allowed.
-   *
-   * @param input The document ready to send to the specified resource.
-   *    Never <code>null</code>.
-   *
-   * @throws PSCmsException If the save can't be performed for any reason,
-   *    including authorization.
+   * @param resourceName Never <code>null</code> or empty. The name of the Rhythmyx resource in the
+   *     format "appName/resourceName.xml". A query string is allowed.
+   * @param input The document ready to send to the specified resource. Never <code>null</code>.
+   * @throws PSCmsException If the save can't be performed for any reason, including authorization.
    */
   protected PSProcessingStatistics doSave(String resourceName, Document input)
       throws PSCmsException {
@@ -256,19 +241,14 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * Looks up the requested property for the specified component type. If the
-   * property is not found, an exception is thrown.
+   * Looks up the requested property for the specified component type. If the property is not found,
+   * an exception is thrown.
    *
-   * @param type  Assumed to be a value returned by the {@link
-   *    IPSDbComponent#getComponentType()} method.
-   *
-   * @param propName  Assumed not <code>null</code> or empty.
-   *
-   * @return The associated property, which may be empty, never
-   *    <code>null</code>.
-   *
-   * @throws PSCmsException If the property for the requested type cannot be
-   *    found in the config.
+   * @param type Assumed to be a value returned by the {@link IPSDbComponent#getComponentType()}
+   *     method.
+   * @param propName Assumed not <code>null</code> or empty.
+   * @return The associated property, which may be empty, never <code>null</code>.
+   * @throws PSCmsException If the property for the requested type cannot be found in the config.
    */
   private String getProperty(String type, String propName) throws PSCmsException {
     Map values = (Map) m_props.get(type.toLowerCase());
@@ -290,16 +270,13 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * Maps the supplied array into 0 or more PSDbComponentCollection objects.
-   * During processing, any <code>null</code> entries are removed. If any
-   * entry is a PSDbComponentCollection, it is returned itself.
+   * Maps the supplied array into 0 or more PSDbComponentCollection objects. During processing, any
+   * <code>null</code> entries are removed. If any entry is a PSDbComponentCollection, it is
+   * returned itself.
    *
-   * @param comps  Assumed not <code>null</code>. <code>null</code> entries
-   *    allowed in array.
-   *
-   * @return A set of PSDbComponentCollections. Any <code>null</code> entries
-   *    in comps will not be included in the returned collections. Never
-   *    <code>null</code>, may be empty.
+   * @param comps Assumed not <code>null</code>. <code>null</code> entries allowed in array.
+   * @return A set of PSDbComponentCollections. Any <code>null</code> entries in comps will not be
+   *     included in the returned collections. Never <code>null</code>, may be empty.
    */
   private Collection groupComponents(IPSDbComponent[] comps) {
     try {
@@ -340,18 +317,18 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * See {@link IPSComponentProcessor#load(String,PSKey[]) interface} for
-   * general description.
+   * See {@link IPSComponentProcessor#load(String,PSKey[]) interface} for general description.
+   *
    * <p>More specifically, this class performs the following steps:
+   *
    * <ol>
-   *    <li>Use the supplied componentType to find the required props to
-   *       perform load. If the type cannot be found in the props, or any
-   *       required props are missing, an exception is thrown.</li>
-   *    <li>If successful, extract each element and assign it to the correct
-   *       index in the Element array. If an Element is not found for a
-   *       requested key, set that Element entry to <code>null</code>.</li>
-   *    <li>For every key successfully loaded, set the persisted state of the
-   *       key to <code>true</code>.</li>
+   *   <li>Use the supplied componentType to find the required props to perform load. If the type
+   *       cannot be found in the props, or any required props are missing, an exception is thrown.
+   *   <li>If successful, extract each element and assign it to the correct index in the Element
+   *       array. If an Element is not found for a requested key, set that Element entry to <code>
+   *       null</code>.
+   *   <li>For every key successfully loaded, set the persisted state of the key to <code>true
+   *       </code>.
    * </ol>
    */
   public Element[] load(String componentType, PSKey[] locators) throws PSCmsException {
@@ -400,15 +377,11 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
    * Does work needed for updates and deletes.
    *
    * @param componentType Validates not <code>null</code>.
-   *
-   * @param locators Validates not <code>null</code>, that no entry is
-   *    <code>null</code> and that the keys are all the same type.
-   *
-   * @return Never <code>null</code>. Contains at least 1 entry. There is
-   *    an entry for each part in the
-   *    supplied key. The key is the part name and the value is a String[]
-   *    containing all the values for that part.
-   *
+   * @param locators Validates not <code>null</code>, that no entry is <code>null</code> and that
+   *     the keys are all the same type.
+   * @return Never <code>null</code>. Contains at least 1 entry. There is an entry for each part in
+   *     the supplied key. The key is the part name and the value is a String[] containing all the
+   *     values for that part.
    * @throws PSCmsException
    */
   private Map prepareForModify(String componentType, PSKey[] locators) {
@@ -446,20 +419,14 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   /**
    * Derived classes do the real work here.
    *
-   * @param resourceName Never <code>null</code> or empty. The name of the
-   *    Rhythmyx resource in the format "appName/resourceName.xml". A query
-   *    string is allowed.
-   *
-   * @param ids Never <code>null</code>. Each entry is a pair whose key
-   *    is a String and value is an String[]. The key is the name of the
-   *    primary key part, while the value contains all desired ids for that
-   *    key part. May be empty, indicating all instances are desired.
-   *
-   * @return A document with 1 or more serialized components.
-   * <code>null</code> if no components were located.
-   *
-   * @throws PSCmsException If the save can't be performed for any reason,
-   *    including authorization.
+   * @param resourceName Never <code>null</code> or empty. The name of the Rhythmyx resource in the
+   *     format "appName/resourceName.xml". A query string is allowed.
+   * @param ids Never <code>null</code>. Each entry is a pair whose key is a String and value is an
+   *     String[]. The key is the name of the primary key part, while the value contains all desired
+   *     ids for that key part. May be empty, indicating all instances are desired.
+   * @return A document with 1 or more serialized components. <code>null</code> if no components
+   *     were located.
+   * @throws PSCmsException If the save can't be performed for any reason, including authorization.
    */
   protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
@@ -468,40 +435,33 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   /**
    * Derived classes do the real work here.
    *
-   * @param resourceName Never <code>null</code> or empty. The name of the
-   *    Rhythmyx resource in the format "appName/resourceName.xml". A query
-   *    string is allowed.
-   *
-   * @param ids Never <code>null</code>. Each entry is a pair whose key
-   *    is a String and value is an String[]. The key is the name of the
-   *    primary key part, while the value contains all desired ids for that
-   *    key part. May be empty, indicating all instances are desired.
-   *
+   * @param resourceName Never <code>null</code> or empty. The name of the Rhythmyx resource in the
+   *     format "appName/resourceName.xml". A query string is allowed.
+   * @param ids Never <code>null</code>. Each entry is a pair whose key is a String and value is an
+   *     String[]. The key is the name of the primary key part, while the value contains all desired
+   *     ids for that key part. May be empty, indicating all instances are desired.
    * @return The number of components deleted.
-   *
-   * @throws PSCmsException If the delete can't be performed for any reason,
-   *    including authorization.
+   * @throws PSCmsException If the delete can't be performed for any reason, including
+   *     authorization.
    */
   protected int doDelete(String resourceName, Map ids) throws PSCmsException {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
   /**
-   * See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for
-   * general description.
-   * <p>More specifically, this class performs the following steps for each
-   *    group of similar keys:
+   * See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for general description.
+   *
+   * <p>More specifically, this class performs the following steps for each group of similar keys:
+   *
    * <ol>
-   *    <li>Use the supplied componentType to find the required props to
-   *       perform delete. If the type cannot be found in the props, or any
-   *       required props are missing, an exception is thrown.</li>
-   *    <li>If a deleteResource is supplied, for each key, create an html
-   *       parameter whose name is the name of the key part. The # of instances
-   *       of this param will be set based on how many keys are provided.</li>
-   *    <li>If not supplied, then the compTable and sequenceCol and keyCol
-   *       must be provided. In this case, cascading deletes are implemented
-   *       using code and the foreign key relationships that exist in the
-   *       db. </li>
+   *   <li>Use the supplied componentType to find the required props to perform delete. If the type
+   *       cannot be found in the props, or any required props are missing, an exception is thrown.
+   *   <li>If a deleteResource is supplied, for each key, create an html parameter whose name is the
+   *       name of the key part. The # of instances of this param will be set based on how many keys
+   *       are provided.
+   *   <li>If not supplied, then the compTable and sequenceCol and keyCol must be provided. In this
+   *       case, cascading deletes are implemented using code and the foreign key relationships that
+   *       exist in the db.
    * </ol>
    */
   public int delete(String componentType, PSKey[] locators) throws PSCmsException {
@@ -515,9 +475,8 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * See {@link IPSComponentProcessor#delete(IPSDbComponent[]) interface} for
-   * general description. This method marks all supplied comps for deletion,
-   * then sends them to the save method.
+   * See {@link IPSComponentProcessor#delete(IPSDbComponent[]) interface} for general description.
+   * This method marks all supplied comps for deletion, then sends them to the save method.
    */
   public int delete(IPSDbComponent[] comps) throws PSCmsException {
     for (int i = 0; i < comps.length; i++) {
@@ -539,16 +498,12 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * The derived class does the real work here. Must allocate a block of
-   * numbers from the NextNumber table, using the supplied lookup as the
-   * key.
+   * The derived class does the real work here. Must allocate a block of numbers from the NextNumber
+   * table, using the supplied lookup as the key.
    *
    * @param lookup Assumed not <code>null</code>.
-   *
    * @param count Assumed > 0;
-   *
    * @return An array with 0 or more entries.
-   *
    * @throws PSCmsException If any problems while allocating the ids.
    */
   protected int[] doAllocateIds(String lookup, int count) throws PSCmsException {
@@ -590,10 +545,9 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * Updates the version of all versionable db components for the supplied
-   * db component collection.  All versionable db components within any
-   * collections, lists, and sets included in the collection will also be
-   * updated.
+   * Updates the version of all versionable db components for the supplied db component collection.
+   * All versionable db components within any collections, lists, and sets included in the
+   * collection will also be updated.
    *
    * @param comps The db component collection, assumed not <code>null</code>.
    */
@@ -627,8 +581,7 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * Updates the version of all versionable db components for the supplied
-   * iterator.
+   * Updates the version of all versionable db components for the supplied iterator.
    *
    * @param iter The iterator, assumed not <code>null</code>.
    */
@@ -644,24 +597,22 @@ public abstract class PSProcessorCommon implements IPSComponentProcessor, IPSKey
   }
 
   /**
-   * Stores the configuration information for the supported components.
-   * Set in ctor, never <code>null</code> after that.
+   * Stores the configuration information for the supported components. Set in ctor, never <code>
+   * null</code> after that.
    */
   private Map m_props;
 
   /**
-   * How many ids should be allocated the next time allocateId is called
-   * (the extras are cached). Default is 1.
-   * Always in range 1 - 1000 inclusive.
+   * How many ids should be allocated the next time allocateId is called (the extras are cached).
+   * Default is 1. Always in range 1 - 1000 inclusive.
    */
   private int m_nextAllocationSize = 1;
 
   /**
-   * If any ids are pre-allocated, they are stored in this map, using the
-   * lookup as the key and the value is an int array of the ids. As each
-   * id is allocated, it is replaced in the array with Integer.MIN_VALUE.
-   * When there are no more entries in the array, the whole entry is removed
-   * from the map.
+   * If any ids are pre-allocated, they are stored in this map, using the lookup as the key and the
+   * value is an int array of the ids. As each id is allocated, it is replaced in the array with
+   * Integer.MIN_VALUE. When there are no more entries in the array, the whole entry is removed from
+   * the map.
    */
   private Map m_cachedIds = new HashMap();
 }

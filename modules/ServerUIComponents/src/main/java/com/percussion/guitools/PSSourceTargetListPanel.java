@@ -31,32 +31,23 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- * NOTE: While reviewing please keep in mind that no data objects have been
- * used as of yet so ctor and other places may have to be modified but that
- * shouldn't affect the ui in general, hopefully.
+ * NOTE: While reviewing please keep in mind that no data objects have been used as of yet so ctor
+ * and other places may have to be modified but that shouldn't affect the ui in general, hopefully.
  */
 
 /**
- * A generic panel containing a source list and a target list with two buttons,
- * 'Add' - for adding items selected from source list to the target list and
- * 'Remove' - for removing selected items from the target list and them back
- * into source list.
+ * A generic panel containing a source list and a target list with two buttons, 'Add' - for adding
+ * items selected from source list to the target list and 'Remove' - for removing selected items
+ * from the target list and them back into source list.
  */
 public class PSSourceTargetListPanel extends JPanel {
   /**
    * Constructs the panel.
    *
-   * @param srcLabel, label for the source list, cannot be <code>null</code> or
-   * empty.
-   *
-   * @param targetLabel, label for the target list, cannot be <code>null</code>
-   *  or empty.
-   *
+   * @param srcLabel, label for the source list, cannot be <code>null</code> or empty.
+   * @param targetLabel, label for the target list, cannot be <code>null</code> or empty.
    * @param topBtnName, top button name, cannot be <code>null</code> or empty.
-   *
-   * @param btmBtnName, bottom button name, cannot be <code>null</code> or
-   * empty.
-   *
+   * @param btmBtnName, bottom button name, cannot be <code>null</code> or empty.
    * @throw IllegalArgumentException if any of the arguments are invalid.
    */
   public PSSourceTargetListPanel(
@@ -67,21 +58,12 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * Constructs the panel.
    *
-   * @param srcLabel, label for the source list, cannot be <code>null</code> or
-   * empty.
-   *
-   * @param targetLabel, label for the target list, cannot be <code>null</code>
-   *  or empty.
-   *
+   * @param srcLabel, label for the source list, cannot be <code>null</code> or empty.
+   * @param targetLabel, label for the target list, cannot be <code>null</code> or empty.
    * @param topBtnName, top button name, cannot be <code>null</code> or empty.
-   *
-   * @param btmBtnName, bottom button name, cannot be <code>null</code> or
-   * empty.
-   *
+   * @param btmBtnName, bottom button name, cannot be <code>null</code> or empty.
    * @param topBtnMnem, bottom button mnemonic, may be <code>null</code>
-   *
    * @param btmBtnMnem, bottom button mnemonic, may be <code>null</code>
-   *
    * @throw IllegalArgumentException if any of the arguments are invalid.
    */
   public PSSourceTargetListPanel(
@@ -94,9 +76,7 @@ public class PSSourceTargetListPanel extends JPanel {
     loadPanel(srcLabel, targetLabel, topBtnName, btmBtnName, topBtnMnem, btmBtnMnem);
   }
 
-  /**
-   * see doc for the above Constructor
-   */
+  /** see doc for the above Constructor */
   private void loadPanel(
       String srcLabel,
       String targetLabel,
@@ -128,8 +108,8 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * Sets the model for the left list.
    *
-   * @param mdl, model for the list, may not be <code>null</code> may be empty,
-   * if <code>null</code> then the method silently returns.
+   * @param mdl, model for the list, may not be <code>null</code> may be empty, if <code>null</code>
+   *     then the method silently returns.
    */
   public void setModel(ListModel mdl, boolean isSrc) {
     if (mdl == null) return;
@@ -141,9 +121,7 @@ public class PSSourceTargetListPanel extends JPanel {
    * Gets the model for the list specified by it's label name.
    *
    * @param listLabel, label of the list, may not be <code>null</code> or empty
-   *
    * @return model for the list name supplied, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if arguments are invalid
    */
   public DefaultListModel getModel(String listLabel) {
@@ -156,9 +134,7 @@ public class PSSourceTargetListPanel extends JPanel {
     } else throw new IllegalArgumentException("List's label name has to be supplied");
   }
 
-  /**
-   * Initializes the panel.
-   */
+  /** Initializes the panel. */
   private void init() {
     EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
     setBorder(emptyBorder);
@@ -211,10 +187,9 @@ public class PSSourceTargetListPanel extends JPanel {
   }
 
   /**
-   * Sets the buttons to enabled or disabled state based on the selection in
-   * either list. If nothing is selected in either list both the buttons are
-   * disabled. If an item is selected in left list then the top button is
-   * enabled. If an item is selected in right list then the bottom button is
+   * Sets the buttons to enabled or disabled state based on the selection in either list. If nothing
+   * is selected in either list both the buttons are disabled. If an item is selected in left list
+   * then the top button is enabled. If an item is selected in right list then the bottom button is
    * enabled.
    */
   private void setButtonsState() {
@@ -237,28 +212,22 @@ public class PSSourceTargetListPanel extends JPanel {
     else return m_targetList;
   }
 
-  /**
-   * Adds items selected from left list to the right list.
-   */
+  /** Adds items selected from left list to the right list. */
   private void onAdd() {
     action(m_srcList.getSelectedIndices(), m_srcList, m_targetList);
   }
 
-  /**
-   * Removes items selected from right list and puts them to the left list.
-   */
+  /** Removes items selected from right list and puts them to the left list. */
   private void onRemove() {
     action(m_targetList.getSelectedIndices(), m_targetList, m_srcList);
   }
 
   /**
-   * Add or remove operations are generically done based on selected indexes in
-   * left list. The result of the action is shown in the right list.
+   * Add or remove operations are generically done based on selected indexes in left list. The
+   * result of the action is shown in the right list.
    *
    * @param selectedIndices assumed length of this array is never 0.
-   *
    * @param srcJList left list, assumed to be not <code>null</code>.
-   *
    * @param destJList right list, assumed to be not <code>null</code>.
    */
   private void action(int[] selectedIndices, JList srcJList, JList destJList) {
@@ -301,9 +270,7 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * Creates the list panel.
    *
-   * @param isSrc, if it is <code>true</code> the left list is created else
-   * the right list.
-   *
+   * @param isSrc, if it is <code>true</code> the left list is created else the right list.
    * @return, panel containing the list, neve <code>null</code>.
    */
   private JPanel createListPanel(boolean isSrc) {
@@ -319,17 +286,10 @@ public class PSSourceTargetListPanel extends JPanel {
       panel.add(label);
     }
     /**
-     * Collection col = m_packageMap.values();
-     * List lst = new ArrayList();
-     * lst.addAll(col);
-     * Collections.sort(lst);
-     * DefaultListModel dlm = new DefaultListModel();
-     * int len = lst.size();
-     * for(int z =0 ; z < len; z++)
-     * //{
-     * Object o = lst.get(z);
-     * dlm.addElement(o);
-     * }*/
+     * Collection col = m_packageMap.values(); List lst = new ArrayList(); lst.addAll(col);
+     * Collections.sort(lst); DefaultListModel dlm = new DefaultListModel(); int len = lst.size();
+     * for(int z =0 ; z < len; z++) //{ Object o = lst.get(z); dlm.addElement(o); }
+     */
     JScrollPane listPane = null;
     if (isSrc) {
       m_srcList = new JList(new DefaultListModel());
@@ -352,8 +312,8 @@ public class PSSourceTargetListPanel extends JPanel {
   }
 
   /**
-   * Enables <code>m_removeBtn</code> if there is a selection in </code>
-   * m_targetList</code> list or else disables it.
+   * Enables <code>m_removeBtn</code> if there is a selection in </code> m_targetList</code> list or
+   * else disables it.
    */
   private class RightListListener implements ListSelectionListener {
     public void valueChanged(ListSelectionEvent e) {
@@ -363,8 +323,8 @@ public class PSSourceTargetListPanel extends JPanel {
   }
 
   /**
-   * Enables <code>m_addBtn</code> if there is
-   * a selection in </code>m_srcList</code> list or else disables it.
+   * Enables <code>m_addBtn</code> if there is a selection in </code>m_srcList</code> list or else
+   * disables it.
    */
   private class LeftListListener implements ListSelectionListener {
     public void valueChanged(ListSelectionEvent e) {
@@ -376,15 +336,14 @@ public class PSSourceTargetListPanel extends JPanel {
   /**
    * NOTE:: may change once the data objects are got.
    *
-   * This is a wrapper class for <code>???</code> objects
-   * which have to be displayed in a fixed order.
-   * The order is determined by the first parameter of the class's constructor
-   * and the wrapped object is the second parameter.
+   * <p>This is a wrapper class for <code>???</code> objects which have to be displayed in a fixed
+   * order. The order is determined by the first parameter of the class's constructor and the
+   * wrapped object is the second parameter.
    */
   private static class IndexedObject implements Comparable {
     /**
-     * Constructs an indexed wrapper object for <code>o</code> indexed on
-     * <code>index</code>.
+     * Constructs an indexed wrapper object for <code>o</code> indexed on <code>index</code>.
+     *
      * @param index object's index
      * @param o wrapped object assumed to be not <code>null</code>
      */
@@ -395,6 +354,7 @@ public class PSSourceTargetListPanel extends JPanel {
 
     /**
      * Gets the index of the wrapped object.
+     *
      * @return index of the wrapped object.
      */
     int getIndex() {
@@ -403,6 +363,7 @@ public class PSSourceTargetListPanel extends JPanel {
 
     /**
      * Gets the wrapped object.
+     *
      * @return, never <code>null</code>
      */
     Object getValue() {
@@ -428,20 +389,19 @@ public class PSSourceTargetListPanel extends JPanel {
 
     /**
      * String representation of the object.
+     *
      * @return never <code>null</code> or empty.
      */
     public String toString() {
       return m_object.toString();
     }
 
-    /**
-     * Index of the wrapped object, <code>m_object</code>.
-     */
+    /** Index of the wrapped object, <code>m_object</code>. */
     int m_index;
 
     /**
-     * Object being wrapped for indexing purpose.Initialised in the
-     * constructor and never <code>null</code> after that.
+     * Object being wrapped for indexing purpose.Initialised in the constructor and never <code>null
+     * </code> after that.
      */
     Object m_object;
   }
@@ -472,64 +432,60 @@ public class PSSourceTargetListPanel extends JPanel {
   // end
 
   /**
-   * The list on the left side of the panel, initialized in {@link#
-   * createListPanel(boolean)}, never <code>null</code> or modified after that.
+   * The list on the left side of the panel, initialized in {@link# createListPanel(boolean)}, never
+   * <code>null</code> or modified after that.
    */
   private JList m_srcList;
 
   /**
-   * The list on the right side of the panel, initialized in {@link#
-   * createListPanel(boolean)}, never <code>null</code> or modified after that.
+   * The list on the right side of the panel, initialized in {@link# createListPanel(boolean)},
+   * never <code>null</code> or modified after that.
    */
   private JList m_targetList;
 
   /**
-   * The top button for removing selected items from <code>m_srcList</code> to
-   * <code>m_targetList</code>. Initialized in {@link#init()}, never <code>null
+   * The top button for removing selected items from <code>m_srcList</code> to <code>m_targetList
+   * </code>. Initialized in {@link#init()}, never <code>null
    * </code> or modified after that.
    */
   private UTFixedButton m_addBtn;
 
   /**
    * The bottom button for removing selected items from <code>m_targetList
-   * </code> to <code>m_srcList</code>. Initialized in {@link#init()}, never
-   * <code>null</code> or modified after that.
+   * </code> to <code>m_srcList</code>. Initialized in {@link#init()}, never <code>null</code> or
+   * modified after that.
    */
   private UTFixedButton m_removeBtn;
 
   /**
-   * Name of the label for the list on the left side of the panel. Initialized
-   * in the ctor, never <code>null</code> or modified after that.
+   * Name of the label for the list on the left side of the panel. Initialized in the ctor, never
+   * <code>null</code> or modified after that.
    */
   private String m_srcName;
 
   /**
-   * Name of the label for the list on the right side of the panel. Initialized
-   * in the ctor, never <code>null</code> or modified after that.
+   * Name of the label for the list on the right side of the panel. Initialized in the ctor, never
+   * <code>null</code> or modified after that.
    */
   private String m_targetName;
 
   /**
-   * Name  for the <code>m_addBtn</code>. Initialized in the ctor, never <code>
+   * Name for the <code>m_addBtn</code>. Initialized in the ctor, never <code>
    * null</code> or modified after that.
    */
   private String m_topBtnName;
 
   /**
-   * Name  for the <code>m_removeBtn</code>. Initialized in the ctor, never <code>
+   * Name for the <code>m_removeBtn</code>. Initialized in the ctor, never <code>
    * null</code> or modified after that.
    */
   private String m_btmBtnName;
 
   /**
-   * Mnemonic  for the <code>m_btmBtnName</code>. Initialized in the ctor,
-   * may be <code>null</code>.
+   * Mnemonic for the <code>m_btmBtnName</code>. Initialized in the ctor, may be <code>null</code>.
    */
   private String m_btmBtnMnem;
 
-  /**
-   * Mnemonic  for the <code>m_topBtn</code>. Initialized in the ctor,
-   * may be <code>null</code>.
-   */
+  /** Mnemonic for the <code>m_topBtn</code>. Initialized in the ctor, may be <code>null</code>. */
   private String m_topBtnMnem;
 }

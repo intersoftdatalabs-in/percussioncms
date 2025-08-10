@@ -49,22 +49,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-/**
- * This processor fixes up inline links for newly created or updated
- * relationships.
- */
+/** This processor fixes up inline links for newly created or updated relationships. */
 public class PSInlineLinkProcessor {
   private static final Logger logger = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 
-  /**
-   * Force users to use the static methods.
-   */
+  /** Force users to use the static methods. */
   private PSInlineLinkProcessor() {}
 
   /**
-   * Convenience method that calls {@link #processInlineLinkItem(PSRequest,
-   * PSLocator, Map, int) processInlineLinkItem(request, item,
-   * relationships, request.getSecurityToken().getCommunityId())}.
+   * Convenience method that calls {@link #processInlineLinkItem(PSRequest, PSLocator, Map, int)
+   * processInlineLinkItem(request, item, relationships,
+   * request.getSecurityToken().getCommunityId())}.
    */
   public static void processInlineLinkItem(PSRequest request, PSLocator item, Map relationships)
       throws PSException {
@@ -86,17 +81,14 @@ public class PSInlineLinkProcessor {
    * Processes the supplied items inline links.
    *
    * @param request the request for this process, never <code>null</code>.
-   * @param item the locator of the item to be processed, never
-   *   <code>null</code>.
-   * @param relationships a map that maps the old relationship id as
-   *    <code>Integer</code> to the new relationship as
-   *    <code>PSRelationship</code>), not <code>null</code>, may be empty.
-   * @param communityId the community id for which to process the item, -1
-   *    to allow all communities.
-   * @param bCheckout this flag specifies whether to check-out the item before
-   *    processing inline links.
-   * @param checkin this flag specifies whether to check-in the item after
-   *    the inline links were processed.
+   * @param item the locator of the item to be processed, never <code>null</code>.
+   * @param relationships a map that maps the old relationship id as <code>Integer</code> to the new
+   *     relationship as <code>PSRelationship</code>), not <code>null</code>, may be empty.
+   * @param communityId the community id for which to process the item, -1 to allow all communities.
+   * @param bCheckout this flag specifies whether to check-out the item before processing inline
+   *     links.
+   * @param checkin this flag specifies whether to check-in the item after the inline links were
+   *     processed.
    * @throws PSException for any error.
    */
   public static void processInlineLinkItem(
@@ -136,8 +128,8 @@ public class PSInlineLinkProcessor {
    * Get a list of inline link fields from the given item definition.
    *
    * @param itemDef the item definition, assumed not <code>null</code>.
-   * @return a list over zero or more <code>PSInlineLinkField</code> objects,
-   *    never <code>null</code>, may be empty.
+   * @return a list over zero or more <code>PSInlineLinkField</code> objects, never <code>null
+   *     </code>, may be empty.
    */
   private static List<PSInlineLinkField> getInlineLinkFields(PSItemDefinition itemDef) {
     PSContentEditorPipe pipe = (PSContentEditorPipe) itemDef.getContentEditor().getPipe();
@@ -149,12 +141,12 @@ public class PSInlineLinkProcessor {
   /**
    * Get a list of inline link fields from the given field set.
    *
-   * @param fieldSet the field set from which to get all inline link fileds,
-   *    assumed not <code>null</code>.
-   * @param inlineFields the list for collecting the inline links, may be
-   *    <code>null</code> in which case a new list is created.
-   * @return a list over zero or more <code>PSInlineLinkField</code> objects,
-   *    never <code>null</code>, may be empty.
+   * @param fieldSet the field set from which to get all inline link fileds, assumed not <code>null
+   *     </code>.
+   * @param inlineFields the list for collecting the inline links, may be <code>null</code> in which
+   *     case a new list is created.
+   * @return a list over zero or more <code>PSInlineLinkField</code> objects, never <code>null
+   *     </code>, may be empty.
    */
   private static List<PSInlineLinkField> getInlineLinkFields(
       PSFieldSet fieldSet, List<PSInlineLinkField> inlineFields) {
@@ -177,21 +169,17 @@ public class PSInlineLinkProcessor {
   /**
    * Process the specified items inline link fields.
    *
-   * @param request the request for this process, assumed not
-   *    <code>null</code>.
-   * @param locator the locator of the item to be processed, assumed not
-   *    <code>null</code>.
-   * @param itemDef the item definition of the processed item, assumed
-   *    not <code>null</code>.
-   * @param relationshipMap the map that maps the old relationship id as
-   * <code>Integer</code> to the new relationship as
-   * <code>PSRelationship</code>, assumed not <code>null</code>, may be empty.
-   * @param fields the list of inline link fields, assumed it is one or more
-   *    <code>PSInlineLinkField</code> objects.
-   * @param communityId the community id for which to process the item, -1
-   *    to allow all communities.
-   * @param checkin this flag specifies whether the item is checked in after
-   *    inline links have been processed or not.
+   * @param request the request for this process, assumed not <code>null</code>.
+   * @param locator the locator of the item to be processed, assumed not <code>null</code>.
+   * @param itemDef the item definition of the processed item, assumed not <code>null</code>.
+   * @param relationshipMap the map that maps the old relationship id as <code>Integer</code> to the
+   *     new relationship as <code>PSRelationship</code>, assumed not <code>null</code>, may be
+   *     empty.
+   * @param fields the list of inline link fields, assumed it is one or more <code>PSInlineLinkField
+   *     </code> objects.
+   * @param communityId the community id for which to process the item, -1 to allow all communities.
+   * @param checkin this flag specifies whether the item is checked in after inline links have been
+   *     processed or not.
    * @throws PSException for any error.
    */
   private static void processInlineLinkItem(
@@ -259,11 +247,10 @@ public class PSInlineLinkProcessor {
   /**
    * Process the given inline link field.
    *
-   * @param itemField the inline link field to be processed, assumed not
-   *    <code>null</code>.
-   * @param relationshipMap the map that maps the old relationship id as
-   * <code>Integer</code> to the new relationship as
-   * <code>PSRelationship</code>, assumed not <code>null</code>, may be empty.
+   * @param itemField the inline link field to be processed, assumed not <code>null</code>.
+   * @param relationshipMap the map that maps the old relationship id as <code>Integer</code> to the
+   *     new relationship as <code>PSRelationship</code>, assumed not <code>null</code>, may be
+   *     empty.
    * @throws PSCmsException if an error occurs.
    */
   private static void processInlineLinkField(PSItemField itemField, Map relationshipMap)

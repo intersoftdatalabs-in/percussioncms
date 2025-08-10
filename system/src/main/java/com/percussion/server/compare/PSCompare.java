@@ -36,34 +36,28 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This class is mainly used for preparing the documents for comparision.
- * The documents can be created by calling the constructor with request object
- * and itemnumber. If supplied itemnumber is neither 1 nor 2 then throws an
- * illegal argument exception. It sets the member variables like m_contentID,
- * m_revision etc. by getting the values from input html parameters by adding
- * itemnumber. It has the following utility methods.
- * getAssemblyURL method makes an internal request to AssemblyURL
- * resource to get the assembly url for the given variantid and then creates the
- * URL by adding other paramaters.
- * getAssemblyPage method makes an HTTP connection with the assembly url and
- * returns the assembly page
+ * This class is mainly used for preparing the documents for comparision. The documents can be
+ * created by calling the constructor with request object and itemnumber. If supplied itemnumber is
+ * neither 1 nor 2 then throws an illegal argument exception. It sets the member variables like
+ * m_contentID, m_revision etc. by getting the values from input html parameters by adding
+ * itemnumber. It has the following utility methods. getAssemblyURL method makes an internal request
+ * to AssemblyURL resource to get the assembly url for the given variantid and then creates the URL
+ * by adding other paramaters. getAssemblyPage method makes an HTTP connection with the assembly url
+ * and returns the assembly page
  */
 public class PSCompare {
   /**
-   * Creates PSCompare object and initializes all member variables from
-   * the request. The request url will have parameters like contentid and
-   * revision for the two documents which need to be compared.
-   * we need contentid, revision, variantid, authtype and context. Authtype
-   * and context will be considered as 0 if they are missing. If any one of the
-   * contentid, revision and variantid missing then <code>PSCompareException
+   * Creates PSCompare object and initializes all member variables from the request. The request url
+   * will have parameters like contentid and revision for the two documents which need to be
+   * compared. we need contentid, revision, variantid, authtype and context. Authtype and context
+   * will be considered as 0 if they are missing. If any one of the contentid, revision and
+   * variantid missing then <code>PSCompareException
    * </code> will be thrown with appropriate error code.
    *
-   * @param request contains the html parameters SYS_CONTENTID,
-   *    SYS_REVISION etc. that will be used initialize the members, must not be
-   *    <code>null</code>.
+   * @param request contains the html parameters SYS_CONTENTID, SYS_REVISION etc. that will be used
+   *     initialize the members, must not be <code>null</code>.
    * @param itemNumber of the document allowed values are 1 and 2
-   * @throws PSCompareException when any one of the contentid, variantid and
-   *    revision is missing
+   * @throws PSCompareException when any one of the contentid, variantid and revision is missing
    */
   public PSCompare(PSRequest request, String itemNumber) throws PSCompareException {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -91,18 +85,16 @@ public class PSCompare {
   }
 
   /**
-   * This method makes a call to getAssemblyURL method by passing the request
-   * object and gets the assembly page url. Then makes a http connection by
-   * passing the assembly url and gets the response text for the given
-   * assembly url and returns the result as a <code>String</code>
+   * This method makes a call to getAssemblyURL method by passing the request object and gets the
+   * assembly page url. Then makes a http connection by passing the assembly url and gets the
+   * response text for the given assembly url and returns the result as a <code>String</code>
    *
-   * @param request the request that needs to be passed to getAssemblyURL
-   *    method to get the assembly url, must not be <code>null</code>.
-   *
-   * @return returns the assembly page html as string, if fails to get assembly
-   *    page then <code>empty</code> string will be returned.
-   * @throws PSCompareException if getAssemblyURL or HTTPConnection or
-   *    HTTPResponse throws any exception
+   * @param request the request that needs to be passed to getAssemblyURL method to get the assembly
+   *     url, must not be <code>null</code>.
+   * @return returns the assembly page html as string, if fails to get assembly page then <code>
+   *     empty</code> string will be returned.
+   * @throws PSCompareException if getAssemblyURL or HTTPConnection or HTTPResponse throws any
+   *     exception
    */
   public String getAssemblyPage(PSRequest request) throws PSCompareException {
     String assemblyPage = "";
@@ -125,15 +117,12 @@ public class PSCompare {
   }
 
   /**
-   * This method makes an internal request to find the assembly url of the
-   * supplied parameters.
+   * This method makes an internal request to find the assembly url of the supplied parameters.
    *
    * @param request the request to process, must not be <code>null</code>.
-   *
    * @return returns the assembly page url as <code>URL</code>
-   *
-   * @throws PSCompareException if it is not possible to build assembly url
-   *    for the given parameters with appropriate error code.
+   * @throws PSCompareException if it is not possible to build assembly url for the given parameters
+   *     with appropriate error code.
    */
   private URL getAssemblyURL(PSRequest request) throws PSCompareException {
     URL url = null;
@@ -233,50 +222,30 @@ public class PSCompare {
     return m_authType;
   }
 
-  /**
-   * Variable to hold the contentid.
-   */
+  /** Variable to hold the contentid. */
   private String m_contentID;
 
-  /**
-   * Variable to hold the revision.
-   */
+  /** Variable to hold the revision. */
   private String m_revision;
 
-  /**
-   * Variable to hold the variantid.
-   */
+  /** Variable to hold the variantid. */
   private String m_variantID;
 
-  /**
-   * Variable to hold the context.
-   */
+  /** Variable to hold the context. */
   private String m_context = DEFAULT_CONTEXT;
 
-  /**
-   * Variable to hold the authtype.
-   */
+  /** Variable to hold the authtype. */
   private String m_authType = DEFAULT_AUTH_TYPE;
 
-  /**
-   * Default value for the authType parameter if it is not avaialable in
-   * request url
-   */
+  /** Default value for the authType parameter if it is not avaialable in request url */
   public static final String DEFAULT_AUTH_TYPE = "0";
 
-  /**
-   * Default value for the context parameter if it is not avaialable in
-   * request url
-   */
+  /** Default value for the context parameter if it is not avaialable in request url */
   public static final String DEFAULT_CONTEXT = "0";
 
-  /**
-   * Assembly URL application and resources name
-   */
+  /** Assembly URL application and resources name */
   public static final String ASSEMBLY_URL = "sys_casSupport/AssemblyUrl";
 
-  /**
-   * Assembly URL attribute name
-   */
+  /** Assembly URL attribute name */
   public static final String ATTRIB_ASSEMBLY_URL = "current";
 }

@@ -46,6 +46,7 @@ import org.w3c.dom.Document;
 
 /**
  * Provides some common functionality for several different commands
+ *
  * @author paulhoward
  */
 public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
@@ -53,18 +54,17 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
    * Ctor required by framework.
    *
    * @param args See class description for reqs.
-   *
-   * @throws PSIllegalArgumentException If the args don't match allowed
-   * values. Ids are not validated here.
-   * <p>Note: we use PSIllegal... here because that's what the framework uses.
+   * @throws PSIllegalArgumentException If the args don't match allowed values. Ids are not
+   *     validated here.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */
   public PSConsoleCommandSearchIndex(String args) throws PSIllegalArgumentException {
     super(args);
   }
 
   /**
-   * Called by the framework, this method then passes the request onto the
-   * derived class to perform the real work.
+   * Called by the framework, this method then passes the request onto the derived class to perform
+   * the real work.
    *
    * @return A document conforming to the format recommended in the interface.
    */
@@ -90,20 +90,14 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   }
 
   /**
-   * This method figures out which content type ids to
-   * process and puts them in an array. If arg is a number, it is returned,
-   * if it is text, it is assumed to be the name of a content type and is
-   * converted to a number. Otherwise, all ids for all active content editors
-   * are returned.
+   * This method figures out which content type ids to process and puts them in an array. If arg is
+   * a number, it is returned, if it is text, it is assumed to be the name of a content type and is
+   * converted to a number. Otherwise, all ids for all active content editors are returned.
    *
-   * @param type The argument supplied to the command. May be <code>null</code>
-   * or empty.
-   * @return An array of at least 1 content type key. All keys identify
-   * currently running editors.
-   *
-   * @throws PSConsoleCommandException If the supplied arg is not a number
-   * that represents a running content editor or is not the name of a running
-   * content editor if arg is non-empty.
+   * @param type The argument supplied to the command. May be <code>null</code> or empty.
+   * @return An array of at least 1 content type key. All keys identify currently running editors.
+   * @throws PSConsoleCommandException If the supplied arg is not a number that represents a running
+   *     content editor or is not the name of a running content editor if arg is non-empty.
    */
   protected PSKey[] getIds(String type) throws PSConsoleCommandException {
     long[] ids;
@@ -138,7 +132,6 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
    * Tries to parse a string as an integer.
    *
    * @param number Assumed not <code>null</code>.
-   *
    * @return If a valid integer > 0, the integer, otherwise, -1.
    */
   protected int getId(String number) {
@@ -154,23 +147,21 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   /**
    * Called after the {@link #doExecute(PSRequest, int[])} method has finished.
    *
-   * @return The error code to use in the response document. If not
-   * overridden, <code>IPSServerErrors.RCONSOLE_SUCCESS</code> is returned.
+   * @return The error code to use in the response document. If not overridden, <code>
+   *     IPSServerErrors.RCONSOLE_SUCCESS</code> is returned.
    */
   protected int getResultCode() {
     return IPSServerErrors.RCONSOLE_CONTENT_TYPES_PROCESSED;
   }
 
   /**
-   * Returns the arguments appropriate for the error code returned by
-   * {@link #getResultCode()}.
+   * Returns the arguments appropriate for the error code returned by {@link #getResultCode()}.
    *
-   * @param successes The editors that were actually processed (as opposed
-   * to these that were passed in). Never <code>null</code>, may be empty.
-   *
-   * @return If not overridden, a comma separated list of the names of the
-   * editors identified in the supplied array. If any id is not valid, the
-   * number with '(invalid)' is returned for that name.
+   * @param successes The editors that were actually processed (as opposed to these that were passed
+   *     in). Never <code>null</code>, may be empty.
+   * @return If not overridden, a comma separated list of the names of the editors identified in the
+   *     supplied array. If any id is not valid, the number with '(invalid)' is returned for that
+   *     name.
    */
   protected String[] getResultArgs(PSKey[] successes) {
     if (null == successes) {
@@ -194,8 +185,7 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   }
 
   /**
-   * The derived class must return the fully qualified name (w/o command
-   * arguments).
+   * The derived class must return the fully qualified name (w/o command arguments).
    *
    * @return Never <code>null</code> or empty.
    */
@@ -204,14 +194,11 @@ public abstract class PSConsoleCommandSearchIndex extends PSConsoleCommand {
   /**
    * The {@link #execute(PSRequest)} method calls this method to do the work.
    *
-   * @param request The request passed into the <code>execute</code>
-   * method. May be <code>null</code>.
-   *
+   * @param request The request passed into the <code>execute</code> method. May be <code>null
+   *     </code>.
    * @param ids A set of ids as interpreted by the derived class.
-   *
-   * @return The ids that were actually processed. These values are then
-   * passed to the {@link #getResultArgs()} method.
-   *
+   * @return The ids that were actually processed. These values are then passed to the {@link
+   *     #getResultArgs()} method.
    * @throws PSSearchException If the command cannot complete successfully.
    */
   protected abstract PSKey[] doExecute(PSRequest request, PSKey[] ids) throws PSSearchException;

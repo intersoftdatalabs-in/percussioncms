@@ -27,16 +27,14 @@ import org.apache.commons.jexl3.parser.SimpleNode;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A visitor for any jexl expression or script. This will call the jexl's parser
- * to build a tree and then walk the tree nodes. It will grab all the string and
- * integer literals that are potential ids for MSM
- * @author vamsinukala
+ * A visitor for any jexl expression or script. This will call the jexl's parser to build a tree and
+ * then walk the tree nodes. It will grab all the string and integer literals that are potential ids
+ * for MSM
  *
+ * @author vamsinukala
  */
 public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
-  /**
-   * The list of ids if any that need to be mapped may be <code>empty</code>
-   */
+  /** The list of ids if any that need to be mapped may be <code>empty</code> */
   private List<String> m_ids = new ArrayList<>();
 
   /**
@@ -76,6 +74,7 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
 
   /**
    * Add the add to the list of ids
+   *
    * @param id the string representation of a number never <code>null</code>
    */
   public void addID(String id) {
@@ -83,9 +82,7 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
     m_ids.add(id);
   }
 
-  /**
-   * Util method to print all the ids found in the expression
-   */
+  /** Util method to print all the ids found in the expression */
   public void printIDs() {
     int i = 0;
     for (String id : m_ids) System.out.println("   id[" + i++ + "] = " + id);
@@ -93,6 +90,7 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
 
   /**
    * get the ids that are in the current parsed expression or script
+   *
    * @return list of ids as strings
    */
   public List<String> getIds() {
@@ -101,6 +99,7 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor {
 
   /**
    * A util method to visit child nodes
+   *
    * @param child the current node never <code>null</code>
    * @param parent the parent node never <code>null</code>
    */

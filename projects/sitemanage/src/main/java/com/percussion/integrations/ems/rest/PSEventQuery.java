@@ -18,73 +18,73 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.ems.rest;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Query object for event search in EMS integration.
- * Sunny Sal says: "EventQuery, now Java 11 and Google-styled!"
+ * Query object for event search in EMS integration. Sunny Sal says: "EventQuery, now Java 11 and
+ * Google-styled!"
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSEventQuery {
 
-    private String startDate;
-    private String endDate;
-    private String eventName;
-    private String location;
-    private List<Integer> calendars = new ArrayList<>();
-    private List<Integer> eventTypes = new ArrayList<>();
+  private String startDate;
+  private String endDate;
+  private String eventName;
+  private String location;
+  private List<Integer> calendars = new ArrayList<>();
+  private List<Integer> eventTypes = new ArrayList<>();
 
-    public String getStartDate() {
-        return startDate;
-    }
+  public String getStartDate() {
+    return startDate;
+  }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    public String getEndDate() {
-        return endDate;
-    }
+  public String getEndDate() {
+    return endDate;
+  }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 
-    public String getEventName() {
-        return eventName;
-    }
+  public String getEventName() {
+    return eventName;
+  }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
+  public void setEventName(String eventName) {
+    this.eventName = eventName;
+  }
 
-    public String getLocation() {
-        return location;
-    }
+  public String getLocation() {
+    return location;
+  }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+  public void setLocation(String location) {
+    this.location = location;
+  }
 
-    public List<Integer> getCalendars() {
-        return Optional.ofNullable(calendars).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getCalendars() {
+    return Optional.ofNullable(calendars).orElseGet(ArrayList::new);
+  }
 
-    public void setCalendars(List<Integer> calendars) {
-        this.calendars = Optional.ofNullable(calendars).orElseGet(ArrayList::new);
-    }
+  public void setCalendars(List<Integer> calendars) {
+    this.calendars = Optional.ofNullable(calendars).orElseGet(ArrayList::new);
+  }
 
-    public List<Integer> getEventTypes() {
-        return Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getEventTypes() {
+    return Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
+  }
 
-    public void setEventTypes(List<Integer> eventTypes) {
-        this.eventTypes = Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
-    }
+  public void setEventTypes(List<Integer> eventTypes) {
+    this.eventTypes = Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
+  }
 }

@@ -23,24 +23,16 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * Test fixture helper to materialize a minimal Jetty base layout and related resources
- * inside a provided root directory (typically a JUnit 5 @TempDir Path).
+ * Test fixture helper to materialize a minimal Jetty base layout and related resources inside a
+ * provided root directory (typically a JUnit 5 @TempDir Path).
  *
- * Creates:
- *   root/jetty/base/etc
- *     - installation.properties
- *     - login.conf
- *     - perc-ds.xml
- *     - perc-ds.properties (copied from perc-ds-derby.properties resource)
+ * <p>Creates: root/jetty/base/etc - installation.properties - login.conf - perc-ds.xml -
+ * perc-ds.properties (copied from perc-ds-derby.properties resource)
  *
- * Also sets the system property:
- *   perc.jetty.base = root/jetty/base
+ * <p>Also sets the system property: perc.jetty.base = root/jetty/base
  *
- * Usage in tests:
- *   @BeforeEach
- *   void init() throws IOException {
- *     JettyTestFixtures.materializeJettyBase(temporaryFolder);
- *   }
+ * <p>Usage in tests: @BeforeEach void init() throws IOException {
+ * JettyTestFixtures.materializeJettyBase(temporaryFolder); }
  */
 public final class JettyTestFixtures {
 
@@ -77,10 +69,8 @@ public final class JettyTestFixtures {
   }
 
   /**
-   * Ensure a Tomcat/DTS directory exists and copy provided server.xml resources for tests.
-   * Creates:
-   *   root/Deployment/Server/conf/server.xml.5.3
-   *   root/Staging/Deployment/Server/conf/server.xml.5.3
+   * Ensure a Tomcat/DTS directory exists and copy provided server.xml resources for tests. Creates:
+   * root/Deployment/Server/conf/server.xml.5.3 root/Staging/Deployment/Server/conf/server.xml.5.3
    *
    * @param root test root path
    * @throws IOException on IO errors
@@ -103,11 +93,9 @@ public final class JettyTestFixtures {
   /**
    * Ensure legacy JBoss directories exist and copy referenced resources used by tests.
    *
-   * Creates (relative to root):
-   *   AppServer/server/rx/conf/login-config.xml
-   *   AppServer/server/rx/deploy/jboss-web.deployer/server.xml
-   *   AppServer/server/rx/deploy/rx-ds.xml
-   *   AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/server-beans.xml
+   * <p>Creates (relative to root): AppServer/server/rx/conf/login-config.xml
+   * AppServer/server/rx/deploy/jboss-web.deployer/server.xml AppServer/server/rx/deploy/rx-ds.xml
+   * AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/server-beans.xml
    *
    * @param root test root path
    * @throws IOException on IO errors

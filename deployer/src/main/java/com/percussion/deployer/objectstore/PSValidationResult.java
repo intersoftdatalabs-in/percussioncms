@@ -25,23 +25,19 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates the result of a dependency object.
- */
+/** Encapsulates the result of a dependency object. */
 public class PSValidationResult implements IPSDeployComponent {
 
   /**
-   * Constructing the object with given parameters. The constructed object is
-   * default not to skip installation.
+   * Constructing the object with given parameters. The constructed object is default not to skip
+   * installation.
    *
    * @param dep The dependency object. It may not be <code>null</code>
-   * @param isError Determines an error for this object. <code>true</code> if
-   * it is an error, <code>false</code> to indicate a warning.
-   * @param message The message of this object. It may not be
-   * <code>null</code> or empty.
-   * @param isAllowSkip <code>true</code> if allow skip install;
-   * <code>false</code> if not allow skip install.
-   *
+   * @param isError Determines an error for this object. <code>true</code> if it is an error, <code>
+   *     false</code> to indicate a warning.
+   * @param message The message of this object. It may not be <code>null</code> or empty.
+   * @param isAllowSkip <code>true</code> if allow skip install; <code>false</code> if not allow
+   *     skip install.
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
    */
   public PSValidationResult(
@@ -64,12 +60,9 @@ public class PSValidationResult implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSValidationResult(Element source) throws PSUnknownNodeTypeException {
@@ -90,8 +83,7 @@ public class PSValidationResult implements IPSDeployComponent {
   /**
    * Get the message of the object.
    *
-   * @return The message of the object, it will never be <code>null</code>,
-   * or empty.
+   * @return The message of the object, it will never be <code>null</code>, or empty.
    */
   public String getMessage() {
     return m_message;
@@ -100,35 +92,29 @@ public class PSValidationResult implements IPSDeployComponent {
   /**
    * Determines if the object is an error or warning.
    *
-   * @return <code>true</code> if it is an error, <code>false</code> if it is
-   * a warning otherwise
+   * @return <code>true</code> if it is an error, <code>false</code> if it is a warning otherwise
    */
   public boolean isError() {
     return m_isError;
   }
 
   /**
-   * Determines if user can choose to skip installing this dependency if it is
-   * included.  Should only be <code>true</code> if dependency is included and
-   * may optionally be excluded
+   * Determines if user can choose to skip installing this dependency if it is included. Should only
+   * be <code>true</code> if dependency is included and may optionally be excluded
    *
-   * @return <code>true</code> if it is allowed to skip install;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if it is allowed to skip install; <code>false</code> otherwise.
    */
   public boolean allowSkip() {
     return m_isAllowSkip;
   }
 
   /**
-   * Determines if this the dependency of this object is to be installed or
-   * skipped.
+   * Determines if this the dependency of this object is to be installed or skipped.
    *
-   * @param skipInstall If <code>true</code>, dependency should not be
-   * installed; <code>false</code> otherwise.
-   *
-   * @throws IllegalArgumentException if <code>skipInstall</code> is
-   * <code>true</code> and
-   * {@link #allowSkip()} returns <code>false</code>.
+   * @param skipInstall If <code>true</code>, dependency should not be installed; <code>false</code>
+   *     otherwise.
+   * @throws IllegalArgumentException if <code>skipInstall</code> is <code>true</code> and {@link
+   *     #allowSkip()} returns <code>false</code>.
    */
   public void skipInstall(boolean skipInstall) {
     if ((!m_isAllowSkip) && skipInstall)
@@ -140,8 +126,7 @@ public class PSValidationResult implements IPSDeployComponent {
   /**
    * Determines if the dependency should be skipped for installation.
    *
-   * @return <code>true</code> if the dependency is skipped;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the dependency is skipped; <code>false</code> otherwise.
    */
   public boolean isSkip() {
     return m_skipInstall;
@@ -179,9 +164,8 @@ public class PSValidationResult implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   @Override
@@ -234,14 +218,10 @@ public class PSValidationResult implements IPSDeployComponent {
    * Get a boolean value for a given XML attribute.
    *
    * @param srcNode The XML node, assuming not <code>null</code>
-   * @param attrName The name of the XML attribute, assuming it is not
-   * <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the attribute value is "Yes",
-   * <code>false</code> otherwise.
-   *
-   * @throws PSUnknownNodeTypeException if the <code>srcNode</code> does not
-   * have <code>attrName</code> attribute.
+   * @param attrName The name of the XML attribute, assuming it is not <code>null</code> or empty.
+   * @return <code>true</code> if the attribute value is "Yes", <code>false</code> otherwise.
+   * @throws PSUnknownNodeTypeException if the <code>srcNode</code> does not have <code>attrName
+   *     </code> attribute.
    */
   private boolean getRequiredBoolAttr(Element srcNode, String attrName)
       throws PSUnknownNodeTypeException {
@@ -289,14 +269,10 @@ public class PSValidationResult implements IPSDeployComponent {
     return isEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXValidationResult";
 
-  /**
-   * Private XML node and attribute names
-   */
+  /** Private XML node and attribute names */
   private static final String XML_ATTR_MSG = "message";
 
   private static final String XML_ATTR_IS_ERROR = "isError";
@@ -306,37 +282,34 @@ public class PSValidationResult implements IPSDeployComponent {
   private static final String XML_VALUE_FALSE = "No";
 
   /**
-   * The dependency object, it will never be <code>null</code>. Initialized
-   * by constructor, only modified by {@link #copyFrom(Object)}.
+   * The dependency object, it will never be <code>null</code>. Initialized by constructor, only
+   * modified by {@link #copyFrom(Object)}.
    */
   private PSDependency m_dep;
 
   /**
-   * <code>true</code> if the object represent an error; <code>false</code>
-   * otherwise. Initialized by constructor, modified by
-   * {@link #copyFrom(Object)}.
+   * <code>true</code> if the object represent an error; <code>false</code> otherwise. Initialized
+   * by constructor, modified by {@link #copyFrom(Object)}.
    */
   private boolean m_isError;
 
   /**
-   * The message of the object. It will never to be <code>null</code> or empty.
-   * Initialized by constructor, only modified by {@link #copyFrom(Object)}
-   * and {@link #fromXml(Element sourceNode)}.
+   * The message of the object. It will never to be <code>null</code> or empty. Initialized by
+   * constructor, only modified by {@link #copyFrom(Object)} and {@link #fromXml(Element
+   * sourceNode)}.
    */
   private String m_message;
 
   /**
-   * <code>true</code> if allow skip installation; <code>false</code>
-   * otherwise. Initialized by constructor, modified by
-   * {@link #copyFrom(Object)} and {@link #fromXml(Element sourceNode)}.
+   * <code>true</code> if allow skip installation; <code>false</code> otherwise. Initialized by
+   * constructor, modified by {@link #copyFrom(Object)} and {@link #fromXml(Element sourceNode)}.
    */
   private boolean m_isAllowSkip;
 
   /**
-   * <code>true</code> if the installation of the dendency should be skipped;
-   * <code>false</code> otherwise. Default to <code>false</code>, modified
-   * by {@link #copyFrom(Object)}, {@link #skipInstall(boolean)} and
-   * {@link #fromXml(Element sourceNode)}
+   * <code>true</code> if the installation of the dendency should be skipped; <code>false</code>
+   * otherwise. Default to <code>false</code>, modified by {@link #copyFrom(Object)}, {@link
+   * #skipInstall(boolean)} and {@link #fromXml(Element sourceNode)}
    */
   private boolean m_skipInstall = false;
 }

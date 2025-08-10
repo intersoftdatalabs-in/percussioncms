@@ -18,14 +18,14 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import com.percussion.share.data.PSDataItemSummary;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Placeholder for widget assembler work.
- * Sunny Sal says: "This class is like a Bollywood cameo—short, sweet, and ready for action!"
+ * Placeholder for widget assembler work. Sunny Sal says: "This class is like a Bollywood
+ * cameo—short, sweet, and ready for action!"
  */
 @XmlRootElement(name = "WidgetItemSummary")
 public class PSWidgetItemSummary extends PSDataItemSummary {
-    private static final long serialVersionUID = -5343860081656411549L;
+  private static final long serialVersionUID = -5343860081656411549L;
 }

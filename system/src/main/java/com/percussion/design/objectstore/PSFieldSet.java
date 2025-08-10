@@ -29,9 +29,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXFieldSet DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXFieldSet DTD in BasicObjects.dtd. */
 public class PSFieldSet extends PSComponent {
   /**
    * Creates a new parent field set for the provided name.
@@ -71,14 +69,10 @@ public class PSFieldSet extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSFieldSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -96,19 +90,16 @@ public class PSFieldSet extends PSComponent {
     copyFrom(source);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSFieldSet() {}
 
   /**
-   * Get the field or field set for the provided name contained by this
-   * field set.
+   * Get the field or field set for the provided name contained by this field set.
    *
-   * @param name the name (key) of the field we want back, not
-   *    <code>null</code>, may be empty.  TODO: Must we allow empty?
-   * @return the object (PSField or PSFieldSet) found for the provided name
-   *    or <code>null</code> if not found.
+   * @param name the name (key) of the field we want back, not <code>null</code>, may be empty.
+   *     TODO: Must we allow empty?
+   * @return the object (PSField or PSFieldSet) found for the provided name or <code>null</code> if
+   *     not found.
    */
   public Object get(String name) {
     if (name == null) throw new IllegalArgumentException("the name cannot be null");
@@ -117,19 +108,15 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Get the child fieldset of the specified type containing the field matching
-   * the provided name.
+   * Get the child fieldset of the specified type containing the field matching the provided name.
    *
-   * @param name the name of the field whose parent fieldSet we want back, not
-   *    <code>null</code> or empty.
-   *
-   * @param type The type of child fieldset to check for this field.  Must be
-   * one of the valid fieldset TYPE_XXX types.
-   *
-   * @return The first child fieldset of the specified type that contains the
-   * specified field, or <code>null</code> if not found.  Only the immediate
-   * child fieldsets are checked.  If the name matches a child fieldset,
-   * it is not returned.
+   * @param name the name of the field whose parent fieldSet we want back, not <code>null</code> or
+   *     empty.
+   * @param type The type of child fieldset to check for this field. Must be one of the valid
+   *     fieldset TYPE_XXX types.
+   * @return The first child fieldset of the specified type that contains the specified field, or
+   *     <code>null</code> if not found. Only the immediate child fieldsets are checked. If the name
+   *     matches a child fieldset, it is not returned.
    */
   public PSFieldSet getChildsFieldSet(String name, int type) {
     if (name == null || name.trim().length() == 0)
@@ -159,19 +146,14 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Get the field matching the provided name contained by a child fieldset
-   * of the specified type.
+   * Get the field matching the provided name contained by a child fieldset of the specified type.
    *
-   * @param name the name of the field we want back, not
-   *    <code>null</code> or empty.
-   *
-   * @param type The type of child fieldset to check for this field.  Must be
-   * one of the valid fieldset TYPE_XXX types.
-   *
-   * @return The first matching field found in a child fieldset of the
-   * specified type, or <code>null</code> if not found.  Only the immediate
-   * child fieldsets are checked.  If the name matches a child fieldset,
-   * it is not returned.
+   * @param name the name of the field we want back, not <code>null</code> or empty.
+   * @param type The type of child fieldset to check for this field. Must be one of the valid
+   *     fieldset TYPE_XXX types.
+   * @return The first matching field found in a child fieldset of the specified type, or <code>null
+   *     </code> if not found. Only the immediate child fieldsets are checked. If the name matches a
+   *     child fieldset, it is not returned.
    */
   public PSField getChildField(String name, int type) {
     if (name == null || name.trim().length() == 0)
@@ -201,31 +183,25 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Get the field matching the provided name contained by a fieldset. The
-   * match is done using a case insensitive compare of the names.
+   * Get the field matching the provided name contained by a fieldset. The match is done using a
+   * case insensitive compare of the names.
    *
-   * @param name   the name of the field we want back, not
-   *               <code>null</code> or empty.
-   *
-   * @return       The first matching field found in a fieldset, or
-   *               <code>null</code> if not found.
+   * @param name the name of the field we want back, not <code>null</code> or empty.
+   * @return The first matching field found in a fieldset, or <code>null</code> if not found.
    */
   public PSField findFieldByName(String name) {
     return findFieldByName(name, false);
   }
 
   /**
-   * Get the field matching the provided name contained by a fieldset. The
-   * match is done using a case insensitive compare of the names.
+   * Get the field matching the provided name contained by a fieldset. The match is done using a
+   * case insensitive compare of the names.
    *
-   * @param name   the name of the field we want back, not
-   *               <code>null</code> or empty.
-   * @param systemModOnly The flag passed to the 'get' methods. If
-   *     *    <code>false</code>, then we need to return the pre 5.0 fields,
-   *     *    if <code>true</code>, we return all the newly added fields.
-   *
-   * @return       The first matching field found in a fieldset, or
-   *               <code>null</code> if not found.
+   * @param name the name of the field we want back, not <code>null</code> or empty.
+   * @param systemModOnly The flag passed to the 'get' methods. If * <code>false</code>, then we
+   *     need to return the pre 5.0 fields, * if <code>true</code>, we return all the newly added
+   *     fields.
+   * @return The first matching field found in a fieldset, or <code>null</code> if not found.
    */
   public PSField findFieldByName(String name, boolean systemModOnly) {
     if (name == null || name.trim().length() == 0)
@@ -253,15 +229,12 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Gets the single simple child field found in this fieldset.  May only be
-   * called against a fieldset of type {@link #TYPE_SIMPLE_CHILD}.
+   * Gets the single simple child field found in this fieldset. May only be called against a
+   * fieldset of type {@link #TYPE_SIMPLE_CHILD}. @Return The field, never <code>null</code>.
    *
-   * @Return The field, never <code>null</code>.
-   *
-   * @throws IllegalStateException if this fieldset is not of the type {@link
-   * #TYPE_SIMPLE_CHILD}.
-   * @throws PSSystemValidationException if this fieldset contains more than one
-   * field or any child fieldsets are found.
+   * @throws IllegalStateException if this fieldset is not of the type {@link #TYPE_SIMPLE_CHILD}.
+   * @throws PSSystemValidationException if this fieldset contains more than one field or any child
+   *     fieldsets are found.
    */
   public PSField getSimpleChildField() throws PSSystemValidationException {
     if (getType() != PSFieldSet.TYPE_SIMPLE_CHILD)
@@ -291,10 +264,9 @@ public class PSFieldSet extends PSComponent {
   /**
    * Add the provided field to this ConcurrentHashMap.
    *
-   * @param field the field to add to this ConcurrentHashMap, not <code>null</code>,
-   *    must contain a valid name.
-   * @return the previous value if there was one, <code>null</code>
-   *    otherwise
+   * @param field the field to add to this ConcurrentHashMap, not <code>null</code>, must contain a
+   *     valid name.
+   * @return the previous value if there was one, <code>null</code> otherwise
    */
   public Object add(PSField field) {
     if (field == null) throw new IllegalArgumentException("the field cannot be null");
@@ -309,10 +281,9 @@ public class PSFieldSet extends PSComponent {
   /**
    * Add the provided field set to this ConcurrentHashMap.
    *
-   * @param fieldSet the field set to add to this ConcurrentHashMap, not
-   *    <code>null</code>, must contain a valid name.
-   * @return the previous value if there was one, <code>null</code>
-   *    otherwise.
+   * @param fieldSet the field set to add to this ConcurrentHashMap, not <code>null</code>, must
+   *     contain a valid name.
+   * @return the previous value if there was one, <code>null</code> otherwise.
    */
   public Object add(PSFieldSet fieldSet) {
     if (fieldSet == null) throw new IllegalArgumentException("the field set cannot be null");
@@ -327,10 +298,8 @@ public class PSFieldSet extends PSComponent {
   /**
    * Remove the field or field set for the provided name.
    *
-   * @name the field/field set name to remove, may be <code>null</code> or
-   *    empty.
-   * @return the object removed (PSField or PSFieldSet) or <code>null</code>
-   *    if not found.
+   * @name the field/field set name to remove, may be <code>null</code> or empty.
+   * @return the object removed (PSField or PSFieldSet) or <code>null</code> if not found.
    */
   public Object remove(String name) {
     if (name == null) return null;
@@ -338,9 +307,7 @@ public class PSFieldSet extends PSComponent {
     return m_fields.remove(name);
   }
 
-  /**
-   * Removes all fields and fieldsets it contains.
-   */
+  /** Removes all fields and fieldsets it contains. */
   public void removeAll() {
     m_fields.clear();
   }
@@ -348,10 +315,9 @@ public class PSFieldSet extends PSComponent {
   /**
    * Checks if the ConcurrentHashMap contains an object for the provided name.
    *
-   * @param name the name of the object we are looking for, might be
-   *    <code>null</code> or empty.
-   * @return <code>true</code> if this contains an object for the
-   *    provided name, <code>false</code> otherwise.
+   * @param name the name of the object we are looking for, might be <code>null</code> or empty.
+   * @return <code>true</code> if this contains an object for the provided name, <code>false</code>
+   *     otherwise.
    */
   public boolean contains(String name) {
     if (StringUtils.isBlank(name)) return false;
@@ -409,11 +375,9 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Set the field set source type. Sets the type to all the fields in this
-   * fieldset.
+   * Set the field set source type. Sets the type to all the fields in this fieldset.
    *
-   * @param type the new field set source type must be one of the
-   * TYPE_XXX values of the field.
+   * @param type the new field set source type must be one of the TYPE_XXX values of the field.
    */
   public void setSourceType(int type) {
     try {
@@ -445,8 +409,8 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Set a new repeatability setting. Clears the count setting. Use setCount to
-   * set the repeatability to REPEATABILITY_COUNT.
+   * Set a new repeatability setting. Clears the count setting. Use setCount to set the
+   * repeatability to REPEATABILITY_COUNT.
    *
    * @param repeatability the new repeatability.
    */
@@ -459,8 +423,7 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Set a new count. This will also set the repeatability to
-   * REPEATABILITY_COUNT.
+   * Set a new count. This will also set the repeatability to REPEATABILITY_COUNT.
    *
    * @param count the new count, must be greater than 0.
    */
@@ -483,21 +446,17 @@ public class PSFieldSet extends PSComponent {
   /**
    * Get all field / field set names stored in this field set.
    *
-   * @return an iterator over all keys for this field set. Never
-   *    <code>null</code>, may be empty.
+   * @return an iterator over all keys for this field set. Never <code>null</code>, may be empty.
    */
   public Iterator getNames() {
     return getNames(false);
   }
 
   /**
-   * Either get all fields that are only modifiable by the system or all
-   * fields except those.
+   * Either get all fields that are only modifiable by the system or all fields except those.
    *
    * @param systemModOnly flag to determine which set of fields to return.
-   *
-   * @return an iterator over all keys for this field set. Never
-   *    <code>null</code>, may be empty.
+   * @return an iterator over all keys for this field set. Never <code>null</code>, may be empty.
    */
   public Iterator getNames(boolean systemModOnly) {
     List<String> retList = new ArrayList<>();
@@ -513,21 +472,19 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Convenience method equivalent to calling
-   * {@link #getAll(boolean) getAll(<code>false</code>)}.
+   * Convenience method equivalent to calling {@link #getAll(boolean) getAll(<code>false</code>)}.
    */
   public Iterator<PSComponent> getAll() {
     return getAll(false);
   }
 
   /**
-   * Either get all fields that are only modifiable by the system or all
-   * fields except those. The sets are unique, no field appears in both sets.
+   * Either get all fields that are only modifiable by the system or all fields except those. The
+   * sets are unique, no field appears in both sets.
    *
    * @param systemModOnly flag to determine which set of fields to return.
-   *
-   * @return an iterator over all objects for this field set. Never
-   * <code>null</code>, may be empty. Each object is either a <code>PSField
+   * @return an iterator over all objects for this field set. Never <code>null</code>, may be empty.
+   *     Each object is either a <code>PSField
    * </code> or a <code>PSFieldSet</code>.
    */
   public Iterator<PSComponent> getAll(boolean systemModOnly) {
@@ -545,20 +502,17 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Get all field / field set objects stored in this field set, regardless of
-   * the readOnly flag. This is a short cut to get both the read only and
-   * regular fields /field sets.
+   * Get all field / field set objects stored in this field set, regardless of the readOnly flag.
+   * This is a short cut to get both the read only and regular fields /field sets.
    *
-   * @return an iterator over all objects for this field set. Never
-   *    <code>null</code>, may be empty.
+   * @return an iterator over all objects for this field set. Never <code>null</code>, may be empty.
    */
   public Iterator getEveryField() {
     return m_fields.values().iterator();
   }
 
   /**
-   * Gathers all fields contained by this fieldset and all contained field sets
-   * recursively.
+   * Gathers all fields contained by this fieldset and all contained field sets recursively.
    *
    * @return A valid array of the fields, never <code>null</code>.
    */
@@ -567,12 +521,9 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Gathers all fields contained by this fieldset and all contained field sets
-   * recursively.
+   * Gathers all fields contained by this fieldset and all contained field sets recursively.
    *
-   * @param readOnly flag to determine whether to return just the readOnly
-   *    fields or all the fields.
-   *
+   * @param readOnly flag to determine whether to return just the readOnly fields or all the fields.
    * @return A valid array of the fields, never <code>null</code>.
    */
   public PSField[] getAllFields(boolean readOnly) {
@@ -582,19 +533,14 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Checks fields in this set and all contained field sets recursively and
-   * returns the one whose name matches the supplied name, case-insensitive.
-   * Since field names are unique within a content editor, the search stops
-   * once one is found.
+   * Checks fields in this set and all contained field sets recursively and returns the one whose
+   * name matches the supplied name, case-insensitive. Since field names are unique within a content
+   * editor, the search stops once one is found.
    *
-   * @param fieldName The name of the field to retrieve. A case-insensitive
-   * compare is performed. If <code>null</code> or empty, <code>null</code>
-   * is returned.
-   *
-   * @return The <code>PSField</code> object, that has a name equal to
-   * <code>fieldName</code> (case insensitive). <code>null</code> if a match
-   * isn't found.
-   *
+   * @param fieldName The name of the field to retrieve. A case-insensitive compare is performed. If
+   *     <code>null</code> or empty, <code>null</code> is returned.
+   * @return The <code>PSField</code> object, that has a name equal to <code>fieldName</code> (case
+   *     insensitive). <code>null</code> if a match isn't found.
    * @see #get(String)
    */
   public PSField getFieldByName(String fieldName) {
@@ -617,19 +563,15 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Either get all fields that are only modifiable by the system or all
-   * fields except those.
+   * Either get all fields that are only modifiable by the system or all fields except those.
    *
-   * A utility method used to recursively collect all fields contained by
-   * this fieldset and its child fieldsets.
+   * <p>A utility method used to recursively collect all fields contained by this fieldset and its
+   * child fieldsets.
    *
-   * @param c The container for the results. The first call to this method
-   *    should pass an empty one.
-   *
+   * @param c The container for the results. The first call to this method should pass an empty one.
    * @param systemModOnly flag to determine which set of fields to return.
-   *
-   * @return The passed collection w/ the fields added. Each member is a
-   *    PSField. Never <code>null</code>.
+   * @return The passed collection w/ the fields added. Each member is a PSField. Never <code>null
+   *     </code>.
    */
   private Collection<PSField> getAllFields(Collection<PSField> c, boolean systemModOnly) {
     Iterator fields = getAll(systemModOnly);
@@ -647,22 +589,16 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Before 5.0, all fields in the system def were used by the content
-   * editors. Then we added many other fields in the content status table to
-   * the system def, plus some read-only fields in support of searching. To
-   * maintain compatibility, we wanted to return the same set of fields as we
-   * did before this change. To do this, we added a flag param to the various
-   * 'get' methods.
+   * Before 5.0, all fields in the system def were used by the content editors. Then we added many
+   * other fields in the content status table to the system def, plus some read-only fields in
+   * support of searching. To maintain compatibility, we wanted to return the same set of fields as
+   * we did before this change. To do this, we added a flag param to the various 'get' methods.
    *
    * @param f Assumed not <code>null</code>.
-   *
-   * @param systemModOnly The flag passed to the 'get' methods. If
-   *    <code>false</code>, then we need to return the pre 5.0 fields,
-   *    if <code>true</code>, we return all the newly added fields.
-   *
-   * @return <code>true</code> if systemModOnly is <code>true</code> and
-   *    the supplied field should be included in returned list,
-   *    <code>false</code> otherwise.
+   * @param systemModOnly The flag passed to the 'get' methods. If <code>false</code>, then we need
+   *     to return the pre 5.0 fields, if <code>true</code>, we return all the newly added fields.
+   * @return <code>true</code> if systemModOnly is <code>true</code> and the supplied field should
+   *     be included in returned list, <code>false</code> otherwise.
    */
   private boolean isSystemModOnly(PSField f, boolean systemModOnly) {
     return (!systemModOnly
@@ -678,20 +614,18 @@ public class PSFieldSet extends PSComponent {
    * See {@link #setUserSearchable(boolean)} for details.
    *
    * @return <code>true</code> means check the child's flag, <code>false
-   * </code> means don't allow any child data to be indexed (and thus
-   * searched).
+   * </code> means don't allow any child data to be indexed (and thus searched).
    */
   public boolean isUserSearchable() {
     return m_userSearchable;
   }
 
   /**
-   * This flag determines whether all child fields and fieldsets are
-   * searchable. This value overrides individual field or complex field
-   * settings except for simple children.
+   * This flag determines whether all child fields and fieldsets are searchable. This value
+   * overrides individual field or complex field settings except for simple children.
    *
-   * @param searchable <code>false</code> to disallow child fields from
-   * being searched. If <code>true</code>, then the field's setting is used.
+   * @param searchable <code>false</code> to disallow child fields from being searched. If <code>
+   *     true</code>, then the field's setting is used.
    */
   public void setUserSearchable(boolean searchable) {
     m_userSearchable = searchable;
@@ -700,8 +634,7 @@ public class PSFieldSet extends PSComponent {
   /**
    * Is sequencing supported.
    *
-   * @return <code>true</code> if sequencing is supported,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if sequencing is supported, <code>false</code> otherwise.
    */
   public boolean isSequencingSupported() {
     return m_supportsSequencing;
@@ -710,18 +643,17 @@ public class PSFieldSet extends PSComponent {
   /**
    * Set a new status of sequencing supported.
    *
-   * @param supportsSequencing <code>true</code> to support sequencing,
-   *    <code>false</code> otherwise.
+   * @param supportsSequencing <code>true</code> to support sequencing, <code>false</code>
+   *     otherwise.
    */
   public void setSequencingSupported(boolean supportsSequencing) {
     m_supportsSequencing = supportsSequencing;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component, also making a copy of the collection of fields and fieldsets.
-   * Derived classes should implement this method for their data, calling the
-   * base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component, also making a
+   * copy of the collection of fields and fieldsets. Derived classes should implement this method
+   * for their data, calling the base class method first.
    *
    * @param c a valid PSFieldSet, not <code>null</code>.
    */
@@ -747,8 +679,7 @@ public class PSFieldSet extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   @Override
   public boolean equals(Object o) {
@@ -763,18 +694,15 @@ public class PSFieldSet extends PSComponent {
     return equal;
   }
 
-  /**
-   * Generates code of the object.
-   */
+  /** Generates code of the object. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder().append(m_name).append(m_count).toHashCode();
   }
 
   /**
-   * Checks the settings of this field set are same as settings of
-   * passed in component. Basically it differs from <code>equals()</code>
-   * method by not checking the collection of it's fields.
+   * Checks the settings of this field set are same as settings of passed in component. Basically it
+   * differs from <code>equals()</code> method by not checking the collection of it's fields.
    */
   public boolean equalSettings(PSFieldSet set) {
     boolean equal = true;
@@ -789,7 +717,6 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -900,31 +827,29 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Recursively fixes the source type (local, shared or system) to all fields
-   * and fieldsets using the supplied information.
-   * <br>
+   * Recursively fixes the source type (local, shared or system) to all fields and fieldsets using
+   * the supplied information. <br>
    * Steps for identification.
+   *
    * <ol>
-   * <li>A field is considered as system if a field with same name exists in
-   * system definition and is not in the list of system field excludes</li>
-   * <li>A field is considered as shared if a field with same name exists in
-   * any of the shared field groups and is not in the list of shared field
-   * excludes</li>
-   * <li>A fieldset is considered as shared if a fieldset with same name exists
-   * in any of the shared field groups and that group is in the list of
-   * included shared groups list</li>
+   *   <li>A field is considered as system if a field with same name exists in system definition and
+   *       is not in the list of system field excludes
+   *   <li>A field is considered as shared if a field with same name exists in any of the shared
+   *       field groups and is not in the list of shared field excludes
+   *   <li>A fieldset is considered as shared if a fieldset with same name exists in any of the
+   *       shared field groups and that group is in the list of included shared groups list
    * </ol>
    *
    * @param systemDef the content editor system definition, may not be <code>null
    * </code>
    * @param sharedDef the content editor shared definition, may not be <code>
    * null</code>
-   * @param sysFieldExcludes the list of system field excludes, may not be
-   * <code>null</code>, may be empty.
-   * @param sharedGroupIncludes the list of shared group includes, may not be
-   * <code>null</code>, may be empty.
-   * @param sharedFieldExcludes the list of shared field excludes, may not be
-   * <code>null</code>, may be empty.
+   * @param sysFieldExcludes the list of system field excludes, may not be <code>null</code>, may be
+   *     empty.
+   * @param sharedGroupIncludes the list of shared group includes, may not be <code>null</code>, may
+   *     be empty.
+   * @param sharedFieldExcludes the list of shared field excludes, may not be <code>null</code>, may
+   *     be empty.
    */
   public void fixSourceTypes(
       PSContentEditorSystemDef systemDef,
@@ -969,8 +894,7 @@ public class PSFieldSet extends PSComponent {
   /**
    * Checks whether this is a shared field set by looking its source type.
    *
-   * @return <code>true</code> if it is shared field set, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if it is shared field set, otherwise <code>false</code>
    */
   public boolean isSharedFieldSet() {
     return getSourceType() == PSField.TYPE_SHARED;
@@ -995,7 +919,6 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -1059,9 +982,7 @@ public class PSFieldSet extends PSComponent {
   /**
    * Checks the supplied type to make sure it is one of the allowed types.
    *
-   * @param type The type to check.  Must be one of the constants of the form
-   * TYPE_xxx.
-   *
+   * @param type The type to check. Must be one of the constants of the form TYPE_xxx.
    * @return <code>true</code> if type is valid, <code>false</code> if not.
    */
   public static boolean isValidType(int type) {
@@ -1078,21 +999,17 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Gets a shallow copy of this fieldset recursively merged with the source.
-   * If a field in the source exists in this fieldset (overridden field), then
-   * the field is merged with source field keeping its non-<code>null</code>
-   * properties, otherwise adds that field to merged field set. See {@link
-   * PSField#merge(PSField) merge} for more information.
+   * Gets a shallow copy of this fieldset recursively merged with the source. If a field in the
+   * source exists in this fieldset (overridden field), then the field is merged with source field
+   * keeping its non-<code>null</code> properties, otherwise adds that field to merged field set.
+   * See {@link PSField#merge(PSField) merge} for more information.
    *
    * @param source The source field set to merge with, may not be <code>null
    * </code>
-   *
-   * @return the merged field set with the added and merged source fields,
-   * never <code>null</code>
-   *
-   * @throws PSSystemValidationException if a fieldname in the source already exists
-   * in this fieldset but the objects are of different types (i.e. one is a
-   * PSField object and one is a PSFieldSet object).
+   * @return the merged field set with the added and merged source fields, never <code>null</code>
+   * @throws PSSystemValidationException if a fieldname in the source already exists in this
+   *     fieldset but the objects are of different types (i.e. one is a PSField object and one is a
+   *     PSFieldSet object).
    */
   public PSFieldSet merge(PSFieldSet source) throws PSSystemValidationException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -1141,20 +1058,17 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Gets a shallow copy of this fieldset recursively demerged from source.
-   * If a field in the source exists in this fieldset, then the field is
-   * demerged from the source field keeping the properties that differ from
-   * source field. If the demerged field does not have any overridden
+   * Gets a shallow copy of this fieldset recursively demerged from source. If a field in the source
+   * exists in this fieldset, then the field is demerged from the source field keeping the
+   * properties that differ from source field. If the demerged field does not have any overridden
    * properties, then that field is not added to the demerged fieldset.
    *
    * @param source the source fieldset to demerge from, may not be <code>null
    * </code>
-   *
    * @return the demerged fieldset, never <code>null</code>
-   *
-   * @throws PSSystemValidationException if a fieldname in the source already exists
-   * in this fieldset but the objects are of different types (i.e. one is a
-   * PSField object and one is a PSFieldSet object).
+   * @throws PSSystemValidationException if a fieldname in the source already exists in this
+   *     fieldset but the objects are of different types (i.e. one is a PSField object and one is a
+   *     PSFieldSet object).
    */
   public PSFieldSet demerge(PSFieldSet source) throws PSSystemValidationException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -1211,19 +1125,14 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Gets a copy of this fieldset with the fields that are in the supplied
-   * exclude list removed.
+   * Gets a copy of this fieldset with the fields that are in the supplied exclude list removed.
    *
    * @param fieldExcludes The list of field reference aliases as <code>String
    * </code>s to remove from this fieldset, may not be <code>null</code>
-   * @param validate If <code>true</code>, validates that the excluded fields
-   * exist in the fieldset.
-   *
-   * @return A copy of the fieldset with the exculded fields removed.  Never
-   * <code>null</code>.
-   *
-   * @throws PSSystemValidationException if validating and an excluded field is not
-   * found in the fieldset.
+   * @param validate If <code>true</code>, validates that the excluded fields exist in the fieldset.
+   * @return A copy of the fieldset with the exculded fields removed. Never <code>null</code>.
+   * @throws PSSystemValidationException if validating and an excluded field is not found in the
+   *     fieldset.
    */
   public PSFieldSet removeFields(List fieldExcludes, boolean validate)
       throws PSSystemValidationException {
@@ -1254,22 +1163,18 @@ public class PSFieldSet extends PSComponent {
   }
 
   /**
-   * Walks this fieldset recursively, looking for all instances of
-   * PSBackEndColumn and replaces the table in that object with the fully
-   * specified table in the supplied tables list. This is necessary because
-   * the tables in this context just have an alias, all other properties
-   * are <code>null</code>.
+   * Walks this fieldset recursively, looking for all instances of PSBackEndColumn and replaces the
+   * table in that object with the fully specified table in the supplied tables list. This is
+   * necessary because the tables in this context just have an alias, all other properties are
+   * <code>null</code>.
    *
-   * @param tables A list of all tables defined in this editor. Each key
-   *    is the table alias (lowercased) and each value is the PSBackEndTable
-   *    that has all properties properly specified. The Map is treated
-   *    read-only.
-   *
-   * @throws PSSystemValidationException if there is a table ref in the fieldset
-   *    that doesn't exist in the supplied map.
-   *
-   * @todo PSApplicationBuilder and PSCopyHandler need to be cleaned up to
-   *    take advantage of this method.
+   * @param tables A list of all tables defined in this editor. Each key is the table alias
+   *     (lowercased) and each value is the PSBackEndTable that has all properties properly
+   *     specified. The Map is treated read-only.
+   * @throws PSSystemValidationException if there is a table ref in the fieldset that doesn't exist
+   *     in the supplied map.
+   * @todo PSApplicationBuilder and PSCopyHandler need to be cleaned up to take advantage of this
+   *     method.
    */
   public void fixupBackEndColumns(Map tables) throws PSSystemValidationException {
     try {
@@ -1302,29 +1207,27 @@ public class PSFieldSet extends PSComponent {
   public static final int TYPE_PARENT = 0;
 
   /**
-   * Simple child type specifier. Specifies a fieldSet that may result in
-   * multiple child table rows containing only one column, and the data is
-   * edited at the same time as the parent item data.
+   * Simple child type specifier. Specifies a fieldSet that may result in multiple child table rows
+   * containing only one column, and the data is edited at the same time as the parent item data.
    */
   public static final int TYPE_SIMPLE_CHILD = 1;
 
   /**
-   * Complex child type specifier.  Specifies a fieldSet that may result in
-   * multiple child table rows containing multple column values.  The data is
-   * edited separately from the parent item data.
+   * Complex child type specifier. Specifies a fieldSet that may result in multiple child table rows
+   * containing multple column values. The data is edited separately from the parent item data.
    */
   public static final int TYPE_COMPLEX_CHILD = 2;
 
   /**
-   * Multi-property simple child type specifier.  Specifies a fieldSet that
-   * may result in a single child table row containing multiple column values.
-   * Data is edited along with the parent item data.
+   * Multi-property simple child type specifier. Specifies a fieldSet that may result in a single
+   * child table row containing multiple column values. Data is edited along with the parent item
+   * data.
    */
   public static final int TYPE_MULTI_PROPERTY_SIMPLE_CHILD = 3;
 
   /**
-   * An array of XML attribute values for the type. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the type. They are specified at the index of the
+   * specifier.
    */
   private static final String[] TYPE_ENUM = {
     "parent", "simpleChild", "complexChild", "multiPropertySimpleChild"
@@ -1340,8 +1243,8 @@ public class PSFieldSet extends PSComponent {
   public static final int REPEATABILITY_COUNT = 2;
 
   /**
-   * An array of XML attribute values for the repeatability. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the repeatability. They are specified at the index of the
+   * specifier.
    */
   private static final String[] REPEATABILITY_ENUM = {"zeroOrMore", "oneOrMore", "count"};
 
@@ -1351,17 +1254,15 @@ public class PSFieldSet extends PSComponent {
   private static final String USER_SEARCHABLE_ATTR = "userSearchable";
 
   /**
-   * An array of XML attribute values for all boolean attributes. They are
-   * ordered as <code>true</code>, <code>false</code>.
+   * An array of XML attribute values for all boolean attributes. They are ordered as <code>true
+   * </code>, <code>false</code>.
    */
   private static final String[] BOOLEAN_ENUM = {"yes", "no"};
 
   /** The field set name, might be <code>null</code> */
   private String m_name = null;
 
-  /**
-   * See {@link #setUserSearchable(boolean)} for details. Defaults to <code>true</code>.
-   */
+  /** See {@link #setUserSearchable(boolean)} for details. Defaults to <code>true</code>. */
   private boolean m_userSearchable = true;
 
   /** The field type. */
@@ -1371,8 +1272,7 @@ public class PSFieldSet extends PSComponent {
   private int m_repeatability = REPEATABILITY_ZERO_OR_MORE;
 
   /**
-   * The number of rows needed. This is only used if the repeatability type
-   * is REPEATABILITY_COUNT.
+   * The number of rows needed. This is only used if the repeatability type is REPEATABILITY_COUNT.
    */
   private int m_count = 0;
 
@@ -1380,8 +1280,8 @@ public class PSFieldSet extends PSComponent {
   private boolean m_supportsSequencing = true;
 
   /**
-   * An ordered map storing PSField and/or PSFieldSet objects, ordered and keyed
-   * by their name. Never <code>null</code>, might be empty.
+   * An ordered map storing PSField and/or PSFieldSet objects, ordered and keyed by their name.
+   * Never <code>null</code>, might be empty.
    */
   private Map<String, PSComponent> m_fields = new TreeMap<>();
 

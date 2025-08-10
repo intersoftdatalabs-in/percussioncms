@@ -28,38 +28,38 @@ import java.util.List;
  */
 public interface IPSTreeNode<T> {
 
-    /**
-     * Gets the node's parent.
-     *
-     * @return the parent node, or null if this is the root
-     */
-    IPSTreeNode<T> getParent();
+  /**
+   * Gets the node's parent.
+   *
+   * @return the parent node, or null if this is the root
+   */
+  IPSTreeNode<T> getParent();
 
-    /**
-     * Sets the node's parent.
-     *
-     * @param node the parent node to set
-     */
-    void setParent(IPSTreeNode<T> node);
+  /**
+   * Sets the node's parent.
+   *
+   * @param node the parent node to set
+   */
+  void setParent(IPSTreeNode<T> node);
 
-    /**
-     * Gets the children of this node.
-     *
-     * @return a list of child nodes, never null
-     */
-    List<IPSTreeNode<T>> getChildren();
+  /**
+   * Gets the children of this node.
+   *
+   * @return a list of child nodes, never null
+   */
+  List<IPSTreeNode<T>> getChildren();
 
-    /**
-     * Gets the value stored in this node.
-     *
-     * @return the value
-     */
-    T getValue();
+  /**
+   * Gets the value stored in this node.
+   *
+   * @return the value
+   */
+  T getValue();
 
-    /**
-     * Sets the value stored in this node.
-     *
-     * @param value the value to set
-     */
-    void setValue(T value);
+  /**
+   * Sets the value stored in this node.
+   *
+   * @param value the value to set
+   */
+  void setValue(T value);
 }

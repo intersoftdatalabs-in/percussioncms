@@ -21,13 +21,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Class of unit test utility functions.
- */
+/** Class of unit test utility functions. */
 public class PSTestUtils {
   /**
-   * Convenience method that calls
-   * {@link #testSetter(Object, String, String, Class, boolean)
+   * Convenience method that calls {@link #testSetter(Object, String, String, Class, boolean)
    * testSetter(obj, prop, val, String.class, shouldThrow)}
    */
   public static void testSetter(Object obj, String prop, String val, boolean shouldThrow)
@@ -36,23 +33,20 @@ public class PSTestUtils {
   }
 
   /**
-   * Tests the specified get/set methods.  Invokes the set method of the
-   * supplied object with the supplied value.  If this suceeds and
-   * <code>shouldThrow</code> is <code>false</code>, it then tests equality on
-   * the supplied value with the value returned from the get method to see if
-   * they are equal.
+   * Tests the specified get/set methods. Invokes the set method of the supplied object with the
+   * supplied value. If this suceeds and <code>shouldThrow</code> is <code>false</code>, it then
+   * tests equality on the supplied value with the value returned from the get method to see if they
+   * are equal.
    *
-   * @param obj The object on which to call the methods, may not be
-   * <code>null</code>.
-   * @param prop The bean style property name, e.g. the portion of the set/get
-   * method name following the word "get" or "set", case-sensitive (do not
-   * camel case the property name).  May not be <code>null</code> or empty.
+   * @param obj The object on which to call the methods, may not be <code>null</code>.
+   * @param prop The bean style property name, e.g. the portion of the set/get method name following
+   *     the word "get" or "set", case-sensitive (do not camel case the property name). May not be
+   *     <code>null</code> or empty.
    * @param val The value to set, may be <code>null</code>.
-   * @param valClass The class of the value, supplied in case <code>val</code>
-   * is <code>null</code>, may not be <code>null</code>.
-   * @param shouldThrow <code>true</code> if setting the supplied value should
-   * cause an IllegalArgumentException to be thrown, <code>false</code> if not.
-   *
+   * @param valClass The class of the value, supplied in case <code>val</code> is <code>null</code>,
+   *     may not be <code>null</code>.
+   * @param shouldThrow <code>true</code> if setting the supplied value should cause an
+   *     IllegalArgumentException to be thrown, <code>false</code> if not.
    * @throws Exception If the test fails.
    */
   public static void testSetter(
@@ -81,17 +75,15 @@ public class PSTestUtils {
   }
 
   /**
-   * Tests constructing an object from the provided ctor arguments. All args
-   * can be <code>null</code> or empty.
+   * Tests constructing an object from the provided ctor arguments. All args can be <code>null
+   * </code> or empty.
    *
    * @param objClass The class to instantiate, may not be <code>null</code>.
    * @param params Array of ctor param types, may not be <code>null</code>.
    * @param args Array of ctor args, may not be <code>null</code>.
-   * @param shouldThrow <code>true</code> if the supplied args should cause
-   * an exception to be thrown, <code>false</code> if not.
-   *
+   * @param shouldThrow <code>true</code> if the supplied args should cause an exception to be
+   *     thrown, <code>false</code> if not.
    * @return The constructed object.
-   *
    * @throws Exception If the test fails.
    */
   @SuppressWarnings(value = {"unchecked"})

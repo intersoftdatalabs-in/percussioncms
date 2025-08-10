@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSItemProperties;
 import java.util.Optional;
 
-/**
- * Holds traffic details for items under a named site by date.
- */
+/** Holds traffic details for items under a named site by date. */
 @JsonRootName(value = "TrafficDetails")
 public class PSTrafficDetails extends PSItemProperties {
 

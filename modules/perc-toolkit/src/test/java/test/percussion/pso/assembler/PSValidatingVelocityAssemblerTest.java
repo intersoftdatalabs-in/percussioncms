@@ -18,44 +18,41 @@ package test.percussion.pso.assembler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.services.assembly.IPSAssemblyItem;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import com.percussion.services.assembly.IPSAssemblyItem;
 
 /**
  * // REFACTORED: CP-JAVA11
+ *
  * @author natechadwick
  */
 @ExtendWith(MockitoExtension.class)
 public class PSValidatingVelocityAssemblerTest {
-    @Mock
-    IPSAssemblyItem item;
+  @Mock IPSAssemblyItem item;
 
-    @BeforeEach
-    public void setUp() {
-    }
+  @BeforeEach
+  public void setUp() {}
 
-    @Test
-    public void XHTMLCleanTest() throws Exception {
-        // Example Mockito usage:
-        Mockito.when(item.toString()).thenReturn("clean-xhtml");
-        assertEquals("clean-xhtml", item.toString());
-    }
+  @Test
+  public void XHTMLCleanTest() throws Exception {
+    // Example Mockito usage:
+    Mockito.when(item.toString()).thenReturn("clean-xhtml");
+    assertEquals("clean-xhtml", item.toString());
+  }
 
-    @Test
-    public void XHTMLForcePublishNoCleanTest() throws Exception {
-        // Example Mockito usage:
-        Mockito.when(item.toString()).thenReturn("broken-xhtml");
-        assertEquals("broken-xhtml", item.toString());
-    }
+  @Test
+  public void XHTMLForcePublishNoCleanTest() throws Exception {
+    // Example Mockito usage:
+    Mockito.when(item.toString()).thenReturn("broken-xhtml");
+    assertEquals("broken-xhtml", item.toString());
+  }
 
-    @AfterEach
-    public void tearDown() {
-    }
+  @AfterEach
+  public void tearDown() {}
 }

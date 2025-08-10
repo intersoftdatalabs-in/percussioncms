@@ -43,16 +43,13 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * This class implements a loadable request handler interface
- * <code>IPSLoadableRequestHandler</code> for comparing the two contentitems or
- * two different revisions of a contentitem. When the request handler is called
- * with proper contentid, revision and variantids for the tow items, it returns
- * the compared document using the comparision engine DocuComp.
- * The values for DocuComp options can be supplied through the compare.xml file.
- * The process method first gets the assembly pages as strings for
- * the documents that need to be compared and then runs docucomp engines docuRun
- * to compare these strings.
- *
+ * This class implements a loadable request handler interface <code>IPSLoadableRequestHandler</code>
+ * for comparing the two contentitems or two different revisions of a contentitem. When the request
+ * handler is called with proper contentid, revision and variantids for the tow items, it returns
+ * the compared document using the comparision engine DocuComp. The values for DocuComp options can
+ * be supplied through the compare.xml file. The process method first gets the assembly pages as
+ * strings for the documents that need to be compared and then runs docucomp engines docuRun to
+ * compare these strings.
  */
 public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
   // see the IPSLoadableRequestHandler interface for method javadocs
@@ -95,10 +92,9 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * Performs the document comparision using the docucomp engine. Creates two
-   * <code>PSCompare</code> objects one for each document which needs to be
-   * compared. Gets the assembly page for each document and compares them. The
-   * result then will be send through response object.
+   * Performs the document comparision using the docucomp engine. Creates two <code>PSCompare</code>
+   * objects one for each document which needs to be compared. Gets the assembly page for each
+   * document and compares them. The result then will be send through response object.
    *
    * @param request the request to process, must not be <code>null</code>.
    */
@@ -150,21 +146,18 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * These strings are the html pages that are needed to be compared.
-   * The comparision results will be returned as a string.
+   * These strings are the html pages that are needed to be compared. The comparision results will
+   * be returned as a string.
    *
    * @param newStr The new string for the comparision, assumed not <code>null
    * </code>.
-   *
    * @param oldStr The old String for the comparision, assumed not <code>null
    * </code>.
    * @param lang user's login locale
-   *
    * @return Comparision results as <code>String</code>. May return <code>
    *    empty</code> string but not <code>null</code>.
-   *
-   * @throws PSCompareException if error occurs in docuRun at the time of
-   *    Initialization or at the time of comparision
+   * @throws PSCompareException if error occurs in docuRun at the time of Initialization or at the
+   *     time of comparision
    */
   protected static String getComparisionResult(String newStr, String oldStr, String lang) {
     String java, classpath, libpath, configUri;
@@ -232,30 +225,26 @@ public class PSCompareRequestHandler implements IPSLoadableRequestHandler {
     // nothing to do
   }
 
-  /**
-   * Name of the subsystem used to dump messages to server console.
-   */
+  /** Name of the subsystem used to dump messages to server console. */
   public static final String HANDLER = "Compare";
 
   /**
-   * Storage for the request roots, initialized in the <code>init</code>
-   * method, never <code>null</code> or empty after. Contains
-   * <code>String</code> objects.
+   * Storage for the request roots, initialized in the <code>init</code> method, never <code>null
+   * </code> or empty after. Contains <code>String</code> objects.
    */
   private Collection<String> m_requestRoots = null;
 
   /**
-   * request will have parameters like sys_contentid1, sys_revision1 for
-   * first document that need to be considered for the comparison and
-   * sys_contentid2, sys_revision2 for second document. The following constant
-   * is used to add 1 to the regualr IPSHtmlParameters constants like
+   * request will have parameters like sys_contentid1, sys_revision1 for first document that need to
+   * be considered for the comparison and sys_contentid2, sys_revision2 for second document. The
+   * following constant is used to add 1 to the regualr IPSHtmlParameters constants like
    * SYS_CONTENTID(sys_contentid).
    */
   public static final String FIRST_SET = "1";
 
   /**
-   * The following constant is used to add 2 to the regualr IPSHtmlParameters
-   * constants like SYS_CONTENTID(sys_contentid).
+   * The following constant is used to add 2 to the regualr IPSHtmlParameters constants like
+   * SYS_CONTENTID(sys_contentid).
    */
   public static final String SECOND_SET = "2";
 }

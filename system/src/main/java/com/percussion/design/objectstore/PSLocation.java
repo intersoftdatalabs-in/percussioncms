@@ -24,17 +24,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Implementation for the PSXLocation DTD in BasicObjects.dtd. This object is
- * used to indicate where custom actions are to be displayed.
+ * Implementation for the PSXLocation DTD in BasicObjects.dtd. This object is used to indicate where
+ * custom actions are to be displayed.
  */
 public class PSLocation extends PSComponent {
   /**
    * Creates a new custom action location.
    *
-   * @param page the page type, one of
-   *    PAGE_SUMMARY_VIEW|PAGE_ROW_EDIT|PAGE_CHILD_ROW_EDIT
+   * @param page the page type, one of PAGE_SUMMARY_VIEW|PAGE_ROW_EDIT|PAGE_CHILD_ROW_EDIT
    * @param type the location type, one of
-   *    TYPE_FORM|TYPE_ROW|TYPE_FIELD|TYPE_WF_ACTION|TYPE_WF_TRANSITION
+   *     TYPE_FORM|TYPE_ROW|TYPE_FIELD|TYPE_WF_ACTION|TYPE_WF_TRANSITION
    */
   public PSLocation(int page, int type) {
     setPage(page);
@@ -44,14 +43,10 @@ public class PSLocation extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLocation(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -59,20 +54,15 @@ public class PSLocation extends PSComponent {
   }
 
   /**
-   * Checks this object to determine if there is a match between the supplied
-   * properties and this object.
+   * Checks this object to determine if there is a match between the supplied properties and this
+   * object.
    *
    * @param pageType One of the PAGE_xxx types.
-   *
    * @param pageLocation One of the TYPE_xxx constants.
-   *
-   * @param fieldRef The name of the field/fieldset to which the actions
-   *    should apply. This parameter is only needed for certain values of
-   *    page type and pageLocation. See {@link #getFieldRefs() getFieldRefs}
-   *    for more details.
-   *
-   * @return <code>true</code> if there is a match, <code>false</code>
-   *    otherwise.
+   * @param fieldRef The name of the field/fieldset to which the actions should apply. This
+   *     parameter is only needed for certain values of page type and pageLocation. See {@link
+   *     #getFieldRefs() getFieldRefs} for more details.
+   * @return <code>true</code> if there is a match, <code>false</code> otherwise.
    */
   public boolean hasCustomActions(int pageType, int pageLocation, String fieldRef) {
     boolean fieldMatch = false;
@@ -88,9 +78,7 @@ public class PSLocation extends PSComponent {
     return (pageType == m_page && pageLocation == m_type && fieldMatch);
   }
 
-  /**
-   * Needed for serialisation
-   */
+  /** Needed for serialisation */
   protected PSLocation() {}
 
   /**
@@ -141,20 +129,18 @@ public class PSLocation extends PSComponent {
   /**
    * Gets the preferred position of this action relative to other actions.
    *
-   * @return The preferred position, 1 based. A value &lt; 1 means the
-   *    designer didn't specify a position.
+   * @return The preferred position, 1 based. A value &lt; 1 means the designer didn't specify a
+   *     position.
    */
   public int getSequence() {
     return m_sequence;
   }
 
   /**
-   * Sets the position of this action relative to other actions located in
-   * the same location.
+   * Sets the position of this action relative to other actions located in the same location.
    *
-   * @param position The relative position, 1 based. A value of 1 means
-   *    place this action at the top of the list of actions in the output
-   *    document.
+   * @param position The relative position, 1 based. A value of 1 means place this action at the top
+   *     of the list of actions in the output document.
    */
   public void setSequence(int position) {
     if (position < 1) m_sequence = 0;
@@ -162,17 +148,16 @@ public class PSLocation extends PSComponent {
   }
 
   /**
-   * When positioning an action relative to children objects, this list
-   * specifies which field sets the action should be set in. If the page is
-   * <code>PAGE_SUMMARY_VIEW</code> or <code>PAGE_ROW_EDIT</code> and type
-   * is <code>TYPE_FORM</code>, then this should contain 1 or more elements,
-   * otherwise the entries should be ignored.
-   * <p>This class does not enforce this rule except when loading from xml
-   * to make it easier to manipulate the object programatically.
+   * When positioning an action relative to children objects, this list specifies which field sets
+   * the action should be set in. If the page is <code>PAGE_SUMMARY_VIEW</code> or <code>
+   * PAGE_ROW_EDIT</code> and type is <code>TYPE_FORM</code>, then this should contain 1 or more
+   * elements, otherwise the entries should be ignored.
    *
-   * @return A valid iterator over 0 or more String objects. Each string
-   *    should reference an existing fieldset (although this class makes
-   *    no guarantee that this is <code>true</code>).
+   * <p>This class does not enforce this rule except when loading from xml to make it easier to
+   * manipulate the object programatically.
+   *
+   * @return A valid iterator over 0 or more String objects. Each string should reference an
+   *     existing fieldset (although this class makes no guarantee that this is <code>true</code>).
    */
   public Iterator getFieldRefs() {
     return m_fieldRefs.iterator();
@@ -181,8 +166,8 @@ public class PSLocation extends PSComponent {
   /**
    * See {@link #getFieldRefs() getFieldRefs} for a description.
    *
-   * @param refs An iterator with 0 or more Strings, never <code>null</code>.
-   *    Each entry is added to the local list by doing a <code>toString
+   * @param refs An iterator with 0 or more Strings, never <code>null</code>. Each entry is added to
+   *     the local list by doing a <code>toString
    *    </code> on it.
    */
   public void setFieldRefs(Iterator refs) {
@@ -193,9 +178,8 @@ public class PSLocation extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSField, not <code>null</code>.
    */
@@ -216,8 +200,7 @@ public class PSLocation extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSLocation)) return false;
@@ -233,9 +216,7 @@ public class PSLocation extends PSComponent {
     return equal;
   }
 
-  /**
-   * Generates hash code for this object.
-   */
+  /** Generates hash code for this object. */
   @Override
   public int hashCode() {
     return m_page + m_type + m_sequence + (m_fieldRefs == null ? 0 : m_fieldRefs.hashCode());
@@ -386,8 +367,8 @@ public class PSLocation extends PSComponent {
   public static final int PAGE_CHILD_ROW_EDIT = 2;
 
   /**
-   * An array of XML attribute values for the page.
-   * They are specified at the index of the specifier.
+   * An array of XML attribute values for the page. They are specified at the index of the
+   * specifier.
    */
   private static final String[] PAGE_ENUM = {"summaryView", "rowEdit", "childRowEdit"};
 
@@ -407,36 +388,35 @@ public class PSLocation extends PSComponent {
   public static final int TYPE_WF_TRANSITION = 4;
 
   /**
-   * An array of XML attribute values for the type.
-   * They are specified at the index of the specifier.
+   * An array of XML attribute values for the type. They are specified at the index of the
+   * specifier.
    */
   private static final String[] TYPE_ENUM = {"form", "row", "field", "wfAction", "wfTransition"};
 
   /**
-   * Which type of editor should the action appear upon. Always one of the
-   * PAGE_xxx types. Defaults to <code>PAGE_SUMMARY_VIEW</code>.
+   * Which type of editor should the action appear upon. Always one of the PAGE_xxx types. Defaults
+   * to <code>PAGE_SUMMARY_VIEW</code>.
    */
   private int m_page = PAGE_SUMMARY_VIEW;
 
   /**
-   * Where on the page is the action to be located. Always one of the
-   * TYPE_xxx values. Defaults to <code>TYPE_FORM</code>.
+   * Where on the page is the action to be located. Always one of the TYPE_xxx values. Defaults to
+   * <code>TYPE_FORM</code>.
    */
   private int m_type = TYPE_FORM;
 
   /**
    * If <code>m_page</code> is <code>PAGE_SUMMARY_VIEW</code> or it's <code>
-   * PAGE_ROW_EDIT</code> and the type is TYPE_FIELD, then this list contains
-   * the names of the field sets to which the action applies, otherwise it is
-   * empty. Each entry is a String. Never <code>null</code>.
+   * PAGE_ROW_EDIT</code> and the type is TYPE_FIELD, then this list contains the names of the field
+   * sets to which the action applies, otherwise it is empty. Each entry is a String. Never <code>
+   * null</code>.
    */
   private List m_fieldRefs = new ArrayList();
 
   /**
-   * What's the position of this button relative to the existing buttons.
-   * A value of 1 indicates this button should be first in the list of actions
-   * in the output document. A value &lt; 1 means don't care. In that case,
-   * they should be added to the end of the list. The default value is 0.
+   * What's the position of this button relative to the existing buttons. A value of 1 indicates
+   * this button should be first in the list of actions in the output document. A value &lt; 1 means
+   * don't care. In that case, they should be added to the end of the list. The default value is 0.
    */
   private int m_sequence = 0;
 

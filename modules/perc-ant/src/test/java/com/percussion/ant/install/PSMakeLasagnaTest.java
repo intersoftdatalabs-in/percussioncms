@@ -42,9 +42,7 @@ public class PSMakeLasagnaTest {
 
   private String rxdeploydir;
 
-  /**
-   * Constant for the test rxrepository.properties file.
-   */
+  /** Constant for the test rxrepository.properties file. */
   public static final String TEST_RXREPOSITORY_PROPS_FILE =
       "/com/percussion/ant/install/test_rxrepository.properties";
 

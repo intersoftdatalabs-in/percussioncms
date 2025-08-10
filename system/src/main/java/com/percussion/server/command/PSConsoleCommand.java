@@ -27,21 +27,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommand abstract class is the base for all console command
- * handlers.
+ * The PSConsoleCommand abstract class is the base for all console command handlers.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSConsoleCommand implements IPSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
+   * @param cmdArgs the argument string to use when executing this command
    */
   PSConsoleCommand(String cmdArgs) {
     super();
@@ -49,8 +46,8 @@ public abstract class PSConsoleCommand implements IPSConsoleCommand {
   }
 
   /**
-   * Creates basic recommended result document. This document conforms to the
-   * following dtd:
+   * Creates basic recommended result document. This document conforms to the following dtd:
+   *
    * <pre><code>
    *    &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode,
    *       resultText)&gt;
@@ -71,19 +68,13 @@ public abstract class PSConsoleCommand implements IPSConsoleCommand {
    *    &lt;ELEMENT resultText                 (#PCDATA)&gt;
    * </code></pre>
    *
-   * @param The request supplied to the <code>execute</code> method. May be
-   * <code>null</code>.
-   *
-   * @param command The full command, w/o args, never <code>null</code> or
-   * empty.
-   *
-   * @param resultCode The numeric code representing the outcome of the
-   * command. Typically, one of the {@link IPSServerErrors}.RCONSOLE_xxx
-   * codes. The numeric value of this code will be used as the resultCode
-   * and its associated message will be used as the resultText.
-   * <p>Supply {@link IPSServerErrors.RCONSOLE_SUCCESS} if the command is
-   * successful and does not have any specific result message.
-   *
+   * @param The request supplied to the <code>execute</code> method. May be <code>null</code>.
+   * @param command The full command, w/o args, never <code>null</code> or empty.
+   * @param resultCode The numeric code representing the outcome of the command. Typically, one of
+   *     the {@link IPSServerErrors}.RCONSOLE_xxx codes. The numeric value of this code will be used
+   *     as the resultCode and its associated message will be used as the resultText.
+   *     <p>Supply {@link IPSServerErrors.RCONSOLE_SUCCESS} if the command is successful and does
+   *     not have any specific result message.
    * @return the result document, never <code>null</code>
    */
   protected Document getResultsDocument(

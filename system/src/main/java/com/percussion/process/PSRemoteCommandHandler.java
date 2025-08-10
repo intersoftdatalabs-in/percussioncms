@@ -28,9 +28,10 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This class provides an implementation for {@link IPSCommandHandler} to
- * a remote server. It accomplishes most of its work by using the
- * <code>sendMessage</code> method in the {@link PSProcessDaemon} class.
+ * This class provides an implementation for {@link IPSCommandHandler} to a remote server. It
+ * accomplishes most of its work by using the <code>sendMessage</code> method in the {@link
+ * PSProcessDaemon} class.
+ *
  * <p>Instances of this class are immutable.
  *
  * @author paulhoward
@@ -39,17 +40,13 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
   /**
    * Creates an immutable instance of this class.
    *
-   * @param server The name of the machine where the remote daemon is running.
-   * Never <code>null</code> or empty.
-   *
-   * @param port The port on the remote machine where the remote daemon is
-   * running. Must be &gt;0.
-   *
-   * @param relPath All paths supplied to any method in this class are
-   * interpreted relative to this path. This path is stripped from the
-   * supplied path and the resulting path becomes the virtual path used on
-   * the remote server. All paths are normalized to use forward slash as the
-   * path separator. Never <code>null</code>.
+   * @param server The name of the machine where the remote daemon is running. Never <code>null
+   *     </code> or empty.
+   * @param port The port on the remote machine where the remote daemon is running. Must be &gt;0.
+   * @param relPath All paths supplied to any method in this class are interpreted relative to this
+   *     path. This path is stripped from the supplied path and the resulting path becomes the
+   *     virtual path used on the remote server. All paths are normalized to use forward slash as
+   *     the path separator. Never <code>null</code>.
    */
   public PSRemoteCommandHandler(String server, int port, File relPath) {
     if (null == server || server.trim().length() == 0) {
@@ -226,13 +223,11 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
    * Modifies the supplied path based on information supplied in the ctor.
    *
    * @param path Assumed not <code>null</code>.
-   *
-   * @return The <code>String</code> representation of the supplied path
-   * translated to a virtual path. Never <code>null</code> or empty. The
-   * returned path always uses the / as the path separator.
-   *
-   * @throws IOException If the supplied path does not begin w/ the string
-   * found in <code>m_relPath</code>.
+   * @return The <code>String</code> representation of the supplied path translated to a virtual
+   *     path. Never <code>null</code> or empty. The returned path always uses the / as the path
+   *     separator.
+   * @throws IOException If the supplied path does not begin w/ the string found in <code>m_relPath
+   *     </code>.
    */
   private String convertPath(File path) throws IOException {
     String origPath = path.getAbsolutePath().replace('\\', '/');
@@ -248,21 +243,20 @@ public class PSRemoteCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * See ctor <code>port</code> param for description.
-   * Set in ctor, then always &gt; 0 and never modified.
+   * See ctor <code>port</code> param for description. Set in ctor, then always &gt; 0 and never
+   * modified.
    */
   private int m_port;
 
   /**
-   * See ctor <code>server</code> param for description.
-   * Set in ctor, never <code>null</code>, empty or modified after that.
+   * See ctor <code>server</code> param for description. Set in ctor, never <code>null</code>, empty
+   * or modified after that.
    */
   private String m_server;
 
   /**
-   * See ctor <code>relPath</code> param for description. Set in ctor, then
-   * never changed or modified after that. Stored with path separator as a
-   * forward slash and lower-cased.
+   * See ctor <code>relPath</code> param for description. Set in ctor, then never changed or
+   * modified after that. Stored with path separator as a forward slash and lower-cased.
    */
   private String m_relPath;
 }

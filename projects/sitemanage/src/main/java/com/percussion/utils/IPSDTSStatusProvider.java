@@ -20,12 +20,9 @@ package com.percussion.utils;
 
 import com.percussion.integritymanagement.data.PSIntegrityTask;
 import com.percussion.utils.types.PSPair;
-
 import java.util.Map;
 
-/**
- * Provides status reporting for DTS (Data Transformation Service) tasks.
- */
+/** Provides status reporting for DTS (Data Transformation Service) tasks. */
 public interface IPSDTSStatusProvider {
-    Map<String, PSPair<PSIntegrityTask.TaskStatus, String>> getDTSStatusReport();
+  Map<String, PSPair<PSIntegrityTask.TaskStatus, String>> getDTSStatusReport();
 }

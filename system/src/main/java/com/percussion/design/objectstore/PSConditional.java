@@ -26,17 +26,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSConditional class is used to define conditionals. Conditionals
- * take the form
- * <code>{variable} {operator} {value} [{bool} {conditional}]</code>.
- * <P>
- * When using multiple conditionals (chaining conditionals) a boolean
- * operator must be specified on all but the last conditional. The boolean
- * operators currently supported are AND and OR. AND is the default
- * boolean operator. AND has a higher precedence than OR. All conditionals
- * joined by AND will be evaluated before the corresponding OR
- * conditionals. For instance, in the following example:
- * <P>
+ * The PSConditional class is used to define conditionals. Conditionals take the form <code>
+ * {variable} {operator} {value} [{bool} {conditional}]</code>.
+ *
+ * <p>When using multiple conditionals (chaining conditionals) a boolean operator must be specified
+ * on all but the last conditional. The boolean operators currently supported are AND and OR. AND is
+ * the default boolean operator. AND has a higher precedence than OR. All conditionals joined by AND
+ * will be evaluated before the corresponding OR conditionals. For instance, in the following
+ * example:
+ *
+ * <p>
+ *
  * <TABLE>
  *       <TR>
  *          <TH>Name</TH>
@@ -63,130 +63,88 @@ import org.w3c.dom.Node;
  *          <TD></TD>
  *       </TR>
  * </TABLE>
- * <P>
- * Any product with a status of 'P' will be returned. In addition, any user
- * who logged in through LDAP and is part of the Engineering organizational
- * unit will get back all rows -- that is, with status set to any value.
- * If the AND conditions were not of higher precedence, the result set
- * would change. It would cause the first check to be if the status is 'P' or
- * the user logged in through LDAP. This filters correctly, but then we apply
- * the rule that they must also be in Engineering. This will cause
- * Engineering to get all records, as expected, but everyone outside of
- * Engineering will now get NO records, rather than records with a status
- * of 'P'.
- * <P>
- * One use of conditionals is in the PSRequestor object to check the input
- * data. If the input data meets the selection criteria, the request is
- * handled. Input data is often provided as an INPUT parameter defined on a
- * HTML FORM.
+ *
+ * <p>Any product with a status of 'P' will be returned. In addition, any user who logged in through
+ * LDAP and is part of the Engineering organizational unit will get back all rows -- that is, with
+ * status set to any value. If the AND conditions were not of higher precedence, the result set
+ * would change. It would cause the first check to be if the status is 'P' or the user logged in
+ * through LDAP. This filters correctly, but then we apply the rule that they must also be in
+ * Engineering. This will cause Engineering to get all records, as expected, but everyone outside of
+ * Engineering will now get NO records, rather than records with a status of 'P'.
+ *
+ * <p>One use of conditionals is in the PSRequestor object to check the input data. If the input
+ * data meets the selection criteria, the request is handled. Input data is often provided as an
+ * INPUT parameter defined on a HTML FORM.
  *
  * @see PSResultPage#getConditionals
  * @see PSRequestor#getSelectionCriteria
- *
- * @author       Tas Giakouminakis
- * @version  1.0
- * @since       1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConditional extends PSComponent {
   /**
-   * Use the boolean AND operator to join conditionals. AND has
-   * a higher precedence than OR. This means all AND conditions will
-   * be evaluated, then the ORs will be evaluated.
+   * Use the boolean AND operator to join conditionals. AND has a higher precedence than OR. This
+   * means all AND conditions will be evaluated, then the ORs will be evaluated.
    */
   public static final java.lang.String OPBOOL_AND = "AND";
 
   /**
-   * Use the boolean OR operator to join conditionals. OR has
-   * a lower precedence than AND. This means all AND conditions will
-   * be evaluated, then the ORs will be evaluated.
+   * Use the boolean OR operator to join conditionals. OR has a lower precedence than AND. This
+   * means all AND conditions will be evaluated, then the ORs will be evaluated.
    */
   public static final java.lang.String OPBOOL_OR = "OR";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_EQUALS = "=";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_NOTEQUALS = "<>";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_LESSTHAN = "<";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_LESSTHANOREQUALS = "<=";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_GREATERTHAN = ">";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_GREATERTHANOREQUALS = ">=";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_ISNULL = "IS NULL";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_ISNOTNULL = "IS NOT NULL";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_BETWEEN = "BETWEEN";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_NOTBETWEEN = "NOT BETWEEN";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_IN = "IN";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_NOTIN = "NOT IN";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_LIKE = "LIKE";
 
-  /**
-   *
-   */
+  /** */
   public static final java.lang.String OPTYPE_NOTLIKE = "NOT LIKE";
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                                    object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                                    object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                                    if the XML element node is not of the
-   *                                    appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSConditional(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -194,9 +152,7 @@ public class PSConditional extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSConditional() {}
 
   // see interface for description
@@ -211,12 +167,11 @@ public class PSConditional extends PSComponent {
   /**
    * Construct a conditional object.
    *
-   * @param    name       the name of the variable to check
-   * @param    op        the relational operator to use when comparing
-   * @param    value    the value the variable must match
-   * @param    bool       the boolean operator when chaining conditionals
-   *
-   *        @see          #setVariable
+   * @param name the name of the variable to check
+   * @param op the relational operator to use when comparing
+   * @param value the value the variable must match
+   * @param bool the boolean operator when chaining conditionals
+   * @see #setVariable
    */
   public PSConditional(
       IPSReplacementValue name,
@@ -233,11 +188,10 @@ public class PSConditional extends PSComponent {
   /**
    * Construct a conditional object.
    *
-   * @param name    the name of the variable to check
-   * @param op    the relational operator to use when comparing
-   * @param value       the value the variable must match
-   *
-   *        @see          #setVariable
+   * @param name the name of the variable to check
+   * @param op the relational operator to use when comparing
+   * @param value the value the variable must match
+   * @see #setVariable
    */
   public PSConditional(IPSReplacementValue name, java.lang.String op, IPSReplacementValue value) {
     this(name, op, value, OPBOOL_AND);
@@ -246,7 +200,7 @@ public class PSConditional extends PSComponent {
   /**
    * Get the name of the variable to check.
    *
-   * @return       the name of the variable to check
+   * @return the name of the variable to check
    */
   public IPSReplacementValue getVariable() {
     return m_variable;
@@ -255,7 +209,7 @@ public class PSConditional extends PSComponent {
   /**
    * Set the name of the variable to check.
    *
-   * @param    name    the name of the variable to check
+   * @param name the name of the variable to check
    */
   public void setVariable(IPSReplacementValue name) {
     if (null == name) throw new IllegalArgumentException("cond var name is empty");
@@ -266,21 +220,18 @@ public class PSConditional extends PSComponent {
   /**
    * Get the relational operator to use when comparing.
    *
-   * @return       the relational operator (OPTYPE_xxx)
+   * @return the relational operator (OPTYPE_xxx)
    */
   public java.lang.String getOperator() {
     return m_operator;
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.22 1999/06/09
-   *
-   * Changes the operator to the logical negation of itself, and
-   * returns the new (negated) operator.
-   *
-   * @return   String
+   *     <p>Changes the operator to the logical negation of itself, and returns the new (negated)
+   *     operator.
+   * @return String
    */
   public String negate() {
     // this method assumes that m_operator refers to the actual
@@ -306,7 +257,7 @@ public class PSConditional extends PSComponent {
   /**
    * Set the relational operator to use when comparing.
    *
-   * @param    op  the relational operator (OPTYPE_xxx)
+   * @param op the relational operator (OPTYPE_xxx)
    */
   public void setOperator(java.lang.String op) {
     // IMPORTANT: the operator should be set to refer to the
@@ -333,7 +284,7 @@ public class PSConditional extends PSComponent {
   /**
    * Get the value the variable must match.
    *
-   * @return       the value the variable must match
+   * @return the value the variable must match
    */
   public IPSReplacementValue getValue() {
     return m_value;
@@ -342,7 +293,7 @@ public class PSConditional extends PSComponent {
   /**
    * Set the value the variable must match.
    *
-   * @param    val the value the variable must match
+   * @param val the value the variable must match
    */
   public void setValue(IPSReplacementValue val) {
     m_value = val;
@@ -351,7 +302,7 @@ public class PSConditional extends PSComponent {
   /**
    * Get the boolean operator to use when joining multiple conditionals.
    *
-   * @return       the boolean operator (OPBOOL_xxx)
+   * @return the boolean operator (OPBOOL_xxx)
    */
   public java.lang.String getBoolean() {
     return m_boolean;
@@ -360,8 +311,8 @@ public class PSConditional extends PSComponent {
   /**
    * Set the boolean operator to use when joining multiple conditionals.
    *
-   * @param    bool    the boolean operator (OPBOOL_xxx) or <code>null</code>
-   *                       to use the default (OPBOOL_AND)
+   * @param bool the boolean operator (OPBOOL_xxx) or <code>null</code> to use the default
+   *     (OPBOOL_AND)
    */
   public void setBoolean(java.lang.String bool) {
     if (bool == null) {
@@ -382,10 +333,11 @@ public class PSConditional extends PSComponent {
   // **************  IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXConditional XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXConditional XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *        &lt;!--
    *           PSXConditional is used to define conditionals. Conditionals take
@@ -436,7 +388,7 @@ public class PSConditional extends PSComponent {
    *        &lt;!ELEMENT operator          (%PSXConditionalBoolean)&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXConditional XML element node
+   * @return the newly created PSXConditional XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -461,12 +413,10 @@ public class PSConditional extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSConditional Java object
-   * from a PSXConditional XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSConditional Java object from a PSXConditional XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception    PSUnknownNodeTypeException if the XML element node is not
-   *                                            of type PSXConditional
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXConditional
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -548,9 +498,7 @@ public class PSConditional extends PSComponent {
     }
   }
 
-  /**
-   * Returns the string representation of this object.
-   */
+  /** Returns the string representation of this object. */
   public String toString() {
     String condStr = m_variable.getValueText() + " " + m_operator + " ";
     if (m_value != null) condStr += m_value.getValueText() + " ";
@@ -559,18 +507,15 @@ public class PSConditional extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

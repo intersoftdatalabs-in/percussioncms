@@ -77,26 +77,20 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.w3c.dom.Document;
 
 /**
- * This version of the PSRequest object is simply a wrapper on a standard
- * <code>HttpServletRequest</code>.
+ * This version of the PSRequest object is simply a wrapper on a standard <code>HttpServletRequest
+ * </code>.
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSRequest {
   private static final Logger log = LogManager.getLogger(PSRequest.class);
 
   /**
-   * Construct a request object without attempting to parse the request body
-   * from the servlet request.
+   * Construct a request object without attempting to parse the request body from the servlet
+   * request.
    *
-   * @param req the servlet request, may be <code>null</code> for internal
-   * requests.
-   *
-   * @param resp the response, may be <code>null</code> for internal
-   * requests.
-   *
-   * @param eh the error handler to use in case of error, may be
-   * <code>null</code>.
-   *
+   * @param req the servlet request, may be <code>null</code> for internal requests.
+   * @param resp the response, may be <code>null</code> for internal requests.
+   * @param eh the error handler to use in case of error, may be <code>null</code>.
    * @param lh the log handler to use for logging, may be <code>null</code>.
    */
   public PSRequest(
@@ -151,18 +145,15 @@ public class PSRequest {
   }
 
   /**
-   * Construct a request object and parse the request body.  Same as
-   * {@link #PSRequest(HttpServletRequest, HttpServletResponse, PSErrorHandler,
-   * PSLogHandler)} with additional details noted below.
+   * Construct a request object and parse the request body. Same as {@link
+   * #PSRequest(HttpServletRequest, HttpServletResponse, PSErrorHandler, PSLogHandler)} with
+   * additional details noted below.
    *
-   * @param parseBody when <code>true</code>, read and parse the input
-   * stream from the servlet request, otherwise assume this will be handled
-   * externally.  Ignored if the request was not a post.
-   *
-   * @throws IOException if there is an error reading the inputstream from the
-   * request
-   * @throws PSRequestParsingException if there are any errors parsing the
-   * request body.
+   * @param parseBody when <code>true</code>, read and parse the input stream from the servlet
+   *     request, otherwise assume this will be handled externally. Ignored if the request was not a
+   *     post.
+   * @throws IOException if there is an error reading the inputstream from the request
+   * @throws PSRequestParsingException if there are any errors parsing the request body.
    */
   public PSRequest(
       HttpServletRequest req,
@@ -179,12 +170,10 @@ public class PSRequest {
   }
 
   /**
-   * Construct a request from a security token.  The request that is
-   * constructed will only contain session related information, and as such
-   * should only be used for internal requests.
+   * Construct a request from a security token. The request that is constructed will only contain
+   * session related information, and as such should only be used for internal requests.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>tok</code> is <code>null</code>.
    */
   public PSRequest(PSSecurityToken tok) {
@@ -196,9 +185,9 @@ public class PSRequest {
   }
 
   /**
-   * Get a copy of this request object, including clones of the CGI variable
-   * map, HTML parameter map, the cookie map, request file url, hook url
-   * application handler and session. Private objects are copied shallow.
+   * Get a copy of this request object, including clones of the CGI variable map, HTML parameter
+   * map, the cookie map, request file url, hook url application handler and session. Private
+   * objects are copied shallow.
    *
    * @return a clone of this request, never <code>null</code>.
    */
@@ -273,14 +262,11 @@ public class PSRequest {
   }
 
   /**
-   * Adds the supplied object to the list of objects cloned during this
-   * request.
+   * Adds the supplied object to the list of objects cloned during this request.
    *
-   * @param originalId the content id of the original item to add, it may be
-   *    less than <code>0</code>.
-   *
+   * @param originalId the content id of the original item to add, it may be less than <code>0
+   *     </code>.
    * @param clone the locator of the cloned item to add, not <code>null</code>.
-   *
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */
   public void addClone(int originalId, PSLocator clone) {
@@ -294,10 +280,9 @@ public class PSRequest {
   /**
    * Get the cloned locator for the supplied original content id.
    *
-   * @param originalId the original content id to get the clone for, not
-   *    <code>-1</code>.
-   * @return the locator of the clone for the supplied original, may be
-   *    <code>null</code> if the original was not cloned during this request.
+   * @param originalId the original content id to get the clone for, not <code>-1</code>.
+   * @return the locator of the clone for the supplied original, may be <code>null</code> if the
+   *     original was not cloned during this request.
    */
   public PSLocator getClonedLocator(int originalId) {
     if (m_clones == null) return null;
@@ -306,11 +291,10 @@ public class PSRequest {
   }
 
   /**
-   * Get the list of all original objects that have been cloned so far
-   * during this request.
+   * Get the list of all original objects that have been cloned so far during this request.
    *
-   * @return the list of all original objects that have been cloned during
-   *    this request, never <code>null</code>, might be empty.
+   * @return the list of all original objects that have been cloned during this request, never
+   *     <code>null</code>, might be empty.
    */
   public Iterator<Serializable> getOriginals() {
     if (m_clones == null) return PSIteratorUtils.emptyIterator();
@@ -319,11 +303,10 @@ public class PSRequest {
   }
 
   /**
-   * Get the list of all clones that have been created so far during this
-   * request.
+   * Get the list of all clones that have been created so far during this request.
    *
-   * @return the list of all clones that have been created during this request,
-   *    never <code>null</code>, might be empty.
+   * @return the list of all clones that have been created during this request, never <code>null
+   *     </code>, might be empty.
    */
   public Iterator<Serializable> getClones() {
     if (m_clones == null) return PSIteratorUtils.emptyIterator();
@@ -332,13 +315,10 @@ public class PSRequest {
   }
 
   /**
-   * Adds all supplied relationships to the list of relationships created
-   * during this request.
+   * Adds all supplied relationships to the list of relationships created during this request.
    *
-   * @param relationships the relationships to add, not <code>null</code>, may
-   *    be empty.
-   * @throws IllegalArgumentException if the supplied relationship is
-   *    <code>null</code>.
+   * @param relationships the relationships to add, not <code>null</code>, may be empty.
+   * @throws IllegalArgumentException if the supplied relationship is <code>null</code>.
    */
   public void addRelationships(PSRelationshipSet relationships) {
     if (relationships == null) throw new IllegalArgumentException("relationships cannot be null");
@@ -349,11 +329,10 @@ public class PSRequest {
   }
 
   /**
-   * Get the list of all relationships that have been created so far during
-   * this request.
+   * Get the list of all relationships that have been created so far during this request.
    *
-   * @return the list of all relationships that have been created during
-   *    this request, never <code>null</code>, might be empty.
+   * @return the list of all relationships that have been created during this request, never <code>
+   *     null</code>, might be empty.
    */
   public Iterator<Serializable> getRelationships() {
     if (m_relationships == null) return PSIteratorUtils.emptyIterator();
@@ -364,8 +343,7 @@ public class PSRequest {
   /**
    * Get the user session assigned to this request.
    *
-   * @return              the user session, or <code>null</code> if
-   *                      session management is disabled
+   * @return the user session, or <code>null</code> if session management is disabled
    */
   public synchronized PSUserSession getUserSession() {
     /* if we haven't gotten the session yet, do so now */
@@ -375,8 +353,8 @@ public class PSRequest {
   }
 
   /**
-   * If this request has a user session stored, it will be refreshed in case
-   * the user session referenced by the servlet request has been modified.
+   * If this request has a user session stored, it will be refreshed in case the user session
+   * referenced by the servlet request has been modified.
    */
   public synchronized void refreshUserSession() {
     /* if we haven't gotten the session yet, do so now */
@@ -387,11 +365,9 @@ public class PSRequest {
   }
 
   /**
-   * Convenience method to get the session ID associated with this
-   * object.
+   * Convenience method to get the session ID associated with this object.
    *
-   * @return              the user's session ID, or "" if
-   *                      session management is disabled
+   * @return the user's session ID, or "" if session management is disabled
    */
   public String getUserSessionId() {
     String ret = "";
@@ -406,8 +382,8 @@ public class PSRequest {
   }
 
   /**
-   * Request a header setting. Calls {@link #getCgiVariable(String, String)}
-   * with the arguments header and <code>null</code>
+   * Request a header setting. Calls {@link #getCgiVariable(String, String)} with the arguments
+   * header and <code>null</code>
    */
   public String getCgiVariable(String header) {
     return getCgiVariable(header, null);
@@ -415,6 +391,7 @@ public class PSRequest {
 
   /**
    * Request a header setting
+   *
    * @param header the header name, never <code>null</code> or empty
    * @param def the default value, may be <code>null</code>
    * @return the header, or the default if one doesn't exist
@@ -444,8 +421,7 @@ public class PSRequest {
   /**
    * Store information in the request's attributes that can be retrieved later
    *
-   * @param attribute the name of the attribute, never <code>null</code> or
-   *           empty
+   * @param attribute the name of the attribute, never <code>null</code> or empty
    * @param value the value to store, never <code>null</code> or empty
    */
   public void setCgiVariable(String attribute, String value) {
@@ -471,10 +447,9 @@ public class PSRequest {
   }
 
   /**
-   * Get the file portion of the request URL which was specified when
-   * making this request.
+   * Get the file portion of the request URL which was specified when making this request.
    *
-   * @return              the file portion of the request URL
+   * @return the file portion of the request URL
    */
   public String getRequestFileURL() {
     return m_reqRoot + "/" + m_reqPage + getRequestPageExtension();
@@ -575,10 +550,10 @@ public class PSRequest {
   }
 
   /**
-   * Get the root of the request URL. This often contains the E2 server
-   * request root and the application request root.
+   * Get the root of the request URL. This often contains the E2 server request root and the
+   * application request root.
    *
-   * @return              the request root
+   * @return the request root
    */
   public String getRequestRoot() {
     return m_reqRoot;
@@ -587,7 +562,7 @@ public class PSRequest {
   /**
    * Get the page of the request URL, including the file extension.
    *
-   * @return              the request page
+   * @return the request page
    */
   public String getRequestPage() {
     return getRequestPage(true);
@@ -596,10 +571,9 @@ public class PSRequest {
   /**
    * Get the page of the request URL.
    *
-   * @param   includeExtension  <code>true</code> to include the file
-   *                            extension in the returned page name
-   *
-   * @return                       the request page
+   * @param includeExtension <code>true</code> to include the file extension in the returned page
+   *     name
+   * @return the request page
    */
   public String getRequestPage(boolean includeExtension) {
     if (includeExtension) return m_reqPage + getRequestPageExtension();
@@ -610,18 +584,17 @@ public class PSRequest {
   /**
    * Get the type of page requested.
    *
-   * @return              the PSRequest.PAGE_TYPE_xxx page type
+   * @return the PSRequest.PAGE_TYPE_xxx page type
    */
   public int getRequestPageType() {
     return m_reqPageType;
   }
 
   /**
-   * Get the file extension associated with teh request page. The
-   * returned extension includes the "." extension separator.
+   * Get the file extension associated with teh request page. The returned extension includes the
+   * "." extension separator.
    *
-   * @return                 the file extension, or "" if no extension was
-   *                      specified
+   * @return the file extension, or "" if no extension was specified
    */
   public String getRequestPageExtension() {
     if (m_reqExt != null) return m_reqExt;
@@ -652,7 +625,7 @@ public class PSRequest {
   /**
    * Get the URL of the hook through which the request was submitted.
    *
-   * @return              the hook URL
+   * @return the hook URL
    */
   public String getHookURL() {
     return m_reqHookURL;
@@ -661,7 +634,7 @@ public class PSRequest {
   /**
    * Set the URL of the hook through which the request was submitted.
    *
-   * @param   reqHookURL  the hook URL
+   * @param reqHookURL the hook URL
    */
   public void setHookURL(String reqHookURL) {
     m_reqHookURL = reqHookURL;
@@ -669,31 +642,24 @@ public class PSRequest {
 
   /**
    * Get value of a parameter that was passed in with the request.
-   * <p>
-   * Parameters are usually sent as part of the URL when issuing an HTTP
-   * GET request.  They are also possibly able to be sent as the body
-   * of an HTTP POST request.
-   * <p>
-   * When parsing the parameters specified in the URL (or in the POST data),
-   * parameter names may be repeated. Rhythmyx stores the lists of data
-   * as a <code>List</code> object. This method will only return the first list
-   * entry for the matched item. If access to all the data in the list is
-   * required, then use the {@link #getParameterList(String) getParameterList}
-   * method.
-   * <p>
-   * For any non-string data, <code>toString()</code> will be called on the
-   * object.
-   * For objects such as file attachments, this will return the file name, not
-   * the contents, which may not be desirable.
    *
-   * @param name the name of the parameter to retrieve, may not be
-   * <code>null</code> or empty.
-   * @param defValue the value to return if a parameter of the specified name
-   * does not exist, may be <code>null</code> or empty.
+   * <p>Parameters are usually sent as part of the URL when issuing an HTTP GET request. They are
+   * also possibly able to be sent as the body of an HTTP POST request.
    *
-   * @return the parameter's value, or <code>null</code> if it is not found and
-   * default value is not provided.
+   * <p>When parsing the parameters specified in the URL (or in the POST data), parameter names may
+   * be repeated. Rhythmyx stores the lists of data as a <code>List</code> object. This method will
+   * only return the first list entry for the matched item. If access to all the data in the list is
+   * required, then use the {@link #getParameterList(String) getParameterList} method.
    *
+   * <p>For any non-string data, <code>toString()</code> will be called on the object. For objects
+   * such as file attachments, this will return the file name, not the contents, which may not be
+   * desirable.
+   *
+   * @param name the name of the parameter to retrieve, may not be <code>null</code> or empty.
+   * @param defValue the value to return if a parameter of the specified name does not exist, may be
+   *     <code>null</code> or empty.
+   * @return the parameter's value, or <code>null</code> if it is not found and default value is not
+   *     provided.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public synchronized String getParameter(String name, String defValue) {
@@ -718,30 +684,24 @@ public class PSRequest {
   }
 
   /**
-   * Get the balanced object for a parameter which was passed in with the
-   * request.
-   * <p>
-   * Parameters are usually sent as part of the URL when issuing a
-   * HTTP GET request. It is also possible to send parameters as
-   * the body of a HTTP POST request.
-   * <P>
-   * When processing form data for insert/update/delete, there may
-   * be lists of data, which are stored as a <code>List</code> object.
-   * This method will return list entry for the matched
-   * item. If access to just the first item in the list is required, use the
-   * <code>{@link #getSingleParameterObject(String, Object)
+   * Get the balanced object for a parameter which was passed in with the request.
+   *
+   * <p>Parameters are usually sent as part of the URL when issuing a HTTP GET request. It is also
+   * possible to send parameters as the body of a HTTP POST request.
+   *
+   * <p>When processing form data for insert/update/delete, there may be lists of data, which are
+   * stored as a <code>List</code> object. This method will return list entry for the matched item.
+   * If access to just the first item in the list is required, use the <code>
+   * {@link #getSingleParameterObject(String, Object)
    * getSingleParameterObject}</code> method.
    *
    * @param name the name of the parameter to retrieve, may not be <code>null
    * </code> or empty.
-   *
-   * @param defValue the default value to return if the requested entry is not
-   * found, may be <code>null</code>
-   *
-   * @return the requested parameter's value or <code>defValue</code>
-   * if it is not found. May be <code>null</code> if <code>defValue</code> is
-   * <code>null</code> and value is not found for the specified parameter.
-   *
+   * @param defValue the default value to return if the requested entry is not found, may be <code>
+   *     null</code>
+   * @return the requested parameter's value or <code>defValue</code> if it is not found. May be
+   *     <code>null</code> if <code>defValue</code> is <code>null</code> and value is not found for
+   *     the specified parameter.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public synchronized Object getParameterObject(String name, Object defValue) {
@@ -761,26 +721,23 @@ public class PSRequest {
   }
 
   /**
-   * Gets the value balanced to the specified size. If size is <code>1</code>
-   * the balanced value will be a single object in any case (either list object
-   * or any object). Otherwise it will be a list object balanced to the
-   * <code>size</code>.
+   * Gets the value balanced to the specified size. If size is <code>1</code> the balanced value
+   * will be a single object in any case (either list object or any object). Otherwise it will be a
+   * list object balanced to the <code>size</code>.
    * <br.
    * Criteria for balancing the parameter list:
    * <ol>
-   * <li>If value is not a list, then it returns the list of <code>size</code>
-   * with each entry referring to the same object. </li>
-   * <li>If value is a list and size of list is less than <code>size</code>,
-   * then it returns the list of <code>size</code> filled remaining entries
-   * with the last object in the list. </li>
-   * <li>If value is a list and size of list is greater than <code>size</code>,
-   * then it return the list with entries up to the <code>size</code>. </li>
-   * <li>If we are returning a single object and value is list, then it gets
-   * the first object in the list. </li>
+   * <li>If value is not a list, then it returns the list of <code>size</code> with each entry
+   *     referring to the same object.
+   * <li>If value is a list and size of list is less than <code>size</code>, then it returns the
+   *     list of <code>size</code> filled remaining entries with the last object in the list.
+   * <li>If value is a list and size of list is greater than <code>size</code>, then it return the
+   *     list with entries up to the <code>size</code>.
+   * <li>If we are returning a single object and value is list, then it gets the first object in the
+   *     list.
    * </ol>
    *
-   * @param value the parameter value to be balanced, assumed not to be
-   * <code>null</code>
+   * @param value the parameter value to be balanced, assumed not to be <code>null</code>
    * @param size the size to balance, assumed to be >= 1
    */
   private synchronized Object getBalancedValue(Object value, int size) {
@@ -825,11 +782,10 @@ public class PSRequest {
   }
 
   /**
-   * Get the object for a parameter which was passed in  with the request.  If
-   * the parameter map contains lists, then the first object in the list is
-   * returned.  Will return <code>null</code> if the list is empty or if the
-   * first item in the list is <code>null</code>, and no default value has been
-   * provided. See {@link #getParameterObject(String, Object)} for more info.
+   * Get the object for a parameter which was passed in with the request. If the parameter map
+   * contains lists, then the first object in the list is returned. Will return <code>null</code> if
+   * the list is empty or if the first item in the list is <code>null</code>, and no default value
+   * has been provided. See {@link #getParameterObject(String, Object)} for more info.
    *
    * @return The requested parameter's value, may be <code>null</code> if list.
    */
@@ -855,24 +811,19 @@ public class PSRequest {
     return getSingleParameterObject(name, null);
   }
 
-  /**
-   * Convenience method, calls {@link #getParameter(String, String)
-   * getParameter(name, null)}.
-   */
+  /** Convenience method, calls {@link #getParameter(String, String) getParameter(name, null)}. */
   public synchronized String getParameter(String name) {
     return getParameter(name, null);
   }
 
   /**
    * Get the parameters which were passed in with the request.
-   * <p>
-   * Parameters are usually sent as part of the URL when issuing a
-   * HTTP GET request. It is also possible to send parameters as
-   * the body of a HTTP POST request.
-   * <p>
-   * Modifying the returned HashMap will directly modify this object.
-   * Any subsequent use of the getParameter or getParameters methods
-   * will see the changed data.
+   *
+   * <p>Parameters are usually sent as part of the URL when issuing a HTTP GET request. It is also
+   * possible to send parameters as the body of a HTTP POST request.
+   *
+   * <p>Modifying the returned HashMap will directly modify this object. Any subsequent use of the
+   * getParameter or getParameters methods will see the changed data.
    *
    * @return the request parameters, never <code>null</code>, may be empty.
    */
@@ -881,16 +832,11 @@ public class PSRequest {
   }
 
   /**
-   * Get values of a parameter that was passed in with the request as an array
-   * of objects.
-   * <br>
+   * Get values of a parameter that was passed in with the request as an array of objects. <br>
    *
-   * @param name the name of the parameter to retrieve, may not be
-   * <code>null</code> or empty.
-   *
-   * @return the array of values for the specified parameter, or
-   * <code>null</code> if it is not found.
-   *
+   * @param name the name of the parameter to retrieve, may not be <code>null</code> or empty.
+   * @return the array of values for the specified parameter, or <code>null</code> if it is not
+   *     found.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public synchronized Object[] getParameterList(String name) {
@@ -905,14 +851,11 @@ public class PSRequest {
   }
 
   /**
-   * Removes a parameter with specified name from the request parameters if it
-   * is found.
+   * Removes a parameter with specified name from the request parameters if it is found.
    *
    * @param name the name of the parameter, may be <code>null</code> or empty.
-   *
-   * @return the value of the parameter. If name is <code>null</code> or empty
-   * or parameter is not found for the specified name, <code>null</code> will
-   * be returned.
+   * @return the value of the parameter. If name is <code>null</code> or empty or parameter is not
+   *     found for the specified name, <code>null</code> will be returned.
    */
   public synchronized Object removeParameter(String name) {
     if (name == null || name.trim().length() == 0) return null;
@@ -921,18 +864,14 @@ public class PSRequest {
   }
 
   /**
-   * Appends the supplied value to the list of values of the parameter with
-   * supplied name. If the parameter does not exist it creates an entry for it
-   * and sets the value as parameter value.
+   * Appends the supplied value to the list of values of the parameter with supplied name. If the
+   * parameter does not exist it creates an entry for it and sets the value as parameter value.
    *
-   * @param name the name of the parameter, may not be <code>null</code> or
-   * empty.
-   * @param value object to be appended to the list of values, may be
-   * <code>null</code>
-   *
+   * @param name the name of the parameter, may not be <code>null</code> or empty.
+   * @param value object to be appended to the list of values, may be <code>null</code>
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
-   * @throws IllegalStateException if the type of objects in the parameter
-   * values does not match the type of object being appended.
+   * @throws IllegalStateException if the type of objects in the parameter values does not match the
+   *     type of object being appended.
    */
   public synchronized void appendParameter(String name, Object value) {
     if (name == null || name.trim().length() == 0)
@@ -963,8 +902,8 @@ public class PSRequest {
   /**
    * Checks whether any of the parameters have multiple values.
    *
-   * @return <code>true</code> if any of the parameters have multiple values,
-   * otherwise <code>false</code>
+   * @return <code>true</code> if any of the parameters have multiple values, otherwise <code>false
+   *     </code>
    */
   public boolean hasMultiValuesForAnyParameter() {
 
@@ -975,15 +914,12 @@ public class PSRequest {
   }
 
   /**
-   * Checks whether a param by the specified name is the only multi-valued
-   * param in the set of all params.
+   * Checks whether a param by the specified name is the only multi-valued param in the set of all
+   * params.
    *
-   * @param name The name of the param to check. Never <code>null</code> or
-   * empty.
-   *
-   * @return If the param is present in the param map and its value
-   * is a list, but all other values are not lists, then <code>true</code> is
-   * returned, otherwise, <code>false</code>.
+   * @param name The name of the param to check. Never <code>null</code> or empty.
+   * @return If the param is present in the param map and its value is a list, but all other values
+   *     are not lists, then <code>true</code> is returned, otherwise, <code>false</code>.
    */
   public boolean isOnlyMultiValueParam(String name) {
     if (StringUtils.isBlank(name))
@@ -1000,13 +936,11 @@ public class PSRequest {
   }
 
   /**
-   * Get the character set associated with the request.  The value
-   * returned will be either the request-specific encoding for this request
-   * or the Rhythmyx server's default character encoding if one has not
-   * been set.
+   * Get the character set associated with the request. The value returned will be either the
+   * request-specific encoding for this request or the Rhythmyx server's default character encoding
+   * if one has not been set.
    *
-   * @return The request's character encoding,
-   *         never <code>null</code> or empty.
+   * @return The request's character encoding, never <code>null</code> or empty.
    */
   public String getCharacterSet() {
     return m_encoding == null ? PSServer.getDefaultServerHttpCharset() : m_encoding;
@@ -1015,12 +949,9 @@ public class PSRequest {
   /**
    * Retrieve a temp file resource for this request.
    *
-   * @param key The key for the file.  Must not be <code>null</code> or empty.
-   *
+   * @param key The key for the file. Must not be <code>null</code> or empty.
    * @return the file stored for the specified key, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if the key is <code>null</code>
-   *
    * @see #addTempFileResource(PSPurgableTempFile, String)
    */
   public PSPurgableTempFile getTempFileResource(String key) {
@@ -1032,18 +963,15 @@ public class PSRequest {
   }
 
   /**
-   * Add a temp file resource to this request.  This allows purgable temp
-   * files to be retrieved directly by the xml field extractor, which allows
-   * the information held by the purgable temp file object to be accessed
-   * so that character set information will not be lost from the file upload.
+   * Add a temp file resource to this request. This allows purgable temp files to be retrieved
+   * directly by the xml field extractor, which allows the information held by the purgable temp
+   * file object to be accessed so that character set information will not be lost from the file
+   * upload.
    *
    * @param f The file resource, must not be <code>null</code>.
-   *
-   * @param key The string to key the file off of, never <code>null</code> or
-   *          empty.
-   *
-   * @throws IllegalArgumentException if either parameter is <code>null</code>,
-   *          or <code>key</code> is empty.
+   * @param key The string to key the file off of, never <code>null</code> or empty.
+   * @throws IllegalArgumentException if either parameter is <code>null</code>, or <code>key</code>
+   *     is empty.
    */
   public void addTempFileResource(PSPurgableTempFile f, String key) {
     if ((key == null) || (key.length() == 0))
@@ -1057,27 +985,24 @@ public class PSRequest {
   }
 
   /**
-   * Get the "file-upload" character set associated with the request.  The
-   * value returned will be either the request-specific encoding for this
-   * request or the Rhythmyx server's default character encoding if one has not
-   * been set.
+   * Get the "file-upload" character set associated with the request. The value returned will be
+   * either the request-specific encoding for this request or the Rhythmyx server's default
+   * character encoding if one has not been set.
    *
-   * @return The request's character encoding,
-   *         <code>null</code> indicates to use the Java system's default
-   *         file encoding.  Never empty.
+   * @return The request's character encoding, <code>null</code> indicates to use the Java system's
+   *     default file encoding. Never empty.
    */
   public String getFileCharacterSet() {
     return m_fileEncoding == null ? PSServer.getDefaultServerFileCharset() : m_fileEncoding;
   }
 
   /**
-   * Set the file-upload character set associated with the request.  This
-   * should be either the IANA MIME-preferred registry name of the character
-   * set or Java's canonical name for the character set (preferred).
+   * Set the file-upload character set associated with the request. This should be either the IANA
+   * MIME-preferred registry name of the character set or Java's canonical name for the character
+   * set (preferred).
    *
-   * @param encoding The request's character encoding, use <code>null</code>
-   *          or empty to indicate to use the Java system's default
-   *          file encoding.
+   * @param encoding The request's character encoding, use <code>null</code> or empty to indicate to
+   *     use the Java system's default file encoding.
    */
   public void setFileCharacterSet(String encoding) {
     if (encoding != null && encoding.length() == 0) encoding = null;
@@ -1086,13 +1011,12 @@ public class PSRequest {
   }
 
   /**
-   * Set the character set associated with the request.  This should be
-   * either the IANA MIME-preferred registry name of the character set or
-   * Java's canonical name for the character set (preferred).
+   * Set the character set associated with the request. This should be either the IANA
+   * MIME-preferred registry name of the character set or Java's canonical name for the character
+   * set (preferred).
    *
-   * @param encoding The request's character encoding, use <code>null</code>
-   *          or empty to indicate to use the Rhythmyx server's default
-   *          encoding.
+   * @param encoding The request's character encoding, use <code>null</code> or empty to indicate to
+   *     use the Rhythmyx server's default encoding.
    */
   public void setCharacterSet(String encoding) {
     if (encoding != null && encoding.length() == 0) encoding = null;
@@ -1101,17 +1025,16 @@ public class PSRequest {
   }
 
   /**
-   * Gets a copy of the parameters which were passed in with the request
-   * ensuring that they have single values.  If the parameter values are
-   * ArrayLists, they will be truncated to the first Object in the list.
+   * Gets a copy of the parameters which were passed in with the request ensuring that they have
+   * single values. If the parameter values are ArrayLists, they will be truncated to the first
+   * Object in the list.
    *
-   * Modifying the returned Map will not directly modify this object.
+   * <p>Modifying the returned Map will not directly modify this object.
    *
-   * @return The request parameters map containing single values.  The key is
-   * the String representation of the parameter name, and the value is an
-   * Object, usually a String, but possibly something else (e.g. a File
-   * object), but no entries should have List objects for their values. Never
-   * <code>null</code>, may be empty.
+   * @return The request parameters map containing single values. The key is the String
+   *     representation of the parameter name, and the value is an Object, usually a String, but
+   *     possibly something else (e.g. a File object), but no entries should have List objects for
+   *     their values. Never <code>null</code>, may be empty.
    */
   public Map<String, Object> getTruncatedParameters() {
     Map<String, Object> result = null;
@@ -1123,25 +1046,18 @@ public class PSRequest {
   }
 
   /**
-   * Gets a copy of the parameters which were passed in with the request
-   * ensuring that they have the same number of values as the specified
-   * parameter name.  If the parameter values are  Lists, and the specified
-   * parameter is not, they will be truncated to the first Object in the list.
-   * Otherwise they will remain Lists and will be trunctated to the same number
-   * of elements as the specified parameter originally contained. Modifying the
-   * returned Map will not directly modify this object.
+   * Gets a copy of the parameters which were passed in with the request ensuring that they have the
+   * same number of values as the specified parameter name. If the parameter values are Lists, and
+   * the specified parameter is not, they will be truncated to the first Object in the list.
+   * Otherwise they will remain Lists and will be trunctated to the same number of elements as the
+   * specified parameter originally contained. Modifying the returned Map will not directly modify
+   * this object.
    *
-   * @param origParam The parameter to use as a guide when truncating lists.
-   * May not be <code>null</code> or empty.  Must be an existing parameter.
-   *
+   * @param origParam The parameter to use as a guide when truncating lists. May not be <code>null
+   *     </code> or empty. Must be an existing parameter.
    * @return The request parameters map containing truncated values.
-   *
-   * @throws IllegalArgumentException if origParam is <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalStateException if the origParam does not exist in the
-   * request parameters map.
-   *
+   * @throws IllegalArgumentException if origParam is <code>null</code> or empty.
+   * @throws IllegalStateException if the origParam does not exist in the request parameters map.
    * @deprecated Use {@link #getBalancedParameters(String origParam) } instead.
    */
   @Deprecated
@@ -1153,15 +1069,13 @@ public class PSRequest {
   }
 
   /**
-   * Copies all of the mappings from the specified map to this request's
-   * parameters map. These mappings will replace any mappings that this map
-   * had for any of the keys currently in the specified map.
+   * Copies all of the mappings from the specified map to this request's parameters map. These
+   * mappings will replace any mappings that this map had for any of the keys currently in the
+   * specified map.
    *
-   * @param params Additional mappings to be stored in this request's
-   * parameters map, not <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>params</code> is
-   * <code>null</code>.
+   * @param params Additional mappings to be stored in this request's parameters map, not <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if <code>params</code> is <code>null</code>.
    */
   public void putAllParameters(Map<String, Object> params) {
     if (params == null) throw new IllegalArgumentException("params may not be null");
@@ -1169,12 +1083,11 @@ public class PSRequest {
   }
 
   /**
-   * Set the parameters map of this request with the supplied parameters.
-   * Existing parameters will be overwitten.
+   * Set the parameters map of this request with the supplied parameters. Existing parameters will
+   * be overwitten.
    *
-   * @param params an iterator over <code>Map.Entry</code> objects with
-   *    the key as parameter name and the value as parameter value, not
-   *    <code>null</code>, may be empty.
+   * @param params an iterator over <code>Map.Entry</code> objects with the key as parameter name
+   *     and the value as parameter value, not <code>null</code>, may be empty.
    */
   public void setParameters(Iterator params) {
     if (params == null) throw new IllegalArgumentException("params can not be null");
@@ -1190,17 +1103,14 @@ public class PSRequest {
 
   /**
    * Set the parameters which were passed in with the request.
-   * <p>
-   * Parameters are usually sent as part of the URL when issuing a
-   * HTTP GET request. It is also possible to send parameters as
-   * the body of a HTTP POST request.
-   * <p>
-   * Any subsequent use of the getParameter or getParameters methods
-   * will see the changed data.
    *
-   * @param   params the parameters sent with the request URL, may not be
-   * <code>null</code>, can be empty.
+   * <p>Parameters are usually sent as part of the URL when issuing a HTTP GET request. It is also
+   * possible to send parameters as the body of a HTTP POST request.
    *
+   * <p>Any subsequent use of the getParameter or getParameters methods will see the changed data.
+   *
+   * @param params the parameters sent with the request URL, may not be <code>null</code>, can be
+   *     empty.
    * @throws IllegalArgumentException if params is <code>null</code>
    */
   public synchronized void setParameters(Map<String, Object> params) {
@@ -1211,25 +1121,20 @@ public class PSRequest {
   }
 
   /**
-   * Replaces the value of an existing entry or creates a new entry in the
-   * parameter map.
-   * <p>
-   * Parameters are usually sent as part of the URL when issuing a
-   * HTTP GET request. It is also possible to send parameters as
-   * the body of a HTTP POST request. When parsing the parameters specified in
-   * the URL (or in the POST data), parameter names may be repeated. Rhythmyx
-   * stores the lists of data as a <code>List</code> object. So to set such
-   * type of parameter use value as <code>List</code> object.
-   * <p>
-   * Note: If this method is used in the existing code(in the exits before
-   * v4.1) to set a parameter value which is already balanced, server treats
-   * the copies in the balanced list as new values rather than repeated values.
+   * Replaces the value of an existing entry or creates a new entry in the parameter map.
    *
-   * @param name The name of the parameter to add/modify.  May not be
-   * <code>null</code> or empty.
+   * <p>Parameters are usually sent as part of the URL when issuing a HTTP GET request. It is also
+   * possible to send parameters as the body of a HTTP POST request. When parsing the parameters
+   * specified in the URL (or in the POST data), parameter names may be repeated. Rhythmyx stores
+   * the lists of data as a <code>List</code> object. So to set such type of parameter use value as
+   * <code>List</code> object.
    *
-   * @param value An Object, the value to set it to.  May be <code>null</code>.
+   * <p>Note: If this method is used in the existing code(in the exits before v4.1) to set a
+   * parameter value which is already balanced, server treats the copies in the balanced list as new
+   * values rather than repeated values.
    *
+   * @param name The name of the parameter to add/modify. May not be <code>null</code> or empty.
+   * @param value An Object, the value to set it to. May be <code>null</code>.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public void setParameter(String name, Object value) {
@@ -1243,10 +1148,9 @@ public class PSRequest {
   }
 
   /**
-   * Gets the list of parameters with each element as an entry set with
-   * parameter name as key and parameter value as value. Key is a <code>String
-   * </code> object, whereas the value can be any object. This iterator cannot
-   * be modified.
+   * Gets the list of parameters with each element as an entry set with parameter name as key and
+   * parameter value as value. Key is a <code>String
+   * </code> object, whereas the value can be any object. This iterator cannot be modified.
    *
    * @return the request parameters, never <code>null</code>, may be empty.
    */
@@ -1255,33 +1159,23 @@ public class PSRequest {
   }
 
   /**
-   * Gets a copy of the parameters which were passed in with the request
-   * ensuring that they have the same number of values as the specified
-   * parameter name.
-   * <br>
-   * If the value of the specified parameter is a <code>List</code>, then the
-   * returned map will have values of all parameters as <code>List</code> with
-   * its size equal to the size of specified parameter value, otherwise the
-   * returned map will have values of all parameters as single object. In doing
-   * this, if any parameter value is not a <code>List</code> and we are
-   * returning <code>List</code>, then it creates the <code>List</code> with
-   * each entry referring to the same object. If we are returning a single
-   * object and any parameter value is <code>List</code>, then it gets the
-   * first object in the <code>List</code>.
-   * <br>
+   * Gets a copy of the parameters which were passed in with the request ensuring that they have the
+   * same number of values as the specified parameter name. <br>
+   * If the value of the specified parameter is a <code>List</code>, then the returned map will have
+   * values of all parameters as <code>List</code> with its size equal to the size of specified
+   * parameter value, otherwise the returned map will have values of all parameters as single
+   * object. In doing this, if any parameter value is not a <code>List</code> and we are returning
+   * <code>List</code>, then it creates the <code>List</code> with each entry referring to the same
+   * object. If we are returning a single object and any parameter value is <code>List</code>, then
+   * it gets the first object in the <code>List</code>. <br>
    * Modifying the returned Map will not directly modify this object.
    *
-   * @param controlParam The parameter to use as a guide to get balanced list.
-   * May not be <code>null</code> or empty.  Must be an existing parameter.
-   *
-   * @return The request parameters map containing balanced values, never
-   * <code>null</code>, may be empty.
-   *
-   * @throws IllegalArgumentException if controlParam is <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalStateException if the controlParam does not exist in the
-   * request parameters map.
+   * @param controlParam The parameter to use as a guide to get balanced list. May not be <code>null
+   *     </code> or empty. Must be an existing parameter.
+   * @return The request parameters map containing balanced values, never <code>null</code>, may be
+   *     empty.
+   * @throws IllegalArgumentException if controlParam is <code>null</code> or empty.
+   * @throws IllegalStateException if the controlParam does not exist in the request parameters map.
    */
   public Map<String, Object> getBalancedParameters(String controlParam) {
     if (controlParam == null || controlParam.trim().length() == 0)
@@ -1299,15 +1193,13 @@ public class PSRequest {
   }
 
   /**
-   * Gets a copy of the parameters which were passed in with the request
-   * ensuring that they have the same number of values. If none of the
-   * parameters has multiple values, then all values are single objects,
-   * otherwise they will be lists of size equal to maximum size of list values.
-   * <br>
+   * Gets a copy of the parameters which were passed in with the request ensuring that they have the
+   * same number of values. If none of the parameters has multiple values, then all values are
+   * single objects, otherwise they will be lists of size equal to maximum size of list values. <br>
    * Modifying the returned Map will not directly modify this object.
    *
-   * @return The request parameters map containing balanced values, may not be
-   * <code>null</code>, may be empty.
+   * @return The request parameters map containing balanced values, may not be <code>null</code>,
+   *     may be empty.
    */
   public Map<String, Object> getBalancedParameters() {
     int maxListSize = getMaxListValuesSize();
@@ -1316,9 +1208,8 @@ public class PSRequest {
   }
 
   /**
-   * Gets the maximum size of list values of parameters. If the parameters does
-   * not have any list values, then it returns <code>1</code> to indicate all
-   * parameter values are single objects.
+   * Gets the maximum size of list values of parameters. If the parameters does not have any list
+   * values, then it returns <code>1</code> to indicate all parameter values are single objects.
    *
    * @return the maximum size of listvalues
    */
@@ -1336,29 +1227,29 @@ public class PSRequest {
   }
 
   /**
-   * Gets a copy of the parameters which were passed in with the request
-   * ensuring that they have the values as list with the specified size. If
-   * size is equal to 1, then the values are single objects.
-   * <br>
+   * Gets a copy of the parameters which were passed in with the request ensuring that they have the
+   * values as list with the specified size. If size is equal to 1, then the values are single
+   * objects. <br>
    * Criteria for balancing the parameter list:
+   *
    * <ol>
-   * <li>If parameter value is not a list, then it creates the list with each
-   * entry referring to the same object. </li>
-   * <li>If parameter value is a list and size of list is less than <code>
-   * size</code>, then it fills the list to the <code>size</code> with each
-   * entry referring to the last object in the list. </li>
-   * <li>If parameter value is a list and size of list is greater than <code>
-   * size</code>, then the list with entries up to the <code>size</code> is
-   * set. </li>
-   * <li>If we are returning a single object and any parameter value is list,
-   * then it gets the first object in the list. </li>
+   *   <li>If parameter value is not a list, then it creates the list with each entry referring to
+   *       the same object.
+   *   <li>If parameter value is a list and size of list is less than <code>
+   * size</code>, then it fills the list to the <code>size</code> with each entry referring to the
+   *       last object in the list.
+   *   <li>If parameter value is a list and size of list is greater than <code>
+   * size</code>, then the list with entries up to the <code>size</code> is set.
+   *   <li>If we are returning a single object and any parameter value is list, then it gets the
+   *       first object in the list.
    * </ol>
+   *
    * <br>
    * Modifying the returned Map will not directly modify this object.
    *
    * @param size the size of balanced parameter values to be, assumed to be >=1
-   * @return The request parameters map containing balanced values, may not be
-   * <code>null</code>, may be empty.
+   * @return The request parameters map containing balanced values, may not be <code>null</code>,
+   *     may be empty.
    */
   private Map<String, Object> getBalancedParameters(int size) {
     Map<String, Object> result = Collections.synchronizedMap(new HashMap<>(m_params.size()));
@@ -1376,15 +1267,12 @@ public class PSRequest {
 
   /**
    * Get a cookie which was passed in the header of the request.
-   * <p>
-   * Cookies are often used to provide context information.
    *
-   * @param   name        the name of the cookie to retrieve
+   * <p>Cookies are often used to provide context information.
    *
-   * @param   defValue    the default value to return if the requested
-   *                      entry is not found
-   *
-   * @return              the requested cookie's value
+   * @param name the name of the cookie to retrieve
+   * @param defValue the default value to return if the requested entry is not found
+   * @return the requested cookie's value
    */
   public String getCookie(String name, String defValue) {
     Cookie[] cookies = m_servletRequest.getCookies();
@@ -1401,43 +1289,37 @@ public class PSRequest {
 
   /**
    * Get a cookie which was passed in the header of the request.
-   * <p>
-   * Cookies are often used to provide context information.
    *
-   * @param   name        the name of the cookie to retrieve
+   * <p>Cookies are often used to provide context information.
    *
-   * @return              the requested cookie's value
+   * @param name the name of the cookie to retrieve
+   * @return the requested cookie's value
    */
   public String getCookie(String name) {
     return getCookie(name, null);
   }
 
   /**
-   * Get the XML document sent as input for the request. If an XML
-   * document was not sent with the request, <code>null</code> is
-   * returned.
-   * <p>
-   * Modifying the returned XML document will directly modify this object.
-   * Any subsequent use of the XML document or the getInputDocument method
-   * will see the changed data.
+   * Get the XML document sent as input for the request. If an XML document was not sent with the
+   * request, <code>null</code> is returned.
    *
-   * @return              the input document (may be <code>null</code>)
+   * <p>Modifying the returned XML document will directly modify this object. Any subsequent use of
+   * the XML document or the getInputDocument method will see the changed data.
+   *
+   * @return the input document (may be <code>null</code>)
    */
   public Document getInputDocument() {
     return m_inData;
   }
 
   /**
-   * Set the XML document sent as input for the request. If an XML
-   * document was not sent with the request, <code>null</code> is
-   * returned.
-   * <p>
-   * Modifying the returned XML document will directly modify this object.
-   * Any subsequent use of the XML document or the getInputDocument method
-   * will see the changed data.
+   * Set the XML document sent as input for the request. If an XML document was not sent with the
+   * request, <code>null</code> is returned.
    *
-   * @param   inData      the input data associated with the request
-   *                      (may be <code>null</code>)
+   * <p>Modifying the returned XML document will directly modify this object. Any subsequent use of
+   * the XML document or the getInputDocument method will see the changed data.
+   *
+   * @param inData the input data associated with the request (may be <code>null</code>)
    */
   public void setInputDocument(Document inData) {
     m_inData = inData;
@@ -1446,13 +1328,11 @@ public class PSRequest {
   /**
    * Get the response object through which the results should be written.
    *
-   * @param   inError   Set to <code>true</code> if and only if creating an
-   * HTTP error response.  In this case, we won't try to add the Session ID
-   * cookie to the response. (We may not have been able to parse it
-   * out of the request.  Even if it does exist, the client must already
-   * have it, so sending it here would be redundant.)
-   *
-   * @return    The response object, never <code>null</code>
+   * @param inError Set to <code>true</code> if and only if creating an HTTP error response. In this
+   *     case, we won't try to add the Session ID cookie to the response. (We may not have been able
+   *     to parse it out of the request. Even if it does exist, the client must already have it, so
+   *     sending it here would be redundant.)
+   * @return The response object, never <code>null</code>
    */
   PSResponse getResponse(boolean inError) {
     if (m_response == null) {
@@ -1496,7 +1376,7 @@ public class PSRequest {
   /**
    * Get the error handler associated with this object.
    *
-   * @return              the error handler to use
+   * @return the error handler to use
    */
   PSErrorHandler getErrorHandler() {
     return m_errorHandler;
@@ -1505,7 +1385,7 @@ public class PSRequest {
   /**
    * Set the error handler associated with this object.
    *
-   * @param      eh       the error handler to use
+   * @param eh the error handler to use
    */
   void setErrorHandler(PSErrorHandler eh) {
     m_errorHandler = eh;
@@ -1514,7 +1394,7 @@ public class PSRequest {
   /**
    * Get the log handler associated with this object.
    *
-   * @return              the log handler to use
+   * @return the log handler to use
    */
   public PSLogHandler getLogHandler() {
     /* Associating a log handler with the request was added
@@ -1526,7 +1406,7 @@ public class PSRequest {
   /**
    * Set the log handler associated with this object.
    *
-   * @param      lh       the log handler to use
+   * @param lh the log handler to use
    */
   public void setLogHandler(PSLogHandler lh) {
     /* Associating a log handler with the request was added
@@ -1538,7 +1418,7 @@ public class PSRequest {
   /**
    * Get the application handler servicing this request.
    *
-   * @return              the application handler servicing this request
+   * @return the application handler servicing this request
    */
   public PSApplicationHandler getApplicationHandler() {
     return m_appHandler;
@@ -1547,7 +1427,7 @@ public class PSRequest {
   /**
    * Set the application handler servicing this request.
    *
-   * @param      ah       the application handler servicing this request
+   * @param ah the application handler servicing this request
    */
   void setApplicationHandler(PSApplicationHandler ah) {
     m_appHandler = ah;
@@ -1556,42 +1436,39 @@ public class PSRequest {
   /**
    * Get the statistics object associated with this request.
    *
-   * @return     the statistics object
+   * @return the statistics object
    */
   public PSRequestStatistics getStatistics() {
     return m_stats;
   }
 
   /**
-   * Get the requestor's preferred locale by checking the language
-   * settings and using the best fit.
-   * <p>
-   * We need to send the response to the client in their prefered
-   * locale. This method can be used to determine the locale of the user.
+   * Get the requestor's preferred locale by checking the language settings and using the best fit.
    *
-   * @return        the requestor's preferred locale
+   * <p>We need to send the response to the client in their prefered locale. This method can be used
+   * to determine the locale of the user.
+   *
+   * @return the requestor's preferred locale
    */
   public Locale getPreferredLocale() {
     return m_servletRequest.getLocale();
   }
 
   /**
-   * Get the access level assigned to this user for the appliction
-   * processing this request.
+   * Get the access level assigned to this user for the appliction processing this request.
    *
-   * @return           the access level in the current application context
+   * @return the access level in the current application context
    */
   public int getCurrentApplicationAccessLevel() {
     return m_accessLevel;
   }
 
   /**
-   * Saves request parameters by making a clone of the param map and
-   * saving it as a saved param map. Saved parameters can then be restored
-   * by calling {@link #restoreParams()} method
-   * If params were already saved then this method does nothing - this idea
-   * is to insure that we save them only once per request, not doing so will
-   * potentially allow saving already modified params, which we don't want.
+   * Saves request parameters by making a clone of the param map and saving it as a saved param map.
+   * Saved parameters can then be restored by calling {@link #restoreParams()} method If params were
+   * already saved then this method does nothing - this idea is to insure that we save them only
+   * once per request, not doing so will potentially allow saving already modified params, which we
+   * don't want.
    */
   public void saveParams() {
     if (m_params != null && isSavedParams() == false)
@@ -1601,42 +1478,36 @@ public class PSRequest {
                   (Map<String, Object>) new HashMap<String, Object>(m_params).clone());
   }
 
-  /**
-   * Restores previously saved request params by {@link #saveParams()} call
-   */
+  /** Restores previously saved request params by {@link #saveParams()} call */
   public void restoreParams() {
     if (isSavedParams() == true) m_params = m_savedParams;
   }
 
   /**
-   * @return <code>true</code> if parameters were saved by a call to
-   * {@link #saveParams()} method, <code>false</code> otherwise
+   * @return <code>true</code> if parameters were saved by a call to {@link #saveParams()} method,
+   *     <code>false</code> otherwise
    */
   public boolean isSavedParams() {
     return m_savedParams != null;
   }
 
   /**
-   * Set the access level assigned to this user for the appliction
-   * processing this request.
+   * Set the access level assigned to this user for the appliction processing this request.
    *
-   * @param   level    the access level in the current application context
+   * @param level the access level in the current application context
    */
   void setCurrentApplicationAccessLevel(int level) {
     m_accessLevel = level;
   }
 
   /**
-   * Get a private object associated with this request. This
-   * is provided as a storage area for exit handlers, etc. to create
-   * context information once. This can then be retrieved throughout the
+   * Get a private object associated with this request. This is provided as a storage area for exit
+   * handlers, etc. to create context information once. This can then be retrieved throughout the
    * request processing.
    *
-   * @param   key      the key under which the object is stored
-   *
-   * @return           the private object associated with the key
-   *
-   * @exception  com.percussion.error.PSRuntimeException   if key is null
+   * @param key the key under which the object is stored
+   * @return the private object associated with the key
+   * @exception com.percussion.error.PSRuntimeException if key is null
    */
   public Object getPrivateObject(Object key) throws com.percussion.error.PSRuntimeException {
     if (key == null)
@@ -1650,19 +1521,15 @@ public class PSRequest {
   }
 
   /**
-   * Set a private object associated with this request. This
-   * is provided as a storage area for exit handlers, etc. to create
-   * context information once. This can then be retrieved throughout the
+   * Set a private object associated with this request. This is provided as a storage area for exit
+   * handlers, etc. to create context information once. This can then be retrieved throughout the
    * request processing.
    *
-   * @param   key      the key under which the object is stored. Be sure to
-   *                   to specify a unique name -- that is, something other
-   *                   exit handlers, etc. using this mechanism will not
-   *                   likely use as a name
-   *
-   * @param   o        the private object associated with the key
-   *
-   * @exception  com.percussion.error.PSRuntimeException   if key is null
+   * @param key the key under which the object is stored. Be sure to to specify a unique name --
+   *     that is, something other exit handlers, etc. using this mechanism will not likely use as a
+   *     name
+   * @param o the private object associated with the key
+   * @exception com.percussion.error.PSRuntimeException if key is null
    */
   public void setPrivateObject(Object key, Object o)
       throws com.percussion.error.PSRuntimeException {
@@ -1677,39 +1544,33 @@ public class PSRequest {
   }
 
   /**
-   * Get the content header override string.  If this value is
-   *    <code>null</code>, no override is to be made.  If this value
-   *    is the empty string, then the content header will be cleared.
-   *    Use the requestor and result page as specified in the
-   *    application.
+   * Get the content header override string. If this value is <code>null</code>, no override is to
+   * be made. If this value is the empty string, then the content header will be cleared. Use the
+   * requestor and result page as specified in the application.
    *
-   * @return     the full content header to use for this request
+   * @return the full content header to use for this request
    */
   public String getContentHeaderOverride() {
     return m_contentHeader;
   }
 
   /**
-   * Set the content header override string.  To disable overriding
-   *    the content header, set to <code>null</code>.  To use no
-   *    content header, set to the empty string.  All other strings
-   *    will be passed as the complete content header as specified.
+   * Set the content header override string. To disable overriding the content header, set to <code>
+   * null</code>. To use no content header, set to the empty string. All other strings will be
+   * passed as the complete content header as specified.
    *
-   * @param   header   The string to use as the content header for this
-   *                   request, or <code>null</code> if no override is
-   *                   to be used.
+   * @param header The string to use as the content header for this request, or <code>null</code> if
+   *     no override is to be used.
    */
   public void setContentHeaderOverride(String header) {
     m_contentHeader = header;
   }
 
   /**
-   * Set whether or not this request should show hidden applications
-   * when listing applications.
+   * Set whether or not this request should show hidden applications when listing applications.
    *
-   * @param showHiddenSetting The setting for showing hidden apps,
-   * <code>true</code> indicates hidden apps are to be listed,
-   * <code>false</code> indicates otherwise.
+   * @param showHiddenSetting The setting for showing hidden apps, <code>true</code> indicates
+   *     hidden apps are to be listed, <code>false</code> indicates otherwise.
    */
   public void setShowHiddenApplicationSetting(boolean showHiddenSetting) {
     m_showHiddenApplications = showHiddenSetting;
@@ -1718,22 +1579,19 @@ public class PSRequest {
   /**
    * Should this request list hidden applications?
    *
-   * @return <code>true</code> to list hidden applications, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> to list hidden applications, <code>false</code> otherwise.
    */
   public boolean showHiddenApplications() {
     return m_showHiddenApplications;
   }
 
   /**
-   * Returns a security token which must be used to access secure resources
-   * in the object store.  This method should not be called before the session
-   * has been created and we have attempted to authenticate the user.  Session
-   * support does not need to be enabled as a session is created no matter
-   * what.
+   * Returns a security token which must be used to access secure resources in the object store.
+   * This method should not be called before the session has been created and we have attempted to
+   * authenticate the user. Session support does not need to be enabled as a session is created no
+   * matter what.
    *
    * @return The token, never <code>null</code>.
-   *
    * @throws IllegalStateException if a user session does not already exist.
    */
   public PSSecurityToken getSecurityToken() {
@@ -1750,9 +1608,8 @@ public class PSRequest {
   }
 
   /**
-   * Determine if this request has an associated user session.  The user
-   * session may not be considered an active user session by the
-   * {@link PSUserSessionManager}.
+   * Determine if this request has an associated user session. The user session may not be
+   * considered an active user session by the {@link PSUserSessionManager}.
    *
    * @return <code>true</code> if it does, <code>false</code> not.
    */
@@ -1763,8 +1620,8 @@ public class PSRequest {
   /**
    * Attempts to determine the application name specified by this request.
    *
-   * @return The name, never <code>null</code>, may be <code>empty</code>.
-   * If server is not using case-sensitive urls, then name will be lowercased.
+   * @return The name, never <code>null</code>, may be <code>empty</code>. If server is not using
+   *     case-sensitive urls, then name will be lowercased.
    */
   public String getAppName() {
     /* Request root is theoretically one of the following:
@@ -1797,6 +1654,7 @@ public class PSRequest {
 
   /**
    * See {@link #getContextForRequest(boolean, boolean)}
+   *
    * @param forceLocal
    * @return not null.
    * @see #getContextForRequest(boolean, boolean)
@@ -1806,24 +1664,23 @@ public class PSRequest {
   }
 
   /**
-   * Builds a context that can be used to make internal requests. Normally,
-   * request contexts are only available when remote request is initiated.
-   * This allows us to make a request w/o having a remote context.
+   * Builds a context that can be used to make internal requests. Normally, request contexts are
+   * only available when remote request is initiated. This allows us to make a request w/o having a
+   * remote context.
+   *
    * <p>The HTTP_HOST CGI variable is set to to 127.0.0.1:[server_port]
-   * <p>A single authenticated user entry is added to the session. The user
-   * id is {@link PSSecurityProvider#INTERNAL_USER_NAME}
-   * and the provider and provider instance are
-   * {@link PSSecurityProvider#XML_FLAG_SP_INTERNAL}.
-   * <p>To use this, add the internal user name to the app with the
-   * necessary access privileges. No other access is needed unless you want
-   * external requests to be serviced by the app.
    *
-   * @param forceLocal if set to <code>true</code> then set the host as
-   * the local IP (127.0.0.1) otherwise we get the serverName.
-   * @param useInternalSession <code>true</code> will use the internal
-   * cached sessions. <code>false</code> will create a new session of
-   * which you can safely replace security credentials.
+   * <p>A single authenticated user entry is added to the session. The user id is {@link
+   * PSSecurityProvider#INTERNAL_USER_NAME} and the provider and provider instance are {@link
+   * PSSecurityProvider#XML_FLAG_SP_INTERNAL}.
    *
+   * <p>To use this, add the internal user name to the app with the necessary access privileges. No
+   * other access is needed unless you want external requests to be serviced by the app.
+   *
+   * @param forceLocal if set to <code>true</code> then set the host as the local IP (127.0.0.1)
+   *     otherwise we get the serverName.
+   * @param useInternalSession <code>true</code> will use the internal cached sessions. <code>false
+   *     </code> will create a new session of which you can safely replace security credentials.
    * @return A valid context that can be used to make an internal request.
    */
   public static PSRequest getContextForRequest(boolean forceLocal, boolean useInternalSession) {
@@ -1909,21 +1766,22 @@ public class PSRequest {
   }
 
   /**
-   * Builds a context that can be used to make internal requests. Normally,
-   * request contexts are only available when remote request is initiated.
-   * This allows us to make a request w/o having a remote context.
+   * Builds a context that can be used to make internal requests. Normally, request contexts are
+   * only available when remote request is initiated. This allows us to make a request w/o having a
+   * remote context.
+   *
    * <p>The HTTP_HOST CGI variable is set to to 127.0.0.1:[server_port]
-   * <p>A single authenticated user entry is added to the session. The user
-   * id is {@link PSSecurityProvider#INTERNAL_USER_NAME}
-   * and the provider and provider instance are
-   * {@link PSSecurityProvider#XML_FLAG_SP_INTERNAL}.
-   * <p>To use this, add the internal user name to the app with the
-   * necessary access privileges. No other access is needed unless you want
-   * external requests to be serviced by the app.
-   * <p>
-   * Use this only when you do not have an existing {@link PSRequest} object.
-   * Use {@link #getServerRequest()} if you have a request object and want to
-   * create a new one with internal authenticated user.
+   *
+   * <p>A single authenticated user entry is added to the session. The user id is {@link
+   * PSSecurityProvider#INTERNAL_USER_NAME} and the provider and provider instance are {@link
+   * PSSecurityProvider#XML_FLAG_SP_INTERNAL}.
+   *
+   * <p>To use this, add the internal user name to the app with the necessary access privileges. No
+   * other access is needed unless you want external requests to be serviced by the app.
+   *
+   * <p>Use this only when you do not have an existing {@link PSRequest} object. Use {@link
+   * #getServerRequest()} if you have a request object and want to create a new one with internal
+   * authenticated user.
    *
    * @return A valid context that can be used to make an internal request.
    */
@@ -1932,8 +1790,8 @@ public class PSRequest {
   }
 
   /**
-   * Release all resources. Deletes all temp files if there is any.
-   * NOTE: This should only be called after this object is no longer needed.
+   * Release all resources. Deletes all temp files if there is any. NOTE: This should only be called
+   * after this object is no longer needed.
    */
   public void release() {
     // delete all temp files from "m_params" if any
@@ -1949,8 +1807,8 @@ public class PSRequest {
   }
 
   /**
-   * Deletes purgable temp files in the given object list if there are any
-   * <code>PSPurgableTempFile</code> objects exists.
+   * Deletes purgable temp files in the given object list if there are any <code>PSPurgableTempFile
+   * </code> objects exists.
    *
    * @param objList The object list, assume not <code>null</code>.
    */
@@ -1962,12 +1820,11 @@ public class PSRequest {
   }
 
   /**
-   * This was added to work-around a behavior in the PS[Update,Query]Handlers.
-   * They were always cloning the passed request for internal requests.
-   * Unfortunately, this meant the caller had no access to the statistics from
-   * the processing. To gain access to the stats, a mechanism for preventing
-   * the clone had to be added. This is that mechanism. Default value is
-   * <code>true</code>.
+   * This was added to work-around a behavior in the PS[Update,Query]Handlers. They were always
+   * cloning the passed request for internal requests. Unfortunately, this meant the caller had no
+   * access to the statistics from the processing. To gain access to the stats, a mechanism for
+   * preventing the clone had to be added. This is that mechanism. Default value is <code>true
+   * </code>.
    */
   public boolean allowsCloning() {
     return m_allowsCloning;
@@ -1976,8 +1833,8 @@ public class PSRequest {
   /**
    * See {@link #allowsCloning()} for details.
    *
-   * @param allow Supply <code>true</code> to allow this request to be
-   *    cloned when making an internal request, <code>false</code> otherwise.
+   * @param allow Supply <code>true</code> to allow this request to be cloned when making an
+   *     internal request, <code>false</code> otherwise.
    */
   public void setAllowsCloning(boolean allow) {
     m_allowsCloning = allow;
@@ -1985,10 +1842,9 @@ public class PSRequest {
 
   /**
    * Caches content id status document in this request.
-   * @param contentid contentid key, never <code>null</code>
-   * or <code>empty</code>.
-   * @param doc content item status document to cache,
-   * may be <code>null</code>.
+   *
+   * @param contentid contentid key, never <code>null</code> or <code>empty</code>.
+   * @param doc content item status document to cache, may be <code>null</code>.
    */
   public void setContentItemStatus(String contentid, Document doc) {
     if (contentid == null) throw new IllegalArgumentException("contentid may not be null");
@@ -2004,12 +1860,10 @@ public class PSRequest {
   }
 
   /**
-   * Returns a cached content item status document,
-   * may be <code>null</code>.
-   * @param contentid contentid key, never <code>null</code>
-   * or <code>empty</code>.
-   * @return cached content item status document,
-   * may be <code>null</code>.
+   * Returns a cached content item status document, may be <code>null</code>.
+   *
+   * @param contentid contentid key, never <code>null</code> or <code>empty</code>.
+   * @return cached content item status document, may be <code>null</code>.
    */
   public Document getContentItemStatus(String contentid) {
     if (contentid == null) throw new IllegalArgumentException("contentid may not be null");
@@ -2022,20 +1876,18 @@ public class PSRequest {
     return m_contentItemStatusCache.get(contentid);
   }
 
-  /**
-   * Removes all cached content item status documents.
-   */
+  /** Removes all cached content item status documents. */
   public void clearContentItemStatusCache() {
 
     if (m_contentItemStatusCache != null) m_contentItemStatusCache.clear();
   }
 
   /**
-   * Gets the request timer. The caller may pause or stop the timer. The
-   * expectation is that this timer will be started by the request handler
-   * and paused (ideally) by server code that sends requests externally to
-   * Rhythmyx. Initially this will just be paused for stylesheet
+   * Gets the request timer. The caller may pause or stop the timer. The expectation is that this
+   * timer will be started by the request handler and paused (ideally) by server code that sends
+   * requests externally to Rhythmyx. Initially this will just be paused for stylesheet
    * transformations.
+   *
    * @return the {@link PSStopwatch} associated with this request.
    */
   public PSStopwatch getRequestTimer() {
@@ -2043,15 +1895,12 @@ public class PSRequest {
   }
 
   /**
-   * Creates a user session used to make internal requests. A single
-   * authenticated user entry is added to the session. The user id is
-   * {@link PSSecurityProvider#INTERNAL_USER_NAME} and the provider and
-   * provider instance are {@link PSSecurityProvider#XML_FLAG_SP_INTERNAL}.
-   * The session id for the created user session is cached so it can be
-   * reused for other internal request.
+   * Creates a user session used to make internal requests. A single authenticated user entry is
+   * added to the session. The user id is {@link PSSecurityProvider#INTERNAL_USER_NAME} and the
+   * provider and provider instance are {@link PSSecurityProvider#XML_FLAG_SP_INTERNAL}. The session
+   * id for the created user session is cached so it can be reused for other internal request.
    *
-   * @param req the request to create the internal user session for, assumed
-   *    not <code>null</code>.
+   * @param req the request to create the internal user session for, assumed not <code>null</code>.
    */
   private static PSUserSession createInternalUserSession(PSRequest req, String host) {
     PSUserSession sess = req.getUserSession();
@@ -2067,8 +1916,8 @@ public class PSRequest {
   }
 
   /**
-   * Creates a user entry for the internal server user, adding role entries for
-   * any roles the user is a member of.
+   * Creates a user entry for the internal server user, adding role entries for any roles the user
+   * is a member of.
    *
    * @return The entry, never <code>null</code>.
    */
@@ -2104,8 +1953,7 @@ public class PSRequest {
   /**
    * Get the subject who made the original request.
    *
-   * @return the subject who made the original request, never
-   *    <code>null</code>.
+   * @return the subject who made the original request, never <code>null</code>.
    */
   public PSSubject getOriginalSubject() {
     PSRequest originalRequest = getOriginalRequest();
@@ -2129,21 +1977,20 @@ public class PSRequest {
   }
 
   /**
-   * Is this the original request? Decided by checking if it has any clone
-   * parent in which case it is not the original.
+   * Is this the original request? Decided by checking if it has any clone parent in which case it
+   * is not the original.
    *
-   * @return <code>true</code> if this is the original request,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this is the original request, <code>false</code> otherwise.
    */
   public boolean isOriginalRequest() {
     return m_cloneParentRequest == null;
   }
 
   /**
-   * Sets the originating relationship. By definition, originating relationship
-   * is set only once in the requests life time no matter how many clones are
-   * created during execution of the original request. This method makes sure
-   * that this behavior is achieved.
+   * Sets the originating relationship. By definition, originating relationship is set only once in
+   * the requests life time no matter how many clones are created during execution of the original
+   * request. This method makes sure that this behavior is achieved.
+   *
    * @param relationship originating relationship, must not be <code>null</code>.
    */
   public void setOriginatingRelationship(PSRelationship relationship) {
@@ -2161,6 +2008,7 @@ public class PSRequest {
 
   /**
    * Get originating relationship if there is one.
+   *
    * @return
    */
   public PSRelationship getOriginatingRelationship() {
@@ -2170,20 +2018,17 @@ public class PSRequest {
   }
 
   /**
-   * Get a server verison {@link PSRequest} object from this request. This new
-   * request uses the internal user as authenticated entry and can be used to
-   * perform operations on behalf of server. It is built only once for the life
-   * time of the user's request. The following rules are followed:
+   * Get a server verison {@link PSRequest} object from this request. This new request uses the
+   * internal user as authenticated entry and can be used to perform operations on behalf of server.
+   * It is built only once for the life time of the user's request. The following rules are
+   * followed:
+   *
    * <ol>
-   * <li>All request's objects are deep or shallow cloned as per
-   * {@link #cloneRequest()}
-   * </li>
-   * <li>All existing authenticated entry list is emptied and internal user
-   * entry is added</li>
-   * <li>new session for internal is created based on the user session. See
-   * {@link PSUserSession#cloneSessionForRequest(PSRequest)} for more details.
-   * </li>
-   * <li>Reference to the originating is also copied to the new request</li>
+   *   <li>All request's objects are deep or shallow cloned as per {@link #cloneRequest()}
+   *   <li>All existing authenticated entry list is emptied and internal user entry is added
+   *   <li>new session for internal is created based on the user session. See {@link
+   *       PSUserSession#cloneSessionForRequest(PSRequest)} for more details.
+   *   <li>Reference to the originating is also copied to the new request
    * </ol>
    *
    * @return server request object, never <code>null</code>.
@@ -2245,33 +2090,29 @@ public class PSRequest {
   }
 
   /**
-   * The storage to cache the session ids for the internal user session.
-   * This is a Map so it can hold the session id of both the local IP and
-   * the external server name (if needed).
-   * The key is the host name as a String and the value is the session id
-   * as a String.
-   * This is never <code>null</code>, but may be empty.
+   * The storage to cache the session ids for the internal user session. This is a Map so it can
+   * hold the session id of both the local IP and the external server name (if needed). The key is
+   * the host name as a String and the value is the session id as a String. This is never <code>null
+   * </code>, but may be empty.
    */
   private static Map<String, String> ms_internalUserSessionIdMap =
       new ConcurrentHashMap<>(8, 0.9f, 1);
 
   /**
-   * This ctor creates an empty request context that can be used for internal
-   * requests independent of a request coming into the server. After getting
-   * the request, you need to set up the security by adding validated
-   * credentials. See {@link #getContextForRequest}.
+   * This ctor creates an empty request context that can be used for internal requests independent
+   * of a request coming into the server. After getting the request, you need to set up the security
+   * by adding validated credentials. See {@link #getContextForRequest}.
    */
   protected PSRequest() {
     this(null, null, PSServer.getErrorHandler(), PSServer.getLogHandler());
   }
 
   /**
-   * Takes the Object provided and creates a List with the specified
-   * number of entries, setting the Object into each entry.
+   * Takes the Object provided and creates a List with the specified number of entries, setting the
+   * Object into each entry.
    *
    * @param value The value to expand into a list. May be <code>null</code>.
    * @param size The number of entries to create in the list.
-   *
    * @return The list of entries.
    */
   private List<Object> createList(Object value, int size) {
@@ -2282,13 +2123,12 @@ public class PSRequest {
   }
 
   /**
-   * Parses the request body from the servlet request supplied during
-   * construction if the request method was a post, otherwise a noop.
+   * Parses the request body from the servlet request supplied during construction if the request
+   * method was a post, otherwise a noop.
    *
-   * @throws PSRequestParsingException If there is an error parsing the request
-   * body from the supplied stream.
-   * @throws IOException If there is an error reading from the request input
-   * stream.
+   * @throws PSRequestParsingException If there is an error parsing the request body from the
+   *     supplied stream.
+   * @throws IOException If there is an error reading from the request input stream.
    */
   public void parseBody() throws PSRequestParsingException, IOException {
     InputStream in = m_servletRequest.getInputStream();
@@ -2327,14 +2167,11 @@ public class PSRequest {
   }
 
   /**
-   * Determine if the user is a member of the specified role.  Checks against
-   * the list of roles supplied during JAAS authentication.
+   * Determine if the user is a member of the specified role. Checks against the list of roles
+   * supplied during JAAS authentication.
    *
-   * @param roleName The role name to check, may not be <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if the user is a member of the role,
-   * <code>false</code> if not.
+   * @param roleName The role name to check, may not be <code>null</code> or empty.
+   * @return <code>true</code> if the user is a member of the role, <code>false</code> if not.
    */
   public boolean isUserInRole(String roleName) {
     if (StringUtils.isBlank(roleName))
@@ -2344,17 +2181,15 @@ public class PSRequest {
   }
 
   /**
-   * Checks the servlet request attributes to see if the the
-   * "javax.servlet.include.request_uri" request attribute is not
-   * <code>null</code>, and if not, creates a new request using the supplied
-   * request and response, that references the same session, error handler, and
-   * log handler as this request.
+   * Checks the servlet request attributes to see if the the "javax.servlet.include.request_uri"
+   * request attribute is not <code>null</code>, and if not, creates a new request using the
+   * supplied request and response, that references the same session, error handler, and log handler
+   * as this request.
    *
    * @param req The request to use, never <code>null</code>.
    * @param resp The response to use, never <code>null</code>.
-   *
-   * @return The new request, or <code>null</code> if the http servlet request
-   * referenced by this request does not indicate an include.
+   * @return The new request, or <code>null</code> if the http servlet request referenced by this
+   *     request does not indicate an include.
    */
   public PSRequest getRequestForIncludeURI(HttpServletRequest req, HttpServletResponse resp) {
     PSRequest newReq = null;
@@ -2373,9 +2208,7 @@ public class PSRequest {
   /**
    * Get the request represented by the supplied request context.
    *
-   * @param ctx The context to get the request from, may not be
-   * <code>null</code>.
-   *
+   * @param ctx The context to get the request from, may not be <code>null</code>.
    * @return The request, never <code>null</code>.
    */
   public static PSRequest getRequest(IPSRequestContext ctx) {
@@ -2385,52 +2218,38 @@ public class PSRequest {
   }
 
   /**
-   * This map is used to cache content item status doc in the
-   * user session. It is lazily instantiated on the first set,
-   * never <code>null</code> after that.
+   * This map is used to cache content item status doc in the user session. It is lazily
+   * instantiated on the first set, never <code>null</code> after that.
    */
   protected HashMap<String, Document> m_contentItemStatusCache;
 
   /**
-   * The content header override string.  This will allow user exits
-   *    to set the content header regardless of the settings in the
-   *    requestor and the result page.  A value of <code>null</code>
-   *    (the default) indicates that there will be no override, and
-   *    a value of empty string indicates that the content header will
-   *    not be set.
+   * The content header override string. This will allow user exits to set the content header
+   * regardless of the settings in the requestor and the result page. A value of <code>null</code>
+   * (the default) indicates that there will be no override, and a value of empty string indicates
+   * that the content header will not be set.
    */
   private String m_contentHeader = null;
 
-  /**
-   * The request page type is unknown.
-   */
+  /** The request page type is unknown. */
   public static final int PAGE_TYPE_UNKNOWN = 0x00000000;
 
-  /**
-   * The desired format for the request page is XML.
-   */
+  /** The desired format for the request page is XML. */
   public static final int PAGE_TYPE_XML = 0x00000001;
 
-  /**
-   * The desired format for the request page is HTML.
-   */
+  /** The desired format for the request page is HTML. */
   public static final int PAGE_TYPE_HTML = 0x00000002;
 
-  /**
-   * The desired format for the request page is text.
-   */
+  /** The desired format for the request page is text. */
   public static final int PAGE_TYPE_TEXT = 0x00000004;
 
-  /**
-   * The desired page type is json
-   */
+  /** The desired page type is json */
   public static final int PAGE_TYPE_JSON = 0x00000006;
 
   /**
-   * A HashMap to store temp file resources, so that PurgeableTempFile
-   * information can be retrieved such as character set encoding.  Can
-   * be <code>null</code>. Never empty.  Initialized lazily when a file
-   * resource addition is first attempted.
+   * A HashMap to store temp file resources, so that PurgeableTempFile information can be retrieved
+   * such as character set encoding. Can be <code>null</code>. Never empty. Initialized lazily when
+   * a file resource addition is first attempted.
    */
   private HashMap<String, Object> m_tempFileResources = null;
 
@@ -2443,33 +2262,28 @@ public class PSRequest {
   protected int m_reqPageType;
 
   /**
-   * The map of parameter names and values that were passed in with the request.
-   * Initialized in constructor and never <code>null</code> after that. May be
-   * empty.
+   * The map of parameter names and values that were passed in with the request. Initialized in
+   * constructor and never <code>null</code> after that. May be empty.
    */
   protected Map<String, Object> m_params;
 
   /**
-   * The map of parameter names and values that were saved prior to the
-   * execution of an exit that modifies params. This allows to restore all
-   * the original params in case if there is some failure and we want to
-   * rollback to the original parameters.
-   * Is <code>null</code> by default, initilized with cloned m_params when
-   * the {@link #saveParams()} method is called.
+   * The map of parameter names and values that were saved prior to the execution of an exit that
+   * modifies params. This allows to restore all the original params in case if there is some
+   * failure and we want to rollback to the original parameters. Is <code>null</code> by default,
+   * initilized with cloned m_params when the {@link #saveParams()} method is called.
    */
   private Map<String, Object> m_savedParams;
 
   /**
-   * The character set for the current request, may be <code>null</code>,
-   * never empty.  Initialized/modified with the <code>setCharacterSet</code>
-   * call.
+   * The character set for the current request, may be <code>null</code>, never empty.
+   * Initialized/modified with the <code>setCharacterSet</code> call.
    */
   private String m_encoding = null;
 
   /**
-   * The file character set for the current request, may be <code>null</code>,
-   * never empty.  Initialized/modified with the
-   * <code>setFileCharacterSet</code> call.
+   * The file character set for the current request, may be <code>null</code>, never empty.
+   * Initialized/modified with the <code>setFileCharacterSet</code> call.
    */
   private String m_fileEncoding = null;
 
@@ -2495,119 +2309,92 @@ public class PSRequest {
   // the access level to the application processing this request
   protected int m_accessLevel = 0;
 
-  /**
-   * Constant for / separator used in urls
-   */
+  /** Constant for / separator used in urls */
   private static final String URL_SEP = "/";
 
   private HashMap<Object, Object> m_privateObjects = null;
 
   /**
-   * A map of all clones made during this request, the key is the original id
-   * (as <code>Integer</code> object) while the value is the clone locator (as
-   * <code>PSLocator</code> object).
-   * Initialized during the first call to <code>addClone</code>. Might be
-   * <code>null</code> before.
+   * A map of all clones made during this request, the key is the original id (as <code>Integer
+   * </code> object) while the value is the clone locator (as <code>PSLocator</code> object).
+   * Initialized during the first call to <code>addClone</code>. Might be <code>null</code> before.
    */
   private Map<Serializable, Serializable> m_clones = null;
 
   /**
-   * A list of all relationships that have been created during this request.
-   * Initialized during the first call to <code>addRelationship</code>. Might
-   * be <code>null</code> before.
+   * A list of all relationships that have been created during this request. Initialized during the
+   * first call to <code>addRelationship</code>. Might be <code>null</code> before.
    */
   private List<Serializable> m_relationships = null;
 
-  /**
-   * See {@link #allowsCloning()} for details. Set by {@link
-   * #setAllowsCloning(boolean)} .
-   */
+  /** See {@link #allowsCloning()} for details. Set by {@link #setAllowsCloning(boolean)} . */
   private boolean m_allowsCloning = true;
 
   /**
-   * Refernce to the parent request when this request is cloned to create a new
-   * one. This will be <code>null</code> if this is the original request and
-   * non-<code>null</code> for all cloned requests. Set in the
-   * {@link #cloneRequest()} method.
+   * Refernce to the parent request when this request is cloned to create a new one. This will be
+   * <code>null</code> if this is the original request and non-<code>null</code> for all cloned
+   * requests. Set in the {@link #cloneRequest()} method.
    */
   private PSRequest m_cloneParentRequest = null;
 
   /**
-   * Reference to the originating relationship. Will be <code>null</code> for
-   * all cloned requests. Will be <code>null</code> for even for the clone root
-   * request till it is set using
-   * {@link #setOriginatingRelationship(PSRelationship)}.
+   * Reference to the originating relationship. Will be <code>null</code> for all cloned requests.
+   * Will be <code>null</code> for even for the clone root request till it is set using {@link
+   * #setOriginatingRelationship(PSRelationship)}.
    */
   private PSRelationship m_originatingRelationship = null;
 
   /**
-   * Reference to the server or local request. Will be <code>null</code>
-   * initially and will be constructed when the method
-   * {@link #getServerRequest()} is called for the first time. It will be
-   * reused during life time of the request.
+   * Reference to the server or local request. Will be <code>null</code> initially and will be
+   * constructed when the method {@link #getServerRequest()} is called for the first time. It will
+   * be reused during life time of the request.
    */
   private PSRequest m_serverRequest = null;
 
   /**
-   * This timer allows monitoring of a requests elapsed time. The timer
-   * should be manipulated through the exposed getter. The timer is
-   * initialized in the ctor and never <code>null</code> afterward.
+   * This timer allows monitoring of a requests elapsed time. The timer should be manipulated
+   * through the exposed getter. The timer is initialized in the ctor and never <code>null</code>
+   * afterward.
    */
   private PSStopwatch m_requestTimer = null;
 
   /**
-   * The html parameter that is looked for by the request parser in
-   * the initial status line to drive the character interpretation of the
-   * associated request.
+   * The html parameter that is looked for by the request parser in the initial status line to drive
+   * the character interpretation of the associated request.
    */
   public static final String REQ_CHARSET_PARAM = "psxcharacterset";
 
   /**
-   * String constant to indicate the name of the request private object which
-   * is an empty map created upon creation of the request for anybody's use.
-   * This map is created specifically in the process of detecting recursive
-   * assembly.
+   * String constant to indicate the name of the request private object which is an empty map
+   * created upon creation of the request for anybody's use. This map is created specifically in the
+   * process of detecting recursive assembly.
    */
   public static final String ASSEMBLY_RECURSION_MAP_KEY = "sys_assemblyRecursionMapKey";
 
-  /**
-   * Refer to {@link IPSHtmlParameters#REQ_XML_DOC_FLAG}.
-   */
+  /** Refer to {@link IPSHtmlParameters#REQ_XML_DOC_FLAG}. */
   public static final String REQ_XML_DOC_FLAG = IPSHtmlParameters.REQ_XML_DOC_FLAG;
 
-  /**
-   * The constant to define that the xml document uploaded should be validated.
-   */
+  /** The constant to define that the xml document uploaded should be validated. */
   public static final String XML_DOC_VALIDATE = "useValidating";
 
-  /**
-   * The constant to define that the xml document uploaded should not be
-   * validated.
-   */
+  /** The constant to define that the xml document uploaded should not be validated. */
   public static final String XML_DOC_NONVALIDATE = "useNonValidating";
 
-  /**
-   * Refer to {@link IPSHtmlParameters#XML_DOC_AS_TEXT}.
-   */
+  /** Refer to {@link IPSHtmlParameters#XML_DOC_AS_TEXT}. */
   public static final String XML_DOC_AS_TEXT = IPSHtmlParameters.XML_DOC_AS_TEXT;
 
   public static final String REQ_URL_PARAM = "psrequrl";
 
-  /**
-   * Constant for the "GET" HTTP request method.
-   */
+  /** Constant for the "GET" HTTP request method. */
   private static final String REQ_METHOD_GET = "GET";
 
-  /**
-   * Constant for the "POST" HTTP request method.
-   */
+  /** Constant for the "POST" HTTP request method. */
   private static final String REQ_METHOD_POST = "POST";
 
   /**
-   * Map of content parsers by type.  Key is the content type as a
-   * <code>String</code>, value is an instance of the appropriate sub-class of
-   * {@link PSContentParser} to use, initialized by a static intializer, never
-   * <code>null</code> or modified after that.
+   * Map of content parsers by type. Key is the content type as a <code>String</code>, value is an
+   * instance of the appropriate sub-class of {@link PSContentParser} to use, initialized by a
+   * static intializer, never <code>null</code> or modified after that.
    */
   private static Map<String, PSContentParser> ms_ContentParsers;
 
@@ -2622,9 +2409,8 @@ public class PSRequest {
   }
 
   /**
-   * Adds a parser to the {@link #ms_ContentParsers} map for each of the
-   * content types it supports.  Intended only to be called from the static
-   * initializer.
+   * Adds a parser to the {@link #ms_ContentParsers} map for each of the content types it supports.
+   * Intended only to be called from the static initializer.
    *
    * @param parser The parser to add, assumed not <code>null</code>.
    */

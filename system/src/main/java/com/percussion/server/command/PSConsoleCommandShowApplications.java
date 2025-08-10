@@ -45,22 +45,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommandShowApplications class implements processing of the
- * "show applications" console command.
+ * The PSConsoleCommandShowApplications class implements processing of the "show applications"
+ * console command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConsoleCommandShowApplications extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
-   *
+   * @param cmdArgs the argument string to use when executing this command
    */
   public PSConsoleCommandShowApplications(String cmdArgs) throws PSIllegalArgumentException {
     super(null);
@@ -80,11 +77,11 @@ public class PSConsoleCommandShowApplications extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText, Applications?)&gt;
    *
@@ -132,12 +129,9 @@ public class PSConsoleCommandShowApplications extends PSConsoleCommand {
    *      &lt;ELEMENT name                        (#PCDATA)&gt;
    * </CODE></PRE>
    *
-   * @param      request                     the requestor object
-   *
-   * @return                                 the result document
-   *
-   * @exception   PSConsoleCommandException   if an error occurs during
-   *                                          execution
+   * @param request the requestor object
+   * @return the result document
+   * @exception PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -175,8 +169,6 @@ public class PSConsoleCommandShowApplications extends PSConsoleCommand {
 
   private int m_statusCodesToShow;
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "show applications";
 }

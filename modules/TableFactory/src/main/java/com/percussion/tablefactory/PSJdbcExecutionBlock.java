@@ -23,15 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A step that is actually a list of steps.  When the block is executed, it
- * executes each step sequentially.
+ * A step that is actually a list of steps. When the block is executed, it executes each step
+ * sequentially.
  */
 public class PSJdbcExecutionBlock extends PSJdbcExecutionStep {
   /**
    * Adds the step to this block.
    *
    * @param step The step to execute, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if step is <code>null</code>.
    */
   public void addStep(PSJdbcExecutionStep step) {
@@ -44,9 +43,7 @@ public class PSJdbcExecutionBlock extends PSJdbcExecutionStep {
    * Executes each step in the block sequentially.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   *
    * @return always returns <code>0</code>
-   *
    * @throws IllegalArgumentException if conn is <code>null</code>.
    * @throws SQLException if any errors occur.
    */
@@ -70,8 +67,6 @@ public class PSJdbcExecutionBlock extends PSJdbcExecutionStep {
     return 0;
   }
 
-  /**
-   * List of steps, never <code>null</code>, may be empty.
-   */
+  /** List of steps, never <code>null</code>, may be empty. */
   private List<PSJdbcExecutionStep> m_steps = new ArrayList<>();
 }

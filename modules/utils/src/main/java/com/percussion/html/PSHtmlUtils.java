@@ -38,8 +38,9 @@ import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
 
 /**
- * Utility class for handling HTML documents and
- * document fragments.  Intended for use with HTML content.
+ * Utility class for handling HTML documents and document fragments. Intended for use with HTML
+ * content.
+ *
  * @see PSXmlUtils for XML content.
  */
 public class PSHtmlUtils {
@@ -47,8 +48,8 @@ public class PSHtmlUtils {
   private static final Logger log = LogManager.getLogger();
 
   /**
-   * The name of the default html cleaner properties file
-   * that is used to configure html cleaning defaults.
+   * The name of the default html cleaner properties file that is used to configure html cleaning
+   * defaults.
    */
   public static final String HTML_CLEANER_FILENAME = "html-cleaner.properties";
 
@@ -67,8 +68,8 @@ public class PSHtmlUtils {
   }
 
   /**
-   * Given an html fragment return a jsoup cleaned and parsed document based on the
-   * settings provided.
+   * Given an html fragment return a jsoup cleaned and parsed document based on the settings
+   * provided.
    *
    * @param fragment A string containing an html body fragment
    * @param encoding Encoding to use for the content
@@ -102,8 +103,10 @@ public class PSHtmlUtils {
    *
    * @param file A valid file resource
    * @param encoding the target encoding of the file
-   * @param cleanse when true the document will be cleansed using the supplied html-cleaner.properties in configFile parameter, or the system default.
-   * @param configFile The absolute path to the html-cleaner.properties file to use for cleaning rules, if null, the system default will be used.
+   * @param cleanse when true the document will be cleansed using the supplied
+   *     html-cleaner.properties in configFile parameter, or the system default.
+   * @param configFile The absolute path to the html-cleaner.properties file to use for cleaning
+   *     rules, if null, the system default will be used.
    * @return
    */
   public static Document createHTMLDocument(
@@ -138,8 +141,8 @@ public class PSHtmlUtils {
   }
 
   /**
-   * Given an html fragment will attempt to parse and cleanse the fragment
-   * to contain valid HTML.
+   * Given an html fragment will attempt to parse and cleanse the fragment to contain valid HTML.
+   *
    * @param fragment a user supplied html fragment
    * @param encoding the encoding to use
    * @param configFile The property file to use for cleaner configuration
@@ -178,8 +181,10 @@ public class PSHtmlUtils {
 
   /**
    * Builds a safe list based on the supplied properties.
+   *
    * @param props a set of properties from a html-cleaner.properties file
-   * @param fragment The fragment that will be cleansed.  Needed to handle wildcard attrs like aria- or data-
+   * @param fragment The fragment that will be cleansed. Needed to handle wildcard attrs like aria-
+   *     or data-
    * @return A safelist based on the configured property values.
    */
   protected static Safelist getSafeListFromProperties(Properties props, String fragment) {
@@ -356,7 +361,6 @@ public class PSHtmlUtils {
   }
 
   /**
-   *
    * @param propVal
    * @param ret
    * @return
@@ -376,7 +380,9 @@ public class PSHtmlUtils {
 
   /**
    * Gets the html cleaner properties from the specified filename.
-   * @param filename The path and filename of the html-cleaner.properties file. Will assume installroot if filename matches the system default filename.
+   *
+   * @param filename The path and filename of the html-cleaner.properties file. Will assume
+   *     installroot if filename matches the system default filename.
    * @return The configured properties for the cleaner to use.
    */
   // TODO: Add caching
@@ -405,8 +411,8 @@ public class PSHtmlUtils {
   }
 
   /**
-   * Method to return a set of default cleaner properties in case the
-   * property file can not be found or loaded.
+   * Method to return a set of default cleaner properties in case the property file can not be found
+   * or loaded.
    *
    * @return A default configuration for the HTML cleaner
    */
@@ -429,6 +435,7 @@ public class PSHtmlUtils {
 
   /**
    * Get a W3C Dom Document from a JSoup document
+   *
    * @param doc a valid jsoup document
    * @return a valid w3c document
    */
@@ -441,6 +448,7 @@ public class PSHtmlUtils {
 
   /**
    * Gets the contents of the body element in the supplied html string.
+   *
    * @param doc A valid document
    * @return the contents of the body of the document.
    */
@@ -456,6 +464,7 @@ public class PSHtmlUtils {
 
   /**
    * Given a url will return a Map with the key as the param and the value as the value.
+   *
    * @param url A url.
    * @return A map of query params, never null, may be empty
    */

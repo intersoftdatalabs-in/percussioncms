@@ -52,26 +52,22 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 
 /**
- * This class takes a set of <code>PSAction</code> names, an ObjectId and
- * calculates whether each of the requested actions is visible given the
- * supplied context.
+ * This class takes a set of <code>PSAction</code> names, an ObjectId and calculates whether each of
+ * the requested actions is visible given the supplied context.
  *
  * @author paulhoward
  */
 public class PSGetActionVisibilityAction extends PSAAActionBase {
   /**
-   * For each supplied name, search for a matching <code>PSAction</code> that
-   * has that name (case-insensitive.) If found, calculate whether the action
-   * would be visible given the context of the supplied id.
+   * For each supplied name, search for a matching <code>PSAction</code> that has that name
+   * (case-insensitive.) If found, calculate whether the action would be visible given the context
+   * of the supplied id.
    *
-   * @param params Expected: an entry called 'names' whose value is a String[]
-   * containing the actions of interest, an entry for the object id. The names
-   * are case-insensitive. If an action is not found, <code>false</code> is
-   * returned for its value in the map.
-   *
-   * @return The value is a <code>Map</code> whose key is the lower-cased
-   * name and whose value is a <code>Boolean</code> (<code>true</code> if
-   * visible); converted to a JSON string.
+   * @param params Expected: an entry called 'names' whose value is a String[] containing the
+   *     actions of interest, an entry for the object id. The names are case-insensitive. If an
+   *     action is not found, <code>false</code> is returned for its value in the map.
+   * @return The value is a <code>Map</code> whose key is the lower-cased name and whose value is a
+   *     <code>Boolean</code> (<code>true</code> if visible); converted to a JSON string.
    */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
@@ -101,13 +97,10 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
   /**
    * Does the work of calculating visibility.
    *
-   * @param itemId The context to which the action is to be applied. Assumed
-   * not <code>null</code>.
-   *
+   * @param itemId The context to which the action is to be applied. Assumed not <code>null</code>.
    * @param action The action to check. Assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied action is visible to the
-   * supplied item given its context, otherwise <code>false</code>.
+   * @return <code>true</code> if the supplied action is visible to the supplied item given its
+   *     context, otherwise <code>false</code>.
    */
   private boolean isVisible(PSAAObjectId itemId, PSAction action) {
     PSActionVisibilityChecker visibilityChecker = new PSActionVisibilityChecker(action);
@@ -117,7 +110,6 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
 
   private class GlobalState extends PSActionVisibilityGlobalState {
     /**
-     *
      * @param ctx Assumed not <code>null</code>.
      */
     public GlobalState(IPSRequestContext ctx) {
@@ -140,15 +132,12 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       return mi_ctx.getSubjectRoles();
     }
 
-    /**
-     * Set in ctor, then never null or changed.
-     */
+    /** Set in ctor, then never null or changed. */
     private IPSRequestContext mi_ctx;
   }
 
   private class ObjectState extends PSActionVisibilityObjectState {
     /**
-     *
      * @param id Assumed not <code>null</code>.
      */
     public ObjectState(PSAAObjectId id, IPSRequestContext ctx) {
@@ -228,14 +217,10 @@ public class PSGetActionVisibilityAction extends PSAAActionBase {
       return mi_id.getItemSummary().getWorkflowAppId();
     }
 
-    /**
-     * Set in ctor then never <code>null</code> or modified.
-     */
+    /** Set in ctor then never <code>null</code> or modified. */
     private PSAAObjectId mi_id;
 
-    /**
-     * Set in ctor then never <code>null</code> or modified.
-     */
+    /** Set in ctor then never <code>null</code> or modified. */
     private IPSRequestContext mi_ctx;
   }
 }

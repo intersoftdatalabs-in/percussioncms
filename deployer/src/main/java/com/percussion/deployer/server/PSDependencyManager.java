@@ -52,25 +52,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manager class for all dependency handlers. The {@link PSDeploymentHandler}
- * creates and holds an instance when initialized. All other classes should call
- * {@link #getInstance()} to obtain an instance of this class.
+ * Manager class for all dependency handlers. The {@link PSDeploymentHandler} creates and holds an
+ * instance when initialized. All other classes should call {@link #getInstance()} to obtain an
+ * instance of this class.
  */
 public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
-   * Singleton instance of this class. Initialized when first instance of the
-   * class is constructed, never <code>null</code> or modified after that.
+   * Singleton instance of this class. Initialized when first instance of the class is constructed,
+   * never <code>null</code> or modified after that.
    */
   private static PSDependencyManager INSTANCE;
 
   /**
-   * Loads the <code>PSDependencyMap</code> using the XML document found in
-   * the <code>server/cfg</code> directory below the deployment root.
+   * Loads the <code>PSDependencyMap</code> using the XML document found in the <code>server/cfg
+   * </code> directory below the deployment root.
    *
-   * @throws IllegalStateException if an instance has already been created. The
-   * {@link PSDeploymentHandler} creates and holds an instance when
-   * initialized. All other classes should call {@link #getInstance()} to
-   * obtain an instance of this class.
+   * @throws IllegalStateException if an instance has already been created. The {@link
+   *     PSDeploymentHandler} creates and holds an instance when initialized. All other classes
+   *     should call {@link #getInstance()} to obtain an instance of this class.
    */
   private PSDependencyManager() {
 
@@ -92,8 +91,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Set the configuration directory which contains the configure files
    *
-   * @param configDir the configuration directory, may not be <code>null</code>
-   * or empty.
+   * @param configDir the configuration directory, may not be <code>null</code> or empty.
    */
   public static void setConfigDir(String configDir) {
     if (StringUtils.isBlank(configDir))
@@ -105,8 +103,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Loads the configure files from the specified directory.
    *
-   * @param dir the configuration directory, assumed not <code>null</code> or
-   * empty.
+   * @param dir the configuration directory, assumed not <code>null</code> or empty.
    */
   private void loadConfigFiles(String dir, boolean buildDepMaps) throws PSDeployException {
     var rootDir = new File(dir);
@@ -127,14 +124,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Gets all child dependencies for the supplied dependency.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param dep The dependency whose children should be retrieved, may not be
-   * <code>null</code>.
-   *
-   * @return an Iterator over zero or more PSDependency objects, never
-   * <code>null</code>, may be empty.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param dep The dependency whose children should be retrieved, may not be <code>null</code>.
+   * @return an Iterator over zero or more PSDependency objects, never <code>null</code>, may be
+   *     empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -167,17 +161,15 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Gets all dependencies that have the supplied dependency as a child. Will
-   * return an empty iterator if the supplied dependency is of type
-   * {@link PSDependency#TYPE_USER}
+   * Gets all dependencies that have the supplied dependency as a child. Will return an empty
+   * iterator if the supplied dependency is of type {@link PSDependency#TYPE_USER}
    *
-   * @param tok The security token to use if objectstore access is required,
-   *            may not be <code>null</code>.
-   * @param dep The dependency to return ancestors for, may not be
-   *            <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param dep The dependency to return ancestors for, may not be <code>null</code>.
    * @return an iterator over zero or more <code>PSDependency</code> objects.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException        for any other errors.
+   * @throws PSDeployException for any other errors.
    */
   public Iterator<IPSDependencyBaseline> getAncestors(
       PSSecurityToken tok, IPSDependencyBaseline dep)
@@ -192,19 +184,16 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Adds the files of the supplied dependency and all of its included
-   * dependencies to the supplied archive handler.
+   * Adds the files of the supplied dependency and all of its included dependencies to the supplied
+   * archive handler.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param dependency The dependency to add, may not be <code>null</code>.
-   * @param archiveHandler The archive handler to use, may not be
-   * <code>null</code>.
-   * @param jobHandle The job handle to use to update the status, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if any param is invalid or if calling
-   * <code>dependency.isIncluded()</code> returns <code>false</code>.
+   * @param archiveHandler The archive handler to use, may not be <code>null</code>.
+   * @param jobHandle The job handle to use to update the status, may not be <code>null</code>.
+   * @throws IllegalArgumentException if any param is invalid or if calling <code>
+   *     dependency.isIncluded()</code> returns <code>false</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void addToArchive(
@@ -260,24 +249,19 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * This is used to reorder the packaged elements, separate and group the
-   * elements by their object-type.
+   * This is used to reorder the packaged elements, separate and group the elements by their
+   * object-type.
    */
   private static class OrderedElement {
-    /**
-     * The object type of the ordered element.
-     */
+    /** The object type of the ordered element. */
     String mi_objType;
 
-    /**
-     * A list of ordered elements with the {@link #mi_objType} object type.
-     */
+    /** A list of ordered elements with the {@link #mi_objType} object type. */
     List<PSImportPackage> mi_elements = new ArrayList<>();
   }
 
   /**
-   * Creates a base array for grouping the packaged elements by their object
-   * type.
+   * Creates a base array for grouping the packaged elements by their object type.
    *
    * @return the base array, never <code>null</code> or empty.
    */
@@ -293,8 +277,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Returns the list of type enum names of the types that can be ignored for
-   * uninstall.
+   * Returns the list of type enum names of the types that can be ignored for uninstall.
    *
    * @return never <code>null</code> may be empty.
    */
@@ -303,15 +286,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Gets the object type of the given package element for all elements, but it
-   * returns the child object type (which is in the dependency ID of the
-   * element) for "Custom" element.
+   * Gets the object type of the given package element for all elements, but it returns the child
+   * object type (which is in the dependency ID of the element) for "Custom" element.
    *
-   * @param pkgElement the package element in question, it may not be
-   * <code>null</code>.
-   *
+   * @param pkgElement the package element in question, it may not be <code>null</code>.
    * @return the object type of the package element as described above.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public String getObjectType(PSImportPackage pkgElement) throws PSDeployException {
@@ -339,10 +318,9 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Adds a given package element into the supplied order list.
    *
-   * @param orderList the order list used to collect and group package element,
-   * assumed not <code>null</code> or empty.
+   * @param orderList the order list used to collect and group package element, assumed not <code>
+   *     null</code> or empty.
    * @param pkgElement the package element, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if an error occurs.
    */
   private void addPkgElement(OrderedElement[] orderList, PSImportPackage pkgElement)
@@ -355,14 +333,10 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Reorder the packaged elements in the order specified in the configuration
-   * file.
+   * Reorder the packaged elements in the order specified in the configuration file.
    *
-   * @param deployList the original packaged element, may not be
-   * <code>null</code> or empty.
-   *
+   * @param deployList the original packaged element, may not be <code>null</code> or empty.
    * @return the reordered elements, never <code>null</code> or empty.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public List<PSImportPackage> reorderDeployedElements(List<PSImportPackage> deployList)
@@ -392,10 +366,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Logs the order of the given package element list.
    *
-   * @param elements the list of package elements, assumed not
-   * <code>null</code> or empty.
+   * @param elements the list of package elements, assumed not <code>null</code> or empty.
    * @param isOriginal <code>true</code> if the list is pre-ordered list.
-   *
    * @throws PSDeployException if an error occurs.
    */
   private void logPackageElementOrder(List<PSImportPackage> elements, boolean isOriginal)
@@ -414,20 +386,17 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Restores the deployable element and all of its children from the archive
-   * to the Rhythmyx server installation.
+   * Restores the deployable element and all of its children from the archive to the Rhythmyx server
+   * installation.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param dependency The deployable element to restore, may not be
-   * <code>null</code>.
-   * @param archiveHandler The archive handler to use to retrieve files from
-   * the archive, may not be <code>null</code>.
-   * @param ctx The import context that provides access to some runtime
-   * context and managers, may not be <code>null</code>.
-   * @param jobHandle The job handle to use to update the status, may not be
-   * <code>null</code>.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param dependency The deployable element to restore, may not be <code>null</code>.
+   * @param archiveHandler The archive handler to use to retrieve files from the archive, may not be
+   *     <code>null</code>.
+   * @param ctx The import context that provides access to some runtime context and managers, may
+   *     not be <code>null</code>.
+   * @param jobHandle The job handle to use to update the status, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -481,24 +450,20 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Restores the dependency and all of its children from the archive to the
-   * Rhythmyx server installation.
+   * Restores the dependency and all of its children from the archive to the Rhythmyx server
+   * installation.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * assumed not <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, assumed not <code>null
+   *     </code>.
    * @param dependency The dependency to restore, assumed not <code>null</code>.
-   * @param root The root dependency of this dependency's tree, assumed not
-   * <code>null</code>.
-   * @param archiveHandler The archive handler to use to retrieve files from
-   * the archive, assumed not <code>null</code>.
-   * @param ctx The import context that provides access to some runtime
-   * context and managers, assumed not <code>null</code>.
-   * @param deferList A List of dependencies whose installation should be
-   * deferred until all others have been installed, assumed not
-   * <code>null</code>.
-   * @param jobHandle The job handle to use to update the status, assumed not
-   * <code>null</code>.
-   *
+   * @param root The root dependency of this dependency's tree, assumed not <code>null</code>.
+   * @param archiveHandler The archive handler to use to retrieve files from the archive, assumed
+   *     not <code>null</code>.
+   * @param ctx The import context that provides access to some runtime context and managers,
+   *     assumed not <code>null</code>.
+   * @param deferList A List of dependencies whose installation should be deferred until all others
+   *     have been installed, assumed not <code>null</code>.
+   * @param jobHandle The job handle to use to update the status, assumed not <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -552,20 +517,17 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Installs the supplied dependency.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * assumed not <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, assumed not <code>null
+   *     </code>.
    * @param dependency The dependency to restore, assumed not <code>null</code>.
-   * @param depHandler The handler for this dependency, assumed to be not
-   * <code>null</code> and of the correct type.
-   * @param archiveHandler The archive handler to use to retrieve files from
-   * the archive, assumed not <code>null</code>.
-   * @param ctx The import context that provides access to some runtime
-   * context and managers, assumed not <code>null</code>.
-   * @param jobHandle The job handle to use to update the status, assumed not
-   * <code>null</code>.
-   * @param root The root dependency of this dependency's tree, assumed not
-   * <code>null</code>.
-   *
+   * @param depHandler The handler for this dependency, assumed to be not <code>null</code> and of
+   *     the correct type.
+   * @param archiveHandler The archive handler to use to retrieve files from the archive, assumed
+   *     not <code>null</code>.
+   * @param ctx The import context that provides access to some runtime context and managers,
+   *     assumed not <code>null</code>.
+   * @param jobHandle The job handle to use to update the status, assumed not <code>null</code>.
+   * @param root The root dependency of this dependency's tree, assumed not <code>null</code>.
    * @throws PSDeployException if any errors occur.
    */
   private void installDependency(
@@ -671,7 +633,6 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    * Returns the dependency's identifying information formatted for output.
    *
    * @param dependency The dependency to use, assumed not <code>null</code>.
-   *
    * @return The string, never <code>null</code> or empty.
    */
   private String formatDependencyString(PSDependency dependency) {
@@ -685,19 +646,16 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Gets all existing dependencies of the specified type.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param type The type to get, may not be <code>null</code> or empty. For
-   * Custom types, supply the custom object type ({@link IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM})
-   * concatenated with the supported local dependency type using a forward
-   * slash as a delimiter (e.g. "Custom/Application"). For each instance of the
-   * child dependency type that exists, a custom deployable element will be
-   * returned with the child dependency as a local child. If "Custom/User" is
-   * specified, a single custom deployable element with no children will be
-   * returned.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param type The type to get, may not be <code>null</code> or empty. For Custom types, supply
+   *     the custom object type ({@link IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}) concatenated
+   *     with the supported local dependency type using a forward slash as a delimiter (e.g.
+   *     "Custom/Application"). For each instance of the child dependency type that exists, a custom
+   *     deployable element will be returned with the child dependency as a local child. If
+   *     "Custom/User" is specified, a single custom deployable element with no children will be
+   *     returned.
    * @return an Iterator over zero or more PSDependency objects.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -766,19 +724,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Gets all existing dependencies of the specified type with the specified
-   * parent id.
+   * Gets all existing dependencies of the specified type with the specified parent id.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param type The type to get, may not be <code>null</code> or empty. Must
-   * support parent ids.
-   * @param parentId Specifies the parent of all dependencies to return, may
-   * not be <code>null</code> or empty.
-   *
-   * @return an Iterator over zero or more PSDependency objects, never
-   * <code>null</code>.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param type The type to get, may not be <code>null</code> or empty. Must support parent ids.
+   * @param parentId Specifies the parent of all dependencies to return, may not be <code>null
+   *     </code> or empty.
+   * @return an Iterator over zero or more PSDependency objects, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -803,13 +756,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Get a map of child and parent types for dependency types that support
-   * parent ids.
+   * Get a map of child and parent types for dependency types that support parent ids.
    *
-   * @return A Map where the key is the child type and the value is the parent
-   * type, both as non-<code>null</code>, non-empty <code>String</code>
-   * objects, never <code>null</code>, may be empty.
-   *
+   * @return A Map where the key is the child type and the value is the parent type, both as non-
+   *     <code>null</code>, non-empty <code>String</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws PSDeployException if there are any errors.
    */
   public Map<String, String> getParentTypes() throws PSDeployException {
@@ -834,8 +785,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get the singleton instance of this class
    *
-   * @return the instance, may be <code>null</code> if it has not yet been
-   * created.
+   * @return the instance, may be <code>null</code> if it has not yet been created.
    */
   public static PSDependencyManager getInstance() {
     if (INSTANCE == null) {
@@ -845,23 +795,21 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Recursively ensures that there is at least one level of child dependencies
-   * below any included child dependency of the supplied deployable element,
-   * setting the child dependencies if they have not already been set. Also
-   * adds all loadable handlers as immediate server dependencies.
-   * <p>
-   * Calls {@link PSDependency#setIsAutoDependency(boolean)
-   * setIsAutoDependency(true)} for all dependencies added.
+   * Recursively ensures that there is at least one level of child dependencies below any included
+   * child dependency of the supplied deployable element, setting the child dependencies if they
+   * have not already been set. Also adds all loadable handlers as immediate server dependencies.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
+   * <p>Calls {@link PSDependency#setIsAutoDependency(boolean) setIsAutoDependency(true)} for all
+   * dependencies added.
+   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param pkg The deployable element to check, may not be <code>null</code>.
-   * @param treeCtx The tree context to use to determine inclusion of any
-   * dependencies added, may not be <code>null</code> and must contain all
-   * dependencies in the supplied <code>pkg</code>.
-   * @param jobHandle The current job handle, used to check if the job has been
-   * cancelled, may not be <code>null</code>.
-   *
+   * @param treeCtx The tree context to use to determine inclusion of any dependencies added, may
+   *     not be <code>null</code> and must contain all dependencies in the supplied <code>pkg</code>
+   *     .
+   * @param jobHandle The current job handle, used to check if the job has been cancelled, may not
+   *     be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -885,14 +833,12 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Validate missing and modified packages in a given export descriptor. The
-   * packages in the export descriptor will be modified if there are missing or
-   * modified packages and updates the display names of all dependencies in
-   * case they have changed.
+   * Validate missing and modified packages in a given export descriptor. The packages in the export
+   * descriptor will be modified if there are missing or modified packages and updates the display
+   * names of all dependencies in case they have changed.
    *
    * @param tok The security token, it may not be <code>null</code>.
    * @param exportDesc The export descriptor, it may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -938,18 +884,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Loads the export descriptor from the supplied archive info and transforms
-   * all IDs.
+   * Loads the export descriptor from the supplied archive info and transforms all IDs.
    *
-   * @param info The archive info containing the descriptor. May not be
-   * <code>null</code>. <code>info.getArchiveDetail()</code> must not
-   * return <code>null</code>.
+   * @param info The archive info containing the descriptor. May not be <code>null</code>. <code>
+   *     info.getArchiveDetail()</code> must not return <code>null</code>.
    * @param logHandler The log handler to use, may not be <code>null</code>.
-   * @param idMap The idMap to use to transform ids, <code>null</code> if no
-   * transformation is required.
-   *
+   * @param idMap The idMap to use to transform ids, <code>null</code> if no transformation is
+   *     required.
    * @return The converted descriptor, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -981,9 +923,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    * Saves the supplied user dependency to the file system.
    *
    * @param dep The user dependency to save, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dep</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void saveUserDependency(PSUserDependency dep) throws PSDeployException {
@@ -1005,9 +945,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Deletes the supplied user dependency from the file system if it exists.
    *
-   * @param dep The user dependency to delete, may not be <code>null</code>.
-   * If the specified user dependency is not found, the method simply returns
-   * without error.
+   * @param dep The user dependency to delete, may not be <code>null</code>. If the specified user
+   *     dependency is not found, the method simply returns without error.
    */
   public void deleteUserDependency(PSUserDependency dep) {
     if (dep == null) throw new IllegalArgumentException(NULL_DEPENDENCY);
@@ -1027,10 +966,9 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    * Find and return the specified dependency.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param type The dependency type, may not be <code>null</code> or empty
-   * and must be a valid type.
+   * @param type The dependency type, may not be <code>null</code> or empty and must be a valid
+   *     type.
    * @param depId The id, may not be <code>null</code> or empty.
-   *
    * @return The dependency, or <code>null</code> if it is not found.
    * @throws PSDeployException if there are any errors.
    */
@@ -1050,14 +988,12 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get all dependencies with the specified attributes.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param flags One or more <code>TYPE_xxx</code> flags or'd together,
-   * specifying the attributes to check.
-   *
-   * @return An iterator over zero or more <code>PSDependency</code> objects
-   * with the specified attributes, never <code>null</code>.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param flags One or more <code>TYPE_xxx</code> flags or'd together, specifying the attributes
+   *     to check.
+   * @return An iterator over zero or more <code>PSDependency</code> objects with the specified
+   *     attributes, never <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok, int flags)
@@ -1094,8 +1030,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get a list of deployable element types.
    *
-   * @return An iterator over zero or more <code>PSDependencyDef</code>
-   * objects, never <code>null</code>.
+   * @return An iterator over zero or more <code>PSDependencyDef</code> objects, never <code>null
+   *     </code>.
    */
   public Iterator<PSDependencyDef> getElementTypes() {
     List<PSDependencyDef> types = new ArrayList<>();
@@ -1116,8 +1052,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get a list of deployable object types.
    *
-   * @return An iterator over zero or more <code>PSDependencyDef</code>
-   * objects, never <code>null</code>.
+   * @return An iterator over zero or more <code>PSDependencyDef</code> objects, never <code>null
+   *     </code>.
    */
   public Iterator<PSDependencyDef> getObjectTypes() {
     List<PSDependencyDef> types = new ArrayList<>();
@@ -1130,17 +1066,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Get a list of possible object types that could be used to id type the
-   * specified id. This means the deployable object types that support id
-   * mapping and that return an existing dependency for the specified id.
+   * Get a list of possible object types that could be used to id type the specified id. This means
+   * the deployable object types that support id mapping and that return an existing dependency for
+   * the specified id.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param id The dependency id to use, may not be <code>null</code> or
-   * empty.
-   *
-   * @return An iterator over zero or more <code>PSDependencyDef</code>
-   * objects, never <code>null</code>.
-   *
+   * @param id The dependency id to use, may not be <code>null</code> or empty.
+   * @return An iterator over zero or more <code>PSDependencyDef</code> objects, never <code>null
+   *     </code>.
    * @throws PSDeployException if there are any errors.
    */
   public Iterator<PSDependencyDef> getPossibleIdTypes(PSSecurityToken tok, String id)
@@ -1184,9 +1117,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get a list of custom deployable element types.
    *
-   * @return An iterator over zero or more <code>PSDependencyDef</code>
-   * objects, never <code>null</code>.
-   *
+   * @return An iterator over zero or more <code>PSDependencyDef</code> objects, never <code>null
+   *     </code>.
    * @throws PSDeployException if there are any errors.
    */
   public Iterator<PSDependencyDef> getCustomElementTypes() throws PSDeployException {
@@ -1211,15 +1143,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get an instance of the id type handler for the supplied dependency type.
    *
-   * @param dep The dependency to get an ID Type handler for, may not be
-   * <code>null</code>.
-   *
+   * @param dep The dependency to get an ID Type handler for, may not be <code>null</code>.
    * @return The handler, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the dependency's type does not support
-   * ID types.
-   * @throws IllegalStateException if the dependency's type supports ID types,
-   * but an ID type handler is not found for this type.
+   * @throws IllegalArgumentException if the dependency's type does not support ID types.
+   * @throws IllegalStateException if the dependency's type supports ID types, but an ID type
+   *     handler is not found for this type.
    * @throws PSDeployException if there are any other errors.
    */
   IPSIdTypeHandler getIdTypeHandler(PSDependency dep) throws PSDeployException {
@@ -1238,15 +1166,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Enables or disables the dependency cache. Dependency lists of each type
-   * and child dependencies of each dependency will be lazily cached as they
-   * are requested if enabled. Disabling will clear the cache and prevent
-   * caching of new requests until it is enabled again. Enabling while it is
-   * already enabled will have no effect on any currently cached lists. The
-   * cache is disabled by default.
+   * Enables or disables the dependency cache. Dependency lists of each type and child dependencies
+   * of each dependency will be lazily cached as they are requested if enabled. Disabling will clear
+   * the cache and prevent caching of new requests until it is enabled again. Enabling while it is
+   * already enabled will have no effect on any currently cached lists. The cache is disabled by
+   * default.
    *
-   * @param isEnabled If <code>true</code>, caching will be enabled, if
-   * <code>false</code>, caching will be disabled.
+   * @param isEnabled If <code>true</code>, caching will be enabled, if <code>false</code>, caching
+   *     will be disabled.
    */
   public void setIsDependencyCacheEnabled(boolean isEnabled) {
     m_depCache.setIsCacheEnabled(isEnabled);
@@ -1257,7 +1184,6 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    *
    * @param dep The dependency to transform, assumed not <code>null</code>.
    * @param idMap The map to use, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void transformDeps(PSDependency dep, PSIdMap idMap) throws PSDeployException {
@@ -1289,11 +1215,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Utility method to get a dependency def from a dependency type.
    *
-   * @param type The type of def to get. Assumed not <code>null</code> or
-   * empty.
-   *
+   * @param type The type of def to get. Assumed not <code>null</code> or empty.
    * @return The def, never <code>null</code>.
-   *
    * @throws PSDeployException If the def cannot be located
    */
   public PSDependencyDef getDependencyDef(String type) throws PSDeployException {
@@ -1334,16 +1257,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Get all user defined child dependencies for the supplied dependency. Any
-   * saved user dependencies that no longer reference valid files are deleted
-   * and not included in the returned list.
+   * Get all user defined child dependencies for the supplied dependency. Any saved user
+   * dependencies that no longer reference valid files are deleted and not included in the returned
+   * list.
    *
-   * @param dep The dependency whose child user dependencies will be returned,
-   * assumed not <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSUserDependency</code>
-   * objects, never <code>null</code>, may be empty.
-   *
+   * @param dep The dependency whose child user dependencies will be returned, assumed not <code>
+   *     null</code>.
+   * @return An iterator over zero or more <code>PSUserDependency</code> objects, never <code>null
+   *     </code>, may be empty.
    * @throws PSDeployException if there are any other errors.
    */
   private Iterator<PSUserDependency> getUserDependencies(PSDependency dep)
@@ -1370,15 +1291,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * For any new item, reserves a new ID for it in the system and updates the
-   * id map. Recursively performs this action for each included child
-   * dependency.
+   * For any new item, reserves a new ID for it in the system and updates the id map. Recursively
+   * performs this action for each included child dependency.
    *
-   * @param dep The dependency to reserve ids for, assumed not
-   * <code>null</code>.
-   * @param idMap The ID map for the source repository, assumed not
-   * <code>null</code>.
-   *
+   * @param dep The dependency to reserve ids for, assumed not <code>null</code>.
+   * @param idMap The ID map for the source repository, assumed not <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   private void reserveNewIds(PSDependency dep, PSIdMap idMap) throws PSDeployException {
@@ -1400,28 +1317,26 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Ensures that there is at least one level of child dependencies below the
-   * supplied dependency if it is included and adds them if required. If a
-   * parent type (has a child that supports that type as a parent) and not
-   * included, adds all local dependencies. Recursively calls this method on
+   * Ensures that there is at least one level of child dependencies below the supplied dependency if
+   * it is included and adds them if required. If a parent type (has a child that supports that type
+   * as a parent) and not included, adds all local dependencies. Recursively calls this method on
    * all child dependencies.
-   * <p>
-   * Calls {@link PSDependency#setIsAutoDependency(boolean)
-   * setIsAutoDependency(true)} on all dependencies added.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * assumed not <code>null</code>.
+   * <p>Calls {@link PSDependency#setIsAutoDependency(boolean) setIsAutoDependency(true)} on all
+   * dependencies added.
+   *
+   * @param tok The security token to use if objectstore access is required, assumed not <code>null
+   *     </code>.
    * @param dep The dependency to check, assumed not <code>null</code>.
-   * @param checkElements <code>true</code> to recurse into deployable
-   * elements to get local dependencies, <code>false</code> otherwise.
-   * @param loaded The key of any dependency that has had its children
-   * autoloaded is added to this set to avoid recursion.
-   * @param treeCtx The tree context to use to determine inclusion of any
-   * dependencies added, assumed not be <code>null</code>, must contain the
-   * supplied <code>dep</code> and all of its child dependencies.
-   * @param jobHandle The current job handle, used to check if the job has been
-   * cancelled, assumed not <code>null</code>.
-   *
+   * @param checkElements <code>true</code> to recurse into deployable elements to get local
+   *     dependencies, <code>false</code> otherwise.
+   * @param loaded The key of any dependency that has had its children autoloaded is added to this
+   *     set to avoid recursion.
+   * @param treeCtx The tree context to use to determine inclusion of any dependencies added,
+   *     assumed not be <code>null</code>, must contain the supplied <code>dep</code> and all of its
+   *     child dependencies.
+   * @param jobHandle The current job handle, used to check if the job has been cancelled, assumed
+   *     not <code>null</code>.
    * @throws PSDeployException if there are any other errors.
    */
   private void addMissingDependencies(
@@ -1529,13 +1444,10 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Updates the job status for the supplied dependency via the supplied job
-   * handle.
+   * Updates the job status for the supplied dependency via the supplied job handle.
    *
-   * @param dep The dependency that is being processed, may not be
-   * <code>null</code>.
-   * @param jobHandle The handle to use to update the status, may not be
-   * <code>null</code>.
+   * @param dep The dependency that is being processed, may not be <code>null</code>.
+   * @param jobHandle The handle to use to update the status, may not be <code>null</code>.
    */
   public void updateJobStatus(PSDependency dep, IPSJobHandle jobHandle) {
     if (dep == null) throw new IllegalArgumentException(NULL_DEPENDENCY);
@@ -1549,16 +1461,12 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Determines if the supplied package is missing any dependencies that should
-   * be children and adds them, and if it includes any children that are no
-   * longer dependencies and removes them.
+   * Determines if the supplied package is missing any dependencies that should be children and adds
+   * them, and if it includes any children that are no longer dependencies and removes them.
    *
    * @param tok The security token, assumed not <code>null</code>.
    * @param pkg The package to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the child list is modified,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the child list is modified, <code>false</code> otherwise.
    * @throws PSDeployException if there are any errors.
    */
   private boolean checkModifiedDependencies(PSSecurityToken tok, PSDependency pkg)
@@ -1652,10 +1560,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param dep The dependency to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the dependency exists, <code>false</code>
-   * otherwise.
-   *
+   * @return <code>true</code> if the dependency exists, <code>false</code> otherwise.
    * @throws PSDeployException if there are any errors.
    */
   private boolean doesDependencyExist(PSSecurityToken tok, PSDependency dep)
@@ -1671,16 +1576,13 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Gets the actual dependency from the local system using the supplied
-   * dependency.
+   * Gets the actual dependency from the local system using the supplied dependency.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param dep The dependency to get. The supplied dependency may or may not
-   * exist on the local system. Assumed not <code>null</code>.
-   *
-   * @return The actual dependency, may be <code>null</code> if it does not
-   * exist on the local system.
-   *
+   * @param dep The dependency to get. The supplied dependency may or may not exist on the local
+   *     system. Assumed not <code>null</code>.
+   * @return The actual dependency, may be <code>null</code> if it does not exist on the local
+   *     system.
    * @throws PSDeployException if there are any errors.
    */
   private PSDependency getActualDependency(PSSecurityToken tok, PSDependency dep)
@@ -1689,18 +1591,16 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Gets the actual dependency from the local system using the supplied
-   * dependency and optional id map.
+   * Gets the actual dependency from the local system using the supplied dependency and optional id
+   * map.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param dep The dependency to get. The supplied dependency may or may not
-   * exist on the local system. May not be <code>null</code>.
-   * @param idMap id map to use to transform ids to the local system, may be
-   * <code>null</code> if not required.
-   *
-   * @return The actual dependency, may be <code>null</code> if it does not
-   * exist on the local system.
-   *
+   * @param dep The dependency to get. The supplied dependency may or may not exist on the local
+   *     system. May not be <code>null</code>.
+   * @param idMap id map to use to transform ids to the local system, may be <code>null</code> if
+   *     not required.
+   * @return The actual dependency, may be <code>null</code> if it does not exist on the local
+   *     system.
    * @throws PSDeployException if there are any errors.
    */
   public PSDependency getActualDependency(PSSecurityToken tok, PSDependency dep, PSIdMap idMap)
@@ -1743,9 +1643,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    *
    * @param dep The dependency, assumed not <code>null</code>.
    * @param idMap The id map to use, assumed not <code>null</code>.
-   *
    * @return The mapping, never <code>null</code>.
-   *
    * @throws PSDeployException if the mapping cannot be located.
    */
   private PSIdMapping getIdMapping(PSDependency dep, PSIdMap idMap) throws PSDeployException {
@@ -1759,16 +1657,12 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Gets all dependencies that have the supplied child as a dependency.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
-   * @param dep The dependency whose parents are to be returned, may not be
-   * <code>null</code>.
-   *
-   * @return iterator over zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>. Always returns an empty iterator if the
-   * supplied dependency's type is
-   * {@link IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}.
-   *
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
+   * @param dep The dependency whose parents are to be returned, may not be <code>null</code>.
+   * @return iterator over zero or more <code>PSDependency</code> objects, never <code>null</code>.
+   *     Always returns an empty iterator if the supplied dependency's type is {@link
+   *     IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}.
    * @throws PSDeployException if there are any errors.
    */
   public Iterator<IPSDependencyBaseline> getParentDependencies(
@@ -1800,21 +1694,18 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Determines if the supplied <code>child</code> is a dependency of the
-   * supplied <code>parent</code>.
+   * Determines if the supplied <code>child</code> is a dependency of the supplied <code>parent
+   * </code>.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * assumed not <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, assumed not <code>null
+   *     </code>.
    * @param child The possible child dependency. Assumed not <code>null</code>.
    * @param parent The parent to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if <code>child</code> is a child dependency
-   * of the supplied <code>parent</code>. If parent is of type
-   * {@link PSDependency#TYPE_SYSTEM}, but child is not, then
-   * <code>false</code> is returned without actually checking as an
-   * optimization. Always returns <code>false</code> if the parent's type is
-   * {@link IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}
-   *
+   * @return <code>true</code> if <code>child</code> is a child dependency of the supplied <code>
+   *     parent</code>. If parent is of type {@link PSDependency#TYPE_SYSTEM}, but child is not,
+   *     then <code>false</code> is returned without actually checking as an optimization. Always
+   *     returns <code>false</code> if the parent's type is {@link
+   *     IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}
    * @throws PSDeployException if there are any errors.
    */
   private boolean isChild(PSSecurityToken tok, PSDependency child, PSDependency parent)
@@ -1844,11 +1735,10 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Get the deployment type from a guid type, which is a list as multiple
-   * deployment types may map to the same guid type.
+   * Get the deployment type from a guid type, which is a list as multiple deployment types may map
+   * to the same guid type.
    *
    * @param type The guid type, may not be <code>null</code>.
-   *
    * @return The list of deployment types, never <code>null</code> or empty.
    */
   public List<String> getDeploymentType(PSTypeEnum type) throws PSDeployException {
@@ -1867,11 +1757,9 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   /**
    * Get the guid type from a deployment type.
    *
-   * @param deploymentType The deployment type, may not be <code>null</code>
-   * or empty, must be a valid deployment type.
-   *
-   * @return The guid type, may be <code>null</code> if there is no
-   * corresponding guid type.
+   * @param deploymentType The deployment type, may not be <code>null</code> or empty, must be a
+   *     valid deployment type.
+   * @return The guid type, may be <code>null</code> if there is no corresponding guid type.
    */
   public PSTypeEnum getGuidType(String deploymentType) {
     if (StringUtils.isBlank(deploymentType))
@@ -1882,9 +1770,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     return m_depToGuidTypeMap.get(deploymentType);
   }
 
-  /**
-   * Creates all type mappings between deployment and enum types.
-   */
+  /** Creates all type mappings between deployment and enum types. */
   private void createTypeMappings() {
     // create the maps
     m_depToGuidTypeMap = new HashMap<>();
@@ -1905,8 +1791,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
    * Adds a type mapping between a guid and a dependency type.
    *
    * @param guidType The guid type, assumed not <code>null</code>.
-   * @param depType The dependency type, assumed not <code>null</code> or
-   * empty.
+   * @param depType The dependency type, assumed not <code>null</code> or empty.
    */
   private void addTypeMapping(PSTypeEnum guidType, String depType) {
     m_depToGuidTypeMap.put(depType, guidType);
@@ -1916,23 +1801,18 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
   }
 
   /**
-   * Flag to indicate a dependency supports ID types. If included, then
-   * identifies those dependencies for which
-   * {@link PSDependency#supportsIdTypes()} returns <code>true</code>.
+   * Flag to indicate a dependency supports ID types. If included, then identifies those
+   * dependencies for which {@link PSDependency#supportsIdTypes()} returns <code>true</code>.
    */
   public static final int TYPE_SUPPORTS_ID_TYPES = 0x0001;
 
   /**
-   * Flag to indicate a dependency type that is deployable. If included, then
-   * identifies those dependencies can be included in an archive. This includes
-   * local and shared types only.
+   * Flag to indicate a dependency type that is deployable. If included, then identifies those
+   * dependencies can be included in an archive. This includes local and shared types only.
    */
   public static final int TYPE_DEPLOYABLE = 0x0002;
 
-  /**
-   * Directory below the objectstore directory containing all user
-   * dependencies.
-   */
+  /** Directory below the objectstore directory containing all user dependencies. */
   private static final File USER_DEP_DIR =
       new File(
           PSServer.getRxDir().getAbsolutePath()
@@ -1941,93 +1821,77 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
           "UserDependencies");
 
   /**
-   * Constant for the name of the configure file used to construct the
-   * {@link PSPackageConfiguration} this mananger uses.
+   * Constant for the name of the configure file used to construct the {@link
+   * PSPackageConfiguration} this mananger uses.
    */
   private static final String CONFIG_FILE_NAME = "sys_PackageConfiguration.xml";
 
   /**
-   * The dependency map used to get dependency type defs, child deps, parent
-   * deps, etc. Intialzied during construction, never <code>null</code> or
-   * modified after that.
+   * The dependency map used to get dependency type defs, child deps, parent deps, etc. Intialzied
+   * during construction, never <code>null</code> or modified after that.
    */
   private PSDependencyMap m_depMap;
 
   /**
-   * Map of parent and child types. The key is the child type and the value is
-   * the parent type, both as non-<code>null</code>, non-empty
-   * <code>String</code> objects, <code>null</code> until first call to
-   * {@link #getParentTypes()}, never <code>null</code> or modified after
-   * that, may be empty.
+   * Map of parent and child types. The key is the child type and the value is the parent type, both
+   * as non-<code>null</code>, non-empty <code>String</code> objects, <code>null</code> until first
+   * call to {@link #getParentTypes()}, never <code>null</code> or modified after that, may be
+   * empty.
    */
   private Map<String, String> m_parentTypeMap = null;
 
   /**
-   * The deployment order sequence, as a list of object type of the packaged
-   * elements. It is initialized by constructor, never <code>null</code>
-   * after that.
+   * The deployment order sequence, as a list of object type of the packaged elements. It is
+   * initialized by constructor, never <code>null</code> after that.
    */
   private List<String> m_deployOrder;
 
-  /**
-   * List of guid types that are ignored for uninstall.
-   */
+  /** List of guid types that are ignored for uninstall. */
   private List<String> m_uninstallIgnoreTypes;
 
   /**
-   * The dependency cache, used to cache lists of dependencies of each type, as
-   * well as child dependencies of a specific dependency. Initialized during
-   * construction, never <code>null</code>, initially disabled.
+   * The dependency cache, used to cache lists of dependencies of each type, as well as child
+   * dependencies of a specific dependency. Initialized during construction, never <code>null</code>
+   * , initially disabled.
    */
   private PSDependencyCache m_depCache = new PSDependencyCache();
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log =
       LogManager.getLogger("com.percussion.deployer.server.PSDependencyManager");
 
   /**
-   * The directory of the configure/map file. It is primarily used and set by
-   * unit test. Default to <code>null</code>.
+   * The directory of the configure/map file. It is primarily used and set by unit test. Default to
+   * <code>null</code>.
    */
   private static String ms_configDir = null;
 
   /**
-   * Map of dependency type to type enum, <code>null</code> until first call
-   * to {@link #createTypeMappings()}, never <code>null</code> or modified
-   * after that.
+   * Map of dependency type to type enum, <code>null</code> until first call to {@link
+   * #createTypeMappings()}, never <code>null</code> or modified after that.
    */
   private Map<String, PSTypeEnum> m_depToGuidTypeMap = null;
 
   /**
-   * Map of type enum to dependency type, <code>null</code> until first call
-   * to {@link #createTypeMappings()}, never <code>null</code> or modified
-   * after that.
+   * Map of type enum to dependency type, <code>null</code> until first call to {@link
+   * #createTypeMappings()}, never <code>null</code> or modified after that.
    */
   private Map<PSTypeEnum, List<String>> m_guidToDepTypeMap = null;
 
-  /**
-   * Object to handle the caching of dependencies. Cache is disabled by
-   * default.
-   */
+  /** Object to handle the caching of dependencies. Cache is disabled by default. */
   private static final class PSDependencyCache {
     /**
-     * Get the cached dependency list for the supplied type. The returned list
-     * contains copies of the cached dependencies. Without caching there may
-     * normally be different instances representing the same dependency, so
-     * this produces the same behavior. Sometimes the same dependency will be
-     * local in one spot in the tree, and shared in another. Also, in some
-     * places it may have child dependencies loaded, and not in others, and
-     * this will make a difference during validation.
+     * Get the cached dependency list for the supplied type. The returned list contains copies of
+     * the cached dependencies. Without caching there may normally be different instances
+     * representing the same dependency, so this produces the same behavior. Sometimes the same
+     * dependency will be local in one spot in the tree, and shared in another. Also, in some places
+     * it may have child dependencies loaded, and not in others, and this will make a difference
+     * during validation.
      *
-     * @param objectType The type of dependency, assumed not <code>null</code>
-     * or empty.
-     *
-     * @return An iterator containing a clone of each
-     * <code>PSDependency</code> object in the cached list,
-     * <code>null</code> if caching is disabled or if no list has yet been
-     * cached for the specified type.
+     * @param objectType The type of dependency, assumed not <code>null</code> or empty.
+     * @return An iterator containing a clone of each <code>PSDependency</code> object in the cached
+     *     list, <code>null</code> if caching is disabled or if no list has yet been cached for the
+     *     specified type.
      */
     public Iterator<PSDependency> getDependencies(String objectType) {
       Iterator<PSDependency> deps = null;
@@ -2042,13 +1906,10 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     /**
      * Get the cached child dependency list for the supplied dependency.
      *
-     * @param dep The dependency for which the list is returned, assumed not
-     * <code>null</code>.
-     *
-     * @return An iterator containing a clone of each
-     * <code>PSDependency</code> object in the cached list,
-     * <code>null</code> if caching is disabled or if no list has yet been
-     * cached for the supplied dependency.
+     * @param dep The dependency for which the list is returned, assumed not <code>null</code>.
+     * @return An iterator containing a clone of each <code>PSDependency</code> object in the cached
+     *     list, <code>null</code> if caching is disabled or if no list has yet been cached for the
+     *     supplied dependency.
      */
     public Iterator<PSDependency> getChildDependencies(PSDependency dep) {
       Iterator<PSDependency> deps = null;
@@ -2061,18 +1922,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     }
 
     /**
-     * Sets the supplied list of dependencies in the cache for the supplied
-     * type. If the cache is disabled, the same list is returned with no side
-     * effect.
+     * Sets the supplied list of dependencies in the cache for the supplied type. If the cache is
+     * disabled, the same list is returned with no side effect.
      *
-     * @param objectType The type for which the list is to be cached, assumed
-     * not <code>null</code>.
-     * @param deps An iterator over zero or more <code>PSDependency</code>
-     * objects, assumed not <code>null</code>.
-     *
-     * @return An iterator over the same list supplied by the
-     * <code>deps</code> parameter, never <code>null</code>, may be the
-     * same iterator passed in if caching is not enabled.
+     * @param objectType The type for which the list is to be cached, assumed not <code>null</code>.
+     * @param deps An iterator over zero or more <code>PSDependency</code> objects, assumed not
+     *     <code>null</code>.
+     * @return An iterator over the same list supplied by the <code>deps</code> parameter, never
+     *     <code>null</code>, may be the same iterator passed in if caching is not enabled.
      */
     public Iterator<PSDependency> setDependencies(String objectType, Iterator<PSDependency> deps) {
       if (m_isEnabled) {
@@ -2085,18 +1942,14 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     }
 
     /**
-     * Sets the supplied list of dependencies in the cache for the supplied
-     * type. If the cache is disabled, the same list is returned with no side
-     * effect.
+     * Sets the supplied list of dependencies in the cache for the supplied type. If the cache is
+     * disabled, the same list is returned with no side effect.
      *
-     * @param dep The dependency for which the list is to be cached, assumed
-     * not <code>null</code>.
-     * @param deps An iterator over zero or more <code>PSDependency</code>
-     * objects, assumed not <code>null</code>.
-     *
-     * @return An iterator over the same list supplied by the
-     * <code>deps</code> parameter, never <code>null</code>, may be the
-     * same iterator passed in if caching is not enabled.
+     * @param dep The dependency for which the list is to be cached, assumed not <code>null</code>.
+     * @param deps An iterator over zero or more <code>PSDependency</code> objects, assumed not
+     *     <code>null</code>.
+     * @return An iterator over the same list supplied by the <code>deps</code> parameter, never
+     *     <code>null</code>, may be the same iterator passed in if caching is not enabled.
      */
     public Iterator<PSDependency> setChildDependencies(
         PSDependency dep, Iterator<PSDependency> deps) {
@@ -2112,8 +1965,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     /**
      * Enables or disables the cache.
      *
-     * @param isEnabled If <code>true</code>, the cache is enabled,
-     * otherwise the cache is disabled and any cached lists are cleared.
+     * @param isEnabled If <code>true</code>, the cache is enabled, otherwise the cache is disabled
+     *     and any cached lists are cleared.
      */
     public void setIsCacheEnabled(boolean isEnabled) {
       m_isEnabled = isEnabled;
@@ -2124,13 +1977,11 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     }
 
     /**
-     * Returns a new list, containing a clone of each
-     * <code>PSDependency</code> object in the supplied list, without any
-     * child dependencies or ancestors.
+     * Returns a new list, containing a clone of each <code>PSDependency</code> object in the
+     * supplied list, without any child dependencies or ancestors.
      *
-     * @param depList A list of zero or more <code>PSDependency</code>
-     * objects, assumed not <code>null</code>.
-     *
+     * @param depList A list of zero or more <code>PSDependency</code> objects, assumed not <code>
+     *     null</code>.
      * @return The cloned list, never <code>null</code>.
      */
     private List<PSDependency> cloneDepList(List<PSDependency> depList) {
@@ -2146,41 +1997,35 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     }
 
     /**
-     * Determines if the cache is enabled. Initially <code>false</code>, is
-     * modified by calls to {@link #setIsCacheEnabled(boolean)}.
+     * Determines if the cache is enabled. Initially <code>false</code>, is modified by calls to
+     * {@link #setIsCacheEnabled(boolean)}.
      */
     private boolean m_isEnabled = false;
 
     /**
-     * Map of cached dependencies by type, where the key is the objectType as
-     * a <code>String</code> and the value is a <code>List</code> of
-     * <code>PSDependency</code> objects, never <code>null</code>, may be
-     * empty.
+     * Map of cached dependencies by type, where the key is the objectType as a <code>String</code>
+     * and the value is a <code>List</code> of <code>PSDependency</code> objects, never <code>null
+     * </code>, may be empty.
      */
     private Map<String, List<PSDependency>> m_dependenciesMap = new HashMap<>();
 
     /**
-     * Map of cached child dependencies by parent, where the key is the parent
-     * <code>PSDependency</code> name as a String and the value is a <code>List</code> of
-     * child <code>PSDependency</code> objects, never <code>null</code>,
-     * may be empty.
+     * Map of cached child dependencies by parent, where the key is the parent <code>PSDependency
+     * </code> name as a String and the value is a <code>List</code> of child <code>PSDependency
+     * </code> objects, never <code>null</code>, may be empty.
      */
     private Map<String, List<PSDependency>> m_childDependenciesMap = new HashMap<>();
   }
 
-  /**
-   * Class to identify a dependency by its key, type, and location within a
-   * dependency tree.
-   */
+  /** Class to identify a dependency by its key, type, and location within a dependency tree. */
   private static class PSDependencyIdentifier {
     /**
      * Construct an identifier
      *
-     * @param dep The dep for which this identifier is constructed, assumed
-     * not <code>null</code>
-     * @param isFromSubPackage <code>true</code> if the dependency is a
-     * child of an element within another element's package,
-     * <code>false</code> if the dependency is actually part of the package.
+     * @param dep The dep for which this identifier is constructed, assumed not <code>null</code>
+     * @param isFromSubPackage <code>true</code> if the dependency is a child of an element within
+     *     another element's package, <code>false</code> if the dependency is actually part of the
+     *     package.
      */
     public PSDependencyIdentifier(PSDependency dep, boolean isFromSubPackage) {
       m_dep = dep;
@@ -2190,10 +2035,9 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     /**
      * Determine if this object is equal to another.
      *
-     * @return <code>true</code> if the supplied object is a
-     * {@link PSDependencyIdentifier} for a dependency with a matching key,
-     * type, and matching <code>fromSubPackage</code> setting (see ctor for
-     * more info), <code>false</code> otherwise.
+     * @return <code>true</code> if the supplied object is a {@link PSDependencyIdentifier} for a
+     *     dependency with a matching key, type, and matching <code>fromSubPackage</code> setting
+     *     (see ctor for more info), <code>false</code> otherwise.
      */
     @Override
     public boolean equals(Object obj) {
@@ -2215,8 +2059,8 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
     }
 
     /**
-     * See {@link Object#hashCode()} for full description. Overriden to obey
-     * contract as {@link #equals(Object)} has been overriden.
+     * See {@link Object#hashCode()} for full description. Overriden to obey contract as {@link
+     * #equals(Object)} has been overriden.
      */
     @Override
     public int hashCode() {
@@ -2225,14 +2069,12 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline {
           + Boolean.valueOf(m_isFromSubPackage).hashCode();
     }
 
-    /**
-     * The dependency for which this identifier is constructed.
-     */
+    /** The dependency for which this identifier is constructed. */
     private PSDependency m_dep;
 
     /**
-     * Determines if the dependency for which this identifier is constructed
-     * is found in a sub-package of another package.
+     * Determines if the dependency for which this identifier is constructed is found in a
+     * sub-package of another package.
      */
     private boolean m_isFromSubPackage;
   }

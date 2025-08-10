@@ -31,30 +31,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 /**
- * The PSRequestPageMap class is used to map a request page to its
- * associated data set. The same request page name can be used to map to
- * many different data sets. The selection parameters must be checked for
- * the data set to determine which data set is a match. A hash table is
- * built in the PSApplicationHandler object which contains the name of
- * the request page as the key and an object of this class as the value.
- * The PSRequestPageMap object is then invoked to determine which
- * data set handler should be used.
+ * The PSRequestPageMap class is used to map a request page to its associated data set. The same
+ * request page name can be used to map to many different data sets. The selection parameters must
+ * be checked for the data set to determine which data set is a match. A hash table is built in the
+ * PSApplicationHandler object which contains the name of the request page as the key and an object
+ * of this class as the value. The PSRequestPageMap object is then invoked to determine which data
+ * set handler should be used.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestPageMap {
   /**
    * Construct a request page mapping for the specified requestor object.
    *
-   * @param      requestor      the requestor object definined the map info
-   *
-   * @param      rh               the request handler to use
-   *
-   * @exception   PSIllegalArgumentException
-   *                              if <code>requestor</code> is
-   *                              <code>null</code>
+   * @param requestor the requestor object definined the map info
+   * @param rh the request handler to use
+   * @exception PSIllegalArgumentException if <code>requestor</code> is <code>null</code>
    */
   public PSRequestPageMap(PSDataSet dataSet, IPSRequestHandler rh)
       throws PSIllegalArgumentException {
@@ -107,7 +101,7 @@ public class PSRequestPageMap {
   /**
    * Get the request page associated with this map.
    *
-   * @return               the name of the request page
+   * @return the name of the request page
    */
   public java.lang.String getRequestPage() {
     return m_reqPage;
@@ -116,21 +110,19 @@ public class PSRequestPageMap {
   /**
    * Get the request handler associated with this map.
    *
-   * @return               the request handler
+   * @return the request handler
    */
   public IPSRequestHandler getRequestHandler() {
     return m_reqHandler;
   }
 
   /**
-   * Is this request page a match based upon the request page name and
-   * the selection parameters defined in the request?
+   * Is this request page a match based upon the request page name and the selection parameters
+   * defined in the request?
    *
-   * @param   ah            the application handler performing the test
-   *
-   * @param   request      the request to check
-   *
-   * @return               <code>true</code> if it is
+   * @param ah the application handler performing the test
+   * @param request the request to check
+   * @return <code>true</code> if it is
    */
   public boolean isMatch(PSApplicationHandler ah, PSRequest request) {
     if (!m_reqPage.equalsIgnoreCase(request.getRequestPage())

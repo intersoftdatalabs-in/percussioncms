@@ -23,30 +23,26 @@ import com.percussion.server.IPSRequestContext;
 import java.util.Date;
 
 /**
- * This is a generic UDF that converts a a given date object to given format and
- * locale.
+ * This is a generic UDF that converts a a given date object to given format and locale.
  *
- * The first parameter is the date to format. This can be a java.util.Date
- * object or a date string. If it is <code>null</code> or <code>empty</code>,
- * current date is assumed.
+ * <p>The first parameter is the date to format. This can be a java.util.Date object or a date
+ * string. If it is <code>null</code> or <code>empty</code>, current date is assumed.
  *
- * The second parameter is the input date pattern such as "MM dd yyyy HH:mm:ss".
- * This will be ignored if the first parameter is a java.util.Date object.
- * If the first parameter is a date string, this pattern must match with that of
- * the date string.
+ * <p>The second parameter is the input date pattern such as "MM dd yyyy HH:mm:ss". This will be
+ * ignored if the first parameter is a java.util.Date object. If the first parameter is a date
+ * string, this pattern must match with that of the date string.
  *
- * Third parameter is input locale string such as "en-us" or "ja-jp". If
- * <code>null</code> or <code>empty</code>, system default locale is assumed.
+ * <p>Third parameter is input locale string such as "en-us" or "ja-jp". If <code>null</code> or
+ * <code>empty</code>, system default locale is assumed.
  *
- * Fourth parameter is the required output date pattern.
+ * <p>Fourth parameter is the required output date pattern.
  *
- * Fifth parameter is the output locale. If <code>null</code> or <code>empty</code>,
- * locale is taken from the user context information.
+ * <p>Fifth parameter is the output locale. If <code>null</code> or <code>empty</code>, locale is
+ * taken from the user context information.
  *
- * The return value is the formatted date string. Never <code>null</code>.
+ * <p>The return value is the formatted date string. Never <code>null</code>.
  *
  * @throws PSSimpleJavaUdfExtension
- *
  * @see com.percussion.i18n.PSI18nUtils#formatDate
  * @see com.percussion.i18n.PSI18nUtils#getLocaleFromString
  * @see java.util.Date

@@ -20,46 +20,51 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSAssetResource;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
-import com.percussion.pagemanagement.service.IPSResourceDefinitionService.PSResourceDefinitionNotFoundException;
 import com.percussion.pagemanagement.service.PSResourceServiceException;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.List;
 
-/**
- * DAO for retrieving resource definitions.
- */
-public interface IPSResourceDefinitionGroupDao extends IPSGenericDao<PSResourceDefinitionGroup, String> {
+/** DAO for retrieving resource definitions. */
+public interface IPSResourceDefinitionGroupDao
+    extends IPSGenericDao<PSResourceDefinitionGroup, String> {
 
-    PSResourceDefinitionGroup find(String id) throws PSDataServiceException;
+  PSResourceDefinitionGroup find(String id) throws PSDataServiceException;
 
-    List<PSResourceDefinition> findAllResources() throws PSResourceServiceException, PSDataServiceException;
+  List<PSResourceDefinition> findAllResources()
+      throws PSResourceServiceException, PSDataServiceException;
 
-    /**
-     * Finds a resource by unique ID.
-     * @param uniqueId never {@code null}.
-     * @return may be {@code null}.
-     */
-    PSResourceDefinition findResource(String uniqueId) throws PSDataServiceException;
+  /**
+   * Finds a resource by unique ID.
+   *
+   * @param uniqueId never {@code null}.
+   * @return may be {@code null}.
+   */
+  PSResourceDefinition findResource(String uniqueId) throws PSDataServiceException;
 
-    /**
-     * Finds the primary asset resource for the given content type.
-     * @param contentType never {@code null}.
-     * @return may be {@code null}.
-     */
-    PSAssetResource findAssetResourceForType(String contentType) throws PSDataServiceException;
+  /**
+   * Finds the primary asset resource for the given content type.
+   *
+   * @param contentType never {@code null}.
+   * @return may be {@code null}.
+   */
+  PSAssetResource findAssetResourceForType(String contentType) throws PSDataServiceException;
 
-    /**
-     * Finds all asset resource definitions for a given content type.
-     * @param contentType the content type.
-     * @return never {@code null}, may be empty.
-     */
-    List<PSAssetResource> findAssetResourcesForType(String contentType) throws PSResourceServiceException, PSDataServiceException;
+  /**
+   * Finds all asset resource definitions for a given content type.
+   *
+   * @param contentType the content type.
+   * @return never {@code null}, may be empty.
+   */
+  List<PSAssetResource> findAssetResourcesForType(String contentType)
+      throws PSResourceServiceException, PSDataServiceException;
 
-    /**
-     * Finds resources associated with a legacy template.
-     * @param template never {@code null}.
-     * @return never {@code null}, may be empty.
-     */
-    List<PSAssetResource> findAssetResourcesForLegacyTemplate(String template) throws PSResourceServiceException, PSDataServiceException;
+  /**
+   * Finds resources associated with a legacy template.
+   *
+   * @param template never {@code null}.
+   * @return never {@code null}, may be empty.
+   */
+  List<PSAssetResource> findAssetResourcesForLegacyTemplate(String template)
+      throws PSResourceServiceException, PSDataServiceException;
 }

@@ -25,8 +25,7 @@ import com.percussion.extension.PSDatabaseFunctionDefParam;
 import java.util.Iterator;
 
 /**
- * The PSFunctionBlock class defines a block of text which contains one or
- * more database functions.
+ * The PSFunctionBlock class defines a block of text which contains one or more database functions.
  *
  * @see PSStatementBlock
  */
@@ -34,17 +33,14 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
   /**
    * Construct an empty function block.
    *
-   * @param isStatic <code>true</code> if the block should always be used,
-   * <code>false</code> if it should be ignored when any of the XML fields
-   * contain <code>NULL</code> values
+   * @param isStatic <code>true</code> if the block should always be used, <code>false</code> if it
+   *     should be ignored when any of the XML fields contain <code>NULL</code> values
    */
   public PSFunctionBlock(boolean isStatic) {
     super(isStatic);
   }
 
-  /**
-   * See {@link IPSStatementBlock#hasStaticSql()} for details.
-   */
+  /** See {@link IPSStatementBlock#hasStaticSql()} for details. */
   public boolean hasStaticSql() {
     boolean staticSql = true;
     for (int i = 0; (i < m_blocks.size()) && staticSql; i++) {
@@ -55,8 +51,7 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
   }
 
   /**
-   * See {@link IPSStatementBlock#addReplacementField(
-   * IPSReplacementValue, Object[])} for details.
+   * See {@link IPSStatementBlock#addReplacementField( IPSReplacementValue, Object[])} for details.
    */
   public void addReplacementField(IPSReplacementValue value, Object[] params) {
     if (value == null) throw new IllegalArgumentException("replacement value may not be null");
@@ -76,13 +71,12 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
   }
 
   /**
-   * Check if the specified database function has params bound dynamically.
-   * Adds a <code>PSStatementColumn</code> object for each dynamically bound
-   * param to the list of statement blocks.
+   * Check if the specified database function has params bound dynamically. Adds a <code>
+   * PSStatementColumn</code> object for each dynamically bound param to the list of statement
+   * blocks.
    *
-   * @param funcCall the database function call whose dynamically bound params
-   * are to be added to the list of statement blocks, assumed not
-   * <code>null</code>
+   * @param funcCall the database function call whose dynamically bound params are to be added to
+   *     the list of statement blocks, assumed not <code>null</code>
    */
   private void addDynamicBindParams(PSFunctionCall funcCall) {
     PSDatabaseFunctionDef funcDef = funcCall.getDatabaseFunctionDef();
@@ -103,9 +97,7 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
     }
   }
 
-  /**
-   * See {@link IPSStatementBlock#hasStaticSql()} for details.
-   */
+  /** See {@link IPSStatementBlock#hasStaticSql()} for details. */
   public void buildStatement(StringBuilder buf, PSExecutionData data)
       throws PSDataExtractionException {
     // if we're doing omit when null, check if we have any null values
@@ -131,23 +123,17 @@ public class PSFunctionBlock extends PSStatementBlock implements IPSStatementBlo
   }
 
   /**
-   * Returns the string which can be used to represent the specified
-   * database function call in a WHERE clause.
+   * Returns the string which can be used to represent the specified database function call in a
+   * WHERE clause.
    *
-   * @param funcCall the database function call whose replacement text is
-   * to be generated, assumed not <code>null</code>
-   *
-   * @param data the run-time context info for the request, may be
-   * <code>null</code> only if <code>hasStaticSql()</code> returns
-   * <code>true</code>
-   *
-   * @return the string form of the specified database function call which
-   * can be used in a WHERE clause, may be <code>null</code>, never empty
-   * if not <code>null</code>
-   *
-   * @throws PSDataExtractionException if the definition of the
-   * database function is missing or any error occurs extracting the
-   * function parameter values from <code>data</code>
+   * @param funcCall the database function call whose replacement text is to be generated, assumed
+   *     not <code>null</code>
+   * @param data the run-time context info for the request, may be <code>null</code> only if <code>
+   *     hasStaticSql()</code> returns <code>true</code>
+   * @return the string form of the specified database function call which can be used in a WHERE
+   *     clause, may be <code>null</code>, never empty if not <code>null</code>
+   * @throws PSDataExtractionException if the definition of the database function is missing or any
+   *     error occurs extracting the function parameter values from <code>data</code>
    */
   private String getFunctionCallReplacementText(PSFunctionCall funcCall, PSExecutionData data)
       throws PSDataExtractionException {

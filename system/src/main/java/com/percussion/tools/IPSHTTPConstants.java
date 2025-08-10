@@ -18,47 +18,34 @@
 package com.percussion.tools;
 
 /**
- * This interface defines a few constant strings and HTTP constants required
- * frequently. This is only a partial list. More may be added as required.
+ * This interface defines a few constant strings and HTTP constants required frequently. This is
+ * only a partial list. More may be added as required.
  */
 public interface IPSHTTPConstants {
-  /**
-   * String representing HTTP header Content-Type
-   */
+  /** String representing HTTP header Content-Type */
   public static final String HTTP_CONTENT_TYPE = "Content-Type";
 
-  /**
-   * String representing HTTP header Content-Length
-   */
+  /** String representing HTTP header Content-Length */
   public static final String HTTP_CONTENT_LENGTH = "Content-Length";
 
-  /**
-   * String representing CGI header HTTP_USERAGENT
-   */
+  /** String representing CGI header HTTP_USERAGENT */
   public static final String HTTP_USERAGENT = "User-Agent";
 
-  /**
-   * String representing CGI header HOST
-   */
+  /** String representing CGI header HOST */
   public static final String HTTP_HOST = "HOST";
 
-  /**
-   * default protocol
-   */
+  /** default protocol */
   public static final String DEFAULT_PROTOCOL = "http";
 
-  /**
-   * https protocol.
-   */
+  /** https protocol. */
   public static final String HTTPS_PROTOCOL = "https";
 
-  /**
-   * HTTP status that is returned after sending a request to a URL successfully.
-   */
+  /** HTTP status that is returned after sending a request to a URL successfully. */
   public static final int HTTP_STATUS_OK = 200;
 
   /**
-   * HTTP status that is returned after sending a request to a URL indicating authentication failure.
+   * HTTP status that is returned after sending a request to a URL indicating authentication
+   * failure.
    */
   public static final int HTTP_STATUS_BASIC_AUTHENTICATION_FAILED = 401;
 

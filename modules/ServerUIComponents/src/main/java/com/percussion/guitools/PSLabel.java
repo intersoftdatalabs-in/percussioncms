@@ -23,11 +23,10 @@ import java.util.Map;
 import javax.swing.*;
 
 /**
- * The default font used by <code>JLabel</code> (family - Dialog, size - 12,
- * weight - Regular) is unable to display special characters such as TM
- * symbol. This class sets the font family to "Arial" which is able to display
- * such characters. This class mimics all constructors of <code>JLabel</code>
- * for ease of use.
+ * The default font used by <code>JLabel</code> (family - Dialog, size - 12, weight - Regular) is
+ * unable to display special characters such as TM symbol. This class sets the font family to
+ * "Arial" which is able to display such characters. This class mimics all constructors of <code>
+ * JLabel</code> for ease of use.
  */
 public class PSLabel extends JLabel {
   // see base class
@@ -66,10 +65,7 @@ public class PSLabel extends JLabel {
     init();
   }
 
-  /**
-   * Sets the font family to "Arial". Does not modify any other font
-   * attribute.
-   */
+  /** Sets the font family to "Arial". Does not modify any other font attribute. */
   private void init() {
     Map fontAttr = getFont().getAttributes();
     fontAttr.put(TextAttribute.FAMILY, "Arial");

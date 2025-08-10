@@ -26,20 +26,16 @@ import java.sql.Timestamp;
 import javax.naming.NamingException;
 
 /**
- * This abstract class provides methods and members and a framework for
- * implementing workflow contexts; contexts that retrieve multiple data sets
- * should implement {@link PSAbstractMultipleRecordWorkflowContext}, which
- * extends this class. <BR>
- * Creating a read-only workflow context minimally requires implementing a
- * constructor,  the methods {@link #getQueryString},
- * {@link #setQueryParameters}, {@link #setQueryParameters} and any get methods
- * required by the corresponding workflow interface.<BR>
- * Some of the functionality that <CODE>PSAbstractWorkflowContext</CODE>
- * supports is not currently being used. The method  {@link #refreshData}
- * causes data to be read again from the database, and requires the method
- * {@link reinitializeDataMembers} . The method
- * {@link #getBackEndData(boolean)} makes it possible to create contexts that
- * manage their own database connections.
+ * This abstract class provides methods and members and a framework for implementing workflow
+ * contexts; contexts that retrieve multiple data sets should implement {@link
+ * PSAbstractMultipleRecordWorkflowContext}, which extends this class. <br>
+ * Creating a read-only workflow context minimally requires implementing a constructor, the methods
+ * {@link #getQueryString}, {@link #setQueryParameters}, {@link #setQueryParameters} and any get
+ * methods required by the corresponding workflow interface.<br>
+ * Some of the functionality that <CODE>PSAbstractWorkflowContext</CODE> supports is not currently
+ * being used. The method {@link #refreshData} causes data to be read again from the database, and
+ * requires the method {@link reinitializeDataMembers} . The method {@link #getBackEndData(boolean)}
+ * makes it possible to create contexts that manage their own database connections.
  */
 
 /*
@@ -121,12 +117,11 @@ import javax.naming.NamingException;
 
 public abstract class PSAbstractWorkflowContext {
   /**
-   * This is the executive method for moving data from the data base to
-   * context member variables without reinitializing the
-   * context data members. It delegates the work to
-   * {@link #getBackEndData(boolean}
+   * This is the executive method for moving data from the data base to context member variables
+   * without reinitializing the context data members. It delegates the work to {@link
+   * #getBackEndData(boolean}
    *
-   * @throws  SQLException if an SQL error occurs
+   * @throws SQLException if an SQL error occurs
    * @throws NamingException if a datasource cannot be found
    */
   protected void getBackEndData() throws SQLException, NamingException {
@@ -134,16 +129,13 @@ public abstract class PSAbstractWorkflowContext {
   }
 
   /**
-   * Manages moving of data from the data base to context member variables.
-   * If required obtains and frees database connection, and reinitializes
-   * context data members. It delegates the database work to
-   * {@link #getDataFromDataBase}.
+   * Manages moving of data from the data base to context member variables. If required obtains and
+   * frees database connection, and reinitializes context data members. It delegates the database
+   * work to {@link #getDataFromDataBase}.
    *
-   *
-   * @param bReinitializeDataMembers   <CODE>true</CODE>  if data members
-   *                                   should be reinitialized
-   *                                   else <CODE>false</CODE>.
-   * @throws                           SQLException if an SQL error occurs
+   * @param bReinitializeDataMembers <CODE>true</CODE> if data members should be reinitialized else
+   *     <CODE>false</CODE>.
+   * @throws SQLException if an SQL error occurs
    * @throws NamingException if a datasource cannot be resolved
    */
   protected void getBackEndData(boolean bReinitializeDataMembers)
@@ -173,12 +165,10 @@ public abstract class PSAbstractWorkflowContext {
   }
 
   /**
-   * Gets data from the database: prepares and executes an SQL prepared
-   * statement, and moves the data from the result set into the member
-   * variables.<BR>
-   * The context specific work is delegated to the methods the methods
-   * {@link #getQueryString}, {@link #setQueryParameters}, and
-   * {@link #setQueryParameters}.
+   * Gets data from the database: prepares and executes an SQL prepared statement, and moves the
+   * data from the result set into the member variables.<br>
+   * The context specific work is delegated to the methods the methods {@link #getQueryString},
+   * {@link #setQueryParameters}, and {@link #setQueryParameters}.
    */
   public void getDataFromDataBase() throws SQLException {
     m_nCount = 0;
@@ -203,10 +193,10 @@ public abstract class PSAbstractWorkflowContext {
   }
 
   /**
-   * Forces data to be read again from the database. The method  {@link
-   * #reinitializeDataMembers} should be overridden if this method is used.
+   * Forces data to be read again from the database. The method {@link #reinitializeDataMembers}
+   * should be overridden if this method is used.
    *
-   * @throws  SQLException if an error occurs
+   * @throws SQLException if an error occurs
    * @throws NamingException if a datasource cannot be resolved
    */
   void refreshData() throws SQLException, NamingException {
@@ -215,8 +205,8 @@ public abstract class PSAbstractWorkflowContext {
   }
 
   /**
-   * Reinitializes the data members for this context; override this method to
-   * allow the context to be refreshed from the database<BR>
+   * Reinitializes the data members for this context; override this method to allow the context to
+   * be refreshed from the database<br>
    */
   protected void reinitializeDataMembers() {
     throw new UnsupportedOperationException(
@@ -225,9 +215,7 @@ public abstract class PSAbstractWorkflowContext {
     // see PSNotificationsContext for a sample implementation
   }
 
-  /**
-   * Closes the result set and prepared statement if necessary
-   */
+  /** Closes the result set and prepared statement if necessary */
   protected void close() {
     // release resources
     try {
@@ -244,19 +232,18 @@ public abstract class PSAbstractWorkflowContext {
   }
 
   /**
-   * Throws a <CODE>PSEntryNotFoundException</CODE> if no database records
-   * were  found. This method should be called by constructors of contexts
-   * for which data should exist e.g. <CODE>PSNotificationsContext(int
-   * workflowID, int notificationID, Connection connection)</CODE> but not
-   * contexts for which it is legitimate for no corresponding data to exist,
-   * e.g. <CODE>PSTransitionNotificationsContext(int workflowID, int
-   * transitionID, Connection connection)</CODE>. The difference is that a
-   * transition need not have any notifications associated with it, but that a
-   * notification ID that is referenced by the TRANSITIONNOTIFICATIONS table
-   * should exist.
+   * Throws a <CODE>PSEntryNotFoundException</CODE> if no database records were found. This method
+   * should be called by constructors of contexts for which data should exist e.g. <CODE>
+   * PSNotificationsContext(int
+   * workflowID, int notificationID, Connection connection)</CODE> but not contexts for which it is
+   * legitimate for no corresponding data to exist, e.g. <CODE>
+   * PSTransitionNotificationsContext(int workflowID, int
+   * transitionID, Connection connection)</CODE>. The difference is that a transition need not have
+   * any notifications associated with it, but that a notification ID that is referenced by the
+   * TRANSITIONNOTIFICATIONS table should exist.
    *
-   * @param message  text for explanatory error message
-   * @throws         PSEntryNotFoundException no database records were found
+   * @param message text for explanatory error message
+   * @throws PSEntryNotFoundException no database records were found
    */
   protected void throwErrorIfEntryNotFound(String message) throws PSEntryNotFoundException {
     if (0 == getCount()) {
@@ -267,8 +254,8 @@ public abstract class PSAbstractWorkflowContext {
   /**
    * Gets the number of database records found with valid data
    *
-   * @return number of database records, if some methods return a
-   * <CODE>List</CODE>, the size of the <CODE>List</CODE>.
+   * @return number of database records, if some methods return a <CODE>List</CODE>, the size of the
+   *     <CODE>List</CODE>.
    */
   public int getCount() {
     return m_nCount;
@@ -292,10 +279,10 @@ public abstract class PSAbstractWorkflowContext {
   /* Abstract Methods */
 
   /**
-   * Get the SQL query string used to create the JDBC prepared statement.
-   * The simplest implementation would simply return a variable that is
-   * a private static final String. If the context has multiple constructors
-   * the correct query string might have to be selected or constructed.
+   * Get the SQL query string used to create the JDBC prepared statement. The simplest
+   * implementation would simply return a variable that is a private static final String. If the
+   * context has multiple constructors the correct query string might have to be selected or
+   * constructed.
    *
    * @return the SQL query string used to create the JDBC prepared statement
    */
@@ -303,22 +290,21 @@ public abstract class PSAbstractWorkflowContext {
   protected abstract String getQueryString();
 
   /**
-   * Assign values to the query parameters using the context defining members
-   * which were set in the constructor.
+   * Assign values to the query parameters using the context defining members which were set in the
+   * constructor.
    *
-   * @throws  SQLException if an SQL error occurs
+   * @throws SQLException if an SQL error occurs
    */
   // see PSNotificationsContext for a sample implementation
   protected abstract void setQueryParameters() throws SQLException;
 
   /**
-   * Assign values from the result set to the context data members. This may
-   * involve "massaging" the data, e.g. converting a "Y" or "N" to a
-   * <CODE>boolean</CODE>,  or parsing a comma-delimited string into a
-   * <CODE>List</CODE>.  The data base fields must be accessed in the  order
-   * in which they appear in the SQL query.
+   * Assign values from the result set to the context data members. This may involve "massaging" the
+   * data, e.g. converting a "Y" or "N" to a <CODE>boolean</CODE>, or parsing a comma-delimited
+   * string into a <CODE>List</CODE>. The data base fields must be accessed in the order in which
+   * they appear in the SQL query.
    *
-   * @throws  SQLException if an SQL error occurs
+   * @throws SQLException if an SQL error occurs
    */
   // see PSNotificationsContext for a sample implementation
   protected abstract void resultSetMove() throws SQLException;
@@ -345,8 +331,8 @@ public abstract class PSAbstractWorkflowContext {
   protected int m_nCount = 0;
 
   /**
-   * <CODE>true</CODE> if the context should obtain and manage its own
-   * database connection , else <CODE>false</CODE>.
+   * <CODE>true</CODE> if the context should obtain and manage its own database connection , else
+   * <CODE>false</CODE>.
    */
   protected boolean m_bManageOwnConnection = false;
 }

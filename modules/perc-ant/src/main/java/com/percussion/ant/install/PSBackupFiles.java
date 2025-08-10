@@ -27,13 +27,11 @@ import org.apache.tools.ant.BuildException;
 
 /**
  * PSBackupFiles creates backup of existing files and directory.
- * @see <code>getBackupFileName()</code> method to see how the name of the
- * backup files/directory is generated.
  *
- * <br>
- * Example Usage:
- * <br>
- * <pre>
+ * @see <code>getBackupFileName()</code> method to see how the name of the backup files/directory is
+ *     generated. <br>
+ *     Example Usage: <br>
+ *     <pre>
  *
  * First set the taskdef:
  *
@@ -50,7 +48,6 @@ import org.apache.tools.ant.BuildException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSBackupFiles extends PSAction {
   // see base class
@@ -96,8 +93,8 @@ public class PSBackupFiles extends PSAction {
   /**
    * Returns the files and directories which will be backed up.
    *
-   * @return the files and directories which will be backed up,
-   * never <code>null</code>, may be an empty array
+   * @return the files and directories which will be backed up, never <code>null</code>, may be an
+   *     empty array
    */
   public String[] getBackupFiles() {
     return backupFiles;
@@ -106,8 +103,8 @@ public class PSBackupFiles extends PSAction {
   /**
    * Sets the files and directories which will be backed up.
    *
-   * @param backupFiles the files and directories which will be
-   * backed up, may be <code>null</code> or empty array
+   * @param backupFiles the files and directories which will be backed up, may be <code>null</code>
+   *     or empty array
    */
   public void setBackupFiles(String backupFiles) {
     this.backupFiles = convertToArray(backupFiles);
@@ -118,15 +115,12 @@ public class PSBackupFiles extends PSAction {
    *************************************************************************/
 
   /**
-   * Creates name of backup file/directory by appending current month, date,
-   * hour and min to the specified file/directory name. The name of the
-   * backup file is of the form "fileName_MMDD_HHMM"
+   * Creates name of backup file/directory by appending current month, date, hour and min to the
+   * specified file/directory name. The name of the backup file is of the form "fileName_MMDD_HHMM"
    *
-   * @param fileName name or path of the file/directory whose backup file name
-   * is required, may not be <code>null</code> or empty
-   *
-   * @return the name of the backup file/direcory, never <code>null</code> or
-   * empty
+   * @param fileName name or path of the file/directory whose backup file name is required, may not
+   *     be <code>null</code> or empty
+   * @return the name of the backup file/direcory, never <code>null</code> or empty
    */
   public static String getBackupFileName(String fileName) {
     if ((fileName == null) || (fileName.trim().length() < 1))
@@ -151,15 +145,12 @@ public class PSBackupFiles extends PSAction {
    *************************************************************************/
 
   /**
-   * Returns the string value of the specified integer. If integer value is
-   * less than 10, then prepends a "0" to the integer value.
+   * Returns the string value of the specified integer. If integer value is less than 10, then
+   * prepends a "0" to the integer value.
    *
-   * @param value the integer whose string value is required, assumed
-   * non-negative
-   *
-   * @return the string value of the specified integer, never
-   * <code>null</code> or empty, left padded with a single "0" if specifed
-   * integer is single digit.
+   * @param value the integer whose string value is required, assumed non-negative
+   * @return the string value of the specified integer, never <code>null</code> or empty, left
+   *     padded with a single "0" if specifed integer is single digit.
    */
   private static String pad(int value) {
     String ret = "" + value;
@@ -172,8 +163,8 @@ public class PSBackupFiles extends PSAction {
    *************************************************************************/
 
   /**
-   * stores the files and directories under the Rx install directory which
-   * need to be backed up, never <code>null</code> may be an empty array
+   * stores the files and directories under the Rx install directory which need to be backed up,
+   * never <code>null</code> may be an empty array
    */
   private String[] backupFiles = new String[0];
 }

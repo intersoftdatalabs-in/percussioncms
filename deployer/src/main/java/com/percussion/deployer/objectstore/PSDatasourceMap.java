@@ -24,9 +24,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A private object to hold the mapping information. Initially, the
- * sourceDataSource is valid, and if a target datasource is mapped then this
- * tuple can be used.
+ * A private object to hold the mapping information. Initially, the sourceDataSource is valid, and
+ * if a target datasource is mapped then this tuple can be used.
  */
 public class PSDatasourceMap implements IPSDeployComponent {
 
@@ -42,8 +41,7 @@ public class PSDatasourceMap implements IPSDeployComponent {
   /**
    * Copy ctor
    *
-   * @param source The source from which a shallow copy is made, may not be
-   * <code>null</code>.
+   * @param source The source from which a shallow copy is made, may not be <code>null</code>.
    */
   public PSDatasourceMap(PSDatasourceMap source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -51,30 +49,28 @@ public class PSDatasourceMap implements IPSDeployComponent {
     copyFrom(source);
   }
 
-  /**
-   * set the sourceDataSource may be <code>null</code>
-   */
+  /** set the sourceDataSource may be <code>null</code> */
   public void setSrc(String datasrc) {
     m_srcDataSource = datasrc;
   }
 
   /**
    * get the sourceDataSource
+   *
    * @return may be <code>null</code>
    */
   public String getSrc() {
     return m_srcDataSource;
   }
 
-  /**
-   * set the targetDataSource may be <code>null</code>
-   */
+  /** set the targetDataSource may be <code>null</code> */
   public void setTarget(String datasrc) {
     m_tgtDataSource = datasrc;
   }
 
   /**
    * get the targetDataSource
+   *
    * @return may be <code>null</code>
    */
   public String getTarget() {
@@ -82,8 +78,9 @@ public class PSDatasourceMap implements IPSDeployComponent {
   }
 
   /**
-   * A convenience method which will return either the sourceDataSource or
-   * targetDataSource depending on the index from the tabledata.
+   * A convenience method which will return either the sourceDataSource or targetDataSource
+   * depending on the index from the tabledata.
+   *
    * @param ix
    */
   public String getColumnData(int ix) {
@@ -92,9 +89,7 @@ public class PSDatasourceMap implements IPSDeployComponent {
     return null;
   }
 
-  /**
-   * Serialize this object's state to its XML representation.
-   */
+  /** Serialize this object's state to its XML representation. */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
     var root = doc.createElement(XML_NODE_NAME);
@@ -104,10 +99,9 @@ public class PSDatasourceMap implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation. See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
-   * signature, like this:
-   * Get the <PSXDataSourceMap source=""  target="" />
+   * Restores this object's state from its XML representation. See {@link
+   * IPSDeployComponent#fromXml(Element)} for more info on method signature, like this: Get the
+   * <PSXDataSourceMap source="" target="" />
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode should not be null");
@@ -136,13 +130,11 @@ public class PSDatasourceMap implements IPSDeployComponent {
   }
 
   /**
-   * Creates a new instance of this object, performing a shallow copy of all
-   * members.
+   * Creates a new instance of this object, performing a shallow copy of all members.
    *
    * @param obj The object from which to copy values.
-   *
-   * @throws IllegalArgumentException if the supplied object is
-   * <code>null</code> or of the wrong type.
+   * @throws IllegalArgumentException if the supplied object is <code>null</code> or of the wrong
+   *     type.
    */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
@@ -153,29 +145,19 @@ public class PSDatasourceMap implements IPSDeployComponent {
     m_tgtDataSource = src.getTarget();
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDatasourceMap";
 
-  /**
-   * The source datasource name as the attribute of the XML root node.
-   */
+  /** The source datasource name as the attribute of the XML root node. */
   private static final String XML_ATTR_SOURCE_DATASRC = "source";
 
-  /**
-   * The target datasource name as the attribute of the XML root node.
-   */
+  /** The target datasource name as the attribute of the XML root node. */
   private static final String XML_ATTR_TARGET_DATASRC = "target";
 
-  /**
-   * The source datasource as a string, initially <code>null</code>
-   */
+  /** The source datasource as a string, initially <code>null</code> */
   private String m_srcDataSource = null;
 
-  /**
-   * Target datasource as a string, initially <code>null</code>
-   */
+  /** Target datasource as a string, initially <code>null</code> */
   private String m_tgtDataSource = null;
 
   private static final int SOURCE_INDEX = 0;

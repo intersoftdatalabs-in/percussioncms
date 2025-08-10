@@ -32,66 +32,50 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a system exit which given contenid calculates permissions
- * for the folder. This permission value is then set as an
- * attribute value of the root OR if supplied optional element name
- * then gets contentid from each of the matching element, gets contentid
- * attribute from that element then calculates and sets folder permissions.
+ * This is a system exit which given contenid calculates permissions for the folder. This permission
+ * value is then set as an attribute value of the root OR if supplied optional element name then
+ * gets contentid from each of the matching element, gets contentid attribute from that element then
+ * calculates and sets folder permissions.
  *
- * See the description of <code>processResultDocument()</code> method for
- * details of its functioning.
+ * <p>See the description of <code>processResultDocument()</code> method for details of its
+ * functioning.
  */
 public class PSGetFolderPermissions extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /**
-   * Implementation of the method in the interface
-   * <code>com.percussion.extension.IPSResultDocumentProcessor</code>
+   * Implementation of the method in the interface <code>
+   * com.percussion.extension.IPSResultDocumentProcessor</code>
+   *
+   * <p>See {@link IPSResultDocumentProcessor#processResultDocument(Object[], IPSRequestContext,
+   * Document) processResultDocument} for details.
+   *
+   * <p>If <code>resultDoc</code> is <code>null</code> or the root element of <code>resultDoc</code>
+   * is <code>null</code> then no processing is done and no exception is thrown.
+   *
    * <p>
-   * See {@link IPSResultDocumentProcessor#processResultDocument(Object[],
-   *      IPSRequestContext, Document) processResultDocument} for details.
-   * <p>
-   * If <code>resultDoc</code> is <code>null</code> or the root element of
-   * <code>resultDoc</code> is <code>null</code> then no processing is done
-   * and no exception is thrown.
-   * <p>
+   *
    * @param params An array with elements as defined below.
-   * <p>
-   * Required Params
-   * <p>
-   * param[0] is required. It is the content id of the folder whose permissions
-   * are to be obtained and then set as an attribute value. If the specified
-   * folder does not exist, <code>PSExtensionProcessingException</code> is
-   * thrown. This parameter is specified using the "contentid" parameter name
-   * in the workbench.
-   *
-   * <p>
-   * param[1] is required. It is the name of the attribute whose value must
-   * be set with the folder permission value. This parameter is specified
-   * using the "attributeName" parameter name in the workbench.
-   *
-   * <p>
-   * param[2] is optional. It is the name of the element from which to get
-   * contentId and calculate permissions from. Defaults to 'PSXComponentSummary'.
-   *
-   * <p>
-   * param[3] is optional. It is the name of the attribute of the above element
-   * that contains contentid value from which to calculate folder permissions.
-   * Defaults to 'contentId'.
-   * <p>
-   *
-   * @param request the request context for this request,
-   * never <code>null</code> (specified by the interface)
-   *
-   * @param resultDoc The supplied document. Guaranteed not <code>null</code>
-   * by the interface.
-   *
-   * @return the supplied document with the attribute value set for the
-   * specified node, never <code>null</code>
-   *
-   * @throws PSParameterMismatchException if any required paramater is missing
-   * or is <code>null</code> or empty.
-   * @throws PSExtensionProcessingException if the specified folder does not
-   * exist
+   *     <p>Required Params
+   *     <p>param[0] is required. It is the content id of the folder whose permissions are to be
+   *     obtained and then set as an attribute value. If the specified folder does not exist, <code>
+   *     PSExtensionProcessingException</code> is thrown. This parameter is specified using the
+   *     "contentid" parameter name in the workbench.
+   *     <p>param[1] is required. It is the name of the attribute whose value must be set with the
+   *     folder permission value. This parameter is specified using the "attributeName" parameter
+   *     name in the workbench.
+   *     <p>param[2] is optional. It is the name of the element from which to get contentId and
+   *     calculate permissions from. Defaults to 'PSXComponentSummary'.
+   *     <p>param[3] is optional. It is the name of the attribute of the above element that contains
+   *     contentid value from which to calculate folder permissions. Defaults to 'contentId'.
+   *     <p>
+   * @param request the request context for this request, never <code>null</code> (specified by the
+   *     interface)
+   * @param resultDoc The supplied document. Guaranteed not <code>null</code> by the interface.
+   * @return the supplied document with the attribute value set for the specified node, never <code>
+   *     null</code>
+   * @throws PSParameterMismatchException if any required paramater is missing or is <code>null
+   *     </code> or empty.
+   * @throws PSExtensionProcessingException if the specified folder does not exist
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -177,8 +161,9 @@ public class PSGetFolderPermissions extends PSDefaultExtension
   }
 
   /**
-   * Given contentid calculate folder permissions and set it as
-   * a new attribute with a given attribute name.
+   * Given contentid calculate folder permissions and set it as a new attribute with a given
+   * attribute name.
+   *
    * @param request assumed not <code>null</code>.
    * @param element assumed not <code>null</code>.
    * @param contentId assumes valid contentid.
@@ -197,8 +182,9 @@ public class PSGetFolderPermissions extends PSDefaultExtension
   }
 
   /**
-   * Converts string contentid into int contentid,
-   * handles any conversion exceptions and returns -1 on any error.
+   * Converts string contentid into int contentid, handles any conversion exceptions and returns -1
+   * on any error.
+   *
    * @param strContentId
    * @return content id or -1 if fails to convert.
    */
@@ -224,15 +210,10 @@ public class PSGetFolderPermissions extends PSDefaultExtension
     return false;
   }
 
-  /**
-   * The function name used for error handling, never <code>null</code>
-   * or empty
-   */
+  /** The function name used for error handling, never <code>null</code> or empty */
   private static final String ms_className = "PSGetFolderPermissions";
 
-  /**
-   * The number of expected parameters, intialized to 2
-   */
+  /** The number of expected parameters, intialized to 2 */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 2;
 
   private static final Logger log = LogManager.getLogger(IPSConstants.SECURITY_LOG);

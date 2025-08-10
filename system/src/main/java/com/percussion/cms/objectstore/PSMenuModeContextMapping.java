@@ -23,22 +23,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This represents a relationship between an action and the mode and context
- * within which it should be displayed to the end user.
- * <p>This class is immutable, therefore it doesn't need to override the
- * clone methods.
+ * This represents a relationship between an action and the mode and context within which it should
+ * be displayed to the end user.
+ *
+ * <p>This class is immutable, therefore it doesn't need to override the clone methods.
  *
  * @author Paul Howard
  * @version 1.0
- *
  * @see PSMenuMode
  * @see PSMenuContext
  * @see PSAction
  */
 public class PSMenuModeContextMapping extends PSDbComponent {
-  /**
-   * no-args constructor
-   */
+  /** no-args constructor */
   public PSMenuModeContextMapping() {}
 
   public PSMenuModeContextMapping(PSMenuMode mode, PSMenuContext ctx) {
@@ -51,7 +48,6 @@ public class PSMenuModeContextMapping extends PSDbComponent {
    * Create an object from a previously serialized one.
    *
    * @param src Never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException
    */
   public PSMenuModeContextMapping(Element src) throws PSUnknownNodeTypeException {
@@ -64,8 +60,7 @@ public class PSMenuModeContextMapping extends PSDbComponent {
    *
    * @param modeId the mode id, never <code>null</code> or empty.
    * @param ctxId the context id, never <code>null</code> or empty.
-   * @param actionId the action (or parent) id, never <code>null</code> or
-   *   empty.
+   * @param actionId the action (or parent) id, never <code>null</code> or empty.
    */
   public PSMenuModeContextMapping(String modeId, String ctxId, String actionId) {
     super(createKey(modeId, ctxId, actionId));
@@ -93,8 +88,8 @@ public class PSMenuModeContextMapping extends PSDbComponent {
   /**
    * Sets the mode name.
    *
-   * @param modeName the new mode name. It is treated as empty if the
-   *   new context name is <code>null</code>.
+   * @param modeName the new mode name. It is treated as empty if the new context name is <code>null
+   *     </code>.
    */
   public void setModeName(String modeName) {
     m_modeName = (modeName == null) ? "" : modeName;
@@ -103,8 +98,8 @@ public class PSMenuModeContextMapping extends PSDbComponent {
   /**
    * Sets the context name.
    *
-   * @param ctxName the new context name. It is treated as empty if the
-   *   new context name is <code>null</code>.
+   * @param ctxName the new context name. It is treated as empty if the new context name is <code>
+   *     null</code>.
    */
   public void setContextName(String ctxName) {
     m_contextName = (ctxName == null) ? "" : ctxName;
@@ -121,16 +116,15 @@ public class PSMenuModeContextMapping extends PSDbComponent {
   }
 
   /**
-   * @return the name of the context. It may be empty, but never
-   *    <code>null</code>.
+   * @return the name of the context. It may be empty, but never <code>null</code>.
    */
   public String getContextName() {
     return m_contextName;
   }
 
   /**
-   * See interface/base class for description.
-   * The dtd (based on the base class) is:
+   * See interface/base class for description. The dtd (based on the base class) is:
+   *
    * <pre><code>
    *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName())&gt;
    *    &lt;!ATTLIST getNodeName()
@@ -223,14 +217,10 @@ public class PSMenuModeContextMapping extends PSDbComponent {
     return new String[] {getModeId(), getContextId()};
   }
 
-  /**
-   * The name of the column that stores the m_modeId value.
-   */
+  /** The name of the column that stores the m_modeId value. */
   private static final String MODEID_COLNAME = "MODEID";
 
-  /**
-   * The name of the column that stores the m_contextId value.
-   */
+  /** The name of the column that stores the m_contextId value. */
   private static final String CONTEXTID_COLNAME = "UICONTEXTID";
 
   // constants for element/attribute names
@@ -240,28 +230,26 @@ public class PSMenuModeContextMapping extends PSDbComponent {
   public static final String XML_ATTR_CONTEXTNAME = "uiContextName";
 
   /**
-   * Set during construction, then never changed. The unique identifier for
-   * the mode associated with this mapping.
+   * Set during construction, then never changed. The unique identifier for the mode associated with
+   * this mapping.
    */
   private String m_modeId;
 
   /**
-   * Set during construction, then never changed. The unique identifier for
-   * the UI context associated with this mapping.
+   * Set during construction, then never changed. The unique identifier for the UI context
+   * associated with this mapping.
    */
   private String m_contextId;
 
   /**
-   * The name of the mode. It is used for display only. It may be empty, but
-   * never <code>null</code>. It is only set by {@link #fromXml(Element)}
-   * Default to empty.
+   * The name of the mode. It is used for display only. It may be empty, but never <code>null</code>
+   * . It is only set by {@link #fromXml(Element)} Default to empty.
    */
   private String m_modeName = "";
 
   /**
-   * The name of the context. It is used for display only. It may be empty, but
-   * never <code>null</code>. It is only set by {@link #fromXml(Element)}
-   * Default to empty.
+   * The name of the context. It is used for display only. It may be empty, but never <code>null
+   * </code>. It is only set by {@link #fromXml(Element)} Default to empty.
    */
   private String m_contextName = "";
 }

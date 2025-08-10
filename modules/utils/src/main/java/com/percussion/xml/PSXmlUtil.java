@@ -29,14 +29,11 @@ import org.w3c.dom.Node;
 public class PSXmlUtil {
 
   /**
-   * Returns the provided document as XML formatted, UTF8 encoded string with
-   * indentations.
+   * Returns the provided document as XML formatted, UTF8 encoded string with indentations.
    *
-   * @param node the {@link Node} to be returned as string, may be
-   *             <code>null</code>.
-   * @return the provided document as string, the error message in case of
-   * IOExceptions, an empty String if the provided document is
-   * <code>null</code>.
+   * @param node the {@link Node} to be returned as string, may be <code>null</code>.
+   * @return the provided document as string, the error message in case of IOExceptions, an empty
+   *     String if the provided document is <code>null</code>.
    */
   // Replaces old PSXmlDomUtil.toString(Node node)
   public static String toString(Node node) {

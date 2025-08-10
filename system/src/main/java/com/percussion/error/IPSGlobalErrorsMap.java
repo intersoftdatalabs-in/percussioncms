@@ -20,8 +20,9 @@ package com.percussion.error;
 public interface IPSGlobalErrorsMap {
 
   /**
-   * A compilation of Global Errors map. In future we will be having a mechanism
-   * of reserving error number range for each subsystem.
+   * A compilation of Global Errors map. In future we will be having a mechanism of reserving error
+   * number range for each subsystem.
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Range</TH><TH>Component</TH></TR>
    * <TR><TD>0     - 21</TD><TD>IPSLoaderErrors interface</TD></TR>

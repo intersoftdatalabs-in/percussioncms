@@ -28,19 +28,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class is used to determine if a particular element exists in the xml
- * file and its value is equal to a specific value.
+ * This class is used to determine if a particular element exists in the xml file and its value is
+ * equal to a specific value.
  *
- * Returns <code>true</code> if the xml file specified by
- * <code>relativeFilePath</code> member variable has an element named
- * <code>xmlElementName</code> whose value is equal to
- * <code>xmlElementValue</code>. The comparision is case-sensitive
- * if <code>ignoreCase</code> member is <code>false</code> otherwise it is
- * case-insensitive.
+ * <p>Returns <code>true</code> if the xml file specified by <code>relativeFilePath</code> member
+ * variable has an element named <code>xmlElementName</code> whose value is equal to <code>
+ * xmlElementValue</code>. The comparision is case-sensitive if <code>ignoreCase</code> member is
+ * <code>false</code> otherwise it is case-insensitive. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -64,7 +60,6 @@ import org.w3c.dom.NodeList;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSXMLElementCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -121,8 +116,9 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Returns the relative path of the xml file from the installation directory.
-   * @return the relative path of the xml file from the installation directory,
-   * never <code>null</code> or empty
+   *
+   * @return the relative path of the xml file from the installation directory, never <code>null
+   *     </code> or empty
    */
   public String getRelativeFilePath() {
     return relativeFilePath;
@@ -130,10 +126,10 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Sets the relative path of the xml file from the installation directory.
-   * @param relativeFilePath the relative path of the xml file from the
-   * installation directory, never <code>null</code> or empty
-   * @throw IllegalArgumentException if relativeFilePath is <code>null</code>
-   * or empty
+   *
+   * @param relativeFilePath the relative path of the xml file from the installation directory,
+   *     never <code>null</code> or empty
+   * @throw IllegalArgumentException if relativeFilePath is <code>null</code> or empty
    */
   public void setRelativeFilePath(String relativeFilePath) {
     if ((relativeFilePath == null) || (relativeFilePath.trim().length() == 0))
@@ -143,8 +139,8 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Returns the xml element whose value is to be matched.
-   * @return the xml element whose value is to be matched,
-   * never <code>null</code> or empty
+   *
+   * @return the xml element whose value is to be matched, never <code>null</code> or empty
    */
   public String getXmlElementName() {
     return xmlElementName;
@@ -152,10 +148,10 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Sets the xml element whose value is to be matched.
-   * @param xmlElementName the xml element whose value is to be matched,
-   * never <code>null</code> or empty
-   * @throw IllegalArgumentException if xmlElementName is <code>null</code>
-   * or empty
+   *
+   * @param xmlElementName the xml element whose value is to be matched, never <code>null</code> or
+   *     empty
+   * @throw IllegalArgumentException if xmlElementName is <code>null</code> or empty
    */
   public void setXmlElementName(String xmlElementName) {
     if ((xmlElementName == null) || (xmlElementName.trim().length() == 0))
@@ -165,8 +161,8 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Returns the value of the xml element to match.
-   * @return the value of the xml element to match,
-   * never <code>null</code> or empty
+   *
+   * @return the value of the xml element to match, never <code>null</code> or empty
    */
   public String getXmlElementValue() {
     return xmlElementValue;
@@ -174,10 +170,9 @@ public class PSXMLElementCondition extends PSAction implements Condition {
 
   /**
    * Sets the value of the xml element to match.
-   * @param xmlElementValue the value of the xml element to match,
-   * never <code>null</code> or empty
-   * @throw IllegalArgumentException if xmlElementValue is <code>null</code>
-   * or empty
+   *
+   * @param xmlElementValue the value of the xml element to match, never <code>null</code> or empty
+   * @throw IllegalArgumentException if xmlElementValue is <code>null</code> or empty
    */
   public void setXmlElementValue(String xmlElementValue) {
     if ((xmlElementValue == null) || (xmlElementValue.trim().length() == 0))
@@ -186,20 +181,22 @@ public class PSXMLElementCondition extends PSAction implements Condition {
   }
 
   /**
-   * Returns the boolean value indicating if the comparision of the
-   * XML Element values should be case-sensitive or not.
-   * @return <code>true</code> if the comparision of XML Element values is
-   * not case-sensitive, <code>false</code> otherwise.
+   * Returns the boolean value indicating if the comparision of the XML Element values should be
+   * case-sensitive or not.
+   *
+   * @return <code>true</code> if the comparision of XML Element values is not case-sensitive,
+   *     <code>false</code> otherwise.
    */
   public boolean getIgnoreCase() {
     return ignoreCase;
   }
 
   /**
-   * Sets the boolean value indicating if the comparision of the
-   * XML Element values should be case-sensitive or not.
-   * @param ignoreCase <code>true</code> if the comparision of XML Element
-   * values is not case-sensitive, <code>false</code> otherwise.
+   * Sets the boolean value indicating if the comparision of the XML Element values should be
+   * case-sensitive or not.
+   *
+   * @param ignoreCase <code>true</code> if the comparision of XML Element values is not
+   *     case-sensitive, <code>false</code> otherwise.
    */
   public void setIgnoreCase(boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
@@ -209,28 +206,18 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    * Bean properties
    ***************************************************************/
 
-  /**
-   * stores the relative path of the xml file, never <code>null</code>
-   * or empty
-   */
+  /** stores the relative path of the xml file, never <code>null</code> or empty */
   String relativeFilePath = "rxconfig/Server/config.xml";
 
-  /**
-   * the xml element whose value is to be matched,
-   * never <code>null</code> or empty.
-   */
+  /** the xml element whose value is to be matched, never <code>null</code> or empty. */
   String xmlElementName = "jdbcDriverName";
 
-  /**
-   * the value of the xml element to match,
-   * never <code>null</code> or empty.
-   */
+  /** the value of the xml element to match, never <code>null</code> or empty. */
   String xmlElementValue = "inetdae7";
 
   /**
-   * Determines if the string comparion of the xml element value should be
-   * case-sensitive or not. If <code>true</code> it is case-insensitive,
-   * otherwise it is case-sensitive.
+   * Determines if the string comparion of the xml element value should be case-sensitive or not. If
+   * <code>true</code> it is case-insensitive, otherwise it is case-sensitive.
    */
   boolean ignoreCase = true;
 
@@ -239,15 +226,13 @@ public class PSXMLElementCondition extends PSAction implements Condition {
    **************************************************************************/
 
   /**
-   * Get the value (text data) associated with the specified node.
-   * If the specified node is <code>null</code> or has no text data,
-   * returns the empty string.
+   * Get the value (text data) associated with the specified node. If the specified node is <code>
+   * null</code> or has no text data, returns the empty string.
    *
-   * @param node the element or entity ref node to retrieve the data from,
-   * if it is <code>null</code>, returns an empty string.
-   *
-   * @return the value of the element, never <code>null</code> may be empty if
-   * the specified element is <code>null</code> or has no text data.
+   * @param node the element or entity ref node to retrieve the data from, if it is <code>null
+   *     </code>, returns an empty string.
+   * @return the value of the element, never <code>null</code> may be empty if the specified element
+   *     is <code>null</code> or has no text data.
    */
   private static String getElementData(Node node) {
     StringBuilder ret = new StringBuilder();

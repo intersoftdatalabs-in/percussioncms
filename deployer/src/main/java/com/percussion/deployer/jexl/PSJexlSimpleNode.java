@@ -19,15 +19,12 @@ package com.percussion.deployer.jexl;
 import org.apache.commons.jexl3.parser.SimpleNode;
 
 /**
- *
  * A wrapper for SimpleNode.
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
 public class PSJexlSimpleNode {
-  /**
-   * A SimpleNode that JEXL expects to parse and Rx does "visit"
-   */
+  /** A SimpleNode that JEXL expects to parse and Rx does "visit" */
   private SimpleNode m_node = null;
 
   private String m_code = null;
@@ -40,6 +37,7 @@ public class PSJexlSimpleNode {
 
   /**
    * Accessor for the simple node
+   *
    * @return the simple node
    */
   public SimpleNode getNode() {
@@ -48,6 +46,7 @@ public class PSJexlSimpleNode {
 
   /**
    * Accessor for the expression/script
+   *
    * @return the expression that this node tree represents
    */
   public String getCode() {

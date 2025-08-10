@@ -53,37 +53,34 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class simplifies making a request to a Rhythmyx application or resource
- * that returns an XML document. It allows the user to set all the information
- * to make a request to the server including the credentials for
- * authentications and will construct the XML document out of the response from
+ * This class simplifies making a request to a Rhythmyx application or resource that returns an XML
+ * document. It allows the user to set all the information to make a request to the server including
+ * the credentials for authentications and will construct the XML document out of the response from
  * the server .
- * <p>Once constructed, it can be used to make both http and https requests.
- * This is controlled by a flag when the request is made.
- * <p>Note (ph): this class was reworked from an existing class. It needs more
- * work to make it robust and more generically useful.
+ *
+ * <p>Once constructed, it can be used to make both http and https requests. This is controlled by a
+ * flag when the request is made.
+ *
+ * <p>Note (ph): this class was reworked from an existing class. It needs more work to make it
+ * robust and more generically useful.
  */
 public class PSRemoteRequester implements IPSRemoteRequesterEx {
   private static final Logger log = LogManager.getLogger(PSRemoteRequester.class);
 
-  /**
-   * Default constructor, needed by derived class.
-   */
+  /** Default constructor, needed by derived class. */
   protected PSRemoteRequester() {}
 
   /**
    * Creates an instance from a list of connection properties.
    *
-   * @param connInfo The connection properties. Never <code>null</code>.
-   *    All work is performed as the user identified with these connection
-   *    parameters. See description for required and optional parameters.
-   *    All property names are case-sensitive. The needed props are read and
-   *    stored locally. If any required props are missing or empty or any
-   *    integral props can't be parsed, an IAE is thrown.
-   *    for further details. (Note, parameters (except ssl) are the same as
-   *    those of the {@link com.percussion.conn.PSDesignerConnection
-   *    PSDesignerConnection} class.
-   *    <table border="1">
+   * @param connInfo The connection properties. Never <code>null</code>. All work is performed as
+   *     the user identified with these connection parameters. See description for required and
+   *     optional parameters. All property names are case-sensitive. The needed props are read and
+   *     stored locally. If any required props are missing or empty or any integral props can't be
+   *     parsed, an IAE is thrown. for further details. (Note, parameters (except ssl) are the same
+   *     as those of the {@link com.percussion.conn.PSDesignerConnection PSDesignerConnection}
+   *     class.
+   *     <table border="1">
    *       <tr>
    *         <th>Key</th>
    *         <th>Value</th>
@@ -135,7 +132,6 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * Init with the connection info.
    *
    * @param connInfo the connection info, never <code>null</code>.
-   *
    * @see PSRemoteRequester(Properties)
    */
   protected void init(Properties connInfo) {
@@ -158,18 +154,13 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Constructor. takes server and port strings as arguments. These override
-   * the defaults.
+   * Constructor. takes server and port strings as arguments. These override the defaults.
    *
-   * @param server name or IPAddress of the server for the request. Can be
-   *    <code>null</code> or <code>empty</code>. If <code>null</code> or
-   *    <code>empty</code> is specified, "localhost" is used.
-   *
-   * @param port the Rhythmyx server port. Supply -1 to use the
-   *    default of 9992.
-   *
-   * @param sslPort the Rhythmyx server's SSL port. Supply -1 to use the
-   *    default of 9443.
+   * @param server name or IPAddress of the server for the request. Can be <code>null</code> or
+   *     <code>empty</code>. If <code>null</code> or <code>empty</code> is specified, "localhost" is
+   *     used.
+   * @param port the Rhythmyx server port. Supply -1 to use the default of 9992.
+   * @param sslPort the Rhythmyx server's SSL port. Supply -1 to use the default of 9443.
    */
   public PSRemoteRequester(String server, int port, int sslPort) {
     if (null != server && server.trim().length() == 0) m_Server = server;
@@ -180,11 +171,11 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Sets the timeout to be used when making a request. If you expect the
-   * results to take longer than the default timeout, supply a larger value.
+   * Sets the timeout to be used when making a request. If you expect the results to take longer
+   * than the default timeout, supply a larger value.
    *
-   * @param timeout timeout in seconds. If 0, no timeout is set. Default is
-   *    15 seconds. If a negative value supplied, 0 is set.
+   * @param timeout timeout in seconds. If 0, no timeout is set. Default is 15 seconds. If a
+   *     negative value supplied, 0 is set.
    */
   public void setRequestTimeout(int timeout) {
     if (timeout < 0) timeout = 0;
@@ -192,20 +183,15 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Reads a requested property from the supplied props. If the required flag
-   * is <code>true</code>, an IAE will be thrown if the value is missing or
-   * empty.
+   * Reads a requested property from the supplied props. If the required flag is <code>true</code>,
+   * an IAE will be thrown if the value is missing or empty.
    *
    * @param props Assumed not <code>null</code>.
-   *
-   * @param propName The property to lookup in props. Assumed not
-   *    <code>null</code>.
-   *
-   * @param required If <code>true</code>, a missing value or an unparsable
-   *    value will cause an exception.
-   *
-   * @return The value of the requested property. If missing, "" is returned.
-   *    Never <code>null</code>.
+   * @param propName The property to lookup in props. Assumed not <code>null</code>.
+   * @param required If <code>true</code>, a missing value or an unparsable value will cause an
+   *     exception.
+   * @return The value of the requested property. If missing, "" is returned. Never <code>null
+   *     </code>.
    */
   private String getString(Properties props, String propName, boolean required) {
     String value = props.getProperty(propName, "").trim();
@@ -216,20 +202,14 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Reads a requested property from the supplied props and tries to convert
-   * it to an int. If the required flag is <code>true</code>, an IAE will
-   * be thrown for any problems.
+   * Reads a requested property from the supplied props and tries to convert it to an int. If the
+   * required flag is <code>true</code>, an IAE will be thrown for any problems.
    *
    * @param props Assumed not <code>null</code>.
-   *
-   * @param propName The property to lookup in props. Assumed not
-   *    <code>null</code>.
-   *
-   * @param required If <code>true</code>, a missing value or an unparsable
-   *    value will cause an exception.
-   *
-   * @return The value of the requested property. If not required, -1 is
-   *    returned.
+   * @param propName The property to lookup in props. Assumed not <code>null</code>.
+   * @param required If <code>true</code>, a missing value or an unparsable value will cause an
+   *     exception.
+   * @return The value of the requested property. If not required, -1 is returned.
    */
   private int getInt(Properties props, String propName, boolean required) {
     String value = props.getProperty(propName, "");
@@ -268,9 +248,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   /**
    * Get the full path from a given (partial) resource.
    *
-   * @param resource The partial resource, e.g. app/res.xml. Assume it is not
-   *    <code>null</code>.
-   *
+   * @param resource The partial resource, e.g. app/res.xml. Assume it is not <code>null</code>.
    * @return The created full path, never <code>null</code> or empty.
    */
   private String getFullResourcePath(String resource) {
@@ -280,12 +258,10 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   /**
    * Converts params to a <code>NVPair[]</code> array.
    *
-   * @param params Map of params, where param name is key as
-   * <code>String</code> and value is the param value.  May be
-   * <code>null</code>, may not contain a <code>null</code> key.
-   *
-   * @return The array, will be <code>null</code> if <code>params</code> is
-   * <code>null</code> or emtpy.
+   * @param params Map of params, where param name is key as <code>String</code> and value is the
+   *     param value. May be <code>null</code>, may not contain a <code>null</code> key.
+   * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
+   *     emtpy.
    */
   private NVPair[] getParams(Map params) {
     if (params == null || params.size() <= 0) return null;
@@ -322,9 +298,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
     return opts;
   }
 
-  /**
-   * See {@link IPSRemoteRequester#getDocument(String, Map)} for detail
-   */
+  /** See {@link IPSRemoteRequester#getDocument(String, Map)} for detail */
   public Document getDocument(String resource, Map params) throws IOException, SAXException {
     final String urlResource = getFullResourcePath(resource);
 
@@ -342,16 +316,12 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
     return sendRequest(p);
   }
 
-  /**
-   * See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail
-   */
+  /** See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail */
   public Document sendUpdate(String resource, Map params) throws IOException, SAXException {
     return getDocument(resource, params);
   }
 
-  /**
-   * See {@link IPSRemoteRequester#sendUpdate(String, doc)} for detail
-   */
+  /** See {@link IPSRemoteRequester#sendUpdate(String, doc)} for detail */
   public Document sendUpdate(String resource, Document doc) throws IOException, SAXException {
     resource = getFullResourcePath(resource);
 
@@ -375,26 +345,19 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   /**
    * Determines if the request follows the redirection response or not.
    *
-   * @return <code>true</code> if the request follows redirection; otherwise
-   *   not follow redirection.
+   * @return <code>true</code> if the request follows redirection; otherwise not follow redirection.
    */
   protected boolean getFollowRedirects() {
     return true;
   }
 
   /**
-   * Makes a request using the connection set up in the ctor, wrapping it
-   * with some error handling. If any data is returned, an attempt is made
-   * to parse it into an xml doc.
+   * Makes a request using the connection set up in the ctor, wrapping it with some error handling.
+   * If any data is returned, an attempt is made to parse it into an xml doc.
    *
-   * @return The document representing the returned data, or null if no
-   *    data was returned.
-   *
-   * @throws IOException If any problems occur while communicating with the
-   *    server.
-   *
-   * @throws SAXException If the returned data is not parsable as an xml
-   *    document.
+   * @return The document representing the returned data, or null if no data was returned.
+   * @throws IOException If any problems occur while communicating with the server.
+   * @throws SAXException If the returned data is not parsable as an xml document.
    */
   private Document sendRequest(IPSPoster p) throws IOException, SAXException {
     byte[] content = null;
@@ -421,30 +384,23 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Determines if the request object should process the status code of the
-   * response. This can be overriden by derived class, so that the request
-   * will not throw exception when rerecieved "un-expected" status code, such
-   * as 500.
+   * Determines if the request object should process the status code of the response. This can be
+   * overriden by derived class, so that the request will not throw exception when rerecieved
+   * "un-expected" status code, such as 500.
    *
-   * @return <code>true</code> if it processes the status code; otherwise
-   *   return false.
+   * @return <code>true</code> if it processes the status code; otherwise return false.
    */
   protected boolean getProcessStatusCode() {
     return true;
   }
 
   /**
-   * Makes a request using the connection set up in the ctor, wrapping it
-   * with some error handling. Returns a byte array.
+   * Makes a request using the connection set up in the ctor, wrapping it with some error handling.
+   * Returns a byte array.
    *
-   * @return A byte array representing the returned data, or null if no
-   *    data was returned.
-   *
-   * @throws IOException If any problems occur while communicating with the
-   *    server.
-   *
-   * @throws SAXException If the returned data is not parsable as an xml
-   *    document.
+   * @return A byte array representing the returned data, or null if no data was returned.
+   * @throws IOException If any problems occur while communicating with the server.
+   * @throws SAXException If the returned data is not parsable as an xml document.
    */
   private byte[] sendByteReturnRequest(IPSPoster p) throws IOException {
     HTTPConnection con = null;
@@ -493,9 +449,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * @param protocol the protocal of the request, assumed not <code>null</code>.
    * @param server the server name or IP, assumed not <code>null</code>.
    * @param port the port of the connection.
-   *
    * @return the created connection, never <code>null</code>.
-   *
    * @throws ProtocolNotSuppException if encounter unsupported protocol.
    */
   private HTTPConnection createConnection(String protocol, String server, int port)
@@ -507,12 +461,11 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Retrieves either an ssl or http connection handler. If one has already
-   * been created, it is returned, otherwise a new one is created and cached.
+   * Retrieves either an ssl or http connection handler. If one has already been created, it is
+   * returned, otherwise a new one is created and cached.
    *
-   * @param useSSL If <code>true</code>, the request will be made using a
-   *    secure channel, otherwise std http will be used.
-   *
+   * @param useSSL If <code>true</code>, the request will be made using a secure channel, otherwise
+   *     std http will be used.
    * @return Always a valid connection.
    */
   private HTTPConnection getConnection() {
@@ -566,29 +519,23 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * This method constructs the URL object out of the information aleady
-   * provided. All the html parameters out of the map are appended to the
-   * request appropriately.
+   * This method constructs the URL object out of the information aleady provided. All the html
+   * parameters out of the map are appended to the request appropriately.
    *
    * @return constructed URL object ready to be used, never <code>null</code>.
-   *
    * @throws MalformedURLException if URL could not be constructed.
    */
   private URL makeURL(boolean useSSL) throws MalformedURLException {
     return createUrl(m_URLString, m_Server, m_Port, useSSL ? m_sslPort : -1);
   }
 
-  /**
-   * See {@link IPSRemoteRequester#shutdown()} for detail
-   */
+  /** See {@link IPSRemoteRequester#shutdown()} for detail */
   public void shutdown() {
     // this is no need for shutdown connections, because it has already
     // been closed after send and receive data in the other methods
   }
 
-  /**
-   * Close connection if any open connection exists
-   */
+  /** Close connection if any open connection exists */
   private void closeConnection() {
     if (null != m_connection) {
       m_connection.stop();
@@ -602,33 +549,28 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Creates a URL for the provided parameters. If an SSL port not equal to
-   *    0 is specified, HTTPS will be used. Otherwise HTTP will be used.
+   * Creates a URL for the provided parameters. If an SSL port not equal to 0 is specified, HTTPS
+   * will be used. Otherwise HTTP will be used.
    *
-   * @param url the url-string to create the url for, not <code>null</code>
-   *    or empty. If a fully qualified url is provided, its host will be taken.
-   *    Valid forms are:
-   *    <ol><li>
-   *    Fully qualified URL's e.g.:
-   *    http://localhost:9992/Rhythmyx/rx_ceArticle/article.html?sys_command=
-   *       preview&sys_contentid=317&sys_revision=1
-   *    </li>
-   *    <li>
-   *    The full file URL including server root and query parameters, e.g.:
-   *    /Rhythmyx/rx_ceArticle/article.html?sys_command=
-   *       preview&sys_contentid=317&sys_revision=1
-   *    </li>
-   *    </li></ol>
+   * @param url the url-string to create the url for, not <code>null</code> or empty. If a fully
+   *     qualified url is provided, its host will be taken. Valid forms are:
+   *     <ol>
+   *       <li>Fully qualified URL's e.g.:
+   *           http://localhost:9992/Rhythmyx/rx_ceArticle/article.html?sys_command=
+   *           preview&sys_contentid=317&sys_revision=1
+   *       <li>The full file URL including server root and query parameters, e.g.:
+   *           /Rhythmyx/rx_ceArticle/article.html?sys_command=
+   *           preview&sys_contentid=317&sys_revision=1
+   *     </ol>
+   *
    * @param host the host-string to be used, not <code>null</code> or empty.
    * @param port the port to use for HTTP requests.
-   * @param sslPort the port to use for HTTPS requests. If not 0, it will
-   *    be used and the returned url uses HTTPS.
-   * @return the URL using the correct protocol and port, never
-   *    <code>null</code>.
-   * @throws IllegalArgumentException if the provided url and/or host are
-   *    <code>null</code> or empty.
-   * @throws MalformedURLException if anything goes wrong constructing the
-   *    result url.
+   * @param sslPort the port to use for HTTPS requests. If not 0, it will be used and the returned
+   *     url uses HTTPS.
+   * @return the URL using the correct protocol and port, never <code>null</code>.
+   * @throws IllegalArgumentException if the provided url and/or host are <code>null</code> or
+   *     empty.
+   * @throws MalformedURLException if anything goes wrong constructing the result url.
    */
   public static URL createUrl(String url, String host, int port, int sslPort)
       throws MalformedURLException {
@@ -672,21 +614,20 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Cookies are enabled by default.  Use this to clear any cookies returned by
-   * a previous request before sending the next.
+   * Cookies are enabled by default. Use this to clear any cookies returned by a previous request
+   * before sending the next.
    */
   public void clearAllCookies() {
     CookieModule.discardAllCookies();
   }
 
   /**
-   * Use POST method to send the request with the supplied data, which is
-   * either the supplied parameters or the raw data, but not both.
+   * Use POST method to send the request with the supplied data, which is either the supplied
+   * parameters or the raw data, but not both.
    *
    * @param resource the resource, not <code>null</code>.
    * @param params the posted parameters, may be <code>null</code>.
    * @param pdata the posted data, may be <code>null</code>.
-   *
    * @throws IOException if I/O error occurs.
    */
   protected byte[] postRequest(String resource, Map params, byte[] pdata, NVPair[] headers)
@@ -719,7 +660,6 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
    * Use GET method to send the request.
    *
    * @param resource the resource, not <code>null</code>.
-   *
    * @throws IOException if I/O error occurs.
    */
   protected byte[] getBinary(String resource) throws IOException {
@@ -780,17 +720,16 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * @return The response from previous request. It is <code>null</code> if
-   * has not send any request yet.
+   * @return The response from previous request. It is <code>null</code> if has not send any request
+   *     yet.
    */
   protected HTTPResponse getResponse() {
     return m_response;
   }
 
   /**
-   * A little helper interface that allows a common class to handle the
-   * error management surround a get/post request that requires different
-   * call signatures.
+   * A little helper interface that allows a common class to handle the error management surround a
+   * get/post request that requires different call signatures.
    *
    * @author Paul Howard
    * @version 1.0
@@ -800,11 +739,8 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
      * Perform the type of request over the supplied connection.
      *
      * @param con Never <code>null</code>.
-     *
      * @return The response object generated by the request.
-     *
      * @throws IOException If any failures communicating with the server.
-     *
      * @throws ModuleException ??
      */
     public HTTPResponse sendRequest(HTTPConnection con) throws IOException, ModuleException;
@@ -813,8 +749,7 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   /**
    * Get the cookie to send the current jsessionid.
    *
-   * @return The cookie, it may be <code>null</code> if the jsessionid
-   *   is empty.
+   * @return The cookie, it may be <code>null</code> if the jsessionid is empty.
    */
   private Cookie getJSessionCookie() {
     if (m_jsessionId == null || m_jsessionId.trim().length() == 0) return null;
@@ -822,82 +757,70 @@ public class PSRemoteRequester implements IPSRemoteRequesterEx {
   }
 
   /**
-   * Name or IPAddress of the Rhythmyx server to make the request. By default,
-   * it is taken from the Server.
+   * Name or IPAddress of the Rhythmyx server to make the request. By default, it is taken from the
+   * Server.
    */
   private String m_Server = "localhost";
 
   /**
-   * Port number of the Rhythmyx server to make the request. By default,
-   * it is taken from the Server.
+   * Port number of the Rhythmyx server to make the request. By default, it is taken from the
+   * Server.
    */
   private int m_Port = 9992;
 
   /**
-   * Port number of the Rhythmyx server to make SSL requests. By default,
-   * it is taken from the Server.
+   * Port number of the Rhythmyx server to make SSL requests. By default, it is taken from the
+   * Server.
    */
   private int m_sslPort = 9443;
 
   /**
-   * Request timeout in seconds. Default value is 0 (wait wait indefinitely).
-   * Can be set from the caller.
+   * Request timeout in seconds. Default value is 0 (wait wait indefinitely). Can be set from the
+   * caller.
    */
   private int m_RequestTimeout = 0;
 
-  /**
-   * The URL string for the request.
-   */
+  /** The URL string for the request. */
   private String m_URLString = "";
 
   /**
-   * The UserID to use in case if the server's response is 401, which is
-   * Authentication required.
+   * The UserID to use in case if the server's response is 401, which is Authentication required.
    */
   private String m_UserId = "";
 
   /**
-   * The password to use in case if the server's response is 401, which is
-   * Authentication required.
+   * The password to use in case if the server's response is 401, which is Authentication required.
    */
   private String m_Password = "";
 
   /**
-   * The cached connection for SSL communication that was made lazily using
-   * the params supplied in the ctor. Created in getConnection(true), then
-   * never changed after that.
+   * The cached connection for SSL communication that was made lazily using the params supplied in
+   * the ctor. Created in getConnection(true), then never changed after that.
    */
   private HTTPConnection m_sslConnection = null;
 
   /**
-   * The cached connection for standard communication that was made lazily
-   * using the params supplied in the ctor. Created in getConnection(false),
-   * then never changed after that.
+   * The cached connection for standard communication that was made lazily using the params supplied
+   * in the ctor. Created in getConnection(false), then never changed after that.
    */
   private HTTPConnection m_connection = null;
 
   /**
-   * The Rhythmyx server's request root. Default's to Rhythmyx. Never
-   * <code>null</code> or empty.
+   * The Rhythmyx server's request root. Default's to Rhythmyx. Never <code>null</code> or empty.
    */
   private String m_serverRoot = "Rhythmyx";
 
-  /**
-   * JSession id to send to the server, never <code>null</code>, may be
-   * empty.
-   */
+  /** JSession id to send to the server, never <code>null</code>, may be empty. */
   private String m_jsessionId = "";
 
   /**
-   * A flag to indicate whether requests must be made over a secure channel.
-   * If <code>true</code>, then SSL will be used for every request, otherwise
-   * it won't be. Default is <code>false</code>.
+   * A flag to indicate whether requests must be made over a secure channel. If <code>true</code>,
+   * then SSL will be used for every request, otherwise it won't be. Default is <code>false</code>.
    */
   private boolean m_useSSL = false;
 
   /**
-   * The response from previous request. It is <code>null</code> if has not
-   * send any request yet.
+   * The response from previous request. It is <code>null</code> if has not send any request yet.
    */
   private HTTPResponse m_response = null;
 

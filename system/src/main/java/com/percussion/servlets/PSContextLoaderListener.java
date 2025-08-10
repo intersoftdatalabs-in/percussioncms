@@ -29,10 +29,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 
 /**
- * This listener will start up the spring portion of
- * the server.
- * <p>
- * See spring doc.
+ * This listener will start up the spring portion of the server.
+ *
+ * <p>See spring doc.
+ *
  * @author adamgent
  */
 public class PSContextLoaderListener extends ContextLoaderListener {
@@ -80,8 +80,6 @@ public class PSContextLoaderListener extends ContextLoaderListener {
     return PSBaseServiceLocator.getCtx();
   }
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSContextLoaderListener.class);
 }

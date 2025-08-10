@@ -21,63 +21,62 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a message for uninstall operations.
- * Sunny Sal says: "Uninstall messages should be as clear as my code!"
+ * Represents a message for uninstall operations. Sunny Sal says: "Uninstall messages should be as
+ * clear as my code!"
  *
  * @author bjoginipally
  */
 @XmlRootElement(name = "Message")
 public class PSUninstallMessage {
 
-    public PSUninstallMessage() {
-        // For JAXB
-    }
+  public PSUninstallMessage() {
+    // For JAXB
+  }
 
-    public PSUninstallMessage(String packageName, String type, String body) {
-        setPackageName(packageName);
-        setType(type);
-        setBody(body);
-    }
+  public PSUninstallMessage(String packageName, String type, String body) {
+    setPackageName(packageName);
+    setType(type);
+    setBody(body);
+  }
 
-    /**
-     * @return the message body
-     */
-    @XmlElement(name = "body")
-    public String getBody() {
-        return body;
-    }
+  /**
+   * @return the message body
+   */
+  @XmlElement(name = "body")
+  public String getBody() {
+    return body;
+  }
 
-    public void setBody(String body) {
-        this.body = body == null ? "" : body;
-    }
+  public void setBody(String body) {
+    this.body = body == null ? "" : body;
+  }
 
-    /**
-     * @return the package name
-     */
-    @XmlElement(name = "package")
-    public String getPackageName() {
-        return packageName;
-    }
+  /**
+   * @return the package name
+   */
+  @XmlElement(name = "package")
+  public String getPackageName() {
+    return packageName;
+  }
 
-    public void setPackageName(String packageName) {
-        if (packageName == null)
-            throw new IllegalArgumentException("packageName must not be null");
-        this.packageName = packageName;
-    }
+  public void setPackageName(String packageName) {
+    if (packageName == null) throw new IllegalArgumentException("packageName must not be null");
+    this.packageName = packageName;
+  }
 
-    /**
-     * @return the type
-     */
-    @XmlElement(name = "type")
-    public String getType() {
-        return type;
-    }
+  /**
+   * @return the type
+   */
+  @XmlElement(name = "type")
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type == null ? "" : type;
-    }
+  public void setType(String type) {
+    this.type = type == null ? "" : type;
+  }
 
-    private String type = "";
-    private String body = "";
-    private String packageName = "";
+  private String type = "";
+  private String body = "";
+  private String packageName = "";
 }

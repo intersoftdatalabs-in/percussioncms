@@ -50,27 +50,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class implements a loadable request handler for dispatching action set
- * requests.  It determines the content editor URL from request parameters,
- * then delegates to the named action set to complete the request.  Any
- * errors that occur during processing are returned in the response to the
- * requestor.
+ * This class implements a loadable request handler for dispatching action set requests. It
+ * determines the content editor URL from request parameters, then delegates to the named action set
+ * to complete the request. Any errors that occur during processing are returned in the response to
+ * the requestor.
  *
  * @see PSActionSet
  */
 public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
   /**
-   * Constructs a new <code>PSActionSetRequestHandler</code> object from the
-   * supplied parameters.  The {@link #init(Collection, InputStream) init}
-   * method must be called before this instance can process requests.
+   * Constructs a new <code>PSActionSetRequestHandler</code> object from the supplied parameters.
+   * The {@link #init(Collection, InputStream) init} method must be called before this instance can
+   * process requests.
    *
-   * @param objectStore currently unused by this class, but necessary for the
-   * method signature to match <code>PSServer</code>'s reflection.  May be
-   * <code>null</code>.
-   *
-   * @param extMgr responsible for resolving exit references, not
-   * <code>null</code>.
-   *
+   * @param objectStore currently unused by this class, but necessary for the method signature to
+   *     match <code>PSServer</code>'s reflection. May be <code>null</code>.
+   * @param extMgr responsible for resolving exit references, not <code>null</code>.
    * @throws IllegalArgumentException if extMgr is <code>null</code>
    */
   public PSActionSetRequestHandler(IPSObjectStoreHandler objectStore, IPSExtensionManager extMgr) {
@@ -157,25 +152,20 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * Makes an internal request to determine which content editor should be
-   * used with the specified action set request.
+   * Makes an internal request to determine which content editor should be used with the specified
+   * action set request.
    *
-   * @param request contains the html parameters SYS_CONTENTID and/or
-   * SYS_CONTENTTYPEID that will be used to determine the URL, assumed not
-   * <code>null</code>.
-   *
-   * @return a relative URL to the registered content editor resource,
-   * only <code>null</code> if the request needs to authenticate.
-   *
-   * @throws PSActionSetException if a content editor URL cataloging
-   * application could not be found or if a URL could not be determined for
-   * the provided request (because of missing params or invalid params).
-   *
-   * @throws PSInternalRequestCallException if an error occurs while
-   * requesting the content editor URL from the cataloging application.
-   *
-   * @throws PSErrorException if the request is not authorized to query
-   * the cataloging application, or if the request failed to be authenticated.
+   * @param request contains the html parameters SYS_CONTENTID and/or SYS_CONTENTTYPEID that will be
+   *     used to determine the URL, assumed not <code>null</code>.
+   * @return a relative URL to the registered content editor resource, only <code>null</code> if the
+   *     request needs to authenticate.
+   * @throws PSActionSetException if a content editor URL cataloging application could not be found
+   *     or if a URL could not be determined for the provided request (because of missing params or
+   *     invalid params).
+   * @throws PSInternalRequestCallException if an error occurs while requesting the content editor
+   *     URL from the cataloging application.
+   * @throws PSErrorException if the request is not authorized to query the cataloging application,
+   *     or if the request failed to be authenticated.
    */
   private String getContentEditorURL(PSRequest request)
       throws PSActionSetException, PSInternalRequestCallException, PSErrorException {
@@ -236,18 +226,16 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * Performs the requested action set against a content editor determined
-   * by the parameters in the request.  Will respond to the requestor either
-   * with a redirect URL (if all actions are successful), the action set
-   * result document (if an action failed), or the text of an error message.
+   * Performs the requested action set against a content editor determined by the parameters in the
+   * request. Will respond to the requestor either with a redirect URL (if all actions are
+   * successful), the action set result document (if an action failed), or the text of an error
+   * message.
    *
    * @param request the request to process, not <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>request</code> is <code>null
    * </code>
-   * @throws IllegalStateException if the {@link #init} method has never been
-   * called on this instance.
-   *
+   * @throws IllegalStateException if the {@link #init} method has never been called on this
+   *     instance.
    * @see PSActionSet#processRequest
    */
   public void processRequest(PSRequest request) {
@@ -292,49 +280,39 @@ public class PSActionSetRequestHandler implements IPSLoadableRequestHandler {
     // nothing to do
   }
 
-  /**
-   * Name of the subsystem used to dump messages to server console.
-   */
+  /** Name of the subsystem used to dump messages to server console. */
   private static final String HANDLER = "ActionSets";
 
   /**
-   * Defines the number of times the user can attempt to re-login when bad
-   * credentials are supplied. Basically, the browser will pop up the login
-   * dialog each time we return a 401. After this many attempts, we will
-   * return a 500, which will require the user to open a new browser session
-   * before a new login can be attempted. The count of failed logins is kept
-   * in the user session.
+   * Defines the number of times the user can attempt to re-login when bad credentials are supplied.
+   * Basically, the browser will pop up the login dialog each time we return a 401. After this many
+   * attempts, we will return a 500, which will require the user to open a new browser session
+   * before a new login can be attempted. The count of failed logins is kept in the user session.
    */
   public static final int MAX_LOGIN_ATTEMPTS = 3;
 
-  /**
-   * Name of the internal resource used to catalog content editor URLs.
-   */
+  /** Name of the internal resource used to catalog content editor URLs. */
   private static final String catalogerAppRsrcName = "sys_psxContentEditorCataloger/getUrl.xml";
 
   /**
-   * Storage for the request roots, initialized in the <code>init</code>
-   * method, never <code>null</code> or empty after. Contains
-   * <code>String</code> objects.
+   * Storage for the request roots, initialized in the <code>init</code> method, never <code>null
+   * </code> or empty after. Contains <code>String</code> objects.
    */
   private Collection<String> requestRoots = null;
 
   /**
-   * Reference to the server's extension manager. Used to process the actions'
-   * extensions.  Never <code>null</code> after construction.
+   * Reference to the server's extension manager. Used to process the actions' extensions. Never
+   * <code>null</code> after construction.
    */
   private final IPSExtensionManager extMgr;
 
   /**
-   * Maps a action set name (a <code>String</code>) to its object
-   * representation (a <code>PSActionSet</code>). Initialized in the
-   * <code>init</code> method and never <code>null</code> after that.
+   * Maps a action set name (a <code>String</code>) to its object representation (a <code>
+   * PSActionSet</code>). Initialized in the <code>init</code> method and never <code>null</code>
+   * after that.
    */
   private Map<String, PSActionSet> actionSets = null;
 
-  /**
-   * The error handler for this request handler.  Never <code>null</code>
-   * after construction.
-   */
+  /** The error handler for this request handler. Never <code>null</code> after construction. */
   private PSErrorHandler errorHandler;
 }

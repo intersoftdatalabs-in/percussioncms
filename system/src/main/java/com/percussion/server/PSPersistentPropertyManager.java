@@ -31,29 +31,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class provides a mechanism for saving property values across invocations
- * of the server. Each persisted property contains optional meta data and a
- * value. Persisted properties may come from the system or designer. System
- * properties will contain meta data with attributes describing how to process
- * the property. Designer properties may or may not have a meta entry.
- * <p>For system properties, the presence of a meta entry means that that
- * property will be persisted. Designer properties should follow this policy
- * as well.
- * <p>This class uses the PSPersistentPropertyMeta class for managing the
- * property attributes.
+ * This class provides a mechanism for saving property values across invocations of the server. Each
+ * persisted property contains optional meta data and a value. Persisted properties may come from
+ * the system or designer. System properties will contain meta data with attributes describing how
+ * to process the property. Designer properties may or may not have a meta entry.
+ *
+ * <p>For system properties, the presence of a meta entry means that that property will be
+ * persisted. Designer properties should follow this policy as well.
+ *
+ * <p>This class uses the PSPersistentPropertyMeta class for managing the property attributes.
  */
 public class PSPersistentPropertyManager {
   private static final Logger log = LogManager.getLogger(PSPersistentPropertyManager.class);
 
-  /**
-   *  Default constructor; private to disallow instantiation.
-   */
+  /** Default constructor; private to disallow instantiation. */
   private PSPersistentPropertyManager() {}
 
   /**
    * Get the singleton instance.
    *
-   * @return the Singleton instance of the class.  Never <code>null</code>.
+   * @return the Singleton instance of the class. Never <code>null</code>.
    */
   public static PSPersistentPropertyManager getInstance() {
     // ms_instance is initialized at class load time, so must be non-null
@@ -62,27 +59,20 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * A persisted property is a named value that is saved in persistent storage
-   * so that it is available across invocations of the server. Each property
-   * has certain characteristics that can be modified by the designer. This
-   * method returns those attributes.
+   * A persisted property is a named value that is saved in persistent storage so that it is
+   * available across invocations of the server. Each property has certain characteristics that can
+   * be modified by the designer. This method returns those attributes.
    *
    * @param category An arbitrary name used for grouping properties. <code>
    *    null</code> and empty are treated the same and stored as <code>NULL
    *    </code> in the repository. Sql wildcards accepted.
-   *
-   * @param userSession the user session used to get the property meta objects.
-   *    It may not be <code>null</code>.
-   *
-   * @param propertyName The case-sensitive name of the property. Never
-   *    <code>null</code> or empty. Sql wildcards accepted.
-   *
-   * @return A possibly empty collection of PSPersistentPropertyMeta objects
-   *    that match the supplied search criteria. If a match isn't found, an
-   *    empty collection is returned.
-   *
-   * @throws IllegalArgumentException if property name and category
-   * is not supplied.
+   * @param userSession the user session used to get the property meta objects. It may not be <code>
+   *     null</code>.
+   * @param propertyName The case-sensitive name of the property. Never <code>null</code> or empty.
+   *     Sql wildcards accepted.
+   * @return A possibly empty collection of PSPersistentPropertyMeta objects that match the supplied
+   *     search criteria. If a match isn't found, an empty collection is returned.
+   * @throws IllegalArgumentException if property name and category is not supplied.
    */
   public Collection getPersistedPropertyMeta(
       String category, PSUserSession userSession, String propertyName) {
@@ -161,8 +151,8 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Matches property name based on the pattern supplied and returns
-   * a Collection of matched values.
+   * Matches property name based on the pattern supplied and returns a Collection of matched values.
+   *
    * @param pm pattern matcher.
    * @param pattern to be matched.
    * @param hm container in which the search is to be made.
@@ -198,12 +188,11 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Populates <code>m_sysMetaCache</code> <code>m_propertyCache</code>
-   * with all the default values for a hypothetical user **psxsystem and
-   * merged values for an authenticated user/principal.
+   * Populates <code>m_sysMetaCache</code> <code>m_propertyCache</code> with all the default values
+   * for a hypothetical user **psxsystem and merged values for an authenticated user/principal.
    *
-   * @param userSession the user session used to get the property meta objects.
-   *    It may not be <code>null</code>.
+   * @param userSession the user session used to get the property meta objects. It may not be <code>
+   *     null</code>.
    */
   private void populateCache(PSUserSession userSession, boolean isMeta) {
     String userName = getUserName(userSession);
@@ -223,8 +212,7 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Merges default entries with the user entries,already existing user entries
-   * are left untouched.
+   * Merges default entries with the user entries,already existing user entries are left untouched.
    */
   private void merge(String userName, Map map, boolean isMeta) {
     ConcurrentHashMap sysCategoryMap = (ConcurrentHashMap) map.get(SYS_USER);
@@ -250,8 +238,8 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Merges the leaf map - the map which maintains meta property name and
-   * meta object(PSPersistentPropertyMeta) mappings.
+   * Merges the leaf map - the map which maintains meta property name and meta
+   * object(PSPersistentPropertyMeta) mappings.
    */
   private Map mergeLeaves(String userName, Map src, Map dest, boolean isMeta) {
     Set srcSet = src.keySet();
@@ -277,11 +265,11 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Populates <code>m_mergedMetaCache</code> and <code>m_propertyCache</code>
-   * for an user.
+   * Populates <code>m_mergedMetaCache</code> and <code>m_propertyCache</code> for an user.
+   *
    * @param userName
-   * @param loadMetadata indicates whether to load meta properties or
-   * properties.  Metadata is loaded if <code>true</code>, data otherwise.
+   * @param loadMetadata indicates whether to load meta properties or properties. Metadata is loaded
+   *     if <code>true</code>, data otherwise.
    */
   private void load(String userName, boolean loadMetadata) {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
@@ -318,10 +306,7 @@ public class PSPersistentPropertyManager {
     }
   }
 
-  /**
-   * Utility method to get PSPersistentPropertyMeta objects from
-   * m_mergedMetaCache.
-   */
+  /** Utility method to get PSPersistentPropertyMeta objects from m_mergedMetaCache. */
   private PSPersistentPropertyMeta getFromMetaCache(
       String category, String userName, String propertyName) {
     Map catMap = (ConcurrentHashMap) m_mergedMetaCache.get(userName);
@@ -336,10 +321,11 @@ public class PSPersistentPropertyManager {
 
   /**
    * Gets the first user name from the specified user session.
-   * @param userSession the user session which may contains user name(s).
-   *    It may not be <code>null</code>.
-   * @return user name with "spType/spInstance/username" format.  May be
-   * empty, if anonymous access is allowed; never <code>null</code>
+   *
+   * @param userSession the user session which may contains user name(s). It may not be <code>null
+   *     </code>.
+   * @return user name with "spType/spInstance/username" format. May be empty, if anonymous access
+   *     is allowed; never <code>null</code>
    */
   public static String getUserName(PSUserSession userSession) {
     if (userSession == null) throw new IllegalArgumentException("userSession may not be null.");
@@ -352,18 +338,16 @@ public class PSPersistentPropertyManager {
 
   /**
    * Adds or changes the attributes of a persisted property.
-   * <p>See {@link #getPersistedPropertyMeta} for more details and a
-   * description of the key (search) properties. Sql wildcards should not be
-   * used, an error will be thrown if they are found in any of the keys.
+   *
+   * <p>See {@link #getPersistedPropertyMeta} for more details and a description of the key (search)
+   * properties. Sql wildcards should not be used, an error will be thrown if they are found in any
+   * of the keys.
    *
    * @param category
    * @param request
    * @param propertyName
-   * @param meta The new attribute settings. If <code>null</code>, the entry
-   *    is removed.
-   *
-   * @return <code>true</code> if this is replacing an existing entry,
-   *    <code>false</code> otherwise.
+   * @param meta The new attribute settings. If <code>null</code>, the entry is removed.
+   * @return <code>true</code> if this is replacing an existing entry, <code>false</code> otherwise.
    * @throw UnsupportedOperationException.
    */
   public boolean setPersistedPropertyMeta(
@@ -374,26 +358,22 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Returns the value in the persisted property table associated with the
-   * supplied category, user and property, or the default object if a match is
-   * not found.
-   * <p>See {@link #getPersistedPropertyMeta} for more details and a
-   * description of the <code>category</code> and <code>propertyName</code>
-   * params.
+   * Returns the value in the persisted property table associated with the supplied category, user
+   * and property, or the default object if a match is not found.
    *
-   * @param category The category, may not be <code>null</code> or empty if
-   * <code>propertyName</code> is <code>null</code> or empty.
-   * @param userSession the user session used to get the property meta objects.
-   *    It may not be <code>null</code>.
-   * @param propertyName Cannot be <code>null</code> or empty if
-   * <code>category</code> is <code>null</code> or empty.
+   * <p>See {@link #getPersistedPropertyMeta} for more details and a description of the <code>
+   * category</code> and <code>propertyName</code> params.
    *
-   * @return Collection of <code>PSPersistentProperty</code> objects, an empty
-   * collection if nothing is found.
-   *
-   * @throws IllegalArgumentException If <code>propertyName</code> and
-   * <code>category</code> are both <code>null</code> or empty, or if
-   * <code>request</code> is <code>null</code>.
+   * @param category The category, may not be <code>null</code> or empty if <code>propertyName
+   *     </code> is <code>null</code> or empty.
+   * @param userSession the user session used to get the property meta objects. It may not be <code>
+   *     null</code>.
+   * @param propertyName Cannot be <code>null</code> or empty if <code>category</code> is <code>null
+   *     </code> or empty.
+   * @return Collection of <code>PSPersistentProperty</code> objects, an empty collection if nothing
+   *     is found.
+   * @throws IllegalArgumentException If <code>propertyName</code> and <code>category</code> are
+   *     both <code>null</code> or empty, or if <code>request</code> is <code>null</code>.
    */
   public synchronized Collection getPersistedProperty(
       String category, PSUserSession userSession, String propertyName) {
@@ -445,15 +425,13 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Properties are persisted here. If either the user name, property name or
-   * property value is null, that property will not be persisted.
+   * Properties are persisted here. If either the user name, property name or property value is
+   * null, that property will not be persisted.
    *
-   * @param c Collection of PSPersistentProperty objects which contains objects
-   * to be persisted. Only the modified properties are saved.  May not be
-   * <code>null</code>.
-   * @param userSession the user session used to get the property meta objects.
-   *    It may not be <code>null</code>.
-   *
+   * @param c Collection of PSPersistentProperty objects which contains objects to be persisted.
+   *     Only the modified properties are saved. May not be <code>null</code>.
+   * @param userSession the user session used to get the property meta objects. It may not be <code>
+   *     null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public synchronized void save(Collection c, PSUserSession userSession) {
@@ -502,10 +480,10 @@ public class PSPersistentPropertyManager {
    * Persists the specified persistent property to the backend repository.
    *
    * @param prop the to be saved property; assumed not <code>null</code>.
-   * @param mgr the service used to persist the specified property to the
-   *    backend repository; assumed not <code>null</code>.
-   * @param session the user session used to get the property meta objects;
-   *    assumed not <code>null</code>.
+   * @param mgr the service used to persist the specified property to the backend repository;
+   *     assumed not <code>null</code>.
+   * @param session the user session used to get the property meta objects; assumed not <code>null
+   *     </code>.
    */
   private void persist(PSPersistentProperty prop, IPSCmsObjectMgr mgr, PSUserSession session) {
     String action = prop.getExtraParam();
@@ -544,8 +522,8 @@ public class PSPersistentPropertyManager {
   }
 
   /**
-   * Synchronize properties in <code>m_propertyCache</code>. Preferably called
-   * after backend has updated.
+   * Synchronize properties in <code>m_propertyCache</code>. Preferably called after backend has
+   * updated.
    */
   private void syncPropertyCache(Collection c) {
     Iterator itr = c.iterator();
@@ -557,6 +535,7 @@ public class PSPersistentPropertyManager {
 
   /**
    * Property is being set here.
+   *
    * @param ps property object checked for a possible update.
    */
   private void setPropertyCache(PSPersistentProperty ps) {
@@ -597,30 +576,21 @@ public class PSPersistentPropertyManager {
     }
   }
 
-  /**
-   * Singleton instance of the class.  Initialize this statically to ensure
-   * thread safety.
-   */
+  /** Singleton instance of the class. Initialize this statically to ensure thread safety. */
   private static final PSPersistentPropertyManager ms_instance = new PSPersistentPropertyManager();
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   private static final Logger ms_log = LogManager.getLogger(PSPersistentPropertyManager.class);
 
   /**
-   * Maintains a cache of merged <code> PSPersitentPropertyMeta</code>
-   * objects. Note there 2 levels of indirection.
-   * Username key(s) are mapped to ConcurrentHashMap(s), whose keys are
-   * categories and those key(s) are mapped to  ConcurrentHashMap(s) whose key(s) are
-   * mapped to meta property objects
-   * Pictorially --- (Usernname,(categories,(metaPropertyName,metaObjs)))
+   * Maintains a cache of merged <code> PSPersitentPropertyMeta</code> objects. Note there 2 levels
+   * of indirection. Username key(s) are mapped to ConcurrentHashMap(s), whose keys are categories
+   * and those key(s) are mapped to ConcurrentHashMap(s) whose key(s) are mapped to meta property
+   * objects Pictorially --- (Usernname,(categories,(metaPropertyName,metaObjs)))
    */
   private final Map<String, ConcurrentHashMap> m_mergedMetaCache = new ConcurrentHashMap<>();
 
-  /**
-   * Cache for <code>PSPersitentProperty</code> objects.
-   */
+  /** Cache for <code>PSPersitentProperty</code> objects. */
   private final Map m_propertyCache = new ConcurrentHashMap();
 
   public static final String SYS_USER = "**psxsystem";

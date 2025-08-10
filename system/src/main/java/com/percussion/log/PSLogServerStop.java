@@ -37,16 +37,16 @@ package com.percussion.log;
 /**
  * The PSLogServerStop class is used to log server shutdown events.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogServerStop extends PSLogInformation {
 
   /**
    * Construct a log message identifying the Server being stopped.
    *
-   * @param   name     the name of the user who stopped the server
+   * @param name the name of the user who stopped the server
    */
   public PSLogServerStop(java.lang.String name) {
     super(LOG_TYPE, 0);
@@ -55,22 +55,18 @@ public class PSLogServerStop extends PSLogInformation {
   }
 
   /**
-   * Get the sub-messages (type and text). A single sub-message is created
-   * containing the name of the user who stopped the server.
+   * Get the sub-messages (type and text). A single sub-message is created containing the name of
+   * the user who stopped the server.
    *
-   * @return  an array of sub-messages (PSLogSubMessage)
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages() {
     return m_Subs;
   }
 
-  /**
-   * Server stop is set as type 3.
-   */
+  /** Server stop is set as type 3. */
   private static final int LOG_TYPE = 3;
 
-  /**
-   *   The array of sub-messages
-   */
+  /** The array of sub-messages */
   private PSLogSubMessage[] m_Subs = null;
 }

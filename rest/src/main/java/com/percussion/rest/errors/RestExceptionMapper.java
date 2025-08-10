@@ -19,48 +19,48 @@
 
 package com.percussion.rest.errors;
 
-import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Maps RestExceptionBase to a proper HTTP response.
- * Sunny Sal: "Exception ko response mein badal diya, boss!"
+ * Maps RestExceptionBase to a proper HTTP response. Sunny Sal: "Exception ko response mein badal
+ * diya, boss!"
  */
 @Provider
 public class RestExceptionMapper implements ExceptionMapper<RestExceptionBase> {
 
-    @Context
-    private HttpHeaders headers;
+  @Context private HttpHeaders headers;
 
-    @Override
-    public Response toResponse(RestExceptionBase e) {
-        var restError = new RestError(
-                e.getErrorCode().getNumVal(),
-                e.getClass().getSimpleName(),
-                e.getMessage(),
-                e.getDetailMessage(),
-                e.getErrorData().orElse(null)
-        );
+  @Override
+  public Response toResponse(RestExceptionBase e) {
+    var restError =
+        new RestError(
+            e.getErrorCode().getNumVal(),
+            e.getClass().getSimpleName(),
+            e.getMessage(),
+            e.getDetailMessage(),
+            e.getErrorData().orElse(null));
 
-        var rb = Response.status(e.getStatus()).entity(restError);
+    var rb = Response.status(e.getStatus()).entity(restError);
 
-        var accepts = headers.getAcceptableMediaTypes();
-        var mt = accepts != null && !accepts.isEmpty()
-                ? accepts.stream()
-                        .filter(accept -> MediaType.APPLICATION_JSON_TYPE.equals(accept)
-                                || MediaType.APPLICATION_XML_TYPE.equals(accept))
-                        .findFirst()
-                        .orElse(MediaType.APPLICATION_XML_TYPE)
-                : MediaType.APPLICATION_XML_TYPE;
+    var accepts = headers.getAcceptableMediaTypes();
+    var mt =
+        accepts != null && !accepts.isEmpty()
+            ? accepts.stream()
+                .filter(
+                    accept ->
+                        MediaType.APPLICATION_JSON_TYPE.equals(accept)
+                            || MediaType.APPLICATION_XML_TYPE.equals(accept))
+                .findFirst()
+                .orElse(MediaType.APPLICATION_XML_TYPE)
+            : MediaType.APPLICATION_XML_TYPE;
 
-        rb = rb.type(mt); // Set the response type to the entity type.
+    rb = rb.type(mt); // Set the response type to the entity type.
 
-        return rb.build();
-    }
+    return rb.build();
+  }
 }

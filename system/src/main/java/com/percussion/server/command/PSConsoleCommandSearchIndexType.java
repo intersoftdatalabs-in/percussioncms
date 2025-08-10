@@ -44,9 +44,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Implements the 'search index type' console command. This command takes
- * 1 optional argument which is a content type identifier, either numeric
- * or text. If no arg is supplied, all running types are processed.
+ * Implements the 'search index type' console command. This command takes 1 optional argument which
+ * is a content type identifier, either numeric or text. If no arg is supplied, all running types
+ * are processed.
  *
  * @author paulhoward
  */
@@ -55,10 +55,9 @@ public class PSConsoleCommandSearchIndexType extends PSConsoleCommandSearchIndex
    * Ctor required by framework.
    *
    * @param args See class description for reqs.
-   *
-   * @throws PSIllegalArgumentException Never. The optional arg is not
-   * validated until the command is executed.
-   * <p>Note: we use PSIllegal... here because that's what the framework uses.
+   * @throws PSIllegalArgumentException Never. The optional arg is not validated until the command
+   *     is executed.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */
   public PSConsoleCommandSearchIndexType(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -130,22 +129,19 @@ public class PSConsoleCommandSearchIndexType extends PSConsoleCommandSearchIndex
 
   /**
    * The full command that launched this handler.
-   * <p>Note: this should be passed in rather than having it in two places,
-   * but the whole framework needs reworking so I'm not going to take that on
-   * now.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
    */
   private static final String COMMAND_NAME = "search index type";
 
   /**
-   * Result of the last call to {@link #doExecute(PSRequest, PSKey[])}, will
-   * be returned by calls to {@link #getResultCode()}.
+   * Result of the last call to {@link #doExecute(PSRequest, PSKey[])}, will be returned by calls to
+   * {@link #getResultCode()}.
    */
   private int m_resultCode = IPSServerErrors.RCONSOLE_CONTENT_TYPES_PROCESSED;
 
-  /**
-   * Number of items indexed by last call to
-   * {@link #doExecute(PSRequest, PSKey[])}.
-   */
+  /** Number of items indexed by last call to {@link #doExecute(PSRequest, PSKey[])}. */
   private int m_indexCount = 0;
 
   private static final Logger ms_log = LogManager.getLogger(PSConsoleCommandSearchIndexType.class);

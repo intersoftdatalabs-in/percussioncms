@@ -17,10 +17,7 @@
 
 package com.percussion.deployer.client;
 
-/**
- * Wrapper for a stream that tracks the number of bytes written or read to or
- * from the stream.
- */
+/** Wrapper for a stream that tracks the number of bytes written or read to or from the stream. */
 public interface IPSStreamCounter {
   /**
    * Get the number of bytes written or read.
@@ -30,10 +27,9 @@ public interface IPSStreamCounter {
   long getByteCount();
 
   /**
-   * Attempts to close the underlying stream.  May be called while the stream
-   * is being written to or read from, in order to abort that process, as long
-   * as any exceptions resulting from the close are handled by the owner of the
-   * stream.
+   * Attempts to close the underlying stream. May be called while the stream is being written to or
+   * read from, in order to abort that process, as long as any exceptions resulting from the close
+   * are handled by the owner of the stream.
    */
   public void closeStream();
 }

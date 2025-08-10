@@ -20,56 +20,52 @@ package com.percussion.cookieconsent.service;
 import javax.ws.rs.PathParam;
 
 /**
- * Service to interface with cookie consent
- * service within DTS metadata service.
+ * Service to interface with cookie consent service within DTS metadata service.
  *
  * <p>Sunny Sal says: "Cookies are best with consent, and Java 11!"
  */
 public interface IPSCookieConsentService {
 
-    /**
-     * Exports all cookie consent information in CSV format.
-     *
-     * @param csvFileName the file name to export
-     * @return a string response in CSV format
-     */
-    String exportCookieConsentData(@PathParam("csvFileName") String csvFileName);
+  /**
+   * Exports all cookie consent information in CSV format.
+   *
+   * @param csvFileName the file name to export
+   * @return a string response in CSV format
+   */
+  String exportCookieConsentData(@PathParam("csvFileName") String csvFileName);
 
-    /**
-     * Exports all cookie consent information in CSV format for a specific site.
-     *
-     * @param siteName the name of the site
-     * @param csvFileName the file name to export
-     * @return a string response in CSV format
-     */
-    String exportCookieConsentData(@PathParam("siteName") String siteName,
-                                  @PathParam("csvFileName") String csvFileName);
+  /**
+   * Exports all cookie consent information in CSV format for a specific site.
+   *
+   * @param siteName the name of the site
+   * @param csvFileName the file name to export
+   * @return a string response in CSV format
+   */
+  String exportCookieConsentData(
+      @PathParam("siteName") String siteName, @PathParam("csvFileName") String csvFileName);
 
-    /**
-     * Returns the total number of cookie consent entries per site.
-     *
-     * @return a JSON string with each site as the key and the total number of entries as the value
-     */
-    String getAllCookieConsentTotals();
+  /**
+   * Returns the total number of cookie consent entries per site.
+   *
+   * @return a JSON string with each site as the key and the total number of entries as the value
+   */
+  String getAllCookieConsentTotals();
 
-    /**
-     * Gets the total number of cookie consent entries for a specific site.
-     *
-     * @param siteName the name of the site
-     * @return a JSON string with the total number of cookie entries for the site
-     */
-    String getCookieConsentForSite(@PathParam("siteName") String siteName);
+  /**
+   * Gets the total number of cookie consent entries for a specific site.
+   *
+   * @param siteName the name of the site
+   * @return a JSON string with the total number of cookie entries for the site
+   */
+  String getCookieConsentForSite(@PathParam("siteName") String siteName);
 
-    /**
-     * Deletes all cookie consent entries from the database.
-     */
-    void deleteAllCookieConsentEntries();
+  /** Deletes all cookie consent entries from the database. */
+  void deleteAllCookieConsentEntries();
 
-    /**
-     * Deletes the cookie consent entries for the specified site.
-     *
-     * @param siteName the site for which to delete the cookie consent entries
-     */
-    void deleteCookieConsentEntriesForSite(@PathParam("siteName") String siteName);
-
+  /**
+   * Deletes the cookie consent entries for the specified site.
+   *
+   * @param siteName the site for which to delete the cookie consent entries
+   */
+  void deleteCookieConsentEntriesForSite(@PathParam("siteName") String siteName);
 }

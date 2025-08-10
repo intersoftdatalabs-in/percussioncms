@@ -23,12 +23,11 @@ import java.util.Properties;
 import org.w3c.dom.Document;
 
 /**
- * The PSCatalogerCatalogHandler class implements cataloging of
- * subject and directory catalogers.  This
- * request type is used to locate the available catalogers.
- * <p>
- * Cataloger catalog requests are sent to the server using the
- * PSXSecurityCatalogerCatalog XML document. Its definition is as follows:
+ * The PSCatalogerCatalogHandler class implements cataloging of subject and directory catalogers.
+ * This request type is used to locate the available catalogers.
+ *
+ * <p>Cataloger catalog requests are sent to the server using the PSXSecurityCatalogerCatalog XML
+ * document. Its definition is as follows:
  *
  * <pre>
  * <code>
@@ -39,8 +38,8 @@ import org.w3c.dom.Document;
  * </code>
  * </pre>
  *
- * The PSXSecurityCatalogerCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXSecurityCatalogerCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
  *
  * <pre>
  * <code>
@@ -79,17 +78,15 @@ import org.w3c.dom.Document;
  *
  * </code>
  * </pre>
- *
  */
 public class PSCatalogerCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSCatalogerCatalogHandler() {}
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <TABLE border="2">
    * <tr><th>Key</th>
    *     <th>Value</th>
@@ -103,7 +100,6 @@ public class PSCatalogerCatalogHandler implements IPSCatalogHandler {
    * </TABLE>
    *
    * See base class for more info.
-   *
    */
   public Document formatRequest(Properties req) {
     String sTemp = (String) req.get("RequestCategory");

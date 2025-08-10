@@ -41,18 +41,15 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Creates a help hints xml file using the specified help mappings and
- * base help path.
- */
+/** Creates a help hints xml file using the specified help mappings and base help path. */
 public class PSHelpHintFileCreator {
 
   private static final Logger log = LogManager.getLogger(PSHelpHintFileCreator.class);
 
   /**
    * Ctor
-   * @param helpMappings path of the help mappings file, cannot be
-   * <code>null</code>.
+   *
+   * @param helpMappings path of the help mappings file, cannot be <code>null</code>.
    * @param helpPath base help path, cannot be <code>null</code>.
    * @param target the target xml file path, cannot be <code>null</code>.
    */
@@ -65,9 +62,7 @@ public class PSHelpHintFileCreator {
     m_target = target;
   }
 
-  /**
-   * Create the help hint file
-   */
+  /** Create the help hint file */
   public void createFile() throws IOException {
     validatePaths();
     Properties mappings = loadMappings();
@@ -93,6 +88,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Set debug on or off
+   *
    * @param on
    */
   public void setDebug(boolean on) {
@@ -100,8 +96,7 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * @return iterator of all unique parsed images. Never <code>null</code>,
-   * may be empty.
+   * @return iterator of all unique parsed images. Never <code>null</code>, may be empty.
    */
   public Iterator getImages() {
     return m_images.keySet().iterator();
@@ -109,6 +104,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Creates the actual "meat" of the xml file.
+   *
    * @param out assumed not <code>null</code>.
    */
   private void createFileBody(PrintStream out, Map<String, String> mappings) throws IOException {
@@ -128,8 +124,9 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Parses the messages from the files and then writes the appropriate
-   * help hint entry in the output xml file.
+   * Parses the messages from the files and then writes the appropriate help hint entry in the
+   * output xml file.
+   *
    * @param out
    * @param helpFile
    * @param key
@@ -190,8 +187,9 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Finds all image tags and adds the resource base token to the source
-   * attribute. Also records each unique image file path for later use.
+   * Finds all image tags and adds the resource base token to the source attribute. Also records
+   * each unique image file path for later use.
+   *
    * @param content assumed not <code>null</code>.
    * @return the modified string, never <code>null</code>.
    */
@@ -218,8 +216,9 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Finds all anchor tags and adds the resource base token to the href
-   * attribute if needed. Also records each unique image file path for later use.
+   * Finds all anchor tags and adds the resource base token to the href attribute if needed. Also
+   * records each unique image file path for later use.
+   *
    * @param content assumed not <code>null</code>.
    * @return the modified string, never <code>null</code>.
    */
@@ -247,6 +246,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Strips all tags from content
+   *
    * @param content assumed not <code>null</code>.
    * @return cleaned content, never <code>null</code>.
    */
@@ -261,8 +261,8 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Determines that the passed in tag is a table and is the
-   * related items table.
+   * Determines that the passed in tag is a table and is the related items table.
+   *
    * @param text assumed not <code>null</code>.
    * @param tag assumed not <code>null</code>.
    * @return <code>true</code> if this is a related items table.
@@ -282,9 +282,9 @@ public class PSHelpHintFileCreator {
 
   /**
    * Finds all field description p tags
+   *
    * @param source assumed not <code>null</code>.
-   * @return list of all the field description p tags, never
-   * <code>null</code>, may be empty.
+   * @return list of all the field description p tags, never <code>null</code>, may be empty.
    */
   private List getAllFieldDescStartTags(Source source) {
     List tags = new ArrayList();
@@ -299,6 +299,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Parses the fieldname from the content string passed in
+   *
    * @param content assumed not <code>null</code>
    * @return field name or <code>null</code> if not found.
    */
@@ -317,8 +318,8 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Determine if the passed in tag is a field description
-   * tag.
+   * Determine if the passed in tag is a field description tag.
+   *
    * @param tag assumed not <code>null</code>.
    * @return <code>true</code> if this is a field description p tag.
    */
@@ -332,6 +333,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Loads the contents of the help file into a string
+   *
    * @param helpFile
    * @return the contents of the help text file
    * @throws IOException upon any error
@@ -354,6 +356,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Helper method for creating xml tags
+   *
    * @param name
    * @param attribs
    * @param type
@@ -381,6 +384,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Helper method for creating xml start tags
+   *
    * @param name
    * @param attribs
    * @param isSelfClose
@@ -393,6 +397,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Helper method for creating xml end tags
+   *
    * @param name
    * @return the newly created tag, never <code>null</code> or empty.
    */
@@ -402,6 +407,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Validates the to make sure both the help mappings file and
+   *
    * @throws IOException upon error
    */
   private void validatePaths() throws IOException {
@@ -417,8 +423,8 @@ public class PSHelpHintFileCreator {
   }
 
   /**
-   * Helper method to load the help mappings and return them
-   * as a set of properties.
+   * Helper method to load the help mappings and return them as a set of properties.
+   *
    * @return never <code>null</code>, may be empty.
    * @throws IOException on any error
    */
@@ -433,6 +439,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Write a debug string to console if debug mode is on
+   *
    * @param str the debug string to output.
    */
   private void debug(String str) {
@@ -441,6 +448,7 @@ public class PSHelpHintFileCreator {
 
   /**
    * Main used for testing only
+   *
    * @param args
    */
   public static void main(String[] args) throws Exception {
@@ -456,29 +464,19 @@ public class PSHelpHintFileCreator {
     creator.createFile();
   }
 
-  /**
-   * The path to the help mappings file
-   */
+  /** The path to the help mappings file */
   private File m_helpMappings;
 
-  /**
-   * The path to where the plugin help base directory is located
-   */
+  /** The path to where the plugin help base directory is located */
   private File m_helpPath;
 
-  /**
-   * The target path for the file to be created.
-   */
+  /** The target path for the file to be created. */
   private File m_target;
 
-  /**
-   * Flag indicating that debug is on
-   */
+  /** Flag indicating that debug is on */
   private boolean m_debug;
 
-  /**
-   * Map of all unique images parsed
-   */
+  /** Map of all unique images parsed */
   private final Map<String, String> m_images = new HashMap<String, String>();
 
   // Package constants
@@ -513,10 +511,7 @@ public class PSHelpHintFileCreator {
   private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
   private static final String INDENT = SPACE + SPACE + SPACE;
 
-  /**
-   * List of tags that indicate that we have come to the end of
-   * the final field description.
-   */
+  /** List of tags that indicate that we have come to the end of the final field description. */
   private static final List<String> ms_stop_tags = new ArrayList<String>();
 
   static {

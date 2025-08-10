@@ -26,9 +26,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Returns the sort rank of the items relationship.
- * Expects sys_relationshipid parameter.
- * Returns the sort rank result as plain text.
+ * Returns the sort rank of the items relationship. Expects sys_relationshipid parameter. Returns
+ * the sort rank result as plain text.
  */
 public class PSGetItemSortRankAction extends PSAAActionBase {
 

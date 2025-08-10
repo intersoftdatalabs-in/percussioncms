@@ -19,19 +19,16 @@ package com.percussion.user.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a list of external users.
- */
+/** Represents a list of external users. */
 @XmlRootElement(name = "ExternalUser")
 @ArraySchema(schema = @Schema(implementation = PSExternalUser.class))
 @JsonRootName("ExternalUser")
 public class PSExternalUserList extends ArrayList<PSExternalUser> {
-    public PSExternalUserList(Collection<? extends PSExternalUser> c) {
-        super(c);
-    }
+  public PSExternalUserList(Collection<? extends PSExternalUser> c) {
+    super(c);
+  }
 }

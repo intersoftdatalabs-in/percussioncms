@@ -64,16 +64,14 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/**
- *  This class is used to install and upgrade Rhythmyx tables.
- */
+/** This class is used to install and upgrade Rhythmyx tables. */
 public class RxJdbcTableFactory {
   public RxJdbcTableFactory() {
     super();
   }
 
   /**
-   *  This method will install the Rhythmyx tables.
+   * This method will install the Rhythmyx tables.
    *
    * @param sServer - the server the database is on
    * @param sDatabase - the database the tables should be in.
@@ -226,14 +224,10 @@ public class RxJdbcTableFactory {
   }
 
   /**
-   * Checks the for Write permission in the target
-   * directory.
+   * Checks the for Write permission in the target directory.
    *
-   * @param   targetDir   Directory to write to.
-   *
-   * @return  boolean false or true.
-   *          true  = alloed to write
-   *          false = Not allowed to write
+   * @param targetDir Directory to write to.
+   * @return boolean false or true. true = alloed to write false = Not allowed to write
    */
   public boolean checkWriteSecutrity(String targetDir) {
     boolean bRet = false;
@@ -243,18 +237,13 @@ public class RxJdbcTableFactory {
   }
 
   /**
-   * Breaks down a workflow DTD document and stores it
-   * in glabal DBStruct class.
+   * Breaks down a workflow DTD document and stores it in glabal DBStruct class.
    *
-   * @param  docTableDef well formed DTD document
+   * @param docTableDef well formed DTD document
    * @param dbmsDef well formed database definition
-   *
-   * @return String : If empty then no errors, otherwise Error
-   *
-   * @ Other It stores the values in the glbal DBStruct
-   *          class. It is broken down into Vector RxTables and
-   *          Vector RxColumns within the Vector Columns which
-   *          each Vector is part of a RxTables Class.
+   * @return String : If empty then no errors, otherwise Error @ Other It stores the values in the
+   *     glbal DBStruct class. It is broken down into Vector RxTables and Vector RxColumns within
+   *     the Vector Columns which each Vector is part of a RxTables Class.
    */
   public String parseTableDefs(Document docTableDef, DbmsDefinition dbmsDef) {
     Vector<RxTables> locRxTables = new Vector<>();
@@ -531,11 +520,11 @@ public class RxJdbcTableFactory {
     }
 
     /**
-     * Returns the connection stored in the member variable if present.
-     * Otherwise, creates a new connection and stores it in the member variable.
+     * Returns the connection stored in the member variable if present. Otherwise, creates a new
+     * connection and stores it in the member variable.
      *
-     * @returns Connection to the database specified by the properties, or
-     *    <code>null</code> if a connection could not be established
+     * @returns Connection to the database specified by the properties, or <code>null</code> if a
+     *     connection could not be established
      * @throws SQLException if cannot load JDBC driver
      */
     public Connection getConnection() throws SQLException {
@@ -1043,8 +1032,7 @@ public class RxJdbcTableFactory {
     /**
      * Creates an array of statements for each foreign key constraint.
      *
-     * @return The array of statements, never <code>null</code>, may be
-     * empty.
+     * @return The array of statements, never <code>null</code>, may be empty.
      */
     public String[] getAddForeignKeyStatements() {
       int size = m_fKey.size();
@@ -2400,17 +2388,12 @@ public class RxJdbcTableFactory {
     }
 
     /**
-     * Executes statements required to create foreign key constraints
-     * defined for this table.
+     * Executes statements required to create foreign key constraints defined for this table.
      *
      * @param conn A valid connection to the database.
-     *
-     * @param stmt The statement to use.  Assumed not <code>null</code>.
-     * Statement is not closed after this method returns (to be consistent
-     * with calling logic).
-     *
-     * @throws SQLException if an error occurs.  No cleanup is performed by
-     * this method.
+     * @param stmt The statement to use. Assumed not <code>null</code>. Statement is not closed
+     *     after this method returns (to be consistent with calling logic).
+     * @throws SQLException if an error occurs. No cleanup is performed by this method.
      */
     private void createForeignKeys(Connection conn, Statement stmt) throws SQLException {
       String[] fKeys = getAddForeignKeyStatements();
@@ -2995,8 +2978,7 @@ public class RxJdbcTableFactory {
       return pStmt;
     } // SetOldStmtData
 
-    /** Deletes a file in the target Directory.
-     */
+    /** Deletes a file in the target Directory. */
     String deleteFile(String dataFileName, String targetDir) {
       String sStatus = new String();
 
@@ -3004,16 +2986,11 @@ public class RxJdbcTableFactory {
     }
 
     /**
-     * Writes a Docuemnt to the execution directory
-     * or if the full path name is provided, it will
-     * write ir to that directory. Various flags can
-     * be passed which indicate what to do if the file
-     * name already exist in the target directory.
-     * CREATE_NEW_OVERWRITE = Create new file.
-     *                       Overwrite the old file.
-     * CREATE_NEW_OLD = Create new, rename old file
-     *                   with the next index of the file
-     *                   name available.
+     * Writes a Docuemnt to the execution directory or if the full path name is provided, it will
+     * write ir to that directory. Various flags can be passed which indicate what to do if the file
+     * name already exist in the target directory. CREATE_NEW_OVERWRITE = Create new file. Overwrite
+     * the old file. CREATE_NEW_OLD = Create new, rename old file with the next index of the file
+     * name available.
      */
     public String fileSaveXMLDocument(Document dDataDoc, String sFileName, int writeFlag) {
       // These are redefined so we are not dependent
@@ -3074,13 +3051,10 @@ public class RxJdbcTableFactory {
     }
 
     /**
-     * Cretaes a new file which is a copy of the
-     * file name passed and changes the extension
-     * with the next vailable index number. eg the
-     * filename "ABCD.xml" will be copied to ABCD.n
-     * where n is a value from 0 to 9. The index is
-     * decided by the availabilty of the file if
-     * ABCD.0 exists then the name will be ABCD.1 and so on.
+     * Cretaes a new file which is a copy of the file name passed and changes the extension with the
+     * next vailable index number. eg the filename "ABCD.xml" will be copied to ABCD.n where n is a
+     * value from 0 to 9. The index is decided by the availabilty of the file if ABCD.0 exists then
+     * the name will be ABCD.1 and so on.
      */
     String reNameFileExt(String sFileName) {
       StringTokenizer sNameToken = new StringTokenizer(sFileName);
@@ -3514,11 +3488,10 @@ public class RxJdbcTableFactory {
     private String m_qualifiedPkeyName;
 
     /**
-     * Fully qualified base name used to create foreign key constraints.  Each
-     * constraint is added using this name with "_n" appended on the end where
-     * n is a number monotinically incremented for each constraint added.
-     * Initialized in the ctor, never <code>null</code>, empty, or modified
-     * after that.
+     * Fully qualified base name used to create foreign key constraints. Each constraint is added
+     * using this name with "_n" appended on the end where n is a number monotinically incremented
+     * for each constraint added. Initialized in the ctor, never <code>null</code>, empty, or
+     * modified after that.
      */
     private String m_qualifiedFkeyName;
 
@@ -3531,12 +3504,11 @@ public class RxJdbcTableFactory {
     private List m_pKey = new ArrayList();
 
     /**
-     * List of foreign key constraints.  Each entry is String array containing
-     * 3 entries, where the first entry is the name of the column, the second
-     * is the name of the foreign table, and the third is the name of the
-     * foreign column.  Never <code>null</code>,  may be empty. Entries are
-     * added in the ctor, and entries are never <code>null</code>.  List or
-     * its entries are never modified after it is initialized in the ctor.
+     * List of foreign key constraints. Each entry is String array containing 3 entries, where the
+     * first entry is the name of the column, the second is the name of the foreign table, and the
+     * third is the name of the foreign column. Never <code>null</code>, may be empty. Entries are
+     * added in the ctor, and entries are never <code>null</code>. List or its entries are never
+     * modified after it is initialized in the ctor.
      */
     private List m_fKey = new ArrayList();
 
@@ -3852,8 +3824,7 @@ public class RxJdbcTableFactory {
   }
 
   /**
-   *  Worker function to look at column changes and determine if only column
-   *  adds are needed.
+   * Worker function to look at column changes and determine if only column adds are needed.
    *
    * @param vColumnChanges - Vector of RxColumns to check.
    */
@@ -3874,8 +3845,8 @@ public class RxJdbcTableFactory {
   }
 
   /**
-   *  Worker function to look at column changes and determine if any column
-   *  changes exist that are not because the user adding a column.
+   * Worker function to look at column changes and determine if any column changes exist that are
+   * not because the user adding a column.
    *
    * @param vColumnChanges - Vector of RxColumns to check.
    */
@@ -3936,10 +3907,10 @@ public class RxJdbcTableFactory {
   }
 
   /**
-   * Enhanced version of the main that takes multiple defs and data files.
-   * Each additional def and data file must be prepended with -def or -deta res-
-   * pectively. ie:
-   * -dbprops <propsFile> -typemap <typeMapFile> -def <defFile> -data <dataFile>
+   * Enhanced version of the main that takes multiple defs and data files. Each additional def and
+   * data file must be prepended with -def or -deta res- pectively. ie: -dbprops <propsFile>
+   * -typemap <typeMapFile> -def <defFile> -data <dataFile>
+   *
    * @param args see description.
    */
   private static void main2(String args[]) {

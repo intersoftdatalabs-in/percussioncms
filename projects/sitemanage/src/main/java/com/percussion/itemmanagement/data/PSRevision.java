@@ -26,77 +26,73 @@ import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 
 /**
- * Encapsulates revision information for a page or asset including revision id, last time it was modified,
- * who modified it last, and its current state.
- * Sunny Sal says: "Revision history—because everyone deserves a second chance!"
+ * Encapsulates revision information for a page or asset including revision id, last time it was
+ * modified, who modified it last, and its current state. Sunny Sal says: "Revision history—because
+ * everyone deserves a second chance!"
  */
 @XmlRootElement(name = "Revision")
 @JsonRootName("Revision")
 public class PSRevision extends PSAbstractDataObject {
 
-    private int revId;
+  private int revId;
 
-    @NotEmpty
-    private String lastModifiedDate;
+  @NotEmpty private String lastModifiedDate;
 
-    private String lastModifier;
+  private String lastModifier;
 
-    @NotEmpty
-    private String status;
+  @NotEmpty private String status;
 
-    /**
-     * Default constructor for serializers.
-     */
-    public PSRevision() {
-        // No-op
-    }
+  /** Default constructor for serializers. */
+  public PSRevision() {
+    // No-op
+  }
 
-    /**
-     * Constructs an instance of the class.
-     *
-     * @param revId            revision id (not an actual ID but a numeric counter)
-     * @param lastModifiedDate date when this item was last modified, never blank
-     * @param lastModifier     the user name who modified the item last, never blank
-     * @param status           status of this page or asset, never blank
-     */
-    public PSRevision(int revId, String lastModifiedDate, String lastModifier, String status) {
-        notEmpty(lastModifiedDate, "lastModifiedDate");
-        notEmpty(status, "status");
-        this.revId = revId;
-        this.lastModifiedDate = lastModifiedDate;
-        this.lastModifier = lastModifier;
-        this.status = status;
-    }
+  /**
+   * Constructs an instance of the class.
+   *
+   * @param revId revision id (not an actual ID but a numeric counter)
+   * @param lastModifiedDate date when this item was last modified, never blank
+   * @param lastModifier the user name who modified the item last, never blank
+   * @param status status of this page or asset, never blank
+   */
+  public PSRevision(int revId, String lastModifiedDate, String lastModifier, String status) {
+    notEmpty(lastModifiedDate, "lastModifiedDate");
+    notEmpty(status, "status");
+    this.revId = revId;
+    this.lastModifiedDate = lastModifiedDate;
+    this.lastModifier = lastModifier;
+    this.status = status;
+  }
 
-    public int getRevId() {
-        return revId;
-    }
+  public int getRevId() {
+    return revId;
+  }
 
-    public void setRevId(int revId) {
-        this.revId = revId;
-    }
+  public void setRevId(int revId) {
+    this.revId = revId;
+  }
 
-    public String getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+  public String getLastModifiedDate() {
+    return lastModifiedDate;
+  }
 
-    public void setLastModifiedDate(String lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+  public void setLastModifiedDate(String lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+  }
 
-    public String getLastModifier() {
-        return lastModifier;
-    }
+  public String getLastModifier() {
+    return lastModifier;
+  }
 
-    public void setLastModifier(String lastModifier) {
-        this.lastModifier = lastModifier;
-    }
+  public void setLastModifier(String lastModifier) {
+    this.lastModifier = lastModifier;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 }

@@ -38,27 +38,22 @@ import java.util.Properties;
 import org.w3c.dom.Document;
 
 /**
- * The PSResultSetHtmlConverter class extends the PSResultSetXmlConverter
- * class, providing conversion to an HTML page. It extends the XML converter
- * as the process of HTML conversion first converts to an XML document
- * and then runs the document through its style sheet to generate HTML.
+ * The PSResultSetHtmlConverter class extends the PSResultSetXmlConverter class, providing
+ * conversion to an HTML page. It extends the XML converter as the process of HTML conversion first
+ * converts to an XML document and then runs the document through its style sheet to generate HTML.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /**
    * Construct a ResultSet to HTML converter.
    *
-   * @param      app   the application containing the data set
-   *
-   * @param      def   the data set definition
-   *
-   * @exception   PSIllegalArgumentException
-   *                                                if request link generation is
-   *                                                desired but the target data set
-   *                                                cannot be found
+   * @param app the application containing the data set
+   * @param def the data set definition
+   * @exception PSIllegalArgumentException if request link generation is desired but the target data
+   *     set cannot be found
    */
   public PSResultSetHtmlConverter(PSApplicationHandler app, PSDataSet def)
       throws PSNotFoundException,
@@ -71,22 +66,20 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /* ********** IPSResultSetConverter Interface Implementation ********** */
 
   /**
-   * See {@link IPSResultSetConverter#convert(PSExecutionData,
-   * IPSResultSetDataFilter) base class} for full details. More specifically,
-   * this class performs the following steps during conversion:
+   * See {@link IPSResultSetConverter#convert(PSExecutionData, IPSResultSetDataFilter) base class}
+   * for full details. More specifically, this class performs the following steps during conversion:
+   *
    * <ol>
-   * <li>verify reqUrl is supported</li>
-   * <li>run the conditionals to determine which style sheet is in use.
-   * If no conditions are met, use our default style sheet.</li>
-   * <li>let our super-class create an XML document for us as this is
-   * a required first step in building HTML.</li>
-   * <li>initialize the output with the appropriate header info
-   * (content type, etc.)</li>
-   * <li>if the style sheet is XSL, run it through the XSL processor
-   * for conversion to HTML (assuming the XSL is building HTML)</li>
-   * <li>if the style sheet is of any other type (eg, CSS), set it as the
-   * style sheet for the XML data and return it (we do no processing
-   * on CSS or other such types)</li>
+   *   <li>verify reqUrl is supported
+   *   <li>run the conditionals to determine which style sheet is in use. If no conditions are met,
+   *       use our default style sheet.
+   *   <li>let our super-class create an XML document for us as this is a required first step in
+   *       building HTML.
+   *   <li>initialize the output with the appropriate header info (content type, etc.)
+   *   <li>if the style sheet is XSL, run it through the XSL processor for conversion to HTML
+   *       (assuming the XSL is building HTML)
+   *   <li>if the style sheet is of any other type (eg, CSS), set it as the style sheet for the XML
+   *       data and return it (we do no processing on CSS or other such types)
    * </ol>
    */
   public void convert(PSExecutionData data, IPSResultSetDataFilter filter)
@@ -239,7 +232,7 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /**
    * What is the default MIME type for this converter?
    *
-   * @return               the default MIME type
+   * @return the default MIME type
    */
   public String getDefaultMimeType() {
     return null; // now it is just blah IPSMimeContentTypes.MIME_TYPE_TEXT_HTML;
@@ -248,15 +241,11 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /**
    * Generate the results for this request.
    *
-   * @param   execData      the execution data associated with this request.
-   *                                    This includes all context data, result sets, etc.
-   *
-   * @exception   PSConversionException
-   *                                    if the conversion fails
-   *
-   * @exception   PSUnsupportedConversionException
-   *                               if conversion to the format required by the
-   *                               specified request URL is not supported
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @exception PSConversionException if the conversion fails
+   * @exception PSUnsupportedConversionException if conversion to the format required by the
+   *     specified request URL is not supported
    */
   public void generateResults(PSExecutionData data)
       throws PSConversionException, PSUnsupportedConversionException {
@@ -267,15 +256,11 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
   /* *********************   Protected Implementation ******************** */
 
   /**
-   * Is the request URL supported by this converter? The request URL may
-   * contain an extension. When it does, this is used in defining the
-   * output which will be returned.
+   * Is the request URL supported by this converter? The request URL may contain an extension. When
+   * it does, this is used in defining the output which will be returned.
    *
-   * @param   reqUrl      the URL which was specified when making this
-   *                                    request
-   *
-   * @return               <code>true</code> if conversion is supported,
-   *                             <code>false</code> otherwise
+   * @param reqUrl the URL which was specified when making this request
+   * @return <code>true</code> if conversion is supported, <code>false</code> otherwise
    */
   protected boolean isSupported(String reqPageURL) {
     /* check the URL to see if it matches the HTML conversion rules */

@@ -47,14 +47,12 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author stephenbolton
- *
- *  This Class wraps useful functions around PSRequestInfo which is in rxutils.jar and does not have access to com.percussion.services
+ *     <p>This Class wraps useful functions around PSRequestInfo which is in rxutils.jar and does
+ *     not have access to com.percussion.services
  */
 public class PSThreadRequestUtils {
 
-  /**
-   * Logger for this service.
-   */
+  /** Logger for this service. */
   private static final Logger log = LogManager.getLogger(PSThreadRequestUtils.class);
 
   public static PSRequest getPSRequest() {
@@ -181,8 +179,8 @@ public class PSThreadRequestUtils {
   }
 
   /**
-   * Updates the http session from the supplied request with the information
-   * from the supplied user session.
+   * Updates the http session from the supplied request with the information from the supplied user
+   * session.
    *
    * @param req The request to update, may not be <code>null</code>.
    * @param sess The user session to use, may not be <code>null</code>.

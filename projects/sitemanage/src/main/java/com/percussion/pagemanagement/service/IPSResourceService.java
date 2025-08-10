@@ -18,13 +18,13 @@
 package com.percussion.pagemanagement.service;
 
 /**
- * Manages the publishing of resources.
- * For now, this only includes URL and file location but will eventually
- * include additional publishing information such as the rendering of a resource and what its MIME type is.
+ * Manages the publishing of resources. For now, this only includes URL and file location but will
+ * eventually include additional publishing information such as the rendering of a resource and what
+ * its MIME type is.
  *
  * @author adamgent
  * @see IPSResourceLinkAndLocationService
  */
 public interface IPSResourceService extends IPSResourceLinkAndLocationService {
-    // Marker interface for resource publishing services.
+  // Marker interface for resource publishing services.
 }

@@ -17,28 +17,25 @@
  */
 package com.percussion.share.dao.impl;
 
-import org.springframework.beans.factory.FactoryBean;
-
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.server.PSServer;
+import org.springframework.beans.factory.FactoryBean;
 
-/**
- * Factory for obtaining the extension manager.
- */
+/** Factory for obtaining the extension manager. */
 public class PSExtensionManagerFactory implements FactoryBean<IPSExtensionManager> {
 
-    @Override
-    public IPSExtensionManager getObject() throws Exception {
-        return PSServer.getExtensionManager(null);
-    }
+  @Override
+  public IPSExtensionManager getObject() throws Exception {
+    return PSServer.getExtensionManager(null);
+  }
 
-    @Override
-    public Class<IPSExtensionManager> getObjectType() {
-        return IPSExtensionManager.class;
-    }
+  @Override
+  public Class<IPSExtensionManager> getObjectType() {
+    return IPSExtensionManager.class;
+  }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 }

@@ -29,25 +29,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents an "application-policy" element in the
- * {@link PSJBossUtils#LOGIN_CONFIG_FILE_NAME} file, used to save datasource
- * credentials with an encrypted password.  Note that this is not implemented to
- * load save application policy elements in general, only those specified by
- * this class.
+ * Represents an "application-policy" element in the {@link PSJBossUtils#LOGIN_CONFIG_FILE_NAME}
+ * file, used to save datasource credentials with an encrypted password. Note that this is not
+ * implemented to load save application policy elements in general, only those specified by this
+ * class.
  */
 public class PSSecureCredentials {
-  /**
-   * Constant for the "application-policy" element name.
-   */
+  /** Constant for the "application-policy" element name. */
   public static final String APP_POLICY_NODE_NAME = "application-policy";
 
   /**
    * Determine if the supplied node specifies the supplied security domain
    *
-   * @param node The node to check, may not be <code>null</code> and must be
-   * an {@link #APP_POLICY_NODE_NAME} element.
+   * @param node The node to check, may not be <code>null</code> and must be an {@link
+   *     #APP_POLICY_NODE_NAME} element.
    * @param secDomain The name to match, may not be <code>null</code> or empty.
-   *
    * @return <code>true</code> if it is a match, <code>false</code> if not.
    */
   public static boolean isMatch(Element node, String secDomain) {
@@ -66,7 +62,6 @@ public class PSSecureCredentials {
    * Determine if the supplied element represents a {@link PSSecureCredentials}
    *
    * @param node The element to check, may not be <code>null</code>.
-   *
    * @return <code>true</code> if it is, <code>false</code> if not.
    */
   public static boolean isSecureCredentials(Element node) {
@@ -76,11 +71,9 @@ public class PSSecureCredentials {
   }
 
   /**
-   * Get the domain name of the secure credential specified by the supplied
-   * element.
+   * Get the domain name of the secure credential specified by the supplied element.
    *
    * @param node The node to check, may not be <code>null</code>.
-   *
    * @return The name, never <code>null</code>, may be empty.
    */
   public static String getName(Element node) {
@@ -92,13 +85,12 @@ public class PSSecureCredentials {
   /**
    * Construct this object from it's properties.
    *
-   * @param datasourceName The name of the JNDI Datasource for which this
-   * object will specify credentials, never <code>null</code> or empty.
+   * @param datasourceName The name of the JNDI Datasource for which this object will specify
+   *     credentials, never <code>null</code> or empty.
    * @param userId The user name, may not be <code>null</code> or empty.
-   * @param password The password, already encrypted, may be <code>null</code>
-   * or empty.  The password must be encrypted in a form that will be handled
-   * by the {@link #LOGIN_MODULE_CLASSNAME}, which uses the
-   * {@link PSLegacyEncrypter} to decrypt passwords.
+   * @param password The password, already encrypted, may be <code>null</code> or empty. The
+   *     password must be encrypted in a form that will be handled by the {@link
+   *     #LOGIN_MODULE_CLASSNAME}, which uses the {@link PSLegacyEncrypter} to decrypt passwords.
    */
   public PSSecureCredentials(String datasourceName, String userId, String password) {
     if (StringUtils.isBlank(datasourceName))
@@ -114,8 +106,8 @@ public class PSSecureCredentials {
   }
 
   /**
-   * Construct this object from its XML representation as defined by the
-   * "application-policy" element in the JBoss security_config.dtd DTD.
+   * Construct this object from its XML representation as defined by the "application-policy"
+   * element in the JBoss security_config.dtd DTD.
    *
    * @param source The source element, may not be <code>null</code>.
    * @throws PSInvalidXmlException If the supplied element is invalid.
@@ -181,11 +173,10 @@ public class PSSecureCredentials {
   }
 
   /**
-   * Serialize this object to its XML representation.  See
-   * {@link #PSSecureCredentials(Element)} for more information.
+   * Serialize this object to its XML representation. See {@link #PSSecureCredentials(Element)} for
+   * more information.
    *
    * @param doc The document to use, may not be <code>null</code>.
-   *
    * @return The root XML element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -239,8 +230,7 @@ public class PSSecureCredentials {
   }
 
   /**
-   * Get the name of the JNDI Datasource for which this object specifies
-   * credentials.
+   * Get the name of the JNDI Datasource for which this object specifies credentials.
    *
    * @return The name, never <code>null</code> or empty
    */
@@ -249,8 +239,8 @@ public class PSSecureCredentials {
   }
 
   /**
-   * Get the name to use as the security domain name when refering to these
-   * credentials in the datasource configuration.
+   * Get the name to use as the security domain name when refering to these credentials in the
+   * datasource configuration.
    *
    * @return The name, never <code>null</code> or empty.
    */
@@ -277,9 +267,7 @@ public class PSSecureCredentials {
   /**
    * Constructs a security domain name based on the supplied datasource name.
    *
-   * @param datasourceName The datasource name, assumed not <code>null</code>
-   * or empty.
-   *
+   * @param datasourceName The datasource name, assumed not <code>null</code> or empty.
    * @return The security domain name, never <code>null</code> or empty.
    */
   private String calculateSecurityDomain(String datasourceName) {
@@ -287,37 +275,32 @@ public class PSSecureCredentials {
   }
 
   /**
-   * The datasource name, initialized during ctor, never <code>null</code>,
-   * empty, or modified after that.
+   * The datasource name, initialized during ctor, never <code>null</code>, empty, or modified after
+   * that.
    */
   private String m_datasourceName;
 
   /**
-   * The username, initialized during ctor, never <code>null</code>,
-   * empty, or modified after that.
+   * The username, initialized during ctor, never <code>null</code>, empty, or modified after that.
    */
   private String m_userId;
 
   /**
-   * The password, initialized during ctor, may be <code>null</code>, never
-   * empty or modified after that.
+   * The password, initialized during ctor, may be <code>null</code>, never empty or modified after
+   * that.
    */
   private String m_password;
 
   /**
-   * The security domain, initialized during ctor , never <code>null</code>,
-   * empty, or modified after that.
+   * The security domain, initialized during ctor , never <code>null</code>, empty, or modified
+   * after that.
    */
   private String m_securityDomain;
 
-  /**
-   * Constant for the security domain prefix.
-   */
+  /** Constant for the security domain prefix. */
   private static final String SEC_DOMAIN_PREFIX = "rx.datasource.";
 
-  /**
-   * Constant for the login module class anem.
-   */
+  /** Constant for the login module class anem. */
   private static final String LOGIN_MODULE_CLASSNAME =
       "com.percussion.services.security.loginmods.PSSecureIdentityLoginModule";
 

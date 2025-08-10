@@ -24,24 +24,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.Validate;
 
 /**
- * Result object for widget package info queries.
- * Sunny Sal says: "Results so fresh, even your widgets will be jealous!"
+ * Result object for widget package info queries. Sunny Sal says: "Results so fresh, even your
+ * widgets will be jealous!"
  */
 @XmlRootElement(name = "WidgetPackageInfoResult")
 public class PSWidgetPackageInfoResult {
 
-    private List<PSWidgetPackageInfo> packageInfoList = new ArrayList<>();
+  private List<PSWidgetPackageInfo> packageInfoList = new ArrayList<>();
 
-    /**
-     * Get the list of results.
-     * @return The list, not null, may be empty.
-     */
-    public List<PSWidgetPackageInfo> getPackageInfoList() {
-        return Collections.unmodifiableList(packageInfoList);
-    }
+  /**
+   * Get the list of results.
+   *
+   * @return The list, not null, may be empty.
+   */
+  public List<PSWidgetPackageInfo> getPackageInfoList() {
+    return Collections.unmodifiableList(packageInfoList);
+  }
 
-    public void setPackageInfoList(List<PSWidgetPackageInfo> packageInfoList) {
-        Validate.notNull(packageInfoList);
-        this.packageInfoList = new ArrayList<>(packageInfoList);
-    }
+  public void setPackageInfoList(List<PSWidgetPackageInfo> packageInfoList) {
+    Validate.notNull(packageInfoList);
+    this.packageInfoList = new ArrayList<>(packageInfoList);
+  }
 }

@@ -16,9 +16,7 @@
  */
 package com.percussion.design.objectstore.legacy;
 
-/**
- * Supplies the details used to identify the repository connection information.
- */
+/** Supplies the details used to identify the repository connection information. */
 public interface IPSRepositoryInfo {
   /**
    * Get the repository driver name.

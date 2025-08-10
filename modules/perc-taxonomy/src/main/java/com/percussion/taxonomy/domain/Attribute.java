@@ -20,10 +20,7 @@ package com.percussion.taxonomy.domain;
 import java.sql.Timestamp;
 import java.util.Collection;
 
-/**
- *Taxonomy Attribute class to represent its taxon's attributes
- *
- */
+/** Taxonomy Attribute class to represent its taxon's attributes */
 public class Attribute {
 
   private int id;
@@ -40,6 +37,7 @@ public class Attribute {
 
   /**
    * Returns Collection of attribute languages
+   *
    * @return attribute_langs
    */
   public Collection<Attribute_lang> getAttribute_langs() {
@@ -48,6 +46,7 @@ public class Attribute {
 
   /**
    * Set Attribute languages
+   *
    * @param attribute_langs
    */
   public void setAttribute_langs(Collection<Attribute_lang> attribute_langs) {
@@ -56,6 +55,7 @@ public class Attribute {
 
   /**
    * Add Attribute language to a collection of attribute languages
+   *
    * @param attribute_lang
    */
   public void addAttribute_lang(Attribute_lang attribute_lang) {
@@ -65,6 +65,7 @@ public class Attribute {
 
   /**
    * Returns unique attribute id
+   *
    * @return id - int value for attribute id
    */
   public int getId() {
@@ -73,6 +74,7 @@ public class Attribute {
 
   /**
    * Set attribute unique id
+   *
    * @param id - unique int value as attribute id
    */
   public void setId(int id) {
@@ -81,6 +83,7 @@ public class Attribute {
 
   /**
    * Returns whether an attibute is multiple type or not
+   *
    * @return - boolean value true or false for attibute type multiple or not
    */
   public boolean getIs_multiple() {
@@ -89,6 +92,7 @@ public class Attribute {
 
   /**
    * Set boolean true or false to determine whether its a multiple attribute or not
+   *
    * @param is_multiple - boolean value true or false for multiple attribute or not
    */
   public void setIs_multiple(boolean is_multiple) {
@@ -97,6 +101,7 @@ public class Attribute {
 
   /**
    * Returns taxonomy object
+   *
    * @return taxonomy - an object of Taxonomy
    */
   public Taxonomy getTaxonomy() {
@@ -105,6 +110,7 @@ public class Attribute {
 
   /**
    * Set taxonomy object
+   *
    * @param taxonomy
    */
   public void setTaxonomy(Taxonomy taxonomy) {
@@ -113,6 +119,7 @@ public class Attribute {
 
   /**
    * Returns int value to determine whether its a node name or not
+   *
    * @return is_node_name - int value to determine whether its a node name or not
    */
   public int getIs_node_name() {
@@ -121,6 +128,7 @@ public class Attribute {
 
   /**
    * Set whether its a node name or not
+   *
    * @param is_node_name - int value to determine whether its a node name or not
    */
   public void setIs_node_name(int is_node_name) {
@@ -129,6 +137,7 @@ public class Attribute {
 
   /**
    * Returns whether a attribute is required or not
+   *
    * @return is_required - true or false value to determine whether its a required field or not
    */
   public boolean getIs_required() {
@@ -137,6 +146,7 @@ public class Attribute {
 
   /**
    * Set whether its a required attribute
+   *
    * @param is_required - boolean true or false determines whether its a required field or not
    */
   public void setIs_required(boolean is_required) {
@@ -145,6 +155,7 @@ public class Attribute {
 
   /**
    * Returns true or false to identify whether the item is a percussion item or not
+   *
    * @return is_percussion_item - boolean value true or false
    */
   public boolean getIs_percussion_item() {
@@ -153,6 +164,7 @@ public class Attribute {
 
   /**
    * Set boolean true or false for is_perucssion_item
+   *
    * @param is_percussion_item boolean true or false for is_percussion_item
    */
   public void setIs_percussion_item(boolean is_percussion_item) {
@@ -161,6 +173,7 @@ public class Attribute {
 
   /**
    * Returns created by id
+   *
    * @return
    */
   public String getCreated_by_id() {
@@ -169,6 +182,7 @@ public class Attribute {
 
   /**
    * Set create by id
+   *
    * @param created_by_id
    */
   public void setCreated_by_id(String created_by_id) {
@@ -177,6 +191,7 @@ public class Attribute {
 
   /**
    * Returns created_at date
+   *
    * @return creaed_at - attribute create date
    */
   public Timestamp getCreated_at() {
@@ -185,6 +200,7 @@ public class Attribute {
 
   /**
    * Set created_at date
+   *
    * @param created_at - a date value to set as attribute create date
    */
   public void setCreated_at(Timestamp created_at) {
@@ -193,6 +209,7 @@ public class Attribute {
 
   /**
    * Returns modified by id
+   *
    * @return modified_by_id
    */
   public String getModified_by_id() {
@@ -201,6 +218,7 @@ public class Attribute {
 
   /**
    * Set modified by id
+   *
    * @param modified_by_id
    */
   public void setModified_by_id(String modified_by_id) {
@@ -209,6 +227,7 @@ public class Attribute {
 
   /**
    * Returns modified date
+   *
    * @return modified_at - attribute modified date
    */
   public Timestamp getModified_at() {
@@ -217,15 +236,14 @@ public class Attribute {
 
   /**
    * Set modified date
+   *
    * @param modified_at - a date value to set as attribute modified date
    */
   public void setModified_at(Timestamp modified_at) {
     this.modified_at = modified_at;
   }
 
-  /**
-   * Returns a String representation of the object.
-   */
+  /** Returns a String representation of the object. */
   /* public String toString(){
       return  "Attribute ----------------------\n"+
               "ID: "+id+"\n"+

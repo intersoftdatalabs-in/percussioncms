@@ -21,29 +21,24 @@ import java.util.Iterator;
 import javax.jcr.RangeIterator;
 
 /**
- * A concrete implementation of the JSR-170 range iterator using an abstract
- * collection of T
+ * A concrete implementation of the JSR-170 range iterator using an abstract collection of T
+ *
  * @param <T> the class of the data in the collection
  * @author dougrand
  */
 public class PSCollectionRangeIterator<T> implements RangeIterator {
-  /**
-   * The collection to iterate over
-   */
+  /** The collection to iterate over */
   private Collection<T> m_collection;
 
-  /**
-   * The internal iterator for the collection, never <code>null</code>
-   */
+  /** The internal iterator for the collection, never <code>null</code> */
   private Iterator<T> m_iter;
 
-  /**
-   * The current position in the collection
-   */
+  /** The current position in the collection */
   private long m_position = 0;
 
   /**
    * Ctor
+   *
    * @param collection the collection to iterate over, never <code>null</code>
    */
   public PSCollectionRangeIterator(Collection<T> collection) {

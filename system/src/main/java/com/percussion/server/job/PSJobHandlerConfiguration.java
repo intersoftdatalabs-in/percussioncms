@@ -27,17 +27,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Provides the required initParams for each class derived from PSJobRunner, as
- * well as the classname used to instantiate the job runner. The initParams are
- * simply name-value pairs that one or more jobs may require at runtime.
+ * Provides the required initParams for each class derived from PSJobRunner, as well as the
+ * classname used to instantiate the job runner. The initParams are simply name-value pairs that one
+ * or more jobs may require at runtime.
  */
 public class PSJobHandlerConfiguration {
 
   /**
    * Construct this class from its XML representation.
    *
-   * @param config The configuration document.  Format is:
-   * <pre><code>
+   * @param config The configuration document. Format is:
+   *     <pre><code>
    *  &lt;!ELEMENT PSXJobHandlerConfiguration (InitParams, Categories)&gt;
    *  $lt;!--
    *    The init params for the handler.  These are added to any init params
@@ -86,8 +86,7 @@ public class PSJobHandlerConfiguration {
    *
    * </code></pre>
    *
-   * @throws IllegalArgumentException if <code>config</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>config</code> is <code>null</code>.
    * @throws PSUnknownDocTypeException if the doc is not of the correct type
    * @throws PSUnknownNodeTypeException if a node is not of the correct type.
    */
@@ -184,14 +183,11 @@ public class PSJobHandlerConfiguration {
   /**
    * Returns the name of the class to instantiate for this job type.
    *
-   * @param cat The category of this job.  May not be <code>null</code> or
-   * empty, and must be an existing category.
-   * @param jobType A string which identifies a single job type within a
-   * category.  May not be <code>null</code> or empty, and must be am
-   * existing job type within the specified category.
-   *
-   * @return The class name.  Never <code>null</code> or empty.
-   *
+   * @param cat The category of this job. May not be <code>null</code> or empty, and must be an
+   *     existing category.
+   * @param jobType A string which identifies a single job type within a category. May not be <code>
+   *     null</code> or empty, and must be am existing job type within the specified category.
+   * @return The class name. Never <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSJobException if The job definition cannot be located.
    */
@@ -213,8 +209,8 @@ public class PSJobHandlerConfiguration {
   }
 
   /**
-   * Returns the InitParams for the JobHandler.  These are params that are
-   * available to all jobs as well.
+   * Returns the InitParams for the JobHandler. These are params that are available to all jobs as
+   * well.
    *
    * @return The params, never <code>null</code>.
    */
@@ -225,18 +221,13 @@ public class PSJobHandlerConfiguration {
   }
 
   /**
-   * Returns the combined InitParams for the jobtype, category, and
-   * the JobHandler.
+   * Returns the combined InitParams for the jobtype, category, and the JobHandler.
    *
-   * @param category The category of this job.  May not be <code>null</code> or
-   * empty, and must be an existing category.
-   * @param jobType A string which identifies a single job type within a
-   * category.  May not be <code>null</code> or empty, and must be am
-   * existing job type within the specified category.
-   *
-   * @return The params as a Properties object, never <code>null</code>, may
-   * be empty.
-   *
+   * @param category The category of this job. May not be <code>null</code> or empty, and must be an
+   *     existing category.
+   * @param jobType A string which identifies a single job type within a category. May not be <code>
+   *     null</code> or empty, and must be am existing job type within the specified category.
+   * @return The params as a Properties object, never <code>null</code>, may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSJobException if The job definition cannot be located.
    */
@@ -258,15 +249,12 @@ public class PSJobHandlerConfiguration {
   }
 
   /**
-   * Retrieves any InitParams from within the supplied node and returns them
-   * as a <code>Properties</code> object.
+   * Retrieves any InitParams from within the supplied node and returns them as a <code>Properties
+   * </code> object.
    *
    * @param el The node to search within, may not be <code>null</code>.
-   * @param defaults A set of properties to use as defaults.  May be
-   * <code>null</code>.
-   *
-   * @return The Properties object.  Never <code>null</code>, may be empty.
-   *
+   * @param defaults A set of properties to use as defaults. May be <code>null</code>.
+   * @return The Properties object. Never <code>null</code>, may be empty.
    * @throws IllegalArgumentException if <code>el</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if a node is not of the correct type.
    */
@@ -308,19 +296,16 @@ public class PSJobHandlerConfiguration {
   }
 
   /**
-   * Constructs the appropriate context for the given cat and jobtype.  Both
-   * may be <code>null</code> to retrieve just the handler context, or jobType
-   * may be <code>null</code> to retrieve a category context.  If jobType is
-   * not <code>null</code>, then category may not be <code>null</code>.
+   * Constructs the appropriate context for the given cat and jobtype. Both may be <code>null</code>
+   * to retrieve just the handler context, or jobType may be <code>null</code> to retrieve a
+   * category context. If jobType is not <code>null</code>, then category may not be <code>null
+   * </code>.
    *
-   * @param cat The category.  May be <code>null</code> if jobType is also
-   * <code>null</code>.
-   * @param jobType The job type.  May be <code>null</code>.
-   *
+   * @param cat The category. May be <code>null</code> if jobType is also <code>null</code>.
+   * @param jobType The job type. May be <code>null</code>.
    * @return The context.
-   *
-   * @throws IllegalArgumentException if <code>cat</code> is <code>null</code>
-   * and <code>jobType</code> is not <code>null</code>.
+   * @throws IllegalArgumentException if <code>cat</code> is <code>null</code> and <code>jobType
+   *     </code> is not <code>null</code>.
    */
   private String getContext(String cat, String jobType) {
     if ((cat == null) && (jobType != null))
@@ -335,27 +320,22 @@ public class PSJobHandlerConfiguration {
     return ctx;
   }
 
-  /**
-   * Name of the root XML node in this object's XML representation.
-   */
+  /** Name of the root XML node in this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXJobHandlerConfiguration";
 
   /**
-   * Map of job class names.  Each entry is a string that contains the
-   * class name for each job.  Keys are specified by a context of
-   * "handler/<category>/<jobType>".  Never <code>null</code>, intialized
-   * during ctor, never modified after that.
+   * Map of job class names. Each entry is a string that contains the class name for each job. Keys
+   * are specified by a context of "handler/<category>/<jobType>". Never <code>null</code>,
+   * intialized during ctor, never modified after that.
    */
   private HashMap m_jobs = new HashMap();
 
   /**
-   * Map of initParams.  Each key is a context as a <code>String</code> and the
-   * value is a <code>Properties</code> object containing the params for the
-   * specified key.  Keys are specified by a context of
-   * "handler/<category>/<job>".  Any portion of the context starting from the
-   * left may be used as a key to store initParams for the handler as well as
-   * the category and the jobs in that category.  Never <code>null</code>,
-   * initialized during ctor, never modified after that.
+   * Map of initParams. Each key is a context as a <code>String</code> and the value is a <code>
+   * Properties</code> object containing the params for the specified key. Keys are specified by a
+   * context of "handler/<category>/<job>". Any portion of the context starting from the left may be
+   * used as a key to store initParams for the handler as well as the category and the jobs in that
+   * category. Never <code>null</code>, initialized during ctor, never modified after that.
    */
   private HashMap m_initParams = new HashMap();
 }

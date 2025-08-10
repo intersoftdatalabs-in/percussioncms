@@ -22,9 +22,7 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXConditionalExit DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXConditionalExit DTD in BasicObjects.dtd. */
 public class PSConditionalExit extends PSComponent {
   /**
    * Create a new conditional exit for the provided rules.
@@ -39,8 +37,7 @@ public class PSConditionalExit extends PSComponent {
    * Create a new conditional exit for the provided rules.
    *
    * @param rules a valid extension call set, never <code>null</code>.
-   * @param condition the conditions defining when this exit is to be
-   *    executed.
+   * @param condition the conditions defining when this exit is to be executed.
    */
   public PSConditionalExit(PSExtensionCallSet rules, PSApplyWhen condition) {
     setRules(rules);
@@ -50,23 +47,17 @@ public class PSConditionalExit extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSConditionalExit(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSConditionalExit() {}
 
   /**
@@ -81,8 +72,7 @@ public class PSConditionalExit extends PSComponent {
   /**
    * Set the maximum number of errors allowed before the process is stopped.
    *
-   * @param maxErrorsToStop the number of errors allowed before the process
-   *    is stopped.
+   * @param maxErrorsToStop the number of errors allowed before the process is stopped.
    */
   public void setMaxErrorsToStop(int maxErrorsToStop) {
     m_maxErrorsToStop = maxErrorsToStop;
@@ -91,8 +81,7 @@ public class PSConditionalExit extends PSComponent {
   /**
    * Get the the set of extension rules.
    *
-   * @return the extension call set, never
-   *    <code>null</code>, might be empty.
+   * @return the extension call set, never <code>null</code>, might be empty.
    */
   public PSExtensionCallSet getRules() {
     return m_rules;
@@ -101,8 +90,8 @@ public class PSConditionalExit extends PSComponent {
   /**
    * Set a new set of extension rules.
    *
-   * @param rules the new extension call set for this conditional exit,
-   *    never <code>null</code>, might be empty.
+   * @param rules the new extension call set for this conditional exit, never <code>null</code>,
+   *     might be empty.
    */
   public void setRules(PSExtensionCallSet rules) {
     if (rules == null) throw new IllegalArgumentException("the extension call set cannot be null");
@@ -113,28 +102,25 @@ public class PSConditionalExit extends PSComponent {
   /**
    * Get the condition when to apply this extits.
    *
-   * @return the condition specifying when to execute the rules
-   *    of this object.
+   * @return the condition specifying when to execute the rules of this object.
    */
   public PSApplyWhen getCondition() {
     return m_condition;
   }
 
   /**
-   * Set the new condition when to apply this exits, provide
-   * <code>null</code> to remove the condition.
+   * Set the new condition when to apply this exits, provide <code>null</code> to remove the
+   * condition.
    *
-   * @param condition the new condition for this exit, may be
-   *    <code>null</code>.
+   * @param condition the new condition for this exit, may be <code>null</code>.
    */
   public void setCondition(PSApplyWhen condition) {
     m_condition = condition;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSConditionalExit, not <code>null</code>.
    */
@@ -179,7 +165,6 @@ public class PSConditionalExit extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -226,7 +211,6 @@ public class PSConditionalExit extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -263,8 +247,8 @@ public class PSConditionalExit extends PSComponent {
   public static final String XML_NODE_NAME = "PSXConditionalExit";
 
   /**
-   * This attributes specifies the number of errors until the process is
-   * stopped and the errors returned to the user.
+   * This attributes specifies the number of errors until the process is stopped and the errors
+   * returned to the user.
    */
   private int m_maxErrorsToStop = 10;
 

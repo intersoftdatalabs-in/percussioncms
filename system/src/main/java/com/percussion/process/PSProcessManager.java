@@ -30,24 +30,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * The process manager loads the process defintions from the specified Xml
- * file input stream. This Xml file must conform to the "sys_processes.dtd".
+ * The process manager loads the process defintions from the specified Xml file input stream. This
+ * Xml file must conform to the "sys_processes.dtd".
  */
 public class PSProcessManager {
   private static final Logger log = LogManager.getLogger(PSProcessManager.class);
 
   /**
-   * Loads the process defintions from the specified Xml file input stream.
-   * This Xml file must conform to the "sys_processes.dtd".
+   * Loads the process defintions from the specified Xml file input stream. This Xml file must
+   * conform to the "sys_processes.dtd".
    *
-   * @param stream the input stream from which to load the process defs,
-   * may not be <code>null</code>. This class takes ownership of the stream
-   * and will close it when finished.
-   *
+   * @param stream the input stream from which to load the process defs, may not be <code>null
+   *     </code>. This class takes ownership of the stream and will close it when finished.
    * @throws IOException if any IO error occurs reading from the stream
-   *
    * @throws SAXException if an error parsing the process defintions
-   *
    * @throws PSProcessException if the process defintions XML is not valid.
    */
   public PSProcessManager(InputStream stream) throws IOException, SAXException, PSProcessException {
@@ -109,15 +105,12 @@ public class PSProcessManager {
   }
 
   /**
-   * Method for getting the process object representing the process with the
-   * specified name.
+   * Method for getting the process object representing the process with the specified name.
    *
-   * @param processName the name identifying the process, may not be
-   * <code>null</code> or empty. Names are case-sensitive.
-   *
-   * @return the process object which can be used to control the specified
-   * process, may be <code>null</code> if the specified process definition
-   * does not exist.
+   * @param processName the name identifying the process, may not be <code>null</code> or empty.
+   *     Names are case-sensitive.
+   * @return the process object which can be used to control the specified process, may be <code>
+   *     null</code> if the specified process definition does not exist.
    */
   public IPSProcess getProcess(String processName) {
     if ((processName == null) || (processName.trim().length() < 1)) {
@@ -139,9 +132,7 @@ public class PSProcessManager {
     log.info(message);
   }
 
-  /**
-   * Sets the internal static variable storing the current operating system.
-   */
+  /** Sets the internal static variable storing the current operating system. */
   private static void setOS() {
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("sunos") != -1) {
@@ -171,9 +162,7 @@ public class PSProcessManager {
    * Returns the string form of the OS name specified by <code>os</code>.
    *
    * @param os one of the <code>OS_XXX</code> values
-   *
-   * @return one of the members of the <code>OS_TYPES</code> array, never
-   * <code>null</code>
+   * @return one of the members of the <code>OS_TYPES</code> array, never <code>null</code>
    */
   public static String getOSType(int os) throws PSProcessException {
     if ((os < 0) || (os >= OS_TYPES.length))
@@ -184,12 +173,9 @@ public class PSProcessManager {
   /**
    * Returns the integer constant for the OS specified by <code>os</code>.
    *
-   * @param os one of the members of the <code>OS_TYPES</code> array,
-   * may not be <code>null</code> or empty. Name is case-insensitive.
-   *
-   * @return one of the <code>OS_XXX</code> value corresponding to the
-   * specified OS.
-   *
+   * @param os one of the members of the <code>OS_TYPES</code> array, may not be <code>null</code>
+   *     or empty. Name is case-insensitive.
+   * @return one of the <code>OS_XXX</code> value corresponding to the specified OS.
    * @throws PSProcessException if the specified OS is unsupported or invalid
    */
   public static int getOSType(String os) throws PSProcessException {
@@ -202,41 +188,33 @@ public class PSProcessManager {
     throw new PSProcessException("Invalid OS specified: " + os);
   }
 
-  /**
-   * Tag name of the root element of the <code>PROCESS_DEF_FILE</code> file.
-   */
+  /** Tag name of the root element of the <code>PROCESS_DEF_FILE</code> file. */
   public static final String NODE_NAME = "Processes";
 
-  /**
-   * Integer constant for the Windows OS.
-   */
+  /** Integer constant for the Windows OS. */
   public static final int OS_WIN = 0;
 
-  /**
-   * Integer constant for the Solaris OS.
-   */
+  /** Integer constant for the Solaris OS. */
   public static final int OS_SOLARIS = 1;
 
-  /**
-   * Integer constant for the Linux OS.
-   */
+  /** Integer constant for the Linux OS. */
   public static final int OS_LINUX = 2;
 
   /**
-   * String constant for the supported OS - windows, solaris and linux. The
-   * OS_xxx types are indexes into this array.
+   * String constant for the supported OS - windows, solaris and linux. The OS_xxx types are indexes
+   * into this array.
    */
   public static final String[] OS_TYPES = {"win", "solaris", "linux"};
 
   /**
-   * Stores the process definitions, initialized in the ctor,
-   * never <code>null</code> or modified after that.
+   * Stores the process definitions, initialized in the ctor, never <code>null</code> or modified
+   * after that.
    */
   private Map m_processMap = new HashMap();
 
   /**
-   * Stores the current Operating System, initialized in the static
-   * initializer, never modified after initialization.
+   * Stores the current Operating System, initialized in the static initializer, never modified
+   * after initialization.
    */
   private static int ms_os = 0;
 

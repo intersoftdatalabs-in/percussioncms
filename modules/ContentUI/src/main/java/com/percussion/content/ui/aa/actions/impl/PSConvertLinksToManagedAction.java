@@ -94,47 +94,37 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * This class implements an action that accepts an html body fragment that
- * it analyzes for unmanaged links. If any are found, they will be processed
- * based on the configuration of the autoLinkGeneration.properties file.
+ * This class implements an action that accepts an html body fragment that it analyzes for unmanaged
+ * links. If any are found, they will be processed based on the configuration of the
+ * autoLinkGeneration.properties file.
  *
- * See the spec for story CMS-24 for more details.
+ * <p>See the spec for story CMS-24 for more details.
  *
  * @author PaulHoward
  */
 public class PSConvertLinksToManagedAction extends PSAAActionBase
     implements IPSNotificationListener {
-  /**
-   * Id used to represent a non-existent ctype.
-   */
+  /** Id used to represent a non-existent ctype. */
   private static final long INVALID_CTYPE_ID = -1;
 
-  /**
-   * Never <code>null</code> after class init.
-   */
+  /** Never <code>null</code> after class init. */
   private static Log ms_log = LogFactory.getLog(PSConvertLinksToManagedAction.class);
 
-  /**
-   * Used to load templates. Never <code>null</code> after instance init.
-   */
+  /** Used to load templates. Never <code>null</code> after instance init. */
   private IPSAssemblyService assemblyService = PSAssemblyServiceLocator.getAssemblyService();
 
   /**
-   * This is really here for testing purposes, but could be used if a purpose
-   * arises.
+   * This is really here for testing purposes, but could be used if a purpose arises.
    *
-   * @param configProps Never <code>null</code>. This class takes ownership
-   * of the map. The caller should not change it after passed to this method.
+   * @param configProps Never <code>null</code>. This class takes ownership of the map. The caller
+   *     should not change it after passed to this method.
    */
   public PSConvertLinksToManagedAction(Properties configProps) {
     if (configProps == null) throw new IllegalArgumentException("configProps cannot be null");
     loadProperties(configProps);
   }
 
-  /**
-   * Loads the configuration from disk and registers for notifications if the
-   * file changes.
-   */
+  /** Loads the configuration from disk and registers for notifications if the file changes. */
   public PSConvertLinksToManagedAction() {
     loadProperties(null);
     try {
@@ -153,28 +143,25 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Key is the lower-cased 'Published URL' value, with the leading
-   * <b>{scheme}://<b> part removed and always with a trailing slash, value is the
-   * associated site. A siteinfo may appear multiple times in the map if the
-   * site has been configured w/ aliases.
+   * Key is the lower-cased 'Published URL' value, with the leading <b>{scheme}://<b> part removed
+   * and always with a trailing slash, value is the associated site. A siteinfo may appear multiple
+   * times in the map if the site has been configured w/ aliases.
    */
   private Map<String, SiteInfo> siteInfos = new HashMap<String, SiteInfo>();
 
   /**
-   * Contains all keys in {@link #siteInfos}, ordered from longest to shortest.
-   * Length is determined by the # of slashes (path separators.)
+   * Contains all keys in {@link #siteInfos}, ordered from longest to shortest. Length is determined
+   * by the # of slashes (path separators.)
    */
   private List<String> orderedDomainNames = new ArrayList<String>();
 
   /**
    * A local container
-   * @author PaulHoward
    *
+   * @author PaulHoward
    */
   private class SiteInfo {
-    /**
-     * The repository path to the root of the site, e.g. //Sites/cdc.gov, no trailing slash.
-     */
+    /** The repository path to the root of the site, e.g. //Sites/cdc.gov, no trailing slash. */
     private String rxVirtualPath;
 
     /**
@@ -183,9 +170,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
      */
     private String authority;
 
-    /**
-     * The value of the "Published Url" site property. Never blank. No trailing slash.
-     */
+    /** The value of the "Published Url" site property. Never blank. No trailing slash. */
     private String publishedUrlPath;
 
     public SiteInfo(String domainName, String rxVirtualPath, String publishedUrlPath) {
@@ -205,14 +190,14 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * The configuration options for auto generating links. Created by {@link #loadProperties(Properties)},
-   * then never <code>null</code>.
+   * The configuration options for auto generating links. Created by {@link
+   * #loadProperties(Properties)}, then never <code>null</code>.
    */
   private PSAutoLinkGenerationProperties config;
 
   /**
-   * Loads all properties and validates them against this server, discarding any that
-   * don't exist or fail validation (and logging it.)
+   * Loads all properties and validates them against this server, discarding any that don't exist or
+   * fail validation (and logging it.)
    *
    * @param configProps Assumed not <code>null</code>.
    */
@@ -279,9 +264,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
     Collections.sort(
         orderedDomainNames,
         new Comparator<String>() {
-          /**
-           * Results in descending ordering by # of path parts.
-           */
+          /** Results in descending ordering by # of path parts. */
           public int compare(String s1, String s2) {
             int size1 = getPathPartCount(s1);
             int size2 = getPathPartCount(s2);
@@ -290,6 +273,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
           /**
            * Counts how many parts in the supplied path.
+           *
            * @param s Assumed not <code>null</code>.
            * @return A value >= 0 depending on how many slashes appear in s.
            */
@@ -319,6 +303,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
   /**
    * Reloads the configuration when the file changes.
+   *
    * @see IPSNotificationListener
    */
   public void notifyEvent(PSNotificationEvent notification) {
@@ -483,8 +468,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * An eligible link is one that is not currently managed and is not a child
-   * of a managed element.
+   * An eligible link is one that is not currently managed and is not a child of a managed element.
+   *
    * @param doc Assumed not <code>null</code>.
    * @return Never <code>null</code>, may be empty.
    */
@@ -521,7 +506,9 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Creates a new link in the doc that currently owns the supplied link, replacing the supplied one.
+   * Creates a new link in the doc that currently owns the supplied link, replacing the supplied
+   * one.
+   *
    * @param link Assumed not <code>null</code>.
    * @param replacementLinkText The html text to use to create the link tag.
    */
@@ -608,9 +595,10 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
   /**
    * Extracts the anchor tag from the supplied link and returns it.
+   *
    * @param linkHref Anything allowed.
-   * @return Either the anchor text, or <code>null</code> if non-blank anchor is not found.
-   * The leading hash is not included in the result.
+   * @return Either the anchor text, or <code>null</code> if non-blank anchor is not found. The
+   *     leading hash is not included in the result.
    */
   private String getAnchor(String linkHref) {
     if (StringUtils.isBlank(linkHref)) return null;
@@ -622,19 +610,15 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
     return anchorText;
   }
 
-  /**
-   * The name of the class assigned to inline, block templates.
-   */
+  /** The name of the class assigned to inline, block templates. */
   private static String INLINE_VARIANT_CLASS_NAME = "rx_ephox_inlinevariant";
 
-  /**
-   * The name of the class assigned to inline, block templates in span tag.
-   */
+  /** The name of the class assigned to inline, block templates in span tag. */
   private static String INLINEVARIANT_CLASS_NAME = "rx_inlinevariant";
 
   /**
-   * Determines if auto link generation is configured in such a way
-   * as to be enabled.
+   * Determines if auto link generation is configured in such a way as to be enabled.
+   *
    * @return <code>true</code> if
    */
   private boolean isEnabled() {
@@ -642,27 +626,23 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Attempts to find an item in the system at the path specified by
-   * <code>linkHref</code>. If it does, returns information for that item.
-   * Otherwise, creates a new item of the specified type.
+   * Attempts to find an item in the system at the path specified by <code>linkHref</code>. If it
+   * does, returns information for that item. Otherwise, creates a new item of the specified type.
    *
-   * @param linkType The type of the link as determined by
-   * .
+   * @param linkType The type of the link as determined by .
    * @param folderProc Assumed not <code>null</code>.
-   * @param contentTypeName The name of the ctype you want to create. Will look
-   * up the id based on the name.
-   * @param itemFolderPath The parent folder of the item containing the link,
-   * or <code>null</code> if the item is not under //Sites. Only used for
-   * site/page-relative links. If <code>null</code>,
-   * @param linkHref The value of the link's href. Expected to start with
-   * http[s]// or be site/page relative.
+   * @param contentTypeName The name of the ctype you want to create. Will look up the id based on
+   *     the name.
+   * @param itemFolderPath The parent folder of the item containing the link, or <code>null</code>
+   *     if the item is not under //Sites. Only used for site/page-relative links. If <code>null
+   *     </code>,
+   * @param linkHref The value of the link's href. Expected to start with http[s]// or be site/page
+   *     relative.
    * @param linkContent
-   * @param communityId Either a valid, numeric id or <code>null</code> to
-   * use the user's community.
-   * @param folderPathBuf The full path of the item is appended to this buffer.
-   * Assumed not <code>null</code>.
+   * @param communityId Either a valid, numeric id or <code>null</code> to use the user's community.
+   * @param folderPathBuf The full path of the item is appended to this buffer. Assumed not <code>
+   *     null</code>.
    * @param req Assumed not <code>null</code>.
-   *
    * @return The contentId of the dependent item.
    * @throws PSErrorException
    * @throws PSUnknownContentTypeException
@@ -784,30 +764,27 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * The name to use if a url doesn't have a filename part and a default
-   * page name was not configured.
+   * The name to use if a url doesn't have a filename part and a default page name was not
+   * configured.
    */
   private static final String DEFAULT_PAGE_NAME = "index.html";
 
   /**
-   * Attempts to load the summary for the item with the given name in the
-   * specified folder. If the object is a folder, adds a monotonically
-   * increasing number until a name that doesn't match a folder is found.
+   * Attempts to load the summary for the item with the given name in the specified folder. If the
+   * object is a folder, adds a monotonically increasing number until a name that doesn't match a
+   * folder is found.
    *
    * @param folderProc Assumed not <code>null</code>.
-   * @param parentPath The full path to the item. Assumed not <code>null</code>
-   * or empty.
-   * @param itemNameBuf The base name of the item. This buffer will be modified
-   * to indicate the final unique name that was found.
-   * @param useDefaultNames If <code>true</code>, use the list of names specified in the
-   * config file rather than the name supplied in itemNameBuf when looking for a match.
-   * If a match is not found, the name supplied in itemNameBuf will be used as the final
-   * name.
-   * @param depth Used for recursion. If you want to find a unique name, pass 1
-   * for the first call, otherwise, pass -1 if you just want to try once.
-   *
-   * @return The contentId of a matching item, or -1. In either case, the value
-   * in itemNameBuf will contain a name that is unique. e.g. foo.html.1
+   * @param parentPath The full path to the item. Assumed not <code>null</code> or empty.
+   * @param itemNameBuf The base name of the item. This buffer will be modified to indicate the
+   *     final unique name that was found.
+   * @param useDefaultNames If <code>true</code>, use the list of names specified in the config file
+   *     rather than the name supplied in itemNameBuf when looking for a match. If a match is not
+   *     found, the name supplied in itemNameBuf will be used as the final name.
+   * @param depth Used for recursion. If you want to find a unique name, pass 1 for the first call,
+   *     otherwise, pass -1 if you just want to try once.
+   * @return The contentId of a matching item, or -1. In either case, the value in itemNameBuf will
+   *     contain a name that is unique. e.g. foo.html.1
    * @throws PSCmsException If any errors when attempting to load summaries.
    * @throws RuntimeException If depth is -1 and a name conflict occurs with a folder.
    */
@@ -857,9 +834,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Does the equivalent checkin of
-   * {@link IPSContentWs#saveItems(List, boolean, boolean)} without requiring
-   * user to be in same community.
+   * Does the equivalent checkin of {@link IPSContentWs#saveItems(List, boolean, boolean)} without
+   * requiring user to be in same community.
    *
    * @param req The current request, assumed not <code>null</code>.
    * @param cId The content Id of the item to checkin.
@@ -877,13 +853,13 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Takes path from the supplied url and splits the resource name from its
-   * folder and returns the parts. Assumes that if no extension is present
-   * on the last path part, it is part of the directory name.
+   * Takes path from the supplied url and splits the resource name from its folder and returns the
+   * parts. Assumes that if no extension is present on the last path part, it is part of the
+   * directory name.
    *
    * @param url Assumed not <code>null</code>.
-   * @return The folder with a trailing slash in the first part, the resource
-   * name in the second, which may be an empty string.
+   * @return The folder with a trailing slash in the first part, the resource name in the second,
+   *     which may be an empty string.
    */
   private PSPair<String, String> splitPath(URL url) {
     String path = url.getPath();
@@ -904,15 +880,15 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Build a fully qualified http url from the supplied parts. Assumes that the
-   * content was originally copied from a page on the website, so the link is
-   * relative to the website, not the virtual path of the current parent.
+   * Build a fully qualified http url from the supplied parts. Assumes that the content was
+   * originally copied from a page on the website, so the link is relative to the website, not the
+   * virtual path of the current parent.
    *
-   * @param itemFolderPath The path of the page containing the link. Assumed does not contain trailing slash.
+   * @param itemFolderPath The path of the page containing the link. Assumed does not contain
+   *     trailing slash.
    * @param linkHref Assumed page or site relative. Assumed not <code>null</code>.
    * @param siteInfo Assumed not <code>null</code>.
-   * @return The generated url, or <code>null</code> if the href was not
-   * site/page relative.
+   * @return The generated url, or <code>null</code> if the href was not site/page relative.
    */
   private String createFullUrl(String itemFolderPath, String linkHref, SiteInfo siteInfo) {
     String result = null;
@@ -943,11 +919,10 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * @param linkHref Can handle a real link's href or a path that begins
-   * //Sites. Assumed not <code>null</code>.
-   * @return The first is the domain name, the second is the associated site.
-   * May be <code>null</code> if no match is found or the supplied href isn't
-   * as described.
+   * @param linkHref Can handle a real link's href or a path that begins //Sites. Assumed not <code>
+   *     null</code>.
+   * @return The first is the domain name, the second is the associated site. May be <code>null
+   *     </code> if no match is found or the supplied href isn't as described.
    */
   private PSPair<String, SiteInfo> getSiteInfo(String linkHref) {
     PSPair<String, SiteInfo> result = null;
@@ -974,9 +949,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Helper method to set the values of {@link IPSHtmlParameters#SYS_TITLE}
-   * field and displaytitle filed to the supplied itemTitle on the
-   * supplied coreItem, if those fields exist.
+   * Helper method to set the values of {@link IPSHtmlParameters#SYS_TITLE} field and displaytitle
+   * filed to the supplied itemTitle on the supplied coreItem, if those fields exist.
    *
    * @param value Assumed not <code>null</code>.
    * @param coreItem Assumed not <code>null</code>.
@@ -999,6 +973,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
   /**
    * Creates an SHA-1 string of the supplied text.
+   *
    * @param text Assumed not <code>null</code>.
    * @return The 40 char string representing the SHA-1.
    */
@@ -1019,8 +994,9 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Converts the supplied byte array into a hex string representation of the byte values,
-   * 2 chars per byte.
+   * Converts the supplied byte array into a hex string representation of the byte values, 2 chars
+   * per byte.
+   *
    * @param hash Assumed not <code>null</code>.
    * @return A string of hex chars whose length is 2*hash.length.
    */
@@ -1034,8 +1010,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
   /**
    * Is the supplied link site or page relative?
-   * @param linkHref Anything allowed.
    *
+   * @param linkHref Anything allowed.
    * @return <code>true</code> if site or page relative, otherwise <code>false</code>.
    */
   private boolean isRelative(String linkHref) {
@@ -1046,10 +1022,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   *
    * @param name A content type name. May be <code>null</code>.
-   * @return A positive id if a content type exists with the supplied name,
-   * otherwise, -1.
+   * @return A positive id if a content type exists with the supplied name, otherwise, -1.
    */
   public static long getContentTypeId(String name) {
     PSItemDefManager itemDefManager = PSItemDefManager.getInstance();
@@ -1064,6 +1038,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
 
   /**
    * This is protected only to allow removal of PSServer dependency for unit testing.
+   *
    * @return
    */
   protected boolean isAllowTrueInlineTemplates() {
@@ -1073,26 +1048,23 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Builds a string of all the supplied messages that is appropriate to show
-   * to the end user that represents what happened during processing of the
-   * links.
+   * Builds a string of all the supplied messages that is appropriate to show to the end user that
+   * represents what happened during processing of the links.
    *
    * @param totalLinkCount Total count of links in the processed html.
-   * @param managedLinkCount Total count of links in the processed html that
-   * are already being managed.
-   * @param managedExternalLinkMessages A message for each external link that
-   * was brought under management that is expected to be imported at a later
-   * time. The first part is the original href. The 2nd part is the full Rx
-   * virtual to the new or existing item.
-   * @param externalLinkMessages A message for each external link that was
-   * brought under management that is not expected to be imported later. The
-   * first part is the original href. The 2nd part is the full Rx virtual to
-   * the new or existing item.
-   * @param skippedLinkMessages A message for each skipped link. The first part
-   * is the original href. The 2nd part is the reason why it was skipped.
-   * @param errorMessages A message for each link that caused an error,
-   * typically when trying to create the item. The first part is the original
-   * href. The 2nd part is the reason why it errored.
+   * @param managedLinkCount Total count of links in the processed html that are already being
+   *     managed.
+   * @param managedExternalLinkMessages A message for each external link that was brought under
+   *     management that is expected to be imported at a later time. The first part is the original
+   *     href. The 2nd part is the full Rx virtual to the new or existing item.
+   * @param externalLinkMessages A message for each external link that was brought under management
+   *     that is not expected to be imported later. The first part is the original href. The 2nd
+   *     part is the full Rx virtual to the new or existing item.
+   * @param skippedLinkMessages A message for each skipped link. The first part is the original
+   *     href. The 2nd part is the reason why it was skipped.
+   * @param errorMessages A message for each link that caused an error, typically when trying to
+   *     create the item. The first part is the original href. The 2nd part is the reason why it
+   *     errored.
    * @return The complete message.
    */
   private String buildFinalMessage(
@@ -1148,15 +1120,15 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Takes the 2 values in each entry of the supplied list and appends them to
-   * the supplied buffer. Each entry is appended with a trailing newline. If
-   * any entries have the same 2 pair parts, they are combined in a single message
-   * and a trailing quantifier is added (e.g. http://www.google.com (//Folders/...) (3)).
+   * Takes the 2 values in each entry of the supplied list and appends them to the supplied buffer.
+   * Each entry is appended with a trailing newline. If any entries have the same 2 pair parts, they
+   * are combined in a single message and a trailing quantifier is added (e.g. http://www.google.com
+   * (//Folders/...) (3)).
    *
-   * @param buf The generated message is appended to this buffer. No leading
-   * newline is added before appending.
-   * @param messages The first of the pair is the original href, the 2nd is a
-   * user message indicating the disposition of the href.
+   * @param buf The generated message is appended to this buffer. No leading newline is added before
+   *     appending.
+   * @param messages The first of the pair is the original href, the 2nd is a user message
+   *     indicating the disposition of the href.
    */
   private void addMessages(StringBuilder buf, List<PSPair<String, String>> messages) {
     Map<PSPair<String, String>, Integer> uniqueMessageCounter =
@@ -1181,9 +1153,7 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   private enum LinkType {
-    /**
-     * Already an Rx link.
-     */
+    /** Already an Rx link. */
     Managed,
 
     /**
@@ -1191,14 +1161,10 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
      */
     ManagedExternalLink,
 
-    /**
-     * To be managed via an external link ctype.
-     */
+    /** To be managed via an external link ctype. */
     ExternalLink,
 
-    /**
-     * A link that we won't manage.
-     */
+    /** A link that we won't manage. */
     Unsupported
   }
 
@@ -1206,16 +1172,12 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
    * Determine the type of the supplied href.
    *
    * @param link The parsed link. Assumed not <code>null</code>.
-   * @param itemFolderPath The path of the folder containing the item
-   * containing the link. Will be <code>null</code> if the folder is not
-   * under //Sites.
-   * @param contentId The id of the item that contains this link, -1 if it
-   * doesn't exist yet.
-   *
-   * @return The first part is the type of link, the 2nd part is only used when
-   * the type is {@link LinkType#Unsupported}, in which case it is a message
-   * to why that is suitable to display to the user. Otherwise, it is
-   * <code>null</code>.
+   * @param itemFolderPath The path of the folder containing the item containing the link. Will be
+   *     <code>null</code> if the folder is not under //Sites.
+   * @param contentId The id of the item that contains this link, -1 if it doesn't exist yet.
+   * @return The first part is the type of link, the 2nd part is only used when the type is {@link
+   *     LinkType#Unsupported}, in which case it is a message to why that is suitable to display to
+   *     the user. Otherwise, it is <code>null</code>.
    */
   private PSPair<LinkType, String> getLinkType(Element link, String itemFolderPath, int contentId) {
     String linkHref = link.attr("href");
@@ -1262,7 +1224,8 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * @return <code>true</code> if the href starts with http:// or https://, otherwise <code>false</code>.
+   * @return <code>true</code> if the href starts with http:// or https://, otherwise <code>false
+   *     </code>.
    */
   private boolean isHttpScheme(String href) {
     return href.startsWith("http://") || href.startsWith("https://");
@@ -1281,12 +1244,12 @@ public class PSConvertLinksToManagedAction extends PSAAActionBase
   }
 
   /**
-   * Encodes the passed String as UTF-8 using an algorithm that's compatible
-   * with JavaScript's <code>encodeURIComponent</code> function. Returns
-   * <code>null</code> if the String is <code>null</code>.
+   * Encodes the passed String as UTF-8 using an algorithm that's compatible with JavaScript's
+   * <code>encodeURIComponent</code> function. Returns <code>null</code> if the String is <code>null
+   * </code>.
    *
-   * Copied from http://stackoverflow.com/questions/607176/
-   *    java-equivalent-to-javascripts-encodeuricomponent-that-produces-identical-output
+   * <p>Copied from http://stackoverflow.com/questions/607176/
+   * java-equivalent-to-javascripts-encodeuricomponent-that-produces-identical-output
    *
    * @param s The String to be encoded
    * @return the encoded String

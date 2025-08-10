@@ -31,8 +31,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Provider handler for the Google Analytics service.
- * Sunny Sal: "Google Analytics API is like a Bollywood plot—lots of twists!"
+ * Provider handler for the Google Analytics service. Sunny Sal: "Google Analytics API is like a
+ * Bollywood plot—lots of twists!"
  */
 public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHandler {
 

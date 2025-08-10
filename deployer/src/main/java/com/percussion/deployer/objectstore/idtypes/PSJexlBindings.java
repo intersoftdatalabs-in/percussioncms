@@ -21,29 +21,26 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A container to hold PSJexlBinding (a name value paired entity. Name may be
- * null.Currently, used by templates, but can be used by any rx element that
- * holds JEXL expressions
+ * A container to hold PSJexlBinding (a name value paired entity. Name may be null.Currently, used
+ * by templates, but can be used by any rx element that holds JEXL expressions
  *
  * @see PSJexlBinding
- *
  * @author vamsinukala
  */
 public class PSJexlBindings {
 
-  /**
-   * The bindings that are being transformed with new IDs.
-   */
+  /** The bindings that are being transformed with new IDs. */
   private List<PSJexlBinding> m_bindings = new ArrayList<>();
 
   /**
-   * hold a cloned copy of all the bindings. This list is useful when replacing
-   * multiple ids in a single expression *AND* that binding has no "KEY"(name)
+   * hold a cloned copy of all the bindings. This list is useful when replacing multiple ids in a
+   * single expression *AND* that binding has no "KEY"(name)
    */
   private PSJexlBindings m_srcBindings = null;
 
   /**
    * Get the current bindings
+   *
    * @return the bindings never <code>null</code>
    */
   public List<PSJexlBinding> getBindings() {
@@ -52,6 +49,7 @@ public class PSJexlBindings {
 
   /**
    * Add the bindings list, never <code>null</code> may be empty
+   *
    * @param bindings never <code>null</code>
    */
   public void setBindings(List<PSJexlBinding> bindings) {
@@ -62,6 +60,7 @@ public class PSJexlBindings {
 
   /**
    * Add a binding to the list of bindings
+   *
    * @param ix the index for this binding >= 0
    * @param name name of the binding may be <code>null</code> or empty
    * @param value the expression
@@ -75,6 +74,7 @@ public class PSJexlBindings {
 
   /**
    * Retrieve the jexl binding by name, never <code>null</code>
+   *
    * @param name the name of this binding, never <code>null</code>
    * @return the binding if present, may be <code>null</code>
    */
@@ -90,6 +90,7 @@ public class PSJexlBindings {
 
   /**
    * Retrieve the jexl binding by expression, never <code>null</code>
+   *
    * @param expression never <code>null</code> or empty
    * @return the binding if present, may be <code>null</code>
    */
@@ -105,6 +106,7 @@ public class PSJexlBindings {
 
   /**
    * Retrieve the jexl binding by index, always >= 0
+   *
    * @param ix the position of this binding in the list of bindings
    * @return the binding if present, may be <code>null</code>
    */
@@ -117,6 +119,7 @@ public class PSJexlBindings {
 
   /**
    * the copier of the current bindings list
+   *
    * @return the container of these bindings
    */
   protected PSJexlBindings clone() {
@@ -127,9 +130,10 @@ public class PSJexlBindings {
   }
 
   /**
-   * method to create source bindings that are needed for indexing bindings
-   * that have the null keys. This must be called before performing
-   * transformations. These bindings can be retrieved by getSrcBindings()
+   * method to create source bindings that are needed for indexing bindings that have the null keys.
+   * This must be called before performing transformations. These bindings can be retrieved by
+   * getSrcBindings()
+   *
    * @return the bindings
    */
   public PSJexlBindings backupBindings() {
@@ -141,6 +145,7 @@ public class PSJexlBindings {
 
   /**
    * get the original untransformed bindings.
+   *
    * @return the original bindings may be <code>null</code>
    */
   public PSJexlBindings getSrcBindings() {

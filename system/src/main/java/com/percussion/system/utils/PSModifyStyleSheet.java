@@ -29,25 +29,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSModifyStyleSheet class is used to modify user-defined style-sheets
- *   to our latest version/format.
- * <p>
- * The latest xslt specs are located at:
- * <A HREF="http://www.w3.org/TR/xslt">XSLT-SPECS</A>.
- * <p>
- *   The current version we support is:
- * <A HREF="http://www.w3.org/TR/1999/REC-xslt-19991116">XSLT-19991116</A>.
+ * The PSModifyStyleSheet class is used to modify user-defined style-sheets to our latest
+ * version/format.
  *
- * @author     DG
- * @version    1.0
- * @since      1.0
+ * <p>The latest xslt specs are located at: <A HREF="http://www.w3.org/TR/xslt">XSLT-SPECS</A>.
+ *
+ * <p>The current version we support is: <A
+ * HREF="http://www.w3.org/TR/1999/REC-xslt-19991116">XSLT-19991116</A>.
+ *
+ * @author DG
+ * @version 1.0
+ * @since 1.0
  */
 public class PSModifyStyleSheet {
   Logger log = LogManager.getLogger(PSModifyStyleSheet.class);
 
-  /**
-   * External construction needed for installer.
-   */
+  /** External construction needed for installer. */
   public PSModifyStyleSheet() {
     super();
   }
@@ -113,8 +110,8 @@ public class PSModifyStyleSheet {
   }
 
   /**
-   * This will convert the server root for the entity reference in the provided
-   * XSL from "./../../DTD/HTMLlat1x.ent" to "./../../DTD/HTMLlat1x.ent".
+   * This will convert the server root for the entity reference in the provided XSL from
+   * "./../../DTD/HTMLlat1x.ent" to "./../../DTD/HTMLlat1x.ent".
    *
    * @param strStyleSheet the file name of the style sheet to be modified
    * @returns <code>true</code> for error, <code>false</code> for success
@@ -174,8 +171,7 @@ public class PSModifyStyleSheet {
   /**
    * This is the server application's entry point
    *
-   * @param   args      the arguments supplied to the Style Sheet Modifier
-   *                     (style-sheet-filename)
+   * @param args the arguments supplied to the Style Sheet Modifier (style-sheet-filename)
    */
   public static void main(java.lang.String[] args) {
     if (args.length != 1) {

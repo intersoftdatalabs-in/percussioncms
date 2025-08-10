@@ -17,13 +17,12 @@
  */
 package com.percussion.sitemanage.importer.helpers.impl;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.data.PSPage;
-import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pagemanagement.service.impl.PSPageManagementUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.error.PSNotFoundException;
@@ -42,190 +41,215 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Helper responsible for creating a template and a new page using that template.
- * Sunny Sal says: "Templates are like blueprints—make them solid!"
+ * Helper responsible for creating a template and a new page using that template. Sunny Sal says:
+ * "Templates are like blueprints—make them solid!"
  */
 @Component("templateCreationHelper")
 @Lazy
 public class PSTemplateCreationHelper extends PSImportHelper {
 
-    private final IPSTemplateService templateService;
-    private final IPSPageDao pageDao;
-    private final IPSAssemblyService assemblyService;
-    private final IPSIdMapper idMapper;
-    private final IPSSiteTemplateService siteTemplateService;
-    private final IPSPageService pageService;
+  private final IPSTemplateService templateService;
+  private final IPSPageDao pageDao;
+  private final IPSAssemblyService assemblyService;
+  private final IPSIdMapper idMapper;
+  private final IPSSiteTemplateService siteTemplateService;
+  private final IPSPageService pageService;
 
-    public static final String LOG_ENTRY_PREFIX = "Import Template From Url";
-    private static final String STATUS_MESSAGE = "creating template";
+  public static final String LOG_ENTRY_PREFIX = "Import Template From Url";
+  private static final String STATUS_MESSAGE = "creating template";
 
-    public static final Logger log = LogManager.getLogger(PSTemplateCreationHelper.class);
+  public static final Logger log = LogManager.getLogger(PSTemplateCreationHelper.class);
 
-    @Autowired
-    public PSTemplateCreationHelper(IPSTemplateService templateService, IPSPageDao pageDao,
-                                    IPSAssemblyService assemblyService, IPSIdMapper idMapper,
-                                    IPSSiteTemplateService siteTemplateService, IPSPageService pageService) {
-        this.templateService = templateService;
-        this.pageDao = pageDao;
-        this.assemblyService = assemblyService;
-        this.idMapper = idMapper;
-        this.siteTemplateService = siteTemplateService;
-        this.pageService = pageService;
+  @Autowired
+  public PSTemplateCreationHelper(
+      IPSTemplateService templateService,
+      IPSPageDao pageDao,
+      IPSAssemblyService assemblyService,
+      IPSIdMapper idMapper,
+      IPSSiteTemplateService siteTemplateService,
+      IPSPageService pageService) {
+    this.templateService = templateService;
+    this.pageDao = pageDao;
+    this.assemblyService = assemblyService;
+    this.idMapper = idMapper;
+    this.siteTemplateService = siteTemplateService;
+    this.pageService = pageService;
+  }
+
+  @SuppressWarnings("unused")
+  @Override
+  public void process(PSPageContent pageContent, PSSiteImportCtx context)
+      throws PSTemplateImportException, IPSPageService.PSPageException {
+    startTimer();
+    // Initial names, using site-wide naming conventions.
+    var pageName = PSPageManagementUtils.PAGE_NAME;
+    var templateName = PSPageManagementUtils.TEMPLATE_NAME;
+
+    // If possible, extract name from URL to use for page and template, instead.
+    var extractedName = extractPageNameFromUrl(context.getSiteUrl());
+    if (!StringUtils.isEmpty(extractedName)) {
+      pageName = extractedName;
+      templateName = extractedName;
+    } else {
+      context
+          .getLogger()
+          .appendLogMessage(
+              PSLogEntryType.STATUS,
+              LOG_ENTRY_PREFIX,
+              "Template and page name couldn't be extracted from URL. Defaulting to "
+                  + PSPageManagementUtils.TEMPLATE_NAME);
     }
 
-    @SuppressWarnings("unused")
-    @Override
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSTemplateImportException, IPSPageService.PSPageException {
-        startTimer();
-        // Initial names, using site-wide naming conventions.
-        var pageName = PSPageManagementUtils.PAGE_NAME;
-        var templateName = PSPageManagementUtils.TEMPLATE_NAME;
+    // Generate names to avoid collision with existing pages and templates.
+    pageName = pageService.generateNewPageName(pageName, context.getSite().getFolderPath());
+    templateName =
+        siteTemplateService.generateNewTemplateName(
+            PSPageManagementUtils.TEMPLATE_NAME, context.getSite().getId());
 
-        // If possible, extract name from URL to use for page and template, instead.
-        var extractedName = extractPageNameFromUrl(context.getSiteUrl());
-        if (!StringUtils.isEmpty(extractedName)) {
-            pageName = extractedName;
-            templateName = extractedName;
-        } else {
-            context.getLogger().appendLogMessage(PSLogEntryType.STATUS, LOG_ENTRY_PREFIX,
-                    "Template and page name couldn't be extracted from URL. Defaulting to " + PSPageManagementUtils.TEMPLATE_NAME);
-        }
+    try {
+      // TODO Replace plain template with new perc.base.empty that will be later added to base
+      // package.
+      // Create template
+      context.setTemplateName(templateName);
+      var newTemplate =
+          templateService.createNewTemplate(
+              IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME,
+              templateName,
+              context.getSite().getId());
+      context
+          .getLogger()
+          .appendLogMessage(
+              PSLogEntryType.STATUS,
+              LOG_ENTRY_PREFIX,
+              "Template was successfully created with name: " + templateName);
 
-        // Generate names to avoid collision with existing pages and templates.
-        pageName = pageService.generateNewPageName(pageName, context.getSite().getFolderPath());
-        templateName = siteTemplateService.generateNewTemplateName(PSPageManagementUtils.TEMPLATE_NAME, context.getSite().getId());
+      // Create page
+      context.setPageName(pageName);
+      var newPage = createNewPage(pageName, newTemplate.getId(), context.getSite().getFolderPath());
+      context
+          .getLogger()
+          .appendLogMessage(
+              PSLogEntryType.STATUS,
+              LOG_ENTRY_PREFIX,
+              "Page was successfully created with name: " + templateName);
 
-        try {
-            // TODO Replace plain template with new perc.base.empty that will be later added to base package.
-            // Create template
-            context.setTemplateName(templateName);
-            var newTemplate = templateService.createNewTemplate(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME,
-                    templateName, context.getSite().getId());
-            context.getLogger().appendLogMessage(PSLogEntryType.STATUS, LOG_ENTRY_PREFIX,
-                    "Template was successfully created with name: " + templateName);
+      // Assign the new template id to the context object
+      context.setTemplateId(newTemplate.getId());
+    } catch (PSAssemblyException | PSDataServiceException e) {
+      var message = "There was an unexpected error importing the template from the provided URL.";
+      log.error(message + ". Caused by: " + e.getMessage());
+      throw new PSTemplateImportException(message, e);
+    }
+    endTimer();
+  }
 
-            // Create page
-            context.setPageName(pageName);
-            var newPage = createNewPage(pageName, newTemplate.getId(), context.getSite().getFolderPath());
-            context.getLogger().appendLogMessage(PSLogEntryType.STATUS, LOG_ENTRY_PREFIX,
-                    "Page was successfully created with name: " + templateName);
-
-            // Assign the new template id to the context object
-            context.setTemplateId(newTemplate.getId());
-        } catch (PSAssemblyException | PSDataServiceException e) {
-            var message = "There was an unexpected error importing the template from the provided URL.";
-            log.error(message + ". Caused by: " + e.getMessage());
-            throw new PSTemplateImportException(message, e);
-        }
-        endTimer();
+  @SuppressWarnings("unused")
+  @Override
+  public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
+      throws PSDataServiceException {
+    if (context.getSite() == null) {
+      return;
     }
 
-    @SuppressWarnings("unused")
-    @Override
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) throws PSDataServiceException {
-        if (context.getSite() == null) {
-            return;
-        }
-
-        // Delete page if it was created
-        if (StringUtils.isNotEmpty(context.getPageName())) {
-            var page = pageService.findPage(context.getPageName(), context.getSite().getFolderPath());
-            if (page != null) {
-                pageService.delete(page.getId());
-            }
-        }
-
-        // Delete template if it was created
-        if (StringUtils.isNotEmpty(context.getTemplateName())) {
-            var siteTemplates = siteTemplateService.findTemplatesBySite(context.getSite().getId());
-            for (var template : siteTemplates) {
-                if (template.getName().equals(context.getTemplateName())) {
-                    try {
-                        templateService.delete(template.getId());
-                    } catch (PSNotFoundException e) {
-                        log.warn(PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                    }
-                    break;
-                }
-            }
-        }
+    // Delete page if it was created
+    if (StringUtils.isNotEmpty(context.getPageName())) {
+      var page = pageService.findPage(context.getPageName(), context.getSite().getFolderPath());
+      if (page != null) {
+        pageService.delete(page.getId());
+      }
     }
 
-    /**
-     * Extracts the text of the URL behind the last slash "/" and before the URL
-     * parameters or query section in the URL.
-     *
-     * @param url The URL to process (can include http:// prefix or not). No syntax restrictions.
-     * @return extracted name if possible, or an empty string if it couldn't be extracted. Never null.
-     */
-    public String extractPageNameFromUrl(String url) {
-        if (StringUtils.isEmpty(url)) {
-            return "";
+    // Delete template if it was created
+    if (StringUtils.isNotEmpty(context.getTemplateName())) {
+      var siteTemplates = siteTemplateService.findTemplatesBySite(context.getSite().getId());
+      for (var template : siteTemplates) {
+        if (template.getName().equals(context.getTemplateName())) {
+          try {
+            templateService.delete(template.getId());
+          } catch (PSNotFoundException e) {
+            log.warn(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+          }
+          break;
         }
+      }
+    }
+  }
 
-        // Clean URL before processing
-        var cleanUrl = url.replace('\\', '/');
-
-        // Remove protocol prefix - http://, https://, etc ;
-        var protocolSeparator = "://";
-        var protocolPosition = cleanUrl.indexOf(protocolSeparator);
-        if (protocolPosition != -1) {
-            cleanUrl = cleanUrl.substring(protocolPosition + protocolSeparator.length());
-        }
-
-        // Remove / at the start
-        if (cleanUrl.length() > 0 && cleanUrl.charAt(0) == '/') {
-            cleanUrl = cleanUrl.substring(1);
-        }
-
-        // Remove trailing slash
-        if (cleanUrl.endsWith("/")) {
-            cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
-        }
-
-        // Start from the last slash found, without including it.
-        var startIndex = cleanUrl.lastIndexOf("/");
-
-        if (startIndex == -1 || startIndex == cleanUrl.length() - 1) {
-            return "";
-        } else {
-            startIndex++;
-        }
-
-        // End at the first ?, ; or . found.
-        var endIndex = cleanUrl.replace('?', '.').replace(';', '.').indexOf('.', startIndex);
-
-        if (endIndex == -1) {
-            return cleanUrl.substring(startIndex);
-        } else {
-            return cleanUrl.substring(startIndex, endIndex);
-        }
+  /**
+   * Extracts the text of the URL behind the last slash "/" and before the URL parameters or query
+   * section in the URL.
+   *
+   * @param url The URL to process (can include http:// prefix or not). No syntax restrictions.
+   * @return extracted name if possible, or an empty string if it couldn't be extracted. Never null.
+   */
+  public String extractPageNameFromUrl(String url) {
+    if (StringUtils.isEmpty(url)) {
+      return "";
     }
 
-    /**
-     * Creates a new page with specified name in folderPath, using template with templateId.
-     *
-     * @param name       The name that this page will have. Will also be used to set link title and page title.
-     * @param templateId The template id of the template that this page will use.
-     * @param folderPath The folder path inside the site where the page will be created.
-     * @return PSPage Class that holds information of the created page.
-     */
-    public PSPage createNewPage(String name, String templateId, String folderPath) throws PSDataServiceException {
-        var page = new PSPage();
-        page.setName(name);
-        page.setFolderPath(folderPath);
-        page.setTitle(name);
-        page.setTemplateId(templateId);
-        page.setLinkTitle(name);
-        return pageService.save(page);
+    // Clean URL before processing
+    var cleanUrl = url.replace('\\', '/');
+
+    // Remove protocol prefix - http://, https://, etc ;
+    var protocolSeparator = "://";
+    var protocolPosition = cleanUrl.indexOf(protocolSeparator);
+    if (protocolPosition != -1) {
+      cleanUrl = cleanUrl.substring(protocolPosition + protocolSeparator.length());
     }
 
-    @Override
-    public String getHelperMessage() {
-        return STATUS_MESSAGE;
+    // Remove / at the start
+    if (cleanUrl.length() > 0 && cleanUrl.charAt(0) == '/') {
+      cleanUrl = cleanUrl.substring(1);
     }
+
+    // Remove trailing slash
+    if (cleanUrl.endsWith("/")) {
+      cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
+    }
+
+    // Start from the last slash found, without including it.
+    var startIndex = cleanUrl.lastIndexOf("/");
+
+    if (startIndex == -1 || startIndex == cleanUrl.length() - 1) {
+      return "";
+    } else {
+      startIndex++;
+    }
+
+    // End at the first ?, ; or . found.
+    var endIndex = cleanUrl.replace('?', '.').replace(';', '.').indexOf('.', startIndex);
+
+    if (endIndex == -1) {
+      return cleanUrl.substring(startIndex);
+    } else {
+      return cleanUrl.substring(startIndex, endIndex);
+    }
+  }
+
+  /**
+   * Creates a new page with specified name in folderPath, using template with templateId.
+   *
+   * @param name The name that this page will have. Will also be used to set link title and page
+   *     title.
+   * @param templateId The template id of the template that this page will use.
+   * @param folderPath The folder path inside the site where the page will be created.
+   * @return PSPage Class that holds information of the created page.
+   */
+  public PSPage createNewPage(String name, String templateId, String folderPath)
+      throws PSDataServiceException {
+    var page = new PSPage();
+    page.setName(name);
+    page.setFolderPath(folderPath);
+    page.setTitle(name);
+    page.setTemplateId(templateId);
+    page.setLinkTitle(name);
+    return pageService.save(page);
+  }
+
+  @Override
+  public String getHelperMessage() {
+    return STATUS_MESSAGE;
+  }
 }

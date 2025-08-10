@@ -53,52 +53,42 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class extends {@link PSProcessorProxy} and is to manipulate
- * all the active assembly relationships and properties and is a convenient
- * wrapper around the functionality of {@link PSRelationshipProcessorProxy}
- * with methods that are meaningful for active assembly processing.
- * <p>
- * Active assembly involves manipultion of item (owner), variant, slot and
- * relationship objects based on some preconfigured rules.
- * <p>An implementor should be able to achieve everything he wants to do
- * around active assembly using this class. He can use the class
- * {@link PSRelationshipProcessorProxy} and do the same, however, it will be
- * more work.
+ * This class extends {@link PSProcessorProxy} and is to manipulate all the active assembly
+ * relationships and properties and is a convenient wrapper around the functionality of {@link
+ * PSRelationshipProcessorProxy} with methods that are meaningful for active assembly processing.
+ *
+ * <p>Active assembly involves manipultion of item (owner), variant, slot and relationship objects
+ * based on some preconfigured rules.
+ *
+ * <p>An implementor should be able to achieve everything he wants to do around active assembly
+ * using this class. He can use the class {@link PSRelationshipProcessorProxy} and do the same,
+ * however, it will be more work.
  *
  * @author RammohanVangapalli
  */
 public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   /**
-   * Creates a proxy for a specific type of processor. Simply delegates to the
-   * base  class.
+   * Creates a proxy for a specific type of processor. Simply delegates to the base class.
    *
-   * @param type  The type of processor for which this class is acting as a
-   *    proxy. See {@link PSProcessorProxy version of the constructor} for more
-   *    details
-   *
-   * @param ctx A context object appropriate for the processor type,
-   * may be <code>null</code> if the processor does not require one.
-   *
-   * @throws PSCmsException If the xml document is not well-formed and
-   *    conformant to its schema.
+   * @param type The type of processor for which this class is acting as a proxy. See {@link
+   *     PSProcessorProxy version of the constructor} for more details
+   * @param ctx A context object appropriate for the processor type, may be <code>null</code> if the
+   *     processor does not require one.
+   * @throws PSCmsException If the xml document is not well-formed and conformant to its schema.
    */
   public PSActiveAssemblyProcessorProxy(String type, Object ctx) throws PSCmsException {
     super(type, ctx);
   }
 
   /**
-   * Get the list of all slots for a given item locator including inline slots.
-   * This is list a union (i.e. does not include duplicates) of all slots from
-   * all variants of the item.
+   * Get the list of all slots for a given item locator including inline slots. This is list a union
+   * (i.e. does not include duplicates) of all slots from all variants of the item.
    *
    * @param item Locator for the owner item, must not be <code>null</code>.
-   * @return Set of slot objects associated with this item, never
-   *         <code>null</code>, may be empty.
-   * @throws IllegalArgumentException if the item locator supplied is
-   *            <code>null</code>.
+   * @return Set of slot objects associated with this item, never <code>null</code>, may be empty.
+   * @throws IllegalArgumentException if the item locator supplied is <code>null</code>.
    * @throws PSCmsException if it cannot extract item slots for any reason.
-   * @throws PSUnknownNodeTypeException if the slots are not loaded because XML
-   *            parsing error.
+   * @throws PSUnknownNodeTypeException if the slots are not loaded because XML parsing error.
    */
   public PSSlotTypeSet getItemSlots(PSLocator item)
       throws PSCmsException, PSUnknownNodeTypeException {
@@ -126,17 +116,14 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Get the list of all variants registered for the item specified by the
-   * locator.
+   * Get the list of all variants registered for the item specified by the locator.
    *
    * @param item Locator for the owner item, must not be <code>null</code>.
-   * @return Set of variant objects associated with this item, never
-   *         <code>null</code>, may be empty.
-   * @throws IllegalArgumentException if the item locator supplied is
-   *            <code>null</code>.
+   * @return Set of variant objects associated with this item, never <code>null</code>, may be
+   *     empty.
+   * @throws IllegalArgumentException if the item locator supplied is <code>null</code>.
    * @throws PSCmsException if it cannot extract item variants for any reason.
-   * @throws PSUnknownNodeTypeException if the variants are not loaded because
-   *            XML parsing error.
+   * @throws PSUnknownNodeTypeException if the variants are not loaded because XML parsing error.
    */
   public PSContentTypeVariantSet getItemVariants(PSLocator item)
       throws PSUnknownNodeTypeException, PSCmsException {
@@ -160,27 +147,23 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Get the list of all relationships for the given slot of the item
-   * specified by the locator. This is equivalent to getting all related
-   * items in the specified slot for manipulation.
+   * Get the list of all relationships for the given slot of the item specified by the locator. This
+   * is equivalent to getting all related items in the specified slot for manipulation.
+   *
    * @param owner Locator for the owner item, must not be <code>null</code>.
-   * @param slot item slot object for which the relationships are to be
-   * fetched, must not be <code>null</code>.
-   * @param authType authorization type value to filter the relationships,
-   * one of the valid authorization type valuess. This auth type must have
-   * been implemented in sys_casSupport application. It is an error if the
-   * requested auth type is not implemented. It is <code>null</code> if the
-   * returned relationships are not filtered by authType. The template of the
-   * relationship will be ignored if the authType value is <code>null</code>.
-   *
-   * @return a sorted list of relationship objects associated with this slot
-   * of the item. The list is in the order of sort rank property of the
-   * relationships. It is never <code>null</code>, may be empty.
-   *
-   * @throws IllegalArgumentException if the item locator or the slot supplied
-   * is <code>null</code> or slotid specified is invalid.
-   * @throws PSCmsException if it cannot extract relationships for the item
-   * slot for any reason.
+   * @param slot item slot object for which the relationships are to be fetched, must not be <code>
+   *     null</code>.
+   * @param authType authorization type value to filter the relationships, one of the valid
+   *     authorization type valuess. This auth type must have been implemented in sys_casSupport
+   *     application. It is an error if the requested auth type is not implemented. It is <code>null
+   *     </code> if the returned relationships are not filtered by authType. The template of the
+   *     relationship will be ignored if the authType value is <code>null</code>.
+   * @return a sorted list of relationship objects associated with this slot of the item. The list
+   *     is in the order of sort rank property of the relationships. It is never <code>null</code>,
+   *     may be empty.
+   * @throws IllegalArgumentException if the item locator or the slot supplied is <code>null</code>
+   *     or slotid specified is invalid.
+   * @throws PSCmsException if it cannot extract relationships for the item slot for any reason.
    */
   public PSAaRelationshipList getSlotRelationships(
       PSLocator owner, PSSlotType slot, Integer authType) throws PSCmsException {
@@ -246,22 +229,22 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Get the summaries for the dependent items of all relationships for
-   * the given slot of the item specified by the locator. This is equivalent
-   * to getting all related items in the specified slot for manipulation.
+   * Get the summaries for the dependent items of all relationships for the given slot of the item
+   * specified by the locator. This is equivalent to getting all related items in the specified slot
+   * for manipulation.
+   *
    * @param owner Locator for the owner item, must not be <code>null</code>.
-   * @param slot item slot object for which the dependent items are to be
-   * fetched, must not be <code>null</code>.
-   * @param authType authorization type value to filter the slot items,
-   * one of the valid authorization type values. This auth type must have
-   * been implemented in sys_casSupport application. It is an error if the
-   * requested auth type is not implemented.
-   * @return Component summaries for the dependent items related to parent item
-   * via slot supplied, never <code>null</code>, may be empty.
-   * @throws IllegalArgumentException if the item locator or the slot supplied
-   * is <code>null</code> or slotid specified is invalid.
-   * @throws PSCmsException if it cannot extract component summaries for the
-   * dependent items for any reason.
+   * @param slot item slot object for which the dependent items are to be fetched, must not be
+   *     <code>null</code>.
+   * @param authType authorization type value to filter the slot items, one of the valid
+   *     authorization type values. This auth type must have been implemented in sys_casSupport
+   *     application. It is an error if the requested auth type is not implemented.
+   * @return Component summaries for the dependent items related to parent item via slot supplied,
+   *     never <code>null</code>, may be empty.
+   * @throws IllegalArgumentException if the item locator or the slot supplied is <code>null</code>
+   *     or slotid specified is invalid.
+   * @throws PSCmsException if it cannot extract component summaries for the dependent items for any
+   *     reason.
    */
   public PSComponentSummaries getSlotItems(PSLocator owner, PSSlotType slot, int authType)
       throws PSCmsException {
@@ -291,20 +274,17 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Rearrange the related items specified via relationships and move to a
-   * specified location. All the items from the relationship list will be
-   * arranged together in the order they occur in the set and moved to the
-   * specified location. The first item (relationship) in the list will get
-   * the order specified by the new location. Specify 0 to move to top in
-   * the slot and -1 (or a value larger than the items in the slot) to move
-   * to bottom. All relationships in the list must be for the same slot and
-   * have the same owner.
+   * Rearrange the related items specified via relationships and move to a specified location. All
+   * the items from the relationship list will be arranged together in the order they occur in the
+   * set and moved to the specified location. The first item (relationship) in the list will get the
+   * order specified by the new location. Specify 0 to move to top in the slot and -1 (or a value
+   * larger than the items in the slot) to move to bottom. All relationships in the list must be for
+   * the same slot and have the same owner.
    *
-   * @param slotRelations list of relationships to rearrange and move, must
-   *    not be <code>null</code> or empty.
-   * @param index new location, -1 for bottom and any other value
-   *    specified becomes the sort index of the first item in the relationship
-   *    list to rearrange.
+   * @param slotRelations list of relationships to rearrange and move, must not be <code>null</code>
+   *     or empty.
+   * @param index new location, -1 for bottom and any other value specified becomes the sort index
+   *     of the first item in the relationship list to rearrange.
    * @throws PSCmsException if rearrange fails for any reason.
    */
   public void reArrangeSlotRelationships(PSAaRelationshipList slotRelations, int index)
@@ -360,22 +340,20 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Inserts the supplied source relationship collection into the target
-   * relationship collection at the given index. First the
-   * supplied source relationships are inserted at the specified index.
-   * Then all target relationships sortrank property is normalized
-   * starting with 1, continiously incremented by 1.
+   * Inserts the supplied source relationship collection into the target relationship collection at
+   * the given index. First the supplied source relationships are inserted at the specified index.
+   * Then all target relationships sortrank property is normalized starting with 1, continiously
+   * incremented by 1.
    *
-   * @param target the relationship collection into which to insert the
-   *    supplied source collection, assumed not <code>null</code>.
-   * @param source the relationship collection which will be inserted into
-   *    the supplied target collection at the provided index, assumed not
-   *    <code>null</code>.
-   * @param index the index where to insert the supplied source relationships
-   *    into the target relationships. Supply -1 or a value greater than the
-   *    target relationship size to append the source to the target.
-   * @param isZeroBased <code>true</code> if the ordering of the collection
-   *    of relationships is zero-based, <code>false</code> otherwise.
+   * @param target the relationship collection into which to insert the supplied source collection,
+   *     assumed not <code>null</code>.
+   * @param source the relationship collection which will be inserted into the supplied target
+   *     collection at the provided index, assumed not <code>null</code>.
+   * @param index the index where to insert the supplied source relationships into the target
+   *     relationships. Supply -1 or a value greater than the target relationship size to append the
+   *     source to the target.
+   * @param isZeroBased <code>true</code> if the ordering of the collection of relationships is
+   *     zero-based, <code>false</code> otherwise.
    */
   private void insertNormalize(
       PSRelationshipSet target, PSAaRelationshipList source, int index, boolean isZeroBased) {
@@ -400,18 +378,16 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Add new items specified by the relationship list to a slot at a specified
-   * location index. All relationships in the list must be for the same owner
-   * and slot for this method to be successful. Also, all the relationships
-   * must have an id of -1. The sortrank properties of all saved relationships
-   * will be normalized starting with 1, continiously incremented by 1.
+   * Add new items specified by the relationship list to a slot at a specified location index. All
+   * relationships in the list must be for the same owner and slot for this method to be successful.
+   * Also, all the relationships must have an id of -1. The sortrank properties of all saved
+   * relationships will be normalized starting with 1, continiously incremented by 1.
    *
-   * @param newSlotRelations list of relationships to add at the location
-   *    specified, must not be <code>null</code> or empty.
-   * @param locIndex the location index where to insert the new supplied
-   *    relationships into existing relationships. Supply -1 or a value
-   *    greater than the existing relationship size to append the ones to the
-   *    end. It is <code>1</code> based number.
+   * @param newSlotRelations list of relationships to add at the location specified, must not be
+   *     <code>null</code> or empty.
+   * @param locIndex the location index where to insert the new supplied relationships into existing
+   *     relationships. Supply -1 or a value greater than the existing relationship size to append
+   *     the ones to the end. It is <code>1</code> based number.
    * @throws PSCmsException if add fails for any reason.
    */
   public void addSlotRelationships(PSAaRelationshipList newSlotRelations, int locIndex)
@@ -460,9 +436,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
     proxy.save(existing);
   }
 
-  /**
-   * Used to sort relationships based on the sort rank property.
-   */
+  /** Used to sort relationships based on the sort rank property. */
   public class RelationshipSorter implements Comparator<PSRelationship> {
     @Override
     public int compare(PSRelationship rel1, PSRelationship rel2) {
@@ -483,17 +457,17 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Remove items specified by the relationship list from a slot. All
-   * relationships in the list must have the same owner and for the same
-   * slot for this method to be successful.
-   * @param existingSlotRelations list of relationships to remove, must
-   * not be <code>null</code> or empty.
+   * Remove items specified by the relationship list from a slot. All relationships in the list must
+   * have the same owner and for the same slot for this method to be successful.
+   *
+   * @param existingSlotRelations list of relationships to remove, must not be <code>null</code> or
+   *     empty.
    * @throws IllegalArgumentException if
-   * <ol>
-   * <li>the relationship list is <code>null</code> or empty</li>
-   * <li>if all relationships are not for the same slot or do
-   * not share the same owner</li>
-   * </ol>
+   *     <ol>
+   *       <li>the relationship list is <code>null</code> or empty
+   *       <li>if all relationships are not for the same slot or do not share the same owner
+   *     </ol>
+   *
    * @throws PSCmsException if remove fails for any reason.
    */
   public void removeSlotRelations(PSAaRelationshipList existingSlotRelations)
@@ -512,15 +486,15 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Helper method to get the relationship object given the relationship type
-   * name. Simply delegates to the same method of
-   * {@link PSRelationshipProcessorProxy}.
-   * @param relationshipName name of the relationship name. Must correspond
-   * to one of the relationships configured in the workbench.
-   * @return Relationship Configuration object, may be <code>null</code> if
-   * one with the name supplied is not found.
-   * @throws PSCmsException if the method cannot extract the configuraion
-   * object for the given name for any reason.
+   * Helper method to get the relationship object given the relationship type name. Simply delegates
+   * to the same method of {@link PSRelationshipProcessorProxy}.
+   *
+   * @param relationshipName name of the relationship name. Must correspond to one of the
+   *     relationships configured in the workbench.
+   * @return Relationship Configuration object, may be <code>null</code> if one with the name
+   *     supplied is not found.
+   * @throws PSCmsException if the method cannot extract the configuraion object for the given name
+   *     for any reason.
    */
   public PSRelationshipConfig getRelationshipConfig(String relationshipName) throws PSCmsException {
     PSRelationshipProcessor relProxy = PSRelationshipProcessor.getInstance();
@@ -529,10 +503,10 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Save the specified active assembly relationship list. Corrects the sort
-   * rank properties before saving.
-   * @param relationships relationship list to ve saved, must not be
-   * <code>null</code> or empty.
+   * Save the specified active assembly relationship list. Corrects the sort rank properties before
+   * saving.
+   *
+   * @param relationships relationship list to ve saved, must not be <code>null</code> or empty.
    * @throws PSCmsException
    */
   public void save(PSAaRelationshipList relationships) throws PSCmsException {
@@ -555,15 +529,14 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Helper methid that validates the active assembly relationship. This has
-   * the following steps:
+   * Helper methid that validates the active assembly relationship. This has the following steps:
+   *
    * <ol>
-   * <li>Check to make sure the relationship category is active assembly</li>
-   * <li>The slot of the AA relationship must allow the variant of the
-   * relationship</li>
+   *   <li>Check to make sure the relationship category is active assembly
+   *   <li>The slot of the AA relationship must allow the variant of the relationship
    * </ol>
-   * @param aaRel Active Assembly relationship to validate, must not be
-   * <code>null</code>.
+   *
+   * @param aaRel Active Assembly relationship to validate, must not be <code>null</code>.
    * @throws PSCmsException if vaildation fails.
    */
   public void validateAaRelationship(PSAaRelationship aaRel) throws PSCmsException {
@@ -589,22 +562,18 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Get a list of dependent contentids given the parent locator and the
-   * authorization type value. The list is obtained by executing the internal
-   * request to "sys_casSupport/casSupport_x" Rhythmyx resource, where x is the
-   * authorization type value.
+   * Get a list of dependent contentids given the parent locator and the authorization type value.
+   * The list is obtained by executing the internal request to "sys_casSupport/casSupport_x"
+   * Rhythmyx resource, where x is the authorization type value.
    *
    * @param parent Locator for the patent item.
-   * @param authType authorization type value one of the valid authorization
-   *           type valuess. This auth type must have been implemented in
-   *           sys_casSupport application. It is an error if the requested auth
-   *           type is not implemented.
-   * @return A list of all contentids (as strings) for the dependent items
-   *         filtered for supplied authorization type.
-   * @throws PSNotFoundException if the authtype implementation resource is not
-   *            found.
-   * @throws PSCmsException if any other error occurs while filtering by
-   *            authtype.
+   * @param authType authorization type value one of the valid authorization type valuess. This auth
+   *     type must have been implemented in sys_casSupport application. It is an error if the
+   *     requested auth type is not implemented.
+   * @return A list of all contentids (as strings) for the dependent items filtered for supplied
+   *     authorization type.
+   * @throws PSNotFoundException if the authtype implementation resource is not found.
+   * @throws PSCmsException if any other error occurs while filtering by authtype.
    */
   private List<String> getDependentsByAuthType(PSLocator parent, int authType)
       throws PSNotFoundException, PSCmsException {
@@ -651,15 +620,11 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
   }
 
   /**
-   * Determines if the ordering of a collection of relationships
-   * is zero-based.
+   * Determines if the ordering of a collection of relationships is zero-based.
    *
-   * @param collection of {@link PSRelationship} objects, may not
-   * be <code>null</code>.
-   *
-   * @return <code>true</code> if the sort rank properties for the
-   *  collection of relationships are zero-based, <code>false</code>
-   *  otherwise.
+   * @param collection of {@link PSRelationship} objects, may not be <code>null</code>.
+   * @return <code>true</code> if the sort rank properties for the collection of relationships are
+   *     zero-based, <code>false</code> otherwise.
    */
   public boolean isZeroBased(PSCollectionComponent collection) {
     if (collection == null) {

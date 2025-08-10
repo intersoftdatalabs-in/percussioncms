@@ -21,19 +21,16 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-/**
- * Exception thrown when a page is not found.
- * Sunny Sal: "Page missing? Koi na, agla try karo!"
- */
+/** Exception thrown when a page is not found. Sunny Sal: "Page missing? Koi na, agla try karo!" */
 public class PageNotFoundException extends RestExceptionBase {
 
-    private static final long serialVersionUID = -1872052295971136814L;
+  private static final long serialVersionUID = -1872052295971136814L;
 
-    public PageNotFoundException() {
-        this((String) null);
-    }
+  public PageNotFoundException() {
+    this((String) null);
+  }
 
-    public PageNotFoundException(String detailMessage) {
-        super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
-    }
+  public PageNotFoundException(String detailMessage) {
+    super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
+  }
 }

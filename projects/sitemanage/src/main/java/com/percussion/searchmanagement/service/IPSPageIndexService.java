@@ -17,20 +17,17 @@
 package com.percussion.searchmanagement.service;
 
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.Set;
 
-/**
- * Provides search indexing support for pages.
- */
+/** Provides search indexing support for pages. */
 public interface IPSPageIndexService {
 
-    /**
-     * Indexes the specified pages and/or templates. Templates are not indexed directly.
-     * Instead, all pages which use the templates are indexed.
-     *
-     * @param ids set of content IDs to index. May not be {@code null}.
-     * @throws PSValidationException if validation fails
-     */
-    void index(Set<Integer> ids) throws PSValidationException;
+  /**
+   * Indexes the specified pages and/or templates. Templates are not indexed directly. Instead, all
+   * pages which use the templates are indexed.
+   *
+   * @param ids set of content IDs to index. May not be {@code null}.
+   * @throws PSValidationException if validation fails
+   */
+  void index(Set<Integer> ids) throws PSValidationException;
 }

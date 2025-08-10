@@ -23,25 +23,21 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A name pattern filter handles objects that fulfill the <code>Item</code>
- * interface or uses the <code>toString</code> method. It calls the
- * <code>getName</code> method for <code>Item</code> and checks the name
- * against the patterns.
+ * A name pattern filter handles objects that fulfill the <code>Item</code> interface or uses the
+ * <code>toString</code> method. It calls the <code>getName</code> method for <code>Item</code> and
+ * checks the name against the patterns.
  *
  * @author dougrand
  */
 public class PSNamePatternFilter implements Predicate {
-  /**
-   * The set of patterns to try and match. Never <code>null</code> after
-   * construction.
-   */
+  /** The set of patterns to try and match. Never <code>null</code> after construction. */
   private Pattern m_matchPatterns[] = null;
 
   /**
    * Ctor
    *
-   * @param pattern the pattern, never <code>null</code> or empty. See the
-   *           javadocs for JSR-170 to understand the pattern syntax.
+   * @param pattern the pattern, never <code>null</code> or empty. See the javadocs for JSR-170 to
+   *     understand the pattern syntax.
    */
   public PSNamePatternFilter(String pattern) {
     if (StringUtils.isBlank(pattern)) {
@@ -76,8 +72,7 @@ public class PSNamePatternFilter implements Predicate {
    * Translate JSR-170 property pattern into an array of regex patterns
    *
    * @param filterpattern the pattern, never <code>null</code> or empty
-   * @return an array of patterns with at least one entry, never
-   *         <code>null</code>
+   * @return an array of patterns with at least one entry, never <code>null</code>
    */
   private Pattern[] processFilter(String filterpattern) {
     if (StringUtils.isBlank(filterpattern)) {

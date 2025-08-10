@@ -35,13 +35,12 @@ import org.w3c.dom.Element;
 
 /**
  * The purpose of the exit is to
+ *
  * <ol>
- * <li> Choose the appropriate plug-in from the server configuration settings
- * based on the client OS and Browser. </li>
- * <li> Add the plug-in related attributes to the root element of the XML
- * document. </li>
- * <li> Add the cx options attributes to the root element of the XML document.
- * </li>
+ *   <li>Choose the appropriate plug-in from the server configuration settings based on the client
+ *       OS and Browser.
+ *   <li>Add the plug-in related attributes to the root element of the XML document.
+ *   <li>Add the cx options attributes to the root element of the XML document.
  * </ol>
  */
 public class PSAddPluginProperties implements IPSResultDocumentProcessor {
@@ -72,15 +71,11 @@ public class PSAddPluginProperties implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Retrieves the Java plugin based on the user agent or returning the default
-   * Java plugin and then adds the plugin info attributes to the root node of
-   * the results document passed in.
+   * Retrieves the Java plugin based on the user agent or returning the default Java plugin and then
+   * adds the plugin info attributes to the root node of the results document passed in.
    *
    * @param request the request context, assumed not <code>null</code>.
-   *
-   * @param resDoc the results document to be modified, may be
-   *           <code>null</code>.
-   *
+   * @param resDoc the results document to be modified, may be <code>null</code>.
    * @return the Java plugin, never <code>null</code>.
    */
   public static Document addPluginInfo(IPSRequestContext request, Document resDoc) {
@@ -149,34 +144,21 @@ public class PSAddPluginProperties implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * Constant for attribute name version type
-   */
+  /** Constant for attribute name version type */
   public static final String ATTR_VERSIONTYPE = "version_type";
 
-  /**
-   * Constant for attribute name implementation version
-   */
+  /** Constant for attribute name implementation version */
   public static final String ATTR_IMPLEMENTATIONVERSION = "implementation_version";
 
-  /**
-   * Constant for attribute name classid
-   */
+  /** Constant for attribute name classid */
   public static final String ATTR_CLASSID = "classid";
 
-  /**
-   * Constant for attribute name codebase for plugin
-   */
+  /** Constant for attribute name codebase for plugin */
   public static final String ATTR_CODEBASE = "codebase";
 
-  /**
-   * Constant for attribute name that specifies if an external search engine is
-   * available.
-   */
+  /** Constant for attribute name that specifies if an external search engine is available. */
   public static final String ATTR_SEARCH_ENGINE_AVAILABLE = "search_engine_available";
 }

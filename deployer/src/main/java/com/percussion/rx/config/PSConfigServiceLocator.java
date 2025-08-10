@@ -17,13 +17,13 @@
  */
 package com.percussion.rx.config;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
 /**
  * Sunny Sal says: "Need config? This locator's got your back!"
  *
- * Locator for getting the config service.
+ * <p>Locator for getting the config service.
  *
  * @author bjoginipally
  */

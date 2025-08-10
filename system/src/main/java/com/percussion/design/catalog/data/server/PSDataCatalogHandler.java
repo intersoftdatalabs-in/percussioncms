@@ -20,22 +20,18 @@ package com.percussion.design.catalog.data.server;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSDataCatalogHandler class processes data related catalog requests
- * for the E2 server. This class interfaces with the data providers
- * directly to perform its cataloging.
+ * The PSDataCatalogHandler class processes data related catalog requests for the E2 server. This
+ * class interfaces with the data providers directly to perform its cataloging.
  *
- * @see       com.percussion.server.IPSRequestHandler
- * @see       com.percussion.design.catalog
- * @see       com.percussion.design.catalog.data
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.IPSRequestHandler
+ * @see com.percussion.design.catalog
+ * @see com.percussion.design.catalog.data
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler {
-  /**
-   * Construct the data related catalog handler.
-   */
+  /** Construct the data related catalog handler. */
   public PSDataCatalogHandler() {
     super();
 
@@ -57,9 +53,7 @@ public class PSDataCatalogHandler extends com.percussion.design.catalog.PSCatalo
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

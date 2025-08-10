@@ -54,13 +54,12 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * Singleton class to load the TMX resources and expose methods for server wide
- * usage. The resource bundle is an XML document conforming to TMX DTD. Whole
- * document is parsed into a hash map of hash maps. The key for the first
- * hashmap is the language and the values are the hashmap of key-value pairs
- * for that language. Map is built when server is initialized and can be
- * reloaded on demand. The most used method {@link #getString(String, String)}
- * is written to guarantee to return a meaningful value.
+ * Singleton class to load the TMX resources and expose methods for server wide usage. The resource
+ * bundle is an XML document conforming to TMX DTD. Whole document is parsed into a hash map of hash
+ * maps. The key for the first hashmap is the language and the values are the hashmap of key-value
+ * pairs for that language. Map is built when server is initialized and can be reloaded on demand.
+ * The most used method {@link #getString(String, String)} is written to guarantee to return a
+ * meaningful value.
  */
 /*
  * Note: right now loading the document into cache is fairly quick process.
@@ -76,8 +75,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   private static final Logger log = LogManager.getLogger(PSTmxResourceBundle.class);
 
   /**
-   * Constructor is made private to enforce the singleton pattern.
-   * Creates and initializes the resource cache.
+   * Constructor is made private to enforce the singleton pattern. Creates and initializes the
+   * resource cache.
    */
   private PSTmxResourceBundle() {
     try {
@@ -106,18 +105,17 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Get the value for the given key using the default language. Simply
-   * delegates to <code>getString(String, String)</code>
-   * @param    key    lookup key string
+   * Get the value for the given key using the default language. Simply delegates to <code>
+   * getString(String, String)</code>
+   *
+   * @param key lookup key string
    * @return lookup translation value for the key in default language
    */
   public String getString(String key) {
     return getString(key, ms_DefaultLanguage);
   }
 
-  /**
-   * Method to allow cleanup. Should be the last one to call.
-   */
+  /** Method to allow cleanup. Should be the last one to call. */
   public void terminate() {
     // Store the missing keys to a properties file, may be for debug purpose.
     File missingFile = new File(m_rxRootDir, FILE_MISSING_RESOURCES);
@@ -131,16 +129,16 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Get the value for the given key and language string. If the key is not
-   * found in the specified language bundle or in the default language bundle,
-   * key is added to the list of missing keys. This key will finally be dumped
-   * to a property file.
-   * @param key lookup key string, if <code>null</code> or <code>empty</code>,
-   * return value will be empty string.
-   * @param language language string, if <code>null</code> or <code>empty</code>,
-   * default language is assumed.
-   * @return the lookup value for the given key and language. Never <code>null</code>
-   * may be <code>empty</code>.
+   * Get the value for the given key and language string. If the key is not found in the specified
+   * language bundle or in the default language bundle, key is added to the list of missing keys.
+   * This key will finally be dumped to a property file.
+   *
+   * @param key lookup key string, if <code>null</code> or <code>empty</code>, return value will be
+   *     empty string.
+   * @param language language string, if <code>null</code> or <code>empty</code>, default language
+   *     is assumed.
+   * @return the lookup value for the given key and language. Never <code>null</code> may be <code>
+   *     empty</code>.
    */
   public String getString(String key, String language) {
     PSTmxUnit unit = getUnit(key, language);
@@ -167,8 +165,9 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * When returning the key as the value of a lookup, it is necessary to
-   * strip the initial substring up to and including the '@' symbol.
+   * When returning the key as the value of a lookup, it is necessary to strip the initial substring
+   * up to and including the '@' symbol.
+   *
    * @param key the original key, assumed non-<code>null</code>
    * @return the trimmed key, never <code>null</code>
    */
@@ -183,11 +182,11 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Just like {@link #getString(String, String)}, except it gets the
-   * mnemonic of the specified translation unit (key, language).
+   * Just like {@link #getString(String, String)}, except it gets the mnemonic of the specified
+   * translation unit (key, language).
    *
-   * @return The mnemonic of the specified unit, <code>0</code> if cannot
-   *    find the mnemonic for the specified translation unit.
+   * @return The mnemonic of the specified unit, <code>0</code> if cannot find the mnemonic for the
+   *     specified translation unit.
    */
   public int getMnemonic(String key, String language) {
     PSTmxUnit unit = getUnit(key, language);
@@ -195,11 +194,11 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Just like {@link #getString(String, String)}, except it gets the
-   * tooltip of the specified translation unit (key, language).
+   * Just like {@link #getString(String, String)}, except it gets the tooltip of the specified
+   * translation unit (key, language).
    *
-   * @return The tooltip of the specified unit, <code>null</code> if cannot
-   *    find the tooltip for the specified translation unit.
+   * @return The tooltip of the specified unit, <code>null</code> if cannot find the tooltip for the
+   *     specified translation unit.
    */
   public String getTooltip(String key, String language) {
     PSTmxUnit unit = getUnit(key, language);
@@ -207,12 +206,12 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Just like {@link #getString(String, String)}, except it gets the Unit
-   * for the given key and language string. Unit objects with a null or
-   * empty value are invalid and are added to a missing resource list.
+   * Just like {@link #getString(String, String)}, except it gets the Unit for the given key and
+   * language string. Unit objects with a null or empty value are invalid and are added to a missing
+   * resource list.
    *
-   * @return the lookup value for the given key and language. It may be
-   *    <code>null</code> if cannot find the specified unit.
+   * @return the lookup value for the given key and language. It may be <code>null</code> if cannot
+   *     find the specified unit.
    */
   private PSTmxUnit getUnit(String key, String language) {
     if (key == null || key.length() < 1) return null;
@@ -232,15 +231,14 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Gets a list of all of the keys for the provided language. If the
-   * provided language cannot be found, the default language will be returned
-   * if the default language cannot be found then <code>null</code> will be
-   * returned.
+   * Gets a list of all of the keys for the provided language. If the provided language cannot be
+   * found, the default language will be returned if the default language cannot be found then
+   * <code>null</code> will be returned.
    *
-   * @param language string, if <code>null</code> or <code>empty</code>,
-   * default language is assumed.
-   * @return all of the keys as <code>Strings</code>.  May be
-   * <code>null</code> if language is not supported.
+   * @param language string, if <code>null</code> or <code>empty</code>, default language is
+   *     assumed.
+   * @return all of the keys as <code>Strings</code>. May be <code>null</code> if language is not
+   *     supported.
    */
   public Iterator<String> getKeys(String language) {
     if (language == null || language.length() < 1) language = ms_DefaultLanguage;
@@ -260,9 +258,11 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     }
   }
 
-  /** Sets the debug mode.
-   * @param debug <code>true</code> to set the debug mode on <code>false</code>
-   * to set the debug mode off.
+  /**
+   * Sets the debug mode.
+   *
+   * @param debug <code>true</code> to set the debug mode on <code>false</code> to set the debug
+   *     mode off.
    * @see #ms_Debug
    */
   public synchronized void setDebugMode(boolean debug) {
@@ -271,9 +271,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
 
   /**
    * Get debug mode flag.
-   * @return <code>true</code> if debug mode on,
-   * <code>false</code> otherwise.
-   * {@link #ms_Debug}
+   *
+   * @return <code>true</code> if debug mode on, <code>false</code> otherwise. {@link #ms_Debug}
    */
   public synchronized boolean getDebugMode() {
     return ms_Debug;
@@ -282,24 +281,23 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   /**
    * Get the set of configured language strings
    *
-   * @return The set, never <code>null</code>, not empty once
-   * {@link #loadResources()} has been called.  Modifications to the set do
-   * not affect this object.
+   * @return The set, never <code>null</code>, not empty once {@link #loadResources()} has been
+   *     called. Modifications to the set do not affect this object.
    */
   public Set<String> getLanguages() {
     return new HashSet<>(ms_ResourceBundles.keySet());
   }
 
   /**
-   * Flag when set to <code>true</code> executes the bundle in debug mode in
-   * that
+   * Flag when set to <code>true</code> executes the bundle in debug mode in that
+   *
    * <ul>
-   * <li>When the key id "psx.ce.label.Content Title" and the resource bundle
-   * does not contain an entry for this key the return value will be
-   * "psx.ce.label.Content Title". This when debug mode is off will be
-   * "Content Title"</li>
-   * <li>Additional error log is enabled</li>
+   *   <li>When the key id "psx.ce.label.Content Title" and the resource bundle does not contain an
+   *       entry for this key the return value will be "psx.ce.label.Content Title". This when debug
+   *       mode is off will be "Content Title"
+   *   <li>Additional error log is enabled
    * </ul>
+   *
    * The default is <code>false</code>.
    */
   private static boolean ms_Debug = false;
@@ -307,43 +305,30 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   public static final String RX_RESOURCES_I18NPATH = "rx_resources" + File.separator + "I18n";
   public static final String SYS_RESOURCES_I18NPATH = "sys_resources" + File.separator + "I18n";
 
-  /**
-   * String constant specifying the location path of the TMX resource bundle.
-   */
+  /** String constant specifying the location path of the TMX resource bundle. */
   public static final String MASTER_RESOURCE_FILEPATH =
       "rxconfig" + File.separator + "I18n" + File.separator + "ResourceBundle.tmx";
 
   /**
-   * Map storing all language resources. Never <code>null</code>.
-   * <code>Empty</code> until loadResources() is called successfully.
+   * Map storing all language resources. Never <code>null</code>. <code>Empty</code> until
+   * loadResources() is called successfully.
    */
   private static final HashMap<String, Map<String, PSTmxUnit>> ms_ResourceBundles = new HashMap<>();
 
-  /**
-   * Default language for the system
-   */
+  /** Default language for the system */
   public static String ms_DefaultLanguage = PSI18nUtils.DEFAULT_LANG;
 
-  /**
-   * Name of the module to print on server console for displaying messages.
-   */
+  /** Name of the module to print on server console for displaying messages. */
   private static final String SUBSYSTEM = "I18n";
 
-  /**
-   * Properties object to cache the missing resources. Never <code>null</code>.
-   */
+  /** Properties object to cache the missing resources. Never <code>null</code>. */
   private static final Properties ms_MissingResources = new Properties();
 
-  /**
-   * Name of the file to store missing resources.
-   */
+  /** Name of the file to store missing resources. */
   private static final String FILE_MISSING_RESOURCES =
       "rxconfig" + File.separator + "I18n" + File.separator + "MissingResources.properties";
 
-  /**
-   * The rhythmyx root directory, never <code>null</code> or empty after
-   * construction.
-   */
+  /** The rhythmyx root directory, never <code>null</code> or empty after construction. */
   private String m_rxRootDir;
 
   private void processResourceFiles(Path p)
@@ -361,9 +346,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     }
   }
 
-  /**
-   * This method loads/reloads the i18n resource to cache.
-   */
+  /** This method loads/reloads the i18n resource to cache. */
   public synchronized boolean loadResources() {
     boolean ret = true;
 
@@ -526,9 +509,7 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
     }
   }
 
-  /**
-   * Method to empty the resource cache.
-   */
+  /** Method to empty the resource cache. */
   private void flushCache() {
     if (ms_ResourceBundles.isEmpty()) return;
 
@@ -539,11 +520,10 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Utility method to load and return the master TMX resource bundle as DOM
-   * document.
+   * Utility method to load and return the master TMX resource bundle as DOM document.
    *
-   * @param rxroot Rhythmyx root directory as string. Must not be <code>null</code>,
-   * may be <code>empty</code>.
+   * @param rxroot Rhythmyx root directory as string. Must not be <code>null</code>, may be <code>
+   *     empty</code>.
    * @return DOM document of the TMX resource file.
    * @throws FileNotFoundException
    * @throws SAXException
@@ -567,7 +547,6 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
    * Get a file reference to the {@link #MASTER_RESOURCE_FILEPATH} file.
    *
    * @param rxRootDir The rx root directory, may not be <code>null</code>.
-   *
    * @return The file, never <code>null</code>.
    */
   public static File getMasterResourceFile(String rxRootDir) {
@@ -575,14 +554,11 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Saves the master resource document, optionally reloading resources to the
-   * cache.
+   * Saves the master resource document, optionally reloading resources to the cache.
    *
-   * @param doc The resource doc to save, may not be <code>null</code>, must
-   * conform to the
-   * @param reload <code>true</code> to reload the resources into the cache,
-   * <code>false</code> otherwise.
-   *
+   * @param doc The resource doc to save, may not be <code>null</code>, must conform to the
+   * @param reload <code>true</code> to reload the resources into the cache, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    * @throws IOException if any IO errors occur.
    * @throws SAXException if there is a problem reloading the resources.
@@ -602,8 +578,8 @@ public class PSTmxResourceBundle implements IPSTmxDtdConstants {
   }
 
   /**
-   * Monitor object used to synchronize access to the master resource doc.
-   * Never <code>null</code> or modified.
+   * Monitor object used to synchronize access to the master resource doc. Never <code>null</code>
+   * or modified.
    */
   private static final Object m_masterResourceMonitor = new Object();
 }

@@ -44,7 +44,6 @@ import org.springframework.web.servlet.mvc.ParameterizableViewController;
 
 /**
  * @author DavidBenua
- *
  */
 public class DemandPreviewController extends ParameterizableViewController implements Controller {
 

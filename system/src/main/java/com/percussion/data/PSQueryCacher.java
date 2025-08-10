@@ -55,25 +55,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.w3c.dom.Document;
 
 /**
- * The PSQueryCacher class manages the cache for query requests. Requests
- * may be added to the cache. When entries become stale (exceed the amount
- * of time they may remain in cache) they will be removed.
+ * The PSQueryCacher class manages the cache for query requests. Requests may be added to the cache.
+ * When entries become stale (exceed the amount of time they may remain in cache) they will be
+ * removed.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSQueryCacher {
   /**
    * Create a query cacher for the specified data set.
    *
-   * @param      app      the application containing the data set
-   *
-   * @param      ds         the data set we will be caching requests for
-   *
-   * @param      pipe      the pipe we will be caching requests for
-   *
-   * @param      plan      the query execution plan
+   * @param app the application containing the data set
+   * @param ds the data set we will be caching requests for
+   * @param pipe the pipe we will be caching requests for
+   * @param plan the query execution plan
    */
   public PSQueryCacher(
       PSApplicationHandler app, PSDataSet ds, PSQueryPipe pipe, IPSExecutionStep[] plan)
@@ -251,10 +248,10 @@ public class PSQueryCacher {
   }
 
   /**
-   * Check the HTTP headers associated with the request to determine if
-   * reading from the cache is permitted.
+   * Check the HTTP headers associated with the request to determine if reading from the cache is
+   * permitted.
    *
-   * @return            <code>true</code> if reading is permitted
+   * @return <code>true</code> if reading is permitted
    */
   public static boolean isCacheReadPermitted(PSRequest request) {
     // check the Pragma header for HTTP/1.0
@@ -268,9 +265,7 @@ public class PSQueryCacher {
     return (pragmaHeader.indexOf("no-cache") == -1) && (cacheHeader.indexOf("no-cache") == -1);
   }
 
-  /**
-   * Remove all entries from the cache.
-   */
+  /** Remove all entries from the cache. */
   public void clear() {
     // this is what we sync on for clearAged, so do the same here
     synchronized (m_cacheSizeSync) {
@@ -298,11 +293,9 @@ public class PSQueryCacher {
   /**
    * Get the file containing the cached response for this request.
    *
-   * @param   data            the run-time execution data
-   *
-   * @return                  the file containing the response;
-   *                           <code>null</code> if the
-   *                           request cannot be handled from cache
+   * @param data the run-time execution data
+   * @return the file containing the response; <code>null</code> if the request cannot be handled
+   *     from cache
    */
   public java.io.File getCacheFile(PSExecutionData data) {
     PSRequest request = data.getRequest();
@@ -340,13 +333,10 @@ public class PSQueryCacher {
   }
 
   /**
-   * Add a result page from the cache, if it's currently available.
-   * This is usually an HTML file.
+   * Add a result page from the cache, if it's currently available. This is usually an HTML file.
    *
-   * @param   data      the run-time data associated with this request
-   *
-   * @return            the HTML page; <code>null</code> if this is not
-   *                     in cache
+   * @param data the run-time data associated with this request
+   * @return the HTML page; <code>null</code> if this is not in cache
    */
   public java.io.File getResultPage(PSExecutionData data) {
     PSCachedEntry entry = null;
@@ -365,14 +355,11 @@ public class PSQueryCacher {
   }
 
   /**
-   * Add a result page from the cache, if it's currently available.
-   * This is usually an HTML file.
+   * Add a result page from the cache, if it's currently available. This is usually an HTML file.
    *
-   * @param   data      the run-time data associated with this request
-   *
-   * @param   in         the page data as a stream
-   *
-   * @param   length   the length of the data stream
+   * @param data the run-time data associated with this request
+   * @param in the page data as a stream
+   * @param length the length of the data stream
    */
   public void addResultPage(PSExecutionData data, java.io.InputStream in, int length) {
     String cacheKey = null;
@@ -395,10 +382,8 @@ public class PSQueryCacher {
   /**
    * Get an XML document from the cache, if it's currently available.
    *
-   * @param   data      the run-time data associated with this request
-   *
-   * @return            the XML document; <code>null</code> if this is not
-   *                     in cache
+   * @param data the run-time data associated with this request
+   * @return the XML document; <code>null</code> if this is not in cache
    */
   public Document getXmlDocument(PSExecutionData data) {
     Document doc = null;
@@ -435,9 +420,8 @@ public class PSQueryCacher {
   /**
    * Get an XML document from the cache, if it's currently available.
    *
-   * @param   data      the run-time data associated with this request
-   *
-   * @param   doc      the XML document to add to the cache
+   * @param data the run-time data associated with this request
+   * @param doc the XML document to add to the cache
    */
   public void addXmlDocument(PSExecutionData data, Document doc) {
     String cacheKey = null;
@@ -459,17 +443,15 @@ public class PSQueryCacher {
 
   /**
    * Set the time interval for interval based caching.
-   * <p>
-   * When interval based caching is in use, requests will be aged out
-   * of the cache after the specified interval elapses. Let's assume an
-   * interval of 15 minutes is set. If a user makes a request at 12:00,
-   * a query will be executed and the results will be stored in the cache
-   * until 12:15. If another request comes in before that time, the cached
-   * entry will be used. The first request received after 12:15 will cause
-   * a new query to be executed. It will then be added to the cache for
-   * 15 minutes.
    *
-   * @param   minutes   the cache aging interval, in minutes
+   * <p>When interval based caching is in use, requests will be aged out of the cache after the
+   * specified interval elapses. Let's assume an interval of 15 minutes is set. If a user makes a
+   * request at 12:00, a query will be executed and the results will be stored in the cache until
+   * 12:15. If another request comes in before that time, the cached entry will be used. The first
+   * request received after 12:15 will cause a new query to be executed. It will then be added to
+   * the cache for 15 minutes.
+   *
+   * @param minutes the cache aging interval, in minutes
    */
   void setCacheInterval(int minutes) {
     m_intervalMinutes = minutes;
@@ -477,49 +459,40 @@ public class PSQueryCacher {
 
   /**
    * Set the time of the day for time based caching.
-   * <p>
-   * When time based caching is in use, requests will be aged out
-   * of the cache on or after the specified time. Let's assume a
-   * time of 12:00 is set. The first user to make a request will cause
-   * a query to be executed and the results will be stored in the cache
-   * until 12:00. If the first user made the request at 11:50, the results
-   * will be cached for 10 minutes. The next request received after 12:00
-   * will cause a new query to be submitted. If the next request is at
-   * 12:10, the results from that query will be held for 23 hours and 50
-   * minutes -- that is, until 12:00 the next day.
-   * <p>
-   * When both time and interval based caching are enabled, requests will
-   * be aged out of the cache based upon an interval from a specified
-   * starting time. Let's use the start time of 12:00 and an interval of
-   * 15 minutes. If the first query is submitted at 12:10. This will be
-   * processed against the back-end and held in cache until 12:15. At
-   * that point, it will be aged out of the cache. If the next request
-   * comes along at 12:35 that will cause a new query. That request will
-   * be aged at 12:45. As you can see, the interval is used to specify a
-   * time of day rather than the amount of time the entry should remain
-   * in cache. To have the query fire at even hours, specify an even start
-   * point (eg, 12:00) and 120 minutes as the interval. If E2 starts at
-   * 3:35, the first user request will be cached. The next request after
-   * 4:00 will go against the back-end rather than cache. The cache will
-   * then be used until 6:00, at which time the cache will be aged, and
-   * so-on.
    *
-   * @param   time      the time of day to age the cache at. Only the hours
-   *                   and minutes will be used. All other components
-   *                   will be cleared from the time.
+   * <p>When time based caching is in use, requests will be aged out of the cache on or after the
+   * specified time. Let's assume a time of 12:00 is set. The first user to make a request will
+   * cause a query to be executed and the results will be stored in the cache until 12:00. If the
+   * first user made the request at 11:50, the results will be cached for 10 minutes. The next
+   * request received after 12:00 will cause a new query to be submitted. If the next request is at
+   * 12:10, the results from that query will be held for 23 hours and 50 minutes -- that is, until
+   * 12:00 the next day.
+   *
+   * <p>When both time and interval based caching are enabled, requests will be aged out of the
+   * cache based upon an interval from a specified starting time. Let's use the start time of 12:00
+   * and an interval of 15 minutes. If the first query is submitted at 12:10. This will be processed
+   * against the back-end and held in cache until 12:15. At that point, it will be aged out of the
+   * cache. If the next request comes along at 12:35 that will cause a new query. That request will
+   * be aged at 12:45. As you can see, the interval is used to specify a time of day rather than the
+   * amount of time the entry should remain in cache. To have the query fire at even hours, specify
+   * an even start point (eg, 12:00) and 120 minutes as the interval. If E2 starts at 3:35, the
+   * first user request will be cached. The next request after 4:00 will go against the back-end
+   * rather than cache. The cache will then be used until 6:00, at which time the cache will be
+   * aged, and so-on.
+   *
+   * @param time the time of day to age the cache at. Only the hours and minutes will be used. All
+   *     other components will be cleared from the time.
    */
   void setCacheTime(java.util.Date time) {
     m_ageTimeOfDay = getTimeOfDay(time);
   }
 
   /**
-   * Extract the time of day from the specified date. Only the hours
-   * and minutes will be used. All other components will be cleared
-   * from the time.
+   * Extract the time of day from the specified date. Only the hours and minutes will be used. All
+   * other components will be cleared from the time.
    *
-   * @param   time      the date to use
-   *
-   * @return            the time of day, in minutes
+   * @param time the date to use
+   * @return the time of day, in minutes
    */
   public static int getTimeOfDay(java.util.Date time) {
     java.util.GregorianCalendar cal = new java.util.GregorianCalendar();
@@ -529,13 +502,11 @@ public class PSQueryCacher {
   }
 
   /**
-   * Extract the time of day from the specified calendar. Only the hours
-   * and minutes will be used. All other components will be cleared
-   * from the time.
+   * Extract the time of day from the specified calendar. Only the hours and minutes will be used.
+   * All other components will be cleared from the time.
    *
-   * @param   cal      the calendar to use
-   *
-   * @return            the time of day, in minutes
+   * @param cal the calendar to use
+   * @return the time of day, in minutes
    */
   public static int getTimeOfDay(java.util.Calendar cal) {
     return (cal.get(java.util.Calendar.HOUR_OF_DAY) * 60) + cal.get(java.util.Calendar.MINUTE);
@@ -707,9 +678,7 @@ public class PSQueryCacher {
     return !curTime.before(entry.getExpirationTime());
   }
 
-  /**
-   * Get the key which can be used to locate XML documents in the cache.
-   */
+  /** Get the key which can be used to locate XML documents in the cache. */
   private String getCachedXmlDocumentKey(PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
     StringBuilder buf = getKeyBuffer(data);
@@ -717,9 +686,7 @@ public class PSQueryCacher {
     return buf.toString();
   }
 
-  /**
-   * Get the key which can be used to locate HTML pages in the cache.
-   */
+  /** Get the key which can be used to locate HTML pages in the cache. */
   private String getCachedResultPageKey(PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
     StringBuilder buf = getKeyBuffer(data);
@@ -736,9 +703,8 @@ public class PSQueryCacher {
   }
 
   /**
-   * Get the string buffer which can be used to build the key for this
-   * request. It stores the request page name in the returned buffer. The
-   * caller must add all parameter values.
+   * Get the string buffer which can be used to build the key for this request. It stores the
+   * request page name in the returned buffer. The caller must add all parameter values.
    */
   private StringBuilder getKeyBuffer(PSExecutionData data) {
     StringBuilder buf = new StringBuilder();
@@ -748,9 +714,7 @@ public class PSQueryCacher {
     return buf;
   }
 
-  /**
-   * Append the parameter values to the specified key buffer.
-   */
+  /** Append the parameter values to the specified key buffer. */
   private void addReplacementValuesToKeyBuffer(
       StringBuilder buf, PSExecutionData data, java.util.List params)
       throws com.percussion.data.PSDataExtractionException {
@@ -764,9 +728,7 @@ public class PSQueryCacher {
     }
   }
 
-  /**
-   * Add an entry to the specified hash.
-   */
+  /** Add an entry to the specified hash. */
   private void addEntryToCache(ConcurrentHashMap entryHash, String entryKey, PSCachedEntry entry) {
     /* calculate the size of this entry to see if we've exceeded the
      * max cache size. If so, we need a smart way to move entries out of
@@ -831,19 +793,14 @@ public class PSQueryCacher {
   }
 
   /**
-   * Reports whether the addition of a cache entry with the given
-   * size would exceed the max cache size. If the max cache size
-   * is unlimited, this always returns <CODE>false</CODE>.
+   * Reports whether the addition of a cache entry with the given size would exceed the max cache
+   * size. If the max cache size is unlimited, this always returns <CODE>false</CODE>.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.10 1999/09/21
-   *
-   * @param   entrySize
-   *
-   * @return   boolean true if an addition of that size would exceed
-   * the max cache size, <CODE>false</CODE> if not (or if size is
-   * unlimited).
+   * @param entrySize
+   * @return boolean true if an addition of that size would exceed the max cache size, <CODE>false
+   *     </CODE> if not (or if size is unlimited).
    */
   private boolean wouldExceedSize(long entrySize) {
     return ((m_cacheSizeMax != -1) && (entrySize + m_cacheSizeCur) > m_cacheSizeMax);
@@ -857,59 +814,50 @@ public class PSQueryCacher {
 
   /**
    * Caching is not enabled.
-   * <P>
-   * This should never really happen, but we may as well account for it.
+   *
+   * <p>This should never really happen, but we may as well account for it.
    */
   private static final int CACHE_TYPE_NONE = 0;
 
   /**
    * Caching is interval based.
-   * <p>
-   * When interval based caching is in use, requests will be aged out
-   * of the cache after the specified interval elapses. Let's assume an
-   * interval of 15 minutes is set. If a user makes a request at 12:00,
-   * a query will be executed and the results will be stored in the cache
-   * until 12:15. If another request comes in before that time, the cached
-   * entry will be used. The first request received after 12:15 will cause
-   * a new query to be executed. It will then be added to the cache for
-   * 15 minutes.
+   *
+   * <p>When interval based caching is in use, requests will be aged out of the cache after the
+   * specified interval elapses. Let's assume an interval of 15 minutes is set. If a user makes a
+   * request at 12:00, a query will be executed and the results will be stored in the cache until
+   * 12:15. If another request comes in before that time, the cached entry will be used. The first
+   * request received after 12:15 will cause a new query to be executed. It will then be added to
+   * the cache for 15 minutes.
    */
   private static final int CACHE_TYPE_INTERVAL = 1;
 
   /**
    * Caching is based upon a specified time of the day.
-   * <p>
-   * When time based caching is in use, requests will be aged out
-   * of the cache on or after the specified time. Let's assume a
-   * time of 12:00 is set. The first user to make a request will cause
-   * a query to be executed and the results will be stored in the cache
-   * until 12:00. If the first user made the request at 11:50, the results
-   * will be cached for 10 minutes. The next request received after 12:00
-   * will cause a new query to be submitted. If the next request is at
-   * 12:10, the results from that query will be held for 23 hours and 50
-   * minutes -- that is, until 12:00 the next day.
+   *
+   * <p>When time based caching is in use, requests will be aged out of the cache on or after the
+   * specified time. Let's assume a time of 12:00 is set. The first user to make a request will
+   * cause a query to be executed and the results will be stored in the cache until 12:00. If the
+   * first user made the request at 11:50, the results will be cached for 10 minutes. The next
+   * request received after 12:00 will cause a new query to be submitted. If the next request is at
+   * 12:10, the results from that query will be held for 23 hours and 50 minutes -- that is, until
+   * 12:00 the next day.
    */
   private static final int CACHE_TYPE_TIME = 2;
 
   /**
-   * Caching is based upon both an interval and a specified time
-   * of the day.
-   * <p>
-   * When both time and interval based caching are enabled, requests will
-   * be aged out of the cache based upon an interval from a specified
-   * starting time. Let's use the start time of 12:00 and an interval of
-   * 15 minutes. If the first query is submitted at 12:10. This will be
-   * processed against the back-end and held in cache until 12:15. At
-   * that point, it will be aged out of the cache. If the next request
-   * comes along at 12:35 that will cause a new query. That request will
-   * be aged at 12:45. As you can see, the interval is used to specify a
-   * time of day rather than the amount of time the entry should remain
-   * in cache. To have the query fire at even hours, specify an even start
-   * point (eg, 12:00) and 120 minutes as the interval. If E2 starts at
-   * 3:35, the first user request will be cached. The next request after
-   * 4:00 will go against the back-end rather than cache. The cache will
-   * then be used until 6:00, at which time the cache will be aged, and
-   * so-on.
+   * Caching is based upon both an interval and a specified time of the day.
+   *
+   * <p>When both time and interval based caching are enabled, requests will be aged out of the
+   * cache based upon an interval from a specified starting time. Let's use the start time of 12:00
+   * and an interval of 15 minutes. If the first query is submitted at 12:10. This will be processed
+   * against the back-end and held in cache until 12:15. At that point, it will be aged out of the
+   * cache. If the next request comes along at 12:35 that will cause a new query. That request will
+   * be aged at 12:45. As you can see, the interval is used to specify a time of day rather than the
+   * amount of time the entry should remain in cache. To have the query fire at even hours, specify
+   * an even start point (eg, 12:00) and 120 minutes as the interval. If E2 starts at 3:35, the
+   * first user request will be cached. The next request after 4:00 will go against the back-end
+   * rather than cache. The cache will then be used until 6:00, at which time the cache will be
+   * aged, and so-on.
    */
   private static final int CACHE_TYPE_TIME_INTERVAL = 3;
 
@@ -934,8 +882,7 @@ public class PSQueryCacher {
   /** the cache directory */
   private static File ms_CacheDirectory = new File("Cache");
 
-  /** true if we should try to create the cache directory when a
-   * cacher object is constructed */
+  /** true if we should try to create the cache directory when a cacher object is constructed */
   private static boolean ms_shouldCreateCacheDir = true;
 
   private static PSHtmlParameter ms_pagerParam = new PSHtmlParameter("psfirst");

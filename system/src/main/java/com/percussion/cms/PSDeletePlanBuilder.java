@@ -29,9 +29,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Plan builder for performing delete/purge operation.
- */
+/** Plan builder for performing delete/purge operation. */
 public class PSDeletePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSDeletePlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
@@ -39,9 +37,8 @@ public class PSDeletePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform delete of the item or child specified
-   * by the supplied mapper. See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
+   * Creates a plan that will perform delete of the item or child specified by the supplied mapper.
+   * See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
    * super.createModifyPlan()} for details.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)

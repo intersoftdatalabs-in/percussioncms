@@ -24,11 +24,12 @@ import com.percussion.server.PSRequestContext;
 import java.util.Locale;
 
 /**
- * The PSErrorManager class is used to load the error string resources and
- * default error pages based upon the E2 server's locale.
- * <p>
- * Error messages are broken down into ranges, assigned to the various
- * components. The ranges we are using are as follows:
+ * The PSErrorManager class is used to load the error string resources and default error pages based
+ * upon the E2 server's locale.
+ *
+ * <p>Error messages are broken down into ranges, assigned to the various components. The ranges we
+ * are using are as follows:
+ *
  * <table border="1">
  *    <tr><th>Range</th>      <th>Component</th></tr>
  *    <tr><td>0001 - 1000</td><td>HTML - this is HTML's range of errors</td></tr>
@@ -41,13 +42,12 @@ import java.util.Locale;
  *    <tr><td>7001 - 8000</td><td>Exit Processing</td></tr>
  *    <tr><td>8001 - 9000</td><td>Server Admin</td></tr>
  * </table>
- * <p>
- * All error messages are stored using the format defined in
- * the java.text.MessageFormat class. The message string contains curly
- * braces around parameters, which are 0 based. The error manager provides
- * two utility methods which take advantage of the MessageFormat.format
- * method. The following example uses an array of arguments to generate the
- * appropriate string:
+ *
+ * <p>All error messages are stored using the format defined in the java.text.MessageFormat class.
+ * The message string contains curly braces around parameters, which are 0 based. The error manager
+ * provides two utility methods which take advantage of the MessageFormat.format method. The
+ * following example uses an array of arguments to generate the appropriate string:
+ *
  * <pre><code>
  *    String msg = PSErrorManager.getErrorText(999);
  *
@@ -62,12 +62,12 @@ import java.util.Locale;
  *    //    "param1=1, param 2 date=Jan 6, 1999, param 2 time=4:50 PM"
  * </code></pre>
  *
- * This model is excellent for internationalization as the position of the
- * parameters may change based upon the target language.
+ * This model is excellent for internationalization as the position of the parameters may change
+ * based upon the target language.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSErrorManagerImpl extends PSErrorManagerDefaultImpl {

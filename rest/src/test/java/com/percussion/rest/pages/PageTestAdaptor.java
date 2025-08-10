@@ -21,86 +21,85 @@ import com.percussion.rest.errors.FolderNotFoundException;
 import com.percussion.rest.errors.PageNotFoundException;
 import com.percussion.rest.errors.SiteNotFoundException;
 import com.percussion.rest.util.Examples;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 @Component
 @Lazy
 public class PageTestAdaptor implements IPageAdaptor {
 
-    @Override
-    public Page getPage(URI baseUri, String id) {
-        var page = Examples.SAMPLE_PAGE;
-        page.setId(id);
-        if ("invalidId".equals(id)) {
-            throw new PageNotFoundException();
-        }
-        return page;
+  @Override
+  public Page getPage(URI baseUri, String id) {
+    var page = Examples.SAMPLE_PAGE;
+    page.setId(id);
+    if ("invalidId".equals(id)) {
+      throw new PageNotFoundException();
     }
+    return page;
+  }
 
-    @Override
-    public Page getPage(URI baseUri, String siteName, String path, String pageName) {
-        var page = Examples.SAMPLE_PAGE;
-        page.setName(pageName);
-        page.setFolderPath(path);
-        page.setSiteName(siteName);
+  @Override
+  public Page getPage(URI baseUri, String siteName, String path, String pageName) {
+    var page = Examples.SAMPLE_PAGE;
+    page.setName(pageName);
+    page.setFolderPath(path);
+    page.setSiteName(siteName);
 
-        if ("testNotFound".equals(siteName)) {
-            throw new SiteNotFoundException();
-        }
-        if (path.contains("testNotFound")) {
-            throw new FolderNotFoundException();
-        }
-        if ("testNotFound".equals(pageName)) {
-            throw new PageNotFoundException();
-        }
-        return page;
+    if ("testNotFound".equals(siteName)) {
+      throw new SiteNotFoundException();
     }
-
-    @Override
-    public Page updatePage(URI baseUri, Page page) {
-        return page;
+    if (path.contains("testNotFound")) {
+      throw new FolderNotFoundException();
     }
-
-    @Override
-    public void deletePage(URI baseUri, String siteName, String path, String pageName) {
-        if ("testNotFound".equals(pageName)) {
-            throw new PageNotFoundException();
-        }
+    if ("testNotFound".equals(pageName)) {
+      throw new PageNotFoundException();
     }
+    return page;
+  }
 
-    @Override
-    public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
-        var p = new Page();
-        p.setName(name);
-        return p;
-    }
+  @Override
+  public Page updatePage(URI baseUri, Page page) {
+    return page;
+  }
 
-    @Override
-    public int approveAllPages(URI baseURI, String folderPath) {
-        return 0;
+  @Override
+  public void deletePage(URI baseUri, String siteName, String path, String pageName) {
+    if ("testNotFound".equals(pageName)) {
+      throw new PageNotFoundException();
     }
+  }
 
-    @Override
-    public Page changePageTemplate(URI baseUri, Page p) {
-        return null;
-    }
+  @Override
+  public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
+    var p = new Page();
+    p.setName(name);
+    return p;
+  }
 
-    @Override
-    public List<String> allPagesReport(URI baseUri, String siteFolderPath) {
-        return null;
-    }
+  @Override
+  public int approveAllPages(URI baseURI, String folderPath) {
+    return 0;
+  }
 
-    @Override
-    public int archiveAllPages(URI baseUri, String folderPath) {
-        return 0;
-    }
+  @Override
+  public Page changePageTemplate(URI baseUri, Page p) {
+    return null;
+  }
 
-    @Override
-    public int submitForReviewAllPages(URI baseUri, String folderPath) {
-        return 0;
-    }
+  @Override
+  public List<String> allPagesReport(URI baseUri, String siteFolderPath) {
+    return null;
+  }
+
+  @Override
+  public int archiveAllPages(URI baseUri, String folderPath) {
+    return 0;
+  }
+
+  @Override
+  public int submitForReviewAllPages(URI baseUri, String folderPath) {
+    return 0;
+  }
 }

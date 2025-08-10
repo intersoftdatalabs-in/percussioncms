@@ -51,26 +51,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This is a helper class, which contains utility methods for all the classes
- * that related to <code>PSWebServicesRequestHandler</code> class. Those
- * classes are typically package protected and the name is in the format of
- * <code>PSWS...Handler</code> (which is not required, just a convention).
+ * This is a helper class, which contains utility methods for all the classes that related to <code>
+ * PSWebServicesRequestHandler</code> class. Those classes are typically package protected and the
+ * name is in the format of <code>PSWS...Handler</code> (which is not required, just a convention).
  */
 public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   /**
-   * This is the implementation of the interface for executing all service
-   * actions within the specified port.
+   * This is the implementation of the interface for executing all service actions within the
+   * specified port.
    *
-   * @param port The name of the port to be handling this action, only used if
-   *    there is an error, must not be <code>null</code> or empty.
+   * @param port The name of the port to be handling this action, only used if there is an error,
+   *     must not be <code>null</code> or empty.
    * @param action The name of the action to be exectuded, must not be <code>
    *    null</code> or empty.
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   public void processAction(String port, String action, PSRequest request, Document parent)
@@ -139,19 +135,16 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * This is a generic processing routine that does the following:
-   *    1) validates that the request has a <code>sys_contentid</code> and a
-   *       <code>sys_revision</code> to an item that exists
-   *    2) creates a path to the resource that exists in the WEB_SERVICES_APP
-   *    3) processes the request and puts the return data in the parent doc
+   * This is a generic processing routine that does the following: 1) validates that the request has
+   * a <code>sys_contentid</code> and a <code>sys_revision</code> to an item that exists 2) creates
+   * a path to the resource that exists in the WEB_SERVICES_APP 3) processes the request and puts
+   * the return data in the parent doc
    *
-   * @param action The action (or operation) of the request. It may not be
-   *    <code>null</code> or empty.
+   * @param action The action (or operation) of the request. It may not be <code>null</code> or
+   *     empty.
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   public void processContentIdAction(String action, PSRequest request, Document parent)
@@ -166,34 +159,30 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Validates that the specified request has both <code>sys_contentid</code>
-   * and <code>sys_revision</code> and that they point to an existing item.
+   * Validates that the specified request has both <code>sys_contentid</code> and <code>sys_revision
+   * </code> and that they point to an existing item.
    *
    * @param request The request object. It may not be <code>null</code>.
-   *
-   * @return An <code>Element</code> that is the <code>EL_CONTENTKEY</code> of
-   *    input document of the specified request.
-   *
-   * @throws PSException if the content item can not be found or the request
-   *    does not specify the proper data.
+   * @return An <code>Element</code> that is the <code>EL_CONTENTKEY</code> of input document of the
+   *     specified request.
+   * @throws PSException if the content item can not be found or the request does not specify the
+   *     proper data.
    */
   public Element validateContentKey(PSRequest request) throws PSException {
     return validateContentKey(request, true, true);
   }
 
   /**
-   * Validates that the specified request has both <code>sys_contentid</code>
-   * and <code>sys_revision</code> and that they point to an existing item.
+   * Validates that the specified request has both <code>sys_contentid</code> and <code>sys_revision
+   * </code> and that they point to an existing item.
    *
    * @param request The request object. It may not be <code>null</code>.
    * @param contentIdRequired Set to <code>true</code> to require a content id.
    * @param revisionRequired Set to <code>true</code> to require a revision.
-   *
-   * @return An <code>Element</code> that is the <code>EL_CONTENTKEY</code> of
-   *    input document of the specified request.
-   *
-   * @throws PSException if the content item can not be found or the request
-   *    does not specify the proper data.
+   * @return An <code>Element</code> that is the <code>EL_CONTENTKEY</code> of input document of the
+   *     specified request.
+   * @throws PSException if the content item can not be found or the request does not specify the
+   *     proper data.
    */
   public Element validateContentKey(
       PSRequest request, boolean contentIdRequired, boolean revisionRequired) throws PSException {
@@ -216,14 +205,13 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Validates all purge keys in the requests input document and sets the
-   * request parameters <code>sys_contentid</code> accordingly. At this
-   * point all purge keys must supply the contentid. No revisions are expected
-   * or used since purging of specific item revisions is not supported.
+   * Validates all purge keys in the requests input document and sets the request parameters <code>
+   * sys_contentid</code> accordingly. At this point all purge keys must supply the contentid. No
+   * revisions are expected or used since purging of specific item revisions is not supported.
    *
-   * @param request the request that contains the input document for which to
-   *    validate the purge keys and to which the request parameter
-   *    <code>sys_contentid</code> will be set, not <code>null</code>.
+   * @param request the request that contains the input document for which to validate the purge
+   *     keys and to which the request parameter <code>sys_contentid</code> will be set, not <code>
+   *     null</code>.
    * @throws PSException for any error.
    */
   public void validatePurgeKeys(PSRequest request) throws PSException {
@@ -249,10 +237,9 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * Operation to check in or check out an item.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param trigger A string representing which operation to execute, should be
-   *    one of the following: <code>IPSConstants.TRIGGER_CHECKIN</code> or
-   *    <code>IPSConstants.TRIGGER_CHECKOUT</code>.
-   *
+   * @param trigger A string representing which operation to execute, should be one of the
+   *     following: <code>IPSConstants.TRIGGER_CHECKIN</code> or <code>IPSConstants.TRIGGER_CHECKOUT
+   *     </code>.
    * @throws PSException
    */
   public void executeCheckInOut(PSRequest request, String trigger) throws PSException {
@@ -277,18 +264,13 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   /**
    * Performs the specified transition for the specified item.
    *
-   * @param request the request contains the specified item, never
-   *    <code>null</code>. The id of the item is specified by
-   *    {@link IPSHtmlParameters#SYS_CONTENTID} and the revision of the
-   *    item is specified by {@link IPSHtmlParameters#SYS_REVISION}.
-   * @param transition the to be performed transition, which is either the
-   *    transition id or transition trigger. It may not be
-   *    <code>null</code> or empty.
-   * @param comment the comment for the transition. It may be <code>null</code>
-   *    or empty.
-   * @param adhocList the add hoc list for the transition. It may be
-   *    <code>null</code> or empty.
-   *
+   * @param request the request contains the specified item, never <code>null</code>. The id of the
+   *     item is specified by {@link IPSHtmlParameters#SYS_CONTENTID} and the revision of the item
+   *     is specified by {@link IPSHtmlParameters#SYS_REVISION}.
+   * @param transition the to be performed transition, which is either the transition id or
+   *     transition trigger. It may not be <code>null</code> or empty.
+   * @param comment the comment for the transition. It may be <code>null</code> or empty.
+   * @param adhocList the add hoc list for the transition. It may be <code>null</code> or empty.
    * @throws PSException if an error occurs during the transition.
    */
   public void transitionItem(PSRequest request, String transition, String comment, String adhocList)
@@ -315,15 +297,12 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Operation to create an XML result Document from an error type,
-   * code and message.
+   * Operation to create an XML result Document from an error type, code and message.
    *
-   * @param type A String defining the style of the response valid values are
-   * "success", "partial", "failure", it may not be <code>null</code> or empty.
+   * @param type A String defining the style of the response valid values are "success", "partial",
+   *     "failure", it may not be <code>null</code> or empty.
    * @param code An int of the internal exception code.
-   * @param message A String which is the message from the exception, it may be
-   *    <code>null</code>.
-   *
+   * @param message A String which is the message from the exception, it may be <code>null</code>.
    * @return a result response document, never <code>null</code>
    */
   public static Document createResultResponseDoc(String type, int code, String message) {
@@ -337,14 +316,12 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Operation to create an XML result Element from an error type,
-   * code and message.
+   * Operation to create an XML result Element from an error type, code and message.
    *
-   * @param type A String defining the style of the response valid values are
-   * "success", "partial", "failure", it may not be <code>null</code> or empty.
+   * @param type A String defining the style of the response valid values are "success", "partial",
+   *     "failure", it may not be <code>null</code> or empty.
    * @param code An int of the internal exception code.
-   * @param message A String which is the message from the exception, it may be
-   *    <code>null</code>.
+   * @param message A String which is the message from the exception, it may be <code>null</code>.
    * @param doc A Document where to append the response to, assumed not <code>
    *    null</code>.
    */
@@ -377,10 +354,8 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    *
    * @param request the original request, assumes that <code>sys_contentid
    *    </code> is within the parameter list of the request
-   *
-   * @return the url where the content type editor is located, used for
-   *    internal requests, never <code>null</code>
-   *
+   * @return the url where the content type editor is located, used for internal requests, never
+   *     <code>null</code>
    * @throws PSInternalRequestCallException
    * @throws PSException if the content type id cannot be found
    */
@@ -417,11 +392,8 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   /**
    * Determines the content type id of the specified content item.
    *
-   * @param request the original request for the operation, it may not be
-   *    <code>null</code>
-   *
+   * @param request the original request for the operation, it may not be <code>null</code>
    * @return int the content type id as an int
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSException If the lookup fails for any reason.
    */
@@ -460,12 +432,9 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * convenience helper to return the item def given a contentType
    *
    * @param request the original request, may not <code>null</code>
-   * @param contentType a content type id as either a numerical internal id
-   *    or a string name, may not <code>null</code> or empty
-   *
-   * @return an item definition based on the content type,
-   *    never <code>null</code>
-   *
+   * @param contentType a content type id as either a numerical internal id or a string name, may
+   *     not <code>null</code> or empty
+   * @return an item definition based on the content type, never <code>null</code>
    * @throws PSException
    */
   protected PSItemDefinition getItemDefinition(PSRequest request, String contentType)
@@ -497,12 +466,10 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * Helper function to execute an internal request.
    *
    * @param request the original request object, assumed not <code>null</code>
-   * @param path the application and resource location of the action to be
-   *    executed by the system, assumed not <code>null</code>
-   *
-   * @return PSInternalRequest the internal request that was generated, never
-   *    <code>null</code>, may contain a modified request object
-   *
+   * @param path the application and resource location of the action to be executed by the system,
+   *     assumed not <code>null</code>
+   * @return PSInternalRequest the internal request that was generated, never <code>null</code>, may
+   *     contain a modified request object
    * @throws PSException if the internal request is not created
    */
   protected static PSInternalRequest makeInternalRequest(PSRequest request, String path)
@@ -521,14 +488,10 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * Operation to update the parent doc from an internal request.
    *
    * @param request The original request object, assumed not <code>null</code>.
-   * @param path The application and resource location of the action to be
-   *    executed by the system assumed not <code>null</code>.
-   * @param parent The parent document to insert the result into, assumed not
-   *    <code>nul</code>.
-   *
-   * @return Returns the result document from the internal request, never
-   *    <code>null</code>.
-   *
+   * @param path The application and resource location of the action to be executed by the system
+   *     assumed not <code>null</code>.
+   * @param parent The parent document to insert the result into, assumed not <code>nul</code>.
+   * @return Returns the result document from the internal request, never <code>null</code>.
    * @throws PSException if the internal request is not created
    */
   protected void processInternalRequest(PSRequest request, String path, Document parent)
@@ -545,15 +508,12 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * Protected function to get a result document from an internal request.
    *
    * @param request The original request object, assumed not <code>null</code>.
-   * @param path The application and resource location of the action to be
-   *    executed by the system assumed not <code>null</code>.
-   * @param isHandleOverrideCommunity if <code>true</code>, then calls
-   *    {@link #handleOverrideCommunity(PSRequest)}; otherwise skips the call,
-   *    assumes the caller already made the call once.
-   *
-   * @return Returns the result document from the internal request, never
-   *    <code>null</code>.
-   *
+   * @param path The application and resource location of the action to be executed by the system
+   *     assumed not <code>null</code>.
+   * @param isHandleOverrideCommunity if <code>true</code>, then calls {@link
+   *     #handleOverrideCommunity(PSRequest)}; otherwise skips the call, assumes the caller already
+   *     made the call once.
+   * @return Returns the result document from the internal request, never <code>null</code>.
    * @throws PSException if the internal request is not created
    */
   protected Document processInternalRequestEx(
@@ -591,11 +551,9 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
    * Private function to get a result document from an internal request.
    *
    * @param request The original request object, assumed not <code>null</code>.
-   * @param path The application and resource location of the action to be
-   *    executed by the system assumed not <code>null</code>.
-   * @param parent The parent document to insert the result into, assumed not
-   *    <code>nul</code>.
-   *
+   * @param path The application and resource location of the action to be executed by the system
+   *     assumed not <code>null</code>.
+   * @param parent The parent document to insert the result into, assumed not <code>nul</code>.
    * @throws PSException if the internal request is not created
    */
   protected void getMergedResultDoc(PSRequest request, String path, Document parent)
@@ -630,16 +588,14 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Function to get a result document from an internal request, also
-   * has the added feature of applying the stylesheet if applicable. The
-   * caller is responsible for closing the output stream.
+   * Function to get a result document from an internal request, also has the added feature of
+   * applying the stylesheet if applicable. The caller is responsible for closing the output stream.
    *
    * @param request the original request object, assumed not <code>null</code>
-   * @param path the application and resource location of the action to be
-   *    executed by the system, assumed not <code>null</code>
-   * @return ByteArrayOutputStream returns the result output stream from the
-   *    internal request, never <code>null</code>
-   *
+   * @param path the application and resource location of the action to be executed by the system,
+   *     assumed not <code>null</code>
+   * @return ByteArrayOutputStream returns the result output stream from the internal request, never
+   *     <code>null</code>
    * @throws PSException if the internal request is not created
    */
   protected ByteArrayOutputStream processMergeResultRequest(PSRequest request, String path)
@@ -655,8 +611,8 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Reset the validation error in the given request. This is used
-   * in conjuction with the {@link #checkValidationError(PSRequest, String)}.
+   * Reset the validation error in the given request. This is used in conjuction with the {@link
+   * #checkValidationError(PSRequest, String)}.
    *
    * @param request The request object, it may not be <code>null</code>.
    */
@@ -669,12 +625,10 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   /**
    * Check the validation error that is registered in the given request.
    *
-   * @param request The request that may contains the validation error,
-   *    it may not be <code>null</code>.
-   *
-   * @param path the resource path that is used for the request, it may
-   *    not be <code>null</code> or empty.
-   *
+   * @param request The request that may contains the validation error, it may not be <code>null
+   *     </code>.
+   * @param path the resource path that is used for the request, it may not be <code>null</code> or
+   *     empty.
    * @throws PSCmsException if an validation error has occurred.
    */
   protected void checkValidationError(PSRequest request, String path) throws PSCmsException {
@@ -691,8 +645,9 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Checks to see if the override community param is set in
-   * the request and if so overrides to that community.
+   * Checks to see if the override community param is set in the request and if so overrides to that
+   * community.
+   *
    * @param request the request, cannot be <code>null</code>.
    * @throws PSException when encountering any error.
    */
@@ -713,16 +668,13 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   }
 
   /**
-   * Public key for private object that is used to hold workflow state info
-   * across requests to the filtering exit. The filtering exit is called
-   * for each row that is to be returned from the search handler. See
-   * {@link PSSearchHandler} for more details.
+   * Public key for private object that is used to hold workflow state info across requests to the
+   * filtering exit. The filtering exit is called for each row that is to be returned from the
+   * search handler. See {@link PSSearchHandler} for more details.
    */
   public static final String PSX_WORKFLOW_STATE_INFO_CACHE = "PSX_WORKFLOW_STATE_INFO_CACHE";
 
-  /**
-   * parameter element constants
-   */
+  /** parameter element constants */
   protected static final String EL_CONTENTKEY = "ContentKey";
 
   protected static final String EL_PURGEKEY = "PurgeKey";
@@ -731,31 +683,23 @@ public abstract class PSWebServicesBaseHandler implements IPSPortActionHandler {
   protected static final String EL_CONTENTTYPE = "ContentType";
   protected static final String EL_XMLDATA = "XMLData";
 
-  /**
-   * response elements / attributes
-   */
+  /** response elements / attributes */
   private static final String EL_RESULTRESPONSE = "ResultResponse";
 
   /**
-   * Result response lives in the common schema, therefore we need to defined
-   * the common namespace to be delivered when we create the result response.
+   * Result response lives in the common schema, therefore we need to defined the common namespace
+   * to be delivered when we create the result response.
    */
   private static final String NS_COMMON = "urn:www.percussion.com/webservices/common";
 
   private static final String NS_COMMON_PREFIX = "com:";
 
-  /**
-   * standard item element constants
-   */
+  /** standard item element constants */
   private static final String EL_RESULT = "Result";
 
-  /**
-   * Name of the internal resource used to catalog content editor URLs.
-   */
+  /** Name of the internal resource used to catalog content editor URLs. */
   private static final String CONTENT_EDITOR_CATALOGER = "sys_psxContentEditorCataloger/getUrl.xml";
 
-  /**
-   * Name of the custom application for web services.
-   */
+  /** Name of the custom application for web services. */
   protected static final String WEB_SERVICES_APP = "sys_psxWebServices";
 }

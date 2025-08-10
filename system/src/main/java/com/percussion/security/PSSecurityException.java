@@ -21,50 +21,39 @@ import com.percussion.error.IPSException;
 import com.percussion.error.PSRuntimeException;
 
 /**
- * This exception is thrown when a serious problem occurs that prevents the
- * security sub-system from obtaining the information it needs to perform
- * the requested action.
+ * This exception is thrown when a serious problem occurs that prevents the security sub-system from
+ * obtaining the information it needs to perform the requested action.
  */
 public class PSSecurityException extends PSRuntimeException {
   /**
-   * Constructs a new exception based on an existing exception. Used to
-   * pass through exceptions.
+   * Constructs a new exception based on an existing exception. Used to pass through exceptions.
    *
    * @param errorCode The error code from the original exception.
-   *
    * @param args The message arguments from the original exception.
    */
   public PSSecurityException(IPSException e) {
     super(e.getErrorCode(), e.getErrorArguments());
   }
 
-  /**
-   * See {@link PSRuntimeException#PSRuntimeException(int) base class} for
-   * desc.
-   */
+  /** See {@link PSRuntimeException#PSRuntimeException(int) base class} for desc. */
   public PSSecurityException(int errorCode) {
     super(errorCode);
   }
 
-  /**
-   * See {@link PSRuntimeException#PSRuntimeException(int,Object[]) base
-   * class} for desc.
-   */
+  /** See {@link PSRuntimeException#PSRuntimeException(int,Object[]) base class} for desc. */
   public PSSecurityException(int errorCode, Object[] messageArgs) {
     super(errorCode, messageArgs);
   }
 
   /**
-   * See {@link PSRuntimeException#PSRuntimeException(int,Object[],Throwable) base
-   * class} for desc.
+   * See {@link PSRuntimeException#PSRuntimeException(int,Object[],Throwable) base class} for desc.
    */
   public PSSecurityException(int errorCode, Object[] messageArgs, Throwable cause) {
     super(errorCode, messageArgs, cause);
   }
 
   /**
-   * Creates an exception that indicates cataloging for some type of
-   * security object failed.
+   * Creates an exception that indicates cataloging for some type of security object failed.
    *
    * @param detailMsg The text describing the problem.
    */

@@ -19,9 +19,7 @@ package com.percussion.debug;
 
 import com.percussion.design.objectstore.PSTraceInfo;
 
-/**
- * Used by listeners to be informed of Trace start and stop events.
- */
+/** Used by listeners to be informed of Trace start and stop events. */
 // REFACTORED: CP-JAVA11
 public interface IPSTraceStateListener {
 

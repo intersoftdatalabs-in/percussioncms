@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 package com.percussion.pso.preview;
-import java.util.List;
 
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.PSSiteManagerException;
+import java.util.List;
 
 /**
- * Site Loader interface. The site loader finds all sites defined 
- * in the system.  
- * 
- * @author DavidBenua
+ * Site Loader interface. The site loader finds all sites defined in the system.
  *
+ * @author DavidBenua
  */
-public interface SiteLoader
-{
-   /**
-    * Finds all sites defined in the system. 
-    * @return the list of sites. Never <code>null</code> but may
-    * be <code>empty</code>
-    * @throws PSSiteManagerException
-    */
-   public List<IPSSite> findAllSites() throws PSSiteManagerException;
+public interface SiteLoader {
+  /**
+   * Finds all sites defined in the system.
+   *
+   * @return the list of sites. Never <code>null</code> but may be <code>empty</code>
+   * @throws PSSiteManagerException
+   */
+  public List<IPSSite> findAllSites() throws PSSiteManagerException;
 }

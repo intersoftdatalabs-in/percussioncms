@@ -55,22 +55,18 @@ import java.util.stream.StreamSupport;
 import org.w3c.dom.Document;
 
 /**
- * The parent class for all data object definition handlers. These are
- * handlers for dependencies that are persisted in the repository. This class
- * contains convenient methods for saving and retrieving dependencies, to and
- * from the database and/or archive files.
+ * The parent class for all data object definition handlers. These are handlers for dependencies
+ * that are persisted in the repository. This class contains convenient methods for saving and
+ * retrieving dependencies, to and from the database and/or archive files.
  */
 public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDataObjectDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -89,23 +85,17 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of child dependencies for a given set of parameters. The child
-   * dependencies are created from the ids retrieved from the given table and
-   * parent id.
+   * Get a list of child dependencies for a given set of parameters. The child dependencies are
+   * created from the ids retrieved from the given table and parent id.
    *
    * @param tableName The table name, may not be <code>null</code> or empty.
-   * @param childIdCol The column name of the child id, may not be
-   * <code>null</code> or empty.
-   * @param parentIdCol The column name of the parent id, may not be
-   * <code>null</code> or empty.
+   * @param childIdCol The column name of the child id, may not be <code>null</code> or empty.
+   * @param parentIdCol The column name of the parent id, may not be <code>null</code> or empty.
    * @param parentId The parent id value of the <code>parentIdColumnName</code>
-   * @param dependentType The dependency type, may not be <code>null</code> or
-   * empty.
+   * @param dependentType The dependency type, may not be <code>null</code> or empty.
    * @param tok The security token, may not be <code>null</code>.
-   *
-   * @return A list over zero or more <code>PSDependency</code> objects. It
-   * will never be <code>null</code>, but may be empty.
-   *
+   * @return A list over zero or more <code>PSDependency</code> objects. It will never be <code>null
+   *     </code>, but may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -135,17 +125,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   /**
    * Get a list of dependencies from a list of ids for a dependency type.
    *
-   * @param ids The list of dependency ids, may not be <code>null</code>,
-   * but may be empty.
-   * @param dependencyType The dependency type, may not be <code>null</code>
-   * or empty.
+   * @param ids The list of dependency ids, may not be <code>null</code>, but may be empty.
+   * @param dependencyType The dependency type, may not be <code>null</code> or empty.
    * @param tok The security token, may not be <code>null</code>.
-   *
-   * @return A list over zero or more <code>PSDependency</code> objects. The
-   * type (or scope) of the objects will default to
-   * <code>PSDependency.SHARED</code> It will never be <code>null</code>,
-   * but may be empty.
-   *
+   * @return A list over zero or more <code>PSDependency</code> objects. The type (or scope) of the
+   *     objects will default to <code>PSDependency.SHARED</code> It will never be <code>null</code>
+   *     , but may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -177,24 +162,19 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of dependency objects from ids. It is similar with
-   * {@link #getDepsFromIds(Iterator, String, PSSecurityToken)}, except the
-   * the type or scope of the returned <code>PSDependency</code> objects will
-   * be determined by <code>depType</code>.
+   * Get a list of dependency objects from ids. It is similar with {@link #getDepsFromIds(Iterator,
+   * String, PSSecurityToken)}, except the the type or scope of the returned <code>PSDependency
+   * </code> objects will be determined by <code>depType</code>.
    *
-   * @param ids The list of dependency ids, may not be <code>null</code>,
-   * but may be empty.
-   * @param dependencyType The dependency type, may not be <code>null</code>
-   * or empty.
+   * @param ids The list of dependency ids, may not be <code>null</code>, but may be empty.
+   * @param dependencyType The dependency type, may not be <code>null</code> or empty.
    * @param tok The security token, may not be <code>null</code>.
-   * @param depType The dependency type or scope, must be either one of the
-   * <code>PSDependency.TYPE_XXX</code> values, or <code>-1</code> if not to
-   * reset the type/scope of the returned dependencies.
-   *
-   * @return A list over zero or more <code>PSDependency</code> objects. The
-   * type (or scope) of the objects will be specified by <code>depType</code>.
-   * It will never be <code>null</code>, but may be empty.
-   *
+   * @param depType The dependency type or scope, must be either one of the <code>
+   *     PSDependency.TYPE_XXX</code> values, or <code>-1</code> if not to reset the type/scope of
+   *     the returned dependencies.
+   * @return A list over zero or more <code>PSDependency</code> objects. The type (or scope) of the
+   *     objects will be specified by <code>depType</code>. It will never be <code>null</code>, but
+   *     may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -225,19 +205,15 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of distinct ids from a given table data at the column of
-   * <code>col</code>. Note: the column may be a nullable column. Both
-   * <code>null</code> or empty values of the column will not be added to the
-   * returned list.
+   * Get a list of distinct ids from a given table data at the column of <code>col</code>. Note: the
+   * column may be a nullable column. Both <code>null</code> or empty values of the column will not
+   * be added to the returned list.
    *
-   * @param data The table data, it may be <code>null</code> or it may not
-   * contain any rows.
+   * @param data The table data, it may be <code>null</code> or it may not contain any rows.
    * @param table The table name, may not be <code>null</code> or empty.
    * @param col The column name, may not be <code>null</code> or empty.
-   *
-   * @return An iterator over zero or more ids in <code>String</code>.
-   * It will never be <code>null</code>, but may be empty.
-   *
+   * @return An iterator over zero or more ids in <code>String</code>. It will never be <code>null
+   *     </code>, but may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -263,21 +239,16 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of distinct application names from a given table data at the
-   * column of <code>col</code>. Note: the column may be a nullable column.
-   * If the value of the column is not <code>null</code> or empty, the format
-   * of it is <code>../app-name/XXX</code>.
-   * The <code>app-name</code> will be retrieved and be part of the returned
-   * list.
+   * Get a list of distinct application names from a given table data at the column of <code>col
+   * </code>. Note: the column may be a nullable column. If the value of the column is not <code>
+   * null</code> or empty, the format of it is <code>../app-name/XXX</code>. The <code>app-name
+   * </code> will be retrieved and be part of the returned list.
    *
-   * @param data The table data, it may be <code>null</code> or it may not
-   * contain any rows.
+   * @param data The table data, it may be <code>null</code> or it may not contain any rows.
    * @param table The table name, may not be <code>null</code> or empty.
    * @param col The column name, may not be <code>null</code> or empty.
-   *
-   * @return An iterator over zero or more app-names in <code>String</code>.
-   * It will never be <code>null</code>, but may be empty.
-   *
+   * @return An iterator over zero or more app-names in <code>String</code>. It will never be <code>
+   *     null</code>, but may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -310,18 +281,14 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Map or transfer a child id in a given column.  Do nothing when the value
-   * of the column is <code>null</code> or empty.
+   * Map or transfer a child id in a given column. Do nothing when the value of the column is <code>
+   * null</code> or empty.
    *
-   * @param col The column to be mapped or transfered, it may not be
-   * <code>null</code>.
-   * @param parentDep The parent dependency object, it may not be
-   * <code>null</code>.
-   * @param childDepType The type of the child dependency handler, it may not
-   * be <code>null</code> or empty.
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   *
+   * @param col The column to be mapped or transfered, it may not be <code>null</code>.
+   * @param parentDep The parent dependency object, it may not be <code>null</code>.
+   * @param childDepType The type of the child dependency handler, it may not be <code>null</code>
+   *     or empty.
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -341,21 +308,16 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Map or transfer a child id by using idMap in the <code>ctx</code> to map
-   * the source id to target id.
+   * Map or transfer a child id by using idMap in the <code>ctx</code> to map the source id to
+   * target id.
    *
-   * @param value The value to be mapped or transfered, it may not be
-   * <code>null</code>.
-   * @param parentDep The parent dependency object, it may not be
-   * <code>null</code>.
-   * @param childDepType The type of the child dependency handler, it may not
-   * be <code>null</code> or empty.
-   * @param ctx The import context to aid in the installation, it may not be
-   * <code>null</code>.
-   *
-   * @return the value of the id as it is mapped to the target, or the original
-   * source id if transforms are not required.
-   *
+   * @param value The value to be mapped or transfered, it may not be <code>null</code>.
+   * @param parentDep The parent dependency object, it may not be <code>null</code>.
+   * @param childDepType The type of the child dependency handler, it may not be <code>null</code>
+   *     or empty.
+   * @param ctx The import context to aid in the installation, it may not be <code>null</code>.
+   * @return the value of the id as it is mapped to the target, or the original source id if
+   *     transforms are not required.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -398,15 +360,11 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Get a list of child ids for a given parent id in a table.
    *
    * @param table The table name, it may not be <code>null</code> or empty.
-   * @param childIdCol The column name of the child id, it may not be
-   * <code>null</code> or empty
-   * @param parentIdCol The column name of the parent id, it may not be
-   * <code>null</code> or empty.
+   * @param childIdCol The column name of the child id, it may not be <code>null</code> or empty
+   * @param parentIdCol The column name of the parent id, it may not be <code>null</code> or empty.
    * @param parentId The parent id, it may not be <code>null</code> or empty.
-   *
-   * @return A list over <code>String</code> objects, will never
-   * <code>null</code>, but may be empty.
-   *
+   * @return A list over <code>String</code> objects, will never <code>null</code>, but may be
+   *     empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -432,9 +390,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Convenience method that calls {@link #getDependencies(PSSecurityToken,
-   * String, String, String, PSJdbcSelectFilter) getDependency(tok, table,
-   * idCol, nameCol, null)}.
+   * Convenience method that calls {@link #getDependencies(PSSecurityToken, String, String, String,
+   * PSJdbcSelectFilter) getDependency(tok, table, idCol, nameCol, null)}.
+   *
    * @param tok
    * @param table
    * @param idCol
@@ -472,10 +430,8 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * @param idCol The id column, may not be <code>null</code> or empty.
    * @param nameCol The name column, may not be <code>null</code> or empty.
    * @param filter Optional filter to apply, may be <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSDependency</code> objects,
-   * will never be <code>null</code>, but may be empty.
-   *
+   * @return An iterator over zero or more <code>PSDependency</code> objects, will never be <code>
+   *     null</code>, but may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -505,9 +461,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Convenience method that calls {@link #getDependency(PSSecurityToken,
-   * String, String, String, String, PSJdbcSelectFilter) getDependency(tok, id,
-   * table, idCol, nameCol, null)}
+   * Convenience method that calls {@link #getDependency(PSSecurityToken, String, String, String,
+   * String, PSJdbcSelectFilter) getDependency(tok, id, table, idCol, nameCol, null)}
+   *
    * @param tok
    * @param id
    * @param table
@@ -526,18 +482,14 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Get a specified dependency object from a given id in a table.
    *
    * @param tok The security token, may not be <code>null</code>
-   * @param id The id of the specified dependency object, may not be
-   * <code>null</code> or empty.
+   * @param id The id of the specified dependency object, may not be <code>null</code> or empty.
    * @param table The table name, may not be <code>null</code> or empty.
    * @param idCol The id column, may not be <code>null</code> or empty.
    * @param nameCol The name column, may not be <code>null</code> or empty.
-   * @param filter Optional filter to apply, may be <code>null</code>.  If
-   * provided, the intersection of this filter and the filter createdusing the
-   * provided <code>id</code> is used.
-   *
-   * @return The retrieved <code>PSDependency</code> objects. It may be
-   * <code>null</code> if cannot find the id in the table.
-   *
+   * @param filter Optional filter to apply, may be <code>null</code>. If provided, the intersection
+   *     of this filter and the filter createdusing the provided <code>id</code> is used.
+   * @return The retrieved <code>PSDependency</code> objects. It may be <code>null</code> if cannot
+   *     find the id in the table.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -584,21 +536,18 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Reserves a new id for a given table. Does the same as the
-   * {@link PSDependencyHandler#reserveNewId(PSDependency, PSIdMap)} except
-   * it need to pass in a table name and dependency type of the handler.
+   * Reserves a new id for a given table. Does the same as the {@link
+   * PSDependencyHandler#reserveNewId(PSDependency, PSIdMap)} except it need to pass in a table name
+   * and dependency type of the handler.
    *
-   * @param dep The dependency to check with the given <code>depType</code>,
-   * may not be <code>null</code> and its object type must be the
-   * <code>depType</code>, which is the type defined by this handler.
-   * <code>supportsIdMapping()</code> must return <code>true</code> for this
-   * dependency.
-   * @param idMap The ID map, may not be <code>null</code> and must contain
-   * a mapping for the supplied <code>dep</code>.
+   * @param dep The dependency to check with the given <code>depType</code>, may not be <code>null
+   *     </code> and its object type must be the <code>depType</code>, which is the type defined by
+   *     this handler. <code>supportsIdMapping()</code> must return <code>true</code> for this
+   *     dependency.
+   * @param idMap The ID map, may not be <code>null</code> and must contain a mapping for the
+   *     supplied <code>dep</code>.
    * @param table The table name, may not be <code>null</code> or empty.
-   * @param depType The dependency type of the handler, may not be
-   * <code>null</code> or empty.
-   *
+   * @param depType The dependency type of the handler, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -647,8 +596,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Convenience method that calls {@link #getNextId(String, PSDependency, String)
-   * getNextId(key, dep, null)}.
+   * Convenience method that calls {@link #getNextId(String, PSDependency, String) getNextId(key,
+   * dep, null)}.
+   *
    * @param key see super class
    * @param dep see super class
    * @return see super class
@@ -659,24 +609,18 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get next id for a given key and dependency. The key may be a table or
-   * column name. This method is called by
-   * {@link #reserveNewId(PSDependency, PSIdMap, String, String)}. The derived
-   * class may override this method, so that the get next id will behave
-   * according to the derived class.
+   * Get next id for a given key and dependency. The key may be a table or column name. This method
+   * is called by {@link #reserveNewId(PSDependency, PSIdMap, String, String)}. The derived class
+   * may override this method, so that the get next id will behave according to the derived class.
    *
-   * @param key The name of a table or column, it may not be <code>null</code>
-   * or empty.
-   * @param dep The dependency object, for which a new id is to be obtained,
-   * may not be <code>null</code>.
-   * @param tgtParentId The id that will be used on the target system for the
-   * parent of the dependency.  May be <code>null</code> only if
-   * <code>dep.supportsParentId()</code> returns <code>false</code>, never
-   * empty.
-   *
-   * @return The next id (in <code>String</code>) for the key, it will never
-   * be <code>null</code> or empty.
-   *
+   * @param key The name of a table or column, it may not be <code>null</code> or empty.
+   * @param dep The dependency object, for which a new id is to be obtained, may not be <code>null
+   *     </code>.
+   * @param tgtParentId The id that will be used on the target system for the parent of the
+   *     dependency. May be <code>null</code> only if <code>dep.supportsParentId()</code> returns
+   *     <code>false</code>, never empty.
+   * @return The next id (in <code>String</code>) for the key, it will never be <code>null</code> or
+   *     empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -697,10 +641,10 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Convenience method that calls {@link #getDepDataFromTable(PSDependency,
-   * String, String, boolean, int) getDepDataFromTable(dep, table, idCol,
-   * isDataRequired, Types.INTEGER)}.
-   * See the actual implementation
+   * Convenience method that calls {@link #getDepDataFromTable(PSDependency, String, String,
+   * boolean, int) getDepDataFromTable(dep, table, idCol, isDataRequired, Types.INTEGER)}. See the
+   * actual implementation
+   *
    * @param dep
    * @param table
    * @param idCol
@@ -721,26 +665,22 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get dependency data from database table for a given dependency object.
-   * Check for retrieved data, it may not be empty if required.
+   * Get dependency data from database table for a given dependency object. Check for retrieved
+   * data, it may not be empty if required.
    *
    * @param dep The dependency object, may not be <code>null</code>.
    * @param table The table name, may not be <code>null</code> or empty.
-   * @param idCol The id column name of the table, may not be
-   * <code>null</code> or empty.
-   * @param isDataRequired <code>true</code> if the retrieved data cannot be
-   * empty; <code>false</code> otherwise.
-   * @param colDataType the jdbc data type of the id column, one of the
-   * <code>java.sql.TYPES.XXX</code> values.
-   *
-   * @return The retrieved dependency data object. It may be <code>null</code>
-   * if <code>isDataRequired</code> is <code>false</code> and no data has been
-   * retrieved from the database.
-   *
+   * @param idCol The id column name of the table, may not be <code>null</code> or empty.
+   * @param isDataRequired <code>true</code> if the retrieved data cannot be empty; <code>false
+   *     </code> otherwise.
+   * @param colDataType the jdbc data type of the id column, one of the <code>java.sql.TYPES.XXX
+   *     </code> values.
+   * @return The retrieved dependency data object. It may be <code>null</code> if <code>
+   *     isDataRequired</code> is <code>false</code> and no data has been retrieved from the
+   *     database.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if no data has been retrieved from the database
-   * and <code>isDataRequired</code> is <code>true</code>, or any other error
-   * occurs.
+   * @throws PSDeployException if no data has been retrieved from the database and <code>
+   *     isDataRequired</code> is <code>true</code>, or any other error occurs.
    */
   protected PSDependencyData getDepDataFromTable(
       PSDependency dep, String table, String idCol, boolean isDataRequired, int colDataType)
@@ -759,23 +699,19 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get dependency data for a given table and filter. Check for retrieved
-   * data, it may not be empty if required.
+   * Get dependency data for a given table and filter. Check for retrieved data, it may not be empty
+   * if required.
    *
    * @param table The table name, may not be <code>null</code> or empty.
-   * @param filter The filter used to query the database, it may not be
-   * <code>null</code>.
-   * @param isDataRequired <code>true</code> if the retrieved data cannot be
-   * empty; <code>false</code> otherwise.
-   *
-   * @return The retrieved dependency data object. It may be <code>null</code>
-   * if <code>isDataRequired</code> is <code>false</code> and no data has been
-   * retrieved from the database.
-   *
+   * @param filter The filter used to query the database, it may not be <code>null</code>.
+   * @param isDataRequired <code>true</code> if the retrieved data cannot be empty; <code>false
+   *     </code> otherwise.
+   * @return The retrieved dependency data object. It may be <code>null</code> if <code>
+   *     isDataRequired</code> is <code>false</code> and no data has been retrieved from the
+   *     database.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if no data has been retrieved from the database
-   * and <code>isDataRequired</code> is <code>true</code>, or any other error
-   * occurs.
+   * @throws PSDeployException if no data has been retrieved from the database and <code>
+   *     isDataRequired</code> is <code>true</code>, or any other error occurs.
    */
   protected PSDependencyData getDepDataFromTable(
       String table, PSJdbcSelectFilter filter, boolean isDataRequired) throws PSDeployException {
@@ -796,17 +732,12 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get the specified dependency data from the archive file for a given
-   * dependency file.
+   * Get the specified dependency data from the archive file for a given dependency file.
    *
-   * @param archive The archive handler for the archive file, may not be
-   * <code>null</code>.
-   * @param file The to be retrieved dependency file, may not be
-   * <code>null</code> and its type must be
-   * {@link PSDependencyFile#TYPE_DBMS_DATA}
-   *
+   * @param archive The archive handler for the archive file, may not be <code>null</code>.
+   * @param file The to be retrieved dependency file, may not be <code>null</code> and its type must
+   *     be {@link PSDependencyFile#TYPE_DBMS_DATA}
    * @return The dependency data, it will not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -839,23 +770,17 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Install a dependency data for a given dependency definition. The
-   * dependency definition table must not contain any relationship to its
-   * child. It will map the id column to current/target server, then install
-   * the mapped or transfered data. Log the action at the end.
+   * Install a dependency data for a given dependency definition. The dependency definition table
+   * must not contain any relationship to its child. It will map the id column to current/target
+   * server, then install the mapped or transfered data. Log the action at the end.
    *
-   * @param depData The to be installed dependency data, may not be
-   * <code>null</code>.
+   * @param depData The to be installed dependency data, may not be <code>null</code>.
    * @param dep The dependency definition object, may not be <code>null</code>
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   * @param table The dependency definition table name, may not be
-   * <code>null</code> or empty.
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
+   * @param table The dependency definition table name, may not be <code>null</code> or empty.
    * @param idCol The id column, may not be <code>null</code> or empty.
    * @param nameCol The name column, may not be <code>null</code> or empty.
-   * @param depHandlerType The handler type, may not be <code>null</code> or
-   * empty.
-   *
+   * @param depHandlerType The handler type, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -897,16 +822,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Install a dependency data for a given dependency definition. Assume
-   * all ids have been transfered or mapped to the current (or target)
-   * server. Log the action at the end.
+   * Install a dependency data for a given dependency definition. Assume all ids have been
+   * transfered or mapped to the current (or target) server. Log the action at the end.
    *
    * @param schema The to be installed schema, may not be <code>null</code>.
    * @param data The to be installed table data, may not be <code>null</code>.
    * @param dep The dependency definition object, may not be <code>null</code>
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -929,10 +851,9 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Add a transaction log entry for a installed dependency.
    *
    * @param dep The installed dependency, it may not be <code>null</code>.
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   * @param table The name of the table that has been affected, may not be
-   * <code>null</code> or empty.
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
+   * @param table The name of the table that has been affected, may not be <code>null</code> or
+   *     empty.
    * @throws PSDeployException
    */
   protected void addTransactionLogForDep(PSDependency dep, PSImportCtx ctx, String table)
@@ -953,17 +874,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Transfer the specified id in a table data from source server to the
-   * current (target) server.
+   * Transfer the specified id in a table data from source server to the current (target) server.
    *
    * @param data The to be transfered table data, assume not <code>null</code>
    * @param tableName The table name, assume not <code>null</code> or empty.
    * @param idColumn The id column, assume not <code>null</code> or empty.
-   * @param mapping The id mapping object for the transferation, assume not
-   * <code>null</code>.
-   *
+   * @param mapping The id mapping object for the transferation, assume not <code>null</code>.
    * @return The transfered table data, will never be <code>null</code>.
-   *
    * @throws PSDeployException if any error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -1005,16 +922,14 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   /**
    * Get a list of dependency files for a specified dependency from an archive.
    *
-   * @param archive The archive handler to retrieve the dependency files from,
-   * may not be <code>null</code>.
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects. It
-   * will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the
-   * archive for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getDependecyDataFiles(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
@@ -1036,10 +951,10 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Convenience method that calls {@link #deleteDepIdFromTable(PSDependency,
-   * PSImportCtx, String, String, PSJdbcTableSchema, int)
-   * deleteDepIdFromTable(dep, ctx, table, idCol, schema, Types.INTEGER)}
-   * See the actual implementation
+   * Convenience method that calls {@link #deleteDepIdFromTable(PSDependency, PSImportCtx, String,
+   * String, PSJdbcTableSchema, int) deleteDepIdFromTable(dep, ctx, table, idCol, schema,
+   * Types.INTEGER)} See the actual implementation
+   *
    * @param dep
    * @param ctx
    * @param table
@@ -1063,26 +978,19 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Delete a specified dependency id from a database table. The dependency id
-   * will be a transformed the id from the ctx id map if found. It will also
-   * log the deletion to the log transaction table if the delete operation
-   * effected the database table.
+   * Delete a specified dependency id from a database table. The dependency id will be a transformed
+   * the id from the ctx id map if found. It will also log the deletion to the log transaction table
+   * if the delete operation effected the database table.
    *
-   * @param dep The to be deleted dependency object, it may not be
-   * <code>null</code>.
-   * @param ctx The import context used to transform the dependency id for
-   * deletion if found in id map, it may not be <code>null</code>.
-   * @param table The name of the database table, it may not be
-   * <code>null</code> or empty.
+   * @param dep The to be deleted dependency object, it may not be <code>null</code>.
+   * @param ctx The import context used to transform the dependency id for deletion if found in id
+   *     map, it may not be <code>null</code>.
+   * @param table The name of the database table, it may not be <code>null</code> or empty.
    * @param idCol The id column name, it may not be <code>null</code> or empty.
-   * @param schema The database schema for the table, it may not be
-   * <code>null</code>.
-   * @param colDataType the jdbc data type of the id column, one of the
-   * <code>java.sql.TYPES.XXX</code> values.
-   *
-   * @return <code>true</code> if the table has been affected;
-   * <code>false</code> otherwise.
-   *
+   * @param schema The database schema for the table, it may not be <code>null</code>.
+   * @param colDataType the jdbc data type of the id column, one of the <code>java.sql.TYPES.XXX
+   *     </code> values.
+   * @return <code>true</code> if the table has been affected; <code>false</code> otherwise.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -1140,9 +1048,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
    * Creates a dependency file from a given dependency data object.
    *
    * @param depData The dependency data object, may not be <code>null</code>.
-   *
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -1162,19 +1068,15 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   /**
    * Installing dependency data for a given dependency object.
    *
-   * @param schema The schema of the to be installed data, it may not be
-   * <code>null</code>.
-   * @param data The to be installed dependency data, it may not
-   * <code>null</code>.
+   * @param schema The schema of the to be installed data, it may not be <code>null</code>.
+   * @param data The to be installed dependency data, it may not <code>null</code>.
    * @param dep The dependency object, it may not be <code>null</code>.
-   * @param ctx The import context to aid in the installation, it may not be
-   * <code>null</code>.
-   * @param action The action to be logged, it is one of the
-   * <code>PSTransactionSummary.ACTION_XXX</code> values.
-   * @param updateKey The update-key for processing table, it may be
-   * <code>null</code> if no need to be used during process table. For
-   * example update-key is not needed if the table has a primary key.
-   *
+   * @param ctx The import context to aid in the installation, it may not be <code>null</code>.
+   * @param action The action to be logged, it is one of the <code>PSTransactionSummary.ACTION_XXX
+   *     </code> values.
+   * @param updateKey The update-key for processing table, it may be <code>null</code> if no need to
+   *     be used during process table. For example update-key is not needed if the table has a
+   *     primary key.
    * @throws PSDeployException if any error occurs.
    */
   protected void installDependencyData(
@@ -1208,16 +1110,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get the value from a specified row and column. The value may be
-   * <code>null</code> or empty.
+   * Get the value from a specified row and column. The value may be <code>null</code> or empty.
    *
    * @param table The table name, it may not be <code>null</code> or empty.
    * @param col The column name, it may not be <code>null</code> or empty.
    * @param row The row of the column, it may not be <code>null</code>.
-   *
-   * @return <code>null</code> if the value of the column is <code>null</code>
-   * or empty; otherwise, return a non-empty <code>String</code>.
-   *
+   * @return <code>null</code> if the value of the column is <code>null</code> or empty; otherwise,
+   *     return a non-empty <code>String</code>.
    * @throws PSDeployException if cannot find the column in the row.
    */
   protected String getColumnValueNullable(String table, String col, PSJdbcRowData row)
@@ -1239,17 +1138,14 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get the value from a specified row and column. The value may not be
-   * <code>null</code> or empty.
+   * Get the value from a specified row and column. The value may not be <code>null</code> or empty.
    *
    * @param table The table name, it may not be <code>null</code> or empty.
    * @param col The column name, it may not be <code>null</code> or empty.
    * @param row The row of the column, it may not be <code>null</code>.
-   *
    * @return The value, never <code>null</code> or empty.
-   *
-   * @throws PSDeployException if the specified column is not found, or if the
-   * value is <code>null</code> or empty.
+   * @throws PSDeployException if the specified column is not found, or if the value is <code>null
+   *     </code> or empty.
    */
   protected String getRequiredColumnValue(String table, String col, PSJdbcRowData row)
       throws PSDeployException {
@@ -1269,28 +1165,23 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of child dependencies for a given parent id. The id of the
-   * child dependencies is pair id, the combination of its parent and itself
-   * ids.
+   * Get a list of child dependencies for a given parent id. The id of the child dependencies is
+   * pair id, the combination of its parent and itself ids.
    *
    * @param tok The security token, may not be <code>null</code>.
-   * @param table The table name, used to retrieve the ids from, may not be
-   * <code>null</code> or empty.
-   * @param childIdCol The child id column of the <code>table</code>, may not
-   * be <code>null</code> or empty.
-   * @param parentIdCol The parent id column of the <code>table</code>, may
-   * not be <code>null</code> or empty.
+   * @param table The table name, used to retrieve the ids from, may not be <code>null</code> or
+   *     empty.
+   * @param childIdCol The child id column of the <code>table</code>, may not be <code>null</code>
+   *     or empty.
+   * @param parentIdCol The parent id column of the <code>table</code>, may not be <code>null</code>
+   *     or empty.
    * @param parentId The parent id, may not be <code>null</code> or empty.
-   * @param childDepType The dependency type of the child, may not be
-   * <code>null</code> or empty.
-   * @param childDepScope The scope to be set for the created child
-   * dependencies. It must be one of the <code>PSDependency.TYPE_XXX</code>
-   * values, or <code>-1</code> if not set scope for the child dependencies and
-   * their scope will be the default value.
-   *
-   * @return A list over zero or more <code>PSDependency</code> objects, it
-   * will never be <code>null</code>, but may be empty.
-   *
+   * @param childDepType The dependency type of the child, may not be <code>null</code> or empty.
+   * @param childDepScope The scope to be set for the created child dependencies. It must be one of
+   *     the <code>PSDependency.TYPE_XXX</code> values, or <code>-1</code> if not set scope for the
+   *     child dependencies and their scope will be the default value.
+   * @return A list over zero or more <code>PSDependency</code> objects, it will never be <code>null
+   *     </code>, but may be empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -1332,22 +1223,18 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler 
   }
 
   /**
-   * Get a list of (child) ids for a given parent id. The child id is a pair of
-   * its parent and itself ids. Get all (child) ids when the parent id,
-   * <code>parentId</code> is <code>null</code>.
+   * Get a list of (child) ids for a given parent id. The child id is a pair of its parent and
+   * itself ids. Get all (child) ids when the parent id, <code>parentId</code> is <code>null</code>.
    *
-   * @param table The table name, used to retrieve the ids from, it may not be
-   * <code>null</code> or empty.
-   * @param childIdCol The child id column of the <code>table</code>, it may
-   * not be <code>null</code> or empty.
-   * @param parentIdCol The parent id column of the <code>table</code>, it may
-   * not be <code>null</code> or empty.
-   * @param parentId The parent id, it may be <code>null</code> if want to get
-   * all child ids.
-   *
-   * @return An iterator over zero or more (pair) ids in <code>String</code>,
-   * will never be <code>null</code>, but may be empty.
-   *
+   * @param table The table name, used to retrieve the ids from, it may not be <code>null</code> or
+   *     empty.
+   * @param childIdCol The child id column of the <code>table</code>, it may not be <code>null
+   *     </code> or empty.
+   * @param parentIdCol The parent id column of the <code>table</code>, it may not be <code>null
+   *     </code> or empty.
+   * @param parentId The parent id, it may be <code>null</code> if want to get all child ids.
+   * @return An iterator over zero or more (pair) ids in <code>String</code>, will never be <code>
+   *     null</code>, but may be empty.
    * @throws PSDeployException if any error occurs.
    */
   protected Iterator getChildPairIdsFromTable(

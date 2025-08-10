@@ -34,36 +34,32 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 /**
- * This class is the local implementation of the interface being implemented.
- * It executes all commands on the current machine.
- * <p>The real work is done by a series of methods named <code>doXXX</code>.
- * This was done so that these methods could be shared between this guy and
- * the {@link PSProcessDaemon}.
- * <p>If the feature that allows a process to keep running after the
- * <code>execute</code> method returns is used, then a long-lived instance of
- * a using class must keep this class in memory. This is because this class
- * stores the <code>PSProcessAction</code> object for later access via a
- * simple handle and if the class is not kept, it may be garbage collected and
- * the associated handle will become useless.
+ * This class is the local implementation of the interface being implemented. It executes all
+ * commands on the current machine.
+ *
+ * <p>The real work is done by a series of methods named <code>doXXX</code>. This was done so that
+ * these methods could be shared between this guy and the {@link PSProcessDaemon}.
+ *
+ * <p>If the feature that allows a process to keep running after the <code>execute</code> method
+ * returns is used, then a long-lived instance of a using class must keep this class in memory. This
+ * is because this class stores the <code>PSProcessAction</code> object for later access via a
+ * simple handle and if the class is not kept, it may be garbage collected and the associated handle
+ * will become useless.
  *
  * @author paulhoward
  */
 public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
-   * All paths supplied to methods in this class will be modified based on
-   * the supplied path.
+   * All paths supplied to methods in this class will be modified based on the supplied path.
    *
-   * @param env See {@link #setEnvironment(Map)} for details. This method
-   * calls <code>setEnvironment(env)</code>.
-   *
-   * @param config The process definition file. See {@link PSProcessManager}
-   * for details on the format.
-   *
+   * @param env See {@link #setEnvironment(Map)} for details. This method calls <code>
+   *     setEnvironment(env)</code>.
+   * @param config The process definition file. See {@link PSProcessManager} for details on the
+   *     format.
    * @throws IOException If the config file can't be read for any reason.
-   * @throws SAXException If the content of the config file is not well-formed
-   * xml.
-   * @throws PSProcessException If the content of the config file doesn't
-   * conform to dtd as specified in {@link PSProcessManager} description.
+   * @throws SAXException If the content of the config file is not well-formed xml.
+   * @throws PSProcessException If the content of the config file doesn't conform to dtd as
+   *     specified in {@link PSProcessManager} description.
    */
   public PSLocalCommandHandler(Map env, File config)
       throws IOException, SAXException, PSProcessException {
@@ -73,14 +69,13 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Sets the variable context for commands accessed through {@link
-   * #executeProcess(String, Map, int, boolean)}.
+   * Sets the variable context for commands accessed through {@link #executeProcess(String, Map,
+   * int, boolean)}.
    *
-   * @param env These variables are the starting point for the
-   * {@link #executeProcess(String, Map, int, boolean) executeProcess} method.
-   * When executing a process, a map is created using these variables, then
-   * the <code>extraParams</code> are added. The final result is used for the
-   * process execution context.
+   * @param env These variables are the starting point for the {@link #executeProcess(String, Map,
+   *     int, boolean) executeProcess} method. When executing a process, a map is created using
+   *     these variables, then the <code>extraParams</code> are added. The final result is used for
+   *     the process execution context.
    */
   public void setEnvironment(Map env) {
     m_environment = null == env ? new HashMap() : env;
@@ -140,19 +135,16 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Does the real work for {@link #executeProcess(String, Map, int, boolean)}.
-   * See that method for details and param descriptions not shown below.
+   * Does the real work for {@link #executeProcess(String, Map, int, boolean)}. See that method for
+   * details and param descriptions not shown below.
    *
    * @param mgr Used to obtain the action to execute. Never <code>null</code>.
-   *
-   * @param params All the environment parameters for the action's execution.
-   * Never <code>null</code>, may be empty.
-   *
-   * @param outputSink Used to log <code>DEBUG</code> level information if
-   * present. May be <code>null</code> if no logging desired. Spits out the
-   * console output of the action every 1/2 second while waiting for the
-   * process to finish. The stdout and stderr outputs are both printed each
-   * cycle.
+   * @param params All the environment parameters for the action's execution. Never <code>null
+   *     </code>, may be empty.
+   * @param outputSink Used to log <code>DEBUG</code> level information if present. May be <code>
+   *     null</code> if no logging desired. Spits out the console output of the action every 1/2
+   *     second while waiting for the process to finish. The stdout and stderr outputs are both
+   *     printed each cycle.
    */
   static PSProcessRequestResult doExecuteProcess(
       PSProcessManager mgr,
@@ -246,9 +238,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
     return new PSProcessRequestResult(procName, rc, resultText, resultStatus, spawnedActionHandle);
   }
 
-  /**
-   * See {@link #waitOnProcess(int, int)} for details.
-   */
+  /** See {@link #waitOnProcess(int, int)} for details. */
   static PSProcessRequestResult doWaitOnProcess(int handle, int wait) throws PSProcessException {
     PSProcessAction action = removeAction(handle);
     if (null == action) {
@@ -271,9 +261,8 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
    * Allocates a new handle and stores the supplied action in the action map.
    *
    * @param action Assumed not <code>null</code>.
-   *
-   * @return The handle that can be used to retrieve the action using the
-   * {@link #getAction(int)} method.
+   * @return The handle that can be used to retrieve the action using the {@link #getAction(int)}
+   *     method.
    */
   private static synchronized int storeAction(PSProcessAction action) {
     int nextHandle;
@@ -283,58 +272,48 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Returns an action previously stored with
-   * {@link #storeAction(PSProcessAction)}.
+   * Returns an action previously stored with {@link #storeAction(PSProcessAction)}.
    *
    * @param handle A value returned by {@link #storeAction(PSProcessAction)}.
-   *
-   * @return The originally stored action, or <code>null</code> if the
-   * handle is not in the map.
+   * @return The originally stored action, or <code>null</code> if the handle is not in the map.
    */
   private static PSProcessAction getAction(int handle) {
     return (PSProcessAction) ms_spawnedActions.get(new Integer(handle));
   }
 
   /**
-   * Removes the action associated with the supplied handle from the local
-   * map.
+   * Removes the action associated with the supplied handle from the local map.
    *
-   * @param handle Should be a value returned by the
-   * {@link #storeAction(PSProcessAction)} method.
-   *
-   * @return The associated action, or <code>null</code> if there is not an
-   * entry in the map for the handle.
+   * @param handle Should be a value returned by the {@link #storeAction(PSProcessAction)} method.
+   * @return The associated action, or <code>null</code> if there is not an entry in the map for the
+   *     handle.
    */
   private static PSProcessAction removeAction(int handle) {
     return (PSProcessAction) ms_spawnedActions.remove(new Integer(handle));
   }
 
   /**
-   * This counter is used as a handle to a started action that is not
-   * terminated before the execute method returns.
+   * This counter is used as a handle to a started action that is not terminated before the execute
+   * method returns.
+   *
    * <p>Use the current value and increment. Access must be synchronized.
    */
   private static int ms_nextHandle = 1;
 
   /**
-   * This map stores actions for which handles are returned. The key of each
-   * entry is an <code>Integer</code> whose value is the next available
-   * value of <code>ms_nextHandle</code>. The value is the
-   * <code>PSProcessAction</code> that was spawned. Never <code>null</code>.
+   * This map stores actions for which handles are returned. The key of each entry is an <code>
+   * Integer</code> whose value is the next available value of <code>ms_nextHandle</code>. The value
+   * is the <code>PSProcessAction</code> that was spawned. Never <code>null</code>.
    */
   private static Map ms_spawnedActions = new HashMap();
 
   /**
-   * Removes the file or directory specified by <code>path</code>. If
-   * <code>path</code> is a directory, all files and directories in it
-   * are removed recursively.
+   * Removes the file or directory specified by <code>path</code>. If <code>path</code> is a
+   * directory, all files and directories in it are removed recursively.
    *
-   * @param path Never <code>null</code>. Used as is, no transformation is
-   * done.
-   *
-   * @return <code>null</code> if the specified object and all its
-   * children are successfully removed (or they don't exist), the supplied
-   * path otherwise.
+   * @param path Never <code>null</code>. Used as is, no transformation is done.
+   * @return <code>null</code> if the specified object and all its children are successfully removed
+   *     (or they don't exist), the supplied path otherwise.
    */
   static void doRemoveFileSystemObject(File path) throws PSProcessException {
     if (null == path) {
@@ -351,15 +330,12 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Removes the file or directory specified by <code>path</code>. If
-   * <code>path</code> is a directory, all files and directories in it
-   * are removed recursively.
+   * Removes the file or directory specified by <code>path</code>. If <code>path</code> is a
+   * directory, all files and directories in it are removed recursively.
    *
    * @param path Assumed not <code>null</code>.
-   *
-   * @return <code>null</code> if the specified object and all its
-   * children are successfully removed (or they don't exist), the supplied
-   * path otherwise.
+   * @return <code>null</code> if the specified object and all its children are successfully removed
+   *     (or they don't exist), the supplied path otherwise.
    */
   private static File removeRecursive(File path) {
     if (!path.exists()) return null;
@@ -378,9 +354,7 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
    * Creates all directories in path that don't yet exist.
    *
-   * @param path Never <code>null</code>. Used as is, no transformation is
-   * done.
-   *
+   * @param path Never <code>null</code>. Used as is, no transformation is done.
    * @throws PSProcessException If any directory can't be created.
    */
   static void doMakeDirectories(File path) throws PSProcessException {
@@ -398,12 +372,8 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
    * Saves file to OS, using the system's default encoding.
    *
-   * @param path Never <code>null</code>. Used as is, no transformation is
-   * done.
-   *
-   * @param content What is stored in the file. May be <code>null</code> or
-   * empty.
-   *
+   * @param path Never <code>null</code>. Used as is, no transformation is done.
+   * @param content What is stored in the file. May be <code>null</code> or empty.
    * @throws IOException If any problems writing to file.
    */
   static void doSaveTextFile(File path, String content) throws IOException {
@@ -415,12 +385,9 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
    * Saves file to OS, using bytes read from the supplied stream.
    *
-   * @param path Never <code>null</code>. Used as is, no transformation is
-   * done.
-   *
-   * @param content May be <code>null</code>, in which case an empty file
-   * is created. Takes ownership of stream and closes when finished.
-   *
+   * @param path Never <code>null</code>. Used as is, no transformation is done.
+   * @param content May be <code>null</code>, in which case an empty file is created. Takes
+   *     ownership of stream and closes when finished.
    * @throws IOException If any problems writing to file.
    */
   static void doSaveBinaryFile(File path, InputStream content) throws IOException {
@@ -431,12 +398,9 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
    * Saves file to OS, using raw bytes.
    *
-   * @param path Assumed not <code>null</code>. Used as is, no transformation
-   * is done.
-   *
-   * @param src What is stored in the file. Assumed not <code>null</code>.
-   * Closes stream when finished.
-   *
+   * @param path Assumed not <code>null</code>. Used as is, no transformation is done.
+   * @param src What is stored in the file. Assumed not <code>null</code>. Closes stream when
+   *     finished.
    * @throws IOException If any problems writing to file.
    */
   private static void saveFile(File path, InputStream src) throws IOException {
@@ -461,14 +425,10 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Reads file from the OS, assuming the file content is in the system's
-   * default encoding.
+   * Reads file from the OS, assuming the file content is in the system's default encoding.
    *
-   * @param path Never <code>null</code>. Used as is, no transformation is
-   * done.
-   *
+   * @param path Never <code>null</code>. Used as is, no transformation is done.
    * @return The content of the file, never <code>null</code>.
-   *
    * @throws IOException If any problems reading from file.
    */
   static String doGetTextFile(File path) throws IOException {
@@ -492,9 +452,8 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   /**
    * Closes the supplied stream, ignoring any exceptions.
    *
-   * @param o May be <code>null</code>. If not an <code>InputStream</code>,
-   * <code>OutputStream</code> or <code>Socket</code>, a
-   * <code>RuntimeException</code> is thrown.
+   * @param o May be <code>null</code>. If not an <code>InputStream</code>, <code>OutputStream
+   *     </code> or <code>Socket</code>, a <code>RuntimeException</code> is thrown.
    */
   static void close(Object o) {
     if (null == o) return;
@@ -509,15 +468,14 @@ public class PSLocalCommandHandler implements IPSCommandHandler {
   }
 
   /**
-   * Set during construction, then never <code>null</code> or modified after
-   * that. See ctor param <code>env</code> description for details.
+   * Set during construction, then never <code>null</code> or modified after that. See ctor param
+   * <code>env</code> description for details.
    */
   private Map m_environment;
 
   /**
-   * Set in ctor, then never <code>null</code> or modified after that. It is
-   * used to fulfill requests to the {@link #executeProcess(String, Map, int,
-   * boolean) executeProcess} method.
+   * Set in ctor, then never <code>null</code> or modified after that. It is used to fulfill
+   * requests to the {@link #executeProcess(String, Map, int, boolean) executeProcess} method.
    */
   private PSProcessManager m_processManager;
 }

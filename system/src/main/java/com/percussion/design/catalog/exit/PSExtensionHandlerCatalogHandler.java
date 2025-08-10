@@ -52,18 +52,14 @@ import org.w3c.dom.Element;
  * <pre><code>
  */
 public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler. This is used primarily
-   * by the cataloger.
-   */
+  /** Constructs an instance of this handler. This is used primarily by the cataloger. */
   public PSExtensionHandlerCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified
-   * request information. The request information for this
-   * request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
    *
    * <table border="1">
    * <tr>
@@ -83,10 +79,8 @@ public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
    *   </tr>
    * </table>
    *
-   * @param   req         the request information
-   *
-   * @return               an XML document containing the appropriate
-   *                        catalog request information
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public org.w3c.dom.Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");
@@ -107,31 +101,19 @@ public class PSExtensionHandlerCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Get an array containing the extension handlers installed
-   * on the server. This is a convenience method which makes a
-   * call to the cataloger's catalog method using the appropriate
-   * properties for this request type.
+   * Get an array containing the extension handlers installed on the server. This is a convenience
+   * method which makes a call to the cataloger's catalog method using the appropriate properties
+   * for this request type.
    *
-   * @param   cataloger      a cataloger containing a connection to
-   *                           the Rhythmyx server we will catalog through
-   *
-   * @return                  an array containing the extension handlers
-   *                           installed on the server.
-   *
-   * @exception   PSServerException
-   *                           if the server is not responding.
-   *
-   * @exception   PSAuthenticationFailedException
-   *                           if the credentials specified for the
-   *                           server connection are invalid.
-   *
-   * @exception   PSAuthorizationException
-   *                           if the user does not have designer or
-   *                           administrator access to the server.
-   *
-   * @exception   IOException
-   *                           if a communication error occurs while
-   *                           processing the request
+   * @param cataloger a cataloger containing a connection to the Rhythmyx server we will catalog
+   *     through
+   * @return an array containing the extension handlers installed on the server.
+   * @exception PSServerException if the server is not responding.
+   * @exception PSAuthenticationFailedException if the credentials specified for the server
+   *     connection are invalid.
+   * @exception PSAuthorizationException if the user does not have designer or administrator access
+   *     to the server.
+   * @exception IOException if a communication error occurs while processing the request
    */
   public static IPSExtensionDef[] getCatalog(PSCataloger cataloger)
       throws com.percussion.conn.PSServerException,

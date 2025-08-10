@@ -40,34 +40,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a single search/view as defined within the system.
- * This class contains all header information for a specific view
- * such as the searches name, display name, parent category, type,
- * display format being applied to the result set, maximum items returned
- * be result set and a description.
- * <p>
- * This object also contains all search fields and properties that
- * apply to this search/view.
+ * Represents a single search/view as defined within the system. This class contains all header
+ * information for a specific view such as the searches name, display name, parent category, type,
+ * display format being applied to the result set, maximum items returned be result set and a
+ * description.
+ *
+ * <p>This object also contains all search fields and properties that apply to this search/view.
  *
  * @see PSVersionableDbComponent for base class description.
  */
 public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
   /**
-   * When a custom view is created, this value is set as the URL. This allows
-   * the object to be saved w/o error. A custom view can be created w/ the
-   * following {@link #PSSearch(String, boolean) ctor} or by calling
-   * {@link #setCustom(boolean)}.
+   * When a custom view is created, this value is set as the URL. This allows the object to be saved
+   * w/o error. A custom view can be created w/ the following {@link #PSSearch(String, boolean)
+   * ctor} or by calling {@link #setCustom(boolean)}.
    */
   public static final String URL_PLACEHOLDER = "<enter url>";
 
   /**
-   * Default constructor, sets up the key information. Initializes
-   * collection field and property data. Sets a default display name of the
-   * form  'SearchN', where N is a small, unique (within the life of this
-   * class) number. It is enabled for all communities by default.
-   * <p>This ctor can only be used for standard searches. To create a
-   * custom search, use the {@link #PSSearch(String,boolean) 2 parameter}
-   * ctor.
+   * Default constructor, sets up the key information. Initializes collection field and property
+   * data. Sets a default display name of the form 'SearchN', where N is a small, unique (within the
+   * life of this class) number. It is enabled for all communities by default.
+   *
+   * <p>This ctor can only be used for standard searches. To create a custom search, use the {@link
+   * #PSSearch(String,boolean) 2 parameter} ctor.
    *
    * @throws PSCmsException If there are any errors.
    */
@@ -90,8 +86,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Required if object needs to be contained within
-   * {@link com.percussion.cms.objectstore.PSDbComponentCollection}
+   * Required if object needs to be contained within {@link
+   * com.percussion.cms.objectstore.PSDbComponentCollection}
    */
   @SuppressWarnings("unused")
   public PSSearch(Element src) throws PSUnknownNodeTypeException, PSCmsException {
@@ -99,10 +95,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     fromXml(src);
   }
 
-  /**
-   * Convenience ctor that calls {@link #PSSearch(String, boolean)
-   * PSSearch(name, false)}.
-   */
+  /** Convenience ctor that calls {@link #PSSearch(String, boolean) PSSearch(name, false)}. */
   public PSSearch(String name) throws PSCmsException {
     this(name, false);
   }
@@ -111,13 +104,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Convenience ctor taking some added parameters.
    *
    * @param name A unique textual identifier for this search. Never <code>
-   *    null</code> or empty. Both the label (display name) and internal
-   *    name are set to this value. May not contain whitespace and must be
-   *    shorter than or equal to INTERNALNAME_LENGTH in length.
-   *
-   * @param bCustomApp if <code>true</code> search/view will represent a
-   *    custom app, otherwise a web services search/view.
-   *
+   *    null</code> or empty. Both the label (display name) and internal name are set to this value.
+   *     May not contain whitespace and must be shorter than or equal to INTERNALNAME_LENGTH in
+   *     length.
+   * @param bCustomApp if <code>true</code> search/view will represent a custom app, otherwise a web
+   *     services search/view.
    * @throws PSCmsException If there are any errors.
    */
   public PSSearch(String name, boolean bCustomApp) throws PSCmsException {
@@ -149,9 +140,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Scans the supplied string for any whitespace characters.
    *
    * @param text May be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if any character in text is whitespace,
-   *    according to Character.isWhitespace(), <code>false</code> otherwise.
+   * @return <code>true</code> if any character in text is whitespace, according to
+   *     Character.isWhitespace(), <code>false</code> otherwise.
    */
   private static boolean containsWhitespace(String text) {
     if (text == null) return false;
@@ -165,8 +155,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Gets the search id.
    *
-   * @return the search id, it may be <code>-1</code> if the id has not been
-   *    assined.
+   * @return the search id, it may be <code>-1</code> if the id has not been assined.
    */
   public int getId() {
     return getKeyPartInt(KEY_COL_ID, -1);
@@ -241,9 +230,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     }
 
     if (includeChildComps) {
-      /**
-       * Write out the component list(s) below
-       */
+      /** Write out the component list(s) below */
       Element elCols = m_fields.toXml(doc);
       root.appendChild(elCols);
 
@@ -258,11 +245,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Test whether the property name supplied is a
-   * editable property.
+   * Test whether the property name supplied is a editable property.
    *
-   * @return <code>true</code> if this property is editable,
-   *    otherwise <code>false</code>.
+   * @return <code>true</code> if this property is editable, otherwise <code>false</code>.
    */
   public boolean isEditableProperty(String strName) {
     return !m_nonEditableProps.contains(strName);
@@ -272,9 +257,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Checks if this is a context parameter.
    *
    * @param strName never <code>null</code>
-   *
-   * @return <code>true</code> if a context parameter,
-   *    otherwise <code>false</code>.
+   * @return <code>true</code> if a context parameter, otherwise <code>false</code>.
    */
   public boolean isAContextParam(String strName) {
     if (strName == null)
@@ -301,9 +284,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get this search objects fields.
    *
-   * @return An iterator containing one or more
-   * {@link com.percussion.cms.objectstore.PSSearchField} objects.
-   * Never <code>null</code>.
+   * @return An iterator containing one or more {@link com.percussion.cms.objectstore.PSSearchField}
+   *     objects. Never <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public Iterator getFields() {
@@ -311,9 +293,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Returns the component collection fields for direct manipulation.
-   * Useful, as opposed to just the iterator, when adding or removing is
-   * necessary.
+   * Returns the component collection fields for direct manipulation. Useful, as opposed to just the
+   * iterator, when adding or removing is necessary.
    *
    * @return component collection never <code>null</code> or empty.
    */
@@ -322,9 +303,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Returns the component collection of properties for direct manipulation.
-   * Useful, as opposed to just the iterator, when adding or removing is
-   * necessary.
+   * Returns the component collection of properties for direct manipulation. Useful, as opposed to
+   * just the iterator, when adding or removing is necessary.
    *
    * @return component collection never <code>null</code> may be empty.
    */
@@ -335,9 +315,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Sets the fields passed using the iterator.
    *
-   * @param fields iterator over
-   * {@link com.percussion.cms.objectstore.PSSearchField} objects.
-   * Never <code>null</code>.
+   * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. Never
+   *     <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public void setFields(Iterator fields) {
@@ -347,8 +326,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Add a single search field to an existing search. This should be used
-   * with caution in order to avoid modifying a search in the catalog.
+   * Add a single search field to an existing search. This should be used with caution in order to
+   * avoid modifying a search in the catalog.
+   *
    * @param field new search field, must never be <code>null</code>
    */
   public void addField(PSSearchField field) {
@@ -361,9 +341,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Removes the fields.
    *
-   * @param fields iterator over
-   * {@link com.percussion.cms.objectstore.PSSearchField} objects.
-   * If <code>null</code> fields will not be removed.
+   * @param fields iterator over {@link com.percussion.cms.objectstore.PSSearchField} objects. If
+   *     <code>null</code> fields will not be removed.
    */
   @SuppressWarnings("unchecked")
   public void removeFields(Iterator fields) {
@@ -372,12 +351,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Set this search as custom. Only works if the url is <code>null</code> or
-   * empty, therefore, once a search is made custom, it cannot be changed back
-   * to standard.
+   * Set this search as custom. Only works if the url is <code>null</code> or empty, therefore, once
+   * a search is made custom, it cannot be changed back to standard.
    *
-   * @param isCustom If <code>true</code>, the url is set to the default
-   * value {@link #URL_PLACEHOLDER}.
+   * @param isCustom If <code>true</code>, the url is set to the default value {@link
+   *     #URL_PLACEHOLDER}.
    */
   public void setCustom(boolean isCustom) {
     if (StringUtils.isBlank(getUrl())) {
@@ -389,8 +367,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get this search objects properties.
    *
-   * @return a iterator containing zero or more
-   *    objects. Never <code>null</code>.
+   * @return a iterator containing zero or more objects. Never <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public Iterator getProperties() {
@@ -555,8 +532,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get the internal name of this Search object.
    *
-   * @return internal name of object, never <code>null</code> or
-   *    empty.
+   * @return internal name of object, never <code>null</code> or empty.
    */
   public String getInternalName() {
     return m_strInternalName;
@@ -565,9 +541,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the internal name of the object.
    *
-   * @param name cannot be <code>null</code> or empty and must be smaller than
-   *    <code>INTERNALNAME_LENGTH</code>. Also no whitespace is allowed in the
-   *    supplied internal name.
+   * @param name cannot be <code>null</code> or empty and must be smaller than <code>
+   *     INTERNALNAME_LENGTH</code>. Also no whitespace is allowed in the supplied internal name.
    */
   public void setInternalName(String name) {
     if (name == null || name.trim().length() == 0)
@@ -590,8 +565,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the maximum number of entries to be returned.
    *
-   * @param nMax int > 0, if < 0 the maximum will default
-   *    to <code>DEFAULT_MAX</code>
+   * @param nMax int > 0, if < 0 the maximum will default to <code>DEFAULT_MAX</code>
    */
   public void setMaximumNumber(int nMax) {
     // Threshold if less than zero we default
@@ -606,10 +580,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Indicates whether this object is representing a search or a view. A
-   * 'search' contains the meta data that defines what needs to be located,
-   * while a 'view' is the meta data and the values associated with the
-   * search fields.
+   * Indicates whether this object is representing a search or a view. A 'search' contains the meta
+   * data that defines what needs to be located, while a 'view' is the meta data and the values
+   * associated with the search fields.
+   *
    * <p>Defaults to TYPE_USERSEARCH.
    *
    * @return One of the TYPE_xxx values.
@@ -644,11 +618,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Compares the supplied type (case insensitive) against all allowed types.
    *
-   * @param type May be <code>null</code> or empty. Leading/trailing white
-   *    space is trimmed before comparison.
-   *
-   * @return If one of the TYPE_xxx values, <code>true</code> is returned,
-   *    otherwise, false is returned.
+   * @param type May be <code>null</code> or empty. Leading/trailing white space is trimmed before
+   *     comparison.
+   * @return If one of the TYPE_xxx values, <code>true</code> is returned, otherwise, false is
+   *     returned.
    */
   private boolean isValidType(String type) {
     if (type == null || type.trim().length() == 0) return false;
@@ -672,9 +645,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the parent category attribute.
    *
-   * @param nParentCat must be one of the numeric values defined in
-   *    {@link ParentCategory}; otherwise defaults to
-   *    {@link ParentCategory#ALL_CONTENT}.
+   * @param nParentCat must be one of the numeric values defined in {@link ParentCategory};
+   *     otherwise defaults to {@link ParentCategory#ALL_CONTENT}.
    */
   public void setParentCategory(int nParentCat) {
     setParentCategory(nParentCat, true);
@@ -683,9 +655,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the parent category attribute.
    *
-   * @param nParentCat must be one of the numeric values defined in
-   *    {@link ParentCategory}; otherwise defaults to
-   *    {@link ParentCategory#MY_CONTENT}.
+   * @param nParentCat must be one of the numeric values defined in {@link ParentCategory};
+   *     otherwise defaults to {@link ParentCategory#MY_CONTENT}.
    * @param isSetDirty <code>true</code> if call {@link #setDirty()}.
    */
   private void setParentCategory(int nParentCat, boolean isSetDirty) {
@@ -714,9 +685,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
     return m_strType.equalsIgnoreCase(TYPE_USERSEARCH);
   }
 
-  /**
-   * Convenience method that calls {@link #isAADNewSearch()}.
-   */
+  /** Convenience method that calls {@link #isAADNewSearch()}. */
   public boolean isRCSearch() {
     return isAADNewSearch();
   }
@@ -778,10 +747,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Determines if this search is compatible with the external search engine.
    *
-   * @return <code>true</code> if this search is not a custom search or view,
-   * and for which {@link #doesPropertyHaveValue(String, String)
-   * doesPropertyHaveValue(PROP_SEARCH_ENGINE_TYPE,
-   * SEARCH_ENGINE_TYPE_EXTERNAL)} returns <code>true</code>.
+   * @return <code>true</code> if this search is not a custom search or view, and for which {@link
+   *     #doesPropertyHaveValue(String, String) doesPropertyHaveValue(PROP_SEARCH_ENGINE_TYPE,
+   *     SEARCH_ENGINE_TYPE_EXTERNAL)} returns <code>true</code>.
    */
   public boolean useExternalSearch() {
     return !(isCustomSearch() || isCustomView())
@@ -789,15 +757,12 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Convenience method to determine if a given property has
-   * a given value.
+   * Convenience method to determine if a given property has a given value.
    *
    * @param name property name never <code>null</code> or empty.
-   *
    * @param value value never <code>null</code> or empty.
-   *
-   * @return <code>true</code> if a property with <code>name</code>
-   *    has value <code>value</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if a property with <code>name</code> has value <code>value</code>,
+   *     <code>false</code> otherwise.
    */
   @SuppressWarnings("unchecked")
   public boolean doesPropertyHaveValue(String name, String value) {
@@ -824,11 +789,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Checks whether this search is allowed for supplied community or not.
    *
-   * @param communityId the community id to check, may not be <code>null</code>
-   * or empty.
-   *
-   * @return <code>true</code> if this display format is available for all
-   * communities or it is available for the supplied community id.
+   * @param communityId the community id to check, may not be <code>null</code> or empty.
+   * @return <code>true</code> if this display format is available for all communities or it is
+   *     available for the supplied community id.
    */
   public boolean isAllowedForCommunity(String communityId) {
     if (communityId == null || communityId.trim().length() == 0)
@@ -859,24 +822,21 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Add the supplied user or community only to have access to this search.
-   * Making a user as the owner of the search removes previous user or
-   * community as owners.
+   * Add the supplied user or community only to have access to this search. Making a user as the
+   * owner of the search removes previous user or community as owners.
    *
    * @param showTo one of the SHOW_TO_XXXX flags
-   * @param userOrCommunityId name of the user or community this search is
-   * visibile to. The following scheme is used to interpret this parameter:
-   *
-   * <ol>
-   * <li>Must not be <code>null</code>or empty if showTo parameter is
-   * {@link #SHOW_TO_USER}. In this case it is interpreted as user
-   * name.</li>
-   * <li>If showTo flag is {@link #SHOW_TO_COMMUNITY}, this value is
-   * interpreted as communityid. Also in this case, if this parameter is
-   * code>null</code> or empty it is assumed to be {@link #PROP_COMMUNITY_ALL}.</li>
-   * <li>If showTo flag is {@link #SHOW_TO_ALL_COMMUNITIES}, this values is be
-   * ignored and communityId is assumed to be {@link #PROP_COMMUNITY_ALL}.</li>
-   * </ol>
+   * @param userOrCommunityId name of the user or community this search is visibile to. The
+   *     following scheme is used to interpret this parameter:
+   *     <ol>
+   *       <li>Must not be <code>null</code>or empty if showTo parameter is {@link #SHOW_TO_USER}.
+   *           In this case it is interpreted as user name.
+   *       <li>If showTo flag is {@link #SHOW_TO_COMMUNITY}, this value is interpreted as
+   *           communityid. Also in this case, if this parameter is code>null</code> or empty it is
+   *           assumed to be {@link #PROP_COMMUNITY_ALL}.
+   *       <li>If showTo flag is {@link #SHOW_TO_ALL_COMMUNITIES}, this values is be ignored and
+   *           communityId is assumed to be {@link #PROP_COMMUNITY_ALL}.
+   *     </ol>
    */
   public void setShowTo(int showTo, String userOrCommunityId) {
     switch (showTo) {
@@ -911,12 +871,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Add the supplied communities only to have access to this search.
-   * Making a user as the owner of the search removes previous user or
-   * community as owners.
+   * Add the supplied communities only to have access to this search. Making a user as the owner of
+   * the search removes previous user or community as owners.
    *
-   * @param communities list of communities this search is visible to. Must
-   * not be <code>null</code> or empty.
+   * @param communities list of communities this search is visible to. Must not be <code>null</code>
+   *     or empty.
    */
   @SuppressWarnings("unchecked")
   public void setShowTo(Collection communities) {
@@ -928,17 +887,13 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Add the supplied community to the set of communities which have access
-   * to this search.
+   * Add the supplied community to the set of communities which have access to this search.
    *
-   * @param communityId To add a particular community, supply the community id
-   *    (not name), it will be added to the set of communities already
-   *    associated with this search. To allow anyone to access this search,
-   *    supply <code>null</code> or empty. Supplying <code>null</code> or
-   *    empty will clear all entries currently associated with this search.
-   *
-   * @deprecated use {@link #setShowTo(int,String)} or {@link #setShowTo(
-   * Collection)} instead.
+   * @param communityId To add a particular community, supply the community id (not name), it will
+   *     be added to the set of communities already associated with this search. To allow anyone to
+   *     access this search, supply <code>null</code> or empty. Supplying <code>null</code> or empty
+   *     will clear all entries currently associated with this search.
+   * @deprecated use {@link #setShowTo(int,String)} or {@link #setShowTo( Collection)} instead.
    */
   public void addCommunity(String communityId) {
     setShowTo(SHOW_TO_COMMUNITY, communityId);
@@ -948,7 +903,6 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Remove a supplied community.
    *
    * @param strCommunity never <code>null</code> or empty.
-   *
    */
   public void removeCommunity(String strCommunity) {
     if (strCommunity == null || strCommunity.trim().length() == 0)
@@ -961,10 +915,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Set the search property that indicates if an end user can customize fields
-   * in the user interface.
-   * @param isUserCustomizable <code>true</code> if end user can customize the
-   * search fields, otherwise <code>false</code>
+   * Set the search property that indicates if an end user can customize fields in the user
+   * interface.
+   *
+   * @param isUserCustomizable <code>true</code> if end user can customize the search fields,
+   *     otherwise <code>false</code>
    */
   public void setUserCustomizable(boolean isUserCustomizable) {
     String userCustomizable = BOOL_NO;
@@ -979,52 +934,48 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
 
   /**
    * Can the end user customize the search fields in the user interface?
-   * @return  <code>true</code> if end user can customize the search fields,
-   * otherwise <code>false</code>.
+   *
+   * @return <code>true</code> if end user can customize the search fields, otherwise <code>false
+   *     </code>.
    */
   public boolean isUserCustomizable() {
     return doesPropertyHaveValue(PROP_USER_CUSTOMIZABLE, BOOL_YES);
   }
 
   /**
-   * Convenience method that calls
-   * {@link #removeProperty(String, String, boolean)
-   * removeProperty(PROP_CX_NEWSEARCH, null, true)}. See
-   * {@link #setAsCXNewSearch(int[])} for a description of this property.
+   * Convenience method that calls {@link #removeProperty(String, String, boolean)
+   * removeProperty(PROP_CX_NEWSEARCH, null, true)}. See {@link #setAsCXNewSearch(int[])} for a
+   * description of this property.
    */
   public void clearCXNewSearch() {
     removeProperty(PROP_CX_NEWSEARCH, null, true);
   }
 
   /**
-   * Convenience method that calls
-   * {@link #removeProperty(String, String, boolean)
-   * removeProperty(PROP_AAD_NEWSEARCH, null, true)}. See
-   * {@link #setAsAADNewSearch(int[])} for a description of this property.
+   * Convenience method that calls {@link #removeProperty(String, String, boolean)
+   * removeProperty(PROP_AAD_NEWSEARCH, null, true)}. See {@link #setAsAADNewSearch(int[])} for a
+   * description of this property.
    */
   public void clearAADNewSearch() {
     removeProperty(PROP_AAD_NEWSEARCH, null, true);
   }
 
   /**
-   * The 'aad new search' is used to indicate that this search should be
-   * used when a user activates a new search from the "active assembly for
-   * documents" interface. The property is community specific. There can be 1
-   * search with this property for each community and there MUST be 1 search
-   * with this property assigned to all communities. If a search matching
-   * the current community is not found, then the one for all communities
-   * is used.
-   * <p>Sets this search as the active assembly new search for the supplied
-   * communities. The method is intelligent and will only cause this
-   * object to be modified if the supplied ids don't match the current ones.
+   * The 'aad new search' is used to indicate that this search should be used when a user activates
+   * a new search from the "active assembly for documents" interface. The property is community
+   * specific. There can be 1 search with this property for each community and there MUST be 1
+   * search with this property assigned to all communities. If a search matching the current
+   * community is not found, then the one for all communities is used.
    *
-   * @param communityIds The numeric keys of the communities to set. Provide
-   * {@link #ANY_COMMUNITY_ID} to make this the default search to use when
-   * no other search is specified for a particular community. Never
-   * <code>null</code> or empty. Use {@link #clearAADNewSearch()} to remove
-   * this setting.
-   * <p>ints are used rather than <code>String</code>s as a partial validation.
+   * <p>Sets this search as the active assembly new search for the supplied communities. The method
+   * is intelligent and will only cause this object to be modified if the supplied ids don't match
+   * the current ones.
    *
+   * @param communityIds The numeric keys of the communities to set. Provide {@link
+   *     #ANY_COMMUNITY_ID} to make this the default search to use when no other search is specified
+   *     for a particular community. Never <code>null</code> or empty. Use {@link
+   *     #clearAADNewSearch()} to remove this setting.
+   *     <p>ints are used rather than <code>String</code>s as a partial validation.
    * @see #isAADNewSearch()
    */
   public void setAsAADNewSearch(int[] communityIds) {
@@ -1045,24 +996,21 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * The 'cx new search' is used to indicate that this search should be
-   * used when a user activates a new search from the "content explorer"
-   * interface. The property is community specific. There can be 1
-   * search with this property for each community and there MUST be 1 search
-   * with this property assigned to all communities. If a search matching
-   * the current community is not found, then the one for all communities
-   * is used.
-   * <p>Sets this search as the content explorer new search for the supplied
-   * communities. The method is intelligent and will only cause this
-   * object to be modified if the supplied ids don't match the current ones.
+   * The 'cx new search' is used to indicate that this search should be used when a user activates a
+   * new search from the "content explorer" interface. The property is community specific. There can
+   * be 1 search with this property for each community and there MUST be 1 search with this property
+   * assigned to all communities. If a search matching the current community is not found, then the
+   * one for all communities is used.
    *
-   * @param communityIds The numeric keys of the communities to set. Provide
-   * {@link #ANY_COMMUNITY_ID} to make this the default search to use when
-   * no other search is specified for a particular community. Never
-   * <code>null</code> or empty. Use {@link #clearCXNewSearch()} to remove
-   * this setting.
-   * <p>ints are used rather than <code>String</code>s as a partial validation.
+   * <p>Sets this search as the content explorer new search for the supplied communities. The method
+   * is intelligent and will only cause this object to be modified if the supplied ids don't match
+   * the current ones.
    *
+   * @param communityIds The numeric keys of the communities to set. Provide {@link
+   *     #ANY_COMMUNITY_ID} to make this the default search to use when no other search is specified
+   *     for a particular community. Never <code>null</code> or empty. Use {@link
+   *     #clearCXNewSearch()} to remove this setting.
+   *     <p>ints are used rather than <code>String</code>s as a partial validation.
    * @see #isCXNewSearch()
    */
   public void setAsCXNewSearch(int[] communityIds) {
@@ -1083,36 +1031,32 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * A simple helper class that hides the actual method names used for
-   * checking if this is a new search of a particular type (CX or AAD) and
-   * clearing that property.
+   * A simple helper class that hides the actual method names used for checking if this is a new
+   * search of a particular type (CX or AAD) and clearing that property.
    *
    * @author paulhoward
    */
   private abstract class DefaultSearchConfigurator {
     /**
-     * Forwards the call to one of the is[type]NewSearch methods in this
-     * object.
+     * Forwards the call to one of the is[type]NewSearch methods in this object.
+     *
      * @return The value returned by the underlying call.
      */
     abstract boolean isNewSearch();
 
-    /**
-     * Forwards the call to one of the clear[type]NewSearch methods in this
-     * object.
-     */
+    /** Forwards the call to one of the clear[type]NewSearch methods in this object. */
     abstract void clearNewSearch();
   }
 
   /**
-   * Does the work for the {@link #setAsCXNewSearch(int[])} and
-   * {@link #setAsAADNewSearch(int[])} methods.
-   * @param type The name of the search property, assumed either
-   * {@link #PROP_CX_NEWSEARCH} or {@link #PROP_AAD_NEWSEARCH}.
-   * @param communityIds See aforementioned methods for description. Never
-   * <code>null</code> or empty. (Not assumed so callers don't need to
-   * duplicate this check).  If {@link #ANY_COMMUNITY_ID} is supplied, it is
-   * expected to be the first in the list.
+   * Does the work for the {@link #setAsCXNewSearch(int[])} and {@link #setAsAADNewSearch(int[])}
+   * methods.
+   *
+   * @param type The name of the search property, assumed either {@link #PROP_CX_NEWSEARCH} or
+   *     {@link #PROP_AAD_NEWSEARCH}.
+   * @param communityIds See aforementioned methods for description. Never <code>null</code> or
+   *     empty. (Not assumed so callers don't need to duplicate this check). If {@link
+   *     #ANY_COMMUNITY_ID} is supplied, it is expected to be the first in the list.
    */
   @SuppressWarnings("unchecked")
   private void setAsNewSearch(String type, int[] communityIds, DefaultSearchConfigurator dsc) {
@@ -1142,11 +1086,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isCXNewSearch(String) isCxNewSearch(ANY_COMMUNITY_ID_STRING)}.
+   * Convenience method that calls {@link #isCXNewSearch(String)
+   * isCxNewSearch(ANY_COMMUNITY_ID_STRING)}.
    *
-   * @return <code>true</code> if it's a content explorer new search,
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if it's a content explorer new search, otherwise <code>false</code>
    */
   public boolean isCXNewSearch() {
     return isCXNewSearch(PROP_COMMUNITY_ALL);
@@ -1155,13 +1098,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * See {@link #setAsCXNewSearch(int[])} for a description of this property.
    *
-   * @param communityId The numeric id of the community you are testing for.
-   * Never <code>null</code> or empty. Use {@link #ANY_COMMUNITY_ID}
-   * to check for the default search of this type.
-   *
-   * @return <code>true</code> if a match is found, <code>false</code>
-   * otherwise.
-   *
+   * @param communityId The numeric id of the community you are testing for. Never <code>null</code>
+   *     or empty. Use {@link #ANY_COMMUNITY_ID} to check for the default search of this type.
+   * @return <code>true</code> if a match is found, <code>false</code> otherwise.
    * @see #getNewSearchCommunities(String)
    */
   public boolean isCXNewSearch(String communityId) {
@@ -1176,45 +1115,38 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Gets all the communities for which this search has been registered as
-   * the default cx new-search search. This method should be called rather
-   * than accessing the property directly as it handles backwards compatibility
-   * issues.
+   * Gets all the communities for which this search has been registered as the default cx new-search
+   * search. This method should be called rather than accessing the property directly as it handles
+   * backwards compatibility issues.
    *
-   * @return Never <code>null</code>. If this search is not registered as
-   * a default, an empty array is returned. Otherwise, the array contains
-   * a set of community numeric identifiers. {@link #PROP_COMMUNITY_ALL}
-   * in the array means that this is used if no search exists that is
-   * assigned to the user's community.
+   * @return Never <code>null</code>. If this search is not registered as a default, an empty array
+   *     is returned. Otherwise, the array contains a set of community numeric identifiers. {@link
+   *     #PROP_COMMUNITY_ALL} in the array means that this is used if no search exists that is
+   *     assigned to the user's community.
    */
   public String[] getCXNewSearchCommunities() {
     return getNewSearchCommunities(PROP_CX_NEWSEARCH);
   }
 
   /**
-   * Gets all the communities for which this search has been registered as
-   * the default active assembly new-search search. This method should be
-   * called rather than accessing the property directly as it handles
-   * backwards compatibility issues.
+   * Gets all the communities for which this search has been registered as the default active
+   * assembly new-search search. This method should be called rather than accessing the property
+   * directly as it handles backwards compatibility issues.
    *
-   * @return Never <code>null</code>. If this search is not registered as
-   * a default, an empty array is returned. Otherwise, the array contains
-   * a set of community numeric identifiers. {@link #PROP_COMMUNITY_ALL}
-   * in the array means that this is used if no search exists that is
-   * assigned to the user's community.
+   * @return Never <code>null</code>. If this search is not registered as a default, an empty array
+   *     is returned. Otherwise, the array contains a set of community numeric identifiers. {@link
+   *     #PROP_COMMUNITY_ALL} in the array means that this is used if no search exists that is
+   *     assigned to the user's community.
    */
   public String[] getAADNewSearchCommunities() {
     return getNewSearchCommunities(PROP_AAD_NEWSEARCH);
   }
 
   /**
-   * The class the does the work for {@link #getCXNewSearchCommunities()}
-   * and {@link #getAADNewSearchCommunities()}. See those methods for a
-   * description.
+   * The class the does the work for {@link #getCXNewSearchCommunities()} and {@link
+   * #getAADNewSearchCommunities()}. See those methods for a description.
    *
-   * @param type Assumed either {@link #PROP_AAD_NEWSEARCH} or
-   * {@link #PROP_CX_NEWSEARCH}.
-   *
+   * @param type Assumed either {@link #PROP_AAD_NEWSEARCH} or {@link #PROP_CX_NEWSEARCH}.
    * @return See referenced methods for description.
    */
   private String[] getNewSearchCommunities(String type) {
@@ -1231,12 +1163,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * See {@link #setAsAADNewSearch(int[])} for a description of this property.
    *
-   * @param communityId The numeric id of the community you are testing for.
-   * Never <code>null</code> or empty. Use {@link #ANY_COMMUNITY_ID}
-   * to check for the default search of this type.
-   *
-   * @return <code>true</code> if a match is found, <code>false</code>
-   * otherwise.
+   * @param communityId The numeric id of the community you are testing for. Never <code>null</code>
+   *     or empty. Use {@link #ANY_COMMUNITY_ID} to check for the default search of this type.
+   * @return <code>true</code> if a match is found, <code>false</code> otherwise.
    */
   public boolean isAADNewSearch(String communityId) {
     if (null == communityId) {
@@ -1250,8 +1179,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isAADNewSearch(String) isAADNewSearch(ANY_COMMUNITY_ID_STRING)}.
+   * Convenience method that calls {@link #isAADNewSearch(String)
+   * isAADNewSearch(ANY_COMMUNITY_ID_STRING)}.
    */
   public boolean isAADNewSearch() {
     return isAADNewSearch(PROP_COMMUNITY_ALL);
@@ -1337,15 +1266,13 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Convenience method that calls {@link #getPropertyValues(String)
-   * getPropertyValues(strName)} and converts the results to a single
-   * <code>String</code>.
+   * Convenience method that calls {@link #getPropertyValues(String) getPropertyValues(strName)} and
+   * converts the results to a single <code>String</code>.
    *
    * @param strName The name, may be <code>null</code> or empty.
-   *
-   * @return <code>null</code> if property not found, otherwise if the
-   * property is single-valued, its value, otherwise, if the property is
-   * multi-valued, all values concatenated together using a comma separator.
+   * @return <code>null</code> if property not found, otherwise if the property is single-valued,
+   *     its value, otherwise, if the property is multi-valued, all values concatenated together
+   *     using a comma separator.
    */
   public String getProperty(String strName) {
     String[] results = getPropertyValues(strName);
@@ -1362,12 +1289,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convience method to get a property's value.
    *
-   * @param strName the name of the property, a case-insensitive
-   *    match is performed.  May be <code>null</code> or empty.
-   *
-   * @return Value(s) of the property, Returns <code>null</code> if
-   *    property does not exist or supplied property name is
-   *    <code>null</code> or empty.
+   * @param strName the name of the property, a case-insensitive match is performed. May be <code>
+   *     null</code> or empty.
+   * @return Value(s) of the property, Returns <code>null</code> if property does not exist or
+   *     supplied property name is <code>null</code> or empty.
    */
   @SuppressWarnings("unchecked")
   public String[] getPropertyValues(String strName) {
@@ -1397,9 +1322,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Whether or not this display format has a certain property
    *
    * @param strName The property name, may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the property exists, otherwise
-   *    <code>false</code>.
+   * @return <code>true</code> if the property exists, otherwise <code>false</code>.
    */
   @SuppressWarnings("unchecked")
   public boolean hasProperty(String strName) {
@@ -1426,22 +1349,18 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Removes a single-valued property from this object or one value from a
-   * multi-valued property. The entire multi-valued property can be removed
-   * as well by providing <code>null</code> for the value.
+   * Removes a single-valued property from this object or one value from a multi-valued property.
+   * The entire multi-valued property can be removed as well by providing <code>null</code> for the
+   * value.
    *
-   * @param strName the name of the property, a case-insensitive
-   *    match is performed. Never <code>null</code> or empty.
-   *
-   * @param strValue the value to remove for multi-valued properties. May be
-   * <code>null</code> or empty. Ignored unless <code>bMulti</code> is
-   * <code>true</code>.
-   *
-   * @param bMulti if <code>true</code> this represents a multi-valued
-   * property. In this case, if <code>strValue</code> is not <code>null</code>,
-   * a value by that name is removed. If it is <code>null</code>, then the
-   * property is removed from this object (the same behavior as for single
-   * valued properties).
+   * @param strName the name of the property, a case-insensitive match is performed. Never <code>
+   *     null</code> or empty.
+   * @param strValue the value to remove for multi-valued properties. May be <code>null</code> or
+   *     empty. Ignored unless <code>bMulti</code> is <code>true</code>.
+   * @param bMulti if <code>true</code> this represents a multi-valued property. In this case, if
+   *     <code>strValue</code> is not <code>null</code>, a value by that name is removed. If it is
+   *     <code>null</code>, then the property is removed from this object (the same behavior as for
+   *     single valued properties).
    */
   @SuppressWarnings("unchecked")
   public void removeProperty(String strName, String strValue, boolean bMulti) {
@@ -1512,8 +1431,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get the description attribute.
    *
-   * @return description never <code>null</code>
-   *    may be empty.
+   * @return description never <code>null</code> may be empty.
    */
   @Override
   public String getDescription() {
@@ -1523,8 +1441,7 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Set the description attribute.
    *
-   * @param str may be <code>null</code> to
-   *    specify the empty string.
+   * @param str may be <code>null</code> to specify the empty string.
    */
   public void setDescription(String str) {
     if (str == null) str = "";
@@ -1544,8 +1461,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Get the url attribute.
    *
-   * @return the custom url, <code>null</code> if this is not a custom
-   *    search. Otherwise its never <code>null</code> but may be empty.
+   * @return the custom url, <code>null</code> if this is not a custom search. Otherwise its never
+   *     <code>null</code> but may be empty.
    */
   public String getUrl() {
     return m_url;
@@ -1554,19 +1471,18 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * See {@link #setCaseSensitive(boolean)} for details.
    *
-   * @return <code>true</code> if the text data shold be compared in
-   * case-sensitive manner, <code>false</code> otherwise.
+   * @return <code>true</code> if the text data shold be compared in case-sensitive manner, <code>
+   *     false</code> otherwise.
    */
   public boolean isCaseSensitive() {
     return m_isCaseSensitive;
   }
 
   /**
-   * Sets whether the search should treat the text data in case-sensitve
-   * manner or not.
+   * Sets whether the search should treat the text data in case-sensitve manner or not.
    *
-   * @param flag <code>true</code> if the text data shold be compared in
-   * case-sensitive manner, <code>false</code> otherwise.
+   * @param flag <code>true</code> if the text data shold be compared in case-sensitive manner,
+   *     <code>false</code> otherwise.
    */
   public void setCaseSensitive(boolean flag) {
     if (m_isCaseSensitive == flag) return;
@@ -1576,17 +1492,15 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Parses all parameters from the supplied url and fills them into the
-   * supplied map as name/value pairs of <code>String</code> objects.
+   * Parses all parameters from the supplied url and fills them into the supplied map as name/value
+   * pairs of <code>String</code> objects.
    *
    * @param url the url to parse, may be <code>null</code> or empty.
-   * @param params the map into which to fill in the url parameters,
-   *    may be <code>null</code> or empty. If <code>null</code> is supplied,
-   *    a new <code>HashMap</code> will be created. After this call the
-   *    supplied map is never <code>null</code> but may be empty.
-   * @return the map that was supplied or a new <code>HashMap</code> if
-   *    <code>null</code> was supplied with all query parameters filled in,
-   *    never <code>null</code>, may be empty.
+   * @param params the map into which to fill in the url parameters, may be <code>null</code> or
+   *     empty. If <code>null</code> is supplied, a new <code>HashMap</code> will be created. After
+   *     this call the supplied map is never <code>null</code> but may be empty.
+   * @return the map that was supplied or a new <code>HashMap</code> if <code>null</code> was
+   *     supplied with all query parameters filled in, never <code>null</code>, may be empty.
    */
   @SuppressWarnings("unchecked")
   public static Map parseParameters(String url, Map params) {
@@ -1616,9 +1530,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
    * Set the resource url attribute.
    *
    * @param url Never <code>null</code> or empty. Must be of the form ???
-   *
-   * @throws IllegalStateException If called on a non-custom search (i.e.,
-   *    the isCustomApp() method returns <code>false</code>).
+   * @throws IllegalStateException If called on a non-custom search (i.e., the isCustomApp() method
+   *     returns <code>false</code>).
    */
   public void setUrl(String url) {
     // TODO What are the limitations on the 'url' param?
@@ -1727,8 +1640,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Overriden to determine if it's child list are modified as well.
-   * See {@link PSDbComponent#getState() base class} for description.
+   * Overriden to determine if it's child list are modified as well. See {@link
+   * PSDbComponent#getState() base class} for description.
    */
   @Override
   public int getState() {
@@ -1749,19 +1662,16 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * A flag that indicates whether the results for this search come from a
-   * custom application or from web services.
+   * A flag that indicates whether the results for this search come from a custom application or
+   * from web services.
    *
-   * @return <code>true</code> if this search is a custom application
-   *    otherwise <code>false</code>
+   * @return <code>true</code> if this search is a custom application otherwise <code>false</code>
    */
   public boolean isCustomApp() {
     return m_isCustom;
   }
 
-  /**
-   * Override to deal with all child components.
-   */
+  /** Override to deal with all child components. */
   @Override
   public void markForDeletion() {
     super.markForDeletion();
@@ -1771,8 +1681,9 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
 
   /**
    * Get the visibility flag for this search object.
-   * @return one of the SHOW_TO_XXXX flags to inidcate the search is visible
-   * to the current user, current community or all communities.
+   *
+   * @return one of the SHOW_TO_XXXX flags to inidcate the search is visible to the current user,
+   *     current community or all communities.
    */
   public int getShowTo() {
     // If the search has a property "sys_username" means it is visible to the
@@ -1789,11 +1700,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Get the property names that are used by the rhythmyx server.  All other
-   * properties are passed thru to the external search engine.
+   * Get the property names that are used by the rhythmyx server. All other properties are passed
+   * thru to the external search engine.
    *
-   * @return A read-only collection of property names, never <code>null</code>
-   * or empty.
+   * @return A read-only collection of property names, never <code>null</code> or empty.
    */
   @SuppressWarnings("unchecked")
   public Collection getInternalPropertyNames() {
@@ -1801,9 +1711,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Converts this search to an internal search if
-   * {@link #useExternalSearch()} returns <code>true</code>, otherwise
-   * simply returns.
+   * Converts this search to an internal search if {@link #useExternalSearch()} returns <code>true
+   * </code>, otherwise simply returns.
    */
   @SuppressWarnings("unchecked")
   public void convertToInternal() {
@@ -1827,12 +1736,11 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Sets a list of allowed communites from the supplied all communities.
-   * This is a transient data and will not be saved into the persistent layer.
+   * Sets a list of allowed communites from the supplied all communities. This is a transient data
+   * and will not be saved into the persistent layer.
    *
-   * @param allCommunities a list of all communites, never <code>null</code>,
-   *   but may be empty. It maps the GUID of the communities to their names.
-   *
+   * @param allCommunities a list of all communites, never <code>null</code>, but may be empty. It
+   *     maps the GUID of the communities to their names.
    * @see #getAllowedCommunities()
    */
   public void setAllowedCommunities(Map<IPSGuid, String> allCommunities) {
@@ -1854,25 +1762,19 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Gets a list of allowed communities, which is a transient data and will not
-   * be saved into the persistent layer. Must call
-   * {@link #setAllowedCommunities(Map)} first and must not modify the
+   * Gets a list of allowed communities, which is a transient data and will not be saved into the
+   * persistent layer. Must call {@link #setAllowedCommunities(Map)} first and must not modify the
    * properties afterwards.
    *
-   * @return a list of allowed communities, which maps the communities
-   *    GUIDs to their names. It may be <code>null</code> if has not been set
-   *    by {@link #setAllowedCommunities(Map)}.
-   *
+   * @return a list of allowed communities, which maps the communities GUIDs to their names. It may
+   *     be <code>null</code> if has not been set by {@link #setAllowedCommunities(Map)}.
    * @see #setAllowedCommunities(Map)
    */
   public Map<IPSGuid, String> getAllowedCommunities() {
     return m_allowedCommunities;
   }
 
-  /**
-   * Resets the allowed community list. This must be called when modifying
-   * the properties.
-   */
+  /** Resets the allowed community list. This must be called when modifying the properties. */
   private void resetAllowedCommunities() {
     m_allowedCommunities = null;
   }
@@ -1900,40 +1802,33 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * A list of allowed communities. It is a transient object and is not
-   * considered as part of the object. It is typically used by the
-   * webservice layer to get name/id pairs of the allowed communities.
-   * <p>
-   * It is set by {@link #setAllowedCommunities(Map)} and unsetted by any of
-   * the property changes. It is <code>null</code> if has not set yet.
+   * A list of allowed communities. It is a transient object and is not considered as part of the
+   * object. It is typically used by the webservice layer to get name/id pairs of the allowed
+   * communities.
+   *
+   * <p>It is set by {@link #setAllowedCommunities(Map)} and unsetted by any of the property
+   * changes. It is <code>null</code> if has not set yet.
    */
   Map<IPSGuid, String> m_allowedCommunities = null;
 
-  /**
-   * Valid values and its names from the {@link #getParentCategory()}
-   */
+  /** Valid values and its names from the {@link #getParentCategory()} */
   public enum ParentCategory {
     MY_CONTENT(1, "myContent"),
     COMMUNITY_CONTENT(2, "communityContent"),
     ALL_CONTENT(3, "allContent"),
     OTHER_CONTENT(4, "otherContent");
 
-    /**
-     * The numeric value of the object, starts from <code>1</code>.
-     */
+    /** The numeric value of the object, starts from <code>1</code>. */
     private int m_id;
 
-    /**
-     * The name of the object, never <code>null</code> or empty.
-     */
+    /** The name of the object, never <code>null</code> or empty. */
     private String m_name;
 
     /**
      * Creates an object from the given id and name.
      *
      * @param id the numeric value of the created object.
-     * @param name the name of the object, it may not be <code>null</code>
-     *    or empty.
+     * @param name the name of the object, it may not be <code>null</code> or empty.
      */
     private ParentCategory(int id, String name) {
       if (name == null || name.trim().length() == 0)
@@ -1966,59 +1861,49 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public static final int UNLIMITED_MAX = -1;
 
   /**
-   * String constant representing the type "View". A view is a query based on
-   * a set of search fields and values (parameters ) and cannot be modified in
-   * any way by the end user. The only control he has has is to change display
-   * format but not the content in the view. Views are further categorized into
-   * two groups, namely, Custom Views and Standard Views. The content in the
-   * Custom views is the result of executing a specified Rhythmyx URL. On the
-   * otherhand the content in a Standard View is the result of executing a web
-   * services request known to the client system.
+   * String constant representing the type "View". A view is a query based on a set of search fields
+   * and values (parameters ) and cannot be modified in any way by the end user. The only control he
+   * has has is to change display format but not the content in the view. Views are further
+   * categorized into two groups, namely, Custom Views and Standard Views. The content in the Custom
+   * views is the result of executing a specified Rhythmyx URL. On the otherhand the content in a
+   * Standard View is the result of executing a web services request known to the client system.
    */
   public static final String TYPE_VIEW = "View";
 
   /**
-   * String constant representing the type "User Search". A user search is a
-   * query based on a set of search fields and values (parameters ) in that an
-   * end usr can customize to include addtional fields or to remove existing
-   * fields and change the query parameter values.
+   * String constant representing the type "User Search". A user search is a query based on a set of
+   * search fields and values (parameters ) in that an end usr can customize to include addtional
+   * fields or to remove existing fields and change the query parameter values.
    */
   public static final String TYPE_USERSEARCH = "Search";
 
   /**
-   * String constant representing the type "Related Content Search". An RC
-   * Search is a query based on a set of search fields and values (parameters )
-   * in that an end usr can customize to include addtional fields or to remove
-   * existing fields and change the query parameter values. This type of search
-   * must inlcude two special fields,namely content type id and variant id.
+   * String constant representing the type "Related Content Search". An RC Search is a query based
+   * on a set of search fields and values (parameters ) in that an end usr can customize to include
+   * addtional fields or to remove existing fields and change the query parameter values. This type
+   * of search must inlcude two special fields,namely content type id and variant id.
    */
   public static final String TYPE_RCSEARCH = "RCSearch";
 
   /**
-   * String constant representing the type "Standard Search". A Standard Search
-   * is a query based on a set of search fields and values (parameters )
-   * in that an end user can change the query parameter values. He may also be
-   * able to customize search fields to include addtional fields or to remove
-   * existing fields depending on the way implementer sets up the search. The
-   * content in a Standard Search the result of executing a web service
-   * request known to the client system.
+   * String constant representing the type "Standard Search". A Standard Search is a query based on
+   * a set of search fields and values (parameters ) in that an end user can change the query
+   * parameter values. He may also be able to customize search fields to include addtional fields or
+   * to remove existing fields depending on the way implementer sets up the search. The content in a
+   * Standard Search the result of executing a web service request known to the client system.
    */
   public static final String TYPE_STANDARDSEARCH = "StandardSearch";
 
   /**
-   * String constant representing the type "Custom Search". A Custom Search  is
-   * a query based on a set of search fields and values (parameters )
-   * in that an end user can never customize to include addtional fields or to
-   * remove existing fields but change the query parameter values. The content
-   * in a Custom Search the result of executing a specified Rhythmyx URL
-   * specially built for this purpose.
+   * String constant representing the type "Custom Search". A Custom Search is a query based on a
+   * set of search fields and values (parameters ) in that an end user can never customize to
+   * include addtional fields or to remove existing fields but change the query parameter values.
+   * The content in a Custom Search the result of executing a specified Rhythmyx URL specially built
+   * for this purpose.
    */
   public static final String TYPE_CUSTOMSEARCH = "CustomSearch";
 
-  /**
-   * Contains all of the allowed values that can be used w/ getType and
-   * setType.
-   */
+  /** Contains all of the allowed values that can be used w/ getType and setType. */
   private static final String[] TYPES_ENUM = {
     TYPE_VIEW, TYPE_USERSEARCH, TYPE_RCSEARCH, TYPE_STANDARDSEARCH, TYPE_CUSTOMSEARCH
   };
@@ -2029,9 +1914,8 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public static final String PROP_COMMUNITY_ALL = PSDisplayFormat.PROP_COMMUNITY_ALL;
 
   /**
-   * This property specifies whether a search or view is customizable by the
-   * end user. Allowed values are {@link #BOOL_YES} or {@link #BOOL_NO},
-   * defaults to {@link #BOOL_NO}.
+   * This property specifies whether a search or view is customizable by the end user. Allowed
+   * values are {@link #BOOL_YES} or {@link #BOOL_NO}, defaults to {@link #BOOL_NO}.
    */
   public static final String PROP_USER_CUSTOMIZABLE = "userCustomizable";
 
@@ -2040,111 +1924,87 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public static final String PROP_FULLTEXTQUERY = "FullTextQuery";
 
   /**
-   * Property to allow a search to override any max search results specified in
-   * the global search configuration in the server configuration. If this
-   * property is specified with a value of {@link #BOOL_YES}, then the max
-   * results setting of this search is used, otherwise the global maximum is in
-   * effect (note that the max results value specified by this search is still
-   * used if it is less than the global max or if the gobal max is not
-   * specified).
+   * Property to allow a search to override any max search results specified in the global search
+   * configuration in the server configuration. If this property is specified with a value of {@link
+   * #BOOL_YES}, then the max results setting of this search is used, otherwise the global maximum
+   * is in effect (note that the max results value specified by this search is still used if it is
+   * less than the global max or if the gobal max is not specified).
    */
   public static final String PROP_OVERRIDE_GLOBAL_MAX_RESULTS = "overrideGlobalMaxResults";
 
   /**
-   * Constant to be used with the {@link #setAsCXNewSearch(int[])} and
-   * {@link #setAsAADNewSearch(int[])}. Is the numeric identifier that
-   * indicates this search is the default search to be used if no other
-   * search has the property set for the user's community.
+   * Constant to be used with the {@link #setAsCXNewSearch(int[])} and {@link
+   * #setAsAADNewSearch(int[])}. Is the numeric identifier that indicates this search is the default
+   * search to be used if no other search has the property set for the user's community.
    */
   public static final int ANY_COMMUNITY_ID = Integer.parseInt(PROP_COMMUNITY_ALL);
 
   /**
-   * Property to define the search mode.  Current possible values are
-   * {@link #SEARCH_MODE_SIMPLE} and {@link #SEARCH_MODE_ADVANCED}.
+   * Property to define the search mode. Current possible values are {@link #SEARCH_MODE_SIMPLE} and
+   * {@link #SEARCH_MODE_ADVANCED}.
    */
   public static final String PROP_SEARCH_MODE = "searchMode";
 
   /**
-   * Value for the {@link #PROP_SEARCH_MODE} property to indicate a simple
-   * search is to be performed.  This means that any search fields are to be
-   * ignored, and only the full text query string is to be used.
+   * Value for the {@link #PROP_SEARCH_MODE} property to indicate a simple search is to be
+   * performed. This means that any search fields are to be ignored, and only the full text query
+   * string is to be used.
    */
   public static final String SEARCH_MODE_SIMPLE = "simple";
 
   /**
-   * Value for the {@link #PROP_SEARCH_MODE} property to indicate an advanced
-   * search is to be performed.  This means that any search fields are to be
-   * included as well any full text query string.
+   * Value for the {@link #PROP_SEARCH_MODE} property to indicate an advanced search is to be
+   * performed. This means that any search fields are to be included as well any full text query
+   * string.
    */
   public static final String SEARCH_MODE_ADVANCED = "advanced";
 
   /**
-   * Property to define search type.  Used to indicate what search ui should be
-   * used to edit the search properties.  Possible values are defined by the
-   * <code>SEARCH_ENGINE_TYPE_XXX</code> constants, defaulting to
-   * {@link #SEARCH_ENGINE_TYPE_INTERNAL} if not defined.
+   * Property to define search type. Used to indicate what search ui should be used to edit the
+   * search properties. Possible values are defined by the <code>SEARCH_ENGINE_TYPE_XXX</code>
+   * constants, defaulting to {@link #SEARCH_ENGINE_TYPE_INTERNAL} if not defined.
    */
   public static final String PROP_SEARCH_ENGINE_TYPE = "searchEngineType";
 
   /**
-   * The name of the search property used to store the folder path or folder id
-   * if a search is to be folder limited. An empty value is equivalent to
-   * absence of the property.
+   * The name of the search property used to store the folder path or folder id if a search is to be
+   * folder limited. An empty value is equivalent to absence of the property.
    */
   public static final String PROP_FOLDER_PATH = "folderPath";
 
   /**
-   * The name of the search property used to store the flag that indicates
-   * whether to include the sub-folders in the search as well. Only used
-   * if the {@link #PROP_FOLDER_PATH} property is present. Its value should
-   * be either <code>true</code> or <code>false</code>, case insensitive. If
-   * not <code>false</code>, <code>true</code> is assumed.
+   * The name of the search property used to store the flag that indicates whether to include the
+   * sub-folders in the search as well. Only used if the {@link #PROP_FOLDER_PATH} property is
+   * present. Its value should be either <code>true</code> or <code>false</code>, case insensitive.
+   * If not <code>false</code>, <code>true</code> is assumed.
    */
   public static final String PROP_FOLDER_PATH_RECURSE = "includeSubFolders";
 
-  /**
-   * Constant for Convera search engine property name query type
-   */
+  /** Constant for Convera search engine property name query type */
   public static final String PROP_QUERYTYPE = "querytype";
 
-  /**
-   * Constant for boolean query type property value.
-   */
+  /** Constant for boolean query type property value. */
   public static final String QT_BOOLEAN = "16";
 
-  /**
-   * Constant for concept query type property value.
-   */
+  /** Constant for concept query type property value. */
   public static final String QT_CONCEPT = "32";
 
-  /**
-   * Constant for pattern query type property value.
-   */
+  /** Constant for pattern query type property value. */
   public static final String QT_PATTERN = "64";
 
-  /**
-   * Constant for Convera search eninge property name expansion level
-   */
+  /** Constant for Convera search eninge property name expansion level */
   public static final String PROP_EXPANSIONLEVEL = "expansionlevel";
 
-  /**
-   * This is the property name used to transfer the 'Filter with' text.
-   */
+  /** This is the property name used to transfer the 'Filter with' text. */
   public static final String PROP_BODYFILTER = "bodyfilter";
 
-  /**
-   * Property to indicate search is executed by the internal search engine.
-   */
+  /** Property to indicate search is executed by the internal search engine. */
   public static final String SEARCH_ENGINE_TYPE_INTERNAL = "internal";
 
-  /**
-   * Property to indicate search is executed by the external search engine.
-   */
+  /** Property to indicate search is executed by the external search engine. */
   public static final String SEARCH_ENGINE_TYPE_EXTERNAL = "external";
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "PSXSearch";
 
   public static final String XML_NODE_DISPLAYNAME = "DISPLAYNAME";
@@ -2169,16 +2029,10 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   public static final int TYPE_LENGTH = 255;
   public static final int DESCRIPTION_LENGTH = 255;
 
-  /**
-   * property list, initialized in ctor, never <code>null</code>, may be
-   * empty.
-   */
+  /** property list, initialized in ctor, never <code>null</code>, may be empty. */
   private PSSProperties m_properties;
 
-  /**
-   * fields list, initialized in ctor, never <code>null</code>, may be
-   * empty.
-   */
+  /** fields list, initialized in ctor, never <code>null</code>, may be empty. */
   private PSSFields m_fields;
 
   /**
@@ -2194,108 +2048,95 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
   private String m_strDisplayName = "";
 
   /**
-   * Foreign key of display id for this search, initialized in definition,
-   * never <code>null</code> or empty
+   * Foreign key of display id for this search, initialized in definition, never <code>null</code>
+   * or empty
    */
   private String m_strDisplayId = "";
 
   /**
-   * Parent category of this search. Initialized in definition, defaults
-   * to {@link ParentCategory#MY_CONTENT}.
+   * Parent category of this search. Initialized in definition, defaults to {@link
+   * ParentCategory#MY_CONTENT}.
    */
   private int m_nParentCat = ParentCategory.MY_CONTENT.getId();
 
-  /**
-   * See {@link #getType()} for details. Always one of the TYPE_xxx values.
-   */
+  /** See {@link #getType()} for details. Always one of the TYPE_xxx values. */
   private String m_strType = TYPE_USERSEARCH;
 
-  /**
-   * Internal name of search, initialized in definition, never
-   * <code>null</code> or empty.
-   */
+  /** Internal name of search, initialized in definition, never <code>null</code> or empty. */
   private String m_strInternalName = "";
 
   /**
-   * The url used to get the results if they are obtained from a custom
-   * application. Only used/saved if <code>m_isCustom</code> is
-   * <code>true</code>. Is <code>null</code> if this is a standard view, never
-   * <code>null</code> or empty if a custom view.
+   * The url used to get the results if they are obtained from a custom application. Only used/saved
+   * if <code>m_isCustom</code> is <code>true</code>. Is <code>null</code> if this is a standard
+   * view, never <code>null</code> or empty if a custom view.
    */
   private String m_url = null;
 
   /**
-   * Maximum number of entries returned via this search, initialized in
-   * definition, defaults to <code>DEFAULT_MAX</code>
+   * Maximum number of entries returned via this search, initialized in definition, defaults to
+   * <code>DEFAULT_MAX</code>
    */
   private int m_nMaxResults = DEFAULT_MAX;
 
   /**
-   * N.B. The following context parameters are hard coded for
-   * now as they currently are not in an application.
+   * N.B. The following context parameters are hard coded for now as they currently are not in an
+   * application.
+   *
    * @todo move the applet context parameters to an application
    */
 
   /**
-   * The parameter to define the applet is in debug mode or not. The allowed
-   * values are 'TRUE' or 'FALSE'. The default is 'FALSE'.
+   * The parameter to define the applet is in debug mode or not. The allowed values are 'TRUE' or
+   * 'FALSE'. The default is 'FALSE'.
    */
   public static final String PARAM_DEBUG = "DEBUG";
 
   /**
-   * The parameter that defines the view that this instance of the applet
-   * should represent. The value must be one of the <code>
-   * PSUiMode.TYPE_VIEW_xxx</code> values. If this parameter is not suppled, it
-   * assumes 'CX' view.
+   * The parameter that defines the view that this instance of the applet should represent. The
+   * value must be one of the <code>
+   * PSUiMode.TYPE_VIEW_xxx</code> values. If this parameter is not suppled, it assumes 'CX' view.
    */
   public static final String PARAM_VIEW = "VIEW";
 
   /**
-   * The parameter that defines a url to get menu xml. If this is not supplied
-   * it assumes defaults for each view.
+   * The parameter that defines a url to get menu xml. If this is not supplied it assumes defaults
+   * for each view.
    */
   public static final String PARAM_MENU_URL = "MENU_URL";
 
   /**
-   * The parameter that defines a url to get navigational tree xml for 'CX' or
-   * 'IA' views. If this is not supplied for 'CX' view, loads the xml as
-   * defined by the file <code>CE_NAV_XML</code>, for IA view raises an
-   * exception.
+   * The parameter that defines a url to get navigational tree xml for 'CX' or 'IA' views. If this
+   * is not supplied for 'CX' view, loads the xml as defined by the file <code>CE_NAV_XML</code>,
+   * for IA view raises an exception.
    */
   public static final String PARAM_NAV_URL = "NAV_URL";
 
   /**
-   * The parameter that defines a url to get all possible relations an item can
-   * have. If not supplied uses
+   * The parameter that defines a url to get all possible relations an item can have. If not
+   * supplied uses
    */
   public static final String PARAM_RS_URL = "RELATIONS_URL";
 
   /**
-   * The parameter that defines the relationship to be selected by default in
-   * 'DT' view when the applet is loaded.
+   * The parameter that defines the relationship to be selected by default in 'DT' view when the
+   * applet is loaded.
    */
   public static final String PARAM_INITIAL_RS = "INITIAL_RS";
 
-  /**
-   * The parameter that defines a url to get ancestors of an item for a
-   * particular relationship.
-   */
+  /** The parameter that defines a url to get ancestors of an item for a particular relationship. */
   public static final String PARAM_ANC_URL = "ANCESTOR_URL";
 
   /**
-   * The parameter that defines a url to get descendants of an item for a
-   * particular relationship.
+   * The parameter that defines a url to get descendants of an item for a particular relationship.
    */
   public static final String PARAM_DESC_URL = "DESCENDANT_URL";
 
-  /**
-   * The parameter that defines a url to get options.
-   */
+  /** The parameter that defines a url to get options. */
   public static final String PARAM_OPTIONS_URL = "OPTIONS_URL";
 
   /**
-   * N.B. The following context parameters are hard coded for
-   * now as they currently are not in an application.
+   * N.B. The following context parameters are hard coded for now as they currently are not in an
+   * application.
    */
   public static final String[] CONTEXT_PARAMS_LIST =
       new String[] {
@@ -2312,81 +2153,70 @@ public class PSSearch extends PSVersionableDbComponent implements IPSCatalogSumm
       };
 
   /**
-   * List of properties that cannot be modifed over the life cycle
-   * of this object. Initialized in definition, setup with elements in ctor,
-   * never <code>null</code>.
+   * List of properties that cannot be modifed over the life cycle of this object. Initialized in
+   * definition, setup with elements in ctor, never <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   private List m_nonEditableProps = new ArrayList();
 
   /**
-   * A flag to indicate whether this search of type custom view that should
-   * contain a url that is used to obtain the results as opposed to using
-   * web-services. Set in ctor by caller, {@link #setCustom(boolean)} or in
-   * fromXml based on the presence of a url in the serialized form.
+   * A flag to indicate whether this search of type custom view that should contain a url that is
+   * used to obtain the results as opposed to using web-services. Set in ctor by caller, {@link
+   * #setCustom(boolean)} or in fromXml based on the presence of a url in the serialized form.
    */
   private boolean m_isCustom = false;
 
   /**
-   * A monotonically incrementing value used to uniquify the names assigned
-   * to newly created searches. After using, it should be incremented by 1.
+   * A monotonically incrementing value used to uniquify the names assigned to newly created
+   * searches. After using, it should be incremented by 1.
    */
   private static int ms_nameSuffix = 1;
 
   /**
-   * Stores the case sensitivity of the search. If <code>true</code> then
-   * the text data is compared in case-sensitive manner, otherwise not.
-   * Defaults to <code>false</code>. Modified in the
-   * <code>setCaseSensiti()</code> method.
+   * Stores the case sensitivity of the search. If <code>true</code> then the text data is compared
+   * in case-sensitive manner, otherwise not. Defaults to <code>false</code>. Modified in the <code>
+   * setCaseSensiti()</code> method.
    */
   private boolean m_isCaseSensitive = false;
 
-  /**
-   * Constatnt for character representation of the boolean "yes".
-   */
+  /** Constatnt for character representation of the boolean "yes". */
   public static final String BOOL_YES = "y";
 
-  /**
-   * Constatnt for character representation of the boolean "no".
-   */
+  /** Constatnt for character representation of the boolean "no". */
   public static final String BOOL_NO = "n";
 
-  /**
-   * Constatnt for new search context for Content Explorer.
-   */
+  /** Constatnt for new search context for Content Explorer. */
   public static final String CX_NEW_SEARCH = "CXNEWSEARCH";
 
-  /**
-   * Constatnt for new search context for Active Assembly for Documents.
-   */
+  /** Constatnt for new search context for Active Assembly for Documents. */
   public static final String AAD_NEW_SEARCH = "AADNEWSEARCH";
 
   /**
-   * The constant to indicate that the search is visible to current user which
-   * means the user who created the search.
+   * The constant to indicate that the search is visible to current user which means the user who
+   * created the search.
+   *
    * @see #getShowTo()
    */
   public static final int SHOW_TO_USER = 0;
 
   /**
-   * The constant to indicate that the search is visible to any user from
-   * current community which means user's community when the search was
-   * created.
+   * The constant to indicate that the search is visible to any user from current community which
+   * means user's community when the search was created.
+   *
    * @see #getShowTo()
    */
   public static final int SHOW_TO_COMMUNITY = 1;
 
   /**
-   * The constant to indicate that the search is visible to the user from any
-   * community.
+   * The constant to indicate that the search is visible to the user from any community.
+   *
    * @see #getShowTo()
    */
   public static final int SHOW_TO_ALL_COMMUNITIES = 3;
 
   /**
-   * List of search properties that used directly by the server.  All other
-   * properties are passed thru to the search engine.  Never <code>null</code>,
-   * emtpy, or modified after construction.
+   * List of search properties that used directly by the server. All other properties are passed
+   * thru to the search engine. Never <code>null</code>, emtpy, or modified after construction.
    */
   private static List<String> ms_internalSearchProps = new ArrayList<>();
 

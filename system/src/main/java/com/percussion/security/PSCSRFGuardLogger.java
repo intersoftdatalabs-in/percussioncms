@@ -22,9 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.owasp.csrfguard.log.LogLevel;
 
-/**
- * Wrapper log class for owasp csrf gaurd logging.  Is referenced in owaspcsrfguard.properties.
- */
+/** Wrapper log class for owasp csrf gaurd logging. Is referenced in owaspcsrfguard.properties. */
 public class PSCSRFGuardLogger implements org.owasp.csrfguard.log.ILogger {
 
   private static final Logger log = LogManager.getLogger(PSCSRFGuardLogger.class);

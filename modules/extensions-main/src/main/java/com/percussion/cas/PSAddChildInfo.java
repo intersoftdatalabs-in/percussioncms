@@ -29,37 +29,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Queries the specified URL and appends the content of the returned doc to the
- * current doc (as child of the root element).
- * This exit can be used in displaying the contents of complex child tables in
- * an assembler without manual SQL and outer joins.
+ * Queries the specified URL and appends the content of the returned doc to the current doc (as
+ * child of the root element). This exit can be used in displaying the contents of complex child
+ * tables in an assembler without manual SQL and outer joins.
  */
 public class PSAddChildInfo extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /**
-   * Queries the URL specified by required paramater <code>params[0]</code>
-   * (the "resource" parameter for this exit in the Workbench). If the root
-   * element of the returned Xml Document has child nodes, then appends these
-   * child nodes as child of the root element of <code>resultDoc</code>.
+   * Queries the URL specified by required paramater <code>params[0]</code> (the "resource"
+   * parameter for this exit in the Workbench). If the root element of the returned Xml Document has
+   * child nodes, then appends these child nodes as child of the root element of <code>resultDoc
+   * </code>.
    *
-   * @param params param[0] is a required parameter. It must be the URL of the
-   * resource to obtain the child table data doc. This URL is relative to the
-   * Rhythmyx root and is of the form: <i>RhythmyxApplication/Resource</i>.
-   * This parameter is specified by the "resource" parameter for this exit
-   * in the Workbench.
-   *
-   * @param request the request context for this request, never
-   * <code>null</code>
-   *
-   * @param resultDoc the XML document resulting from the Rhythmyx server
-   * operation. The contents of the XML document returned by querying the
-   * specified resource will be inserted into this document.
-   *
-   * @throws PSExtensionProcessingException if a handler for the specified
-   * resource cannot be located, or an error occurs querying this resource
-   *
-   * @exception PSParameterMismatchException if <code>params</code> is
-   * <code>null</code> or empty or if params[0] is <code>null</code> or empty
+   * @param params param[0] is a required parameter. It must be the URL of the resource to obtain
+   *     the child table data doc. This URL is relative to the Rhythmyx root and is of the form:
+   *     <i>RhythmyxApplication/Resource</i>. This parameter is specified by the "resource"
+   *     parameter for this exit in the Workbench.
+   * @param request the request context for this request, never <code>null</code>
+   * @param resultDoc the XML document resulting from the Rhythmyx server operation. The contents of
+   *     the XML document returned by querying the specified resource will be inserted into this
+   *     document.
+   * @throws PSExtensionProcessingException if a handler for the specified resource cannot be
+   *     located, or an error occurs querying this resource
+   * @exception PSParameterMismatchException if <code>params</code> is <code>null</code> or empty or
+   *     if params[0] is <code>null</code> or empty
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -115,15 +108,11 @@ public class PSAddChildInfo extends PSDefaultExtension implements IPSResultDocum
     return resultDoc;
   }
 
-  /**
-   * This exit will never modify the stylesheet
-   */
+  /** This exit will never modify the stylesheet */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * The function name used for error handling
-   */
+  /** The function name used for error handling */
   private static final String ms_className = "PSAddChildInfo";
 }

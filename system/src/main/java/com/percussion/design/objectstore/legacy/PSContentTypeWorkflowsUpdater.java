@@ -49,27 +49,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Updates the content editors workflow info object. Part of Barracuda the
- * workflow associations are stored in the database but the workflow info object
- * in the editor is left as is to minimize the changes. If the associations
- * exist in database then the workflow info is updated with them. If not it is
- * modified as per the workflow info in the editor. If the workflow info in the
- * editor is null then new workflow info is created with all visible workflows
- * through communities that the content editor belongs to. If the type of the
- * workflow info is exclusionary then, the exclusionary list is removed from all
- * visible workflows through communities that the content editor belongs to and
- * the new list is set on the workflow info and the type is changed to
- * inclusionary. If the type of workflow info is inclusionary then does nothing.
- * The default workflow is reset if needed.
+ * Updates the content editors workflow info object. Part of Barracuda the workflow associations are
+ * stored in the database but the workflow info object in the editor is left as is to minimize the
+ * changes. If the associations exist in database then the workflow info is updated with them. If
+ * not it is modified as per the workflow info in the editor. If the workflow info in the editor is
+ * null then new workflow info is created with all visible workflows through communities that the
+ * content editor belongs to. If the type of the workflow info is exclusionary then, the
+ * exclusionary list is removed from all visible workflows through communities that the content
+ * editor belongs to and the new list is set on the workflow info and the type is changed to
+ * inclusionary. If the type of workflow info is inclusionary then does nothing. The default
+ * workflow is reset if needed.
  *
  * @author bjoginipally
- *
  */
 public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
 
-  /**
-   * Empty constructor.
-   */
+  /** Empty constructor. */
   public PSContentTypeWorkflowsUpdater() {}
 
   /*
@@ -102,9 +97,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
     Collections.sort(
         wfGuids,
         new Comparator<IPSGuid>() {
-          /**
-           * Sorts by UUID in ascending order.
-           */
+          /** Sorts by UUID in ascending order. */
           public int compare(IPSGuid o1, IPSGuid o2) {
             return (new Integer(o1.getUUID())).compareTo(o2.getUUID());
           }
@@ -118,10 +111,9 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
   }
 
   /**
-   * If the workflow info is null, then creates the workflow info with the
-   * supplied workflow ids and sets it on the editor. If the workflow info is
-   * exclusionary then removes the exclusion list from the supplied workflow
-   * list and then sets the remaining workflows.
+   * If the workflow info is null, then creates the workflow info with the supplied workflow ids and
+   * sets it on the editor. If the workflow info is exclusionary then removes the exclusion list
+   * from the supplied workflow list and then sets the remaining workflows.
    *
    * @param editor The content editor assumed not <code>null</code>.
    * @param wfInts Set of workflow ids assumed not <code>null</code>.
@@ -142,6 +134,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
 
   /**
    * Gets the workflows from the content editor.
+   *
    * @param editor The content editor assumed not <code>null</code>.
    * @return List of workflow guids, may be empty, never <code>null</code>.
    */
@@ -172,8 +165,8 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
   }
 
   /**
-   * Gets the List of the visible workflows for the communities that are
-   * associated with the supplied content type.
+   * Gets the List of the visible workflows for the communities that are associated with the
+   * supplied content type.
    *
    * @param editor The content editor assumed not <code>null</code>.
    * @return List of workflow guids, may be empty, never <code>null</code>.
@@ -201,6 +194,7 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
 
   /**
    * Gets the content type workflow associations.
+   *
    * @param editor The content editor assumed not <code>null</code>.
    * @return List of workflow guids, may be empty, never <code>null</code>.
    * @throws RepositoryException
@@ -218,8 +212,8 @@ public class PSContentTypeWorkflowsUpdater implements IPSComponentUpdater {
   }
 
   /**
-   * If the default workflow id is not in the workflow info, then reset it to
-   * the first one. If the workflow info is null or empty does nothing.
+   * If the default workflow id is not in the workflow info, then reset it to the first one. If the
+   * workflow info is null or empty does nothing.
    *
    * @param editor The content editor assumed not <code>null</code>.
    */

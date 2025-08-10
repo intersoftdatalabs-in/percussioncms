@@ -51,9 +51,7 @@ import org.bouncycastle.jsse.provider.BouncyCastleJsseProvider;
 
 public class TLSSocketFactory extends SSLSocketFactory implements ProtocolSocketFactory {
 
-  /**
-   * Logger for the reaper, never <code>null</code>.
-   */
+  /** Logger for the reaper, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(TLSSocketFactory.class);
 
   private SSLSocketFactory internalSSLSocketFactory;

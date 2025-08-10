@@ -16,9 +16,7 @@
  */
 package com.percussion.tablefactory;
 
-/**
- * Interface used by classes that wish to be informed about table changes.
- */
+/** Interface used by classes that wish to be informed about table changes. */
 public interface IPSJdbcTableChangeListener {
   /**
    * Called when a table change event occurs.

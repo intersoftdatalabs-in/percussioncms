@@ -27,54 +27,51 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSLogError class is used as the base class for all error logging
- * classes.
- * <p>
- * The following information is logged:
+ * The PSLogError class is used as the base class for all error logging classes.
+ *
+ * <p>The following information is logged:
+ *
  * <ul>
- * <li>the session id of the user making this request. This can be used to
- *     map back to the request when logging detailed user activity is
- *     enabled.</li>
- * <li>the type and name of the object which reported the error. The format
- *     is "Type(Name)", such as "DataSet(MyDataSet)".</li>
- * <li>the exception defining the error. The message text is obtained by
- *     calling <code>toString</code> on the exception.</li>
- * <li>any other context data available for the error</li>
+ *   <li>the session id of the user making this request. This can be used to map back to the request
+ *       when logging detailed user activity is enabled.
+ *   <li>the type and name of the object which reported the error. The format is "Type(Name)", such
+ *       as "DataSet(MyDataSet)".
+ *   <li>the exception defining the error. The message text is obtained by calling <code>toString
+ *       </code> on the exception.
+ *   <li>any other context data available for the error
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSLogError extends PSLogInformation {
 
   /**
    * Construct a log message to report an error condition.
    *
-   * @param   applId            the id of the application that generated
-   *                              the error
+   * @param applId the id of the application that generated the error
    */
   protected PSLogError(int applId) {
     super(LOG_TYPE, applId);
   }
 
   /**
-   * Get the sub-messages (type and text). A sub-message is created
-   * for each piece of information reported when this object was created.
+   * Get the sub-messages (type and text). A sub-message is created for each piece of information
+   * reported when this object was created.
    *
-   * @return   an array of sub-messages (PSLogSubMessage)
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages() {
     return getSubMessages(ms_defaultLocale);
   }
 
   /**
-   * Get the sub-messages (type and text). A sub-message is created
-   * for each piece of information reported when this object was created.
+   * Get the sub-messages (type and text). A sub-message is created for each piece of information
+   * reported when this object was created.
    *
-   * @param   loc   the locale to use
-   *
-   * @return         an array of sub-messages (PSLogSubMessage)
+   * @param loc the locale to use
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages(Locale loc) {
     /* first time, build it and set the built version's locale */
@@ -93,24 +90,21 @@ public abstract class PSLogError extends PSLogInformation {
   }
 
   /**
-   * Errors may have an XML document defined for them which allows a
-   * style sheet to be used to dynamically generate the response with
-   * request specific data.
+   * Errors may have an XML document defined for them which allows a style sheet to be used to
+   * dynamically generate the response with request specific data.
    *
-   * @return         the XML document containing the error data
+   * @return the XML document containing the error data
    */
   public Document getXmlErrorData() {
     return getXmlErrorData(ms_defaultLocale);
   }
 
   /**
-   * Errors may have an XML document defined for them which allows a
-   * style sheet to be used to dynamically generate the response with
-   * request specific data.
+   * Errors may have an XML document defined for them which allows a style sheet to be used to
+   * dynamically generate the response with request specific data.
    *
-   * @param   loc   the locale to use
-   *
-   * @return         the XML document containing the error data
+   * @param loc the locale to use
+   * @return the XML document containing the error data
    */
   public Document getXmlErrorData(Locale loc) {
     /* first time, build it and set the built version's locale */
@@ -128,18 +122,15 @@ public abstract class PSLogError extends PSLogInformation {
     return m_doc;
   }
 
-  /**
-   * Override toString to get the error text as a readable string.
-   */
+  /** Override toString to get the error text as a readable string. */
   public java.lang.String toString() {
     return toString(ms_defaultLocale);
   }
 
   /**
-   * Override toString to get the error text as a readable string
-   * in the specified locale.
+   * Override toString to get the error text as a readable string in the specified locale.
    *
-   * @param   loc      the locale to use
+   * @param loc the locale to use
    */
   public java.lang.String toString(Locale loc) {
     String ret = "";
@@ -159,20 +150,17 @@ public abstract class PSLogError extends PSLogInformation {
     return ret;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected abstract PSLogSubMessage[] buildSubMessages(Locale loc);
 
   /**
-   * The default error document returns a document conforming to the
-   * sys_defaultError.dtd and will contain all error messages available.
+   * The default error document returns a document conforming to the sys_defaultError.dtd and will
+   * contain all error messages available.
    *
-   * @param loc the locale to use to build the error document, may be
-   *    <code>null</code> in which case the default locale is used.
-   * @return a document conforming to the sys_defaultError.dtd with all
-   *    error messages, never <code>null</code>.
+   * @param loc the locale to use to build the error document, may be <code>null</code> in which
+   *     case the default locale is used.
+   * @return a document conforming to the sys_defaultError.dtd with all error messages, never <code>
+   *     null</code>.
    */
   protected Document buildXmlDocument(Locale loc) {
     PSLogSubMessage[] msgs = getSubMessages(loc);
@@ -211,26 +199,18 @@ public abstract class PSLogError extends PSLogInformation {
     return doc;
   }
 
-  /**
-   * Error is set as type 1.
-   */
+  /** Error is set as type 1. */
   private static final int LOG_TYPE = 1;
 
-  /**
-   * Get the default locale we'll be using for writing messages.
-   */
+  /** Get the default locale we'll be using for writing messages. */
   private static Locale ms_defaultLocale = Locale.getDefault();
 
-  /**
-   * This is where sub-classes can store their messages.
-   */
+  /** This is where sub-classes can store their messages. */
   private PSLogSubMessage[] m_SubMessages = null;
 
   private String m_SubMessagesLocale = "";
 
-  /**
-   * This is where sub-classes can store their XML data.
-   */
+  /** This is where sub-classes can store their XML data. */
   private Document m_doc = null;
 
   private String m_docLocale = "";

@@ -35,63 +35,49 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * Represents a single back-end row value in
- * {@link IPSConstants#PSX_RELATIONSHIPPROPERTIES} table
+ * Represents a single back-end row value in {@link IPSConstants#PSX_RELATIONSHIPPROPERTIES} table
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSRelationshipPropertyData")
 @IdClass(PSRelationshipPropertyDataPk.class)
 @Table(name = IPSConstants.PSX_RELATIONSHIPPROPERTIES)
 public class PSRelationshipPropertyData implements Serializable {
-  /**
-   * Computed serial number
-   */
+  /** Computed serial number */
   private static final long serialVersionUID = 4793180603390459489L;
 
-  /**
-   * The relationship (or parent) id.
-   */
+  /** The relationship (or parent) id. */
   @SuppressWarnings("unused")
   @Id
   @Column(name = "RID")
   private int m_rid;
 
-  /**
-   * The name of the property. Set by ctor, never <code>null</code> or empty.
-   */
+  /** The name of the property. Set by ctor, never <code>null</code> or empty. */
   @Id
   @Column(name = "PROPERTYNAME")
   private String m_propertyName;
 
-  /**
-   * The value of the property, it may be <code>null</code>.
-   */
+  /** The value of the property, it may be <code>null</code>. */
   @Basic
   @Column(name = "PROPERTYVALUE")
   private String m_propertyValue;
 
   /**
-   * Indicate if this object has been persisted in the repository.
-   * <code>true</code> if it is persisted; otherwise <code>false</code>.
-   * Default to <code>false</code>.
+   * Indicate if this object has been persisted in the repository. <code>true</code> if it is
+   * persisted; otherwise <code>false</code>. Default to <code>false</code>.
    */
   @Transient private boolean m_isPersisted = false;
 
-  /**
-   * Default ctor, needed by the services of the persistent layer.
-   */
+  /** Default ctor, needed by the services of the persistent layer. */
   private PSRelationshipPropertyData() {
     // Empty
   }
 
   /**
-   * Creates an instance of this class from the given parameters.
-   * This should be used to create an object that does not exist in the
-   * repository.
+   * Creates an instance of this class from the given parameters. This should be used to create an
+   * object that does not exist in the repository.
    *
    * @param name the name of the property, never <code>null</code> or empty.
    * @param value the value of the property, may be <code>null</code> or empty.
-   *
    */
   public PSRelationshipPropertyData(String name, String value) {
     if (name == null || name.trim().length() == 0)
@@ -104,9 +90,8 @@ public class PSRelationshipPropertyData implements Serializable {
   /**
    * Creates an instance from a XML representation.
    *
-   * @param sourceNode the element contains XML representation of the object.
-   *   Never <code>null</code>.
-   *
+   * @param sourceNode the element contains XML representation of the object. Never <code>null
+   *     </code>.
    * @throws PSUnknownNodeTypeException if sourceNode contains malformed XML.
    */
   public PSRelationshipPropertyData(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -133,12 +118,10 @@ public class PSRelationshipPropertyData implements Serializable {
   }
 
   /**
-   * Set the persistent status. This is typically used by the persisted
-   * layer.
+   * Set the persistent status. This is typically used by the persisted layer.
    *
-   * @param isPersisted the to be set persistent status. <code>true</code> if
-   *    the object is already persisted in the repository; otherwise
-   *    <code>false</code>.
+   * @param isPersisted the to be set persistent status. <code>true</code> if the object is already
+   *     persisted in the repository; otherwise <code>false</code>.
    */
   public void setPersisted(boolean isPersisted) {
     m_isPersisted = isPersisted;
@@ -147,8 +130,8 @@ public class PSRelationshipPropertyData implements Serializable {
   /**
    * Determines if this object is persisted in the repository.
    *
-   * @return <code>true</code> if this object does exist in the repository;
-   *    otherwise return <code>false</code>. Default to <code>false</code>.
+   * @return <code>true</code> if this object does exist in the repository; otherwise return <code>
+   *     false</code>. Default to <code>false</code>.
    */
   public boolean isPersisted() {
     return m_isPersisted;
@@ -194,7 +177,6 @@ public class PSRelationshipPropertyData implements Serializable {
    * Populates the object from its XML representation.
    *
    * @throws PSUnknownNodeTypeException if sourceNode contains malformed XML.
-   *
    * @see #toXml(Document) for its XML format.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -208,6 +190,7 @@ public class PSRelationshipPropertyData implements Serializable {
 
   /**
    * Produce the XML representation of this object. The XML format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXRelationshipProperty (#PCDATA)>
    * &lt;!ATTLIST Action
@@ -216,9 +199,7 @@ public class PSRelationshipPropertyData implements Serializable {
    *    >
    * </code></pre>
    *
-   * @param doc the document used to create XML elements, must not be
-   *   <code>null</code>.
-   *
+   * @param doc the document used to create XML elements, must not be <code>null</code>.
    * @return the created XML format of the object, never <code>null</code>.
    */
   public Element toXml(Document doc) {

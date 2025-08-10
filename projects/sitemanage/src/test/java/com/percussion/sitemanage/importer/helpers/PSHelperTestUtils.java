@@ -30,33 +30,36 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 /**
- * Utility class for test helpers in site import.
- * Provides methods to create temporary page content from resource files.
+ * Utility class for test helpers in site import. Provides methods to create temporary page content
+ * from resource files.
  */
 public class PSHelperTestUtils {
 
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0";
+  public static final String USER_AGENT =
+      "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0";
 
-    /**
-     * Creates a temporary config file from a resource file in the same package as the caller's class,
-     * then returns PSPageContent for that file.
-     *
-     * @param pageName the name of the resource file
-     * @param caller   the caller Class
-     * @param context  a context for the PSPageContent
-     * @return a PSPageContent for the resource file
-     * @throws Exception if file operations or parsing fails
-     */
-    public PSPageContent createTempPageBasedOnResource(String pageName, Class<?> caller, PSSiteImportCtx context) throws Exception {
-        try (InputStream in = getClass().getResourceAsStream(pageName)) {
-            var tempConfigFile = File.createTempFile(
-                    pageName.substring(0, pageName.lastIndexOf(".")),
-                    pageName.substring(pageName.lastIndexOf(".")));
-            try (OutputStream out = new FileOutputStream(tempConfigFile)) {
-                IOUtils.copy(in, out);
-            }
-            Document doc = Jsoup.parse(tempConfigFile, "UTF-8");
-            return PSSiteImporter.createPageContent(doc, context.getLogger());
-        }
+  /**
+   * Creates a temporary config file from a resource file in the same package as the caller's class,
+   * then returns PSPageContent for that file.
+   *
+   * @param pageName the name of the resource file
+   * @param caller the caller Class
+   * @param context a context for the PSPageContent
+   * @return a PSPageContent for the resource file
+   * @throws Exception if file operations or parsing fails
+   */
+  public PSPageContent createTempPageBasedOnResource(
+      String pageName, Class<?> caller, PSSiteImportCtx context) throws Exception {
+    try (InputStream in = getClass().getResourceAsStream(pageName)) {
+      var tempConfigFile =
+          File.createTempFile(
+              pageName.substring(0, pageName.lastIndexOf(".")),
+              pageName.substring(pageName.lastIndexOf(".")));
+      try (OutputStream out = new FileOutputStream(tempConfigFile)) {
+        IOUtils.copy(in, out);
+      }
+      Document doc = Jsoup.parse(tempConfigFile, "UTF-8");
+      return PSSiteImporter.createPageContent(doc, context.getLogger());
     }
+  }
 }

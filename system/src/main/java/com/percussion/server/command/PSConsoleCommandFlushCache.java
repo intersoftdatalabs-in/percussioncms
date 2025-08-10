@@ -34,31 +34,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements the execution of 'flush cache' console command and
- * dumps the results as an XML document to the console.
+ * This class implements the execution of 'flush cache' console command and dumps the results as an
+ * XML document to the console.
  */
 public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
   /**
-   * The constructor for this class. If the <code>cmdArgs</code> is
-   * <code>null
-   * </code> or empty it flushes the entire cache when excuting
-   * this command, otherwise flushes the cache based on the cache keys
-   * supplied.
+   * The constructor for this class. If the <code>cmdArgs</code> is <code>null
+   * </code> or empty it flushes the entire cache when excuting this command, otherwise flushes the
+   * cache based on the cache keys supplied.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   *           be <code>null</code> or empty. The cache keys must be
-   *           separated by ';'.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty. The cache keys must be separated by ';'.
    */
   public PSConsoleCommandFlushCache(String cmdArgs) {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned as
-   * an XML document of the appropriate structure for the command.
-   * <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
    *
    * <PRE><CODE> &lt;ELEMENT PSXConsoleCommandResults (command, resultCode,
    * resultText)&gt;
@@ -73,9 +69,7 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
    * resultText (#PCDATA)&gt; </CODE></PRE>
    *
    * @param request the requestor object, may be <code>null</code>
-   *
    * @return the result document, never <code>null</code>
-   *
    * @throws PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
@@ -177,19 +171,17 @@ public class PSConsoleCommandFlushCache extends PSConsoleCommandCache {
   }
 
   /**
-   * The seperator used to delimit cache keys that are supplied as arguments to
-   * the 'flush cache' command.
+   * The seperator used to delimit cache keys that are supplied as arguments to the 'flush cache'
+   * command.
    */
   public static final String CACHE_KEY_SEPARATOR = ";";
 
   /**
-   * The seperator used to separate the type from the keys when supplied as
-   * arguments to the 'flush cache' command.
+   * The seperator used to separate the type from the keys when supplied as arguments to the 'flush
+   * cache' command.
    */
   public static final String CACHE_ARG_SEPARATOR = " ";
 
-  /**
-   * The command executed by this class.
-   */
+  /** The command executed by this class. */
   private static final String ms_cmdName = "flush cache";
 }

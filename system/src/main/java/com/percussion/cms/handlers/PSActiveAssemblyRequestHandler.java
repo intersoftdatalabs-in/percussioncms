@@ -37,9 +37,7 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Redirects all requests to the <code>PSActiveAssemblyProcessor</code>.
- */
+/** Redirects all requests to the <code>PSActiveAssemblyProcessor</code>. */
 public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler {
   /*
    * Initializes the request methods, no configuration file is used.
@@ -67,9 +65,8 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
   }
 
   /**
-   *
-   * @param request the request object containing all context data associated
-   *    with the request, may not be <code>null</code>.
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>.
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -141,9 +138,10 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
   }
 
   /**
-   * Processes the Active Assembly relationship lookup request. The response
-   * will be an XMl document with sys_Lookup dtd. Each entry is the
-   * relationship name and label for active assembly relationship.
+   * Processes the Active Assembly relationship lookup request. The response will be an XMl document
+   * with sys_Lookup dtd. Each entry is the relationship name and label for active assembly
+   * relationship.
+   *
    * @param request request object assumed not <code>null</code>.
    */
   private void processAaRelationshipLookup(PSRequest request) {
@@ -172,16 +170,12 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
     }
   }
 
-  /**
-   * Shutdown the request handler.
-   */
+  /** Shutdown the request handler. */
   public void shutdown() {
     PSConsole.printMsg(HANDLER, "Shutting down Active Assembly Handler");
   }
 
-  /**
-   * A local exception used to format the error message.
-   */
+  /** A local exception used to format the error message. */
   private class PSRequestException extends PSStandaloneException {
     // see base class for description
     public PSRequestException(int msgCode, Object singleArg) {
@@ -214,46 +208,33 @@ public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler
     }
   }
 
-  /**
-   * Name of this handler.
-   */
+  /** Name of this handler. */
   public static final String HANDLER = "AAHandler";
 
-  /**
-   * The command parameter expected for inserts.
-   */
+  /** The command parameter expected for inserts. */
   public static final String INSERT = "insert";
 
-  /**
-   * The command parameter expected for updates.
-   */
+  /** The command parameter expected for updates. */
   public static final String UPDATE = "update";
 
-  /**
-   * The command parameter expected for reorders.
-   */
+  /** The command parameter expected for reorders. */
   public static final String REORDER = "reorder";
 
-  /**
-   * The command parameter expected for deletes.
-   */
+  /** The command parameter expected for deletes. */
   public static final String DELETE = "delete";
 
   /**
-   * The HTML parameter that provides the input document. The document must
-   * confor to the PSXActiveAssemblerHandlerRequest.dtd.
+   * The HTML parameter that provides the input document. The document must confor to the
+   * PSXActiveAssemblerHandlerRequest.dtd.
    */
   public static final String INPUT_DOC = "inputdoc";
 
-  /**
-   * The command parameter for active assembly relationship type lookups.
-   */
+  /** The command parameter for active assembly relationship type lookups. */
   public static final String AA_REL_LOOKUP = "aarellookup";
 
   /**
-   * Storage for the request roots, initialized in <code>init()</code>, never
-   * <code>null</code>, empty or modified after that. A list of
-   * <code>String</code> objects.
+   * Storage for the request roots, initialized in <code>init()</code>, never <code>null</code>,
+   * empty or modified after that. A list of <code>String</code> objects.
    */
   private Collection m_requestRoots = null;
 }

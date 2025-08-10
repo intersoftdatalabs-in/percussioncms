@@ -18,38 +18,24 @@
 package com.percussion.rest.roles;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 import java.util.List;
 
-/**
- * Adaptor interface for Role operations.
- * Sunny Sal: "Role ka adaptor, permissions ka factor!"
- */
+/** Adaptor interface for Role operations. Sunny Sal: "Role ka adaptor, permissions ka factor!" */
 public interface IRoleAdaptor {
 
-    /**
-     * Gets a role by name.
-     */
-    Role getRole(URI baseUri, String roleName) throws BackendException;
+  /** Gets a role by name. */
+  Role getRole(URI baseUri, String roleName) throws BackendException;
 
-    /**
-     * Updates a role.
-     */
-    Role updateRole(URI baseUri, Role role);
+  /** Updates a role. */
+  Role updateRole(URI baseUri, Role role);
 
-    /**
-     * Creates a role.
-     */
-    Role createRole(URI baseUri, Role role) throws BackendException;
+  /** Creates a role. */
+  Role createRole(URI baseUri, Role role) throws BackendException;
 
-    /**
-     * Deletes a role by name.
-     */
-    void deleteRole(URI baseUri, String roleName) throws BackendException;
+  /** Deletes a role by name. */
+  void deleteRole(URI baseUri, String roleName) throws BackendException;
 
-    /**
-     * Finds roles by pattern.
-     */
-    List<Role> findRoles(URI baseUri, String pattern) throws BackendException;
+  /** Finds roles by pattern. */
+  List<Role> findRoles(URI baseUri, String pattern) throws BackendException;
 }

@@ -24,26 +24,19 @@ import com.percussion.security.PSThreadRequestUtils;
 import java.util.Iterator;
 
 /**
- * This class computes the user's permission on a folder object. This should
- * only be used in the context of a folder object.
+ * This class computes the user's permission on a folder object. This should only be used in the
+ * context of a folder object.
  */
 public class PSFolderPermissions extends PSObjectPermissions {
   /**
    * This constructor will typically be used on the server side.
    *
-   * @param folderAcl acl of the folder being accessed by the user,
-   * may not be <code>null</code>
-   *
+   * @param folderAcl acl of the folder being accessed by the user, may not be <code>null</code>
    * @param request request context information, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>request</code> or
-   * <code>folderAcl</code> is <code>null</code>
-   *
-   * @throws PSCmsException if request to server to get the user info fails
-   * for any reason
-   *
-   * @throws PSAuthorizationException if any error occurs getting the user's
-   * server access level
+   * @throws IllegalArgumentException if <code>request</code> or <code>folderAcl</code> is <code>
+   *     null</code>
+   * @throws PSCmsException if request to server to get the user info fails for any reason
+   * @throws PSAuthorizationException if any error occurs getting the user's server access level
    */
   public PSFolderPermissions(PSFolderAcl folderAcl)
       throws PSAuthorizationException, PSCmsException {
@@ -69,18 +62,13 @@ public class PSFolderPermissions extends PSObjectPermissions {
   }
 
   /**
-   * Compares the specified object with this object. Returns <code>true</code>
-   * if the reference to this object itself is specified. Returns
-   * <code>false</code> if the specified object is not an instance of this
-   * class.
+   * Compares the specified object with this object. Returns <code>true</code> if the reference to
+   * this object itself is specified. Returns <code>false</code> if the specified object is not an
+   * instance of this class.
    *
-   * @param obj the object with which this object should be compared,
-   * may not be <code>null</code>
-   *
-   * @return <code>true</code> if the specified object is an instance of this
-   * class and represents the same permissions.
-   * Returns <code>false</code> otherwise.
-   *
+   * @param obj the object with which this object should be compared, may not be <code>null</code>
+   * @return <code>true</code> if the specified object is an instance of this class and represents
+   *     the same permissions. Returns <code>false</code> otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
    */
   public boolean equals(Object obj) {
@@ -92,8 +80,8 @@ public class PSFolderPermissions extends PSObjectPermissions {
   }
 
   /**
-   * Returns the hashcode of this object. This simply returns the permissions
-   * set on the securable object.
+   * Returns the hashcode of this object. This simply returns the permissions set on the securable
+   * object.
    *
    * @return the hashcode of this object, always non-negative
    */
@@ -102,9 +90,9 @@ public class PSFolderPermissions extends PSObjectPermissions {
   }
 
   /**
-   * See base class.
-   * {@link com.percussion.cms.objectstore.PSObjectPermissions#processAcl()
+   * See base class. {@link com.percussion.cms.objectstore.PSObjectPermissions#processAcl()
    * processAcl()}
+   *
    * @throws PSAuthorizationException
    * @throws PSAuthenticationRequiredException
    */
@@ -149,8 +137,8 @@ public class PSFolderPermissions extends PSObjectPermissions {
   }
 
   /**
-   * See base class.
-   * {@link com.percussion.cms.objectstore.PSObjectPermissions#processAclEntry(PSObjectAclEntry)
+   * See base class. {@link
+   * com.percussion.cms.objectstore.PSObjectPermissions#processAclEntry(PSObjectAclEntry)
    * processAclEntry(PSObjectAclEntry)}
    */
   protected boolean processAclEntry(PSObjectAclEntry aclEntry) {
@@ -191,9 +179,9 @@ public class PSFolderPermissions extends PSObjectPermissions {
   }
 
   /**
-   * Acl of the folder for which the permissions is being evaluated,
-   * may be <code>null</code> if single arg constructor is used, otherwise
-   * initialized in the constructor, never modified after initializartion.
+   * Acl of the folder for which the permissions is being evaluated, may be <code>null</code> if
+   * single arg constructor is used, otherwise initialized in the constructor, never modified after
+   * initializartion.
    */
   private PSFolderAcl m_folderAcl = null;
 }

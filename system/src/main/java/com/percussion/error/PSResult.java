@@ -21,21 +21,19 @@ import com.percussion.cms.objectstore.PSKey;
 
 // REFACTORED: CP-JAVA11
 /**
- * This is the base class for all test results produced by different methods in
- * the {@link IPSEffect} interface. Implements common methods to pass information
- * from the methods to the relationship engine after execution.
+ * This is the base class for all test results produced by different methods in the {@link
+ * IPSEffect} interface. Implements common methods to pass information from the methods to the
+ * relationship engine after execution.
  */
 public class PSResult {
-  /**
-   * Default constructor. Does nothing special.
-   */
+  /** Default constructor. Does nothing special. */
   public PSResult() {}
 
   /**
    * Is the test success?
    *
-   * @return <code>true</code> if the status indicates a not a failure,
-   *         </code>false</code> otherwise.
+   * @return <code>true</code> if the status indicates a not a failure, </code>false</code>
+   *     otherwise.
    */
   public boolean isSuccess() {
     return (m_status != STATUS_ERROR);
@@ -44,8 +42,7 @@ public class PSResult {
   /**
    * Did the test produced any warning?
    *
-   * @return <code>true</code> if the status indicates a warning,
-   *         </code>false</code> otherwise.
+   * @return <code>true</code> if the status indicates a warning, </code>false</code> otherwise.
    */
   public boolean hasWarning() {
     return (m_status == STATUS_WARNING);
@@ -54,8 +51,7 @@ public class PSResult {
   /**
    * Access method for the exception.
    *
-   * @return Exception if the status in the object is not a success.
-   *         <code>null</code> otherwise.
+   * @return Exception if the status in the object is not a success. <code>null</code> otherwise.
    */
   public PSException getException() {
     return m_ex;
@@ -89,8 +85,7 @@ public class PSResult {
   }
 
   /**
-   * Sets the exception for the object as error. Implicitly sets is the staus
-   * code to STATUS_ERROR.
+   * Sets the exception for the object as error. Implicitly sets is the staus code to STATUS_ERROR.
    *
    * @param msg message to attach to this result, never <code>null</code>.
    * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
@@ -103,12 +98,13 @@ public class PSResult {
   }
 
   /**
-   * Sets the message for the object as error. Implicitly sets is the staus
-   * code to STATUS_ERROR.
+   * Sets the message for the object as error. Implicitly sets is the staus code to STATUS_ERROR.
    *
-   * @param lang    language string to specify the locale for the string, must not be <code>null</code>.
+   * @param lang language string to specify the locale for the string, must not be <code>null</code>
+   *     .
    * @param msgCode message code to look in the i18n resource bundle.
-   * @param args    is the array of arguments required to format the error message, may be <code>null</code> if not required.
+   * @param args is the array of arguments required to format the error message, may be <code>null
+   *     </code> if not required.
    * @throws IllegalArgumentException if the required parameter supplied is <code>null</code>.
    */
   public void setError(String lang, int msgCode, Object[] args) {
@@ -119,8 +115,8 @@ public class PSResult {
   }
 
   /**
-   * Sets status to ERROR a given message and also creates an exception object.
-   * Implicitly sets is the staus code to STATUS_ERROR.
+   * Sets status to ERROR a given message and also creates an exception object. Implicitly sets is
+   * the staus code to STATUS_ERROR.
    *
    * @param exception exception object to be set, must not be <code>null</code>.
    * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
@@ -133,8 +129,8 @@ public class PSResult {
   }
 
   /**
-   * Sets the message for the object as warning. Implicitly sets is the staus
-   * code to STATUS_WARNING.
+   * Sets the message for the object as warning. Implicitly sets is the staus code to
+   * STATUS_WARNING.
    *
    * @param msg message to attach to this result, never <code>null</code>.
    * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
@@ -147,12 +143,14 @@ public class PSResult {
   }
 
   /**
-   * Sets the message for the object as warning. Implicitly sets is the staus
-   * code to STATUS_WARNING.
+   * Sets the message for the object as warning. Implicitly sets is the staus code to
+   * STATUS_WARNING.
    *
-   * @param lang    language string to specify the locale for the string, must not be <code>null</code>.
+   * @param lang language string to specify the locale for the string, must not be <code>null</code>
+   *     .
    * @param msgCode message code to look in the i18n resource bundle.
-   * @param args    is the array of arguments required to format the error message, may be <code>null</code> if not required.
+   * @param args is the array of arguments required to format the error message, may be <code>null
+   *     </code> if not required.
    * @throws IllegalArgumentException if the required parameter supplied is <code>null</code>.
    */
   public void setWarning(String lang, int msgCode, Object[] args) {
@@ -163,8 +161,8 @@ public class PSResult {
   }
 
   /**
-   * Sets the exception for the object as warning. Implicitly sets is the staus
-   * code to STATUS_WARNING.
+   * Sets the exception for the object as warning. Implicitly sets is the staus code to
+   * STATUS_WARNING.
    *
    * @param exception exception object to be set, must not be <code>null</code>.
    * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
@@ -176,42 +174,32 @@ public class PSResult {
     m_ex = exception;
   }
 
-  /**
-   * Sets result to success.
-   */
+  /** Sets result to success. */
   public void setSuccess() {
     m_status = STATUS_SUCCESS;
   }
 
-  /**
-   * Current value of the process status. Default value is STATUS_ERROR.
-   */
+  /** Current value of the process status. Default value is STATUS_ERROR. */
   private int m_status = STATUS_ERROR;
 
   /**
-   * Exception if the test result indicates an error or warning. Initialized
-   * to <code>null</code> and can be set using <code>setException</code> method.
+   * Exception if the test result indicates an error or warning. Initialized to <code>null</code>
+   * and can be set using <code>setException</code> method.
    */
   private PSException m_ex = null;
 
   /**
-   * Placeholder for the keys that client may attach to the result,
-   * may be <code>null</code> or <code>empty</code>.
+   * Placeholder for the keys that client may attach to the result, may be <code>null</code> or
+   * <code>empty</code>.
    */
   private PSKey[] m_keys = null;
 
-  /**
-   * Constant indicating the test result status of success
-   */
+  /** Constant indicating the test result status of success */
   public static final int STATUS_SUCCESS = 0;
 
-  /**
-   * Constant indicating the test result status of failure
-   */
+  /** Constant indicating the test result status of failure */
   public static final int STATUS_ERROR = 1;
 
-  /**
-   * Constant indicating the test result status of warning
-   */
+  /** Constant indicating the test result status of warning */
   public static final int STATUS_WARNING = 2;
 }

@@ -22,87 +22,88 @@ import static org.apache.commons.lang.StringUtils.*;
 import com.percussion.pagemanagement.service.IPSResourceDefinitionService;
 import com.percussion.pagemanagement.service.IPSResourceDefinitionService.PSResourceDefinitionInvalidIdException;
 import java.util.Objects;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
-/**
- * Unique identifier for a resource definition, composed of groupId and localId.
- */
+/** Unique identifier for a resource definition, composed of groupId and localId. */
 public class PSResourceDefinitionUniqueId {
-    private String groupId;
-    private String localId;
+  private String groupId;
+  private String localId;
 
-    public PSResourceDefinitionUniqueId(String uniqueId) throws PSResourceDefinitionInvalidIdException {
-        super();
-        init(uniqueId);
-    }
+  public PSResourceDefinitionUniqueId(String uniqueId)
+      throws PSResourceDefinitionInvalidIdException {
+    super();
+    init(uniqueId);
+  }
 
-    public PSResourceDefinitionUniqueId(String groupId, String localId) throws PSResourceDefinitionInvalidIdException {
-        super();
-        init(groupId, localId);
-    }
+  public PSResourceDefinitionUniqueId(String groupId, String localId)
+      throws PSResourceDefinitionInvalidIdException {
+    super();
+    init(groupId, localId);
+  }
 
-    public void init(String groupId, String localId) throws PSResourceDefinitionInvalidIdException {
-        setGroupId(groupId);
-        setLocalId(localId);
-    }
+  public void init(String groupId, String localId) throws PSResourceDefinitionInvalidIdException {
+    setGroupId(groupId);
+    setLocalId(localId);
+  }
 
-    public String getGroupId() {
-        return groupId;
-    }
+  public String getGroupId() {
+    return groupId;
+  }
 
-    public void setGroupId(String groupId) throws PSResourceDefinitionInvalidIdException {
-        validateId("groupId", groupId);
-        this.groupId = groupId;
-    }
+  public void setGroupId(String groupId) throws PSResourceDefinitionInvalidIdException {
+    validateId("groupId", groupId);
+    this.groupId = groupId;
+  }
 
-    public String getLocalId() {
-        return localId;
-    }
+  public String getLocalId() {
+    return localId;
+  }
 
-    public void setLocalId(String localId) throws PSResourceDefinitionInvalidIdException {
-        validateId("localId", localId);
-        this.localId = localId;
-    }
+  public void setLocalId(String localId) throws PSResourceDefinitionInvalidIdException {
+    validateId("localId", localId);
+    this.localId = localId;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSResourceDefinitionUniqueId)) return false;
-        var that = (PSResourceDefinitionUniqueId) o;
-        return Objects.equals(getGroupId(), that.getGroupId()) && Objects.equals(getLocalId(), that.getLocalId());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSResourceDefinitionUniqueId)) return false;
+    var that = (PSResourceDefinitionUniqueId) o;
+    return Objects.equals(getGroupId(), that.getGroupId())
+        && Objects.equals(getLocalId(), that.getLocalId());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getGroupId(), getLocalId());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getGroupId(), getLocalId());
+  }
 
-    public String getUniqueId() {
-        return groupId + IPSResourceDefinitionService.NAMESPACE_SEPARATOR + localId;
-    }
+  public String getUniqueId() {
+    return groupId + IPSResourceDefinitionService.NAMESPACE_SEPARATOR + localId;
+  }
 
-    public void init(String uniqueId) throws PSResourceDefinitionInvalidIdException {
-        if (isBlank(uniqueId)) {
-            throw new PSResourceDefinitionInvalidIdException("PSResourceDefinitionUniqueId cannot be blank");
-        }
-        var pair = split(uniqueId, ".");
-        if (pair.length == 2 && isNotBlank(pair[0]) && isNotBlank(pair[1])) {
-            setGroupId(pair[0]);
-            setLocalId(pair[1]);
-        } else {
-            throw new PSResourceDefinitionInvalidIdException("PSResourceDefinitionUniqueId is not valid. value: " + uniqueId);
-        }
+  public void init(String uniqueId) throws PSResourceDefinitionInvalidIdException {
+    if (isBlank(uniqueId)) {
+      throw new PSResourceDefinitionInvalidIdException(
+          "PSResourceDefinitionUniqueId cannot be blank");
     }
+    var pair = split(uniqueId, ".");
+    if (pair.length == 2 && isNotBlank(pair[0]) && isNotBlank(pair[1])) {
+      setGroupId(pair[0]);
+      setLocalId(pair[1]);
+    } else {
+      throw new PSResourceDefinitionInvalidIdException(
+          "PSResourceDefinitionUniqueId is not valid. value: " + uniqueId);
+    }
+  }
 
-    public static void validateId(String name, String id) throws PSResourceDefinitionInvalidIdException {
-        if (isBlank(id)) {
-            throw new PSResourceDefinitionInvalidIdException(name + " cannot be blank");
-        }
-        if (contains(id, ".")) {
-            throw new PSResourceDefinitionInvalidIdException(name
-                    + " cannot contain "
-                    + IPSResourceDefinitionService.NAMESPACE_SEPARATOR);
-        }
+  public static void validateId(String name, String id)
+      throws PSResourceDefinitionInvalidIdException {
+    if (isBlank(id)) {
+      throw new PSResourceDefinitionInvalidIdException(name + " cannot be blank");
     }
+    if (contains(id, ".")) {
+      throw new PSResourceDefinitionInvalidIdException(
+          name + " cannot contain " + IPSResourceDefinitionService.NAMESPACE_SEPARATOR);
+    }
+  }
 }

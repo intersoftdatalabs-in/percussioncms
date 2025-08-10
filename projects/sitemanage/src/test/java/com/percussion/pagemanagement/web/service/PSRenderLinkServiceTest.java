@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
-
 package com.percussion.pagemanagement.web.service;
 
 import static com.percussion.share.test.PSMatchers.containsRegEx;
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.pagemanagement.data.PSInlineLinkRequest;
@@ -31,93 +31,100 @@ import com.percussion.pagemanagement.data.PSRenderLink;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestUtils;
-
+import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-
-import org.junit.jupiter.api.*;
-
-import org.junit.jupiter.api.Tag;
-
-@Tag("IntegrationTest")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+/**
+ * Tests generating links.
+ *
+ * @author adamgent
+ */
+@Category(IntegrationTest.class)
 public class PSRenderLinkServiceTest {
+  private static PSRenderLinkServiceClient renderClient;
 
-    private static PSRenderLinkServiceClient renderClient;
-    private static PSTestSiteData testSiteData;
-    private static String pageId;
-    private static PSAsset asset;
-    private static String file;
+  private static PSTestSiteData testSiteData;
+  private static String pageId;
+  private static PSAsset asset;
+  private static String file;
 
-    @BeforeEach All
-    public void setUp() throws Exception {
-        testSiteData = new PSTestSiteData();
-        testSiteData.setUp();
-        renderClient = new PSRenderLinkServiceClient();
-        PSRestTestCase.setupClient(renderClient);
-        pageId = testSiteData.createPage("TestLinkToPage", testSiteData.site1.getFolderPath(), testSiteData.template1.getId());
-        file = PSTestUtils.resourceToBase64(PSRenderLinkServiceTest.class, "inline-link.txt");
+  @BeforeClass
+  public static void setUp() throws Exception {
+    testSiteData = new PSTestSiteData();
+    testSiteData.setUp();
+    renderClient = new PSRenderLinkServiceClient();
+    PSRestTestCase.setupClient(renderClient);
+    pageId =
+        testSiteData.createPage(
+            "TestLinkToPage", testSiteData.site1.getFolderPath(), testSiteData.template1.getId());
+    file = PSTestUtils.resourceToBase64(PSRenderLinkServiceTest.class, "inline-link.txt");
 
-        asset = new PSAsset();
-        asset.getFields().put("sys_title", "MyFile");
-        asset.getFields().put("displaytitle", "MyFile Displaytitle");
-        asset.getFields().put("filename", "inline-link.txt");
-        asset.getFields().put("item_file_attachment", file);
-        asset.getFields().put("item_file_attachment_filename", "inline-link.txt");
-        asset.getFields().put("item_file_attachment_type", "text/plain");
-        asset.setType("percFileAsset");
-        asset.setFolderPaths(asList(PSAssetPathItemService.ASSET_ROOT));
-        asset = testSiteData.saveAsset(asset);
-    }
+    asset = new PSAsset();
+    asset.getFields().put("sys_title", "MyFile");
+    asset.getFields().put("displaytitle", "MyFile Displaytitle");
+    asset.getFields().put("filename", "inline-link.txt");
+    asset.getFields().put("item_file_attachment", file);
+    asset.getFields().put("item_file_attachment_filename", "inline-link.txt");
+    asset.getFields().put("item_file_attachment_type", "text/plain");
+    asset.setType("percFileAsset");
+    asset.setFolderPaths(asList(PSAssetPathItemService.ASSET_ROOT));
+    asset = testSiteData.saveAsset(asset);
+  }
 
-    @AfterAll
-    public void tearDown() throws Exception {
-        testSiteData.tearDown();
-    }
+  @AfterClass
+  public static void tearDown() throws Exception {
+    testSiteData.tearDown();
+  }
 
-    @Test
-    public void testPreviewPageLink() throws Exception {
-        var actual = renderClient.getPreviewPageLink(pageId);
-        assertNotNull(actual.getUrl());
-        assertFalse(actual.getUrl().isEmpty());
-        assertThat(actual.getUrl(), containsRegEx("sys_siteid=[0-9]+"));
-        assertThat(actual.getUrl(), not(containsString("sys_siteid=0")));
-    }
+  @Test
+  public void testPreviewPageLink() throws Exception {
 
-    @Test
-    public void testPostFileLink() throws Exception {
-        var link = new PSInlineLinkRequest();
-        link.setTargetId(asset.getId());
+    PSRenderLink actual = renderClient.getPreviewPageLink(pageId);
+    assertNotNull(actual.getUrl());
+    assertFalse(actual.getUrl().isEmpty());
+    assertThat(actual.getUrl(), containsRegEx("sys_siteid=[0-9]+"));
+    assertThat(actual.getUrl(), not(containsString("sys_siteid=0")));
+  }
 
-        var actual = renderClient.previewPostLinkRequest(link);
-        assertNotNull(actual.getUrl());
-        assertFalse(actual.getUrl().isEmpty());
-    }
+  @Test
+  public void testPostFileLink() throws Exception {
+    PSInlineLinkRequest link = new PSInlineLinkRequest();
+    link.setTargetId(asset.getId());
 
-    @Test
-    public void testGetFileLinkForResource() throws Exception {
-        var actual = renderClient.getPreviewLink(asset.getId(), "percSystem.fileBinary");
-        assertNotNull(actual.getUrl());
-        assertFalse(actual.getUrl().isEmpty());
-    }
+    PSRenderLink actual = renderClient.previewPostLinkRequest(link);
+    assertNotNull(actual.getUrl());
+    assertFalse(actual.getUrl().isEmpty());
+  }
 
-    @Test
-    public void testFollowFileLink() throws Exception {
-        var actual = renderClient.getPreviewLink(asset.getId(), "percSystem.fileBinary");
-        try (InputStream content = renderClient.followLink(actual.getUrl())) {
-            var linkContent = PSTestUtils.resourceToBase64(content);
-            assertNotNull(linkContent);
-            assertEquals("File uploaded should be the same as the render link followed", file, linkContent);
-        }
-    }
+  @Test
+  public void testGetFileLinkForResource() throws Exception {
+    PSRenderLink actual = renderClient.getPreviewLink(asset.getId(), "percSystem.fileBinary");
+    assertNotNull(actual.getUrl());
+    assertFalse(actual.getUrl().isEmpty());
+  }
 
-    @Disabled("Cannot create image asset with rest yet.")
-    @Test
-    public void testImagePreviewLink() throws Exception {
-        var link = new PSInlineLinkRequest();
-        link.setTargetId(asset.getId());
+  @Test
+  public void testFollowFileLink() throws Exception {
+    PSRenderLink actual = renderClient.getPreviewLink(asset.getId(), "percSystem.fileBinary");
+    InputStream content = renderClient.followLink(actual.getUrl());
+    String linkContent = PSTestUtils.resourceToBase64(content);
+    assertNotNull(linkContent);
+    assertEquals("File uploaded should be the same as the render link followed", file, linkContent);
+  }
 
-        var actual = renderClient.previewPostLinkRequest(link);
-        assertNotNull(actual);
-    }
+  @SuppressWarnings("deprecation")
+  @Ignore("Cannot create image asset with rest yet.")
+  @Test
+  public void testImagePreviewLink() throws Exception {
+    PSInlineLinkRequest link = new PSInlineLinkRequest();
+    link.setTargetId(asset.getId());
+
+    PSRenderLink actual = renderClient.previewPostLinkRequest(link);
+    assertNotNull(actual);
+  }
 }

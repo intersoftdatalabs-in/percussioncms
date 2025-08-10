@@ -21,69 +21,71 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.json.JSONObject;
 
 /**
- * A generic REST response data object.
- * Sunny Sal says: "REST easy, your response is ready!"
+ * A generic REST response data object. Sunny Sal says: "REST easy, your response is ready!"
  *
  * @author BJoginipally
  */
 @JsonRootName(value = "RestResponse")
 public class PSRestResponse {
-    private PSRestResponseStatus status;
-    private String result;
+  private PSRestResponseStatus status;
+  private String result;
 
-    public PSRestResponse() {
-        // Default constructor
+  public PSRestResponse() {
+    // Default constructor
+  }
+
+  /**
+   * Constructor for creating default error or success responses.
+   *
+   * @param responseType if true creates a success response, otherwise error response.
+   */
+  public PSRestResponse(boolean responseType) {
+    var res = new JSONObject();
+    if (responseType) {
+      status = PSRestResponseStatus.SUCCESS;
+      res.put(DEFAULT_MESSAGE, DEFAULT_SUCCESS_MESSAGE);
+    } else {
+      status = PSRestResponseStatus.ERROR;
+      res.put(DEFAULT_MESSAGE, DEFAULT_ERROR_MESSAGE);
     }
+    result = res.toString();
+  }
 
-    /**
-     * Constructor for creating default error or success responses.
-     *
-     * @param responseType if true creates a success response, otherwise error response.
-     */
-    public PSRestResponse(boolean responseType) {
-        var res = new JSONObject();
-        if (responseType) {
-            status = PSRestResponseStatus.SUCCESS;
-            res.put(DEFAULT_MESSAGE, DEFAULT_SUCCESS_MESSAGE);
-        } else {
-            status = PSRestResponseStatus.ERROR;
-            res.put(DEFAULT_MESSAGE, DEFAULT_ERROR_MESSAGE);
-        }
-        result = res.toString();
-    }
+  public PSRestResponse(PSRestResponseStatus status, String result) {
+    this.status = status;
+    this.result = result;
+  }
 
-    public PSRestResponse(PSRestResponseStatus status, String result) {
-        this.status = status;
-        this.result = result;
-    }
+  /**
+   * @return response the status may be null if not set.
+   */
+  public PSRestResponseStatus getStatus() {
+    return status;
+  }
 
-    /**
-     * @return response the status may be null if not set.
-     */
-    public PSRestResponseStatus getStatus() {
-        return status;
-    }
+  public void setStatus(PSRestResponseStatus status) {
+    this.status = status;
+  }
 
-    public void setStatus(PSRestResponseStatus status) {
-        this.status = status;
-    }
+  /**
+   * @return the result object, may be null if not set.
+   */
+  public String getResult() {
+    return result;
+  }
 
-    /**
-     * @return the result object, may be null if not set.
-     */
-    public String getResult() {
-        return result;
-    }
+  public void setResult(String result) {
+    this.result = result;
+  }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
+  public enum PSRestResponseStatus {
+    SUCCESS,
+    ERROR
+  }
 
-    public enum PSRestResponseStatus {
-        SUCCESS, ERROR
-    }
-
-    private static final String DEFAULT_MESSAGE = "message";
-    private static final String DEFAULT_SUCCESS_MESSAGE = "Your request has been successfully completed.";
-    private static final String DEFAULT_ERROR_MESSAGE = "Unexpected error occurred while executing your request.";
+  private static final String DEFAULT_MESSAGE = "message";
+  private static final String DEFAULT_SUCCESS_MESSAGE =
+      "Your request has been successfully completed.";
+  private static final String DEFAULT_ERROR_MESSAGE =
+      "Unexpected error occurred while executing your request.";
 }

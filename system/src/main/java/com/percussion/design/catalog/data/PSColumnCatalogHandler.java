@@ -93,16 +93,15 @@ import org.w3c.dom.Element;
  *
  */
 public class PSColumnCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSColumnCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -122,11 +121,8 @@ public class PSColumnCatalogHandler implements IPSCatalogHandler {
    *       <td>yes</td></tr>
    * </table>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");
@@ -156,8 +152,8 @@ public class PSColumnCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Convenience method which uses the specified cataloger and back-end table
-   * definition to get the column listing for the table.
+   * Convenience method which uses the specified cataloger and back-end table definition to get the
+   * column listing for the table.
    */
   public static PSCatalogedColumn[] getCatalog(
       PSCataloger cataloger, PSBackEndTable table, String loginId, String loginPw)

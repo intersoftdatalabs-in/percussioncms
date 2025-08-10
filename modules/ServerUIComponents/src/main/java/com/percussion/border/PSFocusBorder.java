@@ -29,19 +29,17 @@ import javax.swing.border.CompoundBorder;
 
 /**
  * @author dougrand
- *
- * This border is drawn only when the component has focus. Components without
- * focus have an empty border drawn. The border uses the supplied color, but
- * if no color is specified it will use the component's foreground color. If
- * there is no foreground color then red is used.
- *
- * This class also implements a {@link FocusListener} to enable the component
- * to repaint the border on focus changes.
+ *     <p>This border is drawn only when the component has focus. Components without focus have an
+ *     empty border drawn. The border uses the supplied color, but if no color is specified it will
+ *     use the component's foreground color. If there is no foreground color then red is used.
+ *     <p>This class also implements a {@link FocusListener} to enable the component to repaint the
+ *     border on focus changes.
  */
 public class PSFocusBorder extends AbstractBorder implements FocusListener {
   /**
-   * Ctor that calls {@link #PSFocusBorder(int, PSDisplayOptions, boolean)
-   * PSFocusBorder(thickness, options, false)}.
+   * Ctor that calls {@link #PSFocusBorder(int, PSDisplayOptions, boolean) PSFocusBorder(thickness,
+   * options, false)}.
+   *
    * @param thickness see other constructor
    * @param options see other constructor
    */
@@ -50,15 +48,13 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * Create a new focus border using the given display options. See
-   * @{link #PSFocusBorder(int, Color) } for more details.
+   * Create a new focus border using the given display options. See @{link #PSFocusBorder(int,
+   * Color) } for more details.
    *
-   * @param thickness the thickness of the border, must be zero or
-   * larger.
+   * @param thickness the thickness of the border, must be zero or larger.
    * @param options the options, may be <code>null</code>.
-   * @param always if this is <code>true</code> then the border
-   * is always painted, without regard for the components
-   * {@link Component#hasFocus()} method.
+   * @param always if this is <code>true</code> then the border is always painted, without regard
+   *     for the components {@link Component#hasFocus()} method.
    */
   public PSFocusBorder(int thickness, PSDisplayOptions options, boolean always) {
     if (options == null) {
@@ -71,8 +67,8 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * See {@link #PSFocusBorder(int, Color, boolean)
-   * PSFocusBorder(thickness, highlight, false)}
+   * See {@link #PSFocusBorder(int, Color, boolean) PSFocusBorder(thickness, highlight, false)}
+   *
    * @param thickness see other ctor
    * @param highlight see other ctor
    */
@@ -83,13 +79,10 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   /**
    * Create a new focus border
    *
-   * @param thickness the thickness of the border, must be zero or
-   * larger
-   * @param highlight the color to use when drawing the border on a
-   * component that has focus
-   * @param always if this is <code>true</code> then the border
-   * is always painted, without regard for the components
-   * {@link Component#hasFocus()} method.
+   * @param thickness the thickness of the border, must be zero or larger
+   * @param highlight the color to use when drawing the border on a component that has focus
+   * @param always if this is <code>true</code> then the border is always painted, without regard
+   *     for the components {@link Component#hasFocus()} method.
    */
   public PSFocusBorder(int thickness, Color highlight, boolean always) {
     if (thickness < 0) {
@@ -186,11 +179,11 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
 
   /**
    * Add this focus border to the given component.
+   *
    * @param c a component, must never be <code>null</code>.
-   * @param override If <code>true</code>, then install this
-   * border on a component regardless of class. If <code>false</code> then
-   * only install this on components for whom
-   * {@link #isHandleClass(JComponent)} returns <code>true</code>.
+   * @param override If <code>true</code>, then install this border on a component regardless of
+   *     class. If <code>false</code> then only install this on components for whom {@link
+   *     #isHandleClass(JComponent)} returns <code>true</code>.
    */
   public void addToComponent(JComponent c, boolean override) {
     if (c == null) {
@@ -226,11 +219,10 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * Is this passed component an instance of a class that we want to
-   * put a new focus border on?
+   * Is this passed component an instance of a class that we want to put a new focus border on?
+   *
    * @param c The component, assumed not <code>null</code>
-   * @return <code>true</code> if this component type should get a
-   * focus border.
+   * @return <code>true</code> if this component type should get a focus border.
    */
   private boolean isHandleClass(JComponent c) {
     return c instanceof JMenuBar
@@ -250,10 +242,10 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * Add the focus border to this component and any contained components
-   * that appear to be focusable. If this component is a container, then
-   * add a listener so any newly added widgets will have the focus border
-   * added as well.
+   * Add the focus border to this component and any contained components that appear to be
+   * focusable. If this component is a container, then add a listener so any newly added widgets
+   * will have the focus border added as well.
+   *
    * @param c a component, perhaps a container, must never be <code>null</code>
    */
   public void addToAllNavigable(JComponent c) {
@@ -280,8 +272,8 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * Do an appropriate repaint for the given component. Just repaint the
-   * borders.
+   * Do an appropriate repaint for the given component. Just repaint the borders.
+   *
    * @param c Component, assumed to be not <code>null</code>.
    */
   protected void doRepaint(Component c) {
@@ -293,10 +285,8 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   /**
    * Initialize the instance with the given values
    *
-   * @param thickness the thickness of the border, must be zero or
-   * larger
-   * @param highlight the color to use when drawing the border on a
-   * component that has focus
+   * @param thickness the thickness of the border, must be zero or larger
+   * @param highlight the color to use when drawing the border on a component that has focus
    */
   protected void init(int thickness, Color highlight) {
     m_insets = new Insets(thickness, thickness, thickness, thickness);
@@ -304,28 +294,26 @@ public class PSFocusBorder extends AbstractBorder implements FocusListener {
   }
 
   /**
-   * Initialized in ctor, never <code>null</code> afterward. Contains the
-   * thickness of the border on each side of the box.
+   * Initialized in ctor, never <code>null</code> afterward. Contains the thickness of the border on
+   * each side of the box.
    */
   private Insets m_insets = null;
 
   /**
-   * The color to use when drawing the border on a component that has
-   * focus. Initialized in the ctor, the value may be <code>null</code>.
+   * The color to use when drawing the border on a component that has focus. Initialized in the
+   * ctor, the value may be <code>null</code>.
    */
   private Color m_color = null;
 
   /**
-   * If this is <code>true</code> then always paint the border without
-   * regard to the focus state of the widget. Useful for things that
-   * don't really take focus like tree labels.
+   * If this is <code>true</code> then always paint the border without regard to the focus state of
+   * the widget. Useful for things that don't really take focus like tree labels.
    */
   private boolean m_always = false;
 
   /**
-   * This container listener is used to handle updates (the addition or
-   * removal of components in a container). This is initialized here and
-   * never modified or <code>null</code>.
+   * This container listener is used to handle updates (the addition or removal of components in a
+   * container). This is initialized here and never modified or <code>null</code>.
    */
   private ContainerListener m_containerListener =
       new ContainerListener() {

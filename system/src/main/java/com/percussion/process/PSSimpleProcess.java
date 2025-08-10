@@ -24,9 +24,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * A very simple implementation of a process. Can be used as a base class.
- */
+/** A very simple implementation of a process. Can be used as a base class. */
 public class PSSimpleProcess implements IPSProcess {
   // see interface
   public void fromXml(Element el) throws PSProcessException {
@@ -115,17 +113,12 @@ public class PSSimpleProcess implements IPSProcess {
   /**
    * Returns the resolved working directory for this process.
    *
-   * @param pdef the process defintion for the current OS, may not be
-   * <code>null</code>
-   *
-   * @param ctx a {@link Map map}, contains data for executing the
-   * process, may not be <code>null</code>
-   *
-   * @return the resolved working directory for this process, may be
-   * <code>null</code> if no working directory is defined.
-   *
-   * @throws PSProcessException if any error occurs resolving the working
-   * directory
+   * @param pdef the process defintion for the current OS, may not be <code>null</code>
+   * @param ctx a {@link Map map}, contains data for executing the process, may not be <code>null
+   *     </code>
+   * @return the resolved working directory for this process, may be <code>null</code> if no working
+   *     directory is defined.
+   * @throws PSProcessException if any error occurs resolving the working directory
    */
   protected File getWorkingDir(PSProcessDef pdef, Map ctx) throws PSProcessException {
     if (pdef == null) throw new IllegalArgumentException("process definition may not be null");
@@ -136,22 +129,16 @@ public class PSSimpleProcess implements IPSProcess {
   }
 
   /**
-   * Returns the resolved command line arguments for this process definition.
-   * The first argument in the returned array is the executable for this
-   * process.
+   * Returns the resolved command line arguments for this process definition. The first argument in
+   * the returned array is the executable for this process.
    *
-   * @param pdef the process defintion for the current OS, may not be
-   * <code>null</code>
-   *
-   * @param ctx a {@link java.util.Map map}, contains data for executing the
-   * process, may not be <code>null</code>
-   *
-   * @return the resolved executable and resolved command line arguments,
-   * never <code>null</code> or empty. The first argument representing the
-   * executable is always present.
-   *
-   * @throws PSProcessException if any error occurs resolving the executable
-   * or the command parameters
+   * @param pdef the process defintion for the current OS, may not be <code>null</code>
+   * @param ctx a {@link java.util.Map map}, contains data for executing the process, may not be
+   *     <code>null</code>
+   * @return the resolved executable and resolved command line arguments, never <code>null</code> or
+   *     empty. The first argument representing the executable is always present.
+   * @throws PSProcessException if any error occurs resolving the executable or the command
+   *     parameters
    */
   protected String[] getCommand(PSProcessDef pdef, Map ctx) throws PSProcessException {
     if (pdef == null) throw new IllegalArgumentException("process definition may not be null");
@@ -173,21 +160,15 @@ public class PSSimpleProcess implements IPSProcess {
   }
 
   /**
-   * Returns the resolved environmental parameters for this process.
-   * Each element of the returned array has environment variable settings in
-   * the format "name=value".
+   * Returns the resolved environmental parameters for this process. Each element of the returned
+   * array has environment variable settings in the format "name=value".
    *
-   * @param pdef the process defintion for the current OS, may not be
-   * <code>null</code>
-   *
-   * @param ctx a {@link java.util.Map map}, contains data for executing the
-   * process, may not be <code>null</code>
-   *
-   * @return the resolved environmental parameters, may be <code>null</code>
-   * if no environment setting is specified.
-   *
-   * @throws PSProcessException if any error occurs resolving the environment
-   * parameters
+   * @param pdef the process defintion for the current OS, may not be <code>null</code>
+   * @param ctx a {@link java.util.Map map}, contains data for executing the process, may not be
+   *     <code>null</code>
+   * @return the resolved environmental parameters, may be <code>null</code> if no environment
+   *     setting is specified.
+   * @throws PSProcessException if any error occurs resolving the environment parameters
    */
   protected String[] getEnv(PSProcessDef pdef, Map ctx) throws PSProcessException {
     if (ctx == null) throw new IllegalArgumentException("process context may not be null");
@@ -198,23 +179,20 @@ public class PSSimpleProcess implements IPSProcess {
   }
 
   /**
-   * Stores the name of the function, initialized in the <code>fromXml</code>
-   * method, never modified after that, never <code>null</code> or empty
-   * after initialization.
+   * Stores the name of the function, initialized in the <code>fromXml</code> method, never modified
+   * after that, never <code>null</code> or empty after initialization.
    */
   protected String m_name = null;
 
   /**
-   * Map for storing the process definition (<code>PSProcessDef</code>) as
-   * value and the supported OS (as <code>Integer</code>) as key.
-   * Never <code>null</code>.
+   * Map for storing the process definition (<code>PSProcessDef</code>) as value and the supported
+   * OS (as <code>Integer</code>) as key. Never <code>null</code>.
    */
   protected Map m_processDefs = new HashMap();
 
   /**
-   * Stores the type of the function, initialized in the <code>fromXml</code>
-   * method, never modified after that, never <code>null</code> or empty
-   * after initialization.
+   * Stores the type of the function, initialized in the <code>fromXml</code> method, never modified
+   * after that, never <code>null</code> or empty after initialization.
    */
   protected String m_type = null;
 }

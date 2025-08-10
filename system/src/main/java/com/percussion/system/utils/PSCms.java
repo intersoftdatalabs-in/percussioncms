@@ -70,16 +70,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Utility class for cms related methods.
- */
+/** Utility class for cms related methods. */
 public class PSCms {
 
   private static Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 
   /**
-   * Convenience method that calls {@link #isRelatedItemPublishable(Element,
-   * IPSRequestContext, String) linkurl, request, null}.
+   * Convenience method that calls {@link #isRelatedItemPublishable(Element, IPSRequestContext,
+   * String) linkurl, request, null}.
    */
   public static boolean isRelatedItemPublishable(Element linkurl, IPSRequestContext request)
       throws PSCmsException {
@@ -87,23 +85,17 @@ public class PSCms {
   }
 
   /**
-   * Tests if the related item is publishable or not. Retrieves the contentid
-   * from the <code>current</code> attribute of the first <code>Value</code>
-   * element found in the supplied <code>linkurl</code> element.
+   * Tests if the related item is publishable or not. Retrieves the contentid from the <code>current
+   * </code> attribute of the first <code>Value</code> element found in the supplied <code>linkurl
+   * </code> element.
    *
-   * @param linkurl the related linkurl element, must not be <code>null</code>.
-   *    The expected DTD is:
-   *    &lt;!ELEMENT linkurl (Value)&gt;
-   *    &lt;!ELEMENT Value EMPTY&gt;
-   *    &lt;!ATTLIST Value
-   *       current CDATA #REQUIRED
-   *    &gt;
+   * @param linkurl the related linkurl element, must not be <code>null</code>. The expected DTD is:
+   *     &lt;!ELEMENT linkurl (Value)&gt; &lt;!ELEMENT Value EMPTY&gt; &lt;!ATTLIST Value current
+   *     CDATA #REQUIRED &gt;
    * @param request the request to operate on, must not be <code>null</code>.
-   * @param publishableTokens a string with all tokens that are publishable,
-   *    defaults to <code>y,i</code> if <code>null</code> or empty. The
-   *    token delimiter is the comma.
-   * @return <code>true</code> if the related item is publishable,
-   *    <code>false</code> otherwise.
+   * @param publishableTokens a string with all tokens that are publishable, defaults to <code>y,i
+   *     </code> if <code>null</code> or empty. The token delimiter is the comma.
+   * @return <code>true</code> if the related item is publishable, <code>false</code> otherwise.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   public static boolean isRelatedItemPublishable(
@@ -138,19 +130,17 @@ public class PSCms {
   }
 
   /**
-   * Helper method that checks if the requested user has write access to the
-   * folder(s) specified by {@link IPSHtmlParameters#SYS_FOLDERID} in the
-   * request. This parameter value can be a single string value or an
-   * array of string values for one or more folders for which the check needs
-   * to be performed.
-   * @param request requests context object, must not be <code>null</code>.
-   * The method assumes the request context contains valid folderids otherwise
-   * throws {@link IllegalArgumentException} exception.
-   * @return <code>true</code> if every folder in the request has write access
-   * for the current user. Returns <code>false</code> even one of the folders
-   * does not have write permission.
-   * @throws PSCmsException if it fails to verify folder permissions for any
-   * reason.
+   * Helper method that checks if the requested user has write access to the folder(s) specified by
+   * {@link IPSHtmlParameters#SYS_FOLDERID} in the request. This parameter value can be a single
+   * string value or an array of string values for one or more folders for which the check needs to
+   * be performed.
+   *
+   * @param request requests context object, must not be <code>null</code>. The method assumes the
+   *     request context contains valid folderids otherwise throws {@link IllegalArgumentException}
+   *     exception.
+   * @return <code>true</code> if every folder in the request has write access for the current user.
+   *     Returns <code>false</code> even one of the folders does not have write permission.
+   * @throws PSCmsException if it fails to verify folder permissions for any reason.
    */
   public static boolean canWriteToFolders(IPSRequestContext request) throws PSCmsException {
     if (request == null) throw new IllegalArgumentException("request context must not be null");
@@ -214,9 +204,9 @@ public class PSCms {
   }
 
   /**
-   * See rxconfig/Server/server.properties.
-   * The default is false for backwards compatibility and upgrades.
-   * For new installations this will generally be true.
+   * See rxconfig/Server/server.properties. The default is false for backwards compatibility and
+   * upgrades. For new installations this will generally be true.
+   *
    * @return <code>true</code> if folder security overrides workflow default false.
    */
   public static boolean isFolderSecurityOverridesWorkflowSecurity() {
@@ -227,15 +217,11 @@ public class PSCms {
   }
 
   /**
-   * Checks to see if the current user has folder read access to the specified
-   * item.
+   * Checks to see if the current user has folder read access to the specified item.
    *
    * @param contentid The id of the item to check.
-   *
-   * @return <code>true</code> if the user has read access to at least one of
-   * the folder's the item is in, or if the item is not in any folders,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the user has read access to at least one of the folder's the item
+   *     is in, or if the item is not in any folders, <code>false</code> otherwise.
    * @throws SQLException If there is an error locating the item's folders.
    */
   public static boolean canReadInFolders(int contentid) throws SQLException {
@@ -243,15 +229,11 @@ public class PSCms {
   }
 
   /**
-   * Checks to see if the current user has folder write access to the specified
-   * item.
+   * Checks to see if the current user has folder write access to the specified item.
    *
    * @param contentid The id of the item to check.
-   *
-   * @return <code>true</code> if the user has write access to at least one of
-   * the folder's the item is in, or if the item is not in any folders,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the user has write access to at least one of the folder's the item
+   *     is in, or if the item is not in any folders, <code>false</code> otherwise.
    * @throws SQLException If there is an error locating the item's folders.
    */
   public static boolean canWriteInFolders(int contentid) throws SQLException {
@@ -259,16 +241,12 @@ public class PSCms {
   }
 
   /**
-   * Checks to see if the current user has the given folder permission
-   * access to the specified item.
+   * Checks to see if the current user has the given folder permission access to the specified item.
    *
    * @param contentid The id of the item to check.
    * @param folderPermAccess is of one of {@link PSFolderPermissions}.ACCESS_XXX
-   *
-   * @return <code>true</code> if the user has write access to at least one of
-   * the folder's the item is in, or if the item is not in any folders,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the user has write access to at least one of the folder's the item
+   *     is in, or if the item is not in any folders, <code>false</code> otherwise.
    * @throws SQLException If there is an error locating the item's folders.
    */
   public static boolean checkFolderPermission(int contentid, int folderPermAccess)
@@ -339,29 +317,25 @@ public class PSCms {
   }
 
   /**
-   * This is a utility method to test whether the addressed content is
-   * publishable or not. This is determined with an internal request to the
-   * <code>sys_casSupport/ContentValid</code> resource.
+   * This is a utility method to test whether the addressed content is publishable or not. This is
+   * determined with an internal request to the <code>sys_casSupport/ContentValid</code> resource.
    *
    * @param params A list of expected param values:
-   * <ol>
-   * <li>params[0] a comma separated list of tokens that represent
-   *    publishable content, may be <code>null</code> or empty, in which case
-   *    the defaults <code>y,i</code> are used.</li>
-   * <li>params[1] the content id of the item to test, may be
-   *    <code>null</code>, in which case the content id of the supplied
-   *    request is used. If no valid content id is supplied, an exception is
-   *    thrown.</li>
-   * <li>params[2] the revision of the item to test, may be
-   *    <code>null</code>, in which case the current revision is used.</li>
-   * </ol>
+   *     <ol>
+   *       <li>params[0] a comma separated list of tokens that represent publishable content, may be
+   *           <code>null</code> or empty, in which case the defaults <code>y,i</code> are used.
+   *       <li>params[1] the content id of the item to test, may be <code>null</code>, in which case
+   *           the content id of the supplied request is used. If no valid content id is supplied,
+   *           an exception is thrown.
+   *       <li>params[2] the revision of the item to test, may be <code>null</code>, in which case
+   *           the current revision is used.
+   *     </ol>
+   *
    * @param request the request to operate on, not <code>null</code>.
-   *
-   * @return a <code>boolean</code> with a value of <code>true</code> if the
-   *    supplied content item is publishable, <code>false</code> otherwise.
-   *
-   * @throws PSCmsException for any missing or invalid required
-   *    parameter and any other error that can occur.
+   * @return a <code>boolean</code> with a value of <code>true</code> if the supplied content item
+   *     is publishable, <code>false</code> otherwise.
+   * @throws PSCmsException for any missing or invalid required parameter and any other error that
+   *     can occur.
    */
   public static boolean isPublishable(Object[] params, IPSRequestContext request)
       throws PSCmsException {
@@ -418,19 +392,16 @@ public class PSCms {
   }
 
   /**
-   * Get the new request command handler resource string for the supplied
-   * request and object.
+   * Get the new request command handler resource string for the supplied request and object.
    *
-   * @param request the request used to make the content type definition
-   *    lookup, not <code>null</code>.
-   * @param source the source object for which we want the new request
-   *    command handler resource, not <code>null</code>.
-   * @return the new request command handler resource or <code>null</code> if
-   *    not found.
+   * @param request the request used to make the content type definition lookup, not <code>null
+   *     </code>.
+   * @param source the source object for which we want the new request command handler resource, not
+   *     <code>null</code>.
+   * @return the new request command handler resource or <code>null</code> if not found.
    * @throws PSRequestValidationException for any request validation errors.
    * @throws PSAuthorizationException for any failed authorization.
-   * @throws PSInternalRequestCallException for any errors making an internal
-   *    request.
+   * @throws PSInternalRequestCallException for any errors making an internal request.
    * @throws PSSystemValidationException for any failed validation.
    * @throws PSAuthenticationFailedException for any failed authentication.
    * @throws PSNotFoundException for any file not found.
@@ -453,15 +424,14 @@ public class PSCms {
   /**
    * Get the content type definition for the supplied request and source.
    *
-   * @param request the request used to make the content type definition
-   *    lookup, not <code>null</code>.
-   * @param source the source object for which we want the content type
-   *    definition, not <code>null</code>.
+   * @param request the request used to make the content type definition lookup, not <code>null
+   *     </code>.
+   * @param source the source object for which we want the content type definition, not <code>null
+   *     </code>.
    * @return the content type definition, or <code>null</code> if not found.
    * @throws PSRequestValidationException for any request validation errors.
    * @throws PSAuthorizationException for any failed authorization.
-   * @throws PSInternalRequestCallException for any errors making an internal
-   *    request.
+   * @throws PSInternalRequestCallException for any errors making an internal request.
    * @throws PSSystemValidationException for any failed validation.
    * @throws PSAuthenticationFailedException for any failed authentication.
    * @throws PSNotFoundException for any file not found.
@@ -503,21 +473,15 @@ public class PSCms {
   }
 
   /**
-   * Get publication Url for the item with specified contentid, variantid and
-   * context. Delegates to {@link #getPublicationUrl(IPSRequestContext, Map)}
-   * method.
+   * Get publication Url for the item with specified contentid, variantid and context. Delegates to
+   * {@link #getPublicationUrl(IPSRequestContext, Map)} method.
    *
-   * @param request request context to make an iternal request to get the
-   *           publication Url.
-   * @param contentid ContentId of the item as string, must not be
-   *           <code>null</code> or empty.
-   * @param variantid VariantId for the Url, must not be <code>null</code> or
-   *           empty.
-   * @param context publishing context, may be <code>null</code> or emoty in
-   *           which case, the value is assumed to be "0" which is the preview
-   *           context.
-   * @return the publication url for the item, may be <code>null</code> or
-   *         empty.
+   * @param request request context to make an iternal request to get the publication Url.
+   * @param contentid ContentId of the item as string, must not be <code>null</code> or empty.
+   * @param variantid VariantId for the Url, must not be <code>null</code> or empty.
+   * @param context publishing context, may be <code>null</code> or emoty in which case, the value
+   *     is assumed to be "0" which is the preview context.
+   * @return the publication url for the item, may be <code>null</code> or empty.
    * @throws PSCmsException if it cannot build the publication Url.
    * @see #getPublicationUrl(IPSRequestContext, Map)
    * @deprecated replaced by {@link #getPublicationUrl(IPSRequestContext, Map)}.
@@ -544,18 +508,14 @@ public class PSCms {
   }
 
   /**
-   * Get publication Url for the item with specified set of assembly parameter
-   * map. The map must contain at least two parameters namely,
-   * {@link IPSHtmlParameters#SYS_CONTENTID contentid} and
-   * {@link IPSHtmlParameters#SYS_VARIANTID variantid}. Rest of the assembly
-   * parameters are optional.
-   * context. The Url will contain the current revision of the item.
-   * @param request request context to make an internal request to get the
-   * publication Url.
-   * @param assemblyParamMap map of assembly parameters, must not be
-   * <code>null</code> or empty.
-   * @return the publication url for the item, may be <code>null</code> or
-   * empty.
+   * Get publication Url for the item with specified set of assembly parameter map. The map must
+   * contain at least two parameters namely, {@link IPSHtmlParameters#SYS_CONTENTID contentid} and
+   * {@link IPSHtmlParameters#SYS_VARIANTID variantid}. Rest of the assembly parameters are
+   * optional. context. The Url will contain the current revision of the item.
+   *
+   * @param request request context to make an internal request to get the publication Url.
+   * @param assemblyParamMap map of assembly parameters, must not be <code>null</code> or empty.
+   * @return the publication url for the item, may be <code>null</code> or empty.
    * @throws PSCmsException if it cannot build the publication Url.
    */
   public static String getPublicationUrl(
@@ -621,29 +581,22 @@ public class PSCms {
   }
 
   /**
-   * Return the default workflowid for the supplied content type and community.
-   * A run time error will be thrown if the intersection returns more than
-   * one workflow.
+   * Return the default workflowid for the supplied content type and community. A run time error
+   * will be thrown if the intersection returns more than one workflow.
    *
-   * @param request the request needed to make an internal request
-   *    to get workflow communities, not <code>null</code>.
-   * @param ce the content editor for which to get the default workflow id,
-   *    not <code>null</code>.
-   * Initialized in ctor, then never changed. If present, this list is used in
-   * conjunction with the type field of the PSWorkflowInfo to determine how to
-   * interpret this list.
-   * @param communityId the community id that is used to validate the returned
-   *    workflowid. It may be <code>null</code>, the validation will not be
-   *    performed in this case.
-   * @throws PSInternalRequestCallException if the request to get
-   *    the list of workflows for a community fails while processing.
-   * @throws PSAuthorizationException if the user is not authorized to
-   *    execute the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   *    authenticated.
-   * @return an Integer representing the default workflow id for this content
-   *    item and community or the default workflow for this content item
-   *    if no community exists.
+   * @param request the request needed to make an internal request to get workflow communities, not
+   *     <code>null</code>.
+   * @param ce the content editor for which to get the default workflow id, not <code>null</code>.
+   *     Initialized in ctor, then never changed. If present, this list is used in conjunction with
+   *     the type field of the PSWorkflowInfo to determine how to interpret this list.
+   * @param communityId the community id that is used to validate the returned workflowid. It may be
+   *     <code>null</code>, the validation will not be performed in this case.
+   * @throws PSInternalRequestCallException if the request to get the list of workflows for a
+   *     community fails while processing.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @return an Integer representing the default workflow id for this content item and community or
+   *     the default workflow for this content item if no community exists.
    */
   public static int getDefaultWorkflowId(PSRequest request, PSContentEditor ce, String communityId)
       throws PSInternalRequestCallException,
@@ -723,6 +676,7 @@ public class PSCms {
 
   /**
    * Determine if the specified workflow is allowed for the content type and community.
+   *
    * @param ce
    * @param communityId
    * @param workflowId
@@ -751,11 +705,9 @@ public class PSCms {
   /**
    * Find all workflows visible to the specified community
    *
-   * @param communityId The id of the community, assumed not <code>null</code>
-   * or empty and to represent a valid community id.
-   *
-   * @return The list of visible workflow ids, never <code>null</code>, may be
-   * empty.
+   * @param communityId The id of the community, assumed not <code>null</code> or empty and to
+   *     represent a valid community id.
+   * @return The list of visible workflow ids, never <code>null</code>, may be empty.
    */
   private static List<String> findCommunityWorkflows(String communityId) {
     try {
@@ -788,9 +740,8 @@ public class PSCms {
   }
 
   /**
-   * Just like {@link #getDefaultWorkflowId(PSRequest, PSContentEditor, String)}
-   * except the community id is supplied from the session of the supplied
-   * request.
+   * Just like {@link #getDefaultWorkflowId(PSRequest, PSContentEditor, String)} except the
+   * community id is supplied from the session of the supplied request.
    */
   public static int getDefaultWorkflowId(PSRequest request, PSContentEditor ce)
       throws PSInternalRequestCallException,
@@ -808,13 +759,9 @@ public class PSCms {
     return getDefaultWorkflowId(request, ce, communityId);
   }
 
-  /**
-   * Constant for ContentValid XML Element
-   */
+  /** Constant for ContentValid XML Element */
   public static String ELEM_CONTENTVALID = "ContentValid";
 
-  /**
-   * Constant for publishable XML Attribute
-   */
+  /** Constant for publishable XML Attribute */
   public static String ATTR_PUBLISHABLE = "publishable";
 }

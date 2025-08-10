@@ -22,28 +22,19 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * @author DougRand
- *
- * <P>Allows the caller to use string templates with substitution variables.
- * Variables are expressed in the string by an introduction sequence, which
- * defaults to "{", a series of alpha characters and an end sequence,
- * which defaults to "}". The start and end sequences should be
- * punctuation characters to avoid problems.
- *
- * <P>If the beginning character of the start sequence needs to be used in the
- * template as an output character, use the quote character, which defaults to
- * backslash, to escape it.
- *
- * <P>For future expansion, non-alpha characters are reserved. Also note that
- * whitespace characters should not be used in the start and end sequences.
- *
- * <P>The template "The {person} goes to the {place}" will expand
- * to "The girl goes to the store" when the <code>expand</code>
- * method is called with a map that contains the pairs person/girl and
- * place/store. The map values can be of any type, the <code>toString</code>
- * method is called to covert them to a string.
- *
- * <P>This class is invariant, it has no modifiable internal state after
- * construction.
+ *     <p>Allows the caller to use string templates with substitution variables. Variables are
+ *     expressed in the string by an introduction sequence, which defaults to "{", a series of alpha
+ *     characters and an end sequence, which defaults to "}". The start and end sequences should be
+ *     punctuation characters to avoid problems.
+ *     <p>If the beginning character of the start sequence needs to be used in the template as an
+ *     output character, use the quote character, which defaults to backslash, to escape it.
+ *     <p>For future expansion, non-alpha characters are reserved. Also note that whitespace
+ *     characters should not be used in the start and end sequences.
+ *     <p>The template "The {person} goes to the {place}" will expand to "The girl goes to the
+ *     store" when the <code>expand</code> method is called with a map that contains the pairs
+ *     person/girl and place/store. The map values can be of any type, the <code>toString</code>
+ *     method is called to covert them to a string.
+ *     <p>This class is invariant, it has no modifiable internal state after construction.
  */
 public class PSStringTemplate {
   /*
@@ -52,14 +43,12 @@ public class PSStringTemplate {
    * http://commons.apache.org/lang/api-2.5/src-html/org/apache/commons/lang/text/StrSubstitutor.html#line.92
    * -Adam Gent
    */
-  /**
-   * Used for exceptions in template handling
-   */
+  /** Used for exceptions in template handling */
   public static class PSStringTemplateException extends Exception {
     /**
      * Ctor for a template exception with a message.
-     * @param message a message to associate with this exception,
-     * may be <code>null</code> or empty.
+     *
+     * @param message a message to associate with this exception, may be <code>null</code> or empty.
      */
     public PSStringTemplateException(String message) {
       super(message);
@@ -67,8 +56,7 @@ public class PSStringTemplate {
   }
 
   /**
-   * Used to provide a custom dictionary lookup other than a map, which is
-   * the default.
+   * Used to provide a custom dictionary lookup other than a map, which is the default.
    *
    * @author paulhoward
    */
@@ -76,11 +64,9 @@ public class PSStringTemplate {
     /**
      * Looks up key in this objects dictionary and returns the value found.
      *
-     * @param key Never <code>null</code> or empty. Case-sensitivity is
-     * dependent upon the implementation.
-     *
-     * @return Never <code>null</code>, may be empty if key is not in this
-     * dictionary.
+     * @param key Never <code>null</code> or empty. Case-sensitivity is dependent upon the
+     *     implementation.
+     * @return Never <code>null</code>, may be empty if key is not in this dictionary.
      */
     public String lookup(String key);
   }
@@ -94,8 +80,8 @@ public class PSStringTemplate {
     /**
      * Basic ctor.
      *
-     * @param dict If <code>null</code>, any empty map is used. Keys must
-     * be of type <code>String</code> or all lookups will fail. A <code>
+     * @param dict If <code>null</code>, any empty map is used. Keys must be of type <code>String
+     *     </code> or all lookups will fail. A <code>
      * toString</code> is performed on the value before use.
      */
     public PSMapDictionary(Map dict) {
@@ -106,10 +92,10 @@ public class PSStringTemplate {
     }
 
     /**
-     * Looks for key in the map supplied in the ctor and returns the value
-     * associated with that entry.
-     * <p>See {@link IPSTemplateDictionary#lookup(String) inteface} for
-     * more details.
+     * Looks for key in the map supplied in the ctor and returns the value associated with that
+     * entry.
+     *
+     * <p>See {@link IPSTemplateDictionary#lookup(String) inteface} for more details.
      */
     public String lookup(String key) {
       if (null == key) {
@@ -120,33 +106,31 @@ public class PSStringTemplate {
       return val;
     }
 
-    /**
-     * Set in ctor, then never <code>null</code>, may be empty.
-     */
+    /** Set in ctor, then never <code>null</code>, may be empty. */
     private Map m_dictionary;
   }
 
   /**
-   * Construct a new template object.
-   * Calls {@link PSStringTemplate#PSStringTemplate(String, String, String, char)
-   * PSStringTemplate(template, null, null, '\\'}}.
-   * @param template A string containing variable references to be expanded,
-   * may be <code>null</code> or empty
+   * Construct a new template object. Calls {@link PSStringTemplate#PSStringTemplate(String, String,
+   * String, char) PSStringTemplate(template, null, null, '\\'}}.
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
    */
   public PSStringTemplate(String template) {
     this(template, null, null, '\\');
   }
 
   /**
-   * Construct a new template object.
-   * Calls {@link PSStringTemplate#PSStringTemplate(String, String,
+   * Construct a new template object. Calls {@link PSStringTemplate#PSStringTemplate(String, String,
    * String, char) PSStringTemplate(template, start, end, '\\'}}.
-   * @param template A string containing variable references to be expanded,
-   * may be <code>null</code> or empty
-   * @param start A string that introduces variable references, if <code>null</code>
-   * the default value is used
-   * @param end A string that ends variable references, if <code>null</code>
-   * the default value is used
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
+   * @param start A string that introduces variable references, if <code>null</code> the default
+   *     value is used
+   * @param end A string that ends variable references, if <code>null</code> the default value is
+   *     used
    */
   public PSStringTemplate(String template, String start, String end) {
     this(template, start, end, '\\');
@@ -154,14 +138,14 @@ public class PSStringTemplate {
 
   /**
    * Construct a new template object
-   * @param template A string containing variable references to be expanded,
-   * may be <code>null</code> or empty
-   * @param start A string that introduces variable references, if
-   * <code>null</code> the default value is used
-   * @param end A string that ends variable references, if <code>null</code>
-   * the default value is used.
-   * @param quote a character that escapes the next character to pass it through
-   * literally
+   *
+   * @param template A string containing variable references to be expanded, may be <code>null
+   *     </code> or empty
+   * @param start A string that introduces variable references, if <code>null</code> the default
+   *     value is used
+   * @param end A string that ends variable references, if <code>null</code> the default value is
+   *     used.
+   * @param quote a character that escapes the next character to pass it through literally
    */
   public PSStringTemplate(String template, String start, String end, char quote) {
     if (start == null || start.trim().length() == 0) {
@@ -177,15 +161,14 @@ public class PSStringTemplate {
   }
 
   /**
-   * Convenience method that calls {@link #expand(IPSTemplateDictionary)
-   * expand(new MapDictionary(dict)}.
+   * Convenience method that calls {@link #expand(IPSTemplateDictionary) expand(new
+   * MapDictionary(dict)}.
    *
-   * @param dict The keys in the passed <code>Map</code> are always of type
-   * {@link String} and are case sensitive. So "foo" and "Foo" are different
-   * keys and are specified differently in the template string. The values
-   * are of any class. They are generally {@link String} objects, but
-   * any class that implements a useful and predictable
-   * {@link Object#toString()} method will work.
+   * @param dict The keys in the passed <code>Map</code> are always of type {@link String} and are
+   *     case sensitive. So "foo" and "Foo" are different keys and are specified differently in the
+   *     template string. The values are of any class. They are generally {@link String} objects,
+   *     but any class that implements a useful and predictable {@link Object#toString()} method
+   *     will work.
    */
   public String expand(Map dict) throws PSStringTemplateException {
     if (dict == null) {
@@ -195,19 +178,15 @@ public class PSStringTemplate {
   }
 
   /**
-   * Expand the template given the passed variable references. Note that
-   * embedded variables in the expansion are not themselves expanded.
+   * Expand the template given the passed variable references. Note that embedded variables in the
+   * expansion are not themselves expanded.
    *
-   * @param dict A mapping of variable names to values, must
-   * never be <code>null</code>.
-   * @return a string containing the original template with variables replaced
-   * by their references. If a variable does not exist then it is replaced by
-   * the empty string. Never returns <code>null</code>.  If the template
-   * supplied during construction was <code>null</code> or empty, an empty
-   * string is returned.
-   *
-   * @throws PSStringTemplateException if an error is encountered while
-   * expanding the template.
+   * @param dict A mapping of variable names to values, must never be <code>null</code>.
+   * @return a string containing the original template with variables replaced by their references.
+   *     If a variable does not exist then it is replaced by the empty string. Never returns <code>
+   *     null</code>. If the template supplied during construction was <code>null</code> or empty,
+   *     an empty string is returned.
+   * @throws PSStringTemplateException if an error is encountered while expanding the template.
    */
   public String expand(IPSTemplateDictionary dict) throws PSStringTemplateException {
     if (null == dict) {
@@ -217,32 +196,27 @@ public class PSStringTemplate {
   }
 
   /**
-   * Indicate if a start sequence with no matching end sequence should
-   * be ignored or if an exception should be thrown, <code>false</code> by
-   * default if never set.
+   * Indicate if a start sequence with no matching end sequence should be ignored or if an exception
+   * should be thrown, <code>false</code> by default if never set.
    *
-   * @param ignore <code>true</code> to ignore an unmatched sequence,
-   * <code>false</code> to throw an {@link PSStringTemplateException} during
-   * calls to {@link #expand(IPSTemplateDictionary)}.
+   * @param ignore <code>true</code> to ignore an unmatched sequence, <code>false</code> to throw an
+   *     {@link PSStringTemplateException} during calls to {@link #expand(IPSTemplateDictionary)}.
    */
   public void setIgnoreUnmatchedSequence(boolean ignore) {
     m_ignoreUnmatchedSequence = ignore;
   }
 
   /**
-   * Identical to {@link #expand(IPSTemplateDictionary)} with a parameter
-   * that allows the start position to be specified.
+   * Identical to {@link #expand(IPSTemplateDictionary)} with a parameter that allows the start
+   * position to be specified.
    *
    * @param dict A mapping of variable names to values, assumed not <code>
    * null</code>.
    * @param i The start index, which must be &gt;= zero.
-   *
-   * @return a string containing the original template with variables replaced
-   * by their references. If a variable does not exist then it is replaced by
-   * the empty string. Never returns <code>null</code>.
-   *
-   * @throws PSStringTemplateException if an error is encountered while
-   * expanding the template.
+   * @return a string containing the original template with variables replaced by their references.
+   *     If a variable does not exist then it is replaced by the empty string. Never returns <code>
+   *     null</code>.
+   * @throws PSStringTemplateException if an error is encountered while expanding the template.
    */
   private String expand(IPSTemplateDictionary dict, int i) throws PSStringTemplateException {
     if (i < 0) {
@@ -280,17 +254,14 @@ public class PSStringTemplate {
   /**
    * Expand variable reference.
    *
-   * @param dict Dictionary that contains the variable references,
-   * assumed not <code>null</code>.
+   * @param dict Dictionary that contains the variable references, assumed not <code>null</code>.
    * @param pos Initial position of first character
-   * @param template template string being expanded (allows future
-   * recursive handling)
+   * @param template template string being expanded (allows future recursive handling)
    * @param rval Output string
-   * @return new character position at the next character after the variable
-   * reference
-   * @throws PSStringTemplateException If a start sequence is found with no
-   * matching end sequence, and we are not ignoring unmatched sequences (see
-   * {@link #setIgnoreUnmatchedSequence(boolean)}.
+   * @return new character position at the next character after the variable reference
+   * @throws PSStringTemplateException If a start sequence is found with no matching end sequence,
+   *     and we are not ignoring unmatched sequences (see {@link
+   *     #setIgnoreUnmatchedSequence(boolean)}.
    */
   private int handleVariable(
       IPSTemplateDictionary dict, int pos, String template, StringBuilder rval)
@@ -329,35 +300,27 @@ public class PSStringTemplate {
     return end + m_endSequence.length();
   }
 
-  /**
-   * The template to expand, will never be <code>null</code>
-   * or empty after construction.
-   */
+  /** The template to expand, will never be <code>null</code> or empty after construction. */
   private String m_template = null;
 
-  /**
-   * This character causes the next character in the template to be
-   * taken as literal input.
-   */
+  /** This character causes the next character in the template to be taken as literal input. */
   private char m_quoteCharacter = '\\';
 
   /**
-   * If this sequence is discovered in the template, it is used as the
-   * start delimiter for a variable reference.
+   * If this sequence is discovered in the template, it is used as the start delimiter for a
+   * variable reference.
    */
   private String m_startSequence = "{";
 
   /**
-   * This sequence is used as the end sequence when scanning for a  variable
-   * reference. If this sequence uses multiple characters, they must all
-   * match.
+   * This sequence is used as the end sequence when scanning for a variable reference. If this
+   * sequence uses multiple characters, they must all match.
    */
   private String m_endSequence = "}";
 
   /**
-   * Flag to indicate if a start sequence with no matching end sequence should
-   * be ignored or if an exception should be thrown, <code>false</code> by
-   * default.
+   * Flag to indicate if a start sequence with no matching end sequence should be ignored or if an
+   * exception should be thrown, <code>false</code> by default.
    */
   private boolean m_ignoreUnmatchedSequence = false;
 }

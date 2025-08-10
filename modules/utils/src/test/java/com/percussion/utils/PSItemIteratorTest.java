@@ -49,12 +49,11 @@ import org.junit.jupiter.api.Test;
  * @author dougrand
  */
 public class PSItemIteratorTest {
-  /**
-   * Test class to test the base class of item iterator
-   */
+  /** Test class to test the base class of item iterator */
   static class TestItemIterator extends PSItemIterator<Object> {
     /**
      * Ctor
+     *
      * @param things
      * @param filterpattern
      */
@@ -63,17 +62,14 @@ public class PSItemIteratorTest {
     }
   }
 
-  /**
-   * Test implementation of Item
-   */
+  /** Test implementation of Item */
   static class TestItem implements Item {
-    /**
-     * Name
-     */
+    /** Name */
     String mi_name = null;
 
     /**
      * Ctor
+     *
      * @param name
      */
     public TestItem(String name) {
@@ -141,9 +137,7 @@ public class PSItemIteratorTest {
             RepositoryException {}
   }
 
-  /**
-   * Test data for multi map testing
-   */
+  /** Test data for multi map testing */
   static MultiValuedMap ms_mm = new ArrayListValuedHashMap<>();
 
   static {
@@ -170,14 +164,10 @@ public class PSItemIteratorTest {
     ms_mm.put("cc", "9");
   }
 
-  /**
-   * Set that results from iterating over the filter a*
-   */
+  /** Set that results from iterating over the filter a* */
   static Set<String> ms_result1 = new HashSet<String>();
 
-  /**
-   * Set that results from iterating over the filter ba
-   */
+  /** Set that results from iterating over the filter ba */
   static Set<String> ms_result2 = new HashSet<String>();
 
   static {
@@ -196,9 +186,7 @@ public class PSItemIteratorTest {
     ms_result2.add("4.2");
   }
 
-  /**
-   * Test multi map iteration behavior for the item iterator.
-   */
+  /** Test multi map iteration behavior for the item iterator. */
   @SuppressWarnings("unchecked")
   @Test
   public void testMultiMap() {
@@ -242,6 +230,7 @@ public class PSItemIteratorTest {
 
   /**
    * Test regular maps
+   *
    * @throws RepositoryException
    */
   @Test

@@ -47,26 +47,24 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Walk the search properties in the request document. For sys_community, remove
- * the property and create an appropriate acl using the service.
- * <p>
- * There are three cases:
+ * Walk the search properties in the request document. For sys_community, remove the property and
+ * create an appropriate acl using the service.
+ *
+ * <p>There are three cases:
+ *
  * <ul>
- * <li>The workbench is saving a search. In this case the sys_community
- * properties have already been removed and the acl has been processed in web
- * services. This exit should not modify the acls at all. This is detected by
- * noticing that the "new" acl hasn't been calculated since it is calculated
- * on the first property found.
- * <li>The CX (or workbench) is deleting a search. In this case an existing
- * acl can be deleted safely since the associated object is being removed. This
- * will replicate work from the web services, but shouldn't cause a problem
- * <li>The CX is saving a search. In this case there will be no sys_community
- * properties, and no new acl will be calculated. No changes should be made to
- * the acls.
+ *   <li>The workbench is saving a search. In this case the sys_community properties have already
+ *       been removed and the acl has been processed in web services. This exit should not modify
+ *       the acls at all. This is detected by noticing that the "new" acl hasn't been calculated
+ *       since it is calculated on the first property found.
+ *   <li>The CX (or workbench) is deleting a search. In this case an existing acl can be deleted
+ *       safely since the associated object is being removed. This will replicate work from the web
+ *       services, but shouldn't cause a problem
+ *   <li>The CX is saving a search. In this case there will be no sys_community properties, and no
+ *       new acl will be calculated. No changes should be made to the acls.
  * </ul>
  *
  * @author dougrand
- *
  */
 public class PSSearchCommunityHandler implements IPSRequestPreProcessor {
   protected static Logger ms_log = LogManager.getLogger(PSSearchCommunityHandler.class);

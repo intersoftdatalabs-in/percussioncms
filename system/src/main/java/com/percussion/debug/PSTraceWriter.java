@@ -24,24 +24,19 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
 /**
- * This class provides writer functionality to the trace output stream, and
- * additional functionality required by tracing.
+ * This class provides writer functionality to the trace output stream, and additional functionality
+ * required by tracing.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceWriter extends OutputStreamWriter {
   /**
-   * Constructs a trace writer for the specified output stream, using the
-   * specified encoding.
+   * Constructs a trace writer for the specified output stream, using the specified encoding.
    *
-   * @param out The output stream to write to.  May not be <code>null</code>
-   * and must be open.
-   *
-   * @param encoding The java name for the character encoding to use.  May
-   * not be <code>null</code> or emtpy.
-   *
+   * @param out The output stream to write to. May not be <code>null</code> and must be open.
+   * @param encoding The java name for the character encoding to use. May not be <code>null</code>
+   *     or emtpy.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws UnsupportedEncodingException If the named encoding is not
-   * supported.
+   * @throws UnsupportedEncodingException If the named encoding is not supported.
    */
   public PSTraceWriter(OutputStream out, String encoding) throws UnsupportedEncodingException {
     super(out, encoding);
@@ -49,14 +44,12 @@ public class PSTraceWriter extends OutputStreamWriter {
   }
 
   /**
-   * Force any system buffers associated with the trace output stream to be
-   * synchronized with the underlying device (if there is one).  For example
-   * if the OutputStream is an instance of a FileOutputStream, this will cause
-   * all in-memory modified copies of buffers associated with it's
-   * FileDesecriptor to be written to the hard disk, and it's timestamp
-   * updated.  If any in-memory buffering is being done by the application
-   * (for example, by a BufferedOutputStream object), those buffers must be
-   * flushed into the FileDescriptor (for example, by invoking
+   * Force any system buffers associated with the trace output stream to be synchronized with the
+   * underlying device (if there is one). For example if the OutputStream is an instance of a
+   * FileOutputStream, this will cause all in-memory modified copies of buffers associated with it's
+   * FileDesecriptor to be written to the hard disk, and it's timestamp updated. If any in-memory
+   * buffering is being done by the application (for example, by a BufferedOutputStream object),
+   * those buffers must be flushed into the FileDescriptor (for example, by invoking
    * OutputStream.flush) before that data will be affected by this method.
    *
    * @throws IOException if any error occurs.
@@ -70,8 +63,8 @@ public class PSTraceWriter extends OutputStreamWriter {
   }
 
   /**
-   * The output stream passed in the ctor.  Stored to be able to support
-   * synchronization with the system device.
+   * The output stream passed in the ctor. Stored to be able to support synchronization with the
+   * system device.
    */
   private OutputStream m_outputStream = null;
 }

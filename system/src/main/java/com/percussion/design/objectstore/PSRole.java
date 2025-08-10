@@ -31,19 +31,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSRole class provides a way to group users within E2. Roles can be
- * used within ACLs to grant a specific type of access to all members of
- * the role.
- * <p>
- * Roles are named collections containing PSRelativeSubject objects, and as such
- * are derived from the PSDatabaseComponentCollection class. Simply use the
- * methods defined in PSDatabaseComponentCollection to gain access to the
- * PSSubject objects defined for the role.
+ * The PSRole class provides a way to group users within E2. Roles can be used within ACLs to grant
+ * a specific type of access to all members of the role.
+ *
+ * <p>Roles are named collections containing PSRelativeSubject objects, and as such are derived from
+ * the PSDatabaseComponentCollection class. Simply use the methods defined in
+ * PSDatabaseComponentCollection to gain access to the PSSubject objects defined for the role.
  *
  * @see com.percussion.design.objectstore.PSApplication#getRoles
  * @see com.percussion.design.objectstore.PSRelativeSubject
  * @see PSCollectionComponent
- *
  */
 public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalogSummary {
   /**
@@ -68,20 +65,13 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode        the XML element node to construct this
-   *                              object from
-   *
-   * @param   parentDoc         the Java object which is the parent of this
-   *                              object
-   *
-   * @param   parentComponents  the parent objects of this object
-   *
-   * @throws  PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRole(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -89,9 +79,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   public PSRole() {
     PSRelativeSubject subj = new PSRelativeSubject();
     m_subjects =
@@ -101,9 +89,8 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   /**
    * Constructs an empty role with the specified name.
    *
-   * @param name The name of the role, may not be <code>null</code>, empty,
-   * or greater than <code>MAX_ROLE_NAME_LEN</code> in length.
-   *
+   * @param name The name of the role, may not be <code>null</code>, empty, or greater than <code>
+   *     MAX_ROLE_NAME_LEN</code> in length.
    * @throws IllegalArgumentException if role name is invalid
    */
   public PSRole(String name) {
@@ -123,14 +110,14 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * This method is called to create one or more Action XML elements
-   * containing the data described in this object that is used to update
-   * the database. The Elements are appended to the root of the passed in doc.
-   * This method then calls the <code>toDatabaseXml</code> method on any of
-   * this object's children.
-   * <p>
-   * The structure of the XML element(s) appended to the document (using a
-   * root element called 'root') is:
+   * This method is called to create one or more Action XML elements containing the data described
+   * in this object that is used to update the database. The Elements are appended to the root of
+   * the passed in doc. This method then calls the <code>toDatabaseXml</code> method on any of this
+   * object's children.
+   *
+   * <p>The structure of the XML element(s) appended to the document (using a root element called
+   * 'root') is:
+   *
    * <pre><code>
    * &lt;!ELEMENT root (Action*)&gt;
    * &lt;!ELEMENT Action (PSXAttribute)
@@ -181,10 +168,9 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Loads this object from the supplied element using {@link PSRole#fromXml
-   * super.fromXml}, then loads all subjects and attributes for this subject
-   * using the supplied loader.  See
-   * {@link PSDatabaseComponent#fromDatabaseXml} for * more information.
+   * Loads this object from the supplied element using {@link PSRole#fromXml super.fromXml}, then
+   * loads all subjects and attributes for this subject using the supplied loader. See {@link
+   * PSDatabaseComponent#fromDatabaseXml} for * more information.
    */
   public void fromDatabaseXml(Element e, PSDatabaseComponentLoader cl, PSRelation relationContext)
       throws PSUnknownNodeTypeException, PSDatabaseComponentException {
@@ -224,12 +210,10 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Get the role subjects.  Any changes to this collection affect the
-   * collection in the role.
+   * Get the role subjects. Any changes to this collection affect the collection in the role.
    *
-   * @return the subjects of this role, never <code>null</code>, may
-   * be empty, the contents of the collection are of type
-   * <code>PSRelativeSubject</code>.
+   * @return the subjects of this role, never <code>null</code>, may be empty, the contents of the
+   *     collection are of type <code>PSRelativeSubject</code>.
    */
   public PSDatabaseComponentCollection getSubjects() {
     return m_subjects;
@@ -254,15 +238,13 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Compares this PSRole to another Object, fulfilling the Comparable contract.
-   * If the Object isa PSRole, this method behaves like compareTo(PSRole).
-   * Otherwise, a ClassCastException is thrown.
+   * Compares this PSRole to another Object, fulfilling the Comparable contract. If the Object isa
+   * PSRole, this method behaves like compareTo(PSRole). Otherwise, a ClassCastException is thrown.
    *
    * @param o the Object to be compared. Cannot be <code>null</code>
-   * @return 0 if the argument is a PSRole with the same name as this
-   *    PSRole; a value less than 0 if the argument is "greater than" this
-   *    PSRole; and a value greater than 0 if the argument is "less than"
-   *    this PSRole
+   * @return 0 if the argument is a PSRole with the same name as this PSRole; a value less than 0 if
+   *     the argument is "greater than" this PSRole; and a value greater than 0 if the argument is
+   *     "less than" this PSRole
    * @throws ClassCastException - if the argument is not a PSRole.
    */
   public int compareTo(Object o) {
@@ -270,14 +252,13 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Compares this PSRole to another PSRole.  The ordering is determined
-   * by a String comparison of the PSRoles' names.
+   * Compares this PSRole to another PSRole. The ordering is determined by a String comparison of
+   * the PSRoles' names.
    *
    * @param testRole the PSRoles to be compared. Cannot be <code>null</code>
-   * @return 0 if the argument has the same name as this PSRole;
-   *    a value less than 0 if the argument is "greater than" this
-   *    PSRole; and a value greater than 0 if the argument is "less than"
-   *    this PSRole
+   * @return 0 if the argument has the same name as this PSRole; a value less than 0 if the argument
+   *     is "greater than" this PSRole; and a value greater than 0 if the argument is "less than"
+   *     this PSRole
    */
   public int compareTo(PSRole testRole) {
     return (getName()).compareTo(testRole.getName());
@@ -286,11 +267,9 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   /**
    * Set the name of the role.
    *
-   * @param   name The name of the role, may not be <code>null</code>, empty,
-   * or greater than <code>MAX_ROLE_NAME_LEN</code> in length.
-   *
-   * @throws IllegalArgumentException if name is null, empty or
-   *                                  exceeds the specified size limit
+   * @param name The name of the role, may not be <code>null</code>, empty, or greater than <code>
+   *     MAX_ROLE_NAME_LEN</code> in length.
+   * @throws IllegalArgumentException if name is null, empty or exceeds the specified size limit
    */
   void setName(String name) {
     if ((null == name) || (name.length() == 0))
@@ -304,10 +283,11 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXRole XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXRole XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXRole provides a way to group users within E2. Roles can be
@@ -333,7 +313,7 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
    *    --&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXRole XML element node
+   * @return the newly created PSXRole XML element node
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -342,24 +322,19 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * This method serializes all the properties of this object, optionally
-   * including those properties that are PSDatabaseComponent objects. It
-   * creates a node with a name unique to this object and adds attributes
-   * and child elements to this node, which is returned when complete.
+   * This method serializes all the properties of this object, optionally including those properties
+   * that are PSDatabaseComponent objects. It creates a node with a name unique to this object and
+   * adds attributes and child elements to this node, which is returned when complete.
    *
-   * @param doc The document to which the returned element will be added.
-   *    Assumed not <code>null</code>.
-   *
-   * @param includeCompChildren A flag to indicate whether to include
-   *    properties whose data type is PSDatabaseComponent. They are included
-   *    if this is <code>true</code>, otherwise they aren't. It was designed
-   *    to set this to <code>true</code> when calling from <code>toXml</code>
-   *    and <code>false</code> when calling from <code>toDatabaseXml</code>.
-   *    The db children are left out when saving to the db to make the
-   *    update work correctly.
-   *
-   * @return An XML element containing some or all of the properties of this
-   *    node, depending on the supplied flag, never <code>null</code>.
+   * @param doc The document to which the returned element will be added. Assumed not <code>null
+   *     </code>.
+   * @param includeCompChildren A flag to indicate whether to include properties whose data type is
+   *     PSDatabaseComponent. They are included if this is <code>true</code>, otherwise they aren't.
+   *     It was designed to set this to <code>true</code> when calling from <code>toXml</code> and
+   *     <code>false</code> when calling from <code>toDatabaseXml</code>. The db children are left
+   *     out when saving to the db to make the update work correctly.
+   * @return An XML element containing some or all of the properties of this node, depending on the
+   *     supplied flag, never <code>null</code>.
    */
   private Element toXml(Document doc, boolean includeCompChildren) {
     Element root = doc.createElement(ms_NodeType);
@@ -383,12 +358,10 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * This method is called to populate a PSRole Java object
-   * from a PSXRole XML element node. See the
+   * This method is called to populate a PSRole Java object from a PSXRole XML element node. See the
    * {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRole
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -452,8 +425,8 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Override {@link PSDatabaseComponent#setDelete()} to
-   * inform our children that they are deletes as well.
+   * Override {@link PSDatabaseComponent#setDelete()} to inform our children that they are deletes
+   * as well.
    */
   public void setDelete() {
     super.setDelete();
@@ -462,18 +435,15 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     super.validate(cxt);
@@ -532,28 +502,21 @@ public class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalo
         .toHashCode();
   }
 
-  /**
-   * The name of the role, never <code>null</code> or empty after construction.
-   */
+  /** The name of the role, never <code>null</code> or empty after construction. */
   private String m_name = "defaultRoleName";
 
   /**
-   * The subjects (<code>PSRelativeSubject</code> objects) that are members of
-   * this role, may be empty, but never <code>null</code> after construction.
+   * The subjects (<code>PSRelativeSubject</code> objects) that are members of this role, may be
+   * empty, but never <code>null</code> after construction.
    */
   private PSDatabaseComponentCollection m_subjects;
 
-  /**
-   * The attributes associated with this role, may be empty, but never
-   * <code>null</code>.
-   */
+  /** The attributes associated with this role, may be empty, but never <code>null</code>. */
   private PSAttributeList m_attributes = new PSAttributeList();
 
   /* package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXRole";
 
-  /**
-   * The maximum number of characters that a role's name can be.
-   */
+  /** The maximum number of characters that a role's name can be. */
   public static final int MAX_ROLE_NAME_LEN = 50;
 }

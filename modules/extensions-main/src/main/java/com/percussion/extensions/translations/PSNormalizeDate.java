@@ -27,10 +27,10 @@ import java.io.File;
 import java.text.ParseException;
 
 /**
- * Parses a date string using a specified format and transforms it to a new
- * string. See {@link org.apache.commons.lang3.time.FastDateFormat} for the supported format
- * patterns. The output format is <code>yyyy-MM-dd HH:mm:ss.SSS</code> if a
- * time component is present, otherwise it is <code>yyyy-MM-dd.</code>.
+ * Parses a date string using a specified format and transforms it to a new string. See {@link
+ * org.apache.commons.lang3.time.FastDateFormat} for the supported format patterns. The output
+ * format is <code>yyyy-MM-dd HH:mm:ss.SSS</code> if a time component is present, otherwise it is
+ * <code>yyyy-MM-dd.</code>.
  *
  * <table>
  * <tr>
@@ -51,7 +51,6 @@ import java.text.ParseException;
  * </table>
  *
  * @author dougrand
- *
  */
 public class PSNormalizeDate implements IPSFieldInputTransformer {
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)

@@ -21,19 +21,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Specifies a list of fields that are included in a particular content editor
- * view.
- */
+/** Specifies a list of fields that are included in a particular content editor view. */
 public class PSView {
   /**
    * Constructs a view with the specified name and list of fields.
    *
-   * @param name The name of the view.  May not be <code>null</code> or empty.
-   * @param fields An iterator over zero or more field names as Strings, never
-   * <code>null</code> or empty, may not contain <code>null</code> or empty
-   * entries.
-   *
+   * @param name The name of the view. May not be <code>null</code> or empty.
+   * @param fields An iterator over zero or more field names as Strings, never <code>null</code> or
+   *     empty, may not contain <code>null</code> or empty entries.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSView(String name, Iterator fields) {
@@ -66,8 +61,8 @@ public class PSView {
   }
 
   /**
-   * @return An iterator over zero or more field names as non-<code>null</code>
-   * Strings.  Never <code>null</code>.
+   * @return An iterator over zero or more field names as non-<code>null</code> Strings. Never
+   *     <code>null</code>.
    */
   public Iterator getFields() {
     return m_fields.iterator();
@@ -77,9 +72,8 @@ public class PSView {
    * compares this instance to another object.
    *
    * @param obj the object to compare
-   * @return returns <code>true</code> if the object is a
-   * PSView with identical values. Otherwise returns
-   * <code>false</code>.
+   * @return returns <code>true</code> if the object is a PSView with identical values. Otherwise
+   *     returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -94,9 +88,8 @@ public class PSView {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -107,15 +100,12 @@ public class PSView {
     return hash;
   }
 
-  /**
-   * The name of the view, never <code>null</code>, empty, or modified after
-   * construction.
-   */
+  /** The name of the view, never <code>null</code>, empty, or modified after construction. */
   private String m_name;
 
   /**
-   * The names of the fields as Strings that are included in this view,
-   * never <code>null</code> or modified after construction, may be empty.
+   * The names of the fields as Strings that are included in this view, never <code>null</code> or
+   * modified after construction, may be empty.
    */
   private List m_fields;
 }

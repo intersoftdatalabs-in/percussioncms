@@ -34,8 +34,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * BrowserDetection Filter Detects which browser a user is running. If the
- * browser is IE and it is not version 8, they get a warning.
+ * BrowserDetection Filter Detects which browser a user is running. If the browser is IE and it is
+ * not version 8, they get a warning.
  *
  * @author wesleyhirsch
  */
@@ -65,11 +65,11 @@ public class PSBrowserDetect implements Filter {
   }
 
   /**
-   * BrowserDetection Filter Detects which browser a user is running. If the
-   * browser is IE and it is not version 8, 9, 10, or 11 they get a warning.
+   * BrowserDetection Filter Detects which browser a user is running. If the browser is IE and it is
+   * not version 8, 9, 10, or 11 they get a warning.
    *
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-   *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
+   *     javax.servlet.FilterChain)
    */
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {

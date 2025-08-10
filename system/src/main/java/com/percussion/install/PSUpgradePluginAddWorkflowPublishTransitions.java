@@ -30,27 +30,19 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * Add publish, remove and resubmit transitions to the steps of the Default
- * Workflow.
+ * Add publish, remove and resubmit transitions to the steps of the Default Workflow.
  *
- * Publish transition:
- *  · From Draft state to Live state.
- *  · From Review state to Live state.
- *  · From Quick Edit state to Live state.
- *  · From Archive state to Live state.
- *  · For every role who have approved transition, add a permission for the publish transition.
+ * <p>Publish transition: · From Draft state to Live state. · From Review state to Live state. ·
+ * From Quick Edit state to Live state. · From Archive state to Live state. · For every role who
+ * have approved transition, add a permission for the publish transition.
  *
- * Remove transition:
- *  · From Quick Edit state to Archive state.
+ * <p>Remove transition: · From Quick Edit state to Archive state.
  *
- * Resubmit transition:
- *  · From Quick Edit state to Draft state.
+ * <p>Resubmit transition: · From Quick Edit state to Draft state.
  *
- * Live state:
- *  · Changing the assignment type for assigned roles.
+ * <p>Live state: · Changing the assignment type for assigned roles.
  *
  * @author rafaelsalis
- *
  */
 public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradePlugin
 // REFACTORED: CP-JAVA11
@@ -58,20 +50,16 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
-  /**
-   * Constant name for the default workflow.
-   */
+  /** Constant name for the default workflow. */
   private static final String DEFAULT_WORKFLOW = "Default Workflow";
 
-  /**
-   * Constant names for the states.
-   */
+  /** Constant names for the states. */
   private static final String DRAFT_STATE = "Draft";
 
   private static final String REVIEW_STATE = "Review";
@@ -80,16 +68,12 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   private static final String PENDING_STATE = "Pending";
   private static final String LIVE_STATE = "Live";
 
-  /**
-   * Constant name for role.
-   */
+  /** Constant name for role. */
   private static final String ADMIN_ROLE = "Admin";
 
   private static final String EDITOR_ROLE = "Editor";
 
-  /**
-   * Constants names and description for transitions.
-   */
+  /** Constants names and description for transitions. */
   private static final String APPROVE_TRANSITION = "Approve";
 
   private static final String PUBLISH_TRANSITION = "Publish";
@@ -100,9 +84,7 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   private static final String RESUBMIT_TRANSITION_DESC = "Send it back to draft for reworking.";
   private static final String EDIT_TRANSITION = "Edit";
 
-  /**
-   * Tables names.
-   */
+  /** Tables names. */
   private String workflowTable;
 
   private String stateTable;
@@ -111,9 +93,7 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   private String transitionRoleTable;
   private String roleTable;
 
-  /**
-   * Id's for the workflow and states.
-   */
+  /** Id's for the workflow and states. */
   private int defaultWorkflowId;
 
   private int draftStateId;
@@ -178,8 +158,8 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * Update the corresponding tables by changing the values for different tables
-   * that store the data used by workflow.
+   * Update the corresponding tables by changing the values for different tables that store the data
+   * used by workflow.
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -206,8 +186,8 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid.
    * @return the table
@@ -222,13 +202,14 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
 
   /**
    * Add a publish transition for each state of the Default Workflow:
-   *   <ul>
-   *       <li>From Draft to Pending</li>
-   *       <li>From Review to Pending</li>
-   *       <li>From Archive to Pending</li>
-   *       <li>From Quick Edit to Pending</li>
-   *       <li>All custom steps to Pending</li>
-   *   </ul>
+   *
+   * <ul>
+   *   <li>From Draft to Pending
+   *   <li>From Review to Pending
+   *   <li>From Archive to Pending
+   *   <li>From Quick Edit to Pending
+   *   <li>All custom steps to Pending
+   * </ul>
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -287,8 +268,8 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * Add a Publish transition for each state of the Default Workflow that
-   * already contains a Approve transition associated.
+   * Add a Publish transition for each state of the Default Workflow that already contains a Approve
+   * transition associated.
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -311,9 +292,10 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
 
   /**
    * Add a Remove transition for the state of the Default Workflow:
-   *   <ul>
-   *       <li>From Quick Edit to Archive</li>
-   *   </ul>
+   *
+   * <ul>
+   *   <li>From Quick Edit to Archive
+   * </ul>
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -351,9 +333,10 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
 
   /**
    * Add a Resubmit transition for the state of the Default Workflow:
-   *   <ul>
-   *       <li>From Quick Edit to Draft</li>
-   *   </ul>
+   *
+   * <ul>
+   *   <li>From Quick Edit to Draft
+   * </ul>
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -390,8 +373,8 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * Update the Live state by changing the assignment type for assigned roles
-   * and adding the roles to the Edit transition.
+   * Update the Live state by changing the assignment type for assigned roles and adding the roles
+   * to the Edit transition.
    *
    * @throws SQLException if any error occurs during DB access.
    */
@@ -404,11 +387,9 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * Perform an insert query to insert a Publish transition from the state passed
-   * as parameter.
+   * Perform an insert query to insert a Publish transition from the state passed as parameter.
    *
    * @param transitionFromStateId the state Id to set the fromStateId value
-   *
    * @throws SQLException if any error occurs during DB access.
    */
   private void executeInsertTransitionQuery(int transitionFromStateId) throws SQLException {
@@ -565,8 +546,7 @@ public class PSUpgradePluginAddWorkflowPublishTransitions implements IPSUpgradeP
   }
 
   /**
-   * Retrieves the transition id for the state and transition label
-   * passed as parameters.
+   * Retrieves the transition id for the state and transition label passed as parameters.
    *
    * @param fromStateId the id of the state.
    * @param transitionLabel the name of the transition to retrieve.

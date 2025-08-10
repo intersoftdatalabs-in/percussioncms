@@ -37,21 +37,18 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 
 /**
- * This is a factory class to provide the analyzer for the given display
- * language of the item's locale. It is implemented as a singleton pattern and
- * users should call {@link PSLuceneAnalyzerFactory#getInstance()} for the instances of this class.
+ * This is a factory class to provide the analyzer for the given display language of the item's
+ * locale. It is implemented as a singleton pattern and users should call {@link
+ * PSLuceneAnalyzerFactory#getInstance()} for the instances of this class.
  */
 public class PSLuceneAnalyzerFactory {
-  /**
-   * Private ctor as it is a singleton class.
-   */
+  /** Private ctor as it is a singleton class. */
   private PSLuceneAnalyzerFactory() {
     init();
   }
 
   /**
-   * This class uses a singleton pattern and call this method to get the
-   * instance of this class.
+   * This class uses a singleton pattern and call this method to get the instance of this class.
    *
    * @return The one and only instance of this class.
    */
@@ -63,9 +60,8 @@ public class PSLuceneAnalyzerFactory {
   }
 
   /**
-   * Initializes the analyzers registered in the search config. Loops through
-   * all the system locales and logs info if an analyzer is not found for any
-   * locale.
+   * Initializes the analyzers registered in the search config. Loops through all the system locales
+   * and logs info if an analyzer is not found for any locale.
    */
   private void init() {
     PSSearchConfig searchConfig = PSServer.getServerConfiguration().getSearchConfig();
@@ -152,13 +148,12 @@ public class PSLuceneAnalyzerFactory {
   }
 
   /**
-   * Checks whether a locale is registered with the supplied language string or
-   * not.
+   * Checks whether a locale is registered with the supplied language string or not.
    *
-   * @param langstr in the form of two letter language code hyphen two
-   * letter country code, that needs to be validated assumed not <code>null</code>.
-   * @return returns <code>true</code> if the supplied language string
-   * corresponds to a registered locale other wise <code>false</code>.
+   * @param langstr in the form of two letter language code hyphen two letter country code, that
+   *     needs to be validated assumed not <code>null</code>.
+   * @return returns <code>true</code> if the supplied language string corresponds to a registered
+   *     locale other wise <code>false</code>.
    * @throws PSLocaleException in case of locale cataloging error.
    */
   private boolean isValidLangString(String langstr) throws PSLocaleException {
@@ -173,12 +168,12 @@ public class PSLuceneAnalyzerFactory {
   }
 
   /**
-   * Gets the default analyzer for the supplied language string. Checks for the
-   * supported analyzer in snowball analyzer and then checks in CJK analyzer
-   * list. If not found returns white space analyzer as default.
+   * Gets the default analyzer for the supplied language string. Checks for the supported analyzer
+   * in snowball analyzer and then checks in CJK analyzer list. If not found returns white space
+   * analyzer as default.
    *
-   * @param languageString in the form of two letter language code hyphen two
-   * letter country code assumed not <code>null</code>.
+   * @param languageString in the form of two letter language code hyphen two letter country code
+   *     assumed not <code>null</code>.
    * @return lucene Analyzer for the given locale never <code>null</code>.
    */
   private Analyzer getDefaultAnalyzer(String languageString) {
@@ -200,15 +195,12 @@ public class PSLuceneAnalyzerFactory {
   }
 
   /**
-   * Returns the analyzer for the given locale. The analyzers for the locales
-   * are initialized in the constructor. If not found any, returns
-   * org.apache.lucene.analysis.WhitespaceAnalyzer.
+   * Returns the analyzer for the given locale. The analyzers for the locales are initialized in the
+   * constructor. If not found any, returns org.apache.lucene.analysis.WhitespaceAnalyzer.
    *
-   * @param languageString in the form of two letter language code hyphen two
-   * letter country code for which the analyzer needs to be
-   *           returned.
-   * @return Instance of org.apache.lucene.analysis.Analyzer object never
-   *         <code>null</code>.
+   * @param languageString in the form of two letter language code hyphen two letter country code
+   *     for which the analyzer needs to be returned.
+   * @return Instance of org.apache.lucene.analysis.Analyzer object never <code>null</code>.
    */
   public Analyzer getAnalyzer(String languageString) {
     Analyzer al = m_analyzers.get(languageString);
@@ -216,10 +208,7 @@ public class PSLuceneAnalyzerFactory {
     return al;
   }
 
-  /**
-   * It is a map of language string and the corresponding Analyzer. Filled in
-   * constructor.
-   */
+  /** It is a map of language string and the corresponding Analyzer. Filled in constructor. */
   private Map<String, Analyzer> m_analyzers = new HashMap<>();
 
   /**
@@ -228,8 +217,6 @@ public class PSLuceneAnalyzerFactory {
    */
   private static PSLuceneAnalyzerFactory ms_instance = null;
 
-  /**
-   * Static instance of logger for this class.
-   */
+  /** Static instance of logger for this class. */
   private static final Logger log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 }

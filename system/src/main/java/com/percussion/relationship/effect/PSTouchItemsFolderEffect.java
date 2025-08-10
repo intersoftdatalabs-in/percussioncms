@@ -21,9 +21,7 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 
 /**
- *
  * @author adamgent
- *
  */
 public class PSTouchItemsFolderEffect extends PSFolderEffect {
 

@@ -33,11 +33,9 @@ import org.apache.tools.ant.BuildException;
 import org.w3c.dom.Document;
 
 /**
- * PSExtensions will be used to install extensions.
+ * PSExtensions will be used to install extensions. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -55,7 +53,6 @@ import org.w3c.dom.Document;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSExtensions extends PSAction {
   // see base class
@@ -95,12 +92,11 @@ public class PSExtensions extends PSAction {
   }
 
   /**
-   * Function to get the files in a directory and find the Extension.xml.
-   * If on is found, then the extensions will be configured.
+   * Function to get the files in a directory and find the Extension.xml. If on is found, then the
+   * extensions will be configured.
    *
-   * @param dir - Directory to look for Extensions.xml.  Must not be
-   *   <CODE>null</CODE> and a directory.
-   *
+   * @param dir - Directory to look for Extensions.xml. Must not be <CODE>null</CODE> and a
+   *     directory.
    * @throws IllegalArgumentException if dir is <CODE>null</CODE>.
    */
   private void findAndConfigureExits(File dir) {
@@ -174,18 +170,12 @@ public class PSExtensions extends PSAction {
    * Variables
    */
 
-  /**
-   * The root installation directory.
-   */
+  /** The root installation directory. */
   private String m_strRootDir = null;
 
-  /**
-   * Extension tool.
-   */
+  /** Extension tool. */
   private PSExtensionInstallTool m_tool = null;
 
-  /**
-   * The install location relative to the root.
-   */
+  /** The install location relative to the root. */
   private String m_strInstallLoc = null;
 }

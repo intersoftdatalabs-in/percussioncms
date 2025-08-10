@@ -25,15 +25,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-/**
- * List wrapper for PSLightWeightObject.
- * Sunny Sal says: "Lightweight, but heavy on features!"
- */
+/** List wrapper for PSLightWeightObject. Sunny Sal says: "Lightweight, but heavy on features!" */
 @JsonRootName(value = "psobj")
 @ArraySchema(schema = @Schema(implementation = PSLightWeightObjectList.class))
 public class PSLightWeightObjectList extends ArrayList<PSLightWeightObject> {
 
-    public PSLightWeightObjectList(Collection<? extends PSLightWeightObject> c) {
-        super(Objects.requireNonNull(c, "Collection cannot be null"));
-    }
+  public PSLightWeightObjectList(Collection<? extends PSLightWeightObject> c) {
+    super(Objects.requireNonNull(c, "Collection cannot be null"));
+  }
 }

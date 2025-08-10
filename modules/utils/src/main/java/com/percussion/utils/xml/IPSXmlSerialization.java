@@ -33,8 +33,8 @@ import java.lang.annotation.Target;
 public @interface IPSXmlSerialization {
   /**
    * Supress indicates that the associated property should not be serialized.
-   * @return <code>true</code> if the property should be skipped in xml
-   * serialization.
+   *
+   * @return <code>true</code> if the property should be skipped in xml serialization.
    */
   boolean suppress() default (false);
 }

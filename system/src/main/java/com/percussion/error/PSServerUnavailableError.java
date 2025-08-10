@@ -23,26 +23,21 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSUnavailableError class is used to report that the server
- * is currently unavailable.
+ * The PSUnavailableError class is used to report that the server is currently unavailable.
  *
- * @author      David Gennaco
- * @version      1.1
- * @since      1.1
+ * @author David Gennaco
+ * @version 1.1
+ * @since 1.1
  */
 public class PSServerUnavailableError extends PSLogError {
 
   /**
    * Report that the server is unavailable.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   public PSServerUnavailableError(int errorCode, Object[] errorParams) {
     super(0);
@@ -50,10 +45,7 @@ public class PSServerUnavailableError extends PSLogError {
     m_errorArgs = errorParams;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

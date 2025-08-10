@@ -24,10 +24,7 @@ import java.io.PrintStream;
 import java.util.List;
 import org.w3c.dom.Element;
 
-/**
- * Updates the workflow notification subject and body for all workflows.
- *
- */
+/** Updates the workflow notification subject and body for all workflows. */
 public class PSUpgradePluginUpdateWFNotification extends PSSpringUpgradePluginBase {
   private IPSWorkflowService wfService;
   private PrintStream logger;
@@ -69,6 +66,7 @@ public class PSUpgradePluginUpdateWFNotification extends PSSpringUpgradePluginBa
 
   /**
    * Updates the workflow notification's body and subject.
+   *
    * @param workflow must not be <code>null</code>.
    */
   public void updateNotification(PSWorkflow workflow) {
@@ -81,14 +79,10 @@ public class PSUpgradePluginUpdateWFNotification extends PSSpringUpgradePluginBa
     notifDef.setBody(NOTIFICATION_BODY);
   }
 
-  /**
-   * Updated workflow notification subject
-   */
+  /** Updated workflow notification subject */
   public static final String NOTIFICATION_SUBJECT = "Content awaiting your attention";
 
-  /**
-   * Updated workflow notification body
-   */
+  /** Updated workflow notification body */
   public static final String NOTIFICATION_BODY =
       "Content has been sent to you and is awaiting your attention.\r\n\r\n"
           + "Sent by: ${sys_contentlastmodifier}\r\nComment: $wfcomment\r\n\r\n"

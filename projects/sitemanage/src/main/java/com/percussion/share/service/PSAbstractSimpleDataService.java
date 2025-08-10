@@ -32,33 +32,30 @@ import org.apache.logging.log4j.Logger;
  * @param <PK> Primary key type
  */
 public abstract class PSAbstractSimpleDataService<T, PK extends Serializable>
-    extends PSAbstractDataService<T, T, PK>
-    implements IPSDataService<T, T, PK> {
+    extends PSAbstractDataService<T, T, PK> implements IPSDataService<T, T, PK> {
 
-    public PSAbstractSimpleDataService(IPSGenericDao<T, PK> dao) {
-        super(dao);
+  public PSAbstractSimpleDataService(IPSGenericDao<T, PK> dao) {
+    super(dao);
+  }
+
+  @Override
+  public T find(PK id)
+      throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
+    validateIdParameter("find", id);
+    return load(id);
+  }
+
+  @Override
+  public List<T> findAll() throws PSDataServiceException {
+    try {
+      return getDao().findAll();
+    } catch (IPSGenericDao.LoadException e) {
+      var error = "Error loading all objects";
+      log.error(error, e);
+      throw new DataServiceLoadException(error, e);
     }
+  }
 
-    @Override
-    public T find(PK id)
-            throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
-        validateIdParameter("find", id);
-        return load(id);
-    }
-
-    @Override
-    public List<T> findAll() throws PSDataServiceException {
-        try {
-            return getDao().findAll();
-        } catch (IPSGenericDao.LoadException e) {
-            var error = "Error loading all objects";
-            log.error(error, e);
-            throw new DataServiceLoadException(error, e);
-        }
-    }
-
-    /**
-     * Logger instance for this class, never {@code null}.
-     */
-    protected final Logger log = LogManager.getLogger(getClass());
+  /** Logger instance for this class, never {@code null}. */
+  protected final Logger log = LogManager.getLogger(getClass());
 }

@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The effectiveness data service. This service provides actual data.
- * Sunny Sal: "Effectiveness is not just a metric, it's a way of life!"
+ * The effectiveness data service. This service provides actual data. Sunny Sal: "Effectiveness is
+ * not just a metric, it's a way of life!"
  */
 public class PSEffectivenessService implements IPSEffectivenessService {
 
@@ -92,10 +92,11 @@ public class PSEffectivenessService implements IPSEffectivenessService {
   }
 
   /**
-   * Gets the total number of analytics views for the given content activity during the specified interval.
+   * Gets the total number of analytics views for the given content activity during the specified
+   * interval.
    *
-   * @param ca        the content activity, assumed not null.
-   * @param range     the date range interval, assumed not null.
+   * @param ca the content activity, assumed not null.
+   * @param range the date range interval, assumed not null.
    * @param resultKey determines which query result view field to extract, assumed not blank.
    * @return total number of views.
    * @throws PSAnalyticsProviderException if an error occurs retrieving the analytics data.

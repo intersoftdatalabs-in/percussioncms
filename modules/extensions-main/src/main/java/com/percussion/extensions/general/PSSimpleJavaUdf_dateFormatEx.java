@@ -26,15 +26,15 @@ import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The PSSimpleJavaUdf_dateFormatEx class formats a date according to a user
- * supplied pattern.
- * <p>
- * <strong>Time Format Syntax:</strong>
- * <p>
- * To specify the time format use a <em>time pattern</em> string.
- * In this pattern, all ASCII letters are reserved as pattern letters,
- * which are defined as the following:
+ * The PSSimpleJavaUdf_dateFormatEx class formats a date according to a user supplied pattern.
+ *
+ * <p><strong>Time Format Syntax:</strong>
+ *
+ * <p>To specify the time format use a <em>time pattern</em> string. In this pattern, all ASCII
+ * letters are reserved as pattern letters, which are defined as the following:
+ *
  * <blockquote>
+ *
  * <pre>
  * Symbol   Meaning                 Presentation        Example
  * ------   -------                 ------------        -------
@@ -59,30 +59,31 @@ import org.apache.commons.lang.StringUtils;
  * '        escape for text         (Delimiter)
  * ''       single quote            (Literal)           '
  * </pre>
+ *
  * </blockquote>
+ *
  * The count of pattern letters determine the format.
- * <p>
- * <strong>(Text)</strong>: 4 or more pattern letters--use full form,
- * &lt; 4--use short or abbreviated form if one exists.
- * <p>
- * <strong>(Number)</strong>: the minimum number of digits. Shorter
- * numbers are zero-padded to this amount. Year is handled specially;
- * that is, if the count of 'y' is 2, the Year will be truncated to 2 digits.
- * <p>
- * <strong>(Text & Number)</strong>: 3 or over, use text, otherwise use number.
  *
- * <p>
- * Any characters in the pattern that are not in the ranges of ['a'..'z']
- * and ['A'..'Z'] will be treated as quoted text. For instance, characters
- * like ':', '.', ' ', '#' and '@' will appear in the resulting time text
- * even they are not embraced within single quotes.
- * <p>
- * A pattern containing any invalid pattern letter will result in a thrown
- * exception during formatting or parsing.
+ * <p><strong>(Text)</strong>: 4 or more pattern letters--use full form, &lt; 4--use short or
+ * abbreviated form if one exists.
  *
- * <p>
- * <strong>Examples Using the US Locale:</strong>
+ * <p><strong>(Number)</strong>: the minimum number of digits. Shorter numbers are zero-padded to
+ * this amount. Year is handled specially; that is, if the count of 'y' is 2, the Year will be
+ * truncated to 2 digits.
+ *
+ * <p><strong>(Text & Number)</strong>: 3 or over, use text, otherwise use number.
+ *
+ * <p>Any characters in the pattern that are not in the ranges of ['a'..'z'] and ['A'..'Z'] will be
+ * treated as quoted text. For instance, characters like ':', '.', ' ', '#' and '@' will appear in
+ * the resulting time text even they are not embraced within single quotes.
+ *
+ * <p>A pattern containing any invalid pattern letter will result in a thrown exception during
+ * formatting or parsing.
+ *
+ * <p><strong>Examples Using the US Locale:</strong>
+ *
  * <blockquote>
+ *
  * <pre>
  * Format Pattern                         Result
  * --------------                         -------
@@ -93,29 +94,27 @@ import org.apache.commons.lang.StringUtils;
  * "K:mm a, z"                       ->>  0:00 PM, PST
  * "yyyyy.MMMMM.dd GGG hh:mm aaa"    ->>  1996.July.10 AD 12:08 PM
  * </pre>
+ *
  * </blockquote>
  *
- * @since      2.0
+ * @since 2.0
  */
 public class PSSimpleJavaUdf_dateFormatEx extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Formats a date (param[1]), according to the output pattern (param[0]) and
-   * returns it as a String.
-   * If the input pattern (param[2]) is specified it is used to parse the input
-   * date (only if specified as String). If no input pattern is provided, the
-   * defaults (see PSDataConverter.java) are used.
+   * Formats a date (param[1]), according to the output pattern (param[0]) and returns it as a
+   * String. If the input pattern (param[2]) is specified it is used to parse the input date (only
+   * if specified as String). If no input pattern is provided, the defaults (see
+   * PSDataConverter.java) are used.
    *
-   * @param params The parameter values to use in the UDF. Three, values
-   * are expected. All parameters can be any Object. If a backend date is supplied,
-   * it will be used directly. Any other object will be converted to a string
-   * and then parsed into a Date object. The third parameter is optional. If
-   * specified it must containing a formatting pattern, as described in this
-   * class&apos; description. If omitted the defaults are used.
-   * If <code>null</code> is supplied for a param, the default value shown
-   * in the following table will be used.
-   * <table border="1">
+   * @param params The parameter values to use in the UDF. Three, values are expected. All
+   *     parameters can be any Object. If a backend date is supplied, it will be used directly. Any
+   *     other object will be converted to a string and then parsed into a Date object. The third
+   *     parameter is optional. If specified it must containing a formatting pattern, as described
+   *     in this class&apos; description. If omitted the defaults are used. If <code>null</code> is
+   *     supplied for a param, the default value shown in the following table will be used.
+   *     <table border="1">
    *    <tr>
    *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
    *    </tr>
@@ -133,14 +132,11 @@ public class PSSimpleJavaUdf_dateFormatEx extends PSSimpleJavaUdfExtension {
    *    </tr>
    * </table>
    *
-   * @param      request         the current request context
-   *
-   * @return A String that contains the date formatted as requested, or null if
-   * either of the supplied parameters is null. A missing param is not
-   * considered a null param.
-   *
-   * @exception  PSConversionException If the supplied params are not correct
-   * or any parsing or formatting errors occur. The text will indicate the problem.
+   * @param request the current request context
+   * @return A String that contains the date formatted as requested, or null if either of the
+   *     supplied parameters is null. A missing param is not considered a null param.
+   * @exception PSConversionException If the supplied params are not correct or any parsing or
+   *     formatting errors occur. The text will indicate the problem.
    */
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)
       throws PSConversionException {

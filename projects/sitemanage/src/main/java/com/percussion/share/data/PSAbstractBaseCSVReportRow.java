@@ -19,68 +19,67 @@
 package com.percussion.share.data;
 
 /**
- * Provides an abstract base class that encapsulates common CSV
- * formatting and encoding routines for CSV-style data reports.
+ * Provides an abstract base class that encapsulates common CSV formatting and encoding routines for
+ * CSV-style data reports.
  *
  * @author natechadwick
  */
 public abstract class PSAbstractBaseCSVReportRow {
 
-    /**
-     * Gets a header row suitable for the first row of the CSV file.
-     *
-     * @return A CSV formatted header row including the ending CRLF.
-     */
-    public abstract String getHeaderRow();
+  /**
+   * Gets a header row suitable for the first row of the CSV file.
+   *
+   * @return A CSV formatted header row including the ending CRLF.
+   */
+  public abstract String getHeaderRow();
 
-    /**
-     * Escapes a string for safe inclusion in a CSV file.
-     * Replaces double quotes with single quotes.
-     *
-     * @param value The string to escape.
-     * @return The escaped string.
-     */
-    public String csvEscapeString(String value) {
-        return value == null ? "" : value.replace("\"", "'");
-    }
+  /**
+   * Escapes a string for safe inclusion in a CSV file. Replaces double quotes with single quotes.
+   *
+   * @param value The string to escape.
+   * @return The escaped string.
+   */
+  public String csvEscapeString(String value) {
+    return value == null ? "" : value.replace("\"", "'");
+  }
 
-    /**
-     * Builds a CSV-friendly multi-line field.
-     *
-     * @param current The current column value. Must not be null.
-     * @param newline The string to be added as a newline. Must not be null.
-     * @return A new string with the newline parameter added.
-     */
-    protected String addToMultiLineField(String current, String newline) {
-        var safeCurrent = current == null ? "" : current;
-        var safeNewline = newline == null ? "" : newline;
-        return safeCurrent + "\r\n" + safeNewline;
-    }
+  /**
+   * Builds a CSV-friendly multi-line field.
+   *
+   * @param current The current column value. Must not be null.
+   * @param newline The string to be added as a newline. Must not be null.
+   * @return A new string with the newline parameter added.
+   */
+  protected String addToMultiLineField(String current, String newline) {
+    var safeCurrent = current == null ? "" : current;
+    var safeNewline = newline == null ? "" : newline;
+    return safeCurrent + "\r\n" + safeNewline;
+  }
 
-    /**
-     * Delimits the specified value with double quotes for CSV.
-     *
-     * @param value The value to be wrapped.
-     * @return The wrapped string.
-     */
-    public String delimitValue(String value) {
-        var safeValue = csvEscapeString(value);
-        return "\"" + safeValue + "\"";
-    }
+  /**
+   * Delimits the specified value with double quotes for CSV.
+   *
+   * @param value The value to be wrapped.
+   * @return The wrapped string.
+   */
+  public String delimitValue(String value) {
+    var safeValue = csvEscapeString(value);
+    return "\"" + safeValue + "\"";
+  }
 
-    /**
-     * Returns the standard end-of-row marker for CSV.
-     *
-     * @return CRLF string.
-     */
-    protected String endRow() {
-        return "\r\n";
-    }
+  /**
+   * Returns the standard end-of-row marker for CSV.
+   *
+   * @return CRLF string.
+   */
+  protected String endRow() {
+    return "\r\n";
+  }
 
-    /**
-     * Converts this row to a CSV-formatted string.
-     *
-     * @return The CSV row.
-     */
-    public abstract String toCSVRow();
+  /**
+   * Converts this row to a CSV-formatted string.
+   *
+   * @return The CSV row.
+   */
+  public abstract String toCSVRow();
 }

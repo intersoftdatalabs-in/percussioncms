@@ -56,16 +56,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class handles the folder operations on the client side. This is
- * typically used for an applet client to communicate to the Rhythmyx server.
+ * This class handles the folder operations on the client side. This is typically used for an applet
+ * client to communicate to the Rhythmyx server.
  */
 public class PSRemoteFolderProcessor extends PSProcessorCommon
     implements IPSRelationshipProcessor, IPSFolderProcessor {
   /**
    * Construct a folder processor from a remote agent object.
    *
-   * @param rmAgent The remote agent object, it may not be
-   *    <code>null</code>.
+   * @param rmAgent The remote agent object, it may not be <code>null</code>.
    */
   public PSRemoteFolderProcessor(PSRemoteFolderAgent rmAgent) {
     if (rmAgent == null) throw new IllegalArgumentException("wsAgent may not be null");
@@ -76,22 +75,18 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * Construct a folder processor from a remote requester.
    *
-   * @param rmRequester The remote requester object, it may not be
-   *    <code>null</code>.
+   * @param rmRequester The remote requester object, it may not be <code>null</code>.
    */
   public PSRemoteFolderProcessor(IPSRemoteRequester rmRequester) {
     this(new PSRemoteFolderAgent(rmRequester));
   }
 
   /**
-   * Construct an instance with context and config objects. This ctor is
-   * expected by the Proxy.
+   * Construct an instance with context and config objects. This ctor is expected by the Proxy.
    *
-   * @param ctx The context object for the folder processor, may not be
-   *    <code>null</code>.
-   *
-   * @param procConfig The config properties for this object, may be
-   *    <code>null</code> if not exists.
+   * @param ctx The context object for the folder processor, may not be <code>null</code>.
+   * @param procConfig The config properties for this object, may be <code>null</code> if not
+   *     exists.
    */
   public PSRemoteFolderProcessor(PSRemoteFolderAgent ctx, Map procConfig) {
     this(ctx);
@@ -102,14 +97,11 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Construct an instance with requester and config objects. This ctor is
-   * expected by the Proxy.
+   * Construct an instance with requester and config objects. This ctor is expected by the Proxy.
    *
-   * @param req The requester object for the folder processor, may not be
-   *    <code>null</code>.
-   *
-   * @param procConfig The config properties for this object, may be
-   *    <code>null</code> if not exists.
+   * @param req The requester object for the folder processor, may not be <code>null</code>.
+   * @param procConfig The config properties for this object, may be <code>null</code> if not
+   *     exists.
    */
   public PSRemoteFolderProcessor(IPSRemoteRequester req, Map procConfig) {
     this(req);
@@ -120,8 +112,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Default constructor. This is only needed for the derived class
-   * <code>PSWsFolderProcessor</code>.
+   * Default constructor. This is only needed for the derived class <code>PSWsFolderProcessor</code>
+   * .
    */
   protected PSRemoteFolderProcessor() {}
 
@@ -275,10 +267,10 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#add(String, String, List, PSKey)
-   * interface}
-   * @throws UnsupportedOperationException if the relationshipType specified
-   * is not of type {@link PSRelationshipConfig#TYPE_FOLDER_CONTENT}
+   * See {@link IPSRelationshipProcessor#add(String, String, List, PSKey) interface}
+   *
+   * @throws UnsupportedOperationException if the relationshipType specified is not of type {@link
+   *     PSRelationshipConfig#TYPE_FOLDER_CONTENT}
    */
   public void add(String componentType, String relationshipType, List children, PSKey targetParent)
       throws PSCmsException {
@@ -289,9 +281,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     add(componentType, children, targetParent);
   }
 
-  /**
-   * See {@link IPSComponentProcessor#load(String, PSKey[])}
-   */
+  /** See {@link IPSComponentProcessor#load(String, PSKey[])} */
   public Element[] load(String componentType, PSKey[] locators) throws PSCmsException {
     // TODO: enhance web services, to handle bulk operation
     Element[] resultData = new Element[locators.length];
@@ -315,8 +305,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Inserts or updates a list of folder objects.
-   * See {@link IPSComponentProcessor#save(IPSDbComponent[])}
+   * Inserts or updates a list of folder objects. See {@link
+   * IPSComponentProcessor#save(IPSDbComponent[])}
    */
   public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
     // TODO: enhance web services, to handle bulk operation
@@ -338,8 +328,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This is the same as {@link #save(IPSDbComponent[])}, except it is dealing
-   * with one folder component at a time.
+   * This is the same as {@link #save(IPSDbComponent[])}, except it is dealing with one folder
+   * component at a time.
    */
   private IPSDbComponent save(IPSDbComponent component) throws PSCmsException {
     if (!(component instanceof PSFolder))
@@ -369,9 +359,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     return folder;
   }
 
-  /**
-   * See {@link IPSComponentProcessor#delete(String, PSKey[])} for detail info
-   */
+  /** See {@link IPSComponentProcessor#delete(String, PSKey[])} for detail info */
   public int delete(String componentType, PSKey[] locators) throws PSCmsException {
     // TODO: enhance web services, to handle bulk operation
     for (int i = 0; i < locators.length; i++) {
@@ -383,9 +371,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     return locators.length;
   }
 
-  /**
-   * See {@link IPSComponentProcessor#delete(IPSDbComponent[])}
-   */
+  /** See {@link IPSComponentProcessor#delete(IPSDbComponent[])} */
   public int delete(IPSDbComponent[] comps) throws PSCmsException {
     int deleted = 0;
     for (int i = 0; i < comps.length; i++) deleted += delete(comps[i]);
@@ -393,16 +379,12 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     return deleted;
   }
 
-  /**
-   * See {@link IPSComponentProcessor#delete(IPSDbComponent)}
-   */
+  /** See {@link IPSComponentProcessor#delete(IPSDbComponent)} */
   public int delete(IPSDbComponent comp) throws PSCmsException {
     return delete(comp.getComponentType(), new PSKey[] {comp.getLocator()});
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#add(String, PSKey, PSKey [])}
-   */
+  /** See {@link IPSRelationshipProcessor#add(String, PSKey, PSKey [])} */
   public void add(String relationshipType, List children, PSKey targetParent)
       throws PSCmsException {
     if (children == null) throw new IllegalArgumentException("children cannot be null");
@@ -428,9 +410,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     checkResultResponse(ADD_FOLDERCHILDREN_OPERATION, result);
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#move(String, PSKey, PSKey [], PSKey)}
-   */
+  /** See {@link IPSRelationshipProcessor#move(String, PSKey, PSKey [], PSKey)} */
   public void move(String relationshipType, PSKey sourceParent, List children, PSKey targetParent)
       throws PSCmsException {
     moveChildren((PSLocator) sourceParent, children, (PSLocator) targetParent, false);
@@ -439,8 +419,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * See {@link IPSRelationshipProcessor#copy(String, PSKey, PSKey [])}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#copyChildren(List, PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#copyChildren(List, PSLocator)}.
    */
   public void copy(String relationshipType, List children, PSKey parent) throws PSCmsException {
     if (children == null) throw new IllegalArgumentException("children cannot be null");
@@ -468,8 +447,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * See {@link IPSRelationshipProcessor#delete(String, PSKey, List)}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
    */
   public void delete(String relationshipType, PSKey parent, List children) throws PSCmsException {
     removeChildren((PSLocator) parent, children, false);
@@ -478,8 +456,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * See {@link IPSRelationshipProcessor#getChildren(String, PSKey)}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#getChildSummaries(PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#getChildSummaries(PSLocator)}.
    */
   public PSComponentSummary[] getChildren(String type, PSKey parent) throws PSCmsException {
     Element msg = getSingleFolderIdMsg(GET_FOLDERCHILDREN_REQUEST, FOLDER_ID_EL, parent);
@@ -501,15 +478,10 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * Send a message to the remote server
    *
-   * @param operation The operation or action of the message. Assume not
-   *    <code>null</code> or empty.
-   *
-   * @param message The message or parameter for the operation. Assume not
-   *    <code>null</code> or empty.
-   *
-   * @param respNodeName The expected node name of the response from the
-   *    remote server.
-   *
+   * @param operation The operation or action of the message. Assume not <code>null</code> or empty.
+   * @param message The message or parameter for the operation. Assume not <code>null</code> or
+   *     empty.
+   * @param respNodeName The expected node name of the response from the remote server.
    * @return The response from the remote server, never <code>null</code>.
    */
   protected Element sendMessage(String operation, Element message, String respNodeName)
@@ -521,10 +493,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
    * Creates a XML representation for a list of child ids.
    *
    * @param childIds The child ids. Assume it is not <code>null</code> or empty.
-   *
-   * @param doc The document that is used to create the XML element, assume
-   *    not <code>null</code>.
-   *
+   * @param doc The document that is used to create the XML element, assume not <code>null</code>.
    * @return The created XML element, never <code>null</code>.
    */
   private Element getChildIdsElement(List childIds, Document doc) {
@@ -546,18 +515,13 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * Creates a message which contains a request with a folder id in it.
    *
-   * @param requestEl The XML element name of the request. Assume not
-   *    <code>null</code> or empty.
-   *
-   * @param idElName The name of the element for the id of the locator.
-   *    Assume not <code>null</code> or empty.
-   *
-   * @param locator The locator that contains the folder id for the request.
-   *    Assume not <code>null</code>.
-   *
-   * @return The created soap body. Its format is specified in
-   *    sys_FolderParameters.xsd according to the <code>requestEl</code>.
-   *    Never <code>null</code>.
+   * @param requestEl The XML element name of the request. Assume not <code>null</code> or empty.
+   * @param idElName The name of the element for the id of the locator. Assume not <code>null</code>
+   *     or empty.
+   * @param locator The locator that contains the folder id for the request. Assume not <code>null
+   *     </code>.
+   * @return The created soap body. Its format is specified in sys_FolderParameters.xsd according to
+   *     the <code>requestEl</code>. Never <code>null</code>.
    */
   private Element getSingleFolderIdMsg(String requestEl, String idElName, PSKey locator) {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -573,25 +537,18 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Creates a message which contains a request with a source and target
-   * folder id in it.
+   * Creates a message which contains a request with a source and target folder id in it.
    *
-   * @param requestEl The XML element name of the request. Assume not
-   *    <code>null</code> or empty.
-   *
-   * @param srcIdElName The name of the element for the id of the source
-   *    locator.  Assume not <code>null</code> or empty.
-   *
-   * @param tgtIdElName The name of the element for the id of the target
-   *    locator.  Assume not <code>null</code> or empty.
-   *
-   * @param srcLocator The locator that contains the source folder id for
-   *    the request.  Assume not <code>null</code>.
-   *
-   * @param tgtLocator The locator that contains the target folder id for
-   *    the request.  Assume not <code>null</code>.
-   *
-   * @return The created soap body.  Never <code>null</code>.
+   * @param requestEl The XML element name of the request. Assume not <code>null</code> or empty.
+   * @param srcIdElName The name of the element for the id of the source locator. Assume not <code>
+   *     null</code> or empty.
+   * @param tgtIdElName The name of the element for the id of the target locator. Assume not <code>
+   *     null</code> or empty.
+   * @param srcLocator The locator that contains the source folder id for the request. Assume not
+   *     <code>null</code>.
+   * @param tgtLocator The locator that contains the target folder id for the request. Assume not
+   *     <code>null</code>.
+   * @return The created soap body. Never <code>null</code>.
    */
   private Element getSourceTargetFolderIdMsg(
       String requestEl,
@@ -623,13 +580,9 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
    *
    * @param saveRequest The save request, assume it is either <code>
    *    CREATE_FOLDER_REQUEST</code> or <code>UPDATE_FOLDER_REQUEST</code>.
-   *
-   * @param folder The folder object for the soap request, assume not
-   *    <code>null</code>
-   *
-   * @return The created soap body for create or update a folder request.
-   *    The XML format is specified in sys_FolderParameters.xsd. Never
-   *    <code>null</code>.
+   * @param folder The folder object for the soap request, assume not <code>null</code>
+   * @return The created soap body for create or update a folder request. The XML format is
+   *     specified in sys_FolderParameters.xsd. Never <code>null</code>.
    */
   private Element getSaveFolderMsg(String saveRequest, PSFolder folder) {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -643,14 +596,10 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * Check the result response element.
    *
-   * @param operation The current operation of the caller. Assume not
-   *    <code>null</code> or empty.
-   *
-   * @param rootEl The root element of the response, result response must be
-   *    the first child element. Assume not <code>null</code>.
-   *
-   * @throws PSCmsException if the result is not successful or other error
-   *    occurs.
+   * @param operation The current operation of the caller. Assume not <code>null</code> or empty.
+   * @param rootEl The root element of the response, result response must be the first child
+   *     element. Assume not <code>null</code>.
+   * @throws PSCmsException if the result is not successful or other error occurs.
    */
   private void checkResultResponse(String operation, Element rootEl) throws PSCmsException {
     String result;
@@ -676,9 +625,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     }
   }
 
-  /**
-   * See {@link IPSComponentProcessor#reorder(int, List)}
-   */
+  /** See {@link IPSComponentProcessor#reorder(int, List)} */
   public void reorder(int firstIndex, List comps) throws PSCmsException {
     // avoid eclipse warnings
     if (firstIndex == 0)
@@ -690,35 +637,33 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSKeyGenerator#allocateIds(String, int)} for detail.
-   * This is not supported and not needed in this processor.
+   * See {@link IPSKeyGenerator#allocateIds(String, int)} for detail. This is not supported and not
+   * needed in this processor.
    */
   public int[] allocateIds(String lookup, int count) throws PSCmsException {
     throw new IllegalStateException("allocateIds(String, int) not supported");
   }
 
   /**
-   * See {@link IPSKeyGenerator#setNextAllocationSize(int)} for detail.
-   * This is not supported and not needed in this processor.
+   * See {@link IPSKeyGenerator#setNextAllocationSize(int)} for detail. This is not supported and
+   * not needed in this processor.
    */
   public void setNextAllocationSize(int count) {
     throw new IllegalStateException("setNextAllocationSize(int) not supported");
   }
 
   /**
-   * See {@link IPSKeyGenerator#allocateId(String)} for detail.
-   * This is not supported and not needed in this processor.
+   * See {@link IPSKeyGenerator#allocateId(String)} for detail. This is not supported and not needed
+   * in this processor.
    */
   public int allocateId(String lookup) throws PSCmsException {
     throw new IllegalStateException("allocateId(String) not supported");
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey)
-   * interface}
+   * See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey) interface}
    *
-   * @relationshipType The relationship type. It must be the folder
-   *    relationship.
+   * @relationshipType The relationship type. It must be the folder relationship.
    */
   public PSComponentSummary[] getChildren(String type, String relationshipType, PSKey parent)
       throws PSCmsException {
@@ -730,10 +675,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
     return getChildren(type, parent);
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#getParent(String, String, PSKey)
-   * interface}
-   */
+  /** See {@link IPSRelationshipProcessor#getParent(String, String, PSKey) interface} */
   public PSComponentSummary[] getParents(String type, String relationshipType, PSKey locator)
       throws PSCmsException {
     Element msg = getSingleFolderIdMsg(GET_PARENTFOLDER_REQUEST, CHILD_ID_EL, locator);
@@ -788,11 +730,9 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator)
-   * interface}
+   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator) interface}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#addChildren(List, PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#addChildren(List, PSLocator)}.
    */
   public void add(String relationshipType, List children, PSLocator targetParent)
       throws PSCmsException {
@@ -800,8 +740,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationships(String, PSLocator,
-   * boolean) interface}
+   * See {@link IPSRelationshipProcessor#getRelationships(String, PSLocator, boolean) interface}
    *
    * @throws UnsupportedOperationException Not implemented..
    */
@@ -812,11 +751,9 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#move(String, PSLocator, List,
-   * PSLocator) interface}
+   * See {@link IPSRelationshipProcessor#move(String, PSLocator, List, PSLocator) interface}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#moveChildren(PSLocator, List, PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#moveChildren(PSLocator, List, PSLocator)}.
    */
   public void move(
       String relationshipType, PSLocator sourceParent, List children, PSLocator targetParent)
@@ -825,8 +762,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationships(PSRelationshipFilter)
-   * interface}
+   * See {@link IPSRelationshipProcessor#getRelationships(PSRelationshipFilter) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -836,8 +772,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getSummaries(PSRelationshipFilter,
-   * boolean) interface}
+   * See {@link IPSRelationshipProcessor#getSummaries(PSRelationshipFilter, boolean) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -878,11 +813,10 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String,
-   * PSLocator, String) interface}
+   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String, PSLocator, String)
+   * interface}
    *
    * @throws PSCmsException If the request cannot be fulfilled.
-   *
    * @deprecated Use {@link PSFolderProcessorProxy#getFolderPaths(PSLocator)}.
    */
   public String[] getRelationshipOwnerPaths(
@@ -942,8 +876,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#isDescendent(String, PSLocator,
-   * PSLocator, String) interface}
+   * See {@link IPSRelationshipProcessor#isDescendent(String, PSLocator, PSLocator, String)
+   * interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -957,11 +891,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   /**
    * Return all descendent folders of the parent folder locator passed in.
    *
-   * @see {@link IPSRelationshipProcessor#getDescendentsLocators(String, String,
-   *      PSKey)}
-   *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#getDescendentFolderLocators(PSLocator)}.
+   * @see {@link IPSRelationshipProcessor#getDescendentsLocators(String, String, PSKey)}
+   * @deprecated Use {@link PSFolderProcessorProxy#getDescendentFolderLocators(PSLocator)}.
    */
   public PSKey[] getDescendentsLocators(String type, String relationshipType, PSKey parent)
       throws PSCmsException {
@@ -1045,6 +976,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
 
   /**
    * Purge all items, if list contains a folder, all subfolder content will be purged also
+   *
    * @param items A list of items to purge
    */
   public void purgeFolderAndChildItems(List<PSLocator> items) throws PSCmsException {
@@ -1067,8 +999,9 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
 
   /**
    * Purge all items, if list contains a folder, all subfolder content will be purged also
-   * @sourceFolderId,  the parent folder if avaliable of the items being purged.  this helps
-   * in validation
+   *
+   * @sourceFolderId, the parent folder if avaliable of the items being purged. this helps in
+   *     validation
    * @param items A list of items to purge
    */
   public void purgeFolderAndChildItems(PSLocator sourceFolderId, List<PSLocator> items)
@@ -1120,9 +1053,7 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
         "getAncestorLocators() is not implemented in : " + this.getClass().getName());
   }
 
-  /**
-   * The misc XML node name
-   */
+  /** The misc XML node name */
   public static final String CHILD_ID_EL = "ChildId";
 
   public static final String CHILD_IDS_EL = "ChildIds";
@@ -1141,14 +1072,10 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
   public static final String SOURCE_FOLDER_ID_EL = "SourceFolderId";
   public static final String TARGET_FOLDER_ID_EL = "TargetFolderId";
 
-  /**
-   * The name of the container element for storing folder paths.
-   */
+  /** The name of the container element for storing folder paths. */
   public static final String FOLDER_PATHS_EL = "FolderPaths";
 
-  /**
-   * The XML node name in groups on operation, request and response
-   */
+  /** The XML node name in groups on operation, request and response */
   public static final String CREATE_FOLDER_OPERATION = "createFolder";
 
   public static final String CREATE_FOLDER_REQUEST = "CreateFolderRequest";
@@ -1234,8 +1161,8 @@ public class PSRemoteFolderProcessor extends PSProcessorCommon
       "GetDescendentsLocatorsWithoutFilterResponse";
 
   /**
-   * It is used to handle communication between the client and server.
-   * Initialized by the constructor, never <code>null</code> after that.
+   * It is used to handle communication between the client and server. Initialized by the
+   * constructor, never <code>null</code> after that.
    */
   private PSRemoteFolderAgent m_rmAgent;
 }

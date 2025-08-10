@@ -61,11 +61,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit produces a document that conforms to the SearchResults.dtd using
- * the HTML parameters. One optional extension parameter
- * <code>browserWindowFeatures</code> is used to specify the browser window
- * features with which the content url's are produced. The exit uses default
- * browser window features if not specified.
+ * This exit produces a document that conforms to the SearchResults.dtd using the HTML parameters.
+ * One optional extension parameter <code>browserWindowFeatures</code> is used to specify the
+ * browser window features with which the content url's are produced. The exit uses default browser
+ * window features if not specified.
  */
 public class PSGenerateSearchResultsExit extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -225,21 +224,18 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Parse all parameters from the supplied parameter iterator. Search field
-   * parameters are expected in the format <code>searchField_n=value</code>
-   * for search field values and <code>searchField_OP</code> for search field
-   * operators. All other parameters are treated as standard HTML parameters.
+   * Parse all parameters from the supplied parameter iterator. Search field parameters are expected
+   * in the format <code>searchField_n=value</code> for search field values and <code>searchField_OP
+   * </code> for search field operators. All other parameters are treated as standard HTML
+   * parameters.
    *
-   * @param params an iterator over all request parameters, not
-   *    <code>null</code>, may be empty.
-   * @param searchFields a map into which all search fields are collected.
-   *    The map key will be the field name as <code>String</code>, while the
-   *    value is a <code>SearchField</code> object. Not <code>null</code>,
-   *    may be empty.  Note that the field names will be lower-cased before
-   *    being added to the map.
-   * @return a map with all standard HTML parameters where the key is the
-   *    parameter name as <code>String</code> and the value is the parameter
-   *    value as <code>String</code>.
+   * @param params an iterator over all request parameters, not <code>null</code>, may be empty.
+   * @param searchFields a map into which all search fields are collected. The map key will be the
+   *     field name as <code>String</code>, while the value is a <code>SearchField</code> object.
+   *     Not <code>null</code>, may be empty. Note that the field names will be lower-cased before
+   *     being added to the map.
+   * @return a map with all standard HTML parameters where the key is the parameter name as <code>
+   *     String</code> and the value is the parameter value as <code>String</code>.
    */
   private Map parseParameters(Iterator params, Map searchFields) {
     if (params == null) throw new IllegalArgumentException("params cannot be null");
@@ -322,17 +318,13 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Loads the display format object specified by the supplied display
-   * format id.
+   * Loads the display format object specified by the supplied display format id.
    *
    * @param processor the processor to use, assumed not <code>null</code>.
-   * @param id the id of the display format, assumed not <code>null</code>
-   *    or empty.
-   * @return the display format, or <code>null</code> if no matching object
-   *    is found.
+   * @param id the id of the display format, assumed not <code>null</code> or empty.
+   * @return the display format, or <code>null</code> if no matching object is found.
    * @throws PSCmsException if any errors occur during the lookup.
-   * @throws PSUnknownNodeTypeException for XML errors in the display format
-   *    object.
+   * @throws PSUnknownNodeTypeException for XML errors in the display format object.
    */
   private PSDisplayFormat loadDisplayFormat(PSComponentProcessorProxy processor, String id)
       throws PSCmsException, PSUnknownNodeTypeException {
@@ -349,22 +341,19 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   /**
    * Create the search results return document.
    *
-   * @param request the currently processed request, assumed not
-   *    <code>null</code>.
-   * @param displayFormat the display format for which to create the search
-   *    results, assumed not <code>null</code>.
-   * @param rows an iterator of search results rows, which will be added to
-   *    the returned document, assumed not <code>null</code>.
-   * @param parameters a map with all HTML parameters for the current
-   *    request, the map key is the HTML parameter name as <code>String</code>
-   *    and the map value the parameter value as <code>Object</code>, assumed
-   *    not <code>null</code>, may be empty.
-   * @param exitParameters a map with all extension parameters where the map
-   *    key is the parameter name as <code>String</code> and the map value
-   *    is the parameter value as <code>Object</code>, assumed not
-   *    <code>null</code>, may be empty.
-   * @return a document conforming to the SearchResults.dtd based on the
-   *    supplied parameters, never <code>null</code>.
+   * @param request the currently processed request, assumed not <code>null</code>.
+   * @param displayFormat the display format for which to create the search results, assumed not
+   *     <code>null</code>.
+   * @param rows an iterator of search results rows, which will be added to the returned document,
+   *     assumed not <code>null</code>.
+   * @param parameters a map with all HTML parameters for the current request, the map key is the
+   *     HTML parameter name as <code>String</code> and the map value the parameter value as <code>
+   *     Object</code>, assumed not <code>null</code>, may be empty.
+   * @param exitParameters a map with all extension parameters where the map key is the parameter
+   *     name as <code>String</code> and the map value is the parameter value as <code>Object</code>
+   *     , assumed not <code>null</code>, may be empty.
+   * @return a document conforming to the SearchResults.dtd based on the supplied parameters, never
+   *     <code>null</code>.
    * @throws PSException if no content type exists for a search result.
    */
   private Document createSearchResults(
@@ -385,8 +374,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     root.setAttribute(SELECTION_MODE_ATTR, selectionMode);
 
     /**
-     * Create a list of displayed columns in display order. Categories first
-     * in order of their level, then all other columns.
+     * Create a list of displayed columns in display order. Categories first in order of their
+     * level, then all other columns.
      */
     List displayedColumns = new ArrayList();
     Iterator columns = displayFormat.getColumns();
@@ -628,15 +617,12 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Add the supplied column to the provided list in the correct order. The
-   * order is first all categories according to their sequence, then all
-   * other columns according to their sequence.
+   * Add the supplied column to the provided list in the correct order. The order is first all
+   * categories according to their sequence, then all other columns according to their sequence.
    *
-   * @param columns the list of columns to which to add the new column,
-   *    assumed not <code>null</code> and that all entries are or type
-   *    <code>PSDisplayColumn</code>.
-   * @param column the column to be added to the supplied list, assumed
-   *    not <code>null</code>.
+   * @param columns the list of columns to which to add the new column, assumed not <code>null
+   *     </code> and that all entries are or type <code>PSDisplayColumn</code>.
+   * @param column the column to be added to the supplied list, assumed not <code>null</code>.
    */
   private void addColumn(List columns, PSDisplayColumn column) {
     boolean isCategory = column.isCategorized();
@@ -666,16 +652,14 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   /**
    * Get the requested parameter from the supplied map.
    *
-   * @param name the name of the parameter to get, assumed not
-   *    <code>null</code> or empty.
-   * @param defaultValue the default value which will be returned if no value
-   *    was found in the supplied map for the specified parnameter name, may
-   *    be <code>null</code> or empty.
-   * @param parameters a map of parameters in which to look for the requested
-   *    parameter, assumed not <code>null</code>.
-   * @return the value of the requested parameter, the supplied default value
-   *    if no value was found. For lists this will return the first element
-   *    and for files the <code>toString()</code> value.
+   * @param name the name of the parameter to get, assumed not <code>null</code> or empty.
+   * @param defaultValue the default value which will be returned if no value was found in the
+   *     supplied map for the specified parnameter name, may be <code>null</code> or empty.
+   * @param parameters a map of parameters in which to look for the requested parameter, assumed not
+   *     <code>null</code>.
+   * @return the value of the requested parameter, the supplied default value if no value was found.
+   *     For lists this will return the first element and for files the <code>toString()</code>
+   *     value.
    */
   private String getParameter(String name, String defaultValue, Map parameters) {
     Object value = parameters.get(name);
@@ -689,17 +673,15 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   /**
    * Get the requested column value from the supplied search result row.
    *
-   * @param name the internal name of the column to get, assumed not
-   *           <code>null</code> or empty and is case sensitive.
-   * @param defaultValue the default value which will be returned if no value
-   *           was found in the supplied row for the specified column name, may
-   *           be <code>null</code> or empty.
+   * @param name the internal name of the column to get, assumed not <code>null</code> or empty and
+   *     is case sensitive.
+   * @param defaultValue the default value which will be returned if no value was found in the
+   *     supplied row for the specified column name, may be <code>null</code> or empty.
    * @param row search result row, assumed not <code>null</code>.
-   * @return the value of the requested column, the supplied default value if
-   *         no value was found. Will be <code>null</code> only if the column
-   *         is not found and default value supplied is <code>null</code> or
-   *         coulmn value is <code>null</code> and default value supplied is
-   *         also <code>null</code>.
+   * @return the value of the requested column, the supplied default value if no value was found.
+   *     Will be <code>null</code> only if the column is not found and default value supplied is
+   *     <code>null</code> or coulmn value is <code>null</code> and default value supplied is also
+   *     <code>null</code>.
    */
   private String getColumnValue(String name, String defaultValue, IPSSearchResultRow row) {
     String value = row.getColumnValue(name);
@@ -709,15 +691,12 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Get a list of sorted rows based on the first non-categorized sorted
-   * column found in the supplied display format.
+   * Get a list of sorted rows based on the first non-categorized sorted column found in the
+   * supplied display format.
    *
-   * @param rows an iterator over all rows that need to be sorted, assumed
-   *    not <code>null</code>.
-   * @param displayColumns a list over all displayed columns, assumed not
-   *    <code>null</code>.
-   * @return a sorted list with all rows, never <code>null</code>, may be
-   *    empty.
+   * @param rows an iterator over all rows that need to be sorted, assumed not <code>null</code>.
+   * @param displayColumns a list over all displayed columns, assumed not <code>null</code>.
+   * @return a sorted list with all rows, never <code>null</code>, may be empty.
    */
   private List getSortedRows(Iterator rows, List displayColumns) {
     PSDisplayColumn sortedColumn = null;
@@ -738,12 +717,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   /**
    * Sorts the supplied list of rows ascending case insensitive by category.
    *
-   * @param displayedColumns the display columns from which to get the
-   *    category path, assumed not <code>null</code>, may be empty.
-   * @param rows this list of rows will be sorted by category, assumed not
-   *    <code>null</code>, may be empty.
-   * @return a list of rows sorted by category, never <code>null</code>, may
-   *    be empty.
+   * @param displayedColumns the display columns from which to get the category path, assumed not
+   *     <code>null</code>, may be empty.
+   * @param rows this list of rows will be sorted by category, assumed not <code>null</code>, may be
+   *     empty.
+   * @return a list of rows sorted by category, never <code>null</code>, may be empty.
    */
   private List sortByCategories(List displayedColumns, List rows) {
     List categoryPath = new ArrayList();
@@ -781,18 +759,15 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Get an array of column width in percent. All non-categorized columns
-   * in the supplied list are considered for the calculation. If a column
-   * does not specify the width, it will be set as if all columns had the
-   * same size.
+   * Get an array of column width in percent. All non-categorized columns in the supplied list are
+   * considered for the calculation. If a column does not specify the width, it will be set as if
+   * all columns had the same size.
    *
-   * @param columns a list with all diplay columns for which to calculate the
-   *    column width. The list is expected in display order,categories first,
-   *    then all other columns.
-   * @return an array with the column width for all supplied columns in
-   *    percent adding up to 100%. Category columns are not considered for
-   *    the calculation, it's size is set to -1. The array index correlates
-   *    with the column index of the supplied column list.
+   * @param columns a list with all diplay columns for which to calculate the column width. The list
+   *     is expected in display order,categories first, then all other columns.
+   * @return an array with the column width for all supplied columns in percent adding up to 100%.
+   *     Category columns are not considered for the calculation, it's size is set to -1. The array
+   *     index correlates with the column index of the supplied column list.
    */
   private int[] getColumnWidth(List columns) {
     int size = columns.size();
@@ -840,8 +815,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   /**
    * Create a list with all actions for the supplied locale.
    *
-   * @param locale the locale for which to create the actions, assumed not
-   *    <code>null</code> or empty.
+   * @param locale the locale for which to create the actions, assumed not <code>null</code> or
+   *     empty.
    */
   private void createActions(String locale) {
     if (ms_actions.isEmpty()) {
@@ -871,8 +846,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
   }
 
   /**
-   * Container class to hold all information for one search field retrieved
-   * from the request parameters.
+   * Container class to hold all information for one search field retrieved from the request
+   * parameters.
    */
   private class SearchField {
     /**
@@ -893,8 +868,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * Construct a new search field for the supplied name and value.
      *
      * @param name the search field name, not <code>null</code> or empty.
-     * @param value the value to set for this field, not <code>null</code>
-     *    or empty
+     * @param value the value to set for this field, not <code>null</code> or empty
      */
     public SearchField(String name, String value) {
       this(name);
@@ -905,8 +879,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     /**
      * Add a new value to this field.
      *
-     * @param value the value to add to this field, not <code>null</code>,
-     *    may be empty.
+     * @param value the value to add to this field, not <code>null</code>, may be empty.
      */
     public void addValue(String value) {
       if (value == null) throw new IllegalArgumentException("value cannot be null");
@@ -917,13 +890,11 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     /**
      * Add a new value or value list to this field at the supplied index.
      *
-     * @param index the index where to add the value. If the index supplied is
-     *    greater than the actual size, the value will be appended.
-     * @param value the value to add to this field, not <code>null</code>, may
-     *    be empty. This can either be a <code>String</code> or
-     *    <code>List</code> object.
-     * @throws IndexOutOfBoundsException if the index is out of range
-     *    <code>index &lt; 0</code>.
+     * @param index the index where to add the value. If the index supplied is greater than the
+     *     actual size, the value will be appended.
+     * @param value the value to add to this field, not <code>null</code>, may be empty. This can
+     *     either be a <code>String</code> or <code>List</code> object.
+     * @throws IndexOutOfBoundsException if the index is out of range <code>index &lt; 0</code>.
      */
     public void addValue(int index, Object value) {
       if (value == null) throw new IllegalArgumentException("value cannot be null");
@@ -941,8 +912,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     /**
      * Set the operator used with this search field.
      *
-     * @param operator the new operator, may be <code>null</code> but not
-     *    empty.
+     * @param operator the new operator, may be <code>null</code> but not empty.
      */
     public void setOperator(String operator) {
       if (operator != null) {
@@ -966,8 +936,7 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * Get the search field operator.
      *
      * @param field the matching search field, not <code>null</code>.
-     * @return the search field operator, may be <code>null</code>, never
-     *    empty.
+     * @return the search field operator, may be <code>null</code>, never empty.
      */
     public String getOperator(PSSearchField field) {
       if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -988,9 +957,8 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
      * Get all search field values.
      *
      * @param field the matching search field, not <code>null</code>.
-     * @return a list of search field values as <code>String</code> objects,
-     *    never <code>null</code>, may be empty. The caller takes ownership
-     *    of the returned list.
+     * @return a list of search field values as <code>String</code> objects, never <code>null</code>
+     *     , may be empty. The caller takes ownership of the returned list.
      */
     public List getValues(PSSearchField field) {
       if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -1009,35 +977,30 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     }
 
     /**
-     * The search field name. Initialized while constucted, never
-     * <code>null</code>, empty or changed after that.
+     * The search field name. Initialized while constucted, never <code>null</code>, empty or
+     * changed after that.
      */
     private String mi_name = null;
 
     /**
-     * The search field operator, set through {@link #setOperator(String)},
-     * may be <code>null</code> but not empty.
+     * The search field operator, set through {@link #setOperator(String)}, may be <code>null</code>
+     * but not empty.
      */
     private String mi_operator = null;
 
     /**
-     * A list of search field values as <code>String</code>, never
-     * <code>null</code>, may be empty. The values in this list are
-     * guaranteed not <code>null</code> and not empty.
+     * A list of search field values as <code>String</code>, never <code>null</code>, may be empty.
+     * The values in this list are guaranteed not <code>null</code> and not empty.
      */
     private List mi_values = new ArrayList();
   }
 
-  /**
-   * Comparator used for search result rows.
-   *
-   */
+  /** Comparator used for search result rows. */
   private class RowComparator implements Comparator {
     /**
      * Create a new comparator for the supplied column.
      *
-     * @param sortedColumn the display column which is sorted, not
-     *    <code>null</code>.
+     * @param sortedColumn the display column which is sorted, not <code>null</code>.
      */
     public RowComparator(PSDisplayColumn sortedColumn) {
       if (sortedColumn == null) throw new IllegalArgumentException("sortedColumn cannot be null");
@@ -1046,14 +1009,14 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     }
 
     /**
-     * Compares two search result row objects. The comparison is done based
-     * on sorted column index of the provided row maps. Columns are compared
-     * using their <code>String</code> values of display values.
+     * Compares two search result row objects. The comparison is done based on sorted column index
+     * of the provided row maps. Columns are compared using their <code>String</code> values of
+     * display values.
      *
-     * @param o1 the first row used for the compare, assumed not
-     *    <code>null</code> and of type <code>IPSSearchResultRow</code>.
-     * @param o2 the second row used for the compare, assumed not
-     *    <code>null</code> and of type <code>IPSSearchResultRow</code>.
+     * @param o1 the first row used for the compare, assumed not <code>null</code> and of type
+     *     <code>IPSSearchResultRow</code>.
+     * @param o2 the second row used for the compare, assumed not <code>null</code> and of type
+     *     <code>IPSSearchResultRow</code>.
      * @see Comparator#compare(Object, Object) for more information.
      */
     public int compare(Object o1, Object o2) {
@@ -1071,26 +1034,21 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     }
 
     /**
-     * The display column based on which the compare is done. Initialized
-     * during constuction, never <code>null</code> or changed after that.
+     * The display column based on which the compare is done. Initialized during constuction, never
+     * <code>null</code> or changed after that.
      */
     private PSDisplayColumn mi_sortedColumn = null;
   }
 
-  /**
-   * Container class to hold an action definition.
-   */
+  /** Container class to hold an action definition. */
   private static class Action {
     /**
      * Create a new action for the supplied parameters.
      *
-     * @param name the internal name of the action, not <code>null</code> or
-     *    empty.
-     * @param label the display name of the action, not <code>null</code>
-     *    or empty.
-     * @param script the java script to be executed with this action, not
-     *    <code>null</code> or empty. This is the script that is executed
-     *    with this action.
+     * @param name the internal name of the action, not <code>null</code> or empty.
+     * @param label the display name of the action, not <code>null</code> or empty.
+     * @param script the java script to be executed with this action, not <code>null</code> or
+     *     empty. This is the script that is executed with this action.
      */
     public Action(String name, String label, String script) {
       if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -1134,60 +1092,53 @@ public class PSGenerateSearchResultsExit extends PSDefaultExtension
     /**
      * Get the action java script.
      *
-     * @return the java script to executed with this action, never
-     *    <code>null</code> or empty.
+     * @return the java script to executed with this action, never <code>null</code> or empty.
      */
     public String getScript() {
       return mi_script;
     }
 
     /**
-     * The internal action name, initialized while constructed, never
-     * <code>null</code>, empty or changed after that.
+     * The internal action name, initialized while constructed, never <code>null</code>, empty or
+     * changed after that.
      */
     private String mi_name = null;
 
     /**
-     * The action display name, initialized while constructed, never
-     * <code>null</code>, empty or changed after that.
+     * The action display name, initialized while constructed, never <code>null</code>, empty or
+     * changed after that.
      */
     private String mi_label = null;
 
     /**
-     * The java script to executed for this action, initialized while
-     * constructed, never <code>null</code>, empty or changed after that.
+     * The java script to executed for this action, initialized while constructed, never <code>null
+     * </code>, empty or changed after that.
      */
     private String mi_script = null;
   }
 
-  /**
-   * A list with all actions that will be added to each produced results
-   * document.
-   */
+  /** A list with all actions that will be added to each produced results document. */
   private static List ms_actions = new ArrayList();
 
   /**
-   * The delimiter used to mark request parameters as search field parameters.
-   * Search field parameters are delimited at the end with <code>_n</code>,
-   * where n is an incrementing number starting with 1.
+   * The delimiter used to mark request parameters as search field parameters. Search field
+   * parameters are delimited at the end with <code>_n</code>, where n is an incrementing number
+   * starting with 1.
    */
   private static final String FIELD_DELIMITER = "_";
 
   /**
-   * The delimiter used to mark request parameters as search operator
-   * parameter. Search operators are delimited at the end with
-   * <code>_op</code>.
+   * The delimiter used to mark request parameters as search operator parameter. Search operators
+   * are delimited at the end with <code>_op</code>.
    */
   private static final String OP_DELIMITER = "_op";
 
-  /**
-   * The exit parameter name used to override the default browser features.
-   */
+  /** The exit parameter name used to override the default browser features. */
   private static final String BROWSER_FEATURES_EXIT_PARAM = "browserWindowFeatures";
 
   /**
-   * The browser default features used to produce content url's if not
-   * overridden with the <code>browserWindowFeatures</code> exit parameter.
+   * The browser default features used to produce content url's if not overridden with the <code>
+   * browserWindowFeatures</code> exit parameter.
    */
   private static final String DEFAULT_BROWSER_WINDOW_FEATURES =
       "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,"

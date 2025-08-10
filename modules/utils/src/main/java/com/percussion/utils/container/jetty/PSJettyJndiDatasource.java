@@ -40,7 +40,6 @@ import org.w3c.dom.Element;
  * Represents a Jetty specific JNDI datasource file.
  *
  * @author natechadwick
- *
  */
 public class PSJettyJndiDatasource extends PSJBossJndiDatasource {
   // additional fields for jetty only

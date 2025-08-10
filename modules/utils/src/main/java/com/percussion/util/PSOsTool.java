@@ -16,59 +16,54 @@
  */
 package com.percussion.util;
 
-/**
- *   Tools for asking for OS information.
- */
+/** Tools for asking for OS information. */
 public class PSOsTool {
   /**
-   * Determine whether the platform is Windows related by examing the system's
-   * file or path separator.
+   * Determine whether the platform is Windows related by examing the system's file or path
+   * separator.
    *
-   * @return  <code>true</code> if this is Windows platform;
-   *          <code>false</code> if this is not Windows platform
+   * @return <code>true</code> if this is Windows platform; <code>false</code> if this is not
+   *     Windows platform
    */
   public static boolean isWindowsPlatform() {
     return ((getOsType() & OS_DOSWIN) == OS_DOSWIN);
   }
 
   /**
-   * Determine whether the platform is Unix by examing the system's
-   * file or path separator. This includes Solaris and Linux OS.
+   * Determine whether the platform is Unix by examing the system's file or path separator. This
+   * includes Solaris and Linux OS.
    *
-   * @return  <code>true</code> if this is a Unix platform;
-   *          <code>false</code> if this is not a Unix platform
+   * @return <code>true</code> if this is a Unix platform; <code>false</code> if this is not a Unix
+   *     platform
    */
   public static boolean isUnixPlatform() {
     return ((getOsType() & OS_UNIX) == OS_UNIX);
   }
 
   /**
-   * Determine whether the platform is Solaris by examing the system's
-   * file or path separator.
+   * Determine whether the platform is Solaris by examing the system's file or path separator.
    *
-   * @return  <code>true</code> if this is Solaris platform;
-   *          <code>false</code> if this is not Solaris platform
+   * @return <code>true</code> if this is Solaris platform; <code>false</code> if this is not
+   *     Solaris platform
    */
   public static boolean isSolarisPlatform() {
     return ((getOsType() & OS_SOLARIS) == OS_SOLARIS);
   }
 
   /**
-   * Determine whether the platform is Linux by examing the system's
-   * file or path separator.
+   * Determine whether the platform is Linux by examing the system's file or path separator.
    *
-   * @return  <code>true</code> if this is Linux platform;
-   *          <code>false</code> if this is not Linux platform
+   * @return <code>true</code> if this is Linux platform; <code>false</code> if this is not Linux
+   *     platform
    */
   public static boolean isLinuxPlatform() {
     return ((getOsType() & OS_LINUX) == OS_LINUX);
   }
 
   /**
-   * Get the OS type. This sets the approriate bits in the returned value.
-   * For example, if the OS is windows, it will set the first bit, if the
-   * OS is unix it will set the second bit. If unix, then it will try to
-   * determine if it is linux or Solaris and if it succeeds, it will set the
+   * Get the OS type. This sets the approriate bits in the returned value. For example, if the OS is
+   * windows, it will set the first bit, if the OS is unix it will set the second bit. If unix, then
+   * it will try to determine if it is linux or Solaris and if it succeeds, it will set the
    * corresponding bits. Use bitwise OR to check for a specific OS.
    *
    * @return a mask with appropriate bits set corresponding to the OS type.
@@ -113,9 +108,7 @@ public class PSOsTool {
   /** Specifier for a Windows operating system */
   public static final int OS_DOSWIN = 1;
 
-  /** Specifier for a Unix operating system
-   *  This includes Solaris and Linux OS.
-   */
+  /** Specifier for a Unix operating system This includes Solaris and Linux OS. */
   public static final int OS_UNIX = 2;
 
   /** Specifier for a Solaris operating system */

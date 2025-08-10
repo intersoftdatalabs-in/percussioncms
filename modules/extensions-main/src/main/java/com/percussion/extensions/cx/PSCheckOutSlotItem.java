@@ -33,8 +33,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Checks out a slot a item before expanding it. If the item is already
- * checked out by someone else, then does not show the slots for that item.
+ * Checks out a slot a item before expanding it. If the item is already checked out by someone else,
+ * then does not show the slots for that item.
  */
 public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultDocumentProcessor {
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
@@ -43,11 +43,10 @@ public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultD
   }
 
   /**
-   * If item is checked out to some one else then removes the child nodes
-   * and retunrs the root node, if the item is not checked out to anybody
-   * then tries to check out the item. If succeds returns the result doc as
-   * is, fails removes the children and returns the root node.
-   * If the item is checked out by the login user returns the result doc as is.
+   * If item is checked out to some one else then removes the child nodes and retunrs the root node,
+   * if the item is not checked out to anybody then tries to check out the item. If succeds returns
+   * the result doc as is, fails removes the children and returns the root node. If the item is
+   * checked out by the login user returns the result doc as is.
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document doc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -123,33 +122,21 @@ public class PSCheckOutSlotItem extends PSDefaultExtension implements IPSResultD
     return (ceurl + "/" + ceresource);
   }
 
-  /**
-   * Constant for workflow sys command name
-   */
+  /** Constant for workflow sys command name */
   public static final String WORKFLOW_COMMAND_NAME = "workflow";
 
-  /**
-   * Constant for workflow action
-   */
+  /** Constant for workflow action */
   public static final String WORKFLOW_CHECKOUT = "checkout";
 
-  /**
-   * Constant for editurl Attribute
-   */
+  /** Constant for editurl Attribute */
   public static final String ATTR_EDITURL = "editurl";
 
-  /**
-   * Constant for content editor urls resource name
-   */
+  /** Constant for content editor urls resource name */
   public static final String CONTENT_EDITOR_URLS = "sys_ceSupport/contenteditorurls";
 
-  /**
-   * Constant for checkoutstatus Attribute
-   */
+  /** Constant for checkoutstatus Attribute */
   public static final String ATTR_CHECKOUTSTATUS = "checkoutstatus";
 
-  /**
-   * Constant for assignmenttype Attribute
-   */
+  /** Constant for assignmenttype Attribute */
   public static final String ATTR_ASSIGNMENTTYPE = "assignmenttype";
 }

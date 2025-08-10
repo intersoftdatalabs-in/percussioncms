@@ -25,25 +25,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Methods that handle the selective removal or inclusion of processing
- * instructions from body and other fields. This is used to deal with
- * JSP/ASP/PHP embedded tags. This is done in three sections:
- * <ul>
- * <li>The first section replaces all <i>active</i> tags with a comment of the
- * form &lt;!--
+ * Methods that handle the selective removal or inclusion of processing instructions from body and
+ * other fields. This is used to deal with JSP/ASP/PHP embedded tags. This is done in three
+ * sections:
  *
- * @psx-activetag-NNNNN --!&gt; where <code>NNNNN</code> is a sequential
- *                      number allocated for each active tag.
- *                      <li>In the second step, run after the content has been
- *                      process through html tidy, the comments are replaced
- *                      with processing instructions.
- *                      <li>The third step is run when the content is being
- *                      sent back to ephox. In the third step the processing
- *                      instructions are stripped.
- *                      </ul>
+ * <ul>
+ *   <li>The first section replaces all <i>active</i> tags with a comment of the form &lt;!--
+ *
+ * @psx-activetag-NNNNN --!&gt; where <code>NNNNN</code> is a sequential number allocated for each
+ *     active tag.
+ *     <li>In the second step, run after the content has been process through html tidy, the
+ *         comments are replaced with processing instructions.
+ *     <li>The third step is run when the content is being sent back to ephox. In the third step the
+ *         processing instructions are stripped.
+ *     </ul>
  *
  * @author dougrand
- *
  */
 public class PSXmlPIUtils {
   public enum Action {
@@ -71,12 +68,12 @@ public class PSXmlPIUtils {
   private static final boolean[] START_FOLLOWED_BY_WS = {false, true};
 
   /**
-   * If any of the strings are found, then escape the content between the start
-   * and matching end in a processing instruction.
+   * If any of the strings are found, then escape the content between the start and matching end in
+   * a processing instruction.
    *
    * @param input input data string, never <code>null</code> or empty
-   * @return a pair of the map holding the active content and a string with the
-   *         appropriate substitutions
+   * @return a pair of the map holding the active content and a string with the appropriate
+   *     substitutions
    */
   public static PSPair<Map<Integer, PSPair<Action, String>>, String> encodeTags(String input) {
     if (StringUtils.isBlank(input)) {
@@ -143,10 +140,9 @@ public class PSXmlPIUtils {
   }
 
   /**
-   * Walk the document node structure and examine comments. If the content of
-   * the comments matches the active tag sequence, then replace the comment
-   * node with a processing instruction node with the corresponding active tag
-   * information
+   * Walk the document node structure and examine comments. If the content of the comments matches
+   * the active tag sequence, then replace the comment node with a processing instruction node with
+   * the corresponding active tag information
    *
    * @param doc the document, never <code>null</code>
    * @param keys the keys, never <code>null</code>
@@ -199,8 +195,8 @@ public class PSXmlPIUtils {
   }
 
   /**
-   * Take the processing instruction source and return just the value
-   * portion
+   * Take the processing instruction source and return just the value portion
+   *
    * @param pisource the pi source, never <code>null</code> or empty
    * @return the value portion
    */
@@ -223,10 +219,9 @@ public class PSXmlPIUtils {
   }
 
   /**
-   * Remove any pi that is followed by a value in the start sequences, and
-   * which has the corresponding value in the end sequences at the other end.
-   * So a string that consists of a start pi, followed by <% JSP code %> will
-   * have the pi stripped if the <% and %> are in the sequences.
+   * Remove any pi that is followed by a value in the start sequences, and which has the
+   * corresponding value in the end sequences at the other end. So a string that consists of a start
+   * pi, followed by <% JSP code %> will have the pi stripped if the <% and %> are in the sequences.
    *
    * @param input input data string, never <code>null</code> or empty
    * @return a filtered string, where appropriate CData are removed

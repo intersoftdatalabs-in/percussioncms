@@ -26,11 +26,11 @@ import com.percussion.cms.objectstore.PSVariantSlotType;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
@@ -47,31 +47,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class populates the Navigation slots on a page assembler. This Rhythmyx
- * post-exit is designed to be added to an assembler for a normal site page.
- * <p>
- * The first step is to select a Navon. This is normally done by finding a
- * folder which contains both this page and a Navon. If only one Navon is found,
- * it is used. If more than one folder and navon are found, the RXSITES table is
- * examined to determine if any of the folder is a descendent of the site folder
- * root.
- * <p>
- * It is also possible to supply an HTML parameter either as
- * <code>sys_folderid</code> or as <code>rx_folder</code>. If this
- * parameter is present, it is assumed to contain the content id of the
- * appropriate folder. This will normally happen only during site folder
- * publishing.
- * <p>
- * Once the Navon is found, the slots that are defined on the current variant
- * are examined. Each slot which is present on this page and is also defined
- * within the Navigation configuration, will receive a link to to the selected
- * Navon with variant ids as determined by the allowed variants in that slot.
- * <p>
- * This exit must be added to the assembler <b>after </b> the
- * <code>sys_casAddAssemblerInfo</code> exit. There are no parameters.
+ * This class populates the Navigation slots on a page assembler. This Rhythmyx post-exit is
+ * designed to be added to an assembler for a normal site page.
+ *
+ * <p>The first step is to select a Navon. This is normally done by finding a folder which contains
+ * both this page and a Navon. If only one Navon is found, it is used. If more than one folder and
+ * navon are found, the RXSITES table is examined to determine if any of the folder is a descendent
+ * of the site folder root.
+ *
+ * <p>It is also possible to supply an HTML parameter either as <code>sys_folderid</code> or as
+ * <code>rx_folder</code>. If this parameter is present, it is assumed to contain the content id of
+ * the appropriate folder. This will normally happen only during site folder publishing.
+ *
+ * <p>Once the Navon is found, the slots that are defined on the current variant are examined. Each
+ * slot which is present on this page and is also defined within the Navigation configuration, will
+ * receive a link to to the selected Navon with variant ids as determined by the allowed variants in
+ * that slot.
+ *
+ * <p>This exit must be added to the assembler <b>after </b> the <code>sys_casAddAssemblerInfo
+ * </code> exit. There are no parameters.
  *
  * @author DavidBenua
- *
  */
 public class PSNavAutoSlotExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -90,8 +86,9 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
    * @param params the exit parameter array. This exit has no parameters.
    * @param req the parent request context.
    * @param resultDoc the output document from the content assembler.
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -146,11 +143,10 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
   }
 
   /**
-   * Finds a navon by lookig for a specified folder id parameter. If the caller
-   * has specified a <code>sys_folderid</code> HTML parameter this will be
-   * used to find the folder. If no <code>sys_folderid</code> exists, use the
-   * <code>rx_folder</code> HTML parameter. If neither of these parameters
-   * are specified, return a <code>null</code>
+   * Finds a navon by lookig for a specified folder id parameter. If the caller has specified a
+   * <code>sys_folderid</code> HTML parameter this will be used to find the folder. If no <code>
+   * sys_folderid</code> exists, use the <code>rx_folder</code> HTML parameter. If neither of these
+   * parameters are specified, return a <code>null</code>
    *
    * @param req the callers request.
    * @return the navon summary or <code>null</code>.
@@ -188,26 +184,26 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
 
   /**
    * Finds the navon for this page. There are 3 possibilities:
+   *
    * <ol>
-   * <li>The caller has specified a folder ID (see findNavonRx)
-   * <li>The page is in only one folder that contains a Navon.
-   * <li>The page is in more that one folder that contain Navons.
+   *   <li>The caller has specified a folder ID (see findNavonRx)
+   *   <li>The page is in only one folder that contains a Navon.
+   *   <li>The page is in more that one folder that contain Navons.
    * </ol>
-   * If the page is in more than one folder, use the callers
-   * <code>sys_siteid</code> parameter to determine which of these folders
-   * are part of the selected site.
-   * <p>
-   * If the site folder ID is supplied, and none of the foldes are under that
-   * site, no folder will be selected.
-   * <p>
-   * If the filtering fails to resolve to a single folder, take the first
-   * folder name alphabetically.
+   *
+   * If the page is in more than one folder, use the callers <code>sys_siteid</code> parameter to
+   * determine which of these folders are part of the selected site.
+   *
+   * <p>If the site folder ID is supplied, and none of the foldes are under that site, no folder
+   * will be selected.
+   *
+   * <p>If the filtering fails to resolve to a single folder, take the first folder name
+   * alphabetically.
+   *
    * @param req reqiest context object, assumed not <code>null</code>.
    * @return
    * @throws PSNavException
-   *
    * @author DavidBenua
-   *
    */
   private PSComponentSummary findNavon(IPSRequestContext req) throws PSNavException {
 
@@ -270,14 +266,13 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
   }
 
   /**
-   * process the nav slots found on this variant. All nav variants defined for
-   * each slot will be added to the result document.
+   * process the nav slots found on this variant. All nav variants defined for each slot will be
+   * added to the result document.
    *
    * @param req the parent request context
    * @param navon the Navon which will be added to the slots
    * @param resultDoc the assembler result document where the slot are added.
-   * @param navonDoc the navon XML document. Used to retrieve common
-   *           information about the Navon.
+   * @param navonDoc the navon XML document. Used to retrieve common information about the Navon.
    * @throws PSNavException
    */
   private void processSlots(
@@ -350,8 +345,7 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
   }
 
   /**
-   * Finds the <code>&lt;RelatedContent&gt;</code> element in the result
-   * document.
+   * Finds the <code>&lt;RelatedContent&gt;</code> element in the result document.
    *
    * @param doc the assembler result document.
    * @return the Related content element or <code>null</code> if not found.
@@ -374,15 +368,15 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
   }
 
   /**
-   * Builds the theme override parameter map. This map will be used to set the
-   * theme in the root of the Nav Tree. If a theme name has been provided as an
-   * HTML parameter, it will be used. Otherwise, the theme from the navon will
-   * be used. If no Theme is provided, the map will be <code>empty</code>.
+   * Builds the theme override parameter map. This map will be used to set the theme in the root of
+   * the Nav Tree. If a theme name has been provided as an HTML parameter, it will be used.
+   * Otherwise, the theme from the navon will be used. If no Theme is provided, the map will be
+   * <code>empty</code>.
    *
    * @param req the parent request
    * @param navonDoc the navon whitebox XML document.
-   * @return a map of the theme override parameters. Never <code>null</code>
-   *         but may be <code>empty</code>.
+   * @return a map of the theme override parameters. Never <code>null</code> but may be <code>empty
+   *     </code>.
    * @throws PSNavException
    */
   private static Map buildThemeParams(IPSRequestContext req, Document navonDoc)
@@ -409,14 +403,13 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
   }
 
   /**
-   * Gets the site root folder by site id. This method performs a query against
-   * the RXSITES table to determine the site root folder. If the site root
-   * folder is not specified or is invalid, return <code>null</code>.
+   * Gets the site root folder by site id. This method performs a query against the RXSITES table to
+   * determine the site root folder. If the site root folder is not specified or is invalid, return
+   * <code>null</code>.
    *
    * @param req thet parent request context.
    * @param siteId the site id.
-   * @return the site root folder or <code>null</code> if the folder name is
-   *         not found.
+   * @return the site root folder or <code>null</code> if the folder name is not found.
    * @throws PSNavException when the site query cannot be performed.
    */
   private static PSComponentSummary getSiteRoot(IPSRequestContext req, String siteId)
@@ -468,48 +461,30 @@ public class PSNavAutoSlotExtension extends PSDefaultExtension
     return null;
   }
 
-  /**
-   * Writes the log for debugging purposes.
-   */
+  /** Writes the log for debugging purposes. */
   private static final Logger log = LogManager.getLogger(PSNavAutoSlotExtension.class);
 
-  /**
-   * Local pointer to the singleton configuration instance.
-   */
+  /** Local pointer to the singleton configuration instance. */
   static PSNavConfig ms_config;
 
-  /**
-   * Name of the query resource for obtaining site information.
-   */
+  /** Name of the query resource for obtaining site information. */
   private static final String SITEQUERY = "../rxs_navSupport/rxsiteinfo.xml";
 
-  /**
-   * Name the XML element returned by the SITEQUERY
-   */
+  /** Name the XML element returned by the SITEQUERY */
   private static final String SITE_ROOT_ELEM = "folder_root";
 
-  /**
-   * Error message for missing variants.
-   */
+  /** Error message for missing variants. */
   private static final String MSG_VARIANT =
       "Content Type {0} Variant {1} not found in the navigation config. Please "
           + "reset the navigation";
 
-  /**
-   * Flag used as privatee object to prevent the NavAutoSlot exit infinite
-   * recursive loops.
-   */
+  /** Flag used as privatee object to prevent the NavAutoSlot exit infinite recursive loops. */
   private static final String RECURSION_DETECT =
       "com.percussion.consulting.nav.PSNavAutoSlotExtensions.Recursion";
 
-  /**
-   * The element name for the assembler info added to the result document.
-   */
+  /** The element name for the assembler info added to the result document. */
   public static final String ASSEMBLER_INFO_ELEM = "sys_AssemblerInfo";
 
-  /**
-   * The element name for the element wrapping all related content
-   * information.
-   */
+  /** The element name for the element wrapping all related content information. */
   public static final String RELATED_CONTENT_ELEM = "RelatedContent";
 }

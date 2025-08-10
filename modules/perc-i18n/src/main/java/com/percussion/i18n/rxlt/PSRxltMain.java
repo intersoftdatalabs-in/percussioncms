@@ -27,18 +27,17 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /**
- * This is the main class for the Percussion Language Tool. Runs the processor in
- * the {@link #main} method and provides some static utility methods to provide
- * information about the tool.
+ * This is the main class for the Percussion Language Tool. Runs the processor in the {@link #main}
+ * method and provides some static utility methods to provide information about the tool.
  */
 public class PSRxltMain {
   private static final Logger log = Logger.getLogger("I18N");
 
   /**
-   * Main method. Accepts three optional commandline arguments ?, -noui and
-   * -R<rxroot>. Option ? displays the usage syntax, -noui runs the tool without
-   * user interaction using default settings and -R<rxroot> sets the Rhythmyx
-   * root directory to the specified one.
+   * Main method. Accepts three optional commandline arguments ?, -noui and -R<rxroot>. Option ?
+   * displays the usage syntax, -noui runs the tool without user interaction using default settings
+   * and -R<rxroot> sets the Rhythmyx root directory to the specified one.
+   *
    * @param args
    */
   public static void main(String[] args) {
@@ -111,9 +110,8 @@ public class PSRxltMain {
   /**
    * Returns the version string for this program.
    *
-   * @return the version string in the form of
-   *    "Percussion Language Tool 1.0; Build:127". If the version resources can
-   *    not be found, the string "Percussion Language Tool" is returned.
+   * @return the version string in the form of "Percussion Language Tool 1.0; Build:127". If the
+   *     version resources can not be found, the string "Percussion Language Tool" is returned.
    */
   public static String getVersionString() {
     return PROGRAM_NAME + " " + ms_Version;
@@ -122,16 +120,13 @@ public class PSRxltMain {
   /**
    * Returns the version number part of the version string.
    *
-   * @return the version number strings in the form of
-   *    "4.5; Build:127".
+   * @return the version number strings in the form of "4.5; Build:127".
    */
   public static String getVersionNumberString() {
     return ms_Version;
   }
 
-  /**
-   * The publisher version number string. Initialized when class is loaded.
-   */
+  /** The publisher version number string. Initialized when class is loaded. */
   private static String ms_Version = "";
 
   /*
@@ -156,6 +151,7 @@ public class PSRxltMain {
 
   /**
    * Init log4j.
+   *
    * @param rxRoot Rx Root, never <code>null</code>.
    */
   private static void initLog4J(File rxRoot) {
@@ -168,8 +164,6 @@ public class PSRxltMain {
     }
   }
 
-  /**
-   * The publisher version string. constant.
-   */
+  /** The publisher version string. constant. */
   public static final String PROGRAM_NAME = "Percussion Language Tool";
 }

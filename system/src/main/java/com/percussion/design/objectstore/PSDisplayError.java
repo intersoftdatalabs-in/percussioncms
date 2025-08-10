@@ -29,22 +29,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * This class represents the DisplayError element of the sys_ContentEditor.dtd.
- *
- */
+/** This class represents the DisplayError element of the sys_ContentEditor.dtd. */
 public class PSDisplayError {
   /**
    * Ctor for constrcting the object from source element.
    *
-   * @param sourceNode The xml element that represents the display error.
-   *           Expects the element as per the following DTD
-   *           &lt;!ELEMENT
-   *           DisplayError (GenericMessage, Details*)&gt;
-   *           &lt;!ATTLIST
-   *           DisplayError errorCount CDATA #REQUIRED&gt;
-   * @throws PSUnknownNodeTypeException If the supplied source xml does not
-   *            confirm to the above mentioned DTD.
+   * @param sourceNode The xml element that represents the display error. Expects the element as per
+   *     the following DTD &lt;!ELEMENT DisplayError (GenericMessage, Details*)&gt; &lt;!ATTLIST
+   *     DisplayError errorCount CDATA #REQUIRED&gt;
+   * @throws PSUnknownNodeTypeException If the supplied source xml does not confirm to the above
+   *     mentioned DTD.
    * @throws PSInvalidXmlException
    */
   public PSDisplayError(Element sourceNode)
@@ -56,14 +50,11 @@ public class PSDisplayError {
   /**
    * Ctor for creating the object from string representation of DispalyError.
    *
-   * @param sourceDoc The xml doc that represents the display error.
-   *           Expects the element as per the following DTD
-   *           &lt;!ELEMENT
-   *           DisplayError (GenericMessage, Details*)&gt;
-   *           &lt;!ATTLIST
-   *           DisplayError errorCount CDATA #REQUIRED&gt;
-   * @throws PSUnknownNodeTypeException If the supplied source xml does not
-   *            confirm to the above mentioned DTD.
+   * @param sourceDoc The xml doc that represents the display error. Expects the element as per the
+   *     following DTD &lt;!ELEMENT DisplayError (GenericMessage, Details*)&gt; &lt;!ATTLIST
+   *     DisplayError errorCount CDATA #REQUIRED&gt;
+   * @throws PSUnknownNodeTypeException If the supplied source xml does not confirm to the above
+   *     mentioned DTD.
    * @throws PSInvalidXmlException
    */
   public PSDisplayError(String sourceDoc)
@@ -78,6 +69,7 @@ public class PSDisplayError {
 
   /**
    * Creates object from xml representation.
+   *
    * @param sourceNode {@link #PSDisplayError(Element)}
    * @throws PSUnknownNodeTypeException
    * @throws PSInvalidXmlException
@@ -102,6 +94,7 @@ public class PSDisplayError {
 
   /**
    * Converts the object to xml.
+   *
    * @param doc The parent doc for this element, must not be <code>null</code>.
    * @return Element representing the this class object.
    */
@@ -121,6 +114,7 @@ public class PSDisplayError {
 
   /**
    * Gets the generic message of the display error.
+   *
    * @return String generic message never <code>null</code> may be empty.
    */
   public String getGenericMessage() {
@@ -129,6 +123,7 @@ public class PSDisplayError {
 
   /**
    * Gets the error count of the display error.
+   *
    * @return errorCount String never <code>null</code> may be empty.
    */
   public String getErrorCount() {
@@ -159,18 +154,12 @@ public class PSDisplayError {
    */
   private String m_genericMessage;
 
-  /**
-   * Constant that represents root element of this class xml.
-   */
+  /** Constant that represents root element of this class xml. */
   public static final String XML_NODE_NAME = "DisplayError";
 
-  /**
-   * Constant that represents the xml element name for GenericMessage
-   */
+  /** Constant that represents the xml element name for GenericMessage */
   public static final String XML_ELEM_GENERIC_MESSAGE = "GenericMessage";
 
-  /**
-   * Constant that represents the xml element name for GenericMessage
-   */
+  /** Constant that represents the xml element name for GenericMessage */
   public static final String XML_ATTR_NAME_ERROR_COUNT = "errorCount";
 }

@@ -22,10 +22,8 @@ public class PSTransitionException extends PSException {
   /**
    * Construct an exception for messages taking locale and msgCode arguments.
    *
-   * @param language  language string to use while lookingup for the
-   * message text in the resource bundle e.g. 'en-us', may be
-   * <code>null</code> or <code>empty</code>.
-   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
    * @param msgCode the error string to load
    */
   public PSTransitionException(String language, int msgCode) {
@@ -33,36 +31,29 @@ public class PSTransitionException extends PSException {
   }
 
   /**
-   * Construct an exception for messages taking locale and message code
-   * arguments and and a single argument.
+   * Construct an exception for messages taking locale and message code arguments and and a single
+   * argument.
    *
-   * @param language language string to use while lookingup for the
-   * message text in the resource bundle e.g. 'en-us', may be
-   * <code>null</code> or <code>empty</code>.
-   *
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
    * @param msgCode the error string to load
-   *
-   * @param singleArg the argument to use as the sole argument in
-   * the error message. Can be <code>null</code>.
+   * @param singleArg the argument to use as the sole argument in the error message. Can be <code>
+   *     null</code>.
    */
   public PSTransitionException(String language, int msgCode, Object singleArg) {
     super(language, msgCode, singleArg);
   }
 
   /**
-   * Construct an exception for messages taking language, message code
-   * and an array of arguments. Be sure to store the arguments in the
-   * correct order in the array, where {0} in the string is array
+   * Construct an exception for messages taking language, message code and an array of arguments. Be
+   * sure to store the arguments in the correct order in the array, where {0} in the string is array
    * element 0, etc.
    *
-   * @param language language string to use while lookingup for the
-   * message text in the resource bundle e.g. 'en-us', may be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param msgCode  the error string to load
-   *
-   * @param arrayArgs   the array of arguments to use as the arguments
-   * in the error message. Can be <code>null</code>.
+   * @param language language string to use while lookingup for the message text in the resource
+   *     bundle e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. Can be
+   *     <code>null</code>.
    */
   public PSTransitionException(String language, int msgCode, Object[] arrayArgs) {
     super(language, msgCode, arrayArgs);

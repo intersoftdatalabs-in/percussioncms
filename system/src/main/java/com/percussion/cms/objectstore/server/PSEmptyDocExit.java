@@ -25,9 +25,9 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 
 /**
- * This exit checks for the presence of a root node in the supplied doc. If
- * there isn't one, it adds an empty one with a name supplied as a parameter.
- * This was created for use with resources used by CMS objectstore components.
+ * This exit checks for the presence of a root node in the supplied doc. If there isn't one, it adds
+ * an empty one with a name supplied as a parameter. This was created for use with resources used by
+ * CMS objectstore components.
  *
  * @author Paul Howard
  * @version 1.0
@@ -45,21 +45,13 @@ public class PSEmptyDocExit extends PSDefaultExtension implements IPSResultDocum
   /**
    * See class description.
    *
-   * @param params Must have at least 1, non-<code>null</code> entry.
-   *    The first entry is taken and a toString is performed to get the name
-   *    of the root element.
-   *
+   * @param params Must have at least 1, non-<code>null</code> entry. The first entry is taken and a
+   *     toString is performed to get the name of the root element.
    * @param request
-   *
    * @param resultDoc Guaranteed not <code>null</code> by interface.
-   *
-   * @return The doc as supplied if it had a root node, otherwise,
-   *    it will have a new root node whose name is the 1st param supplied to
-   *    this method.
-   *
-   * @throws PSParameterMismatchException If the required parameter
-   *    is missing.
-   *
+   * @return The doc as supplied if it had a root node, otherwise, it will have a new root node
+   *     whose name is the 1st param supplied to this method.
+   * @throws PSParameterMismatchException If the required parameter is missing.
    * @throws PSExtensionProcessingException Never.
    */
   public Document processResultDocument(

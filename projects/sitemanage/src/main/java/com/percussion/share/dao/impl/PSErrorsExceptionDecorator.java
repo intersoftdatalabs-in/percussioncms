@@ -21,19 +21,20 @@ import com.percussion.webservices.PSErrorsException;
 
 /**
  * Wraps a legacy web service exception.
+ *
  * @see PSErrorResultsExceptionDecorator
  */
 public class PSErrorsExceptionDecorator extends PSExceptionDecorator {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSErrorsExceptionDecorator(PSErrorsException e) {
-        if (e.getErrors() != null && !e.getErrors().isEmpty()) {
-            var error = e.getErrors().entrySet().iterator().next().getValue();
-            if (error instanceof Throwable) {
-                wrap(e);
-                return;
-            }
-        }
+  public PSErrorsExceptionDecorator(PSErrorsException e) {
+    if (e.getErrors() != null && !e.getErrors().isEmpty()) {
+      var error = e.getErrors().entrySet().iterator().next().getValue();
+      if (error instanceof Throwable) {
         wrap(e);
+        return;
+      }
     }
+    wrap(e);
+  }
 }

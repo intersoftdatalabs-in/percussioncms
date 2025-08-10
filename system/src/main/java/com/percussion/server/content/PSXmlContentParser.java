@@ -42,43 +42,32 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSXmlContentParser class is used by the PSRequestParser to handle
- * content of type text/xml or application/xml.
+ * The PSXmlContentParser class is used by the PSRequestParser to handle content of type text/xml or
+ * application/xml.
  *
- * @see        com.percussion.server.PSRequestParser
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.PSRequestParser
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXmlContentParser extends PSContentParser {
 
-  /**
-   * Construct an XML content parser.
-   */
+  /** Construct an XML content parser. */
   public PSXmlContentParser() {
     super();
   }
 
   /**
-   * Parse the specified input stream and add it to the appropriate
-   * place in the request structure.
+   * Parse the specified input stream and add it to the appropriate place in the request structure.
    *
-   * @param      request         the request object to store the contents in
-   *
-   * @param      contentType      the Content-Type HTTP header value
-   *
-   * @param      charset         the character encoding of the content
-   *
-   * @param      content         the input stream containing the data
-   *
-   * @param      length         the amount of data to read
-   *
-   * @exception   IOException      if an i/o error occurs
-   *
-   * @exception   PSRequestParsingException
-   *                              if the content is invalid or the
-   *                              contentType is not supported
+   * @param request the request object to store the contents in
+   * @param contentType the Content-Type HTTP header value
+   * @param charset the character encoding of the content
+   * @param content the input stream containing the data
+   * @param length the amount of data to read
+   * @exception IOException if an i/o error occurs
+   * @exception PSRequestParsingException if the content is invalid or the contentType is not
+   *     supported
    */
   public void parse(
       PSRequest request,
@@ -151,23 +140,19 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Creates the xml document from the content in the supplied file. Uses the
-   * <code>charset</code> for reading the contents. If it is <code>null</code>
-   * uses rhythmyx standard encoding character set. Validates the xml document
-   * if <code>validate</code> is <code>true</code>.
+   * Creates the xml document from the content in the supplied file. Uses the <code>charset</code>
+   * for reading the contents. If it is <code>null</code> uses rhythmyx standard encoding character
+   * set. Validates the xml document if <code>validate</code> is <code>true</code>.
    *
-   * @param xmlFile the file from which xml document needs to be created, may
-   * not be <code>null</code>
-   * @param charset the character set to use for encoding, if <code>null</code>
-   * uses rhythmyx standard encoding character set.
-   * @param validate if <code>true</code> validates the created xml document,
-   * otherwise not.
-   *
+   * @param xmlFile the file from which xml document needs to be created, may not be <code>null
+   *     </code>
+   * @param charset the character set to use for encoding, if <code>null</code> uses rhythmyx
+   *     standard encoding character set.
+   * @param validate if <code>true</code> validates the created xml document, otherwise not.
    * @return the created xml document, never <code>null</code>
-   *
    * @throws IOException if any file i/o error occurs
-   * @throws PSRequestParsingException if there is any exception creating the
-   * document or validating it.
+   * @throws PSRequestParsingException if there is any exception creating the document or validating
+   *     it.
    */
   static Document getXMLDocument(File xmlFile, String charset, boolean validate)
       throws IOException, PSRequestParsingException {
@@ -205,13 +190,10 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Create an error message containing the SAX exception's context
-   * information.
+   * Create an error message containing the SAX exception's context information.
    *
-   * @param   e                  the SAX exception
-   *
-   * @return   a string containing the SAX exception info, line number,
-   *            and column number
+   * @param e the SAX exception
+   * @return a string containing the SAX exception info, line number, and column number
    */
   public static String getSaxExceptionContextMessage(SAXParseException e) {
     StringBuilder errorMsg = new StringBuilder();
@@ -220,15 +202,11 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Create an error message containing the SAX exception's context
-   * information.
+   * Create an error message containing the SAX exception's context information.
    *
-   * @param   buf               a buffer to store the output into
-   *
-   * @param   e                  the SAX exception
-   *
-   * @return   a string containing the SAX exception info, line number,
-   *            and column number
+   * @param buf a buffer to store the output into
+   * @param e the SAX exception
+   * @return a string containing the SAX exception info, line number, and column number
    */
   public static void getSaxExceptionContextMessage(StringBuilder buf, SAXParseException e) {
     buf.append(e.getMessage());
@@ -240,14 +218,11 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Create an error message containing the data in the specified range
-   * for the exception.
+   * Create an error message containing the data in the specified range for the exception.
    *
-   * @param   e                  the SAX exception
-   *
-   * @param   source            a reader with the source XML data
-   *
-   * @return   a string containing any contextual text which can be found
+   * @param e the SAX exception
+   * @param source a reader with the source XML data
+   * @return a string containing any contextual text which can be found
    */
   public static String getSaxExceptionContextData(SAXParseException e, BufferedReader source) {
     StringBuilder errorMsg = new StringBuilder();
@@ -256,16 +231,12 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Create an error message containing the data in the specified range
-   * for the exception.
+   * Create an error message containing the data in the specified range for the exception.
    *
-   * @param   buf               a buffer to store the output into
-   *
-   * @param   e                  the SAX exception
-   *
-   * @param   source            a reader with the source XML data
-   *
-   * @return   a string containing any contextual text which can be found
+   * @param buf a buffer to store the output into
+   * @param e the SAX exception
+   * @param source a reader with the source XML data
+   * @return a string containing any contextual text which can be found
    */
   public static void getSaxExceptionContextData(
       StringBuilder buf, SAXParseException e, BufferedReader source) {
@@ -286,15 +257,12 @@ public class PSXmlContentParser extends PSContentParser {
   }
 
   /**
-   * Create an error message containing the SAX exception's context
-   * information.
+   * Create an error message containing the SAX exception's context information.
    *
-   * @param   e                  the SAX exception
-   *
-   * @param   source            a reader with the source XML data
-   *
-   * @return   a string containing the SAX exception info, line number,
-   *            column number and any contextual text which can be found
+   * @param e the SAX exception
+   * @param source a reader with the source XML data
+   * @return a string containing the SAX exception info, line number, column number and any
+   *     contextual text which can be found
    */
   public static String getSaxExceptionDescription(SAXException e, BufferedReader source) {
     String errorMsg = "";
@@ -322,9 +290,8 @@ public class PSXmlContentParser extends PSContentParser {
    * Extracts the mime type from the supplied contentType.
    *
    * @param contentType The value from the ContentType HTTP header.
-   *
    * @throws PSRequestParsingException if contentType is malformed
-   **/
+   */
   private String getMimeType(String contentType) throws PSRequestParsingException {
     try {
       return PSBaseHttpUtils.parseContentType(contentType, null);
@@ -336,7 +303,7 @@ public class PSXmlContentParser extends PSContentParser {
   /**
    * Get the content type(s) supported by this driver.
    *
-   * @return      an array containing the supported content type(s)
+   * @return an array containing the supported content type(s)
    */
   public String[] getSupportedContentTypes() {
     return ARRAY_SUPPORTED_TYPES;

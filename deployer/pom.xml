@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -8,17 +9,6 @@
     </parent>
     <artifactId>perc-deployer</artifactId>
     <packaging>jar</packaging>
-
-    <build>
-        <plugins>
-            <!-- Compiler plugin configured for Java 11 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <!-- Percussion dependencies -->
         <dependency>
@@ -46,14 +36,12 @@
             <artifactId>tablefactory</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-
         <!-- Apache Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl3</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -65,7 +53,6 @@
             <artifactId>log4j-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- Spring Framework -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -82,20 +69,17 @@
             <artifactId>spring-tx</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <!-- Hibernate -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
-
         <!-- JUnit5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- Java APIs -->
         <dependency>
             <groupId>javax.jcr</groupId>
@@ -112,14 +96,12 @@
             <artifactId>javax.ws.rs-api</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <!-- XML Processing -->
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <!-- XStream -->
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
@@ -127,4 +109,13 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <!-- Compiler plugin configured for Java 11 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

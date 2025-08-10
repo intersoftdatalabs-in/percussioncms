@@ -29,10 +29,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * 2 parameters are expected: sys_originalPath and sys_newPath. All sites
- * (RXSITES) are scanned and any folder path that matches original
- * (case-insensitive) is updated to match the new path. The result doc indicates
- * success or failure and includes error info on failure (if success is false).
+ * 2 parameters are expected: sys_originalPath and sys_newPath. All sites (RXSITES) are scanned and
+ * any folder path that matches original (case-insensitive) is updated to match the new path. The
+ * result doc indicates success or failure and includes error info on failure (if success is false).
  * The result doc has the following DTD:
  *
  * <pre>
@@ -60,8 +59,7 @@ public class PSModifySiteDefs extends PSDefaultExtension implements IPSResultDoc
    *
    * @param None expected.
    * @param request Never <code>null</code>.
-   * @param resultDoc Discarded and replaced with document generated in this
-   *           exit.
+   * @param resultDoc Discarded and replaced with document generated in this exit.
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

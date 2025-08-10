@@ -34,14 +34,13 @@ public class PSValueConverter {
   static final FastDateFormat ms_sdf = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
   /**
-   * An array of pre-set date pattern string to be used to determine whether a
-   * given string/text is recognizable as a date. In order to be recognized as
-   * a date more efficiently, it is better for a string to include year, month,
-   * and date. Some popular date patterns are NOT supported here, such as
-   * "dd/MM/yyyy" and any pattern using a two digit year cause confusion.
-   * That's because in JAVA, for example, "03/30/1999" and "03/30/99" would be
-   * recognized recognized respectively as March 30, 1999 AD and March 30, 99
-   * AD. But in daily life, people tend to regard both expression as the same.
+   * An array of pre-set date pattern string to be used to determine whether a given string/text is
+   * recognizable as a date. In order to be recognized as a date more efficiently, it is better for
+   * a string to include year, month, and date. Some popular date patterns are NOT supported here,
+   * such as "dd/MM/yyyy" and any pattern using a two digit year cause confusion. That's because in
+   * JAVA, for example, "03/30/1999" and "03/30/99" would be recognized recognized respectively as
+   * March 30, 1999 AD and March 30, 99 AD. But in daily life, people tend to regard both expression
+   * as the same.
    */
   private static FastDateFormat[] ms_datePatternArray = {
     // Accurate ones should be listed first
@@ -70,14 +69,12 @@ public class PSValueConverter {
   };
 
   /**
-   * Correctly convert calendar value.
-   * Note, this is a synchronized call (executing one thread at a time),
-   * as to prevent some of the non-thread safe (internal) operations.
+   * Correctly convert calendar value. Note, this is a synchronized call (executing one thread at a
+   * time), as to prevent some of the non-thread safe (internal) operations.
    *
    * @param datestr a date string in ISO 8601 format
    * @return a calendar object, never <code>null</code>
-   * @throws ValueFormatException if the string doesn't correspond to the date
-   *            format
+   * @throws ValueFormatException if the string doesn't correspond to the date format
    */
   public static synchronized Calendar convertToCalendar(String datestr)
       throws ValueFormatException {

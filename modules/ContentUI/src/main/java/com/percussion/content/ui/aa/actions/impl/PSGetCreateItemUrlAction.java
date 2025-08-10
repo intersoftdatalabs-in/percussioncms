@@ -24,9 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
-/**
- *
- */
+/** */
 public class PSGetCreateItemUrlAction extends PSAAActionBase {
 
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {

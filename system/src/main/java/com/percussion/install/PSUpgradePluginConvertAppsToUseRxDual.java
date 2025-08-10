@@ -29,24 +29,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 /**
- * This plugin has been written to convert all the applications xml files in
- * clients rhythmyx objectstore directory to use RXDUAL table instead of DUAL
- * table.
- *
+ * This plugin has been written to convert all the applications xml files in clients rhythmyx
+ * objectstore directory to use RXDUAL table instead of DUAL table.
  */
 
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginConvertAppsToUseRxDual implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginConvertAppsToUseRxDual() {}
 
   /**
-   * Implements the process function of IPSUpgardePlugin. Converts all the
-   * application files to use RXDUAL table instead of DUAL table.
-   * Gets all table,alias,tableAlias nodes and if node value is DUAL then
-   * changes its value to RXDUAL. After conversion the file will be saved.
+   * Implements the process function of IPSUpgardePlugin. Converts all the application files to use
+   * RXDUAL table instead of DUAL table. Gets all table,alias,tableAlias nodes and if node value is
+   * DUAL then changes its value to RXDUAL. After conversion the file will be saved.
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
@@ -108,9 +104,7 @@ public class PSUpgradePluginConvertAppsToUseRxDual implements IPSUpgradePlugin {
    * Helper function that converts the node value to RXDUAL if it is DUAL.
    *
    * @param nl - DOM NodeList, can not be <code>null</code>.
-   *
    * @return - int flag 0 if DUAL not found 1 if found.
-   *
    */
   public static int dualToRxDual(NodeList nl) {
     int flag = 0;
@@ -128,13 +122,9 @@ public class PSUpgradePluginConvertAppsToUseRxDual implements IPSUpgradePlugin {
     return flag;
   }
 
-  /**
-   * String constant for objectstore directory.
-   */
+  /** String constant for objectstore directory. */
   private static final String OBJECT_STORE_DIRECTORY = "ObjectStore";
 
-  /**
-   * String constant for dual to rxdual conversion xsl.
-   */
+  /** String constant for dual to rxdual conversion xsl. */
   private static final String DUAL_TO_RXDUAL_XSL_FILE = "dualtorxdual.xsl";
 }

@@ -35,31 +35,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSSecurityProviderInstance class is used to define a connection
- * to a security provider for authentication of users.
+ * The PSSecurityProviderInstance class is used to define a connection to a security provider for
+ * authentication of users.
  *
- * @see   PSServerConfiguration
- * @see   PSServerConfiguration#getSecurityProviderInstances
- *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @see PSServerConfiguration
+ * @see PSServerConfiguration#getSecurityProviderInstances
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSecurityProviderInstance extends PSComponent {
   private static final Logger logger = LogManager.getLogger(PSSecurityProviderInstance.class);
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
    * @param sourceNode the XML element node to construct this object from
-   *
    * @param parentDoc the Java object which is the parent of this object
-   *
    * @param parentComponents the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSSecurityProviderInstance(
       Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -68,20 +63,18 @@ public class PSSecurityProviderInstance extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   protected PSSecurityProviderInstance() {
     super();
   }
 
   /**
    * Constructor to create instance from name and type.
-   * @param   name     the unique security provider instance name
-   * @param   type     the appropriate SP_TYPE_xxx flag
    *
-   * @throws   PSIllegalArgumentException  if name exceeds the specified size
-   * limit or if type is invalid.
+   * @param name the unique security provider instance name
+   * @param type the appropriate SP_TYPE_xxx flag
+   * @throws PSIllegalArgumentException if name exceeds the specified size limit or if type is
+   *     invalid.
    */
   public PSSecurityProviderInstance(String name, int type) throws PSIllegalArgumentException {
     super();
@@ -110,7 +103,7 @@ public class PSSecurityProviderInstance extends PSComponent {
   /**
    * Get the type of security provider associated with this instance.
    *
-   * @return   the appropriate SP_TYPE_xxx flag
+   * @return the appropriate SP_TYPE_xxx flag
    */
   public int getType() {
     return m_providerType;
@@ -119,9 +112,8 @@ public class PSSecurityProviderInstance extends PSComponent {
   /**
    * Get the type of security provider associated with this instance.
    *
-   * @param   type     the appropriate SP_TYPE_xxx flag
-   *
-   * @throws   PSIllegalArgumentException if type is invalid
+   * @param type the appropriate SP_TYPE_xxx flag
+   * @throws PSIllegalArgumentException if type is invalid
    */
   public void setType(int type) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateType(type);
@@ -138,9 +130,7 @@ public class PSSecurityProviderInstance extends PSComponent {
     return null;
   }
 
-  /**
-   * Get the provider name.
-   */
+  /** Get the provider name. */
   public String getProvider() {
     int type = m_providerType;
     String provider = "";
@@ -165,20 +155,18 @@ public class PSSecurityProviderInstance extends PSComponent {
   /**
    * Get the unique name associated with this security provider instance.
    *
-   * @return   the security provider instance name
+   * @return the security provider instance name
    */
   public String getName() {
     return m_instanceName;
   }
 
   /**
-   * Set the unique name associated with this security provider instance.
-   * This is limited to 50 characters.
+   * Set the unique name associated with this security provider instance. This is limited to 50
+   * characters.
    *
-   * @param   name     the unique security provider instance name
-   *
-   * @throws   PSIllegalArgumentException  if name exceeds the specified size
-   * limit
+   * @param name the unique security provider instance name
+   * @throws PSIllegalArgumentException if name exceeds the specified size limit
    */
   public void setName(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateName(name);
@@ -196,19 +184,16 @@ public class PSSecurityProviderInstance extends PSComponent {
   }
 
   /**
-   * Get the configuration properties associated with this
-   * security provider instance.
+   * Get the configuration properties associated with this security provider instance.
    *
-   * @return   the security provider instance configuration properties (may be
-   * <code>null</code>)
+   * @return the security provider instance configuration properties (may be <code>null</code>)
    */
   public Properties getProperties() {
     return m_instanceProps;
   }
 
   /**
-   * Set the configuration properties associated with this
-   * security provider instance.
+   * Set the configuration properties associated with this security provider instance.
    *
    * @param props the security provider instance configuration properties
    */
@@ -230,10 +215,11 @@ public class PSSecurityProviderInstance extends PSComponent {
   // **************  IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXSecurityProviderInstance
-   * XML element node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXSecurityProviderInstance XML element node containing the
+   * data described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *  &lt;!--
    *    PSXSecurityProviderInstance defines a security provider used
@@ -267,7 +253,7 @@ public class PSSecurityProviderInstance extends PSComponent {
    *  &lt;!ELEMENT Properties (ANY)*&gt;
    * </code></pre>
    *
-   * @return   the newly created PSXBackEndConnection XML element node
+   * @return the newly created PSXBackEndConnection XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -302,12 +288,11 @@ public class PSSecurityProviderInstance extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndConnection Java object
-   * from a PSXBackEndConnection XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndConnection Java object from a PSXBackEndConnection
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   * of type PSXBackEndConnection
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -377,18 +362,15 @@ public class PSSecurityProviderInstance extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -403,8 +385,8 @@ public class PSSecurityProviderInstance extends PSComponent {
   /**
    * Get the directory catalog provider.
    *
-   * @return the directory catalog provider or <code>null</code> if this
-   *    security provider does not allow directory catalog requests.
+   * @return the directory catalog provider or <code>null</code> if this security provider does not
+   *     allow directory catalog requests.
    */
   public PSProvider getDirectoryProvider() {
     return m_directoryProvider;
@@ -413,45 +395,41 @@ public class PSSecurityProviderInstance extends PSComponent {
   /**
    * Set a new directory catalog provider.
    *
-   * @param provider the new directory provider to use, provide
-   *    <code>null</code> if this security provider does not allow directory
-   *    catalog requests.
+   * @param provider the new directory provider to use, provide <code>null</code> if this security
+   *     provider does not allow directory catalog requests.
    */
   public void setDirectoryProvider(PSProvider provider) {
     m_directoryProvider = provider;
   }
 
   /**
-   * The security provider type, initialized while constructed. Must be
-   * a supported type validated through
+   * The security provider type, initialized while constructed. Must be a supported type validated
+   * through
    */
   protected int m_providerType = -1;
 
   /**
-   * The seccurity provider instance name, initialized while constructed, may
-   * be <code>null</code> or empty.
+   * The seccurity provider instance name, initialized while constructed, may be <code>null</code>
+   * or empty.
    */
   protected String m_instanceName = null;
 
   /**
-   * The configuration properties associated with this security provider.
-   * Initialized in fromXml(Element, IPSDocument, ArrayList) or
-   * through calls to setProperties(Properties), may be
+   * The configuration properties associated with this security provider. Initialized in
+   * fromXml(Element, IPSDocument, ArrayList) or through calls to setProperties(Properties), may be
    * <code>null</code> or empty.
    */
   protected Properties m_instanceProps = null;
 
-  /**
-   * The maximum lenght for security provider instance names.
-   */
+  /** The maximum lenght for security provider instance names. */
   public static final int MAX_NAME_LEN = 50;
 
   // package access on this so they may reference each other in fromXml
   public static final String ms_NodeType = "PSXSecurityProviderInstance";
 
   /**
-   * The directory provider to be used with this security provider instance,
-   * may be <code>null</code>.
+   * The directory provider to be used with this security provider instance, may be <code>null
+   * </code>.
    */
   protected PSProvider m_directoryProvider = null;
 

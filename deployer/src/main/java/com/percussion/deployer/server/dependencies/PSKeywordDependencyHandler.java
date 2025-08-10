@@ -48,21 +48,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Class to handle packaging and deploying a keyword definition.
- */
+/** Class to handle packaging and deploying a keyword definition. */
 public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSServiceDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSKeywordDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -195,9 +190,8 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles(
-   * PSSecurityToken, PSArchiveHandler, PSDependency, PSImportCtx)} for
-   * details.
+   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
+   * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
   @SuppressWarnings("unchecked")
   public void doInstallDependencyFiles(
@@ -310,7 +304,6 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    * Gets the table data for the entire keyword table.
    *
    * @return The data, may be <code>null</code> if no rows are found.
-   *
    * @throws PSDeployException if there are any errors.
    */
   PSJdbcTableData getKeywordTableData() throws PSDeployException {
@@ -321,18 +314,14 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Creates a map of keyword row ids to the corresponding type and value.
-   * Returns a <code>PSBijectionMap</code> so that either the key or value may
-   * be used to retrieve each other.
+   * Creates a map of keyword row ids to the corresponding type and value. Returns a <code>
+   * PSBijectionMap</code> so that either the key or value may be used to retrieve each other.
    *
-   * @param data The table data to use, may not be <code>null</code> and must
-   * be data from the <code>RXLOOKUP</code> table.
-   *
-   * @return The map, where the key is the row id as a <code>String</code>,
-   * and the value is a <code>String</code> containing the lookup type and
-   * values concatenated together with a ":" delimiter.  Never
-   * <code>null</code>, may be empty.
-   *
+   * @param data The table data to use, may not be <code>null</code> and must be data from the
+   *     <code>RXLOOKUP</code> table.
+   * @return The map, where the key is the row id as a <code>String</code>, and the value is a
+   *     <code>String</code> containing the lookup type and values concatenated together with a ":"
+   *     delimiter. Never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
   @SuppressWarnings("unchecked")
@@ -357,20 +346,17 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Get a keyword dependency id from the row id of a keyword entry in the
-   * supplied row id map.  Since only keyword group ids are used as dependency
-   * id's, if the supplied row is a group, then its value is returned.  If its
-   * not a group, then its type, which indicates the group to which it belongs,
-   * is returned.
+   * Get a keyword dependency id from the row id of a keyword entry in the supplied row id map.
+   * Since only keyword group ids are used as dependency id's, if the supplied row is a group, then
+   * its value is returned. If its not a group, then its type, which indicates the group to which it
+   * belongs, is returned.
    *
-   * @param rowIdMap The result of a call to
-   * {@link #getRowIdMap(PSJdbcTableData)}, may not be <code>null</code>}.
-   * @param rowId The id of the row in the map to use to get the corresponding
-   * keyword dependency id.  May not be <code>null</code> or empty.
-   *
-   * @return The dependency id, or <code>null</code> if the specified row id
-   * is not found in the map.  Never empty.
-   *
+   * @param rowIdMap The result of a call to {@link #getRowIdMap(PSJdbcTableData)}, may not be
+   *     <code>null</code>}.
+   * @param rowId The id of the row in the map to use to get the corresponding keyword dependency
+   *     id. May not be <code>null</code> or empty.
+   * @return The dependency id, or <code>null</code> if the specified row id is not found in the
+   *     map. Never empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -400,23 +386,19 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Transforms any keyword ids in the supplied type-value string.  Since only
-   * keyword group ids are used as dependency id's, if the supplied string
-   * specifies a group, then its value is transformed.  If it is not a group,
-   * then its type, which indicates the group to which it belongs, is
-   * transformed.
+   * Transforms any keyword ids in the supplied type-value string. Since only keyword group ids are
+   * used as dependency id's, if the supplied string specifies a group, then its value is
+   * transformed. If it is not a group, then its type, which indicates the group to which it
+   * belongs, is transformed.
    *
    * @param ctx The import context to use, may not be <code>null</code>.
-   * @param srcTypeVal The type-value string to transform, in the form
-   * "<type>:<value>".  This is the format of the value side of the map
-   * returned by a call to {@link #getRowIdMap(PSJdbcTableData)}.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param srcTypeVal The type-value string to transform, in the form "<type>:<value>". This is the
+   *     format of the value side of the map returned by a call to {@link
+   *     #getRowIdMap(PSJdbcTableData)}. May not be <code>null</code> or empty.
    * @return The transformed string, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException If the <code>srcTypeVal</code> string is
-   * malformed, or any other error occurs.
+   * @throws PSDeployException If the <code>srcTypeVal</code> string is malformed, or any other
+   *     error occurs.
    */
   String transformTypeVal(PSImportCtx ctx, String srcTypeVal) throws PSDeployException {
     PSPairDependencyId pairId = new PSPairDependencyId(srcTypeVal);
@@ -441,8 +423,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   /**
    * Utility method to find the Keyword by a given dependency id(as a string).
    *
-   * @param depId the id which represents the value of the keyword, assumed not
-   * <code>null</code>.
+   * @param depId the id which represents the value of the keyword, assumed not <code>null</code>.
    * @return <code>null</code> if Keyword is not found.
    */
   private PSKeyword findKeywordByDependencyID(String depId) {
@@ -463,9 +444,9 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param keyword the keyword, never <code>null</code>.
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -483,14 +464,10 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(str));
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Keyword";
 
-  /**
-   * Constant for LOOKUPTYPE column value that defines a lookup type.
-   */
+  /** Constant for LOOKUPTYPE column value that defines a lookup type. */
   private static final String LOOKUP_GROUP_KEY = "1";
 
   // private constants for table and columns
@@ -499,15 +476,10 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
   private static final String LOOKUP_TYPE = "LOOKUPTYPE";
   private static final String LOOKUP_ID = "LOOKUPID";
 
-  /**
-   * Get the content service
-   */
+  /** Get the content service */
   private static IPSContentService ms_contentSvc = PSContentServiceLocator.getContentService();
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

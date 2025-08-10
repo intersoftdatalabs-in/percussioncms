@@ -17,33 +17,30 @@
 package com.percussion.pathmanagement.service.impl;
 
 import com.percussion.pathmanagement.data.PSPathItem;
-
 import java.util.Comparator;
 
 /**
- * Comparator for {@link PSPathItem} that sorts by name, case-insensitive, ascending.
- * Thread-safe singleton.
+ * Comparator for {@link PSPathItem} that sorts by name, case-insensitive, ascending. Thread-safe
+ * singleton.
  */
 public final class PSPathItemComparator implements Comparator<PSPathItem> {
 
-    private static final PSPathItemComparator INSTANCE = new PSPathItemComparator();
+  private static final PSPathItemComparator INSTANCE = new PSPathItemComparator();
 
-    private PSPathItemComparator() {
-        // Singleton: prevent instantiation
-    }
+  private PSPathItemComparator() {
+    // Singleton: prevent instantiation
+  }
 
-    /**
-     * Returns the singleton instance of this comparator.
-     */
-    public static Comparator<PSPathItem> getInstance() {
-        return INSTANCE;
-    }
+  /** Returns the singleton instance of this comparator. */
+  public static Comparator<PSPathItem> getInstance() {
+    return INSTANCE;
+  }
 
-    @Override
-    public int compare(PSPathItem a, PSPathItem b) {
-        // Null-safe comparison, but names should not be null in practice
-        var nameA = a != null && a.getName() != null ? a.getName() : "";
-        var nameB = b != null && b.getName() != null ? b.getName() : "";
-        return nameA.compareToIgnoreCase(nameB);
-    }
+  @Override
+  public int compare(PSPathItem a, PSPathItem b) {
+    // Null-safe comparison, but names should not be null in practice
+    var nameA = a != null && a.getName() != null ? a.getName() : "";
+    var nameB = b != null && b.getName() != null ? b.getName() : "";
+    return nameA.compareToIgnoreCase(nameB);
+  }
 }

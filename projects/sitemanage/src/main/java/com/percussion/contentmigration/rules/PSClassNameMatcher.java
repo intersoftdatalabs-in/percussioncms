@@ -22,67 +22,65 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.Validate;
 import org.jsoup.nodes.Element;
 
 /**
- * Handles matching an element based on a set of class names, walking up the parent element chain.  Each time
- * a method is called that walks up the parent chain, the current element is set to the last parent
- * referenced (see {@link #getCurrentElement()}).
- * 
+ * Handles matching an element based on a set of class names, walking up the parent element chain.
+ * Each time a method is called that walks up the parent chain, the current element is set to the
+ * last parent referenced (see {@link #getCurrentElement()}).
+ *
  * @author JaySeletz
  */
 public class PSClassNameMatcher {
-    private final Element element;
-    private Element cur;
-    private final List<Element> parents = new ArrayList<>();
+  private final Element element;
+  private Element cur;
+  private final List<Element> parents = new ArrayList<>();
 
-    public PSClassNameMatcher(Element element) {
-        Validate.notNull(element);
-        this.element = element;
-        cur = element;
-        parents.addAll(cur.parents());
-    }
+  public PSClassNameMatcher(Element element) {
+    Validate.notNull(element);
+    this.element = element;
+    cur = element;
+    parents.addAll(cur.parents());
+  }
 
-    public Set<String> getCurrentElementClasses() {
-        return getFilteredClassNames(cur);
-    }
+  public Set<String> getCurrentElementClasses() {
+    return getFilteredClassNames(cur);
+  }
 
-    public Element getCurrentElement() {
-        return cur;
-    }
+  public Element getCurrentElement() {
+    return cur;
+  }
 
-    public Set<String> getNextParentElementClasses() {
-        Set<String> classNames = new HashSet<>();
-        while (classNames.isEmpty() && !parents.isEmpty()) {
-            cur = parents.remove(0);
-            classNames = getFilteredClassNames(cur);
-        }
-        return classNames;
+  public Set<String> getNextParentElementClasses() {
+    Set<String> classNames = new HashSet<>();
+    while (classNames.isEmpty() && !parents.isEmpty()) {
+      cur = parents.remove(0);
+      classNames = getFilteredClassNames(cur);
     }
+    return classNames;
+  }
 
-    private Set<String> getFilteredClassNames(Element elem) {
-        var classNames = elem.classNames();
-        filterClassName(classNames);
-        return classNames;
-    }
+  private Set<String> getFilteredClassNames(Element elem) {
+    var classNames = elem.classNames();
+    filterClassName(classNames);
+    return classNames;
+  }
 
-    public boolean hasMoreParents() {
-        return !parents.isEmpty();
-    }
+  public boolean hasMoreParents() {
+    return !parents.isEmpty();
+  }
 
-    public Element getSrcElement() {
-        return element;
-    }
+  public Element getSrcElement() {
+    return element;
+  }
 
-    public boolean matchParentClasses(Set<String> classNames) {
-        Validate.notNull(classNames);
-        if (parents.isEmpty()) {
-            return false;
-        }
-        cur = parents.remove(0);
-        return cur.classNames().stream().anyMatch(classNames::contains);
+  public boolean matchParentClasses(Set<String> classNames) {
+    Validate.notNull(classNames);
+    if (parents.isEmpty()) {
+      return false;
     }
+    cur = parents.remove(0);
+    return cur.classNames().stream().anyMatch(classNames::contains);
+  }
 }

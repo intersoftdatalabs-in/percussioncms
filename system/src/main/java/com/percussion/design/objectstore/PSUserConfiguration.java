@@ -24,45 +24,33 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUserConfiguration class is used to store and retrieve user
- * configuration information in the E2 object store. This allows users,
- * primarily designers, to store preferences and other such information
- * on the server. They can then use any machine and still have all their
- * customizations.
- * <p>
- * Use the PSObjectStore class to load a PSUserConfiguration object from
- * an E2 server (getUserConfiguration) or to save changes back to the server
- * (saveUserConfiguration).
- * <p>
- * <em>Note:</em> Use of this object as a hash table is strictly
- * discouraged. The new getPropertyTree and setPropertyTree methods
- * should be used instead to take advantage of the more rich
- * structure of XML documents.
+ * The PSUserConfiguration class is used to store and retrieve user configuration information in the
+ * E2 object store. This allows users, primarily designers, to store preferences and other such
+ * information on the server. They can then use any machine and still have all their customizations.
  *
- * @see         PSObjectStore
- * @see         PSObjectStore#getUserConfiguration
- * @see         PSObjectStore#saveUserConfiguration
+ * <p>Use the PSObjectStore class to load a PSUserConfiguration object from an E2 server
+ * (getUserConfiguration) or to save changes back to the server (saveUserConfiguration).
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p><em>Note:</em> Use of this object as a hash table is strictly discouraged. The new
+ * getPropertyTree and setPropertyTree methods should be used instead to take advantage of the more
+ * rich structure of XML documents.
+ *
+ * @see PSObjectStore
+ * @see PSObjectStore#getUserConfiguration
+ * @see PSObjectStore#saveUserConfiguration
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
     implements IPSDocument {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for
+   * a description of the XML object.
    *
-   * @param      sourceDoc      the XML document to construct this
-   *                              object from
-   *
-   * @exception   PSUnknownDocTypeException
-   *                              if the XML document is not of the
-   *                              appropriate type
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if an XML element node is not of the
-   *                              appropriate type
+   * @param sourceDoc the XML document to construct this object from
+   * @exception PSUnknownDocTypeException if the XML document is not of the appropriate type
+   * @exception PSUnknownNodeTypeException if an XML element node is not of the appropriate type
    */
   public PSUserConfiguration(org.w3c.dom.Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -73,17 +61,14 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
   /**
    * Constructs an empty set of user configuration options.
    *
-   * @param   userName    the name of the user for which the configuration
-   *                      information is being defined
+   * @param userName the name of the user for which the configuration information is being defined
    */
   PSUserConfiguration(java.lang.String userName) {
     super();
     m_userName = userName;
   }
 
-  /**
-   * For fromXml use only.
-   */
+  /** For fromXml use only. */
   PSUserConfiguration() {
     super();
   }
@@ -91,45 +76,38 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
   /**
    * Returns the user name for whom this configuration applies.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.10 1999/05/07
-   *
-   * @return   String
+   * @return String
    */
   public String getUserName() {
     return m_userName;
   }
 
   /**
-   * Get the properties associated with this user. By specifying properties,
-   * a designer can store context information, etc. on the Rhythmyx server.
-   * The user defined XML tree structure is stored in the object store,
-   * allowing the client to access their personal configuration information
+   * Get the properties associated with this user. By specifying properties, a designer can store
+   * context information, etc. on the Rhythmyx server. The user defined XML tree structure is stored
+   * in the object store, allowing the client to access their personal configuration information
    * regardless of the client machine they're using.
    *
-   * @return              the user defined properties associated with this
-   *                     user
-   *
-   * @see               #setPropertyTree
+   * @return the user defined properties associated with this user
+   * @see #setPropertyTree
    */
   public org.w3c.dom.Document getPropertyTree() {
     return m_propertyTree;
   }
 
   /**
-   * Overwrite the properties associated with this user with the specified
-   * object. If you only want to modify some of the properties, add new
-   * properies, etc. use getPropertyTree to get the existing object and
-   * modify the returned object directly.
-   * <p>
-   * The Document object supplied to this method will be stored with the
-   * PSUserConfiguration object. Any subsequent changes made to the object
-   * by the caller will also effect the user configuration.
+   * Overwrite the properties associated with this user with the specified object. If you only want
+   * to modify some of the properties, add new properies, etc. use getPropertyTree to get the
+   * existing object and modify the returned object directly.
    *
-   * @param   propTree      the new properties to associate with this user
+   * <p>The Document object supplied to this method will be stored with the PSUserConfiguration
+   * object. Any subsequent changes made to the object by the caller will also effect the user
+   * configuration.
    *
-   * @see               #getPropertyTree
+   * @param propTree the new properties to associate with this user
+   * @see #getPropertyTree
    */
   public void setPropertyTree(org.w3c.dom.Document propTree) {
     m_propertyTree = propTree;
@@ -138,10 +116,11 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
   /* *************** IPSDocument Interface Implementation *************** */
 
   /**
-   * This method is called to create a PSXUserConfiguration XML document
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXUserConfiguration XML document containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXUserConfiguration is used to store and retrieve user
@@ -186,7 +165,7 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
    *    &lt;!ELEMENT PropertyTree           (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly PSXUserConfiguration XML document
+   * @return the newly PSXUserConfiguration XML document
    */
   public Document toXml() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -218,12 +197,10 @@ public class PSUserConfiguration extends java.util.concurrent.ConcurrentHashMap
   }
 
   /**
-   * This method is called to populate a PSUserConfiguration Java object
-   * from a PSXUserConfiguration XML document. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * This method is called to populate a PSUserConfiguration Java object from a PSXUserConfiguration
+   * XML document. See the {@link #toXml() toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownDocTypeException   if the XML document is not
-   *                                        of type PSXUserConfiguration
+   * @exception PSUnknownDocTypeException if the XML document is not of type PSXUserConfiguration
    */
   public void fromXml(Document sourceDoc) throws PSUnknownDocTypeException {
     if (sourceDoc == null)

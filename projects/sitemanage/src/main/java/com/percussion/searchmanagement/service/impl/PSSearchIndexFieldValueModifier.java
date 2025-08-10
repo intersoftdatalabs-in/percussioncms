@@ -24,13 +24,12 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.workflow.data.PSState;
-import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.util.PSDataTypeConverter;
-import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.PSWebserviceUtils;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -38,85 +37,87 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Modifies field values before items are indexed, to ensure search queries behave as expected.
- */
+/** Modifies field values before items are indexed, to ensure search queries behave as expected. */
 @Component("searchIndexFieldValueModifier")
-public class PSSearchIndexFieldValueModifier implements IPSFieldValueModifier, IPSNotificationListener {
-    private static final Logger log = LogManager.getLogger(PSSearchIndexFieldValueModifier.class);
+public class PSSearchIndexFieldValueModifier
+    implements IPSFieldValueModifier, IPSNotificationListener {
+  private static final Logger log = LogManager.getLogger(PSSearchIndexFieldValueModifier.class);
 
-    private final IPSFolderHelper folderHelper;
-    private final IPSIdMapper idMapper;
+  private final IPSFolderHelper folderHelper;
+  private final IPSIdMapper idMapper;
 
-    @Autowired
-    public PSSearchIndexFieldValueModifier(
-            IPSFolderHelper folderHelper,
-            IPSIdMapper idMapper,
-            IPSNotificationService notificationService) {
-        this.folderHelper = folderHelper;
-        this.idMapper = idMapper;
-        notificationService.addListener(EventType.CORE_SERVER_INITIALIZED, this);
-    }
+  @Autowired
+  public PSSearchIndexFieldValueModifier(
+      IPSFolderHelper folderHelper,
+      IPSIdMapper idMapper,
+      IPSNotificationService notificationService) {
+    this.folderHelper = folderHelper;
+    this.idMapper = idMapper;
+    notificationService.addListener(EventType.CORE_SERVER_INITIALIZED, this);
+  }
 
-    @Override
-    public void modifyFields(Map<String, Object> itemFragment) {
-        try {
-            var strContentId = (String) itemFragment.get("sys_contentid");
-            var contentId = NumberUtils.toInt(strContentId);
-            if (contentId <= 0) {
-                throw new IllegalArgumentException("Invalid or missing content id: " + strContentId);
-            }
+  @Override
+  public void modifyFields(Map<String, Object> itemFragment) {
+    try {
+      var strContentId = (String) itemFragment.get("sys_contentid");
+      var contentId = NumberUtils.toInt(strContentId);
+      if (contentId <= 0) {
+        throw new IllegalArgumentException("Invalid or missing content id: " + strContentId);
+      }
 
-            var wfId = NumberUtils.toInt((String) itemFragment.get("sys_workflowid"));
-            var stateName = (String) itemFragment.get("sys_statename");
+      var wfId = NumberUtils.toInt((String) itemFragment.get("sys_workflowid"));
+      var stateName = (String) itemFragment.get("sys_statename");
 
-            if (wfId <= 0 || StringUtils.isBlank(stateName)) {
-                return;
-            }
+      if (wfId <= 0 || StringUtils.isBlank(stateName)) {
+        return;
+      }
 
-            var userName = (String) itemFragment.get("sys_contentlastmodifier");
-            var strDate = (String) itemFragment.get("sys_contentlastmodifieddate");
+      var userName = (String) itemFragment.get("sys_contentlastmodifier");
+      var strDate = (String) itemFragment.get("sys_contentlastmodifieddate");
 
-            if (StringUtils.isBlank(userName) || StringUtils.isBlank(strDate)) {
-                return;
-            }
+      if (StringUtils.isBlank(userName) || StringUtils.isBlank(strDate)) {
+        return;
+      }
 
-            var patternUsed = new StringBuilder();
-            var lastModified = PSDataTypeConverter.parseStringToDate(strDate, patternUsed);
-            if (lastModified == null) {
-                return;
-            }
+      var patternUsed = new StringBuilder();
+      var lastModified = PSDataTypeConverter.parseStringToDate(strDate, patternUsed);
+      if (lastModified == null) {
+        return;
+      }
 
-            var wf = PSWebserviceUtils.getWorkflow(wfId);
-            PSState state = null;
-            for (var test : wf.getStates()) {
-                if (test.getName().equals(stateName)) {
-                    state = test;
-                    break;
-                }
-            }
-            if (state == null) {
-                return;
-            }
-
-            var lastModInfo = folderHelper.fixupLastModified(
-                    idMapper.getGuid(new PSLocator(contentId)), userName, lastModified, state.isPublishable());
-            itemFragment.put("sys_contentlastmodifier", lastModInfo.getFirst());
-            itemFragment.put("sys_contentlastmodifieddate",
-                    PSDataTypeConverter.transformDateString(
-                            PSDateUtils.getDateFromString(lastModInfo.getSecond()),
-                            null, patternUsed.toString(), true));
-        } catch (Exception e) {
-            log.error("Failed to update last modifier fields for search indexing", e);
+      var wf = PSWebserviceUtils.getWorkflow(wfId);
+      PSState state = null;
+      for (var test : wf.getStates()) {
+        if (test.getName().equals(stateName)) {
+          state = test;
+          break;
         }
-    }
+      }
+      if (state == null) {
+        return;
+      }
 
-    @Override
-    public void notifyEvent(PSNotificationEvent notification) {
-        PSSearchIndexEventQueue.getInstance().setFieldValueModifier(this);
+      var lastModInfo =
+          folderHelper.fixupLastModified(
+              idMapper.getGuid(new PSLocator(contentId)),
+              userName,
+              lastModified,
+              state.isPublishable());
+      itemFragment.put("sys_contentlastmodifier", lastModInfo.getFirst());
+      itemFragment.put(
+          "sys_contentlastmodifieddate",
+          PSDataTypeConverter.transformDateString(
+              PSDateUtils.getDateFromString(lastModInfo.getSecond()),
+              null,
+              patternUsed.toString(),
+              true));
+    } catch (Exception e) {
+      log.error("Failed to update last modifier fields for search indexing", e);
     }
+  }
+
+  @Override
+  public void notifyEvent(PSNotificationEvent notification) {
+    PSSearchIndexEventQueue.getInstance().setFieldValueModifier(this);
+  }
 }

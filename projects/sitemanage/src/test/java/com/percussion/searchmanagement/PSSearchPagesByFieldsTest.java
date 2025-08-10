@@ -18,100 +18,94 @@
 
 package com.percussion.searchmanagement;
 
-import com.percussion.pagemanagement.data.PSPage;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
-import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.searchmanagement.data.PSSearchCriteria;
 import com.percussion.searchmanagement.service.IPSSearchService;
-import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.ui.service.IPSListViewProcessor;
-
+import java.util.HashMap;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Integration test for searching pages by fields.
- * Sunny Sal: "Search fields, Java 11, and a dash of awesomeness!"
+ * Integration test for searching pages by fields. Sunny Sal: "Search fields, Java 11, and a dash of
+ * awesomeness!"
  */
 @Tag("IntegrationTest")
 class PSSearchPagesByFieldsTest extends PSServletTestCase {
 
-    private PSSiteDataServletTestCaseFixture fixture;
-    private IPSSearchService searchService;
-    private String homePagePath;
+  private PSSiteDataServletTestCaseFixture fixture;
+  private IPSSearchService searchService;
+  private String homePagePath;
 
-    public IPSSearchService getSearchService() {
-        return searchService;
-    }
+  public IPSSearchService getSearchService() {
+    return searchService;
+  }
 
-    public void setSearchService(IPSSearchService searchService) {
-        this.searchService = searchService;
-    }
+  public void setSearchService(IPSSearchService searchService) {
+    this.searchService = searchService;
+  }
 
-    @Override
-    public void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp();
-        homePagePath = fixture.site1.getFolderPath() + "/index.html";
-        fixture.pageCleaner.add(homePagePath);
-        super.setUp();
-    }
+  @Override
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp();
+    homePagePath = fixture.site1.getFolderPath() + "/index.html";
+    fixture.pageCleaner.add(homePagePath);
+    super.setUp();
+  }
 
-    @Override
-    protected void tearDown() throws Exception {
-        fixture.tearDown();
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    fixture.tearDown();
+  }
 
-    @Test
-    void testSearchForPage() throws Exception {
-        var homePage = fixture.getPageService().findPageByPath(homePagePath);
-        assertNotNull(homePage);
+  @Test
+  void testSearchForPage() throws Exception {
+    var homePage = fixture.getPageService().findPageByPath(homePagePath);
+    assertNotNull(homePage);
 
-        var criteria = new PSSearchCriteria();
-        criteria.setFolderPath(fixture.site1.getFolderPath());
-        var searchFields = new HashMap<String, String>();
-        searchFields.put("sys_contentlastmodifier", "admin1");
-        searchFields.put("sys_workflowid", "6");
-        searchFields.put("sys_contentstateid", "1");
-        searchFields.put("templateid", homePage.getTemplateId());
+    var criteria = new PSSearchCriteria();
+    criteria.setFolderPath(fixture.site1.getFolderPath());
+    var searchFields = new HashMap<String, String>();
+    searchFields.put("sys_contentlastmodifier", "admin1");
+    searchFields.put("sys_workflowid", "6");
+    searchFields.put("sys_contentstateid", "1");
+    searchFields.put("templateid", homePage.getTemplateId());
 
-        criteria.setSearchFields(searchFields);
-        criteria.setFormatId(-1);
-        criteria.setMaxResults(null);
-        criteria.setQuery("index.html");
+    criteria.setSearchFields(searchFields);
+    criteria.setFormatId(-1);
+    criteria.setMaxResults(null);
+    criteria.setQuery("index.html");
 
-        var result = searchService.search(criteria);
-        assertNotNull(result);
-        // Items not indexed for 15s
-        Thread.sleep(30000);
-        result = searchService.search(criteria);
-        assertNotNull(result);
+    var result = searchService.search(criteria);
+    assertNotNull(result);
+    // Items not indexed for 15s
+    Thread.sleep(30000);
+    result = searchService.search(criteria);
+    assertNotNull(result);
 
-        assertEquals(1, result.getChildrenCount());
-        assertEquals(1, result.getChildrenInPage().size());
-        var item = result.getChildrenInPage().get(0);
-        assertEquals(homePage.getId(), item.getId());
-        var displayProps = item.getDisplayProperties();
+    assertEquals(1, result.getChildrenCount());
+    assertEquals(1, result.getChildrenInPage().size());
+    var item = result.getChildrenInPage().get(0);
+    assertEquals(homePage.getId(), item.getId());
+    var displayProps = item.getDisplayProperties();
 
-        assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIED_DATE_NAME));
-        assertNotNull(displayProps.get(IPSListViewHelper.STATE_NAME));
-        assertNotNull(displayProps.get(IPSListViewHelper.TITLE_NAME));
-        assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIER_NAME));
-        assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIED_DATE_NAME));
-        assertNotNull(displayProps.get(IPSListViewProcessor.TEMPLATE_NAME));
+    assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIED_DATE_NAME));
+    assertNotNull(displayProps.get(IPSListViewHelper.STATE_NAME));
+    assertNotNull(displayProps.get(IPSListViewHelper.TITLE_NAME));
+    assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIER_NAME));
+    assertNotNull(displayProps.get(IPSListViewHelper.CONTENT_LAST_MODIFIED_DATE_NAME));
+    assertNotNull(displayProps.get(IPSListViewProcessor.TEMPLATE_NAME));
 
-        criteria.setQuery("");
-        result = searchService.search(criteria);
-        assertNotNull(result);
-        assertTrue(result.getChildrenCount() >= 1);
-    }
+    criteria.setQuery("");
+    result = searchService.search(criteria);
+    assertNotNull(result);
+    assertTrue(result.getChildrenCount() >= 1);
+  }
 }

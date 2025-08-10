@@ -27,9 +27,7 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- * Plan builder for performing inserts of complex child content items.
- */
+/** Plan builder for performing inserts of complex child content items. */
 public class PSChildInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSChildInsertPlanBuilder(

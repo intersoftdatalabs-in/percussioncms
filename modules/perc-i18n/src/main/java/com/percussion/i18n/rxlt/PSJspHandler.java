@@ -35,22 +35,21 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Scans all JSP files for i18n information.  For system files, this information
- * should be added to the SystemResources.tmx file as a translation unit.  For
- * custom files, this information may be added to the ResourceBundle.tmx file or
- * directly into the jsp page as part of an rxi18n comment with the following
- * format:
+ * Scans all JSP files for i18n information. For system files, this information should be added to
+ * the SystemResources.tmx file as a translation unit. For custom files, this information may be
+ * added to the ResourceBundle.tmx file or directly into the jsp page as part of an rxi18n comment
+ * with the following format:
  *
- * <%-- rxi18n key="name" note="desc" tuvprops="prop=val,..." tuvseg="val" --%>
+ * <p><%-- rxi18n key="name" note="desc" tuvprops="prop=val,..." tuvseg="val" --%>
  *
- * i.e.,
+ * <p>i.e.,
  *
- * <%-- rxi18n key="jsp_login@Password" note="Password field label"
- *      tuvprops="mnemonic=P" tuvseg="Password" --%>
+ * <p><%-- rxi18n key="jsp_login@Password" note="Password field label" tuvprops="mnemonic=P"
+ * tuvseg="Password" --%>
  *
- * Where key is the i18n key, note is the description of the key's value,
- * tuvprops are the translation unit variant properties, and tuvseg is the
- * translation unit variant segment value for this key.
+ * <p>Where key is the i18n key, note is the description of the key's value, tuvprops are the
+ * translation unit variant properties, and tuvseg is the translation unit variant segment value for
+ * this key.
  *
  * @author dougrand
  */
@@ -58,45 +57,32 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   private static final String JETTY_APP_SERVER = "jetty/base/webapps";
 
   /**
-   * Default name of section that is implemented by this class. Overridden
-   * during processing by the name specified in the config element.
+   * Default name of section that is implemented by this class. Overridden during processing by the
+   * name specified in the config element.
    *
    * @see #process
    */
   private static String sectionName = "JSP Files";
 
   /**
-   * Enumeration for the rxi18n comment translation unit sections that are
-   * processed by the jsp section handler of the language tool.  Each section
-   * is identified by a unique ordinal value and name.
+   * Enumeration for the rxi18n comment translation unit sections that are processed by the jsp
+   * section handler of the language tool. Each section is identified by a unique ordinal value and
+   * name.
    */
   private enum TuSectionEnum {
-    /**
-     * Note section -> this is a description of the translation unit segment.
-     * value
-     */
+    /** Note section -> this is a description of the translation unit segment. value */
     NOTE(0, "note"),
 
-    /**
-     * Translation unit variant properties -> i.e., mnemonic property.
-     */
+    /** Translation unit variant properties -> i.e., mnemonic property. */
     TUV_PROPS(1, "tuvprops"),
 
-    /**
-     * Translation unit variant segment -> this is the value of the
-     * translation unit segment.
-     */
+    /** Translation unit variant segment -> this is the value of the translation unit segment. */
     TUV_SEG(2, "tuvseg");
 
-    /**
-     * Ordinal value, initialized in the ctor, and never modified.
-     */
+    /** Ordinal value, initialized in the ctor, and never modified. */
     private int ordinal;
 
-    /**
-     * Name value for the action category, initialized in the ctor, never
-     * modified.
-     */
+    /** Name value for the action category, initialized in the ctor, never modified. */
     private String name = null;
 
     /**
@@ -121,8 +107,7 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
      * Ctor taking the ordinal value and name of the action category.
      *
      * @param ord unique ordianl value for the action caegory.
-     * @param name name of the action category, must not be <code>null</code>
-     * or empty.
+     * @param name name of the action category, must not be <code>null</code> or empty.
      */
     private TuSectionEnum(int ord, String name) {
       ordinal = ord;
@@ -227,12 +212,11 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   }
 
   /**
-   * Find any rxi18n jsp comments in a given jsp file and stores the supplied
-   * translation unit information.
+   * Find any rxi18n jsp comments in a given jsp file and stores the supplied translation unit
+   * information.
    *
    * @param file file to examine
-   * @param tuInfo the map of translation unit
-   * key/[note, props, seg] pairs
+   * @param tuInfo the map of translation unit key/[note, props, seg] pairs
    */
   private void handleJspFile(File file, Map tuInfo) {
 
@@ -249,9 +233,8 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   }
 
   /**
-   * Find the start quote after the start index, and find the matching end
-   * quote. We'll make the not unreasonable assumption that we'll find a quote
-   * within a few characters
+   * Find the start quote after the start index, and find the matching end quote. We'll make the not
+   * unreasonable assumption that we'll find a quote within a few characters
    *
    * @param start the start pos for the prefix text
    * @param text the text to search
@@ -284,12 +267,11 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   }
 
   /**
-   * Search the text for all rxi18n comments which contain the
-   * translation unit information
+   * Search the text for all rxi18n comments which contain the translation unit information
    *
    * @param text the text to search
-   * @param tuInfo the translation unit information as a map of
-   * translation unit -> [note, tuv props, tuv seg] pairs
+   * @param tuInfo the translation unit information as a map of translation unit -> [note, tuv
+   *     props, tuv seg] pairs
    */
   private void getTranslationUnitInfo(String text, Map tuInfo) {
     // Search for tag
@@ -317,8 +299,8 @@ public class PSJspHandler extends PSIdleDotter implements IPSSectionHandler {
   }
 
   /**
-   * Searches for a quoted value after a matching string value in the given
-   * string text starting at the given index.
+   * Searches for a quoted value after a matching string value in the given string text starting at
+   * the given index.
    *
    * @param str the string value
    * @param start the starting index

@@ -25,23 +25,21 @@ import com.percussion.utils.server.IPSCgiVariables;
 import javax.servlet.ServletRequest;
 
 /**
- * This class verifies that the appropriate data encryption settings are
- * in use and returns an error if not.
+ * This class verifies that the appropriate data encryption settings are in use and returns an error
+ * if not.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataEncryptionHandler {
   /**
-   * Verify the data encryption settings and redirect the request or
-   * report an error if they are not met.
+   * Verify the data encryption settings and redirect the request or report an error if they are not
+   * met.
    *
-   * @param   request         the request to check
-   *
-   * @param   encryptor      the encryptor settings to enforce
-   *
-   * @return                  <code>true</code> if the conditions are met
+   * @param request the request to check
+   * @param encryptor the encryptor settings to enforce
+   * @return <code>true</code> if the conditions are met
    */
   public static boolean checkEncryption(PSRequest request, PSDataEncryptor encryptor) {
     if ((encryptor != null) && encryptor.isSSLRequired()) {
@@ -53,19 +51,13 @@ public class PSDataEncryptionHandler {
   }
 
   /**
-   * Verify a secure channel is being used and redirect the request or
-   * report an error if not.
+   * Verify a secure channel is being used and redirect the request or report an error if not.
    *
-   * @param   request         the request to check
-   *
-   * @param   keyStrength      the required key strength
-   *
-   * @param   urlFile         the file portion of the URL to use to
-   *                           redirect the request if a secure channel
-   *                           is required (protocol will be https and
-   *                           host will be taken from the request)
-   *
-   * @return                  <code>true</code> if a secure channel is in use
+   * @param request the request to check
+   * @param keyStrength the required key strength
+   * @param urlFile the file portion of the URL to use to redirect the request if a secure channel
+   *     is required (protocol will be https and host will be taken from the request)
+   * @return <code>true</code> if a secure channel is in use
    */
   public static boolean checkSecureChannel(PSRequest request, int keyStrength, String urlFile) {
     boolean isValid = true;

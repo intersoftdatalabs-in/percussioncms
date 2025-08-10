@@ -54,9 +54,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * This class is used for parsing DTD. It uses Xerces
- * <code>XMLGrammarPreparser</code> class to do the actual DTD parsing.
- * For usage, see the <code>main</code> method of <code>PSDtd</code> class.
+ * This class is used for parsing DTD. It uses Xerces <code>XMLGrammarPreparser</code> class to do
+ * the actual DTD parsing. For usage, see the <code>main</code> method of <code>PSDtd</code> class.
  */
 public class PSDtdParser extends XMLDTDLoader
     implements ErrorHandler, XMLErrorHandler, XMLDTDHandler {
@@ -120,15 +119,11 @@ public class PSDtdParser extends XMLDTDLoader
   /**
    * This is a callback method invoked when Xerces starts DTD parsing.
    *
-   * @param locator  The document locator, <code>null</code> if the document
-   *                 location cannot be reported during the parsing of
-   *                 the document DTD. However, it is <em>strongly</em>
-   *                 recommended that a locator be supplied that can
-   *                 at least report the base system identifier of the
-   *                 DTD.
-   * @param augs Additional information that may include infoset
-   *                      augmentations.
-   *
+   * @param locator The document locator, <code>null</code> if the document location cannot be
+   *     reported during the parsing of the document DTD. However, it is <em>strongly</em>
+   *     recommended that a locator be supplied that can at least report the base system identifier
+   *     of the DTD.
+   * @param augs Additional information that may include infoset augmentations.
    * @throws XNIException Thrown by handler to signal an error.
    */
   public void startDTD(XMLLocator locator, Augmentations augs) throws XNIException {
@@ -137,13 +132,12 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a
-   * <code>Document</code> from the supplied file.
-   * See that method for documentation on other params and exceptions.
+   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a <code>Document</code> from
+   * the supplied file. See that method for documentation on other params and exceptions.
+   *
    * @param xmlFile The file to read in, may not be <code>null</code>.
    * @param generate When true TODO:
-   * @throws IllegalArgumentException if xmlFile is <code>null</code> or
-   * does not exist
+   * @throws IllegalArgumentException if xmlFile is <code>null</code> or does not exist
    */
   public void parseXmlForDtd(File xmlFile, boolean generate)
       throws IOException, PSCatalogException, SAXException {
@@ -156,11 +150,11 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a
-   * <code>Document</code> from the input stream.
-   * See that method for documentation on other params and exceptions.
-   * @param insm the stream representing the XML file to parse for DTD, may not
-   * be <code>null</code>. This method does not close the stream.
+   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a <code>Document</code> from
+   * the input stream. See that method for documentation on other params and exceptions.
+   *
+   * @param insm the stream representing the XML file to parse for DTD, may not be <code>null</code>
+   *     . This method does not close the stream.
    * @throw IllegalArgumentException if ins is <code>null</code>
    */
   public void parseXmlForDtd(InputStream insm, boolean generate)
@@ -171,12 +165,11 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a
-   * <code>Document</code> from a URI.
-   * See that method for documentation on other params and exceptions.
-   * @param uri the absolute path of the XML file to parse for DTD, may not
-   * be <code>null</code> or empty. If URI is invalid then getDtd() method
-   * will return <code>null</code>.
+   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a <code>Document</code> from
+   * a URI. See that method for documentation on other params and exceptions.
+   *
+   * @param uri the absolute path of the XML file to parse for DTD, may not be <code>null</code> or
+   *     empty. If URI is invalid then getDtd() method will return <code>null</code>.
    * @throw IllegalArgumentException if uri is <code>null</code> or empty
    */
   public void parseXmlForDtd(String uri, boolean generate)
@@ -207,11 +200,11 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a
-   * <code>Document</code> from the input source.
-   * See that method for documentation on other params and exceptions.
-   * @param ins the input source representing the XML file to parse for DTD,
-   * may not be <code>null</code>
+   * Version of {@link #parseXmlForDtd(Document, boolean)} that creates a <code>Document</code> from
+   * the input source. See that method for documentation on other params and exceptions.
+   *
+   * @param ins the input source representing the XML file to parse for DTD, may not be <code>null
+   *     </code>
    * @throw IllegalArgumentException if ins is <code>null</code>
    */
   public void parseXmlForDtd(InputSource ins, boolean generate)
@@ -261,12 +254,13 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * parses an XML file and if DTD is present, parses the DTD, otherwise
-   * optionally generates one from the xml.
-   * @param doc the Document object representing the XML file to parse for DTD,
-   * may not be <code>null</code>
-   * @param generate if <code>true</code> and XML file does not contain
-   * DocType then uses DTDGenerator to generate a DTD for the XML file
+   * parses an XML file and if DTD is present, parses the DTD, otherwise optionally generates one
+   * from the xml.
+   *
+   * @param doc the Document object representing the XML file to parse for DTD, may not be <code>
+   *     null</code>
+   * @param generate if <code>true</code> and XML file does not contain DocType then uses
+   *     DTDGenerator to generate a DTD for the XML file
    * @throw IllegalArgumentException if doc is <code>null</code>
    * @throws IOException if any error occurs parsing the DTD from external subset
    * @throws PSCatalogException if any error occurs parsing the DTD
@@ -308,8 +302,8 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * Generates a DTD for the input Document object
-   * @param doc the Document object for which DTD is to be generated,
-   * may not be <code>null</code>
+   *
+   * @param doc the Document object for which DTD is to be generated, may not be <code>null</code>
    * @throw IllegalArgumentException if doc is <code>null</code>
    */
   public void generateDtd(Document doc) throws IOException, PSCatalogException {
@@ -333,10 +327,9 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * parses the DTD represented the input dtdFile parameter.
-   * @param dtdFile the File object representing the DTD file to parse, may not
-   * be <code>null</code>
-   * @throw IllegalArgumentException if dtdFile is <code>null</code> or does not
-   * exist
+   *
+   * @param dtdFile the File object representing the DTD file to parse, may not be <code>null</code>
+   * @throw IllegalArgumentException if dtdFile is <code>null</code> or does not exist
    */
   public void parseDtd(File dtdFile) throws IOException, PSCatalogException {
     if ((dtdFile == null) || (!dtdFile.exists()))
@@ -356,10 +349,11 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * parses the DTD represented the input insm parameter.
-   * @param insm the stream representing the DTD to parse, may not be
-   * <code>null</code>. This method does not close this stream.
-   * @param encoding the encoding of the input stream, may be
-   * <code>null</code> or empty in which case "UTF-8" encoding is used.
+   *
+   * @param insm the stream representing the DTD to parse, may not be <code>null</code>. This method
+   *     does not close this stream.
+   * @param encoding the encoding of the input stream, may be <code>null</code> or empty in which
+   *     case "UTF-8" encoding is used.
    * @throw IllegalArgumentException if insm is <code>null</code>
    */
   public void parseDtd(InputStream insm, String encoding) throws IOException, PSCatalogException {
@@ -370,8 +364,9 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * parses the DTD represented by the input uri parameter.
-   * @param uri the Absolute or Relative path or URL to the DTD to parse,
-   * may not be <code>null</code> or empty
+   *
+   * @param uri the Absolute or Relative path or URL to the DTD to parse, may not be <code>null
+   *     </code> or empty
    * @throw IllegalArgumentException if uri is <code>null</code> or empty
    */
   public void parseDtd(String uri) throws IOException, PSCatalogException {
@@ -402,8 +397,8 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * parses the DTD represented the input xis parameter.
-   * @param xis the input source representing the DTD to parse, may not be
-   * <code>null</code>
+   *
+   * @param xis the input source representing the DTD to parse, may not be <code>null</code>
    * @throw IllegalArgumentException if xis is <code>null</code>
    */
   public void parseDtd(XMLInputSource xis) throws IOException, PSCatalogException {
@@ -453,9 +448,9 @@ public class PSDtdParser extends XMLDTDLoader
 
   /**
    * Returns the DTD Grammar object encapsulating the parsed DTD
-   * @return the DTD Grammar object encapsulating the parsed DTD, may be
-   * <code>null</code> if <code>parseDTD</code> method has not been called
-   * or errors occurred during DTD parsing
+   *
+   * @return the DTD Grammar object encapsulating the parsed DTD, may be <code>null</code> if <code>
+   *     parseDTD</code> method has not been called or errors occurred during DTD parsing
    */
   public PSDtd getDtd() {
     if (fDTDGrammar == null) return null;
@@ -464,15 +459,14 @@ public class PSDtdParser extends XMLDTDLoader
   }
 
   /**
-   * Returns a Grammar object by parsing the contents of the
-   * entity pointed to by source.
+   * Returns a Grammar object by parsing the contents of the entity pointed to by source.
    *
-   * @param source the location of the entity which forms the starting point
-   * of the grammar to be constructed.
+   * @param source the location of the entity which forms the starting point of the grammar to be
+   *     constructed.
    * @return DTD in memory. Never <code>null</code>.
    * @throws IOException When a problem is encountered reading the entity
-   * @throws XNIException When a condition arises (such as a FatalError) that
-   *         requires parsing of the entity be terminated.
+   * @throws XNIException When a condition arises (such as a FatalError) that requires parsing of
+   *     the entity be terminated.
    */
   public Grammar loadGrammar(XMLInputSource source) throws IOException, XNIException {
     reset();
@@ -509,15 +503,11 @@ public class PSDtdParser extends XMLDTDLoader
     return fDTDGrammar;
   }
 
-  /**
-   * Constant for the feature identifier: external general entities
-   */
+  /** Constant for the feature identifier: external general entities */
   protected static final String EXTERNAL_GENERAL_ENTITIES =
       Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_GENERAL_ENTITIES_FEATURE;
 
-  /**
-   * Constant for the feature identifier: external parameter entities
-   */
+  /** Constant for the feature identifier: external parameter entities */
   protected static final String EXTERNAL_PARAMETER_ENTITIES =
       Constants.SAX_FEATURE_PREFIX + Constants.EXTERNAL_PARAMETER_ENTITIES_FEATURE;
 }

@@ -41,27 +41,22 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class supplies cloning functionality for the different object types
- * supported by the system.
+ * This class supplies cloning functionality for the different object types supported by the system.
  */
 public class PSCloneFactory {
-  /**
-   * Private constructor to force the user to use the static methods.
-   */
+  /** Private constructor to force the user to use the static methods. */
   private PSCloneFactory() {}
 
   /**
-   * Creates a clone for the supplied source and returns its locator. The
-   * user has the possiblity to override certain parameters through the
-   * <code>PSCloneCommandHandler.SYS_CLONE_OVERRIDE_FIELDSET</code> request
-   * parameter.
+   * Creates a clone for the supplied source and returns its locator. The user has the possiblity to
+   * override certain parameters through the <code>PSCloneCommandHandler.SYS_CLONE_OVERRIDE_FIELDSET
+   * </code> request parameter.
    *
-   * @param request the request used to create the clone, not
-   *    <code>null</code>.
+   * @param request the request used to create the clone, not <code>null</code>.
    * @param source the source object to be cloned, not <code>null</code>.
-   * @param childRowMappings returns a map of child rows that need to be
-   *    followed up, may be <code>null</code> or empty. See
-   *    {@link #CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for additional information.
+   * @param childRowMappings returns a map of child rows that need to be followed up, may be <code>
+   *     null</code> or empty. See {@link #CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for additional
+   *     information.
    * @return the locator of the newly created clone, never <code>null</code>.
    * @throws PSCmsException for any error creating the clone.
    */
@@ -103,10 +98,9 @@ public class PSCloneFactory {
   /**
    * Create a new clone of the supplied source folder.
    *
-   * @param request the request used to make the clone, assumed not
-   *    <code>null</code>.
-   * @param source the locator of the source folder to be cloned, assumed
-   *    not <code>null</code> and of type folder.
+   * @param request the request used to make the clone, assumed not <code>null</code>.
+   * @param source the locator of the source folder to be cloned, assumed not <code>null</code> and
+   *     of type folder.
    * @return the locator of the newly created folder, never <code>null</code>.
    * @throws PSCmsException for any error creating the new clone.
    */
@@ -147,15 +141,13 @@ public class PSCloneFactory {
   /**
    * Create a new clone of the supplied source item.
    *
-   * @param request the request used to create the clone, assumed not
-   *    <code>null</code>.
-   * @param source the item to be cloned, assumedd not <code>null</code> and
-   *    of type item.
-   * @param cloneResource the resource url which will be used to create the
-   *    new clone, assumed not <code>null</code> or empty.
-   * @param childRowMappings returns a map of child rows that need to be
-   *    followed up, may be <code>null</code> or empty. See
-   *    {@link #CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for additional information.
+   * @param request the request used to create the clone, assumed not <code>null</code>.
+   * @param source the item to be cloned, assumedd not <code>null</code> and of type item.
+   * @param cloneResource the resource url which will be used to create the new clone, assumed not
+   *     <code>null</code> or empty.
+   * @param childRowMappings returns a map of child rows that need to be followed up, may be <code>
+   *     null</code> or empty. See {@link #CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for additional
+   *     information.
    * @return the locator of the newly created item, never <code>null</code>.
    * @throws PSCmsException for any error creating the new clone.
    */
@@ -196,13 +188,11 @@ public class PSCloneFactory {
   }
 
   /**
-   * The key used to store the map of inline relationship id's copied during
-   * this request as a request private object. The map key is the old inline
-   * relationship id and the map value is the new inline relationship id, both
-   * as <code>String</code>. The string values have the format of
-   * <code>fieldName:childRowId</code>. Initialized during the first all to
-   * {!createCopy(int, int, int, int, PSExecutionData)}, may be
-   * <code>null</code> before.
+   * The key used to store the map of inline relationship id's copied during this request as a
+   * request private object. The map key is the old inline relationship id and the map value is the
+   * new inline relationship id, both as <code>String</code>. The string values have the format of
+   * <code>fieldName:childRowId</code>. Initialized during the first all to {!createCopy(int, int,
+   * int, int, PSExecutionData)}, may be <code>null</code> before.
    */
   public static final String CHILD_ROW_MAPPINGS_PRIVATE_OBJECT = "childRowMappings";
 }

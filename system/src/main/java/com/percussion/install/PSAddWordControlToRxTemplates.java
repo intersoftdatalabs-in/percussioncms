@@ -32,23 +32,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * This plugin adds the sys_FileWord control to the rx_Templates.xsl file.
- */
+/** This plugin adds the sys_FileWord control to the rx_Templates.xsl file. */
 
 // REFACTORED: CP-JAVA11
 public class PSAddWordControlToRxTemplates implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSAddWordControlToRxTemplates() {}
 
   /**
-   * This plugin runs only once on an installation.
-   * We load the rx_Templates.xsl file and add the sys_FileWord
-   * control if does not exist already. We grab the control from
-   * sys_Templates.xsl file. If it is 5.0 to 5.0 upgrade then we
-   * change the inline slot id's from 103 to 101 and 104 to 102.
+   * This plugin runs only once on an installation. We load the rx_Templates.xsl file and add the
+   * sys_FileWord control if does not exist already. We grab the control from sys_Templates.xsl
+   * file. If it is 5.0 to 5.0 upgrade then we change the inline slot id's from 103 to 101 and 104
+   * to 102.
    */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
 

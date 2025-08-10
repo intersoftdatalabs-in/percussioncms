@@ -29,11 +29,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * This class is similar with <code>PSRemoteRequester</code>, except it is used
- * by an applet. It does not need credential info from the caller. The
- * credentail info already handled by the applet/browser framework.
- * See <code>PSRemoteRequester</code> and <code>IPSRemoteRequester</code> for
- * detail
+ * This class is similar with <code>PSRemoteRequester</code>, except it is used by an applet. It
+ * does not need credential info from the caller. The credentail info already handled by the
+ * applet/browser framework. See <code>PSRemoteRequester</code> and <code>IPSRemoteRequester</code>
+ * for detail
  */
 public class PSRemoteAppletRequester implements IPSRemoteRequester {
   private static final Logger log = LogManager.getLogger(PSRemoteAppletRequester.class);
@@ -43,8 +42,8 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   /**
    * Constructs an instance from an URL object.
    *
-   * @param url The object, which may be created by
-   *    <code>Applet.getRhythmyxCodeBase()</code>. It may not be <code>null</code>.
+   * @param url The object, which may be created by <code>Applet.getRhythmyxCodeBase()</code>. It
+   *     may not be <code>null</code>.
    */
   public PSRemoteAppletRequester(PSHttpConnection conn, URL url) {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -53,9 +52,7 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
     m_url = url;
   }
 
-  /**
-   * See {@link IPSRemoteRequester#getDocument(String, Map)} for detail
-   */
+  /** See {@link IPSRemoteRequester#getDocument(String, Map)} for detail */
   public Document getDocument(String resource, Map params) throws IOException, SAXException {
     if (resource == null || resource.trim().length() == 0)
       throw new IllegalArgumentException("resource may not be null or empty");
@@ -64,9 +61,7 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
     return postData(resource, params);
   }
 
-  /**
-   * See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail
-   */
+  /** See {@link IPSRemoteRequester#sendUpdate(String, Map)} for detail */
   public Document sendUpdate(String resource, Map params) throws IOException, SAXException {
     if (resource == null || resource.trim().length() == 0)
       throw new IllegalArgumentException("resource may not be null or empty");
@@ -75,9 +70,7 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
     return postData(resource, params);
   }
 
-  /**
-   * See {@link IPSRemoteRequester#sendUpdate(String, doc)} for detail
-   */
+  /** See {@link IPSRemoteRequester#sendUpdate(String, doc)} for detail */
   public Document sendUpdate(String resource, Document doc) throws IOException, SAXException {
     if (resource == null || resource.trim().length() == 0)
       throw new IllegalArgumentException("resource may not be null or empty");
@@ -87,10 +80,11 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   }
 
   /**
-   * Just like {@link #getDocument(String, Map)}, except it assumes all
-   * parameters are not <code>null</code> or empty for strings.
-   * <p>
-   * The connections that are opened by this method will be closed.
+   * Just like {@link #getDocument(String, Map)}, except it assumes all parameters are not <code>
+   * null</code> or empty for strings.
+   *
+   * <p>The connections that are opened by this method will be closed.
+   *
    * @see {@link PSHttpConnection#postData(URL, Map)}
    */
   private Document postData(String resource, Map paramsMap) throws IOException, SAXException {
@@ -118,10 +112,11 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   }
 
   /**
-   * Just like {@link #sendUpdate(String, doc)}, except it assumes all
-   * parameters are not <code>null</code> or empty for strings.
-   * <p>
-   * The connections that are opened by this method will be closed.
+   * Just like {@link #sendUpdate(String, doc)}, except it assumes all parameters are not <code>null
+   * </code> or empty for strings.
+   *
+   * <p>The connections that are opened by this method will be closed.
+   *
    * @see {@link PSHttpConnection#postData(URL, Document)}
    */
   private Document postData(String resource, Document docData) throws IOException, SAXException {
@@ -136,17 +131,15 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
     }
   }
 
-  /**
-   * See {@link IPSRemoteRequester#shutdown()} for detail
-   */
+  /** See {@link IPSRemoteRequester#shutdown()} for detail */
   public void shutdown() {
     // this is no need for shutdown connections, because it has already
     // been closed after send and receive data in the other methods
   }
 
   /**
-   * The base URL, it may be from <code>Applet.getRhythmyxCodeBase()</code>.
-   * Initialized by constructor, never <code>null</code> after that.
+   * The base URL, it may be from <code>Applet.getRhythmyxCodeBase()</code>. Initialized by
+   * constructor, never <code>null</code> after that.
    */
   private URL m_url;
 }

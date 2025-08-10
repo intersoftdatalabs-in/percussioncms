@@ -37,23 +37,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSTableCatalogHandler class implements cataloging of
- * tables. This request type is used to locate the tables in the
- * specified back-end database.
- * <p>
- * The request format is defined in the
- * {@link com.percussion.design.catalog.data.PSTableCatalogHandler
- *  com.percussion.design.catalog.data.PSTableCatalogHandler} class.
+ * The PSTableCatalogHandler class implements cataloging of tables. This request type is used to
+ * locate the tables in the specified back-end database.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>The request format is defined in the {@link
+ * com.percussion.design.catalog.data.PSTableCatalogHandler
+ * com.percussion.design.catalog.data.PSTableCatalogHandler} class.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSTableCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSTableCatalogHandler() {
     super();
   }
@@ -61,10 +58,9 @@ public class PSTableCatalogHandler extends com.percussion.design.catalog.PSCatal
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return       the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {"PSXTableCatalog"};
@@ -73,12 +69,10 @@ public class PSTableCatalogHandler extends com.percussion.design.catalog.PSCatal
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request    the request object containing all context
-   *                  data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -181,8 +175,8 @@ public class PSTableCatalogHandler extends com.percussion.design.catalog.PSCatal
   }
 
   /**
-   * Indicates whether this DB object should be skipped from the results
-   * returned by the handler.
+   * Indicates whether this DB object should be skipped from the results returned by the handler.
+   *
    * @param name the db object name.
    * @param detail connection detail.
    */
@@ -194,30 +188,30 @@ public class PSTableCatalogHandler extends com.percussion.design.catalog.PSCatal
   }
 
   /**
-   * <p>Returns <code>true</code> if the object name indicates that this is an
-   * Oracle recycle bin object.
-   * Oracle documentation defines these names as following:</p>
+   * Returns <code>true</code> if the object name indicates that this is an Oracle recycle bin
+   * object. Oracle documentation defines these names as following:
+   *
    * <pre>BIN$<em>globalUID</em>$<em>version
    * </pre>
-   * <p>where:</p>
+   *
+   * <p>where:
+   *
    * <ul>
-   * <li><em><code>globalUID</code></em> is a globally unique, 24 character
-   * long identifier generated for the object.</li>
-   * <li><em><code>version</code></em> is a version number assigned by the database</li>
+   *   <li><em><code>globalUID</code></em> is a globally unique, 24 character long identifier
+   *       generated for the object.
+   *   <li><em><code>version</code></em> is a version number assigned by the database
    * </ul>
-   * <p>The recycle bin name of an object is always 30 characters long.</p>
-   * <p>Note that the <em><code>globalUID</code></em> used in the recycle bin
-   * name is not readily correlated with any externally visible piece of
-   * information about the object or the database.
-   * </p>
+   *
+   * <p>The recycle bin name of an object is always 30 characters long.
+   *
+   * <p>Note that the <em><code>globalUID</code></em> used in the recycle bin name is not readily
+   * correlated with any externally visible piece of information about the object or the database.
    */
   boolean isOracleRecycleBinObject(String name) {
     return name.length() == 30 && name.startsWith("BIN$") && name.charAt(28) == '$';
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

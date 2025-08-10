@@ -25,21 +25,20 @@ import com.percussion.utils.date.PSDateRange;
 import java.util.List;
 
 /**
- * Service that queries against an analytics service provider, generally returning results
- * as a list of IPSAnalyticsQueryResult.
- * Sunny Sal says: "Query responsibly, and the data will follow!"
+ * Service that queries against an analytics service provider, generally returning results as a list
+ * of IPSAnalyticsQueryResult. Sunny Sal says: "Query responsibly, and the data will follow!"
  */
 public interface IPSAnalyticsProviderQueryService {
 
   /**
-   * Retrieves the new and returning visits and page views for a site and date within
-   * the specified date range. The results will be filtered by siteName.
+   * Retrieves the new and returning visits and page views for a site and date within the specified
+   * date range. The results will be filtered by siteName.
    *
    * @param siteName the unique site name to filter the results by, not null.
-   * @param range    the date range, not null. The start and end date values in
-   *                 the date range are inclusive. Granularity is ignored.
+   * @param range the date range, not null. The start and end date values in the date range are
+   *     inclusive. Granularity is ignored.
    * @return the list of results, never null, may be empty.
-   * <pre>
+   *     <pre>
    * The result set contains the following fields:
    * <table border="1">
    *    <tr><th>Field name</th><th>Data type</th><th>Description</th></tr>
@@ -50,23 +49,23 @@ public interface IPSAnalyticsProviderQueryService {
    *    <tr><td>pageviews</td><td>Integer</td><td>The total number of page views for the page for this date</td></tr>
    * </table>
    * </pre>
-   * The data is sorted by ascending site and then by ascending date.
+   *     The data is sorted by ascending site and then by ascending date.
    * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
    */
   List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String siteName, PSDateRange range)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException;
 
   /**
-   * Retrieves the page views and unique page views for each page path and date within
-   * the specified date range. The results will be filtered by pathPrefix and siteName.
+   * Retrieves the page views and unique page views for each page path and date within the specified
+   * date range. The results will be filtered by pathPrefix and siteName.
    *
-   * @param siteName   the unique site name to filter the results by, not null.
-   * @param pathPrefix the path prefix used to filter the results. May be null, in
-   *                   which case no filtering will be done by path prefix.
-   * @param range      the date range, not null. The start and end date values in
-   *                   the date range are inclusive. Granularity is ignored.
+   * @param siteName the unique site name to filter the results by, not null.
+   * @param pathPrefix the path prefix used to filter the results. May be null, in which case no
+   *     filtering will be done by path prefix.
+   * @param range the date range, not null. The start and end date values in the date range are
+   *     inclusive. Granularity is ignored.
    * @return the list of results, never null, may be empty.
-   * <pre>
+   *     <pre>
    * The result set contains the following fields:
    * <table border="1">
    *    <tr><th>Field name</th><th>Data type</th><th>Description</th></tr>
@@ -76,7 +75,7 @@ public interface IPSAnalyticsProviderQueryService {
    *    <tr><td>pageviews</td><td>Integer</td><td>The total number of page views for the page for this date</td></tr>
    * </table>
    * </pre>
-   * The data is sorted by ascending site, ascending pagePath, and then by ascending date.
+   *     The data is sorted by ascending site, ascending pagePath, and then by ascending date.
    * @throws PSAnalyticsProviderException if any connection or data processing error occurs.
    */
   List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(

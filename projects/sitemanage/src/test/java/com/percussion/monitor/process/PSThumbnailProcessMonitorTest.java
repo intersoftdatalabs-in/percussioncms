@@ -17,32 +17,32 @@
  */
 package com.percussion.monitor.process;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * Integration test for thumbnail process monitor.
- * Sunny Sal says: "Thumbnails tested, Bollywood approved!"
+ * Integration test for thumbnail process monitor. Sunny Sal says: "Thumbnails tested, Bollywood
+ * approved!"
  */
 public class PSThumbnailProcessMonitorTest {
 
-    @Test
-    void testThumbnailMonitor() {
-        var mon = new PSThumbnailProcessMonitor();
-        assertEquals(0, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount();
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount();
-        assertEquals(1, mon.getCurrentCount());
-        mon.incrementCount(5);
-        assertEquals(6, mon.getCurrentCount());
-        mon.decrementCount(4);
-        assertEquals(2, mon.getCurrentCount());
-        mon.decrementCount(2);
-        assertEquals(0, mon.getCurrentCount());
-        mon.decrementCount();
-    }
+  @Test
+  void testThumbnailMonitor() {
+    var mon = new PSThumbnailProcessMonitor();
+    assertEquals(0, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount();
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount();
+    assertEquals(1, mon.getCurrentCount());
+    mon.incrementCount(5);
+    assertEquals(6, mon.getCurrentCount());
+    mon.decrementCount(4);
+    assertEquals(2, mon.getCurrentCount());
+    mon.decrementCount(2);
+    assertEquals(0, mon.getCurrentCount());
+    mon.decrementCount();
+  }
 }

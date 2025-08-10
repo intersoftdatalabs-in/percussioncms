@@ -24,11 +24,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.TreePath;
 
 /**
- * This is a wrapper class takes a TreeTableModel and implements
- * the table model interface. The implementation is trivial, with
- * all of the event dispatching support provided by the superclass:
+ * This is a wrapper class takes a TreeTableModel and implements the table model interface. The
+ * implementation is trivial, with all of the event dispatching support provided by the superclass:
  * the AbstractTableModel.
- *
  */
 public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
   JTree m_Tree;
@@ -56,7 +54,6 @@ public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
    * Returns the number of availible rows.
    *
    * @return row count as int.
-   *
    */
   public int getRowCount() {
     return m_Tree.getRowCount();
@@ -66,9 +63,7 @@ public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
    * Returns Tree Node for a given row number.
    *
    * @param row as int
-   *
    * @return tree node as Object (TreePath)
-   *
    */
   protected Object nodeForRow(int row) {
     TreePath treePath = m_Tree.getPathForRow(row);
@@ -81,7 +76,6 @@ public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
    * Returns the number ofs availible column.
    *
    * @return number of columns as int
-   *
    */
   public int getColumnCount() {
     return m_TreeTableModel.getColumnCount();
@@ -91,9 +85,7 @@ public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
    * Returns the name for column number <code>column</code>.
    *
    * @param column number as int
-   *
    * @return column name as String
-   *
    */
   public String getColumnName(int column) {
     return m_TreeTableModel.getColumnName(column);
@@ -103,54 +95,42 @@ public class PSFUDTreeTableModelAdapter extends AbstractTableModel {
    * Returns the type for column number <code>column</code>.
    *
    * @param column number as int
-   *
    * @return column class as Class
-   *
    */
   public Class getColumnClass(int column) {
     return m_TreeTableModel.getColumnClass(column);
   }
 
   /**
-   * Returns the value to be displayed for node <code>node</code>,
-   * at column number <code>column</code>.
+   * Returns the value to be displayed for node <code>node</code>, at column number <code>column
+   * </code>.
    *
    * @param row number as int
-   *
    * @param column number as int
-   *
    * @return value of cell as Object
-   *
    */
   public Object getValueAt(int row, int column) {
     return m_TreeTableModel.getValueAt(nodeForRow(row), column);
   }
 
   /**
-   * Indicates whether the the value for node <code>node</code>,
-   * at column number <code>column</code> is editable.
+   * Indicates whether the the value for node <code>node</code>, at column number <code>column
+   * </code> is editable.
    *
    * @param row number as int
-   *
    * @param column number as int
-   *
    * @return true if editable, false otherwise
-   *
    */
   public boolean isCellEditable(int row, int column) {
     return m_TreeTableModel.isCellEditable(nodeForRow(row), column);
   }
 
   /**
-   * Sets the value for node <code>node</code>,
-   * at column number <code>column</code>.
+   * Sets the value for node <code>node</code>, at column number <code>column</code>.
    *
    * @param value as Object
-   *
    * @param row number as int
-   *
    * @param column number as int
-   *
    */
   public void setValueAt(Object value, int row, int column) {
     m_TreeTableModel.setValueAt(value, nodeForRow(row), column);

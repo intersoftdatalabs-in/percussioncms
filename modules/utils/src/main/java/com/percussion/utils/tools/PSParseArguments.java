@@ -24,14 +24,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Process command line arguments into a useful form. Arguments that exist but
- * have no value return the string "true", other arguments return their value.
- * Arguments that have no value will return <code>true</code> for the
- * method {@link #isFlag(String)}
+ * Process command line arguments into a useful form. Arguments that exist but have no value return
+ * the string "true", other arguments return their value. Arguments that have no value will return
+ * <code>true</code> for the method {@link #isFlag(String)}
  */
 public class PSParseArguments {
   /**
    * Ctor
+   *
    * @param args command line arguments, must not be <code>null</code>
    */
   public PSParseArguments(String args[]) {
@@ -68,8 +68,8 @@ public class PSParseArguments {
 
   /**
    * Returns the arguments that were not associated with named flags
-   * @return the unassociated args, never <code>null</code> but may be
-   * empty.
+   *
+   * @return the unassociated args, never <code>null</code> but may be empty.
    */
   public List getRest() {
     return m_rest;
@@ -77,6 +77,7 @@ public class PSParseArguments {
 
   /**
    * Get the value of the named arg
+   *
    * @param name the argument, must never be <code>null</code> or empty
    * @return the value, may be <code>null</code>
    */
@@ -90,6 +91,7 @@ public class PSParseArguments {
 
   /**
    * Return if this named argument is a flag
+   *
    * @param name the argument, must never be <code>null</code> or empty
    * @return <code>true</code> if the given argument is a flag
    */
@@ -101,21 +103,12 @@ public class PSParseArguments {
     return m_flagArguments.contains(name);
   }
 
-  /**
-   * Holds correspondence between individual argument and its value.
-   * Initialized in the ctor.
-   */
+  /** Holds correspondence between individual argument and its value. Initialized in the ctor. */
   private Map<String, String> m_args = new HashMap<String, String>();
 
-  /**
-   * Holds the set of arguments that are flag arguments.
-   * Initialized in the ctor.
-   */
+  /** Holds the set of arguments that are flag arguments. Initialized in the ctor. */
   private Set<String> m_flagArguments = new HashSet<String>();
 
-  /**
-   * Holds arguments that are not associated with a -argument. Initialized
-   * in the ctor.
-   */
+  /** Holds arguments that are not associated with a -argument. Initialized in the ctor. */
   private List<String> m_rest = new ArrayList<String>();
 }

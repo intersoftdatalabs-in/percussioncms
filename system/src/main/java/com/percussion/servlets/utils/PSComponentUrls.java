@@ -29,11 +29,10 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Get the component urls for a given page. Does an internal request, followed
- * by extraction from the document.
+ * Get the component urls for a given page. Does an internal request, followed by extraction from
+ * the document.
  *
  * @author dougrand
- *
  */
 public class PSComponentUrls {
 

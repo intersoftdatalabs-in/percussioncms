@@ -32,7 +32,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -40,9 +39,9 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 /**
- * JacksonContextResolver is picked up by Jackson automatically via the Provider annotation.
- * It modifies the serialization behavior of objects passed in.
- * Only classes in the same package and subpackages are affected.
+ * JacksonContextResolver is picked up by Jackson automatically via the Provider annotation. It
+ * modifies the serialization behavior of objects passed in. Only classes in the same package and
+ * subpackages are affected.
  */
 @Provider
 @PSSiteManageBean("jacksonContextResolver")
@@ -50,39 +49,42 @@ import javax.ws.rs.ext.Provider;
 @Produces({MediaType.APPLICATION_JSON, "text/json"})
 public class JacksonContextResolver implements ContextResolver<ObjectMapper> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    static {
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
-                .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, false)
-                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-                .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
-                .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
-                .setAnnotationIntrospector(AnnotationIntrospector.pair(
-                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance()),
-                        new JacksonAnnotationIntrospector()))
-                .registerModule(new ParameterNamesModule())
-                .registerModule(new Jdk8Module())
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
+  static {
+    MAPPER
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
+        .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true)
+        .configure(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS, false)
+        .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true)
+        .setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PUBLIC_ONLY)
+        .setAnnotationIntrospector(
+            AnnotationIntrospector.pair(
+                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance()),
+                new JacksonAnnotationIntrospector()))
+        .registerModule(new ParameterNamesModule())
+        .registerModule(new Jdk8Module())
+        .registerModule(new JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+  }
 
-    public JacksonContextResolver() {
-        // Default constructor
-    }
+  public JacksonContextResolver() {
+    // Default constructor
+  }
 
-    @Override
-    public ObjectMapper getContext(Class<?> objectType) {
-        // Only use this configuration for classes in the same package and subpackages.
-        // If you want to restrict, uncomment the following:
-        // if (objectType.getPackage().getName().startsWith(JacksonContextResolver.class.getPackage().getName())) {
-        //     return MAPPER;
-        // }
-        // return null;
-        return MAPPER;
-    }
+  @Override
+  public ObjectMapper getContext(Class<?> objectType) {
+    // Only use this configuration for classes in the same package and subpackages.
+    // If you want to restrict, uncomment the following:
+    // if
+    // (objectType.getPackage().getName().startsWith(JacksonContextResolver.class.getPackage().getName())) {
+    //     return MAPPER;
+    // }
+    // return null;
+    return MAPPER;
+  }
 }

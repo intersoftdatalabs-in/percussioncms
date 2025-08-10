@@ -16,35 +16,33 @@
  */
 package com.percussion.monitor.process;
 
-import com.percussion.monitor.service.PSMonitor;
-import com.percussion.monitor.service.PSMonitorService;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
-import java.util.List;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.monitor.service.PSMonitorService;
+import java.util.List;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 /**
- * Integration test for process monitor server.
- * Sunny Sal says: "Monitoring processes like a Bollywood hero monitors drama!"
+ * Integration test for process monitor server. Sunny Sal says: "Monitoring processes like a
+ * Bollywood hero monitors drama!"
  */
 @Tag("IntegrationTest")
 public class PSProcessMonitorServerTest {
 
-    @Test
-    void testProcessMonitors() {
-        var monList = PSMonitorService.getMonitors().monitor;
-        var designators = PSMonitorService.getMonitorDesignators().designator;
+  @Test
+  void testProcessMonitors() {
+    var monList = PSMonitorService.getMonitors().monitor;
+    var designators = PSMonitorService.getMonitorDesignators().designator;
 
-        var expected = List.of("Import", "Publishing", "SearchIndex", "SiteCopy", "Thumbnail", "WorkflowAssignment");
-        assertEquals(expected.size(), monList.size());
+    var expected =
+        List.of(
+            "Import", "Publishing", "SearchIndex", "SiteCopy", "Thumbnail", "WorkflowAssignment");
+    assertEquals(expected.size(), monList.size());
 
-        for (var designator : expected) {
-            assertTrue(designators.contains(designator), "Designator missing: " + designator);
-            assertNotNull(PSMonitorService.getMonitor(designator), "Monitor missing for: " + designator);
-        }
+    for (var designator : expected) {
+      assertTrue(designators.contains(designator), "Designator missing: " + designator);
+      assertNotNull(PSMonitorService.getMonitor(designator), "Monitor missing for: " + designator);
     }
+  }
 }

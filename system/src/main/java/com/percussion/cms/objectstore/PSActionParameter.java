@@ -20,25 +20,20 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 public class PSActionParameter extends PSCmsProperty {
-  /**
-   * no-args constructor
-   */
+  /** no-args constructor */
   public PSActionParameter() {}
 
   /**
-   * Convenience method that calls {@link #PSActionParameter(String,
-   * String,String) PSActionParameter(name, value, null)}.
+   * Convenience method that calls {@link #PSActionParameter(String, String,String)
+   * PSActionParameter(name, value, null)}.
    */
   public PSActionParameter(String name, String value) {
     this(name, value, null);
   }
 
   /**
-   *
    * @param name Never <code>null</code> or empty.
-   *
    * @param value May be <code>null</code>. If so, "" is used.
-   *
    * @param desc May be <code>null</code>. If so, "" is used.
    */
   public PSActionParameter(String name, String value, String desc) {

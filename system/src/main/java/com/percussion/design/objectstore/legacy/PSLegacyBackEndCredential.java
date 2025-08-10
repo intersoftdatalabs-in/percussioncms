@@ -38,33 +38,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndCredential class defines access credentials for a
- * back-end data store. The credentials are then used by the server
- * whenever accessing the particular back-end.
+ * The PSBackEndCredential class defines access credentials for a back-end data store. The
+ * credentials are then used by the server whenever accessing the particular back-end.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 @Deprecated
 public class PSLegacyBackEndCredential extends PSComponent {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacyBackEndCredential(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -73,9 +65,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSLegacyBackEndCredential() {
     super();
   }
@@ -83,12 +73,10 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Constructs a back-end credential object with the specified name.
    *
-   * @param alias   the new alias for this object. This must be a
-   *                 unique name on the E2 server. If it is non-unique,
-   *                 an exception will be thrown when the application or
-   *                 server containing this entry is saved.
-   *
-   * @see       #setAlias
+   * @param alias the new alias for this object. This must be a unique name on the E2 server. If it
+   *     is non-unique, an exception will be thrown when the application or server containing this
+   *     entry is saved.
+   * @see #setAlias
    */
   public PSLegacyBackEndCredential(java.lang.String alias) {
     super();
@@ -126,20 +114,18 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the alias used to reference this object.
    *
-   * @return      the alias of the back-end table
+   * @return the alias of the back-end table
    */
   public java.lang.String getAlias() {
     return m_alias;
   }
 
   /**
-   * Set the alias used to reference this object.
-   * Aliases are limited to 128 characters.
+   * Set the alias used to reference this object. Aliases are limited to 128 characters.
    *
-   * @param alias   the new alias for this object. This must be a
-   *                 unique name on the E2 server. If it is non-unique,
-   *                 an exception will be thrown when the application or
-   *                 server containing this entry is saved.
+   * @param alias the new alias for this object. This must be a unique name on the E2 server. If it
+   *     is non-unique, an exception will be thrown when the application or server containing this
+   *     entry is saved.
    */
   public void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
@@ -164,17 +150,17 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the comment associated with this back-end credential object.
    *
-   * @return       the associated comment
+   * @return the associated comment
    */
   public java.lang.String getComment() {
     return m_comment;
   }
 
   /**
-   * Set the comment associated with this back-end credential object.
-   * Comments are limited to 255 characters.
+   * Set the comment associated with this back-end credential object. Comments are limited to 255
+   * characters.
    *
-   * @param comment  a descriptive blurb to associate with this object
+   * @param comment a descriptive blurb to associate with this object
    */
   public void setComment(String comment) {
     if (comment == null) comment = "";
@@ -197,22 +183,19 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the back-end driver for which the credentials should be used.
    *
-   * @return       the back-end driver for which the credentials should
-   *              be used
+   * @return the back-end driver for which the credentials should be used
    */
   public java.lang.String getDriver() {
     return m_driver;
   }
 
   /**
-   * Set the driver used to access the back-end table.
-   * Drivers are limited to 128 characters.
-   * <p>
-   * The valid list of drivers can be located by using the PSCataloger
-   * to perform a catalog of category "data" and type "Driver".
+   * Set the driver used to access the back-end table. Drivers are limited to 128 characters.
    *
-   * @param driver   the back-end driver for which the credentials should
-   *                 be used.
+   * <p>The valid list of drivers can be located by using the PSCataloger to perform a catalog of
+   * category "data" and type "Driver".
+   *
+   * @param driver the back-end driver for which the credentials should be used.
    */
   public void setDriver(String driver) {
     IllegalArgumentException ex = validateDriver(driver);
@@ -235,8 +218,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the back-end server for which the credentials should be used.
    *
-   * @return       the back-end server for which the credentials should
-   *              be used
+   * @return the back-end server for which the credentials should be used
    */
   public java.lang.String getServer() {
     return m_server;
@@ -245,8 +227,8 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Set the back-end server for which the credentials should be used.
    *
-   * @param server   the back-end server for which the credentials should be
-   *             used. This is limited to ??? characters.
+   * @param server the back-end server for which the credentials should be used. This is limited to
+   *     ??? characters.
    */
   public void setServer(java.lang.String server) {
     if (server == null) server = "";
@@ -269,7 +251,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the user id to login to the back-end with.
    *
-   * @return       the user id to login to the back-end with
+   * @return the user id to login to the back-end with
    */
   public java.lang.String getUserId() {
     return m_userId;
@@ -278,8 +260,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Set the user id to login to the back-end with.
    *
-   * @param uid      the user id to login to the back-end with.
-   *             This is limited to ??? characters.
+   * @param uid the user id to login to the back-end with. This is limited to ??? characters.
    */
   public void setUserId(java.lang.String uid) {
     if (uid == null) uid = "";
@@ -302,7 +283,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Get the password to login to the back-end with.
    *
-   * @return       the password to login to the back-end with
+   * @return the password to login to the back-end with
    */
   public java.lang.String getPassword() {
     return m_password;
@@ -311,8 +292,8 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /**
    * Set the password to login to the back-end with.
    *
-   * @param pw the password to login to the back-end with.
-   *            This is limited to MAX_PASSWORD_LEN characters.
+   * @param pw the password to login to the back-end with. This is limited to MAX_PASSWORD_LEN
+   *     characters.
    */
   public void setPassword(java.lang.String pw) {
     if (pw == null) pw = "";
@@ -323,16 +304,15 @@ public class PSLegacyBackEndCredential extends PSComponent {
     m_password = makeLasagna(pw);
   }
 
-  /**
-   * Get the collection of PSConditional objects.
-   */
+  /** Get the collection of PSConditional objects. */
   public PSCollection getConditionals() {
     return m_condCollection;
   }
 
   /**
    * Set the conditions which must be met for these credentials to be used.
-   * @param   conds  a collection of PSConditional objects
+   *
+   * @param conds a collection of PSConditional objects
    */
   public void setConditionals(PSCollection conds) {
     if (conds == null) {
@@ -378,9 +358,8 @@ public class PSLegacyBackEndCredential extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param bc a valid PSBackEndCredential.
    */
@@ -399,10 +378,11 @@ public class PSLegacyBackEndCredential extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndCredential XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndCredential XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *      PSBackEndCredential defines access credentials for a  back-end
@@ -450,7 +430,7 @@ public class PSLegacyBackEndCredential extends PSComponent {
    *         encrypted (yes | no)            #IMPLIED&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXBackEndCredential XML element node
+   * @return the newly created PSXBackEndCredential XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -490,12 +470,12 @@ public class PSLegacyBackEndCredential extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndCredential Java object
-   * from a PSXBackEndCredential XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndCredential Java object from a PSXBackEndCredential
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                               of type PSXBackEndCredential
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type
+   *     PSXBackEndCredential
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -601,18 +581,15 @@ public class PSLegacyBackEndCredential extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

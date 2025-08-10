@@ -19,10 +19,9 @@ package com.percussion.relationship.annotation;
 import com.percussion.relationship.IPSExecutionContext;
 
 /**
- * This class provides enum values to be used in PSHandlesEffectContext
- * annotations added IPSEffect classes. IPSExecutionContext provides constant
- * values that are not used and this enum restricts the value and provides
- * compile time checking.
+ * This class provides enum values to be used in PSHandlesEffectContext annotations added IPSEffect
+ * classes. IPSExecutionContext provides constant values that are not used and this enum restricts
+ * the value and provides compile time checking.
  */
 public enum PSEffectContext {
   PRE_CONSTRUCTION(IPSExecutionContext.RS_PRE_CONSTRUCTION),
@@ -36,8 +35,8 @@ public enum PSEffectContext {
   ALL(-1);
 
   /**
-   * This code maps to the original value of IPSExcutionContext that is used
-   * in the relationship configuration
+   * This code maps to the original value of IPSExcutionContext that is used in the relationship
+   * configuration
    */
   private final int code;
 

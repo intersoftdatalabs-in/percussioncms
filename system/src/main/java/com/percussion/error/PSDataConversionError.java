@@ -24,46 +24,33 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSDataConversionError class is used to report an error
- * encountered during data conversion.
+ * The PSDataConversionError class is used to report an error encountered during data conversion.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataConversionError extends PSLogError {
 
   /**
    * Report a data conversion error.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      sourceType     the data type of the source data
-   *
-   * @param      sourceData     the raw source data
-   *
-   * @param      targetType     the desired target data type
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param sourceType the data type of the source data
+   * @param sourceData the raw source data
+   * @param targetType the desired target data type
    */
   public PSDataConversionError(
       int applId,
@@ -85,10 +72,7 @@ public class PSDataConversionError extends PSLogError {
     m_targetType = targetType;
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale.
-   */
+  /** Subclasses must override this to build the messages in the specified locale. */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[3];
 

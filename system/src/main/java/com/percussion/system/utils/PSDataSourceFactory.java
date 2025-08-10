@@ -24,14 +24,11 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 
 /**
- * Overrides {@link BasicDataSourceFactory#createDataSource(Properties)}
- * in order to provide datasources whose connections are established
- * using drivers loaded from external files.
+ * Overrides {@link BasicDataSourceFactory#createDataSource(Properties)} in order to provide
+ * datasources whose connections are established using drivers loaded from external files.
  */
 public final class PSDataSourceFactory extends BasicDataSourceFactory {
-  /**
-   * Property constants
-   */
+  /** Property constants */
   public static final String URL_PROP_NAME = "url";
 
   public static final String DB_PROP_NAME = "database";
@@ -48,12 +45,10 @@ public final class PSDataSourceFactory extends BasicDataSourceFactory {
   /**
    * See {@link BasicDataSourceFactory#createDataSource(Properties)}.
    *
-   * @param properties the database connection properties used to
-   * configure the datasource.  Must include the following:
-   * url, database, username, password, driverLocation.
-   * Never <code>null</code>.
+   * @param properties the database connection properties used to configure the datasource. Must
+   *     include the following: url, database, username, password, driverLocation. Never <code>null
+   *     </code>.
    * @return a new {@link PSDataSource} object.
-   *
    * @throws Exception if an error occurs.
    */
   public static DataSource createDataSource(Properties properties) throws Exception {

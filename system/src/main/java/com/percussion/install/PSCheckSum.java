@@ -27,19 +27,18 @@ import java.util.zip.Checksum;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * This program reads a file and generates the checksum using the Adler32 algorithm.
- */
+/** This program reads a file and generates the checksum using the Adler32 algorithm. */
 // REFACTORED: CP-JAVA11
 public class PSCheckSum {
 
   private static final Logger log = LogManager.getLogger(PSCheckSum.class);
 
   /**
-   * Run this program to obtain the checksum of any file. Usage is
-   * java com.percussion.install.PSCheckSum <input file>
-   * @param args a string array containing a single string representing
-   * the absolute path to the file whose checksum is to be calculated.
+   * Run this program to obtain the checksum of any file. Usage is java
+   * com.percussion.install.PSCheckSum <input file>
+   *
+   * @param args a string array containing a single string representing the absolute path to the
+   *     file whose checksum is to be calculated.
    */
   public static void main(String[] args) {
     if (args.length != 1) {
@@ -57,12 +56,13 @@ public class PSCheckSum {
 
   /**
    * Returns the checksum of the file represented by the filePath parameter.
-   * @param filePath the absolute path to the file whose checksum is to be
-   * calculated, may not be <code>null</code> or empty
+   *
+   * @param filePath the absolute path to the file whose checksum is to be calculated, may not be
+   *     <code>null</code> or empty
    * @return the checksum of the file represented by the filePath parameter
    * @throws IOException if it fails to read the file
-   * @throws IllegalArgumentException if filePath is <code>null</code> or
-   * empty or the file does not exist
+   * @throws IllegalArgumentException if filePath is <code>null</code> or empty or the file does not
+   *     exist
    */
   public static long getChecksum(String filePath) throws IOException {
     if ((filePath == null) || (filePath.trim().length() == 0))

@@ -18,88 +18,86 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
+import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-import com.percussion.share.data.PSAbstractDataObject;
 
-/**
- * Contains information for replacing the landing page of a (site) section.
- */
+/** Contains information for replacing the landing page of a (site) section. */
 @XmlRootElement(name = "ReplaceLandingPage")
 public class PSReplaceLandingPage extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String sectionId;
-    private String newLandingPageId;
-    private String newLandingPageName;
-    private String newLandingPageFromState;
-    private String newLandingPageToState;
-    private String oldLandingPageName;
-    private String oldLandingPageFromState;
-    private String oldLandingPageToState;
+  private String sectionId;
+  private String newLandingPageId;
+  private String newLandingPageName;
+  private String newLandingPageFromState;
+  private String newLandingPageToState;
+  private String oldLandingPageName;
+  private String oldLandingPageFromState;
+  private String oldLandingPageToState;
 
-    public String getSectionId() {
-        return sectionId;
-    }
+  public String getSectionId() {
+    return sectionId;
+  }
 
-    public void setSectionId(String id) {
-        sectionId = id;
-    }
+  public void setSectionId(String id) {
+    sectionId = id;
+  }
 
-    public String getNewLandingPageId() {
-        return newLandingPageId;
-    }
+  public String getNewLandingPageId() {
+    return newLandingPageId;
+  }
 
-    public void setNewLandingPageId(String id) {
-        newLandingPageId = id;
-    }
+  public void setNewLandingPageId(String id) {
+    newLandingPageId = id;
+  }
 
-    public Optional<String> getNewLandingPageName() {
-        return Optional.ofNullable(newLandingPageName);
-    }
+  public Optional<String> getNewLandingPageName() {
+    return Optional.ofNullable(newLandingPageName);
+  }
 
-    public void setNewLandingPageName(String name) {
-        newLandingPageName = name;
-    }
+  public void setNewLandingPageName(String name) {
+    newLandingPageName = name;
+  }
 
-    public Optional<String> getNewLandingPageFromState() {
-        return Optional.ofNullable(newLandingPageFromState);
-    }
+  public Optional<String> getNewLandingPageFromState() {
+    return Optional.ofNullable(newLandingPageFromState);
+  }
 
-    public void setNewLandingPageFromState(String state) {
-        newLandingPageFromState = state;
-    }
+  public void setNewLandingPageFromState(String state) {
+    newLandingPageFromState = state;
+  }
 
-    public Optional<String> getNewLandingPageToState() {
-        return Optional.ofNullable(newLandingPageToState);
-    }
+  public Optional<String> getNewLandingPageToState() {
+    return Optional.ofNullable(newLandingPageToState);
+  }
 
-    public void setNewLandingPageToState(String state) {
-        newLandingPageToState = state;
-    }
+  public void setNewLandingPageToState(String state) {
+    newLandingPageToState = state;
+  }
 
-    public Optional<String> getOldLandingPageName() {
-        return Optional.ofNullable(oldLandingPageName);
-    }
+  public Optional<String> getOldLandingPageName() {
+    return Optional.ofNullable(oldLandingPageName);
+  }
 
-    public void setOldLandingPageName(String name) {
-        oldLandingPageName = name;
-    }
+  public void setOldLandingPageName(String name) {
+    oldLandingPageName = name;
+  }
 
-    public Optional<String> getOldLandingPageFromState() {
-        return Optional.ofNullable(oldLandingPageFromState);
-    }
+  public Optional<String> getOldLandingPageFromState() {
+    return Optional.ofNullable(oldLandingPageFromState);
+  }
 
-    public void setOldLandingPageFromState(String state) {
-        oldLandingPageFromState = state;
-    }
+  public void setOldLandingPageFromState(String state) {
+    oldLandingPageFromState = state;
+  }
 
-    public Optional<String> getOldLandingPageToState() {
-        return Optional.ofNullable(oldLandingPageToState);
-    }
+  public Optional<String> getOldLandingPageToState() {
+    return Optional.ofNullable(oldLandingPageToState);
+  }
 
-    public void setOldLandingPageToState(String state) {
-        oldLandingPageToState = state;
-    }
+  public void setOldLandingPageToState(String state) {
+    oldLandingPageToState = state;
+  }
 }

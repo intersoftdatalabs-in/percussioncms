@@ -152,8 +152,8 @@ public class TestUpdateDTSConfiguration {
   }
 
   /**
-   * Test the results when an existing perc-catalina.properties is present.  make sure the configured values
-   * are not lost.
+   * Test the results when an existing perc-catalina.properties is present. make sure the configured
+   * values are not lost.
    */
   @Test
   public void testDTSUpgradeExistingCatalinaProps() throws IOException {

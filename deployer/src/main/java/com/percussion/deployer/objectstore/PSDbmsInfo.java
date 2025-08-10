@@ -39,8 +39,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to encapsulate information regarding a database connection including
- * server information and user credentials.
+ * Class to encapsulate information regarding a database connection including server information and
+ * user credentials.
  */
 // todo: reconcile differences with
 // system/src/main/java/com/percussion/deploy/objectstore/PSDbmsInfo.java and merge
@@ -50,21 +50,15 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Construct this class with all required parameters.
    *
-   * @param driver The driver to use, may not be <code>null</code> or empty.
-   *           Supply the name of the jdbc driver sub-protocol.
+   * @param driver The driver to use, may not be <code>null</code> or empty. Supply the name of the
+   *     jdbc driver sub-protocol.
    * @param server The server to use, may not be <code>null</code> or empty.
-   * @param database The name of the database, may be <code>null</code> or
-   *           empty.
-   * @param origin The origin or schema to use, may be <code>null</code> or
-   *           empty.
-   * @param uid The user id to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param pwd The password to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param isPwdEncrypted <code>true</code> if supplied password is
-   *           encrypted, <code>false</code> if not. If encrypted, password
-   *           must have been encrypted by this class.
-   *
+   * @param database The name of the database, may be <code>null</code> or empty.
+   * @param origin The origin or schema to use, may be <code>null</code> or empty.
+   * @param uid The user id to use when connecting, may be <code>null</code> or empty.
+   * @param pwd The password to use when connecting, may be <code>null</code> or empty.
+   * @param isPwdEncrypted <code>true</code> if supplied password is encrypted, <code>false</code>
+   *     if not. If encrypted, password must have been encrypted by this class.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDbmsInfo(
@@ -82,21 +76,15 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * Construct this class with all required parameters.
    *
    * @param dataSource the datasource name may be <code>null</code> or empty.
-   * @param driver The driver to use, may not be <code>null</code> or empty.
-   *           Supply the name of the jdbc driver sub-protocol.
+   * @param driver The driver to use, may not be <code>null</code> or empty. Supply the name of the
+   *     jdbc driver sub-protocol.
    * @param server The server to use, may not be <code>null</code> or empty.
-   * @param database The name of the database, may be <code>null</code> or
-   *           empty.
-   * @param origin The origin or schema to use, may be <code>null</code> or
-   *           empty.
-   * @param uid The user id to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param pwd The password to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param isPwdEncrypted <code>true</code> if supplied password is
-   *           encrypted, <code>false</code> if not. If encrypted, password
-   *           must have been encrypted by this class.
-   *
+   * @param database The name of the database, may be <code>null</code> or empty.
+   * @param origin The origin or schema to use, may be <code>null</code> or empty.
+   * @param uid The user id to use when connecting, may be <code>null</code> or empty.
+   * @param pwd The password to use when connecting, may be <code>null</code> or empty.
+   * @param isPwdEncrypted <code>true</code> if supplied password is encrypted, <code>false</code>
+   *     if not. If encrypted, password must have been encrypted by this class.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDbmsInfo(
@@ -128,14 +116,11 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Construct this object from its XML representation.
    *
-   * @param src The element containing this object's state. May not be
-   *           <code>null</code> and must match the format defined by
-   *           {@link #toXml(Document) toXml()}.
-   *
-   * @throws IllegalArgumentException if <code>src</code> is
-   *            <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   *            represent a type supported by the class.
+   * @param src The element containing this object's state. May not be <code>null</code> and must
+   *     match the format defined by {@link #toXml(Document) toXml()}.
+   * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSDbmsInfo(Element src) throws PSUnknownNodeTypeException, PSDeployException {
     fromXml(src);
@@ -144,8 +129,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Copy ctor
    *
-   * @param source The source from which a shallow copy is made, may not be
-   *           <code>null</code>.
+   * @param source The source from which a shallow copy is made, may not be <code>null</code>.
    */
   public PSDbmsInfo(PSDbmsInfo source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -153,16 +137,14 @@ public class PSDbmsInfo implements IPSDeployComponent {
     copyFrom(source);
   }
 
-  /**
-   * Parameterless ctor for use by derived classes only.
-   */
+  /** Parameterless ctor for use by derived classes only. */
   protected PSDbmsInfo() {}
 
   /**
    * Get the connection info if provided at construction.
    *
-   * @return The connection info, may be <code>null</code> or empty to
-   *         indicate the default datasource.
+   * @return The connection info, may be <code>null</code> or empty to indicate the default
+   *     datasource.
    */
   public IPSConnectionInfo getConnectionInfo() {
     return m_connInfo;
@@ -205,8 +187,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Gets the user id to use when connecting to the database specified by this
-   * object.
+   * Gets the user id to use when connecting to the database specified by this object.
    *
    * @return The user id, never <code>null</code>, may be empty.
    */
@@ -217,11 +198,10 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Get the password.
    *
-   * @param encrypted If <code>true</code>, the password is returned
-   *           encrypted. Otherwise it is returned as clear text.
-   *
-   * @return The password, possibly encrypted. Never <code>null</code>, may
-   *         be empty. If encrypted, can only be decrypted by this class.
+   * @param encrypted If <code>true</code>, the password is returned encrypted. Otherwise it is
+   *     returned as clear text.
+   * @return The password, possibly encrypted. Never <code>null</code>, may be empty. If encrypted,
+   *     can only be decrypted by this class.
    */
   public String getPassword(boolean encrypted) {
     String pwd = m_pw;
@@ -254,8 +234,7 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Set the datasource name
    *
-   * @param datasource The datasource name, may be <code>null</code> or
-   *           empty.
+   * @param datasource The datasource name, may be <code>null</code> or empty.
    */
   public void setDatasource(String datasource) {
     if (datasource != null) m_connInfo = new PSDbmsConnectionInfo(datasource);
@@ -264,13 +243,10 @@ public class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Sets user name and password.
    *
-   * @param usr The user id to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param pwd The password to use when connecting, may be <code>null</code>
-   *           or empty.
-   * @param isPwdEncrypted <code>true</code> if supplied password is
-   *           encrypted, <code>false</code> if not. If encrypted, password
-   *           must have been encrypted by this class.
+   * @param usr The user id to use when connecting, may be <code>null</code> or empty.
+   * @param pwd The password to use when connecting, may be <code>null</code> or empty.
+   * @param isPwdEncrypted <code>true</code> if supplied password is encrypted, <code>false</code>
+   *     if not. If encrypted, password must have been encrypted by this class.
    */
   public void setUserNamePwd(String usr, String pwd, boolean isPwdEncrypted) {
     passwordEncrypted = isPwdEncrypted;
@@ -307,7 +283,6 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * Sets the driver name.
    *
    * @param driver driver name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException, if the input parameter is invalid.
    */
   public void setDriver(String driver) {
@@ -329,7 +304,6 @@ public class PSDbmsInfo implements IPSDeployComponent {
    * Sets the server name.
    *
    * @param server server name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException, if the input parameter is invalid.
    */
   public void setServer(String server) {
@@ -339,17 +313,12 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Determines if the supplied object references the same database as this
-   * object.
+   * Determines if the supplied object references the same database as this object.
    *
-   * @param other The dbms info object to compare to. May not be
-   *           <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied object and this one have the
-   *         same driver, server, database, and origin (case-sensitive).
-   *
-   * @throws IllegalArgumentException If <code>other</code> is
-   *            <code>null</code>.
+   * @param other The dbms info object to compare to. May not be <code>null</code>.
+   * @return <code>true</code> if the supplied object and this one have the same driver, server,
+   *     database, and origin (case-sensitive).
+   * @throws IllegalArgumentException If <code>other</code> is <code>null</code>.
    */
   public boolean isSameDb(PSDbmsInfo other) {
     boolean isSame = true;
@@ -407,9 +376,8 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation. See
-   * {@link #toXml(Document)} for format of XML. See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -441,13 +409,11 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Creates a new instance of this object, performing a shallow copy of all
-   * members.
+   * Creates a new instance of this object, performing a shallow copy of all members.
    *
    * @param obj The object from which to copy values.
-   *
-   * @throws IllegalArgumentException if the supplied object is
-   *            <code>null</code> or of the wrong type.
+   * @throws IllegalArgumentException if the supplied object is <code>null</code> or of the wrong
+   *     type.
    */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
@@ -511,15 +477,12 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Encrypts the supplied password if it is non-&lt;code>null&lt;/code> and
-   * not empty.
+   * Encrypts the supplied password if it is non-&lt;code>null&lt;/code> and not empty.
    *
    * @param uid The user id, may be &lt;code>null&lt;/code> or empty.
-   * @param pwd The password to encrypt, may be &lt;code>null&lt;/code> or
-   *           empty.
-   *
-   * @return The encrypted password, or an empty string if the supplied
-   *         password is &lt;code>null&lt;/code> or empty.
+   * @param pwd The password to encrypt, may be &lt;code>null&lt;/code> or empty.
+   * @return The encrypted password, or an empty string if the supplied password is
+   *     &lt;code>null&lt;/code> or empty.
    */
   private String encryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
@@ -535,15 +498,12 @@ public class PSDbmsInfo implements IPSDeployComponent {
   }
 
   /**
-   * Decrypts the supplied password if it is non-&lt;code-null&lt;/code> and
-   * not empty.
+   * Decrypts the supplied password if it is non-&lt;code-null&lt;/code> and not empty.
    *
    * @param uid The user id, may be &lt;code>null&lt;/code> or empty.
-   * @param pwd The password to decrypt, may be &lt;code>null&lt;/code> or
-   *           empty.
-   *
-   * @return The decrypted password, or an empty string if the supplied
-   *         password is &lt;code>null&lt;/code> or empty.
+   * @param pwd The password to decrypt, may be &lt;code>null&lt;/code> or empty.
+   * @return The decrypted password, or an empty string if the supplied password is
+   *     &lt;code>null&lt;/code> or empty.
    */
   private String decryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
@@ -606,58 +566,53 @@ public class PSDbmsInfo implements IPSDeployComponent {
     }
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDbmsInfo";
 
   /**
-   * Name of the JDBC driver to use to connect to the database, initialized
-   * during construction, never &lt;code>null&lt;/code> or empty. May be
-   * modified by call to <code>setDriver(String)</code>
+   * Name of the JDBC driver to use to connect to the database, initialized during construction,
+   * never &lt;code>null&lt;/code> or empty. May be modified by call to <code>setDriver(String)
+   * </code>
    */
   private String m_driver;
 
   /**
-   * Name of the server to use to connect to the database, initialized during
-   * construction, never &lt;code>null&lt;/code> or empty. May be modified by
-   * call to <code>setServer(String)</code>
+   * Name of the server to use to connect to the database, initialized during construction, never
+   * &lt;code>null&lt;/code> or empty. May be modified by call to <code>setServer(String)</code>
    */
   private String m_server;
 
   /**
-   * Name of the database, initialized during construction, never
-   * &lt;code>null&lt;/code>, may be empty. May be modified by call to
-   * <code>setDatabase(String)</code>
+   * Name of the database, initialized during construction, never &lt;code>null&lt;/code>, may be
+   * empty. May be modified by call to <code>setDatabase(String)</code>
    */
   private String m_database;
 
   /**
-   * Name of the origin or schema, initialized during construction, never
-   * &lt;code>null&lt;/code>, may be empty. May be modified by call to
-   * <code>setOrigin(String)</code>
+   * Name of the origin or schema, initialized during construction, never &lt;code>null&lt;/code>,
+   * may be empty. May be modified by call to <code>setOrigin(String)</code>
    */
   private String m_origin;
 
   /**
-   * Name of user to use when connecting, initialized during construction,
-   * never &lt;code>null&lt;/code>, may be empty. May be modified by call to
-   * <code>setUserNamePwd(String, String, boolean)</code>
+   * Name of user to use when connecting, initialized during construction, never
+   * &lt;code>null&lt;/code>, may be empty. May be modified by call to <code>
+   * setUserNamePwd(String, String, boolean)</code>
    */
   private String m_uid;
 
   /**
-   * Encrypted password of user to use when connecting, initialized during
-   * construction, never &lt;code>null&lt;/code>, may be empty. May be modified
-   * by call to <code>setUserNamePwd(String, String, boolean)</code>
+   * Encrypted password of user to use when connecting, initialized during construction, never
+   * &lt;code>null&lt;/code>, may be empty. May be modified by call to <code>
+   * setUserNamePwd(String, String, boolean)</code>
    */
   private String m_pw;
 
   private boolean passwordEncrypted;
 
   /**
-   * The connection info if supplied during construction, may be
-   * <code>null</code> if not set or to use the default connection.
+   * The connection info if supplied during construction, may be <code>null</code> if not set or to
+   * use the default connection.
    */
   private IPSConnectionInfo m_connInfo = null;
 

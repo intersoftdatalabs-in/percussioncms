@@ -23,20 +23,15 @@ import com.percussion.deployer.server.PSDependencyMap;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a content editor
- */
+/** Class to handle packaging and deploying a content editor */
 public class PSCEDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSCEDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -44,15 +39,15 @@ public class PSCEDependencyHandler extends PSElementDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentType</li>
+   *   <li>ContentType
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -71,22 +66,16 @@ public class PSCEDependencyHandler extends PSElementDependencyHandler {
     return m_childHandler;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR;
 
   /**
-   * The content type definition handler, initialized by
-   * <code>getChildHandler()</code> if it is <code>null</code>, will never
-   * be <code>null</code> after that.
+   * The content type definition handler, initialized by <code>getChildHandler()</code> if it is
+   * <code>null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_childHandler = null;
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(PSContentTypeDependencyHandler.DEPENDENCY_TYPE);
 }

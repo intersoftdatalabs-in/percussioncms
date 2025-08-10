@@ -22,21 +22,22 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents an empty page used for template layout mode.
- * Implements the Null Object pattern.
+ * Represents an empty page used for template layout mode. Implements the Null Object pattern.
+ *
  * @author adamgent
  */
 @XmlRootElement
 public final class PSEmptyPage extends PSPage {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Returns an empty list of widgets for this empty page.
-     * @return an empty list, never {@code null}.
-     */
-    @Override
-    public List<PSWidgetItem> getWidgets() {
-        return new ArrayList<>();
-    }
+  /**
+   * Returns an empty list of widgets for this empty page.
+   *
+   * @return an empty list, never {@code null}.
+   */
+  @Override
+  public List<PSWidgetItem> getWidgets() {
+    return new ArrayList<>();
+  }
 }

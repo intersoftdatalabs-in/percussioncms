@@ -24,9 +24,7 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXTableSet DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXTableSet DTD in BasicObjects.dtd. */
 public class PSTableSet extends PSComponent {
   /**
    * Creates a new table set.
@@ -46,8 +44,7 @@ public class PSTableSet extends PSComponent {
    * Creates a new table set.
    *
    * @param tableLocator the table locator, not <code>null</code>.
-   * @param tableRefs a collection of PSTableRef objects, not
-   *    <code>null</code> or empty.
+   * @param tableRefs a collection of PSTableRef objects, not <code>null</code> or empty.
    */
   public PSTableSet(PSTableLocator tableLocator, PSCollection tableRefs) {
     setTableLocation(tableLocator);
@@ -57,14 +54,10 @@ public class PSTableSet extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSTableSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -82,9 +75,7 @@ public class PSTableSet extends PSComponent {
     copyFrom(source);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSTableSet() {}
 
   /**
@@ -119,8 +110,7 @@ public class PSTableSet extends PSComponent {
   /**
    * Get the table definition reference.
    *
-   * @return the table definition reference, might be <code>null</code> but
-   *    not empty.
+   * @return the table definition reference, might be <code>null</code> but not empty.
    */
   public String getTableDefRef() {
     return m_href;
@@ -129,8 +119,7 @@ public class PSTableSet extends PSComponent {
   /**
    * Set a new table definition reference.
    *
-   * @param href the new table definition reference, may be <code>null</code>
-   *    but not empty.
+   * @param href the new table definition reference, may be <code>null</code> but not empty.
    */
   public void setTableDefRef(String href) {
     if (href != null && href.length() == 0)
@@ -142,8 +131,7 @@ public class PSTableSet extends PSComponent {
   /**
    * Set new table references.
    *
-   * @param tableRefs the new table references, not <code>null</code>, not
-   *    empty.
+   * @param tableRefs the new table references, not <code>null</code>, not empty.
    */
   public void setTableRefs(PSCollection tableRefs) {
     if (tableRefs == null || tableRefs.isEmpty())
@@ -178,11 +166,10 @@ public class PSTableSet extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component, except instead of copying the reference to the tableref
-   * collection, the contents are copied to this object's collection. Derived
-   * classes should implement this method for their data, calling the base
-   * class method first.
+   * Performs a shallow copy of the data in the supplied component to this component, except instead
+   * of copying the reference to the tableref collection, the contents are copied to this object's
+   * collection. Derived classes should implement this method for their data, calling the base class
+   * method first.
    *
    * @param c a valid PSTableSet, not <code>null</code>.
    */
@@ -216,7 +203,6 @@ public class PSTableSet extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -271,7 +257,6 @@ public class PSTableSet extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -312,20 +297,16 @@ public class PSTableSet extends PSComponent {
   public static final String XML_NODE_NAME = "PSXTableSet";
 
   /**
-   * Specifies the location of the document containing the table defs.
-   * If create is yes and the table doesn't exist, it will be created
-   * based on this def. If the table already exists, its metadata is
-   * validated against the def.
+   * Specifies the location of the document containing the table defs. If create is yes and the
+   * table doesn't exist, it will be created based on this def. If the table already exists, its
+   * metadata is validated against the def.
    */
   private String m_href = null;
 
   /** The table location, never <code>null</code> after construction */
   private PSTableLocator m_tableLocation = null;
 
-  /**
-   * A collection of PSTableRef objects. Never <code>null</code> or
-   * empty after construction.
-   */
+  /** A collection of PSTableRef objects. Never <code>null</code> or empty after construction. */
   private PSCollection m_tableRefs = new PSCollection((new PSTableRef()).getClass());
 
   /*

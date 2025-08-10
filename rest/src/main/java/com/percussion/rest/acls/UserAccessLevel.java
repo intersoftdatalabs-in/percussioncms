@@ -21,79 +21,79 @@ package com.percussion.rest.acls;
 import com.percussion.rest.PermissionList;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a user's access level for a given ACL.
- */
+/** Represents a user's access level for a given ACL. */
 @XmlRootElement
 @Schema(description = "User Access Level")
 public class UserAccessLevel {
 
-    @Schema(description = "Unique id of this access level")
-    private long id;
+  @Schema(description = "Unique id of this access level")
+  private long id;
 
-    @Schema(description = "The permissions defined for this ACL")
-    private Permissions permission;
+  @Schema(description = "The permissions defined for this ACL")
+  private Permissions permission;
 
-    private PermissionList permissions;
+  private PermissionList permissions;
 
-    public UserAccessLevel() {}
+  public UserAccessLevel() {}
 
-    public UserAccessLevel(long id, Permissions permission, PermissionList permissions) {
-        this.id = id;
-        this.permission = permission;
-        this.permissions = permissions;
-    }
+  public UserAccessLevel(long id, Permissions permission, PermissionList permissions) {
+    this.id = id;
+    this.permission = permission;
+    this.permissions = permissions;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public Optional<Permissions> getPermission() {
-        return Optional.ofNullable(permission);
-    }
+  public Optional<Permissions> getPermission() {
+    return Optional.ofNullable(permission);
+  }
 
-    public void setPermission(Permissions permission) {
-        this.permission = permission;
-    }
+  public void setPermission(Permissions permission) {
+    this.permission = permission;
+  }
 
-    public Optional<PermissionList> getPermissions() {
-        return Optional.ofNullable(permissions);
-    }
+  public Optional<PermissionList> getPermissions() {
+    return Optional.ofNullable(permissions);
+  }
 
-    public void setPermissions(PermissionList permissions) {
-        this.permissions = permissions;
-    }
+  public void setPermissions(PermissionList permissions) {
+    this.permissions = permissions;
+  }
 
-    @Override
-    public String toString() {
-        return "UserAccessLevel{" +
-                "id=" + id +
-                ", permission=" + permission +
-                ", permissions=" + permissions +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "UserAccessLevel{"
+        + "id="
+        + id
+        + ", permission="
+        + permission
+        + ", permissions="
+        + permissions
+        + '}';
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserAccessLevel)) return false;
-        var that = (UserAccessLevel) o;
-        return id == that.id &&
-                Objects.equals(permission, that.permission) &&
-                Objects.equals(permissions, that.permissions);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof UserAccessLevel)) return false;
+    var that = (UserAccessLevel) o;
+    return id == that.id
+        && Objects.equals(permission, that.permission)
+        && Objects.equals(permissions, that.permissions);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, permission, permissions);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, permission, permissions);
+  }
 }

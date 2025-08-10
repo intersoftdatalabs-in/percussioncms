@@ -36,31 +36,29 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A directory cataloger using a backend table security provider configuration
- * as a directory source.
+ * A directory cataloger using a backend table security provider configuration as a directory
+ * source.
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
   /**
    * Construct a backend directory cataloger for the supplied properties.
    *
-   * @param properties the properties with connection and user attribute
-   *    information, not <code>null</code> or empty. See
-   *    {@link PSBackEndConnection} for mor information.
+   * @param properties the properties with connection and user attribute information, not <code>null
+   *     </code> or empty. See {@link PSBackEndConnection} for mor information.
    */
   public PSBackEndTableDirectoryCataloger(Properties properties) {
     m_backendConnection = new PSBackEndConnection(properties);
   }
 
-  /**
-   * Calls {@link #PSBackEndTableDirectoryCataloger(Properties)}, ignores other
-   * param.
-   */
+  /** Calls {@link #PSBackEndTableDirectoryCataloger(Properties)}, ignores other param. */
   public PSBackEndTableDirectoryCataloger(Properties properties, PSServerConfiguration config) {
     this(properties);
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getObjectAttributeName() {
     return m_backendConnection.getUserColumn();
   }
@@ -75,7 +73,9 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     return PSBackEndTableProviderMetaData.SP_FULLNAME;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getAttribute(PSSubject user, String attributeName) {
     Collection attributeNames = new ArrayList();
     attributeNames.add(attributeName);
@@ -89,12 +89,16 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     return (values == null || values.isEmpty()) ? null : values.get(0).toString();
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(PSSubject user) {
     return getAttributes(user, null);
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
     if (user == null) throw new IllegalArgumentException("user may not be null");
 
@@ -160,7 +164,9 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
     }
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
     Collection<PSSubject> subjects = new ArrayList<>();
 
@@ -227,8 +233,8 @@ public class PSBackEndTableDirectoryCataloger extends PSDirectoryCataloger {
   }
 
   /**
-   * The backend connection used to do directory cataloging. Initialized in
-   * constructor, never <code>null</code> or changed after that.
+   * The backend connection used to do directory cataloging. Initialized in constructor, never
+   * <code>null</code> or changed after that.
    */
   private PSBackEndConnection m_backendConnection = null;
 

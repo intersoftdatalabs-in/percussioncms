@@ -22,17 +22,14 @@ import com.percussion.design.objectstore.PSBackEndJoin;
 /**
  * Join formatter for Oracle.
  *
- * @see         PSJoinFormatter
- * @see         PSSqlQueryBuilder
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSJoinFormatter
+ * @see PSSqlQueryBuilder
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSOracleJoinFormatter extends PSJoinFormatter {
-  /**
-   * Construct a join formatter for Oracle.
-   */
+  /** Construct a join formatter for Oracle. */
   public PSOracleJoinFormatter() {
     super();
   }
@@ -40,12 +37,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any prefix required in the FROM clause for the left side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addLeftTablePrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -55,12 +50,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any suffix required in the FROM clause for the left side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addLeftTableSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -70,12 +63,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any prefix required in the FROM clause for the right side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addRightTablePrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -87,12 +78,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any suffix required in the FROM clause for the right side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addRightTableSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -100,12 +89,11 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   }
 
   /**
-   * Does this store the column joining information using an ON clause
-   * in the FROM clause? This is the syntax used by SQL-92 compliant
-   * drivers. If this is not the case, the column joining information
-   * is stored in the WHERE clause.
+   * Does this store the column joining information using an ON clause in the FROM clause? This is
+   * the syntax used by SQL-92 compliant drivers. If this is not the case, the column joining
+   * information is stored in the WHERE clause.
    *
-   * @return      <code>true</code> if ON clauses are used in the FROM clause
+   * @return <code>true</code> if ON clauses are used in the FROM clause
    */
   public boolean usesOnClauseInFrom() {
     // this driver uses the WHERE clause for the column joining info
@@ -115,12 +103,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any prefix required in the WHERE clause for the left side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addLeftColumnPrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -130,12 +116,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any suffix required in the WHERE clause for the left side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addLeftColumnSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -149,12 +133,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any prefix required in the WHERE clause for the right side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addRightColumnPrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {
@@ -165,12 +147,10 @@ public class PSOracleJoinFormatter extends PSJoinFormatter {
   /**
    * Add any suffix required in the WHERE clause for the right side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public void addRightColumnSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder) {

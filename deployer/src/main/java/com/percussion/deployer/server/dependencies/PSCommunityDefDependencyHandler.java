@@ -59,19 +59,15 @@ import java.util.Map;
 import java.util.Optional;
 import javax.naming.NamingException;
 
-/**
- * Class to handle packaging and deploying a community definition.
- */
+/** Class to handle packaging and deploying a community definition. */
 public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws PSDeployException
    * @throws IllegalArgumentException if any param is invalid.
    */
@@ -116,7 +112,6 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
    *
    * @param tok The security token, assume not <code>null</code>.
    * @param parentId The parent id, assume not <code>null</code>.
-   *
    * @return An interator over zero or more dependency objects.
    * @throws PSDeployException
    */
@@ -154,20 +149,20 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Component</li>
-   * <li>ContentEditor</li>
-   * <li>RoleDef</li>
-   * <li>Site (v4.5 and above)</li>
-   * <li>VariantDef</li>
-   * <li>Workflow</li>
+   *   <li>Component
+   *   <li>ContentEditor
+   *   <li>RoleDef
+   *   <li>Site (v4.5 and above)
+   *   <li>VariantDef
+   *   <li>Workflow
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator<String> getChildTypes() {
     return m_childTypes.iterator();
@@ -281,10 +276,9 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Adds all the components from components table to component communities
-   * table for the supplied community id. This code has been duplicated from
-   * <code>PSBackEndRoleMgr#saveCommunity</code> method and needs to be
-   * updated both places at a time.
+   * Adds all the components from components table to component communities table for the supplied
+   * community id. This code has been duplicated from <code>PSBackEndRoleMgr#saveCommunity</code>
+   * method and needs to be updated both places at a time.
    *
    * @param communityGuid assumed not <code>null</code>.
    * @throws PSDeployException
@@ -342,16 +336,12 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Convert role id (at column <code>COMM_RL_ID</code> in
-   * <code>COMM_RL_TABLE</code>) to its corresponding role name (at column
-   * <code>ROLE_NAME</code> in <code>ROLE_TABLE</code>) for a dependency data.
+   * Convert role id (at column <code>COMM_RL_ID</code> in <code>COMM_RL_TABLE</code>) to its
+   * corresponding role name (at column <code>ROLE_NAME</code> in <code>ROLE_TABLE</code>) for a
+   * dependency data.
    *
-   * @param depData The to be converted dependency data, assume not
-   * <code>null</code>.
-   *
-   * @return The converted dependency data, will never be <code>null</code> or
-   * empty.
-   *
+   * @param depData The to be converted dependency data, assume not <code>null</code>.
+   * @return The converted dependency data, will never be <code>null</code> or empty.
    * @throws PSDeployException if any error occurs.
    */
   PSDependencyData convertRoleIdToRoleName(PSDependencyData depData) throws PSDeployException {
@@ -405,21 +395,16 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Transfer community id from the source data to target id, and convert
-   * role-name (at column <code>COMM_RL_ID</code>) to its corresponding role
-   * name (at column <code>ROLE_NAME</code> in <code>ROLE_TABLE</code>). This
-   * is a reverse operation as the <code>convertRoleIdToRoleName()</code> did
-   * to the <code>COMM_RL_ID</code> column.
+   * Transfer community id from the source data to target id, and convert role-name (at column
+   * <code>COMM_RL_ID</code>) to its corresponding role name (at column <code>ROLE_NAME</code> in
+   * <code>ROLE_TABLE</code>). This is a reverse operation as the <code>convertRoleIdToRoleName()
+   * </code> did to the <code>COMM_RL_ID</code> column.
    *
    * @param data The source data, assume not <code>null</code>.
    * @param dep The community dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @param tok The security token, assume not <code>null</code>.
-   *
-   * @return The transfered or converted table data, will never be
-   * <code>null</code> or empty.
-   *
+   * @return The transfered or converted table data, will never be <code>null</code> or empty.
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData transferIdsForRLData(
@@ -480,19 +465,14 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Using idMap in <code>ctx</code> to transfer ids from source to target for
-   * a given table data.
+   * Using idMap in <code>ctx</code> to transfer ids from source to target for a given table data.
    *
    * @param data The source table data, assume not <code>null</code>.
    * @param childIdCol
    * @param dep The community dependency object, assume not <code>null</code>.
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @param tok The security token, assume not <code>null</code>.
-   *
-   * @return The transfered or converted table data, will never be
-   * <code>null</code> or empty.
-   *
+   * @return The transfered or converted table data, will never be <code>null</code> or empty.
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData transferIdsForChildData(
@@ -538,9 +518,7 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
     return new PSJdbcTableData(data.getName(), tgtRowList.iterator());
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "CommunityDef";
 
   // Constants for table containing community
@@ -560,27 +538,23 @@ public class PSCommunityDefDependencyHandler extends PSDataObjectDependencyHandl
   private static final String ROLE_NAME = "NAME";
 
   /**
-   * Schema for <code>COMM_CP_TABLE</code> table, the relationship to
-   * component, initialized by constructor, will never be <code>null</code>
-   * or modified after that.
+   * Schema for <code>COMM_CP_TABLE</code> table, the relationship to component, initialized by
+   * constructor, will never be <code>null</code> or modified after that.
    */
   private PSJdbcTableSchema m_commCPSchema;
 
   /**
-   * Schema for <code>COMM_RL_TABLE</code> table, the relationship to roles,
-   * initialized by constructor, will never be <code>null</code> or modified
-   * after that.
+   * Schema for <code>COMM_RL_TABLE</code> table, the relationship to roles, initialized by
+   * constructor, will never be <code>null</code> or modified after that.
    */
   private PSJdbcTableSchema m_commRLSchema;
 
   /**
-   * List of child types supported by this handler, initialized by constructor,
-   * it will never be <code>null</code> or empty after that.
+   * List of child types supported by this handler, initialized by constructor, it will never be
+   * <code>null</code> or empty after that.
    */
   private static List<String> m_childTypes;
 
-  /**
-   * Get the back-end role manager.
-   */
+  /** Get the back-end role manager. */
   private static IPSBackEndRoleMgr ms_beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
 }

@@ -22,9 +22,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * This class implements the interface <code>IPSMailMessageContext</code> is the
- * container for all components required by the mail message that is sent by the
- * workflow engine.
+ * This class implements the interface <code>IPSMailMessageContext</code> is the container for all
+ * components required by the mail message that is sent by the workflow engine.
  */
 public class PSMailMessageContext implements IPSMailMessageContext, Serializable {
 
@@ -191,10 +190,10 @@ public class PSMailMessageContext implements IPSMailMessageContext, Serializable
   }
 
   /**
-   * Gets the source list of notification email addresses, used in debug / logging.  Source email list
-   * should include information on the source role / subject that the email was pulled from.
+   * Gets the source list of notification email addresses, used in debug / logging. Source email
+   * list should include information on the source role / subject that the email was pulled from.
    *
-   * @return may be empty.  the list of source to email addresses for this message.
+   * @return may be empty. the list of source to email addresses for this message.
    */
   @Override
   public List<PSNotificationEmailAddress> getSourceToList() {
@@ -202,10 +201,10 @@ public class PSMailMessageContext implements IPSMailMessageContext, Serializable
   }
 
   /**
-   * Gets the source list of notification cc email addresses, used in debug / logging.  source email list
-   * should include information on the source role / subject that the email was pulled from.
+   * Gets the source list of notification cc email addresses, used in debug / logging. source email
+   * list should include information on the source role / subject that the email was pulled from.
    *
-   * @return may be empty.  the list of source cc email addresses for this message.
+   * @return may be empty. the list of source cc email addresses for this message.
    */
   @Override
   public List<PSNotificationEmailAddress> getSourceCCList() {
@@ -232,74 +231,46 @@ public class PSMailMessageContext implements IPSMailMessageContext, Serializable
     sourceCCList = sourceCC;
   }
 
-  /**
-   * Name of the user the mail notification is issued on behalf of.
-   */
+  /** Name of the user the mail notification is issued on behalf of. */
   private String from = null;
 
-  /**
-   * Names of the users or roles the mail notification is required to reach.
-   */
+  /** Names of the users or roles the mail notification is required to reach. */
   private String to = null;
 
-  /**
-   * CC list users a copy of the mail notification is to be sent.
-   */
+  /** CC list users a copy of the mail notification is to be sent. */
   private String cc = null;
 
-  /**
-   * Subject of the mail notification.
-   */
+  /** Subject of the mail notification. */
   private String subject = null;
 
-  /**
-   * The Body of the mail message.
-   */
+  /** The Body of the mail message. */
   private String body = null;
 
-  /**
-   * Url of the content item to include in the mail notification.
-   */
+  /** Url of the content item to include in the mail notification. */
   private String url = null;
 
-  /**
-   * Mail Domain of the sender or recipients.
-   */
+  /** Mail Domain of the sender or recipients. */
   private String mailDomain = null;
 
-  /**
-   * SMTP host name for the mail plugin
-   */
+  /** SMTP host name for the mail plugin */
   private String smtpHost = null;
 
-  /**
-   * SMTP user name for the mail plugin
-   */
+  /** SMTP user name for the mail plugin */
   private String smtpUserName = null;
 
-  /**
-   * SMTP pass word for the mail plugin
-   */
+  /** SMTP pass word for the mail plugin */
   private String smtpPassword = null;
 
-  /**
-   * State of whether TLS is enabled on the SMTP server or not.
-   */
+  /** State of whether TLS is enabled on the SMTP server or not. */
   private String smtpIsTLSEnabled = null;
 
-  /**
-   * State of whether TLS is enabled on the SMTP server or not.
-   */
+  /** State of whether TLS is enabled on the SMTP server or not. */
   private String smtpPortNumber = null;
 
-  /**
-   * State of whether TLS is enabled on the SMTP server or not.
-   */
+  /** State of whether TLS is enabled on the SMTP server or not. */
   private String smtpSSLPortNumber = null;
 
-  /**
-   * State of smtp bounce address.
-   */
+  /** State of smtp bounce address. */
   private String smtpBounceAddr = null;
 
   private List<PSNotificationEmailAddress> sourceToList;

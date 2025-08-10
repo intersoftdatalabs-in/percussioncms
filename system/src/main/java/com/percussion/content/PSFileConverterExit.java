@@ -28,8 +28,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This extension enables the conversion of data from a number of file formats
- * to HTML or text.
+ * This extension enables the conversion of data from a number of file formats to HTML or text.
+ *
  * @deprecated Deprecated use PSTextExtractorExit instead.
  */
 // REFACTORED: CP-JAVA11
@@ -44,13 +44,11 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
   /**
    * Converts the data specified by the params to either text or html.
    *
-   * @params The parameters, never <code>null</code>. The following params
-   * are expected. <code>toString</code> is called on all parameters to
-   * obtain their values unless otherwise specified. If a parameter value is
-   * <code>null</code> or empty, it is considered to have been ommitted
-   * (required parameters must be supplied):
-   *
-   * <table>
+   * @params The parameters, never <code>null</code>. The following params are expected. <code>
+   *     toString</code> is called on all parameters to obtain their values unless otherwise
+   *     specified. If a parameter value is <code>null</code> or empty, it is considered to have
+   *     been ommitted (required parameters must be supplied):
+   *     <table>
    * <tr>
    * <th>Param #</th>
    * <th>Description</th>
@@ -156,18 +154,13 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
    * </tr>
    * </table>
    *
-   * @param request The request context, guaranteed not to be <code>null</code>
-   * by the interface.
-   *
-   * @throws PSParameterMismatchException if a required parameter is missing,
-   * or if a parameter value is invalid.
-   * @throws PSExtensionProcessingException if an unsupported file type is
-   * supplied, or if there are any other errors, and an error message request
-   * parameter was not supplied.
-   *
+   * @param request The request context, guaranteed not to be <code>null</code> by the interface.
+   * @throws PSParameterMismatchException if a required parameter is missing, or if a parameter
+   *     value is invalid.
+   * @throws PSExtensionProcessingException if an unsupported file type is supplied, or if there are
+   *     any other errors, and an error message request parameter was not supplied.
    * @deprecated this exit has been deprecated and throws
-   * PSContentConversionException(IPSContentErrors.UNSUPPORTED_EXTRACTION_EXIT)
-   * when used.
+   *     PSContentConversionException(IPSContentErrors.UNSUPPORTED_EXTRACTION_EXIT) when used.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -182,14 +175,11 @@ public class PSFileConverterExit extends PSDefaultExtension implements IPSItemIn
   }
 
   /**
-   * The fully qualified name of this extension. Intialized in the
-   * {@link #init(IPSExtensionDef, File)} method, never <code>null</code>,
-   * empty, or modified after that.
+   * The fully qualified name of this extension. Intialized in the {@link #init(IPSExtensionDef,
+   * File)} method, never <code>null</code>, empty, or modified after that.
    */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger ms_log = LogManager.getLogger(PSFileConverterExit.class);
 }

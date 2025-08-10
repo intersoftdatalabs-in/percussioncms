@@ -46,24 +46,19 @@ import org.json.simple.parser.JSONParser;
 
 /**
  * @author erikserating
- *
  */
 public class GadgetSettingsFormServlet extends HttpServlet {
   private static final Logger log = LogManager.getLogger(GadgetSettingsFormServlet.class.getName());
 
   /**
-   * A convenience method which can be overridden so that there's no need
-   * to call <code>super.init(config)</code>.
+   * A convenience method which can be overridden so that there's no need to call <code>
+   * super.init(config)</code>.
    *
-   * <p>Instead of overriding {@link # init(ServletConfig)}, simply override
-   * this method and it will be called by
-   * <code>GenericServlet.init(ServletConfig config)</code>.
-   * The <code>ServletConfig</code> object can still be retrieved via {@link
-   * #getServletConfig}.
+   * <p>Instead of overriding {@link # init(ServletConfig)}, simply override this method and it will
+   * be called by <code>GenericServlet.init(ServletConfig config)</code>. The <code>ServletConfig
+   * </code> object can still be retrieved via {@link #getServletConfig}.
    *
-   * @throws ServletException if an exception occurs that
-   *                          interrupts the servlet's
-   *                          normal operation
+   * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
    */
   @Override
   public void init() throws ServletException {
@@ -106,13 +101,12 @@ public class GadgetSettingsFormServlet extends HttpServlet {
     }
   }
 
-  /**
-   * Validate input parameters for sane inputs.
-   */
+  /** Validate input parameters for sane inputs. */
   private void validateInputParameters() {}
 
   /**
    * Calls the gadget metadata service to get information for the specified gadget url.
+   *
    * @param req the servlet request, assumed not <code>null</code>.
    * @param url the gadget.xml url, assumed not <code>null</code> or empty.
    * @param moduleId The Module Id
@@ -241,7 +235,6 @@ public class GadgetSettingsFormServlet extends HttpServlet {
   }
 
   /**
-   *
    * @param meta a de-serialized gadget metadata entry json object
    * @return A list of JSON objects representing userPrefs
    */
@@ -266,6 +259,7 @@ public class GadgetSettingsFormServlet extends HttpServlet {
 
   /**
    * Helper method to retrieve all user preference value params from the request.
+   *
    * @param req assumed not <code>null</code>.
    * @return map of user pref params.
    */
@@ -282,6 +276,7 @@ public class GadgetSettingsFormServlet extends HttpServlet {
 
   /**
    * Retrieve the pssessionid value from the request header.
+   *
    * @param request the request assumed not <code>null</code>.
    * @return the pssessionid value or <code>null</code> if not found.
    */

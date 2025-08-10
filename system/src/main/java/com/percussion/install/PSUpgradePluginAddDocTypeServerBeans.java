@@ -25,20 +25,19 @@ import java.io.PrintWriter;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to add the DocType to the server-beans
- * XML file. The upgrade process updates this file and by doing so, it is
- * removing the DocType and xml processing instruction from the xml file.
+ * This plugin has been written to add the DocType to the server-beans XML file. The upgrade process
+ * updates this file and by doing so, it is removing the DocType and xml processing instruction from
+ * the xml file.
  */
 
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDocTypeServerBeans implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginAddDocTypeServerBeans() {}
 
   /**
    * Implements the process function of IPSUpgardePlugin.
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>

@@ -46,10 +46,10 @@ import org.w3c.dom.NodeList;
  */
 public class PSSite {
   /**
-   * Uses the site id parameter to lookup the site folder root path stored
-   * in the RXSITES table.
-   * @param siteid Id of the site whose site folder root will be returned. if
-   * provided null, null will be returned
+   * Uses the site id parameter to lookup the site folder root path stored in the RXSITES table.
+   *
+   * @param siteid Id of the site whose site folder root will be returned. if provided null, null
+   *     will be returned
    * @param request
    * @return the site folder root of the supplied site, may be null or empty.
    */
@@ -79,12 +79,13 @@ public class PSSite {
   }
 
   /**
-   * Parses XML document to extract the site folder root from the following
-   * structure:<br>
+   * Parses XML document to extract the site folder root from the following structure:<br>
+   *
    * <pre><code>
    * &lt;!ELEMENT lookupSiteFolderRoot (folderPath?)>
    * &lt;!ELEMENT folderPath (#PCDATA)>
    * </code></pre>
+   *
    * @param resultXml the XML document to be parsed
    * @return the site folder root, may be null or empty
    */
@@ -102,17 +103,13 @@ public class PSSite {
   }
 
   /**
-   * Gets the published filename for the supplied folder locator. If the
-   * folder property named {@link PSFolder#PROPERTY_PUB_FILE_NAME} is present,
-   * its value will be used as the file name for this folder. If this
-   * property is not defined, the folder name is returned.
+   * Gets the published filename for the supplied folder locator. If the folder property named
+   * {@link PSFolder#PROPERTY_PUB_FILE_NAME} is present, its value will be used as the file name for
+   * this folder. If this property is not defined, the folder name is returned.
    *
-   * @param helper relationship helper class object, must not be
-   *           <code>null</code>.
+   * @param helper relationship helper class object, must not be <code>null</code>.
    * @param locator the locator for the folder, must not be <code>null</code>.
-   * @return the file name for this folder as described above, never
-   *         <code>null</code> or empty.
-   *
+   * @return the file name for this folder as described above, never <code>null</code> or empty.
    * @throws PSCmsException if an error occurs.
    */
   public static String getFolderFileName(PSLocator locator) throws PSCmsException {
@@ -124,30 +121,21 @@ public class PSSite {
   }
 
   /**
-   * Builds the folder path walking backwards from the selected site folder to
-   * the site root. An empty list is returned if the <code>locator</code> is
-   * not a descendent of the <code>rootLoc</code>
+   * Builds the folder path walking backwards from the selected site folder to the site root. An
+   * empty list is returned if the <code>locator</code> is not a descendent of the <code>rootLoc
+   * </code>
    *
-   * @param relHelper
-   *           relationship helper class object, must not be <code>null</code>.
-   * @param rootLoc
-   *           the locator of the root folder for a site. Must not be
-   *           <code>null</code>.
-   * @param locator
-   *           the locator of an item or folder under the site folder to build
-   *           path list. Must not be <code>null</code>.
-   * @param addLocator <code>true</code> if add the <code>locator</code> to
-   *           the returned path; <code>false</code> don't add the
-   *           <code>locator</code> to the returned path. This is because
-   *           the <code>locator</code> may not be a locator of a folder.
-   *
-   * @return a list of {@link PSLocator}that represent the path. The 2nd
-   *         element is the sub-folder of the 1st element, the 3nd element is
-   *         the sub-folder of the 2nd element, and so on and so forth, the
-   *         last element is the <code>locator</code>. It may
-   *         be empty if the <code>locator</code> is not a descendent of
-   *         <code>rootLoc</code>. It never <code>null</code>.
-   *
+   * @param relHelper relationship helper class object, must not be <code>null</code>.
+   * @param rootLoc the locator of the root folder for a site. Must not be <code>null</code>.
+   * @param locator the locator of an item or folder under the site folder to build path list. Must
+   *     not be <code>null</code>.
+   * @param addLocator <code>true</code> if add the <code>locator</code> to the returned path;
+   *     <code>false</code> don't add the <code>locator</code> to the returned path. This is because
+   *     the <code>locator</code> may not be a locator of a folder.
+   * @return a list of {@link PSLocator}that represent the path. The 2nd element is the sub-folder
+   *     of the 1st element, the 3nd element is the sub-folder of the 2nd element, and so on and so
+   *     forth, the last element is the <code>locator</code>. It may be empty if the <code>locator
+   *     </code> is not a descendent of <code>rootLoc</code>. It never <code>null</code>.
    * @throws PSCmsException if an error occurs.
    */
   public static List buildFolderPathList(int rootId, PSLocator locator, boolean addLocator)
@@ -210,20 +198,15 @@ public class PSSite {
   }
 
   /**
-   * Renders the site folder path as a String. The path will always begin and
-   * end with a {@link #SITE_PATH_SEPARATOR Separator}. If the list of folders
-   * is empty, the returned path will consist of a single Separator.
+   * Renders the site folder path as a String. The path will always begin and end with a {@link
+   * #SITE_PATH_SEPARATOR Separator}. If the list of folders is empty, the returned path will
+   * consist of a single Separator.
    *
-   * @param helper
-   *           relationship helper class object, must not be <code>null</code>.
-   * @param siteFolderList
-   *           a list of {@link PSLocator}that represent the path, must not be
-   *           <code>null</code>, may be empty. The 2nd element is the
-   *           sub-folder of the 1st element, the 3nd element is the sub-folder
-   *           of the 2nd element, and so on and so forth.
-   *
+   * @param helper relationship helper class object, must not be <code>null</code>.
+   * @param siteFolderList a list of {@link PSLocator}that represent the path, must not be <code>
+   *     null</code>, may be empty. The 2nd element is the sub-folder of the 1st element, the 3nd
+   *     element is the sub-folder of the 2nd element, and so on and so forth.
    * @return the site folder path. Never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   public static String renderSiteFolderPathLocators(List siteFolderList) throws PSCmsException {
@@ -240,31 +223,23 @@ public class PSSite {
   }
 
   /**
-   * Name of the Rhythmyx internal resource used to query the site folder root
-   * for a given site id.
+   * Name of the Rhythmyx internal resource used to query the site folder root for a given site id.
    */
   private static final String LOOKUP_SITE_FOLDER_ROOT =
       "rx_supportSiteFolderContentList/lookupSiteFolderRoot.xml";
 
   /**
-   * Name of the request private object key that indicates to site folder
-   * assembly that the path generation should be suppressed.
+   * Name of the request private object key that indicates to site folder assembly that the path
+   * generation should be suppressed.
    */
   public static final String SUPPRESS_SITE_PATH_KEY = "ff-suppress-site-path-key";
 
-  /**
-   * String constant for the key to store the folder path as session object.
-   */
+  /** String constant for the key to store the folder path as session object. */
   public static final String SITE_PATH_NAME = "com.percussion.fastforward.sfp.path";
 
-  /**
-   * String constant for path separator string used while building location
-   * path.
-   */
+  /** String constant for path separator string used while building location path. */
   public static final String SITE_PATH_SEPARATOR = "/";
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSSite.class);
 }

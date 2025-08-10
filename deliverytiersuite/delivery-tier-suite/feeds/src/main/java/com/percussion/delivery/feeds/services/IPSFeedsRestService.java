@@ -35,21 +35,19 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author natechadwick
- *
  */
 public interface IPSFeedsRestService extends IPSRestService {
 
   /**
-   * Retrieve the feed descriptor for the specified feed and generate the feed
-   * from data in the dynamic indexing service.
+   * Retrieve the feed descriptor for the specified feed and generate the feed from data in the
+   * dynamic indexing service.
    *
-   * @param sitename the site the feed belongs too, may be <code>null</code>
-   *            or empty in which case a page not found will be sent in
-   *            response.
-   * @param feedname may be <code>null</code> or empty in which case a page
-   *            not found will be sent in response.
-   * @return response with the feed xml or a page not found or server error,
-   *         depending on the situation.
+   * @param sitename the site the feed belongs too, may be <code>null</code> or empty in which case
+   *     a page not found will be sent in response.
+   * @param feedname may be <code>null</code> or empty in which case a page not found will be sent
+   *     in response.
+   * @return response with the feed xml or a page not found or server error, depending on the
+   *     situation.
    */
   @GET
   @Path("/{sitename}/{feedname}/{hostname}")
@@ -61,8 +59,7 @@ public interface IPSFeedsRestService extends IPSRestService {
       @Context HttpServletRequest httpRequest);
 
   /**
-   * Acts as a proxy getting a list of feeds from an external URL. Returns the
-   * xml as a string.
+   * Acts as a proxy getting a list of feeds from an external URL. Returns the xml as a string.
    *
    * @param psFeedDTO the url, assumed to not be <code>null</code>.
    */
@@ -72,12 +69,10 @@ public interface IPSFeedsRestService extends IPSRestService {
   public abstract String readExternalFeed(PSFeedDTO psFeedDTO);
 
   /**
-   * Saves the feed descriptors and connection info for meta data service. It
-   * is expected that all public descriptors are sent at once by the CM1
-   * server. A difference will be done between the list sent and currently
-   * stored descriptors. Any stored descriptors not on the list sent will be
-   * deleted. Notifies listeners of changes so that cache regions can be
-   * flushed.
+   * Saves the feed descriptors and connection info for meta data service. It is expected that all
+   * public descriptors are sent at once by the CM1 server. A difference will be done between the
+   * list sent and currently stored descriptors. Any stored descriptors not on the list sent will be
+   * deleted. Notifies listeners of changes so that cache regions can be flushed.
    *
    * @param descriptors
    */

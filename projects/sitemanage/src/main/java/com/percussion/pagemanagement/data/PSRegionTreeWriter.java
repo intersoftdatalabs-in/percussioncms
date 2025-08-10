@@ -20,66 +20,64 @@ package com.percussion.pagemanagement.data;
 import java.io.IOException;
 import java.io.Writer;
 
-/**
- * Writes a region tree to a Writer as template code.
- */
+/** Writes a region tree to a Writer as template code. */
 public class PSRegionTreeWriter extends PSAbstractRegionNodeTreeVisitor {
 
-    protected Writer writer;
+  protected Writer writer;
 
-    public PSRegionTreeWriter(Writer writer) {
-        super();
-        this.writer = writer;
+  public PSRegionTreeWriter(Writer writer) {
+    super();
+    this.writer = writer;
+  }
+
+  public void write(PSRegionNode node) throws PSRegionTreeWriterException {
+    PSRegionTreeUtils.visitNodes(node, this);
+  }
+
+  @Override
+  protected void visitEnd(PSRegionCode regionCode) {
+    // Ignore
+  }
+
+  @Override
+  protected void visitEnd(PSRegion region) {
+    write(region.getEndTag());
+  }
+
+  @Override
+  protected void visitStart(PSRegionCode regionCode) {
+    write(regionCode.getTemplateCode());
+  }
+
+  @Override
+  protected void visitStart(PSRegion region) {
+    write(region.getStartTag());
+  }
+
+  protected void write(String s) {
+    if (s != null) {
+      try {
+        writer.write(s);
+      } catch (IOException e) {
+        throw new PSRegionTreeWriterException(e);
+      }
+    }
+  }
+
+  public static class PSRegionTreeWriterException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    public PSRegionTreeWriterException(String message) {
+      super(message);
     }
 
-    public void write(PSRegionNode node) throws PSRegionTreeWriterException {
-        PSRegionTreeUtils.visitNodes(node, this);
+    public PSRegionTreeWriterException(String message, Throwable cause) {
+      super(message, cause);
     }
 
-    @Override
-    protected void visitEnd(PSRegionCode regionCode) {
-        // Ignore
+    public PSRegionTreeWriterException(Throwable cause) {
+      super(cause);
     }
-
-    @Override
-    protected void visitEnd(PSRegion region) {
-        write(region.getEndTag());
-    }
-
-    @Override
-    protected void visitStart(PSRegionCode regionCode) {
-        write(regionCode.getTemplateCode());
-    }
-
-    @Override
-    protected void visitStart(PSRegion region) {
-        write(region.getStartTag());
-    }
-
-    protected void write(String s) {
-        if (s != null) {
-            try {
-                writer.write(s);
-            } catch (IOException e) {
-                throw new PSRegionTreeWriterException(e);
-            }
-        }
-    }
-
-    public static class PSRegionTreeWriterException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-        public PSRegionTreeWriterException(String message) {
-            super(message);
-        }
-
-        public PSRegionTreeWriterException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSRegionTreeWriterException(Throwable cause) {
-            super(cause);
-        }
-    }
+  }
 }

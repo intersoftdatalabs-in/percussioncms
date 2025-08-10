@@ -19,53 +19,50 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents the current user, including role flags.
- */
+/** Represents the current user, including role flags. */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @XmlRootElement(name = "CurrentUser")
 @JsonRootName("CurrentUser")
 public class PSCurrentUser extends PSUser {
-    private boolean accessibilityUser = false;
-    private boolean adminUser = false;
-    private boolean designerUser = false;
+  private boolean accessibilityUser = false;
+  private boolean adminUser = false;
+  private boolean designerUser = false;
 
-    public PSCurrentUser() {
-        super();
-    }
+  public PSCurrentUser() {
+    super();
+  }
 
-    public PSCurrentUser(PSUser user) {
-        setName(user.getName());
-        setPassword(user.getPassword());
-        setEmail(user.getEmail());
-        setProviderType(user.getProviderType());
-        setRoles(user.getRoles());
-    }
+  public PSCurrentUser(PSUser user) {
+    setName(user.getName());
+    setPassword(user.getPassword());
+    setEmail(user.getEmail());
+    setProviderType(user.getProviderType());
+    setRoles(user.getRoles());
+  }
 
-    public boolean isAccessibilityUser() {
-        return accessibilityUser;
-    }
+  public boolean isAccessibilityUser() {
+    return accessibilityUser;
+  }
 
-    public void setAccessibilityUser(boolean accessibilityUser) {
-        this.accessibilityUser = accessibilityUser;
-    }
+  public void setAccessibilityUser(boolean accessibilityUser) {
+    this.accessibilityUser = accessibilityUser;
+  }
 
-    public boolean isAdminUser() {
-        return adminUser;
-    }
+  public boolean isAdminUser() {
+    return adminUser;
+  }
 
-    public void setAdminUser(boolean adminUser) {
-        this.adminUser = adminUser;
-    }
+  public void setAdminUser(boolean adminUser) {
+    this.adminUser = adminUser;
+  }
 
-    public boolean isDesignerUser() {
-        return designerUser;
-    }
+  public boolean isDesignerUser() {
+    return designerUser;
+  }
 
-    public void setDesignerUser(boolean designerUser) {
-        this.designerUser = designerUser;
-    }
+  public void setDesignerUser(boolean designerUser) {
+    this.designerUser = designerUser;
+  }
 }

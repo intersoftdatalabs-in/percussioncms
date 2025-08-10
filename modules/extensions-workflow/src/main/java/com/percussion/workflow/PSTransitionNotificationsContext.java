@@ -22,22 +22,21 @@ import java.util.ArrayList;
 import javax.naming.NamingException;
 
 /**
- * The PSTransitionNotificationsContext class is a wrapper class providing
- * access to  the records and fields of the backend table
- * 'TRANSITIONNOTIFICATIONS'.
+ * The PSTransitionNotificationsContext class is a wrapper class providing access to the records and
+ * fields of the backend table 'TRANSITIONNOTIFICATIONS'.
+ *
  * @deprecated
  */
 @Deprecated
 public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWorkflowContext
     implements IPSTransitionNotificationsContext {
   /**
-   * Constructor specifying the workflowID and transition ID
-   * for the collection of notifications.
+   * Constructor specifying the workflowID and transition ID for the collection of notifications.
    *
-   * @param workflowID    ID of the workflow for these notifications
-   * @param transitionID  ID of the transition for these notifications
-   * @param connection    data base connection
-   * @throws              SQLException if an SQL error occurs
+   * @param workflowID ID of the workflow for these notifications
+   * @param transitionID ID of the transition for these notifications
+   * @param connection data base connection
+   * @throws SQLException if an SQL error occurs
    * @throws IllegalArgumentException if the connection is <CODE>null</CODE>
    * @throws NamingException if a datasource cannot be resolved
    */
@@ -167,14 +166,10 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
 
   /******** Context Defining Members ********/
 
-  /**
-   * ID of the workflow for this item.
-   */
+  /** ID of the workflow for this item. */
   private int m_nWorkflowID = 0;
 
-  /**
-   * ID of the transition for this item.
-   */
+  /** ID of the transition for this item. */
   private int m_nTransitionID = 0;
 
   /******** Context Data Members ********/
@@ -183,55 +178,51 @@ public class PSTransitionNotificationsContext extends PSAbstractMultipleRecordWo
   private int m_nNotificationID = 0;
 
   /**
-   * value indicating which state role recipients should receive
-   * notification: none, from-state, to-state or both
+   * value indicating which state role recipients should receive notification: none, from-state,
+   * to-state or both
    */
   private int m_nStateRoleRecipientTypes = 0;
 
-  /**  comma-delimited list of additional notification recipients */
+  /** comma-delimited list of additional notification recipients */
   private String m_sAdditionalRecipientList = null;
 
-  /**  comma-delimited list of CC notification recipients */
+  /** comma-delimited list of CC notification recipients */
   private String m_sCCList = null;
 
   /** List of notification IDs */
   private ArrayList m_nNotificationIDList = new ArrayList();
 
   /**
-   * List of values indicating which state role recipients should receive
-   * notification: none, from-state, to-state or both
+   * List of values indicating which state role recipients should receive notification: none,
+   * from-state, to-state or both
    */
   private ArrayList m_nStateRoleRecipientTypesList = new ArrayList();
 
-  /**  List of comma-delimited lists of additional notification recipients */
+  /** List of comma-delimited lists of additional notification recipients */
   private ArrayList m_sAdditionalRecipientListList = new ArrayList();
 
-  /**  List of comma-delimited lists of CC notification recipients */
+  /** List of comma-delimited lists of CC notification recipients */
   private ArrayList m_sCCListList = new ArrayList();
 
   /**
-   * <CODE>true</CODE> if from-state role recipients should receive
-   * at least one notification, else <CODE>false</CODE>
+   * <CODE>true</CODE> if from-state role recipients should receive at least one notification, else
+   * <CODE>false</CODE>
    */
   private boolean m_bRequireFromStateRoles = false;
 
   /**
-   * <CODE>true</CODE> if to-state role recipients should receive
-   * at least one notification, else <CODE>false</CODE>
+   * <CODE>true</CODE> if to-state role recipients should receive at least one notification, else
+   * <CODE>false</CODE>
    */
   private boolean m_bRequireToStateRoles = false;
 
   /******** Database Related Variables ********/
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_TNC =
       PSConnectionMgr.getQualifiedIdentifier("TRANSITIONNOTIFICATIONS");
 
-  /**
-   * SQL query string to get data base records for the notifications.
-   */
+  /** SQL query string to get data base records for the notifications. */
   private static final String QRYSTRING =
       "SELECT "
           + TABLE_TNC

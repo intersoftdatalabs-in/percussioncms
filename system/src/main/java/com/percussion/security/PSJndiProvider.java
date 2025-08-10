@@ -34,36 +34,27 @@ import javax.naming.directory.InitialDirContext;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Common base class for security providers which use JNDI (including
- * PSDirectoryProvider, PSDirectoryConnProvider, etc.).
+ * Common base class for security providers which use JNDI (including PSDirectoryProvider,
+ * PSDirectoryConnProvider, etc.).
  */
 public abstract class PSJndiProvider extends PSSecurityProvider {
   /**
    * Constructs a new JNDI provider using the given provider attributes.
    *
-   * @param spType The security provider type. Must not be
-   * <code>null</code>.
-   *
-   * @param spInstance The identifying name of this security
-   * provider instance (for example, "Zeus2 Domain Provider").
-   * Must not be <code>null</code>.
-   *
-   * @param doCataloging <code>true</code> if this instance is being
-   * created to support cataloging; <code>false</code> otherwise.
-   *
-   * @param providerAttributes Specifies provider attributes, not
-   *    <code>null</code>. A local copy is made of the supplied attributes so
-   *    that the original is not changed in any way.
-   *    Some values are required -- see table below.
-   *    If the provider attributes are empty, it is assumed that this is a
-   *    directory connection security provider and the properties used for
-   *    each directory will be set through
-   *    {@link #setProviderProperties(PSDirectory, PSAuthentication)}.
-   *    Otherwise the properties are initialized with this constructor. The
-   *    property description is the same for all and described in the table
-   *    below.
-   * <p>The attributes which may be specified are:
-   * <table border="1">
+   * @param spType The security provider type. Must not be <code>null</code>.
+   * @param spInstance The identifying name of this security provider instance (for example, "Zeus2
+   *     Domain Provider"). Must not be <code>null</code>.
+   * @param doCataloging <code>true</code> if this instance is being created to support cataloging;
+   *     <code>false</code> otherwise.
+   * @param providerAttributes Specifies provider attributes, not <code>null</code>. A local copy is
+   *     made of the supplied attributes so that the original is not changed in any way. Some values
+   *     are required -- see table below. If the provider attributes are empty, it is assumed that
+   *     this is a directory connection security provider and the properties used for each directory
+   *     will be set through {@link #setProviderProperties(PSDirectory, PSAuthentication)}.
+   *     Otherwise the properties are initialized with this constructor. The property description is
+   *     the same for all and described in the table below.
+   *     <p>The attributes which may be specified are:
+   *     <table border="1">
    * <tr><th>Setting</th><th>Description</th></tr>
    * <tr>
    *   <td>providerClassName</td>
@@ -207,10 +198,9 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   /**
    * Set the security provider properties for the supplied parameters.
    *
-   * @param directory the directory for which to set the provider properties,
-   *    not <code>null</code>.
-   * @param authentication the authentication for which to set the provider
-   *    properties, not <code>null</code>.
+   * @param directory the directory for which to set the provider properties, not <code>null</code>.
+   * @param authentication the authentication for which to set the provider properties, not <code>
+   *     null</code>.
    */
   @SuppressWarnings("unchecked")
   public void setProviderProperties(PSDirectory directory, PSAuthentication authentication) {
@@ -246,15 +236,12 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * Filters the password through the supplied credential filter,
-   * or returns the password itself if no credential filter is
-   * supplied.
+   * Filters the password through the supplied credential filter, or returns the password itself if
+   * no credential filter is supplied.
    *
-   * @param pw The cleartext password. If <code>null</code>, will
-   * be treated as "".
-   *
-   * @return The (possibly filtered) version of the password,
-   * which may be the password itself. May also be <code>null</code>.
+   * @param pw The cleartext password. If <code>null</code>, will be treated as "".
+   * @return The (possibly filtered) version of the password, which may be the password itself. May
+   *     also be <code>null</code>.
    */
   protected Object filterPassword(String pw) {
     if (pw == null) pw = "";
@@ -266,15 +253,12 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * Checks all Rhythmyx roles for members that are groups provided by this
-   * provider instance, and returns group entries for any of those that the
-   * specified user is a member of.
+   * Checks all Rhythmyx roles for members that are groups provided by this provider instance, and
+   * returns group entries for any of those that the specified user is a member of.
    *
-   * @param userName The user name.  May not be <code>null</code> or empty.
-   *
-   * @return An array of group entries, with the security access set to
-   * <code>0</code>.  Never <code>null</code>, may be empty.
-   *
+   * @param userName The user name. May not be <code>null</code> or empty.
+   * @return An array of group entries, with the security access set to <code>0</code>. Never <code>
+   *     null</code>, may be empty.
    * @throws IllegalArgumentException if userName is <code>null</code>.
    * @throws NamingException if any errors occur.
    */
@@ -304,8 +288,7 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   /**
    * Prepares a cataloging connection.
    *
-   * @throws NamingException If we could not authenticate
-   * with the cataloging server.
+   * @throws NamingException If we could not authenticate with the cataloging server.
    */
   private synchronized void prepCataloging() throws NamingException {
     if (m_cataloging && m_dirContext == null) {
@@ -314,28 +297,23 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * Convenience version of {@link #createInitialContext(String)} that calls
-   * <code>createInitialContext({@link #m_providerURL})</code>
+   * Convenience version of {@link #createInitialContext(String)} that calls <code>
+   * createInitialContext({@link #m_providerURL})</code>
    */
   private InitialDirContext createInitialContext() throws NamingException {
     return createInitialContext(m_providerURL);
   }
 
   /**
-   * Creates an initial directory context that can be used for searching
-   * and lookup. In JNDI, all naming and directory operations are performed
-   * relative to a context. There are no absolute roots. Therefore the
-   * JNDI defines an initial context, InitialContext, which provides a
-   * starting point for naming and directory operations. Once you have
-   * an initial context, you can use it to look up other contexts and
-   * objects.
+   * Creates an initial directory context that can be used for searching and lookup. In JNDI, all
+   * naming and directory operations are performed relative to a context. There are no absolute
+   * roots. Therefore the JNDI defines an initial context, InitialContext, which provides a starting
+   * point for naming and directory operations. Once you have an initial context, you can use it to
+   * look up other contexts and objects.
    *
-   * @param url The Url that specifies the server and entry in the server to
-   * use as location of the initial context.  May not be <code>null</code> or
-   * empty.
-   *
+   * @param url The Url that specifies the server and entry in the server to use as location of the
+   *     initial context. May not be <code>null</code> or empty.
    * @return A new InitialDirContext
-   *
    * @throws NamingException If an error occurred.
    * @throws IllegalArgumentException if url is <code>null</code> or empty.
    */
@@ -370,8 +348,8 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
    * Get the encrypted password.
    *
    * @param pw the password to encrypted, not <code>null</code>, may be empty.
-   * @return the encrypted password if a password filter was set, the passed
-   *    in password otherwise, never <code>null</code>, may be empty.
+   * @return the encrypted password if a password filter was set, the passed in password otherwise,
+   *     never <code>null</code>, may be empty.
    */
   protected String getEncryptedPassword(String pw) {
     if (m_credentialFilter != null) return m_credentialFilter.encrypt(pw);
@@ -380,11 +358,11 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * Returns a modifiable copy of the catalog DirContext. It is the
-   * caller's responsibility to close this when no longer needed.
+   * Returns a modifiable copy of the catalog DirContext. It is the caller's responsibility to close
+   * this when no longer needed.
    *
-   * @return   The catalog directory context, or <code>null</code> if this
-   * is not a cataloging instance.
+   * @return The catalog directory context, or <code>null</code> if this is not a cataloging
+   *     instance.
    */
   protected synchronized DirContext getCatalogContext() throws NamingException {
     if (!m_cataloging) // if this was not for catalog use, we're done
@@ -435,13 +413,12 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   protected abstract Iterator<IPSGroupProvider> getGroupProviders();
 
   /**
-   * Gets the connection properties with which this provider was
-   * constructed. The password will not be included in these
-   * properties because it is unencrypted. This method is meant
-   * to be used by the metadata.
+   * Gets the connection properties with which this provider was constructed. The password will not
+   * be included in these properties because it is unencrypted. This method is meant to be used by
+   * the metadata.
    *
-   * @return The connection properties.  Never <code>null</code>, will only
-   * contain properties for which non-<code>null</code> values were supplied.
+   * @return The connection properties. Never <code>null</code>, will only contain properties for
+   *     which non-<code>null</code> values were supplied.
    */
   Properties getConnectionProperties() {
     // NOTE: Do NOT put the password in the properties, because we
@@ -463,8 +440,8 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * For directory based authentication, the attribute (column)
-   * we will search to find the user id being authenticated.
+   * For directory based authentication, the attribute (column) we will search to find the user id
+   * being authenticated.
    *
    * @return the principal attribute; may be <code>null</code>
    */
@@ -481,23 +458,25 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * The URL required to access the JNDI provider. JNDI URLs are
-   * provider specific. Some common URL formats are:
+   * The URL required to access the JNDI provider. JNDI URLs are provider specific. Some common URL
+   * formats are:
+   *
    * <ul>
-   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)</li>
-   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)</li>
-   *   <li>Novell: nds://host (eg, nds://nwsrv1)</li>
+   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)
+   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)
+   *   <li>Novell: nds://host (eg, nds://nwsrv1)
    * </ul>
    *
-   * @return Provide URL, as a String.  May be <code>null</code>
+   * @return Provide URL, as a String. May be <code>null</code>
    */
   String getProviderURL() {
     return m_providerURL;
   }
 
   /**
-   * For cataloging and directory based authentication, the associated
-   * password for the specified authentication principal.
+   * For cataloging and directory based authentication, the associated password for the specified
+   * authentication principal.
+   *
    * @return The credential as a String; never <code>null</code>, may be empty.
    */
   String getAuthenticationCredential() {
@@ -505,14 +484,14 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * The JNDI provider's Java class name. Each JNDI vendor supplies
-   * a set of Java classes for using their provider. This class must
-   * implement the javax.naming.spi.InitialContextFactory interface
+   * The JNDI provider's Java class name. Each JNDI vendor supplies a set of Java classes for using
+   * their provider. This class must implement the javax.naming.spi.InitialContextFactory interface
    * (as required by JNDI for all service providers). For instance:
+   *
    * <ul>
-   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory</li>
-   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory</li>
-   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory</li>
+   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory
+   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory
+   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory
    * </ul>
    *
    * @return Class name, as a String; never <code>null</code> or empty.
@@ -522,28 +501,24 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * For cataloging and directory based authentication, we may need a user id
-   * to make the connection to the JNDI provider. This will be used
-   * for catalog requests (listing users, etc.) as well as
+   * For cataloging and directory based authentication, we may need a user id to make the connection
+   * to the JNDI provider. This will be used for catalog requests (listing users, etc.) as well as
    * authentication.
    *
-   * @return The user id.  This is optional; may be <code>null</code>
+   * @return The user id. This is optional; may be <code>null</code>
    */
   String getAuthenticationPrincipal() {
     return m_authenticationPrincipal;
   }
 
   /**
-   * For cataloging and connection based authentication, the JNDI provider
-   * specific authentication mechanism must be specified. Some common
-   * schemes are:
+   * For cataloging and connection based authentication, the JNDI provider specific authentication
+   * mechanism must be specified. Some common schemes are:
+   *
    * <ul>
-   *   <li>none - no authentication is performed (act as an anonymous
-   *   user)</li>
-   *   <li>simple - authentication is performed with a clear-text
-   *   password</li>
-   *   <li>CRAM-MD5 - this is a common challenge/response mechanism
-   *   used by LDAP v3 servers</li>
+   *   <li>none - no authentication is performed (act as an anonymous user)
+   *   <li>simple - authentication is performed with a clear-text password
+   *   <li>CRAM-MD5 - this is a common challenge/response mechanism used by LDAP v3 servers
    * </ul>
    *
    * @return The authentication scheme; ever <code>null</code>
@@ -553,11 +528,10 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * The base context of the directory that is specified by the {@link
-   * #m_providerURL} as specified by ldap://host:port/context.  For instance,
-   * if the URL specified is "ldap://srv1:389/o=myOrg,c=us", then the value
-   * will be "o=myOrg,c=us".  If the base is not specified, this will contain
-   * an empty string.  If a base cannot be determined from this url,
+   * The base context of the directory that is specified by the {@link #m_providerURL} as specified
+   * by ldap://host:port/context. For instance, if the URL specified is
+   * "ldap://srv1:389/o=myOrg,c=us", then the value will be "o=myOrg,c=us". If the base is not
+   * specified, this will contain an empty string. If a base cannot be determined from this url,
    * this value will be <code>null</code>.
    *
    * @return Base context as a String; may be <code>null</code>
@@ -567,14 +541,14 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   }
 
   /**
-   * The JNDI provider's Java class name. Each JNDI vendor supplies
-   * a set of Java classes for using their provider. This class must
-   * implement the javax.naming.spi.InitialContextFactory interface
+   * The JNDI provider's Java class name. Each JNDI vendor supplies a set of Java classes for using
+   * their provider. This class must implement the javax.naming.spi.InitialContextFactory interface
    * (as required by JNDI for all service providers). For instance:
+   *
    * <ul>
-   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory</li>
-   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory</li>
-   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory</li>
+   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory
+   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory
+   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory
    * </ul>
    *
    * Set only in constructor; must not be <code>null</code>
@@ -582,12 +556,13 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   private String m_providerClassName;
 
   /**
-   * The URL required to access the JNDI provider. JNDI URLs are
-   * provider specific. Some common URL formats are:
+   * The URL required to access the JNDI provider. JNDI URLs are provider specific. Some common URL
+   * formats are:
+   *
    * <ul>
-   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)</li>
-   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)</li>
-   *   <li>Novell: nds://host (eg, nds://nwsrv1)</li>
+   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)
+   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)
+   *   <li>Novell: nds://host (eg, nds://nwsrv1)
    * </ul>
    *
    * Set only at construction time; may be <code>null</code>
@@ -595,27 +570,23 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   private String m_providerURL;
 
   /**
-   * The base context of the directory that is specified by the {@link
-   * #m_providerURL} as specified by ldap://host:port/context.  For instance,
-   * if the URL specified is "ldap://srv1:389/o=myOrg,c=us", then the value
-   * will be "o=myOrg,c=us".  If the base is not specified, this will contain
-   * an empty string.  If a base cannot be determined from this url,
-   * this value will be <code>null</code>.  Value is determined during
-   * construction, never modified after that.
+   * The base context of the directory that is specified by the {@link #m_providerURL} as specified
+   * by ldap://host:port/context. For instance, if the URL specified is
+   * "ldap://srv1:389/o=myOrg,c=us", then the value will be "o=myOrg,c=us". If the base is not
+   * specified, this will contain an empty string. If a base cannot be determined from this url,
+   * this value will be <code>null</code>. Value is determined during construction, never modified
+   * after that.
    */
   private String m_baseContext;
 
   /**
-   * For cataloging and connection based authentication, the JNDI provider
-   * specific authentication mechanism must be specified. Some common
-   * schemes are:
+   * For cataloging and connection based authentication, the JNDI provider specific authentication
+   * mechanism must be specified. Some common schemes are:
+   *
    * <ul>
-   *   <li>none - no authentication is performed (act as an anonymous
-   *   user)</li>
-   *   <li>simple - authentication is performed with a clear-text
-   *   password</li>
-   *   <li>CRAM-MD5 - this is a common challenge/response mechanism
-   *   used by LDAP v3 servers</li>
+   *   <li>none - no authentication is performed (act as an anonymous user)
+   *   <li>simple - authentication is performed with a clear-text password
+   *   <li>CRAM-MD5 - this is a common challenge/response mechanism used by LDAP v3 servers
    * </ul>
    *
    * Set only in constructor; may be <code>null</code>
@@ -623,18 +594,17 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   private String m_authenticationScheme;
 
   /**
-   * For cataloging and directory based authentication, we may need a user id
-   * to make the connection to the JNDI provider. This will be used
-   * for catalog requests (listing users, etc.) as well as
+   * For cataloging and directory based authentication, we may need a user id to make the connection
+   * to the JNDI provider. This will be used for catalog requests (listing users, etc.) as well as
    * authentication.
    *
-   * Set only in constructor; may be <code>null</code>.
+   * <p>Set only in constructor; may be <code>null</code>.
    */
   private String m_authenticationPrincipal;
 
   /**
-   * For cataloging and directory based authentication, the associated
-   * password for the specified authentication principal.
+   * For cataloging and directory based authentication, the associated password for the specified
+   * authentication principal.
    *
    * <p>Set only at construction time; never <code>null
    * </code>, may be empty.
@@ -642,150 +612,134 @@ public abstract class PSJndiProvider extends PSSecurityProvider {
   private String m_authenticationCredential;
 
   /**
-   * For directory based authentication, the attribute (column)
-   * we will search to find the user id being authenticated.
+   * For directory based authentication, the attribute (column) we will search to find the user id
+   * being authenticated.
+   *
    * <p>Set only at construction; may be <code>null</code>
    */
   private String m_principalAttribute;
 
   /**
+   * For directory based authentication, the attribute (column) we will search to find the password
+   * being authenticated.
    *
-   * For directory based authentication, the attribute (column)
-   * we will search to find the password being authenticated.
    * <p>Set only at construction; may be <code>null</code>
    */
   private String m_credentialAttribute;
 
   /**
-   * If this instance can be used for cataloging, or if we're using
-   * a directory-based authentication model, this is the DC to use.
+   * If this instance can be used for cataloging, or if we're using a directory-based authentication
+   * model, this is the DC to use.
    *
-   * <p> This field may be set at any time after construction. It may
-   * be <code>null</code> if the PSJndiProvider isn't meant for cataloging,
-   * or if a previous connection to the server was terminated.
+   * <p>This field may be set at any time after construction. It may be <code>null</code> if the
+   * PSJndiProvider isn't meant for cataloging, or if a previous connection to the server was
+   * terminated.
    *
    * @see #m_cataloging
    */
   private DirContext m_dirContext = null;
 
   /**
-   * The map of user attributes with alias as key and attribute name as value.
-   * This defines the desired attributes to store with the user context after
-   * the user has been authenticated. The user entry in the directory may
-   * contain many attributes, such as e-mail address, phone number, etc.
-   * Specifying attributes to store with the user context allows applications
-   * to access the user's attributes in conditionals, etc. Uses the attribute
-   * names for cataloging values from the security provider and attribute
-   * aliases for storing the values in authenticated user entry. Updated in the
-   * constructor and never modified after that.
+   * The map of user attributes with alias as key and attribute name as value. This defines the
+   * desired attributes to store with the user context after the user has been authenticated. The
+   * user entry in the directory may contain many attributes, such as e-mail address, phone number,
+   * etc. Specifying attributes to store with the user context allows applications to access the
+   * user's attributes in conditionals, etc. Uses the attribute names for cataloging values from the
+   * security provider and attribute aliases for storing the values in authenticated user entry.
+   * Updated in the constructor and never modified after that.
    */
   private Map m_userAttributes = new HashMap();
 
   /**
-   * For directory based authentication, the password may be
-   * stored using some type of hash algorithm. To compare the clear
-   * text password, it must first be run through the same hash
-   * algorithm. A Java class capable of performing this against
-   * the clear text password can be specified to handle this.
+   * For directory based authentication, the password may be stored using some type of hash
+   * algorithm. To compare the clear text password, it must first be run through the same hash
+   * algorithm. A Java class capable of performing this against the clear text password can be
+   * specified to handle this.
    */
   private IPSPasswordFilter m_credentialFilter = null;
 
-  /**
-   * Indicates whether this provider was created for the purpose of cataloging.
-   */
+  /** Indicates whether this provider was created for the purpose of cataloging. */
   private boolean m_cataloging = false;
 
   /**
-   * The JNDI provider's Java class name. Each JNDI vendor supplies
-   * a set of Java classes for using their provider. This class must
-   * implement the javax.naming.spi.InitialContextFactory interface
+   * The JNDI provider's Java class name. Each JNDI vendor supplies a set of Java classes for using
+   * their provider. This class must implement the javax.naming.spi.InitialContextFactory interface
    * (as required by JNDI for all service providers). For instance:
+   *
    * <ul>
-   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory</li>
-   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory</li>
-   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory</li>
+   *   <li>LDAP: com.sun.jndi.ldap.LdapCtxFactory
+   *   <li>NIS: com.sun.jndi.nis.NISCtxFactory
+   *   <li>Novell: com.novell.service.nw.NetWareInitialContextFactory
    * </ul>
    */
   public static final String PROPS_PROVIDER_CLASS_NAME = "providerClassName";
 
   /**
-   * The URL required to access the JNDI provider. JNDI URLs are
-   * provider specific. Some common URL formats are:
+   * The URL required to access the JNDI provider. JNDI URLs are provider specific. Some common URL
+   * formats are:
+   *
    * <ul>
-   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)</li>
-   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)</li>
-   *   <li>Novell: nds://host (eg, nds://nwsrv1)</li>
+   *   <li>LDAP: ldap://host:port (eg, ldap://srv1:389)
+   *   <li>NIS: nis://host/domain (eg, nis://srv1/mydomain.com)
+   *   <li>Novell: nds://host (eg, nds://nwsrv1)
    * </ul>
    */
   public static final String PROPS_PROVIDER_URL = "providerURL";
 
   /**
-   * For connection based authentication, the JNDI provider
-   * specific authentication mechanism must be specified. Some common
-   * schemes are:
+   * For connection based authentication, the JNDI provider specific authentication mechanism must
+   * be specified. Some common schemes are:
+   *
    * <ul>
-   *   <li>none - no authentication is performed (act as an anonymous
-   *   user)</li>
-   *   <li>simple - authentication is performed with a clear-text
-   *   password</li>
-   *   <li>CRAM-MD5 - this is a common challenge/response mechanism
-   *   used by LDAP v3 servers</li>
+   *   <li>none - no authentication is performed (act as an anonymous user)
+   *   <li>simple - authentication is performed with a clear-text password
+   *   <li>CRAM-MD5 - this is a common challenge/response mechanism used by LDAP v3 servers
    * </ul>
    */
   public static final String PROPS_AUTH_SCHEME = "authenticationScheme";
 
   /**
-   * The default authentication scheme used if none is specified - "simple".
-   * See @link {#PROPS_AUTH_SCHEME}
+   * The default authentication scheme used if none is specified - "simple". See @link
+   * {#PROPS_AUTH_SCHEME}
    */
   public static final String DEFAULT_AUTH_SCHEME = "simple";
 
   /**
-   * Authentication scheme that does not perform any authentication.  See
-   * {@link #PROPS_AUTH_SCHEME}.
+   * Authentication scheme that does not perform any authentication. See {@link #PROPS_AUTH_SCHEME}.
    */
   public static final String AUTH_SCHEME_NONE = "none";
 
   /**
-   * For directory based authentication, we may need a user id
-   * to make the connection to the JNDI provider. This will be used
-   * for catalog requests (listing users, etc.) as well as
+   * For directory based authentication, we may need a user id to make the connection to the JNDI
+   * provider. This will be used for catalog requests (listing users, etc.) as well as
    * authentication.
    */
   public static final String PROPS_AUTH_PRINCIPAL = "authenticationPrincipal";
 
   /**
-   * For directory based authentication, the associated password
-   * for the specified authentication principal.
+   * For directory based authentication, the associated password for the specified authentication
+   * principal.
    */
   public static final String PROPS_AUTH_CRED = "authenticationCredential";
 
   /**
-   * For directory based authentication, the attribute (column)
-   * we will search to find the user id being authenticated.
+   * For directory based authentication, the attribute (column) we will search to find the user id
+   * being authenticated.
    */
   public static final String PROPS_ATTR_PRINCIPAL = "principalAttribute";
 
   /**
-   *
-   * For directory based authentication, the attribute (column)
-   * we will search to find the password being authenticated.
+   * For directory based authentication, the attribute (column) we will search to find the password
+   * being authenticated.
    */
   public static final String PROPS_ATTR_CRED = "credentialAttribute";
 
-  /**
-   * The property name of the credential filter class.
-   */
+  /** The property name of the credential filter class. */
   public static final String PROPS_CRED_FILTER = "credentialFilterClassName";
 
-  /**
-   * Name of the attribute used to identify the object classes of an entry.
-   */
+  /** Name of the attribute used to identify the object classes of an entry. */
   public static final String OBJECT_CLASS_ATTR = "objectclass";
 
-  /**
-   * Name of the attribute used to identify an object classes value that
-   * denotes a person.
-   */
+  /** Name of the attribute used to identify an object classes value that denotes a person. */
   public static final String OBJECT_CLASS_PERSON_VAL = "person";
 }

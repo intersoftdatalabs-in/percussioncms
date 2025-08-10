@@ -47,21 +47,18 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Validator class used by the {@link PSValidationJob} for all dependency
- * validation.
- */
+/** Validator class used by the {@link PSValidationJob} for all dependency validation. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSDependencyValidator {
   /**
    * Construct a dependency validator will all required parameters.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param depElem The top level parent element, may not be <code>null</code>.
    * @param ctx The validation context to use, may not be <code>null</code>.
-   * @param descriptorName The name of the import descriptor of the package
-   * being validated.  May not be <code>null</code>.
+   * @param descriptorName The name of the import descriptor of the package being validated. May not
+   *     be <code>null</code>.
    */
   PSDependencyValidator(
       PSSecurityToken tok,
@@ -84,9 +81,11 @@ public class PSDependencyValidator {
   }
 
   /**
-   * Validates all dependencies in the package against the target server and
-   * returns the results.  The rules are as follows:
+   * Validates all dependencies in the package against the target server and returns the results.
+   * The rules are as follows:
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Result</TH><TH>Description</TH></TR>
    * <TR><TD><b>error</b></TD>
@@ -113,11 +112,8 @@ public class PSDependencyValidator {
    *           exists on the (target) server.</li>
    *    </TD></TR>
    * </TABLE>
-   * </p>
    *
-   * @return The results, never <code>null</code>, but may be empty if there
-   * is no error or warning.
-   *
+   * @return The results, never <code>null</code>, but may be empty if there is no error or warning.
    * @throws PSDeployException if there are any errors.
    */
   public PSValidationResults validate() throws PSDeployException, PSNotFoundException {
@@ -140,13 +136,12 @@ public class PSDependencyValidator {
   }
 
   /**
-   * Gathers results from a previous validation of the given dependency.
-   * Results will be added for dependencies which are either not auto
-   * dependencies or not included in the element.
+   * Gathers results from a previous validation of the given dependency. Results will be added for
+   * dependencies which are either not auto dependencies or not included in the element.
    *
    * @param dep The dependency object, assumed not <code>null</code>.
-   * @param reallyIncluded <code>true</code> if the dependency is included in
-   * the element, <code>false</code> otherwise.
+   * @param reallyIncluded <code>true</code> if the dependency is included in the element, <code>
+   *     false</code> otherwise.
    */
   private void addPreviousResults(PSDependency dep, boolean reallyIncluded) {
     // get previous results if any
@@ -161,7 +156,6 @@ public class PSDependencyValidator {
    * Recursive worker method for <code>validate</code>.
    *
    * @param dep The dependency to validate, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void validateDependency(PSDependency dep) throws PSDeployException, PSNotFoundException {
@@ -235,11 +229,10 @@ public class PSDependencyValidator {
   }
 
   /**
-   * Validates the child dependencies of the given dependency.  Calls
-   * {@link #validateDependency(PSDependency)} for each child dependency found.
+   * Validates the child dependencies of the given dependency. Calls {@link
+   * #validateDependency(PSDependency)} for each child dependency found.
    *
    * @param dep The dependency object, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void validateChildDependencies(PSDependency dep)
@@ -253,12 +246,11 @@ public class PSDependencyValidator {
   }
 
   /**
-   * Adds error result that the given dependency is missing, not included in
-   * the package and also not exists in the system.
-   * <p>
-   * Note, this is unexpected and can only happen in a mis-configured system
-   * or caused by a bug.
-   * </p>
+   * Adds error result that the given dependency is missing, not included in the package and also
+   * not exists in the system.
+   *
+   * <p>Note, this is unexpected and can only happen in a mis-configured system or caused by a bug.
+   *
    * @param dep The dependency object, assumed not <code>null</code>.
    */
   private void addMissingDependencyResult(PSDependency dep) {
@@ -274,27 +266,22 @@ public class PSDependencyValidator {
   /**
    * Adds the validation result with the following rules:
    *
-   * <p>
-   * If the dependency is included and already exists on the target
+   * <p>If the dependency is included and already exists on the target
+   *
    * <ul>
-   * <li><b>error</b> if the dependency was installed with a different
-   * package (name)</li>
-   * <li><b>warning</b> if the dependency was not installed with any
-   * package (name)</li>
-   * <li><b>warning</b> if the dependency was installed with the same package
-   * (name) and has been modified outside of allowed configuration.</li>
-   * <li><b>no error/warning</b> if the dependency was installed with the same
-   * package (name), but has not been modified outside of allowed
-   * configuration or the dependency type is not saved as pkg element.
-   * No validation result is added.</li>
+   *   <li><b>error</b> if the dependency was installed with a different package (name)
+   *   <li><b>warning</b> if the dependency was not installed with any package (name)
+   *   <li><b>warning</b> if the dependency was installed with the same package (name) and has been
+   *       modified outside of allowed configuration.
+   *   <li><b>no error/warning</b> if the dependency was installed with the same package (name), but
+   *       has not been modified outside of allowed configuration or the dependency type is not
+   *       saved as pkg element. No validation result is added.
    * </ul>
-   * </p>
    *
    * @param dep The dependency object, assumed not <code>null</code>.
    * @param tgtDep The target dependency object, assumed not <code>null</code>.
    * @param depMgr The dependency manager, assumed not <code>null</code>.
-   * @param bundle The resource bundle used for locating messages, assumed not
-   * <code>null</code>.
+   * @param bundle The resource bundle used for locating messages, assumed not <code>null</code>.
    */
   private void checkExistingDependency(
       PSDependency dep, PSDependency tgtDep, PSDependencyManager depMgr, ResourceBundle bundle)
@@ -368,56 +355,42 @@ public class PSDependencyValidator {
   }
 
   /**
-   * The security token to use if objectstore access is required.  Initialized
-   * in ctor.  Never <code>null</code> after that.
+   * The security token to use if objectstore access is required. Initialized in ctor. Never <code>
+   * null</code> after that.
    */
   private PSSecurityToken m_tok;
 
-  /**
-   * The results to which each warning or error is added.  Never
-   * <code>null</code>.
-   */
+  /** The results to which each warning or error is added. Never <code>null</code>. */
   private PSValidationResults m_results = new PSValidationResults();
 
-  /**
-   * The top level parent element.  Initialized in ctor.  Never
-   * <code>null</code> after that.
-   */
+  /** The top level parent element. Initialized in ctor. Never <code>null</code> after that. */
   private PSDeployableElement m_depElem;
 
-  /**
-   * The validation context to use.  Initialized in ctor.  Never
-   * <code>null</code> after that.
-   */
+  /** The validation context to use. Initialized in ctor. Never <code>null</code> after that. */
   private PSValidationCtx m_ctx;
 
   /**
-   * If a deployable element is encountered, its local dependencies are added
-   * to this list to be validated at the end.  Never <code>null</code>.
+   * If a deployable element is encountered, its local dependencies are added to this list to be
+   * validated at the end. Never <code>null</code>.
    */
   private List<PSDependency> m_localDeps = new ArrayList<>();
 
   /**
-   * Set of dependency keys that have been validated for the current package.
-   * Never <code>null</code>, each dependency validated by this method is
-   * added to this list. Used to avoid re-validating dependencies that appear
-   * multiple times in the same package.
+   * Set of dependency keys that have been validated for the current package. Never <code>null
+   * </code>, each dependency validated by this method is added to this list. Used to avoid
+   * re-validating dependencies that appear multiple times in the same package.
    */
   private Set<String> m_validatedDeps = new HashSet<>();
 
   /**
-   * The name of the import descriptor corresponding to the package being
-   * validated.  Initialized in ctor.  Never <code>null</code> after that.
+   * The name of the import descriptor corresponding to the package being validated. Initialized in
+   * ctor. Never <code>null</code> after that.
    */
   private String m_descriptorName;
 
-  /**
-   * Static reference to the package info service, never <code>null</code>.
-   */
+  /** Static reference to the package info service, never <code>null</code>. */
   private static IPSPkgInfoService ms_pkgInfoSvc = PSPkgInfoServiceLocator.getPkgInfoService();
 
-  /**
-   * Logger for the site manager
-   */
+  /** Logger for the site manager */
   private static final Logger ms_log = LogManager.getLogger("PSDependencyValidator");
 }

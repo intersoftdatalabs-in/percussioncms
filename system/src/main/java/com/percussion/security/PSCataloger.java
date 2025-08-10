@@ -47,10 +47,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * An abstract base class which holds all common functionality to all
- * catalogers.
- */
+/** An abstract base class which holds all common functionality to all catalogers. */
 @SuppressWarnings(value = {"unchecked"})
 public abstract class PSCataloger {
   /**
@@ -84,9 +81,8 @@ public abstract class PSCataloger {
   }
 
   /**
-   * Default constructor used for non directory catalogers such as
-   * <code>PSBackEdnDirectoryCataloger</code>.
-   *
+   * Default constructor used for non directory catalogers such as <code>PSBackEdnDirectoryCataloger
+   * </code>.
    */
   protected PSCataloger() {}
 
@@ -120,9 +116,8 @@ public abstract class PSCataloger {
   /**
    * Get the directory set associated with this cataloger.
    *
-   * @return the directory set used with this cataloger, may be
-   *         <code>null</code> if this cataloger is not a directory
-   *         cataloger.
+   * @return the directory set used with this cataloger, may be <code>null</code> if this cataloger
+   *     is not a directory cataloger.
    */
   protected PSDirectorySet getDirectorySet() {
     return m_directorySet;
@@ -131,9 +126,9 @@ public abstract class PSCataloger {
   /**
    * Get all directory definitions.
    *
-   * @return a map of <code>PSDirectoryDefinition</code> objects. The key is
-   *    the directory name as <code>String</code>. Initialized in constructor,
-   *    never <code>null</code> or changed after that.
+   * @return a map of <code>PSDirectoryDefinition</code> objects. The key is the directory name as
+   *     <code>String</code>. Initialized in constructor, never <code>null</code> or changed after
+   *     that.
    */
   protected Map getDirectories() {
     return m_directories;
@@ -142,11 +137,9 @@ public abstract class PSCataloger {
   /**
    * Initialize the directory set for the specified name.
    *
-   * @param name the name of the directory set to be initialized,
-   *    not <code>null</code> or empty.
+   * @param name the name of the directory set to be initialized, not <code>null</code> or empty.
    * @param config the server configuration, not <code>null</code>.
-   * @throws PSSecurityException if any referenced directory element cannot
-   *    be found.
+   * @throws PSSecurityException if any referenced directory element cannot be found.
    */
   protected void initDirectorySet(String name, PSServerConfiguration config)
       throws PSSecurityException {
@@ -223,15 +216,14 @@ public abstract class PSCataloger {
   }
 
   /**
-   * Ensures the supplied directory returns the specified attribute, cloning
-   * the directory and adding the attribute if necessary.
+   * Ensures the supplied directory returns the specified attribute, cloning the directory and
+   * adding the attribute if necessary.
    *
    * @param directory The directory, assumed not <code>null</code>.
-   * @param attrName the attribute name, if <code>null</code> or empty this
-   * method simply returns the supplied directory.
-   *
-   * @return The cloned directory if the attribute needed to be added,
-   * otherwise the supplied directory if the attribute as already specified.
+   * @param attrName the attribute name, if <code>null</code> or empty this method simply returns
+   *     the supplied directory.
+   * @return The cloned directory if the attribute needed to be added, otherwise the supplied
+   *     directory if the attribute as already specified.
    */
   private PSDirectory ensureReturnAttribute(PSDirectory directory, String attrName) {
     PSDirectory result = directory;
@@ -247,7 +239,9 @@ public abstract class PSCataloger {
     return result;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getEmailAddressAttributeName() {
     String attributeName = null;
 
@@ -258,7 +252,9 @@ public abstract class PSCataloger {
     return attributeName;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getObjectAttributeName() {
     return getDirectorySet().getRequiredAttributeName(PSDirectorySet.OBJECT_ATTRIBUTE_KEY);
   }
@@ -266,13 +262,13 @@ public abstract class PSCataloger {
   /**
    * Creates a new <code>PSSubject</code> for the supplied search result.
    *
-   * @param subject the search result for which to create a new subject,
-   *    not <code>null</code>, must be of valid object type.
-   * @param requestedReturns The requested attributes to include with the
-   * subject, never <code>null</code>, may be empty.
+   * @param subject the search result for which to create a new subject, not <code>null</code>, must
+   *     be of valid object type.
+   * @param requestedReturns The requested attributes to include with the subject, never <code>null
+   *     </code>, may be empty.
    * @return the new created subject, never <code>null</code>.
-   * @throws NamingException for any naming errors and if the supplied
-   *    searcch result is not of the required object type.
+   * @throws NamingException for any naming errors and if the supplied searcch result is not of the
+   *     required object type.
    */
   protected PSSubject createSubject(SearchResult subject, Set<String> requestedReturns)
       throws NamingException {
@@ -326,17 +322,17 @@ public abstract class PSCataloger {
   }
 
   /**
-   * Filters the supplied set of <code>PSSubject</code> objects by subject
-   * type and weeds out subjects that have no attributes if so requested.
+   * Filters the supplied set of <code>PSSubject</code> objects by subject type and weeds out
+   * subjects that have no attributes if so requested.
    *
-   * @param subjects a set of <code>PSSubject</code> objects that needs to
-   *    be filtered by community, not <code>null</code>, may be empty.
-   * @param type one of the <code>PSSubject.SUBJECT_TYPE_xxx</code>
-   *    flags to filter the results by type, provide 0 to return all types.
-   * @param includeEmpty <code>true</code> to include subjects with an empty
-   *    attribute list in the result, <code>false</code> otherwise.
-   * @return a by subject type filtered set of <code>PSSubject</code> objects,
-   *    never <code>null</code>, may be empty.
+   * @param subjects a set of <code>PSSubject</code> objects that needs to be filtered by community,
+   *     not <code>null</code>, may be empty.
+   * @param type one of the <code>PSSubject.SUBJECT_TYPE_xxx</code> flags to filter the results by
+   *     type, provide 0 to return all types.
+   * @param includeEmpty <code>true</code> to include subjects with an empty attribute list in the
+   *     result, <code>false</code> otherwise.
+   * @return a by subject type filtered set of <code>PSSubject</code> objects, never <code>null
+   *     </code>, may be empty.
    */
   protected Set filterByType(Set subjects, int type, boolean includeEmpty) {
     if (type != 0 || !includeEmpty) {
@@ -355,9 +351,7 @@ public abstract class PSCataloger {
    * Add's a group provider to this directory provider.
    *
    * @param groupProvider the provider, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if groupProvider is <code>null</code> or
-   * of the wrong type.
+   * @throws IllegalArgumentException if groupProvider is <code>null</code> or of the wrong type.
    */
   private void addGroupProvider(IPSGroupProvider groupProvider) {
     if (groupProvider == null) throw new IllegalArgumentException("groupProvider may not be null");
@@ -368,23 +362,21 @@ public abstract class PSCataloger {
   /**
    * Get this provider's list of IPSGroupProvider objects.
    *
-   * @return an iterator over zero or more IPSGroupProvider objects.  Never
-   * <code>null</code>.
+   * @return an iterator over zero or more IPSGroupProvider objects. Never <code>null</code>.
    */
   public Iterator<IPSGroupProvider> getGroupProviders() {
     return m_groupProviders.iterator();
   }
 
   /**
-   * Retrieves a Map of <code>IPSGroupProviderInstance</code> objects from the
-   * supplied config matching the specified type.
+   * Retrieves a Map of <code>IPSGroupProviderInstance</code> objects from the supplied config
+   * matching the specified type.
    *
-   * @param config The server config that supplies the group provider instance
-   * objects, assumed not <code>null</code>.
-   *
-   * @return A Map of zero or more <code>IPSGroupProviderInstance</code>
-   * objects, never <code>null</code>.  The key is the name of the provider as
-   * a String, and the value a non-<code>null IPSGroupProviderInstance</code>.
+   * @param config The server config that supplies the group provider instance objects, assumed not
+   *     <code>null</code>.
+   * @return A Map of zero or more <code>IPSGroupProviderInstance</code> objects, never <code>null
+   *     </code>. The key is the name of the provider as a String, and the value a non-<code>
+   *     null IPSGroupProviderInstance</code>.
    */
   private static Map<String, IPSGroupProviderInstance> getGroupProviderInstances(
       PSServerConfiguration config) {
@@ -401,16 +393,14 @@ public abstract class PSCataloger {
   /**
    * Get all subjects for the specified parameters.
    *
-   * @param directory the directory in which to search for the subjects,
-   *    assumed not <code>null</code>.
-   * @param filter a map with name/values pairs by which the search is
-   *    filtered, assumed not <code>null</code>.  Value may be a
-   *    <code>String</code> or <code>List</code> of strings.
-   * @param attributeNames a list with attribute names to be returned with
-   *    each subject in the result, may be <code>null</code> to return all
-   *    attributes.
-   * @return a collection with <code>PSSubject</code> objects, each subject
-   *    with the requested attributes. Never <code>null</code>, may be empty.
+   * @param directory the directory in which to search for the subjects, assumed not <code>null
+   *     </code>.
+   * @param filter a map with name/values pairs by which the search is filtered, assumed not <code>
+   *     null</code>. Value may be a <code>String</code> or <code>List</code> of strings.
+   * @param attributeNames a list with attribute names to be returned with each subject in the
+   *     result, may be <code>null</code> to return all attributes.
+   * @return a collection with <code>PSSubject</code> objects, each subject with the requested
+   *     attributes. Never <code>null</code>, may be empty.
    */
   protected Collection getSubjects(
       PSDirectoryDefinition directory, Map filter, Collection attributeNames) {
@@ -468,15 +458,14 @@ public abstract class PSCataloger {
   protected PSDirectorySet m_directorySet = null;
 
   /**
-   * A map of <code>PSDirectoryDefinition</code> objects. The key is the
-   * directory name as <code>String</code>. Initialized in constructor, never
-   * <code>null</code> or changed after that.
+   * A map of <code>PSDirectoryDefinition</code> objects. The key is the directory name as <code>
+   * String</code>. Initialized in constructor, never <code>null</code> or changed after that.
    */
   protected Map m_directories = new HashMap();
 
   /**
-   * List of IPSGroupProvider objects used by this security provider,
-   * never <code>null</code> after construction, may be empty.
+   * List of IPSGroupProvider objects used by this security provider, never <code>null</code> after
+   * construction, may be empty.
    */
   private List<IPSGroupProvider> m_groupProviders = new ArrayList<>();
 }

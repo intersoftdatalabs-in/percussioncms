@@ -41,22 +41,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class publishes a manual edition for preview purposes. This is also
- * known as just in time publishing.
+ * This class publishes a manual edition for preview purposes. This is also known as just in time
+ * publishing.
  */
 public class PSPublishEditionForPreview extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
 
   private static final Logger log = LogManager.getLogger(PSPublishEditionForPreview.class);
 
-  /**
-   * Inner class to implement a work thread to check on publishing status
-   */
+  /** Inner class to implement a work thread to check on publishing status */
   class CheckPub implements Runnable {
-    /**
-     * Path to the rhythmyx application, must never be <code>null</code>
-     * after creation.
-     */
+    /** Path to the rhythmyx application, must never be <code>null</code> after creation. */
     URL mi_requestPath = null;
 
     /**
@@ -72,9 +67,8 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
      * Convert data read from passed in reader into a string
      *
      * @param reader input reader, may be <code>null</code>
-     * @return a {@link String} holding the information from the reader,
-     *         returns <code>null</code> if the user passed a
-     *         <code>null</code> reader.
+     * @return a {@link String} holding the information from the reader, returns <code>null</code>
+     *     if the user passed a <code>null</code> reader.
      */
     public String toString(BufferedReader reader) {
       if (reader != null) {
@@ -318,10 +312,9 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
    *
    * @param host The hostname, must never be <code>null</code> or empty
    * @param port The port, must never be <code>null</code> or empty
-   * @param appName The application oname, must never be <code>null</code> or
-   *           empty
-   * @return a string buffer, never <code>null</code>, which allows further
-   *         manipulation by the caller.
+   * @param appName The application oname, must never be <code>null</code> or empty
+   * @return a string buffer, never <code>null</code>, which allows further manipulation by the
+   *     caller.
    */
   protected StringBuilder getAppURL(String host, String port, String appName) {
     if (host == null || host.trim().length() == 0) {
@@ -348,18 +341,14 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
   // --- START SECTION FOR PERSISTING AND READING PREVIEW INFO
   // -----------------------------------------------------
   /**
-   * Persist the information that uniquely identifies the page that is
-   * currently being previewed Note that the contentlists that perform preview
-   * will, at least initially, be dependent on the specific implemention of
-   * these methods.
-   * @param editionId the edition id, assumed not <code>null</code> and not
-   * empty
-   * @param variantId the variant id, assumed not <code>null</code> and not
-   * empty
-   * @param contentId the content id, assumed not <code>null</code> and not
-   * empty
-   * @param revisionId the revision id, assumed not <code>null</code> and not
-   * empty
+   * Persist the information that uniquely identifies the page that is currently being previewed
+   * Note that the contentlists that perform preview will, at least initially, be dependent on the
+   * specific implemention of these methods.
+   *
+   * @param editionId the edition id, assumed not <code>null</code> and not empty
+   * @param variantId the variant id, assumed not <code>null</code> and not empty
+   * @param contentId the content id, assumed not <code>null</code> and not empty
+   * @param revisionId the revision id, assumed not <code>null</code> and not empty
    * @param request the request context, assumed not <code>null</code>
    * @throws PSExtensionProcessingException on internal errors
    * @throws PSConversionException if the row already exists
@@ -402,18 +391,14 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
   }
 
   /**
-   * Remove the information that uniquely identifies the page that is currently
-   * being previewed Note that the contentlists that perform preview will, at
-   * least initially, be dependent on the specific implemention of these
-   * methods.
-   * @param editionId the edition id, assumed not <code>null</code> and not
-   * empty
-   * @param variantId the variant id, assumed not <code>null</code> and not
-   * empty
-   * @param contentId the content id, assumed not <code>null</code> and not
-   * empty
-   * @param revisionId the revision id, assumed not <code>null</code> and not
-   * empty
+   * Remove the information that uniquely identifies the page that is currently being previewed Note
+   * that the contentlists that perform preview will, at least initially, be dependent on the
+   * specific implemention of these methods.
+   *
+   * @param editionId the edition id, assumed not <code>null</code> and not empty
+   * @param variantId the variant id, assumed not <code>null</code> and not empty
+   * @param contentId the content id, assumed not <code>null</code> and not empty
+   * @param revisionId the revision id, assumed not <code>null</code> and not empty
    * @param request the request context, assumed not <code>null</code>
    * @throws PSExtensionProcessingException on internal errors
    */
@@ -448,14 +433,11 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
 
   /**
    * Check if row exists.
-   * @param editionId the edition id, assumed not <code>null</code> and not
-   * empty
-   * @param variantId the variant id, assumed not <code>null</code> and not
-   * empty
-   * @param contentId the content id, assumed not <code>null</code> and not
-   * empty
-   * @param revisionId the revision id, assumed not <code>null</code> and not
-   * empty
+   *
+   * @param editionId the edition id, assumed not <code>null</code> and not empty
+   * @param variantId the variant id, assumed not <code>null</code> and not empty
+   * @param contentId the content id, assumed not <code>null</code> and not empty
+   * @param revisionId the revision id, assumed not <code>null</code> and not empty
    * @param request the request context, assumed not <code>null</code>
    * @throws PSExtensionProcessingException on internal errors
    * @throws PSConversionException if the query application is not found
@@ -498,29 +480,25 @@ public class PSPublishEditionForPreview extends PSDefaultExtension
   } // end rowExists
 
   /**
-   * The params element used in the XML document returned from the QUERYEDITION
-   * resource, never <code>null</code>.
+   * The params element used in the XML document returned from the QUERYEDITION resource, never
+   * <code>null</code>.
    */
   private static final String PARAMS_ELEM = "Params";
 
-  /**
-   * The edition param used in the map of params sent via the internal request
-   */
+  /** The edition param used in the map of params sent via the internal request */
   private static final String EDITION_PARAM = "sys_editionid";
 
   /**
-   * Holds the query resource string that will query the list of content ids
-   * for the manual edition. Initialized in
-   * {@link #preProcessRequest(Object[], IPSRequestContext)}and never
-   * <code>null</code> afterward.
+   * Holds the query resource string that will query the list of content ids for the manual edition.
+   * Initialized in {@link #preProcessRequest(Object[], IPSRequestContext)}and never <code>null
+   * </code> afterward.
    */
   private String m_queryResource;
 
   /**
-   * Holds the update resource string that will modify the list of content ids
-   * for the manual edition. Initialized in
-   * {@link #preProcessRequest(Object[], IPSRequestContext)}and never
-   * <code>null</code> afterward.
+   * Holds the update resource string that will modify the list of content ids for the manual
+   * edition. Initialized in {@link #preProcessRequest(Object[], IPSRequestContext)}and never <code>
+   * null</code> afterward.
    */
   private String m_updateResource;
 }

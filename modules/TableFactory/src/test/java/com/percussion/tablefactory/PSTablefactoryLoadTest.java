@@ -36,8 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Test adding data to db. Assumes a database with specific credentials,
- * change credentials or add an appropriate db to run the test.
+ * Test adding data to db. Assumes a database with specific credentials, change credentials or add
+ * an appropriate db to run the test.
  *
  * @author dougrand
  */

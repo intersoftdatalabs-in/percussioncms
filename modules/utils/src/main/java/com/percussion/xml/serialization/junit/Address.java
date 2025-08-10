@@ -19,10 +19,9 @@ package com.percussion.xml.serialization.junit;
 import java.util.Objects;
 
 /**
- * A sample address class used in unit test of the
- * {@link com.percussion.xml.serialization.PSObjectSerializer} class. As can be
- * seen it is a simple java bean with a default ctor (required) and setXxx() and
- * getXxx() methods.
+ * A sample address class used in unit test of the {@link
+ * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
+ * bean with a default ctor (required) and setXxx() and getXxx() methods.
  */
 public class Address {
   private String street;
@@ -35,9 +34,7 @@ public class Address {
 
   private String zip;
 
-  /**
-   * Default ctor. Required by serializer.
-   */
+  /** Default ctor. Required by serializer. */
   public Address() {}
 
   /**

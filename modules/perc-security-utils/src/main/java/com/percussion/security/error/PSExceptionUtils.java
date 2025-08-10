@@ -25,15 +25,16 @@ import java.io.StringWriter;
 
 /**
  * Provides common exception utilities for logging and message extraction.
- *<p>
+ *
+ * <p>
  */
 public class PSExceptionUtils {
 
   // Logger removed as it was unused.
   /**
    * Returns a formatted message for logging purposes, including class and line number.
-   *<p>
-   * If a cause exists, its message and location are appended.
+   *
+   * <p>If a cause exists, its message and location are appended.
    *
    * @param exception the exception to extract details from
    * @return a formatted string for logging

@@ -20,149 +20,137 @@ package com.percussion.pagemanagement.service;
 import com.percussion.linkmanagement.service.PSPublicLinkContext;
 import com.percussion.pagemanagement.assembler.PSAbstractAssemblyContext.EditType;
 import com.percussion.pagemanagement.assembler.impl.PSAssemblyRenderLinkContext;
-import com.percussion.pagemanagement.data.PSRenderLink;
-import com.percussion.pagemanagement.data.PSTemplate;
-import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.theme.service.impl.PSThemeService;
-
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.jupiter.api.Tag;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.Tag;
 
 @Tag("IntegrationTest")
-public class PSRenderLinkServiceTest extends PSServletTestCase
-{
-    private PSSiteDataServletTestCaseFixture fixture;
+public class PSRenderLinkServiceTest extends PSServletTestCase {
+  private PSSiteDataServletTestCaseFixture fixture;
 
-    private File regionCssFile = null;
-    
-    @Override
-    public void setUp() throws Exception
-    {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp();
-        fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
-        super.setUp();
+  private File regionCssFile = null;
+
+  @Override
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp();
+    fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
+    super.setUp();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    fixture.tearDown();
+
+    if (regionCssFile != null && regionCssFile.exists()) {
+      regionCssFile.delete();
+      regionCssFile = null;
     }
+  }
 
-    @Override
-    protected void tearDown() throws Exception
-    {
-        fixture.tearDown();
+  public void testRenderLinkRegionCSS() throws IOException, PSDataServiceException {
+    var template = fixture.getTemplateService().load(fixture.template1.getId());
+    var themeName = template.getTheme();
+    var context = new PSPublicLinkContext(fixture.site1);
+    var regionCss =
+        renderLinkService.renderLinkThemeRegionCSS(
+            context, template.getTheme(), false, EditType.PAGE);
+    assertNotNull(regionCss.toString());
 
-        if (regionCssFile != null && regionCssFile.exists())
-        {
-            regionCssFile.delete();
-            regionCssFile = null;
-        }
+    var summary = themeService.find(themeName);
+
+    removeRegionCssFile(summary);
+    regionCss =
+        renderLinkService.renderLinkThemeRegionCSS(
+            context, template.getTheme(), false, EditType.PAGE);
+    assertTrue(StringUtils.isBlank(regionCss.toString()));
+
+    copyThemeCssToRegionCssFile(summary);
+    regionCss =
+        renderLinkService.renderLinkThemeRegionCSS(
+            context, template.getTheme(), false, EditType.PAGE);
+    assertTrue(regionCss.toString().endsWith(PSThemeService.THEME_REGION_CSS_PATH));
+    assertTrue(regionCss.toString().startsWith("/web_resources"));
+
+    var assembContext = new PSAssemblyRenderLinkContext();
+    assembContext.setSite(fixture.site1);
+    regionCss =
+        renderLinkService.renderLinkThemeRegionCSS(
+            assembContext, template.getTheme(), false, EditType.PAGE);
+    assertTrue(regionCss.toString().contains(PSThemeService.THEME_REGION_CSS_PATH + "?time="));
+    assertTrue(regionCss.toString().startsWith("/Rhythmyx/web_resources"));
+  }
+
+  private void removeRegionCssFile(PSThemeSummary summary) {
+    File regionCssFile = getRegionCssFile(summary);
+    if (regionCssFile != null && regionCssFile.exists()) regionCssFile.delete();
+  }
+
+  private void copyThemeCssToRegionCssFile(PSThemeSummary summary) throws IOException {
+    removeRegionCssFile(summary);
+    File regionFile = new File(getRegionCssFilePath(summary));
+    File parentDir = regionFile.getParentFile();
+    if (!parentDir.exists()) parentDir.mkdirs();
+
+    File cssFile = getThemeCssFile(summary);
+    InputStream cssIn = null;
+    OutputStream regionOut = null;
+    try {
+      cssIn = new FileInputStream(cssFile);
+      regionOut = new FileOutputStream(regionFile);
+      IOUtils.copy(cssIn, regionOut);
+      regionCssFile = regionFile;
+    } finally {
+      IOUtils.closeQuietly(cssIn);
+      IOUtils.closeQuietly(regionOut);
     }
+  }
 
-    public void testRenderLinkRegionCSS() throws IOException, PSDataServiceException {
-        var template = fixture.getTemplateService().load(fixture.template1.getId());
-        var themeName = template.getTheme();
-        var context = new PSPublicLinkContext(fixture.site1);
-        var regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
-        assertNotNull(regionCss.toString());
+  private File getRegionCssFile(PSThemeSummary summary) {
+    if (summary.getRegionCssFilePath() == null) return null;
 
-        var summary = themeService.find(themeName);
+    String path = getRegionCssFilePath(summary);
+    File regionCssFile = new File(path);
+    return regionCssFile;
+  }
 
-        removeRegionCssFile(summary);
-        regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
-        assertTrue(StringUtils.isBlank(regionCss.toString()));
+  private String getRegionCssFilePath(PSThemeSummary summary) {
+    String path =
+        themeService.getThemesRootDirectory()
+            + "/"
+            + summary.getName()
+            + "/"
+            + PSThemeService.THEME_REGION_CSS_PATH;
+    return path;
+  }
 
-        copyThemeCssToRegionCssFile(summary);
-        regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
-        assertTrue(regionCss.toString().endsWith(PSThemeService.THEME_REGION_CSS_PATH));
-        assertTrue(regionCss.toString().startsWith("/web_resources"));
+  private File getThemeCssFile(PSThemeSummary summary) {
+    String path = themeService.getThemesRootDirectory() + "/" + summary.getCssFilePath();
+    File cssFile = new File(path);
+    return cssFile;
+  }
 
-        var assembContext = new PSAssemblyRenderLinkContext();
-        assembContext.setSite(fixture.site1);
-        regionCss = renderLinkService.renderLinkThemeRegionCSS(assembContext, template.getTheme(), false, EditType.PAGE);
-        assertTrue(regionCss.toString().contains(PSThemeService.THEME_REGION_CSS_PATH + "?time="));
-        assertTrue(regionCss.toString().startsWith("/Rhythmyx/web_resources"));
-    }
-    
-    private void removeRegionCssFile(PSThemeSummary summary)
-    {
-        File regionCssFile = getRegionCssFile(summary);
-        if (regionCssFile != null && regionCssFile.exists())
-            regionCssFile.delete();
-    }
+  public void setRenderLinkService(IPSRenderLinkService renderService) {
+    renderLinkService = renderService;
+  }
 
-    private void copyThemeCssToRegionCssFile(PSThemeSummary summary) throws IOException
-    {
-        removeRegionCssFile(summary);
-        File regionFile = new File(getRegionCssFilePath(summary));
-        File parentDir = regionFile.getParentFile();
-        if (!parentDir.exists())
-            parentDir.mkdirs();
-        
-        
-        File cssFile = getThemeCssFile(summary);
-        InputStream cssIn = null;
-        OutputStream regionOut = null;
-        try
-        {
-            cssIn = new FileInputStream(cssFile);
-            regionOut = new FileOutputStream(regionFile);
-            IOUtils.copy(cssIn, regionOut);
-            regionCssFile = regionFile;
-        }
-        finally
-        {
-            IOUtils.closeQuietly(cssIn);
-            IOUtils.closeQuietly(regionOut);
-        }
-    }
-    
-    private File getRegionCssFile(PSThemeSummary summary)
-    {
-        if (summary.getRegionCssFilePath() == null)
-            return null;
-        
-        String path = getRegionCssFilePath(summary);
-        File regionCssFile = new File(path);
-        return regionCssFile;
-    }
+  public void setThemeSrevice(PSThemeService themeSrv) {
+    themeService = themeSrv;
+  }
 
-    private String getRegionCssFilePath(PSThemeSummary summary)
-    {
-        String path = themeService.getThemesRootDirectory() + "/"+ summary.getName() + "/" + PSThemeService.THEME_REGION_CSS_PATH;
-        return path;
-    }
+  private IPSRenderLinkService renderLinkService;
 
-    private File getThemeCssFile(PSThemeSummary summary)
-    {
-        String path = themeService.getThemesRootDirectory() + "/"+ summary.getCssFilePath();
-        File cssFile = new File(path);
-        return cssFile;
-    }
-
-    public void setRenderLinkService(IPSRenderLinkService renderService)
-    {
-        renderLinkService = renderService;
-    }
-    
-    public void setThemeSrevice(PSThemeService themeSrv)
-    {
-        themeService = themeSrv;
-    }
-    
-    private IPSRenderLinkService renderLinkService;
-    
-    private PSThemeService themeService;
+  private PSThemeService themeService;
 }

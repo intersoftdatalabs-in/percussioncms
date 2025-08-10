@@ -37,20 +37,18 @@ import org.apache.commons.collections.map.HashedMap;
 
 /**
  * A util class to interface msm with the Publisher service
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
 public class PSPublisherServiceHelper {
-  /**
-   * getInstance() in a singleton
-   */
+  /** getInstance() in a singleton */
   public PSPublisherServiceHelper() {
     resetContentLists();
   }
 
   /**
-   * A convenience method to reset any loaded content lists so that we donot
-   * have any stale data. MUST BE STATELESS
+   * A convenience method to reset any loaded content lists so that we donot have any stale data.
+   * MUST BE STATELESS
    */
   private void resetContentLists() {
     m_namedContentList = new HashedMap();
@@ -82,11 +80,10 @@ public class PSPublisherServiceHelper {
 
   /**
    * Given an extension name, get the extension ref
+   *
    * @param name cannot be <code>null</code> or empty
-   * @param context the context for extension ref may or may not be
-   * <code>null</code>
-   * @param interfacename the interface name that the ExtensionMgr needs, may
-   * be <code>null</code>
+   * @param context the context for extension ref may or may not be <code>null</code>
+   * @param interfacename the interface name that the ExtensionMgr needs, may be <code>null</code>
    * @return the extension reference
    * @throws PSDeployException
    * @throws PSExtensionException
@@ -119,6 +116,7 @@ public class PSPublisherServiceHelper {
 
   /**
    * Util method to fetch the expander extension by name
+   *
    * @param name the extension name
    * @return the extension
    * @throws PSDeployException
@@ -132,6 +130,7 @@ public class PSPublisherServiceHelper {
 
   /**
    * Given the extension name, return its reference
+   *
    * @param name the extension name may not be <code>null</code>
    * @return the extension
    * @throws PSDeployException
@@ -146,6 +145,7 @@ public class PSPublisherServiceHelper {
 
   /**
    * Given the extension name, return its reference
+   *
    * @param name the extension name may not be <code>null</code>
    * @return the extension reference
    * @throws PSDeployException
@@ -158,6 +158,7 @@ public class PSPublisherServiceHelper {
 
   /**
    * Util method to return a named ContentList
+   *
    * @return a map of <contentlist_name, IPSContentList>
    * @throws PSDeployException
    */
@@ -170,11 +171,9 @@ public class PSPublisherServiceHelper {
   /**
    * Utility method to return a list of ContentList names, sorted by name
    *
-   * @param nameFilter a name filter, only content lists with names that include
-   *            the given string will be returned. Equivalent to %filter% in
-   *            SQL. never <code>null</code> but can be empty.
-   * @return a list of content lists, might be empty,
-   *            but never <code>null</code>
+   * @param nameFilter a name filter, only content lists with names that include the given string
+   *     will be returned. Equivalent to %filter% in SQL. never <code>null</code> but can be empty.
+   * @return a list of content lists, might be empty, but never <code>null</code>
    * @throws PSDeployException
    */
   public List<String> getAllContentListNames(String nameFilter) throws PSDeployException {
@@ -187,9 +186,9 @@ public class PSPublisherServiceHelper {
   }
 
   /**
-   *  A helper method to generate an id so that Assembly/Publisher services
-   *  can alter the index after deserialization of the particular type but
-   *  before saving the session.  we get PK Violations
+   * A helper method to generate an id so that Assembly/Publisher services can alter the index after
+   * deserialization of the particular type but before saving the session. we get PK Violations
+   *
    * @param type
    * @param curId
    * @return a long guid
@@ -211,6 +210,7 @@ public class PSPublisherServiceHelper {
 
   /**
    * Util method to get content lists by GUIDs
+   *
    * @return a Map<IPSGuid, IPSContentList>
    * @throws PSDeployException
    */
@@ -219,25 +219,19 @@ public class PSPublisherServiceHelper {
     return m_guidContentList;
   }
 
-  /**
-   * Da assembly Service
-   */
+  /** Da assembly Service */
   private static IPSPublisherService m_publisherSvc =
       PSPublisherServiceLocator.getPublisherService();
 
-  /**
-   * A content list indexed by names
-   */
+  /** A content list indexed by names */
   private IterableMap m_namedContentList = null;
 
-  /**
-   * A content list indexed by GUIDS, the guid is
-   */
+  /** A content list indexed by GUIDS, the guid is */
   private IterableMap m_guidContentList = null;
 
   /**
-   * the Primary key column for contentlist table, this might not be the best
-   * way to do it, probably use annotation introspection
+   * the Primary key column for contentlist table, this might not be the best way to do it, probably
+   * use annotation introspection
    */
   public static final String PK_CONTENTLIST = "CONTENTLISTID";
 }

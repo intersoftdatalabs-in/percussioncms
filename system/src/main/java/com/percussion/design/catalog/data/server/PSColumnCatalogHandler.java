@@ -35,18 +35,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSColumnCatalogHandler class implements cataloging of
- * columns. This request type is used to locate the columns
- * defined in a specific back-end table.
- * <p>
- * The request format is defined in the
- * {@link com.percussion.design.catalog.data.PSColumnCatalogHandler} class.
+ * The PSColumnCatalogHandler class implements cataloging of columns. This request type is used to
+ * locate the columns defined in a specific back-end table.
+ *
+ * <p>The request format is defined in the {@link
+ * com.percussion.design.catalog.data.PSColumnCatalogHandler} class.
  */
 public class PSColumnCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSColumnCatalogHandler() {
     super();
   }
@@ -54,10 +51,9 @@ public class PSColumnCatalogHandler extends com.percussion.design.catalog.PSCata
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {"PSXColumnCatalog"};
@@ -66,12 +62,10 @@ public class PSColumnCatalogHandler extends com.percussion.design.catalog.PSCata
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the input
-   * data. The results are written to the specified output stream using the
-   * appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param request the request object containing all context data associated
-   * with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -165,9 +159,7 @@ public class PSColumnCatalogHandler extends com.percussion.design.catalog.PSCata
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

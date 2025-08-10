@@ -23,40 +23,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSWhereClause class extends the concept of conditionals to
- * their application in a where clause. Where clause conditionals
- * take the form <code>{column} {operator} {value}</code>.
- * <p>
- * Where clauses also allow conditionals to be ignored when their value is
- * NULL. This allows a user to omit parameters to broaden their search. For
- * instance, a search may be defined by manufacturer and partnumber. If
- * a manufacturer only search is desired, the partnumber can be omitted
- * when this option is enabled. Otherwise, a search for NULL partnumbers will
- * be performed which will likely result in no data being returned.
+ * The PSWhereClause class extends the concept of conditionals to their application in a where
+ * clause. Where clause conditionals take the form <code>{column} {operator} {value}</code>.
+ *
+ * <p>Where clauses also allow conditionals to be ignored when their value is NULL. This allows a
+ * user to omit parameters to broaden their search. For instance, a search may be defined by
+ * manufacturer and partnumber. If a manufacturer only search is desired, the partnumber can be
+ * omitted when this option is enabled. Otherwise, a search for NULL partnumbers will be performed
+ * which will likely result in no data being returned.
  *
  * @see PSConditional
  * @see PSDataSelector#getWhereClauses
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSWhereClause extends PSConditional {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSWhereClause(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -64,9 +54,7 @@ public class PSWhereClause extends PSConditional {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSWhereClause() {
     super();
   }
@@ -74,15 +62,11 @@ public class PSWhereClause extends PSConditional {
   /**
    * Construct a where clause object.
    *
-   * @param name          the name of the variable to check
-   *
-   * @param op            the relational operator to use when comparing
-   *
-   * @param value            the value the variable must match
-   *
-   * @param omitWhenNull   <code>true</code> to omit the condition from the
-   *                      WHERE clause when the value is NULL,
-   *                      <code>false</code> otherwise
+   * @param name the name of the variable to check
+   * @param op the relational operator to use when comparing
+   * @param value the value the variable must match
+   * @param omitWhenNull <code>true</code> to omit the condition from the WHERE clause when the
+   *     value is NULL, <code>false</code> otherwise
    */
   public PSWhereClause(
       IPSReplacementValue name,
@@ -96,9 +80,8 @@ public class PSWhereClause extends PSConditional {
   /**
    * Is this condition omitted when the value is NULL?
    *
-   * @return      <code>true</code> if the condition is omitted from the
-   *             WHERE clause when the value is NULL,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if the condition is omitted from the WHERE clause when the value is
+   *     NULL, <code>false</code> otherwise
    */
   public boolean isOmittedWhenNull() {
     return m_omitWhenNull;
@@ -107,9 +90,8 @@ public class PSWhereClause extends PSConditional {
   /**
    * Enable or disable omitting this condition when the value is NULL.
    *
-   * @param enable         <code>true</code> to omit the condition from the
-   *                      WHERE clause when the value is NULL,
-   *                      <code>false</code> otherwise
+   * @param enable <code>true</code> to omit the condition from the WHERE clause when the value is
+   *     NULL, <code>false</code> otherwise
    */
   public void setOmittedWhenNull(boolean enable) {
     m_omitWhenNull = enable;
@@ -135,10 +117,11 @@ public class PSWhereClause extends PSConditional {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXWhereClause XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXWhereClause XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXWhereClause extends the concept of conditionals to their
@@ -168,7 +151,7 @@ public class PSWhereClause extends PSConditional {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXWhereClause XML element node
+   * @return the newly created PSXWhereClause XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -183,12 +166,10 @@ public class PSWhereClause extends PSConditional {
   }
 
   /**
-   * This method is called to populate a PSWhereClause Java object
-   * from a PSXWhereClause XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSWhereClause Java object from a PSXWhereClause XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXWhereClause
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXWhereClause
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -231,18 +212,15 @@ public class PSWhereClause extends PSConditional {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     super.validate(cxt);

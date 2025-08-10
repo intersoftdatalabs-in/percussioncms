@@ -24,28 +24,20 @@ import com.percussion.security.PSUserEntry;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
 
-/**
- * Macro extractor to get the authtype dependent revision for the item of the
- * current request.
- */
+/** Macro extractor to get the authtype dependent revision for the item of the current request. */
 public class PSContextDependentRevisionExtractor implements IPSMacroExtractor {
   /**
-   * Extract the revision depending on the request authtype. The request
-   * authtype is retrievd from the HTML parameters. If not provided, it
-   * defaults to ALL (0). For the ALL authtype (0) this macro extracts
-   * the tip revision if the checkout user is the current user, otherwise the
-   * current revision. For all other authtypes this will return the current
-   * revision if the item is in a public state. Otherwise the last public
-   * revision as determined from the item history or -1 if the item has never
-   * been public.
-   * This macro requires the content id provided either as HTML parameter or
-   * in the execution data with column name
-   * <code>IPSConstants.ITEM_PKEY_CONTENTID</code>.
-   * An <code>IllegalArgumentException</code> will be thrown if a required
-   * parameter is missing.
+   * Extract the revision depending on the request authtype. The request authtype is retrievd from
+   * the HTML parameters. If not provided, it defaults to ALL (0). For the ALL authtype (0) this
+   * macro extracts the tip revision if the checkout user is the current user, otherwise the current
+   * revision. For all other authtypes this will return the current revision if the item is in a
+   * public state. Otherwise the last public revision as determined from the item history or -1 if
+   * the item has never been public. This macro requires the content id provided either as HTML
+   * parameter or in the execution data with column name <code>IPSConstants.ITEM_PKEY_CONTENTID
+   * </code>. An <code>IllegalArgumentException</code> will be thrown if a required parameter is
+   * missing.
    *
-   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter
-   *    details.
+   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter details.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     try {
@@ -125,8 +117,8 @@ public class PSContextDependentRevisionExtractor implements IPSMacroExtractor {
   }
 
   /**
-   * Constant that defines the one of the possible values for sys_authtype
-   * HTML parameter. It means all content.
+   * Constant that defines the one of the possible values for sys_authtype HTML parameter. It means
+   * all content.
    */
   private static final String AUTHTYPE_ALL = "0";
 }

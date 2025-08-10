@@ -28,21 +28,16 @@ import org.apache.commons.lang.StringUtils;
  * @author dougrand
  */
 public class PSExtensionParams {
-  /**
-   * The parameters
-   */
+  /** The parameters */
   private Object m_params[] = null;
 
-  /**
-   * The parameter names, used in error messages. May or may not be set.
-   */
+  /** The parameter names, used in error messages. May or may not be set. */
   private String m_paramNames[] = null;
 
   /**
    * Creates an instance from the specified parameters.
    *
    * @param params the specified parameters; it may not be <code>null</code>.
-   *
    * @throws PSConversionException if params is <code>null</code>.
    */
   public PSExtensionParams(Object params[]) throws PSConversionException {
@@ -54,7 +49,6 @@ public class PSExtensionParams {
    *
    * @param params the specified parameters; it may not be <code>null</code>.
    * @param paramNames the names of the parameters, may be <code>null</code>
-   *
    * @throws PSConversionException if params is <code>null</code>.
    */
   public PSExtensionParams(Object params[], String paramNames[]) throws PSConversionException {
@@ -70,12 +64,11 @@ public class PSExtensionParams {
    *
    * @param index index into the parameter array, must be zero or positive
    * @param defvalue the default value, may be <code>null</code>
-   * @param required if <code>true</code> then an exception is thrown when
-   *           the given parameter is not present
+   * @param required if <code>true</code> then an exception is thrown when the given parameter is
+   *     not present
    * @return the value or default value
-   *
-   * @throws PSConversionException if required is <code>true</code> and the
-   *            parameter at index is missing
+   * @throws PSConversionException if required is <code>true</code> and the parameter at index is
+   *     missing
    */
   public String getStringParam(int index, String defvalue, boolean required)
       throws PSConversionException {
@@ -88,19 +81,16 @@ public class PSExtensionParams {
   }
 
   /**
-   * Get a numeric value from the parameters. If the original parameter is a
-   * string, and empty then the default value is returned.
+   * Get a numeric value from the parameters. If the original parameter is a string, and empty then
+   * the default value is returned.
    *
    * @param index index into the parameter array, must be zero or positive
    * @param defvalue the default value, may be <code>null</code>
-   * @param required if <code>true</code> then an exception is thrown when
-   *           the given parameter is not present
-   *
+   * @param required if <code>true</code> then an exception is thrown when the given parameter is
+   *     not present
    * @return the value or default value.
-   *
-   * @throws PSConversionException if required is <code>true</code> and the
-   *            parameter at index is missing, or value of parameter at index
-   *            is not a number.
+   * @throws PSConversionException if required is <code>true</code> and the parameter at index is
+   *     missing, or value of parameter at index is not a number.
    */
   public Number getNumberParam(int index, Object defvalue, boolean required)
       throws PSConversionException {
@@ -131,14 +121,11 @@ public class PSExtensionParams {
    *
    * @param index index into the parameter array, must be zero or positive
    * @param defvalue the default value, may be <code>null</code>
-   * @param required if <code>true</code> then an exception is thrown when
-   *           the given parameter is not present
-   *
+   * @param required if <code>true</code> then an exception is thrown when the given parameter is
+   *     not present
    * @return the value or default value.
-   *
-   * @throws PSConversionException if required is <code>true</code> and the
-   *            parameter at index is missing, or value of parameter at index
-   *            is not a boolean.
+   * @throws PSConversionException if required is <code>true</code> and the parameter at index is
+   *     missing, or value of parameter at index is not a boolean.
    */
   public Boolean getBooleanParam(int index, boolean defvalue, boolean required)
       throws PSConversionException {
@@ -164,14 +151,11 @@ public class PSExtensionParams {
    *
    * @param index index into the parameter array, must be zero or positive
    * @param defvalue the default value, may be <code>null</code>
-   * @param required if <code>true</code> then an exception is thrown when
-   *           the given parameter is not present
-   *
+   * @param required if <code>true</code> then an exception is thrown when the given parameter is
+   *     not present
    * @return the value or default value.
-   *
-   * @throws PSConversionException if required is <code>true</code> and the
-   *            parameter at index is missing, or value of parameter at index
-   *            is not a valid date.
+   * @throws PSConversionException if required is <code>true</code> and the parameter at index is
+   *     missing, or value of parameter at index is not a valid date.
    */
   public Date getDateParam(int index, Object defvalue, boolean required)
       throws PSConversionException {
@@ -195,13 +179,10 @@ public class PSExtensionParams {
   }
 
   /**
-   * Get the numbered parameter or <code>null</code> if the parameter is
-   * missing
+   * Get the numbered parameter or <code>null</code> if the parameter is missing
    *
    * @param index the index of the parameter, must be zero or positive
-   *
    * @return the value of the specified parameter.
-   *
    * @throws PSConversionException if the index is invalid.
    */
   public Object getUncheckedParam(int index) throws PSConversionException {
@@ -212,11 +193,10 @@ public class PSExtensionParams {
    * Get the value or the default value
    *
    * @param index the index, must be zero or greater
-   * @param defvalue the default value if the parameter at the specified index
-   *           is not specified (empty or <code>null</code>). t
-   * @return the object at the specified index if exit; otherwise return the
-   *         specified default value.
-   *
+   * @param defvalue the default value if the parameter at the specified index is not specified
+   *     (empty or <code>null</code>). t
+   * @return the object at the specified index if exit; otherwise return the specified default
+   *     value.
    * @throws PSConversionException if the index is less than zero.
    */
   private Object getValue(int index, Object defvalue) throws PSConversionException {
@@ -256,9 +236,8 @@ public class PSExtensionParams {
    *
    * @param index the index
    * @param required if the param is required
-   *
-   * @throws PSConversionException if the required is <code>true</code> and
-   *            the index's parameter is missing.
+   * @throws PSConversionException if the required is <code>true</code> and the index's parameter is
+   *     missing.
    */
   private void checkRequiredParameter(int index, boolean required) throws PSConversionException {
     if (required && isParamMissing(index)) {

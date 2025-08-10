@@ -38,8 +38,8 @@ import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 
 /**
  * This DAO is used only to saving/updating the Node.java Domain Object
- * @author rxengineer
  *
+ * @author rxengineer
  */
 public class HibernateValueDAO extends HibernateDaoSupport implements ValueDAO {
 

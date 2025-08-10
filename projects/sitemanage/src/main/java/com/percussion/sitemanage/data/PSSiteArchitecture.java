@@ -19,56 +19,55 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "SiteArchitecture")
 public class PSSiteArchitecture extends PSAbstractPersistantObject {
 
-    private static final long serialVersionUID = 8249374630117416709L;
+  private static final long serialVersionUID = 8249374630117416709L;
 
-    private String name;
-    private List<PSSiteSection> sections;
+  private String name;
+  private List<PSSiteSection> sections;
 
-    @Override
-    public String getId() {
-        return getName();
+  @Override
+  public String getId() {
+    return getName();
+  }
+
+  @Override
+  public void setId(String id) {
+    setName(id);
+  }
+
+  /**
+   * @return The name of the site, never blank.
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @param name of the site must not be blank.
+   */
+  public void setName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("name must not be blank");
     }
+    this.name = name;
+  }
 
-    @Override
-    public void setId(String id) {
-        setName(id);
-    }
+  /**
+   * @return the sub sections of site, may be empty.
+   */
+  public Optional<List<PSSiteSection>> getSections() {
+    return Optional.ofNullable(sections);
+  }
 
-    /**
-     * @return The name of the site, never blank.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name of the site must not be blank.
-     */
-    public void setName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("name must not be blank");
-        }
-        this.name = name;
-    }
-
-    /**
-     * @return the sub sections of site, may be empty.
-     */
-    public Optional<List<PSSiteSection>> getSections() {
-        return Optional.ofNullable(sections);
-    }
-
-    /**
-     * @param sections sub sections of site, may be null or empty.
-     */
-    public void setSections(List<PSSiteSection> sections) {
-        this.sections = sections;
-    }
+  /**
+   * @param sections sub sections of site, may be null or empty.
+   */
+  public void setSections(List<PSSiteSection> sections) {
+    this.sections = sections;
+  }
 }

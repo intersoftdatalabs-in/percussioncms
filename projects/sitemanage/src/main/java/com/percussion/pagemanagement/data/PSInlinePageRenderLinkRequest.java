@@ -18,10 +18,10 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * Represents a request for an inline page render link.
- * Used for linking to pages in rich text editors.
+ * Represents a request for an inline page render link. Used for linking to pages in rich text
+ * editors.
  */
 public class PSInlinePageRenderLinkRequest extends PSInlineLinkRequest {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 }

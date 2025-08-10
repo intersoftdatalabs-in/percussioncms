@@ -24,13 +24,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * PSUpdateWebApps deploys existing non-system webapps into the appropriate
- * location during upgrade.  Classloader scoping is also added.
+ * PSUpdateWebApps deploys existing non-system webapps into the appropriate location during upgrade.
+ * Classloader scoping is also added. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -47,7 +45,6 @@ import java.io.IOException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpdateWebApps extends PSAction {
   // see base class
@@ -81,8 +78,8 @@ public class PSUpdateWebApps extends PSAction {
    ***************************************************************************/
 
   /**
-   * Deploys all non-system webapps into the new deploy directory.  Adds
-   * appropriate classloader scoping to each webapp.
+   * Deploys all non-system webapps into the new deploy directory. Adds appropriate classloader
+   * scoping to each webapp.
    *
    * @param webappsDir the old webapps directory
    * @param deployDir the new deploy directory
@@ -136,8 +133,7 @@ public class PSUpdateWebApps extends PSAction {
    * Determines if a webapp is a system webapp.
    *
    * @param webapp the name of the webapp
-   * @return <code>true</code> if the webapp is a system webapp, <code>false</code>
-   * otherwise
+   * @return <code>true</code> if the webapp is a system webapp, <code>false</code> otherwise
    */
   private boolean isSysWebapp(String webapp) {
     boolean sysWebapp = false;
@@ -153,8 +149,8 @@ public class PSUpdateWebApps extends PSAction {
   }
 
   /**
-   * Adds appropriate classloader scoping to a webapp by adding a jboss-web.xml
-   * file to the WEB-INF directory of the webapp.
+   * Adds appropriate classloader scoping to a webapp by adding a jboss-web.xml file to the WEB-INF
+   * directory of the webapp.
    *
    * @param webapp file representing the webapp
    * @throws IOException if error occurs during scoping
@@ -183,6 +179,7 @@ public class PSUpdateWebApps extends PSAction {
 
   /**
    * Returns the names of the pre-6.0 system webapps.
+   *
    * @return the names of the system webapps in an array
    */
   public String[] getSysWebapps() {
@@ -191,6 +188,7 @@ public class PSUpdateWebApps extends PSAction {
 
   /**
    * Sets the names of the pre-6.0 system webapps.
+   *
    * @param sysWebapps the array containing the names of the system webapps
    */
   public void setSysWebapps(String sysWebapps) {
@@ -201,23 +199,15 @@ public class PSUpdateWebApps extends PSAction {
    * properties
    **************************************************************************/
 
-  /**
-   * Path of the pre-6.0 webapps directory
-   */
+  /** Path of the pre-6.0 webapps directory */
   private String m_webappsDir = getRootDir() + File.separator + "AppServer.bak/webapps";
 
-  /**
-   * Path of the 6.0 deploy directory
-   */
+  /** Path of the 6.0 deploy directory */
   private String m_deployDir = getRootDir() + File.separator + "AppServer/server/rx/deploy";
 
-  /**
-   * Names of the pre-6.0 system webapps
-   */
+  /** Names of the pre-6.0 system webapps */
   private String[] sysWebapps = new String[0];
 
-  /**
-   * Name of the classloader scoping file
-   */
+  /** Name of the classloader scoping file */
   private String scopingFile = "jboss-web.xml";
 }

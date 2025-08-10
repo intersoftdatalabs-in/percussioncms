@@ -44,22 +44,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * The base class used for generating Rhythmyx content list XML for all content
- * items contained within a specified site folder, or its child folders.
- * Determines which variants to publish for each content type for the given site
- * by referencing a lookup table. Builds delivery location paths by
- * concatenating an item's ancestor folders' names.
+ * The base class used for generating Rhythmyx content list XML for all content items contained
+ * within a specified site folder, or its child folders. Determines which variants to publish for
+ * each content type for the given site by referencing a lookup table. Builds delivery location
+ * paths by concatenating an item's ancestor folders' names.
  *
  * @author James Schultz
  */
 public abstract class PSSiteFolderCListBase {
 
   /**
-   * Constructs a site-folder-driven, full-publishing, public-items
-   * content list builder.
+   * Constructs a site-folder-driven, full-publishing, public-items content list builder.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
    */
   public PSSiteFolderCListBase(IPSRequestContext request) {
     initializeMembers(
@@ -77,24 +75,21 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Constructs a site-folder-driven content list builder.  Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
    *
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   * publishing content list, <code>false</code> for full publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   * values for workflow states that are eligible for publishing. Never
-   * <code>null</code> or empty.
-   * @param maxRowsPerPage enables pagination mode by determining the maximum
-   * number of content items to appear in a single page of the content list.
-   * Use a value of <code>-1</code> to disable pagination mode
-   * (unlimited number of items)
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing. Never <code>null</code> or empty.
+   * @param maxRowsPerPage enables pagination mode by determining the maximum number of content
+   *     items to appear in a single page of the content list. Use a value of <code>-1</code> to
+   *     disable pagination mode (unlimited number of items)
    */
   public PSSiteFolderCListBase(
       IPSRequestContext request,
@@ -125,37 +120,29 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Constructs a site-folder-driven content list builder. Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
    *
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   *           parameters, logging, and making internal requests. Not
-   *           <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   *           publishing content list, <code>false</code> for full
-   *           publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   *           values for workflow states that are eligible for publishing.
-   *           Never <code>null</code> or empty.
-   * @param contentVariantResourceName the name of the application resource
-   *           used for looking up the valid variants for this content item.
-   *           Must be supplied in the form
-   *           &lt;ApplicationName&gt;/&lt;ResourceName&gt;
-   * @param maxRowsPerPage the maximum number of items to publish on a page in
-   *           the content list.
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
-   * @param port the port number to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param paramSetToPass Set of non-standard HTML parameters to pass from
-   *           request context to each content item url in the content list,
-   *           must not be <code>null</code>, may be empty.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing. Never <code>null</code> or empty.
+   * @param contentVariantResourceName the name of the application resource used for looking up the
+   *     valid variants for this content item. Must be supplied in the form
+   *     &lt;ApplicationName&gt;/&lt;ResourceName&gt;
+   * @param maxRowsPerPage the maximum number of items to publish on a page in the content list.
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
+   * @param port the port number to use when creating content URLs, never <code>null</code> or empty
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, must not be <code>null</code>, may be empty.
    */
   public PSSiteFolderCListBase(
       IPSRequestContext request,
@@ -201,26 +188,24 @@ public abstract class PSSiteFolderCListBase {
   /**
    * Assigns values to member variables
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   * publishing content list, <code>false</code> for full publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   * values for states that are eligible for publishing. Assume not
-   * <code>null</code> or empty.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for states
+   *     that are eligible for publishing. Assume not <code>null</code> or empty.
    * @param contentVariantResourceName
    * @param maxRowsPerPage
    * @param maxPages
    * @param maxDisplayedPageLinks
-   * @param protocol the URL protocol to use when creating content URLs,
-   *           assumed never <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           assumed never <code>null</code> or empty
-   * @param port the port number to use when creating content URLs, never
-   *           assumed <code>null</code> or empty. Must be numeric.
-   * @param paramSetToPass Set of non-standard HTML parameters to pass from
-   * request context to each content item url in the content list, may be
-   * <code>null</code> or empty.
+   * @param protocol the URL protocol to use when creating content URLs, assumed never <code>null
+   *     </code> or empty
+   * @param host the host name or ip address to use when creating content URLs, assumed never <code>
+   *     null</code> or empty
+   * @param port the port number to use when creating content URLs, never assumed <code>null</code>
+   *     or empty. Must be numeric.
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, may be <code>null</code> or empty.
    */
   private void initializeMembers(
       IPSRequestContext request,
@@ -282,24 +267,18 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * This method is synchronized because the content list is stored as a
-   * member variable.  The content list will be session cached (keyed to the
-   * publication id) when pagination is enabled.
+   * This method is synchronized because the content list is stored as a member variable. The
+   * content list will be session cached (keyed to the publication id) when pagination is enabled.
    *
-   * @param siteFolderPath the site folder path, It may not be
-   *    <code>null</code> or empty.
-   * @param deliveryType delivery type string, may be <code>null</code> or
-   *    empty.
+   * @param siteFolderPath the site folder path, It may not be <code>null</code> or empty.
+   * @param deliveryType delivery type string, may be <code>null</code> or empty.
    * @param filenameContext publish context allows <code>null</code> or empty.
-   * @param indexOfFirstItem index of the forst item in the page, must be
-   *    greater than equal to 0
-   * @param publishFolderPath the to be published folder path. It is either
-   *    a descendent folder of the site or the same as the
-   *    <code>siteFolderPath</code> if publishes the whole site. It may not be
-   *    <code>null</code> or empty.
-   *
-   * @return A content list XML document.  Never <code>null</code> but will
-   * be empty if member variables are not initialized.
+   * @param indexOfFirstItem index of the forst item in the page, must be greater than equal to 0
+   * @param publishFolderPath the to be published folder path. It is either a descendent folder of
+   *     the site or the same as the <code>siteFolderPath</code> if publishes the whole site. It may
+   *     not be <code>null</code> or empty.
+   * @return A content list XML document. Never <code>null</code> but will be empty if member
+   *     variables are not initialized.
    * @throws PSUnknownNodeTypeException
    * @throws PSCmsException
    * @throws PSExtensionProcessingException
@@ -402,18 +381,13 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Get the folder id and its relative parent path from the supplied folder
-   * and site path.
+   * Get the folder id and its relative parent path from the supplied folder and site path.
    *
-   * @param publishFolder the to be published folder path, assumed not
-   *    <code>null</code> or empty. This must be a folder path under the site.
-   * @param siteFolderPath the site root path, assumed not <code>null</code> or
-   *    empty.
-   *
-   * @return the folder info, which include folder id and its parent's relative
-   *    path to the site. It is <code>null</code> if one of the supplied path
-   *    is invalid.
-   *
+   * @param publishFolder the to be published folder path, assumed not <code>null</code> or empty.
+   *     This must be a folder path under the site.
+   * @param siteFolderPath the site root path, assumed not <code>null</code> or empty.
+   * @return the folder info, which include folder id and its parent's relative path to the site. It
+   *     is <code>null</code> if one of the supplied path is invalid.
    * @throws PSCmsException if error occurs.
    */
   private PublishFolder getPublishFolder(String publishFolder, String siteFolderPath)
@@ -470,9 +444,7 @@ public abstract class PSSiteFolderCListBase {
     return folder;
   }
 
-  /**
-   * This is used to collect the data for the to be published folder.
-   */
+  /** This is used to collect the data for the to be published folder. */
   private class PublishFolder {
     /*
      * Construct an instance from the supplied parameters.
@@ -488,14 +460,10 @@ public abstract class PSSiteFolderCListBase {
       m_siteRootId = siteRootId;
     }
 
-    /**
-     * The root folder id of the site.
-     */
+    /** The root folder id of the site. */
     private int m_siteRootId;
 
-    /**
-     * the folder id.
-     */
+    /** the folder id. */
     private int m_folderId;
 
     /**
@@ -509,13 +477,11 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Determines if the content list includes the items in quick edit state
-   * where the CONTENTVALID column of the state is
-   * {@link PSContentListItem#CONTENTVALID_FLAG_I}
+   * Determines if the content list includes the items in quick edit state where the CONTENTVALID
+   * column of the state is {@link PSContentListItem#CONTENTVALID_FLAG_I}
    *
-   * @return <code>true</code> if the parameter of {@link #CONTENTVALID_PARAM}
-   *    includes the {@link PSContentListItem#CONTENTVALID_FLAG_I} character;
-   *    otherwise return <code>false</code>.
+   * @return <code>true</code> if the parameter of {@link #CONTENTVALID_PARAM} includes the {@link
+   *     PSContentListItem#CONTENTVALID_FLAG_I} character; otherwise return <code>false</code>.
    */
   protected boolean doesIncludeQuickEditItems() {
     String valid = m_request.getParameter(CONTENTVALID_PARAM, "").trim().toLowerCase();
@@ -589,14 +555,12 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Returns the publishable content valid values in the format that can be
-   * used in a IN clause for SQL statement. For example, if the value of
-   * {@link #m_publishableContentValidValues} is "y,i", then the returned
-   * value will be: "'y','i'". Do nothing and return the
-   * {@link #m_publishableContentValidValues} if it contains a single quote.
+   * Returns the publishable content valid values in the format that can be used in a IN clause for
+   * SQL statement. For example, if the value of {@link #m_publishableContentValidValues} is "y,i",
+   * then the returned value will be: "'y','i'". Do nothing and return the {@link
+   * #m_publishableContentValidValues} if it contains a single quote.
    *
-   * @return the string in the format described above, never <code>null</code>
-   *    or empty.
+   * @return the string in the format described above, never <code>null</code> or empty.
    */
   protected String getContentValidValues4SQL() {
     if (m_publishableContentValidValues.indexOf("'") >= 0)
@@ -619,12 +583,10 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Indicates if folder should be excluded from publishing
-   * based on its publish flag setting and the current contentlist
-   * include mode.
+   * Indicates if folder should be excluded from publishing based on its publish flag setting and
+   * the current contentlist include mode.
    *
    * @param folderId the folder id.
-   *
    * @return <code>true</code> if the folder should be excluded
    */
   protected boolean isFolderExcluded(int folderId) {
@@ -639,11 +601,9 @@ public abstract class PSSiteFolderCListBase {
   }
 
   /**
-   * Returns a set of all folders that have the folder publish flag
-   * set to a "true" value.
+   * Returns a set of all folders that have the folder publish flag set to a "true" value.
    *
-   * @return a set of folder id's of all folders that have the publish
-   * flag set to "true"
+   * @return a set of folder id's of all folders that have the publish flag set to "true"
    */
   private Set getAllPublishFlaggedFolders() {
     Set flags = new HashSet();
@@ -675,176 +635,129 @@ public abstract class PSSiteFolderCListBase {
     return flags;
   }
 
-  /**
-   * Represents the entire content list.  Assigned in the (synchronized)
-   * buildContentList method.
-   */
+  /** Represents the entire content list. Assigned in the (synchronized) buildContentList method. */
   protected PSContentList m_contentList = null;
 
   /**
-   * The current request object, used to obtain request parameters, logging,
-   * and internal requests.  Never <code>null</code> after construction.
+   * The current request object, used to obtain request parameters, logging, and internal requests.
+   * Never <code>null</code> after construction.
    */
   protected IPSRequestContext m_request;
 
-  /**
-   * The folder processor, init by ctor, never <code>null</code> after that.
-   */
+  /** The folder processor, init by ctor, never <code>null</code> after that. */
   protected PSServerFolderProcessor m_folderProcessor;
 
-  /**
-   * The relationship processor, init by ctor, never <code>null</code> after
-   * that.
-   */
+  /** The relationship processor, init by ctor, never <code>null</code> after that. */
   protected PSRelationshipProcessor m_relProcessor;
 
   /**
-   * Set of all folders whose publish flag is set to "true".
-   * Never <code>null</code>, may be empty.
+   * Set of all folders whose publish flag is set to "true". Never <code>null</code>, may be empty.
    */
   protected Set m_flaggedFolders = new HashSet();
 
   /**
-   * The relationship engine adaptor.  Initialized by
-   * <code>initializeMembers</code> during construction, but will be
-   * <code>null</code> if an error occurs.
+   * The relationship engine adaptor. Initialized by <code>initializeMembers</code> during
+   * construction, but will be <code>null</code> if an error occurs.
    */
   protected PSRelationshipHelper m_helper;
 
-  /**
-   * Resource for looking up content and/or variants for this site.
-   */
+  /** Resource for looking up content and/or variants for this site. */
   protected String m_contentResourceName;
 
   protected final Logger log = LogManager.getLogger(PSSiteFolderCListBase.class);
 
-  /**
-   * Caches the sys_casGeneratePubLocation UDF used to build pub locations
-   */
+  /** Caches the sys_casGeneratePubLocation UDF used to build pub locations */
   protected PSSiteFolderContentListLinkGenerator m_generator =
       new PSSiteFolderContentListLinkGenerator();
 
   /**
-   * When true, an incremental publish content list will be generated.
-   * When false, a full publish content list will be generated.
-   * Never <code>null</code> after construction.
+   * When true, an incremental publish content list will be generated. When false, a full publish
+   * content list will be generated. Never <code>null</code> after construction.
    */
   protected boolean m_isIncremental;
 
   /**
-   * Comma-delimited list of contentvalid values for states that are eligible
-   * for publishing.  Never <code>null</code> after construction.
+   * Comma-delimited list of contentvalid values for states that are eligible for publishing. Never
+   * <code>null</code> after construction.
    */
   protected String m_publishableContentValidValues;
 
-  /**
-   * Name of the Rhythmyx internal resource used to retrieve all folder
-   * publish flags.
-   */
+  /** Name of the Rhythmyx internal resource used to retrieve all folder publish flags. */
   static final String LOOKUP_FOLDER_PUBLISH_FLAGS =
       "sys_psxObjectSupport/getAllFolderPublishFlags.xml";
 
   /**
-   * Is debug on? Evaluated based on if the context is real publishing or
-   * preview which in turn based on whether the publication id exists in the
-   * request or not. This will be <code>false</code> if the context is real
-   * publishing <code>true</code> otherwise.
+   * Is debug on? Evaluated based on if the context is real publishing or preview which in turn
+   * based on whether the publication id exists in the request or not. This will be <code>false
+   * </code> if the context is real publishing <code>true</code> otherwise.
    */
   protected boolean m_debugModeOn;
 
-  /**
-   * Max rows per page of the content list, default is -1 (unlimited).
-   */
+  /** Max rows per page of the content list, default is -1 (unlimited). */
   protected int m_maxRowsPerPage = -1;
 
-  /**
-   * Max pages of the content list, default is -1 (unlimited).
-   */
+  /** Max pages of the content list, default is -1 (unlimited). */
   protected int m_maxPages = -1;
 
   /**
-   * Max displayed page links of the content list, default is -1 (unlimited).
-   * TODO what is DisplayedPageLinks???
+   * Max displayed page links of the content list, default is -1 (unlimited). TODO what is
+   * DisplayedPageLinks???
    */
   protected int m_maxDisplayedPageLinks;
 
   protected String m_folderIncludeMode = "all";
 
   /**
-   * Set of non-standard HTML parameters to pass from  request context to each
-   * content item url in the content list, may be <code>null</code> or empty.
+   * Set of non-standard HTML parameters to pass from request context to each content item url in
+   * the content list, may be <code>null</code> or empty.
    */
   protected Set m_paramSetToPass = null;
 
   /**
-   * Protocol for the HTTP request to be constructed for the content URL.
-   * Never <code>null</code> or empty after construction. Never modified
-   * after construction.
+   * Protocol for the HTTP request to be constructed for the content URL. Never <code>null</code> or
+   * empty after construction. Never modified after construction.
    */
   protected String m_protocol;
 
   /**
-   * Host ip address or name for the HTTP request to be constructed for the
-   * content URL. Never <code>null</code> or empty after construction. Never
-   * modified after construction.
+   * Host ip address or name for the HTTP request to be constructed for the content URL. Never
+   * <code>null</code> or empty after construction. Never modified after construction.
    */
   protected String m_host;
 
   /**
-   * Port number for the HTTP request to be constructed for the content URL.
-   * Never modified after construction.
+   * Port number for the HTTP request to be constructed for the content URL. Never modified after
+   * construction.
    */
   protected int m_port;
 
-  /**
-   * String constant for the content list cache key used to cache the content
-   * list.
-   */
+  /** String constant for the content list cache key used to cache the content list. */
   public static final String CONTENT_LIST_CACHE_KEY =
       "com.percussion.fastforward.sfp.PSSiteFolderContentList.";
 
-  /**
-   * Folder include mode that will include all folders flagged
-   * or not.
-   */
+  /** Folder include mode that will include all folders flagged or not. */
   public static final String INCLUDE_MODE_ALL = "all";
 
-  /**
-   * Folder include mode that only include folders which are
-   * flagged
-   */
+  /** Folder include mode that only include folders which are flagged */
   public static final String INCLUDE_MODE_FLAGGED = "flagged";
 
-  /**
-   * Folder include mode that will only include folders which are
-   * not flagged.
-   */
+  /** Folder include mode that will only include folders which are not flagged. */
   public static final String INCLUDE_MODE_UNFLAGGED = "unflagged";
 
-  /**
-   * XML Element representing a folder publish flag
-   */
+  /** XML Element representing a folder publish flag */
   protected static final String ELEM_PUBLISH_FLAG = "PublishFlag";
 
-  /**
-   * XML Attribute representing a folderid
-   */
+  /** XML Attribute representing a folderid */
   private static final String ATTR_FOLDERID = "folderid";
 
-  /**
-   * XML Attribute representing a value
-   */
+  /** XML Attribute representing a value */
   private static final String ATTR_VALUE = "value";
 
   /**
-   * The HTML parameter name which contains a list of state flags and
-   * comma delimited characters.
+   * The HTML parameter name which contains a list of state flags and comma delimited characters.
    */
   protected static final String CONTENTVALID_PARAM = "valid";
 
-  /**
-   * The HTML parameter name, set to "true" for Oracle database; otherwise
-   * set to "false".
-   */
+  /** The HTML parameter name, set to "true" for Oracle database; otherwise set to "false". */
   protected static final String IS_ORACLE_PARAM = "is_oracle";
 }

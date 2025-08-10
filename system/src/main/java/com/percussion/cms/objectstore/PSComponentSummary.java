@@ -55,12 +55,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSComponentSummary contains some item information that is from a row in
- * the CONTENTSTATUS table. The value range may be different for different item
- * types.
- * <p>
- * Still supported is loading this through the component processor, but that use
- * is deprecated.
+ * The PSComponentSummary contains some item information that is from a row in the CONTENTSTATUS
+ * table. The value range may be different for different item types.
+ *
+ * <p>Still supported is loading this through the component processor, but that use is deprecated.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComponentSummary")
@@ -78,41 +76,26 @@ import org.w3c.dom.Element;
 @DynamicInsert(true)
 @DynamicUpdate(true)
 public class PSComponentSummary extends PSDbComponent implements Serializable {
-  /**
-   * Serial id identifies versions of serialized data
-   */
+  /** Serial id identifies versions of serialized data */
   private static final long serialVersionUID = 1L;
 
   // TODO Make this class not a subclass of dbcomponent
 
   /**
-   * Creates an instance from the input parameters. This CTOR should only be
-   * used for Unit Tests that need to create a PSComponentSummary.
+   * Creates an instance from the input parameters. This CTOR should only be used for Unit Tests
+   * that need to create a PSComponentSummary.
    *
    * @param contentId The content id, it may not be less than <code>0</code>.
-   *
-   * @param currRevision The current revision number, value of the
-   *           CURRENTREVISION column.
-   *
-   * @param tipRevision The tip revision number, , value of the TIPREVISION
-   *           column.
-   *
-   * @param editRevision The edit revision number, , value of the EDITREVISION
-   *           column.
-   *
-   * @param objectType The type of the component. It must be either
-   *           <code>TYPE_FOLDER</code> or <code>TYPE_ITEM</code>. It is
-   *           the value of OBJECTTYPE column.
-   *
-   * @param name The name of the component. Never <code>null</code> or empty.
-   *           It is the value of TITLE column.
-   *
-   * @param permissions access mask for determining the level of access for the
-   *           user accessing this component. This should be used if the object
-   *           is of type "folder". For other object types, specify a value of
-   *           "-1". For objects of type "folder" this must be a non-negative
-   *           value.
-   *
+   * @param currRevision The current revision number, value of the CURRENTREVISION column.
+   * @param tipRevision The tip revision number, , value of the TIPREVISION column.
+   * @param editRevision The edit revision number, , value of the EDITREVISION column.
+   * @param objectType The type of the component. It must be either <code>TYPE_FOLDER</code> or
+   *     <code>TYPE_ITEM</code>. It is the value of OBJECTTYPE column.
+   * @param name The name of the component. Never <code>null</code> or empty. It is the value of
+   *     TITLE column.
+   * @param permissions access mask for determining the level of access for the user accessing this
+   *     component. This should be used if the object is of type "folder". For other object types,
+   *     specify a value of "-1". For objects of type "folder" this must be a non-negative value.
    * @throws IllegalArgumentException if any parameter is invalid
    */
   public PSComponentSummary(
@@ -152,9 +135,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Validates a given type.
    *
-   * @param type The to be validated type. It must be one of the
-   *           <code>TYPE_XXX</code> values.
-   *
+   * @param type The to be validated type. It must be one of the <code>TYPE_XXX</code> values.
    * @throws IllegalArgumentException if the type is invalid.
    */
   public static void validateType(int type) {
@@ -163,9 +144,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
           "type must be either " + TYPE_NAMES[TYPE_FOLDER] + " or " + TYPE_NAMES[TYPE_ITEM]);
   }
 
-  /**
-   * No arg ctor for hibernate
-   */
+  /** No arg ctor for hibernate */
   public PSComponentSummary() {
     super(createKey(0, -1)); // Provide erzatz locator, fixed in loader
   }
@@ -201,8 +180,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * @return the public revision or current revision depending on the state of
-   *         the item
+   * @return the public revision or current revision depending on the state of the item
    */
   public int getPublicOrCurrentRevision() {
     if (getPublicRevision() == -1) return getCurrentLocator().getRevision();
@@ -210,9 +188,9 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * If the user is non-empty, then see if the item is checked out to the user
-   * and possibly return the edit locator, otherwise return the current
-   * revision.
+   * If the user is non-empty, then see if the item is checked out to the user and possibly return
+   * the edit locator, otherwise return the current revision.
+   *
    * @param user the user name, may be empty or <code>null</code>
    * @return the edit or current revision
    */
@@ -225,8 +203,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * @return the last public revision. It is <code>-1</code> if there is no
-   *         public revision yet.
+   * @return the last public revision. It is <code>-1</code> if there is no public revision yet.
    */
   public int getPublicRevision() {
     if (m_publicRevision == null) return (int) -1;
@@ -256,12 +233,11 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * Gets the locator for the revision to which edits should be applied (the
-   * edit revision if the item is checked out, otherwise the current revision).
+   * Gets the locator for the revision to which edits should be applied (the edit revision if the
+   * item is checked out, otherwise the current revision).
    *
-   * @return The locator described above, never <code>null</code>.
-   *    The revision of the locator will be the edit revision if item is
-   *    checked out, current revision otherwise.
+   * @return The locator described above, never <code>null</code>. The revision of the locator will
+   *     be the edit revision if item is checked out, current revision otherwise.
    */
   public PSLocator getHeadLocator() {
     if (m_editRevision > 0) return getEditLocator();
@@ -271,9 +247,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Get the object type of the component.
    *
-   * @return the object type of the component. It is one of the TYPE_xxx
-   *         values.
-   *
+   * @return the object type of the component. It is one of the TYPE_xxx values.
    */
   public int getType() {
     return m_objectType;
@@ -282,8 +256,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Determines whether the object is of TYPE_FOLDER or not.
    *
-   * @return <code>true</code> if the object is a folder; otherwise return
-   *         <code>false</code>.
+   * @return <code>true</code> if the object is a folder; otherwise return <code>false</code>.
    */
   public boolean isFolder() {
     return (m_objectType == TYPE_FOLDER);
@@ -292,8 +265,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Determines whether the object is of TYPE_ITEM or not.
    *
-   * @return <code>true</code> if the object is a folder; otherwise return
-   *         <code>false</code>.
+   * @return <code>true</code> if the object is a folder; otherwise return <code>false</code>.
    */
   public boolean isItem() {
     return (m_objectType == TYPE_ITEM);
@@ -329,17 +301,15 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
     m_name = name;
   }
 
-  /**
-   * Get the content type id of the component.
-   */
+  /** Get the content type id of the component. */
   public long getContentTypeId() {
     return m_contentTypeId;
   }
 
   /**
    * Gets the GUID-representation of the content type of the component.
-   * @return a GUID-representation of the content type of the component, never
-   * <code>null</code>.
+   *
+   * @return a GUID-representation of the content type of the component, never <code>null</code>.
    */
   public IPSGuid getContentTypeGUID() {
     return new PSGuid(PSTypeEnum.NODEDEF, m_contentTypeId);
@@ -360,16 +330,15 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * @return Contentid of the clone parent. -1 if this is not a clone of any
-   *         item.
+   * @return Contentid of the clone parent. -1 if this is not a clone of any item.
    */
   public int getClonedParentContentId() {
     return m_clonedParentContentId;
   }
 
   /**
-   * @return CommunityId of the item. A valid communityid > 0. -1 if the item
-   *         is visible to all communities.
+   * @return CommunityId of the item. A valid communityid > 0. -1 if the item is visible to all
+   *     communities.
    */
   public int getCommunityId() {
     return m_communityId;
@@ -411,8 +380,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * @return Item's current workflow state id. Greater than 0 for a
-   *         workflowable object.
+   * @return Item's current workflow state id. Greater than 0 for a workflowable object.
    */
   public int getContentStateId() {
     return m_contentStateId;
@@ -503,8 +471,8 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * @return <code>true</code> if the revsion is locked in he current state,
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if the revsion is locked in he current state, <code>false</code>
+   *     otherwise.
    */
   public boolean isRevisionLock() {
     return m_revisionLock != null && m_revisionLock == 'Y';
@@ -518,23 +486,20 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * Returns a <code>PSObjectPermissions</code> object which encapsulates an
-   * access mask. This mask determines the level of access for the user
-   * accessing this component. Currently this mask is relevant only for
-   * "folders".
+   * Returns a <code>PSObjectPermissions</code> object which encapsulates an access mask. This mask
+   * determines the level of access for the user accessing this component. Currently this mask is
+   * relevant only for "folders".
    *
-   * @return the permissions set on the component encapsulated by this object,
-   *         never <code>null</code> if the object is of type "folder",
-   *         always <code>null</code> otherwise.
+   * @return the permissions set on the component encapsulated by this object, never <code>null
+   *     </code> if the object is of type "folder", always <code>null</code> otherwise.
    */
   public PSObjectPermissions getPermissions() {
     return m_permissions;
   }
 
   /**
-   * Get the parent folder information for this component summary. The parent
-   * folder information is loaded lazily, so do not call this method outside
-   * of a service method.
+   * Get the parent folder information for this component summary. The parent folder information is
+   * loaded lazily, so do not call this method outside of a service method.
    *
    * @return the parent folder info, never <code>null</code> but may be empty.
    */
@@ -837,8 +802,8 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
    *
    * <pre>
    *
@@ -883,7 +848,6 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -940,8 +904,7 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
    * Format a date for the XML output
    *
    * @param date to format, may be <code>null</code>
-   * @return the formatted date or an empty string if the date is
-   *         <code>null</code>
+   * @return the formatted date or an empty string if the date is <code>null</code>
    */
   private String dateformat(Date date) {
     if (date == null) {
@@ -1119,17 +1082,16 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * Returns Integer parsed from the string. Returns <code>null</code> if
-   * string is empty or equals to "0".
+   * Returns Integer parsed from the string. Returns <code>null</code> if string is empty or equals
+   * to "0".
    */
   private Integer parseIntegerOrNull(String str) {
     return StringUtils.isBlank(str) || Integer.parseInt(str) == 0 ? null : Integer.parseInt(str);
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   * PSKey)}. Since this is a read-only object, this is a not supported
-   * operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
    *
    * @throws UnsupportedOperationException always.
    */
@@ -1228,8 +1190,8 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   }
 
   /**
-   * Creates the correct key for this component. The PSDbComponent createKey is
-   * not used because we need a PSLocator rather than a generic PSKey.
+   * Creates the correct key for this component. The PSDbComponent createKey is not used because we
+   * need a PSLocator rather than a generic PSKey.
    */
   public static PSKey createKey(int contentid, int revisionid) {
     PSKey key = new PSLocator(contentid, revisionid);
@@ -1237,34 +1199,27 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
     return key;
   }
 
-  /**
-   * Override to create our own Key which is {@link PSLocator}.
-   */
+  /** Override to create our own Key which is {@link PSLocator}. */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
     return new PSLocator(el);
   }
 
-  /**
-   * The content id, init by ctor, never modified after that
-   */
+  /** The content id, init by ctor, never modified after that */
   @Id
   @Column(name = "CONTENTID")
   private Integer m_contentId;
 
   /**
-   * The row version, used by hibernate to detect stale instances. A
-   * <code>null</code> value means that this is a new object rather than an
-   * update.
+   * The row version, used by hibernate to detect stale instances. A <code>null</code> value means
+   * that this is a new object rather than an update.
    */
   @Version
   @Column(name = "HIB_VER")
   private Integer m_version = null;
 
-  /**
-   * The current revision number, init by ctor, never modified after that
-   */
+  /** The current revision number, init by ctor, never modified after that */
   @Basic
   @Column(name = "CURRENTREVISION")
   private Integer m_currRevision;
@@ -1300,23 +1255,17 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
     m_publicRevision = publicRevision;
   }
 
-  /**
-   * The tip revision number, init by ctor, never modified after that.
-   */
+  /** The tip revision number, init by ctor, never modified after that. */
   @Basic
   @Column(name = "TIPREVISION")
   private Integer m_tipRevision;
 
-  /**
-   * The edit revision number, init by ctor, never modified after that
-   */
+  /** The edit revision number, init by ctor, never modified after that */
   @Basic
   @Column(name = "EDITREVISION")
   private Integer m_editRevision;
 
-  /**
-   * The last public revision number.
-   */
+  /** The last public revision number. */
   @Basic
   @Column(name = "PUBLIC_REVISION")
   private Integer m_publicRevision = null;
@@ -1324,231 +1273,189 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   /**
    * Current locator,
    *
-   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by
-   *      getCurrentLocator(), never <code>null</code> after that.
+   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by getCurrentLocator(),
+   *     never <code>null</code> after that.
    */
   @Transient private PSLocator m_currentLocator = null;
 
   /**
    * Edit locator,
    *
-   * @see {@link #getEditLocator()} for descrption. It is (lazy) initialized by
-   *      getEditLocator(), never <code>null</code> after that.
+   * @see {@link #getEditLocator()} for descrption. It is (lazy) initialized by getEditLocator(),
+   *     never <code>null</code> after that.
    */
   @Transient private PSLocator m_editLocator = null;
 
   /**
    * Tip locator,
    *
-   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by
-   *      getTipLocator(), never <code>null</code> after that.
+   * @see {@link #getTipLocator()} for descrption. It is (lazy) initialized by getTipLocator(),
+   *     never <code>null</code> after that.
    */
   @Transient private PSLocator m_tipLocator = null;
 
   /**
-   * It is the value of TITLE column, for example a name of the folder.
-   * Initialized by the constructor, never <code>null</code> or empty after
-   * that.
+   * It is the value of TITLE column, for example a name of the folder. Initialized by the
+   * constructor, never <code>null</code> or empty after that.
    */
   @Basic
   @Column(name = "TITLE")
   private String m_name = "";
 
   /**
-   * The object type of the component. It is defined in the object table.
-   * Initialized by the constructor. It can only be one of the
-   * <code>TYPE_XXX</code> values after that.
+   * The object type of the component. It is defined in the object table. Initialized by the
+   * constructor. It can only be one of the <code>TYPE_XXX</code> values after that.
    */
   @Basic
   @Column(name = "OBJECTTYPE")
   private int m_objectType;
 
   /**
-   * Locale identifier string that is from LOCALE column of the CONTENTSTATUS
-   * table. It corresponds to one of the deployed locales in the system.
-   * Default is {@link com.percussion.i18n.PSI18nUtils#DEFAULT_LANG}.
+   * Locale identifier string that is from LOCALE column of the CONTENTSTATUS table. It corresponds
+   * to one of the deployed locales in the system. Default is {@link
+   * com.percussion.i18n.PSI18nUtils#DEFAULT_LANG}.
    */
   @Basic
   @Column(name = "LOCALE")
   private String m_locale = PSI18nUtils.DEFAULT_LANG;
 
   /**
-   * Content Id of the cloned parent that is from CLONEDPARENT column of the
-   * CONTENTSTATUS table. It will be set to -1 if there is no clone parent
-   * exists for this item.
+   * Content Id of the cloned parent that is from CLONEDPARENT column of the CONTENTSTATUS table. It
+   * will be set to -1 if there is no clone parent exists for this item.
    */
   @Basic
   @Column(name = "CLONEDPARENT")
   private Integer m_clonedParentContentId;
 
-  /**
-   * Community Id of the item from COMMUNITYID column of the CONTENTSTATUS
-   * table.
-   */
+  /** Community Id of the item from COMMUNITYID column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "COMMUNITYID")
   private Integer m_communityId;
 
   /**
-   * Item's checkout user name from CONTENTCHECKOUTUSERNAME column of the
-   * CONTENTSTATUS table. Will be empty if not checked out to anybody.
+   * Item's checkout user name from CONTENTCHECKOUTUSERNAME column of the CONTENTSTATUS table. Will
+   * be empty if not checked out to anybody.
    */
   @Basic
   @Column(name = "CONTENTCHECKOUTUSERNAME")
   private String m_checkoutUserName = "";
 
-  /**
-   * Item's creation date from CONTENTCREATEDDATE column of the CONTENTSTATUS
-   * table.
-   */
+  /** Item's creation date from CONTENTCREATEDDATE column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "CONTENTCREATEDDATE")
   private Date m_contentCreatedDate = null;
 
-  /**
-   * Item's expiry date from CONTENTEXPIRYDATE column of the CONTENTSTATUS
-   * table.
-   */
+  /** Item's expiry date from CONTENTEXPIRYDATE column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "CONTENTEXPIRYDATE")
   private Date m_contentExpiryDate = null;
 
-  /**
-   * Item's last modifed date from CONTENTLASTMODIFIEDDATE column of the
-   * CONTENTSTATUS table.
-   */
+  /** Item's last modifed date from CONTENTLASTMODIFIEDDATE column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "CONTENTLASTMODIFIEDDATE")
   private Date m_contentLastModifiedDate = null;
 
   /**
-   * Item's last modified user name from CONTENTLASTMODIFIER column of the
-   * CONTENTSTATUS table. Never <code>null</code> may be empty.
+   * Item's last modified user name from CONTENTLASTMODIFIER column of the CONTENTSTATUS table.
+   * Never <code>null</code> may be empty.
    */
   @Basic
   @Column(name = "CONTENTLASTMODIFIER")
   private String m_contentLastModifier = "";
 
   /**
-   * Item's start date from CONTENTSTARTDATE column of the CONTENTSTATUS table.
-   * Never <code>null</code> may be empty.
+   * Item's start date from CONTENTSTARTDATE column of the CONTENTSTATUS table. Never <code>null
+   * </code> may be empty.
    */
   @Basic
   @Column(name = "CONTENTSTARTDATE")
   private Date m_contentStartDate = null;
 
-  /**
-   * Item's current state id from CONTENTSTATEID column of the CONTENTSTATUS
-   * table.
-   */
+  /** Item's current state id from CONTENTSTATEID column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "CONTENTSTATEID")
   private Integer m_contentStateId;
 
-  /**
-   * Item's workflow id from WORKFLOWAPPID column of the CONTENTSTATUS table.
-   */
+  /** Item's workflow id from WORKFLOWAPPID column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "WORKFLOWAPPID")
   private Integer m_workflowAppId;
 
-  /**
-   * Item's next aging date from NEXTAGINGDATE column of the CONTENTSTATUS
-   * table.
-   */
+  /** Item's next aging date from NEXTAGINGDATE column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "NEXTAGINGDATE")
   private Date m_nextAgingDate = null;
 
   /**
-   * Item's creator's name from CONTENTCREATEDBY column of the CONTENTSTATUS
-   * table. Never <code>null</code> may be empty.
+   * Item's creator's name from CONTENTCREATEDBY column of the CONTENTSTATUS table. Never <code>null
+   * </code> may be empty.
    */
   @Basic
   @Column(name = "CONTENTCREATEDBY")
   private String m_contentCreatedBy = "";
 
-  /**
-   * Item's aging time from CONTENTAGINGTIME column of the CONTENTSTATUS table.
-   */
+  /** Item's aging time from CONTENTAGINGTIME column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "CONTENTAGINGTIME")
   private Integer m_contentAgingTime;
 
-  /**
-   * Item's publish date from CONTENTPUBLISHDATE column of the CONTENTSTATUS
-   * table
-   */
+  /** Item's publish date from CONTENTPUBLISHDATE column of the CONTENTSTATUS table */
   @Basic
   @Column(name = "CONTENTPUBLISHDATE")
   private Date m_contentPublishDate = null;
 
-  /**
-   * Item's publish date from CONTENTPOSTDATE column of the CONTENTSTATUS
-   * table
-   */
+  /** Item's publish date from CONTENTPOSTDATE column of the CONTENTSTATUS table */
   @Basic
   @Column(name = "CONTENTPOSTDATE")
   private Date m_contentPostDate = null;
 
-  /**
-   * Item's ContentPostDate Timezone from CONTENTPOSTDATETZ column of the CONTENTSTATUS
-   * table
-   */
+  /** Item's ContentPostDate Timezone from CONTENTPOSTDATETZ column of the CONTENTSTATUS table */
   @Basic
   @Column(name = "CONTENTPOSTDATETZ")
   private String m_contentPostDateTz = "";
 
   /**
-   * Item's content path name from CONTENTPATHNAME column of the CONTENTSTATUS
-   * table. May be <code>null</code> or empty.
+   * Item's content path name from CONTENTPATHNAME column of the CONTENTSTATUS table. May be <code>
+   * null</code> or empty.
    */
   @Basic
   @Column(name = "CONTENTPATHNAME")
   private String m_contentPathName = "";
 
   /**
-   * Item's file path name suffix from CONTENTSUFFIX column of the
-   * CONTENTSTATUS table. May be <code>null</code> or empty.
+   * Item's file path name suffix from CONTENTSUFFIX column of the CONTENTSTATUS table. May be
+   * <code>null</code> or empty.
    */
   @Basic
   @Column(name = "CONTENTSUFFIX")
   private String m_contentSuffix = "";
 
-  /**
-   * Item's revision lock flag from REVISIONLOCK column of the CONTENTSTATUS
-   * table.
-   */
+  /** Item's revision lock flag from REVISIONLOCK column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "REVISIONLOCK")
   private Character m_revisionLock = 'N';
 
-  /**
-   * Item's reminder date from REMINDERDATE column of the CONTENTSTATUS table
-   */
+  /** Item's reminder date from REMINDERDATE column of the CONTENTSTATUS table */
   @Basic
   @Column(name = "REMINDERDATE")
   private Date m_reminderDate = null;
 
   /**
-   * Item's curent state entered date from STATEENTEREDDATE column of the
-   * CONTENTSTATUS table. Never <code>null</code> may be empty.
+   * Item's curent state entered date from STATEENTEREDDATE column of the CONTENTSTATUS table. Never
+   * <code>null</code> may be empty.
    */
   @Basic
   @Column(name = "STATEENTEREDDATE")
   private Date m_stateEnteredDate = null;
 
-  /**
-   * Item's next aging transitionid from NEXTAGINGTRANSITION column of the
-   * CONTENTSTATUS table.
-   */
+  /** Item's next aging transitionid from NEXTAGINGTRANSITION column of the CONTENTSTATUS table. */
   @Basic
   @Column(name = "NEXTAGINGTRANSITION")
   private Integer m_nextAgingTransition;
 
   /**
-   * Item's repeated aging transition start date from
-   * REPEATEDAGINGTRANSSTARTDATE column of the CONTENTSTATUS table
+   * Item's repeated aging transition start date from REPEATEDAGINGTRANSSTARTDATE column of the
+   * CONTENTSTATUS table
    */
   @Basic
   @Column(name = "REPEATEDAGINGTRANSSTARTDATE")
@@ -1566,17 +1473,15 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
     m_lastTransitionDate = lastTransitionDate;
   }
 
-  /**
-   * The content type id of the component.
-   */
+  /** The content type id of the component. */
   @Basic
   @Column(name = "CONTENTTYPEID")
   private Long m_contentTypeId = (long) UNKNOWN_CONTENTTYPE_ID;
 
   /**
-   * Owning relationship information, used for folder restrictions in JCR
-   * searches. Lazy loaded to avoid issues with performance and transient to
-   * avoid issues with lazy loading and any serialization.
+   * Owning relationship information, used for folder restrictions in JCR searches. Lazy loaded to
+   * avoid issues with performance and transient to avoid issues with lazy loading and any
+   * serialization.
    */
   @SuppressWarnings("unused")
   @OneToMany(targetEntity = PSRelationshipData.class, fetch = FetchType.LAZY)
@@ -1587,12 +1492,11 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   private Set<PSRelationshipData> parentFolders = new HashSet<>();
 
   /**
-   * Specifies the permissions set on the item encapsulated by this object for
-   * the user accessing the item. Currently, this has relevance only if the
-   * encapsulated object is of type "folder". Initialized in the constructor or
-   * <code>fromXml()</code> method if the object type is "folder". Never
-   * <code>null</code> if this summary is for a folder object, otherwise
-   * <code>null</code>. Never modified after initialization.
+   * Specifies the permissions set on the item encapsulated by this object for the user accessing
+   * the item. Currently, this has relevance only if the encapsulated object is of type "folder".
+   * Initialized in the constructor or <code>fromXml()</code> method if the object type is "folder".
+   * Never <code>null</code> if this summary is for a folder object, otherwise <code>null</code>.
+   * Never modified after initialization.
    */
   @Transient private PSFolderPermissions m_permissions = null;
 
@@ -1674,51 +1578,33 @@ public class PSComponentSummary extends PSDbComponent implements Serializable {
   public static final String XML_ATTR_LASTTRANSITIONDATE = "lastTransitionDate";
 
   // Constants to represent the parts of the component summary
-  /**
-   * Get full component summary info
-   */
+  /** Get full component summary info */
   public static final int GET_SUMMARY = 1;
 
-  /**
-   * Get the locator. This locator will always have revision id=-1
-   */
+  /** Get the locator. This locator will always have revision id=-1 */
   public static final int GET_LOCATOR = 2;
 
-  /**
-   * Get name of the component
-   */
+  /** Get name of the component */
   public static final int GET_NAME = 3;
 
-  /**
-   * Get current locator. The revision in this locator will be the current
-   * revisionid.
-   */
+  /** Get current locator. The revision in this locator will be the current revisionid. */
   public static final int GET_CURRENT_LOCATOR = 4;
 
-  /**
-   * Get current locator. The revision in this locator will be the tip
-   * revisionid.
-   */
+  /** Get current locator. The revision in this locator will be the tip revisionid. */
   public static final int GET_TIP_LOCATOR = 5;
 
-  /**
-   * Unknown content type id
-   */
+  /** Unknown content type id */
   public static final int UNKNOWN_CONTENTTYPE_ID = -1;
 
-  /**
-   * The constant used for objects of type 'item'.
-   */
+  /** The constant used for objects of type 'item'. */
   public static final int TYPE_ITEM = PSCmsObject.TYPE_ITEM;
 
-  /**
-   * The constant used for objects of type 'folder'.
-   */
+  /** The constant used for objects of type 'folder'. */
   public static final int TYPE_FOLDER = PSCmsObject.TYPE_FOLDER;
 
   /**
-   * String represetation for the numeric values of TYPE_XXX. Use the type id
-   * as the index into this array.
+   * String represetation for the numeric values of TYPE_XXX. Use the type id as the index into this
+   * array.
    */
   public static final String[] TYPE_NAMES = new String[] {"", "item", "folder"};
 }

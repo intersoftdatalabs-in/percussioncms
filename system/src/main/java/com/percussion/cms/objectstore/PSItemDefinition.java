@@ -63,8 +63,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    *
    * @param appName The owning application. Never <code>null</code> or empty.
    * @param typeDef The type info from the db. Never <code>null</code>.
-   * @param editorDef The type info from the application xml. Never
-   *    <code>null</code>.
+   * @param editorDef The type info from the application xml. Never <code>null</code>.
    */
   public PSItemDefinition(String appName, PSContentType typeDef, PSContentEditor editorDef) {
     super(
@@ -87,8 +86,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Creates a key representing the PSContentType object that would be
-   * associated with this definition.
+   * Creates a key representing the PSContentType object that would be associated with this
+   * definition.
    *
    * @return Never <code>null</code>.
    */
@@ -97,26 +96,23 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * @param    contentTypeDef
+   * @param contentTypeDef
    */
   public PSItemDefinition(Element contentTypeDef) throws PSUnknownNodeTypeException {
     fromXml(contentTypeDef, null, null);
   }
 
   /**
-   * @param    contentTypeDef The content type definition.
-   * @param    isCopy <code>true</code> if the item definition is being
-   * constructed as a copy of an existing definition, <code>false</code>
-   * otherwise.
+   * @param contentTypeDef The content type definition.
+   * @param isCopy <code>true</code> if the item definition is being constructed as a copy of an
+   *     existing definition, <code>false</code> otherwise.
    */
   public PSItemDefinition(Element contentTypeDef, boolean isCopy)
       throws PSUnknownNodeTypeException {
     fromXml(contentTypeDef, null, null, isCopy);
   }
 
-  /**
-   * Ctor to be used by subclasses
-   */
+  /** Ctor to be used by subclasses */
   protected PSItemDefinition() {}
 
   /**
@@ -129,11 +125,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * An enabled editor is visible to end users and participates in searches,
-   * a disabled editor does not. Defaults to enabled.
-   * <p>
-   * Impl note: This property is the enabled property of the associated
-   * application.
+   * An enabled editor is visible to end users and participates in searches, a disabled editor does
+   * not. Defaults to enabled.
+   *
+   * <p>Impl note: This property is the enabled property of the associated application.
    */
   public boolean isEnabled() {
     return m_enabled;
@@ -169,8 +164,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Returns the definition for this content type.
    *
-   * @return the definition of this content type.  Will not be
-   * <code>null</code>.
+   * @return the definition of this content type. Will not be <code>null</code>.
    */
   public PSContentEditor getContentEditor() {
     return m_contentEditorDef;
@@ -198,19 +192,16 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Convenience method that gets the PSField objects associated with
-   * the specified complex child. Only those items that have a mapping are
-   * returned.
-   * <p>This list also includes all fields that display with the child but
-   * whose fields are not directly in the associated fieldset, such
-   * as simple children and SDMP (single data, multi-property) fieldsets.
+   * Convenience method that gets the PSField objects associated with the specified complex child.
+   * Only those items that have a mapping are returned.
    *
-   * @param childMapperId The id of the mapper of the complex child of
-   * interest.
+   * <p>This list also includes all fields that display with the child but whose fields are not
+   * directly in the associated fieldset, such as simple children and SDMP (single data,
+   * multi-property) fieldsets.
    *
-   * @return An iterator over 1 or more PSFields, in document (display)
-   * order. If no mapper matching the supplied id is found, <code>null</code>
-   * is returned.
+   * @param childMapperId The id of the mapper of the complex child of interest.
+   * @return An iterator over 1 or more PSFields, in document (display) order. If no mapper matching
+   *     the supplied id is found, <code>null</code> is returned.
    */
   public Iterator<PSField> getChildFields(int childMapperId) {
     PSContentEditorMapper mapper = getContentEditorMapper();
@@ -226,17 +217,14 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Walks the supplied mapper and gets the matching field definitions. The
-   * result includes fields directly in the related fieldset and children of
-   * simple and SDMP field sets.
+   * Walks the supplied mapper and gets the matching field definitions. The result includes fields
+   * directly in the related fieldset and children of simple and SDMP field sets.
    *
-   * @param fieldSet The field set associated with the supplied mapper. Either
-   * the editor's main field set (if the mapper is the main mapper), or a
-   * complex child. Assumed not <code>null</code>.
-   *
-   * @param mapper The display definition to walk. For each entry in the
-   * mapper, the corresponding PSField is added to the returned list.
-   *
+   * @param fieldSet The field set associated with the supplied mapper. Either the editor's main
+   *     field set (if the mapper is the main mapper), or a complex child. Assumed not <code>null
+   *     </code>.
+   * @param mapper The display definition to walk. For each entry in the mapper, the corresponding
+   *     PSField is added to the returned list.
    * @return 1 or more PSField objects, in document order.
    */
   private List<PSField> getFields(PSFieldSet fieldSet, PSDisplayMapper mapper) {
@@ -249,8 +237,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
       Object o = fieldSet.get(fieldName);
 
       /**
-       * If the field reference is not found in this fieldset, then check
-       * whether it is multiproperty simple child field
+       * If the field reference is not found in this fieldset, then check whether it is
+       * multiproperty simple child field
        */
       if (o == null) {
         o = fieldSet.getChildField(fieldName, PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD);
@@ -295,13 +283,13 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Convenience method that gets the PSField objects associated with
-   * the main item. Only those items that have a mapping. It does NOT include
-   * the field that does not have UI mapping. Use {@link #getParentFields()}
-   * to get ALL fields. This method can be used remotely.
-   * <p>This list also includes all fields that display with the parent but
-   * whose display mappings are not directly in the parent's fieldset, such
-   * as simple children and SDMP (single data, multi-property) fieldsets.
+   * Convenience method that gets the PSField objects associated with the main item. Only those
+   * items that have a mapping. It does NOT include the field that does not have UI mapping. Use
+   * {@link #getParentFields()} to get ALL fields. This method can be used remotely.
+   *
+   * <p>This list also includes all fields that display with the parent but whose display mappings
+   * are not directly in the parent's fieldset, such as simple children and SDMP (single data,
+   * multi-property) fieldsets.
    *
    * @return 1 or more <code>PSField</code> objects, in document order.
    */
@@ -315,9 +303,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * This method returns all user visible fields present in the parent editor
-   * that store data as a single value (not as arrays or tables.) and storage
-   * type as text.
+   * This method returns all user visible fields present in the parent editor that store data as a
+   * single value (not as arrays or tables.) and storage type as text.
    *
    * @return list of field names, never <code>null</code>.
    */
@@ -340,8 +327,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Convenient method to get the content editor mapper.
    *
-   * @return Content editor mapper returned by
-   *         <code>PSContentEditorPipe#getMapper</code>
+   * @return Content editor mapper returned by <code>PSContentEditorPipe#getMapper</code>
    */
   public PSContentEditorMapper getContentEditorMapper() {
     PSContentEditorPipe pipe = (PSContentEditorPipe) m_contentEditorDef.getPipe();
@@ -356,16 +342,16 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Convenience method that gets the PSField objects associated with
-   * the main item. Only those items that have a mapping or are system fields
-   * stored in the db are returned.
-   * <p>This list also includes all fields that display with the parent but
-   * whose display mappings are not directly in the parent's fieldset, such
-   * as simple children and SDMP (single data, multi-property) fieldsets.
+   * Convenience method that gets the PSField objects associated with the main item. Only those
+   * items that have a mapping or are system fields stored in the db are returned.
+   *
+   * <p>This list also includes all fields that display with the parent but whose display mappings
+   * are not directly in the parent's fieldset, such as simple children and SDMP (single data,
+   * multi-property) fieldsets.
+   *
    * <p>This cannot be used remotely.
    *
-   * @return An iterator over 1 or more PSFields, in document (display)
-   * order.
+   * @return An iterator over 1 or more PSFields, in document (display) order.
    */
   public Iterator<PSField> getParentFields() {
     List<PSField> fields = getMappedParentFields();
@@ -376,8 +362,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * Convenience method that calls {@link PSFieldSet#getFieldByName(String)
-   * getFieldByName(fieldName)} on the parent field set of the associated
-   * content editor.
+   * getFieldByName(fieldName)} on the parent field set of the associated content editor.
    */
   public PSField getFieldByName(String fieldName) {
     PSContentEditorMapper mapper = getContentEditorMapper();
@@ -388,11 +373,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Determines if a (parent or child) field exists in the item definition.
    *
-   * @param fieldName the field name in question, never <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if the field exists; otherwise return
-   * <code>false</code>.
+   * @param fieldName the field name in question, never <code>null</code> or empty.
+   * @return <code>true</code> if the field exists; otherwise return <code>false</code>.
    */
   public boolean isFieldExists(String fieldName) {
     if (StringUtils.isBlank(fieldName))
@@ -408,8 +390,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Get the field set for the supplied name.
    *
-   * @param fieldSetName the name of the field set to get, not
-   *    <code>null</code> or empty.
+   * @param fieldSetName the name of the field set to get, not <code>null</code> or empty.
    * @return the field set or <code>null</code> if not found.
    */
   public PSFieldSet getFieldSet(String fieldSetName) {
@@ -453,7 +434,6 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * Get the display mapper for the specified field set
    *
    * @param fieldSetRef the field set ref of the mapper
-   *
    * @return The mapper, or <code>null</code> if not found.
    */
   public PSDisplayMapper getDisplayMapper(String fieldSetRef) {
@@ -464,8 +444,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Look at all system fields and return those whose read-only property is
-   * <code>false</code> and don't have a UI mapping.
+   * Look at all system fields and return those whose read-only property is <code>false</code> and
+   * don't have a UI mapping.
    *
    * @return Never <code>null</code>, may be empty.
    */
@@ -491,9 +471,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     return results;
   }
 
-  /**
-   * Returns clone of Options map
-   */
+  /** Returns clone of Options map */
   protected Map getOptionsMap() {
     return null;
   }
@@ -501,7 +479,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Returns the workflowid for this item.
    *
-   * @return the workflowid of this item.  Will be > 0.
+   * @return the workflowid of this item. Will be > 0.
    */
   public int getWorkflowId() {
     return m_contentEditorDef.getWorkflowId();
@@ -509,6 +487,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * List of slot names on this type.
+   *
    * @return <code>null</code>.
    */
   public Iterator getSlotNames() {
@@ -517,6 +496,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * List of slot ids on this type.
+   *
    * @return <code>null</code>.
    */
   public Iterator getSlotIds() {
@@ -525,7 +505,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * List of variant names on this type.
-   * @param    slotName
+   *
+   * @param slotName
    * @return <code>null</code>.
    */
   public Iterator getVariantNames(@SuppressWarnings("unused") String slotName) {
@@ -534,7 +515,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * List of variant ids on this type.
-   * @param    slotId
+   *
+   * @param slotId
    */
   public Iterator getVariantIds(@SuppressWarnings("unused") int slotId) {
     return null;
@@ -589,11 +571,15 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
     return m_contentEditorDef.getName();
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public void validate(@SuppressWarnings("unused") IPSValidationContext cxt) {}
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -601,24 +587,23 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * An element node may contain a hierarchical structure, including child
-   * objects. The element node can also be a child of another element node.
-   * <p>
-   * Each component should add itself to <code>parentComponents</code> before
-   * constructing its child components, and should restore the original
-   * <code>parentComponents</code> before returning.
+   * This method is called to populate an object from its XML representation. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node.
    *
-   * @param sourceNode   the XML element node to populate from, not <code>null
+   * <p>Each component should add itself to <code>parentComponents</code> before constructing its
+   * child components, and should restore the original <code>parentComponents</code> before
+   * returning.
+   *
+   * @param sourceNode the XML element node to populate from, not <code>null
    * </code>.
    * @param parentDoc may be <code>null</code>.
-   * @param parentComponents a collection of all the components created in
-   * the process of creating this component.  May be <code>null</code>.
-   * @param isCopy <code>true</code> if this method is being used to populate
-   * to a copy of an existing item definition, <code>false</code> otherwise.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param parentComponents a collection of all the components created in the process of creating
+   *     this component. May be <code>null</code>.
+   * @param isCopy <code>true</code> if this method is being used to populate to a copy of an
+   *     existing item definition, <code>false</code> otherwise.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   private void fromXml(
       Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean isCopy)
@@ -658,6 +643,7 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
 
   /**
    * This is the component id, which should not be confused with the type id.
+   *
    * @see IPSComponent
    */
   @Override
@@ -676,11 +662,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * A flag to indicate whether this content editor is hidden from lists
-   * showing content editors.
+   * A flag to indicate whether this content editor is hidden from lists showing content editors.
    *
-   * @return <code>true</code> if it should not be shown to the end user,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if it should not be shown to the end user, <code>false</code>
+   *     otherwise.
    */
   public boolean isHidden() {
     return m_isHidden;
@@ -690,9 +675,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
    * Determine if the supplied field name references a complex child.
    *
    * @param fieldSetName The field name, may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if it is a complex child, <code>false</code> if
-   * it is not, or if the field is not found.
+   * @return <code>true</code> if it is a complex child, <code>false</code> if it is not, or if the
+   *     field is not found.
    */
   public boolean isComplexChild(String fieldSetName) {
     if (fieldSetName == null || fieldSetName.trim().length() == 0)
@@ -709,11 +693,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   /**
    * Gets the fieldset named by the specified field name
    *
-   * @param fieldName The name of the simple child field in question, may not
-   * be <code>null</code> or empty.
-   *
-   * @return the field set of the simple child. It may be <code>null</code> if
-   * cannot find a simple child with the name.
+   * @param fieldName The name of the simple child field in question, may not be <code>null</code>
+   *     or empty.
+   * @return the field set of the simple child. It may be <code>null</code> if cannot find a simple
+   *     child with the name.
    */
   @SuppressWarnings("unchecked")
   public PSFieldSet getSimpleChildSet(String fieldName) {
@@ -750,22 +733,18 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Get the page id for the supplied fieldname.  Page ids are used in
-   * conjuntion with the <code>edit</code> and <code>preview</code> commands
-   * to identify the correct editor page.  Parent page (main editor) has a
-   * page id of 0.  Each complex child found in mapping order increments this
-   * value by 2, first for its summary page, and second for its editor page.
-   * Thus for the nth complex child field found, its summary page id will be
-   * 2*n-1, and its editor page id will be 2*n.
+   * Get the page id for the supplied fieldname. Page ids are used in conjuntion with the <code>edit
+   * </code> and <code>preview</code> commands to identify the correct editor page. Parent page
+   * (main editor) has a page id of 0. Each complex child found in mapping order increments this
+   * value by 2, first for its summary page, and second for its editor page. Thus for the nth
+   * complex child field found, its summary page id will be 2*n-1, and its editor page id will be
+   * 2*n.
    *
-   * @param fieldName The name of the field, may not be <code>null</code> or
-   * empty.
-   *
-   * @return If the field is found in the top level mapper, the parent page id
-   * is returned.  If the field identifies a complex child, the summary page id
-   * for that child is returned.  If the field is contained within a complex
-   * child, then the editor page id for that child is returned.  If no matching
-   * field is found, <code>-1</code> is returned.
+   * @param fieldName The name of the field, may not be <code>null</code> or empty.
+   * @return If the field is found in the top level mapper, the parent page id is returned. If the
+   *     field identifies a complex child, the summary page id for that child is returned. If the
+   *     field is contained within a complex child, then the editor page id for that child is
+   *     returned. If no matching field is found, <code>-1</code> is returned.
    */
   public int getPageId(String fieldName) {
     if (fieldName == null || fieldName.trim().length() == 0)
@@ -782,20 +761,17 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Recursive worker method for {@link #getPageId(String)}.  Recusively walks
-   * the supplied mapper/field set looking for a match on the field name.  If
-   * a match is found, returns the correct page id.
+   * Recursive worker method for {@link #getPageId(String)}. Recusively walks the supplied
+   * mapper/field set looking for a match on the field name. If a match is found, returns the
+   * correct page id.
    *
-   * @param fieldName The name of the field to match, assumed not
-   * <code>null</code> or empty
+   * @param fieldName The name of the field to match, assumed not <code>null</code> or empty
    * @param mapper The display mapper to check, assumed not <code>null</code>.
-   * @param fs The field set corresponding to the supplied mapper, assumed not
-   * <code>null</code> and to match the fieldset ref of the supplied mapper.
-   * @param curPageId <code>int[1]</code> to pass current page id by reference,
-   * incremented by calls to this method as complex child fields are found,
-   * assumed not <code>null</code>.  Value of <code>0</code> should be passed
-   * for the first call to this method.
-   *
+   * @param fs The field set corresponding to the supplied mapper, assumed not <code>null</code> and
+   *     to match the fieldset ref of the supplied mapper.
+   * @param curPageId <code>int[1]</code> to pass current page id by reference, incremented by calls
+   *     to this method as complex child fields are found, assumed not <code>null</code>. Value of
+   *     <code>0</code> should be passed for the first call to this method.
    * @return The page id, or <code>-1</code> if a matching field is not found.
    */
   private int getPageId(String fieldName, PSDisplayMapper mapper, PSFieldSet fs, int[] curPageId) {
@@ -831,11 +807,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Determine if the content type represented by this definition is enabled
-   * for indexing and thus may be searched.
+   * Determine if the content type represented by this definition is enabled for indexing and thus
+   * may be searched.
    *
-   * @return <code>true</code> if it may be searched, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it may be searched, <code>false</code> otherwise.
    */
   public boolean isUserSearcheable() {
     PSContentEditorPipe pipe = (PSContentEditorPipe) m_contentEditorDef.getPipe();
@@ -843,15 +818,14 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Determine if the specified child is enabled for indexing and thus may be
-   * be searched.  Note that if {@link #isUserSearcheable()} returns
-   * <code>false</code>, this method always returns <code>false</code>.
+   * Determine if the specified child is enabled for indexing and thus may be be searched. Note that
+   * if {@link #isUserSearcheable()} returns <code>false</code>, this method always returns <code>
+   * false</code>.
    *
    * @param childId The child's mapper id.
-   *
-   * @return <code>true</code> if the child is searchable, <code>false</code>
-   * if it is not, or if this content type is not searchable, or if the
-   * fieldset for the specified child id cannot be located.
+   * @return <code>true</code> if the child is searchable, <code>false</code> if it is not, or if
+   *     this content type is not searchable, or if the fieldset for the specified child id cannot
+   *     be located.
    */
   public boolean isUserSearcheable(int childId) {
     // fist see if parent is searcheable
@@ -886,11 +860,11 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Set fields to indicate that their table columns will be deleted or
-   * altered by the Content editor table handler. This set will be cleared
-   * when the handler processes the table changes.
-   * @param fields fields to have their columns deleted or altered. May
-   * be <code>null</code>or empty.
+   * Set fields to indicate that their table columns will be deleted or altered by the Content
+   * editor table handler. This set will be cleared when the handler processes the table changes.
+   *
+   * @param fields fields to have their columns deleted or altered. May be <code>null</code>or
+   *     empty.
    */
   public void setFieldColumnActions(Map<PSField, Integer> fields) {
     m_fieldColumnActionMap.clear();
@@ -898,16 +872,16 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * @return fields indicating that their table columns will be deleted.
-   * Never <code>null</code>, may be empty.
+   * @return fields indicating that their table columns will be deleted. Never <code>null</code>,
+   *     may be empty.
    */
   public Map<PSField, Integer> getFieldColumnActions() {
     return m_fieldColumnActionMap;
   }
 
   /**
-   * Removes all db specific information, leaving a dummy entry for the table
-   * ref in the container locator (because it can't be left empty.)
+   * Removes all db specific information, leaving a dummy entry for the table ref in the container
+   * locator (because it can't be left empty.)
    */
   @SuppressWarnings("unchecked") // PSTableSet iterator
   public Object tuneClone(long newId) {
@@ -953,16 +927,15 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Walks all entries in the main mapper and each one that is for a complex
-   * child, the associated fieldset is collected. A complex child is a field
-   * set with a type of {@link PSFieldSet#TYPE_COMPLEX_CHILD}. All found sets
-   * are returned.
-   * <p>
-   * The mapper is walked to eliminate field set definitions that could be
-   * present but are not actually used.
+   * Walks all entries in the main mapper and each one that is for a complex child, the associated
+   * fieldset is collected. A complex child is a field set with a type of {@link
+   * PSFieldSet#TYPE_COMPLEX_CHILD}. All found sets are returned.
    *
-   * @return Never <code>null</code>, may be empty. Caller takes ownership of
-   * returned list. The sets are ordered in document order.
+   * <p>The mapper is walked to eliminate field set definitions that could be present but are not
+   * actually used.
+   *
+   * @return Never <code>null</code>, may be empty. Caller takes ownership of returned list. The
+   *     sets are ordered in document order.
    */
   public List<PSFieldSet> getComplexChildren() {
     PSContentEditorMapper mapper = getContentEditorMapper();
@@ -981,38 +954,31 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Gets the mimetype associated with the field. The mimetype is determined by
-   * mimeTypeMode property of the field. If the mode is "From Selection", then
-   * the mimetype value is fetched from mimeTypeValue property of the field. If
-   * the mode is "From Extension Field" then the mimeTypeValue property
-   * provides the name of the field that will hold the extension at runtime.
-   * The extension is fetched from the supplied fieldValues map and then the
-   * corresponding mimetype for that extension is returned. If the mode is
-   * "From Mime Type Field" then mimeTypeValue property provides the name of
-   * the field that will hold the mimetype at runtime. The mime type is fetched
-   * from the supplied fieldValues map and returned.
+   * Gets the mimetype associated with the field. The mimetype is determined by mimeTypeMode
+   * property of the field. If the mode is "From Selection", then the mimetype value is fetched from
+   * mimeTypeValue property of the field. If the mode is "From Extension Field" then the
+   * mimeTypeValue property provides the name of the field that will hold the extension at runtime.
+   * The extension is fetched from the supplied fieldValues map and then the corresponding mimetype
+   * for that extension is returned. If the mode is "From Mime Type Field" then mimeTypeValue
+   * property provides the name of the field that will hold the mimetype at runtime. The mime type
+   * is fetched from the supplied fieldValues map and returned.
    *
-   * If the mode is null or empty then the mimetype is guessed based on the
-   * following algorithm. If the data type of the field is binary then the name
-   * of the extension field is guessed as "fieldName_ext". The extension is
-   * fetched from the supplied fieldValues map and then the corresponding
-   * mimetype for that extension is returned. If extension field does not exist
-   * or its value is empty then it gets the mimetype value from field with name
-   * "fieldName_type". If that is also empty then returns empty mimetype. If
-   * the datatype is clob with max data format, then the mime type is guessed
-   * as text/html. for all other data types the mime type is returned as
+   * <p>If the mode is null or empty then the mimetype is guessed based on the following algorithm.
+   * If the data type of the field is binary then the name of the extension field is guessed as
+   * "fieldName_ext". The extension is fetched from the supplied fieldValues map and then the
+   * corresponding mimetype for that extension is returned. If extension field does not exist or its
+   * value is empty then it gets the mimetype value from field with name "fieldName_type". If that
+   * is also empty then returns empty mimetype. If the datatype is clob with max data format, then
+   * the mime type is guessed as text/html. for all other data types the mime type is returned as
    * text/plain.
    *
-   * @param fieldName The name of the field for which the the mime type needs
-   * to be returned. Must not be <code>null</code> or empty and must be a
-   * valid field.
-   * @param fieldValues The map of field names and values. Must not be
-   * <code>null</code>. If empty and the mimetype mode is either from
-   * extension field or mimetype field then the returned value will be empty.
-   * @return The mime type of the field as per the method description or empty
-   * string if is not set properly or could not guess it right, but never
-   * <code>null</code>.
-   *
+   * @param fieldName The name of the field for which the the mime type needs to be returned. Must
+   *     not be <code>null</code> or empty and must be a valid field.
+   * @param fieldValues The map of field names and values. Must not be <code>null</code>. If empty
+   *     and the mimetype mode is either from extension field or mimetype field then the returned
+   *     value will be empty.
+   * @return The mime type of the field as per the method description or empty string if is not set
+   *     properly or could not guess it right, but never <code>null</code>.
    */
   public String getFieldMimeType(String fieldName, Map<String, String> fieldValues) {
     if (StringUtils.isBlank(fieldName))
@@ -1022,10 +988,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Convenient method to get the mime type similar to
-   * {@see #getFieldMimeType(String, Map)} except the field value is extracted
-   * from request instead of the fieldValues map.
-   *
+   * Convenient method to get the mime type similar to {@see #getFieldMimeType(String, Map)} except
+   * the field value is extracted from request instead of the fieldValues map.
    */
   public String getFieldMimeType(String fieldName, IPSRequestContext request) {
     if (StringUtils.isBlank(fieldName))
@@ -1098,12 +1062,10 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   *
-   * @param name Name of the parameter whose value needs to be returned.
-   * Assumed not <code>null</code>.
-   * @param valueSrc The value source from which the value needs to be
-   * extracted. The expected values are either IPSRequestContext request or
-   * Map<String,String>.
+   * @param name Name of the parameter whose value needs to be returned. Assumed not <code>null
+   *     </code>.
+   * @param valueSrc The value source from which the value needs to be extracted. The expected
+   *     values are either IPSRequestContext request or Map<String,String>.
    * @return The value or null if not found.
    */
   private String getValueFromSrc(String name, Object valueSrc) {
@@ -1117,8 +1079,8 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Return a list of the content table names related to this type. Includes
-   * any shared and child tables.
+   * Return a list of the content table names related to this type. Includes any shared and child
+   * tables.
    *
    * @return The List of Tables as a PSBackEndTable
    */
@@ -1151,53 +1113,45 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   }
 
   /**
-   * Map with fieldname as the key and a PSCollection of PSEntry objects that
-   * define the Value Choices as the value.
+   * Map with fieldname as the key and a PSCollection of PSEntry objects that define the Value
+   * Choices as the value.
    */
   private Map<String, PSCollection> m_optionMap;
 
   private PSContentEditor m_contentEditorDef;
 
-  /**
-   * Maps field names to associated simple child fieldsets. Initialized
-   * on first use.
-   */
+  /** Maps field names to associated simple child fieldsets. Initialized on first use. */
   private transient Map<String, PSFieldSet> m_simpleChildFieldSets = null;
 
   /**
-   * See {@link #isHidden()} for details. More specifically, its value is
-   * determined by the value of the HIDEFROMMENU column in the CONTENTTYPES
-   * table.
+   * See {@link #isHidden()} for details. More specifically, its value is determined by the value of
+   * the HIDEFROMMENU column in the CONTENTTYPES table.
+   *
    * <p>Defaults to <code>false</code>.
    */
   private boolean m_isHidden = false;
 
   /**
-   * Identifies the application that contains the actual editor definition.
-   * Set during std or xml construction, then never <code>null</code> or empty.
+   * Identifies the application that contains the actual editor definition. Set during std or xml
+   * construction, then never <code>null</code> or empty.
    */
   private String m_appName;
 
-  /**
-   * See {@link #isEnabled()} for details.
-   */
+  /** See {@link #isEnabled()} for details. */
   private boolean m_enabled = true;
 
   /**
-   * The object type of the content type, set during std or xml construction,
-   * then never modified after that.
+   * The object type of the content type, set during std or xml construction, then never modified
+   * after that.
    */
   private int m_objectType;
 
-  /**
-   * The component id, set during std or xml construction.
-   */
+  /** The component id, set during std or xml construction. */
   private int m_id;
 
   /**
-   * Set of fields that should have their database columns altered or deleted.
-   * This list will be cleared by the CE table handler after it processes.
-   * Never <code>null</code>, may be empty.
+   * Set of fields that should have their database columns altered or deleted. This list will be
+   * cleared by the CE table handler after it processes. Never <code>null</code>, may be empty.
    */
   private Map<PSField, Integer> m_fieldColumnActionMap = new HashMap<>();
 
@@ -1208,14 +1162,14 @@ public class PSItemDefinition extends PSItemDefSummary implements IPSComponent, 
   private static final String FALSE = "false";
 
   /**
-   * Action hint to tell the handler that the column associated
-   * with the specified field should be altered.
+   * Action hint to tell the handler that the column associated with the specified field should be
+   * altered.
    */
   public static final int COLUMN_ACTION_ALTER = 1;
 
   /**
-   * Action hint to tell the handler that the column associated
-   * with the specified field should be removed.
+   * Action hint to tell the handler that the column associated with the specified field should be
+   * removed.
    */
   public static final int COLUMN_ACTION_DELETE = 2;
 }

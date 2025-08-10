@@ -26,11 +26,11 @@ import com.percussion.delivery.feeds.data.PSFeedItem;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.utils.security.PSHttpClient;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.security.ToDoVulnerability;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
 import com.rometools.rome.io.FeedException;
 import jakarta.ws.rs.Consumes;
@@ -89,13 +89,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
- * The feed service is responsible for generating RSS/ATOM feeds. The service
- * also collects feed descriptors from the CM1 which provide meta data about the
- * feed and a query used to get page data from the dynamic index service(meta
- * data service) to build the feed list.
+ * The feed service is responsible for generating RSS/ATOM feeds. The service also collects feed
+ * descriptors from the CM1 which provide meta data about the feed and a query used to get page data
+ * from the dynamic index service(meta data service) to build the feed list.
  *
  * @author erikserating
- *
  */
 @SuppressFBWarnings(
     "URLCONNECTION_SSRF_FD") // It is validated - only http and https urls are allowed.
@@ -139,15 +137,10 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
 
   private static final String FEEDS_IP_DEFAULT = "127.0.0.1";
 
-  /**
-   * The feed data access object, initialized in the ctor. Never
-   * <code>null</code> after that.
-   */
+  /** The feed data access object, initialized in the ctor. Never <code>null</code> after that. */
   private IPSFeedDao feedDao;
 
-  /**
-   * 2011-01-21T09:36:05
-   */
+  /** 2011-01-21T09:36:05 */
   FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
   @Autowired
@@ -474,13 +467,12 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   }
 
   /**
-   * Helper method to do the actual work of calling the dynamic indexer (meta
-   * data service) to retrieve the data needed for the feed content. Then
-   * calls the feed generator to generate the feed content.
+   * Helper method to do the actual work of calling the dynamic indexer (meta data service) to
+   * retrieve the data needed for the feed content. Then calls the feed generator to generate the
+   * feed content.
    *
    * @param desc the feed descriptor, assumed to not be <code>null</code>.
-   * @param httpRequest the http request, assumed not
-   *            <code>null</code>.
+   * @param httpRequest the http request, assumed not <code>null</code>.
    * @return the feed xml, may be <code>null</code>.
    * @throws FeedException if any error occurs while generating the feed.
    */
@@ -627,9 +619,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     listeners.remove(listener);
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   @SuppressWarnings("unused")
   private void fireDataChangedEvent(Set<String> sites) {
     if (sites == null || sites.isEmpty()) {
@@ -641,9 +631,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     }
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   @SuppressWarnings("unused")
   private void fireDataChangeRequestedEvent(Set<String> sites) {
     if (sites == null || sites.isEmpty()) {
@@ -678,10 +666,9 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   }
 
   /**
-   * Parses the page summary of each rss post if present.
-   * This is required as all inline links are currently relative
-   * and external feed applications may be required to use fully
-   * qualified URLs.
+   * Parses the page summary of each rss post if present. This is required as all inline links are
+   * currently relative and external feed applications may be required to use fully qualified URLs.
+   *
    * @param html the source html to parse
    * @return a String with
    */
@@ -695,9 +682,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
     return doc.toString();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
     log.info("Attempting to delete feeds entries for site name: {}", prevSiteName);

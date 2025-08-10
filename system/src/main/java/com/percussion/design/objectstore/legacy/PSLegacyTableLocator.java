@@ -31,9 +31,7 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXTableLocator DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXTableLocator DTD in BasicObjects.dtd. */
 public class PSLegacyTableLocator extends PSComponent {
 
   private static final long serialVersionUID = 1L;
@@ -48,12 +46,10 @@ public class PSLegacyTableLocator extends PSComponent {
   }
 
   /**
-   * Creates a new table locator for the provided alias. The alias must
-   * exist and can either reference another table locator or backend
-   * credentials.
+   * Creates a new table locator for the provided alias. The alias must exist and can either
+   * reference another table locator or backend credentials.
    *
-   * @param aliasRef a backend credential alias reference, not
-   *    <code>null</code> or empty.
+   * @param aliasRef a backend credential alias reference, not <code>null</code> or empty.
    */
   public PSLegacyTableLocator(String aliasRef) {
     setAliasRef(aliasRef);
@@ -62,30 +58,23 @@ public class PSLegacyTableLocator extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacyTableLocator(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSLegacyTableLocator() {}
 
   /**
    * Get the data locator alias.
    *
-   * @return the locators alias, might be <code>null</code> but not
-   *    empty.
+   * @return the locators alias, might be <code>null</code> but not empty.
    */
   public String getAlias() {
     return m_alias;
@@ -142,8 +131,7 @@ public class PSLegacyTableLocator extends PSComponent {
   /**
    * Get the data locator credetials.
    *
-   * @return the data locator credentials, might be
-   *    <code>null</code>.
+   * @return the data locator credentials, might be <code>null</code>.
    */
   public PSLegacyBackEndCredential getCredentials() {
     return m_credentials;
@@ -152,8 +140,7 @@ public class PSLegacyTableLocator extends PSComponent {
   /**
    * Set new data locator credentials.
    *
-   * @param credentials the new data locator credentials, not
-   *    <code>null</code>.
+   * @param credentials the new data locator credentials, not <code>null</code>.
    */
   private void setCredentials(PSLegacyBackEndCredential credentials) {
     if (credentials == null) throw new IllegalArgumentException("credentials cannot be null");
@@ -164,8 +151,7 @@ public class PSLegacyTableLocator extends PSComponent {
   /**
    * Get the alias reference.
    *
-   * @return the alias reference, might be <code>null</code> but
-   *    not empty.
+   * @return the alias reference, might be <code>null</code> but not empty.
    */
   public String getAliasRef() {
     return m_aliasRef;
@@ -184,9 +170,8 @@ public class PSLegacyTableLocator extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSTableLocator, not <code>null</code>.
    */
@@ -224,14 +209,12 @@ public class PSLegacyTableLocator extends PSComponent {
   }
 
   /**
-   * Compares this locator to the supplied locator to see if they define the
-   * same location.  Specifically it compares the database, origin, and the
-   * backend credential's driver and server.
+   * Compares this locator to the supplied locator to see if they define the same location.
+   * Specifically it compares the database, origin, and the backend credential's driver and server.
    *
-   * @param locator The locator to compare to.  May not be <code>null</code>.
-   *
-   * @return <code>true</code> if the database, origin, and the backend
-   * credential's driver and server all match (ignoring case), <code>false
+   * @param locator The locator to compare to. May not be <code>null</code>.
+   * @return <code>true</code> if the database, origin, and the backend credential's driver and
+   *     server all match (ignoring case), <code>false
    * </code> if not.
    */
   public boolean isSameLocation(PSLegacyTableLocator locator) {
@@ -261,7 +244,6 @@ public class PSLegacyTableLocator extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -315,7 +297,6 @@ public class PSLegacyTableLocator extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -356,15 +337,12 @@ public class PSLegacyTableLocator extends PSComponent {
   public static final String XML_NODE_NAME = "PSXTableLocator";
 
   /**
-   * An alias to share this object, might be <code>null</code>. If
-   * <code>null</code> this locator cannot be shared.
+   * An alias to share this object, might be <code>null</code>. If <code>null</code> this locator
+   * cannot be shared.
    */
   private String m_alias = null;
 
-  /**
-   * The backend credentials for this data locator, might be
-   * <code>null</code>.
-   */
+  /** The backend credentials for this data locator, might be <code>null</code>. */
   private PSLegacyBackEndCredential m_credentials = null;
 
   /** An alias reference to an existing locator or backend credential. */

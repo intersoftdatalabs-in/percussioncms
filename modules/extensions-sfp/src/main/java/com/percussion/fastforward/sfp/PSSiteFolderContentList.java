@@ -38,46 +38,42 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Generates Rhythmyx content list XML for all content items contained within a
- * specified site folder, or its child folders. Determines which variants to
- * publish for each content type for the given site by referencing a lookup
- * table. Builds delivery location paths by concatenating an item's ancestor
- * folders' names.
+ * Generates Rhythmyx content list XML for all content items contained within a specified site
+ * folder, or its child folders. Determines which variants to publish for each content type for the
+ * given site by referencing a lookup table. Builds delivery location paths by concatenating an
+ * item's ancestor folders' names.
  *
- * @deprecated This Exit may have poor performance poorly with large amount of
- *             items. Use {@link PSSiteFolderCListBulk} instead.
+ * @deprecated This Exit may have poor performance poorly with large amount of items. Use {@link
+ *     PSSiteFolderCListBulk} instead.
  * @author James Schultz
  */
 public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   /**
-   * Constructs a site-folder-driven, full-publishing, public-items
-   * content list builder.
+   * Constructs a site-folder-driven, full-publishing, public-items content list builder.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
    */
   public PSSiteFolderContentList(IPSRequestContext request) {
     super(request);
   }
 
   /**
-   * Constructs a site-folder-driven content list builder.  Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
    *
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   * publishing content list, <code>false</code> for full publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   * values for workflow states that are eligible for publishing
-   * @param maxRowsPerPage enables pagination mode by determining the maximum
-   * number of content items to appear in a single page of the content list.
-   * Use a value of <code>-1</code> to disable pagination mode
-   * (unlimited number of items)
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing
+   * @param maxRowsPerPage enables pagination mode by determining the maximum number of content
+   *     items to appear in a single page of the content list. Use a value of <code>-1</code> to
+   *     disable pagination mode (unlimited number of items)
    */
   public PSSiteFolderContentList(
       IPSRequestContext request,
@@ -88,36 +84,29 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * Constructs a site-folder-driven content list builder. Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
    *
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   *           parameters, logging, and making internal requests. Not
-   *           <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   *           publishing content list, <code>false</code> for full
-   *           publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   *           values for workflow states that are eligible for publishing
-   * @param contentVariantResourceName the name of the application resource
-   *           used for looking up the valid variants for this content item.
-   *           Must be supplied in the form
-   *           &lt;ApplicationName&gt;/&lt;ResourceName&gt;
-   * @param maxRowsPerPage the maximum number of items to publish on a page in
-   *           the content list.
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
-   * @param port the port number to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param paramSetToPass Set of non-standard HTML parameters to pass from
-   *           request context to each content item url in the content list,
-   *           must not be <code>null</code>, may be empty.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing
+   * @param contentVariantResourceName the name of the application resource used for looking up the
+   *     valid variants for this content item. Must be supplied in the form
+   *     &lt;ApplicationName&gt;/&lt;ResourceName&gt;
+   * @param maxRowsPerPage the maximum number of items to publish on a page in the content list.
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
+   * @param port the port number to use when creating content URLs, never <code>null</code> or empty
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, must not be <code>null</code>, may be empty.
    */
   public PSSiteFolderContentList(
       IPSRequestContext request,
@@ -155,8 +144,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * The resource name used to catalog variant ids, see
-   * {@link #LOOKUP_VARIANTS_SITE_ITEM}for detail
+   * The resource name used to catalog variant ids, see {@link #LOOKUP_VARIANTS_SITE_ITEM}for detail
    *
    * @return the default resource name, never <code>null</code> or empty.
    */
@@ -247,15 +235,13 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * If the item is in a publishable state, a <code>&lt;contentitem></code>
-   * element will be appended to the specified parent element for each
-   * publishable variant registered for the current site
+   * If the item is in a publishable state, a <code>&lt;contentitem></code> element will be appended
+   * to the specified parent element for each publishable variant registered for the current site
    * (in the <code>PSX_VARIANT_SITE</code> repository table).
+   *
    * @param folderPath
    * @param item
-   *
-   * @param folder summary of the folder than contains the item, not
-   * null
+   * @param folder summary of the folder than contains the item, not null
    * @param filenameContext
    */
   private void appendItemVariants(
@@ -339,13 +325,14 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * Checks RXSITEITEMS to see if this item/variant/location has already
-   * been published to the current request context/site.  This method is an
-   * adaptor; it extracts the relevent values from <code>contentItem</code> and
-   * passes them to <code>PSIncrementalContentFilter.isValid()</code> method.
+   * Checks RXSITEITEMS to see if this item/variant/location has already been published to the
+   * current request context/site. This method is an adaptor; it extracts the relevent values from
+   * <code>contentItem</code> and passes them to <code>PSIncrementalContentFilter.isValid()</code>
+   * method.
+   *
    * @param contentItem the item to be checked, assumed not <code>null</code>
-   * @return <code>true</code> if the item should be incrementally published
-   * (because it has not yet been published); <code>false</code> otherwise
+   * @return <code>true</code> if the item should be incrementally published (because it has not yet
+   *     been published); <code>false</code> otherwise
    */
   private boolean isValid(PSContentListItem contentItem) {
     String contentid = contentItem.getContentId();
@@ -375,8 +362,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * Builds the contentitem element of the content list from the supplied
-   * parameters.
+   * Builds the contentitem element of the content list from the supplied parameters.
    *
    * @param contentId
    * @param revision
@@ -432,18 +418,16 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * Gets the set of variants registered for the specified content item and
-   * for the site being published to, by making an internal request to query
-   * the <code>PSX_VARIANT_SITE</code> table.
+   * Gets the set of variants registered for the specified content item and for the site being
+   * published to, by making an internal request to query the <code>PSX_VARIANT_SITE</code> table.
+   *
    * @param contentId
    * @param revision
    * @param folder
    * @param deliveryLocationContext
    * @param contentTypeId
-   *
-   * @return Never <code>null</code> but will be empty if no variants are
-   * registered for the content item in the current site, or if an error
-   * occurs while performing the lookup.
+   * @return Never <code>null</code> but will be empty if no variants are registered for the content
+   *     item in the current site, or if an error occurs while performing the lookup.
    */
   private Set lookupVariantsForItem(
       String contentId,
@@ -489,16 +473,16 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   }
 
   /**
-   * Parses XML document to extract the variant ids from the following
-   * structure:<br>
+   * Parses XML document to extract the variant ids from the following structure:<br>
+   *
    * <pre><code>
    * &lt;!ELEMENT lookupVariantsBySite (variant*)>
    * &lt;!ELEMENT variant (#PCDATA)>
    * </code></pre>
+   *
    * @param resultXml the XML document to be parsed
-   * @return a set of the <code>Variant</code> objects, extracted from the XML
-   * document. Never <code>null</code> but will be empty if no variant
-   * elements exist in document.
+   * @return a set of the <code>Variant</code> objects, extracted from the XML document. Never
+   *     <code>null</code> but will be empty if no variant elements exist in document.
    */
   private Set parseVariantLookupXML(Document resultXml) {
     Set variantsSet = new HashSet();
@@ -517,9 +501,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
     return variantsSet;
   }
 
-  /**
-   * Container for metadata about a particular variant
-   */
+  /** Container for metadata about a particular variant */
   private class Variant {
 
     /**
@@ -533,9 +515,10 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
 
     /**
      * Two variants are equal if they have the same id and assembler base
+     *
      * @param o object to compare against this object
-     * @return true if object is a variant and both variants have the same id
-     * and assembler, false otherwise.
+     * @return true if object is a variant and both variants have the same id and assembler, false
+     *     otherwise.
      */
     public boolean equals(Object o) {
       if (o instanceof Variant) {
@@ -548,10 +531,8 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
     /**
      * Ctor that takes teh variantid and the assembly URL.
      *
-     * @param variantid variantid of the variant must not be <code>null</code>
-     *           or empty.
-     * @param assemblerBase Assembly URL for the variant, must notbe
-     *           <code>null</code> or empty.
+     * @param variantid variantid of the variant must not be <code>null</code> or empty.
+     * @param assemblerBase Assembly URL for the variant, must notbe <code>null</code> or empty.
      */
     public Variant(String variantid, String assemblerBase) {
       if (variantid == null || variantid.trim().length() == 0)
@@ -565,6 +546,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
 
     /**
      * Gets the id of this variant
+     *
      * @return the variant id, never <code>null</code> or empty.
      */
     public String getId() {
@@ -573,6 +555,7 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
 
     /**
      * Gets the base URL to the assembler resource for this variant
+     *
      * @return the assembler base URL, never <code>null</code> or empty.
      */
     public String getAssemblerBase() {
@@ -580,22 +563,22 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
     }
 
     /**
-     * Variant id of teh variant, initialized in the ctor and never
-     * <code>null</code> or empty after that.
+     * Variant id of teh variant, initialized in the ctor and never <code>null</code> or empty after
+     * that.
      */
     private String m_id;
 
     /**
-     * Assembly url of the variant, initialized in the ctor and never
-     * <code>null</code> or empty after that.
+     * Assembly url of the variant, initialized in the ctor and never <code>null</code> or empty
+     * after that.
      */
     private String m_assemblerBase;
   }
 
   /**
-   * Name of the Rhythmyx internal resource used to catalog variant ids.  This
-   * query resource should accept contentid, revision, and siteid as parameters
-   * and return all publishable variantids registered to those parameters.
+   * Name of the Rhythmyx internal resource used to catalog variant ids. This query resource should
+   * accept contentid, revision, and siteid as parameters and return all publishable variantids
+   * registered to those parameters.
    */
   static final String LOOKUP_VARIANTS_SITE_ITEM =
       "rx_supportSiteFolderContentList/lookupVariantsBySiteItem.xml";
@@ -603,8 +586,6 @@ public class PSSiteFolderContentList extends PSSiteFolderCListBase {
   private static final String INCREMENTAL_FILTER_REQUEST_NAME =
       "rx_Support_pub/folder_itemstatus.xml";
 
-  /**
-   * Name of the request parameter that indicates the navigation theme
-   */
+  /** Name of the request parameter that indicates the navigation theme */
   public static final String NAV_THEME_PARAM_NAME = "nav_theme";
 }

@@ -18,46 +18,40 @@ package com.percussion.activity.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.percussion.activity.data.PSContentTraffic;
 import com.percussion.activity.data.PSContentTrafficRequest;
 import com.percussion.activity.service.impl.PSTrafficDataHandler;
-
 import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link PSTrafficDataHandler}.
- */
+/** Tests for {@link PSTrafficDataHandler}. */
 class PSTrafficDataHandlerTest {
 
-    @Test
-    void testGetData() throws Exception {
-        var handler = new PSTrafficDataHandler();
-        handler.setFile("src/test/resources/activity/Traffic.xml");
+  @Test
+  void testGetData() throws Exception {
+    var handler = new PSTrafficDataHandler();
+    handler.setFile("src/test/resources/activity/Traffic.xml");
 
-        var properties = new PSContentTrafficRequest();
-        properties.setStartDate("10/10/2010");
-        properties.setEndDate("10/14/2010");
-        properties.setGranularity("DAY");
-        properties.setPath("//Sites/site1");
-        properties.setUsage("uniquepageviews");
-        var trafficRequested = new ArrayList<String>();
-        trafficRequested.add("VISITS");
-        trafficRequested.add("NEW_PAGES");
-        trafficRequested.add("UPDATED_PAGES");
-        trafficRequested.add("TAKE_DOWNS");
-        trafficRequested.add("LIVE_PAGES");
-        properties.setTrafficRequested(trafficRequested);
+    var properties = new PSContentTrafficRequest();
+    properties.setStartDate("10/10/2010");
+    properties.setEndDate("10/14/2010");
+    properties.setGranularity("DAY");
+    properties.setPath("//Sites/site1");
+    properties.setUsage("uniquepageviews");
+    var trafficRequested = new ArrayList<String>();
+    trafficRequested.add("VISITS");
+    trafficRequested.add("NEW_PAGES");
+    trafficRequested.add("UPDATED_PAGES");
+    trafficRequested.add("TAKE_DOWNS");
+    trafficRequested.add("LIVE_PAGES");
+    properties.setTrafficRequested(trafficRequested);
 
-        var response = handler.getContentTraffic(properties);
-        assertEquals(5, response.getDates().size());
-        assertEquals(5, response.getLivePages().size());
-        assertEquals(5, response.getNewPages().size());
-        assertEquals(5, response.getPageUpdates().size());
-        assertEquals(5, response.getTakeDowns().size());
-        assertEquals(5, response.getVisits().size());
-        assertEquals("10/14/2010", response.getEndDate());
-    }
+    var response = handler.getContentTraffic(properties);
+    assertEquals(5, response.getDates().size());
+    assertEquals(5, response.getLivePages().size());
+    assertEquals(5, response.getNewPages().size());
+    assertEquals(5, response.getPageUpdates().size());
+    assertEquals(5, response.getTakeDowns().size());
+    assertEquals(5, response.getVisits().size());
+    assertEquals("10/14/2010", response.getEndDate());
+  }
 }

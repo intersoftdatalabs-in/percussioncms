@@ -133,9 +133,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to handle all search related operations for webservices.
- * These operations are specified in the "Search" port in the
- * <code>WebServices.wsdl</code>.
+ * This class is used to handle all search related operations for webservices. These operations are
+ * specified in the "Search" port in the <code>WebServices.wsdl</code>.
  *
  * @see {@link com.percussion.hooks.webservices.PSWSSearch}.
  */
@@ -143,12 +142,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Operation to search for a specific content item(s).
    *
-   * @param request The original request for the operation, may not be
-   *           <code>null</code>
-   * @param parent The parent document to add the response element to, may not
-   *           be <code>null</code> and should already contain the correct
-   *           base element for the response
-   *
+   * @param request The original request for the operation, may not be <code>null</code>
+   * @param parent The parent document to add the response element to, may not be <code>null</code>
+   *     and should already contain the correct base element for the response
    * @throws PSException
    */
   void searchAction(PSRequest request, Document parent) throws PSException {
@@ -168,8 +164,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Execute the supplied search request and return the results.
    *
-   * @param request the request used to perform all actions, not
-   *    <code>null</code>.
+   * @param request the request used to perform all actions, not <code>null</code>.
    * @param searchRequest the serach request, not <code>null</code>.
    * @return the searcch response, never <code>null</code>.
    * @throws PSException for any error.
@@ -190,12 +185,10 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Process a search for the supplied parameters. However, in contrast to
-   * {@link #search(PSRequest, PSWSSearchRequest)}, this is lighter version,
-   * which only returns a List of content IDs.
+   * Process a search for the supplied parameters. However, in contrast to {@link #search(PSRequest,
+   * PSWSSearchRequest)}, this is lighter version, which only returns a List of content IDs.
    *
-   * @param request the request used to process the search, not
-   *           <code>null</code>.
+   * @param request the request used to process the search, not <code>null</code>.
    * @param searchReq the search request, not <code>null</code>.
    * @return A List of content IDs that match with the give search request.
    * @throws PSException for any error executing the search.
@@ -297,12 +290,10 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Process a search for the supplied parameters.
    *
-   * @param request the request used to process the search, not
-   *           <code>null</code>.
+   * @param request the request used to process the search, not <code>null</code>.
    * @param searchReq the search request, not <code>null</code>.
-   * @param parent the parent document to add the response element to, may not
-   *           be <code>null</code> and should already contain the correct
-   *           base element for the response.
+   * @param parent the parent document to add the response element to, may not be <code>null</code>
+   *     and should already contain the correct base element for the response.
    * @throws PSException for any error executing the search.
    */
   @Override
@@ -329,12 +320,10 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Prcess an external search for the supplied parameters.
    *
-   * @param request the request used to process the search, assumed not
-   *    <code>null</code>.
+   * @param request the request used to process the search, assumed not <code>null</code>.
    * @param searchReq the search request, assumed not <code>null</code>.
-   * @param parent the parent document to add the response element to, assumed
-   *    not <code>null</code> and should already contain the correct base
-   *    element for the response.
+   * @param parent the parent document to add the response element to, assumed not <code>null</code>
+   *     and should already contain the correct base element for the response.
    * @throws PSException for any error executing the search.
    */
   @SuppressWarnings("unchecked")
@@ -791,11 +780,11 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Walk the search results and add permissions for each row. For items that
-   * are not folders, the permission is set to <code>-1</code>.
+   * Walk the search results and add permissions for each row. For items that are not folders, the
+   * permission is set to <code>-1</code>.
    *
-   * @param request the original request, never <code>null</code>, used to
-   *           obtain user name and role information
+   * @param request the original request, never <code>null</code>, used to obtain user name and role
+   *     information
    * @param searchResponse the search response
    */
   private void handleFolderPermissions(PSRequest request, PSWSSearchResponse searchResponse) {
@@ -849,8 +838,8 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Walk the search results and add the computed assignment type
    *
-   * @param request the original request, never <code>null</code>, used to
-   *           obtain user name and role information
+   * @param request the original request, never <code>null</code>, used to obtain user name and role
+   *     information
    * @param searchResponse the search response
    */
   @SuppressWarnings("unchecked")
@@ -937,22 +926,18 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Checks for a field called {@link #SYS_CONTENTTYPEID} within the external
-   * search field list. If found, and the value is of the form
-   * 'n1 OR n2 OR ...', where n1, n2 are numbers, then a new internal search
-   * field is created that matches this using an IN clause and it is added
-   * to the internal list. If the content type id was the only external
-   * field, it is removed.
-   * <p>
-   * This allows the code to limit which content type search handlers are
-   * queried to process the results from the FTS and possibly eliminate the
-   * call to the FTS altogether.
+   * Checks for a field called {@link #SYS_CONTENTTYPEID} within the external search field list. If
+   * found, and the value is of the form 'n1 OR n2 OR ...', where n1, n2 are numbers, then a new
+   * internal search field is created that matches this using an IN clause and it is added to the
+   * internal list. If the content type id was the only external field, it is removed.
    *
-   * @param intSearchFields Assumed not <code>null</code>. May be modified by
-   * this method, a sys_contenttypeid field may be added.
+   * <p>This allows the code to limit which content type search handlers are queried to process the
+   * results from the FTS and possibly eliminate the call to the FTS altogether.
    *
-   * @param extSearchFields Assumed not <code>null</code>. May be modified by
-   * this method, the sys_contenttypeid field may be removed.
+   * @param intSearchFields Assumed not <code>null</code>. May be modified by this method, a
+   *     sys_contenttypeid field may be added.
+   * @param extSearchFields Assumed not <code>null</code>. May be modified by this method, the
+   *     sys_contenttypeid field may be removed.
    */
   @SuppressWarnings("unchecked")
   private void optimizeForContentType(List intSearchFields, List extSearchFields) {
@@ -987,17 +972,16 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * If the {@link IPSHtmlParameters#SYS_STATE_NAME} field is specified in the
-   * external search fields, convert it to an internal search field and move
-   * it to the list of internal search fields.
+   * If the {@link IPSHtmlParameters#SYS_STATE_NAME} field is specified in the external search
+   * fields, convert it to an internal search field and move it to the list of internal search
+   * fields.
    *
-   * @param intSearchFields The list of internal search fields, assumed not
-   * <code>null</code>, may be empty.
-   * @param extSearchFields The list of external search fields, assumed not
-   * <code>null</code>, may be empty.
-   *
-   * @return <code>true</code> if the external search field contains a state-name;
-   * otherwise return <code>false</code>.
+   * @param intSearchFields The list of internal search fields, assumed not <code>null</code>, may
+   *     be empty.
+   * @param extSearchFields The list of external search fields, assumed not <code>null</code>, may
+   *     be empty.
+   * @return <code>true</code> if the external search field contains a state-name; otherwise return
+   *     <code>false</code>.
    */
   private boolean fixupStateNameSearch(
       List<PSWSSearchField> intSearchFields, List<PSWSSearchField> extSearchFields) {
@@ -1029,16 +1013,14 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * For each entry in <code>searchResults</code>, if it does not exist in
-   * <code>folderId</code> then it is removed from the list.
+   * For each entry in <code>searchResults</code>, if it does not exist in <code>folderId</code>
+   * then it is removed from the list.
    *
-   * @param searchResults The objects to filter. Assumed not <code>null</code>.
-   *           Each entry assumed to be a <code>PSSearchResult</code>.
-   *
-   * @param allowedIds The set of possible values for the results. Each entry
-   *           is an <code>Integer</code> key that is the content id of an
-   *           item or folder. May be empty, in which case all results are
-   *           removed.
+   * @param searchResults The objects to filter. Assumed not <code>null</code>. Each entry assumed
+   *     to be a <code>PSSearchResult</code>.
+   * @param allowedIds The set of possible values for the results. Each entry is an <code>Integer
+   *     </code> key that is the content id of an item or folder. May be empty, in which case all
+   *     results are removed.
    */
   private void filterSearchResultsById(List searchResults, Set allowedIds) {
     Iterator entries = searchResults.iterator();
@@ -1050,14 +1032,12 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Get the content ids from the supplied search field. Assumes the field name
-   * is "sys_contentid" and that the {@link PSWSSearchField#isExternal()}
-   * returns <code>false</code>.
+   * Get the content ids from the supplied search field. Assumes the field name is "sys_contentid"
+   * and that the {@link PSWSSearchField#isExternal()} returns <code>false</code>.
    *
    * @param fieldDef the search field, assumed not <code>null</code>.
-   *
-   * @return a collection of <code>String</code> objects. It may be empty, but
-   *         never <code>null</code>.
+   * @return a collection of <code>String</code> objects. It may be empty, but never <code>null
+   *     </code>.
    */
   private Collection<String> getContentIds(PSWSSearchField fieldDef) {
 
@@ -1085,11 +1065,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Operation to return the list of internal searches.
    *
-   * @param request The original request for the operation, assumed not
-   *           <code>null</code>
-   * @param parent The parent document to add the response element to, assumed
-   *           not <code>null</code> and it will already contain the correct
-   *           base element for the response
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    */
   void internalSearchListAction(PSRequest request, Document parent) {
     Element root = parent.getDocumentElement();
@@ -1118,12 +1096,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   /**
    * Operation to return part of the search system's configuration.
    *
-   * @param request The original request for the operation, may not be
-   *           <code>null</code>
-   * @param parent The parent document to add the response element to, may not
-   *           be <code>null</code> and should already contain the correct
-   *           base element for the response
-   *
+   * @param request The original request for the operation, may not be <code>null</code>
+   * @param parent The parent document to add the response element to, may not be <code>null</code>
+   *     and should already contain the correct base element for the response
    */
   void searchConfigurationAction(PSRequest request, Document parent) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -1151,32 +1126,25 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Performs any necessary conversion of the search results.
-   * <code>sys_relevancy</code> column values are substituted if
-   * <code>searchResultList</code> is supplied. If the search is called from
-   * the content explorer applet, then the <code>sys_revision</code> column
-   * value is calculated based on the current user, and if a related content
-   * search is being performed, each row is included once for each variant
-   * allowed in the specified slot, with the correct <code>sys_variantid</code>
-   * and <code>sys_variantname</code> fields specified. In this case if a row
-   * in the results is of a type that does not specify an allowed variant, it
-   * is removed from the results.
+   * Performs any necessary conversion of the search results. <code>sys_relevancy</code> column
+   * values are substituted if <code>searchResultList</code> is supplied. If the search is called
+   * from the content explorer applet, then the <code>sys_revision</code> column value is calculated
+   * based on the current user, and if a related content search is being performed, each row is
+   * included once for each variant allowed in the specified slot, with the correct <code>
+   * sys_variantid</code> and <code>sys_variantname</code> fields specified. In this case if a row
+   * in the results is of a type that does not specify an allowed variant, it is removed from the
+   * results.
    *
    * @param request The current request object, assumed not <code>null</code>.
-   * @param retDoc The document which will get the final results, assumed not
-   *           <code>null</code>. Any data submitted with this document will
-   *           be discarded.
-   *
-   * @param searchType Determines the source of the search request, assumed to
-   *           be one of the <code>SEARCH_TYPE_xxx</code> constants.
-   * @param searchResultList List of {@link PSSearchResult}objects, used to
-   *           substitute <code>sys_relevancy</code> values if supplied, may
-   *           be <code>null</code> if no relevancy values are available.
-   *
-   * @param searchResponse Assumed not <code>null</code>. Contains the
-   *           results to be returned to the caller by adding them into the
-   *           <code>retDoc</code>.
-   *
+   * @param retDoc The document which will get the final results, assumed not <code>null</code>. Any
+   *     data submitted with this document will be discarded.
+   * @param searchType Determines the source of the search request, assumed to be one of the <code>
+   *     SEARCH_TYPE_xxx</code> constants.
+   * @param searchResultList List of {@link PSSearchResult}objects, used to substitute <code>
+   *     sys_relevancy</code> values if supplied, may be <code>null</code> if no relevancy values
+   *     are available.
+   * @param searchResponse Assumed not <code>null</code>. Contains the results to be returned to the
+   *     caller by adding them into the <code>retDoc</code>.
    * @throws PSException if there are any errors
    */
   private void convertDoc(
@@ -1228,25 +1196,22 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Run the search result processing extensions on the search results rows.
-   * The extension set to run is obtained from server configuration.
+   * Run the search result processing extensions on the search results rows. The extension set to
+   * run is obtained from server configuration.
    *
    * @param request the current request object, assumed not <code>null</code>.
-   * @param rowList search results to be potentially modified by the
-   *           extensions, assumed not <code>null</code> or empty. If empty,
-   *           the return value will be empty. Each entry in the list will be
-   *           an object of type
-   *           {@link com.percussion.search.IPSSearchResultRow}.
-   * @return Modified search result row after applying all extensions, never
-   *         <code>null</code>, may be empty.
-   * @throws PSNotFoundException if any of the search results processing
-   *            extension classes could not be found by the server.
-   * @throws PSExtensionException if the extension could not be initialized for
-   *            any reason.
-   * @throws PSExtensionProcessingException if such an excpetion is thrown by
-   *            the extension implementation.
-   * @throws PSDataExtractionException if the arguments to an extension could
-   *            not be extracted for any reason.
+   * @param rowList search results to be potentially modified by the extensions, assumed not <code>
+   *     null</code> or empty. If empty, the return value will be empty. Each entry in the list will
+   *     be an object of type {@link com.percussion.search.IPSSearchResultRow}.
+   * @return Modified search result row after applying all extensions, never <code>null</code>, may
+   *     be empty.
+   * @throws PSNotFoundException if any of the search results processing extension classes could not
+   *     be found by the server.
+   * @throws PSExtensionException if the extension could not be initialized for any reason.
+   * @throws PSExtensionProcessingException if such an excpetion is thrown by the extension
+   *     implementation.
+   * @throws PSDataExtractionException if the arguments to an extension could not be extracted for
+   *     any reason.
    */
   @SuppressWarnings("unchecked")
   private static List<IPSSearchResultRow> runResultProcessingExtensions(
@@ -1271,16 +1236,12 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Build the list of search result processing extension runners from the
-   * server configuration.
+   * Build the list of search result processing extension runners from the server configuration.
    *
-   * @return list of extension runners for each search result processing
-   *         extension configured in the order of appearance in the server
-   *         configuration.
-   * @throws PSExtensionException if the extensions runner could not be
-   *            instantiated for any reason.
-   * @throws PSNotFoundException if the extension could not be located in the
-   *            server class path.
+   * @return list of extension runners for each search result processing extension configured in the
+   *     order of appearance in the server configuration.
+   * @throws PSExtensionException if the extensions runner could not be instantiated for any reason.
+   * @throws PSNotFoundException if the extension could not be located in the server class path.
    */
   private static List<PSExtensionRunner> buildExtensionRunners()
       throws PSNotFoundException, PSExtensionException {
@@ -1304,11 +1265,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * Set the value of the {@link IPSConstants#SYS_RELEVANCY}field.
    *
    * @param searchResponse The search response, assumed not <code>null</code>.
-   * @param searchResults The list of {@link PSSearchResult}objects that
-   *           provide relevancy for the rows in the
-   *           <code>searchResponse</code>, assumed not <code>null</code>,
-   *           and to contain a result for any of the rows in the
-   *           <code>searchResponse</code>, matching on content id.
+   * @param searchResults The list of {@link PSSearchResult}objects that provide relevancy for the
+   *     rows in the <code>searchResponse</code>, assumed not <code>null</code>, and to contain a
+   *     result for any of the rows in the <code>searchResponse</code>, matching on content id.
    */
   @SuppressWarnings("unchecked")
   private void setRelevancy(PSWSSearchResponse searchResponse, List searchResults) {
@@ -1338,11 +1297,8 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    * Applies transforms using stylesheet specified by {@link #STYLESHEET_URL}.
    *
    * @param request The current request, assumed not <code>null</code>.
-   * @param doc The document to which the stylesheet is applied, assumed not
-   *           <code>null</code>.
-   *
+   * @param doc The document to which the stylesheet is applied, assumed not <code>null</code>.
    * @return The resulting document, never <code>null</code>.
-   *
    * @throws PSException if there are any errors.
    */
   private Document applyTransforms(PSRequest request, Document doc) throws PSException {
@@ -1407,9 +1363,7 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
    *    null</code>.
    * @param searchReq The search request to execute, assumed not <code>null
    *    </code>.
-   * @param parent The parent document to insert the result into, assumed not
-   *           <code>nul</code>.
-   *
+   * @param parent The parent document to insert the result into, assumed not <code>nul</code>.
    * @throws PSException if error occurs.
    */
   private void processInternalSearch(
@@ -1447,10 +1401,9 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Execute keyfield search, this will take and update a server item with the
-   * proper related items based on a keyfield search. If there are no keyfields
-   * defined or the search returns no results, the "item" will be used as the
-   * related item.
+   * Execute keyfield search, this will take and update a server item with the proper related items
+   * based on a keyfield search. If there are no keyfields defined or the search returns no results,
+   * the "item" will be used as the related item.
    *
    * @param request the original request, not <code>null</code>.
    * @param updateItem the standard item to update, not <code>null</code>.
@@ -1497,9 +1450,8 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
           }
 
           /**
-           * FIX ME if we get more than 1 result we should add an error to
-           * the result reponse data, better still, we should add each
-           * returned item as a new related content item
+           * FIX ME if we get more than 1 result we should add an error to the result reponse data,
+           * better still, we should add each returned item as a new related content item
            */
           // if we found a content item
           Iterator rows = searchResponse.getRows();
@@ -1522,27 +1474,20 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Makes an internal request to determine the content editor type ids based
-   * on a specific field name.
+   * Makes an internal request to determine the content editor type ids based on a specific field
+   * name.
    *
-   * @param request the original request for the operation, assumed not
-   *           <code>null</code>
-   * @param allTypes an array of ints of the complete list of content type ids,
-   *           assumed not <code>null</code>. If any id is not currently
-   *           running, it is skipped.
-   * @param fieldDef The object defining the field whose presence within the
-   *           content types you wish to determine. Assumed not
-   *           <code>null</code>.
-   *
-   * @return returns a collection of contentTypeIds that this field is
-   *         associated with, never <code>null</code>
-   *
-   * @throws PSInternalRequestCallException if an error occurs while requesting
-   *            the content editor URL from the cataloging application.
-   *
-   * @throws PSException If the supplied field's name is
-   *            <code>sys_contenttypeid</code> and the value can't be
-   *            interpreted as a content type id (or list of ids).
+   * @param request the original request for the operation, assumed not <code>null</code>
+   * @param allTypes an array of ints of the complete list of content type ids, assumed not <code>
+   *     null</code>. If any id is not currently running, it is skipped.
+   * @param fieldDef The object defining the field whose presence within the content types you wish
+   *     to determine. Assumed not <code>null</code>.
+   * @return returns a collection of contentTypeIds that this field is associated with, never <code>
+   *     null</code>
+   * @throws PSInternalRequestCallException if an error occurs while requesting the content editor
+   *     URL from the cataloging application.
+   * @throws PSException If the supplied field's name is <code>sys_contenttypeid</code> and the
+   *     value can't be interpreted as a content type id (or list of ids).
    */
   private Collection<Long> getContentTypesForField(
       PSRequest request, long[] allTypes, PSWSSearchField fieldDef) throws PSException {
@@ -1620,11 +1565,10 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
   }
 
   /**
-   * Is restrict search results to user community flag enabled? Evaluated from
-   * server properties only once during server's life time.
+   * Is restrict search results to user community flag enabled? Evaluated from server properties
+   * only once during server's life time.
    *
-   * @return <code>true</code> if the flag is enabled. <code>false</code>
-   *         otherwise.
+   * @return <code>true</code> if the flag is enabled. <code>false</code> otherwise.
    */
   private boolean isRestrictContentToUserCommunity() {
     if (ms_restrictContentToCommunity == null) {
@@ -1636,111 +1580,95 @@ public class PSSearchHandler extends PSWebServicesBaseHandler implements IPSSear
     return ms_restrictContentToCommunity;
   }
 
-  /**
-   * Name of the internal search resource.
-   */
+  /** Name of the internal search resource. */
   private static final String INTERNAL_SEARCHES_APP = "sys_psxInternalSearches";
 
-  /**
-   * URL of the Stylesheet used to process custom field overrides.
-   */
+  /** URL of the Stylesheet used to process custom field overrides. */
   private static final String STYLESHEET_URL = "file:sys_cxItemAssembly/searchfieldvalue.xsl";
 
   /**
-   * Cached Stylesheet used to process custom field overrides. Initialized by
-   * first call to <code>applyTransforms()</code>, never <code>null</code>
-   * or modified after that.
+   * Cached Stylesheet used to process custom field overrides. Initialized by first call to <code>
+   * applyTransforms()</code>, never <code>null</code> or modified after that.
    */
   private PSCachedStylesheet m_styleSheet = null;
 
-  /**
-   * Constant to indicate search was made via web services
-   */
+  /** Constant to indicate search was made via web services */
   private static final int SEARCH_TYPE_WS = 0;
 
   /**
-   * Constant to indicate search was made from content explorer, but is not a
-   * related content search.
+   * Constant to indicate search was made from content explorer, but is not a related content
+   * search.
    */
   private static final int SEARCH_TYPE_CX = 1;
 
-  /**
-   * Constant to indicate a related content search was made from content
-   * explorer.
-   */
+  /** Constant to indicate a related content search was made from content explorer. */
   private static final int SEARCH_TYPE_RC = 2;
 
-  /**
-   * Special parameter for content type list
-   */
+  /** Special parameter for content type list */
   private static final String SYS_CONTENTTYPEID = "sys_contenttypeid";
 
   /**
-   * Flag to indicating if the content search results must be restricted to
-   * user's logged in community. Initialized in
-   * {@link #isRestrictContentToUserCommunity()}, never <code>null</code>
+   * Flag to indicating if the content search results must be restricted to user's logged in
+   * community. Initialized in {@link #isRestrictContentToUserCommunity()}, never <code>null</code>
    * after that.
    */
   private static Boolean ms_restrictContentToCommunity = null;
 
   /**
-   * Name of the property to enable/disable restricting search results to
-   * user's logged in community.
+   * Name of the property to enable/disable restricting search results to user's logged in
+   * community.
    */
   private static final String RESTRICT_USERSEARCH_TO_COMMUNITY_CONTENT =
       "RestrictUserSearchToCommunityContent";
 
   /**
-   * A list of search result processing extension runners initialized only once
-   * in {@link #runResultProcessingExtensions(PSRequest, List)}, never
-   * <code>null</code> after that.
+   * A list of search result processing extension runners initialized only once in {@link
+   * #runResultProcessingExtensions(PSRequest, List)}, never <code>null</code> after that.
    */
   private static List<PSExtensionRunner> extensionRunners = null;
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String ATTR_STARTINDEX = "startIndex";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String ATTR_ENDINDEX = "endIndex";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String EL_PROPERTY = "property";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String ATTR_NAME = "name";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String ATTR_VALUE = "value";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String EL_INTERNALSEARCH = "InternalSearch";
 
   /**
-   * Constants for XML elements/attributes defined in the schema
-   * <code>sys_SearchParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_SearchParameters.xsd
+   * </code>
    */
   private static final String ATTR_TRUNCATED = "truncated";
 
-  /**
-   * Commons logger
-   */
+  /** Commons logger */
   private static final Logger log = LogManager.getLogger(PSSearchHandler.class);
 }

@@ -20,68 +20,54 @@ package com.percussion.foldermanagement.data;
 import javax.xml.bind.annotation.*;
 
 /**
- * Represents a workflow assignment request from the client.
- * Contains workflow name and folder id arrays for assignment.
- * Sunny Sal says: "Workflow assignments, now Java 11 and Google-styled!"
+ * Represents a workflow assignment request from the client. Contains workflow name and folder id
+ * arrays for assignment. Sunny Sal says: "Workflow assignments, now Java 11 and Google-styled!"
  */
 @XmlRootElement(name = "workflowAssignment")
-@XmlType(propOrder = {
-        "workflowName",
-        "assignedFolders",
-        "unassignedFolders",
-        "appliedFolders"
-})
+@XmlType(propOrder = {"workflowName", "assignedFolders", "unassignedFolders", "appliedFolders"})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSWorkflowAssignment {
-    /**
-     * The name of the workflow to assign to each path.
-     */
-    private String workflowName;
+  /** The name of the workflow to assign to each path. */
+  private String workflowName;
 
-    /**
-     * Folder ids to assign to the workflow. May be empty.
-     */
-    private String[] assignedFolders;
+  /** Folder ids to assign to the workflow. May be empty. */
+  private String[] assignedFolders;
 
-    /**
-     * Folder ids to unassign from any workflow. May be empty.
-     */
-    private String[] unassignedFolders;
+  /** Folder ids to unassign from any workflow. May be empty. */
+  private String[] unassignedFolders;
 
-    /**
-     * Folder ids for which the workflow should be applied to all content. May be empty.
-     */
-    private String[] appliedFolders;
+  /** Folder ids for which the workflow should be applied to all content. May be empty. */
+  private String[] appliedFolders;
 
-    public String getWorkflowName() {
-        return workflowName;
-    }
+  public String getWorkflowName() {
+    return workflowName;
+  }
 
-    public void setWorkflowName(String workflowName) {
-        this.workflowName = workflowName;
-    }
+  public void setWorkflowName(String workflowName) {
+    this.workflowName = workflowName;
+  }
 
-    public String[] getAssignedFolders() {
-        return assignedFolders == null ? new String[]{} : assignedFolders;
-    }
+  public String[] getAssignedFolders() {
+    return assignedFolders == null ? new String[] {} : assignedFolders;
+  }
 
-    public void setAssignedFolders(String[] assignedFolders) {
-        this.assignedFolders = assignedFolders;
-    }
+  public void setAssignedFolders(String[] assignedFolders) {
+    this.assignedFolders = assignedFolders;
+  }
 
-    public String[] getUnassignedFolders() {
-        return unassignedFolders == null ? new String[]{} : unassignedFolders;
-    }
+  public String[] getUnassignedFolders() {
+    return unassignedFolders == null ? new String[] {} : unassignedFolders;
+  }
 
-    public void setUnassignedFolders(String[] unassignedFolders) {
-        this.unassignedFolders = unassignedFolders;
-    }
+  public void setUnassignedFolders(String[] unassignedFolders) {
+    this.unassignedFolders = unassignedFolders;
+  }
 
-    public String[] getAppliedFolders() {
-        return appliedFolders == null ? new String[]{} : appliedFolders;
-    }
+  public String[] getAppliedFolders() {
+    return appliedFolders == null ? new String[] {} : appliedFolders;
+  }
 
-    public void setAppliedFolders(String[] appliedFolders) {
-        this.appliedFolders = appliedFolders;
-    }
+  public void setAppliedFolders(String[] appliedFolders) {
+    this.appliedFolders = appliedFolders;
+  }
 }

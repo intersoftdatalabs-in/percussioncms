@@ -75,22 +75,18 @@ public class PSLocaleSpecificLuceneAnalyzer implements IPSLuceneAnalyzer {
 
   /**
    * Initializes this extension.
-   * <p>
-   * Note that the extension will have permission to read
-   * and write any files or directories under <CODE>codeRoot</CODE>
-   * (recursively). The extension will not have permissions for
-   * any other files or directories.
    *
-   * @param def      The extension def, which contains configuration
-   *                 info and initialization params.
-   * @param codeRoot The root directory where this extension
-   *                 should install and look for any files relating to itself. The
-   *                 subdirectory structure under codeRoot is left up to the
-   *                 extension implementation. Must not be <CODE>null</CODE>.
-   * @throws PSExtensionException     If the codeRoot does not exist,
-   *                                  or is not accessible. Also thrown for any other initialization
-   *                                  errors that will prohibit this extension from doing its job
-   *                                  correctly, such as invalid or missing properties.
+   * <p>Note that the extension will have permission to read and write any files or directories
+   * under <CODE>codeRoot</CODE> (recursively). The extension will not have permissions for any
+   * other files or directories.
+   *
+   * @param def The extension def, which contains configuration info and initialization params.
+   * @param codeRoot The root directory where this extension should install and look for any files
+   *     relating to itself. The subdirectory structure under codeRoot is left up to the extension
+   *     implementation. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If the codeRoot does not exist, or is not accessible. Also thrown
+   *     for any other initialization errors that will prohibit this extension from doing its job
+   *     correctly, such as invalid or missing properties.
    * @throws IllegalArgumentException If any param is invalid.
    */
   @Override
@@ -99,17 +95,16 @@ public class PSLocaleSpecificLuceneAnalyzer implements IPSLuceneAnalyzer {
   }
 
   /**
-   * Should create an instance of class that implements
-   * org.apache.lucene.analysis.Analyzer and return based on the supplied
-   * locale.
+   * Should create an instance of class that implements org.apache.lucene.analysis.Analyzer and
+   * return based on the supplied locale.
    *
-   * @param language The language string in the form of two letter language
-   *                 code hyphen two letter country code. For example en-us. The
-   *                 intended caller of this method is {@link PSLuceneAnalyzerFactory}
-   * @return An object of the class that implements
-   * org.apache.lucene.analysis.Analyzer. May be <code>null</code>.
-   * @throws PSExtensionProcessingException if an exception occurs which
-   *                                        prevents the proper handling of this request.
+   * @param language The language string in the form of two letter language code hyphen two letter
+   *     country code. For example en-us. The intended caller of this method is {@link
+   *     PSLuceneAnalyzerFactory}
+   * @return An object of the class that implements org.apache.lucene.analysis.Analyzer. May be
+   *     <code>null</code>.
+   * @throws PSExtensionProcessingException if an exception occurs which prevents the proper
+   *     handling of this request.
    */
   @Override
   public Analyzer getAnalyzer(String language) throws PSExtensionProcessingException {

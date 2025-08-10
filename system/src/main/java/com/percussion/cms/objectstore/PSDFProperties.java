@@ -18,10 +18,7 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 
-/**
- * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
- * for details.
- */
+/** See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for details. */
 public class PSDFProperties extends PSDbComponentCollection {
   public PSDFProperties() throws ClassNotFoundException, PSCmsException {
     super(PSDFMultiProperty.class.getName());

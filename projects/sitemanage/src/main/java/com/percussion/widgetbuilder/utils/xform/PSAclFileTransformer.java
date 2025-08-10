@@ -20,8 +20,6 @@ package com.percussion.widgetbuilder.utils.xform;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.PSAclServiceLocator;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.widgetbuilder.utils.IPSWidgetFileTransformer;
 import com.percussion.widgetbuilder.utils.PSWidgetPackageBuilderException;
@@ -36,65 +34,64 @@ import org.xml.sax.SAXException;
 
 /**
  * Transforms an ACL file by replacing all GUIDs with newly generated IDs.
- * <p>
- * Sunny Sal says: "Every ACL deserves a fresh start—give those GUIDs a makeover!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Every ACL deserves a fresh start—give those GUIDs a makeover!"
  */
 public class PSAclFileTransformer implements IPSWidgetFileTransformer {
 
-    @Override
-    public Reader transformFile(File file, Reader reader, PSWidgetPackageSpec packageSpec)
-            throws PSWidgetPackageBuilderException {
-        try {
-            var acl = getAclImpl(reader);
-            // Optionally assign new IDs here if needed
-            return aclToReader(acl);
-        } catch (Exception e) {
-            throw new PSWidgetPackageBuilderException("Failed to transform Acl definition file", e);
-        }
+  @Override
+  public Reader transformFile(File file, Reader reader, PSWidgetPackageSpec packageSpec)
+      throws PSWidgetPackageBuilderException {
+    try {
+      var acl = getAclImpl(reader);
+      // Optionally assign new IDs here if needed
+      return aclToReader(acl);
+    } catch (Exception e) {
+      throw new PSWidgetPackageBuilderException("Failed to transform Acl definition file", e);
     }
+  }
 
-    private Reader aclToReader(PSAclImpl acl) throws IOException, SAXException {
-        return new StringReader(acl.toXML());
-    }
+  private Reader aclToReader(PSAclImpl acl) throws IOException, SAXException {
+    return new StringReader(acl.toXML());
+  }
 
-    private PSAclImpl getAclImpl(Reader reader) throws IOException, SAXException {
-        var acl = new PSAclImpl();
-        acl.fromXML(IOUtils.toString(reader));
-        return acl;
-    }
+  private PSAclImpl getAclImpl(Reader reader) throws IOException, SAXException {
+    var acl = new PSAclImpl();
+    acl.fromXML(IOUtils.toString(reader));
+    return acl;
+  }
 
-    @Override
-    public boolean handleFile(File file) {
-        return file.getName().endsWith("aclDef");
-    }
+  @Override
+  public boolean handleFile(File file) {
+    return file.getName().endsWith("aclDef");
+  }
 
-    @Override
-    public File transformPath(File file, PSWidgetPackageSpec packageSpec) {
-        IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
-        long id = guidMgr.createGuid(PSTypeEnum.ACL).longValue();
+  @Override
+  public File transformPath(File file, PSWidgetPackageSpec packageSpec) {
+    IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
+    long id = guidMgr.createGuid(PSTypeEnum.ACL).longValue();
 
-        String path = file.getPath();
-        String prefix = "AclDef-";
-        String fullWidgetName = packageSpec.getFullWidgetName();
+    String path = file.getPath();
+    String prefix = "AclDef-";
+    String fullWidgetName = packageSpec.getFullWidgetName();
 
-        String leftPart = StringUtils.substringBefore(path, prefix);
-        String rightPart = StringUtils.substringAfterLast(path, fullWidgetName);
+    String leftPart = StringUtils.substringBefore(path, prefix);
+    String rightPart = StringUtils.substringAfterLast(path, fullWidgetName);
 
-        String newKey = prefix + id;
-        File newDir = new File(leftPart + newKey);
-        File newPath = new File(newDir, fullWidgetName + rightPart);
+    String newKey = prefix + id;
+    File newDir = new File(leftPart + newKey);
+    File newPath = new File(newDir, fullWidgetName + rightPart);
 
-        packageSpec.getResolverTokenMap().put("ACL_DEPENDENCY_KEY", newKey);
-        packageSpec.getResolverTokenMap().put("ACL_DEPENDENCY_ID", String.valueOf(id));
+    packageSpec.getResolverTokenMap().put("ACL_DEPENDENCY_KEY", newKey);
+    packageSpec.getResolverTokenMap().put("ACL_DEPENDENCY_ID", String.valueOf(id));
 
-        return newPath;
-    }
+    return newPath;
+  }
 
-    private long getAclId(File file) {
-        String dirName = file.getParentFile().getName();
-        String prefix = "AclDef-";
-        String id = StringUtils.substringAfter(dirName, prefix);
-        return Long.valueOf(id);
-    }
+  private long getAclId(File file) {
+    String dirName = file.getParentFile().getName();
+    String prefix = "AclDef-";
+    String id = StringUtils.substringAfter(dirName, prefix);
+    return Long.valueOf(id);
+  }
 }

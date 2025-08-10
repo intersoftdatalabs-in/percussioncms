@@ -43,7 +43,6 @@ import org.w3c.dom.NodeList;
  * A link to a landing page or image. The
  *
  * @author DavidBenua
- *
  */
 public class PSNavLink {
 
@@ -127,14 +126,13 @@ public class PSNavLink {
 
   /**
    * builds a link to a specific variant of the specified content item.
+   *
+   * <p>Use this method when you want to link to a specific variant, independent of what is in a
+   * slot.
+   *
    * <p>
-   * Use this method when you want to link to a specific variant, independent
-   * of what is in a slot.
-   * <p>
-   * <p>
-   * This method always creates an internal link, suitable for use in XSL
-   * stylesheets
-   * </p>
+   *
+   * <p>This method always creates an internal link, suitable for use in XSL stylesheets
    *
    * @param req the parent request context
    * @param summary points to the document which is linked
@@ -153,8 +151,7 @@ public class PSNavLink {
   }
 
   /**
-   * Convenience method for createLineToDocument(IPSRequestContext,
-   * PSComponentSummary, int, Map).
+   * Convenience method for createLineToDocument(IPSRequestContext, PSComponentSummary, int, Map).
    *
    * @param req the parent request context
    * @param summary the document to link to.
@@ -169,14 +166,13 @@ public class PSNavLink {
 
   /**
    * builds a link to a specific variant of the specified content item.
+   *
+   * <p>Use this method when you want to link to a specific variant, independent of what is in a
+   * slot.
+   *
    * <p>
-   * Use this method when you want to link to a specific variant, independent
-   * of what is in a slot.
-   * <p>
-   * <p>
-   * This method always creates an internal link, suitable for use in XSL
-   * stylesheets
-   * </p>
+   *
+   * <p>This method always creates an internal link, suitable for use in XSL stylesheets
    *
    * @param req the parent request context
    * @param summary points to the document which is linked
@@ -195,16 +191,15 @@ public class PSNavLink {
   }
 
   /**
-   * Create a server local assembly navlink URL for the specified item, variant
-   * and extra parameter map.
+   * Create a server local assembly navlink URL for the specified item, variant and extra parameter
+   * map.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param summary component summary object for the nav item, must not be
-   *           <code>null</code>.
-   * @param variant conten type vriant object to build the link url for, must
-   *           nto be <code>null</code>.
-   * @param extraParams map if extra parameters to add to the url, must not be
-   *           <code>null</code>, may be empty.
+   * @param summary component summary object for the nav item, must not be <code>null</code>.
+   * @param variant conten type vriant object to build the link url for, must nto be <code>null
+   *     </code>.
+   * @param extraParams map if extra parameters to add to the url, must not be <code>null</code>,
+   *     may be empty.
    * @throws PSNavException if a link could not be generated.
    */
   public void createLinkToDocument(
@@ -244,9 +239,8 @@ public class PSNavLink {
   }
 
   /**
-   * Convenience method for createLinkFromSnippet(IPSRequestContext,
-   * PSNavComponentSummary, PSContentTypeVariant). Creates a link by reading a
-   * snippet.
+   * Convenience method for createLinkFromSnippet(IPSRequestContext, PSNavComponentSummary,
+   * PSContentTypeVariant). Creates a link by reading a snippet.
    *
    * @param req the parent request context.
    * @param summary the content item to link to.
@@ -265,11 +259,11 @@ public class PSNavLink {
   }
 
   /**
-   * fills in the current link object by building a snippet and taking the href
-   * attribute of the first link in the snippet as the URL.
+   * fills in the current link object by building a snippet and taking the href attribute of the
+   * first link in the snippet as the URL.
    *
-   * Use this method when you want to follow the snippet that is in a slot to
-   * build a link to its page item.
+   * <p>Use this method when you want to follow the snippet that is in a slot to build a link to its
+   * page item.
    *
    * @param req the parent request
    * @param summary Component summary of the target document to link.
@@ -283,17 +277,17 @@ public class PSNavLink {
   }
 
   /**
-   * fills in the current link object by building a snippet and taking the href
-   * attribute of the first link in the snippet as the URL.
+   * fills in the current link object by building a snippet and taking the href attribute of the
+   * first link in the snippet as the URL.
    *
-   * Use this method when you want to follow the snippet that is in a slot to
-   * build a link to its page item.
+   * <p>Use this method when you want to follow the snippet that is in a slot to build a link to its
+   * page item.
    *
    * @param req the parent request
    * @param summary Component summary of the target document to link.
    * @param variant the variant object for the snippet variant.
-   * @param extraParams that needs to be passed to the link. If
-   * <code>null</code> or <code>empty</code> no params will be added.
+   * @param extraParams that needs to be passed to the link. If <code>null</code> or <code>empty
+   *     </code> no params will be added.
    * @throws PSNavException when any exception is encountered.
    */
   public void createLinkFromSnippet(
@@ -348,18 +342,15 @@ public class PSNavLink {
   }
 
   /**
-   * Builds a link from a relationship. The dependent object is set as the
-   * link.
+   * Builds a link from a relationship. The dependent object is set as the link.
    *
    * @param req the parent request context.
    * @param relation the relationhip to link to
-   * @param useVariant the variant to use. If this parameter is
-   *           <code>null</code> the variant from the relationship is used.
-   *           This variant must be a page variant if <code>followLink</code>
-   *           is <code>false</code>.
-   * @param followLink determines if this link contains the URL of the linked
-   *           item or the URL of the first <code><a></code> tag. If this
-   *           value is true, the link snippet will be assembled.
+   * @param useVariant the variant to use. If this parameter is <code>null</code> the variant from
+   *     the relationship is used. This variant must be a page variant if <code>followLink</code> is
+   *     <code>false</code>.
+   * @param followLink determines if this link contains the URL of the linked item or the URL of the
+   *     first <code><a></code> tag. If this value is true, the link snippet will be assembled.
    * @throws PSNavException
    */
   public void buildLinkFromRelationship(
@@ -395,9 +386,9 @@ public class PSNavLink {
   }
 
   /**
-   * Convenience method for buildLinkParams(PSNavComponentSummary,
-   * PSContentTypeVariant, IPSRequestContext. Builds the mape of parameters for
-   * a link, but uses PSNavComponentSummary instead.
+   * Convenience method for buildLinkParams(PSNavComponentSummary, PSContentTypeVariant,
+   * IPSRequestContext. Builds the mape of parameters for a link, but uses PSNavComponentSummary
+   * instead.
    *
    * @param summary the content item to link to
    * @param variant the variant to use.
@@ -416,8 +407,7 @@ public class PSNavLink {
    * @param summary the item summary
    * @param variant the variant to link to.
    * @param req the parent request context.
-   * @return the map of params. Never <code>null</code> but may be
-   *         <code>Empty</code>.
+   * @return the map of params. Never <code>null</code> but may be <code>Empty</code>.
    */
   private Map buildLinkParams(
       PSNavComponentSummary summary, PSContentTypeTemplate variant, IPSRequestContext req) {
@@ -453,8 +443,8 @@ public class PSNavLink {
   }
 
   /**
-   * Builds the XML representation of a link. The new XML element is attached
-   * to the specfied parent element.
+   * Builds the XML representation of a link. The new XML element is attached to the specfied parent
+   * element.
    *
    * @param parentElem the parent element
    * @return the parent element.
@@ -472,70 +462,45 @@ public class PSNavLink {
     return parentElem;
   }
 
-  /**
-   * URI to link to
-   */
+  /** URI to link to */
   String m_uri;
 
-  /**
-   * Content Id of linked object
-   */
+  /** Content Id of linked object */
   int m_contentId;
 
   /**
-   * Folder Id of linked object this gets initialized through
-   * {@link #createLinkFromSnippet(IPSRequestContext,
-   *    PSNavComponentSummary, PSContentTypeTemplate, Map)};
-   * or {@link #createLinkToDocument(IPSRequestContext,
-   * PSNavComponentSummary, PSContentTypeTemplate, Map)};
-   * methods, if the Map consists of IPSHtmlParameters.SYS_FOLDERID.
+   * Folder Id of linked object this gets initialized through {@link
+   * #createLinkFromSnippet(IPSRequestContext, PSNavComponentSummary, PSContentTypeTemplate, Map)};
+   * or {@link #createLinkToDocument(IPSRequestContext, PSNavComponentSummary,
+   * PSContentTypeTemplate, Map)}; methods, if the Map consists of IPSHtmlParameters.SYS_FOLDERID.
    * otherwise the value will be 0;
-   *
    */
   int m_folderId;
 
-  /**
-   * Variant of linked object
-   */
+  /** Variant of linked object */
   int m_variantId;
 
-  /**
-   * Revision of linked object
-   */
+  /** Revision of linked object */
   private int m_revision;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private Logger log = LogManager.getLogger(getClass());
 
-  /**
-   * Error message for missing link
-   */
+  /** Error message for missing link */
   private static final String MSG_UNABLE_TO_FIND_LINK = "Unable to find variant for link";
 
-  /**
-   * Error message for missing assembler.
-   */
+  /** Error message for missing assembler. */
   private static final String MSG_VARIANT_ASSEMBLER = "Variant assembly resource not found";
 
-  /**
-   * XML Attribute for content id.
-   */
+  /** XML Attribute for content id. */
   private static final String XML_ATTR_CONTENTID = IPSHtmlParameters.SYS_CONTENTID;
 
-  /**
-   * XML Attribute for variant id.
-   */
+  /** XML Attribute for variant id. */
   private static final String XML_ATTR_VARIANTID = IPSHtmlParameters.SYS_VARIANTID;
 
-  /**
-   * XML Attribute for revision id.
-   */
+  /** XML Attribute for revision id. */
   private static final String XML_ATTR_REVISION = IPSHtmlParameters.SYS_REVISION;
 
-  /**
-   * XML Attribute for folder id.
-   */
+  /** XML Attribute for folder id. */
   private static final String XML_ATTR_FOLDERID = IPSHtmlParameters.SYS_FOLDERID;
 }

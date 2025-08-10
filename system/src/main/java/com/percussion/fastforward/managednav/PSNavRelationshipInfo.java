@@ -21,15 +21,12 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * Holds relationship info needed by Navigation Effects. The underlying
- * relationship classes only contain <code>PSLocator</code> objects. The
- * navigation system usually needs to know the content type and name of the
- * owner and/or dependent object. This class contains the
- * <code>PSComponentSummary</code> objects that contain this information.
+ * Holds relationship info needed by Navigation Effects. The underlying relationship classes only
+ * contain <code>PSLocator</code> objects. The navigation system usually needs to know the content
+ * type and name of the owner and/or dependent object. This class contains the <code>
+ * PSComponentSummary</code> objects that contain this information.
  *
  * @author DavidBenua
- *
- *
  */
 public class PSNavRelationshipInfo {
   /**
@@ -75,6 +72,7 @@ public class PSNavRelationshipInfo {
 
   /**
    * Produces a string suitable for logging.
+   *
    * @return
    */
   public String toString() {
@@ -100,18 +98,12 @@ public class PSNavRelationshipInfo {
     return sb.toString();
   }
 
-  /**
-   * The underlying relationship.
-   */
+  /** The underlying relationship. */
   private PSRelationship m_rel;
 
-  /**
-   * The component summary of the owner item.
-   */
+  /** The component summary of the owner item. */
   private PSComponentSummary m_owner;
 
-  /**
-   * The component summary of the dependent item.
-   */
+  /** The component summary of the dependent item. */
   private PSComponentSummary m_dependent;
 }

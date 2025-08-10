@@ -19,20 +19,18 @@ package com.percussion.utils.jsr170;
 import javax.jcr.RepositoryException;
 
 /**
- * Interface to be implemented by jcr objects that need to report a size to
- * determine cache status for the assembly service. This is generally used to
- * calculate an approximate size, calculating a true size is impossible in Java
- * without knowing details of each JVM. Implementers should basically report
- * major memory usage such as strings and arrays.
+ * Interface to be implemented by jcr objects that need to report a size to determine cache status
+ * for the assembly service. This is generally used to calculate an approximate size, calculating a
+ * true size is impossible in Java without knowing details of each JVM. Implementers should
+ * basically report major memory usage such as strings and arrays.
  *
  * @author dougrand
- *
  */
 public interface IPSJcrCacheItem {
   /**
-   * Return an approximate site in bytes for the component. If implemented by
-   * an object that contains other objects, the implementation must recurse,
-   * and the child objects should implement this method as well for simplicity.
+   * Return an approximate site in bytes for the component. If implemented by an object that
+   * contains other objects, the implementation must recurse, and the child objects should implement
+   * this method as well for simplicity.
    *
    * @return the size in bytes, might be <code>0</code>
    */

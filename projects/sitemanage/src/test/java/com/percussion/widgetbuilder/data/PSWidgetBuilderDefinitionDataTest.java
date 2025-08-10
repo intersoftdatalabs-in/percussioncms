@@ -22,97 +22,94 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSDataObjectTestCase;
-
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for PSWidgetBuilderDefinitionData.
- */
-public class PSWidgetBuilderDefinitionDataTest extends PSDataObjectTestCase<PSWidgetBuilderDefinitionData> {
+/** Tests for PSWidgetBuilderDefinitionData. */
+public class PSWidgetBuilderDefinitionDataTest
+    extends PSDataObjectTestCase<PSWidgetBuilderDefinitionData> {
 
-    @Override
-    public PSWidgetBuilderDefinitionData getObject() throws Exception {
-        var definition = new PSWidgetBuilderDefinitionData();
-        definition.setDescription("a description");
-        definition.setLabel("a label");
-        definition.setPrefix("perc");
-        definition.setPublisherUrl("http://www.percussion.com");
-        definition.setVersion("42");
-        definition.setAuthor("Dr. Caligari");
-        definition.setId("1");
-        definition.setResponsive(true);
+  @Override
+  public PSWidgetBuilderDefinitionData getObject() throws Exception {
+    var definition = new PSWidgetBuilderDefinitionData();
+    definition.setDescription("a description");
+    definition.setLabel("a label");
+    definition.setPrefix("perc");
+    definition.setPublisherUrl("http://www.percussion.com");
+    definition.setVersion("42");
+    definition.setAuthor("Dr. Caligari");
+    definition.setId("1");
+    definition.setResponsive(true);
 
-        var fields = definition.getFieldsList().getFields();
+    var fields = definition.getFieldsList().getFields();
 
-        var textField = new PSWidgetBuilderFieldData();
-        textField.setName("textField");
-        textField.setLabel("Text Field");
-        textField.setType(PSWidgetBuilderFieldData.FieldType.TEXT.toString());
-        fields.add(textField);
+    var textField = new PSWidgetBuilderFieldData();
+    textField.setName("textField");
+    textField.setLabel("Text Field");
+    textField.setType(PSWidgetBuilderFieldData.FieldType.TEXT.toString());
+    fields.add(textField);
 
-        var areaField = new PSWidgetBuilderFieldData();
-        areaField.setName("textArea");
-        areaField.setLabel("Text Area");
-        areaField.setType(PSWidgetBuilderFieldData.FieldType.TEXT_AREA.toString());
-        fields.add(areaField);
+    var areaField = new PSWidgetBuilderFieldData();
+    areaField.setName("textArea");
+    areaField.setLabel("Text Area");
+    areaField.setType(PSWidgetBuilderFieldData.FieldType.TEXT_AREA.toString());
+    fields.add(areaField);
 
-        var dateField = new PSWidgetBuilderFieldData();
-        dateField.setName("dateField");
-        dateField.setLabel("Date Field");
-        dateField.setType(PSWidgetBuilderFieldData.FieldType.DATE.toString());
-        fields.add(dateField);
+    var dateField = new PSWidgetBuilderFieldData();
+    dateField.setName("dateField");
+    dateField.setLabel("Date Field");
+    dateField.setType(PSWidgetBuilderFieldData.FieldType.DATE.toString());
+    fields.add(dateField);
 
-        var richField = new PSWidgetBuilderFieldData();
-        richField.setName("richText");
-        richField.setLabel("Rich Text");
-        richField.setType(PSWidgetBuilderFieldData.FieldType.RICH_TEXT.toString());
-        fields.add(richField);
+    var richField = new PSWidgetBuilderFieldData();
+    richField.setName("richText");
+    richField.setLabel("Rich Text");
+    richField.setType(PSWidgetBuilderFieldData.FieldType.RICH_TEXT.toString());
+    fields.add(richField);
 
-        var imgField = new PSWidgetBuilderFieldData();
-        imgField.setName("imgField");
-        imgField.setLabel("Image Field");
-        imgField.setType(PSWidgetBuilderFieldData.FieldType.IMAGE.toString());
-        fields.add(imgField);
+    var imgField = new PSWidgetBuilderFieldData();
+    imgField.setName("imgField");
+    imgField.setLabel("Image Field");
+    imgField.setType(PSWidgetBuilderFieldData.FieldType.IMAGE.toString());
+    fields.add(imgField);
 
-        var html = new StringBuilder("<ul>");
-        for (var field : fields) {
-            html.append("<li>$").append(field.getName()).append("</li>");
-        }
-        html.append("</ul>");
-        definition.setWidgetHtml(html.toString());
-
-        var jsFiles = new PSWidgetBuilderResourceListData();
-        var files = jsFiles.getResourceList();
-        files.add("/foo/bar.js");
-        files.add("/foo/bar2.js");
-        definition.setJsFileList(jsFiles);
-
-        var cssFiles = new PSWidgetBuilderResourceListData();
-        files = cssFiles.getResourceList();
-        files.add("/foo/bar.js");
-        files.add("/foo/bar2.js");
-        definition.setCssFileList(cssFiles);
-
-        return definition;
+    var html = new StringBuilder("<ul>");
+    for (var field : fields) {
+      html.append("<li>$").append(field.getName()).append("</li>");
     }
+    html.append("</ul>");
+    definition.setWidgetHtml(html.toString());
 
-    @Test
-    public void testJsonSerialization() throws Exception {
-        var json = PSSerializerUtils.getJsonFromObject(object);
-        // Optionally assert JSON structure here
-    }
+    var jsFiles = new PSWidgetBuilderResourceListData();
+    var files = jsFiles.getResourceList();
+    files.add("/foo/bar.js");
+    files.add("/foo/bar2.js");
+    definition.setJsFileList(jsFiles);
 
-    @Test
-    public void testToFromDao() throws Exception {
-        var data = new PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinitionData.createDaoObject(object));
-        assertEquals(object, data);
-    }
+    var cssFiles = new PSWidgetBuilderResourceListData();
+    files = cssFiles.getResourceList();
+    files.add("/foo/bar.js");
+    files.add("/foo/bar2.js");
+    definition.setCssFileList(cssFiles);
 
-    @Test
-    public void testSummaryData() throws Exception {
-        var sum = new PSWidgetBuilderSummaryData(object);
-        assertXmlSerialization(sum);
-    }
+    return definition;
+  }
+
+  @Test
+  public void testJsonSerialization() throws Exception {
+    var json = PSSerializerUtils.getJsonFromObject(object);
+    // Optionally assert JSON structure here
+  }
+
+  @Test
+  public void testToFromDao() throws Exception {
+    var data =
+        new PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinitionData.createDaoObject(object));
+    assertEquals(object, data);
+  }
+
+  @Test
+  public void testSummaryData() throws Exception {
+    var sum = new PSWidgetBuilderSummaryData(object);
+    assertXmlSerialization(sum);
+  }
 }

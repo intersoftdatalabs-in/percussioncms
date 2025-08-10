@@ -45,8 +45,8 @@ import org.jasypt.util.text.BasicTextEncryptor;
 
 /**
  * Encrypts properties in a properties file that are specified to be encrypted.
- * @author erikserating
  *
+ * @author erikserating
  */
 public class PSSecureProperty {
 
@@ -55,15 +55,16 @@ public class PSSecureProperty {
   private PSSecureProperty() {}
 
   /**
-   * Encrypts all specified properties if they have not already been encrypted. The file is re-written
-   * with the encrypted values. To determine if a property is encrypted we check for the following format
-   * in the value ENC(thehashgoeshere).
+   * Encrypts all specified properties if they have not already been encrypted. The file is
+   * re-written with the encrypted values. To determine if a property is encrypted we check for the
+   * following format in the value ENC(thehashgoeshere).
+   *
    * @param filepath the path to the properties file to be modified. Cannot be <code>null</code>.
-   * @param propnames list of properties names of properties whose values should be encrypted. Cannot be
-   * <code>null</code>, may be empty.
+   * @param propnames list of properties names of properties whose values should be encrypted.
+   *     Cannot be <code>null</code>, may be empty.
    * @param k an optional key to use to encrypt the value, the default key will be used if this is
-   * <code>null</code>.
-   * @param  encryptionType Optional.  They type of encryption to use.
+   *     <code>null</code>.
+   * @param encryptionType Optional. They type of encryption to use.
    */
   @ToDoVulnerability
   public static void secureProperties(
@@ -169,6 +170,7 @@ public class PSSecureProperty {
 
   /**
    * Determine if a value is encrypted.
+   *
    * @param s may be <code>null</code> or empty.
    * @return <code>true</code> if encrypted.
    */
@@ -182,7 +184,7 @@ public class PSSecureProperty {
    *
    * @param s encrypted string value. Cannot be <code>null</code>.
    * @param k an optional key to use to encrypt the value, the default key will be used if this is
-   *          <code>null</code>.
+   *     <code>null</code>.
    * @return the decrypted string, never <code>null</code>, may be empty.
    */
   public static String getValue(String s, String k) {
@@ -261,7 +263,6 @@ public class PSSecureProperty {
    * Helper to create a standard PBE encryptor.
    *
    * @param password the password to set, assumed not <code>null</code> or empty.
-   *
    * @return A StandardPBEStringEncryptor, never <code>null</code> or empty.
    */
   private static StandardPBEStringEncryptor getStrongEncryptor(String password) {
@@ -277,33 +278,21 @@ public class PSSecureProperty {
 
   private static final String ERROR_PROPS = "Propnames cannot be null!!!!!";
 
-  /**
-   * Constant for the encryption prefix string.
-   */
+  /** Constant for the encryption prefix string. */
   private static final String ENC_PREFIX = "ENC(";
 
-  /**
-   * Constant for the strong encryption prefix string.
-   */
+  /** Constant for the strong encryption prefix string. */
   private static final String ENC_AES_PREFIX = "ENC2(";
 
-  /**
-   * Constant for the encryption postfix string.
-   */
+  /** Constant for the encryption postfix string. */
   private static final String ENC_POSTFIX = ")";
 
-  /**
-   * Constant for the default encryption algorithm.
-   */
+  /** Constant for the default encryption algorithm. */
   private static final String DEFAULT_ENCRYPTION = "ENC";
 
-  /**
-   * Constant for the strong encryption using AES.
-   */
+  /** Constant for the strong encryption using AES. */
   private static final String AES_ENCRYPTION = "ENC2";
 
-  /**
-   * Constant for the encryption algorithm.
-   */
+  /** Constant for the encryption algorithm. */
   private static final String ENC_AES_ALGORITHM = "PBEWITHSHA256AND128BITAES-CBC-BC";
 }

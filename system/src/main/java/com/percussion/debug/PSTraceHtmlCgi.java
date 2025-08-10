@@ -28,14 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Used to generate trace messages for Html paramenters and Cgi varibles.
- * Includes all parameter in the request and their values, and all CGI variables
- * and their values.  Sends output as one per line in the form 'name=value'.
- * Handles the following trace message types:
- * - 0x0002 Initial HTML/CGI
- * - 0x0020 HTML/CGI post PreProc exit - HTML and CGI vars after all pre proc
- * exitts are run
- * - 0x2000 CGI post PostProc exit - CGI vars after post proc exits are run.
+ * Used to generate trace messages for Html paramenters and Cgi varibles. Includes all parameter in
+ * the request and their values, and all CGI variables and their values. Sends output as one per
+ * line in the form 'name=value'. Handles the following trace message types: - 0x0002 Initial
+ * HTML/CGI - 0x0020 HTML/CGI post PreProc exit - HTML and CGI vars after all pre proc exitts are
+ * run - 0x2000 CGI post PostProc exit - CGI vars after post proc exits are run.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceHtmlCgi extends PSTraceMessage {
@@ -43,11 +40,10 @@ public class PSTraceHtmlCgi extends PSTraceMessage {
   /**
    * The constructor for this class.
    *
-   * @param traceFlag Since this class handles multiple trace message types,
-   * the trace flag must be passed to specify which trace message type is
-   * being handled.
-   * @throws java.lang.IllegalArgumentException if the trace flag passed is not
-   * handled by this class.
+   * @param traceFlag Since this class handles multiple trace message types, the trace flag must be
+   *     passed to specify which trace message type is being handled.
+   * @throws java.lang.IllegalArgumentException if the trace flag passed is not handled by this
+   *     class.
    */
   public PSTraceHtmlCgi(int traceFlag) {
     super(traceFlag);
@@ -72,10 +68,10 @@ public class PSTraceHtmlCgi extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
-   * @param source a PSRequest object containing the information required for the
-   * trace message
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
+   *
+   * @param source a PSRequest object containing the information required for the trace message
    * @return the message body
    */
   protected String getMessageBody(Object source) {
@@ -110,6 +106,7 @@ public class PSTraceHtmlCgi extends PSTraceMessage {
 
   /**
    * Formats the output for the name-value pairs found in the map
+   *
    * @param buf the StringBuilder to append to
    * @param map the HashMap containing String keys and String values
    */
@@ -141,11 +138,10 @@ public class PSTraceHtmlCgi extends PSTraceMessage {
   }
 
   /**
-   * List of names of the CGI variables that need to be hidden in the trace
-   * information. Certain variables such as unencrypted passwords may need to
-   * be hidden in the trace file. This variable holds all such CGI variable
-   * names. Never <code>null</code> or empty. Values are filled during loading
-   * of the class.
+   * List of names of the CGI variables that need to be hidden in the trace information. Certain
+   * variables such as unencrypted passwords may need to be hidden in the trace file. This variable
+   * holds all such CGI variable names. Never <code>null</code> or empty. Values are filled during
+   * loading of the class.
    */
   private static List ms_hiddenVars = new ArrayList();
 

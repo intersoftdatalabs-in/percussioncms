@@ -25,42 +25,42 @@ import com.percussion.share.data.PSAbstractDataObject;
  * @author yubingchen
  */
 public class PSGenerateSiteMapOptions extends PSAbstractDataObject {
-    private String generateSitemapExcludeImage;
-    private String generateSitemap;
+  private String generateSitemapExcludeImage;
+  private String generateSitemap;
 
-    /**
-     * Gets the generate sitemap flag.
-     *
-     * @return the generate sitemap flag
-     */
-    public String getGenerateSitemap() {
-        return generateSitemap;
-    }
+  /**
+   * Gets the generate sitemap flag.
+   *
+   * @return the generate sitemap flag
+   */
+  public String getGenerateSitemap() {
+    return generateSitemap;
+  }
 
-    /**
-     * Sets the generate sitemap flag.
-     *
-     * @param generateSitemap the flag value
-     */
-    public void setGenerateSitemap(String generateSitemap) {
-        this.generateSitemap = generateSitemap;
-    }
+  /**
+   * Sets the generate sitemap flag.
+   *
+   * @param generateSitemap the flag value
+   */
+  public void setGenerateSitemap(String generateSitemap) {
+    this.generateSitemap = generateSitemap;
+  }
 
-    /**
-     * Gets the flag for excluding images from the sitemap.
-     *
-     * @return the exclude image flag
-     */
-    public String getGenerateSitemapExcludeImage() {
-        return generateSitemapExcludeImage;
-    }
+  /**
+   * Gets the flag for excluding images from the sitemap.
+   *
+   * @return the exclude image flag
+   */
+  public String getGenerateSitemapExcludeImage() {
+    return generateSitemapExcludeImage;
+  }
 
-    /**
-     * Sets the flag for excluding images from the sitemap.
-     *
-     * @param generateSitemapExcludeImage the flag value
-     */
-    public void setGenerateSitemapExcludeImage(String generateSitemapExcludeImage) {
-        this.generateSitemapExcludeImage = generateSitemapExcludeImage;
-    }
+  /**
+   * Sets the flag for excluding images from the sitemap.
+   *
+   * @param generateSitemapExcludeImage the flag value
+   */
+  public void setGenerateSitemapExcludeImage(String generateSitemapExcludeImage) {
+    this.generateSitemapExcludeImage = generateSitemapExcludeImage;
+  }
 }

@@ -19,8 +19,8 @@
 package com.percussion.analytics.service.impl.google;
 
 /**
- * Google service account credentials for OAuth2 authentication.
- * Sunny Sal: "Credentials are like toothbrushes—don't share them!"
+ * Google service account credentials for OAuth2 authentication. Sunny Sal: "Credentials are like
+ * toothbrushes—don't share them!"
  */
 public class GoogleCreds {
 

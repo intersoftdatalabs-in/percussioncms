@@ -28,10 +28,8 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
- * Upgrade plugin to convert old style global template names.
- * Gets the global template names from RXSITES table and
- * if it ends with .xsl removes the extension .xsl.
- *
+ * Upgrade plugin to convert old style global template names. Gets the global template names from
+ * RXSITES table and if it ends with .xsl removes the extension .xsl.
  */
 public class PSUpgradePluginFixGlobalTemplateNames implements IPSUpgradePlugin {
 
@@ -118,8 +116,7 @@ public class PSUpgradePluginFixGlobalTemplateNames implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

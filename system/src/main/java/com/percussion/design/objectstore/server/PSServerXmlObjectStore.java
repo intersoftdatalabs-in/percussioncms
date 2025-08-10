@@ -117,14 +117,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class provides server-only access to the XML object store. This class
- * follows the singleton pattern. Provides methods to get and set XML objects,
- * assuming that security has already been checked and locks have already been
- * obtained. The PSXmlObjectStoreHandler will delegate calls to this class.
- * Methods in this class should ensure that appropriate locks have already been
- * obtained where necessary. Only some functionality from the
- * PSXmlObjectStoreHandler has been extracted and moved to this class. In the
- * future more may be moved here as required.
+ * This class provides server-only access to the XML object store. This class follows the singleton
+ * pattern. Provides methods to get and set XML objects, assuming that security has already been
+ * checked and locks have already been obtained. The PSXmlObjectStoreHandler will delegate calls to
+ * this class. Methods in this class should ensure that appropriate locks have already been obtained
+ * where necessary. Only some functionality from the PSXmlObjectStoreHandler has been extracted and
+ * moved to this class. In the future more may be moved here as required.
  */
 public class PSServerXmlObjectStore extends PSObjectFactory {
   private static final String TOK_NOT_NULL_ERROR = "tok may not be null";
@@ -134,9 +132,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   private static final String ID_NOT_NULL_ERROR = "id may not be null";
 
   /**
-   * Used to create and obtain the single instance of this class. This method
-   * should only be called once (this should be done by the server when
-   * initializing).
+   * Used to create and obtain the single instance of this class. This method should only be called
+   * once (this should be done by the server when initializing).
    *
    * @param os The objectstore handler. May not be <code>null</code>.
    * @return The instance of this class.
@@ -153,14 +150,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Used to obtain the single instance of this class. Class must have been
-   * instantiated by a call to {@link #createInstance
-   * (PSXmlObjectStoreHandler)} (this should have been done by the server when
-   * initializing).
+   * Used to obtain the single instance of this class. Class must have been instantiated by a call
+   * to {@link #createInstance (PSXmlObjectStoreHandler)} (this should have been done by the server
+   * when initializing).
    *
    * @return The instance of this class.
-   * @throws IllegalStateException if {@link
-   * #createInstance(PSXmlObjectStoreHandler)} has not already been called.
+   * @throws IllegalStateException if {@link #createInstance(PSXmlObjectStoreHandler)} has not
+   *     already been called.
    */
   public static synchronized PSServerXmlObjectStore getInstance() {
     // make sure this has already been created
@@ -171,26 +167,21 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * This class used to recover the application file and application directory
-   * should saving application failed.
-   * <p>
-   * The original file or directory will be renamed to a temporary one (if
-   * exists), which can be deleted, renamed or recovered (to the original one)
-   * afterwards. The purpose of immediate renaming original file or directory
-   * to a temporary one is to make sure the original and a new file or
-   * directory can be coexisted in Windows (where the file name is case
-   * insensitive).
+   * This class used to recover the application file and application directory should saving
+   * application failed.
+   *
+   * <p>The original file or directory will be renamed to a temporary one (if exists), which can be
+   * deleted, renamed or recovered (to the original one) afterwards. The purpose of immediate
+   * renaming original file or directory to a temporary one is to make sure the original and a new
+   * file or directory can be coexisted in Windows (where the file name is case insensitive).
    */
   public static class RecoverableFile {
-    /**
-     * The original file or directory, set by constructor, never
-     * <code>null</code> after that.
-     */
+    /** The original file or directory, set by constructor, never <code>null</code> after that. */
     private File m_src;
 
     /**
-     * The file or directory that is renamed from {@link #m_src}. It may be
-     * <code>null</code> if the original file or directory does not exist.
+     * The file or directory that is renamed from {@link #m_src}. It may be <code>null</code> if the
+     * original file or directory does not exist.
      */
     private File m_tempFile = null;
 
@@ -207,8 +198,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     }
 
     /**
-     * Renames the original file or directory to a temporary file or directory
-     * if the original file or directory exists; otherwise does nothing.
+     * Renames the original file or directory to a temporary file or directory if the original file
+     * or directory exists; otherwise does nothing.
      */
     void renameSrcToBackup() throws PSException {
       if (!m_src.exists()) return;
@@ -231,12 +222,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     }
 
     /**
-     * Recovers the original file or directory if it has been renamed to a
-     * different file or directory.
+     * Recovers the original file or directory if it has been renamed to a different file or
+     * directory.
      *
-     * @return <code>true</code> if successful; otherwise return
-     * <code>false</code> where the file may have recovered already or does
-     * not exist anymore.
+     * @return <code>true</code> if successful; otherwise return <code>false</code> where the file
+     *     may have recovered already or does not exist anymore.
      */
     boolean recover() {
       if (m_tempFile == null) return false;
@@ -260,8 +250,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
      * Renames the file or directory to the given destination.
      *
      * @param dest the destination, assumed not <code>null</code>.
-     * @return <code>true</code> if and only if the renaming succeeded;
-     * <code>false</code> otherwise
+     * @return <code>true</code> if and only if the renaming succeeded; <code>false</code> otherwise
      */
     boolean renameTo(File dest) {
       if (m_tempFile == null) return true;
@@ -277,9 +266,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     /**
      * Deletes the file or directory if exists.
      *
-     * @return <code>true</code> if successful; otherwise return
-     * <code>false</code> where the file may have deleted already or does
-     * not exist anymore.
+     * @return <code>true</code> if successful; otherwise return <code>false</code> where the file
+     *     may have deleted already or does not exist anymore.
      */
     boolean delete() {
       if (m_tempFile != null) {
@@ -292,8 +280,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Creates an empty application object with an acl containing default and
-   * anonymous entries.
+   * Creates an empty application object with an acl containing default and anonymous entries.
    *
    * @return The application object.
    */
@@ -302,9 +289,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Same as
-   * {@link #getApplicationObject(IPSLockerId, String, PSSecurityToken, boolean)}
-   * with last parameter <code>true</code>.
+   * Same as {@link #getApplicationObject(IPSLockerId, String, PSSecurityToken, boolean)} with last
+   * parameter <code>true</code>.
    */
   public PSApplication getApplicationObject(String appName, PSSecurityToken tok)
       throws PSServerException, PSNotFoundException, PSAuthorizationException {
@@ -316,20 +302,18 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads application from disk in read-only mode and returns it as an object.
-   * Application is not locked as a result of this call.
+   * Loads application from disk in read-only mode and returns it as an object. Application is not
+   * locked as a result of this call.
    *
    * @param appName The name of the application. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param fixupCeFields flag to indicate the content editor field fixup is
-   * required. <code>true</code> to fixup <code>false</code> otherwise. See
-   * {@link #fixupFields(PSFieldSet, Iterator, Map)}.
+   * @param fixupCeFields flag to indicate the content editor field fixup is required. <code>true
+   *     </code> to fixup <code>false</code> otherwise. See {@link #fixupFields(PSFieldSet,
+   *     Iterator, Map)}.
    * @return The application object.
    * @throws PSNotFoundException if an application be that name does not exist.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * application.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the application.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public PSApplication getApplicationObject(
@@ -350,9 +334,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Same as
-   * {@link #getApplicationObject(IPSLockerId, String, PSSecurityToken, boolean)}
-   * with last parameter <code>true</code>.
+   * Same as {@link #getApplicationObject(IPSLockerId, String, PSSecurityToken, boolean)} with last
+   * parameter <code>true</code>.
    */
   public PSApplication getApplicationObject(IPSLockerId lockId, String appName, PSSecurityToken tok)
       throws PSServerException,
@@ -371,24 +354,21 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Locks and loads application from disk in edit-mode and returns it as an
-   * object.
+   * Locks and loads application from disk in edit-mode and returns it as an object.
    *
-   * @param lockId The lock id that identifies the user. App must already be
-   * locked with the given id. Lock will be extended.
+   * @param lockId The lock id that identifies the user. App must already be locked with the given
+   *     id. Lock will be extended.
    * @param appName The name of the application. May not be <code>null</code>.
    * @return The application object.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param fixupCeFields flag to indicate the content editor field fixup is
-   * required. <code>true</code> to fixup <code>false</code> otherwise. See
-   * {@link #fixupFields(PSFieldSet, Iterator, Map)}.
+   * @param fixupCeFields flag to indicate the content editor field fixup is required. <code>true
+   *     </code> to fixup <code>false</code> otherwise. See {@link #fixupFields(PSFieldSet,
+   *     Iterator, Map)}.
    * @throws PSNotFoundException if an application be that name does not exist.
    * @throws PSNotLockedException if the app is not already locked by the id.
    * @throws PSLockedException if there is a problem extending the lock.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * application.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the application.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public PSApplication getApplicationObject(
@@ -426,17 +406,15 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads application from disk and returns it as an XML Doc. Application is
-   * not locked as a result of this call.
+   * Loads application from disk and returns it as an XML Doc. Application is not locked as a result
+   * of this call.
    *
    * @param appName The name of the application. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
    * @return The application XML Doc.
    * @throws PSNotFoundException if an application be that name does not exist.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * application.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the application.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public Document getApplicationDoc(String appName, PSSecurityToken tok)
@@ -453,18 +431,16 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Locks and loads application from disk and returns it as an Xml Doc.
    *
-   * @param lockId The lock id that identifies the user. App must already be
-   * locked with the given id. Lock will be extended.
+   * @param lockId The lock id that identifies the user. App must already be locked with the given
+   *     id. Lock will be extended.
    * @param appName The name of the application. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
    * @return The application XML document.
    * @throws PSNotFoundException if an application be that name does not exist.
    * @throws PSNotLockedException if the app is not already locked by the id.
    * @throws PSLockedException if there is a problem extending the lock.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * application.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the application.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public Document getApplicationDoc(IPSLockerId lockId, String appName, PSSecurityToken tok)
@@ -488,20 +464,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Gets a list of files located below an application root.
    *
-   * @param appRoot The name of the application root directory, may be
-   * <code>null</code> or empty. I <code>null</code> or empty then the
-   * server's application root will be used.
-   *
-   * @param includeDirs flag indicating if directories should be included in
-   * the returned list.
-   *
-   * @param recurse flag indicating that the method should recurse into all the
-   * directories.
-   *
-   * @return An Iterator over <code>0</code> or more File objects, never
-   * <code>null</code>. Each has a path relative to the specified
-   * application root.
-   *
+   * @param appRoot The name of the application root directory, may be <code>null</code> or empty. I
+   *     <code>null</code> or empty then the server's application root will be used.
+   * @param includeDirs flag indicating if directories should be included in the returned list.
+   * @param recurse flag indicating that the method should recurse into all the directories.
+   * @return An Iterator over <code>0</code> or more File objects, never <code>null</code>. Each has
+   *     a path relative to the specified application root.
    * @throws PSServerException if there are any errors.
    */
   public Iterator<File> getAppRootFileList(String appRoot, boolean includeDirs, boolean recurse)
@@ -523,15 +491,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Gets the application's files and returns a list of File objects relative
-   * to the app root.
+   * Gets the application's files and returns a list of File objects relative to the app root.
    *
-   * @param appName The name of the application. May not be <code>null</code>
-   * or empty.
-   *
-   * @return An Iterator over <code>0</code> or more File objects, never
-   * <code>null</code>.
-   *
+   * @param appName The name of the application. May not be <code>null</code> or empty.
+   * @return An Iterator over <code>0</code> or more File objects, never <code>null</code>.
    * @throws PSServerException for any other errors encountered.
    */
   public Iterator<File> getApplicationFiles(String appName) throws PSServerException {
@@ -565,25 +528,20 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Opens and returns an input stream to the specified file below the
-   * application directory of the specified app.
+   * Opens and returns an input stream to the specified file below the application directory of the
+   * specified app.
    *
-   * @param appName The name of the application whose directory contains the
-   * specified file. May not be <code>null</code> or empty.
-   * @param appFile The file to retrieve, relative from the application root
-   * directory. May not be <code>null</code> and must exist.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
-   *
-   * @return An <code>InputStream</code> to the specified file. Caller is
-   * responsible for closing the stream when finished. Never <code>null</code>.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @param appName The name of the application whose directory contains the specified file. May not
+   *     be <code>null</code> or empty.
+   * @param appFile The file to retrieve, relative from the application root directory. May not be
+   *     <code>null</code> and must exist.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
+   * @return An <code>InputStream</code> to the specified file. Caller is responsible for closing
+   *     the stream when finished. Never <code>null</code>.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSServerException If any other errors occur.
    */
   public InputStream getApplicationFile(String appName, File appFile, PSSecurityToken tok)
@@ -644,30 +602,21 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Saves the application file or folder if the correct permissions exist.
    *
-   * @param appName The name of the application whose directory contains the
-   * specified file. May not be <code>null</code> or empty.
-   * @param appFile The file to save, relative from the application root
-   * directory. May not be <code>null</code> and may or may not already
-   * exist.
-   * @param in The input stream to the file data. May not be <code>null</code>.
-   * This method will close the stream when finished.
-   * @param overWrite If <code>true</code> and file already exists, it will
-   * be overwritten. If <code>false</code> and the file already exists, no
-   * action will be taken.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the file already existed,
-   * <code>false</code> otherwise.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @param appName The name of the application whose directory contains the specified file. May not
+   *     be <code>null</code> or empty.
+   * @param appFile The file to save, relative from the application root directory. May not be
+   *     <code>null</code> and may or may not already exist.
+   * @param in The input stream to the file data. May not be <code>null</code>. This method will
+   *     close the stream when finished.
+   * @param overWrite If <code>true</code> and file already exists, it will be overwritten. If
+   *     <code>false</code> and the file already exists, no action will be taken.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
+   * @return <code>true</code> if the file already existed, <code>false</code> otherwise.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSNotLockedException If the application is not already locked.
    * @throws PSNotLockedException If the application lock cannot be extended.
    * @throws PSServerException If any other errors occur.
@@ -690,31 +639,22 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Saves the application file or folder if the correct permissions exist.
    *
-   * @param appName The name of the application whose directory contains the
-   * specified file. May not be <code>null</code> or empty.
-   * @param appFile The file to save, relative from the application root
-   * directory. May not be <code>null</code> and may or may not already
-   * exist.
-   * @param in The input stream to the file data. May not be <code>null</code>
-   * unless this is a folder. This method will close the stream when finished.
-   * @param overWrite If <code>true</code> and file already exists, it will
-   * be overwritten. If <code>false</code> and the file already exists, no
-   * action will be taken.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
+   * @param appName The name of the application whose directory contains the specified file. May not
+   *     be <code>null</code> or empty.
+   * @param appFile The file to save, relative from the application root directory. May not be
+   *     <code>null</code> and may or may not already exist.
+   * @param in The input stream to the file data. May not be <code>null</code> unless this is a
+   *     folder. This method will close the stream when finished.
+   * @param overWrite If <code>true</code> and file already exists, it will be overwritten. If
+   *     <code>false</code> and the file already exists, no action will be taken.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
    * @param isFolder flag indicating that this app file is a folder
-   *
-   * @return <code>true</code> if the file already existed,
-   * <code>false</code> otherwise.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @return <code>true</code> if the file already existed, <code>false</code> otherwise.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSNotLockedException If the application is not already locked.
    * @throws PSNotLockedException If the application lock cannot be extended.
    * @throws PSServerException If any other errors occur.
@@ -837,29 +777,21 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Saves the application file or folder if the correct permissions exist.
    *
-   * @param appName The name of the application whose directory contains the
-   * specified file. May not be <code>null</code> or empty.
-   * @param appFile The file to save, relative from the application root
-   * directory. May not be <code>null</code> and may or may not already
-   * exist.
-   * @param in The input stream to the file data. May not be <code>null</code>
-   * unless this is a folder. This method will close the stream when finished.
-   * @param overWrite If <code>true</code> and file already exists, it will
-   * be overwritten. If <code>false</code> and the file already exists, no
-   * action will be taken.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
+   * @param appName The name of the application whose directory contains the specified file. May not
+   *     be <code>null</code> or empty.
+   * @param appFile The file to save, relative from the application root directory. May not be
+   *     <code>null</code> and may or may not already exist.
+   * @param in The input stream to the file data. May not be <code>null</code> unless this is a
+   *     folder. This method will close the stream when finished.
+   * @param overWrite If <code>true</code> and file already exists, it will be overwritten. If
+   *     <code>false</code> and the file already exists, no action will be taken.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
    * @param isFolder flag indicating that this app file is a folder
-   *
-   * @return <code>true</code> if the file already existed,
-   * <code>false</code> otherwise.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @return <code>true</code> if the file already existed, <code>false</code> otherwise.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSServerException If any other errors occur.
    */
   public boolean saveApplicationFileWithoutLocking(
@@ -964,11 +896,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Deletes a file or directory If it is a directory then it recursively
-   * deletes the directory and all of its children.
+   * Deletes a file or directory If it is a directory then it recursively deletes the directory and
+   * all of its children.
    *
-   * @param file the file or directory to be deleted, assumed not
-   * <code>null</code>.
+   * @param file the file or directory to be deleted, assumed not <code>null</code>.
    * @return <code>true</code> if successful.
    */
   private static boolean deleteFile(File file) {
@@ -985,26 +916,19 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Removes the specified application file from the application directory.
-   * This application has to be locked prior to execution
+   * Removes the specified application file from the application directory. This application has to
+   * be locked prior to execution
    *
-   * @param app The application, whose directory contains the specified file.
-   * May not be <code>null</code> or empty.
+   * @param app The application, whose directory contains the specified file. May not be <code>null
+   *     </code> or empty.
    * @param appFile The file to save, actual path. May not be <code>null</code>.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the file has been deleted,
-   * <code>false</code> otherwise.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
+   * @return <code>true</code> if the file has been deleted, <code>false</code> otherwise.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSNotLockedException If the application is not already locked.
    * @throws PSNotLockedException If the application lock cannot be extended.
    * @throws PSServerException If any other errors occur.
@@ -1060,24 +984,17 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Removes the specified application file from the application directory.
    *
-   * @param app The application, whose directory contains the specified file.
-   * May not be <code>null</code> or empty.
+   * @param app The application, whose directory contains the specified file. May not be <code>null
+   *     </code> or empty.
    * @param appFile The file to save, actual path. May not be <code>null</code>.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
-   * @param tok The security token to use for authorization, may not be
-   * <code>null</code>.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
+   * @param tok The security token to use for authorization, may not be <code>null</code>.
    * @param dontLockApp This flag decides if the app needs to be locked
-   *
-   * @return <code>true</code> if the file has been deleted,
-   * <code>false</code> otherwise.
-   *
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated
-   * @throws PSAuthorizationException If user does not have design read access
-   * to the specified application
-   * @throws PSNotFoundException If the specified application or file cannot be
-   * found.
+   * @return <code>true</code> if the file has been deleted, <code>false</code> otherwise.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated
+   * @throws PSAuthorizationException If user does not have design read access to the specified
+   *     application
+   * @throws PSNotFoundException If the specified application or file cannot be found.
    * @throws PSNotLockedException If the application is not already locked.
    * @throws PSNotLockedException If the application lock cannot be extended.
    * @throws PSServerException If any other errors occur.
@@ -1135,18 +1052,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Catalogs all files below the specified directory.
    *
-   * @param dirName The directory, assumed not <code>null</code> or empty,
-   * must be a sub-directory relative to the Rhythmyx root directory.
-   *
-   * @param includeDirs flag indicating if directories should be included in
-   * the returned list.
-   *
-   * @param recurse flag indicating that the method should recurse into all the
-   * directories.
-   *
-   * @return An iterator over zero or more <code>File</code>, never
-   * <code>null</code>. File paths will include the supplied directory.
-   *
+   * @param dirName The directory, assumed not <code>null</code> or empty, must be a sub-directory
+   *     relative to the Rhythmyx root directory.
+   * @param includeDirs flag indicating if directories should be included in the returned list.
+   * @param recurse flag indicating that the method should recurse into all the directories.
+   * @return An iterator over zero or more <code>File</code>, never <code>null</code>. File paths
+   *     will include the supplied directory.
    */
   private List<File> catalogFiles(String dirName, boolean includeDirs, boolean recurse) {
     List<File> retFiles = new ArrayList<>();
@@ -1174,33 +1085,25 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the application file to disk, updating the app if it already exists.
-   * App must already be locked. Lock will be extended once it has been
-   * determined that the lock exists.
+   * Saves the application file to disk, updating the app if it already exists. App must already be
+   * locked. Lock will be extended once it has been determined that the lock exists.
    *
    * @param appDoc The application Xml doc. May not be <code>null</code>.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param validate If <code>true</code>, runtime validation will be
-   * performed.
+   * @param validate If <code>true</code>, runtime validation will be performed.
    * @throws PSSystemValidationException If app fails validation
-   * @throws PSUnknownDocTypeException If the app exists on disk already and
-   * that file has an invalid format.
+   * @throws PSUnknownDocTypeException If the app exists on disk already and that file has an
+   *     invalid format.
    * @throws PSUnknownNodeTypeException If the app does not have a valid name
-   * @throws IOException If there is an error reading or writing the app to or
-   * from disk.
-   * @throws PSNotLockedException If the app is not already locked by the
-   * supplied Id.
+   * @throws IOException If there is an error reading or writing the app to or from disk.
+   * @throws PSNotLockedException If the app is not already locked by the supplied Id.
    * @throws PSLockedException If there is a problem extending the lock.
-   * @throws PSNonUniqueException if the requestroot is already in use by a
-   * different app.
+   * @throws PSNonUniqueException if the requestroot is already in use by a different app.
    * @throws PSNotFoundException if app is cannot be located on restart.
    * @throws PSServerException for any other errors encountered.
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated.
-   * @throws PSAuthorizationException if user is not allowed to perform this
-   * operation.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated.
+   * @throws PSAuthorizationException if user is not allowed to perform this operation.
    */
   public void saveApplication(
       Document appDoc, IPSLockerId lockId, PSSecurityToken tok, boolean validate)
@@ -1227,11 +1130,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Calls {@link #deleteApplication(int, IPSLockerId, PSSecurityToken)} after
-   * conveting the supplied application name to an id.
+   * Calls {@link #deleteApplication(int, IPSLockerId, PSSecurityToken)} after conveting the
+   * supplied application name to an id.
    *
-   * @param appName The name of the app, may not be <code>null</code> or
-   * empty.
+   * @param appName The name of the app, may not be <code>null</code> or empty.
    */
   public boolean deleteApplication(String appName, IPSLockerId lockId, PSSecurityToken tok)
       throws PSAuthorizationException,
@@ -1254,24 +1156,19 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Deletes the specified application, its files, and notifies any listeners.
-   * Silently returns if the specified app does not exist.
+   * Deletes the specified application, its files, and notifies any listeners. Silently returns if
+   * the specified app does not exist.
    *
    * @param appId The app id.
    * @param lockId The lock id to use, may not be <code>null</code>.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if the application was deleted,
-   * <code>false</code> if not.
-   *
-   * @throws PSAuthenticationRequiredException If the session represented by
-   * the token has not been authenticated.
-   * @throws PSAuthorizationException If the user represented by the session is
-   * not authorized to perform this operation.
-   * @throws PSNotFoundException If the application file specified by the id
-   * cannot be found.
-   * @throws PSNotLockedException If the use does not have the application
-   * locked.
+   * @return <code>true</code> if the application was deleted, <code>false</code> if not.
+   * @throws PSAuthenticationRequiredException If the session represented by the token has not been
+   *     authenticated.
+   * @throws PSAuthorizationException If the user represented by the session is not authorized to
+   *     perform this operation.
+   * @throws PSNotFoundException If the application file specified by the id cannot be found.
+   * @throws PSNotLockedException If the use does not have the application locked.
    * @throws PSLockedException If someone else has the application locked.
    * @throws PSServerException If any other errors occur.
    */
@@ -1331,11 +1228,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Recursively deletes all contents of a directory and then the directory
-   * itself.
+   * Recursively deletes all contents of a directory and then the directory itself.
    *
-   * @param dir The directory. Must be a directory, assumed not
-   * <code>null</code> and to be a directory.
+   * @param dir The directory. Must be a directory, assumed not <code>null</code> and to be a
+   *     directory.
    */
   private void deleteDirectory(File dir) {
     File[] files = dir.listFiles();
@@ -1349,30 +1245,22 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the application object to disk, updating the app if it already
-   * exists. App must already be locked. Lock will be extended once it has been
-   * determined that the lock exists.
+   * Saves the application object to disk, updating the app if it already exists. App must already
+   * be locked. Lock will be extended once it has been determined that the lock exists.
    *
    * @param app The application object. May not be <code>null</code>.
-   * @param lockId The id used to lock the app. It must already be locked with
-   * this id.
+   * @param lockId The id used to lock the app. It must already be locked with this id.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param validate If <code>true</code>, runtime validation will be
-   * performed.
+   * @param validate If <code>true</code>, runtime validation will be performed.
    * @throws PSSystemValidationException If app fails validation
-   * @throws IOException If there is an error reading or writing the app to or
-   * from disk.
-   * @throws PSNotLockedException If the app is not already locked by the
-   * supplied Id.
+   * @throws IOException If there is an error reading or writing the app to or from disk.
+   * @throws PSNotLockedException If the app is not already locked by the supplied Id.
    * @throws PSLockedException If there is a problem extending the lock.
-   * @throws PSNonUniqueException if the requestroot is already in use by a
-   * different app.
+   * @throws PSNonUniqueException if the requestroot is already in use by a different app.
    * @throws PSNotFoundException if app is cannot be located on restart.
    * @throws PSServerException for any other errors encountered.
-   * @throws PSAuthenticationRequiredException if user has not been
-   * authenticated.
-   * @throws PSAuthorizationException if user is not allowed to perform this
-   * operation.
+   * @throws PSAuthenticationRequiredException if user has not been authenticated.
+   * @throws PSAuthorizationException if user is not allowed to perform this operation.
    */
   public void saveApplication(
       PSApplication app, IPSLockerId lockId, PSSecurityToken tok, boolean validate)
@@ -1565,27 +1453,19 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Gets the role configuration object for this server. The supplied token
-   * must have admin access or a PSAuthorizationException is thrown. It's
-   * assumed the config lock is being managed by the caller of this method.
+   * Gets the role configuration object for this server. The supplied token must have admin access
+   * or a PSAuthorizationException is thrown. It's assumed the config lock is being managed by the
+   * caller of this method.
    *
-   * @param tok The security token for the individual making the request. Never
-   * <code>null</code>. To gain access to the role config object, the token
-   * must be for a user w/ admin access.
-   *
+   * @param tok The security token for the individual making the request. Never <code>null</code>.
+   *     To gain access to the role config object, the token must be for a user w/ admin access.
    * @return A valid object containing 0 or more roles.
-   *
-   * @throws PSServerException If any problems occur loading the data. Note:
-   * This is a misuse of this exception, which is supposed to indicate a
-   * connection to the server couldn't be made. I continue with its misuse
-   * because it would be a lot of work to correct and we don't have time to do
-   * it now.
-   *
-   * @throws PSAuthorizationException If the supplied token doesn't have admin
-   * access.
-   *
-   * @throws PSAuthenticationRequiredException If the supplied tok is not for
-   * an authenticated user.
+   * @throws PSServerException If any problems occur loading the data. Note: This is a misuse of
+   *     this exception, which is supposed to indicate a connection to the server couldn't be made.
+   *     I continue with its misuse because it would be a lot of work to correct and we don't have
+   *     time to do it now.
+   * @throws PSAuthorizationException If the supplied token doesn't have admin access.
+   * @throws PSAuthenticationRequiredException If the supplied tok is not for an authenticated user.
    */
   public PSRoleConfiguration getRoleConfigurationObject(PSSecurityToken tok)
       throws PSServerException, PSAuthorizationException {
@@ -1601,12 +1481,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Gets the server configuration object. The server config is not locked as a
-   * result of this call.
+   * Gets the server configuration object. The server config is not locked as a result of this call.
    *
    * @param tok The user's security token. May not be <code>null</code>.
    * @return The server configuration object.
-   *
    * @throws PSServerException for any errors encountered.
    */
   public PSServerConfiguration getServerConfigObject(PSSecurityToken tok) throws PSServerException {
@@ -1624,13 +1502,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Gets the server configuration document. The server config is not locked as
-   * a result of this call. If the user does not have admin access, the config
-   * is returned minus any sensitive information.
+   * Gets the server configuration document. The server config is not locked as a result of this
+   * call. If the user does not have admin access, the config is returned minus any sensitive
+   * information.
    *
    * @param tok The user's security token. May not be <code>null</code>.
    * @return The server configuration as an XML document.
-   *
    * @throws PSServerException for any error encountered.
    */
   public Document getServerConfigDoc(PSSecurityToken tok) throws PSServerException {
@@ -1663,17 +1540,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Locks and returns the server configuration object.
    *
-   * @param lockId The id used to lock the config. Config must already be
-   * locked with the given id. Lock will be extended.
+   * @param lockId The id used to lock the config. Config must already be locked with the given id.
+   *     Lock will be extended.
    * @param tok The user's security token. May not be <code>null</code>.
    * @return The server configuration object.
-   * @throws PSNotLockedException If the config is not already locked by the
-   * id.
+   * @throws PSNotLockedException If the config is not already locked by the id.
    * @throws PSLockedException If there is a problem extending the lock.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * config.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the config.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public PSServerConfiguration getServerConfigObject(IPSLockerId lockId, PSSecurityToken tok)
@@ -1698,17 +1572,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Locks and returns the server configuration document.
    *
-   * @param lockId The id used to lock the config. Config must already be
-   * locked with the given id. Lock will be extended.
+   * @param lockId The id used to lock the config. Config must already be locked with the given id.
+   *     Lock will be extended.
    * @param tok The user's security token.
    * @return The server configuration as an XML document.
-   * @throws PSNotLockedException If the config is not already locked by the
-   * id.
+   * @throws PSNotLockedException If the config is not already locked by the id.
    * @throws PSLockedException If there is a problem extending the lock.
-   * @throws PSAuthorizationException if the user is not allowed access to the
-   * config.
-   * @throws PSAuthenticationRequiredException if we have not tried to
-   * authenticate this user.
+   * @throws PSAuthorizationException if the user is not allowed access to the config.
+   * @throws PSAuthenticationRequiredException if we have not tried to authenticate this user.
    * @throws PSServerException for any other errors encountered.
    */
   public Document getServerConfigDoc(IPSLockerId lockId, PSSecurityToken tok)
@@ -1736,14 +1607,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the role configuration to persistent storage. Server Config must
-   * have been locked prior to this call by the supplied Id. Lock will be
-   * extended once it has been determined that the lock exists.
+   * Saves the role configuration to persistent storage. Server Config must have been locked prior
+   * to this call by the supplied Id. Lock will be extended once it has been determined that the
+   * lock exists.
    *
    * @param config The server config object. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @throws PSNotLockedException If the config is not already locked by the
-   * supplied Id.
+   * @throws PSNotLockedException If the config is not already locked by the supplied Id.
    * @throws PSLockedException If there is a problem extending the lock.
    * @throws PSServerException for any other errors encountered.
    */
@@ -1791,14 +1661,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the server config object to disk. Server Config must have been
-   * locked prior to this call by the supplied Id. Lock will be extended once
-   * it has been determined that the lock exists.
+   * Saves the server config object to disk. Server Config must have been locked prior to this call
+   * by the supplied Id. Lock will be extended once it has been determined that the lock exists.
    *
    * @param config The server config object. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @throws PSNotLockedException If the config is not already locked by the
-   * supplied Id.
+   * @throws PSNotLockedException If the config is not already locked by the supplied Id.
    * @throws PSLockedException If there is a problem extending the lock.
    * @throws PSSystemValidationException if the config is invalid.
    * @throws PSServerException for any other errors encountered.
@@ -1854,14 +1722,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the server config document to disk. Server Config must have been
-   * locked prior to this call by the supplied Id. Lock will be extended once
-   * it has been determined that the lock exists.
+   * Saves the server config document to disk. Server Config must have been locked prior to this
+   * call by the supplied Id. Lock will be extended once it has been determined that the lock
+   * exists.
    *
    * @param config The server config XML doc. May not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @throws PSNotLockedException If the config is not already locked by the
-   * supplied Id.
+   * @throws PSNotLockedException If the config is not already locked by the supplied Id.
    * @throws PSLockedException If there is a problem extending the lock.
    * @throws PSSystemValidationException if the config is invalid.
    * @throws PSServerException for any other errors encountered.
@@ -1891,12 +1758,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Aquires or extends an application lock.
    *
-   * @param id A locker id that identifies the user attempting to obtain or
-   * extend a lock. If extending, must identify the same user that obtained the
-   * current lock. May not be <code>null</code>.
+   * @param id A locker id that identifies the user attempting to obtain or extend a lock. If
+   *     extending, must identify the same user that obtained the current lock. May not be <code>
+   *     null</code>.
    * @param appName The name of the app to lock. May not be <code>null</code>.
-   * @param lockMins The number of minutes to hold the lock before it should
-   * expire. Must be a non-negative number.
+   * @param lockMins The number of minutes to hold the lock before it should expire. Must be a
+   *     non-negative number.
    * @throws PSLockedException If the lock cannot be aquired.
    * @throws PSServerException if there are errors obtaining the lock.
    */
@@ -1939,9 +1806,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Releases a lock held on an application.
    *
-   * @param id The locker id that identifies the user attempting to release the
-   * lock. If the id does not identify the same user that obtained the lock,
-   * then the lock will not be released.
+   * @param id The locker id that identifies the user attempting to release the lock. If the id does
+   *     not identify the same user that obtained the lock, then the lock will not be released.
    * @param appName The name of the application to unlock.
    * @throws PSServerException if there are errors releasing the lock.
    */
@@ -1968,9 +1834,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    *
    * @param id The locker id that identifies the user who should have the lock.
    * @param appName The name of the application to check.
-   * @return Returns <code>true</code> if the application is locked by the
-   * user identified by the id. Returns <code>false</code> if the app is not
-   * locked or locked by another user.
+   * @return Returns <code>true</code> if the application is locked by the user identified by the
+   *     id. Returns <code>false</code> if the app is not locked or locked by another user.
    * @throws PSServerException if there are errors checking the lock.
    */
   public boolean isApplicationLocked(IPSLockerId id, String appName) throws PSServerException {
@@ -1997,16 +1862,13 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Get the locker properties for the specified application
    *
    * @param id The locker id, may not be <code>null</code>.
-   * @param appName The application name, may not be <code>null</code> or
-   * empty.
-   *
-   * @return The lock info as properties, <code>null</code> if it is not
-   * locked:
-   * <ul>
-   * <li>lockerName</li>
-   * <li>lockerSession</li>
-   * <li></li>
-   * </ul>
+   * @param appName The application name, may not be <code>null</code> or empty.
+   * @return The lock info as properties, <code>null</code> if it is not locked:
+   *     <ul>
+   *       <li>lockerName
+   *       <li>lockerSession
+   *       <li>
+   *     </ul>
    */
   public Properties getApplicationLockInfo(IPSLockerId id, String appName) {
     Object lockKey =
@@ -2021,10 +1883,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Aquires or extends a lock on the server config.
    *
-   * @param id A locker id that identifies the user attempting to obtain or
-   * extend a lock. May not be <code>null</code>.
-   * @param lockMins The number of minutes to hold the lock before it should
-   * expire. Must be a non-negative number.
+   * @param id A locker id that identifies the user attempting to obtain or extend a lock. May not
+   *     be <code>null</code>.
+   * @param lockMins The number of minutes to hold the lock before it should expire. Must be a
+   *     non-negative number.
    * @throws PSLockedException If the lock cannot be aquired.
    * @throws PSServerException if there are errors obtaining the lock.
    */
@@ -2066,9 +1928,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Releases a lock held on the server configuration.
    *
-   * @param id The locker id that identifies the user attempting to release the
-   * lock. If the id does not identify the same user that obtained the lock,
-   * then the lock will not be released.
+   * @param id The locker id that identifies the user attempting to release the lock. If the id does
+   *     not identify the same user that obtained the lock, then the lock will not be released.
    * @throws PSServerException if there are errors releasing the lock.
    */
   public void releaseServerConfigLock(IPSLockerId id) throws PSServerException {
@@ -2090,13 +1951,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Determines if the supplied locker id currently has the server
-   * configuration locked.
+   * Determines if the supplied locker id currently has the server configuration locked.
    *
    * @param id The locker id that identifies the user who should have the lock.
-   * @return Returns <code>true</code> if the server config is locked by the
-   * user identified by the id. Returns <code>false</code> if the config is
-   * not locked or locked by another user.
+   * @return Returns <code>true</code> if the server config is locked by the user identified by the
+   *     id. Returns <code>false</code> if the config is not locked or locked by another user.
    * @throws PSServerException if there is an error checking the lock.
    */
   public boolean isServerConfigLocked(IPSLockerId id) throws PSServerException {
@@ -2118,16 +1977,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Checks to see if user has full permission to read, edit and save the
-   * server configuration. If reading (not edit mode), then a failure from this
-   * method indicates that the user does not have permission to read the
-   * sensitive information from the config (ACL, userids, and passwords).
+   * Checks to see if user has full permission to read, edit and save the server configuration. If
+   * reading (not edit mode), then a failure from this method indicates that the user does not have
+   * permission to read the sensitive information from the config (ACL, userids, and passwords).
    *
    * @param tok The user's security token. May not be <code>null</code>.
-   *
    * @throws PSAuthorizationException if user is not allowed the access
-   * @throws PSAuthenticationRequiredException if type of request requires
-   * authentication and user has not been authenticated.
+   * @throws PSAuthenticationRequiredException if type of request requires authentication and user
+   *     has not been authenticated.
    */
   public void checkCanEditServerConfig(PSSecurityToken tok) throws PSAuthorizationException {
     if (tok == null) throw new IllegalArgumentException(TOK_NOT_NULL_ERROR);
@@ -2141,13 +1998,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    *
    * @param app The app the user wishes to read or edit.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param isEditing <code>True</code> if the user is editing the app (not
-   * opening it read only).
-   *
+   * @param isEditing <code>True</code> if the user is editing the app (not opening it read only).
    * @throws PSAuthorizationException if user is not allowed the access
    * @throws PSAuthenticationRequiredException if type of request requires
-   * @throws PSServerException for any other errors authentication and user has
-   * not been authenticated.
+   * @throws PSServerException for any other errors authentication and user has not been
+   *     authenticated.
    */
   public void checkCanReadApplication(PSApplication app, PSSecurityToken tok, boolean isEditing)
       throws PSAuthorizationException, PSServerException {
@@ -2179,16 +2034,14 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Checks to see if user can read (and possibly edit) an application.
    *
-   * @param appName The name of the app the user wishes to read or edit. May
-   * not be <code>null</code> or empty.
+   * @param appName The name of the app the user wishes to read or edit. May not be <code>null
+   *     </code> or empty.
    * @param tok The user's security token. May not be <code>null</code>.
-   * @param isEditing <code>true</code> if the user is editing the app (not
-   * opening it read only).
-   *
+   * @param isEditing <code>true</code> if the user is editing the app (not opening it read only).
    * @throws PSAuthorizationException if user is not allowed the access
    * @throws PSAuthenticationRequiredException if type of request requires
-   * @throws PSServerException for any other errors authentication and user has
-   * not been authenticated.
+   * @throws PSServerException for any other errors authentication and user has not been
+   *     authenticated.
    */
   public void checkCanReadApplication(String appName, PSSecurityToken tok, boolean isEditing)
       throws PSAuthorizationException, PSServerException {
@@ -2222,12 +2075,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    *
    * @param app The app the user wishes to save.
    * @param tok The user's security token. May not be <code>null</code>.
-   *
    * @throws PSAuthorizationException if user is not allowed the access
-   * @throws PSAuthenticationRequiredException if type of request requires
-   * authentication and user has not been authenticated.
-   * @throws PSNotFoundException if updating an app and the old app cannot be
-   * located.
+   * @throws PSAuthenticationRequiredException if type of request requires authentication and user
+   *     has not been authenticated.
+   * @throws PSNotFoundException if updating an app and the old app cannot be located.
    * @throws PSServerException for any other errors.
    */
   public void checkCanSaveApplication(PSApplication app, PSSecurityToken tok)
@@ -2294,10 +2145,9 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    *
    * @param app The app the user wishes to delete, may not be <code>null</code>.
    * @param tok The user's security token. May not be <code>null</code>.
-   *
    * @throws PSAuthorizationException if user is not allowed the access
-   * @throws PSAuthenticationRequiredException if type of request requires
-   * authentication and user has not been authenticated.
+   * @throws PSAuthenticationRequiredException if type of request requires authentication and user
+   *     has not been authenticated.
    * @throws PSNotFoundException if the app cannot be located.
    * @throws PSServerException for any other errors.
    */
@@ -2320,10 +2170,9 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Private constructor. Class follows Singleton pattern. Use
-   * {@link #createInstance(PSXmlObjectStoreHandler)} to create and obtain the
-   * one instance intially, and {@link #getInstance()} to obtain the one
-   * instance after that.
+   * Private constructor. Class follows Singleton pattern. Use {@link
+   * #createInstance(PSXmlObjectStoreHandler)} to create and obtain the one instance intially, and
+   * {@link #getInstance()} to obtain the one instance after that.
    *
    * @param os The objectstore handler. May not be <code>null</code>.
    */
@@ -2340,8 +2189,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads application from disk and returns it as an XML Doc. Application is
-   * not locked and security is not checked as a result of this call.
+   * Loads application from disk and returns it as an XML Doc. Application is not locked and
+   * security is not checked as a result of this call.
    *
    * @param appName The name of the application. May not be <code>null</code>.
    * @return The application XML Doc.
@@ -2360,12 +2209,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads application object from disk. Application is not locked and security
-   * is not checked as a result of this call.
+   * Loads application object from disk. Application is not locked and security is not checked as a
+   * result of this call.
    *
    * @param appName The name of the application. May not be <code>null</code>.
-   * @param fixupCeFields flag to indicate content editor field fixup is
-   * required, <code>true</code> to fixup <code>false</code> otherwise.
+   * @param fixupCeFields flag to indicate content editor field fixup is required, <code>true</code>
+   *     to fixup <code>false</code> otherwise.
    * @return The application object.
    * @throws PSNotFoundException if an application be that name does not exist.
    * @throws PSServerException for any other errors encountered.
@@ -2406,8 +2255,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Clear elements in a document based on the tag name, remove all the
-   * elements' children
+   * Clear elements in a document based on the tag name, remove all the elements' children
    *
    * @param rootElement Element to start searching from.
    * @param tagName The name of the tag to remove
@@ -2429,11 +2277,10 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * A utility method to get the ACL handler for an application, loading or
-   * re-loading it from disk if necessary.
+   * A utility method to get the ACL handler for an application, loading or re-loading it from disk
+   * if necessary.
    *
    * @param app The name of the app.
-   *
    * @return The PSAclHandler. Never <code>null</code>.
    * @throws PSNotFoundException if the app does not exist on disk
    * @throws PSServerException for any other errors encountered.
@@ -2449,12 +2296,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads and caches the system definition for Content Editors. Cache is
-   * cleared when the file's modification timestamp changes.
+   * Loads and caches the system definition for Content Editors. Cache is cleared when the file's
+   * modification timestamp changes.
    *
-   * @return The content editor system def object. May be <code>null</code>
-   * if the file was not found.
-   *
+   * @return The content editor system def object. May be <code>null</code> if the file was not
+   *     found.
    * @throws IOException if an error occurs while reading the file
    */
   public PSContentEditorSystemDef getContentEditorSystemDef()
@@ -2513,7 +2359,6 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Saves the content editor system def.
    *
    * @param def The system def, may not be <code>null</code>.
-   *
    * @throws IOException if there are any errors.
    */
   public void saveContentEditorSystemDef(PSContentEditorSystemDef def) throws IOException {
@@ -2534,21 +2379,20 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Loads the shared definition for Content Editors. There may be multiple
-   * shared def files located under the rxconfig directory. In this case they
-   * are loaded in no particular order, and a single shared def is created by
-   * using the following logic: <br>
-   * <ol>
-   * <li>All shared field groups are combined into a single list of groups.</li>
-   * <li>The first ApplicationFlow found will be used in the new def</li>
-   * <li>The first CommandHandlerStylesheets found will be used in the new
-   * def.</li>
-   * </ol>
-   * Therefore only one of the files should contain ApplicationFlow and
-   * Stylesheet definitions.
+   * Loads the shared definition for Content Editors. There may be multiple shared def files located
+   * under the rxconfig directory. In this case they are loaded in no particular order, and a single
+   * shared def is created by using the following logic: <br>
    *
-   * @return The content editor shared def object. May be <code>null</code>
-   * if there was an error loading the def from the Xml.
+   * <ol>
+   *   <li>All shared field groups are combined into a single list of groups.
+   *   <li>The first ApplicationFlow found will be used in the new def
+   *   <li>The first CommandHandlerStylesheets found will be used in the new def.
+   * </ol>
+   *
+   * Therefore only one of the files should contain ApplicationFlow and Stylesheet definitions.
+   *
+   * @return The content editor shared def object. May be <code>null</code> if there was an error
+   *     loading the def from the Xml.
    */
   @SuppressWarnings("unchecked")
   public PSContentEditorSharedDef getContentEditorSharedDef()
@@ -2683,9 +2527,7 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Gets the shared def contained in specified file.
    *
    * @param fileName The file, may not be <code>null</code>.
-   *
    * @return The shared def, never <code>null</code>.
-   *
    * @throws IOException if there are any errors loading the file.
    * @throws PSUnknownDocTypeException if the file is not an XML file.
    * @throws SAXException if the Xml cannot be parsed.
@@ -2755,9 +2597,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Saves the supplied content editor shared def to a file.
    *
    * @param sharedDef The def to save, may not be <code>null</code>.
-   * @param name The name of the file to use, may not be <code>null</code> or
-   * empty, must have a ".xml" extension.
-   *
+   * @param name The name of the file to use, may not be <code>null</code> or empty, must have a
+   *     ".xml" extension.
    * @throws IOException if there is an error saving the file.
    */
   public void saveContentEditorSharedDefFile(PSContentEditorSharedDef sharedDef, String name)
@@ -2786,9 +2627,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Save the supplied merged shared definition into the correct files as
-   * specified for each application flow, stylesheet set and field groups
-   * element.
+   * Save the supplied merged shared definition into the correct files as specified for each
+   * application flow, stylesheet set and field groups element.
    *
    * @param def the shared definition to save, not <code>null</code>.
    * @throws IOException if there is an error saving the files.
@@ -2890,19 +2730,15 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Creates an array of application summary objects. If the user has read
-   * access to the application, or is a server administrator, they will be
-   * shown the application in the summaries. However, an attempt to access the
-   * design of an application they are not readers on will fail.
+   * Creates an array of application summary objects. If the user has read access to the
+   * application, or is a server administrator, they will be shown the application in the summaries.
+   * However, an attempt to access the design of an application they are not readers on will fail.
    *
-   * @param tok the security token to use for security, may not be
-   * <code>null</code>.
-   * @param showHiddenApps <code>true</code> to include hidden applications
-   * in the results, <code>false</code> to exclude them.
-   *
-   * @return an array of PSApplicationSummary objects which the user is allowed
-   * to see, never <code>null</code>, may be empty, sorted ascending by
-   * application name.
+   * @param tok the security token to use for security, may not be <code>null</code>.
+   * @param showHiddenApps <code>true</code> to include hidden applications in the results, <code>
+   *     false</code> to exclude them.
+   * @return an array of PSApplicationSummary objects which the user is allowed to see, never <code>
+   *     null</code>, may be empty, sorted ascending by application name.
    */
   public PSApplicationSummary[] getApplicationSummaryObjects(
       PSSecurityToken tok, boolean showHiddenApps) {
@@ -2944,35 +2780,33 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Walks this fieldset and performs the following operations on the fields
-   * that it finds, including read-only fields (performing a recursive search):
+   * Walks this fieldset and performs the following operations on the fields that it finds,
+   * including read-only fields (performing a recursive search):
+   *
    * <ul>
-   * <li>Find the JDBC type of the column for each field associated with the
-   * database and validate the field datatype with that value. </li>
-   * <li>For each field that isn't associated with a db column, look at the
-   * replacement value. If it is derived from PSLiteral, the data type will be
-   * set based on the derived class. </li>
-   * <li>For each field that isn't associated with a db column, look at the
-   * replacement value. If it is a PSExtensionCall, all of its parameters are
-   * checked. If any of them are PSBackEndColumn, they are fixed up in the
-   * standard way. See {@link PSFieldSet#fixupBackEndColumns(Map)}. </li>
-   * <li>Otherwise, the data type will not be set on the field. We could set
-   * it to text, but by leaving it blank, the user can infer that we don't know
-   * and can still use text if they want. </li>
-   * <li>If the mime type of the field is empty, a mime type is set based on
-   * the data type. For all except binary, the mime type will be set to
-   * text/plain. For binary, it will be set to application/octet-stream. </li>
+   *   <li>Find the JDBC type of the column for each field associated with the database and validate
+   *       the field datatype with that value.
+   *   <li>For each field that isn't associated with a db column, look at the replacement value. If
+   *       it is derived from PSLiteral, the data type will be set based on the derived class.
+   *   <li>For each field that isn't associated with a db column, look at the replacement value. If
+   *       it is a PSExtensionCall, all of its parameters are checked. If any of them are
+   *       PSBackEndColumn, they are fixed up in the standard way. See {@link
+   *       PSFieldSet#fixupBackEndColumns(Map)}.
+   *   <li>Otherwise, the data type will not be set on the field. We could set it to text, but by
+   *       leaving it blank, the user can infer that we don't know and can still use text if they
+   *       want.
+   *   <li>If the mime type of the field is empty, a mime type is set based on the data type. For
+   *       all except binary, the mime type will be set to text/plain. For binary, it will be set to
+   *       application/octet-stream.
    * </ul>
    *
    * @param fs the set to fixup, never <code>null</code>.
-   *
-   * @param tableSets An iterator over PSTableSet objects for this content
-   * editor (assumes at least 1). Never <code>null</code>. If there are no
-   * elements, the method returns without changing the fieldSet.
-   *
-   * @param tables A list of all tables defined in this editor. Each key is the
-   * table alias (lowercased) and each value is the PSBackEndTable that has all
-   * properties properly specified. The Map is treated read-only.
+   * @param tableSets An iterator over PSTableSet objects for this content editor (assumes at least
+   *     1). Never <code>null</code>. If there are no elements, the method returns without changing
+   *     the fieldSet.
+   * @param tables A list of all tables defined in this editor. Each key is the table alias
+   *     (lowercased) and each value is the PSBackEndTable that has all properties properly
+   *     specified. The Map is treated read-only.
    */
   public static void fixupFields(
       PSFieldSet fs, Iterator<PSTableSet> tableSets, Map<String, PSBackEndTable> tables)
@@ -3082,24 +2916,20 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Get all of the current role and subject cataloger configurations. Note
-   * that these are not the active instances of the catalogers, but merely the
-   * object representation of their configurations.
+   * Get all of the current role and subject cataloger configurations. Note that these are not the
+   * active instances of the catalogers, but merely the object representation of their
+   * configurations.
    *
-   * @param lockId Used to load the configs locked for editing, may be
-   * <code>null</code> to get them for read-only use.
+   * @param lockId Used to load the configs locked for editing, may be <code>null</code> to get them
+   *     for read-only use.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
-   * @return The list of configurations, never <code>null</code>, may be
-   * empty.
-   *
+   * @return The list of configurations, never <code>null</code>, may be empty.
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public List<PSCatalogerConfig> getCatalogerConfigs(IPSLockerId lockId, PSSecurityToken tok)
@@ -3119,22 +2949,20 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Save the supplied cataloger configurations. Note that these represent only
-   * the configurations, and they will not result in active subject or role
-   * cataloger instances until the server is restarted.
+   * Save the supplied cataloger configurations. Note that these represent only the configurations,
+   * and they will not result in active subject or role cataloger instances until the server is
+   * restarted.
    *
    * @param configs The configs to save, may be empty, never <code>null</code>.
-   * @param lockId The lock id to use, may not be <code>null</code>. The
-   * server config must already be locked with the supplied id.
+   * @param lockId The lock id to use, may not be <code>null</code>. The server config must already
+   *     be locked with the supplied id.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public void saveCatalogerConfigs(
@@ -3161,19 +2989,16 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Loads the object representations of the JNDI datasource configurations.
    *
-   * @param lockId Used to load the datasources locked for editing, may be
-   * <code>null</code> to get them for read-only use.
+   * @param lockId Used to load the datasources locked for editing, may be <code>null</code> to get
+   *     them for read-only use.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @return The datasources, never <code>null</code>, may be empty.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public List<IPSJndiDatasource> getJndiDatasources(IPSLockerId lockId, PSSecurityToken tok)
@@ -3188,13 +3013,12 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Utility method to get the JNDI datasources, intended for use by the
-   * {@link PSXmlObjectStoreHandler} class. Other classes should use the
-   * {@link #getJndiDatasources(IPSLockerId, PSSecurityToken)} method.
+   * Utility method to get the JNDI datasources, intended for use by the {@link
+   * PSXmlObjectStoreHandler} class. Other classes should use the {@link
+   * #getJndiDatasources(IPSLockerId, PSSecurityToken)} method.
+   *
    * @param fromDisk
-   *
    * @return The datsources, never <code>null</code>, may be empty.
-   *
    * @throws PSServerException If there are any errors.
    */
   static List<IPSJndiDatasource> getJndiDatasources(boolean fromDisk) throws PSServerException {
@@ -3207,22 +3031,18 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Saves the supplied JNDI datasource configurations replacing any existing
-   * configurations.
+   * Saves the supplied JNDI datasource configurations replacing any existing configurations.
    *
-   * @param datasources The configurations to save, may not be
-   * <code>null</code> or empty.
-   * @param lockId The lock id to use, may not be <code>null</code>. The
-   * server config must already be locked with the supplied id.
+   * @param datasources The configurations to save, may not be <code>null</code> or empty.
+   * @param lockId The lock id to use, may not be <code>null</code>. The server config must already
+   *     be locked with the supplied id.
    * @param tok The security token to use.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public void saveJndiDatasources(
@@ -3249,23 +3069,18 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Get the datasource resolver containing the datasource connection
-   * configurations.
+   * Get the datasource resolver containing the datasource connection configurations.
    *
-   * @param lockId Used to load the configs locked for editing, may be
-   * <code>null</code> to get them for read-only use.
+   * @param lockId Used to load the configs locked for editing, may be <code>null</code> to get them
+   *     for read-only use.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
-   * @return The resolver that contains the list of configs, never
-   * <code>null</code>, may be empty.
-   *
+   * @return The resolver that contains the list of configs, never <code>null</code>, may be empty.
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public IPSDatasourceResolver getDatasourceConfigs(IPSLockerId lockId, PSSecurityToken tok)
@@ -3280,12 +3095,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Utility method to get the datasource resolver, only intended for use by
-   * the {@link PSXmlObjectStoreHandler} class. Other classes should use the
-   * {@link #getDatasourceConfigs(IPSLockerId, PSSecurityToken)} method.
+   * Utility method to get the datasource resolver, only intended for use by the {@link
+   * PSXmlObjectStoreHandler} class. Other classes should use the {@link
+   * #getDatasourceConfigs(IPSLockerId, PSSecurityToken)} method.
    *
    * @return The resolver, never <code>null</code>.
-   *
    * @throws PSServerException If there are any errors.
    */
   static IPSDatasourceResolver getDatasourceResolver() throws PSServerException {
@@ -3297,23 +3111,19 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Save the datasource resolver containing the datasource connection
-   * configurations.
+   * Save the datasource resolver containing the datasource connection configurations.
    *
-   * @param resolver The datasource resolver, may not be <code>null</code>
-   * and must contain at least one datasource config and have the repository
-   * set.
-   * @param lockId The lock id to use, may not be <code>null</code>. The
-   * server config must already be locked with the supplied id.
+   * @param resolver The datasource resolver, may not be <code>null</code> and must contain at least
+   *     one datasource config and have the repository set.
+   * @param lockId The lock id to use, may not be <code>null</code>. The server config must already
+   *     be locked with the supplied id.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public void saveDatasourceConfigs(
@@ -3344,19 +3154,16 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Load the object representation hibernate dialect config.
    *
-   * @param lockId Used to load the config locked for editing, may be
-   * <code>null</code> to get it for read-only use.
+   * @param lockId Used to load the config locked for editing, may be <code>null</code> to get it
+   *     for read-only use.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @return The config, never <code>null</code>.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public PSHibernateDialectConfig getHibernateDialectConfig(IPSLockerId lockId, PSSecurityToken tok)
@@ -3384,17 +3191,15 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
    * Saves the hibernate dialect configuration.
    *
    * @param config The config to save, may not be <code>null</code> or empty.
-   * @param lockId The lock id to use, may not be <code>null</code>. The
-   * server config must already be locked with the supplied id.
+   * @param lockId The lock id to use, may not be <code>null</code>. The server config must already
+   *     be locked with the supplied id.
    * @param tok The security token to use, may not be <code>null</code>.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
-   * @throws PSNotLockedException If a <code>lockId</code> is supplied but
-   * the lock is not held by that id.
-   * @throws PSAuthorizationException If the user represented by the token is
-   * not authorized to perform this action.
-   * @throws PSAuthenticationRequiredException If the token represents an
-   * unauthenticated session.
+   * @throws PSNotLockedException If a <code>lockId</code> is supplied but the lock is not held by
+   *     that id.
+   * @throws PSAuthorizationException If the user represented by the token is not authorized to
+   *     perform this action.
+   * @throws PSAuthenticationRequiredException If the token represents an unauthenticated session.
    * @throws PSServerException If there are any other errors.
    */
   public void saveHibernateDialectConfig(
@@ -3422,11 +3227,9 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   }
 
   /**
-   * Ensures the supplied lock id holds the server config lock, and then
-   * extends it by 30 minutes.
+   * Ensures the supplied lock id holds the server config lock, and then extends it by 30 minutes.
    *
    * @param lockId The lock id, assumed not <code>null</code>.
-   *
    * @throws PSLockedException If an attempt to extend the lock fails.
    * @throws PSNotLockedException If held by the supplied id.
    * @throws PSServerException
@@ -3444,9 +3247,8 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   /**
    * Get a file reference to the directory for the specified app root.
    *
-   * @param appRoot The name of the application root directory, Assumed not
-   * <code>null</code> or empty.
-   *
+   * @param appRoot The name of the application root directory, Assumed not <code>null</code> or
+   *     empty.
    * @return The file reference, never <code>null</code>.
    */
   protected static File getAppRootDir(String appRoot) {
@@ -3456,82 +3258,71 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
   private static final String XML_FILE_EXTENSION = ".xml";
 
   /**
-   * Stores the file path as key and <code>PSPair</code> of last modified
-   * date and length of the file as value.
+   * Stores the file path as key and <code>PSPair</code> of last modified date and length of the
+   * file as value.
    */
   private HashMap<String, PSPair<String, Long>> m_SharedDefFilesAndModifedDates = new HashMap<>();
 
   /**
-   * The object containing the system wide definitions for content editors.
-   * Initialized by the first call to {@link #getContentEditorSystemDef()}.
+   * The object containing the system wide definitions for content editors. Initialized by the first
+   * call to {@link #getContentEditorSystemDef()}.
    */
   private PSContentEditorSystemDef m_contentEditorSystemDef = null;
 
   /**
-   * Date time value of the system def file's modfied data. This shall be
-   * compared with file's current modified date time to see if the
-   * <code>PSContentEditorSystemDef</code> needs to be reconstructed from the
-   * newer file from the disk. Modifed by the first call to
-   * {@link #getContentEditorSystemDef()}.
+   * Date time value of the system def file's modfied data. This shall be compared with file's
+   * current modified date time to see if the <code>PSContentEditorSystemDef</code> needs to be
+   * reconstructed from the newer file from the disk. Modifed by the first call to {@link
+   * #getContentEditorSystemDef()}.
    */
   private long m_ModifiedDateTimeSystemDef = 0;
 
   /**
-   * The object containing the shared definitions for content editors.
-   * Initialized by the first call to {@link #getContentEditorSharedDef()}.
+   * The object containing the shared definitions for content editors. Initialized by the first call
+   * to {@link #getContentEditorSharedDef()}.
    */
   private PSContentEditorSharedDef m_contentEditorSharedDef = null;
 
   /**
-   * Constant for the directory containing content management configurations.
-   * Assumed to be relative to the Rx root directory.
+   * Constant for the directory containing content management configurations. Assumed to be relative
+   * to the Rx root directory.
    */
   private static final String CFG_DIR = "rxconfig";
 
   /**
-   * Constant for the directory containing content editor configurations.
-   * Assumed to be relative to the {@link #CFG_DIR} directory.
+   * Constant for the directory containing content editor configurations. Assumed to be relative to
+   * the {@link #CFG_DIR} directory.
    */
   private static final String CMS_DIR = "Server/ContentEditors";
 
   /**
-   * Constant for the directory containing content editor shared configs.
-   * Assumed to be relative to the {@link #CMS_DIR} directory.
+   * Constant for the directory containing content editor shared configs. Assumed to be relative to
+   * the {@link #CMS_DIR} directory.
    */
   private static final String CMS_SHARED_DIR = "shared";
 
-  /**
-   * Reference to the File object of the System Def file. nitialized in ctor
-   */
+  /** Reference to the File object of the System Def file. nitialized in ctor */
   private File m_cfgFileSystemDef;
 
-  /**
-   * Reference to the File object of the Shared Def file Directory. I
-   */
+  /** Reference to the File object of the Shared Def file Directory. I */
   private File m_cfgDirShared;
 
   /**
    * The single instance of this class. <code>null</code> until {@link
-   * #createInstance(PSXmlObjectStoreHandler)} is called, never
-   * <code>null</code> after that.
+   * #createInstance(PSXmlObjectStoreHandler)} is called, never <code>null</code> after that.
    */
   private static PSServerXmlObjectStore ms_objectStore = null;
 
   /**
-   * The objectstore handler. Reference is required until no dependency on that
-   * object no longer exists. <code>null</code> until {@link
-   * #createInstance(PSXmlObjectStoreHandler)} is called, never
-   * <code>null</code> after that.
+   * The objectstore handler. Reference is required until no dependency on that object no longer
+   * exists. <code>null</code> until {@link #createInstance(PSXmlObjectStoreHandler)} is called,
+   * never <code>null</code> after that.
    */
   private PSXmlObjectStoreHandler m_objectStoreHandler = null;
 
-  /**
-   * Constant to use as identifying object when locking the server config.
-   */
+  /** Constant to use as identifying object when locking the server config. */
   private static final String SERVER_CONFIG_LOCK_ID = "~Server_Config";
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 }

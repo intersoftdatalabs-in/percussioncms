@@ -27,18 +27,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSXmlFieldExtractor class is used to extract data from the
- * XML document associated with the request.
+ * The PSXmlFieldExtractor class is used to extract data from the XML document associated with the
+ * request.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXmlFieldExtractor extends PSDataExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param   source      the object defining the source of this value
+   * @param source the object defining the source of this value
    */
   public PSXmlFieldExtractor(com.percussion.design.objectstore.PSXmlField source) {
     super(source);
@@ -49,11 +49,9 @@ public class PSXmlFieldExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return               the associated value; <code>null</code> if a
-   *                        value is not found
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
@@ -62,13 +60,10 @@ public class PSXmlFieldExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue      the default value to use if a value is not found
-   *
-   * @return               the associated value; <code>defValue</code> if a
-   *                        value is not found
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     Object value = null;
@@ -125,10 +120,9 @@ public class PSXmlFieldExtractor extends PSDataExtractor {
   }
 
   /**
-   * Set the base from which this XML field will be extracted. When
-   * extracting from XML fields,
+   * Set the base from which this XML field will be extracted. When extracting from XML fields,
    *
-   * @param   base         the base field name to use
+   * @param base the base field name to use
    */
   public void setXmlFieldBase(String base) {
     /* part of fix for bug id TGIS-4BWSL9

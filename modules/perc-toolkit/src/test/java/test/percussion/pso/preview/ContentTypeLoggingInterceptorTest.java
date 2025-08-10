@@ -16,7 +16,7 @@
  */
 /*
  * test.percussion.pso.preview ContentTypeLoggingInterceptorTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
@@ -25,54 +25,44 @@ package test.percussion.pso.preview;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.percussion.pso.preview.ContentTypeLoggingInterceptor;
 import javax.servlet.http.HttpServletRequestWrapper;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import com.percussion.pso.preview.ContentTypeLoggingInterceptor;
-
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-public class ContentTypeLoggingInterceptorTest
-{
-   private static final Logger log = LogManager.getLogger(ContentTypeLoggingInterceptorTest.class);
-   
-   /**
-    * Test method for {@link ContentTypeLoggingInterceptor#preHandle(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, Object)}.
-    */
-   @Test
-   public final void testPreHandle()
-   {
-      MockHttpServletRequest request = new MockHttpServletRequest();
-      MockHttpServletResponse response = new MockHttpServletResponse();
-      request.setCharacterEncoding("UTF-8"); 
-      request.setContentType("text/plain"); 
-      
-      HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request);
-      
-      ContentTypeLoggingInterceptor cut = new ContentTypeLoggingInterceptor();
-    
-      try
-      {
-         Object handler = new Object();
-         boolean result = cut.preHandle(wrapper, response, handler);
-         assertTrue(result);
-         
-      } catch (Exception ex)
-      {
-          log.error("Unexpected Exception " + ex,ex);
-          fail("Exception"); 
-      }
-       
-      
-      
-   }
+public class ContentTypeLoggingInterceptorTest {
+  private static final Logger log = LogManager.getLogger(ContentTypeLoggingInterceptorTest.class);
+
+  /**
+   * Test method for {@link
+   * ContentTypeLoggingInterceptor#preHandle(javax.servlet.http.HttpServletRequest,
+   * javax.servlet.http.HttpServletResponse, Object)}.
+   */
+  @Test
+  public final void testPreHandle() {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    request.setCharacterEncoding("UTF-8");
+    request.setContentType("text/plain");
+
+    HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper(request);
+
+    ContentTypeLoggingInterceptor cut = new ContentTypeLoggingInterceptor();
+
+    try {
+      Object handler = new Object();
+      boolean result = cut.preHandle(wrapper, response, handler);
+      assertTrue(result);
+
+    } catch (Exception ex) {
+      log.error("Unexpected Exception " + ex, ex);
+      fail("Exception");
+    }
+  }
 }

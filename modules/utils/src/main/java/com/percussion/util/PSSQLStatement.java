@@ -25,15 +25,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a proxy (or wrapper) class to a <code>Statement</code> object. It
- * delegates all methods to the <code>Statement</code> object and logs the
- * SQL statement and elapse time for each SQL execution (query or update).
- * <P>
- * This class can only take effect after the log4j is properly configured
- * and the debug mode is enabled for this class.
- * <P>
- * Must use {@link #getStatement(Connection)} to create a <code>Statement</code>
- * object.
+ * This is a proxy (or wrapper) class to a <code>Statement</code> object. It delegates all methods
+ * to the <code>Statement</code> object and logs the SQL statement and elapse time for each SQL
+ * execution (query or update).
+ *
+ * <p>This class can only take effect after the log4j is properly configured and the debug mode is
+ * enabled for this class.
+ *
+ * <p>Must use {@link #getStatement(Connection)} to create a <code>Statement</code> object.
  */
 public class PSSQLStatement implements Statement {
   /**
@@ -320,8 +319,8 @@ public class PSSQLStatement implements Statement {
   }
 
   /**
-   * Logs the execution elapse time. Must call {@link #startTimer()} or
-   * {@link #startTimer(String)} previously.
+   * Logs the execution elapse time. Must call {@link #startTimer()} or {@link #startTimer(String)}
+   * previously.
    */
   protected void logElapsedTime() {
     m_timer.stop();
@@ -329,9 +328,8 @@ public class PSSQLStatement implements Statement {
   }
 
   /**
-   * Starts the stop watch for recording the elapse time of a SQL execution.
-   * Must be called before each SQL execution, call {@link #logElapsedTime()}
-   * after the execution.
+   * Starts the stop watch for recording the elapse time of a SQL execution. Must be called before
+   * each SQL execution, call {@link #logElapsedTime()} after the execution.
    *
    * @see #logElapsedTime()
    */
@@ -357,16 +355,13 @@ public class PSSQLStatement implements Statement {
   /**
    * Determines if the log is enabled for this class.
    *
-   * @return <code>true</code> if the log is enabled; <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if the log is enabled; <code>false</code> otherwise.
    */
   protected static boolean isLogEnabled() {
     return (log != null && log.isDebugEnabled());
   }
 
-  /**
-   * The SQL statement, it may be <code>null</code> or empty;
-   */
+  /** The SQL statement, it may be <code>null</code> or empty; */
   protected String m_sqlStatement;
 
   /**
@@ -377,33 +372,28 @@ public class PSSQLStatement implements Statement {
   protected StringBuilder m_additionalLogInfo = new StringBuilder();
 
   /**
-   * The logger used for this class, may be <code>null</code> if the log4j
-   * has not been configured.
+   * The logger used for this class, may be <code>null</code> if the log4j has not been configured.
    */
   private static final Logger log = LogManager.getLogger(PSSQLStatement.class);
 
   /**
-   * All methods will be delegated to this object. Initialized by ctor,
-   * never <code>null</code> after that.
+   * All methods will be delegated to this object. Initialized by ctor, never <code>null</code>
+   * after that.
    */
   private Statement m_stmt;
 
   /**
-   * It is used to record the execution time of a SQL statement.
-   * Never <code>null</code>, started by {@link #startTimer()},
-   * stopped by {@link #logElapsedTime()}.
+   * It is used to record the execution time of a SQL statement. Never <code>null</code>, started by
+   * {@link #startTimer()}, stopped by {@link #logElapsedTime()}.
    */
   private PSStopwatch m_timer = new PSStopwatch();
 
-  /**
-   * Total SQL execution count. It is increased by {@link #startTimer()}
-   */
+  /** Total SQL execution count. It is increased by {@link #startTimer()} */
   private static long ms_sqlExeCount = 0;
 
   /**
-   * The SQL execution count for the object itself. It is set by
-   * {@link #startTimer()}and used by {@link #logElapsedTime()}to match up
-   * the logged SQL statement and its elapse time.
+   * The SQL execution count for the object itself. It is set by {@link #startTimer()}and used by
+   * {@link #logElapsedTime()}to match up the logged SQL statement and its elapse time.
    */
   private long m_currSQLExeCount;
 

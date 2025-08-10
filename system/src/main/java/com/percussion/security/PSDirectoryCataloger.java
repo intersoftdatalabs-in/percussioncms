@@ -40,24 +40,32 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * An abstact base class providing default implementations and helper
- * functionality for <code>IPSDirectoryCataloger</code> implementations.
+ * An abstact base class providing default implementations and helper functionality for <code>
+ * IPSDirectoryCataloger</code> implementations.
  */
 public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDirectoryCataloger {
-  /** @see PSCataloger */
+  /**
+   * @see PSCataloger
+   */
   public PSDirectoryCataloger(Properties properties) {
     super(properties);
   }
 
-  /** @see PSCataloger */
+  /**
+   * @see PSCataloger
+   */
   public PSDirectoryCataloger(Properties properties, PSServerConfiguration config) {
     super(properties, config);
   }
 
-  /** @see PSCataloger */
+  /**
+   * @see PSCataloger
+   */
   protected PSDirectoryCataloger() {}
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public void setName(String name) {
     if (StringUtils.isBlank(name))
       throw new IllegalArgumentException("name may not be null or empty");
@@ -65,17 +73,23 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
     m_name = name;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getName() {
     return m_name;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getEmailAddress(String userName) {
     return getEmailAddress(createSubject(userName));
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getEmailAddress(PSSubject user) {
     String emailAttributeName = getEmailAddressAttributeName();
     if (emailAttributeName == null)
@@ -85,29 +99,34 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
     return getAttribute(user, emailAttributeName);
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getAttribute(String userName, String attributeName) {
     return getAttribute(createSubject(userName), attributeName);
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(String userName, Collection attributeNames) {
     return getAttributes(createSubject(userName), attributeNames);
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(String userName) {
     return getAttributes(createSubject(userName));
   }
 
   /**
-   * Creates a new <code>PSSubject</code> of type
-   * <code>PSSubject.SUBJECT_TYPE_USER</code> for the supplied parameters.
+   * Creates a new <code>PSSubject</code> of type <code>PSSubject.SUBJECT_TYPE_USER</code> for the
+   * supplied parameters.
    *
-   * @param userName the user name to create the subject for, not
-   *    <code>null</code> or empty.
-   * @return the requested subject as <code>PSRelativeSubject</code> object
-   *    with an empty attribute list, never <code>null</code>.
+   * @param userName the user name to create the subject for, not <code>null</code> or empty.
+   * @return the requested subject as <code>PSRelativeSubject</code> object with an empty attribute
+   *     list, never <code>null</code>.
    */
   protected static PSSubject createSubject(String userName) {
     if (userName == null) throw new IllegalArgumentException("userName cannot be null");
@@ -124,12 +143,11 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
   /**
    * Creates a filter map for the supplied criteria.
    *
-   * @param criteria the conditional to create the filter map for. Only
-   *    <code>PSLiteral</code> types are allowed for variable and value and
-   *    only the <code>OPTYPE_EQUALS</code> and <code>OPTYPE_LIKE</code>
-   *    operators are allowed.
-   * @return a map with a filter value, the criteria variable as key and the
-   *    criteria value as value. Never <code>null</code>, may be empty.
+   * @param criteria the conditional to create the filter map for. Only <code>PSLiteral</code> types
+   *     are allowed for variable and value and only the <code>OPTYPE_EQUALS</code> and <code>
+   *     OPTYPE_LIKE</code> operators are allowed.
+   * @return a map with a filter value, the criteria variable as key and the criteria value as
+   *     value. Never <code>null</code>, may be empty.
    */
   protected Map<String, String> createFilter(PSConditional criteria) {
     String variable = null;
@@ -330,9 +348,6 @@ public abstract class PSDirectoryCataloger extends PSCataloger implements IPSDir
     }
   }
 
-  /**
-   * Name set by {@link #setName(String)}, may be <code>null</code> if
-   * not set, never empty.
-   */
+  /** Name set by {@link #setName(String)}, may be <code>null</code> if not set, never empty. */
   private String m_name;
 }

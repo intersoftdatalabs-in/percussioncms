@@ -20,32 +20,33 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.data.PSResourceInstance;
 
 /**
- * Contains state that is passed to script evaluators for resolving links, locations,
- * mime-type, and (eventually) output.
- * <p>
- * Since the script can mutate this object, it may also contain the output data of the script.
- * Scripts can access this object through the binding/variable <code>$perc</code>.
- * One way a link and location generation script can pass its data on is by getting the
- * {@link #getResourceInstance() resource instance} and then setting the
- * {@link PSResourceInstance#setLinkAndLocations(java.util.List) links and locations}.
- * <p>
- * The scripts can be found in the resource definition files.
- * </p>
+ * Contains state that is passed to script evaluators for resolving links, locations, mime-type, and
+ * (eventually) output.
+ *
+ * <p>Since the script can mutate this object, it may also contain the output data of the script.
+ * Scripts can access this object through the binding/variable <code>$perc</code>. One way a link
+ * and location generation script can pass its data on is by getting the {@link
+ * #getResourceInstance() resource instance} and then setting the {@link
+ * PSResourceInstance#setLinkAndLocations(java.util.List) links and locations}.
+ *
+ * <p>The scripts can be found in the resource definition files.
+ *
  * @author adamgent
  */
 public class PSResourceScriptEvaluatorContext {
 
-    private PSResourceInstance resourceInstance;
+  private PSResourceInstance resourceInstance;
 
-    /**
-     * Gets the resource for this context.
-     * @return never {@code null}.
-     */
-    public PSResourceInstance getResourceInstance() {
-        return resourceInstance;
-    }
+  /**
+   * Gets the resource for this context.
+   *
+   * @return never {@code null}.
+   */
+  public PSResourceInstance getResourceInstance() {
+    return resourceInstance;
+  }
 
-    public void setResourceInstance(PSResourceInstance resourceInstance) {
-        this.resourceInstance = resourceInstance;
-    }
+  public void setResourceInstance(PSResourceInstance resourceInstance) {
+    this.resourceInstance = resourceInstance;
+  }
 }

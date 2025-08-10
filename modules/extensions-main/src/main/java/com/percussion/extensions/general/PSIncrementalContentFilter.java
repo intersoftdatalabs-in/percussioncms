@@ -33,45 +33,39 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- *
- * <p>
  * Title: PSIncrementalContentFilter
- * </p>
- * <p>
- * This is a Rhythmyx Post-Exit which will filter out contentitems from a
- * content list which have already been published or unpublished.
- * <p>
- * This exit assumes that it has been added to a standard Rhythmyx content list,
- * as defined in /Rhythmyx/DTD/contentlist.dtd. It examines each
- * <code>&lt;contentitem&gt;</code> node in the result document. All content
- * items which have a valid entry in the RXSITEITEMS table are removed from the
- * result document.
- * <p>
- * There are 2 parameters, the name of the Internal Request which is used to
- * perfom the lookup into RXSITEITEMS and the name of the switch parameter.
- * <p>
- * If the app/resource identified by the internal request is not valid, no items
- * get filtered and a trace message will be written to show the error.
- * <p>
- * The switch parameter is the <em>name</em> of an HTML parameter that is used
- * to switch the filter on and off. If this parameter is specified, the exit
- * will look for an HTML parameter with that name. If this parameter is found,
- * the exit will filter the content list. If the parameter is not found, then
- * the exit will return the content list unmodified. Note that the
- * <em>value</em> of the HTML parameter is not examined. Only the presence or
- * absence of the HTML parameter.
- * <p>
- * If the switch parameter is not specified, then the exit always filters the
- * content.
- * <p>
- * Typically, this parameter will be used when adding this exit to a generic
- * content list resource. In this manner, a single content list resource can be
- * used for both full and incremental editions, simply by registering it with
- * different HTML parameters.
- * <p>
- * The Internal request name must be in the form
- * <code>&lt;ApplicationName&gt;/&lt;RequestName&gt;</code>. This request is
- * assumed to take the following parameters: <table>
+ *
+ * <p>This is a Rhythmyx Post-Exit which will filter out contentitems from a content list which have
+ * already been published or unpublished.
+ *
+ * <p>This exit assumes that it has been added to a standard Rhythmyx content list, as defined in
+ * /Rhythmyx/DTD/contentlist.dtd. It examines each <code>&lt;contentitem&gt;</code> node in the
+ * result document. All content items which have a valid entry in the RXSITEITEMS table are removed
+ * from the result document.
+ *
+ * <p>There are 2 parameters, the name of the Internal Request which is used to perfom the lookup
+ * into RXSITEITEMS and the name of the switch parameter.
+ *
+ * <p>If the app/resource identified by the internal request is not valid, no items get filtered and
+ * a trace message will be written to show the error.
+ *
+ * <p>The switch parameter is the <em>name</em> of an HTML parameter that is used to switch the
+ * filter on and off. If this parameter is specified, the exit will look for an HTML parameter with
+ * that name. If this parameter is found, the exit will filter the content list. If the parameter is
+ * not found, then the exit will return the content list unmodified. Note that the <em>value</em> of
+ * the HTML parameter is not examined. Only the presence or absence of the HTML parameter.
+ *
+ * <p>If the switch parameter is not specified, then the exit always filters the content.
+ *
+ * <p>Typically, this parameter will be used when adding this exit to a generic content list
+ * resource. In this manner, a single content list resource can be used for both full and
+ * incremental editions, simply by registering it with different HTML parameters.
+ *
+ * <p>The Internal request name must be in the form <code>
+ * &lt;ApplicationName&gt;/&lt;RequestName&gt;</code>. This request is assumed to take the following
+ * parameters:
+ *
+ * <table>
  * <tr>
  * <td>sys_contentid</td>
  * <td>The content id of the item</td>
@@ -107,13 +101,11 @@ public class PSIncrementalContentFilter extends PSDefaultExtension
   /**
    * Process the request after the content list query has run.
    *
-   * @param params the callers parameters. Only the first element is examined.
-   *           It must contain the name of the item status resource.
-   * @param request the request context of the parent request. May not be
-   *           <code>null</code>.
-   * @param resultDoc the XML document returned by the parent request. Must
-   *           conform to the <code>/Rhythmyx/DTD/contentlist.dtd</code>.
-   *           May not be <code>null</code>.
+   * @param params the callers parameters. Only the first element is examined. It must contain the
+   *     name of the item status resource.
+   * @param request the request context of the parent request. May not be <code>null</code>.
+   * @param resultDoc the XML document returned by the parent request. Must conform to the <code>
+   *     /Rhythmyx/DTD/contentlist.dtd</code>. May not be <code>null</code>.
    * @return the modified result document. Never <code>null</code>.
    * @throws PSParameterMismatchException when parameters are invalid.
    * @throws PSExtensionProcessingException when a run time error is detected.
@@ -187,20 +179,14 @@ public class PSIncrementalContentFilter extends PSDefaultExtension
     }
   }
 
-  /**
-   * Method required by the IPSResultDocumentProcessor interface.
-   */
+  /** Method required by the IPSResultDocumentProcessor interface. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * The Element name for a content item
-   */
+  /** The Element name for a content item */
   private static final String NODE_CONTENTITEM = "contentitem";
 
-  /**
-   * The XML attribute for context
-   */
+  /** The XML attribute for context */
   private static final String XML_ATTR_CONTEXT = "context";
 }

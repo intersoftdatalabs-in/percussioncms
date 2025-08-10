@@ -16,78 +16,64 @@
  */
 package com.percussion.pso.imageedit.data;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
- * A Sized Image. 
+ * A Sized Image.
  *
  * @author DavidBenua
- *
  */
-public class SizedImageMetaData extends SimpleImageMetaData
-{
-    private ImageSizeDefinition sizeDefinition;
+public class SizedImageMetaData extends SimpleImageMetaData {
+  private ImageSizeDefinition sizeDefinition;
 
-	private int x = 0;
-	private int y = 0;
-	private Boolean constraint = true;
+  private int x = 0;
+  private int y = 0;
+  private Boolean constraint = true;
 
-   public int getX()
-	{
-		return x;
-	}
+  public int getX() {
+    return x;
+  }
 
-	public void setX(int x)
-	{
-		this.x = x;
-	}
+  public void setX(int x) {
+    this.x = x;
+  }
 
-	public int getY()
-	{
-		return y;
-	}
+  public int getY() {
+    return y;
+  }
 
-	public void setY(int y)
-	{
-		this.y = y;
-	}
+  public void setY(int y) {
+    this.y = y;
+  }
 
-/**
-    * @return the sizeDefinition
-    */
-   public ImageSizeDefinition getSizeDefinition()
-   {
-      return sizeDefinition;
-   }
+  /**
+   * @return the sizeDefinition
+   */
+  public ImageSizeDefinition getSizeDefinition() {
+    return sizeDefinition;
+  }
 
-   /**
-    * @param sizeDefinition the sizeDefinition to set
-    */
-   public void setSizeDefinition(ImageSizeDefinition sizeDefinition)
-   {
-      this.sizeDefinition = sizeDefinition;
-   }
+  /**
+   * @param sizeDefinition the sizeDefinition to set
+   */
+  public void setSizeDefinition(ImageSizeDefinition sizeDefinition) {
+    this.sizeDefinition = sizeDefinition;
+  }
 
-	@Override
-	public String toString() {
-		final StringBuffer sb = new StringBuffer("SizedImageMetaData{");
-		sb.append("sizeDefinition=").append(sizeDefinition);
-		sb.append(", x=").append(x);
-		sb.append(", y=").append(y);
-		sb.append(", constraint=").append(constraint);
-		sb.append('}');
-		return sb.toString();
-	}
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("SizedImageMetaData{");
+    sb.append("sizeDefinition=").append(sizeDefinition);
+    sb.append(", x=").append(x);
+    sb.append(", y=").append(y);
+    sb.append(", constraint=").append(constraint);
+    sb.append('}');
+    return sb.toString();
+  }
 
-	public Boolean isConstraint()
-{
-	return constraint;
-}
+  public Boolean isConstraint() {
+    return constraint;
+  }
 
-public void setConstraint(Boolean constraint)
-{
-	this.constraint = constraint;
-}
-
-   
+  public void setConstraint(Boolean constraint) {
+    this.constraint = constraint;
+  }
 }

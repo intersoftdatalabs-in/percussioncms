@@ -41,41 +41,36 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * The PSApplication class is used to manipulate an E2 application's
- * definition. Use the PSObjectStore class to load a PSApplication object
- * from an E2 server (getApplication) or to build a new PSApplication object
- * using the default server settings (createApplication). The returned object
- * can be read and/or written (assuming you have the apporpriate access).
- * Once you're ready to send the local changes back to the server, call the
- * PSObjectStore's saveApplication method. See the PSObjectStore class for
- * more details.
+ * The PSApplication class is used to manipulate an E2 application's definition. Use the
+ * PSObjectStore class to load a PSApplication object from an E2 server (getApplication) or to build
+ * a new PSApplication object using the default server settings (createApplication). The returned
+ * object can be read and/or written (assuming you have the apporpriate access). Once you're ready
+ * to send the local changes back to the server, call the PSObjectStore's saveApplication method.
+ * See the PSObjectStore class for more details.
  *
- * @see         PSObjectStore
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSObjectStore
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSApplication implements IPSDocument {
   /**
-   * Specialized wrapper class that takes a <code>PSDataSet</code> and
-   * uses only the request name and parameters to determine equivalence.
-   * Used in validation to determine if two datasets in the application
-   * are <q>equivalent</q>.
+   * Specialized wrapper class that takes a <code>PSDataSet</code> and uses only the request name
+   * and parameters to determine equivalence. Used in validation to determine if two datasets in the
+   * application are <q>equivalent</q>.
    */
   private class RequestKey {
     /**
-     * The dataset that is being wrapped in this key,
-     * never <code>null</code>. Thie is assigned during construction
-     * and never updated.
+     * The dataset that is being wrapped in this key, never <code>null</code>. Thie is assigned
+     * during construction and never updated.
      */
     protected PSDataSet mi_dataset;
 
     /**
      * Constructor
-     * @param set passed <code>PSDataSet</code>, must not be
-     * <code>null</code>
+     *
+     * @param set passed <code>PSDataSet</code>, must not be <code>null</code>
      */
     public RequestKey(PSDataSet set) {
       if (set == null) {
@@ -86,9 +81,8 @@ public class PSApplication implements IPSDocument {
     }
 
     /**
-     * Equals for dataset means that both the requestor and the selection
-     * criteria for the requestor are equivalent. Criteria are equivalent
-     * if each criteria exists in both sets.
+     * Equals for dataset means that both the requestor and the selection criteria for the requestor
+     * are equivalent. Criteria are equivalent if each criteria exists in both sets.
      *
      * @see java.lang.Object#equals(java.lang.Object)
      */
@@ -141,9 +135,9 @@ public class PSApplication implements IPSDocument {
     }
 
     /**
-     * Note that the hash code for this object does <b>not</b> include
-     * the selection criteria. This is because a request with no selection
-     * criteria effectively matches a request with any selection criteria.
+     * Note that the hash code for this object does <b>not</b> include the selection criteria. This
+     * is because a request with no selection criteria effectively matches a request with any
+     * selection criteria.
      *
      * @see java.lang.Object#hashCode()
      */
@@ -169,19 +163,12 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for
+   * a description of the XML object.
    *
-   * @param      sourceDoc      the XML document to construct this
-   *                              object from
-   *
-   * @exception   PSUnknownDocTypeException
-   *                              if the XML document is not of the
-   *                              appropriate type
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if an XML element node is not of the
-   *                              appropriate type
+   * @param sourceDoc the XML document to construct this object from
+   * @exception PSUnknownDocTypeException if the XML document is not of the appropriate type
+   * @exception PSUnknownNodeTypeException if an XML element node is not of the appropriate type
    */
   public PSApplication(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -189,9 +176,7 @@ public class PSApplication implements IPSDocument {
     fromXml(sourceDoc);
   }
 
-  /**
-   * Construct an empty application.
-   */
+  /** Construct an empty application. */
   PSApplication() {
     super();
   }
@@ -199,9 +184,8 @@ public class PSApplication implements IPSDocument {
   /**
    * Construct an application with the specified name.
    *
-   * @param name   the application name
-   *
-   * @see       #setName
+   * @param name the application name
+   * @see #setName
    */
   protected PSApplication(java.lang.String name) {
     this();
@@ -212,8 +196,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Is this a hidden application?
    *
-   * @return  <code>true</code> if it is, <code>false</code> indicates
-   *          a normal application.
+   * @return <code>true</code> if it is, <code>false</code> indicates a normal application.
    */
   public boolean isHidden() {
     return m_hidden;
@@ -222,8 +205,8 @@ public class PSApplication implements IPSDocument {
   /**
    * Is this an empty application, i.e. does not have at least one data set?
    *
-   * @return  <code>true</code> if it is, <code>false</code> indicates
-   *          application with at least one dataset.
+   * @return <code>true</code> if it is, <code>false</code> indicates application with at least one
+   *     dataset.
    */
   public boolean isEmpty() {
     return getDataSets().isEmpty();
@@ -232,8 +215,8 @@ public class PSApplication implements IPSDocument {
   /**
    * Set whether this application is hidden or not.
    *
-   * @param hidden  <code>true</code> if it is to be hidden,
-   *                <code>false</code> indicates a normal application.
+   * @param hidden <code>true</code> if it is to be hidden, <code>false</code> indicates a normal
+   *     application.
    */
   public void setHidden(boolean hidden) {
     m_hidden = hidden;
@@ -242,7 +225,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the id assigned to this application.
    *
-   * @return        the application id
+   * @return the application id
    */
   public int getId() {
     return m_id;
@@ -260,32 +243,30 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the name of the application.
    *
-   * @return      the name of the application
+   * @return the name of the application
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * This is used by the server to determine app start order. The higher the
-   * value, the earlier the app will be started. The range is from
-   * Integer.MIN_VALUE to Integer.MAX_VALUE. The default is 0. This allows
-   * apps to be started either before or after the main group of apps.
-   * It is stored as an optional attribute of the ms_NodeType element.
+   * This is used by the server to determine app start order. The higher the value, the earlier the
+   * app will be started. The range is from Integer.MIN_VALUE to Integer.MAX_VALUE. The default is
+   * 0. This allows apps to be started either before or after the main group of apps. It is stored
+   * as an optional attribute of the ms_NodeType element.
    *
-   * @return The priority for this app. Most apps will return the default
-   *    value.
+   * @return The priority for this app. Most apps will return the default value.
    */
   public int getStartPriority() {
     return m_startPriority;
   }
 
   /**
-   * See {@link #getStartPriority()} for a description. This method is only
-   * useful when modifying the design.
+   * See {@link #getStartPriority()} for a description. This method is only useful when modifying
+   * the design.
    *
-   * @param priority Any value is allowed. The larger the value, the higher
-   *    the priority. The default is 0.
+   * @param priority Any value is allowed. The larger the value, the higher the priority. The
+   *     default is 0.
    */
   public void setStartPriority(int priority) {
     m_startPriority = priority;
@@ -294,10 +275,9 @@ public class PSApplication implements IPSDocument {
   /**
    * Set the name of the application.
    *
-   * @param name   the new name of the application. This must be a unique
-   *             name on the server. If it is non-unique, an exception
-   *             will be thrown when the application is saved on the Rhythmyx
-   *             server. This is limited to 50 characters.
+   * @param name the new name of the application. This must be a unique name on the server. If it is
+   *     non-unique, an exception will be thrown when the application is saved on the Rhythmyx
+   *     server. This is limited to 50 characters.
    */
   public void setName(String name) {
     name = name.trim();
@@ -322,7 +302,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the version of this application.
    *
-   * @return   the version string
+   * @return the version string
    */
   public String getVersion() {
     return m_version;
@@ -331,7 +311,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the description of the application.
    *
-   * @return      the description of the application
+   * @return the description of the application
    */
   public String getDescription() {
     return m_description;
@@ -340,8 +320,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Set the description of the application.
    *
-   * @param description the new description of the application. This is
-   *                     limited to 255 characters.
+   * @param description the new description of the application. This is limited to 255 characters.
    */
   public void setDescription(String description) {
     IllegalArgumentException ex = validateDescription(description);
@@ -352,11 +331,10 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * This method used to restrict the length of description to
-   * APP_MAX_DESC_LEN (255) characters. This restriction has been
-   * removed so that the description can be of any length.
-   * @param description the description of the Application.
-   * May be <code>null</code> or empty.
+   * This method used to restrict the length of description to APP_MAX_DESC_LEN (255) characters.
+   * This restriction has been removed so that the description can be of any length.
+   *
+   * @param description the description of the Application. May be <code>null</code> or empty.
    * @return Always returns <code>null</code>
    */
   private static IllegalArgumentException validateDescription(
@@ -365,25 +343,22 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Determine whether this application is enabled. An enabled application is
-   * able to run on the server. Use {@link #isActive() isActive} method to
-   * determine an application is currently running.
+   * Determine whether this application is enabled. An enabled application is able to run on the
+   * server. Use {@link #isActive() isActive} method to determine an application is currently
+   * running.
    *
-   * @return   <code>true</code> if the application is enabled,
-   *          <code>false</code> otherwise
+   * @return <code>true</code> if the application is enabled, <code>false</code> otherwise
    */
   public boolean isEnabled() {
     return m_enabled;
   }
 
   /**
-   * Enable or disable this application. If the application is enabled, the
-   * server will begin executing it upon save. When the server starts up, it
-   * also begins executing enabled applications. When the server shuts down,
-   * it ends execution of all running applications.
+   * Enable or disable this application. If the application is enabled, the server will begin
+   * executing it upon save. When the server starts up, it also begins executing enabled
+   * applications. When the server shuts down, it ends execution of all running applications.
    *
-   * @param enabled  <code>true</code> to enable this application;
-   *               <code>false</code> to disable it
+   * @param enabled <code>true</code> to enable this application; <code>false</code> to disable it
    */
   public void setEnabled(boolean enabled) {
     m_enabled = enabled;
@@ -393,41 +368,35 @@ public class PSApplication implements IPSDocument {
   /**
    * Determine whether this application is running on the server.
    *
-   * @return           <code>true</code> if the application is running;
-   *               <code>false</code> otherwise
+   * @return <code>true</code> if the application is running; <code>false</code> otherwise
    */
   public boolean isActive() {
     return m_active;
   }
 
   /**
-   * Get the application's request root. This is combined with the E2 server
-   * request root to determine if an incoming request should be serviced.
-   * For instance, if the server root is <code>/E2</code> and the
-   * application root is <code>/MyApp</code>, only URLs whose path begins
-   * with <code>/E2/MyApp</code> will be considered for processing. This
-   * helps alleviate strain from the web server as E2 can more quickly
-   * determine what is an E2 request rather than a standard web server
-   * request.
+   * Get the application's request root. This is combined with the E2 server request root to
+   * determine if an incoming request should be serviced. For instance, if the server root is <code>
+   * /E2</code> and the application root is <code>/MyApp</code>, only URLs whose path begins with
+   * <code>/E2/MyApp</code> will be considered for processing. This helps alleviate strain from the
+   * web server as E2 can more quickly determine what is an E2 request rather than a standard web
+   * server request.
    *
-   * @return      the application's request root
+   * @return the application's request root
    */
   public String getRequestRoot() {
     return m_requestRoot;
   }
 
   /**
-   * Set the application's request root. This is combined with the E2 server
-   * request root to determine if an incoming request should be serviced.
-   * For instance, if the server root is <code>/E2</code> and the
-   * application root is <code>/MyApp</code>, only URLs whose path begins
-   * with <code>/E2/MyApp</code> will be considered for processing. This
-   * helps alleviate strain from the web server as E2 can more quickly
-   * determine what is an E2 request rather than a standard web server
-   * request.
+   * Set the application's request root. This is combined with the E2 server request root to
+   * determine if an incoming request should be serviced. For instance, if the server root is <code>
+   * /E2</code> and the application root is <code>/MyApp</code>, only URLs whose path begins with
+   * <code>/E2/MyApp</code> will be considered for processing. This helps alleviate strain from the
+   * web server as E2 can more quickly determine what is an E2 request rather than a standard web
+   * server request.
    *
-   * @param  requestRoot     the new application request root.
-   *                           This is limited to 50 characters.
+   * @param requestRoot the new application request root. This is limited to 50 characters.
    */
   public void setRequestRoot(String requestRoot) {
     requestRoot = requestRoot.trim();
@@ -448,31 +417,26 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the request page which will be returned when a request is made to the
-   * server for this application without explicitly specifying a request page.
-   * For instance, if Rhythmyx is the server's request root, MyApp is the
-   * application  and welcome.html is specified as the default request page, a
-   * request for
-   * http://myserver/Rhythmyx/MyApp will be routed to
+   * Get the request page which will be returned when a request is made to the server for this
+   * application without explicitly specifying a request page. For instance, if Rhythmyx is the
+   * server's request root, MyApp is the application and welcome.html is specified as the default
+   * request page, a request for http://myserver/Rhythmyx/MyApp will be routed to
    * http://myserver/Rhythmyx/MyApp/welcome.html
    *
-   * @return  the name of the default request page or
-   *          null if there is no default
+   * @return the name of the default request page or null if there is no default
    */
   public String getDefaultRequestPage() {
     return m_defaultRequestPage;
   }
 
   /**
-   * Set the request page which will be returned when a request is made to the
-   * server for this application without explicitly specifying a request page.
-   * For instance, if Rhythmyx is the server's request root, MyApp is the
-   * application and welcome.html is specified as the default request page, a
-   * request for
-   * http://myserver/Rhythmyx/MyApp will be routed to
+   * Set the request page which will be returned when a request is made to the server for this
+   * application without explicitly specifying a request page. For instance, if Rhythmyx is the
+   * server's request root, MyApp is the application and welcome.html is specified as the default
+   * request page, a request for http://myserver/Rhythmyx/MyApp will be routed to
    * http://myserver/Rhythmyx/MyApp/welcome.html
    *
-   * @param   requestPage  the name of the default request page
+   * @param requestPage the name of the default request page
    */
   public void setDefaultRequestPage(String requestPage) {
     if ((requestPage != null) && (requestPage.length() > 0)) requestPage = requestPage.trim();
@@ -482,27 +446,25 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the application's access control list (ACL). This contains the
-   * names of users, groups and roles and the type of access they have for
-   * this application.
+   * Get the application's access control list (ACL). This contains the names of users, groups and
+   * roles and the type of access they have for this application.
    *
-   * @return      the application's ACL
+   * @return the application's ACL
    */
   public PSAcl getAcl() {
     return m_acl;
   }
 
   /**
-   * Overwrite the application's ACL with the specified ACL. If you only
-   * want to modify a limited number of entries, add an entry, etc. use
-   * getAcl to get the existing ACL and modify the returned object directly.
-   * <p>
-   * The PSAcl object supplied to this method will be stored with the
-   * PSApplication object. Any subsequent changes made to the object by the
-   * caller will also effect the application.
+   * Overwrite the application's ACL with the specified ACL. If you only want to modify a limited
+   * number of entries, add an entry, etc. use getAcl to get the existing ACL and modify the
+   * returned object directly.
    *
-   * @param acl     the new ACL for the application
-   * @see           PSAcl
+   * <p>The PSAcl object supplied to this method will be stored with the PSApplication object. Any
+   * subsequent changes made to the object by the caller will also effect the application.
+   *
+   * @param acl the new ACL for the application
+   * @see PSAcl
    */
   public void setAcl(PSAcl acl) {
     IllegalArgumentException ex = validateAcl(acl);
@@ -548,36 +510,32 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the application's data encryption settings. Through this object,
-   * E2 can force users to make requests through SSL. It can even be used to
-   * enforce the key strength is appropriate for the given application. This
-   * allows the application's data to be sent over secure channels. Incoming
-   * requests from users, however, can still be sent in the clear. For this
-   * reason, care must be taken when designing web pages so that forms
-   * containing sensitive data, including user ids and passwords, are
-   * submitted using HTTPS, not HTTP.
+   * Get the application's data encryption settings. Through this object, E2 can force users to make
+   * requests through SSL. It can even be used to enforce the key strength is appropriate for the
+   * given application. This allows the application's data to be sent over secure channels. Incoming
+   * requests from users, however, can still be sent in the clear. For this reason, care must be
+   * taken when designing web pages so that forms containing sensitive data, including user ids and
+   * passwords, are submitted using HTTPS, not HTTP.
    *
-   * @return        the application's data encrytion settings or
-   *            <code>null</code> if one has not been previously defined
+   * @return the application's data encrytion settings or <code>null</code> if one has not been
+   *     previously defined
    */
   public PSDataEncryptor getDataEncryptor() {
     return m_dataEncryptor;
   }
 
   /**
-   * Overwrite the application's data encryption object with the specified
-   * data encryption object. If you only want to modify some data
-   * encryption settings, use getDataEncryptor to get the existing object
-   * and modify the returned object directly.
-   * <p>
-   * The PSDataEncryptor object supplied to this method will be stored with
-   * the PSApplication object. Any subsequent changes made to the object by
-   * the caller will also effect the application.
+   * Overwrite the application's data encryption object with the specified data encryption object.
+   * If you only want to modify some data encryption settings, use getDataEncryptor to get the
+   * existing object and modify the returned object directly.
    *
-   * @param encryptor     the new data encryptor for the application or
-   *                  <code>null</code> to disable this functionality
+   * <p>The PSDataEncryptor object supplied to this method will be stored with the PSApplication
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * application.
    *
-   * @see                 PSDataEncryptor
+   * @param encryptor the new data encryptor for the application or <code>null</code> to disable
+   *     this functionality
+   * @see PSDataEncryptor
    */
   public void setDataEncryptor(PSDataEncryptor encryptor) {
     m_dataEncryptor = encryptor;
@@ -585,30 +543,25 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the maximum number of threads this application is permitted to
-   * consume. The server maintains a pool of threads, which can grow as
-   * activity increases. The number of threads can be limited to avoid the
-   * resource problems that arise from excessive thread use.
+   * Get the maximum number of threads this application is permitted to consume. The server
+   * maintains a pool of threads, which can grow as activity increases. The number of threads can be
+   * limited to avoid the resource problems that arise from excessive thread use.
    *
-   * @return        the maximum number of threads this application is permitted
-   *            to use
+   * @return the maximum number of threads this application is permitted to use
    */
   public int getMaxThreads() {
     return m_maxThreads;
   }
 
   /**
-   * Set the maximum number of threads this application is permitted to
-   * consume. The server maintains a pool of threads, which can grow as
-   * activity increases. The number of threads can be limited to avoid the
-   * resource problems that arise from excessive thread use.
-   * <p>
-   * The server can also specify the maximum number of threads any
-   * application is permitted to use. The application cannot exceed the
-   * server defined limit.
+   * Set the maximum number of threads this application is permitted to consume. The server
+   * maintains a pool of threads, which can grow as activity increases. The number of threads can be
+   * limited to avoid the resource problems that arise from excessive thread use.
    *
-   * @param max     the maximum number of threads this application is permitted
-   *            to use
+   * <p>The server can also specify the maximum number of threads any application is permitted to
+   * use. The application cannot exceed the server defined limit.
+   *
+   * @param max the maximum number of threads this application is permitted to use
    */
   public void setMaxThreads(int max) {
     m_maxThreads = max;
@@ -618,8 +571,7 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the maximum amount of time to spend servicing a request.
    *
-   * @return        the maximum amount of time to spend servicing a request,
-   *          in seconds
+   * @return the maximum amount of time to spend servicing a request, in seconds
    */
   public int getMaxRequestTime() {
     return m_maxRequestTime;
@@ -627,13 +579,11 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Set the maximum amount of time to spend servicing a request.
-   * <p>
-   * The server can also specify the amount of time any application is
-   * permitted to spend servicing a request. The application cannot exceed
-   * the server defined limit.
    *
-   * @param max     the maximum amount of time to spend servicing a request,
-   *            in seconds
+   * <p>The server can also specify the amount of time any application is permitted to spend
+   * servicing a request. The application cannot exceed the server defined limit.
+   *
+   * @param max the maximum amount of time to spend servicing a request, in seconds
    */
   public void setMaxRequestTime(int max) {
     m_maxRequestTime = max;
@@ -641,27 +591,26 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the maximum number of requests which may be queued for processing
-   * by the application. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
+   * Get the maximum number of requests which may be queued for processing by the application. When
+   * this limit is exceeded, the user is notified that the server is too busy (HTTP status code
+   * 503).
    *
-   * @return        the maximum number of requests to queue
+   * @return the maximum number of requests to queue
    */
   public int getMaxRequestsInQueue() {
     return m_maxRequestsInQueue;
   }
 
   /**
-   * Set the maximum number of requests which may be queued for processing
-   * by the application. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
-   * <p>
-   * The server can also specify the number of requests any application is
-   * permitted to place in the queue. The application cannot exceed the
-   * server defined limit.
+   * Set the maximum number of requests which may be queued for processing by the application. When
+   * this limit is exceeded, the user is notified that the server is too busy (HTTP status code
+   * 503).
    *
-   * @param max     the maximum number of requests which can be queued. Use 0
-   *            to prevent queueing. Use -1 for unlimited queueing.
+   * <p>The server can also specify the number of requests any application is permitted to place in
+   * the queue. The application cannot exceed the server defined limit.
+   *
+   * @param max the maximum number of requests which can be queued. Use 0 to prevent queueing. Use
+   *     -1 for unlimited queueing.
    */
   public void setMaxRequestsInQueue(int max) {
     m_maxRequestsInQueue = max;
@@ -671,24 +620,21 @@ public class PSApplication implements IPSDocument {
   /**
    * Are user sessions being maintained by this application?
    *
-   * @return        <code>true</code> if sessions are being used,
-   *            <code>false</code> otherwise
+   * @return <code>true</code> if sessions are being used, <code>false</code> otherwise
    */
   public boolean isUserSessionEnabled() {
     return m_userSessions;
   }
 
   /**
-   * Enable or disable user session management for this applicaiton. When a
-   * user makes a connection to the E2 server, a session can be established
-   * to maintain state information across requests.
-   * <p>
-   * The server can also specify that user session management is not
-   * permitted. The application cannot enable user session management when
-   * this is the case.
+   * Enable or disable user session management for this applicaiton. When a user makes a connection
+   * to the E2 server, a session can be established to maintain state information across requests.
    *
-   * @param enable     <code>true</code> to enable user session management,
-   *               <code>false</code> to disable it
+   * <p>The server can also specify that user session management is not permitted. The application
+   * cannot enable user session management when this is the case.
+   *
+   * @param enable <code>true</code> to enable user session management, <code>false</code> to
+   *     disable it
    */
   public void setUserSessionEnabled(boolean enable) {
     m_userSessions = enable;
@@ -698,20 +644,19 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the timeout interval for user sessions.
    *
-   * @return        the timeout interval for user sessions, in seconds
+   * @return the timeout interval for user sessions, in seconds
    */
   public int getUserSessionTimeout() {
     return m_sessionTimeout;
   }
 
   /**
-   * Set the timeout interval for user sessions. When a user makes a
-   * connection to the E2 server, a session can be established to maintain
-   * state information across requests. When sessions are maintained, they
-   * must be terminated after a period of inactivity. This setting
-   * determines how long to wait before removing the inactive session.
+   * Set the timeout interval for user sessions. When a user makes a connection to the E2 server, a
+   * session can be established to maintain state information across requests. When sessions are
+   * maintained, they must be terminated after a period of inactivity. This setting determines how
+   * long to wait before removing the inactive session.
    *
-   * @param timeout  the timeout interval for user sessions, in seconds
+   * @param timeout the timeout interval for user sessions, in seconds
    */
   public void setUserSessionTimeout(int timeout) {
     m_sessionTimeout = timeout;
@@ -719,11 +664,10 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the name of the HTML parameter being used to identify the request
-   * type.
+   * Get the name of the HTML parameter being used to identify the request type.
    *
-   * @return     the name of the HTML request type parameter
-   * @see        #setRequestTypeHtmlParamName
+   * @return the name of the HTML request type parameter
+   * @see #setRequestTypeHtmlParamName
    */
   public String getRequestTypeHtmlParamName() {
     return m_htmlParamName;
@@ -731,12 +675,12 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Set the name of the HTML parameter used to identify the request type.
-   * <p>
-   * When using data sets supporting multiple actions (query, insert, etc.)
-   * E2 needs to determine the type of action it must perform. This is done
-   * by supplying the action type through a parameter. If the name of a
-   * parameter is not set, E2 will use PSXActionParam by default. The
+   *
+   * <p>When using data sets supporting multiple actions (query, insert, etc.) E2 needs to determine
+   * the type of action it must perform. This is done by supplying the action type through a
+   * parameter. If the name of a parameter is not set, E2 will use PSXActionParam by default. The
    * default values for the various actions are:
+   *
    * <table border="1">
    * <tr><th>Action</th><th>Value</th></tr>
    * <tr><td>Query</td> <td>QUERY</td> </tr>
@@ -744,22 +688,19 @@ public class PSApplication implements IPSDocument {
    * <tr><td>Update</td><td>UPDATE</td></tr>
    * <tr><td>Delete</td><td>DELETE</td></tr>
    * </table>
-   * <p>
-   * Let's assume the parameter is set to <code>action_type</code> and the
-   * default values are being used. If we have an order entry system, we may
-   * want to add, update or delete an item from the order. To add a new
-   * item, the HTML request parameter string may look as follows:
-   * <p>
-   * <center><code>?action_type=INSERT&order_no=1&item_no=...</code></center>
    *
-   * @param    param    the name of the HTML request type parameter
+   * <p>Let's assume the parameter is set to <code>action_type</code> and the default values are
+   * being used. If we have an order entry system, we may want to add, update or delete an item from
+   * the order. To add a new item, the HTML request parameter string may look as follows:
    *
-   *                       if param exceeds 50 characters
+   * <p><center><code>?action_type=INSERT&order_no=1&item_no=...</code></center>
    *
-   * @see              #setRequestTypeValueQuery
-   * @see              #setRequestTypeValueInsert
-   * @see              #setRequestTypeValueUpdate
-   * @see              #setRequestTypeValueDelete
+   * @param param the name of the HTML request type parameter
+   *     <p>if param exceeds 50 characters
+   * @see #setRequestTypeValueQuery
+   * @see #setRequestTypeValueInsert
+   * @see #setRequestTypeValueUpdate
+   * @see #setRequestTypeValueDelete
    */
   public void setRequestTypeHtmlParamName(String param) {
     IllegalArgumentException ex = validateRequestTypeHtmlParamName(param);
@@ -781,23 +722,20 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the value being used to identify the request as being a query.
    *
-   * @return     the query request type value
-   *
-   * @see        #setRequestTypeHtmlParamName
+   * @return the query request type value
+   * @see #setRequestTypeHtmlParamName
    */
   public String getRequestTypeValueQuery() {
     return m_requestTypeValueQuery;
   }
 
   /**
-   * Set the value being used to identify the request as being a query. If
-   * a data set contains only query pipes, this need not get set. If the
-   * data set contains multiple pipes and a value is not set for query
-   * type, the default value of "QUERY" is used.
+   * Set the value being used to identify the request as being a query. If a data set contains only
+   * query pipes, this need not get set. If the data set contains multiple pipes and a value is not
+   * set for query type, the default value of "QUERY" is used.
    *
    * @param value the query request type value
-   *
-   * @see              #setRequestTypeHtmlParamName
+   * @see #setRequestTypeHtmlParamName
    */
   public void setRequestTypeValueQuery(String value) {
     IllegalArgumentException ex = validateRequestTypeValueQuery(value);
@@ -819,23 +757,20 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the value being used to identify the request as being a insert.
    *
-   * @return     the insert request type value
-   *
-   * @see        #setRequestTypeHtmlParamName
+   * @return the insert request type value
+   * @see #setRequestTypeHtmlParamName
    */
   public String getRequestTypeValueInsert() {
     return m_requestTypeValueInsert;
   }
 
   /**
-   * Set the value being used to identify the request as being a insert. If
-   * a data set contains only insert pipes, this need not get set. If the
-   * data set contains multiple pipes and a value is not set for insert
-   * type, the default value of "INSERT" is used.
+   * Set the value being used to identify the request as being a insert. If a data set contains only
+   * insert pipes, this need not get set. If the data set contains multiple pipes and a value is not
+   * set for insert type, the default value of "INSERT" is used.
    *
    * @param value the insert request type value
-   *
-   * @see              #setRequestTypeHtmlParamName
+   * @see #setRequestTypeHtmlParamName
    */
   public void setRequestTypeValueInsert(String value) {
     IllegalArgumentException ex = validateRequestTypeValueInsert(value);
@@ -857,23 +792,20 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the value being used to identify the request as being a update.
    *
-   * @return     the update request type value
-   *
-   * @see        #setRequestTypeHtmlParamName
+   * @return the update request type value
+   * @see #setRequestTypeHtmlParamName
    */
   public String getRequestTypeValueUpdate() {
     return m_requestTypeValueUpdate;
   }
 
   /**
-   * Set the value being used to identify the request as being a update. If
-   * a data set contains only update pipes, this need not get set. If the
-   * data set contains multiple pipes and a value is not set for update
-   * type, the default value of "UPDATE" is used.
+   * Set the value being used to identify the request as being a update. If a data set contains only
+   * update pipes, this need not get set. If the data set contains multiple pipes and a value is not
+   * set for update type, the default value of "UPDATE" is used.
    *
    * @param value the update request type value
-   *
-   * @see              #setRequestTypeHtmlParamName
+   * @see #setRequestTypeHtmlParamName
    */
   public void setRequestTypeValueUpdate(String value) {
     IllegalArgumentException ex = validateRequestTypeValueUpdate(value);
@@ -895,23 +827,20 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the value being used to identify the request as being a delete.
    *
-   * @return     the delete request type value
-   *
-   * @see        #setRequestTypeHtmlParamName
+   * @return the delete request type value
+   * @see #setRequestTypeHtmlParamName
    */
   public String getRequestTypeValueDelete() {
     return m_requestTypeValueDelete;
   }
 
   /**
-   * Set the value being used to identify the request as being a delete. If
-   * a data set contains only delete pipes, this need not get set. If the
-   * data set contains multiple pipes and a value is not set for delete
-   * type, the default value of "DELETE" is used.
+   * Set the value being used to identify the request as being a delete. If a data set contains only
+   * delete pipes, this need not get set. If the data set contains multiple pipes and a value is not
+   * set for delete type, the default value of "DELETE" is used.
    *
    * @param value the delete request type value
-   *
-   * @see              #setRequestTypeHtmlParamName
+   * @see #setRequestTypeHtmlParamName
    */
   public void setRequestTypeValueDelete(String value) {
     IllegalArgumentException ex = validateRequestTypeValueDelete(value);
@@ -931,33 +860,28 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the log settings for this application. Various levels of logging
-   * can be defined, which may be used for a variety of tasks ranging from
-   * usage tracking to application debugging.
+   * Get the log settings for this application. Various levels of logging can be defined, which may
+   * be used for a variety of tasks ranging from usage tracking to application debugging.
    *
-   * @return     the PSLogger object defining the log settings (may be null)
+   * @return the PSLogger object defining the log settings (may be null)
    */
   public PSLogger getLogger() {
     return m_logger;
   }
 
   /**
-   * Overwrite the log settings associated with this application with the
-   * specified object. If you only want to modify certain settings, use
-   * getLogger to get the existing object and modify the returned object
-   * directly. Be sure to check that getLogger did not return null, which
-   * signifies log settings have never been created.
-   * <p>
-   * The PSLogger object supplied to this method will be stored with the
-   * PSApplication object. Any subsequent changes made to the object by the
-   * caller will also effect the application.
+   * Overwrite the log settings associated with this application with the specified object. If you
+   * only want to modify certain settings, use getLogger to get the existing object and modify the
+   * returned object directly. Be sure to check that getLogger did not return null, which signifies
+   * log settings have never been created.
    *
-   * @param logger     the new log settings or <code>null</code> to remove
-   *               the application's log settings (which causes the
-   *               server's log settings to be used)
+   * <p>The PSLogger object supplied to this method will be stored with the PSApplication object.
+   * Any subsequent changes made to the object by the caller will also effect the application.
    *
-   * @see              #getLogger
-   * @see              PSLogger
+   * @param logger the new log settings or <code>null</code> to remove the application's log
+   *     settings (which causes the server's log settings to be used)
+   * @see #getLogger
+   * @see PSLogger
    */
   public void setLogger(PSLogger logger) {
     m_logger = logger;
@@ -965,32 +889,29 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the web page used to login to this application. Application's have
-   * ACL's associated with them. Unless a security scheme is being used
-   * which does not require the user to login, a login page should be
-   * defined.
+   * Get the web page used to login to this application. Application's have ACL's associated with
+   * them. Unless a security scheme is being used which does not require the user to login, a login
+   * page should be defined.
    *
-   * @return     the login page object (may be <code>null</code>)
+   * @return the login page object (may be <code>null</code>)
    */
   public PSLoginWebPage getLoginWebPage() {
     return m_loginWebPage;
   }
 
   /**
-   * Overwrite the login page associated with this application with the
-   * specified object. If you only want to modify certain settings, use
-   * getLoginWebPage to get the existing object and modify the returned
-   * object directly. Be sure to check that getLoginWebPage did not return
-   * null, which signifies a login page has not been defined.
-   * <p>
-   * The PSLoginWebPage object supplied to this method will be stored with
-   * the PSApplication object. Any subsequent changes made to the object by
-   * the caller will also effect the application.
+   * Overwrite the login page associated with this application with the specified object. If you
+   * only want to modify certain settings, use getLoginWebPage to get the existing object and modify
+   * the returned object directly. Be sure to check that getLoginWebPage did not return null, which
+   * signifies a login page has not been defined.
    *
-   * @param page  the new login web page
+   * <p>The PSLoginWebPage object supplied to this method will be stored with the PSApplication
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * application.
    *
-   * @see              #getLoginWebPage
-   * @see              PSLoginWebPage
+   * @param page the new login web page
+   * @see #getLoginWebPage
+   * @see PSLoginWebPage
    */
   public void setLoginWebPage(PSLoginWebPage page) {
     m_loginWebPage = page;
@@ -1015,22 +936,20 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Overwrite the error pages associated with this application with the
-   * specified object. If you only want to modify certain settings, use
-   * getErrorWebPages to get the existing object and modify the returned
-   * object directly. Be sure to check that getErrorWebPage did not return
-   * null, which signifies an error page has not been defined.
-   * <p>
-   * The PSErrorWebPages object supplied to this method will be stored with
-   * the PSApplication object. Any subsequent changes made to the object by
-   * the caller will also effect the application.
-   * <p>
-   * This may be null, in which case E2 will use its default error pages.
+   * Overwrite the error pages associated with this application with the specified object. If you
+   * only want to modify certain settings, use getErrorWebPages to get the existing object and
+   * modify the returned object directly. Be sure to check that getErrorWebPage did not return null,
+   * which signifies an error page has not been defined.
    *
-   * @param page   the new error web pages
+   * <p>The PSErrorWebPages object supplied to this method will be stored with the PSApplication
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * application.
    *
-   * @see              #getErrorWebPages
-   * @see              PSErrorWebPages
+   * <p>This may be null, in which case E2 will use its default error pages.
+   *
+   * @param page the new error web pages
+   * @see #getErrorWebPages
+   * @see PSErrorWebPages
    */
   public void setErrorWebPages(PSErrorWebPages page) {
     m_errorWebPages = page;
@@ -1040,9 +959,8 @@ public class PSApplication implements IPSDocument {
   /**
    * Get the data sets defined for accessing data through this application.
    *
-   * @return a collection containing the data sets defined for accessing data
-   *         through this application (PSDataSet objects), never
-   *         <code>null</code> may be empty.
+   * @return a collection containing the data sets defined for accessing data through this
+   *     application (PSDataSet objects), never <code>null</code> may be empty.
    */
   public PSCollection getDataSets() {
     if (m_dataSets != null) return m_dataSets;
@@ -1055,19 +973,17 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Overwrite the data sets associated with this application with the
-   * specified collection. If you only want to modify certain data sets,
-   * add a new data set, etc. use getDataSets to get the existing
-   * collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSApplication object. Any subsequent changes made to the object
-   * by the caller will also effect the application.
+   * Overwrite the data sets associated with this application with the specified collection. If you
+   * only want to modify certain data sets, add a new data set, etc. use getDataSets to get the
+   * existing collection and modify the returned collection directly.
+   *
+   * <p>The PSCollection object supplied to this method will be stored with the PSApplication
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * application.
    *
    * @param dataSets the new data sets to use for this application
-   *
-   * @see                 #getDataSets
-   * @see                 PSDataSet
+   * @see #getDataSets
+   * @see PSDataSet
    */
   public void setDataSets(PSCollection dataSets) {
     IllegalArgumentException ex = validateDataSets(dataSets);
@@ -1093,22 +1009,19 @@ public class PSApplication implements IPSDocument {
    * Returns the extension context previously set with the <code>
    * setExtensionContext</code> method.
    *
-   * @return A possibly empty or <code>null</code> string that was set by
-   * an external entitity.
+   * @return A possibly empty or <code>null</code> string that was set by an external entitity.
    */
   public String getExtensionContext() {
     return m_context;
   }
 
   /**
-   * Sets the extension context property of this application. The application
-   * itself does not use this value. It just acts as a repository, saving and
-   * restoring the value with the app data. The user of applications should
-   * set this to a globally unique value. When an app is deleted by the
-   * server, the server will request this value and if it is not null, the
-   * server will scan all handlers for any extensions that contain this
-   * context and delete any that it finds. It is strongly recommended that
-   * this be set
+   * Sets the extension context property of this application. The application itself does not use
+   * this value. It just acts as a repository, saving and restoring the value with the app data. The
+   * user of applications should set this to a globally unique value. When an app is deleted by the
+   * server, the server will request this value and if it is not null, the server will scan all
+   * handlers for any extensions that contain this context and delete any that it finds. It is
+   * strongly recommended that this be set
    *
    * @param context The new context value. May be <code>null</code> or empty.
    */
@@ -1117,31 +1030,28 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the private roles defined for use exclusively by this application.
-   * Shared roles (available to all applications on the server) are not
-   * returned through this mechanism. They must be requested through the
-   * server.
+   * Get the private roles defined for use exclusively by this application. Shared roles (available
+   * to all applications on the server) are not returned through this mechanism. They must be
+   * requested through the server.
    *
-   * @return     a collection containing the private roles defined for this
-   *       application (PSRole objects)
+   * @return a collection containing the private roles defined for this application (PSRole objects)
    */
   public PSCollection getRoles() {
     return m_roles;
   }
 
   /**
-   * Overwrite the private roles associated with this application with the
-   * specified collection. If you only want to modify certain role settings,
-   * add new private roles, etc. use getRoles to get the existing collection
-   * and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSApplication object. Any subsequent changes made to the object
-   * by the caller will also effect the application.
+   * Overwrite the private roles associated with this application with the specified collection. If
+   * you only want to modify certain role settings, add new private roles, etc. use getRoles to get
+   * the existing collection and modify the returned collection directly.
+   *
+   * <p>The PSCollection object supplied to this method will be stored with the PSApplication
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * application.
    *
    * @param roles the new private roles to use for this application
-   * @see              #getRoles
-   * @see              PSRole
+   * @see #getRoles
+   * @see PSRole
    */
   public void setRoles(PSCollection roles) {
     IllegalArgumentException ex = validateRoles(roles);
@@ -1164,31 +1074,27 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the mail notification settings associated with the application.
-   * Notification can be sent in response to various scenarios. See the
-   * PSNotifier object for more info.
+   * Get the mail notification settings associated with the application. Notification can be sent in
+   * response to various scenarios. See the PSNotifier object for more info.
    *
-   * @return     the mail notification settings associated with the application
-   * @see        PSNotifier
+   * @return the mail notification settings associated with the application
+   * @see PSNotifier
    */
   public PSNotifier getNotifier() {
     return m_notifier;
   }
 
   /**
-   * Overwrite the application's mail notification object with the specified
-   * mail notification object. If you only want to modify some mail
-   * notification settings, use getNotifier to get the existing object and
-   * modify the returned object directly.
-   * <p>
-   * The PSNotifier object supplied to this method will be stored with the
-   * PSApplication object. Any subsequent changes made to the object by the
-   * caller will also effect the application.
+   * Overwrite the application's mail notification object with the specified mail notification
+   * object. If you only want to modify some mail notification settings, use getNotifier to get the
+   * existing object and modify the returned object directly.
    *
-   * @param notifier the new mail notification settings for the
-   *                application
-   * @see                 #getNotifier
-   * @see                 PSNotifier
+   * <p>The PSNotifier object supplied to this method will be stored with the PSApplication object.
+   * Any subsequent changes made to the object by the caller will also effect the application.
+   *
+   * @param notifier the new mail notification settings for the application
+   * @see #getNotifier
+   * @see PSNotifier
    */
   public void setNotifier(PSNotifier notifier) {
     m_notifier = notifier;
@@ -1207,15 +1113,13 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the user defined properties associated with the application. By
-   * specifying user defined properties, a designer can store context
-   * information, etc. on the E2 server. The user defined key/value pairs
-   * are stored in the object store along with the application,
-   * guaranteeing their existence between uses.
+   * Get the user defined properties associated with the application. By specifying user defined
+   * properties, a designer can store context information, etc. on the E2 server. The user defined
+   * key/value pairs are stored in the object store along with the application, guaranteeing their
+   * existence between uses.
    *
-   * @return      the user defined properties associated with the application
-   *
-   * @deprecated  use the getPropertyTree to get the properties as an XML tree
+   * @return the user defined properties associated with the application
+   * @deprecated use the getPropertyTree to get the properties as an XML tree
    */
   @Deprecated
   public java.util.Properties getUserProperties() {
@@ -1223,21 +1127,16 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Overwrite the application's user defined properties with the specified
-   * object. If you only want to modify some of the properties, add new
-   * properies, etc. use getUserProperties to get the existing object and
-   * modify the returned object directly.
-   * <p>
-   * The Properties object supplied to this method will be stored with the
-   * PSApplication object. Any subsequent changes made to the object by the
-   * caller will also effect the application.
+   * Overwrite the application's user defined properties with the specified object. If you only want
+   * to modify some of the properties, add new properies, etc. use getUserProperties to get the
+   * existing object and modify the returned object directly.
    *
-   * @param   props      the new properties to associate with the application
+   * <p>The Properties object supplied to this method will be stored with the PSApplication object.
+   * Any subsequent changes made to the object by the caller will also effect the application.
    *
-   * @see               #getUserProperties
-   *
-   * @deprecated         use the setPropertyTree to store the properties
-   *                     as an XML tree
+   * @param props the new properties to associate with the application
+   * @see #getUserProperties
+   * @deprecated use the setPropertyTree to store the properties as an XML tree
    */
   @Deprecated
   public void setUserProperties(java.util.Properties props) {
@@ -1246,33 +1145,27 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Get the user defined properties associated with the application. By
-   * specifying user defined properties, a designer can store context
-   * information, etc. on the E2 server. The user defined XML tree structure
-   * is stored in the object store along with the application,
-   * guaranteeing its existence between uses.
+   * Get the user defined properties associated with the application. By specifying user defined
+   * properties, a designer can store context information, etc. on the E2 server. The user defined
+   * XML tree structure is stored in the object store along with the application, guaranteeing its
+   * existence between uses.
    *
-   * @return              the user defined properties associated with the
-   *                     application
-   *
-   * @see               #setPropertyTree
+   * @return the user defined properties associated with the application
+   * @see #setPropertyTree
    */
   public org.w3c.dom.Document getPropertyTree() {
     return m_propertyTree;
   }
 
   /**
-   * Overwrite the application's user defined properties with the specified
-   * object. If you only want to modify some of the properties, add new
-   * properties, etc. use getPropertyTree to get the existing object and
-   * modify the returned object directly.
-   * <p>
-   * The Document object supplied to this method will be stored with the
-   * PSApplication object. Any subsequent changes made to the object by the
-   * caller will also effect the application.
+   * Overwrite the application's user defined properties with the specified object. If you only want
+   * to modify some of the properties, add new properties, etc. use getPropertyTree to get the
+   * existing object and modify the returned object directly.
+   *
+   * <p>The Document object supplied to this method will be stored with the PSApplication object.
+   * Any subsequent changes made to the object by the caller will also effect the application.
    *
    * @param propTree the new properties to associate with the application
-   *
    * @see #getPropertyTree
    */
   public void setPropertyTree(org.w3c.dom.Document propTree) {
@@ -1281,33 +1174,28 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Determine if the application has been modified since the last save
-   * operation.
+   * Determine if the application has been modified since the last save operation.
    *
-   * @return <code>true</code> if the application is modified,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the application is modified, <code>false</code> otherwise.
    */
   public boolean isModified() {
     return m_modified;
   }
 
   /**
-   * This method is used to update the application status to modified. Ex:
-   * setAppName chnages the local app name. This will not be returned to server
-   * until save on application is called. This flag will be used to find
-   * weather any changes  are done to application that needs to be saved. This
-   * will be mostly managed by application  class. Made public because, may be
-   * required in some cases to explictly set it.
-   * @param bModified  <code>true</code> if the application ia changed,
-   *                   else <CODE>false</CODE>
+   * This method is used to update the application status to modified. Ex: setAppName chnages the
+   * local app name. This will not be returned to server until save on application is called. This
+   * flag will be used to find weather any changes are done to application that needs to be saved.
+   * This will be mostly managed by application class. Made public because, may be required in some
+   * cases to explictly set it.
+   *
+   * @param bModified <code>true</code> if the application ia changed, else <CODE>false</CODE>
    */
   public void setModified(boolean bModified) {
     m_modified = bModified;
   }
 
-  /**
-   * Compares the supplied application with this one.
-   */
+  /** Compares the supplied application with this one. */
   @Override
   public boolean equals(Object o) {
     PSApplication other = (PSApplication) o;
@@ -1399,9 +1287,7 @@ public class PSApplication implements IPSDocument {
     return true;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder(61, 157)
@@ -1415,10 +1301,11 @@ public class PSApplication implements IPSDocument {
   /* *************** IPSDocument Interface Implementation *************** */
 
   /**
-   * This method is called to create a PSXApplication XML document
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXApplication XML document containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *   &lt;!--
    *    PSXApplication is used to manipulate an E2 application's
@@ -1691,7 +1578,7 @@ public class PSApplication implements IPSDocument {
    *   &lt;!ELEMENT PropertyTree           (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return      the newly PSXApplication XML document
+   * @return the newly PSXApplication XML document
    */
   public Document toXml() {
     String sTemp;
@@ -1820,12 +1707,10 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * This method is called to populate a PSApplication Java object
-   * from a PSXApplication XML document. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * This method is called to populate a PSApplication Java object from a PSXApplication XML
+   * document. See the {@link #toXml() toXml} method for a description of the XML object.
    *
-   * @exception     PSUnknownDocTypeException  if the XML document is not
-   *                                       of type PSXApplication
+   * @exception PSUnknownDocTypeException if the XML document is not of type PSXApplication
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -2185,12 +2070,12 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Guess the application type.
+   *
    * <ol>
-   * <li>check if any of the dataset has a pipe of the type
-   * {@link PSContentEditorPipe}. If so return type content editor</li>
-   * <li>check if the name of the application starts with "sys_", if so return
-   * system type.</li>
-   * <li>otherwise return user type.</li>
+   *   <li>check if any of the dataset has a pipe of the type {@link PSContentEditorPipe}. If so
+   *       return type content editor
+   *   <li>check if the name of the application starts with "sys_", if so return system type.
+   *   <li>otherwise return user type.
    *
    * @return application type evaluated as above.
    */
@@ -2207,16 +2092,12 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Gets role name from 'PSXRole' node. If it has multiple 'name' child
-   * elements, takes the text of first 'name' child. If it doesn't find the
-   * 'name' child element, returns an empty string.
+   * Gets role name from 'PSXRole' node. If it has multiple 'name' child elements, takes the text of
+   * first 'name' child. If it doesn't find the 'name' child element, returns an empty string.
    *
-   * @param roleNode the role node to get role name, assumed not
-   * <code>null</code>
-   *
-   * @return the role name, never <code>null</code> may be empty if it doesn't
-   * find name.
-   **/
+   * @param roleNode the role node to get role name, assumed not <code>null</code>
+   * @return the role name, never <code>null</code> may be empty if it doesn't find name.
+   */
   private String getRoleName(Node roleNode) {
     String roleName = "";
     if (roleNode instanceof Element) {
@@ -2232,29 +2113,23 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Validates the entire application within the given validation context.
+   *
    * <OL>
-   * <LI>Static validation on all fields. This means that all tests are
-   * performed that can be performed from a static method that takes the
-   * field as its sole argument.
-   * <BR>
-   * This includes: verifying the presence (not-null) of fields that are
-   * always required, verifying that the length and value of non-null
-   * fields is within preset ranges (such as the length of name strings,
-   * the value of integers that can never be negative or zero).
-   * <LI>Validate all IPSComponent objects recursively.
-   * <LI>Validate the semantics of all collections and relations of
-   * IPSComponent objects. This includes checking for uniqueness of
-   * things that need to be unique within their collection (like
-   * request pages).
+   *   <LI>Static validation on all fields. This means that all tests are performed that can be
+   *       performed from a static method that takes the field as its sole argument. <br>
+   *       This includes: verifying the presence (not-null) of fields that are always required,
+   *       verifying that the length and value of non-null fields is within preset ranges (such as
+   *       the length of name strings, the value of integers that can never be negative or zero).
+   *   <LI>Validate all IPSComponent objects recursively.
+   *   <LI>Validate the semantics of all collections and relations of IPSComponent objects. This
+   *       includes checking for uniqueness of things that need to be unique within their collection
+   *       (like request pages).
    * </OL>
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.26 1999/06/07
-   *
-   * @param   cxt
-   *
+   * @param cxt
    * @throws PSSystemValidationException
-   *
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     // static validation on all statically validatable fields
@@ -2356,38 +2231,29 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
+   * Does this application allow login information to be passed through to the back end?
    *
-   * Does this application allow login information to be
-   *   passed through to the back end?
-   *
-   * @return      <code>true</code>      passthru enabled
-   *             <code>false</code>   passthru disabled
-   *
+   * @return <code>true</code> passthru enabled <code>false</code> passthru disabled
    */
   public boolean isBeLoginPassthruEnabled() {
     return m_beLoginPassthru;
   }
 
   /**
+   * Set whether this application allows login information to be passed through to the back end.
    *
-   * Set whether this application allows login information to be
-   *   passed through to the back end.
-   *
-   * @param   enabled      <code>true</code>      passthru enabled
-   *                      <code>false</code>   passthru disabled
-   *
+   * @param enabled <code>true</code> passthru enabled <code>false</code> passthru disabled
    */
   public void setBeLoginPassthru(boolean enabled) {
     m_beLoginPassthru = enabled;
   }
 
   /**
-   * Sets the lastest revision information in the revision history. <BR>
+   * Sets the lastest revision information in the revision history. <br>
    * To be used by the objectstore only.
    *
-   * @param   agent       Who or what is responsible for the change.
-   *
-   * @param   description A description of the change.
+   * @param agent Who or what is responsible for the change.
+   * @param description A description of the change.
    */
   public void setRevision(String agent, String description) {
     if (m_history == null) {
@@ -2399,28 +2265,23 @@ public class PSApplication implements IPSDocument {
   }
 
   /**
-   * Clears the revision history of this application. The next entry
-   * set after calling this will be version 1.0, and will be considered
-   * the original revision of the application.
+   * Clears the revision history of this application. The next entry set after calling this will be
+   * version 1.0, and will be considered the original revision of the application.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.34 1999/07/22
-   *
    */
   public void clearRevisionHistory() {
     m_history = null;
   }
 
   /**
-   * Retreives the trace debug options from the application.  If there is no
-   * PSTraceInfo object in this application, one will be created with the
-   * default  values and returned.
+   * Retreives the trace debug options from the application. If there is no PSTraceInfo object in
+   * this application, one will be created with the default values and returned.
    *
-   * @return   an object representing the current trace debug options.
-   *           This is a reference to the actual object stored in
-   *           PSApplication.  Changes to this object are reflected in
-   *           PSApplication.
+   * @return an object representing the current trace debug options. This is a reference to the
+   *     actual object stored in PSApplication. Changes to this object are reflected in
+   *     PSApplication.
    */
   public PSTraceInfo getTraceInfo() {
     // see if we have one
@@ -2431,8 +2292,8 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Retrieves the application type for this application
-   * @return the <code>PSApplicationType</code> or
-   * <code>null</code> if not set
+   *
+   * @return the <code>PSApplicationType</code> or <code>null</code> if not set
    */
   public PSApplicationType getApplicationType() {
     return m_appType;
@@ -2440,8 +2301,8 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Sets the application type of this application object
-   * @param appType the <code>PSApplicationType</code>
-   * for this application.
+   *
+   * @param appType the <code>PSApplicationType</code> for this application.
    */
   public void setApplicationType(PSApplicationType appType) {
     m_appType = appType;
@@ -2450,14 +2311,10 @@ public class PSApplication implements IPSDocument {
   /**
    * Sets the lastest revision information in the revision history.
    *
-   * @author      chadloder
-   *
+   * @author chadloder
    * @version 1.34 1999/07/22
-   *
-   *
-   * @param entry  PSRevisionEntry entry for the new latest revision;
-   *               will not be set if it is not later than the current
-   *
+   * @param entry PSRevisionEntry entry for the new latest revision; will not be set if it is not
+   *     later than the current
    */
   public void setRevision(PSRevisionEntry entry) {
     if (m_history == null) {
@@ -2470,12 +2327,11 @@ public class PSApplication implements IPSDocument {
 
   /**
    * Returns the revision history for this application.
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.30 1999/07/08
-   *
-   * @return   PSRevisionHistory The revision history for this application,
-   *           or <CODE>null</CODE> if no history exists.
+   * @return PSRevisionHistory The revision history for this application, or <CODE>null</CODE> if no
+   *     history exists.
    */
   public PSRevisionHistory getRevisionHistory() {
     return m_history;
@@ -2537,9 +2393,8 @@ public class PSApplication implements IPSDocument {
   private boolean m_modified = false;
 
   /**
-   *  m_beLoginPassthru will always default to false,
-   *  it can be overridden by setting backEndloginPassthry to "yes"
-   *  any other value will leave this false
+   * m_beLoginPassthru will always default to false, it can be overridden by setting
+   * backEndloginPassthry to "yes" any other value will leave this false
    */
   private boolean m_beLoginPassthru = false;
 
@@ -2551,14 +2406,12 @@ public class PSApplication implements IPSDocument {
   private Document m_propertyTree = null;
 
   /**
-   * This is a storage slot for use by other parties. The application makes
-   * no use of this value. It is the extension context used to tie an app
-   * specific extension to a particular app. If this is not null, the server
-   * will use it to delete all extensions that are in this context when the
-   * application is removed. It does this by getting all handlers, then
-   * getting all extensions on each handler that are within this context.
-   * Users should set this to a globally unique value and not change it for
-   * the life of the app.
+   * This is a storage slot for use by other parties. The application makes no use of this value. It
+   * is the extension context used to tie an app specific extension to a particular app. If this is
+   * not null, the server will use it to delete all extensions that are in this context when the
+   * application is removed. It does this by getting all handlers, then getting all extensions on
+   * each handler that are within this context. Users should set this to a globally unique value and
+   * not change it for the life of the app.
    *
    * @see #getExtensionContext
    * @see #setExtensionContext
@@ -2573,14 +2426,10 @@ public class PSApplication implements IPSDocument {
   /* package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXApplication";
 
-  /**
-   * XML Attribute that represent application type
-   */
+  /** XML Attribute that represent application type */
   static final String ATTR_APPLICATION_TYPE = "appType";
 
-  /**
-   * used to store this application's trace options
-   */
+  /** used to store this application's trace options */
   private PSTraceInfo m_traceInfo = null;
 
   /*
@@ -2589,23 +2438,17 @@ public class PSApplication implements IPSDocument {
    */
   private boolean m_hidden = false;
 
-  /**
-   * See {@link #getStartPriority()} for a description.
-   */
+  /** See {@link #getStartPriority()} for a description. */
   private int m_startPriority = 0;
 
   /**
-   * Application type property, set by {@link #fromXml(Document)} and
-   * {@link #setApplicationType(PSApplicationType)}. Initially
-   * <code>null</code> and set in {@link #fromXml(Document)}. If the
-   * application does not have the attribute set, then it is guessed using
-   * {@link #guessAppType()}.
+   * Application type property, set by {@link #fromXml(Document)} and {@link
+   * #setApplicationType(PSApplicationType)}. Initially <code>null</code> and set in {@link
+   * #fromXml(Document)}. If the application does not have the attribute set, then it is guessed
+   * using {@link #guessAppType()}.
    */
   private PSApplicationType m_appType = null;
 
-  /**
-   * The attribute name used to store the value of the m_startPriority
-   * property.
-   */
+  /** The attribute name used to store the value of the m_startPriority property. */
   private static final String STARTPRIORITY_ATTRNAME = "startPriority";
 }

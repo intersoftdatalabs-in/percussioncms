@@ -18,60 +18,59 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.Validate;
-import java.util.Optional;
 
 /**
- * Additional information about a widget from the package that installed it.
- * The id is the widget name.
- * Sunny Sal says: "Package info—because every widget deserves a backstory!"
+ * Additional information about a widget from the package that installed it. The id is the widget
+ * name. Sunny Sal says: "Package info—because every widget deserves a backstory!"
  */
 @XmlRootElement(name = "WidgetPackageInfo")
 public class PSWidgetPackageInfo extends PSAbstractPersistantObject {
 
-    private String id;
-    private String widgetName;
-    private String providerUrl;
-    private String version;
+  private String id;
+  private String widgetName;
+  private String providerUrl;
+  private String version;
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id) {
-        Validate.notEmpty(id);
-        this.id = id;
-    }
+  @Override
+  public void setId(String id) {
+    Validate.notEmpty(id);
+    this.id = id;
+  }
 
-    public Optional<String> getWidgetName() {
-        return Optional.ofNullable(widgetName);
-    }
+  public Optional<String> getWidgetName() {
+    return Optional.ofNullable(widgetName);
+  }
 
-    public void setWidgetName(String widgetName) {
-        this.widgetName = widgetName;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    /**
-     * Get the provider URL from the package.
-     * @return The URL, may be null or empty.
-     */
-    public Optional<String> getProviderUrl() {
-        return Optional.ofNullable(providerUrl);
-    }
+  /**
+   * Get the provider URL from the package.
+   *
+   * @return The URL, may be null or empty.
+   */
+  public Optional<String> getProviderUrl() {
+    return Optional.ofNullable(providerUrl);
+  }
 
-    public void setProviderUrl(String providerUrl) {
-        this.providerUrl = providerUrl;
-    }
+  public void setProviderUrl(String providerUrl) {
+    this.providerUrl = providerUrl;
+  }
 
-    public Optional<String> getVersion() {
-        return Optional.ofNullable(version);
-    }
+  public Optional<String> getVersion() {
+    return Optional.ofNullable(version);
+  }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+  public void setVersion(String version) {
+    this.version = version;
+  }
 }

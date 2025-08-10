@@ -28,36 +28,27 @@ import java.util.Map;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * This class calculates the size of an uploaded file and appends an html
- * parameter with current date value in a given date format.
+ * This class calculates the size of an uploaded file and appends an html parameter with current
+ * date value in a given date format.
  */
 public class PSUploadFileAttrs extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   /**
-   * Does the all the work for the class.  See the class description.
+   * Does the all the work for the class. See the class description.
    *
-   * @param params An assortment of settings, including:
-   *    -An html param name that gets the file content. That is, the name
-   *     attribute value in the tag <input type=file name=contentbody>
-   *     i.e. contentbody.
-   *    -An html param name to receive the size of the uploaded file in bytes.
-   *    -An html param name to get the current datetime stamp in the format
-   *     specified for next parameter. This can be for example, used to store
-   *     as modifed date.
-   *    -A Date format literal. e.g. MM/dd/yyyy hh:mm:ss a.  This can be
-   *     backend database specific.
-   *    -A literal value to specify a size limit. If the size of the file being
-   *     uploaded exceeds this limit, an exception is thrown. This parameter is
-   *     option. A blank or <= 0 means no limit.
-   *
+   * @param params An assortment of settings, including: -An html param name that gets the file
+   *     content. That is, the name attribute value in the tag <input type=file name=contentbody>
+   *     i.e. contentbody. -An html param name to receive the size of the uploaded file in bytes.
+   *     -An html param name to get the current datetime stamp in the format specified for next
+   *     parameter. This can be for example, used to store as modifed date. -A Date format literal.
+   *     e.g. MM/dd/yyyy hh:mm:ss a. This can be backend database specific. -A literal value to
+   *     specify a size limit. If the size of the file being uploaded exceeds this limit, an
+   *     exception is thrown. This parameter is option. A blank or <= 0 means no limit.
    * @param request An object holding more HTML parameters.
-   *
-   * @throws PSExtensionProcessingException
-   *            -If one or more parameters missing in PSUploadFileAttrs.
-   *            -If empty or null file name parameter in PSUploadFileAttrs.
-   *            -If empty or null file size parameter in PSUploadFileAttrs.
-   *            -If empty or null HTML Parameters table.
-   *            -If file size exceeds the byte limit.
+   * @throws PSExtensionProcessingException -If one or more parameters missing in PSUploadFileAttrs.
+   *     -If empty or null file name parameter in PSUploadFileAttrs. -If empty or null file size
+   *     parameter in PSUploadFileAttrs. -If empty or null HTML Parameters table. -If file size
+   *     exceeds the byte limit.
    */
   public void preProcessRequest(
       java.lang.Object[] params, com.percussion.server.IPSRequestContext request)

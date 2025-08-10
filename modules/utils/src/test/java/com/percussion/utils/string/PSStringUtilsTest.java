@@ -29,9 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for string utilities.
- */
+/** Unit tests for string utilities. */
 public class PSStringUtilsTest {
 
   @BeforeEach
@@ -136,9 +134,8 @@ public class PSStringUtilsTest {
   }
 
   /**
-   * Test to make sure that we don't support regular expression, but take
-   * the special characters of regular expression literally from the
-   * specified path/pattern.
+   * Test to make sure that we don't support regular expression, but take the special characters of
+   * regular expression literally from the specified path/pattern.
    *
    * @throws Exception
    */
@@ -270,9 +267,7 @@ public class PSStringUtilsTest {
     assertEquals("aaa", PSStringUtils.findMatchingLeftSubstring("aa", paths));
   }
 
-  /**
-   * Test the path abbreviator.
-   */
+  /** Test the path abbreviator. */
   @Test
   // TODO: Fix me
   @Disabled("Test is failing")
@@ -295,9 +290,7 @@ public class PSStringUtilsTest {
     assertEquals("//aaaaa/bbbbb/.../ddddd/eeeee.xyz", result);
   }
 
-  /**
-   * Test user name validation.
-   */
+  /** Test user name validation. */
   @Test
   public void testUserNameValidation() {
     Character result = PSStringUtils.validateUserName("Jump Rabbit");
@@ -309,9 +302,7 @@ public class PSStringUtilsTest {
     assertEquals('?', PSStringUtils.validateUserName("Jump?*Rabbit").charValue());
   }
 
-  /**
-   * Test url character validation.
-   */
+  /** Test url character validation. */
   @Test
   public void testUrlCharacterValidation() {
     char[] invalidUrlChars = PSStringUtils.INVALID_NAME_CHARS.toCharArray();
@@ -323,9 +314,7 @@ public class PSStringUtilsTest {
     assertFalse(PSStringUtils.containsInvalidNameChars("Test"));
   }
 
-  /**
-   * Test make valid for object name.
-   */
+  /** Test make valid for object name. */
   @Test
   public void testMakeValidForObjectName() {
     char[] invalidUrlChars = PSStringUtils.INVALID_NAME_CHARS.toCharArray();
@@ -347,9 +336,7 @@ public class PSStringUtilsTest {
     assertTrue(ch == null);
   }
 
-  /**
-   * Test make valid for Content Type name.
-   */
+  /** Test make valid for Content Type name. */
   @Test
   public void testValidForContentTypeName() {
     char[] invalidUrlChars = PSStringUtils.INVALID_NAME_CHARS.toCharArray();

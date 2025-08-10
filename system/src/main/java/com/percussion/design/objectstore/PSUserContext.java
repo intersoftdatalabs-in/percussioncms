@@ -21,14 +21,12 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * The PSUserContext class is used to define a replacement value is a
- * user session value.
+ * The PSUserContext class is used to define a replacement value is a user session value.
  *
- * @see         IPSReplacementValue
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSReplacementValue
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserContext extends PSNamedReplacementValue {
   /**
@@ -36,10 +34,8 @@ public class PSUserContext extends PSNamedReplacementValue {
    *
    * @param sourceNode the XML element node to construct this object from
    * @param parentDoc the Java object which is the parent of this object
-   * @param parentComponents   the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *   appropriate type
+   * @param parentComponents the parent objects of this object
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUserContext(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -57,6 +53,7 @@ public class PSUserContext extends PSNamedReplacementValue {
 
   /**
    * Get the type of replacement value this object represents.
+   *
    * @return {@link #VALUE_TYPE}
    */
   public String getValueType() {
@@ -75,9 +72,7 @@ public class PSUserContext extends PSNamedReplacementValue {
     return IPSObjectStoreErrors.HTML_PARAM_NAME_EMPTY;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "UserContext";
 
   /* package access on this so they may reference each other in fromXml */

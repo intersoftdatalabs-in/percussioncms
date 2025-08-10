@@ -24,33 +24,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUpdateColumn class is used to define columns which will be used
- * when updating the back-end data store. The column may be used as
- * either a key used to locate the back-end row or as an updateable
- * column. At this time, a key value cannot be updated.
+ * The PSUpdateColumn class is used to define columns which will be used when updating the back-end
+ * data store. The column may be used as either a key used to locate the back-end row or as an
+ * updateable column. At this time, a key value cannot be updated.
  *
  * @see PSDataSynchronizer#getUpdateColumns
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUpdateColumn extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUpdateColumn(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -59,9 +50,7 @@ public class PSUpdateColumn extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSUpdateColumn() {
     super();
   }
@@ -74,13 +63,12 @@ public class PSUpdateColumn extends PSComponent {
   }
 
   /**
-   * Construct an update column object. The column can be set as being
-   * either a key used to locate the back-end row or as an updateable
-   * column. At this time, a key value cannot be updated.
+   * Construct an update column object. The column can be set as being either a key used to locate
+   * the back-end row or as an updateable column. At this time, a key value cannot be updated.
    *
-   * @param column      the back-end column
-   * @param isKey      <code>true</code> to set the column as a key,
-   *                   <code>false</code> to set it as being updateable
+   * @param column the back-end column
+   * @param isKey <code>true</code> to set the column as a key, <code>false</code> to set it as
+   *     being updateable
    */
   public PSUpdateColumn(PSBackEndColumn column, boolean isKey) {
     super();
@@ -91,7 +79,7 @@ public class PSUpdateColumn extends PSComponent {
   /**
    * Get the back-end column.
    *
-   * @return      the back-end column
+   * @return the back-end column
    */
   public PSBackEndColumn getColumn() {
     return m_backEndColumn;
@@ -100,9 +88,8 @@ public class PSUpdateColumn extends PSComponent {
   /**
    * Set the back-end column.
    *
-   * @param col   the back-end column
-   *
-   * @see         PSBackEndColumn
+   * @param col the back-end column
+   * @see PSBackEndColumn
    */
   public void setColumn(PSBackEndColumn col) {
     IllegalArgumentException ex = validateColumn(col);
@@ -120,17 +107,13 @@ public class PSUpdateColumn extends PSComponent {
   /**
    * Is this column used in the WHERE clause to locate matching rows?
    *
-   * @return      <code>true</code> if the column is used as a key,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if the column is used as a key, <code>false</code> otherwise
    */
   public boolean isKey() {
     return m_key;
   }
 
-  /**
-   * Set this column as being used in the WHERE clause to locate
-   * matching rows.
-   */
+  /** Set this column as being used in the WHERE clause to locate matching rows. */
   public void setKey(boolean key) {
     m_key = key;
   }
@@ -138,17 +121,13 @@ public class PSUpdateColumn extends PSComponent {
   /**
    * Is this column used in the SET clause to modify the column's value?
    *
-   * @return      <code>true</code> if the column is updateable,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if the column is updateable, <code>false</code> otherwise
    */
   public boolean isUpdateable() {
     return m_updatable;
   }
 
-  /**
-   * Set this column as being used in the SET clause to modify the
-   * column's value.
-   */
+  /** Set this column as being used in the SET clause to modify the column's value. */
   public void setUpdateable(boolean updatable) {
     m_updatable = updatable;
   }
@@ -156,10 +135,11 @@ public class PSUpdateColumn extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXUpdateColumn XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXUpdateColumn XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXUpdateColumn is used to define columns which will be used when
@@ -186,7 +166,7 @@ public class PSUpdateColumn extends PSComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXUpdateColumn XML element node
+   * @return the newly created PSXUpdateColumn XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -205,12 +185,11 @@ public class PSUpdateColumn extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSUpdateColumn Java object
-   * from a PSXUpdateColumn XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSUpdateColumn Java object from a PSXUpdateColumn XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXUpdateColumn
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXUpdateColumn
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -261,18 +240,15 @@ public class PSUpdateColumn extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

@@ -53,9 +53,8 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
    * Ctor required by framework.
    *
    * @param args See class description for reqs.
-   *
    * @throws PSIllegalArgumentException If a numeric arg is not supplied.
-   * <p>Note: we use PSIllegal... here because that's what the framework uses.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */
   public PSConsoleCommandSearchIndexItem(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -110,14 +109,12 @@ public class PSConsoleCommandSearchIndexItem extends PSConsoleCommand {
 
   /**
    * The full command that launched this handler.
-   * <p>Note: this should be passed in rather than having it in two places,
-   * but the whole framework needs reworking so I'm not going to take that on
-   * now.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
    */
   private static final String COMMAND_NAME = "search index item";
 
-  /**
-   * The content id passed to the ctor. Always a number > 0 after construction.
-   */
+  /** The content id passed to the ctor. Always a number > 0 after construction. */
   private int m_id;
 }

@@ -31,64 +31,72 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-/**
- * Path item service for search functionality.
- */
+/** Path item service for search functionality. */
 @Component(value = "searchPathItemService")
 public class PSSearchPathItemService extends PSPathItemService {
 
-    @Autowired
-    public PSSearchPathItemService(
-            IPSFolderHelper folderHelper,
-            IPSIdMapper idMapper,
-            IPSItemWorkflowService itemWorkflowService,
-            IPSAssetService assetService,
-            IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
-            IPSContentMgr contentMgr,
-            IPSWorkflowService workflowService,
-            IPSPageService pageService,
-            @Qualifier("cm1ListViewHelper") IPSListViewHelper listViewHelper,
-            IPSUserService userService) {
-        super(folderHelper, idMapper, itemWorkflowService, assetService, widgetAssetRelationshipService, contentMgr,
-                workflowService, pageService, listViewHelper, userService);
-        this.setRootName("Search");
-    }
+  @Autowired
+  public PSSearchPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSIdMapper idMapper,
+      IPSItemWorkflowService itemWorkflowService,
+      IPSAssetService assetService,
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+      IPSContentMgr contentMgr,
+      IPSWorkflowService workflowService,
+      IPSPageService pageService,
+      @Qualifier("cm1ListViewHelper") IPSListViewHelper listViewHelper,
+      IPSUserService userService) {
+    super(
+        folderHelper,
+        idMapper,
+        itemWorkflowService,
+        assetService,
+        widgetAssetRelationshipService,
+        contentMgr,
+        workflowService,
+        pageService,
+        listViewHelper,
+        userService);
+    this.setRootName("Search");
+  }
 
-    // Not implemented: search path service does not support folder root operations.
-    @Override
-    protected String getFolderRoot() throws PSPathServiceException {
-        throw new PSPathServiceException("Not implemented");
-    }
+  // Not implemented: search path service does not support folder root operations.
+  @Override
+  protected String getFolderRoot() throws PSPathServiceException {
+    throw new PSPathServiceException("Not implemented");
+  }
 
-    @Override
-    protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
-        PSPathUtils.validatePath(path);
-        var fullFolderPath = SEARCH_ROOT;
-        if (!"/".equals(path)) {
-            fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
-        }
-        return fullFolderPath;
+  @Override
+  protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
+    PSPathUtils.validatePath(path);
+    var fullFolderPath = SEARCH_ROOT;
+    if (!"/".equals(path)) {
+      fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
     }
+    return fullFolderPath;
+  }
 
-    // Not implemented: search path service does not support in-use pages result.
-    @Override
-    protected String getInUsePagesResult() throws PSPathServiceException {
-        throw new PSPathServiceException("Not implemented");
-    }
+  // Not implemented: search path service does not support in-use pages result.
+  @Override
+  protected String getInUsePagesResult() throws PSPathServiceException {
+    throw new PSPathServiceException("Not implemented");
+  }
 
-    // Not implemented: search path service does not support in-use templates result.
-    @Override
-    protected String getInUseTemplatesResult() throws PSPathServiceException {
-        throw new PSPathServiceException("Not implemented");
-    }
+  // Not implemented: search path service does not support in-use templates result.
+  @Override
+  protected String getInUseTemplatesResult() throws PSPathServiceException {
+    throw new PSPathServiceException("Not implemented");
+  }
 
-    // Not implemented: search path service does not support not-authorized result.
-    @Override
-    protected String getNotAuthorizedResult() throws PSPathServiceException {
-        throw new PSPathServiceException("Not implemented");
-    }
+  // Not implemented: search path service does not support not-authorized result.
+  @Override
+  protected String getNotAuthorizedResult() throws PSPathServiceException {
+    throw new PSPathServiceException("Not implemented");
+  }
 
-    /** Constant for the search root folder path. */
-    public static final String SEARCH_ROOT_SUB = "/Search";
-    public static final String SEARCH_ROOT = "/" + SEARCH_ROOT_SUB;
+  /** Constant for the search root folder path. */
+  public static final String SEARCH_ROOT_SUB = "/Search";
+
+  public static final String SEARCH_ROOT = "/" + SEARCH_ROOT_SUB;
 }

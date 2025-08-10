@@ -48,49 +48,46 @@ import org.w3c.dom.Element;
 
 // REFACTORED: CP-JAVA11
 /**
- * This plugin scans all menu actions (RXMENUACTION). For each menu action it
- * checks to see if there is a known ACL by asking the acl service. If there is
- * no acl it creates a simple ACL that adds runtime visibility access to the
- * "AnyCommunity" community.
- * <p>
- * After this runs you can look at the PSX_COMMUNITY_PERMISSION_VIEW for
- * OBJECTTYPE 107 (menu actions). For example:<br>
- * <b>SELECT * FROM PSX_COMMUNITY_PERMISSION_VIEW WHERE OBJECTTYPE = 107</b>
- * <br>
- * Which should yield entries for all communities for most menu actions. There
- * are some actions that will have an existing acl.
- * <p>
- * In the second part, it checks if there are any community entries in
- * RXMENUVISIBILITY table, for each such entry it does the following:
+ * This plugin scans all menu actions (RXMENUACTION). For each menu action it checks to see if there
+ * is a known ACL by asking the acl service. If there is no acl it creates a simple ACL that adds
+ * runtime visibility access to the "AnyCommunity" community.
+ *
+ * <p>After this runs you can look at the PSX_COMMUNITY_PERMISSION_VIEW for OBJECTTYPE 107 (menu
+ * actions). For example:<br>
+ * <b>SELECT * FROM PSX_COMMUNITY_PERMISSION_VIEW WHERE OBJECTTYPE = 107</b> <br>
+ * Which should yield entries for all communities for most menu actions. There are some actions that
+ * will have an existing acl.
+ *
+ * <p>In the second part, it checks if there are any community entries in RXMENUVISIBILITY table,
+ * for each such entry it does the following:
+ *
  * <ol>
- * <li>Sees if corresponding entry exists in the ACL for the action</li>
- * <li>If exists does not do anything to the ACL</li>
- * <li>If not, creates an ACL entry with no RunTime Visibiliy permission, means
- * to hide the action for that community</li>
+ *   <li>Sees if corresponding entry exists in the ACL for the action
+ *   <li>If exists does not do anything to the ACL
+ *   <li>If not, creates an ACL entry with no RunTime Visibiliy permission, means to hide the action
+ *       for that community
  * </ol>
+ *
  * This part essentially ports actions' community visibility to ACLs.
  *
  * @author dougrand
  */
 // REFACTORED: CP-JAVA11
 public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
-  /**
-   * ACL service
-   */
+  /** ACL service */
   private static final IPSAclService ms_acl = PSAclServiceLocator.getAclService();
 
   private IPSUpgradeModule m_config;
 
   /**
-   * Map of actionid and communities that the action is hidden for. Initialized
-   * in {@link #process(IPSUpgradeModule, Element)}. Never <code>null</code>, may be empty.
+   * Map of actionid and communities that the action is hidden for. Initialized in {@link
+   * #process(IPSUpgradeModule, Element)}. Never <code>null</code>, may be empty.
    */
   private final Map<Integer, List<Integer>> m_actionCommVis = new HashMap<>();
 
   /**
-   * Communities' id name map, initialized in the
-   * {@link #process(IPSUpgradeModule, Element)}. Never <code>null</code> or
-   * empty (unless a system has no communities at all!).
+   * Communities' id name map, initialized in the {@link #process(IPSUpgradeModule, Element)}. Never
+   * <code>null</code> or empty (unless a system has no communities at all!).
    */
   private final Map<Integer, String> m_communityNames = new HashMap<>();
 
@@ -215,18 +212,15 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
   }
 
   /**
-   * Looks at the community community contexts from the RXMENUVISIBILITY table
-   * for the supplied action. If there are any entries in the table but the
-   * that community entry is not in the ACL (supplied) then it adds the
-   * community entry to the ACL without any permission. Remember that the
-   * community entries in the table RXMENUVISIBILITY are menat to hide the
-   * action.
+   * Looks at the community community contexts from the RXMENUVISIBILITY table for the supplied
+   * action. If there are any entries in the table but the that community entry is not in the ACL
+   * (supplied) then it adds the community entry to the ACL without any permission. Remember that
+   * the community entries in the table RXMENUVISIBILITY are menat to hide the action.
    *
-   * @param action the GUID of theaction for which the community visibility
-   * needs to be ported, assumed not <code>null</code>.
-   * @param acl ACL of the action with supplied action GUID, assumed not
-   * <code>null</code>. This ACL may be persisted, so it must be loaded as
-   * modifiable.
+   * @param action the GUID of theaction for which the community visibility needs to be ported,
+   *     assumed not <code>null</code>.
+   * @param acl ACL of the action with supplied action GUID, assumed not <code>null</code>. This ACL
+   *     may be persisted, so it must be loaded as modifiable.
    * @throws PSSecurityException
    */
   private void portCommunityAccess(IPSGuid action, IPSAcl acl) throws PSSecurityException {
@@ -262,8 +256,8 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
   }
 
   /**
-   * Gets the logstream to the current log file.  If configuration is
-   * <code>null</code>, System.out is returned.
+   * Gets the logstream to the current log file. If configuration is <code>null</code>, System.out
+   * is returned.
    */
   private PrintStream getLogger() {
     if (m_config != null) return m_config.getLogStream();

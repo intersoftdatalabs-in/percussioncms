@@ -47,16 +47,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSErrorHandler class defines the error handling rules (customizations)
- * for a particular server or application. The server and each
- * application may follow different error handling rules. As such, each
- * has its own PSErrorHandler object. This object is used to determine
- * what page should be returned when a particular error is encountered.
+ * The PSErrorHandler class defines the error handling rules (customizations) for a particular
+ * server or application. The server and each application may follow different error handling rules.
+ * As such, each has its own PSErrorHandler object. This object is used to determine what page
+ * should be returned when a particular error is encountered.
  *
- * @see         PSErrorManager
- * @see         com.percussion.design.objectstore.PSErrorWebPages
- * @see         com.percussion.design.objectstore.PSCustomError
- *
+ * @see PSErrorManager
+ * @see com.percussion.design.objectstore.PSErrorWebPages
+ * @see com.percussion.design.objectstore.PSCustomError
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
@@ -65,12 +63,16 @@ import org.w3c.dom.Node;
 public class PSErrorHandler {
 
   /**
-   * Constructs an error handler with the specified customizations. For each error, if a custom page is not defined, the default error page from {@link com.percussion.error.PSErrorManager} will be used. Use {@code null} if no custom error pages are defined.
+   * Constructs an error handler with the specified customizations. For each error, if a custom page
+   * is not defined, the default error page from {@link com.percussion.error.PSErrorManager} will be
+   * used. Use {@code null} if no custom error pages are defined.
    *
    * @param pages the custom error pages to use
-   * @param returnHtmlErrors if {@code true}, error response text is returned as HTML; otherwise, XML is used
+   * @param returnHtmlErrors if {@code true}, error response text is returned as HTML; otherwise,
+   *     XML is used
    * @param notify the notification settings
-   * @param rules the rules that determine when/if errors are to be written to the log. If {@code null}, logging is enabled for all errors.
+   * @param rules the rules that determine when/if errors are to be written to the log. If {@code
+   *     null}, logging is enabled for all errors.
    */
   public PSErrorHandler(
       PSMapClassToObject pages, boolean returnHtmlErrors, PSNotifier notify, PSLogger rules) {
@@ -80,16 +82,12 @@ public class PSErrorHandler {
     m_returnHtmlErrors = returnHtmlErrors;
   }
 
-  /**
-   * Convenience constructor enabling logging for all errors.
-   */
+  /** Convenience constructor enabling logging for all errors. */
   public PSErrorHandler(PSMapClassToObject pages, boolean returnHtmlErrors, PSNotifier notify) {
     this(pages, returnHtmlErrors, notify, null);
   }
 
-  /**
-   * Convenience constructor converting {@link PSErrorWebPages} to a map.
-   */
+  /** Convenience constructor converting {@link PSErrorWebPages} to a map. */
   public PSErrorHandler(PSErrorWebPages pages, PSNotifier notify, PSLogger rules) {
     this(
         createPageMapFromErrorPages(pages),
@@ -107,22 +105,18 @@ public class PSErrorHandler {
 
   /**
    * Report an error.
-   * <p>
-   * This is done by constructing the appropriate error object and
-   * passing it into this method. The following steps will occur with
-   * the error:
+   *
+   * <p>This is done by constructing the appropriate error object and passing it into this method.
+   * The following steps will occur with the error:
+   *
    * <ol>
-   * <li>the error will be logged (if the logging rules are enabled for
-   * this error)</li>
-   * <li>notification will be sent (if notification for this error
-   *      is enabled)</li>
-   * <li>the appropriate error output will be generated</li>
+   *   <li>the error will be logged (if the logging rules are enabled for this error)
+   *   <li>notification will be sent (if notification for this error is enabled)
+   *   <li>the appropriate error output will be generated
    * </ol>
    *
-   * @param   response      the response object to use to report the error
-   *                        to the user
-   *
-   * @param   error         the error to be reported
+   * @param response the response object to use to report the error to the user
+   * @param error the error to be reported
    */
   public void reportError(PSResponse response, PSLogError err) {
     // Log the message first (in case we hit more errors below)
@@ -163,8 +157,8 @@ public class PSErrorHandler {
   }
 
   /**
-   * When server is shut down, this method is called to send out all those pending
-   * error notifications.
+   * When server is shut down, this method is called to send out all those pending error
+   * notifications.
    */
   public void shutdown() {
     try {
@@ -201,10 +195,8 @@ public class PSErrorHandler {
   /**
    * Notify the requestor what went wrong.
    *
-   * @param   response      the response object to use to report the error
-   *                        to the user
-   *
-   * @param   err         the error to be reported
+   * @param response the response object to use to report the error to the user
+   * @param err the error to be reported
    */
   void notifyRequestor(PSResponse response, PSLogError err) {
     if (response == null) /* no response, nothing to do */ return;
@@ -367,7 +359,7 @@ public class PSErrorHandler {
   /**
    * Notify any administrators defined in the PSNotifier object.
    *
-   * @param   err         the error to be reported
+   * @param err the error to be reported
    */
   void notifyAdmins(PSLogError err) {
     if (m_notify == null) return;
@@ -710,9 +702,9 @@ public class PSErrorHandler {
   /**
    * Process when application authorization failure happened.
    *
-   * @param   rec      the recipient of the emails
-   * @param   err      the authorization error as a PSLogError object
-   * @param   queNotif   the object controls the sending of emails
+   * @param rec the recipient of the emails
+   * @param err the authorization error as a PSLogError object
+   * @param queNotif the object controls the sending of emails
    */
   private void processAppAuthorizationFailure(
       PSRecipient rec, PSLogError err, PSQueuedNotification queNotif) {
@@ -743,9 +735,9 @@ public class PSErrorHandler {
   /**
    * Process when backend authorization failure happened.
    *
-   * @param   rec      the recipient of the emails
-   * @param   err      the authorization error as a PSLogError object
-   * @param   queNotif   the object controls the sending of emails
+   * @param rec the recipient of the emails
+   * @param err the authorization error as a PSLogError object
+   * @param queNotif the object controls the sending of emails
    */
   private void processBackEndAuthorizationFailure(
       PSRecipient rec, PSLogError err, PSQueuedNotification queNotif) {
@@ -777,8 +769,8 @@ public class PSErrorHandler {
   /**
    * Get an integer classFlag based on the given className argument.
    *
-   * @param   className   the name of a java class
-   * @return                an integer classFlag associated with the className
+   * @param className the name of a java class
+   * @return an integer classFlag associated with the className
    */
   private int getClassFlagBasedUponClassName(String className) {
     int classFlag = -1;

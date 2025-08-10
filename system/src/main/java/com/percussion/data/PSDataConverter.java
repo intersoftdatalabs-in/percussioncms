@@ -34,53 +34,49 @@ import java.util.Optional;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * The PSDataConverter class is used to convert potential comparable data
- * from one certain type to another. When using this class, two kinds of data
- * with different type will be able to be compared with each other.
- * <p>
- * For example, suppose we have the following data:
- * {@code java.math.BigDecimal num = 10;}
- * {@code String oneNumberInString = "20";}
- * If we were asked to determine mathematically whether a number 10 is less than
- * the other number 20, then what we can do here is to convert oneNumberInString
- * from type String to type java.math.BigDecimal. Once this is done, since both
- * num and oneNumberInString are of the same type, mathematical operation can be
- * applied.
- * <p>
- * Currently, the convertible data types are BigDecimal, PSNumericLiteral, Date,
- * PSDateLiteral, String, PSTextLiteral, and File.
+ * The PSDataConverter class is used to convert potential comparable data from one certain type to
+ * another. When using this class, two kinds of data with different type will be able to be compared
+ * with each other.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>For example, suppose we have the following data: {@code java.math.BigDecimal num = 10;} {@code
+ * String oneNumberInString = "20";} If we were asked to determine mathematically whether a number
+ * 10 is less than the other number 20, then what we can do here is to convert oneNumberInString
+ * from type String to type java.math.BigDecimal. Once this is done, since both num and
+ * oneNumberInString are of the same type, mathematical operation can be applied.
+ *
+ * <p>Currently, the convertible data types are BigDecimal, PSNumericLiteral, Date, PSDateLiteral,
+ * String, PSTextLiteral, and File.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public final class PSDataConverter {
   /**
-   * Convert an object to one specified data type, if possible. However, this
-   * method will not convert type PSLiteralSet so that it won't be changed.
-   * To handle type PSLiteralSet which is quite complicated, in class
-   * com.percussion.data.PSConditionalEvaluator, method makeComparable2,
+   * Convert an object to one specified data type, if possible. However, this method will not
+   * convert type PSLiteralSet so that it won't be changed. To handle type PSLiteralSet which is
+   * quite complicated, in class com.percussion.data.PSConditionalEvaluator, method makeComparable2,
    * the data in the set is type determined and comparing operation performed.
-   * <p>
-   * If dateFormat is null, then our default formats will be activated one by one.
-   * This only happens when trying to convert a type of String or PSTextLiteral to
-   * a type of Date. A typical case is when data object is a String/PSTextLiteral,
-   * srcType is DATATYPE_TEXT, and dstType is DATATYPE_DATE. If data is not in
-   * a supported date format pattern, then a IllegalArgumentException is thrown.
-   * <p>
-   * With default format being activated, here are some working cases:
+   *
+   * <p>If dateFormat is null, then our default formats will be activated one by one. This only
+   * happens when trying to convert a type of String or PSTextLiteral to a type of Date. A typical
+   * case is when data object is a String/PSTextLiteral, srcType is DATATYPE_TEXT, and dstType is
+   * DATATYPE_DATE. If data is not in a supported date format pattern, then a
+   * IllegalArgumentException is thrown.
+   *
+   * <p>With default format being activated, here are some working cases:
+   *
    * <ol>
-   * <li>"1999-08-12 00:00:00.123"</li>
-   * <li>"1999.08.12"</li>
-   * <li>"1999.08.12 AD"</li>
-   * <li>"1999.08.12 AD at 14:04:24"</li>
-   * <li>"1999.08.12 at 01:01:01 PDT"</li>
+   *   <li>"1999-08-12 00:00:00.123"
+   *   <li>"1999.08.12"
+   *   <li>"1999.08.12 AD"
+   *   <li>"1999.08.12 AD at 14:04:24"
+   *   <li>"1999.08.12 at 01:01:01 PDT"
    * </ol>
    *
    * @param data the object to convert, may be {@code null}
    * @param dstType the data type to convert to
    * @param dateFormat the dateFormat of a string representing a date, may be {@code null}
-   *
    * @return the converted object, may be {@code null}
    * @throws IllegalArgumentException if conversion is not possible
    */
@@ -113,9 +109,8 @@ public final class PSDataConverter {
   }
 
   /**
-   * Convert a text object delimited by commas or a List of objects
-   * to PSLiteralSet of either PSTextLiteral or PSNumericLiteral or
-   * PSDateLiteral.
+   * Convert a text object delimited by commas or a List of objects to PSLiteralSet of either
+   * PSTextLiteral or PSNumericLiteral or PSDateLiteral.
    *
    * @param data the object to convert, must not be {@code null}
    * @return the converted object, never {@code null}

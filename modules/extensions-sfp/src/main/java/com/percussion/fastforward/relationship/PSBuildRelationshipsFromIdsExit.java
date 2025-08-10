@@ -36,9 +36,9 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * This class is intended to be used as a post-exit on a content editor
- * resource, to create relationships in a specific slot with the request's
- * current item as the dependent and owners determined by a field's value.
+ * This class is intended to be used as a post-exit on a content editor resource, to create
+ * relationships in a specific slot with the request's current item as the dependent and owners
+ * determined by a field's value.
  *
  * @author James Schultz
  * @since 6.0
@@ -53,35 +53,31 @@ public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
   }
 
   /**
-   * Maintains active-assembly-style relationships between the request's
-   * content item and a list of content items -- missing relationships will be
-   * created, existing relationships with items not in the list will be
-   * deleted. The request's content item is the dependent, and the list of
-   * content items become its parents. The details of the relationship are
-   * provided as parameters (relationship type, slot id, and variant id).
+   * Maintains active-assembly-style relationships between the request's content item and a list of
+   * content items -- missing relationships will be created, existing relationships with items not
+   * in the list will be deleted. The request's content item is the dependent, and the list of
+   * content items become its parents. The details of the relationship are provided as parameters
+   * (relationship type, slot id, and variant id).
    *
    * @param params three expected parameters, all required:
-   * <ul>
-   * <li>
-   * <dt>fieldname</dt>
-   * <dd>name of content editor field that contains desired parent ids</dd>
-   * </li>
-   * <li>
-   * <dt>slotname</dt>
-   * <dd>name of slot whose parents will be synchronized to match field value</dd>
-   * </li>
-   * <li>
-   * <dt>templatename</dt>
-   * <dd>name of template that will be assigned to created relationships</dd>
-   * </li>
-   * </ul>
+   *     <ul>
+   *       <li>
+   *       <dt>fieldname
+   *       <dd>name of content editor field that contains desired parent ids
+   *       <li>
+   *       <dt>slotname
+   *       <dd>name of slot whose parents will be synchronized to match field value
+   *       <li>
+   *       <dt>templatename
+   *       <dd>name of template that will be assigned to created relationships
+   *     </ul>
+   *
    * @param request the current request context, not <code>null</code>.
-   * @param resultDoc the request's result XML document. not modified by this
-   *           exit. may be <code>null</code>.
+   * @param resultDoc the request's result XML document. not modified by this exit. may be <code>
+   *     null</code>.
    * @return the supplied <code>resultDoc</code>, without modification
    * @throws PSParameterMismatchException if any required parameter is blank.
-   * @throws PSExtensionProcessingException if the assembly or relationship
-   *            APIs report an error.
+   * @throws PSExtensionProcessingException if the assembly or relationship APIs report an error.
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, final Document resultDoc)
@@ -143,8 +139,6 @@ public class PSBuildRelationshipsFromIdsExit extends PSDefaultExtension
     return resultDoc;
   }
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSBuildRelationshipsFromIdsExit.class);
 }

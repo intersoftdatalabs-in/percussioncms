@@ -31,12 +31,10 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 /**
- * PSUpdateWarFiles updates the War files by adding jar files to the
- * "WEB-INF/lib" directory during install.
+ * PSUpdateWarFiles updates the War files by adding jar files to the "WEB-INF/lib" directory during
+ * install. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -58,7 +56,6 @@ import java.util.jar.JarOutputStream;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpdateWarFiles extends PSAction {
   // see base class
@@ -94,8 +91,8 @@ public class PSUpdateWarFiles extends PSAction {
    ***************************************************************************/
 
   /**
-   * Updates the war file <code>warFile</code> by adding the jar files listed
-   * in <code>jarFiles</code> to the  WEB-INF/lib directory of the war file.
+   * Updates the war file <code>warFile</code> by adding the jar files listed in <code>jarFiles
+   * </code> to the WEB-INF/lib directory of the war file.
    */
   public void updateWarFile() {
     File jarFile = new File(m_warFilePath);
@@ -218,6 +215,7 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Copies jar entry from one jar to another.
+   *
    * @param srcJarFile src. jar file to copy entries from.
    * @param destJar dest. jar output stream to copy entry into.
    * @param srcJarEntry jarentry to copy to the dest jar.
@@ -246,8 +244,8 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Returns the absolute path of the war file.
-   * @return the absolute path of the war file,
-   * never <code>null</code> or empty
+   *
+   * @return the absolute path of the war file, never <code>null</code> or empty
    */
   public String getWarFile() {
     return m_warFilePath;
@@ -255,10 +253,9 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Sets the absolute path of the war file.
-   * @param warFile the absolute path of the war file,
-   * never <code>null</code> or empty
-   * @throws IllegalArgumentException if warFile is <code>null</code>
-   * or empty
+   *
+   * @param warFile the absolute path of the war file, never <code>null</code> or empty
+   * @throws IllegalArgumentException if warFile is <code>null</code> or empty
    */
   public void setWarFile(String warFile) {
     if ((warFile == null) || (warFile.trim().length() < 1))
@@ -267,22 +264,22 @@ public class PSUpdateWarFiles extends PSAction {
   }
 
   /**
-   * Returns the path of the jar files which should be prepended to the jar file
-   * name, when adding the jar file to the new war file.
-   * @return the path of the jar files which should be prepended to the jar file
-   * name, when adding the jar file to the new war file,
-   * never <code>null</code>, may be empty
+   * Returns the path of the jar files which should be prepended to the jar file name, when adding
+   * the jar file to the new war file.
+   *
+   * @return the path of the jar files which should be prepended to the jar file name, when adding
+   *     the jar file to the new war file, never <code>null</code>, may be empty
    */
   public String getJarFilesPath() {
     return jarFilesPath;
   }
 
   /**
-   * Sets the path of the jar files which should be prepended to the jar file
-   * name, when adding the jar file to the new war file.
-   * @param jarFilesPath the path of the jar files which should be prepended
-   * to the jar file name, when adding the jar file to the new war file,
-   * may be <code>null</code> or empty
+   * Sets the path of the jar files which should be prepended to the jar file name, when adding the
+   * jar file to the new war file.
+   *
+   * @param jarFilesPath the path of the jar files which should be prepended to the jar file name,
+   *     when adding the jar file to the new war file, may be <code>null</code> or empty
    */
   public void setJarFilesPath(String jarFilesPath) {
     if (jarFilesPath == null) jarFilesPath = "";
@@ -291,8 +288,8 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Returns the list of jar files to be added to the war file.
-   * @return list of war to be added to the war file, may be <code>null</code>
-   * or empty array.
+   *
+   * @return list of war to be added to the war file, may be <code>null</code> or empty array.
    */
   public String[] getJarFiles() {
     return m_jarFiles;
@@ -300,8 +297,9 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Sets the list of jar files to be added to the war file.
-   * @param jarFiles list of jar files to be added to the war file,
-   * may be <code>null</code> or empty array.
+   *
+   * @param jarFiles list of jar files to be added to the war file, may be <code>null</code> or
+   *     empty array.
    */
   public void setJarFiles(String[] jarFiles) {
     this.m_jarFiles = jarFiles;
@@ -309,6 +307,7 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Set isRemoveFiles.
+   *
    * @param b
    */
   public void setRemoveFiles(boolean b) {
@@ -317,6 +316,7 @@ public class PSUpdateWarFiles extends PSAction {
 
   /**
    * Is RemoveFiles?.
+   *
    * @return
    */
   public boolean isRemoveFiles() {
@@ -328,25 +328,23 @@ public class PSUpdateWarFiles extends PSAction {
    **************************************************************************/
 
   /**
-   * Path of the war file to update, never <code>null</code> or empty.
-   * The path contains the path of the war file relative to the Rhythmyx root.
-   * The war file should already be installed on the destination system.
+   * Path of the war file to update, never <code>null</code> or empty. The path contains the path of
+   * the war file relative to the Rhythmyx root. The war file should already be installed on the
+   * destination system.
    */
   private String m_warFilePath = "InstallableApps/RemotePublisher/Rhythmyx.war";
 
   /**
-   * The path of the jar files which should be prepended to the jar file name,
-   * when adding the jar file to the new war file.
-   * For example, for jar files in the soap.jar file, this will be equal
+   * The path of the jar files which should be prepended to the jar file name, when adding the jar
+   * file to the new war file. For example, for jar files in the soap.jar file, this will be equal
    * to "soap/WEB-INF/lib". Never <code>null</code>, may be empty.
    */
   private String jarFilesPath = "soap/WEB-INF/lib/";
 
   /**
-   * The list of jar files to be added to the WEB-INF/lib directory of the war
-   * file, may be <code>null</code> or empty array. The files in this list
-   * should already be installed on the destination system. The path is
-   * relative to the Rhythmyx root.
+   * The list of jar files to be added to the WEB-INF/lib directory of the war file, may be <code>
+   * null</code> or empty array. The files in this list should already be installed on the
+   * destination system. The path is relative to the Rhythmyx root.
    */
   private String[] m_jarFiles =
       new String[] {
@@ -354,9 +352,7 @@ public class PSUpdateWarFiles extends PSAction {
         "rxconfig/Installer/temp/soap/WEB-INF/lib/rxportal.jar"
       };
 
-  /**
-   * Flag that indicates that we want to remove a file.
-   */
+  /** Flag that indicates that we want to remove a file. */
   private boolean m_isRemoveFiles = false;
 
   /**************************************************************************

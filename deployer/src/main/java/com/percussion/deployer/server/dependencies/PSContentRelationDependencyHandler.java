@@ -78,21 +78,16 @@ import java.util.Set;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-/**
- * Class to handle packaging and deploying a content relation definition.
- */
+/** Class to handle packaging and deploying a content relation definition. */
 public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandler
     implements IPSIdTypeHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentRelationDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -214,20 +209,20 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentDef</li>
-   * <li>Folder</li>
-   * <li>Relationship</li>
-   * <li>Site</li>
-   * <li>Slot</li>
-   * <li>VariantDef</li>
+   *   <li>ContentDef
+   *   <li>Folder
+   *   <li>Relationship
+   *   <li>Site
+   *   <li>Slot
+   *   <li>VariantDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -473,15 +468,12 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   /**
-   * Gets the list of unknown properties from the supplied relationship.
-   * Known property names defined by {@link #ms_propertyTypes} are not included
-   * in the results.
+   * Gets the list of unknown properties from the supplied relationship. Known property names
+   * defined by {@link #ms_propertyTypes} are not included in the results.
    *
-   * @param relationship The relationship whose properties are to be retrieved,
-   * assumed not <code>null</code>.
-   *
-   * @return The list of <code>PSProperty</code> objects, never
-   * <code>null</code>, may be empty.
+   * @param relationship The relationship whose properties are to be retrieved, assumed not <code>
+   *     null</code>.
+   * @return The list of <code>PSProperty</code> objects, never <code>null</code>, may be empty.
    */
   private List getUnknownProperties(PSRelationship relationship) {
     List propList = new ArrayList();
@@ -504,14 +496,10 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * Transform child ids in the supplied relationship
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param ctx The current install context to use, assumed not
-   * <code>null</code>.
+   * @param ctx The current install context to use, assumed not <code>null</code>.
    * @param rel The relationship to transform, assumed not <code>null</code>.
-   *
-   * @return The new slot id if one is specified by the relationship
-   * properties, <code>null</code> if not or if transforms are not required,
-   * never empty.
-   *
+   * @return The new slot id if one is specified by the relationship properties, <code>null</code>
+   *     if not or if transforms are not required, never empty.
    * @throws PSDeployException if there are any errors.
    */
   private String transformIds(PSSecurityToken tok, PSImportCtx ctx, PSRelationship rel)
@@ -563,28 +551,23 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   /**
-   * Updates the inline link text with new ids in any item field for which
-   * inline slot relationships are being installed, and saves those item rows
-   * back to the server.  Also updates the inline inlinelinkfield property of
-   * any relationship that represents an inline link in a child item, and
-   * returns any such modified relationships so they may be resaved.
+   * Updates the inline link text with new ids in any item field for which inline slot relationships
+   * are being installed, and saves those item rows back to the server. Also updates the inline
+   * inlinelinkfield property of any relationship that represents an inline link in a child item,
+   * and returns any such modified relationships so they may be resaved.
    *
-   * @param dep The dependency for which relationships are being installed,
-   * assumed not <code>null</code>.
-   * @param ctx The current installation context, assumed not
-   * <code>null</code>.
-   * @param contentId The content id of the parent item for which relationships
-   * are being installed, assumed not <code>null</code> or empty.
-   * @param relationshipMap A map of inline relationships being installed for
-   * which link text requires modification.  The key is the source server
-   * relationship id as an <code>Integer</code>, value is the matching
-   * {@link PSRelationship} object that has already been saved to the local
-   * server and thus has valid target server ids.  Assumed not
-   * <code>null</code>, or empty.
-   *
-   * @return The set of modified relationships that require saving, never
-   * <code>null</code>, may be empty.
-   *
+   * @param dep The dependency for which relationships are being installed, assumed not <code>null
+   *     </code>.
+   * @param ctx The current installation context, assumed not <code>null</code>.
+   * @param contentId The content id of the parent item for which relationships are being installed,
+   *     assumed not <code>null</code> or empty.
+   * @param relationshipMap A map of inline relationships being installed for which link text
+   *     requires modification. The key is the source server relationship id as an <code>Integer
+   *     </code>, value is the matching {@link PSRelationship} object that has already been saved to
+   *     the local server and thus has valid target server ids. Assumed not <code>null</code>, or
+   *     empty.
+   * @return The set of modified relationships that require saving, never <code>null</code>, may be
+   *     empty.
    * @throws PSDeployException if there are any errors.
    */
   private PSRelationshipSet updateInlineLinks(
@@ -609,27 +592,23 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   /**
-   * Recursively processes the supplied fieldset.  Walks the fields and for any
-   * that support inline links, gets the corresponding row from the repository
-   * and fixes up the inline text with correct ids.
+   * Recursively processes the supplied fieldset. Walks the fields and for any that support inline
+   * links, gets the corresponding row from the repository and fixes up the inline text with correct
+   * ids.
    *
-   * @param dep The dependency for which relationships are being installed,
-   * assumed not <code>null</code>.
-   * @param ctx The current installation context, assumed not
-   * <code>null</code>.
-   * @param contentid The content id of the parent item for which relationships
-   * are being installed, assumed not <code>null</code> or empty.
-   * @param fieldSet The fieldset being processed, assumed not
-   * <code>null</code>.
-   * @param relationshipMap A map of inline relationships being installed for
-   * which link text requires modification.  The key is the source server
-   * relationship id as an <code>Integer</code>, value is the matching
-   * {@link PSRelationship} object that has already been saved to the local
-   * server and thus has valid target server ids.  Assumed not
-   * <code>null</code>, or empty.
-   * @param modifiedSet The set of modified relationships that require saving,
-   * populated by this method, assumed not <code>null</code>, may be empty.
-   *
+   * @param dep The dependency for which relationships are being installed, assumed not <code>null
+   *     </code>.
+   * @param ctx The current installation context, assumed not <code>null</code>.
+   * @param contentid The content id of the parent item for which relationships are being installed,
+   *     assumed not <code>null</code> or empty.
+   * @param fieldSet The fieldset being processed, assumed not <code>null</code>.
+   * @param relationshipMap A map of inline relationships being installed for which link text
+   *     requires modification. The key is the source server relationship id as an <code>Integer
+   *     </code>, value is the matching {@link PSRelationship} object that has already been saved to
+   *     the local server and thus has valid target server ids. Assumed not <code>null</code>, or
+   *     empty.
+   * @param modifiedSet The set of modified relationships that require saving, populated by this
+   *     method, assumed not <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
   private void processFieldSet(
@@ -779,16 +758,12 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   /**
-   * Get all relationships of the specified type where the parent is specified
-   * by the supplied id.
+   * Get all relationships of the specified type where the parent is specified by the supplied id.
    *
    * @param tok The security token, assumed not <code>null</code>.
-   * @param id The dependency id of the relationship def, assumed not
-   * <code>null</code> or empty.
-   *
-   * @return An iterator over zero or more <code>PSRelationship</code> objects,
-   * never <code>null</code>.
-   *
+   * @param id The dependency id of the relationship def, assumed not <code>null</code> or empty.
+   * @return An iterator over zero or more <code>PSRelationship</code> objects, never <code>null
+   *     </code>.
    * @throws PSDeployException if there are any errors.
    */
   private Iterator getRelationships(PSSecurityToken tok, String id) throws PSDeployException {
@@ -811,22 +786,19 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_RELATION;
 
   /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code>, entries are added by a static intializer.
+   * List of child types supported by this handler, it will never be <code>null</code>, entries are
+   * added by a static intializer.
    */
   private static List ms_childTypes = new ArrayList();
 
   /**
-   * Map of property names to their associated child handler types, never
-   * <code>null</code>, entries are added by a static intializer.  If a
-   * property name is known, but does not have a corresponding dependency type,
-   * the value will be <code>null</code>.
+   * Map of property names to their associated child handler types, never <code>null</code>, entries
+   * are added by a static intializer. If a property name is known, but does not have a
+   * corresponding dependency type, the value will be <code>null</code>.
    */
   private static Map ms_propertyTypes = new HashMap();
 

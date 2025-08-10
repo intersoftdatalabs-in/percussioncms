@@ -31,33 +31,29 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Splits supplied date into its components and sets as request parameters with
- * specified parameter names.
+ * Splits supplied date into its components and sets as request parameters with specified parameter
+ * names.
  *
- * The first parameter is the source date. Typically a string. If other than
- * string object is supplied, a toString() will be performed on the object and
- * then parsed as date.
+ * <p>The first parameter is the source date. Typically a string. If other than string object is
+ * supplied, a toString() will be performed on the object and then parsed as date.
  *
- * Second parameter, which is optional is the name of the html parameter to set
- * the year of the date parsed. If not specified, year will not be set into the
- * request parameters.
+ * <p>Second parameter, which is optional is the name of the html parameter to set the year of the
+ * date parsed. If not specified, year will not be set into the request parameters.
  *
- * Third parameter, which is optional is the name of the html parameter to set
- * the month of the date parsed. The month will be 1 based, e.g. 1 for January 2
- * for February etc. If not specified, month will not be set into the request
- * parameters.
+ * <p>Third parameter, which is optional is the name of the html parameter to set the month of the
+ * date parsed. The month will be 1 based, e.g. 1 for January 2 for February etc. If not specified,
+ * month will not be set into the request parameters.
  *
- * Fourth parameter, which is optional is the name of the html parameter to set
- * the date of the date parsed. The date will be 1 based, e.g. 1 for 1st day of
- * the month 2 for 2nd day of the month etc. If not specified, date will not be
- * set into the request parameters.
+ * <p>Fourth parameter, which is optional is the name of the html parameter to set the date of the
+ * date parsed. The date will be 1 based, e.g. 1 for 1st day of the month 2 for 2nd day of the month
+ * etc. If not specified, date will not be set into the request parameters.
  */
 public class PSSplitDateParam implements IPSRequestPreProcessor {
   /**
    * See the class description above for parameter details.
    *
-   * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(
-   *       java.lang.Object[], com.percussion.server.IPSRequestContext)
+   * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest( java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext)
    */
   @SuppressWarnings("unused")
   public void preProcessRequest(Object[] params, IPSRequestContext request)

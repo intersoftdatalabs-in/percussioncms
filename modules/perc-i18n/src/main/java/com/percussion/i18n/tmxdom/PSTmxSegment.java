@@ -21,18 +21,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
- * This class wraps the functionality of segment DOM element as an easy to use
- * TMX node. The TMX counterpart provides methods to manipulate the segment, the
- * most important one being to merge two nodes appying the merge configuration.
+ * This class wraps the functionality of segment DOM element as an easy to use TMX node. The TMX
+ * counterpart provides methods to manipulate the segment, the most important one being to merge two
+ * nodes appying the merge configuration.
  */
 public class PSTmxSegment extends PSTmxLeafNode implements IPSTmxSegment {
   /**
-   * Constructor. Takes the parent TMX document object and the DOM element
-   * representing the segment. The value of the segment is constructed from the
-   * supplied DOM element.
+   * Constructor. Takes the parent TMX document object and the DOM element representing the segment.
+   * The value of the segment is constructed from the supplied DOM element.
+   *
    * @param tmxdoc parent TMX document, nust not be <code>null</code>.
-   * @param seg DOM element for the segment to be contstructed, must not be
-   * <code>null</code>.
+   * @param seg DOM element for the segment to be contstructed, must not be <code>null</code>.
    * @throws IllegalArgumentException if tmxDoc or seg is <code>null</code>
    */
   PSTmxSegment(IPSTmxDocument tmxdoc, Element seg) {

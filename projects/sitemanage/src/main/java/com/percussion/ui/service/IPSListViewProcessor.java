@@ -22,20 +22,18 @@ import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 /**
  * Provides additional processing for the {@link IPSListViewHelper}.
  *
- * <p>
- * Refactored for Java 11 and Google Java Style.
- * </p>
+ * <p>Refactored for Java 11 and Google Java Style.
  *
  * @author JaySeletz
  */
 public interface IPSListViewProcessor {
-    String TEMPLATE_NAME = "templateName";
-    String LINK_TEXT = "linkText";
+  String TEMPLATE_NAME = "templateName";
+  String LINK_TEXT = "linkText";
 
-    /**
-     * Process the items in the supplied criteria.
-     *
-     * @param criteria The criteria to process, not {@code null}.
-     */
-    void process(PSDisplayPropertiesCriteria criteria);
+  /**
+   * Process the items in the supplied criteria.
+   *
+   * @param criteria The criteria to process, not {@code null}.
+   */
+  void process(PSDisplayPropertiesCriteria criteria);
 }

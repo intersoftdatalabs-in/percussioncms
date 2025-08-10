@@ -27,18 +27,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class encapsulates a list of database information mapping objects,
- * <code>PSDbmsMapping</code>, for a source server.
+ * This class encapsulates a list of database information mapping objects, <code>PSDbmsMapping
+ * </code>, for a source server.
  */
 public class PSDbmsMap implements IPSDeployComponent {
   /**
    * Creating an object from a source server name.
    *
-   * @param server The name of the source server. It may not be empty or
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>server</code> is
-   * <code>null</code> or empty.
+   * @param server The name of the source server. It may not be empty or <code>null</code>.
+   * @throws IllegalArgumentException If <code>server</code> is <code>null</code> or empty.
    */
   public PSDbmsMap(String server) {
     if (server == null || server.trim().length() == 0)
@@ -50,11 +47,9 @@ public class PSDbmsMap implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSDbmsMap(Element source) throws PSUnknownNodeTypeException {
@@ -66,8 +61,7 @@ public class PSDbmsMap implements IPSDeployComponent {
   /**
    * Get the name of the source server.
    *
-   * @return The name of source server, it will never be <code>null</code> or
-   * empty.
+   * @return The name of source server, it will never be <code>null</code> or empty.
    */
   public String getSourceServer() {
     return m_srcServer;
@@ -76,8 +70,8 @@ public class PSDbmsMap implements IPSDeployComponent {
   /**
    * Get a list of <code>PSDbmsMapping</code> objects.
    *
-   * @return an Iterator over zero or more <code>PSDbmsMapping</code> objects,
-   * never <code>null</code>, but might be empty.
+   * @return an Iterator over zero or more <code>PSDbmsMapping</code> objects, never <code>null
+   *     </code>, but might be empty.
    */
   public Iterator<PSDbmsMapping> getMappings() {
     return m_mappingList.iterator();
@@ -87,9 +81,7 @@ public class PSDbmsMap implements IPSDeployComponent {
    * Add an <code>PSDbmsMapping</code> object.
    *
    * @param mapping The mapping to be added, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>mapping</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException If <code>mapping</code> is <code>null</code>.
    */
   public void addMapping(PSDbmsMapping mapping) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -98,15 +90,12 @@ public class PSDbmsMap implements IPSDeployComponent {
   }
 
   /**
-   * Removes the supplied <code>PSDbmsMapping</code> object if it exists in the
-   * map. Uses {@link #getMapping(PSDbmsInfo) getMapping(sourceInfo)} for
-   * checking existance of mapping.
+   * Removes the supplied <code>PSDbmsMapping</code> object if it exists in the map. Uses {@link
+   * #getMapping(PSDbmsInfo) getMapping(sourceInfo)} for checking existance of mapping.
    *
-   * @param mapping The <code>PSDbmsMapping</code> object to be removed, may
-   * not be <code>null</code>
-   *
-   * @throws IllegalArgumentException If <code>mapping</code> is
-   * <code>null</code>.
+   * @param mapping The <code>PSDbmsMapping</code> object to be removed, may not be <code>null
+   *     </code>
+   * @throws IllegalArgumentException If <code>mapping</code> is <code>null</code>.
    */
   public void removeMapping(PSDbmsMapping mapping) {
     if (mapping == null) throw new IllegalArgumentException("mappinge may not be null");
@@ -119,13 +108,10 @@ public class PSDbmsMap implements IPSDeployComponent {
   /**
    * Gets the mapping with the specified source info.
    *
-   * @param sourceInfo The source info to use to locate the mapping.  The
-   * mapping with the matching source info will be returned.
-   *
+   * @param sourceInfo The source info to use to locate the mapping. The mapping with the matching
+   *     source info will be returned.
    * @return the mapping, may be <code>null</code> if none found.
-   *
-   * @throws IllegalArgumentException If <code>sourceInfo</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException If <code>sourceInfo</code> is <code>null</code>.
    */
   public PSDbmsMapping getMapping(String sourceInfo) {
     if (sourceInfo == null || sourceInfo.trim().isEmpty()) {
@@ -139,7 +125,8 @@ public class PSDbmsMap implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXDbmsMap (PSXDbmsMapping*)>
    * &lt;!ATTLIST PSXDbmsMap
@@ -147,9 +134,8 @@ public class PSDbmsMap implements IPSDeployComponent {
    * ...
    * </code></pre>
    *
-   * See {@link IPSDeployComponent#toXml(Document)} for more info.
-   * See {@link PSDbmsMapping#toXml(Document)} for the XML format of
-   * PSXDbmsMapping element.
+   * See {@link IPSDeployComponent#toXml(Document)} for more info. See {@link
+   * PSDbmsMapping#toXml(Document)} for the XML format of PSXDbmsMapping element.
    */
   public Element toXml(Document doc) {
     if (doc == null) {
@@ -165,9 +151,8 @@ public class PSDbmsMap implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -234,27 +219,21 @@ public class PSDbmsMap implements IPSDeployComponent {
     return bEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDbmsMap";
 
-  /**
-   * The source server name as the attribute of the XML root node.
-   */
+  /** The source server name as the attribute of the XML root node. */
   private static final String XML_ATTR_SRC_SERVER = "sourceServer";
 
   /**
-   * The source server name. Initialized by the constructor, after that,
-   * only modified by <code>fromXml() and copyFrom()</code>, never empty
-   * or <code>null</code>.
+   * The source server name. Initialized by the constructor, after that, only modified by <code>
+   * fromXml() and copyFrom()</code>, never empty or <code>null</code>.
    */
   private String m_srcServer;
 
   /**
-   * A list of <code>PSDbmsMapping</code> objects. Initialized here, modified
-   * by <code>fromXml(), addMapping() and copyFrom()</code> can never to
-   * <code>null</code>.
+   * A list of <code>PSDbmsMapping</code> objects. Initialized here, modified by <code>
+   * fromXml(), addMapping() and copyFrom()</code> can never to <code>null</code>.
    */
   private List<PSDbmsMapping> m_mappingList = new ArrayList<>();
   ;

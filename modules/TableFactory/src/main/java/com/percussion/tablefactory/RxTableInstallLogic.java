@@ -29,55 +29,34 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is a place holder for several global constants or variables that
- * need to be evaluated only once.
- *
+ * This class is a place holder for several global constants or variables that need to be evaluated
+ * only once.
  */
 public class RxTableInstallLogic {
 
   private static final Logger log = LogManager.getLogger(RxTableInstallLogic.class);
 
-  /**
-   * Role delimiter (in role list)
-   */
+  /** Role delimiter (in role list) */
   private static final String ROLE_DELIMITER = ",";
 
-  /**
-   * Name of the properties file.
-   */
+  /** Name of the properties file. */
   public static final String FILE_PROPERTIES = "rxworkflow.properties";
 
-  /**
-   * Debug flag, when set to true additonal logging is done.
-   */
+  /** Debug flag, when set to true additonal logging is done. */
   public static boolean m_bDebug = false;
 
-  /**
-   * Name fo the file for logging. This typycally specified in the Properties
-   * file
-   *
-   */
+  /** Name fo the file for logging. This typycally specified in the Properties file */
   public static String m_sLogFile = null;
 
-  /**
-   * Default name for storing the new state id when transition takes place.
-   */
+  /** Default name for storing the new state id when transition takes place. */
   public static String DEFAULT_NEWSTATEID_NAME = "newstateid";
 
-  /**
-   * Default name for storing the transition id.
-   */
+  /** Default name for storing the transition id. */
   public static String DEFAULT_TRANSITIONID_NAME = "transitionid";
 
   /**
-   * Installer Options
-   *   Table works as followed :
-   *             Yes  No   Ignore    No Action
-   *             ===  ==  ========  ===========
-   *    CREATE    1    2     3          0
-   *    ALTER     1    2     3          0
-   *    DELETE    1    2     3          0
-   *
+   * Installer Options Table works as followed : Yes No Ignore No Action === == ======== ===========
+   * CREATE 1 2 3 0 ALTER 1 2 3 0 DELETE 1 2 3 0
    */
   public static final int CREATE_NONE = 0;
 
@@ -93,9 +72,7 @@ public class RxTableInstallLogic {
   public static final int DELETE_NO = 2;
   public static final int DELETE_NOT = 3;
 
-  /**
-   * Error Messages ref write option to Disk.
-   */
+  /** Error Messages ref write option to Disk. */
   public static final int SUCCESS = 0;
 
   public static final int WRITE_ERRROR = 1;
@@ -105,12 +82,9 @@ public class RxTableInstallLogic {
   public static final int UNKNOWN_FAILURE = 5;
 
   /**
-   * Flags for writing to disk
-   * CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
-   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists
-   * APPEND_CREATE = Append to file. Create file if doesn't exist
-   * APPEND = Append to existing file. Fail if doen't exist.
-   *
+   * Flags for writing to disk CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
+   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists APPEND_CREATE = Append
+   * to file. Create file if doesn't exist APPEND = Append to existing file. Fail if doen't exist.
    */
   public static final int CREATE_NEW_OVERWRITE = 0;
 
@@ -125,39 +99,28 @@ public class RxTableInstallLogic {
   public static final int TABLE_ALTER_NO = 5;
 
   /**
-   * Preset file name which the old data is stored in if system
-   * fails to insert them back into the new tables.
-   *
+   * Preset file name which the old data is stored in if system fails to insert them back into the
+   * new tables.
    */
   public static String PS_OLD_DATA_FILENAME = new String("ps_org_tbl_data.xml");
 
   public static String PS_OLD_DTD_FILENAME = new String("ps_org_tbl_def.xml");
 
-  /**
-   * error constants
-   */
+  /** error constants */
   public static final int ERROR_INVALID_NMBER_OF_PARAMETERS = 7006;
 
   public static final int ERROR_INVALID_PARAMETER_TYPE = 7003;
   public static final int ERROR_AUTHORIZATION_FAILURE = 1203;
 
-  /**
-   * Instantiation of empty properties. File will be loaded later.
-   *
-   */
+  /** Instantiation of empty properties. File will be loaded later. */
   public static Properties properties = new Properties();
 
   /**
-   *
-   * AssignmentType:
-   *   0 - Not in workflow - Either the user is not in any role, or all of his roles
-   *      are not listed in the workflow definition
-   *   1 - None - User is in a role, but the role is not assigned for this state
-   *   2 - Reader - User is in a role assigned as Reader
-   *   3 - Assignee - User is assigned to transition the document
-   *  4 - Admin - User is an administrator in this Workflow.  Administrators have
-   *      all rights
-   *
+   * AssignmentType: 0 - Not in workflow - Either the user is not in any role, or all of his roles
+   * are not listed in the workflow definition 1 - None - User is in a role, but the role is not
+   * assigned for this state 2 - Reader - User is in a role assigned as Reader 3 - Assignee - User
+   * is assigned to transition the document 4 - Admin - User is an administrator in this Workflow.
+   * Administrators have all rights
    */
   public static final int ASSIGNMENT_TYPE_NOT_IN_WORKFLOW = 0;
 
@@ -167,21 +130,14 @@ public class RxTableInstallLogic {
   public static final int ASSIGNMENT_TYPE_ADMIN = 4;
 
   /**
-   *
-   * HTML Parameter name that stores the current user's assignment type.
-   * authenticateUser exit adds this to the list and performTransition may modify,
-   * if required.
-   *
+   * HTML Parameter name that stores the current user's assignment type. authenticateUser exit adds
+   * this to the list and performTransition may modify, if required.
    */
   public static final String ASSIGNMENT_TYPE_CURRENT_USER = "assignmenttypecurrentuser";
 
   /**
-   *
-   * Document check out status values
-   *   0 - Not checked-out by anybody
-   *   1 - Checked out by current user
-   *   2 - Checked out by some body else
-   *
+   * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
+   * 2 - Checked out by some body else
    */
   public static final int CHECKOUT_STATUS_NONE = 0;
 
@@ -189,29 +145,18 @@ public class RxTableInstallLogic {
   public static final int CHECKOUT_STATUS_OTHER = 2;
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout status.
-   * authenticateUser exit adds this to the list and performTransition may modify,
-   * if required.
-   *
+   * HTML Parameter name that stores the current document's checkout status. authenticateUser exit
+   * adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_STATUS_CURRENT_DOCUMENT = "checkoutstatuscurrentdocument";
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout user name.
-   * authenticateUser exit adds this to the list and performTransition may modify,
-   * if required.
-   *
+   * HTML Parameter name that stores the current document's checkout user name. authenticateUser
+   * exit adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_USER_NAME = "checkoutusername";
 
-  /**
-   *
-   * HTML Parameter name that stores the content status history id after writing
-   * the history.
-   *
-   */
+  /** HTML Parameter name that stores the content status history id after writing the history. */
   public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
 
   /*
@@ -275,14 +220,11 @@ public class RxTableInstallLogic {
 
   /**
    * Helper function to compare two role lists
+   *
    * @param assignmentTypeList - ArrayList containing assignment types as Integers
-   *
    * @param roleList - first role list as ArrayList;
-   *
    * @param sRoleList - the second role list as comma separated list
-   *
    * @return the assignment type - -ne of the values defined in this file (RxTableInstallLogic.java)
-   *
    */
   public static int compareRoleList(
       ArrayList assignmentTypeList, ArrayList roleList, String sRoleList) {
@@ -364,14 +306,13 @@ public class RxTableInstallLogic {
   }
 
   /**
-   * Helper function that returns user name after last comma.
-   * This is usefule when we need to extract actual user name out of the user name that is obtainable
-   * by user contex/username. This has of the form: host1,host2,host3,host4,username.
+   * Helper function that returns user name after last comma. This is usefule when we need to
+   * extract actual user name out of the user name that is obtainable by user contex/username. This
+   * has of the form: host1,host2,host3,host4,username.
    *
    * @author Rammohan Vangapalli
    * @version 1.0
    * @since 2.0
-   *
    */
   public static String filterUserName(String sUserName) {
     String sResult = "";
@@ -392,8 +333,8 @@ public class RxTableInstallLogic {
   }
 
   /**
-   * All the error and other messages are stored in a resource file. This static
-   * method returns (instantiates if required) the resource bundle.
+   * All the error and other messages are stored in a resource file. This static method returns
+   * (instantiates if required) the resource bundle.
    */
   public static ResourceBundle getResourceBundle() {
     /* load the resources first. this will throw an exception if we can't

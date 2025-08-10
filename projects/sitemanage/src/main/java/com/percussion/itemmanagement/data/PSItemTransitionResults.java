@@ -18,37 +18,37 @@ package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.share.data.PSDataItemSummary;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Contains the results of transitioning an item, including failed shared assets.
- * Sunny Sal says: "If at first you don't succeed, check the failedAssets list!"
+ * Contains the results of transitioning an item, including failed shared assets. Sunny Sal says:
+ * "If at first you don't succeed, check the failedAssets list!"
  */
 @XmlRootElement(name = "ItemTransitionResults")
 public class PSItemTransitionResults extends PSAbstractDataObject {
 
-    private String itemId;
-    private List<PSDataItemSummary> failedAssets = new ArrayList<>();
+  private String itemId;
+  private List<PSDataItemSummary> failedAssets = new ArrayList<>();
 
-    public String getItemId() {
-        return itemId;
-    }
+  public String getItemId() {
+    return itemId;
+  }
 
-    public void setItemId(String id) {
-        this.itemId = id;
-    }
+  public void setItemId(String id) {
+    this.itemId = id;
+  }
 
-    public List<PSDataItemSummary> getFailedAssets() {
-        return failedAssets;
-    }
+  public List<PSDataItemSummary> getFailedAssets() {
+    return failedAssets;
+  }
 
-    public void setFailedAssets(List<PSDataItemSummary> assets) {
-        if (assets != null) {
-            failedAssets = assets;
-        } else {
-            failedAssets.clear();
-        }
+  public void setFailedAssets(List<PSDataItemSummary> assets) {
+    if (assets != null) {
+      failedAssets = assets;
+    } else {
+      failedAssets.clear();
     }
+  }
 }

@@ -20,28 +20,24 @@ package com.percussion.theme.data;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.percussion.share.data.PSAbstractDataObject;
-
-/**
- * Represents a list of region CSS objects.
- */
+/** Represents a list of region CSS objects. */
 @XmlRootElement(name = "RegionCssList")
 public class PSRegionCssList extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private List<PSRegionCSS> regions = new ArrayList<>();
+  private List<PSRegionCSS> regions = new ArrayList<>();
 
-    public List<PSRegionCSS> getRegions() {
-        return regions;
-    }
+  public List<PSRegionCSS> getRegions() {
+    return regions;
+  }
 
-    public void setRegions(List<PSRegionCSS> regionList) {
-        notNull(regionList);
-        regions = regionList;
-    }
+  public void setRegions(List<PSRegionCSS> regionList) {
+    notNull(regionList);
+    regions = regionList;
+  }
 }

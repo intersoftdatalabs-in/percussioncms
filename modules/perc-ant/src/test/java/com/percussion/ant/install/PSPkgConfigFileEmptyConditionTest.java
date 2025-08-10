@@ -32,15 +32,11 @@ import org.junit.jupiter.api.Test;
 public class PSPkgConfigFileEmptyConditionTest {
   @Rule public Path temporaryFolder;
 
-  /**
-   * Constant for the non-empty package configuration file location.
-   */
+  /** Constant for the non-empty package configuration file location. */
   private static final String TEST_CFG_FILE_NONEMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig.xml";
 
-  /**
-   * Constant for the empty package configuration file location.
-   */
+  /** Constant for the empty package configuration file location. */
   private static final String TEST_CFG_FILE_EMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig_Empty.xml";
 

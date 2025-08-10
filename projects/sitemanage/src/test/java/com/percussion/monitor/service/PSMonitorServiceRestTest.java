@@ -24,30 +24,30 @@ import com.percussion.share.test.PSRestTestCase;
 import org.junit.jupiter.api.Test;
 
 /**
- * Integration test for monitor service REST endpoints.
- * Sunny Sal says: "REST assured, monitoring is in good hands!"
+ * Integration test for monitor service REST endpoints. Sunny Sal says: "REST assured, monitoring is
+ * in good hands!"
  */
 public class PSMonitorServiceRestTest extends PSRestTestCase<PSMonitorServiceRestClient> {
 
-    @Test
-    public void test() {
-        var restClient = getRestClient(super.baseUrl);
-        var monitor = restClient.getMonitor("fubar");
-        var monitor2 = restClient.getMonitor("barfu");
-        var listOfMonitors = restClient.getMonitorList();
-        assertTrue(listOfMonitors.toUpperCase().contains("PSMONITOR"));
-        assertTrue(listOfMonitors.contains("fubar"));
-        assertTrue(listOfMonitors.contains("barfu"));
-        var list = restClient.getMonitorList();
-        var all = restClient.getAllMonitors();
-        assertTrue(list.contains("fubar"));
-        assertTrue(list.contains("barfu"));
-        assertTrue(all.contains("fubar"));
-        assertTrue(all.contains("barfu"));
-    }
+  @Test
+  public void test() {
+    var restClient = getRestClient(super.baseUrl);
+    var monitor = restClient.getMonitor("fubar");
+    var monitor2 = restClient.getMonitor("barfu");
+    var listOfMonitors = restClient.getMonitorList();
+    assertTrue(listOfMonitors.toUpperCase().contains("PSMONITOR"));
+    assertTrue(listOfMonitors.contains("fubar"));
+    assertTrue(listOfMonitors.contains("barfu"));
+    var list = restClient.getMonitorList();
+    var all = restClient.getAllMonitors();
+    assertTrue(list.contains("fubar"));
+    assertTrue(list.contains("barfu"));
+    assertTrue(all.contains("fubar"));
+    assertTrue(all.contains("barfu"));
+  }
 
-    @Override
-    protected PSMonitorServiceRestClient getRestClient(String baseUrl) {
-        return new PSMonitorServiceRestClient(baseUrl);
-    }
+  @Override
+  protected PSMonitorServiceRestClient getRestClient(String baseUrl) {
+    return new PSMonitorServiceRestClient(baseUrl);
+  }
 }

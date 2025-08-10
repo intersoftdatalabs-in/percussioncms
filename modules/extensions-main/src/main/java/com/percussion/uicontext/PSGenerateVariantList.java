@@ -369,7 +369,7 @@ public class PSGenerateVariantList extends PSDefaultExtension
   /**
    * We want to pass user parameters to the eventual page url, the these ones are managed already
    * and should not be contained in the url, in particular pssessionid should not be included as it
-   * is a security risk if this is pasted into an email.  The session id should be on the cookie.
+   * is a security risk if this is pasted into an email. The session id should be on the cookie.
    */
   private static List<String> ms_removeParamsList =
       Collections.unmodifiableList(

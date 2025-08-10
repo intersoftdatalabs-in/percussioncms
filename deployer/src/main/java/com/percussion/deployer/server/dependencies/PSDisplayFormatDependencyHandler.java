@@ -21,20 +21,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a display format.
- */
+/** Class to handle packaging and deploying a display format. */
 public class PSDisplayFormatDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -52,15 +47,15 @@ public class PSDisplayFormatDependencyHandler extends PSElementDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>DisplayFormatDef</li>
+   *   <li>DisplayFormatDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
@@ -71,22 +66,16 @@ public class PSDisplayFormatDependencyHandler extends PSElementDependencyHandler
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "DisplayFormat";
 
   /**
-   * The display format definition handler, initialized by
-   * <code>getChildHandler()</code> if it is <code>null</code>, will never be
-   * <code>null</code> after that.
+   * The display format definition handler, initialized by <code>getChildHandler()</code> if it is
+   * <code>null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_childHandler = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

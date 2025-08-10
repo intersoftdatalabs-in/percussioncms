@@ -6,6 +6,7 @@ import java.util.Optional;
 
 /**
  * Collection utilities for Percussion Delivery Tier.
+ *
  * @author Sunny Sal
  */
 public final class PSDeliveryCollectionUtils {
@@ -16,6 +17,7 @@ public final class PSDeliveryCollectionUtils {
 
   /**
    * Checks if the collection is null or empty.
+   *
    * @param collection Collection to check.
    * @return true if null or empty, false otherwise.
    */
@@ -25,6 +27,7 @@ public final class PSDeliveryCollectionUtils {
 
   /**
    * Returns the first element of the collection, if present.
+   *
    * @param collection Collection to check.
    * @param <T> Type of elements.
    * @return Optional containing the first element, or empty.

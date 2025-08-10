@@ -36,12 +36,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class provides several utility methods for internationalization support.
- * The primary objective of this class is to expose methods to XSL stylesheet
- * layer as XSLT extension functions. This class also provides definitions for
- * some string constants relevant to i18n. There is not much processing of data
- * in this class and methods make calls to appropriate methods from classes from
- * other packages.
+ * This class provides several utility methods for internationalization support. The primary
+ * objective of this class is to expose methods to XSL stylesheet layer as XSLT extension functions.
+ * This class also provides definitions for some string constants relevant to i18n. There is not
+ * much processing of data in this class and methods make calls to appropriate methods from classes
+ * from other packages.
  */
 public class PSI18nUtils implements IPSI18nUtils {
 
@@ -49,11 +48,11 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Utility method that returns the last part of the lookup key.
-   * @param key the key from which the last part is to be extracted. An empty
-   * string is returned if key is <code>null</code> or <code>empty</code>.
-   * @return the part of the key after {@link #LOOKUP_KEY_SEPARATOR_LAST}
-   * character. Never <code>null</code> may be <code>empty</code>.
    *
+   * @param key the key from which the last part is to be extracted. An empty string is returned if
+   *     key is <code>null</code> or <code>empty</code>.
+   * @return the part of the key after {@link #LOOKUP_KEY_SEPARATOR_LAST} character. Never <code>
+   *     null</code> may be <code>empty</code>.
    * @see #makeLookupKey
    */
   public static String getLastSubKey(String key) {
@@ -65,7 +64,8 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Get the value for the given key using the default language.
-   * @param    key    lookup key string
+   *
+   * @param key lookup key string
    * @return lookup value for the given key.
    * @see PSTmxResourceBundle
    */
@@ -76,10 +76,10 @@ public class PSI18nUtils implements IPSI18nUtils {
   /**
    * Gets a list of all the keys for the provided language.
    *
-   * @param language string, if <code>null</code> or <code>empty</code>,
-   * default language is assumed.
-   * @return all of the keys as <code>Strings</code>.  May be
-   * <code>null</code> if language is not supported.
+   * @param language string, if <code>null</code> or <code>empty</code>, default language is
+   *     assumed.
+   * @return all of the keys as <code>Strings</code>. May be <code>null</code> if language is not
+   *     supported.
    * @see PSTmxResourceBundle
    */
   public static Iterator getKeys(String language) {
@@ -88,12 +88,11 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Get the value for the given key and language string.
-   * @param    key    lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param    language    language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
-   * @return lookup value for the given key. Not <code>null</code>, may be
-   * <code>empty</code>.
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
+   * @return lookup value for the given key. Not <code>null</code>, may be <code>empty</code>.
    * @see PSTmxResourceBundle
    */
   public static String getString(String key, String language) {
@@ -101,14 +100,12 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * Gets the string, with the appropriate character underlined for any
-   * registered mnemonic
-   * @param    key    lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param    language    language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
-   * @return lookup value for the given key. Not <code>null</code>, may be
-   * <code>empty</code>.
+   * Gets the string, with the appropriate character underlined for any registered mnemonic
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
+   * @return lookup value for the given key. Not <code>null</code>, may be <code>empty</code>.
    * @see PSTmxResourceBundle
    */
   public static String getHtmlString(String key, String language) {
@@ -135,10 +132,10 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Get the mnemonic for a given key and language
-   * @param    key    lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param    language    language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
    * @return the mnemonic or an empty string if no mnemonic is defined
    * @see PSTmxResourceBundle
    */
@@ -148,13 +145,13 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Get the mnemonic for a given key and language
-   * @param    key    lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param    language    language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
-   * @param    def the default mnemonic to return
-   * @return the mnemonic, or if undefined return a string with the default
-   * as the value, or an empty string if the default is <code>0</code>
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
+   * @param def the default mnemonic to return
+   * @return the mnemonic, or if undefined return a string with the default as the value, or an
+   *     empty string if the default is <code>0</code>
    * @see PSTmxResourceBundle
    */
   public static String getMnemonic(String key, String language, int def) {
@@ -175,10 +172,10 @@ public class PSI18nUtils implements IPSI18nUtils {
 
   /**
    * Get the tooltip for a given key and language
-   * @param    key    lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param    language    language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
+   *
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
    * @return the tooltip or <code>null</code> if no tooltip is defined
    * @see PSTmxResourceBundle
    */
@@ -187,16 +184,14 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * Get the locale based string for the given key and the given mnemonic,
-   * and underline the first occurance of the mnemonic in the locale string
-   * using HTML.
+   * Get the locale based string for the given key and the given mnemonic, and underline the first
+   * occurance of the mnemonic in the locale string using HTML.
    *
-   * @param key lookup key string, should not be <code>null</code> or
-   * <code>empty</code>.
-   * @param mnemonickey lookup mnemonic string, should not be
-   * <code>null</code> or <code>empty</code>.
-   * @param language language string, may be <code>null</code> or
-   * <code>empty</code> in which case default langugae is assumed.
+   * @param key lookup key string, should not be <code>null</code> or <code>empty</code>.
+   * @param mnemonickey lookup mnemonic string, should not be <code>null</code> or <code>empty
+   *     </code>.
+   * @param language language string, may be <code>null</code> or <code>empty</code> in which case
+   *     default langugae is assumed.
    * @return the mnemonic string
    */
   public static String getMnemonicString(String key, String mnemonickey, String language) {
@@ -233,26 +228,21 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * A generic method to format the given date string with a given patterrn and
-   * locale to a given pattern and locale.
+   * A generic method to format the given date string with a given patterrn and locale to a given
+   * pattern and locale.
    *
-   * @param inputDate input date string to be formatted, must not be
-   * <code>null</code> or <code>empty</code>.
-   * @param inputPattern pattern of the input date string, if <code>null</code>
-   * or <code>empty</code>, the matching pattern is guessed.
-   * @param inputLanguage input locale string in the syntax "en-us" or "ja-jp".
-   * If <code>null</code> or <code>empty</code>, system default locale is
-   * assumed.
-   * @param outputPattern output pattern to format the input date. If
-   * <code>null</code> or <code>empty</code>, a default pattern is
-   * assumed.
-   * @param outputLanguage output locale string to be used to formatting the
-   * date. If <code>null</code> or <code>empty</code>, system default
-   * locale is used.
-   * @return formatted date strig, never <code>null</code> or
-   * <code>empty</code>.
-   * @throws IllegalArgumentException if required parameters are missing or
-   * invalid.
+   * @param inputDate input date string to be formatted, must not be <code>null</code> or <code>
+   *     empty</code>.
+   * @param inputPattern pattern of the input date string, if <code>null</code> or <code>empty
+   *     </code>, the matching pattern is guessed.
+   * @param inputLanguage input locale string in the syntax "en-us" or "ja-jp". If <code>null</code>
+   *     or <code>empty</code>, system default locale is assumed.
+   * @param outputPattern output pattern to format the input date. If <code>null</code> or <code>
+   *     empty</code>, a default pattern is assumed.
+   * @param outputLanguage output locale string to be used to formatting the date. If <code>null
+   *     </code> or <code>empty</code>, system default locale is used.
+   * @return formatted date strig, never <code>null</code> or <code>empty</code>.
+   * @throws IllegalArgumentException if required parameters are missing or invalid.
    * @throws ParseException if parsing the input date string is failed.
    */
   public static String formatDate(
@@ -270,10 +260,10 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * This helper method returns the <code>java.util.Locale object</code> from
-   * the  locale string supplied. The locale string must be in the syntax of
-   * <language>-<country>-<varaint>, e.g. "en-us"
-   * or "ja-jp". The language and country strings must follow the ISO codes.
+   * This helper method returns the <code>java.util.Locale object</code> from the locale string
+   * supplied. The locale string must be in the syntax of <language>-<country>-<varaint>, e.g.
+   * "en-us" or "ja-jp". The language and country strings must follow the ISO codes.
+   *
    * @param languageString e.g. "en-us"
    * @return <code>Locale</code> object
    */
@@ -305,9 +295,9 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * This helper method parses a date string to date object. It itself does not
-   * do anything but delegate to an equivalent method in
-   * {@link PSDataTypeConverter}.
+   * This helper method parses a date string to date object. It itself does not do anything but
+   * delegate to an equivalent method in {@link PSDataTypeConverter}.
+   *
    * @param inputDateString date string to be parsed.
    * @param inputLocale the Locale to be used while parsing.
    * @return Date object parsed, never <code>null</code>.
@@ -328,25 +318,17 @@ public class PSI18nUtils implements IPSI18nUtils {
   /**
    * Method to parse the given date string as per the given pattern and locale.
    *
-   * @param inpuDateString date string to be parsed, must not be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param inputPattern pattern to use to while parsing, if supplied must
-   * match the input date string pattern, may be <code>null</code> or
-   * <code>empty</code>, in which case method will try to parse using a
-   * predefined list of matching patterns as deifined in
-   * {@link PSDataTypeConverter}
-   *
-   * @param inputLocale locale to use while parsing, if <code>null</code>,
-   * system default locale is used.
-   *
+   * @param inpuDateString date string to be parsed, must not be <code>null</code> or <code>empty
+   *     </code>.
+   * @param inputPattern pattern to use to while parsing, if supplied must match the input date
+   *     string pattern, may be <code>null</code> or <code>empty</code>, in which case method will
+   *     try to parse using a predefined list of matching patterns as deifined in {@link
+   *     PSDataTypeConverter}
+   * @param inputLocale locale to use while parsing, if <code>null</code>, system default locale is
+   *     used.
    * @return parsed Date object
-   *
-   * @see com.percussion.util.PSDataTypeConverter#parseStringToDate(String,
-   * StringBuilder, Locale)
-   *
-   * @throws IllegalArgumentException if the supplied date string is
-   * <code>null</code> or empty.
+   * @see com.percussion.util.PSDataTypeConverter#parseStringToDate(String, StringBuilder, Locale)
+   * @throws IllegalArgumentException if the supplied date string is <code>null</code> or empty.
    * @throws ParseException
    */
   public static Date parseStringToDate(
@@ -363,16 +345,14 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * This method formats the date object as per the supplied pattern and
-   * locale. It itself does not do anything but delegate to an equivalent
-   * method in {@link PSStringOperation}.
+   * This method formats the date object as per the supplied pattern and locale. It itself does not
+   * do anything but delegate to an equivalent method in {@link PSStringOperation}.
    *
-   * @param dateToFormat input date (<code>java.util.Date</code>) object to
-   * format. If <code>null</code> supplied, empty string is returned.
+   * @param dateToFormat input date (<code>java.util.Date</code>) object to format. If <code>null
+   *     </code> supplied, empty string is returned.
    * @param outputPattern pattren to be used to formatting the date.
-   * @param outputLocale locale (<code>java.util.Locale</code>) object to
-   * use while formatting. If <code>null</code> specified, system default
-   * locale is used.
+   * @param outputLocale locale (<code>java.util.Locale</code>) object to use while formatting. If
+   *     <code>null</code> specified, system default locale is used.
    * @return formatted date string, never <code>null</code>.
    * @see PSStringOperation#dateFormat(String, Date, Locale)
    */
@@ -384,29 +364,22 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * This method returns formatted message given the resource lookup key and
-   * the list of arguments to fill into the pattern. This is a wrapper on
-   * {#link MessageFormat}'s format static method to facilitate calling from a
-   * stylesheet. The argument list is a '|' speparated string.
+   * This method returns formatted message given the resource lookup key and the list of arguments
+   * to fill into the pattern. This is a wrapper on {#link MessageFormat}'s format static method to
+   * facilitate calling from a stylesheet. The argument list is a '|' speparated string.
    *
-   * @param messageKey lookup key to find the pattern string from the resource
-   * bundle. One of the message patterns accepted by {#link MessageFormat}. All
-   * the arguments are strings and type specification is not allowed. In the
-   * example below <br>
-   * "At {1} on {2}, there was {3} on planet {0}." <br>
-   * all the arguments in the flower brackets are strings. {#link
-   * MessageFormat} Allows types for the arguments in the pattern. If
-   * <code>null</code> or <code>empty</code> an empty string is returned.
-   *
-   * @param argList list of arguments to put in the pattern. May be
-   * <code>null</code> or <code>empty</code> in which case message is
-   * returned as it is.
-   *
-   * @param languageString labguage string such as "en-us", "fr-fr" etc. If
-   * <code>null</code> or <code>empty</code> "en-us" is assumed.
-   *
-   * @return the formatted message text, never <code>null</code> may be
-   * <code>empty</code>
+   * @param messageKey lookup key to find the pattern string from the resource bundle. One of the
+   *     message patterns accepted by {#link MessageFormat}. All the arguments are strings and type
+   *     specification is not allowed. In the example below <br>
+   *     "At {1} on {2}, there was {3} on planet {0}." <br>
+   *     all the arguments in the flower brackets are strings. {#link MessageFormat} Allows types
+   *     for the arguments in the pattern. If <code>null</code> or <code>empty</code> an empty
+   *     string is returned.
+   * @param argList list of arguments to put in the pattern. May be <code>null</code> or <code>empty
+   *     </code> in which case message is returned as it is.
+   * @param languageString labguage string such as "en-us", "fr-fr" etc. If <code>null</code> or
+   *     <code>empty</code> "en-us" is assumed.
+   * @return the formatted message text, never <code>null</code> may be <code>empty</code>
    */
   public static String formatMessage(String messageKey, String argList, String languageString) {
     if (messageKey == null || messageKey.length() < 1) return "";
@@ -426,13 +399,11 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * Get the default locale for the system. If the locale returned by
-   * {@link Locale#getDefault()} is configured as an active locale in Rx, that
-   * language string is returned, otherwise the {@link #DEFAULT_LANG} is
-   * returned.
+   * Get the default locale for the system. If the locale returned by {@link Locale#getDefault()} is
+   * configured as an active locale in Rx, that language string is returned, otherwise the {@link
+   * #DEFAULT_LANG} is returned.
    *
-   * @return The language string to use for the system locale, never
-   * <code>null</code> or empty.
+   * @return The language string to use for the system locale, never <code>null</code> or empty.
    */
   public static String getSystemLanguage() {
     String lang = Locale.getDefault().toString().replace('_', '-').toLowerCase();
@@ -442,26 +413,23 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * This utility makes the resource text lookup keys given the array list of
-   * subkeys. The schem followed is as follows:
-   * <p>Remove all null or empty keys from the array list of keys. This means
-   * all empty keys are ignored in building the final lookup key</p>
+   * This utility makes the resource text lookup keys given the array list of subkeys. The schem
+   * followed is as follows:
+   *
+   * <p>Remove all null or empty keys from the array list of keys. This means all empty keys are
+   * ignored in building the final lookup key
+   *
    * <p>
+   *
    * <ul>
-   * <li>Every subkey is appended with {@link #LOOKUP_KEY_SEPARATOR} except the
-   * last two subkeys.</li>
-   * <li>The second subkey from the last is appended with
-   * {@link #LOOKUP_KEY_SEPARATOR_LAST}.</li>
-   * <li>
-   * All the subkeys then are concatenated.
-   * </li>
+   *   <li>Every subkey is appended with {@link #LOOKUP_KEY_SEPARATOR} except the last two subkeys.
+   *   <li>The second subkey from the last is appended with {@link #LOOKUP_KEY_SEPARATOR_LAST}.
+   *   <li>All the subkeys then are concatenated.
    * </ul>
-   * </p>
-   * @param subkeys array list of string objects, if <code>null</code> or
-   * <code>empty</code>, the result is an empty string
    *
+   * @param subkeys array list of string objects, if <code>null</code> or <code>empty</code>, the
+   *     result is an empty string
    * @return the final text lookup key, never <code>null</code>.
-   *
    * @see #LOOKUP_KEY_SEPARATOR
    * @see #LOOKUP_KEY_SEPARATOR_LAST
    */
@@ -498,65 +466,53 @@ public class PSI18nUtils implements IPSI18nUtils {
   }
 
   /**
-   * String constant for lookup key separator. Text lookup key is has a syntax
-   * of for example, <b>psx.key1.key2.key3@keyLast</b>. The string "." in this
-   * the lookup key separator.
+   * String constant for lookup key separator. Text lookup key is has a syntax of for example,
+   * <b>psx.key1.key2.key3@keyLast</b>. The string "." in this the lookup key separator.
    */
   public static final String LOOKUP_KEY_SEPARATOR = ".";
 
   /**
-   * String constant for last lookup key separator. Text lookup key is has a
-   * syntax of for example, <b>psx.key1.key2.key3@keyLast</b>. The String "@"
-   * in this the lookup key separator.
+   * String constant for last lookup key separator. Text lookup key is has a syntax of for example,
+   * <b>psx.key1.key2.key3@keyLast</b>. The String "@" in this the lookup key separator.
    */
   public static final String LOOKUP_KEY_SEPARATOR_LAST = "@";
 
   /**
-   * String constant for the name of the key to get the user logged in language
-   * string from the user context information. This is used using the syntax:
-   * <p>
-   * request.getUserContextInformation(USER_CONTEXT_VAR_SYS_LANG, "")
-   * </p>.
+   * String constant for the name of the key to get the user logged in language string from the user
+   * context information. This is used using the syntax:
+   *
+   * <p>request.getUserContextInformation(USER_CONTEXT_VAR_SYS_LANG, "") .
    */
   public static final String USER_CONTEXT_VAR_SYS_LANG = "User/SessionObject/sys_lang";
 
   /**
-   * String constant for the name of the private session variable to store the
-   * language string in th euser's session.key to get the user logged in
-   * language This is used using the syntax:
-   * <p>
-   * request.getUserSession().getPrivateObject(
-   * PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG)
-   * </p>.
+   * String constant for the name of the private session variable to store the language string in th
+   * euser's session.key to get the user logged in language This is used using the syntax:
+   *
+   * <p>request.getUserSession().getPrivateObject( PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG) .
    */
   public static final String USER_SESSION_OBJECT_SYS_LANG = "sys_lang";
 
   /**
-   * String constant representing prefix for the lookup key for Content Editor
-   * actions such as , New Version, Insert, Edit, Preview etc..
+   * String constant representing prefix for the lookup key for Content Editor actions such as , New
+   * Version, Insert, Edit, Preview etc..
    */
   public static final String PSX_CE_ACTION =
       "psx" + LOOKUP_KEY_SEPARATOR + "ce" + LOOKUP_KEY_SEPARATOR + "action";
 
-  /**
-   * String constant representing prefix for translation key for workflow
-   * transitions
-   */
+  /** String constant representing prefix for translation key for workflow transitions */
   public static final String PSX_WORKFLOW_TRANSITION =
       "psx" + LOOKUP_KEY_SEPARATOR + "workflow" + LOOKUP_KEY_SEPARATOR + "transition";
 
-  /**
-   * String constant representing the language US English.
-   */
+  /** String constant representing the language US English. */
   public static final String LANG_EN_US = "en-us";
 
-  /**
-   * Default language used in the process of i18n.
-   */
+  /** Default language used in the process of i18n. */
   public static final String DEFAULT_LANG = LANG_EN_US;
 
   /**
    * main method for testing
+   *
    * @param args
    */
   public static void main(String[] args) {

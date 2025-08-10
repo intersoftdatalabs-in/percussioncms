@@ -34,23 +34,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A Rhythmyx post-exit to load all user control XML documents from the file
- * system and add to the result document.
+ * A Rhythmyx post-exit to load all user control XML documents from the file system and add to the
+ * result document.
  */
 public class PSAddUserControlsToTree extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
   /**
-   * This method handles the post-exit request by loading the specified file,
-   * parsing it into a Document, and appending it to the parentNode in the
-   * result document.
+   * This method handles the post-exit request by loading the specified file, parsing it into a
+   * Document, and appending it to the parentNode in the result document.
    *
-   * @param params an array of objects representing the parameters.  Not used.
+   * @param params an array of objects representing the parameters. Not used.
    * @param request the request context for this request
-   * @param resultDoc the XML document resulting from the Rhythmyx server
-   * operation.
-   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server operation.
    * @return The XML result document.
-   *
    * @throws PSExtensionProcessingException when a run time error is detected.
    */
   public Document processResultDocument(
@@ -90,6 +86,7 @@ public class PSAddUserControlsToTree extends PSDefaultExtension
 
   /**
    * This exit will never modify the stylesheet
+   *
    * @return <code>false</code>
    */
   public boolean canModifyStyleSheet() {

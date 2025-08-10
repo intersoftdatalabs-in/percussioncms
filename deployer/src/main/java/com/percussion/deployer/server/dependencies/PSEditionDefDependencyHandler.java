@@ -48,20 +48,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a edition definition.
- */
+/** Class to handle packaging and deploying a edition definition. */
 public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSServiceDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSEditionDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -163,18 +158,18 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentList</li>
-   * <li>ContextDef</li>
-   * <li>AuthType</li>
-   * <li>EditionTaskDef</li>
+   *   <li>ContentList
+   *   <li>ContextDef
+   *   <li>AuthType
+   *   <li>EditionTaskDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -275,9 +270,8 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles(
-   * PSSecurityToken, PSArchiveHandler, PSDependency, PSImportCtx)} for
-   * details.
+   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
+   * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
   @SuppressWarnings("unchecked")
   public void doInstallDependencyFiles(
@@ -353,15 +347,11 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Transfer IDs for a given edition, from the source server to the current /
-   * target server.
+   * Transfer IDs for a given edition, from the source server to the current / target server.
    *
-   * @param edition The data from the source server, assumed not
-   * <code>null</code>
+   * @param edition The data from the source server, assumed not <code>null</code>
    * @param edDep The edition dependency object, assumed not <code>null</code>
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -387,15 +377,12 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Transfer IDs for the children of an Edition dependency, from the
-   * source server to the current / target server.
+   * Transfer IDs for the children of an Edition dependency, from the source server to the current /
+   * target server.
    *
-   * @param ecl The edition content list from the source server, assumed not
-   * <code>null</code>.
+   * @param ecl The edition content list from the source server, assumed not <code>null</code>.
    * @param edDep The edition dependency object, assumed not <code>null</code>.
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -443,6 +430,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Utility method to find the Edition by a given dependency id(as a string).
+   *
    * @param depId the id, assumed not <code>null</code>.
    * @return <code>null</code> if Edition is not found.
    */
@@ -459,9 +447,9 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param edition the edition never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -479,26 +467,19 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
     return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(str));
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "EditionDef";
 
-  /**
-   * Get the publisher service
-   */
+  /** Get the publisher service */
   private static IPSPublisherService m_pubSvc = PSPublisherServiceLocator.getPublisherService();
 
   /**
-   * The schema for EDITIONCLIST_TABLE, initialized by constructor, will never
-   * be <code>null</code> or modified after that.
+   * The schema for EDITIONCLIST_TABLE, initialized by constructor, will never be <code>null</code>
+   * or modified after that.
    */
   PSJdbcTableSchema m_editionContentListSchema;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

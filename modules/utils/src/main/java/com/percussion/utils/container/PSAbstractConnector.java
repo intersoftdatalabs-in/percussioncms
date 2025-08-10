@@ -34,14 +34,10 @@ import org.w3c.dom.Element;
 
 public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
 
-  /**
-   * Scheme constant for the "http" protocol.
-   */
+  /** Scheme constant for the "http" protocol. */
   public static final String SCHEME_HTTP = "http";
 
-  /**
-   * Scheme constant for the "https" protocol.
-   */
+  /** Scheme constant for the "https" protocol. */
   public static final String SCHEME_HTTPS = "https";
 
   private static Pattern EXTRACT_PROPNAME = Pattern.compile("\\$\\{([^}]*)}");

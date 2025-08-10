@@ -23,9 +23,9 @@ import com.percussion.xml.PSXmlTreeWalker;
 /**
  * The PSCatalogedColumn is used to store a cataloged column's details.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCatalogedColumn {
   /** the column allows NULL values */
@@ -34,9 +34,7 @@ public class PSCatalogedColumn {
   public static final int NULLABLE = 1;
   public static final int NOT_NULLABLE = 2;
 
-  /**
-   * Construct a column meta data object with some basic info.
-   */
+  /** Construct a column meta data object with some basic info. */
   public PSCatalogedColumn(
       com.percussion.design.objectstore.PSBackEndTable table, org.w3c.dom.Element node) {
     super();
@@ -68,64 +66,49 @@ public class PSCatalogedColumn {
     m_allowsNull = NULLABLE_UNKNOWN;
   }
 
-  /**
-   * Get the name of this column.
-   */
+  /** Get the name of this column. */
   public String getName() {
     return m_name;
   }
 
-  /**
-   * Get the name of this column.
-   */
+  /** Get the name of this column. */
   public PSBackEndTable getTable() {
     return m_table;
   }
 
-  /**
-   * Get the back-end specific type name.
-   */
+  /** Get the back-end specific type name. */
   public String getBackEndType() {
     return m_beType;
   }
 
-  /**
-   * Get the JDBC type (from java.sql.Types).
-   */
+  /** Get the JDBC type (from java.sql.Types). */
   public int getJdbcType() {
     return m_jdbcType;
   }
 
   /**
-   * Get the precision of the column. For numeric and date/time types,
-   * this is the max size (including fractions). For other types, it
-   * is usually the column size.
+   * Get the precision of the column. For numeric and date/time types, this is the max size
+   * (including fractions). For other types, it is usually the column size.
    */
   public int getPrecision() {
     return m_precision;
   }
 
   /**
-   * Get the scale of the column. For numeric types this is the fraction.
-   * For time types this is the number of fractional seconds
-   * (eg, 1 = tenths, 2 = hundredths, etc.). For most other types
-   * this is 0.
+   * Get the scale of the column. For numeric types this is the fraction. For time types this is the
+   * number of fractional seconds (eg, 1 = tenths, 2 = hundredths, etc.). For most other types this
+   * is 0.
    */
   public int getScale() {
     return m_scale;
   }
 
-  /**
-   * Get the nullability setting which may be NULLABLE,
-   * NOT_NULLABLE or NULLABLE_UNKNOWN.
-   */
+  /** Get the nullability setting which may be NULLABLE, NOT_NULLABLE or NULLABLE_UNKNOWN. */
   public int getNullability() {
     return m_allowsNull;
   }
 
-  /**
-   * Get a string representing the column info.
-   */
+  /** Get a string representing the column info. */
   public String toString() {
     StringBuilder buf = new StringBuilder();
     buf.append("Column[");

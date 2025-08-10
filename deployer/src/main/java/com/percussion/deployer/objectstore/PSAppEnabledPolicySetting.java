@@ -22,13 +22,11 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates app enable policy.
- */
+/** Encapsulates app enable policy. */
 public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
   /**
-   * Default constructor. Defaults to disabling the log policy,
-   * {@link #isAppEnabled()} returns <code>false</code>.
+   * Default constructor. Defaults to disabling the log policy, {@link #isAppEnabled()} returns
+   * <code>false</code>.
    */
   public PSAppEnabledPolicySetting() {
     // Default constructor
@@ -37,11 +35,9 @@ public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
   /**
    * Create this object from its XML representation.
    *
-   * @param source The source element. See {@link #toXml(Document)} for
-   * the expected format. May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException If <code>source</code> is malformed.
    */
   public PSAppEnabledPolicySetting(Element source) throws PSUnknownNodeTypeException {
@@ -54,8 +50,7 @@ public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
   /**
    * Determines if the app policy is enabled.
    *
-   * @return <code>true</code> if the app policy is enabled;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the app policy is enabled; <code>false</code> otherwise.
    */
   public boolean isAppEnabled() {
     return true; // No specific setting for this class yet, hardcoded for now
@@ -64,16 +59,14 @@ public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
   /**
    * Sets to enable or disable the app policy.
    *
-   * @param isEnabled <code>true</code> if set to enable the app policy;
-   * <code>false</code> otherwise.
+   * @param isEnabled <code>true</code> if set to enable the app policy; <code>false</code>
+   *     otherwise.
    */
   public void setAppEnabled(boolean isEnabled) {
     // No specific setting for this class yet, no-op for now
   }
 
-  /**
-   * Serializes this object's state to its XML representation.
-   */
+  /** Serializes this object's state to its XML representation. */
   @Override
   public Element toXml(Document doc) {
     return toXml(doc, XML_NODE_NAME);
@@ -84,8 +77,6 @@ public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
     fromXml(sourceNode, XML_NODE_NAME);
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppEnabledPolicySetting";
 }

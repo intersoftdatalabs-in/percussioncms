@@ -26,7 +26,6 @@ import java.util.List;
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
 public interface IPSTransitionsContext {
   public static final int NORMAL_TRANSITION = 0;
@@ -49,119 +48,105 @@ public interface IPSTransitionsContext {
 
   /**
    * Gets the TransitionID
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  TransitionID
+   * @return TransitionID
    */
   public int getTransitionID();
 
   /**
    * Gets the Transition Label
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition Label
+   * @return Transition Label
    */
   public String getTransitionLabel();
 
   /**
    * Gets the Transition Prompt
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition Prompt
+   * @return Transition Prompt
    */
   public String getTransitionPrompt();
 
   /**
    * Gets the Transition Description
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition Description
+   * @return Transition Description
    */
   public String getTransitionDescription();
 
   /**
    * Gets the Transition Trigger
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition Trigger
+   * @return Transition Trigger
    */
   public String getTransitionActionTrigger();
 
   /**
    * Gets the Transition Approvals Required
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition Approvals Required
+   * @return Transition Approvals Required
    */
   public int getTransitionApprovalsRequired();
 
   /**
    * Gets the Transition From StateID
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition  From StateID
+   * @return Transition From StateID
    */
   public int getTransitionFromStateID();
 
   /**
-   * Gets the Transition  To StateID
-   * @author   Ram
+   * Gets the Transition To StateID
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  Transition To StateID
+   * @return Transition To StateID
    */
   public int getTransitionToStateID();
 
   /**
    * Indicates whether the transition is to initial state of the workflow
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  <CODE>true</CODE> if the transition is to initial state,
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if the transition is to initial state, else <CODE>false</CODE>.
    */
   public boolean isTransitionToInitialState();
 
   /**
    * Indicates whether the transition is to a different state.
-   * @author   Aaron Brandes
    *
+   * @author Aaron Brandes
    * @version 1.0
-   *
-   * @return  <CODE>true</CODE> if the transition is to a different state.
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if the transition is to a different state. else <CODE>false</CODE>.
    */
   public boolean isTransitionToDifferentState();
 
   /**
    * Indicates whether the transition is to the same state
    *
-   * @return  <CODE>true</CODE> if the transition is to the same state,
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if the transition is to the same state, else <CODE>false</CODE>.
    */
   public boolean isSelfTransition();
 
   /**
    * Indicates whether this is an aging transition
    *
-   * @return  <CODE>true</CODE> if the transition is an aging transition,
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if the transition is an aging transition, else <CODE>false</CODE>.
    */
   public boolean isAgingTransition();
 
@@ -188,77 +173,68 @@ public interface IPSTransitionsContext {
 
   /**
    * Gets the number of transitions in the current workflow
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  number of transitions
+   * @return number of transitions
    */
   public int getTransitionCount();
 
   /**
-   * Indicates whether the transition will be performed only if comments
-   * have been specified.
-   * @author  Aaron Brandes
+   * Indicates whether the transition will be performed only if comments have been specified.
    *
-   * @return  <CODE>true</CODE> if the transition requires comments,
-   *          else <CODE>false</CODE>.
+   * @author Aaron Brandes
+   * @return <CODE>true</CODE> if the transition requires comments, else <CODE>false</CODE>.
    */
   public boolean isTransitionCommentRequired();
 
   /**
-   * Gets a list of the names of the workflow action extensions to be run
-   * for this transition.
-   * @author   Aaron Brandes
+   * Gets a list of the names of the workflow action extensions to be run for this transition.
    *
-   * @return   <ul><li>list of full names of workflow action extension to be
-   *           run for this  transition</li>
-   *           <li><CODE>null</CODE> if there are no workflow actions for this
-   *           transition</li>
-   *           </ul>
+   * @author Aaron Brandes
+   * @return
+   *     <ul>
+   *       <li>list of full names of workflow action extension to be run for this transition
+   *       <li><CODE>null</CODE> if there are no workflow actions for this transition
+   *     </ul>
    */
   public List getTransitionActions();
 
   /**
    * Gets a list of the roles that allowed to perform this transition.
-   * @author   Aaron Brandes
    *
-   * @return   <ul><li>list of the roles that allowed to perform this
-   *           transition</li>
-   *           <li><CODE>null</CODE> there are no additional role
-   *            restrictions</li>
-   *           </ul>
+   * @author Aaron Brandes
+   * @return
+   *     <ul>
+   *       <li>list of the roles that allowed to perform this transition
+   *       <li><CODE>null</CODE> there are no additional role restrictions
+   *     </ul>
    */
   public List getTransitionRoles();
 
   /**
    * Moves the cursor to the next transition in the list.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  <CODE>true</CODE> if cursor movement is successful,
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if cursor movement is successful, else <CODE>false</CODE>.
    */
   public boolean moveNext() throws SQLException;
 
   /**
    * Indicates whether the number of transitions in the context is empty
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   * @return  <CODE>true</CODE> if empty else <CODE>false</CODE>
+   * @return <CODE>true</CODE> if empty else <CODE>false</CODE>
    */
   public boolean isEmpty();
 
   /**
    * Closes the transition context freeing all JDBC resources.
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
    */
   public void close();
 }

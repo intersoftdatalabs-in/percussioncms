@@ -18,10 +18,7 @@ package com.percussion.delivery.feeds.data;
 
 import java.util.Objects;
 
-/**
- * A transfer object impl of the IPSFeedDescriptor interface.
- *
- */
+/** A transfer object impl of the IPSFeedDescriptor interface. */
 public class PSFeedDescriptor implements IPSFeedDescriptor {
 
   private String name;

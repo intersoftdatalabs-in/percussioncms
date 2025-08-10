@@ -33,29 +33,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSSecurityProviderInstance class is used to define a connection
- * to a security provider for authentication of users.
+ * The PSSecurityProviderInstance class is used to define a connection to a security provider for
+ * authentication of users.
  *
- * @see   PSServerConfiguration
- * @see   PSServerConfiguration#getSecurityProviderInstances
- *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @see PSServerConfiguration
+ * @see PSServerConfiguration#getSecurityProviderInstances
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
    * @param sourceNode the XML element node to construct this object from
-   *
    * @param parentDoc the Java object which is the parent of this object
-   *
    * @param parentComponents the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacySecurityProviderInstance(
       Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -64,20 +59,18 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSLegacySecurityProviderInstance() {
     super();
   }
 
   /**
    * Constructor to create instance from name and type.
-   * @param   name     the unique security provider instance name
-   * @param   type     the appropriate SP_TYPE_xxx flag
    *
-   * @throws   PSIllegalArgumentException  if name exceeds the specified size
-   * limit or if type is invalid.
+   * @param name the unique security provider instance name
+   * @param type the appropriate SP_TYPE_xxx flag
+   * @throws PSIllegalArgumentException if name exceeds the specified size limit or if type is
+   *     invalid.
    */
   public PSLegacySecurityProviderInstance(String name, int type) throws PSIllegalArgumentException {
     super();
@@ -103,12 +96,11 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
   // **************  IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to populate a PSBackEndConnection Java object
-   * from a PSXBackEndConnection XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndConnection Java object from a PSXBackEndConnection
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   * of type PSXBackEndConnection
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -198,21 +190,19 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
   /**
    * Gets the list of group providers this security provider uses.
    *
-   * @return The an Iterator over zero or more group provider names as Strings,
-   * never <code>null</code>, may be emtpy.
+   * @return The an Iterator over zero or more group provider names as Strings, never <code>null
+   *     </code>, may be emtpy.
    */
   public Iterator getGroupProviderNames() {
     return m_groupProviderNames.iterator();
   }
 
   /**
-   * Sets the list of group providers this security provider will use.  This
-   * will replace the existing list of provider names.  See
-   * {@link #getGroupProviderNames()} for more info.
+   * Sets the list of group providers this security provider will use. This will replace the
+   * existing list of provider names. See {@link #getGroupProviderNames()} for more info.
    *
-   * @param providers An iterator over zero or more group Provider names as
-   * Strings.  May not be <code>null</code>, may be empty.
-   *
+   * @param providers An iterator over zero or more group Provider names as Strings. May not be
+   *     <code>null</code>, may be empty.
    * @throws IllegalArgumentException if providers is invalid.
    */
   public void setGroupProviderNames(Iterator providers) {
@@ -235,8 +225,8 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
   /**
    * Get the role catalog provider.
    *
-   * @return the role catalog provider or <code>null</code> if this
-   *    security provider does not allow role catalog requests.
+   * @return the role catalog provider or <code>null</code> if this security provider does not allow
+   *     role catalog requests.
    */
   public PSProvider getRoleProvider() {
     return m_roleProvider;
@@ -245,23 +235,21 @@ public class PSLegacySecurityProviderInstance extends PSSecurityProviderInstance
   /**
    * Set a new role catalog provider.
    *
-   * @param provider the new role provider to use, provide
-   *    <code>null</code> if this security provider does not allow role
-   *    catalog requests.
+   * @param provider the new role provider to use, provide <code>null</code> if this security
+   *     provider does not allow role catalog requests.
    */
   public void setRoleProvider(PSProvider provider) {
     m_roleProvider = provider;
   }
 
   /**
-   * List of names of the group providers instances used by this provider,
-   * stored as Strings.  Never <code>null</code>, may be empty.
+   * List of names of the group providers instances used by this provider, stored as Strings. Never
+   * <code>null</code>, may be empty.
    */
   private List m_groupProviderNames = new ArrayList();
 
   /**
-   * The role provider to be used with this security provider instance,
-   * may be <code>null</code>.
+   * The role provider to be used with this security provider instance, may be <code>null</code>.
    */
   private PSProvider m_roleProvider = null;
 

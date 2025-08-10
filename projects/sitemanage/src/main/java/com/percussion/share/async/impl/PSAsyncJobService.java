@@ -23,7 +23,6 @@ import com.percussion.share.async.IPSAsyncJobFactory;
 import com.percussion.share.async.IPSAsyncJobListener;
 import com.percussion.share.async.IPSAsyncJobService;
 import com.percussion.share.async.PSAsyncJobStatus;
-
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,98 +35,97 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class PSAsyncJobService implements IPSAsyncJobService, IPSAsyncJobListener {
 
-    private IPSAsyncJobFactory m_jobFactory;
-    private final ConcurrentMap<Long, IPSAsyncJob> m_jobMap = new ConcurrentHashMap<>();
-    private final AtomicLong m_jobIdCounter = new AtomicLong();
+  private IPSAsyncJobFactory m_jobFactory;
+  private final ConcurrentMap<Long, IPSAsyncJob> m_jobMap = new ConcurrentHashMap<>();
+  private final AtomicLong m_jobIdCounter = new AtomicLong();
 
-    // Actual implementation provided by the Spring container
-    public void setAsyncJobFactory(IPSAsyncJobFactory jobFactory) {
-        m_jobFactory = jobFactory;
+  // Actual implementation provided by the Spring container
+  public void setAsyncJobFactory(IPSAsyncJobFactory jobFactory) {
+    m_jobFactory = jobFactory;
+  }
+
+  @Override
+  public long startJob(String jobType, Object config)
+      throws IPSFolderService.PSWorkflowNotFoundException {
+    var job = m_jobFactory.getJob(jobType);
+    var jobId = m_jobIdCounter.incrementAndGet();
+    job.setId(jobId);
+    job.init(config);
+
+    // Add self as listener
+    job.addJobListener(this);
+
+    // Start job
+    var thread = new Thread(job);
+    thread.setDaemon(true);
+    thread.start();
+
+    m_jobMap.put(jobId, job);
+
+    return jobId;
+  }
+
+  @Override
+  public PSAsyncJobStatus getJobStatus(long jobId) {
+    var job = m_jobMap.get(jobId);
+    if (job != null) {
+      return new PSAsyncJobStatus(jobId, job.getStatus(), job.getStatusMessage());
+    } else {
+      return new PSAsyncJobStatus(jobId, IPSAsyncJob.COMPLETE_STATUS, "");
+    }
+  }
+
+  @Override
+  public void cancelJob(long jobId) {
+    var job = m_jobMap.get(jobId);
+    if (job == null) {
+      return;
     }
 
-    @Override
-    public long startJob(String jobType, Object config) throws IPSFolderService.PSWorkflowNotFoundException {
-        var job = m_jobFactory.getJob(jobType);
-        var jobId = m_jobIdCounter.incrementAndGet();
-        job.setId(jobId);
-        job.init(config);
+    // Cancel the job
+    job.cancelJob();
 
-        // Add self as listener
-        job.addJobListener(this);
-
-        // Start job
-        var thread = new Thread(job);
-        thread.setDaemon(true);
-        thread.start();
-
-        m_jobMap.put(jobId, job);
-
-        return jobId;
-    }
-
-    @Override
-    public PSAsyncJobStatus getJobStatus(long jobId) {
-        var job = m_jobMap.get(jobId);
-        if (job != null) {
-            return new PSAsyncJobStatus(jobId, job.getStatus(), job.getStatusMessage());
-        } else {
-            return new PSAsyncJobStatus(jobId, IPSAsyncJob.COMPLETE_STATUS, "");
+    // Wait until it's completed
+    while (!job.isCompleted()) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        if (job.isCompleted()) {
+          break;
         }
+      }
     }
 
-    @Override
-    public void cancelJob(long jobId) {
-        var job = m_jobMap.get(jobId);
-        if (job == null) {
-            return;
-        }
+    // Remove self as listener
+    job.removeJobListener(this);
+  }
 
-        // Cancel the job
-        job.cancelJob();
-
-        // Wait until it's completed
-        while (!job.isCompleted()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                if (job.isCompleted()) {
-                    break;
-                }
-            }
-        }
-
-        // Remove self as listener
-        job.removeJobListener(this);
+  @Override
+  public void jobCompleted(long jobId) {
+    var job = m_jobMap.get(jobId);
+    if (job == null) {
+      return;
     }
+    // Remove self as listener
+    job.removeJobListener(this);
 
-    @Override
-    public void jobCompleted(long jobId) {
-        var job = m_jobMap.get(jobId);
-        if (job == null) {
-            return;
-        }
-        // Remove self as listener
-        job.removeJobListener(this);
+    // Handle grooming old jobs from list
+    groomJobList();
+  }
 
-        // Handle grooming old jobs from list
-        groomJobList();
+  @Override
+  public Object getJobResult(long jobId) {
+    var job = m_jobMap.get(jobId);
+    return job != null ? job.getResult() : null;
+  }
+
+  /** Removes any expired jobs from the list. */
+  private void groomJobList() {
+    for (Entry<Long, IPSAsyncJob> entry : m_jobMap.entrySet()) {
+      if (entry.getValue().isDiscarded()) {
+        m_jobMap.remove(entry.getKey());
+      }
     }
-
-    @Override
-    public Object getJobResult(long jobId) {
-        var job = m_jobMap.get(jobId);
-        return job != null ? job.getResult() : null;
-    }
-
-    /**
-     * Removes any expired jobs from the list.
-     */
-    private void groomJobList() {
-        for (Entry<Long, IPSAsyncJob> entry : m_jobMap.entrySet()) {
-            if (entry.getValue().isDiscarded()) {
-                m_jobMap.remove(entry.getKey());
-            }
-        }
-    }
+  }
 }

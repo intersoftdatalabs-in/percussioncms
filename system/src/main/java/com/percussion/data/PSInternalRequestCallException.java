@@ -20,19 +20,16 @@ package com.percussion.data;
 import com.percussion.error.PSException;
 
 /**
- * PSInternalRequestCallException is thrown to indicate that the requested
- * conversion is not supported by the converter. This will usually happen
- * when the extension specified in the request URL is not supported.
- *
+ * PSInternalRequestCallException is thrown to indicate that the requested conversion is not
+ * supported by the converter. This will usually happen when the extension specified in the request
+ * URL is not supported.
  */
 public class PSInternalRequestCallException extends PSConversionException {
   /**
    * Construct an exception for messages taking only a single argument.
    *
-   * @param msgCode          the error string to load
-   *
-   * @param singleArg         the argument to use as the sole argument in
-   *                         the error message
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message
    */
   public PSInternalRequestCallException(int msgCode, Object singleArg) {
     super(msgCode, singleArg);
@@ -42,10 +39,7 @@ public class PSInternalRequestCallException extends PSConversionException {
    * Construct an exception for messages taking only a single argument.
    *
    * @param msgCode the error string to load
-   *
-   * @param singleArg the argument to use as the sole argument in the error
-   *           message
-   *
+   * @param singleArg the argument to use as the sole argument in the error message
    * @param exception the original exception, may be <code>null</code>.
    */
   public PSInternalRequestCallException(int msgCode, String singleArg, Exception exception) {
@@ -53,29 +47,23 @@ public class PSInternalRequestCallException extends PSConversionException {
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param msgCode       the error string to load
-   *
-   * @param arrayArgs      the array of arguments to use as the arguments
-   *                      in the error message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    */
   public PSInternalRequestCallException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param msgCode       the error string to load
-   *
-   * @param  cause         Root case of the exception is getting passed in
-   * @param arrayArgs      the array of arguments to use as the arguments
-   *                      in the error message
+   * @param msgCode the error string to load
+   * @param cause Root case of the exception is getting passed in
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    */
   public PSInternalRequestCallException(int msgCode, Throwable cause, Object[] arrayArgs) {
     super(msgCode, cause, arrayArgs);
@@ -84,22 +72,19 @@ public class PSInternalRequestCallException extends PSConversionException {
   /**
    * Construct an exception for messages taking no arguments.
    *
-   * @param msgCode       the error string to load
+   * @param msgCode the error string to load
    */
   public PSInternalRequestCallException(int msgCode) {
     super(msgCode);
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param errorCode  the error string to load
-   *
-   * @param errorArguments the array of arguments to use as the arguments
-   *                      in the error message
-   * @param exception  the original exception, may be <code>null</code>.
+   * @param errorCode the error string to load
+   * @param errorArguments the array of arguments to use as the arguments in the error message
+   * @param exception the original exception, may be <code>null</code>.
    */
   public PSInternalRequestCallException(
       int errorCode, Object[] errorArguments, PSException exception) {

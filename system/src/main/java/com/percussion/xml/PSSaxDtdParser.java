@@ -27,17 +27,14 @@ import org.apache.xerces.xni.XNIException;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/**
- * This class is used for finding the root element of a DTD.
- */
+/** This class is used for finding the root element of a DTD. */
 public class PSSaxDtdParser extends SAXParser {
   /**
-   * Returns the root of the DTD. Scans the DTD string for "DOCTYPE" and then
-   * returns the root element.
-   * @param strDtd the DTD in string format, may not be <code>null</code>
-   * or empty
-   * @return the root of the DTD, or <code>null</code> if it fails to find the
-   * root of the DTD
+   * Returns the root of the DTD. Scans the DTD string for "DOCTYPE" and then returns the root
+   * element.
+   *
+   * @param strDtd the DTD in string format, may not be <code>null</code> or empty
+   * @return the root of the DTD, or <code>null</code> if it fails to find the root of the DTD
    * @throw IllegalArgumentException if strDtd is <code>null</code> or empty
    */
   protected String getRootElement(String strDtd) {
@@ -67,9 +64,6 @@ public class PSSaxDtdParser extends SAXParser {
     throw new XNIException(DTDROOTELEMENT_TAG + rootElement);
   }
 
-  /**
-   * tag for identifying root element in the dtd, used in
-   * <code>getRootElement</code> method
-   */
+  /** tag for identifying root element in the dtd, used in <code>getRootElement</code> method */
   protected static final String DTDROOTELEMENT_TAG = "DTDROOTELEMENT=";
 }

@@ -32,33 +32,32 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit acts like a dispatcher to the appropriate authtype implementation
- * resource. Exit takes the authtype in the request (as HTML parameter
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_AUTHTYPE}), finds the
- * matching resource name using the singleton object of the class
- * {@link com.percussion.cms.objectstore.server.PSAuthTypes}, makes an internal
- * request and imports the &lt;linkurl&gt; nodes from the result document to the
- * original result document.The default value for the requested authtype is "0".
+ * This exit acts like a dispatcher to the appropriate authtype implementation resource. Exit takes
+ * the authtype in the request (as HTML parameter {@link
+ * com.percussion.system.utils.IPSHtmlParameters#SYS_AUTHTYPE}), finds the matching resource name
+ * using the singleton object of the class {@link
+ * com.percussion.cms.objectstore.server.PSAuthTypes}, makes an internal request and imports the
+ * &lt;linkurl&gt; nodes from the result document to the original result document.The default value
+ * for the requested authtype is "0".
  */
 public class PSAuthtypeDispatcher extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
    * Implementation of the method from the interface.
    *
    * @return always <code>false</code>
-   * @see com.percussion.extension.IPSResultDocumentProcessor
-   *      #canModifyStyleSheet()
+   * @see com.percussion.extension.IPSResultDocumentProcessor #canModifyStyleSheet()
    */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   * Implementation of the interface method. Does not need any parameters. See
-   * the class description for more details.
+   * Implementation of the interface method. Does not need any parameters. See the class description
+   * for more details.
    *
    * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *      processResultDocument(java.lang.Object[], com.percussion.server.
-   *      IPSRequestContext, org.w3c.dom.Document)
+   *     processResultDocument(java.lang.Object[], com.percussion.server. IPSRequestContext,
+   *     org.w3c.dom.Document)
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

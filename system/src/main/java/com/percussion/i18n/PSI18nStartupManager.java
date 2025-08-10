@@ -37,11 +37,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Runs Language Tool at server startup if needed.  Installer sets a flag in
- * rxlt/i18n.properties, this class clears the value if tool is run.
+ * Runs Language Tool at server startup if needed. Installer sets a flag in rxlt/i18n.properties,
+ * this class clears the value if tool is run.
  *
  * @author JaySeletz
- *
  */
 public class PSI18nStartupManager implements IPSNotificationListener {
   private static final String RUN_AT_STARTUP = "runAtStartup";

@@ -42,36 +42,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Data handler object which populates the "TRANSITIONROLES" table from the
- * contents of "TRANSITIONS" and "ROLES" table.
+ * Data handler object which populates the "TRANSITIONROLES" table from the contents of
+ * "TRANSITIONS" and "ROLES" table.
  *
- * The logic used for inserting data into "TRANSITIONROLES" table is as follows:
+ * <p>The logic used for inserting data into "TRANSITIONROLES" table is as follows:
  *
- * Catalog "TRANSITIONS" table :
- * SELECT TRANSITIONID, WORKFLOWAPPID, TRANSITIONROLES FROM TRANSITIONS WHERE
- * ((TRANSITIONROLES != null) && (TRANSITIONROLES != '*ALL*') &&
- * (TRANSITIONROLES != '*Specified*'))
+ * <p>Catalog "TRANSITIONS" table : SELECT TRANSITIONID, WORKFLOWAPPID, TRANSITIONROLES FROM
+ * TRANSITIONS WHERE ((TRANSITIONROLES != null) && (TRANSITIONROLES != '*ALL*') && (TRANSITIONROLES
+ * != '*Specified*'))
  *
- * Store the value of TRANSITIONID, WORKFLOWAPPID and TRANSITIONROLES for all
- * such rows into variables "x", "y" and "z" respectively.
+ * <p>Store the value of TRANSITIONID, WORKFLOWAPPID and TRANSITIONROLES for all such rows into
+ * variables "x", "y" and "z" respectively.
  *
- * Query the "ROLES" table for ROLEID and store it in variable "r"
- * SELECT ROLEID FROM ROLES WHERE ROLENAME = :z AND WORKFLOWAPPID = :y
+ * <p>Query the "ROLES" table for ROLEID and store it in variable "r" SELECT ROLEID FROM ROLES WHERE
+ * ROLENAME = :z AND WORKFLOWAPPID = :y
  *
- * If a valid ROLEID is obtained from "ROLES" table then:
- * INSERT INTO TRANSITIONROLES VALUES (:x, :y, :r)
+ * <p>If a valid ROLEID is obtained from "ROLES" table then: INSERT INTO TRANSITIONROLES VALUES (:x,
+ * :y, :r)
  *
- * Update the value of "TRANSITIONROLES" column in "TRANSITIONS" table
- * UPDATE TRANSITIONS SET TRANSITIONROLES = '*Specified*' WHERE
- * TRANSITIONID = :x AND WORKFLOWAPPID = :y
- *
+ * <p>Update the value of "TRANSITIONROLES" column in "TRANSITIONS" table UPDATE TRANSITIONS SET
+ * TRANSITIONROLES = '*Specified*' WHERE TRANSITIONID = :x AND WORKFLOWAPPID = :y
  */
 public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
   /**
    * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>srcTableSchema</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>srcTableSchema</code> is
+   *     <code>null</code>
    */
   public void init(
       PSJdbcDbmsDef dbmsDef,
@@ -225,19 +221,15 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
   /**
    * Returns the value of the specifed column from the row data.
    *
-   * @param row the row data from which to obtain the column value, assumed
-   * not <code>null</code>
-   * @param tableName the name of the table containing the column
-   * <code>colName</code>, assumed not <code>null</code> and non-empty
-   * @param colName the name of the column whose value is to be returned,
-   * assumed not <code>null</code> and non-empty
-   *
-   * @return the value of column <code>colName</code> obtain from the row
-   * data <code>row</code>, never <code>null</code>
-   *
-   * @throws PSJdbcTableFactoryException if the column <code>colName</code>
-   * does not exist in the row data <code>row</code> or if the column value
-   * is <code>null</code>
+   * @param row the row data from which to obtain the column value, assumed not <code>null</code>
+   * @param tableName the name of the table containing the column <code>colName</code>, assumed not
+   *     <code>null</code> and non-empty
+   * @param colName the name of the column whose value is to be returned, assumed not <code>null
+   *     </code> and non-empty
+   * @return the value of column <code>colName</code> obtain from the row data <code>row</code>,
+   *     never <code>null</code>
+   * @throws PSJdbcTableFactoryException if the column <code>colName</code> does not exist in the
+   *     row data <code>row</code> or if the column value is <code>null</code>
    */
   private String getRequiredColumnValue(PSJdbcRowData row, String tableName, String colName)
       throws PSJdbcTableFactoryException {
@@ -285,23 +277,22 @@ public class PSJdbcTransitionRoles implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * provides the database/schema information for the table, initialized in the
-   * constructor, never <code>null</code> after initialization
+   * provides the database/schema information for the table, initialized in the constructor, never
+   * <code>null</code> after initialization
    */
   private PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * Schema of the "TRANSITIONROLES" table, initialized in the
-   * <code>init()</code> method, never <code>null</code> after initialization
+   * Schema of the "TRANSITIONROLES" table, initialized in the <code>init()</code> method, never
+   * <code>null</code> after initialization
    */
   private PSJdbcTableSchema m_transRolesTblSchema = null;
 
   /**
-   * Filter for select statement used when catalogging TRANSITIONS table,
-   * initialized in the <code>init()</code> method, never <code>null</code>
-   * after initialization. It equals:
-   * ((TRANSITIONROLES != null) && (TRANSITIONROLES != '*ALL*') &&
-   * (TRANSITIONROLES != '*Specified*'))
+   * Filter for select statement used when catalogging TRANSITIONS table, initialized in the <code>
+   * init()</code> method, never <code>null</code> after initialization. It equals:
+   * ((TRANSITIONROLES != null) && (TRANSITIONROLES != '*ALL*') && (TRANSITIONROLES !=
+   * '*Specified*'))
    */
   PSJdbcFilterContainer m_transTblFilter = null;
 

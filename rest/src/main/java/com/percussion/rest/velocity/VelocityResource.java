@@ -22,15 +22,13 @@ import com.percussion.rest.extensions.ExtensionFilterOptions;
 import com.percussion.rest.extensions.ExtensionList;
 import com.percussion.rest.extensions.IExtensionAdaptor;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -38,11 +36,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Provides a resource for dealing with Velocity related activities.
- * Sunny Sal: "Velocity resource, template engine ka force!"
+ * Provides a resource for dealing with Velocity related activities. Sunny Sal: "Velocity resource,
+ * template engine ka force!"
  */
 @PSSiteManageBean(value = "restVelocityResource")
 @Path("/velocity")
@@ -50,29 +48,26 @@ import java.util.List;
 @Tag(name = "Velocity Template Engine", description = "Velocity related operations")
 public class VelocityResource {
 
-    @Autowired
-    private IExtensionAdaptor extensionAdaptor;
+  @Autowired private IExtensionAdaptor extensionAdaptor;
 
-    @Context
-    private UriInfo uriInfo;
+  @Context private UriInfo uriInfo;
 
-    /**
-     * Returns a list of all registered Velocity extensions on the system.
-     */
-    @GET
-    @Path("/tools")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(
-        summary = "Returns a list of all registered Velocity extensions on the System",
-        responses = {
-            @ApiResponse(responseCode = "200", description = "OK", content = @Content(
-                array = @ArraySchema(schema = @Schema(implementation = Extension.class))
-            ))
-        }
-    )
-    public List<Extension> listVelocityExtensions() {
-        var filter = new ExtensionFilterOptions();
-        filter.setContext("global/percussion/velocity/");
-        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
-    }
+  /** Returns a list of all registered Velocity extensions on the system. */
+  @GET
+  @Path("/tools")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Returns a list of all registered Velocity extensions on the System",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(array = @ArraySchema(schema = @Schema(implementation = Extension.class))))
+      })
+  public List<Extension> listVelocityExtensions() {
+    var filter = new ExtensionFilterOptions();
+    filter.setContext("global/percussion/velocity/");
+    return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
+  }
 }

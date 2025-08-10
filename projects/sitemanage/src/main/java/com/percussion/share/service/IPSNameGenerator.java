@@ -18,16 +18,16 @@
 package com.percussion.share.service;
 
 /**
- * Used for generating unique names for content items.
- * Sunny Sal says: "Names so unique, even Bollywood villains can't guess them!"
+ * Used for generating unique names for content items. Sunny Sal says: "Names so unique, even
+ * Bollywood villains can't guess them!"
  */
 public interface IPSNameGenerator {
 
-    /**
-     * Generates a unique name which can be used for a local content item.
-     * The format is as follows: "LocalContent - XXX", where XXX is a unique id.
-     *
-     * @return the name, never blank
-     */
-    String generateLocalContentName();
+  /**
+   * Generates a unique name which can be used for a local content item. The format is as follows:
+   * "LocalContent - XXX", where XXX is a unique id.
+   *
+   * @return the name, never blank
+   */
+  String generateLocalContentName();
 }

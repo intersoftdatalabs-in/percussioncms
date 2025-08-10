@@ -25,10 +25,9 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This exit adds all the slots, sites associated with the source variant to the
- * new variant clone. If the parameter <code>clonesourceid</code> is not
- * provided the exit does nothing. This exit also needs the newly created
- * variant id in the form of HTML parameter named "variantid" if it is
+ * This exit adds all the slots, sites associated with the source variant to the new variant clone.
+ * If the parameter <code>clonesourceid</code> is not provided the exit does nothing. This exit also
+ * needs the newly created variant id in the form of HTML parameter named "variantid" if it is
  * missing, the exit skips copying variant relations.
  */
 public class PSCloneVariantExit extends PSCloneBase {
@@ -74,16 +73,12 @@ public class PSCloneVariantExit extends PSCloneBase {
     return resultDoc;
   }
 
-  /**
-   * Array of query resource names of variant relations.
-   */
+  /** Array of query resource names of variant relations. */
   private static final String[] ms_queryResources = {
     "sys_variantsCloning/QueryVariantSlots", "sys_variantsCloning/QueryVariantSites"
   };
 
-  /**
-   * Array of update resource names of variant relations.
-   */
+  /** Array of update resource names of variant relations. */
   private static final String[] ms_updateResources = {
     "sys_variantsCloning/UpdateVariantSlots", "sys_variantsCloning/UpdateVariantSites"
   };

@@ -20,9 +20,7 @@ package com.percussion.servlet_utils.container.jboss;
 import com.percussion.utils.container.jboss.PSJBossJndiDatasource;
 import org.junit.jupiter.api.Disabled;
 
-/**
- * Test case for the {@link PSJBossJndiDatasource} class.
- */
+/** Test case for the {@link PSJBossJndiDatasource} class. */
 @Disabled
 public class PSJBossJndiDatasourceTest {
   /***

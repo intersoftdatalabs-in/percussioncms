@@ -23,14 +23,9 @@ import com.rometools.modules.mediarss.types.Text;
  */
 public class PSSynFeedTranscript {
 
-	private Text[] transcript;
-	
-	
-	public PSSynFeedTranscript(Text[] arg){
-		this.transcript = arg;
-	}
+  private Text[] transcript;
 
-
-	
-	
+  public PSSynFeedTranscript(Text[] arg) {
+    this.transcript = arg;
+  }
 }

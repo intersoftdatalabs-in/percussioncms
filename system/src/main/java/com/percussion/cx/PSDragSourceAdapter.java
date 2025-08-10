@@ -25,9 +25,8 @@ import java.awt.dnd.DragSourceEvent;
 import java.awt.dnd.DragSourceListener;
 
 /**
- * The adapter class to listen on drag source events. The method implementations
- * are empty except for {@link #dragOver(DragSourceDragEvent)}. See the link for
- * default behavior.
+ * The adapter class to listen on drag source events. The method implementations are empty except
+ * for {@link #dragOver(DragSourceDragEvent)}. See the link for default behavior.
  */
 public class PSDragSourceAdapter implements DragSourceListener {
   public void dragEnter(DragSourceDragEvent dsde) {
@@ -41,8 +40,8 @@ public class PSDragSourceAdapter implements DragSourceListener {
   }
 
   /**
-   * Displays copy cursor if the control key is pressed, otherwise regular move
-   * cursor. See interface for some more description about this method
+   * Displays copy cursor if the control key is pressed, otherwise regular move cursor. See
+   * interface for some more description about this method
    */
   public void dragOver(DragSourceDragEvent dsde) {
     //      DragSourceContext context = dsde.getDragSourceContext();

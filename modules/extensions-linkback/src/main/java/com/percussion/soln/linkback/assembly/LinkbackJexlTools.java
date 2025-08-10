@@ -25,9 +25,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * JEXL function to encode assembly parameters into a linkback token.
- */
+/** JEXL function to encode assembly parameters into a linkback token. */
 public class LinkbackJexlTools implements IPSJexlExpression {
 
   private static final Logger log = LogManager.getLogger(LinkbackJexlTools.class);

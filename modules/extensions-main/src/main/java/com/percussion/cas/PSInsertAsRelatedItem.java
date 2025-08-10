@@ -29,15 +29,13 @@ import java.net.URLEncoder;
 import org.w3c.dom.Document;
 
 /**
- * This exit inserts the newly created item as the related item of the parent
- * item. This is specifically written to process the the action of create an
- * item and insert into the slot at the same time. This exit goes onto the modify
- * handler of the Content Editor System Definition file. Whenever the psredirect
- * contains "updaterelateditems" (means insert the item as child item) the exit
- * is processed. Processing involves modifying the psredirect  appropriately to
- * be acceptible by the updaterelateditems Rhythmyx resource that modifies the
- * related content. This exit makes use of parameters defined in
- * <code>PSModifyRelatedContent</code> class.
+ * This exit inserts the newly created item as the related item of the parent item. This is
+ * specifically written to process the the action of create an item and insert into the slot at the
+ * same time. This exit goes onto the modify handler of the Content Editor System Definition file.
+ * Whenever the psredirect contains "updaterelateditems" (means insert the item as child item) the
+ * exit is processed. Processing involves modifying the psredirect appropriately to be acceptible by
+ * the updaterelateditems Rhythmyx resource that modifies the related content. This exit makes use
+ * of parameters defined in <code>PSModifyRelatedContent</code> class.
  *
  * @see PSModifyRelatedContent
  */
@@ -118,21 +116,19 @@ public class PSInsertAsRelatedItem implements IPSResultDocumentProcessor {
     return resultDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
   /**
-   * The fully qualified name of this extension. This exit is processed only if
-   * this key exists in the psredirect URL in the request.
+   * The fully qualified name of this extension. This exit is processed only if this key exists in
+   * the psredirect URL in the request.
    */
   private static String KEY_REDIRECTURL = "updaterelateditems";
 
   /**
-   * HTML parameter representing the http caller which is the actuall page
-   * from which the create and insert the item is invoked. The update related
-   * items resource will redirect the page to this one.
+   * HTML parameter representing the http caller which is the actuall page from which the create and
+   * insert the item is invoked. The update related items resource will redirect the page to this
+   * one.
    */
   private static String PARAM_HTTPCALLER = "httpcaller";
 }

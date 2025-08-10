@@ -34,9 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/**
- * Plan builder for performing inserts of Simple child rows
- */
+/** Plan builder for performing inserts of Simple child rows */
 public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSSimpleChildInsertPlanBuilder(
@@ -45,9 +43,9 @@ public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform an insert of any Simple child rows.  See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
-   * super.createModifyPlan()} for additional details.
+   * Creates a plan that will perform an insert of any Simple child rows. See {@link
+   * PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet) super.createModifyPlan()} for
+   * additional details.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException {
@@ -93,17 +91,12 @@ public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Given a display mapper and fieldset, creates a PSConditional
-   * object collection that
-   * will only evaluate to <code>true</code> if the parameter is not
-   * <code>null</code> in the incoming html parameters.
-   * This is used to only perform simple child inserts if the values are
-   * provided.  If no values are provided, then we will still want to do
-   * deletes, but not any inserts.
+   * Given a display mapper and fieldset, creates a PSConditional object collection that will only
+   * evaluate to <code>true</code> if the parameter is not <code>null</code> in the incoming html
+   * parameters. This is used to only perform simple child inserts if the values are provided. If no
+   * values are provided, then we will still want to do deletes, but not any inserts.
    *
-   * @param paramName The name of the parameter to check.  May be
-   * <code>null</code>.
-   *
+   * @param paramName The name of the parameter to check. May be <code>null</code>.
    * @return A collection of PSConditional objects, never <code>null</code>.
    */
   private PSCollection createSimpleConditional(String paramName) {
@@ -127,17 +120,12 @@ public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Determines the Html paramter name for the field mapped in the Simple
-   * child mapper.  Assumes that the mapper contains a mapping
-   * referencing a field in the simple child field set.
+   * Determines the Html paramter name for the field mapped in the Simple child mapper. Assumes that
+   * the mapper contains a mapping referencing a field in the simple child field set.
    *
-   * @param fieldSet The fieldSet that the mapper references.  Assumed not
-   * <code>null</code>.
-   * @param mapper The simple child mapper, assumed not <code>null</code> and
-   * of the correct type.
-   *
-   * @return The paramter name of the first mapped field, or <code>null</code>
-   * if none are found.
+   * @param fieldSet The fieldSet that the mapper references. Assumed not <code>null</code>.
+   * @param mapper The simple child mapper, assumed not <code>null</code> and of the correct type.
+   * @return The paramter name of the first mapped field, or <code>null</code> if none are found.
    */
   private String getSimpleFieldParam(PSFieldSet fieldSet, PSDisplayMapper mapper) {
     String result = null;

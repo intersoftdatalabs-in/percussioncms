@@ -38,32 +38,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to handle the web services HTTP requests from the clients. Standard
- * clients are:
- * <br>
- * <ul>
- * <li>Web Services client </li>
- * <li>Command line</li>
- * <li>Site Migration</li>
- * </ul>
- * <br>
+ * Class to handle the web services HTTP requests from the clients. Standard clients are: <br>
  *
- * This loadable handler's basic functionality is to take a request, parse the
- * action and execute the proper internal request based on that action. It uses
- * the input document for all parameters for each action. The input document is
- * defined within the specific schema based on the different actions.
- * <p>
- * Loosely implements the Singleton pattern in that a single instance is
- * created by the server, and other classes should use {@link #getInstance()}
- * to obtain a reference.
+ * <ul>
+ *   <li>Web Services client
+ *   <li>Command line
+ *   <li>Site Migration
+ * </ul>
+ *
+ * <br>
+ * This loadable handler's basic functionality is to take a request, parse the action and execute
+ * the proper internal request based on that action. It uses the input document for all parameters
+ * for each action. The input document is defined within the specific schema based on the different
+ * actions.
+ *
+ * <p>Loosely implements the Singleton pattern in that a single instance is created by the server,
+ * and other classes should use {@link #getInstance()} to obtain a reference.
  */
 public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
     implements IPSLoadableRequestHandler {
   /**
-   * Parameterless ctor used by server to construct this loadable handler.
-   * Should not be used otherwise, as a single instance of this class should
-   * exist and a reference to it be held by the server.  All other classes
-   * should use {@link #getInstance()}.
+   * Parameterless ctor used by server to construct this loadable handler. Should not be used
+   * otherwise, as a single instance of this class should exist and a reference to it be held by the
+   * server. All other classes should use {@link #getInstance()}.
    */
   public PSWebServicesRequestHandler() {
     ms_wsHandler = this;
@@ -72,8 +69,8 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
   /**
    * Get this instance of the webservice handler
    *
-   * @return The single instance of the webservice handler running on the
-   * server, or <code>null</code> if one has not been created.
+   * @return The single instance of the webservice handler running on the server, or <code>null
+   *     </code> if one has not been created.
    */
   public static PSWebServicesRequestHandler getInstance() {
     return ms_wsHandler;
@@ -82,13 +79,12 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
   /* ************ IPSLoadableRequestHandler Interface Implementation ********/
 
   /**
-   * Server thread calls this method during initialization. Any initialization
-   * required to be done based on the data from the config file shall be done
-   * here.
+   * Server thread calls this method during initialization. Any initialization required to be done
+   * based on the data from the config file shall be done here.
    *
    * @param requestRoots @see IPSLoadableRequestHandler
-   * @param cfgFileIn  @see IPSLoadableRequestHandler
-   * @throws PSServerException  @see IPSLoadableRequestHandler
+   * @param cfgFileIn @see IPSLoadableRequestHandler
+   * @throws PSServerException @see IPSLoadableRequestHandler
    */
   public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
     if (requestRoots == null || requestRoots.size() == 0)
@@ -108,18 +104,19 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
   /* ************ IPSLoadableRequestHandler Interface Implementation ****** */
 
   /**
-   * Process a request using the input context information and data.
-   * The results will be written to the specified output stream.
-   * <p>
-   * The following steps are performed to handle the request:
+   * Process a request using the input context information and data. The results will be written to
+   * the specified output stream.
+   *
+   * <p>The following steps are performed to handle the request:
+   *
    * <ol>
-   * <li>validate the request</li>
-   * <li>see if requested action can be performed</li>
-   * <li>return the response</li>
+   *   <li>validate the request
+   *   <li>see if requested action can be performed
+   *   <li>return the response
    * </ol>
    *
-   * @param request - the request object containing all context
-   * data associated with the request, not <code>null</code>
+   * @param request - the request object containing all context data associated with the request,
+   *     not <code>null</code>
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -207,8 +204,8 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
 
   /*********** IPSLoadableRequestHandler Interface Implementation ***********/
   /**
-   * Shutdown the request handler, freeing any associated resources. This is
-   * called by server during server shut down.
+   * Shutdown the request handler, freeing any associated resources. This is called by server during
+   * server shut down.
    */
   public void shutdown() {}
 
@@ -223,39 +220,29 @@ public class PSWebServicesRequestHandler extends PSWebServicesBaseHandler
   }
 
   /**
-   * Singleton instance of the webservice handler.  Not <code>null</code> after
-   * call to ctor by the server.
+   * Singleton instance of the webservice handler. Not <code>null</code> after call to ctor by the
+   * server.
    */
   private static PSWebServicesRequestHandler ms_wsHandler = null;
 
   /**
-   * Storage for the request roots, initialized in init() call, never
-   * <code>null</code> or empty after that. A list of String objects.
+   * Storage for the request roots, initialized in init() call, never <code>null</code> or empty
+   * after that. A list of String objects.
    */
   private static Collection ms_requestRoots = null;
 
-  /**
-   * Name of the subsystem used to dump messages to server console.
-   */
+  /** Name of the subsystem used to dump messages to server console. */
   private static final String HANDLER = "WebServices";
 
-  /**
-   * Various WSDL port to categarise the requested actions (or operations).
-   */
+  /** Various WSDL port to categarise the requested actions (or operations). */
   private static final String WSDL_PORT = "wsdlPort";
 
-  /**
-   * Authenticate file name, used to force authentication
-   */
+  /** Authenticate file name, used to force authentication */
   private static final String WS_AUTHENTICATE = "authenticate.xml";
 
-  /**
-   * Used when being called direct to set the input document
-   */
+  /** Used when being called direct to set the input document */
   private static final String INPUT_DOCUMENT = "inputDocument";
 
-  /**
-   * action string constants
-   */
+  /** action string constants */
   private static final String WS_ACTION = "action";
 }

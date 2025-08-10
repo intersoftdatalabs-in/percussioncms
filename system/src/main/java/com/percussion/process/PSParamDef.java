@@ -23,18 +23,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a parameter definition used by a process def.  See
- * {@link PSProcessDef} for more info.  This class is immutable.
+ * This class represents a parameter definition used by a process def. See {@link PSProcessDef} for
+ * more info. This class is immutable.
  */
 public final class PSParamDef {
   /**
    * Construct this object from its XML representation.
    *
-   * @param source The element containing the XML representation, may not be
-   * {@code null}.  See {@link #toXml(Document)} for more info.
-   *
-   * @throws PSProcessException if the source element is malformed or if there
-   * are any errors.
+   * @param source The element containing the XML representation, may not be {@code null}. See
+   *     {@link #toXml(Document)} for more info.
+   * @throws PSProcessException if the source element is malformed or if there are any errors.
    */
   public PSParamDef(Element source) throws PSProcessException {
     Objects.requireNonNull(source, "source cannot be null");
@@ -70,8 +68,8 @@ public final class PSParamDef {
   }
 
   /**
-   * Get the name of the variable that must be defined for this parameter to
-   * be included in the process request.
+   * Get the name of the variable that must be defined for this parameter to be included in the
+   * process request.
    *
    * @return The name, may be {@code null}, never empty.
    */
@@ -80,11 +78,10 @@ public final class PSParamDef {
   }
 
   /**
-   * Get the separator to use when formatting the command arguments from the
-   * name and value.  If {@code null}, a space is assumed which will
-   * result in two separate command arguments for name and value.  If not,
-   * then a single command argument is formed by concatenating
-   * name + separator + value.
+   * Get the separator to use when formatting the command arguments from the name and value. If
+   * {@code null}, a space is assumed which will result in two separate command arguments for name
+   * and value. If not, then a single command argument is formed by concatenating name + separator +
+   * value.
    *
    * @return The separator, may be {@code null}, never empty.
    */
@@ -96,9 +93,7 @@ public final class PSParamDef {
    * Serializes this object to its XML representation.
    *
    * @param doc The document to use, may not be {@code null}.
-   *
    * @return The element containing this object's state, never {@code null}.
-   *
    * @throws IllegalArgumentException if doc is {@code null}.
    */
   public Element toXml(Document doc) {
@@ -119,7 +114,6 @@ public final class PSParamDef {
    * Compares this object with another for equality.
    *
    * @param obj The object to compare with.
-   *
    * @return {@code true} if the objects are equal, {@code false} otherwise.
    */
   @Override
@@ -166,45 +160,30 @@ public final class PSParamDef {
         + '}';
   }
 
-  /**
-   * The name of this parameter, may be {@code null}, never empty.
-   */
+  /** The name of this parameter, may be {@code null}, never empty. */
   private final String m_name;
 
-  /**
-   * The resolvable value of this parameter, never {@code null}.
-   */
+  /** The resolvable value of this parameter, never {@code null}. */
   private final PSResolvableValue m_value;
 
   /**
-   * The name of the variable that must be defined for this parameter to be
-   * included in the process request, may be {@code null}, never empty.
+   * The name of the variable that must be defined for this parameter to be included in the process
+   * request, may be {@code null}, never empty.
    */
   private final String m_ifDefinedName;
 
-  /**
-   * The separator to use when formatting command arguments, may be {@code null},
-   * never empty.
-   */
+  /** The separator to use when formatting command arguments, may be {@code null}, never empty. */
   private final String m_separator;
 
-  /**
-   * The XML node name for this element.
-   */
+  /** The XML node name for this element. */
   public static final String XML_NODE_NAME = "PSXParam";
 
-  /**
-   * The name attribute.
-   */
+  /** The name attribute. */
   private static final String ATTR_NAME = "name";
 
-  /**
-   * The ifDefined attribute.
-   */
+  /** The ifDefined attribute. */
   private static final String ATTR_IFDEF = "ifDefined";
 
-  /**
-   * The separator attribute.
-   */
+  /** The separator attribute. */
   private static final String ATTR_SEPARATOR = "separator";
 }

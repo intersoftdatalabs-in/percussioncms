@@ -42,22 +42,24 @@ import org.w3c.dom.Document;
 
 /**
  * See {@link #processResultDocument(Object[], IPSRequestContext, Document)
- *  processResultDocument(Object[], IPSRequestContext, Document)}
+ * processResultDocument(Object[], IPSRequestContext, Document)}
  */
 public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor {
-  /** @see IPSResultDocumentProcessor **/
+  /**
+   * @see IPSResultDocumentProcessor *
+   */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   *  Returns a XML document constrained to the dtd specified here:
-   * {@link com.percussion.i18n.PSI18NTranslationKeyValues#toXml(Document doc)
-   * PSI18NTranslationKeyValues.toXml(Document doc)} that is based on the
-   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_LANG
-   * IPSHtmlParameters.SYS_LANG}
+   * Returns a XML document constrained to the dtd specified here: {@link
+   * com.percussion.i18n.PSI18NTranslationKeyValues#toXml(Document doc)
+   * PSI18NTranslationKeyValues.toXml(Document doc)} that is based on the {@link
+   * com.percussion.system.utils.IPSHtmlParameters#SYS_LANG IPSHtmlParameters.SYS_LANG}
    *
-   * @see IPSResultDocumentProcessor **/
+   * @see IPSResultDocumentProcessor *
+   */
   public Document processResultDocument(
       Object[] parameters, IPSRequestContext request, Document doc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -90,16 +92,14 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
   }
 
   /**
-   * Creates a key value map of the language provided from the specified
-   * language bundle or in the default language bundle, keys provided in the
-   * iterator.
+   * Creates a key value map of the language provided from the specified language bundle or in the
+   * default language bundle, keys provided in the iterator.
    *
-   * @param language the language key, assumed never <code>null</code> or
-   *           empty
-   * @param packages if this is non-<code>null</code> and has any values
-   *           then the values are used to limit the returned map
-   * @return may return <code>null</code> if default language or the passed
-   *         language isn't supported.
+   * @param language the language key, assumed never <code>null</code> or empty
+   * @param packages if this is non-<code>null</code> and has any values then the values are used to
+   *     limit the returned map
+   * @return may return <code>null</code> if default language or the passed language isn't
+   *     supported.
    */
   private Map getMapFromKeys(String language, String[] packages) {
     // this calls a method that will already check the default.
@@ -140,12 +140,11 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
   }
 
   /**
-   * Helper method to return the active locale for the passed in
-   * lang string. This is need for the case where only the lang part
-   * of the locale is passed in. So for the case of "fr" the first
+   * Helper method to return the active locale for the passed in lang string. This is need for the
+   * case where only the lang part of the locale is passed in. So for the case of "fr" the first
    * locale found in alpha order with the "fr" lang part will be returned.
-   * @param lang the locale string full or just the lang part. Assumed
-   * not <code>null</code>.
+   *
+   * @param lang the locale string full or just the lang part. Assumed not <code>null</code>.
    * @return the active locale or the default lang if none found.
    */
   private String getActiveLocale(String lang) {
@@ -162,6 +161,8 @@ public class PSTranslationKeyValueAccessor implements IPSResultDocumentProcessor
     return PSI18nUtils.DEFAULT_LANG;
   }
 
-  /** @see IPSResultDocumentProcessor **/
+  /**
+   * @see IPSResultDocumentProcessor *
+   */
   public void init(IPSExtensionDef parm1, File parm2) throws PSExtensionException {}
 }

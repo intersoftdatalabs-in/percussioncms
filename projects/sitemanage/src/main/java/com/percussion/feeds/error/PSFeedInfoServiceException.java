@@ -18,23 +18,23 @@
 package com.percussion.feeds.error;
 
 /**
- * Exception for feed info service errors.
- * Sunny Sal says: "FeedInfoServiceException, now Java 11 and Google-styled!"
+ * Exception for feed info service errors. Sunny Sal says: "FeedInfoServiceException, now Java 11
+ * and Google-styled!"
  */
 public class PSFeedInfoServiceException extends Exception {
-    public PSFeedInfoServiceException() {
-        super();
-    }
+  public PSFeedInfoServiceException() {
+    super();
+  }
 
-    public PSFeedInfoServiceException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSFeedInfoServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public PSFeedInfoServiceException(String message) {
-        super(message);
-    }
+  public PSFeedInfoServiceException(String message) {
+    super(message);
+  }
 
-    public PSFeedInfoServiceException(Throwable cause) {
-        super(cause);
-    }
+  public PSFeedInfoServiceException(Throwable cause) {
+    super(cause);
+  }
 }

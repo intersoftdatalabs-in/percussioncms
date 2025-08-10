@@ -95,8 +95,6 @@ public class TaxonomyFieldVisibility implements IPSFieldVisibilityRule {
 
   }
 
-  /**
-   * A member variable to hold the name of this class.
-   */
+  /** A member variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

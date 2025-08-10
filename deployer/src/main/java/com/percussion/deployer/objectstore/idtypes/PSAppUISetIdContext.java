@@ -27,17 +27,13 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * ID Context to represent a ui set
- */
+/** ID Context to represent a ui set */
 public class PSAppUISetIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a ui set.
    *
    * @param uiSet The uiSet, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>uiSet</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>uiSet</code> is <code>null</code>.
    */
   public PSAppUISetIdContext(PSUISet uiSet) {
     if (uiSet == null) throw new IllegalArgumentException("uiSet may not be null");
@@ -50,12 +46,9 @@ public class PSAppUISetIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppUISetIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -88,12 +81,13 @@ public class PSAppUISetIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppUISetIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppUISetIdContext
@@ -115,9 +109,8 @@ public class PSAppUISetIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -173,15 +166,12 @@ public class PSAppUISetIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Name of the ui Set this object represents.  May be <code>null</code> or
-   * but not empty if the uiset does not have a name, modified only by a call
-   * to <code>copyFrom()</code>
+   * Name of the ui Set this object represents. May be <code>null</code> or but not empty if the
+   * uiset does not have a name, modified only by a call to <code>copyFrom()</code>
    */
   private String m_name;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppUISetIdContext";
 
   // private xml constant

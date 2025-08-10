@@ -30,10 +30,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * ID Context to represent a parameter in a JEXL binding that needs idmapping
- * This context always has a parent context: PSBindingIdContext. The same
- * parameter can appear n-times in an expression. This context holds the
- * occurence information.
+ * ID Context to represent a parameter in a JEXL binding that needs idmapping This context always
+ * has a parent context: PSBindingIdContext. The same parameter can appear n-times in an expression.
+ * This context holds the occurence information.
  *
  * @author vamsinukala
  */
@@ -41,12 +40,10 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a binding context.
    *
-   * @param index The index into the param list of the JEXL binding this
-   * parameter is from.  May not be less than 0.
-   * @param occur the occurence of this parameter in the JEXL binding. May not
-   * be less than 0
+   * @param index The index into the param list of the JEXL binding this parameter is from. May not
+   *     be less than 0.
+   * @param occur the occurence of this parameter in the JEXL binding. May not be less than 0
    * @param param The param, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSBindingParamIdContext(int index, int occur, PSTextLiteral param) {
@@ -62,12 +59,9 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSBindingParamIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -97,8 +91,8 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   /**
    * Get the name of this param.
    *
-   * @return The name, may be <code>null</code> if
-   * {@link #setParamName(String)} has not been called, never empty.
+   * @return The name, may be <code>null</code> if {@link #setParamName(String)} has not been
+   *     called, never empty.
    */
   public String getParamName() {
     return m_paramName;
@@ -106,6 +100,7 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
 
   /**
    * the occurence of this parameter in a JEXL expression
+   *
    * @return the occurence
    */
   public int getOccurence() {
@@ -114,6 +109,7 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
 
   /**
    * see above
+   *
    * @param occurence
    */
   public void setOccurence(int occurence) {
@@ -161,12 +157,13 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXBindingParamIdContext (PSXBindingParamValue?>
    * &lt;!ATTLIST PSXBindingParamIdContext
@@ -193,9 +190,8 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -292,42 +288,36 @@ public class PSBindingParamIdContext extends PSApplicationIdContext {
    * Check the supplied index to see if it is valid (>=0)
    *
    * @param index The index to check.
-   *
    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
    */
   private boolean validateIndex(int index) {
     return index >= 0;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXBindingParamIdContext";
 
   /**
-   * the occurence of this parameter in the expression such as
-   * a hypothetical stupid expression
-   * occurence is 0, 2, 4 for "301"
-   * $rx.db.foo("301", "356", "301", "344", "301")
+   * the occurence of this parameter in the expression such as a hypothetical stupid expression
+   * occurence is 0, 2, 4 for "301" $rx.db.foo("301", "356", "301", "344", "301")
    */
   private int m_occurence;
 
   /**
-   * Index of this param in the parent binding context.  Intialized
-   * during ctor, modfied only by calls to <code>copyFrom()</code>.
+   * Index of this param in the parent binding context. Intialized during ctor, modfied only by
+   * calls to <code>copyFrom()</code>.
    */
   private int m_index;
 
   /**
-   * Name of this param in the binding's param list.  Initially
-   * <code>null</code>, modified by calls to {@link #setParamName(String)}.
+   * Name of this param in the binding's param list. Initially <code>null</code>, modified by calls
+   * to {@link #setParamName(String)}.
    */
   private transient String m_paramName = null;
 
   /**
-   * The param this context refers to, never <code>null</code> after
-   * construction, modified by a calls to <code>copyFrom()</code>
-   * and <code>updateCtxValue()</code>.
+   * The param this context refers to, never <code>null</code> after construction, modified by a
+   * calls to <code>copyFrom()</code> and <code>updateCtxValue()</code>.
    */
   private PSTextLiteral m_param;
 

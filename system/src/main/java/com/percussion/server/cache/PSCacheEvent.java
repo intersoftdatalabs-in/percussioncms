@@ -18,19 +18,17 @@
 package com.percussion.server.cache;
 
 /**
- * This class encapsulates information generated when events occur in the cache.
- * This includes adding items, removing items, accessing items, and moving and
- * retrieving items to and from disk.
+ * This class encapsulates information generated when events occur in the cache. This includes
+ * adding items, removing items, accessing items, and moving and retrieving items to and from disk.
  */
 public class PSCacheEvent {
   /**
-   * Constructs a cache event, specifying the action that has taken place, and
-   * providing the cache item that was involved in the event.
+   * Constructs a cache event, specifying the action that has taken place, and providing the cache
+   * item that was involved in the event.
    *
    * @param action The type of action, must be one of the CACHE_xxx values.
-   * @param object The object involved in the event, may be <code>null</code>
-   * if no object was involved in the event.
-   *
+   * @param object The object involved in the event, may be <code>null</code> if no object was
+   *     involved in the event.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSCacheEvent(int action, Object object) {
@@ -66,56 +64,51 @@ public class PSCacheEvent {
   }
 
   /**
-   * Event type to indicate an item has been addded to the cache.
-   * {@link #getObject()} will return an instance of a <code>PSCacheItem</code>
-   * when {@link #getAction()} returns this type.
+   * Event type to indicate an item has been addded to the cache. {@link #getObject()} will return
+   * an instance of a <code>PSCacheItem</code> when {@link #getAction()} returns this type.
    */
   public static final int CACHE_ITEM_ADDED = 0;
 
   /**
-   * Event type to indicate an item has been removed from the cache.
-   * {@link #getObject()} will return an instance of a <code>PSCacheItem</code>
-   * when {@link #getAction()} returns this type.
+   * Event type to indicate an item has been removed from the cache. {@link #getObject()} will
+   * return an instance of a <code>PSCacheItem</code> when {@link #getAction()} returns this type.
    */
   public static final int CACHE_ITEM_REMOVED = 1;
 
   /**
-   * Event type to indicate an item has been retrieved from the cache that was
-   * stored in memory.  {@link #getObject()} will return an instance of a
-   * <code>PSCacheItem</code> when {@link #getAction()} returns this type.
+   * Event type to indicate an item has been retrieved from the cache that was stored in memory.
+   * {@link #getObject()} will return an instance of a <code>PSCacheItem</code> when {@link
+   * #getAction()} returns this type.
    */
   public static final int CACHE_ITEM_ACCESSED_FROM_MEMORY = 2;
 
   /**
-   * Event type to indicate an item has been retrieved from the cache that was
-   * stored on disk. {@link #getObject()} will return an instance of a
-   * <code>PSCacheItem</code> when {@link #getAction()} returns this type.
+   * Event type to indicate an item has been retrieved from the cache that was stored on disk.
+   * {@link #getObject()} will return an instance of a <code>PSCacheItem</code> when {@link
+   * #getAction()} returns this type.
    */
   public static final int CACHE_ITEM_ACCESSED_FROM_DISK = 3;
 
   /**
-   * Event type to indicate an attempt to access an object from the cache
-   * resulted in no object found.  {@link #getObject()} will return
-   * <code>null</code> when {@link #getAction()} returns this type.
+   * Event type to indicate an attempt to access an object from the cache resulted in no object
+   * found. {@link #getObject()} will return <code>null</code> when {@link #getAction()} returns
+   * this type.
    */
   public static final int CACHE_ITEM_NOT_FOUND = 4;
 
   /**
-   * Event type to indicate that an item has been moved from memory storage to
-   * disk storage. {@link #getObject()} will return an instance of a
-   * <code>PSCacheItem</code> when {@link #getAction()} returns this type.
+   * Event type to indicate that an item has been moved from memory storage to disk storage. {@link
+   * #getObject()} will return an instance of a <code>PSCacheItem</code> when {@link #getAction()}
+   * returns this type.
    */
   public static final int CACHE_ITEM_STORED_TO_DISK = 5;
 
-  /**
-   * Type of action this event denotes.  Set during ctor, never modified after
-   * that.
-   */
+  /** Type of action this event denotes. Set during ctor, never modified after that. */
   private int m_action;
 
   /**
-   * The object causing the event, set during ctor, may be <code>null</code>,
-   * never modified after that.
+   * The object causing the event, set during ctor, may be <code>null</code>, never modified after
+   * that.
    */
   private Object m_object;
 }

@@ -29,12 +29,10 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 
 /**
- * An effect focused on folder relationships.
- * {@link #onFolderChange(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)}
- * is called when the relationship is a folder relationship.
+ * An effect focused on folder relationships. {@link #onFolderChange(Object[], IPSRequestContext,
+ * IPSExecutionContext, PSEffectResult)} is called when the relationship is a folder relationship.
  *
  * @author adamgent
- *
  */
 public abstract class PSFolderEffect extends PSEffect {
 
@@ -98,6 +96,7 @@ public abstract class PSFolderEffect extends PSEffect {
 
   /**
    * Called if the relationship is a folder relationship.
+   *
    * @param params not null.
    * @param request not null.
    * @param context not null.

@@ -29,43 +29,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * An object representation of a row in the CONTENTTYPES table. This object
- * is immutable. Note that 2 of the columns that are outdated are not
- * supported by this object.
- * <p>This is not in the objectstore because we want implementors to access
- * this information via the PSItemDefinition.
+ * An object representation of a row in the CONTENTTYPES table. This object is immutable. Note that
+ * 2 of the columns that are outdated are not supported by this object.
+ *
+ * <p>This is not in the objectstore because we want implementors to access this information via the
+ * PSItemDefinition.
  */
 public class PSContentType extends PSDbComponent {
   /**
-   * Creates an object representing a row in the CONTENTTYPES table. No
-   * validation on the actual values is performed; i.e., it is not validated
-   * that the id really exists, that the name is unique, or that the editorUrl
-   * points to a real editor. These validations are performed by higher level
-   * code. The following descriptions assume that that valid data is supplied.
+   * Creates an object representing a row in the CONTENTTYPES table. No validation on the actual
+   * values is performed; i.e., it is not validated that the id really exists, that the name is
+   * unique, or that the editorUrl points to a real editor. These validations are performed by
+   * higher level code. The following descriptions assume that that valid data is supplied.
    *
-   * @param typeId A unique (across content types) numeric identifier for an
-   *    item definition.
-   *
-   * @param name A unique (across content types) textual identifier for an
-   *    item definition. Never <code>null</code> or empty.
-   *
-   * @param label A descriptive label that should be shown in the UI for this
-   *    item definition. If <code>null</code> or empty this defaults to the
-   *    name.
-   *
-   * @param description An optional message that describes what this type is
-   *    used for. May be <code>null</code> or empty.
-   *
-   * @param editorUrl A partial Url to access the html editor associated with
-   *    this type. Of the form "../<appname>/<resource>". Back-slashes are
-   *    normalized to /. Never <code>null</code> or empty.
-   *
-   * @param hideFromMenu A flag that indicates whether this type should be
-   *    shown in the CA interface. (The presence of this property needs to be
-   *    reviewed.)
-   *
-   * @param objectType An object type id, which point to a row in the object
-   *    table, PSX_OBJECTS.
+   * @param typeId A unique (across content types) numeric identifier for an item definition.
+   * @param name A unique (across content types) textual identifier for an item definition. Never
+   *     <code>null</code> or empty.
+   * @param label A descriptive label that should be shown in the UI for this item definition. If
+   *     <code>null</code> or empty this defaults to the name.
+   * @param description An optional message that describes what this type is used for. May be <code>
+   *     null</code> or empty.
+   * @param editorUrl A partial Url to access the html editor associated with this type. Of the form
+   *     "../<appname>/<resource>". Back-slashes are normalized to /. Never <code>null</code> or
+   *     empty.
+   * @param hideFromMenu A flag that indicates whether this type should be shown in the CA
+   *     interface. (The presence of this property needs to be reviewed.)
+   * @param objectType An object type id, which point to a row in the object table, PSX_OBJECTS.
    */
   public PSContentType(
       int typeId,
@@ -101,15 +90,14 @@ public class PSContentType extends PSDbComponent {
   }
 
   /**
-   * See multi-paramed ctor for a description.
-   * The source must conform to this dtd:
+   * See multi-paramed ctor for a description. The source must conform to this dtd:
+   *
    * <p>The values found must conform to the descriptions in the other ctor.
    *
-   * @param source An xml fragment that conforms to the dtd in the description.
-   *    Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if expected nodes/attributes are not
-   *    found or have invalid values.
+   * @param source An xml fragment that conforms to the dtd in the description. Never <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if expected nodes/attributes are not found or have invalid
+   *     values.
    */
   public PSContentType(Element source) throws PSUnknownNodeTypeException {
     super(source);
@@ -129,8 +117,7 @@ public class PSContentType extends PSDbComponent {
   /**
    * The value of the CONTENTTYPENAME column.
    *
-   * @return The name supplied in the ctor. Never <code>null</code> or
-   *    empty.
+   * @return The name supplied in the ctor. Never <code>null</code> or empty.
    */
   public String getName() {
     return m_name;
@@ -139,8 +126,7 @@ public class PSContentType extends PSDbComponent {
   /**
    * The value of the CONTENTTYPELABEL column.
    *
-   * @return The name supplied in the ctor. Never <code>null</code> or
-   *    empty.
+   * @return The name supplied in the ctor. Never <code>null</code> or empty.
    */
   public String getLabel() {
     return m_label;
@@ -169,8 +155,8 @@ public class PSContentType extends PSDbComponent {
   /**
    * The value of the CONTENTTYPEQUERYREQUEST column.
    *
-   * @return The queryRequest URL supplied in the ctor. Never <code>null</code>
-   * or empty. The format will be '../appname/resource'.
+   * @return The queryRequest URL supplied in the ctor. Never <code>null</code> or empty. The format
+   *     will be '../appname/resource'.
    */
   public String getEditorUrl() {
     return m_queryRequest;
@@ -187,6 +173,7 @@ public class PSContentType extends PSDbComponent {
 
   /**
    * Returns a value of the respective column from the DB table.
+   *
    * @return may be <code>null</code> or <code>empty</code>.
    */
   public String getQueryRequest() {
@@ -194,6 +181,8 @@ public class PSContentType extends PSDbComponent {
   }
 
   /**
+   *
+   *
    * <pre>
    * <!ELEMENT PSXContentType (PSXKey, NewRequest?, QueryRequest?, UpdateRequest?, Description? )>
    * <!ELEMENT Description (#PCDATA)>
@@ -294,9 +283,9 @@ public class PSContentType extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   *     PSKey)}.
-   * Since this is a read-only object, this is a not supported operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
+   *
    * @throws UnsupportedOperationException always.
    */
   @Override
@@ -306,9 +295,7 @@ public class PSContentType extends PSDbComponent {
     throw new UnsupportedOperationException("PSContentType is read-only.");
   }
 
-  /**
-   * Override to create our own Key which is {@link PSLocator}.
-   */
+  /** Override to create our own Key which is {@link PSLocator}. */
   @Override
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
@@ -316,9 +303,7 @@ public class PSContentType extends PSDbComponent {
     return new PSKey(el);
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey[] createKeys(int[] contentTypeIds) {
     if (contentTypeIds == null || contentTypeIds.length < 1)
       throw new IllegalArgumentException("contentTypeIds may not be null or empty");
@@ -335,23 +320,19 @@ public class PSContentType extends PSDbComponent {
     return keys;
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey createKey(int contentTypeId) {
     return new PSSimpleKey(KEY_CONTENTTYPEID, "" + contentTypeId);
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. All
-   * members except the name are compared for exact matches. The name is
-   * compared case insensitive.
+   * Overrides the base class to compare each of the member properties. All members except the name
+   * are compared for exact matches. The name is compared case insensitive.
    *
-   * @param o The comparee. If null or not an instance of this class,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @param o The comparee. If null or not an instance of this class, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   @Override
   public boolean equals(Object o) {
@@ -369,9 +350,8 @@ public class PSContentType extends PSDbComponent {
   /**
    * Must be overridden because we overrode equals.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   @Override
   public int hashCode() {
@@ -381,14 +361,16 @@ public class PSContentType extends PSDbComponent {
 
   /**
    * Verifies that the supplied string has the following format:
-   * <p>..\text\text<p>
+   *
+   * <p>..\text\text
+   *
+   * <p>
+   *
    * <p>Either \ or / may appear as separators.
    *
    * @param editorUrl The text to check. May be <code>null</code>.
-   *
-   * @return If supplied text is <code>null</code> or it doesn't
-   *    match the form above, <code>false</code> is returned. Otherwise,
-   *    <code>true</code> is returned.
+   * @return If supplied text is <code>null</code> or it doesn't match the form above, <code>false
+   *     </code> is returned. Otherwise, <code>true</code> is returned.
    */
   private boolean verifyUrlFormat(String editorUrl) {
     if (null == editorUrl) return false;
@@ -406,9 +388,8 @@ public class PSContentType extends PSDbComponent {
   /**
    * Get the name of the app from the request url
    *
-   * @param requestUrl The ce request url, assumed not <code>null</code> or
-   * empty and in the format "../<appName>/<resourceName>.html"
-   *
+   * @param requestUrl The ce request url, assumed not <code>null</code> or empty and in the format
+   *     "../<appName>/<resourceName>.html"
    * @return The app name, never <code>null</code> or empty.
    */
   public static String getAppName(String requestUrl) {
@@ -425,9 +406,8 @@ public class PSContentType extends PSDbComponent {
    * Creates the standard request url from the content type name.
    *
    * @param name The content type name, may not be <code>null</code> or empty.
-   *
-   * @return The request url, never <code>null</code> or empty, see
-   * {@link #getAppName(String)} for the format used.
+   * @return The request url, never <code>null</code> or empty, see {@link #getAppName(String)} for
+   *     the format used.
    */
   public static String createRequestUrl(String name) {
     if (StringUtils.isBlank(name))
@@ -438,8 +418,8 @@ public class PSContentType extends PSDbComponent {
 
   /**
    * The request url is **always** of the form "../psx_ceXXXX/XXXX.html"
-   * @param url the request url string from which the appname has to be
-   * extracted.
+   *
+   * @param url the request url string from which the appname has to be extracted.
    * @return <code>null</code> if no pattern is found
    */
   public static String getAppNameFromRequestUrl(String url) {
@@ -453,11 +433,9 @@ public class PSContentType extends PSDbComponent {
   }
 
   /**
-   * Construct the standard application name from the supplied content type
-   * name.
+   * Construct the standard application name from the supplied content type name.
    *
    * @param name The content type name, may not be <code>null</code> or empty.
-   *
    * @return The app name, never <code>null</code> or empty.
    */
   public static String createAppName(String name) {
@@ -468,54 +446,48 @@ public class PSContentType extends PSDbComponent {
   }
 
   /**
-   * See {@link #PSContentType(int, String, String, String, String, boolean, int) ctor}
-   * for a description.
+   * See {@link #PSContentType(int, String, String, String, String, boolean, int) ctor} for a
+   * description.
    */
   private int m_objectType;
 
   /**
-   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor}
-   * for a description. Never <code>null</code> or empty.
+   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor} for a
+   * description. Never <code>null</code> or empty.
    */
   private String m_name;
 
   /**
-   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor}
-   * for a description. May be <code>null</code> or empty.
+   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor} for a
+   * description. May be <code>null</code> or empty.
    */
   private String m_label;
 
   /**
-   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor}
-   * for a description. Never <code>null</code> or empty.
+   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor} for a
+   * description. Never <code>null</code> or empty.
    */
   private String m_description;
 
-  /**
-   *
-   */
+  /** */
   private String m_newRequest;
 
   /**
-   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor}
-   * for a description. Never <code>null</code> or empty.
+   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor} for a
+   * description. Never <code>null</code> or empty.
    */
   private String m_queryRequest;
 
-  /**
-   *
-   */
+  /** */
   private String m_updateRequest;
 
   /**
-   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor}
-   * for a description. Never <code>null</code> or empty.
+   * See {@link #PSContentType(int,String, String,String,String,boolean, int) ctor} for a
+   * description. Never <code>null</code> or empty.
    */
   private boolean m_hideFromMenu;
 
-  /**
-   * Constant for the leading "../" url prefix.
-   */
+  /** Constant for the leading "../" url prefix. */
   public static final String CE_URL_PREFIX = "../";
 
   public static final String KEY_CONTENTTYPEID = "CONTENTTYPEID";

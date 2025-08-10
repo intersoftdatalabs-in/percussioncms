@@ -20,24 +20,18 @@ import com.percussion.utils.container.jboss.IPSJBossErrors;
 import com.percussion.utils.exceptions.PSBaseException;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Indicates a specified application policy is not found.
- */
+/** Indicates a specified application policy is not found. */
 public class PSMissingApplicationPolicyException extends PSBaseException {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
    * Construct the exception with the policy name and file name.
    *
-   * @param policyName The name of the policy that was not found, may not be
-   * <code>null</code> or empty.
-   *
-   * @param fileName The name of the file in which the policy was expected to
-   * be found, may not be <code>null</code> or empty.
-   *
+   * @param policyName The name of the policy that was not found, may not be <code>null</code> or
+   *     empty.
+   * @param fileName The name of the file in which the policy was expected to be found, may not be
+   *     <code>null</code> or empty.
    */
   public PSMissingApplicationPolicyException(String policyName, String fileName) {
     super(IPSJBossErrors.APP_POLICY_ELEMENT_MISSING, policyName, fileName);

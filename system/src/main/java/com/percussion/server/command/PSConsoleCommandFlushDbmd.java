@@ -169,11 +169,11 @@ public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   * <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    * &lt;ELEMENT PSXConsoleCommandResults (command, resultCode, resultText)&gt;
    * &lt;--
@@ -189,8 +189,8 @@ public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
    * --&gt;
    * &lt;ELEMENT resultText (#PCDATA)&gt;
    * </CODE></PRE>
-   * See {@link IPSConsoleCommand#execute(PSRequest)} for information on
-   * parameters and exceptions.
+   *
+   * See {@link IPSConsoleCommand#execute(PSRequest)} for information on parameters and exceptions.
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
 
@@ -273,62 +273,57 @@ public class PSConsoleCommandFlushDbmd extends PSConsoleCommand {
     return buf.toString();
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "flush dbmd";
 
   /**
-   * Datasource of the data to be flushed.  Initialized in the
-   * ctor, may be <code>null</code> or empty, never modified after that.
+   * Datasource of the data to be flushed. Initialized in the ctor, may be <code>null</code> or
+   * empty, never modified after that.
    */
   private String m_datasource = null;
 
   /**
-   * Name of the table that will have data flushed.  Initialized in the
-   * ctor, may be <code>null</code>, never empty modified after that.
+   * Name of the table that will have data flushed. Initialized in the ctor, may be <code>null
+   * </code>, never empty modified after that.
    */
   private String m_table = null;
 
   /**
-   * Origin of the table that will have data flushed.  Initialized in the
-   * ctor, may be <code>null</code>, never empty modified after that.
+   * Origin of the table that will have data flushed. Initialized in the ctor, may be <code>null
+   * </code>, never empty modified after that.
    */
   private String m_origin = null;
 
   /**
-   * If <code>true</code>, indicates if help text is to be displayed in lieu of
-   * executing a flush command.  If <code>false</code>, then a flush command
-   * will be executed.
+   * If <code>true</code>, indicates if help text is to be displayed in lieu of executing a flush
+   * command. If <code>false</code>, then a flush command will be executed.
    */
   private boolean m_help = false;
 
   /**
-   * Character used as part of a switch to specify the datasource.  Never <code>
+   * Character used as part of a switch to specify the datasource. Never <code>
    * null</code> or empty.
    */
   private static final char OPTION_DATASOURCE = 'd';
 
   /**
-   * Character used as part of a switch to specify the table.  Never <code>
+   * Character used as part of a switch to specify the table. Never <code>
    * null</code> or empty.
    */
   private static final char OPTION_TABLE = 't';
 
   /**
-   * Character used as part of a switch to request help.  Never <code>
+   * Character used as part of a switch to request help. Never <code>
    * null</code> or empty.
    */
   private static final char OPTION_HELP = 'h';
 
-  /**
-   * Character used as prefix of a switch.  Never <code>null</code> or empty.
-   */
+  /** Character used as prefix of a switch. Never <code>null</code> or empty. */
   private static final String OPTION_SWITCH = "-";
 
   /**
-   * Character used to specifiy a newline in any text that is displayed.  Never
-   * <code>null</code> or empty.
+   * Character used to specifiy a newline in any text that is displayed. Never <code>null</code> or
+   * empty.
    */
   private static final String NEW_LINE = System.getProperty("line.separator");
 }

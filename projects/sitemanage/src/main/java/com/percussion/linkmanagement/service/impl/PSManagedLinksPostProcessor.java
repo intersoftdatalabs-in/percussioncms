@@ -24,56 +24,59 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
-import java.io.File;
-
 /**
- * Managed link post processor. The input transformer creates new links on item creation and sets a request private object.
- * This post processor updates the managed links if the private object exists and is true.
+ * Managed link post processor. The input transformer creates new links on item creation and sets a
+ * request private object. This post processor updates the managed links if the private object
+ * exists and is true.
+ *
  * @author BJoginipally
  */
-public class PSManagedLinksPostProcessor extends PSDefaultExtension implements IPSResultDocumentProcessor {
+public class PSManagedLinksPostProcessor extends PSDefaultExtension
+    implements IPSResultDocumentProcessor {
 
-    private IPSManagedLinkService service;
-    public static final String PERC_UPDATE_NEW_MANAGED_LINKS = "perc_updateNewManagedLinks";
+  private IPSManagedLinkService service;
+  public static final String PERC_UPDATE_NEW_MANAGED_LINKS = "perc_updateNewManagedLinks";
 
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-        super.init(def, codeRoot);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  @Override
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
+
+  @Override
+  public Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+    var updateNewLinks = request.getPrivateObject(PERC_UPDATE_NEW_MANAGED_LINKS);
+    if (!(updateNewLinks instanceof Boolean) || !((Boolean) updateNewLinks)) {
+      return resultDoc;
     }
 
-    @Override
-    public boolean canModifyStyleSheet() {
-        return false;
+    request.setPrivateObject(PERC_UPDATE_NEW_MANAGED_LINKS, null);
+
+    var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isNotBlank(cid) && StringUtils.isNumeric(cid)) {
+      cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
+      service.updateNewItemLinks(cid);
     }
+    return resultDoc;
+  }
 
-    @Override
-    public Document processResultDocument(Object[] params, IPSRequestContext request, Document resultDoc)
-            throws PSParameterMismatchException, PSExtensionProcessingException {
-        var updateNewLinks = request.getPrivateObject(PERC_UPDATE_NEW_MANAGED_LINKS);
-        if (!(updateNewLinks instanceof Boolean) || !((Boolean) updateNewLinks)) {
-            return resultDoc;
-        }
-
-        request.setPrivateObject(PERC_UPDATE_NEW_MANAGED_LINKS, null);
-
-        var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if (StringUtils.isNotBlank(cid) && StringUtils.isNumeric(cid)) {
-            cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
-            service.updateNewItemLinks(cid);
-        }
-        return resultDoc;
-    }
-
-    /**
-     * Setter for dependency injection.
-     *
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service) {
-        this.service = service;
-    }
+  /**
+   * Setter for dependency injection.
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

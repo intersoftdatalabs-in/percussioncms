@@ -70,15 +70,14 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * Search field editor allows customization of a collection of
- * {@link com.percussion.cms.objectstore.PSSearchField} objects.
+ * Search field editor allows customization of a collection of {@link
+ * com.percussion.cms.objectstore.PSSearchField} objects.
  */
 public class PSSearchFieldEditor extends JPanel {
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map,
-   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger)
-   * PSSearchFieldEditor(fields, filterMap, remoteRequester, null,
-   * fieldCatalog)}
+   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
+   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
+   * remoteRequester, null, fieldCatalog)}
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -89,10 +88,9 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map,
-   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger)
-   * PSSearchFieldEditor(fields, filterMap, remoteRequester, null,
-   * fieldCatalog, boolean)}
+   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
+   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
+   * remoteRequester, null, fieldCatalog, boolean)}
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -104,9 +102,9 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map,
-   * IPSRemoteRequester, PSContentEditorFieldCataloger)
-   * PSSearchFieldEditor(fields, null, remoteRequester, fieldCatalog)}
+   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
+   * PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, null, remoteRequester,
+   * fieldCatalog)}
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -116,9 +114,9 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map,
-   * IPSRemoteRequester, PSContentEditorFieldCataloger)
-   * PSSearchFieldEditor(fields, null, remoteRequester, fieldCatalog, boolean)}
+   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
+   * PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, null, remoteRequester, fieldCatalog,
+   * boolean)}
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -129,10 +127,9 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map,
-   * IPSRemoteRequester, Properties, PSContentEditorFieldCataloger)
-   * PSSearchFieldEditor(fields, filterMap, remoteRequester, props,
-   * fieldCatalog, false)}
+   * Convenience ctor that calls {@link #PSSearchFieldEditor(Iterator, Map, IPSRemoteRequester,
+   * Properties, PSContentEditorFieldCataloger) PSSearchFieldEditor(fields, filterMap,
+   * remoteRequester, props, fieldCatalog, false)}
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -146,19 +143,15 @@ public class PSSearchFieldEditor extends JPanel {
   /**
    * Constructs this editor with all parameters.
    *
-   * @param fields Iterator over zero or more <code>PSSearchField</code>
-   * objects, never <code>null</code>, may be empty although not useful.
-   * @param filterMap can be <code>null</code>.  Key is the field name as a
-   * <code>String</code>, and the value is a <code>PSSearchFieldFilter</code>
-   * object.
-   * @param remoteRequester reference to the remote requester,
-   * never <code>null</code>.
+   * @param fields Iterator over zero or more <code>PSSearchField</code> objects, never <code>null
+   *     </code>, may be empty although not useful.
+   * @param filterMap can be <code>null</code>. Key is the field name as a <code>String</code>, and
+   *     the value is a <code>PSSearchFieldFilter</code> object.
+   * @param remoteRequester reference to the remote requester, never <code>null</code>.
    * @param props Unused, may be <code>null</code>.
-   *
-   * @param fieldCatalog The catalog of content editor fields from the server,
-   * may not be <code>null</code>.
-   * @param Flag indicating that this dialog was launched from within
-   * the Eclipse based workbench
+   * @param fieldCatalog The catalog of content editor fields from the server, may not be <code>null
+   *     </code>.
+   * @param Flag indicating that this dialog was launched from within the Eclipse based workbench
    */
   public PSSearchFieldEditor(
       Iterator fields,
@@ -182,8 +175,7 @@ public class PSSearchFieldEditor extends JPanel {
   /**
    * Retreive the modified collection of objects.
    *
-   * @return A valid iterator over 0 or more <code>PSSearchField</code>
-   * objects.
+   * @return A valid iterator over 0 or more <code>PSSearchField</code> objects.
    */
   public Iterator<PSSearchField> getFields() {
     Collection<PSSearchField> c = new ArrayList<PSSearchField>();
@@ -202,9 +194,8 @@ public class PSSearchFieldEditor extends JPanel {
   /**
    * Perform a save on our components
    *
-   * @return <code>true</code> if all fields passed validation, otherwise
-   *    an error msg is displayed to the user, the offending field is
-   *    given focus and <code>false</code> is returned.
+   * @return <code>true</code> if all fields passed validation, otherwise an error msg is displayed
+   *     to the user, the offending field is given focus and <code>false</code> is returned.
    */
   public boolean save() {
     Iterator i = m_viewsCollection.iterator();
@@ -227,8 +218,8 @@ public class PSSearchFieldEditor extends JPanel {
   /**
    * Determine if this editor will display at least one field for editing.
    *
-   * @return <code>true</code> if this editor will display at least one
-   * field for editing, <code>false</code> otherwise.
+   * @return <code>true</code> if this editor will display at least one field for editing, <code>
+   *     false</code> otherwise.
    */
   public boolean hasFields() {
     return m_viewsCollection.size() > 0;
@@ -353,10 +344,8 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * @param fieldPropertyPanel The panel to which this search component is
-   *           added
-   * @param dispName The label which is used to identify the components in the
-   *           panel.
+   * @param fieldPropertyPanel The panel to which this search component is added
+   * @param dispName The label which is used to identify the components in the panel.
    */
   private void setAccessibilityInfoOnComponents(
       IPSPropertyPanel fieldPropertyPanel, String dispName) {
@@ -394,8 +383,9 @@ public class PSSearchFieldEditor extends JPanel {
 
   /**
    * Connects all dependent fields through custom field listeners.
-   * @param fieldPanels collection of fields panels, never <code>null</code>,
-   * may be <code>empty</code>.
+   *
+   * @param fieldPanels collection of fields panels, never <code>null</code>, may be <code>empty
+   *     </code>.
    */
   private void setupDependentFieldListeners(Collection fieldPanels) {
     Iterator itFields = fieldPanels.iterator();
@@ -433,32 +423,25 @@ public class PSSearchFieldEditor extends JPanel {
     }
   }
 
-  /**
-   * Creates calendar field.
-   */
+  /** Creates calendar field. */
   protected PSCalendarField createCalendarField() {
     return new PSCalendarField();
   }
 
-  /**
-   * Creates a button for the provided date.
-   */
+  /** Creates a button for the provided date. */
   protected PSCalendarButton createCalendarButton(Date date) {
     return new PSCalendarButton(null, date);
   }
 
-  /**
-   * Field change selection inteface.
-   */
+  /** Field change selection inteface. */
   private interface CustomFieldSelectionEvent {
     /**
-     * Returns selection as a map of params. A set of name/value pairs.
-     * Each key is a String, while each value is either a String or a List of
-     * Strings. If a list is supplied, then an htlm param with the name of the
-     * key will be created for each entry.
+     * Returns selection as a map of params. A set of name/value pairs. Each key is a String, while
+     * each value is either a String or a List of Strings. If a list is supplied, then an htlm param
+     * with the name of the key will be created for each entry.
      *
-     * @return map of param key-values, never <code>null</code>, may be empty
-     * if nothing is selected.
+     * @return map of param key-values, never <code>null</code>, may be empty if nothing is
+     *     selected.
      */
     public Map getSelectionAsParams();
 
@@ -471,26 +454,24 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Every custom field panel implements this interface, which allows
-   * to connect interdependent search field panels, so that the data
-   * can be dynamically updated based on the user selection.
+   * Every custom field panel implements this interface, which allows to connect interdependent
+   * search field panels, so that the data can be dynamically updated based on the user selection.
    */
   private interface CustomFieldSelectionListener extends EventListener {
     /**
      * Notifies that field selection has changed
+     *
      * @param e a source of the change event, never <code>null</code>.
      */
     public void valueChanged(CustomFieldSelectionEvent e);
   }
 
   /**
-   * Inner panel classes follow these are identified
-   * by a particular search fields 'type': keyword, text, number, date
+   * Inner panel classes follow these are identified by a particular search fields 'type': keyword,
+   * text, number, date
    */
 
-  /**
-   * Inner class to represent a search field panel
-   */
+  /** Inner class to represent a search field panel */
   abstract class CustomFieldPanel extends JPanel
       implements CustomFieldSelectionListener, CustomFieldSelectionEvent {
     public CustomFieldPanel(PSSearchField field) {
@@ -509,8 +490,8 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * See {@link CustomFieldSelectionEvent} interface. Dummy implementation
-     * that returns map with one key-value pair as fieldName-'empty string'.
+     * See {@link CustomFieldSelectionEvent} interface. Dummy implementation that returns map with
+     * one key-value pair as fieldName-'empty string'.
      */
     public Map getSelectionAsParams() {
       Map<String, String> params = new HashMap<String, String>();
@@ -526,11 +507,10 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Adds a listener to the list of field panels interested in the selection
-     * change notification occurred in this custom field.
+     * Adds a listener to the list of field panels interested in the selection change notification
+     * occurred in this custom field.
      *
-     * @param listener an instace of the field change listener,
-     * never <code>null</code>.
+     * @param listener an instace of the field change listener, never <code>null</code>.
      */
     public void addFieldSelectionListener(CustomFieldSelectionListener listener) {
       // create list on demand
@@ -543,6 +523,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Adds a value changed listener to this dialog
+     *
      * @param listener cannot be <code>null</code>.
      */
     public void addValueChangedListener(IPSValueChangedListener listener) {
@@ -554,6 +535,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Removes the specified value changed listener to this dialog
+     *
      * @param listener cannot be <code>null</code>.
      */
     public void removeValueChangedListener(IPSValueChangedListener listener) {
@@ -563,10 +545,7 @@ public class PSSearchFieldEditor extends JPanel {
       }
     }
 
-    /**
-     * Handles notification for all registered listeners of a value
-     * changed event.
-     */
+    /** Handles notification for all registered listeners of a value changed event. */
     protected void fireValueChangedEvent() {
       PSValueChangedEvent event = new PSValueChangedEvent(this, Event.ACTION_EVENT);
       Iterator it = mi_valueChangedListeners.iterator();
@@ -578,6 +557,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Returns search field from which this panel was constructed.
+     *
      * @return search field, never <code>null</code>.
      */
     public PSSearchField getField() {
@@ -585,17 +565,15 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Field selection change notification fired by a custom field panel in
-     * order to provide a dependent child field with the current selection
-     * made by the user, so that the dependent field panel can refresh its
-     * content.
+     * Field selection change notification fired by a custom field panel in order to provide a
+     * dependent child field with the current selection made by the user, so that the dependent
+     * field panel can refresh its content.
+     *
      * @param e event source interface, never <code>null</code>.
      */
     public void valueChanged(CustomFieldSelectionEvent e) {}
 
-    /**
-     * Notifies all interested custom field selection change listeners.
-     */
+    /** Notifies all interested custom field selection change listeners. */
     protected void fireFieldSelectionChangeEvent() {
       if (m_selectionListeners == null) return; // not set yet
 
@@ -617,23 +595,22 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * @return An array of JComponents that are added for this
-     *         CustomFieldPanel This is needed for accessiblity of the
-     *         JComponents
+     * @return An array of JComponents that are added for this CustomFieldPanel This is needed for
+     *     accessiblity of the JComponents
      */
     protected abstract void init();
 
     /**
-     * An Abstract method to return its components. Accessibility must be
-     * turned on the component and not on the enclosing panel or any container
+     * An Abstract method to return its components. Accessibility must be turned on the component
+     * and not on the enclosing panel or any container
      *
-     * @return array of components in this panel. Implemented by all
-     *         subclasses.
+     * @return array of components in this panel. Implemented by all subclasses.
      */
     protected abstract JComponent[] getItsComponents();
 
     /**
      * Returns choice filter lookup Url if any.
+     *
      * @return choice filter lookup Url, may be <code>null</code>.
      */
     protected PSUrlRequest getChoiceFilterUrl() {
@@ -657,25 +634,17 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Fetches a document from the server provided resource name and params.
-     * For more inforrmatio see {@link IPSRemoteRequester}.
+     * Fetches a document from the server provided resource name and params. For more inforrmatio
+     * see {@link IPSRemoteRequester}.
      *
-     * @param lookup An instance of the PSUrlRequest that contains a Url and
-     * may also contain static params, which are merged with the supplied
-     * params map.
-     *
-     * @param params A set of name/value pairs. Each key is a String, while
-     *    each value is either a String or a List of Strings. If a list
-     *    is supplied, then an htlm param with the name of the key will
-     *    be created for each entry.
-     * @return The document representing the returned data, or null if no
-     *    data was returned.
-     *
-     * @throws IOException If any problems occur while communicating with the
-     *    server.
-     *
-     * @throws SAXException If the returned data is not parsable as an xml
-     *    document.
+     * @param lookup An instance of the PSUrlRequest that contains a Url and may also contain static
+     *     params, which are merged with the supplied params map.
+     * @param params A set of name/value pairs. Each key is a String, while each value is either a
+     *     String or a List of Strings. If a list is supplied, then an htlm param with the name of
+     *     the key will be created for each entry.
+     * @return The document representing the returned data, or null if no data was returned.
+     * @throws IOException If any problems occur while communicating with the server.
+     * @throws SAXException If the returned data is not parsable as an xml document.
      */
     protected Document getRemoteDocument(PSUrlRequest lookup, Map params)
         throws IOException, SAXException {
@@ -726,40 +695,30 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Updates search field data from the UI fields.
-     * @return <code>true</code> if the field passed validation and the
-     *    update step was successful. <code>false</code> otherwise. If
-     *    <code>false</code> is returned, the error msg should have been
-     *    displayed to the user and the cursor should be left in the
-     *    offending field.
+     *
+     * @return <code>true</code> if the field passed validation and the update step was successful.
+     *     <code>false</code> otherwise. If <code>false</code> is returned, the error msg should
+     *     have been displayed to the user and the cursor should be left in the offending field.
      */
     protected abstract boolean update();
 
-    /**
-     * Data model search field, initialized in ctor,
-     * never <code>null</code>
-     */
+    /** Data model search field, initialized in ctor, never <code>null</code> */
     protected PSSearchField m_field;
 
-    /**
-     * filter map
-     */
+    /** filter map */
     protected Map m_filterMap;
 
     /**
-     * a list of registered field selection listeners.
-     * Initilized when {@link #addFieldSelectionListener(listener)}
-     * is invoked for the first time, never <code>null</code> after that.
+     * a list of registered field selection listeners. Initilized when {@link
+     * #addFieldSelectionListener(listener)} is invoked for the first time, never <code>null</code>
+     * after that.
      */
     private Collection<CustomFieldSelectionListener> m_selectionListeners;
 
-    /**
-     * Choice filter Url. Initilized by the Ctor., may be <code>null</code>.
-     */
+    /** Choice filter Url. Initilized by the Ctor., may be <code>null</code>. */
     private PSUrlRequest m_choiceFilterUrl;
 
-    /**
-     * List of all registered value changed listeners
-     */
+    /** List of all registered value changed listeners */
     private List<IPSValueChangedListener> mi_valueChangedListeners =
         new ArrayList<IPSValueChangedListener>();
   }
@@ -861,15 +820,13 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Inner class to represent a search field panel that displays a set of
-   * choices using a combobox.
+   * Inner class to represent a search field panel that displays a set of choices using a combobox.
    */
   class KeywordSearchFieldPanel extends CustomFieldPanel implements ListSelectionListener {
     /**
      * Construct a keyword panel.
      *
-     * @param f The field, assumed not <code>null</code>, must contain a list
-     * of keywords.
+     * @param f The field, assumed not <code>null</code>, must contain a list of keywords.
      */
     public KeywordSearchFieldPanel(PSSearchField f, Map fm) {
       super(f, fm);
@@ -939,8 +896,8 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Loads/Reloads given keywords into the choice list.
-     * @param keywords diplay choices to load, never <code>null</code>,
-     * may be <code>empty</code>.
+     *
+     * @param keywords diplay choices to load, never <code>null</code>, may be <code>empty</code>.
      */
     private void loadListData(List keywords) {
       if (keywords == null) throw new IllegalArgumentException("keywords may not be null");
@@ -1005,8 +962,9 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Receives JList selection notifications and fires custom field selection
-     * change event, so that the dependent fields can refresh their content.
+     * Receives JList selection notifications and fires custom field selection change event, so that
+     * the dependent fields can refresh their content.
+     *
      * @param e event, assumed never <code>null</code>.
      */
     public void valueChanged(ListSelectionEvent e) {
@@ -1028,9 +986,7 @@ public class PSSearchFieldEditor extends JPanel {
       super.fireFieldSelectionChangeEvent();
     }
 
-    /**
-     * See {@link CustomFieldSelectionListener} interface.
-     */
+    /** See {@link CustomFieldSelectionListener} interface. */
     public void valueChanged(CustomFieldSelectionEvent e) {
       // requery values using supplied query and a choice filter Url
 
@@ -1100,9 +1056,7 @@ public class PSSearchFieldEditor extends JPanel {
       }
     }
 
-    /**
-     * See {@link CustomFieldSelectionEvent} interface.
-     */
+    /** See {@link CustomFieldSelectionEvent} interface. */
     public Map getSelectionAsParams() {
       DefaultListModel listModel = (DefaultListModel) m_keywordList.getModel();
 
@@ -1138,24 +1092,20 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Inner class to represent a search field panel that allows the entry of
-   * 1 or 2 criteria for the field. For example, Greater than xxxx AND Less
-   * than yyyy. Where 'Greater than' would be an entry in the strings supplied
-   * for the first operand and 'Less than' would be an entry in the strings
-   * supplied for the 2nd operand.
+   * Inner class to represent a search field panel that allows the entry of 1 or 2 criteria for the
+   * field. For example, Greater than xxxx AND Less than yyyy. Where 'Greater than' would be an
+   * entry in the strings supplied for the first operand and 'Less than' would be an entry in the
+   * strings supplied for the 2nd operand.
    */
   abstract class DualSearchFieldPanel extends CustomFieldPanel {
     /**
-     *
      * @param f The field being edited. Never <code>null</code>.
-     *
-     * @param op1 The display strings for the allowed operations on the first
-     *    field of the 2 fields available for this editor. Must have at least
-     *    1 value. Each value must be one of the OP_xxx values.
-     *
-     * @param op2 The display strings for the allowed operations on the 2nd
-     *    field of the 2 fields available for this editor. Must have at least
-     *    1 value. Each value must be one of the OP_xxx values.
+     * @param op1 The display strings for the allowed operations on the first field of the 2 fields
+     *     available for this editor. Must have at least 1 value. Each value must be one of the
+     *     OP_xxx values.
+     * @param op2 The display strings for the allowed operations on the 2nd field of the 2 fields
+     *     available for this editor. Must have at least 1 value. Each value must be one of the
+     *     OP_xxx values.
      */
     protected DualSearchFieldPanel(PSSearchField f, String[] op1) // , String[] op2)
         {
@@ -1275,15 +1225,15 @@ public class PSSearchFieldEditor extends JPanel {
   }
 
   /**
-   * Inner class to represent a search field panel that allows the entry of
-   * 1 or 2 Dates for the field. For example, Greater than xxxx AND Less
-   * than yyyy. Where 'Greater than' would be an entry in the strings supplied
-   * for the first operand and 'Less than' would be an entry in the strings
-   * supplied for the 2nd operand.
+   * Inner class to represent a search field panel that allows the entry of 1 or 2 Dates for the
+   * field. For example, Greater than xxxx AND Less than yyyy. Where 'Greater than' would be an
+   * entry in the strings supplied for the first operand and 'Less than' would be an entry in the
+   * strings supplied for the 2nd operand.
    */
   class DateSearchFieldPanel extends CustomFieldPanel {
     /**
      * Constructs a new <code>DateSearchFieldPanel</code>.
+     *
      * @param f The field being edited. Never <code>null</code>.
      */
     protected DateSearchFieldPanel(PSSearchField f) {
@@ -1291,9 +1241,7 @@ public class PSSearchFieldEditor extends JPanel {
       init();
     }
 
-    /**
-     * Initializes the gui
-     */
+    /** Initializes the gui */
     protected void init() {
       setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
@@ -1357,9 +1305,7 @@ public class PSSearchFieldEditor extends JPanel {
       m_contentIdvalueText2.addValueChangedListener(new ValueChangedListener(this));
     }
 
-    /**
-     * Loads the data into the calendar fields
-     */
+    /** Loads the data into the calendar fields */
     private void initFieldData() {
       String strFirstValue = "";
       String strSecondValue = "";
@@ -1381,6 +1327,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Returns the label for the specified operator
+     *
      * @param operator
      * @return the label
      */
@@ -1390,6 +1337,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Returns the operator for the specified label
+     *
      * @param label
      * @return the operator string
      */
@@ -1406,6 +1354,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Update the data from the calendar fields
+     *
      * @return <code>true</code> if update occurred.
      */
     protected boolean update() {
@@ -1420,9 +1369,7 @@ public class PSSearchFieldEditor extends JPanel {
       return true;
     }
 
-    /**
-     * Array of available operands. Never <code>null</code>.
-     */
+    /** Array of available operands. Never <code>null</code>. */
     private String[] m_operands1 = {
       PSCommonSearchUtils.OP_ON,
       PSCommonSearchUtils.OP_BEFORE,
@@ -1436,26 +1383,22 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * The operator combo box. Initialized in {@link #init()}.
-     * Never <code>null</code> after that.
+     * The operator combo box. Initialized in {@link #init()}. Never <code>null</code> after that.
      */
     private JComboBox m_operatorCombo;
 
     /**
-     * The first calendar field. Initialized in {@link #init()}.
-     * Never <code>null</code> after that.
+     * The first calendar field. Initialized in {@link #init()}. Never <code>null</code> after that.
      */
     private PSCalendarField m_contentIdvalueText;
 
     /**
-     * The second calendar field. Initialized in {@link #init()}.
-     * Never <code>null</code> after that.
+     * The second calendar field. Initialized in {@link #init()}. Never <code>null</code> after
+     * that.
      */
     private PSCalendarField m_contentIdvalueText2;
 
-    /**
-     * Array of operations. Never <code>null</code>.
-     */
+    /** Array of operations. Never <code>null</code>. */
     private String[][] m_ops = {
       {PSSearchField.OP_EQUALS, PSCommonSearchUtils.OP_ON},
       {PSSearchField.OP_GREATERTHAN, PSCommonSearchUtils.OP_AFTER},
@@ -1464,10 +1407,7 @@ public class PSSearchFieldEditor extends JPanel {
     };
   }
 
-  /**
-   * Very thin wrapper class that supplies the correct operands for dealing
-   * with numbers.
-   */
+  /** Very thin wrapper class that supplies the correct operands for dealing with numbers. */
   class NumberSearchFieldPanel extends DualSearchFieldPanel {
     public NumberSearchFieldPanel(PSSearchField f) {
       super(
@@ -1501,9 +1441,7 @@ public class PSSearchFieldEditor extends JPanel {
       return super.getItsComponents();
     }
 
-    /**
-     * Must match ctor.
-     */
+    /** Must match ctor. */
     private String[][] m_ops = {
       {PSSearchField.OP_EQUALS, PSCommonSearchUtils.OP_EQUALS},
       {PSSearchField.OP_GREATERTHAN, PSCommonSearchUtils.OP_GREATER_THAN},
@@ -1512,9 +1450,7 @@ public class PSSearchFieldEditor extends JPanel {
     };
   }
 
-  /**
-   * Panel to display and edit an external field value.
-   */
+  /** Panel to display and edit an external field value. */
   class ExternalSearchFieldPanel extends CustomFieldPanel {
     // see base class
     public ExternalSearchFieldPanel(PSSearchField f) {
@@ -1525,8 +1461,8 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Initializes the panel with a text field, and adds a calendar pop-up
-     * button if a date field is supplied.
+     * Initializes the panel with a text field, and adds a calendar pop-up button if a date field is
+     * supplied.
      */
     protected void init() {
       setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -1575,6 +1511,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Override to set focus always on the operand combo box.
+     *
      * @see javax.swing.JComponent#requestFocus()
      */
     public void requestFocus() {
@@ -1588,6 +1525,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Adds an action listener to this dialog
+     *
      * @param listener cannot be <code>null</code>.
      */
     public void addActionListener(ActionListener listener) {
@@ -1599,6 +1537,7 @@ public class PSSearchFieldEditor extends JPanel {
 
     /**
      * Adds an action listener to this dialog
+     *
      * @param listener cannot be <code>null</code>.
      */
     public void removeActionListener(ActionListener listener) {
@@ -1609,14 +1548,15 @@ public class PSSearchFieldEditor extends JPanel {
     }
 
     /**
-     * Field to hold the text entered for the parameter value.  Never
-     * <code>null</code> or modified after construction.
+     * Field to hold the text entered for the parameter value. Never <code>null</code> or modified
+     * after construction.
      */
     private UTFixedHeightTextField m_systemText;
   }
 
   /**
    * Adds a value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void addValueChangedListener(IPSValueChangedListener listener) {
@@ -1628,6 +1568,7 @@ public class PSSearchFieldEditor extends JPanel {
 
   /**
    * Removes the specified value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void removeValueChangedListener(IPSValueChangedListener listener) {
@@ -1637,10 +1578,7 @@ public class PSSearchFieldEditor extends JPanel {
     }
   }
 
-  /**
-   * Handles notification for all registered listeners of a value
-   * changed event.
-   */
+  /** Handles notification for all registered listeners of a value changed event. */
   private void fireValueChangedEvent() {
     PSValueChangedEvent event = new PSValueChangedEvent(this, Event.ACTION_EVENT);
     Iterator it = m_valueChangedListeners.iterator();
@@ -1684,47 +1622,31 @@ public class PSSearchFieldEditor extends JPanel {
     private CustomFieldPanel mi_panel;
   }
 
-  /**
-   * Collection of objects to edit via this ui.
-   * Initialized in ctor, never <code>null</code>.
-   */
+  /** Collection of objects to edit via this ui. Initialized in ctor, never <code>null</code>. */
   private Iterator m_fields;
 
   private List<ActionListener> m_actionListeners = new ArrayList<ActionListener>();
 
-  /**
-   * Collection of objects to edit via this ui.
-   * Initialized in ctor, never <code>null</code>.
-   */
+  /** Collection of objects to edit via this ui. Initialized in ctor, never <code>null</code>. */
   private Map m_searchFilterMap;
 
-  /**
-   * Properties that can be passed to the constructor and can be used
-   * apporpiately
-   */
+  /** Properties that can be passed to the constructor and can be used apporpiately */
   private Properties m_props;
 
-  /**
-   * Flag indicating that this dialog was launched from within
-   * the Eclipse based workbench
-   */
+  /** Flag indicating that this dialog was launched from within the Eclipse based workbench */
   private boolean m_inWorkbench;
 
-  /**
-   * List of all registered value changed listeners
-   */
+  /** List of all registered value changed listeners */
   private List<IPSValueChangedListener> m_valueChangedListeners =
       new ArrayList<IPSValueChangedListener>();
 
-  /**
-   * Collection of search field panels. Never <code>null</code>
-   */
+  /** Collection of search field panels. Never <code>null</code> */
   private Collection m_viewsCollection = new ArrayList();
 
   /**
-   * Reference to the remote requester that is used by fields with choice
-   * filters to dynamically fetch filtered field choices from the server.
-   * Initialized in ctor, never <code>null</code> after that.
+   * Reference to the remote requester that is used by fields with choice filters to dynamically
+   * fetch filtered field choices from the server. Initialized in ctor, never <code>null</code>
+   * after that.
    */
   private IPSRemoteRequester m_remoteRequester = null;
 }

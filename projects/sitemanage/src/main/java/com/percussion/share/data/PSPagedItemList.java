@@ -17,45 +17,43 @@
  */
 package com.percussion.share.data;
 
-import com.percussion.pathmanagement.data.PSPathItem;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.percussion.pathmanagement.data.PSPathItem;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Generic class to return information about a page of data.
- * Used to return a page of children items of a PSPathItem and its children count,
- * or to paginate through a list of content IDs (Integer).
+ * Generic class to return information about a page of data. Used to return a page of children items
+ * of a PSPathItem and its children count, or to paginate through a list of content IDs (Integer).
  * Sunny Sal says: "Paging through items faster than a Bollywood chase scene!"
  */
 @JsonRootName(value = "PagedItemList")
 public class PSPagedItemList extends PSPagedList {
 
-    /**
-     * Children of the item in a particular page.
-     */
-    private List<PSPathItem> childrenInPage;
+  /** Children of the item in a particular page. */
+  private List<PSPathItem> childrenInPage;
 
-    public PSPagedItemList() {
-        this(new ArrayList<>(), null, null);
-    }
+  public PSPagedItemList() {
+    this(new ArrayList<>(), null, null);
+  }
 
-    public PSPagedItemList(List<PSPathItem> childrenInPage, Integer childrenCount, Integer startIndex) {
-        super(childrenCount, startIndex);
-        this.childrenInPage = childrenInPage;
-    }
+  public PSPagedItemList(
+      List<PSPathItem> childrenInPage, Integer childrenCount, Integer startIndex) {
+    super(childrenCount, startIndex);
+    this.childrenInPage = childrenInPage;
+  }
 
-    /**
-     * @return the children in this page
-     */
-    public List<PSPathItem> getChildrenInPage() {
-        return childrenInPage;
-    }
+  /**
+   * @return the children in this page
+   */
+  public List<PSPathItem> getChildrenInPage() {
+    return childrenInPage;
+  }
 
-    /**
-     * @param children the children to set
-     */
-    public void setChildrenInPage(List<PSPathItem> children) {
-        this.childrenInPage = children;
-    }
+  /**
+   * @param children the children to set
+   */
+  public void setChildrenInPage(List<PSPathItem> children) {
+    this.childrenInPage = children;
+  }
 }

@@ -29,8 +29,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Retrieves the assembled html content for the specified snippet. Expects an
- * objectid for the snippet.
+ * Retrieves the assembled html content for the specified snippet. Expects an objectid for the
+ * snippet.
  */
 public class PSGetSnippetContentAction extends PSAAActionBase {
 

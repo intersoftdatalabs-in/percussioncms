@@ -22,33 +22,30 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.Guid;
 import com.percussion.rest.itemfilter.IItemFilterAdaptor;
 import com.percussion.rest.itemfilter.ItemFilter;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-/**
- * Test adaptor for ItemFilter API bridge.
- */
+/** Test adaptor for ItemFilter API bridge. */
 @Component
 public class TestItemFilterAdaptor implements IItemFilterAdaptor {
 
-    @Override
-    public List<ItemFilter> getItemFilters() {
-        return null;
-    }
+  @Override
+  public List<ItemFilter> getItemFilters() {
+    return null;
+  }
 
-    @Override
-    public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
-        return null;
-    }
+  @Override
+  public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
+    return null;
+  }
 
-    @Override
-    public void deleteItemFilter(Guid itemFilterId) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deleteItemFilter(Guid itemFilterId) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public ItemFilter getItemFilter(Guid itemFilterId) {
-        return null;
-    }
+  @Override
+  public ItemFilter getItemFilter(Guid itemFilterId) {
+    return null;
+  }
 }

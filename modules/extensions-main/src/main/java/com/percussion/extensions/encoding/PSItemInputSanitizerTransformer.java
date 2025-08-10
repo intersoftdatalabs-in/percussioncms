@@ -34,6 +34,7 @@ import org.jsoup.safety.Safelist;
 
 /**
  * Sanitizes the specified fields on the content type.
+ *
  * <table>
  * <tr>
  * <th>Parameter</th>
@@ -66,7 +67,6 @@ import org.jsoup.safety.Safelist;
  * </table>
  *
  * @author natechadwick
- *
  */
 public class PSItemInputSanitizerTransformer implements IPSItemInputTransformer {
 

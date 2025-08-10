@@ -21,7 +21,6 @@ import java.util.Objects;
 
 /**
  * @author erikserating
- *
  */
 public class PSFeedItem {
   private String title;

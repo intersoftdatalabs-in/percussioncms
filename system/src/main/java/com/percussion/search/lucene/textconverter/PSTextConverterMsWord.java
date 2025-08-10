@@ -29,10 +29,9 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 /**
- * Extracts the text from input stream corresponding to Microsoft Word file
- * using POI api.
- * @author bjoginipally
+ * Extracts the text from input stream corresponding to Microsoft Word file using POI api.
  *
+ * @author bjoginipally
  */
 public class PSTextConverterMsWord implements IPSLuceneTextConverter {
   /*
@@ -72,8 +71,6 @@ public class PSTextConverterMsWord implements IPSLuceneTextConverter {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

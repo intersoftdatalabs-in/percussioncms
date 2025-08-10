@@ -22,21 +22,18 @@ import java.util.Vector;
 import org.apache.xerces.impl.dtd.XMLAttributeDecl;
 import org.apache.xerces.impl.dtd.XMLSimpleType;
 
-/**
- * This class encapsulates an element's attribute declaration in the DTD.
- */
+/** This class encapsulates an element's attribute declaration in the DTD. */
 public class PSXmlAttributeDecl extends XMLAttributeDecl {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSXmlAttributeDecl() {
     super();
   }
 
   /**
    * constructor
-   * @param xmlAttrDecl the Attribute Declaration object to encapsulate,
-   * may not be <code>null</code>
+   *
+   * @param xmlAttrDecl the Attribute Declaration object to encapsulate, may not be <code>null
+   *     </code>
    * @throw IllegalArgumentException if xmlAttrDecl is <code>null</code>
    */
   public PSXmlAttributeDecl(XMLAttributeDecl xmlAttrDecl) {
@@ -47,106 +44,111 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
 
   /**
    * constant for attribute of type CDATA
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_CDATA = XMLSimpleType.TYPE_CDATA;
 
   /**
    * constant for attribute type ENTITY
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_ENTITY = XMLSimpleType.TYPE_ENTITY;
 
   /**
    * constant for attribute type ENUMERATION
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_ENUMERATION = XMLSimpleType.TYPE_ENUMERATION;
 
   /**
    * constant for attribute type ID
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_ID = XMLSimpleType.TYPE_ID;
 
   /**
    * constant for attribute type IDREF
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_IDREF = XMLSimpleType.TYPE_IDREF;
 
   /**
    * constant for attribute type NMTOKEN
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_NMTOKEN = XMLSimpleType.TYPE_NMTOKEN;
 
   /**
    * constant for attribute type NOTATION
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_NOTATION = XMLSimpleType.TYPE_NOTATION;
 
   /**
    * constant for attribute type NAMED
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short TYPE_NAMED = XMLSimpleType.TYPE_NAMED;
 
-  /**
-   * constant for attribute type IDREFS
-   */
+  /** constant for attribute type IDREFS */
   public static final int TYPE_IDREFS = 8;
 
-  /**
-   * constant for attribute type ENTITIES
-   */
+  /** constant for attribute type ENTITIES */
   public static final int TYPE_ENTITIES = 9;
 
-  /**
-   * constant for attribute type NMTOKENS
-   */
+  /** constant for attribute type NMTOKENS */
   public static final int TYPE_NMTOKENS = 10;
 
-  /**
-   * constant for attribute whose type is not defined.
-   */
+  /** constant for attribute whose type is not defined. */
   public static final int TYPE_UNKNOWN = -1;
 
   /**
    * constant for attribute default type DEFAULT.
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short DEFAULT_TYPE_DEFAULT = XMLSimpleType.DEFAULT_TYPE_DEFAULT;
 
   /**
    * constant for attribute default type FIXED.
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short DEFAULT_TYPE_FIXED = XMLSimpleType.DEFAULT_TYPE_FIXED;
 
   /**
    * constant for attribute default type IMPLIED.
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short DEFAULT_TYPE_IMPLIED = XMLSimpleType.DEFAULT_TYPE_IMPLIED;
 
   /**
    * constant for attribute default type REQUIRED.
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final short DEFAULT_TYPE_REQUIRED = XMLSimpleType.DEFAULT_TYPE_REQUIRED;
 
   /**
    * constant for attribute default type is not defined.
+   *
    * @see org.apache.xerces.impl.dtd.XMLSimpleType
    */
   public static final int DEFAULT_TYPE_NOFIXED = -1;
 
   /**
    * Returns the name of this attribute in the DTD definition.
-   * @return Name of this attribute in the DTD definition.
-   * Never <code>null</code> or empty.
+   *
+   * @return Name of this attribute in the DTD definition. Never <code>null</code> or empty.
    */
   public String getName() {
     return name.rawname;
@@ -154,6 +156,7 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
 
   /**
    * Returns the declared type of this attribute in the DTD definition.
+   *
    * @return Declared type of this attribute in the DTD definition.
    */
   public int getDeclaredType() {
@@ -162,6 +165,7 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
 
   /**
    * Returns the default type of this attribute's value in the DTD definition.
+   *
    * @return the default type of this attribute in the DTD definition.
    */
   public int getDefaultType() {
@@ -169,10 +173,10 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
   }
 
   /**
-   * Returns the number of tokens in the list of tokens that can be used as
-   * values for this enumerated attribute type; the returned value has no
-   * meaning for other attribute types. Enumerated attribute types are:
-   * NOTATION and NAME_TOKEN_GROUP.
+   * Returns the number of tokens in the list of tokens that can be used as values for this
+   * enumerated attribute type; the returned value has no meaning for other attribute types.
+   * Enumerated attribute types are: NOTATION and NAME_TOKEN_GROUP.
+   *
    * @return Number of tokens, or <code>null</code> if no tokens defined.
    */
   public int size() {
@@ -182,13 +186,12 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
   }
 
   /**
-   * Returns a list of all tokens that can be used as values for this
-   * enumerated attribute type; the returned value has no meaning for other
-   * attribute types. Enumerated attribute types are: NOTATION and
-   * NAME_TOKEN_GROUP.
-   * @return the list of allowed tokens for the attribute value as defined
-   * by the DTD definition, or <code>null</code> if none specified.
-   * Never <code>null</code>, may be empty.
+   * Returns a list of all tokens that can be used as values for this enumerated attribute type; the
+   * returned value has no meaning for other attribute types. Enumerated attribute types are:
+   * NOTATION and NAME_TOKEN_GROUP.
+   *
+   * @return the list of allowed tokens for the attribute value as defined by the DTD definition, or
+   *     <code>null</code> if none specified. Never <code>null</code>, may be empty.
    */
   public Enumeration elements() {
     Vector el = new Vector();
@@ -201,12 +204,12 @@ public class PSXmlAttributeDecl extends XMLAttributeDecl {
   }
 
   /**
-   * Returns the default value of this attribute in the DTD definition.
-   * This is useful if this attribute was not given an explicit value in
-   * the document instance. The returned value is only meaningful for
-   * attribute types defined as FIXED or NOFIXED.
-   * @return the default value of the attribute, or <code>null</code> if
-   * none specified.  May be <code>null</code> or empty.
+   * Returns the default value of this attribute in the DTD definition. This is useful if this
+   * attribute was not given an explicit value in the document instance. The returned value is only
+   * meaningful for attribute types defined as FIXED or NOFIXED.
+   *
+   * @return the default value of the attribute, or <code>null</code> if none specified. May be
+   *     <code>null</code> or empty.
    */
   public String getDefaultStringValue() {
     return simpleType.defaultValue;

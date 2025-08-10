@@ -28,6 +28,7 @@ public interface TaxonomyDAO {
 
   /**
    * Gets a list of taxonomy with the specified name in case insensitive manner.
+   *
    * @param name the name in question, not empty.
    * @return the list of taxonomy, not <code>null</code>, but may be empty.
    */

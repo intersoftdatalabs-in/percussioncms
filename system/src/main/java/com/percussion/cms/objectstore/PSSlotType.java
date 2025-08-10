@@ -30,8 +30,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSSlotType represents one row of the RXSLOTTYPE table.
- * This is a read-only implementation of the PSDbComponent.
+ * The PSSlotType represents one row of the RXSLOTTYPE table. This is a read-only implementation of
+ * the PSDbComponent.
  */
 public class PSSlotType extends PSDbComponent {
   /**
@@ -50,8 +50,8 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * Constructs a <code>PSSlotType</code> instance from an assembly service
-   * representation of the slot.
+   * Constructs a <code>PSSlotType</code> instance from an assembly service representation of the
+   * slot.
    *
    * @param slot the assembly slot, never <code>null</code>
    */
@@ -120,16 +120,18 @@ public class PSSlotType extends PSDbComponent {
 
   /**
    * Returns slot variants Set.
-   * @return slots variants as PSVariantSlotTypeSet,
-   * never <code>null</code>, may be <code>empty</code>.
+   *
+   * @return slots variants as PSVariantSlotTypeSet, never <code>null</code>, may be <code>empty
+   *     </code>.
    */
   public PSSlotTypeContentTypeVariantSet getSlotVariants() {
     return m_slotVariants;
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <!ELEMENT PSXSlotType (PSXKey, SlotName?, SlotDesc?, PSXSlotTypeContentTypeVariantSet)>
    * <!ELEMENT PSXSlotTypeContentTypeVariantSet (#PCDATA)>
@@ -145,7 +147,6 @@ public class PSSlotType extends PSDbComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -207,9 +208,9 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   *     PSKey)}.
-   * Since this is a read-only object, this is a not supported operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
+   *
    * @throws UnsupportedOperationException always.
    */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
@@ -230,9 +231,8 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * Creates the correct key for this component.
-   * The PSDbComponent createKey is not used because we need a PSLocator
-   * rather than a generic PSKey.
+   * Creates the correct key for this component. The PSDbComponent createKey is not used because we
+   * need a PSLocator rather than a generic PSKey.
    */
   public static PSKey createKey(int slotId) {
     if (slotId < 0) throw new IllegalArgumentException("variantid may not be < 0");
@@ -240,9 +240,7 @@ public class PSSlotType extends PSDbComponent {
     return new PSSimpleKey(KEY_SLOTID, "" + slotId);
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey[] createKeys(int[] slotIds) {
     if (slotIds == null || slotIds.length < 1)
       throw new IllegalArgumentException("slotIds may not be null or empty");
@@ -259,8 +257,7 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * Override to create our own Key which is
-   * {@link com.percussion.design.objectstore.PSLocator}.
+   * Override to create our own Key which is {@link com.percussion.design.objectstore.PSLocator}.
    */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
@@ -269,14 +266,13 @@ public class PSSlotType extends PSDbComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. All
-   * string members'omparison is case insensitive.
+   * Overrides the base class to compare each of the member properties. All string members'omparison
+   * is case insensitive.
    *
-   * @param o The comparee. If null or not an instance of this class,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @param o The comparee. If null or not an instance of this class, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSSlotType)) return false;
@@ -297,9 +293,8 @@ public class PSSlotType extends PSDbComponent {
   /**
    * Must be overridden because we overrode equals.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   public int hashCode() {
     return (m_allowedRelationshipTypeName.toLowerCase().hashCode()
@@ -310,9 +305,7 @@ public class PSSlotType extends PSDbComponent {
         + m_slotVariants.hashCode());
   }
 
-  /**
-   * ContentVariants Table Key Name.
-   */
+  /** ContentVariants Table Key Name. */
   private static final String KEY_SLOTID = "SLOTID";
 
   /*
@@ -324,10 +317,7 @@ public class PSSlotType extends PSDbComponent {
   private int m_slotType = -1;
   private String m_allowedRelationshipTypeName = PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY;
 
-  /**
-   * Slot Variants collection. Initialized by fromXml,
-   * may be <code>null</code>.
-   */
+  /** Slot Variants collection. Initialized by fromXml, may be <code>null</code>. */
   private PSSlotTypeContentTypeVariantSet m_slotVariants = null;
 
   // Private constants for XML attribute and element name

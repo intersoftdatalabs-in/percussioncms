@@ -25,9 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Implementation of the <CODE>IPSNotificationsContext</CODE> which
- * provides methods for accessing the subject and content of notifications
- * associated with a particular workflow and transition.
+ * Implementation of the <CODE>IPSNotificationsContext</CODE> which provides methods for accessing
+ * the subject and content of notifications associated with a particular workflow and transition.
+ *
  * @deprecated
  */
 @Deprecated
@@ -39,10 +39,10 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
   /**
    * Constructor specifying the workflowID and notification ID.
    *
-   * @param workflowID      ID of the workflow for this notification
-   * @param notificationID  database notification ID
-   * @param connection      data base connection
-   * @throws                        SQLException if an error occurs
+   * @param workflowID ID of the workflow for this notification
+   * @param notificationID database notification ID
+   * @param connection data base connection
+   * @throws SQLException if an error occurs
    * @throws NamingException if a datasource cannot be resolved
    * @throws IllegalArgumentException if the connection is <CODE>null</CODE>
    */
@@ -109,9 +109,7 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
 
   /******** Context Defining Members ********/
 
-  /**
-   * ID of the workflow for this item.
-   */
+  /** ID of the workflow for this item. */
   private int m_nWorkflowID = 0;
 
   /** the notification ID */
@@ -119,26 +117,18 @@ public class PSNotificationsContext extends PSAbstractWorkflowContext
 
   /******** Context Data Members ********/
 
-  /**
-   *  Subject of the mail notification
-   */
+  /** Subject of the mail notification */
   String m_sSubject = null;
 
-  /**
-   * Body of the mail notification
-   */
+  /** Body of the mail notification */
   private String m_sBody = null;
 
   /******** Database Related Variables ********/
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_NC = PSConnectionMgr.getQualifiedIdentifier("NOTIFICATIONS");
 
-  /**
-   * SQL query string to get data base records for the notifications.
-   */
+  /** SQL query string to get data base records for the notifications. */
   private static final String QRYSTRING =
       "SELECT "
           + TABLE_NC

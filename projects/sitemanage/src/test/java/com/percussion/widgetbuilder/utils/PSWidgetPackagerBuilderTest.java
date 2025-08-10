@@ -16,58 +16,56 @@
  */
 package com.percussion.widgetbuilder.utils;
 
-import com.percussion.server.PSServer;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.server.PSServer;
 import com.percussion.widgetbuilder.utils.xform.PSContentTypeFileTransformerTest;
+import java.io.File;
+import java.util.ArrayList;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Integration test for PSWidgetPackageBuilder.
- */
+/** Integration test for PSWidgetPackageBuilder. */
 @Tag("IntegrationTest")
 public class PSWidgetPackagerBuilderTest {
 
-    @Test
-    public void testGeneratePackage() throws Exception {
-        var srcFile = new File(PSServer.getRxDir(), "sys_resources/widgetbuilder/percWidgetTemplate.zip");
-        assertTrue(srcFile.exists());
-        var tmpDir = new File(FileUtils.getTempDirectory(), this.getClass().getName());
-        var tgtDir = new File(tmpDir, "packages");
-        tgtDir.mkdirs();
+  @Test
+  public void testGeneratePackage() throws Exception {
+    var srcFile =
+        new File(PSServer.getRxDir(), "sys_resources/widgetbuilder/percWidgetTemplate.zip");
+    assertTrue(srcFile.exists());
+    var tmpDir = new File(FileUtils.getTempDirectory(), this.getClass().getName());
+    var tgtDir = new File(tmpDir, "packages");
+    tgtDir.mkdirs();
 
-        File result = null;
-        try {
-            var builder = new PSWidgetPackageBuilder(srcFile, tmpDir);
-            var spec = new PSWidgetPackageSpec("test", "www.test.com", "Custom Widget 2", "a 2nd test widget", "1.0.0", "3.1.0");
-            spec.setResponsive(true);
-            spec.setFields(PSContentTypeFileTransformerTest.setupPackageSpec().getFields());
-            spec.setWidgetHtml("<div>$field</div>");
-            var files = new ArrayList<String>();
-            files.add("/web_resources/preMyWidget/foo/bar.css");
-            files.add("/web_resources/preMyWidget/foo/bar2.css");
-            files.add("http://foo.com/bar.css");
-            spec.setCssFiles(files);
+    File result = null;
+    try {
+      var builder = new PSWidgetPackageBuilder(srcFile, tmpDir);
+      var spec =
+          new PSWidgetPackageSpec(
+              "test", "www.test.com", "Custom Widget 2", "a 2nd test widget", "1.0.0", "3.1.0");
+      spec.setResponsive(true);
+      spec.setFields(PSContentTypeFileTransformerTest.setupPackageSpec().getFields());
+      spec.setWidgetHtml("<div>$field</div>");
+      var files = new ArrayList<String>();
+      files.add("/web_resources/preMyWidget/foo/bar.css");
+      files.add("/web_resources/preMyWidget/foo/bar2.css");
+      files.add("http://foo.com/bar.css");
+      spec.setCssFiles(files);
 
-            files = new ArrayList<>();
-            files.add("/web_resources/preMyWidget/foo/bar.js");
-            files.add("/web_resources/preMyWidget/foo/bar2.js");
-            files.add("http://foo.com/bar.js");
-            spec.setJsFiles(files);
+      files = new ArrayList<>();
+      files.add("/web_resources/preMyWidget/foo/bar.js");
+      files.add("/web_resources/preMyWidget/foo/bar2.js");
+      files.add("http://foo.com/bar.js");
+      spec.setJsFiles(files);
 
-            result = builder.generatePackage(tgtDir, spec);
-            assertTrue(result.exists());
-            assertEquals(tgtDir, result.getParentFile());
-            assertEquals(spec.getPackageName() + ".ppkg", result.getName());
-        } finally {
-            FileUtils.deleteQuietly(result);
-        }
+      result = builder.generatePackage(tgtDir, spec);
+      assertTrue(result.exists());
+      assertEquals(tgtDir, result.getParentFile());
+      assertEquals(spec.getPackageName() + ".ppkg", result.getName());
+    } finally {
+      FileUtils.deleteQuietly(result);
     }
+  }
 }

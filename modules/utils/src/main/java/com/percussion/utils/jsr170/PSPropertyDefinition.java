@@ -26,28 +26,18 @@ import org.apache.commons.lang.StringUtils;
  * Basic property definition implementation, not all fields implemented
  *
  * @author dougrand
- *
  */
 public class PSPropertyDefinition implements PropertyDefinition {
-  /**
-   * The property name, never <code>null</code> or empty after construction.
-   */
+  /** The property name, never <code>null</code> or empty after construction. */
   private String m_name;
 
-  /**
-   * If <code>true</code>, this is a multi valued property
-   */
+  /** If <code>true</code>, this is a multi valued property */
   private boolean m_isMultiple;
 
-  /**
-   * Contains the declared type, see {@link PropertyType} for values
-   */
+  /** Contains the declared type, see {@link PropertyType} for values */
   private int m_type;
 
-  /**
-   * The node type of the containing node, never <code>null</code> after
-   * ctor
-   */
+  /** The node type of the containing node, never <code>null</code> after ctor */
   private NodeType m_nodeType;
 
   /**
@@ -56,8 +46,7 @@ public class PSPropertyDefinition implements PropertyDefinition {
    * @param name the name of the property, never <code>null</code> or empty
    * @param multiple if <code>true</code> this property takes multiple values
    * @param type the type of the property, see {@link PropertyType} for values
-   * @param nodeType the node type of the containing node for this property,
-   * never <code>null</code>
+   * @param nodeType the node type of the containing node for this property, never <code>null</code>
    */
   public PSPropertyDefinition(String name, boolean multiple, int type, NodeType nodeType) {
     if (StringUtils.isBlank(name)) {

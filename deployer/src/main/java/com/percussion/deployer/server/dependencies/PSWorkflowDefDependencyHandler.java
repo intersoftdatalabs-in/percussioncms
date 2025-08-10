@@ -54,20 +54,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Class to handle packaging and deploying a workflow definition.
- */
+/** Class to handle packaging and deploying a workflow definition. */
 public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -144,16 +139,16 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>StateDef</li>
-   * <li>RoleDef</li>
+   *   <li>StateDef
+   *   <li>RoleDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -182,8 +177,8 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Override the method from supper class, but this is to get the next id
-   * specifically for <code>WORKFLOW_ID</code> in <code>WORKFLOW_TABLE</code>.
+   * Override the method from supper class, but this is to get the next id specifically for <code>
+   * WORKFLOW_ID</code> in <code>WORKFLOW_TABLE</code>.
    */
   protected String getNextId(String table, PSDependency dep) throws PSDeployException {
     int id = PSDbmsHelper.getInstance().getNextIdInMemory(WORKFLOW_TABLE, WORKFLOW_ID, null, null);
@@ -313,14 +308,12 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>WORKFLOW_TABLE</code> for a given
-   * workflow dependency object.
+   * Install a dependency data to the <code>WORKFLOW_TABLE</code> for a given workflow dependency
+   * object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToWorkflowTable(
@@ -376,14 +369,12 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>STATES_TABLE</code> for a given
-   * workflow dependency object.
+   * Install a dependency data to the <code>STATES_TABLE</code> for a given workflow dependency
+   * object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToStatesTable(
@@ -455,12 +446,8 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    *
    * @param col The column object, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   *
-   * @return The mapping used, or <code>null</code> if no tranformation
-   * required.
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @return The mapping used, or <code>null</code> if no tranformation required.
    * @throws PSDeployException if any error occurs.
    */
   private PSIdMapping setStateIdCol(PSJdbcColumnData col, PSDependency wfDep, PSImportCtx ctx)
@@ -480,12 +467,8 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    *
    * @param col The column object, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   *
-   * @return The mapping used, or <code>null</code> if no tranformation
-   * required.
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @return The mapping used, or <code>null</code> if no tranformation required.
    * @throws PSDeployException if any error occurs.
    */
   private PSIdMapping setTransIdCol(PSJdbcColumnData col, PSDependency wfDep, PSImportCtx ctx)
@@ -501,14 +484,12 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>TRANSITIONS_TABLE</code> for
-   * a given workflow dependency object.
+   * Install a dependency data to the <code>TRANSITIONS_TABLE</code> for a given workflow dependency
+   * object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToTnxTable(PSDependencyData depData, PSDependency wfDep, PSImportCtx ctx)
@@ -580,18 +561,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>NOTIFICATIONS_TABLE</code> for
-   * a given workflow dependency object.
+   * Install a dependency data to the <code>NOTIFICATIONS_TABLE</code> for a given workflow
+   * dependency object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   * @param notifDdMap It maps old id (as the key in <code>String</code>) to
-   * new id (as the value in <code>String</code>) for the
-   * <code>NOTIFICATION_ID</code> column (in <code>depData</code>), assume
-   * not <code>null</code>
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @param notifDdMap It maps old id (as the key in <code>String</code>) to new id (as the value in
+   *     <code>String</code>) for the <code>NOTIFICATION_ID</code> column (in <code>depData</code>),
+   *     assume not <code>null</code>
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToNotifTable(
@@ -651,17 +629,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>ROLES_TABLE</code> for
-   * a given workflow dependency object.
+   * Install a dependency data to the <code>ROLES_TABLE</code> for a given workflow dependency
+   * object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to
-   * new id (as the value in <code>String</code>) for the <code>ROLE_ID</code>
-   * column (in <code>depData</code>), assume not <code>null</code>
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to new id (as the value in
+   *     <code>String</code>) for the <code>ROLE_ID</code> column (in <code>depData</code>), assume
+   *     not <code>null</code>
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToRolesTable(
@@ -721,17 +697,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the <code>STATEROLES_TABLE</code> for
-   * a given workflow dependency object.
+   * Install a dependency data to the <code>STATEROLES_TABLE</code> for a given workflow dependency
+   * object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to
-   * new id (as the value in <code>String</code>) for the <code>ROLE_ID</code>
-   * column (in <code>depData</code>), assume not <code>null</code>
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to new id (as the value in
+   *     <code>String</code>) for the <code>ROLE_ID</code> column (in <code>depData</code>), assume
+   *     not <code>null</code>
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToStateRolesTable(
@@ -793,19 +767,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install a dependency data to the
-   * <code>TRANSITIONNOTIFICATIONS_TABLE</code> for a given workflow
-   * dependency object.
+   * Install a dependency data to the <code>TRANSITIONNOTIFICATIONS_TABLE</code> for a given
+   * workflow dependency object.
    *
    * @param depData The dependency data, assume not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
-   * @param notifIdMap It maps old id (as the key in <code>String</code>) to
-   * new id (as the value in <code>String</code>) for the
-   * <code>NOTIFICATION_ID</code> column (in <code>depData</code>), assume
-   * not <code>null</code>
-   *
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
+   * @param notifIdMap It maps old id (as the key in <code>String</code>) to new id (as the value in
+   *     <code>String</code>) for the <code>NOTIFICATION_ID</code> column (in <code>depData</code>),
+   *     assume not <code>null</code>
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToTnxNotifTable(
@@ -876,17 +846,15 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Install the supplied  dependency data to the
-   * <code>TRANSITIONROLES_TABLE</code> for a given workflow dependency object.
+   * Install the supplied dependency data to the <code>TRANSITIONROLES_TABLE</code> for a given
+   * workflow dependency object.
    *
    * @param depData The dependency data, assumed not <code>null</code>.
    * @param wfDep The workflow dependency object, assume not <code>null</code>
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to
-   * new id (as the value in <code>String</code>) for the <code>ROLE_ID</code>
-   * column (in <code>depData</code>), assumed not <code>null</code>
-   *
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
+   * @param rolesIdMap It maps old id (as the key in <code>String</code>) to new id (as the value in
+   *     <code>String</code>) for the <code>ROLE_ID</code> column (in <code>depData</code>), assumed
+   *     not <code>null</code>
    * @throws PSDeployException if any error occurs.
    */
   private void installDataToTnxRolesTable(
@@ -956,12 +924,9 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
    * @param idCol The column name of the reserved id.
    * @param workflowId
    * @param depData
-   *
-   * @return A list of pairs, old and new ids, in a <code>Map</code>. The old
-   * id is the map's key (in <code>String</code>), the new id is the map's
-   * value (in <code>String</code>). It may be <code>null</code> if
-   * <code>data</code> is <code>null</code>.
-   *
+   * @return A list of pairs, old and new ids, in a <code>Map</code>. The old id is the map's key
+   *     (in <code>String</code>), the new id is the map's value (in <code>String</code>). It may be
+   *     <code>null</code> if <code>data</code> is <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
   private Map reserveIdsForTable(String idCol, String workflowId, PSDependencyData depData)
@@ -992,18 +957,13 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * Retrieve the imported workflow data from the archive for the given
-   * dependency.
+   * Retrieve the imported workflow data from the archive for the given dependency.
    *
-   * @param archive The archive to be retrieved from, assume not
-   * <code>null</code>
+   * @param archive The archive to be retrieved from, assume not <code>null</code>
    * @param dep The dependency object, assume not <code>null</code>.
-   *
-   * @return A list of retrieved <code>PSDependencyData</code> in a
-   * <code>Map</code>, it will never be <code>null</code> or empty. The map's
-   * value is <code>PSDependencyData</code>, the map's key is the table name
-   * of the <code>PSDependencyData</code> object.
-   *
+   * @return A list of retrieved <code>PSDependencyData</code> in a <code>Map</code>, it will never
+   *     be <code>null</code> or empty. The map's value is <code>PSDependencyData</code>, the map's
+   *     key is the table name of the <code>PSDependencyData</code> object.
    * @throws PSDeployException if any error occurs.
    */
   private Map<String, PSDependencyData> getImportDataFromArchive(
@@ -1018,9 +978,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     return dataMap;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "WorkflowDef";
 
   // Constants for table containing workflow
@@ -1060,10 +1018,7 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
     WORKFLOW_TABLE
   };
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
@@ -1072,15 +1027,12 @@ public class PSWorkflowDefDependencyHandler extends PSDataObjectDependencyHandle
   }
 
   /**
-   * List of table schemas for all tables with table name as the map key (in
-   * <code>String</code> and the schema object as the map value (in
-   * <code>PSJdbcTableSchema</code>, initialized by constructor, will
-   * never be <code>null</code> or empty after that.
+   * List of table schemas for all tables with table name as the map key (in <code>String</code> and
+   * the schema object as the map value (in <code>PSJdbcTableSchema</code>, initialized by
+   * constructor, will never be <code>null</code> or empty after that.
    */
   private Map<String, PSJdbcTableSchema> m_schemaMap = new HashMap<>();
 
-  /**
-   * Get the workflow service.
-   */
+  /** Get the workflow service. */
   private static IPSWorkflowService ms_wfService = PSWorkflowServiceLocator.getWorkflowService();
 }

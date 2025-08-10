@@ -33,10 +33,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSContentTypeVariant represents one row of the CONTENTVARIANTS table.
- * This is a read-only implementation of the PSDbComponent.
- * @deprecated Use the assembly service to load and manipulate variant
- * information
+ * The PSContentTypeVariant represents one row of the CONTENTVARIANTS table. This is a read-only
+ * implementation of the PSDbComponent.
+ *
+ * @deprecated Use the assembly service to load and manipulate variant information
  */
 @Deprecated
 public class PSContentTypeTemplate extends PSDbComponent {
@@ -57,6 +57,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
 
   /**
    * Create a content type variant from an assembly template
+   *
    * @param template the template, never <code>null</code>
    */
   public PSContentTypeTemplate(IPSAssemblyTemplate template) {
@@ -117,6 +118,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
 
   /**
    * Does this template support the given content type
+   *
    * @param contenttypeid the content type to check for
    * @return <code>true</code> if the type is supported
    */
@@ -129,8 +131,8 @@ public class PSContentTypeTemplate extends PSDbComponent {
 
   /**
    * Retrieve the supported content types
-   * @return a list of content types, never <code>null</code> and never empty
-   * for a valid template.
+   *
+   * @return a list of content types, never <code>null</code> and never empty for a valid template.
    */
   public List<Long> getContentTypes() {
     return m_contentTypes;
@@ -188,16 +190,18 @@ public class PSContentTypeTemplate extends PSDbComponent {
 
   /**
    * Returns variant slots set.
-   * @return variant slots as a PSSlotTypeContentTypeVariantSet,
-   * never <code>null</code>, may be <code>empty</code>.
+   *
+   * @return variant slots as a PSSlotTypeContentTypeVariantSet, never <code>null</code>, may be
+   *     <code>empty</code>.
    */
   public PSVariantSlotTypeSet getVariantSlots() {
     return m_variantSlots;
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <!ELEMENT PSXContentTypeVariant (PSXKey, VariantDescription, LocationPrefix?, PublishWhen?, StyleSheetName, AssembyUrl, Description?, PSXVariantSlotTypeSet )>
    * <!ELEMENT PSXVariantSlotTypeSet (#PCDATA)>
@@ -217,7 +221,6 @@ public class PSContentTypeTemplate extends PSDbComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   @Override
@@ -312,9 +315,9 @@ public class PSContentTypeTemplate extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   *     PSKey)}.
-   * Since this is a read-only object, this is a not supported operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
+   *
    * @throws UnsupportedOperationException always.
    */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
@@ -343,9 +346,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
     return copy;
   }
 
-  /**
-   * Override to create our own Key which is {@link PSLocator}.
-   */
+  /** Override to create our own Key which is {@link PSLocator}. */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
 
@@ -353,18 +354,15 @@ public class PSContentTypeTemplate extends PSDbComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. All
-   * string members'omparison is case insensitive.
-   * The CONTENTVARIANT table is a variant definition table and as well
-   * as a mapping table for Content Types and Variants. The Variantid
-   * is used as data and as well key. That is the reason for adding the
-   * variantid check in the equals method.
+   * Overrides the base class to compare each of the member properties. All string members'omparison
+   * is case insensitive. The CONTENTVARIANT table is a variant definition table and as well as a
+   * mapping table for Content Types and Variants. The Variantid is used as data and as well key.
+   * That is the reason for adding the variantid check in the equals method.
    *
-   * @param o The comparee. If null or not an instance of this class,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @param o The comparee. If null or not an instance of this class, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSContentTypeTemplate)) return false;
@@ -385,9 +383,8 @@ public class PSContentTypeTemplate extends PSDbComponent {
   /**
    * Must be overridden because we overrode equals.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   public int hashCode() {
     return (getVariantId()
@@ -402,9 +399,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
         + m_variantSlots.hashCode());
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey[] createKeys(int[] variantIds) {
     if (variantIds == null || variantIds.length < 1)
       throw new IllegalArgumentException("variantIds may not be null or empty");
@@ -421,16 +416,13 @@ public class PSContentTypeTemplate extends PSDbComponent {
   }
 
   /**
-   * Creates the correct key for this component according to the specified
-   * content type and variant id.
+   * Creates the correct key for this component according to the specified content type and variant
+   * id.
    *
-   * @param contentTypeId the content type id. It may be less than
-   *    <code>-1</code>, then the variant id must be greater than
-   *    <code>0</code>.
-   * @param variantId the variant id. It may be less than
-   *    <code>-1</code>, then the content type id must be greater than
-   *    <code>0</code>.
-   *
+   * @param contentTypeId the content type id. It may be less than <code>-1</code>, then the variant
+   *     id must be greater than <code>0</code>.
+   * @param variantId the variant id. It may be less than <code>-1</code>, then the content type id
+   *     must be greater than <code>0</code>.
    * @return the created key, never <code>null</code>.
    */
   public static PSKey createKey(long contentTypeId, int variantId) {
@@ -449,19 +441,13 @@ public class PSContentTypeTemplate extends PSDbComponent {
     }
   }
 
-  /**
-   * Constant for variant output form page
-   */
+  /** Constant for variant output form page */
   public static int OUTPUTFORMAT_PAGE = 1;
 
-  /**
-   * Constant for variant output form snippet
-   */
+  /** Constant for variant output form snippet */
   public static int OUTPUTFORMAT_SNIPPET = 2;
 
-  /**
-   * ContentVariants Table Key Name.
-   */
+  /** ContentVariants Table Key Name. */
   private static final String KEY_CONTENTTYPEID = "CONTENTTYPEID";
 
   private static final String KEY_VARIANTID = "TEMPLATE_ID";
@@ -479,10 +465,7 @@ public class PSContentTypeTemplate extends PSDbComponent {
   private String m_publishWhen = null;
   private List<Long> m_contentTypes = null;
 
-  /**
-   * Variant Slots collection. Initialized by fromXml,
-   * may be <code>null</code>.
-   */
+  /** Variant Slots collection. Initialized by fromXml, may be <code>null</code>. */
   private PSVariantSlotTypeSet m_variantSlots = null;
 
   // Private constants for XML attribute and element names

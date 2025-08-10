@@ -20,40 +20,34 @@ package com.percussion.HTTPClient;
 import java.io.IOException;
 
 /**
- * This module handles request retries when a connection closes prematurely.
- * It is triggered by the RetryException thrown by the StreamDemultiplexor.
+ * This module handles request retries when a connection closes prematurely. It is triggered by the
+ * RetryException thrown by the StreamDemultiplexor.
  *
- * <P>This module is somewhat unique in that it doesn't strictly limit itself
- * to the HTTPClientModule interface and its return values. That is, it
- * sends request directly using the HTTPConnection.sendRequest() method. This
- * is necessary because this module will not only resend its request but it
- * also resend all other requests in the chain. Also, it rethrows the
+ * <p>This module is somewhat unique in that it doesn't strictly limit itself to the
+ * HTTPClientModule interface and its return values. That is, it sends request directly using the
+ * HTTPConnection.sendRequest() method. This is necessary because this module will not only resend
+ * its request but it also resend all other requests in the chain. Also, it rethrows the
  * RetryException in Phase1 to restart the processing of the modules.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 class RetryModule implements HTTPClientModule, GlobalConstants {
   // Constructors
 
-  /**
-   */
+  /** */
   RetryModule() {}
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest roreq)
       throws IOException, ModuleException {
     try {
@@ -94,9 +88,8 @@ class RetryModule implements HTTPClientModule, GlobalConstants {
             }
 
             /**
-             * if an output stream was used (i.e. we don't have the
-             * data to resend) then delegate the responsibility for
-             * resending to the application.
+             * if an output stream was used (i.e. we don't have the data to resend) then delegate
+             * the responsibility for resending to the application.
              */
             if (req.getStream() != null) {
               if (HTTPConnection.deferStreamed) {
@@ -173,9 +166,7 @@ class RetryModule implements HTTPClientModule, GlobalConstants {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) {
     // reset any stuff we might have set previously
     req.delay_entity = 0;
@@ -185,19 +176,15 @@ class RetryModule implements HTTPClientModule, GlobalConstants {
     return RSP_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 
   /**
-   * Add a token to the given header. If the header does not exist then
-   * create it with the given token.
+   * Add a token to the given header. If the header does not exist then create it with the given
+   * token.
    *
    * @param req the request who's headers are to be modified
    * @param hdr the name of the header to add the token to (or to create)

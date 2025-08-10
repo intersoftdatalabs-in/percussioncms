@@ -24,9 +24,9 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 
 /**
- * Check a numeric argument for a range, supplied in the parameters. Note that
- * the range check is an inclusive test. The parameters to this udf consist of
- * the following:
+ * Check a numeric argument for a range, supplied in the parameters. Note that the range check is an
+ * inclusive test. The parameters to this udf consist of the following:
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -61,11 +61,10 @@ import java.io.File;
  * the range</td>
  * </tr>
  * </table>
- * <p>
- * The values are compared as double precision numbers.
+ *
+ * <p>The values are compared as double precision numbers.
  *
  * @author dougrand
- *
  */
 public class PSValidateNumber extends PSRangeValidator {
 

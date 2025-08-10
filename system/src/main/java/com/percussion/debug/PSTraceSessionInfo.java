@@ -25,12 +25,9 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Element;
 
 /**
- * Used to generate trace messages for the Session Info trace message type (0x0100).
- * Includes:
- * Are sessions enabled
- * Was an existing session found
- * Session ID
- * All User context values associated w/ the current request.
+ * Used to generate trace messages for the Session Info trace message type (0x0100). Includes: Are
+ * sessions enabled Was an existing session found Session ID All User context values associated w/
+ * the current request.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceSessionInfo extends PSTraceMessage {
@@ -51,16 +48,12 @@ public class PSTraceSessionInfo extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source a PSRequest object containing the information required for the
-   * trace message.  Two different cases handled:
-   * Trace if enabled/exists
-   * - Boolean traceSession = false, request
-   * Trace session info
-   * - Boolean traceSession = true, request
-   *
+   * @param source a PSRequest object containing the information required for the trace message. Two
+   *     different cases handled: Trace if enabled/exists - Boolean traceSession = false, request
+   *     Trace session info - Boolean traceSession = true, request
    * @return the message body
    * @roseuid 39FEE2F302FD
    */

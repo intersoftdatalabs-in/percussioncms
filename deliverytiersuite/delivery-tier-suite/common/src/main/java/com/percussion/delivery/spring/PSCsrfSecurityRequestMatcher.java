@@ -34,7 +34,6 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
   private boolean caseInsensitive = false;
 
   /**
-   *
    * @param allowedMethodsPattern Regular expression listing excluded methods
    * @param unprotectedPaths comma seperated list of paths to ignore
    * @param caseInsensitive use case-insensitive comparison

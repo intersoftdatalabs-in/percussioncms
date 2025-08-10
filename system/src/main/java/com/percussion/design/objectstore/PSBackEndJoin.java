@@ -25,15 +25,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSBackEndJoin class is used to define the relationships between
- * back-end tables. When more than one table is defined in a data tank,
- * E2 needs to know how the information will be joined across the tables
- * when querying data from the back-ends.
- * <p>
- * Joins are defined by specifying the column to be used on the left side
- * of the join and the column to be used on the right side of the join. The
- * relationship between these two columns can then be specified. This
- * can be one of the following:
+ * The PSBackEndJoin class is used to define the relationships between back-end tables. When more
+ * than one table is defined in a data tank, E2 needs to know how the information will be joined
+ * across the tables when querying data from the back-ends.
+ *
+ * <p>Joins are defined by specifying the column to be used on the left side of the join and the
+ * column to be used on the right side of the join. The relationship between these two columns can
+ * then be specified. This can be one of the following:
+ *
  * <table border="1">
  * <tr><td>Type</td><td>Behavior</td></tr>
  * <tr><td>Inner</td>
@@ -60,27 +59,19 @@ import org.w3c.dom.Node;
  *
  * @see PSBackEndDataTank
  * @see PSBackEndDataTank#getJoins
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndJoin extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndJoin(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -89,13 +80,11 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Construct a back-end join object. The object defines the relationship
-   * between two tables. An inner join is created by default.
+   * Construct a back-end join object. The object defines the relationship between two tables. An
+   * inner join is created by default.
    *
-   * @param leftColumn    the column object defining the left side of the
-   *                      join
-   * @param rightColumn   the column object defining the right side of the
-   *                      join
+   * @param leftColumn the column object defining the left side of the join
+   * @param rightColumn the column object defining the right side of the join
    */
   public PSBackEndJoin(PSBackEndColumn leftColumn, PSBackEndColumn rightColumn) {
     super();
@@ -103,9 +92,7 @@ public class PSBackEndJoin extends PSComponent {
     m_rightColumn = rightColumn;
   }
 
-  /**
-   * Default constructor for dynamic construction of the object. Used in fromXml()
-   */
+  /** Default constructor for dynamic construction of the object. Used in fromXml() */
   PSBackEndJoin() {
     super();
   }
@@ -137,90 +124,80 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Is this an inner join? Inner joins only return rows where the value
-   * in the left column match the value in the right column.
+   * Is this an inner join? Inner joins only return rows where the value in the left column match
+   * the value in the right column.
    *
-   * @return      <code>true</code> if this is an inner join,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is an inner join, <code>false</code> otherwise
    */
   public boolean isInnerJoin() {
     return (BEJ_TYPE_INNER == m_joinType);
   }
 
   /**
-   * Set this as an inner join. Inner joins only return rows where the value
-   * in the left column match the value in the right column.
+   * Set this as an inner join. Inner joins only return rows where the value in the left column
+   * match the value in the right column.
    */
   public void setInnerJoin() {
     m_joinType = BEJ_TYPE_INNER;
   }
 
   /**
-   * Is this a full outer join? Full outer joins return all rows from
-   * both tables. If a row in the left table does not have a match in the
-   * right table, NULL values are used as the values of the right table's
-   * columns. If a row in the right table does not have a match in the left
-   * table, NULL values are used as the values of the left table's columns.
+   * Is this a full outer join? Full outer joins return all rows from both tables. If a row in the
+   * left table does not have a match in the right table, NULL values are used as the values of the
+   * right table's columns. If a row in the right table does not have a match in the left table,
+   * NULL values are used as the values of the left table's columns.
    *
-   * @return      <code>true</code> if this is a full outer join,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is a full outer join, <code>false</code> otherwise
    */
   public boolean isFullOuterJoin() {
     return (BEJ_TYPE_FULL_OUTER == m_joinType);
   }
 
   /**
-   * Set this as a full outer join? Full outer joins return all rows from
-   * both tables. If a row in the left table does not have a match in the
-   * right table, NULL values are used as the values of the right table's
-   * columns. If a row in the right table does not have a match in the left
-   * table, NULL values are used as the values of the left table's columns.
+   * Set this as a full outer join? Full outer joins return all rows from both tables. If a row in
+   * the left table does not have a match in the right table, NULL values are used as the values of
+   * the right table's columns. If a row in the right table does not have a match in the left table,
+   * NULL values are used as the values of the left table's columns.
    */
   public void setFullOuterJoin() {
     m_joinType = BEJ_TYPE_FULL_OUTER;
   }
 
   /**
-   * Is this a left outer join? Left outer joins return all rows from
-   * the left table. If a row in the left table does not have a match
-   * in the right table, NULL values are used as the values of the
-   * right table's columns.
+   * Is this a left outer join? Left outer joins return all rows from the left table. If a row in
+   * the left table does not have a match in the right table, NULL values are used as the values of
+   * the right table's columns.
    *
-   * @return      <code>true</code> if this is a left outer join,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is a left outer join, <code>false</code> otherwise
    */
   public boolean isLeftOuterJoin() {
     return (BEJ_TYPE_LEFT_OUTER == m_joinType);
   }
 
   /**
-   * Set this as a left outer join? Left outer joins return all rows from
-   * the left table. If a row in the left table does not have a match
-   * in the right table, NULL values are used as the values of the
-   * right table's columns.
+   * Set this as a left outer join? Left outer joins return all rows from the left table. If a row
+   * in the left table does not have a match in the right table, NULL values are used as the values
+   * of the right table's columns.
    */
   public void setLeftOuterJoin() {
     m_joinType = BEJ_TYPE_LEFT_OUTER;
   }
 
   /**
-   * Is this a right outer join? Right outer joins return all rows from
-   * the right table. If a row in the right table does not have a match
-   * in the left table, NULL values are used as the values of the
-   * left table's columns.
+   * Is this a right outer join? Right outer joins return all rows from the right table. If a row in
+   * the right table does not have a match in the left table, NULL values are used as the values of
+   * the left table's columns.
    *
-   * @return      <code>true</code> if this is a right outer join,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if this is a right outer join, <code>false</code> otherwise
    */
   public boolean isRightOuterJoin() {
     return (BEJ_TYPE_RIGHT_OUTER == m_joinType);
   }
 
   /**
-   * Set this as a right outer join? Right outer joins return all rows from
-   * the right table. If a row in the right table does not have a match
-   * in the left table, NULL values are used as the values of the
-   * left table's columns.
+   * Set this as a right outer join? Right outer joins return all rows from the right table. If a
+   * row in the right table does not have a match in the left table, NULL values are used as the
+   * values of the left table's columns.
    */
   public void setRightOuterJoin() {
     m_joinType = BEJ_TYPE_RIGHT_OUTER;
@@ -229,7 +206,7 @@ public class PSBackEndJoin extends PSComponent {
   /**
    * Get the column defining the left side of the join.
    *
-   * @return      the column defining the left side of the join
+   * @return the column defining the left side of the join
    */
   public PSBackEndColumn getLeftColumn() {
     return m_leftColumn;
@@ -238,9 +215,8 @@ public class PSBackEndJoin extends PSComponent {
   /**
    * Set the column defining the left side of the join.
    *
-   * @param col   the column defining the left side of the join
-   *
-   * @see         PSBackEndColumn
+   * @param col the column defining the left side of the join
+   * @see PSBackEndColumn
    */
   public void setLeftColumn(PSBackEndColumn col) {
     if (col == null) throw new IllegalArgumentException("back-end join lcol null");
@@ -251,7 +227,7 @@ public class PSBackEndJoin extends PSComponent {
   /**
    * Get the column defining the right side of the join.
    *
-   * @return      the column defining the right side of the join
+   * @return the column defining the right side of the join
    */
   public PSBackEndColumn getRightColumn() {
     return m_rightColumn;
@@ -260,9 +236,8 @@ public class PSBackEndJoin extends PSComponent {
   /**
    * Set the column defining the right side of the join.
    *
-   * @param col   the column defining the right side of the join
-   *
-   * @see         PSBackEndColumn
+   * @param col the column defining the right side of the join
+   * @see PSBackEndColumn
    */
   public void setRightColumn(PSBackEndColumn col) {
     if (col == null) throw new IllegalArgumentException("back-end join rcol null");
@@ -271,24 +246,21 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Get the translation which will be applied to the left side of the
-   * join before attempting to locate a matching value for the right side
-   * column.
+   * Get the translation which will be applied to the left side of the join before attempting to
+   * locate a matching value for the right side column.
    *
-   * @return      the translator (may be null)
+   * @return the translator (may be null)
    */
   public PSExtensionCall getTranslator() {
     return m_translator;
   }
 
   /**
-   * Set the translation which will be applied to the left side of the
-   * join before attempting to locate a matching value for the right side
-   * column.
+   * Set the translation which will be applied to the left side of the join before attempting to
+   * locate a matching value for the right side column.
    *
-   * @param translator    the translator (may be null)
-   *
-   * @see                  PSExtensionCall
+   * @param translator the translator (may be null)
+   * @see PSExtensionCall
    */
   public void setTranslator(PSExtensionCall translator) {
     m_translator = translator;
@@ -297,10 +269,11 @@ public class PSBackEndJoin extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndJoin XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndJoin XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXBackEndJoin is used to define the relationships between
@@ -357,7 +330,7 @@ public class PSBackEndJoin extends PSComponent {
    *    &lt;!ELEMENT translator       (PSXExtensionCall)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXBackEndJoin XML element node
+   * @return the newly created PSXBackEndJoin XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -393,17 +366,13 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Populates this object from its XML representation.  See {@link #toXml}
-   * for the format.
+   * Populates this object from its XML representation. See {@link #toXml} for the format.
    *
-   * @param sourceNode   the XML element node to populate from, not <code>null
+   * @param sourceNode the XML element node to populate from, not <code>null
    * </code>.
    * @param parentDoc may be <code>null</code>
-   * @param parentComponents all the parent objects of this object, may be
-   * <code>null</code>
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   * in the expected format
+   * @param parentComponents all the parent objects of this object, may be <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -491,18 +460,15 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -545,9 +511,8 @@ public class PSBackEndJoin extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param selector a valid PSDataSelector.
    */

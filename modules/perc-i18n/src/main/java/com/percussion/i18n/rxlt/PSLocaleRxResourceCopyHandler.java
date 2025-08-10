@@ -34,26 +34,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class handle the processing of creating locale specific Rhythmyx
- * resources files. These are basically copies of the files for the default
- * language. The idea of copying the resources is to provide a way of using the
- * untranslated versions of the resources until translation is done. This way the
- * implementor does not need to worry about searching for the resources that need
- * translation when a new language is added to the system. All the resources are
- * automatically copied by RXLT and hence only translation is left for the
- * implementer.
+ * This class handle the processing of creating locale specific Rhythmyx resources files. These are
+ * basically copies of the files for the default language. The idea of copying the resources is to
+ * provide a way of using the untranslated versions of the resources until translation is done. This
+ * way the implementor does not need to worry about searching for the resources that need
+ * translation when a new language is added to the system. All the resources are automatically
+ * copied by RXLT and hence only translation is left for the implementer.
  */
 public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   private static final Logger log = LogManager.getLogger(PSLocaleRxResourceCopyHandler.class);
 
   /**
-   * Constructor. Needs valid Rhythmyx root directory and the new language
-   * string.
+   * Constructor. Needs valid Rhythmyx root directory and the new language string.
+   *
    * @param rxroot must not be <code>empty</code>.
    * @param languageString must not be <code>null</code> or <code>empty</code>.
-   * @throws IllegalArgumentException if rxroot or languageString
-   * is <code>null</code> or <code>empty</code>
+   * @throws IllegalArgumentException if rxroot or languageString is <code>null</code> or <code>
+   *     empty</code>
    */
   public PSLocaleRxResourceCopyHandler(String rxroot, String languageString) {
     if (rxroot == null || rxroot.trim().length() < 1) {
@@ -67,21 +65,16 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     m_languagestring = languageString;
   }
 
-  /**
-   * Calls {@link #processResourceCopy(boolean) processResourceCopy(true)}
-   */
+  /** Calls {@link #processResourceCopy(boolean) processResourceCopy(true)} */
   public void processResourceCopy() throws IOException {
     processResourceCopy(true);
   }
 
   /**
-   * This method handles copying of all Rhythmyx resources as per the
-   * localization scheme used. Refer to implementor's documentation for the
-   * details of the scheme.
+   * This method handles copying of all Rhythmyx resources as per the localization scheme used.
+   * Refer to implementor's documentation for the details of the scheme.
    *
-   * @param doLog <code>true</code> to log messages, <code>false</code>
-   * otherwise.
-   *
+   * @param doLog <code>true</code> to log messages, <code>false</code> otherwise.
    * @throws IOException if file copy fails for IO reasons
    */
   public void processResourceCopy(boolean doLog) throws IOException {
@@ -99,11 +92,10 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   }
 
   /**
-   * Gets file references to all existing resource files for the language
-   * string passed to the constructor.
+   * Gets file references to all existing resource files for the language string passed to the
+   * constructor.
    *
-   * @return An iterator over zero or more <code>File</code> objects, never
-   * <code>null</code>.
+   * @return An iterator over zero or more <code>File</code> objects, never <code>null</code>.
    */
   public Iterator getResourceFiles() {
     List files = new ArrayList();
@@ -130,13 +122,11 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /**
    * Get file reference to the specified language's javascript resource file.
    *
-   * @param languageString The language for which the file is returned,
-   * assumed not <code>null</code> or empty.
-   * @param isSystem <code>true</code> to specify the system resources
-   * directory, <code>false</code> to specify the rx resources directory.
-   *
-   * @return The file reference, never <code>null</code>, may not actually
-   * exist.
+   * @param languageString The language for which the file is returned, assumed not <code>null
+   *     </code> or empty.
+   * @param isSystem <code>true</code> to specify the system resources directory, <code>false</code>
+   *     to specify the rx resources directory.
+   * @return The file reference, never <code>null</code>, may not actually exist.
    */
   private File getJSFile(String languageString, boolean isSystem) {
     String resourceFolder = isSystem ? SYSTEM_JS_DIR : RX_JS_DIR;
@@ -148,13 +138,11 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /**
    * Get file reference to the specified language's css resource file.
    *
-   * @param languageString The language for which the file is returned,
-   * assumed not <code>null</code> or empty.
-   * @param isSystem <code>true</code> to specify the system resources
-   * directory, <code>false</code> to specify the rx resources directory.
-   *
-   * @return The file reference, never <code>null</code>, may not actually
-   * exist.
+   * @param languageString The language for which the file is returned, assumed not <code>null
+   *     </code> or empty.
+   * @param isSystem <code>true</code> to specify the system resources directory, <code>false</code>
+   *     to specify the rx resources directory.
+   * @return The file reference, never <code>null</code>, may not actually exist.
    */
   private File getCSSFile(String languageString, boolean isSystem) {
     String resourceFolder = isSystem ? SYSTEM_CSS_DIR : RX_CSS_DIR;
@@ -166,13 +154,11 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /**
    * Get file reference to the specified language's XML resource file.
    *
-   * @param languageString The language for which the file is returned,
-   * assumed not <code>null</code> or empty.
-   * @param isSystem <code>true</code> to specify the system resources
-   * directory, <code>false</code> to specify the rx resources directory.
-   *
-   * @return The file reference, never <code>null</code>, may not actually
-   * exist.
+   * @param languageString The language for which the file is returned, assumed not <code>null
+   *     </code> or empty.
+   * @param isSystem <code>true</code> to specify the system resources directory, <code>false</code>
+   *     to specify the rx resources directory.
+   * @return The file reference, never <code>null</code>, may not actually exist.
    */
   private File getXMLFile(String languageString, boolean isSystem) {
     String resourceFolder = isSystem ? SYSTEM_CSS_DIR : RX_CSS_DIR;
@@ -182,16 +168,13 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   }
 
   /**
-   * Get file reference to the specified language's images resource files
-   * directory.
+   * Get file reference to the specified language's images resource files directory.
    *
-   * @param languageString The language for which the directory is returned,
-   * assumed not <code>null</code> or empty.
-   * @param isSystem <code>true</code> to specify the system resources
-   * directory, <code>false</code> to specify the rx resources directory.
-   *
-   * @return The file reference, never <code>null</code>, may not actually
-   * exist.
+   * @param languageString The language for which the directory is returned, assumed not <code>null
+   *     </code> or empty.
+   * @param isSystem <code>true</code> to specify the system resources directory, <code>false</code>
+   *     to specify the rx resources directory.
+   * @return The file reference, never <code>null</code>, may not actually exist.
    */
   private File getImageFileDir(String languageString, boolean isSystem) {
     String resourceFolder = isSystem ? SYSTEM_IMAGE_DIR : RX_IMAGE_DIR;
@@ -201,15 +184,13 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   /**
    * Recursively get all images files below the specified images directory.
    *
-   * @param languageString The language for which the files are returned,
-   * assumed not <code>null</code> or empty.
-   * @param isSystem <code>true</code> to specify the system resources
-   * directory, <code>false</code> to specify the rx resources directory.
-   *
-   * @return The list of files, will be <code>null</code> only if the specified
-   * language's images directory does not exist.  Otherwise will contain all
-   * files that exist below that directory, including files within any
-   * subdirectories, recurisvely.
+   * @param languageString The language for which the files are returned, assumed not <code>null
+   *     </code> or empty.
+   * @param isSystem <code>true</code> to specify the system resources directory, <code>false</code>
+   *     to specify the rx resources directory.
+   * @return The list of files, will be <code>null</code> only if the specified language's images
+   *     directory does not exist. Otherwise will contain all files that exist below that directory,
+   *     including files within any subdirectories, recurisvely.
    */
   private List getImageFiles(String languageString, boolean isSystem) {
     List listFiles = null;
@@ -228,6 +209,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   /**
    * Convenience method for copying JavaScript resources
+   *
    * @throws IOException if file copying fails for IO reasons
    */
   private void makeJSCopy() throws IOException {
@@ -261,6 +243,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   /**
    * Convenience method for copying CSS resources
+   *
    * @throws IOException if file copying fails for IO reasons
    */
   private void makeCSSCopy() throws IOException {
@@ -293,6 +276,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   /**
    * Convenience method for copying XML resources
+   *
    * @throws IOException if file copying fails for IO reasons
    */
   private void makeXMLCopy() throws IOException {
@@ -325,6 +309,7 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
 
   /**
    * Convenience method for copying Image resources
+   *
    * @throws IOException if file copying fails for IO reasons
    */
   private void makeImagesCopy() throws IOException {
@@ -372,14 +357,14 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
   }
 
   /**
-   * This method searches for "sys_resources" in the path string and replaces
-   * with "rx_resources". Also default language string with the language string
-   * this class associated with. The idea is to create copies of all images from
-   * the sys_resources/images/en-us directory to
+   * This method searches for "sys_resources" in the path string and replaces with "rx_resources".
+   * Also default language string with the language string this class associated with. The idea is
+   * to create copies of all images from the sys_resources/images/en-us directory to
    * rx_resources/images/<newlangaugestring> directory.
+   *
    * @param path must not be <code>null</code> or <code>empty</code>
-   * @return the new path generated based on the old path and generation
-   * scheme, may be <code>null</code> or <code>empty</code>
+   * @return the new path generated based on the old path and generation scheme, may be <code>null
+   *     </code> or <code>empty</code>
    */
   private String getNewImagePath(String path) {
     if (path == null || path.trim().length() < 1) {
@@ -400,67 +385,47 @@ public class PSLocaleRxResourceCopyHandler extends PSIdleDotter {
     return newPath;
   }
 
-  /**
-   * Rhythmyx root directory. Initialized in the constructor,
-   * never <code>null</code>.
-   */
+  /** Rhythmyx root directory. Initialized in the constructor, never <code>null</code>. */
   private String m_rxroot = "";
 
   /**
-   * New language string. Initialized in the constructor. Never <code>null</code>
-   * or <code>empty</code>
+   * New language string. Initialized in the constructor. Never <code>null</code> or <code>empty
+   * </code>
    */
   private String m_languagestring = "";
 
-  /**
-   * Name of the JavaScript system resource folder relative to the Rhythmyx
-   * root.
-   */
+  /** Name of the JavaScript system resource folder relative to the Rhythmyx root. */
   public static final String SYSTEM_JS_DIR = "sys_resources" + File.separator + "js";
 
-  /**
-   * Name of the JavaScript rx resource folder relative to the Rhythmyx root.
-   */
+  /** Name of the JavaScript rx resource folder relative to the Rhythmyx root. */
   public static final String RX_JS_DIR = "rx_resources" + File.separator + "js";
 
-  /**
-   * Name of the CSS system resource folder relative to the Rhythmyx root.
-   */
+  /** Name of the CSS system resource folder relative to the Rhythmyx root. */
   public static final String SYSTEM_CSS_DIR = "sys_resources" + File.separator + "css";
 
-  /**
-   * Name of the CSS rx resource folder relative to the Rhythmyx  root.
-   */
+  /** Name of the CSS rx resource folder relative to the Rhythmyx root. */
   public static final String RX_CSS_DIR = "rx_resources" + File.separator + "css";
 
-  /**
-   * Name of the Images system resource folder relative to the Rhythmyx root.
-   */
+  /** Name of the Images system resource folder relative to the Rhythmyx root. */
   public static final String SYSTEM_IMAGE_DIR = "sys_resources" + File.separator + "images";
 
-  /**
-   * Name of the Images rx resource folder relative to the Rhythmyx root.
-   */
+  /** Name of the Images rx resource folder relative to the Rhythmyx root. */
   public static final String RX_IMAGE_DIR = "rx_resources" + File.separator + "images";
 
   /**
-   * Name of the only JavaScript message map file. This file will have locale
-   * specific message map.
+   * Name of the only JavaScript message map file. This file will have locale specific message map.
    */
   public static final String JS_ERROR_MESSAGE_FILE = "globalErrorMessages.js";
 
-  /**
-   * Name of the only CSS template file in Rhythmyx.
-   */
+  /** Name of the only CSS template file in Rhythmyx. */
   public static final String CSS_TEMPLATE_FILE = "templates.css";
 
-  /**
-   * Name of the user options xml file that needs to be copies.
-   */
+  /** Name of the user options xml file that needs to be copies. */
   public static final String USER_OPTIONS_FILE = "UserOptions.xml";
 
   /**
    * Main method for testing purpose.
+   *
    * @param args
    */
   public static void main(String[] args) {

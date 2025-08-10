@@ -26,11 +26,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
- * A fluent patterned validation errors builder.
- * http://en.wikipedia.org/wiki/Fluent_interface
+ * A fluent patterned validation errors builder. http://en.wikipedia.org/wiki/Fluent_interface
  *
  * @author adamgent
- *
  */
 public class PSValidationErrorsBuilder {
 

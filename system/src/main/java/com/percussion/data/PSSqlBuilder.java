@@ -29,19 +29,16 @@ import java.util.HashMap;
 import javax.naming.NamingException;
 
 /**
- * The PSSqlBuilder class is used to build SQL SELECT statements.
- * It can be used to generate single table SELECTs or homogeneous
- * (same DBMS) joined SELECTs. The query optimizer is capable of building
- * heterogeneous (cross DBMS) SELECTs. It calls this class to build
- * each statement and also makes use of the PSQueryJoiner class to join
- * the returned data.
+ * The PSSqlBuilder class is used to build SQL SELECT statements. It can be used to generate single
+ * table SELECTs or homogeneous (same DBMS) joined SELECTs. The query optimizer is capable of
+ * building heterogeneous (cross DBMS) SELECTs. It calls this class to build each statement and also
+ * makes use of the PSQueryJoiner class to join the returned data.
  *
- * @see         PSQueryOptimizer
- * @see         PSQueryJoiner
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSQueryOptimizer
+ * @see PSQueryJoiner
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSSqlBuilder {
   protected PSSqlBuilder() {
@@ -49,10 +46,9 @@ public abstract class PSSqlBuilder {
   }
 
   /**
-   * Get the columns which will be used to locate records when executing
-   * the associated statement.
+   * Get the columns which will be used to locate records when executing the associated statement.
    *
-   * @return      an array of columns (may be null)
+   * @return an array of columns (may be null)
    */
   public abstract PSBackEndColumn[] getLookupColumns();
 
@@ -74,38 +70,29 @@ public abstract class PSSqlBuilder {
   }
 
   /**
-   * Get the table name from the PSBackEndTable object, optionally
-   * using the alias in lieu of the actual table name.
+   * Get the table name from the PSBackEndTable object, optionally using the alias in lieu of the
+   * actual table name.
    *
-   * @param   login         the login definition which can be used to
-   *                        access the meta data
-   *
-   * @param   table         the table to get the name of
-   *
-   * @param   useAlias      <code>true</code> to use the alias name if one
-   *                        has been defined; origin.table is used otherwise
+   * @param login the login definition which can be used to access the meta data
+   * @param table the table to get the name of
+   * @param useAlias <code>true</code> to use the alias name if one has been defined; origin.table
+   *     is used otherwise
    */
   protected String getTableName(PSBackEndLogin login, PSBackEndTable table, boolean useAlias) {
     return getTableName(login, table, useAlias, this, m_expandedTableNames);
   }
 
   /**
-   * Get the table name from the PSBackEndTable object, optionally
-   * using the alias in lieu of the actual table name.
+   * Get the table name from the PSBackEndTable object, optionally using the alias in lieu of the
+   * actual table name.
    *
-   * @param   login         the login definition which can be used to
-   *                        access the meta data
-   *
-   * @param   table         the table to get the name of
-   *
-   * @param   useAlias      <code>true</code> to use the alias name if one
-   *                        has been defined; origin.table is used otherwise
-   *
-   * @param   builder     The PSSqlBuilder utilizing this method,
-   *                      Never <code>null</code>
-   *
-   * @param   expandedTableNames The list of expanded table names to work
-   *                      with, never <code>null</code>
+   * @param login the login definition which can be used to access the meta data
+   * @param table the table to get the name of
+   * @param useAlias <code>true</code> to use the alias name if one has been defined; origin.table
+   *     is used otherwise
+   * @param builder The PSSqlBuilder utilizing this method, Never <code>null</code>
+   * @param expandedTableNames The list of expanded table names to work with, never <code>null
+   *     </code>
    */
   protected static String getTableName(
       PSBackEndLogin login,
@@ -249,12 +236,13 @@ public abstract class PSSqlBuilder {
 
   /**
    * Expand the column name to use the appropriate syntax.
-   * <P>
-   * Syntaxes permitted by SQL92 are:
+   *
+   * <p>Syntaxes permitted by SQL92 are:
+   *
    * <UL>
-   *    <LI>tablealias.column</LI>
-   *    <LI>schema.table.column</LI>
-   *    <LI>table.column</LI>
+   *   <LI>tablealias.column
+   *   <LI>schema.table.column
+   *   <LI>table.column
    * </UL>
    */
   protected String getExpandedColumnName(
@@ -274,14 +262,10 @@ public abstract class PSSqlBuilder {
   /**
    * Get the data types for each column in the specified table.
    *
-   * @param   login       the login definition which can be used to
-   *                      access the meta data
-   *
-   * @param   dtHash      the hash map into which table.column will be
-   *                        used as the key and its java.sql.Types.xxx
-   *                      data type will be stored as the value
-   *
-   * @param   table       the table to catalog
+   * @param login the login definition which can be used to access the meta data
+   * @param dtHash the hash map into which table.column will be used as the key and its
+   *     java.sql.Types.xxx data type will be stored as the value
+   * @param table the table to catalog
    */
   protected void loadDataTypes(PSBackEndLogin login, HashMap dtHash, PSBackEndTable table) {
     try {
@@ -302,10 +286,8 @@ public abstract class PSSqlBuilder {
   /**
    * Get a connection associated with the specified login and database.
    *
-   * @param   login            the login definition which can be used to
-   *                           make the connection
-   *
-   * @return                  the connection
+   * @param login the login definition which can be used to make the connection
+   * @return the connection
    */
   protected static java.sql.Connection getConnection(PSBackEndLogin login)
       throws java.sql.SQLException {
@@ -320,27 +302,24 @@ public abstract class PSSqlBuilder {
    * Determines if the specified type is a known JDBC datatype.
    *
    * @param type The type to check.
-   *
-   * @return <code>true</code> if it is a JDBC datatype, <code>false</code>
-   * if not.
+   * @return <code>true</code> if it is a JDBC datatype, <code>false</code> if not.
    */
   public static boolean isJdbcDataType(int type) {
     return PSTableMetaData.isJdbcDataType(type);
   }
 
   /**
-   *    Guess the corresponding native type's jdbc counterpart.
-   *    This will be based on information stored when we kludge
-   *    datatypes for misbehaving DBMS drivers (MS-SQL and Access...)
-   *    Bug Id: -00-01-0001
+   * Guess the corresponding native type's jdbc counterpart. This will be based on information
+   * stored when we kludge datatypes for misbehaving DBMS drivers (MS-SQL and Access...) Bug Id:
+   * -00-01-0001
    */
   public static short guessNativeDataTypeConversion(short nativeType) {
     return PSDatabaseMetaData.guessNativeDataTypeConversion(nativeType);
   }
 
   /**
-   * Stores the expanded table names using the PSBackEndTable object as
-   * the key and the expanded table name String as the value.
+   * Stores the expanded table names using the PSBackEndTable object as the key and the expanded
+   * table name String as the value.
    */
   protected HashMap m_expandedTableNames = new HashMap();
 

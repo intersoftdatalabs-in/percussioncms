@@ -22,27 +22,23 @@ import java.util.List;
 import org.xml.sax.SAXParseException;
 
 /**
- * This class extends SAXException in order to provide access to a
- * collection of SAXParseExceptions that are generated when parsing an Xml
- * document.
+ * This class extends SAXException in order to provide access to a collection of SAXParseExceptions
+ * that are generated when parsing an Xml document.
  */
 public class PSSaxParseException extends SAXParseException {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
-   * Constructor, takes in an collection of SAXParseExceptions.
-   * Calls <code>super()</code> using the first exception in the collection.
+   * Constructor, takes in an collection of SAXParseExceptions. Calls <code>super()</code> using the
+   * first exception in the collection.
    *
-   * @param parseExceptions PSCollection of one or more fatal or non-fatal
-   * SAXParseExceptions returned when parsing a document.  May not be <code>
+   * @param parseExceptions PSCollection of one or more fatal or non-fatal SAXParseExceptions
+   *     returned when parsing a document. May not be <code>
    * null</code> and must contain at least one SAXParseException.
-   *
    * @throws NullPointerException if parseExceptions is <code>null</code>
-   * @throws IndexOutOfBoundsException if parseExceptions is empty.
-   * does not contain at least one SAXParseException.
+   * @throws IndexOutOfBoundsException if parseExceptions is empty. does not contain at least one
+   *     SAXParseException.
    */
   public PSSaxParseException(List<SAXParseException> parseExceptions) {
     super(

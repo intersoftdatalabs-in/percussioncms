@@ -34,23 +34,16 @@ public class PreviewWorkflow extends PSPostExitHandler {
   public PreviewWorkflow() {}
 
   /**
-   * Standard interface for all result document extensions. For each state
-   * in the supplied document, the transitions associated with that state are
-   * looked up in the db. A visual representation of the states and
-   * transitions is created.
-   * In the visual model, each state is represented by a vertical line and
-   * each transition by a horizontal line with an arrow.
+   * Standard interface for all result document extensions. For each state in the supplied document,
+   * the transitions associated with that state are looked up in the db. A visual representation of
+   * the states and transitions is created. In the visual model, each state is represented by a
+   * vertical line and each transition by a horizontal line with an arrow.
    *
    * @param params Unused
-   *
    * @param request See interface definition. May not be <code>null</code>.
-   *
-   * @param resDoc A new element called transitions is added to this document
-   * that contains a model of the visual representation of the workflow.
-   *
-   * @return The modified document is returned, or <code>null</code> if
-   *    resDoc is <code>null</code>.
-   *
+   * @param resDoc A new element called transitions is added to this document that contains a model
+   *     of the visual representation of the workflow.
+   * @return The modified document is returned, or <code>null</code> if resDoc is <code>null</code>.
    * @throws PSParameterMismatchException Never thrown.
    * @throws PSExtensionProcessingException Never thrown.
    */
@@ -96,18 +89,15 @@ public class PreviewWorkflow extends PSPostExitHandler {
   }
 
   /**
-   * Expects each state element to have 0 or more transitions. It takes the
-   * states and transitions and creates a 'drawing sequence' that can be used
-   * to generate a visual representation of the workflow. A new transitions
-   * node is added to contain this information. This node will have a
-   * transition element for each transition found in the supplied doc. Each
-   * of these elements represents a single row in the output image.
-   * The image is built up of graphical 'blocks' such as white space, vertical
-   * and horizontal lines and arrows. Each transition element contains several
-   * draw elements, each of which specifies a graphical image.
+   * Expects each state element to have 0 or more transitions. It takes the states and transitions
+   * and creates a 'drawing sequence' that can be used to generate a visual representation of the
+   * workflow. A new transitions node is added to contain this information. This node will have a
+   * transition element for each transition found in the supplied doc. Each of these elements
+   * represents a single row in the output image. The image is built up of graphical 'blocks' such
+   * as white space, vertical and horizontal lines and arrows. Each transition element contains
+   * several draw elements, each of which specifies a graphical image.
    *
    * @param doc Assumed not <code>null</code>.
-   *
    * @return The modified doc, never <code>null</code>.
    */
   private Document processDocument(Document doc) {
@@ -180,9 +170,9 @@ public class PreviewWorkflow extends PSPostExitHandler {
   }
 
   /**
-   * This is a scaling factor that can be overridden by the requestor by
-   * supplying an html param named 'scale'. The value should be a float.
-   * The default value is 1.0.
+   * This is a scaling factor that can be overridden by the requestor by supplying an html param
+   * named 'scale'. The value should be a float. The default value is 1.0.
+   *
    * @todo (ph): There are bugs for factors other than 1.0
    */
   static float scale = 1.0f;

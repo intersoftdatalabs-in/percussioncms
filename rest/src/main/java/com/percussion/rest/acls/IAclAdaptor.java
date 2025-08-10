@@ -22,67 +22,41 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
 import com.percussion.services.security.PSSecurityException;
-
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Adaptor interface for ACL operations.
- */
+/** Adaptor interface for ACL operations. */
 public interface IAclAdaptor {
 
-    /**
-     * Gets the user's access level for the specified object.
-     */
-    UserAccessLevel getUserAccessLevel(Guid objectGuid);
+  /** Gets the user's access level for the specified object. */
+  UserAccessLevel getUserAccessLevel(Guid objectGuid);
 
-    /**
-     * Calculates the user's access level for the specified ACL GUID.
-     */
-    UserAccessLevel calculateUserAccessLevel(String aclGuid);
+  /** Calculates the user's access level for the specified ACL GUID. */
+  UserAccessLevel calculateUserAccessLevel(String aclGuid);
 
-    /**
-     * Creates an ACL for the given object and owner.
-     */
-    Acl createAcl(Guid objGuid, TypedPrincipal owner);
+  /** Creates an ACL for the given object and owner. */
+  Acl createAcl(Guid objGuid, TypedPrincipal owner);
 
-    /**
-     * Loads ACLs for the given GUIDs.
-     */
-    AclList loadAcls(GuidList aclGuids) throws PSSecurityException;
+  /** Loads ACLs for the given GUIDs. */
+  AclList loadAcls(GuidList aclGuids) throws PSSecurityException;
 
-    /**
-     * Loads a single ACL by GUID.
-     */
-    Acl loadAcl(Guid aclGuid) throws PSSecurityException;
+  /** Loads a single ACL by GUID. */
+  Acl loadAcl(Guid aclGuid) throws PSSecurityException;
 
-    /**
-     * Loads ACLs for the given object GUIDs.
-     */
-    AclList loadAclsForObjects(GuidList objectGuids);
+  /** Loads ACLs for the given object GUIDs. */
+  AclList loadAclsForObjects(GuidList objectGuids);
 
-    /**
-     * Loads the ACL for a specific object.
-     */
-    Acl loadAclForObject(Guid objectGuid);
+  /** Loads the ACL for a specific object. */
+  Acl loadAclForObject(Guid objectGuid);
 
-    /**
-     * Saves the provided ACL list.
-     */
-    void saveAcls(AclList aclList) throws PSSecurityException;
+  /** Saves the provided ACL list. */
+  void saveAcls(AclList aclList) throws PSSecurityException;
 
-    /**
-     * Deletes the ACL for the given GUID.
-     */
-    void deleteAcl(Guid aclGuid) throws PSSecurityException;
+  /** Deletes the ACL for the given GUID. */
+  void deleteAcl(Guid aclGuid) throws PSSecurityException;
 
-    /**
-     * Filters ACLs by community names.
-     */
-    GuidList filterByCommunities(GuidList aclList, List<String> communityNames);
+  /** Filters ACLs by community names. */
+  GuidList filterByCommunities(GuidList aclList, List<String> communityNames);
 
-    /**
-     * Finds objects visible to the given communities and object type.
-     */
-    GuidList findObjectsVisibleToCommunities(List<String> communityNames, ObjectTypeEnum objectType);
+  /** Finds objects visible to the given communities and object type. */
+  GuidList findObjectsVisibleToCommunities(List<String> communityNames, ObjectTypeEnum objectType);
 }

@@ -24,10 +24,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A small data class representing comment criteria to find comments
- * with.
- * @author erikserating
+ * A small data class representing comment criteria to find comments with.
  *
+ * @author erikserating
  */
 public class PSCommentCriteria {
   private static final Logger log = LogManager.getLogger(PSCommentCriteria.class);
@@ -38,60 +37,48 @@ public class PSCommentCriteria {
 
   private String pagepath;
 
-  /**
-   * The user that created the comments to be returned. May be <code>null</code> or empty.
-   */
+  /** The user that created the comments to be returned. May be <code>null</code> or empty. */
   private String username;
 
-  /**
-   * A tag string that exists on the comments to be returned. May be <code>null</code> or empty.
-   */
+  /** A tag string that exists on the comments to be returned. May be <code>null</code> or empty. */
   private String tag;
 
-  /**
-   * Sort object specifying sort order for results. May be <code>null</code>.
-   */
+  /** Sort object specifying sort order for results. May be <code>null</code>. */
   private PSCommentSort sort;
 
   /**
-   * The approval state to filter by. May be <code>null</code> in which case comments
-   * in any state may be returned.
+   * The approval state to filter by. May be <code>null</code> in which case comments in any state
+   * may be returned.
    */
   private APPROVAL_STATE state;
 
   /**
-   * The name of the site to filter by. May be <code>null</code>, in which case comments
-   * from every site will be returned.
+   * The name of the site to filter by. May be <code>null</code>, in which case comments from every
+   * site will be returned.
    */
   private String site;
 
-  /**
-   * Flag indicating that the comment has been actively moderated. May
-   * be <code>null</code>.
-   */
+  /** Flag indicating that the comment has been actively moderated. May be <code>null</code>. */
   private Boolean moderated;
 
   /**
-   * Flag indicating that the comment has been previously viewed by an admin or moderator. May
-   * be <code>null</code>.
+   * Flag indicating that the comment has been previously viewed by an admin or moderator. May be
+   * <code>null</code>.
    */
   private Boolean viewed;
 
-  /**
-   * The maximum number of results to return. If zero or less then all
-   * results will be returned.
-   */
+  /** The maximum number of results to return. If zero or less then all results will be returned. */
   private int maxResults;
 
   /**
-   * The index offset of results returned, used for paging. If zero
-   * or less then start index will be zero.
+   * The index offset of results returned, used for paging. If zero or less then start index will be
+   * zero.
    */
   private int startIndex;
 
   /**
-   * The id of the last comment added, used for returning the last comment added. If zero
-   * or less then last comment Id will be zero.
+   * The id of the last comment added, used for returning the last comment added. If zero or less
+   * then last comment Id will be zero.
    */
   private String lastCommentId;
 
@@ -266,9 +253,7 @@ public class PSCommentCriteria {
     return ret;
   }
 
-  /**
-   * The relative path of the page not including the site. May be <code>null</code> or empty.
-   */
+  /** The relative path of the page not including the site. May be <code>null</code> or empty. */
   public String getSortby() {
     return sortby;
   }

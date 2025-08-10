@@ -26,20 +26,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSRemoteConsole class is used for the submission of remote
- * console commands to an E2 server.
- * <p>
- * To use the remote console, a connection to the E2 server must first be
- * established. Requests can then be made through this object. This is
- * done by sending the command string through the
- * <code>{@link #execute execute}</code> method. This method will pass
- * the command string to the server. If the submitter does not have admin
- * access to the server, an exception will be thrown. If access is granted,
- * the command will be interpreted and executed. An XML document will
- * be returned containing the results of the command.
- * <p>
- * The following sample shows how to get the list of applications
- * running on a server.
+ * The PSRemoteConsole class is used for the submission of remote console commands to an E2 server.
+ *
+ * <p>To use the remote console, a connection to the E2 server must first be established. Requests
+ * can then be made through this object. This is done by sending the command string through the
+ * <code>{@link #execute execute}</code> method. This method will pass the command string to the
+ * server. If the submitter does not have admin access to the server, an exception will be thrown.
+ * If access is granted, the command will be interpreted and executed. An XML document will be
+ * returned containing the results of the command.
+ *
+ * <p>The following sample shows how to get the list of applications running on a server.
+ *
  * <pre><code>
  *      try {
  *         Properties connProps = new Properties();
@@ -68,23 +65,19 @@ import org.w3c.dom.Element;
  *      }
  * </code></pre>
  *
- * <P>
- * For a description of the XML document structures being returned, see the
- * {@link PSRemoteConsoleHandler PSRemoteConsoleHandler} class.
+ * <p>For a description of the XML document structures being returned, see the {@link
+ * PSRemoteConsoleHandler PSRemoteConsoleHandler} class.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRemoteConsole {
   /**
    * Creates a remote console connected to the specified E2 server.
    *
-   * @param      conn                        the connection object for the
-   *                                          desired E2 server
-   *
-   * @exception   PSIllegalArgumentException   if <code>conn</code> is
-   *                                          <code>null</code>
+   * @param conn the connection object for the desired E2 server
+   * @exception PSIllegalArgumentException if <code>conn</code> is <code>null</code>
    */
   public PSRemoteConsole(PSDesignerConnection conn) throws PSIllegalArgumentException {
     super();
@@ -95,9 +88,10 @@ public class PSRemoteConsole {
   }
 
   /**
-   * Execute a remote console command against the connected server.
-   * Currently supported commands are:
-   *   <TABLE BORDER="1">
+   * Execute a remote console command against the connected server. Currently supported commands
+   * are:
+   *
+   * <TABLE BORDER="1">
    *      <TR>
    *         <TH>Command</TH>
    *         <TH>Parameters</TH>
@@ -208,19 +202,11 @@ public class PSRemoteConsole {
    *      </TR>
    * </TABLE>
    *
-   * @param      command      the command string to execute
-   *
-   * @exception   PSIllegalArgumentException
-   *                           if command is <code>null</code> or empty
-   *
-   * @exception   PSServerException
-   *                           if the server is not responding
-   *
-   * @exception   PSAuthorizationException
-   *                           if admin access to the server is denied
-   *
-   * @exception   java.io.IOException
-   *                           if an I/O error occurs
+   * @param command the command string to execute
+   * @exception PSIllegalArgumentException if command is <code>null</code> or empty
+   * @exception PSServerException if the server is not responding
+   * @exception PSAuthorizationException if admin access to the server is denied
+   * @exception java.io.IOException if an I/O error occurs
    */
   public Document execute(String command)
       throws PSIllegalArgumentException,

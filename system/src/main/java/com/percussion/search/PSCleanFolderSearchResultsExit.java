@@ -29,10 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This exit is meant to be added to the search results processor. The function of this
- * exit is to clean up unnecessary result field values for folders by
- * setting the values of these fields to an empty value. This exit should
- * run after any other search result processing exit that may modify
+ * This exit is meant to be added to the search results processor. The function of this exit is to
+ * clean up unnecessary result field values for folders by setting the values of these fields to an
+ * empty value. This exit should run after any other search result processing exit that may modify
  * search result values.
  */
 public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor {
@@ -75,12 +74,10 @@ public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor
   }
 
   /**
-   * Returns an array of all column names that are not allowed by
-   * a folder content type.
+   * Returns an array of all column names that are not allowed by a folder content type.
    *
    * @param row search result row assumed not <code>null</code>.
-   * @return an array of disallowed fields, never <code>null</code>
-   * may be empty.
+   * @return an array of disallowed fields, never <code>null</code> may be empty.
    */
   private String[] getDisallowedFields(IPSSearchResultRow row) {
     List results = new ArrayList();
@@ -97,13 +94,11 @@ public class PSCleanFolderSearchResultsExit implements IPSSearchResultsProcessor
   }
 
   /**
-   * Returns a collection of all allowed search result fields. This method
-   * can be overriden in a subclass to add or subtract the allowed fields.
-   * The "sys_title" and "sys_contentid" field will be added if it does not
-   * exist in the collection.
+   * Returns a collection of all allowed search result fields. This method can be overriden in a
+   * subclass to add or subtract the allowed fields. The "sys_title" and "sys_contentid" field will
+   * be added if it does not exist in the collection.
    *
-   * @return a list of field names, should never be <code>null</code> or
-   *  empty.
+   * @return a list of field names, should never be <code>null</code> or empty.
    */
   protected Collection getAllowedFields() {
     List allowed = new ArrayList(9);

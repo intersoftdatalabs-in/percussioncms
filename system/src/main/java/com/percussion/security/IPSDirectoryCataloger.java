@@ -22,66 +22,65 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * This interface is provided to provide access to user information such as
- * email address. It provides a simple search mechanism for finding collections
- * of users based on conditional logic.
- * <p>Methods are provided for specific properties that are widely used. The
- * methods are of the form get<Type> and get<Type>AttributeName. If such an
- * attribute is multi-valued, the first value found is returned.
- * <p>Most methods that require a user name take either a <code>String</code>
- * that is the base user name (e.g. johnsmith) or a <code>PSSubject</code>.
+ * This interface is provided to provide access to user information such as email address. It
+ * provides a simple search mechanism for finding collections of users based on conditional logic.
+ *
+ * <p>Methods are provided for specific properties that are widely used. The methods are of the form
+ * get<Type> and get<Type>AttributeName. If such an attribute is multi-valued, the first value found
+ * is returned.
+ *
+ * <p>Most methods that require a user name take either a <code>String</code> that is the base user
+ * name (e.g. johnsmith) or a <code>PSSubject</code>.
  *
  * @author Paul Howard
- * @version  5
+ * @version 5
  */
 public interface IPSDirectoryCataloger {
   /**
-   * Convenience method that calls {@link getEmailAddress(PSSubject)}.
-   * See that method for more details.
+   * Convenience method that calls {@link getEmailAddress(PSSubject)}. See that method for more
+   * details.
    *
-   * @param userName the name of the user as known to Rhythmyx. Never
-   *    <code>null</code> or empty.
+   * @param userName the name of the user as known to Rhythmyx. Never <code>null</code> or empty.
    */
   public String getEmailAddress(String userName);
 
   /**
-   * Searches the directory catalog for the specified subject. It then gets
-   * the email address based on the configured email attribute.
+   * Searches the directory catalog for the specified subject. It then gets the email address based
+   * on the configured email attribute.
    *
    * @param user the subject as known to Rhythmyx. Never <code>null</code>.
-   * @return the value associated with the configured email attribute, or
-   *    <code>null</code> if no attribute is found. If the attribute holds
-   *    multiple values, the first entry will be returned.
-   * @throws UnsupportedOperationException if an email attribute has not been
-   *    registered for this cataloger.
+   * @return the value associated with the configured email attribute, or <code>null</code> if no
+   *     attribute is found. If the attribute holds multiple values, the first entry will be
+   *     returned.
+   * @throws UnsupportedOperationException if an email attribute has not been registered for this
+   *     cataloger.
    */
   public String getEmailAddress(PSSubject user);
 
   /**
-   * Each directory catalog can be configured with the name of the attribute
-   * that contains the user's email address.
+   * Each directory catalog can be configured with the name of the attribute that contains the
+   * user's email address.
    *
-   * @return either a non-empty string or <code>null</code> if the attribute
-   *    has not been set. If <code>null</code> is returned, the
-   *    <code>getEmailAddress</code> methods will throw an exception if called.
+   * @return either a non-empty string or <code>null</code> if the attribute has not been set. If
+   *     <code>null</code> is returned, the <code>getEmailAddress</code> methods will throw an
+   *     exception if called.
    */
   public String getEmailAddressAttributeName();
 
   /**
-   * Each directory catalog must be configured with the name for the object
-   * attribute. This is required to search the object.
+   * Each directory catalog must be configured with the name for the object attribute. This is
+   * required to search the object.
    *
-   * @return a non-empty <code>String</code> with the attribute name of the
-   *    objects that this catloger searches for.
+   * @return a non-empty <code>String</code> with the attribute name of the objects that this
+   *     catloger searches for.
    */
   public String getObjectAttributeName();
 
   /**
-   * Convenience method that calls {@link getAttribute(PSSubject, String)}.
-   * See that method for more details.
+   * Convenience method that calls {@link getAttribute(PSSubject, String)}. See that method for more
+   * details.
    *
-   * @param userName the name of the user as known to Rhythmyx. Never
-   *    <code>null</code> or empty.
+   * @param userName the name of the user as known to Rhythmyx. Never <code>null</code> or empty.
    */
   public String getAttribute(String userName, String attributeName);
 
@@ -100,30 +99,27 @@ public interface IPSDirectoryCataloger {
   public String getAttribute(PSSubject user, String attributeName);
 
   /**
-   * Convenience method that calls {@link getAttributes(PSSubject)}. See that
-   * method for more details.
+   * Convenience method that calls {@link getAttributes(PSSubject)}. See that method for more
+   * details.
    *
-   * @param userName the name of the user as known to Rhythmyx. Never
-   *    <code>null</code> or empty.
+   * @param userName the name of the user as known to Rhythmyx. Never <code>null</code> or empty.
    */
   public PSSubject getAttributes(String userName);
 
   /**
    * Get the attributes for the specified user from all configured directories.
    *
-   * @param user the user for which to get the attributes, not
-   *    <code>null</code>.
-   * @return the supplied user with the attributes updated according to the
-   *    cataloger configuration, never <code>null</code>.
+   * @param user the user for which to get the attributes, not <code>null</code>.
+   * @return the supplied user with the attributes updated according to the cataloger configuration,
+   *     never <code>null</code>.
    */
   public PSSubject getAttributes(PSSubject user);
 
   /**
-   * Convenience method that calls {@link getAttributes(PSSubject, Collection)}.
-   * See that method for more details.
+   * Convenience method that calls {@link getAttributes(PSSubject, Collection)}. See that method for
+   * more details.
    *
-   * @param userName the name of the user as known to Rhythmyx. Never
-   *    <code>null</code> or empty.
+   * @param userName the name of the user as known to Rhythmyx. Never <code>null</code> or empty.
    */
   public PSSubject getAttributes(String userName, Collection attributeNames);
 
@@ -144,30 +140,25 @@ public interface IPSDirectoryCataloger {
   public PSSubject getAttributes(PSSubject user, Collection attributeNames);
 
   /**
-   * Searches all registered directories for users that match the provided
-   * search criteria. For each user that matches, the values for all requested
-   * properties are returned.
+   * Searches all registered directories for users that match the provided search criteria. For each
+   * user that matches, the values for all requested properties are returned.
    *
-   * @param criteria the conditions used to limit the returned set of users.
-   * Each conditional is OR'd with the others in the array. If
-   * <code>null</code> or empty, or if any entry is null, all users are
-   * returned. This should be done with care as this could return a result of
-   * many thousands of entries. Only <code>PSLiteral</code> types are allowed
-   * for variable and value and only the <code>OPTYPE_EQUALS</code> and
-   * <code>OPTYPE_LIKE</code> operators are allowed.
-   * @param attributeNames the set of attributes for which you want the
-   * value(s). If an attribute is not present for a user, <code>null</code>
-   * is set for that attribute.
-   * @return a valid collection of 0 or more <code>PSSubject</code> objects.
-   * All attributes are set on the respective subject as attributes.
+   * @param criteria the conditions used to limit the returned set of users. Each conditional is
+   *     OR'd with the others in the array. If <code>null</code> or empty, or if any entry is null,
+   *     all users are returned. This should be done with care as this could return a result of many
+   *     thousands of entries. Only <code>PSLiteral</code> types are allowed for variable and value
+   *     and only the <code>OPTYPE_EQUALS</code> and <code>OPTYPE_LIKE</code> operators are allowed.
+   * @param attributeNames the set of attributes for which you want the value(s). If an attribute is
+   *     not present for a user, <code>null</code> is set for that attribute.
+   * @return a valid collection of 0 or more <code>PSSubject</code> objects. All attributes are set
+   *     on the respective subject as attributes.
    */
   public Collection findUsers(PSConditional[] criteria, Collection attributeNames);
 
   /**
    * Get this provider's list of group provider objects.
    *
-   * @return an iterator over zero or more group provider objects.  Never
-   * <code>null</code>.
+   * @return an iterator over zero or more group provider objects. Never <code>null</code>.
    */
   public Iterator<IPSGroupProvider> getGroupProviders();
 
@@ -181,16 +172,14 @@ public interface IPSDirectoryCataloger {
   /**
    * Get the name used to identify this provider.
    *
-   * @return The name, may be <code>null</code> if one has not been set, never
-   * empty.
+   * @return The name, may be <code>null</code> if one has not been set, never empty.
    */
   public String getName();
 
   /**
    * Get the name used to display this provider's type.
    *
-   * @return The name, may be <code>null</code> if one has not been set, never
-   * empty.
+   * @return The name, may be <code>null</code> if one has not been set, never empty.
    */
   public String getCatalogerDisplayType();
 

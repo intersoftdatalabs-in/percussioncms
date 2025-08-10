@@ -21,30 +21,34 @@ import java.io.PrintStream;
 import org.w3c.dom.Element;
 
 /**
- * This interface defines access methods (per module basis) and string
- * constants for the elements in upgrade configuration file.
+ * This interface defines access methods (per module basis) and string constants for the elements in
+ * upgrade configuration file.
  */
 public interface IPSUpgradeModule {
   /**
    * Get method for modulename
+   *
    * @return name of the module from the module element of the configuration file.
    */
   String getModuleName();
 
   /**
    * Get method for logfile
+   *
    * @return name of the logfile from the module element of the configuration file.
    */
   String getLogFile();
 
   /**
    * Get method for logstream
+   *
    * @return logstream.
    */
   PrintStream getLogStream();
 
   /**
    * Get method for element value for a given element name from module element
+   *
    * @param elemName name of the element
    * @return Element object of given element name
    */
@@ -52,13 +56,12 @@ public interface IPSUpgradeModule {
 
   /**
    * Get method for module element
+   *
    * @return Element object of module
    */
   Element getModuleElement();
 
-  /**
-   * close method for closing open log files and or log streams.
-   */
+  /** close method for closing open log files and or log streams. */
   void close();
 
   /*

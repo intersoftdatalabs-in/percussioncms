@@ -31,29 +31,29 @@ import org.apache.commons.collections.Predicate;
  */
 public abstract class PSAbstractFilter<T> implements Predicate {
 
-    /**
-     * Filters the given collection using this predicate.
-     *
-     * @param resources the collection to filter
-     * @return a new list containing only the elements that should be kept
-     */
-    public List<T> filter(Collection<T> resources) {
-        var rvalue = new ArrayList<>(resources);
-        CollectionUtils.filter(rvalue, this);
-        return rvalue;
-    }
+  /**
+   * Filters the given collection using this predicate.
+   *
+   * @param resources the collection to filter
+   * @return a new list containing only the elements that should be kept
+   */
+  public List<T> filter(Collection<T> resources) {
+    var rvalue = new ArrayList<>(resources);
+    CollectionUtils.filter(rvalue, this);
+    return rvalue;
+  }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean evaluate(Object obj) {
-        return shouldKeep((T) obj);
-    }
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean evaluate(Object obj) {
+    return shouldKeep((T) obj);
+  }
 
-    /**
-     * Determines if the given resource should be kept.
-     *
-     * @param resource the resource to check
-     * @return true if the resource should be kept, false otherwise
-     */
-    public abstract boolean shouldKeep(T resource);
+  /**
+   * Determines if the given resource should be kept.
+   *
+   * @param resource the resource to check
+   * @return true if the resource should be kept, false otherwise
+   */
+  public abstract boolean shouldKeep(T resource);
 }

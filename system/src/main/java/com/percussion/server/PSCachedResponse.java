@@ -25,22 +25,18 @@ import java.io.Serializable;
 import org.xml.sax.SAXException;
 
 /**
- * A container for the persistable data from a {@link PSResponse} that may be
- * cached and then used to restore that data to another response so that the
- * same data may be resent repeatedly.
+ * A container for the persistable data from a {@link PSResponse} that may be cached and then used
+ * to restore that data to another response so that the same data may be resent repeatedly.
  */
 public class PSCachedResponse extends PSBaseResponse implements Serializable {
   /**
-   * Creates a cachable object from a valid response.  Use {@link
-   * #copyTo(PSResponse)} to restore the cached state to a new response.
+   * Creates a cachable object from a valid response. Use {@link #copyTo(PSResponse)} to restore the
+   * cached state to a new response.
    *
-   * @param response The response to cache, may not be <code>null</code>.
-   * Content of this response is still available after this call.
-   *
-   * @throws IllegalArgumentException if <code>response</code> is
-   *    <code>null</code>.
-   * @throws IOException if anything goes wrong caching the input stream or
-   *    input document.
+   * @param response The response to cache, may not be <code>null</code>. Content of this response
+   *     is still available after this call.
+   * @throws IllegalArgumentException if <code>response</code> is <code>null</code>.
+   * @throws IOException if anything goes wrong caching the input stream or input document.
    */
   public PSCachedResponse(PSResponse response) throws IOException {
     super(response);
@@ -67,12 +63,10 @@ public class PSCachedResponse extends PSBaseResponse implements Serializable {
   }
 
   /**
-   * Copies the cached data from this object to the supplied
-   * <code>response</code>, replacing the data in that response.
+   * Copies the cached data from this object to the supplied <code>response</code>, replacing the
+   * data in that response.
    *
-   * @param response The response to which the data is copied, may not be
-   * <code>null</code>.
-   *
+   * @param response The response to which the data is copied, may not be <code>null</code>.
    * @throws IllegalArgumentException if response is <code>null</code>.
    */
   public void copyTo(PSResponse response) {
@@ -86,13 +80,11 @@ public class PSCachedResponse extends PSBaseResponse implements Serializable {
             (String) m_entityHeaders.get(EHDR_CONT_TYPE));
       } catch (IOException e) {
         /**
-         * This cannot happen. The source is buildt in the constructor and
-         * never changed after that.
+         * This cannot happen. The source is buildt in the constructor and never changed after that.
          */
       } catch (SAXException e) {
         /**
-         * This cannot happen. The source is buildt in the constructor and
-         * never changed after that.
+         * This cannot happen. The source is buildt in the constructor and never changed after that.
          */
       }
     } else {
@@ -101,9 +93,8 @@ public class PSCachedResponse extends PSBaseResponse implements Serializable {
   }
 
   /**
-   * Returns the size of content contained in this response. The length only
-   * includes the byte array but not the object overhead. Used for statistics
-   * and memory manager.
+   * Returns the size of content contained in this response. The length only includes the byte array
+   * but not the object overhead. Used for statistics and memory manager.
    *
    * @return The content length, in Bytes.
    */
@@ -112,8 +103,8 @@ public class PSCachedResponse extends PSBaseResponse implements Serializable {
   }
 
   /**
-   * The in-memory cache used for all resonses, whether it is an input stream
-   * or a document, initialized in constructor, never changed after that.
+   * The in-memory cache used for all resonses, whether it is an input stream or a document,
+   * initialized in constructor, never changed after that.
    */
   private byte[] m_content = null;
 }

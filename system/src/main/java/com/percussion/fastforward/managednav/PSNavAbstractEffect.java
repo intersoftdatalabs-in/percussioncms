@@ -27,8 +27,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * An abstract base class for effects. This extends IPSDefaultExtension by
- * providing default behavior for the 3 methods specified in IPSEffect.
+ * An abstract base class for effects. This extends IPSDefaultExtension by providing default
+ * behavior for the 3 methods specified in IPSEffect.
  *
  * @author DavidBenua
  */
@@ -37,9 +37,8 @@ public abstract class PSNavAbstractEffect extends PSDefaultExtension implements 
    * Always returns SUCCESS.
    *
    * @see com.percussion.relationship.IPSEffect#test(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext,
-   *      com.percussion.relationship.IPSExecutionContext,
-   *      com.percussion.relationship.PSEffectResult)
+   *     com.percussion.server.IPSRequestContext, com.percussion.relationship.IPSExecutionContext,
+   *     com.percussion.relationship.PSEffectResult)
    */
   public void test(
       Object[] params, IPSRequestContext req, IPSExecutionContext excontext, PSEffectResult result)
@@ -54,9 +53,8 @@ public abstract class PSNavAbstractEffect extends PSDefaultExtension implements 
    * Does nothing and returns SUCCESS.
    *
    * @see com.percussion.relationship.IPSEffect#attempt(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext,
-   *      com.percussion.relationship.IPSExecutionContext,
-   *      com.percussion.relationship.PSEffectResult)
+   *     com.percussion.server.IPSRequestContext, com.percussion.relationship.IPSExecutionContext,
+   *     com.percussion.relationship.PSEffectResult)
    */
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext excontext, PSEffectResult result)
@@ -71,10 +69,9 @@ public abstract class PSNavAbstractEffect extends PSDefaultExtension implements 
    * Does nothing and returns SUCCESS.
    *
    * @see com.percussion.relationship.IPSEffect#recover(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext,
-   *      com.percussion.relationship.IPSExecutionContext,
-   *      com.percussion.extension.PSExtensionProcessingException,
-   *      com.percussion.relationship.PSEffectResult)
+   *     com.percussion.server.IPSRequestContext, com.percussion.relationship.IPSExecutionContext,
+   *     com.percussion.extension.PSExtensionProcessingException,
+   *     com.percussion.relationship.PSEffectResult)
    */
   public void recover(
       Object[] params,
@@ -102,8 +99,8 @@ public abstract class PSNavAbstractEffect extends PSDefaultExtension implements 
    * set the exclusion flag.
    *
    * @param req the request context of the caller.
-   * @param b the new exclusion value. <code>true</code> means that
-   *           subsequent effects should not interfere with event processing.
+   * @param b the new exclusion value. <code>true</code> means that subsequent effects should not
+   *     interfere with event processing.
    */
   protected void setExclusive(IPSRequestContext req, boolean b) {
     req.setPrivateObject(EXCLUSION_FLAG, b);
@@ -121,16 +118,13 @@ public abstract class PSNavAbstractEffect extends PSDefaultExtension implements 
     return b.booleanValue();
   }
 
-  /**
-   * Writes the log.
-   */
+  /** Writes the log. */
   protected static final Logger m_log = LogManager.getLogger(PSNavAbstractEffect.class);
 
   /**
-   * The exclusion flag is used to prevent item operations inside the effect
-   * from triggering another effect. That is, to prevent recursive execution of
-   * the effect. This value is used as a request private object of type
-   * <code>Boolean</code>
+   * The exclusion flag is used to prevent item operations inside the effect from triggering another
+   * effect. That is, to prevent recursive execution of the effect. This value is used as a request
+   * private object of type <code>Boolean</code>
    */
   private static final String EXCLUSION_FLAG = "com.percussion.consulting.nav.PSExclusionFlag";
 }

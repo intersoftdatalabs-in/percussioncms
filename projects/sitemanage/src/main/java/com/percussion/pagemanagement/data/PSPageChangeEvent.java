@@ -16,44 +16,42 @@
  */
 package com.percussion.pagemanagement.data;
 
-/**
- * Represents a change event for a page or item.
- */
+/** Represents a change event for a page or item. */
 public class PSPageChangeEvent {
 
-    private String pageId;
-    private String itemId;
-    private PSPageChangeEventType type;
+  private String pageId;
+  private String itemId;
+  private PSPageChangeEventType type;
 
-    public String getPageId() {
-        return pageId;
-    }
+  public String getPageId() {
+    return pageId;
+  }
 
-    public void setPageId(String pageId) {
-        this.pageId = pageId;
-    }
+  public void setPageId(String pageId) {
+    this.pageId = pageId;
+  }
 
-    public String getItemId() {
-        return itemId;
-    }
+  public String getItemId() {
+    return itemId;
+  }
 
-    public void setItemId(String itemId) {
-        this.itemId = itemId;
-    }
+  public void setItemId(String itemId) {
+    this.itemId = itemId;
+  }
 
-    public PSPageChangeEventType getType() {
-        return type;
-    }
+  public PSPageChangeEventType getType() {
+    return type;
+  }
 
-    public void setType(PSPageChangeEventType type) {
-        this.type = type;
-    }
+  public void setType(PSPageChangeEventType type) {
+    this.type = type;
+  }
 
-    public enum PSPageChangeEventType {
-        PAGE_SAVED,
-        PAGE_META_DATA_SAVED,
-        ITEM_SAVED,
-        ITEM_ADDED,
-        ITEM_REMOVED
-    }
+  public enum PSPageChangeEventType {
+    PAGE_SAVED,
+    PAGE_META_DATA_SAVED,
+    ITEM_SAVED,
+    ITEM_ADDED,
+    ITEM_REMOVED
+  }
 }

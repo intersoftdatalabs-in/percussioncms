@@ -19,20 +19,19 @@ package com.percussion.share.dao.impl;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionRef;
 
-/**
- * Finds and prepares an extension by its ID and type.
- */
+/** Finds and prepares an extension by its ID and type. */
 public class PSExtensionFinder {
 
-    private IPSExtensionManager extensionManager;
+  private IPSExtensionManager extensionManager;
 
-    @SuppressWarnings("unchecked")
-    public <T> T findExtension(String extensionId, Class<T> klass) {
-        try {
-            var ref = new PSExtensionRef(extensionId);
-            return (T) extensionManager.prepareExtension(ref, null);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to find extension: " + extensionId + " class: " + klass, e);
-        }
+  @SuppressWarnings("unchecked")
+  public <T> T findExtension(String extensionId, Class<T> klass) {
+    try {
+      var ref = new PSExtensionRef(extensionId);
+      return (T) extensionManager.prepareExtension(ref, null);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Failed to find extension: " + extensionId + " class: " + klass, e);
     }
+  }
 }

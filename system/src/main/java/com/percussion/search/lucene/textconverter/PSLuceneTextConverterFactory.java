@@ -34,23 +34,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a factory class designed to get the {@link IPSLuceneTextConverter}
- * objects for the given mimetype. This class implements singleton pattern and
- * users of this class need to call {@link getInstance()} method get the
- * instance.
+ * This is a factory class designed to get the {@link IPSLuceneTextConverter} objects for the given
+ * mimetype. This class implements singleton pattern and users of this class need to call {@link
+ * getInstance()} method get the instance.
  */
 public class PSLuceneTextConverterFactory {
-  /**
-   * private constructor as it implements singleton pattern.
-   */
+  /** private constructor as it implements singleton pattern. */
   private PSLuceneTextConverterFactory() {
     // Call init method to initialize
     init();
   }
 
   /**
-   * This class uses a singleton pattern and call this method to get the
-   * instance of this class.
+   * This class uses a singleton pattern and call this method to get the instance of this class.
    *
    * @return The one and only object of this class, <code>never</code> null.
    */
@@ -62,12 +58,10 @@ public class PSLuceneTextConverterFactory {
   }
 
   /**
-   * Initializes the converters map. Gets the converters registered in search
-   * configuration and adds them to the m_converters map and then adds all
-   * system converters to it. If the mimetype of the registered converter
-   * matches with the system converter then the system converter is not added
+   * Initializes the converters map. Gets the converters registered in search configuration and adds
+   * them to the m_converters map and then adds all system converters to it. If the mimetype of the
+   * registered converter matches with the system converter then the system converter is not added
    * to the map.
-   *
    */
   private void init() {
     PSSearchConfig sconf = PSServer.getServerConfiguration().getSearchConfig();
@@ -115,8 +109,8 @@ public class PSLuceneTextConverterFactory {
   }
 
   /**
-   * Adds the system converters to the converters map. Adds only when converter
-   * is not registerd for the mimetype.
+   * Adds the system converters to the converters map. Adds only when converter is not registerd for
+   * the mimetype.
    */
   private void addSystemConverters() {
     buildSystemConverterMap();
@@ -130,10 +124,9 @@ public class PSLuceneTextConverterFactory {
   }
 
   /**
-   * Creates the instances of system converters and adds them to the
-   * m_systemConverters map. This map only contains those mimetypes not well
-   * supported by the PSTikaTextConvertor, all other mimetypes are delegated to
-   * tika. Note that the PSTikaTextConvertor now filters out unsupported
+   * Creates the instances of system converters and adds them to the m_systemConverters map. This
+   * map only contains those mimetypes not well supported by the PSTikaTextConvertor, all other
+   * mimetypes are delegated to tika. Note that the PSTikaTextConvertor now filters out unsupported
    * mimetypes.
    */
   private void buildSystemConverterMap() {
@@ -142,13 +135,13 @@ public class PSLuceneTextConverterFactory {
   }
 
   /**
-   * Returns the lucene text converter for the supplied mimetype. May be
-   * <code>null</code>, if there is no converter assigned to the mimetype.
+   * Returns the lucene text converter for the supplied mimetype. May be <code>null</code>, if there
+   * is no converter assigned to the mimetype.
    *
-   * @param mimetype The mimetype for which the converter needs to be returned.
-   * If <code>null</code> or empty returns <code>null</code>.
-   * @return An object of IPSLuceneTextConverter if found for the supplied
-   * mimetype or <code>null</code>.
+   * @param mimetype The mimetype for which the converter needs to be returned. If <code>null</code>
+   *     or empty returns <code>null</code>.
+   * @return An object of IPSLuceneTextConverter if found for the supplied mimetype or <code>null
+   *     </code>.
    */
   public IPSLuceneTextConverter getLuceneTextConverter(String mimetype) {
     IPSLuceneTextConverter convertor = m_converters.get(StringUtils.lowerCase(mimetype));
@@ -156,8 +149,7 @@ public class PSLuceneTextConverterFactory {
   }
 
   /**
-   * Returns all the lucene text converters. It is a map of mimetype and
-   * associated text converter.
+   * Returns all the lucene text converters. It is a map of mimetype and associated text converter.
    *
    * @return A Map of String and IPSLuceneTextConverter never <code>null</code>.
    */
@@ -166,25 +158,21 @@ public class PSLuceneTextConverterFactory {
     return MapUtils.unmodifiableMap(m_converters);
   }
 
-  /**
-   * It is a map of lowercase mimetype and the corresponding text converter.
-   */
+  /** It is a map of lowercase mimetype and the corresponding text converter. */
   private Map<String, IPSLuceneTextConverter> m_converters = new HashMap<>();
 
   /**
-   * The one and only instance of this class. Initialized by {@link
-   * #getInstance()}, then never <code>null</code>.
+   * The one and only instance of this class. Initialized by {@link #getInstance()}, then never
+   * <code>null</code>.
    */
   private static PSLuceneTextConverterFactory ms_instance;
 
   /**
-   * Map of lowercase mimetype and system converters, the converters are
-   * created and added during the creation of this class.
+   * Map of lowercase mimetype and system converters, the converters are created and added during
+   * the creation of this class.
    */
   private Map<String, IPSLuceneTextConverter> m_systemConverters = new HashMap<>();
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 }

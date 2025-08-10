@@ -25,83 +25,74 @@ import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-/**
- * Encapsulates user information for an item.
- * Sunny Sal says: "Know your users, know your code!"
- */
+/** Encapsulates user information for an item. Sunny Sal says: "Know your users, know your code!" */
 @XmlRootElement(name = "ItemUserInfo")
 public class PSItemUserInfo extends PSAbstractDataObject {
 
-    @NotNull
-    @NotEmpty
-    private String itemName;
+  @NotNull @NotEmpty private String itemName;
 
-    @NotNull
-    private String checkOutUser;
+  @NotNull private String checkOutUser;
 
-    @NotNull
-    @NotEmpty
-    private String currentUser;
+  @NotNull @NotEmpty private String currentUser;
 
-    @NotNull
-    private String assignmentType;
+  @NotNull private String assignmentType;
 
-    /**
-     * Default constructor for serializers.
-     */
-    public PSItemUserInfo() {
-        // No-op
-    }
+  /** Default constructor for serializers. */
+  public PSItemUserInfo() {
+    // No-op
+  }
 
-    /**
-     * Constructs an instance of the class.
-     *
-     * @param itemName       never blank.
-     * @param checkOutUser   the name of the user to which the item is currently checked out, never null.
-     * @param currentUser    the name of the user which is currently logged in, never blank.
-     * @param assignmentType the string representation of PSAssignmentTypeEnum, never blank.
-     */
-    public PSItemUserInfo(String itemName, String checkOutUser, String currentUser, String assignmentType) {
-        notEmpty(itemName, "itemName");
-        notNull(checkOutUser, "checkOutUser");
-        notEmpty(currentUser, "currentUser");
-        notNull(assignmentType, "assignmentType");
-        notEmpty(assignmentType, "assignmentType");
-        this.itemName = itemName;
-        this.checkOutUser = checkOutUser;
-        this.currentUser = currentUser;
-        this.assignmentType = assignmentType;
-    }
+  /**
+   * Constructs an instance of the class.
+   *
+   * @param itemName never blank.
+   * @param checkOutUser the name of the user to which the item is currently checked out, never
+   *     null.
+   * @param currentUser the name of the user which is currently logged in, never blank.
+   * @param assignmentType the string representation of PSAssignmentTypeEnum, never blank.
+   */
+  public PSItemUserInfo(
+      String itemName, String checkOutUser, String currentUser, String assignmentType) {
+    notEmpty(itemName, "itemName");
+    notNull(checkOutUser, "checkOutUser");
+    notEmpty(currentUser, "currentUser");
+    notNull(assignmentType, "assignmentType");
+    notEmpty(assignmentType, "assignmentType");
+    this.itemName = itemName;
+    this.checkOutUser = checkOutUser;
+    this.currentUser = currentUser;
+    this.assignmentType = assignmentType;
+  }
 
-    public String getItemName() {
-        return itemName;
-    }
+  public String getItemName() {
+    return itemName;
+  }
 
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
+  public void setItemName(String itemName) {
+    this.itemName = itemName;
+  }
 
-    public String getCheckOutUser() {
-        return checkOutUser;
-    }
+  public String getCheckOutUser() {
+    return checkOutUser;
+  }
 
-    public void setCheckOutUser(String checkOutUser) {
-        this.checkOutUser = checkOutUser;
-    }
+  public void setCheckOutUser(String checkOutUser) {
+    this.checkOutUser = checkOutUser;
+  }
 
-    public String getCurrentUser() {
-        return currentUser;
-    }
+  public String getCurrentUser() {
+    return currentUser;
+  }
 
-    public void setCurrentUser(String currentUser) {
-        this.currentUser = currentUser;
-    }
+  public void setCurrentUser(String currentUser) {
+    this.currentUser = currentUser;
+  }
 
-    public String getAssignmentType() {
-        return assignmentType;
-    }
+  public String getAssignmentType() {
+    return assignmentType;
+  }
 
-    public void setAssignmentType(String assignmentType) {
-        this.assignmentType = assignmentType;
-    }
+  public void setAssignmentType(String assignmentType) {
+    this.assignmentType = assignmentType;
+  }
 }

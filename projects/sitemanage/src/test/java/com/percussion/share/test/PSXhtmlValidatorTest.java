@@ -17,32 +17,33 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
+import static com.percussion.share.test.PSMatchers.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.*;
-import static com.percussion.share.test.PSMatchers.*;
+
 import org.junit.jupiter.api.Test;
 
 /**
  * This is a Unit test of unit test code :)
- * @author adamgent
  *
+ * @author adamgent
  */
 public class PSXhtmlValidatorTest {
 
-    @Test
-    public void testValidXhtmlMatcher() {
-        var xhtml = getHtml("test-xhtml-valid.html");
-        assertThat(xhtml, is(validXhtml()));
-    }
+  @Test
+  public void testValidXhtmlMatcher() {
+    var xhtml = getHtml("test-xhtml-valid.html");
+    assertThat(xhtml, is(validXhtml()));
+  }
 
-    @Test
-    public void testInValidXhtmlMatcher() {
-        var xhtml = getHtml("test-xhtml-invalid.html");
-        assertThat(xhtml, is(not(validXhtml())));
-    }
+  @Test
+  public void testInValidXhtmlMatcher() {
+    var xhtml = getHtml("test-xhtml-invalid.html");
+    assertThat(xhtml, is(not(validXhtml())));
+  }
 
-    private String getHtml(String name) {
-        return PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
-    }
+  private String getHtml(String name) {
+    return PSTestUtils.resourceToString(PSXhtmlValidatorTest.class, name);
+  }
 }

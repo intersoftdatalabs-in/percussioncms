@@ -17,9 +17,7 @@
 package com.percussion.cx;
 
 public interface IPSConstants {
-  /**
-   * The following describes the constants for the actions handled by client.
-   */
+  /** The following describes the constants for the actions handled by client. */
   public static final String ACTION_CREATE_FOLDER = "Create_New_Folder";
 
   public static final String ACTION_EDIT_FOLDER = "Edit_Folder";
@@ -63,23 +61,21 @@ public interface IPSConstants {
   public static final String ACTION_COPY_ACL_TO_SUBFOLDERS = "Copy_ACL_To_Subfolders";
 
   /**
-   * An action taken against a nav folder. Performs a search limited to the
-   * target folder and below.
+   * An action taken against a nav folder. Performs a search limited to the target folder and below.
    */
   public static final String ACTION_SEARCH_WITHIN_FOLDER = "Search_Within_Folder";
 
   /**
-   * An action taken on a folder returned in a search result. It will open
-   * the nav tree to match the current folder and make that folder active.
+   * An action taken on a folder returned in a search result. It will open the nav tree to match the
+   * current folder and make that folder active.
    */
   public static final String ACTION_OPEN_FOLDER_REF = "Open_Folder_Ref";
 
   public static final String ACTION_NO_ENTRIES = "No_Entries";
 
   /**
-   * The following describes the constants for various properties of cms
-   * components, for example these can be properties of a folder or an item or
-   * an action.
+   * The following describes the constants for various properties of cms components, for example
+   * these can be properties of a folder or an item or an action.
    */
   public static final String PROPERTY_CONTENTID = "sys_contentid";
 
@@ -110,39 +106,29 @@ public interface IPSConstants {
   public static final String PROPERTY_USERNAME = "sys_username";
   public static final String PROPERTY_HIDDEN = "hidden";
 
-  /**
-   * Property used to indicate if a menu item is checked.
-   */
+  /** Property used to indicate if a menu item is checked. */
   public static final String PROPERTY_MENU_ITEM_CHECKED = "menuItemChecked";
 
   public static final String PROPERTY_TRUE = "true";
   public static final String PROPERTY_FALSE = "false";
 
-  /**
-   * String constant for the action property name of the target browser window
-   */
+  /** String constant for the action property name of the target browser window */
   public static final String PROPERTY_TARGET = "target";
 
-  /**
-   * String constant for the action property name of the target browser window
-   * style
-   */
+  /** String constant for the action property name of the target browser window style */
   public static final String PROPERTY_TARGET_STYLE = "targetStyle";
 
   /**
-   * String constant for the action property name to indicate if the action
-   * needs to launch a window
+   * String constant for the action property name to indicate if the action needs to launch a window
    */
   public static final String PROPERTY_LAUNCHES_WINDOW = "launchesWindow";
 
-  /**
-   * String constant for storing the slot path for slot searches.
-   */
+  /** String constant for storing the slot path for slot searches. */
   public static final String PROPERTY_SLOT_NODE = "slotNode";
 
   /**
-   * The name of the node property used to store the folder path if a search
-   * is to be folder limited. Must have a non-empty value to be used.
+   * The name of the node property used to store the folder path if a search is to be folder
+   * limited. Must have a non-empty value to be used.
    */
   public static final String PROPERTY_FOLDER_PATH = "folderPath";
 }

@@ -32,50 +32,45 @@ import javax.naming.NamingException;
 import org.xml.sax.SAXException;
 
 /**
- *  The PSLogManager class is used as an interface for accesing the server's
- *  log. All reading from and writing to the server's log is done through
- *   the PSLogManager object.
- *  <p>
- *  The PSLogManager object receives log requests from the server and
- *  applications (indirectly) through objects extending the PSLogInformation
- *  class. Each application and the server actually use PSLogHandler objects
- *  to do their logging. See the
- *  {@link com.percussion.log.PSLogHandler PSLogHandler} class for more
- *  details.
- *  <p>
- *  One instance of this object is shared across all threads in the server.
- *  A synchronized queue is used to store the received log messages. A
- *  separate logging thread (created when the log manager starts) applies
- *  the log messages to the back-end. If the back-end server is down,
- *  causing the queue to build up, the log messages will be written to disk.
- *  This is done using the PSFileLogWriter class. The queue is disabled at
- *  this point. Once the server is back up, the log messages will be read
- *  back from disk (using the PSFileLogReader) and written to the back-end.
- *  The queue will once again be enabled.
- *  <p>
- *  Reading the log is also required. This is done by passing a log reader
- *   filter to the read() method.
+ * The PSLogManager class is used as an interface for accesing the server's log. All reading from
+ * and writing to the server's log is done through the PSLogManager object.
  *
- *  <p>
- *  The PSLogManager class is also used to load the string resources
- *  used by the various log classes based upon the E2 server's locale.
- *  <p>
- *  Log messages are broken down into ranges, assigned to the various
- *  components. The ranges we are using are as follows:
- *  <table border="1">
+ * <p>The PSLogManager object receives log requests from the server and applications (indirectly)
+ * through objects extending the PSLogInformation class. Each application and the server actually
+ * use PSLogHandler objects to do their logging. See the {@link com.percussion.log.PSLogHandler
+ * PSLogHandler} class for more details.
+ *
+ * <p>One instance of this object is shared across all threads in the server. A synchronized queue
+ * is used to store the received log messages. A separate logging thread (created when the log
+ * manager starts) applies the log messages to the back-end. If the back-end server is down, causing
+ * the queue to build up, the log messages will be written to disk. This is done using the
+ * PSFileLogWriter class. The queue is disabled at this point. Once the server is back up, the log
+ * messages will be read back from disk (using the PSFileLogReader) and written to the back-end. The
+ * queue will once again be enabled.
+ *
+ * <p>Reading the log is also required. This is done by passing a log reader filter to the read()
+ * method.
+ *
+ * <p>The PSLogManager class is also used to load the string resources used by the various log
+ * classes based upon the E2 server's locale.
+ *
+ * <p>Log messages are broken down into ranges, assigned to the various components. The ranges we
+ * are using are as follows:
+ *
+ * <table border="1">
  *     <tr><th>Range</th>      <th>Component</th></tr>
  *     <tr><td>0001 - 2000</td><td>Server Logging</td></tr>
  *     <tr><td>2001 - 4000</td><td>Application Logging</td></tr>
  *     <tr><td>4001 - 6000</td><td>User Logging</td></tr>
  *     <tr><td>6001 - 8000</td><td>Error Logging</td></tr>
  *  </table>
- *  <p>
- *  All log messages are stored using the format defined in
- *  the java.text.MessageFormat class. The message string  contains curly
- *  braces around parameters, which are 0 based. The MessageFormat.format
- *  method can then be used with an array of arguments to generate the
- *  appropriate string. For instance:
- *  <pre><code>
+ *
+ * <p>All log messages are stored using the format defined in the java.text.MessageFormat class. The
+ * message string contains curly braces around parameters, which are 0 based. The
+ * MessageFormat.format method can then be used with an array of arguments to generate the
+ * appropriate string. For instance:
+ *
+ * <pre><code>
  *     String msg = PSLogManager.getMessageText(999);
  *
  *     // let's assume the returned message is:
@@ -89,32 +84,30 @@ import org.xml.sax.SAXException;
  *     //    "param1=1, param 2 date=Jan 6, 1999, param 2   time=4:50 PM"
  *  </code></pre>
  *
- *  This model is excellent for internationalization as the position of the
- *  parameters may change based upon the target language.
+ * This model is excellent for internationalization as the position of the parameters may change
+ * based upon the target language.
  *
- *
- * @author   Tas Giakouminakis
- * @version  1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
  * @since 1.0
  */
 public class PSLogManager {
 
   /**
-   *   Initialize the  log manager to  use the specified  log mechanism
-   *   and locale. It is an error to call init() twice without calling
-   *   close() in between (i.e., you cannot re init() the log manager
-   *   until you have explicitly closed it first).
-   * <p>
-   * If a DBMS is used for logging, and a database error occurs when trying to
-   * create the log writer and reader, this method will retry the creation
-   * several times, in case Rhythmyx has started before the DBMS.
-   *   <p>
-   *   At  this time, storing the log  in a local file is the only
-   *   supported logging    mechanism. The  following information is required
-   *   to  describe   where    the log will be stored:
-   *   <p>
-   *  In case of fileTo = "DBMS":
-   *  <table border="1">
+   * Initialize the log manager to use the specified log mechanism and locale. It is an error to
+   * call init() twice without calling close() in between (i.e., you cannot re init() the log
+   * manager until you have explicitly closed it first).
+   *
+   * <p>If a DBMS is used for logging, and a database error occurs when trying to create the log
+   * writer and reader, this method will retry the creation several times, in case Rhythmyx has
+   * started before the DBMS.
+   *
+   * <p>At this time, storing the log in a local file is the only supported logging mechanism. The
+   * following information is required to describe where the log will be stored:
+   *
+   * <p>In case of fileTo = "DBMS":
+   *
+   * <table border="1">
    *   <tr><th>Key</th><th>Value</th></tr>
    *   <tr><td>logTo</td>
    *       <td>DBMS</td>
@@ -141,9 +134,10 @@ public class PSLogManager {
    *   </td>
    *   </tr>
    *   </table>
-   *   <p>
-   *  In case of fileTo = "FILE":
-   *  <table border="1">
+   *
+   * <p>In case of fileTo = "FILE":
+   *
+   * <table border="1">
    *   <tr><th>Key</th><th>Value</th></tr>
    *   <tr><td>logTo</td>
    *       <td>FILE</td>
@@ -155,28 +149,15 @@ public class PSLogManager {
    *   </tr>
    *   </table>
    *
-   * @param props The properties defining where the log is stored, not
-   * <code>null</code>
-   *
-   * @param loc The locale to use, used to determine the string bundle
-   * resource
-   *
-   * @throws IllegalArgumentException If props does not fully define the
-   * location of the log
-   *
-   * @throws IllegalStateException If the log manager has already been
-   * initialized and not closed
-   *
+   * @param props The properties defining where the log is stored, not <code>null</code>
+   * @param loc The locale to use, used to determine the string bundle resource
+   * @throws IllegalArgumentException If props does not fully define the location of the log
+   * @throws IllegalStateException If the log manager has already been initialized and not closed
    * @throws IOException If there is an error opening the log file
-   *
-   * @throws ClassNotFoundException  If the JDBC driver class cannot be found
-   *
+   * @throws ClassNotFoundException If the JDBC driver class cannot be found
    * @throws SAXException If the log file is corrupt
-   *
-   * @throws SQLException If some SQL problem other than a network
-   * problem has occurred
-   * @throws NamingException If there is an error resolving the default
-   * connection datasource.
+   * @throws SQLException If some SQL problem other than a network problem has occurred
+   * @throws NamingException If there is an error resolving the default connection datasource.
    */
   public static synchronized void init(Properties props, Locale loc)
       throws IllegalArgumentException,
@@ -381,10 +362,10 @@ public class PSLogManager {
   }
 
   /**
-   * Initialize the log manager to use the specified log mechanism and the
-   * default locale for this system.
-   * <p>
-   * Calls {@link #init(Properties, Locale) init(props, Locale.getDefault())}
+   * Initialize the log manager to use the specified log mechanism and the default locale for this
+   * system.
+   *
+   * <p>Calls {@link #init(Properties, Locale) init(props, Locale.getDefault())}
    */
   public static synchronized void init(java.util.Properties props)
       throws IllegalArgumentException,
@@ -398,10 +379,9 @@ public class PSLogManager {
   }
 
   /**
-   * Shut down the log manager. No further logging is permitted through the log
-   * manager once this call is made. Use the {@link #init(Properties) init}
-   * method to re-initialize the log before attempting any further writes. It
-   * is not an error to call close() on a closed PSLogManager.
+   * Shut down the log manager. No further logging is permitted through the log manager once this
+   * call is made. Use the {@link #init(Properties) init} method to re-initialize the log before
+   * attempting any further writes. It is not an error to call close() on a closed PSLogManager.
    */
   public static synchronized void close() {
     conOut("Closing the log manager.");
@@ -434,9 +414,8 @@ public class PSLogManager {
    * Queues the log message for writing. This method is thread-safe.
    *
    * @param msg the log message to be written
-   * @exception   IllegalStateException    if the log manager is not
-   *   associated with a log mechanism (init was never called, or close has
-   *   been called and init never re-called)
+   * @exception IllegalStateException if the log manager is not associated with a log mechanism
+   *     (init was never called, or close has been called and init never re-called)
    */
   public static void write(PSLogInformation msg) throws IllegalStateException {
     if (msg == null) {
@@ -456,16 +435,13 @@ public class PSLogManager {
   }
 
   /**
-   * Immediately writes the log message to the log, bypassing the queue.
-   * If the message cannot be written immediately, it is discarded. For
-   * this reason, only the log queue thread should call writeThrough.
-   * Everyone else should just call @link #write write(), which will
-   * use the queue.
+   * Immediately writes the log message to the log, bypassing the queue. If the message cannot be
+   * written immediately, it is discarded. For this reason, only the log queue thread should call
+   * writeThrough. Everyone else should just call @link #write write(), which will use the queue.
    *
-   * @param  msg The log message to be written.
-   * @throws IllegalStateException If the log manager is not
-   * associated with a log mechanism (init was never called, or close was
-   * called and init never re-called).
+   * @param msg The log message to be written.
+   * @throws IllegalStateException If the log manager is not associated with a log mechanism (init
+   *     was never called, or close was called and init never re-called).
    */
   protected static void writeThrough(PSLogInformation msg) {
     if (!isOpen()) return;
@@ -536,10 +512,8 @@ public class PSLogManager {
   /**
    * Reads the log with the specified filter
    *
-   * @param filter A log reader filter whose processMessage method will
-   * be called with each log entry that meets the filter's conditions. Must
-   * not be null
-   *
+   * @param filter A log reader filter whose processMessage method will be called with each log
+   *     entry that meets the filter's conditions. Must not be null
    * @throws IllegalStateException if a log reader has not been initialized.
    */
   public static void read(IPSLogReaderFilter filter) {
@@ -553,12 +527,10 @@ public class PSLogManager {
   }
 
   /**
-   *   Get the message text associated with the specified message code.
+   * Get the message text associated with the specified message code.
    *
-   * @param code   the message code
-   *
-   * @return   the message text, or null if there is no message
-   *   text associated with this code.
+   * @param code the message code
+   * @return the message text, or null if there is no message text associated with this code.
    */
   public static String getMessageText(int code) {
     if (m_messageStrings != null) return m_messageStrings.getString(String.valueOf(code));
@@ -566,19 +538,15 @@ public class PSLogManager {
   }
 
   /**
-   *   Returns true if the log manager is associated with a logging mechanism,
-   *   false otherwise.
+   * Returns true if the log manager is associated with a logging mechanism, false otherwise.
    *
-   * @return   true if the log manager is associated with a logging mechanism,
-   *   false otherwise
+   * @return true if the log manager is associated with a logging mechanism, false otherwise
    */
   public static boolean isOpen() {
     return m_isOpen;
   }
 
-  /**
-   *   Notify the log queue thread that a new message has been queued.
-   */
+  /** Notify the log queue thread that a new message has been queued. */
   // TODO: Remove me @SuppressFBWarnings("NN_NAKED_NOTIFY")
   private static void notifyQueue() {
     synchronized (m_queue) {
@@ -586,24 +554,17 @@ public class PSLogManager {
     }
   }
 
-  /**
-   *   Console output functionality
-   */
+  /** Console output functionality */
   private static void conOut(String msg, String[] subMessages) {
     com.percussion.server.PSConsole.printMsg("LogManager", msg, subMessages);
   }
 
-  /**
-   *   Console output functionality
-   */
+  /** Console output functionality */
   private static void conOut(String msg) {
     conOut(msg, null);
   }
 
-  /**
-   *   Flushes the queue unconditionally, silently ignores errors
-   *
-   */
+  /** Flushes the queue unconditionally, silently ignores errors */
   public static void flushQueue() {
     if (m_queue == null) return;
 
@@ -622,7 +583,8 @@ public class PSLogManager {
 
   /**
    * Truncate the log which has been there in the past day(s).
-   * @param days      the amount of day the log has been there
+   *
+   * @param days the amount of day the log has been there
    */
   public static void truncateLog(int days) {
     if (days <= 0) return; // do not truncate
@@ -655,49 +617,40 @@ public class PSLogManager {
     }
   }
 
-  /**
-   *   This is the property file backed string resource bundle containing
-   *   our message strings
-   */
+  /** This is the property file backed string resource bundle containing our message strings */
   private static ResourceBundle m_messageStrings = null;
 
   /**
-   *   This is our instance of the log reader, which could be either a file
-   *   reader or a back end reader, depending on the arguments to init().
+   * This is our instance of the log reader, which could be either a file reader or a back end
+   * reader, depending on the arguments to init().
    */
   private static IPSLogReader m_logReader = null;
 
   /**
-   *   This is our instance of the log writer, which could be either a file
-   *   writer or a back end writer, depending on the arguments to init().
+   * This is our instance of the log writer, which could be either a file writer or a back end
+   * writer, depending on the arguments to init().
    */
   private static IPSLogWriter m_logWriter = null;
 
   /**
-   *   This is the secondary (backup) log reader, which will be used only
-   *   when the primary log reader is down.
+   * This is the secondary (backup) log reader, which will be used only when the primary log reader
+   * is down.
    */
   private static IPSLogReader m_secondaryLogReader;
 
   /**
-   *   This is our instance of the log writer, which could be either a file
-   *   writer or a back end writer, depending on the arguments to init().
+   * This is our instance of the log writer, which could be either a file writer or a back end
+   * writer, depending on the arguments to init().
    */
   private static IPSLogWriter m_secondaryLogWriter;
 
   /** Our logfile location */
   private static File m_logFile;
 
-  /**
-   *   true if the log manager is associated with a logging mechanism,
-   *   false otherwise
-   */
+  /** true if the log manager is associated with a logging mechanism, false otherwise */
   private static boolean m_isOpen = false;
 
-  /**
-   *   Our internal queue of PSLogInformation objects that have not yet
-   *   been written to the log.
-   */
+  /** Our internal queue of PSLogInformation objects that have not yet been written to the log. */
   private static PSDoubleList m_queue;
 
   /** The log queue thread. */
@@ -710,15 +663,14 @@ public class PSLogManager {
   private static java.util.Date m_exitFailsafeTime;
 
   /**
-   *   Number of milliseconds between our last written message and
-   *   our current message that will invoke a reconnect attempt to
-   *   the primary log mechanism.
+   * Number of milliseconds between our last written message and our current message that will
+   * invoke a reconnect attempt to the primary log mechanism.
    */
   private static long m_msecBetweenReconnect = 30000;
 
   /**
-   *   The system time in millseconds since 1970 at which last
-   *   attempted to re-open the primary log mechanism.
+   * The system time in millseconds since 1970 at which last attempted to re-open the primary log
+   * mechanism.
    */
   private static long m_msecLastReOpenAttempt = 0;
 

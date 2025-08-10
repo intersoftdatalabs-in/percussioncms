@@ -22,15 +22,11 @@ import java.util.Date;
 import java.util.Locale;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-/**
- * The value of an <code>PSItemField</code> that is treated as a
- * date value.
- */
+/** The value of an <code>PSItemField</code> that is treated as a date value. */
 public class PSDateValue extends PSFieldValue {
   /**
-   * Constructs a new object with the date as the value. Using the default
-   * format ("yyyy-MM-dd") and default <code>Locale</code> "en-us".  This is
-   * a convenience method that is equivalent to calling
+   * Constructs a new object with the date as the value. Using the default format ("yyyy-MM-dd") and
+   * default <code>Locale</code> "en-us". This is a convenience method that is equivalent to calling
    * {@link #PSDateValue(Date,FastDateFormat) PSDateValue(date,null)}.
    *
    * @param date {@link #PSDateValue(Date,FastDateFormat) PSDateValue(date,null)}
@@ -42,8 +38,8 @@ public class PSDateValue extends PSFieldValue {
   /**
    * Constructs a new object with the date as the value with the proper format.
    *
-   * @param date that will be the value.  <code>null</code> will result in
-   * creating a date value for now.
+   * @param date that will be the value. <code>null</code> will result in creating a date value for
+   *     now.
    * @param format if <code>null</code> the default format will be used.
    */
   public PSDateValue(Date date, FastDateFormat format) {
@@ -53,8 +49,8 @@ public class PSDateValue extends PSFieldValue {
   /**
    * Sets the supplied Date as the content of this value.
    *
-   * @param date that will be the value.  <code>null</code> will result in
-   * creating a date value for now.
+   * @param date that will be the value. <code>null</code> will result in creating a date value for
+   *     now.
    * @param format if <code>null</code> the default format will be used.
    */
   public void setValue(Date date, FastDateFormat format) {
@@ -67,15 +63,13 @@ public class PSDateValue extends PSFieldValue {
   }
 
   /**
-   * Constructs a new object with the date as the value. Using the default
-   * format ("yyyy-MM-dd") and default <code>Locale</code> "en-us".
+   * Constructs a new object with the date as the value. Using the default format ("yyyy-MM-dd") and
+   * default <code>Locale</code> "en-us".
    *
-   * @param dateString a string representation of the date.
-   * See {@link
-   * com.percussion.util.PSDataTypeConverter#parseStringToDate(String)} for
-   * more information. Must not be <code>null</code> or empty.
-   *
-   * @return - new PSDateValue.  Not <code>null</code>.
+   * @param dateString a string representation of the date. See {@link
+   *     com.percussion.util.PSDataTypeConverter#parseStringToDate(String)} for more information.
+   *     Must not be <code>null</code> or empty.
+   * @return - new PSDateValue. Not <code>null</code>.
    */
   public static PSDateValue getDateValueFromString(String dateString) {
     if (dateString == null || dateString.trim().length() == 0)
@@ -89,7 +83,7 @@ public class PSDateValue extends PSFieldValue {
   }
 
   /**
-   * Implements the interface.  Gets the <code>Date</code> value.
+   * Implements the interface. Gets the <code>Date</code> value.
    *
    * @return The <code>Date</code>, may be <code>null</code>.
    */
@@ -98,7 +92,7 @@ public class PSDateValue extends PSFieldValue {
   }
 
   /**
-   * Clones this objects.  Makes a deep copy.
+   * Clones this objects. Makes a deep copy.
    *
    * @return deep copy of this object.
    */
@@ -113,7 +107,9 @@ public class PSDateValue extends PSFieldValue {
     return copy;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;
 
@@ -124,7 +120,9 @@ public class PSDateValue extends PSFieldValue {
     return true;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public int hashCode() {
     int hash = 0;
 
@@ -138,35 +136,30 @@ public class PSDateValue extends PSFieldValue {
   /**
    * This returns the <code>Date</code> as a <code>String</code>.
    *
-   * @return the <code>Date</code> as a <code>String</code>.  Never
-   * <code>null</code> or empty.
+   * @return the <code>Date</code> as a <code>String</code>. Never <code>null</code> or empty.
    */
   public String getValueAsString() {
     return m_format.format(m_date);
   }
 
   /**
-   * The content of this value,  set by <code>setValue()</code>,
-   * will not be empty or <code>null</code>, if attempt is made to set to
-   * <code>null</code> will be set to now.
+   * The content of this value, set by <code>setValue()</code>, will not be empty or <code>null
+   * </code>, if attempt is made to set to <code>null</code> will be set to now.
    */
   private Date m_date;
 
   /**
-   * The format to use for the date, set by <code>setValue()</code>
-   * will not be empty or <code>null</code>, defaults to
-   * <code>SimpleDateFormat(DEFAULT_FORMAT, DEFAULT_LOCALE)</code>
+   * The format to use for the date, set by <code>setValue()</code> will not be empty or <code>null
+   * </code>, defaults to <code>SimpleDateFormat(DEFAULT_FORMAT, DEFAULT_LOCALE)</code>
    */
   private FastDateFormat m_format;
 
-  /**
-   * Default date format that will be used to format the date.
-   */
+  /** Default date format that will be used to format the date. */
   private static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   /**
-   * Default Locale created from the default language which is the default
-   * language of our internationalization system.
+   * Default Locale created from the default language which is the default language of our
+   * internationalization system.
    */
   private static final Locale DEFAULT_LOCALE =
       PSI18nUtils.getLocaleFromString(PSI18nUtils.DEFAULT_LANG);

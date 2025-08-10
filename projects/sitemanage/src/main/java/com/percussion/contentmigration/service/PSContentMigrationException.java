@@ -21,23 +21,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PSContentMigrationException extends Exception {
-    private Map<String, String> failedItems = new HashMap<>();
+  private Map<String, String> failedItems = new HashMap<>();
 
-    public PSContentMigrationException() {
-        super();
-    }
+  public PSContentMigrationException() {
+    super();
+  }
 
-    public PSContentMigrationException(String message) {
-        super(message);
-    }
+  public PSContentMigrationException(String message) {
+    super(message);
+  }
 
-    public Map<String, String> getFailedItems() {
-        return failedItems;
-    }
+  public Map<String, String> getFailedItems() {
+    return failedItems;
+  }
 
-    public void setFailedItems(Map<String, String> failedItems) {
-        if (failedItems != null) {
-            this.failedItems = failedItems;
-        }
+  public void setFailedItems(Map<String, String> failedItems) {
+    if (failedItems != null) {
+      this.failedItems = failedItems;
     }
+  }
 }

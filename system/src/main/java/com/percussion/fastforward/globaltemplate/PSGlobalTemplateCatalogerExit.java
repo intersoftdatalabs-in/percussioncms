@@ -32,34 +32,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension catalogs the names of all currently defined global templates
- * and returns it as an XML conforming to the following DTD:
- * <p>
- *    &lt;!ELEMENT GlobalTemplates (Template*)&gt;
- *    &lt;!ELEMENT Template EMPTY&gt;
- *    &lt;!ATTLIST Template
- *       name CDATA #REQUIRED
- *       fileName CDATA #REQUIRED
- *       rootTemplateName CDATA #REQUIRED
- *    &gt;
- * <p>
- * The exit does not take any parameters.
- * <p>
- * The algorithm to find all global template names is as follows:
+ * This extension catalogs the names of all currently defined global templates and returns it as an
+ * XML conforming to the following DTD:
+ *
+ * <p>&lt;!ELEMENT GlobalTemplates (Template*)&gt; &lt;!ELEMENT Template EMPTY&gt; &lt;!ATTLIST
+ * Template name CDATA #REQUIRED fileName CDATA #REQUIRED rootTemplateName CDATA #REQUIRED &gt;
+ *
+ * <p>The exit does not take any parameters.
+ *
+ * <p>The algorithm to find all global template names is as follows:
+ *
  * <ol>
- *    <li>
- *       all XSL files are cataloged from the
+ *   <li>all XSL files are cataloged from the
  *       &lt;rxroot&gt;/rx_resources/stylesheets/globaltemplates directory
- *    </li>
- *    <li>
- *       all XSL files in which we find a template named
- *       &lt;filename-without-extension&gt;_root are considered to be a global
- *       template
- *    </li>
- *    <li>
- *       a list of all global template names as
- *       &lt;filename-without-extension&gt; is returned
- *    </li>
+ *   <li>all XSL files in which we find a template named &lt;filename-without-extension&gt;_root are
+ *       considered to be a global template
+ *   <li>a list of all global template names as &lt;filename-without-extension&gt; is returned
  * </ol>
  */
 public class PSGlobalTemplateCatalogerExit extends PSDefaultExtension
@@ -93,8 +81,8 @@ public class PSGlobalTemplateCatalogerExit extends PSDefaultExtension
   /**
    * Get a list of all global template names.
    *
-   * @return a <code>String</code> iterator over all global template names,
-   *    never <code>null</code>, may be empty.
+   * @return a <code>String</code> iterator over all global template names, never <code>null</code>,
+   *     may be empty.
    * @throws PSExtensionProcessingException for any error.
    */
   private Iterator<String> getTemplateNames() throws PSExtensionProcessingException {
@@ -112,14 +100,12 @@ public class PSGlobalTemplateCatalogerExit extends PSDefaultExtension
   }
 
   /**
-   * The error number indicating to <code>PSException</code> to use the message
-   * from the provided exception.
+   * The error number indicating to <code>PSException</code> to use the message from the provided
+   * exception.
    */
   private static final int EXCEPTION_MSG = 1002;
 
-  /**
-   * The extension appended to the file name for the root template name.
-   */
+  /** The extension appended to the file name for the root template name. */
   private static final String ROOT_EXTENSION = "_root";
 
   // private XML constants

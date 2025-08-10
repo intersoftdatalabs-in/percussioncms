@@ -24,11 +24,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
- * @author erikserating
  *
+ * @author erikserating
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(

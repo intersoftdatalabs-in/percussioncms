@@ -25,8 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Utility for encrypting and decrypting properties in a file.
- * Encrypted properties are wrapped with "ENC(" and ")".
+ * Utility for encrypting and decrypting properties in a file. Encrypted properties are wrapped with
+ * "ENC(" and ")".
  */
 public class PSEncryptProperties {
 

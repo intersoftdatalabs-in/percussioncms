@@ -48,28 +48,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This abstract class is the base class for a folder action processor to
- * modifiy Active Assembly category relationships in the system when one or more
- * items/folders are moved from one folder to another or removed from a folder.
- * The sited and/or folderid are stored as relationship properties when an item
- * is linked to a parent using an AA relationship with explicit source siteid
- * and/or folderid. When an AA dependent item is moved from existing site/folder
- * to a new site/folder these relationship properties need to be changed. The
- * responsibility of this together with the derived class inlcude:
- * <p>
- * <ul>
- * <li>For each folder child in action, find if it is invloved in cross site
- * linking with any parent item</li>
- * <li>If so, be able to generate detailed report of the participation so that
- * user of this class can communicate to user or write log.</li>
- * <li>Finally, to be able to modify and save the links to reflect the
- * consequences of the action in the links>/li>
- * </ul>
- * <p>
- * See the derived classes' implementation of
- * {@link #modifyLinks(PSAaFolderDependent)} for the details of how the
- * relationships are modified.
+ * This abstract class is the base class for a folder action processor to modifiy Active Assembly
+ * category relationships in the system when one or more items/folders are moved from one folder to
+ * another or removed from a folder. The sited and/or folderid are stored as relationship properties
+ * when an item is linked to a parent using an AA relationship with explicit source siteid and/or
+ * folderid. When an AA dependent item is moved from existing site/folder to a new site/folder these
+ * relationship properties need to be changed. The responsibility of this together with the derived
+ * class inlcude:
  *
+ * <p>
+ *
+ * <ul>
+ *   <li>For each folder child in action, find if it is invloved in cross site linking with any
+ *       parent item
+ *   <li>If so, be able to generate detailed report of the participation so that user of this class
+ *       can communicate to user or write log.
+ *   <li>Finally, to be able to modify and save the links to reflect the consequences of the action
+ *       in the links>/li>
+ * </ul>
+ *
+ * <p>See the derived classes' implementation of {@link #modifyLinks(PSAaFolderDependent)} for the
+ * details of how the relationships are modified.
  */
 public abstract class PSCrossSiteFolderActionProcessor {
   protected PSCrossSiteFolderActionData data;
@@ -124,8 +123,8 @@ public abstract class PSCrossSiteFolderActionProcessor {
   public abstract PSCrossSiteFolderActionData getData();
 
   /**
-   * Walks through the folder children to build the complete list of dependent
-   * items being acted upon.
+   * Walks through the folder children to build the complete list of dependent items being acted
+   * upon.
    *
    * @throws PSCmsException if wlaking through fails because of server error.
    */
@@ -155,11 +154,11 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Helper method to walk through all dependent items's AA relationships to
-   * check if any one or more items have cross site links.
+   * Helper method to walk through all dependent items's AA relationships to check if any one or
+   * more items have cross site links.
    *
-   * @return <code>true</code> if at least one dependent item has cross site
-   * link relationship, <code>false</code> otherwise.
+   * @return <code>true</code> if at least one dependent item has cross site link relationship,
+   *     <code>false</code> otherwise.
    */
   private boolean hasCsLinks() {
     Iterator<PSAaFolderDependent> iter = getDependentItems().iterator();
@@ -175,9 +174,8 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Fill the AA relationships for the supplied item. The relationships that
-   * have at least one of the properties - siteid and/or folderid only
-   * included.
+   * Fill the AA relationships for the supplied item. The relationships that have at least one of
+   * the properties - siteid and/or folderid only included.
    *
    * @param depItem dependent item, assumed not <code>null</code>
    * @throws PSCmsException querying AA relationships fails for any reason.
@@ -204,16 +202,14 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Compute the siteids for the given site folder. If the folder resolves to
-   * multiple sites we put the siteids in the order of shortest path, i.e. the
-   * one that closer to the site root. The first one in the list is with the
-   * shortest path.
+   * Compute the siteids for the given site folder. If the folder resolves to multiple sites we put
+   * the siteids in the order of shortest path, i.e. the one that closer to the site root. The first
+   * one in the list is with the shortest path.
    *
    * @param siteFolderId site folder locator, assumed not <code>null</code>.
-   * @return List of Site Ids in the order of their folder root path lengths.
-   * Never <code>null</code>, may be empty.
-   * @throws PSCmsException in case of failure getting the folder paths for the
-   * supplied folder.
+   * @return List of Site Ids in the order of their folder root path lengths. Never <code>null
+   *     </code>, may be empty.
+   * @throws PSCmsException in case of failure getting the folder paths for the supplied folder.
    */
   protected Integer[] computeSiteForFolder(PSLocator siteFolderId)
       throws PSCmsException, PSNotFoundException {
@@ -225,11 +221,9 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Get an array of ids of the sites that the supplied folder paths correspond
-   * to.
+   * Get an array of ids of the sites that the supplied folder paths correspond to.
    *
-   * @param paths array of site folder paths, must not be <code>null</code>
-   * or empty.
+   * @param paths array of site folder paths, must not be <code>null</code> or empty.
    * @return array of siteids, never <code>null</code>, may be empty.
    */
   private Integer[] getSiteIdsFromPaths(String[] paths) {
@@ -258,9 +252,8 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Helper method to walk through each of the supplied child nodes to get its
-   * folder descendants and build a complete list. This also includes the
-   * suppled children too.
+   * Helper method to walk through each of the supplied child nodes to get its folder descendants
+   * and build a complete list. This also includes the suppled children too.
    *
    * @throws PSCmsException any error during the walk through.
    */
@@ -298,6 +291,7 @@ public abstract class PSCrossSiteFolderActionProcessor {
 
   /**
    * Sub actions can decide whether or not skip based on depth and action.
+   *
    * @param folder folder
    * @param depth depth, 0 based.
    * @return true to skip.
@@ -307,38 +301,34 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Actual modification of AA relationships to reflect the move or remove of
-   * folder children. Implemented by the individual action processors.
+   * Actual modification of AA relationships to reflect the move or remove of folder children.
+   * Implemented by the individual action processors.
+   *
    * <ol>
-   * <li>Get the parent folder for each item moved or removed</li>
-   * <li>Figure out the relationship's new siteid and /folderid depending on
-   * the move or remove action</li>
-   * <li>Modify all the relationships that are collected during pre-process
-   * and save to server</li>
+   *   <li>Get the parent folder for each item moved or removed
+   *   <li>Figure out the relationship's new siteid and /folderid depending on the move or remove
+   *       action
+   *   <li>Modify all the relationships that are collected during pre-process and save to server
    * </ol>
    *
-   * @param depItem dependent item whose relationship set to be modified, must
-   * not be <code>null</code>.
-   *
+   * @param depItem dependent item whose relationship set to be modified, must not be <code>null
+   *     </code>.
    * @throws PSCmsException
-   *
    */
   abstract void modifyLinks(PSAaFolderDependent depItem) throws PSCmsException;
 
   /**
-   * Derived class is responsible to return the name of the action it is
-   * implementing.
+   * Derived class is responsible to return the name of the action it is implementing.
    *
    * @return name of the action, never <code>null</code> or empty.
    */
   public abstract String getActionName();
 
   /**
-   * Helper method that figures out the type of the cross site based on the
-   * relationship properties fo the supplied relationship.
+   * Helper method that figures out the type of the cross site based on the relationship properties
+   * fo the supplied relationship.
    *
-   * @param rel relationship to find the relationship type of, must not be
-   * <code>null</code>.
+   * @param rel relationship to find the relationship type of, must not be <code>null</code>.
    * @return one of the enumeration values {@link PSCrossSiteLinkTypeEnum}.
    */
   public PSCrossSiteLinkTypeEnum getCrossSiteLinkType(PSRelationship rel) {
@@ -355,11 +345,10 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Iterates through all dependent items and calls the derived class's method
-   * {@link #modifyLinks(PSAaFolderDependent)}. Does not save the links to
-   * server until {@link #saveLinks()} is called. Returns immediately if there
-   * are no cross site links associated with the dependent items.
-   *
+   * Iterates through all dependent items and calls the derived class's method {@link
+   * #modifyLinks(PSAaFolderDependent)}. Does not save the links to server until {@link
+   * #saveLinks()} is called. Returns immediately if there are no cross site links associated with
+   * the dependent items.
    */
   public void processLinks() throws PSCmsException {
     fillAaRels();
@@ -376,9 +365,9 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Save the processed links. Must be called after processing the links.
-   * Runtime exception is thrown otherwise. Returned immediately if no cross
-   * site links are associated with the dependent items in action.
+   * Save the processed links. Must be called after processing the links. Runtime exception is
+   * thrown otherwise. Returned immediately if no cross site links are associated with the dependent
+   * items in action.
    *
    * @throws PSCmsException if fails to save for any reason.
    */
@@ -420,9 +409,9 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Mark all dependent items for which the action is failed. This is done by
-   * checking each item's source folder is still the same after the action for
-   * top children in case of move and all children in case of remove action.
+   * Mark all dependent items for which the action is failed. This is done by checking each item's
+   * source folder is still the same after the action for top children in case of move and all
+   * children in case of remove action.
    *
    * @throws PSCmsException
    */
@@ -447,8 +436,8 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Generate and return the process status report XML document. This report
-   * conforms to the DTD sys_crossSiteFolderAnalysis.dtd
+   * Generate and return the process status report XML document. This report conforms to the DTD
+   * sys_crossSiteFolderAnalysis.dtd
    */
   public Document getProcessReport() {
     log.debug("Building process report...");
@@ -476,19 +465,18 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Do we have any cross site folder links that may need to be modified for
-   * the action?
+   * Do we have any cross site folder links that may need to be modified for the action?
    *
-   * @return <code>true</code> if there are some links need to be modified,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if there are some links need to be modified, <code>false</code>
+   *     otherwise.
    */
   public boolean hasCrossSiteLinks() {
     return data.isHasCrossSiteLinks();
   }
 
   /**
-   * Get all registered sites from the server. The list is cached locally.
-   * Sites are sorted by their root folder path length.
+   * Get all registered sites from the server. The list is cached locally. Sites are sorted by their
+   * root folder path length.
    *
    * @return list of registered sites, never <code>null</code> may be empty.
    * @throws PSCmsException if query fails for any reason.
@@ -543,20 +531,17 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * Set the folder id property of the supplied relationship to the supplied
-   * one. The modification is performed only if the source folderid of the
-   * supplied dependent item matches with the folderid property of the supplied
-   * relationship. The idea of this is not to touch a relationship that does
-   * not have the item's source folder as its property.
+   * Set the folder id property of the supplied relationship to the supplied one. The modification
+   * is performed only if the source folderid of the supplied dependent item matches with the
+   * folderid property of the supplied relationship. The idea of this is not to touch a relationship
+   * that does not have the item's source folder as its property.
    *
-   * @param rel relationship in which the folderid is to be set, assumed not
-   * <code>null</code>.
-   * @param depItem dependent item from where the source folderid is taken,
-   * assumed not <code>null</code>.
-   * @param newFolderId new folderid to set, may be <code>null</code> in
-   * which case an empty value is set.
-   * @return <code>true</code> if the property needed to set,
-   * <code>false</code> otherwise.
+   * @param rel relationship in which the folderid is to be set, assumed not <code>null</code>.
+   * @param depItem dependent item from where the source folderid is taken, assumed not <code>null
+   *     </code>.
+   * @param newFolderId new folderid to set, may be <code>null</code> in which case an empty value
+   *     is set.
+   * @return <code>true</code> if the property needed to set, <code>false</code> otherwise.
    */
   protected boolean setFolderId(
       PSRelationship rel, PSAaFolderDependent depItem, String newFolderId) {
@@ -571,73 +556,51 @@ public abstract class PSCrossSiteFolderActionProcessor {
   }
 
   /**
-   * List of dependent items that are being moved or removed. Initialized in
-   * {@link #buildDescendents()} and data for each item is filled during
-   * various statges of processing. Never <code>null</code>, may be empty.
+   * List of dependent items that are being moved or removed. Initialized in {@link
+   * #buildDescendents()} and data for each item is filled during various statges of processing.
+   * Never <code>null</code>, may be empty.
    */
   public List<PSAaFolderDependent> getDependentItems() {
     return data.getDependentItems();
   }
 
-  /**
-   * Logger instance to log the processing activity, never <code>null</code>.
-   */
+  /** Logger instance to log the processing activity, never <code>null</code>. */
   protected Logger log = LogManager.getLogger(this.getClass());
 
-  /**
-   * Reference to the server folder processor context, never <code>null</code>.
-   */
+  /** Reference to the server folder processor context, never <code>null</code>. */
   protected PSServerFolderProcessor m_folderProc;
 
   /**
-   * list of all sites registered with the server, never <code>null</code>
-   * may be empty.
+   * list of all sites registered with the server, never <code>null</code> may be empty.
    *
    * @see #getAllSites()
    */
   private List<IPSSite> m_allSites = null;
 
   /**
-   * Enumeration for the processor status values set/changed during varuous
-   * statges of processing. Each status is identified by a unique ordinal value
-   * and name.
+   * Enumeration for the processor status values set/changed during varuous statges of processing.
+   * Each status is identified by a unique ordinal value and name.
    */
   public static enum ProcessorStatusEnum {
-    /**
-     * Processor status indicating that the processor is not initialized yet.
-     */
+    /** Processor status indicating that the processor is not initialized yet. */
     PROCESSOR_STATUS_NONE(0, "uninitialized"),
 
-    /**
-     * Processor status indicating that the processor is not initialized yet.
-     */
+    /** Processor status indicating that the processor is not initialized yet. */
     PROCESSOR_STATUS_INITED(1, "initialized"),
 
-    /**
-     * Processor status indicating that the processor is not initialized yet.
-     */
+    /** Processor status indicating that the processor is not initialized yet. */
     PROCESSOR_STATUS_FILL(5, "fill"),
 
-    /**
-     * Processor status indicating that the processor is initialized and links
-     * are processed.
-     */
+    /** Processor status indicating that the processor is initialized and links are processed. */
     PROCESSOR_STATUS_PROCESSED(2, "links-processed"),
 
-    /**
-     * Processor status indicating that the processor has already processed
-     * the data.
-     */
+    /** Processor status indicating that the processor has already processed the data. */
     PROCESSOR_STATUS_SAVED(3, "saved");
 
-    /**
-     * Ordinal value, initialized in the ctor, and never modified.
-     */
+    /** Ordinal value, initialized in the ctor, and never modified. */
     private int mi_ordinal;
 
-    /**
-     * Status name value, initialized for in the ctor, never modified
-     */
+    /** Status name value, initialized for in the ctor, never modified */
     private String mi_statusName = null;
 
     /**
@@ -662,8 +625,7 @@ public abstract class PSCrossSiteFolderActionProcessor {
      * Ctor taking the ordinal value and name of the processor status.
      *
      * @param ord unique ordianl value for the status.
-     * @param name name of the status, must not be <code>null</code> or
-     * empty.
+     * @param name name of the status, must not be <code>null</code> or empty.
      */
     private ProcessorStatusEnum(int ord, String name) {
       mi_ordinal = ord;

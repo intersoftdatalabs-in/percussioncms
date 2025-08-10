@@ -34,11 +34,11 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 
 /**
- * An action that will move a slot item to another slot at the specified index
- * using the specified template.
- * <p>
- * Expects the following parameters:
- * </p>
+ * An action that will move a slot item to another slot at the specified index using the specified
+ * template.
+ *
+ * <p>Expects the following parameters:
+ *
  * <table border="1" cellspacing="0" cellpadding="5">
  * <thead>
  * <th>Name</th><th>Allowed Values</th><th>Details</th>
@@ -87,9 +87,9 @@ public class PSMoveToSlotAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to validate that the target slot can except the
-   * template specified or found in the relationship for the
-   * object being moved.
+   * Helper method to validate that the target slot can except the template specified or found in
+   * the relationship for the object being moved.
+   *
    * @param objectId assumed not <code>null</code>.
    * @param slotid
    * @param templateid

@@ -38,15 +38,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Gets the icon path for the items and sets it as iconPath attribute of item
- * elements in the resultDoc. Expects the item elements as direct children of
- * resultDoc with the following child elements "contentid", "revision",
- * "contentcheckoutusername" and "tiprevision". If the item is checked out by
- * the current user tip revision is used otherwise current revision is used to
- * get the icon path. The iconPath attribute value may be empty if not specified
- * on the content type corresponding to the item or if failed to obtain it.
- * Unmodified resultDoc is returned if the resultDoc does not contain expected
- * input.
+ * Gets the icon path for the items and sets it as iconPath attribute of item elements in the
+ * resultDoc. Expects the item elements as direct children of resultDoc with the following child
+ * elements "contentid", "revision", "contentcheckoutusername" and "tiprevision". If the item is
+ * checked out by the current user tip revision is used otherwise current revision is used to get
+ * the icon path. The iconPath attribute value may be empty if not specified on the content type
+ * corresponding to the item or if failed to obtain it. Unmodified resultDoc is returned if the
+ * resultDoc does not contain expected input.
  */
 public class PSGetAadItemTypeIconPaths implements IPSResultDocumentProcessor {
   /*
@@ -74,15 +72,13 @@ public class PSGetAadItemTypeIconPaths implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Creates a list of current or tip locators from the item elements of the
-   * supplied node list. Gets the contentid,revision, checkout username and
-   * tiprevision from contentid,revision,contentcheckoutusername and
-   * tiprevision elements respectively.
+   * Creates a list of current or tip locators from the item elements of the supplied node list.
+   * Gets the contentid,revision, checkout username and tiprevision from
+   * contentid,revision,contentcheckoutusername and tiprevision elements respectively.
    *
    * @param nl list of item nodes assumed not <code>]null</code>.
    * @param userName name of the logged in user.
    * @return List of locators may be empty, never <code>null</code>.
-   *
    */
   private List<PSLocator> buildLocators(NodeList nl, String userName) {
     List<PSLocator> locs = new ArrayList<>();
@@ -102,12 +98,11 @@ public class PSGetAadItemTypeIconPaths implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Gets the icon path map contentid and icon path for the supplied locators.
-   * See {@link PSItemDefManager#getContentTypeIconPaths(List)} for details.
+   * Gets the icon path map contentid and icon path for the supplied locators. See {@link
+   * PSItemDefManager#getContentTypeIconPaths(List)} for details.
    *
    * @param locs list of locators assumed not <code>null</code>.
-   * @return Map of content id and icon path, never <code>null</code> may be
-   *         empty.
+   * @return Map of content id and icon path, never <code>null</code> may be empty.
    */
   private Map<String, String> getIconPaths(List<PSLocator> locs) {
     Map<String, String> result = new HashMap<>();
@@ -136,8 +131,6 @@ public class PSGetAadItemTypeIconPaths implements IPSResultDocumentProcessor {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSGetAadItemTypeIconPaths.class);
 }

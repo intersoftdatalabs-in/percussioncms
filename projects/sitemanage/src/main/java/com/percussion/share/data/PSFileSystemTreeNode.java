@@ -22,40 +22,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A lightweight tree node meant to hold a directory tree on the file system.
- * Sunny Sal says: "Tree nodes—branching out with Java 11!"
+ * A lightweight tree node meant to hold a directory tree on the file system. Sunny Sal says: "Tree
+ * nodes—branching out with Java 11!"
  *
  * @param <T> A PSFileSystemItem
  * @author natechadwick
  */
 public class PSFileSystemTreeNode<T> implements IPSTreeNode<PSFileSystemItem> {
 
-    private IPSTreeNode<PSFileSystemItem> parent;
-    private List<IPSTreeNode<PSFileSystemItem>> children = new ArrayList<>();
-    private PSFileSystemItem value;
+  private IPSTreeNode<PSFileSystemItem> parent;
+  private List<IPSTreeNode<PSFileSystemItem>> children = new ArrayList<>();
+  private PSFileSystemItem value;
 
-    @Override
-    public IPSTreeNode<PSFileSystemItem> getParent() {
-        return parent;
-    }
+  @Override
+  public IPSTreeNode<PSFileSystemItem> getParent() {
+    return parent;
+  }
 
-    @Override
-    public void setParent(IPSTreeNode<PSFileSystemItem> node) {
-        this.parent = node;
-    }
+  @Override
+  public void setParent(IPSTreeNode<PSFileSystemItem> node) {
+    this.parent = node;
+  }
 
-    @Override
-    public List<IPSTreeNode<PSFileSystemItem>> getChildren() {
-        return children;
-    }
+  @Override
+  public List<IPSTreeNode<PSFileSystemItem>> getChildren() {
+    return children;
+  }
 
-    @Override
-    public PSFileSystemItem getValue() {
-        return value;
-    }
+  @Override
+  public PSFileSystemItem getValue() {
+    return value;
+  }
 
-    @Override
-    public void setValue(PSFileSystemItem val) {
-        value = val;
-    }
+  @Override
+  public void setValue(PSFileSystemItem val) {
+    value = val;
+  }
 }

@@ -22,12 +22,10 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 
 /**
- * Data holder for site configuration information.
- * This object holds the actual data returned from the
- * Site Edition lookup service.
+ * Data holder for site configuration information. This object holds the actual data returned from
+ * the Site Edition lookup service.
  *
  * @author davidbenua
- *
  */
 public class SiteEditionHolder {
   private IPSSite site;
@@ -35,13 +33,12 @@ public class SiteEditionHolder {
   private IPSPublishingContext context;
   private String contextURLRootVar;
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public SiteEditionHolder() {}
 
   /**
    * Gets the preview site
+   *
    * @return the preview site.
    */
   public IPSSite getSite() {
@@ -50,6 +47,7 @@ public class SiteEditionHolder {
 
   /**
    * Sets the preview site
+   *
    * @param site the preview site to set.
    */
   public void setSite(IPSSite site) {
@@ -58,6 +56,7 @@ public class SiteEditionHolder {
 
   /**
    * Gets the edition to publish.
+   *
    * @return the edition to publish.
    */
   public IPSEdition getEdition() {
@@ -66,6 +65,7 @@ public class SiteEditionHolder {
 
   /**
    * Sets the edition.
+   *
    * @param edition the edition to set.
    */
   public void setEdition(IPSEdition edition) {
@@ -74,6 +74,7 @@ public class SiteEditionHolder {
 
   /**
    * Gets the assembly context.
+   *
    * @return the context
    */
   public IPSPublishingContext getContext() {
@@ -82,6 +83,7 @@ public class SiteEditionHolder {
 
   /**
    * Sets the assembly context.
+   *
    * @param context the context to set
    */
   public void setContext(IPSPublishingContext context) {

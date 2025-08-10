@@ -32,20 +32,16 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents a single search field used in a given search/view.
- */
+/** Represents a single search field used in a given search/view. */
 public class PSSearchField extends PSDbComponent implements IPSSequencedComponent {
-  /**
-   * Creates the key required by the super.
-   */
+  /** Creates the key required by the super. */
   private PSSearchField() {
     super(new PSKey(new String[] {KEY_COL_FIELDNAME, KEY_COL_SEARCHID}));
   }
 
   /**
-   * Required if object needs to be contained within
-   * {@link com.percussion.cms.objectstore.PSDbComponentCollection}
+   * Required if object needs to be contained within {@link
+   * com.percussion.cms.objectstore.PSDbComponentCollection}
    */
   public PSSearchField(Element src) throws PSUnknownNodeTypeException, PSCmsException {
     this();
@@ -55,11 +51,10 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Creates the key for this component.
    *
-   * @param fieldName the name of the field, it may be <code>null</code>
-   *    or empty if creating an empty key.
-   * @param searchId the (parent/search) id. It is not used if the
-   *    fieldName is <code>null</code> or empty.
-   *
+   * @param fieldName the name of the field, it may be <code>null</code> or empty if creating an
+   *     empty key.
+   * @param searchId the (parent/search) id. It is not used if the fieldName is <code>null</code> or
+   *     empty.
    * @return the created key with persisted state, never <code>null</code>.
    */
   public static PSKey createKey(String fieldName, int searchId) {
@@ -75,13 +70,10 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    * Standard ctor.
    *
    * @param strName. The fieldName. Never <code>null</code> or empty.
-   *
-   * @param strLabel. The field label. May be <code>null</code> or empty,
-   *    if so, this defaults to <code>strName</code>.
-   *
-   * @param strType. The type. Never <code>null</code> or empty.
-   *    See description <code>m_strFieldType</code>.
-   *
+   * @param strLabel. The field label. May be <code>null</code> or empty, if so, this defaults to
+   *     <code>strName</code>.
+   * @param strType. The type. Never <code>null</code> or empty. See description <code>
+   *     m_strFieldType</code>.
    * @param strDesc. The description. May be <code>null</code> or empty.
    */
   public PSSearchField(
@@ -249,35 +241,32 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Get the field's name.
    *
-   * @return the field name, never <code>null</code> or
-   *    empty.
+   * @return the field name, never <code>null</code> or empty.
    */
   public String getFieldName() {
     return m_strFieldName;
   }
 
   /**
-   * Get the operator used for internal searches. If the operator is
-   * <code>OP_BETWEEN</code> or <code>OP_IN</code> then the result of
-   * {@link #getFieldValues()} will return multiple strings. If the operator is
-   * any other valid operator defined as the constant <code>OP_xxx</code> the
-   * result of {@link #getFieldValue()} will return a single string.  This
-   * operator is ignored if {@link #usesExternalOperator()} returns <code>
+   * Get the operator used for internal searches. If the operator is <code>OP_BETWEEN</code> or
+   * <code>OP_IN</code> then the result of {@link #getFieldValues()} will return multiple strings.
+   * If the operator is any other valid operator defined as the constant <code>OP_xxx</code> the
+   * result of {@link #getFieldValue()} will return a single string. This operator is ignored if
+   * {@link #usesExternalOperator()} returns <code>
    * true</code>.
    *
-   * @return The operator, never <code>null</code>, may be empty if an external
-   * operator was supplied.
+   * @return The operator, never <code>null</code>, may be empty if an external operator was
+   *     supplied.
    */
   public String getOperator() {
     return m_strOperator;
   }
 
   /**
-   * Get the operator used for searches against the external search engine
-   * configured on the server.
+   * Get the operator used for searches against the external search engine configured on the server.
    *
-   * @return The operator, will be empty if {@link #usesExternalOperator()}
-   * returns <code>false</code>, never <code>null</code>.
+   * @return The operator, will be empty if {@link #usesExternalOperator()} returns <code>false
+   *     </code>, never <code>null</code>.
    */
   public String getExternalOperator() {
     return m_extOperator;
@@ -287,25 +276,21 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    * Tests whether this value is a valid operator.
    *
    * @param op Any value is allowed, including <code>null</code>.
-   *
-   * @return <code>true</code> if it is one of the OP_xxx values (case
-   *    insensitive), otherwise <code>false</code>.
+   * @return <code>true</code> if it is one of the OP_xxx values (case insensitive), otherwise
+   *     <code>false</code>.
    */
   public boolean isValidOperator(String op) {
     return (normalizeOperator(op) != null);
   }
 
   /**
-   * Normalize the supplied operator to the correct case.  Operator values are
-   * compared case-insensitively to allowable values, so this method can be
-   * used to get the normalized (case-sensitive) match for the supplied
-   * operator (one of the <code>OP_XXX</code> values).
+   * Normalize the supplied operator to the correct case. Operator values are compared
+   * case-insensitively to allowable values, so this method can be used to get the normalized
+   * (case-sensitive) match for the supplied operator (one of the <code>OP_XXX</code> values).
    *
    * @param op The operator to normalize, may be <code>null</code> or empty.
-   *
-   * @return The normalized operator value, or <code>null</code> if the
-   * supplied <code>op</code> is <code>null</code> or empty, or if a match with
-   * a valid operator value is not found.
+   * @return The normalized operator value, or <code>null</code> if the supplied <code>op</code> is
+   *     <code>null</code> or empty, or if a match with a valid operator value is not found.
    */
   private String normalizeOperator(String op) {
     String normalOp = null;
@@ -341,10 +326,9 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Set the field's operator.
    *
-   * @param str never <code>null</code> or empty. Must be one of the
-   * <code>OP_XXX</code> values. If {@link #usesExternalOperator()} returns
-   * <code>true</code>, this value is ignored.  The value supplied is
-   * compared case-insensitively to select the correct allowable value.
+   * @param str never <code>null</code> or empty. Must be one of the <code>OP_XXX</code> values. If
+   *     {@link #usesExternalOperator()} returns <code>true</code>, this value is ignored. The value
+   *     supplied is compared case-insensitively to select the correct allowable value.
    */
   public void setOperator(String str) {
     if (str == null || str.trim().length() == 0)
@@ -366,13 +350,12 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Set the field's external operator.  This will cause this field to be
-   * searched using the external search engine configured on the server.
-   * May supply a <code>null</code> or empty value to clear this value and
-   * cause the field to be searched with the server's internal search engine.
+   * Set the field's external operator. This will cause this field to be searched using the external
+   * search engine configured on the server. May supply a <code>null</code> or empty value to clear
+   * this value and cause the field to be searched with the server's internal search engine.
    *
-   * @param str may be <code>null</code> or empty, if not null its length may
-   * not exceed {@link #OPERATOR_LENGTH}.
+   * @param str may be <code>null</code> or empty, if not null its length may not exceed {@link
+   *     #OPERATOR_LENGTH}.
    */
   public void setExternalOperator(String str) {
     if (str == null) str = "";
@@ -388,21 +371,19 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Determine if an external operator has been specified, causing this field
-   * to be searched using the external search engine configured on the server.
+   * Determine if an external operator has been specified, causing this field to be searched using
+   * the external search engine configured on the server.
    *
-   * @return <code>true</code> if one has been specified, <code>false</code>
-   * if not.
+   * @return <code>true</code> if one has been specified, <code>false</code> if not.
    */
   public boolean usesExternalOperator() {
     return m_extOperator.trim().length() > 0;
   }
 
   /**
-   * The position of this field relative to other fields being used for
-   * searching. Fields are sequenced from left to right or top to bottom,
-   * with the first index being 0. Defaults to 0. The order of columns that
-   * have the same sequence value is implmenentation dependent.
+   * The position of this field relative to other fields being used for searching. Fields are
+   * sequenced from left to right or top to bottom, with the first index being 0. Defaults to 0. The
+   * order of columns that have the same sequence value is implmenentation dependent.
    *
    * @return A value >= 0.
    */
@@ -435,8 +416,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    * Set the field's value.
    *
    * @param must be one of the following values.
-   *
-   * <table>
+   *     <table>
    *    <tr>
    *       <th>Name</th>
    *       <th>Description</th>
@@ -476,8 +456,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Tests whether the supplied type is valid or not
    *
-   * @return <code>true</code> if its a valid type, otherwise
-   *    <code>false</code>
+   * @return <code>true</code> if its a valid type, otherwise <code>false</code>
    */
   public boolean isValidFieldType(String str) {
     String[] container = new String[] {TYPE_TEXT, TYPE_NUMBER, TYPE_DATE};
@@ -498,8 +477,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
 
   /**
    * Convenience method. Nearly equivalent to calling {@link #getFieldValues()
-   * getFieldValues().get(0)}. Differs if operator is OP_IS[NOT]NULL. In that
-   * case, returns "" where getFieldValues() would return an empty list.
+   * getFieldValues().get(0)}. Differs if operator is OP_IS[NOT]NULL. In that case, returns "" where
+   * getFieldValues() would return an empty list.
    *
    * @return Never <code>null</code> may be empty
    */
@@ -508,16 +487,16 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * The content that is used on the RHS of the WHERE clause. If the operator
-   * for this field is OP_[NOT]IN, or if an external operator was supplied
-   * (using one of the <code>setExternalFieldValue(s)</code> methods), then
-   * there can be from 1 to n entries. If OP_[NOT]BETWEEN, there will be
-   * exactly 2 entries. OP_IS[NOT]NULL will have exactly 0 entries.  All other
-   * operators will have exactly 1 entry. <p>No entry will ever be
-   * <code>null</code>, but they may be empty.
+   * The content that is used on the RHS of the WHERE clause. If the operator for this field is
+   * OP_[NOT]IN, or if an external operator was supplied (using one of the <code>
+   * setExternalFieldValue(s)</code> methods), then there can be from 1 to n entries. If
+   * OP_[NOT]BETWEEN, there will be exactly 2 entries. OP_IS[NOT]NULL will have exactly 0 entries.
+   * All other operators will have exactly 1 entry.
    *
-   * @return List of Strings, never <code>null</code>, may be empty. The
-   *    caller takes ownership of the returned list.
+   * <p>No entry will ever be <code>null</code>, but they may be empty.
+   *
+   * @return List of Strings, never <code>null</code>, may be empty. The caller takes ownership of
+   *     the returned list.
    */
   public List<String> getFieldValues() {
     List<String> result = new ArrayList<>();
@@ -528,17 +507,15 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Set the field's operator and values. It's the responsibility of the
-   * caller to trim values if they don't want leading/trailing white space.
+   * Set the field's operator and values. It's the responsibility of the caller to trim values if
+   * they don't want leading/trailing white space.
    *
-   * @param op One of the <code>OP_xxx</code> values.  The value supplied is
-   * compared case-insensitively to select the correct allowable value.
-   *
-   * @param values What is used depends on the operator. The operator will
-   *    read values from the supplied list until it has fulfilled its need or
-   *    the end of the list is reached. If values is <code>null</code>, then
-   *    empty values will be used. If any entry is <code>null</code>, then
-   *    an empty value will be used.
+   * @param op One of the <code>OP_xxx</code> values. The value supplied is compared
+   *     case-insensitively to select the correct allowable value.
+   * @param values What is used depends on the operator. The operator will read values from the
+   *     supplied list until it has fulfilled its need or the end of the list is reached. If values
+   *     is <code>null</code>, then empty values will be used. If any entry is <code>null</code>,
+   *     then an empty value will be used.
    */
   public void setFieldValues(String op, List<String> values) {
     if (op == null || op.trim().length() == 0)
@@ -551,8 +528,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Convenience method, equivalent to calling {@link #setFieldValues(String,
-   * List) setFieldValues(op, (new ArrayList()).add(value))}.
+   * Convenience method, equivalent to calling {@link #setFieldValues(String, List)
+   * setFieldValues(op, (new ArrayList()).add(value))}.
    */
   public void setFieldValue(String op, String value) {
     // Validate value length
@@ -566,18 +543,16 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Set the field's operator and values to use when searching against an
-   * external search engine. It's the responsibility of the
-   * caller to trim values if they don't want leading/trailing white space.
+   * Set the field's operator and values to use when searching against an external search engine.
+   * It's the responsibility of the caller to trim values if they don't want leading/trailing white
+   * space.
    *
-   * @param extOp The external operator, may not be <code>null</code> or empty.
-   * Possible values are defined by the search engine configured on the server.
-   *
-   * @param values What is used depends on the operator. The operator will
-   *    read values from the supplied list until it has fulfilled its need or
-   *    the end of the list is reached. If values is <code>null</code>, then
-   *    empty values will be used. If any entry is <code>null</code>, then
-   *    an empty value will be used.
+   * @param extOp The external operator, may not be <code>null</code> or empty. Possible values are
+   *     defined by the search engine configured on the server.
+   * @param values What is used depends on the operator. The operator will read values from the
+   *     supplied list until it has fulfilled its need or the end of the list is reached. If values
+   *     is <code>null</code>, then empty values will be used. If any entry is <code>null</code>,
+   *     then an empty value will be used.
    */
   public void setExternalFieldValues(String extOp, List<String> values) {
     if (extOp == null || extOp.trim().length() == 0)
@@ -587,8 +562,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Convenience method, equivalent to calling
-   * {@link #setExternalFieldValues(String, List)
+   * Convenience method, equivalent to calling {@link #setExternalFieldValues(String, List)
    * setExternalFieldValues(extOp, (new ArrayList()).add(value))}.
    */
   public void setExternalFieldValue(String extOp, String value) {
@@ -633,8 +607,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Set a new mnemonic character.
    *
-   * @param mnemonic the new mnemonic character, may be <code>null</code> or
-   *    empty, it's size must be <= 1.
+   * @param mnemonic the new mnemonic character, may be <code>null</code> or empty, it's size must
+   *     be <= 1.
    */
   public void setMnemonic(String mnemonic) {
     if (mnemonic == null) mnemonic = "";
@@ -647,8 +621,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Get the mnemonic.
    *
-   * @return the mnemonic string, never <code>null</code> may be empty,
-   *    it's size is always <= 1.
+   * @return the mnemonic string, never <code>null</code> may be empty, it's size is always <= 1.
    */
   public String getMnemonic() {
     return m_mnemonic;
@@ -677,8 +650,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Set the field's description.
    *
-   * @param str may be <code>null</code> to
-   * specify the empty string.
+   * @param str may be <code>null</code> to specify the empty string.
    */
   public void setFieldDescription(String str) {
     if (str == null) str = "";
@@ -696,8 +668,8 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   }
 
   /**
-   * Because the field name is immutable, this method will not transfer that
-   * property. See base class for further details.
+   * Because the field name is immutable, this method will not transfer that property. See base
+   * class for further details.
    */
   public void copyFrom(IPSDbComponent src) {
     // Threshold - base class handling
@@ -771,8 +743,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Determine if this field has a list of keywords specified.
    *
-   * @return <code>true</code> if they are specified, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if they are specified, <code>false</code> otherwise.
    */
   public boolean hasDisplayChoices() {
     return m_choices != null;
@@ -780,11 +751,11 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
 
   /**
    * Sets the choices to use for keyword entries for this field.
-   * <p>
-   * Note, this is transient data, it will not be saved into the database.
    *
-   * @param choices The display choices to use for keyword support, may be
-   * <code>null</code> to clear the choices.
+   * <p>Note, this is transient data, it will not be saved into the database.
+   *
+   * @param choices The display choices to use for keyword support, may be <code>null</code> to
+   *     clear the choices.
    */
   public void setDisplayChoices(PSDisplayChoices choices) {
     m_choices = choices;
@@ -792,32 +763,27 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
 
   /**
    * Get the keyword choices for this field.
-   * <p>
-   * Note, this is transient data, it will not be saved into the database.
    *
-   * @return The display choices object, may be <code>null</code> if
-   * this field does not support keywords.
+   * <p>Note, this is transient data, it will not be saved into the database.
+   *
+   * @return The display choices object, may be <code>null</code> if this field does not support
+   *     keywords.
    */
   public PSDisplayChoices getDisplayChoices() {
     return m_choices;
   }
 
   /**
-   * Just like {@link #setFieldValues(String,List)}, except it doesn't set
-   * the dirty flag, it returns a boolean indicating whether this operation
-   * changed the state of this instance.
+   * Just like {@link #setFieldValues(String,List)}, except it doesn't set the dirty flag, it
+   * returns a boolean indicating whether this operation changed the state of this instance.
    *
-   * @param op Assumed to be a valid operator if supplied.  May be
-   * <code>null</code> or empty if <code>extOp</code> is not <code>null</code>
-   * or empty, in which case it is ignored.
-   * @param extOp An operator to use to search using an external search engine,
-   * may be <code>null</code> or empty if not using an external engine to
-   * search on this field.
-   * @param values A list of objects to use as the value, may be
-   * <code>null</code> or empty, may contain null values.
-   *
-   * @return <code>true</code> if the state changed due to this call,
-   *    <code>false</code> otherwise.
+   * @param op Assumed to be a valid operator if supplied. May be <code>null</code> or empty if
+   *     <code>extOp</code> is not <code>null</code> or empty, in which case it is ignored.
+   * @param extOp An operator to use to search using an external search engine, may be <code>null
+   *     </code> or empty if not using an external engine to search on this field.
+   * @param values A list of objects to use as the value, may be <code>null</code> or empty, may
+   *     contain null values.
+   * @return <code>true</code> if the state changed due to this call, <code>false</code> otherwise.
    */
   private boolean setValues(String op, String extOp, List<String> values) {
     op = normalizeOperator(op);
@@ -905,7 +871,7 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
   /**
    * Get the field's name.
    *
-   * @return the field name, never <code>null</code> or  <code>empty</code>.
+   * @return the field name, never <code>null</code> or <code>empty</code>.
    */
   public String toString() {
     return m_strFieldName;
@@ -962,62 +928,51 @@ public class PSSearchField extends PSDbComponent implements IPSSequencedComponen
    *       <td>Date value</td>
    *    </tr>
    * </table>
+   *
    * Defaults to TYPE_TEXT.
    */
   private String m_strFieldType = TYPE_TEXT;
 
   /**
-   * See {@link #getFieldValues()} for description. Never <code>null</code>,
-   * may be empty. The max size of the list is determined by the operator.
-   * Note: ArrayList is used because we need to call clone on m_values.
+   * See {@link #getFieldValues()} for description. Never <code>null</code>, may be empty. The max
+   * size of the list is determined by the operator. Note: ArrayList is used because we need to call
+   * clone on m_values.
    */
   private ArrayList<String> m_values = new ArrayList<>();
 
-  /**
-   * Display name. Initialized in definition, never <code>null</code>
-   * or empty.
-   */
+  /** Display name. Initialized in definition, never <code>null</code> or empty. */
   private String m_strDisplayName = "";
 
   /**
-   * Field name. Initialized in definition, never <code>null</code>
-   * or empty, part of primary key.
+   * Field name. Initialized in definition, never <code>null</code> or empty, part of primary key.
    */
   private String m_strFieldName = "";
 
   /**
-   * Operator attribute must be one of the following contansts beginning
-   * with OP_xxx. Defaults to <code>OP_LIKE</code>.  May be emtpy if
-   * if {@link #m_extOperator} is not empty, never <code>null</code>.  Modified
-   * by {@link #setValues(String, String, List)}.
+   * Operator attribute must be one of the following contansts beginning with OP_xxx. Defaults to
+   * <code>OP_LIKE</code>. May be emtpy if if {@link #m_extOperator} is not empty, never <code>null
+   * </code>. Modified by {@link #setValues(String, String, List)}.
    */
   private String m_strOperator = OP_LIKE;
 
   /**
-   * External operator supplied if using an external search engine to search on
-   * this field.  Never <code>null</code>, may be empty if not using an
-   * external engine to search on this field.  Modified by
-   * {@link #setValues(String, String, List)}.
+   * External operator supplied if using an external search engine to search on this field. Never
+   * <code>null</code>, may be empty if not using an external engine to search on this field.
+   * Modified by {@link #setValues(String, String, List)}.
    */
   private String m_extOperator = "";
 
-  /**
-   * See {@link #getPosition()} for details.
-   */
+  /** See {@link #getPosition()} for details. */
   private int m_sequence = 0;
 
   /**
-   * The display choices object representing keyword choices for this field.
-   * Modified by calls to <code>setDisplayChoices()</code>, may be
-   * <code>null</code>.  This object is not persisted when this field is
-   * saved.
+   * The display choices object representing keyword choices for this field. Modified by calls to
+   * <code>setDisplayChoices()</code>, may be <code>null</code>. This object is not persisted when
+   * this field is saved.
    */
   private PSDisplayChoices m_choices = null;
 
-  /**
-   * The menmonic character. Initialized in constructor, never
-   * <code>null</code>, may be empty.
-   */
+  /** The menmonic character. Initialized in constructor, never <code>null</code>, may be empty. */
   private String m_mnemonic = "";
 
   // public static defines for allowable operators as

@@ -24,56 +24,50 @@ import java.util.List;
 
 public class PropertyData implements Serializable {
 
-    /**
-     * Safe to serialize
-     */
-    private static final long serialVersionUID = 428038730570607863L;
-    
-    private List<ValueData> values;
-    
-    private boolean multiple;
-    
-    private String name;
-    
+  /** Safe to serialize */
+  private static final long serialVersionUID = 428038730570607863L;
 
-    /**
-     * Constructor for Serializers.
-     */
-    public PropertyData() { }
-    
-    /**
-     * Constructor for Single value property.
-     * @param data
-     */
-    public PropertyData(ValueData data) {
-        if ((data) == null) throw new IllegalArgumentException("Value Data cannot be null");
-        multiple = false;
-        values = singletonList(data);
-    }
-    
-    
-    public boolean isMultiple() {
-        return multiple;
-    }
+  private List<ValueData> values;
 
-    public void setMultiple(boolean multiple) {
-        this.multiple = multiple;
-    }
+  private boolean multiple;
 
-    public List<ValueData> getValues() {
-        return values;
-    }
+  private String name;
 
-    public void setValues(List<ValueData> values) {
-        this.values = values;
-    }
+  /** Constructor for Serializers. */
+  public PropertyData() {}
 
-    public String getName() {
-        return name;
-    }
+  /**
+   * Constructor for Single value property.
+   *
+   * @param data
+   */
+  public PropertyData(ValueData data) {
+    if ((data) == null) throw new IllegalArgumentException("Value Data cannot be null");
+    multiple = false;
+    values = singletonList(data);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public boolean isMultiple() {
+    return multiple;
+  }
 
+  public void setMultiple(boolean multiple) {
+    this.multiple = multiple;
+  }
+
+  public List<ValueData> getValues() {
+    return values;
+  }
+
+  public void setValues(List<ValueData> values) {
+    this.values = values;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
 }

@@ -22,13 +22,9 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
-/**
- * Implementation of the get root folders action.
- */
+/** Implementation of the get root folders action. */
 public class PSGetRootFoldersAction extends PSAAActionBase {
-  /**
-   * todo document the required and optional parameters in the map.
-   */
+  /** todo document the required and optional parameters in the map. */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {
       return new PSActionResponse(

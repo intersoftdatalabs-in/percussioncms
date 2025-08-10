@@ -40,14 +40,11 @@ public class PSPageLinkText extends PSSimpleJavaUdfExtension implements IPSUdfPr
   /**
    * Executes the UDF with the specified parameters and request context.
    *
-   * @param params The parameter values of the exit, it is not used. It may be
-   *    <code>null</code> or empty.
-   *
-   * @param request The current request context. It may not be
-   *    <code>null</code>.
-   *
+   * @param params The parameter values of the exit, it is not used. It may be <code>null</code> or
+   *     empty.
+   * @param request The current request context. It may not be <code>null</code>.
    * @return it returns the pagelinketext value for the pageid if the pageid exists in the request
-   * otherwise returns empty string
+   *     otherwise returns empty string
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

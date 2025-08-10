@@ -28,21 +28,19 @@ import java.io.File;
 
 /**
  * @author dougrand
- *
- * This exit modifies the user's community based on the parameters passed into
- * the pre-exit. The user's community is modified if:
- * <ul>
- * <li>The bypass flag (param 0) does not have the value "true". This is
- * set to true for portals or other circumstances when the user community
- * should not be modified.
- * <li>The passed community is different from the user's current community.
- * <li>The user has the passed community in the list of possible communities.
- * </ul>
+ *     <p>This exit modifies the user's community based on the parameters passed into the pre-exit.
+ *     The user's community is modified if:
+ *     <ul>
+ *       <li>The bypass flag (param 0) does not have the value "true". This is set to true for
+ *           portals or other circumstances when the user community should not be modified.
+ *       <li>The passed community is different from the user's current community.
+ *       <li>The user has the passed community in the list of possible communities.
+ *     </ul>
  */
 public class PSModifyCommunity implements IPSRequestPreProcessor {
   /**
-   * The name of this extension, defined in the {@link #init(IPSExtensionDef,
-   * File) init} method and never modified after.
+   * The name of this extension, defined in the {@link #init(IPSExtensionDef, File) init} method and
+   * never modified after.
    */
   private static String ms_fullExtensionName = null;
 

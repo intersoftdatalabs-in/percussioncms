@@ -23,10 +23,10 @@ import java.io.File;
 import org.w3c.dom.Document;
 
 /**
- * The PSSetCookieExtension class implements extension handling for the
- * setCookie simple action extension. This extension associates a cookie with the
- * results to be returned to the requestor. Several attributes are associated
- * with the cookie:
+ * The PSSetCookieExtension class implements extension handling for the setCookie simple action
+ * extension. This extension associates a cookie with the results to be returned to the requestor.
+ * Several attributes are associated with the cookie:
+ *
  * <table border="1">
  * <tr><th>Parameter</th><th>Description</th></tr>
  * <tr><td>PSXName</td>
@@ -54,7 +54,9 @@ import org.w3c.dom.Document;
  *          established. When set to "0" or "", any connection type
  *          is acceptable.</td></tr>
  * </table>
+ *
  * A sample usage is:
+ *
  * <table border="1">
  * <tr><th>Parameter</th><th>Value</th></tr>
  * <tr><td>PSXName</td>    <td>"MySessId2"</td></tr>
@@ -64,39 +66,33 @@ import org.w3c.dom.Document;
  * <tr><td>PSXPath</td>    <td>"/"</td></tr>
  * <tr><td>PSXSecure</td>   <td>"1"</td></tr>
  * </table>
- * This will associate the cookie named MySessId2 with all
- * requests on the www.percussion.com web server. The cookie will
- * only be sent over secure (SSL) connections. It has a value of
- * 1001 and will expire on December 31, 1999 at 11:59:00 pm.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * This will associate the cookie named MySessId2 with all requests on the www.percussion.com web
+ * server. The cookie will only be sent over secure (SSL) connections. It has a value of 1001 and
+ * will expire on December 31, 1999 at 11:59:00 pm.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSetCookieExtension implements IPSResultDocumentProcessor {
   /* *************  IPSExtension Interface Implementation ************* */
 
-  /**
-   * No-op
-   */
+  /** No-op */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /* *******  IPSResultDocumentProcessor Interface Implementation ******* */
-  /**
-   * Return false, this extension can not modify the style sheet.
-   */
+  /** Return false, this extension can not modify the style sheet. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   * Associates a cookie with this response. The result XML document is
-   * not modified in any way.
+   * Associates a cookie with this response. The result XML document is not modified in any way.
    *
-   * @param      params      the parameters needed for this extension are
-   *                         shown in the table below
-   * <P>
-   * <table border="1">
+   * @param params the parameters needed for this extension are shown in the table below
+   *     <p>
+   *     <table border="1">
    * <tr><th>Parameter</th><th>Description</th></tr>
    * <tr><td>PSXName</td>
    *     <td>(required) the name of the cookie</td></tr>
@@ -124,14 +120,11 @@ public class PSSetCookieExtension implements IPSResultDocumentProcessor {
    *          is acceptable.</td></tr>
    * </table>
    *
-   * @param      rc          the context of the request associated with this extension
-   *
-   * @param      resultDoc   the result XML document
-   *
-   * @return                     <code>resultDoc</code> is always returned
-   *
-   * @throws  PSParameterMismatchException  if the parameter number is incorrect
-   * @throws  PSExtensionProcessingException      if the first two parameters are <code>null</code>
+   * @param rc the context of the request associated with this extension
+   * @param resultDoc the result XML document
+   * @return <code>resultDoc</code> is always returned
+   * @throws PSParameterMismatchException if the parameter number is incorrect
+   * @throws PSExtensionProcessingException if the first two parameters are <code>null</code>
    */
   public Document processResultDocument(Object[] params, IPSRequestContext rc, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

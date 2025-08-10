@@ -29,11 +29,9 @@ import org.apache.tools.ant.BuildException;
 /**
  * PSConfigurePort is a task which configures the rhythmyx port.
  *
- * The port information is configured in server.xml of the jboss-web.deployer.
+ * <p>The port information is configured in server.xml of the jboss-web.deployer. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -51,7 +49,6 @@ import org.apache.tools.ant.BuildException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSConfigurePort extends PSAction {
   // see base class
@@ -108,16 +105,12 @@ public class PSConfigurePort extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /**
-   * Accessor for the server properties location
-   */
+  /** Accessor for the server properties location */
   public static String getServerPropsLocation() {
     return ms_strServerPropsLocation;
   }
 
-  /**
-   * Accessor for the server port
-   */
+  /** Accessor for the server port */
   public String getServerPort() {
     if (m_strServerPort == null || m_strServerPort.trim().equals("")) {
       m_strServerPort = "9992";
@@ -125,9 +118,7 @@ public class PSConfigurePort extends PSAction {
     return m_strServerPort;
   }
 
-  /**
-   * Mutator for the server port.
-   */
+  /** Mutator for the server port. */
   public void setServerPort(String strServerPort) {
     m_strServerPort = strServerPort;
   }
@@ -136,28 +127,18 @@ public class PSConfigurePort extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   * The server properties location, relative to the Rhythmyx root.
-   */
+  /** The server properties location, relative to the Rhythmyx root. */
   private static String ms_strServerPropsLocation = "rxconfig/Server/server.properties";
 
-  /**
-   * The server port.
-   */
+  /** The server port. */
   private String m_strServerPort = "";
 
-  /**
-   * The default rhythmyx port in jboss
-   */
+  /** The default rhythmyx port in jboss */
   private static final String RX_PORT_JBOSS = "8080";
 
-  /**
-   * The default rhythmyx port
-   */
+  /** The default rhythmyx port */
   private static final String RX_PORT = "9992";
 
-  /**
-   * The port property name in server.properties
-   */
+  /** The port property name in server.properties */
   protected static final String SERVER_PORT = "bindPort";
 }

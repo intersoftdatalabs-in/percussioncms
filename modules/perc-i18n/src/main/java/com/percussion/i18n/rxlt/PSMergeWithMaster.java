@@ -30,28 +30,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class handles the process of merging a translated TMX document with that
- * on Rhythmyx Server. Uses a specific merge configuration document while merging.
+ * This class handles the process of merging a translated TMX document with that on Rhythmyx Server.
+ * Uses a specific merge configuration document while merging.
  */
 public class PSMergeWithMaster extends PSIdleDotter implements IPSActionHandler {
   /**
-   * Name of the merge configuration file to be used while merging the local
-   * TMX document with that on the server.
+   * Name of the merge configuration file to be used while merging the local TMX document with that
+   * on the server.
    */
   static final String MERGE_CONFIG_FILE = "configmergewithmaster.xml";
 
   /**
-   * DOM document of the merge configuration file to be used while merging the
-   * local TMX document with that on the server. Initialized in the constructor.
-   * Never <code>null</code> after that.
+   * DOM document of the merge configuration file to be used while merging the local TMX document
+   * with that on the server. Initialized in the constructor. Never <code>null</code> after that.
    */
   protected Document m_DocConifigMergeWithMaster = null;
 
   /**
-   * Constructor. Initializes the merge configuration document by loading from
-   * the JAR file.
-   * @throws PSActionProcessingException if the configuration document could
-   * not be loaded from the jar file
+   * Constructor. Initializes the merge configuration document by loading from the JAR file.
+   *
+   * @throws PSActionProcessingException if the configuration document could not be loaded from the
+   *     jar file
    */
   public PSMergeWithMaster() throws PSActionProcessingException {
     try {

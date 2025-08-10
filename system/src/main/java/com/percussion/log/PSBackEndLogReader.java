@@ -33,23 +33,21 @@ import java.util.Date;
 import javax.naming.NamingException;
 
 /**
- * The PSBackEndLogReader class implements reading log entries from
- * a back-end data store.
+ * The PSBackEndLogReader class implements reading log entries from a back-end data store.
  *
- * @see        PSBackEndLogWriter
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSBackEndLogWriter
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndLogReader implements IPSLogReader {
 
   /**
-   * Construct a back-end log reader. This is given package access with the
-   * intent that only the PSLogManager object will instantiate it.
+   * Construct a back-end log reader. This is given package access with the intent that only the
+   * PSLogManager object will instantiate it.
+   *
    * @throws SQLException if the back-end table cannot be accessed
-   * @throws NamingException If the default connection details cannot be
-   * obtained.
+   * @throws NamingException If the default connection details cannot be obtained.
    */
   PSBackEndLogReader() throws SQLException, NamingException {
 
@@ -80,8 +78,8 @@ public class PSBackEndLogReader implements IPSLogReader {
   /* **************  IPSLogReader Interface Implementation ************** */
 
   /**
-   * Close the log reader. This should only be called when it is no longer
-   * needed. Any subsequent use of this object will throw an exception.
+   * Close the log reader. This should only be called when it is no longer needed. Any subsequent
+   * use of this object will throw an exception.
    */
   public synchronized void close() {
     PSConsole.printMsg(ms_subsystem, "Back end log reader closing upon request.");
@@ -98,7 +96,6 @@ public class PSBackEndLogReader implements IPSLogReader {
 
   /**
    * @return true if the writer is open, false otherwise
-   *
    */
   public synchronized boolean isOpen() {
     try {
@@ -108,9 +105,7 @@ public class PSBackEndLogReader implements IPSLogReader {
     return false;
   }
 
-  /**
-   * Fail-safe re-opening. To be used by PSLogManager only
-   */
+  /** Fail-safe re-opening. To be used by PSLogManager only */
   protected synchronized boolean internalOpen() throws SQLException {
     if (isOpen()) return true;
 
@@ -136,10 +131,8 @@ public class PSBackEndLogReader implements IPSLogReader {
   /**
    * Read log messages using the specified filter.
    *
-   * @param      filter                  the log message filter
-   *
-   * @exception  IllegalStateException   if close has already been called
-   *                                     on this reader
+   * @param filter the log message filter
+   * @exception IllegalStateException if close has already been called on this reader
    */
   public synchronized void read(IPSLogReaderFilter filter) throws IllegalStateException {
     if (!isOpen()) throw new IllegalStateException("cannot read from a closed log reader");
@@ -468,21 +461,20 @@ public class PSBackEndLogReader implements IPSLogReader {
   }
 
   /**
-   * The connection detail, initialized during construction, only
-   * <code>null</code> after if there was an error obtaining the detail.
+   * The connection detail, initialized during construction, only <code>null</code> after if there
+   * was an error obtaining the detail.
    */
   private PSConnectionDetail m_connDetails = null;
 
   /**
-   * The JDBC connection to the database.  Created in the
-   * <code>internalOpen</code> method and kept open and reused until the log
-   * reader is closed.
+   * The JDBC connection to the database. Created in the <code>internalOpen</code> method and kept
+   * open and reused until the log reader is closed.
    */
   private Connection m_con = null;
 
   /**
-   * The join formatter associated with the back end, since
-   * we use a left outer join for the log query.
+   * The join formatter associated with the back end, since we use a left outer join for the log
+   * query.
    */
   private PSJoinFormatter m_joinFormatter;
 

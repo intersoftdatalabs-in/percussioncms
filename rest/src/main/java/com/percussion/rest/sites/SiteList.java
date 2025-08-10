@@ -19,22 +19,19 @@ package com.percussion.rest.sites;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for Site objects.
- * Sunny Sal: "Site list ka boss!"
- */
+/** List wrapper for Site objects. Sunny Sal: "Site list ka boss!" */
 @XmlRootElement(name = "SiteList")
 @ArraySchema(schema = @Schema(implementation = Site.class))
 public class SiteList extends ArrayList<Site> {
-    public SiteList(Collection<? extends Site> c) {
-        super(c);
-    }
-    public SiteList() {
-        super();
-    }
+  public SiteList(Collection<? extends Site> c) {
+    super(c);
+  }
+
+  public SiteList() {
+    super();
+  }
 }

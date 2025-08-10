@@ -18,44 +18,36 @@ package com.percussion.content;
 
 public interface IPSMimeContentDescriptor {
   /**
-   * Returns the name of the standard MIME type for this content (e.g., text/xml).
-   * See http://www.isi.edu/in-notes/iana/assignments/media-types/media-types
-   * for an official list of MIME types.
+   * Returns the name of the standard MIME type for this content (e.g., text/xml). See
+   * http://www.isi.edu/in-notes/iana/assignments/media-types/media-types for an official list of
+   * MIME types.
    *
-   * This method must never return null. If the MIME type is not known,
-   * it should return "application/octet-stream".
+   * <p>This method must never return null. If the MIME type is not known, it should return
+   * "application/octet-stream".
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   String
+   * @return String
    */
   public String getMimeType();
 
   /**
-   * Returns the name of the transfer encoding applied to the content stream.
-   * If the stream represents raw bytes (where any octet-sequence may occur),
-   * the encoding will be "binary". If the stream represents base64 encoded
-   * bytes, the encoding will be "base64" and so on. This may return
-   * <CODE>null</CODE> if no encoding is defined.
+   * Returns the name of the transfer encoding applied to the content stream. If the stream
+   * represents raw bytes (where any octet-sequence may occur), the encoding will be "binary". If
+   * the stream represents base64 encoded bytes, the encoding will be "base64" and so on. This may
+   * return <CODE>null</CODE> if no encoding is defined.
    *
-   * See IPSMimeContentTypes for some of the predefined encodings that
-   * we support.
-   *
+   * <p>See IPSMimeContentTypes for some of the predefined encodings that we support.
    */
   public String getTransferEncoding();
 
   /**
-   * Gets the standard IANA name for the character encoding of this character
-   * data, or <CODE>null</CODE> if the character is not applicable
-   * (e.g., for binary content).
+   * Gets the standard IANA name for the character encoding of this character data, or <CODE>null
+   * </CODE> if the character is not applicable (e.g., for binary content).
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   String
+   * @return String
    */
   public String getCharEncoding();
 }

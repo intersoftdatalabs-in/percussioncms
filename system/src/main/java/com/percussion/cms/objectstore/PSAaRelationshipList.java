@@ -29,17 +29,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A collection of PSAaRelationship objects. See PSXAaRelationshipList.dtd. The
- * sort rank of the each relationship is implicit in that the order of
- * appearance in the list is assumed to the sort rank.
+ * A collection of PSAaRelationship objects. See PSXAaRelationshipList.dtd. The sort rank of the
+ * each relationship is implicit in that the order of appearance in the list is assumed to the sort
+ * rank.
  *
  * @author Ram
  */
 // REFACTORED: CP-JAVA11
 public class PSAaRelationshipList extends PSCollectionComponent {
-  /**
-   * Constructs an empty active assembly relationship list.
-   */
+  /** Constructs an empty active assembly relationship list. */
   public PSAaRelationshipList() {
     super(PSAaRelationship.class);
   }
@@ -58,7 +56,9 @@ public class PSAaRelationshipList extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List<?> parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -91,6 +91,7 @@ public class PSAaRelationshipList extends PSCollectionComponent {
 
   /**
    * Override the base class version to set the sort rank of the relationship just before accessing.
+   *
    * @param index index of the object (relationship) to access.
    * @return Relationship object for the specified index, may be {@code null}
    * @throws ArrayIndexOutOfBoundsException index is out of range (index < 0 || index >= size()).
@@ -103,7 +104,9 @@ public class PSAaRelationshipList extends PSCollectionComponent {
     return rel;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     for (int i = 0; i < size(); i++) {

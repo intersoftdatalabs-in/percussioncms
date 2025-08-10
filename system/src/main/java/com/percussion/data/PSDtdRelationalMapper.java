@@ -47,32 +47,21 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   * @author   unascribed
-   *
+   * @author unascribed
    * @version 1.1 1999/6/3
-   *
-   * Constructs a mapper that can be used to build table schemata
-   * for the DTD.
-   *
-   * @param   dtd   The DTD for which to build schemata.
-   *
+   *     <p>Constructs a mapper that can be used to build table schemata for the DTD.
+   * @param dtd The DTD for which to build schemata.
    */
   public PSDtdRelationalMapper(PSDtdTree dtd) {
     this(dtd, null);
   }
 
   /**
-   * @author   unascribed
-   *
+   * @author unascribed
    * @version 1.1 1999/6/3
-   *
-   * Constructs a mapper that can be used to build table schemata
-   * for the DTD.
-   *
-   * @param   dtd   The DTD for which to build schemata.
-   *
-   * @param   traceOut   The trace print stream, or null if tracing is
-   * disabled.
+   *     <p>Constructs a mapper that can be used to build table schemata for the DTD.
+   * @param dtd The DTD for which to build schemata.
+   * @param traceOut The trace print stream, or null if tracing is disabled.
    */
   public PSDtdRelationalMapper(PSDtdTree dtd, PrintStream traceOut) {
     m_dtdTree = dtd;
@@ -91,12 +80,9 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.0 1999/6/3
-   *
-   * Private utility method to build the tables. Called from the
-   * constructor.
+   *     <p>Private utility method to build the tables. Called from the constructor.
    */
   private void buildTables() {
     PSDtdElementEntry root = m_dtdTree.getRoot();
@@ -109,14 +95,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   *   @author chad loder
-   *
-   *   @version   1.0 1999/6/13
-   *
-   *   Prints the given table defitions to a print stream.
-   *
-   *   @param   out
-   *
+   * @author chad loder
+   * @version 1.0 1999/6/13
+   *     <p>Prints the given table defitions to a print stream.
+   * @param out
    */
   public void printTableDefs(PrintStream out) {
     for (Iterator i = m_tablesInOrder.iterator(); i.hasNext(); ) {
@@ -137,28 +119,21 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   *   @author chad loder
-   *
-   *   @version   1.0 1999/6/13
-   *
-   *   Gets the number of tables defined.
-   *
-   *   @return int
+   * @author chad loder
+   * @version 1.0 1999/6/13
+   *     <p>Gets the number of tables defined.
+   * @return int
    */
   public int getNumTables() {
     return m_tablesInOrder.size();
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/10
-   *
-   * Gets the table with the given ordinal.
-   *
-   * @param   ordinal 1-based
-   *
-   * @return   TableDef
+   *     <p>Gets the table with the given ordinal.
+   * @param ordinal 1-based
+   * @return TableDef
    */
   public TableDef getTable(int ordinal) {
     return (TableDef) m_tablesInOrder.get(ordinal - 1);
@@ -166,14 +141,9 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
 
   /**
    * @author chad loder
-   *
-   * @version   1.0 1999/6/13
-   *
-   * Gets the table with the given name. Returns null if no
-   * such table
-   *
-   * @param   tableName
-   *
+   * @version 1.0 1999/6/13
+   *     <p>Gets the table with the given name. Returns null if no such table
+   * @param tableName
    * @return TableDef
    */
   public TableDef getTable(String tableName) {
@@ -339,15 +309,11 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.0 1999/6/3
-   *
-   * Enables debug tracing to the given stream.
-   *
-   * @param   out   The PrintStream to which debug output will
-   * be printed. This can be System.out or any other PrintStream.
-   *
+   *     <p>Enables debug tracing to the given stream.
+   * @param out The PrintStream to which debug output will be printed. This can be System.out or any
+   *     other PrintStream.
    */
   public void enableTrace(PrintStream out) {
     m_traceOut = out;
@@ -355,13 +321,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.0 1999/6/3
-   *
-   * Turns off debug tracing. If it was already off, it will stay off.
-   * If it was already on, the reference to the print stream will be
-   * discarded.
+   *     <p>Turns off debug tracing. If it was already off, it will stay off. If it was already on,
+   *     the reference to the print stream will be discarded.
    */
   public void disableTrace() {
     m_trace = false;
@@ -369,24 +332,17 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.0 1999/6/3
-   *
-   * If tracing is enabled, prints the string followed by a newline
-   * to the debug stream. If tracing is not enabled, does nothing.
-   *
-   * @param   s   The string to be printed
-   *
+   *     <p>If tracing is enabled, prints the string followed by a newline to the debug stream. If
+   *     tracing is not enabled, does nothing.
+   * @param s The string to be printed
    */
   private void trace(String s) {
     if (m_trace) m_traceOut.println(s);
   }
 
-  /**
-   * Class to hold a column definition, possibly with a
-   * foreign key column.
-   */
+  /** Class to hold a column definition, possibly with a foreign key column. */
   public class ColumnDef {
     public ColumnDef(String columnName) {
       this(columnName, null);
@@ -463,10 +419,7 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     private int m_ordinal;
   } // end inner class ColumnDef
 
-  /**
-   * Class to hold a table definition
-   *
-   */
+  /** Class to hold a table definition */
   public class TableDef {
     public TableDef(String tableName) {
       m_tableName = tableName;
@@ -493,17 +446,12 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     /**
-     * @author  chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/3
-     *
-     * Inserts a unique ID column at ordinal 1, shifting
-     * all other columns up there was no previous unique ID
-     * column. If there was a previous unique ID column, it
-     * will be discarded and replaced by this column.
-     *
-     * @param    col The unique ID column
-     *
+     *     <p>Inserts a unique ID column at ordinal 1, shifting all other columns up there was no
+     *     previous unique ID column. If there was a previous unique ID column, it will be discarded
+     *     and replaced by this column.
+     * @param col The unique ID column
      */
     public void setUniqueIDColumn(ColumnDef col) {
       if (m_uniqueColOrdinal != 0) {
@@ -527,13 +475,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/3
-     *
-     * Gets the unique ID column for this table.
-     *
-     * @return   ColumnDef The unique ID column, or null if none defined.
+     *     <p>Gets the unique ID column for this table.
+     * @return ColumnDef The unique ID column, or null if none defined.
      */
     public ColumnDef getUniqueIDColumn() {
       if (m_uniqueColOrdinal != 0) return getColumn(m_uniqueColOrdinal);
@@ -565,16 +510,11 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/4
-     *
-     * Initializes the given result set with the correct format
-     * for this table. The result set will have the correct columns,
-     * but no data.
-     *
-     * @param   rs   The result set to initialize.
-     *
+     *     <p>Initializes the given result set with the correct format for this table. The result
+     *     set will have the correct columns, but no data.
+     * @param rs The result set to initialize.
      */
     public void initResultSet(PSResultSet rs) throws SQLException {
       List[] rsCols = new List[m_columns.size()];
@@ -591,16 +531,12 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/10
-     *
-     * Returns true if this table depends on the given table in
-     * some way. A table never depends on itself.
-     *
-     * @param   d
-     *
-     * @return   boolean
+     *     <p>Returns true if this table depends on the given table in some way. A table never
+     *     depends on itself.
+     * @param d
+     * @return boolean
      */
     public boolean dependsOn(TableDef possDep) {
       // check the dependency tree for the left table and see
@@ -639,15 +575,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
 
   /**
    * @author chad loder
-   *
-   * @version     1.0 1999/6/13
-   *
-   * Private utility method to make a parent ID column name.
-   * It is important that this column name will have no chance
-   * of conflicting with an XML field or attribute.
-   *
-   * @param  baseColName
-   *
+   * @version 1.0 1999/6/13
+   *     <p>Private utility method to make a parent ID column name. It is important that this column
+   *     name will have no chance of conflicting with an XML field or attribute.
+   * @param baseColName
    * @return String
    */
   private static String makeParentIdColName(String baseColName) {
@@ -656,15 +587,10 @@ public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
 
   /**
    * @author chad loder
-   *
-   * @version   1.0 1999/6/13
-   *
-   * Private utility method to make an ID column name for a column.
-   * It is important that this column name will have no chance
-   * of conflicting with an XML field or attribute.
-   *
-   * @param   baseColName
-   *
+   * @version 1.0 1999/6/13
+   *     <p>Private utility method to make an ID column name for a column. It is important that this
+   *     column name will have no chance of conflicting with an XML field or attribute.
+   * @param baseColName
    * @return String
    */
   private static String makeIdColName(String baseColName) {

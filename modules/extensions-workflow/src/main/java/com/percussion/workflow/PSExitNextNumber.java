@@ -34,10 +34,7 @@ import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * This extension returns the value of a counter obtained from a database
- * stored procedure.
- */
+/** This extension returns the value of a counter obtained from a database stored procedure. */
 public class PSExitNextNumber implements IPSRequestPreProcessor {
   private static final String GLOBAL_KEY = "RXKEYGLOBAL";
 
@@ -116,13 +113,11 @@ public class PSExitNextNumber implements IPSRequestPreProcessor {
   /**
    * Get the next number for the supplied key.
    *
-   * @param key the key to get the next number for, not <code>null</code>
-   *    or empty.
+   * @param key the key to get the next number for, not <code>null</code> or empty.
    * @return the next number.
-   * @throws PSExtensionProcessingException if anything goes wrong looking
-   *    up the next number for the provided key.
-   * @throws IllegalArgumentException if the supplied key is <code>null</code>
-   *    or empty.
+   * @throws PSExtensionProcessingException if anything goes wrong looking up the next number for
+   *     the provided key.
+   * @throws IllegalArgumentException if the supplied key is <code>null</code> or empty.
    */
   public static Integer getNextNumber(String key) throws PSExtensionProcessingException {
     if (key == null || key.trim().length() == 0)

@@ -59,8 +59,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This servlet is used by the workbench, specifically the tmeplate editor and
- * wizard to generate the database schema needed for database publishing.
+ * This servlet is used by the workbench, specifically the tmeplate editor and wizard to generate
+ * the database schema needed for database publishing.
  */
 public class PSTdSchemaXmlServlet extends HttpServlet {
 
@@ -102,8 +102,8 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
   }
 
   /**
-   * Creates an XML file containing the table schema definitions of the
-   * selected tables. This XML file conforms to the "sys_Tabledef.dtd" dtd.
+   * Creates an XML file containing the table schema definitions of the selected tables. This XML
+   * file conforms to the "sys_Tabledef.dtd" dtd.
    */
   private String createTableSchemaXml(
       String datasource, String[] tables, boolean allowSchemaChanges) throws ServletException {
@@ -173,18 +173,15 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
   }
 
   /**
-   * Recursivly process the specified table name for references and insert
-   * the parent table names to the top and child table names to the end of
-   * the ordered name table.
+   * Recursivly process the specified table name for references and insert the parent table names to
+   * the top and child table names to the end of the ordered name table.
    *
-   * @param tableName the name of the table for which to process the
-   *    references, assumed not <code>null</code> or empty.
-   * @param tabledefNodes a map with all nodes to process, assumed not
-   *    <code>null</code> or empty.
-   * @param orderedTableNames a list with all table names in the order as
-   *    they should produce the output document, assumed not <code>null</code>,
-   *    may be empty. The returned list may contain duplicates in which
-   *    case the first found must be used for the produced output order.
+   * @param tableName the name of the table for which to process the references, assumed not <code>
+   *     null</code> or empty.
+   * @param tabledefNodes a map with all nodes to process, assumed not <code>null</code> or empty.
+   * @param orderedTableNames a list with all table names in the order as they should produce the
+   *     output document, assumed not <code>null</code>, may be empty. The returned list may contain
+   *     duplicates in which case the first found must be used for the produced output order.
    */
   private void orderTableNames(
       String tableName, Map tabledefNodes, List<String> orderedTableNames) {
@@ -208,13 +205,13 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
   }
 
   /**
-   * Get all referenced <code>externalTable</code> names from all
-   * <code>foreignkey</code> nodes found in the supplied node.
+   * Get all referenced <code>externalTable</code> names from all <code>foreignkey</code> nodes
+   * found in the supplied node.
    *
-   * @param node the node in which to search for referenced external tables,
-   *    assumed not <code>null</code>.
-   * @return a list with all external table names referenced in the
-   *    supplied node, never <code>null</code>, may be empty.
+   * @param node the node in which to search for referenced external tables, assumed not <code>null
+   *     </code>.
+   * @return a list with all external table names referenced in the supplied node, never <code>null
+   *     </code>, may be empty.
    */
   private List getReferencedTables(Element node) {
     final List<String> references = new ArrayList<String>();
@@ -274,6 +271,7 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
 
   /**
    * Helper method to help with passing back the response.
+   *
    * @param httpResponse the response object, assumed not <code>null</code>.
    * @param resp the response data string,
    * @param ctype the response content type, assumed not <code>null</code>.
@@ -296,13 +294,9 @@ public class PSTdSchemaXmlServlet extends HttpServlet {
     os.flush();
   }
 
-  /**
-   * stylesheet file
-   */
+  /** stylesheet file */
   private static final String TABLE_BUILDER_XSL_FILE = "TableDefBuilder.xsl";
 
-  /**
-   * default value for the table data definition xml root element
-   */
+  /** default value for the table data definition xml root element */
   private static final String XML_ROOT_ELEMENT = "tabledataset";
 }

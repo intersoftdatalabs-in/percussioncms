@@ -23,55 +23,44 @@ import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
 
 /**
- * The PSHtmlProcessingError class is used to report an error
- * encountered during HTML generation. This will most often occur if
- * the XML document does not have the appropriate structure for the
+ * The PSHtmlProcessingError class is used to report an error encountered during HTML generation.
+ * This will most often occur if the XML document does not have the appropriate structure for the
  * style sheet or the style sheet is not syntactically correct.
- * <p>
- * The following information is logged:
+ *
+ * <p>The following information is logged:
+ *
  * <ul>
- * <li>the text of the error</li>
- * <li>the session id of the user (can be mapped back to the request if
- *     detailed user activity is being logged)</li>
- * <li>the name of the style sheet being used</li>
+ *   <li>the text of the error
+ *   <li>the session id of the user (can be mapped back to the request if detailed user activity is
+ *       being logged)
+ *   <li>the name of the style sheet being used
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSHtmlProcessingError extends PSLogError {
 
   /**
    * Report an error encountered during HTML generation.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      styleSheet     the name of the style sheet being used to
-   *                            generate the HTML
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param styleSheet the name of the style sheet being used to generate the HTML
    */
   public PSHtmlProcessingError(
       int applId,
@@ -91,10 +80,7 @@ public class PSHtmlProcessingError extends PSLogError {
     else m_styleSheet = styleSheet;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

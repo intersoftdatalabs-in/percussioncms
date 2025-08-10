@@ -23,27 +23,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This represents a relationship between a menu and one of its child items.
- * If a PSAction contains a submenu, each child PSAction in that submenu
- * is associated with the parent action with one of these objects (the
- * parent action in this case is not really an action).
- * <p>This class is immutable, therefore it doesn't need to override the
- * clone methods.
+ * This represents a relationship between a menu and one of its child items. If a PSAction contains
+ * a submenu, each child PSAction in that submenu is associated with the parent action with one of
+ * these objects (the parent action in this case is not really an action).
+ *
+ * <p>This class is immutable, therefore it doesn't need to override the clone methods.
  *
  * @author Paul Howard
  * @version 1.0
- *
  * @see PSMenuMode
  * @see PSMenuContext
  * @see PSAction
  */
 public class PSMenuChild extends PSDbComponent {
   /**
-   * Create a new relation between a menu and its 'item'. It is only
-   * useful once it has been added to an action.
+   * Create a new relation between a menu and its 'item'. It is only useful once it has been added
+   * to an action.
    *
-   * @param child Never <code>null</code>. The key for this action must be
-   *    assigned.
+   * @param child Never <code>null</code>. The key for this action must be assigned.
    */
   public PSMenuChild(PSAction child) {
     super(getKey(null, null));
@@ -58,13 +55,10 @@ public class PSMenuChild extends PSDbComponent {
     childId = key.getPart(PSAction.PRIMARY_KEY);
   }
 
-  /**
-   * No args constructor for xstream serialization
-   */
+  /** No args constructor for xstream serialization */
   public PSMenuChild() {}
 
   /**
-   *
    * @return The identifier associated with this mapping. Never <code>null
    *    </code> or empty.
    */
@@ -74,8 +68,9 @@ public class PSMenuChild extends PSDbComponent {
 
   /**
    * Gets the (internal) name of the child action.
-   * @return the name of the action, it may be <code>null</code> if not set
-   *   by the {@link #fromXml(Element)} or {@link #PSMenuChild(Element)}.
+   *
+   * @return the name of the action, it may be <code>null</code> if not set by the {@link
+   *     #fromXml(Element)} or {@link #PSMenuChild(Element)}.
    */
   public String getChildActioName() {
     return childName;
@@ -85,7 +80,6 @@ public class PSMenuChild extends PSDbComponent {
    * Create an object from a previously serialized one.
    *
    * @param src Never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException See fromXml().
    */
   public PSMenuChild(Element src) throws PSUnknownNodeTypeException {
@@ -108,8 +102,8 @@ public class PSMenuChild extends PSDbComponent {
   }
 
   /**
-   * See interface/base class for description.
-   * The dtd (based on the base class) is:
+   * See interface/base class for description. The dtd (based on the base class) is:
+   *
    * <pre><code>
    *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName())&gt;
    *    &lt;!ATTLIST getNodeName()
@@ -168,17 +162,15 @@ public class PSMenuChild extends PSDbComponent {
     return true;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return super.hashCode();
   }
 
   /**
-   * Creates a key containing the proper definition for this object.
-   * Assumed no need to generate id and the id will be set afterwards.
+   * Creates a key containing the proper definition for this object. Assumed no need to generate id
+   * and the id will be set afterwards.
    *
    * @return Never <code>null</code>.
    */
@@ -200,9 +192,7 @@ public class PSMenuChild extends PSDbComponent {
     return new String[] {getChildActionId()};
   }
 
-  /**
-   * The name of the column that stores the m_childActionId value.
-   */
+  /** The name of the column that stores the m_childActionId value. */
   private static final String CHILDACTIONID_COLNAME = "CHILDACTIONID";
 
   // constants for element/attribute names
@@ -210,14 +200,11 @@ public class PSMenuChild extends PSDbComponent {
   public static final String XML_ATTR_CHILDNAME = "childName";
 
   /**
-   * Set during construction, then never changed. The unique identifier for
-   * the child PSAction associated with this mapping.
+   * Set during construction, then never changed. The unique identifier for the child PSAction
+   * associated with this mapping.
    */
   private String childId;
 
-  /**
-   * The (internal) name of the object. It may be <code>null</code> if has
-   * not been set.
-   */
+  /** The (internal) name of the object. It may be <code>null</code> if has not been set. */
   private String childName = null;
 }

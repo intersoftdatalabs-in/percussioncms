@@ -21,12 +21,12 @@ import static com.percussion.fastforward.managednav.PSNavFolderUtils.addNavonToC
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.relationship.IPSEffect;
 import com.percussion.relationship.IPSExecutionContext;
 import com.percussion.relationship.PSEffectResult;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.cache.PSCacheProxy;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
@@ -44,47 +44,46 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 /**
- * A relationship effect for managing folders and navons. This effect is
- * designed for the <code>Folder Content</code> relationhip.
- * <p>
- * There are several different events that this effect must handle
+ * A relationship effect for managing folders and navons. This effect is designed for the <code>
+ * Folder Content</code> relationhip.
+ *
+ * <p>There are several different events that this effect must handle
+ *
  * <ul>
- * <li>A new folder is added to a folder</li>
- * <li>A new navon is added a folder</li>
- * <li>A Navon is removed from a folder</li>
- * <li>A folder is removed</li>
+ *   <li>A new folder is added to a folder
+ *   <li>A new navon is added a folder
+ *   <li>A Navon is removed from a folder
+ *   <li>A folder is removed
  * </ul>
- * <p>
- * New navons are added only when the folder above them already has a navon in
- * it. When a navon exists in a child folder, these navons are connected to the
- * current navon by an Active Assembly relationship.
- * <p>
- * When folders or navons are removed, these relationships are removed as well.
- * <p>
- * All navons added by this effect inherit the community of the navon above them
- * in the hierarchy, not the community of the calling user
- * <p>
- * This effect is designed to run as the <code>rxserver</code> user.
+ *
+ * <p>New navons are added only when the folder above them already has a navon in it. When a navon
+ * exists in a child folder, these navons are connected to the current navon by an Active Assembly
+ * relationship.
+ *
+ * <p>When folders or navons are removed, these relationships are removed as well.
+ *
+ * <p>All navons added by this effect inherit the community of the navon above them in the
+ * hierarchy, not the community of the calling user
+ *
+ * <p>This effect is designed to run as the <code>rxserver</code> user.
+ *
  * <p>
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect {
 
   /**
    * Tests whether the effect should allow the operation to continue.
    *
-   * @param params the effect parameters specified in the workbench. Not
-   *    used in this effect.
+   * @param params the effect parameters specified in the workbench. Not used in this effect.
    * @param req the callers request context, not <code>null</code>.
-   * @param excontext the execution context determines which event caused this
-   *    effect to run, not <code>null</code>.
-   * @param result the result object tells the effect processor whether the
-   *    event is allowed to continue or not, not <code>null</code>.
+   * @param excontext the execution context determines which event caused this effect to run, not
+   *     <code>null</code>.
+   * @param result the result object tells the effect processor whether the event is allowed to
+   *     continue or not, not <code>null</code>.
    * @throws PSExtensionProcessingException
    * @throws PSParameterMismatchException
-   *
    */
   @Override
   public void test(
@@ -139,18 +138,14 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
   /**
    * Processes the actual operation.
    *
-   * @param params the array of Effect parameters specified in the workbench.
-   *           Not used in this effect.
+   * @param params the array of Effect parameters specified in the workbench. Not used in this
+   *     effect.
    * @param req the callers request context.
-   * @param excontext the execution context specifies which event is being
-   *           processed.
-   * @param result the result block determines whether the event has been
-   *           handled successfully.
-   *
+   * @param excontext the execution context specifies which event is being processed.
+   * @param result the result block determines whether the event has been handled successfully.
    * @see com.percussion.relationship.IPSEffect#attempt(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext,
-   *      com.percussion.relationship.IPSExecutionContext,
-   *      com.percussion.relationship.PSEffectResult)
+   *     com.percussion.server.IPSRequestContext, com.percussion.relationship.IPSExecutionContext,
+   *     com.percussion.relationship.PSEffectResult)
    */
   @Override
   public void attempt(
@@ -196,10 +191,9 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Handles the <code>test</code> event when a new item has been created.
    *
    * @param req the parent request context, assumed not <code>null</code>.
-   * @param currentInfo the information about the relationship being processed,
-   *    assumed not <code>null</code>.
-   * @param result the result objects to return to the caller, assumed not
-   *    <code>null</code>.
+   * @param currentInfo the information about the relationship being processed, assumed not <code>
+   *     null</code>.
+   * @param result the result objects to return to the caller, assumed not <code>null</code>.
    * @throws PSNavException when any error occurs.
    */
   private void handleTestNew(
@@ -234,12 +228,10 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
   }
 
   /**
-   * Handles the <code>attempt</code> method when a new item has been
-   * created.
+   * Handles the <code>attempt</code> method when a new item has been created.
    *
    * @param req the parent request
-   * @param currentInfo information about the relationship that caused this
-   *           event.
+   * @param currentInfo information about the relationship that caused this event.
    * @param result the result block to return to the caller.
    * @throws PSNavException when an error occurs.
    */
@@ -269,8 +261,7 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Called when the new item being inserted is a folder.
    *
    * @param req the parent request context
-   * @param currentInfo information about the relationship that caused this
-   *           event.
+   * @param currentInfo information about the relationship that caused this event.
    * @param result the result block to return to the caller.
    * @throws PSNavException when an error occurs.
    */
@@ -297,8 +288,7 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Called when the new item being inserted is a navon.
    *
    * @param req the parent request context
-   * @param currentInfo information about the relationship that caused this
-   *           event.
+   * @param currentInfo information about the relationship that caused this event.
    * @param result the result block to return to the caller.
    * @throws PSNavException when an error occurs.
    */
@@ -342,8 +332,7 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Called when the new item being inserted is a NavTree.
    *
    * @param req the parent request context
-   * @param currentInfo information about the relationship that caused this
-   *           event.
+   * @param currentInfo information about the relationship that caused this event.
    * @param result the result block to return to the caller.
    * @throws PSNavException when an error occurs.
    */
@@ -369,8 +358,7 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Handles the <code>attempt</code> method for any destroy event.
    *
    * @param req the parent request, assumed not <code>null</code>.
-   * @param currentInfo information about the current relationship, assumed
-   *    not <code>null</code>.
+   * @param currentInfo information about the current relationship, assumed not <code>null</code>.
    * @throws PSNavException when any error occurs.
    */
   private void handleAttemptDestroy(IPSRequestContext req, PSNavRelationshipInfo currentInfo)
@@ -406,8 +394,8 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
   }
 
   /**
-   * Flushes the assembly cache. This method is here primarily to encapsulate
-   * any exceptions thrown from the <code>PSCacheProxy</code>.
+   * Flushes the assembly cache. This method is here primarily to encapsulate any exceptions thrown
+   * from the <code>PSCacheProxy</code>.
    *
    * @throws PSNavException
    */
@@ -424,9 +412,7 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
    * Determines if this Navon or NavTree has the "propagate" flag set.
    *
    * @param navonLoc the locator for the current navon, assumed to exist.
-   *
    * @return <code>true</code> if the propagate check box was checked.
-   *
    * @throws PSNavException when any error occurs.
    */
   private boolean isPropagate(PSLocator navonLoc) throws PSNavException {
@@ -471,9 +457,8 @@ public class PSNavFolderEffect extends PSNavAbstractEffect implements IPSEffect 
   }
 
   /**
-   * This message is displayed to the end-user if he tries to add a
-   * <code>Navon</code> or <code>NavonTree</code> item to a folder which
-   * already contains an object of either type.
+   * This message is displayed to the end-user if he tries to add a <code>Navon</code> or <code>
+   * NavonTree</code> item to a folder which already contains an object of either type.
    */
   private static final String MSG_ALREADY_EXISTS =
       "Folder \"{0}\" already contains item \"{1}\" of Navigation type. \"{2}\". Multiple items of"

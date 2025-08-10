@@ -28,69 +28,77 @@ import com.percussion.server.PSRequestValidationException;
 import com.percussion.utils.PSJsoupPreserver;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 /**
- * Removes reserved html class names from content in the specified html parameter value.
- * Also adds a placeholder text for empty iframe elements.
+ * Removes reserved html class names from content in the specified html parameter value. Also adds a
+ * placeholder text for empty iframe elements.
  *
  * @author JaySeletz
  */
-public class PSCleanReservedHtmlClassesInputTransformer extends PSDefaultExtension implements IPSItemInputTransformer {
-    private static final String[] PERC_CLASSES = {
-        "perc-widget", "perc-region", "perc-vertical", "perc-fixed", "perc-region-leaf",
-        "perc-horizontal", "perc-itool-selectable-elem", "perc-itool-region-elem", "perc-zero-size-elem"
-    };
+public class PSCleanReservedHtmlClassesInputTransformer extends PSDefaultExtension
+    implements IPSItemInputTransformer {
+  private static final String[] PERC_CLASSES = {
+    "perc-widget",
+    "perc-region",
+    "perc-vertical",
+    "perc-fixed",
+    "perc-region-leaf",
+    "perc-horizontal",
+    "perc-itool-selectable-elem",
+    "perc-itool-region-elem",
+    "perc-zero-size-elem"
+  };
 
-    @Override
-    public void preProcessRequest(Object[] params, IPSRequestContext request)
-            throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException {
-        try {
-            var ep = new PSExtensionParams(params);
-            var fieldName = ep.getStringParam(0, null, true);
-            if (StringUtils.isBlank(fieldName))
-                throw new PSParameterMismatchException("No fieldName supplied");
+  @Override
+  public void preProcessRequest(Object[] params, IPSRequestContext request)
+      throws PSAuthorizationException,
+          PSRequestValidationException,
+          PSParameterMismatchException,
+          PSExtensionProcessingException {
+    try {
+      var ep = new PSExtensionParams(params);
+      var fieldName = ep.getStringParam(0, null, true);
+      if (StringUtils.isBlank(fieldName))
+        throw new PSParameterMismatchException("No fieldName supplied");
 
-            var value = request.getParameter(fieldName);
-            if (StringUtils.isBlank(value))
-                return;
-            var newValue = processContent(value);
-            request.setParameter(fieldName, newValue);
-        } catch (PSConversionException e) {
-            throw new PSParameterMismatchException(e.getLocalizedMessage());
+      var value = request.getParameter(fieldName);
+      if (StringUtils.isBlank(value)) return;
+      var newValue = processContent(value);
+      request.setParameter(fieldName, newValue);
+    } catch (PSConversionException e) {
+      throw new PSParameterMismatchException(e.getLocalizedMessage());
+    }
+  }
+
+  /**
+   * Parses the supplied content as HTML, removes reserved class names, and adds placeholder text
+   * for empty iframes.
+   *
+   * @param value The value to clean, not null or empty.
+   * @return The cleaned value.
+   */
+  String processContent(String value) {
+    var doc = Jsoup.parseBodyFragment(PSJsoupPreserver.formatPreserveTagsForJSoupParse(value));
+    var didChange = false;
+
+    for (var elem : doc.getAllElements()) {
+      for (var className : PERC_CLASSES) {
+        if (elem.hasClass(className)) {
+          elem.removeClass(className);
+          didChange = true;
         }
+      }
+      if (elem.tagName().equalsIgnoreCase("iframe")
+          && (elem.childNodes().isEmpty() || StringUtils.isBlank(elem.text()))) {
+        elem.text(EMPTY_IFRAME_TEXT);
+        didChange = true;
+      }
     }
 
-    /**
-     * Parses the supplied content as HTML, removes reserved class names, and adds placeholder text for empty iframes.
-     *
-     * @param value The value to clean, not null or empty.
-     * @return The cleaned value.
-     */
-    String processContent(String value) {
-        var doc = Jsoup.parseBodyFragment(PSJsoupPreserver.formatPreserveTagsForJSoupParse(value));
-        var didChange = false;
+    if (!didChange) return value;
 
-        for (var elem : doc.getAllElements()) {
-            for (var className : PERC_CLASSES) {
-                if (elem.hasClass(className)) {
-                    elem.removeClass(className);
-                    didChange = true;
-                }
-            }
-            if (elem.tagName().equalsIgnoreCase("iframe")
-                    && (elem.childNodes().isEmpty() || StringUtils.isBlank(elem.text()))) {
-                elem.text(EMPTY_IFRAME_TEXT);
-                didChange = true;
-            }
-        }
+    return PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html());
+  }
 
-        if (!didChange)
-            return value;
-
-        return PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html());
-    }
-
-    public static final String EMPTY_IFRAME_TEXT = "Alternate iframe text";
+  public static final String EMPTY_IFRAME_TEXT = "Alternate iframe text";
 }

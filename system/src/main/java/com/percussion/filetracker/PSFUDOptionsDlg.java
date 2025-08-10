@@ -25,106 +25,85 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 /**
- * This class is to display the application options dialog box. This is a
- * simple and straightforward class. The options are initialized from the
- * configuration file and written back when user click OK button.
+ * This class is to display the application options dialog box. This is a simple and straightforward
+ * class. The options are initialized from the configuration file and written back when user click
+ * OK button.
  */
 public class PSFUDOptionsDlg extends JDialog {
   // UI related variables are declared here
 
   /**
-   * Main panel for the dialog box. This will have a gridbag layout housing
-   * two panels, main panel and button panel.
+   * Main panel for the dialog box. This will have a gridbag layout housing two panels, main panel
+   * and button panel.
    */
   JPanel m_DialogPanel = new JPanel();
 
-  /**
-   * Layout used by the dialog panel - m_DialogPanel
-   */
+  /** Layout used by the dialog panel - m_DialogPanel */
   GridBagLayout m_GridBagLayoutDialogPanel = new GridBagLayout();
 
   /**
-   * This is the first in the dialog panel with grid layout (4x1) housing four
-   * two panels for server alias, userid, password and version.
+   * This is the first in the dialog panel with grid layout (4x1) housing four two panels for server
+   * alias, userid, password and version.
    */
   JPanel m_MainPanel = new JPanel();
 
-  /**
-   * Layout used for main panel - m_MainPanel
-   */
+  /** Layout used for main panel - m_MainPanel */
   GridLayout m_GridLayoutMainPanel = new GridLayout();
 
   /**
-   * This panel houses a checkbox to purge local copy option.
-   * Uses a default layout (gridbag layout).
+   * This panel houses a checkbox to purge local copy option. Uses a default layout (gridbag
+   * layout).
    */
   JPanel m_PanelPurgeLocalCopy = new JPanel();
 
-  /**
-   * Purge local copy checkbox, defaults to the option value from
-   * configuration document.
-   */
+  /** Purge local copy checkbox, defaults to the option value from configuration document. */
   JCheckBox m_PurgeLocal = new JCheckBox();
 
   /**
-   * This panel houses a checkbox to prompt before purging option.
-   * Uses a default layout (gridbag layout).
+   * This panel houses a checkbox to prompt before purging option. Uses a default layout (gridbag
+   * layout).
    */
   JPanel m_PanelPromptPurge = new JPanel();
 
-  /**
-   * Prompt before purging checkbox, defaults to the option value from
-   * configuration document.
-   */
+  /** Prompt before purging checkbox, defaults to the option value from configuration document. */
   JCheckBox m_PromptBeforePurge = new JCheckBox();
 
   /**
-   * This panel houses a checkbox to prompt before overwrite local file option.
-   * Uses a default layout (gridbag layout).
+   * This panel houses a checkbox to prompt before overwrite local file option. Uses a default
+   * layout (gridbag layout).
    */
   JPanel m_PanelPropmptOverwrite = new JPanel();
 
   /**
-   * Prompt before overwrite local file  checkbox, defaults to the option
-   * value from configuration document.
+   * Prompt before overwrite local file checkbox, defaults to the option value from configuration
+   * document.
    */
   JCheckBox m_PromptBeforeOverwrite = new JCheckBox();
 
-  /**
-   * A spacer in the main panel
-   */
+  /** A spacer in the main panel */
   JPanel m_PanelSpace1 = new JPanel();
 
   /**
-   * This is the second panel the dialog panel with grid layout (3x1) housing
-   * OK button ,CANCEL button and label spacer.
+   * This is the second panel the dialog panel with grid layout (3x1) housing OK button ,CANCEL
+   * button and label spacer.
    */
   JPanel m_PanelButtons = new JPanel();
 
-  /**
-   * Layout used by m_PanelButtons
-   */
+  /** Layout used by m_PanelButtons */
   GridLayout m_GridLayoutButtons = new GridLayout();
 
-  /**
-   * A spacer, must have empty text
-   */
+  /** A spacer, must have empty text */
   JLabel m_LabelSpace1 = new JLabel();
 
-  /**
-   * OK button clicking which the options are written to configuration
-   * document.
-   */
+  /** OK button clicking which the options are written to configuration document. */
   JButton m_ButtonOK = new JButton();
 
-  /**
-   * CANCEL button closes the dialog box doing nothing.
-   */
+  /** CANCEL button closes the dialog box doing nothing. */
   JButton m_ButtonCancel = new JButton();
 
   /**
-   * Constructor. Makes sure always modal. Initializes dialog box with default
-   * values for the fields.
+   * Constructor. Makes sure always modal. Initializes dialog box with default values for the
+   * fields.
    */
   public PSFUDOptionsDlg(JFrame frame, String title) {
     super(frame, title, true);
@@ -132,9 +111,7 @@ public class PSFUDOptionsDlg extends JDialog {
     pack();
   }
 
-  /**
-   * Initialization of the dialog box with all components and default values.
-   */
+  /** Initialization of the dialog box with all components and default values. */
   private void init() {
     m_MainPanel.setLayout(m_GridLayoutMainPanel);
     m_ButtonOK.setText("OK");
@@ -213,10 +190,7 @@ public class PSFUDOptionsDlg extends JDialog {
     m_PromptBeforeOverwrite.setSelected(MainFrame.getConfig().getIsPromptBeforeOverwrite());
   }
 
-  /**
-   * Acion handler for OK button. New option values are written to the
-   * configuartion document.
-   */
+  /** Acion handler for OK button. New option values are written to the configuartion document. */
   void ButtonOK_actionPerformed(ActionEvent e) {
     MainFrame.getConfig().setIsPurgeLocalCopy(m_PurgeLocal.isSelected());
     MainFrame.getConfig().setIsPromptBeforePurge(m_PromptBeforePurge.isSelected());
@@ -225,18 +199,13 @@ public class PSFUDOptionsDlg extends JDialog {
     dispose();
   }
 
-  /**
-   * Acion handler for Cancel. Exit value is set to CANCEL and dialog box
-   * is closed.
-   */
+  /** Acion handler for Cancel. Exit value is set to CANCEL and dialog box is closed. */
   void ButtonCancel_actionPerformed(ActionEvent e) {
     m_exit = CANCEL;
     dispose();
   }
 
-  /**
-   * Handle the system close event. Result is same as CANCEL
-   */
+  /** Handle the system close event. Result is same as CANCEL */
   void closeWindow(WindowEvent e) {
     m_exit = CANCEL;
     dispose();
@@ -251,39 +220,30 @@ public class PSFUDOptionsDlg extends JDialog {
     return m_exit;
   }
 
-  /**
-   * The storage for the exit performed.
-   */
+  /** The storage for the exit performed. */
   private int m_exit = -1;
 
-  /**
-   * The exit indicator for OK.
-   */
+  /** The exit indicator for OK. */
   public static final int OK = 1;
 
-  /**
-   * The exit indicator for Cancel.
-   */
+  /** The exit indicator for Cancel. */
   public static final int CANCEL = 2;
 }
 
 /**
- * Action Listener for OK button. Handles actionPerformed which just calles the
- * Dialog class's method ButtonOK_actionPerformed()
+ * Action Listener for OK button. Handles actionPerformed which just calles the Dialog class's
+ * method ButtonOK_actionPerformed()
  */
 class PSFUDOptionsDlg_m_ButtonOK_actionAdapter implements ActionListener {
   PSFUDOptionsDlg dlg;
 
-  /**
-   * Constructor taking the caller class instance.
-   */
+  /** Constructor taking the caller class instance. */
   PSFUDOptionsDlg_m_ButtonOK_actionAdapter(PSFUDOptionsDlg dlg) {
     this.dlg = dlg;
   }
 
   /**
-   * Handle the actionPerformed event. Just calles the caller's
-   * ButtonOK_actionPerformed() method.
+   * Handle the actionPerformed event. Just calles the caller's ButtonOK_actionPerformed() method.
    */
   public void actionPerformed(ActionEvent e) {
     dlg.ButtonOK_actionPerformed(e);
@@ -291,22 +251,20 @@ class PSFUDOptionsDlg_m_ButtonOK_actionAdapter implements ActionListener {
 }
 
 /**
- * Action Listener for CANCEL button. Handles actionPerformed which just calles
- * the Dialog class's method ButtonCancel_actionPerformed()
+ * Action Listener for CANCEL button. Handles actionPerformed which just calles the Dialog class's
+ * method ButtonCancel_actionPerformed()
  */
 class PSFUDOptionsDlg_m_ButtonCancel_actionAdapter implements ActionListener {
   PSFUDOptionsDlg dlg;
 
-  /**
-   * Constructor taking the caller class instance.
-   */
+  /** Constructor taking the caller class instance. */
   PSFUDOptionsDlg_m_ButtonCancel_actionAdapter(PSFUDOptionsDlg dlg) {
     this.dlg = dlg;
   }
 
   /**
-   * Handle the actionPerformed event. Just calles the caller's
-   * ButtonCancel_actionPerformed() method.
+   * Handle the actionPerformed event. Just calles the caller's ButtonCancel_actionPerformed()
+   * method.
    */
   public void actionPerformed(ActionEvent e) {
     dlg.ButtonCancel_actionPerformed(e);

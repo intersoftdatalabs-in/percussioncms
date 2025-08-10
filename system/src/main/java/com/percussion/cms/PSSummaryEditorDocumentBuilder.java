@@ -49,33 +49,30 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * The output document is built up over a number of steps. Most of the work
- * is performed by the base class. The main purpose of this class is to create
- * the appropriate build step needed when creating a summary editor.
- * A summary editor is basically a child table editor, which allows actions
- * on whole rows, but not modifying fields within the row.
+ * The output document is built up over a number of steps. Most of the work is performed by the base
+ * class. The main purpose of this class is to create the appropriate build step needed when
+ * creating a summary editor. A summary editor is basically a child table editor, which allows
+ * actions on whole rows, but not modifying fields within the row.
  */
 public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   /**
-   * The display text for the 'add child' main form button. By default, this
-   * action causes the row editor for this child to be displayed. Never
-   * <code>null</code> or empty.
+   * The display text for the 'add child' main form button. By default, this action causes the row
+   * editor for this child to be displayed. Never <code>null</code> or empty.
    */
   public static final String ADDITEM_ACTION_LABEL = "Add new item";
 
   /**
-   * This is the internal name that can be used by Custom Action Groups to
-   * replace the standard button. Never <code>null</code> or empty.
+   * This is the internal name that can be used by Custom Action Groups to replace the standard
+   * button. Never <code>null</code> or empty.
    */
   public static final String ADD_ITEM_ACTION_NAME = "addnewchild";
 
   /**
-   * Processes the supplied editor definition, creating an executable plan
-   * that will be used when requests are made. Adds a single build step which
-   * creates a table view of the child data. See {@link
-   * PSModifyDocumentBuilder#PSModifyDocumentBuilder(PSContentEditor,
-   * PSEditorDocumentContext, int, boolean ) base} class for params and their
-   * requirements that aren't described below.
+   * Processes the supplied editor definition, creating an executable plan that will be used when
+   * requests are made. Adds a single build step which creates a table view of the child data. See
+   * {@link PSModifyDocumentBuilder#PSModifyDocumentBuilder(PSContentEditor,
+   * PSEditorDocumentContext, int, boolean ) base} class for params and their requirements that
+   * aren't described below.
    *
    * @param mapping A mapping that contains a complex child.
    */
@@ -144,35 +141,37 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Returns an iterator over actions that are default and or custom.
-   * Default actions will have the following params:
+   * Returns an iterator over actions that are default and or custom. Default actions will have the
+   * following params:
+   *
    * <ul>
-   *    <li>sys_command - edit</li>
-   *    <li>sys_pageid - of target row editor</li>
-   * </ul>
-   * Custom actions will have the following params:
-   * <ul>
-   *    <li>{@link #FORMACTION_NAME} - target url</li>
-   *    <li>custom params</li>
-   *    <li>sys_pageid - of this editor</li>
-   *    <li>sys_childid - mapper id of this fieldset</li>
+   *   <li>sys_command - edit
+   *   <li>sys_pageid - of target row editor
    * </ul>
    *
-   * @return A valid iterator over 0 or more actions. Except for exceptional
-   *    circumstances, there should be 1 entry.
+   * Custom actions will have the following params:
+   *
+   * <ul>
+   *   <li>{@link #FORMACTION_NAME} - target url
+   *   <li>custom params
+   *   <li>sys_pageid - of this editor
+   *   <li>sys_childid - mapper id of this fieldset
+   * </ul>
+   *
+   * @return A valid iterator over 0 or more actions. Except for exceptional circumstances, there
+   *     should be 1 entry.
    */
   Iterator<?> getSubmitActions() {
     return m_submitActions.iterator();
   }
 
   /**
-   * See base class for full description. This method varies because it adds
-   * a parameter defined by {@link #FORMACTION_NAME} which is not URL encoded.
-   * This parameter, when placed in the first position, has special meaning
-   * to the Javascript that modifies the action when the user clicks the
-   * button. It is used by the stylesheet as the return action override
-   * in the FORM. It is not encoded to save a step in the Javascript (which
-   * would need to decode it before assigning it to the action of the form).
+   * See base class for full description. This method varies because it adds a parameter defined by
+   * {@link #FORMACTION_NAME} which is not URL encoded. This parameter, when placed in the first
+   * position, has special meaning to the Javascript that modifies the action when the user clicks
+   * the button. It is used by the stylesheet as the return action override in the FORM. It is not
+   * encoded to save a step in the Javascript (which would need to decode it before assigning it to
+   * the action of the form).
    */
   protected Iterator<?> getActionLinks(Document doc, PSExecutionData data)
       throws PSDataExtractionException {
@@ -217,29 +216,21 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Builds the list for the {@link #m_submitActions} member. See member
-   * description for details.
+   * Builds the list for the {@link #m_submitActions} member. See member description for details.
    *
-   * @param customActions If <code>null</code>, then just the standard action
-   *    is added. If not <code>null</code>, then actions defined in the
-   *    supplied group are added and the original action is possibly removed.
-   *
+   * @param customActions If <code>null</code>, then just the standard action is added. If not
+   *     <code>null</code>, then actions defined in the supplied group are added and the original
+   *     action is possibly removed.
    * @param mapperId Only used if <code>actions</code> is not <code>null
-   *    </code>. This is the mapper id of the field set used by this editor.
-   *    Assumed not <code>null</code> or empty if it is required.
-   *
-   * @param rowPageId This is the page id of the row editor associated with
-   *    this summary editor. Assumed not <code>null</code> or empty.
-   *
+   *    </code>. This is the mapper id of the field set used by this editor. Assumed not <code>null
+   *     </code> or empty if it is required.
+   * @param rowPageId This is the page id of the row editor associated with this summary editor.
+   *     Assumed not <code>null</code> or empty.
    * @param thisPageId Only used if <code>actions</code> is not <code>null
-   *    </code>. This is the page id of the row editor associated with this
-   *    summary editor. Assumed not <code>null</code> or empty if it is
-   *    required.
-   *
-   * @param url The fully qualified url-string to reach this editor, not
-   *    including the query string.
-   *    <p>Example: http://server:9992/Rhythmyx/app1/resource.html
-   *
+   *    </code>. This is the page id of the row editor associated with this summary editor. Assumed
+   *     not <code>null</code> or empty if it is required.
+   * @param url The fully qualified url-string to reach this editor, not including the query string.
+   *     <p>Example: http://server:9992/Rhythmyx/app1/resource.html
    * @return A list with at least 1 member.
    */
   private List<Object> createActionLinkList(
@@ -360,24 +351,17 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Creates a Pair object using the supplied label as key and the
-   * extractors as the value. This entry is then added to the supplied
-   * actions list in the specified position.
+   * Creates a Pair object using the supplied label as key and the extractors as the value. This
+   * entry is then added to the supplied actions list in the specified position.
    *
-   * @param actions The created entry is added to this list. Assumed not
-   *    <code>null</code>.
-   *
+   * @param actions The created entry is added to this list. Assumed not <code>null</code>.
    * @param label The display text for the action. Assumed not <code>null
    *    </code> or empty.
-   *
-   * @param paramExtractors Contains the params for this action. Each
-   *    element is a Pair whose key is the name of the param, aa a
-   *    String and whose value is the extractor for the param's value, as an
-   *    IPSDataExtractor.
-   *
-   * @param pos The position to add the element to. If greater than the
-   *    length of the list, the entry is appended, if less than 0, the entry
-   *    is inserted at the head of the list.
+   * @param paramExtractors Contains the params for this action. Each element is a Pair whose key is
+   *     the name of the param, aa a String and whose value is the extractor for the param's value,
+   *     as an IPSDataExtractor.
+   * @param pos The position to add the element to. If greater than the length of the list, the
+   *     entry is appended, if less than 0, the entry is inserted at the head of the list.
    */
   private void addAction(List actions, String label, List paramExtractors, int pos) {
     PSMapPair entry = new PSMapPair(label, paramExtractors);
@@ -388,22 +372,19 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Contains a set of entries for the submit action on this form and any
-   * designer specified actions. Other actions should be included in the
-   * <code>m_actions</code> member. All actions in this member and m_actions
-   * are to be returned by the <code>getActionLinks</code> method. Never
-   * <code>null</code> or empty after
-   * construction. Each entry contains a Pair where the key is the
+   * Contains a set of entries for the submit action on this form and any designer specified
+   * actions. Other actions should be included in the <code>m_actions</code> member. All actions in
+   * this member and m_actions are to be returned by the <code>getActionLinks</code> method. Never
+   * <code>null</code> or empty after construction. Each entry contains a Pair where the key is the
    * action label as a <code>String</code> and the value is a <code>List
    * </code> of extractors.
-   * <p>The extractor list contains entries for all of the params needed to
-   * create the action element. Each one has the param name as the key and
-   * the extractor to obtain the param's value as the value of the entry.
+   *
+   * <p>The extractor list contains entries for all of the params needed to create the action
+   * element. Each one has the param name as the key and the extractor to obtain the param's value
+   * as the value of the entry.
    */
   private List m_submitActions;
 
-  /**
-   * For future use, when we have actions other than form submission actions.
-   */
+  /** For future use, when we have actions other than form submission actions. */
   // private List m_actions;
 }

@@ -39,19 +39,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A collection of static methods for manipulating the XML tree after it has
- * been produced. If the tree has been retrieved from the cache, it will have
- * incorrect values for the theme, color selector, variable selector and other
- * values that are passed as HTML parameters. These routines fix those
- * attributes.
+ * A collection of static methods for manipulating the XML tree after it has been produced. If the
+ * tree has been retrieved from the cache, it will have incorrect values for the theme, color
+ * selector, variable selector and other values that are passed as HTML parameters. These routines
+ * fix those attributes.
  *
  * @author DavidBenua
- *
  */
 public class PSNavXMLUtils {
-  /**
-   * Never constructed, static methods only.
-   */
+  /** Never constructed, static methods only. */
   private PSNavXMLUtils() {}
 
   /**
@@ -67,14 +63,13 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Set the attributes of an element. The Parameter map contains the names and
-   * values of the attributes to be added. The value must be a string or other
-   * object whose toString() method returns the correct value. If the attribute
-   * already exists, its value will be replaced.
+   * Set the attributes of an element. The Parameter map contains the names and values of the
+   * attributes to be added. The value must be a string or other object whose toString() method
+   * returns the correct value. If the attribute already exists, its value will be replaced.
    *
    * @param elem the XML Element where the attributes are to be added.
-   * @param params a map of attributes to add. Must not be <code>null</code>
-   *           but may be <code>empty</code>.
+   * @param params a map of attributes to add. Must not be <code>null</code> but may be <code>empty
+   *     </code>.
    */
   public static void setAttributes(Element elem, Map params) {
     for (Object o : params.keySet()) {
@@ -86,8 +81,7 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Convenience method for setRootAttributes(IPSRequestContext, Element,
-   * PSNavonStack, Map)
+   * Convenience method for setRootAttributes(IPSRequestContext, Element, PSNavonStack, Map)
    *
    * @param req the parent request context
    * @param doc the XML Document to be fixed
@@ -101,9 +95,8 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Set the attributes in the root node of our document. These attributes
-   * always include image color selector and the variable selector, which will
-   * be added to the list of other attributes.
+   * Set the attributes in the root node of our document. These attributes always include image
+   * color selector and the variable selector, which will be added to the list of other attributes.
    *
    * @param req the parent request context
    * @param docElem the XML Document Element
@@ -126,15 +119,13 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Process the XML tree, resetting the attributes and the link URLs. The
-   * attributes include the root attributes and the general attributes. The
-   * links include the landing page and image links.
+   * Process the XML tree, resetting the attributes and the link URLs. The attributes include the
+   * root attributes and the general attributes. The links include the landing page and image links.
    *
    * @param req the parent request
    * @param doc the result document to be processed.
    * @param stack the Navon Stack
-   * @param landingPageParams any added parameters to be applied to the landing
-   *           page links.
+   * @param landingPageParams any added parameters to be applied to the landing page links.
    * @throws PSNavException
    */
   public static void processXMLTree(
@@ -166,18 +157,16 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Update the attributes and links of child nodes. This method recursively
-   * calls itself to process all child nodes in the Nav Tree XML document.
+   * Update the attributes and links of child nodes. This method recursively calls itself to process
+   * all child nodes in the Nav Tree XML document.
    *
    * @param req the parent request context
    * @param doc the nav tree XML document
    * @param parentElem the parent element whose children will be processed.
-   * @param stack the Navon stack. Used to determine which nodes are
-   *           "ancestors" of the self node.
+   * @param stack the Navon stack. Used to determine which nodes are "ancestors" of the self node.
    * @param rLevel the relative level.
    * @param aLevel the absolute level. The Root Navon is is absolute level 0.
-   * @param landingPageParams the list of other arributes to be added to the
-   *           landing page link.
+   * @param landingPageParams the list of other arributes to be added to the landing page link.
    * @throws PSNavException
    */
   private static void processChildXML(
@@ -305,13 +294,11 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * fixes the info link in a Navon XML element to use the specified
-   * parameters.
+   * fixes the info link in a Navon XML element to use the specified parameters.
    *
    * @param req the parent request context
    * @param navonElem the Navon XML element to fix.
-   * @param landingPageParams the extra parameters to be applied to the info
-   *           link.
+   * @param landingPageParams the extra parameters to be applied to the info link.
    * @throws PSNavException
    */
   private static void fixInfoLink(
@@ -387,8 +374,7 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Gets the next node type. Used for determining the node type for descendent
-   * nodes.
+   * Gets the next node type. Used for determining the node type for descendent nodes.
    *
    * @param pType the node type of the parent node.
    * @return
@@ -427,9 +413,8 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Overrides the theme based on an external query. This query is used in
-   * special implementations where the theme needs to be determined based on
-   * the folder or other criteria.
+   * Overrides the theme based on an external query. This query is used in special implementations
+   * where the theme needs to be determined based on the folder or other criteria.
    *
    * @param req the parent request context.
    * @return the theme name.
@@ -460,11 +445,10 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Builds the initial landing page parameter map. This map always contains
-   * the context, siteid and session id. If the parent request contains
-   * <code>sys_comand=editrc</code> (which implies that this page is in
-   * active assembly mode) then the <code>relateditemid</code> parameter will
-   * also be added.
+   * Builds the initial landing page parameter map. This map always contains the context, siteid and
+   * session id. If the parent request contains <code>sys_comand=editrc</code> (which implies that
+   * this page is in active assembly mode) then the <code>relateditemid</code> parameter will also
+   * be added.
    *
    * @param req the parent request context
    * @return a new map of landing page parameters.
@@ -491,8 +475,8 @@ public class PSNavXMLUtils {
   }
 
   /**
-   * Replaces all text nodes underneath a specified element. This affects Text,
-   * Comment, Entity Reference and CDATA nodes. Attributes are not affected.
+   * Replaces all text nodes underneath a specified element. This affects Text, Comment, Entity
+   * Reference and CDATA nodes. Attributes are not affected.
    *
    * @param elem the element to replace.
    * @param value the new text value of the element.
@@ -517,13 +501,9 @@ public class PSNavXMLUtils {
     elem.appendChild(textNode);
   }
 
-  /**
-   * Name of the query to use for Nav Theme overrides.
-   */
+  /** Name of the query to use for Nav Theme overrides. */
   public static final String NAV_THEME_QUERY = "../rxs_navSupport/rxnavtheme.xml";
 
-  /**
-   * Logger for these classes.
-   */
+  /** Logger for these classes. */
   private static final Logger log = LogManager.getLogger(PSNavXMLUtils.class);
 }

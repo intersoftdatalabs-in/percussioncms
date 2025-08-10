@@ -17,22 +17,24 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * Visitor pattern for region nodes.
- * Used to avoid casting and decouple visit order from the visitor.
- * The order of the visit is defined by different iterators.
+ * Visitor pattern for region nodes. Used to avoid casting and decouple visit order from the
+ * visitor. The order of the visit is defined by different iterators.
+ *
  * @author adamgent
  */
 public interface IPSRegionNodeVisitor {
 
-    /**
-     * Visit a region code node.
-     * @param regionCode the region code node, never {@code null}
-     */
-    void visit(PSRegionCode regionCode);
+  /**
+   * Visit a region code node.
+   *
+   * @param regionCode the region code node, never {@code null}
+   */
+  void visit(PSRegionCode regionCode);
 
-    /**
-     * Visit a region node.
-     * @param region the region node, never {@code null}
-     */
-    void visit(PSRegion region);
+  /**
+   * Visit a region node.
+   *
+   * @param region the region node, never {@code null}
+   */
+  void visit(PSRegion region);
 }

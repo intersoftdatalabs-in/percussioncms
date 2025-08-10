@@ -39,20 +39,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension builds a content item list for deletion by the Rhythmyx
- * update resource after deleting data from the content type specific tables by
- * cmaking internal requests to the content editor's purge resource. If the
- * attempt to delete this data fails for any reason we add this item to skipped
- * item list for deletion. The DTD for the document is:
- * &lt;!ELEMENT deleterows (row*, skipped) &gt;
- * &lt;!ELEMENT row (#PCDATA) &gt;
- * &lt;!ATTLIST row pkey CDATA #IMPLIED &gt;
- * &lt;!ATTLIST row rid CDATA #IMPLIED &gt;
- * &lt;!ELEMENT skipped (row*) &gt;
- * This exit shall typically placed on an Rx update resource that deletes the
- * rows from all system tables tables. The XML element pkey must be mapped to
- * the primary key in the backed table(s).
- *
+ * This extension builds a content item list for deletion by the Rhythmyx update resource after
+ * deleting data from the content type specific tables by cmaking internal requests to the content
+ * editor's purge resource. If the attempt to delete this data fails for any reason we add this item
+ * to skipped item list for deletion. The DTD for the document is: &lt;!ELEMENT deleterows (row*,
+ * skipped) &gt; &lt;!ELEMENT row (#PCDATA) &gt; &lt;!ATTLIST row pkey CDATA #IMPLIED &gt;
+ * &lt;!ATTLIST row rid CDATA #IMPLIED &gt; &lt;!ELEMENT skipped (row*) &gt; This exit shall
+ * typically placed on an Rx update resource that deletes the rows from all system tables tables.
+ * The XML element pkey must be mapped to the primary key in the backed table(s).
  */
 public class PSDeleteContent implements IPSRequestPreProcessor {
   /*
@@ -189,10 +183,9 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
   }
 
   /**
-   * This helper method parses the url to get the content editor application
-   * name, appends the purge resource name "/purge" and then returns. It
-   * assumes that there is at least one html parameter (contentid) in the url
-   * while parsing.
+   * This helper method parses the url to get the content editor application name, appends the purge
+   * resource name "/purge" and then returns. It assumes that there is at least one html parameter
+   * (contentid) in the url while parsing.
    */
   private static String getPurgeAppResource(String purgeurl) {
     String result = "";
@@ -214,9 +207,7 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
     return result;
   }
 
-  /**
-   * This helper method parses the url for contentid value
-   */
+  /** This helper method parses the url for contentid value */
   private static String parseForContentid(String purgeurl) {
     String result = "";
     try {
@@ -245,9 +236,7 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
     return result;
   }
 
-  /**
-   * main method for testing purpose.
-   */
+  /** main method for testing purpose. */
   public static void main(String[] args) {
     PSDeleteContent.getPurgeAppResource(
         "http://10.10.10.17:9992/Rhythmyx/xr_ceImage/image.html?sys_command=preview&sys_contentid=78&sys_revision=1");
@@ -255,49 +244,33 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
         "http://10.10.10.17:9992/Rhythmyx/xr_ceImage/image.html?sys_command=preview&sys_contentid=78&sys_revision=1");
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
   /**
-   * Name of the purge URL that must be present in the content editor app. This
-   * name is fixed and hence hard coded.
+   * Name of the purge URL that must be present in the content editor app. This name is fixed and
+   * hence hard coded.
    */
   private static final String PURGE_RESOURCE_NAME = "/purge";
 
-  /**
-   * Name of the element 'deleterows'.
-   */
+  /** Name of the element 'deleterows'. */
   private static final String ELEM_DELETEROWS = "deleterows";
 
-  /**
-   * Name of the element 'skipped'.
-   */
+  /** Name of the element 'skipped'. */
   private static final String ELEM_SKIPPED = "skipped";
 
-  /**
-   * Name of the element 'row'.
-   */
+  /** Name of the element 'row'. */
   private static final String ELEM_ROW = "row";
 
-  /**
-   * Name of the attribute 'error'.
-   */
+  /** Name of the attribute 'error'. */
   private static final String ATTR_ERROR = "error";
 
-  /**
-   * Name of the attribute 'pkey'.
-   */
+  /** Name of the attribute 'pkey'. */
   private static final String ATTR_PKEY = "pkey";
 
-  /**
-   * Name of the attribute primary key for the relationship tables.
-   */
+  /** Name of the attribute primary key for the relationship tables. */
   private static final String ATTR_RID = "rid";
 
-  /**
-   * Default html param name for the purge url.
-   */
+  /** Default html param name for the purge url. */
   private static final String DEAFULT_PARAM_PURGEURL = "purgeurl";
 }

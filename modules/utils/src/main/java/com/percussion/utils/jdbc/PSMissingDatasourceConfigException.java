@@ -16,22 +16,18 @@
  */
 package com.percussion.utils.jdbc;
 
-/**
- * A specified datasource configuration could not be found.
- */
+/** A specified datasource configuration could not be found. */
 public class PSMissingDatasourceConfigException extends RuntimeException {
   /**
    * Convenience ctor.
    *
-   * @param dsName The name for which a matching configuration could
-   * not be found, may be <code>null</code> or emtpy.
+   * @param dsName The name for which a matching configuration could not be found, may be <code>null
+   *     </code> or emtpy.
    */
   public PSMissingDatasourceConfigException(String dsName) {
     super("Unable to locate datasource configuration with the name <" + dsName + ">");
   }
 
-  /**
-   * Generated serial version id
-   */
+  /** Generated serial version id */
   private static final long serialVersionUID = 1L;
 }

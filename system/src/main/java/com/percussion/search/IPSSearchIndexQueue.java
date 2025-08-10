@@ -23,27 +23,25 @@ import org.hibernate.HibernateException;
 import org.springframework.dao.DataAccessResourceFailureException;
 
 /**
- * IPSSearchIndexQueue - This is the interface that is used to persist Search
- * Index Events to a repository so that they will eventually be processed.
- * Methods for retrieving, saving and deleting are provided.
+ * IPSSearchIndexQueue - This is the interface that is used to persist Search Index Events to a
+ * repository so that they will eventually be processed. Methods for retrieving, saving and deleting
+ * are provided.
  *
- * Class description
+ * <p>Class description
  *
  * @author BillLanglais
  */
 public interface IPSSearchIndexQueue {
 
   /**
-   * Retrieves a list full of Search Queue Items limiting the length of the
-   * list by count. Events are loaded sorted by QueueId in ascending order.
-   * Subsequent loads start with the next Queue Event after the last one loaded
-   * previously ensuring a event is only read once unless
-   * {@link com.percussion.search.impl.PSSearchIndexQueue#resetQueueLoadPosition() }
-   * is called.
+   * Retrieves a list full of Search Queue Items limiting the length of the list by count. Events
+   * are loaded sorted by QueueId in ascending order. Subsequent loads start with the next Queue
+   * Event after the last one loaded previously ensuring a event is only read once unless {@link
+   * com.percussion.search.impl.PSSearchIndexQueue#resetQueueLoadPosition() } is called.
    *
    * @param count - Maximum number of items 0 means no limit
-   * @return Collection of Queue Items found in repository never
-   * <code>null</code> but could be empty
+   * @return Collection of Queue Items found in repository never <code>null</code> but could be
+   *     empty
    */
   public List<PSSearchIndexQueueItem> loadItems(int count);
 
@@ -59,14 +57,13 @@ public interface IPSSearchIndexQueue {
   /**
    * Deletes items from the database
    *
-   * @param queueIds - list of IDs to delete, if <code>null</code> or empty it
-   * does nothing
+   * @param queueIds - list of IDs to delete, if <code>null</code> or empty it does nothing
    */
   public void deleteItems(Collection<Integer> queueIds);
 
   /**
-   * This method is used by the public method to delete all index items related
-   * to an id.  This can be used to clean up purged items from the queue.
+   * This method is used by the public method to delete all index items related to an id. This can
+   * be used to clean up purged items from the queue.
    *
    * @param id - content id of item to delete related index queue items
    * @throws DataAccessResourceFailureException
@@ -77,8 +74,8 @@ public interface IPSSearchIndexQueue {
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException;
 
   /**
-   * This method is used by the public method to delete all index items related
-   * to an type id.  This can be used to clean up invalid content type items from the queue.
+   * This method is used by the public method to delete all index items related to an type id. This
+   * can be used to clean up invalid content type items from the queue.
    *
    * @param id - content id of item to delete related index queue items
    * @throws DataAccessResourceFailureException
@@ -88,10 +85,7 @@ public interface IPSSearchIndexQueue {
   public void deleteTypeIdItems(long id)
       throws DataAccessResourceFailureException, IllegalStateException, HibernateException;
 
-  /**
-   * Deletes all items from the database
-   *
-   */
+  /** Deletes all items from the database */
   public void deleteAllItems();
 
   /**
@@ -101,6 +95,7 @@ public interface IPSSearchIndexQueue {
 
   /**
    * When no events returned wait
+   *
    * @throws InterruptedException
    */
   public void waitForPoll(long timeout) throws InterruptedException;

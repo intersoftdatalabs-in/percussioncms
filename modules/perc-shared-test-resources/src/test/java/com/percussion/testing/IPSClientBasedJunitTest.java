@@ -20,18 +20,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * If a JUnit test requires a Rhythmyx server to run and it is invoked as
- * a remote client (of the Rhythmyx server), it should implement this
- * interface in addition to the TestCase class.
+ * If a JUnit test requires a Rhythmyx server to run and it is invoked as a remote client (of the
+ * Rhythmyx server), it should implement this interface in addition to the TestCase class.
  */
 public interface IPSClientBasedJunitTest extends IPSUnitTestConfigHelper {
   /**
    * Gets the information that is needed to connect to a Rhythmyx Server.
    *
    * @param type type of a connection requested, can be one of CONN_TYPE_XX.
-   * @return The connection properties. Never <code>null</code>.
-   * The required properties are:
-   * <table border="1">
+   * @return The connection properties. Never <code>null</code>. The required properties are:
+   *     <table border="1">
    * <tr>
    * <th>Key</th>
    * <th>Value</th>
@@ -69,6 +67,7 @@ public interface IPSClientBasedJunitTest extends IPSUnitTestConfigHelper {
    * </td>
    * </tr>
    * </table>
+   *
    * @throws IOException
    */
   static Properties getConnectionProps(int type) throws IOException {

@@ -59,18 +59,17 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to bootstrap the extension manager and manipulate it
- * without having to load the entire server.
+ * This class is used to bootstrap the extension manager and manipulate it without having to load
+ * the entire server.
  */
 public class PSExtensionInstallTool {
   private static final Logger log = LogManager.getLogger(PSExtensionInstallTool.class);
 
   /**
-   * Installs the extensions from the provided resource directory to the
-   * supplied server directory.
+   * Installs the extensions from the provided resource directory to the supplied server directory.
    *
-   * @param args takes two arguments, argument 0 is the server directory
-   *    while argument 1 is the resource directory.
+   * @param args takes two arguments, argument 0 is the server directory while argument 1 is the
+   *     resource directory.
    */
   public static void main(String[] args) {
     if (args.length != 2) {
@@ -120,18 +119,13 @@ public class PSExtensionInstallTool {
   /**
    * Install (or register) extensions from the supplied document
    *
-   * @param doc the document that contains the to be installed extensions.
-   *    If the supplied extensions already exist in the current system, then
-   *    the existing extensions will be replaced with the supplied ones.
-   *    Never <code>null</code>.
-   * @param serverDir the Rhythmyx root directory, never <code>null</code>
-   *    or empty.
-   * @param resourceDir the resource directory, never <code>null</code> or
-   *    empty. It is only used when the supplied document contains resources;
-   *    otherwise it is not used.
-   *
-   * @throws Exception if an error occurs during the installation
-   *    (or registration) process.
+   * @param doc the document that contains the to be installed extensions. If the supplied
+   *     extensions already exist in the current system, then the existing extensions will be
+   *     replaced with the supplied ones. Never <code>null</code>.
+   * @param serverDir the Rhythmyx root directory, never <code>null</code> or empty.
+   * @param resourceDir the resource directory, never <code>null</code> or empty. It is only used
+   *     when the supplied document contains resources; otherwise it is not used.
+   * @throws Exception if an error occurs during the installation (or registration) process.
    */
   public static void InstallExtensions(Document doc, String serverDir, String resourceDir)
       throws Exception {
@@ -150,13 +144,11 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Initialize the install tool in the given directory, which represents
-   * the "Extensions/" directory under the server root. If an existing
-   * extension manager is already installed in this location, all
-   * configuration information will be migrated to the new model.
+   * Initialize the install tool in the given directory, which represents the "Extensions/"
+   * directory under the server root. If an existing extension manager is already installed in this
+   * location, all configuration information will be migrated to the new model.
    *
-   * @param serverDir The server directory. Must not be
-   * <CODE>null</CODE>.
+   * @param serverDir The server directory. Must not be <CODE>null</CODE>.
    * @throws IOException if any IO operation fails.
    * @throws PSExtensionException if any extension installation fails.
    */
@@ -190,15 +182,14 @@ public class PSExtensionInstallTool {
   /**
    * Installs the Java extension handler if it is not already installed.
    *
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void installJavaHandler()
       throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
@@ -227,15 +218,14 @@ public class PSExtensionInstallTool {
   /**
    * Installs the JavaScript extension handler if it is not already installed.
    *
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void installJavaScriptHandler()
       throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
@@ -275,23 +265,22 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Installs all of the given extensions. If the extensions already
-   * exist, they will be updated rather than installed.
+   * Installs all of the given extensions. If the extensions already exist, they will be updated
+   * rather than installed.
    *
-   * @param extensions The extensions document, containing zero or more
-   *    &lt;Extension&gt; elements, not <code>null</code>.
-   * @param resourceRoot The root directory where referenced
-   *    resources will be found, not <code>null</code>.
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
+   * @param extensions The extensions document, containing zero or more &lt;Extension&gt; elements,
+   *     not <code>null</code>.
+   * @param resourceRoot The root directory where referenced resources will be found, not <code>null
+   *     </code>.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
    * @throws IOException if any IO operation fails.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void installExtensions(Document extensions, File resourceRoot)
       throws PSExtensionException, IOException, PSNonUniqueException, PSNotFoundException {
@@ -305,22 +294,21 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Installs all of the given extensions. If the extensions already
-   * exist, they will be updated rather than installed.
+   * Installs all of the given extensions. If the extensions already exist, they will be updated
+   * rather than installed.
    *
    * @param extElement The extension element, not <code>null</code>.
-   * @param resourceRoot The root directory where referenced
-   *    resources will be found, not <code>null</code>.
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
+   * @param resourceRoot The root directory where referenced resources will be found, not <code>null
+   *     </code>.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
    * @throws IOException if any IO operation fails.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void installExtension(Element extElement, File resourceRoot)
       throws PSExtensionException, IOException, PSNonUniqueException, PSNotFoundException {
@@ -349,25 +337,22 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Installs the given extension if it does not already exists. If it
-   * already exists, it will be updated instead.
+   * Installs the given extension if it does not already exists. If it already exists, it will be
+   * updated instead.
    *
    * @param def The extension definition. Must not be <CODE>null</CODE>.
-   * @param resources An Iterator over 0 or more non-<CODE>null</CODE>
-   *    named IPSMimeContent objects specifying any resources that should be
-   *    saved along with the extension. The resources may or may not
-   *    correspond to the URLs returned from the def's
-   *    <CODE>getResourceLocations()</CODE> method. Must not be
-   *    <CODE>null</CODE>.
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
+   *     specifying any resources that should be saved along with the extension. The resources may
+   *     or may not correspond to the URLs returned from the def's <CODE>getResourceLocations()
+   *     </CODE> method. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void installExtension(IPSExtensionDef def, Iterator resources)
       throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
@@ -380,9 +365,7 @@ public class PSExtensionInstallTool {
     }
   }
 
-  /**
-   * Closes all resources used in this class.
-   */
+  /** Closes all resources used in this class. */
   public void close() {
     try {
       if (m_extMgr != null) {
@@ -396,21 +379,19 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Converts the exit directory structure from the version 1.0 format to
-   * the version 2.0 format.
+   * Converts the exit directory structure from the version 1.0 format to the version 2.0 format.
    *
    * @deprecated as of version 2.1.
    * @throws IOException for any IO operation that fails.
-   * @throws PSExtensionException If the extension definition fails
-   *    the handler's validation rules or if the extension could not be
-   *    loaded (some implementations may defer loading until prepareExtension
-   *    is called), or if the extension handler could not be started. In any
-   *    case, the defined extension will not be installed.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called), or if the extension handler could not be started. In any case,
+   *     the defined extension will not be installed.
    * @throws SAXException for any SAX parser error.
-   * @throws PSNotFoundException If the appropriate extension handler
-   *    does not exist. The defined extension will not be installed.
-   * @throws PSNonUniqueException If the extension already exists. Use
-   *    updateExtension instead. The defined extension will not be installed.
+   * @throws PSNotFoundException If the appropriate extension handler does not exist. The defined
+   *     extension will not be installed.
+   * @throws PSNonUniqueException If the extension already exists. Use updateExtension instead. The
+   *     defined extension will not be installed.
    */
   public void convertOldExits()
       throws IOException,
@@ -499,8 +480,8 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * Converts the given PSXScriptExtensionDef element into an
-   * extension def. The element is <STRONG>not</STRONG> modified or removed.
+   * Converts the given PSXScriptExtensionDef element into an extension def. The element is
+   * <STRONG>not</STRONG> modified or removed.
    */
   private IPSExtensionDef defineUDFExtension(Element scriptDefEl) {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(scriptDefEl);
@@ -753,9 +734,7 @@ public class PSExtensionInstallTool {
     return backup;
   }
 
-  /**
-   * Closes all resources used in this class.
-   */
+  /** Closes all resources used in this class. */
   @Override
   protected void finalize() throws Throwable {
     close();
@@ -763,8 +742,8 @@ public class PSExtensionInstallTool {
   }
 
   /**
-   * The extension manager instance, initialized during construction, never
-   * <code>null</code> after that.
+   * The extension manager instance, initialized during construction, never <code>null</code> after
+   * that.
    */
   private IPSExtensionManager m_extMgr;
 
@@ -777,18 +756,12 @@ public class PSExtensionInstallTool {
   private static final int nextFlag =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * This extension is a user defined function (UDF) processor.
-   */
+  /** This extension is a user defined function (UDF) processor. */
   private static final int EXT_TYPE_UDF_PROC = 0x01;
 
-  /**
-   * This extension is a request pre-processor.
-   */
+  /** This extension is a request pre-processor. */
   private static final int EXT_TYPE_REQUEST_PRE_PROC = 0x02;
 
-  /**
-   * This extension is a result document processor.
-   */
+  /** This extension is a result document processor. */
   private static final int EXT_TYPE_RESULT_DOC_PROC = 0x04;
 }

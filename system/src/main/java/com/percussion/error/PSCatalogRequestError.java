@@ -24,38 +24,28 @@ import com.percussion.log.PSLogSubMessage;
 import java.util.Locale;
 
 /**
- * The PSCatalogRequestError class is used to report an error
- * encountered during a catalog request.
+ * The PSCatalogRequestError class is used to report an error encountered during a catalog request.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSCatalogRequestError extends PSLogError {
   /**
    * Report an error encountered during a catalog request.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      reqCategory      the catalog request category
-   *
-   * @param      reqType         the catalog request type
-   *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
+   * @param sessionId the session id of the user making the request
+   * @param reqCategory the catalog request category
+   * @param reqType the catalog request type
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   public PSCatalogRequestError(
       String sessionId, String reqCategory, String reqType, int errorCode, Object[] errorParams) {
@@ -68,10 +58,7 @@ public class PSCatalogRequestError extends PSLogError {
     m_errorArgs = errorParams;
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale.
-   */
+  /** Subclasses must override this to build the messages in the specified locale. */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

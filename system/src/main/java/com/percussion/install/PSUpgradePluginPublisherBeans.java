@@ -31,17 +31,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Upgrades the publisher spring beans file.  This includes adding properties
- * for timeout, enable passive mode, and umask to the ftp and sftp delivery
- * handler configurations if specified in the publisher config table.
+ * Upgrades the publisher spring beans file. This includes adding properties for timeout, enable
+ * passive mode, and umask to the ftp and sftp delivery handler configurations if specified in the
+ * publisher config table.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   /**
    * <code>elemData</code> element must define the following attributes:
+   *
    * <ul>
-   * <li>publisher-bean-path: relative path to the publisher beans file to
-   * update</li>
+   *   <li>publisher-bean-path: relative path to the publisher beans file to update
    * </ul>
    */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
@@ -67,13 +67,10 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   /**
    * Upgrade the configuration.
    *
-   * @param target the target file.  Must be non-<code>null</code> and must
-   * exist.
-   * @param backup a backup of the current target will be copied to this
-   * location, overwriting the current file if it exists.
-   *
+   * @param target the target file. Must be non-<code>null</code> and must exist.
+   * @param backup a backup of the current target will be copied to this location, overwriting the
+   *     current file if it exists.
    * @return <code>true</code> if this succeeds.
-   *
    * @throws Exception If an error occurs.
    */
   private boolean upgradeConfig(File target, File backup) throws Exception {
@@ -155,12 +152,12 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Finds the ftp and sftp handler elements in the given document and updates
-   * their timeout attribute values.
+   * Finds the ftp and sftp handler elements in the given document and updates their timeout
+   * attribute values.
    *
    * @param doc The xml document object, assumed not <code>null</code>.
-   * @param newTimeout This value will be used as the new timeout value for
-   * the ftp and sftp handlers.
+   * @param newTimeout This value will be used as the new timeout value for the ftp and sftp
+   *     handlers.
    */
   private void updateFtpHandlersTimeout(Document doc, int newTimeout) {
     NodeList nodeList = doc.getElementsByTagName(BEAN_TAGNAME);
@@ -178,12 +175,12 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Finds the ftp handler element in the given document and updates its
-   * enable passive mode attribute value.
+   * Finds the ftp handler element in the given document and updates its enable passive mode
+   * attribute value.
    *
    * @param doc The xml document object, assumed not <code>null</code>.
-   * @param enablePassiveMode This value will be used as the new enable
-   * passive mode value for the ftp handler.
+   * @param enablePassiveMode This value will be used as the new enable passive mode value for the
+   *     ftp handler.
    */
   private void updateFtpHandlerPassiveMode(Document doc, boolean enablePassiveMode) {
     NodeList nodeList = doc.getElementsByTagName(BEAN_TAGNAME);
@@ -202,12 +199,10 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Finds the sftp handler element in the given document and updates its
-   * umask attribute value.
+   * Finds the sftp handler element in the given document and updates its umask attribute value.
    *
    * @param doc The xml document object, assumed not <code>null</code>.
-   * @param umaskval This value will be used as the new umask value for the
-   * sftp handler.
+   * @param umaskval This value will be used as the new umask value for the sftp handler.
    */
   private void updateSftpHandlerUmask(Document doc, String umaskval) {
     NodeList nodeList = doc.getElementsByTagName(BEAN_TAGNAME);
@@ -226,16 +221,11 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Determines if a property child element exists with the given name for the
-   * given element.
+   * Determines if a property child element exists with the given name for the given element.
    *
-   * @param elem The element under which to search, assumed not
-   * <code>null</code>.
-   * @param name The name of the property child element, assumed not
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the element exists, <code>false</code>
-   * otherwise.
+   * @param elem The element under which to search, assumed not <code>null</code>.
+   * @param name The name of the property child element, assumed not <code>null</code>.
+   * @return <code>true</code> if the element exists, <code>false</code> otherwise.
    */
   private boolean propertyExists(Element elem, String name) {
     boolean propExists = false;
@@ -253,13 +243,10 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Finds the publisher configuration maximum timeout value if one has been
-   * specified.
+   * Finds the publisher configuration maximum timeout value if one has been specified.
    *
    * @param conn Database connection, assumed not <code>null</code>.
-   *
-   * @return The maximum timeout value in milliseconds greater than zero or -1
-   * if one was not found.
+   * @return The maximum timeout value in milliseconds greater than zero or -1 if one was not found.
    */
   private int findMaxTimeout(Connection conn) {
     int maxTimeout = -1;
@@ -311,13 +298,12 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Determines if a publisher configuration enable passive mode value has
-   * been specified and set to 'true.'
+   * Determines if a publisher configuration enable passive mode value has been specified and set to
+   * 'true.'
    *
    * @param conn Database connection, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if passive mode has been enabled for a publisher
-   * configuration, <code>false</code> otherwise.
+   * @return <code>true</code> if passive mode has been enabled for a publisher configuration,
+   *     <code>false</code> otherwise.
    */
   private boolean isPassiveModeEnabled(Connection conn) {
     boolean enablePassiveMode = false;
@@ -358,9 +344,7 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
    * Finds the publisher configuration umask value if one has been specified.
    *
    * @param conn Database connection, assumed not <code>null</code>.
-   *
-   * @return The first non-empty umask value found, <code>null</code>
-   * otherwise.
+   * @return The first non-empty umask value found, <code>null</code> otherwise.
    */
   private String findUmask(Connection conn) {
     String umaskval = null;
@@ -403,9 +387,7 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   /**
    * Get the pre-6.6 publisher configuration table.
    *
-   * @return The fully qualified table name of the publisher configuration
-   * table (pre-6.6).
-   *
+   * @return The fully qualified table name of the publisher configuration table (pre-6.6).
    * @throws Exception if an error occurs qualifying the table name.
    */
   private String getPublisherConfigTable() throws Exception {
@@ -413,9 +395,7 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
     return RxUpgrade.qualifyTableName("RXPUBLISHERCONFIG");
   }
 
-  /**
-   * Xml tag, attribute, value constants
-   */
+  /** Xml tag, attribute, value constants */
   private static final String BEAN_TAGNAME = "bean";
 
   private static final String ID_TAGNAME = "id";
@@ -429,8 +409,8 @@ public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin {
   private static final String UMASK_VALUE = "umask";
 
   /**
-   * Used for logging output to the plugin log file, initialized in
-   * {@link #process(IPSUpgradeModule, Element)}.
+   * Used for logging output to the plugin log file, initialized in {@link
+   * #process(IPSUpgradeModule, Element)}.
    */
   private static PrintStream ms_logger;
 }

@@ -17,11 +17,10 @@
 package com.percussion.servlets.taglib;
 
 /**
- * This component emits tha appropriate markup for a cascaded menu using the
- * CSS menu implementation.
+ * This component emits tha appropriate markup for a cascaded menu using the CSS menu
+ * implementation.
  *
  * @author dougrand
- *
  */
 public class PSCascadeMenuTag extends PSJSFBaseTag {
   @Override

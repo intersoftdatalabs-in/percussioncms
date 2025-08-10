@@ -57,21 +57,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Class to handle packaging and deploying a Locale definintion.
- */
+/** Class to handle packaging and deploying a Locale definintion. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -88,6 +83,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Utility method to find the Template by a given guid(as a STRINGGGGGG)
+   *
    * @param lStr the language string
    * @return PSLocale may return <code>null</code> if not found
    * @throws PSDeployException
@@ -209,15 +205,15 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>SuppportFile</li>
+   *   <li>SuppportFile
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator getChildTypes() {
@@ -233,9 +229,8 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   /**
    * See base class method for details.
    *
-   * @return <code>true</code> to ensure that keywords are installed before
-   * the locale so that id transformations will find the target keywords
-   * already installed.
+   * @return <code>true</code> to ensure that keywords are installed before the locale so that id
+   *     transformations will find the target keywords already installed.
    */
   @Override
   public boolean shouldDeferInstallation() {
@@ -402,11 +397,11 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * gets the translation settings dependency as an **aggregate**
+   *
    * @param tok the security token never <code>null</code>
    * @param id the locale id never <code>null</code> or empty
-   * @return the actual dependency, may or may not be <code>null</code>. If
-   * there are no translation settings defined, then <code>null</code> is
-   * returned
+   * @return the actual dependency, may or may not be <code>null</code>. If there are no translation
+   *     settings defined, then <code>null</code> is returned
    * @throws PSDeployException
    */
   private PSDependency getTranslationSettingsDependencies(PSSecurityToken tok, String id)
@@ -421,16 +416,12 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Get all dependencies specified by id's within the translation unit keys
-   * in the supplied tmx document.
+   * Get all dependencies specified by id's within the translation unit keys in the supplied tmx
+   * document.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param doc The tmx doc, assumed not <code>null</code> and to be a valid
-   * tmx document.
-   *
-   * @return A set of dependency objects, never <code>null</code>, may be
-   * empty.
-   *
+   * @param doc The tmx doc, assumed not <code>null</code> and to be a valid tmx document.
+   * @return A set of dependency objects, never <code>null</code>, may be empty.
    * @throws PSDeployException If the are any errors.
    */
   private Set getTmxDependencies(PSSecurityToken tok, Document doc)
@@ -455,12 +446,9 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
    * Get a dependency represented by the supplied tmx tu id.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param tuid The translation unit id to parse for dependent ids, assumed
-   * not <code>null</code> or empty.
-   *
-   * @return A dependency, or <code>null</code> if the tu id does not represent
-   * one.
-   *
+   * @param tuid The translation unit id to parse for dependent ids, assumed not <code>null</code>
+   *     or empty.
+   * @return A dependency, or <code>null</code> if the tu id does not represent one.
    * @throws PSDeployException if there are any errors.
    */
   private PSDependency getTmxDep(PSSecurityToken tok, String tuid)
@@ -507,11 +495,10 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
    *
    * @param ctx The import context, assumed not <code>null</code>.
    * @param dep The dependency being installed, assumed not <code>null</code>.
-   * @param tmxDoc The doc to translate, assumed not <code>null</code> and to
-   * be a valid tmx document.
-   * @param srcKeyData The table data of the RXLOOKUP table from the source
-   * server restored from the repository, assumed not <code>null</code>.
-   *
+   * @param tmxDoc The doc to translate, assumed not <code>null</code> and to be a valid tmx
+   *     document.
+   * @param srcKeyData The table data of the RXLOOKUP table from the source server restored from the
+   *     repository, assumed not <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   private void transformTmxIds(
@@ -617,20 +604,16 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Parses the supplied translation unit id for id's based on the supplied
-   * tmx type.
+   * Parses the supplied translation unit id for id's based on the supplied tmx type.
    *
    * @param tuid The string to parse, assumed not <code>null</code> or empty.
    * @param tmxType The type to check for, assumed not <code>null</code>.
-   * @param suffix A buffer in which to return the suffix portion of the key
-   * after it is parsed. This is everything after the delimiter following the
-   * last id discovered.  May be <code>null</code> if this is not needed,
-   * assumed to be empty if supplied.
-   *
-   * @return An array of ids, will contain one entry unless the type supports
-   * parent ids, in which case the array will contain two entries, the parent
-   * id followed by the child id, may be <code>null</code> if no id could be
-   * parsed from the key.
+   * @param suffix A buffer in which to return the suffix portion of the key after it is parsed.
+   *     This is everything after the delimiter following the last id discovered. May be <code>null
+   *     </code> if this is not needed, assumed to be empty if supplied.
+   * @return An array of ids, will contain one entry unless the type supports parent ids, in which
+   *     case the array will contain two entries, the parent id followed by the child id, may be
+   *     <code>null</code> if no id could be parsed from the key.
    */
   private String[] parseTuIds(String tuid, PSTmxType tmxType, StringBuilder suffix) {
     String[] tuIds = null;
@@ -669,20 +652,15 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     return tuIds;
   }
 
-  /**
-   * Clears the cached RXLOOKUP table data, which is cached by a call to
-   * {@link #getKeyData()}.
-   */
+  /** Clears the cached RXLOOKUP table data, which is cached by a call to {@link #getKeyData()}. */
   private void clearKeyData() {
     m_keyData = null;
   }
 
   /**
-   * Gets the RXLOOKUP table data, will be cached until a call to
-   * {@link #clearKeyData()}.
+   * Gets the RXLOOKUP table data, will be cached until a call to {@link #clearKeyData()}.
    *
    * @return The data, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private PSJdbcTableData getKeyData() throws PSDeployException {
@@ -696,9 +674,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     return m_keyData;
   }
 
-  /**
-   * Initializes the list of tmx types used to parse the tmx document for ids.
-   */
+  /** Initializes the list of tmx types used to parse the tmx document for ids. */
   private void initTmxTypes() {
     m_tmxTypes.clear();
     m_tmxTypes.add(
@@ -752,11 +728,10 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * This method is used to get the merge config doc used to define the rules
-   * when merging the source tmx doc into the target master tmx doc.
+   * This method is used to get the merge config doc used to define the rules when merging the
+   * source tmx doc into the target master tmx doc.
    *
    * @return The doc, never <code>null</code>.
-   *
    * @throws RuntimeException if the file cannot be located.
    * @throws PSDeployException if the doc cannot be loaded.
    */
@@ -780,106 +755,72 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     return ms_mergeConfig;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "LocaleDef";
 
   /**
-   * Singleton instance of the locale manager, initialized during construction,
-   * never <code>null</code> or modified after that.
+   * Singleton instance of the locale manager, initialized during construction, never <code>null
+   * </code> or modified after that.
    */
   private PSLocaleManager m_localeMgr;
 
   /**
-   * Cached table data for the RXLOOKUP table, used to discover keyword
-   * dependencies and to transform them on install.  Initially
-   * <code>null</code>, set to <code>null</code> by calls to
-   * {@link #clearKeyData()}, and set to a non-<code>null</code> value by
-   * a call to {@link #getKeyData()}.
+   * Cached table data for the RXLOOKUP table, used to discover keyword dependencies and to
+   * transform them on install. Initially <code>null</code>, set to <code>null</code> by calls to
+   * {@link #clearKeyData()}, and set to a non-<code>null</code> value by a call to {@link
+   * #getKeyData()}.
    */
   private PSJdbcTableData m_keyData = null;
 
-  /**
-   * Path of the rx root, assumed to be the current directory.  Never
-   * <code>null</code> or empty.
-   */
+  /** Path of the rx root, assumed to be the current directory. Never <code>null</code> or empty. */
   private static final String m_rxRoot = PSServer.getRxDir().getAbsolutePath();
 
-  /**
-   * The name of the merge config doc.
-   */
+  /** The name of the merge config doc. */
   private static final String MERGE_CONFIG_FILE = "PSLocaleDefDependencyHandlerResources.xml";
 
   /**
-   * The merge config doc used to define the rules when merging the source
-   * tmx doc into the target master tmx doc.  <code>null</code> until first
-   * call to {@link #getMergeConfig()}, never <code>null</code> or modified
-   * after that.
+   * The merge config doc used to define the rules when merging the source tmx doc into the target
+   * master tmx doc. <code>null</code> until first call to {@link #getMergeConfig()}, never <code>
+   * null</code> or modified after that.
    */
   private static Document ms_mergeConfig = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
-  /**
-   * The prefix for the translation unit id reperesenting a workflow.
-   */
+  /** The prefix for the translation unit id reperesenting a workflow. */
   private static final String TMX_ID_WORKFLOW = "psx.workflow.workflow.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a keyword.
-   */
+  /** The prefix for the translation unit id reperesenting a keyword. */
   private static final String TMX_ID_KEYWORD = "psx.keyword.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a site name.
-   */
+  /** The prefix for the translation unit id reperesenting a site name. */
   private static final String TMX_ID_SITE_NAME = "psx.site.name.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a site description.
-   */
+  /** The prefix for the translation unit id reperesenting a site description. */
   private static final String TMX_ID_SITE_DESC = "psx.site.description.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a variant.
-   */
+  /** The prefix for the translation unit id reperesenting a variant. */
   private static final String TMX_ID_VARIANT = "psx.variant.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a content type.
-   */
+  /** The prefix for the translation unit id reperesenting a content type. */
   private static final String TMX_ID_CONTENT_TYPE = "psx.contenttype.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a transiton in a
-   * workflow.
-   */
+  /** The prefix for the translation unit id reperesenting a transiton in a workflow. */
   private static final String TMX_ID_TRANSITION = "psx.workflow.transition.";
 
-  /**
-   * The prefix for the translation unit id reperesenting a content editor
-   * field.
-   */
+  /** The prefix for the translation unit id reperesenting a content editor field. */
   private static final String TMX_ID_CE = "psx.ce.local.";
 
-  /**
-   * Constant for the tuid delimeter "@"
-   */
+  /** Constant for the tuid delimeter "@" */
   private static final String AT = "@";
 
-  /**
-   * Constant for the tuid delimeter "."
-   */
+  /** Constant for the tuid delimeter "." */
   private static final String DOT = ".";
 
   /**
-   * List of tmx types, never <code>null</code>, empty until ctor calls
-   * {@link #initTmxTypes()}, never modified after that.
+   * List of tmx types, never <code>null</code>, empty until ctor calls {@link #initTmxTypes()},
+   * never modified after that.
    */
   private List m_tmxTypes = new ArrayList();
 
@@ -889,24 +830,22 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Class to encapsulate data about a tmx key and its delimeters and
-   * corresponding dependency types.
+   * Class to encapsulate data about a tmx key and its delimeters and corresponding dependency
+   * types.
    */
   private class PSTmxType {
     /**
      * Construct a type.
      *
-     * @param prefix The prefix of this type's translation unit id, assumed
-     * not <code>null</code> or empty.
-     * @param delims An array of delimiters for this key, used when parsing it
-     * to extract ids, specifies the first token following the id.  Normally
-     * there is one, but for types that support parent ids, there are two, the
-     * parent's and child's delimiters respectively.  Assumed not
-     * <code>null</code> and to have one or two values.
-     * @param types An array of dependency types, corresponding to the type of
-     * the ids tokenized by the <code>delims</code> values.  Assumed not
-     * <code>null</code> and to have the same number of values as the
-     * <code>delims</code> array.
+     * @param prefix The prefix of this type's translation unit id, assumed not <code>null</code> or
+     *     empty.
+     * @param delims An array of delimiters for this key, used when parsing it to extract ids,
+     *     specifies the first token following the id. Normally there is one, but for types that
+     *     support parent ids, there are two, the parent's and child's delimiters respectively.
+     *     Assumed not <code>null</code> and to have one or two values.
+     * @param types An array of dependency types, corresponding to the type of the ids tokenized by
+     *     the <code>delims</code> values. Assumed not <code>null</code> and to have the same number
+     *     of values as the <code>delims</code> array.
      */
     public PSTmxType(String prefix, String[] delims, String[] types) {
       m_prefix = prefix;
@@ -941,22 +880,13 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       return m_types;
     }
 
-    /**
-     * The prefix supplied to the ctor, never <code>null</code> or empty or
-     * modified after that.
-     */
+    /** The prefix supplied to the ctor, never <code>null</code> or empty or modified after that. */
     private String m_prefix;
 
-    /**
-     * The delims supplied to the ctor, never <code>null</code> or empty or
-     * modified after that.
-     */
+    /** The delims supplied to the ctor, never <code>null</code> or empty or modified after that. */
     private String[] m_delims;
 
-    /**
-     * The types supplied to the ctor, never <code>null</code> or empty or
-     * modified after that.
-     */
+    /** The types supplied to the ctor, never <code>null</code> or empty or modified after that. */
     private String[] m_types;
   }
 }

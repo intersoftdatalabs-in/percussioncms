@@ -22,30 +22,25 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * The PSSimpleJavaUdf_literal class converts literals given by a user
- * defined function (UDF) to strings.
+ * The PSSimpleJavaUdf_literal class converts literals given by a user defined function (UDF) to
+ * strings.
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSSimpleJavaUdf_literal extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Returns params[0] as a String object by performing a toString()
-   * operation on it.
+   * Returns params[0] as a String object by performing a toString() operation on it.
    *
-   * @param      params         the parameter values to use in the UDF
-   * @param      request         the current request context
-   *
-   * @return                     The string representation of the supplied
-   *                            object, or <code>null</code> if <code>null
+   * @param params the parameter values to use in the UDF
+   * @param request the current request context
+   * @return The string representation of the supplied object, or <code>null</code> if <code>null
    *                            </code> is supplied.
-   *
-   * @exception  PSConversionException
-   *                            if params[0] is <code>null</code> or contains
-   *                            more than 1 parameter.
+   * @exception PSConversionException if params[0] is <code>null</code> or contains more than 1
+   *     parameter.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

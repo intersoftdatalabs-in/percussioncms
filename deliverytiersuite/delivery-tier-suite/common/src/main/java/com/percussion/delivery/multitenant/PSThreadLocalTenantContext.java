@@ -19,8 +19,8 @@ package com.percussion.delivery.multitenant;
 
 /**
  * Tenant context that stores its context data within the thread local data.
- * @author erikserating
  *
+ * @author erikserating
  */
 public class PSThreadLocalTenantContext implements IPSTenantContext {
 
@@ -41,9 +41,7 @@ public class PSThreadLocalTenantContext implements IPSTenantContext {
     userLocal.set(tenantId);
   }
 
-  /**
-   * Clear the tenant id value, setting it to <code>null</code>.
-   */
+  /** Clear the tenant id value, setting it to <code>null</code>. */
   public static void clearTenantId() {
     userLocal.set(null);
   }

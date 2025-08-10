@@ -33,16 +33,13 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A new concept known as a PSRule was added when the Content Editors were
- * first created. A rule is either a collection of conditionals or an
- * extension set. Rules can be combined with boolean 'and' and 'or' operators
- * to create complex expressions. Any extension in a rule must return a
- * value that can be interpreted as <code>true</code> or <code>false</code>,
- * Which means that the extension must implement the <code>IPSUdfProcessor</code>
- * interface.
- * This class constructs an appropriate representation of the definitions
- * that can be executed repeatedly at run time using the {@link
- * #isMatch(PSExecutionData) isMatch} method.
+ * A new concept known as a PSRule was added when the Content Editors were first created. A rule is
+ * either a collection of conditionals or an extension set. Rules can be combined with boolean 'and'
+ * and 'or' operators to create complex expressions. Any extension in a rule must return a value
+ * that can be interpreted as <code>true</code> or <code>false</code>, Which means that the
+ * extension must implement the <code>IPSUdfProcessor</code> interface. This class constructs an
+ * appropriate representation of the definitions that can be executed repeatedly at run time using
+ * the {@link #isMatch(PSExecutionData) isMatch} method.
  */
 public class PSRuleEvaluator extends PSConditionalEvaluator {
   /*
@@ -76,17 +73,13 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
   }
 
   /**
-   * Prepares extension instances for each of the given extension calls
-   * whose extension implements the given class or interface, storing
-   * each prepared extension in the given collection.
+   * Prepares extension instances for each of the given extension calls whose extension implements
+   * the given class or interface, storing each prepared extension in the given collection.
    *
-   * @param extCalls A collection of extension calls. Will not be modified.
-   * Can be <CODE>null</CODE>, in which case this method will do nothing.
-   *
-   * @param interfaceName The fully qualified classname of the interface
-   * that determines which of the referenced extensions will be prepared.
-   * Assumed not <code>null</code>.
-   *
+   * @param extCalls A collection of extension calls. Will not be modified. Can be <CODE>null</CODE>
+   *     , in which case this method will do nothing.
+   * @param interfaceName The fully qualified classname of the interface that determines which of
+   *     the referenced extensions will be prepared. Assumed not <code>null</code>.
    * @param instances The List into which prepared extensions will be put.
    */
   private void loadExtensions(PSCollection extCalls, String interfaceName, List instances)
@@ -116,16 +109,12 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
   }
 
   /**
-   * Returns <CODE>true</CODE> if and only if the named extension
-   * implements the given interface, <CODE>false</CODE> otherwise.
+   * Returns <CODE>true</CODE> if and only if the named extension implements the given interface,
+   * <CODE>false</CODE> otherwise.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
-   * @param interfaceName The fully qualified Java classname of the
-   * interface to test for.
-   *
-   * @return <CODE>true</CODE> if the referenced extension implements
-   * <CODE>interfaceName</CODE>.
+   * @param interfaceName The fully qualified Java classname of the interface to test for.
+   * @return <CODE>true</CODE> if the referenced extension implements <CODE>interfaceName</CODE>.
    */
   public static boolean extensionImplementsInterface(PSExtensionRef ref, String interfaceName)
       throws PSExtensionException, PSNotFoundException {
@@ -149,38 +138,31 @@ public class PSRuleEvaluator extends PSConditionalEvaluator {
   }
 
   /**
-   * The extension runners for this rule.
-   * Can be <code>null</code> after construction, but not empty
+   * The extension runners for this rule. Can be <code>null</code> after construction, but not empty
    */
   private ArrayList m_extensions = null;
 
   /**
-   * Checks the conditionals or extensions using the specified data. Tokens
-   * representing variables are substituted with their run-time values before
-   * performing the check.
+   * Checks the conditionals or extensions using the specified data. Tokens representing variables
+   * are substituted with their run-time values before performing the check.
+   *
+   * <p>This evaluator can use the request context hash tables, the input XML document and the
+   * result set(s) for processing.
+   *
+   * <p>Conditionals within the rule are executed according to {@link
+   * PSConditionalEvaluator#isMatch(PSExecutionData) isMatch} in the super class. <B> Extension
+   * calls within a rule are executed as if they were a list of AND-ed conditions, that is, the
+   * first to return <code>false</code> will cause this method to return <code>false</code>
+   * immediately.
+   *
    * <p>
-   * This evaluator can use the request context hash tables, the input
-   * XML document and the result set(s) for processing.
-   * <P>
-   * Conditionals within the rule are executed
-   * according to {@link PSConditionalEvaluator#isMatch(PSExecutionData) isMatch}
-   * in the super class.
-   * <B>
-   * Extension calls within a rule are executed as if they
-   * were a list of AND-ed conditions, that is, the first to return
-   * <code>false</code> will cause this method to return
-   * <code>false</code> immediately.
-   * <P>
    *
    * @param data The execution data the evaluator will be applied to.
-   *
-   * @return  <code>true</code> if the conditional criteria are met or no
-   *          criteria are defined for this rule,
-   *          <code>false</code> otherwise
-   *
-   * @throws PSEvaluationException if a data extraction or conversion exception
-   *    occurs (for extension-based rules) or if a evaluation exception occurs
-   *    in the underlying base class (for conditional-based rules)
+   * @return <code>true</code> if the conditional criteria are met or no criteria are defined for
+   *     this rule, <code>false</code> otherwise
+   * @throws PSEvaluationException if a data extraction or conversion exception occurs (for
+   *     extension-based rules) or if a evaluation exception occurs in the underlying base class
+   *     (for conditional-based rules)
    */
   public boolean isMatch(PSExecutionData data) {
     if (m_extensions != null) {

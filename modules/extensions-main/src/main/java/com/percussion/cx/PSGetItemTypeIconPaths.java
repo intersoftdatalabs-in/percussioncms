@@ -43,14 +43,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Exit to get the icon paths for the supplied locators. Gets the input from the
- * value of ItemLocators parameter from the request. It is a required parameter
- * and returns unmodified result document if it is missing. Expects the input in
- * the form of a string representation of XML consisting of PSXLocator elements
- * as direct children of root element. Gets the content type icon paths from
- * <code>PSItemDefManager</code> and returns the results per the following
- * DTD. See {@link PSItemDefManager#getContentTypeIconPaths(List)} for more
- * details on how paths are generated for items.
+ * Exit to get the icon paths for the supplied locators. Gets the input from the value of
+ * ItemLocators parameter from the request. It is a required parameter and returns unmodified result
+ * document if it is missing. Expects the input in the form of a string representation of XML
+ * consisting of PSXLocator elements as direct children of root element. Gets the content type icon
+ * paths from <code>PSItemDefManager</code> and returns the results per the following DTD. See
+ * {@link PSItemDefManager#getContentTypeIconPaths(List)} for more details on how paths are
+ * generated for items.
  *
  * <pre>
  *        &lt;!ELEMENT ItemIcons (Item*)&gt;
@@ -60,8 +59,8 @@ import org.xml.sax.SAXException;
  *        &lt;!ATTLIST Item path CDATA #REQUIRED&gt;
  * </pre>
  *
- * The returned resultDoc consists of an empty ItemIcons element if the input is
- * not as expected by this exit.
+ * The returned resultDoc consists of an empty ItemIcons element if the input is not as expected by
+ * this exit.
  */
 public class PSGetItemTypeIconPaths implements IPSResultDocumentProcessor {
   /*
@@ -98,8 +97,8 @@ public class PSGetItemTypeIconPaths implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper method to create a list of locators from the given xml document
-   * string consisting of PSXLocator elements.
+   * Helper method to create a list of locators from the given xml document string consisting of
+   * PSXLocator elements.
    *
    * @param itemsXml assumed not <code>null</code> or empty.
    * @return List of PSLocator objects never <code>null</code>, may be empty.
@@ -123,8 +122,8 @@ public class PSGetItemTypeIconPaths implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper method to add item elements to supplied document. The item elements
-   * are added as per the DTD mentioned in class description.
+   * Helper method to add item elements to supplied document. The item elements are added as per the
+   * DTD mentioned in class description.
    *
    * @param locs assumed not <code>null</code>.
    * @return Document consisting of icon paths.
@@ -162,8 +161,6 @@ public class PSGetItemTypeIconPaths implements IPSResultDocumentProcessor {
     return false;
   }
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSGetItemTypeIconPaths.class);
 }

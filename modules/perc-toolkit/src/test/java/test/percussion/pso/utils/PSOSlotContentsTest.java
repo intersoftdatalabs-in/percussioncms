@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,11 @@
  */
 /*
  * test.percussion.pso.utils PSOSlotContentsTest.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package test.percussion.pso.utils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-// Removed TestCase extension for JUnit 5
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import org.mockito.Mock;
-import static org.mockito.Mockito.*;
-// ...existing code...
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -46,95 +29,120 @@ import com.percussion.pso.utils.PSOSlotContents;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
+import java.util.ArrayList;
+import java.util.List;
+import junit.framework.TestCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * 
- *
  * @author DavidBenua
- *
  */
-@ExtendWith(MockitoExtension.class)
-public class PSOSlotContentsTest
-{
-   private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
-   
-   @Mock
-   private IPSContentWs cws;
-   @Mock
-   private IPSGuidManager gmgr;
-   @Mock
-   private PSAaRelationship rel1;
-   @Mock
-   private PSAaRelationship rel2;
-   @Mock
-   private PSAaRelationship rel3;
-   @Mock
-   private PSAaRelationship rel4;
+public class PSOSlotContentsTest extends TestCase {
+  private static final Logger log = LogManager.getLogger(PSOSlotContentsTest.class);
 
-   private List<PSAaRelationship> rels = new ArrayList<>();
+  JUnit4Mockery mocks =
+      new JUnit4Mockery() {
+        {
+          setImposteriser(ClassImposteriser.INSTANCE);
+        }
+      };
 
-   IPSTemplateSlot ourSlot;
-   IPSTemplateSlot otherSlot;
-   IPSAssemblyTemplate template;
-   
-   /**
-    * @param name
-    */
-   /**
-    * @see junit.framework.TestCase#setUp()
-    */
-   @BeforeEach
-   void setUp()
-   {
-      // No super.setUp() needed for JUnit 5
-   }
-   /**
-    * Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}.
-    */
-   @Test
-   void testPSOSlotContents()
-   {
-      PSOSlotContents contents = new PSOSlotContents(); 
-                
-      final PSLocator parent = new PSLocator(1, 1);
-      final IPSGuid slot1 = new PSGuid(1L);
-      final IPSGuid slot2 = new PSGuid(2L);
+  private List<PSAaRelationship> rels = new ArrayList<PSAaRelationship>();
 
-      rels.clear();
-      rels.add(rel1);
-      rels.add(rel2);
-      rels.add(rel3);
-      rels.add(rel4);
+  IPSTemplateSlot ourSlot;
+  IPSTemplateSlot otherSlot;
+  IPSAssemblyTemplate template;
 
-      try {
-         // Mockito stubbing
-         when(cws.loadContentRelations(any(PSRelationshipFilter.class), eq(true))).thenReturn(rels);
-         when(gmgr.makeLocator(any(IPSGuid.class))).thenReturn(parent);
-         when(rel1.getSlotId()).thenReturn(slot1);
-         when(rel2.getSlotId()).thenReturn(slot2);
-         when(rel3.getSlotId()).thenReturn(slot1);
-         when(rel4.getSlotId()).thenReturn(slot1);
-         when(rel1.getSortRank()).thenReturn(3);
-         when(rel2.getSortRank()).thenReturn(1);
-         when(rel3.getSortRank()).thenReturn(2);
-         when(rel4.getSortRank()).thenReturn(1);
+  /**
+   * @param name
+   */
+  public PSOSlotContentsTest(String name) {
+    super(name);
+  }
 
-         contents.setCws(cws);
-         contents.setGmgr(gmgr);
+  /**
+   * @see junit.framework.TestCase#setUp()
+   */
+  @Before
+  protected void setUp() throws Exception {
+    super.setUp();
+  }
 
-         List<PSAaRelationship> r2 = contents.getSlotContents(new PSGuid(3L), new PSGuid(1L));
+  /** Test method for {@link com.percussion.pso.utils.PSOSlotContents#PSOSlotContents()}. */
+  @Test
+  public void testPSOSlotContents() {
+    PSOSlotContents contents = new PSOSlotContents();
 
-         assertNotNull(r2);
-         assertEquals(3, r2.size());
-         assertEquals(1, r2.get(0).getSortRank());
-         assertEquals(3, r2.get(2).getSortRank());
-      } catch (PSErrorException ex) {
-         fail("Unexpected Exception");
-         log.error("Unexpected Exception " + ex, ex);
-      }
-   }
+    final PSLocator parent = new PSLocator(1, 1);
+
+    final IPSGuid slot1 = new PSLegacyGuid(1L);
+    final IPSGuid slot2 = new PSLegacyGuid(2L);
+
+    final PSAaRelationship rel1 = mocks.mock(PSAaRelationship.class, "rel1");
+    final PSAaRelationship rel2 = mocks.mock(PSAaRelationship.class, "rel2");
+    final PSAaRelationship rel3 = mocks.mock(PSAaRelationship.class, "rel3");
+    final PSAaRelationship rel4 = mocks.mock(PSAaRelationship.class, "rel4");
+
+    rels.add(rel1);
+    rels.add(rel2);
+    rels.add(rel3);
+    rels.add(rel4);
+
+    final IPSContentWs cws = mocks.mock(IPSContentWs.class, "cws");
+    final IPSGuidManager gmgr = mocks.mock(IPSGuidManager.class, "gmgr");
+
+    try {
+      mocks.checking(
+          new Expectations() {
+            {
+              atLeast(1)
+                  .of(cws)
+                  .loadContentRelations(with(any(PSRelationshipFilter.class)), with(equal(true)));
+              will(returnValue(rels));
+              ignoring(gmgr).makeLocator(with(any(IPSGuid.class)));
+              will(returnValue(parent));
+              atLeast(1).of(rel1).getSlotId();
+              will(returnValue(slot1));
+              atLeast(1).of(rel2).getSlotId();
+              will(returnValue(slot2));
+              atLeast(1).of(rel3).getSlotId();
+              will(returnValue(slot1));
+              atLeast(1).of(rel4).getSlotId();
+              will(returnValue(slot1));
+              atLeast(1).of(rel1).getSortRank();
+              will(returnValue(3));
+              atLeast(1).of(rel2).getSortRank();
+              will(returnValue(1));
+              atLeast(1).of(rel3).getSortRank();
+              will(returnValue(2));
+              atLeast(1).of(rel4).getSortRank();
+              will(returnValue(1));
+            }
+          });
+
+      contents.setCws(cws);
+      contents.setGmgr(gmgr);
+
+      List<PSAaRelationship> r2 =
+          contents.getSlotContents(new PSLegacyGuid(3L), new PSLegacyGuid(1L));
+
+      assertNotNull(r2);
+      assertEquals(3, r2.size());
+      assertEquals(1, r2.get(0).getSortRank());
+      assertEquals(3, r2.get(2).getSortRank());
+    } catch (PSErrorException ex) {
+      fail("Unexpected Exception");
+      log.error("Unexpected Exception " + ex, ex);
+    }
+  }
 }

@@ -21,17 +21,13 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Wraps an input stream and at any time can return the number of bytes read
- * from the stream.
- */
+/** Wraps an input stream and at any time can return the number of bytes read from the stream. */
 public class PSInputStreamCounter extends FilterInputStream implements IPSStreamCounter {
 
   /**
    * Construct this class from an InputStream
    *
-   * @param in The input stream on which to track bytes read, may not be
-   * <code>null</code>.
+   * @param in The input stream on which to track bytes read, may not be <code>null</code>.
    */
   public PSInputStreamCounter(InputStream in) {
     super(in);
@@ -72,8 +68,8 @@ public class PSInputStreamCounter extends FilterInputStream implements IPSStream
   }
 
   /**
-   * Count of bytes read so far, incremented each time a <code>read()</code>
-   * method is called, initially zero.
+   * Count of bytes read so far, incremented each time a <code>read()</code> method is called,
+   * initially zero.
    */
   private long m_count = 0;
 }

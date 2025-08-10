@@ -21,25 +21,21 @@ package com.percussion.sitemanage.service;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Abstract base class for site templates.
- */
+/** Abstract base class for site templates. */
 public abstract class Template {
 
-    private List<String> siteIds = new ArrayList<>();
+  private List<String> siteIds = new ArrayList<>();
 
-    public List<String> getSiteIds() {
-        return siteIds;
-    }
+  public List<String> getSiteIds() {
+    return siteIds;
+  }
 
-    public void setSiteIds(List<String> siteIds) {
-        this.siteIds = siteIds;
-    }
+  public void setSiteIds(List<String> siteIds) {
+    this.siteIds = siteIds;
+  }
 
-    @Override
-    public String toString() {
-        return "Template{" +
-                "siteIds=" + siteIds +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "Template{" + "siteIds=" + siteIds + '}';
+  }
 }

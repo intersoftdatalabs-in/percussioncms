@@ -37,13 +37,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * PSMergeXMLAction will merge 2 xml documents.  The destination xml
- * document needs to be installed already. The source xml document needs
- * to be added to the source tree package and installed.
+ * PSMergeXMLAction will merge 2 xml documents. The destination xml document needs to be installed
+ * already. The source xml document needs to be added to the source tree package and installed. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -64,7 +61,6 @@ import org.xml.sax.SAXException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSMergeXMLAction extends PSAction {
   // see base class
@@ -173,82 +169,64 @@ public class PSMergeXMLAction extends PSAction {
    * Bean properties
    ****************************************************************************/
 
-  /**
-   *  Mutator for parent.
-   */
+  /** Mutator for parent. */
   public void setParent(String strParent) {
     m_strParent = convertToArray(strParent);
   }
 
-  /**
-   *  Accesssor for parent.
-   */
+  /** Accesssor for parent. */
   public String[] getParent() {
     return m_strParent;
   }
 
-  /**
-   *  Mutator for copy element.
-   */
+  /** Mutator for copy element. */
   public void setCopyElement(String strCopy) {
     m_strCopyElement = strCopy;
   }
 
-  /**
-   *  Accesssor for copy element.
-   */
+  /** Accesssor for copy element. */
   public String getCopyElement() {
     return m_strCopyElement;
   }
 
-  /**
-   *  Mutator for source doc.
-   */
+  /** Mutator for source doc. */
   public void setSourceDoc(String strSourceDoc) {
     m_strSourceDoc = strSourceDoc;
   }
 
-  /**
-   *  Accesssor for source doc.
-   */
+  /** Accesssor for source doc. */
   public String getSourceDoc() {
     return m_strSourceDoc;
   }
 
-  /**
-   *  Mutator for Dest doc.
-   */
+  /** Mutator for Dest doc. */
   public void setDestinationDoc(String strDestDoc) {
     m_strDestinationDoc = strDestDoc;
   }
 
-  /**
-   *  Accesssor for Dest doc.
-   */
+  /** Accesssor for Dest doc. */
   public String getDestinationDoc() {
     return m_strDestinationDoc;
   }
 
   /**
-   * The parent element which contains the elements to copy.
-   * The list will be used to create a hier name.
+   * The parent element which contains the elements to copy. The list will be used to create a hier
+   * name.
    */
   private String[] m_strParent = new String[0];
 
-  /**
-   * The name of the elements to copy.
-   */
+  /** The name of the elements to copy. */
   private String m_strCopyElement = null;
 
   /**
-   * The destination xml document file. This file must exist on the
-   * file system. It must be relative to the root directory.
+   * The destination xml document file. This file must exist on the file system. It must be relative
+   * to the root directory.
    */
   private String m_strDestinationDoc = null;
 
   /**
-   * The source xml document file.  This file must be in the resouces.
-   * You can add a file to the resources through <code>RxISResourceFiles</code>.
+   * The source xml document file. This file must be in the resouces. You can add a file to the
+   * resources through <code>RxISResourceFiles</code>.
    */
   private String m_strSourceDoc = null;
 

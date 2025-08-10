@@ -32,21 +32,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Converts the custom search operator from what the applet will send to the
- * proper backend SQL operator.  Can also convert the operator and value(s) sent
- * to the appropriate sql where clause syntax.
+ * Converts the custom search operator from what the applet will send to the proper backend SQL
+ * operator. Can also convert the operator and value(s) sent to the appropriate sql where clause
+ * syntax.
  */
 public class PSConvertCustomSearchOperator extends PSDefaultExtension
     implements IPSRequestPreProcessor {
 
   /**
-   * Converts an operator value sent by a custom search to the appropriate
-   * SQL operator.
+   * Converts an operator value sent by a custom search to the appropriate SQL operator.
    *
    * @param params The request parameters, not <code>null</code>.
-   *
-   * The following params are expected:
-   * <table border="1">
+   *     <p>The following params are expected:
+   *     <table border="1">
    *   <tr><th>Param #</th><th>Description</th><th>Required?</th><th>default
    *     value</th><tr>
    *   <tr>
@@ -123,9 +121,7 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
    * </table>
    *
    * @param request The request context, not <code>null</code>.
-   *
-   * @throws PSParameterMismatchException if the expected parameter is not
-   * supplied.
+   * @throws PSParameterMismatchException if the expected parameter is not supplied.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException {
@@ -236,24 +232,19 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
   /**
    * Convert the supplied value data to a where clause expression.
    *
-   * @param req The request context, to use to log any warnings, assumed not
-   * <code>null</code>.
-   * @param opVal The operator, assumed not <code>null</code> or empty, and to
-   * be one of the <code>PSSearchField.OP_XXX</code> values.
-   * @param values The value(s) to convert assumed not <code>null</code> or
-   * empty, and to contain at least one non-empty value.
-   * @param beColName The name of back-end column, assumed not
-   * <code>null</code> or empty and to be qualified as necessary.
-   * @param dataType One of the <code>DATATYPE_xxx</code> values, assumed not
-   * <code>null</code>.
-   * @param connector Prepended onto the expression with a space following it,
-   *  assumed not <code>null</code>, may be empty.
-   * @param dateFormat If <code>dataType</code> is {@link #DATATYPE_DATE}, then
-   * this is assumed to be a valid simple date format string, not
-   * <code>null</code> or empty.  Ignored otherwise.
-   *
-   * @return The clause, never <code>null</code> or empty, padded with spaces
-   * on either end.
+   * @param req The request context, to use to log any warnings, assumed not <code>null</code>.
+   * @param opVal The operator, assumed not <code>null</code> or empty, and to be one of the <code>
+   *     PSSearchField.OP_XXX</code> values.
+   * @param values The value(s) to convert assumed not <code>null</code> or empty, and to contain at
+   *     least one non-empty value.
+   * @param beColName The name of back-end column, assumed not <code>null</code> or empty and to be
+   *     qualified as necessary.
+   * @param dataType One of the <code>DATATYPE_xxx</code> values, assumed not <code>null</code>.
+   * @param connector Prepended onto the expression with a space following it, assumed not <code>
+   *     null</code>, may be empty.
+   * @param dateFormat If <code>dataType</code> is {@link #DATATYPE_DATE}, then this is assumed to
+   *     be a valid simple date format string, not <code>null</code> or empty. Ignored otherwise.
+   * @return The clause, never <code>null</code> or empty, padded with spaces on either end.
    */
   private String convert(
       IPSRequestContext req,
@@ -323,13 +314,11 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
   /**
    * Format the provided values and operators into a clause fragment.
    *
-   * @param beColName The name of the column, assumed not <code>null</code> or
-   * empty and to be qualified as necessary.
+   * @param beColName The name of the column, assumed not <code>null</code> or empty and to be
+   *     qualified as necessary.
    * @param vals Array of values, assumed not <code>null</code>.
-   * @param ops Array of operators for each value, assumed to contian valid
-   * sql operators and to contain the same number of entries as
-   * <code>vals</code>.
-   *
+   * @param ops Array of operators for each value, assumed to contian valid sql operators and to
+   *     contain the same number of entries as <code>vals</code>.
    * @return The formated query string.
    */
   private String formatMultiValues(String beColName, Object[] vals, String[] ops) {
@@ -347,24 +336,18 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
   /**
    * Get the value for the supplied data, converted as necessary.
    *
-   * @param req The request context to use for logging warnings, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param req The request context to use for logging warnings, assumed not <code>null</code> or
+   *     empty.
    * @param val The value to convert, assumed not <code>null</code> or empty.
    * @param dataType Assumed to be one of the <code>DATATYPE_xxx</code> values.
-   * @param operator Assumed to be one of the <code>PSSearchField.OP_XXX</code>
-   * values.
-   * @param dateFormat If <code>dataType</code> is {@link #DATATYPE_DATE}, then
-   * this is assumed to be a valid simple date format string, not
-   * <code>null</code> or empty.  Ignored otherwise.
-   *
-   * @return The formated value.  If <code>dataType</code> is
-   * {@link #DATATYPE_DATE}, and the <code>operator</code> is
-   * {@link PSSearchField#OP_EQUALS}, a <code>String[2]</code> is returned,
-   * containing the supplied date value and the following day as the two
-   * values. Otherwise a <code>String</code> is returned. All returned values
-   * are formatted for immediate use in a sql statement, never
-   * <code>null</code> or empty.
+   * @param operator Assumed to be one of the <code>PSSearchField.OP_XXX</code> values.
+   * @param dateFormat If <code>dataType</code> is {@link #DATATYPE_DATE}, then this is assumed to
+   *     be a valid simple date format string, not <code>null</code> or empty. Ignored otherwise.
+   * @return The formated value. If <code>dataType</code> is {@link #DATATYPE_DATE}, and the <code>
+   *     operator</code> is {@link PSSearchField#OP_EQUALS}, a <code>String[2]</code> is returned,
+   *     containing the supplied date value and the following day as the two values. Otherwise a
+   *     <code>String</code> is returned. All returned values are formatted for immediate use in a
+   *     sql statement, never <code>null</code> or empty.
    */
   private Object getValue(
       IPSRequestContext req, String val, String dataType, String operator, String dateFormat) {
@@ -408,7 +391,6 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
    * Surrounds the supplied string with single-quotes.
    *
    * @param val The value to quote, assumed not <code>null</code> or empty.
-   *
    * @return The quoted string, never <code>null</code> or empty.
    */
   private String getTextVal(String val) {
@@ -416,20 +398,17 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
   }
 
   /**
-   * Get an optional parameter value as a string.  If the params array contains
-   * the specified index, and that param value is not <code>null</code>,
-   * <code>toString()</code> is called and if the resulting string is not
-   * empty, it is returned.  Otherwise the default value is returned.
+   * Get an optional parameter value as a string. If the params array contains the specified index,
+   * and that param value is not <code>null</code>, <code>toString()</code> is called and if the
+   * resulting string is not empty, it is returned. Otherwise the default value is returned.
    *
    * @param params The param array, assumed not <code>null</code>.
-   * @param index The index into the array of the parameter to retrieve.  May
-   * be greater than <code>params.length</code>.
-   * @param defaultValue The default value to return if the parameter is not
-   * supplied or does not have a non-empty string value.  May be
-   * <code>null</code> or empty.
-   *
-   * @return A non-empty value for the parameter if supplied, or else the
-   * default value which may be <code>null</code> or empty.
+   * @param index The index into the array of the parameter to retrieve. May be greater than <code>
+   *     params.length</code>.
+   * @param defaultValue The default value to return if the parameter is not supplied or does not
+   *     have a non-empty string value. May be <code>null</code> or empty.
+   * @return A non-empty value for the parameter if supplied, or else the default value which may be
+   *     <code>null</code> or empty.
    */
   private String getOptionalParamValue(Object[] params, int index, String defaultValue) {
     String val = defaultValue;
@@ -442,23 +421,15 @@ public class PSConvertCustomSearchOperator extends PSDefaultExtension
     return val;
   }
 
-  /**
-   * Constant for datatype text.
-   */
+  /** Constant for datatype text. */
   private static final String DATATYPE_TEXT = "TEXT";
 
-  /**
-   * Constant for datatype number.
-   */
+  /** Constant for datatype number. */
   private static final String DATATYPE_NUMBER = "NUMBER";
 
-  /**
-   * Constant for datatype date.
-   */
+  /** Constant for datatype date. */
   private static final String DATATYPE_DATE = "DATE";
 
-  /**
-   * Expected format of any date value supplied.
-   */
+  /** Expected format of any date value supplied. */
   private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 }

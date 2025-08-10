@@ -22,29 +22,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSFunctionParamValue class is used to set the value associated with a
- * parameter in a call to a database function. The value may refer to a literal,
- * CGI variable, HTML parameter, XML field or back-end column.
- * (See the DTD defined in {@link #toXml(Document) toXml()} method for all
- * possible types of supported parameters)
+ * The PSFunctionParamValue class is used to set the value associated with a parameter in a call to
+ * a database function. The value may refer to a literal, CGI variable, HTML parameter, XML field or
+ * back-end column. (See the DTD defined in {@link #toXml(Document) toXml()} method for all possible
+ * types of supported parameters)
  */
 public class PSFunctionParamValue extends PSAbstractParamValue implements IPSParameter {
   /**
-   * Constructs this object from its XML representation. See the
-   * {@link #toXml(Document) toXml()} method for the DTD of the
-   * <code>sourceNode</code> element.
+   * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
+   * method for the DTD of the <code>sourceNode</code> element.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   * may not be <code>null</code>
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
-   *
-   * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * <code>null</code> or the XML element node is not of the appropriate type
+   * @param sourceNode the XML element node to construct this object from, may not be <code>null
+   *     </code>
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
+   * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the
+   *     XML element node is not of the appropriate type
    */
   public PSFunctionParamValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -54,8 +47,7 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
   /**
    * Construct this object from the specified replacement value.
    *
-   * @param value the value to use at run-time for the parameter, may not be
-   * <code>null</code>
+   * @param value the value to use at run-time for the parameter, may not be <code>null</code>
    */
   public PSFunctionParamValue(IPSReplacementValue value) {
     super(value);
@@ -73,11 +65,9 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
   /**
    * Compares this object with the specified object.
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <code>true</code> if the specified object is an instance of this
-   * class and the contained replacement value is equal.
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <code>true</code> if the specified object is an instance of this class and the
+   *     contained replacement value is equal.
    */
   public boolean equals(Object obj) {
     boolean equals = super.equals(obj);
@@ -94,12 +84,10 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
   }
 
   /**
-   * Returns the tag name of the root element from which this object can be
-   * constructed.
+   * Returns the tag name of the root element from which this object can be constructed.
    *
-   * @return the name of the root node of the XML document returned by a call
-   * to {@link #toXml(Document) toXml()} method.
-   *
+   * @return the name of the root node of the XML document returned by a call to {@link
+   *     #toXml(Document) toXml()} method.
    * @see #toXml(Document)
    */
   public String getNodeName() {
@@ -109,8 +97,8 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
   /**
    * Determines whether this parameter's replacement value is static or not.
    *
-   * @return <code>true</code> if the replacement value depends
-   * upon the runtime data for its value, <code>false</code> otherwise.
+   * @return <code>true</code> if the replacement value depends upon the runtime data for its value,
+   *     <code>false</code> otherwise.
    */
   public boolean isStaticValue() {
     boolean staticValue = false;
@@ -123,8 +111,9 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
 
   /**
    * This method is called to serialize this object to an XML element.
-   * <p>
-   * The DTD of the returned XML element is:
+   *
+   * <p>The DTD of the returned XML element is:
+   *
    * <pre><code>
    *
    * &lt;!ELEMENT PSXFunctionParamValue   (value)>
@@ -138,19 +127,18 @@ public class PSFunctionParamValue extends PSAbstractParamValue implements IPSPar
    *
    * </code></pre>
    *
-   * See the "sys_BasicObjects.dtd" file for the DTD of the elements contained
-   * by the value element.
+   * See the "sys_BasicObjects.dtd" file for the DTD of the elements contained by the value element.
    *
-   * @see {@link PSAbstractParamValue#toXml(Document) toXml()} method for the
-   * description of the parameters and returned value.
+   * @see {@link PSAbstractParamValue#toXml(Document) toXml()} method for the description of the
+   *     parameters and returned value.
    */
   public Element toXml(Document doc) {
     return super.toXml(doc);
   }
 
   /**
-   * The tag name of the root element from which this object can be
-   * constructed.
+   * The tag name of the root element from which this object can be constructed.
+   *
    * @see #toXml(Document)
    * @see #getNodeName()
    */

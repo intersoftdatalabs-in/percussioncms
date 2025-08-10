@@ -20,78 +20,61 @@ package com.percussion.ui.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
- * Represents a column in a display format for UI lists.
- * Immutable after construction for safety.
+ * Represents a column in a display format for UI lists. Immutable after construction for safety.
  */
 @JsonRootName("DisplayFormatColumn")
 public class PSDisplayFormatColumn {
-    private String name;
-    private String label;
-    private String type;
-    private String width;
+  private String name;
+  private String label;
+  private String type;
+  private String width;
 
-    public PSDisplayFormatColumn() {
-        // Default constructor for serialization frameworks
-    }
+  public PSDisplayFormatColumn() {
+    // Default constructor for serialization frameworks
+  }
 
-    public PSDisplayFormatColumn(String name, String label) {
-        this.name = name;
-        this.label = label;
-    }
+  public PSDisplayFormatColumn(String name, String label) {
+    this.name = name;
+    this.label = label;
+  }
 
-    /**
-     * Gets the column name.
-     */
-    public String getName() {
-        return name;
-    }
+  /** Gets the column name. */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the column name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+  /** Sets the column name. */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Gets the column label.
-     */
-    public String getLabel() {
-        return label;
-    }
+  /** Gets the column label. */
+  public String getLabel() {
+    return label;
+  }
 
-    /**
-     * Sets the column label.
-     */
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  /** Sets the column label. */
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    /**
-     * Gets the column type.
-     */
-    public String getType() {
-        return type;
-    }
+  /** Gets the column type. */
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * Sets the column type.
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
+  /** Sets the column type. */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * Gets the column width.
-     */
-    public String getWidth() {
-        return width;
-    }
+  /** Gets the column width. */
+  public String getWidth() {
+    return width;
+  }
 
-    /**
-     * Sets the column width.
-     */
-    public void setWidth(String width) {
-        this.width = width;
-    }
+  /** Sets the column width. */
+  public void setWidth(String width) {
+    this.width = width;
+  }
 }

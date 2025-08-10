@@ -38,9 +38,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Class used for caching style sheet in the form of <code>Templates</code>
- * object. If the style sheet file is modified, it's cached with new file.
- **/
+ * Class used for caching style sheet in the form of <code>Templates</code> object. If the style
+ * sheet file is modified, it's cached with new file.
+ */
 // REFACTORED: CP-JAVA11
 public class PSCachedStylesheet {
 
@@ -48,14 +48,12 @@ public class PSCachedStylesheet {
    * Constructor for initializing all variables.
    *
    * @param ssUrl the style sheet url, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException when url is <code>null</code>.
    * @throws IOException when file can not be created from passed in url.
-   * @throws TransformerFactoryConfigurationError when new instance of
-   * transformer factory can not be created. This happens when the class
-   * of a transformation factory specified in the system properties cannot
-   * be found or instantiated.
-   **/
+   * @throws TransformerFactoryConfigurationError when new instance of transformer factory can not
+   *     be created. This happens when the class of a transformation factory specified in the system
+   *     properties cannot be found or instantiated.
+   */
   public PSCachedStylesheet(URL ssUrl) throws IOException, TransformerFactoryConfigurationError {
     if (ssUrl == null) {
       throw new IllegalArgumentException("URL to cache cannot be null");
@@ -85,9 +83,7 @@ public class PSCachedStylesheet {
     }
   }
 
-  /**
-   * Convienience method for {@link #getStylesheetTemplate(String)}
-   **/
+  /** Convienience method for {@link #getStylesheetTemplate(String)} */
   public Templates getStylesheetTemplate()
       throws IOException, SAXException, TransformerConfigurationException {
     return getStylesheetTemplate(null);
@@ -162,12 +158,11 @@ public class PSCachedStylesheet {
   }
 
   /**
-   * Gets error listener set on transformer factory for the stylesheet parsing.
-   * This will be called to get errors happened while getting style sheet
-   * template.
+   * Gets error listener set on transformer factory for the stylesheet parsing. This will be called
+   * to get errors happened while getting style sheet template.
    *
    * @return error listener, never <code>null</code>.
-   **/
+   */
   public ErrorListener getErrorListener() {
     return m_listener;
   }
@@ -175,12 +170,9 @@ public class PSCachedStylesheet {
   /**
    * Get the status information for this stylesheet.
    *
-   * @param doc the document for which to create the status element, not
-   *    <code>null</code>.
-   * @return the element containing all stylesheet status
-   *    information, never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param doc the document for which to create the status element, not <code>null</code>.
+   * @return the element containing all stylesheet status information, never <code>null</code>.
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public Element getStylesheetStatus(Document doc) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
@@ -201,14 +193,13 @@ public class PSCachedStylesheet {
   }
 
   /**
-   * Overrides or adds the encoding attribute in the xsl:output tag to
-   * match the specified character encoding. Also will change the encoding
-   * in any existing meta tags with http-equiv = Content-type
+   * Overrides or adds the encoding attribute in the xsl:output tag to match the specified character
+   * encoding. Also will change the encoding in any existing meta tags with http-equiv =
+   * Content-type
    *
-   * @param doc the XML document that represents the XSL stylesheet,
-   * assumed not <code>null</code>.
-   * @param encoding the character encoding type that will be used, assumed
-   * not <code>null</code> or empty.
+   * @param doc the XML document that represents the XSL stylesheet, assumed not <code>null</code>.
+   * @param encoding the character encoding type that will be used, assumed not <code>null</code> or
+   *     empty.
    */
   private void overrideXSLCharacterEncoding(Document doc, String encoding) {
     NodeList nodes = null;
@@ -273,52 +264,44 @@ public class PSCachedStylesheet {
     }
   }
 
-  /**
-   * The style sheet template object, gets initialized in
-   * {@link #getStylesheetTemplate()}.
-   **/
+  /** The style sheet template object, gets initialized in {@link #getStylesheetTemplate()}. */
   private Templates m_ssTemplate;
 
   /**
-   * The style sheet url object, gets initialized in constructor and never
-   * <code>null</code> after that.
-   **/
+   * The style sheet url object, gets initialized in constructor and never <code>null</code> after
+   * that.
+   */
   private URL m_ssUrl;
 
   /**
-   * The last character encoding override passed in to the
-   * <code>getStylesheetTemplate</code> method. Never <code>null</code> may be empty.
-   * Intial value is an empty string.
+   * The last character encoding override passed in to the <code>getStylesheetTemplate</code>
+   * method. Never <code>null</code> may be empty. Intial value is an empty string.
    */
   private String m_lastEncoding = "";
 
   /**
-   * The style sheet file object, gets initialized in constructor.
-   * <code>Null</code> unless m_ssUrl uses a file: protocol, then never
-   * <code>null</code>.
-   **/
+   * The style sheet file object, gets initialized in constructor. <code>Null</code> unless m_ssUrl
+   * uses a file: protocol, then never <code>null</code>.
+   */
   private File m_ssFile;
 
   /**
-   * The style sheet file object, gets initialized in constructor and set with
-   * modified time of style sheet file in {@link #getStylesheetTemplate()},
-   * used to check for reloading.
-   **/
+   * The style sheet file object, gets initialized in constructor and set with modified time of
+   * style sheet file in {@link #getStylesheetTemplate()}, used to check for reloading.
+   */
   private long m_cachedTime;
 
   /**
-   * The factory instance to create templates object of style sheet.
-   * Initialized in constructor and never be <code>null</code> after that.
-   * <code>TransformerFactoryConfigurationError</code> will be thrown
-   * if the implementation for the factory is not available or
-   * cannot be instantiated.
+   * The factory instance to create templates object of style sheet. Initialized in constructor and
+   * never be <code>null</code> after that. <code>TransformerFactoryConfigurationError</code> will
+   * be thrown if the implementation for the factory is not available or cannot be instantiated.
    */
   private static TransformerFactory m_transformFactory;
 
   /**
-   * The error listener set on transformer factory to listen to errors in the
-   * process of creating templates object from style sheet url. Initialized in
-   * constructor and never be <code>null</code> after that.
-   **/
+   * The error listener set on transformer factory to listen to errors in the process of creating
+   * templates object from style sheet url. Initialized in constructor and never be <code>null
+   * </code> after that.
+   */
   private ErrorListener m_listener;
 }

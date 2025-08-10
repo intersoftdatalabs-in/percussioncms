@@ -27,23 +27,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- *
- * Class wrapper for web service calls for content and
- * component summaries.
+ * Class wrapper for web service calls for content and component summaries.
  *
  * @author BillLanglais
  */
 public class PSItemSummaryFinder {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Log m_log = LogFactory.getLog(PSItemSummaryFinder.class);
 
   private static IPSCmsContentSummaries m_sumsvc = null;
 
-  /**
-   * Static methods only, never constructed.
-   */
+  /** Static methods only, never constructed. */
   private PSItemSummaryFinder() {}
 
   private static IPSCmsContentSummaries getServices() {
@@ -101,6 +95,7 @@ public class PSItemSummaryFinder {
 
   /**
    * Gets the component summary for an item.
+   *
    * @param contentId the content id never <code>null</code> or empty
    * @return the component summary. Never <code>null</code>.
    * @throws PSException
@@ -131,8 +126,8 @@ public class PSItemSummaryFinder {
   }
 
   /**
-   * Sets the summary service.
-   * Should be used only in unit tests.
+   * Sets the summary service. Should be used only in unit tests.
+   *
    * @param sumservice The sumsvc to set.
    */
   public static void setSumsvc(IPSCmsContentSummaries sumservice) {

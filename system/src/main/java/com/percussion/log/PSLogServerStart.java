@@ -37,16 +37,16 @@ package com.percussion.log;
 /**
  * The PSLogServerStart class is used to log server startup events.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogServerStart extends PSLogInformation {
 
   /**
    * Construct a log message identifying the server being started.
    *
-   * @param   name     the name of the user who started the server
+   * @param name the name of the user who started the server
    */
   public PSLogServerStart(java.lang.String name) {
     super(LOG_TYPE, 0);
@@ -55,22 +55,18 @@ public class PSLogServerStart extends PSLogInformation {
   }
 
   /**
-   * Get the sub-messages (type and text). A single sub-message is created
-   * containing the name of the user who started the server.
+   * Get the sub-messages (type and text). A single sub-message is created containing the name of
+   * the user who started the server.
    *
-   * @return  an array of sub-messages (PSLogSubMessage)
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages() {
     return m_Subs;
   }
 
-  /**
-   * Server start is set as type 2.
-   */
+  /** Server start is set as type 2. */
   private static final int LOG_TYPE = 2;
 
-  /**
-   *   The array of sub-messages
-   */
+  /** The array of sub-messages */
   private PSLogSubMessage[] m_Subs = null;
 }

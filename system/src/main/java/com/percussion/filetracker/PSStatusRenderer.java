@@ -23,13 +23,11 @@ import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
- * This class extends DefaultTreeCellRenderer to display right icons and tool
- * tip text to indicate the current state of the nodes in the application.
+ * This class extends DefaultTreeCellRenderer to display right icons and tool tip text to indicate
+ * the current state of the nodes in the application.
  */
 class PSStatusRenderer extends DefaultTreeCellRenderer {
-  /**
-   * Default constructor. Initializes all icons.
-   */
+  /** Default constructor. Initializes all icons. */
   public PSStatusRenderer() {
     try {
       URL url = getClass().getResource(MainFrame.getRes().getString("iconAppNode"));
@@ -74,9 +72,7 @@ class PSStatusRenderer extends DefaultTreeCellRenderer {
    * sets the icon and tool tip text for the supplied node.
    *
    * @param current node as IPSFUDNode
-   *
    * @param true if current node is selected, false otherwise
-   *
    */
   private void setIconAndToolTipText(IPSFUDNode node, boolean sel) {
     setToolTipText(node.getStatusText());
@@ -135,9 +131,7 @@ class PSStatusRenderer extends DefaultTreeCellRenderer {
     }
   }
 
-  /**
-   * Override the method from the base class.
-   */
+  /** Override the method from the base class. */
   public Component getTreeCellRendererComponent(
       JTree tree,
       Object value,
@@ -155,10 +149,7 @@ class PSStatusRenderer extends DefaultTreeCellRenderer {
     return this;
   }
 
-  /**
-   * All icons indicating various status' for the nodes shall be created
-   * only once
-   */
+  /** All icons indicating various status' for the nodes shall be created only once */
   private static ImageIcon ms_IconApp = null;
 
   private static ImageIcon ms_IconAppAbsent = null;

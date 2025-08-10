@@ -27,17 +27,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Represents and manages the selected state for all dependency instances
- * referencing the same actual object on the server.
+ * Represents and manages the selected state for all dependency instances referencing the same
+ * actual object on the server.
  */
 public class PSDependencyContext {
   /**
    * Construct a context from a dependency key.
    *
-   * @param depKey The key of the dependencies this context will represent,
-   * may not be <code>null</code> or empty.
-   * @param treeCtx The tree context of this dependency context, may not be
-   * <code>null</code>.
+   * @param depKey The key of the dependencies this context will represent, may not be <code>null
+   *     </code> or empty.
+   * @param treeCtx The tree context of this dependency context, may not be <code>null</code>.
    */
   public PSDependencyContext(String depKey, PSDependencyTreeContext treeCtx) {
     if (depKey == null || depKey.trim().length() == 0)
@@ -53,9 +52,8 @@ public class PSDependencyContext {
    * Determines if this context contains the supplied dependency.
    *
    * @param dep The dep to check, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if a reference to the actual instance of this
-   * dependency is found in this context, <code>false</code> if not.
+   * @return <code>true</code> if a reference to the actual instance of this dependency is found in
+   *     this context, <code>false</code> if not.
    */
   public boolean containsDependency(PSDependency dep) {
     if (dep == null) {
@@ -67,11 +65,10 @@ public class PSDependencyContext {
   /**
    * Add the supplied dependency to this context.
    *
-   * @param dep The dependency to add, may not be <code>null</code>, must
-   * match the context's dependency key, and cannot be included if context
-   * returns <code>false</code> for {@link #canBeIncluded()}.
-   * @param pkg The package containing the dependency, may not be
-   * <code>null</code>.
+   * @param dep The dependency to add, may not be <code>null</code>, must match the context's
+   *     dependency key, and cannot be included if context returns <code>false</code> for {@link
+   *     #canBeIncluded()}.
+   * @param pkg The package containing the dependency, may not be <code>null</code>.
    */
   public void addDependency(PSDependency dep, PSDeployableElement pkg) {
     if (dep == null || pkg == null) {
@@ -89,14 +86,13 @@ public class PSDependencyContext {
   }
 
   /**
-   * Removes the supplied dependency, possibly de-seleting the other deps
-   * if it is an included local dependency, and all others are shared.
+   * Removes the supplied dependency, possibly de-seleting the other deps if it is an included local
+   * dependency, and all others are shared.
    *
-   * @param dep The dependency to remove, may not be <code>null</code>
-   * and must be contained by this context.
-   * @param removeLocal <code>true</code> to de-select other deps if
-   * removing the last local dependency, <code>false</code> to leave other
-   * dependencies unmodified.
+   * @param dep The dependency to remove, may not be <code>null</code> and must be contained by this
+   *     context.
+   * @param removeLocal <code>true</code> to de-select other deps if removing the last local
+   *     dependency, <code>false</code> to leave other dependencies unmodified.
    */
   public void removeDependency(PSDependency dep, boolean removeLocal) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -148,8 +144,8 @@ public class PSDependencyContext {
   /**
    * Add the child dependencies of the supplied dependency to this context.
    *
-   * @param dep The dependency, must have already been added to this context,
-   * may not be <code>null</code>.
+   * @param dep The dependency, must have already been added to this context, may not be <code>null
+   *     </code>.
    */
   public void addChildDependencies(PSDependency dep) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -171,56 +167,50 @@ public class PSDependencyContext {
   }
 
   /**
-   * Determine if the dependencies represented by this context are selected
-   * (included) in the archive.
+   * Determine if the dependencies represented by this context are selected (included) in the
+   * archive.
    *
-   * @return <code>true</code> if they are included, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if they are included, <code>false</code> otherwise.
    */
   public boolean isIncluded() {
     return m_isIncluded;
   }
 
   /**
-   * Determine if the selected state of the dependency represented by this
-   * context may be modified.  This means that for all dependencies represented
-   * by this context {@link PSDependency#canBeIncludedExcluded()} returns
-   * <code>true</code>.
+   * Determine if the selected state of the dependency represented by this context may be modified.
+   * This means that for all dependencies represented by this context {@link
+   * PSDependency#canBeIncludedExcluded()} returns <code>true</code>.
    *
-   * @return <code>true</code> if this context references dependencies that
-   * can be included/excluded, <code>false</code> if not.
+   * @return <code>true</code> if this context references dependencies that can be
+   *     included/excluded, <code>false</code> if not.
    */
   public boolean canBeSelected() {
     return canBeIncludedExcluded(false);
   }
 
   /**
-   * Determine if the dependency represented by this context may be included
-   * in an archive.  This means that for all dependencies represented by this
-   * context either {@link PSDependency#canBeIncludedExcluded()} returns
-   * <code>true</code>, or the dependency is of type
+   * Determine if the dependency represented by this context may be included in an archive. This
+   * means that for all dependencies represented by this context either {@link
+   * PSDependency#canBeIncludedExcluded()} returns <code>true</code>, or the dependency is of type
    * {@link PSDependency#TYPE_LOCAL}.
    *
-   * @return <code>true</code> if this context references dependencies that can
-   * be included, <code>false</code> otherwise.
+   * @return <code>true</code> if this context references dependencies that can be included, <code>
+   *     false</code> otherwise.
    */
   public boolean canBeIncluded() {
     return canBeIncludedExcluded(true);
   }
 
   /**
-   * Determine if the dependency represented by this context may be included
-   * in or excluded from an archive.  This means that for all dependencies
-   * represented by this context either
-   * {@link PSDependency#canBeIncludedExcluded()} returns
-   * <code>true</code>, or <code>allowLocal</code> is <code>true</code> and the
-   * dependency is of type {@link PSDependency#TYPE_LOCAL}.
+   * Determine if the dependency represented by this context may be included in or excluded from an
+   * archive. This means that for all dependencies represented by this context either {@link
+   * PSDependency#canBeIncludedExcluded()} returns <code>true</code>, or <code>allowLocal</code> is
+   * <code>true</code> and the dependency is of type {@link PSDependency#TYPE_LOCAL}.
    *
-   * @param allowLocal <code>true</code> to consider local dependencies as
-   * includable/excludable, <code>false</code> to consider them as not.
-   *
-   * @return <code>true</code> if this context references dependencies that
-   * can be included/excluded, <code>false</code> if not.
+   * @param allowLocal <code>true</code> to consider local dependencies as includable/excludable,
+   *     <code>false</code> to consider them as not.
+   * @return <code>true</code> if this context references dependencies that can be
+   *     included/excluded, <code>false</code> if not.
    */
   private boolean canBeIncludedExcluded(boolean allowLocal) {
     boolean canInclude = true;
@@ -237,12 +227,11 @@ public class PSDependencyContext {
   }
 
   /**
-   * Determine if the dependencies represented by this context are selected
-   * (included) in the archive (all must have the same selected state) by
-   * walking all dependencies and checking their included state.
+   * Determine if the dependencies represented by this context are selected (included) in the
+   * archive (all must have the same selected state) by walking all dependencies and checking their
+   * included state.
    *
-   * @return <code>true</code> if they are included, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if they are included, <code>false</code> otherwise.
    */
   private boolean checkIncludedState() {
     boolean isIncluded = false;
@@ -286,12 +275,10 @@ public class PSDependencyContext {
   /**
    * Sets all dependencies as included/excluded.
    *
-   * @param isIncluded <code>true</code> to set them all as included,
-   * <code>false</code> to set them all as excluded.
-   *
-   * @return <code>true</code> if the setting could be made,
-   * <code>false</code> if not (e.g. could not set a system dependency as
-   * included).
+   * @param isIncluded <code>true</code> to set them all as included, <code>false</code> to set them
+   *     all as excluded.
+   * @return <code>true</code> if the setting could be made, <code>false</code> if not (e.g. could
+   *     not set a system dependency as included).
    */
   public boolean setIncluded(boolean isIncluded) {
     boolean canSet = canBeIncluded() && (isIncluded != isIncluded());
@@ -318,22 +305,19 @@ public class PSDependencyContext {
   }
 
   /**
-   * If the supplied dependency is an included local dependency of the
-   * supplied package, determines if the dependencies from any other
-   * packages included in this context are only shared deps, and if so
-   * adds them to the supplied map, preserving any existing entries in the
-   * map.  If any other packages contain a matching included local
-   * dependency, nothing is added to the map.
+   * If the supplied dependency is an included local dependency of the supplied package, determines
+   * if the dependencies from any other packages included in this context are only shared deps, and
+   * if so adds them to the supplied map, preserving any existing entries in the map. If any other
+   * packages contain a matching included local dependency, nothing is added to the map.
    *
-   * @param dep The dependency to check, may not be <code>null</code> and
-   * must have a key matching this context's key.
-   * @param pkg The package from which the dependency is to be removed,
-   * may not be <code>null</code> and must contain the supplied dependency.
-   * @param resultMap Map of local dependencies that appear only as included
-   * shared dependencies in other packages.  Key is the dependency key of the
-   * package as a <code>String</code>, value is a list of matching shared
-   * dependencies found in that package as <code>PSDependency</code>
-   * objects.  May not be <code>null</code>.
+   * @param dep The dependency to check, may not be <code>null</code> and must have a key matching
+   *     this context's key.
+   * @param pkg The package from which the dependency is to be removed, may not be <code>null</code>
+   *     and must contain the supplied dependency.
+   * @param resultMap Map of local dependencies that appear only as included shared dependencies in
+   *     other packages. Key is the dependency key of the package as a <code>String</code>, value is
+   *     a list of matching shared dependencies found in that package as <code>PSDependency</code>
+   *     objects. May not be <code>null</code>.
    */
   public void checkRemoveLocal(PSDependency dep, PSDeployableElement pkg, Map resultMap) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -383,20 +367,17 @@ public class PSDependencyContext {
   /**
    * Get the key of the dependencies this context represents.
    *
-   * @return The key supplied during construction, never <code>null</code> or
-   * empty.
+   * @return The key supplied during construction, never <code>null</code> or empty.
    */
   public String getKey() {
     return m_depKey;
   }
 
   /**
-   * Given a map where the entry values are <code>List</code> objects, get
-   * an iterator over all objects in all lists.
+   * Given a map where the entry values are <code>List</code> objects, get an iterator over all
+   * objects in all lists.
    *
-   * @param valMap The map, assumed not
-   * <code>null</code> and to have all <code>List</code> values.
-   *
+   * @param valMap The map, assumed not <code>null</code> and to have all <code>List</code> values.
    * @return The iterator over all list entries, never <code>null</code>.
    */
   private Iterator getValueLists(Map valMap) {
@@ -411,13 +392,11 @@ public class PSDependencyContext {
   }
 
   /**
-   * Get the entry from the {@link #m_depMap} that contains the supplied
-   * dependency in its value list.
+   * Get the entry from the {@link #m_depMap} that contains the supplied dependency in its value
+   * list.
    *
    * @param dep The dependency to check for, assumed not <code>null</code>.
-   *
-   * @return The entry, or <code>null</code> if not found.  See
-   * {@link #m_depMap} for more info.
+   * @return The entry, or <code>null</code> if not found. See {@link #m_depMap} for more info.
    */
   private Map.Entry getPkgEntry(PSDependency dep) {
     Map.Entry pkgEntry = null;
@@ -439,39 +418,36 @@ public class PSDependencyContext {
   }
 
   /**
-   * The dependency key of all dependencies this context represents.
-   * Supplied during construction, never <code>null</code> or empty or
-   * modified after that.
+   * The dependency key of all dependencies this context represents. Supplied during construction,
+   * never <code>null</code> or empty or modified after that.
    */
   private String m_depKey;
 
   /**
-   * The tree context of this dependency context, never <code>null</code> or
-   * modified after contstruction.
+   * The tree context of this dependency context, never <code>null</code> or modified after
+   * contstruction.
    */
   private PSDependencyTreeContext m_treeCtx;
 
   /**
-   * Map of depenencies by package, never <code>null</code> or modified.
-   * Key is the dependency key of the package containing the dependency,
-   * value is a <code>List</code> of {@link PSDependency} objects.
+   * Map of depenencies by package, never <code>null</code> or modified. Key is the dependency key
+   * of the package containing the dependency, value is a <code>List</code> of {@link PSDependency}
+   * objects.
    */
   private Map m_depMap = new HashMap();
 
   /**
-   * Map of package objects by package key, never <code>null</code> or
-   * modified.  Key is the package's dependency key as a <code>String</code>,
-   * value is the matching {@link PSDeployableElement} object.
+   * Map of package objects by package key, never <code>null</code> or modified. Key is the
+   * package's dependency key as a <code>String</code>, value is the matching {@link
+   * PSDeployableElement} object.
    */
   private Map m_pkgMap = new HashMap();
 
   /**
-   * Determines if the dependencies represented by this context are included
-   * in the archive.  <code>true</code> if they are included,
-   * <code>false</code> otherwise.  Modified by
-   * {@link #addDependency(PSDependency, PSDeployableElement)},
-   * {@link #removeDependency(PSDependency, boolean)}, and
-   * {@link #setIncluded(boolean)}.
+   * Determines if the dependencies represented by this context are included in the archive. <code>
+   * true</code> if they are included, <code>false</code> otherwise. Modified by {@link
+   * #addDependency(PSDependency, PSDeployableElement)}, {@link #removeDependency(PSDependency,
+   * boolean)}, and {@link #setIncluded(boolean)}.
    */
   private boolean m_isIncluded = false;
 }

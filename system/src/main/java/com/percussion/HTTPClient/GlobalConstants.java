@@ -20,9 +20,9 @@ package com.percussion.HTTPClient;
 /**
  * This interface defines various global constants.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 interface GlobalConstants {

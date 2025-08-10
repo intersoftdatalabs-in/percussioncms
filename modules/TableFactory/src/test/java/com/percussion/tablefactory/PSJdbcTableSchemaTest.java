@@ -30,14 +30,10 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcTableSchema.
- */
+/** Unit test for PSJdbcTableSchema. */
 public class PSJdbcTableSchemaTest {
 
-  /**
-   * Test the def
-   */
+  /** Test the def */
   @Test
   public void testDef() throws Exception {
     PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MSSQL", "sqlserver", null);
@@ -131,10 +127,9 @@ public class PSJdbcTableSchemaTest {
   }
 
   /**
-   * Tests if the tableSchema has been altered and checks if a new index has
-   * been created. Since the foreign key name is absent, and so checks if the
-   * first column name has been used to construct the index name.Then, tests
-   * if createForeignKeyIndexes property has been set to "yes".
+   * Tests if the tableSchema has been altered and checks if a new index has been created. Since the
+   * foreign key name is absent, and so checks if the first column name has been used to construct
+   * the index name.Then, tests if createForeignKeyIndexes property has been set to "yes".
    *
    * @throws Exception
    */
@@ -172,9 +167,8 @@ public class PSJdbcTableSchemaTest {
   }
 
   /**
-   * Tests if the tableSchema has been altered. Tests, If the columns of new
-   * index are same set as the columns of the foreign key. Lastly, checks if
-   * the index is unique.
+   * Tests if the tableSchema has been altered. Tests, If the columns of new index are same set as
+   * the columns of the foreign key. Lastly, checks if the index is unique.
    *
    * @throws Exception
    */
@@ -229,10 +223,9 @@ public class PSJdbcTableSchemaTest {
   }
 
   /**
-   * Tests if the table schema has been altered when list of foreign key
-   * columns has the same columns or is super set of columns of index. Tests,
-   * If the columns of new index are same set as the columns of the foreign
-   * key. Lastly, checks if the index is unique.
+   * Tests if the table schema has been altered when list of foreign key columns has the same
+   * columns or is super set of columns of index. Tests, If the columns of new index are same set as
+   * the columns of the foreign key. Lastly, checks if the index is unique.
    *
    * @throws Exception
    */
@@ -293,8 +286,8 @@ public class PSJdbcTableSchemaTest {
   }
 
   /**
-   * Tests if the tableSchema has been altered.Lastly, checks if the index is
-   * unique when the index contains all foreign key columns.
+   * Tests if the tableSchema has been altered.Lastly, checks if the index is unique when the index
+   * contains all foreign key columns.
    *
    * @throws Exception
    */
@@ -340,8 +333,7 @@ public class PSJdbcTableSchemaTest {
   }
 
   /**
-   * Tests if the tableSchema has been altered. Also, checks if the index is
-   * unique.
+   * Tests if the tableSchema has been altered. Also, checks if the index is unique.
    *
    * @throws Exception
    */
@@ -399,9 +391,7 @@ public class PSJdbcTableSchemaTest {
    * Sets a foreign key for a given table schema
    *
    * @param tableSchema table schema object
-   *
    * @return fk Foreign Key definition
-   *
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private PSJdbcForeignKey createForeignKey(PSJdbcTableSchema tableSchema)
@@ -424,7 +414,6 @@ public class PSJdbcTableSchemaTest {
    * Sets a primary key for a given table schema
    *
    * @param tableSchema table schema object
-   *
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private void setPrimaryKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException {
@@ -439,9 +428,7 @@ public class PSJdbcTableSchemaTest {
    * Creates a table schema from column definitions
    *
    * @param colDefs columns definition object
-   *
    * @return tableSchema Table schema object
-   *
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private PSJdbcTableSchema createTableSchema(ArrayList<PSJdbcColumnDef> colDefs)
@@ -457,7 +444,6 @@ public class PSJdbcTableSchemaTest {
    * Creates a column definition from a dataTypeMap
    *
    * @param dataTypeMap data type map object
-   *
    * @return coldefs Column definition object
    */
   private ArrayList<PSJdbcColumnDef> createColumnDef(PSJdbcDataTypeMap dataTypeMap) {

@@ -29,8 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Retrieves the assembled html content for the specified
- * slot. Expects an objectid for the snippet.
+ * Retrieves the assembled html content for the specified slot. Expects an objectid for the snippet.
  */
 public class PSGetSlotContentAction extends PSAAActionBase {
 

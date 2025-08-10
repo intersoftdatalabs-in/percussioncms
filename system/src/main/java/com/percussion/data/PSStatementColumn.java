@@ -45,54 +45,43 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * The PSStatementColumn class defines a column which is bound to a
- * particular statement. It provides a way for data to be stored in the
- * statement without knowledge of the actual statement or column. This
- * is contained within PSStatementColumnMapper objects. For each instance,
- * after call {@link #setData(PSExecutionData, PreparedStatement, int)}, the
- * caller is responsible to make a call to {@link #releaseData()} to release
- * the resources that may be left open by <code>setData()</code>.
+ * The PSStatementColumn class defines a column which is bound to a particular statement. It
+ * provides a way for data to be stored in the statement without knowledge of the actual statement
+ * or column. This is contained within PSStatementColumnMapper objects. For each instance, after
+ * call {@link #setData(PSExecutionData, PreparedStatement, int)}, the caller is responsible to make
+ * a call to {@link #releaseData()} to release the resources that may be left open by <code>
+ * setData()</code>.
  *
- * @see         PSStatementColumnMapper
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSStatementColumnMapper
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSStatementColumn {
   /**
-   * Create a column binding for the specified statement. The object knows
-   * the statement and bind position for its column. This allows the
-   * setData method to be called with the data for this column, without
-   * regard for where it is going.
+   * Create a column binding for the specified statement. The object knows the statement and bind
+   * position for its column. This allows the setData method to be called with the data for this
+   * column, without regard for where it is going.
    *
-   * @param   xmlField      the XML field containing the data for this column
-   *
-   * @param   type         the java.sql.Type data type to use when setting column data
-   *
-   * @param   col         the backend column object
+   * @param xmlField the XML field containing the data for this column
+   * @param type the java.sql.Type data type to use when setting column data
+   * @param col the backend column object
    */
   public PSStatementColumn(IPSReplacementValue value, int type, PSBackEndColumn col) {
     this(value, type, col, null);
   }
 
   /**
-   * Create a column binding for the specified statement. The object knows
-   * the statement and bind position for its column. This allows the
-   * setData method to be called with the data for this column, without
-   * regard for where it is going.
+   * Create a column binding for the specified statement. The object knows the statement and bind
+   * position for its column. This allows the setData method to be called with the data for this
+   * column, without regard for where it is going.
    *
-   * @param   xmlField      the XML field containing the data for this column
-   *
-   * @param   type         the java.sql.Type data type to use when setting column data
-   *
-   * @param   col         the backend column object
-   *
-   * @param   lci         The lob column initializer to use when supplying
-   *                      placeholders for lob columns, can be
-   *                      <code>null</code>, will be ignored when
-   *                      <code>type</code> is not <code>Types.BLOB</code> or
-   *                      <code>Types.CLOB</code>.
+   * @param xmlField the XML field containing the data for this column
+   * @param type the java.sql.Type data type to use when setting column data
+   * @param col the backend column object
+   * @param lci The lob column initializer to use when supplying placeholders for lob columns, can
+   *     be <code>null</code>, will be ignored when <code>type</code> is not <code>Types.BLOB</code>
+   *     or <code>Types.CLOB</code>.
    */
   public PSStatementColumn(
       IPSReplacementValue value, int type, PSBackEndColumn col, IPSLobColumnInitializer lci) {
@@ -120,21 +109,16 @@ public class PSStatementColumn {
 
   /**
    * Store the specified data as the value of this bound column.
-   * <p>
-   * NOTE: There may be resources that were left open by this method, for
-   *       example, an InputStream may be left open when set the data from
-   *       a file. It is caller's resposibility to call {@link releaseData()
-   *       releaseData} to release the resources.
    *
-   * @param   data        the execution data associated with this plan
+   * <p>NOTE: There may be resources that were left open by this method, for example, an InputStream
+   * may be left open when set the data from a file. It is caller's resposibility to call {@link
+   * releaseData() releaseData} to release the resources.
    *
-   * @param   stmt        the prepared statement
-   *
-   * @param   bindStart   the starting position (1-based) to bind columns
-   *
-   * @return              the next bind position (1-based)
-   *
-   * @throws  SQLException   if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @param stmt the prepared statement
+   * @param bindStart the starting position (1-based) to bind columns
+   * @return the next bind position (1-based)
+   * @throws SQLException if a SQL error occurs
    */
   public int setData(PSExecutionData data, PreparedStatement stmt, int bindStart)
       throws SQLException, PSDataExtractionException {
@@ -262,8 +246,8 @@ public class PSStatementColumn {
   }
 
   /**
-   * Close the input stream that may be opened by the column data. This method
-   * should be called after the column data is no longer needed.
+   * Close the input stream that may be opened by the column data. This method should be called
+   * after the column data is no longer needed.
    */
   public void releaseData() {
     if (m_inputStream != null) {
@@ -303,14 +287,12 @@ public class PSStatementColumn {
   }
 
   /**
-   * Get the place holder to use in the statement. When the column is
-   * being used for a native statement (type = Types.NULL) we are
-   * actually writing the current value as the place holder. This is
-   * used by PSNativeStatement
+   * Get the place holder to use in the statement. When the column is being used for a native
+   * statement (type = Types.NULL) we are actually writing the current value as the place holder.
+   * This is used by PSNativeStatement
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @return            the place holder to use in the SQL statement
+   * @param data the execution data associated with this plan
+   * @return the place holder to use in the SQL statement
    */
   public String getPlaceHolder(PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
@@ -327,8 +309,8 @@ public class PSStatementColumn {
   /**
    * Sets the place holder to use in prepared statements for this object.
    *
-   * @param placeHolder the string to se as a place holder for this object
-   * in preparedStatements. May not be <code>null</code>, may be empty.
+   * @param placeHolder the string to se as a place holder for this object in preparedStatements.
+   *     May not be <code>null</code>, may be empty.
    */
   public void setPlaceHolder(String placeHolder) {
     if (placeHolder == null) throw new IllegalArgumentException("placeHolder may not be null");
@@ -336,16 +318,13 @@ public class PSStatementColumn {
   }
 
   /**
-   * Determine if the current column value which would be bound is NULL.
-   * If the statement block supports omit when NULL, it can choose to
-   * ignore this due to the NULL value specification.
+   * Determine if the current column value which would be bound is NULL. If the statement block
+   * supports omit when NULL, it can choose to ignore this due to the NULL value specification.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @return            <code>true</code> if the value to be bound is NULL
-   *
-   * @throws  PSDataExtractionException  if there is a data extraction
-   *          exception determining what the current column value is
+   * @param data the execution data associated with this plan
+   * @return <code>true</code> if the value to be bound is NULL
+   * @throws PSDataExtractionException if there is a data extraction exception determining what the
+   *     current column value is
    */
   public boolean isNull(PSExecutionData data) throws PSDataExtractionException {
     Object o = getPreparedValue(data, null);
@@ -354,15 +333,12 @@ public class PSStatementColumn {
   }
 
   /**
-   * Determine if the current column value which would be bound is NULL.
-   * If the statement block supports omit when NULL, it can choose to
-   * ignore this due to the NULL value specification.
+   * Determine if the current column value which would be bound is NULL. If the statement block
+   * supports omit when NULL, it can choose to ignore this due to the NULL value specification.
    *
-   * @param   o     the object extracted and prepared from execution data
-   *                associated with this plan
-   *
-   * @return         <code>true</code> if the value of the object is
-   *                <code>NULL</code>, <code>false</code> otherwise
+   * @param o the object extracted and prepared from execution data associated with this plan
+   * @return <code>true</code> if the value of the object is <code>NULL</code>, <code>false</code>
+   *     otherwise
    */
   private static boolean isPreparedObjectNull(Object o) {
     if (o == null) return true;
@@ -384,13 +360,12 @@ public class PSStatementColumn {
   }
 
   /**
-   * Store the specified data as the value of this bound column.
-   * The empty string ("") is returned by default.
+   * Store the specified data as the value of this bound column. The empty string ("") is returned
+   * by default.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @throws  PSDataExtractionException  if there is a data extraction
-   *          exception determining what the current column value is
+   * @param data the execution data associated with this plan
+   * @throws PSDataExtractionException if there is a data extraction exception determining what the
+   *     current column value is
    */
   public Object getValue(PSExecutionData data) throws PSDataExtractionException {
     return getValue(data, EMPTY_STRING);
@@ -399,12 +374,10 @@ public class PSStatementColumn {
   /**
    * Store the specified data as the value of this bound column.
    *
-   * @param   data           the execution data associated with this plan
-   *
-   * @param   defaultValue   the default value to use if not found
-   *
-   * @throws  PSDataExtractionException  if there is a data extraction
-   *          exception determining what the current column value is
+   * @param data the execution data associated with this plan
+   * @param defaultValue the default value to use if not found
+   * @throws PSDataExtractionException if there is a data extraction exception determining what the
+   *     current column value is
    */
   public Object getValue(PSExecutionData data, Object defaultValue)
       throws PSDataExtractionException {
@@ -417,15 +390,12 @@ public class PSStatementColumn {
   }
 
   /**
-   * Get the specified data for binding this column's value, preparing
-   * it from a list or literal.
+   * Get the specified data for binding this column's value, preparing it from a list or literal.
    *
-   * @param   data           the execution data associated with this plan
-   *
-   * @param   defaultValue   the default value to use if not found
-   *
-   * @throws  PSDataExtractionException  if getValue throws a data extraction
-   *          exception retrieving the current column value
+   * @param data the execution data associated with this plan
+   * @param defaultValue the default value to use if not found
+   * @throws PSDataExtractionException if getValue throws a data extraction exception retrieving the
+   *     current column value
    */
   public Object getPreparedValue(PSExecutionData data, Object defaultValue)
       throws PSDataExtractionException {
@@ -446,10 +416,9 @@ public class PSStatementColumn {
   }
 
   /**
-   * Get the data extractor used to get the replacement value which will
-   * be used for this column.
+   * Get the data extractor used to get the replacement value which will be used for this column.
    *
-   * @return            the extractor for the replacement value
+   * @return the extractor for the replacement value
    */
   public IPSDataExtractor getReplacementValueExtractor() {
     return m_dataExtractor;
@@ -490,9 +459,8 @@ public class PSStatementColumn {
   /**
    * Deletegates to util class.
    *
-   * @deprecated  Use {@link
-   * com.percussion.util.PSDataTypeConverter#getBinaryFromBase64(String)}
-   * instead.
+   * @deprecated Use {@link com.percussion.util.PSDataTypeConverter#getBinaryFromBase64(String)}
+   *     instead.
    */
   public static byte[] getBinaryFromBase64(String value) throws PSDataExtractionException {
     try {
@@ -528,8 +496,8 @@ public class PSStatementColumn {
   }
 
   /**
-   * Our flag that we don't yet know what the JDBC data type is. If
-   * a DBMS vendor or JavaSoft ever adds, we're screwed.
+   * Our flag that we don't yet know what the JDBC data type is. If a DBMS vendor or JavaSoft ever
+   * adds, we're screwed.
    */
   public static final int UNKNOWN_JDBC_TYPE = -99999;
 
@@ -538,8 +506,8 @@ public class PSStatementColumn {
   protected static final int DATA_FROM_XML = 3;
 
   /**
-   * The lob column initializer class, used to replace placeholders
-   * for lob column base update statements.
+   * The lob column initializer class, used to replace placeholders for lob column base update
+   * statements.
    */
   protected IPSLobColumnInitializer m_lobColInitializer = null;
 
@@ -552,15 +520,12 @@ public class PSStatementColumn {
 
   private static final String EMPTY_STRING = "";
 
-  /**
-   * The InputStream that may be left open by setData() method.
-   */
+  /** The InputStream that may be left open by setData() method. */
   private InputStream m_inputStream = null;
 
   /**
-   * The place holder to use in prepared statements for this object,
-   * initialized to <code>" ? "</code>, modified using the
-   * <code>setPlaceHoder</code> method.
+   * The place holder to use in prepared statements for this object, initialized to <code>" ? "
+   * </code>, modified using the <code>setPlaceHoder</code> method.
    */
   private String m_placeHolder = " ? ";
 }

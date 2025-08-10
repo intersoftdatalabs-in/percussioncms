@@ -33,25 +33,22 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class a set of HTML parameters that can be posted to a Rhythmyx resource
- * The XML representation of the object of  this class has the following simple
- * DTD:
- * &lt;!ELEMENT HtmlParams ANY&gt;
- * The root element can have one or more child elements that are name value
- * pairs. The element name will be the parameter name and the value of the
- * element is the value of the parameter. There can be multiple elelements with
- * the same name so that multi-valued HTML parameter is supported.
+ * This class a set of HTML parameters that can be posted to a Rhythmyx resource The XML
+ * representation of the object of this class has the following simple DTD: &lt;!ELEMENT HtmlParams
+ * ANY&gt; The root element can have one or more child elements that are name value pairs. The
+ * element name will be the parameter name and the value of the element is the value of the
+ * parameter. There can be multiple elelements with the same name so that multi-valued HTML
+ * parameter is supported.
  */
 public class PSHtmlParamDocument {
   private static final Logger log = LogManager.getLogger(PSHtmlParamDocument.class);
 
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSHtmlParamDocument() {}
 
   /**
    * Constructor that takes a map of name-value pairs.
+   *
    * @param params must not be <code>null</code>.
    * @see setParams
    * @throws IllegalArgumentException if the paarameter supplied is <code>null</code>.
@@ -61,12 +58,13 @@ public class PSHtmlParamDocument {
   }
 
   /**
-   * Builds a fresh object from the given XML document element. The source node
-   * must conform to the DTD defined in the class description.
-   * @param sourceNode root element of the XML document from which the object
-   * is built, mut not be <code>null</code> and name must be {@link #ROOT}.
-   * @throws IllegalArgumentException if the source node is <code>null</code> or
-   * does not have the correct name (@link #ROOT).
+   * Builds a fresh object from the given XML document element. The source node must conform to the
+   * DTD defined in the class description.
+   *
+   * @param sourceNode root element of the XML document from which the object is built, mut not be
+   *     <code>null</code> and name must be {@link #ROOT}.
+   * @throws IllegalArgumentException if the source node is <code>null</code> or does not have the
+   *     correct name (@link #ROOT).
    */
   public void fromXml(Element sourceNode) {
     if (sourceNode == null) {
@@ -105,10 +103,10 @@ public class PSHtmlParamDocument {
   }
 
   /**
-   * Converts itself to its XML representation based on the DTD given in the
-   * class description.
-   * @return document element of the XML document representation of this
-   * object, never <code>null</code>.
+   * Converts itself to its XML representation based on the DTD given in the class description.
+   *
+   * @return document element of the XML document representation of this object, never <code>null
+   *     </code>.
    * @throws IllegalArgumentException if the input document is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -140,8 +138,8 @@ public class PSHtmlParamDocument {
   }
 
   /**
-   * Returns the String representation of the XML document representation of
-   * this object.
+   * Returns the String representation of the XML document representation of this object.
+   *
    * @return XML string representation of the object, never <code>null</code>.
    */
   public String getXmlString() {
@@ -150,6 +148,7 @@ public class PSHtmlParamDocument {
 
   /**
    * Set/replace the HTML parameter set.
+   *
    * @param params must not be <code>null</code>.
    * @throws IllegalArgumentException if the parameter set is <code>null</code>.
    */
@@ -160,13 +159,12 @@ public class PSHtmlParamDocument {
 
   /**
    * Add or change the HTML parameter
+   *
    * @param name name of the HTML parameter, must not be <code>null</code>.
    * @throws IllegalArgumentException if name of the parameter
-   * @param value is the value of the HTML parameter to set. Must not be
-   * <code>null</code>. This can either be instance of a String which means it is a
-   * single values HTML parameter or instance of List that is a list of strings,
-   * which menas the HTML parameter
-   * is <code>null</code>.
+   * @param value is the value of the HTML parameter to set. Must not be <code>null</code>. This can
+   *     either be instance of a String which means it is a single values HTML parameter or instance
+   *     of List that is a list of strings, which menas the HTML parameter is <code>null</code>.
    */
   public void setParam(String name, Object value) {
     if (name == null) throw new IllegalArgumentException("name must not be null");
@@ -179,8 +177,8 @@ public class PSHtmlParamDocument {
 
   /**
    * Remove a named HTML parameter from the object.
-   * @param name name of the parameter to remove, must not be <code>null</code>
-   * or empty.
+   *
+   * @param name name of the parameter to remove, must not be <code>null</code> or empty.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public void removeParam(String name) {
@@ -191,6 +189,7 @@ public class PSHtmlParamDocument {
 
   /**
    * Get the value of the named parameter.
+   *
    * @param name must not be <code>null</code> or empty.
    * @return value of the named parameter, may be <code>null</code>.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
@@ -203,18 +202,16 @@ public class PSHtmlParamDocument {
   }
 
   /**
-   * Get the value of the named parameter suitable for SQL IN clause. This is
-   * useful for a multi-valued HTML parameter that needs to be used in SQL
-   * query in the selector of Rhythmyx resource. Does not enclose the string
-   * in paranthesis.
-   * @param name must not be <code>null</code> or empty.
-   * @param encloseInQuotes flag to tell whether to include individual values
-   * in quotes or not. Encloding in quotes makes the result useful for SQL
-   * string based searches whereas not enclosing makes the result useful in
-   * number based searches.
+   * Get the value of the named parameter suitable for SQL IN clause. This is useful for a
+   * multi-valued HTML parameter that needs to be used in SQL query in the selector of Rhythmyx
+   * resource. Does not enclose the string in paranthesis.
    *
-   * @return value as a string than can readily be used in SQL IN clause,
-   * never be <code>null</code> may be empty. Not elnclosed in paranthesis.
+   * @param name must not be <code>null</code> or empty.
+   * @param encloseInQuotes flag to tell whether to include individual values in quotes or not.
+   *     Encloding in quotes makes the result useful for SQL string based searches whereas not
+   *     enclosing makes the result useful in number based searches.
+   * @return value as a string than can readily be used in SQL IN clause, never be <code>null</code>
+   *     may be empty. Not elnclosed in paranthesis.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public String getParamForInClause(String name, boolean encloseInQuotes) {
@@ -239,19 +236,19 @@ public class PSHtmlParamDocument {
 
   /**
    * Get map of parameters which can be modified, if needed.
+   *
    * @return map of parameters, never <code>null</code> may be empty.
    */
   public Map getParams() {
     return m_params;
   }
 
-  /**
-   * Map of all parameter name-value pairs, never <code>null</code>.
-   */
+  /** Map of all parameter name-value pairs, never <code>null</code>. */
   Map m_params = new HashMap();
 
   /**
    * main method for testing
+   *
    * @param args, none required
    */
   public static void main(String[] args) {
@@ -290,13 +287,9 @@ public class PSHtmlParamDocument {
     log.info("testParam3 = {} ", htmlDoc.getParamForInClause("testParam3", false));
   }
 
-  /**
-   * Name of the root element of the XML document
-   */
+  /** Name of the root element of the XML document */
   public static final String ROOT = "HtmlParams";
 
-  /**
-   * Name of the operand suffix for searchfield operator
-   */
+  /** Name of the operand suffix for searchfield operator */
   public static final String OPERATOR_SUFFIX = "_operator";
 }

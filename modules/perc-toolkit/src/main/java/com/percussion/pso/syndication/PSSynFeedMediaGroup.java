@@ -23,15 +23,11 @@ import com.rometools.modules.mediarss.types.MediaGroup;
  */
 public class PSSynFeedMediaGroup {
 
-	
-	private MediaGroup group;
-	
-	
-	//@TODO: Implement ME
-	
-	public PSSynFeedMediaGroup(MediaGroup arg){
-		group = arg;
-	}
-	
-	
+  private MediaGroup group;
+
+  // @TODO: Implement ME
+
+  public PSSynFeedMediaGroup(MediaGroup arg) {
+    group = arg;
+  }
 }

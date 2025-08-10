@@ -23,27 +23,28 @@ import com.percussion.theme.data.PSThemeSummary;
 
 /**
  * Represents a theme resource definition.
+ *
  * @author Sunny Sal
  */
 public class PSThemeResource extends PSResourceDefinition {
 
-    private PSThemeSummary themeSummary;
+  private PSThemeSummary themeSummary;
 
-    @Override
-    public void accept(IPSResourceDefinitionVisitor visitor) {
-        visitor.visit(this);
-    }
+  @Override
+  public void accept(IPSResourceDefinitionVisitor visitor) {
+    visitor.visit(this);
+  }
 
-    @Override
-    public PSResourceDefinitionType getResourceType() {
-        return PSResourceDefinitionType.THEME;
-    }
+  @Override
+  public PSResourceDefinitionType getResourceType() {
+    return PSResourceDefinitionType.THEME;
+  }
 
-    public PSThemeSummary getThemeSummary() {
-        return themeSummary;
-    }
+  public PSThemeSummary getThemeSummary() {
+    return themeSummary;
+  }
 
-    public void setThemeSummary(PSThemeSummary themeSummary) {
-        this.themeSummary = themeSummary;
-    }
+  public void setThemeSummary(PSThemeSummary themeSummary) {
+    this.themeSummary = themeSummary;
+  }
 }

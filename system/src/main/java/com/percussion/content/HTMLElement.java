@@ -89,65 +89,49 @@ public class HTMLElement extends HTMLNode implements Element {
     return ELEMENT_NODE;
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public String getAttributeNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method getAttributeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public void setAttributeNS(String namespaceURI, String localName, String value) {
     // TODO: implement
     throw new RuntimeException("Method setAttributeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public void removeAttributeNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method removeAttributeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Attr getAttributeNodeNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method getAttributeNodeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Attr setAttributeNodeNS(Attr newAttr) throws DOMException {
     // TODO: implement
     throw new RuntimeException("Method setAttributeNodeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public NodeList getElementsByTagNameNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method getElementsByTagNameNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public boolean hasAttributeNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method hasAttributeNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2.
-   */
+  /** Method introduced later in DOM level 2. */
   public boolean hasAttribute(String name) {
     return getAttributeNode(name) != null;
   }

@@ -35,20 +35,19 @@ import javax.jcr.ValueFormatException;
  */
 public class PSInputStreamValue extends PSBaseValue<InputStream> {
   /**
-   * Track the state of the stream. This boolean is set to <code>true</code>
-   * when {@link #getStream()} is called.
+   * Track the state of the stream. This boolean is set to <code>true</code> when {@link
+   * #getStream()} is called.
    */
   boolean m_streamUsed = false;
 
   /**
-   * Track the state of the instance. This boolean is set to <code>true</code>
-   * when any get method is called other than {@link #getStream()}.
+   * Track the state of the instance. This boolean is set to <code>true</code> when any get method
+   * is called other than {@link #getStream()}.
    */
   boolean m_getUsed = false;
 
   /**
-   * The property type is usually binary unless
-   * the inputted stream is {@link PSReaderInputStream}.
+   * The property type is usually binary unless the inputted stream is {@link PSReaderInputStream}.
    */
   int m_propertyType = PropertyType.BINARY;
 
@@ -60,8 +59,6 @@ public class PSInputStreamValue extends PSBaseValue<InputStream> {
   }
 
   /**
-   *
-   *
    * @param b never <code>null</code>.
    * @param text if <code>true</code> {@link #getType()} will be {@link PropertyType#STRING}.
    */

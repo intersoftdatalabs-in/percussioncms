@@ -38,69 +38,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PSWorkflowUtilsBase {
-  /**
-   * Role delimiter (in role list)
-   */
+  /** Role delimiter (in role list) */
   public static final String ROLE_DELIMITER = ",";
 
-  /**
-   * Adhoc user list delimiter (in HTML parameter)
-   */
+  /** Adhoc user list delimiter (in HTML parameter) */
   public static final String ADHOC_USER_LIST_DELIMITER = ";";
 
   /**
-   * Adhoc user list separator.  The user list is passed as
-   * &lt;rolename&gt;<code>ADHOC_USER_ROLE_TYPE_SEP</code>&lt;adhoctype&gt;
-   * .
+   * Adhoc user list separator. The user list is passed as &lt;rolename&gt;<code>
+   * ADHOC_USER_ROLE_TYPE_SEP</code>&lt;adhoctype&gt; .
    */
   public static final String ADHOC_USER_ROLE_TYPE_SEP = ":";
 
-  /**
-   * Delimiter for workflow actions in database column
-   * TRANSITIONS.TRANSITIONACTIONS
-   */
+  /** Delimiter for workflow actions in database column TRANSITIONS.TRANSITIONACTIONS */
   public static final String WORKFLOW_ACTION_DELIMITER = ",";
 
-  /**
-   * Delimiter for data base <CODE>String</CODE>s containing email recipients
-   */
+  /** Delimiter for data base <CODE>String</CODE>s containing email recipients */
   public static final String EMAIL_STRING_DELIMITER = ",";
 
-  /**
-   * Separator for <CODE>String</CODE>s used to pass email recipients
-   * to mail programs.
-   */
+  /** Separator for <CODE>String</CODE>s used to pass email recipients to mail programs. */
   public static final String EMAIL_STRING_SEPARATOR = ", ";
 
-  /**
-   * Name of the properties file.
-   */
+  /** Name of the properties file. */
   public static final String FILE_PROPERTIES = "rxworkflow.properties";
 
-  /**
-   * Default name for storing the new state id when transition takes place.
-   */
+  /** Default name for storing the new state id when transition takes place. */
   public static String DEFAULT_NEWSTATEID_NAME = "newstateid";
 
-  /**
-   * Default name for storing the transition id.
-   */
+  /** Default name for storing the transition id. */
   public static String DEFAULT_TRANSITIONID_NAME = "transitionid";
 
-  /**
-   * Default key for the default workflow property.
-   */
+  /** Default key for the default workflow property. */
   private static String DEFAULT_WORKFLOW_KEY = "DEFAULT_WORKFLOW";
 
   /**
-   * Installer Options
-   *   Table works as followed :
-   *             Yes  No   Ignore    No Action
-   *             ===  ==  ========  ===========
-   *    CREATE    1    2     3          0
-   *    ALTER     1    2     3          0
-   *    DELETE    1    2     3          0
-   *
+   * Installer Options Table works as followed : Yes No Ignore No Action === == ======== ===========
+   * CREATE 1 2 3 0 ALTER 1 2 3 0 DELETE 1 2 3 0
    */
   public static final int CREATE_NONE = 0;
 
@@ -116,9 +89,7 @@ public class PSWorkflowUtilsBase {
   public static final int DELETE_NO = 2;
   public static final int DELETE_NOT = 3;
 
-  /**
-   * Error Messages ref write option to Disk.
-   */
+  /** Error Messages ref write option to Disk. */
   public static final int SUCCESS = 0;
 
   public static final int WRITE_ERRROR = 1;
@@ -128,12 +99,9 @@ public class PSWorkflowUtilsBase {
   public static final int UNKNOWN_FAILURE = 5;
 
   /**
-   * Flags for writing to disk
-   * CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
-   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists
-   * APPEND_CREATE = Append to file. Create file if doesn't exist
-   * APPEND = Append to existing file. Fail if doen't exist.
-   *
+   * Flags for writing to disk CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
+   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists APPEND_CREATE = Append
+   * to file. Create file if doesn't exist APPEND = Append to existing file. Fail if doen't exist.
    */
   public static final int CREATE_NEW_OVERWRITE = 0;
 
@@ -148,41 +116,29 @@ public class PSWorkflowUtilsBase {
   public static final int TABLE_ALTER_NO = 5;
 
   /**
-   * Preset file name which the old data is stored in if system
-   * fails to insert them back into the new tables.
-   *
+   * Preset file name which the old data is stored in if system fails to insert them back into the
+   * new tables.
    */
   public static String PS_OLD_DATA_FILENAME = new String("ps_org_tbl_data.xml");
 
   public static String PS_OLD_DTD_FILENAME = new String("ps_org_tbl_def.xml");
 
-  /**
-   * error constants
-   */
+  /** error constants */
   public static final int ERROR_INVALID_NMBER_OF_PARAMETERS = 7006;
 
   public static final int ERROR_INVALID_PARAMETER_TYPE = 7003;
   public static final int ERROR_AUTHORIZATION_FAILURE = 1203;
 
-  /**
-   * Instantiation of empty properties. File will be loaded later.
-   *
-   */
+  /** Instantiation of empty properties. File will be loaded later. */
   public static Properties properties = null;
 
   /**
-   *
-   * AssignmentType:
-   *  -1 - User is not listed in this content adhoc users context.
-   * 0 - Not in workflow - Either the user is not in any role, or all of his
-   *       roles  are not listed in the workflow definition
-   * 1 - None - User is in a role, but the role is not assigned for this
-   *       state
-   * 2 - Reader - User is in a role assigned as Reader
-   * 3 - Assignee - User is assigned to transition the document
-   *   4 - Admin - User is an administrator in this Workflow.  Administrators
-   *       have all rights
-   *
+   * AssignmentType: -1 - User is not listed in this content adhoc users context. 0 - Not in
+   * workflow - Either the user is not in any role, or all of his roles are not listed in the
+   * workflow definition 1 - None - User is in a role, but the role is not assigned for this state 2
+   * - Reader - User is in a role assigned as Reader 3 - Assignee - User is assigned to transition
+   * the document 4 - Admin - User is an administrator in this Workflow. Administrators have all
+   * rights
    */
   public static final int ASSIGNMENT_TYPE_NOT_IN_ADHOC_USERS_CONTEXT = -1;
 
@@ -193,20 +149,14 @@ public class PSWorkflowUtilsBase {
   public static final int ASSIGNMENT_TYPE_ADMIN = 4;
 
   /**
-   * HTML Parameter name that stores the current user's assignment type.
-   * authenticateUser exit adds this to the list and performTransition may
-   * modify, if required.
-   *
+   * HTML Parameter name that stores the current user's assignment type. authenticateUser exit adds
+   * this to the list and performTransition may modify, if required.
    */
   public static final String ASSIGNMENT_TYPE_CURRENT_USER = "assignmenttypecurrentuser";
 
   /**
-   *
-   * Document check out status values
-   * 0 - Not checked-out by anybody
-   * 1 - Checked out by current user
+   * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
    * 2 - Checked out by some body else
-   *
    */
   public static final int CHECKOUT_STATUS_NONE = 0;
 
@@ -214,46 +164,29 @@ public class PSWorkflowUtilsBase {
   public static final int CHECKOUT_STATUS_OTHER = 2;
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout status.
-   * authenticateUser exit adds this to the list and performTransition may
-   * modify, if required.
-   *
+   * HTML Parameter name that stores the current document's checkout status. authenticateUser exit
+   * adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_STATUS_CURRENT_DOCUMENT = "checkoutstatuscurrentdocument";
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout user .
-   * name authenticateUser exit adds this to the list and performTransition
-   * may modify, if required.
-   *
+   * HTML Parameter name that stores the current document's checkout user . name authenticateUser
+   * exit adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_USER_NAME = "checkoutusername";
 
-  /**
-   *
-   * HTML Parameter name that stores the content status history id after
-   * writing the history.
-   *
-   */
+  /** HTML Parameter name that stores the content status history id after writing the history. */
   public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
 
   /**
-   *
-   * Default HTML Parameter name used to access the transition comment if
-   * a value is not assigned to property HTML_PARAM_TRANSITION_COMMENT
-   * in the property file PSWorkFlowUtilsResources.properties.
-   * This is used by the exits performTransition and updateHistory.
+   * Default HTML Parameter name used to access the transition comment if a value is not assigned to
+   * property HTML_PARAM_TRANSITION_COMMENT in the property file
+   * PSWorkFlowUtilsResources.properties. This is used by the exits performTransition and
+   * updateHistory.
    */
   public static final String TRANSITION_COMMENT = "commenttext";
 
-  /**
-   * Ad-hoc options:
-   *   0 - No Ad-Hoc
-   * 1 - Ad-Hoc enabled
-   * 2 - Anonymous Ad-Hoc
-   */
+  /** Ad-hoc options: 0 - No Ad-Hoc 1 - Ad-Hoc enabled 2 - Anonymous Ad-Hoc */
   public static final int ADHOC_DISABLED = 0;
 
   public static final int ADHOC_ENABLED = 1;
@@ -298,74 +231,51 @@ public class PSWorkflowUtilsBase {
   public static final String USER_EMAIL_ATTRIBUTE = "sys_email";
 
   /**
-   * An optional property that stores the atribute name for the attribute
-   * that holds the user's email address.
+   * An optional property that stores the atribute name for the attribute that holds the user's
+   * email address.
    */
   public static final String USER_EMAIL_ATTRIBUTE_PROPERTY = "MAIL_ATTRIBUTE_NAME";
 
-  /**
-   * Constant for the name of the entry that reperesents workflow's
-   * name/value pair.
-   */
+  /** Constant for the name of the entry that reperesents workflow's name/value pair. */
   private static final String ENTRY_NAME = "workflow_config_base_dir";
 
   /**
-   * Constant for the directory containing workflow configs.
-   * Assumed to be relative to the Rx directory.
+   * Constant for the directory containing workflow configs. Assumed to be relative to the Rx
+   * directory.
    */
   public static final String WORKFLOW_DIR = "rxconfig/Workflow";
 
   /**
-   * Debug flag, set to <CODE>true</CODE> when running tests for which the
-   * server is not used, else <CODE>false</CODE>.
+   * Debug flag, set to <CODE>true</CODE> when running tests for which the server is not used, else
+   * <CODE>false</CODE>.
    */
   public static boolean m_bTestWithoutServer = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> trace message output is sent to
-   * the PSConsole.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to the PSConsole. */
   public static boolean m_bPSConsoleTraceMessages = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> stack trace output is sent to
-   * the PSConsole.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> stack trace output is sent to the PSConsole. */
   public static boolean m_bPSConsoleStackTrace = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> trace message output is sent to
-   * System.out.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to System.out. */
   public static boolean m_bSystemOutTraceMessages = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> stack trace output is sent to
-   *  System.out.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> stack trace output is sent to System.out. */
   public static boolean m_bSystemOutStackTrace = false;
 
-  /**
-   * Used to maintain name of rxworkflow.properties file.
-   */
+  /** Used to maintain name of rxworkflow.properties file. */
   private static final String WORKFLOW_PROPS_FILE_NAME = "rxworkflow.properties";
 
-  /**
-   * Used to maintain location of rxworkflow.properties file.
-   */
+  /** Used to maintain location of rxworkflow.properties file. */
   private static final String WORKFLOW_PROPS_PATH = "rxconfig/Workflow";
 
   /**
    * Helper function to compare two role lists
-   * @param assignmentTypeList - ArrayList containing assignment types as
-   *                             Integers
    *
-   * @param roleList -           first role list as ArrayList;
-   *
-   * @param sRoleList -          the second role list as comma separated list
-   *
-   * @return                     the assignment type - one of the values
-   *                             defined in this file (PSWorkflowUtilsBase.java)
+   * @param assignmentTypeList - ArrayList containing assignment types as Integers
+   * @param roleList - first role list as ArrayList;
+   * @param sRoleList - the second role list as comma separated list
+   * @return the assignment type - one of the values defined in this file (PSWorkflowUtilsBase.java)
    */
   public static int compareRoleList(
       ArrayList assignmentTypeList, ArrayList roleList, String sRoleList) {
@@ -392,12 +302,9 @@ public class PSWorkflowUtilsBase {
   /**
    * Determine if two role lists have a common role.
    *
-   * @param roleList -           first role list as <CODE>List</CODE>;
-   *
-   * @param sRoleList -          the second role list as comma separated list
-   *
-   * @return                     <CODE>true</CODE> if there is a common role,
-   *                             else <CODE>false</CODE>
+   * @param roleList - first role list as <CODE>List</CODE>;
+   * @param sRoleList - the second role list as comma separated list
+   * @return <CODE>true</CODE> if there is a common role, else <CODE>false</CODE>
    */
   public static boolean compareRoleList(List roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
@@ -418,15 +325,14 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Determine whether the user is an administrator. <BR>
-   * The user is an administrator if the Workflow admin name is the user's
-   * name or is one of the user's roles.
+   * Determine whether the user is an administrator. <br>
+   * The user is an administrator if the Workflow admin name is the user's name or is one of the
+   * user's roles.
    *
-   * @param sAdminName  The name of the workflow administrator
-   * @param sUserName   The user's name, cannot be <CODE>null</CODE>
-   * @param sRoleList   A comma-delimited list of the user's roles.
-   * @return            <CODE>true</CODE> if the user is an administrator,
-   *                    <CODE>false</CODE> if not.
+   * @param sAdminName The name of the workflow administrator
+   * @param sUserName The user's name, cannot be <CODE>null</CODE>
+   * @param sRoleList A comma-delimited list of the user's roles.
+   * @return <CODE>true</CODE> if the user is an administrator, <CODE>false</CODE> if not.
    */
   public static boolean isAdmin(String sAdminName, String sUserName, String sRoleList) {
     // If the admin name is null or empty, the person is not an admin
@@ -472,20 +378,17 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Takes the assignment type based on the workflow rules and modifies it
-   * based on the user's login community and item's community. If they are same
-   * then returns ASSIGNMENT_TYPE_NONE if input assignment type is
-   * ASSIGNMENT_TYPE_NONE otherwise returns ASSIGNMENT_TYPE_READER if input
-   * assignment type is equal or greater than ASSIGNMENT_TYPE_READER.
-   * Returns assignment type un changed if items community and users community
-   * are same.
+   * Takes the assignment type based on the workflow rules and modifies it based on the user's login
+   * community and item's community. If they are same then returns ASSIGNMENT_TYPE_NONE if input
+   * assignment type is ASSIGNMENT_TYPE_NONE otherwise returns ASSIGNMENT_TYPE_READER if input
+   * assignment type is equal or greater than ASSIGNMENT_TYPE_READER. Returns assignment type un
+   * changed if items community and users community are same.
    *
-   * @param assignmentType  assignment type from workflow rules
-   * @param itemCommunity   items community
-   * @param usersCommunity   users community
-   * @return  assignmentType
-   * @throws            IllegalArgumentException if the user
-   *                    name is <CODE>null</CODE>or empty.
+   * @param assignmentType assignment type from workflow rules
+   * @param itemCommunity items community
+   * @param usersCommunity users community
+   * @return assignmentType
+   * @throws IllegalArgumentException if the user name is <CODE>null</CODE>or empty.
    */
   public static int modifyAssignmentType(
       int assignmentType, int itemCommunity, int usersCommunity) {
@@ -496,18 +399,14 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Helper function that returns user name after last comma.
-   * This is useful when we need to extract actual user name out of the user
-   * name that is obtainable by user contex/username. This has of the form:
-   * host1,host2,host3,host4,username.
+   * Helper function that returns user name after last comma. This is useful when we need to extract
+   * actual user name out of the user name that is obtainable by user contex/username. This has of
+   * the form: host1,host2,host3,host4,username.
    *
-   * @deprecated This method was written for the IP Security Provider,
-   * which is no longer supported.
-   *
+   * @deprecated This method was written for the IP Security Provider, which is no longer supported.
    * @author Rammohan Vangapalli
    * @version 1.0
    * @since 2.0
-   *
    */
   public static String filterUserName(String sUserName) {
     /*
@@ -523,17 +422,12 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Gets the descriptive comment for this transition from the HTML Parameter
-   * hash map.
+   * Gets the descriptive comment for this transition from the HTML Parameter hash map.
    *
-   * @param   htmlParams hash map containing the HTML parameters for this
-   *          request
-   *
-   * @return  the descriptive comment for this transition or
-   *          <CODE>null</CODE> if there is no descriptive comment in the
-   *          HTML Parameter hash map, or the comment is empty or consists
-   *          entirely of whitespace.
-   *          May not be more than 255 characters.
+   * @param htmlParams hash map containing the HTML parameters for this request
+   * @return the descriptive comment for this transition or <CODE>null</CODE> if there is no
+   *     descriptive comment in the HTML Parameter hash map, or the comment is empty or consists
+   *     entirely of whitespace. May not be more than 255 characters.
    */
   public static String getTransitionCommentFromHTMLParams(HashMap htmlParams) {
     String paramName = getTransitionCommentParamName();
@@ -561,13 +455,12 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Sets the descriptive comment for this transition in the HTML Parameter
-   * hash map.
+   * Sets the descriptive comment for this transition in the HTML Parameter hash map.
    *
-   * @param comment The comment, ignored if <code>null</code>, may be empty,
-   * not more than 255 characters.
-   * @param params map containing the HTML parameters for this request, may not
-   * be <code>null</code>.
+   * @param comment The comment, ignored if <code>null</code>, may be empty, not more than 255
+   *     characters.
+   * @param params map containing the HTML parameters for this request, may not be <code>null</code>
+   *     .
    */
   public static void setTransitionCommentInHTMLParams(String comment, HashMap params) {
     if (comment != null && comment.length() > 255)
@@ -579,8 +472,8 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * All the error and other messages are stored in a resource file. This
-   * static method returns (instantiates if required) the resource bundle.
+   * All the error and other messages are stored in a resource file. This static method returns
+   * (instantiates if required) the resource bundle.
    */
   public static ResourceBundle getResourceBundle() {
     /*
@@ -598,19 +491,16 @@ public class PSWorkflowUtilsBase {
   /*  ********* String Methods ********* */
 
   /**
-   * Create a list of the substrings of a string, using a specified delimiter.
-   * Surrounding whitespace is trimmed from each substring. Consecutive
-   * occurrences of the delimiter are ignored.
+   * Create a list of the substrings of a string, using a specified delimiter. Surrounding
+   * whitespace is trimmed from each substring. Consecutive occurrences of the delimiter are
+   * ignored.
    *
-   * @param inString   the string to be tokenized (divided into substrings
-   *                   separated by a delimiter.)
-   * @param delimeter  The delimeter used to tokenize the string.
-   *                   if <CODE>null</CODE> whitespace is used as a delimeter
-   * @return           the list of substrings; will contain no elements if
-   *                   the <CODE>inString</CODE> consists entirely of
-   *                   delimiters.
-   * @throws           IllegalArgumentException if <CODE>inString</CODE> is
-   *                   <CODE>null</CODE> or empty
+   * @param inString the string to be tokenized (divided into substrings separated by a delimiter.)
+   * @param delimeter The delimeter used to tokenize the string. if <CODE>null</CODE> whitespace is
+   *     used as a delimeter
+   * @return the list of substrings; will contain no elements if the <CODE>inString</CODE> consists
+   *     entirely of delimiters.
+   * @throws IllegalArgumentException if <CODE>inString</CODE> is <CODE>null</CODE> or empty
    */
   public static List<String> tokenizeString(String inString, String delimeter) {
     if (null == inString || inString.length() == 0) {
@@ -633,12 +523,10 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Creates a <CODE>String</CODE> for the stack trace of a
-   * <CODE>throwable</CODE>.
+   * Creates a <CODE>String</CODE> for the stack trace of a <CODE>throwable</CODE>.
    *
-   * @param throwable Throwable for which stack trace is desired
-   *                  never <CODE>null</CODE>
-   * @return          <CODE>String</CODE> containing the stack trace
+   * @param throwable Throwable for which stack trace is desired never <CODE>null</CODE>
+   * @return <CODE>String</CODE> containing the stack trace
    * @throws IllegalArgumentException if the input is <CODE>null</CODE>
    */
   public static String stackTraceString(Throwable throwable) {
@@ -653,11 +541,11 @@ public class PSWorkflowUtilsBase {
 
   /*  ********* Date and Calender Methods ********* */
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param date  date to be turned into a string
-   * @return      string giving date information down to the millisecond
+   * @param date date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Date date) {
     if (null == date) {
@@ -670,11 +558,11 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param calendar  calendar specifying date to be turned into a string
-   * @return          string giving date information down to the millisecond
+   * @param calendar calendar specifying date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Calendar calendar) {
     if (null == calendar) {
@@ -692,38 +580,36 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Convert a Timestamp to a <CODE>java.sql.Date</CODE>, passing through a
-   * <CODE>null</CODE>  value.
+   * Convert a Timestamp to a <CODE>java.sql.Date</CODE>, passing through a <CODE>null</CODE> value.
    *
-   * @param timestamp  The time value to convert to a
-   *                   <CODE>java.sql.Date</CODE> or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return  corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   * @param timestamp The time value to convert to a <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   *     if no corresponding time exists.
+   * @return corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
    */
   public static Date sqlDateFromTimestamp(Timestamp timestamp) {
     return (null == timestamp) ? null : new Date(timestamp.getTime());
   }
 
   /**
-   * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a
-   * <CODE>null</CODE>  value.
+   * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a <CODE>null</CODE>
+   * value.
    *
-   * @param date  The<CODE>java.util.Date</CODE to convert to a Timestamp
-   *              or <CODE>null</CODE> if the date is <CODE>null</CODE>
-   * @return      corresponding Timestamp or <CODE>null</CODE>
+   * @param date The<CODE>java.util.Date</CODE to convert to a Timestamp
+   *              or <CODE>
+   *     null</CODE> if the date is <CODE>null</CODE>
+   * @return corresponding Timestamp or <CODE>null</CODE>
    */
   public static Timestamp timestampFromDate(java.util.Date date) {
     return (null == date) ? null : new Timestamp(date.getTime());
   }
 
   /**
-   * Convert a Calendar time to a <CODE>java.sql.Date</CODE>, passing through
-   * a <CODE>null</CODE> value.
+   * Convert a Calendar time to a <CODE>java.sql.Date</CODE>, passing through a <CODE>null</CODE>
+   * value.
    *
-   * @param calendar  The calendar with the time value to convert to a
-   *                   <CODE>java.sql.Date</CODE> or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return  corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   * @param calendar The calendar with the time value to convert to a <CODE>java.sql.Date</CODE> or
+   *     <CODE>null</CODE> if no corresponding time exists.
+   * @return corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
    */
   public static Date sqlDateFromCalendar(Calendar calendar) {
     /*
@@ -735,17 +621,15 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Return a Calendar with time equal to to a <CODE>java.util.Date</CODE>,
-   * passing through a <CODE>null</CODE> a value, possibly making use of
-   * an existing Calendar
+   * Return a Calendar with time equal to to a <CODE>java.util.Date</CODE>, passing through a <CODE>
+   * null</CODE> a value, possibly making use of an existing Calendar
    *
-   * @param calendar  The calendar for which the time value to convert to a
-   *                   <CODE>java.util.Date</CODE> or <CODE>null</CODE> if no
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set,  or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return          <CODE>Calendar</CODE> with time set to the given
-   *                  <CODE>java.util.Date</CODE> or <CODE>null</CODE>
+   * @param calendar The calendar for which the time value to convert to a <CODE>java.util.Date
+   *     </CODE> or <CODE>null</CODE> if no
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set, or <CODE>
+   *     null</CODE> if no corresponding time exists.
+   * @return <CODE>Calendar</CODE> with time set to the given <CODE>java.util.Date</CODE> or <CODE>
+   *     null</CODE>
    */
   public static Calendar calendarFromDate(Calendar calendar, java.util.Date date) {
     if (null == date) {
@@ -761,14 +645,11 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Find the difference in milliseconds between the time values of two
-   * calenders.
+   * Find the difference in milliseconds between the time values of two calenders.
    *
-   * @param calendar1  calendar with time to subtract from,
-   *                   never <CODE>null</CODE>
-   * @param calendar2  calendar with time to be subtracted
-   *                   never <CODE>null</CODE>
-   * @return  difference in milliseconds between the time values
+   * @param calendar1 calendar with time to subtract from, never <CODE>null</CODE>
+   * @param calendar2 calendar with time to be subtracted never <CODE>null</CODE>
+   * @return difference in milliseconds between the time values
    */
   public static long timeDiffMillis(Calendar calendar1, Calendar calendar2) {
     long time1 = 0;
@@ -789,14 +670,11 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Find the difference in seconds between the time values of two
-   * calenders.
+   * Find the difference in seconds between the time values of two calenders.
    *
-   * @param calendar1  calendar with time to subtract from,
-   *                   never <CODE>null</CODE>
-   * @param calendar2  calendar with time to be subtracted
-   *                   never <CODE>null</CODE>
-   * @return  difference in seconds between the time values
+   * @param calendar1 calendar with time to subtract from, never <CODE>null</CODE>
+   * @param calendar2 calendar with time to be subtracted never <CODE>null</CODE>
+   * @return difference in seconds between the time values
    */
   public static long timeDiffSecs(Calendar calendar1, Calendar calendar2) {
 
@@ -812,12 +690,11 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Find the difference in seconds between the time values of two
-   * calenders.
+   * Find the difference in seconds between the time values of two calenders.
    *
-   * @param date1  time to subtract from, never <CODE>null</CODE>
-   * @param date2  time to be subtracted, never <CODE>null</CODE>
-   * @return  difference in seconds between the time values
+   * @param date1 time to subtract from, never <CODE>null</CODE>
+   * @param date2 time to be subtracted, never <CODE>null</CODE>
+   * @return difference in seconds between the time values
    */
   public static long timeDiffSecs(java.util.Date date1, java.util.Date date2) {
     long time1 = 0;
@@ -838,19 +715,16 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Return a Calendar with time equal to to a <CODE>java.util.Date</CODE>,
-   * incremented by a time interval (in minutes), possibly making use of
-   * an existing Calendar
+   * Return a Calendar with time equal to to a <CODE>java.util.Date</CODE>, incremented by a time
+   * interval (in minutes), possibly making use of an existing Calendar
    *
-   * @param calendar  The calendar for which the time value to convert to a
-   *                   <CODE>java.util.Date</CODE> or <CODE>null</CODE> if no
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>Calendar</CODE> with the desired time set.
+   * @param calendar The calendar for which the time value to convert to a <CODE>java.util.Date
+   *     </CODE> or <CODE>null</CODE> if no
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set. may not
+   *     be <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>Calendar</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static Calendar incrementCalendar(Calendar calendar, java.util.Date date, int interval) {
     if (null == date) {
@@ -864,16 +738,14 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Return a date with time equal to to a <CODE>java.sql.Date</CODE>,
-   * incremented by a time interval (in minutes)
+   * Return a date with time equal to to a <CODE>java.sql.Date</CODE>, incremented by a time
+   * interval (in minutes)
    *
-   * @param date      The <CODE>java.sql.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>java.sql.Date</CODE> with the desired time set.
+   * @param date The <CODE>java.sql.Date</CODE> to which the Calendar time should be set. may not be
+   *     <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>java.sql.Date</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static Date incrementDate(Date date, int interval) {
     if (null == date) {
@@ -887,16 +759,14 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Return a date with time equal to to a <CODE>java.util.Date</CODE>,
-   * incremented by a time interval (in minutes)
+   * Return a date with time equal to to a <CODE>java.util.Date</CODE>, incremented by a time
+   * interval (in minutes)
    *
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>java.util.Date</CODE> with the desired time set.
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set. may not
+   *     be <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>java.util.Date</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static java.util.Date incrementDate(java.util.Date date, int interval) {
     if (null == date) {
@@ -910,14 +780,11 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed
-   * string is empty.
+   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed string is empty.
    *
-   * @param string  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   <CODE>null</CODE> if the input string is <CODE>null</CODE>,
-   *           or is empty after trimming.
-   *           Otherwise, return the trimmed string.
+   * @param string string to be trimmed. May be <CODE>null</CODE>
+   * @return <CODE>null</CODE> if the input string is <CODE>null</CODE>, or is empty after trimming.
+   *     Otherwise, return the trimmed string.
    */
   public static String trimmedOrNullString(String string) {
     String trimmedString = (null == string) ? null : string.trim();
@@ -926,12 +793,10 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Trim a non-null string, and return an empty string if the input string is
-   * empty.
+   * Trim a non-null string, and return an empty string if the input string is empty.
    *
-   * @param string  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   an empty string ("") if the input string is <CODE>null</CODE>
+   * @param string string to be trimmed. May be <CODE>null</CODE>
+   * @return an empty string ("") if the input string is <CODE>null</CODE>
    */
   public static String trimmedOrEmptyString(String string) {
     if (null == string) {
@@ -943,12 +808,12 @@ public class PSWorkflowUtilsBase {
 
   /*  ********* List Methods ********* */
   /**
-   * Create a list from an array of objects with primitives replaced by
-   * wrapper classes (e.g. int replaced by Integer)
+   * Create a list from an array of objects with primitives replaced by wrapper classes (e.g. int
+   * replaced by Integer)
    *
-   * @param array  array of objects
-   * @return       correponding list, with primitives replaced by wrapper
-   *               clases, empty list if input array is <CODE>null</CODE>
+   * @param array array of objects
+   * @return correponding list, with primitives replaced by wrapper clases, empty list if input
+   *     array is <CODE>null</CODE>
    */
   public static List arrayToList(Object array) {
     List newList = new ArrayList();
@@ -964,9 +829,9 @@ public class PSWorkflowUtilsBase {
   /**
    * Creates a lower case version of a list of strings.
    *
-   * @param inputList  list of strings,can be <code>null</code>
-   * @return           list with items in lower case, or <CODE>null</CODE> if
-   *                   original list was <CODE>null</CODE>.
+   * @param inputList list of strings,can be <code>null</code>
+   * @return list with items in lower case, or <CODE>null</CODE> if original list was <CODE>null
+   *     </CODE>.
    */
   static List lowerCaseList(List inputList) {
     if (null == inputList) {
@@ -990,18 +855,15 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Create a list by applying a boolean map to the members of a list and
-   * retaining only items which map to <CODE>true</CODE>.
+   * Create a list by applying a boolean map to the members of a list and retaining only items which
+   * map to <CODE>true</CODE>.
    *
-   * @param inputList  list of <CODE>Objects</CODE>, can be <code>null</code>
-   * @param map        map with <CODE>Boolean</CODE> values,
-   *                   <CODE>true</CODE> if objects with the corresponding
-   *                   key should be retained, else <CODE>false</CODE>
-   * @return           list resulting from application of the map to the list,
-   *                   retaining only items which map to <CODE>true</CODE>.
-   *                   Return <CODE>null</CODE> if the
-   *                   original list was <CODE>null</CODE> or the map was
-   *                   <CODE>null</CODE> or empty.
+   * @param inputList list of <CODE>Objects</CODE>, can be <code>null</code>
+   * @param map map with <CODE>Boolean</CODE> values, <CODE>true</CODE> if objects with the
+   *     corresponding key should be retained, else <CODE>false</CODE>
+   * @return list resulting from application of the map to the list, retaining only items which map
+   *     to <CODE>true</CODE>. Return <CODE>null</CODE> if the original list was <CODE>null</CODE>
+   *     or the map was <CODE>null</CODE> or empty.
    */
   public static List filterList(List inputList, Map map) {
     if (null == inputList || null == map || map.isEmpty()) {
@@ -1028,17 +890,16 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * This is a utility method that was put in place because of the way roles
-   * are dealt with for transitions.  In some places the role name is used,
-   * in others the role id is used.  A has been used throughout with the id
-   * as the key and the role name as the value.  There are places where a role
-   * id is needed but all that is available is the map and the name, so this
-   * method provides a solution for that.
+   * This is a utility method that was put in place because of the way roles are dealt with for
+   * transitions. In some places the role name is used, in others the role id is used. A has been
+   * used throughout with the id as the key and the role name as the value. There are places where a
+   * role id is needed but all that is available is the map and the name, so this method provides a
+   * solution for that.
    *
-   * @param roleMap a map with its key being an <code>Integer</code> and the
-   * value being a <code>String</code>. Must not be <code>null</code>.
+   * @param roleMap a map with its key being an <code>Integer</code> and the value being a <code>
+   *     String</code>. Must not be <code>null</code>.
    * @param value the value whose id is needed.
-   * @return the key if found.  -1 if not found.
+   * @return the key if found. -1 if not found.
    */
   public static int getRoleIdFromMap(Map roleMap, String value) {
     if (roleMap == null || value == null || value.trim().length() == 0)
@@ -1066,16 +927,14 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Create a list by applying a map to the members of a list and discarding
-   * items which are not keys in the map, or which map to <CODE>null</CODE>.
+   * Create a list by applying a map to the members of a list and discarding items which are not
+   * keys in the map, or which map to <CODE>null</CODE>.
    *
-   * @param inputList  list of <CODE>Objects</CODE>
-   * @param map        map to be applied to objects
-   * @return           list resulting from application of the map to the list,
-   *                   discarding <CODE>null</CODE>s
-   *                   Return <CODE>null</CODE> if the
-   *                   original list was <CODE>null</CODE> or the map was
-   *                   <CODE>null</CODE> or empty.
+   * @param inputList list of <CODE>Objects</CODE>
+   * @param map map to be applied to objects
+   * @return list resulting from application of the map to the list, discarding <CODE>null</CODE>s
+   *     Return <CODE>null</CODE> if the original list was <CODE>null</CODE> or the map was <CODE>
+   *     null</CODE> or empty.
    */
   public static <V, K> List<V> applyMapList(List<K> inputList, Map<K, V> map) {
     if (null == inputList || null == map || map.isEmpty()) {
@@ -1102,17 +961,15 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Create a list that contains only strings from an existing list which are
-   * unique under case-insensitive comparision, retaining the first occurance
-   * of any item, and discarding <CODE>null</CODE> strings. Leading and
-   * trailing whitespace is trimmed from strings.
-   * to <CODE>null</CODE>.
+   * Create a list that contains only strings from an existing list which are unique under
+   * case-insensitive comparision, retaining the first occurance of any item, and discarding <CODE>
+   * null</CODE> strings. Leading and trailing whitespace is trimmed from strings. to <CODE>null
+   * </CODE>.
    *
-   * @param inputList  list of <CODE>Strings</CODE>
-   * @return           list that contains only strings from the input list
-   * which are unique under case-insensitive comparision, retaining the first
-   * occurance of any item, and discarding <CODE>null</CODE> strings.
-   * Returns <CODE>null</CODE> if the original list is null.
+   * @param inputList list of <CODE>Strings</CODE>
+   * @return list that contains only strings from the input list which are unique under
+   *     case-insensitive comparision, retaining the first occurance of any item, and discarding
+   *     <CODE>null</CODE> strings. Returns <CODE>null</CODE> if the original list is null.
    */
   public static List caseInsensitiveUniqueList(List inputList) {
     HashMap localMap = new HashMap();
@@ -1149,15 +1006,13 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Intersect 2 lists, returning a list consisting of all elements of the
-   * first list that are contained in the second list, or <CODE>null</CODE>
-   * if either list is empty.
+   * Intersect 2 lists, returning a list consisting of all elements of the first list that are
+   * contained in the second list, or <CODE>null</CODE> if either list is empty.
    *
-   * @param list1  first list
-   * @param list2  second list
-   * @return       a list consisting of all elements of the
-   * first list that are contained in the second list, or <CODE>null</CODE>
-   * if either list is empty.
+   * @param list1 first list
+   * @param list2 second list
+   * @return a list consisting of all elements of the first list that are contained in the second
+   *     list, or <CODE>null</CODE> if either list is empty.
    */
   public static List intersectLists(List list1, List list2) {
     if (null == list1 || null == list2) {
@@ -1181,22 +1036,18 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed
-   * string is empty.
+   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed string is empty.
    *
-   * @param obj  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   <CODE>null</CODE> if the input string is <CODE>null</CODE>,
-   *           or is empty after trimming.
-   *           Otherwise, return the trimmed string.
+   * @param obj string to be trimmed. May be <CODE>null</CODE>
+   * @return <CODE>null</CODE> if the input string is <CODE>null</CODE>, or is empty after trimming.
+   *     Otherwise, return the trimmed string.
    */
   public static String toStringHandleNull(Object obj, String stringForNull) {
     return (null == obj) ? stringForNull : obj.toString();
   }
 
   /**
-   * Convenience method. Calls
-   * {@link #listToDelimitedString(List,String,String)
+   * Convenience method. Calls {@link #listToDelimitedString(List,String,String)
    * listToDelimitedString(list, delimeter, "")}
    */
   public static String listToDelimitedString(List list, String delimeter) {
@@ -1204,14 +1055,12 @@ public class PSWorkflowUtilsBase {
   }
 
   /**
-   * Create a string by concatenating the string representations of the
-   * elements of an array list, separating the substrings by a delimeter.
+   * Create a string by concatenating the string representations of the elements of an array list,
+   * separating the substrings by a delimeter.
    *
-   * @param  list       the array list from which the string will be created
-   * @param  delimeter  the delimeter used to separate the substrings
-   *                    can be empty ("").
-   * @throws IllegalArgumentException if list is <CODE>null</CODE> or
-   * empty.
+   * @param list the array list from which the string will be created
+   * @param delimeter the delimeter used to separate the substrings can be empty ("").
+   * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
   public static String listToDelimitedString(List list, String delimeter, String stringForNull) {
 
@@ -1240,6 +1089,7 @@ public class PSWorkflowUtilsBase {
 
   /**
    * Determines if ssl should be used by notification during link generation.
+   *
    * @return <code>true</code> if ssl is enabled, <code>false</code> otherwise.
    */
   public static boolean isSSLEnabledForNotification() {
@@ -1248,8 +1098,6 @@ public class PSWorkflowUtilsBase {
         .equalsIgnoreCase("yes");
   }
 
-  /**
-   * The logger
-   */
+  /** The logger */
   private static final Logger log = LogManager.getLogger(PSWorkflowUtilsBase.class.getName());
 }

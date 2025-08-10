@@ -26,12 +26,13 @@ import javax.jcr.ValueFormatException;
 
 /**
  * Represents a calendar value
- * @author dougrand
  *
+ * @author dougrand
  */
 public class PSCalendarValue extends PSBaseValue<Calendar> {
   /**
    * Ctor
+   *
    * @param date the date, never <code>null</code>
    */
   public PSCalendarValue(Date date) {
@@ -44,6 +45,7 @@ public class PSCalendarValue extends PSBaseValue<Calendar> {
 
   /**
    * Ctor
+   *
    * @param calendar the calendar value, never <code>null</code>
    */
   public PSCalendarValue(Calendar calendar) {
@@ -87,6 +89,7 @@ public class PSCalendarValue extends PSBaseValue<Calendar> {
 
   /**
    * Get the calendar data from the value;
+   *
    * @return the value, never <code>null</code>.
    */
   private Calendar getValue() {

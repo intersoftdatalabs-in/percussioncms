@@ -23,9 +23,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
-/**
- * the cell renderer when JTextArea object is stored within a table cell.
- */
+/** the cell renderer when JTextArea object is stored within a table cell. */
 public class UTMultiLineCellRenderer extends JTextArea
     implements TableCellRenderer, ListCellRenderer, Serializable {
   public UTMultiLineCellRenderer() {

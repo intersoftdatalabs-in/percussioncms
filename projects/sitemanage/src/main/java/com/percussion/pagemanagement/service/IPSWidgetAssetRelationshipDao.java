@@ -25,14 +25,14 @@ package com.percussion.pagemanagement.service;
  */
 public interface IPSWidgetAssetRelationshipDao {
 
-    /**
-     * Updates the widget name (of the given template) for all relationships
-     * where the owners are the pages that use the given template.
-     *
-     * @param templateId The ID of the template, not blank.
-     * @param widgetName The new name of the widget, may be null or empty.
-     * @param widgetId The ID of the widget, not blank.
-     * @return Number of relationships that have been updated.
-     */
-    int updateWidgetNameForRelatedPages(String templateId, String widgetName, long widgetId);
+  /**
+   * Updates the widget name (of the given template) for all relationships where the owners are the
+   * pages that use the given template.
+   *
+   * @param templateId The ID of the template, not blank.
+   * @param widgetName The new name of the widget, may be null or empty.
+   * @param widgetId The ID of the widget, not blank.
+   * @return Number of relationships that have been updated.
+   */
+  int updateWidgetNameForRelatedPages(String templateId, String widgetName, long widgetId);
 }

@@ -25,26 +25,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * This class stores an array of <code>PSBrandCodeElement</code> objects.
- */
+/** This class stores an array of <code>PSBrandCodeElement</code> objects. */
 public class PSBrandCodeElementList {
   /**
    * Constructor.
-   * @param sourceNode the Xml representation of this object, may not
-   * be <code>null</code>
-   * @param childElementName tag name of the child elements which will be
-   * stored in this list, may not be <code>null</code> or empty.
-   * @param childElementReqAttrNames array containing the names of required
-   * attributes, may be <code>null</code> or empty array
-   * @param childElementOptionalAttrNames array containing the names of
-   * optional attributes, may be <code>null</code> or empty array
-   * @throws IllegalArgumentException if sourceNode or childElementName is
-   * <code>null</code> or if childElementName is empty or if any element of
-   * childElementReqAttrNames or childElementOptionalAttrNames is
-   * <code>null</code> or empty, if these arrays are not <code>null</code>.
-   * @throws CodeException if any element in this list does not have all the
-   * attributes defined as specified in the <code>reqAttrNames</code> array.
+   *
+   * @param sourceNode the Xml representation of this object, may not be <code>null</code>
+   * @param childElementName tag name of the child elements which will be stored in this list, may
+   *     not be <code>null</code> or empty.
+   * @param childElementReqAttrNames array containing the names of required attributes, may be
+   *     <code>null</code> or empty array
+   * @param childElementOptionalAttrNames array containing the names of optional attributes, may be
+   *     <code>null</code> or empty array
+   * @throws IllegalArgumentException if sourceNode or childElementName is <code>null</code> or if
+   *     childElementName is empty or if any element of childElementReqAttrNames or
+   *     childElementOptionalAttrNames is <code>null</code> or empty, if these arrays are not <code>
+   *     null</code>.
+   * @throws CodeException if any element in this list does not have all the attributes defined as
+   *     specified in the <code>reqAttrNames</code> array.
    */
   public PSBrandCodeElementList(
       Element sourceNode,
@@ -61,28 +59,20 @@ public class PSBrandCodeElementList {
   }
 
   /**
-   * Returns the element from the list having the specified value for
-   * the specified attribute name.
-   * If required is <code>true</code> and no matching element is found then
-   * CodeException is thrown.
-   * If required is <code>false</code> and no matching element is found then
-   * <code>null</code> is returned.
+   * Returns the element from the list having the specified value for the specified attribute name.
+   * If required is <code>true</code> and no matching element is found then CodeException is thrown.
+   * If required is <code>false</code> and no matching element is found then <code>null</code> is
+   * returned.
    *
-   * @param attrName the name of the attribute, may not be <code>null</code>
-   * or empty
-   * @param attrValue the value of the attribute, may not be
-   * <code>null</code> or empty
-   * @param required if <code>true</code> and no matching element is found
-   * then CodeException is thrown. If <code>false</code> and no matching
-   * element is found the <code>null</code> is returned.
-   *
-   * @return the element from the list having the specified value for
-   * the specified attribute name, may be <code>null</code> if
-   * required is <code>false</code>.
-   * @throws CodeException if required is <code>true</code> and no matching
-   * element is found
-   * @throws IllegalArgumentException if attrName or attrValue is
-   * <code>null</code> or empty
+   * @param attrName the name of the attribute, may not be <code>null</code> or empty
+   * @param attrValue the value of the attribute, may not be <code>null</code> or empty
+   * @param required if <code>true</code> and no matching element is found then CodeException is
+   *     thrown. If <code>false</code> and no matching element is found the <code>null</code> is
+   *     returned.
+   * @return the element from the list having the specified value for the specified attribute name,
+   *     may be <code>null</code> if required is <code>false</code>.
+   * @throws CodeException if required is <code>true</code> and no matching element is found
+   * @throws IllegalArgumentException if attrName or attrValue is <code>null</code> or empty
    */
   public PSBrandCodeElement getBrandCodeElement(String attrName, String attrValue, boolean required)
       throws CodeException {
@@ -108,23 +98,19 @@ public class PSBrandCodeElementList {
   }
 
   /**
-   * Returns a list of attribute values for all the elements in this list.
-   * If required is <code>true</code> and any element in this list does not have
-   * all the specified attributes, then CodeException is thrown.
-   * If required is <code>false</code> and any element in the list does not have
-   * any specified attribute then <code>null</code> is used as value for the
-   * attribute.
+   * Returns a list of attribute values for all the elements in this list. If required is <code>true
+   * </code> and any element in this list does not have all the specified attributes, then
+   * CodeException is thrown. If required is <code>false</code> and any element in the list does not
+   * have any specified attribute then <code>null</code> is used as value for the attribute.
    *
-   * @param attrNames the attribute whose value for all the elements in this
-   * list is to be returned.
-   * @param required <code>true</code> if all the attributes in attrNames
-   * should exist for all the elements in this list.
-   * @return the a list of attribute values for all the elements in this list,
-   * never <code>null</code>
-   * @throws CodeException if required is <code>true</code> and any element in
-   * this list does not have all the specified attributes.
-   * @throws IllegalArgumentException if attrName is <code>null</code> or
-   * empty array.
+   * @param attrNames the attribute whose value for all the elements in this list is to be returned.
+   * @param required <code>true</code> if all the attributes in attrNames should exist for all the
+   *     elements in this list.
+   * @return the a list of attribute values for all the elements in this list, never <code>null
+   *     </code>
+   * @throws CodeException if required is <code>true</code> and any element in this list does not
+   *     have all the specified attributes.
+   * @throws IllegalArgumentException if attrName is <code>null</code> or empty array.
    */
   public List getAttributeList(String[] attrNames, boolean required) throws CodeException {
     if ((attrNames == null) || (attrNames.length < 1))
@@ -143,12 +129,12 @@ public class PSBrandCodeElementList {
 
   /**
    * Returns a list of attribute values for all the elements in this list.
-   * @param attrName the attribute whose value for all the elements in this
-   * list is to be returned, may not be <code>null</code> or empty
-   * @return the a list of attribute values for all the elements in this list,
-   * never <code>null</code>
-   * @throws CodeException if any element in this list does not have the
-   * specified attribute
+   *
+   * @param attrName the attribute whose value for all the elements in this list is to be returned,
+   *     may not be <code>null</code> or empty
+   * @return the a list of attribute values for all the elements in this list, never <code>null
+   *     </code>
+   * @throws CodeException if any element in this list does not have the specified attribute
    * @throws IllegalArgumentException if attrName is <code>null</code> or empty
    */
   public List getAttributeList(String attrName) throws CodeException {
@@ -165,11 +151,11 @@ public class PSBrandCodeElementList {
 
   /**
    * Restore this object from an Xml representation.
-   * @param sourceNode reference of the element which should be wrapped by
-   * this object
+   *
+   * @param sourceNode reference of the element which should be wrapped by this object
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * @throws CodeException if the elements in this list does not have all
-   * the required attributes defined.
+   * @throws CodeException if the elements in this list does not have all the required attributes
+   *     defined.
    */
   public void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -195,10 +181,9 @@ public class PSBrandCodeElementList {
 
   /**
    * Serializes this object's state to Xml.
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>
-   * @return the element containing this object's state,
-   * never <code>null</code>
+   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>
+   * @return the element containing this object's state, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -213,35 +198,32 @@ public class PSBrandCodeElementList {
   }
 
   /**
-   * list for storing the <code>PSBrandCodeElement</code> objects,
-   * initialized in the <code>fromXml</code> method, never empty after
-   * initialization.
+   * list for storing the <code>PSBrandCodeElement</code> objects, initialized in the <code>fromXml
+   * </code> method, never empty after initialization.
    */
   private List m_elementList = new ArrayList();
 
   /**
-   * tag name of the element, initialized in the <code>fromXml</code> method,
-   * never <code>null</code> or empty after initialization.
+   * tag name of the element, initialized in the <code>fromXml</code> method, never <code>null
+   * </code> or empty after initialization.
    */
   private String m_name = null;
 
   /**
-   * tag name of the child elements, initialized in the constructor,
-   * never <code>null</code> or empty after initialization.
+   * tag name of the child elements, initialized in the constructor, never <code>null</code> or
+   * empty after initialization.
    */
   private String m_childElementName = null;
 
   /**
-   * array containing the names of required attributes of the child elements,
-   * initialized in the constructor,
-   * may be <code>null</code> or empty.
+   * array containing the names of required attributes of the child elements, initialized in the
+   * constructor, may be <code>null</code> or empty.
    */
   private String[] m_childElementReqAttrNames = null;
 
   /**
-   * array containing the names of optional attributes of the child elements,
-   * initialized in the constructor,
-   * may be <code>null</code> or empty.
+   * array containing the names of optional attributes of the child elements, initialized in the
+   * constructor, may be <code>null</code> or empty.
    */
   private String[] m_childElementOptionalAttrNames = null;
 }

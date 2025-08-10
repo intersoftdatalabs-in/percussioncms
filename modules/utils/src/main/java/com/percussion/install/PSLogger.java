@@ -28,15 +28,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * PSLogger sets the log file path and initializes log4j logger used
- * by all the custom installer ant tasks.
+ * PSLogger sets the log file path and initializes log4j logger used by all the custom installer ant
+ * tasks.
  */
 public class PSLogger {
   /**
    * Sets the log file path and initializes the log4j logger.
    *
-   * @param rootDir the Rhythmyx root directory, may not be <code>null</code>
-   * or empty.
+   * @param rootDir the Rhythmyx root directory, may not be <code>null</code> or empty.
    */
   public static void init(String rootDir) {
     if (rootDir == null || rootDir.trim().length() == 0) {
@@ -74,8 +73,8 @@ public class PSLogger {
 
   /**
    * returns the log file path relative to the install directory
-   * @return the log file path relative to the install directory,
-   * never <code>null</code> or empty
+   *
+   * @return the log file path relative to the install directory, never <code>null</code> or empty
    */
   public String getLogFile() {
     return ms_logFile;
@@ -83,9 +82,9 @@ public class PSLogger {
 
   /**
    * Sets the log file path relative to the install directory
-   * @param logFile the log file path relative to
-   * the install directory, may be <code>null</code> or empty in which the
-   * default is used.
+   *
+   * @param logFile the log file path relative to the install directory, may be <code>null</code> or
+   *     empty in which the default is used.
    */
   public void setLogFile(String logFile) {
     if ((logFile == null) || (logFile.trim().length() == 0)) logFile = DEFAULT_LOG_FILE;
@@ -98,12 +97,12 @@ public class PSLogger {
    *************************************************************************/
 
   /**
-   * Logs info level message into the log4j file. Accumulates any log entries
-   * that are queued before a log file name is known and then logs them all
-   * once the log file name is set, which should happen right after user choses
-   * the installation desination directory.
-   * @param log the string to be logged later in the specified log file,
-   * may be <code>null</code> or empty.
+   * Logs info level message into the log4j file. Accumulates any log entries that are queued before
+   * a log file name is known and then logs them all once the log file name is set, which should
+   * happen right after user choses the installation desination directory.
+   *
+   * @param log the string to be logged later in the specified log file, may be <code>null</code> or
+   *     empty.
    */
   public static void logInfo(Object log) {
     if (log == null) return;
@@ -138,12 +137,12 @@ public class PSLogger {
   }
 
   /**
-   * Logs warn level message into the log4j file. Accumulates any log entries
-   * that are queued before a log file name is known and then logs them all
-   * once the log file name is set, which should happen right after user choses
-   * the installation desination directory.
-   * @param log the string to be logged later in the specified log file,
-   * may be <code>null</code> or empty.
+   * Logs warn level message into the log4j file. Accumulates any log entries that are queued before
+   * a log file name is known and then logs them all once the log file name is set, which should
+   * happen right after user choses the installation desination directory.
+   *
+   * @param log the string to be logged later in the specified log file, may be <code>null</code> or
+   *     empty.
    */
   public static void logWarn(Object log) {
     if (log == null) return;
@@ -178,12 +177,12 @@ public class PSLogger {
   }
 
   /**
-   * Logs error level message into the log4j file. Accumulates any log entries
-   * that are queued before a log file name is known and then logs them all
-   * once the log file name is set, which should happen right after user choses
-   * the installation desination directory.
-   * @param log the string to be logged later in the specified log file,
-   * may be <code>null</code> or empty.
+   * Logs error level message into the log4j file. Accumulates any log entries that are queued
+   * before a log file name is known and then logs them all once the log file name is set, which
+   * should happen right after user choses the installation desination directory.
+   *
+   * @param log the string to be logged later in the specified log file, may be <code>null</code> or
+   *     empty.
    */
   public static void logError(Object log) {
     if (log == null) return;
@@ -217,13 +216,12 @@ public class PSLogger {
     }
   }
 
-  /**
-   * This method makes sure that log4j is configured for use.
-   */
+  /** This method makes sure that log4j is configured for use. */
   private static synchronized void ensureLog4jConfiguration(String logFilePath) {}
 
   /**
    * Sets default log4j props.
+   *
    * @param props <code>null</code>.
    */
   private static void setDefaultLog4JProps(Properties props, String logFilePath) {
@@ -252,8 +250,8 @@ public class PSLogger {
 
   /**
    * Returns a llog list for a given log level.
-   * @param level one of the Log4j log levels, never <code>null</code>
-   * or <code>empty</code>.
+   *
+   * @param level one of the Log4j log levels, never <code>null</code> or <code>empty</code>.
    * @return coll of log entries, may be <code>null</code> or <code>empty</code>.
    */
   private static Collection getLogList(String level) {
@@ -267,14 +265,12 @@ public class PSLogger {
    * Static Variables
    *************************************************************************/
   /**
-   * This reference to a root logger. Initialized in ensureLog4jConfiguration
-   * may be <code>null</code> if used before that.
+   * This reference to a root logger. Initialized in ensureLog4jConfiguration may be <code>null
+   * </code> if used before that.
    */
   private static final Logger ms_Logger = LogManager.getLogger();
 
-  /**
-   * Default log file
-   */
+  /** Default log file */
   public static String DEFAULT_LOG_FILE =
       "rxconfig" + File.separator + "Installer" + File.separator + "install.log";
 
@@ -282,14 +278,10 @@ public class PSLogger {
    * Properties
    *************************************************************************/
 
-  /**
-   * log file
-   */
+  /** log file */
   private static String ms_logFile = DEFAULT_LOG_FILE;
 
-  /**
-   * Absolute resolved file path for log4j to use.
-   */
+  /** Absolute resolved file path for log4j to use. */
   private static String ms_absoluteLogFilePath = null;
 
   /*************************************************************************
@@ -297,8 +289,8 @@ public class PSLogger {
    *************************************************************************/
 
   /**
-   * stores the log strings, grouped by a log level, to be logged later
-   * to log file, never <code>null</code>.
+   * stores the log strings, grouped by a log level, to be logged later to log file, never <code>
+   * null</code>.
    */
   private static Map ms_mapLevel2LogList = new HashMap<>();
 

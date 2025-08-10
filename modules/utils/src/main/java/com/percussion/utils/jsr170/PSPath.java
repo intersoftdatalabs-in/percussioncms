@@ -20,8 +20,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Represents an absolute or relative JSR-170 path. A path is made up of path
- * elements. Each element can also index into a specific named element.
+ * Represents an absolute or relative JSR-170 path. A path is made up of path elements. Each element
+ * can also index into a specific named element.
  *
  * @author dougrand
  */
@@ -64,19 +64,16 @@ public final class PSPath {
     }
   }
 
-  /**
-   * Holds the path elements, never <code>null</code> after construction.
-   */
+  /** Holds the path elements, never <code>null</code> after construction. */
   private Element m_elements[] = null;
 
-  /**
-   * <code>true</code> if this path is relative
-   */
+  /** <code>true</code> if this path is relative */
   private boolean m_isRelative = true;
 
   /**
-   * Copy elements from the from path to the new path. The new path is
-   * relative if the fromPath is relative or the start is not zero.
+   * Copy elements from the from path to the new path. The new path is relative if the fromPath is
+   * relative or the start is not zero.
+   *
    * @param fromPath the from path, assumed not <code>null</code>
    * @param start the start, assumed within range
    * @param end the end, assumed within range
@@ -92,8 +89,7 @@ public final class PSPath {
   /**
    * Create a path
    *
-   * @param path path in string format, e.g. /a/b/c, never <code>null</code>
-   *           or empty.
+   * @param path path in string format, e.g. /a/b/c, never <code>null</code> or empty.
    */
   public PSPath(String path) {
     if (StringUtils.isBlank(path)) {
@@ -155,8 +151,8 @@ public final class PSPath {
   /**
    * Get the index
    *
-   * @param component the index of the path component must be in the range 0 to
-   * the number of path components less 1
+   * @param component the index of the path component must be in the range 0 to the number of path
+   *     components less 1
    * @return the index value or -1 if this path element is not indexed
    */
   public int getIndex(int component) {
@@ -166,6 +162,7 @@ public final class PSPath {
 
   /**
    * Get the last index
+   *
    * @return the last index or -1 if the last element is not indexed
    */
   public int getLastIndex() {
@@ -174,8 +171,9 @@ public final class PSPath {
 
   /**
    * Get the specified component's name
-   * @param component the component index, must be in the range 0 to
-   * the number of path components less 1
+   *
+   * @param component the component index, must be in the range 0 to the number of path components
+   *     less 1
    * @return the name, never <code>null</code> or empty
    */
   public String getName(int component) {
@@ -185,6 +183,7 @@ public final class PSPath {
 
   /**
    * Get the last path component
+   *
    * @return the last path component, never <code>null</code> or empty
    */
   public String getLastName() {
@@ -240,10 +239,11 @@ public final class PSPath {
   }
 
   /**
-   * Get a new path that has all but the last element. Useful for extracting
-   * the node from a node/property path, or other similar requirements
-   * @return a new PSPath that has the elements from this path, or the current
-   * path if there are no elements to remove
+   * Get a new path that has all but the last element. Useful for extracting the node from a
+   * node/property path, or other similar requirements
+   *
+   * @return a new PSPath that has the elements from this path, or the current path if there are no
+   *     elements to remove
    */
   public PSPath getAllButLast() {
     if (getCount() == 0) return this;
@@ -251,10 +251,10 @@ public final class PSPath {
   }
 
   /**
-   * Get a new path that has all but the first element. Useful for traversing
-   * a node structure.
-   * @return a new PSPath that has the last n elements from this path, or the
-   * current path if there are no elements
+   * Get a new path that has all but the first element. Useful for traversing a node structure.
+   *
+   * @return a new PSPath that has the last n elements from this path, or the current path if there
+   *     are no elements
    */
   public PSPath getRest() {
     if (getCount() == 0) return this;
@@ -262,14 +262,12 @@ public final class PSPath {
   }
 
   /**
-   * Get a subpath with a specific start and end location within the path. Does
-   * not include the end location, which means that <code>end = getCount()</code>
-   * will return to the end of the path.
+   * Get a subpath with a specific start and end location within the path. Does not include the end
+   * location, which means that <code>end = getCount()</code> will return to the end of the path.
    *
-   * @param start start location, zero based, cannot be negative or larger than
-   * the count of elements less one. Start must be less than end.
-   * @param end end location, zero based, cannot be negative or larger than the
-   * count of elements
+   * @param start start location, zero based, cannot be negative or larger than the count of
+   *     elements less one. Start must be less than end.
+   * @param end end location, zero based, cannot be negative or larger than the count of elements
    * @return the subpath, including the start but not the end location
    */
   public PSPath subpath(int start, int end) {
@@ -280,10 +278,11 @@ public final class PSPath {
   }
 
   /**
-   * Get a subpath, like calling {@link #subpath(int, int)} with the values
-   * start and <code>end = getCount()</code>.
-   * @param start start location, zero based, cannot be negative or larger than
-   * the count of elements less one
+   * Get a subpath, like calling {@link #subpath(int, int)} with the values start and <code>
+   * end = getCount()</code>.
+   *
+   * @param start start location, zero based, cannot be negative or larger than the count of
+   *     elements less one
    * @return the subpath, including the start to the end of the path
    */
   public PSPath subpath(int start) {
@@ -292,6 +291,7 @@ public final class PSPath {
 
   /**
    * Check the index
+   *
    * @param component the component index
    */
   private void checkRef(int component) {

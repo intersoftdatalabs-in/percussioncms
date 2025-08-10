@@ -29,23 +29,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDatabaseComponentCollection class is responsible for encapsulating
- * collections of PSDatabaseComponents and maintaining state information on
- * additions, deletions, or modifications to the collection so that the back end
- * database can be updated appropriately.  Note: The interface to this
- * "collection" most closely resembles a subset of "List".
+ * The PSDatabaseComponentCollection class is responsible for encapsulating collections of
+ * PSDatabaseComponents and maintaining state information on additions, deletions, or modifications
+ * to the collection so that the back end database can be updated appropriately. Note: The interface
+ * to this "collection" most closely resembles a subset of "List".
  */
 public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   /**
    * Construct a collection of database components.
    *
-   * @param c The class name of the database component to be stored in this
-   * collection.  This class must implement an empty constructor that this
-   * class can access the constructor to.  May not be <code>null</code>.
-   *
-   * @param datasetName The dataset name to be used to retrieve this
-   *    collection of components.  May not be <code>null</code> or empty.
-   *
+   * @param c The class name of the database component to be stored in this collection. This class
+   *     must implement an empty constructor that this class can access the constructor to. May not
+   *     be <code>null</code>.
+   * @param datasetName The dataset name to be used to retrieve this collection of components. May
+   *     not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any argument is invalid.
    */
   PSDatabaseComponentCollection(Class c, String datasetName) {
@@ -59,8 +56,8 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Get an iterator over the database components available in this
-   * object.  The iterator will be non-destructive (remove() is not allowed).
+   * Get an iterator over the database components available in this object. The iterator will be
+   * non-destructive (remove() is not allowed).
    *
    * @return The iterator, never <code>null</code>.
    */
@@ -69,29 +66,24 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * The method is used to retrieve deletes from a collection. ph: can you be a little clearer, what are 'deletes'?
-   * It is package level so that only the objectstore can access this
-   * when needed.
+   * The method is used to retrieve deletes from a collection. ph: can you be a little clearer, what
+   * are 'deletes'? It is package level so that only the objectstore can access this when needed.
    *
-   * @return The list (ph: not a list) of deletes.  May be empty.  Never <code>null</code>.
+   * @return The list (ph: not a list) of deletes. May be empty. Never <code>null</code>.
    */
   Iterator deletes() {
     return PSIteratorUtils.protectedIterator(m_deletes.iterator());
   }
 
   /**
-   * Add all the components in this component collection to the specified
-   * element.  This is accomplished by calling <code>toXml()</code> on all
-   * contained components.  This method is a convenience for classes which
-   * extend this class, but do not desire to have the collection component's
-   * XML element, defining their own instead (by overriding
-   * {@link #toXml(Document)} ).
+   * Add all the components in this component collection to the specified element. This is
+   * accomplished by calling <code>toXml()</code> on all contained components. This method is a
+   * convenience for classes which extend this class, but do not desire to have the collection
+   * component's XML element, defining their own instead (by overriding {@link #toXml(Document)} ).
    *
-   * @param collectionRoot The element to append the components' xml to.
-   * May not be <code>null</code>.
-   *
-   * @param doc The document that is being built.  May not be <code>null</code>.
-   *
+   * @param collectionRoot The element to append the components' xml to. May not be <code>null
+   *     </code>.
+   * @param doc The document that is being built. May not be <code>null</code>.
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   void addCollectionComponents(Element collectionRoot, Document doc) {
@@ -114,15 +106,12 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
-   * @param doc The document being built.  May not be <code>null</code>.
-   *
-   * @return    the newly created XML element node
-   *
+   * @param doc The document being built. May not be <code>null</code>.
+   * @return the newly created XML element node
    * @throws IllegalArgumentException If doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -139,9 +128,8 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Set this collection to an unchanged state.  Call this method after
-   * creating a collection from the database and using
-   * {@link #add(PSDatabaseComponent)} to insert components to reset each
+   * Set this collection to an unchanged state. Call this method after creating a collection from
+   * the database and using {@link #add(PSDatabaseComponent)} to insert components to reset each
    * individual component's state.
    */
   void setUnchanged() {
@@ -156,14 +144,12 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node.
    *
-   * @exception PSUnknownNodeTypeException  if the XML element node does not
-   *                                           represent a type supported
-   *                                           by the class.
+   * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
+   *     supported by the class.
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -210,7 +196,6 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
    * Remove the specified component from this component collection.
    *
    * @param component The component to remove, can't be <code>null</code>.
-   *
    * @throws IllegalArgumentException If component is <code>null</code>.
    */
   public void remove(PSDatabaseComponent component) {
@@ -226,8 +211,8 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Override {@link PSDatabaseComponent#setDelete()} to
-   * inform our members that they are deletes as well.
+   * Override {@link PSDatabaseComponent#setDelete()} to inform our members that they are deletes as
+   * well.
    */
   protected void setDelete() {
     super.setDelete();
@@ -237,9 +222,8 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Loads this object from the supplied element using {@link #fromXml}
-   * then recursively loads every one of the newly created objects
-   * using the supplied loader.  See {@link
+   * Loads this object from the supplied element using {@link #fromXml} then recursively loads every
+   * one of the newly created objects using the supplied loader. See {@link
    * PSDatabaseComponent#fromDatabaseXml} for more information.
    */
   public void fromDatabaseXml(
@@ -279,13 +263,11 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Adds the supplied component to this collection without tracking inserts
-   * and deletes. This is only for use while rebuilding objects from the
-   * database.
+   * Adds the supplied component to this collection without tracking inserts and deletes. This is
+   * only for use while rebuilding objects from the database.
    *
-   * @param c A valid component with a type that matches the type this
-   *    collection was made with. Never <code>null</code>.
-   *
+   * @param c A valid component with a type that matches the type this collection was made with.
+   *     Never <code>null</code>.
    * @throws IllegalArgumentException if c is <code>null</code>.
    */
   void addFromDb(PSDatabaseComponent c) {
@@ -315,9 +297,9 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Override method to return <code>null</code> since top level collections
-   * (example global subjects) do not have keys.  This can be overridden by
-   * classes extending this object in the future.
+   * Override method to return <code>null</code> since top level collections (example global
+   * subjects) do not have keys. This can be overridden by classes extending this object in the
+   * future.
    *
    * @return <code>null</code> always.
    */
@@ -346,11 +328,9 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   /**
    * Add the specified component to this collection.
    *
-   * @param component the component to add, may not be <code>null</code>,
-   * must be a newly constructed component.
-   *
-   * @throws IllegalArgumentException If a component not newly constructed
-   * is supplied.
+   * @param component the component to add, may not be <code>null</code>, must be a newly
+   *     constructed component.
+   * @throws IllegalArgumentException If a component not newly constructed is supplied.
    */
   public void add(PSDatabaseComponent component) {
     if (component == null) throw new IllegalArgumentException("Component must be supplied.");
@@ -362,18 +342,15 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (cxt == null) return;
@@ -391,7 +368,6 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
    * Remove the element at the specified index.
    *
    * @param index the index of the element to remove.
-   *
    * @see PSCollection#remove(int)
    */
   public void removeElementAt(int index) {
@@ -424,28 +400,24 @@ public class PSDatabaseComponentCollection extends PSDatabaseComponent {
   }
 
   /**
-   * The internal collection of components.  Initialized at construction
-   * time, never <code>null</code> after that.  May be empty.
+   * The internal collection of components. Initialized at construction time, never <code>null
+   * </code> after that. May be empty.
    */
   private PSCollection m_components = null;
 
   /**
-   * The internal collection for storing deleted components.
-   * Initialized at construction
-   * time, never <code>null</code> after that.  May be empty.
+   * The internal collection for storing deleted components. Initialized at construction time, never
+   * <code>null</code> after that. May be empty.
    */
   private PSCollection m_deletes = null;
 
   /**
-   * The resource name to use to retrieve this collection of components.
-   * Initialized at construction time, never <code>null</code> or empty
-   * after that.
+   * The resource name to use to retrieve this collection of components. Initialized at construction
+   * time, never <code>null</code> or empty after that.
    */
   private String m_resourceName;
 
-  /**
-   * The name of the attribute the resource name is stored in.
-   */
+  /** The name of the attribute the resource name is stored in. */
   private static final String RESOURCE_NAME_ATTRIBUTE_NAME = "resourceName";
 
   /* package access on this so they may reference each other in fromXml */

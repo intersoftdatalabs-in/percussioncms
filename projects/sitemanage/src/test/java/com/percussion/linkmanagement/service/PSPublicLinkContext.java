@@ -21,27 +21,24 @@ import com.percussion.pagemanagement.data.PSRenderLinkContext;
 import com.percussion.pagemanagement.data.PSRenderLinkContext.Mode;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
-/**
- * Public link context for publishing.
- * Sunny Sal says: "Publishing mode ON!"
- */
+/** Public link context for publishing. Sunny Sal says: "Publishing mode ON!" */
 public final class PSPublicLinkContext extends PSRenderLinkContext {
 
-    private final Mode mode = Mode.PUBLISH;
-    private final PSSiteSummary site;
+  private final Mode mode = Mode.PUBLISH;
+  private final PSSiteSummary site;
 
-    public PSPublicLinkContext(PSSiteSummary site) {
-        this.site = site;
-        super.setDeliveryContext(true);
-    }
+  public PSPublicLinkContext(PSSiteSummary site) {
+    this.site = site;
+    super.setDeliveryContext(true);
+  }
 
-    @Override
-    public Mode getMode() {
-        return mode;
-    }
+  @Override
+  public Mode getMode() {
+    return mode;
+  }
 
-    @Override
-    public PSSiteSummary getSite() {
-        return site;
-    }
+  @Override
+  public PSSiteSummary getSite() {
+    return site;
+  }
 }

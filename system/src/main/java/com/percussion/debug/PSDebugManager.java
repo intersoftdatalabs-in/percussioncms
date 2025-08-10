@@ -31,15 +31,16 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Singleton used to manage all DebugLogHandlers and the output stream used by
- * tracing and debug logging
+ * Singleton used to manage all DebugLogHandlers and the output stream used by tracing and debug
+ * logging
  */
 // REFACTORED: CP-JAVA11
 public class PSDebugManager {
 
   /**
-   * Used to obtain the singleton instance of the DebugManager.  If an instance
-   * has not yet been created, it will be done so in a lazy fashion.
+   * Used to obtain the singleton instance of the DebugManager. If an instance has not yet been
+   * created, it will be done so in a lazy fashion.
+   *
    * @roseuid 39F492DC033C
    */
   public static synchronized PSDebugManager getDebugManager() {
@@ -49,12 +50,10 @@ public class PSDebugManager {
   }
 
   /**
-   * Puts the DebugLogHandler passed in in the hash table of log handlers
-   * used by each application.
+   * Puts the DebugLogHandler passed in in the hash table of log handlers used by each application.
    *
-   * @param handler The debug log handler for the application.  May not be
-   * <code>null</code>.
-   * @param appId The id of the application.  May not be <code>null</code>.
+   * @param handler The debug log handler for the application. May not be <code>null</code>.
+   * @param appId The id of the application. May not be <code>null</code>.
    * @roseuid 39F49332033C
    */
   public void registerLogHandler(PSDebugLogHandler handler, String appName) {
@@ -63,11 +62,11 @@ public class PSDebugManager {
 
   /**
    * Returns the DebugLogHandler for the specified application.
-   * @param appName The name of the application for which the log handler
-   * should be returned.  May not be <code>null</code>.
+   *
+   * @param appName The name of the application for which the log handler should be returned. May
+   *     not be <code>null</code>.
    * @return The DebugLogHandler of the application whose name was supplied.
-   * @throws PSNotFoundException if the log handler has not been registered for
-   * the specified app.
+   * @throws PSNotFoundException if the log handler has not been registered for the specified app.
    * @roseuid 39F49473032C
    */
   public PSDebugLogHandler getLogHandler(String appName) throws PSNotFoundException {
@@ -78,10 +77,10 @@ public class PSDebugManager {
   }
 
   /**
-   * Removes the specified logHandler from the list of current log handlers for
-   * each application.
-   * @param appId Specifies the app whose log handler should be unregistered.
-   * May not be <code>null</code>.
+   * Removes the specified logHandler from the list of current log handlers for each application.
+   *
+   * @param appId Specifies the app whose log handler should be unregistered. May not be <code>null
+   *     </code>.
    * @roseuid 39F4953D02BF
    */
   public void unregisterLogHandler(String appName) {
@@ -89,13 +88,11 @@ public class PSDebugManager {
   }
 
   /**
-   * Used to obtain the writer used for tracing.  May point
-   * to a file on disk, or ultimately a remote debugging console.  If the
-   * object this writer is writing to (i.e. a file) is new, then a header
+   * Used to obtain the writer used for tracing. May point to a file on disk, or ultimately a remote
+   * debugging console. If the object this writer is writing to (i.e. a file) is new, then a header
    * specifying the character encoding being used is written out to the stream.
    *
-   * @param app application object for which the trace output stream is
-   * being obtained.
+   * @param app application object for which the trace output stream is being obtained.
    * @return The trace writer for the specified application.
    * @throws IOException if it cannot create the writer.
    */
@@ -131,9 +128,7 @@ public class PSDebugManager {
   /**
    * Get the name of the trace file used based on the application name.
    *
-   * @param appName The name of the application, may not be <code>null</code>
-   * or empty.
-   *
+   * @param appName The name of the application, may not be <code>null</code> or empty.
    * @return The trace file name, never <code>null</code> or empty.
    */
   public static String getTraceFileName(String appName) {
@@ -144,13 +139,11 @@ public class PSDebugManager {
   }
 
   /**
-   * Returns the composite flag which indicates all options that have tracing
-   * enabled.
+   * Returns the composite flag which indicates all options that have tracing enabled.
    *
    * @param appName The Name of the application whose flags are to be returned.
    * @return the composite flag
-   * @throws PSNotFoundException if no handler has been registered with
-   * the specified appName.
+   * @throws PSNotFoundException if no handler has been registered with the specified appName.
    * @roseuid 39F5D5950213
    */
   public PSTraceFlag getTraceOptionsFlag(String appName) throws PSNotFoundException {
@@ -161,15 +154,12 @@ public class PSDebugManager {
   }
 
   /**
-   * Set's the composite trace flag for the specified application.  All options
-   * specified by the flag will be enabled.  All that are not enabled by the
-   * flag will be disabled.
+   * Set's the composite trace flag for the specified application. All options specified by the flag
+   * will be enabled. All that are not enabled by the flag will be disabled.
    *
    * @param appId The id of the application whose trace options are being set.
-   * @param traceFlags an object containing the composite flags for each group
-   * of trace options
-   * @throws PSNotFoundException if no handler has been registered with
-   * the specified appName.
+   * @param traceFlags an object containing the composite flags for each group of trace options
+   * @throws PSNotFoundException if no handler has been registered with the specified appName.
    * @roseuid 39F5D6850177
    */
   public void setTraceOptionsFlag(String appName, PSTraceFlag traceFlags)
@@ -182,13 +172,11 @@ public class PSDebugManager {
   }
 
   /**
-   * Restores the initial tracing options for the specified app.
-   * These are the options that were enabled when it was first created or
-   * loaded from xml.
+   * Restores the initial tracing options for the specified app. These are the options that were
+   * enabled when it was first created or loaded from xml.
    *
    * @param appName The Name of the application whose flags are to be returned.
-   * @throws PSNotFoundException if no handler has been registered with
-   * the specified appName.
+   * @throws PSNotFoundException if no handler has been registered with the specified appName.
    */
   public void restoreInitialTraceOptions(String appName) throws PSNotFoundException {
     PSDebugLogHandler dh = getLogHandler(appName);
@@ -198,8 +186,8 @@ public class PSDebugManager {
   }
 
   /**
-   * Returns the standard name of the encoding to use when writing
-   * character data to the output stream.
+   * Returns the standard name of the encoding to use when writing character data to the output
+   * stream.
    *
    * @return The standard name of the character encoding, never <code>null
    * </code> or empty.
@@ -209,8 +197,7 @@ public class PSDebugManager {
   }
 
   /**
-   * Returns the Java name of the encoding to use when writing
-   * character data to the output stream.
+   * Returns the Java name of the encoding to use when writing character data to the output stream.
    *
    * @return The Java name of the character encoding, never <code>null
    * </code> or empty.
@@ -220,8 +207,9 @@ public class PSDebugManager {
   }
 
   /**
-   * Private constructor for this class.  Instance of this class may only be
-   * obtained by calling getDebugManager
+   * Private constructor for this class. Instance of this class may only be obtained by calling
+   * getDebugManager
+   *
    * @roseuid 39F9CE1B037A
    */
   private PSDebugManager() {
@@ -240,19 +228,15 @@ public class PSDebugManager {
     return m_resourceBundle;
   }
 
-  /**
-   * Contains the single instance of this class.
-   */
+  /** Contains the single instance of this class. */
   private static PSDebugManager ms_debugManager = null;
 
-  /**
-   * The list of currently registered DebugLogHandlers.
-   */
+  /** The list of currently registered DebugLogHandlers. */
   private ConcurrentHashMap m_logHandlers = null;
 
   /**
-   * The resource bundle used for logging messages.  <code>null</code> until
-   * the first call to {@link #getBundle()}, never modified after that.
+   * The resource bundle used for logging messages. <code>null</code> until the first call to {@link
+   * #getBundle()}, never modified after that.
    */
   private ResourceBundle m_resourceBundle = null;
 }

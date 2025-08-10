@@ -24,17 +24,14 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to scan the existing applications looking
- * for deprecated system apps.  If any are found, a message will be
- * returned informing the user that these applications are deprecated and will
- * be backed up during upgrade.  References to these apps must be migrated to
+ * This plugin has been written to scan the existing applications looking for deprecated system
+ * apps. If any are found, a message will be returned informing the user that these applications are
+ * deprecated and will be backed up during upgrade. References to these apps must be migrated to
  * point to the new applications.
  */
 public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSPreUpgradePluginDeprecatedSysApps() {}
 
   private static void staticInit() {
@@ -46,9 +43,9 @@ public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
   }
 
   /**
-   * Implements the process function of IPSUpgradePlugin. Scans all the
-   * application files looking for deprecated apps.  If any are found,
-   * a message is returned informing the user about these applications.
+   * Implements the process function of IPSUpgradePlugin. Scans all the application files looking
+   * for deprecated apps. If any are found, a message is returned informing the user about these
+   * applications.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -91,34 +88,28 @@ public class PSPreUpgradePluginDeprecatedSysApps implements IPSUpgradePlugin {
     return response;
   }
 
-  /**
-   * Returns the deprecated system applications found in the current installation.
-   */
+  /** Returns the deprecated system applications found in the current installation. */
   public static Set getDeprecatedSysApps() {
     if (ms_deprecatedSysApps == null || ms_deprecatedSysApps.size() == 0) staticInit();
     return ms_deprecatedSysApps;
   }
 
-  /**
-   * String constant for objectstore directory.
-   */
+  /** String constant for objectstore directory. */
   private static final String OBJECT_STORE_DIRECTORY = "ObjectStore";
 
   /**
-   * Set of 6.0 system application names.  Initialized in ctor, never
-   * <code>null</code> or empty after that.
+   * Set of 6.0 system application names. Initialized in ctor, never <code>null</code> or empty
+   * after that.
    */
   private static Set ms_sysApps = null;
 
   /**
-   * Deprecated system applications which exist in the current installation.
-   * Always initialized in static block, never <code>null</code>, may be empty.
+   * Deprecated system applications which exist in the current installation. Always initialized in
+   * static block, never <code>null</code>, may be empty.
    */
   private static Set ms_deprecatedSysApps = null;
 
-  /**
-   * Array containing the current 6.0 system application names.
-   */
+  /** Array containing the current 6.0 system application names. */
   public static final String[] SYS_APPS =
       new String[] {
         "sys_ActionPage.xml",

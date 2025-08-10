@@ -28,11 +28,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 /**
- * The PSBase64Encoder class is used to encode data from the base64 format. It
- * is a wrapper for the <a href="http://jakarta.apache.org/commons/codec/">
- * Apache Commons Base64 codec</a>.
- * <p>
- * Base64 Encoding is defined in <A
+ * The PSBase64Encoder class is used to encode data from the base64 format. It is a wrapper for the
+ * <a href="http://jakarta.apache.org/commons/codec/">Apache Commons Base64 codec</a>.
+ *
+ * <p>Base64 Encoding is defined in <A
  * HREF="http://www.cis.ohio-state.edu/htbin/rfc/rfc1521.html">RFC 1521</A>.
  *
  * @author Tas Giakouminakis
@@ -42,11 +41,10 @@ import java.util.Base64;
 @Deprecated // Use java.util.Base64 instead
 public class PSBase64Encoder {
   /**
-   * This allows the encoder to be run stand-alone. The sole argument should be
-   * the text to encode.
+   * This allows the encoder to be run stand-alone. The sole argument should be the text to encode.
    *
-   * @param args an array of arguments passed in. All provided strings will be
-   *           base64 encoded and then printed to the console.
+   * @param args an array of arguments passed in. All provided strings will be base64 encoded and
+   *     then printed to the console.
    */
   public static void main(String[] args) {
 
@@ -69,13 +67,10 @@ public class PSBase64Encoder {
   /**
    * Encodes the specified string using the base64 algorithm.
    *
-   * @param in the string containing the plain text representation of the data,
-   *           never <code>null</code>
-   *
-   * @return a string containing the base64 encoded data, never
-   *         <code>null</code>
-   * @throws PSRuntimeException if anything goes wrong while encoding the
-   *            provided string.
+   * @param in the string containing the plain text representation of the data, never <code>null
+   *     </code>
+   * @return a string containing the base64 encoded data, never <code>null</code>
+   * @throws PSRuntimeException if anything goes wrong while encoding the provided string.
    */
   public static String encode(String in) throws com.percussion.error.PSRuntimeException {
     if (in == null) throw new IllegalArgumentException("input string may not be null");
@@ -87,12 +82,9 @@ public class PSBase64Encoder {
    * Encodes the specified string using the base64 algorithm.
    *
    * @param in the string containing the plain text representation of the data
-   * @param encoding the encoding string to use for retrieving the string to be
-   *           encoded. if <code>null</code>, the platform's default
-   *           charater set is used.
-   *
-   * @return a string containing the base64 encoded data, never
-   *         <code>null</code>
+   * @param encoding the encoding string to use for retrieving the string to be encoded. if <code>
+   *     null</code>, the platform's default charater set is used.
+   * @return a string containing the base64 encoded data, never <code>null</code>
    * @throws PSRuntimeException if the specified encoding is not supported
    */
   public static String encode(String in, String encoding) throws PSRuntimeException {
@@ -116,14 +108,12 @@ public class PSBase64Encoder {
   }
 
   /**
-   * Encodes binary data from the specified input stream using the base64
-   * algorithm, writing the encoded data to the specified output stream.
+   * Encodes binary data from the specified input stream using the base64 algorithm, writing the
+   * encoded data to the specified output stream.
    *
-   * @param in the stream containing the plain text representation of the data,
-   *           never <code>null</code>.
-   * @param out the stream to store the base64 encoded data, never
-   *           <code>null</code>.
-   *
+   * @param in the stream containing the plain text representation of the data, never <code>null
+   *     </code>.
+   * @param out the stream to store the base64 encoded data, never <code>null</code>.
    * @return The number of bytes encoded.
    * @throws IOException if an I/O exception occurs
    */
@@ -143,8 +133,8 @@ public class PSBase64Encoder {
   }
 
   /**
-   * Encodes binary data using the base64 algorithm and chunks the encoded
-   * output into 76 character blocks.
+   * Encodes binary data using the base64 algorithm and chunks the encoded output into 76 character
+   * blocks.
    *
    * @param in byte data to be encoded, never <code>null</code>
    * @return Base64 characters chunked in 76 character blocks

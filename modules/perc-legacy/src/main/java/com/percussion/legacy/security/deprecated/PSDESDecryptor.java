@@ -27,27 +27,24 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- * The PSDESDecryptor class is used to decrypt data using the specified
- * DES key. DES uses a 64-bit key, which is encoded into a 56-bit value used
- * in the algorithm for encryption/decryption.
- * <P>
- * DES is described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>.
- * The DES modes of operation are described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS 81</A>.
+ * The PSDESDecryptor class is used to decrypt data using the specified DES key. DES uses a 64-bit
+ * key, which is encoded into a 56-bit value used in the algorithm for encryption/decryption.
  *
- * @see        PSDESKey
+ * <p>DES is described in <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>. The
+ * DES modes of operation are described in <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS
+ * 81</A>.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSDESKey
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 @Deprecated
 public class PSDESDecryptor implements IPSDecryptor {
   /**
    * Construct a DES decryptor using the specified DES key.
    *
-   * @param      key      the DES key to use for decryption
+   * @param key the DES key to use for decryption
    * @throws IllegalArgumentException if <code>key</code> is <code>null</code>
    */
   public PSDESDecryptor(PSDESKey key) throws IllegalArgumentException {
@@ -60,12 +57,9 @@ public class PSDESDecryptor implements IPSDecryptor {
   /**
    * Decrypt the data in the specified input stream.
    *
-   * @param      in          the stream containing the encrypted data
-   *
-   * @param      out         the stream to store the plain text
-   *                                     representation of the data
-   *
-   * @exception  IOException if an I/O exception occurs
+   * @param in the stream containing the encrypted data
+   * @param out the stream to store the plain text representation of the data
+   * @exception IOException if an I/O exception occurs
    */
   public void decrypt(InputStream in, OutputStream out) throws PSEncryptionException {
     int byteAsInt;
@@ -101,11 +95,8 @@ public class PSDESDecryptor implements IPSDecryptor {
   /**
    * A convenidece method to decrypt data into a String.
    *
-   * @param      in          the stream containing the encrypted data
-   *
-   * @return                 a string containing the plain text
-   *                                     representation of the data
-   *
+   * @param in the stream containing the encrypted data
+   * @return a string containing the plain text representation of the data
    * @throws IOException if an I/O exception occurs
    */
   public java.lang.String decrypt(InputStream in) throws PSEncryptionException {
@@ -131,11 +122,8 @@ public class PSDESDecryptor implements IPSDecryptor {
   /**
    * A convenidece method to decrypt data from a byte array into a String.
    *
-   * @param      in          the byte array containing the encrypted data
-   *
-   * @return                 a string containing the plain text
-   *                                     representation of the data
-   *
+   * @param in the byte array containing the encrypted data
+   * @return a string containing the plain text representation of the data
    * @throws PSEncryptionException if an exception occurs
    */
   public java.lang.String decrypt(byte[] in) throws PSEncryptionException {
@@ -161,7 +149,8 @@ public class PSDESDecryptor implements IPSDecryptor {
 
   /**
    * Decrypt one data block based on its input index.
-   * @param   blockIndex     the data block index
+   *
+   * @param blockIndex the data block index
    */
   private void decryptOneDataBlock(int blockIndex) {
     // take out the stored data
@@ -225,8 +214,9 @@ public class PSDESDecryptor implements IPSDecryptor {
 
   /**
    * Apply all 16 subkeys (kArray) to the data block.
-   * @param   RArray   bit array R[16]
-   * @param   LArray   bit array L[16]
+   *
+   * @param RArray bit array R[16]
+   * @param LArray bit array L[16]
    */
   private void applySubKeys(int[] RArray, int[] LArray) {
     int initialPermLen = PSDESEncryptor.initialPermLen;
@@ -420,12 +410,12 @@ public class PSDESDecryptor implements IPSDecryptor {
   }
 
   /**
-   * Fill in 4 bits into the B array based on the Substitution Box index
-   * and the value obtained from that box. After the 8th filling in, this B
-   * array becomes a ready-to-use 32-bit-array.
-   * @param   boxGives    the number obtained from the Substitution Box
-   * @param   boxIndex    the Substitution Box being used
-   * @param   bOneToEight the 32-bit-array to be filled in
+   * Fill in 4 bits into the B array based on the Substitution Box index and the value obtained from
+   * that box. After the 8th filling in, this B array becomes a ready-to-use 32-bit-array.
+   *
+   * @param boxGives the number obtained from the Substitution Box
+   * @param boxIndex the Substitution Box being used
+   * @param bOneToEight the 32-bit-array to be filled in
    * @throws IllegalArgumentException if any parameter is out of bounds
    */
   private void fillInB(int boxGives, int boxIndex, int[] bOneToEight)

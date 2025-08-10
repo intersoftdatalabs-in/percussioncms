@@ -24,15 +24,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is a container for a list supported features.  This class can
- * restore its state from Xml.  This class may be queried to determine if a
- * particular feature and version of that feature are supported.
+ * This class is a container for a list supported features. This class can restore its state from
+ * Xml. This class may be queried to determine if a particular feature and version of that feature
+ * are supported.
  */
 public class PSFeatureSet {
 
   /**
-   * Constructor for this class.  <code>fromXml</code> must be called before this
-   * object can be used.
+   * Constructor for this class. <code>fromXml</code> must be called before this object can be used.
    *
    * @see #fromXml(Document)
    * @roseuid 39F9D704000F
@@ -42,34 +41,23 @@ public class PSFeatureSet {
   }
 
   /**
-   * Restores this objects state from the supplied XML document.  File location is
-   * specified by the {@link #FEATURE_SET_FILE FEATURE_SET_FILE} field.
-   * <p>
-   * Deserializes this objects state from Xml.  Expects a PSXFeatureSet node
-   * and nested within that 0-n Feature nodes.  Uses the following dtd:
-   * the server.
-   * &lt;!ELEMENT PSXFeatureSet (PSXFeature*) &gt;
-   * &lt;!--
-   * A feature has a Name and an Introduced date, whose format is YYYYMMDD.
-   * --&gt;
-   * &lt;!ELEMENT PSXFeature (PSXVersion+)&gt;
-   * &lt;!ATTLIST PSXFeature
-   * Name CDATA #REQ&gt;
-   * &lt;!--
-   * Each feature contains at least one version. Versions have a number
-   * and an Introduced date, whose format is YYYYMMDD.  Subsequent additions
-   * to the feature's functionality will add new versions.
-   * --&gt;
-   * &lt;!ELEMENT PSXVersion #PCDATA&gt;
-   * &lt;!ATTLIST PSXVersion
-   * Number CDATA #REQ
-   * Introduced CDATA #REQ&gt;
+   * Restores this objects state from the supplied XML document. File location is specified by the
+   * {@link #FEATURE_SET_FILE FEATURE_SET_FILE} field.
+   *
+   * <p>Deserializes this objects state from Xml. Expects a PSXFeatureSet node and nested within
+   * that 0-n Feature nodes. Uses the following dtd: the server. &lt;!ELEMENT PSXFeatureSet
+   * (PSXFeature*) &gt; &lt;!-- A feature has a Name and an Introduced date, whose format is
+   * YYYYMMDD. --&gt; &lt;!ELEMENT PSXFeature (PSXVersion+)&gt; &lt;!ATTLIST PSXFeature Name CDATA
+   * #REQ&gt; &lt;!-- Each feature contains at least one version. Versions have a number and an
+   * Introduced date, whose format is YYYYMMDD. Subsequent additions to the feature's functionality
+   * will add new versions. --&gt; &lt;!ELEMENT PSXVersion #PCDATA&gt; &lt;!ATTLIST PSXVersion
+   * Number CDATA #REQ Introduced CDATA #REQ&gt;
    *
    * @param sourceDoc the source Xml representation of this object
-   * @throws com.percussion.design.objectstore.PSUnknownDocTypeException if the
-   * root PSXFeatureSet element is not found in the supplied Xml document
-   * @throws com.percussion.design.objectstore.PSUnknownNodeTypeException if the
-   * expected elements are not found in the PSXFeatureSet node
+   * @throws com.percussion.design.objectstore.PSUnknownDocTypeException if the root PSXFeatureSet
+   *     element is not found in the supplied Xml document
+   * @throws com.percussion.design.objectstore.PSUnknownNodeTypeException if the expected elements
+   *     are not found in the PSXFeatureSet node
    * @see #FEATURE_SET_FILE
    * @roseuid 39F9DC3E01C5
    */
@@ -110,11 +98,10 @@ public class PSFeatureSet {
   }
 
   /**
-   * Returns a list of PSFeature objects.  Checks the ServerVersion and if earlier
-   * than the first version that supports this request, then returns null.
-   * fromXml must have been called previously
+   * Returns a list of PSFeature objects. Checks the ServerVersion and if earlier than the first
+   * version that supports this request, then returns null. fromXml must have been called previously
    *
-   * @return a List of PSFeatureObjects.  May be not be <code>null</code>.
+   * @return a List of PSFeatureObjects. May be not be <code>null</code>.
    * @throws IllegalStateException if fromXml has not yet been called.
    * @see PSFeature
    * @roseuid 39F9E9080186
@@ -125,18 +112,12 @@ public class PSFeatureSet {
     return m_featureList.iterator();
   }
 
-  /**
-   * The name of the Xml node this object is serialized to and from.
-   */
+  /** The name of the Xml node this object is serialized to and from. */
   public static final String ms_nodeName = "PSXFeatureSet";
 
-  /**
-   * A list of PSFeature objects, each representing a supported feature.
-   */
+  /** A list of PSFeature objects, each representing a supported feature. */
   private ArrayList m_featureList = null;
 
-  /**
-   * Name of file containing server's supported feature list
-   */
+  /** Name of file containing server's supported feature list */
   public static final String FEATURE_SET_FILE = "featureset.xml";
 }

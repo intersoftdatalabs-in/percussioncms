@@ -23,22 +23,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to represent the <code>SearchField</code> element of the document
- * created from a {@link PSWSSearchRequest} object.  See
- * {@link #toXml(Document)} for more information.  Instances of this class are
- * immutable after construction.
+ * Class to represent the <code>SearchField</code> element of the document created from a {@link
+ * PSWSSearchRequest} object. See {@link #toXml(Document)} for more information. Instances of this
+ * class are immutable after construction.
  */
 public class PSWSSearchField {
   /**
    * Construct a field using an internal operator.
    *
    * @param name The name of the field, may not be <code>null</code> or empty.
-   * @param op The operator to use, must be one of the <code>OP_ATTR_XXX</code>
-   * values.
+   * @param op The operator to use, must be one of the <code>OP_ATTR_XXX</code> values.
    * @param value The value of the field, may not be <code>null</code>.
-   * @param connector The connector used to specify the logical operand used to
-   * connect this field with the next field within a list.  Must be one of the
-   * <code>CONN_ATTR_XXX</code> values.
+   * @param connector The connector used to specify the logical operand used to connect this field
+   *     with the next field within a list. Must be one of the <code>CONN_ATTR_XXX</code> values.
    */
   public PSWSSearchField(String name, int op, String value, int connector) {
     if (name == null || name.trim().length() == 0)
@@ -59,13 +56,12 @@ public class PSWSSearchField {
   }
 
   /**
-   * Construct a field using an external operator.  Same as
-   * {@link #PSWSSearchField(String, int, String, int)
-   * this(name, op, value, connector)} but the <code>op</code> parameter is
-   * replaced with the <code>extOp</code> parameter described below.
+   * Construct a field using an external operator. Same as {@link #PSWSSearchField(String, int,
+   * String, int) this(name, op, value, connector)} but the <code>op</code> parameter is replaced
+   * with the <code>extOp</code> parameter described below.
    *
-   * @param extOp The external operator to used, passed thru to the external
-   * search engine.  May not be <code>null</code> or empty.
+   * @param extOp The external operator to used, passed thru to the external search engine. May not
+   *     be <code>null</code> or empty.
    */
   public PSWSSearchField(String name, String extOp, String value, int connector) {
     if (name == null || name.trim().length() == 0)
@@ -88,11 +84,9 @@ public class PSWSSearchField {
   /**
    * Construct this field from its XML representation.
    *
-   * @param src The source element, may not be <code>null</code>.  See
-   * {@link #toXml(Document)} for details on the expected format.
-   *
-   * @throws PSUnknownNodeTypeException If the source element does not match
-   * the expected format.
+   * @param src The source element, may not be <code>null</code>. See {@link #toXml(Document)} for
+   *     details on the expected format.
+   * @throws PSUnknownNodeTypeException If the source element does not match the expected format.
    */
   public PSWSSearchField(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -101,12 +95,10 @@ public class PSWSSearchField {
   }
 
   /**
-   * Serializes this object to its XML representation.  See the
-   * sys_SearchParameters.xsd schema for details and the required format of the
-   * <code>SearchParams</code> element.
+   * Serializes this object to its XML representation. See the sys_SearchParameters.xsd schema for
+   * details and the required format of the <code>SearchParams</code> element.
    *
    * @param doc The document to use, may not be <code>null</code>.
-   *
    * @return The root element of the search request, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -124,13 +116,10 @@ public class PSWSSearchField {
   }
 
   /**
-   * Helper method to get the <code>OP_ATTR_XXX</code> value from its string
-   * representation.
+   * Helper method to get the <code>OP_ATTR_XXX</code> value from its string representation.
    *
    * @param strOp The string version, may be <code>null</code> or empty.
-   *
-   * @return The matching operator value, or <code>-1</code> if no match is
-   * found.
+   * @return The matching operator value, or <code>-1</code> if no match is found.
    */
   public static int getOperatorFromString(String strOp) {
     int op = -1;
@@ -146,8 +135,8 @@ public class PSWSSearchField {
   }
 
   /**
-   * Get the string representation of the operator as defined by the
-   * sys_SearchParameters.xsd schema.
+   * Get the string representation of the operator as defined by the sys_SearchParameters.xsd
+   * schema.
    *
    * @return The operator string, never <code>null</code> or empty.
    */
@@ -156,8 +145,8 @@ public class PSWSSearchField {
   }
 
   /**
-   * Get the string representation of the connector as defined by the
-   * sys_SearchParameters.xsd schema.
+   * Get the string representation of the connector as defined by the sys_SearchParameters.xsd
+   * schema.
    *
    * @return The connector string, never <code>null</code> or empty.
    */
@@ -168,9 +157,8 @@ public class PSWSSearchField {
   /**
    * Restores a search request from its XML representation.
    *
-   * @param src The root element of the request, assumed not <code>null</code>.
-   * See {@link #toXml(Document)} for details on the expected format.
-   *
+   * @param src The root element of the request, assumed not <code>null</code>. See {@link
+   *     #toXml(Document)} for details on the expected format.
    */
   private void fromXml(Element src) throws PSUnknownNodeTypeException {
     // validate root
@@ -198,11 +186,10 @@ public class PSWSSearchField {
   }
 
   /**
-   * Get the internal operator supplied during construction.  If one was not
-   * supplied, {@link #getExternalOperator()} will return a non-empty value,
-   * and this value should be ignored, in which case {@link #OP_ATTR_EQUAL}
-   * is returned by default.  Otherwise this field should be used to query
-   * the internal search engine using this operator.
+   * Get the internal operator supplied during construction. If one was not supplied, {@link
+   * #getExternalOperator()} will return a non-empty value, and this value should be ignored, in
+   * which case {@link #OP_ATTR_EQUAL} is returned by default. Otherwise this field should be used
+   * to query the internal search engine using this operator.
    *
    * @return One of the <code>OP_ATTR_XXX</code> values.
    * @deprecated use {@link #getOperatorEnum()} instead.
@@ -240,13 +227,12 @@ public class PSWSSearchField {
   }
 
   /**
-   * Get the external operator supplied during construction.  If one was not
-   * supplied, then an empty string is returned, and the value of
-   * {@link #getOperator()} should be used to construct search criteria from
-   * this field.
+   * Get the external operator supplied during construction. If one was not supplied, then an empty
+   * string is returned, and the value of {@link #getOperator()} should be used to construct search
+   * criteria from this field.
    *
-   * @return Never <code>null</code>, may be empty.  If non-empty, this field
-   * should be used to query the external search engine.
+   * @return Never <code>null</code>, may be empty. If non-empty, this field should be used to query
+   *     the external search engine.
    */
   public String getExternalOperator() {
     return m_externalOperator;
@@ -264,16 +250,14 @@ public class PSWSSearchField {
   /**
    * Determine if this field specifies an external operator.
    *
-   * @return <code>true</code> if {@link #getExternalOperator()} would return
-   * a non-empty value, <code>false</code> otherwise.
+   * @return <code>true</code> if {@link #getExternalOperator()} would return a non-empty value,
+   *     <code>false</code> otherwise.
    */
   public boolean isExternal() {
     return m_externalOperator.trim().length() > 0;
   }
 
-  /**
-   * Overriden to properly fufill contract of {@link Object#hashCode()}.
-   */
+  /** Overriden to properly fufill contract of {@link Object#hashCode()}. */
   public int hashCode() {
     return (m_name + m_operator + m_externalOperator + m_value + m_connector).hashCode();
   }
@@ -282,9 +266,8 @@ public class PSWSSearchField {
    * Overrides {@link Object#equals(Object)} to compare all member data.
    *
    * @param obj The object to compare, may be <code>null</code>.
-   *
-   * @return <code>true</code> if <code>obj</code> is an instance of
-   * {@link PSWSSearchField} with the same member data.
+   * @return <code>true</code> if <code>obj</code> is an instance of {@link PSWSSearchField} with
+   *     the same member data.
    */
   public boolean equals(Object obj) {
     boolean isEqual = true;
@@ -302,9 +285,7 @@ public class PSWSSearchField {
     return isEqual;
   }
 
-  /**
-   * Enumerates all valid search field operators.
-   */
+  /** Enumerates all valid search field operators. */
   public enum PSOperatorEnum {
     EQUAL(OP_ATTR_EQUAL),
     NOTEQUAL(OP_ATTR_NOTEQUAL),
@@ -333,8 +314,7 @@ public class PSWSSearchField {
      *
      * @param ordinal the ordinal for which to get the enumeration.
      * @return the enumeration, never <code>null</code>.
-     * @throws IllegalArgumentException if no enumeration exists for the
-     *    supplied ordinal.
+     * @throws IllegalArgumentException if no enumeration exists for the supplied ordinal.
      */
     public static PSOperatorEnum valueOf(int ordinal) {
       for (PSOperatorEnum value : values()) if (value.getOrdinal() == ordinal) return value;
@@ -351,15 +331,11 @@ public class PSWSSearchField {
       mi_ordinal = ordinal;
     }
 
-    /**
-     * Stores the enumeration ordinal.
-     */
+    /** Stores the enumeration ordinal. */
     private int mi_ordinal;
   }
 
-  /**
-   * Enumerates all valid search field connectors.
-   */
+  /** Enumerates all valid search field connectors. */
   public enum PSConnectorEnum {
     AND(CONN_ATTR_AND),
     OR(CONN_ATTR_OR);
@@ -378,8 +354,7 @@ public class PSWSSearchField {
      *
      * @param ordinal the ordinal for which to get the enumeration.
      * @return the enumeration, never <code>null</code>.
-     * @throws IllegalArgumentException if no enumeration exists for the
-     *    supplied ordinal.
+     * @throws IllegalArgumentException if no enumeration exists for the supplied ordinal.
      */
     public static PSConnectorEnum valueOf(int ordinal) {
       for (PSConnectorEnum value : values()) if (value.getOrdinal() == ordinal) return value;
@@ -396,112 +371,75 @@ public class PSWSSearchField {
       mi_ordinal = ordinal;
     }
 
-    /**
-     * Stores the enumeration ordinal.
-     */
+    /** Stores the enumeration ordinal. */
     private int mi_ordinal;
   }
 
-  /**
-   * Name of root element when this object is serialized to and from its XML
-   * representation.
-   */
+  /** Name of root element when this object is serialized to and from its XML representation. */
   public static final String XML_NODE_NAME = "SearchField";
 
-  /**
-   * Name of this field, never <code>null</code> or empty or modified after
-   * construction.
-   */
+  /** Name of this field, never <code>null</code> or empty or modified after construction. */
   private String m_name;
 
   /**
-   * The operator supplied during ctor, or {@link #OP_ATTR_EQUAL} if one is not
-   * supplied, never modified after that.
+   * The operator supplied during ctor, or {@link #OP_ATTR_EQUAL} if one is not supplied, never
+   * modified after that.
    */
   private PSOperatorEnum m_operator = PSOperatorEnum.EQUAL;
 
-  /**
-   * The connector supplied during ctor, never modified after that.
-   */
+  /** The connector supplied during ctor, never modified after that. */
   private PSConnectorEnum m_connector = PSConnectorEnum.AND;
 
   /**
-   * The external operator supplied during construction, never
-   * <code>null</code> or modified after that, may be empty.
+   * The external operator supplied during construction, never <code>null</code> or modified after
+   * that, may be empty.
    */
   private String m_externalOperator = "";
 
-  /**
-   * The value supplied during construction, never <code>null</code> or empty,
-   * never modified.
-   */
+  /** The value supplied during construction, never <code>null</code> or empty, never modified. */
   private String m_value;
 
-  /**
-   * Constant for <code>equal</code> operator.
-   */
+  /** Constant for <code>equal</code> operator. */
   public static final int OP_ATTR_EQUAL = 0;
 
-  /**
-   * Constant for <code>notEqual</code> operator.
-   */
+  /** Constant for <code>notEqual</code> operator. */
   public static final int OP_ATTR_NOTEQUAL = 1;
 
-  /**
-   * Constant for <code>lessThan</code> operator.
-   */
+  /** Constant for <code>lessThan</code> operator. */
   public static final int OP_ATTR_LESSTHAN = 2;
 
-  /**
-   * Constant for <code>lessThanEqual</code> operator.
-   */
+  /** Constant for <code>lessThanEqual</code> operator. */
   public static final int OP_ATTR_LESSTHANEQUAL = 3;
 
-  /**
-   * Constant for <code>greaterThan</code> operator.
-   */
+  /** Constant for <code>greaterThan</code> operator. */
   public static final int OP_ATTR_GREATERTHAN = 4;
 
-  /**
-   * Constant for <code>greaterThanEqual</code> operator.
-   */
+  /** Constant for <code>greaterThanEqual</code> operator. */
   public static final int OP_ATTR_GREATERTHANEQUAL = 5;
 
-  /**
-   * Constant for <code>isNull</code> operator.
-   */
+  /** Constant for <code>isNull</code> operator. */
   public static final int OP_ATTR_ISNULL = 6;
 
-  /**
-   * Constant for <code>isNotNull</code> operator.
-   */
+  /** Constant for <code>isNotNull</code> operator. */
   public static final int OP_ATTR_ISNOTNULL = 7;
 
-  /**
-   * Constant for <code>in</code> operator.
-   */
+  /** Constant for <code>in</code> operator. */
   public static final int OP_ATTR_IN = 8;
 
-  /**
-   * Constant for <code>notIn</code> operator.
-   */
+  /** Constant for <code>notIn</code> operator. */
   public static final int OP_ATTR_NOTIN = 9;
 
-  /**
-   * Constant for <code>like</code> operator.
-   */
+  /** Constant for <code>like</code> operator. */
   public static final int OP_ATTR_LIKE = 10;
 
-  /**
-   * Constant for <code>notLike</code> operator.
-   */
+  /** Constant for <code>notLike</code> operator. */
   public static final int OP_ATTR_NOTLIKE = 11;
 
   /**
-   * Enumeration of the string representation of the <code>OP_ATTR_xxx</code>
-   * constants, used when serialized to XML.  Each constant value is an index
-   * into this array of its string representation.  This array must be modified
-   * as operator constants are added, modified, or removed.
+   * Enumeration of the string representation of the <code>OP_ATTR_xxx</code> constants, used when
+   * serialized to XML. Each constant value is an index into this array of its string
+   * representation. This array must be modified as operator constants are added, modified, or
+   * removed.
    */
   public static final String[] OP_ATTR_VALUES = {
     "equal",
@@ -518,21 +456,17 @@ public class PSWSSearchField {
     "notLike"
   };
 
-  /**
-   * Constant for the <code>and</code> connector.
-   */
+  /** Constant for the <code>and</code> connector. */
   public static final int CONN_ATTR_AND = 0;
 
-  /**
-   * Constant for the <code>or</code> connector.
-   */
+  /** Constant for the <code>or</code> connector. */
   public static final int CONN_ATTR_OR = 1;
 
   /**
-   * Enumeration of the string representation of the <code>CONN_ATTR_xxx</code>
-   * constants, used when serialized to XML.  Each constant value is an index
-   * into this array of its string representation.  This array must be modified
-   * as operator constants are added, modified, or removed.
+   * Enumeration of the string representation of the <code>CONN_ATTR_xxx</code> constants, used when
+   * serialized to XML. Each constant value is an index into this array of its string
+   * representation. This array must be modified as operator constants are added, modified, or
+   * removed.
    */
   public static final String[] CONN_ATTR_VALUES = {"and", "or"};
 

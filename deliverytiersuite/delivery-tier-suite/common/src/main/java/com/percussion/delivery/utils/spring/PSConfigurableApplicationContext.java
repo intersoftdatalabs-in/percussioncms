@@ -33,25 +33,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
- * Provides a configurable Context loader that can be used as the contextClass param
- * in a web.xml.  Will default to WEB-INF/beans.xml if it doesn't find a context
- * in either {$catalina.base}/conf/perc/perc-context.properties or in
- * WEB-INF/perc-context.properties.
+ * Provides a configurable Context loader that can be used as the contextClass param in a web.xml.
+ * Will default to WEB-INF/beans.xml if it doesn't find a context in either
+ * {$catalina.base}/conf/perc/perc-context.properties or in WEB-INF/perc-context.properties.
  *
- * The perc/conf location will always override what is defined in WEB-INF.
+ * <p>The perc/conf location will always override what is defined in WEB-INF.
  *
- *  example perc-context.properties
- *  #####################################
- *  # Specifies the context location to use.  May be over-ridden by placing this
- *  # properties file into the {$catalina.base}/conf/perc/ folder.
- *  #
- *  # RDBMS - Hibernate Application Context
- *  contextLocation=/WEB-INF/beans.xml
- *  #
- *  # NOSQL - MongoDB Application Context
- *  #contextLocation=/WEB-INF/beans_mongodb.xml
- *  #############################################
- *
+ * <p>example perc-context.properties ##################################### # Specifies the context
+ * location to use. May be over-ridden by placing this # properties file into the
+ * {$catalina.base}/conf/perc/ folder. # # RDBMS - Hibernate Application Context
+ * contextLocation=/WEB-INF/beans.xml # # NOSQL - MongoDB Application Context
+ * #contextLocation=/WEB-INF/beans_mongodb.xml #############################################
  */
 @Configuration
 public class PSConfigurableApplicationContext extends XmlWebApplicationContext {
@@ -70,10 +62,11 @@ public class PSConfigurableApplicationContext extends XmlWebApplicationContext {
   }
 
   /**
-   * Initialize the bean definition reader used for loading the bean
-   * definitions of this context. Default implementation is empty.
-   * <p>Can be overridden in subclasses, e.g. for turning off XML validation
-   * or using a different XmlBeanDefinitionParser implementation.
+   * Initialize the bean definition reader used for loading the bean definitions of this context.
+   * Default implementation is empty.
+   *
+   * <p>Can be overridden in subclasses, e.g. for turning off XML validation or using a different
+   * XmlBeanDefinitionParser implementation.
    *
    * @param beanDefinitionReader the bean definition reader used by this context
    * @see XmlBeanDefinitionReader#setValidationMode

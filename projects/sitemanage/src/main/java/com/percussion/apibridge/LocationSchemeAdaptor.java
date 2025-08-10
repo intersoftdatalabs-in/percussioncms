@@ -25,26 +25,24 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.system.utils.PSSiteManageBean;
 
-/**
- * Adaptor for LocationScheme management in Percussion CMS.
- */
+/** Adaptor for LocationScheme management in Percussion CMS. */
 @PSSiteManageBean
 public class LocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    private final IPSSiteManager siteManager;
+  private final IPSSiteManager siteManager;
 
-    public LocationSchemeAdaptor() {
-        this.siteManager = PSSiteManagerLocator.getSiteManager();
-    }
+  public LocationSchemeAdaptor() {
+    this.siteManager = PSSiteManagerLocator.getSiteManager();
+  }
 
-    @Override
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
-        // Not yet implemented
-        return null;
-    }
+  @Override
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+    // Not yet implemented
+    return null;
+  }
 
-    @Override
-    public void deletedLocationScheme(String guid) {
-        // Not yet implemented
-    }
+  @Override
+  public void deletedLocationScheme(String guid) {
+    // Not yet implemented
+  }
 }

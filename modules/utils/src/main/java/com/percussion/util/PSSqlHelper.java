@@ -52,8 +52,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a utility class providing common functionality/definitions for
- * the use of databases and JDBC classes.
+ * This is a utility class providing common functionality/definitions for the use of databases and
+ * JDBC classes.
  */
 public class PSSqlHelper {
 
@@ -65,8 +65,8 @@ public class PSSqlHelper {
   }
 
   /**
-   * Convenience method that looks up the Rx server's database info and calls
-   * {@link #qualifyTableName(String, String, String, String)}.
+   * Convenience method that looks up the Rx server's database info and calls {@link
+   * #qualifyTableName(String, String, String, String)}.
    *
    * @throws SQLException See {@link PSConnectionHelper#getDbConnection()}.
    */
@@ -77,8 +77,8 @@ public class PSSqlHelper {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the
-   * provided driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param db the used database, may be <code>null</code>
    * @param table the table name to qualify, must be valid
@@ -134,21 +134,17 @@ public class PSSqlHelper {
   }
 
   /**
-   * This will create a fully qualified view name. Depending on the
-   * provided driver type we will return view, schema.view or
-   * db.schema.view.
+   * This will create a fully qualified view name. Depending on the provided driver type we will
+   * return view, schema.view or db.schema.view.
    *
-   * Note: one only needs to call this method to qualify a view name
-   * when a view is being created. For regular queries it appears to
-   * be OK to use the qualifyTableName method for both tables
-   * and views.
+   * <p>Note: one only needs to call this method to qualify a view name when a view is being
+   * created. For regular queries it appears to be OK to use the qualifyTableName method for both
+   * tables and views.
    *
    * @param db the used database, may be <code>null</code>
-   * @param view the view name to qualify, never <code>null</code>
-   * or <code>empty</code>.
+   * @param view the view name to qualify, never <code>null</code> or <code>empty</code>.
    * @param owner the table owner, may be <code>null</code>
-   * @param driver the driver type to qualify for, never <code>null</code>
-   * never <code>empty</code>.
+   * @param driver the driver type to qualify for, never <code>null</code> never <code>empty</code>.
    * @return the fully qualified table name
    */
   public static String qualifyViewName(String view, String db, String owner, String driver) {
@@ -190,8 +186,8 @@ public class PSSqlHelper {
   }
 
   /**
-   * This will create a fully qualified primary key name. Depending on the
-   * provided driver type we will return key, or db.key.
+   * This will create a fully qualified primary key name. Depending on the provided driver type we
+   * will return key, or db.key.
    *
    * @param db the used database, may be <code>null</code>
    * @param owner the table owner, may be <code>null</code>
@@ -214,35 +210,25 @@ public class PSSqlHelper {
   }
 
   /**
-   * Extracts the catalog, origin and table from the supplied, possibly
-   * fully qualified tableName. If found, the catalog and origin are returned
-   * in the supplied buffers. The table name is returned from the method.
-   * If tableName doesn't include an origin or catalog, the
-   * corresponding buffers are not touched. The unqualified table name is
-   * returned. If the driver is not recognized, the default pattern will be
-   * assumed. The default pattern is 'catalog.origin.table'.
+   * Extracts the catalog, origin and table from the supplied, possibly fully qualified tableName.
+   * If found, the catalog and origin are returned in the supplied buffers. The table name is
+   * returned from the method. If tableName doesn't include an origin or catalog, the corresponding
+   * buffers are not touched. The unqualified table name is returned. If the driver is not
+   * recognized, the default pattern will be assumed. The default pattern is 'catalog.origin.table'.
    *
-   * @param driver The JDBC subprotocol name that is supplied as part of the
-   *    connect string. For example: 'oracle:thin', 'inetdae7'. If <code>null
+   * @param driver The JDBC subprotocol name that is supplied as part of the connect string. For
+   *     example: 'oracle:thin', 'inetdae7'. If <code>null
    *    </code> or empty, the default pattern is used. This is case sensitive.
-   *
-   * @param tableName Some form of the table name. If <code>null</code> or
-   *    empty, the supplied buffers are untouched and the empty string is
-   *    returned.
-   *
-   * @param originBuf If <code>tableName</code> is not <code>null</code>
-   *    or empty, and it includes an origin/schema, that part of the name
-   *    will be appended to this buffer. If this buf is <code>null</code>,
-   *    it is skipped.
-   *
-   * @param catalogBuf If <code>tableName</code> is not <code>null</code>
-   *    or empty, and it includes a catalog, that part of the name
-   *    will be appended on this buffer. If this buf is <code>null</code>,
-   *    it is skipped.
-   *
-   * @return If <code>tableName</code> is not <code>null</code>
-   *    or empty, the base part of the name (w/o origin or db). Otherwise,
-   *    the empty string is returned.
+   * @param tableName Some form of the table name. If <code>null</code> or empty, the supplied
+   *     buffers are untouched and the empty string is returned.
+   * @param originBuf If <code>tableName</code> is not <code>null</code> or empty, and it includes
+   *     an origin/schema, that part of the name will be appended to this buffer. If this buf is
+   *     <code>null</code>, it is skipped.
+   * @param catalogBuf If <code>tableName</code> is not <code>null</code> or empty, and it includes
+   *     a catalog, that part of the name will be appended on this buffer. If this buf is <code>null
+   *     </code>, it is skipped.
+   * @return If <code>tableName</code> is not <code>null</code> or empty, the base part of the name
+   *     (w/o origin or db). Otherwise, the empty string is returned.
    */
   public static String parseTableName(
       String driver, String tableName, StringBuilder originBuf, StringBuilder catalogBuf) {
@@ -288,19 +274,16 @@ public class PSSqlHelper {
   }
 
   /**
-   * Given a String representation of the data, sets the data on the prepared
-   * statement using the supplied datatype.
+   * Given a String representation of the data, sets the data on the prepared statement using the
+   * supplied datatype.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
    * @param bindStart The index of the parameter to bind.
-   * @param value The value to bind.  May not be <code>null</code>.
-   * @param dataType The jdbc datatype, one of the constant values from
-   * {@link java.sql.Types}.
-   *
+   * @param value The value to bind. May not be <code>null</code>.
+   * @param dataType The jdbc datatype, one of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs setting the value.
-   * @throws IOException if an error occurs converting a binary value from
-   * a Base64Encoded format.
+   * @throws IOException if an error occurs converting a binary value from a Base64Encoded format.
    */
   public static void setDataFromString(
       PreparedStatement stmt, int bindStart, String value, int dataType)
@@ -464,15 +447,12 @@ public class PSSqlHelper {
   }
 
   /**
-   * Given a byte array, sets the data on the prepared
-   * statement using the supplied datatype.
+   * Given a byte array, sets the data on the prepared statement using the supplied datatype.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
    * @param bindStart The index of the parameter to bind.
-   * @param value The value to bind.  May not be <code>null</code>.
-   * @param dataType The jdbc datatype, one of the constant values from
-   * {@link java.sql.Types}.
-   *
+   * @param value The value to bind. May not be <code>null</code>.
+   * @param dataType The jdbc datatype, one of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
    */
@@ -537,23 +517,16 @@ public class PSSqlHelper {
   }
 
   /**
-   * Given a File object, sets the data on the prepared
-   * statement using the supplied datatype.
+   * Given a File object, sets the data on the prepared statement using the supplied datatype.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
    * @param bindStart The index of the parameter to bind.
-   * @param value The value to bind.  May not be <code>null</code>.  Must
-   * reference an existing file.
-   * @param dataType The jdbc datatype, one of the constant values from
-   * {@link java.sql.Types}.
-   * @param charset The character set to use when reading character data from
-   * the file.  May be <code>null</code> or empty, in which case the default
-   * characterset for the system is used.
-   *
-   * @return the InputSteam that is opened from the File. It may be
-   *    <code>null</code> if there is no InputStream left open. It is caller's
-   *    responsibility to close the input stream.
-   *
+   * @param value The value to bind. May not be <code>null</code>. Must reference an existing file.
+   * @param dataType The jdbc datatype, one of the constant values from {@link java.sql.Types}.
+   * @param charset The character set to use when reading character data from the file. May be
+   *     <code>null</code> or empty, in which case the default characterset for the system is used.
+   * @return the InputSteam that is opened from the File. It may be <code>null</code> if there is no
+   *     InputStream left open. It is caller's responsibility to close the input stream.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
    */
@@ -639,19 +612,15 @@ public class PSSqlHelper {
   }
 
   /**
-   * Attempts to determine if the supplied statement is backed by an Oracle
-   * based sql statement. It does this by checking the statement itself, and
-   * also checking if it is one of the known wrapper statements. If it is a
-   * wrapper statement, the underlying statement is checked.
+   * Attempts to determine if the supplied statement is backed by an Oracle based sql statement. It
+   * does this by checking the statement itself, and also checking if it is one of the known wrapper
+   * statements. If it is a wrapper statement, the underlying statement is checked.
    *
    * @param stmt The statement to check. Assumed not <code>null</code>.
-   *
-   * @return If the supplied statement is of the return type, or it is a
-   * wrapper around the desired type, non-<code>null</code> is returned.
-   * Otherwise, <code>null</code> is returned.
-   *
-   * @throws SQLException if an error occurs getting the underlying statement
-   * from the wrapper statement.
+   * @return If the supplied statement is of the return type, or it is a wrapper around the desired
+   *     type, non-<code>null</code> is returned. Otherwise, <code>null</code> is returned.
+   * @throws SQLException if an error occurs getting the underlying statement from the wrapper
+   *     statement.
    */
   public static PreparedStatement getOracleStatement(PreparedStatement stmt) throws SQLException {
     if (stmt instanceof PSPreparedStatement) {
@@ -685,18 +654,15 @@ public class PSSqlHelper {
   }
 
   /**
-   * Set the data for this column using numeric (Number) data. This was
-   * created to fix bug id Rx-99-11-0028. Certain JDBC drivers, such as
-   * Oracle, do not support calling setObject to do numeric conversions
-   * (eg, from Integer to BigDecimal). We will now take it upon ourselves
-   * to do the conversion, wherever possible.
+   * Set the data for this column using numeric (Number) data. This was created to fix bug id
+   * Rx-99-11-0028. Certain JDBC drivers, such as Oracle, do not support calling setObject to do
+   * numeric conversions (eg, from Integer to BigDecimal). We will now take it upon ourselves to do
+   * the conversion, wherever possible.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
    * @param bindStart The index of the parameter to bind.
-   * @param value The value to bind.  May not be <code>null</code>.
-   * @param dataType The jdbc datatype, on of the constant values from
-   * {@link java.sql.Types}.
-   *
+   * @param value The value to bind. May not be <code>null</code>.
+   * @param dataType The jdbc datatype, on of the constant values from {@link java.sql.Types}.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws SQLException if an error occurs.
    */
@@ -803,21 +769,17 @@ public class PSSqlHelper {
   }
 
   /**
-   * Some jdbc datatypes returned by drivers are not valid types as enumerated
-   * in {@link java.sql.Types}.  This method will convert those types to
-   * valid jdbc datatypes.
+   * Some jdbc datatypes returned by drivers are not valid types as enumerated in {@link
+   * java.sql.Types}. This method will convert those types to valid jdbc datatypes.
    *
    * @param dbmsName The name of the backend as reported by {@link
-   * java.sql.DatabaseMetaData#getDatabaseProductName()}.  May not be <code>
+   *     java.sql.DatabaseMetaData#getDatabaseProductName()}. May not be <code>
    * null</code> or empty.
-   * @param typeName The String version of the jdbc type (TYPE_NAME) reported
-   * by the driver from {@link java.sql.DatabaseMetaData#getTypeInfo()} or
-   * {@link java.sql.DatabaseMetaData#getColumns(String, String, String,
-   * String) DatabaseMetaData.getColumns()}.  May not be <code>null</code> or
-   * empty.
-   * @param jdbcType The numeric type (DATA_TYPE) reported by the driver along
-   * with TYPE_NAME.
-   *
+   * @param typeName The String version of the jdbc type (TYPE_NAME) reported by the driver from
+   *     {@link java.sql.DatabaseMetaData#getTypeInfo()} or {@link
+   *     java.sql.DatabaseMetaData#getColumns(String, String, String, String)
+   *     DatabaseMetaData.getColumns()}. May not be <code>null</code> or empty.
+   * @param jdbcType The numeric type (DATA_TYPE) reported by the driver along with TYPE_NAME.
    * @return The corrected jdbc type for the supplied typeName
    * @throws IllegalArgumentException if dbmsName or typeName is <code>null
    * </code> or emtpy.
@@ -896,27 +858,21 @@ public class PSSqlHelper {
   }
 
   /**
-   * Some jdbc datatypes returned by drivers are not valid types as enumerated
-   * in {@link java.sql.Types}. This method will convert those types to
-   * valid jdbc data types.
+   * Some jdbc datatypes returned by drivers are not valid types as enumerated in {@link
+   * java.sql.Types}. This method will convert those types to valid jdbc data types.
    *
-   * @param jdbcType The numeric jdbc data type (DATA_TYPE) reported by the
-   * driver along with TYPE_NAME.
-   *
-   * @param nativeType The database native data type (TYPE_NAME) reported
-   * by the driver from {@link java.sql.DatabaseMetaData#getTypeInfo()} or
-   * {@link java.sql.DatabaseMetaData#getColumns(String, String, String,
-   * String) DatabaseMetaData.getColumns()}.  May not be <code>null</code> or
-   * empty.
-   *
-   * @param driver The jdbc driver such as <code>SPRINTA</code> or
-   * <code>JTDS_DRIVER</code> or <code>MICROSOFT_DRIVER</code> or
-   * <code>ORACLE</code>. May not be <code> null</code> or empty.
-   *
+   * @param jdbcType The numeric jdbc data type (DATA_TYPE) reported by the driver along with
+   *     TYPE_NAME.
+   * @param nativeType The database native data type (TYPE_NAME) reported by the driver from {@link
+   *     java.sql.DatabaseMetaData#getTypeInfo()} or {@link
+   *     java.sql.DatabaseMetaData#getColumns(String, String, String, String)
+   *     DatabaseMetaData.getColumns()}. May not be <code>null</code> or empty.
+   * @param driver The jdbc driver such as <code>SPRINTA</code> or <code>JTDS_DRIVER</code> or
+   *     <code>MICROSOFT_DRIVER</code> or <code>ORACLE</code>. May not be <code> null</code> or
+   *     empty.
    * @return The corrected jdbc type for the supplied native data type
-   *
-   * @throws IllegalArgumentException if <code>driver</code> or
-   * <code>nativeType</code> <code>null</code> or emtpy.
+   * @throws IllegalArgumentException if <code>driver</code> or <code>nativeType</code> <code>null
+   *     </code> or emtpy.
    */
   public static short convertNativeDataType(short jdbcType, String nativeType, String driver) {
     if ((driver == null) || (driver.trim().length() == 0))
@@ -960,16 +916,14 @@ public class PSSqlHelper {
   }
 
   /**
-   * Returns the value to use to specify that a column may be <code>NULL</code>
-   * in a <code>CREATE TABLE</code> or <code>ALTER TABLE</code> SQL statement.
-   * Databases vary in their requirements for this syntax.
+   * Returns the value to use to specify that a column may be <code>NULL</code> in a <code>
+   * CREATE TABLE</code> or <code>ALTER TABLE</code> SQL statement. Databases vary in their
+   * requirements for this syntax.
    *
-   * @param driver The name of the sub-protocol for the JDBC driver being used.
-   * May not be <code>null</code> or empty.
-   *
+   * @param driver The name of the sub-protocol for the JDBC driver being used. May not be <code>
+   *     null</code> or empty.
    * @return The text to include in the column defintion to allow <code>NULL
-   * </code> values.  May be empty, never <code>null</code>.
-   *
+   * </code> values. May be empty, never <code>null</code>.
    * @throws IllegalArgumentException if driver is <code>null</code> or empty.
    */
   public static String getNullColumnSpecifier(String driver) {
@@ -990,19 +944,15 @@ public class PSSqlHelper {
   }
 
   /**
-   * Gets the maximum number of bytes permitted for a constraint name using
-   * the specified driver.  While most databases use the same length for
-   * all database objects (in which case this number could be determined
-   * through the <code>DatabaseMetaData</code> interface), at least one (DB2)
+   * Gets the maximum number of bytes permitted for a constraint name using the specified driver.
+   * While most databases use the same length for all database objects (in which case this number
+   * could be determined through the <code>DatabaseMetaData</code> interface), at least one (DB2)
    * requires constraint names to be shorter than other database objects.
    *
-   * @param driver The name of the sub-protocol for the JDBC driver being used.
-   * Will be matched case-sensitively.  May not be <code>null</code> or empty.
-   *
-   * @return the maximum number of bytes permitted for a constraint name using
-   * the specified driver, or the least common denominator if no match is
-   * found for the specified driver.
-   *
+   * @param driver The name of the sub-protocol for the JDBC driver being used. Will be matched
+   *     case-sensitively. May not be <code>null</code> or empty.
+   * @return the maximum number of bytes permitted for a constraint name using the specified driver,
+   *     or the least common denominator if no match is found for the specified driver.
    * @throws IllegalArgumentException if driver is <code>null</code> or empty.
    */
   public static int getMaxConstraintNameLength(String driver) {
@@ -1021,17 +971,14 @@ public class PSSqlHelper {
   }
 
   /**
-   * Used to determine if the specified DBMS supports auto-increment or
-   * identity columns.  Not every DBMS supports auto-increment columns, and the
-   * call to <code>DatabaseMetaData.getVersionColumns()</code> may be very
-   * expensive (using Oracle, for example).
+   * Used to determine if the specified DBMS supports auto-increment or identity columns. Not every
+   * DBMS supports auto-increment columns, and the call to <code>
+   * DatabaseMetaData.getVersionColumns()</code> may be very expensive (using Oracle, for example).
    *
-   * @param driver The name of the sub-protocol for the JDBC driver being used.
-   * Will be matched case-sensitively.  May not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the specified driver supports auto-increment
-   * columns, <code>false</code> if not.
-   *
+   * @param driver The name of the sub-protocol for the JDBC driver being used. Will be matched
+   *     case-sensitively. May not be <code>null</code> or empty.
+   * @return <code>true</code> if the specified driver supports auto-increment columns, <code>false
+   *     </code> if not.
    * @throws IllegalArgumentException if driver is <code>null</code> or empty.
    */
   public static boolean supportsIdentityColumns(String driver) {
@@ -1047,63 +994,47 @@ public class PSSqlHelper {
   }
 
   /**
-   * Returns a query which can be executed to obtain metadata information
-   * about the specified database object <code>objectName</code>.
-   * <p>
-   * Currently this only returns a valid query for "db2" driver, and returns
-   * <code>null</code> for other drivers. <br>
-   * (<code>DatabaseMetadata.getTables()</code> and
-   * <code>DatabaseMetaData.getColumns()</code> (only for Views) does not work
-   * well with "db2" driver and so specific queries have to be executed to
-   * check the specified table or view existence or to obtain the metadata for
-   * views.)
-   * <p>
-   * If <code>isMetaQuery</code> is <code>true</code> and the specified
-   * database object is a view then the query on execution returns the
-   * metadeta information about the view, otherwise it returns whether or not
-   * the table or view exists or not.
-   * The query executed in this case is similar to:
-   * SELECT * FROM RXRELATEDCONTENT WHERE 1 = 0
-   * No rows is returned by execution of this query but the column information
-   * for the specified view can be obtained from the
-   * <code>ResultSetMetaData</code> object.
+   * Returns a query which can be executed to obtain metadata information about the specified
+   * database object <code>objectName</code>.
    *
-   * If the object is a table (<code>isView</code> is <code>false</code>)
-   * and <code>isMetaQuery</code> is <code>false</code> then the query
-   * executed is similar to:
+   * <p>Currently this only returns a valid query for "db2" driver, and returns <code>null</code>
+   * for other drivers. <br>
+   * (<code>DatabaseMetadata.getTables()</code> and <code>DatabaseMetaData.getColumns()</code> (only
+   * for Views) does not work well with "db2" driver and so specific queries have to be executed to
+   * check the specified table or view existence or to obtain the metadata for views.)
    *
-   * SELECT 1 FROM SYSCAT.TABLES WHERE TABNAME = 'AGING' AND TABSCHEMA = 'ANIMESH'
+   * <p>If <code>isMetaQuery</code> is <code>true</code> and the specified database object is a view
+   * then the query on execution returns the metadeta information about the view, otherwise it
+   * returns whether or not the table or view exists or not. The query executed in this case is
+   * similar to: SELECT * FROM RXRELATEDCONTENT WHERE 1 = 0 No rows is returned by execution of this
+   * query but the column information for the specified view can be obtained from the <code>
+   * ResultSetMetaData</code> object.
    *
-   * If the object is a view (<code>isView</code> is <code>true</code>) and
-   * <code>isMetaQuery</code> is <code>false</code> then the query
-   * executed is similar to:
-   * SELECT 1 FROM SYSCAT.VIEWS WHERE VIEWNAME = 'RXRELATEDCONTENT' AND VIEWSCHEMA = 'ANIMESH'
+   * <p>If the object is a table (<code>isView</code> is <code>false</code>) and <code>isMetaQuery
+   * </code> is <code>false</code> then the query executed is similar to:
    *
-   * @param driver The name of the sub-protocol for the JDBC driver being used.
-   * Will be matched case-insensitively. May not be <code>null</code> or empty.
+   * <p>SELECT 1 FROM SYSCAT.TABLES WHERE TABNAME = 'AGING' AND TABSCHEMA = 'ANIMESH'
    *
+   * <p>If the object is a view (<code>isView</code> is <code>true</code>) and <code>isMetaQuery
+   * </code> is <code>false</code> then the query executed is similar to: SELECT 1 FROM SYSCAT.VIEWS
+   * WHERE VIEWNAME = 'RXRELATEDCONTENT' AND VIEWSCHEMA = 'ANIMESH'
+   *
+   * @param driver The name of the sub-protocol for the JDBC driver being used. Will be matched
+   *     case-insensitively. May not be <code>null</code> or empty.
    * @param db name of the database, may be <code>null</code> or empty
-   *
-   * @param schema name of the schema which contains the specified database
-   * object <code>objectName</code>, may be <code>null</code> or empty
-   *
-   * @param objectName the name of the database object whose metadata
-   * information is required or whose existence is to be verified,
-   * may not be <code>null</code> or empty
-   *
-   * @param isView <code>true</code> if the database object specified by
-   * <code>objectName</code> is a VIEW, false otherwise.
-   *
-   * @param isMetaQuery <code>true</code> if the returned query on execution
-   * should return metadata information about the specified database object,
-   * <code>false</code> if the query should return whether the specified
-   * database object exists or not.
-   *
-   * @return a query string which can be executed using a valid database
-   * connection to obtain the metadata information about the specified database
-   * object <code>objectName</code>. Currently this returns a valid query only
-   * if <code>driver</code> equals "db2", returns <code>null</code> for all
-   * other drivers, never empty if not <code>null</code>
+   * @param schema name of the schema which contains the specified database object <code>objectName
+   *     </code>, may be <code>null</code> or empty
+   * @param objectName the name of the database object whose metadata information is required or
+   *     whose existence is to be verified, may not be <code>null</code> or empty
+   * @param isView <code>true</code> if the database object specified by <code>objectName</code> is
+   *     a VIEW, false otherwise.
+   * @param isMetaQuery <code>true</code> if the returned query on execution should return metadata
+   *     information about the specified database object, <code>false</code> if the query should
+   *     return whether the specified database object exists or not.
+   * @return a query string which can be executed using a valid database connection to obtain the
+   *     metadata information about the specified database object <code>objectName</code>. Currently
+   *     this returns a valid query only if <code>driver</code> equals "db2", returns <code>null
+   *     </code> for all other drivers, never empty if not <code>null</code>
    */
   public static String getMetaDataQuery(
       String driver,
@@ -1144,31 +1075,28 @@ public class PSSqlHelper {
   }
 
   /**
-   * Sets the designated parameter in the specified prepared statement
-   * <code>stmt</code> to SQL NULL.
+   * Sets the designated parameter in the specified prepared statement <code>stmt</code> to SQL
+   * NULL.
+   *
+   * <p>Microsoft SQL Server and JTDS jdbc driver do not support <code>java.sql.Types#BLOB</code> or
+   * <code>java.sql.Types#CLOB</code> in the {@link java.sql.PreparedStatement#setNull(int, int)
+   * setNull()} method, this helper method calls the <code>java.sql.PreparedStatement#setNull()
+   * </code> method with jdbc type <code>java.sql.Types.LONGVARCHAR</code> if <code>jdbcDataType
+   * </code> equals <code>java.sql.Types.CLOB</code> and with jdbc type <code>
+   * java.sql.Types.LONGVARBINARY</code> if <code>jdbcDataType</code> equals <code>
+   * java.sql.Types.BLOB</code> and the driver is Microsoft SQL Server or JTDS jdbc driver
+   *
    * <p>
-   * Microsoft SQL Server and JTDS jdbc driver do not support
-   * <code>java.sql.Types#BLOB</code>
-   * or <code>java.sql.Types#CLOB</code> in the
-   * {@link java.sql.PreparedStatement#setNull(int, int) setNull()} method,
-   * this helper method calls the
-   * <code>java.sql.PreparedStatement#setNull()</code> method with jdbc type
-   * <code>java.sql.Types.LONGVARCHAR</code> if <code>jdbcDataType</code>
-   * equals <code>java.sql.Types.CLOB</code> and with jdbc type
-   * <code>java.sql.Types.LONGVARBINARY</code> if <code>jdbcDataType</code>
-   * equals <code>java.sql.Types.BLOB</code> and the driver is
-   * Microsoft SQL Server or JTDS jdbc driver
-   * <p>
-   * @param stmt the prepared statement whose parameter is to be set to
-   * SQL NULL, may not be <code>null</code>
-   * @param index the index of the parameter in the prepared statement, the
-   * first parameter is 1, the second is 2 and so on.
-   * @param jdbcDataType the SQL type code defined in
-   * <code>java.sql.Types</code>
-   * <p>
+   *
+   * @param stmt the prepared statement whose parameter is to be set to SQL NULL, may not be <code>
+   *     null</code>
+   * @param index the index of the parameter in the prepared statement, the first parameter is 1,
+   *     the second is 2 and so on.
+   * @param jdbcDataType the SQL type code defined in <code>java.sql.Types</code>
+   *     <p>
    * @throws SQLException if a database access error occurs
    * @throws IllegalArgumentException if <code>stmt</code> is <code>null</code>
-   * <p>
+   *     <p>
    * @see java.sql.PreparedStatement#setNull(int, int)
    */
   public static void setNullParameter(PreparedStatement stmt, int index, int jdbcDataType)
@@ -1202,29 +1130,20 @@ public class PSSqlHelper {
   }
 
   /**
-   * Returns the string that can be used to represent parameters for prepared
-   * statements.
-   * <p>
-   * This method should be called to obtain the substitution string
-   * when using
-   * INSERT INTO TABLE1 SELECT A, B, ..., ?, C, ?, D ..., E FROM TABLE2
-   * type of prepared statement.
-   * Such statements on DB2 require a
-   * special syntax (CAST ? AS DATATYPE) instead of just "?". If the specified
-   * driver is "db2", then it returns a string of the form
-   * <code>CAST(? AS nativeType)</code> if <code>size</code> is
-   * <code>null</code> or empty otherwise returns
-   * <code>CAST(? AS nativeType(size))</code>. For non-db2 drivers it simple
-   * returnes "?".
+   * Returns the string that can be used to represent parameters for prepared statements.
+   *
+   * <p>This method should be called to obtain the substitution string when using INSERT INTO TABLE1
+   * SELECT A, B, ..., ?, C, ?, D ..., E FROM TABLE2 type of prepared statement. Such statements on
+   * DB2 require a special syntax (CAST ? AS DATATYPE) instead of just "?". If the specified driver
+   * is "db2", then it returns a string of the form <code>CAST(? AS nativeType)</code> if <code>size
+   * </code> is <code>null</code> or empty otherwise returns <code>CAST(? AS nativeType(size))
+   * </code>. For non-db2 drivers it simple returnes "?".
    *
    * @param driver the database driver, may not be <code>null</code> or empty
-   * @param nativeType the native data type, may not be <code>null</code> or
-   *           empty if <code>driver</code> is "db2"
+   * @param nativeType the native data type, may not be <code>null</code> or empty if <code>driver
+   *     </code> is "db2"
    * @param size the size of the column, may be <code>null</code> or empty
-   *
-   * @return the parameter substitution string, never <code>null</code> or
-   *         empty
-   *
+   * @return the parameter substitution string, never <code>null</code> or empty
    * @throws IllegalArgumentException if any param is invalid
    */
   public static String getParameterMarker(String driver, String nativeType, String size) {
@@ -1248,16 +1167,12 @@ public class PSSqlHelper {
    * This will create SQL string for dropping the specified index.
    *
    * @param driver the database driver, may not be <code>null</code> or empty
-   * @param table the table containing the index, may not be <code>null</code>
-   * or empty
+   * @param table the table containing the index, may not be <code>null</code> or empty
    * @param db database name, may be <code>null</code> or empty
    * @param owner the table owner, may be <code>null</code> or empty
-   * @param indexName the name of the index to be dropped, may not be
-   * <code>null</code> or empty
-   *
-   * @return the sql string which can be used to drop the specified index,
-   * never <code>null</code> or empty
-   *
+   * @param indexName the name of the index to be dropped, may not be <code>null</code> or empty
+   * @return the sql string which can be used to drop the specified index, never <code>null</code>
+   *     or empty
    * @throws IllegalArgumentException if any argument is invalid
    */
   public static String getDropIndexStatement(
@@ -1306,24 +1221,20 @@ public class PSSqlHelper {
   }
 
   /**
-   * Creates sql statement for creating or replacing Oracle specific
-   * data types.
-   * <p>
-   * This returns sql statements such as :
-   * CREATE OR REPLACE TYPE RXMASTER.RX_NUMBER_TABLE AS TABLE OF NUMBER
+   * Creates sql statement for creating or replacing Oracle specific data types.
    *
-   * @param typeName the name of the data type to be created, (such as
-   * "RX_NUMBER_TABLE" in this example), may not be <code>null</code> or empty
+   * <p>This returns sql statements such as : CREATE OR REPLACE TYPE RXMASTER.RX_NUMBER_TABLE AS
+   * TABLE OF NUMBER
    *
-   * @param dataType the data type to be created, (such as "TABLE OF NUMBER"
-   * in this example), may not be <code>null</code> or empty
-   *
-   * @param schema the name of the schema in which this data type is to be
-   * created, may be <code>null</code> or empty. If <code>null</code> or empty,
-   * then schema name is not prepended to the data type.
-   *
-   * @return the sql string which can be used to create the specified data
-   * type, never <code>null</code> or empty
+   * @param typeName the name of the data type to be created, (such as "RX_NUMBER_TABLE" in this
+   *     example), may not be <code>null</code> or empty
+   * @param dataType the data type to be created, (such as "TABLE OF NUMBER" in this example), may
+   *     not be <code>null</code> or empty
+   * @param schema the name of the schema in which this data type is to be created, may be <code>
+   *     null</code> or empty. If <code>null</code> or empty, then schema name is not prepended to
+   *     the data type.
+   * @return the sql string which can be used to create the specified data type, never <code>null
+   *     </code> or empty
    */
   public static String getCreateOracleTypeSql(String typeName, String dataType, String schema) {
     if ((typeName == null) || (typeName.trim().length() < 1))
@@ -1342,20 +1253,16 @@ public class PSSqlHelper {
   }
 
   /**
-   * Returns the value of a clob column contained in the specified reader
-   * object, which is obtained using
-   * <code>java.sql.ResultSet#getCharacterStream()</code> or
-   * <code>java.sql.Clob#getCharacterStream()</code> method.
-   * This method closes the specified reader <code>clobReader</code>.
+   * Returns the value of a clob column contained in the specified reader object, which is obtained
+   * using <code>java.sql.ResultSet#getCharacterStream()</code> or <code>
+   * java.sql.Clob#getCharacterStream()</code> method. This method closes the specified reader
+   * <code>clobReader</code>.
    *
-   * @param clobReader reader object representing the value of the CLOB column,
-   * may be <code>null</code> in which case <code>null</code> is returned.
-   *
-   * @return the value of CLOB column obtained from the specified reader,
-   * may be <code>null</code> or empty
-   *
-   * @throws IOException if any error occurs while converting the CLOB column
-   * value to string
+   * @param clobReader reader object representing the value of the CLOB column, may be <code>null
+   *     </code> in which case <code>null</code> is returned.
+   * @return the value of CLOB column obtained from the specified reader, may be <code>null</code>
+   *     or empty
+   * @throws IOException if any error occurs while converting the CLOB column value to string
    */
   public static String getClobColumnData(Reader clobReader) throws IOException {
     if (clobReader == null) return null;
@@ -1384,13 +1291,12 @@ public class PSSqlHelper {
   }
 
   /**
-   * Construct a jdbc url string from a given driver name and server name.
-   * Correctly deals with cases where the name of the driver is not the
-   * name of the second component in the jdbc url string.
+   * Construct a jdbc url string from a given driver name and server name. Correctly deals with
+   * cases where the name of the driver is not the name of the second component in the jdbc url
+   * string.
    *
    * @param driverName Name of the driver, must never be <code>null</code>
-   * @param serverName Name of the server or connection string,
-   * must never be <code>null</code>
+   * @param serverName Name of the server or connection string, must never be <code>null</code>
    * @return a string, never <code>null</code> or empty.
    */
   public static String getJdbcUrl(String driverName, String serverName) {
@@ -1400,14 +1306,10 @@ public class PSSqlHelper {
   /**
    * Creates properties used for making JDBC connections.
    *
-   * @param url  The URL used to for making JDBC connections,
-   *    never <code>null</code>.
-   * @param database The name of the database, it may be <code>null</code> or
-   *    empty.
+   * @param url The URL used to for making JDBC connections, never <code>null</code>.
+   * @param database The name of the database, it may be <code>null</code> or empty.
    * @param userid The user name of the database, never <code>null</code>.
-   * @param password The password of the database user,
-   *    never <code>null</code>.
-   *
+   * @param password The password of the database user, never <code>null</code>.
    * @return The properties of the JDBC connection, never <code>null</code>.
    */
   public static Properties makeConnectProperties(
@@ -1432,8 +1334,8 @@ public class PSSqlHelper {
   /**
    * Determines if the supplied driver is for Oracle database.
    *
-   * @return <code>true</code> if the driver is for Oracle database; otherwise
-   *    return <code>false</code>.
+   * @return <code>true</code> if the driver is for Oracle database; otherwise return <code>false
+   *     </code>.
    */
   public static boolean isOracle(String driverName) {
     return (driverName.toUpperCase().indexOf("ORACLE") > -1);
@@ -1442,8 +1344,8 @@ public class PSSqlHelper {
   /**
    * Determines if the supplied driver is for MySql database.
    *
-   * @return <code>true</code> if the driver is for MySql database; otherwise
-   *    return <code>false</code>.
+   * @return <code>true</code> if the driver is for MySql database; otherwise return <code>false
+   *     </code>.
    */
   public static boolean isMysql(String driverName) {
     return (driverName.toUpperCase().contains("MYSQL"));
@@ -1465,49 +1367,40 @@ public class PSSqlHelper {
 
   /**
    * Determines if the supplied index name is a "backing index".
-   * <p>
-   * Certain RDBMS systems, such as Apache Derby have the concept of a
-   * "backing index". This is an index which backs up a constraint such as
-   * a Primary key, Foreign key or Unique index.
-   * <p>
-   * This causes a problem for the Table Factory: <br>
-   * -Although they are not part of the original data model for the schema
-   * object (PSJdbcTableSchema), the JDBC driver's meta data facility
-   * (DatabaseMetaData) will find and return them as indexes. They are
-   * then included in the schema object's index list. <br>
-   * -When the table factory goes to load data, it compares the table's schema
-   * as it is stored in the RDBMS table "catalog" to the one in the table
-   * definition file (i.e. sys_cmstableData.xml). It finds these new indexes,
-   * and tries to remove them, thinking they were removed. The resulting
-   * DROP INDEX statements violate the constraints set up by these indexes,
-   * and the RDBMS (read: JDBC driver) throws exceptions.
-   * <p>
-   * Solution:<br>
-   * Given the name of a index, the RDBMS is queried to see if the index
-   * is a "backing index". If it is, it can be ignored (and this method
-   * will return true). <br>
-   * -Unique constraint keys are treated specially (for Derby, at least).
-   * These actually should be included in the schema's index list and this
-   * method should return false. However, the index must be renamed from
-   * the system generated value, to the name given in the SQL statement
-   * for creating the index. The system generated value (for Derby) is of the
-   * form "SQLxxxxxxxxxxxxxxx" where "x" is a digit.
-   * <p>
-   *  For more information, check the reference manuals for the RDBMS.
-   *  For Derby, see the Derby Reference guide under:
-   *   " SQL Clauses->CONSTRAINT clause->Backing Indexes"
    *
+   * <p>Certain RDBMS systems, such as Apache Derby have the concept of a "backing index". This is
+   * an index which backs up a constraint such as a Primary key, Foreign key or Unique index.
    *
-   * @param indexNameBuf Name of the index, not <code>null</code>, blank, or empty.
-   *  If the return value is <code>false</code>, the name may have been changed
-   *  by this method: if the index was a unique index, its name was modified to
-   *  be the name given to the index in the SQL statement.
+   * <p>This causes a problem for the Table Factory: <br>
+   * -Although they are not part of the original data model for the schema object
+   * (PSJdbcTableSchema), the JDBC driver's meta data facility (DatabaseMetaData) will find and
+   * return them as indexes. They are then included in the schema object's index list. <br>
+   * -When the table factory goes to load data, it compares the table's schema as it is stored in
+   * the RDBMS table "catalog" to the one in the table definition file (i.e. sys_cmstableData.xml).
+   * It finds these new indexes, and tries to remove them, thinking they were removed. The resulting
+   * DROP INDEX statements violate the constraints set up by these indexes, and the RDBMS (read:
+   * JDBC driver) throws exceptions.
+   *
+   * <p>Solution:<br>
+   * Given the name of a index, the RDBMS is queried to see if the index is a "backing index". If it
+   * is, it can be ignored (and this method will return true). <br>
+   * -Unique constraint keys are treated specially (for Derby, at least). These actually should be
+   * included in the schema's index list and this method should return false. However, the index
+   * must be renamed from the system generated value, to the name given in the SQL statement for
+   * creating the index. The system generated value (for Derby) is of the form "SQLxxxxxxxxxxxxxxx"
+   * where "x" is a digit.
+   *
+   * <p>For more information, check the reference manuals for the RDBMS. For Derby, see the Derby
+   * Reference guide under: " SQL Clauses->CONSTRAINT clause->Backing Indexes"
+   *
+   * @param indexNameBuf Name of the index, not <code>null</code>, blank, or empty. If the return
+   *     value is <code>false</code>, the name may have been changed by this method: if the index
+   *     was a unique index, its name was modified to be the name given to the index in the SQL
+   *     statement.
    * @param md JDBC database Meta-data object for the DB. Not <code>null</code>.
-   *
-   * @return <code>true</code> if the index is a backing index and may be
-   *  ignored in the table schema; otherwise <code>false</code>. Note the
-   *  special case listed above for parameter <code>indexNameBuf</code> where
-   *  its value may change if method returns false.
+   * @return <code>true</code> if the index is a backing index and may be ignored in the table
+   *     schema; otherwise <code>false</code>. Note the special case listed above for parameter
+   *     <code>indexNameBuf</code> where its value may change if method returns false.
    */
   public static boolean handleBackingIndex(StringBuilder indexNameBuf, DatabaseMetaData md)
       throws SQLException {
@@ -1608,14 +1501,12 @@ public class PSSqlHelper {
 
   /**
    * Check if the database that is connected to supports Unicode.
-   * <p>
-   * Calls {@link #supportsUnicode(Connection, String, String)} on fully
-   * qualified RXDUAL table.
+   *
+   * <p>Calls {@link #supportsUnicode(Connection, String, String)} on fully qualified RXDUAL table.
    *
    * @param conn a sql connection to the database, never <code>null</code>
    * @param connDetail the details for this connection, never <code>null</code>
-   * @return <code>true</code> if the database supports unicode,
-   *         <code>false</code> otherwise
+   * @return <code>true</code> if the database supports unicode, <code>false</code> otherwise
    * @throws SQLException
    */
   public static boolean supportsUnicode(Connection conn, PSConnectionDetail connDetail)
@@ -1636,25 +1527,22 @@ public class PSSqlHelper {
   }
 
   /**
-   * Check if the database that is connected to supports Unicode. This method
-   * is called by the server on startup to allow a warning since a non-unicode
-   * compatible database causes problems. It can also be called by the
-   * installer.
-   * <p>
-   * This works by saving and loading characters to the database and checking
-   * for differences. The code here presumes that the differences will occur in
-   * the given character range. This appears to be true for Oracle.
-   * <p>
-   * Note that the code here is careful to leave the table with no content. If
-   * this state is not maintained, rhythmyx will probably fail in various
-   * mysterious ways.
+   * Check if the database that is connected to supports Unicode. This method is called by the
+   * server on startup to allow a warning since a non-unicode compatible database causes problems.
+   * It can also be called by the installer.
+   *
+   * <p>This works by saving and loading characters to the database and checking for differences.
+   * The code here presumes that the differences will occur in the given character range. This
+   * appears to be true for Oracle.
+   *
+   * <p>Note that the code here is careful to leave the table with no content. If this state is not
+   * maintained, rhythmyx will probably fail in various mysterious ways.
    *
    * @param conn a sql connection to the database, never <code>null</code>
    * @param table a table to use for this test, never <code>null</code>
-   * @param column a column in the table to use for this test, never
-   * <code>null</code>, must exist in the table
-   * @return <code>true</code> if the database supports unicode,
-   *         <code>false</code> otherwise
+   * @param column a column in the table to use for this test, never <code>null</code>, must exist
+   *     in the table
+   * @return <code>true</code> if the database supports unicode, <code>false</code> otherwise
    * @throws SQLException
    */
   public static boolean supportsUnicode(Connection conn, String table, String column)
@@ -1717,13 +1605,11 @@ public class PSSqlHelper {
   }
 
   /**
-   * Compares a given database version with the version of a database from a
-   * specified connection.
+   * Compares a given database version with the version of a database from a specified connection.
    *
    * @param conn the database connection, never <code>null</code>
    * @param version the database version, i.e., 9.2.0.0.0, never <code>null</code>
    * @return 1 if conn > version, -1 if conn < version, and 0 if conn == v2
-   *
    * @throws SQLException, NumberFormatException
    */
   public static int compareVersions(Connection conn, String version) throws SQLException {
@@ -1766,16 +1652,13 @@ public class PSSqlHelper {
   }
 
   /**
-   * Parses the string returned by
-   * <code>DatabaseMetaData.getDatabaseProductVersion()</code> to obtain
-   * the database version string.
+   * Parses the string returned by <code>DatabaseMetaData.getDatabaseProductVersion()</code> to
+   * obtain the database version string.
    *
-   * @param metaVer the database version string returned by a call to
-   * <code>DatabaseMetaData.getDatabaseProductVersion()</code>, never
-   * <code>null</code> or empty
-   *
-   * @return the database version obtained by parsing the specified string,
-   *  <code>0</code> if the parse does not succeed.
+   * @param metaVer the database version string returned by a call to <code>
+   *     DatabaseMetaData.getDatabaseProductVersion()</code>, never <code>null</code> or empty
+   * @return the database version obtained by parsing the specified string, <code>0</code> if the
+   *     parse does not succeed.
    */
   public static String parseDBVersion(String metaVer) {
     if (metaVer == null || metaVer.trim().length() == 0) {
@@ -1813,6 +1696,7 @@ public class PSSqlHelper {
 
   /**
    * Gets the default database connection info.
+   *
    * @return the connection info, never <code>null</code>.
    * @throws SQLException if failed to get the connection info.
    */
@@ -1828,13 +1712,12 @@ public class PSSqlHelper {
     return ms_defaultConnInfo;
   }
 
-  /**
-   * This is used to cache the default connection info, see {@link #getDefaultConnectDetail()}
-   */
+  /** This is used to cache the default connection info, see {@link #getDefaultConnectDetail()} */
   private static PSConnectionDetail ms_defaultConnInfo = null;
 
   /**
    * Commit a SQL connection, taking into account the state of auto commit
+   *
    * @param conn the connection, never <code>null</code>
    * @throws SQLException @see Connection#commit()
    */
@@ -1846,6 +1729,7 @@ public class PSSqlHelper {
 
   /**
    * Rolls back a SQL connection, taking into account the state of auto commit
+   *
    * @param conn the connection, never <code>null</code>
    * @throws SQLException @see Connection#commit()
    */
@@ -1858,9 +1742,7 @@ public class PSSqlHelper {
   /**
    * Determines if the current repository is an Oracle database.
    *
-   * @return <code>true</code> if it is a Oracle database; otherwise return
-   * <code>false</code>.
-   *
+   * @return <code>true</code> if it is a Oracle database; otherwise return <code>false</code>.
    * @throws RuntimeException if
    */
   public static boolean isOracle() {
@@ -1887,10 +1769,11 @@ public class PSSqlHelper {
   private static ArrayList<String> existingCMStables = new ArrayList<>();
 
   /**
-   * Utility method that can be used go validate if a table name exists on the database.  Intended
-   * to be used when using dynamic table names to prevent against SQL Injection attacks.
+   * Utility method that can be used go validate if a table name exists on the database. Intended to
+   * be used when using dynamic table names to prevent against SQL Injection attacks.
    *
-   * Table names are cached on first call, to refresh the cache pass true for the refresh parameter.
+   * <p>Table names are cached on first call, to refresh the cache pass true for the refresh
+   * parameter.
    *
    * @param t A candidate table name.
    * @param refresh When true, the list of valid tables is refreshed from the database.
@@ -1924,19 +1807,17 @@ public class PSSqlHelper {
 
   /**
    * Determines if the current repository is an Oracle database.
+   *
    * @see #isOracle() for detail.
    */
   private static Boolean ms_isOracle = null;
 
-  /**
-   * Logger for PSConnectionHelper.
-   */
+  /** Logger for PSConnectionHelper. */
   private static final Logger log = LogManager.getLogger("PSSqlHelper");
 
   /**
-   * SQL State for sql exceptions which violate integrity constraints. A SQL
-   * exception with this SQL State if thrown when an attempt to insert
-   * duplicate row is made.
+   * SQL State for sql exceptions which violate integrity constraints. A SQL exception with this SQL
+   * State if thrown when an attempt to insert duplicate row is made.
    */
   public static final String[] SQLSTATE_INTEGRITY_CONSTRAINT_VIOLATIONS = {
     "23000", // ANSI/ISO SQL Standard SQL State Integrity
@@ -1946,34 +1827,27 @@ public class PSSqlHelper {
   };
 
   /**
-   * SQL State for sql exceptions thrown when executing update statements that
-   * specify selection criteria that return no rows to update.
+   * SQL State for sql exceptions thrown when executing update statements that specify selection
+   * criteria that return no rows to update.
    */
   public static final String[] SQLSTATE_NO_UPDATE_ROWS = {
     "02000" // SQL State for DB2 driver
   };
 
-  /**
-   * Name of the descriptor of the table for storing numbers
-   */
+  /** Name of the descriptor of the table for storing numbers */
   public static final String NUMBER_TABLE_DESCRIPTOR_NAME = "RX_NUMBER_TABLE";
 
-  /**
-   * The maximum number of element in an IN clause of the SQL statement for
-   * Oracle database.
-   */
+  /** The maximum number of element in an IN clause of the SQL statement for Oracle database. */
   public static final int MAX_IN_CLAUSE_4_ORACLE = 1000;
 
   /**
-   * The maximum number of element in the IN clause of a SQL statement for
-   * none Oracle database. Other database, such as MS SQL Server can handle
-   * more than 10,000 elements in the IN clause, but more memory and time
-   * will be needed to process for a greater amount element in the IN clause.
+   * The maximum number of element in the IN clause of a SQL statement for none Oracle database.
+   * Other database, such as MS SQL Server can handle more than 10,000 elements in the IN clause,
+   * but more memory and time will be needed to process for a greater amount element in the IN
+   * clause.
    */
   public static final int MAX_IN_CLAUSE_4_NONEORACLE = 5000;
 
-  /**
-   * The currently supported minumum oracle version.
-   */
+  /** The currently supported minumum oracle version. */
   public static final String MIN_VERSION_ORACLE = "9.2.0.0.0";
 }

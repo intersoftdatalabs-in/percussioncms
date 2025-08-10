@@ -33,15 +33,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A valve that performs redirection of requests for a specified context
- * to a different application context based upon the version of the
- * application.
+ * A valve that performs redirection of requests for a specified context to a different application
+ * context based upon the version of the application.
  *
- * The mappings are controlled by the contents of the version-map.properties
- * file specified by the mappingFile attribute of the Valve.
+ * <p>The mappings are controlled by the contents of the version-map.properties file specified by
+ * the mappingFile attribute of the Valve.
  *
  * @author natechadwick
- *
  */
 public class PSMultiAppVersionRedirectorValve extends ValveBase {
 
@@ -77,7 +75,9 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase {
   /**
    * Specifies the mapping file for this release.
    *
-   * <Valve className="com.percussion.tomcat.valves.PSMultiAppVersionRedirectorValve" mappingFile="${catalina.base}/conf/perc/version-mappings.properties" />
+   * <p><Valve className="com.percussion.tomcat.valves.PSMultiAppVersionRedirectorValve"
+   * mappingFile="${catalina.base}/conf/perc/version-mappings.properties" />
+   *
    * @param mappingFile the mappingFile to set
    */
   public void setMappingFile(String mappingFile) {

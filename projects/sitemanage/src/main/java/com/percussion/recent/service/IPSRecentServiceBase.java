@@ -18,36 +18,23 @@
 package com.percussion.recent.service;
 
 import com.percussion.recent.data.PSRecent.RecentType;
-
 import java.util.List;
 
-/**
- * Service interface for managing recent items in the base service.
- */
+/** Service interface for managing recent items in the base service. */
 public interface IPSRecentServiceBase {
 
-    /**
-     * Finds recent values for the given user, site, and type.
-     */
-    List<String> findRecent(String user, String siteName, RecentType type);
+  /** Finds recent values for the given user, site, and type. */
+  List<String> findRecent(String user, String siteName, RecentType type);
 
-    /**
-     * Adds a recent value for the given user, site, and type.
-     */
-    void addRecent(String user, String siteName, RecentType type, String value);
+  /** Adds a recent value for the given user, site, and type. */
+  void addRecent(String user, String siteName, RecentType type, String value);
 
-    /**
-     * Deletes all recent values for the given user, site, and type.
-     */
-    void deleteRecent(String user, String siteName, RecentType type);
+  /** Deletes all recent values for the given user, site, and type. */
+  void deleteRecent(String user, String siteName, RecentType type);
 
-    /**
-     * Deletes specific recent values for the given user, site, and type.
-     */
-    void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
+  /** Deletes specific recent values for the given user, site, and type. */
+  void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete);
 
-    /**
-     * Renames all recent items for the given site.
-     */
-    void renameSiteRecent(String oldSiteName, String newSiteName);
+  /** Renames all recent items for the given site. */
+  void renameSiteRecent(String oldSiteName, String newSiteName);
 }

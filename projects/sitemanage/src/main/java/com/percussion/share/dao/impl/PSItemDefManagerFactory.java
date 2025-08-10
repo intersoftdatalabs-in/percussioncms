@@ -19,7 +19,6 @@ package com.percussion.share.dao.impl;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Lazy;
 
@@ -27,18 +26,18 @@ import org.springframework.context.annotation.Lazy;
 @Lazy
 public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager> {
 
-    @Override
-    public PSItemDefManager getObject() {
-        return PSItemDefManager.getInstance();
-    }
+  @Override
+  public PSItemDefManager getObject() {
+    return PSItemDefManager.getInstance();
+  }
 
-    @Override
-    public Class<?> getObjectType() {
-        return PSItemDefManager.class;
-    }
+  @Override
+  public Class<?> getObjectType() {
+    return PSItemDefManager.class;
+  }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 }

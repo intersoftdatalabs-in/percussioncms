@@ -35,14 +35,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class performs an analysis of jar files from two directories.  The first
- * directory is considered to be the source directory and the second directory
- * is considered to be the target directory.  This is useful when seeing what
- * jar files changed in different JBoss distributions, for example.  Each
- * directory under the source directory will be searched for .jar files.  For
- * each .jar file, the target directory will be searched for matches.
- * Implementation versions will be also be displayed for all .jar files if
- * found.
+ * This class performs an analysis of jar files from two directories. The first directory is
+ * considered to be the source directory and the second directory is considered to be the target
+ * directory. This is useful when seeing what jar files changed in different JBoss distributions,
+ * for example. Each directory under the source directory will be searched for .jar files. For each
+ * .jar file, the target directory will be searched for matches. Implementation versions will be
+ * also be displayed for all .jar files if found.
  */
 public class PSDirectoryAnalyzer {
 
@@ -102,10 +100,7 @@ public class PSDirectoryAnalyzer {
     }
   }
 
-  /**
-   * Processes the source directory map and outputs the details of the
-   * analysis.
-   */
+  /** Processes the source directory map and outputs the details of the analysis. */
   private void findNewJarLocations() {
     Iterator<String> dirs = m_oldDirJarMap.keySet().iterator();
     while (dirs.hasNext()) {
@@ -140,13 +135,11 @@ public class PSDirectoryAnalyzer {
   }
 
   /**
-   * Finds the matching location(s) of the given jar name in the target
-   * directory.
+   * Finds the matching location(s) of the given jar name in the target directory.
    *
    * @param name The .jar file, assumed not <code>null</code>.
-   *
-   * @return List of new locations and versions of the .jar file as a comma-
-   * separated String.  Never <code>null</code>, may be empty.
+   * @return List of new locations and versions of the .jar file as a comma- separated String. Never
+   *     <code>null</code>, may be empty.
    */
   private String findNewJarLocs(String name) {
     String strLocations = "";
@@ -185,13 +178,11 @@ public class PSDirectoryAnalyzer {
   }
 
   /**
-   * Gets the implementation version of the given .jar file.  Loaded from the
-   * manifest file.
+   * Gets the implementation version of the given .jar file. Loaded from the manifest file.
    *
    * @param jarFile The .jar file, assumed not <code>null</code>.
-   *
-   * @return The version information in a comma-separated String (if multiple
-   * versions) enclosed in parentheses.
+   * @return The version information in a comma-separated String (if multiple versions) enclosed in
+   *     parentheses.
    */
   private String getVersion(File jarFile) {
     String version = null;
@@ -264,10 +255,7 @@ public class PSDirectoryAnalyzer {
     return version;
   }
 
-  /**
-   * Writes out the set of jars which could not be located under the target
-   * directory.
-   */
+  /** Writes out the set of jars which could not be located under the target directory. */
   private void displayMissingJars() {
     ms_pWriter.println("\nThe following jars could not be located under " + ms_newRoot + ":\n");
     for (String jar : m_missingJars) {
@@ -278,21 +266,17 @@ public class PSDirectoryAnalyzer {
   /**
    * This class may be used from the command line.
    *
-   * Arguments expected are:
+   * <p>Arguments expected are:
    *
    * <ol>
-   * <li>sourceDir: The source directory.  Must point to an existing directory.
-   * </li>
-   *
-   * <li>targetDir: The target directory.  Must point to an existing directory.
-   * </li>
+   *   <li>sourceDir: The source directory. Must point to an existing directory.
+   *   <li>targetDir: The target directory. Must point to an existing directory.
    * </ol>
    *
    * Optional argument:
    *
    * <ol>
-   * <li>Output file.  If not specified, output will be written to System.out.
-   * </li>
+   *   <li>Output file. If not specified, output will be written to System.out.
    * </ol>
    *
    * Any errors are written to System.out
@@ -340,9 +324,7 @@ public class PSDirectoryAnalyzer {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSDirectoryAnalyzer ");
@@ -350,49 +332,37 @@ public class PSDirectoryAnalyzer {
   }
 
   /**
-   * The source directory to jar map where the key is the sub-directory path
-   * and the value is a map of jar file names to versions.  Populated in
-   * {@link #buildMaps(File, File)}.
+   * The source directory to jar map where the key is the sub-directory path and the value is a map
+   * of jar file names to versions. Populated in {@link #buildMaps(File, File)}.
    */
   private Map<String, Map<String, String>> m_oldDirJarMap =
       new TreeMap<String, Map<String, String>>();
 
   /**
-   * The target directory to jar map where the key is the sub-directory path
-   * and the value is a map of jar file names to versions.  Populated in
-   * {@link #buildMaps(File, File)}.
+   * The target directory to jar map where the key is the sub-directory path and the value is a map
+   * of jar file names to versions. Populated in {@link #buildMaps(File, File)}.
    */
   private Map<String, Map<String, String>> m_newDirJarMap =
       new TreeMap<String, Map<String, String>>();
 
   /**
-   * Holds the set of source directory jars for which a match could not be
-   * found in the target directory.
+   * Holds the set of source directory jars for which a match could not be found in the target
+   * directory.
    */
   private Set<String> m_missingJars = new TreeSet<String>();
 
-  /**
-   * Used for writing output.  Initialized in {@link #main(String[])}.
-   */
+  /** Used for writing output. Initialized in {@link #main(String[])}. */
   private static PrintWriter ms_pWriter = null;
 
-  /**
-   * The source directory path.  Initialized in {@link #main(String[])}.
-   */
+  /** The source directory path. Initialized in {@link #main(String[])}. */
   private static String ms_oldRoot = null;
 
-  /**
-   * The target directory path.  Initialized in {@link #main(String[])}.
-   */
+  /** The target directory path. Initialized in {@link #main(String[])}. */
   private static String ms_newRoot = null;
 
-  /**
-   * Entry name for the manifest file.
-   */
+  /** Entry name for the manifest file. */
   private static final String MANIFEST_NAME = "META-INF/MANIFEST.MF";
 
-  /**
-   * Name of the manifest property used for storing version information.
-   */
+  /** Name of the manifest property used for storing version information. */
   private static final String IMPL_VERSION = "Implementation-Version:";
 }

@@ -34,9 +34,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This pre-exit recursively looks up 0 or more (active assembly) parent items
- * of a given content. The content itself and 0 or more of its parents are then
- * touched so that the LastModifyDate contains the current date & time.
+ * This pre-exit recursively looks up 0 or more (active assembly) parent items of a given content.
+ * The content itself and 0 or more of its parents are then touched so that the LastModifyDate
+ * contains the current date & time.
  *
  * @author Vitaly
  * @version 1.0
@@ -49,15 +49,12 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
   /**
    * main pre-exit method that the server invokes, passing run-time parameters
    *
-   * @param params all parameters are optional, index[0] - this optional param
-   * allows to pass a content id, which has to be touched along with its parent
-   * items (default is looked up from the request object, key='sys_contentid');
-   * index[1] - this optional parameter can be used to limit a number of parents
-   * a user would like to be touched (the default value is set as 'unlimited')
-   * In case if index[1] receives a negative number the exit assumes 'unlimited'.
-   *
+   * @param params all parameters are optional, index[0] - this optional param allows to pass a
+   *     content id, which has to be touched along with its parent items (default is looked up from
+   *     the request object, key='sys_contentid'); index[1] - this optional parameter can be used to
+   *     limit a number of parents a user would like to be touched (the default value is set as
+   *     'unlimited') In case if index[1] receives a negative number the exit assumes 'unlimited'.
    * @param request server contructed request object
-   *
    * @throws PSParameterMismatchException
    * @throws PSExtensionProcessingException
    */
@@ -151,8 +148,6 @@ public class PSTouchContentAndParentItems extends PSDefaultExtension
     }
   }
 
-  /**
-   * the default number of the parent content recursion steps
-   */
+  /** the default number of the parent content recursion steps */
   private static final String LOOKUP_RECURSION_STEPS = "unlimited";
 }

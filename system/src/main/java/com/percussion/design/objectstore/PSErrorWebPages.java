@@ -23,45 +23,34 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSErrorWebPages class defines the pages which will be returned
- * on error. This allows the E2 error handling to be customized
- * on an application basis. If an error page is not defined for a
+ * The PSErrorWebPages class defines the pages which will be returned on error. This allows the E2
+ * error handling to be customized on an application basis. If an error page is not defined for a
  * particular error, E2's default error page is returned.
- * <p>
- * When E2 hits an error, it provdes error information
- * in the form of an XML document. To provide diagnostic information to
- * the requestor, it may be preferred to use style sheets which E2 can
+ *
+ * <p>When E2 hits an error, it provdes error information in the form of an XML document. To provide
+ * diagnostic information to the requestor, it may be preferred to use style sheets which E2 can
  * merge with the XML document to return a descriptive error page.
- * <p>
- * This class is a collection containing PSCustomError objects, and as such
- * is derived from the PSCollection class. Simply use the methods defined
- * in PSCollection to gain access to the PSCustomError objects defined for
- * the collection object.
+ *
+ * <p>This class is a collection containing PSCustomError objects, and as such is derived from the
+ * PSCollection class. Simply use the methods defined in PSCollection to gain access to the
+ * PSCustomError objects defined for the collection object.
  *
  * @see PSApplication#getErrorWebPages
  * @see PSCustomError
  * @see com.percussion.util.PSCollection
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSErrorWebPages extends PSCollectionComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSErrorWebPages(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -70,9 +59,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Default construct for fromXml, serialization, etc.
-   */
+  /** Default construct for fromXml, serialization, etc. */
   PSErrorWebPages() {
     this(true);
   }
@@ -80,8 +67,8 @@ public class PSErrorWebPages extends PSCollectionComponent {
   /**
    * Construct an empty error web pages object.
    *
-   * @param returnHtml    <code>true</code> to return the error page as
-   *                      HTML, <code>false</code> to return it as XML
+   * @param returnHtml <code>true</code> to return the error page as HTML, <code>false</code> to
+   *     return it as XML
    */
   public PSErrorWebPages(boolean returnHtml) {
     super((new PSCustomError()).getClass());
@@ -90,8 +77,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
   /**
    * Is the error page returned as HTML?
    *
-   * @return               <code>true</code> if the error page is returned
-   *                      as HTML, <code>false</code> otherwise
+   * @return <code>true</code> if the error page is returned as HTML, <code>false</code> otherwise
    */
   public boolean isHtmlReturned() {
     return m_html;
@@ -100,20 +86,18 @@ public class PSErrorWebPages extends PSCollectionComponent {
   /**
    * Is the error page returned as HTML?
    *
-   * @param returnHtml    <code>true</code> to return the error page as
-   *                      HTML, <code>false</code> to return it as XML
+   * @param returnHtml <code>true</code> to return the error page as HTML, <code>false</code> to
+   *     return it as XML
    */
   public void setHtmlReturned(boolean returnHtml) {
     m_html = returnHtml;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param  errPages a valid PSErrorWebPages.
-   *
+   * @param errPages a valid PSErrorWebPages.
    */
   public void copyFrom(PSErrorWebPages errPages) {
     copyFrom((PSCollectionComponent) errPages);
@@ -144,10 +128,11 @@ public class PSErrorWebPages extends PSCollectionComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXErrorWebPages XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXErrorWebPages XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXErrorWebPages defines the pages which will be returned on
@@ -177,7 +162,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXErrorWebPages XML element node
+   * @return the newly created PSXErrorWebPages XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -198,12 +183,11 @@ public class PSErrorWebPages extends PSCollectionComponent {
   }
 
   /**
-   * This method is called to populate a PSErrorWebPages Java object
-   * from a PSXErrorWebPages XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSErrorWebPages Java object from a PSXErrorWebPages XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXErrorWebPages
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXErrorWebPages
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -254,18 +238,15 @@ public class PSErrorWebPages extends PSCollectionComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

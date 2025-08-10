@@ -18,18 +18,6 @@
 
 package com.percussion.pagemanagement.service;
 
-import com.percussion.share.service.IPSDataService;
-import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.webservices.content.IPSContentDesignWs;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
@@ -42,79 +30,97 @@ import com.percussion.pagemanagement.data.PSRegionTree;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.impl.PSTemplateService;
 import com.percussion.services.assembly.IPSAssemblyService;
+import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSBeanValidationException;
+import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnit4Mockery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)
 @Disabled("Incompatible with JEXL Uberspect")
 class PSTemplateServiceValidationTest {
 
-    private final Mockery context = new JUnit4Mockery();
+  private final Mockery context = new JUnit4Mockery();
 
-    private IPSTemplateService sut;
-    private IPSTemplateDao templateDao;
-    private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
-    private IPSWidgetService widgetService;
-    private IPSPageDao pageDao;
-    private IPSPageDaoHelper pageDaoHelper;
-    private IPSWorkflowHelper workflowHelper;
-    private PSTemplate template;
-    private IPSWidgetDao widgetDao;
-    private IPSIdMapper idMapper;
-    private IPSAssemblyService assemblyService;
-    private IPSSiteTemplateService siteTemplateService;
-    private IPSAssetService assetService;
-    private IPSPageService pageService;
-    private IPSItemWorkflowService itemWorkflowService;
-    private IPSContentDesignWs contentDesignWs;
+  private IPSTemplateService sut;
+  private IPSTemplateDao templateDao;
+  private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+  private IPSWidgetService widgetService;
+  private IPSPageDao pageDao;
+  private IPSPageDaoHelper pageDaoHelper;
+  private IPSWorkflowHelper workflowHelper;
+  private PSTemplate template;
+  private IPSWidgetDao widgetDao;
+  private IPSIdMapper idMapper;
+  private IPSAssemblyService assemblyService;
+  private IPSSiteTemplateService siteTemplateService;
+  private IPSAssetService assetService;
+  private IPSPageService pageService;
+  private IPSItemWorkflowService itemWorkflowService;
+  private IPSContentDesignWs contentDesignWs;
 
-    @BeforeEach
-    void setUp() {
-        template = new PSTemplate();
-        template.setName("name");
-        template.setId("id");
-        templateDao = context.mock(IPSTemplateDao.class);
-        widgetService = context.mock(IPSWidgetService.class);
-        widgetAssetRelationshipService = context.mock(IPSWidgetAssetRelationshipService.class);
-        pageDao = context.mock(IPSPageDao.class);
-        widgetDao = context.mock(IPSWidgetDao.class);
-        workflowHelper = context.mock(IPSWorkflowHelper.class);
-        idMapper = context.mock(IPSIdMapper.class);
-        assemblyService = context.mock(IPSAssemblyService.class);
+  @BeforeEach
+  void setUp() {
+    template = new PSTemplate();
+    template.setName("name");
+    template.setId("id");
+    templateDao = context.mock(IPSTemplateDao.class);
+    widgetService = context.mock(IPSWidgetService.class);
+    widgetAssetRelationshipService = context.mock(IPSWidgetAssetRelationshipService.class);
+    pageDao = context.mock(IPSPageDao.class);
+    widgetDao = context.mock(IPSWidgetDao.class);
+    workflowHelper = context.mock(IPSWorkflowHelper.class);
+    idMapper = context.mock(IPSIdMapper.class);
+    assemblyService = context.mock(IPSAssemblyService.class);
 
-        sut = new PSTemplateService(
-                templateDao,
-                widgetAssetRelationshipService,
-                pageDao,
-                pageDaoHelper,
-                widgetService,
-                workflowHelper,
-                widgetDao,
-                assemblyService,
-                idMapper,
-                contentDesignWs);
+    sut =
+        new PSTemplateService(
+            templateDao,
+            widgetAssetRelationshipService,
+            pageDao,
+            pageDaoHelper,
+            widgetService,
+            workflowHelper,
+            widgetDao,
+            assemblyService,
+            idMapper,
+            contentDesignWs);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             allowing(templateDao).findUserTemplateByName_UsedByUnitTestOnly("name");
             will(returnValue(null));
-        }});
-    }
+          }
+        });
+  }
 
-    @Test
-    void shouldNotFail() throws IPSDataService.DataServiceSaveException, PSValidationException {
-        sut.validate(template);
-    }
+  @Test
+  void shouldNotFail() throws IPSDataService.DataServiceSaveException, PSValidationException {
+    sut.validate(template);
+  }
 
-    @Test
-    void shouldFailWithBadEmptyName() throws IPSDataService.DataServiceSaveException, PSValidationException {
-        template.setName("");
-        org.junit.jupiter.api.Assertions.assertThrows(PSBeanValidationException.class, () -> sut.validate(template));
-    }
+  @Test
+  void shouldFailWithBadEmptyName()
+      throws IPSDataService.DataServiceSaveException, PSValidationException {
+    template.setName("");
+    org.junit.jupiter.api.Assertions.assertThrows(
+        PSBeanValidationException.class, () -> sut.validate(template));
+  }
 
-    @Test
-    void shouldFailWithBadRegionTree() throws IPSDataService.DataServiceSaveException, PSValidationException {
-        template.setRegionTree(new PSRegionTree());
-        org.junit.jupiter.api.Assertions.assertThrows(PSBeanValidationException.class, () -> sut.validate(template));
-    }
+  @Test
+  void shouldFailWithBadRegionTree()
+      throws IPSDataService.DataServiceSaveException, PSValidationException {
+    template.setRegionTree(new PSRegionTree());
+    org.junit.jupiter.api.Assertions.assertThrows(
+        PSBeanValidationException.class, () -> sut.validate(template));
+  }
 }

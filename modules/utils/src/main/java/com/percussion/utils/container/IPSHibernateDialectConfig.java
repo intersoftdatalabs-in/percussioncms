@@ -21,7 +21,7 @@ import java.util.Map;
 
 public interface IPSHibernateDialectConfig {
   /**
-   * Get a copy of the internal dialect map.  See {@link #setDialects(Map)}.
+   * Get a copy of the internal dialect map. See {@link #setDialects(Map)}.
    *
    * @return The map, never <code>null</code>.
    */
@@ -30,32 +30,27 @@ public interface IPSHibernateDialectConfig {
   /**
    * Get the dialect class name mapped to the supplied JDBC driver name.
    *
-   * @param driverName The name of the JDBC driver, may not be
-   * <code>null</code> or empty.
-   *
+   * @param driverName The name of the JDBC driver, may not be <code>null</code> or empty.
    * @return The dialect, or <code>null</code> if no mapping is found.
    */
   public String getDialectClassName(String driverName);
 
   /**
-   * Set the dialect class for a driver.  If dialect is already mapped to
-   * the supplied driver, it is replaced by the new dialect value.
+   * Set the dialect class for a driver. If dialect is already mapped to the supplied driver, it is
+   * replaced by the new dialect value.
    *
-   * @param driverName The name of the JDBC driver, may not be
-   * <code>null</code> or empty.
-   * @param dialectClassName The dialect class name, may not be
-   * <code>null</code> or empty.
+   * @param driverName The name of the JDBC driver, may not be <code>null</code> or empty.
+   * @param dialectClassName The dialect class name, may not be <code>null</code> or empty.
    */
   public void setDialect(String driverName, String dialectClassName);
 
   /**
-   * Set the dialect classes for multiple drivers.  All current mappings are
-   * cleared and replaced with the supplied dialects.
+   * Set the dialect classes for multiple drivers. All current mappings are cleared and replaced
+   * with the supplied dialects.
    *
-   * @param dialects Map of dialects where key is the driver name, and value
-   * is the dialect class name, may not be <code>null</code>, and keys and
-   * values may not be <code>null</code> or empty.  See
-   * {@link #setDialect(String, String)} for more info.
+   * @param dialects Map of dialects where key is the driver name, and value is the dialect class
+   *     name, may not be <code>null</code>, and keys and values may not be <code>null</code> or
+   *     empty. See {@link #setDialect(String, String)} for more info.
    */
   public void setDialects(Map<String, String> dialects);
 }

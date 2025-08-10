@@ -23,16 +23,12 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class encapsulates the log of execution of each step of an execution
- * plan.
- */
+/** This class encapsulates the log of execution of each step of an execution plan. */
 public class PSJdbcExecutionStepLog {
   /**
    * Returns the connection object in string form.
    *
-   * @return the string representing the connection object, never
-   * <code>null</code>, may be empty
+   * @return the string representing the connection object, never <code>null</code>, may be empty
    */
   public String getConnectionString() {
     return m_connString;
@@ -41,8 +37,8 @@ public class PSJdbcExecutionStepLog {
   /**
    * Sets the connection string from the connection object
    *
-   * @param conn Connection object used for the current transaction which
-   * generated this result data, may be <code>null</code>
+   * @param conn Connection object used for the current transaction which generated this result
+   *     data, may be <code>null</code>
    */
   public void setConnectionString(Connection conn) {
     if (conn != null) m_connString = conn.toString();
@@ -60,8 +56,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Sets the database server name.
    *
-   * @param dbServer the database server name, may be <code>null</code> or
-   * empty
+   * @param dbServer the database server name, may be <code>null</code> or empty
    */
   public void setDBServer(String dbServer) {
     if (!((dbServer == null) || (dbServer.trim().length() == 0))) m_dbServer = dbServer;
@@ -128,8 +123,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Sets the row containing the primary key columns of the current step.
    *
-   * @param pkKeyRowData the row containing the primary key columns,
-   * may be <code>null</code>
+   * @param pkKeyRowData the row containing the primary key columns, may be <code>null</code>
    */
   public void setPrimaryKey(PSJdbcRowData pkKeyRowData) {
     if (pkKeyRowData != null) m_pkKeyRowData = pkKeyRowData;
@@ -148,53 +142,48 @@ public class PSJdbcExecutionStepLog {
   /**
    * Sets the sql query associated with the current step.
    *
-   * @param sqlQuery the sql query associated with the current step,
-   * may be <code>null</code> or empty
+   * @param sqlQuery the sql query associated with the current step, may be <code>null</code> or
+   *     empty
    */
   public void setSqlQuery(String sqlQuery) {
     if (!((sqlQuery == null) || (sqlQuery.trim().length() == 0))) m_sqlQuery = sqlQuery;
   }
 
   /**
-   * Returns the number of rows updated as a result of execution of the
-   * current step.
+   * Returns the number of rows updated as a result of execution of the current step.
    *
-   * @return number of rows updated as a result of execution of the
-   * current step
+   * @return number of rows updated as a result of execution of the current step
    */
   public int getUpdateCount() {
     return m_updateCount;
   }
 
   /**
-   * Sets the number of rows updated as a result of execution of the
-   * current step.
+   * Sets the number of rows updated as a result of execution of the current step.
    *
-   * @param updateCount number of rows updated as a result of execution of
-   * the current step
+   * @param updateCount number of rows updated as a result of execution of the current step
    */
   public void setUpdateCount(int updateCount) {
     m_updateCount = updateCount;
   }
 
   /**
-   * Returns a <code>boolean</code> indicating the success or failure of the
-   * execution of the current step.
+   * Returns a <code>boolean</code> indicating the success or failure of the execution of the
+   * current step.
    *
-   * @return <code>true</code> if the current step was successfully executed,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if the current step was successfully executed, <code>false</code>
+   *     otherwise
    */
   public boolean isSuccess() {
     return m_success;
   }
 
   /**
-   * Sets a <code>boolean</code> indicating the success or failure of the
-   * execution of the current step.
+   * Sets a <code>boolean</code> indicating the success or failure of the execution of the current
+   * step.
    *
-   * @param success a <code>boolean</code> indicating the success or failure
-   * of the execution of the current step, <code>true</code> if successful,
-   * <code>false</code> otherwise.
+   * @param success a <code>boolean</code> indicating the success or failure of the execution of the
+   *     current step, <code>true</code> if successful, <code>false</code> otherwise.
    */
   public void setSuccess(boolean success) {
     m_success = success;
@@ -212,11 +201,10 @@ public class PSJdbcExecutionStepLog {
   }
 
   /**
-   * Sets the tablefactory error message associated with
-   * the execution of the current step.
+   * Sets the tablefactory error message associated with the execution of the current step.
    *
-   * @param errorMsg the error message associated with the execution
-   * of the current step, may be <code>null</code> or empty
+   * @param errorMsg the error message associated with the execution of the current step, may be
+   *     <code>null</code> or empty
    */
   public void setErrorMessage(String errorMsg) {
     if (!((errorMsg == null) || (errorMsg.trim().length() == 0))) m_errorMsg = errorMsg;
@@ -234,11 +222,10 @@ public class PSJdbcExecutionStepLog {
   }
 
   /**
-   * Sets the tablefactory message associated with the execution of
-   * the current step.
+   * Sets the tablefactory message associated with the execution of the current step.
    *
-   * @param msg the message associated with the execution of the current step,
-   * may be <code>null</code> or empty
+   * @param msg the message associated with the execution of the current step, may be <code>null
+   *     </code> or empty
    */
   public void setMessage(String msg) {
     if (!((msg == null) || (msg.trim().length() == 0))) m_msg = msg;
@@ -247,12 +234,8 @@ public class PSJdbcExecutionStepLog {
   /**
    * Serializes this object's state to Xml.
    *
-   * @param doc The document to use when creating elements.  May not be
-   * <code>null</code>.
-   *
-   * @return The element containing this object's state,
-   * never <code>null</code>.
-   *
+   * @param doc The document to use when creating elements. May not be <code>null</code>.
+   * @return The element containing this object's state, never <code>null</code>.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -306,9 +289,7 @@ public class PSJdbcExecutionStepLog {
   /**
    * Serializes this object's state to String.
    *
-   * @return the string containing this object's state,
-   * never <code>null</code> or empty
-   *
+   * @return the string containing this object's state, never <code>null</code> or empty
    */
   public String toString() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -316,9 +297,7 @@ public class PSJdbcExecutionStepLog {
     return PSXmlDocumentBuilder.toString(root);
   }
 
-  /**
-   * Constants for Xml Elements and Attributes
-   */
+  /** Constants for Xml Elements and Attributes */
   public static final String NODE_NAME = "StepLogData";
 
   public static final String CONNECTION_NODE_NAME = "connection";
@@ -338,78 +317,48 @@ public class PSJdbcExecutionStepLog {
   public static final String SUCCESS_NO_VALUE = "no";
   public static final String MESSAGE_NODE_NAME = "message";
 
-  /**
-   * Message when the step is successfully executed.
-   */
+  /** Message when the step is successfully executed. */
   public static final String SUCCESS_MSG = "Successful";
 
-  /**
-   * Message when the update step execution results in no rows being updated.
-   */
+  /** Message when the update step execution results in no rows being updated. */
   public static final String NO_ROWS_UPDATED_MSG = "No rows updated.";
 
-  /**
-   * stores the database connection in string form, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the database connection in string form, never <code>null</code>, may be empty */
   private String m_connString = "";
 
-  /**
-   * stores the database server name, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the database server name, never <code>null</code>, may be empty */
   private String m_dbServer = "";
 
-  /**
-   * stores the database name, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the database name, never <code>null</code>, may be empty */
   private String m_dbName = "";
 
-  /**
-   * stores the database type, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the database type, never <code>null</code>, may be empty */
   private String m_dbType = "";
 
-  /**
-   * stores the table name, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the table name, never <code>null</code>, may be empty */
   private String m_table = "";
 
-  /**
-   * the row containing the primary key columns,
-   * may be <code>null</code>
-   */
+  /** the row containing the primary key columns, may be <code>null</code> */
   private PSJdbcRowData m_pkKeyRowData;
 
-  /**
-   * stores the current sql query, never <code>null</code>,
-   * may be empty
-   */
+  /** stores the current sql query, never <code>null</code>, may be empty */
   private String m_sqlQuery = "";
 
-  /**
-   * stores the update count as a result of execution of the current step
-   */
+  /** stores the update count as a result of execution of the current step */
   private int m_updateCount = 0;
 
   /**
-   * stores the result of execution of the current step, <code>true</code>
-   * if the current step was successfully executed, else <code>false</code>
+   * stores the result of execution of the current step, <code>true</code> if the current step was
+   * successfully executed, else <code>false</code>
    */
   private boolean m_success = false;
 
-  /**
-   * stores the error message from the tablefactory,
-   * never <code>null</code>, may be empty
-   */
+  /** stores the error message from the tablefactory, never <code>null</code>, may be empty */
   private String m_errorMsg = "";
 
   /**
-   * the message constructed from other variables in this class,
-   * never <code>null</code>, may be empty
+   * the message constructed from other variables in this class, never <code>null</code>, may be
+   * empty
    */
   private String m_msg = "";
 }

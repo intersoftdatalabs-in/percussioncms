@@ -23,20 +23,16 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents a global lookup choice, with {@link PSEntry} children.
- */
+/** Represents a global lookup choice, with {@link PSEntry} children. */
 public class PSGlobalLookup extends PSComponent {
   /**
-   * Initializes a newly created <code>PSGlobalLookup</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSGlobalLookup</code> object, from an XML representation. See
+   * {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSGlobalLookup(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null");
@@ -44,13 +40,12 @@ public class PSGlobalLookup extends PSComponent {
   }
 
   /**
-   * Initializes a newly created <code>PSGlobalLookup</code> object, with
-   * the specified key and name.
+   * Initializes a newly created <code>PSGlobalLookup</code> object, with the specified key and
+   * name.
    *
-   * @param globalKey the RXLOOKUP identifier.  Assumed unique across all
-   *                  <code>PSGlobalLookup</code> objects.
-   * @param name a descriptive term for this lookup set; cannot be
-   *             <code>null</code>
+   * @param globalKey the RXLOOKUP identifier. Assumed unique across all <code>PSGlobalLookup</code>
+   *     objects.
+   * @param name a descriptive term for this lookup set; cannot be <code>null</code>
    * @throws IllegalArgumentException if name is <code>null</code>
    */
   public PSGlobalLookup(int globalKey, String name) {
@@ -68,16 +63,14 @@ public class PSGlobalLookup extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -111,6 +104,7 @@ public class PSGlobalLookup extends PSComponent {
 
   /**
    * Sets the name for this global lookup
+   *
    * @param name
    */
   public void setName(String name) {

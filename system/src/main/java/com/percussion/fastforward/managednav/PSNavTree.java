@@ -31,11 +31,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The root element of the navon tree. This class holds root specific
- * information.
+ * The root element of the navon tree. This class holds root specific information.
  *
  * @author DavidBenua
- *
  */
 public class PSNavTree {
   /**
@@ -157,70 +155,45 @@ public class PSNavTree {
     return navtreeDoc;
   }
 
-  /**
-   * Configuration instance.
-   */
+  /** Configuration instance. */
   private static PSNavConfig ms_config;
 
-  /**
-   * Writes the log.
-   */
+  /** Writes the log. */
   private static final Logger log = LogManager.getLogger(IPSConstants.NAVIGATION_LOG);
 
-  /**
-   * Theme for the tree. The theme is used for selecting stylesheets in the
-   * Navon variants.
-   */
+  /** Theme for the tree. The theme is used for selecting stylesheets in the Navon variants. */
   private String m_theme;
 
-  /**
-   * The context variable selector value for the tree.
-   */
+  /** The context variable selector value for the tree. */
   private String m_variableSelector;
 
-  /**
-   * The image color selector for the tree.
-   */
+  /** The image color selector for the tree. */
   private String m_imageSelector;
 
-  /**
-   * The root Navon.
-   */
+  /** The root Navon. */
   private PSNavon m_root;
 
-  /**
-   * The parameters for the root XML node.
-   */
+  /** The parameters for the root XML node. */
   private Map m_rootParams;
 
-  /**
-   * XML Element name for serialization.
-   */
+  /** XML Element name for serialization. */
   public static final String XML_NODE_NAME = "navtree";
 
-  /**
-   * XML Attribute for the theme.
-   */
+  /** XML Attribute for the theme. */
   public static final String XML_ATTR_THEME = "theme";
 
-  /**
-   * XML Attribute for the image color selector
-   */
+  /** XML Attribute for the image color selector */
   public static final String XML_ATTR_SELECTOR = "selector";
 
-  /**
-   * XML Attribute for the variable selector.
-   */
+  /** XML Attribute for the variable selector. */
   public static final String XML_ATTR_VARIABLE = "varname";
 
-  /**
-   * XML Attribute for the session id.
-   */
+  /** XML Attribute for the session id. */
   public static final String XML_ATTR_SESSION = "pssessionid";
 
   /**
-   * HTML parameter for theme override. The default theme will be used if this
-   * value is not specified.
+   * HTML parameter for theme override. The default theme will be used if this value is not
+   * specified.
    */
   public static final String HTML_PARAM_THEME = "nav_theme";
 }

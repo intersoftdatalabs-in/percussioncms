@@ -18,9 +18,7 @@ package com.percussion.system.utils;
 
 import com.percussion.error.PSException;
 
-/**
- * Generic exception class to be used for relationship processing errors.
- */
+/** Generic exception class to be used for relationship processing errors. */
 public class PSRelationshipUtilsException extends PSException {
   /**
    * Pass-through constructor to super class.

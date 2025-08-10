@@ -24,50 +24,52 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.io.File;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-
 /**
- * Item input transformer to process/update any HTML links in the specified content.
- * Calls the managed link service to do the actual work.
- * For new items, calls manageNewItemLinks and sets a request private object for post-processing.
+ * Item input transformer to process/update any HTML links in the specified content. Calls the
+ * managed link service to do the actual work. For new items, calls manageNewItemLinks and sets a
+ * request private object for post-processing.
+ *
  * @author JaySeletz
  */
-public class PSManagedLinkInputTransformer extends PSDefaultExtension implements IPSFieldInputTransformer {
+public class PSManagedLinkInputTransformer extends PSDefaultExtension
+    implements IPSFieldInputTransformer {
 
-    private IPSManagedLinkService service;
+  private IPSManagedLinkService service;
 
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-        super.init(def, codeRoot);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    var ep = new PSExtensionParams(params);
+    var value = ep.getStringParam(0, null, true);
+    if (StringUtils.isBlank(value)) {
+      return value;
     }
-
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException {
-        var ep = new PSExtensionParams(params);
-        var value = ep.getStringParam(0, null, true);
-        if (StringUtils.isBlank(value)) {
-            return value;
-        }
-        var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
-            value = service.manageNewItemLinks(value);
-            request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
-        } else {
-            cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
-            value = service.manageLinks(cid, value);
-        }
-        return value;
+    var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
+      value = service.manageNewItemLinks(value);
+      request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
+    } else {
+      cid = PSGuidManagerLocator.getGuidMgr().makeGuid(new PSLocator(cid)).toString();
+      value = service.manageLinks(cid, value);
     }
+    return value;
+  }
 
-    /**
-     * Setter for dependency injection.
-     *
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service) {
-        this.service = service;
-    }
+  /**
+   * Setter for dependency injection.
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

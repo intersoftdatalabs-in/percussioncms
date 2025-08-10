@@ -30,29 +30,21 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author RammohanVangapalli
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ *     <p>To change the template for this generated type comment go to
+ *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class PSCloneOverrideFieldList extends PSCollectionComponent {
 
   private static final Logger log = LogManager.getLogger(PSCloneOverrideFieldList.class);
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode     the XML element node to construct this
-   *                            object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                            object
-   *
-   * @param      parentComponents  the parent objects of this object
-   *
-   * @exception  PSUnknownNodeTypeException
-   *                            if the XML element node is not of the
-   *                            appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCloneOverrideFieldList(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -60,9 +52,7 @@ public class PSCloneOverrideFieldList extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructs an empty <code>PSExtensionCallSet</code>.
-   */
+  /** Constructs an empty <code>PSExtensionCallSet</code>. */
   public PSCloneOverrideFieldList() {
     super(PSCloneOverrideField.class);
   }
@@ -124,13 +114,12 @@ public class PSCloneOverrideFieldList extends PSCollectionComponent {
     return filedList;
   }
 
-  /**
-   * Name of the root element in the XML representation of this object.
-   */
+  /** Name of the root element in the XML representation of this object. */
   public static final String XML_NODE_NAME = "PSXCloneOverrideFieldList";
 
   /**
    * Main method for testing
+   *
    * @param args
    */
   public static void main(String[] args) {

@@ -40,10 +40,9 @@ import org.w3c.dom.Text;
 
 public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor {
   /**
-   * This is an inner class to encapsulate the parameters. We cannot keep
-   * these  as class variables due to threading issues. We instantiate this
-   * object in the main processrequest method (called by server) and pass
-   * around the  methods. This is meant for convenience only.
+   * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
+   * due to threading issues. We instantiate this object in the main processrequest method (called
+   * by server) and pass around the methods. This is meant for convenience only.
    */
   private class Params {
     public Connection m_connection = null;
@@ -55,9 +54,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     public String m_roleNameList = "";
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String m_fullExtensionName = "";
 
   private static String ms_actionElementName = null;
@@ -461,9 +458,8 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
   }
 
   /**
-   * This is used as a flag to indicate that the class hasn't been init'd
-   * yet. There are certain cases where init can be called more than once
-   * on the same loaded instance of a class.
+   * This is used as a flag to indicate that the class hasn't been init'd yet. There are certain
+   * cases where init can be called more than once on the same loaded instance of a class.
    */
   private static final int UNINITIALIZED = -1;
 
@@ -495,9 +491,7 @@ public class PSExitAddPossibleTransitions implements IPSResultDocumentProcessor 
     m_fullExtensionName = extensionDef.getRef().toString();
   }
 
-  /**
-   * Element and attribute names for the workflow information node.
-   */
+  /** Element and attribute names for the workflow information node. */
   public static final String ELEMENT_WORKFLOWINFO = "workflowinfo";
 
   public static final String ATTRIB_CONTENTID = "contentid";

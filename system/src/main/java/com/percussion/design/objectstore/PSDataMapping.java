@@ -27,35 +27,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataMapping class defines the mapping between an XML element or
- * attribute and its corresponding back-end column. JavaScript can also be
- * used in lieu of a back-end column. This allows an XML element or
- * attribute to be mapped to a dynamically computed value.
- * <p>
- * PSDataMapping objects are used in the PSDataMapper collection.
+ * The PSDataMapping class defines the mapping between an XML element or attribute and its
+ * corresponding back-end column. JavaScript can also be used in lieu of a back-end column. This
+ * allows an XML element or attribute to be mapped to a dynamically computed value.
+ *
+ * <p>PSDataMapping objects are used in the PSDataMapper collection.
  *
  * @see PSDataMapper
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataMapping extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataMapping(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -63,23 +54,19 @@ public class PSDataMapping extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSDataMapping() {
     super();
     m_conditionals = new PSCollection(com.percussion.design.objectstore.PSConditional.class);
   }
 
   /**
-   * Constructs a mapping between an XML field (element or attribute) and
-   * its corresponding back-end column. JavaScript can also be used in
-   * lieu of a back-end column. This allows an XML field to be mapped
-   * to a dynamically computed value.
+   * Constructs a mapping between an XML field (element or attribute) and its corresponding back-end
+   * column. JavaScript can also be used in lieu of a back-end column. This allows an XML field to
+   * be mapped to a dynamically computed value.
    *
-   * @param   xmlField    the name of the XML field being mapped
-   * @param   backEndMap   the back-end object the XML field is being
-   *                      mapped to
+   * @param xmlField the name of the XML field being mapped
+   * @param backEndMap the back-end object the XML field is being mapped to
    */
   public PSDataMapping(java.lang.String xmlField, IPSBackEndMapping backEndMap) {
     this(
@@ -89,14 +76,12 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * Constructs a mapping between an XML field (element or attribute) and
-   * its corresponding back-end column. JavaScript can also be used in
-   * lieu of a back-end column. This allows an XML field to be mapped
-   * to a dynamically computed value.
+   * Constructs a mapping between an XML field (element or attribute) and its corresponding back-end
+   * column. JavaScript can also be used in lieu of a back-end column. This allows an XML field to
+   * be mapped to a dynamically computed value.
    *
-   * @param   docMap       the document object to map
-   *
-   * @param   backEndMap   the back-end object to map
+   * @param docMap the document object to map
+   * @param backEndMap the back-end object to map
    */
   public PSDataMapping(IPSDocumentMapping docMap, IPSBackEndMapping backEndMap) {
     this();
@@ -105,10 +90,9 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * Get the name of the XML field (element or attribute) for which this
-   * mapping is defined.
+   * Get the name of the XML field (element or attribute) for which this mapping is defined.
    *
-   * @return      the name of the XML field being mapped
+   * @return the name of the XML field being mapped
    */
   public java.lang.String getXmlField() {
     if (m_docMapping instanceof PSXmlField) return ((PSXmlField) m_docMapping).getName();
@@ -116,62 +100,54 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * Get the document mapping (Udf, Xml field/att) for which this
-   * mapping is defined.
+   * Get the document mapping (Udf, Xml field/att) for which this mapping is defined.
    *
-   * @return      the document mapping mapped
+   * @return the document mapping mapped
    */
   public IPSDocumentMapping getDocumentMapping() {
     return m_docMapping;
   }
 
   /**
-   * Set the document mapping (Udf, Xml field/att) for this
-   * mapping.
+   * Set the document mapping (Udf, Xml field/att) for this mapping.
    *
-   * @param   docMap   the name of the XML field being mapped
+   * @param docMap the name of the XML field being mapped
    */
   public void setDocumentMapping(IPSDocumentMapping docMap) {
     m_docMapping = docMap;
   }
 
   /**
-   * Set the name of the XML field (element or attribute) for which this
-   * mapping is defined.
-   * This is limited to 255 characters.
+   * Set the name of the XML field (element or attribute) for which this mapping is defined. This is
+   * limited to 255 characters.
    *
-   * @param   name         the name of the XML field being mapped
+   * @param name the name of the XML field being mapped
    */
   public void setXmlField(java.lang.String name) {
     setDocumentMapping(new PSXmlField(name));
   }
 
   /**
-   * Get the back-end object the XML field is being mapped to. This can
-   * be either a back-end column (PSBackEndColumn) or a JavaScript
-   * user-defined function (PSExtensionCall).
+   * Get the back-end object the XML field is being mapped to. This can be either a back-end column
+   * (PSBackEndColumn) or a JavaScript user-defined function (PSExtensionCall).
    *
-   * @return      the name of the XML element or attribute being mapped
-   *
-   * @see         IPSBackEndMapping
-   * @see         PSBackEndColumn
-   * @see         PSExtensionCall
+   * @return the name of the XML element or attribute being mapped
+   * @see IPSBackEndMapping
+   * @see PSBackEndColumn
+   * @see PSExtensionCall
    */
   public IPSBackEndMapping getBackEndMapping() {
     return m_backEndMapping;
   }
 
   /**
-   * Set the back-end object the XML field is being mapped to. This can
-   * be either a back-end column (PSBackEndColumn) or a JavaScript
-   * user-defined function (PSExtensionCall).
+   * Set the back-end object the XML field is being mapped to. This can be either a back-end column
+   * (PSBackEndColumn) or a JavaScript user-defined function (PSExtensionCall).
    *
-   * @param   backEndMap   the back-end object the XML field is being
-   *                      mapped to
-   *
-   * @see      IPSBackEndMapping
-   * @see      PSBackEndColumn
-   * @see      PSExtensionCall
+   * @param backEndMap the back-end object the XML field is being mapped to
+   * @see IPSBackEndMapping
+   * @see PSBackEndColumn
+   * @see PSExtensionCall
    */
   public void setBackEndMapping(IPSBackEndMapping backEndMap) {
     IllegalArgumentException ex = validateBackEndMapping(backEndMap);
@@ -189,15 +165,14 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * Get the conditional statements associated with this object. This is
-   * used to determine when the mapping should be used.
-   * <p>
-   * When using a back-end table with multiple purposes, it may not be
-   * apparent how the data should be mapped. If we have two XML fields,
-   * faxPhone and workPhone, these may come from the back-end table. For
-   * instance, a phone table which uses a column to define whether the
-   * phone number is for a fax or a work phone. The mappings would then
-   * be defined as follows:
+   * Get the conditional statements associated with this object. This is used to determine when the
+   * mapping should be used.
+   *
+   * <p>When using a back-end table with multiple purposes, it may not be apparent how the data
+   * should be mapped. If we have two XML fields, faxPhone and workPhone, these may come from the
+   * back-end table. For instance, a phone table which uses a column to define whether the phone
+   * number is for a fax or a work phone. The mappings would then be defined as follows:
+   *
    * <table border="1">
    * <tr>   <th>XML Field</th>
    *       <th>Back-end Column</th>
@@ -210,34 +185,29 @@ public class PSDataMapping extends PSComponent {
    *       <td>phone.ph_type = 'W'</td></tr>
    * </table>
    *
-   * @return     the conditional statements
-   *
-   * @see         PSConditional
+   * @return the conditional statements
+   * @see PSConditional
    */
   public PSCollection getConditionals() {
     return m_conditionals;
   }
 
   /**
-   * Overwrite the conditional statements associated with this object.
-   * If you only want to modify certain criteria, add a
-   * new condition, etc. use getSelectionCriteria to get the existing
+   * Overwrite the conditional statements associated with this object. If you only want to modify
+   * certain criteria, add a new condition, etc. use getSelectionCriteria to get the existing
    * collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSDataMapping object. Any subsequent changes made to the object by
-   * the caller will also effect this object.
-   * <p>
-   * This is used to determine when the mapping should be used. Specifying
-   * a conditional of null will allow this object to be used without
-   * testing any conditions.
-   * <p>
-   * When using a back-end table with multiple purposes, it may not be
-   * apparent how the data should be mapped. If we have two XML fields,
-   * faxPhone and workPhone, these may come from the back-end table. For
-   * instance, a phone table which uses a column to define whether the
-   * phone number is for a fax or a work phone. The mappings would then
-   * be defined as follows:
+   *
+   * <p>The PSCollection object supplied to this method will be stored with the PSDataMapping
+   * object. Any subsequent changes made to the object by the caller will also effect this object.
+   *
+   * <p>This is used to determine when the mapping should be used. Specifying a conditional of null
+   * will allow this object to be used without testing any conditions.
+   *
+   * <p>When using a back-end table with multiple purposes, it may not be apparent how the data
+   * should be mapped. If we have two XML fields, faxPhone and workPhone, these may come from the
+   * back-end table. For instance, a phone table which uses a column to define whether the phone
+   * number is for a fax or a work phone. The mappings would then be defined as follows:
+   *
    * <table border="1">
    * <tr>   <th>XML Field</th>
    *       <th>Back-end Column</th>
@@ -250,10 +220,8 @@ public class PSDataMapping extends PSComponent {
    *       <td>phone.ph_type = 'W'</td></tr>
    * </table>
    *
-   * @param      conds            the new conditional statements
-   *                              (PSConditional objects)
-   *
-   * @see         PSConditional
+   * @param conds the new conditional statements (PSConditional objects)
+   * @see PSConditional
    */
   public void setConditionals(PSCollection conds) {
     if (conds != null) {
@@ -268,30 +236,26 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * Get the text formatter associated with this mapping. When writing
-   * data into an XML document, formatting may be important. By associating
-   * a text formatter (XML data is always text) with the mapping we will
-   * do the appropriate text conversion. It is important to create a
-   * formatter of the appropriate type. If the source data will be a
-   * number, be sure not to use a DateFormat object as this will cause
-   * an IllegalArgumentException to be thrown at runtime.
+   * Get the text formatter associated with this mapping. When writing data into an XML document,
+   * formatting may be important. By associating a text formatter (XML data is always text) with the
+   * mapping we will do the appropriate text conversion. It is important to create a formatter of
+   * the appropriate type. If the source data will be a number, be sure not to use a DateFormat
+   * object as this will cause an IllegalArgumentException to be thrown at runtime.
    *
-   * @return               the text formatter for this mapping (may be null)
+   * @return the text formatter for this mapping (may be null)
    */
   public java.text.Format getTextFormatter() {
     return m_textFormatter;
   }
 
   /**
-   * Set the text formatter associated with this mapping. When writing
-   * data into an XML document, formatting may be important. By associating
-   * a text formatter (XML data is always text) with the mapping we will
-   * do the appropriate text conversion. It is important to create a
-   * formatter of the appropriate type. If the source data will be a
-   * number, be sure not to use a DateFormat object as this will cause
-   * an IllegalArgumentException to be thrown at runtime.
+   * Set the text formatter associated with this mapping. When writing data into an XML document,
+   * formatting may be important. By associating a text formatter (XML data is always text) with the
+   * mapping we will do the appropriate text conversion. It is important to create a formatter of
+   * the appropriate type. If the source data will be a number, be sure not to use a DateFormat
+   * object as this will cause an IllegalArgumentException to be thrown at runtime.
    *
-   * @param   formatter   the text formatter for this mapping (may be null)
+   * @param formatter the text formatter for this mapping (may be null)
    */
   public void setTextFormatter(java.text.Format formatter) {
     m_textFormatter = formatter;
@@ -300,10 +264,11 @@ public class PSDataMapping extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataMapping XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataMapping XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataMapping defines the mapping between an XML element or
@@ -345,7 +310,7 @@ public class PSDataMapping extends PSComponent {
    *    &lt;!ELEMENT textFormatter      (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataMapping XML element node
+   * @return the newly created PSXDataMapping XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -405,12 +370,10 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSDataMapping Java object
-   * from a PSXDataMapping XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataMapping Java object from a PSXDataMapping XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataMapping
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataMapping
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -550,11 +513,10 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   *   Set the mapping's group Id
+   * Set the mapping's group Id
    *
-   *   @param   groupId      The group Id
-   *
-   * @param    groupId
+   * @param groupId The group Id
+   * @param groupId
    */
   public void setGroupId(int groupId) {
     IllegalArgumentException ex = validateGroupId(groupId);
@@ -572,27 +534,24 @@ public class PSDataMapping extends PSComponent {
   }
 
   /**
-   *   get the mapping's group Id
+   * get the mapping's group Id
    *
-   *   @return      The group Id
+   * @return The group Id
    */
   public int getGroupId() {
     return m_groupId;
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

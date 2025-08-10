@@ -26,15 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The class that is used to represent menu actions as defined by
- * 'sys_Action.dtd'.
- */
+/** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 public class PSMenuAction implements IPSComponent, Cloneable {
-  /**
-   * Convenience constructor for . See the
-   * link for more description.
-   */
+  /** Convenience constructor for . See the link for more description. */
   public PSMenuAction(String name, String label) {
     this(name, label, TYPE_MENUITEM, "", HANDLER_CLIENT, 0, false);
   }
@@ -46,13 +40,10 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * @param label label to show as a menu/menu item, may not be <code>null
    * </code> or empty.
    * @param type type of the action, must be one of the TYPE_XXX values.
-   * @param url relative url to the applet to execute for the action, may be
-   * <code>null</code> or empty.
-   * @param handler handler of the action, must be one of the HANDLER_xxx
-   * values.
+   * @param url relative url to the applet to execute for the action, may be <code>null</code> or
+   *     empty.
+   * @param handler handler of the action, must be one of the HANDLER_xxx values.
    * @param sortrank the sort rank of the action.
-   *
-   *
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSMenuAction(
@@ -91,11 +82,10 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Constructs the action object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs the action object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
@@ -157,9 +147,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
     }
   }
 
-  /**
-   * Sets the action id of the action.
-   */
+  /** Sets the action id of the action. */
   public void setActionId(int actionid) {
     m_actionid = actionid;
   }
@@ -177,7 +165,6 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * Sets the name of the action.
    *
    * @param name the name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if name is not valid.
    */
   public void setName(String name) {
@@ -206,11 +193,9 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Sets display label for this action. Can be used to set the label for
-   * dynamic context menu.
+   * Sets display label for this action. Can be used to set the label for dynamic context menu.
    *
    * @param label the label, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if label is <code>null</code>.
    */
   public void setLabel(String label) {
@@ -250,9 +235,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Sets the type for this action.
    *
-   * @param type the type, may not be <code>null</code> or empty and must be
-   * one of the TYPE_xxx values.
-   *
+   * @param type the type, may not be <code>null</code> or empty and must be one of the TYPE_xxx
+   *     values.
    * @throws IllegalArgumentException if type is not valid.
    */
   public void setType(String type) {
@@ -273,13 +257,12 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * Validate the specified type, must be one of the following:
    *
    * <ul>
-   *    <li>TYPE_MENU</li>
-   *    <li>TYPE_MENUITEM</li>
-   *    <li>TYPE_CONTEXTMENU</li>
+   *   <li>TYPE_MENU
+   *   <li>TYPE_MENUITEM
+   *   <li>TYPE_CONTEXTMENU
    * </ul>
    *
    * @param type the type of menu, may not be <code>null</code> or empty
-   *
    * @return true if the type is one of the required types, otherwise false
    */
   private boolean validType(String type) {
@@ -301,8 +284,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Checks whether this action represents a menu.
    *
-   * @return <code>true</code> if it is a menu or context menu, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if it is a menu or context menu, otherwise <code>false</code>
    */
   public boolean isMenu() {
     if (TYPE_MENU.equals(m_type) || TYPE_CONTEXTMENU.equals(m_type)) return true;
@@ -335,8 +317,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Finds whether the action to be handled by client or not. An action that
-   * can not be handled by client is handled by server.
+   * Finds whether the action to be handled by client or not. An action that can not be handled by
+   * client is handled by server.
    *
    * @return <code>true</code> if it is, otherwise <code>false</code>.
    */
@@ -347,13 +329,12 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Finds out whether the action supports batch processing or not. An action
-   * supports batch processing if the action's handler is 'SERVER' and the
-   * the property <code>PROP_BATCH_PROCESS</code> is defined as <code>true
+   * Finds out whether the action supports batch processing or not. An action supports batch
+   * processing if the action's handler is 'SERVER' and the the property <code>PROP_BATCH_PROCESS
+   * </code> is defined as <code>true
    * </code> or <code>yes</code>.
    *
-   * @return <code>true</code> if it supports batch processing, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if it supports batch processing, otherwise <code>false</code>
    */
   public boolean supportsBatchProcessing() {
     boolean supports = false;
@@ -381,7 +362,6 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * Gets the value of the supplied property name of this action.
    *
    * @param name the property name, may not be <code>null</code> or empty.
-   *
    * @return the value, may be <code>null</code> or empty.
    */
   public String getProperty(String name) {
@@ -408,7 +388,6 @@ public class PSMenuAction implements IPSComponent, Cloneable {
    * Gets the value of the supplied parameter name of this action.
    *
    * @param name the parameter name, may not be <code>null</code> or empty.
-   *
    * @return the value, may be <code>null</code> or empty.
    */
   public String getParameter(String name) {
@@ -425,8 +404,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Sets the parameters associated with the action url.
    *
-   * @param params the params, supply <code>null</code> to clear the existing
-   * parameters.
+   * @param params the params, supply <code>null</code> to clear the existing parameters.
    */
   public void setParameters(PSParameters params) {
     m_params = params;
@@ -435,10 +413,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Adds or replaces the parameter identified by supplied name.
    *
-   * @param name the name of the parameter, may not be <code>null</code> or
-   * empty.
+   * @param name the name of the parameter, may not be <code>null</code> or empty.
    * @param value the value of the parameter, may be <code>null</code>
-   *
    * @throws IllegalArgumentException if name is invalid.
    */
   public void setParameter(String name, String value) {
@@ -453,16 +429,15 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Sets the properties of this action.
    *
-   * @param props the properties, supply <code>null</code> to clear the
-   * existing properties.
+   * @param props the properties, supply <code>null</code> to clear the existing properties.
    */
   public void setProperties(PSProperties props) {
     m_props = props;
   }
 
   /**
-   * Gets children actions of this action. Should be called only if the action
-   * represents a {@link #isMenu() menu}.
+   * Gets children actions of this action. Should be called only if the action represents a {@link
+   * #isMenu() menu}.
    *
    * @return the iterator over zero or more <code>PSMenuAction</code> objects.
    */
@@ -471,12 +446,10 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Sets child actions of this action. Should be called only if the action
-   * represents a {@link #isMenu() menu}.
+   * Sets child actions of this action. Should be called only if the action represents a {@link
+   * #isMenu() menu}.
    *
-   * @param children the list of <code>PSMenuAction</code> children, may not be
-   * <code>null</code>
-   *
+   * @param children the list of <code>PSMenuAction</code> children, may not be <code>null</code>
    * @throws IllegalArgumentException if children is <code>null</code>
    * @throws IllegalStateException if this action does not represent a menu.
    */
@@ -500,11 +473,11 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Implements the IPSComponent interface method to produce XML representation
-   * of this object. See the interface for description of the method and
-   * parameters.
-   * <p>
-   * The xml format is:
+   * Implements the IPSComponent interface method to produce XML representation of this object. See
+   * the interface for description of the method and parameters.
+   *
+   * <p>The xml format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT Action (Props?, Params?, Action*)>
    * &lt;!ATTLIST Action
@@ -546,16 +519,13 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Merges PSMenuAction objects based merge rules and returns the merge result
-   * as PSMenuAction object.
+   * Merges PSMenuAction objects based merge rules and returns the merge result as PSMenuAction
+   * object.
    *
-   * @param newAction may be <code>null</code> in which case merge result will
-   * be current action.
-   *
-   * @return merge result as PSMenuAction object, <code>null</code> only when the
-   * two actions to be merged are <code>null</code>.
-   *
-   * actions based equality.
+   * @param newAction may be <code>null</code> in which case merge result will be current action.
+   * @return merge result as PSMenuAction object, <code>null</code> only when the two actions to be
+   *     merged are <code>null</code>.
+   *     <p>actions based equality.
    */
   public PSMenuAction merge(PSMenuAction newAction) {
     // if new action is null, merge result is current action.
@@ -581,11 +551,10 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Method to find the supplied action as one of its
-   * child actions. Test is made using the equals() method.
+   * Method to find the supplied action as one of its child actions. Test is made using the equals()
+   * method.
    *
    * @param action the action to test, must not be <code>null</code>.
-   *
    * @return
    */
   public PSMenuAction findChildAction(PSMenuAction action) {
@@ -599,13 +568,12 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Method to test if this action contains the supplied action as one of its
-   * child actions. Test is made using the equals() method.
+   * Method to test if this action contains the supplied action as one of its child actions. Test is
+   * made using the equals() method.
    *
    * @param action the action to test, must not be <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied action is equivalent to one of
-   * the child actions, <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied action is equivalent to one of the child actions,
+   *     <code>false</code> otherwise.
    */
   public boolean containsChildAction(PSMenuAction action) {
     PSMenuAction child = null;
@@ -618,9 +586,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   }
 
   /**
-   * Adds a property with name {@see #SHOW_ADHOC} and value as
-   * {@see #VAL_BOOLEAN_TRUE} if the supplied value is <code>true</code>.
-   * Otherwise sets the parameter to <code>null</code>.
+   * Adds a property with name {@see #SHOW_ADHOC} and value as {@see #VAL_BOOLEAN_TRUE} if the
+   * supplied value is <code>true</code>. Otherwise sets the parameter to <code>null</code>.
    *
    * @param value The value to be set to {@see #SHOW_ADHOC} param.
    */
@@ -632,9 +599,8 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Convenient method to get the adhoc parameter.
    *
-   * @return <code>true</code> if a parameter with name {@see #SHOW_ADHOC}
-   *         exists with a value of {@see #VAL_BOOLEAN_TRUE} otherwise returns
-   *         <code>false</code>.
+   * @return <code>true</code> if a parameter with name {@see #SHOW_ADHOC} exists with a value of
+   *     {@see #VAL_BOOLEAN_TRUE} otherwise returns <code>false</code>.
    */
   public boolean isAdhoc() {
     return StringUtils.defaultString(getParameter(SHOW_ADHOC)).equalsIgnoreCase(VAL_BOOLEAN_TRUE);
@@ -642,6 +608,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
 
   /**
    * Convenient method to set the {@see COMMENT_REQUIRED} parameter and property.
+   *
    * @param commentRequired must not be blank.
    */
   public void setCommentRequired(String commentRequired) {
@@ -654,29 +621,25 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   /**
    * Convenient method to get the commentRequired parameter.
    *
-   * @return the value of parameter with name {@see #COMMENT_REQUIRED}
-   *         if exists otherwise empty String.
+   * @return the value of parameter with name {@see #COMMENT_REQUIRED} if exists otherwise empty
+   *     String.
    */
   public String getCommentRequired() {
     return StringUtils.defaultString(getParameter(COMMENT_REQUIRED));
   }
 
   /**
-   * Used to compare the sort ranks of 2 <code>PSMenuAction</code> objects. The
-   * algorithm for sorting is that if the 2 sort ranks are the same we then
-   * sort using the label of the object.
+   * Used to compare the sort ranks of 2 <code>PSMenuAction</code> objects. The algorithm for
+   * sorting is that if the 2 sort ranks are the same we then sort using the label of the object.
    *
-   * @param obj1 the first <code>PSMenuAction</code> object to compare,
-   * assumed not <code>null</code>
-   *
-   * @param obj2 the second <code>PSMenuAction</code> object to compare,
-   * assumed not <code>null</code>
-   *
-   * @return a negative integer, zero, or a positive integer as the
-   * first object's <code>sort</code> value is less than, equal to, or
-   * greater than that of the second object, if the <code>sort</code> values
-   * are equal it does a compare on the <code>label</code> field, the compare
-   * is done case insensitive
+   * @param obj1 the first <code>PSMenuAction</code> object to compare, assumed not <code>null
+   *     </code>
+   * @param obj2 the second <code>PSMenuAction</code> object to compare, assumed not <code>null
+   *     </code>
+   * @return a negative integer, zero, or a positive integer as the first object's <code>sort</code>
+   *     value is less than, equal to, or greater than that of the second object, if the <code>sort
+   *     </code> values are equal it does a compare on the <code>label</code> field, the compare is
+   *     done case insensitive
    */
   public int compare(Object obj1, Object obj2) {
     PSMenuAction a1 = (PSMenuAction) obj1;
@@ -752,9 +715,7 @@ public class PSMenuAction implements IPSComponent, Cloneable {
     return code;
   }
 
-  /**
-   * The id of the action, initialized in the constructor.
-   */
+  /** The id of the action, initialized in the constructor. */
   private int m_actionid = -1;
 
   /**
@@ -770,87 +731,68 @@ public class PSMenuAction implements IPSComponent, Cloneable {
   private String m_label;
 
   /**
-   * The menu type of the action, initialized in the constructor and never
-   * <code>null</code>, empty or modified after that. Will be one of the
-   * TYPE_xxx values.
+   * The menu type of the action, initialized in the constructor and never <code>null</code>, empty
+   * or modified after that. Will be one of the TYPE_xxx values.
    */
   private String m_type;
 
   /**
-   * The action url, initialized in the constructor and never <code>null</code>
-   * or modified after that. May be empty.
+   * The action url, initialized in the constructor and never <code>null</code> or modified after
+   * that. May be empty.
    */
   private String m_actionURL;
 
   /**
-   * The handler of the action, initialized in the constructor and never
-   * <code>null</code>, empty or modified after that. Will be one of the
-   * HANDLER_xxx values.
+   * The handler of the action, initialized in the constructor and never <code>null</code>, empty or
+   * modified after that. Will be one of the HANDLER_xxx values.
    */
   private String m_handler;
 
   /**
-   * The sortrank with in its siblings, initialized in the constructor and
-   * never modified after that.
+   * The sortrank with in its siblings, initialized in the constructor and never modified after
+   * that.
    */
   private int m_sortrank;
 
   private boolean m_hideFromMenu;
 
   /**
-   * The list of properties associated with the action, initialized in
-   * {@link #PSMenuAction(Element) constructor} and never <code>null</code> or
-   * modified after that.
+   * The list of properties associated with the action, initialized in {@link #PSMenuAction(Element)
+   * constructor} and never <code>null</code> or modified after that.
    */
   private PSProperties m_props = null;
 
   /**
-   * The list of parameters to apply to the action url, initialized in
-   * {@link #PSMenuAction(Element) constructor} and never <code>null</code> or
-   * modified after that.
+   * The list of parameters to apply to the action url, initialized in {@link #PSMenuAction(Element)
+   * constructor} and never <code>null</code> or modified after that.
    */
   private PSParameters m_params = null;
 
   /**
-   * The list of child actions, never <code>null</code>, may be empty.
-   * Initialized at construction time and may be modified through calls to
-   * <code>setChildren(Iterator)</code>.
+   * The list of child actions, never <code>null</code>, may be empty. Initialized at construction
+   * time and may be modified through calls to <code>setChildren(Iterator)</code>.
    */
   private List m_children = new ArrayList();
 
-  /**
-   * The constant to indicate this action as 'menu'.
-   */
+  /** The constant to indicate this action as 'menu'. */
   public static final String TYPE_MENU = "MENU";
 
-  /**
-   * The constant to indicate this action as 'menuitem'.
-   */
+  /** The constant to indicate this action as 'menuitem'. */
   public static final String TYPE_MENUITEM = "MENUITEM";
 
-  /**
-   * The constant to indicate this action as 'contextmenu'.
-   */
+  /** The constant to indicate this action as 'contextmenu'. */
   public static final String TYPE_CONTEXTMENU = "CONTEXTMENU";
 
-  /**
-   * The constant to indicate 'client' as the handler for the action.
-   */
+  /** The constant to indicate 'client' as the handler for the action. */
   public static final String HANDLER_CLIENT = "CLIENT";
 
-  /**
-   * The constant to indicate 'server' as the handler for the action.
-   */
+  /** The constant to indicate 'server' as the handler for the action. */
   public static final String HANDLER_SERVER = "SERVER";
 
-  /**
-   * The list of action/menu types.
-   */
+  /** The list of action/menu types. */
   private static final List ms_menuTypes = new ArrayList();
 
-  /**
-   * The list of action handlers.
-   */
+  /** The list of action handlers. */
   private static final List ms_handlers = new ArrayList();
 
   static {
@@ -862,87 +804,53 @@ public class PSMenuAction implements IPSComponent, Cloneable {
     ms_handlers.add(HANDLER_SERVER);
   }
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "Action";
 
-  /**
-   * The name of the property that defines accelerator key for this action.
-   */
+  /** The name of the property that defines accelerator key for this action. */
   public static final String PROP_ACCEL_KEY = "AcceleratorKey";
 
-  /**
-   * The name of the property that defines mnemonic key for this action.
-   */
+  /** The name of the property that defines mnemonic key for this action. */
   public static final String PROP_MNEM_KEY = "MnemonicKey";
 
-  /**
-   * The name of the property that defines tooltip text for this action.
-   */
+  /** The name of the property that defines tooltip text for this action. */
   public static final String PROP_SHORT_DESC = "ShortDescription";
 
-  /**
-   * The name of the property that defines url of the icon for this action.
-   */
+  /** The name of the property that defines url of the icon for this action. */
   public static final String PROP_SMALL_ICON = "SmallIcon";
 
-  /**
-   * The property that defines the batch processing support.
-   */
+  /** The property that defines the batch processing support. */
   public static final String PROP_BATCH_PROCESS = "batchProcessing";
 
-  /**
-   * The prefix for copy paste action.
-   */
+  /** The prefix for copy paste action. */
   public static final String PREFIX_COPY_PASTE = "Copy-";
 
-  /**
-   * The prefix for drag-drop paste action.
-   */
+  /** The prefix for drag-drop paste action. */
   public static final String PREFIX_DROP_PASTE = "Drop-";
 
-  /**
-   * The name attribute
-   */
+  /** The name attribute */
   public static final String NAME_ATTR = "name";
 
-  /**
-   * Constant for the action param indicating if a comment is required.
-   */
+  /** Constant for the action param indicating if a comment is required. */
   public static final String COMMENT_REQUIRED = "commentRequired";
 
-  /**
-   * Constant for the action param indicating if the adhoc selection should be
-   * shown.
-   */
+  /** Constant for the action param indicating if the adhoc selection should be shown. */
   public static final String SHOW_ADHOC = "showAdhoc";
 
-  /**
-   * String value that represents true for an action param
-   */
+  /** String value that represents true for an action param */
   public static final String VAL_BOOLEAN_TRUE = "yes";
 
-  /**
-   * String value that represents "hide" for an action param
-   */
+  /** String value that represents "hide" for an action param */
   public static final String VAL_HIDE = "hide";
 
-  /**
-   * The internal name of the Check-in action. Will not change. The name is
-   * 'checkin'.
-   */
+  /** The internal name of the Check-in action. Will not change. The name is 'checkin'. */
   public static final String CHECKIN_ACTION_NAME = "checkin";
 
-  /**
-   * The internal name of the Check-out action. Will not change. The name is
-   * 'checkout'.
-   */
+  /** The internal name of the Check-out action. Will not change. The name is 'checkout'. */
   public static final String CHECKOUT_ACTION_NAME = "checkout";
 
   /**
-   * The internal name of the Force Check-in action. Will not change.
-   * The name is 'forcecheckin'.
+   * The internal name of the Force Check-in action. Will not change. The name is 'forcecheckin'.
    */
   public static final String FORCE_CHECKIN_ACTION_NAME = "forcecheckin";
 

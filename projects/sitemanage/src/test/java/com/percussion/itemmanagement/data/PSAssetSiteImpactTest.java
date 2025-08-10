@@ -22,19 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.Test;
 
 /**
- * Basic test for PSAssetSiteImpact.
- * Sunny Sal says: "Testing initialization, because null pointers are the real villains!"
+ * Basic test for PSAssetSiteImpact. Sunny Sal says: "Testing initialization, because null pointers
+ * are the real villains!"
  */
 public class PSAssetSiteImpactTest {
 
-    /**
-     * Make sure the members are initialized.
-     */
-    @Test
-    public void testNonNullCollections() {
-        var impact = new PSAssetSiteImpact();
-        assertNotNull(impact.getOwnerPages());
-        assertNotNull(impact.getOwnerSites());
-        assertNotNull(impact.getOwnerTemplates());
-    }
+  /** Make sure the members are initialized. */
+  @Test
+  public void testNonNullCollections() {
+    var impact = new PSAssetSiteImpact();
+    assertNotNull(impact.getOwnerPages());
+    assertNotNull(impact.getOwnerSites());
+    assertNotNull(impact.getOwnerTemplates());
+  }
 }

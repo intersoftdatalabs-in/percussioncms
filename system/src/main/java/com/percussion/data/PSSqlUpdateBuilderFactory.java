@@ -23,49 +23,33 @@ import java.sql.SQLException;
 import javax.naming.NamingException;
 
 /**
- * The PSSqlUpdateBuilderFactory class is used to retrieve a
- * PSSqlUpdateBuilder-based object for building SQL DELETE, UPDATE and
- * INSERT statements.
+ * The PSSqlUpdateBuilderFactory class is used to retrieve a PSSqlUpdateBuilder-based object for
+ * building SQL DELETE, UPDATE and INSERT statements.
  *
- * @see         PSSqlUpdateBuilder
- * @see         PSQueryJoiner
+ * @see PSSqlUpdateBuilder
+ * @see PSQueryJoiner
  */
 public class PSSqlUpdateBuilderFactory {
-  /**
-   * Private constructor.  This class will never be instantiated.
-   */
+  /** Private constructor. This class will never be instantiated. */
   private PSSqlUpdateBuilderFactory() {}
 
   /**
-   * Get the most appropriate sql update builder (PSSqlUpdate builder
-   * or class derived therefrom) for generating statements to execute
-   * SQL update, insert or delete statements.
+   * Get the most appropriate sql update builder (PSSqlUpdate builder or class derived therefrom)
+   * for generating statements to execute SQL update, insert or delete statements.
    *
-   *
-   * @param type   The type of builder based on plan type, either
-   *         <code>PSUpdateOptimizer.PLAN_TYPE_UPDATE</code>,
-   *         <code>PSUpdateOptimizer.PLAN_TYPE_INSERT</code>, or
-   *         <code>PSUpdateOptimizer.PLAN_TYPE_DELETE</code>.
-   *
-   * @param table  The back end table the builder will be creating a
-   *               statement for.  Never <code>null</code>.
-   *
-   * @param login  The back end login for the builder we are creating.
-   *               Can be <code>null</code>.
-   *
-   * @param allowInserts Are inserts allowed?  <code>true</code> if so,
-   *       <code>false</code> if not.
-   *
-   * @return The PSSqlUpdateBuilder (or derived class) to be used to
-   *         create the statements.
-   *
-   * @throws IllegalArgumentException if a builder throws
-   *         PSIllegalArgumentException when being constructed if an
-   *         attempt to use two different tables is detected, or any
-   *         parameter is invalid
+   * @param type The type of builder based on plan type, either <code>
+   *     PSUpdateOptimizer.PLAN_TYPE_UPDATE</code>, <code>PSUpdateOptimizer.PLAN_TYPE_INSERT</code>,
+   *     or <code>PSUpdateOptimizer.PLAN_TYPE_DELETE</code>.
+   * @param table The back end table the builder will be creating a statement for. Never <code>null
+   *     </code>.
+   * @param login The back end login for the builder we are creating. Can be <code>null</code>.
+   * @param allowInserts Are inserts allowed? <code>true</code> if so, <code>false</code> if not.
+   * @return The PSSqlUpdateBuilder (or derived class) to be used to create the statements.
+   * @throws IllegalArgumentException if a builder throws PSIllegalArgumentException when being
+   *     constructed if an attempt to use two different tables is detected, or any parameter is
+   *     invalid
    * @throws SQLException If there is an error obtaining connection details.
-   * @throws NamingException If there is an error resolving the login to a
-   *         datasource
+   * @throws NamingException If there is an error resolving the login to a datasource
    */
   public static PSSqlUpdateBuilder getSqlUpdateBuilder(
       int type, PSBackEndTable table, PSBackEndLogin login, boolean allowInserts)

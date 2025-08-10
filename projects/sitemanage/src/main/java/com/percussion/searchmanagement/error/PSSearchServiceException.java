@@ -16,26 +16,24 @@
  */
 package com.percussion.searchmanagement.error;
 
-/**
- * Exception thrown for errors in the search service.
- */
+/** Exception thrown for errors in the search service. */
 public class PSSearchServiceException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSSearchServiceException() {
-        super();
-    }
+  public PSSearchServiceException() {
+    super();
+  }
 
-    public PSSearchServiceException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public PSSearchServiceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public PSSearchServiceException(String message) {
-        super(message);
-    }
+  public PSSearchServiceException(String message) {
+    super(message);
+  }
 
-    public PSSearchServiceException(Throwable cause) {
-        super(cause);
-    }
+  public PSSearchServiceException(Throwable cause) {
+    super(cause);
+  }
 }

@@ -35,17 +35,14 @@ import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Element;
 
-/**
- * This plugin removes the invalid DOCTYPE from .dtd and .pdt files.
- */
+/** This plugin removes the invalid DOCTYPE from .dtd and .pdt files. */
 public class PSUpgradePluginRemoveDocTypeFromDTDs implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginRemoveDocTypeFromDTDs() {}
 
   /**
    * Implements the process function of IPSUpgardePlugin.
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
@@ -177,6 +174,7 @@ public class PSUpgradePluginRemoveDocTypeFromDTDs implements IPSUpgradePlugin {
 
   /**
    * Helper that copies a file from src to dest.
+   *
    * @param src source to copy from, never <code>null</code>.
    * @param dst dest to copy to, never <code>null</code>.
    * @throws IOException if IO problem happens.

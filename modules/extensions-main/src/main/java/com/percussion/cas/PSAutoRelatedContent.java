@@ -35,32 +35,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * A Rhythmyx post exit. This makes a query for related content and adds the
- * resulting snippets to the Related Content list of a variant.
- * <p>
- * There are 5 exit parameters:
- * <code>LinkURL</code> - The name of an attribute where the query url will be
- *    found. This must be an attribute of the root element of the caller's
- *    result document XML.
+ * A Rhythmyx post exit. This makes a query for related content and adds the resulting snippets to
+ * the Related Content list of a variant.
  *
- * <code>slotNameOverride</code> - This optional parameter allows the caller to
- *    place the results in any slot. The slotname can be specified in the
- *    mapper of the query, but this parameter allows the same query resource
- *    to be used in different slots.
- *
- * <code>publishableTokens</code> - This optional parameter allows a caller to
- *    specify a comma delimited string with all publishable tokens. If not
- *    provided or empty, this defaults to <code>y,i</code>.
- *
- * <code>revisionCorrectionTokens</code> - This optional parameter allows a
- *    caller to specify a comma delimited string of publishable tokens
- *    (such as i,x) for which the revision needs to be replaced with the last
- *    public revision. If not provided or empty, this defaults to 'i'.
- *
- * <code>maxLinks</code> - This optional parameter allows a caller to limit
- *    the maximum number of linkUrl elements returned. The value must be a
- *    parsable integer. If not provided, &lt; 0 or empty, all linkUrl elements
- *    will be returned.
+ * <p>There are 5 exit parameters: <code>LinkURL</code> - The name of an attribute where the query
+ * url will be found. This must be an attribute of the root element of the caller's result document
+ * XML. <code>slotNameOverride</code> - This optional parameter allows the caller to place the
+ * results in any slot. The slotname can be specified in the mapper of the query, but this parameter
+ * allows the same query resource to be used in different slots. <code>publishableTokens</code> -
+ * This optional parameter allows a caller to specify a comma delimited string with all publishable
+ * tokens. If not provided or empty, this defaults to <code>y,i</code>. <code>
+ * revisionCorrectionTokens</code> - This optional parameter allows a caller to specify a comma
+ * delimited string of publishable tokens (such as i,x) for which the revision needs to be replaced
+ * with the last public revision. If not provided or empty, this defaults to 'i'. <code>maxLinks
+ * </code> - This optional parameter allows a caller to limit the maximum number of linkUrl elements
+ * returned. The value must be a parsable integer. If not provided, &lt; 0 or empty, all linkUrl
+ * elements will be returned.
  *
  * @version 1.0
  */
@@ -75,10 +65,9 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Makes an internal request to a query resource in order to automatically
-   * populate a slot. The query resource is determined by the URL in the
-   * attribute name supplied as the first parameter to the exit. The query
-   * resource must return an XML document compliant with
+   * Makes an internal request to a query resource in order to automatically populate a slot. The
+   * query resource is determined by the URL in the attribute name supplied as the first parameter
+   * to the exit. The query resource must return an XML document compliant with
    * /Rhythmyx/DTD/sys_AssemblerInfo.dtd.
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document doc)
@@ -244,13 +233,12 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Utility method to check whether the given flag is in supplied tokens.
-   * Comparision will be case insensitive.
+   * Utility method to check whether the given flag is in supplied tokens. Comparision will be case
+   * insensitive.
    *
    * @param flag must not be <code>null</code>.
    * @param tokens must not be <code>null</code>.
-   * @return <code>true</code> if flag exists in token otherwise
-   *         <code>false</code>.
+   * @return <code>true</code> if flag exists in token otherwise <code>false</code>.
    */
   private boolean isFlagInToken(String flag, StringTokenizer tokens) {
     if (flag == null) throw new IllegalArgumentException("flag cannot be null");
@@ -269,24 +257,19 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Tests if the related item is publishable or not. First check If
-   * contentValid exists as an attribute of linkurl element then, checks
-   * whether that value exists in publishable tokens or not. If yes returns
-   * <code>true</code> otherwise <code>false</code>. If contentValid does
-   * not exist, then calls {@link PSCms.isRelatedItemPublishable(
-   * Element, IPSRequestContext, String)} to get the publishable status of the
-   * item.
+   * Tests if the related item is publishable or not. First check If contentValid exists as an
+   * attribute of linkurl element then, checks whether that value exists in publishable tokens or
+   * not. If yes returns <code>true</code> otherwise <code>false</code>. If contentValid does not
+   * exist, then calls {@link PSCms.isRelatedItemPublishable( Element, IPSRequestContext, String)}
+   * to get the publishable status of the item.
    *
-   * @param resultLink the related linkurl element, must not be
-   *           <code>null</code>. The expected DTD is: &lt;!ELEMENT linkurl
-   *           (Value)&gt; &lt;!ELEMENT Value EMPTY&gt; &lt;!ATTLIST Value
-   *           current CDATA #REQUIRED &gt;
+   * @param resultLink the related linkurl element, must not be <code>null</code>. The expected DTD
+   *     is: &lt;!ELEMENT linkurl (Value)&gt; &lt;!ELEMENT Value EMPTY&gt; &lt;!ATTLIST Value
+   *     current CDATA #REQUIRED &gt;
    * @param request the request to operate on, assumed not <code>null</code>.
-   * @param publishableTokens a string with all tokens that are publishable,
-   *           defaults to <code>y,i</code> if <code>null</code> or empty.
-   *           The token delimiter is the comma.
-   * @return <code>true</code> if the related item is publishable,
-   *         <code>false</code> otherwise.
+   * @param publishableTokens a string with all tokens that are publishable, defaults to <code>y,i
+   *     </code> if <code>null</code> or empty. The token delimiter is the comma.
+   * @return <code>true</code> if the related item is publishable, <code>false</code> otherwise.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   private boolean isContentValid(
@@ -302,43 +285,32 @@ public class PSAutoRelatedContent extends PSDefaultExtension implements IPSResul
     }
   }
 
-  /**
-   * Name of the XML node that contains assembler information
-   */
+  /** Name of the XML node that contains assembler information */
   private static final String ASSEMBLER_INFO_ELEM = "sys_AssemblerInfo";
 
-  /**
-   * Name of the XML node that identifies related content items
-   */
+  /** Name of the XML node that identifies related content items */
   private static final String RELATED_CONTENT_ELEM = "RelatedContent";
 
   /**
-   * Name of the XML node that contains the link URL of a related content item.
-   * One such node will be present in the RELATED_CONTENT_ELEM node for each
-   * related content ite
+   * Name of the XML node that contains the link URL of a related content item. One such node will
+   * be present in the RELATED_CONTENT_ELEM node for each related content ite
    */
   private static final String RELATEDLINKURL = "linkurl";
 
-  /**
-   * Error message used when parameters are missing
-   */
+  /** Error message used when parameters are missing */
   private static final String MSG_MISSING_PARAM = "The URL parameter must be supplied";
 
-  /**
-   * Error message used when no related content nodes are found in the XML
-   */
+  /** Error message used when no related content nodes are found in the XML */
   private static final String MSG_NO_RELATED =
       "Unable to locate related content node. " + "Check sys_casAddAssemblerInfo.";
 
   /**
-   * Error message used if the first (0'th) param doesn't provide a valid URL
-   * for an internal request
+   * Error message used if the first (0'th) param doesn't provide a valid URL for an internal
+   * request
    */
   private static final String MSG_INVALID_REQUEST =
       "The URL Parameter points the following invalid request: ";
 
-  /**
-   * Name of the attribute that holds the publishable flag of the item.
-   */
+  /** Name of the attribute that holds the publishable flag of the item. */
   private static final String ATTR_CONTENTVALID = "contentValid";
 }

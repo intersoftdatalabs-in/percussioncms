@@ -31,12 +31,10 @@ public class PSConsoleCommandDebugSearch extends PSConsoleCommand {
   /**
    * Ctor required by framework.
    *
-   * @param args Only validated that not empty. During execution, we
-   * check for 'on' (we also allow 'true', 'enable' and 'yes'), otherwise it
-   * is intrpreted as 'off'.
-   *
+   * @param args Only validated that not empty. During execution, we check for 'on' (we also allow
+   *     'true', 'enable' and 'yes'), otherwise it is intrpreted as 'off'.
    * @throws PSIllegalArgumentException If empty.
-   * <p>Note: we use PSIllegal... here because that's what the framework uses.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */
   public PSConsoleCommandDebugSearch(String args) throws PSIllegalArgumentException {
     super(args);
@@ -72,9 +70,9 @@ public class PSConsoleCommandDebugSearch extends PSConsoleCommand {
 
   /**
    * The full command that launched this handler.
-   * <p>Note: this should be passed in rather than having it in two places,
-   * but the whole framework needs reworking so I'm not going to take that on
-   * now.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
    */
   private static final String COMMAND_NAME = "debug search";
 }

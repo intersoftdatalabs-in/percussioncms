@@ -17,92 +17,99 @@
  */
 package com.percussion.widgetbuilder.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a single validation result for a widget builder definition.
- */
+/** Represents a single validation result for a widget builder definition. */
 @XmlRootElement(name = "WidgetBuilderValidationResult")
 public class PSWidgetBuilderValidationResult implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String category;
-    private String name;
-    private String message;
+  private String category;
+  private String name;
+  private String message;
 
-    public PSWidgetBuilderValidationResult() {
-        // Default constructor
-    }
+  public PSWidgetBuilderValidationResult() {
+    // Default constructor
+  }
 
-    /**
-     * @param category validation category, not null or empty
-     * @param name     validation name, not null or empty
-     * @param message  validation message, not null or empty
-     */
-    public PSWidgetBuilderValidationResult(String category, String name, String message) {
-        if (category == null || category.isEmpty()) throw new IllegalArgumentException("category must not be empty");
-        if (name == null || name.isEmpty()) throw new IllegalArgumentException("name must not be empty");
-        if (message == null || message.isEmpty()) throw new IllegalArgumentException("message must not be empty");
-        this.category = category;
-        this.name = name;
-        this.message = message;
-    }
+  /**
+   * @param category validation category, not null or empty
+   * @param name validation name, not null or empty
+   * @param message validation message, not null or empty
+   */
+  public PSWidgetBuilderValidationResult(String category, String name, String message) {
+    if (category == null || category.isEmpty())
+      throw new IllegalArgumentException("category must not be empty");
+    if (name == null || name.isEmpty())
+      throw new IllegalArgumentException("name must not be empty");
+    if (message == null || message.isEmpty())
+      throw new IllegalArgumentException("message must not be empty");
+    this.category = category;
+    this.name = name;
+    this.message = message;
+  }
 
-    public String getCategory() {
-        return category;
-    }
+  public String getCategory() {
+    return category;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public enum ValidationCategory {
-        GENERAL,
-        CONTENT,
-        RESOURCES,
-        DISPLAY
-    }
+  public enum ValidationCategory {
+    GENERAL,
+    CONTENT,
+    RESOURCES,
+    DISPLAY
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderValidationResult)) return false;
-        var that = (PSWidgetBuilderValidationResult) o;
-        return Objects.equals(getCategory(), that.getCategory())
-                && Objects.equals(getName(), that.getName())
-                && Objects.equals(getMessage(), that.getMessage());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderValidationResult)) return false;
+    var that = (PSWidgetBuilderValidationResult) o;
+    return Objects.equals(getCategory(), that.getCategory())
+        && Objects.equals(getName(), that.getName())
+        && Objects.equals(getMessage(), that.getMessage());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getCategory(), getName(), getMessage());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getCategory(), getName(), getMessage());
+  }
 
-    @Override
-    public String toString() {
-        return "PSWidgetBuilderValidationResult{" +
-                "category='" + category + '\'' +
-                ", name='" + name + '\'' +
-                ", message='" + message + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderValidationResult{"
+        + "category='"
+        + category
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", message='"
+        + message
+        + '\''
+        + '}';
+  }
 }

@@ -23,40 +23,23 @@ import com.percussion.util.PSProperties;
 import java.io.IOException;
 import org.xml.sax.SAXException;
 
-/**
- * RxApplicatonManager is a class that manages the installation and
- * conversion of applications.
- */
+/** RxApplicatonManager is a class that manages the installation and conversion of applications. */
 // REFACTORED: CP-JAVA11
 public class RxApplicationManager {
-  /**
-   * Constructs an RxApplicationManager
-   */
+  /** Constructs an RxApplicationManager */
   public RxApplicationManager() {}
 
   /**
    * Apply repository and port information to the application files.
    *
-   * @param rootDir - The absolute path name of the root directory.
-   *      Must not be <CODE>null</CODE>
-   *
-   * @param strAppFileRoot - The location of the appFileName.
-   *      Must not be <CODE>null</CODE>
-   *
-   * @param appFileName - The name of the application file.
-   *      Must not be <CODE>null</CODE>
-   *
-   * @param bUpdateNativeStatemnet - <code>true</code> if the native
-   *       statement should be updated.
-   *
+   * @param rootDir - The absolute path name of the root directory. Must not be <CODE>null</CODE>
+   * @param strAppFileRoot - The location of the appFileName. Must not be <CODE>null</CODE>
+   * @param appFileName - The name of the application file. Must not be <CODE>null</CODE>
+   * @param bUpdateNativeStatemnet - <code>true</code> if the native statement should be updated.
    * @throws IOException - if file is invalid or inaccessible
-   *
-   * @throws SAXException - if the application file is not parseable XML
-   * document
-   *
+   * @throws SAXException - if the application file is not parseable XML document
    * @throws IllegalArgumentException if strRootDir or strAppName are <CODE>
    * null</CODE>.
-   *
    * @return <CODE>true</CODE> for success, <CODE>false</CODE> for failure.
    */
   public static void applyLocalSettings(

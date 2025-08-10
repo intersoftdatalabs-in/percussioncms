@@ -24,15 +24,15 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * This class copies files under rx_resources/images/en-us to each additional
- * locale subfolder under the images directory provided the files do not exist
- * in the additional locale directory and are not hidden.
+ * This class copies files under rx_resources/images/en-us to each additional locale subfolder under
+ * the images directory provided the files do not exist in the additional locale directory and are
+ * not hidden.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
   /**
-   * Implements the process function of IPSUpgardePlugin.
-   * Performs file/directory copy from en-us to all other locales.
+   * Implements the process function of IPSUpgardePlugin. Performs file/directory copy from en-us to
+   * all other locales.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -71,9 +71,8 @@ public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
   }
 
   /**
-   * Copies files and directories from the source directory to the destination
-   * directory.  Files which exist in the destination directory and/or are
-   * hidden will be excluded.
+   * Copies files and directories from the source directory to the destination directory. Files
+   * which exist in the destination directory and/or are hidden will be excluded.
    *
    * @param srcDir the source directory, assumed not <code>null</code>.
    * @param destDir the destination directory, assumed not <code>null</code>.
@@ -127,8 +126,7 @@ public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists or just sends it to
-   * System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -144,15 +142,9 @@ public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * The config module, initialized in
-   * {@link #process(IPSUpgradeModule, Element)}.
-   */
+  /** The config module, initialized in {@link #process(IPSUpgradeModule, Element)}. */
   private IPSUpgradeModule m_config;
 
-  /**
-   * Constant for the en-us locale images subfolder relative to the Rhythmyx
-   * root.
-   */
+  /** Constant for the en-us locale images subfolder relative to the Rhythmyx root. */
   private static String ENGLISH_LOCALE_IMAGES = "rx_resources/images/en-us";
 }

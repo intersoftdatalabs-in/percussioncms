@@ -19,82 +19,80 @@ package com.percussion.dashboardmanagement.service;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
-
 import java.util.List;
 
 /**
  * Service for managing user-specific gadgets.
- * <p>
- * Sunny Sal says: "User gadgets, now Java 11 and Google-styled!"
+ *
+ * <p>Sunny Sal says: "User gadgets, now Java 11 and Google-styled!"
  */
 public interface IPSGadgetUserService extends IPSDataService<PSGadget, PSGadget, String> {
 
-    /**
-     * Gets all gadgets for a user.
-     *
-     * @param username the username
-     * @return list of gadgets for the user
-     * @throws PSGadgetNotFoundException if not found
-     * @throws PSGadgetServiceException on service error
-     */
-    List<PSGadget> findAll(String username) throws PSGadgetNotFoundException, PSGadgetServiceException;
+  /**
+   * Gets all gadgets for a user.
+   *
+   * @param username the username
+   * @return list of gadgets for the user
+   * @throws PSGadgetNotFoundException if not found
+   * @throws PSGadgetServiceException on service error
+   */
+  List<PSGadget> findAll(String username)
+      throws PSGadgetNotFoundException, PSGadgetServiceException;
 
-    /**
-     * Saves a gadget for a user.
-     *
-     * @param username the username
-     * @param gadget the gadget to save
-     * @return the saved gadget
-     * @throws PSGadgetNotFoundException if not found
-     * @throws PSGadgetServiceException on service error
-     */
-    PSGadget save(String username, PSGadget gadget) throws PSGadgetNotFoundException, PSGadgetServiceException;
+  /**
+   * Saves a gadget for a user.
+   *
+   * @param username the username
+   * @param gadget the gadget to save
+   * @return the saved gadget
+   * @throws PSGadgetNotFoundException if not found
+   * @throws PSGadgetServiceException on service error
+   */
+  PSGadget save(String username, PSGadget gadget)
+      throws PSGadgetNotFoundException, PSGadgetServiceException;
 
-    /**
-     * Deletes a gadget for a user.
-     *
-     * @param username the username
-     * @param id the gadget id
-     * @throws PSGadgetNotFoundException if not found
-     * @throws PSGadgetServiceException on service error
-     */
-    void delete(String username, String id) throws PSGadgetNotFoundException, PSGadgetServiceException;
+  /**
+   * Deletes a gadget for a user.
+   *
+   * @param username the username
+   * @param id the gadget id
+   * @throws PSGadgetNotFoundException if not found
+   * @throws PSGadgetServiceException on service error
+   */
+  void delete(String username, String id)
+      throws PSGadgetNotFoundException, PSGadgetServiceException;
 
-    /**
-     * Exception for gadget service errors.
-     */
-    class PSGadgetServiceException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+  /** Exception for gadget service errors. */
+  class PSGadgetServiceException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
-        public PSGadgetServiceException(String message) {
-            super(message);
-        }
-
-        public PSGadgetServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSGadgetServiceException(Throwable cause) {
-            super(cause);
-        }
+    public PSGadgetServiceException(String message) {
+      super(message);
     }
 
-    /**
-     * Exception for gadget not found scenarios.
-     */
-    class PSGadgetNotFoundException extends PSGadgetServiceException implements IPSNotFoundException {
-        private static final long serialVersionUID = 1L;
-
-        public PSGadgetNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSGadgetNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSGadgetNotFoundException(Throwable cause) {
-            super(cause);
-        }
+    public PSGadgetServiceException(String message, Throwable cause) {
+      super(message, cause);
     }
+
+    public PSGadgetServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /** Exception for gadget not found scenarios. */
+  class PSGadgetNotFoundException extends PSGadgetServiceException implements IPSNotFoundException {
+    private static final long serialVersionUID = 1L;
+
+    public PSGadgetNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSGadgetNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSGadgetNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

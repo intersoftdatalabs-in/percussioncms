@@ -24,10 +24,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
 
 /**
- * A base class for CellEditors, providing default implementations for all
- * methods in the CellEditor interface and support for managing a series
- * of listeners.
- *
+ * A base class for CellEditors, providing default implementations for all methods in the CellEditor
+ * interface and support for managing a series of listeners.
  */
 public class AbstractCellEditor implements CellEditor {
   protected EventListenerList listenerList = new EventListenerList();
@@ -59,8 +57,8 @@ public class AbstractCellEditor implements CellEditor {
   }
 
   /**
-   * Notify all listeners that have registered interest for
-   * notification on this event type.
+   * Notify all listeners that have registered interest for notification on this event type.
+   *
    * @see EventListenerList
    */
   protected void fireEditingStopped() {
@@ -76,8 +74,8 @@ public class AbstractCellEditor implements CellEditor {
   }
 
   /**
-   * Notify all listeners that have registered interest for
-   * notification on this event type.
+   * Notify all listeners that have registered interest for notification on this event type.
+   *
    * @see EventListenerList
    */
   protected void fireEditingCanceled() {

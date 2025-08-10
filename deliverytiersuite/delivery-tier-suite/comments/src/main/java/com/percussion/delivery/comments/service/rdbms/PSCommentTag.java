@@ -29,9 +29,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.TableGenerator;
 
 /**
- *
  * @author miltonpividori
- *
  */
 @Entity
 @Table(name = "PERC_COMMENT_TAGS")

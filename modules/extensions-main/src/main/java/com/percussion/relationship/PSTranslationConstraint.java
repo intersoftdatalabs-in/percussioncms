@@ -36,32 +36,29 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This exit decides upon table lookups whether or not the requested
- * translation relationship can be created.
+ * This exit decides upon table lookups whether or not the requested translation relationship can be
+ * created.
  */
 public class PSTranslationConstraint extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   private static final Logger log = LogManager.getLogger(PSTranslationConstraint.class);
 
   /**
-   * Pre processes the supplied request and throws a
-   * <code>PSRequestValidationException</code> if a translation for the
-   * current item and requested language already exists. If the request already
-   * contains non empty value for {@link IPSHtmlParameters#SYS_DEPENDENTID},
-   * no validation is done assuming the translation is not being created in
-   * this request and already exists.
+   * Pre processes the supplied request and throws a <code>PSRequestValidationException</code> if a
+   * translation for the current item and requested language already exists. If the request already
+   * contains non empty value for {@link IPSHtmlParameters#SYS_DEPENDENTID}, no validation is done
+   * assuming the translation is not being created in this request and already exists.
    *
-   * @param params the exit parameters, not used for this exit and therefore
-   *           can be <code>null</code> or empty.
-   * @param request the request to operate on, not <code>null</code>. The
-   *           request must provide the HTML parameters {#link
-   *           com.percussion.system.utils.IPSHtmlParameters.SYS_CONTENTID} and {#link
-   *           com.percussion.system.utils.IPSHtmlParameters.SYS_LANG} and {#link
-   *           com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
-   * @throws PSAuthorizationException if the requestor is not authorized to
-   *            perform the requested operation.
-   * @throws PSRequestValidationException if the current item already has been
-   *            translated to the requested language.
+   * @param params the exit parameters, not used for this exit and therefore can be <code>null
+   *     </code> or empty.
+   * @param request the request to operate on, not <code>null</code>. The request must provide the
+   *     HTML parameters {#link com.percussion.system.utils.IPSHtmlParameters.SYS_CONTENTID} and
+   *     {#link com.percussion.system.utils.IPSHtmlParameters.SYS_LANG} and {#link
+   *     com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPTYPE}.
+   * @throws PSAuthorizationException if the requestor is not authorized to perform the requested
+   *     operation.
+   * @throws PSRequestValidationException if the current item already has been translated to the
+   *     requested language.
    * @throws PSParameterMismatchException is never thrown from this class.
    * @throws PSExtensionProcessingException for any exit processing errors.
    */

@@ -45,26 +45,21 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.apache.tika.sax.WriteOutContentHandler;
 
 /**
- * Uses Apache Tika to extract text from many different document types.
- * This is added as a replacement for most of the old system text converters
- *
+ * Uses Apache Tika to extract text from many different document types. This is added as a
+ * replacement for most of the old system text converters
  */
 public class PSTikaTextConvertor implements IPSLuceneTextConverter {
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger ms_log = LogManager.getLogger(PSTikaTextConvertor.class);
 
   /**
-   * Server property to set the write limit.  This is the maximum number of characters
-   * to store in the String sent to the indexer.  This can be very large for a large document
-   * If a document is over this limit it will only index the text before the limit.
+   * Server property to set the write limit. This is the maximum number of characters to store in
+   * the String sent to the indexer. This can be very large for a large document If a document is
+   * over this limit it will only index the text before the limit.
    */
   private static final String INDEX_WRITE_LIMIT = "indexWriteLimit";
 
-  /**
-   * Creating a new TikaConfig object takes a long time, so we will create a singleton
-   */
+  /** Creating a new TikaConfig object takes a long time, so we will create a singleton */
   private static TikaConfig m_tikaConfig = null;
 
   /*

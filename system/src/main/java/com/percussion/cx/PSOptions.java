@@ -26,16 +26,14 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class represents the Options element in the sys_Options.dtd.
- */
+/** This class represents the Options element in the sys_Options.dtd. */
 public class PSOptions implements IPSClientObjects {
   /**
-   * Constructs an empty options object based on the specified category, ready
-   * to take on new option objects.
+   * Constructs an empty options object based on the specified category, ready to take on new option
+   * objects.
    *
-   * @param category the name of the category for this set of options, must
-   *    not be <code>null</code> or empty.
+   * @param category the name of the category for this set of options, must not be <code>null</code>
+   *     or empty.
    */
   public PSOptions(String category) {
     if (category == null || category.trim().length() == 0)
@@ -45,19 +43,20 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * Creates an instance from the XML representation specified in the
-   * dtd mentioned in the  class description.
+   * Creates an instance from the XML representation specified in the dtd mentioned in the class
+   * description.
    *
-   * @param optionsElement - must not be <code>null</code>, must be defined
-   * as specified in the dtd list in the class description.
-   * @throws PSContentExplorerException - if optionsElement has an invalid
-   * definition.
+   * @param optionsElement - must not be <code>null</code>, must be defined as specified in the dtd
+   *     list in the class description.
+   * @throws PSContentExplorerException - if optionsElement has an invalid definition.
    */
   public PSOptions(Element optionsElement) throws PSContentExplorerException {
     fromXml(optionsElement);
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public void fromXml(Element sourceNode) throws PSContentExplorerException {
     if (sourceNode == null) throw new IllegalArgumentException("optionsElement must not be null");
 
@@ -83,16 +82,13 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * Adds the option represented by the supplied parameters to its list of
-   * options. Replaces any option represented by <code>optionId</code> if it
-   * exists.
+   * Adds the option represented by the supplied parameters to its list of options. Replaces any
+   * option represented by <code>optionId</code> if it exists.
    *
-   * @param context the context of the option, may not be <code>null</code> or
-   * empty.
+   * @param context the context of the option, may not be <code>null</code> or empty.
    * @param optionId the unique identifier of the option, may not be <code>null
    * </code> or empty.
    * @param optionValue the option value, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if any parameter is invalid
    */
   public void addOption(String context, String optionId, Object optionValue) {
@@ -108,7 +104,9 @@ public class PSOptions implements IPSClientObjects {
     addOption(optionId, option);
   }
 
-  /** @see IPSClientObjects */
+  /**
+   * @see IPSClientObjects
+   */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc must not be null");
 
@@ -122,11 +120,10 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * The key will be the optionId of the PSOption and stored as is,
-   * therefore it is case sensitive and the PSOption itself
-   * will be the value.
+   * The key will be the optionId of the PSOption and stored as is, therefore it is case sensitive
+   * and the PSOption itself will be the value.
    *
-   * @param theOptionId  must not be <code>null</code> or empty.
+   * @param theOptionId must not be <code>null</code> or empty.
    * @param option must not be <code>null</code>
    */
   private void addOption(String theOptionId, PSOption option) {
@@ -136,26 +133,21 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * Returns an iterator of optionId's of the <code>PSOption</code> this
-   * objects contains.
+   * Returns an iterator of optionId's of the <code>PSOption</code> this objects contains.
    *
-   * @return an unmodifiable <code>Iterator</code> all of the
-   * <code>PSOption</code> optionId's as <code>Strings</code>.  May be empty
-   * but not <code>null</code>.
-   *
+   * @return an unmodifiable <code>Iterator</code> all of the <code>PSOption</code> optionId's as
+   *     <code>Strings</code>. May be empty but not <code>null</code>.
    */
   public Iterator getOptionCategories() {
     return Collections.unmodifiableSet(m_optionMap.keySet()).iterator();
   }
 
   /**
-   * Returns a <code>PSOption</code> object specified by the case-sensitive
-   * optionid.
+   * Returns a <code>PSOption</code> object specified by the case-sensitive optionid.
    *
    * @param optionid must not be <code>null</code> or empty.
-   * @return the <code>PSOption</code> specified, any modifications to the
-   * <code>PSOption</code> will affect this class, may be <code>null</code>
-   * if not found.
+   * @return the <code>PSOption</code> specified, any modifications to the <code>PSOption</code>
+   *     will affect this class, may be <code>null</code> if not found.
    */
   public PSOption getOption(String optionid) {
     if (optionid == null || optionid.trim().length() == 0)
@@ -174,14 +166,13 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * Indicates whether some other object is "equal to" this one.
-   * Overrides the method in {@link Object.equals(Object) Object} and adheres
-   * to that contract.
+   * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
+   * Object.equals(Object) Object} and adheres to that contract.
+   *
    * @param obj the reference object with which to compare.
-   * @return <code>true</code> if this object is the same as the
-   * <code>obj</code> argument; <code>false</code> otherwise. If
-   * <code>null</code> supplied or obj is not an instance of this class,
-   * <code>false</code> is returned.
+   * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>
+   *     false</code> otherwise. If <code>null</code> supplied or obj is not an instance of this
+   *     class, <code>false</code> is returned.
    */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;
@@ -195,8 +186,7 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * Overridden to fulfill contract of this method as described in
-   * {@link Object#hashCode() Object}.
+   * Overridden to fulfill contract of this method as described in {@link Object#hashCode() Object}.
    *
    * @return A hash code value for this object
    */
@@ -222,26 +212,21 @@ public class PSOptions implements IPSClientObjects {
   }
 
   /**
-   * This holds the category value, this never <code>null</code>, set by
-   * <code>setCategory()</code>.
+   * This holds the category value, this never <code>null</code>, set by <code>setCategory()</code>.
    */
   private String m_category = "";
 
   /**
-   * A Map of PSOption objects, never <code>null</code>, may be empty, keys
-   * are stored as is --  case sensitive.
+   * A Map of PSOption objects, never <code>null</code>, may be empty, keys are stored as is -- case
+   * sensitive.
+   *
    * @see #addOption(String, PSOption)
    */
   private Map m_optionMap = new HashMap();
 
-  /**
-   * Name of the element holding the options for one category of options.
-   */
+  /** Name of the element holding the options for one category of options. */
   private static final String ELEM_OPTIONS = "PSXOptions";
 
-  /**
-   * Attribute name for the element ELEM_OPTIONS representing the category of
-   * options group.
-   */
+  /** Attribute name for the element ELEM_OPTIONS representing the category of options group. */
   private static final String ATTR_CATEGORY = "category";
 }

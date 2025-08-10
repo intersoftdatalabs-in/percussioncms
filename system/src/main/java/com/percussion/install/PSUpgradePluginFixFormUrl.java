@@ -30,15 +30,14 @@ import org.w3c.dom.Element;
  * Fix form url values for existing forms.
  *
  * @author leonardohildt
- *
  */
 public class PSUpgradePluginFixFormUrl implements IPSUpgradePlugin {
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -74,9 +73,8 @@ public class PSUpgradePluginFixFormUrl implements IPSUpgradePlugin {
   }
 
   /**
-   * Fixes form url by changing all "/perc-form-processor/forms" to
-   * "/perc-form-processor/form/" in the RENDEDERDFORM column of the
-   * CT_PERCFORMASSET table.
+   * Fixes form url by changing all "/perc-form-processor/forms" to "/perc-form-processor/form/" in
+   * the RENDEDERDFORM column of the CT_PERCFORMASSET table.
    *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
@@ -132,8 +130,8 @@ public class PSUpgradePluginFixFormUrl implements IPSUpgradePlugin {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */

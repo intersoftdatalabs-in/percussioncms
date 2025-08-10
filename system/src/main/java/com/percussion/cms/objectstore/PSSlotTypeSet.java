@@ -22,29 +22,22 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 /**
- * This class is a thin wrapper of the PSDbComponentSet that
- * represents a set of PSSlotType objects.
+ * This class is a thin wrapper of the PSDbComponentSet that represents a set of PSSlotType objects.
  */
 public class PSSlotTypeSet extends PSDbComponentSet {
-  /**
-   * Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)}
-   * for more details.
-   */
+  /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   public PSSlotTypeSet() throws PSCmsException {
     super(PSSlotType.class);
   }
 
-  /**
-   * Ctor for reserializing.
-   * See {@link PSDbComponentSet#PSDbComponentSet(Element) base ctor}.
-   */
+  /** Ctor for reserializing. See {@link PSDbComponentSet#PSDbComponentSet(Element) base ctor}. */
   public PSSlotTypeSet(Element src) throws PSUnknownNodeTypeException {
     super(src);
   }
 
   /**
-   * Ctor that takes array of elements, each must represent one PSSlotType.
-   * See {@link PSDbComponentSet#PSDbComponentSet(Element[], Class) base ctor}.
+   * Ctor that takes array of elements, each must represent one PSSlotType. See {@link
+   * PSDbComponentSet#PSDbComponentSet(Element[], Class) base ctor}.
    */
   public PSSlotTypeSet(Element[] items) throws PSUnknownNodeTypeException {
     super(items, PSSlotType.class);
@@ -57,8 +50,8 @@ public class PSSlotTypeSet extends PSDbComponentSet {
 
   /**
    * Find the slot type by name.
-   * @param slotName name of the slot type to find, must not be
-   * <code>null</code> or empty.
+   *
+   * @param slotName name of the slot type to find, must not be <code>null</code> or empty.
    * @return matching slot type if found. <code>null</code> if not found.
    */
   public PSSlotType getSlotTypeByName(String slotName) {
@@ -75,6 +68,7 @@ public class PSSlotTypeSet extends PSDbComponentSet {
 
   /**
    * Find the slot type by content type id.
+   *
    * @param slotId slot id of the slot type to find, must be > 0.
    * @return matching slot type if found. <code>null</code> if not found.
    */
@@ -89,8 +83,6 @@ public class PSSlotTypeSet extends PSDbComponentSet {
     return null;
   }
 
-  /**
-   * Root element name for the xml representation of the object
-   */
+  /** Root element name for the xml representation of the object */
   public static final String XML_NODE_NAME = "PSXSlotTypeSet";
 }

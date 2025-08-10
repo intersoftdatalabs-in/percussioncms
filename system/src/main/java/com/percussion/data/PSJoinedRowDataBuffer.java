@@ -31,24 +31,15 @@ import java.util.HashMap;
  */
 class PSJoinedRowDataBuffer {
   /**
-   * Construct a data buffer for storing joined result sets using the
-   * specified left and right result sets.
+   * Construct a data buffer for storing joined result sets using the specified left and right
+   * result sets.
    *
-   * @param      lRS            the left side result set
-   *
-   * @param      rRS            the right side result set
-   *
-   * @param      columnMap      the column name to index map for use
-   *                              in building the result set
-   *
-   * @param      omitColumns      set to <code>true</code> for columns to
-   *                              be omitted from the result set
-   *
-   * @param      expectedSelectivity
-   *                        the number of rows we expect to be in a typical
-   *                        result set
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param lRS the left side result set
+   * @param rRS the right side result set
+   * @param columnMap the column name to index map for use in building the result set
+   * @param omitColumns set to <code>true</code> for columns to be omitted from the result set
+   * @param expectedSelectivity the number of rows we expect to be in a typical result set
+   * @exception SQLException if a SQL error occurs
    */
   PSJoinedRowDataBuffer(
       ResultSet lRS,
@@ -65,20 +56,13 @@ class PSJoinedRowDataBuffer {
   }
 
   /**
-   * Construct a data buffer for storing joined result sets using the
-   * only the left side result set. This is used by the
-   * PSIndexedLookupJoiner.
+   * Construct a data buffer for storing joined result sets using the only the left side result set.
+   * This is used by the PSIndexedLookupJoiner.
    *
-   * @param      lRS            the left side result set
-   *
-   * @param      columnMap      the column name to index map for use
-   *                              in building the result set
-   *
-   * @param      expectedSelectivity
-   *                        the number of rows we expect to be in a typical
-   *                        result set
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param lRS the left side result set
+   * @param columnMap the column name to index map for use in building the result set
+   * @param expectedSelectivity the number of rows we expect to be in a typical result set
+   * @exception SQLException if a SQL error occurs
    */
   PSJoinedRowDataBuffer(
       ResultSet lRS, HashMap columnMap, boolean[] omitColumns, int expectedSelectivity)
@@ -130,12 +114,10 @@ class PSJoinedRowDataBuffer {
   }
 
   /**
-   * Set the right side result set for this data buffer.
-   * This is used by the PSIndexedLookupJoiner.
+   * Set the right side result set for this data buffer. This is used by the PSIndexedLookupJoiner.
    *
-   * @param      rRS            the right side result set
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param rRS the right side result set
+   * @exception SQLException if a SQL error occurs
    */
   void setRightSideResultSet(ResultSet rRS) throws java.sql.SQLException {
     ResultSetMetaData rMeta = rRS.getMetaData();
@@ -193,37 +175,27 @@ class PSJoinedRowDataBuffer {
     readRightRow();
   }
 
-  /**
-   * get the number of columns in the combined result set.
-   */
+  /** get the number of columns in the combined result set. */
   int getColumnCount() {
     return m_joinedColumnCount;
   }
 
-  /**
-   * get the current row's data.
-   */
+  /** get the current row's data. */
   Object[] getCurrentRow() {
     return m_curRow;
   }
 
-  /**
-   * get the peek ahead (next) row's data.
-   */
+  /** get the peek ahead (next) row's data. */
   Object[] getPeekAheadRow() {
     return m_nextRow;
   }
 
-  /**
-   * does the left side have a next row?
-   */
+  /** does the left side have a next row? */
   boolean hasLeftPeekAheadRow() {
     return m_lHasNext;
   }
 
-  /**
-   * does the right side have a next row?
-   */
+  /** does the right side have a next row? */
   boolean hasRightPeekAheadRow() {
     return m_rHasNext;
   }
@@ -231,7 +203,7 @@ class PSJoinedRowDataBuffer {
   /**
    * read the next row from the left side result set.
    *
-   * @exception   SQLException   if a SQL error occurs
+   * @exception SQLException if a SQL error occurs
    */
   boolean readLeftRow() throws java.sql.SQLException {
     if (!m_lHasData && !m_lHasNext) return false;
@@ -256,7 +228,7 @@ class PSJoinedRowDataBuffer {
   /**
    * read the next row from the right side result set.
    *
-   * @exception   SQLException   if a SQL error occurs
+   * @exception SQLException if a SQL error occurs
    */
   boolean readRightRow() throws java.sql.SQLException {
     if (!m_rHasData && !m_rHasNext) return false;
@@ -281,8 +253,7 @@ class PSJoinedRowDataBuffer {
   /**
    * Add a row of data to the result set.
    *
-   * @param   rowData         an array of objects representing the row
-   *                           of data to add to the result set
+   * @param rowData an array of objects representing the row of data to add to the result set
    */
   void addRow(Object[] rowData) {
     // add the row data to the result set
@@ -296,11 +267,10 @@ class PSJoinedRowDataBuffer {
   }
 
   /**
-   * Add a row of data to the result set, using NULL values for the
-   * right hand side (for full or left outer joins).
+   * Add a row of data to the result set, using NULL values for the right hand side (for full or
+   * left outer joins).
    *
-   * @param   rowData         an array of objects representing the row
-   *                           of data to add to the result set
+   * @param rowData an array of objects representing the row of data to add to the result set
    */
   void addRowNullRight(Object[] rowData) {
     // add the real row data to the left side of the result set
@@ -323,11 +293,10 @@ class PSJoinedRowDataBuffer {
   }
 
   /**
-   * Add a row of data to the result set, using NULL values for the
-   * left hand side (for full or right outer joins).
+   * Add a row of data to the result set, using NULL values for the left hand side (for full or
+   * right outer joins).
    *
-   * @param   rowData         an array of objects representing the row
-   *                           of data to add to the result set
+   * @param rowData an array of objects representing the row of data to add to the result set
    */
   void addRowNullLeft(Object[] rowData) {
     // add nulls to the left side of the result set
@@ -349,9 +318,7 @@ class PSJoinedRowDataBuffer {
     }
   }
 
-  /**
-   * Get the joined result set created through this object.
-   */
+  /** Get the joined result set created through this object. */
   PSResultSet getJoinedResultSet() {
     if (!m_adjustedResultSetMeta) { // this had better happen only once
       for (int i = m_omitColumns.length; i > 0; i--) {
@@ -372,35 +339,26 @@ class PSJoinedRowDataBuffer {
     return new PSResultSet(m_joinedRSData, m_columnHash, m_joinedRSMetaData);
   }
 
-  /**
-   * Get the number of rows we've added to the result set.
-   */
+  /** Get the number of rows we've added to the result set. */
   public int getRowsAdded() {
     if ((m_joinedRSData == null) || (m_joinedRSData.length == 0)) return 0;
 
     return m_joinedRSData[0].size();
   }
 
-  /**
-   * Do we have a mark set so we can reprocess rows?
-   */
+  /** Do we have a mark set so we can reprocess rows? */
   boolean isMarked() {
     return (m_rowBeginMark != NO_MARK);
   }
 
   /**
-   * Mark the current row as the first row in a set of rows we will
-   * be repeating.
-   * <P>
-   * When performing many:many joins, we match
-   * the left side result set against each relation on the right side.
-   * When we detect we're in a many:many situation, we'll process each
-   * right side row, keeping track of the first row that matched using
-   * this method. When we're out of right side rows but we still have
-   * a matching left side key, we'll call
-   * {@link #reprocessMarkedRows reprocessMarkedRows}
-   * to apply the new left values with the remembered right side row
-   * values.
+   * Mark the current row as the first row in a set of rows we will be repeating.
+   *
+   * <p>When performing many:many joins, we match the left side result set against each relation on
+   * the right side. When we detect we're in a many:many situation, we'll process each right side
+   * row, keeping track of the first row that matched using this method. When we're out of right
+   * side rows but we still have a matching left side key, we'll call {@link #reprocessMarkedRows
+   * reprocessMarkedRows} to apply the new left values with the remembered right side row values.
    */
   void setBeginMark() {
     // set the mark to the number of rows in the buf
@@ -409,18 +367,13 @@ class PSJoinedRowDataBuffer {
   }
 
   /**
-   * Mark the current row as the last row in a set of rows we will
-   * be repeating.
-   * <P>
-   * When performing many:many joins, we match
-   * the left side result set against each relation on the right side.
-   * When we detect we're in a many:many situation, we'll process each
-   * right side row, keeping track of the first row that matched using
-   * this method. When we're out of right side rows but we still have
-   * a matching left side key, we'll call
-   * {@link #reprocessMarkedRows reprocessMarkedRows}
-   * to apply the new left values with the remembered right side row
-   * values.
+   * Mark the current row as the last row in a set of rows we will be repeating.
+   *
+   * <p>When performing many:many joins, we match the left side result set against each relation on
+   * the right side. When we detect we're in a many:many situation, we'll process each right side
+   * row, keeping track of the first row that matched using this method. When we're out of right
+   * side rows but we still have a matching left side key, we'll call {@link #reprocessMarkedRows
+   * reprocessMarkedRows} to apply the new left values with the remembered right side row values.
    */
   void setEndMark() {
     // set the mark to the number of rows in the buf
@@ -428,26 +381,19 @@ class PSJoinedRowDataBuffer {
     m_rowEndMark = m_joinedRSData[0].size();
   }
 
-  /**
-   * Remove the mark, allowing rows to be processed as normal.
-   */
+  /** Remove the mark, allowing rows to be processed as normal. */
   void clearMark() {
     m_rowBeginMark = NO_MARK;
     m_rowEndMark = NO_MARK;
   }
 
   /**
-   * Reprocess the data from the right side of the marked rows against
-   * the left side of the current row.
-   * When performing many:many joins, we match
-   * the left side result set against each relation on the right side.
-   * When we detect we're in a many:many situation, we'll process each
-   * right side row, keeping track of the first row that matched using
-   * this method. When we're out of right side rows but we still have
-   * a matching left side key, we'll call
-   * {@link #reprocessMarkedRows reprocessMarkedRows}
-   * to apply the new left values with the remembered right side row
-   * values.
+   * Reprocess the data from the right side of the marked rows against the left side of the current
+   * row. When performing many:many joins, we match the left side result set against each relation
+   * on the right side. When we detect we're in a many:many situation, we'll process each right side
+   * row, keeping track of the first row that matched using this method. When we're out of right
+   * side rows but we still have a matching left side key, we'll call {@link #reprocessMarkedRows
+   * reprocessMarkedRows} to apply the new left values with the remembered right side row values.
    */
   void reprocessMarkedRows() {
     if (m_rowBeginMark == NO_MARK) // no mark, skip this
@@ -519,10 +465,7 @@ class PSJoinedRowDataBuffer {
   private boolean[] m_omitColumns;
   private int m_omitColumnCount;
 
-  /**
-   * flag to guarantee we only remove omit columns once from the
-   * ResultSetMetaData we return.
-   */
+  /** flag to guarantee we only remove omit columns once from the ResultSetMetaData we return. */
   private boolean m_adjustedResultSetMeta = false;
 
   private static final int NO_MARK = -1;

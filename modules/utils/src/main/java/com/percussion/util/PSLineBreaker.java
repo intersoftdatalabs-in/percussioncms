@@ -22,25 +22,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is used to break a string up into lines with a length not
- * more than a specified width, breaking the line at the first embedded new line
- * or a whitespace or dash that is found closest to the end of the line and is
- * within a given threshold.
+ * This class is used to break a string up into lines with a length not more than a specified width,
+ * breaking the line at the first embedded new line or a whitespace or dash that is found closest to
+ * the end of the line and is within a given threshold.
  */
 public class PSLineBreaker {
 
   private static final Logger log = LogManager.getLogger(PSLineBreaker.class);
 
   /**
-   * Instantiates a <code>PSLineBreaker</code>, then recombines the lines
-   * into a single string, adding newlines after each line (except the last).
-   * See {@link #PSLineBreaker(String,int,int) ctor} for details on params.
+   * Instantiates a <code>PSLineBreaker</code>, then recombines the lines into a single string,
+   * adding newlines after each line (except the last). See {@link #PSLineBreaker(String,int,int)
+   * ctor} for details on params.
    *
-   * @param newLine Added whereever a break is found and a line follows. If
-   *    <code>null</code> or empty, "\r\n" is used.
-   *
-   * @return The supplied string, with newlines added at appropriate break
-   *    points. Never <code>null</code>.
+   * @param newLine Added whereever a break is found and a line follows. If <code>null</code> or
+   *     empty, "\r\n" is used.
+   * @return The supplied string, with newlines added at appropriate break points. Never <code>null
+   *     </code>.
    */
   public static String wrapString(String line, int maxLen, int threshold, String newLine) {
     PSLineBreaker breaker = new PSLineBreaker(line, maxLen, threshold, newLine);
@@ -61,9 +59,7 @@ public class PSLineBreaker {
     return buf.toString();
   }
 
-  /**
-   * See {@link #PSLineBreaker(String,int,int,String) ctor} for details on params.
-   */
+  /** See {@link #PSLineBreaker(String,int,int,String) ctor} for details on params. */
   public PSLineBreaker(String line, int maxLen, int threshold) {
     this(line, maxLen, threshold, null);
   }
@@ -71,28 +67,21 @@ public class PSLineBreaker {
   /**
    * Constructor for this class that takes an additional newLine string
    *
-   * @param line the line to break.  May not be <code>null</code>.
-   *
-   * @param maxLen the max length of each line to return.  Must be
-   * greater than <code>zero</code>.
-   *
-   * @param threshold number of chars counting from the end of line to check
-   *   for a whitespace or dash. If none is found within a given threshold and
-   *   a line doesn't already contain new lines, then the line will break
-   *   precisely at the specified maxLen. The embedded newLine overrides a
-   *   threshold restriction causing the line to break at the embedded new line
-   *   which is found to be closest to the beginning of the line.
-   *   In case if multiple new lines are found next to one another it results
-   *   in one empty string collected for the each new line found.
-   *   If NO new lines were found, then it looks for a dash or space.
-   *   If both dash and space are found within the threshold then it picks the
-   *   one, which index is closest to the end of the line.
-   *   Threshold value MUST be greater than <code>zero</code> and less than maxLen.
-   *   Usage examples / tests can be found in the main method of this class.
-   *
-   * @param newLine new line string to take into account when breaking lines,
-   * for backward compatibility if <code>null</code> or <code>empty</code>
-   * is passed then assumes newLine = "\r\n"
+   * @param line the line to break. May not be <code>null</code>.
+   * @param maxLen the max length of each line to return. Must be greater than <code>zero</code>.
+   * @param threshold number of chars counting from the end of line to check for a whitespace or
+   *     dash. If none is found within a given threshold and a line doesn't already contain new
+   *     lines, then the line will break precisely at the specified maxLen. The embedded newLine
+   *     overrides a threshold restriction causing the line to break at the embedded new line which
+   *     is found to be closest to the beginning of the line. In case if multiple new lines are
+   *     found next to one another it results in one empty string collected for the each new line
+   *     found. If NO new lines were found, then it looks for a dash or space. If both dash and
+   *     space are found within the threshold then it picks the one, which index is closest to the
+   *     end of the line. Threshold value MUST be greater than <code>zero</code> and less than
+   *     maxLen. Usage examples / tests can be found in the main method of this class.
+   * @param newLine new line string to take into account when breaking lines, for backward
+   *     compatibility if <code>null</code> or <code>empty</code> is passed then assumes newLine =
+   *     "\r\n"
    */
   public PSLineBreaker(String line, int maxLen, int threshold, String newLine) {
     // validate inputs
@@ -179,8 +168,9 @@ public class PSLineBreaker {
 
   /**
    * Checks to see if more lines will be returned.
-   * @return <code>true</code> if there are more lines, <code>false</code>
-   * if no more lines are available.
+   *
+   * @return <code>true</code> if there are more lines, <code>false</code> if no more lines are
+   *     available.
    */
   public boolean hasNext() {
     return (m_size > m_index);
@@ -188,8 +178,8 @@ public class PSLineBreaker {
 
   /**
    * Returns the next line.
-   * @return the next line.  Use <code>hasNext</code> to determine if there
-   * are more lines.
+   *
+   * @return the next line. Use <code>hasNext</code> to determine if there are more lines.
    * @throws IndexOutOfBoundsException if no more lines are available.
    */
   public String next() {
@@ -198,6 +188,7 @@ public class PSLineBreaker {
 
   /**
    * Returns the length of the longest line.
+   *
    * @return the length
    */
   public int maxLength() {
@@ -206,6 +197,7 @@ public class PSLineBreaker {
 
   /**
    * Return the split lines as an array of strings
+   *
    * @return String array after breaking, never <code>null</code> or empty.
    */
   public String[] getLines() {

@@ -30,16 +30,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * PSTrimRxPubDocs is a task which will trim the RXPUBDOCS table based on
- * the user property.  This class will trim to the date if one was specified by
- * the user.
+ * PSTrimRxPubDocs is a task which will trim the RXPUBDOCS table based on the user property. This
+ * class will trim to the date if one was specified by the user.
  *
- * It will also write to the log file showing any table rows that were removed.
+ * <p>It will also write to the log file showing any table rows that were removed. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -56,7 +53,6 @@ import java.sql.SQLException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSTrimRxPubDocs extends PSAction {
   // see base class
@@ -100,8 +96,8 @@ public class PSTrimRxPubDocs extends PSAction {
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    * @param dbmsDef the database definition, cannot be <code>null</code>.
-   * @param date the date to which publishing history will be trimmed,
-   * assumed to be valid in the form mm/dd/yyyy, cannot be <code>null</code>.
+   * @param date the date to which publishing history will be trimmed, assumed to be valid in the
+   *     form mm/dd/yyyy, cannot be <code>null</code>.
    * @return <code>true</code> if modifications were made.
    */
   private void trimTable(final Connection conn, final PSJdbcDbmsDef dbmsDef, final String date) {
@@ -156,9 +152,8 @@ public class PSTrimRxPubDocs extends PSAction {
   /**
    * Sets the should trim flag.
    *
-   * @param shouldTrim if <code>true</code> the table will be trimmed
-   * according to the date specified by <code>m_strTrimDate</code>, otherwise
-   * no modifications will be made.
+   * @param shouldTrim if <code>true</code> the table will be trimmed according to the date
+   *     specified by <code>m_strTrimDate</code>, otherwise no modifications will be made.
    */
   public void setShouldTrim(boolean shouldTrim) {
     m_bShouldTrim = shouldTrim;
@@ -167,8 +162,8 @@ public class PSTrimRxPubDocs extends PSAction {
   /**
    * Sets the trim date.
    *
-   * @param trimDate all publishing history prior to this date will be
-   * removed from the RXPUBDOCS table.
+   * @param trimDate all publishing history prior to this date will be removed from the RXPUBDOCS
+   *     table.
    */
   public void setTrimDate(String trimDate) {
     m_strTrimDate = trimDate;
@@ -182,22 +177,16 @@ public class PSTrimRxPubDocs extends PSAction {
    * Static Strings
    *************************************************************************/
 
-  /**
-   * RXPUBDOCS Table constant
-   */
+  /** RXPUBDOCS Table constant */
   private static String RXPUBDOCS_TABLE = "RXPUBDOCS";
 
   /**************************************************************************
    * Properties
    *************************************************************************/
 
-  /**
-   * Determines if the table should be trimmed.
-   */
+  /** Determines if the table should be trimmed. */
   private boolean m_bShouldTrim = false;
 
-  /**
-   * All history prior to this date will be removed from the table.
-   */
+  /** All history prior to this date will be removed from the table. */
   private String m_strTrimDate;
 }

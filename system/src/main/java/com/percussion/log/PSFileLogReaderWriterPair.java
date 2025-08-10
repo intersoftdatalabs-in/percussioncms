@@ -22,8 +22,8 @@ import java.io.RandomAccessFile;
 import org.xml.sax.SAXException;
 
 /**
- * PSFileLogReaderWriter pair is both a log reader and a log writer based
- * on the same disk file. All of the operations are synchronized.
+ * PSFileLogReaderWriter pair is both a log reader and a log writer based on the same disk file. All
+ * of the operations are synchronized.
  */
 public class PSFileLogReaderWriterPair implements IPSLogReader, IPSLogWriter {
 
@@ -36,12 +36,11 @@ public class PSFileLogReaderWriterPair implements IPSLogReader, IPSLogWriter {
   }
 
   /**
-   * Close both the log reader and writer.
-   * This should only be called when they are no longer needed. Any
-   * subsequent attempts to read or write from this object will throw
-   * an exception. It is not an error to call close() on a closed log reader.
+   * Close both the log reader and writer. This should only be called when they are no longer
+   * needed. Any subsequent attempts to read or write from this object will throw an exception. It
+   * is not an error to call close() on a closed log reader.
    *
-   *    @see #isOpen
+   * @see #isOpen
    */
   public synchronized void close() {
     m_writer.close();
@@ -58,24 +57,20 @@ public class PSFileLogReaderWriterPair implements IPSLogReader, IPSLogWriter {
   }
 
   /**
-   *    Use to query whether the log reader is open or not.
+   * Use to query whether the log reader is open or not.
    *
-   *    @return Returns true if the log reader is open, false if the log
-   *    reader is not open.
-   *
-   *    @see #close
+   * @return Returns true if the log reader is open, false if the log reader is not open.
+   * @see #close
    */
   public synchronized boolean isOpen() {
     return (m_writer.isOpen() && m_reader.isOpen());
   }
 
   /**
-   * Read log messages   using   the specified   filter.
+   * Read log messages using the specified filter.
    *
    * @param filter the log message filter
-   *
-   * @exception IllegalStateException if close has already been called
-   * on this reader
+   * @exception IllegalStateException if close has already been called on this reader
    */
   public synchronized void read(IPSLogReaderFilter filter) throws java.lang.IllegalStateException {
     m_reader.read(filter, m_changed);
@@ -85,9 +80,8 @@ public class PSFileLogReaderWriterPair implements IPSLogReader, IPSLogWriter {
   /**
    * Write the log message.
    *
-   * @param      msg                the log message to be written
-   * @exception  IllegalStateException   if close has already been called
-   *                              on this writer
+   * @param msg the log message to be written
+   * @exception IllegalStateException if close has already been called on this writer
    */
   public synchronized void write(PSLogInformation msg) throws java.lang.IllegalStateException {
     m_writer.write(msg);
@@ -96,19 +90,18 @@ public class PSFileLogReaderWriterPair implements IPSLogReader, IPSLogWriter {
 
   /**
    * Attemps to reopen the writer if it is closed.
-   * @return     true if the log writer was already open or if it was
-   * succesfully reopend, false otherwise.
+   *
+   * @return true if the log writer was already open or if it was succesfully reopend, false
+   *     otherwise.
    */
   public synchronized boolean open() {
     return m_writer.open();
   }
 
   /**
-   * Remove all entries in the log created on or before the given date
-   * and time.
+   * Remove all entries in the log created on or before the given date and time.
    *
-   * @param   allBefore   all entries with a time up to and including this
-   * date will be truncated.
+   * @param allBefore all entries with a time up to and including this date will be truncated.
    */
   public void truncateLog(java.util.Date allBefore) {
     m_writer.truncateLog(allBefore);

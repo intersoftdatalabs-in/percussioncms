@@ -16,65 +16,64 @@
  */
 package com.percussion.pso.restservice.model;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
-/**
- */
-@XmlRootElement(name="XmlValue")
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/** */
+@XmlRootElement(name = "XmlValue")
 public class XhtmlValue implements Value {
-	/**
-     * Logger for this class
-     */
-    private static final Logger log = LogManager.getLogger(XhtmlValue.class);
- 
-	/**
-	 * Field stringValue.
-	 */
-	private String stringValue;
-	/**
-	 * Field href.
-	 */
-	private String href;
-	/**
-	 * Field type.
-	 */
-	public static final int TYPE=1;  
+  /** Logger for this class */
+  private static final Logger log = LogManager.getLogger(XhtmlValue.class);
 
-	/**
-	 * Method setStringValue.
-	 * @param stringValue String
-	 * @see Value#setStringValue(String)
-	 */
-	public void setStringValue(String stringValue) {
-		this.stringValue = stringValue;
-	}
-	/**
-	 * Method getStringValue.
-	 * @return String
-	 * @see Value#getStringValue()
-	 */
-	@XmlValue
-	public String getStringValue() {
-		return stringValue;
-	}
-	/**
-	 * Method setHref.
-	 * @param href String
-	 */
-	public void setHref(String href) {
-		this.href = href;
-	}
-	/**
-	 * Method getHref.
-	 * @return String
-	 */
-	@XmlAttribute
-	public String getHref() {
-		return href;
-	}
+  /** Field stringValue. */
+  private String stringValue;
 
+  /** Field href. */
+  private String href;
+
+  /** Field type. */
+  public static final int TYPE = 1;
+
+  /**
+   * Method setStringValue.
+   *
+   * @param stringValue String
+   * @see Value#setStringValue(String)
+   */
+  public void setStringValue(String stringValue) {
+    this.stringValue = stringValue;
+  }
+
+  /**
+   * Method getStringValue.
+   *
+   * @return String
+   * @see Value#getStringValue()
+   */
+  @XmlValue
+  public String getStringValue() {
+    return stringValue;
+  }
+
+  /**
+   * Method setHref.
+   *
+   * @param href String
+   */
+  public void setHref(String href) {
+    this.href = href;
+  }
+
+  /**
+   * Method getHref.
+   *
+   * @return String
+   */
+  @XmlAttribute
+  public String getHref() {
+    return href;
+  }
 }

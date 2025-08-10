@@ -60,28 +60,22 @@ import net.htmlparser.jericho.Tag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-/**
- * Various utility methods that are used by one or more
- * client actions.
- */
+/** Various utility methods that are used by one or more client actions. */
 public abstract class PSActionUtil {
 
   static Logger log = Logger.getLogger(PSActionUtil.class);
 
-  /**
-   * Private ctor to not allow instantiation
-   */
+  /** Private ctor to not allow instantiation */
   private PSActionUtil() {}
 
   /**
-   * Helper method to retrieve the the assembly parameters from an
-   * object id and place them in a map for use with the assembly service.
-   * Use component summary as backup for the values if not present in
-   * the object id.
+   * Helper method to retrieve the the assembly parameters from an object id and place them in a map
+   * for use with the assembly service. Use component summary as backup for the values if not
+   * present in the object id.
+   *
    * @param objectId cannot be <code>null</code>.
-   * @param currentUser the current user, used to get the appropriate
-   * revision. May be <code> null</code> or empty. If so
-   * then just uses the summary revision.
+   * @param currentUser the current user, used to get the appropriate revision. May be <code> null
+   *     </code> or empty. If so then just uses the summary revision.
    * @return map objectId, never <code>null</code>.
    */
   protected static Map<String, String[]> getAssemblyParams(
@@ -120,15 +114,12 @@ public abstract class PSActionUtil {
   }
 
   /**
-   * Helper method to add a parameter value to an existing
-   * assembly parameter map.
-   * @param assemblyParams the existing assembly parameter
-   * map. Cannot be <code>null</code>.
-   * @param name the name of the parameter. Cannot be <code>null</code>
-   * or empty.
-   * @param value the value in the form of a single string or a
-   * string array or multiple strings seperated by
-   * commas.
+   * Helper method to add a parameter value to an existing assembly parameter map.
+   *
+   * @param assemblyParams the existing assembly parameter map. Cannot be <code>null</code>.
+   * @param name the name of the parameter. Cannot be <code>null</code> or empty.
+   * @param value the value in the form of a single string or a string array or multiple strings
+   *     seperated by commas.
    */
   protected static void addAssemblyParam(
       Map<String, String[]> assemblyParams, String name, String... value) {
@@ -140,12 +131,10 @@ public abstract class PSActionUtil {
   }
 
   /**
-   * Helper method to assemble the object specified in
-   * the passed in assembly parameters.
-   * @param assemblyParams cannot be <code>null</code> or
-   * empty.
-   * @return a pair object containing the assembly item and
-   * result.
+   * Helper method to assemble the object specified in the passed in assembly parameters.
+   *
+   * @param assemblyParams cannot be <code>null</code> or empty.
+   * @return a pair object containing the assembly item and result.
    * @throws Exception upon any assembly error that occurs.
    */
   protected static PSPair<IPSAssemblyItem, IPSAssemblyResult> assemble(
@@ -167,6 +156,7 @@ public abstract class PSActionUtil {
 
   /**
    * Helper method to load a slot.
+   *
    * @param slotid cannot be <code>null</code> or empty.
    * @return the template slot object, never <code>null</code>.
    * @throws PSNotFoundException if the slot does not exist.
@@ -186,12 +176,10 @@ public abstract class PSActionUtil {
   }
 
   /**
-   * Helper method to return the content within the
-   * HTML body tags of an assembly result.
+   * Helper method to return the content within the HTML body tags of an assembly result.
    *
    * @param result the assembly result, cannot be <code>null</code>.
-   * @return the body content string, never <code>null</code>.
-   * May be empty.
+   * @return the body content string, never <code>null</code>. May be empty.
    * @throws Exception
    */
   protected static String getBodyContent(IPSAssemblyResult result) throws Exception {
@@ -235,13 +223,11 @@ public abstract class PSActionUtil {
   }
 
   /**
-   * Helper method to obtain Allowed node definitions (content types) for a
-   * given slot.
+   * Helper method to obtain Allowed node definitions (content types) for a given slot.
    *
-   * @param slotid slot ID string, must not be <code>null</code> or empty and
-   * must be a valid slot.
-   * @return list of node definitions, never <code>null</code> may be empty.
-   * Sorted by names of the definitions.
+   * @param slotid slot ID string, must not be <code>null</code> or empty and must be a valid slot.
+   * @return list of node definitions, never <code>null</code> may be empty. Sorted by names of the
+   *     definitions.
    */
   @SuppressWarnings("unchecked")
   public static List<IPSNodeDefinition> getAllowedNodeDefsForSlot(String slotid)
@@ -269,37 +255,35 @@ public abstract class PSActionUtil {
   }
 
   /**
-   * Helper that resolves the supplied site name object and folder path objects
-   * following these rules.
+   * Helper that resolves the supplied site name object and folder path objects following these
+   * rules.
+   *
    * <p>
+   *
    * <ol>
-   * <li>If site name object is <code>null</code> then the
-   * {@link IPSHtmlParameters#SYS_SITEID} value in the returned map is set to
-   * <code>null</code> even if the folder path resolves to a site</li>
-   * <li>If the folder path object is <code>null</code> then
-   * {@link IPSHtmlParameters#SYS_FOLDERID} value in the returned map is set to
-   * <code>null</code> no matter what happens in the next steps.</li>
-   * <li>If the folder path starts with "//" then it must start with "//Sites"
-   * else it is an error. In this case the site name supplied is resolved to
-   * its siteid and the folder path is resolved to its folderid equivalent.</li>
-   * <li>If the folder path starts with "/" then the part between the first
-   * "/" and next "/" (or till end if there is no second '/') is treated as
-   * site name. In this case the site name object value is ignored.</li>
-   * <li>The rest (if any) is treated as the path that is appendable to the
-   * site's root folde path</li>
-   * <li>The folder id for the absolute path thus obtained from the previous
-   * step is returned as {@link IPSHtmlParameters#SYS_FOLDERID} in the map</li>
+   *   <li>If site name object is <code>null</code> then the {@link IPSHtmlParameters#SYS_SITEID}
+   *       value in the returned map is set to <code>null</code> even if the folder path resolves to
+   *       a site
+   *   <li>If the folder path object is <code>null</code> then {@link
+   *       IPSHtmlParameters#SYS_FOLDERID} value in the returned map is set to <code>null</code> no
+   *       matter what happens in the next steps.
+   *   <li>If the folder path starts with "//" then it must start with "//Sites" else it is an
+   *       error. In this case the site name supplied is resolved to its siteid and the folder path
+   *       is resolved to its folderid equivalent.
+   *   <li>If the folder path starts with "/" then the part between the first "/" and next "/" (or
+   *       till end if there is no second '/') is treated as site name. In this case the site name
+   *       object value is ignored.
+   *   <li>The rest (if any) is treated as the path that is appendable to the site's root folde path
+   *   <li>The folder id for the absolute path thus obtained from the previous step is returned as
+   *       {@link IPSHtmlParameters#SYS_FOLDERID} in the map
    * </ol>
    *
-   * @param siteNameObj site name as object, may be <code>null</code> in
-   * which case we return <code>null</code> for
-   * {@link IPSHtmlParameters#SYS_SITEID} in the map.
-   * @param folderPathObj folder path as object, may be <code>null</code> in
-   * which case we return <code>null</code> for
-   * {@link IPSHtmlParameters#SYS_FOLDERID} in the map.
-   * @return map of {@link IPSHtmlParameters#SYS_SITEID} and
-   * {@link IPSHtmlParameters#SYS_FOLDERID} with <code>null</code> or non
-   * <code>null</code> values.
+   * @param siteNameObj site name as object, may be <code>null</code> in which case we return <code>
+   *     null</code> for {@link IPSHtmlParameters#SYS_SITEID} in the map.
+   * @param folderPathObj folder path as object, may be <code>null</code> in which case we return
+   *     <code>null</code> for {@link IPSHtmlParameters#SYS_FOLDERID} in the map.
+   * @return map of {@link IPSHtmlParameters#SYS_SITEID} and {@link IPSHtmlParameters#SYS_FOLDERID}
+   *     with <code>null</code> or non <code>null</code> values.
    * @throws PSSiteManagerException
    * @throws PSErrorException
    */

@@ -22,19 +22,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
- * This class wraps the functionality of property DOM element of the TMX document
- * as an easy to use TMX node. The TMX counterpart provides methods to manipulate
- * the property, the most important one being to merge two nodes applying the
- * merge configuration.
+ * This class wraps the functionality of property DOM element of the TMX document as an easy to use
+ * TMX node. The TMX counterpart provides methods to manipulate the property, the most important one
+ * being to merge two nodes applying the merge configuration.
  */
 public class PSTmxProperty extends PSTmxLeafNode implements IPSTmxProperty {
   /**
-   * Constructor. Takes the parent TMX document object and the DOM element
-   * representing the property. The property type and language this property
-   * associated with are constructed from the supplied DOM element.
+   * Constructor. Takes the parent TMX document object and the DOM element representing the
+   * property. The property type and language this property associated with are constructed from the
+   * supplied DOM element.
+   *
    * @param tmxdoc parent TMX document, nust not be <code>null</code>.
-   * @param prop DOM element for the TMX property to be constructed, must not
-   * be <code>null</code>.
+   * @param prop DOM element for the TMX property to be constructed, must not be <code>null</code>.
    * @throws IllegalArgumentException if tmxDoc or prop is <code>null</code>)
    */
   PSTmxProperty(IPSTmxDocument tmxdoc, Element prop) {
@@ -51,8 +50,8 @@ public class PSTmxProperty extends PSTmxLeafNode implements IPSTmxProperty {
 
   /**
    * Returns langauge attribute of this node
-   * @return language this node associated with,  Never <code>null</code> or
-   * <code>empty</code>.
+   *
+   * @return language this node associated with, Never <code>null</code> or <code>empty</code>.
    */
   public String getLang() {
     return m_Lang;
@@ -60,7 +59,8 @@ public class PSTmxProperty extends PSTmxLeafNode implements IPSTmxProperty {
 
   /**
    * Sets langauge attribute for this node
-   * @param    lang Must not be <code>null</code> may be <code>empty</code>.
+   *
+   * @param lang Must not be <code>null</code> may be <code>empty</code>.
    * @throws IllegalArgumentException if lang is <code>null</code>
    */
   public void setLang(String lang) {
@@ -112,14 +112,14 @@ public class PSTmxProperty extends PSTmxLeafNode implements IPSTmxProperty {
   }
 
   /**
-   * The type this node is associated with. Value is <code>empty</code>
-   * initially and initialized during construction.
+   * The type this node is associated with. Value is <code>empty</code> initially and initialized
+   * during construction.
    */
   protected String m_Type = "";
 
   /**
-   * The default language this node is associated with. A translation variant
-   * can be associated with a language.
+   * The default language this node is associated with. A translation variant can be associated with
+   * a language.
    */
   protected String m_Lang = PSI18nUtils.DEFAULT_LANG;
 }

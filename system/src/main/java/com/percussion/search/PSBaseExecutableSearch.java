@@ -47,9 +47,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * The utility class to hold search criteria, build search request and execute
- * it against the Rhythmyx server.  Derived classes must implement how the
- * request against the Rhythmyx server's search handler is made.
+ * The utility class to hold search criteria, build search request and execute it against the
+ * Rhythmyx server. Derived classes must implement how the request against the Rhythmyx server's
+ * search handler is made.
  */
 @SuppressWarnings("unchecked")
 public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
@@ -57,15 +57,12 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Initialize this object from the provided parameters.
    *
-   * @param columnNames the names of the columns to include in the search
-   *    results as <code>String</code> objects, it may not be <code>null</code>
-   *
-   * @param search the search object that defines the criteria and maximum
-   *    results to obtain, it may be <code>null</code> if
-   *    <code>contentIdList</code> is not <code>null</code>.
-   *
-   * @param contentIdList The list of contentids to search on, it may be
-   *    <code>null</code> if <code>search</code> is not <code>null</code>.
+   * @param columnNames the names of the columns to include in the search results as <code>String
+   *     </code> objects, it may not be <code>null</code>
+   * @param search the search object that defines the criteria and maximum results to obtain, it may
+   *     be <code>null</code> if <code>contentIdList</code> is not <code>null</code>.
+   * @param contentIdList The list of contentids to search on, it may be <code>null</code> if <code>
+   *     search</code> is not <code>null</code>.
    */
   protected void init(List columnNames, PSSearch search, List contentIdList) {
     if (columnNames == null) throw new IllegalArgumentException("columnNames must not be null");
@@ -79,18 +76,15 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Makes the search request against the server.  Implementation is context
-   * dependent and is provided by the derived class.
+   * Makes the search request against the server. Implementation is context dependent and is
+   * provided by the derived class.
    *
-   * @param searchDoc The document containing the formatted search request to
-   * make against the server, may not be <code>null</code>.
-   * @param params Extra params to add to the search request, may be
-   * <code>null</code>.  Key is the param name as a <code>String</code>,
-   * value is the value of the param also as a <code>String</code>.
-   *
-   * @return The results document returned by the server, never
-   * <code>null</code>.
-   *
+   * @param searchDoc The document containing the formatted search request to make against the
+   *     server, may not be <code>null</code>.
+   * @param params Extra params to add to the search request, may be <code>null</code>. Key is the
+   *     param name as a <code>String</code>, value is the value of the param also as a <code>String
+   *     </code>.
+   * @return The results document returned by the server, never <code>null</code>.
    * @throws SAXException if there are any parsing errors.
    * @throws IOException if there are any other errors.
    */
@@ -98,8 +92,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
       throws IOException, SAXException;
 
   /**
-   * Set restriction only include in the results items from within the
-   * specified community.
+   * Set restriction only include in the results items from within the specified community.
    *
    * @param restrictItem <code>true</code> if set the restriction.
    * @param communityId The community id to restrict the seasrch to.
@@ -109,10 +102,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
     m_communityId = communityId;
   }
 
-  /**
-   * Convenience method that calls {@link #executeSearch(Map)
-   * executeSearch(null)}
-   */
+  /** Convenience method that calls {@link #executeSearch(Map) executeSearch(null)} */
   public PSWSSearchResponse executeSearch() throws PSSearchException {
     PSWSSearchResponse resp = null;
     try {
@@ -126,13 +116,10 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Executes the search based on the criteria specified in this object.
    *
-   * @param extraParams Params to add to the search request, may be
-   * <code>null</code>.  Key is the param name as a <code>String</code>,
-   * value is the value of the param also as a <code>String</code>.
-   *
-   * @return the search document conforming to the sys_SearchParameters.xsd,
-   *    never <code>null</code>
-   *
+   * @param extraParams Params to add to the search request, may be <code>null</code>. Key is the
+   *     param name as a <code>String</code>, value is the value of the param also as a <code>String
+   *     </code>.
+   * @return the search document conforming to the sys_SearchParameters.xsd, never <code>null</code>
    * @throws PSSearchException if an error happens executing search.
    */
   public Document executeSearch(Map extraParams) throws PSSearchException {
@@ -140,8 +127,8 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Get the current content type id list for this search. The elements are
-   * {@link Integer}s.
+   * Get the current content type id list for this search. The elements are {@link Integer}s.
+   *
    * @return the current type id collection, may be <code>null</code>.
    */
   public Collection getContentTypeIdList() {
@@ -149,10 +136,9 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Set a new content type id collection. This collection is used when
-   * formulating a new web service search request, and causes the resulting
-   * search to be limited to the given content types. The elements are
-   * {@link Integer}s.
+   * Set a new content type id collection. This collection is used when formulating a new web
+   * service search request, and causes the resulting search to be limited to the given content
+   * types. The elements are {@link Integer}s.
    *
    * @param list A new value, may be <code>null</code>.
    */
@@ -163,15 +149,12 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Executes the search based on the criteria specified in this object.
    *
-   * @param extraParams Params to add to the search request, may be
-   *           <code>null</code>. Key is the param name as a
-   *           <code>String</code>, value is the value of the param also as
-   *           a <code>String</code>.
-   * @param contentIdList List of contentIds to use, replacing any supplied
-   *           when this search was constructed, may be <code>null</code>,
-   *           never empty.
-   * @return the search document conforming to the sys_SearchParameters.xsd,
-   *         never <code>null</code>
+   * @param extraParams Params to add to the search request, may be <code>null</code>. Key is the
+   *     param name as a <code>String</code>, value is the value of the param also as a <code>String
+   *     </code>.
+   * @param contentIdList List of contentIds to use, replacing any supplied when this search was
+   *     constructed, may be <code>null</code>, never empty.
+   * @return the search document conforming to the sys_SearchParameters.xsd, never <code>null</code>
    * @throws PSSearchException if an error happens executing search.
    */
   protected Document executeSearch(Map extraParams, List contentIdList) throws PSSearchException {
@@ -207,10 +190,10 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Checks response doc root for type="failure" and if so throws
-   * PSContentExplorerException with a SEARCH_ERROR code and
-   * a full response XML as a message. If type is not "failure" then
-   * does nothing.
+   * Checks response doc root for type="failure" and if so throws PSContentExplorerException with a
+   * SEARCH_ERROR code and a full response XML as a message. If type is not "failure" then does
+   * nothing.
+   *
    * @param doc search result doc, never <code>null</code>.
    * @throws PSCmsException if response type = 'failure'
    */
@@ -232,18 +215,14 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Build a search request doc based on either a <code>PSSearch</code> object
-   * or a list of content ids, or both.  If both are supplied, the intersection
-   * of the two sets of criteria is returned.
+   * Build a search request doc based on either a <code>PSSearch</code> object or a list of content
+   * ids, or both. If both are supplied, the intersection of the two sets of criteria is returned.
    *
-   * @param search a search object with the criteria to build the proper
-   * search, assumed not <code>null</code> if <code>iterContentIds</code> is
-   * <code>null</code>.
-   * @param iterContentIds the list of content ids to search on, assumed not
-   * <code>null</code> or empty if <code>search</code> is <code>null</code>.
-   *
-   * @return the search document conforming to the sys_SearchParameters.xsd,
-   * never <code>null</code>
+   * @param search a search object with the criteria to build the proper search, assumed not <code>
+   *     null</code> if <code>iterContentIds</code> is <code>null</code>.
+   * @param iterContentIds the list of content ids to search on, assumed not <code>null</code> or
+   *     empty if <code>search</code> is <code>null</code>.
+   * @return the search document conforming to the sys_SearchParameters.xsd, never <code>null</code>
    */
   private Document createSearchRequest(PSSearch search, Iterator iterContentIds) {
     Document srDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -303,11 +282,11 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Adds all content editor fields search criteria defined in the search to
-   * the supplied search params.
+   * Adds all content editor fields search criteria defined in the search to the supplied search
+   * params.
    *
-   * @param searchParams The search params being built to execute the search,
-   * assumed not <code>null</code>
+   * @param searchParams The search params being built to execute the search, assumed not <code>null
+   *     </code>
    * @param search The search, assumed not <code>null</code>.
    */
   private void addSearchFields(PSWSSearchParams searchParams, PSSearch search) {
@@ -445,13 +424,12 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Adds search criteria for the <code>sys_contentid</code> field with all
-   * content ids defined in the supplied list to the supplied search params.
+   * Adds search criteria for the <code>sys_contentid</code> field with all content ids defined in
+   * the supplied list to the supplied search params.
    *
-   * @param searchParams The search params being built to execute the search,
-   * assumed not <code>null</code>.
-   * @param iterContentIds list of content ids, assumed not <code>null</code>,
-   * may be empty.
+   * @param searchParams The search params being built to execute the search, assumed not <code>null
+   *     </code>.
+   * @param iterContentIds list of content ids, assumed not <code>null</code>, may be empty.
    */
   private void addContentIdSearchFields(PSWSSearchParams searchParams, Iterator iterContentIds) {
     if (iterContentIds.hasNext()) {
@@ -473,11 +451,11 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * Adds all result fields defined in search to the supplied search params,
-   * and sets the start and end indexes as required.
+   * Adds all result fields defined in search to the supplied search params, and sets the start and
+   * end indexes as required.
    *
-   * @param searchParams The search params being built to execute the search,
-   * assumed not <code>null</code>
+   * @param searchParams The search params being built to execute the search, assumed not <code>null
+   *     </code>
    * @param search The search, may be <code>null</code>.
    */
   private void addSearchResults(PSWSSearchParams searchParams, PSSearch search) {
@@ -493,8 +471,8 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Add any properties that should be passed thru with the search request.
    *
-   * @param searchParams The search params being built to execute the search,
-   * assumed not <code>null</code>
+   * @param searchParams The search params being built to execute the search, assumed not <code>null
+   *     </code>
    * @param search The search, assumed not <code>null</code>.
    */
   private void addSearchProperties(PSWSSearchParams searchParams, PSSearch search) {
@@ -515,13 +493,12 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   }
 
   /**
-   * This method is used to replace the dynamic variable with actual value if
-   * the derived class override this. The default implementation will not
-   * replace the dynamic variable, but simply return the specified value.
+   * This method is used to replace the dynamic variable with actual value if the derived class
+   * override this. The default implementation will not replace the dynamic variable, but simply
+   * return the specified value.
    *
-   * @param value the parameter, if dynamic starts with "$$". Assumed not
-   *    <code>null</code> or empty.
-   *
+   * @param value the parameter, if dynamic starts with "$$". Assumed not <code>null</code> or
+   *     empty.
    * @return unmodified value of the parameter supplied.
    */
   protected String resolveDynamicValue(String value) {
@@ -531,8 +508,7 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Get the column name list.
    *
-   * @return A list over zero or more <code>String</code> objects, never
-   *    <code>null</code>.
+   * @return A list over zero or more <code>String</code> objects, never <code>null</code>.
    */
   protected List<String> getColumnNames() {
     return m_columnNames;
@@ -541,81 +517,77 @@ public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
   /**
    * Get a read-only version of the contentid list if one has been set.
    *
-   * @return The list of content ids as <code>Integer</code> objects, may be
-   * <code>null</code>.
+   * @return The list of content ids as <code>Integer</code> objects, may be <code>null</code>.
    */
   protected List getContentIdList() {
     return m_contentIdList == null ? null : Collections.unmodifiableList(m_contentIdList);
   }
 
   /**
-   * List of columns names to include in the search results, initialized by
-   * the ctor, never null or modified after that.
+   * List of columns names to include in the search results, initialized by the ctor, never null or
+   * modified after that.
    */
   protected List<String> m_columnNames;
 
   /**
-   * Indicating applying restriction for the searched items for a specified
-   * community. <code>true</code> if the restriction will be applied.
+   * Indicating applying restriction for the searched items for a specified community. <code>true
+   * </code> if the restriction will be applied.
    */
   protected boolean m_restrictItem = false;
 
   /**
-   * The community id that is used for the searched items. It is only used
-   * when the <code>m_restrictItem</code> is <code>true</code>.
+   * The community id that is used for the searched items. It is only used when the <code>
+   * m_restrictItem</code> is <code>true</code>.
    */
   protected int m_communityId;
 
   /**
-   * The search object to use when executing a search, initialized during
-   * construction, may be <code>null</code>.
+   * The search object to use when executing a search, initialized during construction, may be
+   * <code>null</code>.
    */
   protected PSSearch m_search;
 
   /**
-   * The list of content ids used to filter the search results, initialized
-   * during construction, modified by calls to <code>setContentIdList</code>,
-   * may be <code>null</code>, never empty.
+   * The list of content ids used to filter the search results, initialized during construction,
+   * modified by calls to <code>setContentIdList</code>, may be <code>null</code>, never empty.
    */
   protected List m_contentIdList;
 
   /**
-   * A collection of {@link Integer} content type ids used to filter the search
-   * query. This is initialized in the setter, but may be <code>null</code>.
+   * A collection of {@link Integer} content type ids used to filter the search query. This is
+   * initialized in the setter, but may be <code>null</code>.
    */
   private Collection m_contentTypeIdList = null;
 
   /**
-   * The name of the search field / result field that contains the content id.
-   * The value of the field is the numeric id.
+   * The name of the search field / result field that contains the content id. The value of the
+   * field is the numeric id.
    */
   protected static final String PROPERTY_CONTENTID = "sys_contentid";
 
   /**
-   * The name of the search field / result field that contains the content
-   * type id. The value of the field is the numeric id of the type.
+   * The name of the search field / result field that contains the content type id. The value of the
+   * field is the numeric id of the type.
    */
   protected static final String PROPERTY_CONTENTTYPEID = "sys_contenttypeid";
 
   /**
-   * The name of the search field used to limit the object type (such as
-   * item or folder.) The value of the field is the numeric id of the type.
+   * The name of the search field used to limit the object type (such as item or folder.) The value
+   * of the field is the numeric id of the type.
    */
   protected static final String PROPERTY_OBJECTTYPE = "sys_objecttype";
 
   /**
-   * Set of properties returned by a cx search, intialized by static
-   * intializer, never <code>null</code> or modified after that. Contains
-   * prop names as <code>String</code> objects. Every search result is
-   * guaranteed to contain at least this set of columns.
+   * Set of properties returned by a cx search, intialized by static intializer, never <code>null
+   * </code> or modified after that. Contains prop names as <code>String</code> objects. Every
+   * search result is guaranteed to contain at least this set of columns.
    */
   public static Set ms_cxPropSet;
 
   /**
-   * Set of properties returned by a related content search, intialized by
-   * static intializer, never <code>null</code> or modified after that.
-   * Contains prop names as <code>String</code> objects. Every search result
-   * is guaranteed to contain at least this set of columns.
+   * Set of properties returned by a related content search, intialized by static intializer, never
+   * <code>null</code> or modified after that. Contains prop names as <code>String</code> objects.
+   * Every search result is guaranteed to contain at least this set of columns.
    */
   public static Set ms_cxRCPropSet;
 

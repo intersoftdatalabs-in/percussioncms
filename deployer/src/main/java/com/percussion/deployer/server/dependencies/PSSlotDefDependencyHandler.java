@@ -61,6 +61,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Class to handle packaging and deploying a Slot definition the new way.
+ *
  * @author vamsinukala
  */
 public class PSSlotDefDependencyHandler extends PSDependencyHandler implements IPSIdTypeHandler {
@@ -68,31 +69,25 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSlotDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
     super(def, dependencyMap);
   }
 
-  /**
-   * Helper method to init PSAssemblyServiceHelper
-   */
+  /** Helper method to init PSAssemblyServiceHelper */
   private void init() {
     if (m_assemblyHelper == null) m_assemblyHelper = new PSAssemblyServiceHelper();
   }
 
   /**
-   * Util method to figure out if the slot is a legacy slot, in which case,
-   * there is no finder. Used to calculate child deps namely the exits in
-   * finder arguments
-   * See the other way of accesing the same info:
-   * {@link #isLegacySlot(String id)}.
+   * Util method to figure out if the slot is a legacy slot, in which case, there is no finder. Used
+   * to calculate child deps namely the exits in finder arguments See the other way of accesing the
+   * same info: {@link #isLegacySlot(String id)}.
+   *
    * @param slot the actual slot itself
    * @return true if legacy slot
    */
@@ -103,11 +98,11 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   /**
-   * Util method to figure out if the slot is a legacy slot, in which case,
-   * there is no finder. Used to calculate child deps namely the exits in
-   * finder arguments
-   * @param id  the slot by its id ( GUID or old style id)
-   * @return true  if legacy slot
+   * Util method to figure out if the slot is a legacy slot, in which case, there is no finder. Used
+   * to calculate child deps namely the exits in finder arguments
+   *
+   * @param id the slot by its id ( GUID or old style id)
+   * @return true if legacy slot
    */
   public boolean isLegacySlot(String id) {
     if (StringUtils.isBlank(id))
@@ -117,6 +112,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   /**
    * Utility method to find the slot by a given GUID(as a STRINGGGGGG)
+   *
    * @param depId the GUID
    * @return <code>null</code> if slot is not found else get DA SLOT
    */
@@ -216,10 +212,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     // Acl deps
     addAclDependency(tok, PSTypeEnum.SLOT, dep, childDeps);
 
-    /**
-     * STOP!! legacy slots do not have any id mappings and have no exits
-     * RETURN
-     */
+    /** STOP!! legacy slots do not have any id mappings and have no exits RETURN */
     if (isLegacy) return childDeps.iterator();
 
     // Next add any exit deps
@@ -316,6 +309,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param slot the slot, never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
@@ -338,12 +332,11 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   /**
-   * Method to figure what the id for this dependency is:
-   * if a mapping exists , use that as the target id.
-   * If a mapping does not exist, use the source id as mapping
-   * If a mapping exists but has not been installed yet, still use the source
-   * id as the mapping
-   * @param dep the dependency that is being installed  never <code>null</code>
+   * Method to figure what the id for this dependency is: if a mapping exists , use that as the
+   * target id. If a mapping does not exist, use the source id as mapping If a mapping exists but
+   * has not been installed yet, still use the source id as the mapping
+   *
+   * @param dep the dependency that is being installed never <code>null</code>
    * @param ctx the import context never <code>null</code>
    * @return the dependency id that exists on the target system
    * @throws PSDeployException
@@ -438,9 +431,9 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   /**
-   * This is the first pass at transforming slot, template and contenttype ids.
-   * It assumes all the elements for association are present and does the
-   * transforms
+   * This is the first pass at transforming slot, template and contenttype ids. It assumes all the
+   * elements for association are present and does the transforms
+   *
    * @param dep the dependency never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @param slot template slot never <code>null</code>
@@ -494,13 +487,11 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   /**
-   * Remove any invalid associations and warn. This can happen when the slot
-   * exists but either the template or contenttype does not exist.
-   * Done as follows:
-   * 1. Go thru the list of associations and add to a list only the valid ones
-   * 2. On the slot remove **all** the associations
-   * 3. Add back only the valid associations
-   * This will leave the slot in a valid state.
+   * Remove any invalid associations and warn. This can happen when the slot exists but either the
+   * template or contenttype does not exist. Done as follows: 1. Go thru the list of associations
+   * and add to a list only the valid ones 2. On the slot remove **all** the associations 3. Add
+   * back only the valid associations This will leave the slot in a valid state.
+   *
    * @param tok the security token, never <code>null</code>
    * @param slot the template slot never <code>null</code>
    * @throws PSDeployException
@@ -552,9 +543,9 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   /**
    * Add the supplied slot associations to the slot
+   *
    * @param slot the slot to add to, never <code>null</code>
-   * @param aList the list of associations to add, never <code>null</code>
-   * may be empty
+   * @param aList the list of associations to add, never <code>null</code> may be empty
    */
   private void addSlotAssociations(
       IPSTemplateSlot slot, Collection<PSTemplateTypeSlotAssociation> aList) {
@@ -565,7 +556,9 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     }
   }
 
-  /** Removes all the slot associations
+  /**
+   * Removes all the slot associations
+   *
    * @param slot never <code>null</code>
    */
   private void removeAllAssociationsOnSlot(IPSTemplateSlot slot) {
@@ -581,9 +574,8 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   }
 
   /**
-   * Transform any IdTypes and ids in Bindings Remove any
-   * slot<-->Template/ContentType associations if they are not yet existing
-   * on the target system
+   * Transform any IdTypes and ids in Bindings Remove any slot<-->Template/ContentType associations
+   * if they are not yet existing on the target system
    *
    * @param tok the security token, never <code>null</code>
    * @param archive the archive, never <code>null</code>
@@ -658,10 +650,11 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   /**
    * Given the serialized data for a TemplateSlot, create such TemplateSlot
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   * archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   * may not be <code>null</code>
+   *
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
    * @param slot the actual slot may be <code>null</code>
    * @return the actual template
    * @throws PSDeployException
@@ -691,16 +684,15 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getSlotDependecyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
@@ -796,30 +788,19 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_SLOT_DEF;
 
-  /**
-   * Da assembly Service
-   */
+  /** Da assembly Service */
   private IPSAssemblyService m_assemblySvc = PSAssemblyServiceLocator.getAssemblyService();
 
-  /**
-   * logger
-   */
+  /** logger */
   private static final Logger m_log = LogManager.getLogger(PSSlotDefDependencyHandler.class);
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * Assembly Helper instance
-   */
+  /** Assembly Helper instance */
   private PSAssemblyServiceHelper m_assemblyHelper;
 
   private static final String SLOT_CONTENT_FINDER_PREFIX =

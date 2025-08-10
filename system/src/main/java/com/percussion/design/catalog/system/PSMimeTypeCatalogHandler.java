@@ -26,10 +26,10 @@ import org.w3c.dom.Element;
 
 /**
  * This class implements cataloging of supported mimetypes on the server.
- * <p>
- * MimeType handler catalog requests are sent to the server
- * using the PSXMimeTypeCatalog XML document. Its definition
- * is as follows:
+ *
+ * <p>MimeType handler catalog requests are sent to the server using the PSXMimeTypeCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  * <code>
  *
@@ -38,8 +38,7 @@ import org.w3c.dom.Element;
  * </code>
  * </pre>
  *
- * The PSXMimeTypeCatalogResults XML document is sent
- * as the response. Its definition is as follows:
+ * The PSXMimeTypeCatalogResults XML document is sent as the response. Its definition is as follows:
  *
  * <pre>
  * <code>
@@ -61,18 +60,14 @@ import org.w3c.dom.Element;
  * </pre>
  */
 public class PSMimeTypeCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler. This is used primarily
-   * by the cataloger.
-   */
+  /** Constructs an instance of this handler. This is used primarily by the cataloger. */
   public PSMimeTypeCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified
-   * request information. The request information for this
-   * request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
    *
    * <table border="1">
    * <tr>
@@ -92,10 +87,8 @@ public class PSMimeTypeCatalogHandler implements IPSCatalogHandler {
    *   </tr>
    * </table>
    *
-   * @param   req         the request information
-   *
-   * @return               an XML document containing the appropriate
-   *                        catalog request information
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public org.w3c.dom.Document formatRequest(Properties req) {
     String sTemp = (String) req.get("RequestCategory");

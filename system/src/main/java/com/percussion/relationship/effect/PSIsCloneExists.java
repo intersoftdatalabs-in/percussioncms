@@ -35,15 +35,13 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Iterator;
 
 /**
- * This effect runs in the context of
- * {@link com.percussion.relationship.IPSExecutionContext#RS_PRE_CLONE pre-clone}.
- * The purpose of this is to check if the item to be cloned already has clones
- * and the configuration allows creation of another clone. In this context we
- * have no current relationship or the originating relationship. The attempt()
- * and recover() methods are not used at all. Note that the test() method throws
- * a special {@link PSCloneAlreadyExistsException runtime exception} which
- * allows to set the details of an existing relationship that prevents the
- * cloning process.
+ * This effect runs in the context of {@link
+ * com.percussion.relationship.IPSExecutionContext#RS_PRE_CLONE pre-clone}. The purpose of this is
+ * to check if the item to be cloned already has clones and the configuration allows creation of
+ * another clone. In this context we have no current relationship or the originating relationship.
+ * The attempt() and recover() methods are not used at all. Note that the test() method throws a
+ * special {@link PSCloneAlreadyExistsException runtime exception} which allows to set the details
+ * of an existing relationship that prevents the cloning process.
  *
  * @author RammohanVangapalli
  */

@@ -22,21 +22,18 @@ import java.text.MessageFormat;
 import java.util.Locale;
 
 /**
- * This class is a generic client exception used when an error occurs during
- * content explorer handling (loading, persisting, creating etc).  This class
- * uses the <code>PSI18NTranslationKeyValues</code> to gets it's localized
- * messages.  All of the message therefore are localized because that's how
- * the <code>PSI18NTranslationKeyValues</code> is created.  The necessary
- * methods are overridden in this class to achieve
- * this and is noted in the methods doc.
+ * This class is a generic client exception used when an error occurs during content explorer
+ * handling (loading, persisting, creating etc). This class uses the <code>
+ * PSI18NTranslationKeyValues</code> to gets it's localized messages. All of the message therefore
+ * are localized because that's how the <code>PSI18NTranslationKeyValues</code> is created. The
+ * necessary methods are overridden in this class to achieve this and is noted in the methods doc.
  */
 public class PSContentExplorerException extends PSStandaloneException {
 
   /**
    * Construct an exception for messages taking no arguments.
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
+   * @param msgCode - the error string to load. There is no validation on this value.
    */
   public PSContentExplorerException(int msgCode) {
     super(msgCode);
@@ -45,10 +42,8 @@ public class PSContentExplorerException extends PSStandaloneException {
   /**
    * Construct an exception for messages taking multiple arguments
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
-   * @param singleMessage the sole of argument to use as the arguments in the
-   *    error message
+   * @param msgCode - the error string to load. There is no validation on this value.
+   * @param singleMessage the sole of argument to use as the arguments in the error message
    */
   public PSContentExplorerException(int msgCode, String singleMessage) {
     super(msgCode, singleMessage);
@@ -57,10 +52,8 @@ public class PSContentExplorerException extends PSStandaloneException {
   /**
    * Construct an exception for messages taking multiple arguments
    *
-   * @param msgCode - the error string to load.  There is no validation on this
-   *    value.
-   * @param arrayArgs the array of arguments to use as the arguments in the
-   *    error message
+   * @param msgCode - the error string to load. There is no validation on this value.
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    */
   public PSContentExplorerException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
@@ -73,26 +66,21 @@ public class PSContentExplorerException extends PSStandaloneException {
     return STRING_BUNDLE_NAME;
   }
 
-  /**
-   * Not implemented.
-   */
+  /** Not implemented. */
   public String getXmlNodeName() {
     return null;
   }
 
   /**
-   * Overridden method.  Simply calls
-   * {@link #getMessage() getMessage()} and ignores the argument.  The reason
-   * for this is due to how the <code>PSI18NTranslationKeyValues</code> get's
-   * created. The <code>PSI18NTranslationKeyValues</code> is created for one
-   * <code>Locale</code> at a time based on the users session
-   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_LANG
-   * IPSHtmlParameters.SYS_LANG}.  Therefore requesting messages in another
-   * <code>Locale</code> is unnecessary.
+   * Overridden method. Simply calls {@link #getMessage() getMessage()} and ignores the argument.
+   * The reason for this is due to how the <code>PSI18NTranslationKeyValues</code> get's created.
+   * The <code>PSI18NTranslationKeyValues</code> is created for one <code>Locale</code> at a time
+   * based on the users session {@link com.percussion.system.utils.IPSHtmlParameters#SYS_LANG
+   * IPSHtmlParameters.SYS_LANG}. Therefore requesting messages in another <code>Locale</code> is
+   * unnecessary.
    *
    * @param locale - ignored, may be <code>null</code>.
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    * @see #getMessage() getMessage()
    */
   public String getLocalizedMessage(Locale locale) {
@@ -100,10 +88,9 @@ public class PSContentExplorerException extends PSStandaloneException {
   }
 
   /**
-   * Overridden method.  Simply calls {@link #getMessage() getMessage()}
+   * Overridden method. Simply calls {@link #getMessage() getMessage()}
    *
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    * @see #getLocalizedMessage(Locale) getLocalizedMessage(Locale)
    */
   public String getLocalizedMessage() {
@@ -113,21 +100,18 @@ public class PSContentExplorerException extends PSStandaloneException {
   /**
    * Returns the detail message of this exception.
    *
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    */
   public String getMessage() {
     return createMessage();
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @return The formatted message, never <code>null</code>. If the appropriate
-   *    message cannot be created, a message is constructed from the msgCode
-   *    and args and is returned.
+   * @return The formatted message, never <code>null</code>. If the appropriate message cannot be
+   *     created, a message is constructed from the msgCode and args and is returned.
    */
   private String createMessage() {
     Object[] arrayArgs = super.getErrorArguments();
@@ -170,9 +154,7 @@ public class PSContentExplorerException extends PSStandaloneException {
     return msg;
   }
 
-  /**
-   * The String bundle used with this Exception.
-   */
+  /** The String bundle used with this Exception. */
   public static final String STRING_BUNDLE_NAME =
       "com.percussion.cx.error.PSContentExplorerErrorStringBundle.properties";
 }

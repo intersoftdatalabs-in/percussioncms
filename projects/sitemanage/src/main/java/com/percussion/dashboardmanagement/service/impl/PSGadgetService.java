@@ -21,76 +21,73 @@ import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.dashboardmanagement.service.IPSGadgetService;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Sunny Sal says: "GadgetService, now Java 11 and Google-styled! Gadgets for everyone."
- */
+/** Sunny Sal says: "GadgetService, now Java 11 and Google-styled! Gadgets for everyone." */
 @PSSiteManageBean("gadgetService")
 public class PSGadgetService implements IPSGadgetService {
 
-    @Override
-    public PSGadget load(String id) {
-        return new PSGadget();
+  @Override
+  public PSGadget load(String id) {
+    return new PSGadget();
+  }
+
+  @Override
+  public PSGadget save(PSGadget gadget) {
+    return new PSGadget();
+  }
+
+  @Override
+  public List<PSGadget> findAll() {
+    return createGadgetList(allGadgetUrls);
+  }
+
+  @Override
+  public PSGadget find(String id) {
+    return new PSGadget();
+  }
+
+  @Override
+  public void delete(String id) {
+    throw new UnsupportedOperationException("delete is not yet supported");
+  }
+
+  @Override
+  public PSValidationErrors validate(PSGadget object) {
+    throw new UnsupportedOperationException("validate is not yet supported");
+  }
+
+  // stub support methods and data
+  private ArrayList<PSGadget> createGadgetList(String[] urlList) {
+    var list = new ArrayList<PSGadget>(urlList.length);
+    for (var url : urlList) {
+      var gadget = new PSGadget();
+      gadget.setUrl(url);
+      list.add(gadget);
     }
+    return list;
+  }
 
-    @Override
-    public PSGadget save(PSGadget gadget) {
-        return new PSGadget();
-    }
+  String[] allGadgetUrls = {
+    "http://annunziato.org/gadgets/inbox.xml",
+    "http://www.google.com/ig/modules/horoscope.xml",
+    "http://www.labpixies.com/campaigns/todo/todo.xml",
+    "http://www.labpixies.com/campaigns/weather/weather.xml",
+    "http://www.labpixies.com/campaigns/calendar/calendar.xml",
+    "http://www.labpixies.com/campaigns/wiki/wiki.xml",
+    "http://localhost:9982/shindig/gadgets/hello_world.xml"
+  };
 
-    @Override
-    public List<PSGadget> findAll() {
-        return createGadgetList(allGadgetUrls);
-    }
+  String[] alexGadgetUrls = {
+    "http://www.google.com/ig/modules/horoscope.xml",
+    "http://www.labpixies.com/campaigns/todo/todo.xml",
+    "http://www.labpixies.com/campaigns/weather/weather.xml",
+  };
 
-    @Override
-    public PSGadget find(String id) {
-        return new PSGadget();
-    }
-
-    @Override
-    public void delete(String id) {
-        throw new UnsupportedOperationException("delete is not yet supported");
-    }
-
-    @Override
-    public PSValidationErrors validate(PSGadget object) {
-        throw new UnsupportedOperationException("validate is not yet supported");
-    }
-
-    // stub support methods and data
-    private ArrayList<PSGadget> createGadgetList(String[] urlList) {
-        var list = new ArrayList<PSGadget>(urlList.length);
-        for (var url : urlList) {
-            var gadget = new PSGadget();
-            gadget.setUrl(url);
-            list.add(gadget);
-        }
-        return list;
-    }
-
-    String[] allGadgetUrls = {
-            "http://annunziato.org/gadgets/inbox.xml",
-            "http://www.google.com/ig/modules/horoscope.xml",
-            "http://www.labpixies.com/campaigns/todo/todo.xml",
-            "http://www.labpixies.com/campaigns/weather/weather.xml",
-            "http://www.labpixies.com/campaigns/calendar/calendar.xml",
-            "http://www.labpixies.com/campaigns/wiki/wiki.xml",
-            "http://localhost:9982/shindig/gadgets/hello_world.xml"
-    };
-
-    String[] alexGadgetUrls = {
-            "http://www.google.com/ig/modules/horoscope.xml",
-            "http://www.labpixies.com/campaigns/todo/todo.xml",
-            "http://www.labpixies.com/campaigns/weather/weather.xml",
-    };
-
-    String[] bobGadgetUrls = {
-            "http://www.labpixies.com/campaigns/weather/weather.xml",
-            "http://www.labpixies.com/campaigns/calendar/calendar.xml",
-            "http://www.labpixies.com/campaigns/wiki/wiki.xml",
-    };
+  String[] bobGadgetUrls = {
+    "http://www.labpixies.com/campaigns/weather/weather.xml",
+    "http://www.labpixies.com/campaigns/calendar/calendar.xml",
+    "http://www.labpixies.com/campaigns/wiki/wiki.xml",
+  };
 }

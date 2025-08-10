@@ -21,14 +21,12 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * The PSCgiVariable class is used to define a replacement value is a
- * CGI variable value.
+ * The PSCgiVariable class is used to define a replacement value is a CGI variable value.
  *
- * @see         IPSReplacementValue
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSReplacementValue
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCgiVariable extends PSNamedReplacementValue {
   /**
@@ -36,10 +34,8 @@ public class PSCgiVariable extends PSNamedReplacementValue {
    *
    * @param sourceNode the XML element node to construct this object from
    * @param parentDoc the Java object which is the parent of this object
-   * @param parentComponents   the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *   appropriate type
+   * @param parentComponents the parent objects of this object
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCgiVariable(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -60,13 +56,12 @@ public class PSCgiVariable extends PSNamedReplacementValue {
     return IPSObjectStoreErrors.CGI_VAR_NAME_EMPTY;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "CgiVariable";
 
   /**
    * Gets the type of replacement value this object represents.
+   *
    * @return {@link #VALUE_TYPE}
    */
   public String getValueType() {
@@ -75,6 +70,7 @@ public class PSCgiVariable extends PSNamedReplacementValue {
 
   /**
    * Gets the text which can be displayed to represent this value.
+   *
    * @return "PSXCgiVar/" + <code>getName()</code>;
    */
   public String getValueDisplayText() {

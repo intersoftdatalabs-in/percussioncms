@@ -77,38 +77,32 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * Loadable request handler to update the global templates to propagate the
- * changes made to the global template source HTML files. This class also
- * implements the {@link com.percussion.server.IPSHandlerStateListener}so that
- * it becomes listner to the global template application state change by
- * registering itself as global template Rhythmyx application state change
- * listener with the server. This does not really handle any user requests
- * except for a default one (currenlty) that is to get the status log of
- * previous global template update. The main objective of this handler is to
- * update the global templates when the global template Rhythmyx application is
- * started. Refer to
- * {@link com.percussion.fastforward.globaltemplate.PSGlobalTemplate}
- *
+ * Loadable request handler to update the global templates to propagate the changes made to the
+ * global template source HTML files. This class also implements the {@link
+ * com.percussion.server.IPSHandlerStateListener}so that it becomes listner to the global template
+ * application state change by registering itself as global template Rhythmyx application state
+ * change listener with the server. This does not really handle any user requests except for a
+ * default one (currenlty) that is to get the status log of previous global template update. The
+ * main objective of this handler is to update the global templates when the global template
+ * Rhythmyx application is started. Refer to {@link
+ * com.percussion.fastforward.globaltemplate.PSGlobalTemplate}
  */
 public class PSGlobalTemplateUpdateHandler
     implements IPSLoadableRequestHandler, IPSHandlerStateListener {
   /**
-   * Implementation of the interface method. Initializes the option parameters
-   * from the configuration file. Registers itself as listerner (ph: listener) of the global
-   * template application startup.
-   * <p>
-   * The DTD of the configuration file is:
-   * &lt;!ELEMENT GlobalTemplateHandlerConfig (Option*)&gt;
-   * &lt;!ELEMENT Option (#PCDATA)&gt;
-   * &lt;!ATTLIST Option
-   *    name (CleanAppFolder | GlobalTemplateApp | LogFile |
-   *    TouchVariants) #IMPLIED
-   * <p>
-   * If it fails to read the configuration file or any option in
-   * configuration file, default options are applied.
+   * Implementation of the interface method. Initializes the option parameters from the
+   * configuration file. Registers itself as listerner (ph: listener) of the global template
+   * application startup.
    *
-   * @see com.percussion.server.IPSLoadableRequestHandler#init(java.util.Collection, java.io.InputStream)
+   * <p>The DTD of the configuration file is: &lt;!ELEMENT GlobalTemplateHandlerConfig (Option*)&gt;
+   * &lt;!ELEMENT Option (#PCDATA)&gt; &lt;!ATTLIST Option name (CleanAppFolder | GlobalTemplateApp
+   * | LogFile | TouchVariants) #IMPLIED
    *
+   * <p>If it fails to read the configuration file or any option in configuration file, default
+   * options are applied.
+   *
+   * @see com.percussion.server.IPSLoadableRequestHandler#init(java.util.Collection,
+   *     java.io.InputStream)
    * @see IPSLoadableRequestHandler
    */
   public void init(Collection requestRoots, InputStream cfgFileIn) {
@@ -174,6 +168,7 @@ public class PSGlobalTemplateUpdateHandler
 
   /**
    * Implementation of the interface method.
+   *
    * @return name of this request handler. Hard coded name.
    * @see com.percussion.server.IPSRootedHandler#getName()
    */
@@ -182,9 +177,9 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Implementation of the interface method. Return an iterator with just
-   * one entry for the request root which is the handler name returned by
-   * {@link #getName() getName()}
+   * Implementation of the interface method. Return an iterator with just one entry for the request
+   * root which is the handler name returned by {@link #getName() getName()}
+   *
    * @see com.percussion.server.IPSRootedHandler#getRequestRoots()
    */
   public Iterator getRequestRoots() {
@@ -194,10 +189,9 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Implementation of the interface method. Currently supports only a
-   * default request that served with the log file created during last
-   * processing of global templates. The request does not an authentication
-   * of the user requesting the log file.
+   * Implementation of the interface method. Currently supports only a default request that served
+   * with the log file created during last processing of global templates. The request does not an
+   * authentication of the user requesting the log file.
    *
    * @see com.percussion.server.IPSRequestHandler#processRequest(PSRequest)
    */
@@ -215,8 +209,9 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Implementation of the interface method. Just prints the console
-   * indicating the handler is shut down.
+   * Implementation of the interface method. Just prints the console indicating the handler is shut
+   * down.
+   *
    * @see com.percussion.server.IPSRequestHandler#shutdown()
    */
   public void shutdown() {
@@ -224,9 +219,9 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Implementation of the interface method. Responds to only startup event
-   * of the global template application. Actual processing of global
-   * templates is done here.
+   * Implementation of the interface method. Responds to only startup event of the global template
+   * application. Actual processing of global templates is done here.
+   *
    * @see com.percussion.server.IPSHandlerStateListener#stateChanged(PSHandlerStateEvent)
    */
   public void stateChanged(PSHandlerStateEvent e) {
@@ -238,9 +233,7 @@ public class PSGlobalTemplateUpdateHandler
     updateGlobalTemplates();
   }
 
-  /**
-   * Implementation of the actual updating of global templates.
-   */
+  /** Implementation of the actual updating of global templates. */
   private void updateGlobalTemplates() {
     File file = new File(m_logFilePath);
 
@@ -332,8 +325,9 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Cleanup global template application folder in that keep only the source
-   * files whose names end with ".htm", ".html" and ".xhtml".
+   * Cleanup global template application folder in that keep only the source files whose names end
+   * with ".htm", ".html" and ".xhtml".
+   *
    * @param logger logger object the process log, assumed not <code>null</code>.
    */
   private void cleanAppFolder(Logger logger) {
@@ -359,13 +353,15 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Helper method that fetches all html source files. The source files is
-   * assumed to have one of the three following file name extensions.
+   * Helper method that fetches all html source files. The source files is assumed to have one of
+   * the three following file name extensions.
+   *
    * <ol>
-   * <li>.htm</li>
-   * <li>.html</li>
-   * <li>.xhtml</li>
+   *   <li>.htm
+   *   <li>.html
+   *   <li>.xhtml
    * </ol>
+   *
    * @return never <code>null</code> or empty, may be 0 length
    */
   private String[] getSourceHtmlFiles() {
@@ -383,12 +379,10 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Touch all variants (XSL files) under Rhythmyx tree so that the XSL
-   * processor would not cache the style sheets in memory. Also flushes entire
-   * assembly cache.
+   * Touch all variants (XSL files) under Rhythmyx tree so that the XSL processor would not cache
+   * the style sheets in memory. Also flushes entire assembly cache.
    *
-   * @param request request context object used to load the variants registered
-   *           with the system.
+   * @param request request context object used to load the variants registered with the system.
    * @throws PSCmsException if loading of variants fails for any reason.
    */
   private void touchVariants(IPSRequestContext request) throws PSCmsException {
@@ -436,58 +430,47 @@ public class PSGlobalTemplateUpdateHandler
   }
 
   /**
-   * Name of the global template applictaion. Read from the configuration
-   * file in {@link #init(Collection, InputStream) init()} method. Default
-   * value is {@link #DEFAULT_GLOBALTEMPLATE_APP_NAME}.
+   * Name of the global template applictaion. Read from the configuration file in {@link
+   * #init(Collection, InputStream) init()} method. Default value is {@link
+   * #DEFAULT_GLOBALTEMPLATE_APP_NAME}.
    */
   private String m_globalTemplateAppName = DEFAULT_GLOBALTEMPLATE_APP_NAME;
 
-  /**
-   * Default name for global templates application.
-   */
+  /** Default name for global templates application. */
   public static final String DEFAULT_GLOBALTEMPLATE_APP_NAME = "rxs_GlobalTemplates";
 
-  /**
-   * Default name of the log file to write the global template processing
-   * status.
-   */
+  /** Default name of the log file to write the global template processing status. */
   private static final String DEFAULT_LOGFILE = "globaltemplates.log";
 
-  /**
-   * Name of this hanlder.
-   */
+  /** Name of this hanlder. */
   private static final String HANDLER = "GTHandler";
 
   /**
-   * Requets root for this handler. Defaulted to {@link #HANDLER} and may be
-   * overridden in {@link #init(Collection, InputStream)}.
+   * Requets root for this handler. Defaulted to {@link #HANDLER} and may be overridden in {@link
+   * #init(Collection, InputStream)}.
    */
   private String m_requestRoot = HANDLER;
 
-  /**
-   * Path of the log file. Gets initialized in init method.
-   */
+  /** Path of the log file. Gets initialized in init method. */
   private String m_logFilePath = "";
 
   /**
-   * Flag to indicate the processing must touch all registered variant XSLs
-   * after global templates are updated. The default value is
-   * <code>true</code>. May be overridden in
-   * {@link #init(Collection, InputStream)} which is not a desired case.
+   * Flag to indicate the processing must touch all registered variant XSLs after global templates
+   * are updated. The default value is <code>true</code>. May be overridden in {@link
+   * #init(Collection, InputStream)} which is not a desired case.
    */
   private boolean m_touchVariants = true;
 
   /**
-   * Flag to indicate the global template application folder to be cleaned
-   * before processing starts. The default value is <code>true</code>. May
-   * be overridden in {@link #init(Collection, InputStream)} which is not
-   * a desired case.
+   * Flag to indicate the global template application folder to be cleaned before processing starts.
+   * The default value is <code>true</code>. May be overridden in {@link #init(Collection,
+   * InputStream)} which is not a desired case.
    */
   private boolean m_cleanAppFolder = true;
 
   /**
-   * Location of the Rhythmyx root directory. Initialized in init method
-   * and never <code>null</code> after that.
+   * Location of the Rhythmyx root directory. Initialized in init method and never <code>null</code>
+   * after that.
    */
   private String m_rxRootDir = "";
 }

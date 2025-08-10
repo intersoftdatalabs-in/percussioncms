@@ -25,64 +25,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The PSStatementBlock class defines a block of text which will
- * be used to construct a statement. These blocks can be strung together
- * to get the full text of the statement. Blocks can be static blocks
- * or replaceable blocks. Static blocks are always used when building the
- * statement text. Replaceable blocks are used only if all the XML
- * fields they contain are not <code>NULL</code>.
- * <p>
- * When {@link com.percussion.data.PSQueryOptimizer PSQueryOptimizer} is
- * building the statement(s) to use, it will create statement blocks for
- * each statement. This is essential for statements with replaceable blocks,
- * but is also useful for statements with lookup values defined at run-time.
- * To build statements appropriately through statement blocks, the following
- * steps should be followed:
- * <ol>
- *   <li>create an empty PSStatementColumnMapper</li>
- *   <li>for each statement block required:
- *      <ol>
- *      <li>create the statement block (marking it static or replaceable)</li>
- *      <li>call the addText and addXmlField methods to add all the
- *         components (in the appropriate order!)</li>
- *      <li>call getColumnBindings to get the bindings for this block</li>
- *      <li>add each PSStatementColumn in the array to the
- *         PSStatementColumnMapper object for the overall statement</li>
- *      </ol></li>
- *   <li>construct a PSStatement sub-class object (PSQueryStatement or
- *      PSUpdateStatement) with the PSStatementColumnMapper and the
- *      PSStatementBlock[]</li>
- *   </ol>
- * <p>
- * At run-time, the PSQueryHandler object uses the PSStatementColumnMapper
- * to load all the field values into their appropriate statement blocks.
- * It then goes through each PSStatement object and calls its execute method.
- * Upon execution, the PSStatement object calls the buildStatement method
- * of each PSStatementBlock object and concatenates their results. The
- * resulting string can then be sent to the DBMS for immediate processing.
- * <p>
- * It may at first appear inefficient that we build statements using blocks
- * of text rather than preparing statements and binding variables. There
- * are two problems with the latter approach. First, there is no support
- * for replaceable blocks. If a parameter is <code>NULL</code>, the DBMS
- * will search for matches based on a <code>NULL</code> value, rather than
- * omit the clause. Second, prepared statements require a connection to the
- * back-end and must be submitted through the connection that prepared them.
- * In our model, where a database pool is shared by many applications,
- * using prepared statements is not practical.
+ * The PSStatementBlock class defines a block of text which will be used to construct a statement.
+ * These blocks can be strung together to get the full text of the statement. Blocks can be static
+ * blocks or replaceable blocks. Static blocks are always used when building the statement text.
+ * Replaceable blocks are used only if all the XML fields they contain are not <code>NULL</code>.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>When {@link com.percussion.data.PSQueryOptimizer PSQueryOptimizer} is building the
+ * statement(s) to use, it will create statement blocks for each statement. This is essential for
+ * statements with replaceable blocks, but is also useful for statements with lookup values defined
+ * at run-time. To build statements appropriately through statement blocks, the following steps
+ * should be followed:
+ *
+ * <ol>
+ *   <li>create an empty PSStatementColumnMapper
+ *   <li>for each statement block required:
+ *       <ol>
+ *         <li>create the statement block (marking it static or replaceable)
+ *         <li>call the addText and addXmlField methods to add all the components (in the
+ *             appropriate order!)
+ *         <li>call getColumnBindings to get the bindings for this block
+ *         <li>add each PSStatementColumn in the array to the PSStatementColumnMapper object for the
+ *             overall statement
+ *       </ol>
+ *   <li>construct a PSStatement sub-class object (PSQueryStatement or PSUpdateStatement) with the
+ *       PSStatementColumnMapper and the PSStatementBlock[]
+ * </ol>
+ *
+ * <p>At run-time, the PSQueryHandler object uses the PSStatementColumnMapper to load all the field
+ * values into their appropriate statement blocks. It then goes through each PSStatement object and
+ * calls its execute method. Upon execution, the PSStatement object calls the buildStatement method
+ * of each PSStatementBlock object and concatenates their results. The resulting string can then be
+ * sent to the DBMS for immediate processing.
+ *
+ * <p>It may at first appear inefficient that we build statements using blocks of text rather than
+ * preparing statements and binding variables. There are two problems with the latter approach.
+ * First, there is no support for replaceable blocks. If a parameter is <code>NULL</code>, the DBMS
+ * will search for matches based on a <code>NULL</code> value, rather than omit the clause. Second,
+ * prepared statements require a connection to the back-end and must be submitted through the
+ * connection that prepared them. In our model, where a database pool is shared by many
+ * applications, using prepared statements is not practical.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSStatementBlock implements IPSStatementBlock {
   /**
    * Construct an empty statement block.
    *
-   * @param   isStatic      <code>true</code> if the block should always be
-   *                                                                                                      used; <code>false</code> if it should be ignored
-   *                                                                                                      when any of the XML fields contain
-   *                                                                                                      <code>NULL</code> values
+   * @param isStatic <code>true</code> if the block should always be used; <code>false</code> if it
+   *     should be ignored when any of the XML fields contain <code>NULL</code> values
    */
   public PSStatementBlock(boolean isStatic) {
     super();
@@ -92,20 +84,19 @@ public class PSStatementBlock implements IPSStatementBlock {
 
   /**
    * Add a text run to this statement block.
-   * <p>
-   * Be sure to add components in the appropriate order. The run-time
-   * construction uses the same ordering as the addXXX calls.
    *
-   * @param      text         the text run to add
+   * <p>Be sure to add components in the appropriate order. The run-time construction uses the same
+   * ordering as the addXXX calls.
+   *
+   * @param text the text run to add
    */
   public void addText(java.lang.String text) {
     m_blocks.add(text);
   }
 
   /**
-   * Convenience method for adding replacement fields which are not
-   * concerned with lob column initializers, will call addReplacementField
-   * with the <code>lci</code> set to <code>null</code>.
+   * Convenience method for adding replacement fields which are not concerned with lob column
+   * initializers, will call addReplacementField with the <code>lci</code> set to <code>null</code>.
    *
    * @param value the replacement value, may not be <code>null</code>
    * @param type the java.sql.Type data type to use when setting column data
@@ -116,13 +107,12 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   /**
-   * Add a replacement field to this statement block. The value of the
-   * replacement field will be used, at run-time, when the statement to
-   * execute is constructed. Replacement fields are often XML fields,
-   * HTML parameters or CGI variables.
-   * <p>
-   * Be sure to add components in the appropriate order. The run-time
-   * construction uses the same ordering as the addXXX calls.
+   * Add a replacement field to this statement block. The value of the replacement field will be
+   * used, at run-time, when the statement to execute is constructed. Replacement fields are often
+   * XML fields, HTML parameters or CGI variables.
+   *
+   * <p>Be sure to add components in the appropriate order. The run-time construction uses the same
+   * ordering as the addXXX calls.
    *
    * @param value the replacement value, may not be <code>null</code>
    * @param type the java.sql.Type data type to use when setting column data
@@ -144,8 +134,7 @@ public class PSStatementBlock implements IPSStatementBlock {
     m_blocks.add(stmtCol);
   }
 
-  /**
-   */
+  /** */
   public List getLobStatementColumns() {
     return m_lobStatementColumns;
   }
@@ -153,16 +142,11 @@ public class PSStatementBlock implements IPSStatementBlock {
   /**
    * Set the data for the bound column(s) associated with this block.
    *
-   * @param   data        the execution data associated with this plan
-   *
-   * @param   stmt         the prepared statement
-   *
-   * @param   bindStart   the starting position (1-based) to bind columns
-   *                                                                                                      to
-   *
-   * @return               the next bind position (1-based)
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @param stmt the prepared statement
+   * @param bindStart the starting position (1-based) to bind columns to
+   * @return the next bind position (1-based)
+   * @exception SQLException if a SQL error occurs
    */
   public int setColumnData(PSExecutionData data, PreparedStatement stmt, int bindStart)
       throws SQLException, PSDataExtractionException {
@@ -186,13 +170,11 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   /**
-   * Build the statement text which can be passed to the JDBC Connection
-   * object's prepareStatement method. Placeholders (?) will be used for
-   * each variable defined in the statement;
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
    *
-   * @param   buf         the buffer to store the text in
-   *
-   * @param   data         the run-time context info for this request
+   * @param buf the buffer to store the text in
+   * @param data the run-time context info for this request
    */
   public void buildStatement(StringBuilder buf, PSExecutionData data)
       throws PSDataExtractionException {
@@ -207,13 +189,11 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   /**
-   * Build the statement text which can be passed to the JDBC Connection
-   * object's prepareStatement method. Placeholders (?) will be used for
-   * each variable defined in the statement;
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
    *
-   * @param   data         the run-time context info for this request
-   *
-   * @return               the statement text
+   * @param data the run-time context info for this request
+   * @return the statement text
    */
   public String buildStatement(PSExecutionData data) throws PSDataExtractionException {
     StringBuilder buf = new StringBuilder();
@@ -222,10 +202,10 @@ public class PSStatementBlock implements IPSStatementBlock {
   }
 
   /**
-   * Get the data extractors used to get the replacement values which will
-   * be used to execute the statement.
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
    *
-   * @return            the list of replacement values
+   * @return the list of replacement values
    */
   public List getReplacementValueExtractors() {
     java.util.ArrayList retList = new java.util.ArrayList();
@@ -242,22 +222,19 @@ public class PSStatementBlock implements IPSStatementBlock {
   /**
    * Is this block static (not dependent upon run-time data)?
    *
-   * @return         <code>true</code> if it is
+   * @return <code>true</code> if it is
    */
   public boolean isStaticBlock() {
     return m_isStatic;
   }
 
-  /**
-   * See {@link IPSStatementBlock#hasStaticSql()} for details.
-   */
+  /** See {@link IPSStatementBlock#hasStaticSql()} for details. */
   public boolean hasStaticSql() {
     return true;
   }
 
   /**
-   * See {@link IPSStatementBlock#addReplacementField(
-   * IPSReplacementValue, Object[])} for details.
+   * See {@link IPSStatementBlock#addReplacementField( IPSReplacementValue, Object[])} for details.
    */
   public void addReplacementField(IPSReplacementValue value, Object[] params) {
     if ((params == null) || (params.length < 1) || (params[0] == null)) {
@@ -301,10 +278,9 @@ public class PSStatementBlock implements IPSStatementBlock {
   protected List m_blocks;
 
   /**
-   * A place to store the statement columns for LOB-based columns.
-   * These need to be accessed by DBMS-specific PSStatement-based
-   * classes so that they can update LOB columns as required.
-   * Never <code>null</code> but may be empty.
+   * A place to store the statement columns for LOB-based columns. These need to be accessed by
+   * DBMS-specific PSStatement-based classes so that they can update LOB columns as required. Never
+   * <code>null</code> but may be empty.
    */
   private List m_lobStatementColumns = new ArrayList();
 }

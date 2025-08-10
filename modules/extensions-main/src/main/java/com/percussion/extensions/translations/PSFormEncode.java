@@ -27,19 +27,15 @@ import java.io.File;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Will turn a &lt;form&gt; tag into a &lt;div&gt; tag that has
- * a special attribute marker to indicate it is actually a form.
- * Must use with the <code>PSFormDecode</code> input translation
- * to be sure the form tag is put back to its normal syntax.
+ * Will turn a &lt;form&gt; tag into a &lt;div&gt; tag that has a special attribute marker to
+ * indicate it is actually a form. Must use with the <code>PSFormDecode</code> input translation to
+ * be sure the form tag is put back to its normal syntax.
  *
- * Requires the first parameter to be the field name of the field to
- * be translated.
+ * <p>Requires the first parameter to be the field name of the field to be translated.
  *
- * This is used to get around an issues with form tags not working
- * in EditLive single instance.
+ * <p>This is used to get around an issues with form tags not working in EditLive single instance.
  *
  * @author erikserating
- *
  */
 public class PSFormEncode implements IPSFieldInputTransformer {
 

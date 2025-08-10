@@ -54,10 +54,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-/**
- * Loadable handler for getting shared, system and local content editor fields
- * from the server.
- */
+/** Loadable handler for getting shared, system and local content editor fields from the server. */
 public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   // see the interface.
   @SuppressWarnings("unused")
@@ -159,9 +156,7 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   /**
    * Validates the authentication for the given request.
    *
-   * @param request The to be validated request object. Assume not
-   *    <code>null</code>.
-   *
+   * @param request The to be validated request object. Assume not <code>null</code>.
    * @throws PSException if an error occurs.
    */
   private void validateAuthentication(PSRequest request) throws PSException {
@@ -179,19 +174,14 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * Process the relationship request of get-children, get-parents or
-   * get-summaries.
+   * Process the relationship request of get-children, get-parents or get-summaries.
    *
-   * @param request The object which contains the parameters for this request.
-   *    See <code>getComponentSummariesDoc</code> and <code>
-   *    getSumaries</code> for a list of parameters.
-   *    Assume not <code>null</code>.
-   *
+   * @param request The object which contains the parameters for this request. See <code>
+   *     getComponentSummariesDoc</code> and <code>
+   *    getSumaries</code> for a list of parameters. Assume not <code>null</code>.
    * @return The result of the request, never <code>null</code>.
-   *
-   * @throws UnsupportedOperationException if the method in the request is
-   *    not "getChildren", "getParents" or "getSummaries".
-   *
+   * @throws UnsupportedOperationException if the method in the request is not "getChildren",
+   *     "getParents" or "getSummaries".
    * @throws PSCmsException if an error occurs.
    */
   private Document processRelationship(PSRequest request) throws PSCmsException {
@@ -214,15 +204,14 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * This method can be used to get the relationships filtered by the supplied
-   * filter.
+   * This method can be used to get the relationships filtered by the supplied filter.
    *
-   * @param request The request object, it must contains the following
-   * parameters:
-   * <TABLE BORDER="1">
+   * @param request The request object, it must contains the following parameters:
+   *     <TABLE BORDER="1">
    * <TR><TH>Parameter name</TH><TH>Description</TH></TR>
    * <TR><TD>relationshipFilter</TD><TD>The PSRelationshipFilter as xml</TD></TR>
    * </TABLE>
+   *
    * @return The document consisting of to xml of PSRelationshipSet object.
    * @throws PSCmsException if an error occurs.
    */
@@ -256,24 +245,21 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * Get the component summaries of children or parents for a locator, which
-   * is specified in the <code>request</code> object as parameters.
+   * Get the component summaries of children or parents for a locator, which is specified in the
+   * <code>request</code> object as parameters.
    *
    * @param request The request object, it contains the following parameters:
-   *   <TABLE BORDER="1">
+   *     <TABLE BORDER="1">
    *   <TR><TH>Parameter name</TH><TH>Description</TH></TR>
    *   <TR><TD>id</TD><TD>The id of the locator</TD></TR>
    *   <TR><TD>revision</TD><TD>The revision of the locator</TD></TR>
    *   <TR><TD>relationshipType</TD><TD>The relationship type</TD></TR>
    *   </TABLE>
    *
-   * @param method The method of the processing. If it is "getChildren", then
-   *    get children of the locator; otherwise, get the parents of the locator.
-   *    Assume it is not <code>null</code> or empty.
-   *
-   * @return The cataloged component summaries, never <code>null</code>, but
-   *    may by empty.
-   *
+   * @param method The method of the processing. If it is "getChildren", then get children of the
+   *     locator; otherwise, get the parents of the locator. Assume it is not <code>null</code> or
+   *     empty.
+   * @return The cataloged component summaries, never <code>null</code>, but may by empty.
    * @throws PSCmsException if an error occurs.
    */
   private Document getComponentSummariesDoc(PSRequest request, String method)
@@ -307,19 +293,19 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
   }
 
   /**
-   * This method can be used to get the summaries for the owner or dependent
-   * objects in the relationships filtered by the supplied filter.
+   * This method can be used to get the summaries for the owner or dependent objects in the
+   * relationships filtered by the supplied filter.
    *
    * @param request The request object, it must contains the following parameters:
-   *   <TABLE BORDER="1">
+   *     <TABLE BORDER="1">
    *   <TR><TH>Parameter name</TH><TH>Description</TH></TR>
    *   <TR><TD>owner</TD><TD>specify <code>true</code> to get the summaries
    *    of owners of the relationships or specify <code>false</code> to
    *    get summaries of the dependents. </TD></TR>
    *   <TR><TD>relationshipFilter</TD><TD>The PSRelationshipFilter as xml</TD></TR>
    *   </TABLE>
-   * @return The cataloged component summaries, never <code>null</code>, but
-   *    may by empty.
+   *
+   * @return The cataloged component summaries, never <code>null</code>, but may by empty.
    * @throws PSCmsException if an error occurs.
    */
   private Document getSummaries(PSRequest request) throws PSCmsException {
@@ -365,13 +351,9 @@ public class PSCatalogServerObjectHandler implements IPSLoadableRequestHandler {
     return null;
   }
 
-  /**
-   * Name of the custom application for web services.
-   */
+  /** Name of the custom application for web services. */
   public static final String WEB_SERVICES_APP = "sys_psxWebServices";
 
-  /**
-   * Name of the handler.
-   */
+  /** Name of the handler. */
   private static final String HANDLER = "sys_ceFieldsCataloger";
 }

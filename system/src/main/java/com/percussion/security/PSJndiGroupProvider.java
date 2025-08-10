@@ -43,26 +43,23 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Provides support for cataloging groups for a {@link PSJndiProvider}.  Also
- * responsible for determine if a particular subject is a member of one of the
- * groups supported by this group provider.
+ * Provides support for cataloging groups for a {@link PSJndiProvider}. Also responsible for
+ * determine if a particular subject is a member of one of the groups supported by this group
+ * provider.
  */
 public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
-   * Constucts an instance of this class using the supplied security provider
-   * def and group provider def.
+   * Constucts an instance of this class using the supplied security provider def and group provider
+   * def.
    *
-   * @param groupProviderDef The group provider instance definition to use.
-   * May not be <code>null</code>.
-   * @param directoryDef The directory definition to provide group
-   * information for.  Used to get the specific settings used to
-   * connect to the directory.  May not be <code>null</code>.
-   * @param userObjectAttrName The attribute name that identifies a user, may
-   * not be <code>null</code> or empty.
-   *
+   * @param groupProviderDef The group provider instance definition to use. May not be <code>null
+   *     </code>.
+   * @param directoryDef The directory definition to provide group information for. Used to get the
+   *     specific settings used to connect to the directory. May not be <code>null</code>.
+   * @param userObjectAttrName The attribute name that identifies a user, may not be <code>null
+   *     </code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws NamingException if any group location specified in the
-   * groupProviderDef is invalid.
+   * @throws NamingException if any group location specified in the groupProviderDef is invalid.
    */
   public PSJndiGroupProvider(
       PSJndiGroupProviderInstance groupProviderDef,
@@ -94,44 +91,36 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Determines if the specified user is a member of the specified group.
-   * Nested groups are supported up to the number of levels defined by
-   * {@link #MAX_NESTED_GROUPS}. Checks in the following manner:
+   * Determines if the specified user is a member of the specified group. Nested groups are
+   * supported up to the number of levels defined by {@link #MAX_NESTED_GROUPS}. Checks in the
+   * following manner:
+   *
    * <ul>
-   * <li>Determines in which defined group location the specified group is
-   * located.</li>
-   * <li>Searches that location for the group entry.</li>
-   * <li>Checks for each supported objectclass and corresponding memberlist
-   * attribute.  For each memberlist:</li>
-   * <ul>
-   * <li>If static, check to see if the user's dn is in the list.  If not,
-   * search for each member's entry, adding to the search filter each of the
-   * possible group objectclass values, so as to retrieve that entry only if it
-   * is a group.  for each group returned, recursively check up to 5 levels to
-   * see if the user is a member.</li>
-   * <li>If dynamic, check to see if the user is a member by parsing the
-   * memberlist value into a base search dn and a filter. Add to the filter the
-   * condition that the common name equals the user's name and perform the
-   * search.  If any result is returned, the user is a member.  If not, perform
-   * the search again, adding to the original filter the possible group
-   * objectclass values.  This will return all members of the group that are
-   * themselves groups.  Recursively check each entry to see if the user is a
-   * member up to the number of levels defined by {@link #MAX_NESTED_GROUPS}.
-   * </li>
-   * </ul>
+   *   <li>Determines in which defined group location the specified group is located.
+   *   <li>Searches that location for the group entry.
+   *   <li>Checks for each supported objectclass and corresponding memberlist attribute. For each
+   *       memberlist:
+   *       <ul>
+   *         <li>If static, check to see if the user's dn is in the list. If not, search for each
+   *             member's entry, adding to the search filter each of the possible group objectclass
+   *             values, so as to retrieve that entry only if it is a group. for each group
+   *             returned, recursively check up to 5 levels to see if the user is a member.
+   *         <li>If dynamic, check to see if the user is a member by parsing the memberlist value
+   *             into a base search dn and a filter. Add to the filter the condition that the common
+   *             name equals the user's name and perform the search. If any result is returned, the
+   *             user is a member. If not, perform the search again, adding to the original filter
+   *             the possible group objectclass values. This will return all members of the group
+   *             that are themselves groups. Recursively check each entry to see if the user is a
+   *             member up to the number of levels defined by {@link #MAX_NESTED_GROUPS}.
+   *       </ul>
    * </ul>
    *
-   * @param user The distinguished name of the user, may not be
-   * <code>null</code> or empty.
-   * @param group The distinguished name of the group, may not be
-   * <code>null</code> or empty. Must be an existing group in the directory
-   * this group provider represents, and must be an entry in one of the group
-   * locations specified by this group provider.  Use
-   * {@link #isGroupSupported(String) isGroupSupported} to check.
-   *
-   * @return <code>true</code> if the user is a member of the group,
-   * <code>false</code> if not.
-   *
+   * @param user The distinguished name of the user, may not be <code>null</code> or empty.
+   * @param group The distinguished name of the group, may not be <code>null</code> or empty. Must
+   *     be an existing group in the directory this group provider represents, and must be an entry
+   *     in one of the group locations specified by this group provider. Use {@link
+   *     #isGroupSupported(String) isGroupSupported} to check.
+   * @return <code>true</code> if the user is a member of the group, <code>false</code> if not.
    * @throws IllegalArgumentException if user or group is inavlid.
    * @throws PSSecurityException any errors occur.
    */
@@ -149,23 +138,23 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Get the collection of groups specified by this provider that match the
-   * supplied filter if provided.  The steps taken are:<p>
+   * Get the collection of groups specified by this provider that match the supplied filter if
+   * provided. The steps taken are:
+   *
+   * <p>
+   *
    * <ol>
-   * <li>Get the list of supported objectClasses and locations from the
-   * provider instance member.</li>
-   * <li>Search each location for entries with any of the supported objectClass
-   * attribute values. Apply the filter if provided.</li>
-   * <li>Build a collection of Strings, each containing the fully qualified
-   * distinguished names of each group located.</li>
+   *   <li>Get the list of supported objectClasses and locations from the provider instance member.
+   *   <li>Search each location for entries with any of the supported objectClass attribute values.
+   *       Apply the filter if provided.
+   *   <li>Build a collection of Strings, each containing the fully qualified distinguished names of
+   *       each group located.
    * </ol>
    *
-   * @param filter A valid LDAP filter to match on.  If <code>null</code>, all
-   * groups are returned.  May not be empty.
-   *
-   * @return A collection of fully qualified distinguished group names as
-   * Strings.  Never <code>null</code>, may be empty.
-   *
+   * @param filter A valid LDAP filter to match on. If <code>null</code>, all groups are returned.
+   *     May not be empty.
+   * @return A collection of fully qualified distinguished group names as Strings. Never <code>null
+   *     </code>, may be empty.
    * @throws IllegalArgumentException if filter is invalid.
    * @throws PSSecurityException if any errors occur.
    */
@@ -327,12 +316,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
    * Recursively gets the supplied group's membership up to 5 levels deep.
    *
-   * @param groupName The name of the group to get members for, assumed not
-   * <code>null</code>.
+   * @param groupName The name of the group to get members for, assumed not <code>null</code>.
    * @param level The current level, used to stop recursing after 5 levels.
-   *
-   * @return A List of group members a principals, never <code>null</code>, may
-   * be empty.
+   * @return A List of group members a principals, never <code>null</code>, may be empty.
    */
   private List<IPSTypedPrincipal> getGroupMembers(String groupName, int level) {
     List<IPSTypedPrincipal> members = new ArrayList<>();
@@ -476,9 +462,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #shouldTreatAsGroup(String, boolean) shouldTreatAsGroup(dn, true)}
-   * and then calls {@link #dnToPrincipal(String, boolean)} with the result.
+   * Convenience method that calls {@link #shouldTreatAsGroup(String, boolean)
+   * shouldTreatAsGroup(dn, true)} and then calls {@link #dnToPrincipal(String, boolean)} with the
+   * result.
    */
   private IPSTypedPrincipal dnToPrincipal(String dn) throws NamingException {
     return dnToPrincipal(dn, shouldTreatAsGroup(dn, true));
@@ -488,13 +474,10 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * Converts the supplied distinguished name to a principal.
    *
    * @param dn The dn, assumed not <code>null</code> or empty.
-   * @param treatAsGroup <code>true</code> to treat the dn as a group,
-   * <code>false</code> to treat it as a user.  Group names are fully
-   * qualified, whereas user names are only the principal object attribute
-   * value.
-   *
+   * @param treatAsGroup <code>true</code> to treat the dn as a group, <code>false</code> to treat
+   *     it as a user. Group names are fully qualified, whereas user names are only the principal
+   *     object attribute value.
    * @return The principal, never <code>null</code>.
-   *
    * @throws NamingException If the dn cannot be parsed.
    */
   private IPSTypedPrincipal dnToPrincipal(String dn, boolean treatAsGroup) throws NamingException {
@@ -510,14 +493,11 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Executes the query specified by the supplied dynamic group member for
-   * users only and returns the results.
+   * Executes the query specified by the supplied dynamic group member for users only and returns
+   * the results.
    *
-   * @param searchUrl The base query to execute, assumed not <code>null</code>
-   * or empty.
-   *
+   * @param searchUrl The base query to execute, assumed not <code>null</code> or empty.
    * @return The users found in the group membership.
-   *
    * @throws NamingException If there are any errors.
    */
   private Collection<IPSTypedPrincipal> getDynamicUsers(String searchUrl) throws NamingException {
@@ -564,21 +544,16 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Filters the members specified by the supplied attributes returning a list
-   * of principles for each non-group member, and adding the remaining members
-   * to one of the supplied lists.
+   * Filters the members specified by the supplied attributes returning a list of principles for
+   * each non-group member, and adding the remaining members to one of the supplied lists.
    *
-   * @param attrMap The map of attributes returned, the key is the attribute
-   * name, the value is a list of attribute values, assumed not
-   * <code>null</code>.
-   * @param staticMemberList List to which static group members are added,
-   * assumed not <code>null</code>.
-   * @param dynamicMemberList List to which dynamic group members are added,
-   * assumed not <code>null</code>.
-   *
-   * @return The list of non-group members as principals, never
-   * <code>null</code>, may be empty.
-   *
+   * @param attrMap The map of attributes returned, the key is the attribute name, the value is a
+   *     list of attribute values, assumed not <code>null</code>.
+   * @param staticMemberList List to which static group members are added, assumed not <code>null
+   *     </code>.
+   * @param dynamicMemberList List to which dynamic group members are added, assumed not <code>null
+   *     </code>.
+   * @return The list of non-group members as principals, never <code>null</code>, may be empty.
    * @throws NamingException If there are any errors.
    */
   private Collection<IPSTypedPrincipal> filterMemberList(
@@ -627,15 +602,12 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * Determine if the specified dn should be treated as a group or a user.
    *
    * @param dn The dn to check, may not be <code>null</code> or empty.
-   * @param doSearch <code>true</code> to search for the entry in case the
-   * result is ambiguous, <code>false</code> to skip the search.
-   *
-   * @return <code>true</code> if the dn should be treated as a group,
-   * <code>false</code> if we can treat it as a user.  If the results of the
-   * check are ambiguous, the dn is treated as a group.
-   *
-   * @throws NamingException If there is an error parsing the dn or searching
-   * for a match.
+   * @param doSearch <code>true</code> to search for the entry in case the result is ambiguous,
+   *     <code>false</code> to skip the search.
+   * @return <code>true</code> if the dn should be treated as a group, <code>false</code> if we can
+   *     treat it as a user. If the results of the check are ambiguous, the dn is treated as a
+   *     group.
+   * @throws NamingException If there is an error parsing the dn or searching for a match.
    */
   public boolean shouldTreatAsGroup(String dn, boolean doSearch) throws NamingException {
     if (StringUtils.isBlank(dn)) throw new IllegalArgumentException("dn may not be null or empty");
@@ -686,14 +658,12 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Checks to see if the node containing the group is one of the locations
-   * supported by this group provider.
+   * Checks to see if the node containing the group is one of the locations supported by this group
+   * provider.
    *
    * @param group The name of the group, may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the group is supported, <code>false</code> if
-   * not or if the group name is invalid.
-   *
+   * @return <code>true</code> if the group is supported, <code>false</code> if not or if the group
+   *     name is invalid.
    * @throws IllegalArgumentException if group is <code>null</code> or empty.
    */
   public boolean isGroupSupported(String group) {
@@ -721,25 +691,18 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Private version of {@link #isMember(String, String) isMember} used to
-   * recursively check nested group membership, and track number of levels
-   * checked.
+   * Private version of {@link #isMember(String, String) isMember} used to recursively check nested
+   * group membership, and track number of levels checked.
    *
-   * @param user The distinguished name of the user, assumed not
-   * <code>null</code> or empty.
-   * @param group The distinguished name of the group, assumed not
-   * <code>null</code> or empty, and an existing group in the directory
-   * this group provider represents.
-   * @param level Represents the level of nested groups being checked.  Should
-   * be <code>0</code> for the first call.  The value is incremented at the
-   * beginning of each call and if it is greater than the number of levels
-   * defined by {@link #MAX_NESTED_GROUPS}, the method will immediately
-   * return <code>false</code>.
-   *
-   * @return <code>true</code> if the user is a member of the group,
-   * <code>false</code> if not or if the number of levels defined by
-   * {@link #MAX_NESTED_GROUPS} have been exceeded.
-   *
+   * @param user The distinguished name of the user, assumed not <code>null</code> or empty.
+   * @param group The distinguished name of the group, assumed not <code>null</code> or empty, and
+   *     an existing group in the directory this group provider represents.
+   * @param level Represents the level of nested groups being checked. Should be <code>0</code> for
+   *     the first call. The value is incremented at the beginning of each call and if it is greater
+   *     than the number of levels defined by {@link #MAX_NESTED_GROUPS}, the method will
+   *     immediately return <code>false</code>.
+   * @return <code>true</code> if the user is a member of the group, <code>false</code> if not or if
+   *     the number of levels defined by {@link #MAX_NESTED_GROUPS} have been exceeded.
    * @throws PSSecurityException any errors occur.
    */
   private boolean isMember(String user, String group, int level) throws PSSecurityException {
@@ -869,29 +832,22 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Determines if the user is an immediate member of the group entry
-   * represented by the supplied map of attributes.
+   * Determines if the user is an immediate member of the group entry represented by the supplied
+   * map of attributes.
    *
-   * @param user The distinguished name of the user to check, assumed not
-   * <code>null</code> or empty.
-   * @param attrMap A Map of attributes representing the group entry.  The
-   * keys are the attribute names as lowercase Strings, and the values are
-   * List objects containing each value of that attribute the group entry
-   * contained, as Strings.  Assumed not <code>null</code> and to contain at
-   * least the <code>objectClass</code> key.
-   * @param checkedStaticMembers A list to which this method will add the name
-   * of any group member values checked from a static member list.  Assumed
-   * not <code>null</code>.  Values are appended to the list as Strings,
-   * preserving any preexisting values.
-   * @param checkedDynamicMembers The same as <code>checkedStaticMembers</code>
-   * except that it contains group member values checked from a dynamic member
-   * list.
-   *
-   * @return <code>true</code> if the user is a member of the group,
-   * <code>false</code> otherwise.
-   *
-   * @throws NamingException if any errors occur parsing names or searching
-   * the directory.
+   * @param user The distinguished name of the user to check, assumed not <code>null</code> or
+   *     empty.
+   * @param attrMap A Map of attributes representing the group entry. The keys are the attribute
+   *     names as lowercase Strings, and the values are List objects containing each value of that
+   *     attribute the group entry contained, as Strings. Assumed not <code>null</code> and to
+   *     contain at least the <code>objectClass</code> key.
+   * @param checkedStaticMembers A list to which this method will add the name of any group member
+   *     values checked from a static member list. Assumed not <code>null</code>. Values are
+   *     appended to the list as Strings, preserving any preexisting values.
+   * @param checkedDynamicMembers The same as <code>checkedStaticMembers</code> except that it
+   *     contains group member values checked from a dynamic member list.
+   * @return <code>true</code> if the user is a member of the group, <code>false</code> otherwise.
+   * @throws NamingException if any errors occur parsing names or searching the directory.
    */
   private boolean isUserInMemberList(
       String user, Map attrMap, List checkedStaticMembers, List checkedDynamicMembers)
@@ -939,14 +895,11 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Get the list of ObjectClass attribute values from the supplied attribute
-   * map
+   * Get the list of ObjectClass attribute values from the supplied attribute map
    *
-   * @param attrMap Key is the attribute name, value is a list of attribute
-   * values, assumed not <code>null</code>.
-   *
-   * @return List of found object class values, never <code>null</code>, may
-   * be empty.
+   * @param attrMap Key is the attribute name, value is a list of attribute values, assumed not
+   *     <code>null</code>.
+   * @return List of found object class values, never <code>null</code>, may be empty.
    */
   private List<String> getObjectClasses(Map<String, List<String>> attrMap) {
     // build lowercase list of objectclass names from the directory
@@ -967,13 +920,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
    * Appends the user onto the search filter and performs the query.
    *
-   * @param user The name of the user to check, assumed not <code>null</code>
-   * or empty.
-   * @param searchUrl The dynamic member value, assumed not <code>null</code>
-   * or empty.
-   *
+   * @param user The name of the user to check, assumed not <code>null</code> or empty.
+   * @param searchUrl The dynamic member value, assumed not <code>null</code> or empty.
    * @return <code>true</code> if user is a member, <code>false</code> if not.
-   *
    * @throws NamingException if any errors occur
    */
   private boolean isUserInDynamicList(String user, String searchUrl) throws NamingException {
@@ -1037,11 +986,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
    * Gets any group members specified by the supplied ldap search URL.
    *
    * @param searchUrl The url, assumed not <code>null</code> or empty.
-   *
-   * @return A list of distinguished names as Strings whose entries contain
-   * group objectClass atrribute values supported by this provider.  Never
-   * <code>null</code>, may be empty if none are found.
-   *
+   * @return A list of distinguished names as Strings whose entries contain group objectClass
+   *     atrribute values supported by this provider. Never <code>null</code>, may be empty if none
+   *     are found.
    * @throws NamingException if any errors occur
    */
   private List getDynamicGroupMembers(String searchUrl) throws NamingException {
@@ -1089,11 +1036,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
    * Gets the initial context for the specified node.
    *
-   * @param node The entry to bind the initial context to.  Assumed not
-   * <code>null</code>.
-   *
+   * @param node The entry to bind the initial context to. Assumed not <code>null</code>.
    * @return The context, never <code>null</code>.
-   *
    * @throws NamingException if there are any errors.
    */
   private DirContext getDirContext(CompoundName node) throws NamingException {
@@ -1103,11 +1047,9 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
    * Gets the initial context for the specified distinguished name.
    *
-   * @param dn The distinguished name of the entry to bind the intial context
-   * to.  Assumed not <code>null</code> or empty.
-   *
+   * @param dn The distinguished name of the entry to bind the intial context to. Assumed not <code>
+   *     null</code> or empty.
    * @return The context, never <code>null</code>.
-   *
    * @throws NamingException if there are any errors.
    */
   private DirContext getDirContext(String dn) throws NamingException {
@@ -1117,8 +1059,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   /**
    * Set the new provider URL for this group provider.
    *
-   * @param providerUrl the new provider URL to be set, may be
-   *    <code>null</code>, must be a valid URL if provided.
+   * @param providerUrl the new provider URL to be set, may be <code>null</code>, must be a valid
+   *     URL if provided.
    */
   public void setProviderUrl(String providerUrl) {
     if (providerUrl == null) {
@@ -1133,19 +1075,17 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Get the base url from the provided string.  This consists of the
-   * following pieces:<p>
-   * <code>
+   * Get the base url from the provided string. This consists of the following pieces:
+   *
+   * <p><code>
    * <protocol>://<server>[:port]/
    * </code>
    *
-   * @param strUrl The Url to parse and from which to extract the base.  May
-   * be <code>null</code> or empty.
-   *
+   * @param strUrl The Url to parse and from which to extract the base. May be <code>null</code> or
+   *     empty.
    * @return The base Url, never <code>null</code>.
-   *
-   * @throws MalformedURLException if strUrl is <code>null</code>, empty, or
-   * does not contain a valid Url.
+   * @throws MalformedURLException if strUrl is <code>null</code>, empty, or does not contain a
+   *     valid Url.
    */
   private static String getBaseUrl(String strUrl) throws MalformedURLException {
     String protocol = PSJndiUtils.getProtocol(strUrl);
@@ -1159,12 +1099,11 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Creates and returns a search filter that will find any entry that contains
-   * a supported objectClass attribute value.  Filter is built once from the
-   * supported object classes and cached.
+   * Creates and returns a search filter that will find any entry that contains a supported
+   * objectClass attribute value. Filter is built once from the supported object classes and cached.
    *
-   * @return The filter string, never <code>null</code>, empty if no group
-   * objecctClasses are defined.
+   * @return The filter string, never <code>null</code>, empty if no group objecctClasses are
+   *     defined.
    */
   private String getGroupsSearchFilter() {
     if (m_groupsSearchFilter == null) {
@@ -1189,9 +1128,8 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Returns an array of the attribute names the member lists are stored in for
-   * each of the objectClasses.  Array is built once from the
-   * supported object classes and cached.
+   * Returns an array of the attribute names the member lists are stored in for each of the
+   * objectClasses. Array is built once from the supported object classes and cached.
    *
    * @return The array, never <code>null</code>, might be emtpy.
    */
@@ -1211,24 +1149,23 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
   }
 
   /**
-   * Parses an LDAP url, returning the query filter portion, and also appending
-   * the base portion to the supplied StringBuilder.  For example, if the url
-   * is <p>
-   * <code>ldap:///ou=percussion,c=us ??sub?(cn=m*)</code>
+   * Parses an LDAP url, returning the query filter portion, and also appending the base portion to
+   * the supplied StringBuilder. For example, if the url is
    *
-   * <p>then<p>
-   * <code>
+   * <p><code>ldap:///ou=percussion,c=us ??sub?(cn=m*)</code>
+   *
+   * <p>then
+   *
+   * <p><code>
    * base="ou=percussion,c=us"<br>
    * filter="(cn=m*)"
-   *</code>
+   * </code>
    *
    * @param url The url to parse, assumed not <code>null</code> or empty.
-   * @param baseBuffer The StringBuilder onto which the base is appended.
-   * Assumed not <code>null</code>.  If no base is supplied, nothing is
-   * appended.
-   *
-   * @return The filter portion of the url, never <code>null</code>, may be
-   * empty if no filter is supplied.
+   * @param baseBuffer The StringBuilder onto which the base is appended. Assumed not <code>null
+   *     </code>. If no base is supplied, nothing is appended.
+   * @return The filter portion of the url, never <code>null</code>, may be empty if no filter is
+   *     supplied.
    */
   private static String parseSearchUrl(String url, StringBuilder baseBuffer) {
     String filter = "";
@@ -1253,57 +1190,54 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
     return filter;
   }
 
-  /**
-   * Name of the attribute used to identify a group entry by name.
-   */
+  /** Name of the attribute used to identify a group entry by name. */
   public static final String PRINCIPAL_GROUP_ATTR = "cn";
 
   /**
-   * The number of levels of nested groups we will search.  Currently this
-   * value is <code>5</code>.
+   * The number of levels of nested groups we will search. Currently this value is <code>5</code>.
    */
   public static final int MAX_NESTED_GROUPS = 5;
 
   /**
-   * The definition used by this group provider.  Never <code>null</code> or
-   * modified after construction.
+   * The definition used by this group provider. Never <code>null</code> or modified after
+   * construction.
    */
   private PSJndiGroupProviderInstance m_groupProviderInstance;
 
   /**
-   * The jndi directory def used to retrieve settings for binding
-   * to the server in order to search and read group entries.  Initialized
-   * during construction, never <code>null</code> after that.
+   * The jndi directory def used to retrieve settings for binding to the server in order to search
+   * and read group entries. Initialized during construction, never <code>null</code> after that.
    */
   private PSDirectoryDefinition m_directoryDef;
 
   /**
-   * Attribute name to use for a user, not <code>null</code> or empty or
-   * modified after construction.
+   * Attribute name to use for a user, not <code>null</code> or empty or modified after
+   * construction.
    */
   private String m_userObjectAttrName;
 
   /**
-   * List of group locations from the group provider instance. Never
-   * <code>null</code>, could be empty.
+   * List of group locations from the group provider instance. Never <code>null</code>, could be
+   * empty.
    */
   private List<GroupLocationInfo> m_groupLocationInfo = new ArrayList<>();
 
   /**
-   * A class to store a pair of related data objects. A small amount of
-   * normalization is done to them.
+   * A class to store a pair of related data objects. A small amount of normalization is done to
+   * them.
+   *
    * <p>Instances should be treated as immutable.
    *
    * @author paulhoward
    */
   private class GroupLocationInfo {
     /**
-     * Pass in the value entered into the UI. It is processed and parsed into
-     * its 2 pieces. Any ?'s in the DN must be escaped using the URL character
-     * escaping mechanism (i.e. replace the ? with %3f.)
+     * Pass in the value entered into the UI. It is processed and parsed into its 2 pieces. Any ?'s
+     * in the DN must be escaped using the URL character escaping mechanism (i.e. replace the ? with
+     * %3f.)
      *
-     * @param entry The name and optional filter. Of the form <em>name</em>
-     * [?<em>filter</em>]. Assumed not <code>null</code> or empty.
+     * @param entry The name and optional filter. Of the form <em>name</em> [?<em>filter</em>].
+     *     Assumed not <code>null</code> or empty.
      */
     public GroupLocationInfo(String entry) throws InvalidNameException {
       try {
@@ -1324,44 +1258,39 @@ public class PSJndiGroupProvider implements IPSGroupProvider {
       }
     }
 
-    /**
-     * The distinguished name supplied in the ctor.
-     */
+    /** The distinguished name supplied in the ctor. */
     public CompoundName mi_groupLocation;
 
     /**
-     * The filter supplied in the ctor, normalized. Guaranteed to be of the
-     * form <code>(<em>filter</em>)</code> or <code>null</code>,
-     * never empty.
+     * The filter supplied in the ctor, normalized. Guaranteed to be of the form <code>
+     * (<em>filter</em>)</code> or <code>null</code>, never empty.
      */
     public String mi_groupFilter;
   }
 
   /**
-   * Base url of server that this provider will use. Intialized during
-   * construction, never <code>null</code> or modified after that.
+   * Base url of server that this provider will use. Intialized during construction, never <code>
+   * null</code> or modified after that.
    */
   private String m_providerUrl = null;
 
   /**
-   * Base context of the directory, used to build user compound names, never
-   * <code>null</code> or empty or modified after construction.
+   * Base context of the directory, used to build user compound names, never <code>null</code> or
+   * empty or modified after construction.
    */
   private String m_dirBaseCtx;
 
   /**
-   * A filter that will return any entry that contains a supported objectClass
-   * attribute value.  <code>null</code> until first call to
-   * {@link #getGroupsSearchFilter()}, never <code>null</code> or modified
-   * after that.
+   * A filter that will return any entry that contains a supported objectClass attribute value.
+   * <code>null</code> until first call to {@link #getGroupsSearchFilter()}, never <code>null</code>
+   * or modified after that.
    */
   private String m_groupsSearchFilter = null;
 
   /**
-   * An array of the attribute names used by each objectClass to store the
-   * member lists.  <code>null</code> until the first call to
-   * {@link #getMemberListAttributes()}, never <code>null</code> or modified
-   * after that.
+   * An array of the attribute names used by each objectClass to store the member lists. <code>null
+   * </code> until the first call to {@link #getMemberListAttributes()}, never <code>null</code> or
+   * modified after that.
    */
   private String[] m_memberListAttributes = null;
 }

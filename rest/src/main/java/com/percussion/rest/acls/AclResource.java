@@ -18,25 +18,23 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.Status;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-
+import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 @PSSiteManageBean(value = "restAclResource")
 @Path("/acls")
@@ -45,167 +43,198 @@ import java.util.List;
 @Lazy
 public class AclResource {
 
-    private final Logger log = LogManager.getLogger(getClass());
+  private final Logger log = LogManager.getLogger(getClass());
 
-    @Autowired
-    private IAclAdaptor adaptor;
+  @Autowired private IAclAdaptor adaptor;
 
-    public AclResource() {}
+  public AclResource() {}
 
-    @POST
-    @Path("/object")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Retrieves the acl for the object with the supplied id")
-    public UserAccessLevel getUserAccessLevel(
-            @Parameter(description = "The guid of the object for which the current user's effective access level needs to be computed. Must not be null.",
-                    required = true) Guid objectGuid) {
-        try {
-            return adaptor.getUserAccessLevel(objectGuid);
-        } catch (Exception e) {
-            log.error("Exception getting User Access Level for Object: {}, Error: {}", objectGuid.getStringValue(), e.getMessage());
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @POST
+  @Path("/object")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Retrieves the acl for the object with the supplied id")
+  public UserAccessLevel getUserAccessLevel(
+      @Parameter(
+              description =
+                  "The guid of the object for which the current user's effective access level needs"
+                      + " to be computed. Must not be null.",
+              required = true)
+          Guid objectGuid) {
+    try {
+      return adaptor.getUserAccessLevel(objectGuid);
+    } catch (Exception e) {
+      log.error(
+          "Exception getting User Access Level for Object: {}, Error: {}",
+          objectGuid.getStringValue(),
+          e.getMessage());
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @GET
-    @Path("/user/{aclGuid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Computes the current user's effective access level to the object protected by the supplied ACL. The effective access level of a user is the highest permission he or she can get on the associated object based on all entries in the ACL.")
-    public UserAccessLevel calculateUserAccessLevel(@PathParam("aclGuid") String aclGuid) {
-        try {
-            return adaptor.calculateUserAccessLevel(aclGuid);
-        } catch (Exception e) {
-            log.error("Error checking access level for Acl: {}, Error: {}", aclGuid, PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @GET
+  @Path("/user/{aclGuid}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary =
+          "Computes the current user's effective access level to the object protected by the"
+              + " supplied ACL. The effective access level of a user is the highest permission he"
+              + " or she can get on the associated object based on all entries in the ACL.")
+  public UserAccessLevel calculateUserAccessLevel(@PathParam("aclGuid") String aclGuid) {
+    try {
+      return adaptor.calculateUserAccessLevel(aclGuid);
+    } catch (Exception e) {
+      log.error(
+          "Error checking access level for Acl: {}, Error: {}",
+          aclGuid,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @POST
-    @Path("/")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Create an acl for the specified object.")
-    public Acl createAcl(@Parameter(required = true, description = "A valid CreateAclRequest object") CreateAclRequest request) {
-        try {
-            return adaptor.createAcl(request.getObjectGuid(), request.getOwner());
-        } catch (Exception e) {
-            log.error("Error creating Acl for Owner: {} and object: {}, Error: {}", request.getOwner().getName(), request.getObjectGuid().getStringValue(), PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @POST
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Create an acl for the specified object.")
+  public Acl createAcl(
+      @Parameter(required = true, description = "A valid CreateAclRequest object")
+          CreateAclRequest request) {
+    try {
+      return adaptor.createAcl(request.getObjectGuid(), request.getOwner());
+    } catch (Exception e) {
+      log.error(
+          "Error creating Acl for Owner: {} and object: {}, Error: {}",
+          request.getOwner().getName(),
+          request.getObjectGuid().getStringValue(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @GET
-    @Path("/bulk")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Load ACLs for given list of ACL GUIDs. These objects are cached and shared between threads and should be treated read-only. See the class description for more details.")
-    public AclList loadAcls(GuidList aclGuids) {
-        try {
-            return adaptor.loadAcls(aclGuids);
-        } catch (Exception e) {
-            log.error("Error loading acls for guid list: {}, Error: {}", aclGuids, PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @GET
+  @Path("/bulk")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary =
+          "Load ACLs for given list of ACL GUIDs. These objects are cached and shared between"
+              + " threads and should be treated read-only. See the class description for more"
+              + " details.")
+  public AclList loadAcls(GuidList aclGuids) {
+    try {
+      return adaptor.loadAcls(aclGuids);
+    } catch (Exception e) {
+      log.error(
+          "Error loading acls for guid list: {}, Error: {}",
+          aclGuids,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @GET
-    @Path("/{guid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Acl loadAcl(@PathParam("guid") String guid) {
-        try {
-            return adaptor.loadAcl(new Guid(guid));
-        } catch (Exception e) {
-            log.error("Error loading acl for guid: {} {}", guid, PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @GET
+  @Path("/{guid}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Acl loadAcl(@PathParam("guid") String guid) {
+    try {
+      return adaptor.loadAcl(new Guid(guid));
+    } catch (Exception e) {
+      log.error("Error loading acl for guid: {} {}", guid, PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @POST
-    @Path("/bulk")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public AclList loadAclsForObjects(GuidList objectGuids) {
-        try {
-            return adaptor.loadAclsForObjects(objectGuids);
-        } catch (Exception e) {
-            log.error("Error loading acl for guids: {} {}", objectGuids, PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @POST
+  @Path("/bulk")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public AclList loadAclsForObjects(GuidList objectGuids) {
+    try {
+      return adaptor.loadAclsForObjects(objectGuids);
+    } catch (Exception e) {
+      log.error(
+          "Error loading acl for guids: {} {}", objectGuids, PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @GET
-    @Path("/object/{objectGuid}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Acl loadAclForObject(@PathParam("objectGuid") String objectGuid) {
-        try {
-            return adaptor.loadAclForObject(new Guid(objectGuid));
-        } catch (NotFoundException n) {
-            log.debug("No ACL's found for object: {} {}", objectGuid, n.getMessage());
-            log.debug(n.getMessage(), n);
-            throw new WebApplicationException("No ACL's found for Object with GUID:" + objectGuid, Response.status(404).build());
-        } catch (Exception e) {
-            log.error("Error loading acl for Object guid: {}, {}", objectGuid, e.getMessage());
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
+  @GET
+  @Path("/object/{objectGuid}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Acl loadAclForObject(@PathParam("objectGuid") String objectGuid) {
+    try {
+      return adaptor.loadAclForObject(new Guid(objectGuid));
+    } catch (NotFoundException n) {
+      log.debug("No ACL's found for object: {} {}", objectGuid, n.getMessage());
+      log.debug(n.getMessage(), n);
+      throw new WebApplicationException(
+          "No ACL's found for Object with GUID:" + objectGuid, Response.status(404).build());
+    } catch (Exception e) {
+      log.error("Error loading acl for Object guid: {}, {}", objectGuid, e.getMessage());
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+  }
 
-    @PUT
-    @Path("/bulk")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Status saveAcls(AclList aclList) {
-        var ret = new Status(200, "OK");
-        try {
-            adaptor.saveAcls(aclList);
-        } catch (Exception e) {
-            log.error("Error saving acl list {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
-        return ret;
+  @PUT
+  @Path("/bulk")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Status saveAcls(AclList aclList) {
+    var ret = new Status(200, "OK");
+    try {
+      adaptor.saveAcls(aclList);
+    } catch (Exception e) {
+      log.error("Error saving acl list {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+    return ret;
+  }
 
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Status deleteAcl(Guid aclGuid) {
-        var ret = new Status(200, "OK");
-        try {
-            adaptor.deleteAcl(aclGuid);
-        } catch (Exception e) {
-            log.error("Error deleting acl: {}, Error: {}", aclGuid.getStringValue(), PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e.getMessage(), Response.serverError().build());
-        }
-        return ret;
+  @DELETE
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Status deleteAcl(Guid aclGuid) {
+    var ret = new Status(200, "OK");
+    try {
+      adaptor.deleteAcl(aclGuid);
+    } catch (Exception e) {
+      log.error(
+          "Error deleting acl: {}, Error: {}",
+          aclGuid.getStringValue(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.serverError().build());
     }
+    return ret;
+  }
 
-    @POST
-    @Path("/community/filter")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
-        // Not implemented
-        return null;
-    }
+  @POST
+  @Path("/community/filter")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public GuidList filterByCommunities(GuidList aclList, List<String> communityNames) {
+    // Not implemented
+    return null;
+  }
 
-    @GET
-    @Path("/community")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public GuidList findObjectsVisibleToCommunities() {
-        // Not implemented
-        return null;
-    }
+  @GET
+  @Path("/community")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.APPLICATION_JSON)
+  public GuidList findObjectsVisibleToCommunities() {
+    // Not implemented
+    return null;
+  }
 }

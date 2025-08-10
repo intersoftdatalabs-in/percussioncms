@@ -18,13 +18,11 @@
 package com.percussion.filetracker;
 
 /**
- * This exception is thrown when the applocation fails to load the
- * configuration document (rxfidconfig.xml) in the working directory.
+ * This exception is thrown when the applocation fails to load the configuration document
+ * (rxfidconfig.xml) in the working directory.
  */
 public class PSFUDEmptyServerAliasException extends Exception {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSFUDEmptyServerAliasException() {
     super();
   }
@@ -33,7 +31,6 @@ public class PSFUDEmptyServerAliasException extends Exception {
    * Constructor that takes the error message as parameter
    *
    * @param msg as String
-   *
    */
   public PSFUDEmptyServerAliasException(String msg) {
     super(msg);

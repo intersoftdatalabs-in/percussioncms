@@ -23,14 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Filters out BODY portion from a given HTML input stream. Letter case
- * of the <code>BODY</code> tag is NOT important.
- * For more information see base class: {@link FilterInputStream}.
+ * Filters out BODY portion from a given HTML input stream. Letter case of the <code>BODY</code> tag
+ * is NOT important. For more information see base class: {@link FilterInputStream}.
  */
 public class PSHtmlBodyInputStream extends FilterInputStream {
   /**
-   * Initilizes the base class by passing it a given input stream wrapped
-   * into the new instance of the {@link java.io.BufferedInputStream}.
+   * Initilizes the base class by passing it a given input stream wrapped into the new instance of
+   * the {@link java.io.BufferedInputStream}.
+   *
    * @param in, may be <code>null</code>.
    */
   public PSHtmlBodyInputStream(InputStream in) {
@@ -38,13 +38,13 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
   }
 
   /**
-   * Reads <code>size</code> bytes at a time and puts them into a given
-   * <code>buf</code> begining from a given <code>offset</code>; ensures that
-   * buffer overflow never happens; also see {@link FilterInputStream}.
+   * Reads <code>size</code> bytes at a time and puts them into a given <code>buf</code> begining
+   * from a given <code>offset</code>; ensures that buffer overflow never happens; also see {@link
+   * FilterInputStream}.
+   *
    * @param buf dest buffer, never <code>null</code>.
    * @param offset dest buffer offset, must be in the buffer range.
    * @param size number of bytes to read
-   *
    * @return number of bytes read.
    * @throws IOException see base class.
    */
@@ -80,8 +80,9 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
   }
 
   /**
-   * Reads one byte at a time, <body>only bytes that are between 'body' tags
-   * </body> are actually read.
+   * Reads one byte at a time, <body>only bytes that are between 'body' tags </body> are actually
+   * read.
+   *
    * @return byte read.
    * @throws IOException if any network error happens during the read.
    */
@@ -120,12 +121,11 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
   }
 
   /**
-   * Looks for a given marker starting from a current stream position;
-   * comparison is case-insensitive; when done, resets the stream back
-   * to the original position.
+   * Looks for a given marker starting from a current stream position; comparison is
+   * case-insensitive; when done, resets the stream back to the original position.
+   *
    * @param marker marker to watch for, never <code>null</code>.
-   * @return <code>true</code> is a given marker is found, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> is a given marker is found, <code>false</code> otherwise.
    * @throws IOException if any network error happens during the read.
    */
   private boolean checkMarkerIgnoreCase(String marker) throws IOException {
@@ -152,8 +152,9 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
 
   /**
    * Reads input stream until an opening <code>body</code> tag is found.
-   * @return first byte after the opening <code>body</code> tag, or
-   * <code>EOF</code> if there is no data in the body.
+   *
+   * @return first byte after the opening <code>body</code> tag, or <code>EOF</code> if there is no
+   *     data in the body.
    * @throws IOException
    */
   private int readFirst() throws IOException {
@@ -179,49 +180,30 @@ public class PSHtmlBodyInputStream extends FilterInputStream {
     return super.read();
   }
 
-  /**
-   * Keeps track of the current stream state.
-   */
+  /** Keeps track of the current stream state. */
   private int m_state = STATE_INITIAL;
 
-  /**
-   * Initial state.
-   */
+  /** Initial state. */
   private static final int STATE_INITIAL = 0;
 
-  /**
-   * Echoing state.
-   */
+  /** Echoing state. */
   private static final int STATE_ECHO = 1;
 
-  /**
-   * State EOF.
-   */
+  /** State EOF. */
   private static final int STATE_EOF = 2;
 
-  /**
-   * 'body' constant.
-   */
+  /** 'body' constant. */
   private static final String START_MARKER = "body";
 
-  /**
-   * '/body' constant.
-   */
+  /** '/body' constant. */
   private static final String END_MARKER = "/body";
 
-  /**
-   * The '&lt;' char as bytes.
-   */
+  /** The '&lt;' char as bytes. */
   private static final byte LT = String.valueOf('<').getBytes()[0];
 
-  /**
-   * The '&gt;' char as bytes.
-   */
+  /** The '&gt;' char as bytes. */
   private static final byte GT = String.valueOf('>').getBytes()[0];
 
-  /**
-   * Value returned by the read methods to indicate that an EOF
-   * has been encountered.
-   */
+  /** Value returned by the read methods to indicate that an EOF has been encountered. */
   private static final byte EOF = -1;
 }

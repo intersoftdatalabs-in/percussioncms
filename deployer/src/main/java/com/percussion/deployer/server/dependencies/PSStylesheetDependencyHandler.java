@@ -31,19 +31,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a stylesheet
- */
+/** Class to handle packaging and deploying a stylesheet */
 public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSStylesheetDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -51,18 +46,18 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>ContextVariable</li>
-   * <li>Stylesheet</li>
-   * <li>SupportFile</li>
+   *   <li>Application
+   *   <li>ContextVariable
+   *   <li>Stylesheet
+   *   <li>SupportFile
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -164,9 +159,7 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
    * Determine if the supplied file id should be treated as a stylesheet
    *
    * @param id The id, may not be <code>null</code> or empty.
-   *
    * @return <code>true</code> if it is a stylesheet, false otherwise.
-   *
    * @throws IllegalArgumentException if <code>id</code> is invalid.
    */
   static boolean isStylesheet(String id) {
@@ -176,15 +169,10 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
     return id.endsWith(".xsl");
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "Stylesheet";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(
           DEPENDENCY_TYPE,

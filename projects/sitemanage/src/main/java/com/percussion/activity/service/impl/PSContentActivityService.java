@@ -50,10 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-/**
- * See interface for details.
- * Sunny Sal: "REST easy, this is Java 11!"
- */
+/** See interface for details. Sunny Sal: "REST easy, this is Java 11!" */
 @Path("/activity")
 @Component("contentActivityService")
 @Lazy
@@ -173,8 +170,8 @@ public class PSContentActivityService implements IPSContentActivityService {
   }
 
   /**
-   * Get the date before the current date for the given duration and the given type of duration.
-   * If the duration type is days, then it gives a date that many days prior to the current date.
+   * Get the date before the current date for the given duration and the given type of duration. If
+   * the duration type is days, then it gives a date that many days prior to the current date.
    */
   private Date getDurationDate(PSDurationTypeEnum dtype, int duration) {
     var cal = Calendar.getInstance();
@@ -224,9 +221,7 @@ public class PSContentActivityService implements IPSContentActivityService {
   private final PSAbstractBeanValidator<PSContentActivityRequest> contentActivityReqvalidator =
       new PSContentActivityRequestValidator();
 
-  /**
-   * Content Activity request validator, it checks whether the supplied path is not blank.
-   */
+  /** Content Activity request validator, it checks whether the supplied path is not blank. */
   public static class PSContentActivityRequestValidator
       extends PSAbstractBeanValidator<PSContentActivityRequest> {
     @Override
@@ -261,9 +256,7 @@ public class PSContentActivityService implements IPSContentActivityService {
     }
   }
 
-  /**
-   * Temporary method that fills the test data.
-   */
+  /** Temporary method that fills the test data. */
   private void fillTestData(String path, List<PSContentActivity> caList) {
     if ("/Sites/".equals(path)) {
       caList.add(new PSContentActivity("Site1", "Site1", 357, 20, 45, 20, 10));

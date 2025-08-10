@@ -24,34 +24,39 @@ import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDe
 import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
- * Visitor pattern for the different types of {@link PSResourceDefinition}s.
- * Implementations should handle each resource type accordingly.
+ * Visitor pattern for the different types of {@link PSResourceDefinition}s. Implementations should
+ * handle each resource type accordingly.
+ *
  * @author adamgent
  */
 public interface IPSResourceDefinitionVisitor {
 
-    /**
-     * Visit an asset resource.
-     * @param resource the asset resource, never {@code null}
-     * @throws PSDataServiceException if a data service error occurs
-     */
-    void visit(PSAssetResource resource) throws PSDataServiceException;
+  /**
+   * Visit an asset resource.
+   *
+   * @param resource the asset resource, never {@code null}
+   * @throws PSDataServiceException if a data service error occurs
+   */
+  void visit(PSAssetResource resource) throws PSDataServiceException;
 
-    /**
-     * Visit a file resource.
-     * @param resource the file resource, never {@code null}
-     */
-    void visit(PSFileResource resource);
+  /**
+   * Visit a file resource.
+   *
+   * @param resource the file resource, never {@code null}
+   */
+  void visit(PSFileResource resource);
 
-    /**
-     * Visit a folder resource.
-     * @param resource the folder resource, never {@code null}
-     */
-    void visit(PSFolderResource resource);
+  /**
+   * Visit a folder resource.
+   *
+   * @param resource the folder resource, never {@code null}
+   */
+  void visit(PSFolderResource resource);
 
-    /**
-     * Visit a theme resource.
-     * @param resource the theme resource, never {@code null}
-     */
-    void visit(PSThemeResource resource);
+  /**
+   * Visit a theme resource.
+   *
+   * @param resource the theme resource, never {@code null}
+   */
+  void visit(PSThemeResource resource);
 }

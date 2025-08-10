@@ -23,26 +23,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A component that holds one directory definition used to catalog information
- * from directory servers.
+ * A component that holds one directory definition used to catalog information from directory
+ * servers.
  */
 public class PSRoleProvider extends PSComponent {
-  /**
-   * java serial id
-   */
+  /** java serial id */
   private static final long serialVersionUID = 1L;
 
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRoleProvider(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -53,10 +47,10 @@ public class PSRoleProvider extends PSComponent {
    * Contructs a new object for the supplied parameters.
    *
    * @param name the directory name, not <code>null</code> or empty.
-   * @param type the role provider type, not <code>null</code> or
-   *    empty, must be one of <code>TYPE_ENUM</code>.
-   * @param directoryRef the directory reference name if the constructed object
-   *    is of type <code>TYPE_DIRECTORY</code>, <code>null</code> otherwise.
+   * @param type the role provider type, not <code>null</code> or empty, must be one of <code>
+   *     TYPE_ENUM</code>.
+   * @param directoryRef the directory reference name if the constructed object is of type <code>
+   *     TYPE_DIRECTORY</code>, <code>null</code> otherwise.
    */
   public PSRoleProvider(String name, String type, String directoryRef) {
     setName(name);
@@ -68,10 +62,10 @@ public class PSRoleProvider extends PSComponent {
    * Contructs a new object for the supplied parameters.
    *
    * @param name the directory name, not <code>null</code> or empty.
-   * @param type the role provider type, not <code>null</code> or
-   *    empty, must be one of <code>TYPE_ENUM</code>.
-   * @param directoryRef the directory reference if the constructed object
-   *    is of type <code>TYPE_DIRECTORY</code>, <code>null</code> otherwise.
+   * @param type the role provider type, not <code>null</code> or empty, must be one of <code>
+   *     TYPE_ENUM</code>.
+   * @param directoryRef the directory reference if the constructed object is of type <code>
+   *     TYPE_DIRECTORY</code>, <code>null</code> otherwise.
    */
   public PSRoleProvider(String name, String type, PSReference directoryRef) {
     setName(name);
@@ -80,8 +74,8 @@ public class PSRoleProvider extends PSComponent {
   }
 
   /**
-   * @return the role provider name, never <code>null</code> or empty. This
-   *    name may be used to reference this role provider from other contexts.
+   * @return the role provider name, never <code>null</code> or empty. This name may be used to
+   *     reference this role provider from other contexts.
    */
   public String getName() {
     return m_name;
@@ -90,8 +84,7 @@ public class PSRoleProvider extends PSComponent {
   /**
    * Set a new role provider name.
    *
-   * @param name the new name for this role provider, not <code>null</code> or
-   *    empty.
+   * @param name the new name for this role provider, not <code>null</code> or empty.
    */
   public void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -104,8 +97,9 @@ public class PSRoleProvider extends PSComponent {
 
   /**
    * Set a new value for the delimiter
-   * @param delimiter the new value, <code>null</code> indicates that the
-   * delimiter is not in use for this provider
+   *
+   * @param delimiter the new value, <code>null</code> indicates that the delimiter is not in use
+   *     for this provider
    */
   public void setDelimiter(String delimiter) {
     m_delimiter = delimiter;
@@ -114,8 +108,8 @@ public class PSRoleProvider extends PSComponent {
   /**
    * Is this a backend role provider?
    *
-   * @return <code>true</code> if this role provider is of type
-   *    <code>TYPE_BACKEND</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if this role provider is of type <code>TYPE_BACKEND</code>, <code>
+   *     false</code> otherwise.
    */
   public boolean isBackendRoleProvider() {
     return m_type.equals(TYPE_BACKEND);
@@ -124,8 +118,8 @@ public class PSRoleProvider extends PSComponent {
   /**
    * Is this a directory role provider?
    *
-   * @return <code>true</code> if this role provider is of type
-   *    <code>TYPE_DIRECTORY</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if this role provider is of type <code>TYPE_DIRECTORY</code>, <code>
+   *     false</code> otherwise.
    */
   public boolean isDirectoryRoleProvider() {
     return m_type.equals(TYPE_DIRECTORY);
@@ -134,8 +128,8 @@ public class PSRoleProvider extends PSComponent {
   /**
    * Is this a both role provider?
    *
-   * @return <code>true</code> if this role provider is of type
-   *    <code>TYPE_BOTH</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if this role provider is of type <code>TYPE_BOTH</code>, <code>false
+   *     </code> otherwise.
    */
   public boolean isBothProvider() {
     return m_type.equals(TYPE_BOTH);
@@ -143,8 +137,9 @@ public class PSRoleProvider extends PSComponent {
 
   /**
    * Does this role provider use delimited values.
-   * @return <code>true</code> if this provider does use delimited values. Use
-   * {@link #getDelimiter()} to retrieve the delimiter.
+   *
+   * @return <code>true</code> if this provider does use delimited values. Use {@link
+   *     #getDelimiter()} to retrieve the delimiter.
    */
   public boolean isDelimited() {
     return m_delimiter != null;
@@ -152,19 +147,19 @@ public class PSRoleProvider extends PSComponent {
 
   /**
    * Get the delimiter that separates role values for this provider.
-   * @return the delimiter, may be <code>null</code> if this provider does
-   * not store roles as delimited values.
+   *
+   * @return the delimiter, may be <code>null</code> if this provider does not store roles as
+   *     delimited values.
    */
   public String getDelimiter() {
     return m_delimiter;
   }
 
   /**
-   * Set the new role provider type. Role provider types are case insensitive
-   * and stored lowercase.
+   * Set the new role provider type. Role provider types are case insensitive and stored lowercase.
    *
-   * @param type the new role provider type, not <code>null</code> or
-   *    empty. Must be one of <code>TYPE_ENUM</code>.
+   * @param type the new role provider type, not <code>null</code> or empty. Must be one of <code>
+   *     TYPE_ENUM</code>.
    */
   private void setType(String type) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
@@ -185,20 +180,20 @@ public class PSRoleProvider extends PSComponent {
   }
 
   /**
-   * @return the directory reference used to do the role membership lookups
-   *    if this is of type <code>TYPE_DIRECTORY</code>. Always
-   *    <code>null</code> if this is of type <code>TYPE_ROLE_MANAGER</code>.
+   * @return the directory reference used to do the role membership lookups if this is of type
+   *     <code>TYPE_DIRECTORY</code>. Always <code>null</code> if this is of type <code>
+   *     TYPE_ROLE_MANAGER</code>.
    */
   public PSReference getDirectoryRef() {
     return m_directoryRef;
   }
 
   /**
-   * Set a new directory reference. This method does nothing if the type is
-   * <code>TYPE_ROLE_MANAGER</code>.
+   * Set a new directory reference. This method does nothing if the type is <code>TYPE_ROLE_MANAGER
+   * </code>.
    *
-   * @param directoryRef the directory reference name to set the reference for,
-   *    not <code>null</code> or empty.
+   * @param directoryRef the directory reference name to set the reference for, not <code>null
+   *     </code> or empty.
    */
   public void setDirectoryRef(String directoryRef) {
     if (!isBackendRoleProvider()) {
@@ -213,11 +208,11 @@ public class PSRoleProvider extends PSComponent {
   }
 
   /**
-   * Set a new directory reference. This method does nothing if the type is
-   * <code>TYPE_ROLE_MANAGER</code>.
+   * Set a new directory reference. This method does nothing if the type is <code>TYPE_ROLE_MANAGER
+   * </code>.
    *
-   * @param directoryRef the directory reference to set,
-   *    not <code>null</code>, must be of type <code>PSDirecctorySet</code>.
+   * @param directoryRef the directory reference to set, not <code>null</code>, must be of type
+   *     <code>PSDirecctorySet</code>.
    */
   public void setDirectoryRef(PSReference directoryRef) {
     if (!isBackendRoleProvider()) {
@@ -230,7 +225,9 @@ public class PSRoleProvider extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -255,7 +252,9 @@ public class PSRoleProvider extends PSComponent {
     if (reference != null) m_directoryRef = new PSReference(reference, parentDoc, parentComponents);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(XML_ATTR_NAME, getName());
@@ -269,12 +268,16 @@ public class PSRoleProvider extends PSComponent {
     return root;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Object clone() {
     return super.clone();
   }
 
-  /** @see PSComponent */
+  /**
+   * @see PSComponent
+   */
   public void copyFrom(PSComponent c) {
     super.copyFrom(c);
 
@@ -309,54 +312,45 @@ public class PSRoleProvider extends PSComponent {
   public static final String XML_NODE_NAME = "PSXRoleProvider";
 
   /**
-   * Constant used to specify that role membership is determined through
-   * a backend role provider.
+   * Constant used to specify that role membership is determined through a backend role provider.
    */
   public static final String TYPE_BACKEND = "backend";
 
-  /**
-   * Constant used to specify that the role membership is determined through
-   * directory lookups.
-   */
+  /** Constant used to specify that the role membership is determined through directory lookups. */
   public static final String TYPE_DIRECTORY = "directory";
 
   /**
-   * Constant used to specify that the role membership is determined through
-   * backend and directory lookups.
+   * Constant used to specify that the role membership is determined through backend and directory
+   * lookups.
    */
   public static final String TYPE_BOTH = "both";
 
-  /**
-   * An array of all supported types.
-   */
+  /** An array of all supported types. */
   public static final String[] TYPE_ENUM = {TYPE_BACKEND, TYPE_DIRECTORY, TYPE_BOTH};
 
   /**
-   * The role provider name, must be unique across all role providers because
-   * its used to reference this object from other contexts. Initialized
-   * during construction, never <code>null</code> or empty after that.
+   * The role provider name, must be unique across all role providers because its used to reference
+   * this object from other contexts. Initialized during construction, never <code>null</code> or
+   * empty after that.
    */
   private String m_name = null;
 
   /**
-   * The role provider type. Initialized while constructed, never
-   * <code>null</code> or empty after that. Must be one of
-   * <code>TYPE_ENUM</code>, never changed after construction.
+   * The role provider type. Initialized while constructed, never <code>null</code> or empty after
+   * that. Must be one of <code>TYPE_ENUM</code>, never changed after construction.
    */
   private String m_type = null;
 
   /**
-   * The directory reference references a <code>PSDirectorySet</code> object
-   * if this is of type <code>TYPE_DIRECTORY</code>. The referenced directory
-   * set will do the role membership lookups. Must be specified if type
-   * <code>TYPE_DIRECTORY</code>, <code>null</code> otherwise.
+   * The directory reference references a <code>PSDirectorySet</code> object if this is of type
+   * <code>TYPE_DIRECTORY</code>. The referenced directory set will do the role membership lookups.
+   * Must be specified if type <code>TYPE_DIRECTORY</code>, <code>null</code> otherwise.
    */
   private PSReference m_directoryRef = null;
 
   /**
-   * If the role provider has roles that are separated by a delimiter, the
-   * delimeter is listed here. If this value is <code>null</code>, then
-   * the provider does not use a delimiter.
+   * If the role provider has roles that are separated by a delimiter, the delimeter is listed here.
+   * If this value is <code>null</code>, then the provider does not use a delimiter.
    */
   private String m_delimiter = null;
 

@@ -34,8 +34,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 /**
- * CORS filter that configures Cross-Origin Resource Sharing settings
- * based on server properties.
+ * CORS filter that configures Cross-Origin Resource Sharing settings based on server properties.
  */
 @Component(value = "corsFilter")
 public final class PSCorsFilter implements Filter {
@@ -43,18 +42,16 @@ public final class PSCorsFilter implements Filter {
   private CorsFilter filter;
 
   /**
-   * Called by the web container to indicate to a filter that it is
-   * being placed into service.
+   * Called by the web container to indicate to a filter that it is being placed into service.
    *
-   * <p>The servlet container calls the init method exactly once after
-   * instantiating the filter. The init method must complete successfully
-   * before the filter is asked to do any filtering work.
+   * <p>The servlet container calls the init method exactly once after instantiating the filter. The
+   * init method must complete successfully before the filter is asked to do any filtering work.
    *
-   * <p>The web container cannot place the filter into service if the init
-   * method either:
+   * <p>The web container cannot place the filter into service if the init method either:
+   *
    * <ol>
-   * <li>Throws a ServletException
-   * <li>Does not return within a time period defined by the web container
+   *   <li>Throws a ServletException
+   *   <li>Does not return within a time period defined by the web container
    * </ol>
    *
    * @param filterConfig the filter configuration object
@@ -111,32 +108,31 @@ public final class PSCorsFilter implements Filter {
   }
 
   /**
-   * The {@code doFilter} method of the Filter is called by the
-   * container each time a request/response pair is passed through the
-   * chain due to a client request for a resource at the end of the chain.
-   * The FilterChain passed in to this method allows the Filter to pass
-   * on the request and response to the next entity in the chain.
+   * The {@code doFilter} method of the Filter is called by the container each time a
+   * request/response pair is passed through the chain due to a client request for a resource at the
+   * end of the chain. The FilterChain passed in to this method allows the Filter to pass on the
+   * request and response to the next entity in the chain.
    *
-   * <p>A typical implementation of this method would follow the following
-   * pattern:
+   * <p>A typical implementation of this method would follow the following pattern:
+   *
    * <ol>
-   * <li>Examine the request
-   * <li>Optionally wrap the request object with a custom implementation to
-   * filter content or headers for input filtering
-   * <li>Optionally wrap the response object with a custom implementation to
-   * filter content or headers for output filtering
-   * <li>a) <strong>Either</strong> invoke the next entity in the chain
-   * using the FilterChain object ({@code chain.doFilter()}),
-   * <li>b) <strong>or</strong> not pass on the request/response pair to
-   * the next entity in the filter chain to block the request processing
+   *   <li>Examine the request
+   *   <li>Optionally wrap the request object with a custom implementation to filter content or
+   *       headers for input filtering
+   *   <li>Optionally wrap the response object with a custom implementation to filter content or
+   *       headers for output filtering
+   *   <li>a) <strong>Either</strong> invoke the next entity in the chain using the FilterChain
+   *       object ({@code chain.doFilter()}),
+   *   <li>b) <strong>or</strong> not pass on the request/response pair to the next entity in the
+   *       filter chain to block the request processing
    * </ol>
    *
-   * @param request  the ServletRequest object contains the client's request
+   * @param request the ServletRequest object contains the client's request
    * @param response the ServletResponse object contains the filter's response
-   * @param chain    the FilterChain for invoking the next filter or the resource
-   * @throws IOException      if an I/O related error has occurred during the processing
-   * @throws ServletException if an exception has occurred that interferes with the
-   *                          filter's normal operation
+   * @param chain the FilterChain for invoking the next filter or the resource
+   * @throws IOException if an I/O related error has occurred during the processing
+   * @throws ServletException if an exception has occurred that interferes with the filter's normal
+   *     operation
    */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -153,18 +149,15 @@ public final class PSCorsFilter implements Filter {
   }
 
   /**
-   * Called by the web container to indicate to a filter that it is being
-   * taken out of service.
+   * Called by the web container to indicate to a filter that it is being taken out of service.
    *
-   * <p>This method is only called once all threads within the filter's
-   * doFilter method have exited or after a timeout period has passed.
-   * After the web container calls this method, it will not call the
-   * doFilter method again on this instance of the filter.
+   * <p>This method is only called once all threads within the filter's doFilter method have exited
+   * or after a timeout period has passed. After the web container calls this method, it will not
+   * call the doFilter method again on this instance of the filter.
    *
-   * <p>This method gives the filter an opportunity to clean up any
-   * resources that are being held (for example, memory, file handles,
-   * threads) and make sure that any persistent state is synchronized
-   * with the filter's current state in memory.
+   * <p>This method gives the filter an opportunity to clean up any resources that are being held
+   * (for example, memory, file handles, threads) and make sure that any persistent state is
+   * synchronized with the filter's current state in memory.
    */
   @Override
   public void destroy() {

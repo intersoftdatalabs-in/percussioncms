@@ -26,23 +26,18 @@ import java.util.Objects;
  * @author dougrand
  */
 public class PSCachedResultPage implements Serializable {
-  /**
-   * Generated id for class
-   */
+  /** Generated id for class */
   private static final long serialVersionUID = 7758292294312394154L;
 
-  /**
-   * Holds the result data from the merging process
-   */
+  /** Holds the result data from the merging process */
   private byte[] m_resultData;
 
-  /**
-   * Holds the calculated mime type from the merging process
-   */
+  /** Holds the calculated mime type from the merging process */
   private String m_mimeType;
 
   /**
    * Ctor
+   *
    * @param type the type, may be <code>null</code>
    * @param data the data, may be <code>null</code>
    */
@@ -81,7 +76,9 @@ public class PSCachedResultPage implements Serializable {
     return result;
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see java.lang.Object#toString()
    */
   @Override
@@ -99,6 +96,7 @@ public class PSCachedResultPage implements Serializable {
 
   /**
    * Get the length of the enclosed data
+   *
    * @return the length, or <code>0</code> if there is no data.
    */
   public int getLength() {

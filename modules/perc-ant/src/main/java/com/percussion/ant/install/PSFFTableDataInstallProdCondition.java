@@ -31,12 +31,10 @@ import java.util.Properties;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * If FastForward tables have been installed with data, then this condition
- * returns <code>true</code>.
+ * If FastForward tables have been installed with data, then this condition returns <code>true
+ * </code>. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -56,7 +54,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSFFTableDataInstallProdCondition extends PSAction implements Condition {
   /* (non-Javadoc)

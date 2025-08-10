@@ -28,35 +28,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataSet class is used to define how data is being accessed by an
- * application. Each data set maps a single XML document type to one or
- * more back-end data stores. Query, insert, update and delete operations
- * may be performed against the back-end data store. Multiple data sets
- * may be defined in an application, providing support for several XML
- * document types within an application.
+ * The PSDataSet class is used to define how data is being accessed by an application. Each data set
+ * maps a single XML document type to one or more back-end data stores. Query, insert, update and
+ * delete operations may be performed against the back-end data store. Multiple data sets may be
+ * defined in an application, providing support for several XML document types within an
+ * application.
  *
  * @see PSApplication
  * @see PSApplication#getDataSets
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataSet extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode   the XML element node to construct this
-   *   object from
-   *
-   * @param   parentDoc the Java object which is the parent of this
-   * object
-   *
-   * @param   parentComponents the parent objects of this object
-   *
-   * @exception PSUnknownNodeTypeException
-   * if the XML element node is not of the appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataSet(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -64,9 +56,7 @@ public class PSDataSet extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSDataSet() {
     super();
   }
@@ -74,12 +64,10 @@ public class PSDataSet extends PSComponent {
   /**
    * Constructs an empty data set with the specified name.
    *
-   * @param name    the new name of the data set. This must be a unique
-   *                name within the application. If it is non-unique,
-   *                an exception will be thrown when the application
-   *                is saved on the E2 server.
-   *
-   * @see         #setName
+   * @param name the new name of the data set. This must be a unique name within the application. If
+   *     it is non-unique, an exception will be thrown when the application is saved on the E2
+   *     server.
+   * @see #setName
    */
   public PSDataSet(String name) {
     setName(name);
@@ -88,20 +76,18 @@ public class PSDataSet extends PSComponent {
   /**
    * Get the name of the data set.
    *
-   * @return     the name of the data set
+   * @return the name of the data set
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * Set the name of the data set.
-   * This is limited to 50 characters.
+   * Set the name of the data set. This is limited to 50 characters.
    *
-   * @param name    the new name of the data set. This must be a unique
-   *                name within the application. If it is non-unique,
-   *                an exception will be thrown when the application
-   *                is saved on the E2 server.
+   * @param name the new name of the data set. This must be a unique name within the application. If
+   *     it is non-unique, an exception will be thrown when the application is saved on the E2
+   *     server.
    */
   public void setName(String name) {
     IllegalArgumentException ex = validateName(name);
@@ -131,10 +117,9 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Set the description of the data set.
-   * This is limited to 255 characters.
+   * Set the description of the data set. This is limited to 255 characters.
    *
-   * @param description   the new description of the data set.
+   * @param description the new description of the data set.
    */
   public void setDescription(String description) {
     IllegalArgumentException ex = validateDescription(description);
@@ -144,11 +129,10 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * This method used to restrict the length of description to
-   * MAX_DATASET_DESC_LEN (255) characters. This restriction has been
-   * removed so that the description can be of any length.
-   * @param description the description of the Data Set.
-   * May be <code>null</code> or empty.
+   * This method used to restrict the length of description to MAX_DATASET_DESC_LEN (255)
+   * characters. This restriction has been removed so that the description can be of any length.
+   *
+   * @param description the description of the Data Set. May be <code>null</code> or empty.
    * @return Always returns <code>null</code>
    */
   private static IllegalArgumentException validateDescription(
@@ -159,8 +143,7 @@ public class PSDataSet extends PSComponent {
   /**
    * Is transaction support enabled at the row level?
    *
-   * @return     <code>true</code> if this is the transaction mode,
-   *            <code>false</code> otherwise
+   * @return <code>true</code> if this is the transaction mode, <code>false</code> otherwise
    */
   public boolean isTransactionForRow() {
     return (DS_TRANSACTION_ROW == m_transactionType);
@@ -168,44 +151,37 @@ public class PSDataSet extends PSComponent {
 
   /**
    * Enable transaction support at the row level.
-   * <p>
-   * When performing data modifications (inserts, updates or deletes) it
-   * may be desirable to apply changes in a transaction. If a set of changes
-   * is being submitted (eg, two inserts, one update a failure of any one of
-   * these modifications may require that all the
-   * other modifications are also ignored. When this is the case, the
-   * transaction should be treated for all rows. Use the
-   * setTransactionForAllRows method when this type of transaction support
-   * is desired.
-   * <p>
-   * When applying changes to multiple back-end data stores, it may be
-   * desirable to maintain consistency only at the row level. This causes
-   * the data to be applied to each back-end for a particular row of data.
-   * If the change fails for any back-end, the changes are removed from all
-   * the back-ends. If multiple rows are being processed, this will only
-   * effect the row that failed, not other rows. Use this method when this
-   * type of transaction support is desired.
-   * <p>
-   * It may also be desirable to allow all succesful changes to be applied
-   * without regard for failures. When applying multiple changes which are
-   * completely unrelated, this may be desirable. For instance, if updating
-   * a price list and one of the prices fails, it may still be desirable to
-   * keep the successful price changes. Use the setTransactionDisabled
-   * method when this type of transaction support is desired.
    *
-   * @see      #setTransactionForAllRows
-   * @see      #setTransactionDisabled
+   * <p>When performing data modifications (inserts, updates or deletes) it may be desirable to
+   * apply changes in a transaction. If a set of changes is being submitted (eg, two inserts, one
+   * update a failure of any one of these modifications may require that all the other modifications
+   * are also ignored. When this is the case, the transaction should be treated for all rows. Use
+   * the setTransactionForAllRows method when this type of transaction support is desired.
+   *
+   * <p>When applying changes to multiple back-end data stores, it may be desirable to maintain
+   * consistency only at the row level. This causes the data to be applied to each back-end for a
+   * particular row of data. If the change fails for any back-end, the changes are removed from all
+   * the back-ends. If multiple rows are being processed, this will only effect the row that failed,
+   * not other rows. Use this method when this type of transaction support is desired.
+   *
+   * <p>It may also be desirable to allow all succesful changes to be applied without regard for
+   * failures. When applying multiple changes which are completely unrelated, this may be desirable.
+   * For instance, if updating a price list and one of the prices fails, it may still be desirable
+   * to keep the successful price changes. Use the setTransactionDisabled method when this type of
+   * transaction support is desired.
+   *
+   * @see #setTransactionForAllRows
+   * @see #setTransactionDisabled
    */
   public void setTransactionForRow() {
     m_transactionType = DS_TRANSACTION_ROW;
   }
 
   /**
-   * Is transaction support enabled across all rows? This treats the entire
-   * data set as a single transaction.
+   * Is transaction support enabled across all rows? This treats the entire data set as a single
+   * transaction.
    *
-   * @return     <code>true</code> if this is the transaction mode,
-   *            <code>false</code> otherwise
+   * @return <code>true</code> if this is the transaction mode, <code>false</code> otherwise
    */
   public boolean isTransactionForAllRows() {
     return (DS_TRANSACTION_ALL_ROWS == m_transactionType);
@@ -213,33 +189,28 @@ public class PSDataSet extends PSComponent {
 
   /**
    * Enable transaction support across all rows.
-   * <p>
-   * When performing data modifications (inserts, updates or deletes) it
-   * may be desirable to apply changes in a transaction. If a set of changes
-   * is being submitted (eg, two inserts, one update and one delete) the
-   * failure of any one of these modifications may require that all the
-   * other modifications are also ignored. When this is the case, the
-   * transaction should be treated for all rows. Use this method
-   * when this type of transaction support is desired.
-   * <p>
-   * When applying changes to multiple back-end data stores, it may be
-   * desirable to maintain consistency only at the row level. This causes
-   * the data to be applied to each back-end for a particular row of data.
-   * If the change fails for any back-end, the changes are removed from all
-   * the back-ends. If multiple rows are being processed, this will only
-   * effect the row that failed, not other rows. Use the
-   * setTransacctionForRow method when this type of transaction support is
-   * desired.
-   * <p>
-   * It may also be desirable to allow all succesful changes to be applied
-   * without regard for failures. When applying multiple changes which are
-   * completely unrelated, this may be desirable. For instance, if updating
-   * a price list and one of the prices fails, it may still be desirable to
-   * keep the successful price changes. Use the setTransactionDisabled
-   * method when this type of transaction support is desired.
    *
-   * @see      #setTransactionForRow
-   * @see      #setTransactionDisabled
+   * <p>When performing data modifications (inserts, updates or deletes) it may be desirable to
+   * apply changes in a transaction. If a set of changes is being submitted (eg, two inserts, one
+   * update and one delete) the failure of any one of these modifications may require that all the
+   * other modifications are also ignored. When this is the case, the transaction should be treated
+   * for all rows. Use this method when this type of transaction support is desired.
+   *
+   * <p>When applying changes to multiple back-end data stores, it may be desirable to maintain
+   * consistency only at the row level. This causes the data to be applied to each back-end for a
+   * particular row of data. If the change fails for any back-end, the changes are removed from all
+   * the back-ends. If multiple rows are being processed, this will only effect the row that failed,
+   * not other rows. Use the setTransacctionForRow method when this type of transaction support is
+   * desired.
+   *
+   * <p>It may also be desirable to allow all succesful changes to be applied without regard for
+   * failures. When applying multiple changes which are completely unrelated, this may be desirable.
+   * For instance, if updating a price list and one of the prices fails, it may still be desirable
+   * to keep the successful price changes. Use the setTransactionDisabled method when this type of
+   * transaction support is desired.
+   *
+   * @see #setTransactionForRow
+   * @see #setTransactionDisabled
    */
   public void setTransactionForAllRows() {
     m_transactionType = DS_TRANSACTION_ALL_ROWS;
@@ -248,8 +219,7 @@ public class PSDataSet extends PSComponent {
   /**
    * Is transaction support disabled?
    *
-   * @return     <code>true</code> if this is the transaction mode,
-   *            <code>false</code> otherwise
+   * @return <code>true</code> if this is the transaction mode, <code>false</code> otherwise
    */
   public boolean isTransactionDisabled() {
     return (DS_TRANSACTION_DISABLED == m_transactionType);
@@ -257,161 +227,139 @@ public class PSDataSet extends PSComponent {
 
   /**
    * Disable transaction support.
-   * <p>
-   * When performing data modifications (inserts, updates or deletes) it
-   * may be desirable to apply changes in a transaction. If a set of changes
-   * is being submitted (eg, two inserts, one update and one delete) the
-   * failure of any one of these modifications may require that all the
-   * other modifications are also ignored. When this is the case, the
-   * transaction should be treated for all rows. Use the
-   * setTransactionForAllRows method when this type of transaction support
-   * is desired.
-   * <p>
-   * When applying changes to multiple back-end data stores, it may be
-   * desirable to maintain consistency only at the row level. This causes
-   * the data to be applied to each back-end for a particular row of data.
-   * If the change fails for any back-end, the changes are removed from all
-   * the back-ends. If multiple rows are being processed, this will only
-   * effect the row that failed, not other rows. Use the
-   * setTransacctionForRow method when this type of transaction support is
-   * desired.
-   * <p>
-   * It may also be desirable to allow all succesful changes to be applied
-   * without regard for failures. When applying multiple changes which are
-   * completely unrelated, this may be desirable. For instance, if updating
-   * a price list and one of the prices fails, it may still be desirable to
-   * keep the successful price changes. Use this method when this type of
-   * transaction support is desired.
    *
-   * @see      #setTransactionForRow
-   * @see      #setTransactionForAllRows
+   * <p>When performing data modifications (inserts, updates or deletes) it may be desirable to
+   * apply changes in a transaction. If a set of changes is being submitted (eg, two inserts, one
+   * update and one delete) the failure of any one of these modifications may require that all the
+   * other modifications are also ignored. When this is the case, the transaction should be treated
+   * for all rows. Use the setTransactionForAllRows method when this type of transaction support is
+   * desired.
+   *
+   * <p>When applying changes to multiple back-end data stores, it may be desirable to maintain
+   * consistency only at the row level. This causes the data to be applied to each back-end for a
+   * particular row of data. If the change fails for any back-end, the changes are removed from all
+   * the back-ends. If multiple rows are being processed, this will only effect the row that failed,
+   * not other rows. Use the setTransacctionForRow method when this type of transaction support is
+   * desired.
+   *
+   * <p>It may also be desirable to allow all succesful changes to be applied without regard for
+   * failures. When applying multiple changes which are completely unrelated, this may be desirable.
+   * For instance, if updating a price list and one of the prices fails, it may still be desirable
+   * to keep the successful price changes. Use this method when this type of transaction support is
+   * desired.
+   *
+   * @see #setTransactionForRow
+   * @see #setTransactionForAllRows
    */
   public void setTransactionDisabled() {
     m_transactionType = DS_TRANSACTION_DISABLED;
   }
 
   /**
-   * Get the data set's data encryption settings. Through this object,
-   * E2 can force users to make requests through SSL. It can even be used to
-   * enforce the key strength is appropriate for the given data set. This
-   * allows the data set's data to be sent over secure channels. Incoming
-   * requests from users, however, can still be sent in the clear. For this
-   * reason, care must be taken when designing web pages so that forms
-   * containing sensitive data, including user ids and passwords, are
-   * submitted using HTTPS, not HTTP.
+   * Get the data set's data encryption settings. Through this object, E2 can force users to make
+   * requests through SSL. It can even be used to enforce the key strength is appropriate for the
+   * given data set. This allows the data set's data to be sent over secure channels. Incoming
+   * requests from users, however, can still be sent in the clear. For this reason, care must be
+   * taken when designing web pages so that forms containing sensitive data, including user ids and
+   * passwords, are submitted using HTTPS, not HTTP.
    *
-   * @return     the data set's data encrytion settings (may be null)
+   * @return the data set's data encrytion settings (may be null)
    */
   public PSDataEncryptor getDataEncryptor() {
     return m_dataEncryptor;
   }
 
   /**
-   * Overwrite the data set's data encryption object with the specified
-   * data encryption object. If you only want to modify some data
-   * encryption settings, use getDataEncryptor to get the existing object
-   * and modify the returned object directly.
-   * <p>
-   * The PSDataEncryptor object supplied to this method will be stored with
-   * the PSDataSet object. Any subsequent changes made to the object by
-   * the caller will also effect the data set.
+   * Overwrite the data set's data encryption object with the specified data encryption object. If
+   * you only want to modify some data encryption settings, use getDataEncryptor to get the existing
+   * object and modify the returned object directly.
    *
-   * @param encryptor   the new data encryptor for the data set
-   * @see               #getDataEncryptor
-   * @see               PSDataEncryptor
+   * <p>The PSDataEncryptor object supplied to this method will be stored with the PSDataSet object.
+   * Any subsequent changes made to the object by the caller will also effect the data set.
+   *
+   * @param encryptor the new data encryptor for the data set
+   * @see #getDataEncryptor
+   * @see PSDataEncryptor
    */
   public void setDataEncryptor(PSDataEncryptor encryptor) {
     m_dataEncryptor = encryptor;
   }
 
   /**
-   * Get the pipe defining the data associated with this data set. Pipes
-   * are used to define the back-end data stores being used for data
-   * access. They also define the mapping between the XML document and the
-   * back-end data stores.
+   * Get the pipe defining the data associated with this data set. Pipes are used to define the
+   * back-end data stores being used for data access. They also define the mapping between the XML
+   * document and the back-end data stores.
    *
-   * @return      the PSPipe object (may be null)
-   *
-   * @see         PSQueryPipe
-   * @see         PSUpdatePipe
+   * @return the PSPipe object (may be null)
+   * @see PSQueryPipe
+   * @see PSUpdatePipe
    */
   public PSPipe getPipe() {
     return m_pipe;
   }
 
   /**
-   * Set the pipe defining the data associated with this data set. Pipes
-   * are used to define the back-end data stores being used for data
-   * access. They also define the mapping between the XML document and the
-   * back-end data stores.
+   * Set the pipe defining the data associated with this data set. Pipes are used to define the
+   * back-end data stores being used for data access. They also define the mapping between the XML
+   * document and the back-end data stores.
    *
    * @param pipe the new pipe to use for this data set
-   *
-   * @see         PSQueryPipe
-   * @see         PSUpdatePipe
+   * @see PSQueryPipe
+   * @see PSUpdatePipe
    */
   public void setPipe(PSPipe pipe) {
     m_pipe = pipe;
   }
 
   /**
-   * Get the page data tank describing the XML document being used for this
-   * data set.
+   * Get the page data tank describing the XML document being used for this data set.
    *
-   * @return     the page data tank (may be null)
+   * @return the page data tank (may be null)
    */
   public PSPageDataTank getPageDataTank() {
     return m_pageDataTank;
   }
 
   /**
-   * Overwrite the page data tank object with the specified page data tank
-   * object. If you only want to modify some settings, use getPageDataTank
-   * to get the existing object and modify the returned object directly.
-   * <p>
-   * The page data tank describes the XML document being used for this data
-   * set.
-   * <p>
-   * The PSPageDataTank object supplied to this method will be stored with
-   * the PSDataSet object. Any subsequent changes made to the object by the
-   * caller will also effect the data set.
+   * Overwrite the page data tank object with the specified page data tank object. If you only want
+   * to modify some settings, use getPageDataTank to get the existing object and modify the returned
+   * object directly.
    *
-   * @param dt The new page data tank object. If <code>null</code>, the
-   *    existing page is removed.
+   * <p>The page data tank describes the XML document being used for this data set.
    *
-   * @see            #getPageDataTank
-   * @see            PSPageDataTank
+   * <p>The PSPageDataTank object supplied to this method will be stored with the PSDataSet object.
+   * Any subsequent changes made to the object by the caller will also effect the data set.
+   *
+   * @param dt The new page data tank object. If <code>null</code>, the existing page is removed.
+   * @see #getPageDataTank
+   * @see PSPageDataTank
    */
   public void setPageDataTank(PSPageDataTank dt) {
     m_pageDataTank = dt;
   }
 
   /**
-   * Get the request definition for this data set. This includes the URL
-   * and input parameter settings. If the request criteria is met, the
-   * request will be processed using this data set.
+   * Get the request definition for this data set. This includes the URL and input parameter
+   * settings. If the request criteria is met, the request will be processed using this data set.
    *
-   * @return      the request definition (may be null)
-   *
-   * @see         PSRequestor
+   * @return the request definition (may be null)
+   * @see PSRequestor
    */
   public PSRequestor getRequestor() {
     return m_requestor;
   }
 
   /**
-   * Overwrite the requestor object with the specified requestor object
-   * If you only want to modify some settings, use getRequestor to get
-   * the existing object and modify the returned object directly.
-   * <p>
-   * The PSRequestor object supplied to this method will be stored with
-   * the PSDataSet object. Any subsequent changes made to the object by the
-   * caller will also effect the data set.
+   * Overwrite the requestor object with the specified requestor object If you only want to modify
+   * some settings, use getRequestor to get the existing object and modify the returned object
+   * directly.
    *
-   * @param req      the new requestor object
+   * <p>The PSRequestor object supplied to this method will be stored with the PSDataSet object. Any
+   * subsequent changes made to the object by the caller will also effect the data set.
    *
-   * @see            #getRequestor
-   * @see            PSRequestor
+   * @param req the new requestor object
+   * @see #getRequestor
+   * @see PSRequestor
    */
   public void setRequestor(PSRequestor req) {
     if (req == null) throw new IllegalArgumentException("dataset requestor is null");
@@ -420,26 +368,22 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Is the output of this data set a result page or a link to another
-   * data set?
+   * Is the output of this data set a result page or a link to another data set?
    *
-   * @return      <code>true</code> if a result page is the output;
-   *             <code>false</code> if a request link is the output
+   * @return <code>true</code> if a result page is the output; <code>false</code> if a request link
+   *     is the output
    */
   public boolean isOutputResultPages() {
     return (m_results instanceof com.percussion.design.objectstore.PSResultPageSet);
   }
 
   /**
-   * Get the result pages being generated by this data set.
-   * One data set may produce HTML or XML results. It may also associate
-   * a different stylesheet with the output, depending upon user defined
-   * conditions.
+   * Get the result pages being generated by this data set. One data set may produce HTML or XML
+   * results. It may also associate a different stylesheet with the output, depending upon user
+   * defined conditions.
    *
-   * @return      the result pages or <code>null</code> if result pages
-   *             are not being used
-   *
-   * @see         #isOutputResultPages
+   * @return the result pages or <code>null</code> if result pages are not being used
+   * @see #isOutputResultPages
    */
   public PSResultPageSet getOutputResultPages() {
     if (isOutputResultPages()) return (PSResultPageSet) m_results;
@@ -448,13 +392,12 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Set the output of this data set to use the specified result page(s).
-   * If you only want to modify some settings, use getOutputResultPages
-   * to get the existing object and modify the returned object directly.
-   * <p>
-   * The PSResultPageSet object supplied to this method will be stored with
-   * the PSDataSet object. Any subsequent changes made to the object by the
-   * caller will also effect the data set.
+   * Set the output of this data set to use the specified result page(s). If you only want to modify
+   * some settings, use getOutputResultPages to get the existing object and modify the returned
+   * object directly.
+   *
+   * <p>The PSResultPageSet object supplied to this method will be stored with the PSDataSet object.
+   * Any subsequent changes made to the object by the caller will also effect the data set.
    *
    * @param output the new result pages object
    */
@@ -463,15 +406,12 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Get the request link which will be used to get the output for this
-   * data set. This allows data sets which do not produce output
-   * (namely, update data sets) to execute other data sets to generate
-   * output for them.
+   * Get the request link which will be used to get the output for this data set. This allows data
+   * sets which do not produce output (namely, update data sets) to execute other data sets to
+   * generate output for them.
    *
-   * @return      the request link or <code>null</code> if request links
-   *             are not being used
-   *
-   * @see         #isOutputResultPages
+   * @return the request link or <code>null</code> if request links are not being used
+   * @see #isOutputResultPages
    */
   public PSRequestLink getOutputRequestLink() {
     if (!isOutputResultPages()) return (PSRequestLink) m_results;
@@ -480,13 +420,12 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Set the output of this data set to use the specified request link.
-   * If you only want to modify some settings, use getOutputRequestLink
-   * to get the existing object and modify the returned object directly.
-   * <p>
-   * The PSRequestLink object supplied to this method will be stored with
-   * the PSDataSet object. Any subsequent changes made to the object by the
-   * caller will also effect the data set.
+   * Set the output of this data set to use the specified request link. If you only want to modify
+   * some settings, use getOutputRequestLink to get the existing object and modify the returned
+   * object directly.
+   *
+   * <p>The PSRequestLink object supplied to this method will be stored with the PSDataSet object.
+   * Any subsequent changes made to the object by the caller will also effect the data set.
    *
    * @param output the new request links object
    */
@@ -495,33 +434,28 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Get the result pager which defines how data will be grouped for
-   * return to the user. When a query may generate large result sets,
-   * a pager object can be used to return the data in chunks.
+   * Get the result pager which defines how data will be grouped for return to the user. When a
+   * query may generate large result sets, a pager object can be used to return the data in chunks.
    *
-   * @return            the result pager or <code>null</code> if
-   *                     paging is disabled
+   * @return the result pager or <code>null</code> if paging is disabled
    */
   public PSResultPager getResultPager() {
     return m_resultPager;
   }
 
   /**
-   * Set the result pager which defines how data will be grouped for
-   * return to the user. When a query may generate large result sets,
-   * a pager object can be used to return the data in chunks.
+   * Set the result pager which defines how data will be grouped for return to the user. When a
+   * query may generate large result sets, a pager object can be used to return the data in chunks.
    *
-   * @param   pager      the new result pager to use
-   *                     or <code>null</code> to disable paging
+   * @param pager the new result pager to use or <code>null</code> to disable paging
    */
   public void setResultPager(PSResultPager pager) {
     m_resultPager = pager;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param ds a valid PSDataSet.
    */
@@ -544,10 +478,11 @@ public class PSDataSet extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataSet XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataSet XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataSet is used to define how data is being accessed by an
@@ -650,7 +585,7 @@ public class PSDataSet extends PSComponent {
    *    &lt;!ELEMENT transactionType   (%PSXDataSetTransactionType)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataSet XML element node
+   * @return the newly created PSXDataSet XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -691,12 +626,10 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSDataSet Java object
-   * from a PSXDataSet XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataSet Java object from a PSXDataSet XML element node.
+   * See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataSet
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXDataSet
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -791,18 +724,15 @@ public class PSDataSet extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -914,6 +844,7 @@ public class PSDataSet extends PSComponent {
 
   /**
    * Creates a deep copy of this PSDataSet.
+   *
    * @return Return clone of this instance
    */
   @Override

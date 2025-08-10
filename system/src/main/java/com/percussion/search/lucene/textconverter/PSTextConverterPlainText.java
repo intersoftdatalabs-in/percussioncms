@@ -27,15 +27,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 
 /**
- * Extracts the text from text files and returns it. It does not process
- * the text, just returns it as it is in the file.
- *
+ * Extracts the text from text files and returns it. It does not process the text, just returns it
+ * as it is in the file.
  */
 public class PSTextConverterPlainText implements IPSLuceneTextConverter {
 
-  /**
-   * A static member to hold the name of this class.
-   */
+  /** A static member to hold the name of this class. */
   private static final String ms_className = PSTextConverterPlainText.class.getName();
 
   /* (non-Javadoc)

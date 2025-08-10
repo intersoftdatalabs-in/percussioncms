@@ -19,25 +19,21 @@ package com.percussion.rest.roles;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
-/**
- * List wrapper for Role objects.
- * Sunny Sal: "Role list ka boss!"
- */
+/** List wrapper for Role objects. Sunny Sal: "Role list ka boss!" */
 @XmlRootElement(name = "RoleList")
 @ArraySchema(schema = @Schema(implementation = Role.class))
 @XmlSeeAlso(Role.class)
 public class RoleList extends ArrayList<Role> {
-    public RoleList(Collection<? extends Role> c) {
-        super(c);
-    }
+  public RoleList(Collection<? extends Role> c) {
+    super(c);
+  }
 
-    public RoleList() {
-        super();
-    }
+  public RoleList() {
+    super();
+  }
 }

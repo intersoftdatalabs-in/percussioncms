@@ -27,8 +27,7 @@ import javax.net.ssl.SSLSocketFactory;
 public class PSCiphers {
 
   /**
-   * The List of ciphers supported by server. Initialized statically and never
-   * modified after that.
+   * The List of ciphers supported by server. Initialized statically and never modified after that.
    */
   private static Vector<String> system_ciphers = new Vector<String>(8);
 

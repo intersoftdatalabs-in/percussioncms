@@ -21,23 +21,20 @@ import java.net.ProtocolException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This module handles authentication requests. Authentication info is
- * preemptively sent if any suitable candidate info is available. If a
- * request returns with an appropriate status (401 or 407) then the
- * necessary info is sought from the AuthenticationInfo class.
+ * This module handles authentication requests. Authentication info is preemptively sent if any
+ * suitable candidate info is available. If a request returns with an appropriate status (401 or
+ * 407) then the necessary info is sought from the AuthenticationInfo class.
  *
  * @deprecated As of 8.0.0 - use Commons HTTP client instead
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class AuthorizationModule implements HTTPClientModule {
-  /** This holds the current Proxy-Authorization-Info for each
-   * HTTPConnection */
+  /** This holds the current Proxy-Authorization-Info for each HTTPConnection */
   private static ConcurrentHashMap proxy_cntxt_list = new ConcurrentHashMap();
 
-  /** a list of deferred authorization retries (used with
-   * Response.retryRequest()) */
+  /** a list of deferred authorization retries (used with Response.retryRequest()) */
   private static ConcurrentHashMap deferred_auth_list = new ConcurrentHashMap();
 
   /** counters for challenge and auth-info lists */
@@ -63,9 +60,7 @@ class AuthorizationModule implements HTTPClientModule {
 
   // Constructors
 
-  /**
-   * Initialize counters for challenge and auth-info lists.
-   */
+  /** Initialize counters for challenge and auth-info lists. */
   AuthorizationModule() {
     auth_lst_idx = 0;
     prxy_lst_idx = 0;
@@ -85,9 +80,7 @@ class AuthorizationModule implements HTTPClientModule {
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp)
       throws IOException, AuthSchemeNotImplException {
     HTTPConnection con = req.getConnection();
@@ -215,9 +208,7 @@ class AuthorizationModule implements HTTPClientModule {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) throws IOException {
     /* If auth info successful update path list. Note: if we
      * preemptively sent auth info we don't actually know if
@@ -256,9 +247,7 @@ class AuthorizationModule implements HTTPClientModule {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req)
       throws IOException, AuthSchemeNotImplException {
     // Let the AuthHandler handle any Authentication headers.
@@ -345,14 +334,10 @@ class AuthorizationModule implements HTTPClientModule {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) throws IOException {
     // Let the AuthHandler handle any Authentication headers.
 
@@ -360,9 +345,7 @@ class AuthorizationModule implements HTTPClientModule {
     if (h != null) h.handleAuthTrailers(resp, req, auth_sent, prxy_sent);
   }
 
-  /**
-   *
-   */
+  /** */
   private void handle_auth_challenge(Request req, Response resp)
       throws AuthSchemeNotImplException, IOException {
     // handle WWW-Authenticate
@@ -423,18 +406,17 @@ class AuthorizationModule implements HTTPClientModule {
   }
 
   /**
-   * Handles authentication requests and sets the authorization headers.
-   * It tries to retrieve the neccessary parameters from AuthorizationInfo,
-   * and failing that calls the AuthHandler. Handles multiple authentication
-   * headers.
+   * Handles authentication requests and sets the authorization headers. It tries to retrieve the
+   * neccessary parameters from AuthorizationInfo, and failing that calls the AuthHandler. Handles
+   * multiple authentication headers.
    *
-   * @param  auth_str the authentication header field returned by the server.
-   * @param  req      the Request used
-   * @param  resp     the full Response received
-   * @param  header   the header name to use in the new headers array.
-   * @param  idx_arr  an array of indicies holding the state of where we
-   *                  are when handling multiple authorization headers.
-   * @param  prev     the previous auth info sent, or null if none
+   * @param auth_str the authentication header field returned by the server.
+   * @param req the Request used
+   * @param resp the full Response received
+   * @param header the header name to use in the new headers array.
+   * @param idx_arr an array of indicies holding the state of where we are when handling multiple
+   *     authorization headers.
+   * @param prev the previous auth info sent, or null if none
    * @return the new credentials, or null if none found
    * @exception ProtocolException if <var>auth_str</var> is null.
    * @exception AuthSchemeNotImplException if thrown by the AuthHandler.

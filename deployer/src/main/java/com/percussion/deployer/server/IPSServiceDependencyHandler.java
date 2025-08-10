@@ -22,24 +22,21 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
 
-/**
- * Interface for dependency handlers that utilize services.
- */
+/** Interface for dependency handlers that utilize services. */
 public interface IPSServiceDependencyHandler {
 
   /**
-   * Performs the task of installing dependency files as described by
-   * {@link PSDependencyHandler#installDependencyFiles(PSSecurityToken,
-   * PSArchiveHandler, PSDependency, PSImportCtx)}.
+   * Performs the task of installing dependency files as described by {@link
+   * PSDependencyHandler#installDependencyFiles(PSSecurityToken, PSArchiveHandler, PSDependency,
+   * PSImportCtx)}.
    *
-   * @param tok The security token to use if objectstore access is required,
-   * may not be {@code null}.
-   * @param archive The archive handler to use to retrieve the required files
-   * from the archive. May not be {@code null}.
-   * @param dep The dependency for which files are to be installed. May not be
-   * {@code null} and must be of the type supported by the handler.
-   * @param ctx The import context to aid in the installation. May not be
-   * {@code null}.
+   * @param tok The security token to use if objectstore access is required, may not be {@code
+   *     null}.
+   * @param archive The archive handler to use to retrieve the required files from the archive. May
+   *     not be {@code null}.
+   * @param dep The dependency for which files are to be installed. May not be {@code null} and must
+   *     be of the type supported by the handler.
+   * @param ctx The import context to aid in the installation. May not be {@code null}.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */

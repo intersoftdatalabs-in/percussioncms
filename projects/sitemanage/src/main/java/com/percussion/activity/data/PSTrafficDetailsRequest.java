@@ -24,9 +24,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * A request object used for getting the traffic details data from the REST service.
- */
+/** A request object used for getting the traffic details data from the REST service. */
 @JsonRootName(value = "TrafficDetailsRequest")
 public class PSTrafficDetailsRequest implements Serializable {
 
@@ -77,8 +75,8 @@ public class PSTrafficDetailsRequest implements Serializable {
   }
 
   /**
-   * Sets analytics usage to "pageviews" or "uniquepageviews".
-   * If not set or set to any other value, default is "uniquepageviews".
+   * Sets analytics usage to "pageviews" or "uniquepageviews". If not set or set to any other value,
+   * default is "uniquepageviews".
    *
    * @param usage the usage string
    */

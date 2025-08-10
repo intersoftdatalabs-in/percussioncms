@@ -17,17 +17,13 @@
 
 package com.percussion.filetracker;
 
-/**
- * Utility class to start the default system browser
- */
+/** Utility class to start the default system browser */
 public class UTBrowserControl {
   /**
-   * Display a file in the system browser. If you want to display a
-   * file, you must include the absolute path name.
+   * Display a file in the system browser. If you want to display a file, you must include the
+   * absolute path name.
    *
-   * @param url the file's url (the url must start with either "http://"
-   * or
-   * "file://").
+   * @param url the file's url (the url must start with either "http://" or "file://").
    */
   public static void displayURL(String url) {
     boolean windows = isWindowsPlatform();
@@ -74,8 +70,8 @@ public class UTBrowserControl {
   }
 
   /**
-   * Try to determine whether this application is running under Windows
-   * or some other platform by examing the "os.name" property.
+   * Try to determine whether this application is running under Windows or some other platform by
+   * examing the "os.name" property.
    *
    * @return true if this application is running under a Windows OS
    */
@@ -86,9 +82,7 @@ public class UTBrowserControl {
     else return false;
   }
 
-  /**
-   * Simple example.
-   */
+  /** Simple example. */
   /*
         public static void main(String[] args)
         {

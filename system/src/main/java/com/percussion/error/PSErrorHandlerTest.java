@@ -26,12 +26,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSErrorHandlerTest class tests running the major methods of
- * the PSErrorHandler objects.
+ * The PSErrorHandlerTest class tests running the major methods of the PSErrorHandler objects.
  *
- * @author    Jian Huang
- * @version   1.0
- * @since     1.0
+ * @author Jian Huang
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSErrorHandlerTest {

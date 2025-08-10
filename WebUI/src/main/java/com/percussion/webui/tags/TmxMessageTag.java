@@ -50,6 +50,7 @@ public class TmxMessageTag extends TagSupport {
   /**
    * Returns the display value for a key. If the key contains '@', returns the part after '@'.
    * Otherwise, returns the key itself.
+   *
    * @param key the key string
    * @return display value
    */

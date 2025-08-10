@@ -17,147 +17,141 @@
  */
 package com.percussion.sitemanage.data;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEqual;
 import net.sf.oval.constraint.NotNull;
-
-import com.percussion.share.data.PSAbstractDataObject;
 
 @XmlRootElement(name = "SitePublishItem")
 @JsonRootName("SitePublishItem")
 public class PSSitePublishItem extends PSAbstractDataObject {
 
-    @NotEqual(value = "0")
-    private long itemStatusId;
+  @NotEqual(value = "0")
+  private long itemStatusId;
 
-    @NotBlank
-    @NotNull
-    private String status;
+  @NotBlank @NotNull private String status;
 
-    private String fileName;
-    private String fileLocation;
-    private long folderid;
-    private long templateid;
-    private String deliveryType;
+  private String fileName;
+  private String fileLocation;
+  private long folderid;
+  private long templateid;
+  private String deliveryType;
 
-    @NotEqual(value = "0")
-    private long contentid;
+  @NotEqual(value = "0")
+  private long contentid;
 
-    private long revisionid;
-    private String assemblyUrl;
-    private long elapsedTime;
+  private long revisionid;
+  private String assemblyUrl;
+  private long elapsedTime;
 
-    @NotBlank
-    @NotNull
-    private String operation;
+  @NotBlank @NotNull private String operation;
 
-    private String errorMessage;
+  private String errorMessage;
 
-    public long getItemStatusId() {
-        return itemStatusId;
-    }
+  public long getItemStatusId() {
+    return itemStatusId;
+  }
 
-    public void setItemStatusId(long itemStatusId) {
-        this.itemStatusId = itemStatusId;
-    }
+  public void setItemStatusId(long itemStatusId) {
+    this.itemStatusId = itemStatusId;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public Optional<String> getFileName() {
-        return Optional.ofNullable(fileName);
-    }
+  public Optional<String> getFileName() {
+    return Optional.ofNullable(fileName);
+  }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
 
-    public Optional<String> getFileLocation() {
-        return Optional.ofNullable(fileLocation);
-    }
+  public Optional<String> getFileLocation() {
+    return Optional.ofNullable(fileLocation);
+  }
 
-    public void setFileLocation(String fileLocation) {
-        this.fileLocation = fileLocation;
-    }
+  public void setFileLocation(String fileLocation) {
+    this.fileLocation = fileLocation;
+  }
 
-    public long getContentid() {
-        return contentid;
-    }
+  public long getContentid() {
+    return contentid;
+  }
 
-    public void setContentid(long contentid) {
-        this.contentid = contentid;
-    }
+  public void setContentid(long contentid) {
+    this.contentid = contentid;
+  }
 
-    public long getElapsedTime() {
-        return elapsedTime;
-    }
+  public long getElapsedTime() {
+    return elapsedTime;
+  }
 
-    public void setElapsedTime(long elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
+  public void setElapsedTime(long elapsedTime) {
+    this.elapsedTime = elapsedTime;
+  }
 
-    public String getOperation() {
-        return operation;
-    }
+  public String getOperation() {
+    return operation;
+  }
 
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
+  public void setOperation(String operation) {
+    this.operation = operation;
+  }
 
-    public Optional<String> getErrorMessage() {
-        return Optional.ofNullable(errorMessage);
-    }
+  public Optional<String> getErrorMessage() {
+    return Optional.ofNullable(errorMessage);
+  }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
 
-    public long getFolderid() {
-        return folderid;
-    }
+  public long getFolderid() {
+    return folderid;
+  }
 
-    public void setFolderid(long folderid) {
-        this.folderid = folderid;
-    }
+  public void setFolderid(long folderid) {
+    this.folderid = folderid;
+  }
 
-    public long getTemplateid() {
-        return templateid;
-    }
+  public long getTemplateid() {
+    return templateid;
+  }
 
-    public void setTemplateid(long templateid) {
-        this.templateid = templateid;
-    }
+  public void setTemplateid(long templateid) {
+    this.templateid = templateid;
+  }
 
-    public Optional<String> getDeliveryType() {
-        return Optional.ofNullable(deliveryType);
-    }
+  public Optional<String> getDeliveryType() {
+    return Optional.ofNullable(deliveryType);
+  }
 
-    public void setDeliveryType(String deliveryType) {
-        this.deliveryType = deliveryType;
-    }
+  public void setDeliveryType(String deliveryType) {
+    this.deliveryType = deliveryType;
+  }
 
-    public long getRevisionid() {
-        return revisionid;
-    }
+  public long getRevisionid() {
+    return revisionid;
+  }
 
-    public void setRevisionid(long revisionid) {
-        this.revisionid = revisionid;
-    }
+  public void setRevisionid(long revisionid) {
+    this.revisionid = revisionid;
+  }
 
-    public Optional<String> getAssemblyUrl() {
-        return Optional.ofNullable(assemblyUrl);
-    }
+  public Optional<String> getAssemblyUrl() {
+    return Optional.ofNullable(assemblyUrl);
+  }
 
-    public void setAssemblyUrl(String assemblyUrl) {
-        this.assemblyUrl = assemblyUrl;
-    }
+  public void setAssemblyUrl(String assemblyUrl) {
+    this.assemblyUrl = assemblyUrl;
+  }
 }

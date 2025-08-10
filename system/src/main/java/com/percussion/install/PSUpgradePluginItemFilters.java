@@ -28,45 +28,33 @@ import org.w3c.dom.Element;
 
 /**
  * Upgrade item filters as part of installation. This plugin:
+ *
  * <ul>
- * <li>Add the preview filter rule to the preview item filter
- * <li>Add the public filter rule to the public item filter
+ *   <li>Add the preview filter rule to the preview item filter
+ *   <li>Add the public filter rule to the public item filter
  * </ul>
  *
  * @author dougrand
- *
  */
 public class PSUpgradePluginItemFilters implements IPSUpgradePlugin {
-  /**
-   * Eponymously named constant
-   */
+  /** Eponymously named constant */
   private static final String PREVIEW_FILTER_RULE =
       "Java/global/percussion/itemfilter/sys_previewFilter";
 
-  /**
-   * Eponymously named constant
-   */
+  /** Eponymously named constant */
   private static final String PREVIEW_FILTER = "preview";
 
-  /**
-   * Eponymously named constant
-   */
+  /** Eponymously named constant */
   private static final String PUBLIC_FILTER_RULE =
       "Java/global/percussion/itemfilter/sys_publicFilter";
 
-  /**
-   * Eponymously named constant
-   */
+  /** Eponymously named constant */
   private static final String PUBLIC_FILTER = "public";
 
-  /**
-   * Filter service
-   */
+  /** Filter service */
   private IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
 
-  /**
-   * Perform upgrade
-   */
+  /** Perform upgrade */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     int respType = PSPluginResponse.SUCCESS;
     String respMsg = "";
@@ -84,13 +72,11 @@ public class PSUpgradePluginItemFilters implements IPSUpgradePlugin {
   }
 
   /**
-   * Check the given filter (if found) for the presence of the given rule. If
-   * not there, then add the rule with the supplied parameters.
+   * Check the given filter (if found) for the presence of the given rule. If not there, then add
+   * the rule with the supplied parameters.
    *
-   * @param filtername the name of the filter, assumed never <code>null</code>
-   *           or empty.
-   * @param rulename the name of the rule, assumed never <code>null</code> or
-   *           empty.
+   * @param filtername the name of the filter, assumed never <code>null</code> or empty.
+   * @param rulename the name of the rule, assumed never <code>null</code> or empty.
    * @param params the parameters, may be <code>null</code>.
    */
   private void checkAndAddRule(String filtername, String rulename, Map params) {
@@ -116,6 +102,7 @@ public class PSUpgradePluginItemFilters implements IPSUpgradePlugin {
 
   /**
    * Test method
+   *
    * @param args ignored
    */
   public static void main(String[] args) {

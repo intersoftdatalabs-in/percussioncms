@@ -28,13 +28,14 @@ import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegio
  * @param <CODE> Code type.
  * @author adamgent, Sunny Sal
  */
-public abstract class PSRegionParserAdapter<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-        implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
+public abstract class PSRegionParserAdapter<
+        REGION extends PSAbstractRegion, CODE extends PSRegionCode>
+    implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
 
-    private final PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+  private final PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
 
-    @Override
-    public PSParsedRegionTree<REGION, CODE> parse(String text) {
-        return parser.parse(text);
-    }
+  @Override
+  public PSParsedRegionTree<REGION, CODE> parse(String text) {
+    return parser.parse(text);
+  }
 }

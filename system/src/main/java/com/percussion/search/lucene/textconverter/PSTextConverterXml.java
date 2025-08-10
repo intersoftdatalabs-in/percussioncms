@@ -28,8 +28,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * Extracts the text from xml and returns. Walks through all the nodes and gets
- * the text from only text nodes and concatnates them with a space.
+ * Extracts the text from xml and returns. Walks through all the nodes and gets the text from only
+ * text nodes and concatnates them with a space.
  */
 public class PSTextConverterXml implements IPSLuceneTextConverter {
   /*
@@ -61,8 +61,6 @@ public class PSTextConverterXml implements IPSLuceneTextConverter {
 
   }
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

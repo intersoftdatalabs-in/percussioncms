@@ -23,15 +23,13 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-/**
- * The PSDtdAttribute class will provide an interface to attribute information.
- */
+/** The PSDtdAttribute class will provide an interface to attribute information. */
 public class PSDtdAttribute implements Serializable {
   /**
    * Constructor.
-   * @param attr the <code>PSXmlAttributeDecl</code> object that is returned
-   * by the <code>getAttributeDeclarations</code> method of the
-   * <code>PSDtd</code> class.
+   *
+   * @param attr the <code>PSXmlAttributeDecl</code> object that is returned by the <code>
+   *     getAttributeDeclarations</code> method of the <code>PSDtd</code> class.
    */
   public PSDtdAttribute(PSXmlAttributeDecl attr) {
     m_name = attr.getName();
@@ -101,11 +99,10 @@ public class PSDtdAttribute implements Serializable {
   }
 
   /**
-   * Creates a string array of possible values for the attribute represented by
-   * this object.
-   * @param att the <code>PSXmlAttributeDecl</code> object that is returned
-   * by the <code>getAttributeDeclarations</code> method of the
-   * <code>PSDtd</code> class.
+   * Creates a string array of possible values for the attribute represented by this object.
+   *
+   * @param att the <code>PSXmlAttributeDecl</code> object that is returned by the <code>
+   *     getAttributeDeclarations</code> method of the <code>PSDtd</code> class.
    */
   private void processEnumeration(PSXmlAttributeDecl att) {
     // Create string array of possible values
@@ -119,17 +116,17 @@ public class PSDtdAttribute implements Serializable {
 
   /**
    * Sets the default value for the attribute represented by this object.
-   * @param att the <code>PSXmlAttributeDecl</code> object that is returned
-   * by the <code>getAttributeDeclarations</code> method of the
-   * <code>PSDtd</code> class.
+   *
+   * @param att the <code>PSXmlAttributeDecl</code> object that is returned by the <code>
+   *     getAttributeDeclarations</code> method of the <code>PSDtd</code> class.
    */
   private void setDefault(PSXmlAttributeDecl att) {
     m_default = att.getDefaultStringValue();
   }
 
   /**
-   * Return the default string value for this attribute or
-   * null if it is not a default-containing type.
+   * Return the default string value for this attribute or null if it is not a default-containing
+   * type.
    */
   public String getDefaultStringValue() {
     return m_default;
@@ -204,26 +201,21 @@ public class PSDtdAttribute implements Serializable {
   /**
    * Return the occurence type for this attribute.
    *
-   * Possible Values:
-   * <code>REQUIRED  </code> - attribute must be defined
-   * <code>IMPLIED   </code> - attibute may or may not be defined
-   * <code>FIXED    </code> - static attribute value
-   * <code>NOFIXED   </code> - attribute value has a default value
+   * <p>Possible Values: <code>REQUIRED  </code> - attribute must be defined <code>IMPLIED   </code>
+   * - attibute may or may not be defined <code>FIXED    </code> - static attribute value <code>
+   * NOFIXED   </code> - attribute value has a default value
    *
-   * For FIXED and NOFIXED, use getDefaultStringValue to determine
-   * either the FIXED value or default value
+   * <p>For FIXED and NOFIXED, use getDefaultStringValue to determine either the FIXED value or
+   * default value
    */
   public int getOccurrence() {
     return m_occurrence;
   }
 
   /**
-   * Allows this attribute occurrence to be changed.
-   * Use the following static variables:
-   * <code>PSDtdAttribute.REQUIRED</code>
-   * <code>PSDtdAttribute.IMPLIED</code>
-   * <code>PSDtdAttribute.FIXED</code>
-   * <code>PSDtdAttribute.NOFIXED</code>
+   * Allows this attribute occurrence to be changed. Use the following static variables: <code>
+   * PSDtdAttribute.REQUIRED</code> <code>PSDtdAttribute.IMPLIED</code> <code>PSDtdAttribute.FIXED
+   * </code> <code>PSDtdAttribute.NOFIXED</code>
    */
   public void setOccurrence(int occur) {
     m_occurrence = occur;
@@ -231,24 +223,17 @@ public class PSDtdAttribute implements Serializable {
 
   /**
    * Return the type of this attribute.
-   * <p>
-   * Possible Values:
-   * <code>CDATA      </code> - standard data
-   * <code>ID         </code> - unique identifier in XML
-   * <code>ENUMERATION </code> - enumerated pick list*
-   * <code>IDREF      </code> - reference to an XML ID
-   * <code>IDREFS     </code> - whitespace delimited list of IDREFs
-   * <code>TOKEN      </code> - xml name token
-   * <code>TOKENS     </code> - whitespace delimited list of XML name tokens
-   * <code>NOTATION   </code> - notation (not supported by IBM parser!)
-   * <code>ENOTATION  </code> - enumerated notation pick list
-   * <code>ENTITY     </code> - entity
-   * <code>ENTITIES   </code> - whitespace delimited list of entities
-   * <code>UNKNOWN     </code> - unknown?
-   * <p>
-   * - The IBM TXDOM parser comtains enumerated XML name tokens,
-   * and does not include a generic enumerated type
    *
+   * <p>Possible Values: <code>CDATA      </code> - standard data <code>ID         </code> - unique
+   * identifier in XML <code>ENUMERATION </code> - enumerated pick list* <code>IDREF      </code> -
+   * reference to an XML ID <code>IDREFS     </code> - whitespace delimited list of IDREFs <code>
+   * TOKEN      </code> - xml name token <code>TOKENS     </code> - whitespace delimited list of XML
+   * name tokens <code>NOTATION   </code> - notation (not supported by IBM parser!) <code>
+   * ENOTATION  </code> - enumerated notation pick list <code>ENTITY     </code> - entity <code>
+   * ENTITIES   </code> - whitespace delimited list of entities <code>UNKNOWN     </code> - unknown?
+   *
+   * <p>- The IBM TXDOM parser comtains enumerated XML name tokens, and does not include a generic
+   * enumerated type
    */
   public int getType() {
     return m_type;
@@ -259,9 +244,8 @@ public class PSDtdAttribute implements Serializable {
   }
 
   /**
-   * Return the array of possible values for this attribute or
-   * null if it is not an enumerated type.  The enumerated types
-   * are ENUMERATION and ENOTATION.
+   * Return the array of possible values for this attribute or null if it is not an enumerated type.
+   * The enumerated types are ENUMERATION and ENOTATION.
    */
   public List getPossibleValues() {
     return Collections.unmodifiableList(m_possibleValues);
@@ -275,9 +259,7 @@ public class PSDtdAttribute implements Serializable {
     m_possibleValues.add(val);
   }
 
-  /**
-   * Catalog method for this DTD item.
-   */
+  /** Catalog method for this DTD item. */
   public void catalog(List catalogList, String cur, String sep, String attribId) {
     if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE) {
       catalogList.add("TRUNCATED!");

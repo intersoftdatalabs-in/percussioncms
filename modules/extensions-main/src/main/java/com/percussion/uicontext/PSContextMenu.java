@@ -42,35 +42,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit expands the context menu action list in the result XML document by
- * building and adding the child actions recursively. This exit is specific to
- * context menu building for the User Interface. Multiple requests are made to
- * expand each child item to menu item. The generated XML document shall be of
- * the following DTD:
+ * This exit expands the context menu action list in the result XML document by building and adding
+ * the child actions recursively. This exit is specific to context menu building for the User
+ * Interface. Multiple requests are made to expand each child item to menu item. The generated XML
+ * document shall be of the following DTD:
  *
- * &lt;!ELEMENT ActionList (Params?, ActionList*, Action+)&gt;
- * &lt;!ATTLIST ActionList
- * name (Edit | Item | View | Workflow) #REQUIRED
- * url CDATA #REQUIRED
- * uicontextid CDATA #REQUIRED
- * displayname CDATA #REQUIRED
- * actionid CDATA #REQUIRED
- * modeid CDATA #REQUIRED
- * &gt;
- * &lt;!ELEMENT Action (Params)&gt;
- * &lt;!ATTLIST Action
- * name CDATA #REQUIRED
- * url CDATA #REQUIRED
- * uicontextid CDATA #REQUIRED
- * displayname CDATA #REQUIRED
- * actionid CDATA #REQUIRED
- * modeid CDATA #REQUIRED
- * &gt;
- * &lt;!ELEMENT Param PCDATA&gt;
- * &lt;!ATTLIST Param
- * name CDATA #REQUIRED
- * &gt;
- * &lt;!ELEMENT Params (Param*)&gt;
+ * <p>&lt;!ELEMENT ActionList (Params?, ActionList*, Action+)&gt; &lt;!ATTLIST ActionList name (Edit
+ * | Item | View | Workflow) #REQUIRED url CDATA #REQUIRED uicontextid CDATA #REQUIRED displayname
+ * CDATA #REQUIRED actionid CDATA #REQUIRED modeid CDATA #REQUIRED &gt; &lt;!ELEMENT Action
+ * (Params)&gt; &lt;!ATTLIST Action name CDATA #REQUIRED url CDATA #REQUIRED uicontextid CDATA
+ * #REQUIRED displayname CDATA #REQUIRED actionid CDATA #REQUIRED modeid CDATA #REQUIRED &gt;
+ * &lt;!ELEMENT Param PCDATA&gt; &lt;!ATTLIST Param name CDATA #REQUIRED &gt; &lt;!ELEMENT Params
+ * (Param*)&gt;
  */
 public class PSContextMenu implements IPSResultDocumentProcessor {
   /*
@@ -148,16 +131,13 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Removes the menu items specified in <code>removeMenuItemsList</code> from
-   * the context menu.
+   * Removes the menu items specified in <code>removeMenuItemsList</code> from the context menu.
    *
-   * @param actionNodeList the list of nodes corresponding to the menu items,
-   * may be <code>null</code> or empty
-   *
-   * @param removeMenuItemsList list of menu items to be removed from the
-   * context menu, assumed not <code>null</code>. This list contains the name
-   * of menu actions to be removed as <code>String</code> objects in UPPERCASE
-   * form.
+   * @param actionNodeList the list of nodes corresponding to the menu items, may be <code>null
+   *     </code> or empty
+   * @param removeMenuItemsList list of menu items to be removed from the context menu, assumed not
+   *     <code>null</code>. This list contains the name of menu actions to be removed as <code>
+   *     String</code> objects in UPPERCASE form.
    */
   private void removeMenuItems(NodeList actionNodeList, List removeMenuItemsList) {
     if ((actionNodeList == null) || (actionNodeList.getLength() < 1)) return;
@@ -181,14 +161,14 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method is called recursively to render the child and/or parent items
-   * to render their children or parents.
-   * @param itemsRendered is a list all items rendered so far. List is different
-   *    for child treeand parent tree.
+   * This method is called recursively to render the child and/or parent items to render their
+   * children or parents.
+   *
+   * @param itemsRendered is a list all items rendered so far. List is different for child treeand
+   *     parent tree.
    * @param parent is the result element being built
    * @request <code>IPSRequestContext</code> object
-   * @param rxAppResource the Rhythmyx application resource for making internal
-   * request.
+   * @param rxAppResource the Rhythmyx application resource for making internal request.
    */
   private void processItem(
       ArrayList itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
@@ -274,11 +254,12 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to find out if the actionlist element has a child action.
-   * If none of the child items of the actionlist element has non empty actionid
-   * then it means the action list has no children.
-   * @param actionlist DOM element, will not be <code>null</code>.
-   * If <code>null</code> the return value shall be <code>false</code>.
+   * Helper function to find out if the actionlist element has a child action. If none of the child
+   * items of the actionlist element has non empty actionid then it means the action list has no
+   * children.
+   *
+   * @param actionlist DOM element, will not be <code>null</code>. If <code>null</code> the return
+   *     value shall be <code>false</code>.
    * @return <code>true</code> if has children, <code>false</code> otherwise.
    */
   private boolean hasActionChildren(Element actionlist) {
@@ -300,12 +281,11 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to return true or false based on the number of languages
-   * enabled on the system. Returns true if there are more than one language
-   * enabled otherwise false.
+   * Helper function to return true or false based on the number of languages enabled on the system.
+   * Returns true if there are more than one language enabled otherwise false.
+   *
    * @request <code>IPSRequestContext</code> object
-   * @return <code>true</code> for more than one language enabled,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> for more than one language enabled, <code>false</code> otherwise.
    */
   private boolean addTranslateAction(IPSRequestContext request) {
     Document doc = null;
@@ -327,64 +307,39 @@ public class PSContextMenu implements IPSResultDocumentProcessor {
     return nl != null && nl.getLength() > 1;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String ms_fullExtensionName = "";
 
-  /**
-   * The internal request resource name to get the child menu tree given the
-   * parent information
-   */
+  /** The internal request resource name to get the child menu tree given the parent information */
   private static final String REQUEST_NAME = "actionlistchildren";
 
-  /**
-   * Name of the Action List element
-   */
+  /** Name of the Action List element */
   private static final String ELEM_ACTION_LIST = "ActionList";
 
-  /**
-   * Name of the Action element
-   */
+  /** Name of the Action element */
   private static final String ELEM_ACTION = "Action";
 
-  /**
-   * Name of the attribute/html parameter for actionid
-   */
+  /** Name of the attribute/html parameter for actionid */
   private static final String ATTR_ACTIONID = "actionid";
 
-  /**
-   * Name of the attribute/html parameter for name
-   */
+  /** Name of the attribute/html parameter for name */
   private static final String ATTR_NAME = "name";
 
-  /**
-   * Name of the translate action
-   */
+  /** Name of the translate action */
   private static final String ACTION_TRANSLATE = "Translate";
 
-  /**
-   * Name of the "Active Assembly for Documents" action
-   */
+  /** Name of the "Active Assembly for Documents" action */
   private static final String ACTION_DOC_ASSEMBLER = "Item_Assembly";
 
-  /**
-   * Name of the attribute/html parameter for modeid
-   */
+  /** Name of the attribute/html parameter for modeid */
   private static final String ATTR_MODEID = "modeid";
 
-  /**
-   * Name of the attribute/html parameter for uicontextid
-   */
+  /** Name of the attribute/html parameter for uicontextid */
   private static final String ATTR_UICONTEXTID = "uicontextid";
 
-  /**
-   * the internal request to get the locales
-   */
+  /** the internal request to get the locales */
   private static final String LOCALE_REQUEST = "sys_i18nSupport/locale";
 
-  /**
-   * Name of the language element
-   */
+  /** Name of the language element */
   private static final String ELEM_LANG = "lang";
 }

@@ -18,24 +18,25 @@
 package com.percussion.xml;
 
 /**
- * The IPSXmlErrors inteface is provided as a convenient mechanism
- * for accessing the various XML related error codes. The XML error
- * code ranges are:
+ * The IPSXmlErrors inteface is provided as a convenient mechanism for accessing the various XML
+ * related error codes. The XML error code ranges are:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>6001 - 7000</TD><TD>XML errors</TD></TR>
  * </TABLE>
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSXmlErrors {
 
   /**
    * This is simply used to dump the raw XML data associated with an error.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>XML data as a string</TD></TR>
@@ -45,8 +46,9 @@ public interface IPSXmlErrors {
 
   /**
    * This is the generic error processing XML message.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>session id</TD></TR>
@@ -56,8 +58,9 @@ public interface IPSXmlErrors {
 
   /**
    * An IO exception occurred processing the DTD.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception string</TD></TR>
@@ -67,8 +70,9 @@ public interface IPSXmlErrors {
 
   /**
    * A root element declaration can not be located in the DTD.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the root name expected</TD></TR>
@@ -78,8 +82,9 @@ public interface IPSXmlErrors {
 
   /**
    * Multiple occurrence settings are not supported
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the first occurrence setting</TD></TR>
@@ -90,8 +95,9 @@ public interface IPSXmlErrors {
 
   /**
    * An element declaration can not be located in the DTD.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the element name expected</TD></TR>

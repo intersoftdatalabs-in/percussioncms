@@ -22,28 +22,26 @@ package com.percussion.comments.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Simple class to wrap a list of comment IDs.
- */
+/** Simple class to wrap a list of comment IDs. */
 public class PSCommentIds {
 
-    private Collection<String> comments;
+  private Collection<String> comments;
 
-    public PSCommentIds() {
-        comments = new ArrayList<>();
-    }
+  public PSCommentIds() {
+    comments = new ArrayList<>();
+  }
 
-    /**
-     * @return the comment IDs
-     */
-    public Collection<String> getComments() {
-        return comments;
-    }
+  /**
+   * @return the comment IDs
+   */
+  public Collection<String> getComments() {
+    return comments;
+  }
 
-    /**
-     * @param comments the comment IDs to set
-     */
-    public void setComments(Collection<String> comments) {
-        this.comments = comments;
-    }
+  /**
+   * @param comments the comment IDs to set
+   */
+  public void setComments(Collection<String> comments) {
+    this.comments = comments;
+  }
 }

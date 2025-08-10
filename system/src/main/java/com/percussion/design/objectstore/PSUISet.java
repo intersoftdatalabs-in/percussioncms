@@ -25,35 +25,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implementation for the PSXUISet DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXUISet DTD in BasicObjects.dtd. */
 public class PSUISet extends PSComponent {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUISet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   public PSUISet() {}
 
   // see iterface for description
@@ -76,13 +66,12 @@ public class PSUISet extends PSComponent {
   }
 
   /**
-   * Gets shallow copy of this uiset merged with supplied source. The merged
-   * uiset will have all non-<code>null</code> properties of this uiset and
-   * overlays with properties of source for <code>null</code> properties of
-   * this uiset. The properties copied from source are copied by reference.
+   * Gets shallow copy of this uiset merged with supplied source. The merged uiset will have all
+   * non-<code>null</code> properties of this uiset and overlays with properties of source for
+   * <code>null</code> properties of this uiset. The properties copied from source are copied by
+   * reference.
    *
    * @param source the source uiset to merge with, may not be <code>null</code>
-   *
    * @return the merged uiset, never <code>null</code>
    */
   public PSUISet merge(PSUISet source) {
@@ -107,13 +96,10 @@ public class PSUISet extends PSComponent {
   }
 
   /**
-   * Gets shallow copy of this field demerged with supplied source. The
-   * demerged uiset will have all properties of this uiset that differ from
-   * the properties of source.
+   * Gets shallow copy of this field demerged with supplied source. The demerged uiset will have all
+   * properties of this uiset that differ from the properties of source.
    *
-   * @param source the source uiset to demerge from, may not be
-   * <code>null</code>
-   *
+   * @param source the source uiset to demerge from, may not be <code>null</code>
    * @return the demerged field, never <code>null</code>
    */
   public PSUISet demerge(PSUISet source) {
@@ -161,8 +147,7 @@ public class PSUISet extends PSComponent {
   }
 
   /**
-   * Sets the label source type. See {#link getLabelSourceType()} for allowed
-   * types.
+   * Sets the label source type. See {#link getLabelSourceType()} for allowed types.
    *
    * @param sourceType the source type, may be <code>null</code> but not empty.
    */
@@ -172,10 +157,8 @@ public class PSUISet extends PSComponent {
   }
 
   /**
-   * Gets the label source type, one of
-   * <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> or
-   * <code>PSContentEditorMapper.LOCAL</code>, defaults to
+   * Gets the label source type, one of <code>PSContentEditorMapper.SYSTEM</code>, <code>
+   * PSContentEditorMapper.SHARED</code> or <code>PSContentEditorMapper.LOCAL</code>, defaults to
    * <code>PSContentEditorMapper.SYSTEM</code>.
    *
    * @return the label source type. Can be <code>null</code> but not empty.
@@ -232,9 +215,9 @@ public class PSUISet extends PSComponent {
   /**
    * Set a new access key.
    *
-   * @param accessKey the new accesskey, if <code>null</code> an empty string
-   *    will be assigned. If the length of the string is more than one
-   *    character an <code>IllegalArgumentException</code> is thrown.
+   * @param accessKey the new accesskey, if <code>null</code> an empty string will be assigned. If
+   *     the length of the string is more than one character an <code>IllegalArgumentException
+   *     </code> is thrown.
    */
   public void setAccessKey(String accessKey) {
     if (accessKey != null) {
@@ -301,8 +284,7 @@ public class PSUISet extends PSComponent {
   /**
    * Get read only rules.
    *
-   * @return a list of PSRule objects, never <code>null</code>,
-   *    might be empty.
+   * @return a list of PSRule objects, never <code>null</code>, might be empty.
    */
   public Iterator getReadOnlyRules() {
     return m_readOnlyRules.iterator();
@@ -311,8 +293,7 @@ public class PSUISet extends PSComponent {
   /**
    * Set new read only rules.
    *
-   * @param readOnlyRules a collection of PSRule objects, might be
-   *    <code>null</code> or empty.
+   * @param readOnlyRules a collection of PSRule objects, might be <code>null</code> or empty.
    */
   public void setReadOnlyRules(PSCollection readOnlyRules) {
     if (readOnlyRules != null
@@ -326,8 +307,7 @@ public class PSUISet extends PSComponent {
   /**
    * Get the custom action group.
    *
-   * @return the current custom action group, might be
-   *    <code>null</code>.
+   * @return the current custom action group, might be <code>null</code>.
    */
   public PSCustomActionGroup getCustomActionGroup() {
     return m_customActionGroup;
@@ -336,17 +316,16 @@ public class PSUISet extends PSComponent {
   /**
    * Set a new custom acton group.
    *
-   * @param customActionGroup the new custom action group, set this to
-   *    <code>null</code> if not used.
+   * @param customActionGroup the new custom action group, set this to <code>null</code> if not
+   *     used.
    */
   public void setCustomActionGroup(PSCustomActionGroup customActionGroup) {
     m_customActionGroup = customActionGroup;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSUISet, not <code>null</code>.
    */
@@ -374,8 +353,7 @@ public class PSUISet extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSUISet)) return false;
@@ -573,9 +551,7 @@ public class PSUISet extends PSComponent {
   /** The error label, might be <code>null</code>. */
   private PSDisplayText m_errorLabel = null;
 
-  /**
-   * The access key, may be <code>empty</code>, but never <code>null</code>.
-   */
+  /** The access key, may be <code>empty</code>, but never <code>null</code>. */
   private String m_accessKey = "";
 
   /** A control reference, might be <code>null</code>. */
@@ -587,21 +563,16 @@ public class PSUISet extends PSComponent {
   /** A group of custom actions, might be <code>null</code> */
   private PSCustomActionGroup m_customActionGroup = null;
 
-  /**
-   * A collection of PSRule objects, never <code>null</code> after
-   * construction, might be empty.
-   */
+  /** A collection of PSRule objects, never <code>null</code> after construction, might be empty. */
   private PSCollection m_readOnlyRules = new PSCollection(PSRule.class);
 
   /**
-   * Indicates where the definition of this label was located. If a
-   * label is originally defined in the system def, then overridden in the
-   * local def, this value will be <code>PSContentEditorMapper.LOCAL</code>.
-   * Allowed values are <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> and
-   * <code>PSContentEditorMapper.LOCAL</code>. This attribute will not be
-   * persisted, and is therefore excluded from to/from XML methods. It will
-   * be included in all other operations like cloning, comparing, etc.
+   * Indicates where the definition of this label was located. If a label is originally defined in
+   * the system def, then overridden in the local def, this value will be <code>
+   * PSContentEditorMapper.LOCAL</code>. Allowed values are <code>PSContentEditorMapper.SYSTEM
+   * </code>, <code>PSContentEditorMapper.SHARED</code> and <code>PSContentEditorMapper.LOCAL</code>
+   * . This attribute will not be persisted, and is therefore excluded from to/from XML methods. It
+   * will be included in all other operations like cloning, comparing, etc.
    */
   private String m_labelSourceType = null;
 

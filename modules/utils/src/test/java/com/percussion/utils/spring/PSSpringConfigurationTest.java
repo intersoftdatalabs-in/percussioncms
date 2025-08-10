@@ -26,20 +26,16 @@ import java.io.File;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test case for the {@link PSSpringConfiguration} class.
- */
+/** Test case for the {@link PSSpringConfiguration} class. */
 @Tag("UnitTest")
 public class PSSpringConfigurationTest extends PSBaseXmlConfigTest {
-  /**
-   * Constant for the file location of the server-beans.xml file, relative to
-   * the project root.
-   */
+  /** Constant for the file location of the server-beans.xml file, relative to the project root. */
   public static final String TEST_BEANS_FILE =
       "/com/percussion/design/objectstore/legacy/test-beans.xml";
 
   /**
    * Tests all functionality
+   *
    * @throws Exception
    */
   @Test

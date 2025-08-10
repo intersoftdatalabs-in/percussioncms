@@ -24,29 +24,19 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * This class provides utilities for loading jdbc drivers.
- */
+/** This class provides utilities for loading jdbc drivers. */
 public class PSDriverHelper {
-  /**
-   * Private noop ctor to enforce static use of this class
-   */
+  /** Private noop ctor to enforce static use of this class */
   private PSDriverHelper() {}
 
   /**
-   * Loads the jdbc driver for the specified class from the specified
-   * file.
+   * Loads the jdbc driver for the specified class from the specified file.
    *
    * @param driverClass never blank.
-   * @param driverPath absolute path to the file which contains the driver,
-   * never blank.
-   *
+   * @param driverPath absolute path to the file which contains the driver, never blank.
    * @return The driver object, never <code>null</code>.
-   *
-   * @throws MalformedURLException If an error occurs creating a url to
-   * the file.
-   * @throws ClassNotFoundException If the class does not exist in the
-   * file.
+   * @throws MalformedURLException If an error occurs creating a url to the file.
+   * @throws ClassNotFoundException If the class does not exist in the file.
    * @throws IllegalAccessException If an error occurs loading the driver.
    * @throws InstantiationException If an error occurs loading the driver.
    */

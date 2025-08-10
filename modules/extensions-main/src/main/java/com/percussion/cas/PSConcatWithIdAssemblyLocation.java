@@ -30,8 +30,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This assembly location generator concatenates all provided parameters and
- * adds the contentid at a given position.
+ * This assembly location generator concatenates all provided parameters and adds the contentid at a
+ * given position.
  */
 public class PSConcatWithIdAssemblyLocation implements IPSAssemblyLocation {
   // See interface for details
@@ -40,21 +40,16 @@ public class PSConcatWithIdAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This implementation concatenates all but the first parameters and adds
-   * the contentid at the given position. This needs at least 2 parameters
-   * and handles as many parameters as provided. If the index
-   * provided is 1, a location string like this will be created:
-   * e.g. params[1] + contentid + params[2] + ... + params[n]. This will
-   * check that the minimum number of parameters are provided and that the
-   * index supplied is in the range of the provided parameters. All
-   * parameters provided with backslashes will be transformed to forward
-   * slashes.
+   * This implementation concatenates all but the first parameters and adds the contentid at the
+   * given position. This needs at least 2 parameters and handles as many parameters as provided. If
+   * the index provided is 1, a location string like this will be created: e.g. params[1] +
+   * contentid + params[2] + ... + params[n]. This will check that the minimum number of parameters
+   * are provided and that the index supplied is in the range of the provided parameters. All
+   * parameters provided with backslashes will be transformed to forward slashes.
    *
-   * @param params [0] a string or an object convertable to a string using
-   *    the toString method. This string parsed as an integer must return
-   *    a valid integer.
-   *    params [1..n] all parameters to concatenated together to produce
-   *    the location string.
+   * @param params [0] a string or an object convertable to a string using the toString method. This
+   *     string parsed as an integer must return a valid integer. params [1..n] all parameters to
+   *     concatenated together to produce the location string.
    * @param request The request context for the request
    */
   public String createLocation(Object[] params, IPSRequestContext request)
@@ -100,14 +95,12 @@ public class PSConcatWithIdAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This is the definition for this extension. You may want to use it for
-   * validation purposes in the <code>createLocation</code> method.
+   * This is the definition for this extension. You may want to use it for validation purposes in
+   * the <code>createLocation</code> method.
    */
   protected IPSExtensionDef m_def = null;
 
-  /**
-   * The number of expected parameters.
-   */
+  /** The number of expected parameters. */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 2;
 
   private static Logger logger = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);

@@ -25,13 +25,14 @@ import java.util.List;
  */
 public interface IPSWorkflowInfoValueAccessor {
   /**
-   * Returns a list of values to use, never <code>null</code>.  See {@link PSWorkflowInfo#getValues()}.
+   * Returns a list of values to use, never <code>null</code>. See {@link
+   * PSWorkflowInfo#getValues()}.
    */
   public List<Integer> getValues();
 
   /**
-   * Returns if the list should be considered exclusionary or inclusionary. See
-   * {@link PSWorkflowInfo#isExclusionary()}.
+   * Returns if the list should be considered exclusionary or inclusionary. See {@link
+   * PSWorkflowInfo#isExclusionary()}.
    *
    * @return <code>true</code> if exclusionary, <code>false</code> if not.
    */

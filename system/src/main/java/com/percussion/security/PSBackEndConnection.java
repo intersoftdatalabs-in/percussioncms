@@ -38,8 +38,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class wraps the backend connection functionality required for backend
- * security providers and backend directory catalogers.
+ * This class wraps the backend connection functionality required for backend security providers and
+ * backend directory catalogers.
  */
 public class PSBackEndConnection {
   private static final Logger log = LogManager.getLogger(PSBackEndConnection.class);
@@ -47,12 +47,11 @@ public class PSBackEndConnection {
   /**
    * Construct a backend connection for the supplied properties.
    *
-   * @param properties the properties with all connection and user attribute
-   *    information. A copy of the supplied properties is made for local
-   *    usage and the original properties will not be changed in any way.
-   *    May not be <code>null</code> or empty, the following properties
-   *    are expected:
-   *    <TABLE BORDER="1">
+   * @param properties the properties with all connection and user attribute information. A copy of
+   *     the supplied properties is made for local usage and the original properties will not be
+   *     changed in any way. May not be <code>null</code> or empty, the following properties are
+   *     expected:
+   *     <TABLE BORDER="1">
    *    <TH><TD>Property</TD>
    *        <TD>Description</TD>
    *        <TD>Required?</TD>
@@ -108,15 +107,15 @@ public class PSBackEndConnection {
       m_filter = PSJndiUtils.initPasswordFilter(filterName);
 
     /**
-     * Save the properties that remain - this is the password column, plus
-     * any user defined attributes.
+     * Save the properties that remain - this is the password column, plus any user defined
+     * attributes.
      */
     m_columns = new ArrayList<>();
     m_columns.addAll(localProps.values());
 
     /**
-     * We don't want to return the password column as a user attribute, that's
-     * why we need to remove it here from the localProps.
+     * We don't want to return the password column as a user attribute, that's why we need to remove
+     * it here from the localProps.
      */
     m_pwColumn = PSJndiUtils.getProperty(localProps, PROPS_PW_COLUMN, false);
 
@@ -127,8 +126,8 @@ public class PSBackEndConnection {
   /**
    * Get the connection properties required for this backend connection.
    *
-   * @return all connection properties with the property name as
-   *    key and the description as property value, never <code>null</code>.
+   * @return all connection properties with the property name as key and the description as property
+   *     value, never <code>null</code>.
    */
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
   public static Properties getConnectionProperties() {
@@ -155,32 +154,30 @@ public class PSBackEndConnection {
   /**
    * Get the datasource name to connect with.
    *
-   * @return the datasource to connect to, may be <code>null</code> or empty to
-   * indicate the repository.
+   * @return the datasource to connect to, may be <code>null</code> or empty to indicate the
+   *     repository.
    */
   public String getDatasource() {
     return m_datasource;
   }
 
   /**
-   * @return the column name that holds the rhythmyx user, not
-   *    <code>null</code> or empty.
+   * @return the column name that holds the rhythmyx user, not <code>null</code> or empty.
    */
   public String getUserColumn() {
     return m_uidColumn;
   }
 
   /**
-   * @return the column name that holds the rhythmyx user password, may
-   *    be <code>null</code> or empty.
+   * @return the column name that holds the rhythmyx user password, may be <code>null</code> or
+   *     empty.
    */
   public String getPasswordColumn() {
     return m_pwColumn;
   }
 
   /**
-   * @return the password filter used to decrypt the rhythmyx password, may
-   *    be <code>null</code>.
+   * @return the password filter used to decrypt the rhythmyx password, may be <code>null</code>.
    */
   public IPSPasswordFilter getPasswordFilter() {
     return m_filter;
@@ -189,9 +186,8 @@ public class PSBackEndConnection {
   /**
    * Return a connection from the database pool for this backend connection.
    *
-   * @return the connection to the database, never <code>null</code>. The
-   *    caller owns the connection and must close it.
-   *
+   * @return the connection to the database, never <code>null</code>. The caller owns the connection
+   *     and must close it.
    * @throws SQLException for any error getting the connection.
    */
   public Connection getDbConnection() throws SQLException {
@@ -203,15 +199,14 @@ public class PSBackEndConnection {
   }
 
   /**
-   * Prepares and binds the prepared statement string to get a complete
-   * row for the specified user from the user login table.
+   * Prepares and binds the prepared statement string to get a complete row for the specified user
+   * from the user login table.
    *
-   * @param user the user name to get the entries for, not <code>null</code>
-   *    or empty.
-   * @param connection a valid connection to the database from where to get
-   *    the data, not <code>null</code>.
-   * @return the prepared statement, never <code>null</code>. The caller owns
-   *    the returned statement and is responsible for closing it.
+   * @param user the user name to get the entries for, not <code>null</code> or empty.
+   * @param connection a valid connection to the database from where to get the data, not <code>null
+   *     </code>.
+   * @return the prepared statement, never <code>null</code>. The caller owns the returned statement
+   *     and is responsible for closing it.
    * @throws SQLException for any database error.
    */
   public PreparedStatement getPreparedStatement(String user, Connection connection)
@@ -246,19 +241,15 @@ public class PSBackEndConnection {
   }
 
   /**
-   * Prepare a query statement based on a single key column. This will be
-   * keyed off the uid column and it will be used to lookup password
-   * information for authentication and all specified user attributes.
+   * Prepare a query statement based on a single key column. This will be keyed off the uid column
+   * and it will be used to lookup password information for authentication and all specified user
+   * attributes.
    *
-   * @param columns the list of columns to query, not <code>null</code> or
-   *    empty.
-   * @param key the key column to use for lookups, not
-   *    <code>null</code> or empty.
-   * @param table the name of the table to do the lookups in, not
-   *    <code>null</code> or empty.
-   * @return the query statement string, never <code>null</code>.<p>
-   *    Note: There will be one bound parameter, which is the key for
-   *    the query.
+   * @param columns the list of columns to query, not <code>null</code> or empty.
+   * @param key the key column to use for lookups, not <code>null</code> or empty.
+   * @param table the name of the table to do the lookups in, not <code>null</code> or empty.
+   * @return the query statement string, never <code>null</code>.
+   *     <p>Note: There will be one bound parameter, which is the key for the query.
    */
   public String prepareStatement(List<Object> columns, String key, String table) {
     if (columns == null) throw new IllegalArgumentException("columns cannot be null");
@@ -299,25 +290,19 @@ public class PSBackEndConnection {
   }
 
   /**
-   * Prepare a query statement based on the supplied criteria and attributes
-   * to return.
+   * Prepare a query statement based on the supplied criteria and attributes to return.
    *
-   * @param criteria the conditions used to build the where clause.
-   *    If <code>null</code>, all users are returned. This should be done
-   *    with care as this could return a result of many thousands of entries.
-   *    Only <code>PSLiteral</code> types are allowed for variable and value
-   *    and only the <code>OPTYPE_EQUALS</code> and <code>OPTYPE_LIKE</code>
-   *    operators are allowed.
-   * @param attributeNames the set of attributes used to determine the columns
-   *    to query. If a supplied attribute is not defined, it is not included
-   *    in the results.
-   * @param connection a valid connection to the database from where to get
-   *    the data, not <code>null</code>.
-   *
-   * @return the prepared statement, <code>null</code> if criteria is supplied
-   *    and the variable name is not a defined attribute name. The caller owns
-   *    the returned statement and is responsible for closing it.
-   *
+   * @param criteria the conditions used to build the where clause. If <code>null</code>, all users
+   *     are returned. This should be done with care as this could return a result of many thousands
+   *     of entries. Only <code>PSLiteral</code> types are allowed for variable and value and only
+   *     the <code>OPTYPE_EQUALS</code> and <code>OPTYPE_LIKE</code> operators are allowed.
+   * @param attributeNames the set of attributes used to determine the columns to query. If a
+   *     supplied attribute is not defined, it is not included in the results.
+   * @param connection a valid connection to the database from where to get the data, not <code>null
+   *     </code>.
+   * @return the prepared statement, <code>null</code> if criteria is supplied and the variable name
+   *     is not a defined attribute name. The caller owns the returned statement and is responsible
+   *     for closing it.
    * @throws SQLException for any database error.
    */
   public PreparedStatement getPreparedStatement(
@@ -393,8 +378,8 @@ public class PSBackEndConnection {
   /**
    * Get the user attribute for the supplied key.
    *
-   * @return the user attribute column name for the supplied key, may be
-   *    <code>null</code> if not found, never empty.
+   * @return the user attribute column name for the supplied key, may be <code>null</code> if not
+   *     found, never empty.
    */
   public String getUserAttribute(String key) {
     return (String) m_userAttributes.get(key);
@@ -403,8 +388,7 @@ public class PSBackEndConnection {
   /**
    * Get a list over all user attribute names.
    *
-   * @return a list of user attribute names, never <code>null</code> may be
-   *    empty.
+   * @return a list of user attribute names, never <code>null</code> may be empty.
    */
   public Iterator getUserAttributeNames() {
     if (m_userAttributes == null || m_userAttributes.isEmpty())
@@ -415,6 +399,7 @@ public class PSBackEndConnection {
 
   /**
    * Updates the backend table for the specified username with the supplied password.
+   *
    * @param uid The user id
    * @param password The encrypted password.
    */
@@ -459,107 +444,92 @@ public class PSBackEndConnection {
     return buff.toString();
   }
 
-  /**
-   * The property key to store the system credential string if a system
-   * credential is used.
-   */
+  /** The property key to store the system credential string if a system credential is used. */
   public static final String PROPS_SYSTEM_CREDENTIALS = "systemCredentials";
 
   /**
-   * The properties keyword representing the name of the datasource to use
-   * for the backend connection.
+   * The properties keyword representing the name of the datasource to use for the backend
+   * connection.
    */
   public static final String PROPS_DATASOURCE_NAME = "datasourceName";
 
-  /**
-   * The proeprties keyword representing the database table containing the
-   * user information.
-   */
+  /** The proeprties keyword representing the database table containing the user information. */
   public static final String PROPS_TABLE_NAME = "tableName";
 
   /**
-   * The properties keyword representing the name of the column containing
-   * the rhythmyx user name. This column must be defined as the primary key,
-   * or it must be defined as the only key in a unique index. If this column
-   * does not guarantee uniqueness, rhythmyx will not allow the column to be
-   * mapped as the login id.
+   * The properties keyword representing the name of the column containing the rhythmyx user name.
+   * This column must be defined as the primary key, or it must be defined as the only key in a
+   * unique index. If this column does not guarantee uniqueness, rhythmyx will not allow the column
+   * to be mapped as the login id.
    */
   public static final String PROPS_UID_COLUMN = "uidColumn";
 
   /**
-   * The propertiesng keyword representing the name of the column
-   * containing the rhythmyx user password.
+   * The propertiesng keyword representing the name of the column containing the rhythmyx user
+   * password.
    */
   public static final String PROPS_PW_COLUMN = "passwordColumn";
 
   /**
-   * The properties keyword representing the password filter to use.
-   * Storing clear-text passwords in the back-end table is usually undesirable.
-   * To allow an application to encrypt/decrypt passwords, a password filter
-   * can be defined. The default password filter supplied with rhythmyx can
-   * be used or the designer can create a password filter, as described in
-   * the 'Writing a Credential Filter' section. The filter is used only to
-   * encrypt a provided password to compare it against an already encrypted
-   * stored password.
+   * The properties keyword representing the password filter to use. Storing clear-text passwords in
+   * the back-end table is usually undesirable. To allow an application to encrypt/decrypt
+   * passwords, a password filter can be defined. The default password filter supplied with rhythmyx
+   * can be used or the designer can create a password filter, as described in the 'Writing a
+   * Credential Filter' section. The filter is used only to encrypt a provided password to compare
+   * it against an already encrypted stored password.
    *
    * @see {@link IPSPasswordFilter#encrypt(String)}
    */
   public static final String PROPS_PW_FILTER = "passwordFilter";
 
-  /**
-   * The value used to specify the default password filter.
-   */
+  /** The value used to specify the default password filter. */
   public static final String DEFAULT_FILTER = "DEFAULT";
 
   /**
-   * The datsource used, initialized in constructor, never
-   * <code>null</code>, empty or modified after that.
+   * The datsource used, initialized in constructor, never <code>null</code>, empty or modified
+   * after that.
    */
   private String m_datasource = null;
 
   /**
-   * The backend table to connect with, initialized in constructor, may
-   * be <code>null</code> or empty, never modified.
+   * The backend table to connect with, initialized in constructor, may be <code>null</code> or
+   * empty, never modified.
    */
   private String m_table = null;
 
   /**
-   * The rhythmyx user identifier column used as key for our lookups.
-   * Initialized in constructor, never <code>null</code>, empty or modified
-   * after that.
+   * The rhythmyx user identifier column used as key for our lookups. Initialized in constructor,
+   * never <code>null</code>, empty or modified after that.
    */
   private String m_uidColumn = null;
 
   /**
-   * The rhythmyx user password column. Initialized in constructor, may be
-   * <code>null</code> or empty, never modified.
+   * The rhythmyx user password column. Initialized in constructor, may be <code>null</code> or
+   * empty, never modified.
    */
   private String m_pwColumn = null;
 
   /**
-   * The password filter to be used to authenticate against the back end.
-   * Initialized in constructor, may be <code>null</code>, never modified.
+   * The password filter to be used to authenticate against the back end. Initialized in
+   * constructor, may be <code>null</code>, never modified.
    */
   private IPSPasswordFilter m_filter = null;
 
   /**
-   * The prepared statement to use for authentication and backend directory
-   * requests. Initialized in {@link #getPreparedStatement(String, Connection)}
-   * and never <code>null</code>, empty or modified after that.
+   * The prepared statement to use for authentication and backend directory requests. Initialized in
+   * {@link #getPreparedStatement(String, Connection)} and never <code>null</code>, empty or
+   * modified after that.
    */
   private String m_preparedStatement = null;
 
   /**
-   * A map with all defined user attributes. The key is a <code>String</code>
-   * with the attribute name while the value is the backend column name as
-   * <code>String</code> that contains the attribute value. Initialized
-   * in constructor, never <code>null</code> after that, may be empty, never
-   * modified.
+   * A map with all defined user attributes. The key is a <code>String</code> with the attribute
+   * name while the value is the backend column name as <code>String</code> that contains the
+   * attribute value. Initialized in constructor, never <code>null</code> after that, may be empty,
+   * never modified.
    */
   private Map m_userAttributes = null;
 
-  /**
-   * List of columns to query.
-   */
+  /** List of columns to query. */
   private List<Object> m_columns;
 }

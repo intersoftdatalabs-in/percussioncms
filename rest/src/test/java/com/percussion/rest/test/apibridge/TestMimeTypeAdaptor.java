@@ -21,33 +21,30 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.mimetypes.IMimeTypeAdaptor;
 import com.percussion.rest.mimetypes.MimeType;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-/**
- * Test adaptor for MimeType API bridge.
- */
+/** Test adaptor for MimeType API bridge. */
 @Component
 public class TestMimeTypeAdaptor implements IMimeTypeAdaptor {
 
-    @Override
-    public MimeType getMimeType(String extension) {
-        return null;
-    }
+  @Override
+  public MimeType getMimeType(String extension) {
+    return null;
+  }
 
-    @Override
-    public List<MimeType> listMimeTypes() {
-        return null;
-    }
+  @Override
+  public List<MimeType> listMimeTypes() {
+    return null;
+  }
 
-    @Override
-    public MimeType createOrUpdateMimeType(MimeType type) {
-        return null;
-    }
+  @Override
+  public MimeType createOrUpdateMimeType(MimeType type) {
+    return null;
+  }
 
-    @Override
-    public void deleteMimeType(MimeType type) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deleteMimeType(MimeType type) {
+    // No-op for test adaptor
+  }
 }

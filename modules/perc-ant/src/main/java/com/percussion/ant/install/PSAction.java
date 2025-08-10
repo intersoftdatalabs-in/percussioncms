@@ -30,11 +30,9 @@ import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
 
 /**
- * This task is used to set static properties which can be accessed by all
- * subclasses.
- * <br>
- * Example Usage:
- * <br>
+ * This task is used to set static properties which can be accessed by all subclasses. <br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -57,10 +55,9 @@ import org.apache.tools.ant.Task;
  */
 public class PSAction extends Task {
   /**
-   * This will handle initialization of the install logger, loading of
-   * PreviousVersion.properties for upgrades, and setting of the entity
-   * resolver's resolution home used to find DTD's.  It also determines if
-   * all files should be refreshed by date.
+   * This will handle initialization of the install logger, loading of PreviousVersion.properties
+   * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
+   * determines if all files should be refreshed by date.
    */
   public void execute() throws BuildException {
     PSLogger.init(ms_rootDir);
@@ -94,7 +91,6 @@ public class PSAction extends Task {
    * Converts the given absolute file path into a url.
    *
    * @param file the absolute path to the file.
-   *
    * @return the file url representation of the path, may be <code>null</code>.
    */
   protected URL getResource(String file) {
@@ -119,11 +115,9 @@ public class PSAction extends Task {
   }
 
   /**
-   * Utility method to convert a string of comma-separated values into an
-   * array.
+   * Utility method to convert a string of comma-separated values into an array.
    *
-   * @param arrayVals the comma-separated values, may be <code>null</code> or
-   * empty.
+   * @param arrayVals the comma-separated values, may be <code>null</code> or empty.
    * @return an array of string values, never <code>null</code>, may be empty.
    */
   protected String[] convertToArray(String arrayVals) {
@@ -167,8 +161,7 @@ public class PSAction extends Task {
   /**
    * Sets the refresh property name.
    *
-   * @param refreshProperty the name of the property which indicates a refresh
-   * should be performed.
+   * @param refreshProperty the name of the property which indicates a refresh should be performed.
    */
   public void setRefreshProperty(String refreshProperty) {
     m_refreshProperty = refreshProperty;
@@ -195,21 +188,18 @@ public class PSAction extends Task {
     return m_silenceerrors;
   }
 
-  /**
-   * The root installation directory.
-   */
+  /** The root installation directory. */
   private static volatile String ms_rootDir;
 
   /**
-   * If <code>true</code>, then all file copy operations using the
-   * {@link PSCopyFileAction} task will be performed as replace by date.
-   * Defaults to <code>false</code>.
+   * If <code>true</code>, then all file copy operations using the {@link PSCopyFileAction} task
+   * will be performed as replace by date. Defaults to <code>false</code>.
    */
   private static volatile boolean ms_bRefreshFiles = false;
 
   /**
-   * If false then the Action should not fail if an error occurs, when true (default) errors
-   * should be reported and fail the task.
+   * If false then the Action should not fail if an error occurs, when true (default) errors should
+   * be reported and fail the task.
    */
   private static volatile boolean m_failonerror = true;
 
@@ -219,8 +209,8 @@ public class PSAction extends Task {
   private static volatile boolean m_silenceerrors = false;
 
   /**
-   * The name of the Ant property which if found indicates that a refresh of
-   * all files will be performed.  Default is REFRESH.
+   * The name of the Ant property which if found indicates that a refresh of all files will be
+   * performed. Default is REFRESH.
    */
   private String m_refreshProperty = "REFRESH";
 }

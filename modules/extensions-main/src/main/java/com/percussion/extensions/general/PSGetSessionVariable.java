@@ -21,25 +21,21 @@ import com.percussion.extension.PSDefaultExtension;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * Rhythmyx pre-exit to fetch an session object and add it to request
- * parameters.
+ * Rhythmyx pre-exit to fetch an session object and add it to request parameters.
  *
- * See {@link PSGetSessionVariable#preProcessRequest preProcessRequest} for a
- * description.
+ * <p>See {@link PSGetSessionVariable#preProcessRequest preProcessRequest} for a description.
  */
 public class PSGetSessionVariable extends PSDefaultExtension implements IPSRequestPreProcessor {
   /**
    * Gets a session object and adds it to the request parameters as a String.
    *
-   * @param params An array providing the input paramters to this exit. Only
-   * the first element will be processed, and must be the name of the key under
-   * which the object is stored in the session.  This name is also used as the
-   * parameter name under which this object is added to the request parameters.
-   * The name is obtained by doing a <code>toString</code> on the supplied
-   * object.  If <code>null</code> or empty, this method simply returns.  If
-   * calling <code>toString</code> on the object returns an empty String, it is
-   * not added to the request parameters.
-   *
+   * @param params An array providing the input paramters to this exit. Only the first element will
+   *     be processed, and must be the name of the key under which the object is stored in the
+   *     session. This name is also used as the parameter name under which this object is added to
+   *     the request parameters. The name is obtained by doing a <code>toString</code> on the
+   *     supplied object. If <code>null</code> or empty, this method simply returns. If calling
+   *     <code>toString</code> on the object returns an empty String, it is not added to the request
+   *     parameters.
    * @param request The current request context. May not be <code>null</code>.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.percussion.sitemanage.importer.helpers;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.util.StringUtils.countOccurrencesOf;
 
 import com.percussion.pagemanagement.data.PSPage;
@@ -43,206 +42,380 @@ import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.sitemanage.importer.helpers.impl.PSTemplateExtractorHelper;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.data.PSThemeSummary;
-
+import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
-import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.junit.jupiter.api.*;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import org.apache.cactus.ServletTestCase;
+import org.apache.commons.io.IOUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runners.MethodSorters;
 
-@IntegrationTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PSTemplateExtractorHelperTest {
+/**
+ * @author LucasPiccoli
+ */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Category(IntegrationTest.class)
+public class PSTemplateExtractorHelperTest extends ServletTestCase {
+  // TODO Add Javadocs/comments
+  @Override
+  protected void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    super.setUp();
 
-    private static final String TEST_SITE_NAME = "TestImportedSite";
-    private static final String TEST_SITE_URL = "http://www.test.com";
-    private static final String TEST_THEME_NAME = "ThemeName";
-    private static final String[] PERCUSSION_TAGS = new String[]{
-            "<title>Web Content Management Software (WCM) | Percussion Software</title>",
-            "<meta content=\"text/html; charset=UTF-8\" http-equiv=\"content-type\" />",
-            "<meta name=\"generator\" content=\"Percussion\" />", "<meta name=\"robots\" content=\"noindex\" />",
-            "<meta name=\"description\" content=\"The description of the page\" />",
-            "<meta property=\"dcterms:author\" content=\"author of the page\" />",
-            "<meta property=\"dcterms:type\" content=\"page\" />",
-            "<meta property=\"dcterms:source\" content=\"perc.template.name\" />",
-            "<meta property=\"dcterms:created\" datatype=\"xsd:dateTime\" content=\"2012-10-10\" />",
-            "<meta property=\"dcterms:alternative\" content=\"perc.page.linkTitle\" />",
-            "<meta property=\"perc:tags\" content=\"tag1.String\" />",
-            "<meta property=\"perc:tags\" content=\"tag2.String\" />",
-            "<meta property=\"perc:category\" content=\"category.String\" />",
-            "<meta property=\"perc:calendar\" content=\"Calendar Name\" />",
-            "<meta property=\"perc:start_date\" content=\"10/12/2012\" />",
-            "<meta property=\"perc:end_date\" datatype=\"xsd:dateTime\" content=\"10/12/2012\" />",};
-    private static final String[] PERCUSSION_JS_REFERENCES = new String[]{
-            "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.js\" type=\"text/javascript\"></script>",
-            "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"jquery.js\" type=\"text/javascript\"></script>",
-            "<script src=\"jquery.ui.core.js\" type=\"text/javascript\"></script>",
-            "<script src=\"/scripts/js/jquery.ui.js\" type=\"text/javascript\"></script>",
-            "<script src=\"jquery.tools.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"/scripts/custom/js/jquery-latest.js\" type=\"text/javascript\"></script>",
-            "<script src=\"http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/jquery-ui.min.js\" type=\"text/javascript\"></script>"};
-    private static final String COMMENT_START = "<!--";
-    private static final String COMMENT_END = "-->";
-    private static final String[] NOT_MANAGED_TAGS = new String[]{
-            "<meta http-equiv=\"refresh\" content=\"600\" />",
-            "<meta http-equiv=\"default-style\" content=\"link_element\" />",
-            "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.dialog.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"jquery.carrousel-1.4.2.min.js\" type=\"text/javascript\"></script>",
-            "<script src=\"/scripts/js/jquery.ui.carrousel-1.1.js\" type=\"text/javascript\"></script>",
-            "<script src=\"http://ajax.aspnetcdn.com/ajax/jQuery/jquery-animation.1.7.1.min.js\" type=\"text/javascript\"></script>",
-            "<script language=\"javascript\" type=\"text/javascript\">llactid=10810</script>",
-            "<SCRIPT TYPE=\"text/javascript\" LANGUAGE=\"JavaScript\" SRC=\"/web_resources/themes/perc-web/elqNow/elqCfg.js\"></SCRIPT>",
-            "<SCRIPT TYPE=\"text/javascript\" LANGUAGE=\"JavaScript\" SRC=\"/web_resources/themes/perc-web/elqNow/elqImg.js\"></SCRIPT>"};
+    // Login is needed to create folder for the new site.
+    securityWs.login("Admin", "demo", "Default", null);
 
-    private PSPageContent pageContent;
-    private PSSiteImportCtx importContext;
-    private PSTemplateExtractorHelper templateExtractorHelper;
-    private PSSiteCreationHelper siteCreationHelper;
-    private IPSSecurityWs securityWs;
-    private IPSPageService pageService;
-    private IPSTemplateService templateService;
-    private IPSiteDao siteDao;
+    siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
+    templateExtractorHelper = new PSTemplateExtractorHelper(templateService);
 
-    @BeforeEach
-    void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        securityWs.login("Admin", "demo", "Default", null);
-        siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
-        templateExtractorHelper = new PSTemplateExtractorHelper(templateService);
-        initData();
-        createSite();
+    initData();
+
+    createSite();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    deleteSite();
+  }
+
+  private void initData() throws Exception {
+    // TODO move test html page to resource folder.
+    File pageSampleFile =
+        createTempConfigFileBasedOn(getClass().getResourceAsStream("CM1094-SamplePage.html"));
+    Document doc = Jsoup.parse(pageSampleFile, "UTF-8");
+    pageContent =
+        PSSiteImporter.createPageContent(doc, new PSSiteImportLogger(PSLogObjectType.TEMPLATE));
+
+    importContext = new PSSiteImportCtx();
+    importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
+    IPSSiteImportSummaryService summaryService =
+        (IPSSiteImportSummaryService)
+            getWebApplicationContext().getBean("siteImportSummaryService");
+    importContext.setSummaryService(summaryService);
+    PSSite site = new PSSite();
+    site.setBaseUrl(TEST_SITE_URL);
+    site.setName(TEST_SITE_NAME);
+    importContext.setSite(site);
+
+    // TODO create theme folder in filesystem.
+    PSThemeSummary themeSummary = new PSThemeSummary();
+    themeSummary.setName(TEST_THEME_NAME);
+    importContext.setThemeSummary(themeSummary);
+  }
+
+  private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
+    // Copy mixed passwords to temp directory
+    File tempConfigFile = File.createTempFile("samplePage", ".html");
+    OutputStream out = new FileOutputStream(tempConfigFile);
+    InputStream in = baseConfigFile;
+
+    IOUtils.copy(in, out);
+
+    return tempConfigFile;
+  }
+
+  private void createSite() throws PSSiteImportException {
+    siteCreationHelper.process(pageContent, importContext);
+  }
+
+  private void deleteSite() {
+    siteCreationHelper.rollback(pageContent, importContext);
+  }
+
+  // Test if metadata was extracted correctly
+  @Test
+  public void test010ExtractMetadata() throws PSSiteImportException, PSDataServiceException {
+    templateExtractorHelper.process(pageContent, importContext);
+
+    PSPage homePage =
+        pageService.findPage(
+            PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
+    assertNotNull(homePage);
+    PSTemplate template = templateService.load(homePage.getTemplateId());
+    assertNotNull(template);
+
+    // Additional head content
+    assertNotNull(template.getAdditionalHeadContent());
+    assertNotSame("", template.getAdditionalHeadContent());
+
+    assertEquals(
+        pageContent
+            .getHeadContent()
+            .replaceAll("(\\r|\\n)", "")
+            .replaceAll("<!--", "")
+            .replaceAll("-->", ""),
+        template
+            .getAdditionalHeadContent()
+            .replaceAll("(\\r|\\n)", "")
+            .replaceAll("<!--", "")
+            .replaceAll("-->", ""));
+
+    // validate the commented out tags
+    validatePercussionGeneratedTags(template.getAdditionalHeadContent());
+    validatePercussionJSReferences(template.getAdditionalHeadContent(), "Additional Head Content");
+    validatePercussionJSReferences(template.getAfterBodyStartContent(), "After Body Start Content");
+    validatePercussionJSReferences(
+        template.getBeforeBodyCloseContent(), "Before Body close Content");
+    validateLogsForManagedTags(importContext.getLogger());
+
+    // After body start content
+    assertNotNull(template.getAfterBodyStartContent());
+    assertNotSame("", template.getAfterBodyStartContent());
+    assertEquals(pageContent.getAfterBodyStart(), template.getAfterBodyStartContent());
+
+    // Body before close content
+    assertNotNull(template.getBeforeBodyCloseContent());
+    assertNotSame("", template.getBeforeBodyCloseContent());
+    assertEquals(pageContent.getBeforeBodyClose(), template.getBeforeBodyCloseContent());
+
+    // Theme
+    assertNotNull(template.getTheme());
+    assertNotSame("", template.getTheme());
+    assertEquals(importContext.getThemeSummary().getName(), template.getTheme());
+  }
+
+  @Test
+  public void test020AddHTMLWidgetToTemplate()
+      throws PSDataServiceException, PSSiteImportException {
+    templateExtractorHelper.process(pageContent, importContext);
+
+    PSPage homePage =
+        pageService.findPage(
+            PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
+    assertNotNull(homePage);
+    PSTemplate template = templateService.load(homePage.getTemplateId());
+    assertNotNull(template);
+
+    // Test if the HTML widget was added to the template
+    List<PSWidgetItem> templateWidgets = template.getWidgets();
+    assertNotNull(templateWidgets);
+    assertTrue(templateWidgets.size() > 0);
+    PSWidgetItem widget = templateWidgets.get(0);
+    assertEquals("percRawHtml", widget.getDefinitionId());
+  }
+
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
+
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
+
+  public void setTemplateService(IPSTemplateService templateService) {
+    this.templateService = templateService;
+  }
+
+  public void setSiteDao(IPSiteDao siteDao) {
+    this.siteDao = siteDao;
+  }
+
+  /**
+   * Checks that the tags that are generated by CMS gets commented on the given additional head
+   * content.
+   *
+   * @param templateField {@link String} with the additional html head content. Assumed not <code>
+   *     null</code>.
+   */
+  private void validatePercussionGeneratedTags(String templateField) {
+    // affirmative cases
+    for (String percussionTag : PERCUSSION_TAGS) {
+      assertTrue(
+          "The tag '" + percussionTag + "' should have been commented.",
+          templateField.contains(COMMENT_START + percussionTag + COMMENT_END));
     }
 
-    @AfterEach
-    void tearDown() {
-        deleteSite();
+    // negative cases
+    for (String notManagedTag : NOT_MANAGED_TAGS) {
+      assertFalse(
+          "The tag '" + notManagedTag + "' should not have been commented.",
+          templateField.contains(COMMENT_START + notManagedTag + COMMENT_END));
+    }
+  }
+
+  private void validatePercussionJSReferences(String templateField, String place) {
+    // affirmative cases
+    for (String percussionTag : PERCUSSION_JS_REFERENCES) {
+      assertTrue(
+          "The tag '" + percussionTag + "' should have been commented in '" + place + "'.",
+          templateField.contains(COMMENT_START + percussionTag + COMMENT_END));
     }
 
-    private void initData() throws Exception {
-        var pageSampleFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("CM1094-SamplePage.html"));
-        Document doc = Jsoup.parse(pageSampleFile, "UTF-8");
-        pageContent = PSSiteImporter.createPageContent(doc, new PSSiteImportLogger(PSLogObjectType.TEMPLATE));
-        importContext = new PSSiteImportCtx();
-        importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
-        var summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
-        importContext.setSummaryService(summaryService);
-        var site = new PSSite();
-        site.setBaseUrl(TEST_SITE_URL);
-        site.setName(TEST_SITE_NAME);
-        importContext.setSite(site);
-        var themeSummary = new PSThemeSummary();
-        themeSummary.setName(TEST_THEME_NAME);
-        importContext.setThemeSummary(themeSummary);
+    // negative cases
+    for (String notManagedTag : NOT_MANAGED_TAGS) {
+      assertFalse(
+          "The tag '" + notManagedTag + "' should not have been commented in '" + place + "'.",
+          templateField.contains(COMMENT_START + notManagedTag + COMMENT_END));
+    }
+  }
+
+  /**
+   * Checks that the logger data holds the corresponding lines for those managed tags that were
+   * commented.
+   *
+   * @param logger {@link IPSSiteImportLogger} the logger that was used for the metadata extraction.
+   *     Assumed not <code>null</code>.
+   */
+  private void validateLogsForManagedTags(IPSSiteImportLogger logger) {
+    String log = logger.getLog();
+
+    for (String percussionTag : PERCUSSION_TAGS) {
+      String logLine = buildLogLineForCommentedElement(percussionTag);
+      assertTrue(
+          "The LOG should contain the following line:  '" + logLine + "'.", log.contains(logLine));
     }
 
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
-        var tempConfigFile = File.createTempFile("samplePage", ".html");
-        try (OutputStream out = new FileOutputStream(tempConfigFile); InputStream in = baseConfigFile) {
-            IOUtils.copy(in, out);
-        }
-        return tempConfigFile;
+    for (String jsReference : PERCUSSION_JS_REFERENCES) {
+      String logLine = buildLogLineForCommentedJSElement(jsReference);
+      assertTrue(
+          "The LOG should contain the following line:  '" + logLine + "'.", log.contains(logLine));
     }
 
-    private void createSite() throws PSSiteImportException {
-        siteCreationHelper.process(pageContent, importContext);
+    for (String percussionTag : NOT_MANAGED_TAGS) {
+      String logLine = buildLogLineForCommentedElement(percussionTag);
+      assertFalse(
+          "The LOG should not contain the following line:  '" + logLine + "'.",
+          log.contains(logLine));
     }
 
-    private void deleteSite() {
-        siteCreationHelper.rollback(pageContent, importContext);
-    }
+    int lines = countOccurrencesOf(log, PSImportHelper.COMMENTED_JS_REFERENCE_FROM_HEAD);
+    lines += countOccurrencesOf(log, PSImportHelper.COMMENTED_OUT_ELEMENT);
+    assertTrue(
+        "The log entries for commented tags should have been "
+            + PERCUSSION_TAGS.length
+            + ", but they were "
+            + lines,
+        lines == PERCUSSION_TAGS.length + PERCUSSION_JS_REFERENCES.length);
+  }
 
-    @Test
-    @Order(10)
-    void testExtractMetadata() throws PSSiteImportException, PSDataServiceException {
-        templateExtractorHelper.process(pageContent, importContext);
+  /**
+   * Builds a line equals to the ones that appear in the loggind data, for those commented metadata
+   * tags. An example:
+   *
+   * <pre>
+   * STATUS: Commented out managed element: &lt;title&gt;Home&lt;/title&gt; from &lt;head&gt; element.
+   * </pre>
+   *
+   * @param tag {@link String} with the whole tag to build the line. Assumed not <code>null</code>
+   *     nor empty.
+   * @return {@link String}, never <code>null</code> or empty.
+   */
+  private String buildLogLineForCommentedElement(String tag) {
+    String logLine = PSLogEntryType.STATUS.name();
+    logLine += ": ";
+    logLine += PSImportHelper.COMMENTED_OUT_ELEMENT;
+    logLine += ": ";
+    logLine += tag;
+    return logLine;
+  }
 
-        var homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
-        assertNotNull(homePage);
-        var template = templateService.load(homePage.getTemplateId());
-        assertNotNull(template);
+  /**
+   * Builds a line equals to the ones that appear in the loggind data, for those commented js
+   * referenced tags. An example:
+   *
+   * <pre>
+   * STATUS: Commented out managed jquery reference from &lt;body&gt; element: &lt;script src="jquery.js" type="text/javascript"&gt; &lt;/script&gt; from &lt;body&gt; element.
+   * </pre>
+   *
+   * @param percussionTag {@link String} with the whole tag to build the line. Assumed not <code>
+   *     null</code> nor empty.
+   * @return {@link String}, never <code>null</code> or empty.
+   */
+  private String buildLogLineForCommentedJSElement(String percussionTag) {
+    String logLine = PSLogEntryType.STATUS.name();
+    logLine += ": ";
+    logLine += PSImportHelper.COMMENTED_JS_REFERENCE_FROM_BODY;
+    logLine += ": ";
+    logLine += percussionTag;
+    return logLine;
+  }
 
-        assertNotNull(template.getAdditionalHeadContent());
-        assertNotEquals("", template.getAdditionalHeadContent());
+  private final String TEST_SITE_NAME = "TestImportedSite";
 
-        assertEquals(
-                pageContent.getHeadContent().replaceAll("(\\r|\\n)", "").replaceAll("<!--", "").replaceAll("-->", ""),
-                template.getAdditionalHeadContent().replaceAll("(\\r|\\n)", "").replaceAll("<!--", "")
-                        .replaceAll("-->", ""));
+  private final String TEST_SITE_URL = "http://www.test.com";
 
-        validatePercussionGeneratedTags(template.getAdditionalHeadContent());
-        validatePercussionJSReferences(template.getAdditionalHeadContent(), "Additional Head Content");
-        validatePercussionJSReferences(template.getAfterBodyStartContent(), "After Body Start Content");
-        validatePercussionJSReferences(template.getBeforeBodyCloseContent(), "Before Body close Content");
-        validateLogsForManagedTags(importContext.getLogger());
+  private final String TEST_THEME_NAME = "ThemeName";
 
-        assertNotNull(template.getAfterBodyStartContent());
-        assertNotEquals("", template.getAfterBodyStartContent());
-        assertEquals(pageContent.getAfterBodyStart(), template.getAfterBodyStartContent());
+  private PSPageContent pageContent;
 
-        assertNotNull(template.getBeforeBodyCloseContent());
-        assertNotEquals("", template.getBeforeBodyCloseContent());
-        assertEquals(pageContent.getBeforeBodyClose(), template.getBeforeBodyCloseContent());
+  private PSSiteImportCtx importContext;
 
-        assertNotNull(template.getTheme());
-        assertNotEquals("", template.getTheme());
-        assertEquals(importContext.getThemeSummary().getName(), template.getTheme());
-    }
+  private PSTemplateExtractorHelper templateExtractorHelper;
 
-    @Test
-    @Order(20)
-    void testAddHTMLWidgetToTemplate() throws PSDataServiceException, PSSiteImportException {
-        templateExtractorHelper.process(pageContent, importContext);
+  private PSSiteCreationHelper siteCreationHelper;
 
-        var homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
-        assertNotNull(homePage);
-        var template = templateService.load(homePage.getTemplateId());
-        assertNotNull(template);
+  private IPSSecurityWs securityWs;
 
-        List<PSWidgetItem> templateWidgets = template.getWidgets();
-        assertNotNull(templateWidgets);
-        assertTrue(templateWidgets.size() > 0);
-        var widget = templateWidgets.get(0);
-        assertEquals("percRawHtml", widget.getDefinitionId());
-    }
+  private IPSPageService pageService;
 
-    // Dependency injection setters for test context
-    public void setSecurityWs(IPSSecurityWs securityWs) {
-        this.securityWs = securityWs;
-    }
+  private IPSTemplateService templateService;
 
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
+  private IPSiteDao siteDao;
 
-    public void setTemplateService(IPSTemplateService templateService) {
-        this.templateService = templateService;
-    }
+  private static final String[] PERCUSSION_TAGS =
+      new String[] {
+        "<title>Web Content Management Software (WCM) | Percussion Software</title>",
+        "<meta content=\"text/html; charset=UTF-8\" http-equiv=\"content-type\" />",
+        "<meta name=\"generator\" content=\"Percussion\" />",
+        "<meta name=\"robots\" content=\"noindex\" />",
+        "<meta name=\"description\" content=\"The description of the page\" />",
+        "<meta property=\"dcterms:author\" content=\"author of the page\" />",
+        "<meta property=\"dcterms:type\" content=\"page\" />",
+        "<meta property=\"dcterms:source\" content=\"perc.template.name\" />",
+        "<meta property=\"dcterms:created\" datatype=\"xsd:dateTime\" content=\"2012-10-10\" />",
+        "<meta property=\"dcterms:alternative\" content=\"perc.page.linkTitle\" />",
+        "<meta property=\"perc:tags\" content=\"tag1.String\" />",
+        "<meta property=\"perc:tags\" content=\"tag2.String\" />",
+        "<meta property=\"perc:category\" content=\"category.String\" />",
+        "<meta property=\"perc:calendar\" content=\"Calendar Name\" />",
+        "<meta property=\"perc:start_date\" content=\"10/12/2012\" />",
+        "<meta property=\"perc:end_date\" datatype=\"xsd:dateTime\" content=\"10/12/2012\" />",
+      };
 
-    public void setSiteDao(IPSiteDao siteDao) {
-        this.siteDao = siteDao;
-    }
+  private static final String[] PERCUSSION_JS_REFERENCES =
+      new String[] {
+        "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script src=\"jquery.js\" type=\"text/javascript\"></script>",
+        "<script src=\"jquery.ui.core.js\" type=\"text/javascript\"></script>",
+        "<script src=\"/scripts/js/jquery.ui.js\" type=\"text/javascript\"></script>",
+        "<script src=\"jquery.tools.min.js\" type=\"text/javascript\"></script>",
+        "<script src=\"/scripts/custom/js/jquery-latest.js\" type=\"text/javascript\"></script>",
+        "<script src=\"http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script src=\"http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.18/jquery-ui.min.js\""
+            + " type=\"text/javascript\"></script>"
+      };
 
-    private void validatePercussionGeneratedTags(String templateField) {
-        for (var percussionTag : PERCUSSION_TAGS) {
-            assertTrue(templateField.contains(COMMENT_START + percussionTag + COMMENT_END),
-                    "The tag '" + percussionTag + "' should have been commented.");
-        }
-        for (var notManagedTag : NOT_MANAGED_TAGS) {
-            assertFalse(templateField.contains(COMMENT_START + notManagedTag + COMMENT_END),
-                    "The tag '" + notManagedTag + "' should not have been commented.");
-        }
-    }
+  private static final String COMMENT_START = "<!--";
+  private static final String COMMENT_END = "-->";
 
-    private void validatePercussionJSReferences(String templateField, String place) {
-        for (var percussionTag : PERCUSSION_JS_REFERENCES) {
-            assertTrue(templateField.contains(COMMENT_START + percussionTag + COMMENT_END),
-                    "The tag '" + percussionTag + "' should have been commented in '" + place + "'.");
+  private static final String[] NOT_MANAGED_TAGS =
+      new String[] {
+        "<meta http-equiv=\"refresh\" content=\"600\" />",
+        "<meta http-equiv=\"default-style\" content=\"link_element\" />",
+        "<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.dialog.min.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script src=\"jquery.carrousel-1.4.2.min.js\" type=\"text/javascript\"></script>",
+        "<script src=\"/scripts/js/jquery.ui.carrousel-1.1.js\" type=\"text/javascript\"></script>",
+        "<script src=\"http://ajax.aspnetcdn.com/ajax/jQuery/jquery-animation.1.7.1.min.js\""
+            + " type=\"text/javascript\"></script>",
+        "<script language=\"javascript\" type=\"text/javascript\">llactid=10810</script>",
+        "<SCRIPT TYPE=\"text/javascript\" LANGUAGE=\"JavaScript\""
+            + " SRC=\"/web_resources/themes/perc-web/elqNow/elqCfg.js\"></SCRIPT>",
+        "<SCRIPT TYPE=\"text/javascript\" LANGUAGE=\"JavaScript\""
+            + " SRC=\"/web_resources/themes/perc-web/elqNow/elqImg.js\"></SCRIPT>"
+      };
+}

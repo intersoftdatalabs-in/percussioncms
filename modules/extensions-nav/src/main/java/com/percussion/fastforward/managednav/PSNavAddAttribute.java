@@ -37,40 +37,37 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Adds an attribute to the &lt;Navon&gt; nodes in a Managed Navigation tree.
- * This class references Managed Navigation, but does not depend on the specific
- * implementation.
- * <p>
- * This exit should be added to the assembler resource for the Navigation bars
- * <em>after</em> the call the NavTreeLink extension.
- * <p>
- * There are 4 parameters:
+ * Adds an attribute to the &lt;Navon&gt; nodes in a Managed Navigation tree. This class references
+ * Managed Navigation, but does not depend on the specific implementation.
+ *
+ * <p>This exit should be added to the assembler resource for the Navigation bars <em>after</em> the
+ * call the NavTreeLink extension.
+ *
+ * <p>There are 4 parameters:
+ *
  * <ol>
- * <li>The name of the attribute to add</li>
- * <li>The query resource that returns the attribute</li>
- * <li>The index of the column in the query resource</li>
- * <li>The name of the relative level attribute. Optional. </li>
+ *   <li>The name of the attribute to add
+ *   <li>The query resource that returns the attribute
+ *   <li>The index of the column in the query resource
+ *   <li>The name of the relative level attribute. Optional.
  * </ol>
- * <p>
- * The query resource name must be a name suitable for internal requests.
- * Usually this is just &lt;application name&gt;/&ltquery name&gt;
- * <p>
- * The column index starts at 1. If this column contains a value, it will be
- * converted to text and added to the &lt;Navon&gt; elements. If the value is
- * <code>null</code> no attribute will be added.
- * <p>
- * If a relative level attribute is supplied, all Navon nodes that are
- * descendents of a node where the attribute is set will recieve a relative
- * level attribute. The node where the attribute is set will be level 0, its
- * immediate descendents will be level 1, etc.
- * <p>
- * All nodes in the tree that are ancestors of the <code>self</code> node and
- * the <code>self</code> node will be examined. Siblings, Ancestor-Siblings,
- * Descendents and Other nodes will be ignored.
+ *
+ * <p>The query resource name must be a name suitable for internal requests. Usually this is just
+ * &lt;application name&gt;/&ltquery name&gt;
+ *
+ * <p>The column index starts at 1. If this column contains a value, it will be converted to text
+ * and added to the &lt;Navon&gt; elements. If the value is <code>null</code> no attribute will be
+ * added.
+ *
+ * <p>If a relative level attribute is supplied, all Navon nodes that are descendents of a node
+ * where the attribute is set will recieve a relative level attribute. The node where the attribute
+ * is set will be level 0, its immediate descendents will be level 1, etc.
+ *
+ * <p>All nodes in the tree that are ancestors of the <code>self</code> node and the <code>self
+ * </code> node will be examined. Siblings, Ancestor-Siblings, Descendents and Other nodes will be
+ * ignored.
  *
  * @author DavidBenua
- *
- *
  */
 public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
@@ -91,8 +88,9 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
    * @param params the parameter array.
    * @param request the caller's request context
    * @param resultDoc the Navon assembler's result document.
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -150,47 +148,33 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
   }
 
   /**
-   * Private class to hold the data for this specific request. Using a private
-   * inner class for this allows the use of member variables for request
-   * specific values, and eliminiates the need to pass these values as method
-   * parameters.
-   *
+   * Private class to hold the data for this specific request. Using a private inner class for this
+   * allows the use of member variables for request specific values, and eliminiates the need to
+   * pass these values as method parameters.
    */
   private class Worker {
-    /**
-     * Debug logger for the inner class.
-     */
+    /** Debug logger for the inner class. */
     Logger logger = LogManager.getLogger(Worker.class);
 
-    /**
-     * The callers request context.
-     */
+    /** The callers request context. */
     IPSRequestContext request;
 
     /**
-     * The name of the internal request query which returns the attribute
-     * value for a given Navon document.
+     * The name of the internal request query which returns the attribute value for a given Navon
+     * document.
      */
     String queryName;
 
-    /**
-     * The name of the attribute that will be added to the XML tree.
-     */
+    /** The name of the attribute that will be added to the XML tree. */
     String attributeName;
 
-    /**
-     * The column index within the query.
-     */
+    /** The column index within the query. */
     int index;
 
-    /**
-     * Name of Level attribute (optional)
-     */
+    /** Name of Level attribute (optional) */
     String levelAttributeName = null;
 
-    /**
-     * Flag for whole tree scan
-     */
+    /** Flag for whole tree scan */
     boolean wholeTree = false;
 
     /**
@@ -259,8 +243,8 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
     }
 
     /**
-     * Processes the entire result document. The root node, all ancestor nodes
-     * and the self node will all be processed.
+     * Processes the entire result document. The root node, all ancestor nodes and the self node
+     * will all be processed.
      *
      * @param doc the result document.
      * @throws PSInternalRequestCallException
@@ -282,8 +266,7 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
     }
 
     /**
-     * Walks the selected Navon elements, setting the attribute where
-     * appropriate
+     * Walks the selected Navon elements, setting the attribute where appropriate
      *
      * @param navon the starting (parent) navon.
      * @throws PSInternalRequestCallException
@@ -379,7 +362,6 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
    *
    * @param array the array to log
    * @param title the tile of the block
-   *
    */
   private static String logArray(Object[] array, String title) {
     StringBuilder sb = new StringBuilder();
@@ -407,28 +389,18 @@ public class PSNavAddAttribute extends PSDefaultExtension implements IPSResultDo
     return sb.toString();
   }
 
-  /**
-   * Error message for missing request name
-   */
+  /** Error message for missing request name */
   private static final String MSG_REQUEST_REQUIRED = "The request name is required";
 
-  /**
-   * Error Message for missing attribute name
-   */
+  /** Error Message for missing attribute name */
   private static final String MSG_ATTRIB_REQUIRED = "The attribute name is required";
 
-  /**
-   * Error message for missing column index
-   */
+  /** Error message for missing column index */
   private static final String MSG_INDEX_REQUIRED = "The index value is required";
 
-  /**
-   * Error message for invalid column index
-   */
+  /** Error message for invalid column index */
   private static final String MSG_BAD_INDEX = "The index value must be numeric ";
 
-  /**
-   * Error message for column index out of range
-   */
+  /** Error message for column index out of range */
   private static final String MSG_INDEX_RANGE = "The index value is out of range ";
 }

@@ -24,29 +24,27 @@ import org.w3c.dom.Element;
 
 /**
  * This effect is to get the following behavior:
- * <p>
- * The current item cannot be transitioned to a public state (ContentValid = y
- * or i) unless the item at the other end of this relationship is already in a
- * public state. If the forceTransition parameter is yes, and a transition by
- * the supplied name is found or a default transition to a public state is
- * present, the item will be transitioned to the public state with this item.
- * If the other item cannot be put into a public state, an exception is thrown
- * and the item being processed is not allowed to transition. The effect will
- * return immediately for any context except RS_PRE_WORKFLOW.
+ *
+ * <p>The current item cannot be transitioned to a public state (ContentValid = y or i) unless the
+ * item at the other end of this relationship is already in a public state. If the forceTransition
+ * parameter is yes, and a transition by the supplied name is found or a default transition to a
+ * public state is present, the item will be transitioned to the public state with this item. If the
+ * other item cannot be put into a public state, an exception is thrown and the item being processed
+ * is not allowed to transition. The effect will return immediately for any context except
+ * RS_PRE_WORKFLOW.
+ *
  * <p>This effect takes three parameters as described below:
- * <p>
- * params[0] is a boolean flag (either "yes" or "no" value) that controls
- * whether the item at the other end of the relationship is forced to
- * transition if it is possible. If "no" and the item is already in a public
- * state, the operation will fail.
- * <p>
- * params[1] is the internal name of the transition to use if the owner needs
- * to be transitioned. If not supplied, the first transition with the "default"
- * property (in alpha order) is used.
- * <p>
- * params[2] is the internal name of the transition to use if the dependent
- * needs to be transitioned. If not supplied, the first transition with the
- * "default" property (in alpha order) is used.
+ *
+ * <p>params[0] is a boolean flag (either "yes" or "no" value) that controls whether the item at the
+ * other end of the relationship is forced to transition if it is possible. If "no" and the item is
+ * already in a public state, the operation will fail.
+ *
+ * <p>params[1] is the internal name of the transition to use if the owner needs to be transitioned.
+ * If not supplied, the first transition with the "default" property (in alpha order) is used.
+ *
+ * <p>params[2] is the internal name of the transition to use if the dependent needs to be
+ * transitioned. If not supplied, the first transition with the "default" property (in alpha order)
+ * is used.
  *
  * @author Ram
  * @version 1.0
@@ -54,8 +52,8 @@ import org.w3c.dom.Element;
 public class PSPublishMandatory extends PSPublishUnpublishMandatory {
   /**
    * Returns mode name.
-   * @return the name of the effect mode: "publish",
-   * never <code>null</code>.
+   *
+   * @return the name of the effect mode: "publish", never <code>null</code>.
    */
   protected String getModeName() {
     return MODE_PUBLISH;
@@ -63,9 +61,9 @@ public class PSPublishMandatory extends PSPublishUnpublishMandatory {
 
   /**
    * Determines is the given WF state is a desired state or not.
+   *
    * @param elem element with a WF state, may be <code>null</code>.
-   * @return <code>true</code> if the item is in the desired WF state
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the item is in the desired WF state <code>false</code> otherwise.
    */
   protected boolean isItemInDesiredWFState(Element elem) {
     return (elem != null
@@ -74,24 +72,20 @@ public class PSPublishMandatory extends PSPublishUnpublishMandatory {
   }
 
   /**
-   * This method is used to determine whether the item is
-   * transitioning into a WF state which should trigger
-   * the relationship engine to execute attempt on this
-   * effect. It is up to the derived class to decide if so.
-   * @param request request context mainly for I18n of the message.
-   * @param isCurrentlyPublic <code>true</code> indicates
-   * that the item is in the public state, <code>false</code>
-   * otherwise.
-   * @param isToPublic <code>true</code> indicates that this
-   * item is transitioning into a public state from a non
-   * public state, <code>false</code> otherwise.
-   * @param isToOutOfPublic <code>true</code> indicates that
-   * this item is transitioning out of a public state from
-   * a public state, <code>false</code> otherwise.
-   * @param result result to set, never <code>null</code>.
+   * This method is used to determine whether the item is transitioning into a WF state which should
+   * trigger the relationship engine to execute attempt on this effect. It is up to the derived
+   * class to decide if so.
    *
-   * @return <code>true</code> indicates that the trigger
-   * condition has been met, <code>false</code> otherwise.
+   * @param request request context mainly for I18n of the message.
+   * @param isCurrentlyPublic <code>true</code> indicates that the item is in the public state,
+   *     <code>false</code> otherwise.
+   * @param isToPublic <code>true</code> indicates that this item is transitioning into a public
+   *     state from a non public state, <code>false</code> otherwise.
+   * @param isToOutOfPublic <code>true</code> indicates that this item is transitioning out of a
+   *     public state from a public state, <code>false</code> otherwise.
+   * @param result result to set, never <code>null</code>.
+   * @return <code>true</code> indicates that the trigger condition has been met, <code>false</code>
+   *     otherwise.
    */
   protected boolean isTransitioningIntoTriggerState(
       IPSRequestContext request,

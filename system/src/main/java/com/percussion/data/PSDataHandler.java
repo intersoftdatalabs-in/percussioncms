@@ -56,23 +56,18 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The PSDataHandler abstract class contains support methods used by
- * data request handlers. All data request handlers should extend this
- * class and implement the processRequest method.
+ * The PSDataHandler abstract class contains support methods used by data request handlers. All data
+ * request handlers should extend this class and implement the processRequest method.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalRequestHandler {
-  /**
-   * Logger used to report problems.
-   */
+  /** Logger used to report problems. */
   private static final Logger ms_log = LogManager.getLogger(PSDataHandler.class);
 
-  /**
-   * Message for logging, uses {@link MessageFormat} for output.
-   */
+  /** Message for logging, uses {@link MessageFormat} for output. */
   private static String ms_errorMessage =
       "Application {0}, Dataset {1}, "
           + "Request {2}\nParameters: {3}\nhad the following problem: {4}";
@@ -80,16 +75,12 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   /**
    * Construct a data handler for the specified application.
    *
-   * @param app the application handler managing this data request, never
-   * <code>null</code>.
-   *
-   * @param ds the data set containing the query pipe(s) this
-   * object will handle, never <code>null</code>.
-   *
-   * @throws PSNotFoundException if the definition for an extension in the
-   * dataset cannot be located.
-   * @throws PSExtensionException if there is a problem intializing the
-   * extensions in the dataset.
+   * @param app the application handler managing this data request, never <code>null</code>.
+   * @param ds the data set containing the query pipe(s) this object will handle, never <code>null
+   *     </code>.
+   * @throws PSNotFoundException if the definition for an extension in the dataset cannot be
+   *     located.
+   * @throws PSExtensionException if there is a problem intializing the extensions in the dataset.
    */
   protected PSDataHandler(PSApplicationHandler app, PSDataSet ds)
       throws PSExtensionException, PSNotFoundException {
@@ -126,7 +117,9 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
     throw new UnsupportedOperationException("not yet supported for updates");
   }
 
-  /** @see IPSInternalResultHandler interface for description */
+  /**
+   * @see IPSInternalResultHandler interface for description
+   */
   public ByteArrayOutputStream getMergedResult(PSExecutionData data)
       throws PSInternalRequestCallException,
           PSAuthorizationException,
@@ -143,25 +136,19 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
     return PSExceptionUtils.getMessageForLog((Exception) t);
   }
 
-  /**
-   * Get the data set name this handler is servicing.
-   */
+  /** Get the data set name this handler is servicing. */
   public String getDataSetName() {
     return m_dataSetName;
   }
 
   /**
-   * Run the pre-processing extensions or extensions
-   * associated with this request page. If the
-   * authorization or validation fails, or any processing errors occur,
-   *   *   an exception is thrown. This method should be called prior to calls
-   *   *   to validate() as the pre-processing may make the request valid or invalid.
+   * Run the pre-processing extensions or extensions associated with this request page. If the
+   * authorization or validation fails, or any processing errors occur, * an exception is thrown.
+   * This method should be called prior to calls * to validate() as the pre-processing may make the
+   * request valid or invalid.
    *
-   * @param   data        the request execution context
-   *
-   * @exception  PSErrorException
-   *                                                                      the Error (validation/authorization, etc.)
-   *                                                                      wrapped as an exception
+   * @param data the request execution context
+   * @exception PSErrorException the Error (validation/authorization, etc.) wrapped as an exception
    */
   public void runPreProcessingExtensions(PSExecutionData data) throws PSErrorException {
 
@@ -170,19 +157,16 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Run the pre-processing extensions or extensions
-   * associated with this request page. If the
-   * authorization or validation fails, or any processing errors occur,
-   * an exception is thrown. This method should be called prior to calls
-   * to validate() as the pre-processing may make the request valid or invalid.
+   * Run the pre-processing extensions or extensions associated with this request page. If the
+   * authorization or validation fails, or any processing errors occur, an exception is thrown. This
+   * method should be called prior to calls to validate() as the pre-processing may make the request
+   * valid or invalid.
    *
-   * @param   data        the request execution context.  May not be
-   * <code>null</code>.
-   * @param   extensionRunners an Iterator over <code>zero</code> or more
-   * prepared extensions.  May not be <code>null</code>.
-   *
-   * @throws PSErrorException any Exceptions (validation/authorization, etc.)
-   * wrapped as an ErrorException.
+   * @param data the request execution context. May not be <code>null</code>.
+   * @param extensionRunners an Iterator over <code>zero</code> or more prepared extensions. May not
+   *     be <code>null</code>.
+   * @throws PSErrorException any Exceptions (validation/authorization, etc.) wrapped as an
+   *     ErrorException.
    */
   public void runPreProcessingExtensions(PSExecutionData data, Iterator extensionRunners)
       throws PSErrorException {
@@ -248,22 +232,17 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Run the post-processing extensions or extensions
-   * associated with this request page. If the
-   * authorization or validation fails, or any processing errors occur,
-   * an exception is thrown.
+   * Run the post-processing extensions or extensions associated with this request page. If the
+   * authorization or validation fails, or any processing errors occur, an exception is thrown.
    *
    * @param data The request execution context.
-   * @param doc The document to run the extensions against.  May be
-   * <code>null</code>.
-   *
-   * @return The processed document. If no changes are made, returns the
-   * resultDoc which was passed in.
-   *
-   * @throws PSExtractionException if an error occurs extracting the
-   * required information from the supplied execution data.
-   * @throws PSParameterMismatchException the runtime parameters specified in
-   * a call are incorrect for the usage of that extension.
+   * @param doc The document to run the extensions against. May be <code>null</code>.
+   * @return The processed document. If no changes are made, returns the resultDoc which was passed
+   *     in.
+   * @throws PSExtractionException if an error occurs extracting the required information from the
+   *     supplied execution data.
+   * @throws PSParameterMismatchException the runtime parameters specified in a call are incorrect
+   *     for the usage of that extension.
    * @throws PSExtensionProcessingException if any other errors occur.
    */
   public Document runPostProcessingExtensions(PSExecutionData data, Document doc)
@@ -275,24 +254,19 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Run the post-processing extensions or extensions
-   * associated with this request page. If the
-   * authorization or validation fails, or any processing errors occur,
-   * an exception is thrown.
+   * Run the post-processing extensions or extensions associated with this request page. If the
+   * authorization or validation fails, or any processing errors occur, an exception is thrown.
    *
    * @param data The request execution context.
-   * @param doc The document to run the extensions against.  May be
-   * <code>null</code>.
-   * @param extensionRunners Iterator over <code>zero</code> or more prepared
-   * result document extensions.  May not be <code>null</code>.
-   *
-   * @return The processed document. If no changes are made, returns the
-   * resultDoc which was passed in.
-   *
-   * @throws PSExtractionException if an error occurs extracting the
-   * required information from the supplied execution data.
-   * @throws PSParameterMismatchException the runtime parameters specified in
-   * a call are incorrect for the usage of that extension.
+   * @param doc The document to run the extensions against. May be <code>null</code>.
+   * @param extensionRunners Iterator over <code>zero</code> or more prepared result document
+   *     extensions. May not be <code>null</code>.
+   * @return The processed document. If no changes are made, returns the resultDoc which was passed
+   *     in.
+   * @throws PSExtractionException if an error occurs extracting the required information from the
+   *     supplied execution data.
+   * @throws PSParameterMismatchException the runtime parameters specified in a call are incorrect
+   *     for the usage of that extension.
    * @throws PSExtensionProcessingException if any other errors occur.
    */
   public Document runPostProcessingExtensions(
@@ -317,13 +291,11 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Run the validations associated with this request page. If the
-   * validation fails, an exception is thrown.
+   * Run the validations associated with this request page. If the validation fails, an exception is
+   * thrown.
    *
-   * @param   data        the request execution context
-   *
-   * @exception  PSErrorException
-   *                                                                      the PSValidationError wrapped as an exception
+   * @param data the request execution context
+   * @exception PSErrorException the PSValidationError wrapped as an exception
    */
   public void validate(PSExecutionData data) throws PSErrorException {
     if (m_validationHandler == null) return;
@@ -358,11 +330,10 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Loads and prepares the supplied exits so they can be efficiently
-   * executed at run time. The exits are executed at the beginning of the
-   * request processing. See {@link #loadExtensions(PSApplicationHandler,
-   * PSCollection, String, List) loadExtensions} for a description of the
-   * exceptions. Existing exits are discarded.
+   * Loads and prepares the supplied exits so they can be efficiently executed at run time. The
+   * exits are executed at the beginning of the request processing. See {@link
+   * #loadExtensions(PSApplicationHandler, PSCollection, String, List) loadExtensions} for a
+   * description of the exceptions. Existing exits are discarded.
    *
    * @param exits The set of exits to use as pre-processing exits. If <code>
    *    null</code> or empty, the current exits are cleared.
@@ -376,12 +347,10 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Loads and prepares the supplied exits so they can be efficiently
-   * executed at run time. The exits are executed at the end of the
-   * request processing, after the result doc has been created. See {@link
-   * #loadExtensions(PSApplicationHandler, PSCollection, String, List)
-   * loadExtensions} for a description of the exceptions. Existing exits
-   * are discarded.
+   * Loads and prepares the supplied exits so they can be efficiently executed at run time. The
+   * exits are executed at the end of the request processing, after the result doc has been created.
+   * See {@link #loadExtensions(PSApplicationHandler, PSCollection, String, List) loadExtensions}
+   * for a description of the exceptions. Existing exits are discarded.
    *
    * @param exits The set of exits to use as post-processing exits. If <code>
    *    null</code> or empty, the current exits are cleared.
@@ -395,19 +364,16 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Prepares extension instances for each of the given extension calls
-   * whose extension implements the given class or interface, storing
-   * each prepared extension in the given collection.
+   * Prepares extension instances for each of the given extension calls whose extension implements
+   * the given class or interface, storing each prepared extension in the given collection.
    *
-   * @param extCalls A collection of extension calls. Will not be modified.
-   * Can be <CODE>null</CODE>, in which case this method will do nothing.
-   *
-   * @param interfaceName The fully qualified classname of the interface
-   * that determines which of the referenced extensions will be prepared.
-   * If <CODE>null</CODE>, all referenced extensions will be prepared.
-   *
-   * @param map The Map into which prepared extensions will be put, using
-   * the corresponding PSExtensionRef as a key.
+   * @param extCalls A collection of extension calls. Will not be modified. Can be <CODE>null</CODE>
+   *     , in which case this method will do nothing.
+   * @param interfaceName The fully qualified classname of the interface that determines which of
+   *     the referenced extensions will be prepared. If <CODE>null</CODE>, all referenced extensions
+   *     will be prepared.
+   * @param map The Map into which prepared extensions will be put, using the corresponding
+   *     PSExtensionRef as a key.
    */
   public static void loadExtensions(
       PSApplicationHandler appHandler, PSCollection extCalls, String interfaceName, List instances)
@@ -435,12 +401,9 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
    * Check the internal application security for the specified request.
    *
    * @param request The request context.
-   *
-   * @throws PSAuthorizationException if the user of the specified request
-   *    is not authorized.
-   *
-   * @throws PSAuthenticationFailedException if the user in the specified
-   *    request fails to authenticate.
+   * @throws PSAuthorizationException if the user of the specified request is not authorized.
+   * @throws PSAuthenticationFailedException if the user in the specified request fails to
+   *     authenticate.
    */
   public void checkInternalRequestAuthorization(PSRequest request)
       throws PSAuthorizationException, PSAuthenticationFailedException {
@@ -457,8 +420,7 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Returns the name of the application for which this handler will process
-   * requests.
+   * Returns the name of the application for which this handler will process requests.
    *
    * @return The app name, never <code>null</code> or empty.
    */
@@ -467,10 +429,9 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * Log a problem to the console along with enough information to identify
-   * the request and application being processed. Used by the update and query
-   * handlers to report this information. The developer must examine the
-   * console to obtain the logged info.
+   * Log a problem to the console along with enough information to identify the request and
+   * application being processed. Used by the update and query handlers to report this information.
+   * The developer must examine the console to obtain the logged info.
    *
    * @param request the original request, never <code>null</code>.
    * @param th the throwable, never <code>null</code>.
@@ -518,14 +479,14 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   }
 
   /**
-   * List of prepared extensions to be run against the input data. May be
-   * empty, never <code>null</code>.
+   * List of prepared extensions to be run against the input data. May be empty, never <code>null
+   * </code>.
    */
   protected List m_preparedPreProcExts = new ArrayList(3);
 
   /**
-   * List of prepared extensions to be run against the result doc. May be
-   * empty, never <code>null</code>.
+   * List of prepared extensions to be run against the result doc. May be empty, never <code>null
+   * </code>.
    */
   protected List m_preparedPostProcExts = new ArrayList(3);
 
@@ -535,8 +496,8 @@ public abstract class PSDataHandler implements IPSRequestHandler, IPSInternalReq
   protected PSCollection m_validationRules;
 
   /**
-   * The dataset this handler was initialized with, never <code>null</code> or
-   * modified after construction.
+   * The dataset this handler was initialized with, never <code>null</code> or modified after
+   * construction.
    */
   private PSDataSet m_dataset;
 }

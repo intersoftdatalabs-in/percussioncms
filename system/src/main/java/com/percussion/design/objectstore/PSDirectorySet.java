@@ -28,17 +28,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Collection container for <code>PSReference</code> objects which all
- * reference a <code>PSDirectory</code> object.
+ * Collection container for <code>PSReference</code> objects which all reference a <code>PSDirectory
+ * </code> object.
  */
 public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDirectorySet(Element sourceNode) throws PSUnknownNodeTypeException {
     super(PSReference.class);
@@ -50,11 +48,9 @@ public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Constucts an empty property set.
    *
-   * @param name the name of this property set, see {@link #setName(String)} for
-   *    more information.
-   * @param userAttributeName the attribute name under which users are found
-   *    in this directory set
-   *    more information.
+   * @param name the name of this property set, see {@link #setName(String)} for more information.
+   * @param userAttributeName the attribute name under which users are found in this directory set
+   *     more information.
    */
   public PSDirectorySet(String name, String userAttributeName) {
     super(PSReference.class);
@@ -65,8 +61,8 @@ public class PSDirectorySet extends PSCollectionComponent {
   }
 
   /**
-   * @return the directory set name, never <code>null</code> or empty. This
-   *    name may be used to reference this directory set from other contexts.
+   * @return the directory set name, never <code>null</code> or empty. This name may be used to
+   *     reference this directory set from other contexts.
    */
   public String getName() {
     return m_name;
@@ -75,8 +71,7 @@ public class PSDirectorySet extends PSCollectionComponent {
   /**
    * Set a new directory set name.
    *
-   * @param name the new name for this directory set, not <code>null</code> or
-   *    empty.
+   * @param name the new name for this directory set, not <code>null</code> or empty.
    */
   public void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -155,7 +150,9 @@ public class PSDirectorySet extends PSCollectionComponent {
     m_requiredAttributeNames.put(OBJECT_ATTRIBUTE_KEY, name);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -214,7 +211,9 @@ public class PSDirectorySet extends PSCollectionComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(XML_ATTR_NAME, getName());
@@ -243,7 +242,9 @@ public class PSDirectorySet extends PSCollectionComponent {
     return root;
   }
 
-  /** @see PSCollectionComponent */
+  /**
+   * @see PSCollectionComponent
+   */
   public void copyFrom(PSCollectionComponent c) {
     super.copyFrom(c);
 
@@ -271,11 +272,10 @@ public class PSDirectorySet extends PSCollectionComponent {
   }
 
   /**
-   * Get the directory reference for the supplied name. Names are compared case
-   * sensitive.
+   * Get the directory reference for the supplied name. Names are compared case sensitive.
    *
-   * @param name the directory name, may be <code>null</code> or empty in
-   *    which case this always returns <code>null</code>.
+   * @param name the directory name, may be <code>null</code> or empty in which case this always
+   *     returns <code>null</code>.
    * @return the directory refernence if found, <code>null</code> otherwise.
    */
   public PSReference getDirectoryRef(String name) {
@@ -291,10 +291,9 @@ public class PSDirectorySet extends PSCollectionComponent {
   }
 
   /**
-   * Adds the supplied directory reference. If a directory reference with
-   * the same name as the supplied one exists, it is replaced with the new
-   * directory reference, otherwise it is appendend, the comparison is done
-   * using the directory name in a case-sensitive manner.
+   * Adds the supplied directory reference. If a directory reference with the same name as the
+   * supplied one exists, it is replaced with the new directory reference, otherwise it is
+   * appendend, the comparison is done using the directory name in a case-sensitive manner.
    *
    * @param reference the directory refernece to set, not <code>null</code>.
    */
@@ -308,8 +307,7 @@ public class PSDirectorySet extends PSCollectionComponent {
   }
 
   /**
-   * Overridden to make sure that only references of type
-   * <code>PSDirectory</code> are added.
+   * Overridden to make sure that only references of type <code>PSDirectory</code> are added.
    *
    * @see PSCollection for more details.
    */
@@ -336,38 +334,27 @@ public class PSDirectorySet extends PSCollectionComponent {
   /** The XML node name */
   public static final String XML_NODE_NAME = "PSXDirectorySet";
 
-  /**
-   * The key used to store the object's attribute name.
-   */
+  /** The key used to store the object's attribute name. */
   public static final String OBJECT_ATTRIBUTE_KEY = "objectAttributeName";
 
-  /**
-   * The default object attribute name.
-   */
+  /** The default object attribute name. */
   public static final String DEFAULT_OBJECT_ATTRIBUTE_NAME = "uid";
 
-  /**
-   * The key used to store the email attribute name.
-   */
+  /** The key used to store the email attribute name. */
   public static final String EMAIL_ATTRIBUTE_KEY = "emailAttributeName";
 
-  /**
-   * The key used to store the role attribute name.
-   */
+  /** The key used to store the role attribute name. */
   public static final String ROLE_ATTRIBUTE_KEY = "roleAttributeName";
 
-  /**
-   * An array with key's of all required attribute names.
-   */
+  /** An array with key's of all required attribute names. */
   public static final String[] REQUIRED_ATTRIBUTE_NAMES_ENUM = {
     OBJECT_ATTRIBUTE_KEY, EMAIL_ATTRIBUTE_KEY, ROLE_ATTRIBUTE_KEY
   };
 
   /**
-   * Holds the directory set name. This name must be unique across all defined
-   * directory sets because its used to reference it from other contexts.
-   * Initialized during construction, never <code>null</code> or empty after
-   * that.
+   * Holds the directory set name. This name must be unique across all defined directory sets
+   * because its used to reference it from other contexts. Initialized during construction, never
+   * <code>null</code> or empty after that.
    */
   private String m_name = null;
 

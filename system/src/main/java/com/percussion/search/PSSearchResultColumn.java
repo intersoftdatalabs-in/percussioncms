@@ -27,25 +27,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a column in the {@link com.percussion.search.IPSSearchResultRow}
- * object. The DTD for the XML representation is:
- * <p>
- * &lt;! ELEMENT ResultField (#PCDATA)&gt;
- * &lt;!ATTLIST ResultField
- *  name CDATA #REQUIRED
- *  displayValue CDATA #IMPLIED
- * &gt;
+ * Represents a column in the {@link com.percussion.search.IPSSearchResultRow} object. The DTD for
+ * the XML representation is:
+ *
+ * <p>&lt;! ELEMENT ResultField (#PCDATA)&gt; &lt;!ATTLIST ResultField name CDATA #REQUIRED
+ * displayValue CDATA #IMPLIED &gt;
  */
 public class PSSearchResultColumn {
   /**
    * Ctor that takes name, display value and internal value for a column.
    *
-   * @param name name of the search result column. Must not be
-   *           <code>null</code> or empty.
-   * @param displayValue display value for the column, may be <code>null</code>
-   *           or empty. If <code>null</code>, it is taken as empty string.
-   * @param value inernal value for the column, may be <code>null</code>
-   *           or empty. If <code>null</code>, it is taken as empty string.
+   * @param name name of the search result column. Must not be <code>null</code> or empty.
+   * @param displayValue display value for the column, may be <code>null</code> or empty. If <code>
+   *     null</code>, it is taken as empty string.
+   * @param value inernal value for the column, may be <code>null</code> or empty. If <code>null
+   *     </code>, it is taken as empty string.
    */
   public PSSearchResultColumn(String name, String displayValue, String value) {
     if (name == null || name.length() == 0)
@@ -56,14 +52,11 @@ public class PSSearchResultColumn {
   }
 
   /**
-   * Ctor that takes the XML element. The DTD for the element must be that
-   * outlined in the last description.
+   * Ctor that takes the XML element. The DTD for the element must be that outlined in the last
+   * description.
    *
-   * @param sourceNode source node for the search result column, must not be
-   *           <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the DTD source element does not
-   *            match with the expected.
+   * @param sourceNode source node for the search result column, must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the DTD source element does not match with the expected.
    * @see #fromXml(Element, IPSDocument, ArrayList)
    */
   public PSSearchResultColumn(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -73,10 +66,10 @@ public class PSSearchResultColumn {
   /**
    * Convert the object to its XML representation.
    *
-   * @param doc the parent document for the XML element for the object, must
-   *           not be <code>null</code>.
-   * @return XML element representing the object. See the DTD specified in the
-   *         class description, never <code>null</code>.
+   * @param doc the parent document for the XML element for the object, must not be <code>null
+   *     </code>.
+   * @return XML element representing the object. See the DTD specified in the class description,
+   *     never <code>null</code>.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc must not be null");
@@ -89,12 +82,11 @@ public class PSSearchResultColumn {
   }
 
   /**
-   * Construct the object from XML source element. Look at the DTD for the
-   * element specified in the class description.
+   * Construct the object from XML source element. Look at the DTD for the element specified in the
+   * class description.
    *
    * @param sourceNode source node as per the DTD.
-   * @throws PSUnknownNodeTypeException if DTD does not match with the
-   *            required.
+   * @throws PSUnknownNodeTypeException if DTD does not match with the required.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -149,8 +141,7 @@ public class PSSearchResultColumn {
   /**
    * Get the name of the search field column.
    *
-   * @return the name of the search result column, never <code>null</code> or
-   *         empty.
+   * @return the name of the search result column, never <code>null</code> or empty.
    */
   public String getName() {
     return m_name;
@@ -194,43 +185,40 @@ public class PSSearchResultColumn {
   }
 
   /**
-   * Name of the field initialized in the ctor, never <code>null</code> or
-   * empty after that.
+   * Name of the field initialized in the ctor, never <code>null</code> or empty after that.
    *
    * @see #getName()
    */
   private String m_name = "";
 
   /**
-   * Display value of the field, either initialized in the ctor or by
-   * {@link #setDisplayValue(String)}, may be <code>null</code> or empty.
+   * Display value of the field, either initialized in the ctor or by {@link
+   * #setDisplayValue(String)}, may be <code>null</code> or empty.
    *
    * @see #getDisplayValue()
    */
   private String m_displayValue = "";
 
   /**
-   * Internal value of the field, either initialized in the ctor or by
-   * {@link #setValue(String)}, may be <code>null</code> or empty.
+   * Internal value of the field, either initialized in the ctor or by {@link #setValue(String)},
+   * may be <code>null</code> or empty.
    *
    * @see #getName()
    */
   private String m_value = "";
 
-  /**
-   * Name of the root element in the XMl representation of the object.
-   */
+  /** Name of the root element in the XMl representation of the object. */
   public static final String XML_NODE_NAME = "ResultField";
 
   /**
-   * Name of the attribute of root element for the name of the result column
-   * in the XML representation of the object.
+   * Name of the attribute of root element for the name of the result column in the XML
+   * representation of the object.
    */
   public static final String ATTR_NAME = "name";
 
   /**
-   * Name of the attribute of root element for the display value of the result
-   * column in the XML representation of the object.
+   * Name of the attribute of root element for the display value of the result column in the XML
+   * representation of the object.
    */
   public static final String ATTR_DISPLAY_VALUE = "displayValue";
 }

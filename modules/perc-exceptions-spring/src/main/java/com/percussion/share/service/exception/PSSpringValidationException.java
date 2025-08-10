@@ -27,11 +27,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 /**
- *
  * An adapter to Spring Validation Framework.
  *
  * @author adamgent
- *
  */
 public abstract class PSSpringValidationException extends PSValidationException
     implements Errors, IPSValidationException {

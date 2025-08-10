@@ -48,30 +48,26 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This class contains the know how to implement the necessary processing
- * when operating in the same JVM as the server. It uses internal requests
- * to accomplish its work. All internal requests are performed on behalf of
- * the user specified in the request. Because it is request dependent, it
- * must be set on the proxy for each new request. To enforce this, this class
- * will verify that a particular context is only used for a single request.
- *
+ * This class contains the know how to implement the necessary processing when operating in the same
+ * JVM as the server. It uses internal requests to accomplish its work. All internal requests are
+ * performed on behalf of the user specified in the request. Because it is request dependent, it
+ * must be set on the proxy for each new request. To enforce this, this class will verify that a
+ * particular context is only used for a single request.
  *
  * @todo: add check to prevent accidental use across requests
- *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSLocalProcessor extends PSProcessorCommon {
   /**
-   * Creates a processor that can fulfill database operation requests locally
-   * on the Rhythmyx server for the duration of a single request. Implementors
-   * should not instantiate this class directly but should use the {@link
-   * com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy} class.
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class}
-   * for further details.
+   * Creates a processor that can fulfill database operation requests locally on the Rhythmyx server
+   * for the duration of a single request. Implementors should not instantiate this class directly
+   * but should use the {@link com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy}
+   * class.
    *
-   * @param req Never <code>null</code>. All work is performed as the user
-   *    authenticated in req.
+   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
+   *
+   * @param req Never <code>null</code>. All work is performed as the user authenticated in req.
    */
   public PSLocalProcessor(PSRequest req, Map procConfig) {
     super(procConfig);
@@ -81,15 +77,14 @@ public class PSLocalProcessor extends PSProcessorCommon {
   }
 
   /**
-   * Creates a processor that can fulfill database operation requests locally
-   * on the Rhythmyx server for the duration of a single request. Implementors
-   * should not instantiate this class directly but should use the {@link
-   * com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy} class.
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class}
-   * for further details.
+   * Creates a processor that can fulfill database operation requests locally on the Rhythmyx server
+   * for the duration of a single request. Implementors should not instantiate this class directly
+   * but should use the {@link com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy}
+   * class.
    *
-   * @param ctx Never <code>null</code>. All work is performed as the user
-   *    authenticated in ctx.
+   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
+   *
+   * @param ctx Never <code>null</code>. All work is performed as the user authenticated in ctx.
    */
   public PSLocalProcessor(IPSRequestContext ctx, Map procConfig) {
     super(procConfig);
@@ -102,11 +97,10 @@ public class PSLocalProcessor extends PSProcessorCommon {
 
   /**
    * See base class for details.
-   * <li>For each entry in ids, create N html parameters whose name is the name
-   *    of the entry key. The value of each instance should be the value of
-   *    one of the entries in the associated collection.</li>
-   * <li>Generate an internal request to the resource specified in
-   *    loadResource.</li>
+   * <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
+   *     The value of each instance should be the value of one of the entries in the associated
+   *     collection.
+   * <li>Generate an internal request to the resource specified in loadResource.
    */
   protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
     if (resourceName == null || resourceName.trim().length() < 1)
@@ -205,17 +199,11 @@ public class PSLocalProcessor extends PSProcessorCommon {
   /**
    * Gets the request handler for the specified resource.
    *
-   * @param resourceName  The name of the handler, in the format app/resource.
-   *    Assumed not <code>null</code>.
-   *
-   * @param params Extra html params to use for the request, may be
-   *    <code>null</code>.
-   *
-   * @param input If not <code>null</code>, set as the input document on the
-   *    request.
-   *
+   * @param resourceName The name of the handler, in the format app/resource. Assumed not <code>null
+   *     </code>.
+   * @param params Extra html params to use for the request, may be <code>null</code>.
+   * @param input If not <code>null</code>, set as the input document on the request.
    * @return Never <code>null</code>.
-   *
    * @throws PSCmsException If the handler can't be found.
    */
   private PSInternalRequest getRequest(String resourceName, Map params, Document input)
@@ -272,14 +260,11 @@ public class PSLocalProcessor extends PSProcessorCommon {
 
   /**
    * Either this member or m_ctx will be valid and the other <code>null
-   * </code>. It is set in the ctor, then never changed after that.
-   * Used when generating requests. All requests are performed on behalf
-   * of the authenticated user associated with this request.
+   * </code>. It is set in the ctor, then never changed after that. Used when generating requests.
+   * All requests are performed on behalf of the authenticated user associated with this request.
    */
   private PSRequest m_req = null;
 
-  /**
-   * See {@link #m_req} for details.
-   */
+  /** See {@link #m_req} for details. */
   private IPSRequestContext m_ctx = null;
 }

@@ -22,8 +22,8 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * See base class for description. Represents a property of a given
- * {@link com.percussion.cms.objectstore.PSSearch}.
+ * See base class for description. Represents a property of a given {@link
+ * com.percussion.cms.objectstore.PSSearch}.
  */
 public class PSSearchMultiProperty extends PSMultiValuedProperty {
   /**
@@ -34,14 +34,10 @@ public class PSSearchMultiProperty extends PSMultiValuedProperty {
     super(src);
   }
 
-  /**
-   * no args constructor for xstream
-   */
+  /** no args constructor for xstream */
   public PSSearchMultiProperty() {}
 
-  /**
-   * Convienve ctor to specify property name.
-   */
+  /** Convienve ctor to specify property name. */
   public PSSearchMultiProperty(String strName) {
     super(PSSProperty.class, strName);
   }

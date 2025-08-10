@@ -28,8 +28,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 /**
- * Map an input value using a map of name value pairs. The passed value is
- * matched against the values, and the matching key returned. <table>
+ * Map an input value using a map of name value pairs. The passed value is matched against the
+ * values, and the matching key returned.
+ *
+ * <table>
  * <tr>
  * <th>Param</th>
  * <th>Type</th>
@@ -48,7 +50,6 @@ import java.net.URLDecoder;
  * </table>
  *
  * @author dougrand
- *
  */
 public class PSMapOutputValue implements IPSFieldOutputTransformer {
 

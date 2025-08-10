@@ -31,19 +31,15 @@ import java.util.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Descriptor used to run an export job to create a deployment archive.
- */
+/** Descriptor used to run an export job to create a deployment archive. */
 public class PSExportDescriptor extends PSDescriptor {
   /**
-   * Construct this descriptor, specifying its name. The archive type is set
-   * to <code>ARCHIVE_TYPE_NORMAL</code>.
+   * Construct this descriptor, specifying its name. The archive type is set to <code>
+   * ARCHIVE_TYPE_NORMAL</code>.
    *
-   * @param name The name of this descriptor, used to identify it on the
-   * server, may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>name</code> is
-   * <code>null</code>.
+   * @param name The name of this descriptor, used to identify it on the server, may not be <code>
+   *     null</code> or empty.
+   * @throws IllegalArgumentException if <code>name</code> is <code>null</code>.
    */
   public PSExportDescriptor(String name) {
     this(name, ARCHIVE_TYPE_NORMAL);
@@ -52,16 +48,13 @@ public class PSExportDescriptor extends PSDescriptor {
   /**
    * Construct this descriptor, specifying its name and type.
    *
-   * @param name The name of this descriptor, used to identify it on the
-   * server, may not be <code>null</code> or empty.
-   * @param archiveType the type of archive that will be created using this
-   * descriptor, valid values are
-   * <code>ARCHIVE_TYPE_NORMAL</code> or
-   * <code>ARCHIVE_TYPE_SAMPLE</code> or
-   * <code>ARCHIVE_TYPE_SUPPORT</code>
-   *
-   * @throws IllegalArgumentException if <code>name</code> is
-   * <code>null</code> or archiveType is invalid.
+   * @param name The name of this descriptor, used to identify it on the server, may not be <code>
+   *     null</code> or empty.
+   * @param archiveType the type of archive that will be created using this descriptor, valid values
+   *     are <code>ARCHIVE_TYPE_NORMAL</code> or <code>ARCHIVE_TYPE_SAMPLE</code> or <code>
+   *     ARCHIVE_TYPE_SUPPORT</code>
+   * @throws IllegalArgumentException if <code>name</code> is <code>null</code> or archiveType is
+   *     invalid.
    */
   public PSExportDescriptor(String name, int archiveType) {
     super(name);
@@ -72,14 +65,13 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Construct this object from its XML representation.  See
-   * {@link #toXml(Document)} for the format expected.
+   * Construct this object from its XML representation. See {@link #toXml(Document)} for the format
+   * expected.
    *
    * @param src The source XML element, may not be <code>null</code>.
-   * @param readShortDesc, read the short description, donot actually read
-   * the entire PSXExportDescriptor. This can be used by PSCatalogHandler's
-   * catalogDescriptors, where it **JUST** needs the PSDescriptor element
-   *
+   * @param readShortDesc, read the short description, donot actually read the entire
+   *     PSXExportDescriptor. This can be used by PSCatalogHandler's catalogDescriptors, where it
+   *     **JUST** needs the PSDescriptor element
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -101,11 +93,10 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Construct this object from its XML representation.  See
-   * {@link #toXml(Document)} for the format expected.
+   * Construct this object from its XML representation. See {@link #toXml(Document)} for the format
+   * expected.
    *
    * @param src The source XML element, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -118,31 +109,26 @@ public class PSExportDescriptor extends PSDescriptor {
   /**
    * Returns the type of archive that will be created using this descriptor.
    *
-   * @return the type of archive that will be created using this descriptor,
-   * should be one of the following values:
-   * <code>ARCHIVE_TYPE_NORMAL</code> or
-   * <code>ARCHIVE_TYPE_SAMPLE</code> or
-   * <code>ARCHIVE_TYPE_SUPPORT</code>
+   * @return the type of archive that will be created using this descriptor, should be one of the
+   *     following values: <code>ARCHIVE_TYPE_NORMAL</code> or <code>ARCHIVE_TYPE_SAMPLE</code> or
+   *     <code>ARCHIVE_TYPE_SUPPORT</code>
    */
   public int getArchiveType() {
     return m_archiveType;
   }
 
   /**
-   * Sets the list of packages and their dependencies that will be added to an
-   * archive created from this descriptor.  Replaces any previous list of
-   * packages contained in this descriptor.
+   * Sets the list of packages and their dependencies that will be added to an archive created from
+   * this descriptor. Replaces any previous list of packages contained in this descriptor.
    *
-   * @param packages Iterator over one or more <code>PSDeployableElement</code>
-   * objects, in the order in which they should be added to the archive, may
-   * not be <code>null</code>.  For each element, <code>isIncluded()</code>
-   * must either return <code>true</code>, or else
-   * <code>canBeIncludedExcluded()</code> must return <code>true</code>.
-   * <code>setIsIncluded(true)</code> will be called on each element that is
-   * not included to ensure it is set to be included.
-   *
-   * @throws IllegalArgumentException if <code>packages</code> is
-   * <code>null</code> or contains an invalid entry.
+   * @param packages Iterator over one or more <code>PSDeployableElement</code> objects, in the
+   *     order in which they should be added to the archive, may not be <code>null</code>. For each
+   *     element, <code>isIncluded()</code> must either return <code>true</code>, or else <code>
+   *     canBeIncludedExcluded()</code> must return <code>true</code>. <code>setIsIncluded(true)
+   *     </code> will be called on each element that is not included to ensure it is set to be
+   *     included.
+   * @throws IllegalArgumentException if <code>packages</code> is <code>null</code> or contains an
+   *     invalid entry.
    */
   public void setPackages(Iterator<PSDeployableElement> packages) {
     if (packages == null) {
@@ -166,8 +152,7 @@ public class PSExportDescriptor extends PSDescriptor {
   /**
    * Get the packages defined by this descriptor.
    *
-   * @return An iterator over zero or more <code>PSDeployableElement</code>
-   * objects.
+   * @return An iterator over zero or more <code>PSDeployableElement</code> objects.
    */
   public Iterator<PSDeployableElement> getPackages() {
     return m_packages.iterator();
@@ -176,11 +161,10 @@ public class PSExportDescriptor extends PSDescriptor {
   /**
    * Get the package defined by this descriptor using the supplied key.
    *
-   * @param pkgKey The unique dependency key of the package to get, may not
-   * be <code>null</code> or empty.
-   *
-   * @return The package, or <code>null</code> if the specified package is not
-   * defined by this descriptor.
+   * @param pkgKey The unique dependency key of the package to get, may not be <code>null</code> or
+   *     empty.
+   * @return The package, or <code>null</code> if the specified package is not defined by this
+   *     descriptor.
    */
   public PSDeployableElement getPackage(String pkgKey) {
     if (pkgKey == null || pkgKey.isBlank()) {
@@ -190,24 +174,20 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Gets the set of dependency keys that should not be added to the exported
-   * archive, if any.
+   * Gets the set of dependency keys that should not be added to the exported archive, if any.
    *
-   * @return A set of strings representing the keys of dependencies that should
-   * not be added to the exported archive, or <code>null</code> if no such set
-   * is defined.
+   * @return A set of strings representing the keys of dependencies that should not be added to the
+   *     exported archive, or <code>null</code> if no such set is defined.
    */
   public Set getDepKeysToExclude() {
     return m_depKeysToExclude;
   }
 
   /**
-   * Sets the set of dependencies that should not be added to the exported
-   * archive.
+   * Sets the set of dependencies that should not be added to the exported archive.
    *
-   * @param depKeys An iterator of Strings, each representing the key of
-   * a dependency that should not be added to the exported archive.  May not
-   * be <code>null</code>, but may be empty.
+   * @param depKeys An iterator of Strings, each representing the key of a dependency that should
+   *     not be added to the exported archive. May not be <code>null</code>, but may be empty.
    */
   public void setDepKeysToExclude(Iterator<String> depKeys) {
     if (depKeys == null) {
@@ -218,25 +198,21 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Gets the names packages whose dependencies have changed since this
-   * descriptor was last saved.
+   * Gets the names packages whose dependencies have changed since this descriptor was last saved.
    *
-   * @return Iterator over zero or more package names as <code>String</code>
-   * objects.
+   * @return Iterator over zero or more package names as <code>String</code> objects.
    */
   public Iterator getModifiedPackages() {
     return m_modifiedPackageNames.iterator();
   }
 
   /**
-   * Sets the names of the packages whose dependencies have changed since this
-   * descriptor was last saved.  Replaces any previous list.
+   * Sets the names of the packages whose dependencies have changed since this descriptor was last
+   * saved. Replaces any previous list.
    *
-   * @names Iterator over zero or more package names as <code>String</code>
-   * objects. May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>names</code> is
-   * <code>null</code>.
+   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void setModifiedPackages(Iterator<String> names) {
     if (names == null) {
@@ -249,22 +225,19 @@ public class PSExportDescriptor extends PSDescriptor {
   /**
    * Gets the names of the packages whose dependencies cannot be located
    *
-   * @return Iterator over zero or more package names as <code>String</code>
-   * objects.
+   * @return Iterator over zero or more package names as <code>String</code> objects.
    */
   public Iterator getMissingPackages() {
     return m_missingPackageNames.iterator();
   }
 
   /**
-   * Sets the names of the packages whose dependencies cannot be located.
-   * Replaces any previous list.
+   * Sets the names of the packages whose dependencies cannot be located. Replaces any previous
+   * list.
    *
-   * @names Iterator over zero or more package names as <code>String</code>
-   * objects.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>names</code> is
-   * <code>null</code>.
+   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void setMissingPackages(Iterator names) {
     if (names == null) throw new IllegalArgumentException("names may not be null");
@@ -274,14 +247,12 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Adds the names of the packages whose dependencies cannot be located.
-   * Appends to any previous list.
+   * Adds the names of the packages whose dependencies cannot be located. Appends to any previous
+   * list.
    *
-   * @names Iterator over zero or more package names as <code>String</code>
-   * objects.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>names</code> is
-   * <code>null</code>.
+   * @names Iterator over zero or more package names as <code>String</code> objects. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>names</code> is <code>null</code>.
    */
   public void addMissingPackages(Iterator<String> names) {
     if (names == null) {
@@ -290,15 +261,14 @@ public class PSExportDescriptor extends PSDescriptor {
     names.forEachRemaining(name -> m_missingPackageNames.add(name.toString()));
   }
 
-  /**
-   * Clears the list of the packages whose dependencies cannot be located.
-   */
+  /** Clears the list of the packages whose dependencies cannot be located. */
   public void clearMissingPackages() {
     m_missingPackageNames.clear();
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXExportDescriptor (PSXDescriptor, Packages,
    *    MissingPackages, ModifiedPackages)>
@@ -342,9 +312,8 @@ public class PSExportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -480,14 +449,10 @@ public class PSExportDescriptor extends PSDescriptor {
         m_depKeysToExclude);
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXExportDescriptor";
 
-  /**
-   * constants to identify the type of archives - normal, sample or support
-   */
+  /** constants to identify the type of archives - normal, sample or support */
   public static final int ARCHIVE_TYPE_NORMAL = 0;
 
   public static final int ARCHIVE_TYPE_SAMPLE = 1;
@@ -495,41 +460,36 @@ public class PSExportDescriptor extends PSDescriptor {
   public static final String[] ARCHIVE_TYPE_ENUM = {"normal", "sample", "support"};
 
   /**
-   * Stores the type of archive which will be created using this descriptor,
-   * valid values are :
-   * <code>ARCHIVE_TYPE_NORMAL</code> or
-   * <code>ARCHIVE_TYPE_SAMPLE</code> or
-   * <code>ARCHIVE_TYPE_SUPPORT</code>
-   * Defaults to <code>ARCHIVE_TYPE_NORMAL</code>.
+   * Stores the type of archive which will be created using this descriptor, valid values are :
+   * <code>ARCHIVE_TYPE_NORMAL</code> or <code>ARCHIVE_TYPE_SAMPLE</code> or <code>
+   * ARCHIVE_TYPE_SUPPORT</code> Defaults to <code>ARCHIVE_TYPE_NORMAL</code>.
    */
   private int m_archiveType = ARCHIVE_TYPE_NORMAL;
 
   /**
-   * List of packages contained in this descriptor.  Never <code>null</code>,
-   * may be empty and may be modified at any time by a call to
-   * <code>setPackages()</code>.
+   * List of packages contained in this descriptor. Never <code>null</code>, may be empty and may be
+   * modified at any time by a call to <code>setPackages()</code>.
    */
   private List<PSDeployableElement> m_packages = new ArrayList<>();
 
   /**
-   * List of names of packages that have been modified since this descriptor
-   * was last saved.  Never <code>null</code>, may be empty and may be modified
-   * at any time by a call to <code>setModifiedPackages()</code>.
+   * List of names of packages that have been modified since this descriptor was last saved. Never
+   * <code>null</code>, may be empty and may be modified at any time by a call to <code>
+   * setModifiedPackages()</code>.
    */
   private List m_modifiedPackageNames = new ArrayList();
 
   /**
-   * List of names of packages whose underlying object has been deleted since
-   * this descriptor was last saved.  Never <code>null</code>, may be empty and
-   * may be modified at any time by a call to
+   * List of names of packages whose underlying object has been deleted since this descriptor was
+   * last saved. Never <code>null</code>, may be empty and may be modified at any time by a call to
    * <code>setMissingPackages()</code>.
    */
   private List m_missingPackageNames = new ArrayList();
 
   /**
-   * Set of dependencies that should not be added in the exported archive.
-   * Never <code>null</code> but frequently empty,  as dependencies only need to be filtered
-   * in special circumstances.  Modified by calling setter.
+   * Set of dependencies that should not be added in the exported archive. Never <code>null</code>
+   * but frequently empty, as dependencies only need to be filtered in special circumstances.
+   * Modified by calling setter.
    */
   private Set m_depKeysToExclude = new HashSet();
 

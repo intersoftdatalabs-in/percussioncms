@@ -18,37 +18,33 @@ package com.percussion.rx.config.impl.spring;
 
 import com.percussion.rx.config.IPSBeanProperties;
 import com.percussion.rx.config.PSBeanPropertiesLocator;
+import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
-import java.util.Properties;
-
 /**
- * This class uses {@link PropertyPlaceholderConfigurer} to attempt to resolve
- * a given place-holder 1st, then attempt to resolve the place-holder from
- * the instance of {@link IPSBeanProperties} if it cannot be resolved by
- * its super class.
+ * This class uses {@link PropertyPlaceholderConfigurer} to attempt to resolve a given place-holder
+ * 1st, then attempt to resolve the place-holder from the instance of {@link IPSBeanProperties} if
+ * it cannot be resolved by its super class.
  *
  * @author YuBingChen
  */
 public class PSPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
-    @Override
-    protected String resolvePlaceholder(String placeholder, Properties props) {
-        var value = super.resolvePlaceholder(placeholder, props);
-        if (value != null) {
-            return value;
-        }
-        var pMgr = PSBeanPropertiesLocator.getBeanProperties();
-        var v = pMgr.getString(placeholder);
-        if (v == null) {
-            ms_log.warn("Cannot replace placeholder: \"{}\".", placeholder);
-        }
-        return v;
+  @Override
+  protected String resolvePlaceholder(String placeholder, Properties props) {
+    var value = super.resolvePlaceholder(placeholder, props);
+    if (value != null) {
+      return value;
     }
+    var pMgr = PSBeanPropertiesLocator.getBeanProperties();
+    var v = pMgr.getString(placeholder);
+    if (v == null) {
+      ms_log.warn("Cannot replace placeholder: \"{}\".", placeholder);
+    }
+    return v;
+  }
 
-    /**
-     * Logger for this class.
-     */
-    private static final Logger ms_log = LogManager.getLogger("PSPropertyPlaceholderConfigurer");
+  /** Logger for this class. */
+  private static final Logger ms_log = LogManager.getLogger("PSPropertyPlaceholderConfigurer");
 }

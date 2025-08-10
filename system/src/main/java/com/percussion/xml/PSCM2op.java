@@ -21,8 +21,8 @@ import org.apache.xerces.impl.dtd.models.CMBinOp;
 import org.apache.xerces.impl.dtd.models.CMNode;
 
 /**
- * PSCM2op provides content model support for content model nodes that contain
- * the "|", or "," language primitives.
+ * PSCM2op provides content model support for content model nodes that contain the "|", or ","
+ * language primitives.
  */
 public class PSCM2op extends CMBinOp {
   /**
@@ -45,9 +45,9 @@ public class PSCM2op extends CMBinOp {
 
   /**
    * Returns the language primitive associated with this content model node.
-   * @return one of these values:
-   * org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_CHOICE or
-   * org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_SEQ
+   *
+   * @return one of these values: org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_CHOICE
+   *     or org.apache.xerces.impl.dtd.XMLContentSpec.CONTENTSPECNODE_SEQ
    */
   public int getType() {
     return super.type();
@@ -55,8 +55,9 @@ public class PSCM2op extends CMBinOp {
 
   /**
    * Returns the content model node prior to the separator type.
-   * @return the content model node prior to the separator type,
-   * or <code>null</code> if no node currently exists.
+   *
+   * @return the content model node prior to the separator type, or <code>null</code> if no node
+   *     currently exists.
    */
   public CMNode getLeft() {
     return m_leftChild;
@@ -64,17 +65,15 @@ public class PSCM2op extends CMBinOp {
 
   /**
    * Returns the content model node after the separator type.
-   * @return the content model node after the separator type,
-   * or <code>null</code> if no node currently exists.
+   *
+   * @return the content model node after the separator type, or <code>null</code> if no node
+   *     currently exists.
    */
   public CMNode getRight() {
     return m_rightChild;
   }
 
-  /**
-   * These are the references to the two nodes that are on either
-   * side of this binary operation.
-   */
+  /** These are the references to the two nodes that are on either side of this binary operation. */
   protected CMNode m_leftChild = null;
 
   protected CMNode m_rightChild = null;

@@ -28,23 +28,18 @@ import java.sql.Statement;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to fix up the NEXTNUMBER table for locales.
- * Fix-up will involve the following steps:
+ * This plugin has been written to fix up the NEXTNUMBER table for locales. Fix-up will involve the
+ * following steps:
  *
- * 1. Check largest locale id and ensure that the next NEXTNUMBER locale id is
- *    larger than this value.  This includes adding an entry in the NEXTNUMBER
- *    table for locale id if one does not exist.
- *
+ * <p>1. Check largest locale id and ensure that the next NEXTNUMBER locale id is larger than this
+ * value. This includes adding an entry in the NEXTNUMBER table for locale id if one does not exist.
  */
 public class PSUpgradePluginNextNumberFixup implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginNextNumberFixup() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin.  Performs the tasks
-   * described above.
+   * Implements the process function of IPSUpgradePlugin. Performs the tasks described above.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -93,9 +88,8 @@ public class PSUpgradePluginNextNumberFixup implements IPSUpgradePlugin {
   }
 
   /**
-   * Helper function to update the NEXTNUMBER table for localeid if necessary.
-   * It will check the largest localeid and ensure that the nextnumber for
-   * localeid is greater than this value.
+   * Helper function to update the NEXTNUMBER table for localeid if necessary. It will check the
+   * largest localeid and ensure that the nextnumber for localeid is greater than this value.
    */
   private static void updateLocaleNextNumber() throws Exception {
     Connection conn = RxUpgrade.getJdbcConnection();
@@ -173,8 +167,7 @@ public class PSUpgradePluginNextNumberFixup implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

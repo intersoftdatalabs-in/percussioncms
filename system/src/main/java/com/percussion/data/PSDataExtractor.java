@@ -21,13 +21,13 @@ import com.percussion.design.objectstore.IPSReplacementValue;
 import java.util.Objects;
 
 /**
- * The PSDataExtractor abstract class can be extended by classes wanting
- * to extend the IPSDataExtractor interface. This is not required. At this
- * time, only getSource is implemented in this class.
+ * The PSDataExtractor abstract class can be extended by classes wanting to extend the
+ * IPSDataExtractor interface. This is not required. At this time, only getSource is implemented in
+ * this class.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSDataExtractor implements IPSDataExtractor {
   /**
@@ -52,8 +52,7 @@ public abstract class PSDataExtractor implements IPSDataExtractor {
   }
 
   /**
-   * Get the source IPSReplacementValue objects used to create this
-   * extractor.
+   * Get the source IPSReplacementValue objects used to create this extractor.
    *
    * @return the source objects, never {@code null}
    */
@@ -64,8 +63,7 @@ public abstract class PSDataExtractor implements IPSDataExtractor {
   /**
    * Gets the first IPSReplacementValue object used to create this extractor.
    *
-   * @return the first IPSReplacementValue object, may be {@code null} if
-   *         the source array is empty
+   * @return the first IPSReplacementValue object, may be {@code null} if the source array is empty
    */
   public IPSReplacementValue getSingleSource() {
     if (m_sourceReplacementValues.length == 0) {
@@ -75,8 +73,6 @@ public abstract class PSDataExtractor implements IPSDataExtractor {
     return m_sourceReplacementValues[0];
   }
 
-  /**
-   * The source replacement values, never {@code null} after construction.
-   */
+  /** The source replacement values, never {@code null} after construction. */
   protected final IPSReplacementValue[] m_sourceReplacementValues;
 }

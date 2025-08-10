@@ -24,28 +24,22 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * The primary key for {@link PSRelationshipPropertyData} object. This is
- * needed for the persistent service layer.
+ * The primary key for {@link PSRelationshipPropertyData} object. This is needed for the persistent
+ * service layer.
  */
 @Embeddable
 public class PSRelationshipPropertyDataPk implements Serializable {
-  /**
-   * The relationship (or parent) id.
-   */
+  /** The relationship (or parent) id. */
   @Basic
   @Column(name = "RID")
   private int m_rid;
 
-  /**
-   * The name of the property, never <code>null</code>
-   */
+  /** The name of the property, never <code>null</code> */
   @Basic
   @Column(name = "PROPERTYNAME")
   private String m_propertyName;
 
-  /**
-   * Default ctor, needed by the services of the persistent layer.
-   */
+  /** Default ctor, needed by the services of the persistent layer. */
   private PSRelationshipPropertyDataPk() {
     // Empty
   }

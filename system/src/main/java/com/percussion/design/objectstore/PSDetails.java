@@ -22,19 +22,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * This class represents the Details element of the sys_ContentEditor.dtd.
- *
- */
+/** This class represents the Details element of the sys_ContentEditor.dtd. */
 public class PSDetails {
   /**
    * Ctor
    *
-   * @param sourceNode The xml element that represents the Details element.
-   *           Expects the element as per the following DTD
-   *           &lt;!ELEMENT Details (FieldError+)&gt;
-   * @throws PSUnknownNodeTypeException If the supplied source xml does not
-   *            confirm to the above mentioned DTD.
+   * @param sourceNode The xml element that represents the Details element. Expects the element as
+   *     per the following DTD &lt;!ELEMENT Details (FieldError+)&gt;
+   * @throws PSUnknownNodeTypeException If the supplied source xml does not confirm to the above
+   *     mentioned DTD.
    */
   public PSDetails(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode must not be null");
@@ -60,6 +56,7 @@ public class PSDetails {
 
   /**
    * Converts the object to xml.
+   *
    * @param doc The parent doc for this element, must not be <code>null</code>.
    * @return Element representing the this class object.
    */
@@ -74,6 +71,7 @@ public class PSDetails {
 
   /**
    * Gets the list of PSFieldError objects never <code>null</code> may be empty.
+   *
    * @return List<PSFieldError> objects.
    */
   public List<PSFieldError> getFieldErrors() {
@@ -81,13 +79,11 @@ public class PSDetails {
   }
 
   /**
-   * Represents the list of the FieldError elements from the sourceNode.
-   * Initialized in ctor, may be empty but never <code>null</code> afetr that.
+   * Represents the list of the FieldError elements from the sourceNode. Initialized in ctor, may be
+   * empty but never <code>null</code> afetr that.
    */
   private List<PSFieldError> m_fieldErrors;
 
-  /**
-   * XML element node name for the root element of this class.
-   */
+  /** XML element node name for the root element of this class. */
   public static final String XML_NODE_NAME = "Details";
 }

@@ -48,47 +48,35 @@ import java.util.List;
 import oracle.jdbc.OracleTypes;
 
 /**
- * The PSOracleUpdateStatement class is the super-class for Oracle-specific
- * update logic (currently updates containing LOBs).  The statement is
- * built from the PSUpdatePipe definitions. When a request is received,
- * the statement can built from the request data and executed with it.
+ * The PSOracleUpdateStatement class is the super-class for Oracle-specific update logic (currently
+ * updates containing LOBs). The statement is built from the PSUpdatePipe definitions. When a
+ * request is received, the statement can built from the request data and executed with it.
  *
- * Note:  This class is extended from PSStatement directly, and not from
- * PSUpdateStatement, as it needs to be a statement which is built at
- * execution time, and not built statically and prepared, as PSUpdateStatement
- * does.
+ * <p>Note: This class is extended from PSStatement directly, and not from PSUpdateStatement, as it
+ * needs to be a statement which is built at execution time, and not built statically and prepared,
+ * as PSUpdateStatement does.
  *
- * @see        PSOracleUpdateBuilder
- *
+ * @see PSOracleUpdateBuilder
  */
 public class PSOracleUpdateStatement extends PSUpdateStatement {
   /**
-   * Construct a LOB based update or insert statement which can be executed
-   * as part of the update execution plan. This constructor must construct a
-   * statement which can be built on the fly, so that oracle-specific
-   * blob initialization functions can be added to the statement as
-   * needed at runtime.  The lob update will be generated based on
-   * the return from the initial insert (a callable statement returning
-   * ROWID) or the initial update(s) (updates executed from a set of rowids
-   * returned from a query of the keys) and the value of each LOB columns
-   * defined for this update.
+   * Construct a LOB based update or insert statement which can be executed as part of the update
+   * execution plan. This constructor must construct a statement which can be built on the fly, so
+   * that oracle-specific blob initialization functions can be added to the statement as needed at
+   * runtime. The lob update will be generated based on the return from the initial insert (a
+   * callable statement returning ROWID) or the initial update(s) (updates executed from a set of
+   * rowids returned from a query of the keys) and the value of each LOB columns defined for this
+   * update.
    *
-   * @param   connKey          the connection key to use to get the db conn
-   *
-   * @param   updateBlocks     the statement blocks for the initial update
-   *                           or insert
-   *
-   * @param   lobUpdateBlocks  the statement blocks for LOB updates based on
-   *                           oracle rowid, never <code>null</code>
-   *
-   * @param   rowIdQueryBlocks the statement blocks for rowid retrieval
-   *                           (TYPE_UPDATE only, ignored otherwise)
-   *
-   * @param   type             the TYPE_xxx statement type,but never TYPE_DELETE,
-   *                           as this is handled by a PSUpdateStatement
-   *
-   * @throws PSDataExtractionException   If a data extraction exception occurs.
-   *
+   * @param connKey the connection key to use to get the db conn
+   * @param updateBlocks the statement blocks for the initial update or insert
+   * @param lobUpdateBlocks the statement blocks for LOB updates based on oracle rowid, never <code>
+   *     null</code>
+   * @param rowIdQueryBlocks the statement blocks for rowid retrieval (TYPE_UPDATE only, ignored
+   *     otherwise)
+   * @param type the TYPE_xxx statement type,but never TYPE_DELETE, as this is handled by a
+   *     PSUpdateStatement
+   * @throws PSDataExtractionException If a data extraction exception occurs.
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   public PSOracleUpdateStatement(
@@ -143,35 +131,35 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statement as a step in the execution
-   * plan. A count of the rows affected will be tallied as updates (or
-   * an insert) are made. The resulting count will be added to the
-   * execution data.  Any Oracle JDBC extensions for LOB routines will
-   * be utilized by this method.
+   * Execute the data modification statement as a step in the execution plan. A count of the rows
+   * affected will be tallied as updates (or an insert) are made. The resulting count will be added
+   * to the execution data. Any Oracle JDBC extensions for LOB routines will be utilized by this
+   * method.
    *
-   * <p>Algorithm for insert:</p>
-   * <p>1) Execute insert (callable statement) which initializes all LOB
-   * columns and inserts all non-LOB values and returns a ROWID</p>
-   * <p>2) Execute LOB update, this is a query based on the ROWID which can
-   * then be used to directly update the LOB values</p>
-   * <p>Algorithm for update:</p>
-   * <p>Execute initial ROWID query</p>
-   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; For each ROWID:</p>
-   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perform
-   * initial update with non-LOB values and LOB initializers</p>
-   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perform
-   * LOB update, this is a query based on the ROWID which can be used to
-   * directly update the LOB values</p>
-   * @param   data     the execution data associated with this plan
+   * <p>Algorithm for insert:
    *
-   * @throws   SQLException
-   *                     if a SQL error occurs
+   * <p>1) Execute insert (callable statement) which initializes all LOB columns and inserts all
+   * non-LOB values and returns a ROWID
    *
-   * @throws   PSDataExtractionException
-   *                     if a data extraction error occurs
+   * <p>2) Execute LOB update, this is a query based on the ROWID which can then be used to directly
+   * update the LOB values
    *
-   * @throws   PSErrorException
-   *                     if an error exception occurs
+   * <p>Algorithm for update:
+   *
+   * <p>Execute initial ROWID query
+   *
+   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; For each ROWID:
+   *
+   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perform initial update with
+   * non-LOB values and LOB initializers
+   *
+   * <p>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; perform LOB update, this is a
+   * query based on the ROWID which can be used to directly update the LOB values
+   *
+   * @param data the execution data associated with this plan
+   * @throws SQLException if a SQL error occurs
+   * @throws PSDataExtractionException if a data extraction error occurs
+   * @throws PSErrorException if an error exception occurs
    */
   public void execute(PSExecutionData data)
       throws SQLException, PSDataExtractionException, PSErrorException {
@@ -234,22 +222,13 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   /**
    * Update a blob column from resultset rs at offset index.
    *
-   * @param rs   The resultset from querying for Lobs.
-   *    Never <code>null</code>.
-   *
-   * @param index   The Column index.
-   *
-   * @param col  The associated statement column for this Blob update.
-   *    Never <code>null</code>.
-   *
+   * @param rs The resultset from querying for Lobs. Never <code>null</code>.
+   * @param index The Column index.
+   * @param col The associated statement column for this Blob update. Never <code>null</code>.
    * @param data The execution data.
-   *
-   * @throws  SQLException   If a SQL exception occurs during processing.
-   *
-   * @throws  PSDataExtractionException   If any data transfer-related
-   *          error occurs.
-   *
-   * @throws  IllegalArgumentException if any argument is invalid.
+   * @throws SQLException If a SQL exception occurs during processing.
+   * @throws PSDataExtractionException If any data transfer-related error occurs.
+   * @throws IllegalArgumentException if any argument is invalid.
    */
   public void setBlob(ResultSet rs, int index, PSStatementColumn col, PSExecutionData data)
       throws SQLException, PSDataExtractionException {
@@ -303,22 +282,13 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   /**
    * Update a clob column from resultset rs at offset index.
    *
-   * @param rs   The resultset from querying for Lobs.
-   *    Never <code>null</code>.
-   *
-   * @param index   The Column index.
-   *
-   * @param col  The associated statement column for this Clob update.
-   *    Never <code>null</code>.
-   *
+   * @param rs The resultset from querying for Lobs. Never <code>null</code>.
+   * @param index The Column index.
+   * @param col The associated statement column for this Clob update. Never <code>null</code>.
    * @param data The execution data.
-   *
-   * @throws  SQLException   If a SQL exception occurs during processing.
-   *
-   * @throws  PSDataExtractionException   If any data transfer-related
-   *    error occurs.
-   *
-   * @throws  IllegalArgumentException if any argument is invalid.
+   * @throws SQLException If a SQL exception occurs during processing.
+   * @throws PSDataExtractionException If any data transfer-related error occurs.
+   * @throws IllegalArgumentException if any argument is invalid.
    */
   public void setClob(ResultSet rs, int index, PSStatementColumn col, PSExecutionData data)
       throws SQLException, PSDataExtractionException {
@@ -392,25 +362,17 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   }
 
   /**
-   * Execute an Oracle-specific, LOB-based insert.  This will be a
-   * CallableStatement which will execute the insert with lob initialization
-   * calls and return the ROWID so that the row can be re-fetched to do
-   * LOB updates.
+   * Execute an Oracle-specific, LOB-based insert. This will be a CallableStatement which will
+   * execute the insert with lob initialization calls and return the ROWID so that the row can be
+   * re-fetched to do LOB updates.
    *
-   * @param   data     The execution data associated with this plan.
-   *
-   * @param   conn     The database pool connection, never <code>null</code>.
-   *
-   * @throws   SQLException
-   *                     if a SQL error occurs
-   *
-   * @throws   PSDataExtractionException
-   *                   if any data retrieval related error occurs
-   *
-   * @throws   IllegalArgumentException if any argument is invalid
-   *
-   * @return  The number of rows inserted, this will always be <code>1</code>
-   *          when the insert is successful.
+   * @param data The execution data associated with this plan.
+   * @param conn The database pool connection, never <code>null</code>.
+   * @throws SQLException if a SQL error occurs
+   * @throws PSDataExtractionException if any data retrieval related error occurs
+   * @throws IllegalArgumentException if any argument is invalid
+   * @return The number of rows inserted, this will always be <code>1</code> when the insert is
+   *     successful.
    */
   private int executeLobInsert(PSExecutionData data, Connection conn)
       throws SQLException, PSDataExtractionException {
@@ -494,21 +456,15 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   }
 
   /**
-   * Execute an Oracle-specific, LOB-based update.  This will be a
-   * Query which will retrieve all ROWIDs based on the supplied keys,
-   * followed by an update of each row, followed by a query of each row
-   * to update the LOB columns.
+   * Execute an Oracle-specific, LOB-based update. This will be a Query which will retrieve all
+   * ROWIDs based on the supplied keys, followed by an update of each row, followed by a query of
+   * each row to update the LOB columns.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @param   conn     the database pool connection
-   *
-   * @throws   SQLException
-   *                     if a SQL error occurs
-   * @throws   PSDataExtractionException
-   *                   if any data-transfer related error occurs
-   * @throws  PSErrorException
-   *                   if an error exception is thrown during processing
+   * @param data the execution data associated with this plan
+   * @param conn the database pool connection
+   * @throws SQLException if a SQL error occurs
+   * @throws PSDataExtractionException if any data-transfer related error occurs
+   * @throws PSErrorException if an error exception is thrown during processing
    */
   private int executeLobUpdate(PSExecutionData data, Connection conn)
       throws SQLException, PSDataExtractionException, PSErrorException {
@@ -620,18 +576,16 @@ public class PSOracleUpdateStatement extends PSUpdateStatement {
   }
 
   /**
-   *  The query statement required to do Oracle-specific Blob and Clob
-   *  updates.  This will be created when this class is constructed.
+   * The query statement required to do Oracle-specific Blob and Clob updates. This will be created
+   * when this class is constructed.
    */
   private PSQueryStatement m_lobQueryStatement;
 
   /**
-   *  The query statement required to do Oracle-specific retrieval of
-   *  the rowids associated with this statement, this will be used to
-   *  properly identify the row which needs to be queried for Blob and Clob
-   *  updates.  This will be created when this class is constructed
-   *  (for statements of TYPE_UPDATE only, otherwise this will remain
-   *  <code>null</code>).
+   * The query statement required to do Oracle-specific retrieval of the rowids associated with this
+   * statement, this will be used to properly identify the row which needs to be queried for Blob
+   * and Clob updates. This will be created when this class is constructed (for statements of
+   * TYPE_UPDATE only, otherwise this will remain <code>null</code>).
    */
   private PSQueryStatement m_rowIdQueryStatement;
 }

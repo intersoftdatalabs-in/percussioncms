@@ -90,21 +90,19 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class handles the task of creating a full copy of a particular content
- * item revision.  All item data and child data is copied and inserted as a new
- * revision of the item.  This is done by separately querying each backend
- * table's data, building a result document that is a composite of all rows
- * returned, and then submitting that result document to an update resource
- * to insert all data as a new revision or item.
+ * This class handles the task of creating a full copy of a particular content item revision. All
+ * item data and child data is copied and inserted as a new revision of the item. This is done by
+ * separately querying each backend table's data, building a result document that is a composite of
+ * all rows returned, and then submitting that result document to an update resource to insert all
+ * data as a new revision or item.
  */
 class PSCopyHandler implements IPSCopyHandler {
 
   private static final Logger log = LogManager.getLogger(PSCopyHandler.class);
 
   /**
-   * Convenience ctor that calls
-   * {@link #PSCopyHandler(PSContentEditorHandler, PSContentEditor,
-   *    PSApplication, PSCommandHandler, boolean) this(ceh, ce, app, cmd, false)}.
+   * Convenience ctor that calls {@link #PSCopyHandler(PSContentEditorHandler, PSContentEditor,
+   * PSApplication, PSCommandHandler, boolean) this(ceh, ce, app, cmd, false)}.
    */
   public PSCopyHandler(
       PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app, PSCommandHandler cmd)
@@ -113,23 +111,20 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Initializes the handler by walking the content editor's display mappers
-   * and creates datasets required to query for the existing item and insert
-   * the new copy of it, adding those datasets to the content editor's
-   * application.
+   * Initializes the handler by walking the content editor's display mappers and creates datasets
+   * required to query for the existing item and insert the new copy of it, adding those datasets to
+   * the content editor's application.
    *
-   * @param ceh The content editor handler for the ContentEditor this handler
-   *    will be copying.  May not be <code>null</code>.
-   * @param ce The content editor this command handler will process modify
-   *    commands for.  May not be <code>null</code>.
-   * @param app The application created by the PSContentEditor for each
-   *    command handler to add datasets to.  The app is started and stopped by the
-   * ContentEditorHandler.  May not be <code>null</code>.
-   * @param cmd The command handler that is creating the copy  May not be
-   *    <code>null</code>.
-   * @param skipRelationships set to <code>true</code> will not, set to
-   *    <code>false</code> will recreate all related content relationships
-   *    from the original.
+   * @param ceh The content editor handler for the ContentEditor this handler will be copying. May
+   *     not be <code>null</code>.
+   * @param ce The content editor this command handler will process modify commands for. May not be
+   *     <code>null</code>.
+   * @param app The application created by the PSContentEditor for each command handler to add
+   *     datasets to. The app is started and stopped by the ContentEditorHandler. May not be <code>
+   *     null</code>.
+   * @param cmd The command handler that is creating the copy May not be <code>null</code>.
+   * @param skipRelationships set to <code>true</code> will not, set to <code>false</code> will
+   *     recreate all related content relationships from the original.
    * @throws PSSystemValidationException for any other errors.
    */
   public PSCopyHandler(
@@ -247,27 +242,21 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Copies all item data specified by the current content and revision ids,
-   * and inserts it as a new revision using the specified new revision id. If
-   * the contentId and newContentId do not match, an entirely new item is
-   * created, and an entry in the CONTENTSTATUS table is made as well.
+   * Copies all item data specified by the current content and revision ids, and inserts it as a new
+   * revision using the specified new revision id. If the contentId and newContentId do not match,
+   * an entirely new item is created, and an entry in the CONTENTSTATUS table is made as well.
    *
    * @param contentId The content id of the item that will be copied.
-   * @param revisionId The revision id specifying the particular revision of
-   * that item to copy.
+   * @param revisionId The revision id specifying the particular revision of that item to copy.
    * @param newContentId The content id to use when creating the new item.
    * @param newRevisionId The new revision to create.
-   * @param data The execution data of the request that is causing this call
-   * to be made.  May not be <code>null</code>.
-   *
-   * @throws PSNotFoundException if the content and revision ids do not
-   * specify and existing content item revision.
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   * the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   * queries.
+   * @param data The execution data of the request that is causing this call to be made. May not be
+   *     <code>null</code>.
+   * @throws PSNotFoundException if the content and revision ids do not specify and existing content
+   *     item revision.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the queries.
    * @throws SQLException if there is an error generating new Ids.
    */
   public void createCopy(
@@ -409,16 +398,13 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Validates the specified community, to make sure the current Content Type
-   * of the processed item is visible by the specified community.
+   * Validates the specified community, to make sure the current Content Type of the processed item
+   * is visible by the specified community.
    *
    * @param contentId the ID of the copied Content Item.
    * @param revision the revision of the copied Content Item.
-   * @param communityId the id of the specified community; assumed not
-   *    <code>null</code> or empty.
-   *
-   * @throws PSAuthorizationException if the Content Type is not visible in
-   *    the specified community.
+   * @param communityId the id of the specified community; assumed not <code>null</code> or empty.
+   * @throws PSAuthorizationException if the Content Type is not visible in the specified community.
    */
   private void validateCommunity(int contentId, int revision, String communityId)
       throws PSAuthorizationException {
@@ -447,13 +433,12 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Convenient method to build a map of field name and element value that
-   * has the value from the XML document supplied. This document is assumed
-   * to have a predefined DTD that is produced by
+   * Convenient method to build a map of field name and element value that has the value from the
+   * XML document supplied. This document is assumed to have a predefined DTD that is produced by
    * {@link #executeQueries(PSExecutionData, int, int, boolean, List) executeQueries}.
+   *
    * @param inputDoc, assumed not <code>null</code>.
-   * @return map of element field and value elements, never <code>null</code>
-   * may be empty.
+   * @return map of element field and value elements, never <code>null</code> may be empty.
    */
   private Map BuildFieldElementMap(Document inputDoc) {
     Map map = new HashMap();
@@ -480,29 +465,24 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Creates all required datasets.  Will recursively walk the display
-   * mapper and create a query resource for each table.  Finally creates two
-   * update resources, one for new items (inserts row in CONTENTSTATUS table),
-   * and one for new revisions.  The update resources will handle inserting
+   * Creates all required datasets. Will recursively walk the display mapper and create a query
+   * resource for each table. Finally creates two update resources, one for new items (inserts row
+   * in CONTENTSTATUS table), and one for new revisions. The update resources will handle inserting
    * the queried data into all tables in a single request.
    *
-   * @param mapper The mapper to create datasets for.  May not be
-   * <code>null</code>.
+   * @param mapper The mapper to create datasets for. May not be <code>null</code>.
    * @param pipe The Content Editor's pipe. May not be <code>null
    * </code>.
-   * @param updateMapper The data mapper to build for the update dataset.
-   * Should be <code>null</code> for the first call to this method, and it will
-   * be created and passed on each successive call as the mapper is recursed.
-   * @param updateDtd The DTD builder that will ultimately be used for creating
-   * the update resource.  Should be <code>null</code> for the first call to
-   * this method, and it will be created and passed on each successive call
-   * as the mapper is recursed.
-   * @param skipRelationships set to <code>true</code> will not, set to
-   *    <code>false</code> it will recreate all related content relationships
-   *    from the original.
-   *
-   * @throws PSSystemValidationException If anything used by this method is missing
-   *    or misconfigured.
+   * @param updateMapper The data mapper to build for the update dataset. Should be <code>null
+   *     </code> for the first call to this method, and it will be created and passed on each
+   *     successive call as the mapper is recursed.
+   * @param updateDtd The DTD builder that will ultimately be used for creating the update resource.
+   *     Should be <code>null</code> for the first call to this method, and it will be created and
+   *     passed on each successive call as the mapper is recursed.
+   * @param skipRelationships set to <code>true</code> will not, set to <code>false</code> it will
+   *     recreate all related content relationships from the original.
+   * @throws PSSystemValidationException If anything used by this method is missing or
+   *     misconfigured.
    */
   private void createDataSets(
       PSDisplayMapper mapper,
@@ -632,29 +612,24 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Creates a query dataset that will query all rows for a particular
-   * content item in the table and columns specified by the supplied
-   * display mappings and fieldset, simultaneously adding to the update
-   * data mapper and dtd so that a full update dataset may be created later.
-   * For any binary columns encountered, creates a separate query for each, the
-   * results of which will be combined with the table's query results before
-   * the update.
+   * Creates a query dataset that will query all rows for a particular content item in the table and
+   * columns specified by the supplied display mappings and fieldset, simultaneously adding to the
+   * update data mapper and dtd so that a full update dataset may be created later. For any binary
+   * columns encountered, creates a separate query for each, the results of which will be combined
+   * with the table's query results before the update.
    *
-   * @param mappings An iterator over PSDisplayMappings that should be used
-   * to build the data mapper for this dataset.  Assumed not <code>null</code>.
-   * @param fieldSet The fieldSet that the display mappings reference. Assumed
-   * not <code>null</code>.
-   * @param updateMapper A data mapper that will be used to create the update
-   * datasets once all query datasets have been created. Assumed not
-   * <code>null</code>.
-   * @param updateDtd A dtd builder that will be used to create the update
-   * datasets once all query datasets have been created.  Assumed not
-   * <code>null</code>.
-   * @param isSystemTable <code>true</code> if this will query a system table,
-   * <code>false</code> if not.
-   *
-   * @throws PSSystemValidationException if anything specified in the supplied
-   * mappings or fieldSet is invalid.
+   * @param mappings An iterator over PSDisplayMappings that should be used to build the data mapper
+   *     for this dataset. Assumed not <code>null</code>.
+   * @param fieldSet The fieldSet that the display mappings reference. Assumed not <code>null</code>
+   *     .
+   * @param updateMapper A data mapper that will be used to create the update datasets once all
+   *     query datasets have been created. Assumed not <code>null</code>.
+   * @param updateDtd A dtd builder that will be used to create the update datasets once all query
+   *     datasets have been created. Assumed not <code>null</code>.
+   * @param isSystemTable <code>true</code> if this will query a system table, <code>false</code> if
+   *     not.
+   * @throws PSSystemValidationException if anything specified in the supplied mappings or fieldSet
+   *     is invalid.
    */
   private void createDataSet(
       Iterator mappings,
@@ -745,21 +720,18 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Creates datasets necessary to insert the copied data.  Will create two
-   * resources, one that includes contentstatus entries, and one that does not.
+   * Creates datasets necessary to insert the copied data. Will create two resources, one that
+   * includes contentstatus entries, and one that does not.
    *
-   * @param updateMapper A data mapper that contains mappings for all columns
-   * in all tables that will be updated.  The document mapping side of each
-   * mapping must reference an xml element in the supplied updateDtd parameter.
-   * Assumed not <code>null</code>.
-   *
-   * @param updateDtd A dtd builder that contains all xml fields referenced
-   * in the updateMapper.  Should also contain the elements from each of the
-   * query resource dtd's that will be used to query the item's data and build
-   * the input document for these queries.  Assumed not <code>null</code>.
-   *
-   * @throws PSSystemValidationException If anything used by this method is missing
-   *    or misconfigured.
+   * @param updateMapper A data mapper that contains mappings for all columns in all tables that
+   *     will be updated. The document mapping side of each mapping must reference an xml element in
+   *     the supplied updateDtd parameter. Assumed not <code>null</code>.
+   * @param updateDtd A dtd builder that contains all xml fields referenced in the updateMapper.
+   *     Should also contain the elements from each of the query resource dtd's that will be used to
+   *     query the item's data and build the input document for these queries. Assumed not <code>
+   *     null</code>.
+   * @throws PSSystemValidationException If anything used by this method is missing or
+   *     misconfigured.
    */
   private void createUpdateDatasets(PSDataMapper updateMapper, PSDtdBuilder updateDtd)
       throws PSSystemValidationException {
@@ -807,30 +779,23 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Executes all queries and returns the resulting xml document containing
-   * all rows, each table's rows within an element that is named by the
-   * PSFieldSet that was used to build the query.
+   * Executes all queries and returns the resulting xml document containing all rows, each table's
+   * rows within an element that is named by the PSFieldSet that was used to build the query.
    *
    * @param data The execution data, assumed not <code>null</code>.
    * @param contentId The contentId to use.
    * @param revisionId The revisionId to use.
-   * @param isNewItem <code>true</code> if this will create a new item, and
-   * thus needs to query for user settable system fields, <code>false</code> if
-   * not.
-   * @param binaryTmpFiles a list of <code>PSPurgableTempFile</code> objects,
-   *    used to collect all temp files, assume it is not <code>null</code>.
-   *    Called is responsible to delete the temp files.
-   *
+   * @param isNewItem <code>true</code> if this will create a new item, and thus needs to query for
+   *     user settable system fields, <code>false</code> if not.
+   * @param binaryTmpFiles a list of <code>PSPurgableTempFile</code> objects, used to collect all
+   *     temp files, assume it is not <code>null</code>. Called is responsible to delete the temp
+   *     files.
    * @return All results in a single Xml document, never <code>null</code>.
-   *
-   * @throws PSNotFoundException if the content and revision ids do not
-   * specify and existing content item revision.
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   * the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   * queries.
+   * @throws PSNotFoundException if the content and revision ids do not specify and existing content
+   *     item revision.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the queries.
    * @throws SQLException if there is an error generating new Ids.
    */
   private Document executeQueries(
@@ -885,19 +850,14 @@ class PSCopyHandler implements IPSCopyHandler {
    * Executes a query and adds the results to the supplied root.
    *
    * @param data the execution data, assumed not <code>null</code>.
-   * @param root the root element to which to add the query results, assumed
-   *    not <code>null</code>.
-   * @param resourceName the name of the query resource to execute, assumed
-   *    not <code>null</code>.
+   * @param root the root element to which to add the query results, assumed not <code>null</code>.
+   * @param resourceName the name of the query resource to execute, assumed not <code>null</code>.
    * @return the number of rows added to the root element.
-   * @throws PSNotFoundException if the content and revision ids do not
-   *    specify and existing content item revision.
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   *    the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   *    authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   *    query.
+   * @throws PSNotFoundException if the content and revision ids do not specify and existing content
+   *     item revision.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the query.
    */
   private int executeQueryResource(PSExecutionData data, Element root, String resourceName)
       throws PSAuthorizationException,
@@ -959,18 +919,13 @@ class PSCopyHandler implements IPSCopyHandler {
   /**
    * Executes the specified update resource.
    *
-   * @param resourceName The name of the resource to make a request against.
-   * May not be <code>null</code> or empty.
+   * @param resourceName The name of the resource to make a request against. May not be <code>null
+   *     </code> or empty.
    * @param data The execution data, may not be <code>null</code>.
-   *
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   * the update.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSInternalRequestCallException if there is an error executing the
-   * update.
-   * @throws RuntimeException if supplied resourceName does not return an
-   * internal request handler.
+   * @throws PSAuthorizationException if the user is not authorized to execute the update.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSInternalRequestCallException if there is an error executing the update.
+   * @throws RuntimeException if supplied resourceName does not return an internal request handler.
    */
   private void executeUpdate(String resourceName, PSExecutionData data)
       throws PSAuthorizationException,
@@ -1002,14 +957,11 @@ class PSCopyHandler implements IPSCopyHandler {
   /**
    * Walks results and replaces the sysId for any row that has one.
    *
-   * @param resultDoc The doc to walk and set id's on. Assumed not
-   *    <code>null</code>.
-   * @return a map of replaced sysId's, the key is the original sysId as
-   *    <code>String</code> and the value is the new sysId as
-   *    <code>String</code>, never <code>null</code>, may be empty.
+   * @param resultDoc The doc to walk and set id's on. Assumed not <code>null</code>.
+   * @return a map of replaced sysId's, the key is the original sysId as <code>String</code> and the
+   *     value is the new sysId as <code>String</code>, never <code>null</code>, may be empty.
    * @throws SQLException if there is an error generating new ids.
-   * @throws RuntimeException if more rows found in query results than reported
-   *    for dataset
+   * @throws RuntimeException if more rows found in query results than reported for dataset
    */
   private Map fixupChildIds(Document resultDoc) throws SQLException {
     Map replacedIds = new HashMap();
@@ -1098,25 +1050,20 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * This adds the workflowId from the system field set in the provided
-   * document to the supplied request. This is necessary because the insert
-   * resource uses a PSSingleHtmlParameter extractor to set the workflowId.
-   * <p><strong>NOTE:</strong> This method <strong>MUST</strong> be called
-   * before <code>fixCommunityId</code> or it may not work correctly. It
-   * needs to get the original community id before it is changed by the
-   * aforementioned method.
+   * This adds the workflowId from the system field set in the provided document to the supplied
+   * request. This is necessary because the insert resource uses a PSSingleHtmlParameter extractor
+   * to set the workflowId.
    *
-   * @param doc the document to get the workflowId from, assumed not
-   *    <code>null</code>.
-   * @param request the request to add the workflowId to, assumed not
-   *    <code>null</code>.
+   * <p><strong>NOTE:</strong> This method <strong>MUST</strong> be called before <code>
+   * fixCommunityId</code> or it may not work correctly. It needs to get the original community id
+   * before it is changed by the aforementioned method.
    *
-   * @throws PSInternalRequestCallException If the request to get the list of
-   *    workflows for a community fails while processing.
-   * @throws PSAuthorizationException if the user is not authorized to execute
-   *    the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   *    authenticated.
+   * @param doc the document to get the workflowId from, assumed not <code>null</code>.
+   * @param request the request to add the workflowId to, assumed not <code>null</code>.
+   * @throws PSInternalRequestCallException If the request to get the list of workflows for a
+   *     community fails while processing.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
    */
   private void fixWorkflowId(Document doc, PSRequest request)
       throws PSInternalRequestCallException,
@@ -1184,10 +1131,9 @@ class PSCopyHandler implements IPSCopyHandler {
       }
 
       /**
-       * If a workflow id was supplied with the request, we only need to
-       * test if it is valid for the requested community.
-       * If it was not supplied in the request we must make sure our lookup
-       * is not ambiguous.
+       * If a workflow id was supplied with the request, we only need to test if it is valid for the
+       * requested community. If it was not supplied in the request we must make sure our lookup is
+       * not ambiguous.
        */
       String errMsg = null;
       if (suppliedWorkflowId) {
@@ -1256,20 +1202,19 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Looks in the session associated with the supplied request for a private
-   * session object that contains the community id.
-   * <p><em>Note:</em> This is problematic because we have hardcoded in
-   * knowledge that we really shouldn't know. We could be smarter here and
-   * check that communities are enabled and validate that community id, but
-   * that will be left for when the workflow engine is more tightly integreated
-   * with the server.
+   * Looks in the session associated with the supplied request for a private session object that
+   * contains the community id.
+   *
+   * <p><em>Note:</em> This is problematic because we have hardcoded in knowledge that we really
+   * shouldn't know. We could be smarter here and check that communities are enabled and validate
+   * that community id, but that will be left for when the workflow engine is more tightly
+   * integreated with the server.
    *
    * @param request The request being processed. Assumed not <code>null</code>.
-   *
-   * @return A string representation of the numeric community id of the user
-   * that made the request, or <code>null</code> if no id was found in the
-   * session (e.g. communities are disabled). No validity check is done on the
-   * returned text, it is only guaranteed not to be empty if it is not <code>
+   * @return A string representation of the numeric community id of the user that made the request,
+   *     or <code>null</code> if no id was found in the session (e.g. communities are disabled). No
+   *     validity check is done on the returned text, it is only guaranteed not to be empty if it is
+   *     not <code>
    * null</code>.
    */
   private String getRequestorsCommunity(PSRequest request) {
@@ -1286,14 +1231,11 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Updates the community element in the document with the community id of
-   * the user. Ignores the action if the community element is not found in the
-   * request.
+   * Updates the community element in the document with the community id of the user. Ignores the
+   * action if the community element is not found in the request.
    *
    * @param doc the document to update, assumed not to be <code>null</code>
-   * @param request the request to get the community id from, assumed not to be
-   * <code>null</code>
-   *
+   * @param request the request to get the community id from, assumed not to be <code>null</code>
    */
   private void fixCommunityId(Document doc, PSRequest request) {
     String communityId = request.getParameter(IPSHtmlParameters.SYS_COMMUNITYID);
@@ -1312,13 +1254,11 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * Fixes the language id in the supplied document if the supplied request
-   * specifies the <code>SYS_LANG</code> parameter with a valid value, does
-   * nothing otherwise.
+   * Fixes the language id in the supplied document if the supplied request specifies the <code>
+   * SYS_LANG</code> parameter with a valid value, does nothing otherwise.
    *
    * @param doc the document to update, assumed not to be <code>null</code>
-   * @param request the request to get the language id from, assumed not to be
-   *    <code>null</code>
+   * @param request the request to get the language id from, assumed not to be <code>null</code>
    */
   private void fixLangId(Document doc, PSRequest request) {
     String langId = request.getParameter(IPSHtmlParameters.SYS_LANG);
@@ -1333,134 +1273,125 @@ class PSCopyHandler implements IPSCopyHandler {
   }
 
   /**
-   * List of PSQueryResourceContext objects to process in order to build the
-   * input document for the update.  Never <code>null</code>, entries are added
-   * in the ctor.
+   * List of PSQueryResourceContext objects to process in order to build the input document for the
+   * update. Never <code>null</code>, entries are added in the ctor.
    */
   private List m_queryResources = new ArrayList();
 
   /**
-   * Map of the resources used to make the copy of all data.  Key is a constant
-   * used to identify each resource required, value is the request name.
-   * Initialized in during construction, never <code>null</code> or modified
-   * after that.
+   * Map of the resources used to make the copy of all data. Key is a constant used to identify each
+   * resource required, value is the request name. Initialized in during construction, never <code>
+   * null</code> or modified after that.
    */
   private Map m_updateResourceNames = null;
 
   /**
-   * The application object to which all datasets will be added.  Initialized
-   * in the ctor, never <code>null</code> after that.
+   * The application object to which all datasets will be added. Initialized in the ctor, never
+   * <code>null</code> after that.
    */
   private PSApplication m_app = null;
 
   /**
-   * The Content Editor definition.  Initialized in the ctor, never <code>null
+   * The Content Editor definition. Initialized in the ctor, never <code>null
    * </code> after that.
    */
   private PSContentEditor m_ce = null;
 
   /**
-   * The Content Editor Handler for the Content Editor definition.  Initialized
-   * in the ctor, never <code>null </code> after that.
+   * The Content Editor Handler for the Content Editor definition. Initialized in the ctor, never
+   * <code>null </code> after that.
    */
   private PSContentEditorHandler m_ceHandler = null;
 
   /**
-   * The command handler that is creating the copy.  Initialized in the ctor,
-   * never <code>null </code> after that.
+   * The command handler that is creating the copy. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSCommandHandler m_cmdHandler = null;
 
   /**
-   * Map of PSTableSets contained in the Content Editor's pipe, with the table
-   * alias lowercased as the key.  Initialized in the ctor, never <code>null
+   * Map of PSTableSets contained in the Content Editor's pipe, with the table alias lowercased as
+   * the key. Initialized in the ctor, never <code>null
    * </code> after that.
    */
   private Map m_tableSets = null;
 
   /**
-   * Map of PSBackEndTables constructed from the PSTableSets contained in the
-   * Content Editor's pipe, with the table alias lowercased as the key.
-   * Initialized in the ctor, never <code>null</code> after that.
+   * Map of PSBackEndTables constructed from the PSTableSets contained in the Content Editor's pipe,
+   * with the table alias lowercased as the key. Initialized in the ctor, never <code>null</code>
+   * after that.
    */
   private Map m_beTables = null;
 
   /**
-   * List of PSBinaryQueryHandler objects used to separately query binary data
-   * from each table.  Added to during construction, never modified after that.
+   * List of PSBinaryQueryHandler objects used to separately query binary data from each table.
+   * Added to during construction, never modified after that.
    */
   private List m_binaryQueryHandlers = new ArrayList();
 
   /**
-   * Constant to locate the entry for creating a new revision in the
-   * {@link #m_updateResourceNames} map.
+   * Constant to locate the entry for creating a new revision in the {@link #m_updateResourceNames}
+   * map.
    */
   private static final String INSERT_REVISION_RESOURCE = "InsertRevision";
 
   /**
-   * Constant to locate the enry for creating a new item in the
-   * {@link #m_updateResourceNames} map.
+   * Constant to locate the enry for creating a new item in the {@link #m_updateResourceNames} map.
    */
   private static final String INSERT_ITEM_RESOURCE = "InsertItem";
 
   /**
-   * Root element name of the update dtd, preserved so that an input
-   * document can be built to conform to the dtd.  Set during construction,
-   * never <code>null</code> after that.
+   * Root element name of the update dtd, preserved so that an input document can be built to
+   * conform to the dtd. Set during construction, never <code>null</code> after that.
    */
   private String m_updateDtdRoot = null;
 
   /**
-   * Parameter name to use to set and retrieve the content id.  Initialized by
-   * the ctor, never <code>null</code> or modified after that.
+   * Parameter name to use to set and retrieve the content id. Initialized by the ctor, never <code>
+   * null</code> or modified after that.
    */
   private String m_contentIdParamName = null;
 
   /**
-   * Parameter name to use to set and retrieve the revision id.  Initialized by
-   * the ctor, never <code>null</code> or modified after that.
+   * Parameter name to use to set and retrieve the revision id. Initialized by the ctor, never
+   * <code>null</code> or modified after that.
    */
   private String m_revisionIdParamName = null;
 
   /**
-   * Contains the workflow ids for this content editor. Each
-   * entry is a String that contains a numeric workflow identifier. It is
-   * <code>null</code> if the object of the content editor is not workflowable;
-   * otherwise, if there is a list of included or excluded workflows, then
-   * this set will be non-<code>null</code>, else it is <code>null</code>.
-   * Initialized in ctor, then never changed. If present, this list is used in
-   * conjunction with the type field of the PSWorkflowInfo to determine how to
-   * interpret this list.
+   * Contains the workflow ids for this content editor. Each entry is a String that contains a
+   * numeric workflow identifier. It is <code>null</code> if the object of the content editor is not
+   * workflowable; otherwise, if there is a list of included or excluded workflows, then this set
+   * will be non-<code>null</code>, else it is <code>null</code>. Initialized in ctor, then never
+   * changed. If present, this list is used in conjunction with the type field of the PSWorkflowInfo
+   * to determine how to interpret this list.
    */
   private Collection m_workflowIds = null;
 
   /**
-   * The data extractor used to get the current revision from the current
-   * execution context, initialized here and never <code>null</code> or
-   * changed after that.
+   * The data extractor used to get the current revision from the current execution context,
+   * initialized here and never <code>null</code> or changed after that.
    */
   protected PSContentItemStatusExtractor m_currentRevisionExtractor =
       new PSContentItemStatusExtractor(new PSContentItemStatus("CONTENTSTATUS", "CURRENTREVISION"));
 
   /**
-   * Class to encapsulate several objects required to add mappings and keys
-   * to a query resource while simultaneously building an update resource,
-   * and to provide functionality to help build data mappers.
+   * Class to encapsulate several objects required to add mappings and keys to a query resource
+   * while simultaneously building an update resource, and to provide functionality to help build
+   * data mappers.
    */
   private class PSMappingContext {
     /**
      * Constructor for this class.
      *
-     * @param queryMapper mapper that query datamappings are added to.  May
-     * not be <code>null</code>.
-     * @param updateMapper mapper that update datamappings are added to.
-     * May not be <code>null</code>.
-     * @param queryDtd dtdBuilder that xmlfields used in query datamappings
-     * are added to. May not be <code>null</code>.
-     * @param updateDtd dtdBuilder that xmlfields used in update datamappings
-     * are added to. May not be <code>null</code>.
-     * @param fieldSet The fieldSet that is being mapped. May not be
-     * <code>null</code>.
+     * @param queryMapper mapper that query datamappings are added to. May not be <code>null</code>.
+     * @param updateMapper mapper that update datamappings are added to. May not be <code>null
+     *     </code>.
+     * @param queryDtd dtdBuilder that xmlfields used in query datamappings are added to. May not be
+     *     <code>null</code>.
+     * @param updateDtd dtdBuilder that xmlfields used in update datamappings are added to. May not
+     *     be <code>null</code>.
+     * @param fieldSet The fieldSet that is being mapped. May not be <code>null</code>.
      */
     public PSMappingContext(
         PSDataMapper queryMapper,
@@ -1520,8 +1451,8 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Returns the name of the parent element to which dtd entries will be
-     * added. This is the name of the fieldset provided to the ctor.
+     * Returns the name of the parent element to which dtd entries will be added. This is the name
+     * of the fieldset provided to the ctor.
      *
      * @return The element name, never <code>null</code>.
      */
@@ -1530,27 +1461,23 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Convenience version of {@link #addColumnMapping(String,
-     * PSBackEndColumn, PSHtmlParameter)} that passes <code>null</code> for
-     * the updateDocMapping parameter.
+     * Convenience version of {@link #addColumnMapping(String, PSBackEndColumn, PSHtmlParameter)}
+     * that passes <code>null</code> for the updateDocMapping parameter.
      */
     public void addColumnMapping(String xmlFieldName, PSBackEndColumn beCol) {
       addColumnMapping(xmlFieldName, beCol, null);
     }
 
     /**
-     * Creates query and update datamappings for the specified backend column
-     * and xml field pair.  Also adds the xml field to the dtd's in the
-     * supplied mapping context.
+     * Creates query and update datamappings for the specified backend column and xml field pair.
+     * Also adds the xml field to the dtd's in the supplied mapping context.
      *
-     * @param xmlFieldName The name of the xml element to map the backend
-     * column to in the data mappers, and to add to the dtds. Assumed not
-     * <code>null</code>.
-     * @param beCol The backend column that is used in the data mappings.
-     * Assumed not <code>null</code>.
-     * @param updateDocMapping If supplied, will be used for the docMapping
-     * side of the mapping instead of an xmlField.  May be <code>null</code>,
-     * in which case the xmlFieldName is used.
+     * @param xmlFieldName The name of the xml element to map the backend column to in the data
+     *     mappers, and to add to the dtds. Assumed not <code>null</code>.
+     * @param beCol The backend column that is used in the data mappings. Assumed not <code>null
+     *     </code>.
+     * @param updateDocMapping If supplied, will be used for the docMapping side of the mapping
+     *     instead of an xmlField. May be <code>null</code>, in which case the xmlFieldName is used.
      */
     public void addColumnMapping(
         String xmlFieldName, PSBackEndColumn beCol, PSHtmlParameter updateDocMapping) {
@@ -1579,17 +1506,16 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Adds all system columns required to query and update the the specified
-     * backend table.  System columns are added to the update data mapper in
-     * the supplied mapping context. Those that are keys are added to the
-     * supplied selectionKeys map.
+     * Adds all system columns required to query and update the the specified backend table. System
+     * columns are added to the update data mapper in the supplied mapping context. Those that are
+     * keys are added to the supplied selectionKeys map.
      *
-     * @param beTable The backend table for which keys are being created. May
-     * not be <code>null</code>.
-     * @param selectionKeys A map to which selection key mappings are added.
-     * May not be <code>null</code>.
-     * @param isSystemTable <code>true</code> if this will query a system
-     * table, <code>false</code> if not.
+     * @param beTable The backend table for which keys are being created. May not be <code>null
+     *     </code>.
+     * @param selectionKeys A map to which selection key mappings are added. May not be <code>null
+     *     </code>.
+     * @param isSystemTable <code>true</code> if this will query a system table, <code>false</code>
+     *     if not.
      */
     public void addSystemColumns(PSBackEndTable beTable, Map selectionKeys, boolean isSystemTable) {
       if (beTable == null || selectionKeys == null)
@@ -1617,20 +1543,19 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Creates update data mapping and query selection key mapping for the
-     * specified column/xml field pair.
+     * Creates update data mapping and query selection key mapping for the specified column/xml
+     * field pair.
      *
-     * @param beTable The backend table to use to create a PSBackEndColumn for
-     * the data mapping.  Assumed not <code>null</code>.
-     * @param columnName The name of the key column.  Assumed not <code>null
+     * @param beTable The backend table to use to create a PSBackEndColumn for the data mapping.
+     *     Assumed not <code>null</code>.
+     * @param columnName The name of the key column. Assumed not <code>null
      * </code>.
-     * @param xmlFieldName The name of the xml element to use as the html
-     * parameter name in the selection keys mapping.  Assumed not <code>null
+     * @param xmlFieldName The name of the xml element to use as the html parameter name in the
+     *     selection keys mapping. Assumed not <code>null
      * </code>.
-     * @param updateHtmlParamName The html parameter name to use for the doc
-     * mapping side of the update data mapping.  If <code>null</code>, then
-     * the xmlField will be used for the update mapping as well as the query
-     * data mapping.
+     * @param updateHtmlParamName The html parameter name to use for the doc mapping side of the
+     *     update data mapping. If <code>null</code>, then the xmlField will be used for the update
+     *     mapping as well as the query data mapping.
      */
     private void addKeyColumn(
         PSBackEndTable beTable,
@@ -1648,9 +1573,8 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Convenience version of {@link #addKeyColumn(PSBackEndTable, String,
-     * String, String)}, uses an PSHtmlParameter for the update mapping using
-     * the xmlFieldName for updateHtmlParamName.
+     * Convenience version of {@link #addKeyColumn(PSBackEndTable, String, String, String)}, uses an
+     * PSHtmlParameter for the update mapping using the xmlFieldName for updateHtmlParamName.
      */
     private void addKeyColumn(PSBackEndTable beTable, String columnName, String xmlFieldName) {
       addKeyColumn(beTable, columnName, xmlFieldName, xmlFieldName);
@@ -1659,10 +1583,10 @@ class PSCopyHandler implements IPSCopyHandler {
     /**
      * Add's required selection keys to the provided map.
      *
-     * @param selectionKeys Map to add keys to.  Assumed not <code>null
+     * @param selectionKeys Map to add keys to. Assumed not <code>null
      * </code>.
-     * @param isSystemTable <code>true</code> if this will query a system
-     * table, <code>false</code> if not.
+     * @param isSystemTable <code>true</code> if this will query a system table, <code>false</code>
+     *     if not.
      */
     public void addSelectionKeys(Map selectionKeys, boolean isSystemTable) {
       addSelectionKeys(selectionKeys, isSystemTable, false);
@@ -1671,12 +1595,12 @@ class PSCopyHandler implements IPSCopyHandler {
     /**
      * Add's required selection keys to the provided map.
      *
-     * @param selectionKeys Map to add keys to.  Assumed not <code>null
+     * @param selectionKeys Map to add keys to. Assumed not <code>null
      * </code>.
-     * @param isSystemTable <code>true</code> if this will query a system
-     * table, <code>false</code> if not.
-     * @param includeChildKeys If <code>true</code>, keys will be added to
-     * select a specific child row.
+     * @param isSystemTable <code>true</code> if this will query a system table, <code>false</code>
+     *     if not.
+     * @param includeChildKeys If <code>true</code>, keys will be added to select a specific child
+     *     row.
      */
     public void addSelectionKeys(
         Map selectionKeys, boolean isSystemTable, boolean includeChildKeys) {
@@ -1692,57 +1616,54 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Data mapper for building a query resource.  Initialized in the ctor,
-     * may be modified after that.
+     * Data mapper for building a query resource. Initialized in the ctor, may be modified after
+     * that.
      */
     private PSDataMapper m_queryMapper = null;
 
     /**
-     * Data mapper for building an update resource.  Initialized in the ctor,
-     * may be modified after that.
+     * Data mapper for building an update resource. Initialized in the ctor, may be modified after
+     * that.
      */
     private PSDataMapper m_updateMapper = null;
 
     /**
-     * Dtd Builder for building a query resource.  Initialized in the ctor,
-     * may be modified after that.
+     * Dtd Builder for building a query resource. Initialized in the ctor, may be modified after
+     * that.
      */
     private PSDtdBuilder m_queryDtdBuilder = null;
 
     /**
-     * Dtd Builder for building an update resource.  Initialized in the ctor,
-     * may be modified after that.
+     * Dtd Builder for building an update resource. Initialized in the ctor, may be modified after
+     * that.
      */
     private PSDtdBuilder m_updateDtdBuilder = null;
 
     /**
-     * The fieldSet to create mappings for.  Initialized in the
-     * ctor, never <code>null</code> or modified after that.
+     * The fieldSet to create mappings for. Initialized in the ctor, never <code>null</code> or
+     * modified after that.
      */
     private PSFieldSet m_fieldSet = null;
   }
 
   /**
-   * Used to create a binary query for the given column, and run the query,
-   * fixing up the result doc with the results.
+   * Used to create a binary query for the given column, and run the query, fixing up the result doc
+   * with the results.
    */
   private class PSBinaryQueryHandler {
     /**
      * Creates the query resource.
      *
-     * @param ctx The mapping context to use when creating the query.  May
-     * not be <code>null</code>.
-     * @param fieldSet The the fieldSet that is being updated. May not be
-     * <code>null</code> or empty.
-     * @param xmlFieldName The name of the xml field to add to the result doc.
-     * May not be <code>null</code> or empty.
-     * @param beCol The backend column to query for the binary data.
-     * May not be <code>null</code>.
-     * @param isSystemTable <code>true</code> if this will query a system
-     * table, <code>false</code> if not.
-     *
-     * @throws PSSystemValidationException If anything used by this method is
-     * missing or misconfigured.
+     * @param ctx The mapping context to use when creating the query. May not be <code>null</code>.
+     * @param fieldSet The the fieldSet that is being updated. May not be <code>null</code> or
+     *     empty.
+     * @param xmlFieldName The name of the xml field to add to the result doc. May not be <code>null
+     *     </code> or empty.
+     * @param beCol The backend column to query for the binary data. May not be <code>null</code>.
+     * @param isSystemTable <code>true</code> if this will query a system table, <code>false</code>
+     *     if not.
+     * @throws PSSystemValidationException If anything used by this method is missing or
+     *     misconfigured.
      */
     public PSBinaryQueryHandler(
         PSMappingContext ctx,
@@ -1789,28 +1710,20 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Walks the resultDoc and for each element found that matches this
-     * handler's fieldSetName, extracts the content and revision id's,
-     * set's up the request parameters, executes the query, and adds the
-     * binary field element to the result doc.
+     * Walks the resultDoc and for each element found that matches this handler's fieldSetName,
+     * extracts the content and revision id's, set's up the request parameters, executes the query,
+     * and adds the binary field element to the result doc.
      *
      * @param data The execution data, assumed not <code>null</code>.
      * @param resultDoc The doc to add the results to. Assumed not <code>null
      * </code>.
-     *
-     * @return A List of Purgable Temp File objects for which a reference is
-     * added to the result doc.  May be empty if the query did not return any
-     * data, but never <code>null</code>.
-     *
-     * @throws PSAuthorizationException if the user is not authorized to
-     * execute
-     * the query.
-     * @throws PSAuthenticationFailedException if the user cannot be
-     * authenticated.
-     * @throws PSInternalRequestCallException if there is an error executing
-     * the query.
-     * @throws RuntimeException if the resource handler for this query is not
-     * returned by the server.
+     * @return A List of Purgable Temp File objects for which a reference is added to the result
+     *     doc. May be empty if the query did not return any data, but never <code>null</code>.
+     * @throws PSAuthorizationException if the user is not authorized to execute the query.
+     * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+     * @throws PSInternalRequestCallException if there is an error executing the query.
+     * @throws RuntimeException if the resource handler for this query is not returned by the
+     *     server.
      */
     public List execute(PSExecutionData data, Document resultDoc)
         throws PSAuthorizationException,
@@ -1863,23 +1776,17 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Executes the query for the current data and adds the file reference to
-     * the supplied element.
+     * Executes the query for the current data and adds the file reference to the supplied element.
      *
      * @param data The execution data, assumed not <code>null</code>.
      * @param doc The doc to add the results to. Assumed not <code>null
      * </code>.
      * @param row The element to update with the resulting file info.
-     *
-     * @return The file object for which a reference is added to the result
-     * doc.  May be <code>null</code> if the query did not return any data.
-     *
-     * @throws PSAuthorizationException if the user is not authorized to
-     * execute the query.
-     * @throws PSAuthenticationFailedException if the user cannot be
-     * authenticated.
-     * @throws PSInternalRequestCallException if there is an error executing
-     * the query.
+     * @return The file object for which a reference is added to the result doc. May be <code>null
+     *     </code> if the query did not return any data.
+     * @throws PSAuthorizationException if the user is not authorized to execute the query.
+     * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+     * @throws PSInternalRequestCallException if there is an error executing the query.
      */
     private PSPurgableTempFile executeQuery(
         IPSInternalResultHandler rh, PSExecutionData data, Document doc, Element row)
@@ -1916,40 +1823,34 @@ class PSCopyHandler implements IPSCopyHandler {
       }
     }
 
-    /**
-     * The fieldSet being updated. Initialized in the ctor, never
-     * <code>null</code> after that.
-     */
+    /** The fieldSet being updated. Initialized in the ctor, never <code>null</code> after that. */
     private PSFieldSet m_fieldSet = null;
 
     /**
-     * The name of the xml field element to add in the result doc. Initialized
-     * in the ctor, never <code>null</code> after that.
+     * The name of the xml field element to add in the result doc. Initialized in the ctor, never
+     * <code>null</code> after that.
      */
     private String m_xmlFieldName = null;
 
     /**
-     * Name of resource to query for the binary data.  Initialized in the
-     * ctor, never <code>null</code> after that.
+     * Name of resource to query for the binary data. Initialized in the ctor, never <code>null
+     * </code> after that.
      */
     private String m_resourceName = null;
   }
 
-  /**
-   * Encapsulates information regarding a query dataset that has been created.
-   */
+  /** Encapsulates information regarding a query dataset that has been created. */
   private class PSQueryResourceContext {
     /**
      * Constructor for this class.
      *
-     * @param resourceName The dataset name of the resource.  May not be
-     * <code>null</code> or empty.
-     * @param fieldSet The fieldSet this resource is querying data for.
-     *  May not be <code>null</code> or empty.
-     * @param table The table this resource is querying.  May not be <code>
+     * @param resourceName The dataset name of the resource. May not be <code>null</code> or empty.
+     * @param fieldSet The fieldSet this resource is querying data for. May not be <code>null</code>
+     *     or empty.
+     * @param table The table this resource is querying. May not be <code>
      * null</code>.
-     * @param isSystemTable Specify <code>true</code> if the table being
-     * queried is a system table, <code>false</code> if not.
+     * @param isSystemTable Specify <code>true</code> if the table being queried is a system table,
+     *     <code>false</code> if not.
      */
     public PSQueryResourceContext(
         String resourceName, PSFieldSet fieldSet, PSBackEndTable table, boolean isSystemTable) {
@@ -1967,8 +1868,7 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Returns the name to use when getting the internal request handler for
-     * this query.
+     * Returns the name to use when getting the internal request handler for this query.
      *
      * @return The name, never <code>null</code>.
      */
@@ -1977,9 +1877,8 @@ class PSCopyHandler implements IPSCopyHandler {
     }
 
     /**
-     * Returns the field set used to create this query, and whose name is used
-     * as the enclosing XML elemement name for any rows returned by this
-     * query.
+     * Returns the field set used to create this query, and whose name is used as the enclosing XML
+     * elemement name for any rows returned by this query.
      *
      * @return The name, never <code>null</code>.
      */
@@ -1999,8 +1898,7 @@ class PSCopyHandler implements IPSCopyHandler {
     /**
      * Determines if this query is for a system table.
      *
-     * @return <code>true</code> if this will query a system table, false
-     * if not.
+     * @return <code>true</code> if this will query a system table, false if not.
      */
     public boolean isSystemTable() {
       return m_isSystemTable;
@@ -2009,7 +1907,7 @@ class PSCopyHandler implements IPSCopyHandler {
     /**
      * Sets the number of rows this query returned when last executed.
      *
-     * @param rowCount The number of rows.  Must not be less than zero.
+     * @param rowCount The number of rows. Must not be less than zero.
      */
     public void setRowCount(int rowCount) {
       if (rowCount < 0) throw new IllegalArgumentException("rowCount may not be less than zero");
@@ -2020,40 +1918,36 @@ class PSCopyHandler implements IPSCopyHandler {
     /**
      * Returns the number of rows this query returned when last executed.
      *
-     * @return The number of rows, or <code>zero</code> if it has never been
-     * set.
+     * @return The number of rows, or <code>zero</code> if it has never been set.
      */
     public int getRowCount() {
       return m_rowCount;
     }
 
     /**
-     * The dataset name of the query resource.  Initialized in the ctor, never
-     * <code>null</code> after that.
+     * The dataset name of the query resource. Initialized in the ctor, never <code>null</code>
+     * after that.
      */
     private String m_resourceName = null;
 
     /**
-     * The fieldset used to create this resource.  Initialized in the ctor,
-     * never <code>null</code> after that.
+     * The fieldset used to create this resource. Initialized in the ctor, never <code>null</code>
+     * after that.
      */
     private PSFieldSet m_fieldSet = null;
 
     /**
-     * The table used to create this resource.  Initialized in the ctor,
-     * never <code>null</code> after that.
+     * The table used to create this resource. Initialized in the ctor, never <code>null</code>
+     * after that.
      */
     private PSBackEndTable m_table = null;
 
-    /**
-     * Specifies if the table being queried is a system table or not.
-     */
+    /** Specifies if the table being queried is a system table or not. */
     private boolean m_isSystemTable;
 
     /**
-     * The number of rows this query last returned.  Initially
-     * zero, is modified by calls to {#@link setRowCount(int)
-     * setRowCount()}
+     * The number of rows this query last returned. Initially zero, is modified by calls to {#@link
+     * setRowCount(int) setRowCount()}
      */
     private int m_rowCount = 0;
   }

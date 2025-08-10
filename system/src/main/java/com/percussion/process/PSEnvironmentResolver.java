@@ -21,9 +21,8 @@ import com.percussion.util.PSStringTemplate;
 import java.util.Map;
 
 /**
- * Class for resolving process parameter values. This class resolves the
- * value (specified using the "value" attribute) using the
- * <code>System.getProperty</code> method.
+ * Class for resolving process parameter values. This class resolves the value (specified using the
+ * "value" attribute) using the <code>System.getProperty</code> method.
  */
 public class PSEnvironmentResolver extends PSBasicResolver {
   /**

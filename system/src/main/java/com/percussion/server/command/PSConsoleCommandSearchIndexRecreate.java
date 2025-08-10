@@ -53,10 +53,9 @@ public class PSConsoleCommandSearchIndexRecreate extends PSConsoleCommandSearchI
    * Ctor required by framework.
    *
    * @param args See class description for reqs.
-   *
-   * @throws PSIllegalArgumentException Never. The optional arg is not
-   * validated until the command is executed.
-   * <p>Note: we use PSIllegal... here because that's what the framework uses.
+   * @throws PSIllegalArgumentException Never. The optional arg is not validated until the command
+   *     is executed.
+   *     <p>Note: we use PSIllegal... here because that's what the framework uses.
    */
   public PSConsoleCommandSearchIndexRecreate(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -86,9 +85,9 @@ public class PSConsoleCommandSearchIndexRecreate extends PSConsoleCommandSearchI
 
   /**
    * The full command that launched this handler.
-   * <p>Note: this should be passed in rather than having it in two places,
-   * but the whole framework needs reworking so I'm not going to take that on
-   * now.
+   *
+   * <p>Note: this should be passed in rather than having it in two places, but the whole framework
+   * needs reworking so I'm not going to take that on now.
    */
   private static final String COMMAND_NAME = "search index recreate";
 }

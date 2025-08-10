@@ -27,12 +27,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Provides a very simple in memory cache for tenant information
- * , usage, and authorizations.
- *
+ * Provides a very simple in memory cache for tenant information , usage, and authorizations.
  *
  * @author natechadwick
- *
  */
 public class PSSimpleTenantCache implements IPSTenantCache {
 
@@ -46,9 +43,7 @@ public class PSSimpleTenantCache implements IPSTenantCache {
    */
   private long ttl;
 
-  /**
-   * Log for this class.
-   */
+  /** Log for this class. */
   private static final Logger log = LogManager.getLogger(PSSimpleTenantCache.class);
 
   private boolean authorizeExpiredTTL;
@@ -96,7 +91,8 @@ public class PSSimpleTenantCache implements IPSTenantCache {
   }
 
   /**
-   * @see com.percussion.delivery.multitenant.IPSTenantCache#put(com.percussion.delivery.multitenant.IPSTenantInfo)
+   * @see
+   *     com.percussion.delivery.multitenant.IPSTenantCache#put(com.percussion.delivery.multitenant.IPSTenantInfo)
    */
   @Override
   public void put(IPSTenantInfo tenant) {

@@ -20,9 +20,7 @@ package com.percussion.auditlog;
 import com.ibm.cadf.middleware.AuditContext;
 import com.ibm.cadf.model.Event;
 
-/**
- * Defines the interface for the audit log service
- */
+/** Defines the interface for the audit log service */
 public interface IPSAuditLogService {
 
   public void logContentEvent(PSContentEvent event);

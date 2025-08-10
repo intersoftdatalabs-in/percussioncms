@@ -18,111 +18,104 @@
 
 package com.percussion.sitemanage.data;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
 /**
- * Contains information for updating section links.
- * The old section ID is replaced with the new section in the supplied parent.
+ * Contains information for updating section links. The old section ID is replaced with the new
+ * section in the supplied parent.
  */
 @XmlRootElement(name = "UpdateSectionLink")
 @JsonRootName("UpdateSectionLink")
 public class PSUpdateSectionLink {
 
-    @NotBlank
-    @NotNull
-    private String oldSectionId;
+  @NotBlank @NotNull private String oldSectionId;
 
-    @NotBlank
-    @NotNull
-    private String newSectionId;
+  @NotBlank @NotNull private String newSectionId;
 
-    @NotBlank
-    @NotNull
-    private String parentSectionId;
+  @NotBlank @NotNull private String parentSectionId;
 
-    /**
-     * Gets the old section id (string format of the guid).
-     *
-     * @return old section id.
-     */
-    public String getOldSectionId() {
-        return oldSectionId;
-    }
+  /**
+   * Gets the old section id (string format of the guid).
+   *
+   * @return old section id.
+   */
+  public String getOldSectionId() {
+    return oldSectionId;
+  }
 
-    /**
-     * Sets the old section id (string format of the guid).
-     *
-     * @param oldSectionId old section id, should not be blank for a valid request.
-     */
-    public void setOldSectionId(String oldSectionId) {
-        this.oldSectionId = oldSectionId;
-    }
+  /**
+   * Sets the old section id (string format of the guid).
+   *
+   * @param oldSectionId old section id, should not be blank for a valid request.
+   */
+  public void setOldSectionId(String oldSectionId) {
+    this.oldSectionId = oldSectionId;
+  }
 
-    /**
-     * Gets the new section id (string format of the guid).
-     *
-     * @return new section id.
-     */
-    public String getNewSectionId() {
-        return newSectionId;
-    }
+  /**
+   * Gets the new section id (string format of the guid).
+   *
+   * @return new section id.
+   */
+  public String getNewSectionId() {
+    return newSectionId;
+  }
 
-    /**
-     * Sets the new section id (string format of the guid).
-     *
-     * @param newSectionId new section id, should not be blank for a valid request.
-     */
-    public void setNewSectionId(String newSectionId) {
-        this.newSectionId = newSectionId;
-    }
+  /**
+   * Sets the new section id (string format of the guid).
+   *
+   * @param newSectionId new section id, should not be blank for a valid request.
+   */
+  public void setNewSectionId(String newSectionId) {
+    this.newSectionId = newSectionId;
+  }
 
-    /**
-     * Gets the parent section id (string format of the guid).
-     *
-     * @return parent section id.
-     */
-    public String getParentSectionId() {
-        return parentSectionId;
-    }
+  /**
+   * Gets the parent section id (string format of the guid).
+   *
+   * @return parent section id.
+   */
+  public String getParentSectionId() {
+    return parentSectionId;
+  }
 
-    /**
-     * Sets the parent section id (string format of the guid).
-     *
-     * @param parentSectionId parent section id, should not be blank for a valid request.
-     */
-    public void setParentSectionId(String parentSectionId) {
-        this.parentSectionId = parentSectionId;
-    }
+  /**
+   * Sets the parent section id (string format of the guid).
+   *
+   * @param parentSectionId parent section id, should not be blank for a valid request.
+   */
+  public void setParentSectionId(String parentSectionId) {
+    this.parentSectionId = parentSectionId;
+  }
 
-    /**
-     * Gets the old section id as Optional.
-     *
-     * @return Optional old section id.
-     */
-    public Optional<String> getOldSectionIdOptional() {
-        return Optional.ofNullable(oldSectionId);
-    }
+  /**
+   * Gets the old section id as Optional.
+   *
+   * @return Optional old section id.
+   */
+  public Optional<String> getOldSectionIdOptional() {
+    return Optional.ofNullable(oldSectionId);
+  }
 
-    /**
-     * Gets the new section id as Optional.
-     *
-     * @return Optional new section id.
-     */
-    public Optional<String> getNewSectionIdOptional() {
-        return Optional.ofNullable(newSectionId);
-    }
+  /**
+   * Gets the new section id as Optional.
+   *
+   * @return Optional new section id.
+   */
+  public Optional<String> getNewSectionIdOptional() {
+    return Optional.ofNullable(newSectionId);
+  }
 
-    /**
-     * Gets the parent section id as Optional.
-     *
-     * @return Optional parent section id.
-     */
-    public Optional<String> getParentSectionIdOptional() {
-        return Optional.ofNullable(parentSectionId);
-    }
+  /**
+   * Gets the parent section id as Optional.
+   *
+   * @return Optional parent section id.
+   */
+  public Optional<String> getParentSectionIdOptional() {
+    return Optional.ofNullable(parentSectionId);
+  }
 }

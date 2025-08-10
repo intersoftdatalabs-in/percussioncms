@@ -26,19 +26,17 @@ public interface TaxonomyServiceInf {
   Taxonomy getTaxonomy(int id);
 
   /**
-   * Determines if an taxonomy exists for a given name.
-   * Using case insensitive to compare the names.
+   * Determines if an taxonomy exists for a given name. Using case insensitive to compare the names.
+   *
    * @param name the name in question, not empty.
    * @return <code>true</code> if such taxonomy exist.
    */
   boolean doesTaxonomyExists(String name);
 
   /**
-   * Removes a taxonomy and all the attributes, nodes and visibilities
-   * associated to it.
+   * Removes a taxonomy and all the attributes, nodes and visibilities associated to it.
    *
-   * @param taxonomy {@link Taxonomy} to be removed. Must not be
-   *           <code>null</code>.
+   * @param taxonomy {@link Taxonomy} to be removed. Must not be <code>null</code>.
    */
   void removeTaxonomy(Taxonomy taxonomy);
 

@@ -30,26 +30,22 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * The PSFileLogReader class implements reading log entries from
- * a file.
+ * The PSFileLogReader class implements reading log entries from a file.
  *
- * @see        PSFileLogWriter
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSFileLogWriter
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileLogReader implements IPSLogReader {
   /**
-   * Construct a file log reader. This is given package access with the
-   * intent that only the PSLogManager object will instantiate it.
+   * Construct a file log reader. This is given package access with the intent that only the
+   * PSLogManager object will instantiate it.
    *
-   * @param      file        the file to read the log entries from
-   *
-   * @exception  IOException if file contains an invalid path or the
-   *                         file cannot be opened for reading
-   *
-   * @exception   SAXException   if the log file is invalid
+   * @param file the file to read the log entries from
+   * @exception IOException if file contains an invalid path or the file cannot be opened for
+   *     reading
+   * @exception SAXException if the log file is invalid
    */
   PSFileLogReader(RandomAccessFile file) throws IOException, SAXException {
     super();
@@ -65,9 +61,9 @@ public class PSFileLogReader implements IPSLogReader {
   /* **************  IPSLogReader Interface Implementation ************** */
 
   /**
-   * Close the log reader. This should only be called when it is no longer
-   * needed. Any subsequent use of this object will throw an exception. It
-   * is not an error to call close() on a closed log reader.
+   * Close the log reader. This should only be called when it is no longer needed. Any subsequent
+   * use of this object will throw an exception. It is not an error to call close() on a closed log
+   * reader.
    */
   public synchronized void close() {
     m_isOpen = false;
@@ -77,10 +73,9 @@ public class PSFileLogReader implements IPSLogReader {
   }
 
   /**
-   *   Use to query whether the reader is open or not.
+   * Use to query whether the reader is open or not.
    *
-   *   @return true if the log reader is open, false if the log reader is not
-   *   open.
+   * @return true if the log reader is open, false if the log reader is not open.
    */
   public synchronized boolean isOpen() {
     return m_isOpen;
@@ -89,10 +84,8 @@ public class PSFileLogReader implements IPSLogReader {
   /**
    * Read log messages using the specified filter.
    *
-   * @param      filter                  the log message filter
-   *
-   * @exception  IllegalStateException   if close has already been called
-   *                                     on this reader
+   * @param filter the log message filter
+   * @exception IllegalStateException if close has already been called on this reader
    */
   public synchronized void read(IPSLogReaderFilter filter) {
     read(filter, true);
@@ -101,10 +94,8 @@ public class PSFileLogReader implements IPSLogReader {
   /**
    * Read log messages using the specified filter.
    *
-   * @param      filter                  the log message filter
-   *
-   * @exception  IllegalStateException   if close has already been called
-   *                                     on this reader
+   * @param filter the log message filter
+   * @exception IllegalStateException if close has already been called on this reader
    */
   synchronized void read(IPSLogReaderFilter filter, boolean reparse)
       throws java.lang.IllegalStateException {
@@ -216,31 +207,25 @@ public class PSFileLogReader implements IPSLogReader {
     }
   }
 
-  /**
-   * Make sure we close everything when we get garbage collected
-   */
+  /** Make sure we close everything when we get garbage collected */
   protected void finalize() throws Throwable {
     close();
     super.finalize();
   }
 
   /**
-   *    Member variable is true if and only if the reader is open.
+   * Member variable is true if and only if the reader is open.
    *
-   *    @see #close
-   *    @see #isOpen
+   * @see #close
+   * @see #isOpen
    */
   private boolean m_isOpen = false;
 
-  /**
-   *    The file input stream of the logfile
-   */
+  /** The file input stream of the logfile */
   private RandomAccessFile m_file;
 
   private PSRandomAccessInputStream m_fileIn;
 
-  /**
-   *    The XML document corresponding to this log reader
-   */
+  /** The XML document corresponding to this log reader */
   private Document m_xmlDoc;
 }

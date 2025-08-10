@@ -86,14 +86,11 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Creates clones based on conditions specified in a clone handler
- * configuration.
- */
+/** Creates clones based on conditions specified in a clone handler configuration. */
 public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
-   * Constructs a new clone handler for the supplied copy handler. See base
-   * class for additional description.
+   * Constructs a new clone handler for the supplied copy handler. See base class for additional
+   * description.
    */
   public PSConditionalCloneHandler(IPSCopyHandler copyHandler)
       throws PSServerConfigException, PSUnknownNodeTypeException {
@@ -376,8 +373,9 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * When deep cloning folder relationships for translations we may find a folder and its translated folder.  We want to move the translated
-   * folder to its new translated folder but prevent duplicate folder relationships being created.
+   * When deep cloning folder relationships for translations we may find a folder and its translated
+   * folder. We want to move the translated folder to its new translated folder but prevent
+   * duplicate folder relationships being created.
    *
    * @param source
    * @param data
@@ -465,13 +463,10 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Initialize fix up relationships. This must be called before the cloning
-   * processing started, then calls
-   * {@link #fixupRelationships(IPSRequestContext)} to fix up the created
-   * relationships.
+   * Initialize fix up relationships. This must be called before the cloning processing started,
+   * then calls {@link #fixupRelationships(IPSRequestContext)} to fix up the created relationships.
    *
-   * @param reqCtx the request context, used to set private objects, not
-   * <code>null</code>.
+   * @param reqCtx the request context, used to set private objects, not <code>null</code>.
    */
   public static void initFixupRelationships(IPSRequestContext reqCtx) {
     if (reqCtx == null) throw new IllegalArgumentException("reqCtx must not be null.");
@@ -481,15 +476,12 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Fixes the relationships that are created in the cloning process. This
-   * must be called after the end of cloning processing. Must call
-   * {@link #initFixupRelationships(IPSRequestContext)} before the cloning
-   * processing.
+   * Fixes the relationships that are created in the cloning process. This must be called after the
+   * end of cloning processing. Must call {@link #initFixupRelationships(IPSRequestContext)} before
+   * the cloning processing.
    *
-   *
-   * @param reqCtx the request context, which contains the relationships
-   * in question. It may not be <code>null</code>.
-   *
+   * @param reqCtx the request context, which contains the relationships in question. It may not be
+   *     <code>null</code>.
    * @throws PSException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -512,56 +504,42 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * This container class contains all necessary information for fixing up
-   * site/folder IDs, inline links, ...etc for the stored relationships.
+   * This container class contains all necessary information for fixing up site/folder IDs, inline
+   * links, ...etc for the stored relationships.
    */
   private class FixupRelationships {
-    /**
-     * The cloned items
-     */
+    /** The cloned items */
     PSLocator mi_clone;
 
-    /**
-     * The original relationships that were cloned from.
-     */
+    /** The original relationships that were cloned from. */
     List<ProcessedRelationship> mi_psRelationships;
 
-    /**
-     * The created/cloned relationships
-     */
+    /** The created/cloned relationships */
     List<PSRelationship> mi_createdRels;
 
-    /**
-     * It maps original relationship Id to the created/cloned relationship.
-     */
+    /** It maps original relationship Id to the created/cloned relationship. */
     Map<Integer, PSRelationship> mi_relationshipMap;
 
     /**
-     * a map of inline relationship id's created during this request, assumed
-     * not <code>null</code>, may be empty. See
-     * {@link PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of
-     * the map.
+     * a map of inline relationship id's created during this request, assumed not <code>null</code>,
+     * may be empty. See {@link PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of the
+     * map.
      */
     Map mi_childRowMappings;
   }
 
   /**
-   * Fixes up the created relationships, which is stored in
-   * {@link PSRequest#getRelationships()}. However, it skips fixup process,
-   * but only collects the fixing up information if
-   * {@link PSConditionalCloneHandler#initFixupRelationships(IPSRequestContext)}
-   * is called.
+   * Fixes up the created relationships, which is stored in {@link PSRequest#getRelationships()}.
+   * However, it skips fixup process, but only collects the fixing up information if {@link
+   * PSConditionalCloneHandler#initFixupRelationships(IPSRequestContext)} is called.
    *
-   * @param request the request contains the created relationships, assumed not
-   * <code>null</code>.
+   * @param request the request contains the created relationships, assumed not <code>null</code>.
    * @param clone the locator of the cloned item, assumed not <code>null</code>.
-   * @param psRelationships the original relationships that were used to
-   * create/clone the new relationships, assumed not <code>null</code>.
-   * @param childRowMappings a map of inline relationship id's created during
-   * this request, assumed not <code>null</code>, may be empty. See
-   * {@link PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of
-   * the map.
-   *
+   * @param psRelationships the original relationships that were used to create/clone the new
+   *     relationships, assumed not <code>null</code>.
+   * @param childRowMappings a map of inline relationship id's created during this request, assumed
+   *     not <code>null</code>, may be empty. See {@link
+   *     PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of the map.
    * @throws PSException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -600,11 +578,9 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
    * Removes the folder relationships from the supplied relationships.
    *
-   * @param psRelationships the relationships in question, assumed not
-   * <code>null</code>.
-   *
-   * @return the relationships that do not contain folder relationships,
-   * never <code>null</code>, but may be empty.
+   * @param psRelationships the relationships in question, assumed not <code>null</code>.
+   * @return the relationships that do not contain folder relationships, never <code>null</code>,
+   *     but may be empty.
    */
   private List<ProcessedRelationship> removeFolderRelationships(
       List<ProcessedRelationship> psRelationships) {
@@ -623,9 +599,8 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
    * Fixes up the site and/or folder IDs for the given relationships.
    *
    * @param req the request, assumed not <code>null</code>.
-   * @param relMap the map that maps the original relationship ID to the cloned
-   * relationships, assumed not <code>null</code>.
-   *
+   * @param relMap the map that maps the original relationship ID to the cloned relationships,
+   *     assumed not <code>null</code>.
    * @throws PSException if an error occurs.
    */
   private static void fixupSiteFolderIds(PSRequest req, Map<Integer, PSRelationship> relMap)
@@ -646,16 +621,14 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Updates the site and/or folder IDs for the given relationship if the
-   * relationship contains either site or folder IDs.
+   * Updates the site and/or folder IDs for the given relationship if the relationship contains
+   * either site or folder IDs.
    *
    * @param req the request, assumed not <code>null</code>.
    * @param rel the relationship in question, assumed not <code>null</code>.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
-   * @return the updated relationship. It may be <code>null</code> if the
-   * relationship does not need to be updated.
-   *
+   * @return the updated relationship. It may be <code>null</code> if the relationship does not need
+   *     to be updated.
    * @throws PSException if an error occurs.
    */
   private static PSRelationship updateSiteFolderId(
@@ -692,16 +665,14 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
    * Gets the site and folder IDs for the given item.
    *
-   * @param loc the locator of the item, which is also the dependent of the
-   *    given relationship, assumed not <code>null</code>.
-   * @param rel the relationship that contains site and/or folder ID
-   *    properties, assumed not <code>null</code>.
+   * @param loc the locator of the item, which is also the dependent of the given relationship,
+   *     assumed not <code>null</code>.
+   * @param rel the relationship that contains site and/or folder ID properties, assumed not <code>
+   *     null</code>.
    * @param req the request, assumed not <code>null</code>.
-   *
-   * @return a pair IDs, where the 1st is site ID, 2nd is folder ID. It may be
-   * <code>null</code> if there is no site and folder IDs for this item; or
-   * one of the pair is <code>null</code> if there is only folder ID, but no
-   * site ID.
+   * @return a pair IDs, where the 1st is site ID, 2nd is folder ID. It may be <code>null</code> if
+   *     there is no site and folder IDs for this item; or one of the pair is <code>null</code> if
+   *     there is only folder ID, but no site ID.
    */
   private static PSPair<Integer, Integer> getSiteFolderIds(
       PSLocator loc, PSRelationship rel, PSRequest req) {
@@ -752,18 +723,13 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Selects the site and/or folder IDs from the given sites, which the given
-   * item resides in.
+   * Selects the site and/or folder IDs from the given sites, which the given item resides in.
    *
-   * @param sites the list of sites to select from, assumed not
-   * <code>null</code> or empty.
+   * @param sites the list of sites to select from, assumed not <code>null</code> or empty.
    * @param itemId the item ID, assumed not <code>null</code>.
    * @param origSiteId the original site ID, it may be <code>null</code>.
    * @param smgr the site manager service, assumed not <code>null</code>.
-   *
-   * @return a pair IDs, where the 1st is site ID, 2nd is folder ID. It never
-   * <code>null</code>.
-   *
+   * @return a pair IDs, where the 1st is site ID, 2nd is folder ID. It never <code>null</code>.
    * @throws PSSiteManagerException if error occurs.
    */
   private static PSPair<Integer, Integer> selectSiteFolderIds(
@@ -786,17 +752,14 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Highly specialized comparison function. Compares for equality, but ignores
-   * known properties that apply to the owner or the dependent, properties that
-   * are related to persistent storage or folderId or siteId.
+   * Highly specialized comparison function. Compares for equality, but ignores known properties
+   * that apply to the owner or the dependent, properties that are related to persistent storage or
+   * folderId or siteId.
    *
    * @param rel1 Assumed not <code>null</code>.
-   *
    * @param rel2 Assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if <code>rel1</code> is equal to
-   * <code>rel2</code> sans owner, dependent, folderId and siteId, otherwise
-   * <code>false</code>.
+   * @return <code>true</code> if <code>rel1</code> is equal to <code>rel2</code> sans owner,
+   *     dependent, folderId and siteId, otherwise <code>false</code>.
    */
   public boolean compareRelationships(PSRelationship rel1, PSRelationship rel2) {
     EqualsBuilder bldr =
@@ -820,21 +783,18 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Adds all non-null, non-empty properties of the supplied relationship to
-   * the provided parameters map. If the relationship does not specify a value
-   * for a parameter (<code>null</code> or empty) and the parameter exists
-   * in the supplied map, this will remove that parameter.
-   * <p>
-   * Since this method may modify the supplied parameter map, the caller must
-   * be careful and may need to restore a previously made backup after
-   * processing to make sure the original request still has all the parameters
-   * for the original call.
+   * Adds all non-null, non-empty properties of the supplied relationship to the provided parameters
+   * map. If the relationship does not specify a value for a parameter (<code>null</code> or empty)
+   * and the parameter exists in the supplied map, this will remove that parameter.
    *
-   * @param htmlParameters the parameters map to which to add the relationship
-   * properties or from which to remove them, not <code>null</code>, may be
-   * empty, may be changed by this method.
-   * @param relationship the relationship for which to add/remove the
-   * properties, not <code>null</code>.
+   * <p>Since this method may modify the supplied parameter map, the caller must be careful and may
+   * need to restore a previously made backup after processing to make sure the original request
+   * still has all the parameters for the original call.
+   *
+   * @param htmlParameters the parameters map to which to add the relationship properties or from
+   *     which to remove them, not <code>null</code>, may be empty, may be changed by this method.
+   * @param relationship the relationship for which to add/remove the properties, not <code>null
+   *     </code>.
    */
   private void addPropertyParameters(
       Map<String, Object> htmlParameters, PSRelationship relationship) {
@@ -849,23 +809,20 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Adds all non-null, non-empty user properties of the supplied
-   * relationship configuration to the provided parameters map. This also
-   * adds all newly added user properties to avoid upgrades on the relationship
-   * configuration on older versions. If the relationship config does not
-   * specify a value for a parameter (<code>null</code> or empty) and the
-   * parameter exists in the supplied map, this will remove that parameter.
-   * <p>
-   * Since this method may modify the supplied parameter map, the caller
-   * must be careful and may need to restore a previously made backup after
-   * processing to make sure the original request still has all the parameters
-   * for the original call.
+   * Adds all non-null, non-empty user properties of the supplied relationship configuration to the
+   * provided parameters map. This also adds all newly added user properties to avoid upgrades on
+   * the relationship configuration on older versions. If the relationship config does not specify a
+   * value for a parameter (<code>null</code> or empty) and the parameter exists in the supplied
+   * map, this will remove that parameter.
    *
-   * @param htmlParameters the parameters map to which to add the relationship
-   *    config properties or from which to remove them, not <code>null</code>,
-   *    may be empty, may be changed by this method.
-   * @param config the relationship config for which to add the
-   *    properties, not <code>null</code>.
+   * <p>Since this method may modify the supplied parameter map, the caller must be careful and may
+   * need to restore a previously made backup after processing to make sure the original request
+   * still has all the parameters for the original call.
+   *
+   * @param htmlParameters the parameters map to which to add the relationship config properties or
+   *     from which to remove them, not <code>null</code>, may be empty, may be changed by this
+   *     method.
+   * @param config the relationship config for which to add the properties, not <code>null</code>.
    */
   private void addPropertyParameters(
       Map<String, Object> htmlParameters, PSRelationshipConfig config) {
@@ -883,17 +840,11 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
    * Is shallow cloning allowed?
    *
-   * @param config the relationship configuration object, assumed not
-   *   <code>null</code>.
-   * @param data the execution data to operate on, assumed not
-   *   <code>null</code>.
-   *
-   * @return <code>true</code> if shallow cloning is allowed,
-   *    <code>false</code> otherwise.
-   * @throws PSNotFoundException if an extension used as part of the process
-   *    check cannot be found.
-   * @throws PSExtensionException if an extension executed as part of the
-   *    process check failed.
+   * @param config the relationship configuration object, assumed not <code>null</code>.
+   * @param data the execution data to operate on, assumed not <code>null</code>.
+   * @return <code>true</code> if shallow cloning is allowed, <code>false</code> otherwise.
+   * @throws PSNotFoundException if an extension used as part of the process check cannot be found.
+   * @throws PSExtensionException if an extension executed as part of the process check failed.
    */
   private boolean allowsShallowCloning(PSRelationshipConfig config, PSExecutionData data)
       throws PSNotFoundException, PSExtensionException {
@@ -904,17 +855,11 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
    * Is deep cloning allowed?
    *
-   * @param config the relationship configuration object, assumed not
-   *   <code>null</code>..
-   * @param data the execution data to operate on, assumed not
-   *   <code>null</code>.
-   *
-   * @return <code>true</code> if deep cloning is allowed, <code>false</code>
-   *    otherwise.
-   * @throws PSNotFoundException if an extension used as part of the process
-   *    check cannot be found.
-   * @throws PSExtensionException if an extension executed as part of the
-   *    process check failed.
+   * @param config the relationship configuration object, assumed not <code>null</code>..
+   * @param data the execution data to operate on, assumed not <code>null</code>.
+   * @return <code>true</code> if deep cloning is allowed, <code>false</code> otherwise.
+   * @throws PSNotFoundException if an extension used as part of the process check cannot be found.
+   * @throws PSExtensionException if an extension executed as part of the process check failed.
    */
   private boolean allowsDeepCloning(PSRelationshipConfig config, PSExecutionData data)
       throws PSNotFoundException, PSExtensionException {
@@ -923,21 +868,17 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Fixup all inline relationships id's for the supplied list of processed
-   * relationships and the child row mappings.
+   * Fixup all inline relationships id's for the supplied list of processed relationships and the
+   * child row mappings.
    *
-   * @param request the request used to perform the modifications, assumed
-   *    not <code>null</code>.
-   * @param relationships the created/cloned relationships, assumed not
-   *    <code>null</code>.
-   * @param processedRelationships a list with all processed relationships with
-   *    this request, assumed not <code>null</code>, may be empty.
-   * @param childRowMappings a map of inline relationship id's created during
-   *    this request, assumed not <code>null</code>, may be empty. See
-   *    {@link PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details
-   *    of the map.
-   * @throws PSCmsException for any error making the relationship
-   *    modifications.
+   * @param request the request used to perform the modifications, assumed not <code>null</code>.
+   * @param relationships the created/cloned relationships, assumed not <code>null</code>.
+   * @param processedRelationships a list with all processed relationships with this request,
+   *     assumed not <code>null</code>, may be empty.
+   * @param childRowMappings a map of inline relationship id's created during this request, assumed
+   *     not <code>null</code>, may be empty. See {@link
+   *     PSCloneFactory#CHILD_ROW_MAPPINGS_PRIVATE_OBJECT} for details of the map.
+   * @throws PSCmsException for any error making the relationship modifications.
    */
   private static void fixupInlineRelationshipIds(
       PSRequest request,
@@ -979,19 +920,12 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   /**
    * Maps the old relationships to the new relationships.
    *
-   * @param request The request that contains the new relationships.
-   *    assume not <code>null</code>.
-   *
-   * @param createdRels the created / cloned relationships, assumed not
-   *    <code>null</code>.
-   *
-   * @param psRelationships A list of old relationships, assume it is one or
-   *    more <code>ProcessedRelationship</code> objects.
-   *
-   * @return The map that maps the old relationship id
-   *    (in <code>Integer</code>) to the new relationship
-   *    (in <code>PSRelationship</code>). Never <code>null</code>, may be
-   *    empty.
+   * @param request The request that contains the new relationships. assume not <code>null</code>.
+   * @param createdRels the created / cloned relationships, assumed not <code>null</code>.
+   * @param psRelationships A list of old relationships, assume it is one or more <code>
+   *     ProcessedRelationship</code> objects.
+   * @return The map that maps the old relationship id (in <code>Integer</code>) to the new
+   *     relationship (in <code>PSRelationship</code>). Never <code>null</code>, may be empty.
    */
   private Map<Integer, PSRelationship> getRelationshipMap(
       PSRequest request,
@@ -1018,31 +952,26 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Finds the original or old relationship from the supplied processed
-   * relationships which was the base for creating the given new relationship.
-   * In finding so it follows the following sequence of steps while iterating
-   * through the processed relationships:
+   * Finds the original or old relationship from the supplied processed relationships which was the
+   * base for creating the given new relationship. In finding so it follows the following sequence
+   * of steps while iterating through the processed relationships:
+   *
    * <p>
+   *
    * <ol>
-   * <li>ignore a relationship if its relationship config type does not match</li>
-   * <li>ignore a relationship if its owner locator does not match</li>
-   * <li>ignore a relationship if its dependent locator does not match</li>
-   * <li>ignore a relationship if its properties (name-value pairs) do not
-   * match</li>
+   *   <li>ignore a relationship if its relationship config type does not match
+   *   <li>ignore a relationship if its owner locator does not match
+   *   <li>ignore a relationship if its dependent locator does not match
+   *   <li>ignore a relationship if its properties (name-value pairs) do not match
    * </ol>
    *
-   * @param request The request for this process. It contains the mapper
-   * between of orignal locator and the cloned locator, assume not
-   * <code>null</code>.
-   *
-   * @param newRelationship The created relationship, assume not
-   * <code>null</code>.
-   *
-   * @param origRels A list of old relationships, assume it is one or
-   * more <code>ProcessedRelationship</code> objects.
-   *
-   * @return The original relationship. It may be <code>null</code> if cannot
-   * find one from the <code>psRelationships</code>.
+   * @param request The request for this process. It contains the mapper between of orignal locator
+   *     and the cloned locator, assume not <code>null</code>.
+   * @param newRelationship The created relationship, assume not <code>null</code>.
+   * @param origRels A list of old relationships, assume it is one or more <code>
+   *     ProcessedRelationship</code> objects.
+   * @return The original relationship. It may be <code>null</code> if cannot find one from the
+   *     <code>psRelationships</code>.
    */
   private ProcessedRelationship findOrigRelationship(
       PSRequest request, PSRelationship newRelationship, Iterator<ProcessedRelationship> origRels) {
@@ -1114,20 +1043,17 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Compares the supplied relationship property maps and returns true or false
-   * based on whether they are same or not. There may be some optional
-   * parameters that present in either new or original properties which we need
-   * not to consider for the comparison. For example, sys_siteid and
-   * sys_folderid properties may be different between the original and the
-   * cloned (new) relationships. These properties will not be considered in the
-   * comparison process; otherwise we will not find the original relationship
-   * for corresponding to the new relationship.
+   * Compares the supplied relationship property maps and returns true or false based on whether
+   * they are same or not. There may be some optional parameters that present in either new or
+   * original properties which we need not to consider for the comparison. For example, sys_siteid
+   * and sys_folderid properties may be different between the original and the cloned (new)
+   * relationships. These properties will not be considered in the comparison process; otherwise we
+   * will not find the original relationship for corresponding to the new relationship.
    *
    * @param origProps Map of original properties assumed not <code>null</code>.
    * @param newProps Map of new properties assumed not <code>null</code>.
-   *
-   * @return <code>true</code>, if the supplied maps match based on the
-   * above said description or <code>false</code> otherwise.
+   * @return <code>true</code>, if the supplied maps match based on the above said description or
+   *     <code>false</code> otherwise.
    */
   private boolean doesRelPropertiesMatch(
       Map<String, String> origProps, Map<String, String> newProps) {
@@ -1176,26 +1102,20 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
   }
 
   /**
-   * Gets the dependent to be used for the supplied request. We assume first
-   * that the current item is going to be the dependent. In cases of circular
-   * references, this might be the original instead of the clone. Therefore we
-   * test if there was a clone built for the current object. If there was one
-   * built, that has to be our dependent we were looking for.
+   * Gets the dependent to be used for the supplied request. We assume first that the current item
+   * is going to be the dependent. In cases of circular references, this might be the original
+   * instead of the clone. Therefore we test if there was a clone built for the current object. If
+   * there was one built, that has to be our dependent we were looking for.
    *
-   * @param request the request to get the dependent for, assumed not
-   * <code>null</code>.
-   * @param useDependentRevision <code>true</code> to use the dependent
-   * revision, <code>false</code> otherwise.
-   *
-   * @return the dependent locator and a flag to indicate if the dependent is a
-   * previously cloned within the same request (or thread), never
-   * <code>null</code>.
-   *
+   * @param request the request to get the dependent for, assumed not <code>null</code>.
+   * @param useDependentRevision <code>true</code> to use the dependent revision, <code>false</code>
+   *     otherwise.
+   * @return the dependent locator and a flag to indicate if the dependent is a previously cloned
+   *     within the same request (or thread), never <code>null</code>.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSInternalRequestCallException if any error occurs processing the
-   * internal request call.
-   * @throws PSAuthenticationFailedException if the user failed to
-   * authenticate.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    * @throws PSNotFoundException for any file not found.
    * @throws SQLException for any failed SQL operation.
    * @throws PSRequestValidationException if the supplied request is invalid.
@@ -1239,8 +1159,8 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
     }
     if (!isCloned) {
       /**
-       * There might be a clone from a previous translation. We need to
-       * lookup that from the repository.
+       * There might be a clone from a previous translation. We need to lookup that from the
+       * repository.
        */
       PSRequestContext req = new PSRequestContext(request);
       previousClone = PSRelationshipUtils.getExistingTranslation(req);
@@ -1253,18 +1173,14 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
     return dependent;
   }
 
-  /**
-   * The container class for a processed relationship
-   */
+  /** The container class for a processed relationship */
   private class ProcessedRelationship {
     /**
      * Constructs an instance of this class from the given parameters.
      *
-     * @param relationship The processed relationship, assume not
-     *    <code>null</code>.
-     *
-     * @param isShallowCloning <code>true</code> if the relationship
-     *    allows shallow cloning; <code>false</code> otherwise.
+     * @param relationship The processed relationship, assume not <code>null</code>.
+     * @param isShallowCloning <code>true</code> if the relationship allows shallow cloning; <code>
+     *     false</code> otherwise.
      */
     ProcessedRelationship(PSRelationship relationship, boolean isShallowCloning) {
       m_relationship = relationship;
@@ -1284,36 +1200,29 @@ public class PSConditionalCloneHandler extends PSCloneHandler {
       return m_relationship.hashCode() + (m_isShallowCloning ? 1 : 0);
     }
 
-    /**
-     * The processed relationship, init by ctor, never <code>null</code>
-     * after that.
-     */
+    /** The processed relationship, init by ctor, never <code>null</code> after that. */
     PSRelationship m_relationship;
 
     /**
-     * <code>true</code> if the relationship allows shallow cloning;
-     * <code>false</code> otherwise. Initialized by ctor.
+     * <code>true</code> if the relationship allows shallow cloning; <code>false</code> otherwise.
+     * Initialized by ctor.
      */
     boolean m_isShallowCloning;
   }
 
   /**
-   * The name of a private object stored in the request. The private object is
-   * a list of {@link FixupRelationships}, which is used to fix up the created
-   * relationships after the cloning process.
+   * The name of a private object stored in the request. The private object is a list of {@link
+   * FixupRelationships}, which is used to fix up the created relationships after the cloning
+   * process.
    */
   private static final String FIXUP_RELS = "FIXUP_RELATIONSHIPS";
 
-  /**
-   * The log4j logger for this class.
-   */
+  /** The log4j logger for this class. */
   private static final Logger log = LogManager.getLogger(PSConditionalCloneHandler.class);
 
   /**
-   * This is used in
-   * {@link #compareRelationships(PSRelationship, PSRelationship)}. Each entry
-   * is the name of a user relationship property that should be ignored when
-   * performing a comparison.
+   * This is used in {@link #compareRelationships(PSRelationship, PSRelationship)}. Each entry is
+   * the name of a user relationship property that should be ignored when performing a comparison.
    */
   static Set<String> ms_ignorePropNames = new HashSet<>();
 

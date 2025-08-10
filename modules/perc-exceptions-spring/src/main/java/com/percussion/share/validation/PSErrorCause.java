@@ -28,8 +28,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * A JAXB serializable Exception wrapper.
- * @author adamgent
  *
+ * @author adamgent
  */
 @XmlRootElement(name = "ErrorCause")
 public class PSErrorCause {
@@ -189,8 +189,6 @@ public class PSErrorCause {
     }
   }
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -3237445850903443415L;
 }

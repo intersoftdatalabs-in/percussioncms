@@ -34,9 +34,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- *
- * Helps make getting Extension/Result parameters easier by doing the necessary conversion
- * and error handling.
+ * Helps make getting Extension/Result parameters easier by doing the necessary conversion and error
+ * handling.
  *
  * @author adamgent
  * @see #getParameter(String)
@@ -51,9 +50,7 @@ public class PSExtensionParamsHelper {
 
   IPSRequestContext request;
 
-  /**
-   * The log instance to use for this class if one is not provided, never <code>null</code>.
-   */
+  /** The log instance to use for this class if one is not provided, never <code>null</code>. */
   private static Logger log = LogManager.getLogger(PSExtensionParamsHelper.class);
 
   /**
@@ -61,11 +58,10 @@ public class PSExtensionParamsHelper {
    *
    * @param def The extension definition, never null.
    * @param params The parameters passed to the extension, never null.
-   * @param request The request passed to the extension, maybe null
-   * if the extension does not handle requests (UDFs).
-   * @param log The logger to use for reporting errors and debug messages, maybe null.
-   * If null the logger for this class will be used.
-   *
+   * @param request The request passed to the extension, maybe null if the extension does not handle
+   *     requests (UDFs).
+   * @param log The logger to use for reporting errors and debug messages, maybe null. If null the
+   *     logger for this class will be used.
    * @see #getParameter(String)
    */
   public PSExtensionParamsHelper(
@@ -84,9 +80,8 @@ public class PSExtensionParamsHelper {
    *
    * @param parameters The extension parameters already converted to a Map.
    * @param request The request passed to the extension, maybe null.
-   * @param log The logger to use for reporting errors and debug messages, maybe null.
-   * If null the logger for this class will be used.
-   *
+   * @param log The logger to use for reporting errors and debug messages, maybe null. If null the
+   *     logger for this class will be used.
    * @see #getParameter(String)
    */
   public PSExtensionParamsHelper(
@@ -98,7 +93,9 @@ public class PSExtensionParamsHelper {
 
   /**
    * Use this constructor to help with slot finders.
-   * @see IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.IPSTemplateSlot, Map)
+   *
+   * @see IPSSlotContentFinder#find(com.percussion.services.assembly.IPSAssemblyItem,
+   *     com.percussion.services.assembly.IPSTemplateSlot, Map)
    * @param args slot finders args from slotfinder.getFinderArguments()
    * @param selectors The selectors that are passed with the find method.
    * @param log
@@ -121,8 +118,8 @@ public class PSExtensionParamsHelper {
   }
 
   /**
-   * Gets a parameter by first trying to get it from the request then
-   * followed by the parameters passed to the extension.
+   * Gets a parameter by first trying to get it from the request then followed by the parameters
+   * passed to the extension.
    *
    * @param paramName
    * @return The value of the parameter, or null if the parameter is not found.
@@ -196,8 +193,7 @@ public class PSExtensionParamsHelper {
   }
 
   /**
-   * Gets a parameter and if its null or an empty String then an
-   * IllegalArgumentException is thrown.
+   * Gets a parameter and if its null or an empty String then an IllegalArgumentException is thrown.
    *
    * @param paramName Name of the parameter.
    * @return value of the parameter never null or empty.
@@ -267,12 +263,11 @@ public class PSExtensionParamsHelper {
   }
 
   /**
-   * Get the parameters passed to the extension as a map.
-   * <em>This does not include the parameters that are in the request.</em>
+   * Get the parameters passed to the extension as a map. <em>This does not include the parameters
+   * that are in the request.</em>
    *
-   * @return a map with the parameter name as key and the parameter value as
-   *         <code>String</code> object, never <code>null</code>, may be
-   *         empty. Parameter values may be <code>null</code>.
+   * @return a map with the parameter name as key and the parameter value as <code>String</code>
+   *     object, never <code>null</code>, may be empty. Parameter values may be <code>null</code>.
    */
   public Map<String, String> getExtensionParameters() {
     return this.extensionParameters;

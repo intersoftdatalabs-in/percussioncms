@@ -25,47 +25,46 @@ import com.percussion.foldermanagement.service.IPSFolderService;
  */
 public interface IPSAsyncJobService {
 
-    /**
-     * Starts a job of the specified type.
-     *
-     * @param jobType The type, must match a configured job type, not null or empty.
-     * @param config The configuration object expected by the specified type of job, may be null if not expected.
-     * @return A job id, used to query for job status and to cancel the job.
-     */
-    long startJob(String jobType, Object config) throws IPSFolderService.PSWorkflowNotFoundException;
+  /**
+   * Starts a job of the specified type.
+   *
+   * @param jobType The type, must match a configured job type, not null or empty.
+   * @param config The configuration object expected by the specified type of job, may be null if
+   *     not expected.
+   * @return A job id, used to query for job status and to cancel the job.
+   */
+  long startJob(String jobType, Object config) throws IPSFolderService.PSWorkflowNotFoundException;
 
-    /**
-     * Checks the status of the specified job. The result contains
-     * a value between 1-100 to indicate the % done and a message.
-     * 100 indicates that the job has completed successfully. If
-     * the job has terminated abnormally, -1 is returned and
-     * the message will indicate the error. Once a completed or terminated status
-     * has been returned, the job status is no longer available.
-     *
-     * @param jobId The id of the job, must be a valid job id.
-     * @return The current status, or null if the job does not exist
-     *         or if the job is no longer available.
-     */
-    PSAsyncJobStatus getJobStatus(long jobId);
+  /**
+   * Checks the status of the specified job. The result contains a value between 1-100 to indicate
+   * the % done and a message. 100 indicates that the job has completed successfully. If the job has
+   * terminated abnormally, -1 is returned and the message will indicate the error. Once a completed
+   * or terminated status has been returned, the job status is no longer available.
+   *
+   * @param jobId The id of the job, must be a valid job id.
+   * @return The current status, or null if the job does not exist or if the job is no longer
+   *     available.
+   */
+  PSAsyncJobStatus getJobStatus(long jobId);
 
-    /**
-     * Attempts to stop the currently running job. Since job is running in its
-     * own thread, it may complete on its own before noticing that it has been
-     * requested to stop. This method does not return until the job is no longer running.
-     *
-     * @param jobId The id of the job. If not a currently running job, it is assumed the job has
-     *              completed and the method simply returns.
-     */
-    void cancelJob(long jobId);
+  /**
+   * Attempts to stop the currently running job. Since job is running in its own thread, it may
+   * complete on its own before noticing that it has been requested to stop. This method does not
+   * return until the job is no longer running.
+   *
+   * @param jobId The id of the job. If not a currently running job, it is assumed the job has
+   *     completed and the method simply returns.
+   */
+  void cancelJob(long jobId);
 
-    /**
-     * Get any result that the job might return. The result returned is implementation
-     * specific to the job.
-     *
-     * @param jobId The id of the job. If not a currently running job, it is assumed the job has
-     *              completed and the method simply returns.
-     * @return The result, may be null if the job does not return a result or if the
-     *         job is no longer available.
-     */
-    Object getJobResult(long jobId);
+  /**
+   * Get any result that the job might return. The result returned is implementation specific to the
+   * job.
+   *
+   * @param jobId The id of the job. If not a currently running job, it is assumed the job has
+   *     completed and the method simply returns.
+   * @return The result, may be null if the job does not return a result or if the job is no longer
+   *     available.
+   */
+  Object getJobResult(long jobId);
 }

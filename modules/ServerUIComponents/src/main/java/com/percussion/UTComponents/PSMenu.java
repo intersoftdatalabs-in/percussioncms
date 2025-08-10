@@ -20,17 +20,14 @@ package com.percussion.UTComponents;
 import javax.swing.*;
 
 /**
- * This class deals with PSAction objects rather than Action objects. PSAction
- * objects have more information about how to display themselves in a menu.
- * <p>
- * If the supplied action is not a PSAction, this object behaves identically
- * to its base class.
+ * This class deals with PSAction objects rather than Action objects. PSAction objects have more
+ * information about how to display themselves in a menu.
+ *
+ * <p>If the supplied action is not a PSAction, this object behaves identically to its base class.
  */
 public class PSMenu extends JMenu {
   // constructors
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   PSMenu() {}
 
   /**
@@ -54,8 +51,7 @@ public class PSMenu extends JMenu {
   }
 
   /**
-   * Similar to add(), but creates a check box menu item rather than a
-   * standard menu item.
+   * Similar to add(), but creates a check box menu item rather than a standard menu item.
    *
    * @returns the newly created menu item
    */
@@ -75,9 +71,8 @@ public class PSMenu extends JMenu {
   }
 
   /**
-   * Inserts the supplied action in this menu. If the supplied action is a
-   * PSAction object, checks if various properties are set. If they are, the
-   * menuitem is modified appropriately.
+   * Inserts the supplied action in this menu. If the supplied action is a PSAction object, checks
+   * if various properties are set. If they are, the menuitem is modified appropriately.
    *
    * @returns the newly created MenuItem
    */
@@ -91,8 +86,7 @@ public class PSMenu extends JMenu {
   }
 
   /**
-   * Takes properties out of the action and sets the corresponding property
-   * in the menu item.
+   * Takes properties out of the action and sets the corresponding property in the menu item.
    *
    * @returns the passed in menu item
    */

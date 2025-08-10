@@ -47,21 +47,19 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * An extension handler configuration stores the extension def for each
- * of a handler's extensions. The configuration object can be used by
- * any kind of handler.
- * <p>
- * A configuration object does not "own" or keep track of what file or
- * document (if any) it was loaded from.
- * <p>
- * This class is not thread safe. For thread safety, manually synchronize
- * on the instance.
+ * An extension handler configuration stores the extension def for each of a handler's extensions.
+ * The configuration object can be used by any kind of handler.
+ *
+ * <p>A configuration object does not "own" or keep track of what file or document (if any) it was
+ * loaded from.
+ *
+ * <p>This class is not thread safe. For thread safety, manually synchronize on the instance.
  */
 class PSExtensionHandlerConfiguration {
   /**
-   * Convenience constructor that calls
-   * {@link #PSExtensionHandlerConfiguration(File, IPSExtensionDefFactory,
-   * boolean) PSExtensionHandlerConfiguration(configFile, defFactory, false)}.
+   * Convenience constructor that calls {@link #PSExtensionHandlerConfiguration(File,
+   * IPSExtensionDefFactory, boolean) PSExtensionHandlerConfiguration(configFile, defFactory,
+   * false)}.
    */
   public PSExtensionHandlerConfiguration(File configFile, IPSExtensionDefFactory defFactory)
       throws PSExtensionException {
@@ -69,22 +67,19 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Constructs a new configuration object from the given file, optionally
-   * creating the file if it does not exist. A newly created file will contain
-   * the barest shell of configuration data.
+   * Constructs a new configuration object from the given file, optionally creating the file if it
+   * does not exist. A newly created file will contain the barest shell of configuration data.
    *
-   * @param configFile The file from which configuration data is to be read.
-   *    Must not be <CODE>null</CODE>.
-   * @param defFactory The extension def factory used to serialize and
-   *    deserialize extension defs to and from XML. May be
-   *    <CODE>null</CODE> to use the default.
-   * @param createNew If <CODE>true</CODE> and the file does not exist, it
-   *    will be created and the contents formatted as a configuration file.
-   * @throws PSExtensionException If the configuration data could not be read
-   *    from the file (didn't exist, was not readable, etc.), or if the
-   *    configuration data was badly corrupted. Small inconsistencies in the
-   *    data that do not interfere with parsing shall not be treated
-   *    exceptionally.
+   * @param configFile The file from which configuration data is to be read. Must not be <CODE>null
+   *     </CODE>.
+   * @param defFactory The extension def factory used to serialize and deserialize extension defs to
+   *     and from XML. May be <CODE>null</CODE> to use the default.
+   * @param createNew If <CODE>true</CODE> and the file does not exist, it will be created and the
+   *     contents formatted as a configuration file.
+   * @throws PSExtensionException If the configuration data could not be read from the file (didn't
+   *     exist, was not readable, etc.), or if the configuration data was badly corrupted. Small
+   *     inconsistencies in the data that do not interfere with parsing shall not be treated
+   *     exceptionally.
    */
   public PSExtensionHandlerConfiguration(
       File configFile, IPSExtensionDefFactory defFactory, boolean createNew)
@@ -97,36 +92,31 @@ class PSExtensionHandlerConfiguration {
   /**
    * Constructs a new configuration object from the given document.
    *
-   * @param configDoc The document from which configuration data is to be
-   * gathered. Must not be <CODE>null</CODE>.
-   * @param defFactory The extension def factory used to serialize and
-   * deserialize extension defs to and from XML. Must not be <CODE>null</CODE>.
-   * @throws PSExtensionException If the configuration data could not be read
-   * from the file (didn't exist, was not readable, etc.), or if the
-   * configuration data was badly corrupted. Small inconsistencies in the data
-   * that do not interfere with parsing shall not be treated exceptionally.
+   * @param configDoc The document from which configuration data is to be gathered. Must not be
+   *     <CODE>null</CODE>.
+   * @param defFactory The extension def factory used to serialize and deserialize extension defs to
+   *     and from XML. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If the configuration data could not be read from the file (didn't
+   *     exist, was not readable, etc.), or if the configuration data was badly corrupted. Small
+   *     inconsistencies in the data that do not interfere with parsing shall not be treated
+   *     exceptionally.
    */
   public PSExtensionHandlerConfiguration(Document configDoc, IPSExtensionDefFactory defFactory)
       throws PSExtensionException {
     load(configDoc);
   }
 
-  /**
-   * Private constructor to initalize member variables.
-   */
+  /** Private constructor to initalize member variables. */
   private PSExtensionHandlerConfiguration() {}
 
   /**
-   * Returns <CODE>true</CODE> if and only if the extension with the given
-   * name is defined.
-   * <p>
-   * Note: The fact that an extension has a valid definition doesn't imply
-   * that the extension will function correctly or even be loadable.
+   * Returns <CODE>true</CODE> if and only if the extension with the given name is defined.
+   *
+   * <p>Note: The fact that an extension has a valid definition doesn't imply that the extension
+   * will function correctly or even be loadable.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
    * @return <CODE>true</CODE> iff the extension is defined.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   public boolean isExtensionDefined(PSExtensionRef ref) {
@@ -136,8 +126,7 @@ class PSExtensionHandlerConfiguration {
   /**
    * Gets the names of all defined extensions across all contexts.
    *
-   * @return An Iterator over 0 or more PSExtensionRef objects. Never
-   * <CODE>null</CODE>.
+   * @return An Iterator over 0 or more PSExtensionRef objects. Never <CODE>null</CODE>.
    */
   @SuppressWarnings("unchecked")
   public Iterator getExtensionNames() {
@@ -151,14 +140,11 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Gets the names of all extensions defined in the given context. If
-   * the context does not exist, returns <CODE>null</CODE>.
+   * Gets the names of all extensions defined in the given context. If the context does not exist,
+   * returns <CODE>null</CODE>.
    *
    * @param context The context to search in. Must not be <CODE>null</CODE>.
-   *
-   * @return An Iterator over 0 or more PSExtensionRef objects. Could
-   * be <CODE>null</CODE>.
-   *
+   * @return An Iterator over 0 or more PSExtensionRef objects. Could be <CODE>null</CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public Iterator getExtensionNames(String context) {
@@ -175,9 +161,8 @@ class PSExtensionHandlerConfiguration {
   /**
    * Gets the names of all contexts used in this handler.
    *
-   * @return An Iterator over 0 or more String objects which represent
-   * all context names used in this handler. Never <CODE>null</CODE>.
-   *
+   * @return An Iterator over 0 or more String objects which represent all context names used in
+   *     this handler. Never <CODE>null</CODE>.
    * @see PSExtensionRef#getContext
    */
   public Iterator getExtensionContexts() {
@@ -188,10 +173,7 @@ class PSExtensionHandlerConfiguration {
    * Gets the extension definition for the extension with the given name.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
-   * @return The extension definition, or <CODE>null</CODE> if no such
-   * extension is defined.
-   *
+   * @return The extension definition, or <CODE>null</CODE> if no such extension is defined.
    * @throws IllegalArgumentException If any param is invalid.
    */
   @SuppressWarnings("unchecked")
@@ -204,12 +186,10 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Removes the extension definition for the extension with the given name.
-   * This method is idempotent - if no such extension exists, the method
-   * will return successfully.
+   * Removes the extension definition for the extension with the given name. This method is
+   * idempotent - if no such extension exists, the method will return successfully.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   public void removeExtensionDef(PSExtensionRef ref) {
@@ -222,11 +202,9 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Adds the extension definition, overwriting any other extension
-   * definition of the same name.
+   * Adds the extension definition, overwriting any other extension definition of the same name.
    *
    * @param extensionDef The extension def to add. Must not be <CODE>null</CODE>.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   @SuppressWarnings("unchecked")
@@ -254,24 +232,19 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Registers this file or directory for pending removal. Generally, any
-   * pending removals will be processed when an extension handler is
-   * initialized, but this depends on the handler implementation.
-   * <p>
-   * <B>CAUTION</B>: While handlers should ensure that only the proper files
-   * and directories are removed, please note that entire directories can
-   * be recursively deleted.
+   * Registers this file or directory for pending removal. Generally, any pending removals will be
+   * processed when an extension handler is initialized, but this depends on the handler
+   * implementation.
    *
-   * @param toBeRemoved The file or directory that should be removed. If
-   * it is a directory, then its all files and subdirectories will be removed
-   * recursively before the directory itself is removed. Must not be
-   * <CODE>null</CODE> or empty.
+   * <p><B>CAUTION</B>: While handlers should ensure that only the proper files and directories are
+   * removed, please note that entire directories can be recursively deleted.
    *
-   * @throws IOException If the canonical version of the file or directory
-   * name could not be generated.
-   *
+   * @param toBeRemoved The file or directory that should be removed. If it is a directory, then its
+   *     all files and subdirectories will be removed recursively before the directory itself is
+   *     removed. Must not be <CODE>null</CODE> or empty.
+   * @throws IOException If the canonical version of the file or directory name could not be
+   *     generated.
    * @throws IllegalArgumentException If any param is invalid.
-   *
    * @see java.io.File#getCanonicalFile
    */
   @SuppressWarnings("unchecked")
@@ -283,21 +256,15 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Clears a pending-removal entry from the list of pending removals. This
-   * method is idempotent - if the file was not pending removal, nothing
-   * will happen.
+   * Clears a pending-removal entry from the list of pending removals. This method is idempotent -
+   * if the file was not pending removal, nothing will happen.
    *
-   * @param toBeCleared The file whose pending-removal entry is to be
-   * cleared. Must not be <CODE>null</CODE> or empty.
-   *
-   * @return <CODE>true</CODE> if and only if the given file was pending
-   * removal.
-   *
-   * @throws IOException If the canonical version of the file or directory
-   * name could not be generated.
-   *
+   * @param toBeCleared The file whose pending-removal entry is to be cleared. Must not be <CODE>
+   *     null</CODE> or empty.
+   * @return <CODE>true</CODE> if and only if the given file was pending removal.
+   * @throws IOException If the canonical version of the file or directory name could not be
+   *     generated.
    * @throws IllegalArgumentException If any param is invalid.
-   *
    * @see java.io.File#getCanonicalFile
    * @see #setPendingRemoval
    */
@@ -311,9 +278,8 @@ class PSExtensionHandlerConfiguration {
   /**
    * Gets the pending file/directory removals.
    *
-   * @return A non-<CODE>null</CODE> Iterator over 0 or more
-   * non-<CODE>null</CODE> canonical File objects.
-   *
+   * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> canonical File
+   *     objects.
    * @see #setPendingRemoval
    */
   @SuppressWarnings("unchecked")
@@ -332,16 +298,14 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Stores the extension configuration in the given file. The file will be
-   * created if it does not exist. It will be overwritten if it does exist.
+   * Stores the extension configuration in the given file. The file will be created if it does not
+   * exist. It will be overwritten if it does exist.
    *
-   * @param file The file in which the configuration will be stored. Must not
-   *    be <CODE>null</CODE>.
-   * @param excludeMethods <code>true</code> to exclude the extension methods
-   *    from serialization, <code>false</code> to include.
+   * @param file The file in which the configuration will be stored. Must not be <CODE>null</CODE>.
+   * @param excludeMethods <code>true</code> to exclude the extension methods from serialization,
+   *     <code>false</code> to include.
    * @throws PSExtensionException
-   * @throw IOException If an I/O error occurred while storing the
-   *    configuration.
+   * @throw IOException If an I/O error occurred while storing the configuration.
    */
   public void store(File file, boolean excludeMethods) throws IOException, PSExtensionException {
     if (file == null) throw new IllegalArgumentException("file cannot be null");
@@ -435,21 +399,17 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Initializes this configuration object from a file, optionally creating
-   * the file if it does not exist.
+   * Initializes this configuration object from a file, optionally creating the file if it does not
+   * exist.
    *
-   * @param configFile The file from which configuration data is to
-   * be read. Must not be <CODE>null</CODE>.
-   *
-   * @param createNew If <CODE>true</CODE> and the file does not exist, it
-   * will be created and the contents formatted as a configuration file.
-   *
-   * @throws PSExtensionException If the configuration data could not be
-   * read from the file (didn't exist, was not readable, etc.), or if the
-   * configuration data was badly corrupted. Small inconsistencies in the
-   * data that do not interfere with parsing shall not be treated
-   * exceptionally.
-   *
+   * @param configFile The file from which configuration data is to be read. Must not be <CODE>null
+   *     </CODE>.
+   * @param createNew If <CODE>true</CODE> and the file does not exist, it will be created and the
+   *     contents formatted as a configuration file.
+   * @throws PSExtensionException If the configuration data could not be read from the file (didn't
+   *     exist, was not readable, etc.), or if the configuration data was badly corrupted. Small
+   *     inconsistencies in the data that do not interfere with parsing shall not be treated
+   *     exceptionally.
    * @throws IllegalArgumentException If any param is invalid.
    */
   private void load(File configFile, boolean createNew) throws PSExtensionException {
@@ -489,15 +449,12 @@ class PSExtensionHandlerConfiguration {
   /**
    * Initializes this configuration object from the given document.
    *
-   * @param configDoc The document from which configuration data is to
-   * be gathered. Must not be <CODE>null</CODE>.
-   *
-   * @throws PSExtensionException If the configuration data could not be
-   * read from the file (didn't exist, was not readable, etc.), or if the
-   * configuration data was badly corrupted. Small inconsistencies in the
-   * data that do not interfere with parsing shall not be treated
-   * exceptionally.
-   *
+   * @param configDoc The document from which configuration data is to be gathered. Must not be
+   *     <CODE>null</CODE>.
+   * @throws PSExtensionException If the configuration data could not be read from the file (didn't
+   *     exist, was not readable, etc.), or if the configuration data was badly corrupted. Small
+   *     inconsistencies in the data that do not interfere with parsing shall not be treated
+   *     exceptionally.
    * @throws IllegalArgumentException If any param is invalid.
    */
   private void load(Document configDoc) throws PSExtensionException {
@@ -569,8 +526,8 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Checks the number of actual parameters and its annotated parameters for the given
-   * method and class.
+   * Checks the number of actual parameters and its annotated parameters for the given method and
+   * class.
    *
    * @param clazz the class of the method, assumed not <code>null</code>.
    * @param method the method of the parameters in question, assumed not <code>null</code>.
@@ -593,11 +550,10 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Load the method descriptions for all defined JEXL methods in the supplied
-   * extension definition.
+   * Load the method descriptions for all defined JEXL methods in the supplied extension definition.
    *
-   * @param def the extension definition for which to load all method
-   *    descriptions, not <code>null</code>.
+   * @param def the extension definition for which to load all method descriptions, not <code>null
+   *     </code>.
    * @throws PSExtensionException for any error.
    */
   private void loadExtensionMethods(IPSExtensionDef def) throws PSExtensionException {
@@ -647,19 +603,13 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Creates the bare, correct structure of the configuration in
-   * the given file.
+   * Creates the bare, correct structure of the configuration in the given file.
    *
-   * @param configFile The config filename to store the bare config
-   * in. The file will be overwritten if it exists. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @param handlerName The handler name to use in the config file. Must
-   * not be <CODE>null</CODE>.
-   *
-   * @throws IOException If an I/O error occurred when writing to
-   * or opening the <CODE>configFile</CODE>.
-   *
+   * @param configFile The config filename to store the bare config in. The file will be overwritten
+   *     if it exists. Must not be <CODE>null</CODE>.
+   * @param handlerName The handler name to use in the config file. Must not be <CODE>null</CODE>.
+   * @throws IOException If an I/O error occurred when writing to or opening the <CODE>configFile
+   *     </CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public static void createShellConfigFile(File configFile, String handlerName) throws IOException {
@@ -693,14 +643,12 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Stores the extension configuration in the given document. Storing
-   * will start at the root level, replacing the root element and all
-   * of its children.
+   * Stores the extension configuration in the given document. Storing will start at the root level,
+   * replacing the root element and all of its children.
    *
-   * @param doc The document in which the config will be stored. Must
-   *    not be <CODE>null</CODE>.
-   * @param excludeMethods <code>true</code> to exclude the extension methods
-   *    from serialization, <code>false</code> to include.
+   * @param doc The document in which the config will be stored. Must not be <CODE>null</CODE>.
+   * @param excludeMethods <code>true</code> to exclude the extension methods from serialization,
+   *     <code>false</code> to include.
    */
   private void store(Document doc, boolean excludeMethods) {
     Element root = doc.createElement("PSXExtensionHandlerConfiguration");
@@ -709,19 +657,17 @@ class PSExtensionHandlerConfiguration {
   }
 
   /**
-   * Stores the extension configuration under the given element. If the
-   * element name is "PSXExtensionHandlerConfiguration", the configuration
-   * will be stored directly beneath the given element. If not, a
-   * "PSXExtensionHandlerConfiguration" element will be created beneath the
-   * given element and storage will begin under the newly created element.
+   * Stores the extension configuration under the given element. If the element name is
+   * "PSXExtensionHandlerConfiguration", the configuration will be stored directly beneath the given
+   * element. If not, a "PSXExtensionHandlerConfiguration" element will be created beneath the given
+   * element and storage will begin under the newly created element.
    *
-   * @param root The element under which the configuration will be stored.
-   *    Must not be <CODE>null</CODE>.
-   * @param excludeMethods <code>true</code> to exclude the extension methods
-   *    from serialization, <code>false</code> to include.
-   * @return The element directly under which the configuration was stored.
-   *    This may be the <CODE>root</CODE> param or an element created directly
-   *    under it.
+   * @param root The element under which the configuration will be stored. Must not be <CODE>null
+   *     </CODE>.
+   * @param excludeMethods <code>true</code> to exclude the extension methods from serialization,
+   *     <code>false</code> to include.
+   * @return The element directly under which the configuration was stored. This may be the <CODE>
+   *     root</CODE> param or an element created directly under it.
    */
   private Element store(Element root, boolean excludeMethods) {
     final Document doc = root.getOwnerDocument();
@@ -778,25 +724,23 @@ class PSExtensionHandlerConfiguration {
     return sb.toString();
   }
 
-  /** The handler name. Non-<CODE>null</CODE>.*/
+  /** The handler name. Non-<CODE>null</CODE>. */
   private String m_handlerName;
 
   /**
-   * The extension definition factory used for serializing to / from XML,
-   * never <code>null</code>.
+   * The extension definition factory used for serializing to / from XML, never <code>null</code>.
    */
   private IPSExtensionDefFactory m_defFactory = new PSExtensionDefFactory();
 
   /**
-   * A map from extension contexts to corresponding maps from extension names
-   * to extension defs. Never <CODE>null</CODE>, may be empty.
+   * A map from extension contexts to corresponding maps from extension names to extension defs.
+   * Never <CODE>null</CODE>, may be empty.
    */
   private volatile Map<String, Map<PSExtensionRef, IPSExtensionDef>> m_extensionContexts =
       new ConcurrentHashMap<>(8, 0.9f, 1);
 
   /**
-   * A set of files and dirs pending removal by the handler. Never
-   * <CODE>null</CODE>, may be empty.
+   * A set of files and dirs pending removal by the handler. Never <CODE>null</CODE>, may be empty.
    */
   private volatile Set m_pendingRemovals = new HashSet();
 

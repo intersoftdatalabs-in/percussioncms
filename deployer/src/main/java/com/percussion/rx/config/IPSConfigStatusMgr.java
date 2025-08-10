@@ -19,12 +19,9 @@ package com.percussion.rx.config;
 
 import com.percussion.rx.config.data.PSConfigStatus;
 import com.percussion.services.error.PSNotFoundException;
-
 import java.util.List;
 
-/**
- * Manages CRUD and catalog operations for config status objects.
- */
+/** Manages CRUD and catalog operations for config status objects. */
 public interface IPSConfigStatusMgr {
 
   /**
@@ -63,16 +60,20 @@ public interface IPSConfigStatusMgr {
   /**
    * Finds objects whose name matches the supplied filter (case-insensitive).
    *
-   * @param nameFilter pattern identifying objects to return. SQL-like wildcards (%) may be used. Never {@code null} or empty.
-   * @return all matching objects, sorted by name (asc) then install date (desc). Never {@code null}, may be empty.
+   * @param nameFilter pattern identifying objects to return. SQL-like wildcards (%) may be used.
+   *     Never {@code null} or empty.
+   * @return all matching objects, sorted by name (asc) then install date (desc). Never {@code
+   *     null}, may be empty.
    */
   List<PSConfigStatus> findConfigStatus(String nameFilter);
 
   /**
    * Finds the latest config status objects whose name matches the supplied filter.
    *
-   * @param nameFilter pattern identifying objects to return. SQL-like wildcards (%) may be used. Never {@code null} or empty.
-   * @return latest of each set of objects, sorted by name (asc) then date applied (desc). Never {@code null}, may be empty.
+   * @param nameFilter pattern identifying objects to return. SQL-like wildcards (%) may be used.
+   *     Never {@code null} or empty.
+   * @return latest of each set of objects, sorted by name (asc) then date applied (desc). Never
+   *     {@code null}, may be empty.
    */
   List<PSConfigStatus> findLatestConfigStatus(String nameFilter);
 
@@ -87,7 +88,8 @@ public interface IPSConfigStatusMgr {
   /**
    * Deletes all status entries that match the given name filter.
    *
-   * @param nameFilter must not be {@code null}. SQL-like wildcards (%) may be used. Never {@code null} or empty.
+   * @param nameFilter must not be {@code null}. SQL-like wildcards (%) may be used. Never {@code
+   *     null} or empty.
    */
   void deleteConfigStatus(String nameFilter);
 

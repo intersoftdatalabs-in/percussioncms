@@ -35,22 +35,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle all miscellaneous related operations for
- * webservices. These operations are specified in the "Miscellaneous" port in
- * the <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSMiscellaneous}.
+ * This class is used to handle all miscellaneous related operations for webservices. These
+ * operations are specified in the "Miscellaneous" port in the <code>WebServices.wsdl</code>. @See
+ * {@link com.percussion.hooks.webservices.PSWSMiscellaneous}.
  */
 class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   /**
    * Operation to handle checkIn of a specific contentId.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void checkInAction(PSRequest request, Document parent) throws PSException {
@@ -63,15 +58,12 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * Operation to handle checkOut of a specific contentId. The new revision
-   * number will be set in the original request.
+   * Operation to handle checkOut of a specific contentId. The new revision number will be set in
+   * the original request.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void checkOutAction(PSRequest request, Document parent) throws PSException {
@@ -84,16 +76,12 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * Operation to set the revision lock on the specified content item. This
-   * will change the state as if the item has been in the public state and
-   * every change will result in a new revision.
+   * Operation to set the revision lock on the specified content item. This will change the state as
+   * if the item has been in the public state and every change will result in a new revision.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void lockRevisionAction(PSRequest request, Document parent) throws PSException {
@@ -108,12 +96,9 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   /**
    * This operation is used to login and return the sessionId.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void loginAction(PSRequest request, Document parent) throws PSException {
@@ -132,12 +117,9 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   /**
    * Operation to logout a user which releases the current sessionId.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void logoutAction(PSRequest request, Document parent) throws PSException {
@@ -147,20 +129,17 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * Operation to call any specified resource/application defined by the user.
-   * All the top level elements and thier data will be set as html parameters
-   * within the request, this is to allow current resource/applications that
-   * have been created by users to work properly with web services. Sets the
-   * parent doc with whatever the specified resource/application returns
-   * as it's XML result.
+   * Operation to call any specified resource/application defined by the user. All the top level
+   * elements and thier data will be set as html parameters within the request, this is to allow
+   * current resource/applications that have been created by users to work properly with web
+   * services. Sets the parent doc with whatever the specified resource/application returns as it's
+   * XML result.
    *
-   * @param request the original request for the operation, must contain a
-   *    <code>custom</code> parameter with the location of the
-   *    resource/application to be called assumed not <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response.
-   *
+   * @param request the original request for the operation, must contain a <code>custom</code>
+   *     parameter with the location of the resource/application to be called assumed not <code>null
+   *     </code>.
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response.
    * @throws PSException
    */
   void callDirectAction(PSRequest request, Document parent) throws PSException, IOException {
@@ -240,16 +219,14 @@ class PSMiscellaneousHandler extends PSWebServicesBaseHandler {
   // set up in the webservices and passed as a parameter
   private static final String WS_HOSTURL = "wsHostUrl";
 
-  /**
-   * action string constants
-   */
+  /** action string constants */
   private static final String WS_LOCKREVISION = "lockRevision";
 
   private static final String WS_LOGIN = "login";
 
   /**
-   * Constants for XML elements/attributes defined in the
-   * schema <code>sys_MiscellaneousParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>
+   * sys_MiscellaneousParameters.xsd</code>
    */
   private static final String EL_APPLOCATION = "AppLocation";
 

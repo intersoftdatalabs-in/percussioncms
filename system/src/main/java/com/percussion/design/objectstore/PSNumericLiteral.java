@@ -27,36 +27,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSNumericLiteral class is used to define a replacement value is a
- * static numeric literal value.
+ * The PSNumericLiteral class is used to define a replacement value is a static numeric literal
+ * value.
  *
- * @see         IPSReplacementValue
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSReplacementValue
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSNumericLiteral extends PSLiteral {
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "NumericLiteral";
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                                                                                    object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                                                                                    object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                                                                                    if the XML element node is not of the
-   *                                                                                    appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSNumericLiteral(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -68,9 +58,8 @@ public class PSNumericLiteral extends PSLiteral {
   /**
    * Constructs a literal.
    *
-   * @param   number   the number to use
-   *
-   * @param   format   the number format to use when comparing numbers
+   * @param number the number to use
+   * @param format the number format to use when comparing numbers
    */
   public PSNumericLiteral(Number number, java.text.DecimalFormat format) {
     super();
@@ -96,9 +85,7 @@ public class PSNumericLiteral extends PSLiteral {
     m_format = format;
   }
 
-  /**
-   * Default constructor for internal use
-   */
+  /** Default constructor for internal use */
   PSNumericLiteral() {
     super();
   }
@@ -115,7 +102,7 @@ public class PSNumericLiteral extends PSLiteral {
   /**
    * Get the number associated with this number literal.
    *
-   * @return                  the number literal
+   * @return the number literal
    */
   public java.math.BigDecimal getNumber() {
     return m_number;
@@ -124,7 +111,7 @@ public class PSNumericLiteral extends PSLiteral {
   /**
    * Set the number associated with this number literal.
    *
-   * @param      number          the number literal
+   * @param number the number literal
    */
   public void setNumber(Number number) {
     IllegalArgumentException ex = validateNumber(number);
@@ -153,7 +140,7 @@ public class PSNumericLiteral extends PSLiteral {
   /**
    * Get the number format associated with this number literal.
    *
-   * @return                  the number format
+   * @return the number format
    */
   public java.text.DecimalFormat getNumberFormat() {
     return m_format;
@@ -162,7 +149,7 @@ public class PSNumericLiteral extends PSLiteral {
   /**
    * Set the number format associated with this number literal.
    *
-   * @param      format       the number format
+   * @param format the number format
    */
   public void setNumberFormat(java.text.DecimalFormat format) {
     IllegalArgumentException ex = validateNumberFormat(format);
@@ -181,23 +168,17 @@ public class PSNumericLiteral extends PSLiteral {
 
   /* *********** IPSReplacementValue Interface Implementation *********** */
 
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
-  /**
-   * Get the text which can be displayed to represent this value.
-   */
+  /** Get the text which can be displayed to represent this value. */
   public String getValueDisplayText() {
     return getValueText();
   }
 
-  /**
-   * Get the implementation specific text which for this value.
-   */
+  /** Get the implementation specific text which for this value. */
   public String getValueText() {
     return m_format.format(m_number);
   }
@@ -205,10 +186,11 @@ public class PSNumericLiteral extends PSLiteral {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXNumericLiteral XML element node
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXNumericLiteral XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *                               &lt;!--
    *                                                               PSXNumericLiteral is used to define a replacement value is a
@@ -229,7 +211,7 @@ public class PSNumericLiteral extends PSLiteral {
    *                               &lt;!ELEMENT format               (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXNumericLiteral XML element node
+   * @return the newly created PSXNumericLiteral XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -243,12 +225,11 @@ public class PSNumericLiteral extends PSLiteral {
   }
 
   /**
-   * This method is called to populate a PSNumericLiteral Java object from a
-   * PSXNumericLiteral XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSNumericLiteral Java object from a PSXNumericLiteral XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                                                                             of type PSXNumericLiteral
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXNumericLiteral
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -299,18 +280,15 @@ public class PSNumericLiteral extends PSLiteral {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -326,8 +304,7 @@ public class PSNumericLiteral extends PSLiteral {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     boolean result = true;
@@ -344,9 +321,8 @@ public class PSNumericLiteral extends PSLiteral {
   }
 
   /**
-   * Returns the display text. This is implemented to assist with
-   * storing objects in the GUI controls. The control automatically
-   * does a toString() on the object to display the object.
+   * Returns the display text. This is implemented to assist with storing objects in the GUI
+   * controls. The control automatically does a toString() on the object to display the object.
    */
   public String toString() {
     return getValueDisplayText();
@@ -355,7 +331,7 @@ public class PSNumericLiteral extends PSLiteral {
   private java.math.BigDecimal m_number;
   private java.text.DecimalFormat m_format;
 
-  /** The most generic format, used if no format provided*/
+  /** The most generic format, used if no format provided */
   private static final String DEFAULT_FORMAT = "#";
 
   /* package access on this so they may reference each other in fromXml */

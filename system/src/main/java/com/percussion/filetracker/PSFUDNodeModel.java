@@ -18,9 +18,9 @@
 package com.percussion.filetracker;
 
 /**
- * PSFUDNodeModel is a PSFUDTreeTableModel representing a Rhythmyx FUD Manager
- * Application. Nodes in the PSFUDNodeModel are PSFUDNodes. Note that these
- * nodes are NOT derived from DOM Node and only encapsulate the DOM element.
+ * PSFUDNodeModel is a PSFUDTreeTableModel representing a Rhythmyx FUD Manager Application. Nodes in
+ * the PSFUDNodeModel are PSFUDNodes. Note that these nodes are NOT derived from DOM Node and only
+ * encapsulate the DOM element.
  */
 public class PSFUDNodeModel extends AbstractTreeTableModel {
   public PSFUDNodeModel(Object obj) {

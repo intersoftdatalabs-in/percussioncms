@@ -24,14 +24,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.*;
 
-/**
- * Applet Class for launching JavaHelp viewer from browser.
- */
+/** Applet Class for launching JavaHelp viewer from browser. */
 public class PSHelpApplet extends JApplet {
-  /**
-   * Init function for applet. Gets helpset file url and help topic id
-   * from applet parameters.
-   */
+  /** Init function for applet. Gets helpset file url and help topic id from applet parameters. */
   public void init() {
     // Get the JavaHelp helpset file and attach the protocol based on its
     // location.
@@ -92,9 +87,7 @@ public class PSHelpApplet extends JApplet {
     iconLabel.addMouseListener(new HelpMouseListener());
   }
 
-  /**
-   * Displays help for the current help topic.
-   */
+  /** Displays help for the current help topic. */
   public void showHelp() {
     PSJavaHelp.launchHelp(m_helpID, true, null);
   }
@@ -102,9 +95,8 @@ public class PSHelpApplet extends JApplet {
   /**
    * Displays help for the help topic id specified.
    *
-   * @param helpId the help topic id to be displayed,
-   * may be <code>null</code>. If the value is <code>null</code>
-   * then we default to displaying the current help topic.
+   * @param helpId the help topic id to be displayed, may be <code>null</code>. If the value is
+   *     <code>null</code> then we default to displaying the current help topic.
    */
   public void showHelp(String helpId) {
     if (helpId == null) showHelp();
@@ -113,8 +105,8 @@ public class PSHelpApplet extends JApplet {
 
   /**
    * Returns the context corrected image url
-   * @param imageURLString the image url string
-   *  passed in. Must not be <code>null</code>.
+   *
+   * @param imageURLString the image url string passed in. Must not be <code>null</code>.
    * @returns url corrected to be in the correct context.
    */
   private URL getCorrectedURL(String imageURLString) {
@@ -134,13 +126,11 @@ public class PSHelpApplet extends JApplet {
     return theURL;
   }
 
-  /**
-   * Inner class to handle mouse events
-   * for this Applet
-   */
+  /** Inner class to handle mouse events for this Applet */
   class HelpMouseListener extends MouseAdapter {
     /**
      * Invokes showHelp method when mouse is clicked
+     *
      * @param evt the MouseEvent passed in
      */
     public void mouseClicked(MouseEvent evt) {
@@ -150,6 +140,7 @@ public class PSHelpApplet extends JApplet {
 
     /**
      * Sets cursor to hand cursor when we mouse over icon
+     *
      * @param evt the MouseEvent passed in
      */
     public void mouseEntered(MouseEvent evt) {
@@ -159,6 +150,7 @@ public class PSHelpApplet extends JApplet {
 
     /**
      * Sets cursor to default cursor when we mouse exit the icon
+     *
      * @param evt the MouseEvent passed in
      */
     public void mouseExited(MouseEvent evt) {
@@ -168,48 +160,30 @@ public class PSHelpApplet extends JApplet {
     }
   }
 
-  /**
-   * The help topic id to be displayed, gets initialized when the applet
-   * is initialized.
-   */
+  /** The help topic id to be displayed, gets initialized when the applet is initialized. */
   private String m_helpID = null;
 
   /**
-   * The singleton instance of java help so that it is not garbage collected,
-   * initialized in <code>init()</code> and never <code>null</code> or modified
-   * after that.
+   * The singleton instance of java help so that it is not garbage collected, initialized in <code>
+   * init()</code> and never <code>null</code> or modified after that.
    */
   private PSJavaHelp m_help;
 
-  /**
-   * The name of the parameter which provides helpset file.
-   */
+  /** The name of the parameter which provides helpset file. */
   private static final String HELPSETFILE = "helpset_file";
 
-  /**
-   * The name of the parameter which defines help topic id to be displayed.
-   */
+  /** The name of the parameter which defines help topic id to be displayed. */
   private static final String HELPTOPICID = "helpid";
 
-  /**
-   * The name of the parameter that provides the correct help icon
-   * to display
-   */
+  /** The name of the parameter that provides the correct help icon to display */
   private static final String HELPICON = "helpicon";
 
-  /**
-   * The name of the parameter that provides the correct help alt
-   * text
-   */
+  /** The name of the parameter that provides the correct help alt text */
   private static final String HELPALTTEXT = "helpalt";
 
-  /**
-   * The default background color for this applet
-   */
+  /** The default background color for this applet */
   private static final Color DEFAULTBKGCOLOR = new Color(190, 197, 231);
 
-  /**
-   * The default help message if no icon and no alt message exist
-   */
+  /** The default help message if no icon and no alt message exist */
   private static final String DEFAULTHELPTEXT = "Help (?)";
 }

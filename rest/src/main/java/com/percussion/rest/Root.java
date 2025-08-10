@@ -21,11 +21,10 @@ import com.percussion.rest.struct.AdaptorBase;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import java.net.URI;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
 
 @XmlRootElement
 @Path("/")
@@ -33,10 +32,9 @@ import java.net.URI;
 @OpenAPIDefinition(servers = {@Server(url = "/rest")})
 public class Root extends AdaptorBase {
 
-    @XmlElement
-    private URI self;
+  @XmlElement private URI self;
 
-    public Root() {
-        // Default constructor
-    }
+  public Root() {
+    // Default constructor
+  }
 }

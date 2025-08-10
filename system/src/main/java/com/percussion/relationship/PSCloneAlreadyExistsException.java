@@ -21,24 +21,19 @@ import com.percussion.design.objectstore.PSRelationship;
 import java.util.Objects;
 
 /**
- * Runtime exception that is thrown when someone requests to create a clone of
- * an item based on a relationship type and the same clone was created
- * earlier and still exists in the system.
+ * Runtime exception that is thrown when someone requests to create a clone of an item based on a
+ * relationship type and the same clone was created earlier and still exists in the system.
  *
  * @author RammohanVangapalli
  */
 public final class PSCloneAlreadyExistsException extends RuntimeException {
   /**
-   * Constructor that takes the existing relationships owner, dependent and
-   * relationship name that can be accessible later when generating the
-   * message.
+   * Constructor that takes the existing relationships owner, dependent and relationship name that
+   * can be accessible later when generating the message.
    *
-   * @param owner owner of the existing relationship, must not be
-   * {@code null}.
-   * @param dependent dependent of the existing relationship, must not be
-   * {@code null}.
-   * @param relType name of the relationship, must not be {@code null}
-   * or empty.
+   * @param owner owner of the existing relationship, must not be {@code null}.
+   * @param dependent dependent of the existing relationship, must not be {@code null}.
+   * @param relType name of the relationship, must not be {@code null} or empty.
    * @throws IllegalArgumentException if any parameter is {@code null} or relType is empty
    */
   public PSCloneAlreadyExistsException(PSLocator owner, PSLocator dependent, String relType) {
@@ -54,8 +49,8 @@ public final class PSCloneAlreadyExistsException extends RuntimeException {
   }
 
   /**
-   * Constructor that takes the existing relationship that can be
-   * accessible later when generating the message.
+   * Constructor that takes the existing relationship that can be accessible later when generating
+   * the message.
    *
    * @param relationship must not be {@code null}.
    * @throws IllegalArgumentException if relationship is {@code null}
@@ -65,9 +60,7 @@ public final class PSCloneAlreadyExistsException extends RuntimeException {
     m_relationship = Objects.requireNonNull(relationship, "relationship cannot be null");
   }
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSCloneAlreadyExistsException() {
     super();
   }
@@ -145,23 +138,15 @@ public final class PSCloneAlreadyExistsException extends RuntimeException {
     return m_relationship;
   }
 
-  /**
-   * Owner of the existing relationship, may be {@code null}.
-   */
+  /** Owner of the existing relationship, may be {@code null}. */
   private final PSLocator m_owner;
 
-  /**
-   * Dependent of the existing relationship, may be {@code null}.
-   */
+  /** Dependent of the existing relationship, may be {@code null}. */
   private final PSLocator m_dependent;
 
-  /**
-   * Name of the relationship, may be {@code null}.
-   */
+  /** Name of the relationship, may be {@code null}. */
   private final String m_relType;
 
-  /**
-   * The existing relationship, may be {@code null}.
-   */
+  /** The existing relationship, may be {@code null}. */
   private final PSRelationship m_relationship;
 }

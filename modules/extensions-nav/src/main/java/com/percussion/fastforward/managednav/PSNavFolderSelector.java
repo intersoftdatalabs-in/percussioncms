@@ -36,21 +36,17 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * A Rhythmyx extension that selects the folder based on a path. The extension
- * can be either a pre-exit or a post-exit. In either case the functionality is
- * identical. If the folder path name exists, the HTML parameter
- * <code>sys_folderid</code> will be appended to the parent request.
- * <p>
- * The folder path name is the only parameter.
+ * A Rhythmyx extension that selects the folder based on a path. The extension can be either a
+ * pre-exit or a post-exit. In either case the functionality is identical. If the folder path name
+ * exists, the HTML parameter <code>sys_folderid</code> will be appended to the parent request.
+ *
+ * <p>The folder path name is the only parameter.
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolderSelector extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSUdfProcessor, IPSRequestPreProcessor {
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSNavFolderSelector() {
     super();
     m_log = LogManager.getLogger(getClass());
@@ -58,6 +54,7 @@ public class PSNavFolderSelector extends PSDefaultExtension
 
   /**
    * This extension never modifies the stylesheet.
+   *
    * <p>
    *
    * @see com.percussion.extension.IPSResultDocumentProcessor#canModifyStyleSheet()
@@ -67,11 +64,10 @@ public class PSNavFolderSelector extends PSDefaultExtension
   }
 
   /**
-   * Handles the request at pre-processor time. Used when this extension is
-   * called as a pre-exit.
+   * Handles the request at pre-processor time. Used when this extension is called as a pre-exit.
    *
    * @see com.percussion.extension.IPSRequestPreProcessor#preProcessRequest(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext)
+   *     com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext req)
       throws PSAuthorizationException,
@@ -92,11 +88,12 @@ public class PSNavFolderSelector extends PSDefaultExtension
   }
 
   /**
-   * Handles the request after the result document has been generated. Used
-   * when this extension is called as a post-exit.
+   * Handles the request after the result document has been generated. Used when this extension is
+   * called as a post-exit.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -118,7 +115,7 @@ public class PSNavFolderSelector extends PSDefaultExtension
    * Generates a value. Used when this extension is called as a UDF.
    *
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext)
+   *     com.percussion.server.IPSRequestContext)
    */
   public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
     if (params.length > 0 && params[0] != null) {
@@ -136,8 +133,8 @@ public class PSNavFolderSelector extends PSDefaultExtension
   }
 
   /**
-   * Sets the site folder id based on the path. This method actually does the
-   * work of translating the folder path into an id.
+   * Sets the site folder id based on the path. This method actually does the work of translating
+   * the folder path into an id.
    *
    * @param path the folder path
    * @param req the parent request
@@ -165,8 +162,6 @@ public class PSNavFolderSelector extends PSDefaultExtension
     return null;
   }
 
-  /**
-   * Writes the log for debugging.
-   */
+  /** Writes the log for debugging. */
   Logger m_log;
 }

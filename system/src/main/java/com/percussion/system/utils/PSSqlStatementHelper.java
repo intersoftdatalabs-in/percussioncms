@@ -24,35 +24,28 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is a utility class providing methods to execute JDBC SQL statements
- * without worry about closing statements, result-set and connection.
- *
+ * This is a utility class providing methods to execute JDBC SQL statements without worry about
+ * closing statements, result-set and connection.
  */
 public abstract class PSSqlStatementHelper {
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSSqlStatementHelper.class);
 
   /**
    * Prepare a statement for execution.
    *
-   * @param conn the connection used to create the statement, never
-   * <code>null</code>.
-   *
+   * @param conn the connection used to create the statement, never <code>null</code>.
    * @return the prepared statement, never <code>null</code>.
-   *
    * @throws SQLException if failed to create the statement.
    */
   public abstract PreparedStatement prepareStatement(Connection conn) throws SQLException;
 
   /**
-   * Parse the result set that is returned from executing the statement
-   * of {@link #prepareStatement()}.
+   * Parse the result set that is returned from executing the statement of {@link
+   * #prepareStatement()}.
    *
    * @param rs the result set, never <code>null</code>.
-   *
    * @throws SQLException if failed to create the statement.
    */
   public abstract void parseResultSet(ResultSet rs) throws SQLException;
@@ -65,9 +58,8 @@ public abstract class PSSqlStatementHelper {
   public abstract String getSQLString();
 
   /**
-   * Executes the statement that is created by
-   * {@link #prepareStatement(Connection)}. The {@link Connection#close()}
-   * will be called within this method.
+   * Executes the statement that is created by {@link #prepareStatement(Connection)}. The {@link
+   * Connection#close()} will be called within this method.
    *
    * @param conn the connection used for the query, never <code>null</code>.
    */

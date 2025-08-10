@@ -29,30 +29,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-/**
- * RxFileManager is a class that manages the files in a Rhythmyx installation.
- */
+/** RxFileManager is a class that manages the files in a Rhythmyx installation. */
 public class RxFileManager {
-  /**
-   * Holds a full directory name - before we do shortpath name on it.
-   */
+  /** Holds a full directory name - before we do shortpath name on it. */
   private static String ms_longRootDir = "";
 
   /**
-   *  The absolute path of the root directory.  If it is empty then the
-   *  paths returned will be relative.
+   * The absolute path of the root directory. If it is empty then the paths returned will be
+   * relative.
    */
   private static String m_strRootDir = "";
 
   /**
-   * Stores the location of the platform specific program files directory.
-   * For example, "C:\Program Files" for windows.
+   * Stores the location of the platform specific program files directory. For example, "C:\Program
+   * Files" for windows.
    */
   private static String ms_programDir = null;
 
-  /**
-   * File used to test if DTS is installed.
-   */
+  /** File used to test if DTS is installed. */
   public static final String DTS_APP_CHECK_FILE =
       "Deployment"
           + File.separator
@@ -71,49 +65,31 @@ public class RxFileManager {
           + File.separator
           + "tomcat7.exe";
 
-  /**
-   * Configuration directory
-   */
+  /** Configuration directory */
   public static final String CONFIG_DIR = "rxconfig";
 
-  /**
-   * Installation directory
-   */
+  /** Installation directory */
   public static final String INSTALLER_DIR = "Installer";
 
-  /**
-   * Server directory
-   */
+  /** Server directory */
   public static final String SERVER_DIR = "Server";
 
-  /**
-   * ObjectStore directory
-   */
+  /** ObjectStore directory */
   public static final String OBJECTSTORE_DIR = "ObjectStore";
 
-  /**
-   * Repository properties file name
-   */
+  /** Repository properties file name */
   public static final String REPOSITORY_FILE = "rxrepository.properties";
 
-  /**
-   * Server properties file name
-   */
+  /** Server properties file name */
   public static final String SERVER_PROPERTIES_FILE = "server.properties";
 
-  /**
-   * Fts properties file name
-   */
+  /** Fts properties file name */
   public static final String RXFTS_PROPERTIES_FILE = "rxfts.properties";
 
-  /**
-   * Installation properties file name
-   */
+  /** Installation properties file name */
   public static final String INSTALLATION_PROPERTIES_FILE = "installation.properties";
 
-  /**
-   * System installation file name
-   */
+  /** System installation file name */
   public static final String SYS_INSTALL_FILE = "cm1install.properties";
 
   /***
@@ -126,72 +102,45 @@ public class RxFileManager {
    */
   public static final String SDK_SYS_INSTALL_PROP = "sdkinstall.properties";
 
-  /**
-   * Rhythmyx directory name
-   */
+  /** Rhythmyx directory name */
   public static final String RHYTHMYX_DIR_NAME = "Percussion";
 
-  /**
-   * Default DTS installation directory name
-   */
+  /** Default DTS installation directory name */
   public static final String DTS_DIR_NAME = RHYTHMYX_DIR_NAME;
 
-  /**
-   * CM1 SDK directory name.
-   */
+  /** CM1 SDK directory name. */
   public static final String CM1_SDK_DIR_NAME = "PercussionSDK";
 
-  /**
-   * Server config file name.
-   */
+  /** Server config file name. */
   public static final String SERVER_CONFIG_FILE_NAME = "config.xml";
 
-  /**
-   * Properties file for storing the version information of the Rhythmyx
-   * being upgraded
-   */
+  /** Properties file for storing the version information of the Rhythmyx being upgraded */
   public static final String PREVIOUS_VERSION_PROPS_FILE = "PreviousVersion.properties";
 
-  /**
-   * Key for storing the major version in "version.properties" file
-   */
+  /** Key for storing the major version in "version.properties" file */
   public static final String MAJOR_VERSION_PROP_KEY = "majorVersion";
 
-  /**
-   * Key for storing the major version in "version.properties" file
-   */
+  /** Key for storing the major version in "version.properties" file */
   public static final String MINOR_VERSION_PROP_KEY = "minorVersion";
 
-  /**
-   * Key for storing the major version in "version.properties" file
-   */
+  /** Key for storing the major version in "version.properties" file */
   public static final String BUILD_NUMBER_PROP_KEY = "buildNumber";
 
-  /**
-   *  6.X deploy directory
-   */
+  /** 6.X deploy directory */
   public static final String DEPLOY_DIR =
       "AppServer" + File.separator + "server" + File.separator + "rx" + File.separator + "deploy";
 
-  /**
-   *  Jetty CM deploy directory
-   */
+  /** Jetty CM deploy directory */
   public static final String JETTY_DEPLOY_DIR =
       "jetty" + File.separator + "base" + File.separator + "webapps";
 
-  /**
-   *  The jar file to read the version properties from.
-   */
+  /** The jar file to read the version properties from. */
   public static final String VERSION_JAR_FILE = "lib" + File.separator + "rxserver.jar";
 
-  /**
-   *  The jar file to read the version properties from in 6.X
-   */
+  /** The jar file to read the version properties from in 6.X */
   public static final String JETTY_VERSION_JAR_FILE_DIR = "rxconfig" + File.separator + "Installer";
 
-  /**
-   *  The jar file to read the version properties from in 6.X
-   */
+  /** The jar file to read the version properties from in 6.X */
   public static final String VERSION_JAR_FILE_6X =
       DEPLOY_DIR
           + File.separator
@@ -205,9 +154,7 @@ public class RxFileManager {
           + File.separator
           + "rxserver.jar";
 
-  /**
-   *  The jar file to read the version properties from in a publisher install.
-   */
+  /** The jar file to read the version properties from in a publisher install. */
   public static final String VERSION_JAR_FILE_PUB =
       "AppServer"
           + File.separator
@@ -221,10 +168,7 @@ public class RxFileManager {
           + File.separator
           + "rxclient.jar";
 
-  /**
-   *  The jar file to read the version properties from in a publisher install
-   *  of 6.X.
-   */
+  /** The jar file to read the version properties from in a publisher install of 6.X. */
   public static final String VERSION_JAR_FILE_PUB_6X =
       DEPLOY_DIR
           + File.separator
@@ -236,75 +180,68 @@ public class RxFileManager {
           + File.separator
           + "rxclient.jar";
 
-  /**
-   *  The RxServices war file in a publisher install.
-   */
+  /** The RxServices war file in a publisher install. */
   public static final String RXSERVICES_WAR =
       "InstallableApps" + File.separator + "AllInOne" + File.separator + "RxServices.war";
 
-  /**
-   *  The rxclient jar file in the RxServices war.
-   */
+  /** The rxclient jar file in the RxServices war. */
   public static final String RXCLIENT_JAR = "WEB-INF/lib/rxclient.jar";
 
   /**
-   * Key for storing the path of Rhythmyx installations in the system
-   * in the "rxinstaller.properties" file.
+   * Key for storing the path of Rhythmyx installations in the system in the
+   * "rxinstaller.properties" file.
    */
   public static final String INSTALL_PROP = "installer_directories";
 
   /**
-   * Key for storing the path of Convera installations in the system
-   * in the "rxinstaller.properties" file.
+   * Key for storing the path of Convera installations in the system in the "rxinstaller.properties"
+   * file.
    */
   public static final String CONVERA_SETUP_PATH_PROP = "convera_setup_path";
 
   /**
-   * Key for storing the path of Rhythmyx Publisher standalone installations
-   * in the system in the "rxinstaller.properties" file.
+   * Key for storing the path of Rhythmyx Publisher standalone installations in the system in the
+   * "rxinstaller.properties" file.
    */
   public static final String PUB_INSTALL_PROP = "pub_installer_directories";
 
   /**
-   * Key for storing the path of Rhythmyx Content Connector standalone
-   * installations in the system in the "rxinstaller.properties" file.
+   * Key for storing the path of Rhythmyx Content Connector standalone installations in the system
+   * in the "rxinstaller.properties" file.
    */
   public static final String ECC_INSTALL_PROP = "ecc_installer_directories";
 
-  /**
-   *  Version properties file in the rxclient.jar file
-   */
+  /** Version properties file in the rxclient.jar file */
   public static final String VERSION_FILE = "com/percussion/util/Version.properties";
 
   /**
-   * Constant for string "Other...". This is displayed as the last item in
-   * the combo box containing existing Rhythmyx installation directories.
+   * Constant for string "Other...". This is displayed as the last item in the combo box containing
+   * existing Rhythmyx installation directories.
    */
   public static final String OTHER_DIR = "Other...";
 
   /**
-   *  Version properties file in the installation directory.
-   * Sometime in 4.5 cycle, installer was creating a lowercase file
-   * But was dropped from 5.0 and above.
-   * During upgrade cycle this file needs to be deleted.
+   * Version properties file in the installation directory. Sometime in 4.5 cycle, installer was
+   * creating a lowercase file But was dropped from 5.0 and above. During upgrade cycle this file
+   * needs to be deleted.
    */
   public static final String LOWERCASE_VERSION_FILE = "version.properties";
 
   /**
-   * The name of the cm war directory.  Used to determine if an installation is CM1
-   * prior to war fusion
+   * The name of the cm war directory. Used to determine if an installation is CM1 prior to war
+   * fusion
    */
   public static final String CM_WAR_DIR = "cm.war";
 
   /**
-   * The name of the cm webapp directory.  Used to determine if an installation is CM1
-   * after war fusion
+   * The name of the cm webapp directory. Used to determine if an installation is CM1 after war
+   * fusion
    */
   public static final String CM_WEBAPP_DIR = "rxapp.ear/rxapp.war/cm";
 
   /**
-   * The name of the cm webapp directory.  Used to determine if an installation is CM1
-   * after war fusion
+   * The name of the cm webapp directory. Used to determine if an installation is CM1 after war
+   * fusion
    */
   public static final String JETTY_CM_WEBAPP_DIR = "Rhythmyx/cm";
 
@@ -314,16 +251,12 @@ public class RxFileManager {
    */
   private static String systemInstallationPropertiesFile = SYS_INSTALL_FILE;
 
-  /**
-   * Constructs an RxFileManager with no root directory
-   */
+  /** Constructs an RxFileManager with no root directory */
   public RxFileManager() {
     m_strRootDir = "";
   }
 
-  /**
-   * Constructs an RxFileManager with a root directory defined
-   */
+  /** Constructs an RxFileManager with a root directory defined */
   public RxFileManager(String strRootDir) {
     setRootDir(strRootDir);
   }
@@ -334,6 +267,7 @@ public class RxFileManager {
 
   /**
    * Returns the installation.properties file.
+   *
    * @return a non-null string containing the properties file name
    */
   public static String getSystemInstallationPropertiesFile() {
@@ -342,6 +276,7 @@ public class RxFileManager {
 
   /**
    * Sets the installation.properties file for the instance.
+   *
    * @param A valid property file name to use for the property file.
    */
   public static void setSystemInstallationPropertiesFile(String arg) {
@@ -368,15 +303,13 @@ public class RxFileManager {
   }
 
   /**
-   * Determines if the specified file is a valid Rhythmyx directory. If the
-   * specified file contains "rxconfig" directory, then it is a valid Rhythmyx
-   * directory.
+   * Determines if the specified file is a valid Rhythmyx directory. If the specified file contains
+   * "rxconfig" directory, then it is a valid Rhythmyx directory.
    *
-   * @param dir the file to test whether it is a valid Rhythmyx root
-   * directory, may not be <code>null</code> or empty
-   *
-   * @return <code>true</code> if the specified file is a valid Rhythmyx root
-   * directory, <code>false</code> otherwise
+   * @param dir the file to test whether it is a valid Rhythmyx root directory, may not be <code>
+   *     null</code> or empty
+   * @return <code>true</code> if the specified file is a valid Rhythmyx root directory, <code>false
+   *     </code> otherwise
    */
   public static boolean isRhythmyxDir(String dir) {
     if ((dir == null) || (dir.trim().length() < 1))
@@ -391,15 +324,13 @@ public class RxFileManager {
   }
 
   /**
-   * Determines if the specified file is a valid CM1 directory. If the
-   * specified file contains the "cm.war" deploy directory, then it is a valid CM1
-   * directory.
+   * Determines if the specified file is a valid CM1 directory. If the specified file contains the
+   * "cm.war" deploy directory, then it is a valid CM1 directory.
    *
-   * @param dir the file to test whether it is a valid CM1 root
-   * directory, may not be <code>null</code> or empty
-   *
-   * @return <code>true</code> if the specified file is a valid CM1 root
-   * directory, <code>false</code> otherwise
+   * @param dir the file to test whether it is a valid CM1 root directory, may not be <code>null
+   *     </code> or empty
+   * @return <code>true</code> if the specified file is a valid CM1 root directory, <code>false
+   *     </code> otherwise
    */
   public static boolean isCM1Dir(String dir) {
     if ((dir == null) || (dir.trim().length() < 1))
@@ -437,27 +368,21 @@ public class RxFileManager {
     return (f1.exists() || f2.exists());
   }
 
-  /**
-   * Returns the location for installer configuration files.
-   */
+  /** Returns the location for installer configuration files. */
   public String getInstallerConfigLocation() {
     String strRet = CONFIG_DIR + File.separator + INSTALLER_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
     return strRet;
   }
 
-  /**
-   * Returns the location for the server configuration files.
-   */
+  /** Returns the location for the server configuration files. */
   public String getServerConfigLocation() {
     String strRet = CONFIG_DIR + File.separator + SERVER_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
     return strRet;
   }
 
-  /**
-   * Returns the location of the objectstore files.
-   */
+  /** Returns the location of the objectstore files. */
   public String getObjectStoreLocation() {
     String strRet = OBJECTSTORE_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
@@ -465,48 +390,40 @@ public class RxFileManager {
   }
 
   /**
-   * Returns the repository property file name.  No validation for the existence
-   * of the file is made.
+   * Returns the repository property file name. No validation for the existence of the file is made.
    */
   public String getRepositoryFile() {
     return getInstallerConfigLocation() + File.separator + REPOSITORY_FILE;
   }
 
-  /**
-   * Returns the server property file name.  No validation for the existence
-   * of the file is made.
-   */
+  /** Returns the server property file name. No validation for the existence of the file is made. */
   public String getServerPropertiesFile() {
     return getServerConfigLocation() + File.separator + SERVER_PROPERTIES_FILE;
   }
 
   /**
-   * Returns the rxfts.properties file name.  No validation for the existence
-   * of the file is made.
+   * Returns the rxfts.properties file name. No validation for the existence of the file is made.
    */
   public String getFtsPropertiesFile() {
     return getInstallerConfigLocation() + File.separator + RXFTS_PROPERTIES_FILE;
   }
 
-  /**
-   * Returns the server config file name.
-   *
-   */
+  /** Returns the server config file name. */
   public String getServerConfigFile() {
     return getServerConfigLocation() + File.separator + SERVER_CONFIG_FILE_NAME;
   }
 
   /**
-   * Returns the installation property file name. No validation of the
-   * existence of the file is made.
+   * Returns the installation property file name. No validation of the existence of the file is
+   * made.
    */
   public String getInstallationPropertyFile() {
     return getInstallerConfigLocation() + File.separator + INSTALLATION_PROPERTIES_FILE;
   }
 
   /**
-   * For windows, see {@link #getWindowsSystemInstallationFile()}.
-   * For Unix, see {@link #getUnixSystemInstallationFile()}.
+   * For windows, see {@link #getWindowsSystemInstallationFile()}. For Unix, see {@link
+   * #getUnixSystemInstallationFile()}.
    *
    * @return the system installation file name.
    */
@@ -538,8 +455,8 @@ public class RxFileManager {
   /**
    * Sets the platform specific program files directory.
    *
-   * @param programDir the platform specific program files directory, may
-   * not be <code>null</code> or empty
+   * @param programDir the platform specific program files directory, may not be <code>null</code>
+   *     or empty
    */
   public static void setProgramDir(String programDir) {
     if ((programDir == null) || (programDir.trim().length() < 1))
@@ -554,11 +471,9 @@ public class RxFileManager {
   /**
    * Returns the platform specific program files directory.
    *
-   * @return the platform specific program files directory, never
-   * not be <code>null</code> or empty
-   *
-   * @throws IllegalStateException if program files directory has not been
-   * set through <code>setProgramDir()</code> method
+   * @return the platform specific program files directory, never not be <code>null</code> or empty
+   * @throws IllegalStateException if program files directory has not been set through <code>
+   *     setProgramDir()</code> method
    */
   public static String getProgramDir() {
     if (ms_programDir == null) throw new IllegalStateException("programs directory not set");
@@ -566,9 +481,7 @@ public class RxFileManager {
     return ms_programDir;
   }
 
-  /**
-   *  Returns the default installation directory for Rhythmyx
-   */
+  /** Returns the default installation directory for Rhythmyx */
   public static String getDefaultInstallationDirectory() {
     String strHomeDirName = getHomeDrive();
     if (strHomeDirName != null) {
@@ -578,9 +491,7 @@ public class RxFileManager {
     return (strHomeDirName);
   }
 
-  /**
-   *  Returns the default installation directory for the CM1 SDK.
-   */
+  /** Returns the default installation directory for the CM1 SDK. */
   public static String getDefaultSDKInstallationDirectory() {
     String strHomeDirName = getHomeDrive();
     if (strHomeDirName != null) {
@@ -590,9 +501,7 @@ public class RxFileManager {
     return (strHomeDirName);
   }
 
-  /**
-   * Returns the home drive
-   */
+  /** Returns the home drive */
   public static String getHomeDrive() {
     File homeDir = new File(System.getProperty("user.home"));
     String strHomeDirName = homeDir.getAbsolutePath();
@@ -635,16 +544,11 @@ public class RxFileManager {
   /**
    * Loads the specified properties file.
    *
-   * @param propFilePath path of the properties file to load, may not be
-   * <code>null</code> or empty
-   *
-   * @return the properties object representing the specified properties file,
-   * never <code>null</code>, may be empty if the specified properties file
-   * does not exist or does not contain any property
-   *
-   * @throws IllegalArgumentException if <code>propFilePath</code> is
-   * <code>null</code> or empty
-   *
+   * @param propFilePath path of the properties file to load, may not be <code>null</code> or empty
+   * @return the properties object representing the specified properties file, never <code>null
+   *     </code>, may be empty if the specified properties file does not exist or does not contain
+   *     any property
+   * @throws IllegalArgumentException if <code>propFilePath</code> is <code>null</code> or empty
    * @throws IOException if an I/O error occurs
    */
   public static Properties loadProperties(String propFilePath) throws IOException {
@@ -666,14 +570,10 @@ public class RxFileManager {
    * Saves the specified properties file.
    *
    * @param props the properties object to save, may not be <code>null</code>
-   *
-   * @param propFilePath path of the file where the properties object should
-   * be saved, may not be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if <code>props</code> or
-   * <code>propFilePath</code> is <code>null</code> or if
-   * <code>propFilePath</code> is empty
-   *
+   * @param propFilePath path of the file where the properties object should be saved, may not be
+   *     <code>null</code> or empty
+   * @throws IllegalArgumentException if <code>props</code> or <code>propFilePath</code> is <code>
+   *     null</code> or if <code>propFilePath</code> is empty
    * @throws IOException if an I/O error occurs
    */
   public static void saveProperties(Properties props, String propFilePath) throws IOException {
@@ -695,6 +595,7 @@ public class RxFileManager {
 
   /**
    * Getter for a root dir.
+   *
    * @return root dir, never null or empty after directory is chosen.
    */
   public static String getRootDir() {
@@ -703,8 +604,9 @@ public class RxFileManager {
 
   /**
    * Setter for root dir.
-   * @param strRootDir may be <code>null</code>, however since this is a
-   * shared static property only a non null and non empty is taken.
+   *
+   * @param strRootDir may be <code>null</code>, however since this is a shared static property only
+   *     a non null and non empty is taken.
    */
   public static void setRootDir(String strRootDir) {
     if (strRootDir != null && strRootDir.trim().length() > 0) {
@@ -720,6 +622,7 @@ public class RxFileManager {
 
   /**
    * Getter for long directory path name, one that user actually chose.
+   *
    * @return longRootDir, never <code>null</code>.
    */
   public static String getLongRootDir() {
@@ -728,6 +631,7 @@ public class RxFileManager {
 
   /**
    * Setter for long Root directory path before we do short name on it.
+   *
    * @param longRootDir never <code>null</code>.
    */
   public static void setLongRootDir(String longRootDir) {

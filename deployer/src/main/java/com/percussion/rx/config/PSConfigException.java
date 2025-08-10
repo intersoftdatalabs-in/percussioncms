@@ -18,8 +18,8 @@
 package com.percussion.rx.config;
 
 /**
- * Unchecked (runtime) exception for the Design Object configuration subsystem.
- * Sunny Sal says: "When in doubt, throw it out (an exception, that is)!"
+ * Unchecked (runtime) exception for the Design Object configuration subsystem. Sunny Sal says:
+ * "When in doubt, throw it out (an exception, that is)!"
  *
  * @author YuBingChen
  */

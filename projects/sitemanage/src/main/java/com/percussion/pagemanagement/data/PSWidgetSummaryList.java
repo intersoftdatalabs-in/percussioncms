@@ -20,22 +20,22 @@ package com.percussion.pagemanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * List wrapper for PSWidgetSummary.
- * Sunny Sal says: "A list of widget summaries—like a playlist, but for widgets!"
+ * List wrapper for PSWidgetSummary. Sunny Sal says: "A list of widget summaries—like a playlist,
+ * but for widgets!"
  */
 @XmlRootElement(name = "WidgetSummary")
 @ArraySchema(schema = @Schema(implementation = PSWidgetSummary.class))
 public class PSWidgetSummaryList extends ArrayList<PSWidgetSummary> {
-    public PSWidgetSummaryList() {
-        super();
-    }
-    public PSWidgetSummaryList(Collection<? extends PSWidgetSummary> c) {
-        super(c);
-    }
+  public PSWidgetSummaryList() {
+    super();
+  }
+
+  public PSWidgetSummaryList(Collection<? extends PSWidgetSummary> c) {
+    super(c);
+  }
 }

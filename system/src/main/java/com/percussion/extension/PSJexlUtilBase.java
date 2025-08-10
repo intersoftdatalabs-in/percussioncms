@@ -21,8 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A base class for Jexl based extensions. Extend this class to ensure that
- * your JEXL extensions implement the correct interface.
+ * A base class for Jexl based extensions. Extend this class to ensure that your JEXL extensions
+ * implement the correct interface.
  *
  * @author dougrand
  */

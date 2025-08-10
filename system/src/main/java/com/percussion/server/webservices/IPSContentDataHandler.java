@@ -25,9 +25,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 public interface IPSContentDataHandler extends IPSPortActionHandler {
-  /**
-   * The resource path used to purge content items.
-   */
+  /** The resource path used to purge content items. */
   String PURGE_PATH = "sys_cxSupport/purgecontent.html";
 
   static void purgeItems(PSRequest request, List<String> itemIds) {}

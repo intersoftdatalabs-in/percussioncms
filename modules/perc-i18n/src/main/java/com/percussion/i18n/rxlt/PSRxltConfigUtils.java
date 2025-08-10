@@ -17,8 +17,8 @@
 package com.percussion.i18n.rxlt;
 
 /**
- * This class is place holder for static constants used in the configuration XML
- * file for the Percussion Language Tool.
+ * This class is place holder for static constants used in the configuration XML file for the
+ * Percussion Language Tool.
  */
 public class PSRxltConfigUtils {
   /*

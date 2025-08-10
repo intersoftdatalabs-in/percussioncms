@@ -25,9 +25,9 @@ import java.io.File;
 import java.util.Date;
 
 /**
- * Check a date argument for a range, supplied in the parameters. Note that the
- * range check is an inclusive test. The parameters to this udf consist of the
- * following:
+ * Check a date argument for a range, supplied in the parameters. Note that the range check is an
+ * inclusive test. The parameters to this udf consist of the following:
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -62,11 +62,10 @@ import java.util.Date;
  * the range</td>
  * </tr>
  * </table>
- * <p>
- * The values are compared as long time values.
+ *
+ * <p>The values are compared as long time values.
  *
  * @author dougrand
- *
  */
 public class PSValidateDate extends PSRangeValidator {
 
@@ -93,8 +92,7 @@ public class PSValidateDate extends PSRangeValidator {
    * Extract the time as a double value
    *
    * @param value the input value
-   * @return the double value or <code>null</code> if the input is
-   *         <code>null</code>
+   * @return the double value or <code>null</code> if the input is <code>null</code>
    */
   private Double toDouble(Date value) {
     if (value == null) return null;

@@ -24,35 +24,33 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a transformable category tree for migration or upgrade.
- */
+/** Represents a transformable category tree for migration or upgrade. */
 @XmlRootElement(name = "Tree")
 public class PSTransformCategory {
 
-    private String label;
-    private List<PSTransformCategoryNode> topNodes = new ArrayList<>();
+  private String label;
+  private List<PSTransformCategoryNode> topNodes = new ArrayList<>();
 
-    @XmlAttribute(name = "label")
-    public String getLabel() {
-        return label;
-    }
+  @XmlAttribute(name = "label")
+  public String getLabel() {
+    return label;
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    @XmlElement(name = "Node")
-    public List<PSTransformCategoryNode> getTopNodes() {
-        return topNodes;
-    }
+  @XmlElement(name = "Node")
+  public List<PSTransformCategoryNode> getTopNodes() {
+    return topNodes;
+  }
 
-    public void setTopNodes(List<PSTransformCategoryNode> topNodes) {
-        this.topNodes = topNodes;
-    }
+  public void setTopNodes(List<PSTransformCategoryNode> topNodes) {
+    this.topNodes = topNodes;
+  }
 
-    @Override
-    public String toString() {
-        return "PSTransformCategory [label=" + label + ", topNodes=" + topNodes + "]";
-    }
+  @Override
+  public String toString() {
+    return "PSTransformCategory [label=" + label + ", topNodes=" + topNodes + "]";
+  }
 }

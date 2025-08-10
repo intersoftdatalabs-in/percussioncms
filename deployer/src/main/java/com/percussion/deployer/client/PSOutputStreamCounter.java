@@ -21,10 +21,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Wraps an output stream and at any time can return the number of bytes written
- * to the stream.
- */
+/** Wraps an output stream and at any time can return the number of bytes written to the stream. */
 public class PSOutputStreamCounter extends FilterOutputStream implements IPSStreamCounter {
 
   /**
@@ -58,8 +55,8 @@ public class PSOutputStreamCounter extends FilterOutputStream implements IPSStre
   }
 
   /**
-   * Count of bytes written so far, incremented each time a <code>write()</code>
-   * method is called, initially zero.
+   * Count of bytes written so far, incremented each time a <code>write()</code> method is called,
+   * initially zero.
    */
   private long m_count = 0;
 }

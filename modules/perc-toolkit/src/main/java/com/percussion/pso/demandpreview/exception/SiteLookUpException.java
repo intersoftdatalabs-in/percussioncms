@@ -19,9 +19,7 @@ package com.percussion.pso.demandpreview.exception;
 
 public class SiteLookUpException extends RuntimeException {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -13455678L;
 
   public SiteLookUpException() {

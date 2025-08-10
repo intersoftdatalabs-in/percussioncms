@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Tag;
 
 /**
  * The PSContentStatusHistoryContextTest class is a test class for the class
- *  PSContentStatusHistoryContext
+ * PSContentStatusHistoryContext
  */
 @Tag("IntegrationTest")
 public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
@@ -39,7 +39,7 @@ public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments.
+   * @param args command line arguments.
    */
   public PSContentStatusHistoryContextTest(String[] args) {
     m_sArgs = args;

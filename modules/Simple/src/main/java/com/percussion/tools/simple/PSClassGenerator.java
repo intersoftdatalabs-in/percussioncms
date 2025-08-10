@@ -31,9 +31,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * This class is used to create dummy classes with stubbed out methods.
- */
+/** This class is used to create dummy classes with stubbed out methods. */
 public class PSClassGenerator {
   private static final Logger log = LogManager.getLogger(PSClassGenerator.class);
 
@@ -427,27 +425,17 @@ public class PSClassGenerator {
   /**
    * This class may be used from the command line.
    *
-   * Arguments expected are:
+   * <p>Arguments expected are:
    *
    * <ol>
-   * <li>sourceClassDir: The source compiled class directory to build from.
-   * Must point to an existing directory with compiled class files.
-   * </li>
-   *
-   * <li>sourceJavaDir: The source java class directory corresponding to the
-   * source class directory.  Must point to an existing directory with java class
-   * files.
-   * </li>
-   *
-   * <li>outputJavaDir: The output directory for the generated java classes.
-   * Must point to an existing directory.
-   * </li>
-   *
-   * <li>package: The package of the generated java classes.
-   * </li>
-   *
+   *   <li>sourceClassDir: The source compiled class directory to build from. Must point to an
+   *       existing directory with compiled class files.
+   *   <li>sourceJavaDir: The source java class directory corresponding to the source class
+   *       directory. Must point to an existing directory with java class files.
+   *   <li>outputJavaDir: The output directory for the generated java classes. Must point to an
+   *       existing directory.
+   *   <li>package: The package of the generated java classes.
    * </ol>
-   *
    */
   public static void main(String[] args) {
     File srcClassDir = null;
@@ -476,9 +464,7 @@ public class PSClassGenerator {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSClassGenerator ");

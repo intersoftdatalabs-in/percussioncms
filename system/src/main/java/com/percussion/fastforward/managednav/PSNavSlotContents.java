@@ -50,20 +50,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * NavSlotContents is a cache of the relationships for all items in the Navon
- * and Navtree content types. This class is rooted as a single instance in the
- * NavConfig. It is built at initialization time (or whenever a NavReset occurs.
- * <p>
- * There is a separate list of each AuthType, although the current implements
- * treats all AuthTypes > 1 the same as AuthType = 1.
- * <p>
- * This implementation also limits Navons to the content valid states 'I' and
- * 'Y'. This effectively means that Navons and NavImages cannot be in "Staging"
- * states, although the landing pages can.
+ * NavSlotContents is a cache of the relationships for all items in the Navon and Navtree content
+ * types. This class is rooted as a single instance in the NavConfig. It is built at initialization
+ * time (or whenever a NavReset occurs.
+ *
+ * <p>There is a separate list of each AuthType, although the current implements treats all
+ * AuthTypes > 1 the same as AuthType = 1.
+ *
+ * <p>This implementation also limits Navons to the content valid states 'I' and 'Y'. This
+ * effectively means that Navons and NavImages cannot be in "Staging" states, although the landing
+ * pages can.
+ *
  * <p>
  *
  * @author DavidBenua
- *
  */
 public class PSNavSlotContents {
   /**
@@ -91,8 +91,7 @@ public class PSNavSlotContents {
    * @param parent the item that owns these relationships.
    * @param slotId the slot id.
    * @return a list of relationship objects. May be <code>
-   * empty</code> but
-   *         never <code>null</code>.
+   * empty</code> but never <code>null</code>.
    */
   public PSAaRelationshipList getSlotContents(PSLocator parent, int slotId) {
     Integer item = parent.getId();
@@ -111,8 +110,8 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Loads the standard slots into the slot map. These slots are specified in
-   * Navigation.properties. This method reads them from the current NavConfig.
+   * Loads the standard slots into the slot map. These slots are specified in Navigation.properties.
+   * This method reads them from the current NavConfig.
    */
   private void addStandardSlots() {
     for (PSSlotType st : m_config.getNavSubMenuSlotTypes()) {
@@ -140,8 +139,7 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Builds the SQL IN clause for selecting all relationships in the required
-   * slots.
+   * Builds the SQL IN clause for selecting all relationships in the required slots.
    *
    * @return the SQL IN clause.
    */
@@ -164,14 +162,13 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Loads the maps from the database. Each map consists of a map of
-   * PSAaRelationshipList objects representing the contents of each slot on
-   * each content item.
-   * <p>
-   * All relationship objects built by this class use the standard Active
-   * Assembly relationship, although this relationship is never used. The rest
-   * of the managed nav subsystem relies on the content ids only, not the
-   * relationship or its properties.
+   * Loads the maps from the database. Each map consists of a map of PSAaRelationshipList objects
+   * representing the contents of each slot on each content item.
+   *
+   * <p>All relationship objects built by this class use the standard Active Assembly relationship,
+   * although this relationship is never used. The rest of the managed nav subsystem relies on the
+   * content ids only, not the relationship or its properties.
+   *
    * <p>
    *
    * @param req the parent request context.
@@ -254,13 +251,13 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Iterates through the bulk result set and checks whether the item exists in
-   * the publishable but non public state. If exists in that list then replaces
-   * its related content with the last public revision related content.
+   * Iterates through the bulk result set and checks whether the item exists in the publishable but
+   * non public state. If exists in that list then replaces its related content with the last public
+   * revision related content.
    *
    * @param resultSet List of all publishable related content.
-   * @return Adjusted list of related content for the last public revision. May
-   *         be empty but never <code>null</code>.
+   * @return Adjusted list of related content for the last public revision. May be empty but never
+   *     <code>null</code>.
    * @throws NumberFormatException
    * @throws PSNavException
    */
@@ -290,13 +287,12 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Adds an empty map for the given content id if one does not exist. The map
-   * is keyed by content id (as an Integer object).
+   * Adds an empty map for the given content id if one does not exist. The map is keyed by content
+   * id (as an Integer object).
    *
    * @param contentId the content id to add.
-   *
-   * @return the value of the specified content-id. It may be an empty map
-   *    if the given content id does not exist.
+   * @return the value of the specified content-id. It may be an empty map if the given content id
+   *     does not exist.
    */
   private Map<Integer, PSAaRelationshipList> buildItemMap(Integer contentId) {
     Map<Integer, PSAaRelationshipList> currentItem = m_itemMap.get(contentId);
@@ -308,13 +304,12 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Find the slot relationship list for a given slot id. If one does not
-   * exist, build a new one.
+   * Find the slot relationship list for a given slot id. If one does not exist, build a new one.
    *
    * @param slotMap the slot map for this parent item.
    * @param slotId the slot id to find
-   * @return the relationship list for a given slot. If one does not exist, a
-   *         new empty slot relationship list will be returned.
+   * @return the relationship list for a given slot. If one does not exist, a new empty slot
+   *     relationship list will be returned.
    */
   private PSAaRelationshipList buildSlotRelations(
       Map<Integer, PSAaRelationshipList> slotMap, Integer slotId) {
@@ -327,13 +322,11 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Gets the set of all relationships where the parent is a Navon or NavTree
-   * and the slot id is a recognized Nav slot. If the <code>authType</code>
-   * is not 0, only items which are in public or ignore states will be
-   * returned.
+   * Gets the set of all relationships where the parent is a Navon or NavTree and the slot id is a
+   * recognized Nav slot. If the <code>authType</code> is not 0, only items which are in public or
+   * ignore states will be returned.
    *
-   * @return a list of <code>Integer[]</code>. Never <code>null</code> but
-   *         may be <code>empty</code>
+   * @return a list of <code>Integer[]</code>. Never <code>null</code> but may be <code>empty</code>
    * @throws PSNavException
    */
   private List<Integer[]> getResultSet() throws PSNavException {
@@ -395,11 +388,10 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Gets a list Integers of contentids of managed nav content types, that are
-   * publishable but not in public state.
+   * Gets a list Integers of contentids of managed nav content types, that are publishable but not
+   * in public state.
    *
-   * @return a list of <code>Integer[]</code>. Never <code>null</code> but
-   *         may be <code>empty</code>
+   * @return a list of <code>Integer[]</code>. Never <code>null</code> but may be <code>empty</code>
    * @throws PSNavException
    */
   private List<Integer> getQuickEditNavons() throws PSNavException {
@@ -439,8 +431,7 @@ public class PSNavSlotContents {
    *
    * @param contentID Id of the content item.
    * @param revision of the content item.
-   * @return a list of <code>Integer[]</code>. Never <code>null</code> but
-   *         may be <code>empty</code>
+   * @return a list of <code>Integer[]</code>. Never <code>null</code> but may be <code>empty</code>
    * @throws PSNavException
    */
   private List<Integer[]> getRelatedContentData(int contentID, int revision) throws PSNavException {
@@ -483,15 +474,13 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Get the content valid string in the format ('i','I','y','Y') suitable to
-   * be a SQL parameter. Reads the property named authtype.XXX.validFlags from
-   * the nav config file. If found, builds the string in the above syntax else
-   * returns the default one {@link #DEFAULT_CONTENT_VALID_FLAGS}.
+   * Get the content valid string in the format ('i','I','y','Y') suitable to be a SQL parameter.
+   * Reads the property named authtype.XXX.validFlags from the nav config file. If found, builds the
+   * string in the above syntax else returns the default one {@link #DEFAULT_CONTENT_VALID_FLAGS}.
    *
    * @param authType the authtype value, assumed not <code>null</code>.
    * @param nonPublic skips flag 'y' if it is <code>true</code>.
-   * @return content valid string as described above, never <code>null</code>
-   * or empty.
+   * @return content valid string as described above, never <code>null</code> or empty.
    */
   private String getContentValidFlagsForAuthtype(Integer authType, boolean nonPublic) {
     if (nonPublic) return DEFAULT_CONTENT_VALID_FLAGS_NONPUBLIC;
@@ -499,13 +488,10 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Gets the pattern to use to generate the correct sql statement for the
-   * given authtype.
+   * Gets the pattern to use to generate the correct sql statement for the given authtype.
    *
    * @param authType The authtype to use, must be either 0 or 1.
-   *
    * @return The sql pattern, never <code>null</code> or empty.
-   *
    * @todo Update for custom authtypes.
    */
   private String getSqlPattern(int authType) {
@@ -522,16 +508,14 @@ public class PSNavSlotContents {
   }
 
   /**
-   * Creates a string of qualified table names suitable for use as the "FROM"
-   * clause of a SQL statement.
+   * Creates a string of qualified table names suitable for use as the "FROM" clause of a SQL
+   * statement.
    *
-   * @param tables Two dimensional array of table names and aliases. Each entry
-   *           is a String[2] of tablename and alias. Assume to contain at
-   *           least one entry and to have non- <code>null</code>, non-empty
-   *           values in all array positions.
-   *
-   * @return The tables string in the form "table alias[, table alias]", never
-   *         <code>null</code> or empty.
+   * @param tables Two dimensional array of table names and aliases. Each entry is a String[2] of
+   *     tablename and alias. Assume to contain at least one entry and to have non- <code>null
+   *     </code>, non-empty values in all array positions.
+   * @return The tables string in the form "table alias[, table alias]", never <code>null</code> or
+   *     empty.
    */
   private String getQualifiedTables(String[][] tables) {
     StringBuilder buf = new StringBuilder();
@@ -545,47 +529,36 @@ public class PSNavSlotContents {
     return buf.toString();
   }
 
-  /**
-   * Configuration instance for local access to config information.
-   */
+  /** Configuration instance for local access to config information. */
   private PSNavConfig m_config = PSNavConfig.getInstance();
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSNavSlotContents.class);
 
-  /**
-   * Authtype for this instance. Defaults to 0.
-   */
+  /** Authtype for this instance. Defaults to 0. */
   private Integer m_authType;
 
-  /**
-   * Map of all Navon and NavTree items by content id.
-   */
+  /** Map of all Navon and NavTree items by content id. */
   private Map<Integer, Map<Integer, PSAaRelationshipList>> m_itemMap = new HashMap<>();
 
-  /**
-   * Map of all navon slots by slotid.
-   */
+  /** Map of all navon slots by slotid. */
   private Map<Integer, PSSlotType> m_slotMap = new HashMap<>();
 
   /**
-   * Authtype valid string for the authtype of this object. Initialized in the
-   * ctor. Never <code>null</code> after that.
+   * Authtype valid string for the authtype of this object. Initialized in the ctor. Never <code>
+   * null</code> after that.
    */
   private String m_authTypeValidFlags = null;
 
   /**
-   * Authtype valid string for the authtype of this object that are publishable
-   * but non public. Initialized in the ctor. Never <code>null</code> after
-   * that.
+   * Authtype valid string for the authtype of this object that are publishable but non public.
+   * Initialized in the ctor. Never <code>null</code> after that.
    */
   private String m_authTypeValidFlagsNonPublic = null;
 
   /**
-   * The starting portion of the select statement to use up to and including
-   * the "from" keyword followed by a space
+   * The starting portion of the select statement to use up to and including the "from" keyword
+   * followed by a space
    */
   private static final String SQL_START =
       "SELECT rxc.RID, "
@@ -624,10 +597,7 @@ public class PSNavSlotContents {
           + "rxc.SLOT_ID IN {0} "
           + "ORDER BY rxc.OWNER_ID, rxc.SLOT_ID, rxc.SORT_RANK";
 
-  /**
-   * SQL statement for getting the related content by content id and revision
-   * id.
-   */
+  /** SQL statement for getting the related content by content id and revision id. */
   private static final String SQL_RELATIONSHIPS_START =
       "SELECT rxc.RID, "
           + "rxc.OWNER_ID, rxc.OWNER_REVISION, rxc.DEPENDENT_ID, rxc.SLOT_ID, "
@@ -650,8 +620,8 @@ public class PSNavSlotContents {
           + "ORDER BY rxc.OWNER_ID, rxc.SLOT_ID, rxc.SORT_RANK";
 
   /**
-   * SQL Statement for getting the nav content items that are in publishable
-   * state but not in public state.
+   * SQL Statement for getting the nav content items that are in publishable state but not in public
+   * state.
    */
   private static final String SQL_NONPUBLIC_PUBLISHABLE_NAVONS_START = "SELECT cs.CONTENTID FROM ";
 
@@ -664,60 +634,36 @@ public class PSNavSlotContents {
           + "cs.WORKFLOWAPPID=st.WORKFLOWAPPID AND st.CONTENTVALID IN {0} "
           + "AND CONTENTTYPEID IN {1}";
 
-  /**
-   * Maximum number of columns in the SQL Query. Columns in the Array are
-   * numbed from 0, not 1.
-   */
+  /** Maximum number of columns in the SQL Query. Columns in the Array are numbed from 0, not 1. */
   private static final int SQL_MAX_COL = 8;
 
-  /**
-   * Column number for the System ID column.
-   */
+  /** Column number for the System ID column. */
   private static final int SQL_SYSID = 0;
 
-  /**
-   * Column number for the Content ID column.
-   */
+  /** Column number for the Content ID column. */
   private static final int SQL_CONTENTID = 1;
 
-  /**
-   * Column number for the Revision ID column.
-   */
+  /** Column number for the Revision ID column. */
   private static final int SQL_REVISIONID = 2;
 
-  /**
-   * Column number for the child Content Item ID column.
-   */
+  /** Column number for the child Content Item ID column. */
   private static final int SQL_ITEMCONTENTID = 3;
 
-  /**
-   * Column number for the Slot ID column.
-   */
+  /** Column number for the Slot ID column. */
   private static final int SQL_SLOTID = 4;
 
-  /**
-   * Column number for the Variant ID column.
-   */
+  /** Column number for the Variant ID column. */
   private static final int SQL_VARIANTID = 5;
 
-  /**
-   * Column number for the Sort Rank column.
-   */
+  /** Column number for the Sort Rank column. */
   private static final int SQL_SORTRANK = 6;
 
-  /**
-   * Column number for the Folder id column.
-   */
+  /** Column number for the Folder id column. */
   private static final int SQL_FOLDERID = 7;
 
-  /**
-   * Default content valid flags.
-   */
+  /** Default content valid flags. */
   private static String DEFAULT_CONTENT_VALID_FLAGS = "('i','I','y','Y')";
 
-  /**
-   * Default content valid flags for publishable items that are not in public
-   * state.
-   */
+  /** Default content valid flags for publishable items that are not in public state. */
   private static String DEFAULT_CONTENT_VALID_FLAGS_NONPUBLIC = "('i','I')";
 }

@@ -25,17 +25,16 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * An error handler for SAX parsers which keeps the errors in
- * a list accessible after parsing is complete.
+ * An error handler for SAX parsers which keeps the errors in a list accessible after parsing is
+ * complete.
  */
 public class PSSaxErrorHandler implements ErrorHandler {
   /**
-   * Construct a new SAX error handler. This handler will
-   * immediately throw on fatal errors, but will simply
-   * record and keep track of non-fatal errors and warnings.
-   * <P>
-   * You can change the throw behavior of the error handler
-   * using the throwOnFatalErrors and similar methods.
+   * Construct a new SAX error handler. This handler will immediately throw on fatal errors, but
+   * will simply record and keep track of non-fatal errors and warnings.
+   *
+   * <p>You can change the throw behavior of the error handler using the throwOnFatalErrors and
+   * similar methods.
    */
   PSSaxErrorHandler() {
     m_errors = new ArrayList();
@@ -45,8 +44,7 @@ public class PSSaxErrorHandler implements ErrorHandler {
   }
 
   /**
-   * Use this constructor when parser errors should be "printed", usually to
-   * a log or trace file.
+   * Use this constructor when parser errors should be "printed", usually to a log or trace file.
    */
   PSSaxErrorHandler(PrintWriter pw) {
     this();

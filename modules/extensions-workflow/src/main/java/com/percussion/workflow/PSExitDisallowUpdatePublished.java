@@ -36,9 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is an extension that is part of Rhythmyx workflow engine. The
- * purpose of this extension is to restrict updating a document in workflow
- * when it is in state that is publishable.
+ * This class is an extension that is part of Rhythmyx workflow engine. The purpose of this
+ * extension is to restrict updating a document in workflow when it is in state that is publishable.
  */
 public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
   private static final Logger ms_log = LogManager.getLogger(PSExitDisallowUpdatePublished.class);
@@ -60,15 +59,12 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
   }
 
   /**
-   * This overrides the method in the original interface and is called by the
-   * server while processign the request.
+   * This overrides the method in the original interface and is called by the server while
+   * processign the request.
    *
    * @param params - array of objects that are parameters to the extension
-   *
    * @param request - request context (IPSRequestContext)
-   *
-   * @throws  PSExtensionProcessingException
-   *
+   * @throws PSExtensionProcessingException
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException, PSParameterMismatchException {
@@ -124,17 +120,14 @@ public class PSExitDisallowUpdatePublished implements IPSRequestPreProcessor {
   }
 
   /**
-   * Check the specified item and throws {@link PSExtensionProcessingException}
-   * if the item is in public state.
+   * Check the specified item and throws {@link PSExtensionProcessingException} if the item is in
+   * public state.
    *
    * @param contentid the id of the item in question.
-   * @param connection the connection used to get the status of the specified
-   *    item; assumed not <code>null</code>.
-   * @param lang the locale that is used to fetch the error message should
-   *    error occurs.
-   *
-   * @throws PSExtensionProcessingException if the specified item is in
-   *    publishable state.
+   * @param connection the connection used to get the status of the specified item; assumed not
+   *     <code>null</code>.
+   * @param lang the locale that is used to fetch the error message should error occurs.
+   * @throws PSExtensionProcessingException if the specified item is in publishable state.
    */
   private void disallowUpdatePublished(int contentid, Connection connection, String lang)
       throws SQLException, PSExtensionProcessingException {

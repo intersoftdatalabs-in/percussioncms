@@ -18,61 +18,67 @@
 package com.percussion.pagemanagement.data;
 
 /**
- * Summary information for a cataloged page.
- * Immutable data object for use in page listings.
+ * Summary information for a cataloged page. Immutable data object for use in page listings.
+ *
  * @author JaySeletz
  */
 public class PSCatalogPageSummary {
 
-    private String id;
-    private String path;
-    private String name;
+  private String id;
+  private String path;
+  private String name;
 
-    /**
-     * Gets the unique ID of the page.
-     * @return the ID, may be {@code null} if not set.
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * Gets the unique ID of the page.
+   *
+   * @return the ID, may be {@code null} if not set.
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * Sets the unique ID of the page.
-     * @param id the ID to set, may be {@code null}.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
+  /**
+   * Sets the unique ID of the page.
+   *
+   * @param id the ID to set, may be {@code null}.
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * Gets the path of the page.
-     * @return the path, may be {@code null} if not set.
-     */
-    public String getPath() {
-        return path;
-    }
+  /**
+   * Gets the path of the page.
+   *
+   * @return the path, may be {@code null} if not set.
+   */
+  public String getPath() {
+    return path;
+  }
 
-    /**
-     * Sets the path of the page.
-     * @param path the path to set, may be {@code null}.
-     */
-    public void setPath(String path) {
-        this.path = path;
-    }
+  /**
+   * Sets the path of the page.
+   *
+   * @param path the path to set, may be {@code null}.
+   */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * Gets the name of the page.
-     * @return the name, may be {@code null} if not set.
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Gets the name of the page.
+   *
+   * @return the name, may be {@code null} if not set.
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the name of the page.
-     * @param name the name to set, may be {@code null}.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+  /**
+   * Sets the name of the page.
+   *
+   * @param name the name to set, may be {@code null}.
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 }

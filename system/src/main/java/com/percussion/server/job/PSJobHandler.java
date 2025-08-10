@@ -45,21 +45,19 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Handles all client requests for Job operations including Export,
- * Import, and Backup jobs.  Also handles requests for the current status of a
- * job.
+ * Handles all client requests for Job operations including Export, Import, and Backup jobs. Also
+ * handles requests for the current status of a job.
  */
 public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   /**
-   * Initializes the request methods and loads the job runner definitions.
-   * The <code>cfgFileIn</code> param should provide valid XML used to
-   * construct a {@link PSJobHandlerConfiguration} object.
+   * Initializes the request methods and loads the job runner definitions. The <code>cfgFileIn
+   * </code> param should provide valid XML used to construct a {@link PSJobHandlerConfiguration}
+   * object.
    *
-   * See {@link IPSLoadableRequestHandler} class for more info on parameters
-   * and exceptions.
+   * <p>See {@link IPSLoadableRequestHandler} class for more info on parameters and exceptions.
    *
-   * @throws PSServerException if <code>InputStream</code> is <code>null</code>
-   * or contains invalid content.
+   * @throws PSServerException if <code>InputStream</code> is <code>null</code> or contains invalid
+   *     content.
    */
   public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {
     if (requestRoots == null || requestRoots.size() == 0)
@@ -98,21 +96,17 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Process the request using the input context information and data.
-   * Determines which action to take and calls the appropriate request method.
-   * All request methods return an XML Document, which is used to set the
-   * headers and content of the response. Sends the response back to the
-   * requestor.  An XML document is returned as the body of the response,
-   * either the <code>Document</code> returned from the request method, or the
-   * XML representation of a {@link PSJobException} if an error occurred.  If
-   * an error is returned, the status code of the response is set to
-   * <code>500</code>.
+   * Process the request using the input context information and data. Determines which action to
+   * take and calls the appropriate request method. All request methods return an XML Document,
+   * which is used to set the headers and content of the response. Sends the response back to the
+   * requestor. An XML document is returned as the body of the response, either the <code>Document
+   * </code> returned from the request method, or the XML representation of a {@link PSJobException}
+   * if an error occurred. If an error is returned, the status code of the response is set to <code>
+   * 500</code>.
    *
-   * @param request The request object containing all context data associated
-   * with the request, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>request</code> is
-   * <code>null</code>.
+   * @param request The request object containing all context data associated with the request, may
+   *     not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>request</code> is <code>null</code>.
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -162,38 +156,29 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Runs the specified Job.  Creates the Job from the type using the
-   * {@link PSJobRunnerFactory} to create the correct type of job runner.  Job
-   * is run in it's own thread, and a response is returned as soon
-   * as it is started.  To check on the status of a running Job, use
-   * <code>getStatus()</code>. Running a job will lock the entire
-   * <code>PSJobHandler</code>, so that only one job will be able to run at a
-   * time.
+   * Runs the specified Job. Creates the Job from the type using the {@link PSJobRunnerFactory} to
+   * create the correct type of job runner. Job is run in it's own thread, and a response is
+   * returned as soon as it is started. To check on the status of a running Job, use <code>
+   * getStatus()</code>. Running a job will lock the entire <code>PSJobHandler</code>, so that only
+   * one job will be able to run at a time.
    *
-   * @param inDoc The document containing the job descriptor.  Format of this
-   * document is defined by the type of job being run, and the contents are
-   * solely interpreted by the class derived from {@link PSJobRunner}.  May
-   * not be <code>null</code>.
-   * @param req The request context, never <code>null</code>.  Must specify the
-   * category and job type using the <code>sys_jobCategory</code> and
-   * <code>sys_jobType</code> html parameters respectively.
-   *
+   * @param inDoc The document containing the job descriptor. Format of this document is defined by
+   *     the type of job being run, and the contents are solely interpreted by the class derived
+   *     from {@link PSJobRunner}. May not be <code>null</code>.
+   * @param req The request context, never <code>null</code>. Must specify the category and job type
+   *     using the <code>sys_jobCategory</code> and <code>sys_jobType</code> html parameters
+   *     respectively.
    * @return A document containing the following format:
-   *
-   * <pre><code>
+   *     <pre><code>
    * &lt;!ELEMENT PSXJobRunResponse EMPTY>
    * &lt;!ATTLIST PSXJobRunResponse
    *    jobId CDATA #REQUIRED
    * >
    * </code></pre>
-   *
-   * Never <code>null</code>.
-   *
+   *     Never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSAuthorizationException If the user is not authorized to
-   * run the job.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSAuthorizationException If the user is not authorized to run the job.
    * @throws PSJobException If there are any other errors.
    */
   public Document runJob(Document inDoc, PSRequest req)
@@ -308,30 +293,27 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Attempts to stop the currently running job.  Since job is running in its
-   * own thread, it may complete on its own before noticing that it has been
-   * requested to stop.  Returns one of 3 possible result codes:<br>
+   * Attempts to stop the currently running job. Since job is running in its own thread, it may
+   * complete on its own before noticing that it has been requested to stop. Returns one of 3
+   * possible result codes:<br>
    * 1 - Job cancelled successfully<br>
    * 2 - Job completed before cancelled<br>
    * 3 - Job aborted<br>
    *
-   * @param doc the XML document containing the request data (the Job Id).  May
-   * not be <code>null</code>.  Format is <br><br>
-   *
-   * &lt;!--<br>
-   * PSXJobCancel contains the job id.<br>
-   * --&gt;<br>
-   * &lt;!ELEMENT PSXJobCancel EMPTY&gt;<br>
-   * &lt;!ATTLIST PSXJobCancel id CDATA #REQUIRED&gt;<br>
-   *
+   * @param doc the XML document containing the request data (the Job Id). May not be <code>null
+   *     </code>. Format is <br>
+   *     <br>
+   *     &lt;!--<br>
+   *     PSXJobCancel contains the job id.<br>
+   *     --&gt;<br>
+   *     &lt;!ELEMENT PSXJobCancel EMPTY&gt;<br>
+   *     &lt;!ATTLIST PSXJobCancel id CDATA #REQUIRED&gt;<br>
    * @param req the request context, may not be <code>null</code>.
-   *
-   * @return the XML response document containing a PSXJobCancelResponse node
-   * that contains the result.  Format is:<br><br>
-   *
-   * &lt;!ELEMENT PSXJobCancelResponse EMPTY&gt;<br>
-   * &lt;!ATTLIST PSXJobCancelResponse resultCode CDATA #REQUIRED&gt;<br>
-   *
+   * @return the XML response document containing a PSXJobCancelResponse node that contains the
+   *     result. Format is:<br>
+   *     <br>
+   *     &lt;!ELEMENT PSXJobCancelResponse EMPTY&gt;<br>
+   *     &lt;!ATTLIST PSXJobCancelResponse resultCode CDATA #REQUIRED&gt;<br>
    * @throws IllegalArgumentException if either param is invalid.
    * @throws PSJobException if there are any errors.
    */
@@ -366,10 +348,7 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     return respDoc;
   }
 
-  /**
-   * Shutdown the request handler, first attempting to cancel any
-   * running jobs.
-   */
+  /** Shutdown the request handler, first attempting to cancel any running jobs. */
   public void shutdown() {
     PSConsole.printMsg(HANDLER, "Shutting down Job Handler");
     PSJobRunner curJob = unlockJobHandler();
@@ -377,8 +356,8 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Called by job when job completes.  Removes self as job listener on job,
-   * and frees this handler to process another job.
+   * Called by job when job completes. Removes self as job listener on job, and frees this handler
+   * to process another job.
    *
    * @param jobId Id of the job that has completed.
    */
@@ -405,9 +384,8 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    * Attempts to cancel a job.
    *
    * @param job The the job to cancel, assumed not <code>null</code>.
-   *
-   * @return An int code representing the result of the cancel attempt.  For
-   * more information, see {@link #cancelJob(Document, PSRequest)}
+   * @return An int code representing the result of the cancel attempt. For more information, see
+   *     {@link #cancelJob(Document, PSRequest)}
    */
   private int doCancelJob(PSJobRunner job) {
     int resultCode = 3;
@@ -451,7 +429,6 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
    * Locks this handler with the provided job. Only one job may run at a time.
    *
    * @param job The job that will be run, assumed not <code>null</code>.
-   *
    * @throws PSJobException if the handler is already locked.
    */
   private void lockJobHandler(PSJobRunner job) throws PSJobException {
@@ -463,13 +440,11 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   }
 
   /**
-   * Unlocks the handler using the supplied job.  Handler is only unlocked if
-   * the supplied job is the current job locking the handler.
+   * Unlocks the handler using the supplied job. Handler is only unlocked if the supplied job is the
+   * current job locking the handler.
    *
    * @param job The job, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the handler is unlocked, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the handler is unlocked, <code>false</code> otherwise.
    */
   private boolean unlockJobHandler(PSJobRunner job) {
     boolean result = false;
@@ -487,8 +462,8 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
   /**
    * Unlocks the handler.
    *
-   * @return The job that was locking the handler, or <code>null</code> if the
-   * handler is not locked.
+   * @return The job that was locking the handler, or <code>null</code> if the handler is not
+   *     locked.
    */
   private PSJobRunner unlockJobHandler() {
     PSJobRunner locker = null;
@@ -501,55 +476,47 @@ public class PSJobHandler implements IPSLoadableRequestHandler, IPSJobListener {
     return locker;
   }
 
-  /**
-   * Name of this handler.
-   */
+  /** Name of this handler. */
   private static final String HANDLER = "JobHandler";
 
   /**
-   * Storage for the request roots, initialized in <code>init()</code>, never
-   * <code>null</code>, empty or modified after that. A list of
-   * <code>String</code> objects.
+   * Storage for the request roots, initialized in <code>init()</code>, never <code>null</code>,
+   * empty or modified after that. A list of <code>String</code> objects.
    */
   private Collection m_requestRoots = null;
 
   /**
-   * Job handler config used by this handler, intialized by file provided by
-   * <code>init()</code> method, never <code>null</code> or modified after
-   * that.
+   * Job handler config used by this handler, intialized by file provided by <code>init()</code>
+   * method, never <code>null</code> or modified after that.
    */
   private PSJobHandlerConfiguration m_config;
 
   /**
-   * The currently running job.  Since only one job may be run a time, this
-   * also acts as a lock object.
-   * Not <code>null</code> while a job is running.
+   * The currently running job. Since only one job may be run a time, this also acts as a lock
+   * object. Not <code>null</code> while a job is running.
    */
   private PSJobRunner m_currentJob = null;
 
-  /**
-   * Monitor object for synchronizing access to {@link #m_currentJob}
-   */
+  /** Monitor object for synchronizing access to {@link #m_currentJob} */
   private Object m_jobMonitor = new Object();
 
   /**
-   * Map of all jobs run by this handler.  Jobs are added when they are
-   * started. Once jobs are completed, they remain in this map indefinitely as
-   * status may be requested at any time.  Key is the job id as an
-   * <code>Integer</code>, value is an instance of a <code>PSJobRunner</code>.
+   * Map of all jobs run by this handler. Jobs are added when they are started. Once jobs are
+   * completed, they remain in this map indefinitely as status may be requested at any time. Key is
+   * the job id as an <code>Integer</code>, value is an instance of a <code>PSJobRunner</code>.
    * Never <code>null</code>.
    */
   private Map m_jobRunners = new HashMap();
 
   /**
-   * The next job id to use, incremented each time a job is started by a call
-   * to <code>runJob()</code>.
+   * The next job id to use, incremented each time a job is started by a call to <code>runJob()
+   * </code>.
    */
   private int m_nextJobId = 1;
 
   /**
-   * The factory used to run jobs.  Initialized during the <code>init()</code>
-   * method, never <code>null</code> or modified after that.
+   * The factory used to run jobs. Initialized during the <code>init()</code> method, never <code>
+   * null</code> or modified after that.
    */
   private PSJobRunnerFactory m_factory;
 }

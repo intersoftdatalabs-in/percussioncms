@@ -28,18 +28,15 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The class to represent a result row in catalog result set.
- */
+/** The class to represent a result row in catalog result set. */
 public class PSCatalogResult implements IPSDeployComponent, Comparable {
   /**
    * Constructs the catalog result object.
    *
    * @param id the identifier of the result object, may not be <code>null
    * </code> or empty.
-   * @param displayText the text to display for the result object, may not be
-   * <code>null</code> or empty.
-   *
+   * @param displayText the text to display for the result object, may not be <code>null</code> or
+   *     empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSCatalogResult(String id, String displayText) {
@@ -56,11 +53,9 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   /**
    * Adds the object to the list of column objects.
    *
-   * @param obj the column data object to add, must be one of the supported
-   * objects for catalog result column types. Please see {@link
-   * #PSCatalogResultColumn.validateObject(Object) validateObject} for more
-   * information on the supported types.
-   *
+   * @param obj the column data object to add, must be one of the supported objects for catalog
+   *     result column types. Please see {@link #PSCatalogResultColumn.validateObject(Object)
+   *     validateObject} for more information on the supported types.
    * @throws IllegalArgumentException if obj is not a supported type.
    */
   public void addColumn(Object obj) {
@@ -69,11 +64,9 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_TEXT text}
-   * type.
+   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_TEXT text} type.
    *
    * @param data the data to add, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if data is <code>null</code>
    */
   public void addTextColumn(String data) {
@@ -83,8 +76,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_NUMERIC
-   * numeric} type.
+   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_NUMERIC numeric} type.
    *
    * @param data the data to add.
    */
@@ -93,8 +85,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_DATE date}
-   * type.
+   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_DATE date} type.
    *
    * @param data the data to add.
    */
@@ -103,8 +94,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_BOOL boolean}
-   * type.
+   * Adds a column data with a {@link #PSCatalogResultColumn.TYPE_BOOL boolean} type.
    *
    * @param data the data to add.
    */
@@ -115,15 +105,11 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   /**
    * Converts the data to the specified type and returns the object.
    *
-   * @param type the column type based on which the data to be converted to
-   * proper object, assumed to be one of <code>PSCatalogResultColumn.TYPE_XXX
+   * @param type the column type based on which the data to be converted to proper object, assumed
+   *     to be one of <code>PSCatalogResultColumn.TYPE_XXX
    * </code> values
-   * @param data the data object to convert into proper type, may not be
-   * <code>null</code>
-   *
-   * @return the converted object, may be <code>null</code> if it is unable to
-   * convert.
-   *
+   * @param data the data object to convert into proper type, may not be <code>null</code>
+   * @return the converted object, may be <code>null</code> if it is unable to convert.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   private Object convertObject(int type, String data) {
@@ -167,11 +153,9 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   /**
    * Constructs the object from the supplied element.
    *
-   * @param sourceNode the element to construct the object from, may not be
-   * <code>null</code>
-   *
-   * @throws PSUnknownNodeTypeException if the element does not have elements
-   * or attributes expected by this class or its children.
+   * @param sourceNode the element to construct the object from, may not be <code>null</code>
+   * @throws PSUnknownNodeTypeException if the element does not have elements or attributes expected
+   *     by this class or its children.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
    */
   public PSCatalogResult(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -181,9 +165,8 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -238,7 +221,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    %lt;!ELEMENT PSXCatalogResult(ID, DisplayText, Columns?)>
@@ -339,8 +322,8 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Gets the identifier to represent this result, can be used to query the
-   * actual object this result represents.
+   * Gets the identifier to represent this result, can be used to query the actual object this
+   * result represents.
    *
    * @return the identifier, never <code>null</code>
    */
@@ -349,8 +332,8 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Gets the display text of this result that can be used to present to the
-   * users in a single value rather than multiple column data.
+   * Gets the display text of this result that can be used to present to the users in a single value
+   * rather than multiple column data.
    *
    * @return the display text, never <code>null</code> or empty.
    */
@@ -359,8 +342,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * Gets String representation of this object. Uses the display text to
-   * represent this object.
+   * Gets String representation of this object. Uses the display text to represent this object.
    *
    * @return the string, never <code>null</code> or empty.
    */
@@ -373,14 +355,11 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
    *
    * @param obj the catalog result object to compare, may not be <code>null
    * </code>
-   *
-   * @return  the value <code>0</code> if the supplied object's display text
-   * is equal to display text of this object, a value less than <code>0</code>
-   * if the supplied object's display text is lexicographically less than the
-   * display text of this object and a value greater than <code>0</code> if the
-   * supplied object's display text is lexicographically greater than the
-   * display text of this object.
-   *
+   * @return the value <code>0</code> if the supplied object's display text is equal to display text
+   *     of this object, a value less than <code>0</code> if the supplied object's display text is
+   *     lexicographically less than the display text of this object and a value greater than <code>
+   *     0</code> if the supplied object's display text is lexicographically greater than the
+   *     display text of this object.
    * @throws IllegalArgumentException if obj is <code>null</code>.
    * @throws ClassCastException if obj is not an instanceof <code>
    * PSCatalogResult</code>
@@ -395,21 +374,20 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable {
   }
 
   /**
-   * The identifier which can be used to query the object this result
-   * represents, never <code>null</code> or empty after initialization.
+   * The identifier which can be used to query the object this result represents, never <code>null
+   * </code> or empty after initialization.
    */
   private String m_id = null;
 
   /**
-   * The display text that can be used to represent this result to present
-   * to the users, never <code>null</code> or empty after initialization.
+   * The display text that can be used to represent this result to present to the users, never
+   * <code>null</code> or empty after initialization.
    */
   private String m_displayText = null;
 
   /**
-   * The column data if this result has data to present in multiple columns.
-   * User can add column data using <code>addColumn(Object)</code>. Never
-   * <code>null</code> after initialization.
+   * The column data if this result has data to present in multiple columns. User can add column
+   * data using <code>addColumn(Object)</code>. Never <code>null</code> after initialization.
    */
   private List m_columns = new ArrayList();
 

@@ -70,10 +70,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Utilities for content activity service.
- * Sunny Sal says: "May the Streams be with you!"
- */
+/** Utilities for content activity service. Sunny Sal says: "May the Streams be with you!" */
 @PSSiteManageBean("activityService")
 public class PSActivityService implements IPSActivityService {
   private static final Logger ms_log = LogManager.getLogger(PSActivityService.class);
@@ -283,9 +280,7 @@ public class PSActivityService implements IPSActivityService {
     return sysSrv.findPublishedItems(contentIds, WF_STATE_LIVE, WF_STATE_ARCHIVE);
   }
 
-  /**
-   * Returns the number of pages that are in pending state under a given path.
-   */
+  /** Returns the number of pages that are in pending state under a given path. */
   private long getPendingPageCount(String path) throws PSPathServiceException {
     IPSWorkflowService workflowService = PSWorkflowServiceLocator.getWorkflowService();
     return getItemCount(
@@ -295,9 +290,7 @@ public class PSActivityService implements IPSActivityService {
         WF_STATE_PENDING);
   }
 
-  /**
-   * Finds the number of items under the given path that are in given workflow and state.
-   */
+  /** Finds the number of items under the given path that are in given workflow and state. */
   private long getItemCount(
       String path, List<String> contentTypes, String workflowName, String stateName)
       throws PSPathNotFoundServiceException, PSPathServiceException {

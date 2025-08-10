@@ -94,11 +94,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author vamsinukala
- *
  */
-/**
- * A basic  visitor pattern for a jexl expression or a script.
- */
+/** A basic visitor pattern for a jexl expression or a script. */
 public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
 
   private static final Logger log = LogManager.getLogger(PSBaseJexlParserVisitor.class);
@@ -650,9 +647,10 @@ public abstract class PSBaseJexlParserVisitor extends ParserVisitor {
   }
 
   /**
-   * This must be implemented by the subclass. This helper method visits the
-   * child nodes of a simple node
-   * @param arg0 the simple node that has child nodes to  be visited
+   * This must be implemented by the subclass. This helper method visits the child nodes of a simple
+   * node
+   *
+   * @param arg0 the simple node that has child nodes to be visited
    * @param arg1 the original expression node or script node
    * @return the original expression node
    */

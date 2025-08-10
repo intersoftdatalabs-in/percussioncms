@@ -24,9 +24,7 @@ import org.apache.commons.codec.Encoder;
  * @author dougrand
  */
 public class PSXmlEncoder implements Encoder {
-  /**
-   *
-   */
+  /** */
   public PSXmlEncoder() {
     super();
   }

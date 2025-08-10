@@ -22,17 +22,14 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/**
- * Utility class to start the default system browser
- */
+/** Utility class to start the default system browser */
 public class UTBrowserControl {
   /**
-   * Display a file in the system browser. If you want to display a
-   * file, you must include the absolute path name.
+   * Display a file in the system browser. If you want to display a file, you must include the
+   * absolute path name.
    *
-   * @param url The target object's url. On Windows, this could be any file or
-   * URL. The proper program will be launched. On other systems, only the
-   * browser will be launched.
+   * @param url The target object's url. On Windows, this could be any file or URL. The proper
+   *     program will be launched. On other systems, only the browser will be launched.
    */
   public static void displayURL(String url) {
     String cmd = null;
@@ -67,20 +64,21 @@ public class UTBrowserControl {
   }
 
   /**
-   * The name of the key in the properties file that is expected to
-   * contain the command line to launch the browser. The value is expected to
-   * contain 1 replacement parameter where the URL will go.<p/>
-   * The replacement parameter defined by {@link MessageFormat#format(
-   * String, Object[]) MessageFormat} should be used.<p/>
-   * Example: rundll32 psutil.dll,_launchA@16 {0}
+   * The name of the key in the properties file that is expected to contain the command line to
+   * launch the browser. The value is expected to contain 1 replacement parameter where the URL will
+   * go.
+   *
+   * <p>The replacement parameter defined by {@link MessageFormat#format( String, Object[])
+   * MessageFormat} should be used.
+   *
+   * <p>Example: rundll32 psutil.dll,_launchA@16 {0}
    */
   public static final String BROWSER_CMD_LINE_KEY = "BrowserCmdLine";
 
   /**
-   * If the BROWSER_CMD_LINE_KEY can't be found, this is the cmd line that
-   * will be executed. Must contain a replacement parameter where the URL should
-   * be placed. The replacement parameter defined by {@link
-   * MessageFormat#format(String, Object[]) MessageFormat} should be used.
+   * If the BROWSER_CMD_LINE_KEY can't be found, this is the cmd line that will be executed. Must
+   * contain a replacement parameter where the URL should be placed. The replacement parameter
+   * defined by {@link MessageFormat#format(String, Object[]) MessageFormat} should be used.
    */
   public static final String DEFAULT_BROWSER_CMD_LINE = "rundll32 url.dll,FileProtocolHandler {0}";
 }

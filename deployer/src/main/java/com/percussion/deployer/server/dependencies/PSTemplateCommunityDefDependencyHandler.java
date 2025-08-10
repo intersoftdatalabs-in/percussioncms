@@ -37,20 +37,17 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Class to handle packaging and deploying a **PART OF** template definition.
- * Adds definitions to RXVARIANTCOMMUNITY table
+ * Class to handle packaging and deploying a **PART OF** template definition. Adds definitions to
+ * RXVARIANTCOMMUNITY table
  */
 public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -154,7 +151,6 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
    * Creates a dummy dependency file from a given dependency data object.
    *
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -209,16 +205,15 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getTemplateDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
@@ -254,20 +249,15 @@ public class PSTemplateCommunityDefDependencyHandler extends PSDataObjectDepende
   private static final String TEMPLATEID = "VARIANTID";
 
   /**
-   * A util header for templates. IPSAssemblyTemplate upon serialization will
-   * not have this header. Just prepend it.
+   * A util header for templates. IPSAssemblyTemplate upon serialization will not have this header.
+   * Just prepend it.
    */
   private static final String XML_HDR_STR = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "TemplateCommunityDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

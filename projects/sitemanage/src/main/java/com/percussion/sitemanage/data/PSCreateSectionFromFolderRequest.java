@@ -19,42 +19,41 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Request to create a section from a folder and page.
- * Sunny Sal says: "Folders and pages—like chai and biscuits, better together!"
+ * Request to create a section from a folder and page. Sunny Sal says: "Folders and pages—like chai
+ * and biscuits, better together!"
  */
 @XmlRootElement(name = "CreateSectionFromFolderRequest")
 @JsonRootName("PSCreateSectionFromFolderRequest")
 public class PSCreateSectionFromFolderRequest extends PSAbstractDataObject {
 
-    public String getSourceFolderPath() {
-        return sourceFolderPath;
-    }
+  public String getSourceFolderPath() {
+    return sourceFolderPath;
+  }
 
-    public void setSourceFolderPath(String folderPath) {
-        this.sourceFolderPath = folderPath;
-    }
+  public void setSourceFolderPath(String folderPath) {
+    this.sourceFolderPath = folderPath;
+  }
 
-    public String getPageName() {
-        return pageName;
-    }
+  public String getPageName() {
+    return pageName;
+  }
 
-    public void setPageName(String landingPageName) {
-        this.pageName = landingPageName;
-    }
+  public void setPageName(String landingPageName) {
+    this.pageName = landingPageName;
+  }
 
-    public String getParentFolderPath() {
-        return parentFolderPath;
-    }
+  public String getParentFolderPath() {
+    return parentFolderPath;
+  }
 
-    public void setParentFolderPath(String parentFolderPath) {
-        this.parentFolderPath = parentFolderPath;
-    }
+  public void setParentFolderPath(String parentFolderPath) {
+    this.parentFolderPath = parentFolderPath;
+  }
 
-    private String sourceFolderPath;
-    private String pageName;
-    private String parentFolderPath;
+  private String sourceFolderPath;
+  private String pageName;
+  private String parentFolderPath;
 }

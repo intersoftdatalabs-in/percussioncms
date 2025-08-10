@@ -52,17 +52,16 @@ import org.w3c.dom.NodeList;
 
 /**
  * The handler to handle all deploy catalog requests. Please see {@link
- * com.percussion.deployer.catalog.PSCataloger PSCataloger} for description of
- * supported request types and results.
+ * com.percussion.deployer.catalog.PSCataloger PSCataloger} for description of supported request
+ * types and results.
  */
 public class PSCatalogHandler {
   /**
-   * Processes the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the xml document.
+   * Processes the catalog request. This uses the XML document sent as the input data. The results
+   * are written to the xml document.
    *
-   * @param request the request object containing the input document for
-   * catalog request, may not be <code>null</code>
-   *
+   * @param request the request object containing the input document for catalog request, may not be
+   *     <code>null</code>
    * @return the document with cataloged results, never <code>null</code>
    * @throws PSDeployException if an error happens processing the request.
    */
@@ -126,8 +125,9 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the archive logs. The returned result set will have columns.
-   * The following describes the column metadata(Definition).
+   * Catalogs for the archive logs. The returned result set will have columns. The following
+   * describes the column metadata(Definition).
+   *
    * <table border=1>
    * <tr><th>Column Name</th><th>Column Type</th></tr>
    * <tr><th>Name</th><th>text</th></tr>
@@ -136,15 +136,13 @@ public class PSCatalogHandler {
    * <tr><th>Version</th><th>text</th></tr>
    * <tr><th>Build</th><th>text</th></tr>
    * </table>
-   * Each result will have archive log id as id, and archive name as display
-   * text. Please see  and
+   *
+   * Each result will have archive log id as id, and archive name as display text. Please see and
    * for more information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
-   *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogArchives(Properties props) throws PSDeployException {
@@ -170,8 +168,7 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Gets the columns for the archives catalog request. Caches the columns
-   * list.
+   * Gets the columns for the archives catalog request. Caches the columns list.
    *
    * @return the columns, never <code>null</code> or empty.
    */
@@ -195,18 +192,14 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the active datasources. The returned result set will not have
-   * columns. Each result will have datasource name as id and display text.
-   * Please see
+   * Catalogs for the active datasources. The returned result set will not have columns. Each result
+   * will have datasource name as id and display text. Please see
    *
-   * and
-   * for more information on column types and identifiers.
+   * <p>and for more information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
-   *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogDataSources(Properties props) throws PSDeployException {
@@ -223,16 +216,13 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the custom element types. The returned result set will not
-   * have columns. Each result will have element type as id and display text.
-   * Please see  and
-   * for more information on column types and identifiers.
+   * Catalogs for the custom element types. The returned result set will not have columns. Each
+   * result will have element type as id and display text. Please see and for more information on
+   * column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
-   *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogCustomElementTypes(Properties props)
@@ -249,16 +239,13 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the deployable element types. The returned result set will
-   * not have columns. Each result will have element type as id and display
-   * text. Please see  and
-   * for more information on column types and identifiers.
+   * Catalogs for the deployable element types. The returned result set will not have columns. Each
+   * result will have element type as id and display text. Please see and for more information on
+   * column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
-   *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogDeployableElementTypes(Properties props)
@@ -275,8 +262,9 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the descriptors. The returned result set will have columns.
-   * The following describes the column metadata(Definition).
+   * Catalogs for the descriptors. The returned result set will have columns. The following
+   * describes the column metadata(Definition).
+   *
    * <table border=1>
    * <tr><th>Column Name</th><th>Column Type</th></tr>
    * <tr><th>Name</th><th>text</th></tr>
@@ -284,15 +272,13 @@ public class PSCatalogHandler {
    * <tr><th>Last Modified Date</th><th>date</th></tr>
    * <tr><th>version</th><th>text</th></tr>
    * </table>
-   * Each result will have descriptor name as id and as display text. Please
-   * see  and
-   * for more information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
+   * Each result will have descriptor name as id and as display text. Please see and for more
+   * information on column types and identifiers.
    *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogDescriptors(Properties props) throws PSDeployException {
@@ -322,8 +308,7 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Gets the columns for the descriptors catalog request. Caches the columns
-   * list.
+   * Gets the columns for the descriptors catalog request. Caches the columns list.
    *
    * @return the columns, never <code>null</code> or empty.
    */
@@ -346,16 +331,13 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the literal ID types (The types that are used to represent
-   * the objects having ids). The returned result set will not have columns.
-   * Each result will have id type as id and display text. Please see  and
-   * for more information on column types and identifiers.
+   * Catalogs for the literal ID types (The types that are used to represent the objects having
+   * ids). The returned result set will not have columns. Each result will have id type as id and
+   * display text. Please see and for more information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
-   *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogLiteralIDTypes(Properties props)
@@ -374,18 +356,13 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the objects with specified type. The returned result
-   * set will not have columns. Each result will have object id as id and name
-   * as display text. Please see  and
-   * for more information on column types and identifiers.
+   * Catalogs for the objects with specified type. The returned result set will not have columns.
+   * Each result will have object id as id and name as display text. Please see and for more
+   * information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may not be
-   * <code>null</code>.
-   *
+   * @param props the additional parameters to use for the request, may not be <code>null</code>.
    * @return the result set, never <code>null</code>
-   *
-   * @throws PSDeployException if an error happens cataloging or required
-   * property is missing.
+   * @throws PSDeployException if an error happens cataloging or required property is missing.
    */
   private static PSCatalogResultSet catalogIDTypeObjects(PSSecurityToken tok, Properties props)
       throws PSDeployException, PSNotFoundException {
@@ -408,8 +385,9 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the installed package logs. The returned result set will have
-   * columns. The following describes the column metadata(Definition).
+   * Catalogs for the installed package logs. The returned result set will have columns. The
+   * following describes the column metadata(Definition).
+   *
    * <table border=1>
    * <tr><th>Column Name</th><th>Column Type</th></tr>
    * <tr><th>Name</th><th>text</th></tr>
@@ -421,15 +399,13 @@ public class PSCatalogHandler {
    * <tr><th>Version</th><th>text</th></tr>
    * <tr><th>Build</th><th>text</th></tr>
    * </table>
-   * Each result will have descriptor name as id and as display text. Please
-   * see  and
-   * for more information on column types and identifiers.
    *
-   * @param props the additional parameters to use for the request, may be
-   * <code>null</code>, ignored for this request.
+   * Each result will have descriptor name as id and as display text. Please see and for more
+   * information on column types and identifiers.
    *
+   * @param props the additional parameters to use for the request, may be <code>null</code>,
+   *     ignored for this request.
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogPackageLogs(Properties props) throws PSDeployException {
@@ -458,8 +434,7 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Gets the columns for the package logs catalog request. Caches the columns
-   * list.
+   * Gets the columns for the package logs catalog request. Caches the columns list.
    *
    * @return the columns, never <code>null</code> or empty.
    */
@@ -492,20 +467,16 @@ public class PSCatalogHandler {
   }
 
   /**
-   * Catalogs for the user dependency files relative to rhythmyx root. The
-   * returned result set will not have columns. Each result will have
-   * dependency file/directory path as id and the file/directory name as the
-   * display text. If it is a directory the id string will end with a file
-   * separator. If the 'directory' property is supplied it catalogs for the
-   * files/directories under the specified directory. The directory should be
-   * the relative path to rhythtmyx root. Please see  and
-   * for more information on column types and identifiers.
+   * Catalogs for the user dependency files relative to rhythmyx root. The returned result set will
+   * not have columns. Each result will have dependency file/directory path as id and the
+   * file/directory name as the display text. If it is a directory the id string will end with a
+   * file separator. If the 'directory' property is supplied it catalogs for the files/directories
+   * under the specified directory. The directory should be the relative path to rhythtmyx root.
+   * Please see and for more information on column types and identifiers.
    *
    * @param props the additional parameters to use for the request, if <code>
    * null</code> catalogs for the files and directories under rhythmyx root.
-   *
    * @return the result set, never <code>null</code>
-   *
    * @throws PSDeployException if an error happens cataloging.
    */
   private static PSCatalogResultSet catalogUserDependencies(Properties props)
@@ -536,37 +507,36 @@ public class PSCatalogHandler {
   }
 
   /**
-   * The deployment handler that is used to collect the data for the catalog
-   * request, initialized when the first catalog request is made and never
-   * <code>null</code> or modified after that.
+   * The deployment handler that is used to collect the data for the catalog request, initialized
+   * when the first catalog request is made and never <code>null</code> or modified after that.
    */
   private static PSDeploymentHandler ms_depHandler;
 
   /**
-   * The resource bundle to use to get the column names for catalog requests,
-   * initialized in <code>processRequest(PSRequest)</code> when first request
-   * is made and never <code>null</code> or modified after that.
+   * The resource bundle to use to get the column names for catalog requests, initialized in <code>
+   * processRequest(PSRequest)</code> when first request is made and never <code>null</code> or
+   * modified after that.
    */
   private static ResourceBundle ms_bundle;
 
   /**
-   * The list of result columns for catalog archive request, initialized in
-   * <code>getArchiveColumns()</code> when first catalog archive request is
-   * made and never <code>null</code>, empty or modified after that.
+   * The list of result columns for catalog archive request, initialized in <code>
+   * getArchiveColumns()</code> when first catalog archive request is made and never <code>null
+   * </code>, empty or modified after that.
    */
   private static PSCatalogResultColumn[] ms_archiveColumns;
 
   /**
-   * The list of result columns for catalog package logs request, initialized
-   * in <code>getPackageLogColumns()</code> when first catalog package log
-   * request is made and never <code>null</code>, empty or modified after that.
+   * The list of result columns for catalog package logs request, initialized in <code>
+   * getPackageLogColumns()</code> when first catalog package log request is made and never <code>
+   * null</code>, empty or modified after that.
    */
   private static PSCatalogResultColumn[] ms_packageLogColumns;
 
   /**
-   * The list of result columns for catalog descriptors request, initialized in
-   * <code>getDescriptorColumns()</code> when first catalog descriptors request
-   * is made and never <code>null</code>, empty or modified after that.
+   * The list of result columns for catalog descriptors request, initialized in <code>
+   * getDescriptorColumns()</code> when first catalog descriptors request is made and never <code>
+   * null</code>, empty or modified after that.
    */
   private static PSCatalogResultColumn[] ms_descriptorColumns;
 }

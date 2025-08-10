@@ -30,10 +30,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents the value of a column in a row as a String.  This
- * class is readonly once instantiated intentionally, so that once a
- * PSJdbcTableData is created, it is immutable.  This is so once it is set on
- * a PSJdbcTableSchema object and validated, and cannot later be modified and
+ * This class represents the value of a column in a row as a String. This class is readonly once
+ * instantiated intentionally, so that once a PSJdbcTableData is created, it is immutable. This is
+ * so once it is set on a PSJdbcTableSchema object and validated, and cannot later be modified and
  * invalidated.
  */
 public class PSJdbcColumnData {
@@ -41,13 +40,10 @@ public class PSJdbcColumnData {
    * Creates a column with the specified name, value and encoding.
    *
    * @param name The name of the column, may not be <code>null</code> or empty.
-   * @param value The value of this column,  may be <code>null</code> or
-   * empty.
-   * @param encoding The encoding to use. vlid values are ENC_TEXT,
-   * ENC_ESCAPED or ENC_BASE64
-   *
-   * @throws IllegalArgumentException if the name is <code>null</code>
-   * or empty or encoding provided is invalid
+   * @param value The value of this column, may be <code>null</code> or empty.
+   * @param encoding The encoding to use. vlid values are ENC_TEXT, ENC_ESCAPED or ENC_BASE64
+   * @throws IllegalArgumentException if the name is <code>null</code> or empty or encoding provided
+   *     is invalid
    */
   public PSJdbcColumnData(String name, String value, int encoding) {
     if ((name == null || name.trim().length() == 0))
@@ -62,15 +58,11 @@ public class PSJdbcColumnData {
   }
 
   /**
-   * Creates a column with the specified name and value. The encoding defaults
-   * to ENC_TEXT ("text").
+   * Creates a column with the specified name and value. The encoding defaults to ENC_TEXT ("text").
    *
    * @param name The name of the column, may not be <code>null</code> or empty.
-   * @param value The value of this column,  may be <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalArgumentException if the name is <code>null</code>
-   * or empty
+   * @param value The value of this column, may be <code>null</code> or empty.
+   * @throws IllegalArgumentException if the name is <code>null</code> or empty
    */
   public PSJdbcColumnData(String name, String value) {
     this(name, value, ENC_TEXT);
@@ -79,10 +71,8 @@ public class PSJdbcColumnData {
   /**
    * Creates a column from it's Xml source.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the column element in the
-   *    tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the column element in the tabledata.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -102,9 +92,8 @@ public class PSJdbcColumnData {
   }
 
   /**
-   * Returns this column's value. If the data value is external it will attempt
-   * to lazily load the value from external file path set in the external
-   * attribute.
+   * Returns this column's value. If the data value is external it will attempt to lazily load the
+   * value from external file path set in the external attribute.
    *
    * @return The value, may be <code>null</code> or empty.
    */
@@ -115,16 +104,14 @@ public class PSJdbcColumnData {
   }
 
   /**
-   * Fetches external data from the external file path supplied by the external
-   * attribute. Encodes the data with
+   * Fetches external data from the external file path supplied by the external attribute. Encodes
+   * the data with
    *
-   * @param externalPath must be a valid path to the file,
-   * never <code>null</code> or <code>empty</code>.
-   *
+   * @param externalPath must be a valid path to the file, never <code>null</code> or <code>empty
+   *     </code>.
    * @param encoding assumes one of the allowed ENC_* encodings.
-   *
-   * @return encoded data extracted from external file,
-   * may be <code>null</code> or <code>empty</code>.
+   * @return encoded data extracted from external file, may be <code>null</code> or <code>empty
+   *     </code>.
    */
   private String getExternalData(String externalPath, int encoding) {
     if (externalPath == null) throw new IllegalArgumentException("externalPath may not be null");
@@ -164,8 +151,7 @@ public class PSJdbcColumnData {
   /**
    * returns the encoding for this column as a String.
    *
-   * @return the encoding, should be one of the ENC_TEXT_STR, ENC_ESCAPED_STR
-   * or ENC_BASE64_STR.
+   * @return the encoding, should be one of the ENC_TEXT_STR, ENC_ESCAPED_STR or ENC_BASE64_STR.
    */
   public String getEncodingAsString() {
     switch (m_encoding) {
@@ -181,10 +167,9 @@ public class PSJdbcColumnData {
   }
 
   /**
-   *  sets the value of the column
+   * sets the value of the column
    *
-   *  @param value the new value as a string, can be <code>null</code>
-   *  or empty
+   * @param value the new value as a string, can be <code>null</code> or empty
    */
   public void setValue(String value) {
     m_value = value;
@@ -193,11 +178,9 @@ public class PSJdbcColumnData {
   /**
    * sets the value and encoding of the column
    *
-   * @param value the new value as a string, can be <code>null</code>
-   * or empty
-   * @param encoding the encoding for this value
-   * Valid values are ENC_TEXT, ENC_ESCAPED or ENC_BASE64.
-   *
+   * @param value the new value as a string, can be <code>null</code> or empty
+   * @param encoding the encoding for this value Valid values are ENC_TEXT, ENC_ESCAPED or
+   *     ENC_BASE64.
    * @throws IllegalArgumentException if the encoding specified is invalid.
    */
   public void setValue(String value, int encoding) {
@@ -210,8 +193,7 @@ public class PSJdbcColumnData {
   /**
    * sets the encoding
    *
-   * @param encoding the new encoding, should be one of the ENC_TEXT,
-   * ENC_ESCAPED or ENC_BASE64
+   * @param encoding the new encoding, should be one of the ENC_TEXT, ENC_ESCAPED or ENC_BASE64
    * @throws IllegalArgumentException if the provided encoding is invalid.
    */
   public void setEncoding(int encoding) {
@@ -222,10 +204,8 @@ public class PSJdbcColumnData {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the column element in the
-   *    tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the column element in the tabledata.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -274,21 +254,15 @@ public class PSJdbcColumnData {
   /**
    * Resolves and validates external resource file path.
    *
-   * @param parentNodeName name of the node which has external attribute,
-   * never <code>null</code> or <code>empty</code>.
-   *
-   * @param external value of the external attribute that may contain a
-   * resolvable keyword,
-   * ie: "{cmstableData.external.root}/external/images/foo.jpg",
-   * which purpose is to specify where the resources root is.
-   * The keyword value could be set as a System property, if not set
-   * defaults to the current directory, never <code>null</code> or
-   * <code>empty</code>.
-   *
+   * @param parentNodeName name of the node which has external attribute, never <code>null</code> or
+   *     <code>empty</code>.
+   * @param external value of the external attribute that may contain a resolvable keyword, ie:
+   *     "{cmstableData.external.root}/external/images/foo.jpg", which purpose is to specify where
+   *     the resources root is. The keyword value could be set as a System property, if not set
+   *     defaults to the current directory, never <code>null</code> or <code>empty</code>.
    * @return a resolved full path to external resource file.
-   *
-   * @throws PSJdbcTableFactoryException if the external resource can not
-   * be found or the file path was malformed.
+   * @throws PSJdbcTableFactoryException if the external resource can not be found or the file path
+   *     was malformed.
    */
   private String resolveExternalResourcePath(String parentNodeName, String external)
       throws PSJdbcTableFactoryException {
@@ -328,12 +302,10 @@ public class PSJdbcColumnData {
   /**
    * Serializes this object's state to Xml conforming with the tabledata.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -359,8 +331,8 @@ public class PSJdbcColumnData {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcColumnData with
-   *    the same column names and values. Otherwise returns <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcColumnData with the same column names and
+   *     values. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -376,9 +348,8 @@ public class PSJdbcColumnData {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -390,74 +361,51 @@ public class PSJdbcColumnData {
   }
 
   /**
-   * Validates the supplied encoding string, Should be one of the ENC_TEXT,
-   * ENC_ESCAPED or ENC_BASE64
+   * Validates the supplied encoding string, Should be one of the ENC_TEXT, ENC_ESCAPED or
+   * ENC_BASE64
    *
-   * @return <code>false</code> if the provided encoding is invalid,
-   *    <code>true</code> otherwise.
+   * @return <code>false</code> if the provided encoding is invalid, <code>true</code> otherwise.
    */
   public static boolean validEncoding(int enc) {
     return ((enc == ENC_TEXT) || (enc == ENC_ESCAPED) || (enc == ENC_BASE64));
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "column";
 
-  /**
-   * Constant to identify the encoding as "text".
-   */
+  /** Constant to identify the encoding as "text". */
   public static final int ENC_TEXT = 0;
 
-  /**
-   * String representation of the text encoding in XML files.
-   */
+  /** String representation of the text encoding in XML files. */
   public static final String ENC_TEXT_STR = "text";
 
-  /**
-   * Constant to identify the encoding as "escaped".
-   */
+  /** Constant to identify the encoding as "escaped". */
   public static final int ENC_ESCAPED = 1;
 
-  /**
-   * String representation of the escaped encoding in XML files.
-   */
+  /** String representation of the escaped encoding in XML files. */
   public static final String ENC_ESCAPED_STR = "escaped";
 
-  /**
-   * Constant to identify the encoding as "base64".
-   */
+  /** Constant to identify the encoding as "base64". */
   public static final int ENC_BASE64 = 2;
 
-  /**
-   * String representation of the Base64 encoding in XML files.
-   */
+  /** String representation of the Base64 encoding in XML files. */
   public static final String ENC_BASE64_STR = "base64";
 
-  /**
-   * An array of XML attribute values for the encoding.
-   */
+  /** An array of XML attribute values for the encoding. */
   private static final String[] ENCODING_ENUM = {ENC_TEXT_STR, ENC_ESCAPED_STR, ENC_BASE64_STR};
 
-  /**
-   * This column's name, never <code>null</code> or empty once constructed.
-   */
+  /** This column's name, never <code>null</code> or empty once constructed. */
   private String m_name = null;
 
-  /**
-   * This column's value, may be <code>null</code> or empty.
-   */
+  /** This column's value, may be <code>null</code> or empty. */
   private String m_value = null;
 
-  /**
-   * This column's encoding type. Defaults to "text" encoding.
-   **/
+  /** This column's encoding type. Defaults to "text" encoding. */
   private int m_encoding = ENC_TEXT;
 
   /**
-   * Holds a value found in the 'external' attribute if any,
-   * may be <code>null</code>, never <code>empty</code>.
+   * Holds a value found in the 'external' attribute if any, may be <code>null</code>, never <code>
+   * empty</code>.
    */
   private String m_external = null;
 

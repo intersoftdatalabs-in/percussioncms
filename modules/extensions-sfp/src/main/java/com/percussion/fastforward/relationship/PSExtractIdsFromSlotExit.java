@@ -31,9 +31,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is intended to be used as a FieldOutputTranslation within a
- * content editor, to populate a field's value with a list of content ids of the
- * relationship owners in a specific slot.
+ * This class is intended to be used as a FieldOutputTranslation within a content editor, to
+ * populate a field's value with a list of content ids of the relationship owners in a specific
+ * slot.
  *
  * @author James Schultz
  * @since 6.0
@@ -41,19 +41,18 @@ import org.apache.logging.log4j.Logger;
 public class PSExtractIdsFromSlotExit extends PSDefaultExtension implements IPSUdfProcessor {
 
   /**
-   * Returns a list of the owner content ids from the relationships in the slot
-   * identified by the "slotname" parameter that have the request's content
-   * item as their dependent.
+   * Returns a list of the owner content ids from the relationships in the slot identified by the
+   * "slotname" parameter that have the request's content item as their dependent.
    *
-   * @param params the parameter values. required: "slotname" for name of the
-   * slot whose relationships will be used.
+   * @param params the parameter values. required: "slotname" for name of the slot whose
+   *     relationships will be used.
    * @param request the current request context.
-   * @return a list of owner content ids as ";" delimited string from the
-   * slot's matching relationships, or <code>null</code> if there are no
-   * matching relationships, e.g. <code>692;651;339</code>.
-   * @throws PSConversionException if request does not include a sys_contentid
-   * parameter, if "slotname" parameter is missing or empty, if slot cannot be
-   * found, or if relationship API throws exception.
+   * @return a list of owner content ids as ";" delimited string from the slot's matching
+   *     relationships, or <code>null</code> if there are no matching relationships, e.g. <code>
+   *     692;651;339</code>.
+   * @throws PSConversionException if request does not include a sys_contentid parameter, if
+   *     "slotname" parameter is missing or empty, if slot cannot be found, or if relationship API
+   *     throws exception.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -99,8 +98,6 @@ public class PSExtractIdsFromSlotExit extends PSDefaultExtension implements IPSU
     }
   }
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSExtractIdsFromSlotExit.class);
 }

@@ -34,15 +34,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Creates the DisplayField element according to the ContentEditor.dtd when
- * the data is an entire result set which contains a single column with
- * multiple rows.
+ * Creates the DisplayField element according to the ContentEditor.dtd when the data is an entire
+ * result set which contains a single column with multiple rows.
  */
 public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
   /**
-   * See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSFieldSet,
-   * PSUISet, PSEditorDocumentBuilder) base} class for a description of
-   * params and exceptions unless listed below.
+   * See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSFieldSet, PSUISet,
+   * PSEditorDocumentBuilder) base} class for a description of params and exceptions unless listed
+   * below.
    */
   public PSMultiValueBuilder(PSFieldSet fieldSet, PSUISet ui, PSEditorDocumentBuilder parentBuilder)
       throws PSExtensionException, PSNotFoundException, PSSystemValidationException {
@@ -52,16 +51,14 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * See base class for description. This class differs in that it only saves
-   * the row data.  The data element is never actually added, as the data
-   * is contained in the choice element added by {@link #addChoiceElement}.
-   * {@link #showField} should always be called before this method, and this
+   * See base class for description. This class differs in that it only saves the row data. The data
+   * element is never actually added, as the data is contained in the choice element added by {@link
+   * #addChoiceElement}. {@link #showField} should always be called before this method, and this
    * method should never be called if the {@link #showField} returns <code>
    * false</code>.
    *
-   * @throws PSDataExtractionException if <code>showField</code> would
-   * return <code>false</code>, as the resultset used by this builder may
-   * have already been popped.
+   * @throws PSDataExtractionException if <code>showField</code> would return <code>false</code>, as
+   *     the resultset used by this builder may have already been popped.
    */
   protected boolean addDataElement(
       Document doc, Element parent, PSExecutionData data, boolean isNewDoc)
@@ -118,8 +115,8 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * See base class for description.  This class will pop the resultset off the
-   * stack in the execution data if this field will not be shown.
+   * See base class for description. This class will pop the resultset off the stack in the
+   * execution data if this field will not be shown.
    */
   protected boolean showField(PSExecutionData data) throws PSDataExtractionException {
     if (data == null) throw new IllegalArgumentException("data may not be null");
@@ -141,24 +138,22 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * A ThreadLocal variable containing the list of strings representing the row
-   * data created in {@link #addDataElement}. Initialized with a <code>null
+   * A ThreadLocal variable containing the list of strings representing the row data created in
+   * {@link #addDataElement}. Initialized with a <code>null
    * </code> value, the list is recreated in each call to <code>addDataElement
-   * </code> and then used in the {@link #addChoiceElement} to select the
-   * appropriate elements.
+   * </code> and then used in the {@link #addChoiceElement} to select the appropriate elements.
    */
   private static ThreadLocal<List<String>> m_rows = new ThreadLocal<>();
 
   /**
-   * Set in ctor, determines if this builder's field should ever be
-   * displayed.  Never modified after that.  Used to hide this field if
-   * showInPreview="no".
+   * Set in ctor, determines if this builder's field should ever be displayed. Never modified after
+   * that. Used to hide this field if showInPreview="no".
    */
   private boolean m_isFieldShown = true;
 
   /**
-   * The name of this builder's fieldset.  Initialized in the ctor, never
-   * <code>null</code> after that.
+   * The name of this builder's fieldset. Initialized in the ctor, never <code>null</code> after
+   * that.
    */
   private String m_fieldSetName = null;
 }

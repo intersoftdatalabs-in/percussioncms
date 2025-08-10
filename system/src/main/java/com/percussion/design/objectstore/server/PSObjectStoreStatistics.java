@@ -26,18 +26,16 @@ import java.util.Date;
 /**
  * This class is used to store the statistics for the server's object store.
  *
- * @see         IPSObjectStoreHandler#getStatistics
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSObjectStoreHandler#getStatistics
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSObjectStoreStatistics extends PSHandlerStatistics {
   /**
-   * Construct an ObjectStore statistics object with the specified
-   *   ObjectStore start time.
+   * Construct an ObjectStore statistics object with the specified ObjectStore start time.
    *
-   * @param   startTime      the time/date the ObjectStore started
+   * @param startTime the time/date the ObjectStore started
    */
   public PSObjectStoreStatistics(Date startTime) {
     super(startTime);
@@ -45,8 +43,8 @@ public class PSObjectStoreStatistics extends PSHandlerStatistics {
   }
 
   /**
-   * Construct an ObjectStore statistics object using the current time as
-   * the time the ObjectStore was started.
+   * Construct an ObjectStore statistics object using the current time as the time the ObjectStore
+   * was started.
    */
   public PSObjectStoreStatistics() {
     this(new Date());
@@ -55,7 +53,7 @@ public class PSObjectStoreStatistics extends PSHandlerStatistics {
   /**
    * Add the statistics for the specified request.
    *
-   * @param      stats         the statistics for the processed request
+   * @param stats the statistics for the processed request
    */
   public synchronized void update(PSRequestStatistics stats) {
     super.update(stats);
@@ -64,17 +62,13 @@ public class PSObjectStoreStatistics extends PSHandlerStatistics {
     m_ServerStatistics.update(stats);
   }
 
-  /**
-   * Increment the pending event count.
-   */
+  /** Increment the pending event count. */
   public synchronized void incrementPendingEventCount() {
     super.incrementPendingEventCount();
     m_ServerStatistics.incrementPendingEventCount(); // update server stats
   }
 
-  /**
-   * Decrement the pending event count.
-   */
+  /** Decrement the pending event count. */
   public synchronized void decrementPendingEventCount() {
     super.decrementPendingEventCount();
     m_ServerStatistics.decrementPendingEventCount(); // update server stats

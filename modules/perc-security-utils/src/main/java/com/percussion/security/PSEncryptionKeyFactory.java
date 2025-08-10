@@ -17,9 +17,7 @@
 
 package com.percussion.security;
 
-/**
- * Factory for encryption key generation.
- */
+/** Factory for encryption key generation. */
 public abstract class PSEncryptionKeyFactory {
 
   @Deprecated public static final String DES_ALGORITHM = "DES";

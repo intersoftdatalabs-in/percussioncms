@@ -40,20 +40,18 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSqlQueryBuilder class is used to build SQL SELECT statements.
- * It can be used to generate single table SELECTs or homogeneous
- * (same DBMS) joined SELECTs. The query optimizer is capable of building
- * heterogeneous (cross DBMS) SELECTs. It calls this class to build
- * each statement and also makes use of the PSQueryJoiner class to join
- * the returned data.
+ * The PSSqlQueryBuilder class is used to build SQL SELECT statements. It can be used to generate
+ * single table SELECTs or homogeneous (same DBMS) joined SELECTs. The query optimizer is capable of
+ * building heterogeneous (cross DBMS) SELECTs. It calls this class to build each statement and also
+ * makes use of the PSQueryJoiner class to join the returned data.
  *
- * @see         PSQueryOptimizer
- * @see         PSQueryJoiner
+ * @see PSQueryOptimizer
+ * @see PSQueryJoiner
  */
 public class PSSqlQueryBuilder extends PSSqlBuilder {
   /**
-   * Construct a SQL builder to build a SELECT which may be for a
-   * single table or to do homogeneous (same DBMS) joins.
+   * Construct a SQL builder to build a SELECT which may be for a single table or to do homogeneous
+   * (same DBMS) joins.
    */
   PSSqlQueryBuilder() {
     super();
@@ -66,17 +64,12 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     m_isUnique = false;
   }
 
-  /**
-   * Enable or disable using SELECT DISTINCT to generate a unique
-   * result set.
-   */
+  /** Enable or disable using SELECT DISTINCT to generate a unique result set. */
   void setUnique(boolean isUnique) {
     m_isUnique = isUnique;
   }
 
-  /**
-   * Add a table to this SELECT against the specified table.
-   */
+  /** Add a table to this SELECT against the specified table. */
   void addTable(PSBackEndTable table) {
     if (m_Tables.size() > 0) {
       PSBackEndTable refTab = (PSBackEndTable) m_Tables.get(0);
@@ -101,9 +94,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     m_Tables.add(table);
   }
 
-  /**
-   * Add a join across two tables (must be homogeneous).
-   */
+  /** Add a join across two tables (must be homogeneous). */
   void addJoin(PSBackEndJoin join) {
     // add the left/right tables
     addTable(join.getLeftColumn().getTable());
@@ -116,9 +107,8 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Add the specified columns to the SELECT column list as a join-only
-   * column. This means it will be included in the SELECT to perform
-   * the heterogeneous join, but it will not be included in the
+   * Add the specified columns to the SELECT column list as a join-only column. This means it will
+   * be included in the SELECT to perform the heterogeneous join, but it will not be included in the
    * joined result set.
    */
   void addHeterogeneousJoinColumn(PSBackEndColumn col) {
@@ -143,9 +133,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     }
   }
 
-  /**
-   * Add the specified columns to the SELECT column list.
-   */
+  /** Add the specified columns to the SELECT column list. */
   void addSelectColumn(PSBackEndColumn col) {
     // Need to uniqua these guys too, or  we may not remove properly
     String alias = col.getAlias();
@@ -167,42 +155,33 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     }
   }
 
-  /**
-   * Add a WHERE condition.
-   */
+  /** Add a WHERE condition. */
   void addWhereClause(PSWhereClause clause) {
     if (!m_Wheres.contains(clause)) m_Wheres.add(clause);
   }
 
-  /**
-   * Add a sorted column (ORDER BY).
-   */
+  /** Add a sorted column (ORDER BY). */
   void addSortedColumn(PSSortedColumn sort) {
     if (!m_Sorts.contains(sort)) m_Sorts.add(sort);
   }
 
   /**
-   * Get the list of columns which are only for the join (should not
-   * be in the returned result set).
+   * Get the list of columns which are only for the join (should not be in the returned result set).
    */
   String[] getJoinOnlyColumns() {
     return columnArrayToStringArray(m_JoinOnlyColumns);
   }
 
   /**
-   * Generate the statement for the given logins and connection
-   * keys.
+   * Generate the statement for the given logins and connection keys.
    *
-   *
-   * @param logins a list of logins, one per connection index in the values
-   * contained within <code>connKeys</code>, must never be <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap that associates opaque keys representing
-   * a specific database and server, and indecies into the <code>logins</code>
-   * list passed to this method, must never be <code>null</code>
-   *
-   * @return   PSQueryStatement A statement that will execute
-   * the query, will never return <code>null</code>
+   * @param logins a list of logins, one per connection index in the values contained within <code>
+   *     connKeys</code>, must never be <code>null</code>
+   * @param connKeys a ConcurrentHashMap that associates opaque keys representing a specific
+   *     database and server, and indecies into the <code>logins</code> list passed to this method,
+   *     must never be <code>null</code>
+   * @return PSQueryStatement A statement that will execute the query, will never return <code>null
+   *     </code>
    */
   PSQueryStatement generate(List logins, ConcurrentHashMap connKeys) {
     int tableCount = m_Tables.size();
@@ -253,9 +232,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     }
   }
 
-  /**
-   * Get the columns to be used in the SELECT column list as an array.
-   */
+  /** Get the columns to be used in the SELECT column list as an array. */
   String[] getSelectColumnArray() {
     int totalSize = m_Columns.size() + m_JoinOnlyColumns.size();
     String[] cols = new String[totalSize];
@@ -280,9 +257,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
     return cols;
   }
 
-  /**
-   * Get the columns to be used in the SELECT column list as an array.
-   */
+  /** Get the columns to be used in the SELECT column list as an array. */
   String[] columnArrayToStringArray(List colArray) {
     int size = colArray.size();
     String[] cols = new String[size];
@@ -296,10 +271,9 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Get the columns which will be used to locate records when executing
-   * the associated statement.
+   * Get the columns which will be used to locate records when executing the associated statement.
    *
-   * @return      an array of columns (may be null)
+   * @return an array of columns (may be null)
    */
   public PSBackEndColumn[] getLookupColumns() {
     /* go through the where clauses to see which columns are the
@@ -347,7 +321,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   /**
    * Are there any outer joins in the join definitions for this builder?
    *
-   * @return         <code>true</code> if there are
+   * @return <code>true</code> if there are
    */
   public boolean hasOuterJoins() {
     int joinCount = m_Joins.size();
@@ -365,7 +339,7 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   /**
    * Are there any inner joins in the join definitions for this builder?
    *
-   * @return         <code>true</code> if there are
+   * @return <code>true</code> if there are
    */
   public boolean hasInnerJoins() {
     int joinCount = m_Joins.size();
@@ -601,11 +575,10 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Returns the list of columns from the sorted columns list which are not
-   * in the list of SELECT columns.
+   * Returns the list of columns from the sorted columns list which are not in the list of SELECT
+   * columns.
    *
-   * @return list of <code>PSSortedColumn</code> objects, never
-   * <code>null</code>, may be empty
+   * @return list of <code>PSSortedColumn</code> objects, never <code>null</code>, may be empty
    */
   private List getSortedColumnsSelectList() {
     List sortedCols = new ArrayList();
@@ -720,23 +693,18 @@ public class PSSqlQueryBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Adds statement blocks to the specified sql builder context
-   * <code>context</code> for each clause following the WHERE keyword in
-   * a SELECT statament. If the clause contains database function call, then
-   * adds functions block (<code>PSFunctionBlock</code> object) otherwise
-   * adds statement block (<code>PSStatementBlock</code> object) to the
-   * context.
-   * <p>
-   * If there is no WHERE clause, then this method simply returns.
+   * Adds statement blocks to the specified sql builder context <code>context</code> for each clause
+   * following the WHERE keyword in a SELECT statament. If the clause contains database function
+   * call, then adds functions block (<code>PSFunctionBlock</code> object) otherwise adds statement
+   * block (<code>PSStatementBlock</code> object) to the context.
    *
-   * @param context the sql builder context to which statement blocks are to
-   * be added corresponding to each clause following the WHERE keyword in
-   * a SELECT statament, assumed not <code>null</code>
+   * <p>If there is no WHERE clause, then this method simply returns.
    *
-   * @param datatypes a map of column names (<code>String</code>) to jdbc
-   * data type of the column (<code>Integer</code>), assumed not
-   * <code>null</code>, may be empty
-   *
+   * @param context the sql builder context to which statement blocks are to be added corresponding
+   *     to each clause following the WHERE keyword in a SELECT statament, assumed not <code>null
+   *     </code>
+   * @param datatypes a map of column names (<code>String</code>) to jdbc data type of the column (
+   *     <code>Integer</code>), assumed not <code>null</code>, may be empty
    * @param colStart not used
    */
   protected void buildWhereClauses(PSSqlBuilderContext context, HashMap datatypes, int colStart) {

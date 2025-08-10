@@ -22,15 +22,13 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * Performs the same functionality as the base class
- * {@link PSGetCheckoutStatus} except that the first param is the checked out
- * user name, not the content id of the item.
+ * Performs the same functionality as the base class {@link PSGetCheckoutStatus} except that the
+ * first param is the checked out user name, not the content id of the item.
  */
 public class PSGetUserCheckoutStatus extends PSGetCheckoutStatus {
   /**
-   * See base class for more info.  The only difference is that this method
-   * expects the first parameter to be the checkedout user name.  May be
-   * <code>null</code> or empty.
+   * See base class for more info. The only difference is that this method expects the first
+   * parameter to be the checkedout user name. May be <code>null</code> or empty.
    */
   @Override
   public Object processUdf(Object[] params, IPSRequestContext request)

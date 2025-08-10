@@ -20,18 +20,18 @@ package com.percussion.data;
 import com.percussion.server.PSRequest;
 
 /**
- * The PSHtmlParameterExtractor class is used to extract data from the
- * HTML parameters associated with the request.
+ * The PSHtmlParameterExtractor class is used to extract data from the HTML parameters associated
+ * with the request.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHtmlParameterExtractor extends PSDataExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param   source      the object defining the source of this value
+   * @param source the object defining the source of this value
    */
   public PSHtmlParameterExtractor(com.percussion.design.objectstore.PSHtmlParameter source) {
     super(source);
@@ -41,11 +41,9 @@ public class PSHtmlParameterExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return               the associated value; <code>null</code> if a
-   *                        value is not found
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
    */
   public Object extract(PSExecutionData data) {
     return extract(data, null);
@@ -54,13 +52,10 @@ public class PSHtmlParameterExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue      the default value to use if a value is not found
-   *
-   * @return               the associated value; <code>defValue</code> if a
-   *                        value is not found
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
    */
   public Object extract(PSExecutionData data, Object defValue) {
     Object value = null;

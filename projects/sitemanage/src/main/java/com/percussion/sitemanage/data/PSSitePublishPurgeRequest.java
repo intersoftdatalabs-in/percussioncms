@@ -28,15 +28,15 @@ import java.util.Optional;
  */
 @JsonRootName("SitePublishPurgeRequest")
 public class PSSitePublishPurgeRequest extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private List<Long> jobids;
+  private List<Long> jobids;
 
-    public Optional<List<Long>> getJobids() {
-        return Optional.ofNullable(jobids);
-    }
+  public Optional<List<Long>> getJobids() {
+    return Optional.ofNullable(jobids);
+  }
 
-    public void setJobids(List<Long> jobids) {
-        this.jobids = jobids;
-    }
+  public void setJobids(List<Long> jobids) {
+    this.jobids = jobids;
+  }
 }

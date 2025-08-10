@@ -30,8 +30,8 @@ import java.util.List;
 
 /**
  * Service for retrieving traffic data for a single site or all sites.
- * <p>
- * Sunny Sal: "Traffic is good, unless you're on the highway!"
+ *
+ * <p>Sunny Sal: "Traffic is good, unless you're on the highway!"
  */
 public interface IPSTrafficService {
 
@@ -55,9 +55,7 @@ public interface IPSTrafficService {
           PSDataServiceException,
           IPSPathService.PSPathServiceException;
 
-  /**
-   * Exception thrown when an unexpected error occurs in this service.
-   */
+  /** Exception thrown when an unexpected error occurs in this service. */
   class PSTrafficServiceException extends PSException {
     private static final long serialVersionUID = 1L;
 
@@ -78,9 +76,7 @@ public interface IPSTrafficService {
     }
   }
 
-  /**
-   * The type of the traffic request.
-   */
+  /** The type of the traffic request. */
   enum PSTrafficTypeEnum {
     LIVE_PAGES,
     NEW_PAGES,

@@ -29,25 +29,19 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Implements a stack of PSComponentSummaries represeting Navon objects. This
- * stack differs from the standard Java stack in 2 ways:
- * <p>
- * It tracks the <code>imageSelector</code> and <code>variableSelector</code>
- * attributes. These attributss take on the values that are specified at the <b>
- * lowest </b> level where they are specfied in the tree.
- * <p>
- * It returns <code>null</code> when an attempt is made to access an empty
- * Stack
- * </p>
+ * Implements a stack of PSComponentSummaries represeting Navon objects. This stack differs from the
+ * standard Java stack in 2 ways:
+ *
+ * <p>It tracks the <code>imageSelector</code> and <code>variableSelector</code> attributes. These
+ * attributss take on the values that are specified at the <b> lowest </b> level where they are
+ * specfied in the tree.
+ *
+ * <p>It returns <code>null</code> when an attempt is made to access an empty Stack
  *
  * @author DavidBenua
- *
- *
  */
 public class PSNavonStack {
-  /**
-   * Constructs an empty stack
-   */
+  /** Constructs an empty stack */
   public PSNavonStack() {
     m_relLevel = 0;
   }
@@ -110,8 +104,8 @@ public class PSNavonStack {
 
   /**
    * pushes a new navon onto the stack.
-   * @param req
    *
+   * @param req
    * @param navon the navon to push onto the stack
    * @throws PSNavException
    */
@@ -162,8 +156,7 @@ public class PSNavonStack {
   /**
    * gets the top Navon on the stack.
    *
-   * @return the top Navon on the stack. <code>Null</code> if the stack is
-   *         <code>empty</code>.
+   * @return the top Navon on the stack. <code>Null</code> if the stack is <code>empty</code>.
    */
   public PSComponentSummary peek() {
     if (m_navStack.isEmpty()) {
@@ -176,8 +169,8 @@ public class PSNavonStack {
    * gets an arbitrary Navon in the stack.
    *
    * @param i the position in ths stack. The top of the stack is 0.
-   * @return the Navon at the specified position. Will be <code>null</code>
-   *         if the index is out of range.
+   * @return the Navon at the specified position. Will be <code>null</code> if the index is out of
+   *     range.
    */
   public PSComponentSummary peek(int i) {
     if (m_navStack.isEmpty() || m_navStack.size() <= i) {
@@ -219,8 +212,7 @@ public class PSNavonStack {
    * gets the id of the Navon in the stack at the specified position.
    *
    * @param i the index of the desired Navon. Specify 0 for the top of stack.
-   * @return the id of the selected Navon. Will be <code>null</code> if the
-   *         stack is empty.
+   * @return the id of the selected Navon. Will be <code>null</code> if the stack is empty.
    */
   public String getId(int i) {
     if (this.isEmpty()) {
@@ -229,28 +221,18 @@ public class PSNavonStack {
     return this.peek(i).getLocator().getPart(PSLocator.KEY_ID);
   }
 
-  /**
-   * List of Navons
-   */
+  /** List of Navons */
   private List m_navStack = new ArrayList(); // not really a stack
 
-  /**
-   * Image selector value for this stack
-   */
+  /** Image selector value for this stack */
   private String m_imageSelector = null;
 
-  /**
-   * Variable selector value for this stack
-   */
+  /** Variable selector value for this stack */
   private String m_varSelector = null;
 
-  /**
-   * Relative Level of of the current top of stack.
-   */
+  /** Relative Level of of the current top of stack. */
   private int m_relLevel;
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   private static final Logger log = LogManager.getLogger(PSNavonStack.class);
 }

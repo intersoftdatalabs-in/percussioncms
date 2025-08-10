@@ -28,20 +28,17 @@ import javax.swing.*;
  */
 public class PSNameLabel extends JLabel {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -6181683380332613367L;
 
-  /**
-   * Ctor
-   */
+  /** Ctor */
   public PSNameLabel() {
     super();
   }
 
   /**
    * Ctor
+   *
    * @param text text to display in label
    */
   public PSNameLabel(String text) {

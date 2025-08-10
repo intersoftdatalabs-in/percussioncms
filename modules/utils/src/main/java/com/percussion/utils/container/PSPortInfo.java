@@ -18,17 +18,14 @@ package com.percussion.utils.container;
 
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Defines the configuration of single named port.
- */
+/** Defines the configuration of single named port. */
 public class PSPortInfo {
   /**
    * Construct a port info.
    *
    * @param name The port name, may not be <code>null</code> or empty.
    * @param port The port value.
-   * @param label The label, may be <code>null</code> or empty in which case
-   * the name is used.
+   * @param label The label, may be <code>null</code> or empty in which case the name is used.
    */
   public PSPortInfo(String name, int port, String label) {
     if (StringUtils.isBlank(name))
@@ -86,23 +83,15 @@ public class PSPortInfo {
     return (m_origvalue != m_value);
   }
 
-  /**
-   * Port name, never <code>null</code> or empty.
-   */
+  /** Port name, never <code>null</code> or empty. */
   private String m_name;
 
-  /**
-   * Port value.
-   */
+  /** Port value. */
   private int m_value;
 
-  /**
-   * Port label, never <code>null</code> or empty.
-   */
+  /** Port label, never <code>null</code> or empty. */
   private String m_label;
 
-  /**
-   * Port value this object was constructed with.
-   */
+  /** Port value this object was constructed with. */
   private int m_origvalue;
 }

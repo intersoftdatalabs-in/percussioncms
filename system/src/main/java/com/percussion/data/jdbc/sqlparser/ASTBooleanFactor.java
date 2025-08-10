@@ -35,15 +35,10 @@ public class ASTBooleanFactor extends SimpleNode {
   }
 
   /**
-   * @author  chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/10
-   *
-   * Set the boolean linking op for the next conditional in the chain, if
-   * there is one
-   *
-   * @param   op
-   *
+   *     <p>Set the boolean linking op for the next conditional in the chain, if there is one
+   * @param op
    */
   public void setOp(String op) {
     m_op = op;
@@ -56,7 +51,7 @@ public class ASTBooleanFactor extends SimpleNode {
   private boolean m_negated = false;
   private String m_op = "AND";
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

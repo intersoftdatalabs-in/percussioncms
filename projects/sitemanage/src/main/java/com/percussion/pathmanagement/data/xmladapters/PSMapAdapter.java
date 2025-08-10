@@ -20,37 +20,36 @@ package com.percussion.pathmanagement.data.xmladapters;
 
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperties;
 import com.percussion.pathmanagement.data.PSPathItemDisplayProperty;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Custom XmlAdapter to convert between a Map<String, String> and PSPathItemDisplayProperties.
- * Used for XML serialization/deserialization of display properties.
+ * Custom XmlAdapter to convert between a Map<String, String> and PSPathItemDisplayProperties. Used
+ * for XML serialization/deserialization of display properties.
  *
  * @author federicoromanelli
  */
 public class PSMapAdapter extends XmlAdapter<PSPathItemDisplayProperties, Map<String, String>> {
 
-    @Override
-    public Map<String, String> unmarshal(PSPathItemDisplayProperties v) {
-        var hashMap = new HashMap<String, String>();
-        for (var displayProp : v.getDisplayProperty()) {
-            hashMap.put(displayProp.getName(), displayProp.getValue());
-        }
-        return hashMap;
+  @Override
+  public Map<String, String> unmarshal(PSPathItemDisplayProperties v) {
+    var hashMap = new HashMap<String, String>();
+    for (var displayProp : v.getDisplayProperty()) {
+      hashMap.put(displayProp.getName(), displayProp.getValue());
     }
+    return hashMap;
+  }
 
-    @Override
-    public PSPathItemDisplayProperties marshal(Map<String, String> v) {
-        var displayProperties = new PSPathItemDisplayProperties();
-        for (var propName : v.keySet()) {
-            var prop = new PSPathItemDisplayProperty();
-            prop.setName(propName);
-            prop.setValue(v.get(propName));
-            displayProperties.getDisplayProperty().add(prop);
-        }
-        return displayProperties;
+  @Override
+  public PSPathItemDisplayProperties marshal(Map<String, String> v) {
+    var displayProperties = new PSPathItemDisplayProperties();
+    for (var propName : v.keySet()) {
+      var prop = new PSPathItemDisplayProperty();
+      prop.setName(propName);
+      prop.setValue(v.get(propName));
+      displayProperties.getDisplayProperty().add(prop);
     }
+    return displayProperties;
+  }
 }

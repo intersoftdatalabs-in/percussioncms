@@ -6,6 +6,7 @@ import java.util.Optional;
 
 /**
  * Resource utilities for Percussion Delivery Tier.
+ *
  * @author Sunny Sal
  */
 public final class PSDeliveryResourceUtils {
@@ -16,6 +17,7 @@ public final class PSDeliveryResourceUtils {
 
   /**
    * Loads a resource as an InputStream.
+   *
    * @param resourcePath Path to the resource.
    * @return Optional containing InputStream if found, empty otherwise.
    */

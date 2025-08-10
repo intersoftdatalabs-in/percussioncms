@@ -35,36 +35,31 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * The PSSecurityProviderPool class pools instances of the security
- * providers for use by the ACL handlers and the security cataloger.
- * <P>
- * At this time, the same instance of the provider is returned to each
- * caller. Synchronization must be done within the security provider
- * implementation. We may change this in the future, but the caller shoul
- * always assume the returned object is thread-safe.
+ * The PSSecurityProviderPool class pools instances of the security providers for use by the ACL
+ * handlers and the security cataloger.
  *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * <p>At this time, the same instance of the provider is returned to each caller. Synchronization
+ * must be done within the security provider implementation. We may change this in the future, but
+ * the caller shoul always assume the returned object is thread-safe.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSecurityProviderPool {
-  /**
-   * No external construction of this allowed.
-   */
+  /** No external construction of this allowed. */
   private PSSecurityProviderPool() {
     super();
   }
 
   /**
-   * Initialize the security provider pool with the specified configuration
-   * objects.
-   * <P>
-   * <EM>Note: This should only be called by the server</EM>
+   * Initialize the security provider pool with the specified configuration objects.
    *
-   * @param   config         the server configuration object containing
-   *   *   the PSSecurityProviderInstance objects
+   * <p><EM>Note: This should only be called by the server</EM>
    *
-   * @see      com.percussion.design.objectstore.PSSecurityProviderInstance
+   * @param config the server configuration object containing * the PSSecurityProviderInstance
+   *     objects
+   * @see com.percussion.design.objectstore.PSSecurityProviderInstance
    */
   public static synchronized void init(PSServerConfiguration config) {
     ms_instances = new HashMap<String, PSSecurityProvider>();
@@ -113,10 +108,9 @@ public class PSSecurityProviderPool {
   /**
    * Instantiate a directory cataloger from the supplied directory set.
    *
-   * @param config The server config containing all directory services
-   * definitions, assumed not <code>null</code>.
+   * @param config The server config containing all directory services definitions, assumed not
+   *     <code>null</code>.
    * @param dirSet The dierectory set to use, assumed not <code>null</code>.
-   *
    * @return the cataloger, never <code>null</code>.
    */
   private static IPSDirectoryCataloger initDirectoryCataloger(
@@ -141,11 +135,9 @@ public class PSSecurityProviderPool {
   /**
    * Instantiate a role cataloger from the supplied role provider.
    *
-   * @param config The server config containing all directory services
-   * definitions, assumed not <code>null</code>.
-   * @param roleProvider The role provider to use, assumed not
-   * <code>null</code>.
-   *
+   * @param config The server config containing all directory services definitions, assumed not
+   *     <code>null</code>.
+   * @param roleProvider The role provider to use, assumed not <code>null</code>.
    * @return the cataloger, never <code>null</code>.
    */
   private static IPSInternalRoleCataloger initRoleCataloger(
@@ -166,8 +158,8 @@ public class PSSecurityProviderPool {
 
   /**
    * Shutdown the security provider pool.
-   * <P>
-   * <EM>Note: This should only be called by the server</EM>
+   *
+   * <p><EM>Note: This should only be called by the server</EM>
    */
   public static synchronized void shutdown() {
     ms_instances.clear();
@@ -178,7 +170,6 @@ public class PSSecurityProviderPool {
    * Get the security provider instance of the specified name and type.
    *
    * @param inst the instance name to get
-   *
    * @return the provider instance or <code>null</code> if not defined.
    */
   public static synchronized PSSecurityProvider getProvider(String inst) {
@@ -186,15 +177,11 @@ public class PSSecurityProviderPool {
   }
 
   /**
-   * Get the security provider meta data for the specified
-   * provider type.
+   * Get the security provider meta data for the specified provider type.
    *
-   * @param   providerType   the provider type string. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return The provider meta data or <code>null</code> if the provider
-   * type string is not recognized.
-   *
+   * @param providerType the provider type string. Must not be <CODE>null</CODE>.
+   * @return The provider meta data or <code>null</code> if the provider type string is not
+   *     recognized.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public static synchronized IPSSecurityProviderMetaData getProviderMetaData(String providerType) {
@@ -218,9 +205,8 @@ public class PSSecurityProviderPool {
   /**
    * Get all the security provider instances of the specified type.
    *
-   * @param   type      the PSSecurityProvider.SP_TYPE_xxx type
-   *
-   * @return            an array of provider instances
+   * @param type the PSSecurityProvider.SP_TYPE_xxx type
+   * @return an array of provider instances
    */
   public static synchronized PSSecurityProvider[] getAllProviders(int type) {
     if (type == PSSecurityProvider.SP_TYPE_ANY) return getAllProviders();
@@ -238,7 +224,7 @@ public class PSSecurityProviderPool {
   /**
    * Get all the security provider instances.
    *
-   * @return            an array of provider instances
+   * @return an array of provider instances
    */
   public static synchronized PSSecurityProvider[] getAllProviders() {
     int size = ms_instances.size();
@@ -288,12 +274,11 @@ public class PSSecurityProviderPool {
   }
 
   /**
-   * Sets up the security provider from its instance defintion.  Stores values
-   * into HashMap ms_instances and ms_providers.
+   * Sets up the security provider from its instance defintion. Stores values into HashMap
+   * ms_instances and ms_providers.
    *
-   * @param spInst The security provider instance for which to create a
-   *    provider and store the instance and provider. Assumed not
-   *    <code>null</code>.
+   * @param spInst The security provider instance for which to create a provider and store the
+   *     instance and provider. Assumed not <code>null</code>.
    * @param config the server configuration, may be <code>null</code>.
    */
   private static synchronized void addInstance(
@@ -380,40 +365,37 @@ public class PSSecurityProviderPool {
     }
   }
 
-  /**
-   * The provider objects.
-   */
+  /** The provider objects. */
   private static Map<String, PSSecurityProvider> ms_instances;
 
   /**
    * The provider objects.
    *
-   *  key = Integer({Provider Type})
-   *  value = ArrayList of PSSecurityProvider objects
+   * <p>key = Integer({Provider Type}) value = ArrayList of PSSecurityProvider objects
    */
   private static Map<Integer, List<PSSecurityProvider>> ms_providers;
 
   /**
-   * Directory catalogers initialized during
-   * {@link #init(PSServerConfiguration)}, never <code>null</code> after that.
+   * Directory catalogers initialized during {@link #init(PSServerConfiguration)}, never <code>null
+   * </code> after that.
    */
   private static List<IPSDirectoryCataloger> ms_directoryCatalogers;
 
   /**
-   * Role catalogers initialized during
-   * {@link #init(PSServerConfiguration)}, never <code>null</code> after that.
+   * Role catalogers initialized during {@link #init(PSServerConfiguration)}, never <code>null
+   * </code> after that.
    */
   private static List<IPSInternalRoleCataloger> ms_roleCatalogers;
 
   /**
-   * The default directory cataloger initialized during
-   * {@link #init(PSServerConfiguration)}, never <code>null</code> after that.
+   * The default directory cataloger initialized during {@link #init(PSServerConfiguration)}, never
+   * <code>null</code> after that.
    */
   private static IPSDirectoryCataloger ms_defaultDirCataloger;
 
   /**
-   * The default role cataloger initialized during
-   * {@link #init(PSServerConfiguration)}, never <code>null</code> after that.
+   * The default role cataloger initialized during {@link #init(PSServerConfiguration)}, never
+   * <code>null</code> after that.
    */
   private static IPSInternalRoleCataloger ms_defaultRoleCataloger;
 }

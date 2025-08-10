@@ -35,15 +35,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit is specifically used to validate the uniqueness
- * of slotnames when a user tries to insert or update a slotname.
- * To do this we make an internal request to get a list of existing
- * slots and then validate what the user is trying to save against
- * the list.
+ * This exit is specifically used to validate the uniqueness of slotnames when a user tries to
+ * insert or update a slotname. To do this we make an internal request to get a list of existing
+ * slots and then validate what the user is trying to save against the list.
  *
- * A slotname is considered unique if the name is not already in
- * the database or the name is in the database and has the
- * same slotid passed in by this request.
+ * <p>A slotname is considered unique if the name is not already in the database or the name is in
+ * the database and has the same slotid passed in by this request.
  */
 public class PSValidateSlotName implements IPSRequestPreProcessor {
   /*
@@ -53,17 +50,14 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {}
 
   /**
-   * This method makes an internal request to get a list of all
-   * slots that exist in the system. We then validate against the
-   * slotname and slotid for slotname uniqueness.
+   * This method makes an internal request to get a list of all slots that exist in the system. We
+   * then validate against the slotname and slotid for slotname uniqueness.
    *
-   * @param params array of parameters sent in by exit caller, in this case
-   *  no params are expected. May be <code>null</code>.
-   * @param request the request context for the exit, assumed not
-   *    <code>null</code>.
-   *
-   * @throws PSExtensionProcessingException thrown if there is an extension error
-   * and when a slotname is not unique
+   * @param params array of parameters sent in by exit caller, in this case no params are expected.
+   *     May be <code>null</code>.
+   * @param request the request context for the exit, assumed not <code>null</code>.
+   * @throws PSExtensionProcessingException thrown if there is an extension error and when a
+   *     slotname is not unique
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -113,15 +107,12 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
   }
 
   /**
-   * Validate the slotname as being unique.
-   * Helper function.
+   * Validate the slotname as being unique. Helper function.
    *
-   * A slotname is considered unique if the name is not already in
-   * the database or the name is in the database and has the
-   * same slotid passed in by this request.
+   * <p>A slotname is considered unique if the name is not already in the database or the name is in
+   * the database and has the same slotid passed in by this request.
    *
-   * @returns true if this slotname is unique, else
-   * false if it is not unique.
+   * @returns true if this slotname is unique, else false if it is not unique.
    */
   private boolean isValid() {
 
@@ -143,49 +134,30 @@ public class PSValidateSlotName implements IPSRequestPreProcessor {
     return true;
   }
 
-  /**
-   * The HashMap of all slot names and ids. Never <code>null</code>,
-   * but may be empty.
-   */
+  /** The HashMap of all slot names and ids. Never <code>null</code>, but may be empty. */
   private Map<String, String> m_slotMap = new HashMap<>();
 
-  /**
-   * The slot name passed in the request. Never <code>null</code>.
-   */
+  /** The slot name passed in the request. Never <code>null</code>. */
   private String m_slotname;
 
-  /**
-   * The slot id passed in the request. Never <code>null</code>.
-   */
+  /** The slot id passed in the request. Never <code>null</code>. */
   private String m_slotid;
 
-  /**
-   * The name of the slot tag element
-   */
+  /** The name of the slot tag element */
   private static final String XML_TAG_SLOT = "slot";
 
-  /**
-   * The name of the slot id tag element
-   */
+  /** The name of the slot id tag element */
   private static final String XML_TAG_SLOTID = "slotid";
 
-  /**
-   * The name of the slot name tag element
-   */
+  /** The name of the slot name tag element */
   private static final String XML_TAG_SLOTNAME = "slotname";
 
-  /**
-   * The name of the slot id  request parameter
-   */
+  /** The name of the slot id request parameter */
   private static final String PARAM_SLOTID = "slotid";
 
-  /**
-   * The name of the slot name request parameter element
-   */
+  /** The name of the slot name request parameter element */
   private static final String PARAM_SLOTNAME = "slotname";
 
-  /**
-   * The internal request to get the slot list
-   */
+  /** The internal request to get the slot list */
   private static final String SLOTLIST_REQUEST = "sys_Slots/slotlist";
 }

@@ -21,17 +21,16 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- *   Tools for sorting arrays and Vectors. Empirically, I have found array
- *   sorting to be almost twice as fast as vector sorting. MergeSort is also
- *   faster than quicksort. For large Vectors, it is often faster to convert
- *   the vector to an array, sort it, then copy it back into the vector
- *   (no, I'm not kidding!). Experiment.
+ * Tools for sorting arrays and Vectors. Empirically, I have found array sorting to be almost twice
+ * as fast as vector sorting. MergeSort is also faster than quicksort. For large Vectors, it is
+ * often faster to convert the vector to an array, sort it, then copy it back into the vector (no,
+ * I'm not kidding!). Experiment.
  */
 public class PSSortTool {
   /**
-   * The implementation of this method was found to have problems;
-   * as a part of a bug fix Rx-03-05-0642 replaced the whole body
-   * with one call: Collections.sort(list, comper).
+   * The implementation of this method was found to have problems; as a part of a bug fix
+   * Rx-03-05-0642 replaced the whole body with one call: Collections.sort(list, comper).
+   *
    * @param list to sort, never <code> null </code>.
    * @param comper comparator, never <code> null </code>.
    */
@@ -44,8 +43,8 @@ public class PSSortTool {
   }
 
   /**
-   * Iterative (non-recursive) QuickSort with median-of-three
-   * partitioning to avoid slow behavior on mostly-sorted lists.
+   * Iterative (non-recursive) QuickSort with median-of-three partitioning to avoid slow behavior on
+   * mostly-sorted lists.
    */
   public static void QuickSort(Object[] list, Comparator comper) {
     class StackItem {

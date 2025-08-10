@@ -18,30 +18,28 @@ package com.percussion.pso.restservice.model;
 
 import javax.xml.bind.annotation.XmlAttribute;
 
-
-/**
- */
+/** */
 public class Relationship extends ItemRef {
 
-	/**
-	 * Field relId.
-	 */
-	private int relId;
-	
-	/**
-	 * Method getRelId.
-	 * @return int
-	 */
-	@XmlAttribute
-	public int getRelId() {
-		return relId;
-	}
-	/**
-	 * Method setRelId.
-	 * @param relId int
-	 */
-	public void setRelId(int relId) {
-		this.relId = relId;
-	}
-	
+  /** Field relId. */
+  private int relId;
+
+  /**
+   * Method getRelId.
+   *
+   * @return int
+   */
+  @XmlAttribute
+  public int getRelId() {
+    return relId;
+  }
+
+  /**
+   * Method setRelId.
+   *
+   * @param relId int
+   */
+  public void setRelId(int relId) {
+    this.relId = relId;
+  }
 }

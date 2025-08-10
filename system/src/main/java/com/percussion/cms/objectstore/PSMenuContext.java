@@ -24,23 +24,21 @@ import com.percussion.utils.guid.IPSGuid;
 import org.w3c.dom.Element;
 
 /**
- * This class provides an object representation of the Context concept for
- * menus. A menu context identifies a logical location within the UI where
- * menus may be displayed.
- * This is a read-only class. It can only be instantiated from xml.
- * <p>It doesn't need to override the clone methods because all its members
- * are immutable.
+ * This class provides an object representation of the Context concept for menus. A menu context
+ * identifies a logical location within the UI where menus may be displayed. This is a read-only
+ * class. It can only be instantiated from xml.
+ *
+ * <p>It doesn't need to override the clone methods because all its members are immutable.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSMenuContext extends PSName {
   /**
-   * Since this object is read-only, it can only be instantiated from an
-   * existing object, obtained from the processor load method.
+   * Since this object is read-only, it can only be instantiated from an existing object, obtained
+   * from the processor load method.
    *
    * @param src Never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException See fromXml();
    */
   public PSMenuContext(Element src) throws PSUnknownNodeTypeException {
@@ -50,6 +48,7 @@ public class PSMenuContext extends PSName {
 
   /**
    * This ctor should only be used for testing and debugging purposes.
+   *
    * @param name
    * @param dname
    * @param desc
@@ -59,12 +58,9 @@ public class PSMenuContext extends PSName {
   }
 
   /**
-   * Gets the menu context id (which is saved in the repository) from a
-   * GUID object.
+   * Gets the menu context id (which is saved in the repository) from a GUID object.
    *
-   * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE}
-   *    type.
-   *
+   * @param guid the guid object, which must be a {@link PSTypeEnum#MENU_MODE} type.
    * @return the UUID of the guid.
    */
   public static int getIdFromGuid(IPSGuid guid) {
@@ -79,7 +75,6 @@ public class PSMenuContext extends PSName {
    * Creates a GUID from an id.
    *
    * @param id the menu context id, which is saved in the repository.
-   *
    * @return the created GUID, never <code>null</code>.
    */
   public static PSDesignGuid getGuidFromId(int id) {
@@ -99,8 +94,6 @@ public class PSMenuContext extends PSName {
     return key;
   }
 
-  /**
-   * The name of the table column that is the primary key.
-   */
+  /** The name of the table column that is the primary key. */
   static final String PRIMARY_KEY = "UICONTEXTID";
 }

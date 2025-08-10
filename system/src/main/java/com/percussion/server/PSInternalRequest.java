@@ -46,23 +46,20 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
 /**
- * This class provides the functionality for making an internal request, and
- * if appropriate, retrieving the results of that request.  Each instance of
- * this class represents a particular resource in an application, and may
- * be used to make a single request to that resource.
- * <p>
- * This class does not implement <code>IPSInternalRequest</code> to reduce the
- * chance that this class is provided to user-space objects (exits).  Those
- * objects will be passed a {@link PSInternalRequestProxy}.
+ * This class provides the functionality for making an internal request, and if appropriate,
+ * retrieving the results of that request. Each instance of this class represents a particular
+ * resource in an application, and may be used to make a single request to that resource.
+ *
+ * <p>This class does not implement <code>IPSInternalRequest</code> to reduce the chance that this
+ * class is provided to user-space objects (exits). Those objects will be passed a {@link
+ * PSInternalRequestProxy}.
  */
 public class PSInternalRequest {
   /**
    * Constructor for this class.
    *
    * @param req The request object, never <code>null</code>.
-   *
    * @param rh The internal request handler, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if req or rh is <code>null</code>.
    */
   public PSInternalRequest(PSRequest req, IPSInternalRequestHandler rh) {
@@ -261,8 +258,7 @@ public class PSInternalRequest {
   /**
    * Get a cache context for the current request.
    *
-   * @return The context, may be <code>null</code> if caching cannot currently
-   * be performed.
+   * @return The context, may be <code>null</code> if caching cannot currently be performed.
    */
   private PSCacheContext getCacheContext() {
     PSCacheContext ctx = null;
@@ -309,16 +305,13 @@ public class PSInternalRequest {
   }
 
   /**
-   * Checks to see if this request was made against a query resource, and if
-   * so, will cast the {@link #m_internalRequestHandler} to an
-   * IPSInternalResultHandler and return it.  Also checks to be sure this
-   * object is in a valid state to return results.
+   * Checks to see if this request was made against a query resource, and if so, will cast the
+   * {@link #m_internalRequestHandler} to an IPSInternalResultHandler and return it. Also checks to
+   * be sure this object is in a valid state to return results.
    *
    * @return An internal result handler, never <code>null</code>.
-   *
-   * @throws IllegalStateException if this is not a query request, if {@link
-   * #makeRequest()} has not been called, or if results have already been
-   * retrieved.
+   * @throws IllegalStateException if this is not a query request, if {@link #makeRequest()} has not
+   *     been called, or if results have already been retrieved.
    */
   private IPSInternalResultHandler getResultHandler() {
     if (!(m_internalRequestHandler instanceof IPSInternalResultHandler))
@@ -347,8 +340,7 @@ public class PSInternalRequest {
   }
 
   /**
-   * Gets the request handler instance provided when this object was
-   * constructed.
+   * Gets the request handler instance provided when this object was constructed.
    *
    * @return the request handler, never <code>null</code>.
    */
@@ -365,9 +357,7 @@ public class PSInternalRequest {
     return m_request;
   }
 
-  /**
-   * see {@link IPSInternalRequest#getRequestType()} for details.
-   */
+  /** see {@link IPSInternalRequest#getRequestType()} for details. */
   public int getRequestType() {
     return m_internalRequestHandler.getRequestType();
   }
@@ -376,32 +366,30 @@ public class PSInternalRequest {
     return m_internalRequestHandler.isBinary(req);
   }
 
-  /**
-   * Overriding the finalizer to call {@link #cleanUp()}.
-   */
+  /** Overriding the finalizer to call {@link #cleanUp()}. */
   protected void finalize() throws Throwable {
     cleanUp();
     super.finalize();
   }
 
   /**
+   *
+   *
    * <pre>
    *    $USER     |               |   $USER
    * ------------>|  rxuser       |------------------->
    * (PSRequest)  |-------------->|  (PSRequest)
    *                IntReqHndlr   |
    * </pre>
-   * Need for this: A request comes in as $USER context, but this makes an
-   * internal request such as switching to rxuser and then execute the request
-   * and then switch back to the $USER context. In some cases as in
-   * PSUriResolver, the actual request context was null.
-   * A wrapper for the handler's makeInternalRequest swapping the request
-   * info and resetting it back
+   *
+   * Need for this: A request comes in as $USER context, but this makes an internal request such as
+   * switching to rxuser and then execute the request and then switch back to the $USER context. In
+   * some cases as in PSUriResolver, the actual request context was null. A wrapper for the
+   * handler's makeInternalRequest swapping the request info and resetting it back
    *
    * @param req the request used by the handler's makeInternalRequest()
    * @param rh the handler
    * @return The data, may be <code>null</code>.
-   *
    * @throws PSAuthorizationException
    * @throws PSAuthenticationFailedException
    * @throws PSInternalRequestCallException
@@ -422,15 +410,12 @@ public class PSInternalRequest {
   }
 
   /**
-   * A wrapper for PSDataHandler's getResultDocument for swapping the
-   * request info and resetting it back.  See
-   * {@link IPSInternalRequestHandler#getResultDocument(PSRequest)} for more
-   * info.
+   * A wrapper for PSDataHandler's getResultDocument for swapping the request info and resetting it
+   * back. See {@link IPSInternalRequestHandler#getResultDocument(PSRequest)} for more info.
+   *
    * @param req The request to use, assumed not <code>null</code>.
    * @param rh The result handler, assumed not <code>null</code>.
-   *
    * @return The result of calling the handler's getResultDocument() method.
-   *
    * @throws PSInternalRequestCallException
    * @throws PSAuthorizationException
    * @throws PSAuthenticationFailedException
@@ -451,14 +436,12 @@ public class PSInternalRequest {
   }
 
   /**
-   * A wrapper for
-   * {@link IPSInternalResultHandler#getResultDoc(PSExecutionData)} for
-   * swapping the request info and resetting it back
+   * A wrapper for {@link IPSInternalResultHandler#getResultDoc(PSExecutionData)} for swapping the
+   * request info and resetting it back
+   *
    * @param data The execution data to use, assumed not <code>null</code>
    * @param rh The result handler to use, assumed not <code>null</code>.
-   *
    * @return The result of calling the handler's getResultDoc() method.
-   *
    * @throws PSInternalRequestCallException
    */
   private Document getResultDoc(PSExecutionData data, IPSInternalResultHandler rh)
@@ -477,6 +460,7 @@ public class PSInternalRequest {
 
   /**
    * Ask the internal request handler what the mime type is of the request
+   *
    * @return the mime type, could possibly be <code>null</code> or empty.
    */
   public String computeMimeType() {
@@ -484,14 +468,12 @@ public class PSInternalRequest {
   }
 
   /**
-   * A wrapper for
-   * {@link IPSInternalResultHandler#getMergedResult(PSExecutionData)} for
-   * swapping the request info and resetting it back
+   * A wrapper for {@link IPSInternalResultHandler#getMergedResult(PSExecutionData)} for swapping
+   * the request info and resetting it back
+   *
    * @param data The execution data to use, assumed not <code>null</code>
    * @param rh The result handler to use, assumed not <code>null</code>.
-   *
    * @return The result of calling the handler's getMergedResult() method.
-   *
    * @throws PSInternalRequestCallException
    * @throws PSAuthenticationFailedException
    * @throws PSAuthorizationException
@@ -524,48 +506,43 @@ public class PSInternalRequest {
   }
 
   /**
-   * The request object used to make the internal request.  Initialized by the
-   * ctor, never <code>null</code> after that.
+   * The request object used to make the internal request. Initialized by the ctor, never <code>null
+   * </code> after that.
    */
   private PSRequest m_request = null;
 
   /**
-   * The internal request handler used to delegate calls to the server.  Set
-   * by the ctor, never <code>null</code> after that.
+   * The internal request handler used to delegate calls to the server. Set by the ctor, never
+   * <code>null</code> after that.
    */
   private IPSInternalRequestHandler m_internalRequestHandler;
 
   /**
-   * The execution data returned from the internal request call. Used to
-   * retrieve results if this is a query request.  Is instantiated by a call
-   * to {@link #makeRequest()}, and is set to <code>null</code> by a call to
-   * {@link #cleanUp()}
+   * The execution data returned from the internal request call. Used to retrieve results if this is
+   * a query request. Is instantiated by a call to {@link #makeRequest()}, and is set to <code>null
+   * </code> by a call to {@link #cleanUp()}
    */
   private PSExecutionData m_execData = null;
 
   /**
-   * Initially <code>false</code>, set to <code>true</code> once a call to
-   * {@link #makeRequest()} has been made.
+   * Initially <code>false</code>, set to <code>true</code> once a call to {@link #makeRequest()}
+   * has been made.
    */
   private boolean m_madeRequest = false;
 
   /**
-   * Initially <code>false</code>, set to <code>true</code> once a call to
-   * {@link #getResultDoc()} or {@link #getResultSet()} has been made.
+   * Initially <code>false</code>, set to <code>true</code> once a call to {@link #getResultDoc()}
+   * or {@link #getResultSet()} has been made.
    */
   private boolean m_gotResults = false;
 
-  /**
-   * A mime type computed in the request. Initialized only when using the
-   * merged result methods.
-   */
+  /** A mime type computed in the request. Initialized only when using the merged result methods. */
   private String m_computedMimeType = null;
 
   /**
-   * Allows for temporary replacement of the request stored in the
-   * {@link PSRequestInfo} while making an internal request.  Call
-   * {@link #replaceRequestInfo()} before making an actual internal request,
-   * then call {@link #reset()} when completed (usually in a finally block).
+   * Allows for temporary replacement of the request stored in the {@link PSRequestInfo} while
+   * making an internal request. Call {@link #replaceRequestInfo()} before making an actual internal
+   * request, then call {@link #reset()} when completed (usually in a finally block).
    */
   private class PSInternalRequestInfo {
     /**
@@ -580,8 +557,7 @@ public class PSInternalRequest {
     }
 
     /**
-     * Replace the request stored in the {@link PSRequestInfo} before making
-     * an internal request.
+     * Replace the request stored in the {@link PSRequestInfo} before making an internal request.
      */
     public void replaceRequestInfo() {
       if (mi_actualReq != null || mi_isActualNull) {
@@ -597,9 +573,7 @@ public class PSInternalRequest {
       }
     }
 
-    /**
-     * Reset the request in {@link PSRequestInfo} to its original request.
-     */
+    /** Reset the request in {@link PSRequestInfo} to its original request. */
     public void reset() {
       if (PSRequestInfo.isInited()) {
         if (!isReplaced()) throw new IllegalStateException("Must call replaceRequestInfo() first");

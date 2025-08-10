@@ -26,34 +26,27 @@ import com.percussion.util.PSHtmlParamDocument;
 import org.w3c.dom.Document;
 
 /**
- * This exit extracts named parameters from the standard HTML parameter input
- * document to HTML parameters with same names into the request. The DTD for
- * the input XML document must be the following:
- * &lt;!ELEMENT HtmlParams ANY&gt;
- * The root element <em>HtmlParams</em> can have one or more child elements that
- * are name value pairs. The element name will be the parameter name and the
- * value of the element is the value of the parameter. There can be multiple
- * elements with the same name so that multi-valued HTML parameters are
- * supported.
- * <p>
- * Exit supports a way of specifying to extract the value of a multi-valued
- * parameter suitable for IN clause of a SQL query. Also, we can specify if the
- * the parameter values should beenclosed in quotes.
- * </p>
- * <p>
- * The first parameter for this exit is flag that specifies if the extracted
- * value has to be suitable for IN clause of SQL query. Default is 'n' ("no").
- * </p>
- * <p>
- * The second parameter for this exit is flag that specifies if each value of
- * the parameter in the extracted value string needs to be in quotes. Default
- * is 'y' ("yes"). Applicable only if the first parameter gets a value of 'y'.
- * </p>
- * <p>
- * Rest of the parameters for the exit are the names of the HTML parameters to be
- * extracted out of the input document.
- * The exit itself is generic in that it takes any number parameters though it
- * is specified as 8 now (which means 10 total parameters for the exit).
+ * This exit extracts named parameters from the standard HTML parameter input document to HTML
+ * parameters with same names into the request. The DTD for the input XML document must be the
+ * following: &lt;!ELEMENT HtmlParams ANY&gt; The root element <em>HtmlParams</em> can have one or
+ * more child elements that are name value pairs. The element name will be the parameter name and
+ * the value of the element is the value of the parameter. There can be multiple elements with the
+ * same name so that multi-valued HTML parameters are supported.
+ *
+ * <p>Exit supports a way of specifying to extract the value of a multi-valued parameter suitable
+ * for IN clause of a SQL query. Also, we can specify if the the parameter values should beenclosed
+ * in quotes.
+ *
+ * <p>The first parameter for this exit is flag that specifies if the extracted value has to be
+ * suitable for IN clause of SQL query. Default is 'n' ("no").
+ *
+ * <p>The second parameter for this exit is flag that specifies if each value of the parameter in
+ * the extracted value string needs to be in quotes. Default is 'y' ("yes"). Applicable only if the
+ * first parameter gets a value of 'y'.
+ *
+ * <p>Rest of the parameters for the exit are the names of the HTML parameters to be extracted out
+ * of the input document. The exit itself is generic in that it takes any number parameters though
+ * it is specified as 8 now (which means 10 total parameters for the exit).
  */
 public class PSParamExtractor extends PSDefaultExtension implements IPSRequestPreProcessor {
   /*

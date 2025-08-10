@@ -20,21 +20,17 @@ import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 
 /**
- * Helper class to handle format the parent and child id combination for
- * a dependency object, who can only identified with the combination of
- * its parent and its own ids.
+ * Helper class to handle format the parent and child id combination for a dependency object, who
+ * can only identified with the combination of its parent and its own ids.
  */
 public class PSPairDependencyId {
   /**
    * Constructor from a given (formated) id.
    *
    * @param depId The formated id, it may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>depId</code> is
-   * <code>null</code> or empty
-   * @throws PSDeployException if the <code>depId</code> is not in the
-   * format of <code>parentId:childId</code> where <code>parentId</code> is
-   * numeric.
+   * @throws IllegalArgumentException if <code>depId</code> is <code>null</code> or empty
+   * @throws PSDeployException if the <code>depId</code> is not in the format of <code>
+   *     parentId:childId</code> where <code>parentId</code> is numeric.
    */
   public PSPairDependencyId(String depId) throws PSDeployException {
     if (depId == null || depId.isBlank()) {
@@ -59,17 +55,14 @@ public class PSPairDependencyId {
   }
 
   /**
-   * Generate a dependency id from a given parent and child ids of the
-   * database.
+   * Generate a dependency id from a given parent and child ids of the database.
    *
-   * @param parentId The parent id directly from the database, it may not be
-   * <code>null</code> or empty, must represent a numeric value.
-   * @param childId The child id directly from the database, it may not
-   * be <code>null</code> or empty.
-   *
-   * @return The generated dependency id for a child dependency object. It
-   * will never be <code>null</code>.
-   *
+   * @param parentId The parent id directly from the database, it may not be <code>null</code> or
+   *     empty, must represent a numeric value.
+   * @param childId The child id directly from the database, it may not be <code>null</code> or
+   *     empty.
+   * @return The generated dependency id for a child dependency object. It will never be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if a parameter is invalid
    */
   public static String getPairDependencyId(String parentId, String childId) {
@@ -107,14 +100,14 @@ public class PSPairDependencyId {
   }
 
   /**
-   * Child id from the table, initialized by constructor, never
-   * <code>null</code> or empty after that.
+   * Child id from the table, initialized by constructor, never <code>null</code> or empty after
+   * that.
    */
   private String m_childId;
 
   /**
-   * Parent id from the table, initialized by constructor, never
-   * <code>null</code> or empty after that.
+   * Parent id from the table, initialized by constructor, never <code>null</code> or empty after
+   * that.
    */
   private String m_parentId;
 }

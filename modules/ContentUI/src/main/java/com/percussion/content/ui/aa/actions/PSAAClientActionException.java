@@ -20,10 +20,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * An exception that is used when a error or exception occurs
- * when executing an AA client action.
- * If constructed with a nested {@link InvocationTargetException} extracts the
- * nested exception from it.
+ * An exception that is used when a error or exception occurs when executing an AA client action. If
+ * constructed with a nested {@link InvocationTargetException} extracts the nested exception from
+ * it.
  */
 public class PSAAClientActionException extends Exception {
 
@@ -48,11 +47,11 @@ public class PSAAClientActionException extends Exception {
   }
 
   /**
-   * If the passed exception is {@link InvocationTargetException},
-   * returns the nested exception, otherwise returns the specified exception.
-   * Is static, so it can be called from a constructor.
-   * @param t the exception to extract cause exception from.
-   * If <code>null</code>, the method returns null.
+   * If the passed exception is {@link InvocationTargetException}, returns the nested exception,
+   * otherwise returns the specified exception. Is static, so it can be called from a constructor.
+   *
+   * @param t the exception to extract cause exception from. If <code>null</code>, the method
+   *     returns null.
    */
   private static Throwable maybeGetNestedException(Throwable t) {
     return t instanceof InvocationTargetException ? t.getCause() : t;
@@ -60,9 +59,9 @@ public class PSAAClientActionException extends Exception {
 
   /**
    * Creates a message from this exception message and the cause.
+   *
    * @param message this exception message. Can be <code>null</code> or empty.
-   * @param causeMessage the message of the cause exception.
-   * Can be <code>null</code> or empty.
+   * @param causeMessage the message of the cause exception. Can be <code>null</code> or empty.
    */
   private String composeMessageFromCause(final String message, final String causeMessage) {
     if (getCause() == null) {
@@ -73,9 +72,7 @@ public class PSAAClientActionException extends Exception {
   }
 
   /**
-   * {@inheritDoc}
-   * This implementation excludes cause exception class name if cause is
-   * specified.
+   * {@inheritDoc} This implementation excludes cause exception class name if cause is specified.
    */
   @Override
   public String getMessage() {
@@ -84,9 +81,7 @@ public class PSAAClientActionException extends Exception {
   }
 
   /**
-   * {@inheritDoc}
-   * This implementation excludes cause exception class name if cause is
-   * specified.
+   * {@inheritDoc} This implementation excludes cause exception class name if cause is specified.
    */
   @Override
   public String getLocalizedMessage() {

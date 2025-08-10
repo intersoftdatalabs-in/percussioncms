@@ -42,8 +42,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to handle the communications between an applet client
- * and a server with HTTP protocol.
+ * This class is used to handle the communications between an applet client and a server with HTTP
+ * protocol.
  */
 public class PSHttpConnection {
 
@@ -154,20 +154,16 @@ public class PSHttpConnection {
   }
 
   /**
-   * This submits supplied XML document string as input data document (POST
-   * request - multi-part/formdata) to the provided URL. This is equivalent to
-   * submitting the XML string as a file attachment.
+   * This submits supplied XML document string as input data document (POST request -
+   * multi-part/formdata) to the provided URL. This is equivalent to submitting the XML string as a
+   * file attachment.
    *
    * @param url The destination it is going to send to. May not <code>null</code>.
-   *
-   * @param XmlDocString string (UTF-8) represntation of the XML document to post
-   * to the URL specified. Must not be <code>null</code> or empty.
-   *
-   * @return the string result of the post call, may be empty, or an error page
-   * if the post HTTP response code >= 400
-   *
+   * @param XmlDocString string (UTF-8) represntation of the XML document to post to the URL
+   *     specified. Must not be <code>null</code> or empty.
+   * @return the string result of the post call, may be empty, or an error page if the post HTTP
+   *     response code >= 400
    * @throws PSException if received error code.
-   *
    * @throws IOException if an error occurs during send/receive data
    */
   public String postXmlData(URL url, String XmlDocString) throws IOException, PSException {
@@ -198,11 +194,9 @@ public class PSHttpConnection {
   }
 
   /**
-   * Get a boundary value which is unique string amoung the values of the
-   * given parameters.
+   * Get a boundary value which is unique string amoung the values of the given parameters.
    *
    * @param paramsMap The to be examed parameters, assume not <code>null</code>.
-   *
    * @return The unique boundary string.
    */
   private String getBoundary(Map paramsMap) {
@@ -228,11 +222,9 @@ public class PSHttpConnection {
   /**
    * Helper method to get a new boundary from an old one.
    *
-   * @param boundary The old boundary value. Assume not <code>null</code> or
-   *    emtpry.
-   *
-   * @return A base 64 encoded string from the old boundary, hopefully this
-   *    will be unique among the input data.
+   * @param boundary The old boundary value. Assume not <code>null</code> or emtpry.
+   * @return A base 64 encoded string from the old boundary, hopefully this will be unique among the
+   *     input data.
    */
   private static String getNewBoundary(String boundary) {
     byte[] bytes = boundary.getBytes();
@@ -250,15 +242,12 @@ public class PSHttpConnection {
   }
 
   /**
-   * Just like {@link #postData(URL, Map)}, except it sends a
-   * <code>Document</code> and returns the response in a document object.
-   * The connections that are opened by this method will be closed.
+   * Just like {@link #postData(URL, Map)}, except it sends a <code>Document</code> and returns the
+   * response in a document object. The connections that are opened by this method will be closed.
    *
    * @param doc The to be send document, may not be <code>null</code>.
-   *
-   * @return the responsed document, never <code>null</code>.
-   *
-   * @SAXException if error occurs while converting the response to a document.
+   * @return the responsed document, never <code>null</code>. @SAXException if error occurs while
+   *     converting the response to a document.
    */
   public Document postData(URL url, Document doc) throws IOException, PSException, SAXException {
     if (url == null) throw new IllegalArgumentException("url may not be null");
@@ -273,9 +262,8 @@ public class PSHttpConnection {
   }
 
   /**
-   * Just like {@link #postData(URL, String, String)}, except it appends PS
-   * Session ID to the specified URL, then calls
-   * {@link #postData(URL, String, String)}.
+   * Just like {@link #postData(URL, String, String)}, except it appends PS Session ID to the
+   * specified URL, then calls {@link #postData(URL, String, String)}.
    */
   private String postDataWithPSSessionId(URL url, String data, String sendContentType)
       throws IOException, PSException {
@@ -284,15 +272,12 @@ public class PSHttpConnection {
   }
 
   /**
-   * Just like {@link #postData(URL, Map)}, except it sends a string data
-   * for a given Content-Type. The connections that are opened by this method
-   * will be closed.
+   * Just like {@link #postData(URL, Map)}, except it sends a string data for a given Content-Type.
+   * The connections that are opened by this method will be closed.
    *
-   * @param data The to be send data, assume not <code>null</code>, but may
-   *    be empty.
-   *
-   * @param sendContentType The Content-Type of the <code>data</code>. It may be
-   * <code>null</code> if there is no data.
+   * @param data The to be send data, assume not <code>null</code>, but may be empty.
+   * @param sendContentType The Content-Type of the <code>data</code>. It may be <code>null</code>
+   *     if there is no data.
    */
   private static String postData(URL url, String data, String sendContentType)
       throws IOException, PSException {
@@ -380,15 +365,12 @@ public class PSHttpConnection {
   }
 
   /**
-   * Just like {@link #postData(URL, Map)}, except it sends a string data
-   * for a given Content-Type. The connections that are opened by this method
-   * will be closed.
+   * Just like {@link #postData(URL, Map)}, except it sends a string data for a given Content-Type.
+   * The connections that are opened by this method will be closed.
    *
-   * @param url The to be send data, assume not <code>null</code>, but may
-   *    be empty.
-   *
-   * @param sendContentType The Content-Type of the <code>data</code>. It may be
-   * <code>null</code> if there is no data.
+   * @param url The to be send data, assume not <code>null</code>, but may be empty.
+   * @param sendContentType The Content-Type of the <code>data</code>. It may be <code>null</code>
+   *     if there is no data.
    */
   private static String getData(URL url, String sendContentType) throws IOException, PSException {
     HttpURLConnection connection = null;
@@ -462,28 +444,25 @@ public class PSHttpConnection {
   }
 
   /**
-   * Append PS Session ID parameter to the query string of the specified URL.
-   * Do nothing if the URL is used to request the PS Session ID.
-   * This is needed for Firefox in the following scenario:
+   * Append PS Session ID parameter to the query string of the specified URL. Do nothing if the URL
+   * is used to request the PS Session ID. This is needed for Firefox in the following scenario:
+   *
    * <UL>
-   * <LI> Bring up Firefox, login CX
-   * <LI> JSESSIONID and/or PS Session expired (due to either server
-   *      restart or session expired (more than 2 hours, for example)
-   * <LI> Bring a new (after close down the current) Firefox session or refresh
-   *      the same Firefox window, login CX, get new JSESSIONID (and
-   *      pssessionid)
-   * <LI> perform some operation in CX (for example, bring up an Content Editor
-   * <LI> Some of the request from java applet may not have the
-   *      authenticated cookie, which is retained from step [3].
+   *   <LI>Bring up Firefox, login CX
+   *   <LI>JSESSIONID and/or PS Session expired (due to either server restart or session expired
+   *       (more than 2 hours, for example)
+   *   <LI>Bring a new (after close down the current) Firefox session or refresh the same Firefox
+   *       window, login CX, get new JSESSIONID (and pssessionid)
+   *   <LI>perform some operation in CX (for example, bring up an Content Editor
+   *   <LI>Some of the request from java applet may not have the authenticated cookie, which is
+   *       retained from step [3].
    * </UL>
-   * <p>
-   * Note, this will not be called when requesting the PS Session ID for the
-   * current applet session.
+   *
+   * <p>Note, this will not be called when requesting the PS Session ID for the current applet
+   * session.
    *
    * @param url the URL in question, assumed not <code>null</code>.
-   *
-   * @return the URL that has appended PS Session ID parameter. It can never
-   * be <code>null</code>.
+   * @return the URL that has appended PS Session ID parameter. It can never be <code>null</code>.
    */
   public URL appendPsSessionId(URL url) {
     String sUrl = url.toString();
@@ -549,55 +528,47 @@ public class PSHttpConnection {
   }
 
   /**
-   * Reset the cached info which may contain data used from previous
-   * applet session. This is called during applet initialization (that is
-   * called from {@link PSContentExplorerApplet#init()}).
+   * Reset the cached info which may contain data used from previous applet session. This is called
+   * during applet initialization (that is called from {@link PSContentExplorerApplet#init()}).
    *
-   * @param baseUrl the new base URL of the applet session. It is in the
-   * format of protocol://host:port/Rhythmyx/sys_resources.
-   * @param psSessionId the value of "pssessionid" applet parameter. It may
-   * be <code>null</code> or empty if it is not specified.
+   * @param baseUrl the new base URL of the applet session. It is in the format of
+   *     protocol://host:port/Rhythmyx/sys_resources.
+   * @param psSessionId the value of "pssessionid" applet parameter. It may be <code>null</code> or
+   *     empty if it is not specified.
    */
 
   /**
-   * The current base URL of the applet session. This is used to request
-   * the PS Session ID for the current applet (or JSESSIONID) session.
+   * The current base URL of the applet session. This is used to request the PS Session ID for the
+   * current applet (or JSESSIONID) session.
    */
   private URL ms_baseUrl = null;
 
   /**
-   * The current PS Session ID. Default to <code>null</code> if has not been
-   * set for current applet session.
+   * The current PS Session ID. Default to <code>null</code> if has not been set for current applet
+   * session.
    */
   private String ms_psSessionId = null;
 
-  /**
-   * The URL used to retrieve the PS Session ID from server.
-   */
+  /** The URL used to retrieve the PS Session ID from server. */
   private static final String GET_SESSIONID_URL = "/ui/util/getPSSessionID.jsp";
 
   private static final String GET_USERINFO_URL = "sys_psxCms/userinfo.xml";
 
   /**
    * Set the boundary for posting data of type "multipart/form-data"
+   *
    * @param boundary
    */
   public void setBoundary(String boundary) {
     ms_boundary = StringUtils.isEmpty(boundary) ? DEFAULT_BOUNDARY : boundary;
   }
 
-  /**
-   * Initial value boundary for posting data of type "multipart/form-data"
-   */
+  /** Initial value boundary for posting data of type "multipart/form-data" */
   public static final String CX_BOUNDARY = "||--------------------RxCxApplet";
 
-  /**
-   * Default boundary for posting data of type "multipart/form-data"
-   */
+  /** Default boundary for posting data of type "multipart/form-data" */
   public static final String DEFAULT_BOUNDARY = "||--------------------7d310e3120318";
 
-  /**
-   * Default value for creating a unique boundary for "multipart/form-data"
-   */
+  /** Default value for creating a unique boundary for "multipart/form-data" */
   private String ms_boundary = DEFAULT_BOUNDARY;
 }

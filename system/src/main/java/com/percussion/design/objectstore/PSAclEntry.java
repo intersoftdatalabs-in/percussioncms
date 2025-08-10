@@ -26,30 +26,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSAclEntry class defines an entry in an Access Control List (ACL).
- * Access control entries (ACEs) define the users, groups and roles who
- * can access a resource, and the type of access they have to the resource.
- * ACEs are used in the context of server or application ACLs. Both ACL
- * types are defined using the PSAcl class. The ACL contains one or more
- * ACL entries (PSAclEntry).
+ * The PSAclEntry class defines an entry in an Access Control List (ACL). Access control entries
+ * (ACEs) define the users, groups and roles who can access a resource, and the type of access they
+ * have to the resource. ACEs are used in the context of server or application ACLs. Both ACL types
+ * are defined using the PSAcl class. The ACL contains one or more ACL entries (PSAclEntry).
  *
- * @see   PSAcl#getEntries
- * @see   PSAcl
- *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @see PSAcl#getEntries
+ * @see PSAcl
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSAclEntry extends PSComponent {
   /**
-   * This entry can be used in calls to setName or the constructor to
-   * create an entry for anonynmous users (not logged in).
+   * This entry can be used in calls to setName or the constructor to create an entry for anonynmous
+   * users (not logged in).
    */
   public static final String ANONYMOUS_USER_NAME = "Anonymous";
 
   /**
-   * This entry can be used in calls to setName or the constructor to
-   * create an entry for logged in users not explicitly defined in the ACL.
+   * This entry can be used in calls to setName or the constructor to create an entry for logged in
+   * users not explicitly defined in the ACL.
    */
   public static final String DEFAULT_USER_NAME = "Default";
 
@@ -57,148 +54,104 @@ public class PSAclEntry extends PSComponent {
 
   // **************************** ACE TYPES ****************************
 
-  /**
-   * This entry represents a user. Entries may define access for users,
-   * groups or roles.
-   */
+  /** This entry represents a user. Entries may define access for users, groups or roles. */
   public static final int ACE_TYPE_USER = 1;
 
-  /**
-   * This entry represents a group. Entries may define access for users,
-   * groups or roles.
-   */
+  /** This entry represents a group. Entries may define access for users, groups or roles. */
   public static final int ACE_TYPE_GROUP = 2;
 
-  /**
-   * This entry represents a role. Entries may define access for users,
-   * groups or roles.
-   */
+  /** This entry represents a role. Entries may define access for users, groups or roles. */
   public static final int ACE_TYPE_ROLE = 3;
 
   // *********************   APPLICATION ACL LEVELS *********************
 
   /**
    * This is an application ACE with no access to the application.
-   * <p>
-   * No other flags should be used in combination with this flag. If
-   * any other flags are specified, no access will be ignored and the
-   * user will be granted access.
+   *
+   * <p>No other flags should be used in combination with this flag. If any other flags are
+   * specified, no access will be ignored and the user will be granted access.
    */
   public static final int AACE_NO_ACCESS = 0x00000000;
 
-  /**
-   * This is an application ACE permitted to query data.
-   */
+  /** This is an application ACE permitted to query data. */
   public static final int AACE_DATA_QUERY = 0x00000001;
 
-  /**
-   * This is an application ACE permitted to create new data.
-   */
+  /** This is an application ACE permitted to create new data. */
   public static final int AACE_DATA_CREATE = 0x00000002;
 
-  /**
-   * This is an application ACE permitted to update existing data.
-   */
+  /** This is an application ACE permitted to update existing data. */
   public static final int AACE_DATA_UPDATE = 0x00000004;
 
-  /**
-   * This is an application ACE permitted to delete existing data.
-   */
+  /** This is an application ACE permitted to delete existing data. */
   public static final int AACE_DATA_DELETE = 0x00000008;
 
-  /**
-   * This is an application ACE permitted to read the application's
-   * design.
-   */
+  /** This is an application ACE permitted to read the application's design. */
   public static final int AACE_DESIGN_READ = 0x00000010;
 
-  /**
-   * This is an application ACE permitted to update the application's
-   * design.
-   */
+  /** This is an application ACE permitted to update the application's design. */
   public static final int AACE_DESIGN_UPDATE = 0x00000020;
 
   /**
-   * This is an application ACE permitted to delete the application
-   * (permanently removing it from the server).
+   * This is an application ACE permitted to delete the application (permanently removing it from
+   * the server).
    */
   public static final int AACE_DESIGN_DELETE = 0x00000040;
 
-  /**
-   * This is an application ACE permitted to modify the application's
-   * ACL.
-   */
+  /** This is an application ACE permitted to modify the application's ACL. */
   public static final int AACE_DESIGN_MODIFY_ACL = 0x00000080;
 
   // ************************ SERVER ACL LEVELS ************************
 
   /**
    * This is an server ACE with no access to the server.
-   * <p>
-   * No other flags should be used in combination with this flag. If
-   * any other flags are specified, no access will be ignored and the
-   * user will be granted access.
+   *
+   * <p>No other flags should be used in combination with this flag. If any other flags are
+   * specified, no access will be ignored and the user will be granted access.
    */
   public static final int SACE_NO_ACCESS = 0x00000000;
 
   /**
-   * This is a server ACE allowed to make application data requests.
-   * This only means that a request for application data submitted by
-   * the user will be permitted on the server. The server will determine
-   * which application the request is for. It will then check the
-   * application's ACL. If the user is not defined in the application's
-   * ACL, access will be denied at that point.
+   * This is a server ACE allowed to make application data requests. This only means that a request
+   * for application data submitted by the user will be permitted on the server. The server will
+   * determine which application the request is for. It will then check the application's ACL. If
+   * the user is not defined in the application's ACL, access will be denied at that point.
    */
   public static final int SACE_ACCESS_DATA = 0x00010000;
 
   /**
-   * This is a server ACE allowed to make application design requests.
-   * This only means that a request to read, update or delete an
-   * application submitted by the user will be permitted on the server.
-   * The server will determine which application the request is for.
-   * It will then check the application's ACL. If the user does not
-   * have the appropriate design access in the application's ACL,
-   * access will be denied at that point.
+   * This is a server ACE allowed to make application design requests. This only means that a
+   * request to read, update or delete an application submitted by the user will be permitted on the
+   * server. The server will determine which application the request is for. It will then check the
+   * application's ACL. If the user does not have the appropriate design access in the application's
+   * ACL, access will be denied at that point.
    */
   public static final int SACE_ACCESS_DESIGN = 0x00020000;
 
-  /**
-   * This is a server ACE allowed to create new applications on the
-   * server.
-   */
+  /** This is a server ACE allowed to create new applications on the server. */
   public static final int SACE_CREATE_APPLICATIONS = 0x00040000;
 
   /**
-   * This is a server ACE allowed to delete applications. Any
-   * application on the server can be deleted when this access level is
-   * granted. This is true even if the specified user is not in the
-   * application's ACL.
+   * This is a server ACE allowed to delete applications. Any application on the server can be
+   * deleted when this access level is granted. This is true even if the specified user is not in
+   * the application's ACL.
    */
   public static final int SACE_DELETE_APPLICATIONS = 0x00080000;
 
   /**
-   * This is a server ACE allowed to submit remote server
-   * administration requests. Some of the facilities available to remote
-   * server administrators include starting and stopping applications,
-   * checking server statistics, etc.
+   * This is a server ACE allowed to submit remote server administration requests. Some of the
+   * facilities available to remote server administrators include starting and stopping
+   * applications, checking server statistics, etc.
    */
   public static final int SACE_ADMINISTER_SERVER = 0x00100000;
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from
-   *
-   * @param   parentDoc       the Java object which is the parent of this
-   *                             object
-   *
-   * @param   parentComponents  the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSAclEntry(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -206,10 +159,7 @@ public class PSAclEntry extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Empty constructor for creating from serialization, fromXml() etc
-   *
-   */
+  /** Empty constructor for creating from serialization, fromXml() etc */
   PSAclEntry() {
     super();
     m_name = "";
@@ -217,15 +167,12 @@ public class PSAclEntry extends PSComponent {
   }
 
   /**
-   * Creates an acl entry with the specified name and type. The
-   * security provider is set to PSSecurityProvider.SP_TYPE_ANY.
-   * No data or design access is granted.
+   * Creates an acl entry with the specified name and type. The security provider is set to
+   * PSSecurityProvider.SP_TYPE_ANY. No data or design access is granted.
    *
-   * @param   name  the name of the user, group or role to associate
-   *                with this entry
-   *
-   * @param   type  the type of entry this represents (use the appropriate
-   *                PSAclEntry.ACE_TYPE_xxx flag)
+   * @param name the name of the user, group or role to associate with this entry
+   * @param type the type of entry this represents (use the appropriate PSAclEntry.ACE_TYPE_xxx
+   *     flag)
    */
   public PSAclEntry(java.lang.String name, int type) {
     super();
@@ -236,8 +183,7 @@ public class PSAclEntry extends PSComponent {
   /**
    * Get the name of the user, group or role associated with this entry.
    *
-   * @return   the name of the user, group or role associated with
-   *            this entry
+   * @return the name of the user, group or role associated with this entry
    */
   public java.lang.String getName() {
     return m_name;
@@ -246,8 +192,8 @@ public class PSAclEntry extends PSComponent {
   /**
    * Set the name of the user, group or role associated with this entry.
    *
-   * @param   name      the name of the user, group or role to associate
-   *                  with this entry. This is limited to 255 characters.
+   * @param name the name of the user, group or role to associate with this entry. This is limited
+   *     to 255 characters.
    */
   public void setName(String name) {
     IllegalArgumentException ex = validateName(name);
@@ -257,17 +203,13 @@ public class PSAclEntry extends PSComponent {
   }
 
   /**
-   * Private utility method to validate an ACL entry name. If the
-   * return value is 0, the name is valid. Otherwise, the return value
-   * is an object store error code.
+   * Private utility method to validate an ACL entry name. If the return value is 0, the name is
+   * valid. Otherwise, the return value is an object store error code.
    *
-   * @author   chadloder
-   *
-   * @version   1.22 1999/06/17
-   *
-   * @param   name The name.
-   *
-   * @return   int The error code, or 0 if the name is valid.
+   * @author chadloder
+   * @version 1.22 1999/06/17
+   * @param name The name.
+   * @return int The error code, or 0 if the name is valid.
    */
   private static IllegalArgumentException validateName(String name) {
     if ((null == name) || (name.trim().length() == 0)) {
@@ -281,16 +223,13 @@ public class PSAclEntry extends PSComponent {
   /**
    * Is this a user entry?
    *
-   * @return   <code>true</code> if this is a user entry,
-   *           <code>false</code> otherwise
+   * @return <code>true</code> if this is a user entry, <code>false</code> otherwise
    */
   public boolean isUser() {
     return (ACE_TYPE_USER == m_type);
   }
 
-  /**
-   * Mark this entry as defining a user.
-   */
+  /** Mark this entry as defining a user. */
   public void setUser() {
     m_type = ACE_TYPE_USER;
   }
@@ -298,16 +237,13 @@ public class PSAclEntry extends PSComponent {
   /**
    * Is this a group entry?
    *
-   * @return   <code>true</code> if this is a group entry,
-   *           <code>false</code> otherwise
+   * @return <code>true</code> if this is a group entry, <code>false</code> otherwise
    */
   public boolean isGroup() {
     return (ACE_TYPE_GROUP == m_type);
   }
 
-  /**
-   * Mark this entry as defining a group.
-   */
+  /** Mark this entry as defining a group. */
   public void setGroup() {
     m_type = ACE_TYPE_GROUP;
   }
@@ -315,16 +251,13 @@ public class PSAclEntry extends PSComponent {
   /**
    * Is this a role entry?
    *
-   * @return   <code>true</code> if this is a role entry,
-   *           <code>false</code> otherwise
+   * @return <code>true</code> if this is a role entry, <code>false</code> otherwise
    */
   public boolean isRole() {
     return (ACE_TYPE_ROLE == m_type);
   }
 
-  /**
-   * Mark this entry as defining a role.
-   */
+  /** Mark this entry as defining a role. */
   public void setRole() {
     m_type = ACE_TYPE_ROLE;
   }
@@ -332,9 +265,8 @@ public class PSAclEntry extends PSComponent {
   /**
    * Get the access level for this entry.
    *
-   * @return   if this is a server ACLE, zero or more PSAclEntry.SACE_
-   *           flags will be returned. If this is an application ACE,
-   *           zero or more PSAclEntry.AACE_ flags will be returned.
+   * @return if this is a server ACLE, zero or more PSAclEntry.SACE_ flags will be returned. If this
+   *     is an application ACE, zero or more PSAclEntry.AACE_ flags will be returned.
    */
   public int getAccessLevel() {
     return m_accessLevel;
@@ -342,14 +274,13 @@ public class PSAclEntry extends PSComponent {
 
   /**
    * Set the access level for this entry.
-   * <p>
-   * The specified access level flag(s) will not be validated until
-   * the ACL is saved as part of an application or server configuration.
    *
-   * @param   level    if this is a server ACE, specify one or more
-   * PSAclEntry.SACE_ flag. If this is an application
-   * ACE, specify one or more PSAclEntry.AACE_ flag. Server and application
-   * flags cannot be combined.
+   * <p>The specified access level flag(s) will not be validated until the ACL is saved as part of
+   * an application or server configuration.
+   *
+   * @param level if this is a server ACE, specify one or more PSAclEntry.SACE_ flag. If this is an
+   *     application ACE, specify one or more PSAclEntry.AACE_ flag. Server and application flags
+   *     cannot be combined.
    */
   public void setAccessLevel(int level) {
     boolean isServer = false;
@@ -375,10 +306,11 @@ public class PSAclEntry extends PSComponent {
   // **************   IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXAclEntry XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXAclEntry XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *  &lt;!--
    *     PSXAclEntry defines an entry in an Access Control List (ACL).
@@ -501,7 +433,7 @@ public class PSAclEntry extends PSComponent {
    *  &gt;
    * </code></pre>
    *
-   * @return   the newly created PSXAclEntry XML element node
+   * @return the newly created PSXAclEntry XML element node
    */
   public Element toXml(Document doc) {
     // create PSXAclEnty element and add type attribute
@@ -577,12 +509,10 @@ public class PSAclEntry extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSAclEntry Java object
-   * from a PSXAclEntry XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSAclEntry Java object from a PSXAclEntry XML element node.
+   * See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                      of type PSXAclEntry
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXAclEntry
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -686,18 +616,15 @@ public class PSAclEntry extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -786,11 +713,10 @@ public class PSAclEntry extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param   c a valid PSAclEntry.
+   * @param c a valid PSAclEntry.
    */
   public void copyFrom(PSAclEntry c) {
     if (null == c) throw new IllegalArgumentException("Invalid object for copy");

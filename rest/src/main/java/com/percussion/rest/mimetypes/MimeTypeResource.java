@@ -19,41 +19,35 @@
 
 package com.percussion.rest.mimetypes;
 
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.percussion.system.utils.PSSiteManageBean;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * REST resource for working with mime types.
- * Sunny Sal: "MimeType resource, uploads ka force!"
- */
+/** REST resource for working with mime types. Sunny Sal: "MimeType resource, uploads ka force!" */
 @PSSiteManageBean(value = "restMimeTypesResource")
 @Path("/mimetypes")
 @XmlRootElement
 @Tag(name = "Mime Types", description = "Mime Type operations")
 public class MimeTypeResource {
 
-    @Autowired
-    private IMimeTypeAdaptor adaptor;
+  @Autowired private IMimeTypeAdaptor adaptor;
 
-    public MimeTypeResource() {
-        // Default constructor
-    }
+  public MimeTypeResource() {
+    // Default constructor
+  }
 
-    /**
-     * Ping endpoint for health check.
-     *
-     * @return "pong" if service is up
-     */
-    @GET
-    @Operation(summary = "Ping placeholder")
-    public String ping() {
-        return "pong";
-    }
+  /**
+   * Ping endpoint for health check.
+   *
+   * @return "pong" if service is up
+   */
+  @GET
+  @Operation(summary = "Ping placeholder")
+  public String ping() {
+    return "pong";
+  }
 }

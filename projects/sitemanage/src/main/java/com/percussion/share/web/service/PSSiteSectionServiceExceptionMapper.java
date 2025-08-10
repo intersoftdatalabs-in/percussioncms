@@ -25,56 +25,53 @@ import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
 import com.percussion.system.utils.PSSiteManageBean;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.inject.Singleton;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Maps {@link IPSSiteSectionService.PSSiteSectionException} to a serializable error object.
- * Sunny Sal says: "Site section exception? Let's section off those errors!"
+ * Maps {@link IPSSiteSectionService.PSSiteSectionException} to a serializable error object. Sunny
+ * Sal says: "Site section exception? Let's section off those errors!"
  */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("sitesectionserviceExceptionMapper")
 public class PSSiteSectionServiceExceptionMapper
-        extends PSAbstractExceptionMapper<IPSSiteSectionService.PSSiteSectionException>
-        implements ExceptionMapper<IPSSiteSectionService.PSSiteSectionException> {
+    extends PSAbstractExceptionMapper<IPSSiteSectionService.PSSiteSectionException>
+    implements ExceptionMapper<IPSSiteSectionService.PSSiteSectionException> {
 
-    private static final String ERROR_MESSAGE = "PSSiteSectionServiceExceptionMapper exception mapper mapped exception:";
+  private static final String ERROR_MESSAGE =
+      "PSSiteSectionServiceExceptionMapper exception mapper mapped exception:";
 
-    /**
-     * The log instance to use for this class, never {@code null}.
-     */
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  /** The log instance to use for this class, never {@code null}. */
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(IPSSiteSectionService.PSSiteSectionException exception) {
-        if (exception instanceof IPSValidationException ve) {
-            log.debug(ERROR_MESSAGE, exception);
-            var errors = ve.getValidationErrors();
-            if (errors != null) return errors;
-        } else {
-            log.error("{} {}", ERROR_MESSAGE, PSExceptionUtils.getMessageForLog(exception));
-            log.debug(exception);
-        }
-        return PSErrorUtils.createErrorsFromException(exception);
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(IPSSiteSectionService.PSSiteSectionException exception) {
+    if (exception instanceof IPSValidationException ve) {
+      log.debug(ERROR_MESSAGE, exception);
+      var errors = ve.getValidationErrors();
+      if (errors != null) return errors;
+    } else {
+      log.error("{} {}", ERROR_MESSAGE, PSExceptionUtils.getMessageForLog(exception));
+      log.debug(exception);
     }
+    return PSErrorUtils.createErrorsFromException(exception);
+  }
 
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(IPSSiteSectionService.PSSiteSectionException exception) {
-        if (exception instanceof IPSValidationException) {
-            return Response.Status.BAD_REQUEST;
-        }
-        return super.getStatus(exception);
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected Response.Status getStatus(IPSSiteSectionService.PSSiteSectionException exception) {
+    if (exception instanceof IPSValidationException) {
+      return Response.Status.BAD_REQUEST;
     }
+    return super.getStatus(exception);
+  }
 }

@@ -18,7 +18,6 @@
 package com.percussion.pagemanagement.service;
 
 import com.percussion.share.service.exception.PSDataServiceException;
-
 import java.util.List;
 
 /**
@@ -28,26 +27,24 @@ import java.util.List;
  */
 public interface IPSPageTemplateService {
 
-    /**
-     * Name of the field on page content type to store the template ID.
-     */
-    String FIELD_NAME_TEMPLATE_ID = "templateid";
+  /** Name of the field on page content type to store the template ID. */
+  String FIELD_NAME_TEMPLATE_ID = "templateid";
 
-    /**
-     * Changes the template of the supplied page.
-     *
-     * @param pageId The page ID, not <code>null</code>.
-     * @param templateId The template ID, not <code>null</code>.
-     * @throws PSDataServiceException If a data service error occurs.
-     */
-    void changeTemplate(String pageId, String templateId) throws PSDataServiceException;
+  /**
+   * Changes the template of the supplied page.
+   *
+   * @param pageId The page ID, not <code>null</code>.
+   * @param templateId The template ID, not <code>null</code>.
+   * @throws PSDataServiceException If a data service error occurs.
+   */
+  void changeTemplate(String pageId, String templateId) throws PSDataServiceException;
 
-    /**
-     * Finds all the pages that use a certain template and returns their IDs.
-     *
-     * @param templateId The ID of the template, not <code>null</code>.
-     * @return The list of IDs, not <code>null</code>, may be empty.
-     * @throws IPSPageService.PSPageException If an error occurs.
-     */
-    List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException;
+  /**
+   * Finds all the pages that use a certain template and returns their IDs.
+   *
+   * @param templateId The ID of the template, not <code>null</code>.
+   * @return The list of IDs, not <code>null</code>, may be empty.
+   * @throws IPSPageService.PSPageException If an error occurs.
+   */
+  List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException;
 }

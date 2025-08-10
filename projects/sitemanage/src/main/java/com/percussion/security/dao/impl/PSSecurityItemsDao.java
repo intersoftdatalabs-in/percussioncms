@@ -19,48 +19,41 @@ package com.percussion.security.dao.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.designmanagement.service.IPSFileSystemService;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.dao.IPSSecurityItemsDao;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.percussion.security.error.PSExceptionUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * DAO implementation for security items such as SSH private keys.
- */
+/** DAO implementation for security items such as SSH private keys. */
 public class PSSecurityItemsDao implements IPSSecurityItemsDao {
 
-    private static final Logger logger = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
+  private static final Logger logger = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
 
-    /**
-     * File system service pointing to the root folder where SSH private keys are stored.
-     */
-    private final IPSFileSystemService fileSystemService;
+  /** File system service pointing to the root folder where SSH private keys are stored. */
+  private final IPSFileSystemService fileSystemService;
 
-    public PSSecurityItemsDao(IPSFileSystemService privateKeysFileSystemService) {
-        this.fileSystemService = privateKeysFileSystemService;
+  public PSSecurityItemsDao(IPSFileSystemService privateKeysFileSystemService) {
+    this.fileSystemService = privateKeysFileSystemService;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public List<String> getAvailablePrivateKeys() {
+    try {
+      var privateKeys = fileSystemService.getChildren("/");
+      // Exclude the SSH config file, return only key file names
+      return privateKeys.stream()
+          .map(File::getName)
+          .filter(name -> !name.equalsIgnoreCase("config"))
+          .collect(Collectors.toList());
+    } catch (FileNotFoundException e) {
+      logger.warn(
+          "rxconfig/ssh-keys folder is missing. Error: {}", PSExceptionUtils.getMessageForLog(e));
+      return List.of();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<String> getAvailablePrivateKeys() {
-        try {
-            var privateKeys = fileSystemService.getChildren("/");
-            // Exclude the SSH config file, return only key file names
-            return privateKeys.stream()
-                    .map(File::getName)
-                    .filter(name -> !name.equalsIgnoreCase("config"))
-                    .collect(Collectors.toList());
-        } catch (FileNotFoundException e) {
-            logger.warn("rxconfig/ssh-keys folder is missing. Error: {}",
-                    PSExceptionUtils.getMessageForLog(e));
-            return List.of();
-        }
-    }
+  }
 }

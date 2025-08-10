@@ -23,232 +23,241 @@ import com.percussion.rest.LinkRef;
 import com.percussion.rest.communities.Community;
 import com.percussion.rest.communities.CommunityList;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a User.
- * Sunny Sal: "User ka hero, login ka zero!"
- */
+/** Represents a User. Sunny Sal: "User ka hero, login ka zero!" */
 @XmlRootElement(name = "User")
 @Schema(name = "User", description = "Represents a User.")
 public class User {
 
-    @Schema(name = "userName", required = true, description = "The User Id of the user")
-    private String userName;
+  @Schema(name = "userName", required = true, description = "The User Id of the user")
+  private String userName;
 
-    @Schema(name = "firstName", description = "The first name of the user - Read only for LDAP users")
-    private String firstName;
+  @Schema(name = "firstName", description = "The first name of the user - Read only for LDAP users")
+  private String firstName;
 
-    @Schema(name = "lastName", description = "The last name of the user - Read only for LDAP users")
-    private String lastName;
+  @Schema(name = "lastName", description = "The last name of the user - Read only for LDAP users")
+  private String lastName;
 
-    @Schema(name = "email", description = "The email address of the User - read only for LDAP users.")
-    private String emailAddress;
+  @Schema(name = "email", description = "The email address of the User - read only for LDAP users.")
+  private String emailAddress;
 
-    @Schema(name = "userType", required = true, description = "The UserType of the user. INTERNAL or DIRECTORY ")
-    private String userType;
+  @Schema(
+      name = "userType",
+      required = true,
+      description = "The UserType of the user. INTERNAL or DIRECTORY ")
+  private String userType;
 
-    @Schema(name = "password", required = true, description = "The user's password. May only be set.")
-    private String password;
+  @Schema(name = "password", required = true, description = "The user's password. May only be set.")
+  private String password;
 
-    @Schema(name = "bookmarkedPages", description = "List of Pages bookmarked by this user.")
-    private List<LinkRef> bookmarkedPages;
+  @Schema(name = "bookmarkedPages", description = "List of Pages bookmarked by this user.")
+  private List<LinkRef> bookmarkedPages;
 
-    @Schema(name = "recentPages", description = "List of Pages Recently edited by this user.")
-    private List<LinkRef> recentPages;
+  @Schema(name = "recentPages", description = "List of Pages Recently edited by this user.")
+  private List<LinkRef> recentPages;
 
-    @Schema(name = "recentAssetTypes", description = "List of Recently used Asset types by this user.")
-    private List<LinkRef> recentAssetTypes;
+  @Schema(
+      name = "recentAssetTypes",
+      description = "List of Recently used Asset types by this user.")
+  private List<LinkRef> recentAssetTypes;
 
-    @Schema(name = "recentAssetFolders", description = "List of Recently used Asset folders by this user.")
-    private List<LinkRef> recentAssetFolders;
+  @Schema(
+      name = "recentAssetFolders",
+      description = "List of Recently used Asset folders by this user.")
+  private List<LinkRef> recentAssetFolders;
 
-    @Schema(name = "recentSiteFolders", description = "List of Recently used Site Folders this user.")
-    private List<LinkRef> recentSiteFolders;
+  @Schema(name = "recentSiteFolders", description = "List of Recently used Site Folders this user.")
+  private List<LinkRef> recentSiteFolders;
 
-    @Schema(name = "recentTemplates", description = "List of Recently used templates by this user.")
-    private List<LinkRef> recentTemplates;
+  @Schema(name = "recentTemplates", description = "List of Recently used templates by this user.")
+  private List<LinkRef> recentTemplates;
 
-    @Schema(name = "personalPage", description = "The qualified folder path to this user's Personal Page")
-    private LinkRef personalPage;
+  @Schema(
+      name = "personalPage",
+      description = "The qualified folder path to this user's Personal Page")
+  private LinkRef personalPage;
 
-    @Schema(name = "personAssets", description = "A list of PersonAssets that represent this user.")
-    private List<LinkRef> personAssets;
+  @Schema(name = "personAssets", description = "A list of PersonAssets that represent this user.")
+  private List<LinkRef> personAssets;
 
-    @Schema(name = "roles", description = "A list of the Role names that this user belongs to.")
-    private List<String> roles;
+  @Schema(name = "roles", description = "A list of the Role names that this user belongs to.")
+  private List<String> roles;
 
-    @Schema(name = "selectedCommunity", description = "The Community that the user currently has selected.")
-    private Community selectedCommunity;
+  @Schema(
+      name = "selectedCommunity",
+      description = "The Community that the user currently has selected.")
+  private Community selectedCommunity;
 
-    @Schema(name = "userCommunities", description = "The list of communities that the user belongs to.")
-    private CommunityList userCommunities;
+  @Schema(
+      name = "userCommunities",
+      description = "The list of communities that the user belongs to.")
+  private CommunityList userCommunities;
 
-    public User() {
-        // Default constructor
+  public User() {
+    // Default constructor
+  }
+
+  public Optional<CommunityList> getUserCommunities() {
+    return Optional.ofNullable(userCommunities);
+  }
+
+  public void setUserCommunities(CommunityList userCommunities) {
+    this.userCommunities = userCommunities;
+  }
+
+  public Optional<Community> getSelectedCommunity() {
+    return Optional.ofNullable(selectedCommunity);
+  }
+
+  public void setSelectedCommunity(Community selectedCommunity) {
+    this.selectedCommunity = selectedCommunity;
+  }
+
+  public Optional<String> getUserName() {
+    return Optional.ofNullable(userName);
+  }
+
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
+
+  public Optional<String> getFirstName() {
+    return Optional.ofNullable(firstName);
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public Optional<String> getLastName() {
+    return Optional.ofNullable(lastName);
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public Optional<String> getEmailAddress() {
+    return Optional.ofNullable(emailAddress);
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
+  }
+
+  public Optional<String> getUserType() {
+    return Optional.ofNullable(userType);
+  }
+
+  public void setUserType(String userType) {
+    this.userType = userType;
+  }
+
+  public List<LinkRef> getBookmarkedPages() {
+    if (bookmarkedPages == null) {
+      bookmarkedPages = new ArrayList<>();
     }
+    return bookmarkedPages;
+  }
 
-    public Optional<CommunityList> getUserCommunities() {
-        return Optional.ofNullable(userCommunities);
-    }
+  public void setBookmarkedPages(List<LinkRef> bookmarkedPages) {
+    this.bookmarkedPages = bookmarkedPages;
+  }
 
-    public void setUserCommunities(CommunityList userCommunities) {
-        this.userCommunities = userCommunities;
+  public List<LinkRef> getRecentPages() {
+    if (recentPages == null) {
+      recentPages = new ArrayList<>();
     }
+    return recentPages;
+  }
 
-    public Optional<Community> getSelectedCommunity() {
-        return Optional.ofNullable(selectedCommunity);
-    }
+  public void setRecentPages(List<LinkRef> recentPages) {
+    this.recentPages = recentPages;
+  }
 
-    public void setSelectedCommunity(Community selectedCommunity) {
-        this.selectedCommunity = selectedCommunity;
+  public List<LinkRef> getRecentAssetTypes() {
+    if (recentAssetTypes == null) {
+      recentAssetTypes = new ArrayList<>();
     }
+    return recentAssetTypes;
+  }
 
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
-    }
+  public void setRecentAssetTypes(List<LinkRef> recentAssetTypes) {
+    this.recentAssetTypes = recentAssetTypes;
+  }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+  public List<LinkRef> getRecentAssetFolders() {
+    if (recentAssetFolders == null) {
+      recentAssetFolders = new ArrayList<>();
     }
+    return recentAssetFolders;
+  }
 
-    public Optional<String> getFirstName() {
-        return Optional.ofNullable(firstName);
-    }
+  public void setRecentAssetFolders(List<LinkRef> recentAssetFolders) {
+    this.recentAssetFolders = recentAssetFolders;
+  }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+  public List<LinkRef> getRecentSiteFolders() {
+    if (recentSiteFolders == null) {
+      recentSiteFolders = new ArrayList<>();
     }
+    return recentSiteFolders;
+  }
 
-    public Optional<String> getLastName() {
-        return Optional.ofNullable(lastName);
-    }
+  public void setRecentSiteFolders(List<LinkRef> recentSiteFolders) {
+    this.recentSiteFolders = recentSiteFolders;
+  }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+  public List<LinkRef> getRecentTemplates() {
+    if (recentTemplates == null) {
+      recentTemplates = new ArrayList<>();
     }
+    return recentTemplates;
+  }
 
-    public Optional<String> getEmailAddress() {
-        return Optional.ofNullable(emailAddress);
-    }
+  public void setRecentTemplates(List<LinkRef> recentTemplates) {
+    this.recentTemplates = recentTemplates;
+  }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
+  public Optional<LinkRef> getPersonalPage() {
+    return Optional.ofNullable(personalPage);
+  }
 
-    public Optional<String> getUserType() {
-        return Optional.ofNullable(userType);
-    }
+  public void setPersonalPage(LinkRef personalPage) {
+    this.personalPage = personalPage;
+  }
 
-    public void setUserType(String userType) {
-        this.userType = userType;
+  public List<LinkRef> getPersonAssets() {
+    if (personAssets == null) {
+      personAssets = new ArrayList<>();
     }
+    return personAssets;
+  }
 
-    public List<LinkRef> getBookmarkedPages() {
-        if (bookmarkedPages == null) {
-            bookmarkedPages = new ArrayList<>();
-        }
-        return bookmarkedPages;
-    }
+  public void setPersonAssets(List<LinkRef> personAssets) {
+    this.personAssets = personAssets;
+  }
 
-    public void setBookmarkedPages(List<LinkRef> bookmarkedPages) {
-        this.bookmarkedPages = bookmarkedPages;
+  public List<String> getRoles() {
+    if (roles == null) {
+      roles = new ArrayList<>();
     }
+    return roles;
+  }
 
-    public List<LinkRef> getRecentPages() {
-        if (recentPages == null) {
-            recentPages = new ArrayList<>();
-        }
-        return recentPages;
-    }
+  public void setRoles(List<String> roles) {
+    this.roles = roles;
+  }
 
-    public void setRecentPages(List<LinkRef> recentPages) {
-        this.recentPages = recentPages;
-    }
+  public Optional<String> getPassword() {
+    return Optional.ofNullable(password);
+  }
 
-    public List<LinkRef> getRecentAssetTypes() {
-        if (recentAssetTypes == null) {
-            recentAssetTypes = new ArrayList<>();
-        }
-        return recentAssetTypes;
-    }
-
-    public void setRecentAssetTypes(List<LinkRef> recentAssetTypes) {
-        this.recentAssetTypes = recentAssetTypes;
-    }
-
-    public List<LinkRef> getRecentAssetFolders() {
-        if (recentAssetFolders == null) {
-            recentAssetFolders = new ArrayList<>();
-        }
-        return recentAssetFolders;
-    }
-
-    public void setRecentAssetFolders(List<LinkRef> recentAssetFolders) {
-        this.recentAssetFolders = recentAssetFolders;
-    }
-
-    public List<LinkRef> getRecentSiteFolders() {
-        if (recentSiteFolders == null) {
-            recentSiteFolders = new ArrayList<>();
-        }
-        return recentSiteFolders;
-    }
-
-    public void setRecentSiteFolders(List<LinkRef> recentSiteFolders) {
-        this.recentSiteFolders = recentSiteFolders;
-    }
-
-    public List<LinkRef> getRecentTemplates() {
-        if (recentTemplates == null) {
-            recentTemplates = new ArrayList<>();
-        }
-        return recentTemplates;
-    }
-
-    public void setRecentTemplates(List<LinkRef> recentTemplates) {
-        this.recentTemplates = recentTemplates;
-    }
-
-    public Optional<LinkRef> getPersonalPage() {
-        return Optional.ofNullable(personalPage);
-    }
-
-    public void setPersonalPage(LinkRef personalPage) {
-        this.personalPage = personalPage;
-    }
-
-    public List<LinkRef> getPersonAssets() {
-        if (personAssets == null) {
-            personAssets = new ArrayList<>();
-        }
-        return personAssets;
-    }
-
-    public void setPersonAssets(List<LinkRef> personAssets) {
-        this.personAssets = personAssets;
-    }
-
-    public List<String> getRoles() {
-        if (roles == null) {
-            roles = new ArrayList<>();
-        }
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  public void setPassword(String password) {
+    this.password = password;
+  }
 }

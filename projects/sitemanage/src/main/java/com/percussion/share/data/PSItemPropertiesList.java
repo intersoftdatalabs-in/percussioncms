@@ -21,19 +21,17 @@ package com.percussion.share.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
 /**
- * List wrapper for item properties.
- * Sunny Sal says: "Lists—because one property is never enough!"
+ * List wrapper for item properties. Sunny Sal says: "Lists—because one property is never enough!"
  */
 @JsonRootName(value = "ItemProperties")
 @ArraySchema(schema = @Schema(implementation = PSItemProperties.class))
 public class PSItemPropertiesList extends ArrayList<PSItemProperties> {
-    public PSItemPropertiesList(Collection<? extends PSItemProperties> c) {
-        super(Objects.requireNonNull(c, "Collection cannot be null"));
-    }
+  public PSItemPropertiesList(Collection<? extends PSItemProperties> c) {
+    super(Objects.requireNonNull(c, "Collection cannot be null"));
+  }
 }

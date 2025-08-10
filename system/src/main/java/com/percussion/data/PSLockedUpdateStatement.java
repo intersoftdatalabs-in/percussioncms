@@ -26,38 +26,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * The PSLockedUpdateStatement class is the super-class for all data
- * modification statement (updates or deletes) which first lock the target
- * row(s) then apply the changes. The
- * statement is built from the PSUpdatePipe definitions. When a
- * request is received, the statement can be handed the request data and
- * executed.
+ * The PSLockedUpdateStatement class is the super-class for all data modification statement (updates
+ * or deletes) which first lock the target row(s) then apply the changes. The statement is built
+ * from the PSUpdatePipe definitions. When a request is received, the statement can be handed the
+ * request data and executed.
  *
- * @see        com.percussion.design.objectstore.PSUpdatePipe
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.design.objectstore.PSUpdatePipe
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLockedUpdateStatement extends PSUpdateStatement {
   /**
-   * Construct an update statement which can be executed as part of the
-   * update execution plan. The query may contain place holders, which
-   * must be filled prior to execution.
+   * Construct an update statement which can be executed as part of the update execution plan. The
+   * query may contain place holders, which must be filled prior to execution.
    *
-   * @param   connKey         the connection key to use to get the db conn
-   *
-   * @param   updateBlocks   the statement blocks comprising the UPDATE or
-   *                           DELETE statement
-   *
-   * @param   queryBlocks      the statement blocks comprising the SELECT
-   *                           statement
-   *
-   * @param   targetExtractors   a list of IPSDataExtractor objects to use
-   *                           when comparing the SELECT data with the
-   *                           data submitted for UPDATE
-   *
-   * @param   type            the TYPE_xxx statement type
+   * @param connKey the connection key to use to get the db conn
+   * @param updateBlocks the statement blocks comprising the UPDATE or DELETE statement
+   * @param queryBlocks the statement blocks comprising the SELECT statement
+   * @param targetExtractors a list of IPSDataExtractor objects to use when comparing the SELECT
+   *     data with the data submitted for UPDATE
+   * @param type the TYPE_xxx statement type
    */
   public PSLockedUpdateStatement(
       int connKey,
@@ -75,15 +64,12 @@ public class PSLockedUpdateStatement extends PSUpdateStatement {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statement as a step in the execution
-   * plan. A result set will be generated containing the number of rows
-   * effected by the execution of this statement. The result set will be
-   * added to the execution data.
+   * Execute the data modification statement as a step in the execution plan. A result set will be
+   * generated containing the number of rows effected by the execution of this statement. The result
+   * set will be added to the execution data.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @exception   SQLException
-   *                     if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @exception SQLException if a SQL error occurs
    */
   public void execute(PSExecutionData data)
       throws java.sql.SQLException,
@@ -194,20 +180,15 @@ public class PSLockedUpdateStatement extends PSUpdateStatement {
     }
   }
 
-  /**
-   * The SQL statement being used for the SELECT.
-   */
+  /** The SQL statement being used for the SELECT. */
   protected PSQueryStatement m_queryStatement;
 
   /**
-   * Is this using a positioned SQL statement, in which case the cursor
-   * name must be appended to the SELECT's text?
+   * Is this using a positioned SQL statement, in which case the cursor name must be appended to the
+   * SELECT's text?
    */
   protected boolean m_isPositioned;
 
-  /**
-   * The extractors to use to get the data for comparison. These
-   * are IPSDataExtractor objects.
-   */
+  /** The extractors to use to get the data for comparison. These are IPSDataExtractor objects. */
   protected java.util.List m_targetExtractors;
 }

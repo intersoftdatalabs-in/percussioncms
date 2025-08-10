@@ -32,23 +32,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Encapsulates information regarding the use of an archive for the installation
- * of packages on the target server.
+ * Encapsulates information regarding the use of an archive for the installation of packages on the
+ * target server.
  */
 public class PSArchiveSummary implements IPSDeployComponent {
 
   /**
    * Constructing a object from a set of parameters.
    *
-   * @param    archiveInfo The archive information. It may not be
-   * <code>null</code> and may not include a <code>PSArchiveDetail</code>
-   *  object.
-   * @param    installDate The date of installation. It may not be
-   * <code>null</code>.
-   * @param    packageList    Iterator over one or more package names as
-   * <code>PSArchivePackage</code> objects. It may not be <code>null</code>
-   * or empty.
-   *
+   * @param archiveInfo The archive information. It may not be <code>null</code> and may not include
+   *     a <code>PSArchiveDetail</code> object.
+   * @param installDate The date of installation. It may not be <code>null</code>.
+   * @param packageList Iterator over one or more package names as <code>PSArchivePackage</code>
+   *     objects. It may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSArchiveSummary(PSArchiveInfo archiveInfo, Date installDate, Iterator packageList) {
@@ -67,11 +63,9 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param src The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param src The source element. See {@link #toXml(Document)} for the expected format. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSArchiveSummary(Element src) throws PSUnknownNodeTypeException, PSDeployException {
@@ -81,8 +75,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
   }
 
   /**
-   * Gets the <code>PSArchiveInfo</code> in this object.  It will not include
-   * a <code>PSArchiveDetail</code> object.
+   * Gets the <code>PSArchiveInfo</code> in this object. It will not include a <code>PSArchiveDetail
+   * </code> object.
    *
    * @return The archive info object, it will never be <code>null</code>.
    */
@@ -102,10 +96,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Gets the list of packages contained in the archive.
    *
-   * @return an iterator over one or more packages names as
-   * <code>PSArchivePackage</code> objects. It will never be <code>null</code>
-   * or empty.
-   *
+   * @return an iterator over one or more packages names as <code>PSArchivePackage</code> objects.
+   *     It will never be <code>null</code> or empty.
    */
   public Iterator<PSArchivePackage> getPackageList() {
     return m_packageList.iterator();
@@ -114,8 +106,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Gets this summary's Id.
    *
-   * @return the id, may be <code>-1</code> if this summary has not been saved
-   * to the database.
+   * @return the id, may be <code>-1</code> if this summary has not been saved to the database.
    */
   public int getId() {
     return m_id;
@@ -124,8 +115,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Sets the summary's id.
    *
-   * @param    id The to be set summary's id. It may not be less than 0.
-   *
+   * @param id The to be set summary's id. It may not be less than 0.
    * @throws IllegalArgumentException if <code>id</code> is less than 0.
    */
   public void setId(int id) {
@@ -137,8 +127,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Gets the archive manifest.
    *
-   * @return The archive manifest. It will be <code>null</code> if the
-   * object does not contain one.
+   * @return The archive manifest. It will be <code>null</code> if the object does not contain one.
    */
   public PSArchiveManifest getArchiveManifest() {
     return m_archiveManifest;
@@ -147,11 +136,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Sets the archive manifest.
    *
-   * @param archMan The to be set archive manifest. It may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>archMan</code> is
-   * <code>null</code>.
+   * @param archMan The to be set archive manifest. It may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>archMan</code> is <code>null</code>.
    */
   public void setArchiveManifest(PSArchiveManifest archMan) {
     if (archMan == null) throw new IllegalArgumentException("archMan may not be null");
@@ -162,11 +148,9 @@ public class PSArchiveSummary implements IPSDeployComponent {
   /**
    * Gets a package type from given package name.
    *
-   * @param pkgName The name of the package. It may not be <code>null</code>
-   * or empty. It must be from one of the items in {@link #getPackageList()}
-   *
+   * @param pkgName The name of the package. It may not be <code>null</code> or empty. It must be
+   *     from one of the items in {@link #getPackageList()}
    * @return The type of the specified package.
-   *
    * @throws IllegalArgumentException if the <code>pkgName</code> is invalid.
    */
   public String getPackageType(String pkgName) {
@@ -185,7 +169,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXArchiveSummary (PSXArchiveInfo, PSXArchivePackage+,
    *    PSXArchiveManifest? )>
@@ -214,9 +199,8 @@ public class PSArchiveSummary implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -318,13 +302,11 @@ public class PSArchiveSummary implements IPSDeployComponent {
   }
 
   /**
-   * Sorts the supplied packages to match the installation order.  Any package
-   * not installed will appear at the end of the list, sorted alpha ascending
-   * case-insensitive
+   * Sorts the supplied packages to match the installation order. Any package not installed will
+   * appear at the end of the list, sorted alpha ascending case-insensitive
    *
-   * @param packages An iterator over zero or more packages as
-   * {@link PSArchivePackage} objects, assumed not <code>null</code>.
-   *
+   * @param packages An iterator over zero or more packages as {@link PSArchivePackage} objects,
+   *     assumed not <code>null</code>.
    * @return The sorted list, never <code>null</code>, may be empty.
    */
   private List<PSArchivePackage> sortPackageList(Iterator<PSArchivePackage> packages) {
@@ -341,9 +323,7 @@ public class PSArchiveSummary implements IPSDeployComponent {
     return sortedList;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXArchiveSummary";
 
   // * Private XML attributes
@@ -351,33 +331,29 @@ public class PSArchiveSummary implements IPSDeployComponent {
   private static final String XML_ATTR_INSTALL_DATE = "installDate";
 
   /**
-   * The archive information. Initialized by constructor, it will never be
-   * <code>null</code> and will not include a <code>PSArchiveDetail</code>
-   * object after that.
+   * The archive information. Initialized by constructor, it will never be <code>null</code> and
+   * will not include a <code>PSArchiveDetail</code> object after that.
    */
   private PSArchiveInfo m_archiveInfo;
 
   /**
-   * The date of installation. Initialized by constructor, it will never be
-   * <code>null</code> after that.
+   * The date of installation. Initialized by constructor, it will never be <code>null</code> after
+   * that.
    */
   private Date m_installDate;
 
   /**
-   * A list over one or more package names as <code>String</code> objects.
-   * Initialized by constructor, will never be <code>null</code> or empty
-   * after that.
+   * A list over one or more package names as <code>String</code> objects. Initialized by
+   * constructor, will never be <code>null</code> or empty after that.
    */
   private List<PSArchivePackage> m_packageList = new ArrayList<>();
 
   /**
-   * The summary's id, <code>-1</code> if this summary has not been saved
-   * to the database. Default to <code>-1</code>.
+   * The summary's id, <code>-1</code> if this summary has not been saved to the database. Default
+   * to <code>-1</code>.
    */
   private int m_id = -1;
 
-  /**
-   * The archive manifest. Initialized to <code>null</code>.
-   */
+  /** The archive manifest. Initialized to <code>null</code>. */
   private PSArchiveManifest m_archiveManifest = null;
 }

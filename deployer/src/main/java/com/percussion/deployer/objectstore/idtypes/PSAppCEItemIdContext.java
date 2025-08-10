@@ -28,16 +28,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Context to represent an item in a contenteditor that may contain other
- * contexts, but is really a placeholder for other commonly used objects and
- * does not have any data of its own.
+ * Context to represent an item in a contenteditor that may contain other contexts, but is really a
+ * placeholder for other commonly used objects and does not have any data of its own.
  */
 public class PSAppCEItemIdContext extends PSApplicationIdContext {
   /**
    * Construct this context using the supplied type
    *
    * @param type One of the <code>TYPE_xxx</code> values.
-   *
    * @throws IllegalArgumentException if <code>type</code> is invalid.
    */
   public PSAppCEItemIdContext(int type) {
@@ -49,12 +47,9 @@ public class PSAppCEItemIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppCEItemIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -83,12 +78,13 @@ public class PSAppCEItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppCEFieldItemIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppCEFieldItemIdContext
@@ -109,9 +105,8 @@ public class PSAppCEItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -179,94 +174,59 @@ public class PSAppCEItemIdContext extends PSApplicationIdContext {
    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
    *
    * @param type The value to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean validateType(int type) {
     return type >= 0 && type < TYPE_ENUM.length;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppCEItemIdContext";
 
   /**
-   * Indicates which part of a <code>PSField</code> this object represents, one
-   * of the <code>TYPE_XXX</code> values.  Initialized during construction,
-   * only modified by a call to <code>copyFrom()</code>.
+   * Indicates which part of a <code>PSField</code> this object represents, one of the <code>
+   * TYPE_XXX</code> values. Initialized during construction, only modified by a call to <code>
+   * copyFrom()</code>.
    */
   private int m_type;
 
-  /**
-   * Constant to indicate this context represents the default value of a field.
-   */
+  /** Constant to indicate this context represents the default value of a field. */
   public static final int TYPE_DEFAULT_VALUE = 0;
 
-  /**
-   * Constant to indicate this context represents the input translation of a
-   * field.
-   */
+  /** Constant to indicate this context represents the input translation of a field. */
   public static final int TYPE_INPUT_TRANSLATION = 1;
 
-  /**
-   * Constant to indicate this context represents the output translation of a
-   * field.
-   */
+  /** Constant to indicate this context represents the output translation of a field. */
   public static final int TYPE_OUTPUT_TRANSLATION = 2;
 
-  /**
-   * Constant to indicate this context represents the validation rule of a
-   * field.
-   */
+  /** Constant to indicate this context represents the validation rule of a field. */
   public static final int TYPE_VALIDATION_RULE = 3;
 
-  /**
-   * Constant to indicate this context represents the visibility rule of a
-   * field.
-   */
+  /** Constant to indicate this context represents the visibility rule of a field. */
   public static final int TYPE_VISIBILITY_RULE = 4;
 
-  /**
-   * Constant to indicate this context represents an applywhen from a
-   * field.
-   */
+  /** Constant to indicate this context represents an applywhen from a field. */
   public static final int TYPE_APPLY_WHEN = 5;
 
-  /**
-   * Constant to indicate this context represents a default UI from a UI
-   * defition.
-   */
+  /** Constant to indicate this context represents a default UI from a UI defition. */
   public static final int TYPE_DEFAULT_UI = 6;
 
-  /**
-   * Constant to indicate this context represents a choices from a ui set.
-   */
+  /** Constant to indicate this context represents a choices from a ui set. */
   public static final int TYPE_CHOICES = 7;
 
-  /**
-   * Constant to indicate this context represents the read only rules from a
-   * ui set.
-   */
+  /** Constant to indicate this context represents the read only rules from a ui set. */
   public static final int TYPE_READ_ONLY_RULES = 8;
 
-  /**
-   * Constant to indicate this context represents a data locator from a
-   * content editor.
-   */
+  /** Constant to indicate this context represents a data locator from a content editor. */
   public static final int TYPE_DATA_LOCATOR = 9;
 
-  /**
-   * Constant to indicate this context represents a choice filter from a
-   * content editor.
-   */
+  /** Constant to indicate this context represents a choice filter from a content editor. */
   public static final int TYPE_CHOICE_FILTER = 10;
 
   /**
-   * Enumeration of string constants representing each of the
-   * <code>TYPE_XXX</code> values, for Xml serialization.  Index of each value
-   * must match its corresponding <code>TYPE_xxx</code> constant value.
+   * Enumeration of string constants representing each of the <code>TYPE_XXX</code> values, for Xml
+   * serialization. Index of each value must match its corresponding <code>TYPE_xxx</code> constant
+   * value.
    */
   private static final String[] TYPE_ENUM = {
     "DefaultValue",

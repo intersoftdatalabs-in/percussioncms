@@ -36,21 +36,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSqlUpdateBuilder class is used to build SQL SELECT statements.
- * It can be used to generate single table SELECTs or homogeneous
- * (same DBMS) joined SELECTs. The query optimizer is capable of building
- * heterogeneous (cross DBMS) SELECTs. It calls this class to build
- * each statement and also makes use of the PSQueryJoiner class to join
- * the returned data.
+ * The PSSqlUpdateBuilder class is used to build SQL SELECT statements. It can be used to generate
+ * single table SELECTs or homogeneous (same DBMS) joined SELECTs. The query optimizer is capable of
+ * building heterogeneous (cross DBMS) SELECTs. It calls this class to build each statement and also
+ * makes use of the PSQueryJoiner class to join the returned data.
  *
- * @see         PSQueryOptimizer
- * @see         PSQueryJoiner
+ * @see PSQueryOptimizer
+ * @see PSQueryJoiner
  */
 public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Construct a SQL builder to build an UPDATE statement.
    *
-   * @param   table      the table to build the UPDATE for
+   * @param table the table to build the UPDATE for
    */
   PSSqlUpdateBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super();
@@ -64,10 +62,10 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * This should never be called externally as we only allow one table
-   * at this time, which is the one passed in to the constructor.
+   * This should never be called externally as we only allow one table at this time, which is the
+   * one passed in to the constructor.
    *
-   * @param   table      the table to add to the UPDATE
+   * @param table the table to add to the UPDATE
    */
   void addTable(PSBackEndTable table) throws PSIllegalArgumentException {
     if (m_Tables.size() == 0) {
@@ -80,10 +78,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Add the specified columns to the updateable column list
-   * (used in the SET clause).
+   * Add the specified columns to the updateable column list (used in the SET clause).
    *
-   * @param   col      the column to add to the SET clause
+   * @param col the column to add to the SET clause
    */
   void addUpdateColumn(PSBackEndColumn col) throws PSIllegalArgumentException {
     // this is really a test to see if they're trying to use a col
@@ -94,10 +91,10 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Add a key column (used in the WHERE clause). All keys in UPDATEs
-   * take the form: key1 = ? AND key2 = ? AND ...
+   * Add a key column (used in the WHERE clause). All keys in UPDATEs take the form: key1 = ? AND
+   * key2 = ? AND ...
    *
-   * @param   col      the column to add to the WHERE clause
+   * @param col the column to add to the WHERE clause
    */
   void addKeyColumn(PSBackEndColumn col) throws PSIllegalArgumentException {
     // this is really a test to see if they're trying to use a col
@@ -108,10 +105,10 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Add the PSDataMapping object which can be used to map a back-end column
-   * to the XML field it will be read from.
+   * Add the PSDataMapping object which can be used to map a back-end column to the XML field it
+   * will be read from.
    *
-   * @param   map      the XML field -> back-end column mapping to add
+   * @param map the XML field -> back-end column mapping to add
    */
   void addColumnToXmlMapping(PSDataMapping map) throws PSIllegalArgumentException {
     IPSBackEndMapping col = map.getBackEndMapping();
@@ -132,12 +129,11 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Generate the statement using the specified connection keys.
    *
-   * @param logins a list of logins, one per connection index in the values
-   * contained within <code>connKeys</code>, must never be <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap that associates opaque keys representing
-   * a specific database and server, and indecies into the <code>logins</code>
-   * list passed to this method, must never be <code>null</code>
+   * @param logins a list of logins, one per connection index in the values contained within <code>
+   *     connKeys</code>, must never be <code>null</code>
+   * @param connKeys a ConcurrentHashMap that associates opaque keys representing a specific
+   *     database and server, and indecies into the <code>logins</code> list passed to this method,
+   *     must never be <code>null</code>
    */
   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {
@@ -149,25 +145,19 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Validate the builder and its connection, returning the connection
-   * key and filling in the datatypes for the table member on success.
+   * Validate the builder and its connection, returning the connection key and filling in the
+   * datatypes for the table member on success.
    *
-   * @param   dtHash   The hashmap to fill in with the data types for
-   *                   the table which this builder is associated with.
-   *                   Never <code>null</code>
-   *
-   * @param logins a list of logins, one per connection index in the values
-   * contained within <code>connKeys</code>, must never be <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap that associates opaque keys representing
-   * a specific database and server, and indecies into the <code>logins</code>
-   * list passed to this method, must never be <code>null</code>
-   *
-   * @return  The valid connection key for this builder.
-   *
-   * @throws PSIllegalArgumentException  If the builder does not have
-   *          one table defined, any argument is invalid or the connection
-   *          key is undefined.
+   * @param dtHash The hashmap to fill in with the data types for the table which this builder is
+   *     associated with. Never <code>null</code>
+   * @param logins a list of logins, one per connection index in the values contained within <code>
+   *     connKeys</code>, must never be <code>null</code>
+   * @param connKeys a ConcurrentHashMap that associates opaque keys representing a specific
+   *     database and server, and indecies into the <code>logins</code> list passed to this method,
+   *     must never be <code>null</code>
+   * @return The valid connection key for this builder.
+   * @throws PSIllegalArgumentException If the builder does not have one table defined, any argument
+   *     is invalid or the connection key is undefined.
    */
   int validateBuilderConnection(HashMap dtHash, ConcurrentHashMap connKeys, List logins)
       throws PSIllegalArgumentException {
@@ -199,17 +189,11 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Generate the UPDATE statement using the specified connection keys.
    *
-   * @param   dtHash      the hash table containing datatypes mapped to
-   *                      column names
-   *
-   * @param   iConnKey    the connection key
-   *
-   * @param   login       the back-end database login
-   *
-   * @return  The appropriate update statement.
-   *
-   * @throws  PSIllegalArgumentException if any called method fails and
-   *          throws this exception.
+   * @param dtHash the hash table containing datatypes mapped to column names
+   * @param iConnKey the connection key
+   * @param login the back-end database login
+   * @return The appropriate update statement.
+   * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
   PSUpdateStatement generateUpdate(HashMap dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
@@ -239,10 +223,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Get the columns which will be used to locate records when executing
-   * the associated statement.
+   * Get the columns which will be used to locate records when executing the associated statement.
    *
-   * @return      an array of columns (may be null)
+   * @return an array of columns (may be null)
    */
   public PSBackEndColumn[] getLookupColumns() {
     /* go through the where clauses to see which columns are the
@@ -266,16 +249,16 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Does this builder contain any updatable columns? If not, an update
-   * statement cannot be generated for it.
+   * Does this builder contain any updatable columns? If not, an update statement cannot be
+   * generated for it.
    */
   public boolean hasUpdateColumns() {
     return (m_Columns.size() > 0);
   }
 
   /**
-   * Does this builder contain any key columns? If not, updates and
-   * deletes may produce undesirable results.
+   * Does this builder contain any key columns? If not, updates and deletes may produce undesirable
+   * results.
    */
   public boolean hasKeyColumns() {
     return (m_Keys.size() > 0);
@@ -290,12 +273,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Build the SET clause for the UPDATE statement.
    *
-   * @param   context         the builder context
-   *
-   * @param   table            the table the statement is being built for
-   *
-   * @param   datatypes      the data type hash map containing the
-   *                           table.column to data type mapping
+   * @param context the builder context
+   * @param table the table the statement is being built for
+   * @param datatypes the data type hash map containing the table.column to data type mapping
    */
   protected void buildSetClause(
       PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes)
@@ -318,12 +298,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Build the WHERE clause for the UPDATE or DELETE statement.
    *
-   * @param   context         the builder context
-   *
-   * @param   table            the table the statement is being built for
-   *
-   * @param   datatypes      the data type hash map containing the
-   *                           table.column to data type mapping
+   * @param context the builder context
+   * @param table the table the statement is being built for
+   * @param datatypes the data type hash map containing the table.column to data type mapping
    */
   protected void buildWhereClauseFromKeys(
       PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes)
@@ -362,9 +339,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Convenience function for builders which do not support lob columns,
-   * will call buildColumnAndPlaceholderList with null for the lob column
-   * initializer.
+   * Convenience function for builders which do not support lob columns, will call
+   * buildColumnAndPlaceholderList with null for the lob column initializer.
    *
    * @see #buildColumnAndPlaceholderList
    */
@@ -381,31 +357,19 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Build the column and placeholder list based upon the specified
-   * parameters. This can be used in an UPDATE statement's SET clause
-   * or in a DELETE or UPDATE's WHERE clause.
+   * Build the column and placeholder list based upon the specified parameters. This can be used in
+   * an UPDATE statement's SET clause or in a DELETE or UPDATE's WHERE clause.
    *
-   * @param   context         the builder context
-   *
-   * @param   table            the table the statement is being built for
-   *
-   * @param   datatypes      the data type hash map containing the
-   *                           table.column to data type mapping
-   *
-   * @param   columnList      the columns to build into the statement
-   *
-   * @param   delimiter      the delimiter to use, such as ", " for SET
-   *                           clauses or " AND " for WHERE clauses
-   *
-   * @param   ignoreAutoIncrements
-   *                           <code>true</code> to omit columns which are
-   *                           auto-incremented by the server
-   *
-   * @param   lci            the lob column initializer,
-   *                         can be <code>null</code>.
-   *
-   * @return                  <code>true</code> if at least one column
-   *                           was used; <code>false</code> otherwise
+   * @param context the builder context
+   * @param table the table the statement is being built for
+   * @param datatypes the data type hash map containing the table.column to data type mapping
+   * @param columnList the columns to build into the statement
+   * @param delimiter the delimiter to use, such as ", " for SET clauses or " AND " for WHERE
+   *     clauses
+   * @param ignoreAutoIncrements <code>true</code> to omit columns which are auto-incremented by the
+   *     server
+   * @param lci the lob column initializer, can be <code>null</code>.
+   * @return <code>true</code> if at least one column was used; <code>false</code> otherwise
    */
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
@@ -463,8 +427,7 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Given a column name which may be in table.column or column format,
-   * return just the column name.
+   * Given a column name which may be in table.column or column format, return just the column name.
    */
   protected String getStrippedColumnName(String columnName) {
     int pos = columnName.lastIndexOf('.');
@@ -476,11 +439,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Get the table meta data object associated with this builder.
    *
-   * @param table the back-end table to get the meta data for, may not be
-   * <code>null</code>.
-   *
+   * @param table the back-end table to get the meta data for, may not be <code>null</code>.
    * @return the table meta data object, never <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   protected PSTableMetaData getTableMetaData(PSBackEndTable table) throws SQLException {
@@ -493,9 +453,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Is this an auto increment column?
    *
-   * @param   columnName      the name of the column to check
-   *
-   * @return                  <code>true</code> if it is
+   * @param columnName the name of the column to check
+   * @return <code>true</code> if it is
    */
   protected boolean isAutoIncrement(PSBackEndTable table, String columnName) {
     // Auto increment code does not work for MySQL
@@ -535,9 +494,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Build a column list of the form col1, col2, ..., coln. Any columns
-   * which are not updatable (eg, MS SQL identity columns) are not included
-   * in the list.
+   * Build a column list of the form col1, col2, ..., coln. Any columns which are not updatable (eg,
+   * MS SQL identity columns) are not included in the list.
    */
   protected void buildColumnList(
       PSSqlBuilderContext context, PSBackEndTable table, HashMap datatypes, boolean usePlaceHolder)
@@ -546,11 +504,9 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Build a column list of the form col1, col2, ..., coln. Any columns
-   * which are not updatable (eg, MS SQL identity columns) are not included
-   * in the list.  This method calls buildColumnList with a null lob
-   * column initializer, for builders who are not concerned with supporting
-   * lob columns.
+   * Build a column list of the form col1, col2, ..., coln. Any columns which are not updatable (eg,
+   * MS SQL identity columns) are not included in the list. This method calls buildColumnList with a
+   * null lob column initializer, for builders who are not concerned with supporting lob columns.
    */
   protected void buildColumnList(
       PSSqlBuilderContext context,
@@ -563,9 +519,8 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Build a column list of the form col1, col2, ..., coln. Any columns
-   * which are not updatable (eg, MS SQL identity columns) are not included
-   * in the list.
+   * Build a column list of the form col1, col2, ..., coln. Any columns which are not updatable (eg,
+   * MS SQL identity columns) are not included in the list.
    */
   protected void buildColumnList(
       PSSqlBuilderContext context,
@@ -635,17 +590,11 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   /**
    * Generate an INSERT statement using the specified connection keys.
    *
-   * @param   dtHash      the hash table containing datatypes mapped to
-   *                      column names
-   *
-   * @param   iConnKey    the connection key
-   *
-   * @param   login       the back-end database login
-   *
-   * @return  The appropriate insert statement.
-   *
-   * @throws  PSIllegalArgumentException if any called method fails and
-   *          throws this exception.
+   * @param dtHash the hash table containing datatypes mapped to column names
+   * @param iConnKey the connection key
+   * @param login the back-end database login
+   * @return The appropriate insert statement.
+   * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
   PSUpdateStatement generateInsert(HashMap dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
@@ -680,20 +629,13 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
   }
 
   /**
-   * Generate the statement for UPDATE with INSERT using the specified
-   * connection keys.
+   * Generate the statement for UPDATE with INSERT using the specified connection keys.
    *
-   * @param   dtHash      the hash table containing datatypes mapped to
-   *                      column names
-   *
-   * @param   iConnKey    the connection key
-   *
-   * @param   login       the back-end database login
-   *
-   * @return  The appropriate update with insert statement.
-   *
-   * @throws  PSIllegalArgumentException if any called method fails and
-   *          throws this exception.
+   * @param dtHash the hash table containing datatypes mapped to column names
+   * @param iConnKey the connection key
+   * @param login the back-end database login
+   * @return The appropriate update with insert statement.
+   * @throws PSIllegalArgumentException if any called method fails and throws this exception.
    */
   PSUpdateStatement generateUpdateInsert(HashMap dtHash, int iConnKey, PSBackEndLogin login)
       throws PSIllegalArgumentException {
@@ -738,32 +680,21 @@ public class PSSqlUpdateBuilder extends PSSqlBuilder {
     }
   }
 
-  /**
-   * the list of columns automatically updated by the back-end server.
-   */
+  /** the list of columns automatically updated by the back-end server. */
   protected String[] m_autoIncrCols;
 
   /**
-   * The back-end tables to build the statement(s) for.
-   * Some day, we may use this to build statements across tables.
-   * For now, we're using the array list, but allowing only one entry.
+   * The back-end tables to build the statement(s) for. Some day, we may use this to build
+   * statements across tables. For now, we're using the array list, but allowing only one entry.
    */
   protected ArrayList m_Tables;
 
-  /**
-   * The XML field - back-end column mappings (PSDataMapping).
-   */
+  /** The XML field - back-end column mappings (PSDataMapping). */
   protected HashMap m_Mappings;
 
-  /**
-   * The PSBackEndColumn for each updatable column
-   * (PSUpdateColumn.isUpdateable == true).
-   */
+  /** The PSBackEndColumn for each updatable column (PSUpdateColumn.isUpdateable == true). */
   protected ArrayList m_Columns;
 
-  /**
-   * the PSBackEndColumn for each key column to use in the WHERE
-   * (PSUpdateColumn.isKey == true).
-   */
+  /** the PSBackEndColumn for each key column to use in the WHERE (PSUpdateColumn.isKey == true). */
   protected ArrayList m_Keys;
 }

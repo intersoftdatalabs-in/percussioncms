@@ -32,9 +32,7 @@ public class PSUpgradePluginWidgetBuilderWidgetTransform implements IPSUpgradePl
   private static final Logger log =
       LogManager.getLogger(PSUpgradePluginWidgetBuilderWidgetTransform.class);
 
-  /**
-   * for Unit test purposes only
-   */
+  /** for Unit test purposes only */
   public PSUpgradePluginWidgetBuilderWidgetTransform() {}
 
   private PrintStream m_logStream;
@@ -76,6 +74,7 @@ public class PSUpgradePluginWidgetBuilderWidgetTransform implements IPSUpgradePl
 
   /**
    * Get the object store custom widget xml files
+   *
    * @return an array list of files may be null if error occurs
    */
   public ArrayList<String> getFiles() {
@@ -107,6 +106,7 @@ public class PSUpgradePluginWidgetBuilderWidgetTransform implements IPSUpgradePl
 
   /**
    * log messages needs to be initialized before use
+   *
    * @param msg
    */
   private void logMessage(String msg) {

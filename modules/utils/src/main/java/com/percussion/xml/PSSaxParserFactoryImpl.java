@@ -30,10 +30,8 @@ import org.xml.sax.SAXNotSupportedException;
 
 /**
  * @author dougrand
- *
- * Create a parser for use in Percussion. This parser has the entity resolver
- * set to an instance of our entity resolver. This class is currently
- * configured to work with Xerces.
+ *     <p>Create a parser for use in Percussion. This parser has the entity resolver set to an
+ *     instance of our entity resolver. This class is currently configured to work with Xerces.
  */
 public class PSSaxParserFactoryImpl extends SAXParserFactory {
 

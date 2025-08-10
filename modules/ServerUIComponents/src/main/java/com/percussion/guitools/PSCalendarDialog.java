@@ -31,12 +31,12 @@ import javax.accessibility.AccessibleContext;
 import javax.swing.*;
 
 /**
- * Calendar dialog for the user to point and click
- * to enter the date.
+ * Calendar dialog for the user to point and click to enter the date.
+ *
+ * <p>Example usage:
+ *
  * <p>
- * Example usage:
- * </p>
- * <p>
+ *
  * <pre>
  * <code>
  *       PSCalendarDialog dialog = new PSCalendarDialog(ownerFrame);
@@ -48,15 +48,14 @@ import javax.swing.*;
  *          setDate(dialog.getDate());
  * </code>
  * </pre>
- * </p>
- * <p>
- *  If the date is not set or is <code>null</code>, then the
- *  calendar will use today's date as the initial date.
- * </p>
+ *
+ * <p>If the date is not set or is <code>null</code>, then the calendar will use today's date as the
+ * initial date.
  */
 public class PSCalendarDialog extends JDialog {
   /**
    * Creates a new modal CalendarDialog
+   *
    * @param owner the frame that owns this dialog
    */
   PSCalendarDialog(Frame owner) {
@@ -64,9 +63,7 @@ public class PSCalendarDialog extends JDialog {
     init();
   }
 
-  /**
-   * Initialize the gui components
-   */
+  /** Initialize the gui components */
   private void init() {
     setTitle(ms_res.getString("calendar.dialog.title"));
     Container contentPane = getContentPane();
@@ -79,6 +76,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the date for this calendar
+   *
    * @param date date object. May be <Code>null</code>.
    */
   public void setDate(Date date) {
@@ -89,6 +87,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the date for this calendar
+   *
    * @param year the year integer ( i.e. 2003)
    * @param month the month integer ( 0 - 11; Example: February = 2)
    * @param date the date integer (1 - 31)
@@ -99,17 +98,15 @@ public class PSCalendarDialog extends JDialog {
   }
 
   /**
-   * Returns the date that the Calendar dialog
-   * is currently set to.
+   * Returns the date that the Calendar dialog is currently set to.
+   *
    * @return the date. Never <code>null</code>.
    */
   public Date getDate() {
     return m_calendarPanel.getCalendar().getTime();
   }
 
-  /**
-   * Centers the dialog on the screen, based on its current size.
-   */
+  /** Centers the dialog on the screen, based on its current size. */
   public void center() {
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     Dimension size = getSize();
@@ -118,8 +115,8 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Indicates that date was actually selected
-   * @return <code>true</code> if date was selected, else
-   * <code>false</code>.
+   *
+   * @return <code>true</code> if date was selected, else <code>false</code>.
    */
   public boolean isDateSelected() {
     return m_bDateSelected;
@@ -127,6 +124,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the foreground color of the calendar grid
+   *
    * @param color. Never <code>null</code>.
    */
   public void setGridForeground(Color color) {
@@ -136,6 +134,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the background color of the calendar grid
+   *
    * @param color. Never <code>null</code>.
    */
   public void setGridBackground(Color color) {
@@ -145,6 +144,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the foreground color of the calendar header
+   *
    * @param color. Never <code>null</code>.
    */
   public void setHeaderForeground(Color color) {
@@ -154,6 +154,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the background color of the calendar header
+   *
    * @param color. Never <code>null</code>.
    */
   public void setHeaderBackground(Color color) {
@@ -163,6 +164,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the current date foreground color.
+   *
    * @param color. Never <code>null</code>.
    */
   public void setCurrentDateForeground(Color color) {
@@ -172,6 +174,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the mouseover border color
+   *
    * @param color. Never <code>null</code>.
    */
   public void setMouseOverBorderColor(Color color) {
@@ -181,6 +184,7 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Sets the mouse over background color
+   *
    * @param color. Never <code>null</code>.
    */
   public void setMouseOverBackground(Color color) {
@@ -190,30 +194,25 @@ public class PSCalendarDialog extends JDialog {
 
   /**
    * Set the year selection popup offset.
-   * @param offset the number previous and next years
-   * to display in the year selection popup. Defaults to 3
+   *
+   * @param offset the number previous and next years to display in the year selection popup.
+   *     Defaults to 3
    */
   public void setYearPopupOffset(int offset) {
     m_yearPopupOffset = offset;
   }
 
-  /**
-   * Panel that represents the calendar grid
-   */
+  /** Panel that represents the calendar grid */
   class CalendarPanel extends JPanel {
 
-    /**
-     * Construct a new calendar panel
-     */
+    /** Construct a new calendar panel */
     CalendarPanel() {
       super();
       init();
       loadCalendar();
     }
 
-    /**
-     * Initialize the gui components, build the calendar grid
-     */
+    /** Initialize the gui components, build the calendar grid */
     public void init() {
       CalendarActionListener actionListener = new CalendarActionListener();
 
@@ -291,9 +290,8 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * Add the items in the years combo box. It initializes m_yearList, so
-     * it is never <code>null</code> after this method.
-     *
+     * Add the items in the years combo box. It initializes m_yearList, so it is never <code>null
+     * </code> after this method.
      */
     private void loadYearList() {
       ActionListener listener = null;
@@ -326,9 +324,8 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * Add the items in the month combo box. It initializes m_monthList, so
-     * it is never <code>null</code> after this method.
-     *
+     * Add the items in the month combo box. It initializes m_monthList, so it is never <code>null
+     * </code> after this method.
      */
     private void loadMonthList() {
       m_monthList = new JComboBox();
@@ -345,8 +342,8 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * Changes the selection of the month list if the user hits on the
-     * previous month button or the next month button.
+     * Changes the selection of the month list if the user hits on the previous month button or the
+     * next month button.
      */
     private void reloadMonthList() {
       m_monthList.setSelectedIndex(m_currCalendar.get(Calendar.MONTH));
@@ -354,16 +351,14 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Returns reference to the <code>Calendar</code> object.
+     *
      * @return Calendar object. Never <code>null</code>.
      */
     public Calendar getCalendar() {
       return m_calendar;
     }
 
-    /**
-     * Loads calendar to represent the month/year currently
-     * selected by the user.
-     */
+    /** Loads calendar to represent the month/year currently selected by the user. */
     private void loadCalendar() {
       m_currCalendar.set(Calendar.DATE, 1);
 
@@ -424,11 +419,10 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Increment the date by the number of days passed in
-     * @param date the date to be incremented. May not be
-     * <code>null</code>.
+     *
+     * @param date the date to be incremented. May not be <code>null</code>.
      * @param num number of days to increment the date by.
-     * @return a new date instance with the adjusted date. Never
-     * <code>null</code>.
+     * @return a new date instance with the adjusted date. Never <code>null</code>.
      */
     private Date incrementDate(Date date, int num) {
       if (null == date) throw new IllegalArgumentException("Date cannot be null");
@@ -437,11 +431,10 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Decrement the date by the number of days passed in
-     * @param date the date to be decremented. May not be
-     * <code>null</code>.
+     *
+     * @param date the date to be decremented. May not be <code>null</code>.
      * @param num number of days to decrement the date by.
-     * @return a new date instance with the adjusted date. Never
-     * <code>null</code>.
+     * @return a new date instance with the adjusted date. Never <code>null</code>.
      */
     private Date decrementDate(Date date, int num) {
       if (null == date) throw new IllegalArgumentException("Date cannot be null");
@@ -450,10 +443,11 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Compares two calendars for date equality.
+     *
      * @param calA calendar to check, May be <code>null</code>.
      * @param calB calendar to check, May be <code>null</code>.
-     * @return <code>true</code> if both calendars are set to
-     * eqivilent dates, else <code>false</code>.
+     * @return <code>true</code> if both calendars are set to eqivilent dates, else <code>false
+     *     </code>.
      */
     private boolean calendarDatesEqual(Calendar calA, Calendar calB) {
       if (null == calA || null == calB) return false;
@@ -462,9 +456,7 @@ public class PSCalendarDialog extends JDialog {
           && calA.get(Calendar.DATE) == calB.get(Calendar.DATE));
     }
 
-    /**
-     * Decrement calendar by one month
-     */
+    /** Decrement calendar by one month */
     private void previousMonth() {
       int month = m_currCalendar.get(Calendar.MONTH);
       int year = m_currCalendar.get(Calendar.YEAR);
@@ -484,9 +476,7 @@ public class PSCalendarDialog extends JDialog {
       loadCalendar();
     }
 
-    /**
-     * Increment calendar by one month
-     */
+    /** Increment calendar by one month */
     private void nextMonth() {
       int month = m_currCalendar.get(Calendar.MONTH);
       int year = m_currCalendar.get(Calendar.YEAR);
@@ -508,6 +498,7 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Set calendar dates for this panel
+     *
      * @param date
      */
     private void setCalendarDate(Date date) {
@@ -517,6 +508,7 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Sets the background color of the calendar header
+     *
      * @param color. Never <code>null</code>.
      */
     private void setHeaderBackground(Color color) {
@@ -530,6 +522,7 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Sets the foreground color of the calendar header
+     *
      * @param color. Never <code>null</code>.
      */
     private void setHeaderForeground(Color color) {
@@ -543,6 +536,7 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Sets the background color of the calendar grid
+     *
      * @param color. Never <code>null</code>.
      */
     private void setGridBackground(Color color) {
@@ -556,6 +550,7 @@ public class PSCalendarDialog extends JDialog {
 
     /**
      * Sets the foreground color of the calendar grid
+     *
      * @param color. Never <code>null</code>.
      */
     private void setGridForeground(Color color) {
@@ -568,13 +563,11 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * Action listener class to handle the action performed for all of the
-     * controls presents in the Calendar. These controls are the previous and
-     * next month, the one to pick up the month and year and each of the days
-     * in the calendar.
+     * Action listener class to handle the action performed for all of the controls presents in the
+     * Calendar. These controls are the previous and next month, the one to pick up the month and
+     * year and each of the days in the calendar.
      *
      * @author Santiago M. Murchio
-     *
      */
     private class CalendarActionListener implements ActionListener {
       public void actionPerformed(ActionEvent event) {
@@ -610,23 +603,17 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * This class is the one we will use in the calendar for holding the
-     * days. This way the user will be able to navigate through the dialog
-     * with the keyboard using the TAB key. Introduced for bug RX-17051.
+     * This class is the one we will use in the calendar for holding the days. This way the user
+     * will be able to navigate through the dialog with the keyboard using the TAB key. Introduced
+     * for bug RX-17051.
      *
      * @author Santiago M. Murchio
-     *
      */
     private class CalendarDayButton extends JButton {
-      /**
-       * The <code>Calendar</code> object for this label. Defaults to the
-       * current date/time.
-       */
+      /** The <code>Calendar</code> object for this label. Defaults to the current date/time. */
       private Calendar m_cal = new GregorianCalendar();
 
-      /**
-       * Flag indicating that this date is the current selected date.
-       */
+      /** Flag indicating that this date is the current selected date. */
       private boolean m_isCurrentSelection;
 
       public CalendarDayButton() {
@@ -634,9 +621,8 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Constructor that builds a default calendar button and then uses
-       * the parameters to set its horizontal alignment, its vertical
-       * alignment and the opaque.
+       * Constructor that builds a default calendar button and then uses the parameters to set its
+       * horizontal alignment, its vertical alignment and the opaque.
        */
       public CalendarDayButton(int horizontalAlignment, int verticalAlignment, boolean opaque) {
         super();
@@ -652,8 +638,7 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Construct a new CalendarLabel object setting it to the date in
-       * the Calendar passed in.
+       * Construct a new CalendarLabel object setting it to the date in the Calendar passed in.
        *
        * @param calendar. May not be <code>null</code>.
        */
@@ -663,8 +648,7 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Construct a new <code>CalendarLabel</code> object setting it to
-       * the date passed in.
+       * Construct a new <code>CalendarLabel</code> object setting it to the date passed in.
        *
        * @param year year as integer
        * @param month month as integer (0 - 11)
@@ -685,8 +669,7 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Returns a reference to the <code>Calendar</code> object for this
-       * label.
+       * Returns a reference to the <code>Calendar</code> object for this label.
        *
        * @return the calendar object. Never <code>null</code>.
        */
@@ -697,8 +680,7 @@ public class PSCalendarDialog extends JDialog {
       /**
        * Sets the current selection flag
        *
-       * @param bool if <code>true</code> then a rectangle will be drawn
-       *            around the date integer.
+       * @param bool if <code>true</code> then a rectangle will be drawn around the date integer.
        */
       public void setCurrentSelection(boolean bool) {
         m_isCurrentSelection = bool;
@@ -707,8 +689,7 @@ public class PSCalendarDialog extends JDialog {
       /**
        * Indicates if the selection indicator should be drawn
        *
-       * @return if <code>true</code> then a rectangle will be drawn
-       *         around the date integer.
+       * @return if <code>true</code> then a rectangle will be drawn around the date integer.
        */
       public boolean isCurrentSelection() {
         return m_isCurrentSelection;
@@ -733,8 +714,7 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Set the calendar to the same date as the integer values passed
-       * in.
+       * Set the calendar to the same date as the integer values passed in.
        *
        * @param year year as integer
        * @param month month as integer (0 - 11)
@@ -770,10 +750,9 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Gets the accessible context of the element and if it is not null,
-       * it sets the toolTip text as the accessible name. This way, screen
-       * readers can see the difference between two buttons that have the
-       * same number, but belong to different months.
+       * Gets the accessible context of the element and if it is not null, it sets the toolTip text
+       * as the accessible name. This way, screen readers can see the difference between two buttons
+       * that have the same number, but belong to different months.
        */
       private void setAccesibleInfo() {
         AccessibleContext aCtx = getAccessibleContext();
@@ -785,8 +764,7 @@ public class PSCalendarDialog extends JDialog {
       /**
        * Is this calendar's date today's date
        *
-       * @return <code>true</code> if this is today, else
-       * <code>false</code>.
+       * @return <code>true</code> if this is today, else <code>false</code>.
        */
       public boolean isToday() {
         Calendar c = new GregorianCalendar();
@@ -796,8 +774,8 @@ public class PSCalendarDialog extends JDialog {
       }
 
       /**
-       * Override the <code>paintComponent</code> method so we can draw
-       * the selection indicator if needed.
+       * Override the <code>paintComponent</code> method so we can draw the selection indicator if
+       * needed.
        *
        * @param g graphics object. Never <code>null</code>.
        */
@@ -816,111 +794,82 @@ public class PSCalendarDialog extends JDialog {
     }
 
     /**
-     * List of label references to the calendar grid. Initialized in the ctor,
-     * Never <code>null</code> after that.
+     * List of label references to the calendar grid. Initialized in the ctor, Never <code>null
+     * </code> after that.
      */
     private List m_grid;
 
     /**
-     * List of label references to the calendar header. Initialized in the ctor,
-     * Never <code>null</code> after that.
+     * List of label references to the calendar header. Initialized in the ctor, Never <code>null
+     * </code> after that.
      */
     private List m_header;
 
-    /**
-     * Previous month button. Initalized in {@link init()}, Never
-     * <code>null</code> after that.
-     */
+    /** Previous month button. Initalized in {@link init()}, Never <code>null</code> after that. */
     private JButton m_prevButton;
 
-    /**
-     * Next month button. Initalized in {@link init()}, Never
-     * <code>null</code> after that.
-     */
+    /** Next month button. Initalized in {@link init()}, Never <code>null</code> after that. */
     private JButton m_nextButton;
 
     /**
-     * Popup menu for month selection. Initalized in {@link init()}, Never
-     * <code>null</code> after that.
+     * Popup menu for month selection. Initalized in {@link init()}, Never <code>null</code> after
+     * that.
      */
     private JComboBox m_monthList;
 
     /**
-     * Popup menu for year selection. Initalized in {@link init()}, Never
-     * <code>null</code> after that.
+     * Popup menu for year selection. Initalized in {@link init()}, Never <code>null</code> after
+     * that.
      */
     private JComboBox m_yearList;
 
     /**
-     * The calendar to represent the date for the current displayed
-     * calendar. Never <code>null</code>. Defaults to the current date/time.
+     * The calendar to represent the date for the current displayed calendar. Never <code>null
+     * </code>. Defaults to the current date/time.
      */
     private GregorianCalendar m_currCalendar = new GregorianCalendar();
 
     /**
-     * The calendar to represent the date passed in. Never <code>null</code>.
-     * Defaults to the current date/time.
+     * The calendar to represent the date passed in. Never <code>null</code>. Defaults to the
+     * current date/time.
      */
     private GregorianCalendar m_calendar = new GregorianCalendar();
 
-    /**
-     * The header background color. Defaults to blue.
-     */
+    /** The header background color. Defaults to blue. */
     private Color m_headerBackground = new Color(0, 51, 153);
 
-    /**
-     * The header foreground color. Defaults to white.
-     */
+    /** The header foreground color. Defaults to white. */
     private Color m_headerForeground = Color.white;
 
-    /**
-     * The grid background color. Defaults to white.
-     */
+    /** The grid background color. Defaults to white. */
     private Color m_gridBackground = Color.white;
 
-    /**
-     * The grid foreground color. Defaults to black.
-     */
+    /** The grid foreground color. Defaults to black. */
     private Color m_gridForeground = Color.black;
 
-    /**
-     * The grid current date foreground color. Defaults to
-     * red
-     */
+    /** The grid current date foreground color. Defaults to red */
     private Color m_gridCurrentForeground = Color.red;
 
-    /**
-     * The mouse over border color. Defaults to
-     * black
-     */
+    /** The mouse over border color. Defaults to black */
     private Color m_mouseOverBorderColor = Color.black;
 
-    /**
-     * The mouse over background color. Defaults to
-     * white
-     */
+    /** The mouse over background color. Defaults to white */
     private Color m_mouseOverBackground = Color.white;
   }
 
   /**
-   * Calendar panel to display the calendar grid. Initialized in
-   * the ctor. Never <code>null</code> after that.
+   * Calendar panel to display the calendar grid. Initialized in the ctor. Never <code>null</code>
+   * after that.
    */
   private CalendarPanel m_calendarPanel;
 
-  /**
-   * Flag indicating that a date was selected
-   */
+  /** Flag indicating that a date was selected */
   private boolean m_bDateSelected;
 
-  /**
-   * Year selection popup offset
-   */
+  /** Year selection popup offset */
   private int m_yearPopupOffset = 3;
 
-  /**
-   * Resource bundle reference. Never <code>null</code> after that.
-   */
+  /** Resource bundle reference. Never <code>null</code> after that. */
   private static ResourceBundle ms_res;
 
   static {
@@ -932,29 +881,19 @@ public class PSCalendarDialog extends JDialog {
     }
   }
 
-  /**
-   * MenuAction data key
-   */
+  /** MenuAction data key */
   private static final String DATA = "DATA";
 
-  /**
-   * Month menu type
-   */
+  /** Month menu type */
   private static final int MONTH_TYPE = 1;
 
-  /**
-   * Year menu type
-   */
+  /** Year menu type */
   private static final int YEAR_TYPE = 2;
 
-  /**
-   * Seconds in one day
-   */
+  /** Seconds in one day */
   private static final long ONE_DAY = 86400000L;
 
-  /**
-   * The calendar header array
-   */
+  /** The calendar header array */
   private static final String[] ms_headerText = {
     ms_res.getString("day.abbr.sun"),
     ms_res.getString("day.abbr.mon"),
@@ -965,9 +904,7 @@ public class PSCalendarDialog extends JDialog {
     ms_res.getString("day.abbr.sat")
   };
 
-  /**
-   *  The month name array
-   */
+  /** The month name array */
   private static final String[] ms_months = {
     ms_res.getString("month.jan"),
     ms_res.getString("month.feb"),
@@ -983,8 +920,6 @@ public class PSCalendarDialog extends JDialog {
     ms_res.getString("month.dec")
   };
 
-  /**
-   * Calendar representing Today's date
-   */
+  /** Calendar representing Today's date */
   private static Calendar ms_today = new GregorianCalendar();
 }

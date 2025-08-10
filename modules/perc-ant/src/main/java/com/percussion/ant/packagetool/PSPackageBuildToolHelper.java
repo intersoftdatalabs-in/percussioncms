@@ -32,20 +32,15 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Few helper methods to deal with directories paths etc for storing contents of
- * the .ppkg files
- *
- */
+/** Few helper methods to deal with directories paths etc for storing contents of the .ppkg files */
 public class PSPackageBuildToolHelper {
 
   private static final Logger log = LogManager.getLogger(PSPackageBuildToolHelper.class);
 
   /**
-   * Files in the tempDirectory are with long paths the way in the packages.
-   * Those get processed and flat file names are stored to destinationDirectory
-   * along with a property file which stores mapping of flat file to its long
-   * path as stored in the destinationDirectory as well
+   * Files in the tempDirectory are with long paths the way in the packages. Those get processed and
+   * flat file names are stored to destinationDirectory along with a property file which stores
+   * mapping of flat file to its long path as stored in the destinationDirectory as well
    *
    * @param tempDirectory It may not be <code>null</code> or empty.
    * @param destinationDirectory It may not be <code>null</code> or empty.
@@ -132,8 +127,7 @@ public class PSPackageBuildToolHelper {
    *
    * @param sourceDir Source directory.
    * @param tempDir Temp directory.
-   * @return A list of File objects that exists in the Temp directory, but not
-   *         in the Source one.
+   * @return A list of File objects that exists in the Temp directory, but not in the Source one.
    */
   public static List<File> findAddedFiles(File sourceDir, File tempDir) {
     List<File> fileList = new ArrayList<File>();
@@ -171,12 +165,11 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * Given a directory, it generates a Map object with all its files. It works
-   * recursively.
+   * Given a directory, it generates a Map object with all its files. It works recursively.
    *
    * @param sourceDir A source directory to look for files recursively.
-   * @return A Map object with the file path as the key (relative to the source
-   *         directory) and the File object that represents it.
+   * @return A Map object with the file path as the key (relative to the source directory) and the
+   *     File object that represents it.
    */
   private static Map<String, File> getFilesMap(File sourceDir) {
     Map<String, File> map = new HashMap<String, File>();
@@ -193,8 +186,8 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * Check for the destination directory and if it doesn't exist then create
-   * one. In this case outcome would be rootDirectory/subDirectoryName
+   * Check for the destination directory and if it doesn't exist then create one. In this case
+   * outcome would be rootDirectory/subDirectoryName
    *
    * @param subDirectoryName name of the package excluding .ppkg
    * @param rootDirectory predefined one
@@ -210,8 +203,8 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * Ex: if passed in path is \system\build\dist\Packages\perc.Baseline.ppkg
-   * outcome will be perc.Baseline
+   * Ex: if passed in path is \system\build\dist\Packages\perc.Baseline.ppkg outcome will be
+   * perc.Baseline
    *
    * @param zipFileWithPath name of the package with path
    * @return the package name without the extension
@@ -224,7 +217,6 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   *
    * @param directoryToBeDeleted
    */
   private static void deleteDirectory(File directoryToBeDeleted) {
@@ -243,10 +235,11 @@ public class PSPackageBuildToolHelper {
 
   /**
    * Move the entire directory to destination directory
-   * @param dir child directory under the parent folder path Cannot be <code>null</code>
-   *          or  Cannot be <code>empty</code>.
-   * @param parentFolderPath Cannot be <code>null</code> or  Cannot be <code>empty</code>.
-   * @param destinationDirectory Cannot be <code>null</code> or  Cannot be <code>empty</code>.
+   *
+   * @param dir child directory under the parent folder path Cannot be <code>null</code> or Cannot
+   *     be <code>empty</code>.
+   * @param parentFolderPath Cannot be <code>null</code> or Cannot be <code>empty</code>.
+   * @param destinationDirectory Cannot be <code>null</code> or Cannot be <code>empty</code>.
    */
   private static void moveDirectoryToDestinationFolder(
       File dir, String parentFolderPath, File destinationDirectory) {
@@ -273,10 +266,11 @@ public class PSPackageBuildToolHelper {
 
   /**
    * Builds the file paths from the directory structure to full paths the way it is in .ppkg files
-   * @param packageName  Cannot be <code>null</code> or  Cannot be <code>empty</code>.
-   * @param filename     Cannot be <code>null</code> or  Cannot be <code>empty</code>.
-   * @param rootDir      Cannot be <code>null</code> or  Cannot be <code>empty</code>.
-   * @param destDirStr   Cannot be <code>null</code> or  Cannot be <code>empty</code>.
+   *
+   * @param packageName Cannot be <code>null</code> or Cannot be <code>empty</code>.
+   * @param filename Cannot be <code>null</code> or Cannot be <code>empty</code>.
+   * @param rootDir Cannot be <code>null</code> or Cannot be <code>empty</code>.
+   * @param destDirStr Cannot be <code>null</code> or Cannot be <code>empty</code>.
    * @param prop mapping properties file which contains entries for few file types
    */
   public static void moveFilesToOriginalPaths(
@@ -358,7 +352,7 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * @param folderPath  Cannot be <code>null</code> or  Cannot be <code>empty</code>.
+   * @param folderPath Cannot be <code>null</code> or Cannot be <code>empty</code>.
    * @return the folderanme.mapping.properties file
    * @throws IOException
    */
@@ -377,8 +371,9 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * Builds the properties file name and Copies the properties file in the
-   * tempDirPath to the properties file in destDirectoryPath
+   * Builds the properties file name and Copies the properties file in the tempDirPath to the
+   * properties file in destDirectoryPath
+   *
    * @param tempDirPath
    * @param destDirectoryPath
    */
@@ -407,9 +402,9 @@ public class PSPackageBuildToolHelper {
   }
 
   /**
-   * From the directory path returns the last part of the path
-   * Ex: for C:\src\cm1comments\system\Packages\perc.Baseline.temp1
-   * returns perc.Baseline.temp1
+   * From the directory path returns the last part of the path Ex: for
+   * C:\src\cm1comments\system\Packages\perc.Baseline.temp1 returns perc.Baseline.temp1
+   *
    * @param dirPath
    * @return
    */
@@ -417,9 +412,7 @@ public class PSPackageBuildToolHelper {
     return dirPath.substring(dirPath.lastIndexOf(File.separator) + 1, dirPath.length());
   }
 
-  /**
-   * Following constants are few files types in the packages.
-   */
+  /** Following constants are few files types in the packages. */
   private static String SYS_USER_DEPENDENCY = "sys__UserDependency--";
 
   private static String SCHEMA_FILE = "Schema";
@@ -430,8 +423,6 @@ public class PSPackageBuildToolHelper {
 
   private static String STYLE_SHEET = "Stylesheet";
 
-  /**
-   * The extension of the mapping properties file.
-   */
+  /** The extension of the mapping properties file. */
   private static String MAPPING_EXT = ".mapping.properties";
 }

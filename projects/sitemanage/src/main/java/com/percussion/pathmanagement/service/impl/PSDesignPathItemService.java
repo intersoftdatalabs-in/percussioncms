@@ -27,56 +27,54 @@ import com.percussion.user.service.IPSUserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-/**
- * Handles requests for path items under the "Design" root folder.
- */
+/** Handles requests for path items under the "Design" root folder. */
 @Component("designPathItemService")
 public class PSDesignPathItemService extends PSDispatchingPathService {
 
-    private String rootName;
-    private final IPSFolderHelper folderHelper;
+  private String rootName;
+  private final IPSFolderHelper folderHelper;
 
-    public PSDesignPathItemService(
-            IPSFolderHelper folderHelper,
-            IPSUiService uiService,
-            IPSUserService userService,
-            @Qualifier("fileSystemListViewHelper") IPSListViewHelper defaultListViewHelper,
-            IPSRecycleService recycleService) {
-        super(uiService, userService, defaultListViewHelper, recycleService, folderHelper);
-        this.folderHelper = folderHelper;
-        setRootName("Design");
-    }
+  public PSDesignPathItemService(
+      IPSFolderHelper folderHelper,
+      IPSUiService uiService,
+      IPSUserService userService,
+      @Qualifier("fileSystemListViewHelper") IPSListViewHelper defaultListViewHelper,
+      IPSRecycleService recycleService) {
+    super(uiService, userService, defaultListViewHelper, recycleService, folderHelper);
+    this.folderHelper = folderHelper;
+    setRootName("Design");
+  }
 
-    public String getRootName() {
-        return rootName;
-    }
+  public String getRootName() {
+    return rootName;
+  }
 
-    public void setRootName(String rootName) {
-        this.rootName = rootName;
-    }
+  public void setRootName(String rootName) {
+    this.rootName = rootName;
+  }
 
-    @Override
-    protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
-        var root = new PSPathItem();
-        root.setName(rootName);
-        root.setPath("/");
-        root.setLeaf(false);
-        root.setFolderPath(getFullFolderPath("/"));
-        root.setAccessLevel(PSFolderPermission.Access.ADMIN);
-        return root;
-    }
+  @Override
+  protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
+    var root = new PSPathItem();
+    root.setName(rootName);
+    root.setPath("/");
+    root.setLeaf(false);
+    root.setFolderPath(getFullFolderPath("/"));
+    root.setAccessLevel(PSFolderPermission.Access.ADMIN);
+    return root;
+  }
 
-    @Override
-    protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
-        PSPathUtils.validatePath(path);
-        var fullFolderPath = getRootFolderPath();
-        if (!"/".equals(path)) {
-            fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
-        }
-        return fullFolderPath;
+  @Override
+  protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
+    PSPathUtils.validatePath(path);
+    var fullFolderPath = getRootFolderPath();
+    if (!"/".equals(path)) {
+      fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
     }
+    return fullFolderPath;
+  }
 
-    protected String getRootFolderPath() {
-        return "//" + getRootName();
-    }
+  protected String getRootFolderPath() {
+    return "//" + getRootName();
+  }
 }

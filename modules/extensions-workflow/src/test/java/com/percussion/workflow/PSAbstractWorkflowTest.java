@@ -29,22 +29,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class provides a framework for creating test classes for workflow
- * classes and methods. There is a mechanism for specifying test data via
- * command line arguments, as well as utility methods. Classes extending
- * <CODE>PSAbstractWorkflowTest</CODE> must implement {@link #ExecuteTest}
- * and should implement {@link #GetArgValues} and {@link #HelpMessage} if
- * command line arguments are supported.
+ * This class provides a framework for creating test classes for workflow classes and methods. There
+ * is a mechanism for specifying test data via command line arguments, as well as utility methods.
+ * Classes extending <CODE>PSAbstractWorkflowTest</CODE> must implement {@link #ExecuteTest} and
+ * should implement {@link #GetArgValues} and {@link #HelpMessage} if command line arguments are
+ * supported.
  */
 public abstract class PSAbstractWorkflowTest {
 
   private static final Logger log = LogManager.getLogger(PSAbstractWorkflowTest.class);
 
   /**
-   * This is the executive method for running a test. It gets a database
-   * connection and calls methods to parse the command line arguments, run the
-   * test, and print out any exception information.
-   *
+   * This is the executive method for running a test. It gets a database connection and calls
+   * methods to parse the command line arguments, run the test, and print out any exception
+   * information.
    */
   public void Test() {
     Connection connection = null;
@@ -103,12 +101,11 @@ public abstract class PSAbstractWorkflowTest {
   }
 
   /**
-   * Parse any arguments to the command, class specific arguments are parsed
-   * via the method {@link #GetArgValues}. A help argument is defined here.
+   * Parse any arguments to the command, class specific arguments are parsed via the method {@link
+   * #GetArgValues}. A help argument is defined here.
    *
-   * @return  <CODE>true</CODE> if the execution should continue,
-   *           <CODE>false</CODE>  if help option was specified, and a message
-   *            was printed.
+   * @return <CODE>true</CODE> if the execution should continue, <CODE>false</CODE> if help option
+   *     was specified, and a message was printed.
    */
   public boolean ParseArguments() {
     // Parse the arguments if any
@@ -128,13 +125,12 @@ public abstract class PSAbstractWorkflowTest {
   /* Methods that can be overridden to allow use of input arguments */
 
   /**
-   * Parse the current input argument, set corresponding private class member,
-   * reading an additional argument if necessary.
+   * Parse the current input argument, set corresponding private class member, reading an additional
+   * argument if necessary.
    *
-   * @param i  index into the array of arguments.
-   *
-   * @return   index into the array of arguments, which will be incremented
-   *           if a flag requiring an argument is parsed.
+   * @param i index into the array of arguments.
+   * @return index into the array of arguments, which will be incremented if a flag requiring an
+   *     argument is parsed.
    */
   public int GetArgValues(int i) {
     /*
@@ -149,10 +145,9 @@ public abstract class PSAbstractWorkflowTest {
   }
 
   /**
-   * Produce a "help" string for the test class, indicating command line
-   * arguments options.
+   * Produce a "help" string for the test class, indicating command line arguments options.
    *
-   * @return  "help" string for the test class
+   * @return "help" string for the test class
    */
   public String HelpMessage() {
     // commented out line below shows how to include additional options
@@ -166,11 +161,11 @@ public abstract class PSAbstractWorkflowTest {
   /*  Utility Methods */
 
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param date  date to be turned into a string
-   * @return      string giving date information down to the millisecond
+   * @param date date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Date date) {
     if (null == date) {
@@ -183,11 +178,11 @@ public abstract class PSAbstractWorkflowTest {
   }
 
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param calendar  calendar specifying date to be turned into a string
-   * @return          string giving date information down to the millisecond
+   * @param calendar calendar specifying date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Calendar calendar) {
     if (null == calendar) {
@@ -205,14 +200,13 @@ public abstract class PSAbstractWorkflowTest {
   }
 
   /**
-   * Returns the next available identification number for a given key,
-   * updating the value in the NEXTNUMBER table. Based on the class
-   * <CODE>PSExitNextNumber</CODE>.
+   * Returns the next available identification number for a given key, updating the value in the
+   * NEXTNUMBER table. Based on the class <CODE>PSExitNextNumber</CODE>.
    *
-   * @param sKey  name of table for which next number is sought
-   * @param conn  database connection
-   * @return      next available identification number for the table
-   * @throws   PSWorkflowTestException if an error occurs
+   * @param sKey name of table for which next number is sought
+   * @param conn database connection
+   * @return next available identification number for the table
+   * @throws PSWorkflowTestException if an error occurs
    */
   public static synchronized Integer getNextNumber(String sKey, Connection conn)
       throws PSWorkflowTestException {
@@ -297,16 +291,13 @@ public abstract class PSAbstractWorkflowTest {
    * Executes the context, exit etcetera specific test code.
    *
    * @param connection database connection
-   * @throws  PSWorkflowTestException if an error occurs
+   * @throws PSWorkflowTestException if an error occurs
    */
   public abstract void ExecuteTest(Connection connection) throws PSWorkflowTestException;
 
   /* Member variables */
 
-  /**
-   * <CODE>true</CODE> if the test needs a database connection ,
-   * else <CODE>false</CODE>.
-   */
+  /** <CODE>true</CODE> if the test needs a database connection , else <CODE>false</CODE>. */
   protected boolean m_bNeedConnection = true;
 
   /** Array of arguments to the command */

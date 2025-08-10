@@ -21,22 +21,19 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSRelationshipException;
 
 /**
- * Implementations of this interface can be passed to clone handlers to
- * create relationships if needed.
+ * Implementations of this interface can be passed to clone handlers to create relationships if
+ * needed.
  */
 public interface IPSRelationshipHandlerCallback {
   /**
-   * Creates a new relationship of the supplied type between the provided
-   * owner and dependent.
+   * Creates a new relationship of the supplied type between the provided owner and dependent.
    *
-   * @param relationshipType the relationship type to create, not
-   *    <code>null</code>.
+   * @param relationshipType the relationship type to create, not <code>null</code>.
    * @param owner the relationship owner locator, not <code>null</code>.
    * @param dependent the relationship dependent locator, not <code>null</code>.
    * @param data the execution context to operate on, not <code>null</code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
-   * @throws PSRelationshipException if anything goes wrong creating the
-   *    requested relationship.
+   * @throws PSRelationshipException if anything goes wrong creating the requested relationship.
    */
   public void relate(
       String relationshipType, PSLocator owner, PSLocator dependent, PSExecutionData data)

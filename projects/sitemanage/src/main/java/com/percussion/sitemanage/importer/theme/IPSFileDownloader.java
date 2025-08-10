@@ -18,39 +18,40 @@ package com.percussion.sitemanage.importer.theme;
 
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.utils.types.PSPair;
-
 import java.util.List;
 import java.util.Map;
 
 /**
- * Downloads files from URLs to local paths, returning results for each download.
- * Designed for use in site/theme import operations.
+ * Downloads files from URLs to local paths, returning results for each download. Designed for use
+ * in site/theme import operations.
  */
 public interface IPSFileDownloader {
 
-    /**
-     * Downloads the given files into local files, as specified in the parameter.
-     * Returns a list of pairs so the caller can determine if the download was
-     * successful or not, together with the message to use in either case.
-     *
-     * @param urlToPathMap Map where the key is the URL of the file, and the value is the absolute
-     *                     local path where the file should be saved. Must not be null.
-     * @param context      PSSiteImportCtx object, must not be null.
-     * @param createAsset  true if an asset needs to be created. The resource is downloaded to a temp file, then deleted.
-     *                     false otherwise.
-     * @return List of PSPair<Boolean, String>. For each value, the first element is true if the download was
-     *         successful, and false otherwise. The second element is the success message or an error message.
-     */
-    List<PSPair<Boolean, String>> downloadFiles(Map<String, String> urlToPathMap, PSSiteImportCtx context, boolean createAsset);
+  /**
+   * Downloads the given files into local files, as specified in the parameter. Returns a list of
+   * pairs so the caller can determine if the download was successful or not, together with the
+   * message to use in either case.
+   *
+   * @param urlToPathMap Map where the key is the URL of the file, and the value is the absolute
+   *     local path where the file should be saved. Must not be null.
+   * @param context PSSiteImportCtx object, must not be null.
+   * @param createAsset true if an asset needs to be created. The resource is downloaded to a temp
+   *     file, then deleted. false otherwise.
+   * @return List of PSPair<Boolean, String>. For each value, the first element is true if the
+   *     download was successful, and false otherwise. The second element is the success message or
+   *     an error message.
+   */
+  List<PSPair<Boolean, String>> downloadFiles(
+      Map<String, String> urlToPathMap, PSSiteImportCtx context, boolean createAsset);
 
-    /**
-     * Downloads a given file from the given URL. Writes the file to the destination path if it does not exist.
-     * Otherwise, logs an informational message.
-     *
-     * @param url             URL where the file is hosted. Assumed not null.
-     * @param destinationPath Destination path for the downloaded file. Assumed not null.
-     * @return PSPair<Boolean, String>. The first element is true if the download was successful, false otherwise.
-     *         The second element is the success message or an error message.
-     */
-    PSPair<Boolean, String> downloadFile(String url, String destinationPath);
+  /**
+   * Downloads a given file from the given URL. Writes the file to the destination path if it does
+   * not exist. Otherwise, logs an informational message.
+   *
+   * @param url URL where the file is hosted. Assumed not null.
+   * @param destinationPath Destination path for the downloaded file. Assumed not null.
+   * @return PSPair<Boolean, String>. The first element is true if the download was successful,
+   *     false otherwise. The second element is the success message or an error message.
+   */
+  PSPair<Boolean, String> downloadFile(String url, String destinationPath);
 }

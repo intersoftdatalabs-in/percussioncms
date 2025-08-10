@@ -36,24 +36,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSForeignKeyCatalogHandler class implements cataloging of
- * foreign keys. This request type is used to locate the columns which
- * are related to other tables. Foreign key columns usually refer to the
- * primary key of another table. This allows a unique relationship to be
- * defined between the two tables. When a foreign key is defined, values
- * cannot be inserted which do not exist in the table being referenced.
- * <p>
- * The request format is defined in the
- * {@link com.percussion.design.catalog.data.PSForeignKeyCatalogHandler
- *  com.percussion.design.catalog.data.PSForeignKeyCatalogHandler} class.
+ * The PSForeignKeyCatalogHandler class implements cataloging of foreign keys. This request type is
+ * used to locate the columns which are related to other tables. Foreign key columns usually refer
+ * to the primary key of another table. This allows a unique relationship to be defined between the
+ * two tables. When a foreign key is defined, values cannot be inserted which do not exist in the
+ * table being referenced.
  *
+ * <p>The request format is defined in the {@link
+ * com.percussion.design.catalog.data.PSForeignKeyCatalogHandler
+ * com.percussion.design.catalog.data.PSForeignKeyCatalogHandler} class.
  */
 public class PSForeignKeyCatalogHandler
     extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSForeignKeyCatalogHandler() {
     super();
   }
@@ -61,10 +57,9 @@ public class PSForeignKeyCatalogHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {"PSXForeignKeyCatalog"};
@@ -73,12 +68,10 @@ public class PSForeignKeyCatalogHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the input
-   * data. The results are written to the specified output stream using the
-   * appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param request the request object containing all context data associated
-   * with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -166,9 +159,7 @@ public class PSForeignKeyCatalogHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

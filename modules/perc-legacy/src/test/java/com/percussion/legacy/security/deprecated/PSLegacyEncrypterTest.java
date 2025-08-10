@@ -29,9 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Test case for the {@link PSLegacyEncrypter} class
- */
+/** Test case for the {@link PSLegacyEncrypter} class */
 @Deprecated
 public class PSLegacyEncrypterTest {
 
@@ -98,10 +96,8 @@ public class PSLegacyEncrypterTest {
   /**
    * Generate a key based on the supplied seed and size.
    *
-   * @param seed The value to use to get the bytes to fill, assumed not
-   * <code>null</code> or empty.
+   * @param seed The value to use to get the bytes to fill, assumed not <code>null</code> or empty.
    * @param size The size in bytes fo the returned string.
-   *
    * @return the key, never <code>null</code> or empty.
    */
   private String getKey(String seed, int size) {
@@ -115,7 +111,6 @@ public class PSLegacyEncrypterTest {
    *
    * @param key The key to use, assumed not <code>null</code> or empty.
    * @param pwd The pwd to encrypt, assumed not <code>null</code>.
-   *
    */
   private void testKey(String key, String pwd) {
     String enc =

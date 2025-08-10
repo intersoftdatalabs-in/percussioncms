@@ -27,20 +27,18 @@ import java.io.PrintWriter;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to modify the word ocx cab file name in
- * sys_Templates.xsl file.  This plugin should go into a module which
- * need to be run on upgrade from 20011114 to 20020320 only.
+ * This plugin has been written to modify the word ocx cab file name in sys_Templates.xsl file. This
+ * plugin should go into a module which need to be run on upgrade from 20011114 to 20020320 only.
  */
 
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginModifyCabFileName implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginModifyCabFileName() {}
 
   /**
    * Implements the process function of IPSUpgardePlugin.
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
@@ -94,8 +92,8 @@ public class PSUpgradePluginModifyCabFileName implements IPSUpgradePlugin {
   }
 
   /**
-   * Helper function replaces OCX_STRING_NEW by OCX_STRING_OLD if exits in
-   * the input String.
+   * Helper function replaces OCX_STRING_NEW by OCX_STRING_OLD if exits in the input String.
+   *
    * @param str Input string
    * @return the modified string.
    */
@@ -113,13 +111,9 @@ public class PSUpgradePluginModifyCabFileName implements IPSUpgradePlugin {
    * Method to copy Java InputStream to PoutputStream.
    *
    * @param in Input stream tp copy from, never <code>null</code>.
-   *
    * @param out Output stream to copy to, never <code>null</code>.
-   *
    * @return number bytes copied
-   *
    * @throws IOException in case of any error while copying.
-   *
    */
   public static long copyStream(InputStream in, OutputStream out) throws IOException {
     int nCopied = 0;
@@ -132,14 +126,10 @@ public class PSUpgradePluginModifyCabFileName implements IPSUpgradePlugin {
     return nCopied;
   }
 
-  /**
-   * word ocx cab string to be replaced
-   */
+  /** word ocx cab string to be replaced */
   public static final String OCX_STRING_NEW = "rx_resources/word/rxwordocx.cab#version=4,0,6,0";
 
-  /**
-   * word ocx cab string to be replaced by
-   */
+  /** word ocx cab string to be replaced by */
   public static final String OCX_STRING_OLD = "sys_resources/word/rxword.cab#version=4,0,3,0";
 
   private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;

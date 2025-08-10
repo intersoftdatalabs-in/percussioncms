@@ -26,14 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcUpdateKey.
- */
+/** Unit test for PSJdbcUpdateKey. */
 public class PSJdbcUpdateKeyTest {
 
-  /**
-   * Test the def
-   */
+  /** Test the def */
   @Test
   public void testDef() throws Exception {
     // build a def with a dupe name

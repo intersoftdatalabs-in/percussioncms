@@ -24,12 +24,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * This class calculates a running md5 digest of the data read. When the
- * stream is closed the calculated digest is passed to a HashVerifier which
- * is expected to verify this digest and to throw an Exception if it fails.
+ * This class calculates a running md5 digest of the data read. When the stream is closed the
+ * calculated digest is passed to a HashVerifier which is expected to verify this digest and to
+ * throw an Exception if it fails.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class MD5InputStream extends FilterInputStream {
@@ -80,13 +80,11 @@ class MD5InputStream extends FilterInputStream {
   }
 
   /**
-   * Close the stream and check the digest. If the stream has not been
-   * fully read then the rest of the data will first be read (and discarded)
-   * to complete the digest calculation.
+   * Close the stream and check the digest. If the stream has not been fully read then the rest of
+   * the data will first be read (and discarded) to complete the digest calculation.
    *
-   * @exception IOException if the close()'ing the underlying stream throws
-   *                        an IOException, or if the expected digest and
-   *                        the calculated digest don't match.
+   * @exception IOException if the close()'ing the underlying stream throws an IOException, or if
+   *     the expected digest and the calculated digest don't match.
    */
   public synchronized void close() throws IOException {
     while (skip(10000) > 0)
@@ -97,9 +95,8 @@ class MD5InputStream extends FilterInputStream {
   /**
    * Close the stream and check the digest.
    *
-   * @exception IOException if the close()'ing the underlying stream throws
-   *                        an IOException, or if the expected digest and
-   *                        the calculated digest don't match.
+   * @exception IOException if the close()'ing the underlying stream throws an IOException, or if
+   *     the expected digest and the calculated digest don't match.
    */
   private void real_close() throws IOException {
     if (closed) return;

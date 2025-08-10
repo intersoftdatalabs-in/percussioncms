@@ -44,14 +44,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * A role cataloger using a directory server as source.
- */
+/** A role cataloger using a directory server as source. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCataloger {
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static Logger log = LogManager.getLogger(PSRoleCataloger.class);
 
   /**
@@ -100,7 +96,9 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     }
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public List getRoles(String subjectName, int subjectType) {
     List roleList = new ArrayList();
     Set roleSet = new HashSet();
@@ -206,13 +204,12 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   }
 
   /**
-   * Extract roles from a role attribute that stores values as a multi valued
-   * attribute
+   * Extract roles from a role attribute that stores values as a multi valued attribute
    *
    * @param attribute the attribute, assumed not <code>null</code>
    * @return a set of role values that can be merged into a larger role set
-   * @param delimiter the delimiter string used to split the values in
-   *           attribute, assumed not <code>null</code>
+   * @param delimiter the delimiter string used to split the values in attribute, assumed not <code>
+   *     null</code>
    * @throws NamingException
    */
   private Set getDelimitedValuedRoles(Attribute attribute, String delimiter)
@@ -227,8 +224,7 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   }
 
   /**
-   * Extract roles from a role attribute that stores values as a multi valued
-   * attribute
+   * Extract roles from a role attribute that stores values as a multi valued attribute
    *
    * @param attribute the attribute, assumed not <code>null</code>
    * @return a set of role values that can be merged into a larger role set
@@ -247,12 +243,16 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     return rval;
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public Set getSubjects(String roleName, String subjectNameFilter) {
     return getSubjects(roleName, subjectNameFilter, 0, null, true);
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public Set getSubjects(
       String roleName,
       String subjectNameFilter,
@@ -338,7 +338,9 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
     return rval;
   }
 
-  /** @see IPSInternalRoleCataloger */
+  /**
+   * @see IPSInternalRoleCataloger
+   */
   public PSRoleProvider getProvider() {
     return m_roleProvider;
   }
@@ -346,14 +348,11 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * Get all subjects from the supplied directory.
    *
-   * @param directory the directory from which to get the subjects, assumed not
-   *           <code>null</code>.
-   * @param filterValues the filter values for the directory search, assumed
-   *           not <code>null</code>.
-   * @param results a set to collect all subjects, assumed not
-   *           <code>null</code>.
-   * @param additionals a set of additional attributes to be returned with each
-   *           subject, may be <code>null</code>.
+   * @param directory the directory from which to get the subjects, assumed not <code>null</code>.
+   * @param filterValues the filter values for the directory search, assumed not <code>null</code>.
+   * @param results a set to collect all subjects, assumed not <code>null</code>.
+   * @param additionals a set of additional attributes to be returned with each subject, may be
+   *     <code>null</code>.
    */
   protected void getSubjects(
       PSDirectoryDefinition directory, Map filterValues, Set results, Set additionals) {
@@ -363,17 +362,15 @@ public class PSRoleCataloger extends PSCataloger implements IPSInternalRoleCatal
   /**
    * Get the requestd attributes from the specified directory.
    *
-   * @param context The context to use, created using the supplied directory,
-   *    assumed not <code>null</code>.
-   * @param directory the directory in which to search, assumed not
-   *           <code>null</code>.
-   * @param filterValues a map with all filter attribute/value pairs. See
-   *           {@link PSJndiUtils#buildFilter(Map)} for more info.
-   * @param returnAttrs an array with attribute names specifying all attributes
-   *           to be returned, <code>null</code> to return all attributes.
-   * @return an enumeration with all found attributes as
-   *         <code>SearchResult</code> objects, never <code>null</code>,
-   *         may be empty.
+   * @param context The context to use, created using the supplied directory, assumed not <code>null
+   *     </code>.
+   * @param directory the directory in which to search, assumed not <code>null</code>.
+   * @param filterValues a map with all filter attribute/value pairs. See {@link
+   *     PSJndiUtils#buildFilter(Map)} for more info.
+   * @param returnAttrs an array with attribute names specifying all attributes to be returned,
+   *     <code>null</code> to return all attributes.
+   * @return an enumeration with all found attributes as <code>SearchResult</code> objects, never
+   *     <code>null</code>, may be empty.
    * @throws NamingException for any JNDI lookup error.
    */
   // TODO: Remove me @SuppressFBWarnings("LDAP_INJECTION") //Mitigated in PSJndiUtils.buildFilter

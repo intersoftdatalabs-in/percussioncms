@@ -19,34 +19,34 @@ package com.percussion.rest.contexts;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "ContextList")
 @XmlSeeAlso(Context.class)
 @ArraySchema(schema = @Schema(implementation = Context.class))
 public class ContextList extends ArrayList<Context> {
-    public ContextList(Collection<? extends Context> c) {
-        super(c);
-    }
-    public ContextList() {}
+  public ContextList(Collection<? extends Context> c) {
+    super(c);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ContextList && super.equals(o);
-    }
+  public ContextList() {}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ContextList && super.equals(o);
+  }
 
-    @Override
-    public String toString() {
-        return "ContextList" + super.toString();
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "ContextList" + super.toString();
+  }
 }

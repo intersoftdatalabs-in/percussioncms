@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Factory object used to create instances of each type of tracing message.
- * Contains a static initializer to initialize the static member m_optionList.
+ * Factory object used to create instances of each type of tracing message. Contains a static
+ * initializer to initialize the static member m_optionList.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceMessageFactory {
@@ -99,13 +99,11 @@ public class PSTraceMessageFactory {
   }
 
   /**
-   * Returns a list of all possible trace option flags that may be enabled for an
-   * application and their corresponding flag and description using the default
-   * locale.  If list has already been created for the current locale, it is
-   * retreived from the map, otherwise
-   * the specified locale is used to retreive the display name and description for
-   * each option from a resource bundle and a new list is created and stored in the
-   * map before it is returned.
+   * Returns a list of all possible trace option flags that may be enabled for an application and
+   * their corresponding flag and description using the default locale. If list has already been
+   * created for the current locale, it is retreived from the map, otherwise the specified locale is
+   * used to retreive the display name and description for each option from a resource bundle and a
+   * new list is created and stored in the map before it is returned.
    *
    * @return the possible flags as a list of PSTraceOption objects.
    * @roseuid 39F46BEC0280
@@ -115,12 +113,9 @@ public class PSTraceMessageFactory {
   }
 
   /**
-   * Returns a PSTraceFlag object with all default options enabled.  Currently these
-   * options include:
-   * Basic Request Info
-   * App Handler Processing
-   * App Security
-   * Resource Handler
+   * Returns a PSTraceFlag object with all default options enabled. Currently these options include:
+   * Basic Request Info App Handler Processing App Security Resource Handler
+   *
    * @return the flag with the default options set
    * @roseuid 39F82C6B0177
    */
@@ -136,15 +131,14 @@ public class PSTraceMessageFactory {
   }
 
   /**
-   * Returns a list of all possible trace option flags that may be enabled for an
-   * application and their corresponding flag and description.  If list has already
-   * been created for the current locale, it is retreived from the map, otherwise
-   * the specified locale is used to retreive the display name and description for
-   * each option from a resource bundle and a new list is created and stored in the
-   * map before it is returned.
+   * Returns a list of all possible trace option flags that may be enabled for an application and
+   * their corresponding flag and description. If list has already been created for the current
+   * locale, it is retreived from the map, otherwise the specified locale is used to retreive the
+   * display name and description for each option from a resource bundle and a new list is created
+   * and stored in the map before it is returned.
    *
-   * @param locale the locale to use to retrieve display names and descriptions when
-   * constructing the list
+   * @param locale the locale to use to retrieve display names and descriptions when constructing
+   *     the list
    * @return the possible flags as a list of PSTraceOption objects.
    * @roseuid 3A11462E0119
    */
@@ -270,130 +264,122 @@ public class PSTraceMessageFactory {
   }
 
   /**
-   * Flag constant representing the Basic Request Infomation trace option.  Includes the type of request (POST or GET) and the complete URL and HTTP version
+   * Flag constant representing the Basic Request Infomation trace option. Includes the type of
+   * request (POST or GET) and the complete URL and HTTP version
    */
   public static final int BASIC_REQUEST_INFO_FLAG = 0x0001;
 
   /**
-   * Flag constant representing the Initial HTML/CGI trace option.
-   * Includes:
-   * All HTML parameters in the request (either query params or post params) and their values (before any exit processing).
+   * Flag constant representing the Initial HTML/CGI trace option. Includes: All HTML parameters in
+   * the request (either query params or post params) and their values (before any exit processing).
    * All CGI variables and their values(before any exit processing).
    */
   public static final int INIT_HTTP_VAR_FLAG = 0x0002;
 
   /**
-   * Flag constant representing the File Infomation trace option:
-   * If a post includes one or more files, the name, mime type and length of each one.
-   * Is file treated as XML or single value
+   * Flag constant representing the File Infomation trace option: If a post includes one or more
+   * files, the name, mime type and length of each one. Is file treated as XML or single value
    */
   public static final int FILE_INFO_FLAG = 0x0004;
 
   /**
-   * Flag constant representing the aPP HANDLER pROCESSING trace option.  Handler used for requestDataset (resource) used (request name and dataset name)
+   * Flag constant representing the aPP HANDLER pROCESSING trace option. Handler used for
+   * requestDataset (resource) used (request name and dataset name)
    */
   public static final int APP_HANDLER_PROC_FLAG = 0x0008;
 
   /**
-   * Flag constant representing the App Security trace option:
-   * ACL entry name
-   * Access allowed
-   * Was user required to authenticate.  If so:
-   * User ID(s)
-   * Security provider(s)/instance(s) used for authentication
+   * Flag constant representing the App Security trace option: ACL entry name Access allowed Was
+   * user required to authenticate. If so: User ID(s) Security provider(s)/instance(s) used for
+   * authentication
    */
   public static final int APP_SECURITY_FLAG = 0x0010;
 
   /**
-   * Flag constant representing the HTML/CGI Post PreProc exit trace option:
-   * HTML params after all exits are run
-   * CGI variables after all exits are run
+   * Flag constant representing the HTML/CGI Post PreProc exit trace option: HTML params after all
+   * exits are run CGI variables after all exits are run
    */
   public static final int POST_PREPROC_HTTP_VAR_FLAG = 0x0020;
 
   /**
-   * Flag constant representing the Resource Handler trace option:
-   * Validation processing:
-   * For each step in the plan - what is it and what are results
+   * Flag constant representing the Resource Handler trace option: Validation processing: For each
+   * step in the plan - what is it and what are results
    *
-   * Query: All data associated with the result set returned by the current query. Binary data is displayed in hex.
+   * <p>Query: All data associated with the result set returned by the current query. Binary data is
+   * displayed in hex.
    *
-   * Update: For each row - action taken (Insert, update, etc). If not skipped, the values bound to each column.
+   * <p>Update: For each row - action taken (Insert, update, etc). If not skipped, the values bound
+   * to each column.
    */
   public static final int RESOURCE_HANDLER_FLAG = 0x0040;
 
   /**
-   * Flag constant representing the Mapper trace option:
-   * Each mapping that was skipped (query only)
-   * For each UDF:  Value of each input param (by doing a toString on it) in the form 'param=value'. The value returned (by doing a toString on it) in the form 'return=value'
+   * Flag constant representing the Mapper trace option: Each mapping that was skipped (query only)
+   * For each UDF: Value of each input param (by doing a toString on it) in the form 'param=value'.
+   * The value returned (by doing a toString on it) in the form 'return=value'
    */
   public static final int MAPPER_FLAG = 0x0080;
 
   /**
-   * Flag constant representing the Session Info trace option:
-   * Are sessions enabled
-   * Was an existing session found
-   * Session ID
-   * All User context values associated w/ the current request.
+   * Flag constant representing the Session Info trace option: Are sessions enabled Was an existing
+   * session found Session ID All User context values associated w/ the current request.
    */
   public static final int SESSION_INFO_FLAG = 0x0100;
 
   /**
-   * Flag constant representing the DB Pool trace option:
-   * When connection requested, did it come from pool or was a new connection made. For each new connection attempt, all info used (except pw) and whether successful or failed.
+   * Flag constant representing the DB Pool trace option: When connection requested, did it come
+   * from pool or was a new connection made. For each new connection attempt, all info used (except
+   * pw) and whether successful or failed.
    */
   public static final int DB_POOL_FLAG = 0x0200;
 
   /**
-   * Flag constant representing the Exit Processing trace option:
-   * Type of exit
-   * Name of each exit executed
-   * For each exit: Value of each input param (by doing a toString on it) in the form 'param=value'.
+   * Flag constant representing the Exit Processing trace option: Type of exit Name of each exit
+   * executed For each exit: Value of each input param (by doing a toString on it) in the form
+   * 'param=value'.
    */
   public static final int EXIT_PROC_FLAG = 0x0400;
 
   /**
-   * Flag constant representing the Exit Execution trace option:
-   * Java extensions can write trace statements to the log.
+   * Flag constant representing the Exit Execution trace option: Java extensions can write trace
+   * statements to the log.
    */
   public static final int EXIT_EXEC_FLAG = 0x0800;
 
   /**
-   * Flag constant representing the Post Exit XML Doc trace option:
-   * Prints out the entire XML document sent to the first exit and returned from each successive exit.
+   * Flag constant representing the Post Exit XML Doc trace option: Prints out the entire XML
+   * document sent to the first exit and returned from each successive exit.
    */
   public static final int POST_EXIT_XML_FLAG = 0x1000;
 
   /**
-   * Flag constant representing the Post EXIT CGI  trace option:
-   * CGI variables after all exits are run.
+   * Flag constant representing the Post EXIT CGI trace option: CGI variables after all exits are
+   * run.
    */
   public static final int POST_EXIT_CGI_FLAG = 0x2000;
 
   /**
-   * Flag constant representing the Output Conversion trace option:
-   * Is conversion being done
-   * Type of conversion
-   * If HTML, display XSL URL
+   * Flag constant representing the Output Conversion trace option: Is conversion being done Type of
+   * conversion If HTML, display XSL URL
    */
   public static final int OUTPUT_CONV_FLAG = 0x4000;
 
   /**
-   * Flag constant representing the Conditional Evaluation trace option:
-   * Any conditional evaluation for selection (i.e. resource selection, mapper, etc.)Prints out each operand, the operator, and result for every condition checked.
+   * Flag constant representing the Conditional Evaluation trace option: Any conditional evaluation
+   * for selection (i.e. resource selection, mapper, etc.)Prints out each operand, the operator, and
+   * result for every condition checked.
    */
   public static final int CONDITIONAL_EVAL_FLAG = 0x10000;
 
   /**
-   * Flag constant representing the Heterogeneous Join trace option:
-   * Prints out result set before and after each join.  Binary data is displayed in hex format.
+   * Flag constant representing the Heterogeneous Join trace option: Prints out result set before
+   * and after each join. Binary data is displayed in hex format.
    */
   public static final int RESULT_SET = 0x8000;
 
   /**
-   * Map of ArrayLists of TraceOptions, each one built using a particular Locale.
-   * The Locale is the key to the Map.  Map is built as lists are requested for each
-   * Locale.
+   * Map of ArrayLists of TraceOptions, each one built using a particular Locale. The Locale is the
+   * key to the Map. Map is built as lists are requested for each Locale.
    */
   private static final HashMap<Locale, ArrayList<PSTraceOption>> m_optionLists = new HashMap<>();
 }

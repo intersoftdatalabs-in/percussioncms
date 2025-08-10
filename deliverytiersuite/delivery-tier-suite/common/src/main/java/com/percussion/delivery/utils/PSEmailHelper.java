@@ -30,8 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 public class PSEmailHelper implements IPSEmailHelper {
   /**
-   * Constructor for this class, initializes email client with the supplied
-   * properties.
+   * Constructor for this class, initializes email client with the supplied properties.
    *
    * @param emailProps must not be <code>null</code>.
    */
@@ -202,13 +201,11 @@ public class PSEmailHelper implements IPSEmailHelper {
   }
 
   /**
-   * Gets initialized in ctor, may be <code>null</code> if there is any error
-   * initializing the email.
+   * Gets initialized in ctor, may be <code>null</code> if there is any error initializing the
+   * email.
    */
   private Properties emailProps;
 
-  /**
-   * Log for this class.
-   */
+  /** Log for this class. */
   private static final Logger log = LogManager.getLogger(PSEmailHelper.class);
 }

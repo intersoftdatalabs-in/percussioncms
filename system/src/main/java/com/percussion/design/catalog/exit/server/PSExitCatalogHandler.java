@@ -21,22 +21,20 @@ import com.percussion.extension.IPSExtensionManager;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSExitCatalogHandler class processes extension
- * related catalog requests for the Rhythmyx server.
+ * The PSExitCatalogHandler class processes extension related catalog requests for the Rhythmyx
+ * server.
  *
- * @see       com.percussion.server.IPSRequestHandler
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.IPSRequestHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSExitCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler {
   /**
    * Construct the data related catalog handler.
    *
-   * @param mgr An initialized extension manager used to perform cataloging.
-   * Must not be <code>null</code>;
-   *
+   * @param mgr An initialized extension manager used to perform cataloging. Must not be <code>null
+   *     </code>;
    * @throws IllegalArgumentException if mgr is <code>null</code>.
    */
   public PSExitCatalogHandler(IPSExtensionManager mgr) {
@@ -59,9 +57,7 @@ public class PSExitCatalogHandler extends com.percussion.design.catalog.PSCatalo
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

@@ -24,12 +24,12 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 /**
- * The PSCountWriter is used to count the bytes which would be written to
- * a stream. It does not actually write anything.
+ * The PSCountWriter is used to count the bytes which would be written to a stream. It does not
+ * actually write anything.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCountWriter extends Writer {
 
@@ -53,18 +53,16 @@ public class PSCountWriter extends Writer {
     m_writer = new OutputStreamWriter(m_bout, m_enc);
   }
 
-  /**
-   * Reset the counter (length) to 0.
-   */
+  /** Reset the counter (length) to 0. */
   public void clear() {
     m_length = 0L;
   }
 
   /**
-   * Get the counter (length) in bytes that were written. Note that the
-   * length is not in chars, but in BYTES.
+   * Get the counter (length) in bytes that were written. Note that the length is not in chars, but
+   * in BYTES.
    *
-   * @return      the counter (length)
+   * @return the counter (length)
    */
   public long getLength() {
     return m_length;
@@ -73,13 +71,10 @@ public class PSCountWriter extends Writer {
   /**
    * Write a portion of an array of characters.
    *
-   * @param      cbuf            Array of characters
-   *
-   * @param      off            Offset from which to start writing characters
-   *
-   * @param      len            Number of characters to write
-   *
-   * @exception   IOException      If an I/O error occurs
+   * @param cbuf Array of characters
+   * @param off Offset from which to start writing characters
+   * @param len Number of characters to write
+   * @exception IOException If an I/O error occurs
    */
   public void write(char[] cbuff, int off, int len) throws IOException {
     if (m_closed) throw new IOException("stream already closed");
@@ -93,32 +88,30 @@ public class PSCountWriter extends Writer {
 
   /**
    * @return The number of characters that were written to the writer.
-   *
    */
   public long getNumChars() {
     return m_numChars;
   }
 
   /**
-   * Flush the stream. If the stream has saved any characters from the
-   * various write() methods in a buffer, write them immediately to
-   * their intended destination. Then, if that destination is another
-   * character or byte stream, flush it. Thus one flush() invocation
-   * will flush all the buffers in a chain of Writers and OutputStreams.
+   * Flush the stream. If the stream has saved any characters from the various write() methods in a
+   * buffer, write them immediately to their intended destination. Then, if that destination is
+   * another character or byte stream, flush it. Thus one flush() invocation will flush all the
+   * buffers in a chain of Writers and OutputStreams.
    *
-   * @exception   IOException      If an I/O error occurs
+   * @exception IOException If an I/O error occurs
    */
   public void flush() throws IOException {
     if (m_closed) throw new IOException("stream already closed");
   }
 
   /**
-   * Close the stream, flushing it first. Once a stream has been closed,
-   * further write() or flush() invocations will cause an IOException to
-   * be thrown. Closing a previously-closed stream, however, has no effect.
+   * Close the stream, flushing it first. Once a stream has been closed, further write() or flush()
+   * invocations will cause an IOException to be thrown. Closing a previously-closed stream,
+   * however, has no effect.
    *
-   * The length and character count properties of this object will not be
-   * changed by this method and will remain valid after it is called.
+   * <p>The length and character count properties of this object will not be changed by this method
+   * and will remain valid after it is called.
    */
   public void close() throws IOException {
     m_closed = true;

@@ -21,136 +21,123 @@ import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.ui.service.IPSListViewProcessor;
-import org.apache.commons.lang.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Base class for all {@link IPSListViewHelper} implementations.
- * Validates the {@link PSDisplayPropertiesCriteria} object, checks the "relatedObject"
- * type in the {@link PSPathItem} object to see if it's the one expected by the
- * underlying implementation, and properly sets the display properties on the
- * {@link PSPathItem} objects (this implementation doesn't update already
+ * Base class for all {@link IPSListViewHelper} implementations. Validates the {@link
+ * PSDisplayPropertiesCriteria} object, checks the "relatedObject" type in the {@link PSPathItem}
+ * object to see if it's the one expected by the underlying implementation, and properly sets the
+ * display properties on the {@link PSPathItem} objects (this implementation doesn't update already
  * existing entries in the current display properties, just adds new ones).
  *
  * @author miltonpividori
  */
 public abstract class PSBaseListViewHelper implements IPSListViewHelper {
-    protected static final Logger log = LogManager.getLogger(PSBaseListViewHelper.class);
+  protected static final Logger log = LogManager.getLogger(PSBaseListViewHelper.class);
 
-    protected List<IPSListViewProcessor> postProcessors = null;
+  protected List<IPSListViewProcessor> postProcessors = null;
 
-    @Override
-    public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria) {
-        Validate.notNull(criteria, "criteria cannot be null");
+  @Override
+  public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria) {
+    Validate.notNull(criteria, "criteria cannot be null");
 
-        if (criteria.getFormat() == null && criteria.isDisplayFormatRequired())
-            return;
+    if (criteria.getFormat() == null && criteria.isDisplayFormatRequired()) return;
 
-        Validate.notNull(criteria.getItems(), "criteria.items cannot be null");
+    Validate.notNull(criteria.getItems(), "criteria.items cannot be null");
 
-        for (var pathItem : criteria.getItems()) {
-            // Are null relatedObject supported by the subclass?
-            if (getRelatedObject(pathItem) == null && !areEmptyRelatedObjectsSupported())
-                continue;
+    for (var pathItem : criteria.getItems()) {
+      // Are null relatedObject supported by the subclass?
+      if (getRelatedObject(pathItem) == null && !areEmptyRelatedObjectsSupported()) continue;
 
-            var displayProperties = getDisplayProperties(pathItem);
-            setDisplayProperties(pathItem, displayProperties);
-        }
-
-        if (postProcessors != null) {
-            postProcessors.forEach(processor -> processor.process(criteria));
-        }
+      var displayProperties = getDisplayProperties(pathItem);
+      setDisplayProperties(pathItem, displayProperties);
     }
 
-    @Override
-    public void setPostProcessors(List<IPSListViewProcessor> processors) {
-        postProcessors = processors;
+    if (postProcessors != null) {
+      postProcessors.forEach(processor -> processor.process(criteria));
     }
+  }
 
-    /**
-     * Sets the display properties map given to the {@link PSPathItem}
-     * parameter. It gets the current display properties of the
-     * {@link PSPathItem} object and sets the new ones, skipping already present
-     * fields (i.e., it doesn't overwrite already set fields).
-     *
-     * @param pathItem           A {@link PSPathItem} object where the new display
-     *                          properties will be set. Assumed not <code>null</code>.
-     * @param newDisplayProperties The new display properties map to set to the
-     *                          {@link PSPathItem} object.
-     */
-    private void setDisplayProperties(PSPathItem pathItem, Map<String, String> newDisplayProperties) {
-        var currentDisplayProperties = pathItem.getDisplayProperties();
-        if (currentDisplayProperties == null)
-            currentDisplayProperties = new HashMap<>();
-        // Null check to avoid 500 error (CMS-8526)
-        if (newDisplayProperties != null) {
-            for (Entry<String, String> entry : newDisplayProperties.entrySet()) {
-                // If the field is already present in the old display properties,
-                // then it's not overwritten.
-                if (currentDisplayProperties.containsKey(entry.getKey()))
-                    continue;
-                currentDisplayProperties.put(entry.getKey(), entry.getValue());
-            }
-        }
-        pathItem.setDisplayProperties(currentDisplayProperties);
+  @Override
+  public void setPostProcessors(List<IPSListViewProcessor> processors) {
+    postProcessors = processors;
+  }
+
+  /**
+   * Sets the display properties map given to the {@link PSPathItem} parameter. It gets the current
+   * display properties of the {@link PSPathItem} object and sets the new ones, skipping already
+   * present fields (i.e., it doesn't overwrite already set fields).
+   *
+   * @param pathItem A {@link PSPathItem} object where the new display properties will be set.
+   *     Assumed not <code>null</code>.
+   * @param newDisplayProperties The new display properties map to set to the {@link PSPathItem}
+   *     object.
+   */
+  private void setDisplayProperties(PSPathItem pathItem, Map<String, String> newDisplayProperties) {
+    var currentDisplayProperties = pathItem.getDisplayProperties();
+    if (currentDisplayProperties == null) currentDisplayProperties = new HashMap<>();
+    // Null check to avoid 500 error (CMS-8526)
+    if (newDisplayProperties != null) {
+      for (Entry<String, String> entry : newDisplayProperties.entrySet()) {
+        // If the field is already present in the old display properties,
+        // then it's not overwritten.
+        if (currentDisplayProperties.containsKey(entry.getKey())) continue;
+        currentDisplayProperties.put(entry.getKey(), entry.getValue());
+      }
     }
+    pathItem.setDisplayProperties(currentDisplayProperties);
+  }
 
-    /**
-     * Returns the relatedObject property of the {@link PSPathItem} parameter,
-     * if and only if it's not null and its type is the expected.
-     * <code>null</code> otherwise.
-     *
-     * @param pathItem the path item to check
-     * @return the related object if type matches, otherwise null
-     */
-    protected Object getRelatedObject(PSPathItem pathItem) {
-        if (pathItem.getRelatedObject() == null
-                || !expectedRelatedObjectType().isAssignableFrom(pathItem.getRelatedObject().getClass()))
-            return null;
-        return pathItem.getRelatedObject();
-    }
+  /**
+   * Returns the relatedObject property of the {@link PSPathItem} parameter, if and only if it's not
+   * null and its type is the expected. <code>null</code> otherwise.
+   *
+   * @param pathItem the path item to check
+   * @return the related object if type matches, otherwise null
+   */
+  protected Object getRelatedObject(PSPathItem pathItem) {
+    if (pathItem.getRelatedObject() == null
+        || !expectedRelatedObjectType().isAssignableFrom(pathItem.getRelatedObject().getClass()))
+      return null;
+    return pathItem.getRelatedObject();
+  }
 
-    /**
-     * Returns a Map with the display format column values according to the
-     * {@link PSPathItem} object given as parameter. The underlying
-     * implementation should fill that Map with all the fields it's aware of.
-     * For example, a File system based implementation may fill the name, the
-     * file size and its latest modified date, whereas a "CM1 objects"
-     * implementation may fill the name, author, state, created date, etc.
-     * <p>
-     * Note that the underlying implementations MUST NOT modify the
-     * {@link PSPathItem} object.
-     *
-     * @param pathItem A PSPathItem object to get display properties from.
-     * @return A Map<String, String> object with field name as keys and their
-     * corresponding values. All supported keys reside in the
-     * {@link IPSListViewHelper} interface, for example,
-     * {@link IPSListViewHelper#TITLE_NAME} is used for the name.
-     */
-    protected abstract Map<String, String> getDisplayProperties(PSPathItem pathItem);
+  /**
+   * Returns a Map with the display format column values according to the {@link PSPathItem} object
+   * given as parameter. The underlying implementation should fill that Map with all the fields it's
+   * aware of. For example, a File system based implementation may fill the name, the file size and
+   * its latest modified date, whereas a "CM1 objects" implementation may fill the name, author,
+   * state, created date, etc.
+   *
+   * <p>Note that the underlying implementations MUST NOT modify the {@link PSPathItem} object.
+   *
+   * @param pathItem A PSPathItem object to get display properties from.
+   * @return A Map<String, String> object with field name as keys and their corresponding values.
+   *     All supported keys reside in the {@link IPSListViewHelper} interface, for example, {@link
+   *     IPSListViewHelper#TITLE_NAME} is used for the name.
+   */
+  protected abstract Map<String, String> getDisplayProperties(PSPathItem pathItem);
 
-    /**
-     * Returns the expected type of {@link PSPathItem#getRelatedObject()}.
-     *
-     * @return The expected type for {@link PSPathItem#getRelatedObject()}.
-     */
-    protected abstract Class<?> expectedRelatedObjectType();
+  /**
+   * Returns the expected type of {@link PSPathItem#getRelatedObject()}.
+   *
+   * @return The expected type for {@link PSPathItem#getRelatedObject()}.
+   */
+  protected abstract Class<?> expectedRelatedObjectType();
 
-    /**
-     * Indicates whether null values for {@link PSPathItem#getRelatedObject()}
-     * are supported or not.
-     *
-     * @return <code>true</code> if null values for
-     * {@link PSPathItem#getRelatedObject()} are supported.
-     * <code>false</code> otherwise. If this method returns false then
-     * {@link PSPathItem} with null relatedObject properties are not
-     * passed in to the underlying implementation.
-     */
-    protected abstract boolean areEmptyRelatedObjectsSupported();
+  /**
+   * Indicates whether null values for {@link PSPathItem#getRelatedObject()} are supported or not.
+   *
+   * @return <code>true</code> if null values for {@link PSPathItem#getRelatedObject()} are
+   *     supported. <code>false</code> otherwise. If this method returns false then {@link
+   *     PSPathItem} with null relatedObject properties are not passed in to the underlying
+   *     implementation.
+   */
+  protected abstract boolean areEmptyRelatedObjectsSupported();
 }

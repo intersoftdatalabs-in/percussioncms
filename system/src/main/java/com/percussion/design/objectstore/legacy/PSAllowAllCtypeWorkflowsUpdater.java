@@ -42,22 +42,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Updates the content editors workflow info object. For CM1, all workflows
- * should be automatically allowed by all content types. This updater sets an
- * {@link IPSWorkflowInfoValueAccessor} on the {@link PSWorkflowInfo} that will
- * dynamically return all current workflows as allowed.
+ * Updates the content editors workflow info object. For CM1, all workflows should be automatically
+ * allowed by all content types. This updater sets an {@link IPSWorkflowInfoValueAccessor} on the
+ * {@link PSWorkflowInfo} that will dynamically return all current workflows as allowed.
  *
  * @author JaySeletz
  */
 public class PSAllowAllCtypeWorkflowsUpdater implements IPSComponentUpdater {
-  /**
-   * Empty constructor.
-   */
+  /** Empty constructor. */
   public PSAllowAllCtypeWorkflowsUpdater() {}
 
   /**
-   * Sets an {@link IPSWorkflowInfoValueAccessor} on the {@link PSWorkflowInfo} of
-   * the supplied {@link PSContentEditor}.
+   * Sets an {@link IPSWorkflowInfoValueAccessor} on the {@link PSWorkflowInfo} of the supplied
+   * {@link PSContentEditor}.
    */
   public void updateComponent(PSComponent comp) {
     PSContentEditor editor = (PSContentEditor) (comp);
@@ -79,9 +76,8 @@ public class PSAllowAllCtypeWorkflowsUpdater implements IPSComponentUpdater {
   }
 
   /**
-   * Updates the supplied {@link PSWorkflowInfo} object to allow
-   * all workflows in the system.  Exposed with package default
-   * access to allow for unit testing.
+   * Updates the supplied {@link PSWorkflowInfo} object to allow all workflows in the system.
+   * Exposed with package default access to allow for unit testing.
    *
    * @param wfInfo The info to update, may not be <code>null</code>.
    */

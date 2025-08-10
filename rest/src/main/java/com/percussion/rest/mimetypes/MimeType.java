@@ -21,52 +21,50 @@ package com.percussion.rest.mimetypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a Mime Type registered on the system.
- * Sunny Sal: "MimeType ka hero, uploads ka zero!"
+ * Represents a Mime Type registered on the system. Sunny Sal: "MimeType ka hero, uploads ka zero!"
  */
 @Schema(name = "MimeType", description = "A mime type registered on the system")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "MimeType")
 public class MimeType {
 
-    @Schema(name = "extension", description = "File extension associated with the type")
-    private String extension;
+  @Schema(name = "extension", description = "File extension associated with the type")
+  private String extension;
 
-    @Schema(name = "type", description = "The Mime Type string")
-    private String type;
+  @Schema(name = "type", description = "The Mime Type string")
+  private String type;
 
-    public MimeType() {
-        // Default constructor
-    }
+  public MimeType() {
+    // Default constructor
+  }
 
-    /**
-     * Gets the file extension associated with the MimeType.
-     *
-     * @return Optional containing the extension if present
-     */
-    public Optional<String> getExtension() {
-        return Optional.ofNullable(extension);
-    }
+  /**
+   * Gets the file extension associated with the MimeType.
+   *
+   * @return Optional containing the extension if present
+   */
+  public Optional<String> getExtension() {
+    return Optional.ofNullable(extension);
+  }
 
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
+  public void setExtension(String extension) {
+    this.extension = extension;
+  }
 
-    /**
-     * Gets the Mime Type string.
-     *
-     * @return Optional containing the type if present
-     */
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
+  /**
+   * Gets the Mime Type string.
+   *
+   * @return Optional containing the type if present
+   */
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 }

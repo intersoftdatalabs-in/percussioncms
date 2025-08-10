@@ -24,8 +24,9 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * This is used to determine if a string matches a SQL like pattern, "%abc%".
- * <p>
- * A typical usage of this class is described below:
+ *
+ * <p>A typical usage of this class is described below:
+ *
  * <pre>
  *    PSPatternMatch pattern = new PSPatternMatch("*abc*");
  *    boolean isMatch = pattern.match("xabc"); // true
@@ -40,40 +41,34 @@ import org.apache.commons.lang.StringUtils;
  */
 public class PSPatternMatch {
   /**
-   * The begin string of the pattern. It is <code>null</code> if there is a
-   * wild card at the beginning.
+   * The begin string of the pattern. It is <code>null</code> if there is a wild card at the
+   * beginning.
    */
   private String m_begin = null;
 
-  /**
-   * The end string of the pattern. It is <code>null</code> if there is a
-   * wild card at the end.
-   */
+  /** The end string of the pattern. It is <code>null</code> if there is a wild card at the end. */
   private String m_end = null;
 
   /**
-   * A list of string tokens between the wild-card. It is <code>null</code>
-   * if the pattern is a constant.
+   * A list of string tokens between the wild-card. It is <code>null</code> if the pattern is a
+   * constant.
    */
   private List<String> m_tokens = null;
 
   /**
-   * Determines if the pattern is a constant string without a wild card.
-   * It is <code>null</code> if the pattern is a constant.
+   * Determines if the pattern is a constant string without a wild card. It is <code>null</code> if
+   * the pattern is a constant.
    */
   private boolean m_isConstant = false;
 
-  /**
-   * The default wild-card.
-   */
+  /** The default wild-card. */
   public static final String WILD_CARD = "*";
 
   /**
-   * Creates an instance with the given pattern with the default wild-card
-   * {@link #WILD_CARD}.
+   * Creates an instance with the given pattern with the default wild-card {@link #WILD_CARD}.
    *
-   * @param pattern the pattern used to determine if a string matches. It may
-   * not be <code>null</code> or empty.
+   * @param pattern the pattern used to determine if a string matches. It may not be <code>null
+   *     </code> or empty.
    */
   public PSPatternMatch(String pattern) {
     this(pattern, "*");
@@ -82,8 +77,8 @@ public class PSPatternMatch {
   /**
    * Creates an instance with the given pattern and a specified wild-card.
    *
-   * @param pattern the pattern used to determine if a string matches. It may
-   * not be <code>null</code> or empty.
+   * @param pattern the pattern used to determine if a string matches. It may not be <code>null
+   *     </code> or empty.
    */
   public PSPatternMatch(String pattern, String wildCard) {
     if (StringUtils.isBlank(pattern))
@@ -115,9 +110,8 @@ public class PSPatternMatch {
    * Determines if a given string matches the current pattern.
    *
    * @param str the string in question, may be not <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the string matches the pattern; otherwise
-   * return <code>false</code>.
+   * @return <code>true</code> if the string matches the pattern; otherwise return <code>false
+   *     </code>.
    */
   public boolean match(String str) {
     if (StringUtils.isBlank(str))
@@ -144,9 +138,7 @@ public class PSPatternMatch {
    * A utility method to match a list of strings against a specified pattern.
    *
    * @param patternS the pattern to match, not <code>null</code> or empty.
-   * @param strList the list of strings in question, not <code>null</code>,
-   * may be empty.
-   *
+   * @param strList the list of strings in question, not <code>null</code>, may be empty.
    * @return the matched strings, never <code>null</code>, may be empty.
    */
   public static Collection<String> matchedStrings(String patternS, Collection<String> strList) {

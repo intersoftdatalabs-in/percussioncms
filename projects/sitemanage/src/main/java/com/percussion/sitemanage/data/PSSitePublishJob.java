@@ -17,179 +17,174 @@
  */
 package com.percussion.sitemanage.data;
 
+import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEqual;
 import net.sf.oval.constraint.NotNull;
-import com.percussion.share.data.PSAbstractDataObject;
 
 /**
- * Represents a publishing job for a site.
- * Contains job metadata and progress information.
+ * Represents a publishing job for a site. Contains job metadata and progress information.
  *
  * @author DavidBenua
  */
 @XmlRootElement(name = "SitePublishJob")
 public class PSSitePublishJob extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /** Job Id for publishing job. Unique and never null. */
-    @NotEqual(value = "0")
-    private long jobId;
+  /** Job Id for publishing job. Unique and never null. */
+  @NotEqual(value = "0")
+  private long jobId;
 
-    /** Site name. */
-    @NotBlank
-    @NotNull
-    private String siteName;
+  /** Site name. */
+  @NotBlank @NotNull private String siteName;
 
-    /** Site id. */
-    @NotBlank
-    @NotNull
-    private String siteId;
+  /** Site id. */
+  @NotBlank @NotNull private String siteId;
 
-    /** Job status. */
-    private String status;
+  /** Job status. */
+  private String status;
 
-    /** Starting time as formatted string (hh:MM A). */
-    private String startTime;
+  /** Starting time as formatted string (hh:MM A). */
+  private String startTime;
 
-    /** Starting date as formatted string (MM/DD/yyyy). */
-    private String startDate;
+  /** Starting date as formatted string (MM/DD/yyyy). */
+  private String startDate;
 
-    /** Id of the server where it is being published. */
-    private long pubServerId;
+  /** Id of the server where it is being published. */
+  private long pubServerId;
 
-    /** Name of the server where it is being published. */
-    private String pubServerName;
+  /** Name of the server where it is being published. */
+  private String pubServerName;
 
-    /** Elapsed time in milliseconds. */
-    private long elapsedTime;
+  /** Elapsed time in milliseconds. */
+  private long elapsedTime;
 
-    /** Total items in this job. */
-    private long totalItems;
+  /** Total items in this job. */
+  private long totalItems;
 
-    /** Completed items in this job. */
-    private long completedItems;
+  /** Completed items in this job. */
+  private long completedItems;
 
-    /** Failed items in this job. */
-    private long failedItems;
+  /** Failed items in this job. */
+  private long failedItems;
 
-    /** Removed items in this job. */
-    private long removedItems;
+  /** Removed items in this job. */
+  private long removedItems;
 
-    /** Indicates if the job is stopping. */
-    private Boolean isStopping;
+  /** Indicates if the job is stopping. */
+  private Boolean isStopping;
 
-    public long getJobId() {
-        return jobId;
-    }
+  public long getJobId() {
+    return jobId;
+  }
 
-    public void setJobId(long jobId) {
-        this.jobId = jobId;
-    }
+  public void setJobId(long jobId) {
+    this.jobId = jobId;
+  }
 
-    public String getSiteName() {
-        return siteName;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public String getSiteId() {
-        return siteId;
-    }
+  public String getSiteId() {
+    return siteId;
+  }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public Optional<String> getStatus() {
-        return Optional.ofNullable(status);
-    }
+  public Optional<String> getStatus() {
+    return Optional.ofNullable(status);
+  }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    public Optional<String> getStartTime() {
-        return Optional.ofNullable(startTime);
-    }
+  public Optional<String> getStartTime() {
+    return Optional.ofNullable(startTime);
+  }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
+  public void setStartTime(String startTime) {
+    this.startTime = startTime;
+  }
 
-    public Optional<String> getStartDate() {
-        return Optional.ofNullable(startDate);
-    }
+  public Optional<String> getStartDate() {
+    return Optional.ofNullable(startDate);
+  }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    public long getPubServerId() {
-        return pubServerId;
-    }
+  public long getPubServerId() {
+    return pubServerId;
+  }
 
-    public void setPubServerId(long pubServerId) {
-        this.pubServerId = pubServerId;
-    }
+  public void setPubServerId(long pubServerId) {
+    this.pubServerId = pubServerId;
+  }
 
-    public Optional<String> getPubServerName() {
-        return Optional.ofNullable(pubServerName);
-    }
+  public Optional<String> getPubServerName() {
+    return Optional.ofNullable(pubServerName);
+  }
 
-    public void setPubServerName(String pubServerName) {
-        this.pubServerName = pubServerName;
-    }
+  public void setPubServerName(String pubServerName) {
+    this.pubServerName = pubServerName;
+  }
 
-    public long getElapsedTime() {
-        return elapsedTime;
-    }
+  public long getElapsedTime() {
+    return elapsedTime;
+  }
 
-    public void setElapsedTime(long elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
+  public void setElapsedTime(long elapsedTime) {
+    this.elapsedTime = elapsedTime;
+  }
 
-    public long getTotalItems() {
-        return totalItems;
-    }
+  public long getTotalItems() {
+    return totalItems;
+  }
 
-    public void setTotalItems(long totalItems) {
-        this.totalItems = totalItems;
-    }
+  public void setTotalItems(long totalItems) {
+    this.totalItems = totalItems;
+  }
 
-    public long getCompletedItems() {
-        return completedItems;
-    }
+  public long getCompletedItems() {
+    return completedItems;
+  }
 
-    public void setCompletedItems(long completedItems) {
-        this.completedItems = completedItems;
-    }
+  public void setCompletedItems(long completedItems) {
+    this.completedItems = completedItems;
+  }
 
-    public long getFailedItems() {
-        return failedItems;
-    }
+  public long getFailedItems() {
+    return failedItems;
+  }
 
-    public void setFailedItems(long failedItems) {
-        this.failedItems = failedItems;
-    }
+  public void setFailedItems(long failedItems) {
+    this.failedItems = failedItems;
+  }
 
-    public long getRemovedItems() {
-        return removedItems;
-    }
+  public long getRemovedItems() {
+    return removedItems;
+  }
 
-    public void setRemovedItems(long removedItems) {
-        this.removedItems = removedItems;
-    }
+  public void setRemovedItems(long removedItems) {
+    this.removedItems = removedItems;
+  }
 
-    public Optional<Boolean> getIsStopping() {
-        return Optional.ofNullable(isStopping);
-    }
+  public Optional<Boolean> getIsStopping() {
+    return Optional.ofNullable(isStopping);
+  }
 
-    public void setIsStopping(Boolean isStopping) {
-        this.isStopping = isStopping;
-    }
+  public void setIsStopping(Boolean isStopping) {
+    this.isStopping = isStopping;
+  }
 }

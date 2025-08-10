@@ -19,20 +19,16 @@ package com.percussion.UTComponents;
 import java.awt.*;
 import javax.swing.*;
 
-/**
- * A fixed sized JButton.
- */
+/** A fixed sized JButton. */
 ////////////////////////////////////////////////////////////////////////////////
 public class UTFixedButton extends JButton {
-  /**
-   * The size of button used by default by this class.
-   */
+  /** The size of button used by default by this class. */
   public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
 
   /**
    * Construct a new fixed button with the standard size.
    *
-   * @param string      the button name
+   * @param string the button name
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(String name) {
@@ -43,8 +39,8 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed size.
    *
-   * @param string      the button name
-   * @param size         the button size
+   * @param string the button name
+   * @param size the button size
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(String name, Dimension size) {
@@ -55,9 +51,9 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed width/height
    *
-   * @param string      the button name
-   * @param width         the button width
-   * @param height      the button height
+   * @param string the button name
+   * @param width the button width
+   * @param height the button height
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(String name, int width, int height) {
@@ -68,7 +64,7 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button with the standard size.
    *
-   * @param icon      the button icon
+   * @param icon the button icon
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(ImageIcon icon) {
@@ -79,8 +75,8 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed size.
    *
-   * @param icon      the button icon
-   * @param size         the button size
+   * @param icon the button icon
+   * @param size the button size
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(ImageIcon icon, Dimension size) {
@@ -91,9 +87,9 @@ public class UTFixedButton extends JButton {
   /**
    * Construct a new fixed button of passed width/height
    *
-   * @param icon         the button icon
-   * @param width         the button width
-   * @param height      the button height
+   * @param icon the button icon
+   * @param width the button width
+   * @param height the button height
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTFixedButton(ImageIcon icon, int width, int height) {
@@ -101,19 +97,13 @@ public class UTFixedButton extends JButton {
     setPreferredSize(new Dimension(width, height));
   }
 
-  /**
-   * Make size fix.
-   *
-   */
+  /** Make size fix. */
   //////////////////////////////////////////////////////////////////////////////
   public Dimension getMinimumSize() {
     return getPreferredSize();
   }
 
-  /**
-   * Make size fix.
-   *
-   */
+  /** Make size fix. */
   //////////////////////////////////////////////////////////////////////////////
   public Dimension getMaximumSize() {
     return getPreferredSize();

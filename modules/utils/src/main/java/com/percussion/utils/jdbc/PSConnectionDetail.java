@@ -20,23 +20,19 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Provides specific details about a connection's properties
- */
+/** Provides specific details about a connection's properties */
 public class PSConnectionDetail {
   /**
    * Construct this object from its member data.
    *
-   * @param dsName The name of the JNDI datasource used by the connection, may
-   * not be <code>null</code> or empty.
-   * @param driver The name of the JDBC driver used by the connection, may
-   * not be <code>null</code> or empty.
-   * @param database The name of the database used by the connection, may be
-   * <code>null</code> or empty.
-   * @param origin The origin or schema used by the connection, may be
-   * <code>null</code> or empty.
-   * @param jdbcUrl The jdbcUrl used by the connection, never <code>null</code>
-   * or empty.
+   * @param dsName The name of the JNDI datasource used by the connection, may not be <code>null
+   *     </code> or empty.
+   * @param driver The name of the JDBC driver used by the connection, may not be <code>null</code>
+   *     or empty.
+   * @param database The name of the database used by the connection, may be <code>null</code> or
+   *     empty.
+   * @param origin The origin or schema used by the connection, may be <code>null</code> or empty.
+   * @param jdbcUrl The jdbcUrl used by the connection, never <code>null</code> or empty.
    */
   public PSConnectionDetail(
       String dsName, String driver, String database, String origin, String jdbcUrl) {
@@ -135,28 +131,18 @@ public class PSConnectionDetail {
     return Objects.hash(m_dsName, m_driverName, m_database, m_origin, m_jdbcUrl);
   }
 
-  /**
-   * The datasource name supplied during construction, immutable after that.
-   */
+  /** The datasource name supplied during construction, immutable after that. */
   private String m_dsName;
 
-  /**
-   * The driver name supplied during construction, immutable after that.
-   */
+  /** The driver name supplied during construction, immutable after that. */
   private String m_driverName;
 
-  /**
-   * The database name supplied during construction, immutable after that.
-   */
+  /** The database name supplied during construction, immutable after that. */
   private String m_database;
 
-  /**
-   * The origin supplied during construction, immutable after that.
-   */
+  /** The origin supplied during construction, immutable after that. */
   private String m_origin;
 
-  /**
-   * The JDBC URL supplied during construction, immutable after that.
-   */
+  /** The JDBC URL supplied during construction, immutable after that. */
   private String m_jdbcUrl;
 }

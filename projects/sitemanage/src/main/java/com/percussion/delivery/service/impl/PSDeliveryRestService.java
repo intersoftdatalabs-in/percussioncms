@@ -17,17 +17,16 @@
  */
 package com.percussion.delivery.service.impl;
 
-import javax.ws.rs.Path;
-
 import com.percussion.system.utils.PSSiteManageBean;
+import javax.ws.rs.Path;
 
 /**
  * REST endpoint for delivery operations.
- * <p>
- * Sunny Sal says: "DeliveryRestService is ready for Java 11 and future expansion!"
+ *
+ * <p>Sunny Sal says: "DeliveryRestService is ready for Java 11 and future expansion!"
  */
 @Path("/delivery")
 @PSSiteManageBean("deliveryRestService")
 public class PSDeliveryRestService {
-    // Intentionally left blank for future delivery REST endpoints.
+  // Intentionally left blank for future delivery REST endpoints.
 }

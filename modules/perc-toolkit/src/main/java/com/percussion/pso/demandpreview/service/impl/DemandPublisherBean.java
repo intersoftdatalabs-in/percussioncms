@@ -31,39 +31,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Provides a Spring Bean implementation of the Demand Publisher
- * Service. The XML file that defines this bean will specify
- * the Preview Site, Template and Context to be used on each
- * site.
+ * Provides a Spring Bean implementation of the Demand Publisher Service. The XML file that defines
+ * this bean will specify the Preview Site, Template and Context to be used on each site.
  *
  * @author davidbenua
- *
  */
 public class DemandPublisherBean implements DemandPublisherService {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(DemandPublisherBean.class);
 
-  /**
-   * Service for RxPublisherService
-   */
+  /** Service for RxPublisherService */
   private IPSRxPublisherService rxPubSvc = null;
 
-  /**
-   * timeout in seconds
-   */
+  /** timeout in seconds */
   private long timeout = 100L; // seconds
 
-  /**
-   * Sleep interval for polling.
-   */
+  /** Sleep interval for polling. */
   private long sleeptime = 500L; // milliseconds
 
   /**
-   * Initialize this bean. Intended to be called from the
-   * Spring <code>init-method</code> attribute.
-   *
+   * Initialize this bean. Intended to be called from the Spring <code>init-method</code> attribute.
    */
   public void init() {
     if (rxPubSvc == null) {
@@ -154,6 +141,7 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /**
    * Gets the timeout (in seconds)
+   *
    * @return the timeout
    */
   public long getTimeout() {
@@ -162,6 +150,7 @@ public class DemandPublisherBean implements DemandPublisherService {
 
   /**
    * Sets the timeout (in seconds).
+   *
    * @param timeout the timeout to set
    */
   public void setTimeout(long timeout) {
@@ -169,8 +158,8 @@ public class DemandPublisherBean implements DemandPublisherService {
   }
 
   /**
-   * Sets the publisher service.
-   * Used for unit testing only.
+   * Sets the publisher service. Used for unit testing only.
+   *
    * @param rxPubSvc the rxPubSvc to set
    */
   protected void setRxPubSvc(IPSRxPublisherService rxPubSvc) {

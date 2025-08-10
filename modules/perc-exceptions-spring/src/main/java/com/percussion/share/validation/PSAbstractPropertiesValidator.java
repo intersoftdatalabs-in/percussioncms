@@ -27,7 +27,6 @@ import org.springframework.validation.Validator;
  * An adapter to validate property like objects.
  *
  * @author adamgent
- *
  * @param <PROPERTIES> property like object.
  */
 public abstract class PSAbstractPropertiesValidator<PROPERTIES> implements Validator {

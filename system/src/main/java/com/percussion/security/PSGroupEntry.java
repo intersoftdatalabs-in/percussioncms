@@ -18,21 +18,19 @@
 package com.percussion.security;
 
 /**
- * The PSGroupEntry class defines the implementation of a group entry
- * within E2.
+ * The PSGroupEntry class defines the implementation of a group entry within E2.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSGroupEntry extends PSEntry {
 
   /**
    * Construct an group entry object for the named entry.
    *
-   * @param   name               the name of the entry
-   *
-   * @param   accessLevel         the access level to assign this entry
+   * @param name the name of the entry
+   * @param accessLevel the access level to assign this entry
    */
   public PSGroupEntry(String name, int accessLevel) {
     super(name, accessLevel);
@@ -41,14 +39,12 @@ public class PSGroupEntry extends PSEntry {
   /* ********************** PSEntry Implementation ********************** */
 
   /**
-   * Does the specified entry match this one? The entry must be of the
-   * same provider type. If one of the entries is a filter, it will use
-   * the information defined in the other entry to test for equality.
+   * Does the specified entry match this one? The entry must be of the same provider type. If one of
+   * the entries is a filter, it will use the information defined in the other entry to test for
+   * equality.
    *
-   *   @param      entry         the entry to check
-   *
-   * @return                  <code>true</code> if the entry matches;
-   *                           <code>false</code> otherwise
+   * @param entry the entry to check
+   * @return <code>true</code> if the entry matches; <code>false</code> otherwise
    */
   public boolean isMatch(PSEntry entry) {
     /* we can only check our own type, or if it's a filter, ask it
@@ -61,11 +57,10 @@ public class PSGroupEntry extends PSEntry {
   }
 
   /**
-   * Is this class a filter? Filters can be used to perform checks against
-   * other entries based upon attributes, etc.
+   * Is this class a filter? Filters can be used to perform checks against other entries based upon
+   * attributes, etc.
    *
-   * @return                  <code>false</code> is always returned for the
-   *                           PSGroupEntry class
+   * @return <code>false</code> is always returned for the PSGroupEntry class
    */
   public boolean isFilter() {
     return false;

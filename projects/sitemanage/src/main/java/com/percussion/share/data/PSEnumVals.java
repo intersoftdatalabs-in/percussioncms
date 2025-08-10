@@ -17,134 +17,128 @@
  */
 package com.percussion.share.data;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
-import net.sf.oval.constraint.NotNull;
+import static org.apache.commons.lang.Validate.notEmpty;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static org.apache.commons.lang.Validate.notEmpty;
+import net.sf.oval.constraint.NotNull;
 
 /**
- * Encapsulates enumerated values (value/display value pairs).
- * Sunny Sal says: "Enums are like samosas—best when paired!"
+ * Encapsulates enumerated values (value/display value pairs). Sunny Sal says: "Enums are like
+ * samosas—best when paired!"
  *
  * @author peterfrontiero
  */
 @JsonRootName(value = "EnumVals")
 public class PSEnumVals implements Serializable {
 
-    private static final long serialVersionUID = 1496690238764003673L;
+  private static final long serialVersionUID = 1496690238764003673L;
 
-    @NotNull
-    private List<EnumVal> entries = new ArrayList<>();
+  @NotNull private List<EnumVal> entries = new ArrayList<>();
 
-    /**
-     * @return list of entry objects, never null, may be empty.
-     */
-    public List<EnumVal> getEntries() {
-        return entries;
+  /**
+   * @return list of entry objects, never null, may be empty.
+   */
+  public List<EnumVal> getEntries() {
+    return entries;
+  }
+
+  public void setEntries(List<EnumVal> entries) {
+    this.entries = entries;
+  }
+
+  /**
+   * Adds an entry for the specified value/display value pair.
+   *
+   * @param value never null or empty.
+   * @param displayValue may be null.
+   */
+  public void addEntry(String value, String displayValue) {
+    notEmpty(value, "Enum value must not be empty");
+    var val = new EnumVal();
+    val.setValue(value);
+    val.setDisplayValue(displayValue);
+    entries.add(val);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(entries);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PSEnumVals)) return false;
+    var other = (PSEnumVals) obj;
+    return Objects.equals(entries, other.entries);
+  }
+
+  /**
+   * Checks if this enum has the same values as another.
+   *
+   * @param other the other enum values
+   * @return true if both have the same values
+   */
+  public boolean hasSameValues(PSEnumVals other) {
+    if (other == null) return false;
+    if (entries.size() != other.entries.size()) return false;
+    return entries.stream().allMatch(val -> other.hasValue(val.getValue()));
+  }
+
+  /**
+   * Checks if the enum contains the given value.
+   *
+   * @param val the value to check
+   * @return true if present
+   */
+  public boolean hasValue(String val) {
+    return entries.stream().anyMatch(test -> test.getValue().equals(val));
+  }
+
+  /** Encapsulates an enumerated value, which consists of a value and display value (label). */
+  public static class EnumVal implements Serializable {
+    @NotNull private String value;
+    private String displayValue;
+
+    public String getValue() {
+      return value;
     }
 
-    public void setEntries(List<EnumVal> entries) {
-        this.entries = entries;
+    public void setValue(String value) {
+      this.value = value;
     }
 
     /**
-     * Adds an entry for the specified value/display value pair.
+     * Returns the display value, or the value if display value is not set.
      *
-     * @param value        never null or empty.
-     * @param displayValue may be null.
+     * @return never null
      */
-    public void addEntry(String value, String displayValue) {
-        notEmpty(value, "Enum value must not be empty");
-        var val = new EnumVal();
-        val.setValue(value);
-        val.setDisplayValue(displayValue);
-        entries.add(val);
+    public String getDisplayValue() {
+      if (displayValue == null) {
+        return value != null ? value : "";
+      }
+      return displayValue;
+    }
+
+    public void setDisplayValue(String displayValue) {
+      this.displayValue = displayValue;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entries);
+      return Objects.hash(value, displayValue);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof PSEnumVals)) return false;
-        var other = (PSEnumVals) obj;
-        return Objects.equals(entries, other.entries);
+      if (this == obj) return true;
+      if (!(obj instanceof EnumVal)) return false;
+      var other = (EnumVal) obj;
+      return Objects.equals(value, other.value) && Objects.equals(displayValue, other.displayValue);
     }
-
-    /**
-     * Checks if this enum has the same values as another.
-     *
-     * @param other the other enum values
-     * @return true if both have the same values
-     */
-    public boolean hasSameValues(PSEnumVals other) {
-        if (other == null) return false;
-        if (entries.size() != other.entries.size()) return false;
-        return entries.stream().allMatch(val -> other.hasValue(val.getValue()));
-    }
-
-    /**
-     * Checks if the enum contains the given value.
-     *
-     * @param val the value to check
-     * @return true if present
-     */
-    public boolean hasValue(String val) {
-        return entries.stream().anyMatch(test -> test.getValue().equals(val));
-    }
-
-    /**
-     * Encapsulates an enumerated value, which consists of a value and display value (label).
-     */
-    public static class EnumVal implements Serializable {
-        @NotNull
-        private String value;
-        private String displayValue;
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        /**
-         * Returns the display value, or the value if display value is not set.
-         *
-         * @return never null
-         */
-        public String getDisplayValue() {
-            if (displayValue == null) {
-                return value != null ? value : "";
-            }
-            return displayValue;
-        }
-
-        public void setDisplayValue(String displayValue) {
-            this.displayValue = displayValue;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(value, displayValue);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (!(obj instanceof EnumVal)) return false;
-            var other = (EnumVal) obj;
-            return Objects.equals(value, other.value) &&
-                   Objects.equals(displayValue, other.displayValue);
-        }
-    }
+  }
 }

@@ -31,15 +31,12 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This is the default implementation of the Mail Program interface
- * <code>IPSMailProgram</code> that needs to be implemented by any mail plugin
- * to be used by the workflow engine. This implementation uses the JAVAX mail
- * provided by Sun.
+ * This is the default implementation of the Mail Program interface <code>IPSMailProgram</code> that
+ * needs to be implemented by any mail plugin to be used by the workflow engine. This implementation
+ * uses the JAVAX mail provided by Sun.
  */
 public class PSJavaxMailProgram implements IPSMailProgram {
-  /**
-   * Constructor
-   */
+  /** Constructor */
   public PSJavaxMailProgram() {}
 
   /*
@@ -85,16 +82,12 @@ public class PSJavaxMailProgram implements IPSMailProgram {
   }
 
   /**
-   * Helper routine that construct an array of internet address from a
-   * comma-separated list of users or roles, appending the mail domain name to
-   * any address that does not contain a "@".
+   * Helper routine that construct an array of internet address from a comma-separated list of users
+   * or roles, appending the mail domain name to any address that does not contain a "@".
    *
-   * @param sUserList  comma-separated list of users.
-   * @param mailDomain name of the mail domain. May optionally contain a
-   *                   leading "@".
-   *
+   * @param sUserList comma-separated list of users.
+   * @param mailDomain name of the mail domain. May optionally contain a leading "@".
    * @throws AddressException, if it cannot make Internet Addresses.
-   *
    */
   private InternetAddress[] makeAddress(String sUserList, String mailDomain)
       throws AddressException {

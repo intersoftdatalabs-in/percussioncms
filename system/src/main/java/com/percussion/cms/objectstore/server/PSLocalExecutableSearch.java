@@ -32,20 +32,19 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * A utility class to hold search criteria, build search request and execute
- * it locally to the Rhythmyx server.
+ * A utility class to hold search criteria, build search request and execute it locally to the
+ * Rhythmyx server.
  */
 public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
   /**
-   * Construct an executable search with a search object and a list of result
-   * column names.
+   * Construct an executable search with a search object and a list of result column names.
    *
-   * @param request the request used to execute the search request against the
-   *    Rhythmyx server, it may not be <code>null</code>.
-   * @param search the search object that defines the criteria and maximum
-   *    results to obtain, may not be <code>null</code>
-   * @param contentIdList the list of content ids to search on, may not be
-   *    <code>null</code> or empty.
+   * @param request the request used to execute the search request against the Rhythmyx server, it
+   *     may not be <code>null</code>.
+   * @param search the search object that defines the criteria and maximum results to obtain, may
+   *     not be <code>null</code>
+   * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
+   *     empty.
    */
   public PSLocalExecutableSearch(PSRequest request, List columnNames, PSSearch search) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -58,17 +57,15 @@ public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
   }
 
   /**
-   * Construct an executable search with supplied list of content ids as search
-   * criteria and a list of result column names.
+   * Construct an executable search with supplied list of content ids as search criteria and a list
+   * of result column names.
    *
-   * @param request the request used to execute the serach request against the
-   *    Rhythmyx server, it may not be <code>null</code>.
-   *
-   * @param columnNames the names of the columns to include in the search
-   *    results as <code>String</code> objects, may not be <code>null</code>.
-   *
-   * @param contentIdList the list of content ids to search on, may not be
-   *    <code>null</code> or empty.
+   * @param request the request used to execute the serach request against the Rhythmyx server, it
+   *     may not be <code>null</code>.
+   * @param columnNames the names of the columns to include in the search results as <code>String
+   *     </code> objects, may not be <code>null</code>.
+   * @param contentIdList the list of content ids to search on, may not be <code>null</code> or
+   *     empty.
    */
   public PSLocalExecutableSearch(PSRequest request, List columnNames, List contentIdList) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -84,18 +81,14 @@ public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
   /**
    * Intialize this object from the provided parameters.
    *
-   * @param request the request used to execute the search request against the
-   *    Rhythmyx server, it may not be <code>null</code>.
-   *
-   * @param columnNames the names of the columns to include in the search
-   *    results as <code>String</code> objects, it may not be <code>null</code>
-   *
-   * @param search the search object that defines the criteria and maximum
-   *    results to obtain, it may be <code>null</code> if
-   *    <code>contentIdList</code> is not <code>null</code>.
-   *
-   * @param contentIdList The list of contentids to search on, it may be
-   *    <code>null</code> if <code>search</code> is not <code>null</code>.
+   * @param request the request used to execute the search request against the Rhythmyx server, it
+   *     may not be <code>null</code>.
+   * @param columnNames the names of the columns to include in the search results as <code>String
+   *     </code> objects, it may not be <code>null</code>
+   * @param search the search object that defines the criteria and maximum results to obtain, it may
+   *     be <code>null</code> if <code>contentIdList</code> is not <code>null</code>.
+   * @param contentIdList The list of contentids to search on, it may be <code>null</code> if <code>
+   *     search</code> is not <code>null</code>.
    */
   protected void init(PSRequest request, List columnNames, PSSearch search, List contentIdList) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -130,9 +123,6 @@ public class PSLocalExecutableSearch extends PSBaseExecutableSearch {
     return resultDoc;
   }
 
-  /**
-   * The request supplied during construction, never <code>null</code> or
-   * modfied after that.
-   */
+  /** The request supplied during construction, never <code>null</code> or modfied after that. */
   private PSRequest m_request;
 }

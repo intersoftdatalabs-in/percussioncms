@@ -20,27 +20,23 @@ package com.percussion.debug;
 import com.percussion.design.objectstore.PSTraceInfo;
 
 /**
- * This interface is implemented by classes that are used to generate trace
- * messages of different types.  Each type of trace information will be
- * represented by a class that
- * implements this interface.
+ * This interface is implemented by classes that are used to generate trace messages of different
+ * types. Each type of trace information will be represented by a class that implements this
+ * interface.
  */
 // REFACTORED: CP-JAVA11
 public interface IPSTraceMessage {
 
   /**
-   * Retreives the necessary information from the object it was instantiated
-   * with, and then formats the output of its message and sends it to the
-   * supplied output stream.  Will not supply a messge body if Timestamp only
-   * option is true.
-   * @param traceInfo The trace options set by the application.  May not be
-   * <code>null</code>.
-   * @param source the source of the information to be used in generating the
-   * trace message.   May not be <code>null</code>.
-   * @param target The writer to which the formatted message written.
-   * May not be <code>null</code>.
-   * @throws IOException if there is a problem writing to the writer.
+   * Retreives the necessary information from the object it was instantiated with, and then formats
+   * the output of its message and sends it to the supplied output stream. Will not supply a messge
+   * body if Timestamp only option is true.
    *
+   * @param traceInfo The trace options set by the application. May not be <code>null</code>.
+   * @param source the source of the information to be used in generating the trace message. May not
+   *     be <code>null</code>.
+   * @param target The writer to which the formatted message written. May not be <code>null</code>.
+   * @throws IOException if there is a problem writing to the writer.
    */
   public void printTrace(PSTraceInfo traceInfo, Object source, PSTraceWriter target)
       throws java.io.IOException;

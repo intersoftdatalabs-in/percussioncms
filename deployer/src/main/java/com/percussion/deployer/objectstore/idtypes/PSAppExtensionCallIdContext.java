@@ -28,19 +28,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * ID Context to represent an extension call
- */
+/** ID Context to represent an extension call */
 public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   /**
-   * Construct this context from an extension call.  This version does not
-   * set an index, assuming the call's parent context is not a list of
-   * extension calls.
+   * Construct this context from an extension call. This version does not set an index, assuming the
+   * call's parent context is not a list of extension calls.
    *
    * @param The extension call, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>call</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>call</code> is <code>null</code>.
    */
   public PSAppExtensionCallIdContext(PSExtensionCall call) {
     if (call == null) throw new IllegalArgumentException("call may not be null");
@@ -49,13 +44,12 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Construct this context from an extension call, specifying its ordinal
-   * position in its parent context.
+   * Construct this context from an extension call, specifying its ordinal position in its parent
+   * context.
    *
    * @param The extension call, may not be <code>null</code>.
-   * @param index The ordinal position of this call in its parent's list.  Must
-   * be greater than or equal to 0.
-   *
+   * @param index The ordinal position of this call in its parent's list. Must be greater than or
+   *     equal to 0.
    * @throws IllegalArgumentException if either param is invalid.
    */
   public PSAppExtensionCallIdContext(PSExtensionCall call, int index) {
@@ -69,12 +63,9 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppExtensionCallIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -95,8 +86,7 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   /**
    * Get the ordinal position of this context's extension in its parent's list.
    *
-   * @return The index, will be <code>-1</code> if the index has not been
-   * specified.
+   * @return The index, will be <code>-1</code> if the index has not been specified.
    */
   public int getIndex() {
     return m_index;
@@ -122,12 +112,13 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppExtensionCallIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppExtensionCallIdContext
@@ -152,9 +143,8 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -226,7 +216,6 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
    * Check the supplied index to see if it is valid (>=0)
    *
    * @param index The index to check.
-   *
    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
    */
   private boolean validateIndex(int index) {
@@ -234,22 +223,18 @@ public class PSAppExtensionCallIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Fully qualified name of the extension call this object represents.  Never
-   * <code>null</code> or empty after construction, modified only by a call to
-   * <code>copyFrom()</code>
+   * Fully qualified name of the extension call this object represents. Never <code>null</code> or
+   * empty after construction, modified only by a call to <code>copyFrom()</code>
    */
   private String m_extensionRef;
 
   /**
-   * Index of this call in its parent's list.  Intialized during ctor, modfied
-   * only by calls to <code>copyFrom()</code>.  Will be <code>-1</code> if an
-   * index has not been specified.
+   * Index of this call in its parent's list. Intialized during ctor, modfied only by calls to
+   * <code>copyFrom()</code>. Will be <code>-1</code> if an index has not been specified.
    */
   private int m_index = -1;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppExtensionCallIdContext";
 
   // private xml constant

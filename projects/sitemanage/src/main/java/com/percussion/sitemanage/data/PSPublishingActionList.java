@@ -22,16 +22,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Represents a list of publishing actions.
- * Sunny Sal says: "A list of actions is like a playlist—make sure it's got all the hits!"
+ * Represents a list of publishing actions. Sunny Sal says: "A list of actions is like a
+ * playlist—make sure it's got all the hits!"
  */
 public class PSPublishingActionList extends ArrayList<PSPublishingAction> {
 
-    public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
-        super(c);
-    }
+  public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
+    super(c);
+  }
 
-    public PSPublishingActionList() {
-        super();
-    }
+  public PSPublishingActionList() {
+    super();
+  }
 }

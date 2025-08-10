@@ -19,236 +19,310 @@ package com.percussion.rest.displayformat;
 
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a column configured in a Display Format.
- */
+/** Represents a column configured in a Display Format. */
 @XmlRootElement(name = "DisplayFormatColumn")
 @Schema(description = "Represents a column configured in a Display Format")
 public class DisplayFormatColumn {
 
-    @Schema(description = "This value allows the UI engine to determine how the associated data should be displayed.",
-            allowableValues = DATATYPE_TEXT + "," + DATATYPE_DATE + "," + DATATYPE_IMAGE + "," + DATATYPE_IMAGE)
-    private String renderType;
-    @Schema(description = "Is the column type text?")
-    private boolean textType;
-    @Schema(description = "Is the column type number?")
-    private boolean numberType;
-    @Schema(description = "Is the column type date?")
-    private boolean dateType;
-    @Schema(description = "Is the column type image?")
-    private boolean imageType;
-    @Schema(description = "Gets the display id that is a parent of this column.")
-    private String displayId;
-    @Schema(description = "Get the source id attribute of this object.")
-    private String source;
-    @Schema(description = "Gets the display name of column.")
-    private String displayName;
-    @Schema(description = "Get the description attribute of this object")
-    private String description;
-    @Schema(description = "A column can either be 'flat' or categorized. A categorized column allows rows with the same value for this property to be grouped together. This is usually represented by a 'virtual' folder in a UI. Non-categorized columns are used in the list view of the UI. If this column has been defined to be displayed as a category, false if defined to be displayed as a list header")
-    private boolean categorized;
-    @Schema(description = "Each column has 0 or more rows associated with it. This value specifies what the default ordering should be. Defaults to true")
-    private boolean ascendingSort;
-    @Schema(description = "Opposite of ascendingSort.")
-    private boolean descendingSort;
-    @Schema(description = "The position of this column relative to other columns being displayed. Columns are sequenced from left to right, with the first index being 0. Defaults to 0. The order of columns that have the same sequence value is implementation dependent. Must be a value > 0.")
-    private int position;
-    @Schema(description = "See categorized for details. Determines whether this col is categorized or flat.")
-    private int groupingType;
-    @Schema(description = "See ascendingSort for details. Set to true if you wish the default sorting to be ascending, false will set the default to descending.")
-    private boolean sortOrder;
-    @Schema(description = "Get the width to use to when this column is displayed. Returns the width, greater than zero if specified, -1 if no width has been specified.")
-    private int width;
+  @Schema(
+      description =
+          "This value allows the UI engine to determine how the associated data should be"
+              + " displayed.",
+      allowableValues =
+          DATATYPE_TEXT + "," + DATATYPE_DATE + "," + DATATYPE_IMAGE + "," + DATATYPE_IMAGE)
+  private String renderType;
 
-    // Data Types
-    public static final String DATATYPE_TEXT = PSDisplayColumn.DATATYPE_TEXT;
-    public static final String DATATYPE_NUMBER = PSDisplayColumn.DATATYPE_NUMBER;
-    public static final String DATATYPE_DATE = PSDisplayColumn.DATATYPE_DATE;
-    public static final String DATATYPE_IMAGE = PSDisplayColumn.DATATYPE_IMAGE;
+  @Schema(description = "Is the column type text?")
+  private boolean textType;
 
-    public DisplayFormatColumn() {}
+  @Schema(description = "Is the column type number?")
+  private boolean numberType;
 
-    public Optional<String> getRenderType() {
-        return Optional.ofNullable(renderType);
-    }
+  @Schema(description = "Is the column type date?")
+  private boolean dateType;
 
-    public void setRenderType(String renderType) {
-        this.renderType = renderType;
-    }
+  @Schema(description = "Is the column type image?")
+  private boolean imageType;
 
-    public boolean isTextType() {
-        return textType;
-    }
+  @Schema(description = "Gets the display id that is a parent of this column.")
+  private String displayId;
 
-    public void setTextType(boolean textType) {
-        this.textType = textType;
-    }
+  @Schema(description = "Get the source id attribute of this object.")
+  private String source;
 
-    public boolean isNumberType() {
-        return numberType;
-    }
+  @Schema(description = "Gets the display name of column.")
+  private String displayName;
 
-    public void setNumberType(boolean numberType) {
-        this.numberType = numberType;
-    }
+  @Schema(description = "Get the description attribute of this object")
+  private String description;
 
-    public boolean isDateType() {
-        return dateType;
-    }
+  @Schema(
+      description =
+          "A column can either be 'flat' or categorized. A categorized column allows rows with the"
+              + " same value for this property to be grouped together. This is usually represented"
+              + " by a 'virtual' folder in a UI. Non-categorized columns are used in the list view"
+              + " of the UI. If this column has been defined to be displayed as a category, false"
+              + " if defined to be displayed as a list header")
+  private boolean categorized;
 
-    public void setDateType(boolean dateType) {
-        this.dateType = dateType;
-    }
+  @Schema(
+      description =
+          "Each column has 0 or more rows associated with it. This value specifies what the default"
+              + " ordering should be. Defaults to true")
+  private boolean ascendingSort;
 
-    public boolean isImageType() {
-        return imageType;
-    }
+  @Schema(description = "Opposite of ascendingSort.")
+  private boolean descendingSort;
 
-    public void setImageType(boolean imageType) {
-        this.imageType = imageType;
-    }
+  @Schema(
+      description =
+          "The position of this column relative to other columns being displayed. Columns are"
+              + " sequenced from left to right, with the first index being 0. Defaults to 0. The"
+              + " order of columns that have the same sequence value is implementation dependent."
+              + " Must be a value > 0.")
+  private int position;
 
-    public Optional<String> getDisplayId() {
-        return Optional.ofNullable(displayId);
-    }
+  @Schema(
+      description =
+          "See categorized for details. Determines whether this col is categorized or flat.")
+  private int groupingType;
 
-    public void setDisplayId(String displayId) {
-        this.displayId = displayId;
-    }
+  @Schema(
+      description =
+          "See ascendingSort for details. Set to true if you wish the default sorting to be"
+              + " ascending, false will set the default to descending.")
+  private boolean sortOrder;
 
-    public Optional<String> getSource() {
-        return Optional.ofNullable(source);
-    }
+  @Schema(
+      description =
+          "Get the width to use to when this column is displayed. Returns the width, greater than"
+              + " zero if specified, -1 if no width has been specified.")
+  private int width;
 
-    public void setSource(String source) {
-        this.source = source;
-    }
+  // Data Types
+  public static final String DATATYPE_TEXT = PSDisplayColumn.DATATYPE_TEXT;
+  public static final String DATATYPE_NUMBER = PSDisplayColumn.DATATYPE_NUMBER;
+  public static final String DATATYPE_DATE = PSDisplayColumn.DATATYPE_DATE;
+  public static final String DATATYPE_IMAGE = PSDisplayColumn.DATATYPE_IMAGE;
 
-    public Optional<String> getDisplayName() {
-        return Optional.ofNullable(displayName);
-    }
+  public DisplayFormatColumn() {}
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+  public Optional<String> getRenderType() {
+    return Optional.ofNullable(renderType);
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public void setRenderType(String renderType) {
+    this.renderType = renderType;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public boolean isTextType() {
+    return textType;
+  }
 
-    public boolean isCategorized() {
-        return categorized;
-    }
+  public void setTextType(boolean textType) {
+    this.textType = textType;
+  }
 
-    public void setCategorized(boolean categorized) {
-        this.categorized = categorized;
-    }
+  public boolean isNumberType() {
+    return numberType;
+  }
 
-    public boolean isAscendingSort() {
-        return ascendingSort;
-    }
+  public void setNumberType(boolean numberType) {
+    this.numberType = numberType;
+  }
 
-    public void setAscendingSort(boolean ascendingSort) {
-        this.ascendingSort = ascendingSort;
-    }
+  public boolean isDateType() {
+    return dateType;
+  }
 
-    public boolean isDescendingSort() {
-        return descendingSort;
-    }
+  public void setDateType(boolean dateType) {
+    this.dateType = dateType;
+  }
 
-    public void setDescendingSort(boolean descendingSort) {
-        this.descendingSort = descendingSort;
-    }
+  public boolean isImageType() {
+    return imageType;
+  }
 
-    public int getPosition() {
-        return position;
-    }
+  public void setImageType(boolean imageType) {
+    this.imageType = imageType;
+  }
 
-    public void setPosition(int position) {
-        this.position = position;
-    }
+  public Optional<String> getDisplayId() {
+    return Optional.ofNullable(displayId);
+  }
 
-    public int getGroupingType() {
-        return groupingType;
-    }
+  public void setDisplayId(String displayId) {
+    this.displayId = displayId;
+  }
 
-    public void setGroupingType(int groupingType) {
-        this.groupingType = groupingType;
-    }
+  public Optional<String> getSource() {
+    return Optional.ofNullable(source);
+  }
 
-    public boolean isSortOrder() {
-        return sortOrder;
-    }
+  public void setSource(String source) {
+    this.source = source;
+  }
 
-    public void setSortOrder(boolean sortOrder) {
-        this.sortOrder = sortOrder;
-    }
+  public Optional<String> getDisplayName() {
+    return Optional.ofNullable(displayName);
+  }
 
-    public int getWidth() {
-        return width;
-    }
+  public void setDisplayName(String displayName) {
+    this.displayName = displayName;
+  }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DisplayFormatColumn)) return false;
-        var that = (DisplayFormatColumn) o;
-        return textType == that.textType &&
-                numberType == that.numberType &&
-                dateType == that.dateType &&
-                imageType == that.imageType &&
-                categorized == that.categorized &&
-                ascendingSort == that.ascendingSort &&
-                descendingSort == that.descendingSort &&
-                position == that.position &&
-                groupingType == that.groupingType &&
-                sortOrder == that.sortOrder &&
-                width == that.width &&
-                Objects.equals(renderType, that.renderType) &&
-                Objects.equals(displayId, that.displayId) &&
-                Objects.equals(source, that.source) &&
-                Objects.equals(displayName, that.displayName) &&
-                Objects.equals(description, that.description);
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(renderType, textType, numberType, dateType, imageType, displayId, source, displayName,
-                description, categorized, ascendingSort, descendingSort, position, groupingType, sortOrder, width);
-    }
+  public boolean isCategorized() {
+    return categorized;
+  }
 
-    @Override
-    public String toString() {
-        return "DisplayFormatColumn{" +
-                "renderType='" + renderType + '\'' +
-                ", textType=" + textType +
-                ", numberType=" + numberType +
-                ", dateType=" + dateType +
-                ", imageType=" + imageType +
-                ", displayId='" + displayId + '\'' +
-                ", source='" + source + '\'' +
-                ", displayName='" + displayName + '\'' +
-                ", description='" + description + '\'' +
-                ", categorized=" + categorized +
-                ", ascendingSort=" + ascendingSort +
-                ", descendingSort=" + descendingSort +
-                ", position=" + position +
-                ", groupingType=" + groupingType +
-                ", sortOrder=" + sortOrder +
-                ", width=" + width +
-                '}';
-    }
+  public void setCategorized(boolean categorized) {
+    this.categorized = categorized;
+  }
+
+  public boolean isAscendingSort() {
+    return ascendingSort;
+  }
+
+  public void setAscendingSort(boolean ascendingSort) {
+    this.ascendingSort = ascendingSort;
+  }
+
+  public boolean isDescendingSort() {
+    return descendingSort;
+  }
+
+  public void setDescendingSort(boolean descendingSort) {
+    this.descendingSort = descendingSort;
+  }
+
+  public int getPosition() {
+    return position;
+  }
+
+  public void setPosition(int position) {
+    this.position = position;
+  }
+
+  public int getGroupingType() {
+    return groupingType;
+  }
+
+  public void setGroupingType(int groupingType) {
+    this.groupingType = groupingType;
+  }
+
+  public boolean isSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(boolean sortOrder) {
+    this.sortOrder = sortOrder;
+  }
+
+  public int getWidth() {
+    return width;
+  }
+
+  public void setWidth(int width) {
+    this.width = width;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof DisplayFormatColumn)) return false;
+    var that = (DisplayFormatColumn) o;
+    return textType == that.textType
+        && numberType == that.numberType
+        && dateType == that.dateType
+        && imageType == that.imageType
+        && categorized == that.categorized
+        && ascendingSort == that.ascendingSort
+        && descendingSort == that.descendingSort
+        && position == that.position
+        && groupingType == that.groupingType
+        && sortOrder == that.sortOrder
+        && width == that.width
+        && Objects.equals(renderType, that.renderType)
+        && Objects.equals(displayId, that.displayId)
+        && Objects.equals(source, that.source)
+        && Objects.equals(displayName, that.displayName)
+        && Objects.equals(description, that.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        renderType,
+        textType,
+        numberType,
+        dateType,
+        imageType,
+        displayId,
+        source,
+        displayName,
+        description,
+        categorized,
+        ascendingSort,
+        descendingSort,
+        position,
+        groupingType,
+        sortOrder,
+        width);
+  }
+
+  @Override
+  public String toString() {
+    return "DisplayFormatColumn{"
+        + "renderType='"
+        + renderType
+        + '\''
+        + ", textType="
+        + textType
+        + ", numberType="
+        + numberType
+        + ", dateType="
+        + dateType
+        + ", imageType="
+        + imageType
+        + ", displayId='"
+        + displayId
+        + '\''
+        + ", source='"
+        + source
+        + '\''
+        + ", displayName='"
+        + displayName
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", categorized="
+        + categorized
+        + ", ascendingSort="
+        + ascendingSort
+        + ", descendingSort="
+        + descendingSort
+        + ", position="
+        + position
+        + ", groupingType="
+        + groupingType
+        + ", sortOrder="
+        + sortOrder
+        + ", width="
+        + width
+        + '}';
+  }
 }

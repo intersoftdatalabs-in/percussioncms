@@ -20,8 +20,9 @@ package com.percussion.debug;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the Conditional Evaluation information trace message
- * type (0x10000).  Includes any conditional evaluation for selection (i.e. resource selection, mapper, etc.).  Prints out each operand, the operator, and result for every condition checked.
+ * Used to generate trace messages for the Conditional Evaluation information trace message type
+ * (0x10000). Includes any conditional evaluation for selection (i.e. resource selection, mapper,
+ * etc.). Prints out each operand, the operator, and result for every condition checked.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceConditionalEval extends PSTraceMessage {
@@ -37,13 +38,11 @@ public class PSTraceConditionalEval extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an array of objects containing the information required for the
-   * trace message.  One of two cases:
-   * - Op1, OpCode, Op2, Result
-   * - Op1, OpCode, Result (unary operator)
+   * @param source an array of objects containing the information required for the trace message.
+   *     One of two cases: - Op1, OpCode, Op2, Result - Op1, OpCode, Result (unary operator)
    * @return the message body
    * @roseuid 3A03237F008C
    */

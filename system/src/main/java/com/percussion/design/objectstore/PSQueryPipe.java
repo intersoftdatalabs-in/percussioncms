@@ -26,31 +26,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSQueryPipe class extends the PSPipe class providing support for
- * query enabled pipes.
+ * The PSQueryPipe class extends the PSPipe class providing support for query enabled pipes.
  *
  * @see PSDataSet
  * @see PSDataSet#getPipe
  * @see PSPipe
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSQueryPipe extends PSPipe {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param sourceNode the XML element node to construct this object
-   * from
-   *
+   * @param sourceNode the XML element node to construct this object from
    * @param parentDoc the Java object which is the parent of this object
-   *
    * @param parentComponents the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSQueryPipe(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -58,22 +51,18 @@ public class PSQueryPipe extends PSPipe {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSQueryPipe() {
     super();
   }
 
   /**
-   * Constructs a new query pipe with the specified name. The pipe is
-   * initially empty -- that is, no mappings, exits, etc.
+   * Constructs a new query pipe with the specified name. The pipe is initially empty -- that is, no
+   * mappings, exits, etc.
    *
-   * @param name    the name of the pipe. This must be a unique
-   * name within the data set. If it is non-unique,
-   * an exception will be thrown when the application
-   * is saved on the E2 server. This is limited to 50
-   * characters.
+   * @param name the name of the pipe. This must be a unique name within the data set. If it is
+   *     non-unique, an exception will be thrown when the application is saved on the E2 server.
+   *     This is limited to 50 characters.
    */
   public PSQueryPipe(java.lang.String name) {
     super();
@@ -81,30 +70,28 @@ public class PSQueryPipe extends PSPipe {
   }
 
   /**
-   * Get the data selector associated with this pipe. The data selector
-   * defines how data will be queried.
+   * Get the data selector associated with this pipe. The data selector defines how data will be
+   * queried.
    *
-   * @return     the data selector (may be null)
+   * @return the data selector (may be null)
    */
   public PSDataSelector getDataSelector() {
     return m_dataSelector;
   }
 
   /**
-   * Overwrite the data selector object with the specified data selector
-   * object. If you only want to modify some settings, use getDataSelector
-   * to get the existing object and modify the returned object directly.
-   * <p>
-   * The data selector defines how data will be queried.
-   * <p>
-   * The PSDataSelector object supplied to this method will be stored
-   * with the PSPipe object. Any subsequent changes made to the object
-   * by the caller will also effect the pipe.
+   * Overwrite the data selector object with the specified data selector object. If you only want to
+   * modify some settings, use getDataSelector to get the existing object and modify the returned
+   * object directly.
    *
-   * @param selector   the new data selector (may be null)
+   * <p>The data selector defines how data will be queried.
    *
-   * @see               #getDataSelector
-   * @see               PSDataSelector
+   * <p>The PSDataSelector object supplied to this method will be stored with the PSPipe object. Any
+   * subsequent changes made to the object by the caller will also effect the pipe.
+   *
+   * @param selector the new data selector (may be null)
+   * @see #getDataSelector
+   * @see PSDataSelector
    */
   public void setDataSelector(PSDataSelector selector) {
     m_dataSelector = selector;
@@ -131,9 +118,8 @@ public class PSQueryPipe extends PSPipe {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param pipe a valid PSQueryPipe.
    */
@@ -147,10 +133,11 @@ public class PSQueryPipe extends PSPipe {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXQueryPipe XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXQueryPipe XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *   &lt;!--
    *      The PSXQueryPipe provides support for query enabled pipes. It
@@ -200,7 +187,7 @@ public class PSQueryPipe extends PSPipe {
    *   &lt;!ELEMENT ResultDataExits   (PSXExitCall*)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXQueryPipe XML element node
+   * @return the newly created PSXQueryPipe XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -240,12 +227,10 @@ public class PSQueryPipe extends PSPipe {
   }
 
   /**
-   * This method is called to populate a PSQueryPipe Java object
-   * from a PSXQueryPipe XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSQueryPipe Java object from a PSXQueryPipe XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of type
-   * PSXQueryPipe
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXQueryPipe
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -353,18 +338,15 @@ public class PSQueryPipe extends PSPipe {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     super.validate(cxt);
@@ -451,9 +433,8 @@ public class PSQueryPipe extends PSPipe {
   private PSDataSelector m_dataSelector = null;
 
   /**
-   * Cache settings to determine if and when this resource is cached.
-   * Never <code>null</code>, modified by calls to <code>fromXml()</code>
-   * and <code>setCacheSettings</code>.
+   * Cache settings to determine if and when this resource is cached. Never <code>null</code>,
+   * modified by calls to <code>fromXml()</code> and <code>setCacheSettings</code>.
    */
   private PSResourceCacheSettings m_cacheSettings = new PSResourceCacheSettings();
 

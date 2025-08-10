@@ -29,18 +29,18 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSqlLockedUpdateBuilder class is used to build locked SQL UPDATE
- * statements. A SELECT is first issued against the table which locks the
- * rows. The UPDATEs are then performed using the specified cursor.
+ * The PSSqlLockedUpdateBuilder class is used to build locked SQL UPDATE statements. A SELECT is
+ * first issued against the table which locks the rows. The UPDATEs are then performed using the
+ * specified cursor.
  *
- * @see         PSQueryOptimizer
- * @see         PSQueryJoiner
+ * @see PSQueryOptimizer
+ * @see PSQueryJoiner
  */
 public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
   /**
    * Construct a SQL builder to build an UPDATE statement.
    *
-   * @param   table      the table to build the UPDATE for
+   * @param table the table to build the UPDATE for
    */
   PSSqlLockedUpdateBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super(table);
@@ -49,15 +49,13 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
   /**
    * Generate the statement using the specified connection keys.
    *
-   * @param logins a list of logins, one per connection index in the values
-   * contained within <code>connKeys</code>, must never be <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap that associates opaque keys representing
-   * a specific database and server, and indecies into the <code>logins</code>
-   * list passed to this method, must never be <code>null</code>
-   *
-   * @return an update statement for the table passed to the ctor, this
-   * will never be <code>null</code>
+   * @param logins a list of logins, one per connection index in the values contained within <code>
+   *     connKeys</code>, must never be <code>null</code>
+   * @param connKeys a ConcurrentHashMap that associates opaque keys representing a specific
+   *     database and server, and indecies into the <code>logins</code> list passed to this method,
+   *     must never be <code>null</code>
+   * @return an update statement for the table passed to the ctor, this will never be <code>null
+   *     </code>
    */
   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {
@@ -154,14 +152,12 @@ public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Get the list of input data extractors. The ordering matches
-   * the order we will be selecting columns from the back-end in.
-   * We will test that the data selected from the back-end matches the
+   * Get the list of input data extractors. The ordering matches the order we will be selecting
+   * columns from the back-end in. We will test that the data selected from the back-end matches the
    * input data. If so, the data will not be updated.
    *
-   * @param   table      the table to get extractors for
-   *
-   * @return            the list of IPSDataExtractor objects
+   * @param table the table to get extractors for
+   * @return the list of IPSDataExtractor objects
    */
   protected java.util.List buildComparators(PSBackEndTable table)
       throws PSIllegalArgumentException {

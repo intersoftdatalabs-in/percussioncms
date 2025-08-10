@@ -17,24 +17,20 @@
 
 package com.percussion.contentmigration.rules;
 
-
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 public class PSIdMatchingMigrationRule extends PSBaseMatchingMigrationRule {
 
-    @Override
-    protected String matchOnRule(String widgetId, org.jsoup.nodes.Document sourceDoc, org.jsoup.nodes.Document targetDoc) {
-        var regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
-        if (regionElem == null) {
-            return null;
-        }
-        var regionId = regionElem.id();
-        var elems = targetDoc.select("#" + regionId);
-        if (elems.size() != 1) {
-            return null;
-        }
-        return elems.get(0).html();
+  @Override
+  protected String matchOnRule(
+      String widgetId, org.jsoup.nodes.Document sourceDoc, org.jsoup.nodes.Document targetDoc) {
+    var regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
+    if (regionElem == null) {
+      return null;
     }
+    var regionId = regionElem.id();
+    var elems = targetDoc.select("#" + regionId);
+    if (elems.size() != 1) {
+      return null;
+    }
+    return elems.get(0).html();
+  }
 }

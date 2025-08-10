@@ -41,25 +41,22 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * This exit filters out the items in the auto index that are not a part of the
- * site identified by the HTMLParameter
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID siteid}passed
+ * This exit filters out the items in the auto index that are not a part of the site identified by
+ * the HTMLParameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID siteid}passed
  */
 public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
   /**
-   * Implements the interface method. Modifies the result document to filter
-   * out items that are not in the site with specified siteid. The request
-   * context must have the HTML parameter
-   * {@link IPSHtmlParameters#SYS_SITEID siteid}specified.
+   * Implements the interface method. Modifies the result document to filter out items that are not
+   * in the site with specified siteid. The request context must have the HTML parameter {@link
+   * IPSHtmlParameters#SYS_SITEID siteid}specified.
    *
-   * @param params Array must have one non <code>null</code> and non-empty
-   *           parameter specifying the site folder lookup url.
+   * @param params Array must have one non <code>null</code> and non-empty parameter specifying the
+   *     site folder lookup url.
    * @param request request context object must not be <code>null</code>.
    * @param resultDoc if <code>null</code> returned as it is.
-   * @return Document result document filtered for the items that are not in
-   *         the site specified, <code>null</code> only if the original
-   *         document is <code>null</code>.
+   * @return Document result document filtered for the items that are not in the site specified,
+   *     <code>null</code> only if the original document is <code>null</code>.
    * @throws PSParameterMismatchException
    * @throws PSExtensionProcessingException
    */
@@ -155,15 +152,14 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Checks if the specified item (as DOM element) is valid. An item is
-   * considered to be valid if it lies under site folder tree path supplied.
+   * Checks if the specified item (as DOM element) is valid. An item is considered to be valid if it
+   * lies under site folder tree path supplied.
    *
-   * @param currElement DOM element representing one item, must not be
-   *           <code>null</code>.
+   * @param currElement DOM element representing one item, must not be <code>null</code>.
    * @param request request context object, must not be <code>null</code>.
    * @param parentFolderPath paranet folder path, must not be <code>null</code>
-   * @return <code>true</code> if test based on the above description
-   *         succeeds, <code>false</code> otherwise.
+   * @return <code>true</code> if test based on the above description succeeds, <code>false</code>
+   *     otherwise.
    * @throws PSCmsException
    */
   private boolean isValid(Element currElement, IPSRequestContext request, String parentFolderPath)
@@ -199,14 +195,12 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Parses the link url in the linkurl DOM element to read the revision and
-   * returns.
+   * Parses the link url in the linkurl DOM element to read the revision and returns.
    *
    * @param linkurl DOM eleemnt foe the linkurl, must not be <code>null</code>.
    * @param request request content object, must not be <code>null</code>.
-   * @return revision parsed from the link url, -1 if the parameter
-   *         {@link IPSHtmlParameters#SYS_REVISION revision}in the URL is
-   *         missing.
+   * @return revision parsed from the link url, -1 if the parameter {@link
+   *     IPSHtmlParameters#SYS_REVISION revision}in the URL is missing.
    */
   private int computeRevision(Element linkurl, IPSRequestContext request) {
     PSXmlTreeWalker walker = new PSXmlTreeWalker(linkurl);
@@ -230,18 +224,14 @@ public class PSAutoSiteItemFilter extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Implementation of the method required by the interface. Always returns
-   * <code>false</code>.
+   * Implementation of the method required by the interface. Always returns <code>false</code>.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor
-   * #canModifyStyleSheet()
+   * @see com.percussion.extension.IPSResultDocumentProcessor #canModifyStyleSheet()
    */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * Required number of parameters to this extension.
-   */
+  /** Required number of parameters to this extension. */
   private static final int MIN_REQD_PARAM_COUNT = 1;
 }

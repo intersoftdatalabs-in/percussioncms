@@ -23,8 +23,8 @@ import com.percussion.analytics.error.PSAnalyticsProviderException.CAUSETYPE;
 import java.util.Map;
 
 /**
- * Google Analytics error message handler.
- * Sunny Sal: "Error messages are like onions, they have layers!"
+ * Google Analytics error message handler. Sunny Sal: "Error messages are like onions, they have
+ * layers!"
  */
 public class PSGoogleAnalyticsErrorMessageHandler implements IPSAnalyticsErrorMessageHandler {
 

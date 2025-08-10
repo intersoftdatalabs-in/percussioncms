@@ -23,11 +23,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit test for the property wrapper class. Uses a static class to create
- * objects to test with.
+ * Unit test for the property wrapper class. Uses a static class to create objects to test with.
  *
  * @author dougrand
- *
  */
 public class PSPropertyWrapperTest {
   static final int COUNT = 50000;
@@ -47,9 +45,8 @@ public class PSPropertyWrapperTest {
   public PSPropertyWrapperTest() {}
 
   /**
-   * Test class provides a number of data members to access for the tests. The
-   * three data members are all basic data, but provide a decent cross section
-   * of typical property access
+   * Test class provides a number of data members to access for the tests. The three data members
+   * are all basic data, but provide a decent cross section of typical property access
    */
   static class TestPropClass {
     String mi_aaa;
@@ -60,6 +57,7 @@ public class PSPropertyWrapperTest {
 
     /**
      * Ctor for test class
+     *
      * @param a
      * @param b
      * @param c
@@ -136,9 +134,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests access to the string property via the accessor.
-   * Each test compares calling the accessor directly with calling the accessor
-   * via reflection
+   * As the name implies, tests access to the string property via the accessor. Each test compares
+   * calling the accessor directly with calling the accessor via reflection
    *
    * @throws Exception
    */
@@ -150,9 +147,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests access to the long property via the accessor.
-   * Each test compares calling the accessor directly with calling the accessor
-   * via reflection
+   * As the name implies, tests access to the long property via the accessor. Each test compares
+   * calling the accessor directly with calling the accessor via reflection
    *
    * @throws Exception
    */
@@ -164,9 +160,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests access to the double property via the accessor.
-   * Each test compares calling the accessor directly with calling the accessor
-   * via reflection
+   * As the name implies, tests access to the double property via the accessor. Each test compares
+   * calling the accessor directly with calling the accessor via reflection
    *
    * @throws Exception
    */
@@ -178,8 +173,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * It's useful to know the relative performance metrics are comparing the
-   * property wrapper versus direct access
+   * It's useful to know the relative performance metrics are comparing the property wrapper versus
+   * direct access
    *
    * @throws Exception
    */
@@ -238,9 +233,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests writing to the string property. Each test
-   * compares calling the setter directly with calling the setter via
-   * reflection
+   * As the name implies, tests writing to the string property. Each test compares calling the
+   * setter directly with calling the setter via reflection
    *
    * @throws Exception
    */
@@ -251,9 +245,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests writing to the long property. Each test
-   * compares calling the setter directly with calling the setter via
-   * reflection
+   * As the name implies, tests writing to the long property. Each test compares calling the setter
+   * directly with calling the setter via reflection
    *
    * @throws Exception
    */
@@ -264,9 +257,8 @@ public class PSPropertyWrapperTest {
   }
 
   /**
-   * As the name implies, tests writing to the double property. Each test
-   * compares calling the setter directly with calling the setter via
-   * reflection
+   * As the name implies, tests writing to the double property. Each test compares calling the
+   * setter directly with calling the setter via reflection
    *
    * @throws Exception
    */

@@ -57,8 +57,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Helper for Google Analytics OAuth2 and API access.
- * Sunny Sal: "OAuth2 is like a Bollywood dance—complex, but worth it!"
+ * Helper for Google Analytics OAuth2 and API access. Sunny Sal: "OAuth2 is like a Bollywood
+ * dance—complex, but worth it!"
  */
 public class PSGoogleAnalyticsProviderHelper {
 
@@ -76,8 +76,8 @@ public class PSGoogleAnalyticsProviderHelper {
   private PSGoogleAnalyticsProviderHelper() {}
 
   /**
-   * Helper method to retrieve an Analytics service object for Google Analytics API.
-   * Throws if credentials are invalid.
+   * Helper method to retrieve an Analytics service object for Google Analytics API. Throws if
+   * credentials are invalid.
    */
   public Analytics getAnalyticsService(String email, String key)
       throws PSAnalyticsProviderException, PSValidationException {
@@ -158,9 +158,7 @@ public class PSGoogleAnalyticsProviderHelper {
     return analyticsReporting;
   }
 
-  /**
-   * Helper method to create a new Google analytics ReportRequest object.
-   */
+  /** Helper method to create a new Google analytics ReportRequest object. */
   public ReportRequest createNewDataQuery(PSDateRange range) {
     var formatter = FastDateFormat.getInstance("yyyy-MM-dd");
     var dateRange = new DateRange();
@@ -169,9 +167,7 @@ public class PSGoogleAnalyticsProviderHelper {
     return new ReportRequest().setDateRanges(Arrays.asList(dateRange));
   }
 
-  /**
-   * Helper method to parse a google date string into a java.util.Date object.
-   */
+  /** Helper method to parse a google date string into a java.util.Date object. */
   public Date parseDate(String googleDate) throws PSAnalyticsProviderException {
     if (StringUtils.isBlank(googleDate))
       throw new IllegalArgumentException("googleDate cannot be null or empty.");
@@ -188,8 +184,8 @@ public class PSGoogleAnalyticsProviderHelper {
   }
 
   /**
-   * Checks if the start date of the range is not before Google Analytics launch date.
-   * If that is the case, set the start date to analytics launch date.
+   * Checks if the start date of the range is not before Google Analytics launch date. If that is
+   * the case, set the start date to analytics launch date.
    */
   public PSDateRange createValidPSDateRange(PSDateRange range) throws PSAnalyticsProviderException {
     var formatter = FastDateFormat.getInstance("MM/dd/yyyy");
@@ -205,9 +201,7 @@ public class PSGoogleAnalyticsProviderHelper {
     return range;
   }
 
-  /**
-   * Date format to use to parse date from a Google query. Never null.
-   */
+  /** Date format to use to parse date from a Google query. Never null. */
   private final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance("yyyyMMdd");
 
   public static final String ANALYTICS_LAUNCH_DATE = "11/14/2005";
@@ -217,15 +211,11 @@ public class PSGoogleAnalyticsProviderHelper {
     return DATE_FORMAT;
   }
 
-  /**
-   * Mappings of Google exceptions to our own cause enums.
-   */
+  /** Mappings of Google exceptions to our own cause enums. */
   public static final Map<String, PSAnalyticsProviderException.CAUSETYPE> CAUSE_MAPPINGS =
       new HashMap<>();
 
-  /**
-   * Helper to convert from a PKCS#8 String to an RSA private key.
-   */
+  /** Helper to convert from a PKCS#8 String to an RSA private key. */
   static PrivateKey privateKeyFromPkcs8(String privateKeyPkcs8)
       throws IOException, PSAnalyticsProviderException {
     try (Reader reader = new StringReader(privateKeyPkcs8)) {

@@ -28,50 +28,41 @@ import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 /**
- * Stopwatch handler that creates stopwatches on a thread-based stack. This
- * allows handlers to push and pop the timers on the stack. As timers are pushed
- * onto the stack, they are paused. As they are popped to the top of the stack
- * they are restarted.
+ * Stopwatch handler that creates stopwatches on a thread-based stack. This allows handlers to push
+ * and pop the timers on the stack. As timers are pushed onto the stack, they are paused. As they
+ * are popped to the top of the stack they are restarted.
  *
  * @author dougrand
  */
 public class PSStopwatchStack {
   private static final Logger ms_logger = LogManager.getLogger(PSStopwatchStack.class);
 
-  /**
-   * Holds a reference to the stopwatch stack for the current thread.
-   * Initialized in the ctor.
-   */
+  /** Holds a reference to the stopwatch stack for the current thread. Initialized in the ctor. */
   private Stack<PSStopwatch> m_stack = new Stack<PSStopwatch>();
 
-  /**
-   * The name of the current timer category, used in doing statistics
-   */
+  /** The name of the current timer category, used in doing statistics */
   private Stack<String> m_category = new Stack<String>();
 
   /**
-   * A map containing string keys of the measurement categories, and
-   * <code>Double</code> values that are the accumulated time for each
-   * category.
+   * A map containing string keys of the measurement categories, and <code>Double</code> values that
+   * are the accumulated time for each category.
    */
   private Map<String, Double> m_statistics = new HashMap<String, Double>();
 
   /**
-   * A map containing string keys of the measurement categories, and
-   * a <code>Integer</code> value that is the number of times the category
-   * has been run.
+   * A map containing string keys of the measurement categories, and a <code>Integer</code> value
+   * that is the number of times the category has been run.
    */
   private Map<String, Integer> m_counters = new HashMap<String, Integer>();
 
   /**
-   * Holds a reference to the current sw stack instance for the given thread.
-   * The pattern is basically a Singleton pattern.
+   * Holds a reference to the current sw stack instance for the given thread. The pattern is
+   * basically a Singleton pattern.
    */
   static ThreadLocal<PSStopwatchStack> ms_swRef = new ThreadLocal<PSStopwatchStack>();
 
   /**
-   * Private ctor, users should call the factory instead to get the current
-   * thread based instance.
+   * Private ctor, users should call the factory instead to get the current thread based instance.
    */
   PSStopwatchStack() {
     super();
@@ -79,8 +70,7 @@ public class PSStopwatchStack {
   }
 
   /**
-   * Factory method to get the stopwatch stack. Threadsafe through the use of
-   * ThreadLocal.
+   * Factory method to get the stopwatch stack. Threadsafe through the use of ThreadLocal.
    *
    * @return the current thread's instance of the stopwatch stack
    */
@@ -95,20 +85,17 @@ public class PSStopwatchStack {
   }
 
   /**
-   * Start the stopwatch. If there's a current stopwatch being measured, then
-   * pause it.
+   * Start the stopwatch. If there's a current stopwatch being measured, then pause it.
    *
-   * @param category category used for recording statistics, must not be
-   *           <code>null</code> or empty
-   *
+   * @param category category used for recording statistics, must not be <code>null</code> or empty
    */
   public void start(String category) {
     start(category, new PSStopwatch());
   }
 
   /**
-   * Start a stopwatch and add to the stack. If there's a current stopwatch
-   * being measured, then pause it.
+   * Start a stopwatch and add to the stack. If there's a current stopwatch being measured, then
+   * pause it.
    *
    * @param category the category, never <code>null</code> or empty
    * @param watch the stopwatch, never <code>null</code>
@@ -133,8 +120,7 @@ public class PSStopwatchStack {
   /**
    * Peek at the current stopwatch
    *
-   * @return the current top stopwatch or <code>null</code> if the stack is
-   *         empty
+   * @return the current top stopwatch or <code>null</code> if the stack is empty
    */
   public PSStopwatch current() {
     if (m_stack.size() > 0) {
@@ -145,11 +131,11 @@ public class PSStopwatchStack {
   }
 
   /**
-   * Stop the top stopwatch and return it. If there are more stopwatches on the
-   * stack then continue the next stopwatch.
+   * Stop the top stopwatch and return it. If there are more stopwatches on the stack then continue
+   * the next stopwatch.
    *
-   * @return the top stopwatch, never <code>null</code>. Throws an exception
-   *         if the stack is exhausted.
+   * @return the top stopwatch, never <code>null</code>. Throws an exception if the stack is
+   *     exhausted.
    */
   public PSStopwatch stop() {
     if (m_stack.size() < 1) {
@@ -204,8 +190,8 @@ public class PSStopwatchStack {
   }
 
   /**
-   * Check the stack for completeness and print the statistics. If there are
-   * lingering stopwatches on the stack, print warnings and stop them.
+   * Check the stack for completeness and print the statistics. If there are lingering stopwatches
+   * on the stack, print warnings and stop them.
    */
   public void finish() {
     while (m_stack.size() > 0) {

@@ -40,8 +40,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * This is a entity class to map the PSX_SEARCHINDEXQUEUE table using
- * hibernate
+ * This is a entity class to map the PSX_SEARCHINDEXQUEUE table using hibernate
  *
  * @author BillLanglais
  */
@@ -61,124 +60,94 @@ public class PSSearchIndexQueueItem {
   @Column(name = "CREATED", nullable = false)
   private Date m_created;
 
-  /**
-   * Constant to indicate the item was inserted.
-   */
+  /** Constant to indicate the item was inserted. */
   public static final int ACTION_INSERT = 0;
 
-  /**
-   * Constant to indicate the item was modified.
-   */
+  /** Constant to indicate the item was modified. */
   public static final int ACTION_UPDATE = 1;
 
-  /**
-   * Constant to indicate the item was deleted.
-   */
+  /** Constant to indicate the item was deleted. */
   public static final int ACTION_DELETE = 2;
 
-  /**
-   * Constant to indicate the item was checked in.
-   */
+  /** Constant to indicate the item was checked in. */
   public static final int ACTION_CHECKIN = 3;
 
-  /**
-   * Constant to indicate the item was checked out.
-   */
+  /** Constant to indicate the item was checked out. */
   public static final int ACTION_CHECKOUT = 4;
 
-  /**
-   * Constant to indicate the item was transitioned.
-   */
+  /** Constant to indicate the item was transitioned. */
   public static final int ACTION_TRANSITION = 5;
 
-  /**
-   * Constant to indicate the item was submitted for reindexing by the search
-   * engine.
-   */
+  /** Constant to indicate the item was submitted for reindexing by the search engine. */
   public static final int ACTION_REINDEX = 6;
 
-  /**
-   * Constant to indicate undefined action.
-   */
+  /** Constant to indicate undefined action. */
   public static final int ACTION_UNDEFINED = -1;
 
   /**
-   * Enumeration of the string representation of each <code>ACTION_xxx</code>
-   * constants, where the index into the array is the value of the constant.
-   * When a new constant is added, its string representation must be appended
-   * to this enumeration.
+   * Enumeration of the string representation of each <code>ACTION_xxx</code> constants, where the
+   * index into the array is the value of the constant. When a new constant is added, its string
+   * representation must be appended to this enumeration.
    */
   public static final String[] ACTION_ENUM = {
     "insert", "update", "delete", "checkin", "checkout", "transition", "reindex"
   };
 
-  /**
-   * Constant for default priority of 20.
-   */
+  /** Constant for default priority of 20. */
   public static final int DEFAULT_PRIORTY = 20;
 
-  /**
-   * The content id of the modified item.  Set during ctor, never modified
-   * after that.
-   */
+  /** The content id of the modified item. Set during ctor, never modified after that. */
   @Column(name = "CONTENTID")
   private int m_contentId;
 
-  /**
-   * The revision id of the modified item.  Set during ctor, never modified
-   * after that.
-   */
+  /** The revision id of the modified item. Set during ctor, never modified after that. */
   @Column(name = "REVISIONID")
   private int m_revisionId;
 
   /**
-   * The id representing the complex child modified.  <code>-1</code> if a
-   * parent item was modified.  Set during the ctor, never modified after that.
+   * The id representing the complex child modified. <code>-1</code> if a parent item was modified.
+   * Set during the ctor, never modified after that.
    */
   @Column(name = "CHILDID")
   private int m_childId;
 
   /**
-   * The id of the child row that was modified.  <code>-1</code> if a
-   * parent item was modified.  Set during the ctor, never modified after that.
+   * The id of the child row that was modified. <code>-1</code> if a parent item was modified. Set
+   * during the ctor, never modified after that.
    */
   @Column(name = "CHILDROWID")
   private int m_childRowId;
 
   /**
-   * The action that was taken when the content item was modified.  One of the
-   * <code>ACTION_xxx</code> values, set during ctor, never <code>null</code>
-   * or modified after that.
+   * The action that was taken when the content item was modified. One of the <code>ACTION_xxx
+   * </code> values, set during ctor, never <code>null</code> or modified after that.
    */
   @Column(name = "ACTION")
   private int m_action;
 
   /**
-   * Collection of binary field names that were modified by this event, as
-   * <code>String</code> objects.  Never <code>null</code>, modified by
-   * calls to {@link #setBinaryFields(Collection)}.
+   * Collection of binary field names that were modified by this event, as <code>String</code>
+   * objects. Never <code>null</code>, modified by calls to {@link #setBinaryFields(Collection)}.
    */
   @Column(name = "BINARYFIELDS")
   private String m_binaryFields;
 
   ;
 
-  /**
-   * Content type id of the item, set during the ctor, never modified after
-   * that.
-   */
+  /** Content type id of the item, set during the ctor, never modified after that. */
   @Column(name = "CONTENTTYPEID")
   private long m_contentTypeId;
 
   /**
-   * The priority of this event, defaults to {@link #DEFAULT_PRIORTY} if not
-   * explicitly modified by {@link #setPriority(int)}.
+   * The priority of this event, defaults to {@link #DEFAULT_PRIORTY} if not explicitly modified by
+   * {@link #setPriority(int)}.
    */
   @Column(name = "PRIORITY")
   private int m_priority = DEFAULT_PRIORTY;
 
   /**
-   *  Accessor method for QueueId
+   * Accessor method for QueueId
+   *
    * @param id - Primary key for events
    */
   public void setQueueId(int id) {
@@ -187,6 +156,7 @@ public class PSSearchIndexQueueItem {
 
   /**
    * Accessor method for QueueId
+   *
    * @return - Primary key for events
    */
   public int getQueueId() {
@@ -284,8 +254,7 @@ public class PSSearchIndexQueueItem {
   /**
    * Accessor method for Queue Events
    *
-   * commit - tells the search indexer to do a commit after processing this
-   *          event.
+   * <p>commit - tells the search indexer to do a commit after processing this event.
    *
    * @return - Event data in class form. Will not be <code>null</code>
    */
@@ -302,9 +271,7 @@ public class PSSearchIndexQueueItem {
 
   // Constructors
 
-  /**
-   * Default Constructor
-   */
+  /** Default Constructor */
   public PSSearchIndexQueueItem() {}
 
   /**

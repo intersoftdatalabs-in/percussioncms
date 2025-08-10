@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Proxy class that should be used to get the correct folder processor
- * depending on the callers location.
+ * Proxy class that should be used to get the correct folder processor depending on the callers
+ * location.
  */
 public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolderProcessor {
   // see base class method for details
@@ -33,9 +33,7 @@ public class PSFolderProcessorProxy extends PSProcessorProxy implements IPSFolde
     return getProcessor().getSummary(path);
   }
 
-  /**
-   * Create the proxy.
-   */
+  /** Create the proxy. */
   public PSFolderProcessorProxy(String location, Object ctx) throws PSCmsException {
     super(location, ctx);
   }

@@ -28,23 +28,20 @@ import java.util.Map;
 import org.json.JSONArray;
 
 /**
- * Given a set of action names (case-insensitive), it looks them up and returns
- * the corresponding label.
+ * Given a set of action names (case-insensitive), it looks them up and returns the corresponding
+ * label.
  *
  * @author paulhoward
  */
 public class PSGetActionLabelsAction extends PSAAActionBase {
   /**
-   * For each supplied name, search for a matching <code>PSAction</code> that
-   * has that name (case-insensitive.) If found, add the name and label to the
-   * result.
+   * For each supplied name, search for a matching <code>PSAction</code> that has that name
+   * (case-insensitive.) If found, add the name and label to the result.
    *
-   * @param params An entry called 'names' whose value is a String[] containing
-   * the actions of interest.
-   *
-   * @return The value is a <code>Map</code> whose key is the proper-cased
-   * name and whose value is the label that has been converted to a JSON
-   * string.
+   * @param params An entry called 'names' whose value is a String[] containing the actions of
+   *     interest.
+   * @return The value is a <code>Map</code> whose key is the proper-cased name and whose value is
+   *     the label that has been converted to a JSON string.
    */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     try {

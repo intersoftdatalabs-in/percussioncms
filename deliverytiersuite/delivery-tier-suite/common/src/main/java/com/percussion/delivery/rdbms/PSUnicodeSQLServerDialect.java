@@ -21,14 +21,13 @@ package com.percussion.delivery.rdbms;
  * Custom Dialect Class used to redefine native types for hibernate using MSSql Server 2008
  *
  * @author federicoromanelli
- *
  */
 public class PSUnicodeSQLServerDialect extends org.hibernate.dialect.SQLServerDialect {
   /**
    * Initializes a new instance of the {@link org.hibernate.dialect.SQLServerDialect} class.
    *
-   * Note: the mapping for the values used in registerColumnType method are the same
-   * as the ones described in the following file:
+   * <p>Note: the mapping for the values used in registerColumnType method are the same as the ones
+   * described in the following file:
    * "\system\Tools\TableFactory\src\com\percussion\tablefactory\PSJdbcDataTypeMaps.xml"
    */
   public PSUnicodeSQLServerDialect() {

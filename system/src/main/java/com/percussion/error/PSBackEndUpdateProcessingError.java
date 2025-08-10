@@ -24,42 +24,31 @@ import java.util.Locale;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndUpdateProcessingError class is used to report an error
- * encountered during back-end (database) update processing.
+ * The PSBackEndUpdateProcessingError class is used to report an error encountered during back-end
+ * (database) update processing.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndUpdateProcessingError extends PSBackEndError {
   /**
-   * Report an error encountered during
-   * back-end (database) update processing using the native error
+   * Report an error encountered during back-end (database) update processing using the native error
    * information and the UPDATE statement.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code reported by the back-end
-   *                            (database)
-   *
-   * @param      errorString    the error text reported by the back-end
-   *                            (database)
-   *
-   * @param      updateString   the UPDATE statement which caused the
-   *                            error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code reported by the back-end (database)
+   * @param errorString the error text reported by the back-end (database)
+   * @param updateString the UPDATE statement which caused the error
    */
   public PSBackEndUpdateProcessingError(
       int applId,
@@ -81,37 +70,24 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
   }
 
   /**
-   * Report an error encountered during
-   * back-end (database) update processing using the internal error
-   * information. This usually occurs when E2 encounters an error
-   * pre-processing the request.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
+   * Report an error encountered during back-end (database) update processing using the internal
+   * error information. This usually occurs when E2 encounters an error pre-processing the request.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      source         the sub-tree containing the element(s)
-   *                            causing the error (may be null)
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param source the sub-tree containing the element(s) causing the error (may be null)
    */
   public PSBackEndUpdateProcessingError(
       int applId, java.lang.String sessionId, int errorCode, Object[] errorParams, Element source) {
@@ -125,36 +101,24 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
   }
 
   /**
-   * Report an error encountered during
-   * back-end (database) update processing using the native error
+   * Report an error encountered during back-end (database) update processing using the native error
    * information and the UPDATE statement.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId   the session id of the user making the
-   *                           request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
-   *
-   * @param      updateString   the UPDATE statement which caused the
-   *                            error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param updateString the UPDATE statement which caused the error
    */
   public PSBackEndUpdateProcessingError(
       int applId,
@@ -166,39 +130,25 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
   }
 
   /**
-   * Report an error encountered during
-   * back-end (database) update processing using the native error
+   * Report an error encountered during back-end (database) update processing using the native error
    * information and the UPDATE statement.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId   the session id of the user making the
-   *                           request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
-   *
-   * @param      sourceSql   the UPDATE statement which caused the
-   *                         error
-   *
-   * @param      sourceTree  the sub-tree containing the element(s)
-   *                         causing the error (may be null)
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param sourceSql the UPDATE statement which caused the error
+   * @param sourceTree the sub-tree containing the element(s) causing the error (may be null)
    */
   public PSBackEndUpdateProcessingError(
       int applId,
@@ -218,16 +168,12 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
     m_sourceTree = sourceTree;
   }
 
-  /**
-   * Get the next update error in the chain.
-   */
+  /** Get the next update error in the chain. */
   public PSBackEndUpdateProcessingError getNext() {
     return m_next;
   }
 
-  /**
-   * Appends an update error to the chain (on the end).
-   */
+  /** Appends an update error to the chain (on the end). */
   public void setNext(PSBackEndUpdateProcessingError err) {
     PSBackEndUpdateProcessingError e;
     for (e = this; e.m_next != null; e = e.m_next)
@@ -235,10 +181,7 @@ public class PSBackEndUpdateProcessingError extends PSBackEndError {
     e.m_next = err;
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale.
-   */
+  /** Subclasses must override this to build the messages in the specified locale. */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSBackEndUpdateProcessingError err;
     int errorCount = 0;

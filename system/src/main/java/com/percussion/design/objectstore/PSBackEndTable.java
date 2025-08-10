@@ -28,17 +28,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndTable class is used to define a back-end table. Back-end
- * tables can be used in PSBackEndDataTank and PSBackEndColumn objects to
- * define the table they are acting upon.
+ * The PSBackEndTable class is used to define a back-end table. Back-end tables can be used in
+ * PSBackEndDataTank and PSBackEndColumn objects to define the table they are acting upon.
  *
  * @see PSBackEndDataTank
  * @see PSBackEndColumn
  */
 public class PSBackEndTable extends PSComponent {
-  /**
-   * Provide a suitable key for indexing database connections
-   */
+  /** Provide a suitable key for indexing database connections */
   public class PSServerKey {
 
     /* (non-Javadoc)
@@ -71,20 +68,13 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndTable(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -123,51 +113,42 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Construct a back-end table object. The object can be used to
-   * allow multiple joined tables or it can enforce that only a single
-   * table be used. The former is commonly associated with data tanks
-   * performing query operations and the latter with data tanks performing
-   * insert, update and/or delete operations.
-   * <p>
-   * Once this object is constructed, it cannot be changed from allowing
-   * single table to multiple tables.
+   * Construct a back-end table object. The object can be used to allow multiple joined tables or it
+   * can enforce that only a single table be used. The former is commonly associated with data tanks
+   * performing query operations and the latter with data tanks performing insert, update and/or
+   * delete operations.
    *
-   * @param alias            the new alias of the back-end table. This
-   *                         must be a unique name across all tables used
-   *                         in the data tank. If it is non-unique, an
-   *                         exception will be thrown when the back-end
-   *                         table is associated with a data tank.
+   * <p>Once this object is constructed, it cannot be changed from allowing single table to multiple
+   * tables.
    *
-   * @see         #setAlias
+   * @param alias the new alias of the back-end table. This must be a unique name across all tables
+   *     used in the data tank. If it is non-unique, an exception will be thrown when the back-end
+   *     table is associated with a data tank.
+   * @see #setAlias
    */
   public PSBackEndTable(java.lang.String alias) {
     super();
     setAlias(alias);
   }
 
-  /**
-   * Ctor
-   */
+  /** Ctor */
   PSBackEndTable() {}
 
   /**
    * Get the alias of the back-end table.
    *
-   * @return     the alias of the back-end table
+   * @return the alias of the back-end table
    */
   public java.lang.String getAlias() {
     return m_alias;
   }
 
   /**
-   * Set the alias of the back-end table.
-   * This is limited to 128 characters.
+   * Set the alias of the back-end table. This is limited to 128 characters.
    *
-   * @param alias   the new alias of the back-end table. This must be a
-   *                unique name across all tables used in the data tank.
-   *                If it is non-unique, an exception will be thrown when
-   *                the back-end table is associated with a data tank.
-   *
+   * @param alias the new alias of the back-end table. This must be a unique name across all tables
+   *     used in the data tank. If it is non-unique, an exception will be thrown when the back-end
+   *     table is associated with a data tank.
    */
   public void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
@@ -201,8 +182,8 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Set the information for connecting to the database from a backend
-   * credential.
+   * Set the information for connecting to the database from a backend credential.
+   *
    * @param cred The credential, never <code>null</code>
    */
   public void setConnectionInfo(PSBackEndCredential cred) {
@@ -214,6 +195,7 @@ public class PSBackEndTable extends PSComponent {
 
   /**
    * Set table information from the locator
+   *
    * @param tableLoc the locator, never <code>null</code>
    */
   public void setInfoFromLocator(PSTableLocator tableLoc) {
@@ -226,17 +208,16 @@ public class PSBackEndTable extends PSComponent {
   /**
    * Get the name of the back-end table.
    *
-   * @return     the name of the back-end table
+   * @return the name of the back-end table
    */
   public java.lang.String getTable() {
     return m_table;
   }
 
   /**
-   * Set the name of the back-end table.
-   * This is limited to 128 characters.
+   * Set the name of the back-end table. This is limited to 128 characters.
    *
-   * @param table   the name of the back-end table.
+   * @param table the name of the back-end table.
    */
   public void setTable(java.lang.String table) {
     if (table == null) table = "";
@@ -258,10 +239,10 @@ public class PSBackEndTable extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndTable XML element node
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndTable XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
    *
    * <pre><code>
    *
@@ -305,12 +286,11 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndTable Java object from a
-   * PSXBackEndTable XML element node. See the {@link #toXml(Document) toXml}
-   * method for a description of the XML object.
+   * This method is called to populate a PSBackEndTable Java object from a PSXBackEndTable XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception PSUnknownNodeTypeException if the XML element node is not of
-   * type PSXBackEndTable
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndTable
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -357,9 +337,8 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -372,17 +351,15 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it should
-   * register any errors with the validation context, which will decide whether
-   * to throw the exception (in which case the implementation of <CODE>validate</CODE>
-   * should not catch it unless it is to be rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
    * @param cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -395,9 +372,8 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Performs a copy of the data in the supplied component to this component.
-   * Since the state of this object consists of non-mutable objects, the copy
-   * is effectively a deep copy.
+   * Performs a copy of the data in the supplied component to this component. Since the state of
+   * this object consists of non-mutable objects, the copy is effectively a deep copy.
    *
    * @param c a valid <code>PSBackEndTable</code>, not <code>null</code>.
    */
@@ -450,6 +426,7 @@ public class PSBackEndTable extends PSComponent {
 
   /**
    * Get a server key for use in storing and retrieving database connections.
+   *
    * @return a new server key, never <code>null</code>
    */
   public Object getServerKey() {
@@ -457,20 +434,18 @@ public class PSBackEndTable extends PSComponent {
   }
 
   /**
-   * Set connection detail of this table's datasource.  The detail is not
-   * persisted or serialized as part of this object.
-   * See {@link #getDataSource()}.
+   * Set connection detail of this table's datasource. The detail is not persisted or serialized as
+   * part of this object. See {@link #getDataSource()}.
    *
-   * @param connDetail The detail, may be <code>null</code> to clear the
-   * detail.
+   * @param connDetail The detail, may be <code>null</code> to clear the detail.
    */
   public void setConnectionDetail(PSConnectionDetail connDetail) {
     m_connDetail = connDetail;
   }
 
   /**
-   * Get the connection detail set on this object.  See
-   * {@link #setConnectionDetail(PSConnectionDetail)} for more info.
+   * Get the connection detail set on this object. See {@link
+   * #setConnectionDetail(PSConnectionDetail)} for more info.
    *
    * @return The connection detail, may be <code>null</code>.
    */
@@ -480,6 +455,7 @@ public class PSBackEndTable extends PSComponent {
 
   /**
    * Creates a deep copy of this PSBackEndTable instance
+   *
    * @return a clone of PSBackEndTable
    */
   public Object clone() {
@@ -490,15 +466,12 @@ public class PSBackEndTable extends PSComponent {
   private String m_alias = "";
   private String m_table;
 
-  /**
-   * The datasource that resolves to the location of the table, may be
-   * <code>null</code>.
-   */
+  /** The datasource that resolves to the location of the table, may be <code>null</code>. */
   private String m_dataSource;
 
   /**
-   * The connection detail for this table's datasource, <code>null</code>
-   * until set by a call to {@link #setConnectionDetail(PSConnectionDetail)}.
+   * The connection detail for this table's datasource, <code>null</code> until set by a call to
+   * {@link #setConnectionDetail(PSConnectionDetail)}.
    */
   private transient PSConnectionDetail m_connDetail = null;
 

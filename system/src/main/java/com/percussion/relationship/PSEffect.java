@@ -24,16 +24,16 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 
 /**
- * All effect implementations should derive from this base class and not directly
- * implement the <code>IPSEffect</code> interface. This class will  provide
- * generic functionality useful in all effect implementations.
+ * All effect implementations should derive from this base class and not directly implement the
+ * <code>IPSEffect</code> interface. This class will provide generic functionality useful in all
+ * effect implementations.
  */
 public abstract class PSEffect implements IPSEffect {
   /**
-   * Saves references to the provided extension definition and code root,
-   * which might be of use in the effect implementation.
+   * Saves references to the provided extension definition and code root, which might be of use in
+   * the effect implementation.
    *
-   * See <code>IPSExtension</code> for description.
+   * <p>See <code>IPSExtension</code> for description.
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     if (def == null || codeRoot == null)
@@ -62,10 +62,7 @@ public abstract class PSEffect implements IPSEffect {
     return (File) m_codeRoot.get();
   }
 
-  /**
-   * Derived class must implement this method. See interface for more details
-   * of the method.
-   */
+  /** Derived class must implement this method. See interface for more details of the method. */
   public abstract void test(
       Object[] params,
       IPSRequestContext request,
@@ -73,18 +70,12 @@ public abstract class PSEffect implements IPSEffect {
       PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException;
 
-  /**
-   * Derived class must implement this method. See intreface for more details
-   * of the method.
-   */
+  /** Derived class must implement this method. See intreface for more details of the method. */
   public abstract void attempt(
       Object[] prams, IPSRequestContext request, IPSExecutionContext context, PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException;
 
-  /**
-   * Derived class must implement this method. See intreface for more details
-   * of the method.
-   */
+  /** Derived class must implement this method. See intreface for more details of the method. */
   public abstract void recover(
       Object[] params,
       IPSRequestContext request,
@@ -94,26 +85,23 @@ public abstract class PSEffect implements IPSEffect {
       throws PSExtensionProcessingException;
 
   /**
-   * This holds the definition for this extension, initialized in
-   * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
-   * after that.
+   * This holds the definition for this extension, initialized in {#link init(IPSExtensionDef,
+   * File)}, never changed or <code>null</code> after that.
    */
   private ThreadLocal m_def = new ThreadLocal();
 
   /**
-   * This holds the 'root' directory for this extension. When installed, all
-   * files are installed relative to this location. Files can be loaded from
-   * anywhere under this directory and no where else (by default, the actual
-   * security policy may vary). This object could be used to load a property
-   * file when executing the Effect. Initialized in
-   * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
-   * after that.
+   * This holds the 'root' directory for this extension. When installed, all files are installed
+   * relative to this location. Files can be loaded from anywhere under this directory and no where
+   * else (by default, the actual security policy may vary). This object could be used to load a
+   * property file when executing the Effect. Initialized in {#link init(IPSExtensionDef, File)},
+   * never changed or <code>null</code> after that.
    */
   private ThreadLocal m_codeRoot = new ThreadLocal();
 
   /**
-   * Name of the effect as registered. Initialized in the init() method,
-   * never <code>null</code> or empty after that.
+   * Name of the effect as registered. Initialized in the init() method, never <code>null</code> or
+   * empty after that.
    */
   protected String m_name = "";
 }

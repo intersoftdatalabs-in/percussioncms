@@ -21,20 +21,17 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A List of TaxNode objects that provides methods for formatting the contained
- * information.
+ * A List of TaxNode objects that provides methods for formatting the contained information.
  *
  * @author stephenbolton
- *
  */
 public class TaxNodeList extends ArrayList<TaxNode> {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
    * Returns a List of values for a particular attribute name for each node
+   *
    * @param name The attribute name
    * @return the list of {@link TaxValues}
    */
@@ -44,6 +41,7 @@ public class TaxNodeList extends ArrayList<TaxNode> {
 
   /**
    * Returns a List of values for a particular attribute name for each node
+   *
    * @param name The attribute name
    * @param allowMulti do we throw an IllegalArgumentException for multi valued fields
    * @return the list of {@link TaxValues}
@@ -64,6 +62,7 @@ public class TaxNodeList extends ArrayList<TaxNode> {
 
   /**
    * Get a list of values representing default name attribute for each node in the list
+   *
    * @return the List of {@link TaxValues}
    */
   public List<TaxValues> getValues() {
@@ -76,8 +75,9 @@ public class TaxNodeList extends ArrayList<TaxNode> {
   }
 
   /**
-   * Output a delimited string for a partiular named attribute  in the list of nodes
-   * {@link IllegalArgumentException} will be thrown for a multi valued attribute.
+   * Output a delimited string for a partiular named attribute in the list of nodes {@link
+   * IllegalArgumentException} will be thrown for a multi valued attribute.
+   *
    * @param name the attribute name
    * @param delim the delimiter to use
    * @return the delimiter separated String
@@ -89,6 +89,7 @@ public class TaxNodeList extends ArrayList<TaxNode> {
 
   /**
    * Output a delimited string for the default name attribute in the list of nodes
+   *
    * @param delim The delimiter
    * @return The comma separated string never <code>null</code>
    */
@@ -99,6 +100,7 @@ public class TaxNodeList extends ArrayList<TaxNode> {
 
   /**
    * Output a comma delimited string for the default name attribute in the list of nodes.
+   *
    * @return The comma separated string never <code>null</code>
    */
   public String getDelimitedString() {

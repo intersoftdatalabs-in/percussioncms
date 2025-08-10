@@ -17,11 +17,12 @@
  */
 package com.percussion.sitemanage.importer;
 
-import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.pagemanagement.data.PSTemplateSummary;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.security.SecureStringUtils;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
@@ -32,191 +33,187 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.dao.IPSImportLogDao;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.io.IOException;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
-import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
-/**
- * Servlet that returns the content of a specific template's import log.
- */
+/** Servlet that returns the content of a specific template's import log. */
 @Transactional
 public class PSSiteImportLogViewer extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
-    private static final Logger log = LogManager.getLogger(PSSiteImportLogViewer.class);
+  private static final long serialVersionUID = 1L;
+  private static final Logger log = LogManager.getLogger(PSSiteImportLogViewer.class);
 
-    public PSSiteImportLogViewer() {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  public PSSiteImportLogViewer() {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    /**
-     * Gets the log entry for a specific template id and returns the information as a txt file.
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try (var out = response.getWriter()) {
-            response.setContentType("text/plain");
-            String outputMsg = null;
-            var templateId = request.getParameter("templateId");
-            var siteName = request.getParameter("siteName");
+  /** Gets the log entry for a specific template id and returns the information as a txt file. */
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException {
+    try (var out = response.getWriter()) {
+      response.setContentType("text/plain");
+      String outputMsg = null;
+      var templateId = request.getParameter("templateId");
+      var siteName = request.getParameter("siteName");
 
-            PSSite site = null;
-            List<PSImportLogEntry> logs = null;
-            String templateName = "";
+      PSSite site = null;
+      List<PSImportLogEntry> logs = null;
+      String templateName = "";
 
-            if (!isBlank(templateId)) {
-                try {
-                    var sum = templateService.find(templateId);
-                    if (sum != null) {
-                        templateName = sum.getName();
-                        logs = logDao.findAll(templateId, PSLogObjectType.TEMPLATE.name());
-                    }
-                } catch (PSDataServiceException e) {
-                    log.error(PSExceptionUtils.getMessageForLog(e));
-                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                    outputMsg = "No report log found for this template";
-                    out.write(outputMsg);
-                    return;
-                }
-            }
-            if (logs != null && !logs.isEmpty()) {
-                if (isBlank(siteName)) {
-                    try {
-                        siteName = siteMgr.getItemSites(idMapper.getGuid(templateId)).get(0).getName();
-                        site = siteDao.find(siteName);
-                    } catch (PSDataServiceException e) {
-                        log.error("Couldn't load template: {} Error: {}", templateName,
-                                PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                        outputMsg = "No report log found for this template";
-                        out.write(outputMsg);
-                        return;
-                    }
-                }
-
-                var templateLogEntry = getLatestLogEntry(logs);
-
-                List<Long> pageLogIds = null;
-                if (site != null && templateName.equals(site.getTemplateName())) {
-                    try {
-                        var itemIds = folderHelper.findItemIdsByPath(site.getFolderPath());
-                        pageLogIds = logDao.findLogIdsForObjects(itemIds, PSLogObjectType.PAGE.name());
-                    } catch (Exception e) {
-                        log.error("Failed to load page import logs for Site: {}, Error: {}", siteName,
-                                PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                    }
-                }
-
-                response.setHeader("Content-Disposition", "attachment;filename=" +
-                        SecureStringUtils.stripAllLineBreaks(siteName) + "-" +
-                        SecureStringUtils.stripAllLineBreaks(templateName) + "-importlog.txt");
-
-                if (templateLogEntry != null) {
-                    out.println(templateLogEntry.getLogData());
-                }
-
-                if (pageLogIds != null && !pageLogIds.isEmpty()) {
-                    for (var pageLogId : pageLogIds) {
-                        var pageLog = logDao.findLogEntryById(pageLogId);
-                        if (pageLog != null) {
-                            out.println(pageLog.getLogData());
-                        }
-                    }
-                }
-            } else {
-                outputMsg = "No report log found for this template";
-                out.write(outputMsg);
-            }
-        } catch (IOException e) {
-            throw new ServletException(e);
+      if (!isBlank(templateId)) {
+        try {
+          var sum = templateService.find(templateId);
+          if (sum != null) {
+            templateName = sum.getName();
+            logs = logDao.findAll(templateId, PSLogObjectType.TEMPLATE.name());
+          }
+        } catch (PSDataServiceException e) {
+          log.error(PSExceptionUtils.getMessageForLog(e));
+          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+          outputMsg = "No report log found for this template";
+          out.write(outputMsg);
+          return;
         }
-    }
+      }
+      if (logs != null && !logs.isEmpty()) {
+        if (isBlank(siteName)) {
+          try {
+            siteName = siteMgr.getItemSites(idMapper.getGuid(templateId)).get(0).getName();
+            site = siteDao.find(siteName);
+          } catch (PSDataServiceException e) {
+            log.error(
+                "Couldn't load template: {} Error: {}",
+                templateName,
+                PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            outputMsg = "No report log found for this template";
+            out.write(outputMsg);
+            return;
+          }
+        }
 
-    private PSImportLogEntry getLatestLogEntry(List<PSImportLogEntry> logs) {
-        logs.sort((log1, log2) -> log1.getLogEntryDate().compareTo(log2.getLogEntryDate()));
-        return logs.get(logs.size() - 1);
-    }
+        var templateLogEntry = getLatestLogEntry(logs);
 
-    /**
-     * Call doGet method.
-     */
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException {
-        doGet(req, resp);
-    }
+        List<Long> pageLogIds = null;
+        if (site != null && templateName.equals(site.getTemplateName())) {
+          try {
+            var itemIds = folderHelper.findItemIdsByPath(site.getFolderPath());
+            pageLogIds = logDao.findLogIdsForObjects(itemIds, PSLogObjectType.PAGE.name());
+          } catch (Exception e) {
+            log.error(
+                "Failed to load page import logs for Site: {}, Error: {}",
+                siteName,
+                PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+          }
+        }
 
-    // Spring dependency injection setters/getters
-    private static IPSImportLogDao logDao;
-    private static IPSTemplateService templateService;
-    private static IPSiteDao siteDao;
-    private static IPSPageService pageService;
-    private static IPSSiteManager siteMgr;
-    private static IPSIdMapper idMapper;
-    private static IPSFolderHelper folderHelper;
+        response.setHeader(
+            "Content-Disposition",
+            "attachment;filename="
+                + SecureStringUtils.stripAllLineBreaks(siteName)
+                + "-"
+                + SecureStringUtils.stripAllLineBreaks(templateName)
+                + "-importlog.txt");
 
-    public static IPSImportLogDao getLogDao() {
-        return logDao;
-    }
+        if (templateLogEntry != null) {
+          out.println(templateLogEntry.getLogData());
+        }
 
-    public static void setLogDao(IPSImportLogDao logDao) {
-        PSSiteImportLogViewer.logDao = logDao;
+        if (pageLogIds != null && !pageLogIds.isEmpty()) {
+          for (var pageLogId : pageLogIds) {
+            var pageLog = logDao.findLogEntryById(pageLogId);
+            if (pageLog != null) {
+              out.println(pageLog.getLogData());
+            }
+          }
+        }
+      } else {
+        outputMsg = "No report log found for this template";
+        out.write(outputMsg);
+      }
+    } catch (IOException e) {
+      throw new ServletException(e);
     }
+  }
 
-    public static IPSTemplateService getTemplateService() {
-        return templateService;
-    }
+  private PSImportLogEntry getLatestLogEntry(List<PSImportLogEntry> logs) {
+    logs.sort((log1, log2) -> log1.getLogEntryDate().compareTo(log2.getLogEntryDate()));
+    return logs.get(logs.size() - 1);
+  }
 
-    public static void setTemplateService(IPSTemplateService templateService) {
-        PSSiteImportLogViewer.templateService = templateService;
-    }
+  /** Call doGet method. */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+    doGet(req, resp);
+  }
 
-    public static IPSiteDao getSiteDao() {
-        return siteDao;
-    }
+  // Spring dependency injection setters/getters
+  private static IPSImportLogDao logDao;
+  private static IPSTemplateService templateService;
+  private static IPSiteDao siteDao;
+  private static IPSPageService pageService;
+  private static IPSSiteManager siteMgr;
+  private static IPSIdMapper idMapper;
+  private static IPSFolderHelper folderHelper;
 
-    public static void setSiteDao(IPSiteDao siteDao) {
-        PSSiteImportLogViewer.siteDao = siteDao;
-    }
+  public static IPSImportLogDao getLogDao() {
+    return logDao;
+  }
 
-    public static IPSPageService getPageService() {
-        return pageService;
-    }
+  public static void setLogDao(IPSImportLogDao logDao) {
+    PSSiteImportLogViewer.logDao = logDao;
+  }
 
-    public static void setPageService(IPSPageService pageService) {
-        PSSiteImportLogViewer.pageService = pageService;
-    }
+  public static IPSTemplateService getTemplateService() {
+    return templateService;
+  }
 
-    public static IPSSiteManager getSiteMgr() {
-        return siteMgr;
-    }
+  public static void setTemplateService(IPSTemplateService templateService) {
+    PSSiteImportLogViewer.templateService = templateService;
+  }
 
-    public static void setSiteMgr(IPSSiteManager siteMgr) {
-        PSSiteImportLogViewer.siteMgr = siteMgr;
-    }
+  public static IPSiteDao getSiteDao() {
+    return siteDao;
+  }
 
-    public static IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+  public static void setSiteDao(IPSiteDao siteDao) {
+    PSSiteImportLogViewer.siteDao = siteDao;
+  }
 
-    public static void setIdMapper(IPSIdMapper idMapper) {
-        PSSiteImportLogViewer.idMapper = idMapper;
-    }
+  public static IPSPageService getPageService() {
+    return pageService;
+  }
 
-    public static void setFolderHelper(IPSFolderHelper folderHelper) {
-        PSSiteImportLogViewer.folderHelper = folderHelper;
-    }
+  public static void setPageService(IPSPageService pageService) {
+    PSSiteImportLogViewer.pageService = pageService;
+  }
+
+  public static IPSSiteManager getSiteMgr() {
+    return siteMgr;
+  }
+
+  public static void setSiteMgr(IPSSiteManager siteMgr) {
+    PSSiteImportLogViewer.siteMgr = siteMgr;
+  }
+
+  public static IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
+
+  public static void setIdMapper(IPSIdMapper idMapper) {
+    PSSiteImportLogViewer.idMapper = idMapper;
+  }
+
+  public static void setFolderHelper(IPSFolderHelper folderHelper) {
+    PSSiteImportLogViewer.folderHelper = folderHelper;
+  }
 }

@@ -31,15 +31,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Server-side implementation of
- * {@link com.percussion.design.catalog.security.PSObjectTypesCatalogHandler}.
- * See that class for more details.
+ * Server-side implementation of {@link
+ * com.percussion.design.catalog.security.PSObjectTypesCatalogHandler}. See that class for more
+ * details.
  */
 public class PSObjectTypesCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSObjectTypesCatalogHandler() {
     super();
   }
@@ -47,10 +45,9 @@ public class PSObjectTypesCatalogHandler extends PSCatalogRequestHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_RequestDTD};
@@ -59,12 +56,10 @@ public class PSObjectTypesCatalogHandler extends PSCatalogRequestHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -120,9 +115,7 @@ public class PSObjectTypesCatalogHandler extends PSCatalogRequestHandler
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

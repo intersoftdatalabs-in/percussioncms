@@ -18,11 +18,11 @@
 package com.percussion.HTTPClient;
 
 /**
- * This class represents an http request. It's used by classes which
- * implement the HTTPClientModule interface.
+ * This class represents an http request. It's used by classes which implement the HTTPClientModule
+ * interface.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public final class Request implements RoRequest, Cloneable {
@@ -50,8 +50,10 @@ public final class Request implements RoRequest, Cloneable {
   /** are modules allowed to popup windows or otherwise prompt user? */
   private boolean allow_ui;
 
-  /** number of millisecs to wait for an error from the server before sending
-   * the entity (used when retrying requests) */
+  /**
+   * number of millisecs to wait for an error from the server before sending the entity (used when
+   * retrying requests)
+   */
   long delay_entity = 0;
 
   /** number of retries so far */
@@ -71,12 +73,12 @@ public final class Request implements RoRequest, Cloneable {
   /**
    * Creates a new request structure.
    *
-   * @param con      the current HTTPConnection
-   * @param method   the request method
-   * @param req_uri  the request-uri
-   * @param headers  the request headers
-   * @param data     the entity as a byte[]
-   * @param stream   the entity as a stream
+   * @param con the current HTTPConnection
+   * @param method the request method
+   * @param req_uri the request-uri
+   * @param headers the request headers
+   * @param data the entity as a byte[]
+   * @param stream the entity as a stream
    * @param allow_ui allow user interaction
    */
   public Request(
@@ -199,16 +201,16 @@ public final class Request implements RoRequest, Cloneable {
   }
 
   /**
-   * @return true if the modules or handlers for this request may popup
-   *         windows or otherwise interact with the user
+   * @return true if the modules or handlers for this request may popup windows or otherwise
+   *     interact with the user
    */
   public boolean allowUI() {
     return allow_ui;
   }
 
   /**
-   * @param allow_ui are modules and handlers allowed to popup windows or
-   *                otherwise interact with the user?
+   * @param allow_ui are modules and handlers allowed to popup windows or otherwise interact with
+   *     the user?
    */
   public void setAllowUI(boolean allow_ui) {
     this.allow_ui = allow_ui;

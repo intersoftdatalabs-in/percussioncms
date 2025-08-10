@@ -33,16 +33,13 @@ import org.xml.sax.SAXException;
 
 public class PSCharSets {
   // CS_MAP_FILE must be defined before use in a static initializer (below)
-  /**
-   * Name of the file in which character set maps are stored.
-   */
+  /** Name of the file in which character set maps are stored. */
   public static final String CS_MAP_FILE = "csmaps.xml";
 
   /**
-   * Gets the IANA name for the encoding alias. If no IANA name is available,
-   * gets an equivalent encoding name that is supported by IBM's XML parser.
-   * If no standard version of this name is available, and no equivalent
-   * encoding name is available, the parameter itself is returned.
+   * Gets the IANA name for the encoding alias. If no IANA name is available, gets an equivalent
+   * encoding name that is supported by IBM's XML parser. If no standard version of this name is
+   * available, and no equivalent encoding name is available, the parameter itself is returned.
    *
    * @param encodingAlias The (possibly non-standard) encoding name.
    */
@@ -59,9 +56,8 @@ public class PSCharSets {
   }
 
   /**
-   * Gets the Java name for the encoding alias. If no Java name is available,
-   * and no equivalent encoding name is available, the parameter itself is
-   * returned.
+   * Gets the Java name for the encoding alias. If no Java name is available, and no equivalent
+   * encoding name is available, the parameter itself is returned.
    *
    * @param encodingAlias The (possibly non-standard) encoding name.
    */
@@ -80,7 +76,7 @@ public class PSCharSets {
   /**
    * Gets the IANA name for the default Java encoding for this locale.
    *
-   * The return value is equivalent to getStdName(System.getProperty("file.encoding")).
+   * <p>The return value is equivalent to getStdName(System.getProperty("file.encoding")).
    */
   public static String getLocalStdName() {
     // DBG>
@@ -89,9 +85,7 @@ public class PSCharSets {
     return ms_localStdName;
   }
 
-  /**
-   * Get the default Java encoding for this locale.
-   */
+  /** Get the default Java encoding for this locale. */
   public static String getLocalJavaName() {
     // DBG>
     //       System.out.println("localJavaName()=" + ms_localJavaName);
@@ -100,34 +94,28 @@ public class PSCharSets {
   }
 
   /**
-   * Get the standard name of the preferred encoding for
-   * Rhythmyx. This encoding is guaranteed to be acceptable for
-   * XML parsers and HTTP servers, and should be some kind of Unicode
-   * so that we can be sure all characters are representable.
-   * <P>
-   * The return value is the standard name for rxJavaEnc()
+   * Get the standard name of the preferred encoding for Rhythmyx. This encoding is guaranteed to be
+   * acceptable for XML parsers and HTTP servers, and should be some kind of Unicode so that we can
+   * be sure all characters are representable.
+   *
+   * <p>The return value is the standard name for rxJavaEnc()
    */
   public static String rxStdEnc() {
     return "UTF-8";
   }
 
   /**
-   * Get the standard name of the preferred encoding for
-   * Rhythmyx. This encoding is guaranteed to be acceptable for
-   * Sun's Java methods which take a character encoding, and should be
-   * some kind of Unicode so that we can be sure all characters are
-   * representable.
-   * <P>
-   * The return value is the Java name for rxStdEnc()
+   * Get the standard name of the preferred encoding for Rhythmyx. This encoding is guaranteed to be
+   * acceptable for Sun's Java methods which take a character encoding, and should be some kind of
+   * Unicode so that we can be sure all characters are representable.
+   *
+   * <p>The return value is the Java name for rxStdEnc()
    */
   public static String rxJavaEnc() {
     return "UTF8";
   }
 
-  /**
-   * Initializing mappings from the given properties file. This should happen
-   * once, statically.
-   */
+  /** Initializing mappings from the given properties file. This should happen once, statically. */
   private static void initializeMappings(String filename) throws IOException, SAXException {
     InputStream in = PSCharSets.class.getResourceAsStream(filename);
 
@@ -201,10 +189,7 @@ public class PSCharSets {
     }
   }
 
-  /**
-   * Represents an encoding, its standard name, its java name,
-   * and all aliases.
-   */
+  /** Represents an encoding, its standard name, its java name, and all aliases. */
   private static class PSEncoding {
     /** Construct this encoding from an XML element */
     public PSEncoding(Element el) {
@@ -271,40 +256,34 @@ public class PSCharSets {
 
   /**
    * Guesses whether the encoding is UTF-8, ISO-8859-1, or US-ASCII.
-   * <P>
-   * <B>UTF-8</B>
-   * <P>
-   * UCS characters U+0000 to U+007F (ASCII) are encoded simply as
-   * bytes 0x00 to 0x7F (ASCII compatibility). This means that files
-   * and strings which contain only 7-bit ASCII characters have the
-   * same encoding under both ASCII and UTF-8.
-   * <P>
-   * All UCS characters >U+007F are encoded as a sequence of several
-   * bytes, each of which has the most significant bit set. Therefore,
-   * no ASCII byte (0x00-0x7F) can appear as part of any other character.
-   * <P>
-   * The first byte of a multibyte sequence that represents a non-ASCII
-   * character is always in the range 0xC0 to 0xFD and it indicates how
-   * many bytes follow for this character. All further bytes in a multibyte
-   * sequence are in the range 0x80 to 0xBF. This allows easy
-   * resynchronization and makes the encoding stateless and robust
-   * against missing bytes.
-   * <P>
-   * <B>ISO-8859-1</B>
-   * <P>
-   * ISO 8859-X character sets use the characters 0xa0 through 0xff to
-   * represent national characters, while the characters in the
-   * 0x20-0x7f range are those used in the US-ASCII (ISO 646) character
-   * set.  Thus, ASCII text is a proper subset of all ISO 8859-X
-   * character sets.
-   * <P>
-   * The characters 0x80 through 0x9f are earmarked as extended control
-   * chracters, and are not used for encoding characters.  These characters
-   * are not currently used to specify anything.
-   * <P>
-   * <B>US-ASCII</B> If all characters are below 127, then we could really
-   * return either UTF-8 or ISO-8859-1 because they are both identical in
-   * this range. Instead, we just return null (no guess).
+   *
+   * <p><B>UTF-8</B>
+   *
+   * <p>UCS characters U+0000 to U+007F (ASCII) are encoded simply as bytes 0x00 to 0x7F (ASCII
+   * compatibility). This means that files and strings which contain only 7-bit ASCII characters
+   * have the same encoding under both ASCII and UTF-8.
+   *
+   * <p>All UCS characters >U+007F are encoded as a sequence of several bytes, each of which has the
+   * most significant bit set. Therefore, no ASCII byte (0x00-0x7F) can appear as part of any other
+   * character.
+   *
+   * <p>The first byte of a multibyte sequence that represents a non-ASCII character is always in
+   * the range 0xC0 to 0xFD and it indicates how many bytes follow for this character. All further
+   * bytes in a multibyte sequence are in the range 0x80 to 0xBF. This allows easy resynchronization
+   * and makes the encoding stateless and robust against missing bytes.
+   *
+   * <p><B>ISO-8859-1</B>
+   *
+   * <p>ISO 8859-X character sets use the characters 0xa0 through 0xff to represent national
+   * characters, while the characters in the 0x20-0x7f range are those used in the US-ASCII (ISO
+   * 646) character set. Thus, ASCII text is a proper subset of all ISO 8859-X character sets.
+   *
+   * <p>The characters 0x80 through 0x9f are earmarked as extended control chracters, and are not
+   * used for encoding characters. These characters are not currently used to specify anything.
+   *
+   * <p><B>US-ASCII</B> If all characters are below 127, then we could really return either UTF-8 or
+   * ISO-8859-1 because they are both identical in this range. Instead, we just return null (no
+   * guess).
    */
   public static int guessEncoding(byte[] bytes) {
     return guessEncoding(bytes, 0, bytes.length);

@@ -25,72 +25,77 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a node in a transformable category tree.
- */
+/** Represents a node in a transformable category tree. */
 @XmlRootElement(name = "CategoryNode")
 public class PSTransformCategoryNode {
 
-    private String id;
-    private String label;
-    private String selectable;
-    private List<PSTransformCategoryNode> childNodes = new ArrayList<>();
+  private String id;
+  private String label;
+  private String selectable;
+  private List<PSTransformCategoryNode> childNodes = new ArrayList<>();
 
-    @XmlAttribute(name = "id")
-    public String getId() {
-        return id;
-    }
+  @XmlAttribute(name = "id")
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    @XmlAttribute(name = "label")
-    public String getLabel() {
-        return label;
-    }
+  @XmlAttribute(name = "label")
+  public String getLabel() {
+    return label;
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    @XmlAttribute(name = "selectable")
-    public String getSelectable() {
-        return selectable;
-    }
+  @XmlAttribute(name = "selectable")
+  public String getSelectable() {
+    return selectable;
+  }
 
-    public void setSelectable(String selectable) {
-        this.selectable = selectable;
-    }
+  public void setSelectable(String selectable) {
+    this.selectable = selectable;
+  }
 
-    @XmlElement(name = "Node")
-    public List<PSTransformCategoryNode> getChildNodes() {
-        return childNodes;
-    }
+  @XmlElement(name = "Node")
+  public List<PSTransformCategoryNode> getChildNodes() {
+    return childNodes;
+  }
 
-    public void setChildNodes(List<PSTransformCategoryNode> childNodes) {
-        this.childNodes = childNodes;
-    }
+  public void setChildNodes(List<PSTransformCategoryNode> childNodes) {
+    this.childNodes = childNodes;
+  }
 
-    @Override
-    public String toString() {
-        return "PSTransformCategoryNode [id=" + id + ", label=" + label + ", selectable=" + selectable
-                + ", childNodes=" + childNodes + "]";
-    }
+  @Override
+  public String toString() {
+    return "PSTransformCategoryNode [id="
+        + id
+        + ", label="
+        + label
+        + ", selectable="
+        + selectable
+        + ", childNodes="
+        + childNodes
+        + "]";
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(childNodes, id, label, selectable);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(childNodes, id, label, selectable);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof PSTransformCategoryNode)) return false;
-        var other = (PSTransformCategoryNode) obj;
-        return Objects.equals(childNodes, other.childNodes)
-                && Objects.equals(id, other.id)
-                && Objects.equals(label, other.label)
-                && Objects.equals(selectable, other.selectable);
-    }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PSTransformCategoryNode)) return false;
+    var other = (PSTransformCategoryNode) obj;
+    return Objects.equals(childNodes, other.childNodes)
+        && Objects.equals(id, other.id)
+        && Objects.equals(label, other.label)
+        && Objects.equals(selectable, other.selectable);
+  }
 }

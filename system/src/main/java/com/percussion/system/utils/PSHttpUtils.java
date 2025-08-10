@@ -24,13 +24,11 @@ import java.util.Map;
 public class PSHttpUtils extends PSBaseHttpUtils {
 
   /**
-   * Store a set of cookies by parsing the cookie header value. The
-   * cookies will be stored in the map with the lowercased param
-   * names as the key to the param values.
+   * Store a set of cookies by parsing the cookie header value. The cookies will be stored in the
+   * map with the lowercased param names as the key to the param values.
    *
-   * @param      value      the cookie header field value
-   * @param      cookies      used to store cookies in
-   *
+   * @param value the cookie header field value
+   * @param cookies used to store cookies in
    * @return The number of cookie values parsed.
    */
   @SuppressWarnings("unchecked")
@@ -39,14 +37,12 @@ public class PSHttpUtils extends PSBaseHttpUtils {
   }
 
   /**
-   * Gets the HTTP header: USER_AGENT and searches, ignoring case, for
-   * indications that the operating system is Windows, Macintosh, or other.
-   *
+   * Gets the HTTP header: USER_AGENT and searches, ignoring case, for indications that the
+   * operating system is Windows, Macintosh, or other.
    *
    * @param request The request context, may not be <code>null</code>.
-   *
-   * @return The os, as one of the OS_XXX constants.  If it cannot be
-   * determined, OS_OTHER is returned.  Never <code>null</code> or empty.
+   * @return The os, as one of the OS_XXX constants. If it cannot be determined, OS_OTHER is
+   *     returned. Never <code>null</code> or empty.
    */
   public static String getRequestorOS(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("Request may not be null");
@@ -75,12 +71,11 @@ public class PSHttpUtils extends PSBaseHttpUtils {
   }
 
   /**
-   * Returns the directory separator to use based on the OS as determined from
-   * the USER_AGENT cgi variable.
+   * Returns the directory separator to use based on the OS as determined from the USER_AGENT cgi
+   * variable.
    *
    * @param request The request context, may not be <code>null</code>.
-   *
-   * @return The path separator to use.  Never <code>null</code> or emtpy.
+   * @return The path separator to use. Never <code>null</code> or emtpy.
    */
   public static String getRequestorDirectorySeperator(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("Request may not be null");

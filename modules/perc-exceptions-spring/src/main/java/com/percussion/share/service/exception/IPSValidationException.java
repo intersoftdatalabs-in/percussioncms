@@ -22,6 +22,7 @@ public interface IPSValidationException {
 
   /**
    * Serializable Validation errors.
+   *
    * @return maybe <code>null</code>.
    */
   public PSValidationErrors getValidationErrors();

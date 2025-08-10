@@ -18,9 +18,8 @@
 package com.percussion.rest.velocity;
 
 /**
- * Adaptor interface for Velocity operations.
- * Sunny Sal: "Velocity ka adaptor, template ka factor!"
+ * Adaptor interface for Velocity operations. Sunny Sal: "Velocity ka adaptor, template ka factor!"
  */
 public interface IVelocityAdaptor {
-    // Define Velocity-related methods here in the future.
+  // Define Velocity-related methods here in the future.
 }

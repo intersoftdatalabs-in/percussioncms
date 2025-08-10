@@ -20,78 +20,74 @@ package com.percussion.test;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.system.utils.IPSHtmlParameters;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import java.io.InputStream;
+import java.util.Properties;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import java.io.InputStream;
-import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * Base class for REST client test cases.
- * // REFACTORED: CP-JAVA11
- */
+/** Base class for REST client test cases. // REFACTORED: CP-JAVA11 */
 public class PSRestClientTestCase {
 
-    private static final Logger log = LogManager.getLogger(PSRestClientTestCase.class);
+  private static final Logger log = LogManager.getLogger(PSRestClientTestCase.class);
 
-    protected static final Client c;
-    protected static String baseUrl = null;
+  protected static final Client c;
+  protected static String baseUrl = null;
 
-    static {
-        c = ClientBuilder.newClient();
-    }
+  static {
+    c = ClientBuilder.newClient();
+  }
 
-    protected WebTarget r;
+  protected WebTarget r;
 
-    protected void setUp() throws Exception {
-        try {
-            if (baseUrl == null) {
-                var cactusProps = new Properties();
-                try (InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties")) {
-                    if (stream == null) {
-                        throw new RuntimeException("Cannot find cactus.properties");
-                    }
-                    cactusProps.load(stream);
-                }
-                baseUrl = cactusProps.getProperty("cactus.contextURL");
-            }
-        } catch (Exception e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+  protected void setUp() throws Exception {
+    try {
+      if (baseUrl == null) {
+        var cactusProps = new Properties();
+        try (InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties")) {
+          if (stream == null) {
+            throw new RuntimeException("Cannot find cactus.properties");
+          }
+          cactusProps.load(stream);
         }
-        r = c.target(baseUrl);
+        baseUrl = cactusProps.getProperty("cactus.contextURL");
+      }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
     }
+    r = c.target(baseUrl);
+  }
 
-    protected Builder getBuilder(WebTarget wr, Client client, String userName) {
-        final var authFilter = new HTTPBasicAuthFilter(userName, "demo");
-        client.register(authFilter);
-        return wr.request(MediaType.APPLICATION_JSON_TYPE)
-                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
-    }
+  protected Builder getBuilder(WebTarget wr, Client client, String userName) {
+    final var authFilter = new HTTPBasicAuthFilter(userName, "demo");
+    client.register(authFilter);
+    return wr.request(MediaType.APPLICATION_JSON_TYPE)
+        .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
+  }
 
-    protected Builder getBuilder(WebTarget wr, String userName) {
-        final var authFilter = new HTTPBasicAuthFilter(userName, "demo");
-        c.register(authFilter);
-        return wr.request(MediaType.APPLICATION_JSON_TYPE)
-                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
-    }
+  protected Builder getBuilder(WebTarget wr, String userName) {
+    final var authFilter = new HTTPBasicAuthFilter(userName, "demo");
+    c.register(authFilter);
+    return wr.request(MediaType.APPLICATION_JSON_TYPE)
+        .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
+  }
 
-    protected Builder getBuilder(WebTarget wr) {
-        final var authFilter = new HTTPBasicAuthFilter("Admin", "demo");
-        c.register(authFilter);
-        return wr.request(MediaType.APPLICATION_JSON_TYPE)
-                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
-    }
+  protected Builder getBuilder(WebTarget wr) {
+    final var authFilter = new HTTPBasicAuthFilter("Admin", "demo");
+    c.register(authFilter);
+    return wr.request(MediaType.APPLICATION_JSON_TYPE)
+        .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
+  }
 
-    protected static Builder getBuilder(WebTarget wr, Client client) {
-        final var authFilter = new HTTPBasicAuthFilter("Admin", "demo");
-        client.register(authFilter);
-        return wr.request(MediaType.APPLICATION_JSON_TYPE)
-                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
-    }
+  protected static Builder getBuilder(WebTarget wr, Client client) {
+    final var authFilter = new HTTPBasicAuthFilter("Admin", "demo");
+    client.register(authFilter);
+    return wr.request(MediaType.APPLICATION_JSON_TYPE)
+        .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE);
+  }
 }

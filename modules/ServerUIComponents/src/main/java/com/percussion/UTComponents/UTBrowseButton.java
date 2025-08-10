@@ -21,14 +21,11 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * Creates a small, square button that has 3 dots that is typically used to
- * bring up some sort of browser dialog. The button attempts to maintain a
- * fixed size.
+ * Creates a small, square button that has 3 dots that is typically used to bring up some sort of
+ * browser dialog. The button attempts to maintain a fixed size.
  */
 public class UTBrowseButton extends JButton {
-  /**
-   * The standard ctor for the browse button object.
-   */
+  /** The standard ctor for the browse button object. */
   public UTBrowseButton() {
     ImageIcon icon =
         BitmapManager.getBitmapManager(this.getClass()).getImage("images/optional.gif");

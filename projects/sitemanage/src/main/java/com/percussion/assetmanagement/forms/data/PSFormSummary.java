@@ -18,194 +18,187 @@
 
 package com.percussion.assetmanagement.forms.data;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
-import com.percussion.itemmanagement.data.IPSEditableItem;
-import com.percussion.share.data.PSAbstractDataObject;
-import net.sf.oval.constraint.NotEmpty;
-import net.sf.oval.constraint.NotNull;
-
-import java.util.Optional;
-
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
-/**
- * Holds the summary information of a form asset.
- */
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.percussion.itemmanagement.data.IPSEditableItem;
+import com.percussion.share.data.PSAbstractDataObject;
+import java.util.Optional;
+import net.sf.oval.constraint.NotEmpty;
+import net.sf.oval.constraint.NotNull;
+
+/** Holds the summary information of a form asset. */
 @JsonRootName("FormSummary")
 public class PSFormSummary extends PSAbstractDataObject implements IPSEditableItem {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSFormSummary() {
-        // For serialization
-    }
+  public PSFormSummary() {
+    // For serialization
+  }
 
-    /**
-     * @return the name of the form, never blank.
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * @return the name of the form, never blank.
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * @param name must not be blank.
-     */
-    public void setName(String name) {
-        notEmpty(name);
-        this.name = name;
-    }
+  /**
+   * @param name must not be blank.
+   */
+  public void setName(String name) {
+    notEmpty(name);
+    this.name = name;
+  }
 
-    /**
-     * @return the title of the form.
-     */
-    public String getTitle() {
-        return title;
-    }
+  /**
+   * @return the title of the form.
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * @param title of the form. Must not be {@code null}.
-     */
-    public void setTitle(String title) {
-        notNull(title);
-        this.title = title;
-    }
+  /**
+   * @param title of the form. Must not be {@code null}.
+   */
+  public void setTitle(String title) {
+    notNull(title);
+    this.title = title;
+  }
 
-    /**
-     * @return the form description.
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * @return the form description.
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * @param description the form description to set. Must not be {@code null}.
-     */
-    public void setDescription(String description) {
-        notNull(description);
-        this.description = description;
-    }
+  /**
+   * @param description the form description to set. Must not be {@code null}.
+   */
+  public void setDescription(String description) {
+    notNull(description);
+    this.description = description;
+  }
 
-    /**
-     * @return the workflow state of the form. May be a valid workflow state or "None" for forms which only exist on
-     * the delivery tier.
-     */
-    public String getState() {
-        return state;
-    }
+  /**
+   * @return the workflow state of the form. May be a valid workflow state or "None" for forms which
+   *     only exist on the delivery tier.
+   */
+  public String getState() {
+    return state;
+  }
 
-    /**
-     * @param state the workflow state of the form to set. Must not be blank.
-     */
-    public void setState(String state) {
-        notEmpty(state);
-        this.state = state;
-    }
+  /**
+   * @param state the workflow state of the form to set. Must not be blank.
+   */
+  public void setState(String state) {
+    notEmpty(state);
+    this.state = state;
+  }
 
-    /**
-     * @return type of the form. All forms are assets.
-     */
-    public String getType() {
-        return IPSEditableItem.ASSET_TYPE;
-    }
+  /**
+   * @return type of the form. All forms are assets.
+   */
+  public String getType() {
+    return IPSEditableItem.ASSET_TYPE;
+  }
 
-    /**
-     * @param type of the form to set.
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
+  /**
+   * @param type of the form to set.
+   */
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    /**
-     * @return id of the form.
-     */
-    public String getId() {
-        return id;
-    }
+  /**
+   * @return id of the form.
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * @param id the id to set.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
+  /**
+   * @param id the id to set.
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * @return the total number of submissions that have come in for the form.
-     */
-    public int getTotalSubmissions() {
-        return totalSubmissions;
-    }
+  /**
+   * @return the total number of submissions that have come in for the form.
+   */
+  public int getTotalSubmissions() {
+    return totalSubmissions;
+  }
 
-    /**
-     * @param totalSubmissions the total number of submissions that have come in for the form.
-     */
-    public void setTotalSubmissions(int totalSubmissions) {
-        this.totalSubmissions = totalSubmissions;
-    }
+  /**
+   * @param totalSubmissions the total number of submissions that have come in for the form.
+   */
+  public void setTotalSubmissions(int totalSubmissions) {
+    this.totalSubmissions = totalSubmissions;
+  }
 
-    /**
-     * @return the number of submissions for the form which have not been exported.
-     */
-    public int getNewSubmissions() {
-        return newSubmissions;
-    }
+  /**
+   * @return the number of submissions for the form which have not been exported.
+   */
+  public int getNewSubmissions() {
+    return newSubmissions;
+  }
 
-    /**
-     * @param newSubmissions the number of submissions for the form which have not been exported.
-     */
-    public void setNewSubmissions(int newSubmissions) {
-        this.newSubmissions = newSubmissions;
-    }
+  /**
+   * @param newSubmissions the number of submissions for the form which have not been exported.
+   */
+  public void setNewSubmissions(int newSubmissions) {
+    this.newSubmissions = newSubmissions;
+  }
 
-    /**
-     * Set the path.
-     *
-     * @param path the new path, should not be {@code null} or empty for a valid path.
-     */
-    public void setPath(String path) {
-        this.path = path;
-    }
+  /**
+   * Set the path.
+   *
+   * @param path the new path, should not be {@code null} or empty for a valid path.
+   */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * Gets the path.
-     *
-     * @return the path, should not be {@code null} or empty for a valid path.
-     */
-    public Optional<String> getPath() {
-        return Optional.ofNullable(path);
-    }
+  /**
+   * Gets the path.
+   *
+   * @return the path, should not be {@code null} or empty for a valid path.
+   */
+  public Optional<String> getPath() {
+    return Optional.ofNullable(path);
+  }
 
-    /**
-     * @return the site associated with the form, if any.
-     */
-    public Optional<String> getSite() {
-        return Optional.ofNullable(site);
-    }
+  /**
+   * @return the site associated with the form, if any.
+   */
+  public Optional<String> getSite() {
+    return Optional.ofNullable(site);
+  }
 
-    /**
-     * @param site the site to set.
-     */
-    public void setSite(String site) {
-        this.site = site;
-    }
+  /**
+   * @param site the site to set.
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    @NotEmpty
-    private String name;
+  @NotEmpty private String name;
 
-    @NotNull
-    private String title;
+  @NotNull private String title;
 
-    @NotNull
-    private String description;
+  @NotNull private String description;
 
-    @NotEmpty
-    private String state;
+  @NotEmpty private String state;
 
-    private String type;
-    private String id;
-    private String path;
-    private int totalSubmissions = 0;
-    private int newSubmissions = 0;
-    private String site;
+  private String type;
+  private String id;
+  private String path;
+  private int totalSubmissions = 0;
+  private int newSubmissions = 0;
+  private String site;
 }

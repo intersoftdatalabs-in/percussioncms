@@ -33,23 +33,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The base class for items in the CMS layer.  This class does all of the heavy
- * lifting by providing the implementation for the majority of functionality .
- * It is database unaware.
- * <P />
- * There are 2 ways to populate an instance w/ existing data, by supplying
- * an xml document in the sys_StandardItem.xsd format, or by calling the various
- * protected and public methods to allow setting of the data.
+ * The base class for items in the CMS layer. This class does all of the heavy lifting by providing
+ * the implementation for the majority of functionality . It is database unaware.
+ *
+ * <p>There are 2 ways to populate an instance w/ existing data, by supplying an xml document in the
+ * sys_StandardItem.xsd format, or by calling the various protected and public methods to allow
+ * setting of the data.
  */
 public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
 
   /**
-   * Creates a new <code>PSCoreItem</code> with only definition information and
-   * no data information.  This constructor will be used by the remote clients.
+   * Creates a new <code>PSCoreItem</code> with only definition information and no data information.
+   * This constructor will be used by the remote clients.
    *
    * @param itemDefinition must not be <code>null</code>.
-   * @throws PSCmsException - if an extraction error occurs while the
-   * definition is being extracted.
+   * @throws PSCmsException - if an extraction error occurs while the definition is being extracted.
    */
   public PSCoreItem(PSItemDefinition itemDefinition) throws PSCmsException {
     if (itemDefinition == null)
@@ -80,7 +78,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Called by the extractor.  Accepts an <code>IPSVisitor</code>.
+   * Called by the extractor. Accepts an <code>IPSVisitor</code>.
    *
    * @param visitor must not be <code>null</code>
    */
@@ -118,35 +116,35 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Once an item has gone public, the revision lock gets set, after which on
-   * every update the revision will change.
+   * Once an item has gone public, the revision lock gets set, after which on every update the
+   * revision will change.
    *
-   * @return  If this item is locked this method will return <code>true</code>
-   * and means that it has gone public and the revision id will be incremented
-   * upon update.  Otherwise <code>false</code>.
+   * @return If this item is locked this method will return <code>true</code> and means that it has
+   *     gone public and the revision id will be incremented upon update. Otherwise <code>false
+   *     </code>.
    */
   public boolean isRevisionLocked() {
     return m_revisionLock;
   }
 
   /**
-   * Sets the locked state.See {@link #isRevisionLocked() isRevisionLocked()}
-   * for a description of locking.
+   * Sets the locked state.See {@link #isRevisionLocked() isRevisionLocked()} for a description of
+   * locking.
    *
-   * @param locked <code>true</code> if it is locked otherwise
-   *    <code>false</code>.
+   * @param locked <code>true</code> if it is locked otherwise <code>false</code>.
    */
   public void isRevisionLocked(boolean locked) {
     m_revisionLock = locked;
   }
 
   /**
-   * Convenience method calls
-   * {@link #toMinXml(Document,boolean,boolean,boolean,boolean)
+   * Convenience method calls {@link #toMinXml(Document,boolean,boolean,boolean,boolean)
    * toMinXml(doc, true, true, true, false)}.
    */
   public Element toXml(Document doc) {
-    /** @todo: this method should return the entire document **/
+    /**
+     * @todo: this method should return the entire document *
+     */
     return toMinXml(doc, true, true, true, false);
   }
 
@@ -169,16 +167,15 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Return the minimum XML constrained to the sys_StandardItem.xsd schema
-   * based on the following flags:
+   * Return the minimum XML constrained to the sys_StandardItem.xsd schema based on the following
+   * flags:
    *
-   * @param doc the parent doc from which to create the elements, never
-   * <code>null</code>
+   * @param doc the parent doc from which to create the elements, never <code>null</code>
    * @param includeFields include all fields in the return doc
    * @param includeChilds include all the child fields in the return doc
    * @param includeRelated include all the related fields in the return doc
-   * @param includeBinary include binary fields in the return doc - does not
-   * apply to binary fields in children.
+   * @param includeBinary include binary fields in the return doc - does not apply to binary fields
+   *     in children.
    * @return a document representation of a subset of this Core Item
    */
   public Element toMinXml(
@@ -244,9 +241,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     return root;
   }
 
-  /**
-   * Initialize objects.
-   */
+  /** Initialize objects. */
   private void init() {
     m_fieldNameFieldMap = new HashMap<>();
     m_childNameChildMap = new HashMap<>();
@@ -351,16 +346,16 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
-   * An element node may contain a hierarchical structure, including child
+   * This method is called to populate an object from its XML representation. It assumes that the
+   * object may already have a complete data structure, therefore method only overlays the data onto
+   * the existing object. An element node may contain a hierarchical structure, including child
    * objects. The element node can also be a child of another element node.
+   *
    * <p>
-   * @param sourceNode   the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by this class.
    */
   public void loadXmlData(Element sourceNode) throws PSUnknownNodeTypeException {
     loadXmlData(sourceNode, false);
@@ -459,12 +454,11 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * This method is called to populate an object from another core item.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
+   * This method is called to populate an object from another core item. It assumes that the object
+   * may already have a complete data structure, therefore method only overlays the data onto the
+   * existing object.
    *
-   * @param item the core item from which to merge, may not be
-   * <code>null</code>.
+   * @param item the core item from which to merge, may not be <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public void loadData(PSCoreItem item) {
@@ -576,8 +570,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns all field names of this item.,
    *
-   * @return an unmodifiable <code>Iterator</code> with all field names
-   *    as <code>Strings</code>. May be empty but not <code>null</code>.
+   * @return an unmodifiable <code>Iterator</code> with all field names as <code>Strings</code>. May
+   *     be empty but not <code>null</code>.
    */
   public Iterator<String> getAllFieldNames() {
     return Collections.unmodifiableSet(m_fieldNameFieldMap.keySet()).iterator();
@@ -586,10 +580,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns the requested field.
    *
-   * @param fieldName the case sensitive name of the field that will be
-   *    returned if it exists in this item. Must not be empty or
-   *    <code>null</code>.
-   *
+   * @param fieldName the case sensitive name of the field that will be returned if it exists in
+   *     this item. Must not be empty or <code>null</code>.
    * @return the requested field, <code>null</code> if not found.
    */
   public PSItemField getFieldByName(String fieldName) {
@@ -602,8 +594,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns all fields of this item.
    *
-   * @return an unmodifiable <code>Iterator</code> of <code>PSItemField</code>
-   *    objects. May be empty but not <code>null</code>.
+   * @return an unmodifiable <code>Iterator</code> of <code>PSItemField</code> objects. May be empty
+   *     but not <code>null</code>.
    */
   public Iterator<PSItemField> getAllFields() {
     if (m_fieldNameFieldMap == null || m_fieldNameFieldMap.values() == null) {
@@ -617,8 +609,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns all children of this item.
    *
-   * @return an unmodifiable <code>Iterator</code> of <code>PSItemChild</code>
-   *    objects. May be empty but not <code>null</code>.
+   * @return an unmodifiable <code>Iterator</code> of <code>PSItemChild</code> objects. May be empty
+   *     but not <code>null</code>.
    */
   public Iterator<PSItemChild> getAllChildren() {
     if (m_childNameChildMap == null || m_childNameChildMap.values() == null) {
@@ -632,9 +624,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns all child names.
    *
-   * @return unmodifiable <code>Iterator</code> of all of the
-   *    <code>PSItemChild</code> names as <code>Strings</code>. May be empty
-   *    but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of all of the <code>PSItemChild</code> names as
+   *     <code>Strings</code>. May be empty but not <code>null</code>.
    */
   public Iterator<String> getAllChildNames() {
     return Collections.unmodifiableSet(m_childNameChildMap.keySet()).iterator();
@@ -643,9 +634,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns all related items.
    *
-   * @return an unmodifiable <code>Iterator</code> with all
-   *    <code>PSItemRelatedItem</code> objects, never <code>null</code>,
-   *    may be empty.
+   * @return an unmodifiable <code>Iterator</code> with all <code>PSItemRelatedItem</code> objects,
+   *     never <code>null</code>, may be empty.
    */
   public Iterator<PSItemRelatedItem> getAllRelatedItems() {
     if (m_relatedItemsMap == null || m_relatedItemsMap.values() == null) {
@@ -659,11 +649,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns the requested related item.
    *
-   * @param id of the relationship between the related item and this
-   *    item.
-   *
-   * @return PSItemRelatedItem may be <code>null</code> if it does not
-   *    exist.
+   * @param id of the relationship between the related item and this item.
+   * @return PSItemRelatedItem may be <code>null</code> if it does not exist.
    */
   private PSItemRelatedItem getRelatedItem(int id) {
     return m_relatedItemsMap.get(String.valueOf(id));
@@ -678,17 +665,17 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     m_relatedItemsMap = relatedItems;
   }
 
-  /** @todo: we need a mechanism for checking out an item **/
+  /**
+   * @todo: we need a mechanism for checking out an item *
+   */
 
   /**
-   * Returns the name of the user who has checked this item out.  This value
-   * is set by the system.  If not checked out by the user, this item
-   * cannot be saved.
+   * Returns the name of the user who has checked this item out. This value is set by the system. If
+   * not checked out by the user, this item cannot be saved.
    *
-   * @return the name of the user who has checked this item out.  May be
-   * empty if this is a new item or if <code>loadXmlData()</code> or
-   *  <code>ServerItem.load()</code> hasn't been called.  Never
-   *  <code>null</code>.
+   * @return the name of the user who has checked this item out. May be empty if this is a new item
+   *     or if <code>loadXmlData()</code> or <code>ServerItem.load()</code> hasn't been called.
+   *     Never <code>null</code>.
    */
   public String getCheckedOutByName() {
     return m_checkedOutBy;
@@ -698,8 +685,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    * Sets the name of the user who has checked this item out.
    *
    * @see #getCheckedOutByName() getCheckedOutByName()
-   * @param checkedOutBy a username of the person that has this item checked
-   * out, may be empty, never <code>null</code>.
+   * @param checkedOutBy a username of the person that has this item checked out, may be empty,
+   *     never <code>null</code>.
    */
   public void setCheckedOutByName(String checkedOutBy) {
     if (checkedOutBy == null) throw new IllegalArgumentException("checkedOutBy must not be null");
@@ -711,8 +698,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    * Returns the <code>PSItemChild</code> specified by the <code>fieldName
    * </code> argument.
    *
-   * @param childName the case sensitive name of the child that will be
-   * returned if exists in this item.  Must not be empty or <code>null</code>.
+   * @param childName the case sensitive name of the child that will be returned if exists in this
+   *     item. Must not be empty or <code>null</code>.
    * @return PSItemChild may be <code>null</code> of it does not exist.
    */
   public PSItemChild getChildByName(String childName) {
@@ -725,9 +712,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns the <code>PSItemChild</code> specified by the supplied childId.
    *
-   * @param childId the id of the child that will be returned if exists in this
-   * item.
-   *
+   * @param childId the id of the child that will be returned if exists in this item.
    * @return PSItemChild may be <code>null</code> of it does not exist.
    */
   public PSItemChild getChildById(int childId) {
@@ -745,7 +730,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Returns the <code>contentid</code> of this item.
    *
-   * @return int the contentid.  -1 if new item.
+   * @return int the contentid. -1 if new item.
    */
   public int getContentId() {
     return m_contentId;
@@ -754,8 +739,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Sets the <code>contentid</code> of this item.
    *
-   * @param contentId must be > 0 (todo - this isn't validated, but I don't want
-   * to change change the code now and possibly break something.)
+   * @param contentId must be > 0 (todo - this isn't validated, but I don't want to change change
+   *     the code now and possibly break something.)
    */
   public void setContentId(int contentId) {
     if (getContentId() >= 0 && contentId < 1)
@@ -766,9 +751,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Resets the locator based on the content id and revision of the member data.
-   * This should be called whenever one of the member data {@link #m_contentId}
-   * and {@link #m_revision} is changed.
+   * Resets the locator based on the content id and revision of the member data. This should be
+   * called whenever one of the member data {@link #m_contentId} and {@link #m_revision} is changed.
    */
   private void resetLocator() {
     if (m_contentId == INVALID_CONTENTID) {
@@ -780,9 +764,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Resets all revisions to {@link #INVALID_REVISION}. The new Java API and
-   * web services do not expose the revisios anymore to the user and will be
-   * reset before its returned.
+   * Resets all revisions to {@link #INVALID_REVISION}. The new Java API and web services do not
+   * expose the revisios anymore to the user and will be reset before its returned.
    */
   public void resetRevisions() {
     m_revision = INVALID_REVISION;
@@ -793,20 +776,19 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Returns the <code>revision</code> of this item.  The revision cannot
-   * be incremented.
+   * Returns the <code>revision</code> of this item. The revision cannot be incremented.
    *
    * @see #INVALID_REVISION INVALID_REVISION
-   * @return the revision for this item. If a new items is requested the
-   *    INVALID_REVISION will be returned.
+   * @return the revision for this item. If a new items is requested the INVALID_REVISION will be
+   *     returned.
    */
   public int getRevision() {
     return m_revision;
   }
 
   /**
-   * Returns the <code>dataVariant</code> of this item.  For now it will only
-   * return <code>sys_All</code>
+   * Returns the <code>dataVariant</code> of this item. For now it will only return <code>sys_All
+   * </code>
    *
    * @return never <code>null</code> or empty.
    */
@@ -815,8 +797,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Returns the <code>PSItemDefinition</code> that defines this object.
-   * It should be treated as Read only.
+   * Returns the <code>PSItemDefinition</code> that defines this object. It should be treated as
+   * Read only.
    *
    * @return never <code>null</code>
    */
@@ -828,7 +810,6 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    * Sets the <code>revision</code> of this item.
    *
    * @param revision must be > 0;
-   *
    * @see #getRevision()
    */
   public void setRevision(int revision) {
@@ -848,14 +829,15 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     return m_itemDefinition.getContentEditor().getContentType();
   }
 
-  /** @todo: move requested revision methods to derived classes,
-   *  the set should be removed/moved into serveritem **/
   /**
-   * Returns the <code>revisionid</code> that was requested.  It may not be
-   * the same revision that is returned.  If the requested revision is
-   * has the revision lock set, a new version of the item will be cloned and
-   * returned with the new <code>revisionid</code>.  If a new items is
-   * requested the INVALID_REVISION will be returned.
+   * @todo: move requested revision methods to derived classes, the set should be removed/moved into
+   *     serveritem *
+   */
+  /**
+   * Returns the <code>revisionid</code> that was requested. It may not be the same revision that is
+   * returned. If the requested revision is has the revision lock set, a new version of the item
+   * will be cloned and returned with the new <code>revisionid</code>. If a new items is requested
+   * the INVALID_REVISION will be returned.
    *
    * @see #INVALID_REVISION INVALID_REVISION
    * @return see this methods description.
@@ -881,16 +863,16 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    * Returns the current <code>revisionid</code>.
    *
    * @see #INVALID_REVISION INVALID_REVISION
-   * @return the current revision is the revision in the contentstatus table,
-   * if there is none the default {@link #INVALID_REVISION } will be returned.
+   * @return the current revision is the revision in the contentstatus table, if there is none the
+   *     default {@link #INVALID_REVISION } will be returned.
    */
   public int getCurrentRevision() {
     return m_currentrevision;
   }
 
   /**
-   * Sets the current <code>revisionid</code>.  The current revision is
-   * the revision in the contentstatus table.
+   * Sets the current <code>revisionid</code>. The current revision is the revision in the
+   * contentstatus table.
    *
    * @param currentRevision must be > 0.
    */
@@ -902,20 +884,19 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Returns the edit <code>revisionid</code>.   The edit revision is tip
-   * revision.  The revision being returned for editing.
+   * Returns the edit <code>revisionid</code>. The edit revision is tip revision. The revision being
+   * returned for editing.
    *
    * @see #INVALID_REVISION INVALID_REVISION
-   * @return if this is a new item the default {@link #INVALID_REVISION }
-   * will be returned.
+   * @return if this is a new item the default {@link #INVALID_REVISION } will be returned.
    */
   public int getEditRevision() {
     return m_editrevision;
   }
 
   /**
-   * Sets the edit <code>revisionid</code>.   The edit revision is tip
-   * revision.  The revision being returned for editing.
+   * Sets the edit <code>revisionid</code>. The edit revision is tip revision. The revision being
+   * returned for editing.
    *
    * @see #getEditRevision()
    * @param editRevision may be < 0
@@ -925,8 +906,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Returns the total number of revisions.  This is the same value as the
-   * edit revision.
+   * Returns the total number of revisions. This is the same value as the edit revision.
    *
    * @return if there are not any revisions INVALID_REVISION will be returned.
    */
@@ -944,12 +924,10 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Sets the <code>Locale</code> of the system that is using this item.  This
-   * is expected to be set by the client.  This is not the "Rhythmyx"
-   * <code>Locale</code>.
+   * Sets the <code>Locale</code> of the system that is using this item. This is expected to be set
+   * by the client. This is not the "Rhythmyx" <code>Locale</code>.
    *
-   * @param systemLocale the <code>Locale</code> to set.  Must not be
-   * <code>null</code>.
+   * @param systemLocale the <code>Locale</code> to set. Must not be <code>null</code>.
    */
   public void setSystemLocale(Locale systemLocale) {
     if (systemLocale == null) throw new IllegalArgumentException("systemLocale cannot be null");
@@ -958,8 +936,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Returns the <code>Locale</code> of this items data.  This is the value
-   * that's set in the contentstatus table.
+   * Returns the <code>Locale</code> of this items data. This is the value that's set in the
+   * contentstatus table.
    *
    * @return Locale may be <code>null</code>.
    */
@@ -970,7 +948,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Sets the <code>Locale</code> of the data of the item.
    *
-   * @param dataLocale the <code>Locale</code> to set.  Must not be <code>null
+   * @param dataLocale the <code>Locale</code> to set. Must not be <code>null
    * </code>.
    */
   public void setDataLocale(Locale dataLocale) {
@@ -982,8 +960,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Set the folder paths of this item.
    *
-   * @param paths a list of fully qualified folder paths of all folders to
-   *    which this item is attached, may be <code>null</code> or empty.
+   * @param paths a list of fully qualified folder paths of all folders to which this item is
+   *     attached, may be <code>null</code> or empty.
    */
   public void setFolderPaths(List<String> paths) {
     m_folderPaths = paths;
@@ -992,8 +970,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   /**
    * Get all folder paths of this item.
    *
-   * @return a list of fully qualified folder paths of all folders to
-   *    which this item is attached, may be <code>null</code> or empty.
+   * @return a list of fully qualified folder paths of all folders to which this item is attached,
+   *     may be <code>null</code> or empty.
    */
   public List<String> getFolderPaths() {
     return m_folderPaths;
@@ -1015,9 +993,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
     }
   }
 
-  /**
-   * The <code>Locale</code> requested by the caller.
-   */
+  /** The <code>Locale</code> requested by the caller. */
   private Locale m_systemLocale;
 
   /**
@@ -1026,15 +1002,12 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   private Locale m_dataLocale;
 
   /**
-   * The content id of this item, default is -1 that will be used for new
-   * items, this value will change if this item is an existing item.
+   * The content id of this item, default is -1 that will be used for new items, this value will
+   * change if this item is an existing item.
    */
   private int m_contentId = INVALID_CONTENTID;
 
-  /**
-   * The revision of this item, INVALID_REVISION if new item, otherwise will
-   * be > 0.
-   */
+  /** The revision of this item, INVALID_REVISION if new item, otherwise will be > 0. */
   private int m_revision = INVALID_REVISION;
 
   /**
@@ -1043,9 +1016,8 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   private int m_requestedrevision = INVALID_REVISION;
 
   /**
-   * The revision that is in the contentstatus table for the current content
-   * item, default is INVALID_REVISION, will not be invalid if this is an
-   * existing item.
+   * The revision that is in the contentstatus table for the current content item, default is
+   * INVALID_REVISION, will not be invalid if this is an existing item.
    */
   private int m_currentrevision = INVALID_REVISION;
 
@@ -1054,29 +1026,30 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
    */
   private int m_editrevision = INVALID_REVISION;
 
-  /**
-   * The data variant to use for this item.
-   */
+  /** The data variant to use for this item. */
   private String m_dataVariant = IPSConstants.SYS_ALL_VIEW_NAME;
 
   /**
-   * The definition used to define this item.  Never <code>null</code>.
+   * The definition used to define this item. Never <code>null</code>.
+   *
    * @see #getItemDefinition()
    */
   private PSItemDefinition m_itemDefinition;
 
   /**
-   * Map of the fields in the item.  Field name is key <code>PSItemField
-   * </code> is the value, never <code>null</code>, may be empty, initialized
-   * by <code>init()</code>.
+   * Map of the fields in the item. Field name is key <code>PSItemField
+   * </code> is the value, never <code>null</code>, may be empty, initialized by <code>init()</code>
+   * .
+   *
    * @see #getFieldByName(String)
    */
   private Map<String, PSItemField> m_fieldNameFieldMap = null;
 
   /**
    * Map of the childs in the item, child name is key <code>PSItemChild
-   * </code> is the value, never <code>null</code>, may be empty, initialized
-   * by <code>init()</code>.
+   * </code> is the value, never <code>null</code>, may be empty, initialized by <code>init()</code>
+   * .
+   *
    * @see #getChildByName(String)
    */
   private Map<String, PSItemChild> m_childNameChildMap = null;
@@ -1092,20 +1065,19 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   private boolean m_revisionLock = false;
 
   /**
-   * A list of folder paths to which this item belongs, may be
-   * <code>null</code> or empty. This is not persisted nor is it included
-   * in the XML representation of this object. It is currently only used
-   * to pass the folder paths to the webservice converter.
+   * A list of folder paths to which this item belongs, may be <code>null</code> or empty. This is
+   * not persisted nor is it included in the XML representation of this object. It is currently only
+   * used to pass the folder paths to the webservice converter.
    */
   private transient List<String> m_folderPaths = null;
 
   /**
-   * Map of the related items in the item.  Relationship id is the key
-   * <code>PSItemRelatedItem</code> is the value.
+   * Map of the related items in the item. Relationship id is the key <code>PSItemRelatedItem</code>
+   * is the value.
    */
   public Map<String, PSItemRelatedItem> m_relatedItemsMap = null;
 
-  /** Name of the elements  in this class' XML representation */
+  /** Name of the elements in this class' XML representation */
   public static final String EL_ITEM = "Item";
 
   public static final String ATTR_CONTENTTYPE = "contentType";
@@ -1126,17 +1098,16 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   public static final String EL_RELATED_ITEM = "RelatedItem";
 
   /**
-   * The value to incidate that a revision is not valid to the item and that
-   * it may be ignored.  For example new items do not have any revision value
-   *  and empty or <code>null</code> cannot be used for Java primitives like
-   *  <code>int</code>, therefore this value will be used to indicate that a
-   *  revision is invalid.
+   * The value to incidate that a revision is not valid to the item and that it may be ignored. For
+   * example new items do not have any revision value and empty or <code>null</code> cannot be used
+   * for Java primitives like <code>int</code>, therefore this value will be used to indicate that a
+   * revision is invalid.
    */
   public static final int INVALID_REVISION = -1;
 
   /**
-   * This value is used to indicate an id has not been set on this object yet.
-   * This occurs for new objects.
+   * This value is used to indicate an id has not been set on this object yet. This occurs for new
+   * objects.
    */
   public static final int INVALID_CONTENTID = -1;
 }

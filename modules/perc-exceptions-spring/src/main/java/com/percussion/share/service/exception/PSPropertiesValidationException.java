@@ -23,12 +23,9 @@ import java.util.Properties;
 import org.springframework.validation.MapBindingResult;
 
 /**
- *
- * Used to validate property objects like {@link Map}
- * and {@link Properties}.
+ * Used to validate property objects like {@link Map} and {@link Properties}.
  *
  * @author adamgent
- *
  */
 public class PSPropertiesValidationException extends PSSpringValidationException {
 

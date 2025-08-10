@@ -87,19 +87,15 @@ public class PSLog extends Task {
     m_bAppend = append;
   }
 
-  /**
-   * The location of the log file, default is default.log.
-   */
+  /** The location of the log file, default is default.log. */
   private String m_file = "default.log";
 
-  /**
-   * The message to log, never <code>null</code> may be empty.
-   */
+  /** The message to log, never <code>null</code> may be empty. */
   private String m_message = "";
 
   /**
-   * If <code>true</code>, messages will be appended to the log file if it
-   * exists, otherwise the file will be overwritten with the new message.
+   * If <code>true</code>, messages will be appended to the log file if it exists, otherwise the
+   * file will be overwritten with the new message.
    */
   private boolean m_bAppend = false;
 }

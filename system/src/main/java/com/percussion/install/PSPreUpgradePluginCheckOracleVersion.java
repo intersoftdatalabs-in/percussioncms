@@ -24,21 +24,18 @@ import java.sql.SQLException;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to check the current oracle repository version.
- * If the version is less than {@link PSSqlHelper#MIN_VERSION_ORACLE}, the
- * install will not be allowed to proceed as this version is no longer supported.
+ * This plugin has been written to check the current oracle repository version. If the version is
+ * less than {@link PSSqlHelper#MIN_VERSION_ORACLE}, the install will not be allowed to proceed as
+ * this version is no longer supported.
  */
 public class PSPreUpgradePluginCheckOracleVersion implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSPreUpgradePluginCheckOracleVersion() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin.  Checks the oracle
-   * version of the current rhythmyx repository.  If it is less than
-   * {@link PSSqlHelper#MIN_VERSION_ORACLE}, a message is returned informing
-   * the user of the currently supported versions.
+   * Implements the process function of IPSUpgradePlugin. Checks the oracle version of the current
+   * rhythmyx repository. If it is less than {@link PSSqlHelper#MIN_VERSION_ORACLE}, a message is
+   * returned informing the user of the currently supported versions.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -109,8 +106,6 @@ public class PSPreUpgradePluginCheckOracleVersion implements IPSUpgradePlugin {
     return new PSPluginResponse(respType, respMessage);
   }
 
-  /**
-   * Oracle database name
-   */
+  /** Oracle database name */
   private String m_oracleName = "oracle";
 }

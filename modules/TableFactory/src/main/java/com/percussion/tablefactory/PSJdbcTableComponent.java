@@ -23,24 +23,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Abstract base class for all table component classes such as column
- * defintions, primary keys and foreign keys.
+ * Abstract base class for all table component classes such as column defintions, primary keys and
+ * foreign keys.
  */
 public abstract class PSJdbcTableComponent {
-  /**
-   * Parameterless constructor for derived classes only
-   */
+  /** Parameterless constructor for derived classes only */
   protected PSJdbcTableComponent() {}
 
   /**
    * Constructor for this class.
    *
-   * @param name The name of this object.  May not be <code>null</code> or
-   * empty unless this object does not require a name (see {@link
-   * #isNameRequired()}).
-   * @param action The action to perform with this component.  Must be one of
-   * the ACTION_xxx types.
-   *
+   * @param name The name of this object. May not be <code>null</code> or empty unless this object
+   *     does not require a name (see {@link #isNameRequired()}).
+   * @param action The action to perform with this component. Must be one of the ACTION_xxx types.
    * @throws IllegalArgumentException if name or action is not valid.
    */
   public PSJdbcTableComponent(String name, int action) {
@@ -53,13 +48,11 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * This method is called to set the base component state from the supplied
-   * element.
-   * See {@link #setComponentState(Element)} for more info.
+   * This method is called to set the base component state from the supplied element. See {@link
+   * #setComponentState(Element)} for more info.
    *
-   * @param sourceNode The node from which to restore the state of this object.
-   *    May not be <code>null</code>.
-   *
+   * @param sourceNode The node from which to restore the state of this object. May not be <code>
+   *     null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if the Xml format is not valid.
    */
@@ -73,11 +66,8 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * This method is called to set the base component state on the supplied
-   * Element, conforming with the tabledef.dtd.   The structure of the Xml
-   * assuming an element named "root" is: <b>
-   *
-   * <code><pre>
+   * This method is called to set the base component state on the supplied Element, conforming with
+   * the tabledef.dtd. The structure of the Xml assuming an element named "root" is: <b> <code><pre>
    * &lt;!--
    *     Attributes:
    *     name - the name of the object.  Optional.
@@ -91,12 +81,9 @@ public abstract class PSJdbcTableComponent {
    * name CDATA #IMPLIED
    * action (c | r | d) "c"
    * &gt;
-   * </pre></code>
-   * <b>See the tabledef.dtd for more info.
+   * </pre></code> <b>See the tabledef.dtd for more info.
    *
-   * @param root The Element to set the base component state on.  May not be
-   * <code>null</code>.
-   *
+   * @param root The Element to set the base component state on. May not be <code>null</code>.
    * @throws IllegalArgumentException if root is <code>null</code>.
    */
   protected void setComponentState(Element root) {
@@ -109,12 +96,10 @@ public abstract class PSJdbcTableComponent {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public abstract Element toXml(Document doc);
@@ -122,19 +107,16 @@ public abstract class PSJdbcTableComponent {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the component
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the component element in the tabledef.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public abstract void fromXml(Element sourceNode) throws PSJdbcTableFactoryException;
 
   /**
-   * Serializes this object's state to a string. Creates an empty document,
-   * then calls <code>toXm()</code> method and then serializes the returned
-   * root element to a string.
+   * Serializes this object's state to a string. Creates an empty document, then calls <code>toXm()
+   * </code> method and then serializes the returned root element to a string.
    *
    * @return The string containing this object's state, never <code>
    * null</code> or empty
@@ -146,13 +128,11 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Compares this component to another object and determines if they
-   * represent the same component.
+   * Compares this component to another object and determines if they represent the same component.
    *
    * @param obj the object to compare
-   * @return returns <code>true</code> if the object is a PSJdbcTableComponent
-   * with identical values for name (case-insensitive comparison) and action.
-   * Otherwise returns <code>false</code>.
+   * @return returns <code>true</code> if the object is a PSJdbcTableComponent with identical values
+   *     for name (case-insensitive comparison) and action. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     if (!(obj instanceof PSJdbcTableComponent)) {
@@ -166,12 +146,9 @@ public abstract class PSJdbcTableComponent {
    * Compares this component to another object.
    *
    * @param obj the object to compare, may be <code>null</code>
-   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed
-   * together
-   *
-   * @return one of the <code>IS_XXX</code> values indicating the type of
-   * match/mismatch between this object and the specified object
-   * <code>obj</code>
+   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed together
+   * @return one of the <code>IS_XXX</code> values indicating the type of match/mismatch between
+   *     this object and the specified object <code>obj</code>
    */
   public int compare(Object obj, int flags) {
     int match = IS_GENERIC_MISMATCH;
@@ -204,9 +181,8 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -218,8 +194,7 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Ensures that this component has an action that is valid for an alter
-   * table statement.
+   * Ensures that this component has an action that is valid for an alter table statement.
    *
    * @return <code>true</code> if the component can be altered, <code>false
    * </code> if not.
@@ -229,23 +204,19 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Gets the element data from an attribute.  It is an error for a
-   * required attribute to be absent or empty.
+   * Gets the element data from an attribute. It is an error for a required attribute to be absent
+   * or empty.
    *
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *    that should contain the specified attribute.
-   * @param attrName the name of the attribute to retrieve data from;
-   *    not <code>null</code> or empty.
-   * @param required If <code>true</code>, then attribute must exist and
-   *    contain a non-empty value.
-   *
-   * @return String containing the element data from the specified attribute
-   *    node.  Never empty or <code>null</code> if required is
-   *    <code>true</code>.
-   * @throws PSJdbcTableFactoryException if the specified attribute is missing,
-   *         or empty and required is <code>true</code>.
-   * @throws IllegalArgumentException if either parameter is <code>null</code>
-   *         or attrName is empty.
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that should contain the
+   *     specified attribute.
+   * @param attrName the name of the attribute to retrieve data from; not <code>null</code> or
+   *     empty.
+   * @param required If <code>true</code>, then attribute must exist and contain a non-empty value.
+   * @return String containing the element data from the specified attribute node. Never empty or
+   *     <code>null</code> if required is <code>true</code>.
+   * @throws PSJdbcTableFactoryException if the specified attribute is missing, or empty and
+   *     required is <code>true</code>.
+   * @throws IllegalArgumentException if either parameter is <code>null</code> or attrName is empty.
    * @throws IllegalStateException if tree is not postioned at an Element.
    */
   public static String getAttribute(PSXmlTreeWalker tree, String attrName, boolean required)
@@ -268,21 +239,20 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Gets the element data from an attribute and validates that the data
-   * is a legal value.  If the data is <code>null</code> or empty, it will be
-   * set with a default value (assumed to be the value at index 0 of the legal
-   * value array).
+   * Gets the element data from an attribute and validates that the data is a legal value. If the
+   * data is <code>null</code> or empty, it will be set with a default value (assumed to be the
+   * value at index 0 of the legal value array).
    *
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *        that should contain the specified attribute.
-   * @param attrName the name of the attribute to retrieve data from;
-   *        not <code>null</code> or emtpy.
-   * @param legalValues the array of permitted values (case sensitive), with a
-   *        default value at index 0.
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that should contain the
+   *     specified attribute.
+   * @param attrName the name of the attribute to retrieve data from; not <code>null</code> or
+   *     emtpy.
+   * @param legalValues the array of permitted values (case sensitive), with a default value at
+   *     index 0.
    * @return The index into the array of the value to use.
    * @throws PSJdbcTableFactoryException if the node has an illegal value
-   * @throws IllegalArgumentException if any parameter is <code>null</code>,
-   *         or if attrName or legalValues is empty.
+   * @throws IllegalArgumentException if any parameter is <code>null</code>, or if attrName or
+   *     legalValues is empty.
    * @throws IllegalStateException if tree is not postioned at an Element.
    */
   public static int getEnumeratedAttributeIndex(
@@ -321,10 +291,9 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Used by <code>getComponentState</code> and <code>setComponentState</code>
-   * to determine if the name attribute is required.  Returns <code>true</code>
-   * by default. Derived classes not requiring name should override this method
-   * to return <code>false</code>.
+   * Used by <code>getComponentState</code> and <code>setComponentState</code> to determine if the
+   * name attribute is required. Returns <code>true</code> by default. Derived classes not requiring
+   * name should override this method to return <code>false</code>.
    *
    * @return <code>true</code>.
    */
@@ -335,20 +304,18 @@ public abstract class PSJdbcTableComponent {
   /**
    * Returns the name of this object.
    *
-   * @return The name, may be <code>null</code> or emtpy only if {@link
-   * #isNameRequired()} returns <code>false</code>.
+   * @return The name, may be <code>null</code> or emtpy only if {@link #isNameRequired()} returns
+   *     <code>false</code>.
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * Sets the name for this object.  See {@link #getName()} for more info.
+   * Sets the name for this object. See {@link #getName()} for more info.
    *
-   * @param name The name.  If {@link #isNameRequired()} returns <code>true
-   * </code>determines it may not be <code>null</code> or empty, otherwise
-   * it may.
-   *
+   * @param name The name. If {@link #isNameRequired()} returns <code>true
+   * </code>determines it may not be <code>null</code> or empty, otherwise it may.
    * @throws IllegalArgumentException if name is not valid.
    */
   public void setName(String name) {
@@ -367,10 +334,9 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Sets the action for this object.  See {@link #getAction()} for more info.
+   * Sets the action for this object. See {@link #getAction()} for more info.
    *
    * @param action The action, one of the ACTION_xxx contstant values.
-   *
    * @throws IllegalArgumentException if action is not valid.
    */
   public void setAction(int action) {
@@ -381,15 +347,15 @@ public abstract class PSJdbcTableComponent {
 
   /**
    * @return <code>false</code> if this table components has an action of
-   * PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
+   *     PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
    */
   public boolean hasChanges() {
     return m_action != ACTION_NONE;
   }
 
   /**
-   * If {@link #isNameRequired()} returns <code>true</code>, validates that
-   * name is not <code>null</code> or empty.
+   * If {@link #isNameRequired()} returns <code>true</code>, validates that name is not <code>null
+   * </code> or empty.
    *
    * @return <code>true</code> if name is valid, <code>false</code> if not.
    */
@@ -402,7 +368,6 @@ public abstract class PSJdbcTableComponent {
    * Validates that action is one of the valid ACTION_xxx types.
    *
    * @param action The action to validate.
-   *
    * @return <code>true</code> if action is valid, <code>false</code> if not.
    */
   private boolean validateAction(int action) {
@@ -420,44 +385,40 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
-   * Constant for the create action.  This will cause this object to be
-   * created if it does not already exist.
+   * Constant for the create action. This will cause this object to be created if it does not
+   * already exist.
    */
   public static final int ACTION_CREATE = 0;
 
   /**
-   * Constant for the replace action.  This will cause this object to be
-   * created, first deleting it if it already exists.
+   * Constant for the replace action. This will cause this object to be created, first deleting it
+   * if it already exists.
    */
   public static final int ACTION_REPLACE = 1;
 
   /**
-   * Constant for the delete action.  This will cause this object to be
-   * deleted if it already exists.
+   * Constant for the delete action. This will cause this object to be deleted if it already exists.
    */
   public static final int ACTION_DELETE = 2;
 
-  /**
-   * Constant for no action.  No changes will be processed on this object.
-   */
+  /** Constant for no action. No changes will be processed on this object. */
   public static final int ACTION_NONE = 3;
 
   /**
-   * An array of XML attribute values for the action. They are
-   * specified at the index matching the constant's internal value for that
-   * action.
+   * An array of XML attribute values for the action. They are specified at the index matching the
+   * constant's internal value for that action.
    */
   private static final String[] ACTION_ENUM = {"c", "r", "d", "n"};
 
   /**
-   * The name of this object.  May be <code>null</code> or empty if this object
-   * does not require a name.
+   * The name of this object. May be <code>null</code> or empty if this object does not require a
+   * name.
    */
   private String m_name = null;
 
   /**
-   * The action to take for this object when processing the table schema.
-   * Initialized to the default value of {@link #ACTION_CREATE}.
+   * The action to take for this object when processing the table schema. Initialized to the default
+   * value of {@link #ACTION_CREATE}.
    */
   private int m_action = ACTION_CREATE;
 
@@ -466,47 +427,44 @@ public abstract class PSJdbcTableComponent {
   private static final String ACTION_ATTR = "action";
 
   /**
-   * Code returned from <code>compare()</code> method if the action for this
-   * object does not match the action of the object being compared to.
+   * Code returned from <code>compare()</code> method if the action for this object does not match
+   * the action of the object being compared to.
    */
   public static final int IS_ACTION_MISMATCH = -2;
 
   /**
-   * Code returned from <code>compare()</code> method if the object being
-   * compared to is not an instance of this class.
+   * Code returned from <code>compare()</code> method if the object being compared to is not an
+   * instance of this class.
    */
   public static final int IS_CLASS_MISMATCH = -1;
 
   /**
-   * Code returned from <code>compare()</code> method if this object does not
-   * match the object being compared to.
+   * Code returned from <code>compare()</code> method if this object does not match the object being
+   * compared to.
    */
   public static final int IS_GENERIC_MISMATCH = 0;
 
   /**
-   * Code returned from <code>compare()</code> method if this object exactly
-   * matches the object being compared to.
+   * Code returned from <code>compare()</code> method if this object exactly matches the object
+   * being compared to.
    */
   public static final int IS_EXACT_MATCH = 1;
 
   /**
-   * Code returned from <code>compare()</code> method if this object
-   * matches the object being compared to if the name is compared in
-   * case-insensitive manner
+   * Code returned from <code>compare()</code> method if this object matches the object being
+   * compared to if the name is compared in case-insensitive manner
    */
   public static final int IS_CASE_INSENSITIVE_MATCH = 2;
 
   /**
-   * Constant used as a flag in <code>compare()</code> method. This flag
-   * implies that the name of this object should be ignored when comparing
-   * with the specified object.
+   * Constant used as a flag in <code>compare()</code> method. This flag implies that the name of
+   * this object should be ignored when comparing with the specified object.
    */
   public static final int COMPARE_IGNORE_NAME = 1;
 
   /**
-   * Constant used as a flag in <code>compare()</code> method. This flag
-   * implies that the action of this object should be ignored when comparing
-   * with the specified object.
+   * Constant used as a flag in <code>compare()</code> method. This flag implies that the action of
+   * this object should be ignored when comparing with the specified object.
    */
   public static final int COMPARE_IGNORE_ACTION = 2;
 }

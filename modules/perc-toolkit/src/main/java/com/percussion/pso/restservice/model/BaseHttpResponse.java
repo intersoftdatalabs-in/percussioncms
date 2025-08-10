@@ -21,75 +21,74 @@ import org.apache.commons.lang3.StringUtils;
 
 public abstract class BaseHttpResponse {
 
-	private Item existingItem;
-	private Header[] headers;
-		
-	/***
-	 * Sets the HTTP Headers collection for this response.
-	 * @param headers
-	 */
-	public void setHeaders(Header[] headers) {
-		this.headers = headers;
-	}
+  private Item existingItem;
+  private Header[] headers;
 
-	/***
-	 * Gets the HTTP Headers collection for this response.
-	 * @return
-	 */
-	public Header[] getHeaders() {
-		return headers;
-	}
-	
-	/***
-	 * Will return the ETag header if it is set or the empty string.
-	 * @return
-	 */
-	public String getETag(){
-		String ret = "";
-		
-		for(int i = 0;i<headers.length;i++){
-			if(headers[i].getName().equals("ETag")){
-				ret = headers[i].getValue(); 
-				break;
-			}
-		}
-		
-		return ret;
-	}
-	
-	/***
-	 * Will return the last modified header if it is set or the empty string.
-	 * @return
-	 */
-	public String getLastModified(){
-		String ret = "";
-		
-		for(int i = 0;i<headers.length;i++){
-			if(headers[i].getName().equals("Last-Modified")){
-				ret = headers[i].getValue(); 
-				break;
-			}
-		}
-		
-		//If the last modified header isn't set, we'll use the date of the response.
-		if(StringUtils.isEmpty(ret)){
-			for(int i = 0;i<headers.length;i++){
-				if(headers[i].getName().equals("Date")){
-					ret = headers[i].getValue(); 
-					break;
-				}
-			}
-			
-		}
+  /***
+   * Sets the HTTP Headers collection for this response.
+   * @param headers
+   */
+  public void setHeaders(Header[] headers) {
+    this.headers = headers;
+  }
 
-		return ret;
-	}
+  /***
+   * Gets the HTTP Headers collection for this response.
+   * @return
+   */
+  public Header[] getHeaders() {
+    return headers;
+  }
 
-	public void setExistingItem(Item existingItem) {
-		this.existingItem = existingItem;
-	}
+  /***
+   * Will return the ETag header if it is set or the empty string.
+   * @return
+   */
+  public String getETag() {
+    String ret = "";
 
-	public Item getExistingItem() {
-		return existingItem;
-	}	
+    for (int i = 0; i < headers.length; i++) {
+      if (headers[i].getName().equals("ETag")) {
+        ret = headers[i].getValue();
+        break;
+      }
+    }
+
+    return ret;
+  }
+
+  /***
+   * Will return the last modified header if it is set or the empty string.
+   * @return
+   */
+  public String getLastModified() {
+    String ret = "";
+
+    for (int i = 0; i < headers.length; i++) {
+      if (headers[i].getName().equals("Last-Modified")) {
+        ret = headers[i].getValue();
+        break;
+      }
+    }
+
+    // If the last modified header isn't set, we'll use the date of the response.
+    if (StringUtils.isEmpty(ret)) {
+      for (int i = 0; i < headers.length; i++) {
+        if (headers[i].getName().equals("Date")) {
+          ret = headers[i].getValue();
+          break;
+        }
+      }
+    }
+
+    return ret;
+  }
+
+  public void setExistingItem(Item existingItem) {
+    this.existingItem = existingItem;
+  }
+
+  public Item getExistingItem() {
+    return existingItem;
+  }
 }

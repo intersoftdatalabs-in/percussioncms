@@ -50,20 +50,14 @@ import java.util.stream.Collectors;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to handle packaging and deploying a system def override from a shared
- * def
- */
+/** Class to handle packaging and deploying a system def override from a shared def */
 public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSystemDefElementDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -71,17 +65,17 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Exit</li>
-   * <li>Any ID Type</li>
+   *   <li>Application
+   *   <li>Exit
+   *   <li>Any ID Type
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -412,12 +406,10 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
   }
 
   /**
-   * Gets the component from the supplied shared def represented by the
-   * dependency.
+   * Gets the component from the supplied shared def represented by the dependency.
    *
    * @param dep The dependency, assumed not <code>null</code>.
    * @param def The def, assumed not <code>null</code>.
-   *
    * @return The component, or <code>null</code> if not found.
    */
   private PSComponent getDepComponent(PSDependency dep, PSContentEditorSharedDef def) {
@@ -430,17 +422,14 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
   }
 
   /**
-   * Restores the component specified by the supplied dependency from its
-   * source XML element.
+   * Restores the component specified by the supplied dependency from its source XML element.
    *
-   * @param dep The dependency that represents the component to restore,
-   * assumed not <code>null</code>.
+   * @param dep The dependency that represents the component to restore, assumed not <code>null
+   *     </code>.
    * @param src The source element, assumed not <code>null</code>.
-   *
    * @return The component, never <code>null</code>.
-   *
-   * @throws PSDeployException if the component cannot be restored from the
-   * supplied <code>src</code>.
+   * @throws PSDeployException if the component cannot be restored from the supplied <code>src
+   *     </code>.
    */
   private PSComponent getDepComponent(PSDependency dep, Element src) throws PSDeployException {
     PSComponent comp = null;
@@ -461,35 +450,22 @@ public class PSSystemDefElementDependencyHandler extends PSContentEditorObjectDe
     return comp;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "SystemDefElement";
 
-  /**
-   * Constant for the dependency id of an application flow.
-   */
+  /** Constant for the dependency id of an application flow. */
   static final String APP_FLOW_ID = "ApplicationFlow";
 
-  /**
-   * Constant for the display name of an application flow dependency.
-   */
+  /** Constant for the display name of an application flow dependency. */
   private static final String APP_FLOW_NAME = "Application Flow";
 
-  /**
-   * Constant for the dependency id of an command handler stylesheets.
-   */
+  /** Constant for the dependency id of an command handler stylesheets. */
   static final String CMD_SHEETS_ID = "CommandHandlerStylesheets";
 
-  /**
-   * Constant for the display name of a command handler stylesheets dependency.
-   */
+  /** Constant for the display name of a command handler stylesheets dependency. */
   private static final String CMD_SHEETS_NAME = "Command Handler Stylesheets";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

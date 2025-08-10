@@ -23,13 +23,10 @@ import org.apache.commons.lang.Validate;
 
 /**
  * @author JaySeletz
- *
  */
 public class PSSystemControlManager extends PSBaseControlManager {
 
-  /**
-   * The subsystem name.
-   */
+  /** The subsystem name. */
   private static final String SUBSYSTEM = "SystemControlMgr";
 
   private static PSSystemControlManager ms_sysCtrlMgr;
@@ -39,7 +36,8 @@ public class PSSystemControlManager extends PSBaseControlManager {
   /**
    * private ctor, use singleton
    *
-   * @param resourceRoot The root from which to load the system control file (e.g. sys_resources), not <code>null</code> and must exist.
+   * @param resourceRoot The root from which to load the system control file (e.g. sys_resources),
+   *     not <code>null</code> and must exist.
    */
   private PSSystemControlManager(File resourceRoot) {
     Validate.notNull(resourceRoot);

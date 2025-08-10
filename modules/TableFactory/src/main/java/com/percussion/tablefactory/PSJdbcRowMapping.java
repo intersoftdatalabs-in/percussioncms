@@ -27,22 +27,20 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
- * PSJdbcRowMapping defines a mapping from a row of source table to a row of
- * destination table. The <code>processRow()</code> method performs the actual
- * mapping. It takes a row from the source table and modifies the column names
- * based on this mapping rule. It can also add new columns to the tranformed row.
+ * PSJdbcRowMapping defines a mapping from a row of source table to a row of destination table. The
+ * <code>processRow()</code> method performs the actual mapping. It takes a row from the source
+ * table and modifies the column names based on this mapping rule. It can also add new columns to
+ * the tranformed row.
  */
 public class PSJdbcRowMapping implements IPSJdbcRowMapping {
   /**
    * Constructor
    *
-   * @param dbmsDef the database where the tables are located,
-   * may not be <code> null</code>.
-   * @param destTableSchema the schema for destination table for which this mapper
-   * object is creating table data, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>destTableSchema</code> is <code>null</code>
+   * @param dbmsDef the database where the tables are located, may not be <code> null</code>.
+   * @param destTableSchema the schema for destination table for which this mapper object is
+   *     creating table data, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>destTableSchema</code> is
+   *     <code>null</code>
    */
   public PSJdbcRowMapping(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema destTableSchema) {
     if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
@@ -116,11 +114,9 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state,
-   * may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
+   * @param sourceNode The element from which to get this object's state, may not be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
@@ -197,18 +193,16 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
   }
 
   /**
-   * Verifies that all the columns added to the column mapping Map though
-   * the <code>addColumnMapping()</code> method are present in the input row parameter.
-   * If any column specified in the mapping is not present then it throws
-   * <code>PSJdbcTableFactoryException</code> exception with error code
-   * <code>IPSTableFactoryErrors.COLUMN_NOT_FOUND</code>
+   * Verifies that all the columns added to the column mapping Map though the <code>
+   * addColumnMapping()</code> method are present in the input row parameter. If any column
+   * specified in the mapping is not present then it throws <code>PSJdbcTableFactoryException</code>
+   * exception with error code <code>IPSTableFactoryErrors.COLUMN_NOT_FOUND</code>
    *
-   * @param row the row data against which the column mapping is
-   * to be checked, may not be <code>null</code>
-   *
+   * @param row the row data against which the column mapping is to be checked, may not be <code>
+   *     null</code>
    * @throws IllegalArgumentException if <code>row</code> is <code>null</code>
-   * @throws PSJdbcTableFactoryException if any column specified in the mapping
-   * is not present in <code>row</code>
+   * @throws PSJdbcTableFactoryException if any column specified in the mapping is not present in
+   *     <code>row</code>
    */
   private void verifyColumnMapping(PSJdbcRowData row) throws PSJdbcTableFactoryException {
     if (row == null) throw new IllegalArgumentException("row may not be null");
@@ -226,21 +220,16 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
   }
 
   /**
-   * Transforms a single column. If a mapping for this column has been added
-   * through the <code>addColumnMapping()</code> method then it creates a new
-   * <code>PSJdbcColumnData</code> object having the same value and encoding
-   * as the <code>srcColData</code> parameter but having the transformed
-   * column name and returns this newly created <code>PSJdbcColumnData</code>
-   * object. If no mapping has been added for this column then it returns
-   * <code>null</code>.
+   * Transforms a single column. If a mapping for this column has been added through the <code>
+   * addColumnMapping()</code> method then it creates a new <code>PSJdbcColumnData</code> object
+   * having the same value and encoding as the <code>srcColData</code> parameter but having the
+   * transformed column name and returns this newly created <code>PSJdbcColumnData</code> object. If
+   * no mapping has been added for this column then it returns <code>null</code>.
    *
    * @param srcColData the column to transform, may not be <code>null</code>
-   *
-   * @return the transformed column data, or <code>null</code> if no column
-   * mapping was defined for this column
-   *
-   * @throws IllegalArgumentException if <code>srcColData</code> is
-   * <code>null</code>
+   * @return the transformed column data, or <code>null</code> if no column mapping was defined for
+   *     this column
+   * @throws IllegalArgumentException if <code>srcColData</code> is <code>null</code>
    */
   private PSJdbcColumnData processColumn(PSJdbcColumnData srcColData) {
     if (srcColData == null) throw new IllegalArgumentException("colData may not be null");
@@ -255,41 +244,34 @@ public class PSJdbcRowMapping implements IPSJdbcRowMapping {
   }
 
   /**
-   * The database where the tables are located, initialized in the
-   * constructor, never <code>null</code> after that.
+   * The database where the tables are located, initialized in the constructor, never <code>null
+   * </code> after that.
    */
   private PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * table data object containing the rows on which this mapping is performed,
-   * initialized in the setTableData method,
-   * never <code>null</code> after that, may not contain any row of data
+   * table data object containing the rows on which this mapping is performed, initialized in the
+   * setTableData method, never <code>null</code> after that, may not contain any row of data
    */
   private PSJdbcTableData m_tblData = null;
 
   /**
-   * map containing source table column names as key and destination table
-   * column names as value, never <code>null</code>, may be empty
+   * map containing source table column names as key and destination table column names as value,
+   * never <code>null</code>, may be empty
    */
   private Map<String, String> m_colMapping = new HashMap<>();
 
   /**
-   * an array containing PSJdbcColumnData objects that should be added to
-   * each row for the destination table, never <code>null</code>, may
-   * be empty if no column having a default value needs to be added to
-   * the row for destination table.
+   * an array containing PSJdbcColumnData objects that should be added to each row for the
+   * destination table, never <code>null</code>, may be empty if no column having a default value
+   * needs to be added to the row for destination table.
    */
   private List<PSJdbcColumnData> m_defColValues = new ArrayList<>();
 
-  /**
-   * row action that should be set for the rows for the destination
-   * table, defaults to insert.
-   */
+  /** row action that should be set for the rows for the destination table, defaults to insert. */
   private int m_rowAction = PSJdbcRowData.ACTION_INSERT;
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "rowMap";
 
   // Xml elements and attributes

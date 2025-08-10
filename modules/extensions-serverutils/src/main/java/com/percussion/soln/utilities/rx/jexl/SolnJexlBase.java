@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
  * Base class for JEXL functions.
  *
  * @author DavidBenua
- *
  */
 @SuppressWarnings("unchecked")
 public class SolnJexlBase extends PSJexlUtilBase {

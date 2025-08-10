@@ -23,27 +23,23 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * This is variant slot type collection class, which is a dependent
- * class of the PSSlotType. This wraps up a relationship between
- * the parent RXSLOTTYPE and the child RXVARIANTSLOTTYPE tables.
- * <p>
- * Physically this object represents a set of variants that are allowed
- * to be put into a given slot. This object always refers to a specified
- * slotid.
+ * This is variant slot type collection class, which is a dependent class of the PSSlotType. This
+ * wraps up a relationship between the parent RXSLOTTYPE and the child RXVARIANTSLOTTYPE tables.
+ *
+ * <p>Physically this object represents a set of variants that are allowed to be put into a given
+ * slot. This object always refers to a specified slotid.
+ *
  * @deprecated use the assembly service instead
  */
 public class PSVariantSlotTypeSet extends PSDbComponentSet {
-  /**
-   * Default constructor. See {@link PSDbComponentList#PSDbComponentList()}
-   * for more details.
-   */
+  /** Default constructor. See {@link PSDbComponentList#PSDbComponentList()} for more details. */
   public PSVariantSlotTypeSet() {
     super(PSVariantSlotType.class);
   }
 
   /**
-   * Ctor for reserializing. See {@link
-   * PSDbComponentList#PSDbComponentList(Element) base ctor} for more details.
+   * Ctor for reserializing. See {@link PSDbComponentList#PSDbComponentList(Element) base ctor} for
+   * more details.
    */
   public PSVariantSlotTypeSet(Element src) throws PSUnknownNodeTypeException {
     super(src);
@@ -51,6 +47,7 @@ public class PSVariantSlotTypeSet extends PSDbComponentSet {
 
   /**
    * Ctor for creation from assembly service data
+   *
    * @param guid guid for the variant, never <code>null</code>
    * @param slots the collection of related slots, never <code>null</code>
    */
@@ -72,8 +69,6 @@ public class PSVariantSlotTypeSet extends PSDbComponentSet {
     return XML_NODE_NAME;
   }
 
-  /**
-   * Root element name for the xml representation of the object
-   */
+  /** Root element name for the xml representation of the object */
   public static final String XML_NODE_NAME = "PSXVariantSlotTypeSet";
 }

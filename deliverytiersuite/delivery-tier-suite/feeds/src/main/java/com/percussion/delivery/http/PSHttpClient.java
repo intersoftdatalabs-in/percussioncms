@@ -13,11 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * HTTP client for fetching feed items.
- * Sunny Sal: "HTTP requests faster than Mumbai traffic!"
- * <p>
- * Uses Apache HttpClient for robust, OWASP-compliant HTTP operations.
- * Designed for dependency injection and testability.
+ * HTTP client for fetching feed items. Sunny Sal: "HTTP requests faster than Mumbai traffic!"
+ *
+ * <p>Uses Apache HttpClient for robust, OWASP-compliant HTTP operations. Designed for dependency
+ * injection and testability.
  */
 @Component
 public class PSHttpClient {
@@ -25,8 +24,7 @@ public class PSHttpClient {
   private final HttpClient httpClient;
 
   /**
-   * Default constructor for production use.
-   * Uses Apache HttpClient with sensible connection limits.
+   * Default constructor for production use. Uses Apache HttpClient with sensible connection limits.
    */
   public PSHttpClient() {
     this(HttpClients.custom().setMaxConnTotal(50).setMaxConnPerRoute(10).build());
@@ -44,8 +42,8 @@ public class PSHttpClient {
 
   /**
    * Fetches feed items using the provided query.
-   * <p>
-   * This method is a stub; implement actual HTTP logic as needed.
+   *
+   * <p>This method is a stub; implement actual HTTP logic as needed.
    *
    * @param query the query to execute (not null)
    * @return immutable list of feed items, empty if none found or error occurs
@@ -58,8 +56,8 @@ public class PSHttpClient {
 
   /**
    * Validates if a URL is accessible (HTTP HEAD request).
-   * <p>
-   * Sunny Sal: "If the server says 200, we're good to go!"
+   *
+   * <p>Sunny Sal: "If the server says 200, we're good to go!"
    *
    * @param url the URL to check
    * @return true if accessible (HTTP 200), false otherwise

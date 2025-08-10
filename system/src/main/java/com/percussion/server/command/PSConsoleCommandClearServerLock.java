@@ -24,16 +24,13 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class clears a server lock.
- */
+/** This class clears a server lock. */
 public class PSConsoleCommandClearServerLock extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param cmdArgs the argument string to use when executing this command,
-   *    may be <code>null</code>.
-   *
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     .
    * @throws IllegalArgumentException if the <code>cmdArgs</code> are invalid.
    */
   public PSConsoleCommandClearServerLock(String cmdArgs) {
@@ -47,8 +44,8 @@ public class PSConsoleCommandClearServerLock extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
    *
    * @see IPSConsoleCommand
    */
@@ -66,14 +63,9 @@ public class PSConsoleCommandClearServerLock extends PSConsoleCommand {
     return doc;
   }
 
-  /**
-   * The command entered in the server console to perform the action executed
-   * by this class.
-   */
+  /** The command entered in the server console to perform the action executed by this class. */
   static final String ms_cmdName = "clear server lock";
 
-  /**
-   * The lock id supplied in the command args to the ctor.
-   */
+  /** The lock id supplied in the command args to the ctor. */
   private int m_lockId;
 }

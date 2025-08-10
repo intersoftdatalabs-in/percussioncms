@@ -22,11 +22,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This read-only DB component represents one row from the
- * RXSLOTCONTENT table. The physical meaning: each row in this table
- * represents the allowed content variant into the slot represented
+ * This read-only DB component represents one row from the RXSLOTCONTENT table. The physical
+ * meaning: each row in this table represents the allowed content variant into the slot represented
  * by the slotid.
- *
  */
 public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   /**
@@ -45,8 +43,7 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * Constructs an instance of <code>PSSlotTypeContentTypeVariant</code> from a
-   * key representation.
+   * Constructs an instance of <code>PSSlotTypeContentTypeVariant</code> from a key representation.
    *
    * @param key
    */
@@ -76,8 +73,9 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <!ELEMENT PSXKey (SLOTID, CONTENTTYPEID, VARIANTID )>
    * <!ELEMENT VARIANTID (#PCDATA)>
@@ -90,7 +88,6 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -108,9 +105,9 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   *     PSKey)}.
-   * Since this is a read-only object, this is a not supported operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
+   *
    * @throws UnsupportedOperationException always.
    */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
@@ -124,9 +121,7 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
     return copy;
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey createKey(int slotid) {
     if (slotid < 0) throw new IllegalArgumentException("slotid may not be < 0");
 
@@ -135,10 +130,10 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
 
   /**
    * Creates the correct key for this component.
+   *
    * @param slotId the slot id.
    * @param contenttypeid the content type id.
    * @param variantId the variant id.
-   *
    * @return the created key, never <code>null</code>.
    */
   private static PSKey createKey(long slotId, long contenttypeid, long variantId) {
@@ -148,15 +143,13 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * Creates a new <code>PSSlotTypeContentTypeVariant</code> instance using
-   * the specified ids. Method has package protection to allow access to
-   * other objectstore objects.
+   * Creates a new <code>PSSlotTypeContentTypeVariant</code> instance using the specified ids.
+   * Method has package protection to allow access to other objectstore objects.
    *
    * @param slotId the slot identifier
    * @param contenttypeId the content type identifier
    * @param variantId the variant identifier
-   * @return a new <code>PSSlotTypeContentTypeVariant</code> instance, never
-   *         <code>null</code>.
+   * @return a new <code>PSSlotTypeContentTypeVariant</code> instance, never <code>null</code>.
    */
   static PSSlotTypeContentTypeVariant create(long slotId, long contenttypeId, long variantId) {
     if (slotId < 0) throw new IllegalArgumentException("slotId may not be < 0");
@@ -166,8 +159,7 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * Override to create our own Key which is
-   * {@link com.percussion.design.objectstore.PSLocator}.
+   * Override to create our own Key which is {@link com.percussion.design.objectstore.PSLocator}.
    */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
@@ -176,17 +168,15 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. This
-   * class is an exception for this methid's implementation in that we compare
-   * the key values to decide if two objects are equal or not. This is because
-   * of the fact that this class has no other memeber data other than the key
-   * values.
+   * Overrides the base class to compare each of the member properties. This class is an exception
+   * for this methid's implementation in that we compare the key values to decide if two objects are
+   * equal or not. This is because of the fact that this class has no other memeber data other than
+   * the key values.
    *
-   * @param o The comparee. If null or not an instance of this class,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @param o The comparee. If null or not an instance of this class, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSSlotTypeContentTypeVariant)) return false;
@@ -203,9 +193,8 @@ public class PSSlotTypeContentTypeVariant extends PSDbComponent {
   /**
    * Must be overridden because we overrode equals.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   public int hashCode() {
     return (KEY_SLOTID

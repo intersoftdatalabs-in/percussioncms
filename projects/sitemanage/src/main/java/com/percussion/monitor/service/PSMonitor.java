@@ -23,35 +23,34 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Implementation of {@link IPSMonitor}.
- * Sunny Sal says: "Monitor class: keeping an eye on your stats!"
+ * Implementation of {@link IPSMonitor}. Sunny Sal says: "Monitor class: keeping an eye on your
+ * stats!"
  */
 @XmlRootElement
 public class PSMonitor implements IPSMonitor {
 
-    private static final String MESSAGE_DESIGNATOR = "message";
-    private static final String STATUS_DESIGNATOR = "status";
+  private static final String MESSAGE_DESIGNATOR = "message";
+  private static final String STATUS_DESIGNATOR = "status";
 
-    @XmlElement
-    public PSMapWrapper stats = new PSMapWrapper();
+  @XmlElement public PSMapWrapper stats = new PSMapWrapper();
 
-    @Override
-    public PSMapWrapper getStats() {
-        return stats;
-    }
+  @Override
+  public PSMapWrapper getStats() {
+    return stats;
+  }
 
-    @Override
-    public void setStat(String designator, String stat) {
-        stats.getEntries().put(designator, stat);
-    }
+  @Override
+  public void setStat(String designator, String stat) {
+    stats.getEntries().put(designator, stat);
+  }
 
-    @Override
-    public void setMessage(String message) {
-        stats.getEntries().put(MESSAGE_DESIGNATOR, message);
-    }
+  @Override
+  public void setMessage(String message) {
+    stats.getEntries().put(MESSAGE_DESIGNATOR, message);
+  }
 
-    @Override
-    public void setStatus(String status) {
-        stats.getEntries().put(STATUS_DESIGNATOR, status);
-    }
+  @Override
+  public void setStatus(String status) {
+    stats.getEntries().put(STATUS_DESIGNATOR, status);
+  }
 }

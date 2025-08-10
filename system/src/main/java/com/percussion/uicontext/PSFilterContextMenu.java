@@ -48,16 +48,13 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author dougrand
- *
- * <P>
- * This class implements a filter that checks each action in the context menu
- * and decides, based on visibility, whether the specific action should remain
- * in the menu. One or more (current one) parameters may be passed that will be
- * used by this exit. In the absence of parameters, the list will not be
- * filtered.
- * <P>
- * Note that the rules used here should be in sync with the rules used in
- * {@link PSActionManager#filter(PSMenuAction, PSSelection)}.<table>
+ *     <p>This class implements a filter that checks each action in the context menu and decides,
+ *     based on visibility, whether the specific action should remain in the menu. One or more
+ *     (current one) parameters may be passed that will be used by this exit. In the absence of
+ *     parameters, the list will not be filtered.
+ *     <p>Note that the rules used here should be in sync with the rules used in {@link
+ *     PSActionManager#filter(PSMenuAction, PSSelection)}.
+ *     <table>
  * <tr>
  * <th>Parameter</th>
  * <th>Description</th>
@@ -72,8 +69,7 @@ import org.w3c.dom.NodeList;
  * </tr>
  * </table>
  *
- * @see PSContextMenu for more information about the <code>ActionList</code>
- *      dtd.
+ * @see PSContextMenu for more information about the <code>ActionList</code> dtd.
  */
 public class PSFilterContextMenu implements IPSResultDocumentProcessor {
 
@@ -192,8 +188,8 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
   /**
    * Remove the elements that were picked out for removal.
    *
-   * @param actionsToRemove a {@link Collection}of elements to be removed,
-   *           never <code>null</code> but might be empty
+   * @param actionsToRemove a {@link Collection}of elements to be removed, never <code>null</code>
+   *     but might be empty
    */
   private void removeUnwantedActions(Collection actionsToRemove) {
     if (actionsToRemove.size() > 0) {
@@ -206,24 +202,20 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Apply a series of visibility checks to the actions. Actions that fail one
-   * or more checks are added to the removal list.
+   * Apply a series of visibility checks to the actions. Actions that fail one or more checks are
+   * added to the removal list.
    *
-   * @param request the original request context, assumed non-
-   *           <code>null</code>
-   * @param infomgr the info manager for action information, assumed non-
-   *           <code>null</code>
-   * @param contentvalid the public state of the content id, assumed non-
-   *           <code>null</code>
-   * @param roles The user's roles, no assumptions are made, could be
-   *           <code>null</code>
-   * @param assignmentType The user's assignment type given the roles, assumed
-   *           non- <code>null</code>
+   * @param request the original request context, assumed non- <code>null</code>
+   * @param infomgr the info manager for action information, assumed non- <code>null</code>
+   * @param contentvalid the public state of the content id, assumed non- <code>null</code>
+   * @param roles The user's roles, no assumptions are made, could be <code>null</code>
+   * @param assignmentType The user's assignment type given the roles, assumed non- <code>null
+   *     </code>
    * @param list the list of nodes to check, assumed non- <code>null</code>
-   * @param actionsToRemove the list of actions to remove, will be modified by
-   *           this method, assumed non- <code>null</code>
-   * @param checkedoutstate This is assimed to have a value from
-   * {@link IPSConstants} indicating the checked out state of the item.
+   * @param actionsToRemove the list of actions to remove, will be modified by this method, assumed
+   *     non- <code>null</code>
+   * @param checkedoutstate This is assimed to have a value from {@link IPSConstants} indicating the
+   *     checked out state of the item.
    */
   private void checkActionsForRemoval(
       IPSRequestContext request,
@@ -305,11 +297,11 @@ public class PSFilterContextMenu implements IPSResultDocumentProcessor {
   }
 
   /**
-   * From a nodelist of action or actionlist nodes, get the actionid attributes
-   * and populate the passed in collection.
+   * From a nodelist of action or actionlist nodes, get the actionid attributes and populate the
+   * passed in collection.
    *
-   * @param actionids a {@link Collection}to populate with the action ids that
-   *           are found, assumed non- <code>null</code>
+   * @param actionids a {@link Collection}to populate with the action ids that are found, assumed
+   *     non- <code>null</code>
    * @param list the list of dom nodes to examine
    */
   private void extractActionIds(Collection actionids, NodeList list) {

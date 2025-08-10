@@ -23,19 +23,15 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/**
- * Job control to use when copying a file to or from the server.
- */
+/** Job control to use when copying a file to or from the server. */
 public class PSDeployFileJobControl implements IPSDeployJobControl {
 
   /**
-   * Checks the status of the file copy. The result contains a
-   * value between <code>1-100</code> to indicate the % done.
-   * <code>100</code> indicates that the job has completed. A result of -1
+   * Checks the status of the file copy. The result contains a value between <code>1-100</code> to
+   * indicate the % done. <code>100</code> indicates that the job has completed. A result of -1
    * indicates that there has been an error and the job completed abnormally.
    *
    * @return The status.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public int getStatus() throws PSDeployException {
@@ -61,15 +57,13 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   }
 
   /**
-   * Attempts to stop the file copy.  Since the copy is running in its
-   * own thread, it may complete on its own before the request to cancel can
-   * be processed.
+   * Attempts to stop the file copy. Since the copy is running in its own thread, it may complete on
+   * its own before the request to cancel can be processed.
    *
-   * @return  Returns one of 3 possible result codes:<br>
-   * {@link #JOB_CANCELLED} - Job cancelled successfully<br>
-   * {@link #JOB_COMPLETED} - Job completed before cancelled<br>
-   * {@link #JOB_ABORTED} - Job aborted<br>
-   *
+   * @return Returns one of 3 possible result codes:<br>
+   *     {@link #JOB_CANCELLED} - Job cancelled successfully<br>
+   *     {@link #JOB_COMPLETED} - Job completed before cancelled<br>
+   *     {@link #JOB_ABORTED} - Job aborted<br>
    * @throws PSDeployException if there are any errors.
    */
   public int cancelDeployJob() throws PSDeployException {
@@ -95,7 +89,6 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
    * Gets a message indicating how many bytes have been copied so far.
    *
    * @return The status message, may be <code>null</code> or empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public String getStatusMessage() throws PSDeployException {
@@ -114,11 +107,8 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   /**
    * Sets the stream to use to track status.
    *
-   * @param streamCounter Used to track the status of the copy, may not be
-   * <code>null</code>.
-   * @param totalBytes The total bytes that will be sent or received, must be
-   * greater than zero.
-   *
+   * @param streamCounter Used to track the status of the copy, may not be <code>null</code>.
+   * @param totalBytes The total bytes that will be sent or received, must be greater than zero.
    * @throws IllegalArgumentException if either param is invalid.
    */
   public void setStream(IPSStreamCounter streamCounter, int totalBytes) {
@@ -131,13 +121,11 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   }
 
   /**
-   * Method used to set an error message on this object in the event that an
-   * error occurs in the file copy.
+   * Method used to set an error message on this object in the event that an error occurs in the
+   * file copy.
    *
    * @param msg The message, may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>msg</code> is <code>null</code>
-   * or empty.
+   * @throws IllegalArgumentException if <code>msg</code> is <code>null</code> or empty.
    */
   public void setErrorMessage(String msg) {
     if (msg == null || msg.trim().length() == 0)
@@ -149,10 +137,7 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
     }
   }
 
-  /**
-   * Marks the job as completed unless it has already been cancelled or
-   * aborted.
-   */
+  /** Marks the job as completed unless it has already been cancelled or aborted. */
   public void setCompleted() {
     synchronized (m_cancelledStatusMonitor) {
       if (m_cancelledStatus == -1) {
@@ -164,10 +149,9 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   /**
    * Return the current cancelled status.
    *
-   * @return The current cancelled status, one of the
-   * <code>IPSDeployJobControl.JOB_xxx</code>  values, or <code>-1</code>
-   * if the job is still executing.  See {@link #cancelDeployJob()} for more
-   * information.
+   * @return The current cancelled status, one of the <code>IPSDeployJobControl.JOB_xxx</code>
+   *     values, or <code>-1</code> if the job is still executing. See {@link #cancelDeployJob()}
+   *     for more information.
    */
   public int getCancelledStatus() {
     return m_cancelledStatus;
@@ -202,7 +186,6 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
    * This method is used to get the string resources used for status messages.
    *
    * @return the bundle, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private static ResourceBundle getBundle() throws PSDeployException {
@@ -219,56 +202,47 @@ public class PSDeployFileJobControl implements IPSDeployJobControl {
   }
 
   /**
-   * The stream counter to use to get number of bytes processed.
-   * <code>null</code> until call to {@link #setStream(IPSStreamCounter, int)},
-   * never <code>null</code> or modified after that.
+   * The stream counter to use to get number of bytes processed. <code>null</code> until call to
+   * {@link #setStream(IPSStreamCounter, int)}, never <code>null</code> or modified after that.
    */
   private IPSStreamCounter m_streamCounter = null;
 
   /**
-   * Number of total bytes expected to be processed, <code>-1</code> until
-   * a call to {@link #setStream(IPSStreamCounter, int)}, never modified after
-   * that.
+   * Number of total bytes expected to be processed, <code>-1</code> until a call to {@link
+   * #setStream(IPSStreamCounter, int)}, never modified after that.
    */
   private int m_totalBytes = -1;
 
   /**
-   * String bundle used for message formats.  <code>null</code> until loaded
-   * by a call to {@link #getBundle()}, never <code>null</code> after that.
+   * String bundle used for message formats. <code>null</code> until loaded by a call to {@link
+   * #getBundle()}, never <code>null</code> after that.
    */
   private static volatile ResourceBundle ms_bundle = null;
 
   /**
-   * Status of the job after it is cancelled.  <code>-1</code> until call to
-   * {@link #cancelDeployJob()}, then one of the
-   * <code>IPSDeployJobControl.JOB_XXX</code> constant values.
+   * Status of the job after it is cancelled. <code>-1</code> until call to {@link
+   * #cancelDeployJob()}, then one of the <code>IPSDeployJobControl.JOB_XXX</code> constant values.
    */
   private int m_cancelledStatus = -1;
 
   /**
-   * Monitor object to synchronize access to {@link #m_cancelledStatus}.
-   * Never <code>null</code>.
+   * Monitor object to synchronize access to {@link #m_cancelledStatus}. Never <code>null</code>.
    */
   private Object m_cancelledStatusMonitor = new Object();
 
   /**
-   * The current status message.  <code>null</code> until first call to
-   * {@link #getStatus()}, modified each time that method is called, or when
-   * {@link #cancelDeployJob()} is called.
+   * The current status message. <code>null</code> until first call to {@link #getStatus()},
+   * modified each time that method is called, or when {@link #cancelDeployJob()} is called.
    */
   private String m_statusMessage = null;
 
-  /**
-   * The count of the number of bytes updated during latest call to
-   * {@link #getStatus()}.
-   */
+  /** The count of the number of bytes updated during latest call to {@link #getStatus()}. */
   private int m_bytes = 0;
 
   /**
-   * Errror message to use when getting status message and status indicates
-   * job is aborted.  Initially an empty string, never <code>null</code>,
-   * set by a call to {@link #setErrorMessage(String)}, never <code>null</code>
-   * or empty after that.
+   * Errror message to use when getting status message and status indicates job is aborted.
+   * Initially an empty string, never <code>null</code>, set by a call to {@link
+   * #setErrorMessage(String)}, never <code>null</code> or empty after that.
    */
   private String m_errorMessage = "";
 }

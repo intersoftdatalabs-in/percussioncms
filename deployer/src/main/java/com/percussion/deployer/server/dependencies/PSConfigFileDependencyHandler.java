@@ -20,19 +20,16 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
 /**
- * Class to handle discovery, packaging, and installing of config files, e.g.
- * files that are not located below an application root.
+ * Class to handle discovery, packaging, and installing of config files, e.g. files that are not
+ * located below an application root.
  */
 public class PSConfigFileDependencyHandler extends PSFileDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSConfigFileDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -45,8 +42,6 @@ public class PSConfigFileDependencyHandler extends PSFileDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ConfigFile";
 }

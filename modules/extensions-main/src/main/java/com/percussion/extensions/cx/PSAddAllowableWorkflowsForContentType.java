@@ -43,27 +43,24 @@ import org.w3c.dom.Text;
 
 /**
  * This extension adds the allowable workflows for the content type.
- * <p>
- * As a pre exit, it will determine the union of the allowed workflows for each
- * supplied content type ids.  It expects two parameters:
+ *
+ * <p>As a pre exit, it will determine the union of the allowed workflows for each supplied content
+ * type ids. It expects two parameters:
+ *
  * <ol>
- * <li>The content type id(s) either as a <code>String</code> or a non-empty
- * <code>List</code> of <code>String</code> objects - optional</li>
- * <li>The name of the parameter in which the resulting workflow ids are to
- * be stored as a <code>List</code> of <code>String</code> objects - required.
- * </li>
+ *   <li>The content type id(s) either as a <code>String</code> or a non-empty <code>List</code> of
+ *       <code>String</code> objects - optional
+ *   <li>The name of the parameter in which the resulting workflow ids are to be stored as a <code>
+ *       List</code> of <code>String</code> objects - required.
  * </ol>
+ *
  * If the first parameter value is null or empty, this exit simply returns.
- * <p>
- * As a post exit it expects the input doc as per the following DTD.
- * &lt;!ELEMENT ContentTypes (ContentType*) &gt;
- * &lt;!ELEMENT ContentType (#PCDATA) &gt;
- * &lt;!ATTLIST ContentType contenttypeid CDATA #IMPLIED &gt;
- * The allowable workflows will be added as per the following DTD to the root
- * element.
- * &lt;!ELEMENT workflows (workflow*) &gt;
- * &lt;!ATTLIST workflow workflowid CDATA #IMPLIED &gt;
- * It basically gets all the workflows in the system and removes the workflows
+ *
+ * <p>As a post exit it expects the input doc as per the following DTD. &lt;!ELEMENT ContentTypes
+ * (ContentType*) &gt; &lt;!ELEMENT ContentType (#PCDATA) &gt; &lt;!ATTLIST ContentType
+ * contenttypeid CDATA #IMPLIED &gt; The allowable workflows will be added as per the following DTD
+ * to the root element. &lt;!ELEMENT workflows (workflow*) &gt; &lt;!ATTLIST workflow workflowid
+ * CDATA #IMPLIED &gt; It basically gets all the workflows in the system and removes the workflows
  * in the excludelist for each content type.
  */
 public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
@@ -74,6 +71,7 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
 
   /**
    * Required by the interface. This exit never modifies the stylesheet.
+   *
    * @see IPSResultDocumentProcessor#canModifyStyleSheet()
    * @return boolean
    */
@@ -195,6 +193,7 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
 
   /**
    * Helper function get all the workflows in the system
+   *
    * @param request IPSRequestContext
    * @return List of the workflows
    */
@@ -231,11 +230,10 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
    *
    * @param cid The content id, assumed not <code>null</code> or empty
    * @param request The request to use, assumed not <code>null</code>.
-   * @param allWorkflows A list of all available workflow ids as
-   * <code>String</code> objects, assumed not <code>null</code>.
-   *
-   * @return A list of zero or more workflow ids as <code>String</code>
-   * objects, never <code>null</code>.
+   * @param allWorkflows A list of all available workflow ids as <code>String</code> objects,
+   *     assumed not <code>null</code>.
+   * @return A list of zero or more workflow ids as <code>String</code> objects, never <code>null
+   *     </code>.
    * @throws PSInvalidContentTypeException
    */
   private List getAllowedWorkflows(String cid, IPSRequestContext request, List allWorkflows)
@@ -268,12 +266,9 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
   /**
    * Helper function that returns the value of the given DOM Element.
    *
-   * @param elem - DOM Element, can not be <code>null</code>. If
-   * <code>null</code>, the return value shall be empty string.
-   *
-   *
+   * @param elem - DOM Element, can not be <code>null</code>. If <code>null</code>, the return value
+   *     shall be empty string.
    * @return String - the value of the element, can be empty string.
-   *
    */
   public static String getElemValue(Element elem) {
     String value = "";
@@ -284,34 +279,22 @@ public class PSAddAllowableWorkflowsForContentType extends PSDefaultExtension
     return ((Text) temp).getData().trim();
   }
 
-  /**
-   * String constant for the element name workflows
-   */
+  /** String constant for the element name workflows */
   private static final String ELEM_WORKFLOWS = "workflows";
 
-  /**
-   * String constant for the element name workflow
-   */
+  /** String constant for the element name workflow */
   private static final String ELEM_WORKFLOW = "workflow";
 
-  /**
-   * String constant for the element name id
-   */
+  /** String constant for the element name id */
   private static final String ELEM_ID = "id";
 
-  /**
-   * String constant for the attribute name contenttypeid
-   */
+  /** String constant for the attribute name contenttypeid */
   private static final String ATTR_CONTENTTYPEID = "contenttypeid";
 
-  /**
-   * String constant for the attribute name workflowid
-   */
+  /** String constant for the attribute name workflowid */
   private static final String ATTR_WORKFLOWID = "workflowid";
 
-  /**
-   * String constant for the workflow lookup resource
-   */
+  /** String constant for the workflow lookup resource */
   private static final String WORKFLOW_LOOKUP_RESOURCE =
       "sys_psxRelationshipSupport/workflowlookup";
 }

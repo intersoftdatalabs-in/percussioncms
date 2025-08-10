@@ -46,14 +46,12 @@ public class PSSetCommunityFilter implements Filter {
   private static final Logger log = LogManager.getLogger(PSSetCommunityFilter.class);
 
   /**
-   * Filter the request, if the session of the request has been authenticated,
-   * then make sure the community ID is set on the session. Do nothing if the
-   * session has not been authenticated.
+   * Filter the request, if the session of the request has been authenticated, then make sure the
+   * community ID is set on the session. Do nothing if the session has not been authenticated.
    *
    * @param request servlet request, never <code>null</code>
    * @param response servlet response, never <code>null</code>
    * @param chain the next request in the chain, never <code>null</code>.
-   *
    * @throws IOException
    * @throws ServletException
    */
@@ -64,8 +62,8 @@ public class PSSetCommunityFilter implements Filter {
   }
 
   /**
-   * Sets the community ID if the session of the request has been authenticated
-   * and the community ID has not been set to the session.
+   * Sets the community ID if the session of the request has been authenticated and the community ID
+   * has not been set to the session.
    *
    * @param request the servlet request, assumed not <code>null</code>.
    * @param response the servlet response, assumed not <code>null</code>.

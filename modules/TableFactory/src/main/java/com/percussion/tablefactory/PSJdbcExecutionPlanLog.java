@@ -25,18 +25,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class contains a list of <code>PSJdbcExecutionStepLog</code>
- * objects which encapsulate the result of execution of each step
- * of an execution plan.
+ * This class contains a list of <code>PSJdbcExecutionStepLog</code> objects which encapsulate the
+ * result of execution of each step of an execution plan.
  */
 public class PSJdbcExecutionPlanLog {
   /**
-   * Returns an iterator over the list of
-   * <code>PSJdbcExecutionStepLog</code> objects.
+   * Returns an iterator over the list of <code>PSJdbcExecutionStepLog</code> objects.
    *
-   * @return an iterator over the list of
-   * <code>PSJdbcExecutionStepLog</code> objects, never <code>null</code>,
-   * may be empty.
+   * @return an iterator over the list of <code>PSJdbcExecutionStepLog</code> objects, never <code>
+   *     null</code>, may be empty.
    */
   public Iterator<PSJdbcExecutionStepLog> getStepLogs() {
     return m_logDataList.iterator();
@@ -45,10 +42,8 @@ public class PSJdbcExecutionPlanLog {
   /**
    * Adds a <code>PSJdbcExecutionStepLog</code> object to its internal list.
    *
-   * @param stepLogData the <code>PSJdbcExecutionStepLog</code> object
-   * containing the result of execution of a step, never
-   * <code>null</code>
-   *
+   * @param stepLogData the <code>PSJdbcExecutionStepLog</code> object containing the result of
+   *     execution of a step, never <code>null</code>
    * @throws IllegalArgumentException if stepLogData is <code>null</code>
    */
   public void addStepLogData(PSJdbcExecutionStepLog stepLogData) {
@@ -57,8 +52,7 @@ public class PSJdbcExecutionPlanLog {
   }
 
   /**
-   * Removes all the elements from its internal list of
-   * <code>PSJdbcExecutionStepLog</code> objects.
+   * Removes all the elements from its internal list of <code>PSJdbcExecutionStepLog</code> objects.
    */
   public void clearStepLogs() {
     m_logDataList.clear();
@@ -67,12 +61,8 @@ public class PSJdbcExecutionPlanLog {
   /**
    * Serializes this object's state to Xml.
    *
-   * @param doc the document to use when creating elements, may not be
-   * <code>null</code>.
-   *
-   * @return the element containing this object's state,
-   * never <code>null</code>.
-   *
+   * @param doc the document to use when creating elements, may not be <code>null</code>.
+   * @return the element containing this object's state, never <code>null</code>.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -92,9 +82,7 @@ public class PSJdbcExecutionPlanLog {
   /**
    * Serializes this object's state to String.
    *
-   * @return the string containing this object's state,
-   * never <code>null</code> or empty
-   *
+   * @return the string containing this object's state, never <code>null</code> or empty
    */
   public String toString() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -102,14 +90,12 @@ public class PSJdbcExecutionPlanLog {
     return PSXmlDocumentBuilder.toString(root);
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "PlanLogData";
 
   /**
-   * Contains a list of <code>PSJdbcExecutionStepLog</code> objects,
-   * never <code>null</code>, may be empty
+   * Contains a list of <code>PSJdbcExecutionStepLog</code> objects, never <code>null</code>, may be
+   * empty
    */
   private List<PSJdbcExecutionStepLog> m_logDataList = new ArrayList<>();
 }

@@ -17,45 +17,41 @@
 
 package com.percussion.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.integritymanagement.data.PSIntegrityTask.TaskStatus;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
-import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @Tag("IntegrationTest")
 public class PSDTSStatusProviderTest {
 
-    private PSDTSStatusProvider statusProvider;
+  private PSDTSStatusProvider statusProvider;
 
-    public PSDTSStatusProvider getStatusProvider() {
-        return statusProvider;
-    }
+  public PSDTSStatusProvider getStatusProvider() {
+    return statusProvider;
+  }
 
-    public void setStatusProvider(PSDTSStatusProvider statusProvider) {
-        this.statusProvider = statusProvider;
-    }
+  public void setStatusProvider(PSDTSStatusProvider statusProvider) {
+    this.statusProvider = statusProvider;
+  }
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  @BeforeEach
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    @Test
-    public void testGetStatusReport() {
-        var status = getStatusProvider().getDTSStatusReport();
-        assertEquals(TaskStatus.SUCCESS, status.get("dts").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("feeds").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-form-processor").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-comments-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-metadata-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-membership-services").getFirst());
-        assertEquals(TaskStatus.SUCCESS, status.get("perc-polls-services").getFirst());
-    }
+  @Test
+  public void testGetStatusReport() {
+    var status = getStatusProvider().getDTSStatusReport();
+    assertEquals(TaskStatus.SUCCESS, status.get("dts").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("feeds").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-form-processor").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-comments-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-metadata-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-membership-services").getFirst());
+    assertEquals(TaskStatus.SUCCESS, status.get("perc-polls-services").getFirst());
+  }
 }

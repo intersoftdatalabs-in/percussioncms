@@ -31,9 +31,7 @@ public class PSPair<A, B> {
 
   private B m_second;
 
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSPair() {
     //
   }

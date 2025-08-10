@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.pagemanagement.web.service;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship;
 import com.percussion.assetmanagement.data.PSAssetWidgetRelationship.PSAssetResourceType;
@@ -32,657 +34,700 @@ import com.percussion.pagemanagement.data.PSNonSEOPagesRequest;
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSRegion;
 import com.percussion.pagemanagement.data.PSRegionBranches;
-import com.percussion.pagemanagement.data.PSSEOStatistics;
-import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.data.PSRegionNode.PSRegionOwnerType;
+import com.percussion.pagemanagement.data.PSSEOStatistics;
 import com.percussion.pagemanagement.data.PSSEOStatistics.SEO_ISSUE;
 import com.percussion.pagemanagement.data.PSSEOStatistics.SEO_SEVERITY;
+import com.percussion.pagemanagement.data.PSWidgetItem;
+import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
-import com.percussion.share.test.PSRestClient.RestClientException;
-
+import com.percussion.utils.testing.IntegrationTest;
 import java.util.List;
-
-
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-import org.junit.jupiter.api.Tag;
-
-@Tag("IntegrationTest")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+/**
+ * Saves a page with the rest service.
+ *
+ * @author adamgent
+ */
+@Category(IntegrationTest.class)
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
+  private static PSTestSiteData testSiteData;
 
-    private static PSTestSiteData testSiteData;
+  @BeforeClass
+  public static void setUp() throws Exception {
+    testSiteData = new PSTestSiteData();
+    testSiteData.setUp();
+  }
 
-    @BeforeEach All
-    public void setUp() throws Exception {
-        testSiteData = new PSTestSiteData();
-        testSiteData.setUp();
-    }
+  PSTestDataCleaner<String> pageCleaner =
+      new PSTestDataCleaner<String>() {
 
-    PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<>() {
         @Override
         protected void clean(String id) throws Exception {
-            restClient.delete(id);
+          restClient.delete(id);
         }
-    };
+      };
 
-    PSTestDataCleaner<String> templateCleaner = new PSTestDataCleaner<>() {
+  PSTestDataCleaner<String> templateCleaner =
+      new PSTestDataCleaner<String>() {
+
         @Override
         protected void clean(String id) throws Exception {
-            getTemplateClient().deleteTemplate(id);
+          getTemplateClient().deleteTemplate(id);
         }
-    };
+      };
 
-    {
-        templateCleaner.setFailOnErrors(true);
-        pageCleaner.setFailOnErrors(true);
+  {
+    templateCleaner.setFailOnErrors(true);
+    pageCleaner.setFailOnErrors(true);
+  }
+
+  @Override
+  protected PSPageRestClient getRestClient(String url) {
+    return new PSPageRestClient(url);
+  }
+
+  @Test
+  public void testCreate() throws Exception {
+    PSPage rvalue = restClient.createPage("Test", testSiteData.site1.getFolderPath());
+    assertNotNull(rvalue);
+    assertNotNull(rvalue.getId());
+    String pageId = rvalue.getId();
+    pageCleaner.add(pageId);
+    templateCleaner.add(rvalue.getTemplateId());
+  }
+
+  @Test
+  public void testCreateWithRegionAndWidget() throws Exception {
+    log.debug("testCreateWithRegionAndWidget");
+    String templateId = null;
+    String pageId = null;
+    templateId = getTemplateClient().getContentOnlyTemplateId();
+    templateCleaner.add(templateId);
+
+    String folderPath = testSiteData.site1.getFolderPath();
+    PSPage pageNew = new PSPage();
+    pageNew.setName("testPageNew11");
+    pageNew.setTitle("test new page title");
+    pageNew.setFolderPath(folderPath);
+    pageNew.setTemplateId(templateId);
+    pageNew.setLinkTitle("dummy");
+    PSRegionBranches br = new PSRegionBranches();
+    PSRegion region = new PSRegion();
+    region.setOwnerType(PSRegionOwnerType.PAGE);
+    region.setRegionId("Test");
+
+    PSWidgetItem wi = new PSWidgetItem();
+    wi.setDefinitionId("percRawHtml");
+
+    br.setRegionWidgets("Test", asList(wi));
+    br.setRegions(asList(region));
+
+    pageNew.setRegionBranches(br);
+    PSPage rpage = restClient.save(pageNew);
+    pageId = rpage.getId();
+    pageCleaner.add(pageId);
+
+    PSPage page = restClient.load(pageId);
+    assertNotNull(page);
+    assertNotNull(page.getRegionBranches());
+    assertNotNull(page.getRegionBranches().getRegions());
+    assertNotNull(page.getRegionBranches().getRegionWidgetAssociations());
+    assertFalse(
+        "We should have widget assocations",
+        page.getRegionBranches().getRegionWidgetAssociations().isEmpty());
+    List<PSRegion> regions = page.getRegionBranches().getRegions();
+    assertNotNull(regions);
+    assertFalse(regions.isEmpty());
+    PSRegion r = regions.get(0);
+    assertNotNull(r);
+    assertEquals(
+        "percRawHtml",
+        page.getRegionBranches()
+            .getRegionWidgetAssociations()
+            .iterator()
+            .next()
+            .getWidgetItems()
+            .get(0)
+            .getDefinitionId());
+  }
+
+  @Test
+  public void testGetPageEditUrl() throws Exception {
+    PSPage page = restClient.createPage("Test", testSiteData.site1.getFolderPath());
+    pageCleaner.add(page.getId());
+    templateCleaner.add(page.getTemplateId());
+
+    String url = restClient.getPageEditUrl(page.getId());
+    assertFalse(StringUtils.isBlank(url));
+    assertTrue(url.indexOf("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME) != -1);
+    assertTrue(url.indexOf("sys_revision") != -1);
+    assertTrue(url.indexOf("sys_contentid") != -1);
+    assertTrue(url.indexOf("sys_command=edit") != -1);
+  }
+
+  @Test
+  public void testGetPageViewUrl() throws Exception {
+    PSPage page = restClient.createPage("Test2", testSiteData.site1.getFolderPath());
+    pageCleaner.add(page.getId());
+    templateCleaner.add(page.getTemplateId());
+
+    String url = restClient.getPageViewUrl(page.getId());
+    assertFalse(StringUtils.isBlank(url));
+    assertTrue(url.indexOf("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME) != -1);
+    assertTrue(url.indexOf("sys_revision") != -1);
+    assertTrue(url.indexOf("sys_contentid") != -1);
+    assertTrue(url.indexOf("sys_command=preview") != -1);
+  }
+
+  @Test
+  public void testDeletePage() throws Exception {
+    String templateId = testSiteData.template1.getId();
+    String id =
+        testSiteData.createPage("testDeletePage", testSiteData.site1.getFolderPath(), templateId);
+
+    PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
+
+    // transition item to pending state
+    wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
+
+    // switch to unauthorized user
+    restClient.login("author1", "demo");
+
+    // should not have access to item
+    try {
+      restClient.delete(id);
+      fail("Current user should not be authorized to delete page: " + id);
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteNotAuthorized"));
     }
 
-    @Override
-    protected PSPageRestClient getRestClient(String url) {
-        return new PSPageRestClient(url);
+    // switch to Admin
+    restClient.login("admin1", "demo");
+
+    // should have access to item
+    try {
+      restClient.delete(id);
+      testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testDeletePage");
+    } catch (RestClientException e) {
+      fail("Current user should be authorized to delete page: " + id);
     }
 
-    @Test
-    public void testCreate() throws Exception {
-        var rvalue = restClient.createPage("Test", testSiteData.site1.getFolderPath());
-        assertNotNull(rvalue);
-        assertNotNull(rvalue.getId());
-        var pageId = rvalue.getId();
-        pageCleaner.add(pageId);
-        templateCleaner.add(rvalue.getTemplateId());
+    // create page
+    id = testSiteData.createPage("testDeletePage", testSiteData.site1.getFolderPath(), templateId);
+
+    PSAssetServiceRestClient assetClient = getAssetClient();
+
+    // add it to a template
+    PSAssetWidgetRelationship awRel =
+        new PSAssetWidgetRelationship(testSiteData.template2.getId(), 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
+
+    // should not be able to delete page
+    try {
+      restClient.delete(id);
+      fail("Should not be able to delete pageasset: " + id + ".  It is used by a template");
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteTemplates"));
     }
 
-    @Test
-    public void testCreateWithRegionAndWidget() throws Exception {
-        log.debug("testCreateWithRegionAndWidget");
-        String templateId = getTemplateClient().getContentOnlyTemplateId();
-        templateCleaner.add(templateId);
+    // remove the page from the template
+    assetClient.clearAssetWidgetRelationship(awRel);
 
-        var folderPath = testSiteData.site1.getFolderPath();
-        var pageNew = new PSPage();
-        pageNew.setName("testPageNew11");
-        pageNew.setTitle("test new page title");
-        pageNew.setFolderPath(folderPath);
-        pageNew.setTemplateId(templateId);
-        pageNew.setLinkTitle("dummy");
-        var br = new PSRegionBranches();
-        var region = new PSRegion();
-        region.setOwnerType(PSRegionOwnerType.PAGE);
-        region.setRegionId("Test");
+    // add it to another page
+    String pageId =
+        testSiteData.createPage("testDeletePage2", testSiteData.site1.getFolderPath(), templateId);
+    awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
 
-        var wi = new PSWidgetItem();
-        wi.setDefinitionId("percRawHtml");
+    // transition the page to pending
+    wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
-        br.setRegionWidgets("Test", asList(wi));
-        br.setRegions(asList(region));
-
-        pageNew.setRegionBranches(br);
-        var rpage = restClient.save(pageNew);
-        var pageId = rpage.getId();
-        pageCleaner.add(pageId);
-
-        var page = restClient.load(pageId);
-        assertNotNull(page);
-        assertNotNull(page.getRegionBranches());
-        assertNotNull(page.getRegionBranches().getRegions());
-        assertNotNull(page.getRegionBranches().getRegionWidgetAssociations());
-        assertFalse(page.getRegionBranches().getRegionWidgetAssociations().isEmpty());
-        var regions = page.getRegionBranches().getRegions();
-        assertNotNull(regions);
-        assertFalse(regions.isEmpty());
-        var r = regions.get(0);
-        assertNotNull(r);
-        assertEquals("percRawHtml",
-                page.getRegionBranches().getRegionWidgetAssociations().iterator().next().getWidgetItems().get(0).getDefinitionId());
+    // should not be able to delete page
+    try {
+      restClient.delete(id);
+      fail("Should not be able to delete page: " + id + ".  It is used by an approved page");
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteApprovedPages"));
     }
 
-    @Test
-    public void testGetPageEditUrl() throws Exception {
-        var page = restClient.createPage("Test", testSiteData.site1.getFolderPath());
-        pageCleaner.add(page.getId());
-        templateCleaner.add(page.getTemplateId());
+    // transition the page
+    transitionPendingToArchive(wfClient, pageId);
 
-        var url = restClient.getPageEditUrl(page.getId());
-        assertFalse(StringUtils.isBlank(url));
-        assertTrue(url.contains("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME));
-        assertTrue(url.contains("sys_revision"));
-        assertTrue(url.contains("sys_contentid"));
-        assertTrue(url.contains("sys_command=edit"));
+    // should be able to delete page
+    try {
+      restClient.delete(id);
+      testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testDeletePage");
+
+      getItemWorkflowServiceRestClient().checkOut(pageId);
+
+      assetClient.clearAssetWidgetRelationship(awRel);
+    } catch (RestClientException e) {
+      fail("Page: " + id + " should have been deleted");
+    }
+  }
+
+  @Test
+  public void testForceDeletePage() throws Exception {
+    String templateId = testSiteData.template1.getId();
+    String id =
+        testSiteData.createPage(
+            "testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
+
+    PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
+
+    // transition item to pending state
+    wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
+
+    // switch to unauthorized user
+    restClient.login("author1", "demo");
+
+    // force delete
+    try {
+      restClient.forceDelete(id);
+      testSiteData.pageCleaner.remove(id);
+    } catch (RestClientException e) {
+      fail("Page: " + id + " should have been deleted");
     }
 
-    @Test
-    public void testGetPageViewUrl() throws Exception {
-        var page = restClient.createPage("Test2", testSiteData.site1.getFolderPath());
-        pageCleaner.add(page.getId());
-        templateCleaner.add(page.getTemplateId());
+    // switch to admin
+    restClient.login("admin1", "demo");
 
-        var url = restClient.getPageViewUrl(page.getId());
-        assertFalse(StringUtils.isBlank(url));
-        assertTrue(url.contains("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME));
-        assertTrue(url.contains("sys_revision"));
-        assertTrue(url.contains("sys_contentid"));
-        assertTrue(url.contains("sys_command=preview"));
+    // create page
+    id =
+        testSiteData.createPage(
+            "testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
+
+    PSAssetServiceRestClient assetClient = getAssetClient();
+
+    // add it to a template
+    PSAssetWidgetRelationship awRel =
+        new PSAssetWidgetRelationship(templateId, 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
+
+    // force delete
+    try {
+      restClient.forceDelete(id);
+      testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testForceDeletePage");
+    } catch (RestClientException e) {
+      fail("Page: " + id + " should have been deleted");
     }
 
-    @Test
-    public void testDeletePage() throws Exception {
-        String templateId = testSiteData.template1.getId();
-        String id = testSiteData.createPage("testDeletePage", testSiteData.site1.getFolderPath(), templateId);
+    // create page
+    id =
+        testSiteData.createPage(
+            "testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
 
-        PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
+    // add it to another page
+    String pageId =
+        testSiteData.createPage(
+            "testForceDeletePage2", testSiteData.site1.getFolderPath(), templateId);
+    awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
 
-        // transition item to pending state
-        wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
+    // transition the page to pending
+    wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
-        // switch to unauthorized user
-        restClient.login("author1", "demo");
+    // force delete
+    try {
+      restClient.forceDelete(id);
+      testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testForceDeletePage");
+    } catch (RestClientException e) {
+      fail("Page: " + id + " should have been deleted");
+    }
+  }
 
-        // should not have access to item
-        try {
-            restClient.delete(id);
-            fail("Current user should not be authorized to delete page: " + id);
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteNotAuthorized"));
-        }
+  @Test
+  public void testValidateDeletePage() throws Exception {
+    String templateId = testSiteData.template1.getId();
+    String id =
+        testSiteData.createPage(
+            "testValidateDeletePage", testSiteData.site1.getFolderPath(), templateId);
 
-        // switch to Admin
-        restClient.login("admin1", "demo");
+    PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
 
-        // should have access to item
-        try {
-            restClient.delete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testDeletePage");
-        } catch (RestClientException e) {
-            fail("Current user should be authorized to delete page: " + id);
-        }
+    // transition item to pending state
+    wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
-        // create page
-        id = testSiteData.createPage("testDeletePage", testSiteData.site1.getFolderPath(), templateId);
+    // switch to unauthorized user
+    restClient.login("author1", "demo");
 
-        PSAssetServiceRestClient assetClient = getAssetClient();
-
-        // add it to a template
-        PSAssetWidgetRelationship awRel = new PSAssetWidgetRelationship(testSiteData.template2.getId(), 5, "widget5",
-                id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // should not be able to delete page
-        try {
-            restClient.delete(id);
-            fail("Should not be able to delete pageasset: " + id + ".  It is used by a template");
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteTemplates"));
-        }
-
-        // remove the page from the template
-        assetClient.clearAssetWidgetRelationship(awRel);
-
-        // add it to another page
-        String pageId = testSiteData.createPage("testDeletePage2", testSiteData.site1.getFolderPath(), templateId);
-        awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // transition the page to pending
-        wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-
-        // should not be able to delete page
-        try {
-            restClient.delete(id);
-            fail("Should not be able to delete page: " + id + ".  It is used by an approved page");
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteApprovedPages"));
-        }
-
-        // transition the page
-        transitionPendingToArchive(wfClient, pageId);
-
-        // should be able to delete page
-        try {
-            restClient.delete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testDeletePage");
-
-            getItemWorkflowServiceRestClient().checkOut(pageId);
-
-            assetClient.clearAssetWidgetRelationship(awRel);
-        } catch (RestClientException e) {
-            fail("Page: " + id + " should have been deleted");
-        }
+    // should not have access to item
+    try {
+      assertNotNull(restClient.validateDelete(id));
+      fail("Current user should not be authorized to delete page: " + id);
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteNotAuthorized"));
     }
 
-    @Test
-    public void testForceDeletePage() throws Exception {
-        String templateId = testSiteData.template1.getId();
-        String id = testSiteData.createPage("testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
+    // switch to Admin
+    restClient.login("admin1", "demo");
 
-        PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
-
-        // transition item to pending state
-        wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-
-        // switch to unauthorized user
-        restClient.login("author1", "demo");
-
-        // force delete
-        try {
-            restClient.forceDelete(id);
-            testSiteData.pageCleaner.remove(id);
-        } catch (RestClientException e) {
-            fail("Page: " + id + " should have been deleted");
-        }
-
-        // switch to admin
-        restClient.login("admin1", "demo");
-
-        // create page
-        id = testSiteData.createPage("testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
-
-        PSAssetServiceRestClient assetClient = getAssetClient();
-
-        // add it to a template
-        PSAssetWidgetRelationship awRel = new PSAssetWidgetRelationship(templateId, 5, "widget5", id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // force delete
-        try {
-            restClient.forceDelete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testForceDeletePage");
-        } catch (RestClientException e) {
-            fail("Page: " + id + " should have been deleted");
-        }
-
-        // create page
-        id = testSiteData.createPage("testForceDeletePage", testSiteData.site1.getFolderPath(), templateId);
-
-        // add it to another page
-        String pageId = testSiteData.createPage("testForceDeletePage2", testSiteData.site1.getFolderPath(), templateId);
-        awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // transition the page to pending
-        wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-
-        // force delete
-        try {
-            restClient.forceDelete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testForceDeletePage");
-        } catch (RestClientException e) {
-            fail("Page: " + id + " should have been deleted");
-        }
+    // should have access to item
+    try {
+      assertNotNull(restClient.validateDelete(id));
+      restClient.delete(id);
+      testSiteData.pageCleaner.remove(
+          testSiteData.site1.getFolderPath() + "/testValidateDeletePage");
+    } catch (RestClientException e) {
+      fail("Current user should be authorized to delete page: " + id);
     }
 
-    @Test
-    public void testValidateDeletePage() throws Exception {
-        String templateId = testSiteData.template1.getId();
-        String id = testSiteData.createPage("testValidateDeletePage", testSiteData.site1.getFolderPath(), templateId);
+    // create page
+    id =
+        testSiteData.createPage(
+            "testValidateDeletePage", testSiteData.site1.getFolderPath(), templateId);
 
-        PSItemWorkflowServiceRestClient wfClient = getItemWorkflowServiceRestClient();
+    PSAssetServiceRestClient assetClient = getAssetClient();
 
-        // transition item to pending state
-        wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
+    // add it to a template
+    PSAssetWidgetRelationship awRel =
+        new PSAssetWidgetRelationship(testSiteData.template2.getId(), 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
 
-        // switch to unauthorized user
-        restClient.login("author1", "demo");
-
-        // should not have access to item
-        try {
-            assertNotNull(restClient.validateDelete(id));
-            fail("Current user should not be authorized to delete page: " + id);
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteNotAuthorized"));
-        }
-
-        // switch to Admin
-        restClient.login("admin1", "demo");
-
-        // should have access to item
-        try {
-            assertNotNull(restClient.validateDelete(id));
-            restClient.delete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testValidateDeletePage");
-        } catch (RestClientException e) {
-            fail("Current user should be authorized to delete page: " + id);
-        }
-
-        // create page
-        id = testSiteData.createPage("testValidateDeletePage", testSiteData.site1.getFolderPath(), templateId);
-
-        PSAssetServiceRestClient assetClient = getAssetClient();
-
-        // add it to a template
-        PSAssetWidgetRelationship awRel = new PSAssetWidgetRelationship(testSiteData.template2.getId(), 5, "widget5",
-                id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // should not be able to delete page
-        try {
-            assertNotNull(restClient.validateDelete(id));
-            fail("Should not be able to delete pageasset: " + id + ".  It is used by a template");
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteTemplates"));
-        }
-
-        // remove the page from the template
-        assetClient.clearAssetWidgetRelationship(awRel);
-
-        // add it to another page
-        String pageId = testSiteData.createPage("testValidateDeletePage2", testSiteData.site1.getFolderPath(),
-                templateId);
-        awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
-        awRel.setResourceType(PSAssetResourceType.shared);
-        assetClient.createAssetWidgetRelationship(awRel);
-
-        // transition the page to pending
-        wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-
-        // should not be able to delete page
-        try {
-            assertNotNull(restClient.validateDelete(id));
-            fail("Should not be able to delete page: " + id + ".  It is used by an approved page");
-        } catch (RestClientException e) {
-            assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteApprovedPages"));
-        }
-
-        // transition the page
-        transitionPendingToArchive(wfClient, pageId);
-
-        // should be able to delete page
-        try {
-            assertNotNull(restClient.validateDelete(id));
-            restClient.delete(id);
-            testSiteData.pageCleaner.remove(testSiteData.site1.getFolderPath() + "/testValidateDeletePage");
-
-            getItemWorkflowServiceRestClient().checkOut(pageId);
-
-            assetClient.clearAssetWidgetRelationship(awRel);
-        } catch (RestClientException e) {
-            fail("Current user should be able to delete page: " + id);
-        }
+    // should not be able to delete page
+    try {
+      assertNotNull(restClient.validateDelete(id));
+      fail("Should not be able to delete pageasset: " + id + ".  It is used by a template");
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteTemplates"));
     }
 
-    @Test
-    public void testFindNonSEOPages() throws Exception {
-        // find pages in Draft state
-        PSNonSEOPagesRequest request = new PSNonSEOPagesRequest();
-        request.setPath(testSiteData.site1.getFolderPath());
-        request.setWorkflow("Default Workflow");
-        request.setState("Draft");
-        request.setSeverity(SEO_SEVERITY.ALL);
-        List<PSSEOStatistics> stats = restClient.findNonSEOPages(request);
+    // remove the page from the template
+    assetClient.clearAssetWidgetRelationship(awRel);
 
-        // should find home page (missing description)
-        assertEquals(1, stats.size());
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
+    // add it to another page
+    String pageId =
+        testSiteData.createPage(
+            "testValidateDeletePage2", testSiteData.site1.getFolderPath(), templateId);
+    awRel = new PSAssetWidgetRelationship(pageId, 5, "widget5", id, 1);
+    awRel.setResourceType(PSAssetResourceType.shared);
+    assetClient.createAssetWidgetRelationship(awRel);
 
-        // create page
-        String pageId = testSiteData.createPage("testFindNonSEOPages", testSiteData.site1.getFolderPath(),
-                testSiteData.template1.getId());
+    // transition the page to pending
+    wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
-        stats = restClient.findNonSEOPages(request);
-
-        // should find two pages (missing description)
-        assertEquals(2, stats.size());
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
-        assertTrue(stats.get(1).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
-        assertFalse(stats.get(1).getIssues().contains(SEO_ISSUE.DEFAULT_TITLE));
-
-        // change the page browser title to default, set the description
-        PSPage page = restClient.load(pageId);
-        page.setTitle(page.getLinkTitle());
-        page.setDescription("This is a test page.");
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find two pages
-        assertEquals(2, stats.size());
-        for (PSSEOStatistics stat : stats) {
-            if (stat.getPageSummary().getId().equals(pageId)) {
-                assertTrue(stat.getIssues().contains(SEO_ISSUE.DEFAULT_TITLE));
-                assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
-            }
-        }
-
-        // test keywords
-        String keywordNoSpaces = "Keyword";
-        String keywordOneSpace = "Key word";
-        String keywordManySpaces = "Key  wo   rd";
-
-        request.setKeyword(keywordNoSpaces);
-
-        // should not find any pages
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        page.setDescription(page.getDescription() + ' ' + keywordNoSpaces);
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page
-        assertEquals(1, stats.size());
-        assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-
-        request.setKeyword(keywordOneSpace);
-
-        page.setLinkTitle(keywordOneSpace);
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page
-        assertEquals(1, stats.size());
-        assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-
-        request.setKeyword(keywordManySpaces);
-
-        page.setTitle("Key wo rd");
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page
-        assertEquals(1, stats.size());
-        assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-
-        request.setKeyword(keywordOneSpace);
-
-        page.setLinkTitle("Key_word");
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page
-        assertEquals(1, stats.size());
-        assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-
-        page.setLinkTitle("Key-word");
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page
-        assertEquals(1, stats.size());
-        assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-        assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-
-        request.setKeyword(keywordNoSpaces);
-
-        // create another page
-        String page2Id = testSiteData.createPage("testFindNonSEOPages2", testSiteData.site1.getFolderPath(),
-                testSiteData.template1.getId());
-        PSPage page2 = restClient.load(page2Id);
-        page2.setDescription(keywordNoSpaces);
-        page2.setLinkTitle(keywordNoSpaces);
-        page2.setTitle(keywordNoSpaces);
-        restClient.save(page2);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find two pages
-        assertEquals(2, stats.size());
-        for (PSSEOStatistics stat : stats) {
-            if (stat.getPageSummary().getId().equals(page2Id)) {
-                assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
-                assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
-                assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
-            }
-        }
-
-        String keywords = "an example of multiple keywords";
-        request.setKeyword(keywords);
-
-        // should not find any pages
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        page.setDescription("This is" + keywords);
-        restClient.save(page);
-
-        // should not find any pages
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        page.setDescription(keywords + " shown here.");
-        restClient.save(page);
-
-        // should find one page
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        page.setLinkTitle("This_is_an_example_of_multiple_keywords");
-        restClient.save(page);
-
-        // should find one page
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        page.setLinkTitle("This-is-an-example-of-multiple-keywords-shown-here");
-        restClient.save(page);
-
-        // should find one page
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        page.setTitle("This is " + keywords + " shown here.");
-        restClient.save(page);
-
-        stats = restClient.findNonSEOPages(request);
-
-        // should find one page with no issues
-        assertEquals(1, stats.size());
-        assertTrue(stats.get(0).getIssues().isEmpty());
-
-        // test bad workflow
-        request.setWorkflow("Bad Workflow");
-        try {
-            restClient.findNonSEOPages(request);
-            fail("Unknown workflow was specified");
-        } catch (RestClientException e) {
-            assertEquals(500, e.getStatus());
-        }
-
-        // test severity
-        request.setWorkflow("Default Workflow");
-        request.setKeyword("");
-
-        request.setSeverity(SEO_SEVERITY.MEDIUM);
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        request.setSeverity(SEO_SEVERITY.MODERATE);
-        assertEquals(2, restClient.findNonSEOPages(request).size());
-
-        request.setKeyword(keywords);
-
-        page.setTitle(keywords);
-        page.setLinkTitle(keywords);
-        page.setDescription("");
-        restClient.save(page);
-
-        request.setSeverity(SEO_SEVERITY.SEVERE);
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        request.setSeverity(SEO_SEVERITY.HIGH);
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        request.setSeverity(SEO_SEVERITY.MODERATE);
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        page.setDescription(page.getTitle());
-        restClient.save(page);
-
-        request.setSeverity(SEO_SEVERITY.MEDIUM);
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        request.setSeverity(SEO_SEVERITY.MODERATE);
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        request.setSeverity(SEO_SEVERITY.ALL);
-        assertEquals(1, restClient.findNonSEOPages(request).size());
-
-        page.setTitle(keywords + " foo");
-        page.setDescription(keywords);
-        restClient.save(page);
-
-        request.setSeverity(SEO_SEVERITY.MODERATE);
-        assertTrue(restClient.findNonSEOPages(request).isEmpty());
-
-        request.setSeverity(SEO_SEVERITY.ALL);
-        assertEquals(1, restClient.findNonSEOPages(request).size());
+    // should not be able to delete page
+    try {
+      assertNotNull(restClient.validateDelete(id));
+      fail("Should not be able to delete page: " + id + ".  It is used by an approved page");
+    } catch (RestClientException e) {
+      assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("page.deleteApprovedPages"));
     }
 
-    /**
-     * Transitions the specified item to the Archive state.
-     *
-     * @param wfClient The item workflow service rest client.
-     * @param id of the item assumed to be in the Pending state.
-     */
-    private void transitionPendingToArchive(PSItemWorkflowServiceRestClient wfClient, String id) {
-        // transition the page to archive
-        wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_EDIT);
-        wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE);
+    // transition the page
+    transitionPendingToArchive(wfClient, pageId);
+
+    // should be able to delete page
+    try {
+      assertNotNull(restClient.validateDelete(id));
+      restClient.delete(id);
+      testSiteData.pageCleaner.remove(
+          testSiteData.site1.getFolderPath() + "/testValidateDeletePage");
+
+      getItemWorkflowServiceRestClient().checkOut(pageId);
+
+      assetClient.clearAssetWidgetRelationship(awRel);
+    } catch (RestClientException e) {
+      fail("Current user should be able to delete page: " + id);
+    }
+  }
+
+  @Test
+  public void testFindNonSEOPages() throws Exception {
+    // find pages in Draft state
+    PSNonSEOPagesRequest request = new PSNonSEOPagesRequest();
+    request.setPath(testSiteData.site1.getFolderPath());
+    request.setWorkflow("Default Workflow");
+    request.setState("Draft");
+    request.setSeverity(SEO_SEVERITY.ALL);
+    List<PSSEOStatistics> stats = restClient.findNonSEOPages(request);
+
+    // should find home page (missing description)
+    assertEquals(1, stats.size());
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
+
+    // create page
+    String pageId =
+        testSiteData.createPage(
+            "testFindNonSEOPages",
+            testSiteData.site1.getFolderPath(),
+            testSiteData.template1.getId());
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find two pages (missing description)
+    assertEquals(2, stats.size());
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
+    assertTrue(stats.get(1).getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
+    assertFalse(stats.get(1).getIssues().contains(SEO_ISSUE.DEFAULT_TITLE));
+
+    // change the page browser title to default, set the description
+    PSPage page = restClient.load(pageId);
+    page.setTitle(page.getLinkTitle());
+    page.setDescription("This is a test page.");
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find two pages
+    assertEquals(2, stats.size());
+    for (PSSEOStatistics stat : stats) {
+      if (stat.getPageSummary().getId().equals(pageId)) {
+        assertTrue(stat.getIssues().contains(SEO_ISSUE.DEFAULT_TITLE));
+        assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_DESCRIPTION));
+      }
     }
 
-    @AfterEach
-    public void tearDown() {
-        pageCleaner.clean();
-        templateCleaner.clean();
+    // test keywords
+    String keywordNoSpaces = "Keyword";
+    String keywordOneSpace = "Key word";
+    String keywordManySpaces = "Key  wo   rd";
+
+    request.setKeyword(keywordNoSpaces);
+
+    // should not find any pages
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    page.setDescription(page.getDescription() + ' ' + keywordNoSpaces);
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page
+    assertEquals(1, stats.size());
+    assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+
+    request.setKeyword(keywordOneSpace);
+
+    page.setLinkTitle(keywordOneSpace);
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page
+    assertEquals(1, stats.size());
+    assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+
+    request.setKeyword(keywordManySpaces);
+
+    page.setTitle("Key wo rd");
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page
+    assertEquals(1, stats.size());
+    assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+
+    request.setKeyword(keywordOneSpace);
+
+    page.setLinkTitle("Key_word");
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page
+    assertEquals(1, stats.size());
+    assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+
+    page.setLinkTitle("Key-word");
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page
+    assertEquals(1, stats.size());
+    assertFalse(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+    assertTrue(stats.get(0).getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+
+    request.setKeyword(keywordNoSpaces);
+
+    // create another page
+    String page2Id =
+        testSiteData.createPage(
+            "testFindNonSEOPages2",
+            testSiteData.site1.getFolderPath(),
+            testSiteData.template1.getId());
+    PSPage page2 = restClient.load(page2Id);
+    page2.setDescription(keywordNoSpaces);
+    page2.setLinkTitle(keywordNoSpaces);
+    page2.setTitle(keywordNoSpaces);
+    restClient.save(page2);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find two pages
+    assertEquals(2, stats.size());
+    for (PSSEOStatistics stat : stats) {
+      if (stat.getPageSummary().getId().equals(page2Id)) {
+        assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION));
+        assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_LINK));
+        assertFalse(stat.getIssues().contains(SEO_ISSUE.MISSING_KEYWORD_TITLE));
+      }
     }
 
-    @AfterAll
-    public void cleanup() throws Exception {
-        testSiteData.tearDown();
+    String keywords = "an example of multiple keywords";
+    request.setKeyword(keywords);
+
+    // should not find any pages
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    page.setDescription("This is" + keywords);
+    restClient.save(page);
+
+    // should not find any pages
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    page.setDescription(keywords + " shown here.");
+    restClient.save(page);
+
+    // should find one page
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+
+    page.setLinkTitle("This_is_an_example_of_multiple_keywords");
+    restClient.save(page);
+
+    // should find one page
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+
+    page.setLinkTitle("This-is-an-example-of-multiple-keywords-shown-here");
+    restClient.save(page);
+
+    // should find one page
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+
+    page.setTitle("This is " + keywords + " shown here.");
+    restClient.save(page);
+
+    stats = restClient.findNonSEOPages(request);
+
+    // should find one page with no issues
+    assertEquals(1, stats.size());
+    assertTrue(stats.get(0).getIssues().isEmpty());
+
+    // test bad workflow
+    request.setWorkflow("Bad Workflow");
+    try {
+      restClient.findNonSEOPages(request);
+      fail("Unknown workflow was specified");
+    } catch (RestClientException e) {
+      assertEquals(500, e.getStatus());
     }
 
-    private PSTemplateServiceClient getTemplateClient() throws Exception {
-        var client = new PSTemplateServiceClient(baseUrl);
-        setupClient(client);
-        return client;
-    }
+    // test severity
+    request.setWorkflow("Default Workflow");
+    request.setKeyword("");
 
-    private PSItemWorkflowServiceRestClient getItemWorkflowServiceRestClient() throws Exception {
-        var client = new PSItemWorkflowServiceRestClient(baseUrl);
-        setupClient(client);
-        return client;
-    }
+    request.setSeverity(SEO_SEVERITY.MEDIUM);
+    assertEquals(1, restClient.findNonSEOPages(request).size());
 
-    private PSAssetServiceRestClient getAssetClient() throws Exception {
-        var client = new PSAssetServiceRestClient(baseUrl);
-        setupClient(client);
-        return client;
-    }
+    request.setSeverity(SEO_SEVERITY.MODERATE);
+    assertEquals(2, restClient.findNonSEOPages(request).size());
 
-    private static final Logger log = LogManager.getLogger(PSPageRestServiceTest.class);
+    request.setKeyword(keywords);
+
+    page.setTitle(keywords);
+    page.setLinkTitle(keywords);
+    page.setDescription("");
+    restClient.save(page);
+
+    request.setSeverity(SEO_SEVERITY.SEVERE);
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    request.setSeverity(SEO_SEVERITY.HIGH);
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    request.setSeverity(SEO_SEVERITY.MODERATE);
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+
+    page.setDescription(page.getTitle());
+    restClient.save(page);
+
+    request.setSeverity(SEO_SEVERITY.MEDIUM);
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    request.setSeverity(SEO_SEVERITY.MODERATE);
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    request.setSeverity(SEO_SEVERITY.ALL);
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+
+    page.setTitle(keywords + " foo");
+    page.setDescription(keywords);
+    restClient.save(page);
+
+    request.setSeverity(SEO_SEVERITY.MODERATE);
+    assertTrue(restClient.findNonSEOPages(request).isEmpty());
+
+    request.setSeverity(SEO_SEVERITY.ALL);
+    assertEquals(1, restClient.findNonSEOPages(request).size());
+  }
+
+  /**
+   * Transitions the specified item to the Archive state.
+   *
+   * @param wfClient The item workflow service rest client.
+   * @param id of the item assumed to be in the Pending state.
+   */
+  private void transitionPendingToArchive(PSItemWorkflowServiceRestClient wfClient, String id) {
+    // transition the page to archive
+    wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_EDIT);
+    wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE);
+  }
+
+  @After
+  public void tearDown() {
+    pageCleaner.clean();
+    templateCleaner.clean();
+  }
+
+  @AfterClass
+  public static void cleanup() throws Exception {
+    testSiteData.tearDown();
+  }
+
+  private PSTemplateServiceClient getTemplateClient() throws Exception {
+    PSTemplateServiceClient client = new PSTemplateServiceClient(baseUrl);
+    setupClient(client);
+    return client;
+  }
+
+  private PSItemWorkflowServiceRestClient getItemWorkflowServiceRestClient() throws Exception {
+    PSItemWorkflowServiceRestClient client = new PSItemWorkflowServiceRestClient(baseUrl);
+    setupClient(client);
+    return client;
+  }
+
+  private PSAssetServiceRestClient getAssetClient() throws Exception {
+    PSAssetServiceRestClient client = new PSAssetServiceRestClient(baseUrl);
+    setupClient(client);
+    return client;
+  }
+
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSPageRestServiceTest.class);
 }

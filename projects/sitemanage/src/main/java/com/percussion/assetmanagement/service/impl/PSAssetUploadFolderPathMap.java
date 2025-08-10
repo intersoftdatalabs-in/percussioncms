@@ -18,142 +18,142 @@
 
 package com.percussion.assetmanagement.service.impl;
 
+import static org.apache.commons.lang.Validate.notEmpty;
+import static org.apache.commons.lang.Validate.notNull;
+
 import com.percussion.assetmanagement.data.PSAssetSummary;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.assetmanagement.service.IPSAssetService.PSAssetServiceException;
 import com.percussion.pathmanagement.service.impl.PSAssetPathItemService;
 import com.percussion.share.dao.IPSFolderHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Responsible for mapping asset content types to Rhythmyx system folder paths.
- * Paths are relative to the root asset folder and can be configured via Spring.
- * Folders are created on demand if they do not already exist.
+ * Responsible for mapping asset content types to Rhythmyx system folder paths. Paths are relative
+ * to the root asset folder and can be configured via Spring. Folders are created on demand if they
+ * do not already exist.
  */
 public class PSAssetUploadFolderPathMap {
 
-    private static final String UPLOADS_FOLDER_NAME = "uploads";
-    private IPSFolderHelper folderHelper;
-    private Map<String, String> typeToFolderPathMap = new HashMap<>();
-    private static final String ASSET_ROOT = PSAssetPathItemService.ASSET_ROOT;
+  private static final String UPLOADS_FOLDER_NAME = "uploads";
+  private IPSFolderHelper folderHelper;
+  private Map<String, String> typeToFolderPathMap = new HashMap<>();
+  private static final String ASSET_ROOT = PSAssetPathItemService.ASSET_ROOT;
 
-    public PSAssetUploadFolderPathMap(IPSFolderHelper folderHelper) {
-        this.folderHelper = folderHelper;
+  public PSAssetUploadFolderPathMap(IPSFolderHelper folderHelper) {
+    this.folderHelper = folderHelper;
+  }
+
+  /**
+   * Finds the upload folder for an asset as a legacy folder id. Uses one of the asset's existing
+   * folders if present, otherwise uses the type's default.
+   *
+   * @param asset never {@code null}.
+   * @return never {@code null}.
+   */
+  public Number getLegacyFolderIdForAsset(PSAssetSummary asset) throws PSAssetServiceException {
+    notNull(asset, "asset");
+    var folderIds = getFolderIdsForPaths(asset.getFolderPaths());
+    if (!folderIds.isEmpty()) return folderIds.entrySet().iterator().next().getValue();
+    return getLegacyFolderIdForType(asset.getType());
+  }
+
+  private Map<String, Number> getFolderIdsForPaths(Collection<String> paths) {
+    var pathToFolderId = new HashMap<String, Number>();
+    if (paths == null) return pathToFolderId;
+    for (var p : paths) {
+      try {
+        var folderId = folderHelper.findLegacyFolderIdFromPath(p);
+        pathToFolderId.put(p, folderId);
+      } catch (Exception e) {
+        // Skip this folder path.
+        log.warn("Bad folder path: {}", p);
+      }
+    }
+    return pathToFolderId;
+  }
+
+  /**
+   * Retrieves the uploads folder associated with an asset type. The folder will be created if it
+   * does not exist. If the folder cannot be created, the default folder path will be used.
+   *
+   * @param type never {@code null}.
+   * @return never {@code null}.
+   * @throws PSAssetServiceException if no valid folder path can be found.
+   */
+  public Number getLegacyFolderIdForType(String type) throws PSAssetServiceException {
+    notNull(type);
+    var path = getFolderPathForType(type);
+    boolean defaultPath = false;
+    if (path == null) {
+      defaultPath = true;
+      path = getDefaultFolderPath();
     }
 
-    /**
-     * Finds the upload folder for an asset as a legacy folder id.
-     * Uses one of the asset's existing folders if present, otherwise uses the type's default.
-     *
-     * @param asset never {@code null}.
-     * @return never {@code null}.
-     */
-    public Number getLegacyFolderIdForAsset(PSAssetSummary asset) throws PSAssetServiceException {
-        notNull(asset, "asset");
-        var folderIds = getFolderIdsForPaths(asset.getFolderPaths());
-        if (!folderIds.isEmpty())
-            return folderIds.entrySet().iterator().next().getValue();
-        return getLegacyFolderIdForType(asset.getType());
+    try {
+      return getFolderForTypeHelper(path);
+    } catch (PSAssetServiceException e) {
+      if (defaultPath) {
+        throw e;
+      }
+      log.warn("Cannot use folder path for uploading assets: {}", path);
+      path = getDefaultFolderPath();
     }
+    return getFolderForTypeHelper(path);
+  }
 
-    private Map<String, Number> getFolderIdsForPaths(Collection<String> paths) {
-        var pathToFolderId = new HashMap<String, Number>();
-        if (paths == null) return pathToFolderId;
-        for (var p : paths) {
-            try {
-                var folderId = folderHelper.findLegacyFolderIdFromPath(p);
-                pathToFolderId.put(p, folderId);
-            } catch (Exception e) {
-                // Skip this folder path.
-                log.warn("Bad folder path: {}", p);
-            }
-        }
-        return pathToFolderId;
+  private Number getFolderForTypeHelper(String folderPath) throws PSAssetServiceException {
+    notEmpty(folderPath, "folderPath for type");
+    try {
+      folderHelper.createFolder(folderPath);
+      return folderHelper.findLegacyFolderIdFromPath(folderPath);
+    } catch (Exception e) {
+      throw new IPSAssetService.PSAssetServiceException("Failed to get uploads folder", e);
     }
+  }
 
-    /**
-     * Retrieves the uploads folder associated with an asset type.
-     * The folder will be created if it does not exist.
-     * If the folder cannot be created, the default folder path will be used.
-     *
-     * @param type never {@code null}.
-     * @return never {@code null}.
-     * @throws PSAssetServiceException if no valid folder path can be found.
-     */
-    public Number getLegacyFolderIdForType(String type) throws PSAssetServiceException {
-        notNull(type);
-        var path = getFolderPathForType(type);
-        boolean defaultPath = false;
-        if (path == null) {
-            defaultPath = true;
-            path = getDefaultFolderPath();
-        }
+  /**
+   * Gets the folder path for a given type.
+   *
+   * @param type never {@code null}.
+   * @return {@code null} if there is no type matching a path.
+   */
+  protected String getFolderPathForType(String type) {
+    notNull(type);
+    var path = getTypeToFolderPathMap().get(type);
+    if (path == null) return null;
+    return folderHelper.concatPath(ASSET_ROOT, path);
+  }
 
-        try {
-            return getFolderForTypeHelper(path);
-        } catch (PSAssetServiceException e) {
-            if (defaultPath) {
-                throw e;
-            }
-            log.warn("Cannot use folder path for uploading assets: {}", path);
-            path = getDefaultFolderPath();
-        }
-        return getFolderForTypeHelper(path);
-    }
+  /**
+   * The base uploads folder path.
+   *
+   * @return never {@code null} or empty.
+   */
+  protected String getBaseUploadsFolderPath() {
+    return folderHelper.concatPath(ASSET_ROOT, UPLOADS_FOLDER_NAME);
+  }
 
-    private Number getFolderForTypeHelper(String folderPath) throws PSAssetServiceException {
-        notEmpty(folderPath, "folderPath for type");
-        try {
-            folderHelper.createFolder(folderPath);
-            return folderHelper.findLegacyFolderIdFromPath(folderPath);
-        } catch (Exception e) {
-            throw new IPSAssetService.PSAssetServiceException("Failed to get uploads folder", e);
-        }
-    }
+  /**
+   * Gets the default upload folder path.
+   *
+   * @return never {@code null}.
+   */
+  protected String getDefaultFolderPath() {
+    return getBaseUploadsFolderPath();
+  }
 
-    /**
-     * Gets the folder path for a given type.
-     * @param type never {@code null}.
-     * @return {@code null} if there is no type matching a path.
-     */
-    protected String getFolderPathForType(String type) {
-        notNull(type);
-        var path = getTypeToFolderPathMap().get(type);
-        if (path == null) return null;
-        return folderHelper.concatPath(ASSET_ROOT, path);
-    }
+  public Map<String, String> getTypeToFolderPathMap() {
+    return typeToFolderPathMap;
+  }
 
-    /**
-     * The base uploads folder path.
-     * @return never {@code null} or empty.
-     */
-    protected String getBaseUploadsFolderPath() {
-        return folderHelper.concatPath(ASSET_ROOT, UPLOADS_FOLDER_NAME);
-    }
+  public void setTypeToFolderPathMap(Map<String, String> typeForFolderPath) {
+    this.typeToFolderPathMap = typeForFolderPath;
+  }
 
-    /**
-     * Gets the default upload folder path.
-     * @return never {@code null}.
-     */
-    protected String getDefaultFolderPath() {
-        return getBaseUploadsFolderPath();
-    }
-
-    public Map<String, String> getTypeToFolderPathMap() {
-        return typeToFolderPathMap;
-    }
-
-    public void setTypeToFolderPathMap(Map<String, String> typeForFolderPath) {
-        this.typeToFolderPathMap = typeForFolderPath;
-    }
-
-    private static final Logger log = LogManager.getLogger(PSAssetUploadFolderPathMap.class);
+  private static final Logger log = LogManager.getLogger(PSAssetUploadFolderPathMap.class);
 }

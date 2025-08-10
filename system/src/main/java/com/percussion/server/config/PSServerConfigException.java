@@ -19,8 +19,8 @@ package com.percussion.server.config;
 import com.percussion.error.PSException;
 
 /**
- * Generic exception class to be used for server configurations errors. More
- * specific server configuration errors should be derived from this class.
+ * Generic exception class to be used for server configurations errors. More specific server
+ * configuration errors should be derived from this class.
  */
 public class PSServerConfigException extends PSException {
   /**

@@ -26,87 +26,90 @@ import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.IPSSitemanageConstants;
 import com.percussion.share.test.PSObjectRestClient;
-
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST client for template service unit tests.
- * <p>
- * Sunny Sal says: "Templates are like pizza bases—get them right, and everything else is a topping!"
+ *
+ * <p>Sunny Sal says: "Templates are like pizza bases—get them right, and everything else is a
+ * topping!"
  */
 public class PSTemplateServiceClient extends PSObjectRestClient {
-    private String path = "/Rhythmyx/services/pagemanagement/template/";
+  private String path = "/Rhythmyx/services/pagemanagement/template/";
 
-    public PSTemplateServiceClient(String baseUrl) {
-        super(baseUrl);
-    }
+  public PSTemplateServiceClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public List<PSTemplateSummary> findAll() {
-        return getObjectsFromPath(concatPath(getPath(), "/summary/all"), PSTemplateSummary.class);
-    }
+  public List<PSTemplateSummary> findAll() {
+    return getObjectsFromPath(concatPath(getPath(), "/summary/all"), PSTemplateSummary.class);
+  }
 
-    public PSTemplate save(PSTemplate template) {
-        return postObjectToPath(getPath(), template, PSTemplate.class);
-    }
+  public PSTemplate save(PSTemplate template) {
+    return postObjectToPath(getPath(), template, PSTemplate.class);
+  }
 
-    public PSTemplate save(PSTemplate template, String pageId) {
-        return postObjectToPath(concatPath(getPath(), "/page/", pageId), template, PSTemplate.class);
-    }
+  public PSTemplate save(PSTemplate template, String pageId) {
+    return postObjectToPath(concatPath(getPath(), "/page/", pageId), template, PSTemplate.class);
+  }
 
-    public PSTemplate createTemplate(String name, String srcId) {
-        return getObjectFromPath(concatPath(getPath(), "/create/", name, srcId), PSTemplate.class);
-    }
+  public PSTemplate createTemplate(String name, String srcId) {
+    return getObjectFromPath(concatPath(getPath(), "/create/", name, srcId), PSTemplate.class);
+  }
 
-    public PSTemplate loadTemplate(String id) {
-        return getObjectFromPath(concatPath(getPath(), id), PSTemplate.class);
-    }
+  public PSTemplate loadTemplate(String id) {
+    return getObjectFromPath(concatPath(getPath(), id), PSTemplate.class);
+  }
 
-    public PSHtmlMetadata loadHtmlMetadata(String id) {
-        return getObjectFromPath(concatPath(getPath(), "/loadTemplateMetadata/", id), PSHtmlMetadata.class);
-    }
+  public PSHtmlMetadata loadHtmlMetadata(String id) {
+    return getObjectFromPath(
+        concatPath(getPath(), "/loadTemplateMetadata/", id), PSHtmlMetadata.class);
+  }
 
-    public void saveHtmlMetadata(PSHtmlMetadata metadata) {
-        postObjectToPath(concatPath(getPath(), "/saveTemplateMetadata"), metadata);
-    }
+  public void saveHtmlMetadata(PSHtmlMetadata metadata) {
+    postObjectToPath(concatPath(getPath(), "/saveTemplateMetadata"), metadata);
+  }
 
-    public void deleteTemplate(String id) {
-        notEmpty(id, "id");
-        DELETE(concatPath(getPath(), id));
-    }
+  public void deleteTemplate(String id) {
+    notEmpty(id, "id");
+    DELETE(concatPath(getPath(), id));
+  }
 
-    public PSTemplateSummary findTemplate(String id) {
-        return getObjectFromPath(concatPath(getPath(), "summary/", id), PSTemplateSummary.class);
-    }
+  public PSTemplateSummary findTemplate(String id) {
+    return getObjectFromPath(concatPath(getPath(), "summary/", id), PSTemplateSummary.class);
+  }
 
-    public List<PSTemplateSummary> findAllReadOnly() {
-        return getObjectsFromPath(concatPath(getPath(), "/summary/all/readonly"), PSTemplateSummary.class);
-    }
+  public List<PSTemplateSummary> findAllReadOnly() {
+    return getObjectsFromPath(
+        concatPath(getPath(), "/summary/all/readonly"), PSTemplateSummary.class);
+  }
 
-    public PSTemplate saveTemplate(PSTemplate template) {
-        return postObjectToPath(getPath(), template, PSTemplate.class);
-    }
+  public PSTemplate saveTemplate(PSTemplate template) {
+    return postObjectToPath(getPath(), template, PSTemplate.class);
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    /**
-     * Finds the "plain" base template and creates a new template from it.
-     * @return the new template's id
-     */
-    public String getContentOnlyTemplateId() {
-        var srcId = findAll().stream()
-                .filter(sum -> sum.getName().contains(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME))
-                .map(PSTemplateSummary::getId)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Cannot find \"plain\" template."));
+  /**
+   * Finds the "plain" base template and creates a new template from it.
+   *
+   * @return the new template's id
+   */
+  public String getContentOnlyTemplateId() {
+    var srcId =
+        findAll().stream()
+            .filter(sum -> sum.getName().contains(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME))
+            .map(PSTemplateSummary::getId)
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Cannot find \"plain\" template."));
 
-        var item = createTemplate("test.template.plain7", srcId);
-        return item.getId();
-    }
+    var item = createTemplate("test.template.plain7", srcId);
+    return item.getId();
+  }
 }

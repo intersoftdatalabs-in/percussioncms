@@ -17,27 +17,24 @@
  */
 package com.percussion.user.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotNull;
 
-/**
- * Encapsulates the access level (assignment type) of a user.
- */
+/** Encapsulates the access level (assignment type) of a user. */
 @XmlRootElement(name = "AccessLevel")
 @JsonRootName("AccessLevel")
 public class PSAccessLevel {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @NotNull
-    private String accessLevel;
+  @NotNull private String accessLevel;
 
-    public String getAccessLevel() {
-        return accessLevel;
-    }
+  public String getAccessLevel() {
+    return accessLevel;
+  }
 
-    public void setAccessLevel(String accessLevel) {
-        this.accessLevel = accessLevel;
-    }
+  public void setAccessLevel(String accessLevel) {
+    this.accessLevel = accessLevel;
+  }
 }

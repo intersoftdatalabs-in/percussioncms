@@ -74,9 +74,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * The InstallUtil class contains some utility methods for the installer.
- */
+/** The InstallUtil class contains some utility methods for the installer. */
 @SuppressWarnings("all")
 public class InstallUtil {
 
@@ -139,14 +137,13 @@ public class InstallUtil {
   }
 
   /**
-   * Find and replace text in the tutorial. If either <code>strFind</code> or
-   * <code>strReplace</code> is null, or if <code>strFind</code> is an empty
-   * string, then nothing will happen.
+   * Find and replace text in the tutorial. If either <code>strFind</code> or <code>strReplace
+   * </code> is null, or if <code>strFind</code> is an empty string, then nothing will happen.
    *
    * @param strFind the text to be found
    * @param strReplace the text to replace <code>strFind</code>
-   * @param strFile the path name of a file containing the text to be found and
-   *           replaced with (<code>null</code> path name is not allowed)
+   * @param strFile the path name of a file containing the text to be found and replaced with (
+   *     <code>null</code> path name is not allowed)
    */
   public static void findReplace(String strFind, String strReplace, String strFile) {
     if ((strFind == null) || (strReplace == null) || (strFind.length() == 0)) return;
@@ -182,8 +179,8 @@ public class InstallUtil {
   }
 
   /**
-   * Convert a <code>project</code> file. Same as calling
-   * <code>convertProject(project, null, null)</code>.
+   * Convert a <code>project</code> file. Same as calling <code>convertProject(project, null, null)
+   * </code>.
    *
    * @param project the path name of a file (not <code>null</code>)
    * @throws IOException if an error occurs converting the project
@@ -193,17 +190,16 @@ public class InstallUtil {
   }
 
   /**
-   * Convert a <code>project</code> file. In the file, the possible installer
-   * drivers will first be found and replaced with the driver given by
-   * <code>strCurDir</code>. Then the E2 directory will be replaced with the
-   * directory of <code>strCurDir</code>. Finally, if <code>strDocDir</code> is
-   * not <code>null</code>, the Docs\E2\Help\V2.0\ directory will be replaced
-   * with the directory of <code>strDocDir</code>. Otherwise, this final step
-   * will be ignored. The result is stored in <code>project</code>.
+   * Convert a <code>project</code> file. In the file, the possible installer drivers will first be
+   * found and replaced with the driver given by <code>strCurDir</code>. Then the E2 directory will
+   * be replaced with the directory of <code>strCurDir</code>. Finally, if <code>strDocDir</code> is
+   * not <code>null</code>, the Docs\E2\Help\V2.0\ directory will be replaced with the directory of
+   * <code>strDocDir</code>. Otherwise, this final step will be ignored. The result is stored in
+   * <code>project</code>.
    *
    * @param project the path name of a file (not <code>null</code>)
-   * @param strCurDir the current directory, if <code>null</code>, then the
-   *           current user directory is assumed
+   * @param strCurDir the current directory, if <code>null</code>, then the current user directory
+   *     is assumed
    * @param strDocDir the document directory
    * @throws IOException if an error occurs
    */
@@ -280,21 +276,15 @@ public class InstallUtil {
   }
 
   /**
-   * Checks if the database is setup for unicode. This is done by creating a
-   * temporary table in the database and calling
-   * {@link PSSqlHelper#supportsUnicode(Connection, String, String)} on this
+   * Checks if the database is setup for unicode. This is done by creating a temporary table in the
+   * database and calling {@link PSSqlHelper#supportsUnicode(Connection, String, String)} on this
    * table.
    *
    * @param conn The database connection object. May not be <code>null</code>.
-   * @param driver The driver used for this connection. May not be
-   *           <code>null</code>.
+   * @param driver The driver used for this connection. May not be <code>null</code>.
    * @param database The name of the database. May not be <code>null</code>.
-   * @param schema The schema for this connection. May not be <code>null</code>
-   *           .
-   *
-   * @return <code>true</code> if the database is setup for unicode,
-   *         <code>false</code> otherwise.
-   *
+   * @param schema The schema for this connection. May not be <code>null</code> .
+   * @return <code>true</code> if the database is setup for unicode, <code>false</code> otherwise.
    * @throws SQLException
    */
   public static boolean checkForUnicode(
@@ -393,9 +383,7 @@ public class InstallUtil {
    * Executes the given SQL statement on the given connection.
    *
    * @param conn connection to the database, may not be <code>null</code>
-   * @param statement specifies the action to be taken, may not be
-   *           <code>null</code>
-   *
+   * @param statement specifies the action to be taken, may not be <code>null</code>
    * @throws SQLException
    */
   public static void executeStatement(Connection conn, String statement) throws SQLException {
@@ -406,18 +394,13 @@ public class InstallUtil {
   }
 
   /**
-   * Helper function that returns the first DOM child Element of the supplied
-   * node.
+   * Helper function that returns the first DOM child Element of the supplied node.
    *
-   * @param node - parent node that can only be of Document ot Element type,
-   *           can be <code>null</code>.
-   *
+   * @param node - parent node that can only be of Document ot Element type, can be <code>null
+   *     </code>.
    * @param sElemName - the element tag name, can be <code>null</code>.
-   *
-   * @return - First DOM element with the supplied name, may be
-   *         <code>null</code>. <code>null</code> if the parent node element
-   *         name tag is <code>null</code>
-   *
+   * @return - First DOM element with the supplied name, may be <code>null</code>. <code>null</code>
+   *     if the parent node element name tag is <code>null</code>
    */
   public static Element getElement(Node node, String sElemName) {
     if (null == node || null == sElemName || sElemName.trim().length() < 1) return null;
@@ -438,18 +421,13 @@ public class InstallUtil {
   }
 
   /**
-   * Helper function that returns the value of the first child DOM Element of
-   * the supplied DOM node.
+   * Helper function that returns the value of the first child DOM Element of the supplied DOM node.
    *
-   * @param node - DOM node can be either Document or Element type, can not be
-   *           <code>null</code>. If <code>null</code> or other type, the
-   *           return value shall be empty string.
-   *
-   * @param sElemName - the element tag name, can not be <code>null</code>. If
-   *           <code>null</code>, the return value shall be empty string.
-   *
+   * @param node - DOM node can be either Document or Element type, can not be <code>null</code>. If
+   *     <code>null</code> or other type, the return value shall be empty string.
+   * @param sElemName - the element tag name, can not be <code>null</code>. If <code>null</code>,
+   *     the return value shall be empty string.
    * @return String - the value of the element, can be empty string.
-   *
    */
   public static String getElemValue(Node node, String sElemName) {
     String value = "";
@@ -478,12 +456,9 @@ public class InstallUtil {
   /**
    * Helper function that returns the value of the given DOM Element.
    *
-   * @param elem - DOM Element, can not be <code>null</code>. If
-   *           <code>null</code>, the return value shall be empty string.
-   *
-   *
+   * @param elem - DOM Element, can not be <code>null</code>. If <code>null</code>, the return value
+   *     shall be empty string.
    * @return String - the value of the element, can be empty string.
-   *
    */
   public static String getElemValue(Element elem) {
     String value = "";
@@ -495,18 +470,14 @@ public class InstallUtil {
   }
 
   /**
-   * Helper function that returns the ArrayList of values of the given child
-   * element of a given node.
+   * Helper function that returns the ArrayList of values of the given child element of a given
+   * node.
    *
-   * @param node - DOM node can be either Document or Element type, can not be
-   *           <code>null</code>. If <code>null</code> or other type, the
-   *           return value shall be empty arraylist.
-   *
-   * @param childElemName - the element tag name, can not be <code>null</code>.
-   *           If <code>null</code>, the return value shall be empty arraylist.
-   *
+   * @param node - DOM node can be either Document or Element type, can not be <code>null</code>. If
+   *     <code>null</code> or other type, the return value shall be empty arraylist.
+   * @param childElemName - the element tag name, can not be <code>null</code>. If <code>null</code>
+   *     , the return value shall be empty arraylist.
    * @return - a list of element values, never <code>null</code>.
-   *
    */
   public static List<String> getValueList(Node node, String childElemName) {
     List<String> list = new ArrayList<>();
@@ -532,20 +503,16 @@ public class InstallUtil {
   }
 
   /**
-   * Method to restore version.properties, else in the next installer run,
-   * plugins will not run. This is because installer will copy
-   * Version.properties to PreviousVersion.properties and install a new
-   * Version.properties file. Because of errors such as this one during
-   * install, the tree is in a stale state. Next install will copy the failed
-   * installation version into PreviousVersion.properties, thus ending up with
-   * the upgrade plugin comparison version being the same and no upgrade
-   * plugins will run. This method will copy PreviousVersion.properties into
-   * version.properties then remove PreviousVersion.properties. This will at
-   * least maintain the state of the tree prior to the failed upgrade.
+   * Method to restore version.properties, else in the next installer run, plugins will not run.
+   * This is because installer will copy Version.properties to PreviousVersion.properties and
+   * install a new Version.properties file. Because of errors such as this one during install, the
+   * tree is in a stale state. Next install will copy the failed installation version into
+   * PreviousVersion.properties, thus ending up with the upgrade plugin comparison version being the
+   * same and no upgrade plugins will run. This method will copy PreviousVersion.properties into
+   * version.properties then remove PreviousVersion.properties. This will at least maintain the
+   * state of the tree prior to the failed upgrade.
    *
-   * @param root The Rhythmyx root directory, may not be <code>null</code> or
-   *           empty.
-   *
+   * @param root The Rhythmyx root directory, may not be <code>null</code> or empty.
    * @throws IOException if an error occurs during copy.
    * @throws FileNotFoundException if an error occurs during copy.
    */
@@ -563,12 +530,9 @@ public class InstallUtil {
   }
 
   /**
-   * Method to backup rxrepository.properties as
-   * {@link #ORIG_REPOSITORY_PROPS_FILE}.
+   * Method to backup rxrepository.properties as {@link #ORIG_REPOSITORY_PROPS_FILE}.
    *
-   * @param root The Rhythmyx root directory, may not be <code>null</code> or
-   *           empty.
-   *
+   * @param root The Rhythmyx root directory, may not be <code>null</code> or empty.
    * @throws IOException if an error occurs during copy.
    * @throws FileNotFoundException if an error occurs during copy.
    */
@@ -585,18 +549,14 @@ public class InstallUtil {
   }
 
   /**
-   * Method to restore rxrepository.properties, else if the current 5.x
-   * installation is not compatible for upgrade and the upgrade is halted, the
-   * server will be left in a state in which it fails to start. This is because
-   * the installer will load the current properties into
-   * rxrepository.properties in preparation for upgrade. Part of this includes
-   * re-encrypting the database password using the 6.x encryption scheme. This
-   * will ensure that the server starts in the event of a failed compatibility
-   * scan.
+   * Method to restore rxrepository.properties, else if the current 5.x installation is not
+   * compatible for upgrade and the upgrade is halted, the server will be left in a state in which
+   * it fails to start. This is because the installer will load the current properties into
+   * rxrepository.properties in preparation for upgrade. Part of this includes re-encrypting the
+   * database password using the 6.x encryption scheme. This will ensure that the server starts in
+   * the event of a failed compatibility scan.
    *
-   * @param root The Rhythmyx root directory, may not be <code>null</code> or
-   *           empty.
-   *
+   * @param root The Rhythmyx root directory, may not be <code>null</code> or empty.
    * @throws IOException if an error occurs during copy.
    * @throws FileNotFoundException if an error occurs during copy.
    */
@@ -618,7 +578,6 @@ public class InstallUtil {
    *
    * @param in : input file, may not be <code>null</code>.
    * @param out : output file, may not be <code>null</code>.
-   *
    * @throws IOException if an error occurs during copy.
    * @throws FileNotFoundException if either of the files cannot be found.
    */
@@ -636,17 +595,17 @@ public class InstallUtil {
 
   /**
    * Modifies the supplied name as below, according to naming conventions:
+   *
    * <p>
+   *
    * <ol>
-   * <li>Replace all "-" with " "</li>
-   * <li>Calls {@link #convertSpaceToUnderscore(String)} to replace spaces with
-   * underscores.</li>
+   *   <li>Replace all "-" with " "
+   *   <li>Calls {@link #convertSpaceToUnderscore(String)} to replace spaces with underscores.
    * </ol>
    *
    * @param oldName old name to modify, may be <code>null</code> or empty.
-   * @return new name after modifying as described above, may be
-   *         <code>null</code> or empty if supplied one <code>null</code> or
-   *         empty.
+   * @return new name after modifying as described above, may be <code>null</code> or empty if
+   *     supplied one <code>null</code> or empty.
    */
   public static String modifyName(String oldName) {
     if (oldName == null) return oldName;
@@ -656,16 +615,17 @@ public class InstallUtil {
 
   /**
    * Modifies the supplied string as below:
+   *
    * <p>
+   *
    * <ol>
-   * <li>Replace all " " with "_"</li>
-   * <li>Collapse continuous "_"s into one "_"</li>
+   *   <li>Replace all " " with "_"
+   *   <li>Collapse continuous "_"s into one "_"
    * </ol>
    *
    * @param str string to modify, may be <code>null</code> or empty.
-   * @return new string after modifying as described above, may be
-   *         <code>null</code> or empty if supplied one <code>null</code> or
-   *         empty.
+   * @return new string after modifying as described above, may be <code>null</code> or empty if
+   *     supplied one <code>null</code> or empty.
    */
   public static String convertSpaceToUnderscore(String str) {
     if (str == null) return str;
@@ -676,14 +636,11 @@ public class InstallUtil {
   }
 
   /**
-   * Helper function adds xml processing instruction and DOCTYPE to the given
-   * xml string.
+   * Helper function adds xml processing instruction and DOCTYPE to the given xml string.
    *
    * @param str xml string to be modified, may not be <code>null</code>
-   * @param root element to which the DOCTYPE will be applied, may not be
-   *           <code>null</code> or empty
-   * @param type the type of the DOCTYPE specification, acceptable values are
-   *           SYSTEM and PUBLIC
+   * @param root element to which the DOCTYPE will be applied, may not be <code>null</code> or empty
+   * @param type the type of the DOCTYPE specification, acceptable values are SYSTEM and PUBLIC
    * @param dtd the dtd reference, may not be <code>null</code> or empty
    * @return the modified string.
    */
@@ -716,13 +673,11 @@ public class InstallUtil {
   }
 
   /**
-   * If the installation or upgrade is to a directory that already has the
-   * server installed.
+   * If the installation or upgrade is to a directory that already has the server installed.
    *
-   * @param instDir the directory this installation is performed never
-   *           <code>null</code> or empty
-   * @return <code>true</code> if the installation location specified already
-   *         has the server installed, <code>false</code> otherwise.
+   * @param instDir the directory this installation is performed never <code>null</code> or empty
+   * @return <code>true</code> if the installation location specified already has the server
+   *     installed, <code>false</code> otherwise.
    */
   public static boolean isServerInstallation(String instDir) {
     boolean isServerInstalled = false;
@@ -741,13 +696,12 @@ public class InstallUtil {
   }
 
   /**
-   * Helper method for validation to advise if the server is still running.
-   * First checks if <code>dirName</code> is a valid server installation.
+   * Helper method for validation to advise if the server is still running. First checks if <code>
+   * dirName</code> is a valid server installation.
    *
-   * @param dirName the install location specified either for upgrade or new
-   *           install, never <code>null</code> or empty.
-   * @return <code>true</code> if the server is running, <code>false</code>
-   *         otherwise
+   * @param dirName the install location specified either for upgrade or new install, never <code>
+   *     null</code> or empty.
+   * @return <code>true</code> if the server is running, <code>false</code> otherwise
    */
   public static boolean isServerRunning(String dirName) {
     if (dirName == null || dirName.length() == 0)
@@ -760,10 +714,9 @@ public class InstallUtil {
   /**
    * Helper method for validation to advise if the server is still running.
    *
-   * @param dirName the install location specified either for upgrade or new
-   *           install, never <code>null</code> or empty.
-   * @return <code>true</code> if the server is running, <code>false</code>
-   *         otherwise
+   * @param dirName the install location specified either for upgrade or new install, never <code>
+   *     null</code> or empty.
+   * @return <code>true</code> if the server is running, <code>false</code> otherwise
    */
   public static boolean checkServerRunning(String dirName) {
     boolean isRunning = false;
@@ -800,10 +753,7 @@ public class InstallUtil {
     return isRunning;
   }
 
-  /**
-   * THis is a utility method to shutdown Derby Server.
-   * CMS-5932
-   */
+  /** THis is a utility method to shutdown Derby Server. CMS-5932 */
   public static void shutDownDerby() {
 
     try (Connection cn = DriverManager.getConnection("jdbc:derby:;shutdown=true")) {
@@ -860,8 +810,8 @@ public class InstallUtil {
   }
 
   /**
-   * Checks to see if a specific port is available. From Apache Camel, removed
-   * max / min port arguments
+   * Checks to see if a specific port is available. From Apache Camel, removed max / min port
+   * arguments
    *
    * @param port the port to check for availability
    */
@@ -923,14 +873,13 @@ public class InstallUtil {
   }
 
   /**
-   * Locates the Version.properties and copies to PreviousVersion.properties.
-   * The order of lookup is as follows: 1) lib/rxserver.jar 2)
-   * RxServices/WEB-INF/lib/rxclient.jar 3)
-   * rxapp.ear/rxapp.war/WEB-INF/lib/rxserver.jar 4)
-   * RxServices.war/WEB-INF/lib/rxclient.jar 5) RxServices.war
+   * Locates the Version.properties and copies to PreviousVersion.properties. The order of lookup is
+   * as follows: 1) lib/rxserver.jar 2) RxServices/WEB-INF/lib/rxclient.jar 3)
+   * rxapp.ear/rxapp.war/WEB-INF/lib/rxserver.jar 4) RxServices.war/WEB-INF/lib/rxclient.jar 5)
+   * RxServices.war
    *
-   * @param strRootDir The Rhythmyx root installation directory, may not be
-   *           <code>null</code> or empty.
+   * @param strRootDir The Rhythmyx root installation directory, may not be <code>null</code> or
+   *     empty.
    */
   public static void writePreviousVersion(String strRootDir) {
     if (strRootDir == null || strRootDir.trim().length() == 0)
@@ -1008,11 +957,10 @@ public class InstallUtil {
   }
 
   /**
-   * Returns the brand code, never <code>null</code> since the installation
-   * cannot proceed unless a valid brand code is provided by the user.
+   * Returns the brand code, never <code>null</code> since the installation cannot proceed unless a
+   * valid brand code is provided by the user.
    *
-   * @param rootDir the Rhythmyx root directory, never <code>null</code> or
-   *           empty.
+   * @param rootDir the Rhythmyx root directory, never <code>null</code> or empty.
    * @return the brand code.
    */
   public static Code fetchBrandCode(String rootDir) {
@@ -1036,27 +984,22 @@ public class InstallUtil {
   }
 
   /**
-   * Obtains connection using the derby connection information. The caller of
-   * this function is responsible for closing the connection.
+   * Obtains connection using the derby connection information. The caller of this function is
+   * responsible for closing the connection.
    */
   public static Connection createDerbyConnection() {
     return InstallUtil.createConnection("derby", "//localhost:152,derby_jv509", "derby", "demo");
   }
 
   /**
-   * Obtains connection using the connection information supplied. The caller
-   * of this function is responsible for closing the connection.
+   * Obtains connection using the connection information supplied. The caller of this function is
+   * responsible for closing the connection.
    *
-   * @param strDriver the database driver to connect with, may not be
-   *           <code>null</code>.
+   * @param strDriver the database driver to connect with, may not be <code>null</code>.
    * @param strServer the server to connect to, may not be <code>null</code>.
-   * @param strUser the user id for the connection, may not be
-   *           <code>null</code>.
-   * @param strPassword the password for the user, may not be <code>null</code>
-   *           .
-   *
-   * @return the database connection, may be <code>null</code> if database
-   *         connection failed.
+   * @param strUser the user id for the connection, may not be <code>null</code>.
+   * @param strPassword the password for the user, may not be <code>null</code> .
+   * @return the database connection, may be <code>null</code> if database connection failed.
    */
   public static Connection createConnection(
       String strDriver, String strServer, String strUser, String strPassword) {
@@ -1092,8 +1035,8 @@ public class InstallUtil {
   /**
    * Adds the jar file URL to the internal list of jdbc driver URLs.
    *
-   * @param driverLocation the absolute path of the jar file URL to be added to
-   *           the internal list of jdbc driver URLs, may not be blank.
+   * @param driverLocation the absolute path of the jar file URL to be added to the internal list of
+   *     jdbc driver URLs, may not be blank.
    */
   public static void addJarFileUrl(String driverLocation) {
     if (StringUtils.isBlank(driverLocation)) {
@@ -1116,9 +1059,9 @@ public class InstallUtil {
   }
 
   /**
-   * Create a new database connection for the provided driver type. Use the
-   * given server configuration to get the driver class and loads that driver.
-   * The caller of this function is responsible for closing the connection.
+   * Create a new database connection for the provided driver type. Use the given server
+   * configuration to get the driver class and loads that driver. The caller of this function is
+   * responsible for closing the connection.
    *
    * @param driver the db driver type
    * @param server the database server
@@ -1310,17 +1253,15 @@ public class InstallUtil {
   }
 
   /**
-   * Create a new database connection for the provided driver type. Use the
-   * given server configuration to get the driver class. Determines if drive is
-   * a supplied driver or a driver that we have to load. The caller of this
-   * function is responsible for closing the connection.
+   * Create a new database connection for the provided driver type. Use the given server
+   * configuration to get the driver class. Determines if drive is a supplied driver or a driver
+   * that we have to load. The caller of this function is responsible for closing the connection.
    *
    * @param driver the db driver type, may not be <code>null</code>.
    * @param server the database server, may not be <code>null</code>.
    * @param db the database to be used, may be <code>null</code>.
    * @param uid the user Id, may not be <code>null</code>.
    * @param pw the user password, may not be <code>null</code>.
-   *
    * @return the created connection, may be <code>null</code>.
    * @throws SQLException if any database related error occurred
    */
@@ -1328,10 +1269,11 @@ public class InstallUtil {
       String driver, String server, String db, String uid, String pw) throws SQLException {
 
     if (driver.equalsIgnoreCase(PSJdbcUtils.DERBY_DRIVER)) {
-      /** Note: Apparently in the 5.4 version an arbitrary decision was made to switch to the
-       * embedded Derby jdbc driver as the default.  This of course breaks on upgrade as the
-       * previous version deployed Derby in networked mode by default.  So we will switch to the
-       * embedded defaults in this case.
+      /**
+       * Note: Apparently in the 5.4 version an arbitrary decision was made to switch to the
+       * embedded Derby jdbc driver as the default. This of course breaks on upgrade as the previous
+       * version deployed Derby in networked mode by default. So we will switch to the embedded
+       * defaults in this case.
        */
       String svr = RxInstallerProperties.getString("embedded.db_server_name");
       logInfo("Embedded Server : " + svr);
@@ -1354,15 +1296,11 @@ public class InstallUtil {
   }
 
   /**
-   * Converts a variable name to the InstallAnywhere format, which is:
-   * $VARIABLE$. This value may then be resolved to find the value of the
-   * variable.
+   * Converts a variable name to the InstallAnywhere format, which is: $VARIABLE$. This value may
+   * then be resolved to find the value of the variable.
    *
-   * @param var name of the InstallAnywhere variable, may not be
-   *           <code>null</code> or empty.
-   *
-   * @return the InstallAnywhere variable ready for resolution, never
-   *         <code>null</code> or empty.
+   * @param var name of the InstallAnywhere variable, may not be <code>null</code> or empty.
+   * @return the InstallAnywhere variable ready for resolution, never <code>null</code> or empty.
    */
   public static String getSubstituteName(String var) {
     if (var == null || var.trim().length() == 0) {
@@ -1373,15 +1311,12 @@ public class InstallUtil {
   }
 
   /**
-   * Creates an InstallAnywhere variable name for an Rx custom code
-   * implementation class.
+   * Creates an InstallAnywhere variable name for an Rx custom code implementation class.
    *
-   * @param classname the name of the custom code class, may not be
-   *           <code>null</code> or empty.
+   * @param classname the name of the custom code class, may not be <code>null</code> or empty.
    * @param var the variable name, may not be <code>null</code> or empty.
-   *
-   * @return an InstallAnywhere variable in the form CLASS_VARIABLE, never
-   *         <code>null</code> or empty.
+   * @return an InstallAnywhere variable in the form CLASS_VARIABLE, never <code>null</code> or
+   *     empty.
    */
   public static String getVariableName(String classname, String var) {
     if (classname == null || classname.trim().length() == 0) {
@@ -1403,8 +1338,8 @@ public class InstallUtil {
    * Determines if a given port is valid and bindable.
    *
    * @param port may be <code>null</code> or <code>empty</code>.
-   * @return <code>true</code> if server socket was successfully bound to a
-   *         given port, <code>false</code> otherwise.
+   * @return <code>true</code> if server socket was successfully bound to a given port, <code>false
+   *     </code> otherwise.
    */
   public static boolean isBindableTcpPort(String port) {
     if (port == null || port.trim().length() == 0) return false;
@@ -1423,8 +1358,8 @@ public class InstallUtil {
   /**
    * Returns machine host name.
    *
-   * @return machine host name, never <code>null</code>, never
-   *         <code>empty</code>. Defaults to "localhost".
+   * @return machine host name, never <code>null</code>, never <code>empty</code>. Defaults to
+   *     "localhost".
    */
   public static String getMyHostName() {
     try {
@@ -1441,8 +1376,7 @@ public class InstallUtil {
   /**
    * Gets the fully qualified domain name for this IP address.
    *
-   * @return machine domain name, never <code>null</code>, may be
-   *         <code>empty</code>.
+   * @return machine domain name, never <code>null</code>, may be <code>empty</code>.
    */
   public static String getMyDomainName() {
     try {
@@ -1481,15 +1415,16 @@ public class InstallUtil {
   }
 
   /**
-   * This one is used if table not exist and we are performing operation on it So that this will bypass the operation.
-   *
+   * This one is used if table not exist and we are performing operation on it So that this will
+   * bypass the operation.
    */
   public static boolean tableNotExists() {
     return false;
   }
 
   /**
-   * This one is used if table not exist and we are performing operation on it So that this will bypass the operation.
+   * This one is used if table not exist and we are performing operation on it So that this will
+   * bypass the operation.
    *
    * @param e the SQLException
    */
@@ -1521,8 +1456,7 @@ public class InstallUtil {
   }
 
   /**
-   * Set if the calling code is performing a silent installation to enable additional
-   * error logging.
+   * Set if the calling code is performing a silent installation to enable additional error logging.
    *
    * @param isSilent <code>true</code> if performing a silent install, <code>false</code> if not.
    */
@@ -1539,76 +1473,46 @@ public class InstallUtil {
     return ms_isSilentInstall;
   }
 
-  /**
-   * Previous Version file name.
-   */
+  /** Previous Version file name. */
   public static final String PREVIOUS_VERSION_PROPS_FILE = "PreviousVersion.properties";
 
-  /**
-   * Version file name.
-   */
+  /** Version file name. */
   public static final String VERSION_PROPS_FILE = "Version.properties";
 
-  /**
-   * Repository properties file path relative to Rhythmyx root.
-   */
+  /** Repository properties file path relative to Rhythmyx root. */
   public static final String REPOSITORY_PROPS_FILE = "rxconfig/Installer/rxrepository.properties";
 
-  /**
-   * Original repository properties file path relative to Rhythmyx root.
-   */
+  /** Original repository properties file path relative to Rhythmyx root. */
   public static final String ORIG_REPOSITORY_PROPS_FILE = REPOSITORY_PROPS_FILE + ".orig";
 
-  /**
-   * Major version of current rhythmyx installation obtained from
-   * PreviousVersion.properties.
-   */
+  /** Major version of current rhythmyx installation obtained from PreviousVersion.properties. */
   public static int ms_majorVersion = 6;
 
-  /**
-   * Key for storing the Rhythmyx Service Name in installation.properties file
-   */
+  /** Key for storing the Rhythmyx Service Name in installation.properties file */
   public static final String RHYTHMYX_SVC_NAME = "rhythmyxSvcName";
 
-  /**
-   * Key for storing the Rhythmyx Service Description in
-   * installation.properties file
-   */
+  /** Key for storing the Rhythmyx Service Description in installation.properties file */
   public static final String RHYTHMYX_SVC_DESC = "rhythmyxSvcDesc";
 
-  /**
-   * Property which stores the driver type in 5.X server.properties
-   */
+  /** Property which stores the driver type in 5.X server.properties */
   public static final String DRIVER_PROPERTY = "driverType";
 
-  /**
-   * Property which stores the driver class in 5.X server.properties
-   */
+  /** Property which stores the driver class in 5.X server.properties */
   public static final String CLASS_PROPERTY = "loggerClassname";
 
-  /**
-   * Property which stores the database server in 5.X server.properties
-   */
+  /** Property which stores the database server in 5.X server.properties */
   public static final String SERVER_PROPERTY = "serverName";
 
-  /**
-   * Property which stores the database login user id in 5.X server.properties
-   */
+  /** Property which stores the database login user id in 5.X server.properties */
   public static final String ID_PROPERTY = "loginId";
 
-  /**
-   * Property which stores the database login password in 5.X server.properties
-   */
+  /** Property which stores the database login password in 5.X server.properties */
   public static final String PW_PROPERTY = "loginPw";
 
-  /**
-   * Property which stores the database name in 5.X server.properties
-   */
+  /** Property which stores the database name in 5.X server.properties */
   public static final String DATABASE_PROPERTY = "databaseName";
 
-  /**
-   * Property which stores the database schema in 5.X server.properties
-   */
+  /** Property which stores the database schema in 5.X server.properties */
   public static final String SCHEMA_PROPERTY = "schemaName";
 
   private static String m_rootDir = ".";

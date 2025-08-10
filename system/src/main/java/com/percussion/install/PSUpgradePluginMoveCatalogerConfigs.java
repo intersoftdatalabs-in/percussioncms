@@ -34,9 +34,9 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Moves any subject and role cataloger definitions from the sys_roleMgr bean
- * in server-beans.xml to the cataloger-beans.xml and then deletes the
- * sys_roleMgr bean from server-beans as it has been added to beans.xml.
+ * Moves any subject and role cataloger definitions from the sys_roleMgr bean in server-beans.xml to
+ * the cataloger-beans.xml and then deletes the sys_roleMgr bean from server-beans as it has been
+ * added to beans.xml.
  */
 public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   // see interface
@@ -49,11 +49,10 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   }
 
   /**
-   * Performs the actual move of the configs, visibility is protected to enable
-   * unit testing from a main method.
+   * Performs the actual move of the configs, visibility is protected to enable unit testing from a
+   * main method.
    *
-   * @param rxRoot The installation root directory, assumed not
-   * <code>null</code>.
+   * @param rxRoot The installation root directory, assumed not <code>null</code>.
    */
   protected void moveConfigs(File rxRoot) {
     logMessage("Converting cataloger beans configuration...");
@@ -110,17 +109,15 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   }
 
   /**
-   * Walks the list elements of the supplied property value and creates a
-   * cataloger config for each one found.
+   * Walks the list elements of the supplied property value and creates a cataloger config for each
+   * one found.
    *
-   * @param source The current property element, assumed not <code>null</code>
-   * and to have a list as a value.
+   * @param source The current property element, assumed not <code>null</code> and to have a list as
+   *     a value.
    * @param type The type of configs to create, assumed not <code>null</code>.
-   *
    * @return The list of configs, never <code>null</code>, may be empty.
-   *
-   * @throws PSInvalidXmlException If the supplied element does not represent
-   * a list of beans that can be represented by a {@link PSCatalogerConfig}.
+   * @throws PSInvalidXmlException If the supplied element does not represent a list of beans that
+   *     can be represented by a {@link PSCatalogerConfig}.
    */
   private Collection getCatalogerList(Element source, ConfigTypes type)
       throws PSInvalidXmlException {
@@ -136,8 +133,7 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   }
 
   /**
-   * Logs the supplied message to correct print stream
-   * (see {@link #getPrintStream()}).
+   * Logs the supplied message to correct print stream (see {@link #getPrintStream()}).
    *
    * @param msg The message to log, assumed not <code>null</code> or empty.
    */
@@ -146,10 +142,9 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   }
 
   /**
-   * Get the appropriate print stream to use for log messages.  If
-   * {@link #process(IPSUpgradeModule, Element)} is called, the print stream
-   * supplied by {@link #m_config} is returned, <code>System.out</code> is
-   * returned.
+   * Get the appropriate print stream to use for log messages. If {@link #process(IPSUpgradeModule,
+   * Element)} is called, the print stream supplied by {@link #m_config} is returned, <code>
+   * System.out</code> is returned.
    *
    * @return The print stream, never <code>null</code>.
    */
@@ -158,9 +153,8 @@ public class PSUpgradePluginMoveCatalogerConfigs implements IPSUpgradePlugin {
   }
 
   /**
-   * The upgrade module, set in {@link #process(IPSUpgradeModule, Element)}
-   * called by installer, <code>null</code> if {@link #moveConfigs(File)} is
-   * called when unit testing.
+   * The upgrade module, set in {@link #process(IPSUpgradeModule, Element)} called by installer,
+   * <code>null</code> if {@link #moveConfigs(File)} is called when unit testing.
    */
   private IPSUpgradeModule m_config = null;
 

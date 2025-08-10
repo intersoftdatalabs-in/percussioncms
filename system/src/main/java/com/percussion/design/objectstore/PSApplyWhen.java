@@ -23,13 +23,9 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXApplyWhen DTD in BasicObjects.dtd.
- */
+/** Implements the PSXApplyWhen DTD in BasicObjects.dtd. */
 public class PSApplyWhen extends PSCollectionComponent {
-  /**
-   * Create a new apply when collection (a collection of PSRule objects).
-   */
+  /** Create a new apply when collection (a collection of PSRule objects). */
   public PSApplyWhen() {
     super((new PSRule()).getClass());
   }
@@ -37,14 +33,10 @@ public class PSApplyWhen extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSApplyWhen(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -71,9 +63,8 @@ public class PSApplyWhen extends PSCollectionComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSApplyWhen, not <code>null</code>.
    */
@@ -102,7 +93,6 @@ public class PSApplyWhen extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -143,7 +133,6 @@ public class PSApplyWhen extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -162,14 +151,14 @@ public class PSApplyWhen extends PSCollectionComponent {
   public static final String XML_NODE_NAME = "PSXApplyWhen";
 
   /**
-   * By default, the rules won't be applied if the field has no
-   * value and it is not a required field.
-   **/
+   * By default, the rules won't be applied if the field has no value and it is not a required
+   * field.
+   */
   private boolean m_ifFieldEmpty = false;
 
   /**
-   * An array of XML attribute values for all boolean attributes. They are
-   * ordered as <code>true</code>, <code>false</code>.
+   * An array of XML attribute values for all boolean attributes. They are ordered as <code>true
+   * </code>, <code>false</code>.
    */
   private static final String[] BOOLEAN_ENUM = {"yes", "no"};
 

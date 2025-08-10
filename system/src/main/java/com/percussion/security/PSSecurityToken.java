@@ -20,17 +20,13 @@ package com.percussion.security;
 import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
 
-/**
- * Class that encapulates the data required to be able to check user access
- * levels at any time.
- */
+/** Class that encapulates the data required to be able to check user access levels at any time. */
 public class PSSecurityToken {
   /**
    * Constructor.
    *
-   * @param session The users session.  Must already be the user's
-   * authenticated entries.  May be <code>null</code> if a session has not
-   * yet been created.
+   * @param session The users session. Must already be the user's authenticated entries. May be
+   *     <code>null</code> if a session has not yet been created.
    */
   public PSSecurityToken(PSUserSession session) {
     m_session = session;
@@ -39,16 +35,16 @@ public class PSSecurityToken {
   /**
    * Constructs a security token for the supplied session.
    *
-   * @param session the session for which to create the security token, may
-   *    be <code>null</code> or empty.
+   * @param session the session for which to create the security token, may be <code>null</code> or
+   *     empty.
    */
   public PSSecurityToken(String session) {
     m_session = PSUserSessionManager.getUserSession(session);
   }
 
   /**
-   * Returns the user's session.  This is a reference to the session passed
-   * into the constructor, so that we have it even if it has expired.
+   * Returns the user's session. This is a reference to the session passed into the constructor, so
+   * that we have it even if it has expired.
    *
    * @return The session.
    */
@@ -59,7 +55,7 @@ public class PSSecurityToken {
   /**
    * Returns the user's session id.
    *
-   * @return The session id.  May be <code>null</code>.
+   * @return The session id. May be <code>null</code>.
    */
   public String getUserSessionId() {
     String sessId = null;
@@ -70,11 +66,12 @@ public class PSSecurityToken {
   }
 
   /**
-   * Sets the type of resource that is being checked.  Should be called just
-   * before checking security.
-   * @param resourceType A String representing the type of the resource that is
-   * being accessed.  Used in exception text only, used for backward
-   * compatibility with exisiting calls.  May not be <code>null</code>.
+   * Sets the type of resource that is being checked. Should be called just before checking
+   * security.
+   *
+   * @param resourceType A String representing the type of the resource that is being accessed. Used
+   *     in exception text only, used for backward compatibility with exisiting calls. May not be
+   *     <code>null</code>.
    * @throws IllegalArgumentException if resourceType is <code>null</code>.
    */
   public void setResourceType(String resourceType) {
@@ -84,11 +81,12 @@ public class PSSecurityToken {
   }
 
   /**
-   * Sets the name of the resource that is being checked.  Should be called
-   * just before checking security.
-   * @param resourceName A String representing the name of the resource that is
-   * being accessed.  Used in exception text only, used for backward
-   * compatibility with exisiting calls.  May not be <code>null</code>.
+   * Sets the name of the resource that is being checked. Should be called just before checking
+   * security.
+   *
+   * @param resourceName A String representing the name of the resource that is being accessed. Used
+   *     in exception text only, used for backward compatibility with exisiting calls. May not be
+   *     <code>null</code>.
    * @throws IllegalArgumentException if resourceType is <code>null</code>.
    */
   public void setResourceName(String resourceName) {
@@ -99,7 +97,8 @@ public class PSSecurityToken {
 
   /**
    * Returns the type of the resource that is being checked.
-   * @return The type.  May be <code>null</code>.
+   *
+   * @return The type. May be <code>null</code>.
    */
   public String getResourceType() {
     return m_resourceType;
@@ -107,7 +106,8 @@ public class PSSecurityToken {
 
   /**
    * Returns the name of the resource that is being checked.
-   * @return The name.  May be <code>null</code>.
+   *
+   * @return The name. May be <code>null</code>.
    */
   public String getResourceName() {
     return m_resourceName;
@@ -125,21 +125,18 @@ public class PSSecurityToken {
     return Integer.parseInt(tmp);
   }
 
-  /**
-   * The user's session.  Initialized in the constructor, may be
-   * <code>null</code>.
-   */
+  /** The user's session. Initialized in the constructor, may be <code>null</code>. */
   private PSUserSession m_session = null;
 
   /**
-   * The name of the resource to be checked.  Used in exception text only,
-   * provided for backward compatibility.  May be <code>null</code>.
+   * The name of the resource to be checked. Used in exception text only, provided for backward
+   * compatibility. May be <code>null</code>.
    */
   private String m_resourceName = null;
 
   /**
-   * The type of the resource to be checked.  Used in exception text only,
-   * provided for backward compatibility.  May be <code>null</code>.
+   * The type of the resource to be checked. Used in exception text only, provided for backward
+   * compatibility. May be <code>null</code>.
    */
   private String m_resourceType = null;
 }

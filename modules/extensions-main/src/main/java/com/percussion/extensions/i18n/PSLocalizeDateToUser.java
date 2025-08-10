@@ -23,16 +23,15 @@ import com.percussion.server.IPSRequestContext;
 import java.util.Date;
 
 /**
- * This UDF converts a a given date object to given format ans user's locale.
- * The locale is taken from the user context information.
+ * This UDF converts a a given date object to given format ans user's locale. The locale is taken
+ * from the user context information.
  *
- * The first parameter is the date to format. This can be a java.util.Date
- * object or a date string. If it is <code>null</code> or <code>empty</code>,
- * current date is assumed.
+ * <p>The first parameter is the date to format. This can be a java.util.Date object or a date
+ * string. If it is <code>null</code> or <code>empty</code>, current date is assumed.
  *
- * Second parameter is the required output date pattern.
+ * <p>Second parameter is the required output date pattern.
  *
- * The return value is the formatted date string. Never <code>null</code>.
+ * <p>The return value is the formatted date string. Never <code>null</code>.
  *
  * @see com.percussion.i18n.PSI18nUtils#formatDate
  * @see com.percussion.i18n.PSI18nUtils#getLocaleFromString

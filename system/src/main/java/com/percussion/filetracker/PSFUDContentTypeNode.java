@@ -22,24 +22,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class wraps the content type node in the application and extends
- * the abstract class PSFUDAbstractNode. A Content Type node can have two
- * states, viz. normal remote absent.
+ * This class wraps the content type node in the application and extends the abstract class
+ * PSFUDAbstractNode. A Content Type node can have two states, viz. normal remote absent.
  *
  * @see IPSFUDNode for node states.
- *
  */
 public class PSFUDContentTypeNode extends PSFUDAbstractNode {
   /**
-   * Constructor takes the parent node and current element that is encapsulated
-   * by this class. Validation of these parameters is handled by the base class.
+   * Constructor takes the parent node and current element that is encapsulated by this class.
+   * Validation of these parameters is handled by the base class.
    *
    * @param parent node as IPSFUDNode
-   *
    * @param content type element in the XML document as DOM Element
-   *
    * @throws PSFUDNullElementException that is thrown by the base class
-   *
    */
   public PSFUDContentTypeNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {
     super(parent, elem);
@@ -49,7 +44,6 @@ public class PSFUDContentTypeNode extends PSFUDAbstractNode {
    * return the children as an array of PSFUDContentItemNode objects.
    *
    * @return child nodes as an array Objects
-   *
    */
   public Object[] getChildren() {
     if (m_Children != null || null == m_Element) {
@@ -83,7 +77,6 @@ public class PSFUDContentTypeNode extends PSFUDAbstractNode {
    * Returns the the string to be used to display this leaf in the tree table.
    *
    * @return string representation of the node for displaying in the application
-   *
    */
   public String toString() {
     String value =

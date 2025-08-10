@@ -17,54 +17,45 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
-
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
 @XmlRootElement(name = "Dashboard")
 public class PSDashboard extends PSAbstractPersistantObject {
 
-    @NotNull
-    @NotBlank
-    private List<PSGadget> gadgets;
+  @NotNull @NotBlank private List<PSGadget> gadgets;
 
-    private PSDashboardConfiguration config;
+  private PSDashboardConfiguration config;
 
-    @NotNull
-    @NotBlank
-    private String id;
+  @NotNull @NotBlank private String id;
 
-    public List<PSGadget> getGadgets() {
-        return gadgets;
-    }
+  public List<PSGadget> getGadgets() {
+    return gadgets;
+  }
 
-    public void setGadgets(List<PSGadget> gadgets) {
-        this.gadgets = gadgets;
-    }
+  public void setGadgets(List<PSGadget> gadgets) {
+    this.gadgets = gadgets;
+  }
 
-    public PSDashboardConfiguration getDashboardConfiguration() {
-        return config;
-    }
+  public PSDashboardConfiguration getDashboardConfiguration() {
+    return config;
+  }
 
-    public void setDashboardConfiguration(PSDashboardConfiguration config) {
-        this.config = config;
-    }
+  public void setDashboardConfiguration(PSDashboardConfiguration config) {
+    this.config = config;
+  }
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    private static final long serialVersionUID = -6627409151209959037L;
+  private static final long serialVersionUID = -6627409151209959037L;
 }

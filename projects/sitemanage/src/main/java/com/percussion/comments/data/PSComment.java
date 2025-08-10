@@ -21,199 +21,199 @@ package com.percussion.comments.data;
 import static com.percussion.share.dao.PSDateUtils.getDateFromString;
 import static com.percussion.share.dao.PSDateUtils.getDateToString;
 
+import com.percussion.itemmanagement.data.IPSEditableItem;
+import com.percussion.share.data.PSAbstractDataObject;
+import com.percussion.share.service.IPSDataService.DataServiceLoadException;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.percussion.itemmanagement.data.IPSEditableItem;
-import com.percussion.share.data.PSAbstractDataObject;
-import com.percussion.share.service.IPSDataService.DataServiceLoadException;
-
 /**
- * Represents a comment in Percussion CMS.
- * Provides all comment metadata and supports XML serialization.
+ * Represents a comment in Percussion CMS. Provides all comment metadata and supports XML
+ * serialization.
  */
 @XmlRootElement(name = "comments")
 public class PSComment extends PSAbstractDataObject implements IPSEditableItem {
 
-    private static final long serialVersionUID = -6525483335618861315L;
+  private static final long serialVersionUID = -6525483335618861315L;
 
-    private String id;
-    private String commentId;
-    private String commentTitle;
-    private String commentText;
-    private Date commentCreateDate;
-    private String commentApprovalState;
-    private Boolean commentModerated;
-    private Boolean commentViewed;
-    private Set<String> commentTags;
-    private Integer commentParentId;
-    private String siteName;
-    private String pagePath;
-    private Set<String> pageTags;
-    private String userName;
-    private String userLinkUrl;
-    private String userEmail;
+  private String id;
+  private String commentId;
+  private String commentTitle;
+  private String commentText;
+  private Date commentCreateDate;
+  private String commentApprovalState;
+  private Boolean commentModerated;
+  private Boolean commentViewed;
+  private Set<String> commentTags;
+  private Integer commentParentId;
+  private String siteName;
+  private String pagePath;
+  private Set<String> pageTags;
+  private String userName;
+  private String userLinkUrl;
+  private String userEmail;
 
-    @XmlElement(name = "_id")
-    public String getId() {
-        return this.id;
+  @XmlElement(name = "_id")
+  public String getId() {
+    return this.id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  @XmlElement(name = "id")
+  public String getCommentId() {
+    return commentId;
+  }
+
+  public void setCommentId(String commentId) {
+    this.commentId = commentId;
+  }
+
+  @XmlElement(name = "title")
+  public String getCommentTitle() {
+    return commentTitle;
+  }
+
+  public void setCommentTitle(String commentTitle) {
+    this.commentTitle = commentTitle;
+  }
+
+  @XmlElement(name = "text")
+  public String getCommentText() {
+    return commentText;
+  }
+
+  public void setCommentText(String commentText) {
+    this.commentText = commentText;
+  }
+
+  @XmlElement(name = "createdDate")
+  public String getCommentCreateDate() {
+    return getDateToString(this.commentCreateDate);
+  }
+
+  public void setCommentCreateDate(String commentCreateDate) throws DataServiceLoadException {
+    try {
+      this.commentCreateDate = getDateFromString(commentCreateDate);
+    } catch (ParseException e) {
+      throw new DataServiceLoadException(
+          "Error parsing date in setCommentCreateDate(String commentCreateDate)"
+              + " in com.percussion.comments.data.PSComment",
+          e);
     }
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setCommentCreateDate(Date commentCreateDate) {
+    this.commentCreateDate = commentCreateDate;
+  }
 
-    @XmlElement(name = "id")
-    public String getCommentId() {
-        return commentId;
-    }
+  @XmlElement(name = "approvalState")
+  public String getCommentApprovalState() {
+    return commentApprovalState;
+  }
 
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
-    }
+  public void setCommentApprovalState(String commentApprovalState) {
+    this.commentApprovalState = commentApprovalState;
+  }
 
-    @XmlElement(name = "title")
-    public String getCommentTitle() {
-        return commentTitle;
-    }
+  @XmlElement(name = "moderated")
+  public Boolean getCommentModerated() {
+    return commentModerated;
+  }
 
-    public void setCommentTitle(String commentTitle) {
-        this.commentTitle = commentTitle;
-    }
+  public void setCommentModerated(Boolean commentModerated) {
+    this.commentModerated = commentModerated;
+  }
 
-    @XmlElement(name = "text")
-    public String getCommentText() {
-        return commentText;
-    }
+  @XmlElement(name = "viewed")
+  public Boolean getCommentViewed() {
+    return commentViewed;
+  }
 
-    public void setCommentText(String commentText) {
-        this.commentText = commentText;
-    }
+  public void setCommentViewed(Boolean commentViewed) {
+    this.commentViewed = commentViewed;
+  }
 
-    @XmlElement(name = "createdDate")
-    public String getCommentCreateDate() {
-        return getDateToString(this.commentCreateDate);
-    }
+  @XmlElement(name = "commentTags")
+  public Set<String> getCommentTags() {
+    return commentTags;
+  }
 
-    public void setCommentCreateDate(String commentCreateDate) throws DataServiceLoadException {
-        try {
-            this.commentCreateDate = getDateFromString(commentCreateDate);
-        } catch (ParseException e) {
-            throw new DataServiceLoadException("Error parsing date in setCommentCreateDate(String commentCreateDate)"
-                    + " in com.percussion.comments.data.PSComment", e);
-        }
-    }
+  public void setCommentTags(Set<String> commentTags) {
+    this.commentTags = commentTags;
+  }
 
-    public void setCommentCreateDate(Date commentCreateDate) {
-        this.commentCreateDate = commentCreateDate;
-    }
+  @XmlElement(name = "site")
+  public String getSiteName() {
+    return siteName;
+  }
 
-    @XmlElement(name = "approvalState")
-    public String getCommentApprovalState() {
-        return commentApprovalState;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public void setCommentApprovalState(String commentApprovalState) {
-        this.commentApprovalState = commentApprovalState;
-    }
+  @XmlElement(name = "pagePath")
+  public String getPagePath() {
+    return pagePath;
+  }
 
-    @XmlElement(name = "moderated")
-    public Boolean getCommentModerated() {
-        return commentModerated;
-    }
+  public void setPagePath(String pagePath) {
+    this.pagePath = pagePath;
+  }
 
-    public void setCommentModerated(Boolean commentModerated) {
-        this.commentModerated = commentModerated;
-    }
+  @XmlElement(name = "tags")
+  public Set<String> getPageTags() {
+    return pageTags;
+  }
 
-    @XmlElement(name = "viewed")
-    public Boolean getCommentViewed() {
-        return commentViewed;
-    }
+  public void setPageTags(Set<String> pageTags) {
+    this.pageTags = pageTags;
+  }
 
-    public void setCommentViewed(Boolean commentViewed) {
-        this.commentViewed = commentViewed;
-    }
+  @XmlElement(name = "parent")
+  public Integer getCommentParentId() {
+    return commentParentId;
+  }
 
-    @XmlElement(name = "commentTags")
-    public Set<String> getCommentTags() {
-        return commentTags;
-    }
+  public void setCommentParentId(Integer commentParentId) {
+    this.commentParentId = commentParentId;
+  }
 
-    public void setCommentTags(Set<String> commentTags) {
-        this.commentTags = commentTags;
-    }
+  @XmlElement(name = "username")
+  public String getUserName() {
+    return userName;
+  }
 
-    @XmlElement(name = "site")
-    public String getSiteName() {
-        return siteName;
-    }
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  @XmlElement(name = "url")
+  public String getUserLinkUrl() {
+    return userLinkUrl;
+  }
 
-    @XmlElement(name = "pagePath")
-    public String getPagePath() {
-        return pagePath;
-    }
+  public void setUserLinkUrl(String userLinkUrl) {
+    this.userLinkUrl = userLinkUrl;
+  }
 
-    public void setPagePath(String pagePath) {
-        this.pagePath = pagePath;
-    }
+  @XmlElement(name = "email")
+  public String getUserEmail() {
+    return userEmail;
+  }
 
-    @XmlElement(name = "tags")
-    public Set<String> getPageTags() {
-        return pageTags;
-    }
+  public void setUserEmail(String userEmail) {
+    this.userEmail = userEmail;
+  }
 
-    public void setPageTags(Set<String> pageTags) {
-        this.pageTags = pageTags;
-    }
-
-    @XmlElement(name = "parent")
-    public Integer getCommentParentId() {
-        return commentParentId;
-    }
-
-    public void setCommentParentId(Integer commentParentId) {
-        this.commentParentId = commentParentId;
-    }
-
-    @XmlElement(name = "username")
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    @XmlElement(name = "url")
-    public String getUserLinkUrl() {
-        return userLinkUrl;
-    }
-
-    public void setUserLinkUrl(String userLinkUrl) {
-        this.userLinkUrl = userLinkUrl;
-    }
-
-    @XmlElement(name = "email")
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    @Override
-    public String getType() {
-        // TODO: ASSET_TYPE is likely incorrect. Determine the correct type.
-        return IPSEditableItem.ASSET_TYPE;
-    }
+  @Override
+  public String getType() {
+    // TODO: ASSET_TYPE is likely incorrect. Determine the correct type.
+    return IPSEditableItem.ASSET_TYPE;
+  }
 }

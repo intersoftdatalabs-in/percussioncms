@@ -21,31 +21,27 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.callback.Callback;
 
-/**
- * Callback to allow a login module access to the request headers.
- */
+/** Callback to allow a login module access to the request headers. */
 public class PSRequestHeadersCallback implements Callback {
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSRequestHeadersCallback() {}
 
   /**
    * Get the request header values set on this callback.
    *
-   * @return A map where the key is the header name and the value is the
-   * header value, never <code>null</code>, may be empty (although not likely).
+   * @return A map where the key is the header name and the value is the header value, never <code>
+   *     null</code>, may be empty (although not likely).
    */
   public Map<String, String> getHeaders() {
     return m_headers;
   }
 
   /**
-   * Set the headers on the callback, used by the callback handler to provide
-   * the requested information to the login module.
+   * Set the headers on the callback, used by the callback handler to provide the requested
+   * information to the login module.
    *
-   * @param headers A map of request header info, never <code>null</code>, may
-   * be empty.  See {@link #getHeaders()} for details.
+   * @param headers A map of request header info, never <code>null</code>, may be empty. See {@link
+   *     #getHeaders()} for details.
    */
   public void setHeaders(Map<String, String> headers) {
     if (headers == null) throw new IllegalArgumentException("headers may not be null");
@@ -53,8 +49,6 @@ public class PSRequestHeadersCallback implements Callback {
     m_headers = headers;
   }
 
-  /**
-   * Map of headers, see {@link #setHeaders(Map)} for more info.
-   */
+  /** Map of headers, see {@link #setHeaders(Map)} for more info. */
   private Map<String, String> m_headers = new HashMap<String, String>();
 }

@@ -22,125 +22,124 @@ package com.percussion.rest.users;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.UnknownUserException;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 @Component
 @Lazy
 public class UserTestAdaptor implements IUserAdaptor {
 
-    private List<User> testUserData = null;
+  private List<User> testUserData = null;
 
-    @Override
-    public User getUser(URI baseURI, String userName) {
-        if (testUserData == null) {
-            setup();
-        }
-        return null;
+  @Override
+  public User getUser(URI baseURI, String userName) {
+    if (testUserData == null) {
+      setup();
     }
+    return null;
+  }
 
-    @Override
-    public User updateOrCreateUser(URI baseURI, User user) {
-        if (testUserData == null) {
-            setup();
-        }
-        User toUpdate = null;
-        for (var u : testUserData) {
-            if (u.getUserName().equalsIgnoreCase(user.getUserName())) {
-                toUpdate = u;
-                break;
-            }
-        }
-        if (toUpdate == null) {
-            // New user logic could go here
-        } else {
-            toUpdate.setBookmarkedPages(user.getBookmarkedPages());
-            toUpdate.setEmailAddress(user.getEmailAddress());
-            toUpdate.setFirstName(user.getFirstName());
-            toUpdate.setLastName(user.getLastName());
-        }
-        return null;
+  @Override
+  public User updateOrCreateUser(URI baseURI, User user) {
+    if (testUserData == null) {
+      setup();
     }
-
-    @Override
-    public void deleteUser(URI baseURI, String userName) {
-        if (testUserData == null) {
-            setup();
-        }
-        User toDelete = null;
-        for (var u : testUserData) {
-            if (u.getUserName().equalsIgnoreCase(userName)) {
-                toDelete = u;
-                break;
-            }
-        }
-        if (toDelete != null) {
-            testUserData.remove(toDelete);
-        } else {
-            throw new UnknownUserException();
-        }
+    User toUpdate = null;
+    for (var u : testUserData) {
+      if (u.getUserName().equalsIgnoreCase(user.getUserName())) {
+        toUpdate = u;
+        break;
+      }
     }
-
-    @Override
-    public List<String> findUsers(URI baseURI, String pattern) {
-        return null; // TODO: Implement user search
+    if (toUpdate == null) {
+      // New user logic could go here
+    } else {
+      toUpdate.setBookmarkedPages(user.getBookmarkedPages());
+      toUpdate.setEmailAddress(user.getEmailAddress());
+      toUpdate.setFirstName(user.getFirstName());
+      toUpdate.setLastName(user.getLastName());
     }
+    return null;
+  }
 
-    private void setup() {
-        var roles = new ArrayList<String>();
-        roles.add("Editor");
-        roles.add("Contributor");
-
-        var a = new User();
-        a.setUserName("a.user");
-        a.setEmailAddress("a.email");
-        a.setFirstName("a.first");
-        a.setLastName("a.last");
-        a.setRoles(roles);
-
-        var aref = new LinkRef();
-        aref.setName("a.userpage");
-        aref.setHref("#");
-        a.setPersonalPage(aref);
-
-        var aPersonAsset = new LinkRef();
-        var apAssets = new ArrayList<LinkRef>();
-        apAssets.add(aPersonAsset);
-        a.setPersonAssets(apAssets);
-
-        var b = new User();
-        b.setUserName("b.user");
-        b.setEmailAddress("b.email");
-        b.setFirstName("b.first");
-        b.setLastName("b.last");
-        b.setRoles(roles);
-
-        var bref = new LinkRef();
-        bref.setName("b.userpage");
-        bref.setHref("#");
-        b.setPersonalPage(bref);
-
-        var bPersonAsset = new LinkRef();
-        var bpAssets = new ArrayList<LinkRef>();
-        bpAssets.add(bPersonAsset);
-        b.setPersonAssets(bpAssets);
-
-        this.testUserData = new ArrayList<>();
-        this.testUserData.add(a);
-        this.testUserData.add(b);
+  @Override
+  public void deleteUser(URI baseURI, String userName) {
+    if (testUserData == null) {
+      setup();
     }
-
-    @Override
-    public Status checkDirectoryStatus() {
-        return null;
+    User toDelete = null;
+    for (var u : testUserData) {
+      if (u.getUserName().equalsIgnoreCase(userName)) {
+        toDelete = u;
+        break;
+      }
     }
-
-    @Override
-    public List<String> searchDirectory(String pattern) {
-        return null;
+    if (toDelete != null) {
+      testUserData.remove(toDelete);
+    } else {
+      throw new UnknownUserException();
     }
+  }
+
+  @Override
+  public List<String> findUsers(URI baseURI, String pattern) {
+    return null; // TODO: Implement user search
+  }
+
+  private void setup() {
+    var roles = new ArrayList<String>();
+    roles.add("Editor");
+    roles.add("Contributor");
+
+    var a = new User();
+    a.setUserName("a.user");
+    a.setEmailAddress("a.email");
+    a.setFirstName("a.first");
+    a.setLastName("a.last");
+    a.setRoles(roles);
+
+    var aref = new LinkRef();
+    aref.setName("a.userpage");
+    aref.setHref("#");
+    a.setPersonalPage(aref);
+
+    var aPersonAsset = new LinkRef();
+    var apAssets = new ArrayList<LinkRef>();
+    apAssets.add(aPersonAsset);
+    a.setPersonAssets(apAssets);
+
+    var b = new User();
+    b.setUserName("b.user");
+    b.setEmailAddress("b.email");
+    b.setFirstName("b.first");
+    b.setLastName("b.last");
+    b.setRoles(roles);
+
+    var bref = new LinkRef();
+    bref.setName("b.userpage");
+    bref.setHref("#");
+    b.setPersonalPage(bref);
+
+    var bPersonAsset = new LinkRef();
+    var bpAssets = new ArrayList<LinkRef>();
+    bpAssets.add(bPersonAsset);
+    b.setPersonAssets(bpAssets);
+
+    this.testUserData = new ArrayList<>();
+    this.testUserData.add(a);
+    this.testUserData.add(b);
+  }
+
+  @Override
+  public Status checkDirectoryStatus() {
+    return null;
+  }
+
+  @Override
+  public List<String> searchDirectory(String pattern) {
+    return null;
+  }
 }

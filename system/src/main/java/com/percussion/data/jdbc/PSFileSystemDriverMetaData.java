@@ -25,18 +25,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * The PSFileSystemDriverMetaData class implements driver level catalog
- * support for the File System driver.
+ * The PSFileSystemDriverMetaData class implements driver level catalog support for the File System
+ * driver.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileSystemDriverMetaData implements IPSDriverMetaData {
 
-  /**
-   * Construnct an File System driver meta data object.
-   */
+  /** Construnct an File System driver meta data object. */
   public PSFileSystemDriverMetaData() {
     super();
   }
@@ -44,17 +42,17 @@ public class PSFileSystemDriverMetaData implements IPSDriverMetaData {
   /* ************ IPSDriverMetaData Interface Implementation ************ */
 
   /**
-   * Get the server names available through this driver. Since remote file
-   * systems are not currently supported, an empty result set is returned.
-   * <p>
-   * The result set contains:
+   * Get the server names available through this driver. Since remote file systems are not currently
+   * supported, an empty result set is returned.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>SERVER_NAME</B> String => server name</LI>
+   *   <LI><B>SERVER_NAME</B> String => server name
    * </OL>
    *
-   * @return     a result set containing one server per row
-   *
-   * @exception  SQLException   if an error occurs accessing the servers
+   * @return a result set containing one server per row
+   * @exception SQLException if an error occurs accessing the servers
    */
   public java.sql.ResultSet getServers() throws SQLException {
     HashMap cols = new HashMap(1);

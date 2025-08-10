@@ -18,19 +18,19 @@
 package com.percussion.maintenance.service;
 
 /**
- * Mock implementation of IPSMaintenanceProcess for testing.
- * Sunny Sal says: "Mocking maintenance, one process at a time!"
+ * Mock implementation of IPSMaintenanceProcess for testing. Sunny Sal says: "Mocking maintenance,
+ * one process at a time!"
  */
 public class PSMockMaintenanceProcess implements IPSMaintenanceProcess {
 
-    private final String id;
+  private final String id;
 
-    public PSMockMaintenanceProcess(String id) {
-        this.id = id;
-    }
+  public PSMockMaintenanceProcess(String id) {
+    this.id = id;
+  }
 
-    @Override
-    public String getProcessId() {
-        return id;
-    }
+  @Override
+  public String getProcessId() {
+    return id;
+  }
 }

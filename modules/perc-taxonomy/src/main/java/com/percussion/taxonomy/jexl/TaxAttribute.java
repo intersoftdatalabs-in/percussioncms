@@ -25,7 +25,6 @@ import java.util.List;
  * Read only class for use in Jexl that represents a Taxonomy Attribute.
  *
  * @author stephenbolton
- *
  */
 public class TaxAttribute {
   private int id;
@@ -40,6 +39,7 @@ public class TaxAttribute {
 
   /**
    * Initialize the attribute from the Hibernate object
+   *
    * @param attLang
    */
   public TaxAttribute(Attribute_lang attLang) {
@@ -56,6 +56,7 @@ public class TaxAttribute {
 
   /**
    * The attribute id
+   *
    * @return the id
    */
   public int getId() {
@@ -64,6 +65,7 @@ public class TaxAttribute {
 
   /**
    * The attribute name
+   *
    * @return the name
    */
   public String getName() {
@@ -72,6 +74,7 @@ public class TaxAttribute {
 
   /**
    * Is this a multi valued attribute
+   *
    * @return is this a multi valued attribute
    */
   public boolean isMultiple() {
@@ -80,6 +83,7 @@ public class TaxAttribute {
 
   /**
    * Is this attribute defined as required.
+   *
    * @return is this field required.
    */
   public boolean isRequired() {
@@ -88,6 +92,7 @@ public class TaxAttribute {
 
   /**
    * Return a list of languages available for this Attribute.
+   *
    * @return list of language codes
    */
   public List<String> getLangs() {

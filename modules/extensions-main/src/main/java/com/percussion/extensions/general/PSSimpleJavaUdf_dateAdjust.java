@@ -27,37 +27,34 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * The PSSimpleJavaUdf_dateAdjust class updates the date according to the command of a
- * corresponding user defined function (UDF) call. There are up to six calendar
- * fields which can be adjusted, year, month, day, hour, minute, and second.
- * These fields are integers; non-integers will be truncated. (Users are responsible
- * for making these fields integers.)
- * <p>
- * The mechanism works like this: Through the GUI, the user defines seven objects.
- * The first object is a String representing a date. The other six objects
- * are Numbers representing the quantity to adjust the date. The date string
- * should be in a format recognizable by the Rhythmyx server's PSDataConverter,
- * otherwise an exception will be thrown to terminate the adjustment procedure.
+ * The PSSimpleJavaUdf_dateAdjust class updates the date according to the command of a corresponding
+ * user defined function (UDF) call. There are up to six calendar fields which can be adjusted,
+ * year, month, day, hour, minute, and second. These fields are integers; non-integers will be
+ * truncated. (Users are responsible for making these fields integers.)
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * <p>The mechanism works like this: Through the GUI, the user defines seven objects. The first
+ * object is a String representing a date. The other six objects are Numbers representing the
+ * quantity to adjust the date. The date string should be in a format recognizable by the Rhythmyx
+ * server's PSDataConverter, otherwise an exception will be thrown to terminate the adjustment
+ * procedure.
+ *
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Modifies a supplied date by adding/subtracting time from it. If a
-   * parameter is not supplied, a default value will be used, as shown in
-   * the table below. At least 1 (possibly <code>null</code>) parameter is
-   * required.
+   * Modifies a supplied date by adding/subtracting time from it. If a parameter is not supplied, a
+   * default value will be used, as shown in the table below. At least 1 (possibly <code>null</code>
+   * ) parameter is required.
    *
-   * @param      params         the parameter values to use in the UDF. The
-   * following parameters and their state are shown in the following table. If
-   * a date object is supplied (from a backend column), it will be used
-   * directly, otherwise the object is converted to a string and an attempt
-   * is made to parse the resulting string as a date.
-   * <table border="1">
+   * @param params the parameter values to use in the UDF. The following parameters and their state
+   *     are shown in the following table. If a date object is supplied (from a backend column), it
+   *     will be used directly, otherwise the object is converted to a string and an attempt is made
+   *     to parse the resulting string as a date.
+   *     <table border="1">
    *    <tr>
    *       <th>Param#</th><th>Required?</th><th>Description</th><th>Default value</th>
    *    </tr>
@@ -84,15 +81,10 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
    *    </tr>
    * </table>
    *
-   * @param      request         the current request context
-   *
-   * @return                     The supplied date (or the current date if
-   *                             <code>null</code> was supplied, adjusted by
-   *                             the supplied factors.
-   *
-   * @exception  PSConversionException
-   *                            if params is <code>null</code> or doesn't
-   *                            contain any params
+   * @param request the current request context
+   * @return The supplied date (or the current date if <code>null</code> was supplied, adjusted by
+   *     the supplied factors.
+   * @exception PSConversionException if params is <code>null</code> or doesn't contain any params
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -164,8 +156,8 @@ public class PSSimpleJavaUdf_dateAdjust extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * This method allows a variable number of params. This is the maxiumum
-   * number of params that will be processed.
+   * This method allows a variable number of params. This is the maxiumum number of params that will
+   * be processed.
    */
   private static final int MAX_PARAMS = 7;
 }

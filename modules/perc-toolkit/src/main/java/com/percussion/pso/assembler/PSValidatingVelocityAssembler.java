@@ -36,20 +36,17 @@ public class PSValidatingVelocityAssembler extends PSVelocityAssembler implement
 
   private IPSExtensionDef m_def = null;
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSValidatingVelocityAssembler.class);
 
-  /**
-   * Constructor
-   */
+  /** Constructor */
   public PSValidatingVelocityAssembler() {
     super();
   }
 
   /**
-   * @see com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
+   * @see
+   *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
    */
   @Override
   protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem item) throws Exception {
@@ -59,7 +56,8 @@ public class PSValidatingVelocityAssembler extends PSVelocityAssembler implement
   }
 
   /**
-   * @see com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
+   * @see
+   *     com.percussion.services.assembly.impl.plugin.PSAssemblerBase#doAssembleSingle(com.percussion.services.assembly.IPSAssemblyItem)
    */
   @Override
   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {

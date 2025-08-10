@@ -19,8 +19,8 @@ package com.percussion.extension;
 import com.percussion.error.PSNotFoundException;
 
 /**
- * The handler for Java script functions. Takes a body of text that is
- * pre-compiled and stored as an executable object in a 3rd party JS engine.
+ * The handler for Java script functions. Takes a body of text that is pre-compiled and stored as an
+ * executable object in a 3rd party JS engine.
  */
 public class PSJavaScriptExtensionHandler extends PSExtensionHandler {
   /**
@@ -35,8 +35,8 @@ public class PSJavaScriptExtensionHandler extends PSExtensionHandler {
   /**
    * Get the extension based on the extension reference.
    *
-   * See {@link PSExtensionHandler#loadExtension(PSExtensionRef)
-   * loadExtension} in the super class for a description.
+   * <p>See {@link PSExtensionHandler#loadExtension(PSExtensionRef) loadExtension} in the super
+   * class for a description.
    *
    * @return a PSJavaScriptUdfExtension object that is ready to be executed.
    */
@@ -46,8 +46,8 @@ public class PSJavaScriptExtensionHandler extends PSExtensionHandler {
   }
 
   /**
-   * See {@link IPSExtensionHandler#prepare(PSExtensionRef) prepare} in the
-   * interface for a description.
+   * See {@link IPSExtensionHandler#prepare(PSExtensionRef) prepare} in the interface for a
+   * description.
    *
    * @return a PSJavaScriptUdfExtension object that is ready to be executed.
    */

@@ -18,22 +18,20 @@
 package com.percussion.util;
 
 /**
- * The PSEntrySet class is used to provide a convenient container for
- * key/value pairs. Unlike the java.util.Map.Entry interface suggests,
- * this implementation is not backed by a mapping. As such, all references
- * to backend mappings should be ignored.
+ * The PSEntrySet class is used to provide a convenient container for key/value pairs. Unlike the
+ * java.util.Map.Entry interface suggests, this implementation is not backed by a mapping. As such,
+ * all references to backend mappings should be ignored.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSEntrySet implements java.util.Map.Entry {
   /**
    * Create an entry set for the specified key and value.
    *
-   * @param   key         the key corresponding to this entry
-   *
-   * @param   value         the value corresponding to this entry
+   * @param key the key corresponding to this entry
+   * @param value the value corresponding to this entry
    */
   public PSEntrySet(Object key, Object value) {
     super();
@@ -44,7 +42,7 @@ public class PSEntrySet implements java.util.Map.Entry {
   /**
    * Returns the key corresponding to this entry.
    *
-   * @return               the key corresponding to this entry.
+   * @return the key corresponding to this entry.
    */
   public Object getKey() {
     return m_key;
@@ -53,35 +51,25 @@ public class PSEntrySet implements java.util.Map.Entry {
   /**
    * Returns the value corresponding to this entry.
    *
-   * @return               the value corresponding to this entry.
+   * @return the value corresponding to this entry.
    */
   public Object getValue() {
     return m_value;
   }
 
   /**
-   * Replaces the value corresponding to this entry with the specified
-   * value.
+   * Replaces the value corresponding to this entry with the specified value.
    *
-   * @param      value      new value to be stored in this entry.
-   *
-   * @return               old value corresponding to the entry.
-   *
-   * @exception   UnsupportedOperationException
-   *                        if the put operation is not supported by the
-   *                        backing map.
-   *
-   * @exception   ClassCastException
-   *                        if the class of the specified value prevents it
-   *                        from being stored in the backing map.
-   *
-   * @exception   IllegalArgumentException
-   *                        if some aspect of this value prevents it from
-   *                        being stored in the backing map.
-   *
-   * @exception   NullPointerException
-   *                        the backing map does not permit null values,
-   *                        and the specified value is null.
+   * @param value new value to be stored in this entry.
+   * @return old value corresponding to the entry.
+   * @exception UnsupportedOperationException if the put operation is not supported by the backing
+   *     map.
+   * @exception ClassCastException if the class of the specified value prevents it from being stored
+   *     in the backing map.
+   * @exception IllegalArgumentException if some aspect of this value prevents it from being stored
+   *     in the backing map.
+   * @exception NullPointerException the backing map does not permit null values, and the specified
+   *     value is null.
    */
   public Object setValue(Object value) {
     Object oldValue = m_value;
@@ -90,25 +78,22 @@ public class PSEntrySet implements java.util.Map.Entry {
   }
 
   /**
-   * Compares the specified object with this entry for equality.
-   * Returns true if the given object is also a map entry and the
-   * two entries represent the same mapping. More formally, two
-   * entries e1 and e2 represent the same mapping if
+   * Compares the specified object with this entry for equality. Returns true if the given object is
+   * also a map entry and the two entries represent the same mapping. More formally, two entries e1
+   * and e2 represent the same mapping if
+   *
    * <PRE><CODE>
    *     (e1.getKey()==null ?
    *      e2.getKey()==null : e1.getKey().equals(e2.getKey()))  &&
    *     (e1.getValue()==null ?
    *      e2.getValue()==null : e1.getValue().equals(e2.getValue()))
    * </CODE></PRE>
-   * <P>
-   * This ensures that the equals method works properly across
-   * different implementations of the Map.Entry interface.
    *
-   * @param      o         object to be compared for equality with this
-   *                        map entry.
+   * <p>This ensures that the equals method works properly across different implementations of the
+   * Map.Entry interface.
    *
-   * @return               <code>true</code> if the specified object is
-   *                        equal to this map entry.
+   * @param o object to be compared for equality with this map entry.
+   * @return <code>true</code> if the specified object is equal to this map entry.
    */
   public boolean equals(Object o) {
     if (o == null) return false;

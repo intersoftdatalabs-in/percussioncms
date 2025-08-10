@@ -24,15 +24,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A PSSearchProperties is a container for attributes that control how the
- * search interface looks and how the search engine is configured at the
- * field level. It is defined in sys_basicObjects.dtd as PSXSearchProperties.
- * <p>Originally, a few of these properties were stored in the PSField object
- * directly. However, while implementing full text search, several additional
- * properties were added and it was felt that it was time to group these props
- * together rather than having them spread throughout the field object.
- * <p>Some management of attributes in this class is required of the containing
- * class. This is documented in the package access methods.
+ * A PSSearchProperties is a container for attributes that control how the search interface looks
+ * and how the search engine is configured at the field level. It is defined in sys_basicObjects.dtd
+ * as PSXSearchProperties.
+ *
+ * <p>Originally, a few of these properties were stored in the PSField object directly. However,
+ * while implementing full text search, several additional properties were added and it was felt
+ * that it was time to group these props together rather than having them spread throughout the
+ * field object.
+ *
+ * <p>Some management of attributes in this class is required of the containing class. This is
+ * documented in the package access methods.
  *
  * @author paulhoward
  */
@@ -40,8 +42,8 @@ public class PSSearchProperties extends PSComponent {
   // we don't override clone as all members are immutable
 
   /**
-   * Convenience method that calls {@link #PSSearchProperties(String,boolean)
-   * PSSearchProperties("", <code>false</code>)}.
+   * Convenience method that calls {@link #PSSearchProperties(String,boolean) PSSearchProperties("",
+   * <code>false</code>)}.
    */
   public PSSearchProperties() {
     this("", false);
@@ -50,8 +52,7 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Uses all default values except for enabling of search itself.
    *
-   * @param userSearchable See {@link #setUserSearchable(boolean)} for
-   * details.
+   * @param userSearchable See {@link #setUserSearchable(boolean)} for details.
    */
   public PSSearchProperties(boolean userSearchable) {
     setUserSearchable(userSearchable);
@@ -80,9 +81,9 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * Convenience method that constructs a default object, then calls {@link
-   * #fromXml(Element, IPSDocument, List)
-   * fromXml(source, <code>null</code>, <code>null</code>)} on it.
+   * Convenience method that constructs a default object, then calls {@link #fromXml(Element,
+   * IPSDocument, List) fromXml(source, <code>null</code>, <code>null</code>)} on it.
+   *
    * <p>See that method for details on param and exception.
    */
   public PSSearchProperties(Element source) throws PSUnknownNodeTypeException {
@@ -92,8 +93,8 @@ public class PSSearchProperties extends PSComponent {
   /**
    * See {@link #setTokenizeSearchContent(boolean)} for details.
    *
-   * @return The value set with <code>setTokenizeSearchContent</code> or
-   * restored from xml, or the default value if it has never been set.
+   * @return The value set with <code>setTokenizeSearchContent</code> or restored from xml, or the
+   *     default value if it has never been set.
    */
   public boolean isTokenizeSearchContent() {
     return m_tokenizeSearchContent;
@@ -102,8 +103,8 @@ public class PSSearchProperties extends PSComponent {
   /**
    * See {@link #setVisibleToGlobalQuery(boolean)} for details.
    *
-   * @return The value set with <code>setVisibleToGlobalQuery</code> or
-   * restored from xml, or the default value if it has never been set.
+   * @return The value set with <code>setVisibleToGlobalQuery</code> or restored from xml, or the
+   *     default value if it has never been set.
    */
   public boolean isVisibleToGlobalQuery() {
     return m_visibleToGlobalQuery;
@@ -112,8 +113,7 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Is this field user searchable?
    *
-   * @return <code>true</code> to indicate user searchable,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to indicate user searchable, <code>false</code> otherwise.
    */
   public boolean isUserSearchable() {
     return m_userSearchable;
@@ -122,8 +122,7 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Is this field enabled for transformation.
    *
-   * @return <code>true</code> to indicate enabled for transformation,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to indicate enabled for transformation, <code>false</code> otherwise.
    */
   public boolean isEnableTransformation() {
     return m_enableTransformation;
@@ -132,45 +131,44 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Is this field user customizable?
    *
-   * @return <code>true</code> to indicate user customizable,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to indicate user customizable, <code>false</code> otherwise.
    */
   public boolean isUserCustomizable() {
     return m_userCustomizable;
   }
 
   /**
-   * A user searchable field is indexed for searching and can be used to
-   * perform parametric searches. If this is <code>false</code>, all other
-   * properties are meaningless. Defaults to <code>true</code>.
+   * A user searchable field is indexed for searching and can be used to perform parametric
+   * searches. If this is <code>false</code>, all other properties are meaningless. Defaults to
+   * <code>true</code>.
    *
-   * @param userSearchable <code>true</code> to set make this field available
-   * for searching, <code>false</code> otherwise.
+   * @param userSearchable <code>true</code> to set make this field available for searching, <code>
+   *     false</code> otherwise.
    */
   public void setUserSearchable(boolean userSearchable) {
     m_userSearchable = userSearchable;
   }
 
   /**
-   * The purpose of this flag is to indicate that the contents of the field
-   * are either binary (such as pdf or gif) or contain significant formatting
-   * that should not be indexed (such as html). If the underlying data type
-   * is binary, this flag will be set to <code>true</code> and locked
-   * (see {@link #isEnableTransformationLocked()}.
-   * <p>This is somewhat RetrievalWare specific because they don't perform
-   * such transformations on data in what they call meta fields and we have
-   * no way of knowing whether a text field should be converted or not.
-   * <p>If the field is not {@link #isUserSearchable() user searchable},
-   * this flag is ignored.
+   * The purpose of this flag is to indicate that the contents of the field are either binary (such
+   * as pdf or gif) or contain significant formatting that should not be indexed (such as html). If
+   * the underlying data type is binary, this flag will be set to <code>true</code> and locked (see
+   * {@link #isEnableTransformationLocked()}.
+   *
+   * <p>This is somewhat RetrievalWare specific because they don't perform such transformations on
+   * data in what they call meta fields and we have no way of knowing whether a text field should be
+   * converted or not.
+   *
+   * <p>If the field is not {@link #isUserSearchable() user searchable}, this flag is ignored.
+   *
    * <p>Originally added for full text search.
    *
-   * @param enableTransformation <code>true</code> to enable transformation,
-   * <code>false</code> otherwise. If <code>true</code> is supplied, the
-   * {@link #isVisibleToGlobalQuery()} flag will also be set.
-   *
-   * @throws IllegalStateException If this property is locked due to the
-   * underlying data type. Use {@link #isEnableTransformationLocked()} to
-   * determine if this method can be successfully called.
+   * @param enableTransformation <code>true</code> to enable transformation, <code>false</code>
+   *     otherwise. If <code>true</code> is supplied, the {@link #isVisibleToGlobalQuery()} flag
+   *     will also be set.
+   * @throws IllegalStateException If this property is locked due to the underlying data type. Use
+   *     {@link #isEnableTransformationLocked()} to determine if this method can be successfully
+   *     called.
    */
   public void setEnableTransformation(boolean enableTransformation) {
     if (m_enableTransformationLocked) {
@@ -181,19 +179,18 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * The external search engine is word based. Typically, whitespace and
-   * punctuation is used to separate words. However, sometimes it is
-   * undesirable to use punctation as a word separator, such as for file paths
-   * or possibly an identifier (such as 123:456). This flag is used to
+   * The external search engine is word based. Typically, whitespace and punctuation is used to
+   * separate words. However, sometimes it is undesirable to use punctation as a word separator,
+   * such as for file paths or possibly an identifier (such as 123:456). This flag is used to
    * control parsing on this field. Defaults to <code>false</code>.
-   * <p>If the field is not {@link #isUserSearchable() user searchable},
-   * this flag is ignored.
+   *
+   * <p>If the field is not {@link #isUserSearchable() user searchable}, this flag is ignored.
+   *
    * <p>Originally added for external search engine use.
    *
-   * @param isToken If <code>true</code>, when the contents of this field are
-   * indexed into the external search engine, punctuation is not treated
-   * as a word separator, it is left as part of the word. Otherwise,
-   * punction will separate words and it is not indexed.
+   * @param isToken If <code>true</code>, when the contents of this field are indexed into the
+   *     external search engine, punctuation is not treated as a word separator, it is left as part
+   *     of the word. Otherwise, punction will separate words and it is not indexed.
    */
   public void setTokenizeSearchContent(boolean isToken) {
     m_tokenizeSearchContent = isToken;
@@ -227,8 +224,8 @@ public class PSSearchProperties extends PSComponent {
   /**
    * Set this field to user customizable.
    *
-   * @param userCustomizable <code>true</code> to set this field to user
-   * customizable, <code>false</code> otherwise.
+   * @param userCustomizable <code>true</code> to set this field to user customizable, <code>false
+   *     </code> otherwise.
    */
   public void setUserCustomizable(boolean userCustomizable) {
     m_userCustomizable = userCustomizable;
@@ -244,12 +241,11 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * If a field is searchable (meaning {@link #isUserSearchable()} returns
-   * <code>true</code>), when that field is displayed to the end user, it
-   * will have an associated text label. First, if there is a UIDef, the
-   * label from that will be used, if there isn't one, then this label.
-   * If it hasn't been specifically set, defaults to the submit name of the
-   * field. (This behavior is managed by the containing <code>PSField</code>.)
+   * If a field is searchable (meaning {@link #isUserSearchable()} returns <code>true</code>), when
+   * that field is displayed to the end user, it will have an associated text label. First, if there
+   * is a UIDef, the label from that will be used, if there isn't one, then this label. If it hasn't
+   * been specifically set, defaults to the submit name of the field. (This behavior is managed by
+   * the containing <code>PSField</code>.)
    *
    * @param label May be <code>null</code> or empty. White space is trimmed.
    */
@@ -259,9 +255,8 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * Creates a node that conforms to the dtd specified for PSXSearchProperties
-   * in sys_basicObjects.dtd.
-   * See base class for description of params.
+   * Creates a node that conforms to the dtd specified for PSXSearchProperties in
+   * sys_basicObjects.dtd. See base class for description of params.
    */
   public Element toXml(Document doc) {
     if (null == doc) {
@@ -282,9 +277,8 @@ public class PSSearchProperties extends PSComponent {
   }
 
   /**
-   * Expects a node that conforms to the dtd specified for PSXSearchProperties
-   * in sys_basicObjects.dtd.
-   * See base class for description of params.
+   * Expects a node that conforms to the dtd specified for PSXSearchProperties in
+   * sys_basicObjects.dtd. See base class for description of params.
    */
   public void fromXml(Element source, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -397,22 +391,23 @@ public class PSSearchProperties extends PSComponent {
 
   /**
    * See {@link #setEnableTransformationLocked(boolean)} for details.
-   * @return The value set by the mutator, or the default if the mutator
-   * has never been called.
+   *
+   * @return The value set by the mutator, or the default if the mutator has never been called.
    */
   public boolean isEnableTransformationLocked() {
     return m_enableTransformationLocked;
   }
 
   /**
-   * For certain db data types, the search engine requires that transformation
-   * be enabled. The container of this class must make sure this flag is
-   * properly set. If <code>true</code>, any calls to <code>
-   * setEnableTransformation</code> that attempt to change the state result
-   * in an exception. Defaults to <code>false</code>.
+   * For certain db data types, the search engine requires that transformation be enabled. The
+   * container of this class must make sure this flag is properly set. If <code>true</code>, any
+   * calls to <code>
+   * setEnableTransformation</code> that attempt to change the state result in an exception.
+   * Defaults to <code>false</code>.
+   *
    * <p>This value is set by the system and cannot be changed by implementers.
-   * <p>This flag is not considered for equality because it is not a
-   * fundamental property.
+   *
+   * <p>This flag is not considered for equality because it is not a fundamental property.
    *
    * @param locked <code>true</code> to prevent changes to the <code>
    * enableTransformation</code> flag.
@@ -423,13 +418,13 @@ public class PSSearchProperties extends PSComponent {
 
   /**
    * This latch is required to allow us to set the <code>
-   * enableTransformation</code> flag based on the underlying db type if
-   * a value was not supplied in the xml. This allows us to make CLOBs into
-   * transformed fields on upgrades.
-   * <p>Defaults to <code>false</code>. The containing class is responsible
-   * for setting this flag properly.
-   * <p>This flag is not considered for equality because it is not a
-   * fundamental property.
+   * enableTransformation</code> flag based on the underlying db type if a value was not supplied in
+   * the xml. This allows us to make CLOBs into transformed fields on upgrades.
+   *
+   * <p>Defaults to <code>false</code>. The containing class is responsible for setting this flag
+   * properly.
+   *
+   * <p>This flag is not considered for equality because it is not a fundamental property.
    *
    * @return <code>true</code> if this object was populated using <code>
    * fromXml</code>, <code>false</code> otherwise.
@@ -449,52 +444,55 @@ public class PSSearchProperties extends PSComponent {
    * See {@link #setVisibleToGlobalQuery(boolean)} for description.
    *
    * <p>Read and set w/ standard boolean accessor/mutator only.
-   * <p>We don't bother hiding this if the external engine is not present
-   * as its presence is innocuous.
+   *
+   * <p>We don't bother hiding this if the external engine is not present as its presence is
+   * innocuous.
    */
   private boolean m_visibleToGlobalQuery = true;
 
   /**
    * See {@link #setTokenizeSearchContent(boolean)} for description.
+   *
    * <p>Read and set w/ standard boolean accessor/mutator only.
-   * <p>We don't bother hiding this if the external engine is not present
-   * as its presence is innocuous.
+   *
+   * <p>We don't bother hiding this if the external engine is not present as its presence is
+   * innocuous.
    */
   private boolean m_tokenizeSearchContent = false;
 
   /**
-   * See {@link #setEnableTransformationLocked(boolean)} for description.
-   * Defaults to <code>false</code> if the fixup method was not called.
+   * See {@link #setEnableTransformationLocked(boolean)} for description. Defaults to <code>false
+   * </code> if the fixup method was not called.
    */
   private transient boolean m_enableTransformationLocked = false;
 
   /**
    * See {@link #setEnableTransformation(boolean)} for description.
+   *
    * <p>Read and set w/ standard boolean accessor/mutator only.
    */
   private boolean m_enableTransformation = false;
 
-  /**
-   * See {@link #isFromXml()} for details. Defaults to <code>false</code>.
-   */
+  /** See {@link #isFromXml()} for details. Defaults to <code>false</code>. */
   private boolean m_fromXml = false;
 
   /**
    * See {@link #setUserCustomizable(boolean)} for description.
+   *
    * <p>Read and set w/ standard boolean accessor/mutator only.
    */
   private boolean m_userCustomizable = true;
 
   /**
-   * See {@link #getDefaultSearchLabel()} for details. Never <code>null</code>,
-   * may be empty. Modified only by {@link #setDefaultSearchLabel(String)}.
-   * Always stored w/ no leading/trailing whitespace.
+   * See {@link #getDefaultSearchLabel()} for details. Never <code>null</code>, may be empty.
+   * Modified only by {@link #setDefaultSearchLabel(String)}. Always stored w/ no leading/trailing
+   * whitespace.
    */
   private String m_defaultSearchLabel = "";
 
   /**
-   * An array of XML attribute values for all boolean attributes. They are
-   * ordered as <code>true</code>, <code>false</code>.
+   * An array of XML attribute values for all boolean attributes. They are ordered as <code>true
+   * </code>, <code>false</code>.
    */
   private static final String[] BOOLEAN_ENUM = {"yes", "no"};
 

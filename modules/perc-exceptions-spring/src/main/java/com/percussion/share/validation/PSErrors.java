@@ -24,16 +24,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A data object that represents global errors.
- * <p>
- * The object some what mirrors the Spring validation framework Errors object
- * and its children. The big difference is that this object is safe to serialize
- * with JAXB but the spring errors object is not.
- * <p>
- * The object is safe to serialize with JAXB.
+ *
+ * <p>The object some what mirrors the Spring validation framework Errors object and its children.
+ * The big difference is that this object is safe to serialize with JAXB but the spring errors
+ * object is not.
+ *
+ * <p>The object is safe to serialize with JAXB.
  *
  * @see PSValidationErrors
  * @author adamgent
- *
  */
 @XmlRootElement(name = "Errors")
 @JsonRootName(value = "Errors")
@@ -53,7 +52,6 @@ public class PSErrors {
    * See Spring's ObjectError
    *
    * @author adamgent
-   *
    */
   @XmlRootElement(name = "Error")
   @JsonRootName(value = "Error")
@@ -69,9 +67,9 @@ public class PSErrors {
     }
 
     /**
-     * Parameters for the error message.
-     * The parameters are just like
-     * {@link MessageFormat} parameters.
+     * Parameters for the error message. The parameters are just like {@link MessageFormat}
+     * parameters.
+     *
      * @return maybe <code>null</code>.
      */
     public List<String> getArguments() {
@@ -84,6 +82,7 @@ public class PSErrors {
 
     /**
      * The default message if localization is not done.
+     *
      * @return maybe <code>null</code>.
      */
     public String getDefaultMessage() {

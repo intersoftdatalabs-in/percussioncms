@@ -26,21 +26,19 @@ import java.util.Locale;
 import org.w3c.dom.Document;
 
 /**
- * The PSConsoleCommandDebugI18n class implements processing of the
- * "i18n debug on/off" console command.
+ * The PSConsoleCommandDebugI18n class implements processing of the "i18n debug on/off" console
+ * command.
  *
  * @see PSRemoteConsoleHandler
  */
 public class PSConsoleCommandDebugI18n extends PSConsoleCommand {
   /**
-   * The constructor for this class. The allowed values are
-   * true|false|on|off|yes|no. Any of the values from (true|on|yes) will set
-   * the debug mode on and does not affect if it is already on. Any other
-   * value will set the debug mode off and does not affect if it is already
-   * off.
+   * The constructor for this class. The allowed values are true|false|on|off|yes|no. Any of the
+   * values from (true|on|yes) will set the debug mode on and does not affect if it is already on.
+   * Any other value will set the debug mode off and does not affect if it is already off.
+   *
    * @param cmdArgs must not be <code>null</code> ot <code>empty</code>.
-   * @throws PSIllegalArgumentException if the argument is <code>null</code>
-   * or <code>empty</code>.
+   * @throws PSIllegalArgumentException if the argument is <code>null</code> or <code>empty</code>.
    */
   public PSConsoleCommandDebugI18n(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -85,8 +83,6 @@ public class PSConsoleCommandDebugI18n extends PSConsoleCommand {
     }
   }
 
-  /**
-   * The command executed by this class.
-   */
+  /** The command executed by this class. */
   static final String ms_cmdName = "debug i18n";
 }

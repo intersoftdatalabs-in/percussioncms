@@ -37,9 +37,8 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
 /**
- * This exit was written for the specific purpose of deleting an ACL for a newly
- * deleted objects like workfloe, sites to prevent orphan acls.
- * It was not made generic for multi-purpose usage.
+ * This exit was written for the specific purpose of deleting an ACL for a newly deleted objects
+ * like workfloe, sites to prevent orphan acls. It was not made generic for multi-purpose usage.
  *
  * @author paulhoward
  */
@@ -55,20 +54,16 @@ public class PSExitDeleteObjectAcl extends PSDefaultExtension
   }
 
   /**
-   * Deletes an ACL for a newly deleted object. The object id is obtained
-   * from the value supplied as objectid parameter.
-   * It is not an error for no acl to exist.
+   * Deletes an ACL for a newly deleted object. The object id is obtained from the value supplied as
+   * objectid parameter. It is not an error for no acl to exist.
    *
-   * @param params object array of parameters.
-   * The first param should designate the object ids parameter.
-   * The second param should designate the type of object.
+   * @param params object array of parameters. The first param should designate the object ids
+   *     parameter. The second param should designate the type of object.
    * @param request IPSRequestContext object to get the object ids
    * @param resultDoc Returned on success.
-   *
    * @return The supplied doc.
-   *
-   * @throws PSExtensionProcessingException If the object id can't be parsed
-   * into numbers or a problem occurs attempting to delete the acl.
+   * @throws PSExtensionProcessingException If the object id can't be parsed into numbers or a
+   *     problem occurs attempting to delete the acl.
    */
   public Document processResultDocument(
       @SuppressWarnings("unused") Object[] params, IPSRequestContext request, Document resultDoc)

@@ -28,21 +28,16 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXContentEditorSharedDef DTD defined in
- * ContentEditorSharedDef.dtd.
- */
+/** Implements the PSXContentEditorSharedDef DTD defined in ContentEditorSharedDef.dtd. */
 public class PSContentEditorSharedDef extends PSComponent implements IPSDocument {
-  /**
-   * Creates a new empty shared content editor definition.
-   */
+  /** Creates a new empty shared content editor definition. */
   public PSContentEditorSharedDef() {}
 
   /**
    * Creates a new shared content editor definition.
    *
-   * @param fieldGroups a collection of PSSharedFieldGroup objects. Never
-   *           <code>null</code>, may be empty.
+   * @param fieldGroups a collection of PSSharedFieldGroup objects. Never <code>null</code>, may be
+   *     empty.
    */
   public PSContentEditorSharedDef(PSCollection fieldGroups) {
     setFieldGroups(fieldGroups);
@@ -51,14 +46,10 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from, not
-   *           <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object, not
-   *           <code>null</code>.
-   * @param parentComponents the parent objects of this object, not
-   *           <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *            appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditorSharedDef(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
@@ -69,13 +60,9 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Constructor for this class that takes a source document.
    *
-   * @param sourceDoc The Xml document containing the Content Editor shared
-   *           def.
-   *
-   * @throws PSUnknownDocTypeException if the XML document is not of the
-   *            appropriate type.
-   * @throws PSUnknownNodeTypeException if an XML element node is not of the
-   *            appropriate type.
+   * @param sourceDoc The Xml document containing the Content Editor shared def.
+   * @throws PSUnknownDocTypeException if the XML document is not of the appropriate type.
+   * @throws PSUnknownNodeTypeException if an XML element node is not of the appropriate type.
    * @see #fromXml(Document)
    */
   public PSContentEditorSharedDef(Document sourceDoc)
@@ -86,11 +73,10 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   * Calculates and returns the guid for this object, does not take the
-   * originating filename into account.
+   * Calculates and returns the guid for this object, does not take the originating filename into
+   * account.
    *
-   * @return The guid, the same for all shared def objects,
-   * never <code>null</code>.
+   * @return The guid, the same for all shared def objects, never <code>null</code>.
    */
   public IPSGuid getGUID() {
     return new PSGuid(PSTypeEnum.CONFIGURATION, SHARED_DEF_ID);
@@ -108,8 +94,7 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Set new command handler stylesheets.
    *
-   * @param stylesheetSet the new command handler stylesheets, might be
-   *           <code>null</code>.
+   * @param stylesheetSet the new command handler stylesheets, might be <code>null</code>.
    */
   public void setStylesheetSet(PSCommandHandlerStylesheets stylesheetSet) {
     m_stylesheetSet = stylesheetSet;
@@ -127,8 +112,7 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Set a new application flow.
    *
-   * @param applicationFlow the new application flow, might be
-   *           <code>null</code>.
+   * @param applicationFlow the new application flow, might be <code>null</code>.
    */
   public void setApplicationFlow(PSApplicationFlow applicationFlow) {
     m_applicationFlow = applicationFlow;
@@ -137,21 +121,19 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Get the field group collection.
    *
-   * @return a collection of PSSharedFieldGroup objects, never
-   *         <code>null</code>, may be empty.
+   * @return a collection of PSSharedFieldGroup objects, never <code>null</code>, may be empty.
    */
   public Iterator getFieldGroups() {
     return m_fieldGroups.iterator();
   }
 
   /**
-   * Looks up and returns the shared field group collection for the given file
-   * name.
+   * Looks up and returns the shared field group collection for the given file name.
    *
-   * @param fileName name of the file this group from, must not be
-   *           <code>null</code> and case sensitive.
-   * @return the shared field corresponding to the file name supplied, never
-   *         <code>null</code> may be empty if not found.
+   * @param fileName name of the file this group from, must not be <code>null</code> and case
+   *     sensitive.
+   * @return the shared field corresponding to the file name supplied, never <code>null</code> may
+   *     be empty if not found.
    */
   public PSCollection lookupFieldGroupByFileName(String fileName) {
     PSCollection fieldGroups = new PSCollection(PSSharedFieldGroup.class);
@@ -164,12 +146,11 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   * Add or replace the shared field groups with the supplied one. Replace is
-   * performed only if the group with the file name already exists. Assumes the
-   * set in the iterator has the common file name.
+   * Add or replace the shared field groups with the supplied one. Replace is performed only if the
+   * group with the file name already exists. Assumes the set in the iterator has the common file
+   * name.
    *
-   * @param group shared field group to add or replace. Must not be
-   *           <code>null</code>.
+   * @param group shared field group to add or replace. Must not be <code>null</code>.
    */
   public void setFieldGroupsByFileName(Iterator group) {
     if (group == null || !group.hasNext())
@@ -200,8 +181,8 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Set a new collection of field groups.
    *
-   * @param fieldGroups the new collection of PSSharedFieldGroup objects, never
-   *           <code>null</code>, may be empty.
+   * @param fieldGroups the new collection of PSSharedFieldGroup objects, never <code>null</code>,
+   *     may be empty.
    */
   public void setFieldGroups(PSCollection fieldGroups) {
     if (fieldGroups == null) throw new IllegalArgumentException("the field groups cannot be null");
@@ -216,8 +197,8 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Add a new field group to the existing groups.
    *
-   * @param group the new collection of PSSharedFieldGroup objects, never
-   *    <code>null</code>, may be empty.
+   * @param group the new collection of PSSharedFieldGroup objects, never <code>null</code>, may be
+   *     empty.
    */
   public void addFieldGroup(PSSharedFieldGroup group) {
     if (group == null) {
@@ -229,9 +210,7 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   /**
    * Get the specified shared group from the def.
    *
-   * @param groupName the name of the group, may not be <code>null</code> or
-   * empty.
-   *
+   * @param groupName the name of the group, may not be <code>null</code> or empty.
    * @return The group, may be <code>null</code> if not found.
    */
   public PSSharedFieldGroup getSharedGroup(String groupName) {
@@ -250,9 +229,8 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSContentEditorSharedDef, not <code>null</code>.
    */
@@ -293,7 +271,6 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(
@@ -348,7 +325,6 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -386,19 +362,15 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   * Tests if the supplied field is a shared field or not. If the fields submit
-   * name is found in a field contained by this shared def and it is not in the
-   * supplied excluded list, then it is considered as a shared field. The check
-   * is case sensitive.
+   * Tests if the supplied field is a shared field or not. If the fields submit name is found in a
+   * field contained by this shared def and it is not in the supplied excluded list, then it is
+   * considered as a shared field. The check is case sensitive.
    *
    * @param field the field to test, may not be <code>null</code>.
-   * @param groupIncludes the list of shared groups included, may not be
-   *           <code>null</code>
-   * @param fieldExcludes list of shared field excludes, may not be
-   *           <code>null</code>
-   *
-   * @return <code>true</code> if the provided field is a shared field,
-   *         <code>false</code> otherwise.
+   * @param groupIncludes the list of shared groups included, may not be <code>null</code>
+   * @param fieldExcludes list of shared field excludes, may not be <code>null</code>
+   * @return <code>true</code> if the provided field is a shared field, <code>false</code>
+   *     otherwise.
    */
   public boolean isSharedField(PSField field, List groupIncludes, List fieldExcludes) {
     if (field == null) throw new IllegalArgumentException("field may not be null");
@@ -422,16 +394,14 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   }
 
   /**
-   * Tests if this field set is a shared field set or not. If this field set
-   * name is found in names of field sets contained by this shared def and it
-   * is found in the list of supplied included shared groups, then it is
-   * considered a shared field set. The check is case sensitive.
+   * Tests if this field set is a shared field set or not. If this field set name is found in names
+   * of field sets contained by this shared def and it is found in the list of supplied included
+   * shared groups, then it is considered a shared field set. The check is case sensitive.
    *
    * @param set the fieldset to check, may not be <code>null</code>
-   * @param groupIncludes the list of shared group includes, may not be
-   *           <code>null</code>
-   * @return <code>true</code> if this field set is a shared field set,
-   *         <code>false</code> otherwise.
+   * @param groupIncludes the list of shared group includes, may not be <code>null</code>
+   * @return <code>true</code> if this field set is a shared field set, <code>false</code>
+   *     otherwise.
    */
   public boolean isSharedFieldSet(PSFieldSet set, List groupIncludes) {
     if (set == null) throw new IllegalArgumentException("set may not be null.");
@@ -451,25 +421,20 @@ public class PSContentEditorSharedDef extends PSComponent implements IPSDocument
   public static final String XML_NODE_NAME = "PSXContentEditorSharedDef";
 
   /**
-   * The content editor shared id used for locking through web services. See
-   * {@link PSContentEditorSystemDef#SYSTEM_DEF_ID} to make sure its unique.
+   * The content editor shared id used for locking through web services. See {@link
+   * PSContentEditorSystemDef#SYSTEM_DEF_ID} to make sure its unique.
    */
   public static final long SHARED_DEF_ID = 1001;
 
-  /**
-   * The command handler stylesheet for this shared definition. Might be
-   * <code>null</code>.
-   */
+  /** The command handler stylesheet for this shared definition. Might be <code>null</code>. */
   private PSCommandHandlerStylesheets m_stylesheetSet = null;
 
-  /**
-   * The application flow for this shared definition. May be <code>null</code>.
-   */
+  /** The application flow for this shared definition. May be <code>null</code>. */
   private PSApplicationFlow m_applicationFlow = null;
 
   /**
-   * A collection of PSSharedFieldGroup objects, never <code>null</code>,
-   * might be empty after construction.
+   * A collection of PSSharedFieldGroup objects, never <code>null</code>, might be empty after
+   * construction.
    */
   private PSCollection m_fieldGroups = new PSCollection(PSSharedFieldGroup.class);
 }

@@ -39,11 +39,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements cataloging of extensions defined for the
- * specified extension handler.
- * <p>
- * Extension catalog requests are sent to the server using
- * the PSXExtensionCatalog XML document. Its definition is as follows:
+ * This class implements cataloging of extensions defined for the specified extension handler.
+ *
+ * <p>Extension catalog requests are sent to the server using the PSXExtensionCatalog XML document.
+ * Its definition is as follows:
+ *
  * <pre><code>
  *
  *    &lt;!ELEMENT PSXExtensionCatalog (ExtensionHandlerPattern, Context,
@@ -54,29 +54,28 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT ExtensionNamePattern (#PCDATA)&gt;
  *
  * </code></pre>
+ *
  * See {@link com.percussion.extension.PSExtensionManager#getExtensionNames(String, String, String,
  * String) getExtensionNames} for a description of the search patterns.
  *
- * The PSXExtensionCatalogResults XML document is sent
- * as the response. Its definition is as follows:
+ * <p>The PSXExtensionCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
  *
  * <pre><code>
  *
  *    &lt;!ELEMENT PSXExtensionCatalogResults   (IPSExtensionDef*)&gt;
  *
  * </code></pre>
- * Where 'Factory' is the classname of the IPSExtensionDefFactory used to
- * serialize this def.
+ *
+ * Where 'Factory' is the classname of the IPSExtensionDefFactory used to serialize this def.
  */
 public class PSExtensionCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
   /**
-   * Constructs an instance of this handler. This is used primarily
-   * by the cataloger.
+   * Constructs an instance of this handler. This is used primarily by the cataloger.
    *
-   * @param mgr An initialized extension manager used to perform cataloging.
-   * Must not be <code>null</code>;
-   *
+   * @param mgr An initialized extension manager used to perform cataloging. Must not be <code>null
+   *     </code>;
    * @throws IllegalArgumentException if mgr is <code>null</code>.
    */
   public PSExtensionCatalogHandler(IPSExtensionManager mgr) {
@@ -89,10 +88,9 @@ public class PSExtensionCatalogHandler extends PSCatalogRequestHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_requestDTD};
@@ -101,12 +99,10 @@ public class PSExtensionCatalogHandler extends PSCatalogRequestHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -171,16 +167,14 @@ public class PSExtensionCatalogHandler extends PSCatalogRequestHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }
 
   /**
-   * A valid extension mgr used for cataloging. Initialized during construction.
-   * Never <code>null</code> after inited.
+   * A valid extension mgr used for cataloging. Initialized during construction. Never <code>null
+   * </code> after inited.
    */
   private IPSExtensionManager m_extensionMgr;
 

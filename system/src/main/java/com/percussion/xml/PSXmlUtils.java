@@ -21,6 +21,7 @@ import com.percussion.util.PSXMLDomUtil;
 
 /**
  * A utility class that contains methods useful for XML processing.
+ *
  * @deprecated Use com.percussion.util.PSXMLDomUtil instead
  */
 public class PSXmlUtils {

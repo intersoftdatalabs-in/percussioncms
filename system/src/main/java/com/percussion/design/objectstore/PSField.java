@@ -39,137 +39,131 @@ import org.w3c.dom.Node;
 /**
  * Implementation for the PSXField DTD in BasicObjects.dtd.
  *
- * A field element contains all non UI related data required to define a
- * field, including business rules. All DataLocator types except FieldRef
- * are supported. If the DataLocator of a field specifies something other
- * than PSXBackEndColumn, this field cannot be updated, it's for query only.
+ * <p>A field element contains all non UI related data required to define a field, including
+ * business rules. All DataLocator types except FieldRef are supported. If the DataLocator of a
+ * field specifies something other than PSXBackEndColumn, this field cannot be updated, it's for
+ * query only.
  */
 @SuppressWarnings("unchecked")
 public class PSField extends PSComponent {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -1837223721972561274L;
 
   /**
-   * One of the possible values returned by {@link #getModificationType()}.
-   * Means that this field is read only (computed) and is not persisted to
-   * the database. If the field was submitted, it would be ignored.
+   * One of the possible values returned by {@link #getModificationType()}. Means that this field is
+   * read only (computed) and is not persisted to the database. If the field was submitted, it would
+   * be ignored.
    */
   public static final int MODTYPE_NONE = 0;
 
   /**
-   * One of the possible values returned by {@link #getModificationType()}.
-   * Means that this field can be modified during an modification request
-   * by the submitter. This is the default.
+   * One of the possible values returned by {@link #getModificationType()}. Means that this field
+   * can be modified during an modification request by the submitter. This is the default.
    */
   public static final int MODTYPE_USER = 1;
 
   /**
-   * One of the possible values returned by {@link #getModificationType()}.
-   * Means that this field can be modified by the user only when the item is
-   * submitted. It cannot be changed after that.
+   * One of the possible values returned by {@link #getModificationType()}. Means that this field
+   * can be modified by the user only when the item is submitted. It cannot be changed after that.
    */
   public static final int MODTYPE_USERCREATE = 2;
 
   /**
-   * One of the possible values returned by {@link #getModificationType()}.
-   * Means that this field can only be modified by the server at any time.
-   * If the field was submitted, it would be ignored.
+   * One of the possible values returned by {@link #getModificationType()}. Means that this field
+   * can only be modified by the server at any time. If the field was submitted, it would be
+   * ignored.
    */
   public static final int MODTYPE_SYSTEM = 3;
 
   /**
-   * One of the possible values returned by {@link #getModificationType()}.
-   * Means that this field can only be modified by the server when the item
-   * is created. If the field was submitted, it would be ignored.
+   * One of the possible values returned by {@link #getModificationType()}. Means that this field
+   * can only be modified by the server when the item is created. If the field was submitted, it
+   * would be ignored.
    */
   public static final int MODTYPE_SYSTEMCREATE = 4;
 
   /**
-   * This array contains the text to use as the modificationType attribute
-   * of this field's xml form. The MODTYPE_xxx value is an index into this
-   * array.
+   * This array contains the text to use as the modificationType attribute of this field's xml form.
+   * The MODTYPE_xxx value is an index into this array.
    */
   public static final String[] MODTYPE_ATTR_VALUES = {
     "none", "user", "userCreate", "system", "systemCreate"
   };
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains character data.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains character
+   * data.
    */
   public static final String DT_TEXT = "text";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains only a date, no time component is allowed.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains only a
+   * date, no time component is allowed.
    */
   public static final String DT_DATE = "date";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains only a time, no date component is allowed.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains only a
+   * time, no date component is allowed.
    */
   public static final String DT_TIME = "time";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains a date and time (the time is usually 00:00:00 if not
-   * supplied).
+   * One of the identifiers for the allowed Data types. Indicates that the field contains a date and
+   * time (the time is usually 00:00:00 if not supplied).
    */
   public static final String DT_DATETIME = "datetime";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains a value that should be interpreted as either <code>true
+   * One of the identifiers for the allowed Data types. Indicates that the field contains a value
+   * that should be interpreted as either <code>true
    * </code> or Ccode>false</code>.
    */
   public static final String DT_BOOLEAN = "bool";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains a value that should be interpreted as a whole number.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains a value
+   * that should be interpreted as a whole number.
    */
   public static final String DT_INTEGER = "integer";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains a value that should be interpreted as a whole number.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains a value
+   * that should be interpreted as a whole number.
    *
    * @deprecated use {@link #DT_INTEGER} instead.
    */
   @Deprecated public static final String DT_NUMBER = "number";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains a value that should be interpreted as a real number.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains a value
+   * that should be interpreted as a real number.
    */
   public static final String DT_FLOAT = "float";
 
   /**
-   * One of the identifiers for the allowed Data types. Indicates that the
-   * field contains non human readable data.
+   * One of the identifiers for the allowed Data types. Indicates that the field contains non human
+   * readable data.
    */
   public static final String DT_BINARY = "binary";
 
   /**
-   * A special case of the {@link #DT_BINARY} type which indicates that the
-   * field content is some sort of picture, such as gif, tiff or jpg.
+   * A special case of the {@link #DT_BINARY} type which indicates that the field content is some
+   * sort of picture, such as gif, tiff or jpg.
    */
   public static final String DT_IMAGE = "image";
 
   /**
-   * Data format value indicating that field can contain maximum
-   * amount of data allowed. Used as value with "data format" property.
+   * Data format value indicating that field can contain maximum amount of data allowed. Used as
+   * value with "data format" property.
    */
   public static final String MAX_FORMAT = "max";
 
   /**
    * Creates a new field for the provided name and data locator.
    *
-   * @param name the field name, not <code>null</code> or empty. Must be
-   *    unique within this field set.
+   * @param name the field name, not <code>null</code> or empty. Must be unique within this field
+   *     set.
    * @param locator the data locator, may be <code>null</code>.
    */
   public PSField(String name, IPSBackEndMapping locator) {
@@ -180,10 +174,9 @@ public class PSField extends PSComponent {
   /**
    * Creates a new field for the provided DataLocator.
    *
-   * @param type the field type to create, must be one of TYPE_SYSTEM |
-   *    TYPE_SHARED | TYPE_LOCAL.
-   * @param name the field name, not <code>null</code> or empty. Must be
-   *    unique within this field set.
+   * @param type the field type to create, must be one of TYPE_SYSTEM | TYPE_SHARED | TYPE_LOCAL.
+   * @param name the field name, not <code>null</code> or empty. Must be unique within this field
+   *     set.
    * @param locator the data locator for this field, may be <code>null</code>.
    */
   public PSField(int type, String name, IPSBackEndMapping locator) {
@@ -195,44 +188,31 @@ public class PSField extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSField(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSField() {}
 
-  /**
-   * See {@link #getSearchProperties()
-   * getSearchProperties().isUserSearchable()}.
-   */
+  /** See {@link #getSearchProperties() getSearchProperties().isUserSearchable()}. */
   public boolean isUserSearchable() {
     return m_searchProps.isUserSearchable();
   }
 
-  /**
-   * See {@link #getSearchProperties()
-   * getSearchProperties().setUserSearchable(boolean)}.
-   */
+  /** See {@link #getSearchProperties() getSearchProperties().setUserSearchable(boolean)}. */
   public void setUserSearchable(boolean searchable) {
     m_searchProps.setUserSearchable(searchable);
   }
 
   /**
-   * See {@link #getSearchProperties()
-   * getSearchProperties().isUserCustomizable()}.
+   * See {@link #getSearchProperties() getSearchProperties().isUserCustomizable()}.
    *
    * @deprecated Use {@link #getSearchProperties()}.isUserCustomizable().
    */
@@ -242,8 +222,7 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * See {@link #getSearchProperties()
-   * getSearchProperties().getDefaultSearchLabel()}.
+   * See {@link #getSearchProperties() getSearchProperties().getDefaultSearchLabel()}.
    *
    * @deprecated Use {@link #getSearchProperties()}.getDefaultSearchLabel().
    */
@@ -253,8 +232,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Indicates where the field originated, in other words whether it was
-   * originally defined in the system def, shared def or local def.
+   * Indicates where the field originated, in other words whether it was originally defined in the
+   * system def, shared def or local def.
    *
    * @return One of the TYPE_xxx values (except TYPE_ENUM).
    */
@@ -263,8 +242,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * This indicates whether the data stored in this field is interpreted as
-   * 'content' or 'meta data'.
+   * This indicates whether the data stored in this field is interpreted as 'content' or 'meta
+   * data'.
    *
    * @return One of the FIELD_VALUE_TYPE_xxx values.
    */
@@ -273,11 +252,10 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Translates a field value type code into a string suitable for writing to
-   * the output document.
+   * Translates a field value type code into a string suitable for writing to the output document.
    *
-   * @return The string to use as the attribute value. One of the values in
-   * the PSField.FIELD_VALUE_TYPE_ENUM[] array. Never empty.
+   * @return The string to use as the attribute value. One of the values in the
+   *     PSField.FIELD_VALUE_TYPE_ENUM[] array. Never empty.
    */
   public String getFieldValueTypeText() {
     String value;
@@ -304,8 +282,7 @@ public class PSField extends PSComponent {
   /**
    * See {@link #getType()}.
    *
-   * @param type the field type to set, must be one of TYPE_SYSTEM |
-   *    TYPE_SHARED | TYPE_LOCAL.
+   * @param type the field type to set, must be one of TYPE_SYSTEM | TYPE_SHARED | TYPE_LOCAL.
    */
   public void setType(int type) {
     if (type != TYPE_SYSTEM && type != TYPE_SHARED && type != TYPE_LOCAL)
@@ -317,8 +294,8 @@ public class PSField extends PSComponent {
   /**
    * See {@link #getFieldValueType()}.
    *
-   * @param fieldValueType the field value type to set, must be one of
-   *    FIELD_VALUE_TYPE_CONTENT | FIELD_VALUE_TYPE_META.
+   * @param fieldValueType the field value type to set, must be one of FIELD_VALUE_TYPE_CONTENT |
+   *     FIELD_VALUE_TYPE_META.
    */
   public void setFieldValueType(int fieldValueType) {
     if (fieldValueType != FIELD_VALUE_TYPE_CONTENT && fieldValueType != FIELD_VALUE_TYPE_META)
@@ -328,10 +305,9 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Indicates who can update the field and when it may be updated. It can
-   * either be modified by the server or the user and it can either be
-   * modified when the item is inserted only (then never changed) or during
-   * any modification request.
+   * Indicates who can update the field and when it may be updated. It can either be modified by the
+   * server or the user and it can either be modified when the item is inserted only (then never
+   * changed) or during any modification request.
    *
    * @return One of the MODTYPE_xxx values. Defaults to MODTYPE_USER.
    */
@@ -342,8 +318,8 @@ public class PSField extends PSComponent {
   /**
    * Indicates whether this field is one of the MODTYPE_SYSTEMxxx values.
    *
-   * @return <code>true</code> if getModificationType() would return either
-   *    MODTYPE_SYSTEM or MODTYPE_SYSTEMCREATE, <code>false</code> otherwise.
+   * @return <code>true</code> if getModificationType() would return either MODTYPE_SYSTEM or
+   *     MODTYPE_SYSTEMCREATE, <code>false</code> otherwise.
    */
   public boolean isSystemModified() {
     return (getModificationType() == MODTYPE_SYSTEM)
@@ -353,41 +329,35 @@ public class PSField extends PSComponent {
   /**
    * Indicates whether this field is one of the MODTYPE_USERxxx values.
    *
-   * @return <code>true</code> if getModificationType() would return either
-   *    MODTYPE_USER or MODTYPE_USERCREATE, <code>false</code> otherwise.
+   * @return <code>true</code> if getModificationType() would return either MODTYPE_USER or
+   *     MODTYPE_USERCREATE, <code>false</code> otherwise.
    */
   public boolean isUserModified() {
     return (getModificationType() == MODTYPE_USER) || (getModificationType() == MODTYPE_USERCREATE);
   }
 
   /**
-   * Convenience method to get the status of whether this is a system field
-   * or not.
+   * Convenience method to get the status of whether this is a system field or not.
    *
-   * @return <code>true</code> if this is a system field, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if this is a system field, <code>false</code> otherwise.
    */
   public boolean isSystemField() {
     return getType() == TYPE_SYSTEM;
   }
 
   /**
-   * Convenience method to get the status of whether this is a shared field
-   * or not.
+   * Convenience method to get the status of whether this is a shared field or not.
    *
-   * @return <code>true</code> if this is a shared field, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if this is a shared field, <code>false</code> otherwise.
    */
   public boolean isSharedField() {
     return getType() == TYPE_SHARED;
   }
 
   /**
-   * Convenience method to get the status of whether this is a local field
-   * or not.
+   * Convenience method to get the status of whether this is a local field or not.
    *
-   * @return <code>true</code> if this is a local field, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if this is a local field, <code>false</code> otherwise.
    */
   public boolean isLocalField() {
     return getType() == TYPE_LOCAL;
@@ -396,8 +366,8 @@ public class PSField extends PSComponent {
   /**
    * Get the submit name.
    *
-   * @return the name for this field as it will be submitted in the
-   *    URL request, never <code>null</code> or empty.
+   * @return the name for this field as it will be submitted in the URL request, never <code>null
+   *     </code> or empty.
    */
   public String getSubmitName() {
     return m_submitName;
@@ -426,8 +396,8 @@ public class PSField extends PSComponent {
   /**
    * Get the mime type.
    *
-   * @return the mime type for this field as it will be submitted in the
-   *    URL request, may be <code>null</code> never empty.
+   * @return the mime type for this field as it will be submitted in the URL request, may be <code>
+   *     null</code> never empty.
    */
   public String getMimeType() {
     return m_mimeType;
@@ -436,8 +406,8 @@ public class PSField extends PSComponent {
   /**
    * Set the mime type.
    *
-   * @param mimeType the new type, may be <code>null</code> or empty. If
-   *    empty, the value is set to <code>null</code>.
+   * @param mimeType the new type, may be <code>null</code> or empty. If empty, the value is set to
+   *     <code>null</code>.
    */
   public void setMimeType(String mimeType) {
     if (null != mimeType && mimeType.trim().length() == 0) m_mimeType = null;
@@ -447,8 +417,7 @@ public class PSField extends PSComponent {
   /**
    * Show this in summary.
    *
-   * @return <code>true</code> to show this in the summary view,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to show this in the summary view, <code>false</code> otherwise.
    */
   public boolean isShowInSummary() {
     return m_showInSummary;
@@ -457,8 +426,7 @@ public class PSField extends PSComponent {
   /**
    * Set show this in summary.
    *
-   * @param showInSummary <code>true</code> to show this in summary,
-   *    <code>false</code> otherwise.
+   * @param showInSummary <code>true</code> to show this in summary, <code>false</code> otherwise.
    */
   public void setShowInSummary(boolean showInSummary) {
     m_showInSummary = showInSummary;
@@ -486,11 +454,9 @@ public class PSField extends PSComponent {
    * Get the value for the specified boolean property.
    *
    * @param name the property name, may not be <code>null</code> or empty.
-   *
-   * @return the boolean value for the requested property. Returns also
-   *    <code>false</code> if the property is not found.
-   * @throws ClassCastException if the requested property is not of type
-   *    <code>Boolean</code>.
+   * @return the boolean value for the requested property. Returns also <code>false</code> if the
+   *     property is not found.
+   * @throws ClassCastException if the requested property is not of type <code>Boolean</code>.
    */
   public boolean getBooleanProperty(String name) {
     if (name == null || name.trim().length() == 0)
@@ -505,14 +471,12 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Set a new value for the addressed property. If the property does not
-   * exist this will create and add a new one of type boolean.
+   * Set a new value for the addressed property. If the property does not exist this will create and
+   * add a new one of type boolean.
    *
-   * @param enable <code>true</code> to enable the property, <code>false</code>
-   *    otherwise.
+   * @param enable <code>true</code> to enable the property, <code>false</code> otherwise.
    * @param name the property name, assumed not <code>null</code> or empty.
-   * @throws ClassCastException if the requested property is not of type
-   *    <code>Boolean</code>.
+   * @throws ClassCastException if the requested property is not of type <code>Boolean</code>.
    */
   private void setBooleanProperty(boolean enable, String name) {
     String value = enable ? BOOLEAN_ENUM[0] : BOOLEAN_ENUM[1];
@@ -531,9 +495,9 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Can this field have inline links? Defaults to <code>false</code> if the
-   * property is not specified. If this flag is set, this field will be
-   * processed for inline links on each modify request.
+   * Can this field have inline links? Defaults to <code>false</code> if the property is not
+   * specified. If this flag is set, this field will be processed for inline links on each modify
+   * request.
    *
    * @return <code>true</code> if it can, <code>false</code> otherwise.
    */
@@ -544,16 +508,15 @@ public class PSField extends PSComponent {
   /**
    * Set whether this field can have inline links or not.
    *
-   * @param enable <code>true</code> if it can have inline links,
-   *    <code>false</code> otherwise.
+   * @param enable <code>true</code> if it can have inline links, <code>false</code> otherwise.
    */
   public void setMayHaveInlineLinks(boolean enable) {
     setBooleanProperty(enable, MAY_HAVE_INLINE_LINKS_PROPERTY);
   }
 
   /**
-   * Should broken inline liks be cleaned up? Defaults to <code>false</code>
-   * if the property is not specified.
+   * Should broken inline liks be cleaned up? Defaults to <code>false</code> if the property is not
+   * specified.
    *
    * @return <code>true</code> if it should, <code>false</code> otherwise.
    */
@@ -564,16 +527,15 @@ public class PSField extends PSComponent {
   /**
    * Set whether broken inline links should be cleaned up for this field.
    *
-   * @param enable <code>true</code> to cleanup broken inline links,
-   *    <code>false</code> otherwise.
+   * @param enable <code>true</code> to cleanup broken inline links, <code>false</code> otherwise.
    */
   public void setCleanupBrokenInlineLinks(boolean enable) {
     setBooleanProperty(enable, CLEANUP_BROKEN_INLINE_LINKS_PROPERTY);
   }
 
   /**
-   * Should this field be cleaned before each modify? Defaults to
-   * <code>false</code> if the property is not specified.
+   * Should this field be cleaned before each modify? Defaults to <code>false</code> if the property
+   * is not specified.
    *
    * @return <code>true</code> if it should, <code>false</code> otherwise.
    */
@@ -591,8 +553,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * indicates to text cleanup and the assembly system that namespaces should
-   * be selectively removed according to a configuration.
+   * indicates to text cleanup and the assembly system that namespaces should be selectively removed
+   * according to a configuration.
    *
    * @return <code>true</code> if it should, <code>false</code> otherwise.
    */
@@ -610,14 +572,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * This tells text cleanup that JSP and ASP tags
-   * may appear in the content. These are escaped by enclosing them in
-   * processing instructions (PIs). These PIs have the name
-   * &quot;psx-activetag&quot;.
-   * The assembly system will selectively remove PIs from around these
-   * tags. It does this if the PIs name is &quot;psx-activetag&quot;. Note that
-   * PHP uses processing instructions already, and will therefore pass
-   * through the assembler untouched.
+   * This tells text cleanup that JSP and ASP tags may appear in the content. These are escaped by
+   * enclosing them in processing instructions (PIs). These PIs have the name
+   * &quot;psx-activetag&quot;. The assembly system will selectively remove PIs from around these
+   * tags. It does this if the PIs name is &quot;psx-activetag&quot;. Note that PHP uses processing
+   * instructions already, and will therefore pass through the assembler untouched.
    *
    * @return <code>true</code> if it should, <code>false</code> otherwise.
    */
@@ -635,13 +594,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Get the namespaces that should be defined for this field. These are used
-   * in text cleanup to define all allowed namespaces for the field. In the
-   * assembly engine, these namespaces may be filtered down to those allowed
-   * on a particular site.
+   * Get the namespaces that should be defined for this field. These are used in text cleanup to
+   * define all allowed namespaces for the field. In the assembly engine, these namespaces may be
+   * filtered down to those allowed on a particular site.
    *
-   * @return an array of trimmed namespace names or <code>null</code> if none
-   * are defined
+   * @return an array of trimmed namespace names or <code>null</code> if none are defined
    */
   public String[] getDeclaredNamespaces() {
     PSProperty allowed = getProperty(DECLARED_NAMESPACES);
@@ -692,12 +649,10 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Get the file including the path relative to the Rhythmyx root for the
-   * cleanup properties.
+   * Get the file including the path relative to the Rhythmyx root for the cleanup properties.
    *
-   * @return the cleanup properties file, never <code>null</code>
-   *    or empty, defaults to 'html-cleaner.properties'. All slashes normalized
-   *    to forward slash.
+   * @return the cleanup properties file, never <code>null</code> or empty, defaults to
+   *     'html-cleaner.properties'. All slashes normalized to forward slash.
    */
   public String getCleanupPropertiesFile() {
     PSProperty property = (PSProperty) m_properties.get(CLEANUP_PROPERTIES_PROPERTY);
@@ -709,8 +664,8 @@ public class PSField extends PSComponent {
   /**
    * Set the file relative to the Rhythmyx root for the cleanup properties.
    *
-   * @param file the new file, not <code>null</code> or empty. Must be a valid
-   *    file within the Rhythmyx root.
+   * @param file the new file, not <code>null</code> or empty. Must be a valid file within the
+   *     Rhythmyx root.
    */
   public void setCleanupPropertiesFile(String file) {
     if (file == null || file.trim().length() == 0)
@@ -734,9 +689,8 @@ public class PSField extends PSComponent {
   /**
    * Get the file relative to the Rhythmyx root to the cleanup serverPageTags.
    *
-   * @return the path to the cleanup serverPageTags file, never
-   *    <code>null</code> or empty, defaults to 'rxW2KserverPageTags.xml'.
-   *    All slashes normalized to forward slash.
+   * @return the path to the cleanup serverPageTags file, never <code>null</code> or empty, defaults
+   *     to 'rxW2KserverPageTags.xml'. All slashes normalized to forward slash.
    */
   public String getCleanupServerPageTagFile() {
     PSProperty property = (PSProperty) m_properties.get(CLEANUP_SERVERPAGETAGS_PROPERTY);
@@ -748,8 +702,8 @@ public class PSField extends PSComponent {
   /**
    * Set the file relative to the Rhythmyx root for the cleanup serverPageTags.
    *
-   * @param file the new file, not <code>null</code> or empty. Must be a valid
-   *    file within the Rhythmyx root.
+   * @param file the new file, not <code>null</code> or empty. Must be a valid file within the
+   *     Rhythmyx root.
    */
   public void setCleanupServerPageTagFile(String file) {
     if (file == null || file.trim().length() == 0)
@@ -773,9 +727,8 @@ public class PSField extends PSComponent {
   /**
    * Get the encoding to use for the cleanup process.
    *
-   * @return the encoding to use for the cleanup process, never
-   *    <code>null</code> or empty. Defaults to 'UTF8'. Encoding string in Java
-   *    format.
+   * @return the encoding to use for the cleanup process, never <code>null</code> or empty. Defaults
+   *     to 'UTF8'. Encoding string in Java format.
    */
   public String getCleanupEncoding() {
     PSProperty property = (PSProperty) m_properties.get(CLEANUP_ENCODING_PROPERTY);
@@ -787,8 +740,8 @@ public class PSField extends PSComponent {
   /**
    * Set encoding to be used for the cleanup process.
    *
-   * @param encoding the new encoding to use for the cleanup process, not
-   *    <code>null</code> or empty.
+   * @param encoding the new encoding to use for the cleanup process, not <code>null</code> or
+   *     empty.
    */
   public void setCleanupEncoding(String encoding) {
     if (encoding == null || encoding.trim().length() == 0)
@@ -806,9 +759,9 @@ public class PSField extends PSComponent {
   /**
    * Get all field properties.
    *
-   * @return all field properties, never <code>null</code>, may be empty.
-   *    The actual properties owned by this object are returned, so any
-   *    changes will affect this object. They should be treated read-only.
+   * @return all field properties, never <code>null</code>, may be empty. The actual properties
+   *     owned by this object are returned, so any changes will affect this object. They should be
+   *     treated read-only.
    */
   public PSPropertySet getProperties() {
     PSPropertySet propertySet = new PSPropertySet();
@@ -819,11 +772,10 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Get all field properties available for the supplied defaults or the
-   * defaults if not found.
+   * Get all field properties available for the supplied defaults or the defaults if not found.
    *
-   * @param defaults the properties we are looking for with the default
-   *    values if not found, never <code>null</code>, may be empty.
+   * @param defaults the properties we are looking for with the default values if not found, never
+   *     <code>null</code>, may be empty.
    * @return all field properties, never <code>null</code>, may be empty.
    */
   public PSPropertySet getProperties(PSPropertySet defaults) {
@@ -849,11 +801,10 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Set all field properties. Replaces the current property set with the
-   * supplied one.
+   * Set all field properties. Replaces the current property set with the supplied one.
    *
-   * @param properties the properties to set, may be <code>null</code> or
-   *    empty, in which case all properties are cleared;
+   * @param properties the properties to set, may be <code>null</code> or empty, in which case all
+   *     properties are cleared;
    */
   public void setProperties(PSPropertySet properties) {
     if (properties == null) properties = new PSPropertySet();
@@ -878,8 +829,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Set the supplied property. If the property is found (case sensitive
-   * compare is used), it will be replaced, otherwise a new one will be added.
+   * Set the supplied property. If the property is found (case sensitive compare is used), it will
+   * be replaced, otherwise a new one will be added.
    *
    * @param property the property to set, not <code>null</code>.
    */
@@ -892,8 +843,7 @@ public class PSField extends PSComponent {
   /**
    * Show this in preview?
    *
-   * @return <code>true</code> to show this in preview,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to show this in preview, <code>false</code> otherwise.
    */
   public boolean isShowInPreview() {
     return m_showInPreview;
@@ -902,20 +852,17 @@ public class PSField extends PSComponent {
   /**
    * Set show this in preview.
    *
-   * @param showInPreview <code>true</code> to show this in preview,
-   *    <code>false</code> otherwise.
+   * @param showInPreview <code>true</code> to show this in preview, <code>false</code> otherwise.
    */
   public void setShowInPreview(boolean showInPreview) {
     m_showInPreview = showInPreview;
   }
 
   /**
-   * A read-only field is one that has a locator that is not a PSBackEndColumn,
-   * meaning it can never be persisted. It is calculated when the request
-   * is processed.
+   * A read-only field is one that has a locator that is not a PSBackEndColumn, meaning it can never
+   * be persisted. It is calculated when the request is processed.
    *
-   * @return <code>true</code> to indicate read only,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> to indicate read only, <code>false</code> otherwise.
    */
   public boolean isReadOnly() {
     return !(m_locator instanceof PSBackEndColumn);
@@ -924,8 +871,7 @@ public class PSField extends PSComponent {
   /**
    * Is binary forced?
    *
-   * @return <code>true</code> if binary is forced,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if binary is forced, <code>false</code> otherwise.
    */
   public boolean isForceBinary() {
     return m_forceBinary;
@@ -934,25 +880,21 @@ public class PSField extends PSComponent {
   /**
    * Set force binary.
    *
-   * @param forceBinary <code>true</code> to force binary, <code>false</code>
-   *    otherwise.
+   * @param forceBinary <code>true</code> to force binary, <code>false</code> otherwise.
    */
   public void setForceBinary(boolean forceBinary) {
     m_forceBinary = forceBinary;
   }
 
   /**
-   * @return <code>true</code> if it is exportable,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if it is exportable, <code>false</code> otherwise.
    */
   public boolean isExportable() {
     return m_exportable;
   }
 
   /**
-   *
-   * @param exportable <code>true</code> to exportable, <code>false</code>
-   *  otherwise.
+   * @param exportable <code>true</code> to exportable, <code>false</code> otherwise.
    */
   public void setExportable(boolean exportable) {
     m_exportable = exportable;
@@ -961,20 +903,18 @@ public class PSField extends PSComponent {
   /**
    * Get the data type of this field.
    *
-   * @return One of the DT_xxx types, never <code>null</code>, might be
-   *    empty if a type was never set.
+   * @return One of the DT_xxx types, never <code>null</code>, might be empty if a type was never
+   *     set.
    */
   public String getDataType() {
     return m_dataType;
   }
 
   /**
-   * The data type of a field gives an indication of how the content should
-   * be interpreted.
+   * The data type of a field gives an indication of how the content should be interpreted.
    *
-   * @param dataType the field data type, not <code>null</code>, may be
-   *    empty. Otherwise, should be one of the DT_xxx types (the supplied
-   *    value is lower-cased before use).
+   * @param dataType the field data type, not <code>null</code>, may be empty. Otherwise, should be
+   *     one of the DT_xxx types (the supplied value is lower-cased before use).
    */
   public void setDataType(String dataType) {
     if (dataType == null) throw new IllegalArgumentException("the data type cannot be null");
@@ -1010,35 +950,27 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Compares the current type against the supplied type. If the current type
-   * is not set, or is not storable in the supplied type, then the current
-   * type will be overwritten. The type is obtained via the {@link
-   * #getDataType()} method. It also sets the search properties based on the
-   * type and the presence of an external search engine.
-   * <p>This method is public so it is accessible to classes outside this
-   * package, but it is not meant for general use.
+   * Compares the current type against the supplied type. If the current type is not set, or is not
+   * storable in the supplied type, then the current type will be overwritten. The type is obtained
+   * via the {@link #getDataType()} method. It also sets the search properties based on the type and
+   * the presence of an external search engine.
    *
-   * @param jdbcType One of the official JDBC data types found in
-   *    {@link java.sql.Types SQL Types class}.
+   * <p>This method is public so it is accessible to classes outside this package, but it is not
+   * meant for general use.
    *
-   * @param precision For numeric types, this is the number of significant
-   *    digits in base 10, for char types, it is the size of the db column,
-   *    in chars, for binary types, it is the number of bytes that can be
-   *    stored in the db field. Set to -1 to indicate unknown.
-   *
-   * @param scale Only applicable to numeric types, it specifies how many
-   *    decimal places the db colum has. Set to -1 to indicate unknown.
-   *
-   * @param typeName The db dependent name of the column for this type. May
-   *    be <code>null</code> or empty. This is used when trying to determine
-   *    if we can perform searches on this field.
-   *
-   * @param searchEnabled A flag that indicates whether the full text search
-   * engine is installed and enabled. This flag affects how the search
-   * properties are configured (which are dependent on the data type).
-   *
-   * @return <code>true</code> if the data type was changed,
-   *    <code>false</code> otherwise.
+   * @param jdbcType One of the official JDBC data types found in {@link java.sql.Types SQL Types
+   *     class}.
+   * @param precision For numeric types, this is the number of significant digits in base 10, for
+   *     char types, it is the size of the db column, in chars, for binary types, it is the number
+   *     of bytes that can be stored in the db field. Set to -1 to indicate unknown.
+   * @param scale Only applicable to numeric types, it specifies how many decimal places the db
+   *     colum has. Set to -1 to indicate unknown.
+   * @param typeName The db dependent name of the column for this type. May be <code>null</code> or
+   *     empty. This is used when trying to determine if we can perform searches on this field.
+   * @param searchEnabled A flag that indicates whether the full text search engine is installed and
+   *     enabled. This flag affects how the search properties are configured (which are dependent on
+   *     the data type).
+   * @return <code>true</code> if the data type was changed, <code>false</code> otherwise.
    */
   public boolean fixupDataType(
       int jdbcType, int precision, int scale, String typeName, boolean searchEnabled) {
@@ -1130,15 +1062,12 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Convenient method to get the actual data type corresponding to the JDBC
-   * data type.
+   * Convenient method to get the actual data type corresponding to the JDBC data type.
    *
-   * @param jdbcType One of the official JDBC data types found in
-   *           {@link java.sql.Types SQL Types class}.
-   *
-   * @param scale Only applicable to numeric types, it specifies how many
-   *           decimal places the db colum has. Set to -1 to indicate unknown.
-   *
+   * @param jdbcType One of the official JDBC data types found in {@link java.sql.Types SQL Types
+   *     class}.
+   * @param scale Only applicable to numeric types, it specifies how many decimal places the db
+   *     colum has. Set to -1 to indicate unknown.
    * @return The identifier for the supplied jdbcType.
    */
   public static String getActualDataTypeForJdbcType(int jdbcType, int scale) {
@@ -1214,8 +1143,7 @@ public class PSField extends PSComponent {
   /**
    * Set this field's data format.
    *
-   * @param dataFormat the field data type, may be <code>null</code>,
-   * never empty.
+   * @param dataFormat the field data type, may be <code>null</code>, never empty.
    */
   public void setDataFormat(String dataFormat) {
     if (dataFormat != null && dataFormat.trim().length() <= 0)
@@ -1227,19 +1155,18 @@ public class PSField extends PSComponent {
   /**
    * See {@link #setSearchProperties(PSSearchProperties)} for details.
    *
-   * @return Never <code>null</code>. A clone is returned so changes to it
-   * do not affect this object.
+   * @return Never <code>null</code>. A clone is returned so changes to it do not affect this
+   *     object.
    */
   public PSSearchProperties getSearchProperties() {
     return (PSSearchProperties) m_searchProps.clone();
   }
 
   /**
-   * All attributes that control how the search interface works and how
-   * indexing works with this field. The rules surrounding <code>
-   * enableTransformation</code> flag are enforced. Therefore, after this
-   * method is executed, it is not guaranteed the all settings in the
-   * supplied value have been applied to this object.
+   * All attributes that control how the search interface works and how indexing works with this
+   * field. The rules surrounding <code>
+   * enableTransformation</code> flag are enforced. Therefore, after this method is executed, it is
+   * not guaranteed the all settings in the supplied value have been applied to this object.
    *
    * @param props <code>null</code> restores to default values.
    */
@@ -1288,19 +1215,16 @@ public class PSField extends PSComponent {
   /**
    * Get the default value of this field.
    *
-   * @return the default value, might be
-   *    <code>null</code>.
+   * @return the default value, might be <code>null</code>.
    */
   public IPSReplacementValue getDefault() {
     return m_default;
   }
 
   /**
-   * Set a new default value, set <code>null</code> to clear a current
-   * default.
+   * Set a new default value, set <code>null</code> to clear a current default.
    *
-   * @param defaultValue the new default value, set <code>null</code> to
-   *    delete.
+   * @param defaultValue the new default value, set <code>null</code> to delete.
    */
   public void setDefault(IPSReplacementValue defaultValue) {
     m_default = defaultValue;
@@ -1309,8 +1233,7 @@ public class PSField extends PSComponent {
   /**
    * Return the validation status.
    *
-   * @return <code>true</code> if any validation failed,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if any validation failed, <code>false</code> otherwise.
    */
   public boolean hasValidationFailed() {
     return m_validationFailed;
@@ -1319,22 +1242,19 @@ public class PSField extends PSComponent {
   /**
    * Set the validation status.
    *
-   * @param validationFailed <code>true</code> if any validation failed,
-   *    <code>false</code> otherwise.
+   * @param validationFailed <code>true</code> if any validation failed, <code>false</code>
+   *     otherwise.
    */
   public void setValidationFailed(boolean validationFailed) {
     m_validationFailed = validationFailed;
   }
 
   /**
-   * Get the occurrence dimension for the specified transition Id.  If the
-   * transitionId is <code>null</code>, then the default occurrence dimension
-   * is returned.
+   * Get the occurrence dimension for the specified transition Id. If the transitionId is <code>null
+   * </code>, then the default occurrence dimension is returned.
    *
    * @param transitionId The transition id, may be <code>null</code>.
-   *
-   * @return the occurrence dimension, one of the OCCURRENCE_DIMENSION_XXX
-   * values.
+   * @return the occurrence dimension, one of the OCCURRENCE_DIMENSION_XXX values.
    */
   public int getOccurrenceDimension(Integer transitionId) {
     return (getOccurrenceSetting(transitionId)).getOccurrenceDimension();
@@ -1343,11 +1263,10 @@ public class PSField extends PSComponent {
   /**
    * Set the occurrence dimension.
    *
-   * @param occurrenceDimension the new occurrence dimension. Must be one of
-   * the OCCURRENCE_DIMENSION_XXX values.
+   * @param occurrenceDimension the new occurrence dimension. Must be one of the
+   *     OCCURRENCE_DIMENSION_XXX values.
    * @param transitionId The transition id, may be <code>null</code>.
-   * @throws PSSystemValidationException if the provided occurrence setting is not
-   *    supported.
+   * @throws PSSystemValidationException if the provided occurrence setting is not supported.
    */
   public void setOccurrenceDimension(int occurrenceDimension, Integer transitionId)
       throws PSSystemValidationException {
@@ -1358,7 +1277,6 @@ public class PSField extends PSComponent {
    * Get the occurrence multi valued type.
    *
    * @param transitionId The transition id, may be <code>null</code>.
-   *
    * @return the occurrence multi valued type.
    */
   public int getOccurrenceMultiValuedType(Integer transitionId) {
@@ -1370,8 +1288,7 @@ public class PSField extends PSComponent {
    *
    * @param occurrenceMultiValuedType the new occurrence multi valued type.
    * @param transitionId The transition id, may be <code>null</code>.
-   * @throws PSSystemValidationException if the provided multi valued type is not
-   *    supported.
+   * @throws PSSystemValidationException if the provided multi valued type is not supported.
    */
   public void setOccurrenceMultiValuedType(int occurrenceMultiValuedType, Integer transitionId)
       throws PSSystemValidationException {
@@ -1383,9 +1300,8 @@ public class PSField extends PSComponent {
    * Get the occurrence delimiter.
    *
    * @param transitionId The transition id, may be <code>null</code>.
-   *
-   * @return the delimiter used to separate values in a multi-valued field,
-   * never <code>null</code> or empty.
+   * @return the delimiter used to separate values in a multi-valued field, never <code>null</code>
+   *     or empty.
    */
   public String getOccurrenceDelimiter(Integer transitionId) {
     return (getOccurrenceSetting(transitionId)).getOccurrenceDelimiter();
@@ -1394,8 +1310,7 @@ public class PSField extends PSComponent {
   /**
    * Set the occurrence delimiter.
    *
-   * @param occurrenceDelimiter the occurrence delimiter, not
-   *    <code>null</code> or empty.
+   * @param occurrenceDelimiter the occurrence delimiter, not <code>null</code> or empty.
    * @param transitionId The transition id, may be <code>null</code>.
    */
   public void setOccurrenceDelimiter(String occurrenceDelimiter, Integer transitionId) {
@@ -1405,8 +1320,7 @@ public class PSField extends PSComponent {
   /**
    * Get the visibility rules.
    *
-   * @return the visibility rules, might be
-   *    <code>null</code>.
+   * @return the visibility rules, might be <code>null</code>.
    */
   public PSVisibilityRules getVisibilityRules() {
     return m_visibilityRules;
@@ -1415,8 +1329,8 @@ public class PSField extends PSComponent {
   /**
    * Set the visibility rules.
    *
-   * @param visibilityRules the new visibility rules, set to
-   *    <code>null</code> to clear existing rules.
+   * @param visibilityRules the new visibility rules, set to <code>null</code> to clear existing
+   *     rules.
    */
   public void setVisibilityRules(PSVisibilityRules visibilityRules) {
     m_visibilityRules = visibilityRules;
@@ -1426,8 +1340,7 @@ public class PSField extends PSComponent {
   /**
    * Get the field validation rules.
    *
-   * @return the field validation rules, might be
-   *    <code>null</code>.
+   * @return the field validation rules, might be <code>null</code>.
    */
   public PSFieldValidationRules getValidationRules() {
     return m_validationRules;
@@ -1436,8 +1349,8 @@ public class PSField extends PSComponent {
   /**
    * Check if this field has validation rules defined.
    *
-   * @return <code>true</code> if a non-empty set of validation rules is
-   * defined, <code>false</code> otherwise.
+   * @return <code>true</code> if a non-empty set of validation rules is defined, <code>false</code>
+   *     otherwise.
    */
   public boolean hasValidationRules() {
     return m_validationRules != null && m_validationRules.getRules().hasNext();
@@ -1446,8 +1359,8 @@ public class PSField extends PSComponent {
   /**
    * Set the field validation rules.
    *
-   * @param validationRules the new field validation rules, set to
-   *    <code>null</code> to clear existing rules.
+   * @param validationRules the new field validation rules, set to <code>null</code> to clear
+   *     existing rules.
    */
   public void setValidationRules(PSFieldValidationRules validationRules) {
     m_validationRules = validationRules;
@@ -1465,8 +1378,8 @@ public class PSField extends PSComponent {
   /**
    * Set the input translations.
    *
-   * @param inputTranslation the new input translation, set to
-   *    <code>null</code> to clear an existing translation.
+   * @param inputTranslation the new input translation, set to <code>null</code> to clear an
+   *     existing translation.
    */
   public void setInputTranslation(PSFieldTranslation inputTranslation) {
     m_inputTranslation = inputTranslation;
@@ -1475,8 +1388,7 @@ public class PSField extends PSComponent {
   /**
    * Get the output translations.
    *
-   * @return the output translations, might be
-   *    <code>null</code>.
+   * @return the output translations, might be <code>null</code>.
    */
   public PSFieldTranslation getOutputTranslation() {
     return m_outputTranslation;
@@ -1485,8 +1397,8 @@ public class PSField extends PSComponent {
   /**
    * Set the output translation.
    *
-   * @param outputTranslation the new output translation, set to
-   *    <code>null</code> to clear an existing translation.
+   * @param outputTranslation the new output translation, set to <code>null</code> to clear an
+   *     existing translation.
    */
   public void setOutputTranslation(PSFieldTranslation outputTranslation) {
     m_outputTranslation = outputTranslation;
@@ -1496,9 +1408,8 @@ public class PSField extends PSComponent {
    * Get the number of items that must exist.
    *
    * @param transitionId The transition id, may be <code>null</code>.
-   *
-   * @return the occurrence count, only valid if occurrence dimension is
-   *     OCCURRENCE_DIMENSION_COUNT, -1 means not specified.
+   * @return the occurrence count, only valid if occurrence dimension is OCCURRENCE_DIMENSION_COUNT,
+   *     -1 means not specified.
    */
   public int getOccurrenceCount(Integer transitionId) {
     return (getOccurrenceSetting(transitionId)).getOccurrenceCount();
@@ -1515,11 +1426,10 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Gets the name of the HTML parameter that controls if this field is to be
-   * cleared on an update, or <code>null</code> if this field should not be
-   * cleared.  The parameter's name is formed by appending the value
-   * of {@link #CLEAR_BINARY_PARAM_SUFFIX} to this PSField's submit name
-   * (see {@link #getSubmitName}).
+   * Gets the name of the HTML parameter that controls if this field is to be cleared on an update,
+   * or <code>null</code> if this field should not be cleared. The parameter's name is formed by
+   * appending the value of {@link #CLEAR_BINARY_PARAM_SUFFIX} to this PSField's submit name (see
+   * {@link #getSubmitName}).
    *
    * @return The name of the parameter (never empty), or <code>null</code>.
    */
@@ -1529,19 +1439,18 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Sets that this PSField wants to enable processing the clear binary
-   * parameter.
-   * @param binaryParam a flag that indicates wheter or not to enable processing
-   * the clear binary parameter.
+   * Sets that this PSField wants to enable processing the clear binary parameter.
+   *
+   * @param binaryParam a flag that indicates wheter or not to enable processing the clear binary
+   *     parameter.
    */
   public void setClearBinaryParam(boolean binaryParam) {
     m_enableClearBinaryParam = binaryParam;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSField, not <code>null</code>.
    */
@@ -1577,14 +1486,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Test if the meta data of the supplied object and this are equal.
-   * This is typically used to determine if there is a need to re-create
-   * hibernate classes for a Content Type.
+   * Test if the meta data of the supplied object and this are equal. This is typically used to
+   * determine if there is a need to re-create hibernate classes for a Content Type.
    *
    * @param o the object in question, it may be null.
-   *
-   * @return <code>true</code> if the meta data of the given object and this
-   * are equal.
+   * @return <code>true</code> if the meta data of the given object and this are equal.
    */
   public boolean equalMetaData(Object o) {
     if (!(o instanceof PSField)) return false;
@@ -1675,7 +1581,6 @@ public class PSField extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -1984,8 +1889,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Corrects the visibility rules for system mandatory fields. System
-   * mandatory fields can only be hidden through XSL, never in XML.
+   * Corrects the visibility rules for system mandatory fields. System mandatory fields can only be
+   * hidden through XSL, never in XML.
    */
   private void correctVisibilityRules() {
     if (m_systemMandatory) {
@@ -1995,7 +1900,6 @@ public class PSField extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -2175,8 +2079,7 @@ public class PSField extends PSComponent {
    * Validates the provided field type.
    *
    * @param type the field type.
-   * @throws PSSystemValidationException if the provided field type is not
-   *    supported.
+   * @throws PSSystemValidationException if the provided field type is not supported.
    */
   public static void validateType(int type) throws PSSystemValidationException {
     if (type != TYPE_SYSTEM && type != TYPE_SHARED && type != TYPE_LOCAL)
@@ -2193,9 +2096,7 @@ public class PSField extends PSComponent {
     return m_occurrenceSettings.size() > 0;
   }
 
-  /**
-   * Clears the occurance setting for this field.
-   */
+  /** Clears the occurance setting for this field. */
   public void clearOccurrenceSettings() {
     m_occurrenceSettings.clear();
   }
@@ -2210,12 +2111,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Replaces this field's occurance settings with those of the supplied
-   * field.  A shallow copy of is performed, so any changes to the original
-   * will also affect this object.
+   * Replaces this field's occurance settings with those of the supplied field. A shallow copy of is
+   * performed, so any changes to the original will also affect this object.
    *
-   * @param field The field whose occurrence settings should replace those
-   * in this field.  May not be <code>null</code>.
+   * @param field The field whose occurrence settings should replace those in this field. May not be
+   *     <code>null</code>.
    */
   public void replaceOccurrenceSettings(PSField field) {
     if (field == null) throw new IllegalArgumentException("field may not be null");
@@ -2225,12 +2125,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Replaces this field's properties with those of the supplied
-   * field. A shallow copy of is performed, so any changes to the original
-   * will also affect this object.
+   * Replaces this field's properties with those of the supplied field. A shallow copy of is
+   * performed, so any changes to the original will also affect this object.
    *
-   * @param field the field whose properties should replace those
-   *    in this field. May not be <code>null</code>.
+   * @param field the field whose properties should replace those in this field. May not be <code>
+   *     null</code>.
    */
   public void replaceProperties(PSField field) {
     if (field == null) throw new IllegalArgumentException("field may not be null");
@@ -2240,29 +2139,27 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Gets shallow copy of this field merged with supplied source. The merged
-   * field will have all non-<code>null</code> properties of this field and
-   * overlays with properties of source for <code>null</code> properties of
-   * this field. Validates the following rules for merging.
+   * Gets shallow copy of this field merged with supplied source. The merged field will have all
+   * non-<code>null</code> properties of this field and overlays with properties of source for
+   * <code>null</code> properties of this field. Validates the following rules for merging.
+   *
    * <ul>
-   * <li>If source has validation rules, target cannot also have them</li>
-   * <li>If DataTypes are set on both, they must match. Otherwise, the set
-   *    data type will be used in the merged field.</li>
-   * <li>Occurance Dimension must match</li>
-   * <li>ForceBinary must match</li>
-   * <li>Locators must match if both have them</li>
-   * <li>systemMandatory overrides are ignored</li>
+   *   <li>If source has validation rules, target cannot also have them
+   *   <li>If DataTypes are set on both, they must match. Otherwise, the set data type will be used
+   *       in the merged field.
+   *   <li>Occurance Dimension must match
+   *   <li>ForceBinary must match
+   *   <li>Locators must match if both have them
+   *   <li>systemMandatory overrides are ignored
    * </ul>
    *
-   * @param source the source field to merge with, may not be <code>null</code>
-   * and must have the same name as this field.
-   *
+   * @param source the source field to merge with, may not be <code>null</code> and must have the
+   *     same name as this field.
    * @return the merged field, never <code>null</code>
-   *
-   * @throws IllegalArgumentException if source is <code>null</code> or does
-   * not have same name as this field name.
-   * @throws PSSystemValidationException if the source or this field fails to meet
-   * one of the above rules.
+   * @throws IllegalArgumentException if source is <code>null</code> or does not have same name as
+   *     this field name.
+   * @throws PSSystemValidationException if the source or this field fails to meet one of the above
+   *     rules.
    */
   public PSField merge(PSField source) throws PSSystemValidationException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -2358,16 +2255,12 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Gets shallow copy of this field demerged with supplied source. The
-   * demerged field will have all properties of this field that differ from
-   * the properties of source and are allowed to be overriden.  See
-   * {@link #merge(PSField)} for details on what can be overriden.
+   * Gets shallow copy of this field demerged with supplied source. The demerged field will have all
+   * properties of this field that differ from the properties of source and are allowed to be
+   * overriden. See {@link #merge(PSField)} for details on what can be overriden.
    *
-   * @param source the source field to demerge from, may not be
-   * <code>null</code>
-   *
-   * @return the demerged field, or <code>null</code> if nothing has been
-   * overriden.
+   * @param source the source field to demerge from, may not be <code>null</code>
+   * @return the demerged field, or <code>null</code> if nothing has been overriden.
    */
   public PSField demerge(PSField source) {
     // check whether they are different and keep the original values
@@ -2461,24 +2354,21 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Convenience version of {@link #getOccurrenceSetting(Integer, boolean)}
-   * that calls <code>getOccurrenceSetting(transitionId, false)</code>.
+   * Convenience version of {@link #getOccurrenceSetting(Integer, boolean)} that calls <code>
+   * getOccurrenceSetting(transitionId, false)</code>.
    */
   private PSOccurrenceSetting getOccurrenceSetting(Integer transitionId) {
     return getOccurrenceSetting(transitionId, false);
   }
 
   /**
-   * Retrieves the occurrence settings for the specified id.  If the id is
-   * <code>null</code> or if settings have not been specified for the id,
-   * then default settings will be returned.
+   * Retrieves the occurrence settings for the specified id. If the id is <code>null</code> or if
+   * settings have not been specified for the id, then default settings will be returned.
    *
-   * @param transitionId The id to use to retrieve the settings.  If <code>
+   * @param transitionId The id to use to retrieve the settings. If <code>
    * null</code>, the default settings are returned.
-   * @param addNew If <code>true</code> and settings were not specified for
-   * the supplied transition id, default settings are created and added to the
-   * map before being returned.
-   *
+   * @param addNew If <code>true</code> and settings were not specified for the supplied transition
+   *     id, default settings are created and added to the map before being returned.
    * @return The settings for the specified id, never <code>null</code>.
    */
   private PSOccurrenceSetting getOccurrenceSetting(Integer transitionId, boolean addNew) {
@@ -2502,12 +2392,11 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Sets a user property value or removes the property completely
-   * if the value is <code>null</code>.
-   * @param name the name of the property. Cannot be <code>null</code> or
-   * empty.
-   * @param value the property value, if <code>null</code> then
-   * the property will be removed.
+   * Sets a user property value or removes the property completely if the value is <code>null</code>
+   * .
+   *
+   * @param name the name of the property. Cannot be <code>null</code> or empty.
+   * @param value the property value, if <code>null</code> then the property will be removed.
    */
   public void setUserProperty(String name, Object value) {
     if (StringUtils.isBlank(name))
@@ -2518,10 +2407,9 @@ public class PSField extends PSComponent {
 
   /**
    * Retrieves the named user property.
-   * @param name the name of the property. Cannot be <code>null</code> or
-   * empty.
-   * @return the value of the requested property or <code>null</code> if
-   * not found.
+   *
+   * @param name the name of the property. Cannot be <code>null</code> or empty.
+   * @return the value of the requested property or <code>null</code> if not found.
    */
   public Object getUserProperty(String name) {
     if (StringUtils.isBlank(name))
@@ -2531,6 +2419,7 @@ public class PSField extends PSComponent {
 
   /**
    * Retrieve the mime type mode for this field.
+   *
    * @return the mime type mode , may be <code>null</code>.
    */
   public PSMimeTypeModeEnum getMimeTypeMode() {
@@ -2540,8 +2429,9 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Retrieve the mime type value for this field. This is dependant on the mime
-   * type mode selected and may be either a mime type string or a field name.
+   * Retrieve the mime type value for this field. This is dependant on the mime type mode selected
+   * and may be either a mime type string or a field name.
+   *
    * @return the mime type mode , may be <code>null</code>.
    */
   public String getMimeTypeValue() {
@@ -2551,13 +2441,12 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Sets the mime type meta data. This consists of both the mime type mode and
-   * the mime type value.
+   * Sets the mime type meta data. This consists of both the mime type mode and the mime type value.
    *
    * @param modeEnum the mime type mode. Must not be <code>null</code>.
-   * @param value the mime type. This will be a mime type string if the mode is
-   * {@link PSMimeTypeModeEnum#FROM_SELECTION} or a field name for the
-   * other modes. Cannot be <code>null</code> or empty.
+   * @param value the mime type. This will be a mime type string if the mode is {@link
+   *     PSMimeTypeModeEnum#FROM_SELECTION} or a field name for the other modes. Cannot be <code>
+   *     null</code> or empty.
    */
   public void setMimeType(PSMimeTypeModeEnum modeEnum, String value) {
     if (modeEnum == null) throw new IllegalArgumentException("modeEnum must not be null.");
@@ -2573,10 +2462,7 @@ public class PSField extends PSComponent {
     setProperty(prop);
   }
 
-  /**
-   * Clears the mime type mode and mime type value properties.
-   *
-   */
+  /** Clears the mime type mode and mime type value properties. */
   public void clearMimeTypeProperty() {
     m_properties.remove(MIME_TYPE_MODE_PROPERTY);
     m_properties.remove(MIME_TYPE_VALUE_PROPERTY);
@@ -2584,6 +2470,7 @@ public class PSField extends PSComponent {
 
   /**
    * Retrieve all user property keys.
+   *
    * @return never <code>null</code>, may be empty.
    */
   public Set<String> getUserPropertyKeys() {
@@ -2591,8 +2478,8 @@ public class PSField extends PSComponent {
   }
 
   /**
-   * Properties on this object that are transient and are never
-   * persisted. Used for meta data needed at runtime.
+   * Properties on this object that are transient and are never persisted. Used for meta data needed
+   * at runtime.
    */
   private transient Map<String, Object> m_userProps = new HashMap<>();
 
@@ -2600,8 +2487,8 @@ public class PSField extends PSComponent {
   public static final String XML_NODE_NAME = "PSXField";
 
   /**
-   * An array of XML attribute values for all boolean attributes. They are
-   * ordered as <code>true</code>, <code>false</code>.
+   * An array of XML attribute values for all boolean attributes. They are ordered as <code>true
+   * </code>, <code>false</code>.
    */
   private static final String[] BOOLEAN_ENUM = {"yes", "no"};
 
@@ -2621,8 +2508,8 @@ public class PSField extends PSComponent {
   public static final int OCCURRENCE_DIMENSION_COUNT = 4;
 
   /**
-   * An array of XML attribute values for the OccurrenceDimension. The value of
-   * the OCCURRENCE_DIMENSION_XXX variable is the index into this array.
+   * An array of XML attribute values for the OccurrenceDimension. The value of the
+   * OCCURRENCE_DIMENSION_XXX variable is the index into this array.
    */
   private static final String[] OCCURRENCE_DIMENSION_ENUM = {
     "optional", "required", "oneOrMore", "zeroOrMore", "count"
@@ -2635,16 +2522,15 @@ public class PSField extends PSComponent {
   public static final int OCCURRENCE_MULTI_VALUED_TYPE_SEPARATE = 1;
 
   /**
-   * An array of XML attribute values for the OccurrenceMultiValuedType.
-   * The value of the OCCURRENCE_MULTI_VALUED_TYPE_XXX variable is the index
-   * into this array.
+   * An array of XML attribute values for the OccurrenceMultiValuedType. The value of the
+   * OCCURRENCE_MULTI_VALUED_TYPE_XXX variable is the index into this array.
    */
   private static final String[] OCCURRENCE_MULTI_VALUED_TYPE_ENUM = {"delimited", "separate"};
 
   /** the default occurrence delimiter */
   public static final String OCCURRENCE_DEFAULT_DELIMITER = ";";
 
-  /**  Unknown field type specifier. */
+  /** Unknown field type specifier. */
   public static final int TYPE_UNKNOWN = -1;
 
   /** System field type specifier */
@@ -2657,52 +2543,42 @@ public class PSField extends PSComponent {
   public static final int TYPE_LOCAL = 2;
 
   /**
-   * An array of XML attribute values for the field type.
-   * They are specified at the index of the specifier. Unknown is not
-   * considered a valid type.
+   * An array of XML attribute values for the field type. They are specified at the index of the
+   * specifier. Unknown is not considered a valid type.
    */
   public static final String[] TYPE_ENUM = {"system", "shared", "local"};
 
-  /**
-   * Specifies the type of this field (TYPE_SYSTEM | TYPE_SHARED |
-   * TYPE_LOCAL | TYPE_UNKNOWN)
-   */
+  /** Specifies the type of this field (TYPE_SYSTEM | TYPE_SHARED | TYPE_LOCAL | TYPE_UNKNOWN) */
   private int m_type = TYPE_UNKNOWN;
 
-  /**  Unknown field value type specifier. */
+  /** Unknown field value type specifier. */
   public static final int FIELD_VALUE_TYPE_UNKNOWN = 0;
 
-  /**  Content field type specifier. */
+  /** Content field type specifier. */
   public static final int FIELD_VALUE_TYPE_CONTENT = 1;
 
   /** Meta field type specifier */
   public static final int FIELD_VALUE_TYPE_META = 2;
 
   /**
-   * An array of XML attribute values for the field value type.
-   * They are specified at the index of the specifier.
+   * An array of XML attribute values for the field value type. They are specified at the index of
+   * the specifier.
    */
   public static final String[] FIELD_VALUE_TYPE_ENUM = {"unknown", "content", "meta"};
 
   /**
-   * Specifies the type of this field (FIELD_VALUE_TYPE_CONTENT |
-   * FIELD_VALUE_TYPE_META | FIELD_VALUE_TYPE_UNKNOWN)
+   * Specifies the type of this field (FIELD_VALUE_TYPE_CONTENT | FIELD_VALUE_TYPE_META |
+   * FIELD_VALUE_TYPE_UNKNOWN)
    */
   private int m_fieldValueType = FIELD_VALUE_TYPE_UNKNOWN;
 
-  /**
-   * See {@link #getModificationType()} for details.
-   */
+  /** See {@link #getModificationType()} for details. */
   private int m_modificationType = MODTYPE_USER;
 
-  /**
-   * The field name, never <code>null</code> or be empty.
-   */
+  /** The field name, never <code>null</code> or be empty. */
   private String m_submitName = null;
 
-  /**
-   * The mime type, never empty, may be <code>null</code>.
-   */
+  /** The mime type, never empty, may be <code>null</code>. */
   private String m_mimeType = null;
 
   /** Specifies if this field is included in summary views. */
@@ -2712,26 +2588,20 @@ public class PSField extends PSComponent {
   private boolean m_showInPreview = true;
 
   /**
-   * This flag overwrites the default behaview of the server. Set this to
-   * <code>true</code> if you want the server to treat this as a binary
-   * field.
+   * This flag overwrites the default behaview of the server. Set this to <code>true</code> if you
+   * want the server to treat this as a binary field.
    */
   private boolean m_forceBinary = false;
 
-  /**
-   * This flag indicates whether this field is exportable. By default it is going to be
-   * true.
-   */
+  /** This flag indicates whether this field is exportable. By default it is going to be true. */
   private boolean m_exportable = true;
 
   /**
-   * This flag indicates whether or not this field is required by the system
-   * to work correctly. If this is set to <code>true</code> for fields in the
-   * system definition, this field cannot be excluded in local definitions.
-   * If this is set to <code>true</code> for fields in shared definitions,
-   * this field is always included in local definitions. Further if set to
-   * <code>true</code> this forces hiding rules to XSL (XML hiding will not be
-   * allowed).
+   * This flag indicates whether or not this field is required by the system to work correctly. If
+   * this is set to <code>true</code> for fields in the system definition, this field cannot be
+   * excluded in local definitions. If this is set to <code>true</code> for fields in shared
+   * definitions, this field is always included in local definitions. Further if set to <code>true
+   * </code> this forces hiding rules to XSL (XML hiding will not be allowed).
    */
   private boolean m_systemMandatory = false;
 
@@ -2744,206 +2614,175 @@ public class PSField extends PSComponent {
   /** The value locator for this field. */
   private IPSBackEndMapping m_locator = null;
 
-  /**
-   * The default value for this field. Set this to <code>null</code> if
-   * not used.
-   */
+  /** The default value for this field. Set this to <code>null</code> if not used. */
   private IPSReplacementValue m_default = null;
 
   /** This flag is set to <code>true</code> if any field validation failed */
   private boolean m_validationFailed = false;
 
   /**
-   * The visibility rules for this field. An optional element set to
-   * <code>null</code> if not used.
+   * The visibility rules for this field. An optional element set to <code>null</code> if not used.
    */
   private PSVisibilityRules m_visibilityRules = null;
 
   /**
-   * The validation rules for this field. An optional element set to
-   * <code>null</code> if not used.
+   * The validation rules for this field. An optional element set to <code>null</code> if not used.
    */
   private PSFieldValidationRules m_validationRules = null;
 
   /**
-   * The input translation performed on this field. An optional element set
-   * to <code>null</code> if not used.
+   * The input translation performed on this field. An optional element set to <code>null</code> if
+   * not used.
    */
   private PSFieldTranslation m_inputTranslation = null;
 
   /**
-   * The output transation performed on this field. An optional element set
-   * to <code>null</code> if not uesd.
+   * The output transation performed on this field. An optional element set to <code>null</code> if
+   * not uesd.
    */
   private PSFieldTranslation m_outputTranslation = null;
 
   /**
-   * Determines if this field wants to enable the clear binary parameter.
-   * Defaults to <code>false</code>; will be set to <code>true</code> when
-   * the attribute {@link #CLEAR_BINARY_PARAM_ATTR} is present in the XML with
-   * a value other than "no".
+   * Determines if this field wants to enable the clear binary parameter. Defaults to <code>false
+   * </code>; will be set to <code>true</code> when the attribute {@link #CLEAR_BINARY_PARAM_ATTR}
+   * is present in the XML with a value other than "no".
    */
   private boolean m_enableClearBinaryParam = false;
 
   /**
-   * Map of occurrence settings. The key is the transition id as an Integer,
-   * and the value is a PSOccurrenceSetting object.  Never <code>null</code>
-   * once this field is constructed. A default occurrence settings (no
-   * transition id) may be in the map with a <code>null</code> key.
+   * Map of occurrence settings. The key is the transition id as an Integer, and the value is a
+   * PSOccurrenceSetting object. Never <code>null</code> once this field is constructed. A default
+   * occurrence settings (no transition id) may be in the map with a <code>null</code> key.
    */
   private Map m_occurrenceSettings = new HashMap();
 
   /**
-   * Optional set of choices to use for this field.  Modified only by a call to
-   * {@link #setChoices(PSChoices)}, may be <code>null</code>.
+   * Optional set of choices to use for this field. Modified only by a call to {@link
+   * #setChoices(PSChoices)}, may be <code>null</code>.
    */
   private PSChoices m_choices = null;
 
   /**
-   * A map of field properties, initialized while constructed. Never
-   * <code>null</code>, may be empty after that.
+   * A map of field properties, initialized while constructed. Never <code>null</code>, may be empty
+   * after that.
    */
   private Map m_properties = new HashMap();
 
   /**
    * Groups all search related attributes. Valid except during <code>fromXml
-   * </code>, during which it is <code>null</code> for a period of time.
-   * If an exception occurred during this time, it could remain <code>null
+   * </code>, during which it is <code>null</code> for a period of time. If an exception occurred
+   * during this time, it could remain <code>null
    * </code>. However, all methods can assume that it is not <code>null</code>.
    */
   private PSSearchProperties m_searchProps = new PSSearchProperties();
 
   /**
-   * <code>true</code> to indicate a field is flagged for internal use only by
-   * the system and should not be visible to end users in searches, display
-   * formats, or content type definitions.
+   * <code>true</code> to indicate a field is flagged for internal use only by the system and should
+   * not be visible to end users in searches, display formats, or content type definitions.
    */
   private boolean m_systemInternal = false;
 
   /**
-   * The property name used to save whether or not this field may contain
-   * inline links. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. Allowed values are specified in
-   * <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
+   * The property name used to save whether or not this field may contain inline links. The property
+   * is always locked and of type <code>PSProperty.TYPE_STRING</code>. Allowed values are specified
+   * in <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
    */
   public static final String MAY_HAVE_INLINE_LINKS_PROPERTY = "mayHaveInlineLinks";
 
   /**
-   * The property name used to save whether or not to cleanup broken inline
-   * links. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. Allowed values are specified in
+   * The property name used to save whether or not to cleanup broken inline links. The property is
+   * always locked and of type <code>PSProperty.TYPE_STRING</code>. Allowed values are specified in
    * <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
    */
   public static final String CLEANUP_BROKEN_INLINE_LINKS_PROPERTY = "cleanupBrokenInlineLinks";
 
   /**
-   * The property name used to save whether or not the field data my contain
-   * literal IDs, used by MSM for ID Type support.  The property is always
-   * locked and of type <code>PSProperty.TYPE_STRING</code>. Allowed values are
-   * specified in <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
+   * The property name used to save whether or not the field data my contain literal IDs, used by
+   * MSM for ID Type support. The property is always locked and of type <code>PSProperty.TYPE_STRING
+   * </code>. Allowed values are specified in <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
    */
   public static final String MAY_CONTAIN_IDS_PROPERTY = "mayContainIDs";
 
   /**
-   * The property name used to save whether or not to cleanup this
-   * field before each insert/update. The only cleanup process currently
-   * supported is Tidy. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. Allowed values are specified in
-   * <code>BOOLEAN_ENUM</code>. Defaults to 'no'.
+   * The property name used to save whether or not to cleanup this field before each insert/update.
+   * The only cleanup process currently supported is Tidy. The property is always locked and of type
+   * <code>PSProperty.TYPE_STRING</code>. Allowed values are specified in <code>BOOLEAN_ENUM</code>.
+   * Defaults to 'no'.
    */
   public static final String CLEANUP_PROPERTY = "cleanup";
 
   /**
-   * The property name used to save the properties file used for the field
-   * cleanup process. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. The value of this property is a
-   * path relative to the Rhythmyx server root. The designer is responsible to
-   * make sure that the referenced file exists. Defaults to
-   * 'html-cleaner.properties' available in every installation from the Rhythmyx
-   * root.
+   * The property name used to save the properties file used for the field cleanup process. The
+   * property is always locked and of type <code>PSProperty.TYPE_STRING</code>. The value of this
+   * property is a path relative to the Rhythmyx server root. The designer is responsible to make
+   * sure that the referenced file exists. Defaults to 'html-cleaner.properties' available in every
+   * installation from the Rhythmyx root.
    */
   public static final String CLEANUP_PROPERTIES_PROPERTY = "cleanupProperties";
 
   /**
-   * The property name used to save the serverPageTag file used for the field
-   * cleanup process. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. The value of this property is a
-   * path relative to the Rhythmyx server root. The designer is responsible to
-   * make sure that the referenced file exists. Defaults to
-   * 'rxW2KserverPageTags.xml' available in every installation from the
-   * Rhythmyx root.
+   * The property name used to save the serverPageTag file used for the field cleanup process. The
+   * property is always locked and of type <code>PSProperty.TYPE_STRING</code>. The value of this
+   * property is a path relative to the Rhythmyx server root. The designer is responsible to make
+   * sure that the referenced file exists. Defaults to 'rxW2KserverPageTags.xml' available in every
+   * installation from the Rhythmyx root.
    */
   public static final String CLEANUP_SERVERPAGETAGS_PROPERTY = "cleanupServerPageTags";
 
   /**
-   * The property name used to save the encoding used for the field
-   * cleanup process. The property is always locked and of type
-   * <code>PSProperty.TYPE_STRING</code>. The value of this property must be
-   * a valid encoding string. Defaults to 'UTF8'.
+   * The property name used to save the encoding used for the field cleanup process. The property is
+   * always locked and of type <code>PSProperty.TYPE_STRING</code>. The value of this property must
+   * be a valid encoding string. Defaults to 'UTF8'.
    */
   public static final String CLEANUP_ENCODING_PROPERTY = "cleanupEncoding";
 
   /**
-   * a boolean property that indicates to text cleanup and the assembly
-   * system that namespaces should be selectively removed according to a
-   * configuration.
+   * a boolean property that indicates to text cleanup and the assembly system that namespaces
+   * should be selectively removed according to a configuration.
    */
   public static final String CLEANUP_NAMESPACES_PROPERTY = "cleanupNamespaces";
 
   /**
-   * A string property that lists the namespaces to declare on the field in
-   * text cleanup. These will be filtered in assembly to only include the
-   * namespaces that are actually defined for the site. If namespaces
-   * are included that are not defined for the system, i.e. have uris declared,
-   * then they will not be included.
+   * A string property that lists the namespaces to declare on the field in text cleanup. These will
+   * be filtered in assembly to only include the namespaces that are actually defined for the site.
+   * If namespaces are included that are not defined for the system, i.e. have uris declared, then
+   * they will not be included.
    */
   public static final String DECLARED_NAMESPACES = "declaredNamespaces";
 
   /**
-   * a boolean property that tells text cleanup that JSP and ASP tags
-   * may appear in the content. These are escaped by inclosing them in
-   * processing instructions (PIs). These PIs have the name "psx-activetag".
-   * The assembly system will selectively remove PIs from around these
-   * tags. It does this if the PIs name is "psx-activetag". Note that
-   * PHP uses processing instructions already, and will therefore pass
-   * through the assembler untouched.
+   * a boolean property that tells text cleanup that JSP and ASP tags may appear in the content.
+   * These are escaped by inclosing them in processing instructions (PIs). These PIs have the name
+   * "psx-activetag". The assembly system will selectively remove PIs from around these tags. It
+   * does this if the PIs name is "psx-activetag". Note that PHP uses processing instructions
+   * already, and will therefore pass through the assembler untouched.
    */
   public static final String ALLOW_ACTIVE_TAGS_PROPERTY = "allowActiveTags";
 
   /**
-   * A string property that contains the mime type mode for this field. This is
-   * one of the <code>PSMimeTypeModeEnum</code> value.
+   * A string property that contains the mime type mode for this field. This is one of the <code>
+   * PSMimeTypeModeEnum</code> value.
    */
   public static final String MIME_TYPE_MODE_PROPERTY = "mimeTypeMode";
 
   /**
-   * A string property that contains the value for the mime type.
-   * The value is dependent on the mime type mode and may be either a
-   * mime type string or a field name.
+   * A string property that contains the value for the mime type. The value is dependent on the mime
+   * type mode and may be either a mime type string or a field name.
    */
   public static final String MIME_TYPE_VALUE_PROPERTY = "mimeTypeValue";
 
   /**
-   * The mime type mode enumeration.
-   * See {@link PSItemDefinition#getFieldMimeType(String, Map)} how the
-   * enumerations get used.
+   * The mime type mode enumeration. See {@link PSItemDefinition#getFieldMimeType(String, Map)} how
+   * the enumerations get used.
    */
   public enum PSMimeTypeModeEnum {
-    /**
-     * The mime type is guessed from the data type of the field.
-     */
+    /** The mime type is guessed from the data type of the field. */
     DEFAULT(0, "Default"),
-    /**
-     * The specified mime type on field is the mime type used.
-     */
+    /** The specified mime type on field is the mime type used. */
     FROM_SELECTION(1, "From Selection"),
-    /**
-     * The value of extension field is used to determine the mimetype
-     */
+    /** The value of extension field is used to determine the mimetype */
     FROM_EXT_FIELD(2, "From Extension Field"),
-    /**
-     * The value of mime type filed is used as mime type.
-     */
+    /** The value of mime type filed is used as mime type. */
     FROM_MIMETYPE_FIELD(3, "From Mime Type Field");
 
     /**
@@ -2990,22 +2829,16 @@ public class PSField extends PSComponent {
       return modeE;
     }
 
-    /**
-     * Constructs an enumeration for the specified mode and displayname.
-     */
+    /** Constructs an enumeration for the specified mode and displayname. */
     private PSMimeTypeModeEnum(int mode, String displayName) {
       mi_mode = mode;
       mi_displayName = displayName;
     }
 
-    /**
-     * Stores the enumeration mode.
-     */
+    /** Stores the enumeration mode. */
     private int mi_mode;
 
-    /**
-     * Stores the enumeration display name.
-     */
+    /** Stores the enumeration display name. */
     private String mi_displayName;
   }
 
@@ -3040,14 +2873,12 @@ public class PSField extends PSComponent {
   private static final String SYSTEM_INTERNAL_ATTR = "systemInternal";
 
   /**
-   * Constant string that will be appended to the submit name of this field
-   * to form the clear binary parameter name
+   * Constant string that will be appended to the submit name of this field to form the clear binary
+   * parameter name
    */
   public static final String CLEAR_BINARY_PARAM_SUFFIX = "_clear";
 
-  /**
-   * The dimension enumeration as used with the occurrence settings.
-   */
+  /** The dimension enumeration as used with the occurrence settings. */
   public enum PSDimensionEnum {
     OPTIONAL(OCCURRENCE_DIMENSION_OPTIONAL),
     REQUIRED(OCCURRENCE_DIMENSION_REQUIRED),
@@ -3069,8 +2900,7 @@ public class PSField extends PSComponent {
      *
      * @param ordinal the ordinal for which to get the enumeration.
      * @return the enumeration, never <code>null</code>.
-     * @throws IllegalArgumentException if no enumeration exists for the
-     *    supplied ordinal.
+     * @throws IllegalArgumentException if no enumeration exists for the supplied ordinal.
      */
     public static PSDimensionEnum valueOf(int ordinal) {
       for (PSDimensionEnum dimension : values())
@@ -3088,15 +2918,11 @@ public class PSField extends PSComponent {
       mi_ordinal = ordinal;
     }
 
-    /**
-     * Stores the enumeration ordinal.
-     */
+    /** Stores the enumeration ordinal. */
     private int mi_ordinal;
   }
 
-  /**
-   * This class encapsulates a set of OccuranceSettings.
-   */
+  /** This class encapsulates a set of OccuranceSettings. */
   private class PSOccurrenceSetting implements Serializable {
     @Override
     public boolean equals(Object o) {
@@ -3118,23 +2944,21 @@ public class PSField extends PSComponent {
           m_occurrenceDelimiter);
     }
 
-    /**
-     *
-     */
+    /** */
     private static final long serialVersionUID = 6668801176979874215L;
 
     /**
      * Get the number of values required.
      *
-     * @return the occurrence count, only valid if occurrence dimension is
-     *    COUNT, -1 means not specified.
+     * @return the occurrence count, only valid if occurrence dimension is COUNT, -1 means not
+     *     specified.
      */
     public int getOccurrenceCount() {
       return m_occurrenceCount;
     }
 
     /**
-     * Set a new occurrence count.  See {@link #getOccurrenceCount}.
+     * Set a new occurrence count. See {@link #getOccurrenceCount}.
      *
      * @param count the new occurrence count.
      */
@@ -3143,21 +2967,18 @@ public class PSField extends PSComponent {
     }
 
     /**
-     * Get the occurrence delimiter used to separate values in a multi-valued
-     * field.
+     * Get the occurrence delimiter used to separate values in a multi-valued field.
      *
-     * @return the occurrence delimiter, never <code>null</code> or
-     *    empty.
+     * @return the occurrence delimiter, never <code>null</code> or empty.
      */
     public String getOccurrenceDelimiter() {
       return m_occurrenceDelimiter;
     }
 
     /**
-     * Set the occurrence delimiter.  See {@link #getOccurrenceDelimiter}.
+     * Set the occurrence delimiter. See {@link #getOccurrenceDelimiter}.
      *
-     * @param occurrenceDelimiter the occurrence delimiter, not
-     *    <code>null</code> or empty.
+     * @param occurrenceDelimiter the occurrence delimiter, not <code>null</code> or empty.
      */
     public void setOccurrenceDelimiter(String occurrenceDelimiter) {
       if (occurrenceDelimiter == null || occurrenceDelimiter.length() == 0)
@@ -3169,8 +2990,7 @@ public class PSField extends PSComponent {
     /**
      * Get the occurrence dimension.
      *
-     * @return the occurrence dimension, one of the OCCURRENCE_DIMENSION_XXX
-     * values.
+     * @return the occurrence dimension, one of the OCCURRENCE_DIMENSION_XXX values.
      */
     public int getOccurrenceDimension() {
       return m_occurrenceDimension;
@@ -3180,8 +3000,7 @@ public class PSField extends PSComponent {
      * Set the occurrence dimension. See {@link #getOccurrenceDimension}
      *
      * @param occurrenceDimension the new occurrence dimension.
-     * @throws PSSystemValidationException if the provided occurrence setting is not
-     *    supported.
+     * @throws PSSystemValidationException if the provided occurrence setting is not supported.
      */
     public void setOccurrenceDimension(int occurrenceDimension) throws PSSystemValidationException {
       validateOccurrenceDimension(occurrenceDimension);
@@ -3202,8 +3021,7 @@ public class PSField extends PSComponent {
      * Set the occurrence multi valued type.
      *
      * @param occurrenceMultiValuedType the new occurrence multi valued type.
-     * @throws PSSystemValidationException if the provided multi valued type is not
-     *    supported.
+     * @throws PSSystemValidationException if the provided multi valued type is not supported.
      */
     public void setOccurrenceMultiValuedType(int occurrenceMultiValuedType)
         throws PSSystemValidationException {
@@ -3226,8 +3044,7 @@ public class PSField extends PSComponent {
      * Validates the occurrence dimension.
      *
      * @param dimension occurrence dimension.
-     * @throws PSSystemValidationException if the provided occurrence dimension is
-     *    not supported.
+     * @throws PSSystemValidationException if the provided occurrence dimension is not supported.
      */
     public void validateOccurrenceDimension(int dimension) throws PSSystemValidationException {
       if (dimension != OCCURRENCE_DIMENSION_COUNT
@@ -3243,8 +3060,8 @@ public class PSField extends PSComponent {
      * Validates the occurrence multi valued type.
      *
      * @param multiValuedType the occurrence multi valued type to validate.
-     * @throws PSSystemValidationException if the provided occurrence multi valued
-     *    type is not supported.
+     * @throws PSSystemValidationException if the provided occurrence multi valued type is not
+     *     supported.
      */
     public void validateOccurrenceMultiValuedType(int multiValuedType)
         throws PSSystemValidationException {
@@ -3256,40 +3073,31 @@ public class PSField extends PSComponent {
     }
 
     /**
-     * Container for the occurrence dimension attribute, specifying how to
-     * determine the correct number of values required.  The default is that
-     * the value is optional.
+     * Container for the occurrence dimension attribute, specifying how to determine the correct
+     * number of values required. The default is that the value is optional.
      */
     private int m_occurrenceDimension = OCCURRENCE_DIMENSION_OPTIONAL;
 
-    /**
-     * Occurrence count, only valid if occurrenceDimension is
-     * OCCURRENCE_DIMENSION_COUNT.
-     */
+    /** Occurrence count, only valid if occurrenceDimension is OCCURRENCE_DIMENSION_COUNT. */
     private int m_occurrenceCount = -1;
 
     /**
-     * Container for the occurrence multiValuedType attribute. If multiple
-     * values exist, are the separate values, or a single string with
-     * delimeted values.  The default value is the latter.
+     * Container for the occurrence multiValuedType attribute. If multiple values exist, are the
+     * separate values, or a single string with delimeted values. The default value is the latter.
      */
     private int m_occurrenceMultiValuedType = OCCURRENCE_MULTI_VALUED_TYPE_DELIMITED;
 
     /**
-     * The occurrence delimiter string.  If occurrenceMultiValuedType is
-     * OCCURRENCE_MULTI_VALUED_TYPE_DELIMITED, this is the string used as
-     * a delimeter.  Default is a ";".
+     * The occurrence delimiter string. If occurrenceMultiValuedType is
+     * OCCURRENCE_MULTI_VALUED_TYPE_DELIMITED, this is the string used as a delimeter. Default is a
+     * ";".
      */
     private String m_occurrenceDelimiter = OCCURRENCE_DEFAULT_DELIMITER;
   }
 
-  /**
-   * Constant for the parent fieldset user property key.
-   */
+  /** Constant for the parent fieldset user property key. */
   public static final String SHARED_GROUP_FIELDSET_USER_PROP = "sharedgroupfieldset";
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger ms_logger = LogManager.getLogger("PSField");
 }

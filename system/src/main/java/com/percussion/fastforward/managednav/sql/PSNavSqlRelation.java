@@ -17,11 +17,10 @@
 package com.percussion.fastforward.managednav.sql;
 
 /**
- * Relationship data object. Used for loading data about slot relationships
- * directly from the backend SQL database.
+ * Relationship data object. Used for loading data about slot relationships directly from the
+ * backend SQL database.
  *
  * @author DavidBenua
- *
  */
 public class PSNavSqlRelation {
   /**
@@ -29,7 +28,6 @@ public class PSNavSqlRelation {
    *
    * @param contentid
    * @param variant
-   *
    */
   public PSNavSqlRelation(int contentid, int variant) {
     m_contentid = contentid;
@@ -54,13 +52,9 @@ public class PSNavSqlRelation {
     return m_variant;
   }
 
-  /**
-   * Content id of dependent item.
-   */
+  /** Content id of dependent item. */
   private int m_contentid;
 
-  /**
-   * Variant id of dependent item.
-   */
+  /** Variant id of dependent item. */
   private int m_variant;
 }

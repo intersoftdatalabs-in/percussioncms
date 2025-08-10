@@ -36,45 +36,35 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This class will extract the def from the editor apps.  This is meant to be
- * used before manufacturing.  It will go through all apps in the specified
- * directory and create the def xml file. The DTD will be assigned so that
- * after installation the DOCTYPE element of the Xml file will point to the
- * correct DTD and the file may be successfully dropped into the workbench to
+ * This class will extract the def from the editor apps. This is meant to be used before
+ * manufacturing. It will go through all apps in the specified directory and create the def xml
+ * file. The DTD will be assigned so that after installation the DOCTYPE element of the Xml file
+ * will point to the correct DTD and the file may be successfully dropped into the workbench to
  * create a Content Editor resource.
  */
 public class ExtractAllEditorApplicationDefs {
 
   private static final Logger log = LogManager.getLogger(ExtractAllEditorApplicationDefs.class);
 
-  /**
-   * Extract the defs from the specified apps.
-   */
+  /** Extract the defs from the specified apps. */
   public ExtractAllEditorApplicationDefs() {}
 
   /**
-   * Extracts the def files from the editor applications contained in
-   * the applications directory.
+   * Extracts the def files from the editor applications contained in the applications directory.
    *
-   * @param strAppDirectory Must not be <code>null</code> and must be a
-   * directory not a file. The applications directory in which the editor
-   * applications reside.  This directory needs to have subdirectories
-   * each having an editor application.  The extracted xml document will
-   * be put into the src directory.
-   *
-   * @param strDtdFile Must not be <code>null</code> and must exist.  The
-   * DTD used to validate the resulting Xml file.
-   *
-   * @param strDocTypeFile The path used to construct a <code>DOCTYPE</code>
-   * element referencing an externally defined <code>SYSTEM</code> DTD.  May
-   * not be <code>null</code> or emtpy, and should be relative to the working
-   * directory of the workbench, and assumes that the workbench has been
-   * installed along with the server.
-   *
+   * @param strAppDirectory Must not be <code>null</code> and must be a directory not a file. The
+   *     applications directory in which the editor applications reside. This directory needs to
+   *     have subdirectories each having an editor application. The extracted xml document will be
+   *     put into the src directory.
+   * @param strDtdFile Must not be <code>null</code> and must exist. The DTD used to validate the
+   *     resulting Xml file.
+   * @param strDocTypeFile The path used to construct a <code>DOCTYPE</code> element referencing an
+   *     externally defined <code>SYSTEM</code> DTD. May not be <code>null</code> or emtpy, and
+   *     should be relative to the working directory of the workbench, and assumes that the
+   *     workbench has been installed along with the server.
    * @throws <code>IllegalArgumentException</code> any params are invalid.
-   *
-   * Example: applications\rx_ce<name>\rx_ce<Name>.xml will create
-   *          applications\rx_ce<name>\src\name.xml.
+   *     <p>Example: applications\rx_ce<name>\rx_ce<Name>.xml will create
+   *     applications\rx_ce<name>\src\name.xml.
    */
   public static void extract(String strAppDirectory, String strDtdFile, String strDocTypeFile) {
     if (strAppDirectory == null)
@@ -108,26 +98,22 @@ public class ExtractAllEditorApplicationDefs {
       File appDir = appDirs[iApp];
       if (appDir.isDirectory()) {
         /**
-         * The application directory inside of the applications
-         * directory is always named the same as the application
-         * file.
+         * The application directory inside of the applications directory is always named the same
+         * as the application file.
          *
-         * Inside the application directory is a ApplicationFiles
-         * directory which may or may not have a src directory.
+         * <p>Inside the application directory is a ApplicationFiles directory which may or may not
+         * have a src directory.
          */
 
         // get the source application file
         String strAppFile = appDir.getAbsolutePath() + File.separator + appDir.getName() + ".xml";
         if (new File(strAppFile).exists()) {
           /**
-           * The destination src file should be named with
-           * the base name of the application.  All apps start with
-           * a prefix_.  Example: rx_*, sys_*.  Editors then have a ce
-           * prefix after the _. Example: rx_ce*, sys_ce*.
-           * The name of the application the comes in proper case.
-           * Example: rx_ceArticle.  We want the destination to bhe
-           * the app name in lower case. Example: rx_ceArticle would
-           * have a article.xml in the src directory.
+           * The destination src file should be named with the base name of the application. All
+           * apps start with a prefix_. Example: rx_*, sys_*. Editors then have a ce prefix after
+           * the _. Example: rx_ce*, sys_ce*. The name of the application the comes in proper case.
+           * Example: rx_ceArticle. We want the destination to bhe the app name in lower case.
+           * Example: rx_ceArticle would have a article.xml in the src directory.
            */
           String strAppName = appDir.getName();
 
@@ -216,7 +202,7 @@ public class ExtractAllEditorApplicationDefs {
   /**
    * Main entry point from the command line.
    *
-   * 2 arguments must be passed in, the applications directory and dtd file.
+   * <p>2 arguments must be passed in, the applications directory and dtd file.
    */
   public static void main(String[] args) {
     if (args.length < 3) {

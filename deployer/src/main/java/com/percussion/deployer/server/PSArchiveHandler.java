@@ -33,21 +33,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Handling saving and retrieving IDTypes and dependencies to and from
- * a <code>PSArchive</code> object.
+ * Handling saving and retrieving IDTypes and dependencies to and from a <code>PSArchive</code>
+ * object.
  */
 public class PSArchiveHandler {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.PACKAGING_LOG);
 
   /**
-   * Constructing the handler from a <code>PSArchive</code> object.
-   * The caller is responsible for calling the {@link #close()} method when
-   * finished.
+   * Constructing the handler from a <code>PSArchive</code> object. The caller is responsible for
+   * calling the {@link #close()} method when finished.
    *
-   * @param archive The archive object file. It may not be
-   * <code>null</code>.
-   *
+   * @param archive The archive object file. It may not be <code>null</code>.
    * @throws IllegalArgumentException If any parameter is invalid.
    * @throws PSDeployException If any other error occurs.
    */
@@ -60,12 +57,10 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Closes all archive resources currently maintained by this object.
-   * If the archive of the handler is opened for writing,
-   * the current <code>PSArchiveManifest</code> will be saved into the
-   * archive before closing the archive. Any subsequent method calls may
-   * throw exceptions, and so the reference to the instance of this class
-   * should be discarded after calling this method.
+   * Closes all archive resources currently maintained by this object. If the archive of the handler
+   * is opened for writing, the current <code>PSArchiveManifest</code> will be saved into the
+   * archive before closing the archive. Any subsequent method calls may throw exceptions, and so
+   * the reference to the instance of this class should be discarded after calling this method.
    *
    * @throws PSDeployException If any error occurs.
    */
@@ -77,17 +72,15 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Adds (or appends) a dependency along with related dependency files
-   * into the archive of this object.
+   * Adds (or appends) a dependency along with related dependency files into the archive of this
+   * object.
    *
    * @param dep The dependency object. It may not be <code>null</code>.
-   * @param files An iterator over one or more <code>PSDependencyFile</code>
-   * objects. It may not be <code>null</code> or empty.
-   *
+   * @param files An iterator over one or more <code>PSDependencyFile</code> objects. It may not be
+   *     <code>null</code> or empty.
    * @throws IllegalArgumentException If any parameter is invalid.
    * @throws IllegalStateException if the archive is opened for read only
-   * @throws PSDeployException If any error occurs while adding the files
-   * to the archive.
+   * @throws PSDeployException If any error occurs while adding the files to the archive.
    */
   public void addFiles(PSDependency dep, Iterator<PSDependencyFile> files)
       throws PSDeployException {
@@ -197,17 +190,15 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Set the archive location for a given <code>PSDependencyFile</code> object
-   * according to a given <code>PSDependency</code> and a list of
-   * <code>PSDependencyFile</code> objects. The path of the archive location
-   * should be unique among the given list of <code>PSDependencyFile</code>
+   * Set the archive location for a given <code>PSDependencyFile</code> object according to a given
+   * <code>PSDependency</code> and a list of <code>PSDependencyFile</code> objects. The path of the
+   * archive location should be unique among the given list of <code>PSDependencyFile</code>
    * objects.
    *
-   * @param depFile The dependency file, which will be set, assume it is not
-   * <code>null</code>.
+   * @param depFile The dependency file, which will be set, assume it is not <code>null</code>.
    * @param dep The dependency object, assume it is not <code>null</code>.
-   * @param depFiles A list of <code>PSDependencyFile</code> objects. Assume
-   * it is not <code>null</code>, but may be empty.
+   * @param depFiles A list of <code>PSDependencyFile</code> objects. Assume it is not <code>null
+   *     </code>, but may be empty.
    */
   private void setArchiveLocation(
       PSDependencyFile depFile, PSDependency dep, List<PSDependencyFile> depFiles) {
@@ -221,16 +212,13 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Determines if the location (as <code>File</code>) object has a unique
-   * location path amount a list of <code>PSDependencyFile</code> objects.
+   * Determines if the location (as <code>File</code>) object has a unique location path amount a
+   * list of <code>PSDependencyFile</code> objects.
    *
-   * @param location The location object to be checked with. Assume it is not
-   * <code>null</code>
+   * @param location The location object to be checked with. Assume it is not <code>null</code>
    * @param depFiles A list of <code>PSDependencyFile</code> objects.
-   *
-   * @return <code>true</code> if the path of the <code>location</code>
-   * object is unique amount the list of <code>PSDependencyFile</code> objects;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the path of the <code>location</code> object is unique amount the
+   *     list of <code>PSDependencyFile</code> objects; <code>false</code> otherwise.
    */
   private boolean hasUniquePath(File location, Iterator<PSDependencyFile> depFiles) {
     while (depFiles.hasNext()) {
@@ -241,15 +229,11 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Determines if the archive already contains a list of dependency files
-   * for a given dependency.
+   * Determines if the archive already contains a list of dependency files for a given dependency.
    *
-   * @param dep The dependency object to be asked for. It may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if current archive already contains a list of
-   * dependency files for the given dependency; <code>false</code> otherwise.
-   *
+   * @param dep The dependency object to be asked for. It may not be <code>null</code>.
+   * @return <code>true</code> if current archive already contains a list of dependency files for
+   *     the given dependency; <code>false</code> otherwise.
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
    * @throws PSDeployException if there are any errors.
    */
@@ -260,17 +244,14 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Adds (or append) a dependency along with related IDTypes into the archive
-   * of this object.
+   * Adds (or append) a dependency along with related IDTypes into the archive of this object.
    *
    * @param dep The dependency object. It may not be <code>null</code>.
-   * @param idTypes The IDTypes which relate to the given dependency object.
-   * It may not be <code>null</code>.
-   *
+   * @param idTypes The IDTypes which relate to the given dependency object. It may not be <code>
+   *     null</code>.
    * @throws IllegalArgumentException If any parameter is invalid.
-   * @throws IllegalStateException If the archive used to construct this
-   * handler is not opened for writing, or if the <code>close()</code> method
-   * has been called
+   * @throws IllegalStateException If the archive used to construct this handler is not opened for
+   *     writing, or if the <code>close()</code> method has been called
    */
   public void addIdTypes(PSDependency dep, PSApplicationIDTypes idTypes) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -285,12 +266,9 @@ public class PSArchiveHandler {
   /**
    * Get a list of dependency files for a given dependency.
    *
-   * @param dep The dependency which relates to the list of dependency files.
-   * It may not be <code>null</code>.
-   *
-   * @return an iterator over zero or more <code>PSDependencyFile</code>
-   * objects.
-   *
+   * @param dep The dependency which relates to the list of dependency files. It may not be <code>
+   *     null</code>.
+   * @return an iterator over zero or more <code>PSDependencyFile</code> objects.
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
    * @throws PSDeployException if there are any errors.
    */
@@ -303,12 +281,9 @@ public class PSArchiveHandler {
   /**
    * Get the IDTypes for a given dependency.
    *
-   * @param dep The related dependency object for the IDTypes. It may not be
-   * <code>null</code>.
-   *
-   * @return The related IDTypes if the dependency exists in the current
-   * archive, and it contains the IDTypes, <code>null</code> otherwise.
-   *
+   * @param dep The related dependency object for the IDTypes. It may not be <code>null</code>.
+   * @return The related IDTypes if the dependency exists in the current archive, and it contains
+   *     the IDTypes, <code>null</code> otherwise.
    * @throws IllegalArgumentException If <code>dep</code> is <code>null</code>
    */
   public PSApplicationIDTypes getIdTypes(PSDependency dep) throws PSDeployException {
@@ -318,16 +293,13 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Adds (or append) a dependency along with a list of external databases
-   * referenced by this dependency.
+   * Adds (or append) a dependency along with a list of external databases referenced by this
+   * dependency.
    *
-   * @param dep The dependency for which the list is to be set.  May not be
-   * <code>null</code>.
+   * @param dep The dependency for which the list is to be set. May not be <code>null</code>.
    * @param dbmsInfoList The list, may not be <code>null</code>, may be empty.
-   *
-   * @throws IllegalStateException If the archive used to construct this
-   * handler is not opened for writing, or if the <code>close()</code> method
-   * has been called
+   * @throws IllegalStateException If the archive used to construct this handler is not opened for
+   *     writing, or if the <code>close()</code> method has been called
    */
   public void addDbmsInfoList(PSDependency dep, List<PSDatasourceMap> dbmsInfoList) {
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -345,18 +317,15 @@ public class PSArchiveHandler {
   /**
    * Gets an input stream to the specified dependency file in the archive.
    *
-   * @param file The dependency file object.  Itself and its archive location
-   * (the return from <code>getArchiveLocation()</code>) may not be
-   * <code>null</code>.
-   *
-   * @return the input stream, never <code>null</code>.  Caller is responsible
-   * for closing the stream.
-   *
+   * @param file The dependency file object. Itself and its archive location (the return from <code>
+   *     getArchiveLocation()</code>) may not be <code>null</code>.
+   * @return the input stream, never <code>null</code>. Caller is responsible for closing the
+   *     stream.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for writing.
-   * @throws PSDeployException if an error occurs reading from the archive or
-   * if file is not found in archive.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for writing.
+   * @throws PSDeployException if an error occurs reading from the archive or if file is not found
+   *     in archive.
    */
   public InputStream getFileData(PSDependencyFile file) throws PSDeployException {
     if (file == null || file.getArchiveLocation() == null)
@@ -370,17 +339,14 @@ public class PSArchiveHandler {
   /**
    * Gets size of the specified dependency file in the archive.
    *
-   * @param file The dependency file object.  Itself and its archive location
-   * (the return from <code>getArchiveLocation()</code>) may not be
-   * <code>null</code>.
-   *
-   * @return size.  Caller is responsible for closing the stream.
-   *
+   * @param file The dependency file object. Itself and its archive location (the return from <code>
+   *     getArchiveLocation()</code>) may not be <code>null</code>.
+   * @return size. Caller is responsible for closing the stream.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for writing.
-   * @throws PSDeployException if an error occurs reading from the archive or
-   * if file is not found in archive.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for writing.
+   * @throws PSDeployException if an error occurs reading from the archive or if file is not found
+   *     in archive.
    */
   public int getFileSize(PSDependencyFile file) throws PSDeployException {
     if (file == null || file.getArchiveLocation() == null)
@@ -392,14 +358,11 @@ public class PSArchiveHandler {
   }
 
   /**
-   * Gets the platform independent archive location of the supplied dependency
-   * file.
+   * Gets the platform independent archive location of the supplied dependency file.
    *
-   * @param file The dependency file, assumed not <code>null</code> and to have
-   * a non-<code>null</code>, non-empty archive location set.
-   *
-   * @return The platform independent location, never <code>null</code> or
-   * empty.
+   * @param file The dependency file, assumed not <code>null</code> and to have a non-<code>null
+   *     </code>, non-empty archive location set.
+   * @return The platform independent location, never <code>null</code> or empty.
    */
   private String getNormalizedArchivePath(PSDependencyFile file) {
     // make sure to store using "/" path separator, assumes that no
@@ -408,26 +371,21 @@ public class PSArchiveHandler {
   }
 
   /**
-   * The <code>PSArchive</code> object, which is managed by the current
-   * object. Initialized by the constructor. It will never be
-   * <code>null</code> after that.
+   * The <code>PSArchive</code> object, which is managed by the current object. Initialized by the
+   * constructor. It will never be <code>null</code> after that.
    */
   private PSArchive m_archive;
 
   /**
-   * The Manifest of the archive object. Initialized by the constructor. Never
-   * <code>null</code> after that."
+   * The Manifest of the archive object. Initialized by the constructor. Never <code>null</code>
+   * after that."
    */
   private PSArchiveManifest m_archiveMan;
 
-  /**
-   * Temporary directory set and used in {@link #addFiles(PSDependency, Iterator)}.
-   */
+  /** Temporary directory set and used in {@link #addFiles(PSDependency, Iterator)}. */
   private static File ms_tmpDir;
 
-  /**
-   * Map of dependency file type to meaningful name.
-   */
+  /** Map of dependency file type to meaningful name. */
   private static Map<Integer, String> ms_depFileTypeMap = new HashMap<>();
 
   static {

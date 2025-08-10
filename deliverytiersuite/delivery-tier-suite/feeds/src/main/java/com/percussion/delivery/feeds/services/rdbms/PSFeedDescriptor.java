@@ -27,15 +27,12 @@ import java.io.Serializable;
 
 /**
  * @author erikserating
- *
  */
 @Entity
 @Table(name = "PERC_FEED_DESCRIPTORS")
 public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 2756156009184830398L;
 
   @Id

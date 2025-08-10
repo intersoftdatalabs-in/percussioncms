@@ -36,15 +36,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Base class for all descriptors used to run deployment jobs.
- */
+/** Base class for all descriptors used to run deployment jobs. */
 public abstract class PSDescriptor implements IPSDeployComponent {
   /**
    * Constructs this descriptor specifying the name.
    *
    * @param name The name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   protected PSDescriptor(String name) {
@@ -55,11 +52,10 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * Construct this object from its XML representation.  See
-   * {@link #toXml(Document)} for the format expected.
+   * Construct this object from its XML representation. See {@link #toXml(Document)} for the format
+   * expected.
    *
    * @param src The source XML element, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -69,16 +65,13 @@ public abstract class PSDescriptor implements IPSDeployComponent {
     fromXml(src);
   }
 
-  /**
-   * Parameterless ctor for use by derived classes only.
-   */
+  /** Parameterless ctor for use by derived classes only. */
   protected PSDescriptor() {}
 
   /**
    * Sets the name of this descriptor.
    *
    * @param name The name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   public void setName(String name) {
@@ -101,7 +94,6 @@ public abstract class PSDescriptor implements IPSDeployComponent {
    * Sets the description for this object.
    *
    * @param description The description, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>desc</code> is invalid.
    */
   public void setDescription(String description) {
@@ -120,7 +112,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXDescriptor (Description, Version, Publisher, CmsVersion,
    * ConfigFile, PKGDependencies)>
@@ -187,9 +180,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -252,10 +244,9 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * Get the archive entry path for the type of configuration
-   * file specified.
-   * @param type one of the <code>IPSConfigService.ConfigTypes</code>
-   * enum values.
+   * Get the archive entry path for the type of configuration file specified.
+   *
+   * @param type one of the <code>IPSConfigService.ConfigTypes</code> enum values.
    * @return the path, never <code>null</code>.
    */
   public static String getConfigArchiveEntryPath(IPSConfigService.ConfigTypes type) {
@@ -326,9 +317,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * @param version the version to set, defaults to
-   * 1.0.0 if value passed in is <code>null</code>, empty.
-   * This value will be formatted
+   * @param version the version to set, defaults to 1.0.0 if value passed in is <code>null</code>,
+   *     empty. This value will be formatted
    */
   public void setVersion(String version) {
     m_version = StringUtils.defaultString(formatVersion(version, true, true), DEFAULT_VERSION);
@@ -342,9 +332,8 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * @param cmsMinVersion the cmsMinVersion to set, defaults to
-   * 6.0.0 if value passed in is <code>null</code>, empty.
-   * This value will be formatted
+   * @param cmsMinVersion the cmsMinVersion to set, defaults to 6.0.0 if value passed in is <code>
+   *     null</code>, empty. This value will be formatted
    */
   public void setCmsMinVersion(String cmsMinVersion) {
     m_cmsMinVersion =
@@ -368,10 +357,9 @@ public abstract class PSDescriptor implements IPSDeployComponent {
 
   /**
    * @param pkgName the name of the package
-   * @param pkgVersion  package version allowed, defaults to
-   * 1.0.0 if value passed in is <code>null</code>, empty.
-   * This value will be formatted
-   * by {@link #formatVersion(String, boolean, boolean)}.
+   * @param pkgVersion package version allowed, defaults to 1.0.0 if value passed in is <code>null
+   *     </code>, empty. This value will be formatted by {@link #formatVersion(String, boolean,
+   *     boolean)}.
    * @param pkgImplied
    */
   public void setPkgDep(String pkgName, String pkgVersion, boolean pkgImplied) {
@@ -387,10 +375,7 @@ public abstract class PSDescriptor implements IPSDeployComponent {
 
   /**
    * @return ArrayList of package dependency Maps
-   *
-   * Map keys are:
-   * XML_PKG_DEP_NAME
-   * XML_PKG_DEP_VERSION
+   *     <p>Map keys are: XML_PKG_DEP_NAME XML_PKG_DEP_VERSION
    */
   public List<Map<String, String>> getPkgDepList() {
     return m_pkgDepList;
@@ -463,17 +448,15 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   }
 
   /**
-   * Helper method to correctly format the version to always be in the format
-   * of (n.n.n) or (n.n.n.extraText) if extra is allowed and specified in the
-   * passed in version. Can also validate for malformed version formats.
+   * Helper method to correctly format the version to always be in the format of (n.n.n) or
+   * (n.n.n.extraText) if extra is allowed and specified in the passed in version. Can also validate
+   * for malformed version formats.
+   *
    * @param version the version string, may be <code>null</code> or empty.
-   * @param isExtraAllowed flag indicating that the extra text post-fix is
-   * allowed in the version (n.n.n.extraText), if <code>false</code>
-   * then extraText passed in will be stripped out.
-   * @param allowExceptions flag indicating that exceptions will be
-   * thrown for mismatches.
-   * If <code>false</code> then the version is simply corrected and no
-   * exception is thrown.
+   * @param isExtraAllowed flag indicating that the extra text post-fix is allowed in the version
+   *     (n.n.n.extraText), if <code>false</code> then extraText passed in will be stripped out.
+   * @param allowExceptions flag indicating that exceptions will be thrown for mismatches. If <code>
+   *     false</code> then the version is simply corrected and no exception is thrown.
    * @return formatted version, never <code>null</code>, may be empty.
    */
   public static String formatVersion(
@@ -527,94 +510,84 @@ public abstract class PSDescriptor implements IPSDeployComponent {
     return sb.toString();
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDescriptor";
 
   /**
-   * Name of this descriptor, never <code>null</code> or empty after ctor,
-   * may be modified by a call to {@link #setName(String)}
+   * Name of this descriptor, never <code>null</code> or empty after ctor, may be modified by a call
+   * to {@link #setName(String)}
    */
   private String m_name;
 
   /**
-   * The description for this object, initialized to an empty string. May be
-   * modified by calls to {@link #setDescription(String)}. Never <code>null
+   * The description for this object, initialized to an empty string. May be modified by calls to
+   * {@link #setDescription(String)}. Never <code>null
    * </code>
    */
   private String m_description = "";
 
   /**
-   * The name of the publisher who created this descriptor. Never
-   * <code>null</code>, may be empty. Initialized to an empty string.
+   * The name of the publisher who created this descriptor. Never <code>null</code>, may be empty.
+   * Initialized to an empty string.
    */
   private String m_publisherName = "";
 
   /**
-   * The url of the publisher who created the descriptor. Never
-   * <code>null</code>, may be empty. Initialized to an empty string.
+   * The url of the publisher who created the descriptor. Never <code>null</code>, may be empty.
+   * Initialized to an empty string.
    */
   private String m_publisherUrl = "";
 
   /**
-   * The unique id for the descriptor. Never <code>null</code>,
-   * may be empty if the archive has not yet been created.
-   * Initialized to an empty string.
+   * The unique id for the descriptor. Never <code>null</code>, may be empty if the archive has not
+   * yet been created. Initialized to an empty string.
    */
   private String m_id = "";
 
   /**
-   * The version of the descriptor. Expected to follow the
-   * form of (n.n.n.text) and is required. Never <code>null</code>
-   * or empty. Defaults to 1.0.0.
+   * The version of the descriptor. Expected to follow the form of (n.n.n.text) and is required.
+   * Never <code>null</code> or empty. Defaults to 1.0.0.
    */
   private String m_version = DEFAULT_VERSION;
 
   /**
-   * The minimum CMS version that the bundle can be installed to.
-   * Never <code>null</code> or empty. Defaults to 6.6.0.
+   * The minimum CMS version that the bundle can be installed to. Never <code>null</code> or empty.
+   * Defaults to 6.6.0.
    */
   private String m_cmsMinVersion = DEFAULT_CMS_MIN_VERSION;
 
   /**
-   * The maximum CMS version that the bundle can be installed to.
-   * Never <code>null</code>, may be empty in which case any CMS
-   * version will work as the max.
+   * The maximum CMS version that the bundle can be installed to. Never <code>null</code>, may be
+   * empty in which case any CMS version will work as the max.
    */
   private String m_cmsMaxVersion = "";
 
   /**
-   * The implementor configuration file that is included in this bundle.
-   * Never <code>null</code>, may be empty.
+   * The implementor configuration file that is included in this bundle. Never <code>null</code>,
+   * may be empty.
    */
   private String m_configDefFile = "";
 
   /**
-   * The local configuration file that is included in this bundle.
-   * Never <code>null</code>, may be empty.
+   * The local configuration file that is included in this bundle. Never <code>null</code>, may be
+   * empty.
    */
   private String m_localConfigFile = "";
 
   /**
-   * There is 1 entry in the list for each package that this package depends
-   * upon. Each entry contains 3 properties about the dependent package, its
-   * name, version and whether the dependency was determined by the system
-   * (implied) or the implementer. Map keys are: {@link #XML_PKG_DEP_NAME}
-   * {@link #XML_PKG_DEP_VERSION} {@link #XML_PKG_DEP_IMPLIED}.
-   * <p>
-   * May be empty, never <code>null</code>.
+   * There is 1 entry in the list for each package that this package depends upon. Each entry
+   * contains 3 properties about the dependent package, its name, version and whether the dependency
+   * was determined by the system (implied) or the implementer. Map keys are: {@link
+   * #XML_PKG_DEP_NAME} {@link #XML_PKG_DEP_VERSION} {@link #XML_PKG_DEP_IMPLIED}.
+   *
+   * <p>May be empty, never <code>null</code>.
    */
   private List<Map<String, String>> m_pkgDepList = new ArrayList<>();
 
-  /**
-   * The default descriptor version value.
-   */
+  /** The default descriptor version value. */
   public static final String DEFAULT_VERSION = "1.0.0";
 
-  /**
-   * The default descriptor minimum required CMS version.
-   */
+  /** The default descriptor minimum required CMS version. */
   public static final String DEFAULT_CMS_MIN_VERSION = "6.6.0";
 
   // private Xml constants

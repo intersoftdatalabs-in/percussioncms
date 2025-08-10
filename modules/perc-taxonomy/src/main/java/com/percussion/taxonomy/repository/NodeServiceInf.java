@@ -47,9 +47,7 @@ public interface NodeServiceInf {
 
   public void saveNode(Node node);
 
-  /**
-   * Change the parent of a node
-   */
+  /** Change the parent of a node */
   public void changeParent(int nodeID, int newParentID);
 
   /**
@@ -77,9 +75,7 @@ public interface NodeServiceInf {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Return all NodeEditors for the given node
-   */
+  /** Return all NodeEditors for the given node */
   public Collection<Node_editor> getNodeEditors(int nodeID);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,9 +88,7 @@ public interface NodeServiceInf {
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Return all titles for all nodes
-   */
+  /** Return all titles for all nodes */
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -30,8 +30,6 @@ public interface AttributeServiceInf {
 
   public void saveAttribute(Attribute attribute);
 
-  /**
-   * Return all Attribute names and IDs
-   */
+  /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id);
 }

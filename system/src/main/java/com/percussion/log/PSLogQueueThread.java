@@ -19,20 +19,18 @@ package com.percussion.log;
 import com.percussion.util.PSDoubleList;
 
 /**
- *    A PSLogQueueThread will periodically poll for new messages added to
- *    its queue and cause them to be written directly via the PSLogManager.
- *    See the constructor for how to tune the flush period and the flush
- *    limit.
+ * A PSLogQueueThread will periodically poll for new messages added to its queue and cause them to
+ * be written directly via the PSLogManager. See the constructor for how to tune the flush period
+ * and the flush limit.
  */
 class PSLogQueueThread extends java.lang.Thread {
   /**
    * Constructs a new PSLogQueueThread. Call start() to start it.
-   * @param logQueue The log queue to process. The queue will notify
-   *   when it has received a message.
-   * @param msecBetweenFlushing Flushing how many milliseconds between periodic
-   *   queue flushing. Set to 0 to disable periodic queue flushing.
-   * @param flushLimit Flush immediately as soon as this many messages
-   *   build up in the queue.
+   *
+   * @param logQueue The log queue to process. The queue will notify when it has received a message.
+   * @param msecBetweenFlushing Flushing how many milliseconds between periodic queue flushing. Set
+   *     to 0 to disable periodic queue flushing.
+   * @param flushLimit Flush immediately as soon as this many messages build up in the queue.
    */
   PSLogQueueThread(PSDoubleList logQueue, long msecBetweenFlushing, int flushLimit) {
     super();
@@ -46,17 +44,16 @@ class PSLogQueueThread extends java.lang.Thread {
   }
 
   /**
-   *    Start the queue thread. In a loop, it does the following:
-   *    <OL>
-   *    <LI>Wait for someone to add a message to the queue or until X
-   *    milliseconds have elapsed, whichever comes first
-   *    <LI>If it was the case that X millseconds elapsed, then flush
-   *    the queue.
-   *    <LI>Otherwise, if someone had added a message to the queue, then
-   *    if the number of messages in the queue exceeds a critical limit,
-   *    then flush the queue and reduce the next wait time by the amount
-   *    of time we waited in the first step.
-   *    </OL>
+   * Start the queue thread. In a loop, it does the following:
+   *
+   * <OL>
+   *   <LI>Wait for someone to add a message to the queue or until X milliseconds have elapsed,
+   *       whichever comes first
+   *   <LI>If it was the case that X millseconds elapsed, then flush the queue.
+   *   <LI>Otherwise, if someone had added a message to the queue, then if the number of messages in
+   *       the queue exceeds a critical limit, then flush the queue and reduce the next wait time by
+   *       the amount of time we waited in the first step.
+   * </OL>
    */
   public void run() {
     long truncateTimeAt = 0;
@@ -128,8 +125,8 @@ class PSLogQueueThread extends java.lang.Thread {
   }
 
   /**
-   *   Writes all pending messages in the queue via the PSLogManager's
-   * {@link PSLogManager#writeThrough(PSLogInformation) writeThrough} method.
+   * Writes all pending messages in the queue via the PSLogManager's {@link
+   * PSLogManager#writeThrough(PSLogInformation) writeThrough} method.
    */
   public void flushQueue() {
     Object[] msgs = null;
@@ -156,10 +153,8 @@ class PSLogQueueThread extends java.lang.Thread {
   /**
    * Percussion standard console output.
    *
-   * @param   msg The message to output.
-   * @param   subMessages Any submessages to be output along with
-   *          message.
-   *
+   * @param msg The message to output.
+   * @param subMessages Any submessages to be output along with message.
    */
   public static void conOut(String msg, String[] subMessages) {
     com.percussion.server.PSConsole.printMsg("LogQueueThread", msg, subMessages);
@@ -167,6 +162,7 @@ class PSLogQueueThread extends java.lang.Thread {
 
   /**
    * Percussion standard console output.
+   *
    * @param msg The string to be output.
    */
   public static void conOut(String msg) {
@@ -176,8 +172,7 @@ class PSLogQueueThread extends java.lang.Thread {
   /**
    * Set the amount of days for the log to be truncated.
    *
-   * @param days The number of days back to start clearing
-   *             the logfile.
+   * @param days The number of days back to start clearing the logfile.
    */
   public void setRunningLogDays(int days) {
     if (days < 0) days = 0;
@@ -190,8 +185,7 @@ class PSLogQueueThread extends java.lang.Thread {
   }
 
   /**
-   * Returns the remaining number of messages which need to be flushed by this
-   * thread.
+   * Returns the remaining number of messages which need to be flushed by this thread.
    *
    * @return the remaining number of messages this thread still has to flush.
    */
@@ -200,8 +194,8 @@ class PSLogQueueThread extends java.lang.Thread {
   }
 
   /**
-   *   Truncate the log which has been existing for a certain days. This is done
-   * via the PSLogManager's @link PSLogManager#truncateLog truncateLog method.
+   * Truncate the log which has been existing for a certain days. This is done via the
+   * PSLogManager's @link PSLogManager#truncateLog truncateLog method.
    *
    * @param days The amount of past days.
    */
@@ -209,9 +203,7 @@ class PSLogQueueThread extends java.lang.Thread {
     PSLogManager.truncateLog(days);
   }
 
-  /**
-   * Gracefully notifies this thread that it whould shutdown
-   */
+  /** Gracefully notifies this thread that it whould shutdown */
   public void shutdown() {
     conOut("Shutting down");
     m_shutdown = true;
@@ -221,9 +213,7 @@ class PSLogQueueThread extends java.lang.Thread {
     }
   }
 
-  /**
-   * Flag to indicate if the queue should shutdown
-   */
+  /** Flag to indicate if the queue should shutdown */
   private boolean m_shutdown = false;
 
   /** The log queue to process. */
@@ -242,8 +232,8 @@ class PSLogQueueThread extends java.lang.Thread {
   private static final long ms_millisecInOneDay = 86400 * 1000;
 
   /**
-   * The least number of messages to be written at once that will
-   * cause a console message to be printed.
+   * The least number of messages to be written at once that will cause a console message to be
+   * printed.
    */
   private static final int ms_consoleThreshold = 20;
 

@@ -20,16 +20,15 @@ import com.percussion.share.validation.PSValidationErrors;
 
 /**
  * The base validation exception for <strong>expected</strong> failures.
- * <p>
- * The REST conversion of these exceptions will be HTTP Code <code>400</code>.
- * All other {@link RuntimeException RuntimeExceptions} will be HTTP Code <code>500</code>.
- * <p>
- * The validation exceptions are loosly based on the Spring Frameworks Validation.
+ *
+ * <p>The REST conversion of these exceptions will be HTTP Code <code>400</code>. All other {@link
+ * RuntimeException RuntimeExceptions} will be HTTP Code <code>500</code>.
+ *
+ * <p>The validation exceptions are loosly based on the Spring Frameworks Validation.
  *
  * @see PSSpringValidationException
  * @see PSValidationErrors
  * @author adamgent
- *
  */
 public abstract class PSValidationException extends PSDataServiceException
     implements IPSValidationException {
@@ -53,9 +52,7 @@ public abstract class PSValidationException extends PSDataServiceException
     super(cause);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   public PSValidationErrors getValidationErrors() {
     return validationErrors;
   }
@@ -66,6 +63,7 @@ public abstract class PSValidationException extends PSDataServiceException
 
   /**
    * This exception will be thrown if its invalid.
+   *
    * @return never <code>null</code>.
    */
   public PSValidationException throwIfInvalid() throws PSValidationException {

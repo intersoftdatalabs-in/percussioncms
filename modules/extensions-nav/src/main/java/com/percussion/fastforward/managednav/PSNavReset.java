@@ -16,13 +16,13 @@
  */
 package com.percussion.fastforward.managednav;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSRequestPreProcessor;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
@@ -34,7 +34,6 @@ import org.w3c.dom.Document;
  * an exit to reset the Nav configuration
  *
  * @author DavidBenua
- *
  */
 public class PSNavReset extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
@@ -80,8 +79,9 @@ public class PSNavReset extends PSDefaultExtension
   /**
    * process the extension. Resets the current nav configuration.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document result)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -103,8 +103,6 @@ public class PSNavReset extends PSDefaultExtension
     return result;
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSNavReset.class);
 }

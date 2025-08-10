@@ -17,8 +17,8 @@
 package com.percussion.util;
 
 /**
- * Defines MDC keys.
- * Custom keys can also be supplied in the log4j config, ie:
+ * Defines MDC keys. Custom keys can also be supplied in the log4j config, ie:
+ *
  * <pre>
  *   props.setProperty("log4j.appender.xml.layout",
  *     "org.apache.log4j.xml.PSMDCXmlLayout");
@@ -26,11 +26,10 @@ package com.percussion.util;
  *     "publicationId,publisherId,siteId,editionId,clistId,ctypeId,contentId");
  * </pre>
  *
- * It is best if all the keys are defined here rather than in the props file,
- * so that there is no inconsistency. Keys MUST start with MDC_KEY_ and
- * be further grouped by short sub-system names if necessary.
- * The actual values are automatically introspected, so there is no need
- * to modify anything else.
+ * It is best if all the keys are defined here rather than in the props file, so that there is no
+ * inconsistency. Keys MUST start with MDC_KEY_ and be further grouped by short sub-system names if
+ * necessary. The actual values are automatically introspected, so there is no need to modify
+ * anything else.
  */
 public interface IPSLog4jMDCKeys {
   public static final String MDC_KEY_VERSION = "version";

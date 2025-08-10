@@ -27,15 +27,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * PSUpdateLoginConfigXML updates the application policy definitions in
- * rx/conf/login-config.xml for the jmx and web consoles.  It appends "props/"
- * to the users and roles properties file names for each of these policies'
- * login module options.
+ * PSUpdateLoginConfigXML updates the application policy definitions in rx/conf/login-config.xml for
+ * the jmx and web consoles. It appends "props/" to the users and roles properties file names for
+ * each of these policies' login module options. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -52,7 +49,6 @@ import org.w3c.dom.NodeList;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpdateLoginConfigXML extends PSAction {
   // see base class

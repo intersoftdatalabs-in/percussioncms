@@ -22,47 +22,33 @@ import com.percussion.extension.PSDefaultExtension;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * This class is a Rhythmyx pre-exit that splits the given single security
- * provider information in to provider type and instance and sets to the request
- * with 2 HTML parameters.
- * <br>
- * This is required because request gives the security provider information
- * in a single parameter in the format 'providerType/instance'. But the backend
- * has both of them as seperate fields. So we split this parameter value by '/'
- * and set the values to 2 HTML parameters.
+ * This class is a Rhythmyx pre-exit that splits the given single security provider information in
+ * to provider type and instance and sets to the request with 2 HTML parameters. <br>
+ * This is required because request gives the security provider information in a single parameter in
+ * the format 'providerType/instance'. But the backend has both of them as seperate fields. So we
+ * split this parameter value by '/' and set the values to 2 HTML parameters.
  */
 public class PSSetProviderTypeInstance extends PSDefaultExtension
     implements IPSRequestPreProcessor {
   /**
-   * If the request has security provider information, splits that in to
-   * provider type and instance and sets to the request with 2 HTML parameters,
-   * otherwise no pre-processing on the request.
+   * If the request has security provider information, splits that in to provider type and instance
+   * and sets to the request with 2 HTML parameters, otherwise no pre-processing on the request.
    *
    * @param params the array of parameter objects.
-   * <p>
-   * There are four parameters and all are optional.
-   * <br>
-   * params[0], specifying the parameter name of the request for security
-   * provider information. If not provided, the default name
-   * 'sys_securityProvider' will be used. May be <code>null</code> or empty.
-   * <br>
-   * params[1], specifying the separator between provider type and instance.
-   * If not provided, the default '/' will be used. May be <code>null</code> or
-   * empty.
-   * <br>
-   * params[2], specifying the parameter name to set to the request for
-   * security provider type. If not provided, the default name 'sys_spType'
-   * will be used. May be <code>null</code> or empty.
-   * <br>
-   * params[3], specifying the parameter name to set to the request for
-   * security provider instance. If not provided, the default name
-   * 'sys_spInstance' will be used. May be <code>null</code> or empty.
-   *
-   * @param request the request context for the exit, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if request context for the exit is
-   * <code>null</code>.
+   *     <p>There are four parameters and all are optional. <br>
+   *     params[0], specifying the parameter name of the request for security provider information.
+   *     If not provided, the default name 'sys_securityProvider' will be used. May be <code>null
+   *     </code> or empty. <br>
+   *     params[1], specifying the separator between provider type and instance. If not provided,
+   *     the default '/' will be used. May be <code>null</code> or empty. <br>
+   *     params[2], specifying the parameter name to set to the request for security provider type.
+   *     If not provided, the default name 'sys_spType' will be used. May be <code>null</code> or
+   *     empty. <br>
+   *     params[3], specifying the parameter name to set to the request for security provider
+   *     instance. If not provided, the default name 'sys_spInstance' will be used. May be <code>
+   *     null</code> or empty.
+   * @param request the request context for the exit, may not be <code>null</code>.
+   * @throws IllegalArgumentException if request context for the exit is <code>null</code>.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request) {
     if (request == null)
@@ -110,26 +96,19 @@ public class PSSetProviderTypeInstance extends PSDefaultExtension
     }
   }
 
-  /**
-   * The default HTML Parameter name that was set with the security provider
-   * information.
-   */
+  /** The default HTML Parameter name that was set with the security provider information. */
   public static final String DEFAULT_SECURITY_PARAM_NAME = "sys_securityProvider";
 
   /**
-   * The default HTML Parameter name that should be set with the security
-   * provider type information.
+   * The default HTML Parameter name that should be set with the security provider type information.
    */
   public static final String DEFAULT_PROVIDER_TYPE_PARAM_NAME = "sys_spType";
 
   /**
-   * The default HTML Parameter name that should be set the security provider
-   * instance information.
+   * The default HTML Parameter name that should be set the security provider instance information.
    */
   public static final String DEFAULT_INSTANCE_PARAM_NAME = "sys_spInstance";
 
-  /**
-   * The deafault separator between security provider type and instance.
-   **/
+  /** The deafault separator between security provider type and instance. */
   public static final String DEFAULT_SECURITY_INFO_SEPARATOR = "/";
 }

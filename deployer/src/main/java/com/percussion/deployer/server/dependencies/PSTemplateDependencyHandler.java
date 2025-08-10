@@ -25,19 +25,15 @@ import java.util.List;
  * The deployable element : TEMPLATE for packaging
  *
  * @author vamsinukala
- *
  */
 public class PSTemplateDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSTemplateDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -64,22 +60,16 @@ public class PSTemplateDependencyHandler extends PSElementDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "sys_Templates";
 
   /**
-   * The content list definition handler, initialized by
-   * <code>getChildHandler()</code> if it is <code>null</code>, will never
-   * be <code>null</code> after that.
+   * The content list definition handler, initialized by <code>getChildHandler()</code> if it is
+   * <code>null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_childHandler = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
 }

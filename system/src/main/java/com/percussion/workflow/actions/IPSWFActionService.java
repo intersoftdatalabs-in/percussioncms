@@ -22,28 +22,25 @@ import com.percussion.extension.PSExtensionException;
 import java.util.List;
 
 /**
- * Interface for loading and dispatching Workflow Actions. This is intended to
- * be used as a Spring based service.
- * <p>
- * <b>Note:</b> unlike the original PSWFActionDispatcher which matched on
- * workflow id and transition id, this implementation matches on Workflow Name
- * and Transition Label. While the Workflow Name is unique, it is possible to
- * have more than one transition with the same label. In this case, the workflow
- * actions retrieved from this service will match ALL transitions with that
+ * Interface for loading and dispatching Workflow Actions. This is intended to be used as a Spring
+ * based service.
+ *
+ * <p><b>Note:</b> unlike the original PSWFActionDispatcher which matched on workflow id and
+ * transition id, this implementation matches on Workflow Name and Transition Label. While the
+ * Workflow Name is unique, it is possible to have more than one transition with the same label. In
+ * this case, the workflow actions retrieved from this service will match ALL transitions with that
  * label.
- * <p>
- * If this is a problem, make sure that you give your transitions unique labels.
- * In many cases, you can use this functionality to your advantage. For example,
- * You can define a single set of actions for all of your "return to public"
- * transitions.
- * <p>
- * The <code>transitionActions</code> property is a <code>Map</code> of
- * <code>Maps</code> of <code>Lists</code> of <code>Strings</code>. The outer
- * map is keyed by the Workflow Name, and the inner map is keyed by the
- * Transition Label. The Strings are the names of the Workflow Actions that you
- * wish to run on that Transition.
- * <p>
- * The bean configuration will look something like this:
+ *
+ * <p>If this is a problem, make sure that you give your transitions unique labels. In many cases,
+ * you can use this functionality to your advantage. For example, You can define a single set of
+ * actions for all of your "return to public" transitions.
+ *
+ * <p>The <code>transitionActions</code> property is a <code>Map</code> of <code>Maps</code> of
+ * <code>Lists</code> of <code>Strings</code>. The outer map is keyed by the Workflow Name, and the
+ * inner map is keyed by the Transition Label. The Strings are the names of the Workflow Actions
+ * that you wish to run on that Transition.
+ *
+ * <p>The bean configuration will look something like this:
  *
  * <pre>
  *    &lt;bean id="sys_WorkflowActionService" class="com.percussion.workflow.actions.PSWFActionService"
@@ -65,10 +62,8 @@ import java.util.List;
  *     &lt;/bean&gt;
  *
  * </pre>
- * <p>
- * A sample file can be found at
- * /WEB-INF/config/user/spring/WorkflowActionDispatcher-beans.xml
  *
+ * <p>A sample file can be found at /WEB-INF/config/user/spring/WorkflowActionDispatcher-beans.xml
  *
  * @author DavidBenua
  * @see PSWFActionServiceLocator
@@ -90,8 +85,7 @@ public interface IPSWFActionService {
    * Get and load the desired workflow action.
    *
    * @param workflowActionName the name of the workflow action
-   * @return the workflow action. May be <code>null</code> if the extension was
-   * not found.
+   * @return the workflow action. May be <code>null</code> if the extension was not found.
    * @throws PSExtensionException
    * @throws PSNotFoundException
    */

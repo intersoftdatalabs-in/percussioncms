@@ -25,20 +25,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * Represents a string literal that displays a different value in the user
- * interface than the literal supplies at runtime.
+ * Represents a string literal that displays a different value in the user interface than the
+ * literal supplies at runtime.
  *
  * @author James Schultz
  */
 public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableReplacementValue {
   /**
-   * Construct a <code>PSDisplayTextLiteral</code> object with the provided
-   * values.
+   * Construct a <code>PSDisplayTextLiteral</code> object with the provided values.
    *
-   * @param displayValue String to display in user interface; may not be
-   * <code>null</code> or empty.
-   * @param value String to supply at runtime; may not be <code>null</code>,
-   * but may be empty
+   * @param displayValue String to display in user interface; may not be <code>null</code> or empty.
+   * @param value String to supply at runtime; may not be <code>null</code>, but may be empty
    * @throws IllegalArgumentException if either param is invalid
    */
   public PSDisplayTextLiteral(String displayValue, String value) {
@@ -50,17 +47,15 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
   }
 
   /**
-   * Construct a <code>PSDisplayTextLiteral</code> object from its XML
-   * representation (see {@link #toXml} for the required format.  This method
-   * is required by {@link PSReplacementValueFactory}.
-   * @param sourceNode   the XML element node to construct this object from;
-   * cannot be <code>null</code>
-   * @param parentDoc the Java object which is the parent of this object;
-   * may be <code>null</code>
-   * @param parentComponents the parent objects of this object; may be
-   * <code>null</code>
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type or if sourceNode is <code>null</code>
+   * Construct a <code>PSDisplayTextLiteral</code> object from its XML representation (see {@link
+   * #toXml} for the required format. This method is required by {@link PSReplacementValueFactory}.
+   *
+   * @param sourceNode the XML element node to construct this object from; cannot be <code>null
+   *     </code>
+   * @param parentDoc the Java object which is the parent of this object; may be <code>null</code>
+   * @param parentComponents the parent objects of this object; may be <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type or if
+   *     sourceNode is <code>null</code>
    */
   public PSDisplayTextLiteral(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -69,6 +64,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
 
   /**
    * Gets the text which can be displayed to represent this value.
+   *
    * @return the text, never <code>null</code> or empty
    */
   public String getValueDisplayText() {
@@ -77,6 +73,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
 
   /**
    * Gets the implementation specific text.
+   *
    * @return the text, never <code>null</code>, but may be empty
    */
   public String getValueText() {
@@ -93,14 +90,15 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
 
   /**
    * Returns the XML representation of this object, which is in the format:
+   *
    * <pre><code>
    * &lt;PSXDisplayTextLiteral displayText="Hello There">
    * hi
    * &lt;/PSXDisplayTextLiteral>
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   * elements.  May not be <code>null</code>.
+   * @param doc The XML document being constructed, needed to create new elements. May not be <code>
+   *     null</code>.
    * @return a <&lt;PSXDisplayTextLiteral> Element; never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
@@ -115,6 +113,7 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
 
   /**
    * Gets the type of replacement value this object represents.
+   *
    * @return {@link #VALUE_TYPE}, never <code>null</code> or empty.
    */
   public String getValueType() {
@@ -123,8 +122,8 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
 
   /**
    * Sets the implementation specific text which this value will supply.
-   * @param text String to supply at runtime; may not be <code>null</code>,
-   * but may be empty
+   *
+   * @param text String to supply at runtime; may not be <code>null</code>, but may be empty
    */
   public void setValueText(String text) {
     if (null == text) throw new IllegalArgumentException("text may not be null");
@@ -134,8 +133,8 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
   /**
    * Compares an object to this PSDisplayTextLiteral to see if they are equal.
    *
-   * @return <code>true</code> if object is a PSDisplayTextLiteral with the
-   * same display value and value as this PSDisplayTextLiteral; <code>false
+   * @return <code>true</code> if object is a PSDisplayTextLiteral with the same display value and
+   *     value as this PSDisplayTextLiteral; <code>false
    * </code> otherwise.
    */
   public boolean equals(Object o) {
@@ -150,15 +149,10 @@ public class PSDisplayTextLiteral extends PSLiteral implements IPSMutatableRepla
   /** The value type associated with instances of this class. */
   public static final String VALUE_TYPE = "DisplayTextLiteral";
 
-  /**
-   * The display value. Set in constructor; never <code>null</code> or empty
-   */
+  /** The display value. Set in constructor; never <code>null</code> or empty */
   private String m_displayValue;
 
-  /**
-   * The replacement value. Set in constructor; never <code>null</code>, may
-   * be empty
-   */
+  /** The replacement value. Set in constructor; never <code>null</code>, may be empty */
   private String m_value;
 
   /** Name of parent XML element */

@@ -18,9 +18,9 @@
 package com.percussion.server;
 
 /**
- * This class was previously used to check to see if the product has a valid brand code
- * and if the product has timed out. (The real code is in PSServerBrand.prod
- * We don't want to brand anymore, so this code will be left for anything still checking.
+ * This class was previously used to check to see if the product has a valid brand code and if the
+ * product has timed out. (The real code is in PSServerBrand.prod We don't want to brand anymore, so
+ * this code will be left for anything still checking.
  */
 public class PSServerBrand {
   public PSServerBrand() {}
@@ -39,6 +39,7 @@ public class PSServerBrand {
 
   /**
    * Always returns <code>true</code>.
+   *
    * @param componentId not used.
    * @return Always returns <code>true</code>.
    */

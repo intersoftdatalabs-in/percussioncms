@@ -30,48 +30,41 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is a very simple redirector, based on the same technique used by
- * the JBoss URL Rewrite valve. The intent is to forward requests from each cm1
- * host to the host that contains all of the delivery tier services, such as the
- * form processor. It does this by checking the list of supplied service names
- * against the path. If the path begins with any registered service name, the
- * request is redirected to the registered targetHost. It does this by making a
- * very low-level call to the adapter's service method, which re-assigns the new
- * host because we reset the server name.
- * <p>
- * The valve supports a couple of attributes:
+ * This class is a very simple redirector, based on the same technique used by the JBoss URL Rewrite
+ * valve. The intent is to forward requests from each cm1 host to the host that contains all of the
+ * delivery tier services, such as the form processor. It does this by checking the list of supplied
+ * service names against the path. If the path begins with any registered service name, the request
+ * is redirected to the registered targetHost. It does this by making a very low-level call to the
+ * adapter's service method, which re-assigns the new host because we reset the server name.
+ *
+ * <p>The valve supports a couple of attributes:
  *
  * <pre>
  *      &lt;Valve className=&quot;...&quot; targetHost=&quot;...&quot; serviceNames=&quot;...&quot; /&gt;
  * </pre>
  *
  * <ol>
- *      <li>targetHost - this should be the name of the &lt;Host&gt; entry in the
- *      server.xml file that contains the delivery side apps. If not provided,
- *      defaults to localhost.</li>
- *
- *      <li>serviceNames - a comma separated list of all servlet names that provide
- *      delivery side services</li>
+ *   <li>targetHost - this should be the name of the &lt;Host&gt; entry in the server.xml file that
+ *       contains the delivery side apps. If not provided, defaults to localhost.
+ *   <li>serviceNames - a comma separated list of all servlet names that provide delivery side
+ *       services
  * </ol>
  */
 public class PSSimpleRedirectorValve extends ValveBase {
   private static final Logger log = LogManager.getLogger(PSSimpleRedirectorValve.class);
 
-  /**
-   * See class description.
-   */
+  /** See class description. */
   private String targetHost = "localhost";
 
   /**
-   * A temporary storage place for data used to generate the
-   * {@link #servletUrls} member. Set to <code>null</code> when finished.
+   * A temporary storage place for data used to generate the {@link #servletUrls} member. Set to
+   * <code>null</code> when finished.
    */
   private String serviceNames;
 
   /**
-   * All the services that we need to redirect for, with leading and trailing
-   * slashes. Never <code>null</code> after {@link #start()} has been
-   * called.
+   * All the services that we need to redirect for, with leading and trailing slashes. Never <code>
+   * null</code> after {@link #start()} has been called.
    */
   private String[] servletUrls;
 
@@ -119,11 +112,9 @@ public class PSSimpleRedirectorValve extends ValveBase {
   }
 
   /**
-   * Provided to allow Tomcat to set this property from the attribute in
-   * server.xml.
+   * Provided to allow Tomcat to set this property from the attribute in server.xml.
    *
-   * @param targetHost If <code>null</code> or empty, the property is not
-   * set.
+   * @param targetHost If <code>null</code> or empty, the property is not set.
    */
   public void setTargetHost(String targetHost) {
     if (targetHost != null && targetHost.trim().length() > 0) {
@@ -132,11 +123,9 @@ public class PSSimpleRedirectorValve extends ValveBase {
   }
 
   /**
-   * Provided to allow Tomcat to set this property from the attribute in
-   * server.xml.
+   * Provided to allow Tomcat to set this property from the attribute in server.xml.
    *
-   * @param serviceNames If <code>null</code> or empty, the property is not
-   * set.
+   * @param serviceNames If <code>null</code> or empty, the property is not set.
    */
   public void setServiceNames(String serviceNames) {
     if (serviceNames != null && serviceNames.trim().length() > 0) {
@@ -146,6 +135,7 @@ public class PSSimpleRedirectorValve extends ValveBase {
 
   /**
    * Performs some initialization.
+   *
    * @throws LifecycleException if an error occurs during initialization
    */
   @Override

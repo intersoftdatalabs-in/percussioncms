@@ -19,33 +19,32 @@
 
 package com.percussion.rest.users;
 
-import com.percussion.rest.MainTest;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.percussion.rest.MainTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("IntegrationTest")
 public class UsersTest extends MainTest {
 
-    @Test
-    public void testNeverNull() {
-        var u = new User();
+  @Test
+  public void testNeverNull() {
+    var u = new User();
 
-        assertNotNull(u.getBookmarkedPages(), "Should never be null");
-        assertNotNull(u.getEmailAddress(), "Should never be null");
-        assertNotNull(u.getFirstName(), "Should never be null");
-        assertNotNull(u.getLastName(), "Should never be null");
-        assertNotNull(u.getPersonalPage(), "Should never be null");
-        assertNotNull(u.getPersonAssets(), "Should never be null");
-        assertNotNull(u.getRecentAssetFolders(), "Should never be null");
-        assertNotNull(u.getRecentAssetTypes(), "Should never be null");
-        assertNotNull(u.getRecentPages(), "Should never be null");
-        assertNotNull(u.getRecentSiteFolders(), "Should never be null");
-        assertNotNull(u.getRoles(), "Should never be null");
-        assertNotNull(u.getRecentTemplates(), "Should never be null");
-        assertNotNull(u.getUserName(), "Should never be null");
-        assertNotNull(u.getUserType(), "Should never be null");
-    }
+    assertNotNull(u.getBookmarkedPages(), "Should never be null");
+    assertNotNull(u.getEmailAddress(), "Should never be null");
+    assertNotNull(u.getFirstName(), "Should never be null");
+    assertNotNull(u.getLastName(), "Should never be null");
+    assertNotNull(u.getPersonalPage(), "Should never be null");
+    assertNotNull(u.getPersonAssets(), "Should never be null");
+    assertNotNull(u.getRecentAssetFolders(), "Should never be null");
+    assertNotNull(u.getRecentAssetTypes(), "Should never be null");
+    assertNotNull(u.getRecentPages(), "Should never be null");
+    assertNotNull(u.getRecentSiteFolders(), "Should never be null");
+    assertNotNull(u.getRoles(), "Should never be null");
+    assertNotNull(u.getRecentTemplates(), "Should never be null");
+    assertNotNull(u.getUserName(), "Should never be null");
+    assertNotNull(u.getUserType(), "Should never be null");
+  }
 }

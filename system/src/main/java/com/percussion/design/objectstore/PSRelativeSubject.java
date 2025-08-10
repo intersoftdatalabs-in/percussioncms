@@ -23,34 +23,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSRelativeSubject class defines a subject (group or user) to be stored
- * in some context, including attributes specific to that context for
- * that subject.  This extension of <code>PSSubject</code> is responsible for
- * persisting any relationships it has in its context to the back end database,
- * but is not responsible for storing the actual subject data.
- * See {@link #toXml(Document) toXml} for a more complete definition of this
- * class.
+ * The PSRelativeSubject class defines a subject (group or user) to be stored in some context,
+ * including attributes specific to that context for that subject. This extension of <code>PSSubject
+ * </code> is responsible for persisting any relationships it has in its context to the back end
+ * database, but is not responsible for storing the actual subject data. See {@link #toXml(Document)
+ * toXml} for a more complete definition of this class.
  *
  * @see PSSubject
- *
  * @see PSGlobalSubject
  */
 public class PSRelativeSubject extends PSSubject {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from
-   *
-   * @param   parentDoc       the Java object which is the parent of this
-   *                             object
-   *
-   * @param   parentComponents  the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelativeSubject(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -58,8 +48,8 @@ public class PSRelativeSubject extends PSSubject {
   }
 
   /**
-   * Set the database component id from the global subject that this
-   * relative subject corresponds to.
+   * Set the database component id from the global subject that this relative subject corresponds
+   * to.
    *
    * @param id The global subject's database component id.
    */
@@ -70,10 +60,8 @@ public class PSRelativeSubject extends PSSubject {
   /**
    * Make a new global subject from this relative subject.
    *
-   * @return A new subject with all of the same internal properties,
-   *    but with no attributes.  If sub is <code>null</code> this
-   *    call returns <code>null</code>.
-   *
+   * @return A new subject with all of the same internal properties, but with no attributes. If sub
+   *     is <code>null</code> this call returns <code>null</code>.
    * @throws IllegalArgumentException If the construction fails.
    */
   PSGlobalSubject makeGlobalSubject() {
@@ -92,29 +80,25 @@ public class PSRelativeSubject extends PSSubject {
   /**
    * Construct a complete relative subject.
    *
-   * @see PSSubject#PSSubject(String, int, PSAttributeList) for more
-   *    information.
+   * @see PSSubject#PSSubject(String, int, PSAttributeList) for more information.
    */
   public PSRelativeSubject(String name, int type, PSAttributeList atts) {
     super(name, type, atts);
   }
 
   /**
-   * This method is called to create one or more Action XML elements
-   * containing the data described in this object that is used to update
-   * the database. The Elements are appended to the root of the passed in doc.
-   * This method then calls the <code>toDatabaseXml</code> method on any of
-   * this object's children.
-   * <p>
+   * This method is called to create one or more Action XML elements containing the data described
+   * in this object that is used to update the database. The Elements are appended to the root of
+   * the passed in doc. This method then calls the <code>toDatabaseXml</code> method on any of this
+   * object's children.
    *
-   * No Action Elements are created directly by this object.
+   * <p>No Action Elements are created directly by this object.
    *
-   * See {@link PSDatabaseComponent#toDatabaseXml} for information
-   * about this methods parameters and exceptions.  Differences are noted
-   * below.
+   * <p>See {@link PSDatabaseComponent#toDatabaseXml} for information about this methods parameters
+   * and exceptions. Differences are noted below.
    *
-   * @param relationContext This is the relation context to use to persist
-   * this object's attributes.  May not be <code>null</code>.
+   * @param relationContext This is the relation context to use to persist this object's attributes.
+   *     May not be <code>null</code>.
    */
   public void toDatabaseXml(Document doc, Element actionRoot, PSRelation relationContext)
       throws PSDatabaseComponentException {
@@ -132,8 +116,8 @@ public class PSRelativeSubject extends PSSubject {
   }
 
   /**
-   * We must override this method because we are actually saved as the
-   * type of our base class in the database.
+   * We must override this method because we are actually saved as the type of our base class in the
+   * database.
    *
    * @return Always 'Subject'.
    */

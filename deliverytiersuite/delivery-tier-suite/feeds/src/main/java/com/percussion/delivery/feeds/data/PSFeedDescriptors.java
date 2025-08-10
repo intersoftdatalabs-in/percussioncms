@@ -20,10 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A transfer class for feed descriptors and connection info.
- *
- */
+/** A transfer class for feed descriptors and connection info. */
 public class PSFeedDescriptors {
   @JsonDeserialize(as = ArrayList.class, contentAs = PSFeedDescriptor.class)
   private List<IPSFeedDescriptor> descriptors = new ArrayList<>();

@@ -96,18 +96,15 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This post exit adds information needed in content assembler stylesheets
- * to the result document. A XML document conforming to the DTD
- * sys_AssemblerInfo.dtd is created and inserted into the result document as
- * its first child.
- * In the second part the exit modifies the assembly style sheets to add extra
- * links to edit the related content in preview or WYSIWYG mode.
+ * This post exit adds information needed in content assembler stylesheets to the result document. A
+ * XML document conforming to the DTD sys_AssemblerInfo.dtd is created and inserted into the result
+ * document as its first child. In the second part the exit modifies the assembly style sheets to
+ * add extra links to edit the related content in preview or WYSIWYG mode.
  *
- * TO DO:
- * the style sheet transformation is now performed every time the assembly page
- * requested for edit-preview. It would be required to cache thisusing the
- * datetime stamps on the original style sheet files and transform only if the
- * destination stylesheets do not exist or source files are modfied.
+ * <p>TO DO: the style sheet transformation is now performed every time the assembly page requested
+ * for edit-preview. It would be required to cache thisusing the datetime stamps on the original
+ * style sheet files and transform only if the destination stylesheets do not exist or source files
+ * are modfied.
  */
 public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
@@ -129,11 +126,10 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This will make an internal request to the
-   * sys_ceSupport/AssemblerProperties resource to get all assembler
-   * properties defined for the siteid and contextid provided. All returned
-   * property name/value pairs will be added to the result document so they
-   * are available for the rendering stylesheet.
+   * This will make an internal request to the sys_ceSupport/AssemblerProperties resource to get all
+   * assembler properties defined for the siteid and contextid provided. All returned property
+   * name/value pairs will be added to the result document so they are available for the rendering
+   * stylesheet.
    *
    * @param params no parameters are expected.
    */
@@ -441,17 +437,13 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Get the global template override from the folder paths of the supplied
-   * item locator.
+   * Get the global template override from the folder paths of the supplied item locator.
    *
    * @param request the request context, assume not <code>null</code>.
    * @param locator the item locator, assumed not <code>null</code>.
-   * @param site the site for which to lookup the global template override,
-   *    assumed not <code>null</code>.
-   *
-   * @return the global template override or <code>null</code> if no override
-   *    was found.
-   *
+   * @param site the site for which to lookup the global template override, assumed not <code>null
+   *     </code>.
+   * @return the global template override or <code>null</code> if no override was found.
    * @throws PSCmsException for any error.
    */
   private String getGlobalTemplateOverride(
@@ -505,12 +497,11 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   /**
    * Test if the supplied folder tree is for the provided site.
    *
-   * @param locatorPath the locator path. The 1st entry is the locator of the
-   *    bottom folder and the last entry is the root locator.
+   * @param locatorPath the locator path. The 1st entry is the locator of the bottom folder and the
+   *     last entry is the root locator.
    * @param siteFolderId the content id of the site folder.
-   *
-   * @return <code>true</code> if the supplied locator path contains the
-   *    provided site id, <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied locator path contains the provided site id, <code>
+   *     false</code> otherwise.
    */
   private boolean isPathForSite(List locatorPath, int siteFolderId) {
     PSLocator folder;
@@ -523,20 +514,17 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Add the {@link #ASSEMBLY_LEVEL assembly level} parameter to the supplied
-   * variant URL. Does not validate the URL. Just appends the parameter
-   * (name=value) at the end of the URL string with an appropriate parameter
-   * separator(? or &amp;). Does not check if the parameter already exists in
-   * the URL. The new assembly parameter value is the current assembly level
-   * value read from the request (see
-   * {@link #readCurrentAssemblyLevel(IPSRequestContext)}) incremented by 1.
+   * Add the {@link #ASSEMBLY_LEVEL assembly level} parameter to the supplied variant URL. Does not
+   * validate the URL. Just appends the parameter (name=value) at the end of the URL string with an
+   * appropriate parameter separator(? or &amp;). Does not check if the parameter already exists in
+   * the URL. The new assembly parameter value is the current assembly level value read from the
+   * request (see {@link #readCurrentAssemblyLevel(IPSRequestContext)}) incremented by 1.
    *
    * @param request request context, must not be <code>null</code>.
-   * @param assemblyUrlString the unencoded URL string to append the assembly
-   * level parameter, may be <code>null</code> or empty.
-   * @return the assembly URL value after appending the new assembly level as a
-   * special parameter. May be <code>null</code> or empty if supplied URL
-   * sting is <code>null</code> or empty.
+   * @param assemblyUrlString the unencoded URL string to append the assembly level parameter, may
+   *     be <code>null</code> or empty.
+   * @return the assembly URL value after appending the new assembly level as a special parameter.
+   *     May be <code>null</code> or empty if supplied URL sting is <code>null</code> or empty.
    */
   public static String appendNewAssemblyLevelParam(
       IPSRequestContext request, String assemblyUrlString) {
@@ -555,15 +543,12 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Determine if the assembly is recursive. The assembly is considered to be
-   * recursive if a snippet was already assembled during a previous level of
-   * assembly.
+   * Determine if the assembly is recursive. The assembly is considered to be recursive if a snippet
+   * was already assembled during a previous level of assembly.
    *
-   * @param request request context from which the assembly recursion map is
-   * read as request private object and the assembly depth is read as request
-   * parameter. Assumed not <code>null</code>.
-   * @return <code>true</code> if the assembly is recursive,
-   * <code>false</code> otherwise.
+   * @param request request context from which the assembly recursion map is read as request private
+   *     object and the assembly depth is read as request parameter. Assumed not <code>null</code>.
+   * @return <code>true</code> if the assembly is recursive, <code>false</code> otherwise.
    */
   private boolean isAssemblyRecursive(IPSRequestContext request) {
     String recursionKey = makeKeyFromRequestContext(request);
@@ -591,8 +576,8 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Read and return the assembly depth by reading the special HTML parameter
-   * {@link #ASSEMBLY_LEVEL} from the request context.
+   * Read and return the assembly depth by reading the special HTML parameter {@link
+   * #ASSEMBLY_LEVEL} from the request context.
    *
    * @param request request context object, assumed not <code>null</code>
    * @return assembly depth which will be 0 (default) or higher.
@@ -610,18 +595,14 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Make the assembly recursion parameter key from request context. This is
-   * the string concatenation of the requet page URL and the requets parameter
-   * map (toString()). The special parameter {@link #ASSEMBLY_LEVEL} used in
-   * assembly recursion detection is always excluded from the request
-   * parameters.
+   * Make the assembly recursion parameter key from request context. This is the string
+   * concatenation of the requet page URL and the requets parameter map (toString()). The special
+   * parameter {@link #ASSEMBLY_LEVEL} used in assembly recursion detection is always excluded from
+   * the request parameters.
    *
-   * @param request request context object, assumed not <code>null</code>.
-   * The requets page URL and the parameters to make the key are taken from
-   * this object.
-   *
-   * @return assembly recursion parameter key as explained above, never
-   * <code>null</code> or empty.
+   * @param request request context object, assumed not <code>null</code>. The requets page URL and
+   *     the parameters to make the key are taken from this object.
+   * @return assembly recursion parameter key as explained above, never <code>null</code> or empty.
    */
   private static String makeKeyFromRequestContext(IPSRequestContext request) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -631,31 +612,23 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method (is as good as a post exit) modifies the assembly related
-   * stylesheet files (the actual assembly stylesheet and the included ones)
-   * to include the additional links to edit related content in WYSIWYG mode.
-   * This done by locating the actual style sheet file by making an internal
-   * request to a Rx application, modifying it using a transformation style
-   * sheet that includes the required links, saving this file to new location
-   * and then modifying the result document to use this style sheet rather than
-   * the original one. The method looks for an HTML parameter
-   * sys_command='editrc' which is a flag to transform the style sheets.
-   * Transformation is also performed on the slot definition style sheets,
-   * namely, sys_Slots and rx_Slots located in sys_resources and rx_resources
-   * applications.
+   * This method (is as good as a post exit) modifies the assembly related stylesheet files (the
+   * actual assembly stylesheet and the included ones) to include the additional links to edit
+   * related content in WYSIWYG mode. This done by locating the actual style sheet file by making an
+   * internal request to a Rx application, modifying it using a transformation style sheet that
+   * includes the required links, saving this file to new location and then modifying the result
+   * document to use this style sheet rather than the original one. The method looks for an HTML
+   * parameter sys_command='editrc' which is a flag to transform the style sheets. Transformation is
+   * also performed on the slot definition style sheets, namely, sys_Slots and rx_Slots located in
+   * sys_resources and rx_resources applications.
    *
-   * @param request as explained in the method
-   * <code>processResultDocument</code> above.
-   *
-   * @param resultDoc as explained in the method
-   * <code>processResultDocument</code> above.
-   *
-   * @param appName - original application name that the request came for,
-   * shall be  <code>null</code> or <code>empty</code>
+   * @param request as explained in the method <code>processResultDocument</code> above.
+   * @param resultDoc as explained in the method <code>processResultDocument</code> above.
+   * @param appName - original application name that the request came for, shall be <code>null
+   *     </code> or <code>empty</code>
    * @return modifyed XML result document, never <code>null</code>.
    * @throws PSParameterMismatchException
    * @throws PSExtensionProcessingException
-   *
    */
   private Document modifyAssemblyStyleSheets(
       IPSRequestContext request, Document resultDoc, String appName)
@@ -878,21 +851,20 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Given the file names for transformation XSL, source XSL and the
-   * destination XSL files, this method transforms the source stylesheet to
-   * destination style sheet using the transformation stylesheet.
-   * to a File. All files are read and written from or to disk.
+   * Given the file names for transformation XSL, source XSL and the destination XSL files, this
+   * method transforms the source stylesheet to destination style sheet using the transformation
+   * stylesheet. to a File. All files are read and written from or to disk.
    *
-   * @param transformXsl - the transformation style sheet file name, must
-   * not be <code>null</code> or <code>empty</code>
-   * @param sourceXsl - the source stylesheet file name (or XML file name) to
-   * transform, must not be <code>null</code> or <code>empty</code>
-   * @param recurse if <code>true</code>, processes the inlcuded/imported
-   * (xsl:include/xsl:import) style sheets too.
-   * @param modifyHrefs If <code>true</code> modifies the XSL stylesheet as
-   * described in {@link #modifyHref(Element)}.
-   * @return the file path name of the transformed XSL stylesheet,
-   * <code>null</code> if the file needed no transformation.
+   * @param transformXsl - the transformation style sheet file name, must not be <code>null</code>
+   *     or <code>empty</code>
+   * @param sourceXsl - the source stylesheet file name (or XML file name) to transform, must not be
+   *     <code>null</code> or <code>empty</code>
+   * @param recurse if <code>true</code>, processes the inlcuded/imported (xsl:include/xsl:import)
+   *     style sheets too.
+   * @param modifyHrefs If <code>true</code> modifies the XSL stylesheet as described in {@link
+   *     #modifyHref(Element)}.
+   * @return the file path name of the transformed XSL stylesheet, <code>null</code> if the file
+   *     needed no transformation.
    * @throws TransformerException if the transformation fails.
    * @throws TransformerConfigurationException if the transformation fails.
    */
@@ -1077,12 +1049,10 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Collect all xsl:import and xsl:include elements and return them as an
-   * array of DOM elements.
+   * Collect all xsl:import and xsl:include elements and return them as an array of DOM elements.
    *
    * @param doc DOM document, assumed not <code>null</code>.
-   * @return an array of DOM Elements, never <code>null</code> but may be
-   * empty.
+   * @return an array of DOM Elements, never <code>null</code> but may be empty.
    */
   private Element[] getImportAndInlcudeElems(Document doc) {
     NodeList imports = doc.getElementsByTagName("xsl:import");
@@ -1096,10 +1066,11 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Modifies the href attribute of the element specified (xsl:import or
-   * xsl:include) to point to a location that includes an end folder "edit".
-   * @param elem DOM element that has an attribute "href", typically
-   * xsl:import or xsl:include, assumed not <code>null</code>.
+   * Modifies the href attribute of the element specified (xsl:import or xsl:include) to point to a
+   * location that includes an end folder "edit".
+   *
+   * @param elem DOM element that has an attribute "href", typically xsl:import or xsl:include,
+   *     assumed not <code>null</code>.
    */
   private void modifyHref(Element elem) {
     String file = elem.getAttribute("href");
@@ -1108,12 +1079,11 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Builds the new path to include "edit" as the last part of the folder.
-   * For example, if the supplied path is xx/yy/zz/ww.xsl, the new path
-   * returned will be xx/yy/zz/edit/ww.xsl.
+   * Builds the new path to include "edit" as the last part of the folder. For example, if the
+   * supplied path is xx/yy/zz/ww.xsl, the new path returned will be xx/yy/zz/edit/ww.xsl.
+   *
    * @param path path to be modified, assumed not <code>null</code>.
-   * @return new path built based on the scheme above, never
-   * <code>null</code>.
+   * @return new path built based on the scheme above, never <code>null</code>.
    */
   private String buildEditFilePath(String path) {
     int index = path.lastIndexOf('/');
@@ -1127,12 +1097,12 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to compute if a file is modified or not. The last modifed
-   * date for the file is taken in memory Properties file and
-   * compared with the current modified date.
+   * Helper function to compute if a file is modified or not. The last modifed date for the file is
+   * taken in memory Properties file and compared with the current modified date.
+   *
    * @param file, Java File object, assumed not <code>null</code>
-   * @return <code>true</code> if the file is modified, <code>false</code>
-   * otherwise even during any exception.
+   * @return <code>true</code> if the file is modified, <code>false</code> otherwise even during any
+   *     exception.
    */
   private boolean isModified(File file) {
     try {
@@ -1151,12 +1121,12 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to record and empty (when required) previous recording of
-   * modified dates for the transformation stylesheet files.
+   * Helper function to record and empty (when required) previous recording of modified dates for
+   * the transformation stylesheet files.
+   *
    * @param file, file object of interest, assumed not <code>null</code>.
-   * @param bResetPrevious, flag to tell the function that all previous
-   * recording has to be cleared. This is done when the transformation
-   * stylesheet is modified.
+   * @param bResetPrevious, flag to tell the function that all previous recording has to be cleared.
+   *     This is done when the transformation stylesheet is modified.
    */
   private void recordModified(File file, boolean bResetPrevious) {
     if (bResetPrevious) {
@@ -1168,12 +1138,12 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to return the first child element with given name of a
-   * given parent.
-   * @param parent, parent element - may be <code>null</code> in which case
-   * the return value will be <code>null</code>
-   * @param child, child element name may be <code>null</code> in which case
-   * the return value will be <code>null</code>
+   * Helper function to return the first child element with given name of a given parent.
+   *
+   * @param parent, parent element - may be <code>null</code> in which case the return value will be
+   *     <code>null</code>
+   * @param child, child element name may be <code>null</code> in which case the return value will
+   *     be <code>null</code>
    * @return Child element as described above, may be <code>null</code>.
    */
   public static Element getChildElement(Element parent, String child) {
@@ -1188,6 +1158,7 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
 
   /**
    * Helper function to get the text data of a given element
+   *
    * @param elem - Elelemnt to extract data of - may be <code>null</code>.
    * @return Element data as String. Never <code>null</code> may be empty.
    */
@@ -1201,221 +1172,146 @@ public class PSAddAssemblerInfo implements IPSResultDocumentProcessor {
   }
 
   /**
-   * The number of parameters provided for this exit. Initially set to
-   * NOT_INITIALIZED to reflect that the #init(IPSExtensionDef, File) method
-   * has not been called yet. Is set during the first call to #init(
-   * IPSExtensionDef, File).
+   * The number of parameters provided for this exit. Initially set to NOT_INITIALIZED to reflect
+   * that the #init(IPSExtensionDef, File) method has not been called yet. Is set during the first
+   * call to #init( IPSExtensionDef, File).
    */
   public static int ms_paramCount = NOT_INITIALIZED;
 
-  /**
-   * The siteid used if non was provided, never <code>null</code>.
-   */
+  /** The siteid used if non was provided, never <code>null</code>. */
   private static final String DEFAULT_SITEID = "0";
 
-  /**
-   * The element name for the assembler info added to the result document.
-   */
+  /** The element name for the assembler info added to the result document. */
   public static final String ASSEMBLER_INFO_ELEM = "sys_AssemblerInfo";
 
-  /**
-   * The attribute name for previewurl that is the request URL for this page
-   */
+  /** The attribute name for previewurl that is the request URL for this page */
   public static final String PREVIEWURL_ATTR = "previewurl";
 
-  /**
-   * The element name for the element wrapping all related content
-   * information.
-   */
+  /** The element name for the element wrapping all related content information. */
   public static final String RELATED_CONTENT_ELEM = "RelatedContent";
 
-  /**
-   * The element name for the element wrapping the variant url.
-   */
+  /** The element name for the element wrapping the variant url. */
   public static final String VARIANT_URL_ELEM = "VariantURL";
 
-  /**
-   * The element name for the element wrapping the inline link info.
-   */
+  /** The element name for the element wrapping the inline link info. */
   public static final String INLINE_LINK_ELEM = "InlineLink";
 
-  /**
-   * The attribute name for the InlineLink element.
-   */
+  /** The attribute name for the InlineLink element. */
   public static final String URL_ATTR = "url";
 
-  /**
-   * The element name returned from the rx_casSupport application for
-   * related link URL's.
-   */
+  /** The element name returned from the rx_casSupport application for related link URL's. */
   private static final String RELATEDLINKURL = "linkurl";
 
   /**
-   * The system support application containing all assembler system
-   * resources, never <code>null</code>.
+   * The system support application containing all assembler system resources, never <code>null
+   * </code>.
    */
   private static final String SYS_CAS_SUPPORT = "sys_casSupport";
 
-  /**
-   * The resource to get the assembler properties from, never
-   * <code>null</code>.
-   */
+  /** The resource to get the assembler properties from, never <code>null</code>. */
   private static final String ASSEMBLERPROPERTIES = SYS_CAS_SUPPORT + "/AssemblerProperties";
 
-  /**
-   * The resource to get the publication url from, never
-   * <code>null</code>.
-   */
+  /** The resource to get the publication url from, never <code>null</code>. */
   private static final String PUBLICATIONURL = "../" + SYS_CAS_SUPPORT + "/PublicationUrl.xml";
 
-  /**
-   * The resource to get the variant url, never
-   * <code>null</code>.
-   */
+  /** The resource to get the variant url, never <code>null</code>. */
   private static final String VARIANTURL = "../sys_ceInlineSearch/varianturl.xml";
 
-  /**
-   * The resource to get all information for related content from, never
-   * <code>null</code>.
-   */
+  /** The resource to get all information for related content from, never <code>null</code>. */
   private static final String RELATEDCONTENT = SYS_CAS_SUPPORT + "/casSupport";
 
   /**
-   * name XML element that stores the URLs for the related content info. This
-   * element shall be the child element of the RelatedContent element in the
-   * assembler information element.
+   * name XML element that stores the URLs for the related content info. This element shall be the
+   * child element of the RelatedContent element in the assembler information element.
    */
   private static final String INFOURLS = "infourls";
 
-  /**
-   * Prefix of an html tag (i.e &lt;html)
-   */
+  /** Prefix of an html tag (i.e &lt;html) */
   private static final String HTMLTAG_PREFIX = "<html";
 
-  /**
-   * The transformation stylesheet file name
-   */
+  /** The transformation stylesheet file name */
   private static final String STYLESHEETTRANSFORM = "sys_resources/stylesheets/assemblyedit.xsl";
 
-  /**
-   * sys_Slots stylesheet file path name
-   */
+  /** sys_Slots stylesheet file path name */
   private static final String STYLESHEETSYSSLOTS =
       "sys_resources/stylesheets/assemblers/sys_Slots.xsl";
 
-  /**
-   * rx_Slots stylesheet file path name
-   */
+  /** rx_Slots stylesheet file path name */
   private static final String STYLESHEETRXSLOTS =
       "rx_resources/stylesheets/assemblers/rx_Slots.xsl";
 
-  /**
-   * sys_Globals stylesheet file path name
-   */
+  /** sys_Globals stylesheet file path name */
   private static final String STYLESHEETSYSGLOBALS =
       "sys_resources/stylesheets/assemblers/sys_Globals.xsl";
 
-  /**
-   * rx_Globals stylesheet file path name
-   */
+  /** rx_Globals stylesheet file path name */
   private static final String STYLESHEETRXGLOBALS =
       "rx_resources/stylesheets/assemblers/rx_Globals.xsl";
 
-  /**
-   * sys_GlobalTemplates stylesheet file path name
-   */
+  /** sys_GlobalTemplates stylesheet file path name */
   private static final String STYLESHEETSYSGLOBALTEMPLATES =
       "sys_resources/stylesheets/assemblers/sys_GlobalTemplates.xsl";
 
-  /**
-   * rx_GlobalTemplates stylesheet file path name
-   */
+  /** rx_GlobalTemplates stylesheet file path name */
   private static final String STYLESHEETRXGLOBALTEMPLATES =
       "rx_resources/stylesheets/assemblers/rx_GlobalTemplates.xsl";
 
-  /**
-   * The parameter sys_command value for editing the related content.
-   */
+  /** The parameter sys_command value for editing the related content. */
   public static final String SYS_COMMAND_EDITRC = "editrc";
 
-  /**
-   * The in memory Properties object. This is used to read and recorde the file
-   * modified dates
-   */
+  /** The in memory Properties object. This is used to read and recorde the file modified dates */
   private static Properties ms_props = new Properties();
 
-  /**
-   * Constant value for normal variant type
-   */
+  /** Constant value for normal variant type */
   public static final String VARIANT_TYPE_NORMAL = "0";
 
-  /**
-   * Constant value for autoindex type of variant.
-   */
+  /** Constant value for autoindex type of variant. */
   public static final String VARIANT_TYPE_AUTO = "1";
 
   /**
-   * Constant value for system type of variant. These include all variants that
-   * produce not HTML outputs (binaries, JS files etc.).
+   * Constant value for system type of variant. These include all variants that produce not HTML
+   * outputs (binaries, JS files etc.).
    */
   public static final String VARIANT_TYPE_SYSTEM = "2";
 
-  /**
-   * Constant for workflow sys command name
-   */
+  /** Constant for workflow sys command name */
   public static final String WORKFLOW_COMMAND_NAME = "workflow";
 
-  /**
-   * Constant for workflow action
-   */
+  /** Constant for workflow action */
   public static final String WORKFLOW_CHECKOUT = "checkout";
 
-  /**
-   * Constant for linkurl's relateditemid attribute
-   */
+  /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_REALTEDITEMID = "relateditemid";
 
-  /**
-   * Constant for linkurl's relateditemid attribute
-   */
+  /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_CONTENTID = "contentid";
 
-  /**
-   * Constant for contentdetails resource name
-   */
+  /** Constant for contentdetails resource name */
   public static final String CONTENT_DETAILS_URL = "sys_ceSupport/contentdetails";
 
-  /**
-   * Constant for linkurl's relateditemid attribute
-   */
+  /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_CONTENTEDITORURL = "contenteditorurl";
 
-  /**
-   * Constant for linkurl's relateditemid attribute
-   */
+  /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_CONTENTVALID = "contentvalid";
 
-  /**
-   * Constant for linkurl's relateditemid attribute
-   */
+  /** Constant for linkurl's relateditemid attribute */
   public static final String ATTR_CHECKOUTUSERNAME = "checkoutusername";
 
   /**
-   * String constant to retrieve and modify the map of previously assembled
-   * snippets and their parent contexts. The key and value both follow the
-   * pattern described in {@link #makeKeyFromRequestContext(IPSRequestContext)}.
+   * String constant to retrieve and modify the map of previously assembled snippets and their
+   * parent contexts. The key and value both follow the pattern described in {@link
+   * #makeKeyFromRequestContext(IPSRequestContext)}.
    */
   public static final String ASSEMBLY_RECURSION_MAP_KEY = "sys_assemblyRecursionMapKey";
 
   /**
-   * String constant for the special parameter name that holds the value of the
-   * assmbly recursion depth. The value of this parameter is passed to child
-   * snipptes after incrementing by one during assembly process.
+   * String constant for the special parameter name that holds the value of the assmbly recursion
+   * depth. The value of this parameter is passed to child snipptes after incrementing by one during
+   * assembly process.
    */
   private static final String ASSEMBLY_LEVEL = "sys_assemblylevel";
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSAddAssemblerInfo.class);
 }

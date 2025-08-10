@@ -37,18 +37,12 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class handles generation of translation unit keys from all XSL
- * stylesheet files under Rhythmyx server. This assumes the following scheme in
- * looking up for the keys:
- * <p>
- * Any stylesheet that requires static labels localized will include the
- * definitions as
- * &lt;psxi18n:lookupkeys&gt;
- * &lt;key name="keyName"&gt;keyDescription&lt;/key&gt;
- * ...
- * &lt;/psxi18n:lookupkeys&gt;
- * &lt;/p&gt;
+ * This class handles generation of translation unit keys from all XSL stylesheet files under
+ * Rhythmyx server. This assumes the following scheme in looking up for the keys:
  *
+ * <p>Any stylesheet that requires static labels localized will include the definitions as
+ * &lt;psxi18n:lookupkeys&gt; &lt;key name="keyName"&gt;keyDescription&lt;/key&gt; ...
+ * &lt;/psxi18n:lookupkeys&gt; &lt;/p&gt;
  */
 public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSSectionHandler {
   /*
@@ -118,9 +112,9 @@ public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSS
 
   /**
    * Helper method that actually builds the DOM document containing all keys.
+   *
    * @param rxroot must not be <code>null</code>.
-   * @param keysDoc DOM document to append all keys, must not be
-   * <code>null</code>.
+   * @param keysDoc DOM document to append all keys, must not be <code>null</code>.
    * @throws IOException
    */
   private void handleAllFiles(String rxroot, Document keysDoc) throws IOException {
@@ -158,16 +152,16 @@ public class PSXslStylesheetsSectionHandler extends PSIdleDotter implements IPSS
   }
 
   /**
-   * Default name of section that is implemented by this class. Overridden
-   * during processing by the name specified in the config element.
+   * Default name of section that is implemented by this class. Overridden during processing by the
+   * name specified in the config element.
+   *
    * @see #process
    */
   protected static String ms_SectionName = "XSL Stylesheets";
 
   /**
-   * Starting directory to search for all XSL stylesheet files relative to
-   * Rhythmyx root. All subdirectories will recursed. We start from Rhthmyx
-   * root.
+   * Starting directory to search for all XSL stylesheet files relative to Rhythmyx root. All
+   * subdirectories will recursed. We start from Rhthmyx root.
    */
   public static final String XSLFILES_ROOT_DIR = "";
 }

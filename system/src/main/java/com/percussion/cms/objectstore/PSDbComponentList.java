@@ -37,47 +37,39 @@ import org.w3c.dom.Node;
 
 /**
  * See {@link PSDbComponentCollection base class} for details.
- * <p>Although it doesn't implement the List interface, it is meant to
- * behave like a list. In fact, it is more restrictive as it is meant to
- * behave like a {@link com.percussion.util.PSCollection}. It implements many,
- * but not all of the
- * methods of the List interface, except it uses appropriate types rather than
- * Object. List was not implemented because many of the methods don't make
- * sense in the context of how this list will be used.
- * <p>All components added to this list must implement the {@link
- * IPSDbComponent} interface.
+ *
+ * <p>Although it doesn't implement the List interface, it is meant to behave like a list. In fact,
+ * it is more restrictive as it is meant to behave like a {@link com.percussion.util.PSCollection}.
+ * It implements many, but not all of the methods of the List interface, except it uses appropriate
+ * types rather than Object. List was not implemented because many of the methods don't make sense
+ * in the context of how this list will be used.
+ *
+ * <p>All components added to this list must implement the {@link IPSDbComponent} interface.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSDbComponentList extends PSDbComponent {
   /**
-   * Convenience method that calls {@link #PSDbComponentList(String,
-   * String) PSDbComponentList(className, null)}.
+   * Convenience method that calls {@link #PSDbComponentList(String, String)
+   * PSDbComponentList(className, null)}.
    */
   public PSDbComponentList(String className) throws ClassNotFoundException {
     this(className, null);
   }
 
   /**
-   * Creates an empty list that limits the objects that can be added
-   * to the type specified. If an interface is supplied, an exception is
-   * thrown.
+   * Creates an empty list that limits the objects that can be added to the type specified. If an
+   * interface is supplied, an exception is thrown.
    *
-   * @param className  The fully qualified name of the class of objects to
-   *    be stored in this collection. Only a single type should be stored.
-   *    In other words, don't pass the name of an interface such as
-   *    IPSDbComponent. Never <code>null</code> or empty.
-   *
-   * @param compType The value returned by the {@link
-   * IPSDbComponent#getComponentType() getComponentType} method of the
-   * components being stored in this collection. If the default is being
-   * used, you can use the 1 param ctor instead of this one. Never
-   * <code>null</code> or empty.
-   *
-   * @throws ClassNotFoundException If a class by the supplied name cannot
-   *    be found.
-   *
+   * @param className The fully qualified name of the class of objects to be stored in this
+   *     collection. Only a single type should be stored. In other words, don't pass the name of an
+   *     interface such as IPSDbComponent. Never <code>null</code> or empty.
+   * @param compType The value returned by the {@link IPSDbComponent#getComponentType()
+   *     getComponentType} method of the components being stored in this collection. If the default
+   *     is being used, you can use the 1 param ctor instead of this one. Never <code>null</code> or
+   *     empty.
+   * @throws ClassNotFoundException If a class by the supplied name cannot be found.
    * @throws NullPointerException if className is <code>null</code>.
    */
   public PSDbComponentList(String className, String compType) throws ClassNotFoundException {
@@ -85,22 +77,20 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Convenience method that calls {@link #PSDbComponentList(Class,
-   * String) PSDbComponentList(className, null)}.
+   * Convenience method that calls {@link #PSDbComponentList(Class, String)
+   * PSDbComponentList(className, null)}.
    */
   public PSDbComponentList(Class<? extends IPSDbComponent> compClass) {
     this(compClass, null);
   }
 
   /**
-   * Just like {@link #PSDbComponentList(String, String)} except it takes a
-   * component class as the parameter.
+   * Just like {@link #PSDbComponentList(String, String)} except it takes a component class as the
+   * parameter.
    *
-   * @param compClass The component class, if <code>null</code>, the name
-   *    is calculated by taking the base class name and replacing the
-   *    leading PS with PSX. If there is no leading PS, the base class name
-   *    is used. Each component added to this collection must match this
-   *    name.
+   * @param compClass The component class, if <code>null</code>, the name is calculated by taking
+   *     the base class name and replacing the leading PS with PSX. If there is no leading PS, the
+   *     base class name is used. Each component added to this collection must match this name.
    */
   public PSDbComponentList(Class<? extends IPSDbComponent> compClass, String compType) {
     this();
@@ -122,11 +112,10 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Creates a list from a previously serialized one. src must contain the
-   * className attribute, or an exception will be thrown.
+   * Creates a list from a previously serialized one. src must contain the className attribute, or
+   * an exception will be thrown.
    *
-   * @param src  Never <code>null</code>.
-   *
+   * @param src Never <code>null</code>.
    * @see #fromXml(Element) and single arg class ctor
    */
   public PSDbComponentList(Element src) throws PSUnknownNodeTypeException {
@@ -218,11 +207,10 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * To provide access to {@link #fromXml(Element,String)} during
-   * construction.
+   * To provide access to {@link #fromXml(Element,String)} during construction.
    *
-   * @param nodeName May be <code>null</code> or empty. In that case, it's
-   *    equivalent to calling the 1 param ctor.
+   * @param nodeName May be <code>null</code> or empty. In that case, it's equivalent to calling the
+   *     1 param ctor.
    */
   PSDbComponentList(Element src, String nodeName) throws PSUnknownNodeTypeException {
     /*we don't call the super's ctor(Element) because we don't care about
@@ -236,21 +224,16 @@ public class PSDbComponentList extends PSDbComponent {
    * For use by classes using this class for implementation.
    *
    * @param compClass Never <code>null</code>.
-   *
    * @param compType Never <code>null</code> or empty.
-   *
-   * @param sequenced  If <code>false</code>, then no check is done for
-   *    IPSSequencedComponent on added components. Otherwise, behaves like
-   *    other ctors.
+   * @param sequenced If <code>false</code>, then no check is done for IPSSequencedComponent on
+   *     added components. Otherwise, behaves like other ctors.
    */
   PSDbComponentList(Class<? extends IPSDbComponent> compClass, String compType, boolean sequenced) {
     this(compClass, compType);
     m_ignoreSequencing = !sequenced;
   }
 
-  /**
-   * For use when constructing from xml.
-   */
+  /** For use when constructing from xml. */
   private PSDbComponentList() {
     super(new PSKey(new String[] {"unused"}));
   }
@@ -258,16 +241,14 @@ public class PSDbComponentList extends PSDbComponent {
   /**
    * The class of the contained component.
    *
-   * @return class object contained by this list.
-   *    Never <code>null</code>.
+   * @return class object contained by this list. Never <code>null</code>.
    */
   public Class<? extends IPSDbComponent> getMemberClass() {
     return m_class;
   }
 
   /**
-   * Same as toXml(doc), except it allows the caller to set the node name of
-   * the top level element.
+   * Same as toXml(doc), except it allows the caller to set the node name of the top level element.
    *
    * @param nodeName Never <code>null</code> or empty.
    */
@@ -285,9 +266,7 @@ public class PSDbComponentList extends PSDbComponent {
     root.setAttribute(XML_ATTR_CLASS, getMemberClass().getName());
     if (m_ignoreSequencing) root.setAttribute(XML_ATTR_SEQFLAG, XML_FALSE);
 
-    /**
-     * Write out the component list objects below
-     */
+    /** Write out the component list objects below */
     if (isEmpty()) return root;
 
     Iterator<IPSDbComponent> iter = iterator();
@@ -311,8 +290,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toXml(Document) interface} for description.
-   * The dtd for this component is:
+   * See {@link IPSDbComponent#toXml(Document) interface} for description. The dtd for this
+   * component is:
+   *
    * <pre><code>
    *    &lt;!ELEMENT getNodeName() (member.getNodeName()*&gt;
    *    &lt;!ATTLIST getNodeName()
@@ -332,18 +312,18 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link #toXml(Document) toXml} and {@link
-   * IPSCmsComponent#fromXml(Element) interface} for details.
-   * <p>If the className attribute is not present, a default
-   * class name will be generated by taking the node name, and if
-   * of the form 'PSXType', a class name of the form
-   * 'com.percussion.cms.objectstore.PSType' will be used. If the
-   * element doesn't begin with PSX, an exception will be thrown.
-   * <p>If a class name is supplied, it will be used. If derived classes
-   * limit the possible class names, then the derived class may override
-   * this method to validate that the de-serialized name is an allowed one.
-   * In general, this should not be necessary because this method does perform
-   * a check of the node names and throws an exception if they don't match.
+   * See {@link #toXml(Document) toXml} and {@link IPSCmsComponent#fromXml(Element) interface} for
+   * details.
+   *
+   * <p>If the className attribute is not present, a default class name will be generated by taking
+   * the node name, and if of the form 'PSXType', a class name of the form
+   * 'com.percussion.cms.objectstore.PSType' will be used. If the element doesn't begin with PSX, an
+   * exception will be thrown.
+   *
+   * <p>If a class name is supplied, it will be used. If derived classes limit the possible class
+   * names, then the derived class may override this method to validate that the de-serialized name
+   * is an allowed one. In general, this should not be necessary because this method does perform a
+   * check of the node names and throws an exception if they don't match.
    */
   @Override
   public void fromXml(Element src) throws PSUnknownNodeTypeException {
@@ -351,8 +331,8 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Same as fromXml(src), except it allows the caller to set the expected
-   * node name of the top level element.
+   * Same as fromXml(src), except it allows the caller to set the expected node name of the top
+   * level element.
    *
    * @param nodeName If <code>null</code> or empty, getNodeName() is used.
    */
@@ -443,10 +423,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#markForDeletion() interface} for description.
-   * It's the same as the base class, except when the toDbXml is called,
-   * all objects in the collection at that time will be removed, not just
-   * those in the collection when this method is called. To get the latter
+   * See {@link IPSDbComponent#markForDeletion() interface} for description. It's the same as the
+   * base class, except when the toDbXml is called, all objects in the collection at that time will
+   * be removed, not just those in the collection when this method is called. To get the latter
    * behavior, call {@link #clear()}.
    */
   @Override
@@ -455,10 +434,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#setState(int) interface} for description.  This
-   * class only cares if a state of <code>DBSTATE_MARKEDFORDELETE</code> is
-   * set, which simply delegates the call to {@link #markForDeletion()}.  All
-   * other states are ignored.
+   * See {@link IPSDbComponent#setState(int) interface} for description. This class only cares if a
+   * state of <code>DBSTATE_MARKEDFORDELETE</code> is set, which simply delegates the call to {@link
+   * #markForDeletion()}. All other states are ignored.
    */
   @Override
   public void setState(int newState) {
@@ -468,10 +446,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#setPersisted() interface} for description.
-   * Clears all entries in the delete list and removes all components that
-   * are members if their state is DBSTATE_MARKEDFORDELETE.
-   * Calls setPersisted on all other members.
+   * See {@link IPSDbComponent#setPersisted() interface} for description. Clears all entries in the
+   * delete list and removes all components that are members if their state is
+   * DBSTATE_MARKEDFORDELETE. Calls setPersisted on all other members.
    */
   @Override
   public void setPersisted() throws PSCmsException {
@@ -506,14 +483,16 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   * PSKey) IPSDbComponent} for full details.
-   * <p>Creates an xml fragment properly formatted for the Rhythmyx server
-   * that will modify the database to make the db instances of the objects
-   * of the specified type consistent with these objects.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey) IPSDbComponent}
+   * for full details.
+   *
+   * <p>Creates an xml fragment properly formatted for the Rhythmyx server that will modify the
+   * database to make the db instances of the objects of the specified type consistent with these
+   * objects.
+   *
    * <p>All components that need to be removed get added w/ the DELETE action.
-   * <p>If the state of this object is DBSTATE_UNMODIFIED, <code>null</code>
-   * is returned.
+   *
+   * <p>If the state of this object is DBSTATE_UNMODIFIED, <code>null</code> is returned.
    */
   @Override
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
@@ -550,22 +529,19 @@ public class PSDbComponentList extends PSDbComponent {
   /**
    * The type of components allowed in this list, as set in the ctor.
    *
-   * @return The component type of the members of this list. Never
-   *    <code>null</code> or empty.
+   * @return The component type of the members of this list. Never <code>null</code> or empty.
    */
   public String getMemberComponentType() {
     return m_memberComponentType;
   }
 
   /**
-   * The state of this object is calculated from the state of its elements.
-   * If this collection has been marked for deletion, DBSTATE_MARKEDFORDELETE
-   * is returned. Otherwise, if all elements are DBSTATE_UNMODIFIED and the
-   * delete list is empty, or there are no elements and the delete list is
-   * empty, DBSTATE_UNMODIFIED will be returned. Othwerwise, iff all elements
-   * are new and the delete list is empty, DBSTATE_NEW is returned. Otherwise,
-   * if there are any entries in delete list or any modified entries,
-   * DBSTATE_MODIFIED is returned.
+   * The state of this object is calculated from the state of its elements. If this collection has
+   * been marked for deletion, DBSTATE_MARKEDFORDELETE is returned. Otherwise, if all elements are
+   * DBSTATE_UNMODIFIED and the delete list is empty, or there are no elements and the delete list
+   * is empty, DBSTATE_UNMODIFIED will be returned. Othwerwise, iff all elements are new and the
+   * delete list is empty, DBSTATE_NEW is returned. Otherwise, if there are any entries in delete
+   * list or any modified entries, DBSTATE_MODIFIED is returned.
    *
    * @return One of the DBSTATE_xxx values. See description for more details.
    */
@@ -597,8 +573,8 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSCmsComponent#equals(Object) interface} for description.
-   * This method ignores the delete list and state when performing the compare.
+   * See {@link IPSCmsComponent#equals(Object) interface} for description. This method ignores the
+   * delete list and state when performing the compare.
    */
   @Override
   public boolean equals(Object obj) {
@@ -615,13 +591,11 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Replaces the component at the specified index w/ the supplied one. The
-   * component being replaced is added to the delete list.
+   * Replaces the component at the specified index w/ the supplied one. The component being replaced
+   * is added to the delete list.
    *
    * @param index A value >= 0 and < size().
-   *
-   * @param comp Never <code>null</code>. Must be of the type for which this
-   *    list was created.
+   * @param comp Never <code>null</code>. Must be of the type for which this list was created.
    */
   public void set(int index, IPSDbComponent comp) {
     checkType(comp, true);
@@ -636,40 +610,30 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Convenience method. Calls {@link #add(int,IPSDbComponent)
-   * add(size(), comp}.
+   * Convenience method. Calls {@link #add(int,IPSDbComponent) add(size(), comp}.
    *
    * @param comp the to be added component, never <code>null</code>.
-   *
-   * @throws ClassCastException if the supplied component doesn't have the
-   *    same type as the type supplied during construction or it doesn't
-   *    implement the {@link IPSDbComponent} interface (if sequence
-   *    support is enabled).
+   * @throws ClassCastException if the supplied component doesn't have the same type as the type
+   *     supplied during construction or it doesn't implement the {@link IPSDbComponent} interface
+   *     (if sequence support is enabled).
    */
   public void add(IPSDbComponent comp) {
     add(size(), comp);
   }
 
   /**
-   * Inserts the supplied component at the specified index, pushing the
-   * component at that index down.
-   * Note: If you add a component whose state is DBSTATE_MARKEDFORDELETE,
-   * this component will be removed from this list when the setPersisted
-   * method is called. This is equivalent to adding an unmarked component,
-   * then removing it.
+   * Inserts the supplied component at the specified index, pushing the component at that index
+   * down. Note: If you add a component whose state is DBSTATE_MARKEDFORDELETE, this component will
+   * be removed from this list when the setPersisted method is called. This is equivalent to adding
+   * an unmarked component, then removing it.
    *
-   * @param index A value >= 0, <= size(). If size() is supplied, the
-   *    component is appended to the list.
-   *
-   * @param comp The datatype must be the same as the type of this list and
-   *    it must implement IPSSequencedComponent or a ClassCastException will
-   *    be thrown.
-   *
-   * @throws ClassCastException if the supplied component doesn't have the
-   *    same type as the type supplied during construction.
-   *
-   * @throws IndexOutOfBoundsException If the index is not in the range 0 to
-   *    size(), inclusive.
+   * @param index A value >= 0, <= size(). If size() is supplied, the component is appended to the
+   *     list.
+   * @param comp The datatype must be the same as the type of this list and it must implement
+   *     IPSSequencedComponent or a ClassCastException will be thrown.
+   * @throws ClassCastException if the supplied component doesn't have the same type as the type
+   *     supplied during construction.
+   * @throws IndexOutOfBoundsException If the index is not in the range 0 to size(), inclusive.
    */
   public void add(int index, IPSDbComponent comp) {
     // Threshold must be m_class and implement IPSSequencedComponent
@@ -692,12 +656,9 @@ public class PSDbComponentList extends PSDbComponent {
   /**
    * Moves an item in the list from an index position to an index position.
    *
-   *
    * @param fromIndex A value >= 0, < size().
-   *
-   * @param toIndex A value >= 0, <= size(). If size() is supplied, the
-   *    component is moved to the list.
-   *
+   * @param toIndex A value >= 0, <= size(). If size() is supplied, the component is moved to the
+   *     list.
    * @throws IndexOutOfBoundsException If the index is not in the proper range.
    */
   public void move(int fromIndex, int toIndex) {
@@ -714,20 +675,15 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Verifies that <code>comp</code> is an instance of the class passed in
-   * the ctor and that it implements the IPSSequencedComponent interface.
+   * Verifies that <code>comp</code> is an instance of the class passed in the ctor and that it
+   * implements the IPSSequencedComponent interface.
    *
    * @param comp object to check its type. May be <code>null</code>.
-   *
-   * @param shouldThrow If <code>true</code>, then an exception will be thrown
-   *    if the supplied component is not of the correct type.
-   *
-   * @return <code>true</code> if the component is OK for this set,
-   *    <code>false</code> otherwise.
-   *
-   * @throws ClassCastException if our child class is not assignable
-   *    from <code>comp</code> or it doesn't implement IPSSequencedComponent.
-   *
+   * @param shouldThrow If <code>true</code>, then an exception will be thrown if the supplied
+   *     component is not of the correct type.
+   * @return <code>true</code> if the component is OK for this set, <code>false</code> otherwise.
+   * @throws ClassCastException if our child class is not assignable from <code>comp</code> or it
+   *     doesn't implement IPSSequencedComponent.
    * @throws IllegalArgumentException if comp is <code>null</code>.
    */
   private boolean checkType(IPSDbComponent comp, boolean shouldThrow) {
@@ -777,9 +733,7 @@ public class PSDbComponentList extends PSDbComponent {
     return isValid;
   }
 
-  /**
-   * Removes all entries in this list.
-   */
+  /** Removes all entries in this list. */
   public void clear() {
     Iterator iter = iterator();
 
@@ -794,15 +748,12 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Scans the entire list looking for an entry that matches the supplied
-   * component. For any entry, e, if e.equals(comp) is <code>true</code>,
-   * <code>true</code> is returned.
+   * Scans the entire list looking for an entry that matches the supplied component. For any entry,
+   * e, if e.equals(comp) is <code>true</code>, <code>true</code> is returned.
    *
-   * @param comp If <code>null</code> or not the same datatype,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if comp matches any entry in this list using
-   *    the equals method, <code>false</code> otherwise.
+   * @param comp If <code>null</code> or not the same datatype, <code>false</code> is returned.
+   * @return <code>true</code> if comp matches any entry in this list using the equals method,
+   *     <code>false</code> otherwise.
    */
   public boolean contains(IPSDbComponent comp) {
     if (!checkType(comp, false)) return false;
@@ -820,13 +771,10 @@ public class PSDbComponentList extends PSDbComponent {
   /**
    * Returns the component at the specified index.
    *
-   * @param index A value in the range 0 to size()-1, inclusive. If outside
-   *    this range, an exception is thrown.
-   *
+   * @param index A value in the range 0 to size()-1, inclusive. If outside this range, an exception
+   *     is thrown.
    * @return The component, never <code>null</code>.
-   *
-   * @throws IndexOutOfBoundsException If the index is not in the range 0 to
-   *    size()-1, inclusive.
+   * @throws IndexOutOfBoundsException If the index is not in the range 0 to size()-1, inclusive.
    */
   public IPSDbComponent get(int index) {
     if (index >= size() || index < 0)
@@ -837,12 +785,11 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Finds the first occurrence of comp within the list and returns the
-   * index of that entry, 0 based.
+   * Finds the first occurrence of comp within the list and returns the index of that entry, 0
+   * based.
    *
-   * @param comp If <code>null</code> or the datatype doesn't match the type of
-   *    the members, -1 is returned.
-   *
+   * @param comp If <code>null</code> or the datatype doesn't match the type of the members, -1 is
+   *     returned.
    * @return A value >= 0 if found, -1 if comp is not contained in this list.
    */
   public int indexOf(IPSDbComponent comp) {
@@ -860,38 +807,33 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Gets an immutable iterator, meaning that this list cannot be modified
-   * by the returned iterator.
+   * Gets an immutable iterator, meaning that this list cannot be modified by the returned iterator.
    *
-   * @return An iterator over 0 or more entries, each of which is an
-   *    IPSDbComponent of the same type. Never <code>null</code>.
+   * @return An iterator over 0 or more entries, each of which is an IPSDbComponent of the same
+   *     type. Never <code>null</code>.
    */
   public Iterator<IPSDbComponent> iterator() {
     return Collections.unmodifiableList(m_list).iterator();
   }
 
   /**
-   * Gets an immutable ordered iterator, meaning that this list cannot
-   * be modified by the returned iterator.
+   * Gets an immutable ordered iterator, meaning that this list cannot be modified by the returned
+   * iterator.
    *
-   * @return An iterator over 0 or more entries, each of which is an
-   *    IPSDbComponent of the same type. Never <code>null</code>.
+   * @return An iterator over 0 or more entries, each of which is an IPSDbComponent of the same
+   *     type. Never <code>null</code>.
    */
   public ListIterator<IPSDbComponent> listIterator() {
     return Collections.unmodifiableList(m_list).listIterator();
   }
 
   /**
-   * Removes the component at the specified index. If the component state is
-   * not DBSTATE_NEW, it is added to the delete list.
+   * Removes the component at the specified index. If the component state is not DBSTATE_NEW, it is
+   * added to the delete list.
    *
-   * @param index  A value between 0 and size()-1. Any value outside this
-   *    range throws an exception.
-   *
-   * @return A clone of the component at the specified index (meaning the
-   *    key has been cleared). May be <code>null</code> if the operation
-   *    failed.
-   *
+   * @param index A value between 0 and size()-1. Any value outside this range throws an exception.
+   * @return A clone of the component at the specified index (meaning the key has been cleared). May
+   *     be <code>null</code> if the operation failed.
    * @throws IndexOutOfBoundsException If the index is not valid.
    */
   public IPSDbComponent remove(int index) {
@@ -910,16 +852,13 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Removes the first occurrence of the specified component from this
-   * list. If the component key is persisted, it is added to the delete
-   * list.
+   * Removes the first occurrence of the specified component from this list. If the component key is
+   * persisted, it is added to the delete list.
    *
-   * @param comp If <code>null</code> or if the component doesn't match the
-   *    types of the members, <code>false</code> is returned.
-   *
-   * @return <code>true</code> if a matching component was found and removed,
-   *    <code>false</code> otherwise.  Match is made based on the
-   *    <code>equals</code> method of the supplied component.
+   * @param comp If <code>null</code> or if the component doesn't match the types of the members,
+   *     <code>false</code> is returned.
+   * @return <code>true</code> if a matching component was found and removed, <code>false</code>
+   *     otherwise. Match is made based on the <code>equals</code> method of the supplied component.
    */
   public boolean remove(IPSDbComponent comp) {
     if (!checkType(comp, false)) return false;
@@ -946,11 +885,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Returns the index (zero-based) of the first occurrence of the supplied
-   * component.
+   * Returns the index (zero-based) of the first occurrence of the supplied component.
    *
    * @param comp Assumed not <code>null</code>.
-   *
    * @return A value >= 0 if found, -1 if not in m_list.
    */
   private int getIndex(IPSDbComponent comp) {
@@ -973,8 +910,7 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * This cloneFull includes the dummy key info as well as
-   * the deletelist information.
+   * This cloneFull includes the dummy key info as well as the deletelist information.
    *
    * @see com.percussion.cms.objectstore.PSDbComponent#cloneFull()
    */
@@ -1023,8 +959,7 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * This includes the dummy key info as well as
-   * the deletelist information.
+   * This includes the dummy key info as well as the deletelist information.
    *
    * @see com.percussion.cms.objectstore.PSDbComponent#hashCodeFull()
    */
@@ -1037,8 +972,8 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSCmsComponent#hashCode() interface} for description.
-   * This method ignores the delete list when performing the calculation.
+   * See {@link IPSCmsComponent#hashCode() interface} for description. This method ignores the
+   * delete list when performing the calculation.
    */
   @Override
   public int hashCode() {
@@ -1055,10 +990,9 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSCmsComponent#clone() interface} for description. This
-   * class varies in its implementation by not including the deleted list
-   * in the cloned object and each cloned member will be as described in
-   * {@link IPSDbComponent#clone()}. Except that any component whose state
+   * See {@link IPSCmsComponent#clone() interface} for description. This class varies in its
+   * implementation by not including the deleted list in the cloned object and each cloned member
+   * will be as described in {@link IPSDbComponent#clone()}. Except that any component whose state
    * is DBSTATE_MARKEDFORDELETE will not be cloned.
    */
   @Override
@@ -1091,25 +1025,22 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * This is for use by other objects using this class as a basis for
-   * implementation.
+   * This is for use by other objects using this class as a basis for implementation.
    *
-   * @return The collection that contains all the components that have been
-   *    removed from this list. Never <code>null</code>, may be empty. This
-   *    must be treated as read-only and should not be cached.
+   * @return The collection that contains all the components that have been removed from this list.
+   *     Never <code>null</code>, may be empty. This must be treated as read-only and should not be
+   *     cached.
    */
   Collection<IPSDbComponent> getDeleteCollection() {
     return m_deleteList;
   }
 
   /**
-   * see base class for description. Overriden to define this objects
-   * persistence in terms of it's contained objects persistence. This
-   * object's key is just a dummy key.
-   * <p>
-   * This method will affect super.clone(), it need to always return
-   * <code>false</code> during call super.clone(). Set the behavior back
-   * afterwards.
+   * see base class for description. Overriden to define this objects persistence in terms of it's
+   * contained objects persistence. This object's key is just a dummy key.
+   *
+   * <p>This method will affect super.clone(), it need to always return <code>false</code> during
+   * call super.clone(). Set the behavior back afterwards.
    */
   @Override
   public boolean isPersisted() {
@@ -1131,9 +1062,8 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * see base class for description. Overriden to define this objects
-   * assignment in terms of it's contained objects assignment. This
-   * object's key is just a dummy key.
+   * see base class for description. Overriden to define this objects assignment in terms of it's
+   * contained objects assignment. This object's key is just a dummy key.
    */
   @Override
   public boolean isAssigned() {
@@ -1152,52 +1082,49 @@ public class PSDbComponentList extends PSDbComponent {
   }
 
   /**
-   * Class object of child component being contained. Set by time ctor is
-   * finished, then never changes after that (not even fromXml).
+   * Class object of child component being contained. Set by time ctor is finished, then never
+   * changes after that (not even fromXml).
    */
   private Class<? extends IPSDbComponent> m_class = null;
 
   /**
-   * All the components managed by this list that have not been deleted.
-   * Never <code>null</code>. Every entry is an IPSDbComponent of the same
-   * class and implements IPSSequencedComponent.
+   * All the components managed by this list that have not been deleted. Never <code>null</code>.
+   * Every entry is an IPSDbComponent of the same class and implements IPSSequencedComponent.
    */
   private List<IPSDbComponent> m_list = new ArrayList<>();
 
   /**
-   * List of components that have been removed from this collection. Never
-   * <code>null</code>. Every entry is an IPSDbComponent of the same
-   * class that has a state equal to DBSTATE_MARKEDFORDELETE.
+   * List of components that have been removed from this collection. Never <code>null</code>. Every
+   * entry is an IPSDbComponent of the same class that has a state equal to DBSTATE_MARKEDFORDELETE.
    */
   private List<IPSDbComponent> m_deleteList = new ArrayList<>();
 
   /**
-   * We use this flag instead of the base's state attribute because of the
-   * interaction between the key state and the component state. Our key is
-   * never persisted, so we could never set this state.
+   * We use this flag instead of the base's state attribute because of the interaction between the
+   * key state and the component state. Our key is never persisted, so we could never set this
+   * state.
+   *
    * <p>Defaults to <code>false</code>. Cleared by setPersisted.
    */
   private boolean m_markedForDelete = false;
 
   /**
-   * The component type name of the objects managed by this collection.
-   * Set in ctor, then never <code>null</code> or empty. Never changed
-   * after set.
+   * The component type name of the objects managed by this collection. Set in ctor, then never
+   * <code>null</code> or empty. Never changed after set.
    */
   private String m_memberComponentType;
 
   /**
-   * This is used to make this class behave more like a collection, ie. if
-   * <code>true</code>, it won't require added components to implement the
-   * IPSSequencedComponent interface.
+   * This is used to make this class behave more like a collection, ie. if <code>true</code>, it
+   * won't require added components to implement the IPSSequencedComponent interface.
    */
   private boolean m_ignoreSequencing = false;
 
   /**
-   * If clone a persisted component list, the isPersisted() method of this
-   * class will effect super.clone(), may throw exception in super.setState().
-   * The workaround is to change isPersisted() behavior to always return
-   * <code>false</code> during clone, set the behavior back afterwards.
+   * If clone a persisted component list, the isPersisted() method of this class will effect
+   * super.clone(), may throw exception in super.setState(). The workaround is to change
+   * isPersisted() behavior to always return <code>false</code> during clone, set the behavior back
+   * afterwards.
    */
   private boolean m_isCloning = false;
 

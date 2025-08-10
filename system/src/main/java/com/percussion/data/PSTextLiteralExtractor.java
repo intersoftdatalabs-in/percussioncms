@@ -18,18 +18,17 @@
 package com.percussion.data;
 
 /**
- * The PSTextLiteralExtractor class is used to extract data from
- * a pre-defined text literal.
+ * The PSTextLiteralExtractor class is used to extract data from a pre-defined text literal.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSTextLiteralExtractor extends PSLiteralExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param   source      the object defining the source of this value
+   * @param source the object defining the source of this value
    */
   public PSTextLiteralExtractor(com.percussion.design.objectstore.PSTextLiteral source) {
     super(source);

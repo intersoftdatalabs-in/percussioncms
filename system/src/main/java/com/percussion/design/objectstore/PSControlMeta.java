@@ -25,19 +25,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents the metadata for a content editor control, as defined by
- * the &lt;psxctl:ControlMeta&gt; node in <code>sys_LibraryControlDef.dtd</code>
+ * Represents the metadata for a content editor control, as defined by the
+ * &lt;psxctl:ControlMeta&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
 public class PSControlMeta extends PSComponent {
   /**
-   * Initializes a newly created <code>PSControlMeta</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSControlMeta</code> object, from an XML representation. See
+   * {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSControlMeta(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null.");
@@ -45,16 +43,14 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -118,10 +114,9 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
    * <pre><code>
    * &lt;!ELEMENT psxctl:ControlMeta (psxctl:Description?, psxctl:ParamList?,
@@ -138,9 +133,9 @@ public class PSControlMeta extends PSComponent {
    * &lt;!ELEMENT psxctl:Dependencies (psxctl:Dependency+)>
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   *    elements.  Cannot be <code>null</code>.
-   * @return    the newly created XML element node
+   * @param doc The XML document being constructed, needed to create new elements. Cannot be <code>
+   *     null</code>.
+   * @return the newly created XML element node
    */
   public Element toXml(Document doc) {
     if (null == doc) throw new IllegalArgumentException("Must provide a valid Document");
@@ -186,8 +181,7 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
    * @param source object to be shallow copied; may not be <code>null</code>
    */
@@ -210,8 +204,7 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * @return  a string representation of the object, the display name (if set)
-   *          or the internal name
+   * @return a string representation of the object, the display name (if set) or the internal name
    */
   public String toString() {
     if (m_displayName.length() > 0) return m_displayName;
@@ -232,12 +225,13 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * If the control is deprecated, it may have a name of the control to use in
-   * its place.  This will return the name of the control to use instead of
-   * the deprecated control.
-   * <p />
-   * @return the name of the control that will replace the deprecated control
-   * may return <code>null</code> or empty.
+   * If the control is deprecated, it may have a name of the control to use in its place. This will
+   * return the name of the control to use instead of the deprecated control.
+   *
+   * <p>
+   *
+   * @return the name of the control that will replace the deprecated control may return <code>null
+   *     </code> or empty.
    */
   public String getDeprecatedReplacementName() {
     return m_deprecatedReplacement;
@@ -260,42 +254,39 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * @return A description of the type of data this control takes.
-   *         Never empty or <code>null</code>
+   * @return A description of the type of data this control takes. Never empty or <code>null</code>
    */
   public String getDimension() {
     return m_dimension;
   }
 
   /**
-   * @return A hint as to whether this control uses a set of choices.
-   *         Never empty or <code>null</code>
+   * @return A hint as to whether this control uses a set of choices. Never empty or <code>null
+   *     </code>
    */
   public String getChoiceSet() {
     return m_choiceSet;
   }
 
   /**
-   * @return A full description of the behavior and parameters for this
-   *         control. May be empty, never <code>null</code>
+   * @return A full description of the behavior and parameters for this control. May be empty, never
+   *     <code>null</code>
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
-   * @return A list of zero-or-more <code>PSControlParameter</code>
-   * objects which enumerates the parameters supported by this control;
-   * never <code>null</code>.
+   * @return A list of zero-or-more <code>PSControlParameter</code> objects which enumerates the
+   *     parameters supported by this control; never <code>null</code>.
    */
   public List getParams() {
     return m_params;
   }
 
   /**
-   * @return A list of zero-or-more <code>PSDependency</code>
-   * objects which enumerates the dependencies required by this control;
-   * never <code>null</code>.
+   * @return A list of zero-or-more <code>PSDependency</code> objects which enumerates the
+   *     dependencies required by this control; never <code>null</code>.
    */
   public List getDependencies() {
     return m_dependencies;
@@ -304,19 +295,17 @@ public class PSControlMeta extends PSComponent {
   /**
    * Get the list of associated files.
    *
-   * @return A list of zero-or-more <code>PSFileDescriptor</code>
-   * objects, never <code>null</code>.
+   * @return A list of zero-or-more <code>PSFileDescriptor</code> objects, never <code>null</code>.
    */
   public List getAssociatedFiles() {
     return m_files;
   }
 
   /**
-   * Sets the description member variable, enforcing the assertion that this
-   * variable will never be <code>null</code>.
+   * Sets the description member variable, enforcing the assertion that this variable will never be
+   * <code>null</code>.
    *
-   * @param description The value to assign. If <code>null</code>, the empty
-   *        string is used instead.
+   * @param description The value to assign. If <code>null</code>, the empty string is used instead.
    */
   private void setDescription(String description) {
     if (null == description) m_description = "";
@@ -324,81 +313,56 @@ public class PSControlMeta extends PSComponent {
   }
 
   /**
-   * Sets the display name member variable, enforcing the assertion that this
-   * variable will never be <code>null</code>.
+   * Sets the display name member variable, enforcing the assertion that this variable will never be
+   * <code>null</code>.
    *
-   * @param displayName The value to assign. If <code>null</code>, the empty
-   *        string is used instead.
+   * @param displayName The value to assign. If <code>null</code>, the empty string is used instead.
    */
   private void setDisplayName(String displayName) {
     if (null == displayName) m_displayName = "";
     else m_displayName = displayName;
   }
 
-  /**
-   * Name of parent XML element
-   */
+  /** Name of parent XML element */
   public static final String XML_NODE_NAME = "psxctl:ControlMeta";
 
-  /**
-   * Name of the XML attribute that contains the name
-   */
+  /** Name of the XML attribute that contains the name */
   private static final String XML_NAME_ATTR = "name";
 
-  /**
-   * Name of the XML attribute that contains the dimension
-   */
+  /** Name of the XML attribute that contains the dimension */
   private static final String XML_DIMENSION_ATTR = "dimension";
 
-  /**
-   * Name of the XML attribute that contains the choiceset
-   */
+  /** Name of the XML attribute that contains the choiceset */
   private static final String XML_CHOICESET_ATTR = "choiceset";
 
-  /**
-   * Name of the XML attribute that contains the display name
-   */
+  /** Name of the XML attribute that contains the display name */
   private static final String XML_DISPLAYNAME_ATTR = "displayName";
 
-  /**
-   * Name of the XML attribute that contains the deprecate value
-   */
+  /** Name of the XML attribute that contains the deprecate value */
   private static final String XML_DEPRECATE_ATTR = "deprecate";
 
-  /**
-   * Name of the XML attribute that contains the replacewith value
-   */
+  /** Name of the XML attribute that contains the replacewith value */
   private static final String XML_REPLACEWITH_ATTR = "replacewith";
 
-  /**
-   * Name of child XML element that contains the description
-   */
+  /** Name of child XML element that contains the description */
   private static final String XELEM_DESCRIPTION = "psxctl:Description";
 
-  /**
-   * Name of child XML element that contains the parameter list
-   */
+  /** Name of child XML element that contains the parameter list */
   private static final String XELEM_PARAMLIST = "psxctl:ParamList";
 
-  /**
-   * Name of child XML element that contains the dependency list
-   */
+  /** Name of child XML element that contains the dependency list */
   private static final String XELEM_DEPENDENCIES = "psxctl:Dependencies";
 
-  /**
-   * Name of child XML element that contains the associated file list
-   */
+  /** Name of child XML element that contains the associated file list */
   private static final String XELEM_FILES = "psxctl:AssociatedFileList";
 
   /**
-   * An array of legal values for the dimension XML attribute.  The value at
-   * index 0 is the default.
+   * An array of legal values for the dimension XML attribute. The value at index 0 is the default.
    */
   private static final String[] XML_DIMENSION_ENUM = {"single", "array", "table"};
 
   /**
-   * An array of legal values for the deprecate XML attribute.  The value at
-   * index 0 is the default.
+   * An array of legal values for the deprecate XML attribute. The value at index 0 is the default.
    */
   private static final String[] XML_DEPRECATE_ENUM = {"no", "yes"};
 
@@ -412,8 +376,7 @@ public class PSControlMeta extends PSComponent {
   public static final String CHOICES_REQUIRED = "required";
 
   /**
-   * An array of legal values for the choiceset XML attribute.  The value at
-   * index 0 is the default.
+   * An array of legal values for the choiceset XML attribute. The value at index 0 is the default.
    */
   private static final String[] XML_CHOICESET_ENUM = {
     CHOICES_NONE, CHOICES_REQUIRED, CHOICES_OPTIONAL
@@ -428,64 +391,50 @@ public class PSControlMeta extends PSComponent {
   /** Constant for controls that expect a single value as data */
   public static final String SINGLE_DIMENSION = "single";
 
-  /**
-   * Internal name of this control. Never <code>null</code> or empty after
-   * construction.
-   */
+  /** Internal name of this control. Never <code>null</code> or empty after construction. */
   private String m_name;
 
-  /**
-   * Value of the deprecate attribute. May be <code>null</code> or empty after
-   * construction.
-   */
+  /** Value of the deprecate attribute. May be <code>null</code> or empty after construction. */
   private String m_deprecated;
 
-  /**
-   * Value of the replacewith attribute. May be <code>null</code> or empty after
-   * construction.
-   */
+  /** Value of the replacewith attribute. May be <code>null</code> or empty after construction. */
   private String m_deprecatedReplacement;
 
-  /**
-   * Display name of this control. Never <code>null</code> after construction.
-   */
+  /** Display name of this control. Never <code>null</code> after construction. */
   private String m_displayName;
 
   /**
    * A description of the type of data this control takes. Never <code>null
-   * </code> after construction.  See {@link #XML_DIMENSION_ENUM} for a list
-   * of legal values.
+   * </code> after construction. See {@link #XML_DIMENSION_ENUM} for a list of legal values.
    */
   private String m_dimension;
 
   /**
    * A hint as to whether this control uses a set of choices. Never <code>null
-   * </code> after construction.  See {@link #XML_CHOICESET_ENUM} for a list
-   * of legal values.
+   * </code> after construction. See {@link #XML_CHOICESET_ENUM} for a list of legal values.
    */
   private String m_choiceSet;
 
   /**
-   * A full description of the behavior and parameters for this control.
-   * Never <code>null</code>.
+   * A full description of the behavior and parameters for this control. Never <code>null</code>.
    */
   private String m_description = "";
 
   /**
-   * Contains any parameters this control supports as
-   * <code>PSControlParameter</code> objects.  May be empty.
+   * Contains any parameters this control supports as <code>PSControlParameter</code> objects. May
+   * be empty.
    */
   private List m_params = new ArrayList();
 
   /**
    * Contains any dependencies defined for this control, as <code>
-   * PSDependency</code> objects.  May be empty.
+   * PSDependency</code> objects. May be empty.
    */
   private List m_dependencies = new ArrayList();
 
   /**
    * Contains any associated files defined for this control, as <code>
-   * PSFileDescriptor</code> objects.  Never <code>null</code>, may be empty.
+   * PSFileDescriptor</code> objects. Never <code>null</code>, may be empty.
    */
   private List m_files = new ArrayList();
 }

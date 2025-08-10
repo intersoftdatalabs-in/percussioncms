@@ -23,18 +23,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXDisplayMapping DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXDisplayMapping DTD in BasicObjects.dtd. */
 public class PSDisplayMapping extends PSComponent {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
-   * Creates a new display mapping for the provided field reference and UI
-   * set.
+   * Creates a new display mapping for the provided field reference and UI set.
    *
    * @param fieldRef a field reference, not <code>null</code> or empty.
    * @param uiSet a UI set, not <code>null</code>.
@@ -47,23 +42,17 @@ public class PSDisplayMapping extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDisplayMapping(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSDisplayMapping() {}
 
   // see interface for description
@@ -134,9 +123,8 @@ public class PSDisplayMapping extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSDisplayMapping, not <code>null</code>.
    */
@@ -156,8 +144,7 @@ public class PSDisplayMapping extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSDisplayMapping)) return false;
@@ -182,7 +169,6 @@ public class PSDisplayMapping extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -235,7 +221,6 @@ public class PSDisplayMapping extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -278,8 +263,8 @@ public class PSDisplayMapping extends PSComponent {
   public static final String XML_NODE_NAME = "PSXDisplayMapping";
 
   /**
-   * The name of a field definition, must match an existing field name.
-   * Never <code>null</code> or empty after construction.
+   * The name of a field definition, must match an existing field name. Never <code>null</code> or
+   * empty after construction.
    */
   private String m_fieldRef;
 

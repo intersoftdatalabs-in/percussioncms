@@ -29,25 +29,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle all assembly related operations for
- * webservices. These operations are specified in the "Assembly" port in the
- * <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSAssembly}.
+ * This class is used to handle all assembly related operations for webservices. These operations
+ * are specified in the "Assembly" port in the <code>WebServices.wsdl</code>. @See {@link
+ * com.percussion.hooks.webservices.PSWSAssembly}.
  */
 class PSAssemblyHandler extends PSWebServicesBaseHandler {
   /**
-   * Operation to handle creating the variant data specified by the content id
-   * and revision parameters within the request. The data create will contain
-   * a base64 encoded data of the assembled variant, could be just simple HTML,
-   * but could be binary or PDF etc.. depending on the variant requested.
+   * Operation to handle creating the variant data specified by the content id and revision
+   * parameters within the request. The data create will contain a base64 encoded data of the
+   * assembled variant, could be just simple HTML, but could be binary or PDF etc.. depending on the
+   * variant requested.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void createVariantAction(PSRequest request, Document parent) throws PSException {
@@ -96,19 +91,15 @@ class PSAssemblyHandler extends PSWebServicesBaseHandler {
     }
   }
 
-  /**
-   * Assembly URL application and resource name
-   */
+  /** Assembly URL application and resource name */
   private static final String ASSEMBLY_URL = "sys_casSupport/AssemblyUrl";
 
-  /**
-   * Assembly URL attribute name
-   */
+  /** Assembly URL attribute name */
   private static final String ATTRIB_ASSEMBLY_URL = "current";
 
   /**
-   * Constants for XML elements/attributes defined in the
-   * schema <code>sys_AssemblyParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_AssemblyParameters.xsd
+   * </code>
    */
   private static final String EL_VARIANTID = "VariantId";
 

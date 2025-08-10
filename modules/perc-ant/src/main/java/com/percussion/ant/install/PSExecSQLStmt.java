@@ -36,26 +36,19 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
 /**
- * PSExecSQLStmt is an Installshield wizard bean which executes specified
- * sql statement during install.
- * It has a general sql statement <code>sql</code> and a sql statement for
- * each database that is supported, <code>sqlSqlServer</code>,
- * <code>sqlOracle</code>, and
- * <code>sqlUDB</code>. Database specific sql statement takes preference over
- * the general sql statement. However if the database specific sql statement
- * is <code>null</code> or empty, then general sql statement is used.
- * The <code>objectNames</code> contains the names of tables or views which
- * should be replaced by fully qualified table or view name before executing
- * the sql statement. For example, if the sql statement is CREATE VIEW
- * RXRELATEDCONTENT ... then "RXRELATEDCONTENT" string should be added to
- * <code>objectNames</code> so that it is replaced by fully qualified name
- * such as "rxmaster.dbo.RXRELATEDCONTENT" on MS SqlServer before executing the
- * sql statement.
+ * PSExecSQLStmt is an Installshield wizard bean which executes specified sql statement during
+ * install. It has a general sql statement <code>sql</code> and a sql statement for each database
+ * that is supported, <code>sqlSqlServer</code>, <code>sqlOracle</code>, and <code>sqlUDB</code>.
+ * Database specific sql statement takes preference over the general sql statement. However if the
+ * database specific sql statement is <code>null</code> or empty, then general sql statement is
+ * used. The <code>objectNames</code> contains the names of tables or views which should be replaced
+ * by fully qualified table or view name before executing the sql statement. For example, if the sql
+ * statement is CREATE VIEW RXRELATEDCONTENT ... then "RXRELATEDCONTENT" string should be added to
+ * <code>objectNames</code> so that it is replaced by fully qualified name such as
+ * "rxmaster.dbo.RXRELATEDCONTENT" on MS SqlServer before executing the sql statement. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -80,7 +73,6 @@ import org.apache.tools.ant.BuildException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSExecSQLStmt extends PSAction {
   private static final Logger log = LogManager.getLogger(PSExecSQLStmt.class);
@@ -193,73 +185,66 @@ public class PSExecSQLStmt extends PSAction {
    *******************************************************************/
 
   /**
-   * Returns the name of table, which should be replaced by fully
-   * qualified table name before executing the sql statement.
+   * Returns the name of table, which should be replaced by fully qualified table name before
+   * executing the sql statement.
    *
-   * @return names of tables or views which should be replaced by fully
-   * qualified table or view name before executing the sql statement,
-   * never <code>null</code>, may be empty
+   * @return names of tables or views which should be replaced by fully qualified table or view name
+   *     before executing the sql statement, never <code>null</code>, may be empty
    */
   public String[] getQualifyTableNames() {
     return mQualifyTableNames;
   }
 
   /**
-   * Sets the name of table, which should be replaced by fully
-   * qualified table name before executing the sql statement.
+   * Sets the name of table, which should be replaced by fully qualified table name before executing
+   * the sql statement.
    *
-   * @param objectNames names of tables, which should be replaced by
-   * fully qualified table name before executing the sql statement,
-   * may be <code>null</code> or empty, if <code>null</code> then set to empty
-   * array.
+   * @param objectNames names of tables, which should be replaced by fully qualified table name
+   *     before executing the sql statement, may be <code>null</code> or empty, if <code>null</code>
+   *     then set to empty array.
    */
   public void setQualifyTableNames(String objectNames) {
     mQualifyTableNames = convertToArray(objectNames);
   }
 
   /**
-   * Returns the name of view, which should be replaced by fully
-   * qualified view name before executing the sql statement.
+   * Returns the name of view, which should be replaced by fully qualified view name before
+   * executing the sql statement.
    *
-   * @return names of tables or views which should be replaced by fully
-   * qualified view name before executing the sql statement,
-   * never <code>null</code>, may be empty
+   * @return names of tables or views which should be replaced by fully qualified view name before
+   *     executing the sql statement, never <code>null</code>, may be empty
    */
   public String[] getQualifyViewNames() {
     return mQualifyViewNames;
   }
 
   /**
-   * Sets the name of view, which should be replaced by fully
-   * qualified view name before executing the sql statement.
+   * Sets the name of view, which should be replaced by fully qualified view name before executing
+   * the sql statement.
    *
-   * @param objectNames names of views, which should be replaced by
-   * fully qualified view name before executing the sql statement,
-   * may be <code>null</code> or empty, if <code>null</code> then set to empty
-   * array.
+   * @param objectNames names of views, which should be replaced by fully qualified view name before
+   *     executing the sql statement, may be <code>null</code> or empty, if <code>null</code> then
+   *     set to empty array.
    */
   public void setQualifyViewNames(String objectNames) {
     mQualifyViewNames = convertToArray(objectNames);
   }
 
   /**
-   * The sql statement to execute if database specific sql statment is not
-   * specified.
+   * The sql statement to execute if database specific sql statment is not specified.
    *
-   * @return the sql statement to execute if database specific sql statment is
-   * empty, never <code>null</code>, may be empty.
+   * @return the sql statement to execute if database specific sql statment is empty, never <code>
+   *     null</code>, may be empty.
    */
   public String getSql() {
     return sql;
   }
 
   /**
-   * Sets the sql statement to execute if database specific sql statment is not
-   * specified.
+   * Sets the sql statement to execute if database specific sql statment is not specified.
    *
-   * @param sql the sql statement to execute if database specific sql statment
-   * is empty, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sql the sql statement to execute if database specific sql statment is empty, may be
+   *     <code>null</code> or empty, if <code>null</code> then set to empty.
    */
   public void setSql(String sql) {
     if (sql == null) sql = "";
@@ -267,24 +252,22 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * The sql statement to execute for MS Sql Server database. If empty,
-   * <code>sql</code> is executed if it is not empty.
+   * The sql statement to execute for MS Sql Server database. If empty, <code>sql</code> is executed
+   * if it is not empty.
    *
-   * @return the sql statement to execute for MS Sql Server database,
-   * never <code>null</code>, may be empty
+   * @return the sql statement to execute for MS Sql Server database, never <code>null</code>, may
+   *     be empty
    */
   public String getSqlSqlServer() {
     return sqlSqlServer;
   }
 
   /**
-   * Sets the sql statement to execute for MS Sql Server database. If
-   * <code>null</code> or empty, then <code>sql</code> is executed if it is
-   * not empty.
+   * Sets the sql statement to execute for MS Sql Server database. If <code>null</code> or empty,
+   * then <code>sql</code> is executed if it is not empty.
    *
-   * @param sqlSqlServer the sql statement to execute for MS Sql Server
-   * database, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sqlSqlServer the sql statement to execute for MS Sql Server database, may be <code>null
+   *     </code> or empty, if <code>null</code> then set to empty.
    */
   public void setSqlSqlServer(String sqlSqlServer) {
     if (sqlSqlServer == null) sqlSqlServer = "";
@@ -292,24 +275,21 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * The sql statement to execute for Oracle database. If empty,
-   * <code>sql</code> is executed if it is not empty.
+   * The sql statement to execute for Oracle database. If empty, <code>sql</code> is executed if it
+   * is not empty.
    *
-   * @return the sql statement to execute for Oracle database,
-   * never <code>null</code>, may be empty
+   * @return the sql statement to execute for Oracle database, never <code>null</code>, may be empty
    */
   public String getSqlOracle() {
     return sqlOracle;
   }
 
   /**
-   * Sets the sql statement to execute for Oracle database. If
-   * <code>null</code> or empty, then <code>sql</code> is executed if it is
-   * not empty.
+   * Sets the sql statement to execute for Oracle database. If <code>null</code> or empty, then
+   * <code>sql</code> is executed if it is not empty.
    *
-   * @param sqlOracle the sql statement to execute for Oracle
-   * database, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sqlOracle the sql statement to execute for Oracle database, may be <code>null</code> or
+   *     empty, if <code>null</code> then set to empty.
    */
   public void setSqlOracle(String sqlOracle) {
     if (sqlOracle == null) sqlOracle = "";
@@ -317,24 +297,21 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * The sql statement to execute for DB2 database. If empty,
-   * <code>sql</code> is executed if it is not empty.
+   * The sql statement to execute for DB2 database. If empty, <code>sql</code> is executed if it is
+   * not empty.
    *
-   * @return the sql statement to execute for DB2 database,
-   * never <code>null</code>, may be empty
+   * @return the sql statement to execute for DB2 database, never <code>null</code>, may be empty
    */
   public String getSqlUDB() {
     return sqlUDB;
   }
 
   /**
-   * Sets the sql statement to execute for DB2 database. If
-   * <code>null</code> or empty, then <code>sql</code> is executed if it is
-   * not empty.
+   * Sets the sql statement to execute for DB2 database. If <code>null</code> or empty, then <code>
+   * sql</code> is executed if it is not empty.
    *
-   * @param sqlUDB the sql statement to execute for DB2
-   * database, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sqlUDB the sql statement to execute for DB2 database, may be <code>null</code> or empty,
+   *     if <code>null</code> then set to empty.
    */
   public void setSqlUDB(String sqlUDB) {
     if (sqlUDB == null) sqlUDB = "";
@@ -342,24 +319,21 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * The sql statement to execute for Derby database. If empty,
-   * <code>sql</code> is executed if it is not empty.
+   * The sql statement to execute for Derby database. If empty, <code>sql</code> is executed if it
+   * is not empty.
    *
-   * @return the sql statement to execute for Derby database,
-   * never <code>null</code>, may be empty
+   * @return the sql statement to execute for Derby database, never <code>null</code>, may be empty
    */
   public String getSqlDerby() {
     return sqlDerby;
   }
 
   /**
-   * Sets the sql statement to execute for Derby database. If
-   * <code>null</code> or empty, then <code>sql</code> is executed if it is
-   * not empty.
+   * Sets the sql statement to execute for Derby database. If <code>null</code> or empty, then
+   * <code>sql</code> is executed if it is not empty.
    *
-   * @param sqlDerby the sql statement to execute for Derby
-   * database, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sqlDerby the sql statement to execute for Derby database, may be <code>null</code> or
+   *     empty, if <code>null</code> then set to empty.
    */
   public void setSqlDerby(String sqlDerby) {
     if (sqlDerby == null) sqlDerby = "";
@@ -367,24 +341,21 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * The sql statement to execute for Mysql database. If empty,
-   * <code>sql</code> is executed if it is not empty.
+   * The sql statement to execute for Mysql database. If empty, <code>sql</code> is executed if it
+   * is not empty.
    *
-   * @return the sql statement to execute for Mysql database,
-   * never <code>null</code>, may be empty
+   * @return the sql statement to execute for Mysql database, never <code>null</code>, may be empty
    */
   public String getSqlMysql() {
     return sqlMysql;
   }
 
   /**
-   * Sets the sql statement to execute for Mysql database. If
-   * <code>null</code> or empty, then <code>sql</code> is executed if it is
-   * not empty.
+   * Sets the sql statement to execute for Mysql database. If <code>null</code> or empty, then
+   * <code>sql</code> is executed if it is not empty.
    *
-   * @param sqlMysql the sql statement to execute for Mysql
-   * database, may be <code>null</code> or empty, if <code>null</code> then
-   * set to empty.
+   * @param sqlMysql the sql statement to execute for Mysql database, may be <code>null</code> or
+   *     empty, if <code>null</code> then set to empty.
    */
   public void setSqlMysql(String sqlMysql) {
     if (sqlMysql == null) sqlMysql = "";
@@ -392,35 +363,32 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * Indicates whether the stack trace of the exception generated when
-   * executing the SQL statement should be printed to the log.
+   * Indicates whether the stack trace of the exception generated when executing the SQL statement
+   * should be printed to the log.
    *
-   * @return <code>true</code> if the stack trace should be printed,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the stack trace should be printed, <code>false</code> otherwise.
    */
   public boolean getPrintExceptionStackTrace() {
     return mPrintExceptionStackTrace;
   }
 
   /**
-   * Sets whether the stack trace of the exception generated when
-   * executing the SQL statement should be printed to the log.
+   * Sets whether the stack trace of the exception generated when executing the SQL statement should
+   * be printed to the log.
    *
-   * @param print <code>true</code> if the stack trace should be printed,
-   * <code>false</code> otherwise.
+   * @param print <code>true</code> if the stack trace should be printed, <code>false</code>
+   *     otherwise.
    */
   public void setPrintExceptionStackTrace(boolean print) {
     mPrintExceptionStackTrace = print;
   }
 
   /**
-   * Helper function to qualify any specified table names in a given sql
-   * statement.
+   * Helper function to qualify any specified table names in a given sql statement.
    *
    * @param strStmt the unqualified sql statement, assumed not <code>null</code>
-   * @param dbmsDef the PSJdbcDbmsDef object with current repository properties,
-   * assumed not <code>null</code>
+   * @param dbmsDef the PSJdbcDbmsDef object with current repository properties, assumed not <code>
+   *     null</code>
    * @return the qualified sql statement, never <code>null</code>, may be empty.
    */
   public String qualifyTableNames(String strStmt, PSJdbcDbmsDef dbmsDef) {
@@ -450,12 +418,11 @@ public class PSExecSQLStmt extends PSAction {
   }
 
   /**
-   * Helper function to qualify any specified view names in a given sql
-   * statement.
+   * Helper function to qualify any specified view names in a given sql statement.
    *
    * @param strStmt the unqualified sql statement, assumed not <code>null</code>
-   * @param dbmsDef the PSJdbcDbmsDef object with current repository properties,
-   * assumed not <code>null</code>
+   * @param dbmsDef the PSJdbcDbmsDef object with current repository properties, assumed not <code>
+   *     null</code>
    * @return the qualified sql statement, never <code>null</code>, may be empty.
    */
   private String qualifyViewNames(String strStmt, PSJdbcDbmsDef dbmsDef) {
@@ -489,60 +456,57 @@ public class PSExecSQLStmt extends PSAction {
    *******************************************************************/
 
   /**
-   * names of tables, which should be replaced by fully qualified table
-   * name before executing the sql statement, never <code>null</code>,
-   * may be empty.
+   * names of tables, which should be replaced by fully qualified table name before executing the
+   * sql statement, never <code>null</code>, may be empty.
    */
   private String[] mQualifyTableNames = new String[0];
 
   /**
-   * names of views, which should be replaced by fully qualified view
-   * name before executing the sql statement, never <code>null</code>,
-   * may be empty.
+   * names of views, which should be replaced by fully qualified view name before executing the sql
+   * statement, never <code>null</code>, may be empty.
    */
   private String[] mQualifyViewNames = new String[0];
 
   /**
-   * The sql statement to execute if database specific sql statment is
-   * empty, never <code>null</code>, may be empty
+   * The sql statement to execute if database specific sql statment is empty, never <code>null
+   * </code>, may be empty
    */
   private String sql = "";
 
   /**
-   * sql statement to use for MS Sql Server database, never <code>null</code>,
-   * may be empty. If empty, <code>sql</code> is executed if it is not empty
+   * sql statement to use for MS Sql Server database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
    */
   private String sqlSqlServer = "";
 
   /**
-   * sql statement to use for Oracle database, never <code>null</code>,
-   * may be empty. If empty, <code>sql</code> is executed if it is not empty
+   * sql statement to use for Oracle database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
    */
   private String sqlOracle = "";
 
   /**
-   * sql statement to use for UDB (DB2) database, never <code>null</code>,
-   * may be empty. If empty, <code>sql</code> is executed if it is not empty
+   * sql statement to use for UDB (DB2) database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
    */
   private String sqlUDB = "";
 
   /**
-   * sql statement to use for Apache Derby database, never <code>null</code>,
-   * may be empty. If empty, <code>sql</code> is executed if it is not empty
+   * sql statement to use for Apache Derby database, never <code>null</code>, may be empty. If
+   * empty, <code>sql</code> is executed if it is not empty
    */
   private String sqlDerby = "";
 
   /**
-   * sql statement to use for Mysql database, never <code>null</code>,
-   * may be empty. If empty, <code>sql</code> is executed if it is not empty
+   * sql statement to use for Mysql database, never <code>null</code>, may be empty. If empty,
+   * <code>sql</code> is executed if it is not empty
    */
   private String sqlMysql = "";
 
   /**
-   * Indicates whether the stack trace of the exception generated when
-   * executing the SQL statement should be printed to the log,
-   * defaults to <code>true</code>, modified using
-   * <code>setPrintExceptionStackTrace()</code> method.
+   * Indicates whether the stack trace of the exception generated when executing the SQL statement
+   * should be printed to the log, defaults to <code>true</code>, modified using <code>
+   * setPrintExceptionStackTrace()</code> method.
    */
   private boolean mPrintExceptionStackTrace = true;
 

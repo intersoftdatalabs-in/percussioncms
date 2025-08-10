@@ -26,36 +26,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSAcl class defines an Access Control List (ACL). ACLs can be
- * associated with servers or applications.
- * <p>
- * The ACL contains one or more ACL entries (PSAclEntry). The entries define
- * the users, groups and roles who can access a resource, and the type of
- * access they have to the resource.
+ * The PSAcl class defines an Access Control List (ACL). ACLs can be associated with servers or
+ * applications.
+ *
+ * <p>The ACL contains one or more ACL entries (PSAclEntry). The entries define the users, groups
+ * and roles who can access a resource, and the type of access they have to the resource.
  *
  * @see PSApplication#getAcl
  * @see PSAclEntry
- *
- * @author        Tas Giakouminakis
- * @version   1.0
- * @since     1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSAcl extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSAcl(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -63,9 +54,7 @@ public class PSAcl extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Construct an empty access control list (ACL).
-   */
+  /** Construct an empty access control list (ACL). */
   public PSAcl() {
     super();
     m_entries = new PSCollection((new PSAclEntry()).getClass());
@@ -74,29 +63,24 @@ public class PSAcl extends PSComponent {
   /**
    * Get the entries defined in this ACL.
    *
-   * @return        a collection containing PSAclEntry objects representing
-   *             the entries defined in this ACL
-   *
-   * @see        PSAclEntry
+   * @return a collection containing PSAclEntry objects representing the entries defined in this ACL
+   * @see PSAclEntry
    */
   public com.percussion.util.PSCollection getEntries() {
     return m_entries;
   }
 
   /**
-   * Overwrite the entries associated with this ACL with the
-   * specified collection. If you only want to modify certain entries,
-   * add a new entry, etc. use getEntries to get the existing collection
+   * Overwrite the entries associated with this ACL with the specified collection. If you only want
+   * to modify certain entries, add a new entry, etc. use getEntries to get the existing collection
    * and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored
-   * with the PSAcl object. Any subsequent changes made to the object
-   * by the caller will also effect the ACL.
    *
-   * @param     entries  the new entries to use for this ACL
+   * <p>The PSCollection object supplied to this method will be stored with the PSAcl object. Any
+   * subsequent changes made to the object by the caller will also effect the ACL.
    *
-   * @see        PSAclEntry
-   * @see        #getEntries
+   * @param entries the new entries to use for this ACL
+   * @see PSAclEntry
+   * @see #getEntries
    */
   public void setEntries(com.percussion.util.PSCollection entries) {
     IllegalArgumentException ex = validateEntries(entries);
@@ -130,22 +114,18 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Is maximum access granted when the user belongs to multiple
-   * groups or roles?
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * When this option is enabled, the matching entry with the greatest
-   * access rights is used.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Is maximum access granted when the user belongs to multiple groups or roles?
    *
-   * @return        <code>true</code> if this setting is in use,
-   *             <code>false</code> otherwise
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>When this option is enabled, the matching entry with the greatest access rights is used.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
+   *
+   * @return <code>true</code> if this setting is in use, <code>false</code> otherwise
    */
   public boolean isAccessForMultiMembershipMaximum() {
     if (m_mergeAccess == MULTI_ACE_GETS_MAX) return true;
@@ -153,39 +133,33 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Grant maximum access when the user belongs to multiple groups or
-   * roles. This is done by checking all the entries and using the one
-   * with the highest access rights.
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Grant maximum access when the user belongs to multiple groups or roles. This is done by
+   * checking all the entries and using the one with the highest access rights.
+   *
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
    */
   public void setAccessForMultiMembershipMaximum() {
     m_mergeAccess = MULTI_ACE_GETS_MAX;
   }
 
   /**
-   * Is minimum access granted when the user belongs to multiple
-   * groups or roles?
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * When this option is enabled, the matching entry with the least
-   * access rights is used.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Is minimum access granted when the user belongs to multiple groups or roles?
    *
-   * @return        <code>true</code> if this setting is in use,
-   *             <code>false</code> otherwise
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>When this option is enabled, the matching entry with the least access rights is used.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
+   *
+   * @return <code>true</code> if this setting is in use, <code>false</code> otherwise
    */
   public boolean isAccessForMultiMembershipMinimum() {
     if (m_mergeAccess == MULTI_ACE_GETS_MIN) return true;
@@ -193,40 +167,34 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Grant minimum access when the user belongs to multiple groups or
-   * roles. This is done by checking all the entries and using the one
-   * with the lowest access rights.
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Grant minimum access when the user belongs to multiple groups or roles. This is done by
+   * checking all the entries and using the one with the lowest access rights.
+   *
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
    */
   public void setAccessForMultiMembershipMinimum() {
     m_mergeAccess = MULTI_ACE_GETS_MIN;
   }
 
   /**
-   * Is the combined maximum access granted when the user belongs to
-   * multiple groups or roles?
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * When this option is enabled, the matching entries will be merged
-   * for maximum access. If an access right is defined in any ACE, the
-   * user will be granted that right.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Is the combined maximum access granted when the user belongs to multiple groups or roles?
    *
-   * @return        <code>true</code> if this setting is in use,
-   *             <code>false</code> otherwise
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>When this option is enabled, the matching entries will be merged for maximum access. If an
+   * access right is defined in any ACE, the user will be granted that right.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
+   *
+   * @return <code>true</code> if this setting is in use, <code>false</code> otherwise
    */
   public boolean isAccessForMultiMembershipMergedMaximum() {
     if (m_mergeAccess == MULTI_ACE_GETS_MERGED_MAX) return true;
@@ -234,42 +202,36 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Grant the combined maximum access when the user belongs to multiple
-   * groups or roles. This is done by checking all the entries and merging
-   * them for maximum access. If an access right is defined in any ACE, the
-   * user will be granted that right.
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Grant the combined maximum access when the user belongs to multiple groups or roles. This is
+   * done by checking all the entries and merging them for maximum access. If an access right is
+   * defined in any ACE, the user will be granted that right.
+   *
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
    */
   public void setAccessForMultiMembershipMergedMaximum() {
     m_mergeAccess = MULTI_ACE_GETS_MERGED_MAX;
   }
 
   /**
-   * Is the combined minimum access granted when the user belongs to
-   * multiple groups or roles?
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * When this option is enabled, the matching entries will be merged
-   * for minimum access. The access right must be defined on each ACE in
-   * order for the user to be granted that right. When combining for
-   * minimum access, it is possible the user will not be granted access.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Is the combined minimum access granted when the user belongs to multiple groups or roles?
    *
-   * @return        <code>true</code> if this setting is in use,
-   *             <code>false</code> otherwise
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>When this option is enabled, the matching entries will be merged for minimum access. The
+   * access right must be defined on each ACE in order for the user to be granted that right. When
+   * combining for minimum access, it is possible the user will not be granted access.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
+   *
+   * @return <code>true</code> if this setting is in use, <code>false</code> otherwise
    */
   public boolean isAccessForMultiMembershipMergedMinimum() {
     if (m_mergeAccess == MULTI_ACE_GETS_MERGED_MIN) return true;
@@ -277,19 +239,17 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Grant the combined minimum access when the user belongs to multiple
-   * groups or roles. This is done by checking all the entries and merging
-   * them for minimum access. The access right must be defined on each
-   * ACE in order for the user to be granted that right. When combining for
-   * minimum access, it is possible the user will not be granted access.
-   * <p>
-   * When a user is included in the ACL due to group or role membership,
-   * it is possible that the user may actually be a member of multiple
-   * groups or roles. When this is the case, the access rights to grant
-   * the user must be defined.
-   * <p>
-   * This does not effect users defined directly in the ACL, in which
-   * case the ACE containing the user name will be used.
+   * Grant the combined minimum access when the user belongs to multiple groups or roles. This is
+   * done by checking all the entries and merging them for minimum access. The access right must be
+   * defined on each ACE in order for the user to be granted that right. When combining for minimum
+   * access, it is possible the user will not be granted access.
+   *
+   * <p>When a user is included in the ACL due to group or role membership, it is possible that the
+   * user may actually be a member of multiple groups or roles. When this is the case, the access
+   * rights to grant the user must be defined.
+   *
+   * <p>This does not effect users defined directly in the ACL, in which case the ACE containing the
+   * user name will be used.
    */
   public void setAccessForMultiMembershipMergedMinimum() {
     m_mergeAccess = MULTI_ACE_GETS_MERGED_MIN;
@@ -342,10 +302,11 @@ public class PSAcl extends PSComponent {
   /* **************   IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXAcl XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXAcl XML element node containing the data described in this
+   * object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *    PSXAcl defines an Access Control List (ACL). ACLs can be associated
@@ -393,7 +354,7 @@ public class PSAcl extends PSComponent {
    *    &lt;!ELEMENT multiMembershipBehavior  (%PSXMultiMembershipAclMethod)&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXAcl XML element node
+   * @return the newly created PSXAcl XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -438,12 +399,10 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSAcl Java object
-   * from a PSXAcl XML element node. See the
+   * This method is called to populate a PSAcl Java object from a PSXAcl XML element node. See the
    * {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception     PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXAcl
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXAcl
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -509,18 +468,15 @@ public class PSAcl extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

@@ -17,8 +17,8 @@
 package com.percussion.extension;
 
 /**
- * This is a 'marker' interface that allows client applications to categorize
- * the base extensions based on where they are used within the content type.
+ * This is a 'marker' interface that allows client applications to categorize the base extensions
+ * based on where they are used within the content type.
  *
  * @author paulhoward
  */

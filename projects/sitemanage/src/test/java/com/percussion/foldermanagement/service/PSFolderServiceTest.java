@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.service;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.percussion.foldermanagement.data.PSFolderItem;
 import com.percussion.foldermanagement.data.PSGetAssignedFoldersJobStatus;
@@ -36,690 +41,685 @@ import com.percussion.sitemanage.web.service.PSSiteRestClient;
 import com.percussion.sitemanage.web.service.PSSiteTemplateRestClient;
 import com.percussion.workflow.data.PSUiWorkflow;
 import com.percussion.workflow.web.service.PSSteppedWorkflowRestServiceClient;
-import org.apache.commons.lang.StringUtils;
-import org.junit.jupiter.api.*;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.lang.StringUtils;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
- * Integration tests for folder management service.
- * Sunny Sal says: "Folders, workflows, and tests - the CMS masala!"
+ * @author miltonpividori
  */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSFolderServiceTest extends PSRestTestCase<PSFolderServiceRestClient> {
+  private static final String STANDARD_WORKFLOW = "Standard Workflow";
 
-    private static final String STANDARD_WORKFLOW = "Standard Workflow";
-    private static final String DEFAULT_WORKFLOW = "Default Workflow";
+  private static final String DEFAULT_WORKFLOW = "Default Workflow";
 
-    static PSSite site;
-    static PSPathItem pathSite;
-    static PSUiWorkflow workflow1, workflow2;
-    static PSSiteRestClient siteRestClient;
-    static PSFolderServiceRestClient restClient;
-    static PSSteppedWorkflowRestServiceClient workflowRestClient;
-    static PSSiteTemplateRestClient siteTemplateRestClient;
-    static PSPathServiceRestClient pathRestClient;
+  static PSSite site;
 
-    static PSTestDataCleaner<String> siteCleaner = new PSTestDataCleaner<>() {
+  static PSPathItem pathSite;
+
+  static PSUiWorkflow workflow1, workflow2;
+
+  static PSSiteRestClient siteRestClient;
+
+  static PSFolderServiceRestClient restClient;
+
+  static PSSteppedWorkflowRestServiceClient workflowRestClient;
+
+  static PSSiteTemplateRestClient siteTemplateRestClient;
+
+  static PSPathServiceRestClient pathRestClient;
+
+  static PSTestDataCleaner<String> siteCleaner =
+      new PSTestDataCleaner<String>() {
         @Override
         protected void clean(String name) throws Exception {
-            siteRestClient.delete(name);
+          siteRestClient.delete(name);
         }
-    };
+      };
 
-    static PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<>() {
+  static PSTestDataCleaner<String> folderCleaner =
+      new PSTestDataCleaner<String>() {
         @Override
         protected void clean(String path) throws Exception {
-            var criteria = new PSDeleteFolderCriteria();
-            criteria.setPath(path);
-            pathRestClient.deleteFolder(criteria);
+          PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
+          criteria.setPath(path);
+          pathRestClient.deleteFolder(criteria);
         }
-    };
+      };
 
-    @Override
-    protected PSFolderServiceRestClient getRestClient(String baseUrl) {
-        restClient = new PSFolderServiceRestClient(baseUrl);
-        return restClient;
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
+   */
+  @Override
+  protected PSFolderServiceRestClient getRestClient(String baseUrl) {
+    restClient = new PSFolderServiceRestClient(baseUrl);
+    return restClient;
+  }
+
+  private static PSSite createSite() {
+    String siteName = "Site" + System.currentTimeMillis();
+    siteCleaner.add(siteName);
+    PSSite site = new PSSite();
+    site.setName(siteName);
+    site.setLabel("My test site");
+    site.setHomePageTitle("homePageTitle");
+    site.setNavigationTitle("navigationTitle");
+    site.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
+    site.setTemplateName("templateName");
+    return siteRestClient.save(site);
+  }
+
+  /**
+   * @param defaultWorkflow
+   * @param folder1_1
+   * @param folder1_1_1
+   * @param folder2_1
+   */
+  private void saveWorkflow(String defaultWorkflow, PSPathItem... folders) {
+    saveWorkflow(defaultWorkflow, folders, new PSPathItem[0]);
+  }
+
+  private void saveWorkflow(
+      String defaultWorkflow, PSPathItem[] assignedFolders, PSPathItem[] unassignedFolders) {
+    PSWorkflowAssignment workflowAssignment = new PSWorkflowAssignment();
+    workflowAssignment.setWorkflowName(defaultWorkflow);
+
+    List<String> assigned = new ArrayList<String>();
+    if (assignedFolders != null) {
+      for (PSPathItem folder : assignedFolders) {
+        assigned.add(folder.getId());
+      }
     }
 
-    private static PSSite createSite() {
-        var siteName = "Site" + System.currentTimeMillis();
-        siteCleaner.add(siteName);
-        var site = new PSSite();
-        site.setName(siteName);
-        site.setLabel("My test site");
-        site.setHomePageTitle("homePageTitle");
-        site.setNavigationTitle("navigationTitle");
-        site.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
-        site.setTemplateName("templateName");
-        return siteRestClient.save(site);
+    List<String> unassigned = new ArrayList<String>();
+    if (unassignedFolders != null) {
+      for (PSPathItem folder : unassignedFolders) {
+        unassigned.add(folder.getId());
+      }
     }
 
-    private void saveWorkflow(String defaultWorkflow, PSPathItem... folders) {
-        saveWorkflow(defaultWorkflow, folders, new PSPathItem[0]);
+    workflowAssignment.setAssignedFolders(assigned.toArray(new String[0]));
+    workflowAssignment.setUnassignedFolders(unassigned.toArray(new String[0]));
+
+    restClient.save(workflowAssignment);
+  }
+
+  private void saveWorkflow(String defaultWorkflow, String... folderIds) {
+    PSWorkflowAssignment workflowAssignment = new PSWorkflowAssignment();
+    workflowAssignment.setWorkflowName(defaultWorkflow);
+
+    List<String> assigned = new ArrayList<String>();
+    for (String folderId : folderIds) {
+      assigned.add(folderId);
     }
 
-    private void saveWorkflow(String defaultWorkflow, PSPathItem[] assignedFolders, PSPathItem[] unassignedFolders) {
-        var workflowAssignment = new PSWorkflowAssignment();
-        workflowAssignment.setWorkflowName(defaultWorkflow);
+    workflowAssignment.setAssignedFolders(assigned.toArray(new String[0]));
 
-        var assigned = new ArrayList<String>();
-        if (assignedFolders != null) {
-            for (var folder : assignedFolders) {
-                assigned.add(folder.getId());
-            }
-        }
+    restClient.save(workflowAssignment);
+  }
 
-        var unassigned = new ArrayList<String>();
-        if (unassignedFolders != null) {
-            for (var folder : unassignedFolders) {
-                unassigned.add(folder.getId());
-            }
-        }
+  private PSPage createPage(String folderPath, String templateId) {
+    PSPage pageNew = new PSPage();
+    // the .xml was added to test for bug cml-2262
+    pageNew.setName(String.valueOf(System.currentTimeMillis()) + ".xml");
+    pageNew.setTitle("test new page title");
+    pageNew.setFolderPath(folderPath);
+    pageNew.setTemplateId(templateId);
+    pageNew.setLinkTitle("dummy");
 
-        workflowAssignment.setAssignedFolders(assigned.toArray(new String[0]));
-        workflowAssignment.setUnassignedFolders(unassigned.toArray(new String[0]));
+    PSRegionBranches br = new PSRegionBranches();
+    PSRegion region = new PSRegion();
+    region.setRegionId("Test");
+    region.setOwnerType(PSRegionOwnerType.PAGE);
+    br.setRegions(asList(region));
+    pageNew.setRegionBranches(br);
 
-        restClient.save(workflowAssignment);
+    return pageNew;
+  }
+
+  private void testGetAssignedFoldersShouldFail(
+      String workflowName, String path, int expectedErrorCode) {
+    try {
+      restClient.getAssociatedFolders(workflowName, path, false);
+
+      fail("Should have thrown an exception");
+    } catch (RestClientException e) {
+      assertEquals("http error code", expectedErrorCode, e.getStatus());
+    } catch (Exception e) {
+      fail("Should have thrown another type of exception");
+    }
+  }
+
+  private void saveWorkflowShouldFail(
+      String workflowName, int expectedErrorCode, PSPathItem... folders) {
+    try {
+      saveWorkflow(workflowName, folders);
+
+      fail("Should have thrown an exception");
+    } catch (RestClientException e) {
+      assertEquals("http error code", expectedErrorCode, e.getStatus());
+    } catch (Exception e) {
+      fail("Should have thrown another type of exception");
+    }
+  }
+
+  @Before
+  public void testSetup() {
+    folderCleaner.clean();
+  }
+
+  @BeforeClass
+  public static void setup() throws Exception {
+    siteRestClient = new PSSiteRestClient(baseUrl);
+    setupClient(siteRestClient);
+
+    workflowRestClient = new PSSteppedWorkflowRestServiceClient(baseUrl);
+    setupClient(workflowRestClient);
+
+    siteTemplateRestClient = new PSSiteTemplateRestClient();
+    setupClient(siteTemplateRestClient);
+
+    pathRestClient = new PSPathServiceRestClient(baseUrl);
+    setupClient(pathRestClient);
+
+    site = createSite();
+    pathSite = pathRestClient.find(site.getFolderPath().substring(1));
+
+    workflow1 = workflowRestClient.getWorkflow(DEFAULT_WORKFLOW);
+    workflow2 = workflowRestClient.getWorkflow(STANDARD_WORKFLOW);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    restClient.login("admin1", "demo");
+
+    siteCleaner.clean();
+  }
+
+  private void assertFolderItem(
+      PSFolderItem item,
+      PSPathItem expectedItem,
+      String expectedWorkflowName,
+      boolean expectedAllChildren,
+      int expectedChildrenSize) {
+    if (!PSPathItem.TYPE_SITE.equals(expectedItem.getType()))
+      assertEquals(expectedItem.getPath() + " : id", expectedItem.getId(), item.getId());
+    assertEquals(expectedItem.getPath() + " : name", expectedItem.getName(), item.getName());
+    assertEquals(
+        expectedItem.getPath() + " : workflow name", expectedWorkflowName, item.getWorkflowName());
+    assertEquals(
+        expectedItem.getPath() + " : allChildrenAssociatedWithWorkflow",
+        expectedAllChildren,
+        item.getAllChildrenAssociatedWithWorkflow());
+    assertNotNull(expectedItem.getPath() + " : children not null", item.getChildren());
+    assertEquals(
+        expectedItem.getPath() + " : children size",
+        expectedChildrenSize,
+        item.getChildren().size());
+  }
+
+  /**
+   * @param string
+   * @return
+   */
+  private PSPathItem addFolder(String string) {
+    PSPathItem folder = pathRestClient.addFolder(site.getFolderPath().substring(1) + "/" + string);
+    folderCleaner.add(folder.getPath());
+    return folder;
+  }
+
+  @Test
+  public void testGetAssignedFolders_WorkflowDoesNotExist() throws Exception {
+    testGetAssignedFoldersShouldFail("non-existent workflow", "/Sites", 404);
+  }
+
+  @Test
+  public void testGetAssignedFolders_PathDoesNotExist() throws Exception {
+    testGetAssignedFoldersShouldFail(DEFAULT_WORKFLOW, "/Sites/DoesNoExist876", 500);
+  }
+
+  @Test
+  public void testGetAssignedFolders_AllChildrenInTheSameWorkflow() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder2 = addFolder("folder2");
+    PSPathItem folder2_1 = addFolder("folder2/folder-1");
+    PSPathItem folder2_2 = addFolder("folder2/folder-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1, folder1_1_1, folder2_1, folder2_2);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertEquals("folderItems.size()", 2, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    PSFolderItem folderItem2 = folderItems.get(1);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, true, 1);
+    assertFolderItem(folderItem2, folder2, StringUtils.EMPTY, true, 2);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    PSFolderItem folderItem2_1 = folderItem2.getChildren().get(0);
+    PSFolderItem folderItem2_2 = folderItem2.getChildren().get(1);
+    assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, true, 1);
+    assertFolderItem(folderItem2_1, folder2_1, DEFAULT_WORKFLOW, true, 0);
+    assertFolderItem(folderItem2_2, folder2_2, DEFAULT_WORKFLOW, true, 0);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+  }
+
+  @Test
+  public void testGetAssignedFolders_SubfoldersDoNotBelongToWorkflow() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+
+    // Save workflow
+    saveWorkflow(STANDARD_WORKFLOW, folder1_1_1);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertEquals("folderItems.size()", 0, folderItems.size());
+  }
+
+  @Test
+  public void testGetAssignedFolders_SomeSubfoldersDoNotBelongToWorkflow() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+  }
+
+  @Test
+  public void testGetAssignedFolders_SiteIsAssigned() throws Exception {
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, "/Sites", true);
+    assertNotNull("folderItems not null", folderItems);
+
+    PSFolderItem siteItem = null;
+    for (PSFolderItem item : folderItems) {
+      if (item.getName().equals(site.getName())) {
+        assertFolderItem(item, pathSite, "", false, 0);
+        siteItem = item;
+        break;
+      }
     }
 
-    private void saveWorkflow(String defaultWorkflow, String... folderIds) {
-        var workflowAssignment = new PSWorkflowAssignment();
-        workflowAssignment.setWorkflowName(defaultWorkflow);
+    assertNotNull(siteItem);
 
-        var assigned = new ArrayList<String>();
-        for (var folderId : folderIds) {
-            assigned.add(folderId);
-        }
+    PSPathItem sitePathItem = new PSPathItem();
+    sitePathItem.setId(siteItem.getId());
+    sitePathItem.setName(siteItem.getName());
 
-        workflowAssignment.setAssignedFolders(assigned.toArray(new String[0]));
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, sitePathItem);
 
-        restClient.save(workflowAssignment);
+    // requery to ensure saved properly
+    folderItems = restClient.getAssociatedFolders(DEFAULT_WORKFLOW, "/Sites", false);
+
+    // level 1
+    assertTrue("folderItems.size()", folderItems.size() >= 1);
+    boolean siteExists = false;
+
+    for (PSFolderItem item : folderItems) {
+      if (item.getName().equals(site.getName())) {
+        assertFolderItem(item, pathSite, DEFAULT_WORKFLOW, true, 0);
+        siteExists = true;
+      }
     }
 
-    private PSPage createPage(String folderPath, String templateId) {
-        var pageNew = new PSPage();
-        pageNew.setName(System.currentTimeMillis() + ".xml");
-        pageNew.setTitle("test new page title");
-        pageNew.setFolderPath(folderPath);
-        pageNew.setTemplateId(templateId);
-        pageNew.setLinkTitle("dummy");
+    assertTrue(siteExists);
 
-        var br = new PSRegionBranches();
-        var region = new PSRegion();
-        region.setRegionId("Test");
-        region.setOwnerType(PSRegionOwnerType.PAGE);
-        br.setRegions(asList(region));
-        pageNew.setRegionBranches(br);
+    saveWorkflow(DEFAULT_WORKFLOW, new PSPathItem[] {}, new PSPathItem[] {sitePathItem});
+  }
 
-        return pageNew;
-    }
+  @Test
+  public void testGetAssignedFolders_IncludeFoldersWithDifferentWorkflow() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
 
-    private void testGetAssignedFoldersShouldFail(String workflowName, String path, int expectedErrorCode) {
-        try {
-            restClient.getAssociatedFolders(workflowName, path, false);
-            fail("Should have thrown an exception");
-        } catch (RestClientException e) {
-            assertEquals(expectedErrorCode, e.getStatus(), "http error code");
-        } catch (Exception e) {
-            fail("Should have thrown another type of exception");
-        }
-    }
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1);
 
-    private void saveWorkflowShouldFail(String workflowName, int expectedErrorCode, PSPathItem... folders) {
-        try {
-            saveWorkflow(workflowName, folders);
-            fail("Should have thrown an exception");
-        } catch (RestClientException e) {
-            assertEquals(expectedErrorCode, e.getStatus(), "http error code");
-        } catch (Exception e) {
-            fail("Should have thrown another type of exception");
-        }
-    }
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), true);
 
-    @BeforeEach
-    public void testSetup() {
-        folderCleaner.clean();
-    }
+    assertNotNull("folderItems not null", folderItems);
 
-    @BeforeEach All
-    public static void setup() throws Exception {
-        siteRestClient = new PSSiteRestClient(baseUrl);
-        setupClient(siteRestClient);
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
 
-        workflowRestClient = new PSSteppedWorkflowRestServiceClient(baseUrl);
-        setupClient(workflowRestClient);
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 2);
 
-        siteTemplateRestClient = new PSSiteTemplateRestClient();
-        setupClient(siteTemplateRestClient);
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+    PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(1);
+    assertFolderItem(folderItem1_1_2, folder1_1_2, StringUtils.EMPTY, false, 0);
+  }
 
-        pathRestClient = new PSPathServiceRestClient(baseUrl);
-        setupClient(pathRestClient);
+  @Test
+  public void testGetAssignedFolders_FolderDoesNotBelongToWorkflow_AllChildrenDo()
+      throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
 
-        site = createSite();
-        pathSite = pathRestClient.find(site.getFolderPath().substring(1));
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1, folder1_1_1);
+    saveWorkflow(STANDARD_WORKFLOW, folder1_1);
 
-        workflow1 = workflowRestClient.getWorkflow(DEFAULT_WORKFLOW);
-        workflow2 = workflowRestClient.getWorkflow(STANDARD_WORKFLOW);
-    }
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
 
-    @AfterAll
-    public static void tearDown() {
-        restClient.login("admin1", "demo");
-        siteCleaner.clean();
-    }
+    assertNotNull("folderItems not null", folderItems);
 
-    private void assertFolderItem(PSFolderItem item, PSPathItem expectedItem, String expectedWorkflowName,
-                                  boolean expectedAllChildren, int expectedChildrenSize) {
-        if (!PSPathItem.TYPE_SITE.equals(expectedItem.getType()))
-            assertEquals(expectedItem.getId(), item.getId(), expectedItem.getPath() + " : id");
-        assertEquals(expectedItem.getName(), item.getName(), expectedItem.getPath() + " : name");
-        assertEquals(expectedWorkflowName, item.getWorkflowName(), expectedItem.getPath() + " : workflow name");
-        assertEquals(expectedAllChildren, item.getAllChildrenAssociatedWithWorkflow(), expectedItem.getPath() + " : allChildrenAssociatedWithWorkflow");
-        assertNotNull(item.getChildren(), expectedItem.getPath() + " : children not null");
-        assertEquals(expectedChildrenSize, item.getChildren().size(), expectedItem.getPath() + " : children size");
-    }
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, false, 1);
 
-    private PSPathItem addFolder(String string) {
-        var folder = pathRestClient.addFolder(site.getFolderPath().substring(1) + "/" + string);
-        folderCleaner.add(folder.getPath());
-        return folder;
-    }
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, STANDARD_WORKFLOW, true, 1);
 
-    @Test
-    public void testGetAssignedFolders_WorkflowDoesNotExist() throws Exception {
-        testGetAssignedFoldersShouldFail("non-existent workflow", "/Sites", 404);
-    }
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+  }
 
-    @Test
-    public void testGetAssignedFolders_PathDoesNotExist() throws Exception {
-        testGetAssignedFoldersShouldFail(DEFAULT_WORKFLOW, "/Sites/DoesNoExist876", 500);
-    }
+  @Test
+  public void testAssignFoldersToWorkflow_WorkflowNameIsNullOrEmptyOrDoesNotExist()
+      throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
 
-    @Test
-    public void testGetAssignedFolders_AllChildrenInTheSameWorkflow() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder2 =     addFolder("folder2");
-        PSPathItem folder2_1 =   addFolder("folder2/folder-1");
-        PSPathItem folder2_2 =   addFolder("folder2/folder-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1, folder1_1_1, folder2_1, folder2_2);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 2, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        PSFolderItem folderItem2 = folderItems.get(1);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, true, 1);
-        assertFolderItem(folderItem2, folder2, StringUtils.EMPTY, true, 2);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        PSFolderItem folderItem2_1 = folderItem2.getChildren().get(0);
-        PSFolderItem folderItem2_2 = folderItem2.getChildren().get(1);
-        assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, true, 1);
-        assertFolderItem(folderItem2_1, folder2_1, DEFAULT_WORKFLOW, true, 0);
-        assertFolderItem(folderItem2_2, folder2_2, DEFAULT_WORKFLOW, true, 0);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-    }
+    saveWorkflowShouldFail(null, 400, folder1);
 
-    @Test
-    public void testGetAssignedFolders_SubfoldersDoNotBelongToWorkflow() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        
-        // Save workflow
-        saveWorkflow(STANDARD_WORKFLOW, folder1_1_1);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 0, folderItems.size());
-    }
-    
-    @Test
-    public void testGetAssignedFolders_SomeSubfoldersDoNotBelongToWorkflow() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-    }
-    
-    @Test
-    public void testGetAssignedFolders_SiteIsAssigned() throws Exception {
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        "/Sites",
-                        true);
-        assertNotNull("folderItems not null", folderItems);
-        
-        PSFolderItem siteItem = null;
-        for (PSFolderItem item : folderItems)
-        {
-            if (item.getName().equals(site.getName()))
-            {
-                assertFolderItem(item, pathSite, "", false, 0);
-                siteItem = item;
-                break;
-            }
-        }
-        
-        assertNotNull(siteItem);
-        
-        PSPathItem sitePathItem = new PSPathItem();
-        sitePathItem.setId(siteItem.getId());
-        sitePathItem.setName(siteItem.getName());
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, sitePathItem);
-        
-        // requery to ensure saved properly
-        folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        "/Sites",
-                        false);
-        
-        // level 1
-        assertTrue("folderItems.size()", folderItems.size() >= 1);
-        boolean siteExists = false;
-        
-        for (PSFolderItem item : folderItems)
-        {
-            if (item.getName().equals(site.getName()))
-            {
-                assertFolderItem(item, pathSite, DEFAULT_WORKFLOW, true, 0);
-                siteExists = true;
-            }
-        }
-        
-        assertTrue(siteExists);
-        
-        saveWorkflow(DEFAULT_WORKFLOW, new PSPathItem[] {}, new PSPathItem[] { sitePathItem });
-    }
-    
-    @Test
-    public void testGetAssignedFolders_IncludeFoldersWithDifferentWorkflow() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        true);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 2);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-        PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(1);
-        assertFolderItem(folderItem1_1_2, folder1_1_2, StringUtils.EMPTY, false, 0);
-    }
-    
-    @Test
-    public void testGetAssignedFolders_FolderDoesNotBelongToWorkflow_AllChildrenDo() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1, folder1_1_1);
-        saveWorkflow(STANDARD_WORKFLOW, folder1_1);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, STANDARD_WORKFLOW, true, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+    saveWorkflowShouldFail(StringUtils.EMPTY, 400, folder1);
+
+    saveWorkflowShouldFail("non-existent ", 404, folder1);
+  }
+
+  @Test
+  public void testAssignFoldersToWorkflow_SomePathIsEmpty() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1.getId(), StringUtils.EMPTY);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+  }
+
+  @Test
+  public void testAssignFoldersToWorkflow_SomePathDoesNotExist() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1.getId(), folder1_1_2.getId() + "876iuy");
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+  }
+
+  @Test
+  public void testAssignFolders_Unassingment_Successful() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1, folder1_1, folder1_1_1, folder1_1_2);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, true, 1);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, true, 2);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+    PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(1);
+    assertFolderItem(folderItem1_1_2, folder1_1_2, DEFAULT_WORKFLOW, true, 0);
+
+    // Unassign
+    saveWorkflow(DEFAULT_WORKFLOW, null, new PSPathItem[] {folder1_1, folder1_1_1});
+
+    folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, false, 1);
+
+    // level 2
+    folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
+
+    // level 3
+    folderItem1_1_2 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_2, folder1_1_2, DEFAULT_WORKFLOW, true, 0);
+  }
+
+  public void testAssignFolders_AssignmentAndUnassingment_Successful() throws Exception {
+    PSPathItem folder1 = addFolder("folder1");
+    PSPathItem folder1_1 = addFolder("folder1/folder1-1");
+    PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
+    PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, folder1_1, folder1_1_1);
+
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    PSFolderItem folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
+
+    // level 2
+    PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, false, 1);
+
+    // level 3
+    PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+
+    // Unassign
+    saveWorkflow(
+        STANDARD_WORKFLOW,
+        new PSPathItem[] {folder1, folder1_1_2},
+        new PSPathItem[] {folder1_1, folder1_1_1});
+
+    folderItems =
+        restClient.getAssociatedFolders(
+            STANDARD_WORKFLOW, site.getFolderPath().substring(1), false);
+
+    // level 1
+    assertEquals("folderItems.size()", 1, folderItems.size());
+    folderItem1 = folderItems.get(0);
+    assertFolderItem(folderItem1, folder1, STANDARD_WORKFLOW, false, 1);
+
+    // level 2
+    folderItem1_1 = folderItem1.getChildren().get(0);
+    assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
+
+    // level 3
+    PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(0);
+    assertFolderItem(folderItem1_1_2, folder1_1_2, STANDARD_WORKFLOW, true, 0);
+  }
+
+  @Test
+  public void testJobGetAssignedFoldersBadWorkflow() {
+    testJobGetAssignedFoldersShouldFail("non-existent workflow", "/Sites");
+  }
+
+  @Test
+  public void testJobGetAssignedFolders() {
+    List<PSFolderItem> folderItems =
+        restClient.getAssociatedFolders(DEFAULT_WORKFLOW, "/Sites", true);
+    assertNotNull("folderItems not null", folderItems);
+
+    PSFolderItem siteItem = null;
+    for (PSFolderItem item : folderItems) {
+      if (item.getName().equals(site.getName())) {
+        assertFolderItem(item, pathSite, "", false, 0);
+        siteItem = item;
+        break;
+      }
     }
 
-    @Test
-    public void testAssignFoldersToWorkflow_WorkflowNameIsNullOrEmptyOrDoesNotExist() throws Exception {
-        PSPathItem folder1 = addFolder("folder1");
-        
-        saveWorkflowShouldFail(null, 400, folder1);
-        
-        saveWorkflowShouldFail(StringUtils.EMPTY, 400, folder1);
-        
-        saveWorkflowShouldFail("non-existent ", 404, folder1);
+    assertNotNull(siteItem);
+
+    PSPathItem sitePathItem = new PSPathItem();
+    sitePathItem.setId(siteItem.getId());
+    sitePathItem.setName(siteItem.getName());
+
+    // Save workflow
+    saveWorkflow(DEFAULT_WORKFLOW, sitePathItem);
+
+    // requery to ensure saved properly using job
+    String jobId = restClient.startGetAssociatedFoldersJob(DEFAULT_WORKFLOW, "/Sites", true);
+    PSGetAssignedFoldersJobStatus jobStatus = null;
+
+    while (true) {
+      jobStatus = restClient.getAssociatedFoldersJobResults(jobId);
+      assertNotNull(jobStatus);
+      assertEquals(jobId, String.valueOf(jobStatus.getJobId()));
+
+      String status = jobStatus.getStatus();
+
+      if (status.equals("-1")) fail("job aborted");
+      else if (status.equals("100")) break;
+      try {
+        System.out.println("Sleeping...");
+
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
     }
 
-    @Test
-    public void testAssignFoldersToWorkflow_SomePathIsEmpty() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1.getId(), StringUtils.EMPTY);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
+    assertEquals("100", jobStatus.getStatus());
+
+    folderItems = jobStatus.getFolderItems();
+    assertNotNull("folderItems not null", folderItems);
+
+    // level 1
+    assertTrue("folderItems.size()", folderItems.size() >= 1);
+    boolean siteExists = false;
+
+    for (PSFolderItem item : folderItems) {
+      if (item.getName().equals(site.getName())) {
+        assertFolderItem(item, pathSite, DEFAULT_WORKFLOW, true, 0);
+        siteExists = true;
+      }
     }
 
-    @Test
-    public void testAssignFoldersToWorkflow_SomePathDoesNotExist() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1_1.getId(), folder1_1_2.getId() + "876iuy");
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-    }
-    
-    @Test
-    public void testAssignFolders_Unassingment_Successful() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1, folder1_1, folder1_1_1, folder1_1_2);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, true, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, true, 2);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-        PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(1);
-        assertFolderItem(folderItem1_1_2, folder1_1_2, DEFAULT_WORKFLOW, true, 0);
-        
-        
-        
-        // Unassign
-        saveWorkflow(DEFAULT_WORKFLOW, null, new PSPathItem[] { folder1_1, folder1_1_1 });
-        
-        folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, DEFAULT_WORKFLOW, false, 1);
-        
-        // level 2
-        folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
-        
-        // level 3
-        folderItem1_1_2 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_2, folder1_1_2, DEFAULT_WORKFLOW, true, 0);
-    }
-    
-    public void testAssignFolders_AssignmentAndUnassingment_Successful() throws Exception {
-        PSPathItem folder1 =     addFolder("folder1");
-        PSPathItem folder1_1 =   addFolder("folder1/folder1-1");
-        PSPathItem folder1_1_1 = addFolder("folder1/folder1-1/folder1-1-1");
-        PSPathItem folder1_1_2 = addFolder("folder1/folder1-1/folder1-1-2");
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, folder1_1, folder1_1_1);
-        
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        PSFolderItem folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, StringUtils.EMPTY, false, 1);
-        
-        // level 2
-        PSFolderItem folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, DEFAULT_WORKFLOW, false, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_1 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_1, folder1_1_1, DEFAULT_WORKFLOW, true, 0);
-        
-        
-        
-        // Unassign
-        saveWorkflow(STANDARD_WORKFLOW,
-                new PSPathItem[] { folder1, folder1_1_2 },
-                new PSPathItem[] { folder1_1, folder1_1_1 });
-        
-        folderItems =
-                restClient.getAssociatedFolders(STANDARD_WORKFLOW,
-                        site.getFolderPath().substring(1),
-                        false);
-        
-        // level 1
-        assertEquals("folderItems.size()", 1, folderItems.size());
-        folderItem1 = folderItems.get(0);
-        assertFolderItem(folderItem1, folder1, STANDARD_WORKFLOW, false, 1);
-        
-        // level 2
-        folderItem1_1 = folderItem1.getChildren().get(0);
-        assertFolderItem(folderItem1_1, folder1_1, StringUtils.EMPTY, false, 1);
-        
-        // level 3
-        PSFolderItem folderItem1_1_2 = folderItem1_1.getChildren().get(0);
-        assertFolderItem(folderItem1_1_2, folder1_1_2, STANDARD_WORKFLOW, true, 0);
-    }
-    
-    @Test
-    public void testJobGetAssignedFoldersBadWorkflow() {
-        testJobGetAssignedFoldersShouldFail("non-existent workflow", "/Sites");
-    }
-    
-    @Test
-    public void testJobGetAssignedFolders() {
-        List<PSFolderItem> folderItems =
-                restClient.getAssociatedFolders(DEFAULT_WORKFLOW,
-                        "/Sites",
-                        true);
-        assertNotNull("folderItems not null", folderItems);
-        
-        PSFolderItem siteItem = null;
-        for (PSFolderItem item : folderItems)
-        {
-            if (item.getName().equals(site.getName()))
-            {
-                assertFolderItem(item, pathSite, "", false, 0);
-                siteItem = item;
-                break;
-            }
-        }
-        
-        assertNotNull(siteItem);
-        
-        PSPathItem sitePathItem = new PSPathItem();
-        sitePathItem.setId(siteItem.getId());
-        sitePathItem.setName(siteItem.getName());
-        
-        // Save workflow
-        saveWorkflow(DEFAULT_WORKFLOW, sitePathItem);
-        
-        // requery to ensure saved properly using job        
-        String jobId = restClient.startGetAssociatedFoldersJob(DEFAULT_WORKFLOW, "/Sites", true);
-        PSGetAssignedFoldersJobStatus jobStatus = null;
-        
-        while (true)
-        {
-            jobStatus = restClient.getAssociatedFoldersJobResults(jobId);
-            assertNotNull(jobStatus);
-            assertEquals(jobId, String.valueOf(jobStatus.getJobId()));
-            
-            String status = jobStatus.getStatus();
-            
-            if (status.equals("-1"))
-                fail("job aborted");
-            else if (status.equals("100"))
-                break;
-            try
-            {
-                System.out.println("Sleeping...");
+    assertTrue(siteExists);
 
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
-        
-        assertEquals("100", jobStatus.getStatus());
-        
-        folderItems = jobStatus.getFolderItems();
-        assertNotNull("folderItems not null", folderItems);
-        
-        // level 1
-        assertTrue("folderItems.size()", folderItems.size() >= 1);
-        boolean siteExists = false;
-        
-        for (PSFolderItem item : folderItems)
-        {
-            if (item.getName().equals(site.getName()))
-            {
-                assertFolderItem(item, pathSite, DEFAULT_WORKFLOW, true, 0);
-                siteExists = true;
-            }
-        }
-        
-        assertTrue(siteExists);
-        
-        saveWorkflow(DEFAULT_WORKFLOW, new PSPathItem[] {}, new PSPathItem[] { sitePathItem });
-    }
-    
-    private void testJobGetAssignedFoldersShouldFail(String workflowName, String path) {
-        try {
-            restClient.startGetAssociatedFoldersJob(workflowName, path, false);
+    saveWorkflow(DEFAULT_WORKFLOW, new PSPathItem[] {}, new PSPathItem[] {sitePathItem});
+  }
 
-            fail("Should have thrown an exception");
-        }
-        catch (Exception e)
-        {
-            // noop
-        }
+  private void testJobGetAssignedFoldersShouldFail(String workflowName, String path) {
+    try {
+      restClient.startGetAssociatedFoldersJob(workflowName, path, false);
+
+      fail("Should have thrown an exception");
+    } catch (Exception e) {
+      // noop
     }
+  }
 }

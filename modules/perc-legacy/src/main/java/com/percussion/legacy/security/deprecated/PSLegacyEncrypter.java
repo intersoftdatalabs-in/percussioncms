@@ -33,8 +33,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Utility class to encrypt and decrypt strings using the Blowfish cipher with a
- * secret shared key.
+ * Utility class to encrypt and decrypt strings using the Blowfish cipher with a secret shared key.
+ *
  * @deprecated Only use for upgrade from prior versions
  */
 @Deprecated
@@ -64,9 +64,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     }
   }
 
-  /**
-   * Private ctor to force static use.
-   */
+  /** Private ctor to force static use. */
   private PSLegacyEncrypter(String keyLocation) {
     this.keyLocation = keyLocation;
   }
@@ -74,7 +72,8 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   private static PSLegacyEncrypter instance;
 
   /**
-   *  Simgleton accessor to get a legacy encryptor
+   * Simgleton accessor to get a legacy encryptor
+   *
    * @return Instance of PSLegacyEncrypter
    */
   public static PSLegacyEncrypter getInstance(String keyLocation) {
@@ -87,11 +86,10 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * Sizes the key to be correct for the cipher being used.  For Blowfish, it
-   * must be a multiple of 8, and can only range from 32 to 448, inclusive.
+   * Sizes the key to be correct for the cipher being used. For Blowfish, it must be a multiple of
+   * 8, and can only range from 32 to 448, inclusive.
    *
    * @param keyBytes The key to size, assumed not <code>null</code>.
-   *
    * @return The sized key.
    */
   @Deprecated
@@ -121,8 +119,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * Returns the key value to use as part one with the Rhythmyx encryption
-   * algorithm.
+   * Returns the key value to use as part one with the Rhythmyx encryption algorithm.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -132,8 +129,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * Returns the key value to use as part two with the Rhythmyx encyrption
-   * algorithm.
+   * Returns the key value to use as part two with the Rhythmyx encyrption algorithm.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -145,8 +141,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   /**
    * Encrypts the supplied String using the rot13 algorithm on each character.
    *
-   * @param val The value to encrypt.  Assumed not <code>null</code> or empty.
-   *
+   * @param val The value to encrypt. Assumed not <code>null</code> or empty.
    * @return The encrypted string, never <code>null</code> or empty.
    */
   @Deprecated
@@ -161,6 +156,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
 
   /**
    * Encrypts the supplied char using the rot13 algorithm
+   *
    * @param ch The char to encrypt.
    * @return The encrypted char.
    */
@@ -174,24 +170,18 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     return encrypted;
   }
 
-  /**
-   * The name of the cipher used for encryption.
-   */
+  /** The name of the cipher used for encryption. */
   @Deprecated private static final String CIPHER = "Blowfish";
 
-  /**
-   * Radix to use for String to int conversion.
-   */
+  /** Radix to use for String to int conversion. */
   private static final int RADIX = 16;
 
-  /**
-   * Length in bytes of the secret key byte array.
-   */
+  /** Length in bytes of the secret key byte array. */
   private static final int KEY_LEN = 15;
 
   /**
-   * The constant for the partone key for the Rx encryption algorithm.  The
-   * constant is encrypted by the {@link #rot13(char)} method.
+   * The constant for the partone key for the Rx encryption algorithm. The constant is encrypted by
+   * the {@link #rot13(char)} method.
    */
   @Deprecated
   public String PART_ONE() {
@@ -205,8 +195,8 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * The constant for the parttwo key for the Rx encryption algorithm.  The
-   * constant is encrypted by the {@link #rot13(char)} method.
+   * The constant for the parttwo key for the Rx encryption algorithm. The constant is encrypted by
+   * the {@link #rot13(char)} method.
    */
   @Deprecated
   public String PART_TWO() {
@@ -220,20 +210,17 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * The length of the byte array passed to the cipher encryption object for
-   * decryption in {@link #decrypt(String, String, PSAbstractEncryptor)} must be a multiple of this
-   * value.  Used in {@link #toByteArray(BigInteger)}.
+   * The length of the byte array passed to the cipher encryption object for decryption in {@link
+   * #decrypt(String, String, PSAbstractEncryptor)} must be a multiple of this value. Used in {@link
+   * #toByteArray(BigInteger)}.
    */
   public static int BYTE_ARRAY_MULTIPLE = 8;
 
   /**
    * Encrypts the provided string using the supplied secret key
    *
-   * @param str The string to encrypt, may not be <code>null</code>, may be
-   * empty.
-   * @param key The secret key to encrypt the string, may not be
-   * <code>null</code> or empty.
-   *
+   * @param str The string to encrypt, may not be <code>null</code>, may be empty.
+   * @param key The secret key to encrypt the string, may not be <code>null</code> or empty.
    * @return The encrypted string, never <code>null</code>, may be empty.
    */
   @Deprecated
@@ -262,11 +249,9 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   /**
    * Decrypts the provided string using the supplied secret key.
    *
-   * @param str The string to decrypt, may not be <code>null</code>, may be
-   * empty.
-   * @param key The secret key that was used to encrypt the string, may not
-   * be <code>null</code> or empty.
-   *
+   * @param str The string to decrypt, may not be <code>null</code>, may be empty.
+   * @param key The secret key that was used to encrypt the string, may not be <code>null</code> or
+   *     empty.
    * @param legacyDecryptor
    * @return The decrypted string, never <code>null</code>, may be empty.
    */
@@ -297,17 +282,14 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
   }
 
   /**
-   * Converts a <code>BigInteger</code> to a byte array whose size is a
-   * multiple of {@link #BYTE_ARRAY_MULTIPLE}.  For positive values or a value
-   * of zero, the byte array is padded with leading 0 byte values if necessary.
-   * For negative values, the byte array is padded with leading -1 byte values
-   * if necessary.
+   * Converts a <code>BigInteger</code> to a byte array whose size is a multiple of {@link
+   * #BYTE_ARRAY_MULTIPLE}. For positive values or a value of zero, the byte array is padded with
+   * leading 0 byte values if necessary. For negative values, the byte array is padded with leading
+   * -1 byte values if necessary.
    *
-   * @param bigInt The <code>BigInteger</code> to convert, may not be
-   * <code>null</code>.
-   *
-   * @return A valid byte array form of a <code>BigInteger</code> with a size
-   * which is a multiple of BYTE_ARRAY_MULTIPLE.
+   * @param bigInt The <code>BigInteger</code> to convert, may not be <code>null</code>.
+   * @return A valid byte array form of a <code>BigInteger</code> with a size which is a multiple of
+   *     BYTE_ARRAY_MULTIPLE.
    */
   @Deprecated
   @Override
@@ -406,7 +388,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
    * Decrypts the specified credentials using the supplied password.
    *
    * @param encrypted The encrypted credentials
-   * @param pw        The password to use for decryption.
+   * @param pw The password to use for decryption.
    * @return
    * @throws PSEncryptionException
    */
@@ -415,9 +397,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
     throw new PSEncryptionException("Not implemented");
   }
 
-  /**
-   * Encryption seed key.
-   */
+  /** Encryption seed key. */
   @Deprecated
   public String CRYPT_KEY() {
     try {
@@ -477,9 +457,7 @@ public class PSLegacyEncrypter extends PSAbstractEncryptor {
 
   @Deprecated public static final String PUBSERVER_ENCRYPTION_KEY = "p3$Y&ND8#Zdefghl";
 
-  /**
-   * Constant to use for part one key when encrypting/decrypting the password.
-   */
+  /** Constant to use for part one key when encrypting/decrypting the password. */
   @Deprecated
   public static final String SECURE_PROPERTY_DEFAULT_KEY = "The value entered cannot be null!!!!!";
 }

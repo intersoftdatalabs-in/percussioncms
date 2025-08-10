@@ -28,11 +28,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 /**
- * The PSBase64Decoder class is used to decode data from the base64 format. It
- * is a wrapper for the <a href="http://jakarta.apache.org/commons/codec/">
- * Apache Commons Base64 codec</a>.
- * <p>
- * Base64 Encoding is defined in <A
+ * The PSBase64Decoder class is used to decode data from the base64 format. It is a wrapper for the
+ * <a href="http://jakarta.apache.org/commons/codec/">Apache Commons Base64 codec</a>.
+ *
+ * <p>Base64 Encoding is defined in <A
  * HREF="http://www.cis.ohio-state.edu/htbin/rfc/rfc1521.html">RFC 1521</A>.
  *
  * @author Tas Giakouminakis
@@ -44,11 +43,8 @@ public class PSBase64Decoder {
   /**
    * Decode the specified data.
    *
-   * @param in the string containing the base64 encoded data, never
-   *           <code>null</code>
-   *
-   * @return a string containing the plain text representation of the data,
-   *         never <code>null</code>
+   * @param in the string containing the base64 encoded data, never <code>null</code>
+   * @return a string containing the plain text representation of the data, never <code>null</code>
    * @throws PSRuntimeException if decoding fails.
    */
   public static String decode(String in) throws PSRuntimeException {
@@ -58,17 +54,12 @@ public class PSBase64Decoder {
   }
 
   /**
-   * Decode the specified data. Convenience method for extracting strings with
-   * a specified encoding.
+   * Decode the specified data. Convenience method for extracting strings with a specified encoding.
    *
-   * @param in the string containing the base64 encoded data, never
-   *           <code>null</code>.
-   * @param encoding the encoding string for the decoded data string. if
-   *           <code>null</code>, the platform's default charater set is
-   *           used.
-   *
-   * @return a string containing the plain text representation of the data,
-   *         never <code>null</code>
+   * @param in the string containing the base64 encoded data, never <code>null</code>.
+   * @param encoding the encoding string for the decoded data string. if <code>null</code>, the
+   *     platform's default charater set is used.
+   * @return a string containing the plain text representation of the data, never <code>null</code>
    * @throws PSRuntimeException if an invalid encoding name is specified.
    */
   public static String decode(String in, String encoding) throws PSRuntimeException {
@@ -90,11 +81,9 @@ public class PSBase64Decoder {
   /**
    * Decode the specified data.
    *
-   * @param in the stream containing the base64 encoded data, never
-   *           <code>null</code>
-   * @param out the stream to store the plain text representation of the data,
-   *           never <code>null</code>
-   *
+   * @param in the stream containing the base64 encoded data, never <code>null</code>
+   * @param out the stream to store the plain text representation of the data, never <code>null
+   *     </code>
    * @throws IOException if an I/O exception occurs
    */
   public static void decode(InputStream in, OutputStream out) throws IOException {
@@ -113,8 +102,7 @@ public class PSBase64Decoder {
   /**
    * Decodes a byte[] containing containing characters in the Base64 alphabet.
    *
-   * @param in A byte array containing Base64 character data, never
-   *           <code>null</code>
+   * @param in A byte array containing Base64 character data, never <code>null</code>
    * @return a byte array containing decoded data
    */
   public static byte[] decode(byte[] in) {
@@ -123,9 +111,8 @@ public class PSBase64Decoder {
   }
 
   /**
-   * Provides a simple way to decode a base64 encoded string. Supply the text
-   * as the only argument to this method. The decoded string is printed to the
-   * console.
+   * Provides a simple way to decode a base64 encoded string. Supply the text as the only argument
+   * to this method. The decoded string is printed to the console.
    */
   public static void main(String[] args) {
     if (args.length != 1) {

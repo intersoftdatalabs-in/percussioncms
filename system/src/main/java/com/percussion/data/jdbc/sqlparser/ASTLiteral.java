@@ -36,7 +36,7 @@ public class ASTLiteral extends SimpleNode {
 
   private Comparable m_value;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

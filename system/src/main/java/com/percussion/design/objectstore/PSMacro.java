@@ -20,22 +20,16 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class is used to extract parameters through macros.
- */
+/** This class is used to extract parameters through macros. */
 public class PSMacro extends PSNamedReplacementValue {
   /**
    * Construct a Java object from it's XML representation.
    *
-   * @param source the XML element node to construct this object from, not
-   *    <code>null</code>, see {@link #toXml(Document)} for the expected XML
-   *    format.
-   * @param parent the Java object which is the parent of this object, may be
-   *    <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   *    <code>null</code> or empty.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *    appropriate type.
+   * @param source the XML element node to construct this object from, not <code>null</code>, see
+   *     {@link #toXml(Document)} for the expected XML format.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
   public PSMacro(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -62,16 +56,14 @@ public class PSMacro extends PSNamedReplacementValue {
   }
 
   /**
-   * This method is called to populate this instance from a XML
-   * representation. See the {@link #toXml(Document)} method for a description
-   * of the XML object.
+   * This method is called to populate this instance from a XML representation. See the {@link
+   * #toXml(Document)} method for a description of the XML object.
    *
-   * @param source the XML element node to construct this object from,
-   *    must not be <code>null</code>.
+   * @param source the XML element node to construct this object from, must not be <code>null</code>
+   *     .
    * @param parent may be <code>null</code>.
    * @param parentComponents may be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public void fromXml(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -79,8 +71,9 @@ public class PSMacro extends PSNamedReplacementValue {
   }
 
   /**
-   * Creates the XML serialization for this class. The structure of the XML
-   * document conforms to this DTD:
+   * Creates the XML serialization for this class. The structure of the XML document conforms to
+   * this DTD:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXMacro (name)&lt;
    * &lt;!ATTLIST PSXMacro
@@ -125,14 +118,12 @@ public class PSMacro extends PSNamedReplacementValue {
     return IPSObjectStoreErrors.MACRO_NAME_EMPTY;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "Macro";
 
   /**
-   * The XML node name, package access on this so they may reference each
-   * other in <code>fromXml</code>.
+   * The XML node name, package access on this so they may reference each other in <code>fromXml
+   * </code>.
    */
   static final String ms_NodeType = "PSXMacro";
 }

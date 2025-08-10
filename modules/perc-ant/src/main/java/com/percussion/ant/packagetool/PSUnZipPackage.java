@@ -76,14 +76,10 @@ import org.apache.tools.ant.taskdefs.Expand;
  * </pre>
  */
 public class PSUnZipPackage extends Expand {
-  /**
-   * The source package file path(required)
-   */
+  /** The source package file path(required) */
   private String m_zipFilePath;
 
-  /**
-   * Root directory where package folder will go. It is required and comes from build.xml
-   */
+  /** Root directory where package folder will go. It is required and comes from build.xml */
   private String m_rootDirPath;
 
   /**

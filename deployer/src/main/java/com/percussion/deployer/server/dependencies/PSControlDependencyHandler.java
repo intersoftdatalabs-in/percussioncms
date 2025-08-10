@@ -41,19 +41,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Class to handle packaging and deploying a content editor control.
- */
+/** Class to handle packaging and deploying a content editor control. */
 public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSControlDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -127,17 +122,17 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Extension</li>
-   * <li>SupportFile</li>
+   *   <li>Application
+   *   <li>Extension
+   *   <li>SupportFile
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -182,11 +177,8 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * Gets dependencies for all controls of the specified type.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param system if <code>true</code>, gets system controls, otherwise gets
-   * user controls.
-   *
+   * @param system if <code>true</code>, gets system controls, otherwise gets user controls.
    * @return A list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if any errors occur.
    */
   @SuppressWarnings("unchecked")
@@ -215,13 +207,9 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * Gets the specified control dependency.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param name The name of the control, assumed not <code>null</code> or
-   * empty.
-   * @param system if <code>true</code>, checks system controls, otherwise
-   * checks user controls.
-   *
+   * @param name The name of the control, assumed not <code>null</code> or empty.
+   * @param system if <code>true</code>, checks system controls, otherwise checks user controls.
    * @return The control dependency, may be <code>null</code> if not found.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private PSDependency getControlDependency(PSSecurityToken tok, String name, boolean system)
@@ -250,12 +238,9 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param meta The control meta, assumed not <code>null</code>.
-   * @param isSystemDep If <code>true</code>, create a system control, if
-   * <code>false</code>, create a server user control if control exists in
-   * rx_Templates.xsl.
-   *
+   * @param isSystemDep If <code>true</code>, create a system control, if <code>false</code>, create
+   *     a server user control if control exists in rx_Templates.xsl.
    * @return The control dependency, never <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private PSDependency createControlDependency(
@@ -277,15 +262,11 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
   }
 
   /**
-   * Searches the supplied control document for all controls and
-   * returns a list of controls.
+   * Searches the supplied control document for all controls and returns a list of controls.
    *
-   * @param controlDoc The xml doc containing the control definitions, assumed
-   * not <code>null</code>.
-   *
-   * @return A list of <code>PSControlMeta</code> objects, never
-   * <code>null</code>, may be empty.
-   *
+   * @param controlDoc The xml doc containing the control definitions, assumed not <code>null</code>
+   *     .
+   * @return A list of <code>PSControlMeta</code> objects, never <code>null</code>, may be empty.
    * @throws PSDeployException if any errors occur.
    */
   private List<PSControlMeta> getControls(Document controlDoc) throws PSDeployException {
@@ -308,9 +289,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * Get the XML doc containing all system controls
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   *
    * @return The system controls document, never <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private Document getSysControlsDoc(PSSecurityToken tok) throws PSDeployException {
@@ -323,9 +302,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    * Get the XML doc containing all user controls from rx_Templates.xsl.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   *
    * @return The user controls document, never <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private Document getRxControlsDoc(PSSecurityToken tok) throws PSDeployException {
@@ -339,9 +316,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param name The control name, assumed not <code>null</code>.
-   *
    * @return The control object or <code>null</code> if not found.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private PSControlMeta getSysControl(PSSecurityToken tok, String name) throws PSDeployException {
@@ -353,9 +328,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param name The control name, assumed not <code>null</code>.
-   *
    * @return The control object or <code>null</code> if not found.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private PSControlMeta getRxControl(PSSecurityToken tok, String name) throws PSDeployException {
@@ -367,9 +340,7 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
    *
    * @param doc The control document, assumed not <code>null</code>.
    * @param name The control name, assumed not <code>null</code>.
-   *
    * @return The control object or <code>null</code> if not found.
-   *
    * @throws PSDeployException if any errors occur.
    */
   private PSControlMeta getControl(Document doc, String name) throws PSDeployException {
@@ -384,41 +355,26 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler {
     return ctrl;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "Control";
 
-  /**
-   * Constant for app file reference to user control library stylesheet
-   */
+  /** Constant for app file reference to user control library stylesheet */
   private static final File USER_CONTROL_FILE = new File("/stylesheets", "rx_Templates.xsl");
 
-  /**
-   * Constant for app file reference to system control library stylesheet
-   */
+  /** Constant for app file reference to system control library stylesheet */
   private static final File SYS_CONTROL_FILE = new File("/stylesheets", "sys_Templates.xsl");
 
-  /**
-   * Constant for app file reference to user control library stylesheet
-   */
+  /** Constant for app file reference to user control library stylesheet */
   private static final String USER_CONTROL_PATH =
       USER_CONTROL_APP + "/stylesheets/rx_Templates.xsl";
 
-  /**
-   * Constant for app file reference to system control library stylesheet
-   */
+  /** Constant for app file reference to system control library stylesheet */
   private static final String SYS_CONTROL_PATH = SYS_CONTROL_APP + "/stylesheets/sys_Templates.xsl";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
-  /**
-   * Get the custom control manager.
-   */
+  /** Get the custom control manager. */
   private static PSCustomControlManager ms_ctrlMgr = PSCustomControlManager.getInstance();
 
   static {

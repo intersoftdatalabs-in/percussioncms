@@ -22,59 +22,59 @@ import com.percussion.metadata.data.PSMetadata;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.system.utils.PSSiteManageBean;
-
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-
 /**
- * Implementation of {@link IPSMetadataService}.
- * Sunny Sal says: "MetadataService: where your data gets a spa day!"
+ * Implementation of {@link IPSMetadataService}. Sunny Sal says: "MetadataService: where your data
+ * gets a spa day!"
  */
 @PSSiteManageBean("metadataService")
 @Transactional
 public class PSMetadataService implements IPSMetadataService {
 
-    private final IPSMetadataDao dao;
+  private final IPSMetadataDao dao;
 
-    @Autowired
-    public PSMetadataService(IPSMetadataDao dao) {
-        this.dao = dao;
-    }
+  @Autowired
+  public PSMetadataService(IPSMetadataDao dao) {
+    this.dao = dao;
+  }
 
-    @Override
-    public void delete(String key) throws IPSGenericDao.LoadException, IPSGenericDao.DeleteException {
-        dao.delete(key);
-    }
+  @Override
+  public void delete(String key) throws IPSGenericDao.LoadException, IPSGenericDao.DeleteException {
+    dao.delete(key);
+  }
 
-    @Override
-    public void deleteByPrefix(String prefix) throws IPSGenericDao.DeleteException, IPSGenericDao.LoadException {
-        var results = findByPrefix(prefix);
-        if (!results.isEmpty()) {
-            for (var result : results) {
-                dao.delete(result);
-            }
-        }
+  @Override
+  public void deleteByPrefix(String prefix)
+      throws IPSGenericDao.DeleteException, IPSGenericDao.LoadException {
+    var results = findByPrefix(prefix);
+    if (!results.isEmpty()) {
+      for (var result : results) {
+        dao.delete(result);
+      }
     }
+  }
 
-    @Override
-    public PSMetadata find(String key) throws IPSGenericDao.LoadException {
-        return dao.find(key);
-    }
+  @Override
+  public PSMetadata find(String key) throws IPSGenericDao.LoadException {
+    return dao.find(key);
+  }
 
-    @Override
-    public Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException {
-        return dao.findByPrefix(prefix);
-    }
+  @Override
+  public Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException {
+    return dao.findByPrefix(prefix);
+  }
 
-    @Override
-    public void save(PSMetadata data) throws IPSGenericDao.LoadException, IPSGenericDao.SaveException {
-        var existing = find(data.getKey());
-        if (existing != null) {
-            dao.save(data);
-        } else {
-            dao.create(data);
-        }
+  @Override
+  public void save(PSMetadata data)
+      throws IPSGenericDao.LoadException, IPSGenericDao.SaveException {
+    var existing = find(data.getKey());
+    if (existing != null) {
+      dao.save(data);
+    } else {
+      dao.create(data);
     }
+  }
 }

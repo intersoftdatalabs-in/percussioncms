@@ -36,33 +36,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSFunctionCall class defines mappings to database functions.
- * This class is used to define a replacement value that is a database function
- * with zero or more parameter values. These parameters may be HTML parameters,
- * backend column etc.
- * (See the DTD defined in
- * {@link PSFunctionParamValue#toXml(Document) toXml()} method for all
- * possible types of supported parameters).
+ * The PSFunctionCall class defines mappings to database functions. This class is used to define a
+ * replacement value that is a database function with zero or more parameter values. These
+ * parameters may be HTML parameters, backend column etc. (See the DTD defined in {@link
+ * PSFunctionParamValue#toXml(Document) toXml()} method for all possible types of supported
+ * parameters).
  */
 public class PSFunctionCall extends PSNamedReplacementValue
     implements IPSMutatableReplacementValue {
 
   /**
-   * Constructs this object from its XML representation. See the
-   * {@link #toXml(Document) toXml()} method for the DTD of the
-   * <code>sourceNode</code> element.
+   * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
+   * method for the DTD of the <code>sourceNode</code> element.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   * may not be <code>null</code>
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
-   *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * <code>null</code> or the XML element node is not of the appropriate type
+   * @param sourceNode the XML element node to construct this object from, may not be <code>null
+   *     </code>
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the XML
+   *     element node is not of the appropriate type
    */
   public PSFunctionCall(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -72,21 +64,14 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Constructs this object from the specified database function definition
-   * and function parameter values.
+   * Constructs this object from the specified database function definition and function parameter
+   * values.
    *
-   * @param dbFuncName the database function to be called, may not be
-   * <code>null</code> or empty
-   *
-   * @param params the parameter values of this database function call, may
-   * be <code>null</code> or empty if this database function does not require
-   * any parameters.
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
+   * @param dbFuncName the database function to be called, may not be <code>null</code> or empty
+   * @param params the parameter values of this database function call, may be <code>null</code> or
+   *     empty if this database function does not require any parameters.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
    */
   public PSFunctionCall(
       String dbFuncName,
@@ -106,11 +91,10 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Converts this object into a string (suitable for displaying in a table
-   * cell).
-   * @return the string representation of the database function used by
-   * this function call in the format:
-   * <i>FunctionName(param1, param2, ...)</i>.
+   * Converts this object into a string (suitable for displaying in a table cell).
+   *
+   * @return the string representation of the database function used by this function call in the
+   *     format: <i>FunctionName(param1, param2, ...)</i>.
    */
   public String toString() {
     return getValueDisplayText();
@@ -119,10 +103,8 @@ public class PSFunctionCall extends PSNamedReplacementValue
   /**
    * Get the parameter values associated with this database function call.
    *
-   * @return the parameter values of this database function call,
-   * never <code>null</code>, may be empty. All members of the returned
-   * array are guaranteed to be non-<code>null</code>.
-   *
+   * @return the parameter values of this database function call, never <code>null</code>, may be
+   *     empty. All members of the returned array are guaranteed to be non-<code>null</code>.
    * @see #getParameters()
    */
   public PSFunctionParamValue[] getParamValues() {
@@ -132,25 +114,22 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Set the parameters associated with this database function call.
-   * This object uses the input array. No further use of the array should
-   * be made as it will affect this object as well.
+   * Set the parameters associated with this database function call. This object uses the input
+   * array. No further use of the array should be made as it will affect this object as well.
    *
-   * @param params the parameter values of this database function call, may
-   * be <code>null</code> or empty if this database function does not require
-   * any parameters.
+   * @param params the parameter values of this database function call, may be <code>null</code> or
+   *     empty if this database function does not require any parameters.
    */
   public void setParamValues(PSFunctionParamValue[] params) {
     setParamValues(PSIteratorUtils.iterator(params));
   }
 
   /**
-   * Set the parameters associated with this database function call. Only
-   * non-<code>null</code> values are added as function parameter values.
+   * Set the parameters associated with this database function call. Only non-<code>null</code>
+   * values are added as function parameter values.
    *
-   * @param params An Iterator over zero or more
-   * <code>PSFunctionParamValue</code> objects, may be <code>null</code> or
-   * empty if this database function does not require any parameters.
+   * @param params An Iterator over zero or more <code>PSFunctionParamValue</code> objects, may be
+   *     <code>null</code> or empty if this database function does not require any parameters.
    */
   public void setParamValues(Iterator params) {
     m_params = new ArrayList();
@@ -171,12 +150,11 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Get the columns which must be selected from the back-end(s) in
-   * order to use this mapping. The column name syntax is
-   * <code>back-end-table-alias.column-name</code>.
+   * Get the columns which must be selected from the back-end(s) in order to use this mapping. The
+   * column name syntax is <code>back-end-table-alias.column-name</code>.
    *
-   * @return the columns which must be selected from the back-end(s)
-   * in order to use this mapping, array may be empty
+   * @return the columns which must be selected from the back-end(s) in order to use this mapping,
+   *     array may be empty
    */
   public String[] getColumnsForSelect() {
     return m_columns;
@@ -185,8 +163,8 @@ public class PSFunctionCall extends PSNamedReplacementValue
   /**
    * Returns the name of the database function used by this object.
    *
-   * @return the name of the database function used by this object,
-   * non-<code>null</code> and non-empty.
+   * @return the name of the database function used by this object, non-<code>null</code> and
+   *     non-empty.
    */
   public String getName() {
     return m_dbFuncName;
@@ -195,11 +173,9 @@ public class PSFunctionCall extends PSNamedReplacementValue
   /**
    * Returns this database function call's parameter values.
    *
-   * @return this database function call's parameter values
-   * (<code>PSFunctionParamValue</code> objects),
-   * never <code>null</code>, may be empty. All members of the returned
-   * collection are guaranteed to be non-<code>null</code>.
-   *
+   * @return this database function call's parameter values (<code>PSFunctionParamValue</code>
+   *     objects), never <code>null</code>, may be empty. All members of the returned collection are
+   *     guaranteed to be non-<code>null</code>.
    * @see #getParamValues()
    */
   public Collection getParameters() {
@@ -207,8 +183,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * @return the constant <code>VALUE_TYPE</code>
-   * See {@link #VALUE_TYPE}
+   * @return the constant <code>VALUE_TYPE</code> See {@link #VALUE_TYPE}
    */
   public String getType() {
     return VALUE_TYPE;
@@ -229,24 +204,19 @@ public class PSFunctionCall extends PSNamedReplacementValue
     return copy;
   }
 
-  /**
-   * See {@link IPSReplacementValue#getValueType()} for details.
-   */
+  /** See {@link IPSReplacementValue#getValueType()} for details. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
   /**
-   * Returns the text which represents this function call. The text includes
-   * the function name and its parameter values in the format:
-   * FUNCTION_NAME(PARAM1, PARAM2, PARAM3)
+   * Returns the text which represents this function call. The text includes the function name and
+   * its parameter values in the format: FUNCTION_NAME(PARAM1, PARAM2, PARAM3)
    *
-   * @param displayText if <code>true</code> then returns the string which
-   * can be displayed to represent this function call, otherwise returns
-   * implementation specific text for this function call.
-   *
-   * @return text which represents this function call, never <code>null</code>
-   * or empty
+   * @param displayText if <code>true</code> then returns the string which can be displayed to
+   *     represent this function call, otherwise returns implementation specific text for this
+   *     function call.
+   * @return text which represents this function call, never <code>null</code> or empty
    */
   private String getText(boolean displayText) {
     StringBuilder buffer = new StringBuilder();
@@ -265,23 +235,18 @@ public class PSFunctionCall extends PSNamedReplacementValue
     return buffer.toString();
   }
 
-  /**
-   * See {@link IPSReplacementValue#getValueDisplayText()} for details.
-   */
+  /** See {@link IPSReplacementValue#getValueDisplayText()} for details. */
   public String getValueDisplayText() {
     return getText(true);
   }
 
-  /**
-   * See {@link IPSReplacementValue#getValueText()} for details.
-   */
+  /** See {@link IPSReplacementValue#getValueText()} for details. */
   public String getValueText() {
     return getText(false);
   }
 
   /**
-   * Returns the name of the database function represented by this function
-   * call.
+   * Returns the name of the database function represented by this function call.
    *
    * @return the database function name, never <code>null</code> or empty
    */
@@ -290,33 +255,27 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * This method is used to initialize this function call. It should be called
-   * once during application startup. This should be called before any call
-   * to {@link #getDatabaseFunctionDef()} method is made.
-   * <p>
-   * In this method the actual definition of the function is obtained from
-   * the database function manager. An exception is thrown if the function
-   * is not defined or the number of paramaters provided does not match the
-   * number of parameters required by the definition. The function definition
-   * (<code>PSDatabaseFunctionDef</code> object) is then stored internally
-   * and can be obtained using the {@link #getDatabaseFunctionDef()} method.
-   * This function definition should always be used when using this function
-   * call object. This ensures that the same defintion is used until the
-   * application is restarted. Since the user can add/remove/modify user
-   * defined funtions during runtime, which is then immediately loaded by the
-   * database function manager, but the new function definition should not be
-   * used until the application is restarted. Obtaining the function definition
-   * at application initialization improves performance and guarantees that any
-   * exception related to missing function definition or paramater mismatch
-   * exception will only be thrown during application initialization and never
-   * after that.
+   * This method is used to initialize this function call. It should be called once during
+   * application startup. This should be called before any call to {@link #getDatabaseFunctionDef()}
+   * method is made.
    *
-   * @throws PSDataExtractionException if the function definition of the
-   * specified function is missing or number of paramaters provided does
-   * not match the number of paramaters required by the definition
+   * <p>In this method the actual definition of the function is obtained from the database function
+   * manager. An exception is thrown if the function is not defined or the number of paramaters
+   * provided does not match the number of parameters required by the definition. The function
+   * definition (<code>PSDatabaseFunctionDef</code> object) is then stored internally and can be
+   * obtained using the {@link #getDatabaseFunctionDef()} method. This function definition should
+   * always be used when using this function call object. This ensures that the same defintion is
+   * used until the application is restarted. Since the user can add/remove/modify user defined
+   * funtions during runtime, which is then immediately loaded by the database function manager, but
+   * the new function definition should not be used until the application is restarted. Obtaining
+   * the function definition at application initialization improves performance and guarantees that
+   * any exception related to missing function definition or paramater mismatch exception will only
+   * be thrown during application initialization and never after that.
    *
-   * @throws IllegalStateException if this object has already been initialized
-   * successfully
+   * @throws PSDataExtractionException if the function definition of the specified function is
+   *     missing or number of paramaters provided does not match the number of paramaters required
+   *     by the definition
+   * @throws IllegalStateException if this object has already been initialized successfully
    */
   public void initialize() throws PSDataExtractionException {
     if (m_dbFuncDef != null) throw new IllegalStateException("Function call already initialized.");
@@ -355,20 +314,15 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Returns the function definition set during initialization.
-   * The <code>initialize()</code> method should have been called before
-   * this method is called, otherwise an <code>IllegalStateException</code>
-   * is thrown.
-   * <p>
-   * This method does not retrieve the function definition from the database
-   * function manager, only returns the value set during initialization.
+   * Returns the function definition set during initialization. The <code>initialize()</code> method
+   * should have been called before this method is called, otherwise an <code>IllegalStateException
+   * </code> is thrown.
    *
-   * @return the database function definition set during initialization,
-   * never <code>null</code>
+   * <p>This method does not retrieve the function definition from the database function manager,
+   * only returns the value set during initialization.
    *
-   * @throws IllegalStateException if this object has not been initialized
-   * successfully
-   *
+   * @return the database function definition set during initialization, never <code>null</code>
+   * @throws IllegalStateException if this object has not been initialized successfully
    * @see #initialize()
    */
   public PSDatabaseFunctionDef getDatabaseFunctionDef() {
@@ -379,13 +333,11 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Determines whether all the parameters of this function call has
-   * static value, (that is the parameter values do not depend upon runtime
-   * data).
+   * Determines whether all the parameters of this function call has static value, (that is the
+   * parameter values do not depend upon runtime data).
    *
-   * @return <code>true</code> if one or more function parameters depends
-   * upon the runtime data for its value, <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if one or more function parameters depends upon the runtime data for
+   *     its value, <code>false</code> otherwise.
    * @see PSFunctionParamValue#toXml(Document)
    */
   public boolean hasStaticParamsOnly() {
@@ -398,8 +350,9 @@ public class PSFunctionCall extends PSNamedReplacementValue
 
   /**
    * This method is called to serialize this object to an XML element.
-   * <p>
-   * The DTD of the returned XML element is:
+   *
+   * <p>The DTD of the returned XML element is:
+   *
    * <pre><code>
    *
    * &lt;!ELEMENT PSXFunctionCall   (name, PSXFunctionParamValue*)>
@@ -410,12 +363,10 @@ public class PSFunctionCall extends PSNamedReplacementValue
    *
    * </code></pre>
    *
-   * See {@link PSFunctionParamValue#toXml(Document) toXml()} method for the
-   * DTD of the "PSXFunctionParamValue" element.
+   * See {@link PSFunctionParamValue#toXml(Document) toXml()} method for the DTD of the
+   * "PSXFunctionParamValue" element.
    *
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>.
    * @return The element containing this object's state, never <code>
    * null</code>.
    */
@@ -437,20 +388,14 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Loads this object from the supplied element.
-   * See {@link #toXml(Document) toXml()} for the expected form of XML.
+   * Loads this object from the supplied element. See {@link #toXml(Document) toXml()} for the
+   * expected form of XML.
    *
    * @param sourceNode the element to load from, may not be <code>null</code>
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
-   *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * <code>null</code> or does not conform to the DTD specified in
-   * {@link #toXml(Document) toXml()}
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or does not
+   *     conform to the DTD specified in {@link #toXml(Document) toXml()}
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -507,18 +452,15 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Validate this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw exceptions. Instead, it
-   * should register any errors with the validation context to
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validate this object within the given validation context. The method signature declares that it
+   * throws PSSystemValidationException, but the implementation must not directly throw exceptions.
+   * Instead, it should register any errors with the validation context to decide whether to throw
+   * the exception (in which case the implementation of <CODE>validate</CODE> should not catch it
+   * unless it is to be rethrown).
    *
    * @param cxt the validation context, may not be <code>null</code>
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -538,14 +480,12 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Compares this object with the specified object. The database function
-   * name comparison is case-insensitive.
+   * Compares this object with the specified object. The database function name comparison is
+   * case-insensitive.
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <code>true</code> if the specified object is an instance of this
-   * class and the database function names are equal (case-insensitive)
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <code>true</code> if the specified object is an instance of this class and the database
+   *     function names are equal (case-insensitive)
    */
   public boolean equals(Object obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null");
@@ -561,9 +501,8 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Returns the hash code of this object. This includes the hashcode of the
-   * database function name (converted to lowercase) and hash code of all
-   * function parameters.
+   * Returns the hash code of this object. This includes the hashcode of the database function name
+   * (converted to lowercase) and hash code of all function parameters.
    *
    * @return the hashcode of this object.
    */
@@ -572,31 +511,27 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Returns the tag name of the root element from which this object can be
-   * constructed.
+   * Returns the tag name of the root element from which this object can be constructed.
    *
-   * @return the name of the root node of the XML document returned by a call
-   * to {@link #toXml(Document) toXml()} method.
-   *
+   * @return the name of the root node of the XML document returned by a call to {@link
+   *     #toXml(Document) toXml()} method.
    * @see #toXml(Document)
    */
   public String getNodeName() {
     return XML_NODE_NAME;
   }
 
-  /**
-   * See {@link PSNamedReplacementValue#getErrorCode()} for details.
-   */
+  /** See {@link PSNamedReplacementValue#getErrorCode()} for details. */
   public int getErrorCode() {
     return 0;
   }
 
   /**
-   * Returns the driver which should be used to obtain the database function
-   * definition of the function which this object represents.
+   * Returns the driver which should be used to obtain the database function definition of the
+   * function which this object represents.
    *
-   * @return the database driver for obtaining the database function
-   * definition, never <code>null</code> or empty
+   * @return the database driver for obtaining the database function definition, never <code>null
+   *     </code> or empty
    */
   public String getDriver() {
     String driver = null;
@@ -696,18 +631,15 @@ public class PSFunctionCall extends PSNamedReplacementValue
   }
 
   /**
-   * Returns the database driver based on the specified replacement value.
-   * If <code>repVal</code> is an instance of <code>PSBackEndColumn</code> or
-   * a <code>PSFunctionCall</code> containing backend column as one of the
-   * parameter values, then returns the driver for the database containing the
+   * Returns the database driver based on the specified replacement value. If <code>repVal</code> is
+   * an instance of <code>PSBackEndColumn</code> or a <code>PSFunctionCall</code> containing backend
+   * column as one of the parameter values, then returns the driver for the database containing the
    * table with the column specified in the backend column.
    *
-   * @param repVal the value to use in determining the database driver,
-   * may be <code>null</code>
-   *
-   * @return the driver of the database containing the backend column if any
-   * in the specified replacement value, <code>null</code> if the value
-   * does not contain any backend column, never empty if not <code>null</code>
+   * @param repVal the value to use in determining the database driver, may be <code>null</code>
+   * @return the driver of the database containing the backend column if any in the specified
+   *     replacement value, <code>null</code> if the value does not contain any backend column,
+   *     never empty if not <code>null</code>
    */
   private String getDriver(IPSReplacementValue repVal) {
     String driver = null;
@@ -737,9 +669,7 @@ public class PSFunctionCall extends PSNamedReplacementValue
    * Get the driver for the specified table.
    *
    * @param table The table, assumed not <code>null</code>.
-   *
-   * @return The driver name, may be <code>null</code> if it could not be
-   * obtained.
+   * @return The driver name, may be <code>null</code> if it could not be obtained.
    */
   private String getDriverFromTable(PSBackEndTable table) {
     String driver = null;
@@ -753,60 +683,51 @@ public class PSFunctionCall extends PSNamedReplacementValue
     return driver;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "FunctionCall";
 
   /**
-   * The name of the database function to be called. Initialized in the ctor,
-   * modified in the <code>fromXml()</code> method, never <code>null</code>
-   * or empty after initialization
+   * The name of the database function to be called. Initialized in the ctor, modified in the <code>
+   * fromXml()</code> method, never <code>null</code> or empty after initialization
    */
   private String m_dbFuncName;
 
   /**
-   * the function definition of the database function wrapped by this object,
-   * initialized to <code>null</code>, then set in the
-   * <code>initialize()</code> method, never <code>null</code> or modified
-   * after that
+   * the function definition of the database function wrapped by this object, initialized to <code>
+   * null</code>, then set in the <code>initialize()</code> method, never <code>null</code> or
+   * modified after that
    */
   private PSDatabaseFunctionDef m_dbFuncDef = null;
 
   /**
-   * A Collection of zero or more non-<code>null</code>
-   * <code>PSFunctionParamValue</code> objects.  Initialized in ctor,
-   * modified in the <code>fromXml()</code> and <code>setParamValues()</code>
+   * A Collection of zero or more non-<code>null</code> <code>PSFunctionParamValue</code> objects.
+   * Initialized in ctor, modified in the <code>fromXml()</code> and <code>setParamValues()</code>
    * methods, never <code>null</code> after initialization, may be empty.
    */
   private Collection m_params;
 
   /**
-   * An array of zero or more columns which need to be mapped in order for the
-   * param values to be bound successfully. There is NOT a 1:1 correspondence
-   * between columns and params. Initialized in the ctor,
-   * modified in the <code>fromXml()</code> and <code>setParamValues()</code>
-   * methods, never <code>null</code> after initialization
+   * An array of zero or more columns which need to be mapped in order for the param values to be
+   * bound successfully. There is NOT a 1:1 correspondence between columns and params. Initialized
+   * in the ctor, modified in the <code>fromXml()</code> and <code>setParamValues()</code> methods,
+   * never <code>null</code> after initialization
    */
   private String[] m_columns;
 
   /**
-   * the parent objects of this object, initialized in the ctor, may be
-   * <code>null</code> or empty
+   * the parent objects of this object, initialized in the ctor, may be <code>null</code> or empty
    */
   private ArrayList m_parentComponents;
 
   /**
-   * The tag name of the root element from which this object can be
-   * constructed.
+   * The tag name of the root element from which this object can be constructed.
+   *
    * @see #toXml(Document)
    * @see #getNodeName()
    */
   public static final String XML_NODE_NAME = "PSXFunctionCall";
 
-  /**
-   * Constants for XML elements and attributes
-   */
+  /** Constants for XML elements and attributes */
   private static final String ATTR_ID = "id";
 
   private static final String EL_NAME = "name";

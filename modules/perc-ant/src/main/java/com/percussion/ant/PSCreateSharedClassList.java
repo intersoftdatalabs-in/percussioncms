@@ -27,16 +27,14 @@ import java.util.StringTokenizer;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-/**
- * Creates the xml list of shared classes that will be put into
- * the rxclient jar file.
- */
+/** Creates the xml list of shared classes that will be put into the rxclient jar file. */
 public class PSCreateSharedClassList extends Task {
 
   /**
    * Sets the source directory
-   * @param dir the source directory, cannot be <code>null</code>
-   * , must be a directory and must exist.
+   *
+   * @param dir the source directory, cannot be <code>null</code> , must be a directory and must
+   *     exist.
    */
   public void setDir(File dir) {
     m_dir = dir;
@@ -44,6 +42,7 @@ public class PSCreateSharedClassList extends Task {
 
   /**
    * Sets the path of the xml file to be written.
+   *
    * @param file should not be <code>null</code>.
    */
   public void setXmlfile(File file) {
@@ -52,8 +51,8 @@ public class PSCreateSharedClassList extends Task {
 
   /**
    * Sets the name of the patternset
-   * @param name the pattern set name defaults to
-   *    "SHARED_SERVER_FILES_PATTERN"
+   *
+   * @param name the pattern set name defaults to "SHARED_SERVER_FILES_PATTERN"
    */
   public void setPatternsetname(String name) {
     m_patternSetName = name;
@@ -61,16 +60,14 @@ public class PSCreateSharedClassList extends Task {
 
   /**
    * Sets the type of patternset
-   * @param type the type of patternset "include" or "exclude"
-   * defaults to "include"
+   *
+   * @param type the type of patternset "include" or "exclude" defaults to "include"
    */
   public void setType(String type) {
     if (type != null) m_type = type.toLowerCase();
   }
 
-  /**
-   * Does the actual work
-   */
+  /** Does the actual work */
   public void execute() throws BuildException {
     if (m_dir == null || !m_dir.exists())
       throw new BuildException("dir must be specified and exist.");
@@ -100,10 +97,9 @@ public class PSCreateSharedClassList extends Task {
   }
 
   /**
-   * Extracts the package name and shared files and adds the appropriate
-   * xml entries.
-   * @param macros the makefile interpreter macros, should not be
-   * <code>null</code>.
+   * Extracts the package name and shared files and adds the appropriate xml entries.
+   *
+   * @param macros the makefile interpreter macros, should not be <code>null</code>.
    */
   private void createEntries(Map macros) {
     String thePackage = ((String) macros.get(PACKAGE_MACRO)).trim().replace('.', '/');
@@ -118,9 +114,7 @@ public class PSCreateSharedClassList extends Task {
     }
   }
 
-  /**
-   * Writes the buffer to the disk using the path in m_xmlfile.
-   */
+  /** Writes the buffer to the disk using the path in m_xmlfile. */
   private void writeFile() throws IOException {
     FileWriter writer = null;
     try {
@@ -132,10 +126,10 @@ public class PSCreateSharedClassList extends Task {
   }
 
   /**
-   * Prepares the list of all package.nmk files starting from
-   * the specified directory. The paths are placed in m_paths.
-   * @param dir the directory to search in, cannot be <code>null</code> and
-   * must be a directory
+   * Prepares the list of all package.nmk files starting from the specified directory. The paths are
+   * placed in m_paths.
+   *
+   * @param dir the directory to search in, cannot be <code>null</code> and must be a directory
    */
   private void getAllPackageNmkPaths(File dir) {
     if (dir == null || !dir.isDirectory())
@@ -152,24 +146,21 @@ public class PSCreateSharedClassList extends Task {
     }
   }
 
-  /**
-   * Adds the starting fileset element to the buffer.
-   */
+  /** Adds the starting fileset element to the buffer. */
   private void addFileSetStart() {
     m_buffer.append("<project>\n<patternset id=\"");
     m_buffer.append(m_patternSetName);
     m_buffer.append("\">\n");
   }
 
-  /**
-   * Adds the ending fileset entry to the buffer.
-   */
+  /** Adds the ending fileset entry to the buffer. */
   private void addFileSetEnd() {
     m_buffer.append("</patternset>\n</project>");
   }
 
   /**
    * Adds an pattern entry to the xml buffer
+   *
    * @param path may be <code>null</code>.
    */
   private void addPattern(String path) {
@@ -189,6 +180,7 @@ public class PSCreateSharedClassList extends Task {
 
   /**
    * Adds a comment to the buffer.
+   *
    * @param comment may be <code>null</code>
    */
   private void addComment(String comment) {
@@ -198,42 +190,27 @@ public class PSCreateSharedClassList extends Task {
     m_buffer.append(" -->\n");
   }
 
-  /**
-   * Adds a line break to the buffer
-   */
+  /** Adds a line break to the buffer */
   private void addBreak() {
     m_buffer.append("\n");
   }
 
-  /**
-   * List of package.nmk paths, never <code>null</code>, may be empty.
-   */
+  /** List of package.nmk paths, never <code>null</code>, may be empty. */
   private List<File> m_paths = new ArrayList<File>();
 
-  /**
-   * The source directory from which to start the package.nmk search.
-   */
+  /** The source directory from which to start the package.nmk search. */
   private File m_dir;
 
-  /**
-   * The file that will hold the xml
-   */
+  /** The file that will hold the xml */
   private File m_xmlfile;
 
-  /**
-   * The patternset name - defaults to "SHARED_SERVER_FILES_PATTERN"
-   */
+  /** The patternset name - defaults to "SHARED_SERVER_FILES_PATTERN" */
   private String m_patternSetName = "SHARED_SERVER_FILES_PATTERN";
 
-  /**
-   * The type of patternset, either "include" or "exclude".
-   * Defaults to "include"
-   */
+  /** The type of patternset, either "include" or "exclude". Defaults to "include" */
   private String m_type = "include";
 
-  /**
-   * The string buffer used to build up the xml file.
-   */
+  /** The string buffer used to build up the xml file. */
   private StringBuilder m_buffer = new StringBuilder();
 
   public static final String PACKAGE_NMK = "package.nmk";

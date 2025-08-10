@@ -55,35 +55,37 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSDtdTree class is used to contain
- * a DTD tree definition.
+ * The PSDtdTree class is used to contain a DTD tree definition.
  *
- * @see   PSDtdElementEntry
- * @see   PSDtdNodeList
- * @see   PSDtdNode
- *
- * @author   David Gennaco
- * @version   1.0
- * @since   1.0
+ * @see PSDtdElementEntry
+ * @see PSDtdNodeList
+ * @see PSDtdNode
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
   private static final Logger log = LogManager.getLogger(PSDtdTree.class);
 
   /**
-   * The character, represented as a string, that is used to separate path
-   * components in a canonicalized path name. For example, /Person/Name/First.
-   **/
+   * The character, represented as a string, that is used to separate path components in a
+   * canonicalized path name. For example, /Person/Name/First.
+   */
   public static final String CANONICAL_PATH_SEP = "/";
 
   /**
-   * This is the default prefix prepended to attribute names when creating a
-   * path for it. For example, the following DTD fragment:<p/>
-   * &lt;!ELEMENT First (#PCDATA) &gt;<p/>
-   * &lt;!ATTLIST First isNickname ("yes" | "no") &gt;<p/>
-   * would result in: /Person/Name/First/@isNickname <p/>
-   * for the attribute.
-   **/
+   * This is the default prefix prepended to attribute names when creating a path for it. For
+   * example, the following DTD fragment:
+   *
+   * <p>&lt;!ELEMENT First (#PCDATA) &gt;
+   *
+   * <p>&lt;!ATTLIST First isNickname ("yes" | "no") &gt;
+   *
+   * <p>would result in: /Person/Name/First/@isNickname
+   *
+   * <p>for the attribute.
+   */
   public static final String CANONICAL_ATTRIBUTE_PREFIX = "@";
 
   public static void main(String[] args) {
@@ -133,26 +135,19 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     }
   }
 
-  /**
-   * Sets root to another name and value. Essentially changing the root
-   * completely.
-   */
+  /** Sets root to another name and value. Essentially changing the root completely. */
   public void setRootName(String rootName) {
     String oldName = rootElement.getElement().getName();
     this.rootElement.getElement().setName(rootName);
     this.m_elements.put(rootName, m_elements.remove(oldName));
   }
 
-  /**
-   *
-   */
+  /** */
   void addElement(String key, PSDtdElement value) {
     m_elements.put(key, value);
   }
 
-  /**
-   * Uses serialization to perform a deep copy of this object.
-   */
+  /** Uses serialization to perform a deep copy of this object. */
   public Object clone() throws CloneNotSupportedException {
     Object clone = null;
 
@@ -176,17 +171,12 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   DVG
-   *
+   * @author DVG
    * @version 1.0
-   *
-   * Constructs a DTD tree by parsing the DTD located by the given
-   * URL. The URL must refer to valid content.
-   *
-   * @param   dtdURL   The URL location of the DTD to parse.
-   *
-   * @throws   PSCatalogException
-   *
+   *     <p>Constructs a DTD tree by parsing the DTD located by the given URL. The URL must refer to
+   *     valid content.
+   * @param dtdURL The URL location of the DTD to parse.
+   * @throws PSCatalogException
    */
   public PSDtdTree(URL dtdURL) throws PSCatalogException {
     m_dirty = false;
@@ -241,25 +231,16 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.9 1999/06/28
-   *
-   * Constructor from an InputStream and a DocType.
-   *
-   * @param   stream   An input stream positioned at the beginning of
-   * a valid XML DTD.
-   *
-   * @param   docType   A string representing the doc type of the DTD,
-   * which will only be used if the doc type is not present in the
-   * document. Use <CODE>null</CODE> if you are sure that the document
-   * has a doc type or if you don't want the operation to succeed if
-   * there is no doc type present. A safe value to use for this param
-   * is the base name of a file (for example, if the file is "Play.dtd",
-   * try using "Play").
-   *
-   * @throws   PSCatalogException
-   *
+   *     <p>Constructor from an InputStream and a DocType.
+   * @param stream An input stream positioned at the beginning of a valid XML DTD.
+   * @param docType A string representing the doc type of the DTD, which will only be used if the
+   *     doc type is not present in the document. Use <CODE>null</CODE> if you are sure that the
+   *     document has a doc type or if you don't want the operation to succeed if there is no doc
+   *     type present. A safe value to use for this param is the base name of a file (for example,
+   *     if the file is "Play.dtd", try using "Play").
+   * @throws PSCatalogException
    */
   public PSDtdTree(InputStream stream, String docType, String encoding) throws PSCatalogException {
     m_dirty = false;
@@ -267,20 +248,12 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   chadloder
-   *
-   * @version 1.4 1999/05/28
-   *                                                                                                     /*
-   * Constructor from an InputStream (using default encoding for the
-   * platform).
-   *
-   * @param   stream   An input stream positioned at the beginning of
-   * a valid XML DTD.
-   *
-   * @param   docType The document type.
-   *
-   * @throws   PSCatalogException
-   *
+   * @author chadloder
+   * @version 1.4 1999/05/28 /* Constructor from an InputStream (using default encoding for the
+   *     platform).
+   * @param stream An input stream positioned at the beginning of a valid XML DTD.
+   * @param docType The document type.
+   * @throws PSCatalogException
    */
   public PSDtdTree(InputStream stream, String docType) throws PSCatalogException {
     this(stream, docType, PSCharSets.rxJavaEnc());
@@ -289,11 +262,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   /**
    * Create a tree from the passed on document.
    *
-   * @param doc The document containing the parsed DTD.
-   * May not be <code>null</code>.
-   *
+   * @param doc The document containing the parsed DTD. May not be <code>null</code>.
    * @throws PSCatalogException if any error occurs parsing the DTD.
-   **/
+   */
   public PSDtdTree(PSDtd doc) throws PSCatalogException {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
     parseDtd(doc);
@@ -301,8 +272,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
   /**
    * Constructor from a parser that has already parsed a valid XML document.
-   * @param parser A parser that has already parsed the DTD.
-   * May not be <code>null</code>.
+   *
+   * @param parser A parser that has already parsed the DTD. May not be <code>null</code>.
    * @throws PSCatalogException if any error occurs parsing the DTD.
    */
   public PSDtdTree(PSDtdParser parser) throws PSCatalogException {
@@ -314,11 +285,11 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   /**
    * Private utility method to parse a DTD given an InputStream.
    *
-   * @param   stream   The input stream, positioned at the beginning
-   * of a valid XML DTD.  Assumed not <code>null</code>.
-   * @param   docType   The docType name. May be <code>null</code> or empty.
-   * @param   encoding   The character encoding. May be <code>null</code> or empty.
-   * @throws   PSCatalogException if any error occurs parsing the DTD.
+   * @param stream The input stream, positioned at the beginning of a valid XML DTD. Assumed not
+   *     <code>null</code>.
+   * @param docType The docType name. May be <code>null</code> or empty.
+   * @param encoding The character encoding. May be <code>null</code> or empty.
+   * @throws PSCatalogException if any error occurs parsing the DTD.
    */
   private void parseDtd(InputStream stream, String docType, String encoding)
       throws PSCatalogException {
@@ -356,8 +327,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
   /**
    * Private utility method to parse a DTD given an InputStream.
-   * @param   stream   The input stream, positioned at the beginning
-   * of a valid XML DTD.
+   *
+   * @param stream The input stream, positioned at the beginning of a valid XML DTD.
    * @param url The URL to use for doctype. May be <code>null</code>.
    * @param encoding The character encoding. May be <code>null</code> or empty.
    * @throws PSCatalogException if any error occurs parsing the DTD.
@@ -387,8 +358,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Internal utility method to construct a DTD tree from a parser
-   * that has already loaded and parsed a document.
+   * Internal utility method to construct a DTD tree from a parser that has already loaded and
+   * parsed a document.
+   *
    * @param p A parser that has parsed a DTD. Assumed not <code>null</code>
    * @throws PSCatalogException if any error occurs parsing the DTD.
    */
@@ -399,7 +371,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
   /**
    * Internal utility method to construct a DTD tree from a document.
-   * @param myDTD   A document that contains the DTD. Assumed not <code>null</code>
+   *
+   * @param myDTD A document that contains the DTD. Assumed not <code>null</code>
    * @throws PSCatalogException if any error occurs parsing the DTD.
    */
   private void parseDtd(PSDtd myDTD) throws PSCatalogException {
@@ -431,18 +404,14 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Processes an element declaration, creating a new DTD element if not
-   * already defined.
+   * Processes an element declaration, creating a new DTD element if not already defined.
    *
-   * @param    dtd   The DTD. Assumed not <code>null</code>.
-   * @param    elementDecl   The element declaration to process. Assumed not
-   * <code>null</code>.
-   * @param    parent   The element's parent, or <code>null</code> if the
-   * element is root.
-   * @param    occurrence   The occurrence type of the element within the parent.
-   * @return  PSDtdNode   An element entry for this element.
-   * Never <code>null</code>.
-   * @throws  PSCatalogException if any error occurs parsing the DTD.
+   * @param dtd The DTD. Assumed not <code>null</code>.
+   * @param elementDecl The element declaration to process. Assumed not <code>null</code>.
+   * @param parent The element's parent, or <code>null</code> if the element is root.
+   * @param occurrence The occurrence type of the element within the parent.
+   * @return PSDtdNode An element entry for this element. Never <code>null</code>.
+   * @throws PSCatalogException if any error occurs parsing the DTD.
    */
   private PSDtdNode processElementDecl(
       PSDtd dtd, PSXmlElementDecl elementDecl, CMNode cm, PSDtdNode parent, int occurrence)
@@ -489,18 +458,15 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Processes the content model, adding it to the element and
-   * linking to the parent if necessary.
+   * Processes the content model, adding it to the element and linking to the parent if necessary.
    *
-   * @param    dtd   The DTD. Assumed not <code>null</code>.
-   * @param    cm   The content model. Assumed not <code>null</code>.
-   * @param    parent   The element's parent, or <code>null</code> if the
-   * element is root.
-   * @param    current   Used to process NodeLists. Assumed not <code>null</code>.
-   * @param    occurrenceType The occurrence type of this content model
-   * in this parent.
-   * @return  PSDtdNode. May be <code>null</code>.
-   * @throws  PSCatalogException if any error occurs parsing the DTD.
+   * @param dtd The DTD. Assumed not <code>null</code>.
+   * @param cm The content model. Assumed not <code>null</code>.
+   * @param parent The element's parent, or <code>null</code> if the element is root.
+   * @param current Used to process NodeLists. Assumed not <code>null</code>.
+   * @param occurrenceType The occurrence type of this content model in this parent.
+   * @return PSDtdNode. May be <code>null</code>.
+   * @throws PSCatalogException if any error occurs parsing the DTD.
    */
   private PSDtdNode getContent(
       PSDtd dtd, CMNode cm, PSDtdNode parent, PSDtdNodeList current, int occurrenceType)
@@ -590,34 +556,26 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     return null;
   }
 
-  /**
-   *  Returns the root element entry of this DTD tree.
-   *
-   */
+  /** Returns the root element entry of this DTD tree. */
   public PSDtdElementEntry getRoot() {
     return rootElement;
   }
 
-  /**
-   *  Returns an element definition in this DTD tree based on the key
-   *
-   */
+  /** Returns an element definition in this DTD tree based on the key */
   public PSDtdElement getElement(Object key) {
     if (m_elements == null) return null;
     else return (PSDtdElement) m_elements.get(key);
   }
 
   /**
-   * Finds the element entry object in the tree that matches the supplied name,
-   * if there is one, and returns it. canonicalName is of the form 'Person/Name/First'
-   * and is the form returned by getCatalog().
+   * Finds the element entry object in the tree that matches the supplied name, if there is one, and
+   * returns it. canonicalName is of the form 'Person/Name/First' and is the form returned by
+   * getCatalog().
    *
    * @param canonicalName The fully qualified name of the entry to find.
-   *
    * @return The entry by the supplied name or null if there isn't one.
-   *
    * @see #getCatalog(String, String)
-   **/
+   */
   public PSDtdElementEntry getEntryForName(String canonicalName) {
     String[] name = canonicalToArray(canonicalName);
 
@@ -639,21 +597,19 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * This class adds new functionality to the PSDtdNode hierarchy. Each member
-   * finds an element entry node that matches the supplied name. The rules for
-   * finding a match are defined for each type below.
-   **/
+   * This class adds new functionality to the PSDtdNode hierarchy. Each member finds an element
+   * entry node that matches the supplied name. The rules for finding a match are defined for each
+   * type below.
+   */
   private class ElementFinder implements PSDtdTreeVisitor {
     /**
-     * If the name of the element associated w/ the supplied entry matches
-     * the supplied name, the entry is returned, else null is returned.
+     * If the name of the element associated w/ the supplied entry matches the supplied name, the
+     * entry is returned, else null is returned.
      *
      * @param entry A valid element entry.
-     *
      * @param name A valid String object that is the name of the element to find.
-     *
      * @return The supplied entry if the name matches, else null.
-     **/
+     */
     public Object visit(PSDtdElementEntry entry, Object name) {
       String entryName = (String) name;
       boolean match = entry.getElement().getName().equals(entryName);
@@ -661,17 +617,13 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     }
 
     /**
-     * This method scans all the children of the supplied list
-     * looking for a match. If any child is a list itself, this method calls
-     * itself w/ the new list.
-     *
+     * This method scans all the children of the supplied list looking for a match. If any child is
+     * a list itself, this method calls itself w/ the new list.
      *
      * @param list A valid node list.
-     *
      * @param name A valid String object that is the name of the element to find.
-     *
      * @return The entry that matches the supplied name, else null.
-     **/
+     */
     public Object visit(PSDtdNodeList list, Object name) {
       PSDtdElementEntry result = null;
       int nodeCt = list.getNumberOfNodes();
@@ -686,52 +638,44 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
     /**
      * @return We're not interested in pure nodes, so null is always returned.
-     **/
+     */
     public Object visit(PSDtdNode node, Object name) {
       return null;
     }
 
     /**
      * @return Since a data element doesn't have a name, null is always returned
-     **/
+     */
     public Object visit(PSDtdDataElement data, Object name) {
       return null;
     }
   }
 
   /**
-   * Parses the supplied name into its pieces, putting each piece into an
-   * array. A name of the form "/Person/Name/First" (where "/" is the
-   * canonical path separator) would be returned in the array as
-   * a[0]="Person", a[1]="Name", a[2]="First".
-   * <P>
-   * The leading separator is optional. A 0-length array will be returned
-   * if:
+   * Parses the supplied name into its pieces, putting each piece into an array. A name of the form
+   * "/Person/Name/First" (where "/" is the canonical path separator) would be returned in the array
+   * as a[0]="Person", a[1]="Name", a[2]="First".
+   *
+   * <p>The leading separator is optional. A 0-length array will be returned if:
+   *
    * <UL>
-   * <LI><CODE>canonicalName</CODE> specifies only a leading separator
-   * ("/")
-   * <LI><CODE>canonicalName</CODE> specifies only whitespace ("    ")
-   * <LI><CODE>canonicalName</CODE> specifies only separators and whitespace
-   * ("/ / /// / /")
-   * <LI><CODE>canonicalName</CODE> specifies no characters at all ("")
+   *   <LI><CODE>canonicalName</CODE> specifies only a leading separator ("/")
+   *   <LI><CODE>canonicalName</CODE> specifies only whitespace (" ")
+   *   <LI><CODE>canonicalName</CODE> specifies only separators and whitespace ("/ / /// / /")
+   *   <LI><CODE>canonicalName</CODE> specifies no characters at all ("")
    * </UL>
-   * <P>
-   * Extra separators will be ignored, and empty path components
-   * are <B>not</B> be added to the canonical array. Therefore, a name of
-   * "First//Second/Third//Fourth" will parse to a[0] = "First",
-   * a[1] = "Second", a[2] = "Third", a[3] = "Fourth".
-   * <P>
-   * Extra whitespace before and after individual path components
-   * will be silently stripped.
    *
-   * @param canonicalName The path name of some element entry in a tree.
-   * The expected seperater is CANONICAL_PATH_SEP. Must not be
-   * <CODE>null</CODE>.
+   * <p>Extra separators will be ignored, and empty path components are <B>not</B> be added to the
+   * canonical array. Therefore, a name of "First//Second/Third//Fourth" will parse to a[0] =
+   * "First", a[1] = "Second", a[2] = "Third", a[3] = "Fourth".
    *
-   * @return The path components of the supplied name in an array. If the
-   * array has length > 0, then the first element contains the path component
-   * highest in the hierarchy. Never <CODE>null</CODE>. Every element in the
-   * array will be a non-null String with length > 0.
+   * <p>Extra whitespace before and after individual path components will be silently stripped.
+   *
+   * @param canonicalName The path name of some element entry in a tree. The expected seperater is
+   *     CANONICAL_PATH_SEP. Must not be <CODE>null</CODE>.
+   * @return The path components of the supplied name in an array. If the array has length > 0, then
+   *     the first element contains the path component highest in the hierarchy. Never <CODE>null
+   *     </CODE>. Every element in the array will be a non-null String with length > 0.
    */
   public static String[] canonicalToArray(String canonicalName) {
     if (canonicalName == null) throw new IllegalArgumentException("canonicalName must not be null");
@@ -752,18 +696,15 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Checks the supplied path and returns <code>true</code> if it represents
-   * an attribute.
+   * Checks the supplied path and returns <code>true</code> if it represents an attribute.
    *
-   * @param path A fully qualified or relative path to an element/attribute.
-   * The path must use the canonical path seperater.
-   *
-   * @param attributePrefix The (typically) character that identifies an
-   * attribute. If null, the canonical prefix will be used.
-   *
-   * @return <code>true</code> if the supplied path is the path to an element
-   * attribute, <code>false</code> otherwise.
-   **/
+   * @param path A fully qualified or relative path to an element/attribute. The path must use the
+   *     canonical path seperater.
+   * @param attributePrefix The (typically) character that identifies an attribute. If null, the
+   *     canonical prefix will be used.
+   * @return <code>true</code> if the supplied path is the path to an element attribute, <code>false
+   *     </code> otherwise.
+   */
   public static boolean isAttributePath(String path, String attributePrefix) {
     if (null == attributePrefix) attributePrefix = CANONICAL_ATTRIBUTE_PREFIX;
 
@@ -774,19 +715,17 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Wraps a bare DTD in a valid XML document and sends it to the parser.
-   * Some DTDs are not contained in an XML document ("bare"), and the parser
-   * chokes on them. This method wraps the DTD in a small XML document and
-   * then tries to parse it.
+   * Wraps a bare DTD in a valid XML document and sends it to the parser. Some DTDs are not
+   * contained in an XML document ("bare"), and the parser chokes on them. This method wraps the DTD
+   * in a small XML document and then tries to parse it.
    *
-   * @param   p   The DTD parser to use.
-   * @param   docType The doc type.
-   * @param   encoding   The character encoding
-   * @throws   SAXException
-   * @throws   SAXParseException
-   * @throws   java.io.FileNotFoundException
-   * @throws   java.io.IOException
-   *
+   * @param p The DTD parser to use.
+   * @param docType The doc type.
+   * @param encoding The character encoding
+   * @throws SAXException
+   * @throws SAXParseException
+   * @throws java.io.FileNotFoundException
+   * @throws java.io.IOException
    */
   private void parseInXmlDocument(
       PSDtdParser p, InputStream stream, String docType, String encoding)
@@ -836,20 +775,17 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Wraps a bare DTD in a valid XML document and sends it to the parser.
-   * Some DTDs are not contained in an XML document ("bare"), and the parser
-   * chokes on them. This method wraps the DTD in a small XML document and
-   * then tries to parse it.
+   * Wraps a bare DTD in a valid XML document and sends it to the parser. Some DTDs are not
+   * contained in an XML document ("bare"), and the parser chokes on them. This method wraps the DTD
+   * in a small XML document and then tries to parse it.
    *
-   * @param   p   The DTD parser to use. Assumed not <code>null</code>.
-   * @param   url   The URL of the document. Content must be accessible.
-   * @param   encoding   The character encoding. May be <code>null</code> or empty.
-   *
-   * @throws   SAXException
-   * @throws   SAXParseException
-   * @throws   java.io.FileNotFoundException
-   * @throws   java.io.IOException
-   *
+   * @param p The DTD parser to use. Assumed not <code>null</code>.
+   * @param url The URL of the document. Content must be accessible.
+   * @param encoding The character encoding. May be <code>null</code> or empty.
+   * @throws SAXException
+   * @throws SAXParseException
+   * @throws java.io.FileNotFoundException
+   * @throws java.io.IOException
    */
   private void parseInXmlDocument(PSDtdParser p, URL url, String encoding)
       throws SAXException,
@@ -887,10 +823,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *
    * @param bout the byte stream to parse. Assumed not <code>null</code>.
-   * @param   p   The DTD parser to use. Assumed not <code>null</code>.
-   * @param   encoding   The character encoding. May be <code>null</code> or empty.
+   * @param p The DTD parser to use. Assumed not <code>null</code>.
+   * @param encoding The character encoding. May be <code>null</code> or empty.
    * @throws SAXException
    * @throws SAXParseException
    * @throws FileNotFoundException
@@ -912,10 +847,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     p.parseDtd(in);
   }
 
-  /**
-   * Used for debugging. Prints a flat list of element names stored
-   * in this DTD tree.
-   */
+  /** Used for debugging. Prints a flat list of element names stored in this DTD tree. */
   public void printElements() {
     if (m_elements == null) {
       log.info("Null Tree");
@@ -932,27 +864,24 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
+   * Generates a list of Strings starting at the root node in a top-down and left-right fashion. The
+   * order of expansion will be element followed by the element's attributes followed by the
+   * element's content.
    *
-   * Generates a list of Strings starting at the root
-   * node in a top-down and left-right fashion.   The order of expansion
-   * will be element followed by the element's attributes followed by
-   * the element's content.  <p>When a recursive state is detected, the
-   * name of the first element detected to be recursive will be added
-   * to the catalog with the value <#RECURSION> appended to it.  No
-   * further catalog of this leg of the tree will be attempted.<p>   The
-   * catalog functionality of the DTD classes contains an upper limit
-   * of <code>MAX_CATALOG_SIZE</code> as defined in this class and when
-   * this limit is reached the value "TRUNCATED!" will be appended to the
-   * list and no further processing will be attempted.<p>
+   * <p>When a recursive state is detected, the name of the first element detected to be recursive
+   * will be added to the catalog with the value <#RECURSION> appended to it. No further catalog of
+   * this leg of the tree will be attempted.
    *
-   * @param   separator   the element separator string, if null, the canonical
-   * seperater will be used.
+   * <p>The catalog functionality of the DTD classes contains an upper limit of <code>
+   * MAX_CATALOG_SIZE</code> as defined in this class and when this limit is reached the value
+   * "TRUNCATED!" will be appended to the list and no further processing will be attempted.
    *
-   * @param   attribQualifier   the string used to identify an attribute entry. If
-   * null, the canonical identifier will be used.
+   * <p>
    *
+   * @param separator the element separator string, if null, the canonical seperater will be used.
+   * @param attribQualifier the string used to identify an attribute entry. If null, the canonical
+   *     identifier will be used.
    * @return List A list of strings containing the catalog info.
-   *
    */
   public List getCatalog(String separator, String attribQualifier) {
 
@@ -979,24 +908,18 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   DVG
-   *
+   * @author DVG
    * @version 1.0
-   *
-   * Gets the occurrence setting of the given element within the given parent.
-   * For example, if a <B>BookList</B> element can contain one or more
-   * <B>Book</B> elements, calling this method with ("Book", "BookList") will
-   * return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>.
-   *
-   * @param   elementName   The element name
-   * @param   parentName   The parent name
-   *
-   * @return   int   The occurrence type of element with the given name in
-   * the parent element with the given parent name. If the element does
-   * not occur within the parent, returns <CODE>PSDtdNode.OCCURS_UNKNOWN</CODE>.
-   *
-   * @todo: (ph) This method may not work correctly if the parentName appears
-   * as a child of more than 1 element.
+   *     <p>Gets the occurrence setting of the given element within the given parent. For example,
+   *     if a <B>BookList</B> element can contain one or more <B>Book</B> elements, calling this
+   *     method with ("Book", "BookList") will return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>.
+   * @param elementName The element name
+   * @param parentName The parent name
+   * @return int The occurrence type of element with the given name in the parent element with the
+   *     given parent name. If the element does not occur within the parent, returns <CODE>
+   *     PSDtdNode.OCCURS_UNKNOWN</CODE>.
+   * @todo: (ph) This method may not work correctly if the parentName appears as a child of more
+   *     than 1 element.
    */
   public int getOccurrenceSetting(String elementName, String parentName) {
     PSDtdElement parent;
@@ -1029,26 +952,20 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   DVG
-   *
+   * @author DVG
    * @version 1.0
-   *
-   * Gets the maximum occurrence setting of the given element within the given parent.
-   * For example, if a <B>BookList</B> element can contain one or more
-   * <B>Book</B> elements, calling this method with ("Book", "BookList") will
-   * return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>.  If, however,
-   * <B>BookList</B> contains a nodelist which occurs at least once, and
-   * <B>Book</B> appears in the nodelist, but is only set to occur once
-   * itself, this method will still return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>,
-   * as opposed to getOccurrenceSetting which will return
-   * <CODE>PSDtdNode.OCCURS_ONCE</CODE>
-   *
-   * @param   elementName   The element name
-   * @param   parentName   The parent name
-   *
-   * @return   int   The occurrence type of element with the given name in
-   * the parent element with the given parent name. If the element does
-   * not occur within the parent, returns <CODE>PSDtdNode.OCCURS_UNKNOWN</CODE>.
+   *     <p>Gets the maximum occurrence setting of the given element within the given parent. For
+   *     example, if a <B>BookList</B> element can contain one or more <B>Book</B> elements, calling
+   *     this method with ("Book", "BookList") will return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>
+   *     . If, however, <B>BookList</B> contains a nodelist which occurs at least once, and
+   *     <B>Book</B> appears in the nodelist, but is only set to occur once itself, this method will
+   *     still return <CODE>PSDtdNode.OCCURS_ATLEASTONCE</CODE>, as opposed to getOccurrenceSetting
+   *     which will return <CODE>PSDtdNode.OCCURS_ONCE</CODE>
+   * @param elementName The element name
+   * @param parentName The parent name
+   * @return int The occurrence type of element with the given name in the parent element with the
+   *     given parent name. If the element does not occur within the parent, returns <CODE>
+   *     PSDtdNode.OCCURS_UNKNOWN</CODE>.
    */
   public int getMaxOccurrenceSetting(String elementName, String parentName) {
     PSDtdElement parent;
@@ -1104,18 +1021,16 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *@return <code> true </code> if tree (attributes) were modified.
-   *<code> false </code> if not
+   * @return <code> true </code> if tree (attributes) were modified. <code> false </code> if not
    */
   public boolean isTreeDirty() {
     return (m_dirty);
   }
 
   /**
-   *sets the tree dirty flag ( attributes were modified )
+   * sets the tree dirty flag ( attributes were modified )
    *
-   *@param bDirty <code>true</code> if tree (attributes) were modified.
-   *<code>false</code> if not
+   * @param bDirty <code>true</code> if tree (attributes) were modified. <code>false</code> if not
    */
   public void setTreeDirty(boolean bDirty) {
     m_dirty = bDirty;
@@ -1124,14 +1039,11 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   /*********/
 
   /**
-   *returns the attribute char on an string format
+   * returns the attribute char on an string format
    *
-   *@param type the type: PSDtdNode.OCCURS_ANY ("*")
-   *                 PSDtdNode.OCCURS_ATLEASTONCE ("+")
-   *                   PSDtdNode.OCCURS_OPTIONAL ("?")
-   *                 any other return " "
-   *
-   *@return the type string
+   * @param type the type: PSDtdNode.OCCURS_ANY ("*") PSDtdNode.OCCURS_ATLEASTONCE ("+")
+   *     PSDtdNode.OCCURS_OPTIONAL ("?") any other return " "
+   * @return the type string
    */
   private String getStringOccurence(int type) {
     String ret = new String();
@@ -1152,10 +1064,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     return (ret);
   }
 
-  /**
-   *resets/constructs all the arrays and the stack
-   *
-   */
+  /** resets/constructs all the arrays and the stack */
   private void init() {
     elemtList = null;
     pcData = null;
@@ -1180,10 +1089,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *this function takes an string and stores, it searchs for duplicates, if is
-   *do not add it
+   * this function takes an string and stores, it searchs for duplicates, if is do not add it
    *
-   *@param str to be added
+   * @param str to be added
    */
   private void addStringToList(String str) {
     boolean addToList = true;
@@ -1251,9 +1159,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *add a string to the stack
+   * add a string to the stack
    *
-   *@param value string to be copy and added into the stack
+   * @param value string to be copy and added into the stack
    */
   private void push(String value) {
     String newStr = new String(value);
@@ -1261,8 +1169,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *
-   *@return the text stored in the stack, or the string invalid if stack is empty
+   * @return the text stored in the stack, or the string invalid if stack is empty
    */
   private String pull() {
     String str = new String("invalid");
@@ -1273,15 +1180,12 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process the content
+   * process the content
    *
-   *@param obj the content model
-   *
-   *@param rootName the root element name
-   *
-   *@param name the element name
-   *
-   *@param subName the content name
+   * @param obj the content model
+   * @param rootName the root element name
+   * @param name the element name
+   * @param subName the content name
    */
   private void processElement(Object obj, String rootName, String name, String subName) {
     if (subName == null) throw new IllegalArgumentException("subName cannot be null.");
@@ -1303,9 +1207,8 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *@param subList the node list to extract the name
-   *
-   *@return the parent name of the list
+   * @param subList the node list to extract the name
+   * @return the parent name of the list
    */
   private String getListParent(PSDtdNodeList subList) {
     String csRet = new String("invalid");
@@ -1345,10 +1248,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process the mix model ( a list with PCDATA being part of the list )
+   * process the mix model ( a list with PCDATA being part of the list )
    *
-   *@param subList the list to process
-   *
+   * @param subList the list to process
    */
   private void processMixedModel(PSDtdNodeList subList) {
     if (subList != null) {
@@ -1389,16 +1291,12 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process a sublist ( a list inside a list )
+   * process a sublist ( a list inside a list )
    *
-   *@param subList the list to be added into the main list
-   *
-   *@param rootName the name of the root element
-   *
-   *@param name the list owner name
-   *
-   *@return the content model
-   *
+   * @param subList the list to be added into the main list
+   * @param rootName the name of the root element
+   * @param name the list owner name
+   * @return the content model
    */
   private Object processSublist(PSDtdNodeList subList, String rootName, String name) {
     String subName = new String();
@@ -1486,9 +1384,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
     return (obj);
   }
 
-  /**
-   *
-   */
+  /** */
   private void processElementEntry(PSDtdElementEntry entry) {
     String name = getElementName(entry);
     String str = new String();
@@ -1498,16 +1394,12 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process a node list
+   * process a node list
    *
-   *@subList the list to be processed
-   *
-   *@param rootName the root element name
-   *
-   *@param name the list owner name
-   *
-   *@return the content model
-   *
+   * @subList the list to be processed
+   * @param rootName the root element name
+   * @param name the list owner name
+   * @return the content model
    */
   private Object processList(PSDtdNodeList subList, String rootName, String name) {
 
@@ -1626,19 +1518,13 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process an element entry
+   * process an element entry
    *
-   *@param element the element to be processed
-   *
-   *@param rootName the root element name
-   *
-   *@param name the list owner name
-   *
-   *@param subName the content model name
-   *
-   *@return the content model
-   *
-   *
+   * @param element the element to be processed
+   * @param rootName the root element name
+   * @param name the list owner name
+   * @param subName the content model name
+   * @return the content model
    */
   private Object insertElementEntry(
       PSDtdElementEntry element, String rootName, String name, String subName) {
@@ -1685,10 +1571,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process the notation, attlist for the element
+   * process the notation, attlist for the element
    *
-   *@param el the element to be processed
-   *
+   * @param el the element to be processed
    */
   private void processAttributes(PSDtdElement el) {
     PSDtdAttribute attrib = null;
@@ -1759,12 +1644,10 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *returns the element name
+   * returns the element name
    *
-   *@param entry the element to be processed
-   *
-   *@return the element name
-   *
+   * @param entry the element to be processed
+   * @return the element name
    */
   private String getElementName(PSDtdElementEntry entry) {
     PSDtdElement el = entry.getElement();
@@ -1773,13 +1656,10 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   *process a element list, because of a single entry is returned
-   *as an element entry
+   * process a element list, because of a single entry is returned as an element entry
    *
-   *@param entry the element to be processed
-   *
-   *@return the content model
-   *
+   * @param entry the element to be processed
+   * @return the content model
    */
   private Object processSingleEntryList(PSDtdElementEntry entry) {
     String str = new String();
@@ -1802,21 +1682,18 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * Converts this tree to the proper format for textual display. If the flag
-   * wrapInXml is <code>true</code>, the resulting text will be a well formed
-   * XML document, otherwise, it will be a standard DTD w/ the first line
-   * as an XML processing instruction that specifies the encoding of the chars.
-   * The encoding specified in the header is the standard encoding used by the
-   * server. If the String is written to a file or a byte array, this encoding
-   * must be specified.
+   * Converts this tree to the proper format for textual display. If the flag wrapInXml is <code>
+   * true</code>, the resulting text will be a well formed XML document, otherwise, it will be a
+   * standard DTD w/ the first line as an XML processing instruction that specifies the encoding of
+   * the chars. The encoding specified in the header is the standard encoding used by the server. If
+   * the String is written to a file or a byte array, this encoding must be specified.
    *
-   * @param wrapInXml If <code>true</code>, the resulting DTD is wrapped in
-   * a DOCTYPE element so the resulting document is a well formed XML document.
-   * Not used anymore. The DTD is never wrapped in DOCTYPE element anymore.
+   * @param wrapInXml If <code>true</code>, the resulting DTD is wrapped in a DOCTYPE element so the
+   *     resulting document is a well formed XML document. Not used anymore. The DTD is never
+   *     wrapped in DOCTYPE element anymore.
    * @return The text format of the DTD represented by this object.
-   *
    * @see PSCharSets#rxStdEnc()
-   **/
+   */
   public String toDTD(boolean wrapInXml) {
     int ival, iCount = 0;
     PSDtdElementEntry e;
@@ -1959,11 +1836,9 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.4 1999/05/28
-   *
-   * Prints the entire tree to System.out.
+   *     <p>Prints the entire tree to System.out.
    */
   public void print() {
     if (rootElement != null) rootElement.print("");
@@ -2000,8 +1875,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   /** Catalog list holder, for future calls, this will be cached */
   List m_catalogList;
 
-  /** Need some sort of overflow condition for cataloging,
-   * DTDs can be very complex */
+  /** Need some sort of overflow condition for cataloging, DTDs can be very complex */
   public static final int MAX_CATALOG_SIZE = 1000;
 
   /** if <code> true </code> the repeats attributes were modified */
@@ -2013,19 +1887,19 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
   /** start of the element string */
   private String elType = new String("<!ELEMENT ");
 
-  /** the stack        */
+  /** the stack */
   private Stack m_stack = null;
 
-  /**  contains pcdata ( faster searchs)       */
+  /** contains pcdata ( faster searchs) */
   private Vector pcData = null;
 
-  /**  contains attlist ( faster search)       */
+  /** contains attlist ( faster search) */
   private Vector atList = null;
 
-  /**   tmp global string       */
+  /** tmp global string */
   private String su = new String();
 
-  /**the hashmap to check for recursion */
+  /** the hashmap to check for recursion */
   private HashMap visitedMap = null;
 
   /** newline */

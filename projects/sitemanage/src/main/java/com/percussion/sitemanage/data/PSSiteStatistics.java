@@ -18,59 +18,56 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents statistics for a site.
- */
+/** Represents statistics for a site. */
 @XmlRootElement(name = "statistics")
 public class PSSiteStatistics extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private long binary;
-    private long css;
-    private long linksInternal;
-    private long pages;
-    private long templates;
+  private long binary;
+  private long css;
+  private long linksInternal;
+  private long pages;
+  private long templates;
 
-    public long getBinary() {
-        return binary;
-    }
+  public long getBinary() {
+    return binary;
+  }
 
-    public void setBinary(long binary) {
-        this.binary = binary;
-    }
+  public void setBinary(long binary) {
+    this.binary = binary;
+  }
 
-    public long getCss() {
-        return css;
-    }
+  public long getCss() {
+    return css;
+  }
 
-    public void setCss(long css) {
-        this.css = css;
-    }
+  public void setCss(long css) {
+    this.css = css;
+  }
 
-    public long getLinksInternal() {
-        return linksInternal;
-    }
+  public long getLinksInternal() {
+    return linksInternal;
+  }
 
-    public void setLinksInternal(long linksInternal) {
-        this.linksInternal = linksInternal;
-    }
+  public void setLinksInternal(long linksInternal) {
+    this.linksInternal = linksInternal;
+  }
 
-    public long getPages() {
-        return pages;
-    }
+  public long getPages() {
+    return pages;
+  }
 
-    public void setPages(long pages) {
-        this.pages = pages;
-    }
+  public void setPages(long pages) {
+    this.pages = pages;
+  }
 
-    public long getTemplates() {
-        return templates;
-    }
+  public long getTemplates() {
+    return templates;
+  }
 
-    public void setTemplates(long templates) {
-        this.templates = templates;
-    }
+  public void setTemplates(long templates) {
+    this.templates = templates;
+  }
 }

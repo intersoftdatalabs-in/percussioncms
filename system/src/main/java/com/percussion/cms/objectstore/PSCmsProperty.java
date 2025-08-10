@@ -29,79 +29,69 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is responsible for managing a single name/value pairing known
- * as a property. An empty class MUST be derived so that the
- * <code>getComponentType</code> method returns a different value for each
- * one. This allows this class to support the same properties model with
- * the data stored in different tables.
- * <p>Property objects are created with a name which will never change over
- * the lifetime of the object.
- * <p>Components with these types of properties should use the {@link
- * PSDbComponentCollection} for storing them.
+ * This class is responsible for managing a single name/value pairing known as a property. An empty
+ * class MUST be derived so that the <code>getComponentType</code> method returns a different value
+ * for each one. This allows this class to support the same properties model with the data stored in
+ * different tables.
+ *
+ * <p>Property objects are created with a name which will never change over the lifetime of the
+ * object.
+ *
+ * <p>Components with these types of properties should use the {@link PSDbComponentCollection} for
+ * storing them.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public abstract class PSCmsProperty extends PSDbComponent {
   /**
-   * If supplied to ctor, specifies that the value of the name is to be
-   * supplied as the value of the first part of the key when it is assigned.
+   * If supplied to ctor, specifies that the value of the name is to be supplied as the value of the
+   * first part of the key when it is assigned.
    */
   public static final int KEYASSIGN_NAME_AS_KEYPART = 1;
 
   /**
-   * If supplied to ctor, specifies that the value of the 'value' is to be
-   * supplied as the value of the next part of the key when it is assigned.
-   * In other words, if the KEYASSIGN_NAME_AS_KEYPART was specified in
-   * addition to this flag, the content of the property value would be used
-   * when assigning the key and it would be assigned to the 2nd part of the
-   * key.
+   * If supplied to ctor, specifies that the value of the 'value' is to be supplied as the value of
+   * the next part of the key when it is assigned. In other words, if the KEYASSIGN_NAME_AS_KEYPART
+   * was specified in addition to this flag, the content of the property value would be used when
+   * assigning the key and it would be assigned to the 2nd part of the key.
    */
   public static final int KEYASSIGN_VALUE_AS_KEYPART = 2;
 
-  /**
-   * The OR'd value of all possible key assignment types.
-   */
+  /** The OR'd value of all possible key assignment types. */
   public static final int KEYASSIGN_ALL = KEYASSIGN_NAME_AS_KEYPART | KEYASSIGN_VALUE_AS_KEYPART;
   ;
 
   /**
-   * Convenience method that calls {@link #PSCmsProperty(PSKey,String,String,
-   * String,int) PSCmsProperty(locator, name, null, null, 0)}.
+   * Convenience method that calls {@link #PSCmsProperty(PSKey,String,String, String,int)
+   * PSCmsProperty(locator, name, null, null, 0)}.
    */
   protected PSCmsProperty(PSKey locator, String name) {
     this(locator, name, null, null, 0);
   }
 
-  /**
-   * default ctor
-   */
+  /** default ctor */
   PSCmsProperty() {}
 
   /**
-   * Convenience method that calls {@link #PSCmsProperty(PSKey,String,String,
-   * String,int) PSCmsProperty(locator, name, null, null, keyControl)}.
+   * Convenience method that calls {@link #PSCmsProperty(PSKey,String,String, String,int)
+   * PSCmsProperty(locator, name, null, null, keyControl)}.
    */
   protected PSCmsProperty(PSKey locator, String name, int keyControl) {
     this(locator, name, null, null, keyControl);
   }
 
   /**
-   * Creates a object with the given parameters. The state of the object is
-   * unmodified if the state of the locator is persisted.
+   * Creates a object with the given parameters. The state of the object is unmodified if the state
+   * of the locator is persisted.
    *
    * @param locator The key for this property, may not be <code>null</code>.
-   *
    * @param name The property name, may not be <code>null</code> or empty.
-   *
    * @param value The property value, may be <code>null</code> or empty.
-   *
    * @param desc The property description, may be <code>null</code> or empty.
-   *
-   * @param keyControl  Specifies how the component should control key
-   *    assignment. Passing 0 means use the default technique (seperate
-   *    column for primary key). Otherwise, OR 1 or more of the KEYASSIGN_xxx
-   *    flags. See description of those flags for more details.
+   * @param keyControl Specifies how the component should control key assignment. Passing 0 means
+   *     use the default technique (seperate column for primary key). Otherwise, OR 1 or more of the
+   *     KEYASSIGN_xxx flags. See description of those flags for more details.
    */
   protected PSCmsProperty(PSKey locator, String name, String value, String desc, int keyControl) {
     super(locator);
@@ -116,8 +106,9 @@ public abstract class PSCmsProperty extends PSDbComponent {
   }
 
   /**
-   * For derived classes instantiating from a previously serialized instance.
-   * See base class form of this ctor for more details.
+   * For derived classes instantiating from a previously serialized instance. See base class form of
+   * this ctor for more details.
+   *
    * <p>See fromXml for more details.
    *
    * @param src Never <code>null</code>.
@@ -128,25 +119,18 @@ public abstract class PSCmsProperty extends PSDbComponent {
   }
 
   /**
-   * This is for use by derived classes when constructing from xml. After this
-   * method is called, the fromXml method MUST be called or the object will
-   * not be in a valid state.
+   * This is for use by derived classes when constructing from xml. After this method is called, the
+   * fromXml method MUST be called or the object will not be in a valid state.
    *
-   * @param locator  Never <code>null</code>.
-   *
-   * @param src Never <code>null</code>.
-   * protected PSCmsProperty(PSKey locator)
-   * throws PSUnknownNodeTypeException
-   * {
-   * super(locator);
-   * }
+   * @param locator Never <code>null</code>.
+   * @param src Never <code>null</code>. protected PSCmsProperty(PSKey locator) throws
+   *     PSUnknownNodeTypeException { super(locator); }
    */
 
   /**
-   * Overridden to assign key values based on the values of this property.
-   * If the property name
-   * @param gen
+   * Overridden to assign key values based on the values of this property. If the property name
    *
+   * @param gen
    * @throws PSCmsException if an error occurs
    */
   protected String[] getKeyPartValues(IPSKeyGenerator gen) throws PSCmsException {
@@ -163,8 +147,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
   /**
    * A value is an arbitrary text string.
    *
-   * @return The value previous set w/ {@link #setValue(String) setValue},
-   *    or "" if never set. Never <code>null</code>.
+   * @return The value previous set w/ {@link #setValue(String) setValue}, or "" if never set. Never
+   *     <code>null</code>.
    */
   public String getValue() {
     return m_strValue;
@@ -173,9 +157,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
   /**
    * See {@link #getValue()} for details.
    *
-   * @param value  The value you wish to store. If <code>null</code> is
-   *    supplied, the empty string is stored and returned when the property
-   *    is retrieved.
+   * @param value The value you wish to store. If <code>null</code> is supplied, the empty string is
+   *     stored and returned when the property is retrieved.
    */
   public void setValue(String value) {
     if (value == null) value = "";
@@ -189,8 +172,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
   /**
    * A description is an arbitrary text string.
    *
-   * @return The value previous set w/ {@link #setDescription(String)
-   *    setValue}, or "" if never set. Never <code>null</code>.
+   * @return The value previous set w/ {@link #setDescription(String) setValue}, or "" if never set.
+   *     Never <code>null</code>.
    */
   public String getDescription() {
     return m_strDescription;
@@ -199,9 +182,8 @@ public abstract class PSCmsProperty extends PSDbComponent {
   /**
    * See {@link #getDescription()} for details.
    *
-   * @param value  The description you wish to store. If <code>null</code> is
-   *    supplied, the empty string is stored and returned when the property
-   *    is retrieved.
+   * @param value The description you wish to store. If <code>null</code> is supplied, the empty
+   *     string is stored and returned when the property is retrieved.
    */
   public void setDescription(String value) {
     if (value == null) value = "";
@@ -222,8 +204,9 @@ public abstract class PSCmsProperty extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSCmsComponent#toXml(Document) interface} for details.
-   * The DTD for this class is as follows:
+   * See {@link IPSCmsComponent#toXml(Document) interface} for details. The DTD for this class is as
+   * follows:
+   *
    * <pre><code>
    *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName(), Value+,
    *       Description? )&gt;
@@ -263,13 +246,12 @@ public abstract class PSCmsProperty extends PSDbComponent {
   }
 
   /**
-   * This method is provided to allow a derived class to easily implement
-   * a multi-valued property. During the toXml processing, this method
-   * will be called. For every entry in the returned collection, a Value
-   * node will be created.
+   * This method is provided to allow a derived class to easily implement a multi-valued property.
+   * During the toXml processing, this method will be called. For every entry in the returned
+   * collection, a Value node will be created.
    *
-   * @return Never <code>null</code>. Must contain at least 1 entry.
-   *    All entries must be of type String.
+   * @return Never <code>null</code>. Must contain at least 1 entry. All entries must be of type
+   *     String.
    */
   protected Collection getValues() {
     Collection c = new ArrayList();
@@ -307,14 +289,12 @@ public abstract class PSCmsProperty extends PSDbComponent {
   }
 
   /**
-   * This method is provided to allow a derived class to easily implement
-   * a multi-valued property. During the fromXml processing, this method
-   * will be called with all of the contents of the Value nodes.
+   * This method is provided to allow a derived class to easily implement a multi-valued property.
+   * During the fromXml processing, this method will be called with all of the contents of the Value
+   * nodes.
    *
-   * @param values Never <code>null</code>. Must contain at least 1 entry.
-   *    All entries must be of type String. This class only uses the first
-   *    entry.
-   *
+   * @param values Never <code>null</code>. Must contain at least 1 entry. All entries must be of
+   *     type String. This class only uses the first entry.
    * @see #getValues
    */
   protected void setValues(Collection values) {
@@ -392,21 +372,20 @@ public abstract class PSCmsProperty extends PSDbComponent {
 
   /**
    * The value of the object, initialized in definition and may be <code>null
-   * </code> or modified throught a call to <code>setValue(Object)</code>
-   * after that.
+   * </code> or modified throught a call to <code>setValue(Object)</code> after that.
    */
   protected String m_strValue = "";
 
   /**
-   * The description of the object, initialized in definition and may be
-   * <code> null</code>, empty or modified after that.
+   * The description of the object, initialized in definition and may be <code> null</code>, empty
+   * or modified after that.
    */
   protected String m_strDescription = "";
 
   /**
-   * Flags that determine how the key is assigned. Set during construction,
-   * then never changes after that (exception fromXml). Default value is 0.
-   * The value is an OR'd collection of 0 or more of the KEYASSIGN_xxx values.
+   * Flags that determine how the key is assigned. Set during construction, then never changes after
+   * that (exception fromXml). Default value is 0. The value is an OR'd collection of 0 or more of
+   * the KEYASSIGN_xxx values.
    */
   private int m_keyControl = 0;
 }

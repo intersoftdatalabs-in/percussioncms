@@ -18,56 +18,51 @@
 package com.percussion.maintenance.web.service;
 
 import com.percussion.share.test.PSObjectRestClient;
-
 import java.util.HashMap;
-import java.util.Map;
-
 import javax.ws.rs.core.Response.Status;
 
 /**
- * REST client for maintenance manager service.
- * Sunny Sal says: "Maintenance mode: Java 11 style!"
+ * REST client for maintenance manager service. Sunny Sal says: "Maintenance mode: Java 11 style!"
  */
 public class PSMaintenanceManagerRestClient extends PSObjectRestClient {
-    private String path = "/Rhythmyx/services/maintenance/manager/";
+  private String path = "/Rhythmyx/services/maintenance/manager/";
 
-    public PSMaintenanceManagerRestClient(String baseUrl) {
-        super(baseUrl);
+  public PSMaintenanceManagerRestClient(String baseUrl) {
+    super(baseUrl);
+  }
+
+  /**
+   * Determine if maintenance work has failed. May be called regardless of whether work is in
+   * progress.
+   *
+   * @param clearErrors true to clear errors if found, false otherwise
+   * @return true if a maintenance process has failed, false if not.
+   */
+  public boolean hasFailures(boolean clearErrors) {
+    var params = new HashMap<String, String>();
+    params.put("clearErrors", Boolean.toString(clearErrors));
+
+    try {
+      GET(concatPath(path, "status/process"), params.entrySet());
+    } catch (RestClientException e) {
+      if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus()))) return true;
+      throw e;
     }
+    return false;
+  }
 
-    /**
-     * Determine if maintenance work has failed. May be called regardless of whether work is in progress.
-     *
-     * @param clearErrors true to clear errors if found, false otherwise
-     * @return true if a maintenance process has failed, false if not.
-     */
-    public boolean hasFailures(boolean clearErrors) {
-        var params = new HashMap<String, String>();
-        params.put("clearErrors", Boolean.toString(clearErrors));
-
-        try {
-            GET(concatPath(path, "status/process"), params.entrySet());
-        } catch (RestClientException e) {
-            if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus())))
-                return true;
-            throw e;
-        }
-        return false;
+  /**
+   * Determine if maintenance work is in progress.
+   *
+   * @return true if so, false if not.
+   */
+  public boolean isWorkInProgress() {
+    try {
+      GET(concatPath(path, "status/server"));
+    } catch (RestClientException e) {
+      if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus()))) return true;
+      throw e;
     }
-
-    /**
-     * Determine if maintenance work is in progress.
-     *
-     * @return true if so, false if not.
-     */
-    public boolean isWorkInProgress() {
-        try {
-            GET(concatPath(path, "status/server"));
-        } catch (RestClientException e) {
-            if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus())))
-                return true;
-            throw e;
-        }
-        return false;
-    }
+    return false;
+  }
 }

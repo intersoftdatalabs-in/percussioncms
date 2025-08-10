@@ -17,23 +17,24 @@
 package com.percussion.server.clone;
 
 /**
- * This interface contains the error codes for all exceptions thrown by
- * classes in this pkg.
+ * This interface contains the error codes for all exceptions thrown by classes in this pkg.
  *
- * The search error code ranges are:
+ * <p>The search error code ranges are:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>17501 - 18000</TD><TD>general errors</TD></TR>
  * </TABLE>
  *
- * The message strings for clone messages are stored in the i18n resource
- * bundle, not the error string bundle.
+ * The message strings for clone messages are stored in the i18n resource bundle, not the error
+ * string bundle.
  */
 public interface IPSCloneErrors {
   /**
    * The specified clone source id could not be parsed into an integer.
-   * <p>
-   * The argument passed in for this message is:
+   *
+   * <p>The argument passed in for this message is:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied clone source id</TD></TR>
@@ -44,8 +45,9 @@ public interface IPSCloneErrors {
 
   /**
    * The current user could not be authenticated to perform a clone request.
-   * <p>
-   * The argument passed in for this message is:
+   *
+   * <p>The argument passed in for this message is:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The actual error message</TD></TR>
@@ -55,8 +57,9 @@ public interface IPSCloneErrors {
 
   /**
    * The current user is not authorized to perform a clone request.
-   * <p>
-   * The argument passed in for this message is:
+   *
+   * <p>The argument passed in for this message is:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The actual error message</TD></TR>
@@ -66,8 +69,9 @@ public interface IPSCloneErrors {
 
   /**
    * An internal request call failed.
-   * <p>
-   * The argument passed in for this message is:
+   *
+   * <p>The argument passed in for this message is:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The rhythmyx resource being called</TD></TR>
@@ -78,7 +82,9 @@ public interface IPSCloneErrors {
 
   /**
    * A required Rhythmyx resource could not be found. (Maybe it's not running?)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the resource, in form app/resource</TD></TR>
@@ -88,7 +94,9 @@ public interface IPSCloneErrors {
 
   /**
    * Error occurred while creating the role for the specified community.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The role name to create</TD></TR>

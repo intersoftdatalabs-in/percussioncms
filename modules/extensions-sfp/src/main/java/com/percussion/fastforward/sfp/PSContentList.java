@@ -34,14 +34,11 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents a publishing content list.
- */
+/** Represents a publishing content list. */
 public class PSContentList {
   /**
-   * Ctor that takes the publish context and delivery type. Calls
-   * {@link #PSContentList(String, String, int, int, int)}with default values
-   * (-1) for the last three parameters.
+   * Ctor that takes the publish context and delivery type. Calls {@link #PSContentList(String,
+   * String, int, int, int)}with default values (-1) for the last three parameters.
    *
    * @param context
    * @param deliveryType
@@ -55,19 +52,14 @@ public class PSContentList {
   }
 
   /**
-   * Ctor that takes the publish context, delivery type, number of maximum rows
-   * per page, number of maximum pages in the content list and number of
-   * maximum displayable links.
+   * Ctor that takes the publish context, delivery type, number of maximum rows per page, number of
+   * maximum pages in the content list and number of maximum displayable links.
    *
    * @param context publish context allows <code>null</code> or empty.
-   * @param deliveryType delivery type string, may be <code>null</code> or
-   *           empty.
-   * @param maxRowsPerPage number of maximum rows per page, -1 for unlimited
-   *           rows per page.
-   * @param maxPages number of maximum pages in the content list, -1 to specify
-   *           no limit.
-   * @param maxDisplayedPageLinks number of maximum displayable links, -1 to
-   *           specify no limit.
+   * @param deliveryType delivery type string, may be <code>null</code> or empty.
+   * @param maxRowsPerPage number of maximum rows per page, -1 for unlimited rows per page.
+   * @param maxPages number of maximum pages in the content list, -1 to specify no limit.
+   * @param maxDisplayedPageLinks number of maximum displayable links, -1 to specify no limit.
    */
   public PSContentList(
       String context,
@@ -85,14 +77,12 @@ public class PSContentList {
   }
 
   /**
-   * Get the content list document with one page full of items. If maximum rows
-   * per page specified is -1, the page will have all items.
+   * Get the content list document with one page full of items. If maximum rows per page specified
+   * is -1, the page will have all items.
    *
-   * @param indexOfFirstItem index of the forst item in the page, must be
-   *           greater than equal to 0.
+   * @param indexOfFirstItem index of the forst item in the page, must be greater than equal to 0.
    * @param request request context object, must not be <code>null</code>.
-   * @return XMl document with items as described above, never
-   *         <code>null</code>.
+   * @return XMl document with items as described above, never <code>null</code>.
    */
   public Document getPage(int indexOfFirstItem, IPSRequestContext request) {
     String sys_publicationid = request.getParameter(IPSHtmlParameters.SYS_PUBLICATIONID);
@@ -141,17 +131,16 @@ public class PSContentList {
   }
 
   /**
-   * Add result page XML for navigating to next or previous pages of the
-   * content list. This XML will conform to the standard result page XML
-   * produced by A Rhythmyx resource when specified with rows per page etc.
+   * Add result page XML for navigating to next or previous pages of the content list. This XML will
+   * conform to the standard result page XML produced by A Rhythmyx resource when specified with
+   * rows per page etc.
    *
-   * @param indexOfFirstItem index of the first item, if greater than 1, a link
-   *           will be generated to go to previous page of items.
-   * @param indexOfLastItem index of the last item of the content list, if less
-   *           that total number of items in the list, link will be generated
-   *           to go to next page of items.
-   * @param listDoc the content list XML document to which the paging block is
-   *           added, must not be <code>null</code>
+   * @param indexOfFirstItem index of the first item, if greater than 1, a link will be generated to
+   *     go to previous page of items.
+   * @param indexOfLastItem index of the last item of the content list, if less that total number of
+   *     items in the list, link will be generated to go to next page of items.
+   * @param listDoc the content list XML document to which the paging block is added, must not be
+   *     <code>null</code>
    * @param request request context object must not be <code>null</code>.
    */
   private void addResultPagerXml(
@@ -215,9 +204,7 @@ public class PSContentList {
     // todo: generate index page links
   }
 
-  /**
-   * Clear the content list.
-   */
+  /** Clear the content list. */
   public void clear() {
     m_list.clear();
   }
@@ -241,9 +228,7 @@ public class PSContentList {
     return m_list.size();
   }
 
-  /**
-   * Sorts the content items by the contentId and variantId
-   */
+  /** Sorts the content items by the contentId and variantId */
   public void sort() {
     PSContentListItem[] items = new PSContentListItem[size()];
     m_list.toArray(items);
@@ -252,38 +237,29 @@ public class PSContentList {
     for (int i = 0; i < items.length; i++) m_list.add(items[i]);
   }
 
-  /**
-   * List of all content items, never <code>null</code>.
-   */
+  /** List of all content items, never <code>null</code>. */
   private List m_list = new ArrayList();
 
-  /**
-   * Publish context value, initialized in the ctor, never <code>null</code>,
-   * may be empty.
-   */
+  /** Publish context value, initialized in the ctor, never <code>null</code>, may be empty. */
   private String m_context;
 
-  /**
-   * Delivery type string, initialized in the ctor, never <code>null</code>,
-   * may be empty.
-   */
+  /** Delivery type string, initialized in the ctor, never <code>null</code>, may be empty. */
   private String m_deliveryType;
 
   /**
-   * Maximum number of rows per page, may be initialized in the ctor and
-   * default is -1 (unlimited).
+   * Maximum number of rows per page, may be initialized in the ctor and default is -1 (unlimited).
    */
   private int m_maxRowsPerPage = -1;
 
   /**
-   * Maximum number of pages in the content list, may be initialized in the
-   * ctor and default is -1 (unlimited).
+   * Maximum number of pages in the content list, may be initialized in the ctor and default is -1
+   * (unlimited).
    */
   private int m_maxPages = -1;
 
   /**
-   * Maximum number of displayable page links in the content list, may be
-   * initialized in the ctor and default is -1 (unlimited).
+   * Maximum number of displayable page links in the content list, may be initialized in the ctor
+   * and default is -1 (unlimited).
    */
   private int m_maxDisplayedPageLinks = -1;
 

@@ -26,12 +26,11 @@ import java.util.ResourceBundle;
 /**
  * UTF-8 friendly ResourceBundle support
  *
- * Utility that allows having multi-byte characters inside java .property files.
- * It removes the need for Sun's native2ascii application, you can simply have
- * UTF-8 encoded editable .property files.
+ * <p>Utility that allows having multi-byte characters inside java .property files. It removes the
+ * need for Sun's native2ascii application, you can simply have UTF-8 encoded editable .property
+ * files.
  *
- * Use:
- * ResourceBundle bundle = Utf8ResourceBundle.getBundle("bundle_name");
+ * <p>Use: ResourceBundle bundle = Utf8ResourceBundle.getBundle("bundle_name");
  *
  * @author Tomas Varaneckas <tomas.varaneckas@gmail.com>
  */
@@ -65,14 +64,10 @@ public abstract class PSUtf8ResourceBundle {
     return new Utf8PropertyResourceBundle((PropertyResourceBundle) bundle);
   }
 
-  /**
-   * Resource Bundle that does the hard work
-   */
+  /** Resource Bundle that does the hard work */
   private static class Utf8PropertyResourceBundle extends ResourceBundle {
 
-    /**
-     * Bundle with unicode data
-     */
+    /** Bundle with unicode data */
     private final PropertyResourceBundle bundle;
 
     /**

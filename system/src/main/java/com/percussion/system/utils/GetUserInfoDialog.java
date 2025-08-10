@@ -56,11 +56,9 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
   }
 
   /**
-   * Event handler, checks for the button checked
-   * and calls the appropiated routine.
+   * Event handler, checks for the button checked and calls the appropiated routine.
    *
-   *@param e the action event
-   *
+   * @param e the action event
    */
   public void actionPerformed(ActionEvent e) {
     JButton button = (JButton) e.getSource();
@@ -72,10 +70,7 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
     }
   }
 
-  /**
-   * Extracts the labels and info from the property file.
-   *
-   */
+  /** Extracts the labels and info from the property file. */
   private void getLogingInfo() {
     try {
       // initialize the labels with the default
@@ -145,10 +140,7 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
     if (strUID != null) m_userId = strUID;
   }
 
-  /**
-   *save the server name, port.
-   *
-   */
+  /** save the server name, port. */
   public void saveProperties() {
     if (adminProps != null) {
       try {
@@ -161,9 +153,9 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
   }
 
   /**
-   *create the panel with the labels
+   * create the panel with the labels
    *
-   *@return the panel with the labels attached
+   * @return the panel with the labels attached
    */
   private JPanel initializeLabels() {
     getLogingInfo();
@@ -183,10 +175,7 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
     return labelPanel;
   }
 
-  /**
-   *closes the dialog and verify that the user fills all the
-   * fields.
-   */
+  /** closes the dialog and verify that the user fills all the fields. */
   public void onOk() {
 
     m_port = m_portField.getText();
@@ -208,19 +197,16 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
     setVisible(false);
   }
 
-  /**
-   * Sets the cancel flag to true and closes the dialog.
-   */
+  /** Sets the cancel flag to true and closes the dialog. */
   public void onCancel() {
     m_bCancelled = true;
     setVisible(false);
   }
 
   /**
-   * @return <code>true</code> if the dialog was closed by pressing the Cancel
-   * button, <code>false</code> otherwise. Can be called after the caller gets
-   * control back.
-   **/
+   * @return <code>true</code> if the dialog was closed by pressing the Cancel button, <code>false
+   *     </code> otherwise. Can be called after the caller gets control back.
+   */
   public boolean isCancelled() {
     return m_bCancelled;
   }
@@ -241,7 +227,7 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
   /**
    * create the panel to display the server, user id and password
    *
-   *@return panel with the jtextFields
+   * @return panel with the jtextFields
    */
   private JPanel initializeFields(String serverName, String userName) {
 
@@ -299,9 +285,8 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
   /**
    * Initializes the dialog, constructing the different panels
    *
-   *@param serverName the server name to be displayed
-   *
-   *@param userName   the name of the user displayed
+   * @param serverName the server name to be displayed
+   * @param userName the name of the user displayed
    */
   void jbInit(String serverName, String userName) throws Exception {
 
@@ -323,28 +308,27 @@ public class GetUserInfoDialog extends JDialog implements ActionListener {
   public static final String DEFAULT_PORT = "9992";
 
   /**
-   * The name of the file where various properties are stored, such as the
-   * last server name, port #, etc.
-   **/
+   * The name of the file where various properties are stored, such as the last server name, port #,
+   * etc.
+   */
   public static final String PROPERTIES_FILENAME = "remoteconsole.properties";
 
   /**
-   * The name of a key in the designer properties file. If present, the value
-   * of this key will be used as the default for the server field.
+   * The name of a key in the designer properties file. If present, the value of this key will be
+   * used as the default for the server field.
    */
   public static final String LAST_SERVER = "last_server_opened";
 
   /**
-   * The name of a key in the designer properties file. If present, the value
-   * of this key should contain a delimited list of servers that have previously
-   * been connected to. The delimiter to use is UserConfig.DELIMITER. The
-   * server combobox will be populated with these values.
+   * The name of a key in the designer properties file. If present, the value of this key should
+   * contain a delimited list of servers that have previously been connected to. The delimiter to
+   * use is UserConfig.DELIMITER. The server combobox will be populated with these values.
    */
   public static final String ALL_SERVERS = "last_all_server_opened";
 
   /**
-   * The name of a key in the designer properties file. If present, the value
-   * of this key will be used as the default for the port field.
+   * The name of a key in the designer properties file. If present, the value of this key will be
+   * used as the default for the port field.
    */
   public static final String LAST_PORT = "last_port_opened";
 

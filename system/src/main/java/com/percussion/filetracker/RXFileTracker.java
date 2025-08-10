@@ -24,16 +24,11 @@ import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-/**
- * Main Application class with main() method. Main window is constructed and
- * displayed.
- */
+/** Main Application class with main() method. Main window is constructed and displayed. */
 public class RXFileTracker {
   boolean packFrame = false;
 
-  /**
-   * Construct the application center the window and then display it.
-   */
+  /** Construct the application center the window and then display it. */
   public RXFileTracker() {
     MainFrame frame = new MainFrame();
     // Validate frames that have preset sizes
@@ -50,9 +45,7 @@ public class RXFileTracker {
     frame.setVisible(true);
   }
 
-  /**
-   * Main method. Does not require any arguments currently.
-   */
+  /** Main method. Does not require any arguments currently. */
   public static void main(String[] args) {
 
     try {
@@ -64,8 +57,8 @@ public class RXFileTracker {
 
   /**
    * Returns DocumentBuilder object for parsing XML documents
-   * @return DocumentBuilder object for parsing XML documents. Never
-   * <code>null</code>.
+   *
+   * @return DocumentBuilder object for parsing XML documents. Never <code>null</code>.
    */
   public static DocumentBuilder getDocumentBuilder() {
     try {

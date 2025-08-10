@@ -26,13 +26,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class encapsulates a collection of <code>PSProperty</code> objects as
- * a <code>PSCollectionComponent</code>.
+ * This class encapsulates a collection of <code>PSProperty</code> objects as a <code>
+ * PSCollectionComponent</code>.
  */
 public class PSPropertySet extends PSCollectionComponent {
-  /**
-   * Constucts an empty property set.
-   */
+  /** Constucts an empty property set. */
   public PSPropertySet() {
     super(PSProperty.class);
   }
@@ -40,10 +38,8 @@ public class PSPropertySet extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSPropertySet(Element sourceNode) throws PSUnknownNodeTypeException {
     super(PSProperty.class);
@@ -51,7 +47,9 @@ public class PSPropertySet extends PSCollectionComponent {
     fromXml(sourceNode, null, null);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public void fromXml(
       Element sourceNode, @SuppressWarnings("unused") IPSDocument parentDoc, List parentComponents)
@@ -92,7 +90,9 @@ public class PSPropertySet extends PSCollectionComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
@@ -121,11 +121,10 @@ public class PSPropertySet extends PSCollectionComponent {
   }
 
   /**
-   * Get the property for the supplied name. Names are compared case
-   * sensitive.
+   * Get the property for the supplied name. Names are compared case sensitive.
    *
-   * @param name the property name, may be <code>null</code> or empty in
-   *    which case this always returns <code>null</code>.
+   * @param name the property name, may be <code>null</code> or empty in which case this always
+   *     returns <code>null</code>.
    * @return the property if found, <code>null</code> otherwise.
    */
   public PSProperty getProperty(String name) {
@@ -141,13 +140,12 @@ public class PSPropertySet extends PSCollectionComponent {
   }
 
   /**
-   * Sets the property of type <code>String</code> for the supplied name,
-   * value and lock.
+   * Sets the property of type <code>String</code> for the supplied name, value and lock.
    *
    * @param name the property name to set, not <code>null</code> or empty.
    * @param value the property value to set, may be <code>null</code> or empty.
-   * @param locked <code>true</code> if the property created is locked for
-   *    overriding at runtime, <code>false</code> otherwise.
+   * @param locked <code>true</code> if the property created is locked for overriding at runtime,
+   *     <code>false</code> otherwise.
    */
   public void setProperty(String name, String value, boolean locked) {
     // name constraint is enforced in PSProperty
@@ -160,18 +158,17 @@ public class PSPropertySet extends PSCollectionComponent {
   }
 
   /**
-   * Convenience method that calls {@link #setProperty(String,String,boolean)
-   * setProperty(name, value, true)}.
+   * Convenience method that calls {@link #setProperty(String,String,boolean) setProperty(name,
+   * value, true)}.
    */
   public void setProperty(String name, String value) {
     setProperty(name, value, true);
   }
 
   /**
-   * Sets the supplied property. If a property with the same name as the
-   * supplied one exists, it is replaced with the new property, otherwise
-   * it is appendend, the comparison is done using the property name in a
-   * case-sensitive manner.
+   * Sets the supplied property. If a property with the same name as the supplied one exists, it is
+   * replaced with the new property, otherwise it is appendend, the comparison is done using the
+   * property name in a case-sensitive manner.
    *
    * @param property the property to set, not <code>null</code>.
    */

@@ -38,8 +38,8 @@ import oracle.sql.BLOB;
 import oracle.sql.CLOB;
 
 /**
- * Wraps Prepared Sql Statement for Oracle and contains bound parameters.
- * Supports Blob and Clob data inserts and updates.
+ * Wraps Prepared Sql Statement for Oracle and contains bound parameters. Supports Blob and Clob
+ * data inserts and updates.
  */
 public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   /**
@@ -119,11 +119,10 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
 
   /**
    * executes an Insert statement for oracle database
-   * @param conn the connection to use for executing this insert statement,
-   * never <code>null</code>
+   *
+   * @param conn the connection to use for executing this insert statement, never <code>null</code>
    * @return the number of rows inserted by this insert statement
-   * @throws SQLException if any error occurs while executing the insert
-   * statement
+   * @throws SQLException if any error occurs while executing the insert statement
    */
   private int executeInsert(Connection conn) throws SQLException {
     int updateCount;
@@ -179,11 +178,8 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
    * Executes the step against the provided Connection.
    *
    * @param conn The connection, may not be <code>null</code>.
-   *
-   * @return numbers of rows in the database which were updated
-   * by execution of this step. If sql statement execution
-   * returns false then returns the update count else returns 0.
-   *
+   * @return numbers of rows in the database which were updated by execution of this step. If sql
+   *     statement execution returns false then returns the update count else returns 0.
    * @throws IllegalArgumentException if conn is <code>null</code>.
    * @throws SQLException if any errors occur.
    */
@@ -232,14 +228,10 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   /**
    * inserts LOB data in oracle database
    *
-   * @param conn the connection to use to insert LOB data in database, never
-   * <code>null</code>
-   *
-   * @throws SQLException if any error occurs while executing the insert
-   * statement
-   * @throws IOException if any error occurs while writing the LOB data to the
-   * temporary LOB created in the <code>createTempBLOB</code> and
-   * <code>createTempBLOB</code> methods.
+   * @param conn the connection to use to insert LOB data in database, never <code>null</code>
+   * @throws SQLException if any error occurs while executing the insert statement
+   * @throws IOException if any error occurs while writing the LOB data to the temporary LOB created
+   *     in the <code>createTempBLOB</code> and <code>createTempBLOB</code> methods.
    */
   private void insertLOBs(Connection conn) throws SQLException, IOException {
     PreparedStatement lobStmt = null;
@@ -358,13 +350,12 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
 
   /**
    * Creates a temporary BLOB from the given binary data.
+   *
    * @param conn database connection, assumed not <code>null</code>
-   * @param binData binary data to be inserted into the BLOB column, assumed
-   * not <code>null</code>
+   * @param binData binary data to be inserted into the BLOB column, assumed not <code>null</code>
    * @return the temporary BLOB, never <code>null</code>
    * @throws SQLException if any error occurs while creating the temporary BLOB
-   * @throws IOException if any error occurs while writing the BLOB data to the
-   * temporary BLOB
+   * @throws IOException if any error occurs while writing the BLOB data to the temporary BLOB
    */
   private BLOB createTempBLOB(Connection conn, byte[] binData) throws SQLException, IOException {
     // Create a temporary BLOB with duration session
@@ -405,13 +396,13 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
 
   /**
    * Creates a temporary CLOB from the given string.
+   *
    * @param conn database connection, assumed not <code>null</code>
-   * @param colValue string to be inserted into the CLOB column, assumed
-   * not <code>null</code>, may be empty
+   * @param colValue string to be inserted into the CLOB column, assumed not <code>null</code>, may
+   *     be empty
    * @return the temporary CLOB, never <code>null</code>
    * @throws SQLException if any error occurs while creating the temporary CLOB
-   * @throws IOException if any error occurs while writing the BLOB data to the
-   * temporary BLOB
+   * @throws IOException if any error occurs while writing the BLOB data to the temporary BLOB
    */
   private CLOB createTempCLOB(Connection conn, String colValue) throws SQLException, IOException {
 
@@ -450,8 +441,8 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   }
 
   /**
-   * Closes the temporary CLOB. Sets the input clob parameter to
-   * <code>null</code> after closing it.
+   * Closes the temporary CLOB. Sets the input clob parameter to <code>null</code> after closing it.
+   *
    * @param clob the temporary CLOB, may be <code>null</code>
    */
   private void closeTempCLOB(CLOB clob) {
@@ -467,8 +458,8 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   }
 
   /**
-   * Closes the temporary BLOB. Sets the input blob parameter to
-   * <code>null</code> after closing it.
+   * Closes the temporary BLOB. Sets the input blob parameter to <code>null</code> after closing it.
+   *
    * @param blob the temporary CLOB, may be <code>null</code>
    */
   private void closeTempBLOB(BLOB blob) {
@@ -486,10 +477,10 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   /**
    * Closes all the temporary LOBs in the two lists.
    *
-   * @param tempclobsList list containing temporary CLOBs, assumed
-   * not <code>null</code>, may be empty list.
-   * @param tempBlobsList list containing temporary BLOBs, assumed
-   * not <code>null</code>, may be empty list.
+   * @param tempclobsList list containing temporary CLOBs, assumed not <code>null</code>, may be
+   *     empty list.
+   * @param tempBlobsList list containing temporary BLOBs, assumed not <code>null</code>, may be
+   *     empty list.
    */
   private void closeTempLOBs(List<CLOB> tempclobsList, List<BLOB> tempBlobsList) {
     Iterator<?> it = tempclobsList.iterator();
@@ -513,13 +504,11 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   }
 
   /**
-   * Validates the supplied statement type, should be one of
-   * ORACLE_INSERT or ORACLE_UPDATE or ORACLE_DUMMY_UPDATE
+   * Validates the supplied statement type, should be one of ORACLE_INSERT or ORACLE_UPDATE or
+   * ORACLE_DUMMY_UPDATE
    *
    * @param statementType the statement type to validate
-   *
-   * @return <code>false</code> if the statement type is invalid,
-   *    <code>true</code> otherwise.
+   * @return <code>false</code> if the statement type is invalid, <code>true</code> otherwise.
    */
   private boolean validStatementType(int statementType) {
     return ((statementType == ORACLE_INSERT)
@@ -528,36 +517,33 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   }
 
   /**
-   * the select statement for getting a lock on clob/blob, contains
-   * "FOR UPDATE" clause, never <code>null</code> or empty, initialized in
-   * constructor.
+   * the select statement for getting a lock on clob/blob, contains "FOR UPDATE" clause, never
+   * <code>null</code> or empty, initialized in constructor.
    */
   private String m_selLobString;
 
   /**
-   * List of {@link PSJdbcStatementColumn} objects, used to bind values into
-   * the m_selLobString statement at runtime.  May be <code>null</code> if
-   * the statement does not require any parameters, but never emtpy if not
-   * <code>null</code>.
+   * List of {@link PSJdbcStatementColumn} objects, used to bind values into the m_selLobString
+   * statement at runtime. May be <code>null</code> if the statement does not require any
+   * parameters, but never emtpy if not <code>null</code>.
    */
   private PSCollection m_keyValues;
 
   /**
-   * an array of Integer objects indicating the type of lob object in the
-   * m_lobValues array at the same index, may not be <code>null</code>,
-   * intialized in the constructor
+   * an array of Integer objects indicating the type of lob object in the m_lobValues array at the
+   * same index, may not be <code>null</code>, intialized in the constructor
    */
   private List<Integer> m_lobTypes;
 
   /**
-   * an array of LOB objects to be inserted/updated in the database,
-   * may not be <code>null</code>, intialized in the constructor
+   * an array of LOB objects to be inserted/updated in the database, may not be <code>null</code>,
+   * intialized in the constructor
    */
   private List<String> m_lobValues;
 
   /**
-   * an array of encodings of LOB values,
-   * may not be <code>null</code>, intialized in the constructor
+   * an array of encodings of LOB values, may not be <code>null</code>, intialized in the
+   * constructor
    */
   private List<Integer> m_lobValuesEncoding;
 
@@ -567,43 +553,31 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
    */
   private String m_rowID;
 
-  /**
-   * the type of statement that this object represents
-   */
+  /** the type of statement that this object represents */
   int m_statementType = ORACLE_INSERT;
 
-  /**
-   * constant for Oracle Insert statements
-   */
+  /** constant for Oracle Insert statements */
   public static final int ORACLE_INSERT = 0;
 
-  /**
-   * constant for Oracle Update statements
-   */
+  /** constant for Oracle Update statements */
   public static final int ORACLE_UPDATE = 1;
 
   /**
-   * constant for Oracle Dummy Update statements
-   * For Oracle, update statements are split into two - one containing
-   * clob-blob columns and other containing non-lob columns. If the original
-   * update statement contains only clob-blob columns then after splitting
-   * it into two the non-lob update statement does not have any columns and so
-   * it results in a statement like
-   * "UPDATE CMS_ARTICLE SET WHERE ARTICLE_ID = ?"
-   * We will call such statements dummy update statements. These will
-   * not be send to the database for execution. Instead the execute will
-   * return 1 for such statements.
-   *
+   * constant for Oracle Dummy Update statements For Oracle, update statements are split into two -
+   * one containing clob-blob columns and other containing non-lob columns. If the original update
+   * statement contains only clob-blob columns then after splitting it into two the non-lob update
+   * statement does not have any columns and so it results in a statement like "UPDATE CMS_ARTICLE
+   * SET WHERE ARTICLE_ID = ?" We will call such statements dummy update statements. These will not
+   * be send to the database for execution. Instead the execute will return 1 for such statements.
    */
   public static final int ORACLE_DUMMY_UPDATE = 2;
 
   /**
-   * xLOB.createTemporary, cache flag parameter, that happens to be different
-   * depending on the ORA JDBC driver used. For instance an older ORA jar likes
-   * to see 'false' while the newer jar expects 'true'. If ORA driver doesn't
-   * get the 'right' mix of parameters in the xLOB.CreateTemporary method it
-   * throws SQL exception. So, to work this cross driver incompatibility issue
-   * around we expect a SQLException and retry once with this flag flipped.
+   * xLOB.createTemporary, cache flag parameter, that happens to be different depending on the ORA
+   * JDBC driver used. For instance an older ORA jar likes to see 'false' while the newer jar
+   * expects 'true'. If ORA driver doesn't get the 'right' mix of parameters in the
+   * xLOB.CreateTemporary method it throws SQL exception. So, to work this cross driver
+   * incompatibility issue around we expect a SQLException and retry once with this flag flipped.
    */
   private static boolean ms_tempLobCacheFlag = false;
 }

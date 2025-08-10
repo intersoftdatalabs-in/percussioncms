@@ -36,14 +36,12 @@ import java.io.File;
 import java.util.Iterator;
 
 /**
- * This exit checks to see if a given variant is in use in the system. At this
- * time this check looks to see if the relationships includes any sys_variantid
- * properties that match the given variant.
- * <p>
- * The check uses the relationship processor to query the database for matching
- * relationships. If any are found, a list of the owner ids is returned in the
- * error message to enable the user to remove (if desired) slot content in the
- * given items.
+ * This exit checks to see if a given variant is in use in the system. At this time this check looks
+ * to see if the relationships includes any sys_variantid properties that match the given variant.
+ *
+ * <p>The check uses the relationship processor to query the database for matching relationships. If
+ * any are found, a list of the owner ids is returned in the error message to enable the user to
+ * remove (if desired) slot content in the given items.
  *
  * @author dougrand
  */

@@ -52,15 +52,12 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * PSModifyProviders is a class which modifies legacy security providers
- * to conform to the newly supported configurations.  It also utilizes an
- * instance of RxISConfigureAppsDefs to convert the Applications, Defs, and
- * server configurations accordingly.
+ * PSModifyProviders is a class which modifies legacy security providers to conform to the newly
+ * supported configurations. It also utilizes an instance of RxISConfigureAppsDefs to convert the
+ * Applications, Defs, and server configurations accordingly. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -77,7 +74,6 @@ import org.w3c.dom.Document;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSModifyProviders extends PSAction {
 
@@ -114,8 +110,7 @@ public class PSModifyProviders extends PSAction {
   /**
    * Performs the conversion of Apps, Defs, server config.
    *
-   * @param configCtx the object which holds the necessary configuration
-   *  information.
+   * @param configCtx the object which holds the necessary configuration information.
    * @param repInfo the object which holds the necessary repository information
    */
   private void doConversion(PSConfigurationCtx configCtx, IPSRepositoryInfo repInfo) {
@@ -172,11 +167,9 @@ public class PSModifyProviders extends PSAction {
   }
 
   /**
-   * Converts the application objects stored in the objectstore directory to
-   * datasources.
+   * Converts the application objects stored in the objectstore directory to datasources.
    *
-   * @param objDir file which represents the objectstore directory,
-   * assumed not <code>null</code>
+   * @param objDir file which represents the objectstore directory, assumed not <code>null</code>
    */
   private void convertApplications(File objDir) {
     String appName = null;
@@ -195,9 +188,8 @@ public class PSModifyProviders extends PSAction {
   }
 
   /**
-   * Converts an application to use datasources.
-   * It does this by simply loading and then saving it.  Also adds paths which
-   * allow anonymous access to the user security configuration file.
+   * Converts an application to use datasources. It does this by simply loading and then saving it.
+   * Also adds paths which allow anonymous access to the user security configuration file.
    *
    * @param appFile the app file, assumed not <code>null</code>
    */
@@ -294,8 +286,7 @@ public class PSModifyProviders extends PSAction {
   }
 
   /**
-   * Converts a definition to use datasources.
-   * It does this by simply loading and then saving it.
+   * Converts a definition to use datasources. It does this by simply loading and then saving it.
    *
    * @param defFile the def file, assumed not <code>null</code>
    */
@@ -338,50 +329,34 @@ public class PSModifyProviders extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   * The rhythmyx root directory
-   */
+  /** The rhythmyx root directory */
   private String m_strRxRoot = getRootDir();
 
-  /**
-   * Location of server.properties
-   */
+  /** Location of server.properties */
   private String m_strServerPropsFile =
       m_strRxRoot + File.separator + "rxconfig/Server/server.properties";
 
-  /**
-   * Location of system definition
-   */
+  /** Location of system definition */
   private String m_strSystemDef =
       m_strRxRoot + File.separator + "rxconfig/Server/ContentEditors/ContentEditorSystemDef.xml";
 
-  /**
-   * Location of shared definition
-   */
+  /** Location of shared definition */
   private String m_strSharedDefDir =
       m_strRxRoot + File.separator + "rxconfig/Server/ContentEditors/shared";
 
-  /**
-   * Location of user-security-conf.xml file
-   */
+  /** Location of user-security-conf.xml file */
   private String m_strUserSecConf =
       m_strRxRoot
           + File.separator
           + "AppServer/server/rx/deploy/rxapp.ear/"
           + "rxapp.war/WEB-INF/config/user/security/user-security-conf.xml";
 
-  /**
-   * The objectstore property name in server.properties
-   */
+  /** The objectstore property name in server.properties */
   private final String PROPS_OBJECT_STORE_VAR = "objectStoreProperties";
 
-  /**
-   * The default objectstore properties file
-   */
+  /** The default objectstore properties file */
   private final String PROPS_OBJECT_STORE = "rxconfig/Server/objectstore.properties";
 
-  /**
-   * The objectstore directory property name in objectstore.properties
-   */
+  /** The objectstore directory property name in objectstore.properties */
   private final String PROPS_OBJECT_STORE_DIR = "objectDirectory";
 }

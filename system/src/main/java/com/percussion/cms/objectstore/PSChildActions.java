@@ -20,24 +20,18 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.Iterator;
 import org.w3c.dom.Element;
 
-/**
- * The class that is used to represent properties as defined by
- * 'sys_Props.dtd'.
- */
+/** The class that is used to represent properties as defined by 'sys_Props.dtd'. */
 public class PSChildActions extends PSDbComponentCollection {
-  /**
-   * The default constructor to create a container for menu items.
-   */
+  /** The default constructor to create a container for menu items. */
   public PSChildActions() {
     super(PSMenuChild.class);
   }
 
   /**
-   * Constructs this object from the supplied element. See {@link
-   * #toXml(org.w3c.dom.Document) } for the expected form of xml.
+   * Constructs this object from the supplied element. See {@link #toXml(org.w3c.dom.Document) } for
+   * the expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    */
   public PSChildActions(Element element) throws PSUnknownNodeTypeException {
@@ -62,8 +56,7 @@ public class PSChildActions extends PSDbComponentCollection {
   }
 
   /**
-   * This method is overridden to guarantee that each action is added only
-   * once.
+   * This method is overridden to guarantee that each action is added only once.
    *
    * @param comp Never <code>null</code>. Must be a PSAction or PSMenuAction.
    */
@@ -78,15 +71,12 @@ public class PSChildActions extends PSDbComponentCollection {
   }
 
   /**
-   * Removes a specified action. If the supplied action exists in this set,
-   * it is removed. Otherwise, no action is taken.
+   * Removes a specified action. If the supplied action exists in this set, it is removed.
+   * Otherwise, no action is taken.
    *
-   * @param action the to be removed action. If <code>null</code>, no action
-   *    is taken. The name
-   *    is compared case insensitive.
-   *
-   * @return <code>true</code> if an entry was removed, <code>false</code>
-   *    otherwise.
+   * @param action the to be removed action. If <code>null</code>, no action is taken. The name is
+   *     compared case insensitive.
+   * @return <code>true</code> if an entry was removed, <code>false</code> otherwise.
    */
   public boolean removeAction(PSAction action) {
     if (null == action) return false;
@@ -101,11 +91,9 @@ public class PSChildActions extends PSDbComponentCollection {
   }
 
   /**
-   * Finds the action reference in this collection that matches the supplied
-   * one.
+   * Finds the action reference in this collection that matches the supplied one.
    *
    * @param child Never <code>null</code>.
-   *
    * @return A valid entry, or <code>null</code> if one can't be found.
    */
   private PSMenuChild getChild(PSMenuChild child) {

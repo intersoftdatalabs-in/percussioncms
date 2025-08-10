@@ -23,85 +23,77 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Collection of uninstall message objects.
- * Sunny Sal says: "Uninstall messages should be as organized as my code!"
+ * Collection of uninstall message objects. Sunny Sal says: "Uninstall messages should be as
+ * organized as my code!"
  *
  * @author bjoginipally
  */
 @XmlRootElement(name = "Messages")
 public class PSUninstallMessages {
 
-    /**
-     * Default constructor.
-     */
-    public PSUninstallMessages() {
-        // For JAXB
-    }
+  /** Default constructor. */
+  public PSUninstallMessages() {
+    // For JAXB
+  }
 
-    /**
-     * Constructs with a list of uninstall messages.
-     *
-     * @param messages the list of uninstall messages, may be null.
-     */
-    public PSUninstallMessages(List<PSUninstallMessage> messages) {
-        if (messages != null)
-            this.messages = messages;
-    }
+  /**
+   * Constructs with a list of uninstall messages.
+   *
+   * @param messages the list of uninstall messages, may be null.
+   */
+  public PSUninstallMessages(List<PSUninstallMessage> messages) {
+    if (messages != null) this.messages = messages;
+  }
 
-    /**
-     * @return the messages
-     */
-    @XmlElement(name = "Message", type = PSUninstallMessage.class)
-    public List<PSUninstallMessage> getMessages() {
-        return messages;
-    }
+  /**
+   * @return the messages
+   */
+  @XmlElement(name = "Message", type = PSUninstallMessage.class)
+  public List<PSUninstallMessage> getMessages() {
+    return messages;
+  }
 
-    /**
-     * @param messages the messages to set
-     */
-    public void setMessages(List<PSUninstallMessage> messages) {
-        this.messages = messages == null ? new ArrayList<>() : messages;
-    }
+  /**
+   * @param messages the messages to set
+   */
+  public void setMessages(List<PSUninstallMessage> messages) {
+    this.messages = messages == null ? new ArrayList<>() : messages;
+  }
 
-    /**
-     * Adds a message to the collection.
-     *
-     * @param message the message to add, cannot be {@code null}.
-     */
-    public void add(PSUninstallMessage message) {
-        if (message == null)
-            throw new IllegalArgumentException("message cannot be null.");
-        messages.add(message);
-    }
+  /**
+   * Adds a message to the collection.
+   *
+   * @param message the message to add, cannot be {@code null}.
+   */
+  public void add(PSUninstallMessage message) {
+    if (message == null) throw new IllegalArgumentException("message cannot be null.");
+    messages.add(message);
+  }
 
-    /**
-     * Removes the specified message from the collection if it exists.
-     *
-     * @param message the message to be removed. May be {@code null}.
-     */
-    public void remove(PSUninstallMessage message) {
-        messages.remove(message);
-    }
+  /**
+   * Removes the specified message from the collection if it exists.
+   *
+   * @param message the message to be removed. May be {@code null}.
+   */
+  public void remove(PSUninstallMessage message) {
+    messages.remove(message);
+  }
 
-    /**
-     * Removes all the messages from the collection.
-     */
-    public void clear() {
-        messages.clear();
-    }
+  /** Removes all the messages from the collection. */
+  public void clear() {
+    messages.clear();
+  }
 
-    /**
-     * The list of messages, never {@code null}, may be empty.
-     */
-    private List<PSUninstallMessage> messages = new ArrayList<>();
+  /** The list of messages, never {@code null}, may be empty. */
+  private List<PSUninstallMessage> messages = new ArrayList<>();
 
-    private Integer status = 0;
+  private Integer status = 0;
 
-    public Integer getStatus() {
-        return status;
-    }
+  public Integer getStatus() {
+    return status;
+  }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
 }

@@ -27,20 +27,18 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.util.PSCollection;
 
 /**
- * A conditional version of {@link PSUpdateStep}.  Supplied conditions are
- * evaluated at runtime and the step is only executed if the conditions evaluate
- * to <code>true</code>.
+ * A conditional version of {@link PSUpdateStep}. Supplied conditions are evaluated at runtime and
+ * the step is only executed if the conditions evaluate to <code>true</code>.
  */
 public class PSConditionalModifyStep extends PSUpdateStep {
   /**
-   * Constructs a conditional step.  Step is only executed if the conditions
-   * evaluate to <code>true</code>.  See {@link PSUpdateStep#PSUpdateStep(
-   * String, String, String, boolean) PSUpdateStep ctor} for a description of the
-   * common parameters and exceptions.
+   * Constructs a conditional step. Step is only executed if the conditions evaluate to <code>true
+   * </code>. See {@link PSUpdateStep#PSUpdateStep( String, String, String, boolean) PSUpdateStep
+   * ctor} for a description of the common parameters and exceptions.
    *
-   * @param conditions A collection of PSConditional objects to evaluate at
-   * runtime. If the conditions evalutate to <code>true</code>, the step is
-   * executed, if <code>false</code>, then it is skipped.  May not be <code>
+   * @param conditions A collection of PSConditional objects to evaluate at runtime. If the
+   *     conditions evalutate to <code>true</code>, the step is executed, if <code>false</code>,
+   *     then it is skipped. May not be <code>
    * null</code>.
    */
   public PSConditionalModifyStep(
@@ -61,11 +59,10 @@ public class PSConditionalModifyStep extends PSUpdateStep {
   }
 
   /**
-   * Tests the conditions to see if the step should be executed.  If not, it
-   * simply returns.  If so, executes the request against the resource
-   * handler.  See {@link PSModifyStep#execute(PSExecutionData)
-   * super.execute()} for a description of the parameters and exceptions.
-   *
+   * Tests the conditions to see if the step should be executed. If not, it simply returns. If so,
+   * executes the request against the resource handler. See {@link
+   * PSModifyStep#execute(PSExecutionData) super.execute()} for a description of the parameters and
+   * exceptions.
    */
   public void execute(PSExecutionData data)
       throws PSInternalRequestCallException,
@@ -76,8 +73,8 @@ public class PSConditionalModifyStep extends PSUpdateStep {
   }
 
   /**
-   * A conditional evalutator used to determine if this step is to be executed.
-   * Initialized in the constructor.
+   * A conditional evalutator used to determine if this step is to be executed. Initialized in the
+   * constructor.
    */
   private PSConditionalEvaluator m_conditions = null;
 }

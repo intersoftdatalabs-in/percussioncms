@@ -42,28 +42,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Class to handle packaging and deploying a variant definition.
- */
+/** Class to handle packaging and deploying a variant definition. */
 public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSVariantDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
     super(def, dependencyMap);
   }
 
-  /**
-   */
+  /** */
   private void init() {
     if (m_assemblyHelper == null) m_assemblyHelper = new PSAssemblyServiceHelper();
   }
@@ -98,9 +92,9 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Utility method to find the Variant by a given guid(as a STRINGGGGGG)
+   *
    * @param depId the guid
    * @return <code>null</code> if Variant is not found
-   *
    */
   protected static PSAssemblyTemplate findVariantByDependencyID(String depId, boolean loadSlots) {
     return PSTemplateDefDependencyHandler.findTemplateByDependencyID(depId, loadSlots);
@@ -108,6 +102,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Transform any IdTypes and ids in Bindings .
+   *
    * @param t the template never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @param dep the dependency never <code>null</code>
@@ -126,6 +121,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Given the variant id, get the ContentType Deps
+   *
    * @param tok may not be <code>null</code>
    * @param tmp the template may not be <code>null</code>
    * @return List of Dependencies of TEMPLATE type
@@ -151,6 +147,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Given the variant id, figure out the slot deps
+   *
    * @param tok may not be <code>null</code>
    * @param tmp may not be <code>null</code>
    * @return List of Dependencies of SLOT type
@@ -210,16 +207,16 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Slot</li>
-   * <li>ContentTyp</li>
+   *   <li>Slot
+   *   <li>ContentTyp
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator getChildTypes() {
@@ -314,20 +311,13 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
     addTransactionLogEntryByGuidType(dep, ctx, PSTypeEnum.TEMPLATE, isNew);
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_VARIANT_DEF;
 
-  /**
-   * Da assembly Service Helper
-   */
+  /** Da assembly Service Helper */
   private PSAssemblyServiceHelper m_assemblyHelper = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

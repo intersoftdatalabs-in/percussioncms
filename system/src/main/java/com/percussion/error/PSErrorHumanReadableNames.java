@@ -20,57 +20,41 @@ import com.percussion.log.PSLogError;
 import com.percussion.util.PSBijectionMap;
 import java.util.Enumeration;
 
-/**
- *   A static one-to-one mapping from error classes to human readable names
- *   and vice-versa.
- */
+/** A static one-to-one mapping from error classes to human readable names and vice-versa. */
 // REFACTORED: CP-JAVA11
 public class PSErrorHumanReadableNames {
-  /**
-   *   Get the human readable name for an error class, given the name
-   */
+  /** Get the human readable name for an error class, given the name */
   public static String getHumanReadableName(String errorClassName) throws ClassNotFoundException {
     lazyInit();
     return (String) ms_errorNames.getValue(Class.forName(errorClassName));
   }
 
-  /**
-   *   Get the human readable name for an error class
-   */
+  /** Get the human readable name for an error class */
   public static String getHumanReadableName(Class<?> errorClass) {
     lazyInit();
     return (String) ms_errorNames.getValue(errorClass);
   }
 
-  /**
-   *   Get the human readable name for this error instance's class
-   */
+  /** Get the human readable name for this error instance's class */
   public static String getHumanReadableName(PSLogError error) {
     lazyInit();
     return (String) ms_errorNames.getValue(error.getClass());
   }
 
-  /**
-   *   Given a human readable name, get the error class associated
-   *   with it
-   */
+  /** Given a human readable name, get the error class associated with it */
   public static Class<?> getErrorClass(String humanReadableName) {
     lazyInit();
     return (Class<?>) ms_errorNames.getKey(humanReadableName);
   }
 
-  /**
-   *   Get an Enumeration of all the human readable names
-   */
+  /** Get an Enumeration of all the human readable names */
   @SuppressWarnings("unchecked")
   public static Enumeration<String> getHumanReadableNames() {
     lazyInit();
     return (Enumeration<String>) ms_errorNames.values();
   }
 
-  /**
-   *   Set up the mapping if it isn't already set up
-   */
+  /** Set up the mapping if it isn't already set up */
   protected static void lazyInit() {
     /* To improve performance, we don't make the lazyInit() method
      * synchronized. This means that we have to be careful about

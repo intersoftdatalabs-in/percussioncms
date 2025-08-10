@@ -48,12 +48,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Service implementation for comment operations.
+ *
  * @author erikserating
  */
 public class PSCommentsService implements IPSCommentsService {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   public static final Logger log = LogManager.getLogger(PSCommentsService.class);
 
   private IPSCommentsDao dao;
@@ -66,9 +65,7 @@ public class PSCommentsService implements IPSCommentsService {
     this.dao = dao;
   }
 
-  /**
-   * Map to get the PSComment fields given a SORTBY value.
-   */
+  /** Map to get the PSComment fields given a SORTBY value. */
   public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING =
       new HashMap<PSCommentSort.SORTBY, String>() {
         {
@@ -78,10 +75,7 @@ public class PSCommentsService implements IPSCommentsService {
         }
       };
 
-  /**
-   * The amount of minutes during the ones a comment recently made will remain
-   * visible.
-   */
+  /** The amount of minutes during the ones a comment recently made will remain visible. */
   public static final int AMOUNT_MINUTES_COMMENT_VISIBLE = 1;
 
   private static PSProfanityFilter profanityFilter = new PSProfanityFilter();
@@ -184,8 +178,8 @@ public class PSCommentsService implements IPSCommentsService {
   }
 
   /**
-   * Moderate the comments with the given IDs and approval state.
-   * Notifies listeners of changes in comments so that cache regions can be flushed.
+   * Moderate the comments with the given IDs and approval state. Notifies listeners of changes in
+   * comments so that cache regions can be flushed.
    *
    * @param commentIds A list of comment IDs to moderate.
    * @param newApprovalState The new approval state for the given comments.
@@ -291,6 +285,7 @@ public class PSCommentsService implements IPSCommentsService {
 
   /**
    * Mark comment as viewed by moderator.
+   *
    * @param comment
    * @throws Exception
    */
@@ -302,8 +297,8 @@ public class PSCommentsService implements IPSCommentsService {
   }
 
   /**
-   * Get a page summary list (the ones with comments) according the site and
-   * paging information (maxResult and startIndex).
+   * Get a page summary list (the ones with comments) according the site and paging information
+   * (maxResult and startIndex).
    *
    * @param site The site of the comments.
    * @param maxResults The maximum number of pages to return.
@@ -381,8 +376,8 @@ public class PSCommentsService implements IPSCommentsService {
   }
 
   /**
-   * Given a list of Object arrays with information of a custom HQL query,
-   * creates a list of PSPageSummary objects.
+   * Given a list of Object arrays with information of a custom HQL query, creates a list of
+   * PSPageSummary objects.
    *
    * @param pagePathSummaryQuery page info object.
    * @return A List of PSPageSummary objects.
@@ -488,9 +483,7 @@ public class PSCommentsService implements IPSCommentsService {
     if (listeners.contains(listener)) listeners.remove(listener);
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   private void fireDataChangedEvent(Set<String> sites) {
     if (sites == null || sites.size() == 0) {
       return;
@@ -501,9 +494,7 @@ public class PSCommentsService implements IPSCommentsService {
     }
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   private void fireDataChangeRequestedEvent(Set<String> sites) {
     if (sites == null || sites.size() == 0) {
       return;
@@ -555,11 +546,10 @@ public class PSCommentsService implements IPSCommentsService {
 }
 
 /**
- * Small class to represent a real pagepath (not the lowercased one) and the
- * amount of approved and unapproved comments posted there.
+ * Small class to represent a real pagepath (not the lowercased one) and the amount of approved and
+ * unapproved comments posted there.
  *
  * @author miltonpividori
- *
  */
 class CommentCount {
   String pagepath;

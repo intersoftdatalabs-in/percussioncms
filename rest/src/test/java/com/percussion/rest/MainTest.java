@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,106 +17,115 @@
 
 package com.percussion.rest;
 
+import static junit.framework.TestCase.assertTrue;
+
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.percussion.rest.errors.RestExceptionMapper;
 import com.percussion.utils.testing.PSTestNetUtils;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import javax.ws.rs.Path;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import org.apache.cxf.bus.spring.SpringBus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.spring.SpringResourceFactory;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+public class MainTest extends AbstractJUnit4SpringContextTests {
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+  public static final String ENDPOINT_HOST = "http://127.0.0.1";
+  public static final String ENDPOINT_PATH = "/rest";
 
-public class MainTest {
+  public WebTarget target(String address) {
 
-    public static final String ENDPOINT_HOST = "http://127.0.0.1";
-    public static final String ENDPOINT_PATH = "/rest";
+    ClientBuilder builder = ClientBuilder.newBuilder();
 
-    public WebTarget target(String address) {
-        var builder = ClientBuilder.newBuilder();
-        var endpoint = ENDPOINT_HOST + ":" + ContextConfiguration.port + ENDPOINT_PATH;
-        return builder.build()
-                .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
-                .target(endpoint).path(address);
+    String endpoint = MainTest.ENDPOINT_HOST + ":" + ContextConfiguration.port + ENDPOINT_PATH;
+    WebTarget target =
+        builder
+            .build()
+            .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
+            .target(endpoint)
+            .path(address);
+
+    return target;
+  }
+
+  @BeforeClass
+  public static void initialize() throws Exception {}
+
+  @Test
+  public void testContextLoaded() {
+    assertTrue(true);
+  }
+
+  @Configuration
+  @ImportResource({"classpath:META-INF/cxf/cxf.xml"})
+  @ComponentScan(basePackages = {"com.percussion.rest"})
+  public static class ContextConfiguration {
+
+    public static int port;
+
+    @Autowired private ApplicationContext ctx;
+
+    @Autowired private JacksonJsonProvider jacksonProvider;
+
+    @Autowired private JacksonContextResolver contextResolver;
+
+    @Bean
+    public JacksonJsonProvider getJacksonJsonProvider() {
+      return new JacksonJsonProvider();
     }
 
-    @BeforeEach All
-    public static void initialize() throws Exception {
-        // No-op for now
+    @Bean
+    public JacksonContextResolver getContextResolver() {
+      return new JacksonContextResolver();
     }
 
-    @Test
-    public void testContextLoaded() {
-        assertTrue(true);
-    }
+    @Bean
+    public Server getServer() {
 
-    @Configuration
-    @ImportResource({"classpath:META-INF/cxf/cxf.xml"})
-    @ComponentScan(basePackages = {"com.percussion.rest"})
-    public static class ContextConfiguration {
-
-        public static int port;
-
-        @Autowired
-        private ApplicationContext ctx;
-
-        @Autowired
-        private JacksonJsonProvider jacksonProvider;
-
-        @Autowired
-        private JacksonContextResolver contextResolver;
-
-        @Bean
-        public JacksonJsonProvider getJacksonJsonProvider() {
-            return new JacksonJsonProvider();
+      LinkedList<ResourceProvider> resourceProviders = new LinkedList<>();
+      for (String beanName : ctx.getBeanDefinitionNames()) {
+        if (ctx.findAnnotationOnBean(beanName, Path.class) != null) {
+          SpringResourceFactory factory = new SpringResourceFactory(beanName);
+          factory.setApplicationContext(ctx);
+          resourceProviders.add(factory);
         }
+      }
+      Map<Object, Object> extensionMap = new HashMap<>();
+      extensionMap.put("json", "application/json");
+      extensionMap.put("xml", "application/xml");
 
-        @Bean
-        public JacksonContextResolver getContextResolver() {
-            return new JacksonContextResolver();
-        }
-
-        @Bean
-        public Server getServer() {
-            var resourceProviders = new LinkedList<ResourceProvider>();
-            for (var beanName : ctx.getBeanDefinitionNames()) {
-                if (ctx.findAnnotationOnBean(beanName, Path.class) != null) {
-                    var factory = new SpringResourceFactory(beanName);
-                    factory.setApplicationContext(ctx);
-                    resourceProviders.add(factory);
-                }
-            }
-            Map<Object, Object> extensionMap = new HashMap<>();
-            extensionMap.put("json", "application/json");
-            extensionMap.put("xml", "application/xml");
-
-            var factory = new JAXRSServerFactoryBean();
-            port = PSTestNetUtils.findFreePort();
-            var exceptionMapper = new RestExceptionMapper();
-            var endpoint = ENDPOINT_HOST + ":" + port + ENDPOINT_PATH;
-            factory.setExtensionMappings(extensionMap);
-            factory.setBus(ctx.getBean(SpringBus.class));
-            factory.setProviders(Arrays.asList(exceptionMapper, jacksonProvider, contextResolver));
-            factory.setResourceProviders(resourceProviders);
-            factory.setAddress(endpoint);
-            return factory.create();
-        }
+      final JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
+      port = PSTestNetUtils.findFreePort();
+      RestExceptionMapper exceptionMapper = new RestExceptionMapper();
+      String endpoint = MainTest.ENDPOINT_HOST + ":" + port + ENDPOINT_PATH;
+      factory.setExtensionMappings(extensionMap);
+      factory.setBus(ctx.getBean(SpringBus.class));
+      factory.setProviders(Arrays.asList(exceptionMapper, jacksonProvider, contextResolver));
+      factory.setResourceProviders(resourceProviders);
+      factory.setAddress(endpoint);
+      return factory.create();
     }
+  }
 }

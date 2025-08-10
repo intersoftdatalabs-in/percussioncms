@@ -43,9 +43,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Sets the field value of a content editor. If there is any validation error
- * while saving the item, returns a JSON object with name as validationError and
- * value as actual validation error.
+ * Sets the field value of a content editor. If there is any validation error while saving the item,
+ * returns a JSON object with name as validationError and value as actual validation error.
  */
 public class PSSetContentEditorFieldValueAction extends PSAAActionBase {
   // see interface for more detail
@@ -88,8 +87,9 @@ public class PSSetContentEditorFieldValueAction extends PSAAActionBase {
   }
 
   /**
-   * Utility method to parse the supplied PSErrorResultsException for actual
-   * validation exception and create a response using that.
+   * Utility method to parse the supplied PSErrorResultsException for actual validation exception
+   * and create a response using that.
+   *
    * @param e assumed not <code>null</code>
    * @return PSActionResponse constructed from the error string.
    * @throws PSAAClientActionException in case of JSON exception, never happen.

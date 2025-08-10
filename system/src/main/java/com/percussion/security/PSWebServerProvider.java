@@ -30,16 +30,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The PSWebServerProvider class is used to access the security services
- * provided by the web server. This does not actually cause the web server to
- * authenticate users, etc. It merely checks that the user authenticated through
- * the web server, and what their credentials are. In certain cases, such as SSL
- * authentication, attributes are defined for the certificate subject and
- * issuer.
- * <p>
- * This must check the various CGI variables, as each web server has its own
- * storage mechanism for the authentication info. The authentication schemes we
- * currently know about are: <TABLE BORDER="1">
+ * The PSWebServerProvider class is used to access the security services provided by the web server.
+ * This does not actually cause the web server to authenticate users, etc. It merely checks that the
+ * user authenticated through the web server, and what their credentials are. In certain cases, such
+ * as SSL authentication, attributes are defined for the certificate subject and issuer.
+ *
+ * <p>This must check the various CGI variables, as each web server has its own storage mechanism
+ * for the authentication info. The authentication schemes we currently know about are:
+ *
+ * <TABLE BORDER="1">
  * <TR>
  * <TH>Web Server</TH>
  * <TH>Authentication Type</TH>
@@ -73,9 +72,7 @@ import org.apache.commons.lang.StringUtils;
  * @since 1.0
  */
 public class PSWebServerProvider extends PSSecurityProvider {
-  /**
-   * Construct an instance of this provider.
-   */
+  /** Construct an instance of this provider. */
   public PSWebServerProvider(Properties props, String providerInstance) {
     super(SP_NAME, providerInstance);
     m_properties = props;
@@ -120,17 +117,12 @@ public class PSWebServerProvider extends PSSecurityProvider {
   }
 
   /**
-   * Performs the authentication given the callback information. Package access
-   * for unit testing purposes only.
+   * Performs the authentication given the callback information. Package access for unit testing
+   * purposes only.
    *
-   * @param remoteUserName The name of the remote user if known, may be
-   * <code>null</code> or empty.
-   *
-   * @param headers The request headers, never <code>null</code>, may be
-   * empty.
-   *
+   * @param remoteUserName The name of the remote user if known, may be <code>null</code> or empty.
+   * @param headers The request headers, never <code>null</code>, may be empty.
    * @return The authenticated user entry.
-   *
    * @throws PSAuthenticationFailedException
    */
   PSUserEntry authenticate(String remoteUserName, Map<String, String> headers)
@@ -206,7 +198,9 @@ public class PSWebServerProvider extends PSSecurityProvider {
     return entry;
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public IPSSecurityProviderMetaData getMetaData() {
     if (m_metaData == null) m_metaData = new PSWebServerProviderMetaData(this);
 
@@ -214,17 +208,15 @@ public class PSWebServerProvider extends PSSecurityProvider {
   }
 
   /**
-   * Tokenize the certificate definition into attributes. All attributes are
-   * stored in lower case to ease locating them later. The attribute header
-   * which is specified will also be converted to lower case.
+   * Tokenize the certificate definition into attributes. All attributes are stored in lower case to
+   * ease locating them later. The attribute header which is specified will also be converted to
+   * lower case.
    *
-   * @param attribHeader the header to use when creating the attribute. For
-   * instance, use "client/" for client certificates, "ca/" for certificate
-   * authorities, etc., may be <code>null</code> or empty.
-   * @param cert the certificate definition string, may be <code>null</code>
-   * or empty.
-   * @param attribs the object to store the attributes in, may be
-   * <code>null</code>.
+   * @param attribHeader the header to use when creating the attribute. For instance, use "client/"
+   *     for client certificates, "ca/" for certificate authorities, etc., may be <code>null</code>
+   *     or empty.
+   * @param cert the certificate definition string, may be <code>null</code> or empty.
+   * @param attribs the object to store the attributes in, may be <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public static void parseCertificateString(
@@ -252,8 +244,7 @@ public class PSWebServerProvider extends PSSecurityProvider {
    * Get the property for the supplied key.
    *
    * @param key the property key, may be <code>null</code> or empty.
-   * @return the property found for the supplied key, <code>null</code> if
-   * not found.
+   * @return the property found for the supplied key, <code>null</code> if not found.
    */
   public String getProperty(String key) {
     if (key == null) return null;
@@ -261,41 +252,27 @@ public class PSWebServerProvider extends PSSecurityProvider {
     return m_properties.getProperty(key);
   }
 
-  /**
-   * The internal name of this security provider.
-   */
+  /** The internal name of this security provider. */
   public static final String SP_NAME = "WebServer";
 
-  /**
-   * The property name used to store the HTTP header name used for
-   * authenticated users.
-   */
+  /** The property name used to store the HTTP header name used for authenticated users. */
   public static final String AUTHENTICATED_USER_HEADER = "AuthenticatedUserHeader";
 
-  /**
-   * The property name used to store the HTTP header name used for user role
-   * lists.
-   */
+  /** The property name used to store the HTTP header name used for user role lists. */
   public static final String USER_ROLE_LIST_HEADER = "UserRoleListHeader";
 
-  /**
-   * The property name used to store the role list delimiter.
-   */
+  /** The property name used to store the role list delimiter. */
   public static final String ROLE_LIST_DELIMITER = "RoleListDelimiter";
 
-  /**
-   * The default roles list delimiter used.
-   */
+  /** The default roles list delimiter used. */
   public static final String DELIMITER = ";";
 
-  /**
-   * The attribute name for the Rhythmyx session.
-   */
+  /** The attribute name for the Rhythmyx session. */
   public static final String RX_SESSION = "RxSession";
 
   /**
-   * The web server security provider properties. Initialized in the
-   * constructor, may be <code>null</code> or empty.
+   * The web server security provider properties. Initialized in the constructor, may be <code>null
+   * </code> or empty.
    */
   private Properties m_properties = null;
 }

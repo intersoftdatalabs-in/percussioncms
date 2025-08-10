@@ -29,15 +29,14 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This is the runtime representation of the PSUrlRequest object. It is a
- * compact form that can generate a result based on the execution data of a
- * request. The URL is generated one of 2 ways: either via a UDF or from the
- * pieces in the replacement value used to create this extractor.
+ * This is the runtime representation of the PSUrlRequest object. It is a compact form that can
+ * generate a result based on the execution data of a request. The URL is generated one of 2 ways:
+ * either via a UDF or from the pieces in the replacement value used to create this extractor.
  */
 public class PSUrlRequestExtractor extends PSDataExtractor {
   /**
-   * Creates an efficient representation of the supplied request definition
-   * that can be executed at runtime.
+   * Creates an efficient representation of the supplied request definition that can be executed at
+   * runtime.
    *
    * @param req The definition used to create this object. Never <code>null
    *    </code>.
@@ -71,17 +70,14 @@ public class PSUrlRequestExtractor extends PSDataExtractor {
   }
 
   /**
-   * Calculates the value as defined by the replacement value based on the
-   * supplied data. If it is null, the defValue object is returned.
+   * Calculates the value as defined by the replacement value based on the supplied data. If it is
+   * null, the defValue object is returned.
    *
    * @param data The context during request processing. Never <code>null
    *    </code>.
-   *
-   * @param defValue If the calculated value comes up empty, this value is
-   *    returned instead. May be <code>null</code>.
-   *
-   * @return The calculated url as a String, or the default value if the
-   *    calculated url is empty.
+   * @param defValue If the calculated value comes up empty, this value is returned instead. May be
+   *     <code>null</code>.
+   * @return The calculated url as a String, or the default value if the calculated url is empty.
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     if (null == data) throw new IllegalArgumentException("data can't be null");
@@ -105,16 +101,12 @@ public class PSUrlRequestExtractor extends PSDataExtractor {
     return href;
   }
 
-  /**
-   * If not <code>null</code>, this extractor will be used to generate the
-   * URL.
-   */
+  /** If not <code>null</code>, this extractor will be used to generate the URL. */
   private IPSDataExtractor m_udfExtractor;
 
   /**
-   * If the UDF extractor is<code>null</code>, then the URL is built from
-   * the pieces in the replacment value. These are the extractors for the
-   * query params. May be <code>null</code>.
+   * If the UDF extractor is<code>null</code>, then the URL is built from the pieces in the
+   * replacment value. These are the extractors for the query params. May be <code>null</code>.
    */
   private IPSDataExtractor[] m_paramExtractors;
 }

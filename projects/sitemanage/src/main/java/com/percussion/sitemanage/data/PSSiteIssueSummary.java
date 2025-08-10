@@ -18,50 +18,49 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "issues")
 @JsonRootName("issues")
 public class PSSiteIssueSummary extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String refUri;
-    private String suggestion;
-    private String type;
-    private PSSiteIssueResource resource;
+  private String refUri;
+  private String suggestion;
+  private String type;
+  private PSSiteIssueResource resource;
 
-    public Optional<String> getRefUri() {
-        return Optional.ofNullable(refUri);
-    }
+  public Optional<String> getRefUri() {
+    return Optional.ofNullable(refUri);
+  }
 
-    public void setRefUri(String refUri) {
-        this.refUri = refUri;
-    }
+  public void setRefUri(String refUri) {
+    this.refUri = refUri;
+  }
 
-    public Optional<String> getSuggestion() {
-        return Optional.ofNullable(suggestion);
-    }
+  public Optional<String> getSuggestion() {
+    return Optional.ofNullable(suggestion);
+  }
 
-    public void setSuggestion(String suggestion) {
-        this.suggestion = suggestion;
-    }
+  public void setSuggestion(String suggestion) {
+    this.suggestion = suggestion;
+  }
 
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public Optional<PSSiteIssueResource> getResource() {
-        return Optional.ofNullable(resource);
-    }
+  public Optional<PSSiteIssueResource> getResource() {
+    return Optional.ofNullable(resource);
+  }
 
-    public void setResource(PSSiteIssueResource resource) {
-        this.resource = resource;
-    }
+  public void setResource(PSSiteIssueResource resource) {
+    this.resource = resource;
+  }
 }

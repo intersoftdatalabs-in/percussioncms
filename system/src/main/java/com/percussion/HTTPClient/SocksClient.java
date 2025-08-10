@@ -27,23 +27,16 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 /**
- * This class implements a SOCKS Client. Supports both versions 4 and 5.
- * GSSAPI however is not yet implemented.
- * <P>Usage is as follows: somewhere in the initialization code (and before
- * the first socket creation call) create a SocksClient instance. Then replace
- * each socket creation call
+ * This class implements a SOCKS Client. Supports both versions 4 and 5. GSSAPI however is not yet
+ * implemented.
  *
- *     <code>sock = new Socket(host, port);</code>
+ * <p>Usage is as follows: somewhere in the initialization code (and before the first socket
+ * creation call) create a SocksClient instance. Then replace each socket creation call <code>
+ * sock = new Socket(host, port);</code> with <code>sock = socks_client.getSocket(host, port);
+ * </code> (where <var>socks_client</var> is the above created SocksClient instance). That's all.
  *
- * with
- *
- *     <code>sock = socks_client.getSocket(host, port);</code>
- *
- * (where <var>socks_client</var> is the above created SocksClient instance).
- * That's all.
- *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class SocksClient {
@@ -68,12 +61,11 @@ class SocksClient {
   // Constructors
 
   /**
-   * Creates a new SOCKS Client using the specified host and port for
-   * the server. Will try to establish the SOCKS version used when
-   * establishing the first connection.
+   * Creates a new SOCKS Client using the specified host and port for the server. Will try to
+   * establish the SOCKS version used when establishing the first connection.
    *
-   * @param host  the host the SOCKS server is sitting on.
-   * @param port  the port the SOCKS server is listening on.
+   * @param host the host the SOCKS server is sitting on.
+   * @param port the port the SOCKS server is listening on.
    */
   SocksClient(String host, int port) {
     this.socks_host = host;
@@ -82,14 +74,12 @@ class SocksClient {
   }
 
   /**
-   * Creates a new SOCKS Client using the specified host and port for
-   * the server.
+   * Creates a new SOCKS Client using the specified host and port for the server.
    *
-   * @param host     the host the SOCKS server is sitting on.
-   * @param port     the port the SOCKS server is listening on.
-   * @param version  the version the SOCKS server is using.
-   * @exception SocksException if the version is invalid (Currently allowed
-   *                           are: 4 and 5).
+   * @param host the host the SOCKS server is sitting on.
+   * @param port the port the SOCKS server is listening on.
+   * @param version the version the SOCKS server is using.
+   * @exception SocksException if the version is invalid (Currently allowed are: 4 and 5).
    */
   SocksClient(String host, int port, int version) throws SocksException {
     this.socks_host = host;
@@ -103,11 +93,11 @@ class SocksClient {
   // Methods
 
   /**
-   * Initiates a connection to the socks server, does the startup
-   * protocol and returns a socket ready for talking.
+   * Initiates a connection to the socks server, does the startup protocol and returns a socket
+   * ready for talking.
    *
-   * @param host  the host you wish to connect to
-   * @param port  the port you wish to connect to
+   * @param host the host you wish to connect to
+   * @param port the port you wish to connect to
    * @return a Socket with a connection via socks to the desired host/port
    * @exception IOException if any socket operation fails
    */
@@ -116,11 +106,11 @@ class SocksClient {
   }
 
   /**
-   * Initiates a connection to the socks server, does the startup
-   * protocol and returns a socket ready for talking.
+   * Initiates a connection to the socks server, does the startup protocol and returns a socket
+   * ready for talking.
    *
-   * @param host      the host you wish to connect to
-   * @param port      the port you wish to connect to
+   * @param host the host you wish to connect to
+   * @param port the port you wish to connect to
    * @param localAddr the local address to bind to
    * @param localPort the local port to bind to
    * @return a Socket with a connection via socks to the desired host/port
@@ -184,11 +174,10 @@ class SocksClient {
   }
 
   /**
-   * Connect to the host/port, trying all addresses assciated with that
-   * host.
+   * Connect to the host/port, trying all addresses assciated with that host.
    *
-   * @param host      the host you wish to connect to
-   * @param port      the port you wish to connect to
+   * @param host the host you wish to connect to
+   * @param port the port you wish to connect to
    * @param localAddr the local address to bind to
    * @param localPort the local port to bind to
    * @return the Socket
@@ -213,9 +202,7 @@ class SocksClient {
   private boolean v4A = false; // SOCKS version 4A
   private byte[] user = null;
 
-  /**
-   * Does the protocol exchange for a version 4 SOCKS connection.
-   */
+  /** Does the protocol exchange for a version 4 SOCKS connection. */
   private void v4ProtExchg(InputStream inp, OutputStream out, String host, int port)
       throws SocksException, IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream(100);
@@ -306,10 +293,7 @@ class SocksClient {
     while (tot < skip.length && (rcvd = inp.read(skip, 0, skip.length - tot)) != -1) tot += rcvd;
   }
 
-  /**
-   * Does the protocol exchange for a version 5 SOCKS connection.
-   * (rfc-1928)
-   */
+  /** Does the protocol exchange for a version 5 SOCKS connection. (rfc-1928) */
   private void v5ProtExchg(InputStream inp, OutputStream out, String host, int port)
       throws SocksException, IOException {
     int version;
@@ -431,11 +415,10 @@ class SocksClient {
   }
 
   /**
-   * Negotiates authentication using the gssapi protocol
-   * (draft-ietf-aft-gssapi-02).
+   * Negotiates authentication using the gssapi protocol (draft-ietf-aft-gssapi-02).
    *
-   * NOTE: this is not implemented currently. Will have to wait till
-   *       Java provides the necessary access to the system routines.
+   * <p>NOTE: this is not implemented currently. Will have to wait till Java provides the necessary
+   * access to the system routines.
    */
   private void negotiate_gssapi(InputStream inp, OutputStream out)
       throws SocksException, IOException {
@@ -443,13 +426,10 @@ class SocksClient {
   }
 
   /**
-   * Negotiates authentication using the username/password protocol
-   * (rfc-1929). The username and password should previously have been
-   * stored using the scheme "SOCKS5" and realm "USER/PASS"; e.g.
-   * AuthorizationInfo.addAuthorization(socks_host, socks_port, "SOCKS5",
-   *					  "USER/PASS", null,
-   *					  { new NVPair(username, password) });
-   *
+   * Negotiates authentication using the username/password protocol (rfc-1929). The username and
+   * password should previously have been stored using the scheme "SOCKS5" and realm "USER/PASS";
+   * e.g. AuthorizationInfo.addAuthorization(socks_host, socks_port, "SOCKS5", "USER/PASS", null, {
+   * new NVPair(username, password) });
    */
   private void negotiate_userpwd(InputStream inp, OutputStream out)
       throws SocksException, IOException {
@@ -513,6 +493,7 @@ class SocksClient {
 
   /**
    * produces a string.
+   *
    * @return a string containing the host and port of the socks server
    */
   public String toString() {

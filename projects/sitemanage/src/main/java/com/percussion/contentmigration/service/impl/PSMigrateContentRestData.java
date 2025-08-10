@@ -18,62 +18,56 @@
 package com.percussion.contentmigration.service.impl;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-/**
- * // REFACTORED: CP-JAVA11
- */
+/** // REFACTORED: CP-JAVA11 */
 @XmlRootElement(name = "MigrateContentRestData")
 public class PSMigrateContentRestData {
-    @NotBlank
-    private String templateId;
-    private String refPageId;
-    private String siteName;
-    private String sourceType;
-    @NotNull
-    private List<String> pageIds;
+  @NotBlank private String templateId;
+  private String refPageId;
+  private String siteName;
+  private String sourceType;
+  @NotNull private List<String> pageIds;
 
-    public String getTemplateId() {
-        return templateId;
-    }
+  public String getTemplateId() {
+    return templateId;
+  }
 
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
-    }
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
+  }
 
-    public String getRefPageId() {
-        return refPageId;
-    }
+  public String getRefPageId() {
+    return refPageId;
+  }
 
-    public void setRefPageId(String refPageId) {
-        this.refPageId = refPageId;
-    }
+  public void setRefPageId(String refPageId) {
+    this.refPageId = refPageId;
+  }
 
-    public List<String> getPageIds() {
-        return pageIds;
-    }
+  public List<String> getPageIds() {
+    return pageIds;
+  }
 
-    public void setPageIds(List<String> pageIds) {
-        this.pageIds = pageIds;
-    }
+  public void setPageIds(List<String> pageIds) {
+    this.pageIds = pageIds;
+  }
 
-    public String getSiteName() {
-        return siteName;
-    }
+  public String getSiteName() {
+    return siteName;
+  }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public String getSourceType() {
-        return sourceType;
-    }
+  public String getSourceType() {
+    return sourceType;
+  }
 
-    public void setSourceType(String sourceType) {
-        this.sourceType = sourceType;
-    }
+  public void setSourceType(String sourceType) {
+    this.sourceType = sourceType;
+  }
 }

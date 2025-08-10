@@ -24,12 +24,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSTableCatalogHandler class implements cataloging of
- * tables. This request type is used to locate the tables in the
- * specified back-end database.
- * <p>
- * Table catalog requests are sent to the server using the
- * PSXTableCatalog XML document. Its definition is as follows:
+ * The PSTableCatalogHandler class implements cataloging of tables. This request type is used to
+ * locate the tables in the specified back-end database.
+ *
+ * <p>Table catalog requests are sent to the server using the PSXTableCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXTableCatalog (datasource?, filter?, tableType*)&gt;
  *
@@ -52,8 +52,8 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableType       (#PCDATA)&gt;
  * </pre>
  *
- * The PSXTableCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXTableCatalogResults XML document is sent as the response. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXTableCatalogResults (datasource, Table*)&gt;
  *
@@ -76,16 +76,15 @@ import org.w3c.dom.Element;
  * </pre>
  */
 public class PSTableCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSTableCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -113,11 +112,8 @@ public class PSTableCatalogHandler implements IPSCatalogHandler {
    *           for a list of supported types.</td></tr>
    * </table>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

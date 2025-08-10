@@ -26,9 +26,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Returns the content type of the content item id passed in.
- * Expects one parameter sys_contentid which is the content id of
- * the content item in question.
+ * Returns the content type of the content item id passed in. Expects one parameter sys_contentid
+ * which is the content id of the content item in question.
  */
 public class PSGetContentTypeByContentIdAction extends PSAAActionBase {
 

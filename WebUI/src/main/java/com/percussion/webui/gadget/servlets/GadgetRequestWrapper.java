@@ -79,6 +79,7 @@ public final class GadgetRequestWrapper extends HttpServletRequestWrapper {
 
   /**
    * Returns the cached request body for repeated access.
+   *
    * @return request body as String
    */
   public String getBody() {

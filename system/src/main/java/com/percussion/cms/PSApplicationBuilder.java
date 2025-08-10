@@ -91,21 +91,16 @@ import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Document;
 
-/**
- * This class is used by server objects to build dynamic applications.
- */
+/** This class is used by server objects to build dynamic applications. */
 public class PSApplicationBuilder {
   /**
-   * Creates an application object with the specified name.  Name is not
-   * checked for uniqueness until the app is saved or run on the server.  The
-   * provided app's DBActionType field name and values, and Acl are copied from
-   * the provided app.
-   * The app is initially enabled.  It is recommended that this method be used
-   * when creating an app.
+   * Creates an application object with the specified name. Name is not checked for uniqueness until
+   * the app is saved or run on the server. The provided app's DBActionType field name and values,
+   * and Acl are copied from the provided app. The app is initially enabled. It is recommended that
+   * this method be used when creating an app.
    *
    * @param appName The name of the application, also used as the request root.
    * @param srcApp The app to copy default values from.
-   *
    * @return The app, never <code>null</code>.
    */
   public static PSApplication createApplication(String appName, PSApplication srcApp) {
@@ -151,23 +146,21 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates an empty application object with the specified name.  Name is not
-   * checked for uniqueness until the app is saved or run on the server.  The
-   * following defaults are set on the app:
+   * Creates an empty application object with the specified name. Name is not checked for uniqueness
+   * until the app is saved or run on the server. The following defaults are set on the app:
+   *
    * <ol>
-   * <li>The request type param name: {@link #REQUEST_TYPE_HTML_PARAMNAME}</li>
-   * <li>The request db action for query: {@link #REQUEST_TYPE_VALUE_QUERY}
-   * </li>
-   * <li>The request db action for update: {@link #REQUEST_TYPE_VALUE_UPDATE}
-   * </li>
-   * <li>The request db action for insert: {@link #REQUEST_TYPE_VALUE_INSERT}
-   * </li>
-   * <li>The request db action for delete: {@link #REQUEST_TYPE_VALUE_DELETE}
-   * </li>
-   * <li>Anonymous is added to the acl with full data access</li>
-   * <li>Default is added to the acl with full design and data access</li>
+   *   <li>The request type param name: {@link #REQUEST_TYPE_HTML_PARAMNAME}
+   *   <li>The request db action for query: {@link #REQUEST_TYPE_VALUE_QUERY}
+   *   <li>The request db action for update: {@link #REQUEST_TYPE_VALUE_UPDATE}
+   *   <li>The request db action for insert: {@link #REQUEST_TYPE_VALUE_INSERT}
+   *   <li>The request db action for delete: {@link #REQUEST_TYPE_VALUE_DELETE}
+   *   <li>Anonymous is added to the acl with full data access
+   *   <li>Default is added to the acl with full design and data access
    * </ol>
+   *
    * The app is initially enabled.
+   *
    * @param appName The name of the application, also used as the request root.
    * @return The app, never <code>null</code>.
    */
@@ -204,17 +197,14 @@ public class PSApplicationBuilder {
    * Adds the specified acl entry to the app.
    *
    * @param app The PSApplication object to add the entry to.
-   * @param name The name of the user, group or role to associate with this
-   * entry.
-   * @param type The type of entry this represents (use the appropriate
-   * PSAclEntry.ACE_TYPE_xxx flag).
-   * @param accessLevel The access level for this entry (<code>OR</code>
-   * together the necessary PSAclEntry.AACE_xxx_xxx flags).
-   *
-   * @return The AclEntry that has been created and added to the app.  The
-   * entry returned may then be further modified.  It is not necessary to
-   * set this entry back into the app after making changes to it.
-   *
+   * @param name The name of the user, group or role to associate with this entry.
+   * @param type The type of entry this represents (use the appropriate PSAclEntry.ACE_TYPE_xxx
+   *     flag).
+   * @param accessLevel The access level for this entry (<code>OR</code> together the necessary
+   *     PSAclEntry.AACE_xxx_xxx flags).
+   * @return The AclEntry that has been created and added to the app. The entry returned may then be
+   *     further modified. It is not necessary to set this entry back into the app after making
+   *     changes to it.
    * @see PSAclEntry
    */
   public static PSAclEntry addAclEntry(PSApplication app, String name, int type, int accessLevel) {
@@ -244,52 +234,43 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates and adds an update dataset based on the supplied content editor
-   * pipe.  Performs the following setps to create the dataset:
+   * Creates and adds an update dataset based on the supplied content editor pipe. Performs the
+   * following setps to create the dataset:
+   *
    * <ol>
-   * <li>Creates a dataset using the supplied name</li>
-   * <li>Creates a PageDataTank using a DTD that is constructed using
-   * the PSField.submitName of each field to be mapped written out to a temp
-   * file. The DBActionType field name is set to the provided xml field.</li>
-   * <li>Create a Pipe.</li>
-   * <li>Creates a backend datatank, adding each table from the provided
-   * PSTableSet collection that is referenced by a field in the display mapper.
-   * Uses the alias in the tableset's tablelocator to
-   * determine the driver and server from the backend credentials in the
-   * supplied app.  This means that both server and app credentials must have
-   * been added to the supplied application before making this call.
-   * Adds this to the pipe.</li>
-   * <li>Creates a DataMapper and adds fields from the provided PSFieldSet that
-   * are referenced in the provided display mapper,
-   * excluding any fields in any nested fieldsets.  The left side of the
-   * mapping will be the PSField.submitName converted to a PSParam replacement
-   * value, and the right side will be the PSField.locator, which is an
-   * IPSReplacementValue already.</li>
-   * <li>Creates a DataSynchronizer and adds the required key columns from
-   * each table. For a parent and child tables, adds contentId and revision as
-   * keys. For complex child tables, also adds sysId.</li>
-   * <li>Creates a requestor and adds it to the dataset.</li>
+   *   <li>Creates a dataset using the supplied name
+   *   <li>Creates a PageDataTank using a DTD that is constructed using the PSField.submitName of
+   *       each field to be mapped written out to a temp file. The DBActionType field name is set to
+   *       the provided xml field.
+   *   <li>Create a Pipe.
+   *   <li>Creates a backend datatank, adding each table from the provided PSTableSet collection
+   *       that is referenced by a field in the display mapper. Uses the alias in the tableset's
+   *       tablelocator to determine the driver and server from the backend credentials in the
+   *       supplied app. This means that both server and app credentials must have been added to the
+   *       supplied application before making this call. Adds this to the pipe.
+   *   <li>Creates a DataMapper and adds fields from the provided PSFieldSet that are referenced in
+   *       the provided display mapper, excluding any fields in any nested fieldsets. The left side
+   *       of the mapping will be the PSField.submitName converted to a PSParam replacement value,
+   *       and the right side will be the PSField.locator, which is an IPSReplacementValue already.
+   *   <li>Creates a DataSynchronizer and adds the required key columns from each table. For a
+   *       parent and child tables, adds contentId and revision as keys. For complex child tables,
+   *       also adds sysId.
+   *   <li>Creates a requestor and adds it to the dataset.
    * </ol>
    *
    * @param app The PSApplication object to add the resource to.
-   * @param requestName The name to use as both the resource name and the
-   * reqeust page name in the resource's requestor.  May not be
-   * <code>null</code>.
-   * @param ce The content editor.  May not be <code>null</code>.
+   * @param requestName The name to use as both the resource name and the reqeust page name in the
+   *     resource's requestor. May not be <code>null</code>.
+   * @param ce The content editor. May not be <code>null</code>.
    * @param mapper The display mapper to use. May be <code>null</code>.
-   * @param xmlActionTypeField The name of the xml field to get the db action
-   * type from.  May be <code>null</code>, in which case the default setting
-   * from the app is used.
-   * @param systemMappings List of mappings to add.  May be <code>
-   * null</code>.  All mappings should reference the contentstatus table
-   * specified in the system def.
-   * @param includeBinary If <code>true</code>, then any binary fields located
-   * in the field set are included in the mapper.  If <code>false</code>, they
-   * are not.  If no binary fields are in the fieldset, this parameter is
-   * ignored.
-   *
-   * @throws PSSystemValidationException if any objectstore objects are found to be
-   * invalid.
+   * @param xmlActionTypeField The name of the xml field to get the db action type from. May be
+   *     <code>null</code>, in which case the default setting from the app is used.
+   * @param systemMappings List of mappings to add. May be <code>
+   * null</code>. All mappings should reference the contentstatus table specified in the system def.
+   * @param includeBinary If <code>true</code>, then any binary fields located in the field set are
+   *     included in the mapper. If <code>false</code>, they are not. If no binary fields are in the
+   *     fieldset, this parameter is ignored.
+   * @throws PSSystemValidationException if any objectstore objects are found to be invalid.
    */
   public static void createUpdateDataset(
       PSApplication app,
@@ -312,19 +293,16 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates a dataset that only allows inserts.  This method's parameters are
-   * the same as <code>createUpdateDataSet()</code>, with the following
-   * exceptions:
+   * Creates a dataset that only allows inserts. This method's parameters are the same as <code>
+   * createUpdateDataSet()</code>, with the following exceptions:
+   *
    * <ol>
-   * <li>Binary fields are always included</li>
+   *   <li>Binary fields are always included
    * </ol>
    *
-   * @throws PSSystemValidationException if any objectstore objects are found to be
-   * invalid.
-   *
-   * @see #createUpdateDataset(PSApplication, String, PSContentEditor,
-   * PSDisplayMapper, String, PSDataMapper, boolean, int)
-   * createUpdateDataset()
+   * @throws PSSystemValidationException if any objectstore objects are found to be invalid.
+   * @see #createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   *     PSDataMapper, boolean, int) createUpdateDataset()
    */
   public static void createInsertDataset(
       PSApplication app,
@@ -339,15 +317,12 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates a dataset that only allows deletes.  This method's parameters are
-   * the same as <code>createInsertDataSet()</code>.
+   * Creates a dataset that only allows deletes. This method's parameters are the same as <code>
+   * createInsertDataSet()</code>.
    *
-   * @throws PSSystemValidationException if any objectstore objects are found to be
-   * invalid.
-   *
-   * @see #createInsertDataset(PSApplication, String, PSContentEditor,
-   * PSDisplayMapper, String, PSDataMapper)
-   * createInsertDataset()
+   * @throws PSSystemValidationException if any objectstore objects are found to be invalid.
+   * @see #createInsertDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   *     PSDataMapper) createInsertDataset()
    */
   public static void createDeleteDataset(
       PSApplication app,
@@ -362,19 +337,17 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor,
-   * PSDisplayMapper, String, PSDataMapper, boolean) createUpdateDataset()}
-   * but allows you to specify what actions (insert, update, or delete) are
-   * allowed.
+   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   * PSDataMapper, boolean) createUpdateDataset()} but allows you to specify what actions (insert,
+   * update, or delete) are allowed.
    *
-   * @param allowActions A flag indicating which actions to allow.  May be
-   * any of the following Or'd together:
-   * <ol>
-   * <li>{@link #FLAG_ALLOW_INSERTS}</li>
-   * <li>{@link #FLAG_ALLOW_UPDATES}</li>
-   * <li>{@link #FLAG_ALLOW_DELETES}</li>
-   * </ol>
-   *
+   * @param allowActions A flag indicating which actions to allow. May be any of the following Or'd
+   *     together:
+   *     <ol>
+   *       <li>{@link #FLAG_ALLOW_INSERTS}
+   *       <li>{@link #FLAG_ALLOW_UPDATES}
+   *       <li>{@link #FLAG_ALLOW_DELETES}
+   *     </ol>
    */
   public static void createUpdateDataset(
       PSApplication app,
@@ -399,14 +372,12 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor,
-   * PSDisplayMapper, String, PSDataMapper, boolean, int)
-   * createUpdateDataset()} but allows you to specify a Dtd to use.  The
-   * supplied Dtd must work with the supplied mappings - this is not validated
-   * by this method.
+   * Same as {@createUpdateDataset(PSApplication, String, PSContentEditor, PSDisplayMapper, String,
+   * PSDataMapper, boolean, int) createUpdateDataset()} but allows you to specify a Dtd to use. The
+   * supplied Dtd must work with the supplied mappings - this is not validated by this method.
    *
-   * @param dtd If supplied, will be used instead of building one dynamically.
-   * May be <code>null</code>, in which case one is built dynamically.
+   * @param dtd If supplied, will be used instead of building one dynamically. May be <code>null
+   *     </code>, in which case one is built dynamically.
    */
   public static void createUpdateDataset(
       PSApplication app,
@@ -723,77 +694,58 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates and adds a query dataset based on the supplied content editor
-   * pipe. The application root must be a unique name because a directory
-   * matching the application request root will be created by the method if
-   * it doesn't already exist. Cleanup of the approot directory is not
+   * Creates and adds a query dataset based on the supplied content editor pipe. The application
+   * root must be a unique name because a directory matching the application request root will be
+   * created by the method if it doesn't already exist. Cleanup of the approot directory is not
    * handled by this class.
-   * <p>
-   * Performs the following steps to create the dataset:
+   *
+   * <p>Performs the following steps to create the dataset:
+   *
    * <ol>
-   * <li>Creates a dataset using the supplied name</li>
-   * <li>Creates a PageDataTank using a DTD that is constructed using
-   * the PSField.submitName of each field to be mapped.</li>
-   * <li>Create a Pipe.</li>
-   * <li>Creates a backend datatank, adding each table from the provided
-   * PSTableSet collection. Uses the alias in the tableset's tablelocator to
-   * determine the driver and server from the backend credentials in the
-   * supplied app.  This means that both server and app credentials must have
-   * been added to the supplied application before making this call.
-   * Adds this to the pipe.</li>
-   * <li>Creates a DataMapper and adds all fields in the provided PSFieldSet.
-   * The left side of the
-   * mapping will be the PSField.locator and the right side will be the
-   * PSField.submitName converted to a PSParam XML document element. For
-   * fields whose type is binary, the field will not be added. Adds this to
-   * the pipe.</li>
-   * <li>Creates a Data selector and adds the required key columns from
-   * each table. For a parent and child tables, adds contentId and revision as
-   * keys. For complex child tables, also adds sysId.</li>
-   * <li>Joins all of the tables as needed. The main table (the one containing
-   *    the data represented by the display mapper) is joined to any other
-   *    table referenced by fields in the display mapper. At most, 1
-   *    system table and 0 or more content tables are allowed. The only child
-   *    content tables supported are for SDMP type children (which are edited
-   *    in their parent's row editor).</li>
+   *   <li>Creates a dataset using the supplied name
+   *   <li>Creates a PageDataTank using a DTD that is constructed using the PSField.submitName of
+   *       each field to be mapped.
+   *   <li>Create a Pipe.
+   *   <li>Creates a backend datatank, adding each table from the provided PSTableSet collection.
+   *       Uses the alias in the tableset's tablelocator to determine the driver and server from the
+   *       backend credentials in the supplied app. This means that both server and app credentials
+   *       must have been added to the supplied application before making this call. Adds this to
+   *       the pipe.
+   *   <li>Creates a DataMapper and adds all fields in the provided PSFieldSet. The left side of the
+   *       mapping will be the PSField.locator and the right side will be the PSField.submitName
+   *       converted to a PSParam XML document element. For fields whose type is binary, the field
+   *       will not be added. Adds this to the pipe.
+   *   <li>Creates a Data selector and adds the required key columns from each table. For a parent
+   *       and child tables, adds contentId and revision as keys. For complex child tables, also
+   *       adds sysId.
+   *   <li>Joins all of the tables as needed. The main table (the one containing the data
+   *       represented by the display mapper) is joined to any other table referenced by fields in
+   *       the display mapper. At most, 1 system table and 0 or more content tables are allowed. The
+   *       only child content tables supported are for SDMP type children (which are edited in their
+   *       parent's row editor).
    * </ol>
    *
    * @param app The PSApplication object to add the resource to.
-   *
    * @param ce The editor definition that will be used to create the resource.
-   *
-   * @param dispMapper The mapper for which the the query will be built. The
-   *    resulting resource will query all fields that have backend columns
-   *    as the locator.
-   *
-   * @param selectionKeys A set of pairs that are used to build the WHERE
-   *    clauses for this query. Each element must be a Map.Entry object.
-   *    The key of each pair should be the name of
-   *    a column in the table, while the value should be the name of the
-   *    html parameter from which the check will be made. Must have at least
-   *    one entry. The keys will also be included in the mapper so they can
-   *    be used if needed (or ignored if not needed).
-   *
-   * @param auxMappings Use this set of entries to add additional mappings if
-   *    you need something in the result set that isn't in the dispMapper
-   *    (for example, a system key that is only used for selection). A set of
-   *    Map.Entry objects. The key is the xml target as a String (w/o the
-   *    root), the value is the name of the column, as a String. Never <code>
-   *    null</code>. The column(s) will be added as members of the table
-   *    associated with the item.
-   *
-   * @param sortColumns Every column included in this list will be sorted
-   *    in ascending order, in the order they appear in the list. Never
-   *    <code>null</code>. May be empty. The column(s) will be added as
-   *    members of the table associated with the item. Each entry must be
-   *    a String.
-   *
-   * @return The request name of the dataset, never empty.  If the resulting
-   *    dataset's mapper would be empty, no dataset is created and
-   *    <code>null</code> is returned.
-   *
-   * @throws PSSystemValidationException If any errors in the definition are found
-   *    while building the dataset.
+   * @param dispMapper The mapper for which the the query will be built. The resulting resource will
+   *     query all fields that have backend columns as the locator.
+   * @param selectionKeys A set of pairs that are used to build the WHERE clauses for this query.
+   *     Each element must be a Map.Entry object. The key of each pair should be the name of a
+   *     column in the table, while the value should be the name of the html parameter from which
+   *     the check will be made. Must have at least one entry. The keys will also be included in the
+   *     mapper so they can be used if needed (or ignored if not needed).
+   * @param auxMappings Use this set of entries to add additional mappings if you need something in
+   *     the result set that isn't in the dispMapper (for example, a system key that is only used
+   *     for selection). A set of Map.Entry objects. The key is the xml target as a String (w/o the
+   *     root), the value is the name of the column, as a String. Never <code>
+   *    null</code>. The column(s) will be added as members of the table associated with the item.
+   * @param sortColumns Every column included in this list will be sorted in ascending order, in the
+   *     order they appear in the list. Never <code>null</code>. May be empty. The column(s) will be
+   *     added as members of the table associated with the item. Each entry must be a String.
+   * @return The request name of the dataset, never empty. If the resulting dataset's mapper would
+   *     be empty, no dataset is created and <code>null</code> is returned.
+   * @throws PSSystemValidationException If any errors in the definition are found while building
+   *     the dataset.
    */
   public static String createQueryDataset(
       PSApplication app,
@@ -1177,10 +1129,11 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Convenience method that passes <code>null</code> for the <code>dtd</code>
-   * parameter and <code>false</code> for isBinary.
-   * @see #createQueryDataset(PSApplication, PSDataMapper, Iterator, Iterator,
-   * PSDtdBuilder, boolean)
+   * Convenience method that passes <code>null</code> for the <code>dtd</code> parameter and <code>
+   * false</code> for isBinary.
+   *
+   * @see #createQueryDataset(PSApplication, PSDataMapper, Iterator, Iterator, PSDtdBuilder,
+   *     boolean)
    */
   public static String createQueryDataset(
       PSApplication app, PSDataMapper dataMapper, Iterator selectionKeys, Iterator sortCols)
@@ -1189,34 +1142,27 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates a simple query dataset from the provided datamapper.  Does not
-   * support multiple tables (joins) or binary fields.
+   * Creates a simple query dataset from the provided datamapper. Does not support multiple tables
+   * (joins) or binary fields.
    *
    * @param app The app to create the dataset in.
-   * @param dataMapper Mappings of XmlFields to PSBackendColumns. Other
-   * types of replacement values will be ignored.  The xmlFields should not
-   * contain the root as the dtd is dynamically created and the field's root
-   * in the mapping will be updated as the dataset is created.
-   * @param selectionKeys A set of pairs that are used to build the WHERE
-   *    clauses for this query. Each element must be a Map.Entry object.
-   *    The key of each pair should be the name of
-   *    a column in the table, while the value should be the name of the
-   *    html parameter from which the check will be made. Must have at least
-   *    one entry.
-   * @param sotrCols Iterator over one or more PSSortedColumns that the
-   * results should be sorted by, in the order that the sort should occur. All
-   * columns must be part of the mapper.  May be <code>null</code> if no sort
-   * is desired.
-   * @param dtd Optional dtdbuilder that will be used.  It is the caller's
-   * responsibility to ensure that the dtd will work with the supplied data
-   * mappings.  May be <code>null</code>.
-   * @param isBinary If <code>true</code>, the requestor will be set up to
-   * get a direct data stream to support a non-text query.  If <code>false
+   * @param dataMapper Mappings of XmlFields to PSBackendColumns. Other types of replacement values
+   *     will be ignored. The xmlFields should not contain the root as the dtd is dynamically
+   *     created and the field's root in the mapping will be updated as the dataset is created.
+   * @param selectionKeys A set of pairs that are used to build the WHERE clauses for this query.
+   *     Each element must be a Map.Entry object. The key of each pair should be the name of a
+   *     column in the table, while the value should be the name of the html parameter from which
+   *     the check will be made. Must have at least one entry.
+   * @param sotrCols Iterator over one or more PSSortedColumns that the results should be sorted by,
+   *     in the order that the sort should occur. All columns must be part of the mapper. May be
+   *     <code>null</code> if no sort is desired.
+   * @param dtd Optional dtdbuilder that will be used. It is the caller's responsibility to ensure
+   *     that the dtd will work with the supplied data mappings. May be <code>null</code>.
+   * @param isBinary If <code>true</code>, the requestor will be set up to get a direct data stream
+   *     to support a non-text query. If <code>false
    * </code>, this is not done.
-   *
-   * @return The name of the dataset, which is unique among all names from
-   * this method during a session.
-   *
+   * @return The name of the dataset, which is unique among all names from this method during a
+   *     session.
    * @throws PSSystemValidationException for any other errors.
    */
   public static String createQueryDataset(
@@ -1378,12 +1324,11 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Adds the supplied mapping to the supplied mapper in the correct position
-   * based on the group id of the mapping.
+   * Adds the supplied mapping to the supplied mapper in the correct position based on the group id
+   * of the mapping.
    *
    * @param mapper The container for the mapping. Assumed not <code>null
    *    </code>.
-   *
    * @param mapping The mapping to add to the mapper. Assumed not <code>null
    *    </code>.
    */
@@ -1404,15 +1349,13 @@ public class PSApplicationBuilder {
 
   /**
    * Writes the application to an XML file with a name of the form
-   * <p>dbg_<i>appname</i>.xml</p>
    *
-   * <p>
-   * The file is written to the Rx install directory.  It will be deleted
-   * when the Java Virtual Machine exits.
-   * </p>
+   * <p>dbg_<i>appname</i>.xml
    *
-   * @param app The application to store. If <code>null</code>, returns
-   *    immediately.
+   * <p>The file is written to the Rx install directory. It will be deleted when the Java Virtual
+   * Machine exits.
+   *
+   * @param app The application to store. If <code>null</code>, returns immediately.
    */
   public static void write(PSApplication app) {
     if (null == app) return;
@@ -1439,14 +1382,12 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates list of system mappings to set on app for inserts.  This will
-   * provide values for non-user settable system fields when a new item is
-   * inserted.
+   * Creates list of system mappings to set on app for inserts. This will provide values for
+   * non-user settable system fields when a new item is inserted.
    *
-   * @param ceHandler The content editor handler.  May not be <code>null
+   * @param ceHandler The content editor handler. May not be <code>null
    * </code>.
-   * @param ce The content editor definiton.  May not be <code>null</code>.
-   *
+   * @param ce The content editor definiton. May not be <code>null</code>.
    * @return ArrayList of system mappings, never <code>null</code>.
    */
   public static ArrayList<PSSystemMapping> getSystemInsertMappings(
@@ -1576,14 +1517,12 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Creates list of system mappings to set on app for updates.  This will
-   * provide values for non-user settable system fields when an item is
-   * updated.
+   * Creates list of system mappings to set on app for updates. This will provide values for
+   * non-user settable system fields when an item is updated.
    *
-   * @param ceHandler The content editor handler.  May not be <code>null
+   * @param ceHandler The content editor handler. May not be <code>null
    * </code>.
-   * @param ce The content editor definiton.  May not be <code>null</code>.
-   *
+   * @param ce The content editor definiton. May not be <code>null</code>.
    * @return ArrayList of system mappings, never <code>null</code>.
    */
   public static ArrayList<PSSystemMapping> getSystemUpdateMappings(
@@ -1622,10 +1561,9 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Returns an extension call containing a udf that will return the current
-   * datetime.
+   * Returns an extension call containing a udf that will return the current datetime.
    *
-   * @return The extension call.  Never <code>null</code>.
+   * @return The extension call. Never <code>null</code>.
    */
   private static PSExtensionCall getTodaysDateUdf() {
     // TODO: at some point we don't want hard coded udfs here
@@ -1642,16 +1580,13 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Initializes the data mappings for inserting or updating system fields
-   * in the content status table when creating or updating a content item and
-   * adds them to a data mapper.
+   * Initializes the data mappings for inserting or updating system fields in the content status
+   * table when creating or updating a content item and adds them to a data mapper.
    *
-   * @param mappings An iterator over PSSystemMapping objects.  The table in
-   * each mapping must be a system table specified in the system def or a
-   * table specified in the display mappings of the passed in content editor.
-   * If not a system table, the display mapper cannot also contain an entry
-   * for this column.
-   *
+   * @param mappings An iterator over PSSystemMapping objects. The table in each mapping must be a
+   *     system table specified in the system def or a table specified in the display mappings of
+   *     the passed in content editor. If not a system table, the display mapper cannot also contain
+   *     an entry for this column.
    * @return A data mapper with the system mappings in it.
    */
   public static PSDataMapper createSystemMappings(Iterator mappings) {
@@ -1683,11 +1618,9 @@ public class PSApplicationBuilder {
   /**
    * Determines if the column name used is one of the key column names.
    *
-   * @param columnName The name of the column to check.  May not be <code>null
+   * @param columnName The name of the column to check. May not be <code>null
    * </code> or empty.
-   *
-   * @return <code>true</code> if this is a key column, <code>false</code> if
-   * not.
+   * @return <code>true</code> if this is a key column, <code>false</code> if not.
    */
   public static boolean isKeyColumn(String columnName) {
     boolean isKey = false;
@@ -1705,14 +1638,11 @@ public class PSApplicationBuilder {
   }
 
   /**
-   * Determines if the column name used is one of the reserved column
-   * names.
+   * Determines if the column name used is one of the reserved column names.
    *
-   * @param columnName The name of the column to check.  May not be <code>null
+   * @param columnName The name of the column to check. May not be <code>null
    * </code> or empty.
-   *
-   * @return <code>true</code> if this is a reserved column, <code>false</code>
-   * if not.
+   * @return <code>true</code> if this is a reserved column, <code>false</code> if not.
    */
   public static boolean isReservedColumn(String columnName) {
     boolean isReserved = false;
@@ -1727,52 +1657,30 @@ public class PSApplicationBuilder {
     return isReserved;
   }
 
-  /**
-   * Constant for the Html parameter name used to determine what db action
-   * is required.
-   */
+  /** Constant for the Html parameter name used to determine what db action is required. */
   public static final String REQUEST_TYPE_HTML_PARAMNAME = "DBActionType";
 
-  /**
-   * Constant used to specify that a query action is to be performed.
-   */
+  /** Constant used to specify that a query action is to be performed. */
   public static final String REQUEST_TYPE_VALUE_QUERY = "QUERY";
 
-  /**
-   * Constant used to specify that a update action is to be performed.
-   */
+  /** Constant used to specify that a update action is to be performed. */
   public static final String REQUEST_TYPE_VALUE_UPDATE = "UPDATE";
 
-  /**
-   * Constant used to specify that a insert action is to be performed.
-   */
+  /** Constant used to specify that a insert action is to be performed. */
   public static final String REQUEST_TYPE_VALUE_INSERT = "INSERT";
 
-  /**
-   * Constant used to specify that a delete action is to be performed.
-   */
+  /** Constant used to specify that a delete action is to be performed. */
   public static final String REQUEST_TYPE_VALUE_DELETE = "DELETE";
 
-  /**
-   * Constant for the name of the contentstatus table.
-   */
+  /** Constant for the name of the contentstatus table. */
   private static final String CONTENT_STATUS_TABLE = "CONTENTSTATUS";
 
-  /**
-   * Flag used when creating update datasets to indicate if inserts are
-   * allowed.
-   */
+  /** Flag used when creating update datasets to indicate if inserts are allowed. */
   public static final int FLAG_ALLOW_INSERTS = 0x0001;
 
-  /**
-   * Flag used when creating update datasets to indicate if update are
-   * allowed.
-   */
+  /** Flag used when creating update datasets to indicate if update are allowed. */
   public static final int FLAG_ALLOW_UPDATES = 0x0002;
 
-  /**
-   * Flag used when creating update datasets to indicate if deletes are
-   * allowed.
-   */
+  /** Flag used when creating update datasets to indicate if deletes are allowed. */
   public static final int FLAG_ALLOW_DELETES = 0x0004;
 }

@@ -22,34 +22,30 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.system.utils.PSSiteManageBean;
-
+import javax.ws.rs.ext.Provider;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.ext.Provider;
-
-/**
- * Generates names for local content items.
- */
+/** Generates names for local content items. */
 @Provider
 @PSSiteManageBean("nameGenerator")
 public class PSNameGenerator implements IPSNameGenerator {
 
-    private static final String LOCAL_CONTENT_PREFIX = "LocalContent-";
-    private final IPSIdMapper idMapper;
+  private static final String LOCAL_CONTENT_PREFIX = "LocalContent-";
+  private final IPSIdMapper idMapper;
 
-    /**
-     * Constructs a new local content name generator.
-     *
-     * @param idMapper used for id generation, never null.
-     */
-    @Autowired
-    public PSNameGenerator(IPSIdMapper idMapper) {
-        notNull(idMapper);
-        this.idMapper = idMapper;
-    }
+  /**
+   * Constructs a new local content name generator.
+   *
+   * @param idMapper used for id generation, never null.
+   */
+  @Autowired
+  public PSNameGenerator(IPSIdMapper idMapper) {
+    notNull(idMapper);
+    this.idMapper = idMapper;
+  }
 
-    @Override
-    public String generateLocalContentName() {
-        return LOCAL_CONTENT_PREFIX + idMapper.getLocalContentId();
-    }
+  @Override
+  public String generateLocalContentName() {
+    return LOCAL_CONTENT_PREFIX + idMapper.getLocalContentId();
+  }
 }

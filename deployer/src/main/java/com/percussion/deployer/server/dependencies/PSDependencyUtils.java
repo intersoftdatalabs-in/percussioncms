@@ -80,10 +80,9 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- * A util class with ALL static methods to help in new GUID type create/install
- * actions
- * @author vamsinukala
+ * A util class with ALL static methods to help in new GUID type create/install actions
  *
+ * @author vamsinukala
  */
 public class PSDependencyUtils {
 
@@ -91,6 +90,7 @@ public class PSDependencyUtils {
 
   /**
    * Given a guid as a string, get the long value
+   *
    * @param depId may not be <code>null</code> or empty
    * @param depTypeName is the dependencyType name
    * @return the long value of the guid
@@ -115,13 +115,14 @@ public class PSDependencyUtils {
   }
 
   /**
-   * Given a dependency, get the next possible id for the two cases:
-   * this will work only for GUID types
+   * Given a dependency, get the next possible id for the two cases: this will work only for GUID
+   * types
+   *
    * <ol>
-   *    <li> Legacy Element Type
-   *    <li> New Element Type
-   *    For GUID types, it is handled by IPSGuidManager.createGuid(...)
+   *   <li>Legacy Element Type
+   *   <li>New Element Type For GUID types, it is handled by IPSGuidManager.createGuid(...)
    * </ol>
+   *
    * @param dep
    * @return get the next id <b>may return</b> <code>null</code>
    */
@@ -140,16 +141,12 @@ public class PSDependencyUtils {
   }
 
   /**
-   * A generic way of reserving an ID for any of the GUID types. Note for
-   * legacy types that are now GUID types, GUIDManager handles the generation
-   * of IDs accordingly
+   * A generic way of reserving an ID for any of the GUID types. Note for legacy types that are now
+   * GUID types, GUIDManager handles the generation of IDs accordingly
    *
-   * @param dep Dependency for which we are trying to reserve an id
-   *    never <code>null</code>
-   * @param idMap reserve an id in the mapping for later use during install
-   *    never <code>null</code>
-   * @param depType dependencyTpe ( may not be GUID type )
-   *    never <code>null</code>
+   * @param dep Dependency for which we are trying to reserve an id never <code>null</code>
+   * @param idMap reserve an id in the mapping for later use during install never <code>null</code>
+   * @param depType dependencyTpe ( may not be GUID type ) never <code>null</code>
    * @throws PSDeployException
    */
   public static void reserveNewId(PSDependency dep, PSIdMap idMap, String depType)
@@ -187,6 +184,7 @@ public class PSDependencyUtils {
 
   /**
    * A util to do a quick copy
+   *
    * @param oldMap
    * @return a cloned map
    */
@@ -226,10 +224,10 @@ public class PSDependencyUtils {
   }
 
   /**
-   * Util method to transform the ID of a guid type, given its mapping and
-   * the dependency.
-   * @param o the element suchas IPSAssemblyTemplate if GUID type == TEMPLATE
-   * never <code>null</code>
+   * Util method to transform the ID of a guid type, given its mapping and the dependency.
+   *
+   * @param o the element suchas IPSAssemblyTemplate if GUID type == TEMPLATE never <code>null
+   *     </code>
    * @param dep the dependency, never <code>null</code>
    * @param ctx never <code>null</code>
    * @param clMapping the id mapping
@@ -279,11 +277,10 @@ public class PSDependencyUtils {
   }
 
   /**
-   * A util method to extract the table name from the annotations based on
-   * the type of the element
+   * A util method to extract the table name from the annotations based on the type of the element
+   *
    * @param type the element type
-   * @return the table name if the annotation has a table name else
-   * return the key as string
+   * @return the table name if the annotation has a table name else return the key as string
    */
   public static String getTableName(PSTypeEnum type) {
     Annotation[] anns = null;
@@ -318,6 +315,7 @@ public class PSDependencyUtils {
 
   /**
    * Util to read the dependency file and return the contents as a String
+   *
    * @param archive the archive in which this dependencyFile exists never <code>null</code>
    * @param depFile the dependency File never <code>null</code>
    * @return file content as a String
@@ -350,9 +348,10 @@ public class PSDependencyUtils {
   }
 
   /**
-   * Helper method to provide the correct mapping based on two attempts:
-   * first try it as template if it does not exist, then try again as
-   * variant defintion. If there is no mapping, then throws an exception
+   * Helper method to provide the correct mapping based on two attempts: first try it as template if
+   * it does not exist, then try again as variant defintion. If there is no mapping, then throws an
+   * exception
+   *
    * @param dep the dependency handler never <code>null</code>
    * @param ctx the import context never <code>null</code>
    * @param tmpId the template id never <code>null</code>
@@ -381,10 +380,8 @@ public class PSDependencyUtils {
    * Gets all tables for the active or inactive Content Types.
    *
    * @param tok the security token, may not be <code>null</code>.
-   *
-   * @return the Content Types tables, never <code>null</code> or empty
-   * for a proper configured server.
-   *
+   * @return the Content Types tables, never <code>null</code> or empty for a proper configured
+   *     server.
    * @throws PSDeployException if an error occurs.
    */
   public static List<String> getAllContentTypeTables(PSSecurityToken tok) throws PSDeployException {
@@ -443,9 +440,8 @@ public class PSDependencyUtils {
    * Get all tables from the supplied container locator
    *
    * @param locator The locator to check, may not be <code>null</code>.
-   *
-   * @return Iterator over zero or more table names as <code>String</code>
-   * objects, never <code>null</code>, may be empty.
+   * @return Iterator over zero or more table names as <code>String</code> objects, never <code>null
+   *     </code>, may be empty.
    */
   @SuppressWarnings("unchecked")
   public static List<String> getLocatorTables(PSContainerLocator locator) {
@@ -470,7 +466,6 @@ public class PSDependencyUtils {
    * Get the shared def.
    *
    * @return The def, never <code>null</code>.
-   *
    * @throws PSDeployException if the def cannot be loaded.
    */
   public static PSContentEditorSharedDef getSharedDef() throws PSDeployException {
@@ -488,7 +483,6 @@ public class PSDependencyUtils {
    * Gets the table names used by all shared groups.
    *
    * @return the table names, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public static List<String> getSharedGroupTables() throws PSDeployException {

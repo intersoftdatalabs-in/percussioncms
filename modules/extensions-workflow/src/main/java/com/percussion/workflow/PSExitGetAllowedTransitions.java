@@ -39,8 +39,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Gets allowed transitions for list of content ids and assignment types based
- * on the current user's name and roles.
+ * Gets allowed transitions for list of content ids and assignment types based on the current user's
+ * name and roles.
  */
 public class PSExitGetAllowedTransitions extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -49,15 +49,13 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
   }
 
   /**
-   * Determines the allowed transitions and appends them to the output doc.
-   * The root is replaced (if there) with an <code>ActionList</code> element
-   * and each possible action is appended using
+   * Determines the allowed transitions and appends them to the output doc. The root is replaced (if
+   * there) with an <code>ActionList</code> element and each possible action is appended using
    * {@link PSMenuAction#toXml(Document)}
    *
-   * @param params The expected params.  Param 0 is expected to be a list of
-   * content ids as strings, and Param 1 is expected to be a list of assignment
-   * type ids as strings, may not be <code>null</code>.
-   *
+   * @param params The expected params. Param 0 is expected to be a list of content ids as strings,
+   *     and Param 1 is expected to be a list of assignment type ids as strings, may not be <code>
+   *     null</code>.
    * @throws PSExtensionProcessingException if there are any errors.
    */
   @SuppressWarnings("unchecked")
@@ -101,7 +99,6 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
    * Get the list of content ids from the supplied request
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
    * @return The list of ids, never <code>null</code>, may be empty.
    */
   private List<IPSGuid> getContentIds(IPSRequestContext request) {
@@ -117,18 +114,14 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
   }
 
   /**
-   * Get the list of assignment types from the supplied parameters or calculate
-   * them using the system service if not supplied.
+   * Get the list of assignment types from the supplied parameters or calculate them using the
+   * system service if not supplied.
    *
    * @param request The current request, assumed not <code>null</code>.
-   * @param contentIds The list of content ids for which types are to be
-   * returned, assumed not <code>null</code>.
-   *
-   * @return The list of types, may be <code>null</code>if the expected param
-   * is not found.
-   *
-   * @throws PSSystemException If there is an error calculating the assignment
-   * types.
+   * @param contentIds The list of content ids for which types are to be returned, assumed not
+   *     <code>null</code>.
+   * @return The list of types, may be <code>null</code>if the expected param is not found.
+   * @throws PSSystemException If there is an error calculating the assignment types.
    */
   @SuppressWarnings("unchecked")
   private List<PSAssignmentTypeEnum> getAssignmentTypes(
@@ -156,9 +149,7 @@ public class PSExitGetAllowedTransitions extends PSDefaultExtension
    *
    * @param request The current request context, assumed not <code>null</code>.
    * @param contentIds The ids to use, assumed not <code>null</code>.
-   *
    * @return The assignment types, never <code>null</code>.
-   *
    * @throws PSSystemException If there are any errors.
    */
   @SuppressWarnings("unchecked")

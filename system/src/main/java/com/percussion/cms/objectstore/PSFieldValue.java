@@ -20,16 +20,20 @@ import com.percussion.cms.PSCmsException;
 import java.util.Arrays;
 
 /**
- * Base class for all IPSFieldValue.  Implements some of the methods that
- * don't vary across all or many of the components that will be implemented in
- * the CMS layer.  Derived classes should override the abstract methods.
+ * Base class for all IPSFieldValue. Implements some of the methods that don't vary across all or
+ * many of the components that will be implemented in the CMS layer. Derived classes should override
+ * the abstract methods.
  */
 public abstract class PSFieldValue implements IPSFieldValue {
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public abstract Object getValue();
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public abstract String getValueAsString() throws PSCmsException;
 
   // see IPSFieldValue#clone() interface for description
@@ -43,8 +47,8 @@ public abstract class PSFieldValue implements IPSFieldValue {
   }
 
   /**
-   * Convenience method to build the hash of the object, just checks for
-   * <code>null</code> and if objecttoHash is, it ignores and returns 0.
+   * Convenience method to build the hash of the object, just checks for <code>null</code> and if
+   * objecttoHash is, it ignores and returns 0.
    *
    * @param objectToHash may be <code>null</code>.
    * @return the hashCode of objectToHash
@@ -56,16 +60,19 @@ public abstract class PSFieldValue implements IPSFieldValue {
     return theHash;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public abstract boolean equals(Object obj);
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public abstract int hashCode();
 
   /**
-   * Compares objects that implement the <code>equals()</code> method.
-   * <code>String</code>s will be compared with case ignored.
-   * Are they equal?
+   * Compares objects that implement the <code>equals()</code> method. <code>String</code>s will be
+   * compared with case ignored. Are they equal?
    *
    * @return <code>true</code>if they are, otherwise <code>false</code>.
    */

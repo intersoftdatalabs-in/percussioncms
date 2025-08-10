@@ -16,93 +16,87 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
+import com.percussion.pagemanagement.data.PSRenderLinkContext;
+import com.percussion.sitemanage.data.PSSiteSummary;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNegative;
 import net.sf.oval.constraint.NotNull;
 
-import com.percussion.pagemanagement.data.PSRenderLinkContext;
-import com.percussion.sitemanage.data.PSSiteSummary;
-
 /**
  * A linking context that contains legacy assembly information.
- * @author adamgent
  *
+ * @author adamgent
  */
 public class PSAssemblyRenderLinkContext extends PSRenderLinkContext {
 
-    @NotNull
-    private PSSiteSummary site;
+  @NotNull private PSSiteSummary site;
 
-    @NotBlank
-    @NotNull
-    private String filter;
+  @NotBlank @NotNull private String filter;
 
-    @NotNegative
-    @NotNull
-    private Number legacyLinkContext;
+  @NotNegative @NotNull private Number legacyLinkContext;
 
-    @NotNegative
-    @NotNull
-    private Number legacyFileContext;
+  @NotNegative @NotNull private Number legacyFileContext;
 
-    @Override
-    public PSSiteSummary getSite() {
-        return site;
+  @Override
+  public PSSiteSummary getSite() {
+    return site;
+  }
+
+  public void setSite(PSSiteSummary site) {
+    this.site = site;
+  }
+
+  @Override
+  public Mode getMode() {
+    if (legacyLinkContext == null || legacyLinkContext.intValue() == 0) {
+      return Mode.PREVIEW;
     }
+    return Mode.PUBLISH;
+  }
 
-    public void setSite(PSSiteSummary site) {
-        this.site = site;
+  public void setMode(Mode mode) {
+    if (Mode.PUBLISH == mode) {
+      legacyFileContext = 10;
+      legacyLinkContext = 20;
+    } else {
+      legacyFileContext = 0;
+      legacyLinkContext = 0;
     }
+  }
 
-    @Override
-    public Mode getMode() {
-        if (legacyLinkContext == null || legacyLinkContext.intValue() == 0) {
-            return Mode.PREVIEW;
-        }
-        return Mode.PUBLISH;
-    }
+  public String getFilter() {
+    return filter;
+  }
 
-    public void setMode(Mode mode) {
-        if (Mode.PUBLISH == mode) {
-            legacyFileContext = 10;
-            legacyLinkContext = 20;
-        } else {
-            legacyFileContext = 0;
-            legacyLinkContext = 0;
-        }
-    }
+  public void setFilter(String filter) {
+    this.filter = filter;
+  }
 
-    public String getFilter() {
-        return filter;
-    }
+  /**
+   * This is the assembly context which is normally {@code sys_context} or {@code
+   * sys_assembly_context} parameter in the assembly URL.
+   *
+   * @return never {@code null}.
+   */
+  public Number getLegacyLinkContext() {
+    return legacyLinkContext;
+  }
 
-    public void setFilter(String filter) {
-        this.filter = filter;
-    }
+  public void setLegacyLinkContext(Number legacyLinkContext) {
+    this.legacyLinkContext = legacyLinkContext;
+  }
 
-    /**
-     * This is the assembly context which is normally {@code sys_context}
-     * or {@code sys_assembly_context} parameter in the assembly URL.
-     * @return never {@code null}.
-     */
-    public Number getLegacyLinkContext() {
-        return legacyLinkContext;
-    }
+  /**
+   * This is the delivery context which is the context used to generate file locations in the
+   * content list generator.
+   *
+   * @return never {@code null}.
+   */
+  public Number getLegacyFileContext() {
+    return legacyFileContext;
+  }
 
-    public void setLegacyLinkContext(Number legacyLinkContext) {
-        this.legacyLinkContext = legacyLinkContext;
-    }
-
-    /**
-     * This is the delivery context which is the context used to generate file locations in
-     * the content list generator.
-     * @return never {@code null}.
-     */
-    public Number getLegacyFileContext() {
-        return legacyFileContext;
-    }
-
-    public void setLegacyFileContext(Number legacyFileContext) {
-        this.legacyFileContext = legacyFileContext;
-    }
+  public void setLegacyFileContext(Number legacyFileContext) {
+    this.legacyFileContext = legacyFileContext;
+  }
 }

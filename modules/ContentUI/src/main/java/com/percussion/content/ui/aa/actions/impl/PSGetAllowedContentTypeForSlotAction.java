@@ -36,9 +36,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Retrieves a listing of all allowed content types for a particular slot.
- * Expects an objectId for the slot. Returns a Json Array with a Json object for
- * each template entry.
+ * Retrieves a listing of all allowed content types for a particular slot. Expects an objectId for
+ * the slot. Returns a Json Array with a Json object for each template entry.
  *
  * <pre>
  *      Each Json object that represents a content type has the following
@@ -48,7 +47,6 @@ import org.json.JSONObject;
  *      name
  *      description
  * </pre>
- *
  */
 public class PSGetAllowedContentTypeForSlotAction extends PSAAActionBase {
 
@@ -108,15 +106,12 @@ public class PSGetAllowedContentTypeForSlotAction extends PSAAActionBase {
   }
 
   /**
-   * Retrieves the associated content types for the slot indicated in the
-   * object id passed in.
+   * Retrieves the associated content types for the slot indicated in the object id passed in.
    *
-   * @param objectId cannot be <code>null</code> or empty. Must have the slot
-   *           id defined.
-   * @return collection of node def object, never <code>null</code>, may be
-   *         empty.
-   * @throws PSAssemblyException if an error occurs when retriving the slot
-   *            from the assembly service.
+   * @param objectId cannot be <code>null</code> or empty. Must have the slot id defined.
+   * @return collection of node def object, never <code>null</code>, may be empty.
+   * @throws PSAssemblyException if an error occurs when retriving the slot from the assembly
+   *     service.
    */
   protected static Collection<IPSNodeDefinition> getAssociatedCTypes(PSAAObjectId objectId)
       throws PSAssemblyException, PSNotFoundException {
@@ -130,6 +125,7 @@ public class PSGetAllowedContentTypeForSlotAction extends PSAAActionBase {
 
   /**
    * Helper method to create JSONObject of the given content type id, name and description
+   *
    * @param id content type id assumed not <code>null</code>.
    * @param name content type name assumed not <code>null</code>.
    * @param desc content type description assumed not <code>null</code>.

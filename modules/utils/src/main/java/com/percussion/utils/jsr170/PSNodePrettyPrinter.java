@@ -24,6 +24,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * Pretty print a JSR-170 node tree, mostly useful for debugging purposes
+ *
  * @author dougrand
  */
 public class PSNodePrettyPrinter {

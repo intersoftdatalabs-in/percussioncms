@@ -21,28 +21,19 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 import java.net.URLDecoder;
 
-/**
- * The PSSimpleJavaUdf_decodeURL class Decodes a "x-www-form-urlencoded"
- * to a String.
- */
+/** The PSSimpleJavaUdf_decodeURL class Decodes a "x-www-form-urlencoded" to a String. */
 public class PSSimpleJavaUdf_decodeURL extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Converts the supplied object to a string using the toString method and
-   * decodes the encoded URL.
+   * Converts the supplied object to a string using the toString method and decodes the encoded URL.
    *
-   * @param      params         A single parameter to be converted.
-   *
-   * @param      request        the current request context
-   *
-   * @return                    params[0] converted to a string and
-   *                            decoded, or <code>null</code> if <code>
+   * @param params A single parameter to be converted.
+   * @param request the current request context
+   * @return params[0] converted to a string and decoded, or <code>null</code> if <code>
    *                            null</code> is supplied.
-   *
-   * @exception  PSConversionException
-   *                            if params is <code>null</code> or more than
-   *                            1 argument is supplied.
+   * @exception PSConversionException if params is <code>null</code> or more than 1 argument is
+   *     supplied.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

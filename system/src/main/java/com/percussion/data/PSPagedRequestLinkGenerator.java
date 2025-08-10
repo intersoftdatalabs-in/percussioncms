@@ -28,31 +28,25 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * The PSPagedRequestLinkGenerator
- * allows the current url to be modified with additional paging
- * link information to create page links.
+ * The PSPagedRequestLinkGenerator allows the current url to be modified with additional paging link
+ * information to create page links.
  *
- * @author      David Gennaco
- * @version      1.0
- * @since      1.0
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
 public class PSPagedRequestLinkGenerator {
   /**
-   * Construct a paged request link generator. This creates URL links in the
-   * XML document being processed based upon the current location, type
-   * of page reference, and query starting index.  All existing html
-   * parameters should be maintained.
+   * Construct a paged request link generator. This creates URL links in the XML document being
+   * processed based upon the current location, type of page reference, and query starting index.
+   * All existing html parameters should be maintained.
    *
-   *   The type of page references are previous, next, and indexed links.
+   * <p>The type of page references are previous, next, and indexed links.
    *
-   * @param      app            the application containing the data set
-   *                              we will be linking to
-   *
-   * @param      ds               the data set information
-   *
-   *   @param      pageLinkType   the type of page link (next, prev, index)
-   *
-   * @exception   PSNotFoundException   if the target data set does not exist
+   * @param app the application containing the data set we will be linking to
+   * @param ds the data set information
+   * @param pageLinkType the type of page link (next, prev, index)
+   * @exception PSNotFoundException if the target data set does not exist
    */
   public PSPagedRequestLinkGenerator(PSApplicationHandler app, PSDataSet ds, int pageLinkType) {
     PSRequestor requestor = ds.getRequestor();
@@ -70,20 +64,19 @@ public class PSPagedRequestLinkGenerator {
   }
 
   /**
-   *   Return the Xml field name for this page link type
+   * Return the Xml field name for this page link type
    *
-   * @return      the Xml field name for this type of page link
+   * @return the Xml field name for this type of page link
    */
   public String getXmlFieldName() {
     return getXmlFieldName(m_type);
   }
 
   /**
-   *   Return the Xml field name for the specified page link type
+   * Return the Xml field name for the specified page link type
    *
-   * @param      type      the pagelink type
-   *
-   * @return      the Xml field name for this type of page link
+   * @param type the pagelink type
+   * @return the Xml field name for this type of page link
    */
   public static String getXmlFieldName(int type) {
     switch (type) {
@@ -99,13 +92,11 @@ public class PSPagedRequestLinkGenerator {
   }
 
   /**
-   *   Return the address of the page link.
+   * Return the address of the page link.
    *
-   * @param   data      the associated execution data
-   *
-   * @param   startAt   The row to start this page with
-   *
-   * @return            The URL string associated with this page link
+   * @param data the associated execution data
+   * @param startAt The row to start this page with
+   * @return The URL string associated with this page link
    */
   public String getURL(PSExecutionData data, int startAt) {
     PSRequest request = data.getRequest();
@@ -170,18 +161,14 @@ public class PSPagedRequestLinkGenerator {
 
   private boolean m_useExtension;
 
-  /**
-   *  Page link type identifiers
-   */
+  /** Page link type identifiers */
   public static final int RPL_TYPE_NONE = 0;
 
   public static final int RPL_TYPE_PREV = 1;
   public static final int RPL_TYPE_NEXT = 2;
   public static final int RPL_TYPE_INDEXED = 3;
 
-  /**
-   *  Page link type xml names
-   */
+  /** Page link type xml names */
   public static final String RPL_XML_FIELDNAME_NONE = "PSXErrorPage";
 
   public static final String RPL_XML_FIELDNAME_PREV = "PSXPrevPage";

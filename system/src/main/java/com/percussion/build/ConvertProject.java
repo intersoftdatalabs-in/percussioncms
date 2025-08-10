@@ -25,22 +25,19 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * The ConvertProject class contains some utility methods for the installer.
- */
+/** The ConvertProject class contains some utility methods for the installer. */
 public class ConvertProject {
 
   private static final Logger log = LogManager.getLogger(ConvertProject.class);
 
   /**
-   * Find and replace text in the tutorial. If either <code>strFind</code> or
-   * <code>strReplace</code> is null, or if <code>strFind</code> is an empty string,
-   * then nothing will happen.
+   * Find and replace text in the tutorial. If either <code>strFind</code> or <code>strReplace
+   * </code> is null, or if <code>strFind</code> is an empty string, then nothing will happen.
    *
-   * @param   strFind     the text to be found
-   * @param   strReplace  the text to replace <code>strFind</code>
-   * @param   strFile     the path name of a file containing the text to be found
-   *                      and replaced with (<code>null</code> path name is not allowed)
+   * @param strFind the text to be found
+   * @param strReplace the text to replace <code>strFind</code>
+   * @param strFile the path name of a file containing the text to be found and replaced with (
+   *     <code>null</code> path name is not allowed)
    */
   public static void findReplace(String strFind, String strReplace, String strFile) {
     if ((strFind == null) || (strReplace == null) || (strFind.length() == 0)) return;
@@ -80,26 +77,26 @@ public class ConvertProject {
   }
 
   /**
-   * Convert a <code>project</code> file. Same as calling
-   * <code>convertProject(project, null, null)</code>.
+   * Convert a <code>project</code> file. Same as calling <code>convertProject(project, null, null)
+   * </code>.
    *
-   * @param   project  the path name of a file (not <code>null</code>)
+   * @param project the path name of a file (not <code>null</code>)
    */
   public static void convertProject(String project) throws java.io.IOException {
     convertProject(project, null);
   }
 
   /**
-   * Convert a <code>project</code> file. In the file, the possible installer drivers
-   * will first be found and replaced with the driver given by <code>strCurDir</code>.
-   * Then the E2 directory will be replaced with the directory of <code>strCurDir</code>.
-   * Finally, if <code>strDocDir</code> is not <code>null</code>, the Docs\E2\Help\V2.0\
-   * directory will be replaced with the directory of <code>strDocDir</code>. Otherwise,
-   * this final step will be ignored. The result is stored in <code>project</code>.
+   * Convert a <code>project</code> file. In the file, the possible installer drivers will first be
+   * found and replaced with the driver given by <code>strCurDir</code>. Then the E2 directory will
+   * be replaced with the directory of <code>strCurDir</code>. Finally, if <code>strDocDir</code> is
+   * not <code>null</code>, the Docs\E2\Help\V2.0\ directory will be replaced with the directory of
+   * <code>strDocDir</code>. Otherwise, this final step will be ignored. The result is stored in
+   * <code>project</code>.
    *
-   * @param   project     the path name of a file (not <code>null</code>)
-   * @param   strCurDir   the current directory, if <code>null</code>, then the current
-   *                      user directory is assumed
+   * @param project the path name of a file (not <code>null</code>)
+   * @param strCurDir the current directory, if <code>null</code>, then the current user directory
+   *     is assumed
    */
   public static void convertProject(String project, String strCurDir) throws java.io.IOException {
     if (strCurDir == null) {
@@ -126,7 +123,7 @@ public class ConvertProject {
   /**
    * Get the possible drives, such as "M", "N", "S", etc.
    *
-   * @return  a string array contains the posible drives
+   * @return a string array contains the posible drives
    */
   public static String[] getPossibleDrives() {
     String[] drives = new String[8];
@@ -144,7 +141,7 @@ public class ConvertProject {
   /**
    * Get the possible e2 directories.
    *
-   * @return  a string array contains the
+   * @return a string array contains the
    */
   public static String[] getPossibleDirectories() {
     String[] dirs = new String[22];
@@ -173,9 +170,7 @@ public class ConvertProject {
     return (dirs);
   }
 
-  /**
-   * This main method will be called as an entry point.
-   */
+  /** This main method will be called as an entry point. */
   public static void main(String[] args) {
     // give usage
     if (args.length < 3) {

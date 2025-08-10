@@ -31,9 +31,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Server-side implementation of
- * {@link com.percussion.design.catalog.security.PSCatalogerCatalogHandler}. See
- * that class for more details.
+ * Server-side implementation of {@link
+ * com.percussion.design.catalog.security.PSCatalogerCatalogHandler}. See that class for more
+ * details.
  */
 public class PSCatalogerCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
@@ -48,12 +48,10 @@ public class PSCatalogerCatalogHandler extends PSCatalogRequestHandler
   }
 
   /**
-   * Process a data related catalog request. This uses the input context
-   * information and data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process a data related catalog request. This uses the input context information and data. The
+   * results are written to the specified output stream using the appropriate XML document format.
    *
-   * @param request the request object containing all context data associated
-   * with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -102,30 +100,18 @@ public class PSCatalogerCatalogHandler extends PSCatalogRequestHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {}
 
   /**
-   * Adds a cataloger definition to the XML document. Private utility
-   * method.
+   * Adds a cataloger definition to the XML document. Private utility method.
    *
-   * @param doc The document to which we add the definition. Must not
-   * be <CODE>null</CODE>.
-   *
-   * @param root The element under which we add the definition. Must
-   * not be <CODE>null</CODE>.
-   *
+   * @param doc The document to which we add the definition. Must not be <CODE>null</CODE>.
+   * @param root The element under which we add the definition. Must not be <CODE>null</CODE>.
    * @param name The name of the cataloger. Must not be <CODE>null</CODE>.
-   *
    * @param type The string representing the type of cataloger.
-   *
-   * @param fullName The full (descriptive) name of the cataloger. Must
-   * not be <CODE>null</CODE>.
-   *
-   * @param description The description of the cataloger. Must not be
-   * <CODE>null</CODE>.
+   * @param fullName The full (descriptive) name of the cataloger. Must not be <CODE>null</CODE>.
+   * @param description The description of the cataloger. Must not be <CODE>null</CODE>.
    */
   private void addCatalogerDefinition(
       Document doc, Element root, String name, String type, String fullName, String description) {

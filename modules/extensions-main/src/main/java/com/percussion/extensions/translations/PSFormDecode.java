@@ -25,14 +25,12 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 
 /**
- * Will turn a &lt;div&gt; tag that has a special attribute marker
- * to indicate it is actually a form, back into the form tag.
- * Must use with the <code>PSFormEncode</code> output translation.
+ * Will turn a &lt;div&gt; tag that has a special attribute marker to indicate it is actually a
+ * form, back into the form tag. Must use with the <code>PSFormEncode</code> output translation.
  *
- * This is used to get around an issues with form tags not working
- * in EditLive single instance.
+ * <p>This is used to get around an issues with form tags not working in EditLive single instance.
+ *
  * @author erikserating
- *
  */
 public class PSFormDecode implements IPSFieldInputTransformer {
   /* (non-Javadoc)

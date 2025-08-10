@@ -27,21 +27,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to specify the steps that need to be performed when
- * table schema change occurs.
+ * This class is used to specify the steps that need to be performed when table schema change
+ * occurs.
  */
 public class PSJdbcTableSchemaHandler {
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element) fromXml} for
+   * more information.
    *
-   * @param sourceNode The element from which this object is to be constructed.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or
-   * if there are any other errors.
+   * @param sourceNode The element from which this object is to be constructed. May not be <code>
+   *     null</code>.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or if there are any other
+   *     errors.
    */
   public PSJdbcTableSchemaHandler(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -52,12 +50,8 @@ public class PSJdbcTableSchemaHandler {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be
-   * <code>null</code>.
-   *
-   * @return The element containing this object's state, never
-   * <code>null</code>.
-   *
+   * @param doc The document to use when creating elements. May not be <code>null</code>.
+   * @return The element containing this object's state, never <code>null</code>.
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -85,14 +79,11 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * Restore this object from an Xml representation conforming with the
-   * tabledef.dtd.
+   * Restore this object from an Xml representation conforming with the tabledef.dtd.
    *
-   * @param sourceNode The element from which to get this object's state.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
+   * @param sourceNode The element from which to get this object's state. May not be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
@@ -161,39 +152,33 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * Initializes the data handlers encapsulated by this schema handler. The
-   * value of <code>srcTableSchema</code> and <code>destTableSchema</code> depend
-   * upon the type of schema handler this object is.
+   * Initializes the data handlers encapsulated by this schema handler. The value of <code>
+   * srcTableSchema</code> and <code>destTableSchema</code> depend upon the type of schema handler
+   * this object is.
    *
-   * If this object is a schema handler of type <code>TYPE_INT_ON_CREATE</code>
-   * then <code>srcTableSchema</code> is the schema of the table being created
-   * and <code>destTableSchema</code> is <code>null</code>.
+   * <p>If this object is a schema handler of type <code>TYPE_INT_ON_CREATE</code> then <code>
+   * srcTableSchema</code> is the schema of the table being created and <code>destTableSchema</code>
+   * is <code>null</code>.
    *
-   * If this object is a schema handler of one of the following types:
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code> or
-   * <code>TYPE_INT_TO_BACKUP</code> or
-   * <code>TYPE_INT_FROM_BACKUP</code>
-   * then <code>srcTableSchema</code> is the schema of the source table from
-   * which the data is being obtained and <code>destTableSchema</code> is
-   * the schema of the destination table into which data is being updated.
+   * <p>If this object is a schema handler of one of the following types: <code>
+   * TYPE_INT_NO_ALTER_TABLE_STMT</code> or <code>TYPE_INT_TO_BACKUP</code> or <code>
+   * TYPE_INT_FROM_BACKUP</code> then <code>srcTableSchema</code> is the schema of the source table
+   * from which the data is being obtained and <code>destTableSchema</code> is the schema of the
+   * destination table into which data is being updated.
    *
-   * @param dbmsDef provides the database/schema information for the table,
-   * may not be <code>null</code>
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>
    * @param conn the database connection to use, may not be <code>null</code>
-   * @param srcTableSchema schema of the table being created or schema of the
-   * source table from which data is being obtained, may not be <code>null</code>
-   * @param destTableSchema schema of the destination table into which data
-   * is being updated, may be <code>null</code> if this object is of type
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code>,
-   * otherwise it may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>conn</code> or <code>srcTableSchema</code> is <code>null</code>,
-   * or <code>destTableSchema</code> is <code>null</code> and this object is
-   * one of the following types:
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code> or
-   * <code>TYPE_INT_TO_BACKUP</code> or
-   * <code>TYPE_INT_FROM_BACKUP</code>
+   * @param srcTableSchema schema of the table being created or schema of the source table from
+   *     which data is being obtained, may not be <code>null</code>
+   * @param destTableSchema schema of the destination table into which data is being updated, may be
+   *     <code>null</code> if this object is of type <code>
+   *     PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code>, otherwise it may not be <code>null
+   *     </code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>conn</code> or <code>
+   *     srcTableSchema</code> is <code>null</code>, or <code>destTableSchema</code> is <code>null
+   *     </code> and this object is one of the following types: <code>TYPE_INT_NO_ALTER_TABLE_STMT
+   *     </code> or <code>TYPE_INT_TO_BACKUP</code> or <code>TYPE_INT_FROM_BACKUP</code>
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public void initHandlers(
@@ -224,9 +209,8 @@ public class PSJdbcTableSchemaHandler {
    * Closes the data handlers.
    *
    * @param conn the database connection to use, may not be <code>null</code>
-   *
-   * @throws IllegalStateException if <code>initHandlers()</code> method has not
-   * been called previously on this table schema handler.
+   * @throws IllegalStateException if <code>initHandlers()</code> method has not been called
+   *     previously on this table schema handler.
    * @throws IllegalArgumentException if <code>conn</code> is <code>null</code>
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -246,11 +230,9 @@ public class PSJdbcTableSchemaHandler {
    *
    * @param conn the database connection to use, may not be <code>null</code>
    * @param row the row data to modify, may be <code>null</code>
-   *
    * @return the modified row data, may be <code>null</code>
-   *
-   * @throws IllegalStateException if <code>initHandlers()</code> method has not
-   * been called previously on this table schema change handler.
+   * @throws IllegalStateException if <code>initHandlers()</code> method has not been called
+   *     previously on this table schema change handler.
    * @throws IllegalArgumentException if <code>conn</code> is <code>null</code>
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -266,18 +248,12 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * Throws IllegalArgumentException if <code>type</code> is a
-   * not a valid schema handler type.
+   * Throws IllegalArgumentException if <code>type</code> is a not a valid schema handler type.
    *
-   * @param type the schema handler type value to check for
-   * validity
-   *
-   * @throws IllegalArgumentException if <code>type</code>
-   * is not one of the following values:
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
-   * <code>TYPE_INT_TO_BACKUP</code>
-   * <code>TYPE_INT_FROM_BACKUP</code>
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
+   * @param type the schema handler type value to check for validity
+   * @throws IllegalArgumentException if <code>type</code> is not one of the following values:
+   *     <code>TYPE_INT_NO_ALTER_TABLE_STMT</code> <code>TYPE_INT_TO_BACKUP</code> <code>
+   *     TYPE_INT_FROM_BACKUP</code> <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
    */
   public static void checkValidSchemaHandlerType(int type) {
     switch (type) {
@@ -291,17 +267,14 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * Returns the integer constant correponding to the schema handler type
-   * specified by <code>type</code>
+   * Returns the integer constant correponding to the schema handler type specified by <code>type
+   * </code>
    *
-   * @param type the schema handler type, may not be
-   * <code>null</code> or empty
-   *
-   * @return the integer constant correponding to the schema handler type
-   * specified by <code>type</code>
-   *
-   * @throws IllegalArgumentException if <code>type</code> is
-   * <code>null</code> or empty, or is not a valid schema handler type.
+   * @param type the schema handler type, may not be <code>null</code> or empty
+   * @return the integer constant correponding to the schema handler type specified by <code>type
+   *     </code>
+   * @throws IllegalArgumentException if <code>type</code> is <code>null</code> or empty, or is not
+   *     a valid schema handler type.
    */
   public static int getSchemaHandlerType(String type) {
     if ((type == null) || (type.trim().length() < 1))
@@ -316,17 +289,13 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * Returns the <code>String</code> constant correponding to the schema handler
-   * type specified by <code>type</code>
+   * Returns the <code>String</code> constant correponding to the schema handler type specified by
+   * <code>type</code>
    *
-   * @param type the schema handler type, should be a valid
-   * schema handler type
-   *
-   * @return the <code>String</code> constant correponding to the schema handler
-   * type specified by <code>type</code>
-   *
-   * @throws IllegalArgumentException if <code>type</code> is
-   * not a valid schema handler type.
+   * @param type the schema handler type, should be a valid schema handler type
+   * @return the <code>String</code> constant correponding to the schema handler type specified by
+   *     <code>type</code>
+   * @throws IllegalArgumentException if <code>type</code> is not a valid schema handler type.
    */
   public static String getType(int type) {
     switch (type) {
@@ -347,6 +316,7 @@ public class PSJdbcTableSchemaHandler {
 
   /**
    * Returns the type of schema handler.
+   *
    * @return the type of schema handler.
    */
   public int getType() {
@@ -354,27 +324,23 @@ public class PSJdbcTableSchemaHandler {
   }
 
   /**
-   * List of {@link IPSJdbcTableDataHandler} objects to process data when
-   * schema change occurs. These objects process data when the schema plan
-   * is being executed. Never <code>null</code>, may be empty.
+   * List of {@link IPSJdbcTableDataHandler} objects to process data when schema change occurs.
+   * These objects process data when the schema plan is being executed. Never <code>null</code>, may
+   * be empty.
    */
   private List<IPSJdbcTableDataHandler> m_dataHandlers = new ArrayList<>();
 
   /**
-   * stores the initialization state of the data handlers. If
-   * <code>execute()</code> method is called before the <code>initHandlers()</code>
-   * then <code>IllegalStateException</code> is thrown.
+   * stores the initialization state of the data handlers. If <code>execute()</code> method is
+   * called before the <code>initHandlers()</code> then <code>IllegalStateException</code> is
+   * thrown.
    */
   private boolean m_bHandlersInitialized = false;
 
-  /**
-   * stores the type of schema handler.
-   */
+  /** stores the type of schema handler. */
   private int m_type = 0;
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "schemaHandler";
 
   // Xml elements and attributes

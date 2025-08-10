@@ -32,13 +32,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a generic exit that adds a specfied list of properties from
- * server.properties file as attributes to the root element of the
- * result document. The list of properties required is specified as
- * parameters to the exit.
- * <p>If the supplied parameter does not exist as a property in the
- * server.properties file the resulting value is empty.
- * Parameters with empty names will be ignored.</p>
+ * This is a generic exit that adds a specfied list of properties from server.properties file as
+ * attributes to the root element of the result document. The list of properties required is
+ * specified as parameters to the exit.
+ *
+ * <p>If the supplied parameter does not exist as a property in the server.properties file the
+ * resulting value is empty. Parameters with empty names will be ignored.
  */
 public class PSAddServerProperties implements IPSResultDocumentProcessor {
   /*
@@ -83,8 +82,6 @@ public class PSAddServerProperties implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 }

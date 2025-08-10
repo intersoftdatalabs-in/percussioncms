@@ -19,90 +19,81 @@
 package com.percussion.sitemanage.service;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.AssertValid;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Represents all templates associated with a site, including creation, assignment, and import.
- */
+/** Represents all templates associated with a site, including creation, assignment, and import. */
 @XmlRootElement(name = "SiteTemplates")
 @JsonRootName("SiteTemplates")
 public class PSSiteTemplates {
 
-    @AssertValid
-    private List<CreateTemplate> createTemplates = new ArrayList<>();
+  @AssertValid private List<CreateTemplate> createTemplates = new ArrayList<>();
 
-    @AssertValid
-    private List<AssignTemplate> assignTemplates = new ArrayList<>();
+  @AssertValid private List<AssignTemplate> assignTemplates = new ArrayList<>();
 
-    private ImportTemplate importTemplate = new ImportTemplate();
+  private ImportTemplate importTemplate = new ImportTemplate();
 
-    public List<CreateTemplate> getCreateTemplates() {
-        return createTemplates;
+  public List<CreateTemplate> getCreateTemplates() {
+    return createTemplates;
+  }
+
+  public void setCreateTemplates(List<CreateTemplate> createTemplates) {
+    this.createTemplates = createTemplates;
+  }
+
+  public List<AssignTemplate> getAssignTemplates() {
+    return assignTemplates;
+  }
+
+  public void setAssignTemplates(List<AssignTemplate> assignTemplates) {
+    this.assignTemplates = assignTemplates;
+  }
+
+  public ImportTemplate getImportTemplate() {
+    return importTemplate;
+  }
+
+  public void setImportTemplate(ImportTemplate importTemplate) {
+    this.importTemplate = importTemplate;
+  }
+
+  /** Represents a template to be created for a site. */
+  public static class CreateTemplate extends Template {
+
+    private String name;
+    private String sourceTemplateId;
+
+    public String getName() {
+      return name;
     }
 
-    public void setCreateTemplates(List<CreateTemplate> createTemplates) {
-        this.createTemplates = createTemplates;
+    public void setName(@NotBlank @NotNull String name) {
+      this.name = name;
     }
 
-    public List<AssignTemplate> getAssignTemplates() {
-        return assignTemplates;
+    public String getSourceTemplateId() {
+      return sourceTemplateId;
     }
 
-    public void setAssignTemplates(List<AssignTemplate> assignTemplates) {
-        this.assignTemplates = assignTemplates;
+    public void setSourceTemplateId(@NotBlank @NotNull String sourceTemplateId) {
+      this.sourceTemplateId = sourceTemplateId;
+    }
+  }
+
+  /** Represents a template to be imported for a site. */
+  public static class ImportTemplate extends Template {
+    private String url;
+
+    public String getUrl() {
+      return url;
     }
 
-    public ImportTemplate getImportTemplate() {
-        return importTemplate;
+    public void setUrl(String url) {
+      this.url = url;
     }
-
-    public void setImportTemplate(ImportTemplate importTemplate) {
-        this.importTemplate = importTemplate;
-    }
-
-    /**
-     * Represents a template to be created for a site.
-     */
-    public static class CreateTemplate extends Template {
-
-        private String name;
-        private String sourceTemplateId;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(@NotBlank @NotNull String name) {
-            this.name = name;
-        }
-
-        public String getSourceTemplateId() {
-            return sourceTemplateId;
-        }
-
-        public void setSourceTemplateId(@NotBlank @NotNull String sourceTemplateId) {
-            this.sourceTemplateId = sourceTemplateId;
-        }
-    }
-
-    /**
-     * Represents a template to be imported for a site.
-     */
-    public static class ImportTemplate extends Template {
-        private String url;
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-    }
+  }
 }

@@ -99,21 +99,14 @@ import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.w3c.dom.Document;
 
-/**
- * This exit sends mail notifications to the assigned roles for the new state
- * after transition.
- */
+/** This exit sends mail notifications to the assigned roles for the new state after transition. */
 public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   private static final Logger m_log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String m_fullExtensionName = "";
 
-  /**
-   *  Set the parameter count to not initialized
-   */
+  /** Set the parameter count to not initialized */
   private static int ms_correctParamCount = IPSExtension.NOT_INITIALIZED;
 
   /**************  IPSExtension Interface Implementation ************* */
@@ -423,32 +416,28 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Executive method for sending mail notifications, Gets notifications,
-   * constructs recipient list and sends the mail notifications.
+   * Executive method for sending mail notifications, Gets notifications, constructs recipient list
+   * and sends the mail notifications.
+   *
    * @param contentid The content id of the item being processed.
-   * @param revisionid The revision id of the item, used to lookup any item
-   *   fields specified in the message, ignored if no fields are referenced.
-   * @param contentURL  URL of the content item
-   * @param workflowID  WorkflowID for the content item
+   * @param revisionid The revision id of the item, used to lookup any item fields specified in the
+   *     message, ignored if no fields are referenced.
+   * @param contentURL URL of the content item
+   * @param workflowID WorkflowID for the content item
    * @param transitionID ID of the transition
    * @param fromStateID ID of content state before transition
-   * @param toStateID   ID of content state after transition
-   * @param userName    name of user sending the notification
-   * @param  wfRoleInfo  Object containing role info such as from and to state
-   *                    adhoc user information.
-   * @param request     request context for the exit
-   * @param connection  connection to back-end database
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the ccommunity filter.
-   *
-   * @throws            PSMailException if an error occurs while sending the
-   *                    mail.
-   * @throws            SQLException if a database error occurs
-   * @throws            PSEntryNotFoundException if there is no data base
-   *                    entry for the content item.
-   * @throws            NamingException if a datasource cannot be resolved
-   * @throws            RepositoryException if item field replacement fails
+   * @param toStateID ID of content state after transition
+   * @param userName name of user sending the notification
+   * @param wfRoleInfo Object containing role info such as from and to state adhoc user information.
+   * @param request request context for the exit
+   * @param connection connection to back-end database
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the ccommunity filter.
+   * @throws PSMailException if an error occurs while sending the mail.
+   * @throws SQLException if a database error occurs
+   * @throws PSEntryNotFoundException if there is no data base entry for the content item.
+   * @throws NamingException if a datasource cannot be resolved
+   * @throws RepositoryException if item field replacement fails
    */
   @SuppressWarnings({"unchecked"})
   static void sendNotifications(
@@ -798,9 +787,8 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
               + userEmailAddress);
 
       /**
-       * Combining these two lists as per RHYT-1933. Sending personalized
-       * e-mails (by user) to each recipient whether it be a Cc or a 'to'
-       * address.
+       * Combining these two lists as per RHYT-1933. Sending personalized e-mails (by user) to each
+       * recipient whether it be a Cc or a 'to' address.
        */
       if (CCList != null) {
         emailAndCcList.addAll(CCList);
@@ -865,12 +853,13 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Gets the Velocity context based on the evaluation bindings set above.
-   * Can be used to process text using Velocity.  Currently being used to process
-   * the subject and body of workflow e-mail notifications.
+   * Gets the Velocity context based on the evaluation bindings set above. Can be used to process
+   * text using Velocity. Currently being used to process the subject and body of workflow e-mail
+   * notifications.
+   *
    * @param eval the PSJexlEvaluator object with bindings set.
-   * @param text the string to process with Velocity
-   * (subject and body of workflow notification currently).
+   * @param text the string to process with Velocity (subject and body of workflow notification
+   *     currently).
    * @return the contents of the text after being processed by Velocity.
    */
   private static String processString(PSJexlEvaluator eval, String text) {
@@ -892,12 +881,11 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Determines if the given workflow state contains an role that has admin or assignee
-   * permission and the role is also enabled the add-hoc.
+   * Determines if the given workflow state contains an role that has admin or assignee permission
+   * and the role is also enabled the add-hoc.
    *
    * @param workflowId the workflow ID.
    * @param stateId the state ID.
-   *
    * @return <code>true</code> if there is such role; otherwise return <code>false</code>.
    */
   private static boolean hasAddHocRole(int workflowId, int stateId) {
@@ -917,20 +905,16 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Loads the specified item and obtains values for all supplied field names.
-   * Sets the field names and values as bindings on the e-mail template.
-   * See {@link #processString(PSJexlEvaluator, String)}.
-   * The {@see PSWorkFlowUtils.WORKFLOW_COMMENT_PROP} field name is assigned the value of
+   * Loads the specified item and obtains values for all supplied field names. Sets the field names
+   * and values as bindings on the e-mail template. See {@link #processString(PSJexlEvaluator,
+   * String)}. The {@see PSWorkFlowUtils.WORKFLOW_COMMENT_PROP} field name is assigned the value of
    * {@see PSWorkFlowUtils.WORKFLOW_COMMENT_TOKEN}.
    *
-   * @param contentId
-   *            The content id of the item.
-   * @param fieldNames
-   *            The set of field names to obtain values for, assumed not
-   *            <code>null</code>, may be empty in which case the method
-   *            simply returns an empty map.
-   * @return The Jexl evaluator of field names set to bindings, never <code>null</code>,
-   *         may be empty if <code>fieldNames</code> is empty.
+   * @param contentId The content id of the item.
+   * @param fieldNames The set of field names to obtain values for, assumed not <code>null</code>,
+   *     may be empty in which case the method simply returns an empty map.
+   * @return The Jexl evaluator of field names set to bindings, never <code>null</code>, may be
+   *     empty if <code>fieldNames</code> is empty.
    */
   private static PSJexlEvaluator getFieldValues(int contentId, Set<String> fieldNames) {
     PSJexlEvaluator eval = new PSJexlEvaluator();
@@ -1005,13 +989,11 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Parses the supplied text for field tokens and adds them to the supplied
-   * set.
+   * Parses the supplied text for field tokens and adds them to the supplied set.
    *
-   * @param text The text to parse, assumed not <code>null</code>, may be
-   * empty.
-   * @param fieldNames The set to which discovered field names are added,
-   * assumed not <code>null</code>.
+   * @param text The text to parse, assumed not <code>null</code>, may be empty.
+   * @param fieldNames The set to which discovered field names are added, assumed not <code>null
+   *     </code>.
    */
   private static void parseFields(String text, final Set<String> fieldNames) {
     PSStringTemplate template = getFieldTemplate(text);
@@ -1030,12 +1012,9 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Creates a template expander for field tokens, set to ignore unmatched
-   * tokens.
+   * Creates a template expander for field tokens, set to ignore unmatched tokens.
    *
-   * @param text The text to parse, assumed not <code>null</code>, may be
-   * empty
-   *
+   * @param text The text to parse, assumed not <code>null</code>, may be empty
    * @return The field template, never <code>null</code>.
    */
   private static PSStringTemplate getFieldTemplate(String text) {
@@ -1047,23 +1026,20 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Returns a map containing the token name (<code>String</code>) as key
-   * and token value (<code>String</code>) as value. This map can be used
-   * to substitute the token name with the token value in a string.
+   * Returns a map containing the token name (<code>String</code>) as key and token value (<code>
+   * String</code>) as value. This map can be used to substitute the token name with the token value
+   * in a string.
    *
-   * @param request request context for the exit, assumed not
-   * <code>null</code>, used to obtain the values for the tokens
-   *
-   * @return the map containing the token name and values. This map contains
-   * non-<code>null</code> value for all supported token names. The value
-   * may be empty if this token does not the corresponding property defined in
-   * "rxconfig/Workflow/rxworkflow.properties" file and a non-empty value
-   * could not be obtained from the request context object. If a
-   * non-<code>null</code> and non-empty value is obtained from the request
-   * context then it is used as the token value, otherwise the value
-   * configured in "rxconfig/Workflow/rxworkflow.properties" file is used
-   * (which defaults to empty if no property containing the token name as
-   * key is defined).
+   * @param request request context for the exit, assumed not <code>null</code>, used to obtain the
+   *     values for the tokens
+   * @return the map containing the token name and values. This map contains non-<code>null</code>
+   *     value for all supported token names. The value may be empty if this token does not the
+   *     corresponding property defined in "rxconfig/Workflow/rxworkflow.properties" file and a
+   *     non-empty value could not be obtained from the request context object. If a non-<code>null
+   *     </code> and non-empty value is obtained from the request context then it is used as the
+   *     token value, otherwise the value configured in "rxconfig/Workflow/rxworkflow.properties"
+   *     file is used (which defaults to empty if no property containing the token name as key is
+   *     defined).
    */
   @SuppressWarnings({"deprecation"})
   private static Map<String, String> getTokenValues(IPSRequestContext request) {
@@ -1082,15 +1058,13 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method adds generic and e-mail related bindings to the workflow
-   * notification template.
+   * This method adds generic and e-mail related bindings to the workflow notification template.
    *
    * @param userName the userName of who triggered the workflow notification.
    * @param email the email address of the recipient.
    * @param eval the current Jexl evaluator with bindings for processing the template.
-   * @param psSubjects the map of psSubjects populated by
-   * {@link #getUserEmails(int, int, String, int, int, Set, Set, Map)}
-   *
+   * @param psSubjects the map of psSubjects populated by {@link #getUserEmails(int, int, String,
+   *     int, int, Set, Set, Map)}
    * @return a new copy of the Jexl evaluator with updated/additional bindings.
    */
   private static PSJexlEvaluator addEmailBindings(
@@ -1125,22 +1099,19 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   /**
    * Gets the user's email addresses from the non-add-hoc and add-hoc principals.
    *
-   * The psSubjects param is populated within this empty and should be <code>empty</code>
-   * when passed in.  The method populates this map with e-mail address and PSSubject key/value
-   * pairs.  The map can be used to determine if an e-mail set in the 'to' or 'Cc' lists
-   * belong to valid Roles in the CMS and a PSSubject can be returned for that e-mail if it
-   * exists.
+   * <p>The psSubjects param is populated within this empty and should be <code>empty</code> when
+   * passed in. The method populates this map with e-mail address and PSSubject key/value pairs. The
+   * map can be used to determine if an e-mail set in the 'to' or 'Cc' lists belong to valid Roles
+   * in the CMS and a PSSubject can be returned for that e-mail if it exists.
    *
    * @param contentid the content ID.
    * @param revisionid the revision ID.
    * @param communityId the community ID.
    * @param nonAddHocUsers the none add-hoc principals, assumed not <code>null</code>.
    * @param addHocUsers the add-hoc principals, assumed not <code>null</code>.
-   * @param psSubjects an <code>empty</code> Map populated with an e-mail address and
-   * affiliated PSSubject.
-   *
+   * @param psSubjects an <code>empty</code> Map populated with an e-mail address and affiliated
+   *     PSSubject.
    * @return the user's email addresses, never <code>null</code>, but may be empty.
-   *
    * @throws Exception if error occurs.
    */
   private static List<PSNotificationEmailAddress> getUserEmails(
@@ -1190,18 +1161,14 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Replaces the all the token names contained in the specified map with
-   * the corresponding token value in the specified string.
+   * Replaces the all the token names contained in the specified map with the corresponding token
+   * value in the specified string.
    *
-   * @param tokenValues map containing the token name (<code>String</code>)
-   * as key and the token value (<code>String</code>) as value. Assumed
-   * not <code>null</code>.
-   *
+   * @param tokenValues map containing the token name (<code>String</code>) as key and the token
+   *     value (<code>String</code>) as value. Assumed not <code>null</code>.
    * @param eval jexl evaluator
-   *
-   * @return the modified string with the token names substituted with the
-   * corresponding token value, may be <code>null</code> or empty if
-   * <code>str</code> is <code>null</code> or empty.
+   * @return the modified string with the token names substituted with the corresponding token
+   *     value, may be <code>null</code> or empty if <code>str</code> is <code>null</code> or empty.
    */
   private static PSJexlEvaluator parseTokens(
       Map<String, String> tokenValues, PSJexlEvaluator eval) {
@@ -1212,15 +1179,13 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Send mail using the specified from, to, cc, subject, and body (to which a
-   * URL can be appended); the mail domain, SMTP host and optionally the mail
-   * plugin to be used are specified by properties in the rxworkflow
-   * properties file. If no custom mail plugin is specified, the Rhythmyx
-   * javamail plugin will be used.
+   * Send mail using the specified from, to, cc, subject, and body (to which a URL can be appended);
+   * the mail domain, SMTP host and optionally the mail plugin to be used are specified by
+   * properties in the rxworkflow properties file. If no custom mail plugin is specified, the
+   * Rhythmyx javamail plugin will be used.
    *
-   * @param packages - a light weight class used to contain the
-   * subject, body, to and from e-mail addresses, etc.
-   * See {@link PSMessagePackage}
+   * @param packages - a light weight class used to contain the subject, body, to and from e-mail
+   *     addresses, etc. See {@link PSMessagePackage}
    */
   public static void sendMail(List<PSMessagePackage> packages) {
     try {
@@ -1332,7 +1297,8 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
    * Takes a comma separated string and returns a list of notification emails
    *
    * @param tokenizedList
-   * @param roleName The roleName or in the case of a system field like Additional Recipients, the name of the system field.
+   * @param roleName The roleName or in the case of a system field like Additional Recipients, the
+   *     name of the system field.
    * @return a non null list of email notification addresses, may be empty.
    */
   private static List<PSNotificationEmailAddress> getCommaSeperatedEmails(
@@ -1358,17 +1324,14 @@ public class PSExitNotifyAssignees implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Map containing the token name (<code>String</code>) as key and the
-   * default value for the token (<code>String</code>) as value. Default value
-   * for the token can be specified in the
+   * Map containing the token name (<code>String</code>) as key and the default value for the token
+   * (<code>String</code>) as value. Default value for the token can be specified in the
    * "rxconfig/Workflow/rxworkflow.properties" properties file in the format:
-   * <p>
-   * wfcomment=No comment available
-   * <p>
-   * If any token is missing from the properties file, its value defaults to
-   * empty.
-   * Default value for the token is used when the user does not enter any
-   * value for the token.
+   *
+   * <p>wfcomment=No comment available
+   *
+   * <p>If any token is missing from the properties file, its value defaults to empty. Default value
+   * for the token is used when the user does not enter any value for the token.
    */
   private static final Map<String, String> MAIL_TOKENS_DEFAULT_VALUE = new HashMap<>();
 

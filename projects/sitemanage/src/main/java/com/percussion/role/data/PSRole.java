@@ -19,127 +19,125 @@ package com.percussion.role.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractNamedObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.regex.Pattern;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.configuration.annotation.IsInvariant;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 import net.sf.oval.constraint.ValidateWithMethod;
 
-/**
- * A role in the system and the users which are members of it.
- */
+/** A role in the system and the users which are members of it. */
 @XmlRootElement(name = "Role")
 @JsonRootName("Role")
 public class PSRole extends PSAbstractNamedObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private static final String INVALID_CHAR_ERROR_MSG = "invalid_character";
-    private static final String DESCR_LENGTH_ERROR_MSG = "The maximum length of a role description is 255 characters.";
-    private static final String NAME_LENGTH_ERROR_MSG = "The maximum length of a role name is 50 characters.";
+  private static final String INVALID_CHAR_ERROR_MSG = "invalid_character";
+  private static final String DESCR_LENGTH_ERROR_MSG =
+      "The maximum length of a role description is 255 characters.";
+  private static final String NAME_LENGTH_ERROR_MSG =
+      "The maximum length of a role name is 50 characters.";
 
-    private String oldName;
-    private String description;
-    private String homepage;
+  private String oldName;
+  private String description;
+  private String homepage;
 
-    @NotNull
-    private List<String> users = new ArrayList<>();
+  @NotNull private List<String> users = new ArrayList<>();
 
-    @Override
-    @IsInvariant
-    @NotNull
-    @NotBlank
-    @Length(max = 50, message = NAME_LENGTH_ERROR_MSG)
-    @ValidateWithMethod(methodName = "isValidName", parameterType = String.class, message = INVALID_CHAR_ERROR_MSG)
-    public String getName() {
-        return super.getName();
-    }
+  @Override
+  @IsInvariant
+  @NotNull
+  @NotBlank
+  @Length(max = 50, message = NAME_LENGTH_ERROR_MSG)
+  @ValidateWithMethod(
+      methodName = "isValidName",
+      parameterType = String.class,
+      message = INVALID_CHAR_ERROR_MSG)
+  public String getName() {
+    return super.getName();
+  }
 
-    @IsInvariant
-    @Length(max = 255, message = DESCR_LENGTH_ERROR_MSG)
-    public String getDescription() {
-        return description;
-    }
+  @IsInvariant
+  @Length(max = 255, message = DESCR_LENGTH_ERROR_MSG)
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public String getHomepage() {
-        return homepage;
-    }
+  public String getHomepage() {
+    return homepage;
+  }
 
-    public void setHomepage(String homepage) {
-        this.homepage = homepage;
-    }
+  public void setHomepage(String homepage) {
+    this.homepage = homepage;
+  }
 
-    public List<String> getUsers() {
-        // Defensive copy for immutability
-        return users == null ? List.of() : Collections.unmodifiableList(users);
-    }
+  public List<String> getUsers() {
+    // Defensive copy for immutability
+    return users == null ? List.of() : Collections.unmodifiableList(users);
+  }
 
-    public void setUsers(List<String> users) {
-        this.users = users == null ? new ArrayList<>() : new ArrayList<>(users);
-    }
+  public void setUsers(List<String> users) {
+    this.users = users == null ? new ArrayList<>() : new ArrayList<>(users);
+  }
 
-    @Override
-    protected boolean isValidName(String name) {
-        var regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!\\s]");
-        return !regex.matcher(name).find() && super.isValidName(name);
-    }
+  @Override
+  protected boolean isValidName(String name) {
+    var regex = Pattern.compile("[$&+,:;=\\\\?@#|/'<>.^*()%!\\s]");
+    return !regex.matcher(name).find() && super.isValidName(name);
+  }
 
-    /**
-     * Validates a role description.
-     *
-     * @param description the description to validate
-     * @return true if the description is null or no longer than 255 characters, false otherwise.
-     */
-    protected boolean isValidDescription(String description) {
-        return description == null || description.length() <= 255;
-    }
+  /**
+   * Validates a role description.
+   *
+   * @param description the description to validate
+   * @return true if the description is null or no longer than 255 characters, false otherwise.
+   */
+  protected boolean isValidDescription(String description) {
+    return description == null || description.length() <= 255;
+  }
 
-    public String getOldName() {
-        return oldName;
-    }
+  public String getOldName() {
+    return oldName;
+  }
 
-    public void setOldName(String oldName) {
-        this.oldName = oldName;
-    }
+  public void setOldName(String oldName) {
+    this.oldName = oldName;
+  }
 
-    @Override
-    public PSRole clone() throws CloneNotSupportedException {
-        var role = (PSRole) super.clone();
-        role.setDescription(this.getDescription());
-        role.setHomepage(this.getHomepage());
-        role.setOldName(this.getOldName());
-        role.setUsers(this.getUsers());
-        return role;
-    }
+  @Override
+  public PSRole clone() throws CloneNotSupportedException {
+    var role = (PSRole) super.clone();
+    role.setDescription(this.getDescription());
+    role.setHomepage(this.getHomepage());
+    role.setOldName(this.getOldName());
+    role.setUsers(this.getUsers());
+    return role;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSRole)) return false;
-        if (!super.equals(o)) return false;
-        var psRole = (PSRole) o;
-        return Objects.equals(oldName, psRole.oldName)
-                && Objects.equals(description, psRole.description)
-                && Objects.equals(homepage, psRole.homepage)
-                && Objects.equals(users, psRole.users);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSRole)) return false;
+    if (!super.equals(o)) return false;
+    var psRole = (PSRole) o;
+    return Objects.equals(oldName, psRole.oldName)
+        && Objects.equals(description, psRole.description)
+        && Objects.equals(homepage, psRole.homepage)
+        && Objects.equals(users, psRole.users);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), oldName, description, homepage, users);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), oldName, description, homepage, users);
+  }
 }

@@ -21,9 +21,9 @@ import com.percussion.server.PSRequest;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Used to generate trace messages for the Basic Request information trace message
- * type (0x0001).  Includes the type of request (POST or GET), the complete URL,
- * and the HTTP version.  This type of trace message should be invoked as soon as possible after the request has begun to be processed.
+ * Used to generate trace messages for the Basic Request information trace message type (0x0001).
+ * Includes the type of request (POST or GET), the complete URL, and the HTTP version. This type of
+ * trace message should be invoked as soon as possible after the request has begun to be processed.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceBasicRequest extends PSTraceMessage {
@@ -44,11 +44,10 @@ public class PSTraceBasicRequest extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source a PSRequest object containing the information required for the
-   * trace message
+   * @param source a PSRequest object containing the information required for the trace message
    * @return the message body
    * @roseuid 39FEE2F20167
    */

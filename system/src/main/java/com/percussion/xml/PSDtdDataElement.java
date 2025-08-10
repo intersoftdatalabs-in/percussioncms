@@ -23,39 +23,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSDtdDataElement denotes a #PCDATA Element
- *   this must extend PSDtdNode is so that it will
- *   be a valid content object to place in a PSDtdElement
+ * The PSDtdDataElement denotes a #PCDATA Element this must extend PSDtdNode is so that it will be a
+ * valid content object to place in a PSDtdElement
  *
- * @see         PSDtdElement
- *
- * @author      David Gennaco
- * @version    1.0
- * @since      1.0
+ * @see PSDtdElement
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDtdDataElement extends PSDtdNode {
   private static final Logger log = LogManager.getLogger(PSDtdDataElement.class);
 
-  /**
-   * Construct a PSDtdDataElement
-   *
-   */
+  /** Construct a PSDtdDataElement */
   PSDtdDataElement() {
     ;
   }
 
   /**
-   *  Return the name of this node
+   * Return the name of this node
    *
-   *     @return  PCDATA_STRING
+   * @return PCDATA_STRING
    */
   public String getName() {
     return PCDATA_STRING;
   }
 
-  /**
-   *  print is used for debugging purposes, and checking DTDs manually
-   */
+  /** print is used for debugging purposes, and checking DTDs manually */
   public void print(String tab) {
     log.info(tab + PCDATA_STRING);
   }
@@ -63,18 +56,13 @@ public class PSDtdDataElement extends PSDtdNode {
   /**
    * Add this data element to the catalog list.
    *
-   * This function should be overridden for all extended classes.
+   * <p>This function should be overridden for all extended classes.
    *
-   *  @param    stack       the recursion detection stack
-   *
-   *  @param    catalogList the catalog list being built
-   *
-   *  @param    cur          the current name to expand on
-   *
-   *  @param    sep          the element separator string
-   *
-   *  @param    attribId    the string used to identify an attribute entry
-   *
+   * @param stack the recursion detection stack
+   * @param catalogList the catalog list being built
+   * @param cur the current name to expand on
+   * @param sep the element separator string
+   * @param attribId the string used to identify an attribute entry
    */
   public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
     //      if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE)

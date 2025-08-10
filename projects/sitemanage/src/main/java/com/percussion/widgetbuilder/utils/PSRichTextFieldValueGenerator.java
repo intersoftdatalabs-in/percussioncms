@@ -19,46 +19,47 @@ package com.percussion.widgetbuilder.utils;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData.FieldType;
+import java.io.IOException;
+import java.text.MessageFormat;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-
 /**
  * Generates a rich text field binding for a widget field.
- * <p>
- * Sunny Sal says: "Rich text fields—because plain text is so last season!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Rich text fields—because plain text is so last season!"
  */
-public class PSRichTextFieldValueGenerator extends PSBasicFieldValueGenerator implements IPSBindingGenerator {
+public class PSRichTextFieldValueGenerator extends PSBasicFieldValueGenerator
+    implements IPSBindingGenerator {
 
-    private static String template;
+  private static String template;
 
-    @Override
-    public boolean accept(PSWidgetBuilderFieldData field) {
-        return FieldType.RICH_TEXT.name().equals(field.getType());
+  @Override
+  public boolean accept(PSWidgetBuilderFieldData field) {
+    return FieldType.RICH_TEXT.name().equals(field.getType());
+  }
+
+  @Override
+  public String generateBinding(PSWidgetBuilderFieldData field) {
+    Validate.isTrue(accept(field));
+    return MessageFormat.format(getTemplate(), field.getName());
+  }
+
+  /**
+   * Gets the cached template, lazily loading from a resource file and caching on first access.
+   *
+   * @return The template, not {@code null}.
+   */
+  private String getTemplate() {
+    if (template == null) {
+      try {
+        template =
+            IOUtils.toString(this.getClass().getResourceAsStream("RichTextFieldTemplate.txt"));
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Failed to load rich text field binding template: " + e.getMessage(), e);
+      }
     }
-
-    @Override
-    public String generateBinding(PSWidgetBuilderFieldData field) {
-        Validate.isTrue(accept(field));
-        return MessageFormat.format(getTemplate(), field.getName());
-    }
-
-    /**
-     * Gets the cached template, lazily loading from a resource file and caching on first access.
-     *
-     * @return The template, not {@code null}.
-     */
-    private String getTemplate() {
-        if (template == null) {
-            try {
-                template = IOUtils.toString(this.getClass().getResourceAsStream("RichTextFieldTemplate.txt"));
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load rich text field binding template: " + e.getMessage(), e);
-            }
-        }
-        return template;
-    }
+    return template;
+  }
 }

@@ -23,19 +23,17 @@ import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;
 import com.percussion.rest.locationscheme.LocationScheme;
 import org.springframework.stereotype.Component;
 
-/**
- * Test adaptor for LocationScheme API bridge.
- */
+/** Test adaptor for LocationScheme API bridge. */
 @Component
 public class TestLocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    @Override
-    public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
-        return null;
-    }
+  @Override
+  public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+    return null;
+  }
 
-    @Override
-    public void deletedLocationScheme(String guid) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deletedLocationScheme(String guid) {
+    // No-op for test adaptor
+  }
 }

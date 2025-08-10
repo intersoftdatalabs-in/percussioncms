@@ -42,21 +42,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This object represents the state of the logged in user. There are three methods
- * this object can be created, namely,
- * <ol>
- * <li>create empty object using the default constructor and call fromXml()
- * method. This method will give an object that may not indicate the current
- * state and depends on the XML element supplied.
- * </li>
- * <li>Create object using the constructor that takes the base URL. This way
- * the object makes a request to a known resource on Rhythmyx server to get the
- * user sate information. This is specifically designed to be used in the
- * context of applet. Assumes the user is already authenticated by browser.</li>
- * <li>Create object using the constructor that IPSRequestContext object. This
- * is useful when the object needs to be created within an exit. However, the
- * already has access to all the user state information this object can provide.</li>
+ * This object represents the state of the logged in user. There are three methods this object can
+ * be created, namely,
  *
+ * <ol>
+ *   <li>create empty object using the default constructor and call fromXml() method. This method
+ *       will give an object that may not indicate the current state and depends on the XML element
+ *       supplied.
+ *   <li>Create object using the constructor that takes the base URL. This way the object makes a
+ *       request to a known resource on Rhythmyx server to get the user sate information. This is
+ *       specifically designed to be used in the context of applet. Assumes the user is already
+ *       authenticated by browser.
+ *   <li>Create object using the constructor that IPSRequestContext object. This is useful when the
+ *       object needs to be created within an exit. However, the already has access to all the user
+ *       state information this object can provide.
  * </ol>
  */
 public class PSUserInfo implements IPSCmsComponent {
@@ -64,9 +63,9 @@ public class PSUserInfo implements IPSCmsComponent {
   private static final Logger log = LogManager.getLogger(PSUserInfo.class);
 
   /**
-   * Default constructor. Does nothing. Must be followed by call to fromXml()
-   * method. This is useful only to build an object in the fly means the state
-   * information might not come from the Rhythmyx server.
+   * Default constructor. Does nothing. Must be followed by call to fromXml() method. This is useful
+   * only to build an object in the fly means the state information might not come from the Rhythmyx
+   * server.
    */
   public PSUserInfo() {}
 
@@ -89,12 +88,11 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * Constructor meant to be used in the context of an applet. This may not work
-   * other contexts since there is no way of supplying credentials for logging
-   * in.
+   * Constructor meant to be used in the context of an applet. This may not work other contexts
+   * since there is no way of supplying credentials for logging in.
+   *
    * @param urlBase the document or code base for the applet.
-   * @throws PSCmsException if request to server to get the user info fails for
-   * any reason.
+   * @throws PSCmsException if request to server to get the user info fails for any reason.
    */
   public PSUserInfo(PSHttpConnection connection, URL urlBase) throws PSCmsException {
     m_RoleList.clear();
@@ -115,13 +113,12 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * Constructor meant to be used from exits. Exit already can provide all the
-   * information this object can provide and hence may not of great use. However,
-   * it provides a useful wrapping of the user state attributes.
-   * @param request IPSRequestContext object from where the user state
-   * information is retrieved.
-   * @throws PSCmsException if request to server to get the user info fails for
-   * any reason.
+   * Constructor meant to be used from exits. Exit already can provide all the information this
+   * object can provide and hence may not of great use. However, it provides a useful wrapping of
+   * the user state attributes.
+   *
+   * @param request IPSRequestContext object from where the user state information is retrieved.
+   * @throws PSCmsException if request to server to get the user info fails for any reason.
    */
   public PSUserInfo(IPSRequestContext request) throws PSCmsException {
     m_RoleList.clear();
@@ -239,25 +236,19 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * Serializes this object into an xml element.
-   * It will conform to the following dtd:
-   * <p>
-   * &lt;!ELEMENT PSXUserInfo (SessionId, UserName, CommunityId, Locale, Roles )>
-   * &lt;!ELEMENT Role (#PCDATA)>
-   * &lt;!ELEMENT Roles (Role+ )>
-   * &lt;!ELEMENT Locale (#PCDATA)>
-   * &lt;!ELEMENT CommunityId (#PCDATA)>
-   * &lt;!ELEMENT UserName (#PCDATA)>
-   * &lt;!ELEMENT SessionId (#PCDATA)>
-   * &lt;!ATTLIST  PSXUserInfo SecurityProviderInstance CDATA #REQUIRED>
-   * &lt;!ATTLIST  PSXUserInfo SecurityProviderTypeId CDATA #REQUIRED>
-   * &lt;!ATTLIST  PSXUserInfo SecurityProvider CDATA #REQUIRED>
+   * Serializes this object into an xml element. It will conform to the following dtd:
+   *
+   * <p>&lt;!ELEMENT PSXUserInfo (SessionId, UserName, CommunityId, Locale, Roles )> &lt;!ELEMENT
+   * Role (#PCDATA)> &lt;!ELEMENT Roles (Role+ )> &lt;!ELEMENT Locale (#PCDATA)> &lt;!ELEMENT
+   * CommunityId (#PCDATA)> &lt;!ELEMENT UserName (#PCDATA)> &lt;!ELEMENT SessionId (#PCDATA)>
+   * &lt;!ATTLIST PSXUserInfo SecurityProviderInstance CDATA #REQUIRED> &lt;!ATTLIST PSXUserInfo
+   * SecurityProviderTypeId CDATA #REQUIRED> &lt;!ATTLIST PSXUserInfo SecurityProvider CDATA
+   * #REQUIRED>
+   *
    * <p>
    *
    * @param doc Used to generate the element. May not be <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>
    */
   public Element toXml(Document doc) {
@@ -280,8 +271,9 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * User name. Normally not <code>null</code>. May be <code>null</code>
-   * or <code>empty</code> if the user is not logged into Rhythmyx properly.
+   * User name. Normally not <code>null</code>. May be <code>null</code> or <code>empty</code> if
+   * the user is not logged into Rhythmyx properly.
+   *
    * @return user name
    */
   public String getUserName() {
@@ -289,8 +281,9 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * User Comunity ID . Normally not <code>null</code>. May be <code>null</code>
-   * or <code>empty</code> if the user is not logged into Rhythmyx properly.
+   * User Comunity ID . Normally not <code>null</code>. May be <code>null</code> or <code>empty
+   * </code> if the user is not logged into Rhythmyx properly.
+   *
    * @return communty id
    */
   public int getCommunityId() {
@@ -298,9 +291,9 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * User Locale string in the standard syntax, i.e. en-us. Normally not
-   * <code>null</code>. May be <code>null</code> or <code>empty</code> if the
-   * user is not logged into Rhythmyx properly.
+   * User Locale string in the standard syntax, i.e. en-us. Normally not <code>null</code>. May be
+   * <code>null</code> or <code>empty</code> if the user is not logged into Rhythmyx properly.
+   *
    * @return user Locale
    */
   public String getLocale() {
@@ -308,8 +301,8 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * An iterator of list of user roles. Never <code>null</code> and rarely be
-   * <code>empty</code>
+   * An iterator of list of user roles. Never <code>null</code> and rarely be <code>empty</code>
+   *
    * @return list of user roles.
    */
   public Iterator getRoles() {
@@ -318,6 +311,7 @@ public class PSUserInfo implements IPSCmsComponent {
 
   /**
    * Session id of the user, never <code>null</code> or <code>empty</code>.
+   *
    * @return user's sessionid.
    */
   public String getSessionId() {
@@ -325,8 +319,9 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * User session timeout period in seconds as returned by
-   * <code>PSServer.getServerConfiguration().getUserSessionTimeout()</code>
+   * User session timeout period in seconds as returned by <code>
+   * PSServer.getServerConfiguration().getUserSessionTimeout()</code>
+   *
    * @return User session timeout period in seconds.
    * @see PSServerConfiguration
    */
@@ -336,6 +331,7 @@ public class PSUserInfo implements IPSCmsComponent {
 
   /**
    * main() method for testing purpose.
+   *
    * @param args
    */
   public static void main(String[] args) {
@@ -353,43 +349,30 @@ public class PSUserInfo implements IPSCmsComponent {
   }
 
   /**
-   * User's sessionid, standard Rhythmyx sessionid string. Never <code>null</code>
-   * if the object is constructed properly.
+   * User's sessionid, standard Rhythmyx sessionid string. Never <code>null</code> if the object is
+   * constructed properly.
    */
   private String m_SessionId;
 
-  /**
-   * User's name. Never <code>null</code> if the user is authenticated
-   * previously.
-   */
+  /** User's name. Never <code>null</code> if the user is authenticated previously. */
   private String m_UserName;
 
-  /**
-   * User's logged in communityid. Never <code>null</code> if the user logged
-   * into a community.
-   */
+  /** User's logged in communityid. Never <code>null</code> if the user logged into a community. */
   private int m_CommunityId;
 
-  /**
-   * User's logged in Locale. Never <code>null</code> if the user logged
-   * into a Locale.
-   */
+  /** User's logged in Locale. Never <code>null</code> if the user logged into a Locale. */
   private String m_Locale;
 
   /**
-   * User's role list, Never <code>null</code>  if the user is logged
-   * authenticated previously and if the object is constructed properly.
+   * User's role list, Never <code>null</code> if the user is logged authenticated previously and if
+   * the object is constructed properly.
    */
   private List<String> m_RoleList = new ArrayList<String>();
 
-  /**
-   * User session timeout in seconds. Taken from the server configuration.
-   */
+  /** User session timeout in seconds. Taken from the server configuration. */
   private int m_SessionTimeout = 0;
 
-  /**
-   * DTD string constants for this object
-   */
+  /** DTD string constants for this object */
   public static final String XML_ELEM_ROOT = "PSXUserInfo";
 
   public static final String XML_ELEM_USERNAME = "UserName";

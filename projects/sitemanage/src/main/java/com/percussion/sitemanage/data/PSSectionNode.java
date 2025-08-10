@@ -25,112 +25,111 @@ import java.util.List;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * The section node contains summary information of a section and all direct
- * child section nodes. This can be used to construct a tree of sections for
- * a specific site.
+ * The section node contains summary information of a section and all direct child section nodes.
+ * This can be used to construct a tree of sections for a specific site.
  */
 @XmlRootElement(name = "SectionNode")
 @JsonRootName("SectionNode")
 public class PSSectionNode extends PSAbstractPersistantObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private List<PSSectionNode> childNodes = new ArrayList<>();
-    private String title;
-    private String folderPath;
-    private String id;
-    private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
-    private boolean requiresLogin;
-    private String allowAccessTo;
+  private List<PSSectionNode> childNodes = new ArrayList<>();
+  private String title;
+  private String folderPath;
+  private String id;
+  private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
+  private boolean requiresLogin;
+  private String allowAccessTo;
 
-    @Override
-    @XmlElement
-    public String getId() {
-        return id;
-    }
+  @Override
+  @XmlElement
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * Gets the title of the section.
-     *
-     * @return the title of the section.
-     */
-    public String getTitle() {
-        return title;
-    }
+  /**
+   * Gets the title of the section.
+   *
+   * @return the title of the section.
+   */
+  public String getTitle() {
+    return title;
+  }
 
-    /**
-     * Sets the title of the section.
-     *
-     * @param title the new title.
-     */
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  /**
+   * Sets the title of the section.
+   *
+   * @param title the new title.
+   */
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    /**
-     * @return the section type
-     */
-    public PSSectionTypeEnum getSectionType() {
-        return sectionType;
-    }
+  /**
+   * @return the section type
+   */
+  public PSSectionTypeEnum getSectionType() {
+    return sectionType;
+  }
 
-    /**
-     * @param sectionType to set, if null set to {@link PSSectionTypeEnum#section}
-     */
-    public void setSectionType(PSSectionTypeEnum sectionType) {
-        this.sectionType = sectionType == null ? PSSectionTypeEnum.section : sectionType;
-    }
+  /**
+   * @param sectionType to set, if null set to {@link PSSectionTypeEnum#section}
+   */
+  public void setSectionType(PSSectionTypeEnum sectionType) {
+    this.sectionType = sectionType == null ? PSSectionTypeEnum.section : sectionType;
+  }
 
-    /**
-     * Gets all (direct) child nodes.
-     *
-     * @return child nodes, never null, but may be empty.
-     */
-    @XmlElementWrapper(name = "childNodes")
-    @XmlElements({@XmlElement(name = "SectionNode", type = PSSectionNode.class)})
-    public List<PSSectionNode> getChildNodes() {
-        return childNodes;
-    }
+  /**
+   * Gets all (direct) child nodes.
+   *
+   * @return child nodes, never null, but may be empty.
+   */
+  @XmlElementWrapper(name = "childNodes")
+  @XmlElements({@XmlElement(name = "SectionNode", type = PSSectionNode.class)})
+  public List<PSSectionNode> getChildNodes() {
+    return childNodes;
+  }
 
-    /**
-     * Sets direct child nodes.
-     *
-     * @param nodes the new list of child nodes, null treated as empty list.
-     */
-    public void setChildNodes(List<PSSectionNode> nodes) {
-        this.childNodes = nodes == null ? new ArrayList<>() : nodes;
-    }
+  /**
+   * Sets direct child nodes.
+   *
+   * @param nodes the new list of child nodes, null treated as empty list.
+   */
+  public void setChildNodes(List<PSSectionNode> nodes) {
+    this.childNodes = nodes == null ? new ArrayList<>() : nodes;
+  }
 
-    public boolean isRequiresLogin() {
-        return requiresLogin;
-    }
+  public boolean isRequiresLogin() {
+    return requiresLogin;
+  }
 
-    public void setRequiresLogin(boolean requiresLogin) {
-        this.requiresLogin = requiresLogin;
-    }
+  public void setRequiresLogin(boolean requiresLogin) {
+    this.requiresLogin = requiresLogin;
+  }
 
-    public Optional<String> getAllowAccessTo() {
-        return Optional.ofNullable(allowAccessTo);
-    }
+  public Optional<String> getAllowAccessTo() {
+    return Optional.ofNullable(allowAccessTo);
+  }
 
-    public void setAllowAccessTo(String allowAccessTo) {
-        this.allowAccessTo = allowAccessTo;
-    }
+  public void setAllowAccessTo(String allowAccessTo) {
+    this.allowAccessTo = allowAccessTo;
+  }
 
-    public Optional<String> getFolderPath() {
-        return Optional.ofNullable(folderPath);
-    }
+  public Optional<String> getFolderPath() {
+    return Optional.ofNullable(folderPath);
+  }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 }

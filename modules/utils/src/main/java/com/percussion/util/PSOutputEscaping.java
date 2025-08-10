@@ -20,23 +20,17 @@ package com.percussion.util;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A simple class that handles "escaped" text.
- */
+/** A simple class that handles "escaped" text. */
 public class PSOutputEscaping {
 
   /**
-   * This method searches for the following strings
-   * "&amp","&lt","&gt","&quot","&apos"
-   * and replaces them with "&","<",">","\"","'" respectively
+   * This method searches for the following strings "&amp","&lt","&gt","&quot","&apos" and replaces
+   * them with "&","<",">","\"","'" respectively
    *
-   * @param escaped the string in which to perform the string
-   * substitution, may not be <code>null</code> or empty.
-   *
+   * @param escaped the string in which to perform the string substitution, may not be <code>null
+   *     </code> or empty.
    * @return the modified string
-   *
-   * @throws IllegalArgumentException if escaped is <code>null</code> or
-   * empty.
+   * @throws IllegalArgumentException if escaped is <code>null</code> or empty.
    */
   public static String unEscape(String escaped) {
     if ((escaped == null) || (escaped.trim().length() == 0))
@@ -91,18 +85,13 @@ public class PSOutputEscaping {
   }
 
   /**
-   * This method searches for the following chars
-   * "&","<",">","\"","'"    *
-   * and replaces them with "&amp","&lt","&gt","&quot","&apos"
-   * respectively
+   * This method searches for the following chars "&","<",">","\"","'" * and replaces them with
+   * "&amp","&lt","&gt","&quot","&apos" respectively
    *
-   * @param str the string in which to perform the string
-   * substitution, may not be <code>null</code> or empty.
-   *
+   * @param str the string in which to perform the string substitution, may not be <code>null</code>
+   *     or empty.
    * @return the modified string
-   *
-   * @throws IllegalArgumentException if string is <code>null</code> or
-   * empty.
+   * @throws IllegalArgumentException if string is <code>null</code> or empty.
    */
   public static String escape(String str) {
     if ((str == null) || (str.trim().length() == 0))
@@ -117,9 +106,7 @@ public class PSOutputEscaping {
     return out.toString();
   }
 
-  /**
-   * Strings which need to be substituted/unescaped.
-   */
+  /** Strings which need to be substituted/unescaped. */
   public static final String AMP = "&amp;";
 
   public static final String LT = "&lt;";
@@ -127,9 +114,7 @@ public class PSOutputEscaping {
   public static final String QUOT = "&quot;";
   public static final String APOS = "&apos;";
 
-  /**
-   * Map of character to entity mappings
-   */
+  /** Map of character to entity mappings */
   public static final Map ms_escapeMap = new HashMap();
 
   static {
@@ -141,8 +126,8 @@ public class PSOutputEscaping {
   }
 
   /**
-   * Array of the strings which need to be substituted/unescaped
-   * and the strings with which the substituion will be done.
+   * Array of the strings which need to be substituted/unescaped and the strings with which the
+   * substituion will be done.
    */
   private static final String ENTITYTABLE[][] = {
     {AMP, "&"},

@@ -22,21 +22,19 @@ import javax.servlet.ServletRequest;
  * Handle authorization of a tenant id.
  *
  * @author erikserating
- *
  */
 public interface IPSTenantAuthorization {
 
   /**
-   * Authorize the tenantid from a request to make sure it is an existing tenantid attached to a customer
-   * account and it is active and the request quota has not been exceeded.
+   * Authorize the tenantid from a request to make sure it is an existing tenantid attached to a
+   * customer account and it is active and the request quota has not been exceeded.
+   *
    * @param tenantid the tenantid string, cannot be <code>null</code> or empty.
    * @return the appropriate status code, never <code>null</code>.
    */
   public PSLicenseStatus authorize(String tenantid, long apiCalls, ServletRequest req);
 
-  /**
-   * Authorization status codes.
-   */
+  /** Authorization status codes. */
   public enum Status {
     UNEXPECTED_ERROR, // Validation failed due to a system error - client behavior will be different
     // than a failure

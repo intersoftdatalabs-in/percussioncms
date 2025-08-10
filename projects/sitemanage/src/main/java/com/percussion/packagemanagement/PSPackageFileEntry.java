@@ -17,55 +17,55 @@
  */
 package com.percussion.packagemanagement;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a package file entry for installation management.
- * Sunny Sal says: "Package entries—because every install deserves a status update!"
+ * Represents a package file entry for installation management. Sunny Sal says: "Package
+ * entries—because every install deserves a status update!"
  *
  * @author JaySeletz
  */
 @XmlRootElement(name = "PackageFileEntry")
 public class PSPackageFileEntry {
 
-    private String packageName;
-    private PackageFileStatus status;
+  private String packageName;
+  private PackageFileStatus status;
 
-    public String getPackageName() {
-        return packageName;
-    }
+  public String getPackageName() {
+    return packageName;
+  }
 
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
+  public void setPackageName(String packageName) {
+    this.packageName = packageName;
+  }
 
-    public PackageFileStatus getStatus() {
-        return status;
-    }
+  public PackageFileStatus getStatus() {
+    return status;
+  }
 
-    public void setStatus(PackageFileStatus status) {
-        this.status = status;
-    }
+  public void setStatus(PackageFileStatus status) {
+    this.status = status;
+  }
 
-    public enum PackageFileStatus {
-        FAILED,
-        INSTALLED,
-        REVERT,
-        UNINSTALL,
-        PENDING
-    }
+  public enum PackageFileStatus {
+    FAILED,
+    INSTALLED,
+    REVERT,
+    UNINSTALL,
+    PENDING
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSPackageFileEntry)) return false;
-        PSPackageFileEntry that = (PSPackageFileEntry) o;
-        return Objects.equals(packageName, that.packageName) && status == that.status;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSPackageFileEntry)) return false;
+    PSPackageFileEntry that = (PSPackageFileEntry) o;
+    return Objects.equals(packageName, that.packageName) && status == that.status;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(packageName, status);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(packageName, status);
+  }
 }

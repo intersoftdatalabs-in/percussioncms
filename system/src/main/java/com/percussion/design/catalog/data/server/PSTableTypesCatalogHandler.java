@@ -35,20 +35,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSTableTypesCatalogHandler class implements cataloging of
- * table types in the specified back-end database.
- * <p>
- * The request format is defined in the
- * {@link com.percussion.design.catalog.data.PSTableTypesCatalogHandler
- *  com.percussion.design.catalog.data.PSTableTypesCatalogHandler} class.
+ * The PSTableTypesCatalogHandler class implements cataloging of table types in the specified
+ * back-end database.
  *
+ * <p>The request format is defined in the {@link
+ * com.percussion.design.catalog.data.PSTableTypesCatalogHandler
+ * com.percussion.design.catalog.data.PSTableTypesCatalogHandler} class.
  */
 public class PSTableTypesCatalogHandler
     extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSTableTypesCatalogHandler() {
     super();
   }
@@ -56,10 +53,9 @@ public class PSTableTypesCatalogHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {"PSXTableTypesCatalog"};
@@ -68,12 +64,10 @@ public class PSTableTypesCatalogHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -143,9 +137,7 @@ public class PSTableTypesCatalogHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

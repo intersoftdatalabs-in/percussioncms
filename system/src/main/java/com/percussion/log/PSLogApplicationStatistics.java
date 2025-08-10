@@ -20,49 +20,47 @@ package com.percussion.log;
 import java.util.Map;
 
 /**
- * The PSLogApplicationStatistics class is used to log the application
- * statistics when an application is shut down.
- * <p>
- * The following information is logged:
+ * The PSLogApplicationStatistics class is used to log the application statistics when an
+ * application is shut down.
+ *
+ * <p>The following information is logged:
+ *
  * <ul>
- * <li>the amount of time the application was up for</li>
- * <li>the number of events processed</li>
- * <li>the number of events failed</li>
- * <li>the number of events left pending</li>
- * <li>the number of query cache hits</li>
- * <li>the number of query cache misses</li>
- * <li>the minimum amount of time to process an event</li>
- * <li>the maximum amount of time to process an event</li>
- * <li>the average amount of time to process an event</li>
+ *   <li>the amount of time the application was up for
+ *   <li>the number of events processed
+ *   <li>the number of events failed
+ *   <li>the number of events left pending
+ *   <li>the number of query cache hits
+ *   <li>the number of query cache misses
+ *   <li>the minimum amount of time to process an event
+ *   <li>the maximum amount of time to process an event
+ *   <li>the average amount of time to process an event
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogApplicationStatistics extends PSLogInformation {
   /**
    * Construct a log message for application statistics.
-   * <p>
-   * The following list contains the supported keys and values:
+   *
+   * <p>The following list contains the supported keys and values:
+   *
    * <ul>
-   * <li>elapsedTime - (subtype 1) the amount of time the application was
-   *     up for</li>
-   * <li>eventsProcessed - (subtype 2) the number of events processed</li>
-   * <li>eventsPending - (subtype 3) the number of events left pending</li>
-   * <li>eventsFailed - (subtype 4) the number of events failed</li>
-   * <li>cacheHits - (subtype 5) the number of query cache hits</li>
-   * <li>cacheMisses - (subtype 6) the number of query cache misses</li>
-   * <li>minProcTime - (subtype 7) the minimum amount of time to process
-   *     an event</li>
-   * <li>maxProcTime - (subtype 8) the maximum amount of time to process
-   *     an event</li>
-   * <li>avgProcTime - (subtype 9) the average amount of time to process
-   *     an event</li>
+   *   <li>elapsedTime - (subtype 1) the amount of time the application was up for
+   *   <li>eventsProcessed - (subtype 2) the number of events processed
+   *   <li>eventsPending - (subtype 3) the number of events left pending
+   *   <li>eventsFailed - (subtype 4) the number of events failed
+   *   <li>cacheHits - (subtype 5) the number of query cache hits
+   *   <li>cacheMisses - (subtype 6) the number of query cache misses
+   *   <li>minProcTime - (subtype 7) the minimum amount of time to process an event
+   *   <li>maxProcTime - (subtype 8) the maximum amount of time to process an event
+   *   <li>avgProcTime - (subtype 9) the average amount of time to process an event
    * </ul>
    *
-   * @param   id       the id of the application these statistics represent
-   * @param   stats    the statistics to be reported
+   * @param id the id of the application these statistics represent
+   * @param stats the statistics to be reported
    */
   public PSLogApplicationStatistics(int id, Map stats) {
     super(LOG_TYPE, id);
@@ -107,20 +105,17 @@ public class PSLogApplicationStatistics extends PSLogInformation {
   }
 
   /**
-   * Get the sub-messages (type and text). A sub-message is created
-   * for each statistic reported when this object was created. See the
-   * {@link #PSLogApplicationStatistics(int, java.util.Map) constructor}
-   * for more details.
+   * Get the sub-messages (type and text). A sub-message is created for each statistic reported when
+   * this object was created. See the {@link #PSLogApplicationStatistics(int, java.util.Map)
+   * constructor} for more details.
    *
-   * @return  an array of sub-messages (PSLogSubMessage)
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages() {
     return m_subs;
   }
 
-  /**
-   * Application statistics is set as type 6.
-   */
+  /** Application statistics is set as type 6. */
   private static final int LOG_TYPE = 6;
 
   private PSLogSubMessage[] m_subs = null;

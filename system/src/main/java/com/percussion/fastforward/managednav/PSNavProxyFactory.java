@@ -26,23 +26,21 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * PSNavProxyFactory is a factory for relationship proxy objects. Rather than
- * create these objects repeated, a set of proxy objects is created for each
- * <code>IPSRequestContext</code> object.
- * <p>
- * There are 3 proxy objects
+ * PSNavProxyFactory is a factory for relationship proxy objects. Rather than create these objects
+ * repeated, a set of proxy objects is created for each <code>IPSRequestContext</code> object.
+ *
+ * <p>There are 3 proxy objects
+ *
  * <ul>
- * <li>the Active Assembly processor proxy for finding items in a slot</li>
- * <li>the Relationship processor proxy for finding all relationships</li>
- * <li>the Component processor proxy for loading all other components</li>
+ *   <li>the Active Assembly processor proxy for finding items in a slot
+ *   <li>the Relationship processor proxy for finding all relationships
+ *   <li>the Component processor proxy for loading all other components
  * </ul>
- * <p>
- * This class implements the <code>Singleton</code> pattern. It is never
- * directly constructed. There is one proxy factory for each
- * <code>IPSRequestContext</code>
+ *
+ * <p>This class implements the <code>Singleton</code> pattern. It is never directly constructed.
+ * There is one proxy factory for each <code>IPSRequestContext</code>
  *
  * @author DavidBenua
- *
  */
 public class PSNavProxyFactory {
 
@@ -71,8 +69,7 @@ public class PSNavProxyFactory {
   }
 
   /**
-   * Gets the processor factory for this request context. If one does not
-   * exist, it will be created.
+   * Gets the processor factory for this request context. If one does not exist, it will be created.
    *
    * @param req the parent request context
    * @return the factory instance. Never <code>null</code>
@@ -113,23 +110,15 @@ public class PSNavProxyFactory {
     return m_relProxy;
   }
 
-  /**
-   * Writes messages from this class to the log file.
-   */
+  /** Writes messages from this class to the log file. */
   private static final Logger log = LogManager.getLogger(PSNavProxyFactory.class);
 
-  /**
-   * The Active Assembly Processor proxy.
-   */
+  /** The Active Assembly Processor proxy. */
   private PSActiveAssemblyProcessorProxy m_aaProxy = null;
 
-  /**
-   * The Component Processor proxy.
-   */
+  /** The Component Processor proxy. */
   private IPSComponentProcessor m_compProxy = null;
 
-  /**
-   * The Relationship Processor proxy.
-   */
+  /** The Relationship Processor proxy. */
   private PSRelationshipProcessor m_relProxy = null;
 }

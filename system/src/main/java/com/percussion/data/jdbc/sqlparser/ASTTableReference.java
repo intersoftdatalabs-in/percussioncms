@@ -45,7 +45,7 @@ public class ASTTableReference extends SimpleNode {
   private String m_table;
   private String m_alias;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

@@ -18,22 +18,18 @@ package com.percussion.pso.restservice.support;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- */
+/** */
 public class ImportItemSystemInfoLocator extends PSBaseServiceLocator {
-	
-	   /**
-	    * Gets the PSO Workflow Action Service bean. 
-	   
-	    * @return the PSO Workflow Action Service bean.  */
-	   public static IImportItemSystemInfo getImportItemSystemInfo()
-	   {
-	      return (IImportItemSystemInfo) PSBaseServiceLocator.getBean(IMPORT_SYSTEM_INFO_BEAN); 
-	   }
-	   
-	   /**
-	    * Field IMPORT_SYSTEM_INFO_BEAN.
-	    * (value is ""psoImportSystemInfo"")
-	    */
-	   public static final String IMPORT_SYSTEM_INFO_BEAN = "psoImportSystemInfo";
-	}
+
+  /**
+   * Gets the PSO Workflow Action Service bean.
+   *
+   * @return the PSO Workflow Action Service bean.
+   */
+  public static IImportItemSystemInfo getImportItemSystemInfo() {
+    return (IImportItemSystemInfo) PSBaseServiceLocator.getBean(IMPORT_SYSTEM_INFO_BEAN);
+  }
+
+  /** Field IMPORT_SYSTEM_INFO_BEAN. (value is ""psoImportSystemInfo"") */
+  public static final String IMPORT_SYSTEM_INFO_BEAN = "psoImportSystemInfo";
+}

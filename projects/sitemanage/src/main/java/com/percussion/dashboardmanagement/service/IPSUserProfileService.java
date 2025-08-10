@@ -22,65 +22,64 @@ import com.percussion.share.service.exception.IPSNotFoundException;
 
 /**
  * Service for managing user profiles.
- * <p>
- * Sunny Sal says: "User profiles, now Java 11 and Google-styled!"
+ *
+ * <p>Sunny Sal says: "User profiles, now Java 11 and Google-styled!"
  */
-public interface IPSUserProfileService extends IPSDataService<PSUserProfile, PSUserProfile, String> {
+public interface IPSUserProfileService
+    extends IPSDataService<PSUserProfile, PSUserProfile, String> {
 
-    /**
-     * Saves a user profile.
-     *
-     * @param profile the profile to save
-     * @return the saved profile
-     * @throws PSUserProfileServiceException on service error
-     */
-    PSUserProfile save(PSUserProfile profile) throws PSUserProfileServiceException;
+  /**
+   * Saves a user profile.
+   *
+   * @param profile the profile to save
+   * @return the saved profile
+   * @throws PSUserProfileServiceException on service error
+   */
+  PSUserProfile save(PSUserProfile profile) throws PSUserProfileServiceException;
 
-    /**
-     * Finds a user profile by username.
-     *
-     * @param userName the username
-     * @return the user profile
-     * @throws PSUserProfileNotFoundException if not found
-     * @throws PSUserProfileServiceException on service error
-     */
-    PSUserProfile find(String userName) throws PSUserProfileNotFoundException, PSUserProfileServiceException;
+  /**
+   * Finds a user profile by username.
+   *
+   * @param userName the username
+   * @return the user profile
+   * @throws PSUserProfileNotFoundException if not found
+   * @throws PSUserProfileServiceException on service error
+   */
+  PSUserProfile find(String userName)
+      throws PSUserProfileNotFoundException, PSUserProfileServiceException;
 
-    /**
-     * Exception for user profile service errors.
-     */
-    class PSUserProfileServiceException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+  /** Exception for user profile service errors. */
+  class PSUserProfileServiceException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
-        public PSUserProfileServiceException(String message) {
-            super(message);
-        }
-
-        public PSUserProfileServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSUserProfileServiceException(Throwable cause) {
-            super(cause);
-        }
+    public PSUserProfileServiceException(String message) {
+      super(message);
     }
 
-    /**
-     * Exception for user profile not found scenarios.
-     */
-    class PSUserProfileNotFoundException extends PSUserProfileServiceException implements IPSNotFoundException {
-        private static final long serialVersionUID = 1L;
-
-        public PSUserProfileNotFoundException(String message) {
-            super(message);
-        }
-
-        public PSUserProfileNotFoundException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSUserProfileNotFoundException(Throwable cause) {
-            super(cause);
-        }
+    public PSUserProfileServiceException(String message, Throwable cause) {
+      super(message, cause);
     }
+
+    public PSUserProfileServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /** Exception for user profile not found scenarios. */
+  class PSUserProfileNotFoundException extends PSUserProfileServiceException
+      implements IPSNotFoundException {
+    private static final long serialVersionUID = 1L;
+
+    public PSUserProfileNotFoundException(String message) {
+      super(message);
+    }
+
+    public PSUserProfileNotFoundException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSUserProfileNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

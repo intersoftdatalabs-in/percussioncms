@@ -35,12 +35,11 @@
 package com.percussion.log;
 
 /**
- * The PSLogServerWarning class is used to log a warning (information)
- * message for the server.
+ * The PSLogServerWarning class is used to log a warning (information) message for the server.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogServerWarning extends PSLogInformation {
 
@@ -80,24 +79,20 @@ public class PSLogServerWarning extends PSLogInformation {
   /**
    * Construct a log message for a server warning.
    *
-   * @param   msgCode         the code describing the type of warning
-   *
-   * @param   msgParams      if the string associated with the message
-   *                           code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param msgCode the code describing the type of warning
+   * @param msgParams if the string associated with the message code specifies parameters, this is
+   *     an array of values to use to fill the string appropriately. Be sure to include the correct
+   *     arguments in their correct positions!
    */
   public PSLogServerWarning(int msgCode, Object[] msgParams) {
     this(msgCode, msgParams, false, null);
   }
 
   /**
-   * Get the sub-messages (type and text). A single sub-message is created
-   * containing the name of the application being started.
+   * Get the sub-messages (type and text). A single sub-message is created containing the name of
+   * the application being started.
    *
-   * @return   an array of sub-messages (PSLogSubMessage)
+   * @return an array of sub-messages (PSLogSubMessage)
    */
   public PSLogSubMessage[] getSubMessages() {
     if (m_Subs == null) {
@@ -112,14 +107,10 @@ public class PSLogServerWarning extends PSLogInformation {
     return m_Subs;
   }
 
-  /**
-   * server warning is set as type 10.
-   */
+  /** server warning is set as type 10. */
   private static final int LOG_TYPE = 10;
 
-  /**
-   *   The array of sub-messages
-   */
+  /** The array of sub-messages */
   protected PSLogSubMessage[] m_Subs = null;
 
   protected int m_msgCode;

@@ -20,10 +20,9 @@ import com.percussion.design.objectstore.IPSComponent;
 import org.w3c.dom.Element;
 
 /**
- * The extension param def provides the name, type, and description of a
- * runtime parameter that is used or required by an extension. Parameters
- * are bound at extension invocation time via an extension-specific
- * mechanism.
+ * The extension param def provides the name, type, and description of a runtime parameter that is
+ * used or required by an extension. Parameters are bound at extension invocation time via an
+ * extension-specific mechanism.
  */
 public interface IPSExtensionParamDef extends IPSComponent {
   /**
@@ -34,32 +33,28 @@ public interface IPSExtensionParamDef extends IPSComponent {
   String getName();
 
   /**
-   * Gets the name of the parameter data type. The set of valid type names
-   * will be different for each language.
+   * Gets the name of the parameter data type. The set of valid type names will be different for
+   * each language.
    *
    * @return The data type name. Never {@code null}.
    */
   String getDataType();
 
   /**
-   * Gets the description of this parameter, which is free-form human
-   * readable text used to describe the parameter and possibly its usage and
-   * constraints. Can be {@code null}.
+   * Gets the description of this parameter, which is free-form human readable text used to describe
+   * the parameter and possibly its usage and constraints. Can be {@code null}.
    *
-   * @return The human readable description, or {@code null} if none
-   * is provided.
+   * @return The human readable description, or {@code null} if none is provided.
    */
   String getDescription();
 
   /**
    * Serializes this param def into (or under) the given root element.
    *
-   * @param root The root element. If root is of the correct type,
-   * then the content will be created directly under root. If root
-   * is not of the correct type, an additional element of the correct
-   * type will be created under root, and the content stored directly beneath
-   * the newly created element. Must not be {@code null}.
-   *
+   * @param root The root element. If root is of the correct type, then the content will be created
+   *     directly under root. If root is not of the correct type, an additional element of the
+   *     correct type will be created under root, and the content stored directly beneath the newly
+   *     created element. Must not be {@code null}.
    * @return The element under which the content was stored directly.
    */
   Element toXml(Element root);

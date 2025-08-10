@@ -30,9 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * The macro catalog handler.
- */
+/** The macro catalog handler. */
 public class PSMacroCatalogHandler implements IPSCatalogHandler {
   /**
    * Formats the request for the supplied properties.
@@ -94,26 +92,26 @@ public class PSMacroCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Constant for the "RequestCategory" key for the properties object
-   * specified in the <code>formatRequest()</code> method
+   * Constant for the "RequestCategory" key for the properties object specified in the <code>
+   * formatRequest()</code> method
    */
   public static final String REQ_CATEGORY_KEY = "RequestCategory";
 
   /**
-   * Constant for the value of the "RequestCategory" key for the properties
-   * object specified in the <code>formatRequest()</code> method
+   * Constant for the value of the "RequestCategory" key for the properties object specified in the
+   * <code>formatRequest()</code> method
    */
   public static final String REQ_CATEGORY_VALUE = "macro";
 
   /**
-   * Constant for the "RequestType" key for the properties object
-   * specified in the <code>formatRequest()</code> method
+   * Constant for the "RequestType" key for the properties object specified in the <code>
+   * formatRequest()</code> method
    */
   public static final String REQ_TYPE_KEY = "RequestType";
 
   /**
-   * Constant for the value of the "RequestType" key for the properties
-   * object specified in the <code>formatRequest()</code> method
+   * Constant for the value of the "RequestType" key for the properties object specified in the
+   * <code>formatRequest()</code> method
    */
   public static final String REQ_TYPE_VALUE = "Macro";
 

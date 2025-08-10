@@ -32,37 +32,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndConnection class is used to define the attributes for
- * a back-end connection pool. To optimize access to back-end data, the
- * server provides mechanisms for sharing connections across threads. The
- * connections can also be kept open, even when idle, to avoid the heavy
- * overhead of opening a connection.
+ * The PSBackEndConnection class is used to define the attributes for a back-end connection pool. To
+ * optimize access to back-end data, the server provides mechanisms for sharing connections across
+ * threads. The connections can also be kept open, even when idle, to avoid the heavy overhead of
+ * opening a connection.
  *
- * @see         PSLegacyServerConfig
- * @see         PSLegacyServerConfig#getBackEndConnections()
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSLegacyServerConfig
+ * @see PSLegacyServerConfig#getBackEndConnections()
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLegacyBackEndConnection extends PSComponent {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacyBackEndConnection(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -71,22 +62,17 @@ public class PSLegacyBackEndConnection extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSLegacyBackEndConnection() {
     super();
   }
 
   /**
-   * Constructs a back-end connection object for the specified
-   * JDBC driver.
+   * Constructs a back-end connection object for the specified JDBC driver.
    *
-   * @param   driverName      the JDBC driver name
-   *
-   * @param   className      the Java class implementing this driver
-   *
-   * @param   serverName      the server the connection pool is for
+   * @param driverName the JDBC driver name
+   * @param className the Java class implementing this driver
+   * @param serverName the server the connection pool is for
    */
   public PSLegacyBackEndConnection(String driverName, String className, String serverName) {
     setJdbcDriverName(driverName);
@@ -123,20 +109,20 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Get the JDBC driver name used by this driver. This is used in the
-   * connect string to access the driver.
+   * Get the JDBC driver name used by this driver. This is used in the connect string to access the
+   * driver.
    *
-   * @return            the driver name
+   * @return the driver name
    */
   public String getJdbcDriverName() {
     return m_jdbcDriverName;
   }
 
   /**
-   * Set the JDBC driver name used by this driver. This is used in the
-   * connect string to access the driver.
+   * Set the JDBC driver name used by this driver. This is used in the connect string to access the
+   * driver.
    *
-   * @param   name      the driver name
+   * @param name the driver name
    */
   public void setJdbcDriverName(String name) {
     IllegalArgumentException ex = validateJdbcDriverName(name);
@@ -154,20 +140,20 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Get the name of the class implementing this JDBC driver.
-   * This is used to load the driver, if it is not already loaded.
+   * Get the name of the class implementing this JDBC driver. This is used to load the driver, if it
+   * is not already loaded.
    *
-   * @return            the class name
+   * @return the class name
    */
   public String getJdbcClassName() {
     return m_jdbcClassName;
   }
 
   /**
-   * Set the name of the class implementing this JDBC driver.
-   * This is used to load the driver, if it is not already loaded.
+   * Set the name of the class implementing this JDBC driver. This is used to load the driver, if it
+   * is not already loaded.
    *
-   * @param   name      the class name
+   * @param name the class name
    */
   public void setJdbcClassName(String name) {
     IllegalArgumentException ex = validateJdbcClassName(name);
@@ -187,7 +173,7 @@ public class PSLegacyBackEndConnection extends PSComponent {
   /**
    * Get the back-end server associated with this connection pool.
    *
-   * @return       the back-end server
+   * @return the back-end server
    */
   public java.lang.String getServer() {
     return m_server;
@@ -196,7 +182,7 @@ public class PSLegacyBackEndConnection extends PSComponent {
   /**
    * Set the back-end server associated with this connection pool.
    *
-   * @param server   the back-end server
+   * @param server the back-end server
    */
   public void setServer(java.lang.String server) {
     if (server == null) server = "";
@@ -217,22 +203,20 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Get the maximum number of connections which can be established
-   * to the back-end through this database pool.
+   * Get the maximum number of connections which can be established to the back-end through this
+   * database pool.
    *
-   * @return            the maximum number of connections; -1 if
-   *                     unlimited connections are permitted
+   * @return the maximum number of connections; -1 if unlimited connections are permitted
    */
   public int getConnectionMax() {
     return m_connMax;
   }
 
   /**
-   * Set the maximum number of connections which can be established
-   * to the back-end through this database pool.
+   * Set the maximum number of connections which can be established to the back-end through this
+   * database pool.
    *
-   * @param   max      the maximum number of connections; use -1 to
-   *                     allow unlimited connections
+   * @param max the maximum number of connections; use -1 to allow unlimited connections
    */
   public void setConnectionMax(int max) {
     IllegalArgumentException ex = validateConnectionMax(max);
@@ -251,30 +235,24 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Get the minimum number of connections which should be established
-   * to the back-end through this database pool. Even if a connection
-   * stays idle beyond the idle time limit, it will not be closed if
-   * that would cause the number of open connections to fall below this
-   * limit.
+   * Get the minimum number of connections which should be established to the back-end through this
+   * database pool. Even if a connection stays idle beyond the idle time limit, it will not be
+   * closed if that would cause the number of open connections to fall below this limit.
    *
-   * @return            the minimum number of connections
-   *
-   * @see               #getIdleTimeout
+   * @return the minimum number of connections
+   * @see #getIdleTimeout
    */
   public int getConnectionMin() {
     return m_connMin;
   }
 
   /**
-   * Set the minimum number of connections which should be established
-   * to the back-end through this database pool. Even if a connection
-   * stays idle beyond the idle time limit, it will not be closed if
-   * that would cause the number of open connections to fall below this
-   * limit.
+   * Set the minimum number of connections which should be established to the back-end through this
+   * database pool. Even if a connection stays idle beyond the idle time limit, it will not be
+   * closed if that would cause the number of open connections to fall below this limit.
    *
-   * @param   min      the minimum number of connections
-   *
-   * @see               #setIdleTimeout
+   * @param min the minimum number of connections
+   * @see #setIdleTimeout
    */
   public void setConnectionMin(int min) {
     IllegalArgumentException ex = validateConnectionMin(min);
@@ -292,53 +270,47 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Get the amount of idle time, in seconds, that will cause a connection
-   * to be closed. Even if a connection stays idle beyond the idle time
-   * limit, it will not be closed if that would cause the number of open
-   * connections to fall below the minimum number of connections required.
+   * Get the amount of idle time, in seconds, that will cause a connection to be closed. Even if a
+   * connection stays idle beyond the idle time limit, it will not be closed if that would cause the
+   * number of open connections to fall below the minimum number of connections required.
    *
-   * @return            the amount of idle time, in seconds, which will
-   *                     cause an idle connection to close
-   *
-   * @see               #getConnectionMin
+   * @return the amount of idle time, in seconds, which will cause an idle connection to close
+   * @see #getConnectionMin
    */
   public int getIdleTimeout() {
     return m_idleTimeoutSeconds;
   }
 
   /**
-   * Set the amount of idle time, in seconds, that will cause a connection
-   * to be closed. Even if a connection stays idle beyond the idle time
-   * limit, it will not be closed if that would cause the number of open
-   * connections to fall below the minimum number of connections required.
+   * Set the amount of idle time, in seconds, that will cause a connection to be closed. Even if a
+   * connection stays idle beyond the idle time limit, it will not be closed if that would cause the
+   * number of open connections to fall below the minimum number of connections required.
    *
-   * @param   seconds   the amount of idle time, in seconds, which will
-   *                     cause an idle connection to close
+   * @param seconds the amount of idle time, in seconds, which will cause an idle connection to
+   *     close
    */
   public void setIdleTimeout(int seconds) {
     m_idleTimeoutSeconds = seconds;
   }
 
   /**
-   * Gets the maximum the amount of time, in seconds, that a connection should
-   * go without use.  When this time has elapsed, the connection should be
-   * used to ensure that it will stay alive.
+   * Gets the maximum the amount of time, in seconds, that a connection should go without use. When
+   * this time has elapsed, the connection should be used to ensure that it will stay alive.
    *
-   * @return the maximum number of seconds that should elapse between
-   * refreshes, or -1 if refreshes are disabled.
+   * @return the maximum number of seconds that should elapse between refreshes, or -1 if refreshes
+   *     are disabled.
    */
   public int getRefreshPeriodSeconds() {
     return m_refreshPeriodSeconds;
   }
 
   /**
-   * Sets the number of seconds that may elapse between tests of the validity
-   * of a connection to this backend.  When this period has elapsed, a
-   * connection should be exercised to ensure it is still valid and will
-   * not be closed due to idleness.
+   * Sets the number of seconds that may elapse between tests of the validity of a connection to
+   * this backend. When this period has elapsed, a connection should be exercised to ensure it is
+   * still valid and will not be closed due to idleness.
    *
-   * @param seconds the amount of time, in seconds, which should cause a
-   * connection to be refreshed (supply <code>-1</code> to disable refreshing).
+   * @param seconds the amount of time, in seconds, which should cause a connection to be refreshed
+   *     (supply <code>-1</code> to disable refreshing).
    */
   public void setRefreshPeriodSeconds(int seconds) {
     if (seconds != -1 && seconds < 1)
@@ -350,10 +322,11 @@ public class PSLegacyBackEndConnection extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndConnection XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndConnection XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *      PSBackEndConnection defines the connection configuration for a
@@ -424,7 +397,7 @@ public class PSLegacyBackEndConnection extends PSComponent {
    *    &lt;!ELEMENT connectionRefreshPeriod   (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXBackEndConnection XML element node
+   * @return the newly created PSXBackEndConnection XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -456,12 +429,11 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndConnection Java object
-   * from a PSXBackEndConnection XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndConnection Java object from a PSXBackEndConnection
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   * type PSXBackEndConnection
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndConnection
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -554,18 +526,15 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -595,9 +564,8 @@ public class PSLegacyBackEndConnection extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSComponent.
    */
@@ -643,10 +611,9 @@ public class PSLegacyBackEndConnection extends PSComponent {
   private int m_idleTimeoutSeconds = 300;
 
   /**
-   * How often should connections to this backend be refreshed (maximum
-   * time between queries)?  A value of <code>-1</code> indicates connections
-   * never need to be refreshed.  Assigned in <code>fromXml</code> and
-   * <code>setRefreshPeriodSeconds</code>.
+   * How often should connections to this backend be refreshed (maximum time between queries)? A
+   * value of <code>-1</code> indicates connections never need to be refreshed. Assigned in <code>
+   * fromXml</code> and <code>setRefreshPeriodSeconds</code>.
    */
   private int m_refreshPeriodSeconds = -1;
 

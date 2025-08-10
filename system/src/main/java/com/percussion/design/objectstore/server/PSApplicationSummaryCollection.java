@@ -28,17 +28,12 @@ public class PSApplicationSummaryCollection {
   }
 
   /**
-   * Create a new collection of application summaries for the given
-   * applications. New summaries can be added later, and summaries
-   * can also be removed.
+   * Create a new collection of application summaries for the given applications. New summaries can
+   * be added later, and summaries can also be removed.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   *
-   * @param   apps
-   *
+   * @param apps
    */
   PSApplicationSummaryCollection(PSApplication[] apps) {
     this();
@@ -49,23 +44,18 @@ public class PSApplicationSummaryCollection {
   }
 
   /**
-   * Adds a new application summary and, if desired, allocates and
-   * returns a new application id for the given application. If
-   * you want to refresh an existing summary, pass <CODE>false</CODE>
-   * for the <CODE>allocateId</CODE> parameter.
+   * Adds a new application summary and, if desired, allocates and returns a new application id for
+   * the given application. If you want to refresh an existing summary, pass <CODE>false</CODE> for
+   * the <CODE>allocateId</CODE> parameter.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   app The application whose summary you want to add.
-   * @param   allocateId If <CODE>true</CODE>, will allocate and
-   * return a new, previously unused id for the application (and
-   * set the application's id to this newly allocated id). If
-   * <CODE>false</CODE>, will use the id in the <CODE>app</CODE>
-   * object, possibly replacing a previous summary under that id.
-   *
-   * @return   int
+   * @param app The application whose summary you want to add.
+   * @param allocateId If <CODE>true</CODE>, will allocate and return a new, previously unused id
+   *     for the application (and set the application's id to this newly allocated id). If <CODE>
+   *     false</CODE>, will use the id in the <CODE>app</CODE> object, possibly replacing a previous
+   *     summary under that id.
+   * @return int
    */
   synchronized int addSummary(PSApplication app, boolean allocateId) {
     Integer idInt = new Integer(app.getId());
@@ -101,15 +91,11 @@ public class PSApplicationSummaryCollection {
   /**
    * Gets the summary for the application with the given id.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   appId The application id.
-   *
-   * @return   PSApplicationSummary The summary for the application
-   * with the given id, or <CODE>null</CODE> if no such summary
-   * exists.
+   * @param appId The application id.
+   * @return PSApplicationSummary The summary for the application with the given id, or <CODE>null
+   *     </CODE> if no such summary exists.
    */
   synchronized PSApplicationSummary getSummary(int appId) {
     return (PSApplicationSummary) m_appSumsById.get(new Integer(appId));
@@ -118,15 +104,11 @@ public class PSApplicationSummaryCollection {
   /**
    * Gets the summary for the application with the given name.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   appName The application name.
-   *
-   * @return   PSApplicationSummary The summary for the application
-   * with the given name, or <CODE>null</CODE> if no such summary
-   * exists.
+   * @param appName The application name.
+   * @return PSApplicationSummary The summary for the application with the given name, or <CODE>null
+   *     </CODE> if no such summary exists.
    */
   synchronized PSApplicationSummary getSummary(String appName) {
     Integer id = (Integer) m_appIdsByName.get(appName.toLowerCase());
@@ -135,18 +117,13 @@ public class PSApplicationSummaryCollection {
   }
 
   /**
-   * Removes the summary for the application with the given id. If
-   * no such application exists, nothing happens and no error
-   * is reported. After this method returns, the application's id
-   * is marked as available and may be allocated for a different
-   * application.
+   * Removes the summary for the application with the given id. If no such application exists,
+   * nothing happens and no error is reported. After this method returns, the application's id is
+   * marked as available and may be allocated for a different application.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   appId The application id.
-   *
+   * @param appId The application id.
    */
   synchronized void removeSummary(int appId) {
     PSApplicationSummary sum = (PSApplicationSummary) m_appSumsById.remove(new Integer(appId));
@@ -154,18 +131,13 @@ public class PSApplicationSummaryCollection {
   }
 
   /**
-   * Removes the summary for the application with the given name. If
-   * no such application exists, nothing happens and no error
-   * is reported. After this method returns, the application's id
-   * is marked as available and may be allocated for a different
-   * application.
+   * Removes the summary for the application with the given name. If no such application exists,
+   * nothing happens and no error is reported. After this method returns, the application's id is
+   * marked as available and may be allocated for a different application.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   appName The application name.
-   *
+   * @param appName The application name.
    */
   synchronized void removeSummary(String appName) {
     Integer id = (Integer) m_appIdsByName.get(appName.toLowerCase());
@@ -173,17 +145,13 @@ public class PSApplicationSummaryCollection {
   }
 
   /**
-   * Gets an array of application summary objects (a snapshot of
-   * the current state of the summary collections at the time of
-   * the call). The returned array should be used inside a
-   * synchronize block on this summary collection and the call
-   * to getSummaries() should be inside this block.
+   * Gets an array of application summary objects (a snapshot of the current state of the summary
+   * collections at the time of the call). The returned array should be used inside a synchronize
+   * block on this summary collection and the call to getSummaries() should be inside this block.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @return   PSApplicationSummary[]
+   * @return PSApplicationSummary[]
    */
   synchronized PSApplicationSummary[] getSummaries() {
     PSApplicationSummary[] sums = new PSApplicationSummary[m_appSumsById.size()];

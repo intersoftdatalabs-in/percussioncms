@@ -33,17 +33,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
-/**
- * Updates the package element version information for each of the system
- * relationships.
- */
+/** Updates the package element version information for each of the system relationships. */
 public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
 
   private static final Logger log = LogManager.getLogger(PSUpgradePluginRelationshipVersions.class);
 
-  /**
-   * Perform updates.
-   */
+  /** Perform updates. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     int respType = PSPluginResponse.SUCCESS;
     String respMsg = "";

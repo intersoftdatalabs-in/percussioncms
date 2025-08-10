@@ -21,16 +21,15 @@ import com.percussion.cms.IPSCmsErrors;
 import com.percussion.error.PSException;
 
 /**
- * This class is used when a request for a content type does not exist or may
- * not be visible to the user.
+ * This class is used when a request for a content type does not exist or may not be visible to the
+ * user.
  */
 public class PSInvalidContentTypeException extends PSException {
   /**
    * Creates an exception with text describing the problem.
    *
-   * @param contentTypeName Displayed in the error message. If the name is
-   *    not available, the id should be used. Never <code>null</code> or
-   *    empty.
+   * @param contentTypeName Displayed in the error message. If the name is not available, the id
+   *     should be used. Never <code>null</code> or empty.
    */
   public PSInvalidContentTypeException(String contentTypeName) {
     // todo: put real error code here, where should it go?

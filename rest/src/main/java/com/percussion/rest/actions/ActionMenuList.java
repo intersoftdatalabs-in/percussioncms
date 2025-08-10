@@ -19,39 +19,36 @@ package com.percussion.rest.actions;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List of ActionMenu objects.
- */
+/** List of ActionMenu objects. */
 @XmlRootElement(name = "ActionMenuList")
 @ArraySchema(schema = @Schema(implementation = ActionMenu.class))
 public class ActionMenuList extends ArrayList<ActionMenu> {
 
-    public ActionMenuList() {
-        super();
-    }
+  public ActionMenuList() {
+    super();
+  }
 
-    public ActionMenuList(Collection<? extends ActionMenu> c) {
-        super(c);
-    }
+  public ActionMenuList(Collection<? extends ActionMenu> c) {
+    super(c);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ActionMenuList && super.equals(o);
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ActionMenuList && super.equals(o);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 
-    @Override
-    public String toString() {
-        return "ActionMenuList" + super.toString();
-    }
+  @Override
+  public String toString() {
+    return "ActionMenuList" + super.toString();
+  }
 }

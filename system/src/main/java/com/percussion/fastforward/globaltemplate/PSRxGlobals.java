@@ -39,31 +39,26 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class wraps the part of rx_resources/rx_Globals.xsl file that is
- * specific to global templates for Rhythmyx 5.5 or
- * <em>rx_resources/rx_GlobalTemplates.xsl</em>. This file contains one
- * <em>&lt;xsl:import&gt;</em> for each global template for the CMS. The main
- * responsibility of this class is to create the global template XSLs and
- * maintain corresponding XSL imports within this style sheet. This maintains
- * auto upgradeability by wrapping and modifying one of the two above files
- * looking at the new or old style global templating. It evaluates whether the
- * system is using new or old style templating based on whether the stylesheet
- * imports any global template or not.
- *
+ * This class wraps the part of rx_resources/rx_Globals.xsl file that is specific to global
+ * templates for Rhythmyx 5.5 or <em>rx_resources/rx_GlobalTemplates.xsl</em>. This file contains
+ * one <em>&lt;xsl:import&gt;</em> for each global template for the CMS. The main responsibility of
+ * this class is to create the global template XSLs and maintain corresponding XSL imports within
+ * this style sheet. This maintains auto upgradeability by wrapping and modifying one of the two
+ * above files looking at the new or old style global templating. It evaluates whether the system is
+ * using new or old style templating based on whether the stylesheet imports any global template or
+ * not.
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSRxGlobals extends PSLoggable {
   /**
-   * Constructor. Loads the <em>rx_Globals.xsl</em> or
-   * <em>rx_GlobalTemplates.xsl</em> (post 5.5 of Rhythmyx) file from the
-   * known location {@link #RX_GLOBALS_PATH}as an XML document.
+   * Constructor. Loads the <em>rx_Globals.xsl</em> or <em>rx_GlobalTemplates.xsl</em> (post 5.5 of
+   * Rhythmyx) file from the known location {@link #RX_GLOBALS_PATH}as an XML document.
    *
-   * @param logger {@link org.apache.logging.log4j.Logger logger}to log the
-   *           information, warnings or errors. May be <code>null</code> in
-   *           which case a logger with default named category will be created.
+   * @param logger {@link org.apache.logging.log4j.Logger logger}to log the information, warnings or
+   *     errors. May be <code>null</code> in which case a logger with default named category will be
+   *     created.
    * @throws IOException if the file cannot be read for any reason.
    * @throws SAXException if the file cannot be parsed as an XML document.
-   *
    */
   public PSRxGlobals(Logger logger) throws IOException, SAXException {
     super(logger);
@@ -104,11 +99,11 @@ public class PSRxGlobals extends PSLoggable {
   }
 
   /**
-   * Add the specified global template to the map of global templates of
-   * this object. If a global template by name already exists in the map,
-   * it will keep the existing template and ignore the request.
-   * @param template global template object to add, must not be
-   * <code>null</code>.
+   * Add the specified global template to the map of global templates of this object. If a global
+   * template by name already exists in the map, it will keep the existing template and ignore the
+   * request.
+   *
+   * @param template global template object to add, must not be <code>null</code>.
    */
   public void addGlobalTemplate(PSGlobalTemplate template) {
     if (template == null) throw new IllegalArgumentException("template must not be null");
@@ -124,16 +119,15 @@ public class PSRxGlobals extends PSLoggable {
 
   /**
    * This method does the following:
+   *
    * <ol>
-   * <li>Save each template file to its respective file/location</li>
-   * <li>Make sure one &lt;xsl:import&gt; exists for each template in the
-   * object</li>
-   * <li>Finally save the file to its location</li>
+   *   <li>Save each template file to its respective file/location
+   *   <li>Make sure one &lt;xsl:import&gt; exists for each template in the object
+   *   <li>Finally save the file to its location
    * </ol>
    *
    * @throws IOException in case of any error writing the document.
-   * @throws PSGlobalTemplateException in case of any error during creation of
-   *            global templates.
+   * @throws PSGlobalTemplateException in case of any error during creation of global templates.
    */
   public void save() throws IOException, PSGlobalTemplateException {
     saveTemplateFiles();
@@ -162,11 +156,10 @@ public class PSRxGlobals extends PSLoggable {
   }
 
   /**
-   * This method walks all <code>choose</code> elements of the
-   * <code>psx-global-template-dispatcher</code> template and adds a new
-   * <code>choose</code> element for each defined global template that has
-   * no entry yet. The entire <code>psx-global-template-dispatcher</code>
-   * template is added if its not defined yet.
+   * This method walks all <code>choose</code> elements of the <code>psx-global-template-dispatcher
+   * </code> template and adds a new <code>choose</code> element for each defined global template
+   * that has no entry yet. The entire <code>psx-global-template-dispatcher</code> template is added
+   * if its not defined yet.
    */
   private void updateDispatchingTemplate() {
     logInfo("Update global template dispatching template...");
@@ -271,8 +264,7 @@ public class PSRxGlobals extends PSLoggable {
   }
 
   /**
-   * Save all template files associated with this object to its respective file
-   * path.
+   * Save all template files associated with this object to its respective file path.
    *
    * @throws IOException in case of any error while saving the template files.
    */
@@ -295,8 +287,8 @@ public class PSRxGlobals extends PSLoggable {
   /**
    * Empty the specified folder.
    *
-   * @param folderPath name of the folder to empty, assumed not
-   *           <code>null</code> and an existing folder.
+   * @param folderPath name of the folder to empty, assumed not <code>null</code> and an existing
+   *     folder.
    */
   private void emptyFolder(String folderPath) {
     logInfo("Deleting old global template XSL files...");
@@ -322,16 +314,14 @@ public class PSRxGlobals extends PSLoggable {
 
   /**
    * Whether the system is using new (post 5.5) or old (5.5) global templating.
+   *
    * @return <code>true</code> if using new style <code>false</code> otherwise.
    */
   public boolean isUsingNewStyle() {
     return m_isNewStyle;
   }
 
-  /**
-   * Add &lt;xsl:import&gt; for each template and make sure no duplicate
-   * imports.
-   */
+  /** Add &lt;xsl:import&gt; for each template and make sure no duplicate imports. */
   private void cleanupImports() {
     logInfo("Cleaning <xsl:import>s...");
     // Collect all import elements
@@ -358,89 +348,68 @@ public class PSRxGlobals extends PSLoggable {
   /**
    * Get file path of the global template style sheet being used.
    *
-   * @return file path of the style sheet that includes/imports the global
-   *         templates relative to the server root. Never <code>null</code>
-   *         or empty. This will be {@link PSRxGlobals#RX_GLOBALS_PATH}for old
-   *         style templating and {@link PSRxGlobals#RX_GLOBAL_TEMPLATES_PATH}
-   *         for new style templating.
+   * @return file path of the style sheet that includes/imports the global templates relative to the
+   *     server root. Never <code>null</code> or empty. This will be {@link
+   *     PSRxGlobals#RX_GLOBALS_PATH}for old style templating and {@link
+   *     PSRxGlobals#RX_GLOBAL_TEMPLATES_PATH} for new style templating.
    */
   public String getGlobalTemplateFilePath() {
     return m_globalTemplateFilePath;
   }
 
   /**
-   * Map of all global templates to be attachd to this object. The key in
-   * the map is the name of the template and value is the
-   * {@link PSGlobalTemplate template}. Never <code>null</code>
+   * Map of all global templates to be attachd to this object. The key in the map is the name of the
+   * template and value is the {@link PSGlobalTemplate template}. Never <code>null</code>
+   *
    * @see PSRxGlobals#addGlobalTemplate(PSGlobalTemplate)
    */
   private Map m_GlobalTemplates = new HashMap();
 
-  /**
-   * A utility service to furnish root directory information.
-   */
+  /** A utility service to furnish root directory information. */
   private static String m_RootDir =
       (String)
               PSRhythmyxInfoLocator.getRhythmyxInfo()
                   .getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY)
           + "/";
 
-  /**
-   * String constant for the location of rx_Globals.xsl relative to the
-   * server root.
-   */
+  /** String constant for the location of rx_Globals.xsl relative to the server root. */
   public static final String RXGLOBALS_PATH = "rx_resources/stylesheets/assemblers";
 
-  /**
-   * String constant for the location of all global templates relative to
-   * the server root.
-   */
+  /** String constant for the location of all global templates relative to the server root. */
   public static final String REL_GLOBAL_TEMPLATES_PATH = "rx_resources/stylesheets/globaltemplates";
 
-  /**
-   * String constant for the absolute location of all global templates.
-   */
+  /** String constant for the absolute location of all global templates. */
   public static final String ABS_GLOBAL_TEMPLATES_PATH = m_RootDir + REL_GLOBAL_TEMPLATES_PATH;
 
-  /**
-   * Absolute path of the file rx_Globals.xsl.
-   */
+  /** Absolute path of the file rx_Globals.xsl. */
   public static final String RX_GLOBALS_PATH = m_RootDir + RXGLOBALS_PATH + "/rx_Globals.xsl";
 
-  /**
-   * Full path of the file rx_GlobalTemplates.xsl relative to the server root.
-   */
+  /** Full path of the file rx_GlobalTemplates.xsl relative to the server root. */
   public static final String RX_GLOBAL_TEMPLATES_PATH = RXGLOBALS_PATH + "/rx_GlobalTemplates.xsl";
 
-  /**
-   * The name used for the global template dispatching template.
-   */
+  /** The name used for the global template dispatching template. */
   public static final String DISPATCHING_TEMPLATE_NAME = "psx-global-template-dispatcher";
 
   /**
-   * Full path of the global template include style sheet relative to server
-   * root. Initialized to {@link #RX_GLOBALS_PATH rx_Globals.xsl}.
-   * Reinitialized in the {@link #PSRxGlobals(Logger) ctor}based on whether
-   * the system is using new or old style of templating.
+   * Full path of the global template include style sheet relative to server root. Initialized to
+   * {@link #RX_GLOBALS_PATH rx_Globals.xsl}. Reinitialized in the {@link #PSRxGlobals(Logger)
+   * ctor}based on whether the system is using new or old style of templating.
    *
    * @see #getGlobalTemplateFilePath()
-   *
    */
   private String m_globalTemplateFilePath = RX_GLOBALS_PATH;
 
   /**
-   * Flag to indicate if the system is using new (post 5.5) or old (5.5) style
-   * global templating. Initialized to <code>true</code>. Reinitialized in the
-   * ctor. Never changed after that.
+   * Flag to indicate if the system is using new (post 5.5) or old (5.5) style global templating.
+   * Initialized to <code>true</code>. Reinitialized in the ctor. Never changed after that.
    */
   private boolean m_isNewStyle = true;
 
   /**
-   * XML document for the file {@link #RX_GLOBALS_PATH rx_Globals.xsl}or
-   * {@link #RX_GLOBAL_TEMPLATES_PATH rx_GlobalTemplates.xsl}depending on the
-   * whether the system is using new (post 5.5) or old style (5.5) of
-   * templating. Initialized in the constructor and never <code>null</code>
-   * after that.
+   * XML document for the file {@link #RX_GLOBALS_PATH rx_Globals.xsl}or {@link
+   * #RX_GLOBAL_TEMPLATES_PATH rx_GlobalTemplates.xsl}depending on the whether the system is using
+   * new (post 5.5) or old style (5.5) of templating. Initialized in the constructor and never
+   * <code>null</code> after that.
    */
   private Document m_doc = null;
 }

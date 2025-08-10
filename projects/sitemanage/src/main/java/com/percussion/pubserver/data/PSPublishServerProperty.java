@@ -20,51 +20,51 @@ package com.percussion.pubserver.data;
 import java.util.Objects;
 
 /**
- * Represents a key-value property for a publishing server.
- * Immutable except for value setter.
+ * Represents a key-value property for a publishing server. Immutable except for value setter.
+ *
  * @author ignacioerro
  */
 public class PSPublishServerProperty {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String key;
-    private String value;
+  private String key;
+  private String value;
 
-    /** Returns the property key. */
-    public String getKey() {
-        return key;
-    }
+  /** Returns the property key. */
+  public String getKey() {
+    return key;
+  }
 
-    /** Sets the property key. */
-    public void setKey(String key) {
-        this.key = key;
-    }
+  /** Sets the property key. */
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    /** Returns the property value. */
-    public String getValue() {
-        return value;
-    }
+  /** Returns the property value. */
+  public String getValue() {
+    return value;
+  }
 
-    /** Sets the property value (trimmed). */
-    public void setValue(String value) {
-        this.value = value == null ? null : value.trim();
-    }
+  /** Sets the property value (trimmed). */
+  public void setValue(String value) {
+    this.value = value == null ? null : value.trim();
+  }
 
-    /** Returns the serial version UID. */
-    public static long getSerialversionuid() {
-        return serialVersionUID;
-    }
+  /** Returns the serial version UID. */
+  public static long getSerialversionuid() {
+    return serialVersionUID;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, value);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(key, value);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof PSPublishServerProperty)) return false;
-        var other = (PSPublishServerProperty) obj;
-        return Objects.equals(key, other.key) && Objects.equals(value, other.value);
-    }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PSPublishServerProperty)) return false;
+    var other = (PSPublishServerProperty) obj;
+    return Objects.equals(key, other.key) && Objects.equals(value, other.value);
+  }
 }

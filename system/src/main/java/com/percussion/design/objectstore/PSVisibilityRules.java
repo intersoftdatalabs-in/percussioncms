@@ -23,13 +23,9 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXVisibilityRules DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXVisibilityRules DTD in BasicObjects.dtd. */
 public class PSVisibilityRules extends PSCollectionComponent {
-  /**
-   * Creates a new collection of PSRule obejcts.
-   */
+  /** Creates a new collection of PSRule obejcts. */
   public PSVisibilityRules() {
     super((new PSRule()).getClass());
   }
@@ -37,14 +33,10 @@ public class PSVisibilityRules extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSVisibilityRules(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -74,9 +66,8 @@ public class PSVisibilityRules extends PSCollectionComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSVisibilityRules, not <code>null</code>.
    */
@@ -105,7 +96,6 @@ public class PSVisibilityRules extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -161,7 +151,6 @@ public class PSVisibilityRules extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -191,19 +180,15 @@ public class PSVisibilityRules extends PSCollectionComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXVisibilityRules";
 
-  /**
-   * XSL dataHiding specifier.
-   */
+  /** XSL dataHiding specifier. */
   public static final int DATA_HIDING_XSL = 0;
 
-  /**
-   * XML dataHiding specifier.
-   */
+  /** XML dataHiding specifier. */
   public static final int DATA_HIDING_XML = 1;
 
   /**
-   * An array of XML attribute values for the dataHiding. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the dataHiding. They are specified at the index of the
+   * specifier.
    */
   private static final String[] DATA_HIDING_ENUM = {"xsl", "xml"};
 

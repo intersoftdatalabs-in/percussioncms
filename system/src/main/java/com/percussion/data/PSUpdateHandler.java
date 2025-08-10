@@ -60,25 +60,21 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The PSUpdateHandler class is used internally by the E2 server to process
- * data modification statements (updates, inserts, deletes). Once the
- * PSApplicationHandler determines a request is for a data
- * modification statement, it hands it off to the Update Handler. The
- * Update Handler must then prepare the request for the given back-end
- * and prepare the resulting data for return to the requestor.
- * <p>
- * When the Update Handler is first called, it prepares for update
- * processing. This is done by building transaction sets (PSTransactionSet),
- * data modification statements (PSUpdateStatement) and XML field to
- * back-end column mappings (PSStatementColumnMapper). Once these objects
- * have been created, the Update Handler is ready to accept requests for
- * processing.
- * <P>
- * The update process is actually quite complex. A common use of XML will
- * likely be to assist in e-commerce applications. Let's take the following
- * example of an order. When we break down our XML document, we may find
- * that there are actually many "rows" of data being stored in several
- * tables. For instance:
+ * The PSUpdateHandler class is used internally by the E2 server to process data modification
+ * statements (updates, inserts, deletes). Once the PSApplicationHandler determines a request is for
+ * a data modification statement, it hands it off to the Update Handler. The Update Handler must
+ * then prepare the request for the given back-end and prepare the resulting data for return to the
+ * requestor.
+ *
+ * <p>When the Update Handler is first called, it prepares for update processing. This is done by
+ * building transaction sets (PSTransactionSet), data modification statements (PSUpdateStatement)
+ * and XML field to back-end column mappings (PSStatementColumnMapper). Once these objects have been
+ * created, the Update Handler is ready to accept requests for processing.
+ *
+ * <p>The update process is actually quite complex. A common use of XML will likely be to assist in
+ * e-commerce applications. Let's take the following example of an order. When we break down our XML
+ * document, we may find that there are actually many "rows" of data being stored in several tables.
+ * For instance:
  *
  * <PRE><CODE>
  *       &lt;Order id="999"&gt;
@@ -115,37 +111,30 @@ import org.w3c.dom.Document;
  *       &lt;/Order&gt;
  * </CODE></PRE>
  *
- * <P>
- * There are actually several updates going on here. We have order info,
- * billing info, shipping info. This will clearly be stored in several
- * tables. Some info, such as the items being purchased, may require
- * multiple rows. Handling this is clearly a challenge.
- * <P>
- * To solve complex problems such as this, the E2 server uses several
- * tactics. When dealing with an order, we clearly want everything to go
- * through or nothing. To handle this all or none situation, a transaction
- * set can be created enforcing that all updates/inserts/deletes get
- * processed successfully or else all changes are reverted to their initial
- * state.
- * <P>
- * Consistency of changes is only one of the problems. The other involves
- * the mapping of the XML data to the back-end. Update pipes only allow a
- * single table to be defined. However, the table may require data from
- * multiple XML components. E2 allows mappings to be defined for an object
- * or any of its parent levels. For instance, the Item object can
- * be mapped to the items table. It can also get data from the Items
- * object or the Order object as these objects are its direct parents. It
- * cannot, however, get data from the Customer object. This should not pose
- * a problem for the majority of applications.
+ * <p>There are actually several updates going on here. We have order info, billing info, shipping
+ * info. This will clearly be stored in several tables. Some info, such as the items being
+ * purchased, may require multiple rows. Handling this is clearly a challenge.
  *
- * @see         com.percussion.server.PSApplicationHandler
- * @see         PSUpdateStatement
- * @see         PSTransactionSet
- * @see         PSStatementColumnMapper
+ * <p>To solve complex problems such as this, the E2 server uses several tactics. When dealing with
+ * an order, we clearly want everything to go through or nothing. To handle this all or none
+ * situation, a transaction set can be created enforcing that all updates/inserts/deletes get
+ * processed successfully or else all changes are reverted to their initial state.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <p>Consistency of changes is only one of the problems. The other involves the mapping of the XML
+ * data to the back-end. Update pipes only allow a single table to be defined. However, the table
+ * may require data from multiple XML components. E2 allows mappings to be defined for an object or
+ * any of its parent levels. For instance, the Item object can be mapped to the items table. It can
+ * also get data from the Items object or the Order object as these objects are its direct parents.
+ * It cannot, however, get data from the Customer object. This should not pose a problem for the
+ * majority of applications.
+ *
+ * @see com.percussion.server.PSApplicationHandler
+ * @see PSUpdateStatement
+ * @see PSTransactionSet
+ * @see PSStatementColumnMapper
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSUpdateHandler extends PSDataHandler {
@@ -153,41 +142,36 @@ public class PSUpdateHandler extends PSDataHandler {
   private static final Logger log = LogManager.getLogger(PSUpdateHandler.class);
 
   /**
-   * Construct a data modification handler to manage the inserting,
-   * updating and deleting for the specified data set.
-   * <p>
-   * The following steps are performed during construction:
+   * Construct a data modification handler to manage the inserting, updating and deleting for the
+   * specified data set.
+   *
+   * <p>The following steps are performed during construction:
+   *
    * <ol>
-   * <li>build the execution plans for inserting, updating and/or deleting.
-   * This is done by creating transaction sets to group sets of
-   * related statements. Statements are also built, but they're
-   * associated with their corresponding transaction sets. They're not
-   * used directly by the handler.</li>
-   * <li>go through the transaction sets in the execution plans. For each
-   * PSStatement object add its column mapper to the appropriate
-   * internal mapper.</li>
-   * <li>if this update causes a query to be fired, prepare the request
-   * generator. Otherwise, set the result set converter we'll be
-   * using. (store either in m_outputGenerator)</li>
+   *   <li>build the execution plans for inserting, updating and/or deleting. This is done by
+   *       creating transaction sets to group sets of related statements. Statements are also built,
+   *       but they're associated with their corresponding transaction sets. They're not used
+   *       directly by the handler.
+   *   <li>go through the transaction sets in the execution plans. For each PSStatement object add
+   *       its column mapper to the appropriate internal mapper.
+   *   <li>if this update causes a query to be fired, prepare the request generator. Otherwise, set
+   *       the result set converter we'll be using. (store either in m_outputGenerator)
    * </ol>
-   * The information used from the
-   * {@link com.percussion.design.objectstore.PSDataSet PSDataSet}
+   *
+   * The information used from the {@link com.percussion.design.objectstore.PSDataSet PSDataSet}
    * object is:
+   *
    * <ul>
-   * <li>the type of transaction support</li>
-   * <li>the pipes defining the data associated with this data set</li>
-   * <li>the page data tank describing the XML document being used for this
-   * data set</li>
-   * <li>the definition of the results being generated by this data set</li>
-   * <li>the extensions which act upon the entire data set</li>
+   *   <li>the type of transaction support
+   *   <li>the pipes defining the data associated with this data set
+   *   <li>the page data tank describing the XML document being used for this data set
+   *   <li>the definition of the results being generated by this data set
+   *   <li>the extensions which act upon the entire data set
    * </ul>
    *
-   * @param      app      the application containing the data set
-   *
-   * @param      ds         the data set containing the update pipe(s) this
-   *                      object will handle
-   *
-   * @exception   PSInvalidRequestTypeException If ds contains no update pipes.
+   * @param app the application containing the data set
+   * @param ds the data set containing the update pipe(s) this object will handle
+   * @exception PSInvalidRequestTypeException If ds contains no update pipes.
    */
   public PSUpdateHandler(PSApplicationHandler app, PSDataSet ds)
       throws PSInvalidRequestTypeException,
@@ -261,37 +245,29 @@ public class PSUpdateHandler extends PSDataHandler {
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a data modification (insert, update or delete) request using
-   * the input context information and data. The results will be written
-   * to the specified output stream.
+   * Process a data modification (insert, update or delete) request using the input context
+   * information and data. The results will be written to the specified output stream.
    *
-   * @param   request      the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     makeRequest(request, true); // Make request and send response
   }
 
   /**
-   * Process a data modification (insert, update, or delete) request using
-   * the input context information and data.  Results can optionally be
-   * sent as a response to the caller.  If sending a response, first checks the
-   * {@link IPSHtmlParameters#DYNAMIC_REDIRECT_URL} parameter.  If a value is
-   * found, that is used.  If not, processes any attached query resources.
-   * If no query resources are attached, prepares and sends the default
-   * statistics page.  In all three cases, the result doc exits are run before
-   * sending the response.
+   * Process a data modification (insert, update, or delete) request using the input context
+   * information and data. Results can optionally be sent as a response to the caller. If sending a
+   * response, first checks the {@link IPSHtmlParameters#DYNAMIC_REDIRECT_URL} parameter. If a value
+   * is found, that is used. If not, processes any attached query resources. If no query resources
+   * are attached, prepares and sends the default statistics page. In all three cases, the result
+   * doc exits are run before sending the response.
    *
-   * @param request the request object containing all context data
-   * associated with the request
-   *
-   * @param sendResponse  should a response be sent?  <code>true</code>
-   * indicates that a response should be sent, <code>false</code> indicates
-   * that no response should be sent.
-   *
-   * @return  Any PSException that occurs, <code>null</code> on success.  If
-   * sendReponse is <code>true</code>, this call will always return
-   * <code>null</code> and send any information back to the requestor directly.
+   * @param request the request object containing all context data associated with the request
+   * @param sendResponse should a response be sent? <code>true</code> indicates that a response
+   *     should be sent, <code>false</code> indicates that no response should be sent.
+   * @return Any PSException that occurs, <code>null</code> on success. If sendReponse is <code>true
+   *     </code>, this call will always return <code>null</code> and send any information back to
+   *     the requestor directly.
    */
   public PSException makeRequest(PSRequest request, boolean sendResponse) {
     PSExecutionData execData = null;
@@ -477,17 +453,13 @@ public class PSUpdateHandler extends PSDataHandler {
   }
 
   /**
-   * Registers the supplied listener for table change events.  Any listeners
-   * added will be notified of changes to any tables performed by this handler
-   * as long as a call to {@link IPSTableChangeListener#getColumns(String)
-   * IPSTableChangeListener.getColumns(tableName)} for the changed table does
-   * not return <code>null</code>.
-   *
+   * Registers the supplied listener for table change events. Any listeners added will be notified
+   * of changes to any tables performed by this handler as long as a call to {@link
+   * IPSTableChangeListener#getColumns(String) IPSTableChangeListener.getColumns(tableName)} for the
+   * changed table does not return <code>null</code>.
    *
    * @param listener The listener to notify, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>listener</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>listener</code> is <code>null</code>.
    */
   public void addTableChangeListener(IPSTableChangeListener listener) {
     if (listener == null) {
@@ -554,22 +526,20 @@ public class PSUpdateHandler extends PSDataHandler {
   /**
    * Returns <code>IPSInternalRequest.REQUEST_TYPE_UPDATE</code>.
    *
-   * see {@link IPSInternalRequestHandler#getRequestType()} for details.
+   * <p>see {@link IPSInternalRequestHandler#getRequestType()} for details.
    */
   public int getRequestType() {
     return IPSInternalRequest.REQUEST_TYPE_UPDATE;
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }
 
   /**
-   * Apply the style sheet conditions to the XML document. The
-   * stylesheet processing instruction will be set in the XML document.
+   * Apply the style sheet conditions to the XML document. The stylesheet processing instruction
+   * will be set in the XML document.
    */
   private java.net.URL applyStylesheetConditions(PSExecutionData data, Document doc)
       throws java.net.MalformedURLException {
@@ -608,22 +578,15 @@ public class PSUpdateHandler extends PSDataHandler {
   }
 
   /**
-   * Processes any result document extensions and then traces the post exit
-   * CGI vars if that trace flag is on.
+   * Processes any result document extensions and then traces the post exit CGI vars if that trace
+   * flag is on.
    *
    * @param data The execution data, assumed not <code>null</code>.
-   * @param doc The document to process the extensions on.  May be
-   * <code>null</code>.
-   *
-   * @return the result document after all extensions have run; might be
-   * <code>null</code>.
-   *
-   * @throws PSParameterMismatchException if any extension are supplied invalid
-   * parameters.
-   * @throws PSExtensionProcessingException if any errors occur when running
-   * the extensions.
-   * @throws PSDataExtractionException if there is an error extracting any
-   * input parameters.
+   * @param doc The document to process the extensions on. May be <code>null</code>.
+   * @return the result document after all extensions have run; might be <code>null</code>.
+   * @throws PSParameterMismatchException if any extension are supplied invalid parameters.
+   * @throws PSExtensionProcessingException if any errors occur when running the extensions.
+   * @throws PSDataExtractionException if there is an error extracting any input parameters.
    */
   private Document processResultDocExtensions(PSExecutionData data, Document doc)
       throws PSParameterMismatchException,
@@ -647,30 +610,26 @@ public class PSUpdateHandler extends PSDataHandler {
   }
 
   /**
-   * The list of listeners (instances of {{@link IPSTableChangeListener}) that
-   * are to be notified when a table change event occurs. The listeners are
-   * notified only if there is a change in a table for a specific action that
-   * is in interest of listeners. Initialized to an empty list and never
-   * <code>null</code> after that.
+   * The list of listeners (instances of {{@link IPSTableChangeListener}) that are to be notified
+   * when a table change event occurs. The listeners are notified only if there is a change in a
+   * table for a specific action that is in interest of listeners. Initialized to an empty list and
+   * never <code>null</code> after that.
    */
   private final List<IPSTableChangeListener> m_listeners = new ArrayList<>();
 
   /**
-   * The transaction set groups all the inserts, updates and deletes.
-   * It is capable of breaking up the incoming data and dispatching it to
-   * the appropriate transaction members.
+   * The transaction set groups all the inserts, updates and deletes. It is capable of breaking up
+   * the incoming data and dispatching it to the appropriate transaction members.
    */
   private PSTransactionSet m_transactionSet;
 
   /**
-   * The output generator for this update. It may fire a query link or
-   * produce XML output based upon the update statistics.
+   * The output generator for this update. It may fire a query link or produce XML output based upon
+   * the update statistics.
    */
   private IPSResultGenerator m_outputGenerator = null;
 
-  /**
-   * A vector from result doc processor extension refs to extension runners
-   */
+  /** A vector from result doc processor extension refs to extension runners */
   private Vector<PSExtensionRunner> m_resultDocProcessors = null;
 
   private PSSetStyleSheetEvaluator[] m_styleSheetEvaluators;

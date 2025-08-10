@@ -18,6 +18,10 @@
 
 package com.percussion.sitemanage.dao.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.user.data.PSUserLogin;
 import org.apache.logging.log4j.LogManager;
@@ -26,150 +30,128 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.junit.jupiter.SpringJUnitJupiterConfig;
-import org.springframework.test.context.junit.jupiter.SpringJUnitJupiterConfig;
 import org.springframework.test.context.junit.jupiter.SpringJUnitJupiterConfig;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Integration tests for {@link PSUserLoginDao}.
- */
+/** Integration tests for {@link PSUserLoginDao}. */
 @Disabled
 @SpringJUnitJupiterConfig(locations = "TestSpringContext.xml")
 public class PSUserLoginDaoTestIntegration extends AbstractTransactionalJUnit4SpringContextTests {
 
-    private static final Logger log = LogManager.getLogger(PSUserLoginDaoTestIntegration.class);
+  private static final Logger log = LogManager.getLogger(PSUserLoginDaoTestIntegration.class);
 
-    @Autowired
-    PSUserLoginDao dao;
+  @Autowired PSUserLoginDao dao;
 
-    @Autowired
-    SessionFactory sessionFactory;
+  @Autowired SessionFactory sessionFactory;
 
-    /**
-     * Test delete operation for user login.
-     */
-    @Test
-    public void testDelete() throws IPSGenericDao.DeleteException {
-        var count = countRows();
-        assertEquals(0, count, "user xyzzy already exists");
-        addRow();
+  /** Test delete operation for user login. */
+  @Test
+  public void testDelete() throws IPSGenericDao.DeleteException {
+    var count = countRows();
+    assertEquals(0, count, "user xyzzy already exists");
+    addRow();
 
-        log.info("Testing delete of user xyzzy");
+    log.info("Testing delete of user xyzzy");
 
-        dao.delete("xyzzy");
+    dao.delete("xyzzy");
 
-        count = countRows();
-        assertEquals(0, count, "user xyzzy not deleted");
-    }
+    count = countRows();
+    assertEquals(0, count, "user xyzzy not deleted");
+  }
 
-    /**
-     * Test find operation for user login.
-     */
-    @Test
-    public void testFind() throws IPSGenericDao.LoadException {
-        var count = countRows();
-        assertEquals(0, count, "user xyzzy already exists");
-        addRow();
-        log.info("finding xyzzy");
-        var login = dao.find("xyzzy");
-        assertNotNull(login);
-        log.info("login is " + login);
-        assertEquals("xyzzy", login.getUserid());
-        assertEquals("demo", login.getPassword());
-    }
+  /** Test find operation for user login. */
+  @Test
+  public void testFind() throws IPSGenericDao.LoadException {
+    var count = countRows();
+    assertEquals(0, count, "user xyzzy already exists");
+    addRow();
+    log.info("finding xyzzy");
+    var login = dao.find("xyzzy");
+    assertNotNull(login);
+    log.info("login is " + login);
+    assertEquals("xyzzy", login.getUserid());
+    assertEquals("demo", login.getPassword());
+  }
 
-    /**
-     * Test findAll operation for user logins.
-     */
-    @Test
-    public void testFindAll() throws IPSGenericDao.LoadException {
-        var count = countRows();
-        assertEquals(0, count, "user xyzzy already exists");
-        addRow();
-        log.info("finding all entries");
+  /** Test findAll operation for user logins. */
+  @Test
+  public void testFindAll() throws IPSGenericDao.LoadException {
+    var count = countRows();
+    assertEquals(0, count, "user xyzzy already exists");
+    addRow();
+    log.info("finding all entries");
 
-        var users = dao.findAll();
-        assertTrue(users.size() > 0);
-        log.info("There are " + users.size() + " user entries");
+    var users = dao.findAll();
+    assertTrue(users.size() > 0);
+    log.info("There are " + users.size() + " user entries");
 
-        var myLogin = new PSUserLogin();
-        myLogin.setUserid("xyzzy");
-        myLogin.setPassword("demo");
+    var myLogin = new PSUserLogin();
+    myLogin.setUserid("xyzzy");
+    myLogin.setPassword("demo");
 
-        assertTrue(users.contains(myLogin));
-    }
+    assertTrue(users.contains(myLogin));
+  }
 
-    /**
-     * Test save operation for user login.
-     */
-    @Test
-    public void testSave() throws IPSGenericDao.SaveException {
-        var count = countRows();
-        assertEquals(0, count, "user xyzzy already exists");
-        addRow();
+  /** Test save operation for user login. */
+  @Test
+  public void testSave() throws IPSGenericDao.SaveException {
+    var count = countRows();
+    assertEquals(0, count, "user xyzzy already exists");
+    addRow();
 
-        log.info("testing save");
-        var myLogin = new PSUserLogin();
-        myLogin.setUserid("xyzzy");
-        myLogin.setPassword("demo2");
+    log.info("testing save");
+    var myLogin = new PSUserLogin();
+    myLogin.setUserid("xyzzy");
+    myLogin.setPassword("demo2");
 
-        dao.save(myLogin);
+    dao.save(myLogin);
 
-        count = countRows();
-        assertEquals(1, count);
+    count = countRows();
+    assertEquals(1, count);
 
-        var pw2 = jdbcTemplate.queryForObject("select password from userlogin where userid = 'xyzzy'", String.class);
-        log.debug("new password is " + pw2);
-        assertEquals("demo2", pw2);
-    }
+    var pw2 =
+        jdbcTemplate.queryForObject(
+            "select password from userlogin where userid = 'xyzzy'", String.class);
+    log.debug("new password is " + pw2);
+    assertEquals("demo2", pw2);
+  }
 
-    /**
-     * Test create operation for user login.
-     */
-    @Test
-    public void testCreate() throws IPSGenericDao.SaveException {
-        var myLogin = new PSUserLogin();
-        myLogin.setUserid("xyzzy");
-        myLogin.setPassword("demo");
+  /** Test create operation for user login. */
+  @Test
+  public void testCreate() throws IPSGenericDao.SaveException {
+    var myLogin = new PSUserLogin();
+    myLogin.setUserid("xyzzy");
+    myLogin.setPassword("demo");
 
-        log.info("testing create");
-        dao.create(myLogin);
+    log.info("testing create");
+    dao.create(myLogin);
 
-        var count = countRows();
-        assertEquals(1, count);
-    }
+    var count = countRows();
+    assertEquals(1, count);
+  }
 
-    public PSUserLoginDao getDao() {
-        return dao;
-    }
+  public PSUserLoginDao getDao() {
+    return dao;
+  }
 
-    public void setDao(PSUserLoginDao dao) {
-        this.dao = dao;
-    }
+  public void setDao(PSUserLoginDao dao) {
+    this.dao = dao;
+  }
 
-    public SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
+  public SessionFactory getSessionFactory() {
+    return sessionFactory;
+  }
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
-    }
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    this.sessionFactory = sessionFactory;
+  }
 
-    protected int countRows() {
-        var query = "select count(*) from userlogin where userid = 'xyzzy'";
-        return jdbcTemplate.queryForObject(query, Integer.class);
-    }
+  protected int countRows() {
+    var query = "select count(*) from userlogin where userid = 'xyzzy'";
+    return jdbcTemplate.queryForObject(query, Integer.class);
+  }
 
-    protected void addRow() {
-        jdbcTemplate.execute("insert into userlogin (userid,password) values ('xyzzy', 'demo')");
-    }
+  protected void addRow() {
+    jdbcTemplate.execute("insert into userlogin (userid,password) values ('xyzzy', 'demo')");
+  }
 }

@@ -27,22 +27,16 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- * The class that is used to represent properties as defined by
- * 'sys_Params.dtd'.
- */
+/** The class that is used to represent properties as defined by 'sys_Params.dtd'. */
 public class PSParameters implements IPSComponent {
-  /**
-   * The default constructor to create parameters with empty list.
-   */
+  /** The default constructor to create parameters with empty list. */
   public PSParameters() {}
 
   /**
-   * Constructs this object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs this object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is invalid.
    */
@@ -103,11 +97,11 @@ public class PSParameters implements IPSComponent {
   }
 
   /**
-   * Implements the IPSComponent interface method to produce XML representation
-   * of this object. See the interface for description of the method and
-   * parameters.
-   * <p>
-   * The xml format is:
+   * Implements the IPSComponent interface method to produce XML representation of this object. See
+   * the interface for description of the method and parameters.
+   *
+   * <p>The xml format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT Params (Param+)>
    * &lt;!ELEMENT Param (#PCDATA)>
@@ -139,13 +133,11 @@ public class PSParameters implements IPSComponent {
   }
 
   /**
-   * Gets the value of the specified parameter. Uses case-sensitive comparison
-   * to get the parameter.
+   * Gets the value of the specified parameter. Uses case-sensitive comparison to get the parameter.
    *
    * @param name name of the parameter, may not be <code>null</code> or empty.
-   *
-   * @return the parameter value, may be <code>null</code> if the specified
-   * parameter does not exist or its value is <code>null</code>
+   * @return the parameter value, may be <code>null</code> if the specified parameter does not exist
+   *     or its value is <code>null</code>
    */
   public String getParameter(String name) {
     if (name == null || name.trim().length() == 0)
@@ -155,9 +147,8 @@ public class PSParameters implements IPSComponent {
   }
 
   /**
-   * Sets the specified parameter with supplied value. If the parameter with
-   * that name exists it will be replaced. The parameter name and values are
-   * case-sensitive.
+   * Sets the specified parameter with supplied value. If the parameter with that name exists it
+   * will be replaced. The parameter name and values are case-sensitive.
    *
    * @param name name of the parameter, may not be <code>null</code> or empty.
    * @param value value of the parameter, may be <code>null</code> or empty.
@@ -196,6 +187,7 @@ public class PSParameters implements IPSComponent {
 
   /**
    * Returns all parameter keys.
+   *
    * @return iterator having keys of all parameters, never <code>null</code>.
    */
   public Iterator getParamKeys() {
@@ -203,16 +195,14 @@ public class PSParameters implements IPSComponent {
   }
 
   /**
-   * The map of parameters with 'name' (<code>String</code>) as key and 'value'
-   * as value (<code>String</code>). Initialized to an empty map and gets
-   * filled as it reads from xml. May be modified through calls to <code>
+   * The map of parameters with 'name' (<code>String</code>) as key and 'value' as value (<code>
+   * String</code>). Initialized to an empty map and gets filled as it reads from xml. May be
+   * modified through calls to <code>
    * fromXml(Element)</code>, but never <code>null</code>
    */
   private Map<String, String> m_params = new HashMap<>();
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "Params";
 
   // xml constants

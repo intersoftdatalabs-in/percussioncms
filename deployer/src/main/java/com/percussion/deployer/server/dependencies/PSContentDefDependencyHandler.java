@@ -70,21 +70,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Class to handle packaging and deploying a content definition.
- */
+/** Class to handle packaging and deploying a content definition. */
 public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSIdTypeHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -194,19 +189,19 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentEditor</li>
-   * <li>Community</li>
-   * <li>ContentRelation</li>
-   * <li>Schema</li>
-   * <li>Workflow</li>
+   *   <li>ContentEditor
+   *   <li>Community
+   *   <li>ContentRelation
+   *   <li>Schema
+   *   <li>Workflow
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -391,17 +386,12 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   /**
    * Updates the item summary cache from the supplied data.
    *
-   * @param newContentId
-   *           The targeted content id, assume not <code>null</code>.
-   * @param cacheData
-   *           It contains the cached data of the deployed item. The map key is
-   *           the column name of the {@link #CONTENT_TABLE} as a
-   *           <code>String</code> object. The map value is the value of the
-   *           column as a <code>String</code> object. Assume the map keys
-   *           are not <code>null</code>.
-   *
-   * @throws PSDeployException
-   *            if one of the values is <code>null</code> or empty.
+   * @param newContentId The targeted content id, assume not <code>null</code>.
+   * @param cacheData It contains the cached data of the deployed item. The map key is the column
+   *     name of the {@link #CONTENT_TABLE} as a <code>String</code> object. The map value is the
+   *     value of the column as a <code>String</code> object. Assume the map keys are not <code>null
+   *     </code>.
+   * @throws PSDeployException if one of the values is <code>null</code> or empty.
    */
   private void updateItemCache(String newContentId, Map cacheData) throws PSDeployException {
     // validate the cache data
@@ -471,9 +461,8 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * See {@link IPSIdTypeHandler#transformIds(Object, PSApplicationIDTypes,
-   * PSIdMap)} for details.  <code>object</code> supplied must be an instanceof
-   * {@link PSItemData}.
+   * See {@link IPSIdTypeHandler#transformIds(Object, PSApplicationIDTypes, PSIdMap)} for details.
+   * <code>object</code> supplied must be an instanceof {@link PSItemData}.
    */
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
@@ -518,13 +507,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * Get table data for all item tables (non-system tables).
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param dep The dependency for which the table data is retrieved, assumed
-   * not <code>null</code>.
-   *
-   * @return An iterator over zero or more {@link PSDependencyData} objects,
-   * never <code>null</code>, might be empty if there are no content rows for
-   * the item represented by this dependency.
-   *
+   * @param dep The dependency for which the table data is retrieved, assumed not <code>null</code>.
+   * @return An iterator over zero or more {@link PSDependencyData} objects, never <code>null</code>
+   *     , might be empty if there are no content rows for the item represented by this dependency.
    * @throws PSDeployException If there are any error retrieving the data.
    */
   private Iterator getItemTableData(PSSecurityToken tok, PSDependency dep)
@@ -552,24 +537,19 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Using the idMap in <code>ctx</code> to transfer the ids from the source
-   * to target for a given table data and location scheme object.
+   * Using the idMap in <code>ctx</code> to transfer the ids from the source to target for a given
+   * table data and location scheme object.
    *
    * @param data The to be transfered table data, assumed not <code>null</code>
    * @param ctDep The content item dependency, assumed not <code>null</code>.
-   * @param newContentId The new content id to use, assumed not
-   * <code>null</code> or empty.
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
+   * @param newContentId The new content id to use, assumed not <code>null</code> or empty.
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @param action One of the <code>PSJdbcRowData.ACTION_xxx</code> values.
-   * @param cacheData this is used to collect the cached data of the item.
-   * The map key is the column name of the {@link #CONTENT_TABLE} table as
-   * <code>String</code> object. The map value is the value of the column as
-   * <code>String</code> object. It may be <code>null</code> if not to collect
-   * the data.
-   *
+   * @param cacheData this is used to collect the cached data of the item. The map key is the column
+   *     name of the {@link #CONTENT_TABLE} table as <code>String</code> object. The map value is
+   *     the value of the column as <code>String</code> object. It may be <code>null</code> if not
+   *     to collect the data.
    * @return The transfered table data, it will never to <code>null</code>.
-   *
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData transferIdsInContentDepData(
@@ -642,15 +622,12 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Using the idMap in <code>ctx</code> to transfer the ids from the source
-   * to target for a given table data and location scheme object.
+   * Using the idMap in <code>ctx</code> to transfer the ids from the source to target for a given
+   * table data and location scheme object.
    *
    * @param data The to be transfered table data, assumed not <code>null</code>
-   * @param newContentId The new content id to use, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param newContentId The new content id to use, assumed not <code>null</code> or empty.
    * @return The transfered table data, it will never to <code>null</code>.
-   *
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData transferIdsInItemDepData(PSJdbcTableData data, String newContentId)
@@ -690,13 +667,11 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Ensures that the current NEXTNUMBER value will not conflict with any
-   * of the sysids to be installed.  Reserves new ids as necessary to increment
-   * the NEXTNUMBER table value.
+   * Ensures that the current NEXTNUMBER value will not conflict with any of the sysids to be
+   * installed. Reserves new ids as necessary to increment the NEXTNUMBER table value.
    *
-   * @param data The data to be installed, assumed not <code>null</code>,
-   * may or may not be a child table.
-   *
+   * @param data The data to be installed, assumed not <code>null</code>, may or may not be a child
+   *     table.
    * @throws PSDeployException if there are any errors reserving new ids.
    */
   private void reserveSysIds(PSJdbcTableData data) throws PSDeployException {
@@ -746,13 +721,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * Map or transfer a state id for a given column.
    *
    * @param col The column object, assume not <code>null</code>
-   * @param srcRow The row object contains above column, assume not
-   * <code>null</code>
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   * @param wfId The parent workflow id, may be <code>null</code> or empty if
-   * not known.
-   *
+   * @param srcRow The row object contains above column, assume not <code>null</code>
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
+   * @param wfId The parent workflow id, may be <code>null</code> or empty if not known.
    * @throws PSDeployException if any error occurs.
    */
   private void mapStateIdColumn(
@@ -792,13 +763,9 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * Map or transfer a transition id for a given column.
    *
    * @param col The column object, assume not <code>null</code>
-   * @param srcRow The row object contains above column, assume not
-   * <code>null</code>
-   * @param ctx The import context to aid in the installation, may not be
-   * <code>null</code>.
-   * @param wfId The parent workflow id, may be <code>null</code> or empty if
-   * not known.
-   *
+   * @param srcRow The row object contains above column, assume not <code>null</code>
+   * @param ctx The import context to aid in the installation, may not be <code>null</code>.
+   * @param wfId The parent workflow id, may be <code>null</code> or empty if not known.
    * @throws PSDeployException if any error occurs.
    */
   private void mapTransIdColumn(
@@ -839,10 +806,8 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
    * Gets the list of content editor tables used by the supplied content editor.
    *
    * @param ce The content editor defintion, assumed not <code>null</code>.
-   *
-   * @return A list of table names as <code>String</code> objects, never
-   * <code>null</code>, may be empty.
-   *
+   * @return A list of table names as <code>String</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws PSDeployException if there are any errors.
    */
   private Iterator getAppCETables(PSContentEditor ce) throws PSDeployException {
@@ -861,9 +826,7 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
     return names.iterator();
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_DEF;
 
   // ID for the next number at CONTENT_ID column
@@ -889,24 +852,16 @@ public class PSContentDefDependencyHandler extends PSDataObjectDependencyHandler
   private static final String TRANSITION_ID_COL = "TRANSITIONID";
   private static final String CONTENT_APPROVALS_TABLE = "CONTENTAPPROVALS";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * This is a list of cached column names in the CONTENTSTATUS table.
-   */
+  /** This is a list of cached column names in the CONTENTSTATUS table. */
   private static final String[] CACHED_COLS =
       new String[] {
         CONTENT_ID, CONTENT_NAME, CONTENT_OBJECT_TYPE_COL, COMMUNITY_ID, CONTENTTYPE_ID
       };
 
-  /**
-   * Filter used to retrieve content status entries of type item only.  Never
-   * <code>null</code>.
-   */
+  /** Filter used to retrieve content status entries of type item only. Never <code>null</code>. */
   static PSJdbcSelectFilter OBJECT_TYPE_FILTER =
       new PSJdbcSelectFilter(
           CONTENT_OBJECT_TYPE_COL,

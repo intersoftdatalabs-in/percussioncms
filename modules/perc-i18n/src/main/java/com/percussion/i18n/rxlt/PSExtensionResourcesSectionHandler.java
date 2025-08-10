@@ -31,22 +31,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is to generate a single TMX Document out of all TMX resource
- * bundles under the directories {@link #SYSRESOURCES_DIR} and
- * {@link #EXTENSIONS_DIR}.
- * <p>
- * Under the first directory we have all the resource keys that are not covered
- * by CMS Tables, Content Editors and XSL Stylesheets, in one or more TMX
- * document(s). This includes all the error messages that support localization
- * from core server and extensions we ship with the product.
- * </p>
- * <p>
- * Present under second directory are the TMX resource bundles containing the
- * keys for the localized error messages for the Java extensions. These
- * extensions are typically written by the customers and the resource bundle
- * files are uploaded to the server along with class files implementing the
- * extensions.
- * </p>
+ * This class is to generate a single TMX Document out of all TMX resource bundles under the
+ * directories {@link #SYSRESOURCES_DIR} and {@link #EXTENSIONS_DIR}.
+ *
+ * <p>Under the first directory we have all the resource keys that are not covered by CMS Tables,
+ * Content Editors and XSL Stylesheets, in one or more TMX document(s). This includes all the error
+ * messages that support localization from core server and extensions we ship with the product.
+ *
+ * <p>Present under second directory are the TMX resource bundles containing the keys for the
+ * localized error messages for the Java extensions. These extensions are typically written by the
+ * customers and the resource bundle files are uploaded to the server along with class files
+ * implementing the extensions.
  */
 public class PSExtensionResourcesSectionHandler extends PSIdleDotter implements IPSSectionHandler {
   /*
@@ -116,23 +111,22 @@ public class PSExtensionResourcesSectionHandler extends PSIdleDotter implements 
   }
 
   /**
-   * Default name of section that is implemented by this class. Overridden
-   * during processing by the name specified in the config element.
+   * Default name of section that is implemented by this class. Overridden during processing by the
+   * name specified in the config element.
+   *
    * @see #process
    */
   private static String ms_SectionName = "Extension Resources";
 
   /**
-   * String constant defining the location of the directory where all TMX
-   * resource system files are available (relative to the Rhythmyx root
-   * directory);
+   * String constant defining the location of the directory where all TMX resource system files are
+   * available (relative to the Rhythmyx root directory);
    */
   private static final String SYSRESOURCES_DIR = "sys_resources" + File.separator + "i18n";
 
   /**
-   * String constant defining the location of the directory underwhich all TMX
-   * resource files for customer specific extensions are available (relative
-   * to the Rhythmyx root directory);
+   * String constant defining the location of the directory underwhich all TMX resource files for
+   * customer specific extensions are available (relative to the Rhythmyx root directory);
    */
   private static final String EXTENSIONS_DIR =
       "Extensions" + File.separator + "Handlers" + File.separator + "Java";

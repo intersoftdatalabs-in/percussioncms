@@ -27,35 +27,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * The PSSecurityProviderMetaData abstract class is used as the base class
- * for all security provider meta data classes. A default implementation
- * which returns empty result sets is implemented in this class.
+ * The PSSecurityProviderMetaData abstract class is used as the base class for all security provider
+ * meta data classes. A default implementation which returns empty result sets is implemented in
+ * this class.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderMetaData {
-  /**
-   * Default constructor to find connection properties, etc.
-   */
+  /** Default constructor to find connection properties, etc. */
   protected PSSecurityProviderMetaData() {
     super();
   }
 
   /**
-   * Creates an empty result set that can be used by derived classes when
-   * responding to the {@link #getServers() similarly named
-   * method} in the interface. {@link PSResultSet#addRow(Object[]) addRow}
-   * can be called on the returned object for each item to be returned.
-   * <p>
-   * The result set contains:
+   * Creates an empty result set that can be used by derived classes when responding to the {@link
+   * #getServers() similarly named method} in the interface. {@link PSResultSet#addRow(Object[])
+   * addRow} can be called on the returned object for each item to be returned.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>SERVER_NAME</B> String => server name</LI>
+   *   <LI><B>SERVER_NAME</B> String => server name
    * </OL>
    *
-   * @return     an empty result set with the above mentioned column, never
-   *    <code>null</code>.
+   * @return an empty result set with the above mentioned column, never <code>null</code>.
    */
   protected PSResultSet getEmptyServers() {
     HashMap columnNames = new HashMap();
@@ -64,11 +61,9 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * See the {@link IPSSecurityProviderMetaData#getServers() interface} for a
-   * full description.
+   * See the {@link IPSSecurityProviderMetaData#getServers() interface} for a full description.
    *
    * @return Always returns an empty result set.
-   *
    * @throws SQLException Never thrown.
    */
   public ResultSet getServers() throws SQLException {
@@ -76,17 +71,17 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * Creates an empty result set that can be used by derived classes when
-   * responding to the {@link #getObjectTypes() similarly named
-   * method} in the interface. {@link PSResultSet#addRow(Object[]) addRow}
-   * can be called on the returned object for each item to be returned.
-   * <p>
-   * The result set contains:
+   * Creates an empty result set that can be used by derived classes when responding to the {@link
+   * #getObjectTypes() similarly named method} in the interface. {@link PSResultSet#addRow(Object[])
+   * addRow} can be called on the returned object for each item to be returned.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the object type name</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the object type name
    * </OL>
    *
-   * @return     an empty result set with the above mentioned column.
+   * @return an empty result set with the above mentioned column.
    */
   protected PSResultSet getEmptyObjectTypes() {
     HashMap columnNames = new HashMap();
@@ -95,11 +90,9 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * See the {@link IPSSecurityProviderMetaData#getObjectTypes() interface}
-   * for a full description.
+   * See the {@link IPSSecurityProviderMetaData#getObjectTypes() interface} for a full description.
    *
    * @return Always returns an empty result set.
-   *
    * @throws SQLException Never thrown.
    */
   public ResultSet getObjectTypes() throws SQLException {
@@ -107,21 +100,21 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * Creates an empty result set that can be used by derived classes when
-   * responding to the {@link #getObjects(String[],String[]) similarly named
-   * method} in the interface. {@link PSResultSet#addRow(Object[]) addRow}
-   * can be called on the returned object for each item to be returned.
-   * <p>
-   * The result set contains:
+   * Creates an empty result set that can be used by derived classes when responding to the {@link
+   * #getObjects(String[],String[]) similarly named method} in the interface. {@link
+   * PSResultSet#addRow(Object[]) addRow} can be called on the returned object for each item to be
+   * returned.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the type of object</LI>
-   * <LI><B>OBJECT_ID</B> String => the id of the object - usually the
-   *    objects distinguished name (DN)</LI>
-   * <LI><B>OBJECT_NAME</B> String => the name associated with the
-   *    object</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the type of object
+   *   <LI><B>OBJECT_ID</B> String => the id of the object - usually the objects distinguished name
+   *       (DN)
+   *   <LI><B>OBJECT_NAME</B> String => the name associated with the object
    * </OL>
    *
-   * @return     an empty result set with the above mentioned columns.
+   * @return an empty result set with the above mentioned columns.
    */
   protected PSResultSet getEmptyObjects() {
     HashMap columnNames = new HashMap();
@@ -137,11 +130,10 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * See the {@link IPSSecurityProviderMetaData#getObjects(String[],
-   * String[]) interface} for a full description.
+   * See the {@link IPSSecurityProviderMetaData#getObjects(String[], String[]) interface} for a full
+   * description.
    *
    * @return Always returns an empty result set.
-   *
    * @throws SQLException Never thrown.
    */
   public ResultSet getObjects(String[] objectTypes, String[] filterPattern) throws SQLException {
@@ -149,20 +141,17 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * Creates an empty result set with 1 column for each entry in the supplied
-   * map. For each entry, the key is the name of the column as a String and
-   * the value is an Integer object representing the position of the column.
-   * The positions should range from 1 to N, where N is the number of columns
-   * in the map.
+   * Creates an empty result set with 1 column for each entry in the supplied map. For each entry,
+   * the key is the name of the column as a String and the value is an Integer object representing
+   * the position of the column. The positions should range from 1 to N, where N is the number of
+   * columns in the map.
    *
-   * @param columnNames A map of all column names to be included in the
-   *    result set. Assumed not <code>null</code>.
-   *
-   * @param rsMeta A meta data class that describes the columns in the
-   *    supplied map. Assumed not <code>null</code>.
-   *
-   * @return A empty result set containing the columns in the map in the
-   *    order identified in the map.
+   * @param columnNames A map of all column names to be included in the result set. Assumed not
+   *     <code>null</code>.
+   * @param rsMeta A meta data class that describes the columns in the supplied map. Assumed not
+   *     <code>null</code>.
+   * @return A empty result set containing the columns in the map in the order identified in the
+   *     map.
    */
   private PSResultSet createEmptyResultSet(HashMap columnNames, PSResultSetMetaData rsMeta) {
     int cols = columnNames.size();
@@ -172,20 +161,21 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * Creates an empty result set that can be used by derived classes when
-   * responding to the {@link #getAttributes(String[]) similarly named method}
-   * in the interface. {@link PSResultSet#addRow(Object[]) addRow} can be
-   * called on the returned object for each item to be returned.
-   * <p>
-   * The result set contains:
+   * Creates an empty result set that can be used by derived classes when responding to the {@link
+   * #getAttributes(String[]) similarly named method} in the interface. {@link
+   * PSResultSet#addRow(Object[]) addRow} can be called on the returned object for each item to be
+   * returned.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the type of object</LI>
-   * <LI><B>ATTRIBUTE_NAME</B> String => the attribute name</LI>
-   * <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute
-   *    (may be <code>null</code>)</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the type of object
+   *   <LI><B>ATTRIBUTE_NAME</B> String => the attribute name
+   *   <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute (may be <code>null
+   *       </code>)
    * </OL>
    *
-   * @return     an empty result set with the above mentioned columns.
+   * @return an empty result set with the above mentioned columns.
    */
   protected PSResultSet getEmptyAttributes() {
     HashMap columnNames = new HashMap();
@@ -196,11 +186,10 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   }
 
   /**
-   * See the {@link IPSSecurityProviderMetaData#getAttributes(String[])
-   * interface} for a full description.
+   * See the {@link IPSSecurityProviderMetaData#getAttributes(String[]) interface} for a full
+   * description.
    *
    * @return Always returns an empty result set, never <code>null</code>.
-   *
    * @throws SQLException Never thrown.
    */
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {
@@ -210,17 +199,16 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   /**
    * Are calls to {@link #getServers <code>getServers</code>} supported?
    *
-   * @return                 <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetServers() {
     return false; // this is not supported
   }
 
   /**
-   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>}
-   * supported?
+   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>} supported?
    *
-   * @return                 <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetObjectTypes() {
     return false; // this is not supported
@@ -229,46 +217,49 @@ public abstract class PSSecurityProviderMetaData implements IPSSecurityProviderM
   /**
    * Are calls to {@link #getObjects <code>getObjects</code>} supported?
    *
-   * @return                 <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetObjects() {
     return false; // this is not supported
   }
 
   /**
-   * Are calls to {@link #getAttributes <code>getAttributes</code>}
-   * supported?
+   * Are calls to {@link #getAttributes <code>getAttributes</code>} supported?
    *
-   * @return                 <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetAttributes() {
     return false; // this is not supported
   }
 
   /**
-   * Defines the meta data for the result set created by the {@link
-   * #getEmptyServers()} method. Initialized in static block.
+   * Defines the meta data for the result set created by the {@link #getEmptyServers()} method.
+   * Initialized in static block.
+   *
    * @todo Make this private.
    */
   protected static final PSResultSetMetaData ms_GetServerRSMeta;
 
   /**
-   * Defines the meta data for the result set created by the {@link
-   * #getEmptyObjectTypes()} method. Initialized in static block.
+   * Defines the meta data for the result set created by the {@link #getEmptyObjectTypes()} method.
+   * Initialized in static block.
+   *
    * @todo Make this private.
    */
   protected static final PSResultSetMetaData ms_GetObjectTypesRSMeta;
 
   /**
-   * Defines the meta data for the result set created by the {@link
-   * #getEmptyObjects()} method. Initialized in static block.
+   * Defines the meta data for the result set created by the {@link #getEmptyObjects()} method.
+   * Initialized in static block.
+   *
    * @todo Make this private.
    */
   protected static final PSResultSetMetaData ms_GetObjectsRSMeta;
 
   /**
-   * Defines the meta data for the result set created by the {@link
-   * #getEmptyAttributes()} method. Initialized in static block.
+   * Defines the meta data for the result set created by the {@link #getEmptyAttributes()} method.
+   * Initialized in static block.
+   *
    * @todo Make this private.
    */
   protected static final PSResultSetMetaData ms_GetAttributesRSMeta;

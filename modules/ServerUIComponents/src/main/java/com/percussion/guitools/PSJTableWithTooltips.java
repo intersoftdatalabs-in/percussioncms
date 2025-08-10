@@ -22,10 +22,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
-/**
- * A subclass of JTable in which the current cell's value will also be displayed
- * in a tooltip.
- */
+/** A subclass of JTable in which the current cell's value will also be displayed in a tooltip. */
 public class PSJTableWithTooltips extends JTable {
   /**
    * @see javax.swing.JTable#JTable(javax.swing.table.TableModel)

@@ -49,20 +49,15 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Base class to provide utility methods for all handlers deploying cms objects.
- */
+/** Base class to provide utility methods for all handlers deploying cms objects. */
 public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -83,16 +78,12 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the id from the supplied key.  Returns the value of the first part of
-   * the key.
+   * Gets the id from the supplied key. Returns the value of the first part of the key.
    *
-   * @param comp The component from which the key is retrieved, may not be
-   * <code>null</code>.
-   * @param name The name of the component, used for error handling.  May not
-   * be <code>null</code> or empty.
-   *
+   * @param comp The component from which the key is retrieved, may not be <code>null</code>.
+   * @param name The name of the component, used for error handling. May not be <code>null</code> or
+   *     empty.
    * @return The key, never <code>null</code> or emtpy.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If the id cannot be determined.
    */
@@ -116,18 +107,13 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Reserves a new id for the supplied dependency and sets it in the supplied
-   * <code>idMap</code>.
+   * Reserves a new id for the supplied dependency and sets it in the supplied <code>idMap</code>.
    *
-   * @param dep The depdendency for which the id is to be reserved, may not
-   * be <code>null</code>.
-   * @param idMap The idMap on which the the new id is to be set, may not be
-   * <code>null</code>.
-   * @param comp The component represented by the <code>dep</code> object, may
-   * not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if any param is invalid.
-   * <code>null</code>.
+   * @param dep The depdendency for which the id is to be reserved, may not be <code>null</code>.
+   * @param idMap The idMap on which the the new id is to be set, may not be <code>null</code>.
+   * @param comp The component represented by the <code>dep</code> object, may not be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if any param is invalid. <code>null</code>.
    * @throws PSDeployException if there are any other errors.
    */
   protected void reserveNewId(PSDependency dep, PSIdMap idMap, IPSDbComponent comp)
@@ -182,11 +168,8 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
    * Creates and returns a dependency file for the supplied component.
    *
    * @param comp The component, may not be <code>null</code>.
-   *
    * @return The dependency file, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>comp</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>comp</code> is <code>null</code>.
    * @throws PSDeployException if any other error occurs.
    */
   protected PSDependencyFile createDependencyFile(IPSCmsComponent comp) throws PSDeployException {
@@ -204,16 +187,14 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Get a list of dependency files for a specified dependency from an archive.
    *
-   * @param archive The archive handler to retrieve the dependency files from,
-   * may not be <code>null</code>.
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects,
-   * never <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects, never <code>null</code>
+   *     or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the
-   * archive for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getDependencyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
@@ -238,16 +219,11 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Restore the specified file as an XML document and return its root element.
    *
-   * @param archive The archive handler for the archive file, may not be
-   * <code>null</code>.
-   * @param dep The dependency for which the file is to be retrieved, may not
-   * be <code>null</code>.
-   * @param file The to be retrieved dependency file, may not be
-   * <code>null</code> and its type must be
-   * {@link PSDependencyFile#TYPE_COMPONENT_XML}
-   *
+   * @param archive The archive handler for the archive file, may not be <code>null</code>.
+   * @param dep The dependency for which the file is to be retrieved, may not be <code>null</code>.
+   * @param file The to be retrieved dependency file, may not be <code>null</code> and its type must
+   *     be {@link PSDependencyFile#TYPE_COMPONENT_XML}
    * @return The element, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -284,17 +260,14 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Get a list of dependencies from the values of the supplied multi valued
-   * property.  All values are assumed to specify the id of a dependency whose
-   * type is handled by the supplied <code>handler</code>.
+   * Get a list of dependencies from the values of the supplied multi valued property. All values
+   * are assumed to specify the id of a dependency whose type is handled by the supplied <code>
+   * handler</code>.
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param prop The property, may not be <code>null</code>.
-   * @param handler The handler to use to create the dependencies, may not be
-   * <code>null</code>.
-   *
+   * @param handler The handler to use to create the dependencies, may not be <code>null</code>.
    * @return The list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any other errors.
    */
@@ -318,14 +291,10 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Transforms all values in the supplied multi-valued property.
    *
-   * @param prop The property whose values are to be transformed, may not be
-   * <code>null</code>.
-   * @param ctx The import ctx to use to get id mappings, may not be
-   * <code>null</code>.
-   * @param type The type of dependency each value in the propery represents,
-   * used to get the correct id mapppings.  May not be <code>null</code> or
-   * empty.
-   *
+   * @param prop The property whose values are to be transformed, may not be <code>null</code>.
+   * @param ctx The import ctx to use to get id mappings, may not be <code>null</code>.
+   * @param type The type of dependency each value in the propery represents, used to get the
+   *     correct id mapppings. May not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any other errors.
    */
@@ -358,13 +327,10 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
    * Adds a transacition log summary for the supplied cms component.
    *
    * @param dep The dependency being installed, may not be <code>null</code>.
-   * @param ctx The import ctx to use to log the entry, may not be
-   * <code>null</code>.
-   * @param comp The component for which the transaction is being logged, may
-   * not be <code>null</code>.
-   * @param action The action taken, one of the
-   * <code>PSTransactionSummary.ACTION_XXX</code> values.
-   *
+   * @param ctx The import ctx to use to log the entry, may not be <code>null</code>.
+   * @param comp The component for which the transaction is being logged, may not be <code>null
+   *     </code>.
+   * @param action The action taken, one of the <code>PSTransactionSummary.ACTION_XXX</code> values.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -379,10 +345,9 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the component processor proxy shared by all dependency handlers.
-   * Sets the context using a request generated by a call to
-   * {@link PSRequest#getContextForRequest()}.  See
-   * {@link #getComponentProcessor(PSSecurityToken)} for more information.
+   * Gets the component processor proxy shared by all dependency handlers. Sets the context using a
+   * request generated by a call to {@link PSRequest#getContextForRequest()}. See {@link
+   * #getComponentProcessor(PSSecurityToken)} for more information.
    *
    * @return The processor, never <code>null</code>.
    * @throws PSDeployException if the processor cannot be created.
@@ -392,8 +357,7 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getRelationshipProcessor(PSSecurityToken, Map)
+   * Convenience method that calls {@link #getRelationshipProcessor(PSSecurityToken, Map)
    * getRelationshipProcessor(tok, null)}
    */
   protected PSRelationshipProcessor getRelationshipProcessor(PSSecurityToken tok)
@@ -402,21 +366,17 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the relationship processor proxy shared by all dependency handlers.
-   * Sets the context using a request generated from the supplied security
-   * token. A single instance of the processor proxy is created the first time
-   * this method is called, and is cached thereafter (assuming there is at
-   * least one instance of this class held to prevent garbage collection).  The
-   * returned processor is not thread safe - it is assumed that only one thread
-   * will use this instance at a time.
+   * Gets the relationship processor proxy shared by all dependency handlers. Sets the context using
+   * a request generated from the supplied security token. A single instance of the processor proxy
+   * is created the first time this method is called, and is cached thereafter (assuming there is at
+   * least one instance of this class held to prevent garbage collection). The returned processor is
+   * not thread safe - it is assumed that only one thread will use this instance at a time.
    *
-   * @param tok The security token to use to set the context on the processor,
-   * may not be <code>null</code>.
-   * @param params params to set on the request created from the supplied
-   * <code>tok</code>, may be <code>null</code>.
-   *
+   * @param tok The security token to use to set the context on the processor, may not be <code>null
+   *     </code>.
+   * @param params params to set on the request created from the supplied <code>tok</code>, may be
+   *     <code>null</code>.
    * @return The processor, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>tok</code> is <code>null</code>.
    * @throws PSDeployException if the processor cannot be created.
    */
@@ -429,19 +389,16 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the cms component processor proxy shared by all dependency handlers.
-   * Sets the context using a request generated from the supplied security
-   * token.  A single instance of the processor proxy is created the first time
-   * this method is called, and is cached thereafter (assuming there is at least
-   * one instance of this class held to prevent garbage collection).  The
-   * returned processor is not thread safe - it is assumed that only one thread
-   * will use this instance at a time.
+   * Gets the cms component processor proxy shared by all dependency handlers. Sets the context
+   * using a request generated from the supplied security token. A single instance of the processor
+   * proxy is created the first time this method is called, and is cached thereafter (assuming there
+   * is at least one instance of this class held to prevent garbage collection). The returned
+   * processor is not thread safe - it is assumed that only one thread will use this instance at a
+   * time.
    *
-   * @param tok The security token to use to set the context on the processor,
-   * may not be <code>null</code>.
-   *
+   * @param tok The security token to use to set the context on the processor, may not be <code>null
+   *     </code>.
    * @return The processor, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>tok</code> is <code>null</code>.
    * @throws PSDeployException if the processor cannot be created.
    */
@@ -451,16 +408,11 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the relationship processor shared by all dependency handlers.
-   * Sets the context using the supplied request.
-   * See {@link #getRelationshipProcessor(PSSecurityToken)} for more
-   * information.
+   * Gets the relationship processor shared by all dependency handlers. Sets the context using the
+   * supplied request. See {@link #getRelationshipProcessor(PSSecurityToken)} for more information.
    *
-   * @param req The request to use to set the context, assumed not
-   * <code>null</code>.
-   *
+   * @param req The request to use to set the context, assumed not <code>null</code>.
    * @return The processor, never <code>null</code>.
-   *
    * @throws PSDeployException if the processor cannot be created.
    */
   private PSRelationshipProcessor getRelationshipProcessor(PSRequest req) throws PSDeployException {
@@ -472,15 +424,11 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the local component processor shared by all dependency handlers.
-   * Sets the context using the supplied request.
-   * See {@link #getComponentProcessor(PSSecurityToken)} for more information.
+   * Gets the local component processor shared by all dependency handlers. Sets the context using
+   * the supplied request. See {@link #getComponentProcessor(PSSecurityToken)} for more information.
    *
-   * @param req The request to use to set the context, assumed not
-   * <code>null</code>.
-   *
+   * @param req The request to use to set the context, assumed not <code>null</code>.
    * @return The processor, never <code>null</code>.
-   *
    * @throws PSDeployException if the processor cannot be created.
    */
   private PSComponentProcessorProxy getComponentProcessor(PSRequest req) throws PSDeployException {
@@ -499,18 +447,16 @@ public abstract class PSCmsObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * The relationship proxy processor used by all derived handlers.
-   * <code>null</code> until the first call to {@link #getRelationshipProcessor(PSRequest)},
-   * never <code>null</code> after that.  Each call to that method will set the
-   * context.
+   * The relationship proxy processor used by all derived handlers. <code>null</code> until the
+   * first call to {@link #getRelationshipProcessor(PSRequest)}, never <code>null</code> after that.
+   * Each call to that method will set the context.
    */
   private PSRelationshipProcessor m_relationshipProcessor = null;
 
   /**
-   * The component proxy processor used by all derived handlers.
-   * <code>null</code> until the first call to {@link #getComponentProcessor(PSRequest)},
-   * never <code>null</code> after that.  Each call to that method will set the
-   * context.
+   * The component proxy processor used by all derived handlers. <code>null</code> until the first
+   * call to {@link #getComponentProcessor(PSRequest)}, never <code>null</code> after that. Each
+   * call to that method will set the context.
    */
   private PSComponentProcessorProxy m_componentProcessor = null;
 }

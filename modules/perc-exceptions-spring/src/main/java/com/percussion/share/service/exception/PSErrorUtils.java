@@ -23,11 +23,9 @@ import com.percussion.share.validation.PSErrors.PSObjectError;
 import org.apache.commons.lang3.Validate;
 
 /**
- *
  * Utilities for create {@link PSErrors} objects.
  *
  * @author adamgent
- *
  */
 public class PSErrorUtils {
 

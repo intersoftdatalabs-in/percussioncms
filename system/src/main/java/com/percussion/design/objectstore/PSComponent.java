@@ -30,19 +30,16 @@ import java.util.Objects;
 import org.w3c.dom.Element;
 
 /**
- * The PSComponent class implements some of the IPSComponent interface
- * as a convenience to objects extending this class.  When subclassing,
- * make sure to override copyFrom().
+ * The PSComponent class implements some of the IPSComponent interface as a convenience to objects
+ * extending this class. When subclassing, make sure to override copyFrom().
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSComponent implements IPSComponent, Serializable {
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 8994604589246361347L;
 
   /**
@@ -64,9 +61,8 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSComponent. Cannot be <code>null</code>.
    */
@@ -76,20 +72,18 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * This method is present to improve our backwards compatibility support.
-   * The user of the objectstore should check if the connected server
-   * is an older version than the version of this client software. If it
-   * is, the featureset from the server should be set using this method
-   * before any objectstore classes are used. To prevent garbage collection,
-   * a reference to an instance of this class or the class object should be
-   * kept for the duration of use.
-   * <p>Derived classes will use this information to support writing app
-   * data to servers in different formats. This will allow us to maintain
-   * backwards compatibility for a longer period of time.
+   * This method is present to improve our backwards compatibility support. The user of the
+   * objectstore should check if the connected server is an older version than the version of this
+   * client software. If it is, the featureset from the server should be set using this method
+   * before any objectstore classes are used. To prevent garbage collection, a reference to an
+   * instance of this class or the class object should be kept for the duration of use.
    *
-   * @param fs If <code>null</code>, returns immediately. The feature set
-   * obtained from the connected server.
+   * <p>Derived classes will use this information to support writing app data to servers in
+   * different formats. This will allow us to maintain backwards compatibility for a longer period
+   * of time.
    *
+   * @param fs If <code>null</code>, returns immediately. The feature set obtained from the
+   *     connected server.
    * @throws IllegalStateException If called more than once.
    */
   public static synchronized void setFeatureSet(PSFeatureSet fs) {
@@ -110,19 +104,16 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * This method checks if the requested version is present in the
-   * feature set. If no feature set has been set, this method will always
-   * return <code>true</code>. This provides a default behavior of writing
-   * data in the newest format.
+   * This method checks if the requested version is present in the feature set. If no feature set
+   * has been set, this method will always return <code>true</code>. This provides a default
+   * behavior of writing data in the newest format.
    *
-   * @param featureName The name of the feature as found in the featureset.xml
-   * file. Never <code>null</code> or empty. Name is case-insensitive.
-   *
+   * @param featureName The name of the feature as found in the featureset.xml file. Never <code>
+   *     null</code> or empty. Name is case-insensitive.
    * @param minVersion The minimum version of the feature to check for.
-   *
-   * @return <code>true</code> if the feature is found in the feature set with
-   * a version greater than or equal the requested version or no feature set
-   * has been set, <code>false</code> otherwise.
+   * @return <code>true</code> if the feature is found in the feature set with a version greater
+   *     than or equal the requested version or no feature set has been set, <code>false</code>
+   *     otherwise.
    */
   protected static boolean isFeatureSupported(String featureName, int minVersion) {
     if (null == ms_features) return true;
@@ -132,14 +123,12 @@ public abstract class PSComponent implements IPSComponent, Serializable {
 
   /**
    * Add this to the list of parent objects in the array list.
-   * <P>
-   * After a call to this method, the caller should keep get the size
-   * of the arraylist so that a call to resetParentList can
-   * be made (with size - 1) to allow for proper reset.
    *
-   * @param      parentComponents      the parent list
+   * <p>After a call to this method, the caller should keep get the size of the arraylist so that a
+   * call to resetParentList can be made (with size - 1) to allow for proper reset.
    *
-   * @return      the new parent list (in case parentComponents was null)
+   * @param parentComponents the parent list
+   * @return the new parent list (in case parentComponents was null)
    */
   protected List<IPSComponent> updateParentList(List<IPSComponent> parentComponents) {
     if (parentComponents == null) parentComponents = new ArrayList<>();
@@ -150,12 +139,10 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Reset the list of parent objects in the array list to the specified
-   * size.
+   * Reset the list of parent objects in the array list to the specified size.
    *
-   * @param      parentComponents      the parent list
-   *
-   * @param      size                  the size to set the list to
+   * @param parentComponents the parent list
+   * @param size the size to set the list to
    */
   protected void resetParentList(List<?> parentComponents, int size) {
     if (parentComponents == null) return;
@@ -170,11 +157,11 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Safely compares two objects for equality when those objects might be
-   * <code>null</code> or Arrays.
+   * Safely compares two objects for equality when those objects might be <code>null</code> or
+   * Arrays.
    *
-   * @return <code>true</code> if both objects are <code>null</code>, or
-   * if both objects are equal; <code>false</code> otherwise.
+   * @return <code>true</code> if both objects are <code>null</code>, or if both objects are equal;
+   *     <code>false</code> otherwise.
    */
   protected static boolean compare(Object a, Object b) {
     if (a == null || b == null) {
@@ -191,11 +178,11 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Set the component converters to allow on-the-fly conversion of legacy XML
-   * during de-serialization.
+   * Set the component converters to allow on-the-fly conversion of legacy XML during
+   * de-serialization.
    *
-   * @param converters The converters to set, may be <code>null</code> or empty
-   * to clear the current list.
+   * @param converters The converters to set, may be <code>null</code> or empty to clear the current
+   *     list.
    */
   public static void setComponentConverters(List<IPSComponentConverter> converters) {
     if (converters == null) converters = new ArrayList<>();
@@ -204,11 +191,11 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Set the component updaters to allow on-the-fly conversion of legacy object
-   * during de-serialization.
+   * Set the component updaters to allow on-the-fly conversion of legacy object during
+   * de-serialization.
    *
-   * @param updaters The updaters to set, may be <code>null</code> or empty
-   * to clear the current list.
+   * @param updaters The updaters to set, may be <code>null</code> or empty to clear the current
+   *     list.
    */
   public static void setComponentUpdaters(List<IPSComponentUpdater> updaters) {
     if (updaters == null) updaters = new ArrayList<>();
@@ -217,23 +204,21 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Get a copy of the current list of converters.
-   * See {@link #setComponentConverters(List)}.
+   * Get a copy of the current list of converters. See {@link #setComponentConverters(List)}.
    *
-   * @return The list, never <code>null</code>, may be empty.  Changes to the
-   * returned list are not reflected in this object.
+   * @return The list, never <code>null</code>, may be empty. Changes to the returned list are not
+   *     reflected in this object.
    */
   public static List<IPSComponentConverter> getComponentConverters() {
     return new ArrayList<>(ms_converters);
   }
 
   /**
-   * Convenience method that returns the first converter for which
-   * {@link IPSComponentConverter#canConvertComponent(Class)} returns
-   * <code>true</code>.  See {@link #setComponentConverters(List)}.
+   * Convenience method that returns the first converter for which {@link
+   * IPSComponentConverter#canConvertComponent(Class)} returns <code>true</code>. See {@link
+   * #setComponentConverters(List)}.
    *
    * @param clazz The class to test, may not be <code>null</code>.
-   *
    * @return The converter, or <code>null</code> if none matched.
    */
   public static IPSComponentConverter getComponentConverter(Class<?> clazz) {
@@ -251,12 +236,11 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Convenience method that returns the first updater for which
-   * {@link IPSComponentUpdater#canUpdateComponent(Class)} returns
-   * <code>true</code>.  See {@link #setComponentUpdaters(List)}.
+   * Convenience method that returns the first updater for which {@link
+   * IPSComponentUpdater#canUpdateComponent(Class)} returns <code>true</code>. See {@link
+   * #setComponentUpdaters(List)}.
    *
    * @param clazz The class to test, may not be <code>null</code>.
-   *
    * @return The updater, or <code>null</code> if none matched.
    */
   public static IPSComponentUpdater getComponentUpdater(Class<?> clazz) {
@@ -277,8 +261,7 @@ public abstract class PSComponent implements IPSComponent, Serializable {
    * Validates that <code>elem</code> is not null and has the expected name.
    *
    * @param elem Element to be validated
-   * @param expectedName the name you are expecting elem to have; cannot be
-   *        <code>null</code>
+   * @param expectedName the name you are expecting elem to have; cannot be <code>null</code>
    * @throws PSUnknownNodeTypeException if <code>elem</code> is <code>null
    *         </code>, or has a name other than the expected name.
    */
@@ -300,16 +283,16 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Gets the element data from an <code>#IMPLIED</code> attribute.  If the
-   * data is <code>null</code> it will return <code>null</code>.
-   * <p />
-   * This was added to accomodate the replacewith node that's used for
-   * control deprecation.
-   * <p />
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *        that should contain the specified attribute.
-   * @param attrName the name of the attribute to retrieve data from
-   *        not <code>null</code> or empty.
+   * Gets the element data from an <code>#IMPLIED</code> attribute. If the data is <code>null</code>
+   * it will return <code>null</code>.
+   *
+   * <p>This was added to accomodate the replacewith node that's used for control deprecation.
+   *
+   * <p>
+   *
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that should contain the
+   *     specified attribute.
+   * @param attrName the name of the attribute to retrieve data from not <code>null</code> or empty.
    * @return a value for the specified attribute, may return <code>null</code>
    */
   protected static String getImpliedAttribute(PSXmlTreeWalker tree, String attrName) {
@@ -323,9 +306,8 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Convenience method that calls {@link #getEnumeratedAttribute(
-   * PSXmlTreeWalker, String, String[], boolean) getEnumeratedAttribute(tree,
-   * attrName, legalValues, false)}.
+   * Convenience method that calls {@link #getEnumeratedAttribute( PSXmlTreeWalker, String,
+   * String[], boolean) getEnumeratedAttribute(tree, attrName, legalValues, false)}.
    */
   protected static String getEnumeratedAttribute(
       PSXmlTreeWalker tree, String attrName, String[] legalValues)
@@ -334,19 +316,15 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Gets the element data from an attribute and validates that the data is a
-   * legal value. If the data is <code>null</code> or empty, it will be set
-   * with a default value (assumed to be the value at index 0 of the legal
-   * value array).
+   * Gets the element data from an attribute and validates that the data is a legal value. If the
+   * data is <code>null</code> or empty, it will be set with a default value (assumed to be the
+   * value at index 0 of the legal value array).
    *
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *    that should contain the specified attribute.
-   * @param attrName the name of the attribute to retrieve data from; not
-   *    <code>null</code>
-   * @param legalValues the array of permitted values, with a default value at
-   *    index 0.
-   * @return a legal value for the specified attribute, never
-   *    <code>null</code> or empty.
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that should contain the
+   *     specified attribute.
+   * @param attrName the name of the attribute to retrieve data from; not <code>null</code>
+   * @param legalValues the array of permitted values, with a default value at index 0.
+   * @return a legal value for the specified attribute, never <code>null</code> or empty.
    * @throws PSUnknownNodeTypeException if the node has an illegal value.
    */
   protected static String getEnumeratedAttribute(
@@ -380,20 +358,17 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Gets the element data from a required attribute or child element. It is an
-   * error for a required node to be absent or empty.
+   * Gets the element data from a required attribute or child element. It is an error for a required
+   * node to be absent or empty.
    *
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *           that is the parent of the required node, not <code>null</code>.
-   * @param elemName the name of the node to retrieve data from, not
-   *           <code>null</code>.
-   * @param fromRoot <code>true</code> to start the search from the root
-   *           element, <code>false</code> to start from the current element
-   *           in the tree.
-   * @return a <code>String</code> containing the element data from the
-   *         specified node, never <code>null</code> or empty.
-   * @throws PSUnknownNodeTypeException if the specified node is missing or
-   *            empty.
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that is the parent of
+   *     the required node, not <code>null</code>.
+   * @param elemName the name of the node to retrieve data from, not <code>null</code>.
+   * @param fromRoot <code>true</code> to start the search from the root element, <code>false</code>
+   *     to start from the current element in the tree.
+   * @return a <code>String</code> containing the element data from the specified node, never <code>
+   *     null</code> or empty.
+   * @throws PSUnknownNodeTypeException if the specified node is missing or empty.
    */
   protected static String getRequiredElement(
       PSXmlTreeWalker tree, String elemName, boolean fromRoot) throws PSUnknownNodeTypeException {
@@ -412,8 +387,8 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Same as {@link #getRequiredElement(PSXmlTreeWalker, String, boolean)}
-   * starting the search always from the root.
+   * Same as {@link #getRequiredElement(PSXmlTreeWalker, String, boolean)} starting the search
+   * always from the root.
    */
   protected static String getRequiredElement(PSXmlTreeWalker tree, String elemName)
       throws PSUnknownNodeTypeException {
@@ -444,15 +419,14 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Extracts the data for this class from the supplied element. If not
-   * present, an exception is thrown. All base classes should call this
-   * method while performing their <code>fromXml</code>.
+   * Extracts the data for this class from the supplied element. If not present, an exception is
+   * thrown. All base classes should call this method while performing their <code>fromXml</code>.
+   *
    * <p>See {@link #toXml(Element)} for the dtd.
    *
    * @param source Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the data for this class is not
-   * found in the supplied node.
+   * @throws PSUnknownNodeTypeException If the data for this class is not found in the supplied
+   *     node.
    */
   protected void fromXml(Element source) throws PSUnknownNodeTypeException {
     String data = source.getAttribute(ID_ATTR);
@@ -465,10 +439,12 @@ public abstract class PSComponent implements IPSComponent, Serializable {
   }
 
   /**
-   * Adds the data for this class to the supplied element as attributes.
-   * All base classes should call this method while performing their <code>
+   * Adds the data for this class to the supplied element as attributes. All base classes should
+   * call this method while performing their <code>
    * toXml</code>.
+   *
    * <p>Conforms to the following dtd:
+   *
    * <pre>
    * &lt;!ELEMENT sourceName ...&gt;
    * &lt;!ATTLIST sourceName
@@ -481,36 +457,31 @@ public abstract class PSComponent implements IPSComponent, Serializable {
     return source;
   }
 
-  /**
-   * The id assigned to this component. Defaults to {@link #UNKNOWN_ID}
-   */
+  /** The id assigned to this component. Defaults to {@link #UNKNOWN_ID} */
   protected int m_id = UNKNOWN_ID;
 
   protected static final String ID_ATTR = "id";
 
-  /**
-   * The initial unknown id, which is the default value for m_id.
-   */
+  /** The initial unknown id, which is the default value for m_id. */
   protected static final int UNKNOWN_ID = 0;
 
   /**
-   * Each entry has a string key that is the lower-cased version of the
-   * feature and a value that is an Integer object containing the latest
-   * version. <code>null</code> until set with the <code>setFeatureSet</code>
-   * method, then never modified. It is assumed that versions increase with
+   * Each entry has a string key that is the lower-cased version of the feature and a value that is
+   * an Integer object containing the latest version. <code>null</code> until set with the <code>
+   * setFeatureSet</code> method, then never modified. It is assumed that versions increase with
    * time.
    */
   private static Map<String, Integer> ms_features;
 
   /**
-   * List of converters, never <code>null</code>, empty unless modified by
-   * {@link #setComponentConverters(List)}.
+   * List of converters, never <code>null</code>, empty unless modified by {@link
+   * #setComponentConverters(List)}.
    */
   private static List<IPSComponentConverter> ms_converters = new ArrayList<>();
 
   /**
-   * List of updaters, never <code>null</code>, empty unless modified by
-   * {@link #setComponentConverters(List)}.
+   * List of updaters, never <code>null</code>, empty unless modified by {@link
+   * #setComponentConverters(List)}.
    */
   private static List<IPSComponentUpdater> ms_updaters = new ArrayList<>();
 }

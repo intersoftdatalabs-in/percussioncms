@@ -41,16 +41,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This upgrade plug-in will clean out (delete) non-unique location
- * schemes from the RXLOCATIONSCHEME and RXLOCATIONSCHEMEPARAMS tables. It
- * will also writes to the log file showing any table rows that were deleted so that
- * a user can rebuild the scheme if needed.
+ * This upgrade plug-in will clean out (delete) non-unique location schemes from the
+ * RXLOCATIONSCHEME and RXLOCATIONSCHEMEPARAMS tables. It will also writes to the log file showing
+ * any table rows that were deleted so that a user can rebuild the scheme if needed.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     log("inside the process() of the plugin...");
@@ -140,19 +137,17 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
   }
 
   /**
-   * Looks for non-unique entries in the RXLOCATIONSCHEME table, a non-unique
-   * entry is one that violates the unique compound key conatraint
-   * (VARIANTID, CONTEXTID). If non-uniques are found it prepares the
-   * appropriate table data entries to delete the non-unique entries from
-   * the RXRXLOCATIONSCHEMEPARAM table. It then sets the table data entries into
-   * the passed in schema so they can be processed by the caller.
+   * Looks for non-unique entries in the RXLOCATIONSCHEME table, a non-unique entry is one that
+   * violates the unique compound key conatraint (VARIANTID, CONTEXTID). If non-uniques are found it
+   * prepares the appropriate table data entries to delete the non-unique entries from the
+   * RXRXLOCATIONSCHEMEPARAM table. It then sets the table data entries into the passed in schema so
+   * they can be processed by the caller.
    *
-   * @param schemeDoc the table schema object for the RXLOCATIONSCHEME,
-   * cannot be <code>null</code>.
-   * @param paramsDoc the table schema object for the RXLOCATIONSCHEMEPARAMS,
-   * cannot be <code>null</code>.
-   * @return <code>true</code> if non-unique entries are found indicating
-   * that processing needs to be done.
+   * @param schemeDoc the table schema object for the RXLOCATIONSCHEME, cannot be <code>null</code>.
+   * @param paramsDoc the table schema object for the RXLOCATIONSCHEMEPARAMS, cannot be <code>null
+   *     </code>.
+   * @return <code>true</code> if non-unique entries are found indicating that processing needs to
+   *     be done.
    */
   private boolean checkForDupsAndModify(
       final Connection conn,
@@ -273,8 +268,7 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -290,10 +284,7 @@ public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * Class that represents the location scheme's compound key
-   *
-   */
+  /** Class that represents the location scheme's compound key */
   private class SchemeKey {
     private SchemeKey(String variantId, String contextId) {
       mi_variantId = variantId;

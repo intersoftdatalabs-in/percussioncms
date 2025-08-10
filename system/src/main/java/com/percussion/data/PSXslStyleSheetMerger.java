@@ -48,19 +48,18 @@ import org.w3c.dom.ProcessingInstruction;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSXslStyleSheetMerger class implements XSL support for the
- * IPSStyleSheetMerger interface. This processor uses an XSL style sheet
- * and merges it with an XML document to generate HTML output.
+ * The PSXslStyleSheetMerger class implements XSL support for the IPSStyleSheetMerger interface.
+ * This processor uses an XSL style sheet and merges it with an XML document to generate HTML
+ * output.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   /**
-   * Convenience method that calls {@link #merge(PSRequest, Document,
-   * OutputStream, URL, Iterator, String) merge(
-   *    req, doc, out, styleFile, null, encoding)}.
+   * Convenience method that calls {@link #merge(PSRequest, Document, OutputStream, URL, Iterator,
+   * String) merge( req, doc, out, styleFile, null, encoding)}.
    */
   public void merge(PSRequest req, Document doc, OutputStream out, URL styleFile, String encoding)
       throws PSConversionException {
@@ -68,35 +67,30 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Merge the XSL style sheet defined in the XML document to generate
-   * HTML output. The <code>stylesheet</code> processing instruction
-   * must exist in the XML document and refer to an XSL style sheet.
+   * Merge the XSL style sheet defined in the XML document to generate HTML output. The <code>
+   * stylesheet</code> processing instruction must exist in the XML document and refer to an XSL
+   * style sheet.
    *
-   * @param   req the request object (may be <code>null</code>)
-   * @param   doc the XML document to be processed,may not be <code>null</code>
-   * @param   out the output stream to which the results will be written, may
-   * not be <code>null</code>.
-   * @param   styleFile the style sheet to use, may not be <code>null</code>
-   * @param   params An iterator over zero or more Map.Entry objects, where for
-   * each entry the the key is the param name as a String and the value is an
-   * object whose <code>toString</code> method will be used as the value of the
-   * param.  The params are passed to the style sheet processor, and will be
-   * used to set the value of any global parameters defined as an <code>
-   * xsl:param</code> element in the stylesheet with a matching name (the
-   * parameter must be defined as a child of the xsl:stylesheet
-   * element).  If a matching parameter declaration is not found in the
-   * stylesheet, the supplied parameter is silently ignored.  May be <code>
+   * @param req the request object (may be <code>null</code>)
+   * @param doc the XML document to be processed,may not be <code>null</code>
+   * @param out the output stream to which the results will be written, may not be <code>null</code>
+   *     .
+   * @param styleFile the style sheet to use, may not be <code>null</code>
+   * @param params An iterator over zero or more Map.Entry objects, where for each entry the the key
+   *     is the param name as a String and the value is an object whose <code>toString</code> method
+   *     will be used as the value of the param. The params are passed to the style sheet processor,
+   *     and will be used to set the value of any global parameters defined as an <code>
+   * xsl:param</code> element in the stylesheet with a matching name (the parameter must be defined
+   *     as a child of the xsl:stylesheet element). If a matching parameter declaration is not found
+   *     in the stylesheet, the supplied parameter is silently ignored. May be <code>
    * null</code> if no parameters are to be supplied.
-   * @param encoding the encoding that should be used in the XSL stylesheets
-   * output element. Can be <code>null</code> or empty.
-   *
-   * @throws   PSConversionException if the conversion fails
-   *
-   * @throws  PSUnsupportedConversionException if the style sheet defined in
-   * the XML document is of an unsupported type
-   *
-   * @throws IllegalArgumentException if <code>doc</code> or <code>out</code>
-   * or <code>styleFile</code> is <code>null</code>
+   * @param encoding the encoding that should be used in the XSL stylesheets output element. Can be
+   *     <code>null</code> or empty.
+   * @throws PSConversionException if the conversion fails
+   * @throws PSUnsupportedConversionException if the style sheet defined in the XML document is of
+   *     an unsupported type
+   * @throws IllegalArgumentException if <code>doc</code> or <code>out</code> or <code>styleFile
+   *     </code> is <code>null</code>
    */
   public void merge(
       PSRequest req,
@@ -347,9 +341,7 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
    * Gets error and fatal error messages of listener as a string.
    *
    * @param listener the error listener, not <code>null</code>.
-   *
    * @return error message, never <code>null</code>, may be empty.
-   *
    * @throws IOException reading source file in which error occurred.
    */
   public static String getErrorListenerMessage(PSTransformErrorListener listener)
@@ -365,13 +357,10 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Appends list of error messages in to a single message with contextual
-   * data of error.
+   * Appends list of error messages in to a single message with contextual data of error.
    *
    * @param errors the iterator of error list, not <code>null</code>.
-   *
    * @return error message, never <code>null</code>, may be empty.
-   *
    * @throws IOException reading source file in which error occurred.
    */
   private static String getErrorMessages(Iterator errors) throws IOException {
@@ -389,15 +378,12 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Returns the range of data of source in which the exception occurred.
-   * Returns empty string if source of the exception can not be found or the
-   * error line number is less than 0.
+   * Returns the range of data of source in which the exception occurred. Returns empty string if
+   * source of the exception can not be found or the error line number is less than 0.
    *
    * @param e the exception, not <code>null</code>.
-   *
-   * @return a string containing any contextual text which can be found,
-   * never <code>null</code>, may be empty.
-   *
+   * @return a string containing any contextual text which can be found, never <code>null</code>,
+   *     may be empty.
    * @throws IOException reading source file in which exception occurred.
    */
   private static String getExceptionContextData(Exception e) throws IOException {
@@ -429,17 +415,13 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Returns an error message containing the data in the specified range
-   * for the exception.
-   * Returns an empty string if the found error line number is less than 0.
+   * Returns an error message containing the data in the specified range for the exception. Returns
+   * an empty string if the found error line number is less than 0.
    *
-   * @param   e       the exception, assumed not <code>null</code>.
-   * @param   url    the source stream in which error happened, assumed not
-   * <code>null</code>.
-   *
-   * @return   a string containing any contextual text which can be found,
-   * never <code>null</code>, may be empty.
-   *
+   * @param e the exception, assumed not <code>null</code>.
+   * @param url the source stream in which error happened, assumed not <code>null</code>.
+   * @return a string containing any contextual text which can be found, never <code>null</code>,
+   *     may be empty.
    * @throws IOException reading source file in which exception occurred.
    */
   private static String getExceptionContextData(Exception e, URL url) throws IOException {
@@ -465,16 +447,11 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Create an error message containing the data in the specified range
-   * for the exception.
+   * Create an error message containing the data in the specified range for the exception.
    *
-   * @param   buf    a buffer to store the output into, assumed not
-   * <code>null</code>.
-   * @param   source a reader with the source(XSL data), assumed not
-   * <code>null</code>.
-   * @param   errorLine the error line number
-   *
-   *
+   * @param buf a buffer to store the output into, assumed not <code>null</code>.
+   * @param source a reader with the source(XSL data), assumed not <code>null</code>.
+   * @param errorLine the error line number
    * @throws IOException reading source file in which exception occurred.
    */
   private static void getExceptionContextData(
@@ -492,16 +469,13 @@ public class PSXslStyleSheetMerger extends PSStyleSheetMerger {
   }
 
   /**
-   * Use the application handler (if available) and the request page type
-   * to set the style sheet node for the specified document.
+   * Use the application handler (if available) and the request page type to set the style sheet
+   * node for the specified document.
    *
-   * @param      request         the context for this request,
-   *
-   * @param      doc            the XML document to modify
-   *
-   * @param      styleSheetURL   the URL of the style sheet to use
-   *
-   * @throws     MalformedURLException   if the URL is invlaid
+   * @param request the context for this request,
+   * @param doc the XML document to modify
+   * @param styleSheetURL the URL of the style sheet to use
+   * @throws MalformedURLException if the URL is invlaid
    */
   public static void setStyleSheet(PSRequest request, Document doc, URL styleSheetURL)
       throws MalformedURLException {

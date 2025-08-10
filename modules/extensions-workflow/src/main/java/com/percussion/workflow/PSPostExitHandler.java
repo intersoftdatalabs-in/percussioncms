@@ -37,9 +37,7 @@ import org.w3c.dom.Document;
 public class PSPostExitHandler implements IPSResultDocumentProcessor {
   private static final Logger log = LogManager.getLogger(PSPostExitHandler.class);
 
-  /**
-   * Constructor
-   */
+  /** Constructor */
   public PSPostExitHandler() {
     super();
   }
@@ -52,9 +50,7 @@ public class PSPostExitHandler implements IPSResultDocumentProcessor {
     // nothing to initialize
   }
 
-  /**
-   * This is the main request processing handler
-   */
+  /** This is the main request processing handler */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     log.info("");

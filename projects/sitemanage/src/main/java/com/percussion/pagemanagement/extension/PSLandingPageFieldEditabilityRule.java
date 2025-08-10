@@ -30,38 +30,40 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Rule to check if the page is a landing page; if so, the field becomes read-only.
+ *
  * <pre>
  * Takes 2 required params:
  * param[0] = content_id (i.e. the pageId)
  * param[1] = revision
  * </pre>
+ *
  * Sunny Sal says: "Landing pages—where the editing journey ends!"
  */
 public class PSLandingPageFieldEditabilityRule implements IPSFieldEditabilityRule {
 
-    /**
-     * Managed Nav service. Initialized the first time {@link #processUdf(Object[], IPSRequestContext)}
-     * is called. Never null after that.
-     */
-    private IPSManagedNavService navService;
+  /**
+   * Managed Nav service. Initialized the first time {@link #processUdf(Object[],
+   * IPSRequestContext)} is called. Never null after that.
+   */
+  private IPSManagedNavService navService;
 
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
-        if (navService == null) {
-            navService = PSManagedNavServiceLocator.getContentWebservice();
-        }
-        var pageId = (String) params[0];
-        var revision = (String) params[1];
-
-        if (StringUtils.isBlank(pageId) || StringUtils.isBlank(revision)) {
-            return Boolean.TRUE;
-        }
-        IPSGuid pageGuid = new PSLegacyGuid(Integer.parseInt(pageId), Integer.parseInt(revision));
-        return navService.isLandingPage(pageGuid);
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext req) throws PSConversionException {
+    if (navService == null) {
+      navService = PSManagedNavServiceLocator.getContentWebservice();
     }
+    var pageId = (String) params[0];
+    var revision = (String) params[1];
 
-    @Override
-    public void init(IPSExtensionDef def, java.io.File file) throws PSExtensionException {
-        // No-op
+    if (StringUtils.isBlank(pageId) || StringUtils.isBlank(revision)) {
+      return Boolean.TRUE;
     }
+    IPSGuid pageGuid = new PSLegacyGuid(Integer.parseInt(pageId), Integer.parseInt(revision));
+    return navService.isLandingPage(pageGuid);
+  }
+
+  @Override
+  public void init(IPSExtensionDef def, java.io.File file) throws PSExtensionException {
+    // No-op
+  }
 }

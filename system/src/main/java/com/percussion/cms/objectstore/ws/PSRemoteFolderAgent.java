@@ -25,18 +25,17 @@ import java.net.URL;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle the communications between the Remote Server
- * and a applet client for all folder specific operations.
+ * This class is used to handle the communications between the Remote Server and a applet client for
+ * all folder specific operations.
  */
 public class PSRemoteFolderAgent {
   /**
    * Constructs an object with a base URL
-   * @param psContentExplorerApplet
    *
-   * @param url the base URL to be used to communicate to the remote server.
-   *    When this is used in an applet, this should be the document base of
-   *    the applet, <code>Applet.getRhythmyxCodeBase()</code>. It may not be
-   *    <code>null</code>.
+   * @param psContentExplorerApplet
+   * @param url the base URL to be used to communicate to the remote server. When this is used in an
+   *     applet, this should be the document base of the applet, <code>Applet.getRhythmyxCodeBase()
+   *     </code>. It may not be <code>null</code>.
    */
   public PSRemoteFolderAgent(PSHttpConnection psHttpConnection, URL url) {
     // ctor of PSRemoteAppletRequester(URL) will validate if url == null
@@ -46,8 +45,8 @@ public class PSRemoteFolderAgent {
   /**
    * Constructs an instance from a remote requester.
    *
-   * @param rmRequester The remote requester used to communicate with
-   *    Rhythmyx Server. It may not be <code>null</code>.
+   * @param rmRequester The remote requester used to communicate with Rhythmyx Server. It may not be
+   *     <code>null</code>.
    */
   public PSRemoteFolderAgent(IPSRemoteRequester rmRequester) {
     if (rmRequester == null) throw new IllegalArgumentException("rmRequester may not be null");
@@ -58,16 +57,12 @@ public class PSRemoteFolderAgent {
   /**
    * Send the specified message to the remote server.
    *
-   * @param action The action of the message is intended for. It may not
-   *    be <code>null</code> or empty.
-   *
+   * @param action The action of the message is intended for. It may not be <code>null</code> or
+   *     empty.
    * @param message The to be send message. It may not be <code>null</code>.
-   *
-   * @param responseNodeName The expected node name of the responsed message.
-   *    It may not be <code>null</code> or empty.
-   *
+   * @param responseNodeName The expected node name of the responsed message. It may not be <code>
+   *     null</code> or empty.
    * @return The response from the server, never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   public Element sendMessage(String action, Element message, String responseNodeName)

@@ -20,19 +20,17 @@ import com.percussion.cms.PSCmsException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This is a specific exception class derived from PSCmsException to hold the
- * field validation errors and the cached page url.
+ * This is a specific exception class derived from PSCmsException to hold the field validation
+ * errors and the cached page url.
  */
 public class PSFieldValidationException extends PSCmsException {
   /**
    * Ctor
    *
    * @param msgCode The message code of the validation error.
-   * @param arrayArgs the array of arguments to use as the arguments in the
-   *           error message
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    * @param error The display error object, must not be <code>null</code>.
-   * @param cachedPageUrl Content editor creates a cachedPage url when there is
-   *           a field validation.
+   * @param cachedPageUrl Content editor creates a cachedPage url when there is a field validation.
    */
   public PSFieldValidationException(
       int msgCode, Object[] arrayArgs, PSDisplayError error, String cachedPageUrl) {
@@ -57,20 +55,18 @@ public class PSFieldValidationException extends PSCmsException {
   }
 
   /**
-   * The display error object associated with this exception, initialized in
-   * the ctor and never <code>null</code> after that.
+   * The display error object associated with this exception, initialized in the ctor and never
+   * <code>null</code> after that.
    */
   private PSDisplayError m_displayError;
 
   /**
-   * The cached page url that is created when there is any field validation
-   * error occurs. Initialized in the ctor, never <code>null</code> may be
-   * empty, if this exception is created with a blank url.
+   * The cached page url that is created when there is any field validation error occurs.
+   * Initialized in the ctor, never <code>null</code> may be empty, if this exception is created
+   * with a blank url.
    */
   private String m_cachedPageUrl;
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 }

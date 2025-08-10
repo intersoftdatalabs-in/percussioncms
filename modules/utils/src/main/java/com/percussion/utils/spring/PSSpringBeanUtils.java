@@ -33,25 +33,19 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Helper class for all spring bean XML serialization
- */
+/** Helper class for all spring bean XML serialization */
 public class PSSpringBeanUtils {
 
   private static final Logger log = LogManager.getLogger(PSSpringBeanUtils.class);
 
-  /**
-   * Enforce static use.
-   */
+  /** Enforce static use. */
   private PSSpringBeanUtils() {}
 
   /**
    * Restore the bean from its XML representation
    *
-   * @param className The bean class name, may not be <code>null</code> or
-   * empty.
+   * @param className The bean class name, may not be <code>null</code> or empty.
    * @param data The source element of the bean, may not be <code>null</code>.
-   *
    * @return The bean, never <code>null</code>.
    * @throws PSInvalidXmlException
    */
@@ -79,11 +73,8 @@ public class PSSpringBeanUtils {
    * Get the name of the bean from the supplied bean element.
    *
    * @param src The element may not be <code>null</code>.
-   *
    * @return The name, never <code>null</code> or empty.
-   *
-   * @throws PSInvalidXmlException If the name attribute is not found or has
-   * an empty value.
+   * @throws PSInvalidXmlException If the name attribute is not found or has an empty value.
    */
   public static String getBeanName(Element src) throws PSInvalidXmlException {
     return PSXmlUtils.checkAttribute(src, BEAN_ID_ATTR, true);
@@ -93,11 +84,8 @@ public class PSSpringBeanUtils {
    * Get the class name of the bean from the supplied bean element.
    *
    * @param src The element may not be <code>null</code>.
-   *
    * @return The class name, never <code>null</code> or empty.
-   *
-   * @throws PSInvalidXmlException If the class name attribute is not found or
-   * has an empty value.
+   * @throws PSInvalidXmlException If the class name attribute is not found or has an empty value.
    */
   public static String getClassName(Element src) throws PSInvalidXmlException {
 
@@ -105,14 +93,11 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Append a property element to the supplied element using the supplied name
-   * and value.
+   * Append a property element to the supplied element using the supplied name and value.
    *
-   * @param root The root element of the bean, usually obtained by a call to
-   * {@link #createBeanRootElement(IPSBeanConfig, Document)}, may not be
-   * <code>null</code>.
-   * @param name The name of the property, may not be <code>null</code> or
-   * empty.
+   * @param root The root element of the bean, usually obtained by a call to {@link
+   *     #createBeanRootElement(IPSBeanConfig, Document)}, may not be <code>null</code>.
+   * @param name The name of the property, may not be <code>null</code> or empty.
    * @param value The value of the property, may be <code>null</code> or empty.
    */
   public static void addBeanProperty(Element root, String name, String value) {
@@ -131,16 +116,13 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Append a property element to the supplied element using the supplied name
-   * and a map for the value.
+   * Append a property element to the supplied element using the supplied name and a map for the
+   * value.
    *
-   * @param root The root element of the bean, usually obtained by a call to
-   * {@link #createBeanRootElement(IPSBeanConfig, Document)}, may not be
-   * <code>null</code>.
-   * @param name The name of the property, may not be <code>null</code> or
-   * empty.
-   * @param value The map to use as the value, may not be <code>null</code>,
-   * may be empty.
+   * @param root The root element of the bean, usually obtained by a call to {@link
+   *     #createBeanRootElement(IPSBeanConfig, Document)}, may not be <code>null</code>.
+   * @param name The name of the property, may not be <code>null</code> or empty.
+   * @param value The map to use as the value, may not be <code>null</code>, may be empty.
    */
   public static void addBeanProperty(Element root, String name, Map<String, String> value) {
     if (root == null) throw new IllegalArgumentException("root may not be null");
@@ -162,16 +144,13 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Append a property element to the supplied element using the supplied name
-   * and a list of beans for the value.
+   * Append a property element to the supplied element using the supplied name and a list of beans
+   * for the value.
    *
-   * @param root The root element of the bean, usually obtained by a call to
-   * {@link #createBeanRootElement(IPSBeanConfig, Document)}, may not be
-   * <code>null</code>.
-   * @param name The name of the property, may not be <code>null</code> or
-   * empty.
-   * @param value The list to use as the value, may not be <code>null</code>,
-   * may be empty.
+   * @param root The root element of the bean, usually obtained by a call to {@link
+   *     #createBeanRootElement(IPSBeanConfig, Document)}, may not be <code>null</code>.
+   * @param name The name of the property, may not be <code>null</code> or empty.
+   * @param value The list to use as the value, may not be <code>null</code>, may be empty.
    */
   public static void addBeanProperty(
       Element root, String name, List<? extends IPSBeanConfig> value) {
@@ -192,16 +171,12 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Append a property element to the supplied element using the supplied name
-   * and value.
+   * Append a property element to the supplied element using the supplied name and value.
    *
-   * @param root The root element of the bean, usually obtained by a call to
-   * {@link #createBeanRootElement(IPSBeanConfig, Document)}, may not be
-   * <code>null</code>.
-   * @param name The name of the property, may not be <code>null</code> or
-   * empty.
-   * @param ref The name of the bean to reference, may not be <code>null</code>
-   * or empty.
+   * @param root The root element of the bean, usually obtained by a call to {@link
+   *     #createBeanRootElement(IPSBeanConfig, Document)}, may not be <code>null</code>.
+   * @param name The name of the property, may not be <code>null</code> or empty.
+   * @param ref The name of the bean to reference, may not be <code>null</code> or empty.
    */
   public static void addBeanRef(Element root, String name, String ref) {
     if (root == null) throw new IllegalArgumentException("root may not be null");
@@ -224,11 +199,8 @@ public class PSSpringBeanUtils {
    * Creates an empty property element with the specified name attribute.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
-   * @param root The element to which the property element is added, assumed
-   * not <code>null</code>.
-   * @param name The name of the property, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param root The element to which the property element is added, assumed not <code>null</code>.
+   * @param name The name of the property, assumed not <code>null</code> or empty.
    * @return The element, never <code>null</code>.
    */
   private static Element createPropElement(Document doc, Element root, String name) {
@@ -239,19 +211,15 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Gets the next property element of the supplied root element with an
-   * expected property name.
+   * Gets the next property element of the supplied root element with an expected property name.
    *
    * @param root The root element, may not be <code>null</code>.
-   * @param curProp The current property element.  The next sibling property
-   * element is the one to return.  May be <code>null</code> to get the first
-   * child property element of the root.
-   * @param name The expected property name, may not be <code>null</code> or
-   * empty.
-   *
+   * @param curProp The current property element. The next sibling property element is the one to
+   *     return. May be <code>null</code> to get the first child property element of the root.
+   * @param name The expected property name, may not be <code>null</code> or empty.
    * @return The element, never <code>null</code>.
-   * @throws PSInvalidXmlException If the supplied element is invalid or if the
-   * expected property cannot be found.
+   * @throws PSInvalidXmlException If the supplied element is invalid or if the expected property
+   *     cannot be found.
    */
   public static Element getNextPropertyElement(Element root, Element curProp, String name)
       throws PSInvalidXmlException {
@@ -283,10 +251,8 @@ public class PSSpringBeanUtils {
    * Gets the next property element of the supplied root element.
    *
    * @param root The root element, may not be <code>null</code>.
-   * @param curProp The current property element.  The next sibling property
-   * element is the one to return.  May be <code>null</code> to get the first
-   * child property element of the root.
-   *
+   * @param curProp The current property element. The next sibling property element is the one to
+   *     return. May be <code>null</code> to get the first child property element of the root.
    * @return The element, <code>null</code> if no more properties are found.
    */
   public static Element getNextPropertyElement(Element root, Element curProp) {
@@ -306,9 +272,7 @@ public class PSSpringBeanUtils {
    * Gets the element name of a simple bean property
    *
    * @param source The source element, may not be <code>null</code>.
-   *
    * @return The property name, never <code>null</code> or empty.
-   *
    * @throws PSInvalidXmlException If the value cannot be located
    */
   public static String getBeanPropertyName(Element source) throws PSInvalidXmlException {
@@ -321,7 +285,6 @@ public class PSSpringBeanUtils {
    * Get the element value of a bean property as a map.
    *
    * @param source The source element, may not be <code>null</code>.
-   *
    * @return The map, never <code>null</code>, may be empty.
    * @throws PSInvalidXmlException If the supplied element is invalid.
    */
@@ -363,21 +326,15 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Used to traverse the elements of a list property value.  Use
-   * {@link #getBeanPropertyValueList(Element)} if all list values can be
-   * restored as beans.
+   * Used to traverse the elements of a list property value. Use {@link
+   * #getBeanPropertyValueList(Element)} if all list values can be restored as beans.
    *
-   * @param root The root element, may not be <code>null</code> and must
-   * contain a list element.
-   * @param curEl The last property value element returned from the list,
-   * <code>null</code> to get the first one, otherwise used to get the next one
-   * in the list.
-   *
-   * @return The next element, may be <code>null</code> if the list does not
-   * contain any more elements.
-   *
-   * @throws PSInvalidXmlException If the supplied root does not contain a
-   * list element.
+   * @param root The root element, may not be <code>null</code> and must contain a list element.
+   * @param curEl The last property value element returned from the list, <code>null</code> to get
+   *     the first one, otherwise used to get the next one in the list.
+   * @return The next element, may be <code>null</code> if the list does not contain any more
+   *     elements.
+   * @throws PSInvalidXmlException If the supplied root does not contain a list element.
    */
   public static Element getNextPropertyListElement(Element root, Element curEl)
       throws PSInvalidXmlException {
@@ -402,9 +359,7 @@ public class PSSpringBeanUtils {
    * Get the element value of a bean property as a list of beans.
    *
    * @param source The source element, may not be <code>null</code>.
-   *
    * @return The list, never <code>null</code>, may be empty.
-   *
    * @throws PSInvalidXmlException If the supplied element is invalid.
    */
   public static List<IPSBeanConfig> getBeanPropertyValueList(Element source)
@@ -430,11 +385,9 @@ public class PSSpringBeanUtils {
    * Gets the element value of a simple bean property
    *
    * @param source The source element, may not be <code>null</code>.
-   * @param required <code>true</code> if a non-empty value must be found,
-   * <code>false</code> if not.
-   *
+   * @param required <code>true</code> if a non-empty value must be found, <code>false</code> if
+   *     not.
    * @return The string value, never <code>null</code>, may be empty.
-   *
    * @throws PSInvalidXmlException If the value cannot be located
    */
   public static String getBeanPropertyValue(Element source, boolean required)
@@ -445,14 +398,12 @@ public class PSSpringBeanUtils {
   }
 
   /**
-   * Creates a standard bean root element for the supplied bean config.
-   * Generally called from the {@link IPSBeanConfig#toXml(Document)} method of
-   * a bean config implementation passing <code>this</code> and the supplied
-   * document as parameters.
+   * Creates a standard bean root element for the supplied bean config. Generally called from the
+   * {@link IPSBeanConfig#toXml(Document)} method of a bean config implementation passing <code>this
+   * </code> and the supplied document as parameters.
    *
    * @param config The bean config, may not be <code>null</code>.
    * @param doc The doc to use, may not be <code>null</code>.
-   *
    * @return The root element.
    */
   public static Element createBeanRootElement(IPSBeanConfig config, Document doc) {
@@ -473,9 +424,7 @@ public class PSSpringBeanUtils {
    * @param beanName The expected bean name, may not be <code>null</code> or empty.
    * @param className The expected bean class name, may not be <code>null</code> or empty.
    * @param source The element to validate, may not be <code>null</code>.
-   *
-   * @throws PSInvalidXmlException If the root is not valid for the specified
-   * criteria.
+   * @throws PSInvalidXmlException If the root is not valid for the specified criteria.
    */
   public static void validateBeanRootElement(String beanName, String className, Element source)
       throws PSInvalidXmlException {

@@ -32,10 +32,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 /**
- * <B>Note to implementors</B>: Consider making
- * your implementing classes implement the
- * {@link com.percussion.design.objectstore.server.IPSApplicationListener
- * IPSApplicationListener} and
+ * <B>Note to implementors</B>: Consider making your implementing classes implement the {@link
+ * com.percussion.design.objectstore.server.IPSApplicationListener IPSApplicationListener} and
  * {@link com.percussion.design.objectstore.server.IPSServerConfigurationListener
  * IPSServerConfigurationListener} interfaces.
  */
@@ -44,14 +42,10 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   /**
    * Constructs a lock manager for an XML object store.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/7
-   *
-   * @param   lockDir   The base directory for locks
-   *
-   * @throws   FileNotFoundException If the directory does not exist.
-   *
+   * @param lockDir The base directory for locks
+   * @throws FileNotFoundException If the directory does not exist.
    */
   public PSXmlObjectStoreLockManager(File lockDir) throws FileNotFoundException {
     // make sure the file exists and is a directory
@@ -65,24 +59,17 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Returns the uniquely identifying lock key for this object under
-   * the given type of lock, throwing an exception if no lock key
-   * can be found for this object.
+   * Returns the uniquely identifying lock key for this object under the given type of lock,
+   * throwing an exception if no lock key can be found for this object.
    *
-   * @author  chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/18
-   *
-   * @param   lockOb The object whose lock key you want to obtain.
-   *
-   * @param   lockType   The type of lock requested, or 0
-   * if all applicable access types are requested at once.
-   *
-   * @return  Object The lock key for this object. Keys should be
-   * lightweight identifier objects that identify a lock. Keys do not
-   * act as a lock; synchronizing on (or garbage collection of) a key
-   * will not interfere with the lock nor with any other keys that
-   * refer to the same lock.
+   * @param lockOb The object whose lock key you want to obtain.
+   * @param lockType The type of lock requested, or 0 if all applicable access types are requested
+   *     at once.
+   * @return Object The lock key for this object. Keys should be lightweight identifier objects that
+   *     identify a lock. Keys do not act as a lock; synchronizing on (or garbage collection of) a
+   *     key will not interfere with the lock nor with any other keys that refer to the same lock.
    */
   public Object getLockKey(Object lockOb, int lockType) {
     if (null == lockOb) {
@@ -93,26 +80,17 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Returns the uniquely identifying lock key for this object under
-   * the given type of lock, throwing an exception if no lock key
-   * can be found for this object.
+   * Returns the uniquely identifying lock key for this object under the given type of lock,
+   * throwing an exception if no lock key can be found for this object.
    *
-   * @author  chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/18
-   *
-   * @param   lockObClass The class of the object whose lock key you
-   * want to obtain.
-   *
-   * @param   unique   A unique indentifier for the object, which
-   * may be either the object itself or a String or other identifier,
-   * depending on the implementation.
-   *
-   * @return  Object The lock key for this object. Keys should be
-   * lightweight identifier objects that identify a lock. Keys do not
-   * act as a lock; synchronizing on (or garbage collection of) a key
-   * will not interfere with the lock nor with any other keys that
-   * refer to the same lock.
+   * @param lockObClass The class of the object whose lock key you want to obtain.
+   * @param unique A unique indentifier for the object, which may be either the object itself or a
+   *     String or other identifier, depending on the implementation.
+   * @return Object The lock key for this object. Keys should be lightweight identifier objects that
+   *     identify a lock. Keys do not act as a lock; synchronizing on (or garbage collection of) a
+   *     key will not interfere with the lock nor with any other keys that refer to the same lock.
    */
   public Object getLockKey(Class lockObClass, Object unique, int lockType) {
     if (null == lockObClass || null == unique) {
@@ -136,53 +114,37 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Acquires a lock on the object referenced by the given key,
-   * which must have been obtained by calling getLockKey for the
-   * object you want to lock. If the locker already has a lock,
-   * then this method should succeed. If the locker already has
-   * a lock and the value of the <CODE>lockExpiresMs</CODE>
-   * parameter would cause the lock to expire sooner than it
-   * was going to expire before this method was called, then this
-   * method should not change the expiration.
+   * Acquires a lock on the object referenced by the given key, which must have been obtained by
+   * calling getLockKey for the object you want to lock. If the locker already has a lock, then this
+   * method should succeed. If the locker already has a lock and the value of the <CODE>
+   * lockExpiresMs</CODE> parameter would cause the lock to expire sooner than it was going to
+   * expire before this method was called, then this method should not change the expiration.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/18
-   *
-   * @param   lockerId   An object which uniquely identifies the locker.
-   * The value should be unique from other IDs.
-   *
-   * @param   lockKey The lock key, which must have been obtained
-   * by calling {@link #getLockKey getLockKey}.
-   *
-   * @param   lockExpiresMs The period (starting from when the lock
-   * is acquired) after which the manager is free
-   * release the lock on the session's behalf and grant locks to other
-   * sessions that will exclude locks of this type. This parameter
-   * should not be construed as a guarantee that the lock will be
-   * released in the given amount of time, although implementations
-   * should make a best effort to do so.
-   *
-   * @param   waitTimeoutMs If the lock cannot be acquired immediately,
-   * this call will block for approximately the specified number of
-   * milliseconds, retrying the acquire at periodic intervals. If this
-   * parameter is 0, then this method will return false immediately if
-   * the lock cannot be obtained. A value of < 0 means that this
-   * call will block until the lock is acquired.
-   *
-   * @param   lockedResults The manager will fill out this results object
-   * with detailed information about the lock acquisition attempt if
-   * <CODE>lockResults</CODE> is not <CODE>null</CODE>. If it is
-   * <CODE>null</CODE>, no detailed information will be filled out.
-   *
-   * @return   boolean <CODE>true</CODE>if a lock of the specified type
-   * was acquired, <CODE>false</CODE> if not. Note that this method will
-   * return true whenever the user session has the lock by the time the
-   * method returns, even if the lock was not acquired as a direct consequence
-   * of calling this method (for example, if this user session already has
-   * the lock of the requested type on the object referenced by the lock key).
-   *
-   * @throws   PSLockAcquisitionException
+   * @param lockerId An object which uniquely identifies the locker. The value should be unique from
+   *     other IDs.
+   * @param lockKey The lock key, which must have been obtained by calling {@link #getLockKey
+   *     getLockKey}.
+   * @param lockExpiresMs The period (starting from when the lock is acquired) after which the
+   *     manager is free release the lock on the session's behalf and grant locks to other sessions
+   *     that will exclude locks of this type. This parameter should not be construed as a guarantee
+   *     that the lock will be released in the given amount of time, although implementations should
+   *     make a best effort to do so.
+   * @param waitTimeoutMs If the lock cannot be acquired immediately, this call will block for
+   *     approximately the specified number of milliseconds, retrying the acquire at periodic
+   *     intervals. If this parameter is 0, then this method will return false immediately if the
+   *     lock cannot be obtained. A value of < 0 means that this call will block until the lock is
+   *     acquired.
+   * @param lockedResults The manager will fill out this results object with detailed information
+   *     about the lock acquisition attempt if <CODE>lockResults</CODE> is not <CODE>null</CODE>. If
+   *     it is <CODE>null</CODE>, no detailed information will be filled out.
+   * @return boolean <CODE>true</CODE>if a lock of the specified type was acquired, <CODE>false
+   *     </CODE> if not. Note that this method will return true whenever the user session has the
+   *     lock by the time the method returns, even if the lock was not acquired as a direct
+   *     consequence of calling this method (for example, if this user session already has the lock
+   *     of the requested type on the object referenced by the lock key).
+   * @throws PSLockAcquisitionException
    */
   public boolean acquireLock(
       IPSLockerId lockerId,
@@ -263,19 +225,14 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   /**
    * Creates the lock file only if it didn't exist or if it existed but was expired.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   f
-   * @param   expires How many milliseconds from now the lock shall expire in.
-   * @param   lockerId
-   *
-   * @return   boolean <CODE>true</CODE> if the lock file was created or
-   * expired, <CODE>false</CODE> if the lock file existed but was not expired.
-   *
-   * @throws   IOException If an error occurred reading or writing the lock file.
-   *
+   * @param f
+   * @param expires How many milliseconds from now the lock shall expire in.
+   * @param lockerId
+   * @return boolean <CODE>true</CODE> if the lock file was created or expired, <CODE>false</CODE>
+   *     if the lock file existed but was not expired.
+   * @throws IOException If an error occurred reading or writing the lock file.
    */
   private boolean createIfExpired(
       File f, long expires, IPSLockerId lockerId, PSLockedException lockedResults)
@@ -370,25 +327,22 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
 
   /**
    * Releases the lock associated with the given key.
-   * <P>IF there is no lock
-   * associated with <CODE>lockKey</CODE>
-   * <P>OR if there is a lock associated with
-   * <CODE>lockKey</CODE> but it does not belong to
-   * <CODE>lockerId</CODE>
-   * <P>OR if the lock key is of the wrong type
-   * <P>THEN nothing will happen and the operation will
-   * appear to complete successfully.
    *
-   * @author   chad loder
+   * <p>IF there is no lock associated with <CODE>lockKey</CODE>
    *
+   * <p>OR if there is a lock associated with <CODE>lockKey</CODE> but it does not belong to <CODE>
+   * lockerId</CODE>
+   *
+   * <p>OR if the lock key is of the wrong type
+   *
+   * <p>THEN nothing will happen and the operation will appear to complete successfully.
+   *
+   * @author chad loder
    * @version 1.0 1999/6/18
-   *
-   * @param   lockerId   An object which uniquely identifies the
-   * user requesting lock release. The lock will only be released
-   * if this lockerId is the same id as the original locker.
-   *
-   * @param   lockKey The lock key, which must have been obtained
-   * by calling {@link #getLockKey getLockKey}.
+   * @param lockerId An object which uniquely identifies the user requesting lock release. The lock
+   *     will only be released if this lockerId is the same id as the original locker.
+   * @param lockKey The lock key, which must have been obtained by calling {@link #getLockKey
+   *     getLockKey}.
    */
   public void releaseLock(IPSLockerId lockerId, Object lockKey) {
     if (lockerId == null) return;
@@ -464,19 +418,16 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Determines if there is currently a lock associated with the given key
-   * that belongs to the lockerId.
+   * Determines if there is currently a lock associated with the given key that belongs to the
+   * lockerId.
    *
-   * @param lockerId An object which uniquely identifies the
-   * user. This method will only return <code>true</code>
-   * if this lockerId is the same id as the original locker.
-   * @param lockKey The lock key, which must have been obtained
-   * by calling {@link #getLockKey getLockKey}.  Identifies the resource that
-   * should be locked by the lockerId.
-   * @return <code>true</code> if the resource identified by the lockKey is
-   * currently locked by the user identified by the lockerId.  Returns
-   * <code>false</code> if the object is locked by another user or if it is
-   * not currently locked.
+   * @param lockerId An object which uniquely identifies the user. This method will only return
+   *     <code>true</code> if this lockerId is the same id as the original locker.
+   * @param lockKey The lock key, which must have been obtained by calling {@link #getLockKey
+   *     getLockKey}. Identifies the resource that should be locked by the lockerId.
+   * @return <code>true</code> if the resource identified by the lockKey is currently locked by the
+   *     user identified by the lockerId. Returns <code>false</code> if the object is locked by
+   *     another user or if it is not currently locked.
    */
   public boolean isLocked(IPSLockerId lockerId, Object lockKey) {
     if (lockerId == null) throw new IllegalArgumentException("lockerId may not be null.");
@@ -496,16 +447,15 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
    * Get the locker properties for the specified application
    *
    * @param id The locker id, may not be <code>null</code>.
-   * @param lockKey The lock key, which must have been obtained
-   * by calling <code>getLockKey()</code>.  Identifies the resource that
-   * should be locked by the lockerId, may not be <code>null</code>
-   *
+   * @param lockKey The lock key, which must have been obtained by calling <code>getLockKey()</code>
+   *     . Identifies the resource that should be locked by the lockerId, may not be <code>null
+   *     </code>
    * @return The lock info as properties, or <code>null</code> if not locked:
-   * <ul>
-   * <li>lockerName</li>
-   * <li>lockerSession</li>
-   * <li></li>
-   * </ul>
+   *     <ul>
+   *       <li>lockerName
+   *       <li>lockerSession
+   *       <li>
+   *     </ul>
    */
   public Properties getLockInfo(IPSLockerId id, Object lockKey) {
     if (id == null) throw new IllegalArgumentException("id may not be null");
@@ -529,7 +479,6 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
    * Get the current locker id
    *
    * @param key The lock key to use, assumed not <code>null</code>.
-   *
    * @return The current lock id, <code>null</code> if it is not locked.
    */
   private PSXmlObjectStoreLockerId getLockerId(FileLockKey key) {
@@ -595,13 +544,11 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Private utility method used during construction to associate
-   * lockable objects with their respective directories.
+   * Private utility method used during construction to associate lockable objects with their
+   * respective directories.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/7
-   *
    */
   private void initDirs() {
     // create one file generator map for each type of lock that can be held
@@ -622,23 +569,17 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Add a file generator to the map for each type of lockable object.
-   * To support locking for a new object type, you would first create
-   * a file generator-derived class that knows how to map the object
-   * type to a unique filename (for example, the file generator class
-   * for an application uses the app name as the file name). After
-   * creating this class, add code to this method that adds an
-   * instance of the class to the map, using a designated subdirectory
-   * to store locks for that type (for example, locks for applications
-   * are stored in the <CODE>applications</CODE> subdirectory.
+   * Add a file generator to the map for each type of lockable object. To support locking for a new
+   * object type, you would first create a file generator-derived class that knows how to map the
+   * object type to a unique filename (for example, the file generator class for an application uses
+   * the app name as the file name). After creating this class, add code to this method that adds an
+   * instance of the class to the map, using a designated subdirectory to store locks for that type
+   * (for example, locks for applications are stored in the <CODE>applications</CODE> subdirectory.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   map The map to which the file generator will be added.
-   * @param   suffix The file suffix for lockfiles.
-   *
+   * @param map The map to which the file generator will be added.
+   * @param suffix The file suffix for lockfiles.
    */
   private void initDir(PSMapClassToObject map, String suffix) {
     // define the mapping from objectstore objects to File objects
@@ -684,20 +625,15 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   }
 
   /**
-   * Get the synchronization object for the given file. The
-   * current implementation (as of 1.0) uses the same synchronization
-   * object for all files. Future versions may improve concurrency
-   * by using a different synchronization object for each directory.
+   * Get the synchronization object for the given file. The current implementation (as of 1.0) uses
+   * the same synchronization object for all files. Future versions may improve concurrency by using
+   * a different synchronization object for each directory.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   f The file
-   *
-   * @return   Object An object that, when synchronized on, ensures
-   * that all file operations with <CODE>f</CODE> are atomic
-   * when inside the synch block.
+   * @param f The file
+   * @return Object An object that, when synchronized on, ensures that all file operations with
+   *     <CODE>f</CODE> are atomic when inside the synch block.
    */
   private Object getSynch(File f) {
     return m_sync;
@@ -706,15 +642,15 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
   /** the base lock directory for the lock manager */
   private File m_lockDir;
 
-  /** An array of maps, one for each lock type. Each map associates
-   *  each lockable object class with a FileGenerator object that
-   *  knows how to generate unique filenames for objects of that
-   *  class. */
+  /**
+   * An array of maps, one for each lock type. Each map associates each lockable object class with a
+   * FileGenerator object that knows how to generate unique filenames for objects of that class.
+   */
   private PSMapClassToObject[] m_keyGens;
 
-  /** The lock keys that we give out are all instances of this class.
-   *  The class is final so that we can be sure that we are the
-   *  only agent creating instances of this class
+  /**
+   * The lock keys that we give out are all instances of this class. The class is final so that we
+   * can be sure that we are the only agent creating instances of this class
    */
   private final class FileLockKey {
     public FileLockKey(File file) {
@@ -739,33 +675,25 @@ public class PSXmlObjectStoreLockManager extends PSObjectFactory
     }
 
     /**
-     * Get the directory that will be the parent of any file
-     * returned by getLockFile.
+     * Get the directory that will be the parent of any file returned by getLockFile.
      *
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/7/8
-     *
-     * @return   File
+     * @return File
      */
     public File getDir() {
       return m_dir;
     }
 
     /**
-     * Returns the unique lockfile for the given object, which must be
-     * of a type that this generator understands. To be implemented
-     * by subclasses. Implementors must make sure the returned file is
-     * under the directory that was passed into the constructor.
+     * Returns the unique lockfile for the given object, which must be of a type that this generator
+     * understands. To be implemented by subclasses. Implementors must make sure the returned file
+     * is under the directory that was passed into the constructor.
      *
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/7/8
-     *
-     * @param   o The object, which must be of a type that this generator
-     * understands.
-     *
-     * @return   File The unique lockfile.
+     * @param o The object, which must be of a type that this generator understands.
+     * @return File The unique lockfile.
      */
     public abstract File getLockFile(Object o);
 

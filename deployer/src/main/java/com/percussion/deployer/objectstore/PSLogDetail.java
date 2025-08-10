@@ -23,21 +23,16 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates log detail information.
- */
+/** Encapsulates log detail information. */
 public class PSLogDetail implements IPSDeployComponent {
 
   /**
    * Constructing the object from the given paramaters.
    *
-   * @param    validationResults The validation results object, which may not
-   * be <code>null</code>.
-   * @param    idMap The IdMap object, it may be <code>null</code>.
-   * @param    dbmsMap The DBMS-Map object, it may be <code>null</code>.
-   * @param    txnLog The transaction log summary object, which may not be
-   * <code>null</code>.
-   *
+   * @param validationResults The validation results object, which may not be <code>null</code>.
+   * @param idMap The IdMap object, it may be <code>null</code>.
+   * @param dbmsMap The DBMS-Map object, it may be <code>null</code>.
+   * @param txnLog The transaction log summary object, which may not be <code>null</code>.
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   public PSLogDetail(
@@ -58,11 +53,9 @@ public class PSLogDetail implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSLogDetail(Element source) throws PSUnknownNodeTypeException {
@@ -74,8 +67,7 @@ public class PSLogDetail implements IPSDeployComponent {
   /**
    * Get the validation results object.
    *
-   * @return The validation results object, which will never be
-   * <code>null</code>.
+   * @return The validation results object, which will never be <code>null</code>.
    */
   public PSValidationResults getValidationResults() {
     return m_validationResults;
@@ -102,15 +94,15 @@ public class PSLogDetail implements IPSDeployComponent {
   /**
    * Get the transaction log summary object.
    *
-   * @return The transaction log summary object, which will never be
-   * <code>null</code>.
+   * @return The transaction log summary object, which will never be <code>null</code>.
    */
   public PSTransactionLogSummary getTransactionLog() {
     return m_txnLog;
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXLogDetail (PSXDbmsMap,
    *     PSXTransactionLogSummary, PSXValidationResults, PSXIdMap?)>
@@ -180,11 +172,8 @@ public class PSLogDetail implements IPSDeployComponent {
    * Validating an XML element, make sure it is not <code>null</code>
    *
    * @param element The XML element, may be <code>null</code>.
-   * @param nodeName The name of the expected XML node, may not be
-   * <code>null</code> or empty
-   *
-   * @throws PSUnknownNodeTypeException if the <code>element</code> is
-   * <code>null</code>.
+   * @param nodeName The name of the expected XML node, may not be <code>null</code> or empty
+   * @throws PSUnknownNodeTypeException if the <code>element</code> is <code>null</code>.
    */
   private void checkNullXmlELement(Element element, String nodeName)
       throws PSUnknownNodeTypeException {
@@ -240,31 +229,24 @@ public class PSLogDetail implements IPSDeployComponent {
     return bEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXLogDetail";
 
   /**
-   * The validation results object. Initialized by constructor, it will never
-   * be <code>null</code> after that.
+   * The validation results object. Initialized by constructor, it will never be <code>null</code>
+   * after that.
    */
   private PSValidationResults m_validationResults;
 
-  /**
-   * The IdMap object. Initialized by constructor, it may be <code>null</code>.
-   */
+  /** The IdMap object. Initialized by constructor, it may be <code>null</code>. */
   private PSIdMap m_idMap;
 
-  /**
-   * The DBMS-Map object. Initialized by constructor, it may be
-   * <code>null</code>.
-   */
+  /** The DBMS-Map object. Initialized by constructor, it may be <code>null</code>. */
   private PSDbmsMap m_dbmsMap;
 
   /**
-   * The transaction log summary object. Initialized by constructor, it will
-   * never be <code>null</code> after that.
+   * The transaction log summary object. Initialized by constructor, it will never be <code>null
+   * </code> after that.
    */
   private PSTransactionLogSummary m_txnLog;
 }

@@ -16,15 +16,13 @@
  */
 package com.percussion.cms.objectstore;
 
-/**
- * Implemented by objects that are accepted by the IPSItemAccessor.
- */
+/** Implemented by objects that are accepted by the IPSItemAccessor. */
 public interface IPSVisitor {
   /**
-   * Returns an object on which to act.  This is the key part of the visitor
-   * pattern implemented in the CMS layer.
+   * Returns an object on which to act. This is the key part of the visitor pattern implemented in
+   * the CMS layer.
    *
-   * @return An object on which to act.  May be <code>null</code>.
+   * @return An object on which to act. May be <code>null</code>.
    */
   public Object getObject();
 }

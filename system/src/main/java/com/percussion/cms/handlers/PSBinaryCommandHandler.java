@@ -75,25 +75,21 @@ import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Document;
 
-/**
- * This class encapsulates behaviour to handle the binary commands.
- */
+/** This class encapsulates behaviour to handle the binary commands. */
 public class PSBinaryCommandHandler extends PSCommandHandler
     implements IPSInternalCommandRequestHandlerEx, IPSInternalResultHandler {
   /**
-   * Walks the display mapper and creates a binary resource for all binary
-   * or forcedBinary fields found. Is recursing all mappers.
+   * Walks the display mapper and creates a binary resource for all binary or forcedBinary fields
+   * found. Is recursing all mappers.
    *
-   * @param ah The handler for the application that contains this editor
-   *    resource.
+   * @param ah The handler for the application that contains this editor resource.
    * @param ceh The parent handler of this handler.
    * @param ce The definition of the editor.
-   * @param app Any resources that are created dynamically will be added to
-   *    this application. Never <code>null</code>.
+   * @param app Any resources that are created dynamically will be added to this application. Never
+   *     <code>null</code>.
    * @throws PSNotFoundException If an exit cannot be found.
    * @throws PSExtensionException If an exit init failed.
-   * @throws PSSystemValidationException if anything is wrong creating the binary
-   *    application
+   * @throws PSSystemValidationException if anything is wrong creating the binary application
    */
   public PSBinaryCommandHandler(
       PSApplicationHandler ah, PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app)
@@ -210,8 +206,8 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   /**
    * Get the internal result handler from the provided request.
    *
-   * @param request the request to get the internal result handler from,
-   *    assumed not <code>null</code>.
+   * @param request the request to get the internal result handler from, assumed not <code>null
+   *     </code>.
    * @return the internal result handler if found, <code>null</code> otherwise.
    */
   private IPSInternalResultHandler getInternalResultHandler(PSRequest request) {
@@ -231,8 +227,8 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   /**
    * see IPSInternalCommandRequestHandlerEx interface for description
    *
-   * @return an empty document if the binary resource requested was found,
-   *    <code>null</code> otherwise.
+   * @return an empty document if the binary resource requested was found, <code>null</code>
+   *     otherwise.
    */
   public Document makeInternalRequestEx(PSRequest request)
       throws PSInternalRequestCallException,
@@ -267,22 +263,18 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * This method is recursive, as it scans the mapper, if it finds a
-   * PSFieldSet for a complex child, this method is called to process that
-   * child. Otherwise the field is checked if binary or forcedBinary and a
-   * binary resource will be created if so.
+   * This method is recursive, as it scans the mapper, if it finds a PSFieldSet for a complex child,
+   * this method is called to process that child. Otherwise the field is checked if binary or
+   * forcedBinary and a binary resource will be created if so.
    *
-   * @param app The app in which the datasets will be built. Assumed not
-   *    <code>null</code>.
-   * @param ceh The parent handler of this handler, assumed not
-   *    <code>null</code> .
-   * @param ce The definition of the entire editor. It is used read only.
-   *    Assumed not <code>null</code>.
-   * @param dispMapper The mapper with the editor for which this method will
-   *    initialize the datasets and other information, assumed not
-   *    <code>null</code>.
-   * @throws PSSystemValidationException If anything used by this method is missing
-   *    or misconfigured.
+   * @param app The app in which the datasets will be built. Assumed not <code>null</code>.
+   * @param ceh The parent handler of this handler, assumed not <code>null</code> .
+   * @param ce The definition of the entire editor. It is used read only. Assumed not <code>null
+   *     </code>.
+   * @param dispMapper The mapper with the editor for which this method will initialize the datasets
+   *     and other information, assumed not <code>null</code>.
+   * @throws PSSystemValidationException If anything used by this method is missing or
+   *     misconfigured.
    */
   private void createBinaryResources(
       PSApplication app, PSContentEditorHandler ceh, PSContentEditor ce, PSDisplayMapper dispMapper)
@@ -350,9 +342,8 @@ public class PSBinaryCommandHandler extends PSCommandHandler
    *
    * @param field the field to test, may be <code>null</code>.
    * @param tableSet the field's table set, may be <code>null</code>.
-   * @return <code>true</code> if the provided field is binary or has the
-   *    attribute forceBinary set, <code>false</code> otherwise or if the
-   *    supplied field or tableLocator is <code>null</code>.
+   * @return <code>true</code> if the provided field is binary or has the attribute forceBinary set,
+   *     <code>false</code> otherwise or if the supplied field or tableLocator is <code>null</code>.
    * @throws SQLException if any database operation fails.
    */
   private boolean isBinaryField(PSField field, PSTableSet tableSet) throws SQLException {
@@ -369,13 +360,11 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Get the table set from the provided container for the supplied table
-   * alias.
+   * Get the table set from the provided container for the supplied table alias.
    *
-   * @param tableAlias the table alias of the table set we are looking for,
-   *    assumed not <code>null</code>.
-   * @param container the container locator we are searching in, assumed not
-   *    <code>null</code>.
+   * @param tableAlias the table alias of the table set we are looking for, assumed not <code>null
+   *     </code>.
+   * @param container the container locator we are searching in, assumed not <code>null</code>.
    * @return the table set found or <code>null</code>.
    */
   private PSTableSet getTableSet(String tableAlias, PSContainerLocator container) {
@@ -399,19 +388,15 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   /**
    * This method will add a new binary resource to the provided application.
    *
-   * @param app the application to add the binary resource to, assumed not
-   *    <code>null</code>.
-   * @param tableSet the table locator to use, assumed not
-   *    <code>null</code>.
-   * @param field a binary field to add the resource for, assumed not
-   *    <code>null</code>.
-   * @param mimeField if not <code>null</code>, the field that maps to the
-   *    database column that specifies the mimetype of the binary field.
-   *    This column must be in the same table as the binary field column.
-   * @param keys a set of keys used for the resource selector, assumed not
-   *    <code>null</code>. Each element in the set must be a Map.Entry,
-   *    whose key is the backend column name and whose value is the HTML
-   *    parameter name from which the key will be obtained.
+   * @param app the application to add the binary resource to, assumed not <code>null</code>.
+   * @param tableSet the table locator to use, assumed not <code>null</code>.
+   * @param field a binary field to add the resource for, assumed not <code>null</code>.
+   * @param mimeField if not <code>null</code>, the field that maps to the database column that
+   *     specifies the mimetype of the binary field. This column must be in the same table as the
+   *     binary field column.
+   * @param keys a set of keys used for the resource selector, assumed not <code>null</code>. Each
+   *     element in the set must be a Map.Entry, whose key is the backend column name and whose
+   *     value is the HTML parameter name from which the key will be obtained.
    * @throws PSSystemValidationException if a duplicate submit name was found.
    */
   private void addBinaryResource(
@@ -437,22 +422,17 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   /**
    * Creates a new binary dataset for the provided parameters.
    *
-   * @param tableSet the table set to create the dataset for, assumed
-   *    not <code>null</code>.
-   * @param column the backend column to create the dataset for, assumed not
-   *    <code>null</code>.
-   * @param mimeColumn the backend column to that holds the mime type,
-   *    allowed to be <code>null</code>, in which case the mime type is
-   *    determined by looking up the request extension in MimeProperties hash.
-   * @param keys a set of keys used for the resource selector, assumed not
-   *    <code>null</code>. Each element in the set must be a Map.Entry,
-   *    whose key is the backend column name and whose value is the HTML
-   *    parameter name from which the key will be obtained.
-   * @param submitName the fields submit name for the binary resource this
-   *    will create, not <code>null</code> or empty, must be unique accross
-   *    all binary resources created.
-   * @return the new binary dataset or <code>null</code> if anything went
-   *    wrong.
+   * @param tableSet the table set to create the dataset for, assumed not <code>null</code>.
+   * @param column the backend column to create the dataset for, assumed not <code>null</code>.
+   * @param mimeColumn the backend column to that holds the mime type, allowed to be <code>null
+   *     </code>, in which case the mime type is determined by looking up the request extension in
+   *     MimeProperties hash.
+   * @param keys a set of keys used for the resource selector, assumed not <code>null</code>. Each
+   *     element in the set must be a Map.Entry, whose key is the backend column name and whose
+   *     value is the HTML parameter name from which the key will be obtained.
+   * @param submitName the fields submit name for the binary resource this will create, not <code>
+   *     null</code> or empty, must be unique accross all binary resources created.
+   * @return the new binary dataset or <code>null</code> if anything went wrong.
    * @throws PSSystemValidationException if a duplicate submit name was found.
    */
   private PSDataSet createBinaryDataset(
@@ -561,13 +541,11 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * This method tries to get the table name in the provided table set for
-   * the supplied table alias.
+   * This method tries to get the table name in the provided table set for the supplied table alias.
    *
-   * @param alias the table alias we need the table name for, assumed not
-   *    <code>null</code>.
-   * @param tableSet the table set in which to search for the table name.
-   *    Assumed not <code>null</code>.
+   * @param alias the table alias we need the table name for, assumed not <code>null</code>.
+   * @param tableSet the table set in which to search for the table name. Assumed not <code>null
+   *     </code>.
    * @return the table name or the alias if no matching table name was found.
    */
   private String getTableNameForAlias(String alias, PSTableSet tableSet) {
@@ -613,25 +591,23 @@ public class PSBinaryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "binary";
 
-  /**
-   * The dataset base name of all binary_query resources.
-   */
+  /** The dataset base name of all binary_query resources. */
   private static final String BINARY_QUERY = "binary_query";
 
   /**
-   * The name of the dynamically created update application. Initialized
-   * during construction, never <code>null</code> after that.
+   * The name of the dynamically created update application. Initialized during construction, never
+   * <code>null</code> after that.
    */
   private String m_appName = null;
 
   /**
-   * A map of resource (dataset) names created. The key is the field submit
-   * name this resource is created for while the value is the resource name.
+   * A map of resource (dataset) names created. The key is the field submit name this resource is
+   * created for while the value is the resource name.
    */
   private HashMap m_resourceMap = new HashMap();
 }

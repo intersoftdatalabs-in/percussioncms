@@ -45,6 +45,7 @@ public enum PSPropertyDataType {
 
   /**
    * Gets the nominal value of the data type.
+   *
    * @return never <code>null</code> or empty.
    */
   public String getName() {
@@ -53,6 +54,7 @@ public enum PSPropertyDataType {
 
   /**
    * The java type that the widget property should be.
+   *
    * @return never <code>null</code>.
    */
   public Class<?> getJavaType() {
@@ -61,6 +63,7 @@ public enum PSPropertyDataType {
 
   /**
    * Gets the data type from widget property definition.
+   *
    * @param userPref never <code>null</code>.
    * @return never <code>null</code>.
    */
@@ -70,6 +73,7 @@ public enum PSPropertyDataType {
 
   /**
    * Parse the {@link #getName()} property definition type.
+   *
    * @param name
    * @return never <code>null</code>.
    */

@@ -63,9 +63,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
 
   private static PSSearchQueryImpl instance = null;
 
-  /**
-   *
-   */
+  /** */
   public static synchronized PSSearchQueryImpl getInstance() throws PSSearchException {
     if (instance == null) {
       instance = new PSSearchQueryImpl();
@@ -152,8 +150,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   /**
-   * Prepares the search query object combining global query with field
-   * queries.
+   * Prepares the search query object combining global query with field queries.
    *
    * @param globalQuery assumed not <code>null</code>.
    * @param fieldQueries assumed not <code>null</code>.
@@ -209,10 +206,9 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   /**
    * A convenient method to construct the multi index searcher.
    *
-   * @param ctypeIds if <code>null</code> then all content types are
-   * considered.
-   * @return multi searcher or <code>null</code>, if indexes are not
-   * available for the supplied content types
+   * @param ctypeIds if <code>null</code> then all content types are considered.
+   * @return multi searcher or <code>null</code>, if indexes are not available for the supplied
+   *     content types
    * @throws PSSearchException
    */
   private MultiReader prepareMultiSearcher(Collection<PSKey> ctypeIds) throws PSSearchException {
@@ -261,10 +257,10 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   /**
    * Gets the IndexSearcher associated with the content type id.
    *
-   * @param ctypeId Id of the content type for which the searcher is needed,
-   * assumed not <code>null</code> or empty.
-   * @return The index searcher associated with the content type id or
-   * <code>null</code>, if no directory exists with that content type id.
+   * @param ctypeId Id of the content type for which the searcher is needed, assumed not <code>null
+   *     </code> or empty.
+   * @return The index searcher associated with the content type id or <code>null</code>, if no
+   *     directory exists with that content type id.
    * @throws PSSearchException in case of io or index corrupted exceptions.
    */
   // TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN"})
@@ -287,12 +283,11 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   /**
-   * Takes all entries in the supplied map and copies them to the returned map,
-   * lowercasing all keys on the way.
+   * Takes all entries in the supplied map and copies them to the returned map, lowercasing all keys
+   * on the way.
    *
-   * @param src <code>null</code> OK. Assumes all keys are
-   * <code>String</code>. The original is unchanged.
-   *
+   * @param src <code>null</code> OK. Assumes all keys are <code>String</code>. The original is
+   *     unchanged.
    * @return A 'copy' of the supplied map with keys lowercased, never <code>
    * null</code>.
    */
@@ -307,28 +302,21 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   /**
-   * Looks up a property in the supplied map by the supplied key, converts it
-   * to an int and returns it. If found, the entry is removed from the map.
+   * Looks up a property in the supplied map by the supplied key, converts it to an int and returns
+   * it. If found, the entry is removed from the map.
    *
-   * @param props Assumed not <code>null</code>. Assumed keys are
-   * <code>String</code> and that the keys are all normalized to lowercase.
-   *
-   * @param keyName The key to use when looking up the value in the supplied
-   * map. Assumed not <code>null</code> or empty. Lower-cased before use.
-   *
+   * @param props Assumed not <code>null</code>. Assumed keys are <code>String</code> and that the
+   *     keys are all normalized to lowercase.
+   * @param keyName The key to use when looking up the value in the supplied map. Assumed not <code>
+   *     null</code> or empty. Lower-cased before use.
    * @param defaultValue Returned if a property is not found, is <code>null
-   * </code>
-   * or empty, isn't in the specified range or isn't a valid number.
-   *
-   * @param rangeLow If the property is less than this value, use the default.
-   * If equal to <code>rangeHi</code>, no validation is performed.
-   *
-   * @param rangeHi If the property is greater than this value, use the
-   * default. If equal to <code>rangeLow</code>, no validation is performed.
-   *
-   * @return If <code>rangleLow</code> != <code>rangeHi</code>, a value
-   * between the two, inclusive, or the defaultValue. If the ranges are equal,
-   * any value is possible.
+   * </code> or empty, isn't in the specified range or isn't a valid number.
+   * @param rangeLow If the property is less than this value, use the default. If equal to <code>
+   *     rangeHi</code>, no validation is performed.
+   * @param rangeHi If the property is greater than this value, use the default. If equal to <code>
+   *     rangeLow</code>, no validation is performed.
+   * @return If <code>rangleLow</code> != <code>rangeHi</code>, a value between the two, inclusive,
+   *     or the defaultValue. If the ranges are equal, any value is possible.
    */
   private int getIntProp(Map props, String keyName, int defaultValue, int rangeLow, int rangeHi) {
     int result = defaultValue;
@@ -353,23 +341,17 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   /**
-   * Looks up a property in the supplied map by the supplied key, converts it
-   * to a bool and returns it. If found, the entry is removed from the map. The
-   * following values are considered <code>true</code>, any other value will
-   * return <code>false</code>: 1, true or yes (case-insensitive).
+   * Looks up a property in the supplied map by the supplied key, converts it to a bool and returns
+   * it. If found, the entry is removed from the map. The following values are considered <code>true
+   * </code>, any other value will return <code>false</code>: 1, true or yes (case-insensitive).
    *
-   * @param props Assumed not <code>null</code>. Assumed keys are
-   * <code>String</code> and that the keys are all normalized to lowercase.
-   *
-   * @param keyName The key to use when looking up the value in the supplied
-   * map. Assumed not <code>null</code> or empty.
-   *
+   * @param props Assumed not <code>null</code>. Assumed keys are <code>String</code> and that the
+   *     keys are all normalized to lowercase.
+   * @param keyName The key to use when looking up the value in the supplied map. Assumed not <code>
+   *     null</code> or empty.
    * @param defaultValue Returned if a property is not found or is <code>null
-   * </code>
-   * or empty.
-   *
-   * @return The found value, if interpretable as a bool, otherwise the
-   * defaultValue.
+   * </code> or empty.
+   * @return The found value, if interpretable as a bool, otherwise the defaultValue.
    */
   private boolean getBoolProp(Map props, String keyName, boolean defaultValue) {
     boolean result = defaultValue;
@@ -397,29 +379,22 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable {
   }
 
   /**
-   * Custom properties in the search configuration that are targeted at the
-   * query handler must have this prefix to individuate them from the other
-   * custom props. These props are passed thru to the RW engine w/o
-   * modification or interpretation by this code.
-   * <p>This is public as a side-effect of the implementation, but should
-   * not be used outside the convera pkg beyond the initial use.
+   * Custom properties in the search configuration that are targeted at the query handler must have
+   * this prefix to individuate them from the other custom props. These props are passed thru to the
+   * RW engine w/o modification or interpretation by this code.
+   *
+   * <p>This is public as a side-effect of the implementation, but should not be used outside the
+   * convera pkg beyond the initial use.
    */
   public static final String QUERYPROP_PREFIX = "rxqh_";
 
-  /**
-   * A property that tells whether the query needs to be expanded for synonyms
-   * or not.
-   */
+  /** A property that tells whether the query needs to be expanded for synonyms or not. */
   public static final String QUERYPROP_SYNONYM_EXPANSION = "synonym_expansion";
 
-  /**
-   * The root folder that has synonym indexes for languages.
-   */
+  /** The root folder that has synonym indexes for languages. */
   private static final String SYNONYM_INDEX_ROOT_DIR =
       PSServer.getRxDir() + File.separator + "sys_resources/lucene/synonym_indexes/";
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 }

@@ -33,15 +33,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class is used to process view information at run time, determining if
- * a specified field should appear in the current view, and to determine the
- * next view to use (for example when building links in a result document).
+ * This class is used to process view information at run time, determining if a specified field
+ * should appear in the current view, and to determine the next view to use (for example when
+ * building links in a result document).
  */
 public class PSViewEvaluator {
   /**
    * Creates an evaluator for the supplied view set.
    *
-   * @param viewSet The set of views.  May not be <code>null</code>.
+   * @param viewSet The set of views. May not be <code>null</code>.
    */
   public PSViewEvaluator(PSViewSet viewSet) {
     if (viewSet == null) throw new IllegalArgumentException("viewSet may not be null");
@@ -62,15 +62,13 @@ public class PSViewEvaluator {
   }
 
   /**
-   * Determines if the specified field should be visible in the current view.
-   * Comparison is case insensitive.
+   * Determines if the specified field should be visible in the current view. Comparison is case
+   * insensitive.
    *
-   * @param fieldName The name of the field to check.  May not be
-   * <code>null</code> or empty.
-   * @param data The execution data.  May not be <code>null</code>.
-   *
-   * @return <code>true</code> if the specified <code>fieldName</code> can be
-   * found in the current view's list of fields.  <code>false</code> otherwise.
+   * @param fieldName The name of the field to check. May not be <code>null</code> or empty.
+   * @param data The execution data. May not be <code>null</code>.
+   * @return <code>true</code> if the specified <code>fieldName</code> can be found in the current
+   *     view's list of fields. <code>false</code> otherwise.
    */
   public boolean isFieldVisible(String fieldName, PSExecutionData data)
       throws PSDataExtractionException {
@@ -86,21 +84,19 @@ public class PSViewEvaluator {
   }
 
   /**
-   * Returns the view name to use for subsequent requests when creating links
-   * for the current result document.  Current logic is hard-coded based on the
-   * following rules:
+   * Returns the view name to use for subsequent requests when creating links for the current result
+   * document. Current logic is hard-coded based on the following rules:
    *
    * <ol>
-   * <li>If the modify command was specified and the current view is not
-   * the default view, return <code>sys_All</code></li>
-   * <li>If on a child page and the current view is not
-   * <code>sys_Default</code>, return <code>sys_All</code></li>
-   * <li>Otherwise, return the current view.</li>
+   *   <li>If the modify command was specified and the current view is not the default view, return
+   *       <code>sys_All</code>
+   *   <li>If on a child page and the current view is not <code>sys_Default</code>, return <code>
+   *       sys_All</code>
+   *   <li>Otherwise, return the current view.
    * </ol>
    *
-   * @param data The execution data.  May not be <code>null</code>.
+   * @param data The execution data. May not be <code>null</code>.
    * @param pageId The page id of the current page.
-   *
    * @return The next view name, never <code>null</code> or empty.
    */
   public String getNextView(PSExecutionData data, int pageId) throws PSDataExtractionException {
@@ -128,15 +124,13 @@ public class PSViewEvaluator {
   }
 
   /**
-   * Gets the current view as specified in the <code>data</code>.  Uses the
-   * default view if the data does not specify a view name.
+   * Gets the current view as specified in the <code>data</code>. Uses the default view if the data
+   * does not specify a view name.
    *
    * @param data The execution data, assumed not <code>null</code>
-   *
    * @return The view, never <code>null</code>.
-   *
-   * @throws PSDataExtractionException if the current view as specified in the
-   * <code>data</code> is not found in this evaluator's viewset.
+   * @throws PSDataExtractionException if the current view as specified in the <code>data</code> is
+   *     not found in this evaluator's viewset.
    */
   private PSView getCurrentView(PSExecutionData data) throws PSDataExtractionException {
     String viewName = getCurrentViewName(data);
@@ -166,16 +160,13 @@ public class PSViewEvaluator {
   }
 
   /**
-   * Gets the name of the current view as specified in the <code>data</code>.
-   * If the view is not specified, will return the default view name.  This
-   * has the side effect of setting the value of the default view name in the
-   * request parameters if an empty view name has been specified.
+   * Gets the name of the current view as specified in the <code>data</code>. If the view is not
+   * specified, will return the default view name. This has the side effect of setting the value of
+   * the default view name in the request parameters if an empty view name has been specified.
    *
    * @param data The execution data, assumed not <code>null</code>
-   *
-   * @return The view name, never <code>null</code> or empty.  If not specified
-   * or an empty value has been specified,
-   * {@link IPSConstants#DEFAULT_VIEW_NAME} is returned.
+   * @return The view name, never <code>null</code> or empty. If not specified or an empty value has
+   *     been specified, {@link IPSConstants#DEFAULT_VIEW_NAME} is returned.
    */
   private String getCurrentViewName(PSExecutionData data) {
     PSRequest request = data.getRequest();
@@ -192,17 +183,14 @@ public class PSViewEvaluator {
   }
 
   /**
-   * Determines if the specified field is contained in the list of fields.
-   * Comparison is case insensitive.
+   * Determines if the specified field is contained in the list of fields. Comparison is case
+   * insensitive.
    *
-   * @param fieldName The name of the field to check.  Assumed not
-   * <code>null</code> or empty.
-   * @param fields An iterator over zero or more field names as
-   * <code>String</code> objects, assumed not <code>null</code> and not to
-   * contain <code>null</code> or empty entries.
-   *
-   * @return <code>true</code> if the specified <code>fieldName</code> can be
-   * found in the list of fields.  <code>false</code> otherwise.
+   * @param fieldName The name of the field to check. Assumed not <code>null</code> or empty.
+   * @param fields An iterator over zero or more field names as <code>String</code> objects, assumed
+   *     not <code>null</code> and not to contain <code>null</code> or empty entries.
+   * @return <code>true</code> if the specified <code>fieldName</code> can be found in the list of
+   *     fields. <code>false</code> otherwise.
    */
   private boolean isFieldVisible(String fieldName, Iterator fields) {
     boolean isVisible = false;
@@ -215,29 +203,25 @@ public class PSViewEvaluator {
   }
 
   /**
-   * The viewset this evaluator will handle.  Never <code>null</code> or
-   * modified after construction.
+   * The viewset this evaluator will handle. Never <code>null</code> or modified after construction.
    */
   private PSViewSet m_viewSet;
 
   /**
-   * Map of conditional view evaluators for each conditional view.  Key is the
-   * lowercased view name as a <code>String</code>, value is a List of
-   * <code>PSConditionalViewEvaluator</code> objects. Never
-   * <code>null</code>, may be empty.
+   * Map of conditional view evaluators for each conditional view. Key is the lowercased view name
+   * as a <code>String</code>, value is a List of <code>PSConditionalViewEvaluator</code> objects.
+   * Never <code>null</code>, may be empty.
    */
   private Map m_viewEvaluators = new HashMap();
 
   /**
-   * Class to contain a <code>PSConditionalView</code> and its
-   * <code>PSConditionalEvaluator</code>.
+   * Class to contain a <code>PSConditionalView</code> and its <code>PSConditionalEvaluator</code>.
    */
   private class PSConditionalViewEvaluator {
     /**
      * Constuct a conditional view evaluator.
      *
      * @param view The conditional view, may not be <code>null</code>.
-     *
      * @throws IllegalStateException if the view's conditions are invalid.
      */
     public PSConditionalViewEvaluator(PSConditionalView view) {
@@ -256,9 +240,8 @@ public class PSViewEvaluator {
      * Evalutes the view's conditions.
      *
      * @param data The execution data, may not be <code>null</code>.
-     *
-     * @return <code>true</code> if all of the conditions evaluate to
-     * <code>true</code>, <code>false</code> otherwise.
+     * @return <code>true</code> if all of the conditions evaluate to <code>true</code>, <code>false
+     *     </code> otherwise.
      */
     public boolean isMatch(PSExecutionData data) {
       if (data == null) throw new IllegalArgumentException("data may not be null");
@@ -267,22 +250,16 @@ public class PSViewEvaluator {
     }
 
     /**
-     * @return The view this evaluator was constructed with,
-     * never <code>null</code>.
+     * @return The view this evaluator was constructed with, never <code>null</code>.
      */
     public PSConditionalView getView() {
       return m_view;
     }
 
-    /**
-     * The view to evaluate, never <code>null</code> after construction.
-     */
+    /** The view to evaluate, never <code>null</code> after construction. */
     private PSConditionalView m_view;
 
-    /**
-     * Used to evaluate the view's conditions, never <code>null</code> after
-     * construction.
-     */
+    /** Used to evaluate the view's conditions, never <code>null</code> after construction. */
     private PSConditionalEvaluator m_eval;
   }
 }

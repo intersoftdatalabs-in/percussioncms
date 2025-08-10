@@ -57,6 +57,7 @@ public class PSUpdateDTSCertificate extends PSAction {
 
   /**
    * Get KeyStore Password from Catalina.properties
+   *
    * @param prodPath
    * @return
    * @throws IOException
@@ -77,6 +78,7 @@ public class PSUpdateDTSCertificate extends PSAction {
 
   /**
    * Update New Default Certificate in the path specified
+   *
    * @param prodPath
    */
   private void updateCertificate(File prodPath) {
@@ -94,8 +96,10 @@ public class PSUpdateDTSCertificate extends PSAction {
   }
 
   /**
-   * Try's to update certificate by opening the keystore with default password, incase fails, then gets the pwd from
-   * Catalina.properties and opens the keystore. If Successful in opening the keystore, then updates the certificate.
+   * Try's to update certificate by opening the keystore with default password, incase fails, then
+   * gets the pwd from Catalina.properties and opens the keystore. If Successful in opening the
+   * keystore, then updates the certificate.
+   *
    * @param prodPath
    * @param newCertFile
    * @param pwd

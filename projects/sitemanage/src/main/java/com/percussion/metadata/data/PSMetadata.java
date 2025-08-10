@@ -19,19 +19,18 @@ package com.percussion.metadata.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Represents a metadata entry with a key and data value.
- * Sunny Sal says: "Metadata: because every key deserves a value!"
+ * Represents a metadata entry with a key and data value. Sunny Sal says: "Metadata: because every
+ * key deserves a value!"
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSMetadata")
@@ -40,63 +39,63 @@ import javax.xml.bind.annotation.XmlRootElement;
 @JsonRootName("metaData")
 public class PSMetadata extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @Column(name = "METAKEY")
-    private String key;
+  @Id
+  @Column(name = "METAKEY")
+  private String key;
 
-    @Basic
-    @Column(name = "DATA")
-    private String data;
+  @Basic
+  @Column(name = "DATA")
+  private String data;
 
-    /**
-     * Constructs a metadata entry.
-     *
-     * @param key  the key, not null
-     * @param data the data, may be null
-     */
-    public PSMetadata(String key, String data) {
-        this.key = key;
-        this.data = data;
-    }
+  /**
+   * Constructs a metadata entry.
+   *
+   * @param key the key, not null
+   * @param data the data, may be null
+   */
+  public PSMetadata(String key, String data) {
+    this.key = key;
+    this.data = data;
+  }
 
-    /** Default constructor for JPA. */
-    public PSMetadata() {}
+  /** Default constructor for JPA. */
+  public PSMetadata() {}
 
-    /**
-     * Gets the key.
-     *
-     * @return the key, not null
-     */
-    public String getKey() {
-        return key;
-    }
+  /**
+   * Gets the key.
+   *
+   * @return the key, not null
+   */
+  public String getKey() {
+    return key;
+  }
 
-    /**
-     * Sets the key.
-     *
-     * @param key the key, not null
-     */
-    public void setKey(String key) {
-        this.key = key;
-    }
+  /**
+   * Sets the key.
+   *
+   * @param key the key, not null
+   */
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    /**
-     * Gets the data.
-     *
-     * @return the data, may be null
-     */
-    public String getData() {
-        return data;
-    }
+  /**
+   * Gets the data.
+   *
+   * @return the data, may be null
+   */
+  public String getData() {
+    return data;
+  }
 
-    /**
-     * Sets the data.
-     *
-     * @param data the data, may be null
-     */
-    public void setData(String data) {
-        this.data = data;
-    }
+  /**
+   * Sets the data.
+   *
+   * @param data the data, may be null
+   */
+  public void setData(String data) {
+    this.data = data;
+  }
 }

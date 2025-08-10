@@ -24,22 +24,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle all workflow related operations for
- * webservices. These operations are specified in the "Workflow" port in the
- * <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSWorkflow}.
+ * This class is used to handle all workflow related operations for webservices. These operations
+ * are specified in the "Workflow" port in the <code>WebServices.wsdl</code>. @See {@link
+ * com.percussion.hooks.webservices.PSWSWorkflow}.
  */
 class PSWorkflowHandler extends PSWebServicesBaseHandler {
   /**
    * Operation to return the audit trail of the specified content item.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void auditTrailAction(PSRequest request, Document parent) throws PSException {
@@ -49,12 +44,9 @@ class PSWorkflowHandler extends PSWebServicesBaseHandler {
   /**
    * Operation to handle transition of an item into a new state.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void transitionItemAction(PSRequest request, Document parent) throws PSException {
@@ -85,16 +77,12 @@ class PSWorkflowHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * Operation to get the list of transitions available to the specified content
-   * item. This list will contain all the transitions without regard to the role
-   * the specific user is assigned to.
+   * Operation to get the list of transitions available to the specified content item. This list
+   * will contain all the transitions without regard to the role the specific user is assigned to.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void transitionListAction(PSRequest request, Document parent) throws PSException {
@@ -106,16 +94,14 @@ class PSWorkflowHandler extends PSWebServicesBaseHandler {
     getMergedResultDoc(request, path, parent);
   }
 
-  /**
-   * action string constants
-   */
+  /** action string constants */
   private static final String WS_AUDITTRAIL = "auditTrail";
 
   private static final String WS_TRANSITIONLIST = "transitionList";
 
   /**
-   * Constants for XML elements/attributes defined in the
-   * schema <code>sys_WorkflowParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_WorkflowParameters.xsd
+   * </code>
    */
   private static final String EL_TRANSITIONID = "TransitionId";
 

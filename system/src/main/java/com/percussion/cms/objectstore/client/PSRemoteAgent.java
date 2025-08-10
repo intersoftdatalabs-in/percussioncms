@@ -59,24 +59,23 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class provides convenient methods to communicate with the remote
- * server for various tasks.
+ * This class provides convenient methods to communicate with the remote server for various tasks.
  */
 public class PSRemoteAgent {
 
   private static final Logger log = LogManager.getLogger(PSRemoteAgent.class);
 
   /**
-   * Constructs a new remote agent object without a requester set.
-   * A requester must be set before using this agent.
+   * Constructs a new remote agent object without a requester set. A requester must be set before
+   * using this agent.
    */
   protected PSRemoteAgent() {}
 
   /**
    * Constructs the object from passed in requester.
    *
-   * @param requester the {@link com.percussion.util.IPSRemoteRequester}
-   * object used to make remote requests. Cannot be <code>null</code>.
+   * @param requester the {@link com.percussion.util.IPSRemoteRequester} object used to make remote
+   *     requests. Cannot be <code>null</code>.
    */
   public PSRemoteAgent(IPSRemoteRequester requester) {
     setRequester(requester);
@@ -85,8 +84,8 @@ public class PSRemoteAgent {
   /**
    * Sets the remote requester for this agent
    *
-   * @param requester the {@link com.percussion.util.IPSRemoteRequester}
-   * object used to make remote requests. Cannot be <code>null</code>.
+   * @param requester the {@link com.percussion.util.IPSRemoteRequester} object used to make remote
+   *     requests. Cannot be <code>null</code>.
    */
   protected void setRequester(IPSRemoteRequester requester) {
     if (requester == null) throw new IllegalArgumentException("Requester cannot be null.");
@@ -106,8 +105,7 @@ public class PSRemoteAgent {
   /**
    * Determines whether the current connection info contains valid login info.
    *
-   * @return <code>true</code> if successful login remote server;
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if successful login remote server; <code>false</code> otherwise.
    */
   public boolean validateLogin() {
     try {
@@ -122,7 +120,6 @@ public class PSRemoteAgent {
    * Get the default community of the login user.
    *
    * @return The default community.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSEntry getDefaultUserCommunity() throws PSRemoteException {
@@ -139,12 +136,10 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Login to the remote server with the current connection info.
-   * This will also set the login user to the community and locale that are
-   * defined in the connection info (if they are specified).
+   * Login to the remote server with the current connection info. This will also set the login user
+   * to the community and locale that are defined in the connection info (if they are specified).
    *
    * @return The community that is logged in, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSEntry login() throws PSRemoteException {
@@ -179,12 +174,10 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Just like {@link #login()}, except it returns the response document
-   * which is defined in sys_MiscellaneousParameters.xsd
+   * Just like {@link #login()}, except it returns the response document which is defined in
+   * sys_MiscellaneousParameters.xsd
    *
-   * @return the response element, <code>LoginResponse</code>, never
-   *    <code>null</code>.
-   *
+   * @return the response element, <code>LoginResponse</code>, never <code>null</code>.
    * @throws PSRemoteException if an error occurs.
    */
   public Element loginEx() throws PSRemoteException {
@@ -195,9 +188,8 @@ public class PSRemoteAgent {
   /**
    * Get a list of communities from the remote server.
    *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *    never <code>null</code>, but may be empty.
-   *
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
   public List getCommunities() throws PSRemoteException {
@@ -237,12 +229,10 @@ public class PSRemoteAgent {
   /**
    * Get a list of content-types for the supplied community
    *
-   * @param community The community from where requesting the content-types.
-   *    It may not be <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *    never <code>null</code>, but may be empty.
-   *
+   * @param community The community from where requesting the content-types. It may not be <code>
+   *     null</code>.
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
   public List getContentTypes(PSEntry community) throws PSRemoteException {
@@ -254,12 +244,10 @@ public class PSRemoteAgent {
   /**
    * Get a list of workflows for the supplied community
    *
-   * @param community The community from where requesting workflows. It may
-   *    not be <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *    never <code>null</code>, but may be empty.
-   *
+   * @param community The community from where requesting workflows. It may not be <code>null</code>
+   *     .
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
   public List getWorkflows(PSEntry community) throws PSRemoteException {
@@ -271,15 +259,12 @@ public class PSRemoteAgent {
   /**
    * Get a list of content-types or workflows for the supplied community
    *
-   * @param community The community from where requesting the content-types.
-   *    Assume it is not <code>null</code>.
-   *
-   * @param resource The resource for geting content-type or workflows,
-   *    assume not <code>null</code> or empty.
-   *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *    never <code>null</code>, but may be empty.
-   *
+   * @param community The community from where requesting the content-types. Assume it is not <code>
+   *     null</code>.
+   * @param resource The resource for geting content-type or workflows, assume not <code>null</code>
+   *     or empty.
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty.
    * @throws PSRemoteException if an error occurs.
    */
   private List getCTypesOrWorkflows(PSEntry community, String resource) throws PSRemoteException {
@@ -326,13 +311,11 @@ public class PSRemoteAgent {
   /**
    * Get a list of transitions for the supplied workflow
    *
-   * @param workflow The workflow from where requesting the transitions.
-   *    It may not be <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *    never <code>null</code>, but may be empty. The value of the each
-   *    <code>PSEntry</code> is the trigger or internal name.
-   *
+   * @param workflow The workflow from where requesting the transitions. It may not be <code>null
+   *     </code>.
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty. The value of the each <code>PSEntry</code> is the trigger or internal
+   *     name.
    * @throws PSRemoteException if an error occurs.
    */
   public List getTransitions(PSEntry workflow) throws PSRemoteException {
@@ -420,11 +403,9 @@ public class PSRemoteAgent {
   /**
    * Get a list of context variables from the remote server.
    *
-   * @return An iterator over zero or more <code>PSEntry</code> objects,
-   *         never <code>null</code>, but may be empty.
-   *
-   * @throws PSRemoteException
-   *            if an error occurs.
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     but may be empty.
+   * @throws PSRemoteException if an error occurs.
    */
   public List getContextVariables() throws PSRemoteException {
     List entries = new ArrayList();
@@ -482,18 +463,13 @@ public class PSRemoteAgent {
   /**
    * Perform a transition for the specified content.
    *
-   * @param locator The locator of the specified content, may not
-   *    <code>null</code>
-   * @param transId The transition name or id, may not <code>null</code> or
-   *    empty.
-   * @param comment If supplied the comment is added as the transition comment.
-   *    may be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if successfully completed the transition;
-   *    <code>false</code> otherwise.
-   *
-   * @throws PSRemoteException if content type not exist or any other
-   *    error occurs.
+   * @param locator The locator of the specified content, may not <code>null</code>
+   * @param transId The transition name or id, may not <code>null</code> or empty.
+   * @param comment If supplied the comment is added as the transition comment. may be <code>null
+   *     </code> or empty.
+   * @return <code>true</code> if successfully completed the transition; <code>false</code>
+   *     otherwise.
+   * @throws PSRemoteException if content type not exist or any other error occurs.
    */
   public boolean transitionItem(PSLocator locator, String transId, String comment)
       throws PSRemoteException {
@@ -510,33 +486,24 @@ public class PSRemoteAgent {
   /**
    * Perform a transition for the specified content without comment.
    *
-   * @param locator The locator of the specified content, may not
-   *    <code>null</code>
-   * @param transId The transition name or id, may not <code>null</code> or
-   *    empty.
-   * @return <code>true</code> if successfully completed the transition;
-   *    <code>false</code> otherwise.
-   *
-   * @throws PSRemoteException if content type not exist or any other
-   *    error occurs.
+   * @param locator The locator of the specified content, may not <code>null</code>
+   * @param transId The transition name or id, may not <code>null</code> or empty.
+   * @return <code>true</code> if successfully completed the transition; <code>false</code>
+   *     otherwise.
+   * @throws PSRemoteException if content type not exist or any other error occurs.
    */
   public boolean transitionItem(PSLocator locator, String transId) throws PSRemoteException {
     return transitionItem(locator, transId, null);
   }
 
   /**
-   * Just like {@link #newItem(String contentTypeId)},
-   * except that it will load the defaults if available for the passed
-   * in content Type.
+   * Just like {@link #newItem(String contentTypeId)}, except that it will load the defaults if
+   * available for the passed in content Type.
    *
-   * @param contentTypeId The name or id of a content type, may not be
-   *    <code>null</code> or empty.
-   *
-   * @return The created <code>PSClientItem</code> object, never
-   *    <code>null</code> unless client item cannot be created.
-   *
-   * @throws PSRemoteException if content type not exist or any other
-   *    error occurs.
+   * @param contentTypeId The name or id of a content type, may not be <code>null</code> or empty.
+   * @return The created <code>PSClientItem</code> object, never <code>null</code> unless client
+   *     item cannot be created.
+   * @throws PSRemoteException if content type not exist or any other error occurs.
    */
   public PSClientItem newItemDefault(String contentTypeId) throws PSRemoteException {
     Element params = getNewItemParams(contentTypeId);
@@ -559,17 +526,13 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Get a newly created (empty) <code>PSClientItem</code> object from the
-   * specified content type name or id.
+   * Get a newly created (empty) <code>PSClientItem</code> object from the specified content type
+   * name or id.
    *
-   * @param contentTypeId The name or id of a content type, may not be
-   *    <code>null</code> or empty.
-   *
-   * @return The created <code>PSClientItem</code> object, never
-   *    <code>null</code> unless client item cannot be created.
-   *
-   * @throws PSRemoteException if content type not exist or any other
-   *    error occurs.
+   * @param contentTypeId The name or id of a content type, may not be <code>null</code> or empty.
+   * @return The created <code>PSClientItem</code> object, never <code>null</code> unless client
+   *     item cannot be created.
+   * @throws PSRemoteException if content type not exist or any other error occurs.
    */
   public PSClientItem newItem(String contentTypeId) throws PSRemoteException {
     if (contentTypeId == null || contentTypeId.trim().length() == 0)
@@ -587,14 +550,9 @@ public class PSRemoteAgent {
   /**
    * Get a list of field names associated with a content name or id.
    *
-   * @param contentTypeId The name or id of a content type, may not be
-   *    <code>null</code> or empty.
-   *
-   * @return List of <code>String</code> objects, never  <code>null</code>,
-   * may be empty.
-   *
-   * @throws PSRemoteException if content type not exist or any other
-   *    error occurs.
+   * @param contentTypeId The name or id of a content type, may not be <code>null</code> or empty.
+   * @return List of <code>String</code> objects, never <code>null</code>, may be empty.
+   * @throws PSRemoteException if content type not exist or any other error occurs.
    */
   public List getFieldNames(String contentTypeId) throws PSRemoteException {
     PSClientItem clientItem = newItem(contentTypeId);
@@ -605,19 +563,14 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Updates an item (or <code>PSCoreItem</code>) object (in XML format) to
-   * the server. The item will be inserted if it does not contains
-   * a content-id and a revision number; otherwise the specified item will be
-   * updated with the current content.
+   * Updates an item (or <code>PSCoreItem</code>) object (in XML format) to the server. The item
+   * will be inserted if it does not contains a content-id and a revision number; otherwise the
+   * specified item will be updated with the current content.
    *
    * @param itemEl The modified item, may not be <code>null</code>.
-   *
-   * @param checkin <code>true</code> if checkin the item afterwards;
-   *    <code>false</code> leave the item to be checked out by the current
-   *    user after updating the item.
-   *
+   * @param checkin <code>true</code> if checkin the item afterwards; <code>false</code> leave the
+   *     item to be checked out by the current user after updating the item.
    * @return The locator of the updated item, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSLocator updateItem(Element itemEl, boolean checkin) throws PSRemoteException {
@@ -630,17 +583,15 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Updates an item object to the server. The item will be inserted if it does not contains
-   * a content-id; otherwise the specified item will be updated with
-   * the current content. This method can also handle the updating of
-   * binary field data.
-   * @param item the client item, cannot be <code>null</code>.
+   * Updates an item object to the server. The item will be inserted if it does not contains a
+   * content-id; otherwise the specified item will be updated with the current content. This method
+   * can also handle the updating of binary field data.
    *
-   * @param checkin <code>true</code> if checkin the item afterwards;
-   *    <code>false</code> leave the item to be checked out by the current
-   *    user after updating the item.
-   * @return The PSLocator for this client item. May be <code>null</code>
-   * if the locator could not be found.
+   * @param item the client item, cannot be <code>null</code>.
+   * @param checkin <code>true</code> if checkin the item afterwards; <code>false</code> leave the
+   *     item to be checked out by the current user after updating the item.
+   * @return The PSLocator for this client item. May be <code>null</code> if the locator could not
+   *     be found.
    * @throws PSRemoteException
    */
   public PSLocator updateItem(PSClientItem item, boolean checkin) throws PSRemoteException {
@@ -721,9 +672,8 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Returns the application resource path from a <code>PSClientItem</code>.
-   * This method strip off anything preceding the "ApplicationName/resource" and
-   * changes the extension to xml from html.
+   * Returns the application resource path from a <code>PSClientItem</code>. This method strip off
+   * anything preceding the "ApplicationName/resource" and changes the extension to xml from html.
    *
    * @param item
    * @return
@@ -744,12 +694,9 @@ public class PSRemoteAgent {
   /**
    * Check out the specified item.
    *
-   * @param locator The locator of the to be checked out item, may not be
-   *    <code>null</code>.
-   *
-   * @return <code>true</code> if successfully checked out the item or the
-   *    item has already checked out by the current user.
-   *
+   * @param locator The locator of the to be checked out item, may not be <code>null</code>.
+   * @return <code>true</code> if successfully checked out the item or the item has already checked
+   *     out by the current user.
    * @throws PSRemoteException if an error occurs.
    */
   public boolean checkOutItem(PSLocator locator) throws PSRemoteException {
@@ -764,12 +711,9 @@ public class PSRemoteAgent {
   /**
    * Check in the specified item.
    *
-   * @param locator The locator of the to be checked in item, may not be
-   *    <code>null</code>.
-   *
-   * @return <code>true</code> if successfully checked in the item or the
-   *    item has already checked in by the current user.
-   *
+   * @param locator The locator of the to be checked in item, may not be <code>null</code>.
+   * @return <code>true</code> if successfully checked in the item or the item has already checked
+   *     in by the current user.
    * @throws PSRemoteException if an error occurs.
    */
   public boolean checkInItem(PSLocator locator) throws PSRemoteException {
@@ -782,14 +726,10 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Convenience method that calls {@link #purgeItems(PSLocator[])}. See that
-   * method for details.
+   * Convenience method that calls {@link #purgeItems(PSLocator[])}. See that method for details.
    *
    * @param locator the locator of the purged item, never <code>null</code>.
-   *
-   * @return <code>true</code> if successfully purged the item; otherwise
-   *    return <code>false</code>.
-   *
+   * @return <code>true</code> if successfully purged the item; otherwise return <code>false</code>.
    * @throws PSRemoteException if error occurs.
    */
   public boolean purgeItem(PSLocator locator) throws PSRemoteException {
@@ -800,12 +740,10 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Purge the specified items. Do not use this method to attempt to
-   * purge folders as it will leave orphan content items, use
-   * {@link #removeComponentsFromFolder(PSKey, List)} instead.
+   * Purge the specified items. Do not use this method to attempt to purge folders as it will leave
+   * orphan content items, use {@link #removeComponentsFromFolder(PSKey, List)} instead.
    *
-   * @param items an array of locators for all items to be purged, may not be
-   *    <code>null</code>.
+   * @param items an array of locators for all items to be purged, may not be <code>null</code>.
    * @return <code>true</code> if successfully purged.
    * @throws PSRemoteException if an error occurs.
    */
@@ -817,15 +755,12 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Removed the folder relationships between the supplied parent and its
-   * children.
+   * Removed the folder relationships between the supplied parent and its children.
    *
-   * @param parent the parent locator of the to be removed children. It may
-   *    not be <code>null</code>.
-   *
-   * @param children the list of locators of the to be removed compontens. It
-   *    may not be <code>null</code>.
-   *
+   * @param parent the parent locator of the to be removed children. It may not be <code>null</code>
+   *     .
+   * @param children the list of locators of the to be removed compontens. It may not be <code>null
+   *     </code>.
    * @throws PSRemoteException if an error occurs.
    */
   public void removeComponentsFromFolder(PSKey parent, List children) throws PSRemoteException {
@@ -843,14 +778,12 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Purge the entire tree for the supplied component. If the component is an
-   * item, only that item is purged. If the component is a folder, then all
-   * folders and items contained in the supplied folder will be purged
-   * recursivly.
+   * Purge the entire tree for the supplied component. If the component is an item, only that item
+   * is purged. If the component is a folder, then all folders and items contained in the supplied
+   * folder will be purged recursivly.
    *
    * @param summary the object to be purged, not <code>null</code>.
-   * @return <code>true</code> if successfully purged, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if successfully purged, <code>false</code> otherwise.
    * @throws PSRemoteException if an error occurs.
    */
   public boolean purgeTree(PSComponentSummary summary) throws PSRemoteException {
@@ -875,7 +808,6 @@ public class PSRemoteAgent {
    * Get component processor proxy for remote processor.
    *
    * @return The remote proxy, never <code>null</code>.
-   *
    * @throws PSCmsException if any error occurs
    */
   private PSComponentProcessorProxy getRemoteComponentProxy() throws PSCmsException {
@@ -887,20 +819,16 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Determines whether an operation is successful or not from a given
-   * response XML element.
+   * Determines whether an operation is successful or not from a given response XML element.
    *
-   * It is in the format of:
+   * <p>It is in the format of:
    *
-   * &lt;!ELEMENT ResultResponse EMPTY&gt;
-   * &lt;!ATTLIST ResultResponse
-   * type (success | failure)
+   * <p>&lt;!ELEMENT ResultResponse EMPTY&gt; &lt;!ATTLIST ResultResponse type (success | failure)
    * &gt;
    *
    * @param responseEl The response XML element, assume not <code>null</code>.
-   *
-   * @return <code>true</code> if the response indicates a successful
-   *    operation; <code>false</code> otherwise.
+   * @return <code>true</code> if the response indicates a successful operation; <code>false</code>
+   *     otherwise.
    */
   private boolean isSuccessResponse(Element responseEl) {
     String name = PSXMLDomUtil.getUnqualifiedNodeName(responseEl);
@@ -913,15 +841,12 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Creates a duplicated item from the supplied locator. The "New Copy"
-   * configuration will be used to create related child items.
+   * Creates a duplicated item from the supplied locator. The "New Copy" configuration will be used
+   * to create related child items.
    *
-   * @param locator The locator of the to be duplicated item, never
-   *    <code>null</code>.
-   *
-   * @return The created item in XML that is conformed with
-   *    <code>sys_StandardItem.xsd</code>, never <code>null</code>.
-   *
+   * @param locator The locator of the to be duplicated item, never <code>null</code>.
+   * @return The created item in XML that is conformed with <code>sys_StandardItem.xsd</code>, never
+   *     <code>null</code>.
    * @throws PSUnknownNodeTypeException if encounter malformed XML.
    * @throws PSRemoteException if other error occurs.
    */
@@ -942,16 +867,12 @@ public class PSRemoteAgent {
   /**
    * Get an item from a given locator
    *
-   * @param locator The locator of the specified item, may not be
-   *    <code>null</code>
-   * @param includeData <code>true</code> if wants the return item contains
-   *    all data; <code>false</code> if don't want include any data
-   *    in the returned item.
-   * @param checkOut <code>true</code> if wants to checkout the item as well;
-   *    <code>false</code> not to apply checkout operation to the item.
-   *
+   * @param locator The locator of the specified item, may not be <code>null</code>
+   * @param includeData <code>true</code> if wants the return item contains all data; <code>false
+   *     </code> if don't want include any data in the returned item.
+   * @param checkOut <code>true</code> if wants to checkout the item as well; <code>false</code> not
+   *     to apply checkout operation to the item.
    * @return The specified item, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSClientItem openItem(PSLocator locator, boolean includeData, boolean checkOut)
@@ -962,26 +883,19 @@ public class PSRemoteAgent {
   /**
    * Get an item from a given locator
    *
-   * @param locator The locator of the specified item, may not be
-   *    <code>null</code>
-   *
-   * @param includeChildren <code>true</code> if wants to include all
-   * child field data in the returned envelope; <code>false</code>
-   * if don't want include any child data in the responsed envelope.
-   *
-   * @param includeRelated <code>true</code> if wants to include all
-   * related data in the returned envelope; <code>false</code>
-   * if don't want include any related data in the responsed envelope.
-   *
-   * @param includeBinary <code>true</code> if wants to include all
-   * binary field data in the returned envelope; <code>false</code>
-   * if don't want include any binary data in the responsed envelope.
-   *
-   *  @param checkOut <code>true</code> if wants to checkout the item as well;
-   *    <code>false</code> not to apply checkout operation to the item.
-   *
+   * @param locator The locator of the specified item, may not be <code>null</code>
+   * @param includeChildren <code>true</code> if wants to include all child field data in the
+   *     returned envelope; <code>false</code> if don't want include any child data in the responsed
+   *     envelope.
+   * @param includeRelated <code>true</code> if wants to include all related data in the returned
+   *     envelope; <code>false</code> if don't want include any related data in the responsed
+   *     envelope.
+   * @param includeBinary <code>true</code> if wants to include all binary field data in the
+   *     returned envelope; <code>false</code> if don't want include any binary data in the
+   *     responsed envelope.
+   * @param checkOut <code>true</code> if wants to checkout the item as well; <code>false</code> not
+   *     to apply checkout operation to the item.
    * @return The specified item, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSClientItem openItem(
@@ -995,12 +909,11 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Just like {@link #openItem(PSLocator,boolean,boolean,boolean,boolean)},
-   * except it pass in the item definition, for the opened item.
+   * Just like {@link #openItem(PSLocator,boolean,boolean,boolean,boolean)}, except it pass in the
+   * item definition, for the opened item.
    *
-   * @param itemDef The item definition of the opened item, it may be
-   *    <code>null</code>. The item definition will be retrieved from server
-   *    if it is not specified.
+   * @param itemDef The item definition of the opened item, it may be <code>null</code>. The item
+   *     definition will be retrieved from server if it is not specified.
    */
   public PSClientItem openItem(
       PSLocator locator,
@@ -1046,10 +959,10 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Loops through all of the items fields looking for binary fields,
-   * if a binary field is found a request is made to get the binary, the
-   * binary is then added to the field as a <code>PSBinaryValue</code>
-   * object.
+   * Loops through all of the items fields looking for binary fields, if a binary field is found a
+   * request is made to get the binary, the binary is then added to the field as a <code>
+   * PSBinaryValue</code> object.
+   *
    * @param item the client item, cannot be <code>null</code>.
    * @throws IOException if the request for the binary has errors.
    */
@@ -1084,24 +997,16 @@ public class PSRemoteAgent {
   /**
    * Get the locator from the response of an "updateItem" operation (in XML).
    *
-   * The XML format is:
-   * &lt;!ELEMENT UpdateItemResponse (ContentKey | ResultResponse)&gt;
+   * <p>The XML format is: &lt;!ELEMENT UpdateItemResponse (ContentKey | ResultResponse)&gt;
    *
-   * &lt;!ELEMENT ContentKey EMPTY&gt;
-   * &lt;!ATTLIST ContentKey
-   * contentId CDATA #REQUIRED
-   * revision CDATA #REQUIRED
-   * &gt;
+   * <p>&lt;!ELEMENT ContentKey EMPTY&gt; &lt;!ATTLIST ContentKey contentId CDATA #REQUIRED revision
+   * CDATA #REQUIRED &gt;
    *
-   * &lt;!ELEMENT ResultResponse EMPTY&gt;
-   * &lt;!ATTLIST ResultResponse
-   * type (success | failure)
+   * <p>&lt;!ELEMENT ResultResponse EMPTY&gt; &lt;!ATTLIST ResultResponse type (success | failure)
    * &gt;
    *
    * @param responseEl The response of an "updateItem" operation (in XML).
-   *
    * @return The retrieved locator, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   private PSLocator getLocatorFromUpdateResponse(Element responseEl) throws PSRemoteException {
@@ -1128,11 +1033,8 @@ public class PSRemoteAgent {
   /**
    * Get an item definition from the specified content type id or name.
    *
-   * @param contentTypeId The content type id or name, it may not be
-   *    <code>null</code> or empty.
-   *
+   * @param contentTypeId The content type id or name, it may not be <code>null</code> or empty.
    * @return The item definition object, never <code>null</code>.
-   *
    * @throws PSRemoteException if an error occurs.
    */
   public PSItemDefinition getTypeDef(String contentTypeId) throws PSRemoteException {
@@ -1159,19 +1061,14 @@ public class PSRemoteAgent {
   /**
    * Send a request to webservices handler of the remote Rhythmyx server.
    *
-   * @param action The action of the request, assume not <code>null</code>
-   *    or empty.
-   * @param wsdlPort The WSDL port as a way to group the actions. Assume
-   *    not <code>null</code> or empty.
+   * @param action The action of the request, assume not <code>null</code> or empty.
+   * @param wsdlPort The WSDL port as a way to group the actions. Assume not <code>null</code> or
+   *     empty.
    * @param params The parameters of the request, assume not <code>null</code>
-   * @param respElement The expected XML element name of the responsed root
-   *    element.
-   *
-   * @return The responsed element send from the remote server. It should
-   *    never be <code>null</code>.
-   *
-   * @throws PSRemoteException if the responsed element is not expected or
-   *    other error occurred.
+   * @param respElement The expected XML element name of the responsed root element.
+   * @return The responsed element send from the remote server. It should never be <code>null</code>
+   *     .
+   * @throws PSRemoteException if the responsed element is not expected or other error occurred.
    */
   private Element sendRequest(String action, String wsdlPort, Element params, String respElement)
       throws PSRemoteException {
@@ -1195,12 +1092,9 @@ public class PSRemoteAgent {
   }
 
   /**
-   * Creates a request parameter element for a content type action
-   * (or operation).
+   * Creates a request parameter element for a content type action (or operation).
    *
-   * @param contentTypeId The content type id or name, assume not
-   *    <code>null</code> or empty.
-   *
+   * @param contentTypeId The content type id or name, assume not <code>null</code> or empty.
    * @return The body of the envelope, never <code>null</code>
    */
   private Element getContentTypeParams(String contentTypeId) {
@@ -1218,24 +1112,18 @@ public class PSRemoteAgent {
   /**
    * Creates a request parameter element for an open item action or operation.
    *
-   * @param locator The locator for the to be retreived item, assume not
-   *    <code>null</code>.
-   *
-   * @param includeChildren <code>true</code> if wants to include all
-   * child field data in the returned envelope; <code>false</code>
-   * if don't want include any child data in the responsed envelope.
-   *
-   * @param includeRelated <code>true</code> if wants to include all
-   * related data in the returned envelope; <code>false</code>
-   * if don't want include any related data in the responsed envelope.
-   *
-   * @param includeBinary <code>true</code> if wants to include all
-   * binary field data in the returned envelope; <code>false</code>
-   * if don't want include any binary data in the responsed envelope.
-   *
-   * @param checkOut <code>true</code> if wants to checkout the item;
-   *    <code>false</code> not to apply checkout operation to the item.
-   *
+   * @param locator The locator for the to be retreived item, assume not <code>null</code>.
+   * @param includeChildren <code>true</code> if wants to include all child field data in the
+   *     returned envelope; <code>false</code> if don't want include any child data in the responsed
+   *     envelope.
+   * @param includeRelated <code>true</code> if wants to include all related data in the returned
+   *     envelope; <code>false</code> if don't want include any related data in the responsed
+   *     envelope.
+   * @param includeBinary <code>true</code> if wants to include all binary field data in the
+   *     returned envelope; <code>false</code> if don't want include any binary data in the
+   *     responsed envelope.
+   * @param checkOut <code>true</code> if wants to checkout the item; <code>false</code> not to
+   *     apply checkout operation to the item.
    * @return The body of the envelope, never <code>null</code>
    */
   private Element getOpenItemParams(
@@ -1282,10 +1170,8 @@ public class PSRemoteAgent {
    * Creates a request parameter element for a update item action.
    *
    * @param elData The XML format of the to be updated item.
-   * @param checkin <code>true</code> if the item will be checked in
-   *    afterwards; <code>false</code> if the item will be checked out
-   *    afterwards.
-   *
+   * @param checkin <code>true</code> if the item will be checked in afterwards; <code>false</code>
+   *     if the item will be checked out afterwards.
    * @return The created parameter element, never <code>null</code>
    */
   private Element getUpdateItemParams(Element elData, boolean checkin) {
@@ -1305,10 +1191,7 @@ public class PSRemoteAgent {
   /**
    * Creates a request parameter element for a new item action.
    *
-   *
-   * @param contentType the name or id of a content type, may not be
-   *    <code>null</code> or empty.
-   *
+   * @param contentType the name or id of a content type, may not be <code>null</code> or empty.
    * @return The created parameter element, never <code>null</code>
    */
   private Element getNewItemParams(String contentType) {
@@ -1339,12 +1222,8 @@ public class PSRemoteAgent {
   /**
    * Creates a request parameter element for check in or out action.
    *
-   * @param locator The locator of the to be checked out item, assume not
-   *    <code>null</code>
-   *
-   * @param checkInOutName The request name, assume not <code>null</code> or
-   *    empty.
-   *
+   * @param locator The locator of the to be checked out item, assume not <code>null</code>
+   * @param checkInOutName The request name, assume not <code>null</code> or empty.
    * @return The created parameter element, never <code>null</code>.
    */
   private Element getCheckInOutParams(PSLocator locator, String checkInOutName) {
@@ -1361,8 +1240,7 @@ public class PSRemoteAgent {
   /**
    * Creates a request parameter element for the purge action.
    *
-   * @param items an array of locators for all items to be purged, assume not
-   *    <code>null</code>
+   * @param items an array of locators for all items to be purged, assume not <code>null</code>
    * @return the created parameter element, never <code>null</code>.
    */
   private Element getPurgeItemsParams(PSLocator[] items) {
@@ -1380,14 +1258,10 @@ public class PSRemoteAgent {
    * Creates a transition item parameters from a locator and transition-id.
    *
    * @param locator The locator of the transition, assume not <code>null</code>
-   *
-   * @param transId The transition-id, which can be the name of the transition
-   *    or the (number) id of the transition. Assume not <code>null</code> or
-   *    empty.
-   *
-   * @param comment the comment of the transition, may be <code>null</code> if
-   *    no comment for the transition.
-   *
+   * @param transId The transition-id, which can be the name of the transition or the (number) id of
+   *     the transition. Assume not <code>null</code> or empty.
+   * @param comment the comment of the transition, may be <code>null</code> if no comment for the
+   *     transition.
    * @return The body of the soap envelope for the transition item action.
    */
   private Element getTransitionItemParams(PSLocator locator, String transId, String comment) {
@@ -1415,10 +1289,9 @@ public class PSRemoteAgent {
   /**
    * Creates the parameters element used for the purge folder action.
    *
-   * @param locator the locator of the folder to be purged, assumed not
-   *    <code>null</code>.
-   * @return the body element of the soap envelop used for the purge fodler
-   *    action, never <code>null</code>.
+   * @param locator the locator of the folder to be purged, assumed not <code>null</code>.
+   * @return the body element of the soap envelop used for the purge fodler action, never <code>null
+   *     </code>.
    */
   private Element getPurgeFolderParams(PSLocator locator) {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -1436,9 +1309,7 @@ public class PSRemoteAgent {
   /**
    * Creates a content-key element from a given locator.
    *
-   * @param locator The locator for the content-key element, assume not
-   *    <code>null</code>.
-   *
+   * @param locator The locator for the content-key element, assume not <code>null</code>.
    * @return The created content-key element, never <code>null</code>.
    */
   private Element getContentKeyElement(Document bodyDoc, PSLocator locator) {
@@ -1453,8 +1324,7 @@ public class PSRemoteAgent {
   /**
    * Creates a purge key element for the supplied locator.
    *
-   * @param locator the locator for the purge-key element, assumed not
-   *    <code>null</code>.
+   * @param locator the locator for the purge-key element, assumed not <code>null</code>.
    * @return the new purge key element, never <code>null</code>.
    */
   private Element createPurgeKeyElement(Document doc, PSLocator locator) {
@@ -1466,21 +1336,20 @@ public class PSRemoteAgent {
   }
 
   /**
-   * The requester used to communicate with the webservices handler on the
-   * remote server. Initialized by the constructor, never <code>null</code> or
-   * modified after that.
+   * The requester used to communicate with the webservices handler on the remote server.
+   * Initialized by the constructor, never <code>null</code> or modified after that.
    */
   private PSRemoteWsRequester m_requester;
 
   /**
-   * The community id as an optional parameter for the connection. It may be
-   * <code>null</code> if the optional is not set.
+   * The community id as an optional parameter for the connection. It may be <code>null</code> if
+   * the optional is not set.
    */
   protected String m_community = null;
 
   /**
-   * The locale as an optional parameter for the connection. It may be
-   * <code>null</code> if the optional is not set.
+   * The locale as an optional parameter for the connection. It may be <code>null</code> if the
+   * optional is not set.
    */
   protected String m_locale = null;
 
@@ -1492,9 +1361,7 @@ public class PSRemoteAgent {
   private static final String WS_MISC = "Miscellaneous";
   private static final String WS_FOLDER = "Folder";
 
-  /**
-   * private XML attribute and its values
-   */
+  /** private XML attribute and its values */
   private static final String XML_NODE_RESPONSE = "ResultResponse";
 
   private static final String OPENITEM_ACTION = "openItem";

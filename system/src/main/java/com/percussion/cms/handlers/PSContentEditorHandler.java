@@ -100,28 +100,26 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
 /**
- * Request handler for all content editor requests.  Dispatches all requests to
- * the appropriate command handler.
+ * Request handler for all content editor requests. Dispatches all requests to the appropriate
+ * command handler.
  */
 public class PSContentEditorHandler
     implements IPSRequestHandler, IPSInternalCommandRequestHandler, IPSInternalResultHandler {
   /**
-   * Construct a content editor handler to manage the querying for the
-   * specified data set.
-   * <p>
-   * The steps performed during construction:
-   * <ol>
-   * <li>Load the Content Editor System def properties</li>
-   * <li>Load the Content Editor Shared def properties</li>
-   * <li>Merge all appropriate data from the System and Shared defs into the
-   * dataset</li>
-   * <li>Create all command handlers</li>
-   * </ol>
-   * @param appHandler the application handler managing this data request.
-   * Never <code>null</code>.
-   * @param ds the data set containing the query pipe(s) this
-   * object will handle. Never <code>null</code>.
+   * Construct a content editor handler to manage the querying for the specified data set.
    *
+   * <p>The steps performed during construction:
+   *
+   * <ol>
+   *   <li>Load the Content Editor System def properties
+   *   <li>Load the Content Editor Shared def properties
+   *   <li>Merge all appropriate data from the System and Shared defs into the dataset
+   *   <li>Create all command handlers
+   * </ol>
+   *
+   * @param appHandler the application handler managing this data request. Never <code>null</code>.
+   * @param ds the data set containing the query pipe(s) this object will handle. Never <code>null
+   *     </code>.
    * @throws PSSystemValidationException if there are any errors
    */
   public PSContentEditorHandler(PSApplicationHandler appHandler, PSDataSet ds) throws PSException {
@@ -337,6 +335,7 @@ public class PSContentEditorHandler
 
   /**
    * Returns the system def.
+   *
    * @return The system def object, never <code>null</code>.
    */
   public PSContentEditorSystemDef getSystemDef() {
@@ -346,10 +345,8 @@ public class PSContentEditorHandler
   /**
    * Get the command handler for the provided command name.
    *
-   * @param name the command handler name we are looking for, might be
-   *    <code>null</code> or empty.
-   * @return the command handler for the provided name or <code>null</code>
-   *    if not found.
+   * @param name the command handler name we are looking for, might be <code>null</code> or empty.
+   * @return the command handler for the provided name or <code>null</code> if not found.
    */
   public PSCommandHandler getCommandHandler(String name) {
     return (PSCommandHandler) lookupCommandHandler(name);
@@ -358,8 +355,7 @@ public class PSContentEditorHandler
   /**
    * Get the content editor name.
    *
-   * @return the name of this content editor, never <code>null</code> or
-   *    empty.
+   * @return the name of this content editor, never <code>null</code> or empty.
    */
   public String getName() {
     return m_appHandler.getName();
@@ -367,6 +363,7 @@ public class PSContentEditorHandler
 
   /**
    * Returns the shared def.
+   *
    * @return The shared def object, never <code>null</code>.
    */
   public PSContentEditorSharedDef getSharedDef() {
@@ -394,9 +391,8 @@ public class PSContentEditorHandler
   /**
    * Returns a param name, given the internal name.
    *
-   * @param internalName The key used to locate the param name.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param internalName The key used to locate the param name. May not be <code>null</code> or
+   *     empty.
    * @return The param name if defined, or else the internalName.
    */
   public String getParamName(String internalName) {
@@ -413,7 +409,6 @@ public class PSContentEditorHandler
    * Returns the InitParams for the specified command handler name.
    *
    * @param cmdName The command name, may not be <code>null</code>.
-   *
    * @return An Iterator over <code>zero</code> or more PSParam objects
    */
   public Iterator getInitParams(String cmdName) {
@@ -428,12 +423,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Returns the specified init param value for the specified command handler
-   * name.
+   * Returns the specified init param value for the specified command handler name.
    *
    * @param cmdName The command name, may not be <code>null</code>.
    * @param paramName The init param name, may not be <code>null</code>.
-   *
    * @return The param value, or <code>null</code> if not found.
    */
   public IPSReplacementValue getInitParam(String cmdName, String paramName) {
@@ -460,18 +453,16 @@ public class PSContentEditorHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a content editor request using the input context information and
-   * data.
-   * <p>
-   * The following steps are performed to handle the request:
+   * Process a content editor request using the input context information and data.
+   *
+   * <p>The following steps are performed to handle the request:
+   *
    * <ol>
-   * <li>Determine the command handler to forward to by checking the request
-   * param.</li>
-   * <li>Forward the request to that handler.</li>
+   *   <li>Determine the command handler to forward to by checking the request param.
+   *   <li>Forward the request to that handler.
    * </ol>
    *
-   * @param request the request object containing all context data associated
-   * with the request.
+   * @param request the request object containing all context data associated with the request.
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -500,11 +491,9 @@ public class PSContentEditorHandler
   /**
    * Get the content editor request handler for the supplied request.
    *
-   * @param request the request to get the handler for, assumed not
-   *    <code>null</code>.
-   * @return IPSRequestHandler the request handler or <code>null</code> if
-   *    not found. Will be one of IPSInternalRequestHandler or
-   *    IPSInternalResultHandler.
+   * @param request the request to get the handler for, assumed not <code>null</code>.
+   * @return IPSRequestHandler the request handler or <code>null</code> if not found. Will be one of
+   *     IPSInternalRequestHandler or IPSInternalResultHandler.
    */
   private IPSRequestHandler getRequestHandler(PSRequest request) {
     // Get the command parameter value from the request
@@ -632,8 +621,7 @@ public class PSContentEditorHandler
   /**
    * Returns <code>IPSInternalRequest.REQUEST_TYPE_CONTENT_EDITOR</code>.
    *
-   * see {@link com.percussion.data.IPSInternalRequestHandler#getRequestType()}
-   * for details.
+   * <p>see {@link com.percussion.data.IPSInternalRequestHandler#getRequestType()} for details.
    */
   public int getRequestType() {
     return IPSInternalRequest.REQUEST_TYPE_CONTENT_EDITOR;
@@ -670,8 +658,8 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Shutdown the request handler, freeing any associated resources.  Also need
-   * to shutdown all commandHandlers.
+   * Shutdown the request handler, freeing any associated resources. Also need to shutdown all
+   * commandHandlers.
    */
   public void shutdown() {
     try {
@@ -700,8 +688,8 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Registers the supplied listener for editor change events.  Listener will
-   * be notified of any modify or workflow requests.
+   * Registers the supplied listener for editor change events. Listener will be notified of any
+   * modify or workflow requests.
    *
    * @param listener The listener to notify, may not be <code>null</code>.
    */
@@ -719,16 +707,14 @@ public class PSContentEditorHandler
   }
 
   /**
-   * The will trigger a delete notification for this content editor.
-   * This is to be used when the regular modify handler is not being used
-   * to purge the content and is a work around to make sure the correct listeners
-   * are notified.  usually this will notify PSSearchIndexEventQueue, PSAssemblerCacheHandler
-   * and PSContentRepository.  These classes listen to any content editors starting up
-   * this class and
-   * add themselves to the listener list of each.  This whole notification structure could
-   * be simplified and decoupled.
+   * The will trigger a delete notification for this content editor. This is to be used when the
+   * regular modify handler is not being used to purge the content and is a work around to make sure
+   * the correct listeners are notified. usually this will notify PSSearchIndexEventQueue,
+   * PSAssemblerCacheHandler and PSContentRepository. These classes listen to any content editors
+   * starting up this class and add themselves to the listener list of each. This whole notification
+   * structure could be simplified and decoupled.
    *
-   * be notified of any modify or workflow requests.
+   * <p>be notified of any modify or workflow requests.
    *
    * @param contentId The content id to notify for</code>.
    */
@@ -752,11 +738,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Registers the supplied listener for relationship change events.  Listener
-   * will be notified of any add, remove or modify relationship events.
+   * Registers the supplied listener for relationship change events. Listener will be notified of
+   * any add, remove or modify relationship events.
    *
    * @param listener The listener to notify, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if listener is <code>null</code>.
    */
   public void addRelationshipChangeListener(IPSRelationshipChangeListener listener) {
@@ -769,22 +754,19 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Recursively validates that all fields and fieldSets in the supplied
-   * fieldset are valid. Currently that means they must have a locator, and
-   * that there are no duplicate names among the names used by all fields and
-   * fieldsets combined, and no duplicate backend column names used as well.
+   * Recursively validates that all fields and fieldSets in the supplied fieldset are valid.
+   * Currently that means they must have a locator, and that there are no duplicate names among the
+   * names used by all fields and fieldsets combined, and no duplicate backend column names used as
+   * well.
    *
-   * @param fieldSet The fieldset to validate.  May not be <code>null</code>.
-   * @param fieldNames The names of any fields or fieldsets that have already
-   * been validated.  The first call to this method should pass
-   * <code>null</code>.
-   * @param colNames Map of names of any backend columns of fields that have
-   * already been validated.  The first call to this method should pass
-   * <code>null</code>. Key is the column name as a <code>String</code>, value
-   * is a set of the field names using that back end column.
-   *
-   * @throws PSSystemValidationException if the fieldSet or any of it's fields or
-   * fieldSets are invalid
+   * @param fieldSet The fieldset to validate. May not be <code>null</code>.
+   * @param fieldNames The names of any fields or fieldsets that have already been validated. The
+   *     first call to this method should pass <code>null</code>.
+   * @param colNames Map of names of any backend columns of fields that have already been validated.
+   *     The first call to this method should pass <code>null</code>. Key is the column name as a
+   *     <code>String</code>, value is a set of the field names using that back end column.
+   * @throws PSSystemValidationException if the fieldSet or any of it's fields or fieldSets are
+   *     invalid
    */
   private void validateFields(PSFieldSet fieldSet, Set fieldNames, Map colNames)
       throws PSSystemValidationException {
@@ -852,13 +834,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Handles a unique field name violation.  If server requires unique names,
-   * then an exception is thrown, otherwise a warning is written to the console
-   * and log
+   * Handles a unique field name violation. If server requires unique names, then an exception is
+   * thrown, otherwise a warning is written to the console and log
    *
-   * @param fieldName The duplicated name.  Assumed not <code>null</code> or
-   * empty.
-   *
+   * @param fieldName The duplicated name. Assumed not <code>null</code> or empty.
    * @throws PSSystemValidationException if the server requires unique field names.
    */
   private void handleNonUniqueFieldName(String fieldName) throws PSSystemValidationException {
@@ -875,14 +854,13 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Handles non-unique backend column names.  Prints a warning to the console
-   * and log if multiple fields use the backend column name, even if from
-   * different tables, as this will cause problems when editing the item.
+   * Handles non-unique backend column names. Prints a warning to the console and log if multiple
+   * fields use the backend column name, even if from different tables, as this will cause problems
+   * when editing the item.
    *
-   * @param fieldNames A list of field names using the same backend column
-   * as <code>String</code> objects, assumed not <code>null</code> or empty.
-   * @param colName The name of the backend column, assumed not
-   * <code>null</code> or empty.
+   * @param fieldNames A list of field names using the same backend column as <code>String</code>
+   *     objects, assumed not <code>null</code> or empty.
+   * @param colName The name of the backend column, assumed not <code>null</code> or empty.
    */
   private void handleNonUniqueColName(List fieldNames, String colName) {
     // just write a warning to console and log
@@ -894,17 +872,14 @@ public class PSContentEditorHandler
   }
 
   /**
-   * This validates two parts of the content editor. If a workflowInfo was
-   * provided, this checks that the specified default workflow IS NOT in
-   * the exclusion list or IS in the inclusion list to pass this
-   * validation.
-   * TODO: check that all used workflows really exist. Therfore we can make an
-   * internal request to the sys_wfLookups application. But therefore we must
-   * implement a dependendy list first to tell the server in which order the
-   * applications must be started.
+   * This validates two parts of the content editor. If a workflowInfo was provided, this checks
+   * that the specified default workflow IS NOT in the exclusion list or IS in the inclusion list to
+   * pass this validation. TODO: check that all used workflows really exist. Therfore we can make an
+   * internal request to the sys_wfLookups application. But therefore we must implement a dependendy
+   * list first to tell the server in which order the applications must be started.
    *
-   * @param ce the content editor to validate the workflow information for,
-   *    assumed not <code>null</code>.
+   * @param ce the content editor to validate the workflow information for, assumed not <code>null
+   *     </code>.
    * @throws PSSystemValidationException if any validation fails.
    */
   private void validateWorkflow(PSContentEditor ce) throws PSSystemValidationException {
@@ -936,11 +911,9 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Recursively deletes all contents of a directory and then the directory
-   * itself.
+   * Recursively deletes all contents of a directory and then the directory itself.
    *
-   * @param dir The directory.  Must be a directory, may not be
-   * <code>null</code>.
+   * @param dir The directory. Must be a directory, may not be <code>null</code>.
    */
   private void deleteDirectory(File dir) {
     if (dir == null || !dir.isDirectory())
@@ -957,8 +930,8 @@ public class PSContentEditorHandler
 
   /**
    * Adds all tablesets from the system and shared defs to the contentEditor.
-   * @param contentEditor The definition of the editor.  May not be
-   * <code>null</code>.
+   *
+   * @param contentEditor The definition of the editor. May not be <code>null</code>.
    * @throws PSSystemValidationException if there are any errors.
    */
   private void promoteTableSets(PSContentEditor contentEditor) throws PSSystemValidationException {
@@ -971,11 +944,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds all item validation conditional exits from the system and shared def
-   * to the contentEditor, adding system first, followed by any from the
-   * shared groups included.
-   * @param contentEditor The Content Editor.  May not be
-   * <code>null</code>.
+   * Adds all item validation conditional exits from the system and shared def to the contentEditor,
+   * adding system first, followed by any from the shared groups included.
+   *
+   * @param contentEditor The Content Editor. May not be <code>null</code>.
    */
   private void promoteValidations(PSContentEditor contentEditor) {
     if (contentEditor == null) throw new IllegalArgumentException("contentEditor may not be null");
@@ -1014,11 +986,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds all item input translation conditional exits from the system and
-   * shared def to the contentEditor, adding system first, followed by any from
-   * the shared groups included.
-   * @param contentEditor The Content Editor.  May not be
-   * <code>null</code>.
+   * Adds all item input translation conditional exits from the system and shared def to the
+   * contentEditor, adding system first, followed by any from the shared groups included.
+   *
+   * @param contentEditor The Content Editor. May not be <code>null</code>.
    */
   private void promoteInputTranslations(PSContentEditor contentEditor) {
     if (contentEditor == null) throw new IllegalArgumentException("contentEditor may not be null");
@@ -1058,11 +1029,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds all item input translation conditionalexits from the system and
-   * shared def to the contentEditor, adding system first, followed by any from
-   * the shared groups inlcuded.
-   * @param contentEditor The Content Editor.  May not be
-   * <code>null</code>.
+   * Adds all item input translation conditionalexits from the system and shared def to the
+   * contentEditor, adding system first, followed by any from the shared groups inlcuded.
+   *
+   * @param contentEditor The Content Editor. May not be <code>null</code>.
    */
   private void promoteOutputTranslations(PSContentEditor contentEditor) {
     if (contentEditor == null) throw new IllegalArgumentException("contentEditor may not be null");
@@ -1103,18 +1073,16 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds stylesheet items from the shared and system defs.  The following logic
-   * is performed:
+   * Adds stylesheet items from the shared and system defs. The following logic is performed:
+   *
    * <ol>
-   * <li>Add all stylesheets from the shared def StylesheetSet whose
-   * commandName is not found in the content editors stylesheet.</li>
-   * <li>Add all redirects from the system def stylesheet whose commandName is
-   * not found in the content editor's stylesheet (that has the shared
-   * stylesheets already filled in).</li>
+   *   <li>Add all stylesheets from the shared def StylesheetSet whose commandName is not found in
+   *       the content editors stylesheet.
+   *   <li>Add all redirects from the system def stylesheet whose commandName is not found in the
+   *       content editor's stylesheet (that has the shared stylesheets already filled in).
    * </ol>
    *
-   * @param contentEditor The Content Editor pipe.  May not be
-   * <code>null</code>.
+   * @param contentEditor The Content Editor pipe. May not be <code>null</code>.
    * @throws PSSystemValidationException if there are any errors
    */
   private void promoteStyleSheets(PSContentEditor contentEditor)
@@ -1150,18 +1118,16 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds appflow items from the shared and system defs.  The following logic
-   * is performed:
+   * Adds appflow items from the shared and system defs. The following logic is performed:
+   *
    * <ol>
-   * <li>Add all redirects from the shared def appflow whose commandName is
-   * not found in the content editors appflow.</li>
-   * <li>Add all redirects from the system def appflow whose commandName is
-   * not found in the content editors appflow (that has the shared redirects
-   * already filled in).</li>
+   *   <li>Add all redirects from the shared def appflow whose commandName is not found in the
+   *       content editors appflow.
+   *   <li>Add all redirects from the system def appflow whose commandName is not found in the
+   *       content editors appflow (that has the shared redirects already filled in).
    * </ol>
    *
-   * @param contentEditor The Content Editor pipe.  May not be
-   * <code>null</code>.
+   * @param contentEditor The Content Editor pipe. May not be <code>null</code>.
    * @throws PSSystemValidationException if there are any errors
    */
   private void promoteAppFlow(PSContentEditor contentEditor) throws PSSystemValidationException {
@@ -1196,12 +1162,11 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds SectionLinkList items from the system def.  If the same name exists
-   * in multiple defs, the priority will be local is highest, then shared (once
-   * it is supported), then system.  Names are compared case insensitively.
+   * Adds SectionLinkList items from the system def. If the same name exists in multiple defs, the
+   * priority will be local is highest, then shared (once it is supported), then system. Names are
+   * compared case insensitively.
    *
-   * @param contentEditor The Content Editor pipe.  May not be
-   * <code>null</code>.
+   * @param contentEditor The Content Editor pipe. May not be <code>null</code>.
    * @throws PSSystemValidationException if there are any errors
    */
   private void promoteSectionLinkList(PSContentEditor contentEditor)
@@ -1234,11 +1199,10 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Creates the system views and sets them on the supplied
-   * <code>contentEditor</code>.  This method assumes that the content editor
-   * mapper is already merged with system and shared definition.
+   * Creates the system views and sets them on the supplied <code>contentEditor</code>. This method
+   * assumes that the content editor mapper is already merged with system and shared definition.
    *
-   * @param contentEditor The Content Editor.  Assumed not <code>null</code>.
+   * @param contentEditor The Content Editor. Assumed not <code>null</code>.
    * @throws PSSystemValidationException if there are any errors
    */
   private void promoteViewSet(PSContentEditor contentEditor) throws PSSystemValidationException {
@@ -1256,15 +1220,14 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Update the content editor with the specified hidden view if the view
-   * does not exist in the content editor; otherwise do nothing.
+   * Update the content editor with the specified hidden view if the view does not exist in the
+   * content editor; otherwise do nothing.
    *
    * @param editor the Content Editor in question, never <code>null</code>.
-   * @param viewName the name of the hidden view, never blank.
-   * It must start with {@link IPSConstants#SYS_HIDDEN_FIELDS_VIEW_NAME} and
-   * followed by <code>0</code> or more hidden field names, where the names
-   * are delimited by commas.
-   * See {@link IPSConstants#SYS_HIDDEN_FIELDS_VIEW_NAME} for detail.
+   * @param viewName the name of the hidden view, never blank. It must start with {@link
+   *     IPSConstants#SYS_HIDDEN_FIELDS_VIEW_NAME} and followed by <code>0</code> or more hidden
+   *     field names, where the names are delimited by commas. See {@link
+   *     IPSConstants#SYS_HIDDEN_FIELDS_VIEW_NAME} for detail.
    */
   @SuppressWarnings({"unchecked", "cast"})
   public static void addHiddenFieldsView(PSContentEditor editor, String viewName) {
@@ -1307,21 +1270,17 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Creates default views for the supplied mapper.  Will recurse any complex
-   * child mappers as well, and create conditional views based on the page ids.
+   * Creates default views for the supplied mapper. Will recurse any complex child mappers as well,
+   * and create conditional views based on the page ids.
    *
-   * @param viewSet The viewset to which the views are added. Assumed not
-   * <code>null</code>.
-   * @param displayMapper The mapper for which the views are created.  Assumed
-   * not <code>null</code>.
-   * @param cePipe The content editor pipe, used to get field sets for the
-   * specified <code>displayMapper</code>.  Assumed not <code>null</code>.
-   * @param pageId If the parent mapper is supplied, then this will be
-   * the value of {@link PSQueryCommandHandler#ROOT_PARENT_PAGE_ID}.  If
-   * supplied a complex child mapper, this will be the value of the higher of
-   * the two page ids produced for each child mapper, so (pageId - 1) and
-   * pageId will be the two page id's used to create the conditional views.
-   *
+   * @param viewSet The viewset to which the views are added. Assumed not <code>null</code>.
+   * @param displayMapper The mapper for which the views are created. Assumed not <code>null</code>.
+   * @param cePipe The content editor pipe, used to get field sets for the specified <code>
+   *     displayMapper</code>. Assumed not <code>null</code>.
+   * @param pageId If the parent mapper is supplied, then this will be the value of {@link
+   *     PSQueryCommandHandler#ROOT_PARENT_PAGE_ID}. If supplied a complex child mapper, this will
+   *     be the value of the higher of the two page ids produced for each child mapper, so (pageId -
+   *     1) and pageId will be the two page id's used to create the conditional views.
    * @throws PSSystemValidationException if there are any errors
    */
   private void createSystemViews(
@@ -1481,14 +1440,13 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds all redirects from the source to the target only if a redirect with
-   * the same command name is not already present (does not overwrite)
+   * Adds all redirects from the source to the target only if a redirect with the same command name
+   * is not already present (does not overwrite)
    *
-   * @param source The source app flow.  Assumed not to be <code>null</code>.
-   * @param target The target app flow.  Assumed not to be <code>null</code>.
-   *
-   * @throws PSSystemValidationException if there is a problem with the application
-   * flow being added.
+   * @param source The source app flow. Assumed not to be <code>null</code>.
+   * @param target The target app flow. Assumed not to be <code>null</code>.
+   * @throws PSSystemValidationException if there is a problem with the application flow being
+   *     added.
    */
   private void mergeAppFlow(PSApplicationFlow source, PSApplicationFlow target)
       throws PSSystemValidationException {
@@ -1501,16 +1459,12 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Adds all stylesheets from the source to the target only if one with
-   * the same command name is not already present (does not overwrite)
+   * Adds all stylesheets from the source to the target only if one with the same command name is
+   * not already present (does not overwrite)
    *
-   * @param source The source stylesheet set.  Assumed not to be
-   * <code>null</code>.
-   * @param target The target stylesheet set.  Assumed not to be
-   * <code>null</code>.
-   *
-   * @throws PSSystemValidationException if there is a problem with the stylesheet
-   * being added.
+   * @param source The source stylesheet set. Assumed not to be <code>null</code>.
+   * @param target The target stylesheet set. Assumed not to be <code>null</code>.
+   * @throws PSSystemValidationException if there is a problem with the stylesheet being added.
    */
   private void mergeStyleSheets(
       PSCommandHandlerStylesheets source, PSCommandHandlerStylesheets target)
@@ -1525,14 +1479,12 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Determines if a shared group has been included by the Content Editor
-   * dataset.
+   * Determines if a shared group has been included by the Content Editor dataset.
    *
-   * @param group The group to check, its name will be compared case
-   * insensitive.  May not be <code>null</code>.
-   *
-   * @return <code>true</code> if the content editor has included this group,
-   * <code>false</code> if not.
+   * @param group The group to check, its name will be compared case insensitive. May not be <code>
+   *     null</code>.
+   * @return <code>true</code> if the content editor has included this group, <code>false</code> if
+   *     not.
    */
   private boolean isIncludedSharedGroup(PSSharedFieldGroup group) {
     if (group == null) throw new IllegalArgumentException("group may not be null");
@@ -1541,16 +1493,13 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Determines whether the handler that will be used to process the supplied
-   * request is an update or query handler.
+   * Determines whether the handler that will be used to process the supplied request is an update
+   * or query handler.
    *
-   * @param request determines which handler will be used, not
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the request will be processed with an
-   * update handler; <code>false</code> if the request will be processed
-   * with a query handler or if the request is invalid (unknown
-   * {@link #COMMAND_PARAM_NAME}).
+   * @param request determines which handler will be used, not <code>null</code>.
+   * @return <code>true</code> if the request will be processed with an update handler; <code>false
+   *     </code> if the request will be processed with a query handler or if the request is invalid
+   *     (unknown {@link #COMMAND_PARAM_NAME}).
    */
   public boolean isUpdateRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("Request may not be null");
@@ -1567,16 +1516,13 @@ public class PSContentEditorHandler
 
   /**
    * This private method should be used whenever the <code>m_commandHandlers
-   * </code> Map is referenced to do a lookup for a command handler. We now
-   * have sub commands using the following format:
-   * <code>command/subcommand</code>
+   * </code> Map is referenced to do a lookup for a command handler. We now have sub commands using
+   * the following format: <code>command/subcommand</code>
    *
-   * @param commandParam the name of the command including the sub command
-   * seperated by a "/"
-   *
-   * @return IPSRequestHandler a reference to the request handler based on
-   * the command only, ignoring the subcommand for the lookup, returns
-   * <code>null</code> if the command cannot be found.
+   * @param commandParam the name of the command including the sub command seperated by a "/"
+   * @return IPSRequestHandler a reference to the request handler based on the command only,
+   *     ignoring the subcommand for the lookup, returns <code>null</code> if the command cannot be
+   *     found.
    */
   private IPSRequestHandler lookupCommandHandler(String commandParam) {
     if (commandParam == null) return null;
@@ -1593,173 +1539,141 @@ public class PSContentEditorHandler
   }
 
   /**
-   * Constant for the HTML parameter name that will be used by the server when
-   * selecting the command handler.
+   * Constant for the HTML parameter name that will be used by the server when selecting the command
+   * handler.
    */
   public static final String COMMAND_PARAM_NAME = "sys_command";
 
   /**
-   * Constant for the HTML parameter name that will be used by the server when
-   * retrieving a previously cached document.
+   * Constant for the HTML parameter name that will be used by the server when retrieving a
+   * previously cached document.
    */
   public static final String CACHE_ID_PARAM_NAME = "sys_cacheid";
 
   /**
-   * The HTML parameter name that will be used by the server when specifying
-   * the content id part of the content item key.
+   * The HTML parameter name that will be used by the server when specifying the content id part of
+   * the content item key.
    */
   public static final String CONTENT_ID_PARAM_NAME = "sys_contentid";
 
   /**
-   * The HTML parameter name that will be used by the server when specifying
-   * the revision part of the content item key.
+   * The HTML parameter name that will be used by the server when specifying the revision part of
+   * the content item key.
    */
   public static final String REVISION_ID_PARAM_NAME = "sys_revision";
 
   /**
-   * The HTML parameter name that will be used by the
-   * server when specifying the id of the active child on the current
-   * request.
+   * The HTML parameter name that will be used by the server when specifying the id of the active
+   * child on the current request.
    */
   public static final String CHILD_ID_PARAM_NAME = "sys_childid";
 
   /**
-   * The HTML parameter name that will be used by the
-   * server when specifying the sysId of the active child on the current
-   * request.
+   * The HTML parameter name that will be used by the server when specifying the sysId of the active
+   * child on the current request.
    */
   public static final String CHILD_ROW_ID_PARAM_NAME = "sys_childrowid";
 
   /**
-   * The HTML parameter name that specifies the id of the page the new or edit
-   * command handlers should display.
+   * The HTML parameter name that specifies the id of the page the new or edit command handlers
+   * should display.
    */
   public static final String PAGE_ID_PARAM_NAME = "sys_pageid";
 
-  /**
-   * The HTML parameter name that specifies the next command to request.
-   */
+  /** The HTML parameter name that specifies the next command to request. */
   public static final String NEXT_COMMAND_PARAM_NAME = "sys_nextcommand";
 
-  /**
-   * The HTML parameter name that specifies the sort rank.
-   */
+  /** The HTML parameter name that specifies the sort rank. */
   public static final String SORT_RANK_PARAM_NAME = "sys_sortrank";
 
-  /**
-   * The HTML parameter name that specifies the stylesheet url-string
-   * to use.
-   */
+  /** The HTML parameter name that specifies the stylesheet url-string to use. */
   public static final String USE_STYLESHEET = "sys_stylesheet";
 
-  /**
-   * The DBActionType parameter value to increment the sortrank for a child
-   * row
-   */
+  /** The DBActionType parameter value to increment the sortrank for a child row */
   public static final String DB_ACTION_SEQUENCE_INCREMENT = "SEQUENCE_INCREMENT";
 
-  /**
-   * The DBActionType parameter value to decrement the sortrank for a child
-   * row
-   */
+  /** The DBActionType parameter value to decrement the sortrank for a child row */
   public static final String DB_ACTION_SEQUENCE_DECREMENT = "SEQUENCE_DECREMENT";
 
   /**
-   * The DBActionType parameter value to set the sortrank for a child
-   * row, this is used to allow any number of child ids to be set to specific
-   * sort locations.
+   * The DBActionType parameter value to set the sortrank for a child row, this is used to allow any
+   * number of child ids to be set to specific sort locations.
    */
   public static final String DB_ACTION_RESEQUENCE = "RESEQUENCE";
 
-  /**
-   * Name to use for subsystem when writing console messages
-   */
+  /** Name to use for subsystem when writing console messages */
   private static final String SUBSYSTEM_NAME = "cms.handlers";
 
   /**
-   * Map of command handlers used to process a request.  Command name is
-   * used as the key, and the instance of the handler (which must be derived
-   * from <code>PSCommandHandler</code>) is stored as the entry's value.  Map
-   * is initialized and handlers are added in the constructor, immutable
+   * Map of command handlers used to process a request. Command name is used as the key, and the
+   * instance of the handler (which must be derived from <code>PSCommandHandler</code>) is stored as
+   * the entry's value. Map is initialized and handlers are added in the constructor, immutable
    * after that.
    */
   private Map m_commandHandlers = null;
 
-  /**
-   * The system def, requested from the server in constructor
-   */
+  /** The system def, requested from the server in constructor */
   private PSContentEditorSystemDef m_systemDef = null;
 
-  /**
-   * The system def, requested from the server in constructor
-   */
+  /** The system def, requested from the server in constructor */
   private PSContentEditorSharedDef m_sharedDef = null;
 
-  /**
-   * The appHandler passed to the constructor.
-   */
+  /** The appHandler passed to the constructor. */
   private PSApplicationHandler m_appHandler = null;
 
   /**
-   * The handler for the dynamic application used to manage resources generated
-   * by command handlers either during initialization or on the fly. Initialized
-   * during constructor, never <code>null</code> after that.
+   * The handler for the dynamic application used to manage resources generated by command handlers
+   * either during initialization or on the fly. Initialized during constructor, never <code>null
+   * </code> after that.
    */
   private PSApplicationHandler m_internalAppHandler = null;
 
-  /**
-   * The dataset passed to the constructor.
-   */
+  /** The dataset passed to the constructor. */
   private PSContentEditor m_dataSet = null;
 
   /**
-   * The cms object for the conent editor of this handler. Initialized by the
-   * ctor, never <code>null</code> after that.
+   * The cms object for the conent editor of this handler. Initialized by the ctor, never <code>null
+   * </code> after that.
    */
   private PSCmsObject m_cmsObject;
 
   /**
-   * The list of system field excludes from the dataset.  Initialized during
-   * constructor, never <code>null</code> after that.
+   * The list of system field excludes from the dataset. Initialized during constructor, never
+   * <code>null</code> after that.
    */
   private PSCollection m_sysFieldExcludes = null;
 
   /**
-   * The list of names of shared group includes from the dataset.  Initialized
-   * during constructor, never <code>null</code> after that. Once the list is
-   * validated against the shared def, the entries in the list are uppercased
-   * so that we can do case insensitive comparisions after that.
+   * The list of names of shared group includes from the dataset. Initialized during constructor,
+   * never <code>null</code> after that. Once the list is validated against the shared def, the
+   * entries in the list are uppercased so that we can do case insensitive comparisions after that.
    */
   private PSCollection m_sharedFieldIncludes = null;
 
   /**
-   * The list of fields that should be excluded from the field set of any
-   * shared groups that are included.  Initialized during construction, never
-   * <code>null</code> after that.
+   * The list of fields that should be excluded from the field set of any shared groups that are
+   * included. Initialized during construction, never <code>null</code> after that.
    */
   private PSCollection m_sharedFieldExcludes = null;
 
   /**
-   * The PSApplication that is created and passed to each command handler.
-   * The command handlers are responsible for adding their own resources during
-   * their construction.  After they are initialized, the app is started.  This
-   * handler is also responsible for shutting down the app and cleaning up and
-   * resources on disk.  Initialized in the constructor, disposed of in the
-   * {@link #shutdown()} method.
+   * The PSApplication that is created and passed to each command handler. The command handlers are
+   * responsible for adding their own resources during their construction. After they are
+   * initialized, the app is started. This handler is also responsible for shutting down the app and
+   * cleaning up and resources on disk. Initialized in the constructor, disposed of in the {@link
+   * #shutdown()} method.
    */
   private PSApplication m_app = null;
 
   /**
-   * The content type id of this editor. Initialized during construction, never
-   * modified after that.
+   * The content type id of this editor. Initialized during construction, never modified after that.
    */
   private long m_contentTypeid;
 
   /**
-   * List of {@link IPSEditorChangeListener} objects to notify when item is
-   * modified or its state changes.  Never <code>null</code>, may be empty.
-   * Listeners are added using
-   * {@link #addEditorChangeListener(IPSEditorChangeListener)}.
+   * List of {@link IPSEditorChangeListener} objects to notify when item is modified or its state
+   * changes. Never <code>null</code>, may be empty. Listeners are added using {@link
+   * #addEditorChangeListener(IPSEditorChangeListener)}.
    */
   protected List<IPSEditorChangeListener> m_changeListeners = new ArrayList<>();
 }

@@ -20,11 +20,11 @@ package com.percussion.data;
 import com.percussion.design.objectstore.PSDisplayTextLiteral;
 
 /**
- * The PSDisplayTextLiteralExtractor class is used to extract data from
- * <code>PSDisplayTextLiteral</code>.  Each literal must have its own
- * extractor because of the reflection used in {@link PSDataExtractorFactory}
+ * The PSDisplayTextLiteralExtractor class is used to extract data from <code>PSDisplayTextLiteral
+ * </code>. Each literal must have its own extractor because of the reflection used in {@link
+ * PSDataExtractorFactory}
  *
- * @author     James Schultz
+ * @author James Schultz
  */
 public class PSDisplayTextLiteralExtractor extends PSLiteralExtractor {
   /**

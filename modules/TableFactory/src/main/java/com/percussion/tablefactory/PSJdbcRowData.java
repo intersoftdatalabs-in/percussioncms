@@ -25,29 +25,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a row of data in a table.  A row contains a list of
- * PSJdbcColumnData objects, and specifies the action to take when processing
- * those columns.  It need not contain every column defined in the schema of the
- * table that contains this row - any columns not listed in this row will be
- * excluded from any insert or update sql statements during processing.
- * <p>
- * This class is readonly once instantiated, so that once a
- * PSJdbcTableData is created, it is immutable.  This is so once it is set on
- * a PSJdbcTableSchema object and validated, it cannot later be modified and
- * invalidated.
+ * This class represents a row of data in a table. A row contains a list of PSJdbcColumnData
+ * objects, and specifies the action to take when processing those columns. It need not contain
+ * every column defined in the schema of the table that contains this row - any columns not listed
+ * in this row will be excluded from any insert or update sql statements during processing.
+ *
+ * <p>This class is readonly once instantiated, so that once a PSJdbcTableData is created, it is
+ * immutable. This is so once it is set on a PSJdbcTableSchema object and validated, it cannot later
+ * be modified and invalidated.
  */
 public class PSJdbcRowData {
   /**
    * Create a row from a list of column values
    *
-   * @param columns an iterator over one or more {@link PSJdbcColumnData}
-   * objects.  May not be <code>null</code> or empty.
-   *
-   * @param action one of the ACTION_xxx values, determines what action
-   * will be taken when processing this row.
-   *
-   * @throws IllegalArgumentException if columns is <code>null</code> or
-   * contains an object of the wrong type, or is empty.
+   * @param columns an iterator over one or more {@link PSJdbcColumnData} objects. May not be <code>
+   *     null</code> or empty.
+   * @param action one of the ACTION_xxx values, determines what action will be taken when
+   *     processing this row.
+   * @throws IllegalArgumentException if columns is <code>null</code> or contains an object of the
+   *     wrong type, or is empty.
    */
   public PSJdbcRowData(Iterator<PSJdbcColumnData> columns, int action) {
     if (columns == null) throw new IllegalArgumentException("columns may not be null");
@@ -75,13 +71,12 @@ public class PSJdbcRowData {
   /**
    * Create an empty row object.
    *
-   * @param tableName name of the table to which this row belongs, may not
-   * be <code>null</code> or empty
-   * @param parentRowData the reference to the parent row which contains this
-   * child table row, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if tableName is <code>null</code> or
-   * empty or parentRowData is <code>null</code>.
+   * @param tableName name of the table to which this row belongs, may not be <code>null</code> or
+   *     empty
+   * @param parentRowData the reference to the parent row which contains this child table row, may
+   *     not be <code>null</code>
+   * @throws IllegalArgumentException if tableName is <code>null</code> or empty or parentRowData is
+   *     <code>null</code>.
    */
   public PSJdbcRowData(String tableName, PSJdbcRowData parentRowData) {
     if (parentRowData == null) throw new IllegalArgumentException("parentRowData may not be null");
@@ -93,11 +88,9 @@ public class PSJdbcRowData {
   /**
    * Create an empty row object.
    *
-   * @param tableName name of the table to which this row belongs, may not
-   * be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if tableName is <code>null</code> or
-   * empty.
+   * @param tableName name of the table to which this row belongs, may not be <code>null</code> or
+   *     empty
+   * @throws IllegalArgumentException if tableName is <code>null</code> or empty.
    */
   public PSJdbcRowData(String tableName) {
     setTableName(tableName);
@@ -106,10 +99,8 @@ public class PSJdbcRowData {
   /**
    * Create this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   * Element must conform to the definition for the row element in the
-   * tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the row element in the tabledata.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -120,13 +111,12 @@ public class PSJdbcRowData {
   }
 
   /**
-   * Returns the reference to the parent row which contains this
-   * child table row, may be <code>null</code> for row data corresponding to
-   * parent tables, initialized in constructor for child table rows.
+   * Returns the reference to the parent row which contains this child table row, may be <code>null
+   * </code> for row data corresponding to parent tables, initialized in constructor for child table
+   * rows.
    *
-   * @return the reference to the parent row, may be <code>null</code> for
-   * row data corresponding to parent tables, initialized in constructor for
-   * child table rows.
+   * @return the reference to the parent row, may be <code>null</code> for row data corresponding to
+   *     parent tables, initialized in constructor for child table rows.
    */
   public PSJdbcRowData getParentRowData() {
     return m_parentRowData;
@@ -135,11 +125,9 @@ public class PSJdbcRowData {
   /**
    * Sets the name of the table to which this row of data belongs.
    *
-   * @param tableName name of the table to which this row belongs, may not
-   * be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if tableName is <code>null</code> or
-   * empty.
+   * @param tableName name of the table to which this row belongs, may not be <code>null</code> or
+   *     empty
+   * @throws IllegalArgumentException if tableName is <code>null</code> or empty.
    */
   public void setTableName(String tableName) {
     if ((tableName == null) || (tableName.trim().length() == 0))
@@ -150,43 +138,40 @@ public class PSJdbcRowData {
 
   /**
    * Returns the name of the table to which this row of data belongs.
-   * @return the name of the table to which this row of data belongs, may be
-   * <code>null</code> if a different constructor has been used which does not
-   * set this variable
+   *
+   * @return the name of the table to which this row of data belongs, may be <code>null</code> if a
+   *     different constructor has been used which does not set this variable
    */
   public String getTableName() {
     return m_tableName;
   }
 
   /**
-   * Sets the boolean indicating if INSERT INTO... SELECT... statement should
-   * be used for inserting this row into the database instead of
-   * INSERT INTO ...VALUES...
+   * Sets the boolean indicating if INSERT INTO... SELECT... statement should be used for inserting
+   * this row into the database instead of INSERT INTO ...VALUES...
    *
-   * @param bUseInsertIntoSelectStmt <code>true</code> if INSERT INTO...
-   * SELECT... statement should be used for inserting this row into the
-   * database instead of INSERT INTO ...VALUES...
-   * else <code>false</code>
+   * @param bUseInsertIntoSelectStmt <code>true</code> if INSERT INTO... SELECT... statement should
+   *     be used for inserting this row into the database instead of INSERT INTO ...VALUES... else
+   *     <code>false</code>
    */
   public void setUseInsertIntoSelectStmt(boolean bUseInsertIntoSelectStmt) {
     m_bUseInsertIntoSelectStmt = bUseInsertIntoSelectStmt;
   }
 
   /**
-   * Returns the boolean indicating if INSERT INTO... SELECT... statement
-   * should be used for inserting this row into the database instead of
-   * INSERT INTO ...VALUES...
-   * @return <code>true</code> if INSERT INTO...SELECT... statement should
-   * be used for inserting this row into the database instead of
-   * INSERT INTO ...VALUES... else <code>false</code>
+   * Returns the boolean indicating if INSERT INTO... SELECT... statement should be used for
+   * inserting this row into the database instead of INSERT INTO ...VALUES...
+   *
+   * @return <code>true</code> if INSERT INTO...SELECT... statement should be used for inserting
+   *     this row into the database instead of INSERT INTO ...VALUES... else <code>false</code>
    */
   public boolean getUseInsertIntoSelectStmt() {
     return m_bUseInsertIntoSelectStmt;
   }
 
   /**
-   * @return The value of the onTableCreateOnly flag.
-   * See {@link #setOnTableCreateOnly(boolean)} for more info.
+   * @return The value of the onTableCreateOnly flag. See {@link #setOnTableCreateOnly(boolean)} for
+   *     more info.
    */
   public boolean onTableCreateOnly() {
     return m_bOnTableCreateOnly;
@@ -195,11 +180,10 @@ public class PSJdbcRowData {
   /**
    * Sets the onTableCreateOnly flag.
    *
-   * @param bOnTableCreateOnly The value of the onTableCreateOnly flag.
-   * <code>true</code> if row data should only be processed if the table
-   * containing this row data does not already exist
-   * and is being created, <code>false</code> if data is to be processed
-   * whether or not the table containing this row data is being created.
+   * @param bOnTableCreateOnly The value of the onTableCreateOnly flag. <code>true</code> if row
+   *     data should only be processed if the table containing this row data does not already exist
+   *     and is being created, <code>false</code> if data is to be processed whether or not the
+   *     table containing this row data is being created.
    */
   public void setOnTableCreateOnly(boolean bOnTableCreateOnly) {
     m_bOnTableCreateOnly = bOnTableCreateOnly;
@@ -223,10 +207,7 @@ public class PSJdbcRowData {
     return m_childTables.iterator();
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #getColumn(String, boolean) getColumn(name, false)}
-   */
+  /** Convenience method that calls {@link #getColumn(String, boolean) getColumn(name, false)} */
   public PSJdbcColumnData getColumn(String name) {
     return getColumn(name, false);
   }
@@ -235,11 +216,9 @@ public class PSJdbcRowData {
    * Returns the column with the specified name.
    *
    * @param name The name of the column, may not be <code>null</code> or empty.
-   * @param ignoreCase <code>true</code> to compare the column name case-
-   * insenstive, <code>false</code> to compare it case-sensitive.
-   *
+   * @param ignoreCase <code>true</code> to compare the column name case- insenstive, <code>false
+   *     </code> to compare it case-sensitive.
    * @return The column, may be <code>null</code> if not contained in this row.
-   *
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public PSJdbcColumnData getColumn(String name, boolean ignoreCase) {
@@ -261,8 +240,7 @@ public class PSJdbcRowData {
   /**
    * adds a column to the row object
    *
-   * @param colData column data containing the column name and value
-   * May not be <code>null</code>.
+   * @param colData column data containing the column name and value May not be <code>null</code>.
    */
   public void addColumn(PSJdbcColumnData colData) {
     if (colData == null) throw new IllegalArgumentException("column data may not be null");
@@ -282,11 +260,10 @@ public class PSJdbcRowData {
   }
 
   /**
-   * Removes the column for the supplied name. Does nothing if no column is
-   * found with the same name.
+   * Removes the column for the supplied name. Does nothing if no column is found with the same
+   * name.
    *
-   * @param name the column name to be removed, not <code>null</code> or
-   *    empty.
+   * @param name the column name to be removed, not <code>null</code> or empty.
    */
   public void removeColumn(String name) {
     if (name == null || name.trim().length() == 0)
@@ -311,12 +288,10 @@ public class PSJdbcRowData {
   }
 
   /**
-   * Loads the child tables of this row of data from the XML
-   * element.
+   * Loads the child tables of this row of data from the XML element.
    *
-   * @param sourceNode The element from which to load the child tables
-   * of this row of data. May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to load the child tables of this row of data. May not
+   *     be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -393,10 +368,8 @@ public class PSJdbcRowData {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the row element in the
-   *    tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the row element in the tabledata.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -443,12 +416,10 @@ public class PSJdbcRowData {
   /**
    * Serializes this object's state to Xml conforming with the tabledata.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -480,8 +451,8 @@ public class PSJdbcRowData {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcRowData with
-   *    the same column names and values. Otherwise returns <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcRowData with the same column names and
+   *     values. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -496,9 +467,8 @@ public class PSJdbcRowData {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -510,91 +480,69 @@ public class PSJdbcRowData {
     return hash;
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "row";
 
   /**
-   * Constant for the create action.  This will cause this row to be
-   * inserted if it does not already exist.
+   * Constant for the create action. This will cause this row to be inserted if it does not already
+   * exist.
    */
   public static final int ACTION_INSERT = 0;
 
-  /**
-   * Constant for the update action.  This will cause this row to be
-   * update if it already exists
-   */
+  /** Constant for the update action. This will cause this row to be update if it already exists */
   public static final int ACTION_UPDATE = 1;
 
   /**
-   * Constant for the replace action.  This will cause this row to be
-   * inserted, first deleting it if it already exists.
+   * Constant for the replace action. This will cause this row to be inserted, first deleting it if
+   * it already exists.
    */
   public static final int ACTION_REPLACE = 2;
 
   /**
-   * Constant for the delete action.  This will cause this row to be
-   * deleted if it already exists.
+   * Constant for the delete action. This will cause this row to be deleted if it already exists.
    */
   public static final int ACTION_DELETE = 3;
 
-  /**
-   * Constant for the action to insert rows if they do not already exist in
-   * the table.
-   */
+  /** Constant for the action to insert rows if they do not already exist in the table. */
   public static final int ACTION_INSERT_IF_NOT_EXIST = 4;
 
   /**
-   * An array of XML attribute values for the action. They are
-   * specified at the index matching the constant's internal value for that
-   * action.
+   * An array of XML attribute values for the action. They are specified at the index matching the
+   * constant's internal value for that action.
    */
   private static final String[] ACTION_ENUM = {"n", "u", "r", "d", "i"};
 
   /**
-   * List of PSJdbcColumnData objects for this row.  Never <code>null</code>,
-   * never empty after construction.
+   * List of PSJdbcColumnData objects for this row. Never <code>null</code>, never empty after
+   * construction.
    */
   private List<PSJdbcColumnData> m_columns = new ArrayList<>();
 
-  /**
-   * List of PSJdbcTableData objects of the child tables for this row.
-   * May be empty.
-   */
+  /** List of PSJdbcTableData objects of the child tables for this row. May be empty. */
   private List<PSJdbcTableData> m_childTables = new ArrayList<>();
 
-  /**
-   * Action for this row, one of the ACTION_xxx constants, defaults to
-   * {@link #ACTION_INSERT}.
-   */
+  /** Action for this row, one of the ACTION_xxx constants, defaults to {@link #ACTION_INSERT}. */
   private int m_action = ACTION_INSERT;
 
-  /**
-   * Name of the table containing this row, may be <code>null</code>
-   * or empty
-   */
+  /** Name of the table containing this row, may be <code>null</code> or empty */
   private String m_tableName = null;
 
   /**
-   * the boolean indicating if INSERT INTO... SELECT... statement
-   * should be used for inserting this row into the database instead of
-   * INSERT INTO ...VALUES...
+   * the boolean indicating if INSERT INTO... SELECT... statement should be used for inserting this
+   * row into the database instead of INSERT INTO ...VALUES...
    */
   private boolean m_bUseInsertIntoSelectStmt = false;
 
   /**
-   * the reference to the parent row which contains this
-   * child table row, may be <code>null</code> for row data corresponding to
-   * parent tables, initialized in constructor for child table rows.
+   * the reference to the parent row which contains this child table row, may be <code>null</code>
+   * for row data corresponding to parent tables, initialized in constructor for child table rows.
    */
   private PSJdbcRowData m_parentRowData = null;
 
   /**
-   * stores the value of attribute <code>ON_TABLE_CREATE_ONLY_ATTR</code>,
-   * defaults to <code>false</code>, so that the row data is processed even
-   * if the table had not been created. This default value maintains the
-   * existing behaviour of database publisher.
+   * stores the value of attribute <code>ON_TABLE_CREATE_ONLY_ATTR</code>, defaults to <code>false
+   * </code>, so that the row data is processed even if the table had not been created. This default
+   * value maintains the existing behaviour of database publisher.
    */
   private boolean m_bOnTableCreateOnly = false;
 

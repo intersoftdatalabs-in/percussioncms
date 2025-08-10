@@ -41,9 +41,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * REST service for polls feature implementation.
- */
+/** REST service for polls feature implementation. */
 @Path("/polls")
 @Component
 // REFACTORED: CP-JAVA11
@@ -188,9 +186,7 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
     return version;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   @DELETE
   @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")

@@ -31,16 +31,14 @@ import java.util.ResourceBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Context to represent a conditional in an application.
- */
+/** Context to represent a conditional in an application. */
 public class PSAppConditionalIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from the conditional object it represents.
    *
    * @param cond The conditional, may not be <code>null</code>.
-   * @param type One of the <code>TYPE_XXX</code> constants to indicate which
-   * part of the conditional the id represents.
+   * @param type One of the <code>TYPE_XXX</code> constants to indicate which part of the
+   *     conditional the id represents.
    */
   public PSAppConditionalIdContext(PSConditional cond, int type) {
     if (cond == null) throw new IllegalArgumentException("cond may not be null");
@@ -55,9 +53,8 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppConditionalIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -67,8 +64,7 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isSameConditional(PSConditional, boolean)
+   * Convenience method that calls {@link #isSameConditional(PSConditional, boolean)
    * isSameConditional(cond, false)}
    */
   public boolean isSameConditional(PSConditional cond) {
@@ -76,18 +72,15 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Determine if the supplied conditional is equivalent to the conditional
-   * represented by this context
+   * Determine if the supplied conditional is equivalent to the conditional represented by this
+   * context
    *
    * @param cond The conditional, may not be <code>null</code>.
-   * @param compareOriginal <code>true</code> to compare the conditional with
-   * which this object was originally constructed, <code>false</code> to use
-   * the current conditional value which may have been updated by a call to
-   * {@link #updateCtxValue(Object)} or
-   * {@link #ctxValueUpdated(PSApplicationIdContext)}
-   *
-   * @return <code>true</code> if they are the same, <code>false</code>
-   * otherwise.
+   * @param compareOriginal <code>true</code> to compare the conditional with which this object was
+   *     originally constructed, <code>false</code> to use the current conditional value which may
+   *     have been updated by a call to {@link #updateCtxValue(Object)} or {@link
+   *     #ctxValueUpdated(PSApplicationIdContext)}
+   * @return <code>true</code> if they are the same, <code>false</code> otherwise.
    */
   public boolean isSameConditional(PSConditional cond, boolean compareOriginal) {
     if (cond == null) throw new IllegalArgumentException("cond may not be null");
@@ -118,8 +111,7 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Get the type indicating which portion of this context's conditional is
-   * a literal id.
+   * Get the type indicating which portion of this context's conditional is a literal id.
    *
    * @return The type, one of the <code>TYPE_xxx</code> values.
    */
@@ -174,12 +166,13 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppConditionalIdContext (PSXConditional,
    *    PSXApplicationIDContext?)>
@@ -203,9 +196,8 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -342,57 +334,44 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext {
    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
    *
    * @param type The value to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean validateType(int type) {
     return type >= 0 && type < TYPE_ENUM.length;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppConditionalContext";
 
   /**
-   * The conditional object this context represents, never <code>null</code>
-   * after construction, modified by a calls to <code>copyFrom()</code> and
-   * <code>updateCtxValue()</code>
+   * The conditional object this context represents, never <code>null</code> after construction,
+   * modified by a calls to <code>copyFrom()</code> and <code>updateCtxValue()</code>
    */
   private PSConditional m_cond;
 
   /**
-   * The conditional object this context represented at construction time,
-   * initially a clone of {@link #m_cond}, but immutable after contruction.
-   * This value is not used as part of {@link #equals(Object)},
-   * {@link #hashCode()}, nor is it serialized to and from this object's
-   * XML representation.
+   * The conditional object this context represented at construction time, initially a clone of
+   * {@link #m_cond}, but immutable after contruction. This value is not used as part of {@link
+   * #equals(Object)}, {@link #hashCode()}, nor is it serialized to and from this object's XML
+   * representation.
    */
   private PSConditional m_origCond;
 
   /**
-   * Indicates which part of the condtional this object represents, one of the
-   * <code>TYPE_XXX</code> values.  Initialized during construction, only
-   * modified by a call to <code>copyFrom()</code>.
+   * Indicates which part of the condtional this object represents, one of the <code>TYPE_XXX</code>
+   * values. Initialized during construction, only modified by a call to <code>copyFrom()</code>.
    */
   private int m_type;
 
-  /**
-   * Constant to indicate this context represents the value side of the
-   * conditional.
-   */
+  /** Constant to indicate this context represents the value side of the conditional. */
   public static final int TYPE_VALUE = 0;
 
-  /**
-   * Constant to indicate this context represents the variable side of the
-   * conditional.
-   */
+  /** Constant to indicate this context represents the variable side of the conditional. */
   public static final int TYPE_VARIABLE = 1;
 
   /**
-   * Enumeration of string constants representing each of the
-   * <code>TYPE_XXX</code> values, for Xml serialization.
+   * Enumeration of string constants representing each of the <code>TYPE_XXX</code> values, for Xml
+   * serialization.
    */
   private static final String[] TYPE_ENUM = {"value", "variable"};
 

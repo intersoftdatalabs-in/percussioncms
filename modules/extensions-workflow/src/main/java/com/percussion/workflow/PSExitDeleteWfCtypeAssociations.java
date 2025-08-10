@@ -45,15 +45,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Pre exit to delete the workflow associations with the content types when a
- * workflow is deleted. Gets all the node definitions that have associations
- * with the supplied workflow id in the form of request parameter named
- * "workflowid". Deletes the workflow association from each node definition. If
- * there is any error deleting the association, skips that node def and
- * continues with the rest.
+ * Pre exit to delete the workflow associations with the content types when a workflow is deleted.
+ * Gets all the node definitions that have associations with the supplied workflow id in the form of
+ * request parameter named "workflowid". Deletes the workflow association from each node definition.
+ * If there is any error deleting the association, skips that node def and continues with the rest.
  *
  * @author bjoginipally
- *
  */
 public class PSExitDeleteWfCtypeAssociations implements IPSRequestPreProcessor {
 
@@ -87,9 +84,9 @@ public class PSExitDeleteWfCtypeAssociations implements IPSRequestPreProcessor {
   }
 
   /**
-   * Deletes the supplied workflow association with the supplied node
-   * definitions. In case of error removing the workflow from a content type
-   * logs the error and continues with the rest of the node definitions.
+   * Deletes the supplied workflow association with the supplied node definitions. In case of error
+   * removing the workflow from a content type logs the error and continues with the rest of the
+   * node definitions.
    *
    * @param wfGuid The workflow guid assumed not <code>null</code>.
    * @param nodeDefs The node definitions assumed not <code>null</code>.
@@ -125,8 +122,6 @@ public class PSExitDeleteWfCtypeAssociations implements IPSRequestPreProcessor {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger log = LogManager.getLogger(PSExitDeleteWfCtypeAssociations.class);
 }

@@ -22,41 +22,40 @@ import com.percussion.cms.IPSConstants;
 import com.percussion.share.service.exception.PSSpringValidationException;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.system.utils.PSSiteManageBean;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.inject.Singleton;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Maps {@link PSSpringValidationException} to a serializable error object.
- * Sunny Sal says: "Spring validation failed? Let's bounce back with style!"
+ * Maps {@link PSSpringValidationException} to a serializable error object. Sunny Sal says: "Spring
+ * validation failed? Let's bounce back with style!"
  */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("springValidationExceptionMapper")
 public class PSSpringValidationExceptionMapper
-        extends PSAbstractExceptionMapper<PSSpringValidationException>
-        implements ExceptionMapper<PSSpringValidationException> {
+    extends PSAbstractExceptionMapper<PSSpringValidationException>
+    implements ExceptionMapper<PSSpringValidationException> {
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
-    private static final String ERROR_MESSAGE = "PSSpringValidationExceptionMapper exception mapper mapped exception:";
+  private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
+  private static final String ERROR_MESSAGE =
+      "PSSpringValidationExceptionMapper exception mapper mapped exception:";
 
-    /**
-     * Create a serializable errors object from the given exception.
-     *
-     * @param exception never {@code null}
-     * @return never {@code null}
-     */
-    @Override
-    @Produces(MediaType.APPLICATION_JSON)
-    protected PSErrors createErrors(PSSpringValidationException exception) {
-        log.debug(ERROR_MESSAGE, exception);
-        return exception.getValidationErrors();
-    }
+  /**
+   * Create a serializable errors object from the given exception.
+   *
+   * @param exception never {@code null}
+   * @return never {@code null}
+   */
+  @Override
+  @Produces(MediaType.APPLICATION_JSON)
+  protected PSErrors createErrors(PSSpringValidationException exception) {
+    log.debug(ERROR_MESSAGE, exception);
+    return exception.getValidationErrors();
+  }
 }

@@ -23,19 +23,15 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents the metadata for a single workflow
- */
+/** Represents the metadata for a single workflow */
 public class PSWorkflow extends PSComponent {
   /**
-   * Initializes a newly created <code>PSWorkflow</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSWorkflow</code> object, from an XML representation. See
+   * {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSWorkflow(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null");
@@ -43,10 +39,9 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
    * <pre><code>
    * &lt;!ELEMENT getWorkflows (PSXWorkflow*) >
@@ -61,9 +56,9 @@ public class PSWorkflow extends PSComponent {
    * &lt;!ELEMENT initial_state (#PCDATA)>
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   *    elements.  Cannot be <code>null</code>.
-   * @return    the newly created XML element node
+   * @param doc The XML document being constructed, needed to create new elements. Cannot be <code>
+   *     null</code>.
+   * @return the newly created XML element node
    */
   public Element toXml(Document doc) {
     if (null == doc) throw new IllegalArgumentException("Must provide a valid Document");
@@ -83,16 +78,14 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -111,12 +104,12 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * Tests if the specified instance and this instance are equal by comparing
-   * name, administrator, description, initial state, and database id.
+   * Tests if the specified instance and this instance are equal by comparing name, administrator,
+   * description, initial state, and database id.
    *
    * @param test instance to compare to; assumed not <code>null</code>
-   * @return <code>true</code> if the specified instance and this instance
-   * are equal, <code>false</code> otherwise.
+   * @return <code>true</code> if the specified instance and this instance are equal, <code>false
+   *     </code> otherwise.
    */
   private boolean equals(PSWorkflow test) {
     return (getDbId() == test.getDbId())
@@ -146,8 +139,7 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * Peforms a shallow copy from the specified PSWorkflow instance to this
-   * instance.
+   * Peforms a shallow copy from the specified PSWorkflow instance to this instance.
    *
    * @param c instance from which to copy (not <code>null</code>)
    */
@@ -172,16 +164,14 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * @return the name assigned to this workflow.  Never <code>null</code> or
-   *         empty.
+   * @return the name assigned to this workflow. Never <code>null</code> or empty.
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * Sets the name of this workflow.  This name should be unique across
-   * all workflows.
+   * Sets the name of this workflow. This name should be unique across all workflows.
    *
    * @param name a unique string to assign
    */
@@ -192,8 +182,8 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * @return the name of the user or role that administers (has full access)
-   * this workflow.  May be <code>null</code> or empty.
+   * @return the name of the user or role that administers (has full access) this workflow. May be
+   *     <code>null</code> or empty.
    */
   public String getAdministrator() {
     return m_administrator;
@@ -202,16 +192,15 @@ public class PSWorkflow extends PSComponent {
   /**
    * Sets the name of the administrator of this workflow.
    *
-   * @param administrator name of user or role that should have administrative
-   * rights for this workflow; may be <code>null</code> or empty.
+   * @param administrator name of user or role that should have administrative rights for this
+   *     workflow; may be <code>null</code> or empty.
    */
   public void setAdministrator(String administrator) {
     m_administrator = administrator;
   }
 
   /**
-   * @return the description assigned to this workflow. May be
-   * <code>null</code> or empty.
+   * @return the description assigned to this workflow. May be <code>null</code> or empty.
    */
   public String getDescription() {
     return m_description;
@@ -227,8 +216,7 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * @return the database identifier (primary key) for this workfow, or
-   * {@link #NOT_ASSIGNED}.
+   * @return the database identifier (primary key) for this workfow, or {@link #NOT_ASSIGNED}.
    */
   public int getDbId() {
     return m_dbId;
@@ -244,8 +232,8 @@ public class PSWorkflow extends PSComponent {
   }
 
   /**
-   * @return the identifier for the state that new content enters this
-   *         workflow, or {@link #NOT_ASSIGNED}.
+   * @return the identifier for the state that new content enters this workflow, or {@link
+   *     #NOT_ASSIGNED}.
    */
   public int getInitialState() {
     return m_initialState;
@@ -260,9 +248,7 @@ public class PSWorkflow extends PSComponent {
     m_initialState = initialState;
   }
 
-  /**
-   * Name of root XML element
-   */
+  /** Name of root XML element */
   public static final String XML_NODE_NAME = "PSXWorkflow";
 
   // names of the XML elements that are this object's children
@@ -272,9 +258,7 @@ public class PSWorkflow extends PSComponent {
   private static final String XML_ADMINISTRATOR = "administrator";
   private static final String XML_INITIAL_STATE = "initial_state";
 
-  /**
-   * Indicates that a value has not been assigned.
-   */
+  /** Indicates that a value has not been assigned. */
   public static final int NOT_ASSIGNED = -1;
 
   private String m_name;

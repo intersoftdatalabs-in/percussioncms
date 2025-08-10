@@ -28,14 +28,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This UDF returns the I18n resource lookup value string for the supplied
- * lookup sub keys. If locale string is taken  from the user context inofrmation.
- * This does not process the lookup on its  own rather it uses
- * PSI18nUtils.getString(String, String) to process the lookup. It expects a
+ * This UDF returns the I18n resource lookup value string for the supplied lookup sub keys. If
+ * locale string is taken from the user context inofrmation. This does not process the lookup on its
+ * own rather it uses PSI18nUtils.getString(String, String) to process the lookup. It expects a
  * minimum of one parameter which is a subkey.
  *
- * The rerun value is i18n lookup value for the lookup key generated from the
- * supplied sub-kyes. Never <code>null</code> or <code>empty</code>.
+ * <p>The rerun value is i18n lookup value for the lookup key generated from the supplied sub-kyes.
+ * Never <code>null</code> or <code>empty</code>.
  *
  * @see PSI18nUtils#getString
  */

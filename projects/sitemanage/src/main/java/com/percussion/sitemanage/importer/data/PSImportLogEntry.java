@@ -18,149 +18,154 @@
 package com.percussion.sitemanage.importer.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
+import java.util.Date;
+import java.util.Optional;
+import javax.persistence.*;
 import org.apache.commons.lang.Validate;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-import java.util.Date;
-import java.util.Optional;
-
 /**
- * Represents a log entry for site import operations.
- * Sunny Sal says: "If you can't remember it, log it!"
+ * Represents a log entry for site import operations. Sunny Sal says: "If you can't remember it, log
+ * it!"
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSImportLogEntry")
 @Table(name = "PSX_IMPORTLOGENTRY")
 public class PSImportLogEntry extends PSAbstractDataObject {
 
-    @Id
-    @Column(name = "LOGENTRYID")
-    private long logEntryId = -1L;
+  @Id
+  @Column(name = "LOGENTRYID")
+  private long logEntryId = -1L;
 
-    @Basic
-    @Column(name = "OBJECTID")
-    private String objectId;
+  @Basic
+  @Column(name = "OBJECTID")
+  private String objectId;
 
-    @Basic
-    @Column(name = "OBJECT_TYPE")
-    private String objectType;
+  @Basic
+  @Column(name = "OBJECT_TYPE")
+  private String objectType;
 
-    @Basic
-    @Column(name = "LOGENTRY_DATE")
-    private Date logEntryDate;
+  @Basic
+  @Column(name = "LOGENTRY_DATE")
+  private Date logEntryDate;
 
-    @Basic
-    @Column(name = "DATA")
-    private String logData;
+  @Basic
+  @Column(name = "DATA")
+  private String logData;
 
-    @Basic
-    @Column(name = "CATEGORY")
-    private String category;
+  @Basic
+  @Column(name = "CATEGORY")
+  private String category;
 
-    @Basic
-    @Column(name = "DESCRIPTION")
-    private String description;
+  @Basic
+  @Column(name = "DESCRIPTION")
+  private String description;
 
-    public PSImportLogEntry() {
-        // Default constructor for Hibernate and Sunny Sal's peace of mind.
-    }
+  public PSImportLogEntry() {
+    // Default constructor for Hibernate and Sunny Sal's peace of mind.
+  }
 
-    /**
-     * Constructs a log entry with required fields.
-     *
-     * @param objectId    the id of the object being logged, not null or empty.
-     * @param objectType  the type of the object being logged, not null or empty.
-     * @param logEntryDate the date of the log, not null.
-     * @param logData     the log message, not null or empty.
-     */
-    public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String logData) {
-        this(objectId, objectType, logEntryDate, null, null, logData);
-    }
+  /**
+   * Constructs a log entry with required fields.
+   *
+   * @param objectId the id of the object being logged, not null or empty.
+   * @param objectType the type of the object being logged, not null or empty.
+   * @param logEntryDate the date of the log, not null.
+   * @param logData the log message, not null or empty.
+   */
+  public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String logData) {
+    this(objectId, objectType, logEntryDate, null, null, logData);
+  }
 
-    /**
-     * Constructs a log entry with all fields.
-     *
-     * @param objectId    the id of the object being logged, not null or empty.
-     * @param objectType  the type of the object being logged, not null or empty.
-     * @param logEntryDate the date of the log, not null.
-     * @param description an optional description of the object, may be null.
-     * @param category    an optional category, may be null.
-     * @param logData     the log message, not null or empty.
-     */
-    public PSImportLogEntry(String objectId, String objectType, Date logEntryDate, String description, String category, String logData) {
-        Validate.notEmpty(objectType, "Object type must not be empty");
-        Validate.notEmpty(objectId, "Object ID must not be empty");
-        Validate.notNull(logEntryDate, "Log entry date must not be null");
-        Validate.notNull(logData, "Log data must not be null");
-        this.objectId = objectId;
-        this.objectType = objectType;
-        this.logEntryDate = logEntryDate;
-        this.description = description;
-        this.category = category;
-        this.logData = logData;
-    }
+  /**
+   * Constructs a log entry with all fields.
+   *
+   * @param objectId the id of the object being logged, not null or empty.
+   * @param objectType the type of the object being logged, not null or empty.
+   * @param logEntryDate the date of the log, not null.
+   * @param description an optional description of the object, may be null.
+   * @param category an optional category, may be null.
+   * @param logData the log message, not null or empty.
+   */
+  public PSImportLogEntry(
+      String objectId,
+      String objectType,
+      Date logEntryDate,
+      String description,
+      String category,
+      String logData) {
+    Validate.notEmpty(objectType, "Object type must not be empty");
+    Validate.notEmpty(objectId, "Object ID must not be empty");
+    Validate.notNull(logEntryDate, "Log entry date must not be null");
+    Validate.notNull(logData, "Log data must not be null");
+    this.objectId = objectId;
+    this.objectType = objectType;
+    this.logEntryDate = logEntryDate;
+    this.description = description;
+    this.category = category;
+    this.logData = logData;
+  }
 
-    public long getLogEntryId() {
-        return logEntryId;
-    }
+  public long getLogEntryId() {
+    return logEntryId;
+  }
 
-    public void setLogEntryId(long logEntryId) {
-        this.logEntryId = logEntryId;
-    }
+  public void setLogEntryId(long logEntryId) {
+    this.logEntryId = logEntryId;
+  }
 
-    public String getObjectId() {
-        return objectId;
-    }
+  public String getObjectId() {
+    return objectId;
+  }
 
-    public void setObjectId(String objectId) {
-        Validate.notEmpty(objectId, "Object ID must not be empty");
-        this.objectId = objectId;
-    }
+  public void setObjectId(String objectId) {
+    Validate.notEmpty(objectId, "Object ID must not be empty");
+    this.objectId = objectId;
+  }
 
-    public String getType() {
-        return objectType;
-    }
+  public String getType() {
+    return objectType;
+  }
 
-    public void setType(String type) {
-        Validate.notEmpty(type, "Type must not be empty");
-        this.objectType = type;
-    }
+  public void setType(String type) {
+    Validate.notEmpty(type, "Type must not be empty");
+    this.objectType = type;
+  }
 
-    public Date getLogEntryDate() {
-        return logEntryDate;
-    }
+  public Date getLogEntryDate() {
+    return logEntryDate;
+  }
 
-    public void setLogEntryDate(Date logEntryDate) {
-        Validate.notNull(logEntryDate, "Log entry date must not be null");
-        this.logEntryDate = logEntryDate;
-    }
+  public void setLogEntryDate(Date logEntryDate) {
+    Validate.notNull(logEntryDate, "Log entry date must not be null");
+    this.logEntryDate = logEntryDate;
+  }
 
-    public String getLogData() {
-        return logData;
-    }
+  public String getLogData() {
+    return logData;
+  }
 
-    public void setLogData(String logData) {
-        Validate.notNull(logData, "Log data must not be null");
-        this.logData = logData;
-    }
+  public void setLogData(String logData) {
+    Validate.notNull(logData, "Log data must not be null");
+    this.logData = logData;
+  }
 
-    /**
-     * Gets the category, may be null.
-     *
-     * @return Optional category.
-     */
-    public Optional<String> getCategory() {
-        return Optional.ofNullable(category);
-    }
+  /**
+   * Gets the category, may be null.
+   *
+   * @return Optional category.
+   */
+  public Optional<String> getCategory() {
+    return Optional.ofNullable(category);
+  }
 
-    /**
-     * Gets the description, may be null.
-     *
-     * @return Optional description.
-     */
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  /**
+   * Gets the description, may be null.
+   *
+   * @return Optional description.
+   */
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 }

@@ -20,94 +20,93 @@ import com.percussion.utils.types.PSPair;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a category tree node with a count and child categories.
- */
+/** Represents a category tree node with a count and child categories. */
 public class PSCategoryTree {
 
-    private String category;
-    private PSPair<Integer, Integer> count;
-    private List<PSCategoryTree> children;
+  private String category;
+  private PSPair<Integer, Integer> count;
+  private List<PSCategoryTree> children;
 
-    public PSCategoryTree() {
-        // Default constructor
-    }
+  public PSCategoryTree() {
+    // Default constructor
+  }
 
-    /**
-     * Constructs a category tree node with the specified category.
-     *
-     * @param category the category name
-     */
-    public PSCategoryTree(String category) {
-        this.category = category;
-        this.count = new PSPair<>(0, 0);
-        this.children = new ArrayList<>();
-    }
+  /**
+   * Constructs a category tree node with the specified category.
+   *
+   * @param category the category name
+   */
+  public PSCategoryTree(String category) {
+    this.category = category;
+    this.count = new PSPair<>(0, 0);
+    this.children = new ArrayList<>();
+  }
 
-    /**
-     * Constructs a category tree node with the specified category, count, and children.
-     *
-     * @param category the category name
-     * @param count the count pair
-     * @param children the child category nodes
-     */
-    public PSCategoryTree(String category, PSPair<Integer, Integer> count, List<PSCategoryTree> children) {
-        this.category = category;
-        this.count = count;
-        this.children = children;
-    }
+  /**
+   * Constructs a category tree node with the specified category, count, and children.
+   *
+   * @param category the category name
+   * @param count the count pair
+   * @param children the child category nodes
+   */
+  public PSCategoryTree(
+      String category, PSPair<Integer, Integer> count, List<PSCategoryTree> children) {
+    this.category = category;
+    this.count = count;
+    this.children = children;
+  }
 
-    /**
-     * Gets the category name.
-     *
-     * @return the category
-     */
-    public String getCategory() {
-        return category;
-    }
+  /**
+   * Gets the category name.
+   *
+   * @return the category
+   */
+  public String getCategory() {
+    return category;
+  }
 
-    /**
-     * Sets the category name.
-     *
-     * @param category the category to set
-     */
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  /**
+   * Sets the category name.
+   *
+   * @param category the category to set
+   */
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    /**
-     * Gets the count pair.
-     *
-     * @return the count
-     */
-    public PSPair<Integer, Integer> getCount() {
-        return count;
-    }
+  /**
+   * Gets the count pair.
+   *
+   * @return the count
+   */
+  public PSPair<Integer, Integer> getCount() {
+    return count;
+  }
 
-    /**
-     * Sets the count pair.
-     *
-     * @param count the count to set
-     */
-    public void setCount(PSPair<Integer, Integer> count) {
-        this.count = count;
-    }
+  /**
+   * Sets the count pair.
+   *
+   * @param count the count to set
+   */
+  public void setCount(PSPair<Integer, Integer> count) {
+    this.count = count;
+  }
 
-    /**
-     * Gets the child category nodes.
-     *
-     * @return the children
-     */
-    public List<PSCategoryTree> getChildren() {
-        return children;
-    }
+  /**
+   * Gets the child category nodes.
+   *
+   * @return the children
+   */
+  public List<PSCategoryTree> getChildren() {
+    return children;
+  }
 
-    /**
-     * Sets the child category nodes.
-     *
-     * @param children the children to set
-     */
-    public void setChildren(List<PSCategoryTree> children) {
-        this.children = children;
-    }
+  /**
+   * Sets the child category nodes.
+   *
+   * @param children the children to set
+   */
+  public void setChildren(List<PSCategoryTree> children) {
+    this.children = children;
+  }
 }

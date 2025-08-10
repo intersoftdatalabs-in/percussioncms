@@ -31,14 +31,11 @@ import java.util.Properties;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSViewsExistWizCondition is a condition which will return <code>true</code>
- * when <code>eval</code> is invoked if the Rhythmyx views, see
- * {@link #RX_VIEWS}, already exist in the database, else returns
- * <code>false</code>.
+ * PSViewsExistWizCondition is a condition which will return <code>true</code> when <code>eval
+ * </code> is invoked if the Rhythmyx views, see {@link #RX_VIEWS}, already exist in the database,
+ * else returns <code>false</code>. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -58,7 +55,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSViewsExistWizCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -73,12 +69,10 @@ public class PSViewsExistWizCondition extends PSAction implements Condition {
    **************************************************************************/
 
   /**
-   * Checks if the Rhythmyx views specified by <code>RX_VIEWS</code>
-   * already exist in the database.
+   * Checks if the Rhythmyx views specified by <code>RX_VIEWS</code> already exist in the database.
    *
-   * @return <code>true</code> if the views specified by
-   * <code>RX_VIEWS</code> already exist in the database,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the views specified by <code>RX_VIEWS</code> already exist in the
+   *     database, <code>false</code> otherwise.
    */
   private boolean checkExists() {
     FileInputStream in = null;
@@ -144,10 +138,7 @@ public class PSViewsExistWizCondition extends PSAction implements Condition {
    * member variables
    **************************************************************************/
 
-  /**
-   * Names of the Rhythmyx views whose existence in the database is to be
-   * verified
-   **/
+  /** Names of the Rhythmyx views whose existence in the database is to be verified */
   private static final String[] RX_VIEWS = {
     "CONTENTVARIANTS",
     "PSX_COMMUNITY_PERMISSION_VIEW",

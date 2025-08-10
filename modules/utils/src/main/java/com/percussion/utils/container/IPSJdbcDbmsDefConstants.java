@@ -19,49 +19,31 @@ package com.percussion.utils.container;
 
 public interface IPSJdbcDbmsDefConstants {
 
-  /**
-   * Constant for the name of the DB_BACKEND property.
-   */
+  /** Constant for the name of the DB_BACKEND property. */
   public static final String DB_BACKEND_PROPERTY = "DB_BACKEND";
 
-  /**
-   * Constant for the name of the DB_DRIVER_NAME property.
-   */
+  /** Constant for the name of the DB_DRIVER_NAME property. */
   public static final String DB_DRIVER_NAME_PROPERTY = "DB_DRIVER_NAME";
 
-  /**
-   * Constant for the name of the DB_DRIVER_CLASS_NAME property.
-   */
+  /** Constant for the name of the DB_DRIVER_CLASS_NAME property. */
   public static final String DB_DRIVER_CLASS_NAME_PROPERTY = "DB_DRIVER_CLASS_NAME";
 
-  /**
-   * Constant for the name of the DB_SERVER property.
-   */
+  /** Constant for the name of the DB_SERVER property. */
   public static final String DB_SERVER_PROPERTY = "DB_SERVER";
 
-  /**
-   * Constant for the name of the DB_NAME property.
-   */
+  /** Constant for the name of the DB_NAME property. */
   public static final String DB_NAME_PROPERTY = "DB_NAME";
 
-  /**
-   * Constant for the name of the UID property.
-   */
+  /** Constant for the name of the UID property. */
   public static final String UID_PROPERTY = "UID";
 
-  /**
-   * Constant for the name of the PWD property.
-   */
+  /** Constant for the name of the PWD property. */
   public static final String PWD_PROPERTY = "PWD";
 
-  /**
-   * Constant for the name of the PWD_ENCRYPTED property.
-   */
+  /** Constant for the name of the PWD_ENCRYPTED property. */
   public static final String PWD_ENCRYPTED_PROPERTY = "PWD_ENCRYPTED";
 
-  /**
-   * Constant for the name of the DB_SCHEMA property.
-   */
+  /** Constant for the name of the DB_SCHEMA property. */
   public static final String DB_SCHEMA_PROPERTY = "DB_SCHEMA";
 
   public static final String DB_RESOURCE_NAME = "RESOURCE_NAME";

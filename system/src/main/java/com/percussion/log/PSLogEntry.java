@@ -18,9 +18,8 @@
 package com.percussion.log;
 
 /**
- *   A stripped down, bare container of the basic log information, minus the
- *   correct class type. This is returned to the processMessage() member of
- *   log reader filters.
+ * A stripped down, bare container of the basic log information, minus the correct class type. This
+ * is returned to the processMessage() member of log reader filters.
  */
 public class PSLogEntry extends PSLogInformation {
   protected PSLogEntry(int type, int applId, java.util.Date time, PSLogSubMessage[] subMessages) {
@@ -33,8 +32,6 @@ public class PSLogEntry extends PSLogInformation {
     return m_subs;
   }
 
-  /**
-   *   The array of sub-messages
-   */
+  /** The array of sub-messages */
   private PSLogSubMessage[] m_subs = null;
 }

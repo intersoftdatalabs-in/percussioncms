@@ -27,24 +27,24 @@ public interface IPSClientObjects {
 
   /**
    * This method is called to populate an object from its XML representation.
+   *
    * <p>
-   * @param sourceNode   the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSContentExplorerException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSContentExplorerException if the XML element node does not represent a type supported
+   *     by this class.
    * @throws com.percussion.error.PSContentExplorerException
    */
   public void fromXml(Element sourceNode) throws PSContentExplorerException;
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
-   * @param doc - the document from which the element node will be created.
-   * Must not be <code>null</code>.
-   * @return - the newly created XML element node.  Never <code>null</code>.
+   * @param doc - the document from which the element node will be created. Must not be <code>null
+   *     </code>.
+   * @return - the newly created XML element node. Never <code>null</code>.
    */
   public Element toXml(Document doc);
 }

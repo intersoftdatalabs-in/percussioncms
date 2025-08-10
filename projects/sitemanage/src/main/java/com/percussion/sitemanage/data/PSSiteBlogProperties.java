@@ -18,88 +18,86 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import com.percussion.share.data.PSAbstractDataObject;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * This class contains information for a blog of a site.
- */
+/** This class contains information for a blog of a site. */
 @XmlRootElement(name = "SiteBlogProperties")
 public class PSSiteBlogProperties extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
-    private String pageId;
-    private String blogPostTemplateId;
-    private String title;
-    private String description;
-    private int blogPostcount;
-    private String lastPublishDate;
-    private String path;
+  private String id;
+  private String pageId;
+  private String blogPostTemplateId;
+  private String title;
+  private String description;
+  private int blogPostcount;
+  private String lastPublishDate;
+  private String path;
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getBlogPostTemplateId() {
-        return blogPostTemplateId;
-    }
+  public String getBlogPostTemplateId() {
+    return blogPostTemplateId;
+  }
 
-    public void setBlogPostTemplateId(String blogPostTemplateId) {
-        this.blogPostTemplateId = blogPostTemplateId;
-    }
+  public void setBlogPostTemplateId(String blogPostTemplateId) {
+    this.blogPostTemplateId = blogPostTemplateId;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public int getBlogPostcount() {
-        return blogPostcount;
-    }
+  public int getBlogPostcount() {
+    return blogPostcount;
+  }
 
-    public void setBlogPostcount(int blogPostcount) {
-        this.blogPostcount = blogPostcount;
-    }
+  public void setBlogPostcount(int blogPostcount) {
+    this.blogPostcount = blogPostcount;
+  }
 
-    public Optional<String> getLastPublishDate() {
-        return Optional.ofNullable(lastPublishDate);
-    }
+  public Optional<String> getLastPublishDate() {
+    return Optional.ofNullable(lastPublishDate);
+  }
 
-    public void setLastPublishDate(String lastPublishDate) {
-        this.lastPublishDate = lastPublishDate;
-    }
+  public void setLastPublishDate(String lastPublishDate) {
+    this.lastPublishDate = lastPublishDate;
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    public String getPageId() {
-        return pageId;
-    }
+  public String getPageId() {
+    return pageId;
+  }
 
-    public void setPageId(String pageId) {
-        this.pageId = pageId;
-    }
+  public void setPageId(String pageId) {
+    this.pageId = pageId;
+  }
 }

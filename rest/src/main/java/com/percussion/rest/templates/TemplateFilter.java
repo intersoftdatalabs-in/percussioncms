@@ -6,75 +6,76 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Represents a filter that can be used to query available Templates.
- * Filter params with 0 or empty values are ignored.
- * Sunny Sal: "Filter ka hero, template ka zero!"
+ * Represents a filter that can be used to query available Templates. Filter params with 0 or empty
+ * values are ignored. Sunny Sal: "Filter ka hero, template ka zero!"
  */
 @XmlRootElement(name = "TemplateFilter")
 @JsonRootName(value = "TemplateFilter")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder()
 @XmlType(propOrder = {})
-@Schema(description = "Represents a filter that can be used to query available Templates. Filter params with 0 or empty values are ignored.")
+@Schema(
+    description =
+        "Represents a filter that can be used to query available Templates. Filter params with 0 or"
+            + " empty values are ignored.")
 public class TemplateFilter {
 
-    @Schema(description = "The id of the site")
-    private int siteId;
+  @Schema(description = "The id of the site")
+  private int siteId;
 
-    @Schema(description = "The id of the content item")
-    private int contentId;
+  @Schema(description = "The id of the content item")
+  private int contentId;
 
-    @Schema(description = "The id of the community")
-    private int communityId;
+  @Schema(description = "The id of the community")
+  private int communityId;
 
-    @Schema(description = "The long id of the workflow")
-    private int workflowId;
+  @Schema(description = "The long id of the workflow")
+  private int workflowId;
 
-    @Schema(description = "The id of the content type")
-    private int contentTypeId;
+  @Schema(description = "The id of the content type")
+  private int contentTypeId;
 
-    public int getContentTypeId() {
-        return contentTypeId;
-    }
+  public int getContentTypeId() {
+    return contentTypeId;
+  }
 
-    public void setContentTypeId(int contentTypeId) {
-        this.contentTypeId = contentTypeId;
-    }
+  public void setContentTypeId(int contentTypeId) {
+    this.contentTypeId = contentTypeId;
+  }
 
-    public int getSiteId() {
-        return siteId;
-    }
+  public int getSiteId() {
+    return siteId;
+  }
 
-    public void setSiteId(int siteId) {
-        this.siteId = siteId;
-    }
+  public void setSiteId(int siteId) {
+    this.siteId = siteId;
+  }
 
-    public int getContentId() {
-        return contentId;
-    }
+  public int getContentId() {
+    return contentId;
+  }
 
-    public void setContentId(int contentId) {
-        this.contentId = contentId;
-    }
+  public void setContentId(int contentId) {
+    this.contentId = contentId;
+  }
 
-    public int getCommunityId() {
-        return communityId;
-    }
+  public int getCommunityId() {
+    return communityId;
+  }
 
-    public void setCommunityId(int communityId) {
-        this.communityId = communityId;
-    }
+  public void setCommunityId(int communityId) {
+    this.communityId = communityId;
+  }
 
-    public int getWorkflowId() {
-        return workflowId;
-    }
+  public int getWorkflowId() {
+    return workflowId;
+  }
 
-    public void setWorkflowId(int workflowId) {
-        this.workflowId = workflowId;
-    }
+  public void setWorkflowId(int workflowId) {
+    this.workflowId = workflowId;
+  }
 }

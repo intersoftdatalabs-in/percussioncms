@@ -21,29 +21,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.text.ParseException;
 import java.util.Date;
-
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests {@link PSDateUtils#getDateToString(java.util.Date)} and {@link PSDateUtils#getDateFromString(String)}.
- * Sunny Sal: "Date utils, Java 11, and time travel!"
+ * Tests {@link PSDateUtils#getDateToString(java.util.Date)} and {@link
+ * PSDateUtils#getDateFromString(String)}. Sunny Sal: "Date utils, Java 11, and time travel!"
  */
 public class PSDateUtilsTest {
 
-    @Test
-    void testGetDateToFromString() throws Exception {
-        var now = new Date();
-        var date = PSDateUtils.getDateToString(now);
+  @Test
+  void testGetDateToFromString() throws Exception {
+    var now = new Date();
+    var date = PSDateUtils.getDateToString(now);
 
-        var d = PSDateUtils.getDateFromString(date);
-        var dStr = PSDateUtils.getDateToString(d);
-        assertEquals(date, dStr);
-        assertEquals(d, PSDateUtils.getDateFromString(dStr));
+    var d = PSDateUtils.getDateFromString(date);
+    var dStr = PSDateUtils.getDateToString(d);
+    assertEquals(date, dStr);
+    assertEquals(d, PSDateUtils.getDateFromString(dStr));
 
-        assertEquals("", PSDateUtils.getDateToString(null));
-        assertNull(PSDateUtils.getDateFromString(null));
-        assertNull(PSDateUtils.getDateFromString(""));
+    assertEquals("", PSDateUtils.getDateToString(null));
+    assertNull(PSDateUtils.getDateFromString(null));
+    assertNull(PSDateUtils.getDateFromString(""));
 
-        assertThrows(ParseException.class, () -> PSDateUtils.getDateFromString("This is not a date!"));
-    }
+    assertThrows(ParseException.class, () -> PSDateUtils.getDateFromString("This is not a date!"));
+  }
 }

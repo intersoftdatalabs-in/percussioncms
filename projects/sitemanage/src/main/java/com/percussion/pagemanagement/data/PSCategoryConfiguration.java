@@ -22,45 +22,42 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents the configuration for categories in the CMS.
- * Contains a tree structure with a URL.
- */
+/** Represents the configuration for categories in the CMS. Contains a tree structure with a URL. */
 @XmlRootElement(name = "CategoryConfig")
 public class PSCategoryConfiguration {
 
-    private Tree tree;
+  private Tree tree;
+
+  /**
+   * Gets the category tree.
+   *
+   * @return the tree, may be {@code null}.
+   */
+  @XmlElement(name = "tree")
+  public Tree getTree() {
+    return tree;
+  }
+
+  public void setTree(Tree tree) {
+    this.tree = tree;
+  }
+
+  /** Represents a tree node in the category configuration. */
+  public static class Tree {
+    private String url;
 
     /**
-     * Gets the category tree.
-     * @return the tree, may be {@code null}.
+     * Gets the URL for this tree node.
+     *
+     * @return the URL, may be {@code null}.
      */
-    @XmlElement(name = "tree")
-    public Tree getTree() {
-        return tree;
+    @XmlAttribute(name = "url")
+    public String getUrl() {
+      return url;
     }
 
-    public void setTree(Tree tree) {
-        this.tree = tree;
+    public void setUrl(String url) {
+      this.url = url;
     }
-
-    /**
-     * Represents a tree node in the category configuration.
-     */
-    public static class Tree {
-        private String url;
-
-        /**
-         * Gets the URL for this tree node.
-         * @return the URL, may be {@code null}.
-         */
-        @XmlAttribute(name = "url")
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-    }
+  }
 }

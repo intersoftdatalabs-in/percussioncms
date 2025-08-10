@@ -61,29 +61,24 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Helper methods for handling serialization to and from XML. This sets up
- * betwixt with default classes that handle the translation of class names to
- * element names and in particular sets up type mapping information to assist in
- * converting back from xml; an area that betwixt is very weak in.
+ * Helper methods for handling serialization to and from XML. This sets up betwixt with default
+ * classes that handle the translation of class names to element names and in particular sets up
+ * type mapping information to assist in converting back from xml; an area that betwixt is very weak
+ * in.
  *
  * @author dougrand
  */
 public class PSXmlSerializationHelper {
-  /**
-   * Static for logging
-   */
+  /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
 
-  /**
-   * Static used for method lookup
-   */
+  /** Static used for method lookup */
   static final Class[] NOARGS = new Class[0];
 
   /**
-   * This class dictates a strategy that suppresses the persistence of certain
-   * object properties. Except "class", which is directly
-   * suppressed, the suppression information is derived from annotation
-   * information on the given getter method.
+   * This class dictates a strategy that suppresses the persistence of certain object properties.
+   * Except "class", which is directly suppressed, the suppression information is derived from
+   * annotation information on the given getter method.
    */
   static class SuppressionStrategy extends PropertySuppressionStrategy {
     @Override
@@ -115,10 +110,9 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * The name mapper translates from our naming conventions to a simpler
-   * convention (by stripping PS or IPS from class names). In addition, it
-   * takes awkward mixed case names, like AAType, that the default behavior of
-   * the HyphenatedNameMapper turns into a-a-type and turns it into Aatype,
+   * The name mapper translates from our naming conventions to a simpler convention (by stripping PS
+   * or IPS from class names). In addition, it takes awkward mixed case names, like AAType, that the
+   * default behavior of the HyphenatedNameMapper turns into a-a-type and turns it into Aatype,
    * which the mapper handles more benignly.
    */
   static class PSNameMapper extends HyphenatedNameMapper {
@@ -154,19 +148,17 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * A content handler that searches for the id of the object, which is used to
-   * extract the id from the xml. This is contained in the first attribute
-   * named "guid" or the first element named "guid" that is found.
+   * A content handler that searches for the id of the object, which is used to extract the id from
+   * the xml. This is contained in the first attribute named "guid" or the first element named
+   * "guid" that is found.
    */
   static class FindIdAttribute extends DefaultHandler {
-    /**
-     * The id, <code>null</code> until the handler has found the id.
-     */
+    /** The id, <code>null</code> until the handler has found the id. */
     String m_id = null;
 
     /**
-     * Set to <code>true</code> if a guid element is found. Then the next
-     * text found will be grabbed for the id.
+     * Set to <code>true</code> if a guid element is found. Then the next text found will be grabbed
+     * for the id.
      */
     boolean m_nextText = false;
 
@@ -208,9 +200,7 @@ public class PSXmlSerializationHelper {
     }
   }
 
-  /**
-   * A specific implementation of this, see {@link TypeBindingStrategy}
-   */
+  /** A specific implementation of this, see {@link TypeBindingStrategy} */
   static class PSTypeBindingStrategy extends TypeBindingStrategy {
     @Override
     public BindingType bindingType(Class bindingClass) {
@@ -222,9 +212,7 @@ public class PSXmlSerializationHelper {
     }
   }
 
-  /**
-   * Maps element names to implementation classes. Used for deserialization.
-   */
+  /** Maps element names to implementation classes. Used for deserialization. */
   static Map<String, Class> ms_typeMap = new HashMap<String, Class>();
 
   /**
@@ -244,9 +232,8 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Add a type to the mappings. This method does the default translation of
-   * the name to an element name for the registration by using the class
-   * {@link PSNameMapper}.
+   * Add a type to the mappings. This method does the default translation of the name to an element
+   * name for the registration by using the class {@link PSNameMapper}.
    *
    * @param type the class, never <code>null</code>
    */
@@ -259,14 +246,10 @@ public class PSXmlSerializationHelper {
     addType(name, type);
   }
 
-  /**
-   * Holds the suppression strategy singleton.
-   */
+  /** Holds the suppression strategy singleton. */
   private static SuppressionStrategy ms_supStrategy = null;
 
-  /**
-   * Holds the type strategy singleton.
-   */
+  /** Holds the type strategy singleton. */
   private static TypeBindingStrategy ms_typebinder = null;
 
   /**
@@ -293,21 +276,20 @@ public class PSXmlSerializationHelper {
     return ms_supStrategy;
   }
 
-  /**
-   * Bean creator instance, initialized in the getter
-   */
+  /** Bean creator instance, initialized in the getter */
   private static ChainedBeanCreator ms_beanCreator = null;
 
   /**
-   * The object converter does custom conversions from specific internal Rx
-   * classes to string representations.
+   * The object converter does custom conversions from specific internal Rx classes to string
+   * representations.
    */
   private static PSBetwixtObjectConverter ms_converter = new PSBetwixtObjectConverter();
 
   /**
-   * Get the bean creator. The bean creator handles the mapping from an element
-   * name to a specific instance class. Uses the name mappings registered
-   * with {@link #addType(String, Class)} and {@link #addType(Class)}.
+   * Get the bean creator. The bean creator handles the mapping from an element name to a specific
+   * instance class. Uses the name mappings registered with {@link #addType(String, Class)} and
+   * {@link #addType(Class)}.
+   *
    * @return the creator, never <code>null</code>
    */
   private static synchronized ChainedBeanCreator getBeanCreator() {
@@ -374,6 +356,7 @@ public class PSXmlSerializationHelper {
 
   /**
    * Creation code cribbed from sample in Betwixt
+   *
    * @return the singleton inspector instance
    */
   private static XMLIntrospector createXMLIntrospector() {
@@ -391,22 +374,18 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Write the given object to an XML string. This method uses the commons
-   * betwixt library to serialize the object using reflection. Please note that
-   * you must have public methods for each and every property you wish to
-   * persist to the XML string.
-   * <p>
-   * Properties that should not be persisted should have the
-   * {@link IPSXmlSerialization} annotation added to their <code>get</code>
-   * or <code>is</code> methods.
-   * <p>
-   * Note: ph - This method needs to be synchronized because the underlying
-   * implementation library is not thread safe. What I found was that when
-   * serializing an object to xml, sometimes an empty document would be created
-   * even though the object was valid. This only happened when several objects
-   * were being processed at the same time. The beanutils jars reported a
-   * threading issue fixed in v1.8, but I tried the latest jars, and they didn't
-   * resolve the issue.
+   * Write the given object to an XML string. This method uses the commons betwixt library to
+   * serialize the object using reflection. Please note that you must have public methods for each
+   * and every property you wish to persist to the XML string.
+   *
+   * <p>Properties that should not be persisted should have the {@link IPSXmlSerialization}
+   * annotation added to their <code>get</code> or <code>is</code> methods.
+   *
+   * <p>Note: ph - This method needs to be synchronized because the underlying implementation
+   * library is not thread safe. What I found was that when serializing an object to xml, sometimes
+   * an empty document would be created even though the object was valid. This only happened when
+   * several objects were being processed at the same time. The beanutils jars reported a threading
+   * issue fixed in v1.8, but I tried the latest jars, and they didn't resolve the issue.
    *
    * @param object the object to write, never <code>null</code>
    * @return the XML representation of the object
@@ -433,10 +412,8 @@ public class PSXmlSerializationHelper {
    * Extract the guid from the "guid" attribute.
    *
    * @param type the type, never <code>null</code>
-   * @param xmlsource the xml source document, never <code>null</code> or
-   *           empty
+   * @param xmlsource the xml source document, never <code>null</code> or empty
    * @return the guid, never <code>null</code>
-   *
    */
   public static IPSGuid getIdFromXml(PSTypeEnum type, String xmlsource) {
     if (type == null) {
@@ -466,17 +443,13 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Read the object's information from the given XML source using the betwixt
-   * library. If your object has one or more properties that are expressed as
-   * abstract classes or interfaces, you must register the needed classes by
-   * calling {@link #addType(String, Class)}.
+   * Read the object's information from the given XML source using the betwixt library. If your
+   * object has one or more properties that are expressed as abstract classes or interfaces, you
+   * must register the needed classes by calling {@link #addType(String, Class)}.
    *
    * @param xmlsource the xml source, never <code>null</code> or empty
    * @param object the object to read, never <code>null</code>
-   *
-   * @return the object created from the given XML source, never
-   * <code>null</code>.
-   *
+   * @return the object created from the given XML source, never <code>null</code>.
    * @throws IOException
    * @throws SAXException
    */
@@ -500,10 +473,9 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Read the object's information from the given XML source using the betwixt
-   * library. If your object has one or more properties that are expressed as
-   * abstract classes or interfaces, you must register the needed classes by
-   * calling {@link #addType(String, Class)}.
+   * Read the object's information from the given XML source using the betwixt library. If your
+   * object has one or more properties that are expressed as abstract classes or interfaces, you
+   * must register the needed classes by calling {@link #addType(String, Class)}.
    *
    * @param xmlString the xml source, never <code>null</code> or empty
    * @return clazz the class to read, may be <code>null</code>
@@ -541,8 +513,8 @@ public class PSXmlSerializationHelper {
   }
 
   /**
-   * Read object from string, returning reconstituted object, calls
-   * {@link #readFromXML(String, Class)}
+   * Read object from string, returning reconstituted object, calls {@link #readFromXML(String,
+   * Class)}
    *
    * @param xmlString xml string, never <code>null</code> or empty
    * @return the read object, could be <code>null</code>

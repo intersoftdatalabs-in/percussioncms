@@ -40,20 +40,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Class to handle discovery of transition dependencies.
- * The <code>PSWorkflowDefDependencyHandler</code> class handles the packaging
- * and installation of a transition.
+ * Class to handle discovery of transition dependencies. The <code>PSWorkflowDefDependencyHandler
+ * </code> class handles the packaging and installation of a transition.
  */
 public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSTransitionDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -186,15 +182,15 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Extension</li>
+   *   <li>Extension
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -244,9 +240,8 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   }
 
   /**
-   * Override the method from super class, but this is to get the next id
-   * specifically for <code>TRANSITION_ID</code> in the
-   * <code>TRANSITIONS_TABLE</code>.
+   * Override the method from super class, but this is to get the next id specifically for <code>
+   * TRANSITION_ID</code> in the <code>TRANSITIONS_TABLE</code>.
    */
   protected String getNextId(String table, PSDependency dep, String tgtParentId)
       throws PSDeployException {
@@ -269,16 +264,11 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   }
 
   /**
-   * Get a list of child exit dependencies for a given transition
-   * deployable object.
+   * Get a list of child exit dependencies for a given transition deployable object.
    *
-   * @param dep The transition deployable object, assumed not
-   * <code>null</code>.
-   *
-   * @return An iterator over zero or more extension refs of child exit
-   * dependencies as <code>String</code> objects. Never <code>null</code>, but
-   * may be empty.
-   *
+   * @param dep The transition deployable object, assumed not <code>null</code>.
+   * @return An iterator over zero or more extension refs of child exit dependencies as <code>String
+   *     </code> objects. Never <code>null</code>, but may be empty.
    * @throws PSDeployException if there are any errors.
    */
   private Iterator getExitDependencies(PSDependency dep) throws PSDeployException {
@@ -323,9 +313,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     return ids.iterator();
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "TransitionDef";
 
   // private table and column names
@@ -335,10 +323,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   private static final String TRANSITION_ACTION = "TRANSITIONACTIONS";
   private static final String WORKFLOW_ID = "WORKFLOWAPPID";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

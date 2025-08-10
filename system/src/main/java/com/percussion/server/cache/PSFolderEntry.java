@@ -31,9 +31,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class contains the cached folder information. It may contain skeleton
- * information initially. Other data, such as the {@link PSFolder} object will
- * be lazily loaded later.
+ * This class contains the cached folder information. It may contain skeleton information initially.
+ * Other data, such as the {@link PSFolder} object will be lazily loaded later.
  */
 @Transactional
 public class PSFolderEntry extends PSItemEntry {
@@ -43,16 +42,11 @@ public class PSFolderEntry extends PSItemEntry {
   /**
    * Constructs an instance from the supplied parameters.
    *
-   * @param contentId
-   *           the content id of the item.
-   * @param name
-   *           the name of the item, assume not <code>null</code> or empty.
-   * @param communityId
-   *           the community id of the item.
-   * @param contenttypeId
-   *           the content id of the item.
-   * @param objectType
-   *           the object type number.
+   * @param contentId the content id of the item.
+   * @param name the name of the item, assume not <code>null</code> or empty.
+   * @param communityId the community id of the item.
+   * @param contenttypeId the content id of the item.
+   * @param objectType the object type number.
    */
   public PSFolderEntry(
       int contentId, String name, int communityId, int contenttypeId, int objectType) {
@@ -78,17 +72,15 @@ public class PSFolderEntry extends PSItemEntry {
   /**
    * Returns the folder acl of the folder item.
    *
-   * @return folder acl, may be <code>null</code> if the folder does not
-   *    have an Acl.
+   * @return folder acl, may be <code>null</code> if the folder does not have an Acl.
    */
   public PSFolderAcl getFolderAcl() {
     return m_folderAcl;
   }
 
   /**
-   * Package protected method. Set the folder acl. The folder Acl will be
-   * set by the {@link PSItemSummaryCache} initially for the folder items that
-   * have Acl properties.
+   * Package protected method. Set the folder acl. The folder Acl will be set by the {@link
+   * PSItemSummaryCache} initially for the folder items that have Acl properties.
    *
    * @param acl the Acl of the folder.
    */
@@ -99,19 +91,17 @@ public class PSFolderEntry extends PSItemEntry {
   /**
    * Returns the folder object, which may be lazily loaded.
    *
-   * @return the folder object, may be <code>null</code> if has not been
-   *    lazily loaded.
+   * @return the folder object, may be <code>null</code> if has not been lazily loaded.
    */
   public PSFolder getFolder() {
     return m_folder;
   }
 
   /**
-   * Returns the publishing file name, the same value that is described
-   * in {@link PSFolder#getPubFileName()}.
+   * Returns the publishing file name, the same value that is described in {@link
+   * PSFolder#getPubFileName()}.
    *
-   * @return the publishing file name described above, never <code>null</code>
-   *    or empty.
+   * @return the publishing file name described above, never <code>null</code> or empty.
    */
   public String getPubFileName() {
     if (m_pubFileNameProperty != null && m_pubFileNameProperty.length() != 0)
@@ -120,11 +110,11 @@ public class PSFolderEntry extends PSItemEntry {
   }
 
   /**
-   * Get the global template property of the folder. See
-   * {@link PSFolder#getGlobalTemplateProperty()} for detail.
+   * Get the global template property of the folder. See {@link
+   * PSFolder#getGlobalTemplateProperty()} for detail.
    *
-   * @return the global template property. It may be <code>null</code> or
-   *    empty if this property is not defined in this folder.
+   * @return the global template property. It may be <code>null</code> or empty if this property is
+   *     not defined in this folder.
    */
   public String getGlobalTemplateProperty() {
     if (m_folder == null) return m_globalTemplateProperty;
@@ -132,15 +122,13 @@ public class PSFolderEntry extends PSItemEntry {
   }
 
   /**
-   * Returns the XML representation of this folder acl instance. It is in
-   * the format of:
+   * Returns the XML representation of this folder acl instance. It is in the format of:
+   *
    * <pre>
    * &lt;!ELEMENT PSXItemEntry (PSXObjectAcl? PSXFolder?)&gt;
    * </pre>
    *
-   * @param doc
-   *           the document used to generate XML element, never
-   *           <code>null</code>.
+   * @param doc the document used to generate XML element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
     if (m_folderAcl == null) {
@@ -153,9 +141,7 @@ public class PSFolderEntry extends PSItemEntry {
     }
   }
 
-  /**
-   * Override derived method, set the name for folder object if exist.
-   */
+  /** Override derived method, set the name for folder object if exist. */
   public void setName(String name) {
     if (name == null || name.trim().length() == 0)
       throw new IllegalArgumentException("name may not be null");
@@ -166,8 +152,7 @@ public class PSFolderEntry extends PSItemEntry {
   }
 
   /**
-   * Package protected method. Updates the folder entry with the supplied
-   * folder object.
+   * Package protected method. Updates the folder entry with the supplied folder object.
    *
    * @param folder the updated folder object.
    */
@@ -197,8 +182,7 @@ public class PSFolderEntry extends PSItemEntry {
   /**
    * Sets the value of property {@link PSFolder#PROPERTY_PUB_FILE_NAME}.
    *
-   * @param pubFileName the new value of the above property, may be
-   *    <code>null</code> or empty.
+   * @param pubFileName the new value of the above property, may be <code>null</code> or empty.
    */
   void setPubFileNameProperty(String pubFileName) {
     if (m_folder != null)
@@ -209,14 +193,12 @@ public class PSFolderEntry extends PSItemEntry {
   }
 
   /**
-   * Sets the value of the global template property.
-   * See {@link PSFolder#setGlobalTemplateProperty(String)} for detail.
-   * <p>
-   * This should not be called after the {@link PSFolder} object is lazily
-   * cached.
+   * Sets the value of the global template property. See {@link
+   * PSFolder#setGlobalTemplateProperty(String)} for detail.
    *
-   * @param template the to be set global template, may be <code>null</code>
-   *    or empty.
+   * <p>This should not be called after the {@link PSFolder} object is lazily cached.
+   *
+   * @param template the to be set global template, may be <code>null</code> or empty.
    */
   void setGlobalTemplateProperty(String template) {
     if (m_folder != null)
@@ -228,33 +210,29 @@ public class PSFolderEntry extends PSItemEntry {
   }
 
   /**
-   * The property value of {@link PSFolder#PROPERTY_PUB_FILE_NAME}. It may be
-   * <code>null</code> or empty. There is no leading or trailing white space
-   * if not <code>null</code>.
+   * The property value of {@link PSFolder#PROPERTY_PUB_FILE_NAME}. It may be <code>null</code> or
+   * empty. There is no leading or trailing white space if not <code>null</code>.
    */
   private String m_pubFileNameProperty = null;
 
   /**
-   * The global template property, see {@link #getGlobalTemplateProperty()}
-   * for its description. This will not be used after the {@link #m_folder} is
-   * lazily cached.
+   * The global template property, see {@link #getGlobalTemplateProperty()} for its description.
+   * This will not be used after the {@link #m_folder} is lazily cached.
    */
   private String m_globalTemplateProperty = null;
 
   /**
-   * The Acl of the folder. It may be <code>null</code> if the folder Acl
-   * has not been set, which means the folder does not have an Acl.
+   * The Acl of the folder. It may be <code>null</code> if the folder Acl has not been set, which
+   * means the folder does not have an Acl.
    */
   private PSFolderAcl m_folderAcl = null;
 
   /**
-   * The placeholder for a folder object. It may be <code>null</code> if
-   * it item is not a folder or the folder has not been lazily loaded.
+   * The placeholder for a folder object. It may be <code>null</code> if it item is not a folder or
+   * the folder has not been lazily loaded.
    */
   private PSFolder m_folder = null;
 
-  /**
-   * The content type id for folders.
-   */
+  /** The content type id for folders. */
   public static int FOLDER_CONTENT_TYPE_ID = 101;
 }

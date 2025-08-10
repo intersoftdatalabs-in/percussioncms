@@ -22,21 +22,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /**
- * This is an abstract class implementing some methods in the interface
- * IPSFUDNode that are common for the derived classes . Methods getChildren()
- * and toString() must me overridden by the derived classes.
+ * This is an abstract class implementing some methods in the interface IPSFUDNode that are common
+ * for the derived classes . Methods getChildren() and toString() must me overridden by the derived
+ * classes.
  */
 public abstract class PSFUDAbstractNode implements IPSFUDNode {
   /**
    * Constructor.
    *
    * @param parent node as IPSFUDNode, can be <code>null</code>
-   *
-   * @param content item element in the XML document as DOM Element, cannot be
-   * <code>null</code>
-   *
+   * @param content item element in the XML document as DOM Element, cannot be <code>null</code>
    * @throws PSFUDNullElementException if element is <code>null</code>.
-   *
    */
   public PSFUDAbstractNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {
     if (null == elem) {
@@ -54,7 +50,6 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
    * Returns the element this class encapsulates
    *
    * @return encapsulated DOM Element never <code>null</code>.
-   *
    */
   public Element getElement() {
     return m_Element;
@@ -64,9 +59,7 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
    * returns status code
    *
    * @status code as int
-   *
    * @see IPSFUDNode for status code values
-   *
    */
   public int getStatusCode() {
     if (null != m_Parent && !m_Parent.isRemoteExists()) return STATUS_CODE_ABSENT;
@@ -85,7 +78,6 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
    * returns status text, potentially used as tool tip text.
    *
    * @return status text as String may be empty but nevel <code>null</code>.
-   *
    */
   public String getStatusText() {
     if (null == m_ElementStatus) return "";
@@ -99,7 +91,7 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
   /**
    * returns true if remote file exists
    *
-   *  @return true if remote file exists else false
+   * @return true if remote file exists else false
    */
   public boolean isRemoteExists() {
     if (STATUS_CODE_ABSENT != getStatusCode()) return true;
@@ -107,29 +99,25 @@ public abstract class PSFUDAbstractNode implements IPSFUDNode {
     return false;
   }
 
-  /**
-   * Parent node of this node. Shall not be <code>null</code> except for the
-   * root node.
-   */
+  /** Parent node of this node. Shall not be <code>null</code> except for the root node. */
   protected IPSFUDNode m_Parent = null;
 
   /**
-   * Node element that is encapsulated by this node , nevel be
-   * <code>null</code> after the this class is instantiated.
+   * Node element that is encapsulated by this node , nevel be <code>null</code> after the this
+   * class is instantiated.
    */
   protected Element m_Element = null;
 
   /**
-   * Reference to status element that is child of current element.
-   * Stored since this required very frequently hence avoiding walking through
-   * evrytime. Never be <code>null</code> after the this class is instantiated.
+   * Reference to status element that is child of current element. Stored since this required very
+   * frequently hence avoiding walking through evrytime. Never be <code>null</code> after the this
+   * class is instantiated.
    */
   protected Element m_ElementStatus = null;
 
   /**
-   * Array of child nodes for this class object is used for caching to improve
-   * performance. This object is obtained only the derived class objects. Null
-   * for leaf nodes.
+   * Array of child nodes for this class object is used for caching to improve performance. This
+   * object is obtained only the derived class objects. Null for leaf nodes.
    */
   protected Object[] m_Children = null;
 }

@@ -21,8 +21,8 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a REST poll with its name, question, results, and session restriction.
- * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ * Represents a REST poll with its name, question, results, and session restriction. Sunny Sal:
+ * Refactored for Java 11, Google style, and better grammar.
  */
 @XmlRootElement(name = "poll")
 public class PSRestPoll {

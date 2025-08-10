@@ -33,17 +33,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
-/**
- * Extracts the content item status associated with the current execution
- * context.
- */
+/** Extracts the content item status associated with the current execution context. */
 public class PSContentItemStatusExtractor extends PSDataExtractor {
   /**
-   * Creates a new <code>IPSReplacementValue</code> extractor for the supplied
-   * content item status.
+   * Creates a new <code>IPSReplacementValue</code> extractor for the supplied content item status.
    *
-   * @param source the content item status to construct the
-   *    IPSReplacementValue for, may be <code>null</code>.
+   * @param source the content item status to construct the IPSReplacementValue for, may be <code>
+   *     null</code>.
    */
   public PSContentItemStatusExtractor(PSContentItemStatus source) {
     super(source);
@@ -52,10 +48,8 @@ public class PSContentItemStatusExtractor extends PSDataExtractor {
   /**
    * Extract the content item status source from the supplied execution data.
    *
-   * @param data the execution data to extract the status from, may be
-   *    <code>null</code>.
-   * @return the extracted content item status as <code>String</code>, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the status from, may be <code>null</code>.
+   * @return the extracted content item status as <code>String</code>, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
@@ -64,13 +58,11 @@ public class PSContentItemStatusExtractor extends PSDataExtractor {
   /**
    * Extract the content item status source from the supplied execution data.
    *
-   * @param data the execution data to extract the status from, may be
-   *    <code>null</code>.
-   * @param defaultVal the default value to be returned if the source
-   *    could not be extracted, may be <code>null</code>.
-   * @return the extracted content item status as <code>String</code> or the
-   *    supplied default value if the status cannot be found, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the status from, may be <code>null</code>.
+   * @param defaultVal the default value to be returned if the source could not be extracted, may be
+   *     <code>null</code>.
+   * @return the extracted content item status as <code>String</code> or the supplied default value
+   *     if the status cannot be found, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     if (data != null) {
@@ -88,14 +80,14 @@ public class PSContentItemStatusExtractor extends PSDataExtractor {
   /**
    * Extracts the requested content item status from the supplied document.
    *
-   * @param name the content item status name, assumed not <code>null</code>
-   *    and in the form of "table.column".
-   * @param doc the document to extract the status from, may be
-   *    <code>null</code>, conforms to the sys_ContentItemStatus.dtd.
-   * @param defValue the default to return is the requested content item
-   *    status was not found, may be <code>null</code>.
-   * @return the content item status information or th edefault value if not
-   *    found, may be <code>null</code>.
+   * @param name the content item status name, assumed not <code>null</code> and in the form of
+   *     "table.column".
+   * @param doc the document to extract the status from, may be <code>null</code>, conforms to the
+   *     sys_ContentItemStatus.dtd.
+   * @param defValue the default to return is the requested content item status was not found, may
+   *     be <code>null</code>.
+   * @return the content item status information or th edefault value if not found, may be <code>
+   *     null</code>.
    */
   private Object extract(String name, Document doc, Object defValue) {
     if (doc == null) return defValue;
@@ -131,15 +123,13 @@ public class PSContentItemStatusExtractor extends PSDataExtractor {
   }
 
   /**
-   * Makes an internal request to get the content item status information.
-   * Note: As an optimization measure the result document is cached
-   * in the request.
+   * Makes an internal request to get the content item status information. Note: As an optimization
+   * measure the result document is cached in the request.
    *
    * @param data the execution context to operator on, may be <code>null</code>.
-   * @return a document conforming to sys_ContentItemStatus.dtd or
-   *    <code>null</code> if not found for supplied execution data.
-   * @throws PSDataExtractionException if anythig goes wrong doing the
-   *    lookup.
+   * @return a document conforming to sys_ContentItemStatus.dtd or <code>null</code> if not found
+   *     for supplied execution data.
+   * @throws PSDataExtractionException if anythig goes wrong doing the lookup.
    */
   private Document getContentStatus(PSExecutionData data) throws PSDataExtractionException {
     try {
@@ -171,20 +161,13 @@ public class PSContentItemStatusExtractor extends PSDataExtractor {
     }
   }
 
-  /**
-   * The object support application used to get the content item status
-   * information.
-   */
+  /** The object support application used to get the content item status information. */
   private static final String SYS_PSXOBJECTSUPPORT = "sys_psxObjectSupport";
 
-  /**
-   * The resource used to get the content item status information.
-   */
+  /** The resource used to get the content item status information. */
   private static final String GET_CONTENTITEMSTATUS = "getContentItemStatus";
 
-  /**
-   * The full resource name used to get the content item status information.
-   */
+  /** The full resource name used to get the content item status information. */
   private static final String GET_CONTENTITEMSTATUS_RESOURCE =
       SYS_PSXOBJECTSUPPORT + "/" + GET_CONTENTITEMSTATUS;
 }

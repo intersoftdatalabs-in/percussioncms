@@ -17,40 +17,38 @@
 
 package com.percussion.utils;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.Test;
 
 public class PSJsoupPreserverTest {
 
-    private static final String TEST_CASE_1 = "<PRESERVE><div class=\"example\"></PRESERVE>";
-    private static final String TEST_CASE_2 = "<PRESERVE></div><!-- /.example --></PRESERVE>";
-    private static final String TEST_CASE_3 = "<PRESERVE><?php \n"
-            + "\n"
-            + "//Set stream options\n"
-            + "$context = stream_context_create(array('http' => array('ignore_errors' => true)));\n"
-            + "if(!isset($_GET['tfa_next'])) {\n"
-            + "echo file_get_contents('https://app.formassembly.com/rest/forms/view/329018',false,$context);\n"
-            + "} else {\n"
-            + "echo file_get_contents('https://app.formassembly.com/rest'.$_GET['tfa_next'],false,$context);\n"
-            + "}/n"
-            + "?>/n"
-            + "</PRESERVE>";
+  private static final String TEST_CASE_1 = "<PRESERVE><div class=\"example\"></PRESERVE>";
+  private static final String TEST_CASE_2 = "<PRESERVE></div><!-- /.example --></PRESERVE>";
+  private static final String TEST_CASE_3 =
+      "<PRESERVE><?php \n"
+          + "\n"
+          + "//Set stream options\n"
+          + "$context = stream_context_create(array('http' => array('ignore_errors' => true)));\n"
+          + "if(!isset($_GET['tfa_next'])) {\n"
+          + "echo file_get_contents('https://app.formassembly.com/rest/forms/view/329018',false,$context);\n"
+          + "} else {\n"
+          + "echo file_get_contents('https://app.formassembly.com/rest'.$_GET['tfa_next'],false,$context);\n"
+          + "}/n?>/n</PRESERVE>";
 
-    @Test
-    public void testCases() {
-        var preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_1);
-        var doc = Jsoup.parseBodyFragment(preserved);
-        assertEquals(TEST_CASE_1, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+  @Test
+  public void testCases() {
+    var preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_1);
+    var doc = Jsoup.parseBodyFragment(preserved);
+    assertEquals(TEST_CASE_1, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
 
-        preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_2);
-        doc = Jsoup.parseBodyFragment(preserved);
-        assertEquals(TEST_CASE_2, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+    preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_2);
+    doc = Jsoup.parseBodyFragment(preserved);
+    assertEquals(TEST_CASE_2, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
 
-        preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_3);
-        doc = Jsoup.parseBodyFragment(preserved);
-        assertEquals(TEST_CASE_3, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
-    }
+    preserved = PSJsoupPreserver.formatPreserveTagsForJSoupParse(TEST_CASE_3);
+    doc = Jsoup.parseBodyFragment(preserved);
+    assertEquals(TEST_CASE_3, PSJsoupPreserver.formatPreserveTagsForOutput(doc.body().html()));
+  }
 }

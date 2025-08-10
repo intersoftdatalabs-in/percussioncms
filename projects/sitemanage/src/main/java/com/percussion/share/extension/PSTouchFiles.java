@@ -34,66 +34,66 @@ import org.apache.logging.log4j.Logger;
  * @author JaySeletz
  */
 public class PSTouchFiles implements IPSStartupProcess {
-    private static final Logger log = LogManager.getLogger(PSTouchFiles.class);
+  private static final Logger log = LogManager.getLogger(PSTouchFiles.class);
 
-    private String dirNames = "";
-    private String rootDir = "";
+  private String dirNames = "";
+  private String rootDir = "";
 
-    @Override
-    public void doStartupWork(Properties startupProps) {
-        var propName = getPropName();
-        if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
-            log.info("Nothing to process");
-            return;
-        }
-
-        if (!StringUtils.isEmpty(dirNames)) {
-            var webResourcesDir = new File(PSServer.getRxDir(), rootDir);
-            var touchDirNameList = dirNames.split(",");
-            for (var dirName : touchDirNameList) {
-                var baseDir = new File(webResourcesDir, dirName);
-                touchFiles(baseDir);
-            }
-        } else {
-            log.info("No directories configured for touch");
-        }
-
-        startupProps.setProperty(propName, "false");
-        log.info("Finished touching files");
+  @Override
+  public void doStartupWork(Properties startupProps) {
+    var propName = getPropName();
+    if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
+      log.info("Nothing to process");
+      return;
     }
 
-    static String getPropName() {
-        return PSTouchFiles.class.getSimpleName();
+    if (!StringUtils.isEmpty(dirNames)) {
+      var webResourcesDir = new File(PSServer.getRxDir(), rootDir);
+      var touchDirNameList = dirNames.split(",");
+      for (var dirName : touchDirNameList) {
+        var baseDir = new File(webResourcesDir, dirName);
+        touchFiles(baseDir);
+      }
+    } else {
+      log.info("No directories configured for touch");
     }
 
-    private void touchFiles(File baseDir) {
-        if (!baseDir.exists()) {
-            log.error("Failed to locate directory for touch: {}", baseDir.getAbsolutePath());
-            return;
-        }
+    startupProps.setProperty(propName, "false");
+    log.info("Finished touching files");
+  }
 
-        log.info("Touching files in {}", baseDir.getPath());
+  static String getPropName() {
+    return PSTouchFiles.class.getSimpleName();
+  }
 
-        Collection<File> files = FileUtils.listFiles(baseDir, null, true);
-        for (var file : files) {
-            try {
-                FileUtils.touch(file);
-            } catch (IOException e) {
-                log.error("Failed to touch file: {}", file.getAbsolutePath());
-            }
-        }
+  private void touchFiles(File baseDir) {
+    if (!baseDir.exists()) {
+      log.error("Failed to locate directory for touch: {}", baseDir.getAbsolutePath());
+      return;
     }
 
-    public void setDirNames(String dirNames) {
-        this.dirNames = dirNames;
-    }
+    log.info("Touching files in {}", baseDir.getPath());
 
-    public void setRootDir(String rootDir) {
-        this.rootDir = rootDir;
+    Collection<File> files = FileUtils.listFiles(baseDir, null, true);
+    for (var file : files) {
+      try {
+        FileUtils.touch(file);
+      } catch (IOException e) {
+        log.error("Failed to touch file: {}", file.getAbsolutePath());
+      }
     }
+  }
 
-    @Override
-    public void setStartupProcessManager(IPSStartupProcessManager mgr) {
-        mgr.addStartupProcess(this);
-    }
+  public void setDirNames(String dirNames) {
+    this.dirNames = dirNames;
+  }
+
+  public void setRootDir(String rootDir) {
+    this.rootDir = rootDir;
+  }
+
+  @Override
+  public void setStartupProcessManager(IPSStartupProcessManager mgr) {
+    mgr.addStartupProcess(this);
+  }
 }

@@ -23,9 +23,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
 
-/**
- * Adds some convenience methods to the DOM node interface.
- */
+/** Adds some convenience methods to the DOM node interface. */
 // REFACTORED: CP-JAVA11
 public abstract class HTMLNode implements Node {
   // m_value and m_children are already defined above
@@ -221,70 +219,53 @@ public abstract class HTMLNode implements Node {
   }
 
   /**
-   * This should be overridden by the nodes(like elements) which have to test
-   * for attributes and return appropriate value. The default is to return
-   * <code>false</code>.
+   * This should be overridden by the nodes(like elements) which have to test for attributes and
+   * return appropriate value. The default is to return <code>false</code>.
    *
    * @return Always <code>false</code>.
-   *
-   * @see  org.w3c.dom.Node#hasAttributes()  hasAttributes
-   **/
+   * @see org.w3c.dom.Node#hasAttributes() hasAttributes
+   */
   public boolean hasAttributes() {
     return false;
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   *
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public boolean isSupported(String feature, String Version) {
     // TODO: implement
     throw new UnsupportedOperationException("Method 'isSupported' not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public String getLocalName() {
     // TODO: implement
     throw new RuntimeException("Method getLocalName not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public String getNamespaceURI() {
     // TODO: implement
     throw new RuntimeException("Method getNamespaceURI not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public String getPrefix() {
     // TODO: implement
     throw new RuntimeException("Method getPrefix not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public void normalize() {
     // TODO: implement
     throw new RuntimeException("Method normalize not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public void setPrefix(String p0) throws DOMException {
     // TODO: implement
     throw new RuntimeException("Method setPrefix not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public boolean supports(String p0, String p1) {
     // TODO: implement
     throw new RuntimeException("Method supports not supported");

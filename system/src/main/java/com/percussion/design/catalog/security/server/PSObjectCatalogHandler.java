@@ -38,12 +38,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSObjectCatalogHandler class implements cataloging of
- * objects. This request type is used to locate the objects defined in the
- * specified cataloger.
- * <p>
- * Object catalog requests are sent to the server using the
- * PSXSecurityObjectCatalog XML document. Its definition is as follows:
+ * The PSObjectCatalogHandler class implements cataloging of objects. This request type is used to
+ * locate the objects defined in the specified cataloger.
+ *
+ * <p>Object catalog requests are sent to the server using the PSXSecurityObjectCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityObjectCatalog (catalogerName, catalogerType,
  *       filter?, objectType*)&gt;
@@ -77,8 +77,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT objectType       (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityObjectCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXSecurityObjectCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityObjectCatalogResults (catalogerName,
  *       catalogerType, Object*)&gt;
@@ -108,15 +109,13 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name             (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSObjectCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSObjectCatalogHandler() {
     super();
   }
@@ -124,10 +123,9 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return     the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_RequestDTD};
@@ -136,12 +134,10 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -219,13 +215,9 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
    *
    * @param retDoc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
-   * @param names The list of patterns to use, may be <code>null</code> or
-   * empty.
-   * @param catalogerName The name of the cataloger, assumed not
-   * <code>null</code> or empty.
-   * @param catalogerType The type of the cataloger, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param names The list of patterns to use, may be <code>null</code> or empty.
+   * @param catalogerName The name of the cataloger, assumed not <code>null</code> or empty.
+   * @param catalogerType The type of the cataloger, assumed not <code>null</code> or empty.
    * @throws PSSecurityCatalogException if there are any errors.
    */
   private void addUsers(
@@ -247,13 +239,9 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
    *
    * @param retDoc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
-   * @param names The list of patterns to use, may be <code>null</code> or
-   * empty.
-   * @param catalogerName The name of the cataloger, assumed not
-   * <code>null</code> or empty.
-   * @param catalogerType The type of the cataloger, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param names The list of patterns to use, may be <code>null</code> or empty.
+   * @param catalogerName The name of the cataloger, assumed not <code>null</code> or empty.
+   * @param catalogerType The type of the cataloger, assumed not <code>null</code> or empty.
    * @throws Exception If there are any errors.
    */
   private void addGroups(
@@ -274,11 +262,8 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
    * @param retDoc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
    * @param pattern The pattern to use, may be <code>null</code> or empty.
-   * @param catalogerName The name of the cataloger, assumed not
-   * <code>null</code> or empty.
-   * @param catalogerType The type of the cataloger, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param catalogerName The name of the cataloger, assumed not <code>null</code> or empty.
+   * @param catalogerType The type of the cataloger, assumed not <code>null</code> or empty.
    * @throws Exception If there are any errors.
    */
   private void addGroups(
@@ -294,17 +279,12 @@ public class PSObjectCatalogHandler extends PSCatalogRequestHandler
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }
 
-  /**
-   * This character is used to separate multiple search patterns supplied in
-   * the filter element.
-   */
+  /** This character is used to separate multiple search patterns supplied in the filter element. */
   private static final String FILTER_PATTERN_DELIM = ";";
 
   private static final String ms_RequestCategory = "security";

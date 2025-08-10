@@ -21,47 +21,47 @@ package com.percussion.assetmanagement.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Wrapper object that holds the details of HTML assets that need to be created and added to the supplied owner and
- * HTML assets that need to be deleted from the owner.
+ * Wrapper object that holds the details of HTML assets that need to be created and added to the
+ * supplied owner and HTML assets that need to be deleted from the owner.
  */
 @XmlRootElement(name = "InspectedElementsData")
 public class PSInspectedElementsData {
 
-    private List<PSHtmlAssetData> newAssets;
-    private List<PSAssetWidgetRelationship> clearAssets;
+  private List<PSHtmlAssetData> newAssets;
+  private List<PSAssetWidgetRelationship> clearAssets;
 
-    /**
-     * Returns the list of new HTML asset data, never <code>null</code> may be empty.
-     * @return list of PSHtmlAssetData objects.
-     */
-    public List<PSHtmlAssetData> getNewAssets() {
-        if (newAssets == null) {
-            newAssets = new ArrayList<>();
-        }
-        return newAssets;
+  /**
+   * Returns the list of new HTML asset data, never <code>null</code> may be empty.
+   *
+   * @return list of PSHtmlAssetData objects.
+   */
+  public List<PSHtmlAssetData> getNewAssets() {
+    if (newAssets == null) {
+      newAssets = new ArrayList<>();
     }
+    return newAssets;
+  }
 
-    public void setNewAssets(List<PSHtmlAssetData> newAssets) {
-        this.newAssets = newAssets;
-    }
+  public void setNewAssets(List<PSHtmlAssetData> newAssets) {
+    this.newAssets = newAssets;
+  }
 
-    /**
-     * Returns the list of PSAssetWidgetRelationship objects. Never <code>null</code> may be empty.
-     * @return list of PSAssetWidgetRelationship
-     */
-    public List<PSAssetWidgetRelationship> getClearAssets() {
-        if (clearAssets == null) {
-            clearAssets = new ArrayList<>();
-        }
-        return clearAssets;
+  /**
+   * Returns the list of PSAssetWidgetRelationship objects. Never <code>null</code> may be empty.
+   *
+   * @return list of PSAssetWidgetRelationship
+   */
+  public List<PSAssetWidgetRelationship> getClearAssets() {
+    if (clearAssets == null) {
+      clearAssets = new ArrayList<>();
     }
+    return clearAssets;
+  }
 
-    public void setClearAssets(List<PSAssetWidgetRelationship> clearAssets) {
-        this.clearAssets = clearAssets;
-    }
+  public void setClearAssets(List<PSAssetWidgetRelationship> clearAssets) {
+    this.clearAssets = clearAssets;
+  }
 }

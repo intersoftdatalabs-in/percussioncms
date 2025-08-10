@@ -19,23 +19,20 @@ package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * List wrapper for site summaries.
- */
+/** List wrapper for site summaries. */
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.DEFAULT)
 @JsonRootName("SiteSummary")
 public class PSSiteSummaryList extends ArrayList<PSSiteSummary> {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
-        super(c);
-    }
+  public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
+    super(c);
+  }
 
-    public PSSiteSummaryList() {
-        super();
-    }
+  public PSSiteSummaryList() {
+    super();
+  }
 }

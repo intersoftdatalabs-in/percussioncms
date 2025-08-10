@@ -29,10 +29,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A Rhythmyx pre-exit that examines a temporary XML object
- * and extracts HTML parameters.
- * The XML document must have been loaded previously with PSXdTextToDom.
+ * A Rhythmyx pre-exit that examines a temporary XML object and extracts HTML parameters. The XML
+ * document must have been loaded previously with PSXdTextToDom.
+ *
  * <p>The parameter nodes are in the form:
+ *
  * <pre>
  *   &lt;PSXParam&gt;
  *       &lt;title&gt;This is the title&lt;/title&gt;
@@ -40,13 +41,15 @@ import org.w3c.dom.Node;
  *   &lt;/PSXParam&gt;
  *
  * </pre>
- * Will add the "title" and "author" to the HTML parameter map, replacing
- * any "title" or "author" parameters that are already there if appendParameter
- * flag is not set or is "no". If flag is set to "yes" then the new values will
- * be appended to the existing parameters.
+ *
+ * Will add the "title" and "author" to the HTML parameter map, replacing any "title" or "author"
+ * parameters that are already there if appendParameter flag is not set or is "no". If flag is set
+ * to "yes" then the new values will be appended to the existing parameters.
+ *
  * <p>
  *
  * <p>The parameters for this exit are:
+ *
  * <table border="1">
  *   <tr><th>Param #</th><th>Description</th><th>Required?</th>
  *   <th>default value</th><tr>
@@ -67,18 +70,14 @@ import org.w3c.dom.Node;
  *     <td>no</td>
  *   </tr>
  * </table>
- * </p>
  */
 public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPreProcessor {
   /**
    * This method handles the pre-exit request.
    *
    * @param params an array of objects representing the parameters.
-   *
    * @param request the request context for this request
-   *
    * @throws PSExtensionProcessingException when a run time error is detected.
-   *
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
@@ -110,9 +109,7 @@ public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPre
    * Walk the DOM tree and extract the parameters into the HTML parameter map.
    *
    * @param cx The context for this exit, assumed not <code>null</code>.
-   *
    * @param xmlDoc The document to scan, assumed not <code>null</code>.
-   *
    * @param request The request context, assumed not <code>null</code>.
    */
   private void extractParams(PSXmlDomContext cx, Document xmlDoc, IPSRequestContext request) {
@@ -144,13 +141,9 @@ public class PSXdDomToParams extends PSDefaultExtension implements IPSRequestPre
     }
   }
 
-  /**
-   * Flag indicating parameter appending. Defaults to <code>false</code>.
-   */
+  /** Flag indicating parameter appending. Defaults to <code>false</code>. */
   private boolean m_appendParam = false;
 
-  /**
-   * The name of the class, used for error handling and tracing.
-   */
+  /** The name of the class, used for error handling and tracing. */
   private static final String m_extname = "PSXdDomToParams";
 }

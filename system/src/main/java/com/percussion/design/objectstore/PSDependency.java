@@ -23,20 +23,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a content editor control dependency.  Dependencies
- * are content editor objects (like section links or exits) that must be part
- * of a content editor for a particular control to operate correctly.
+ * This class represents a content editor control dependency. Dependencies are content editor
+ * objects (like section links or exits) that must be part of a content editor for a particular
+ * control to operate correctly.
  */
 public class PSDependency extends PSComponent {
   /**
-   * Initializes a newly created <code>PSDependency</code> object, from
-   * an XML representation.  See {@link #toXml} for the format.
+   * Initializes a newly created <code>PSDependency</code> object, from an XML representation. See
+   * {@link #toXml} for the format.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   * must not be <code>null</code>.
+   * @param sourceNode the XML element node to construct this object from, must not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   * in the expected format
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSDependency(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode may not be null");
@@ -52,8 +51,8 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Provides a string representation of this object, which is delegated to
-   * the <code>toString()</code> method of the dependent object.
+   * Provides a string representation of this object, which is delegated to the <code>toString()
+   * </code> method of the dependent object.
    *
    * @return a string representation of the object; never <code>null</code>.
    */
@@ -62,10 +61,9 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Gets the string constant for the type of the dependent object.
-   * Used to determine if the dependent object an extension call, section
-   * link, or some other type.  Delegated to the <code>getType()</code>
-   * method of the dependent object.
+   * Gets the string constant for the type of the dependent object. Used to determine if the
+   * dependent object an extension call, section link, or some other type. Delegated to the <code>
+   * getType()</code> method of the dependent object.
    *
    * @return the type; never <code>null</code> or empty.
    * @see IPSDependentObject#getType
@@ -75,9 +73,8 @@ public class PSDependency extends PSComponent {
   }
 
   /**
+   * The format is described in sys_LibraryControlDef.dtd, and is reproduced here:
    *
-   * The format is described in sys_LibraryControlDef.dtd, and is reproduced
-   * here:
    * <pre><code>
    * &lt;!ELEMENT psxctl:Dependency (psxctl:Default)>
    * &lt;!ATTLIST psxctl:Dependency
@@ -170,12 +167,11 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Sets the dependent object.  The dependent object's id is assigned the
-   * same value as this dependency's id so it is possible to reconstruct
-   * the relationship when the application is loaded.
+   * Sets the dependent object. The dependent object's id is assigned the same value as this
+   * dependency's id so it is possible to reconstruct the relationship when the application is
+   * loaded.
    *
    * @param dependent object to assign, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if dependent is <code>null</code>
    */
   public void setDependent(IPSDependentObject dependent) {
@@ -186,8 +182,9 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Sets the UI (E2Designer) id for this component and sets the dependent
-   * object to have the same id.
+   * Sets the UI (E2Designer) id for this component and sets the dependent object to have the same
+   * id.
+   *
    * @param id the id to assign the component and the dependent object
    */
   public void setId(int id) {
@@ -197,6 +194,7 @@ public class PSDependency extends PSComponent {
 
   /**
    * Converts the status code into a string representation.
+   *
    * @return the string representation, never <code>null</code> or empty.
    */
   private String getStatusAsString() {
@@ -214,17 +212,14 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Compares this dependency to the provided dependency, to see if they
-   * refer to the same dependent object.  The dependent objects are considered
-   * the same if they have same type and name.  For example, this method can
-   * answer the question "Do both dependencies require the sys_FileInfo exit?"
-   * Parameters of the dependent objects are not compared (neither number of
-   * parameters nor values of parameters).
+   * Compares this dependency to the provided dependency, to see if they refer to the same dependent
+   * object. The dependent objects are considered the same if they have same type and name. For
+   * example, this method can answer the question "Do both dependencies require the sys_FileInfo
+   * exit?" Parameters of the dependent objects are not compared (neither number of parameters nor
+   * values of parameters).
    *
-   * @param testObj object to compare dependent objects with; may not be
-   * <code>null</code>.
-   * @return <code>true</code> if the dependent objects are the same;
-   * <code>false</code> otherwise.
+   * @param testObj object to compare dependent objects with; may not be <code>null</code>.
+   * @return <code>true</code> if the dependent objects are the same; <code>false</code> otherwise.
    * @throws IllegalArgumentException if testObj is <code>null</code>.
    */
   public boolean hasSameDependent(PSDependency testObj) {
@@ -234,8 +229,8 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * @return code that describes how to handle multiple occurrences of this
-   * dependency within a single content editor.
+   * @return code that describes how to handle multiple occurrences of this dependency within a
+   *     single content editor.
    * @see #SINGLE_OCCURRENCE
    * @see #MULTIPLE_OCCURRENCE
    */
@@ -244,8 +239,7 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * @return code that indicates if this dependency can (or must) be modified
-   * by the user.
+   * @return code that indicates if this dependency can (or must) be modified by the user.
    * @see #READY_STATUS
    * @see #SETUP_OPTIONAL_STATUS
    * @see #SETUP_REQUIRED_STATUS
@@ -256,6 +250,7 @@ public class PSDependency extends PSComponent {
 
   /**
    * Converts the occurrence code into a string representation.
+   *
    * @return the string representation, never <code>null</code> or empty.
    */
   private String getOccurrenceAsString() {
@@ -270,28 +265,24 @@ public class PSDependency extends PSComponent {
   }
 
   /**
-   * Describes the behavior when multiple occurrences of this dependency occur
-   * within a single content editor.  Must be either <code>SINGLE_OCCURRENCE
+   * Describes the behavior when multiple occurrences of this dependency occur within a single
+   * content editor. Must be either <code>SINGLE_OCCURRENCE
    * </code> or <code>MULTIPLE_OCCURRENCE</code>.
    */
   private int m_occurrence;
 
   /**
-   * Indicates a single dependent object should shared by all controls within
-   * a single content editor.
+   * Indicates a single dependent object should shared by all controls within a single content
+   * editor.
    */
   public static final int SINGLE_OCCURRENCE = 0;
 
-  /**
-   * Indicates each control should have its own instance of the dependent
-   * object.
-   */
+  /** Indicates each control should have its own instance of the dependent object. */
   public static final int MULTIPLE_OCCURRENCE = 1;
 
   /**
-   * Defines if this dependency can (or must) be modified by the user.  Must
-   * be either <code>READY_STATUS</code>, <code>SETUP_REQUIRED_STATUS</code>,
-   * or <code>SETUP_OPTIONAL_STATUS</code>.
+   * Defines if this dependency can (or must) be modified by the user. Must be either <code>
+   * READY_STATUS</code>, <code>SETUP_REQUIRED_STATUS</code>, or <code>SETUP_OPTIONAL_STATUS</code>.
    */
   private int m_status;
 
@@ -304,10 +295,7 @@ public class PSDependency extends PSComponent {
   /** Indicates this dependency has parameters that may be configured. */
   public static final int SETUP_OPTIONAL_STATUS = 2;
 
-  /**
-   * Defines the component that must be included in the content editor.
-   * Never <code>null</code>.
-   */
+  /** Defines the component that must be included in the content editor. Never <code>null</code>. */
   private IPSDependentObject m_dependent;
 
   /** Name of parent element in XML representation */

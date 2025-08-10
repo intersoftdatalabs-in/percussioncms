@@ -20,14 +20,12 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.util.PSXMLDomUtil;
 import org.w3c.dom.Element;
 
-/**
- * The value of an <code>PSItemField</code> that is treated as an XML element.
- */
+/** The value of an <code>PSItemField</code> that is treated as an XML element. */
 public class PSXmlValue extends PSFieldValue {
   /**
    * Creates a new instance with the element as the value.
    *
-   * @param element the content of this value.  Must not be <code>null</code>.
+   * @param element the content of this value. Must not be <code>null</code>.
    */
   public PSXmlValue(Element element) {
     if (element == null) throw new IllegalArgumentException("element must not be null");
@@ -36,12 +34,11 @@ public class PSXmlValue extends PSFieldValue {
   }
 
   /**
-   * Sets the supplied element as the content of this value.  This object
-   * takes ownership of the element. Any changes to the element after calling
-   * this method will affect the value of this instance.
+   * Sets the supplied element as the content of this value. This object takes ownership of the
+   * element. Any changes to the element after calling this method will affect the value of this
+   * instance.
    *
-   * @param element The element to use, may be <code>null</code> to clear the
-   * value.
+   * @param element The element to use, may be <code>null</code> to clear the value.
    */
   public void setXml(Element element) {
     m_data = element;
@@ -56,7 +53,9 @@ public class PSXmlValue extends PSFieldValue {
     return (Object) m_data;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public Object clone() {
     PSXmlValue copy = null;
 
@@ -66,7 +65,9 @@ public class PSXmlValue extends PSFieldValue {
     return copy;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;
 
@@ -76,7 +77,9 @@ public class PSXmlValue extends PSFieldValue {
     return true;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public int hashCode() {
     int hash = 0;
 
@@ -87,20 +90,17 @@ public class PSXmlValue extends PSFieldValue {
   }
 
   /**
-   * Returns the <code>Element</code> as a <code>String</code>.  No indents.
-   * This is called by <code>toXml</code>.  I use a <code>StringWriter</code>
-   * to create the string.  Which means that an <code>IOException</code> may
-   * occur.
+   * Returns the <code>Element</code> as a <code>String</code>. No indents. This is called by <code>
+   * toXml</code>. I use a <code>StringWriter</code> to create the string. Which means that an
+   * <code>IOException</code> may occur.
+   *
    * @return The content as <code>String</code>, may be <code>null</code>.
-   * @throws PSCmsException if conversion from <code>StringWriter</code> has a
-   * problem.
+   * @throws PSCmsException if conversion from <code>StringWriter</code> has a problem.
    */
   public String getValueAsString() throws PSCmsException {
     return PSXMLDomUtil.toString(m_data);
   }
 
-  /**
-   * The data as an Element, may be <code>null</code> and may change often.
-   */
+  /** The data as an Element, may be <code>null</code> and may change often. */
   private Element m_data;
 }

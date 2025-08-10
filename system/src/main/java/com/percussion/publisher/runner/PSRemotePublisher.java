@@ -27,9 +27,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class provides a means of initiating publication of a specified
- * edition. This is basically done by sending an HTTP request with all
- * parameters required to start publishing an edition.
+ * This class provides a means of initiating publication of a specified edition. This is basically
+ * done by sending an HTTP request with all parameters required to start publishing an edition.
+ *
  * @deprecated Use REST api's instead.
  */
 @Deprecated
@@ -38,28 +38,19 @@ public class PSRemotePublisher {
   private static final Logger log = LogManager.getLogger(PSRemotePublisher.class);
 
   /**
-   * This method is the one which does actual publishing. It initiates
-   * publication of an edition by making an HTTP request to the Rhythmyx
-   * Publisher Manager on the server.
+   * This method is the one which does actual publishing. It initiates publication of an edition by
+   * making an HTTP request to the Rhythmyx Publisher Manager on the server.
    *
-   * @param server - http(s)://server:port/ name or IPAddress of the  server, must not be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param editionid - EditionID to publish (as String) of the
-   * server, must not be <code>null</code> or <code>empty</code>.
-   *
-   * @param userid - UserId to access the  CMS, may not be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param password - password to access the  CMS, may not be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @return output (as String) resulting from the HTTP request to the
-   * Publisher Manager on the server.
-   *
-   * @throws IllegalArgumentException if invalid server or edition id is
-   * specified.
-   *
+   * @param server - http(s)://server:port/ name or IPAddress of the server, must not be <code>null
+   *     </code> or <code>empty</code>.
+   * @param editionid - EditionID to publish (as String) of the server, must not be <code>null
+   *     </code> or <code>empty</code>.
+   * @param userid - UserId to access the CMS, may not be <code>null</code> or <code>empty</code>.
+   * @param password - password to access the CMS, may not be <code>null</code> or <code>empty
+   *     </code>.
+   * @return output (as String) resulting from the HTTP request to the Publisher Manager on the
+   *     server.
+   * @throws IllegalArgumentException if invalid server or edition id is specified.
    */
   private static String publish(String server, String editionid, String userid, String password)
       throws PSPublisherRunnerException {
@@ -85,9 +76,7 @@ public class PSRemotePublisher {
     return String.valueOf(response.getStatus());
   }
 
-  /**
-   * The main method
-   */
+  /** The main method */
   public static void main(String[] args) {
     if (args.length < 4) {
       System.err.println(

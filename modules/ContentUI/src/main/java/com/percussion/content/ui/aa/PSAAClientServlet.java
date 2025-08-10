@@ -31,8 +31,8 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Servlet that calls a AA client action to provide a specific response
- * for a request made by the Active Assembly client objects.
+ * Servlet that calls a AA client action to provide a specific response for a request made by the
+ * Active Assembly client objects.
  */
 public class PSAAClientServlet extends HttpServlet {
   @SuppressWarnings("unchecked")
@@ -65,6 +65,7 @@ public class PSAAClientServlet extends HttpServlet {
 
   /**
    * Helper method to help with passing back the response.
+   *
    * @param httpResponse the response object, assumed not <code>null</code>.
    * @param resp the response data string,
    * @param ctype the response content type, assumed not <code>null</code>.
@@ -90,13 +91,9 @@ public class PSAAClientServlet extends HttpServlet {
     }
   }
 
-  /**
-   * Constant for Action parameter.
-   */
+  /** Constant for Action parameter. */
   public static final String PARAM_ACTION = "action";
 
-  /**
-   * Constant for timeout parameter
-   */
+  /** Constant for timeout parameter */
   public static final String PARAM_TIMEOUT = "__timeout";
 }

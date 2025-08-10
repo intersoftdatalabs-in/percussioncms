@@ -25,12 +25,11 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This exit clones children of the source workflow (states,roles, transitions
- * etc.) and adds them to the new workflow clone. If the parameter
- * <code>clonesourceid</code> is not provided the exit does nothing. This exit
- * also needs the newly created workflow id in the form of HTML parameter named
- * "workflowid" if it is missing, the exit skips creating workflow child items
- * such as states, roles etc.
+ * This exit clones children of the source workflow (states,roles, transitions etc.) and adds them
+ * to the new workflow clone. If the parameter <code>clonesourceid</code> is not provided the exit
+ * does nothing. This exit also needs the newly created workflow id in the form of HTML parameter
+ * named "workflowid" if it is missing, the exit skips creating workflow child items such as states,
+ * roles etc.
  */
 public class PSCloneWorkflowExit extends PSCloneBase {
 
@@ -77,9 +76,7 @@ public class PSCloneWorkflowExit extends PSCloneBase {
     return resultDoc;
   }
 
-  /**
-   * Array of query resource names of workflow child relations.
-   */
+  /** Array of query resource names of workflow child relations. */
   private static final String[] ms_queryResources = {
     "sys_wfCloning/QueryStates",
     "sys_wfCloning/QueryRoles",
@@ -90,9 +87,7 @@ public class PSCloneWorkflowExit extends PSCloneBase {
     "sys_wfCloning/QueryTransitionNotifications"
   };
 
-  /**
-   * Array of update resource names of workflow child relations.
-   */
+  /** Array of update resource names of workflow child relations. */
   private static final String[] ms_updateResources = {
     "sys_wfCloning/UpdateStates",
     "sys_wfCloning/UpdateRoles",

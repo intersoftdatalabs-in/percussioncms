@@ -22,21 +22,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
- * The PSDate class stores and retrieves one-day information such as year, month,
- * date of month, hour, minute, and second. It is created for two reasons. First,
- * most constructors and public methods of java.util.Date have been deprecated,
- * which are not safe to use in the long run. Instead, java.util.Calendar is
- * recommended by Sun Microsystems. Second, in java.util.Calendar, some settings
- * affects information retrieving, such as get(Calendar.MONTH), unless the users
- * are fully aware of the pitfalls.
- * <p>
- * Note: as for now, in JDK 1.2's java.util.Calendar object, method get(Calendar.MONTH)
- * returns integers from 0 to 11, rather than 1 to 12, which sometimes causes
- * confusion and error.
+ * The PSDate class stores and retrieves one-day information such as year, month, date of month,
+ * hour, minute, and second. It is created for two reasons. First, most constructors and public
+ * methods of java.util.Date have been deprecated, which are not safe to use in the long run.
+ * Instead, java.util.Calendar is recommended by Sun Microsystems. Second, in java.util.Calendar,
+ * some settings affects information retrieving, such as get(Calendar.MONTH), unless the users are
+ * fully aware of the pitfalls.
  *
- * @author     Jian Huang
- * @version    2.0
- * @since      1.0
+ * <p>Note: as for now, in JDK 1.2's java.util.Calendar object, method get(Calendar.MONTH) returns
+ * integers from 0 to 11, rather than 1 to 12, which sometimes causes confusion and error.
+ *
+ * @author Jian Huang
+ * @version 2.0
+ * @since 1.0
  * @deprecated Consider using {@link java.time.LocalDateTime} for new code
  */
 @Deprecated(since = "Java 11 refactoring", forRemoval = false)
@@ -55,10 +53,10 @@ public class PSDate {
   private int second;
 
   /**
-   * Construct a one-day PSDate object. For example, to store 14 o'clock, 23 minutes,
-   * and 45 seconds on December 16, 1999, a PSDate object can be created as
-   * PSDate myDate = new PSDate(1999, 12, 16, 14, 23, 45); Note: rule validation
-   * will be checked, such as month should be between 1 and 12.
+   * Construct a one-day PSDate object. For example, to store 14 o'clock, 23 minutes, and 45 seconds
+   * on December 16, 1999, a PSDate object can be created as PSDate myDate = new PSDate(1999, 12,
+   * 16, 14, 23, 45); Note: rule validation will be checked, such as month should be between 1 and
+   * 12.
    */
   public PSDate(int year, int month, int day, int hour, int minute, int second) {
     super();
@@ -67,8 +65,8 @@ public class PSDate {
   }
 
   /**
-   * Store the given year, month, and date of month. For example,
-   * setYearMonthDay(1999, 12, 16) stores December 16, 1999.
+   * Store the given year, month, and date of month. For example, setYearMonthDay(1999, 12, 16)
+   * stores December 16, 1999.
    */
   public void setYearMonthDay(int year, int month, int day) {
     validateMonth(month);
@@ -80,8 +78,8 @@ public class PSDate {
   }
 
   /**
-   * Get the formatted string of year, month, and date of month. The format
-   * follows yyyy-MM-dd model, such as 1999-03-16.
+   * Get the formatted string of year, month, and date of month. The format follows yyyy-MM-dd
+   * model, such as 1999-03-16.
    */
   public String getYearMonthDay() {
     var localDate = LocalDateTime.of(year, month, day, 0, 0, 0);
@@ -89,8 +87,8 @@ public class PSDate {
   }
 
   /**
-   * Store the given hour, minute, and second. For example, set(18, 2, 31)
-   * stores 18:02:31, which means 6:02:31 PM.
+   * Store the given hour, minute, and second. For example, set(18, 2, 31) stores 18:02:31, which
+   * means 6:02:31 PM.
    */
   public void setTime(int hour, int minute, int second) {
     validateHour(hour);
@@ -103,113 +101,87 @@ public class PSDate {
   }
 
   /**
-   * Get the formatted string of hour, minute, and second. The format
-   * follows HH:mm:ss model, such as 18:03:32.
+   * Get the formatted string of hour, minute, and second. The format follows HH:mm:ss model, such
+   * as 18:03:32.
    */
   public String getTime() {
     var localTime = LocalDateTime.of(0, 1, 1, hour, minute, second);
     return localTime.format(TIME_FORMATTER);
   }
 
-  /**
-   * Determine whether the input year is a leap year or not.
-   */
+  /** Determine whether the input year is a leap year or not. */
   public static boolean isLeapYear(int year) {
     return (year % 400 == 0) || (year % 100 != 0 && year % 4 == 0);
   }
 
-  /**
-   * Set the year.
-   */
+  /** Set the year. */
   public void setYear(int year) {
     this.year = year;
   }
 
-  /**
-   * Get the year of this date.
-   */
+  /** Get the year of this date. */
   public int getYear() {
     return year;
   }
 
-  /**
-   * Set the month.
-   */
+  /** Set the month. */
   public void setMonth(int month) {
     validateMonth(month);
     this.month = month;
   }
 
-  /**
-   * Get the month of this date.
-   */
+  /** Get the month of this date. */
   public int getMonth() {
     return month;
   }
 
-  /**
-   * Set the date of the month
-   */
+  /** Set the date of the month */
   public void setDateOfMonth(int day) {
     validateDay(this.year, this.month, day);
     this.day = day;
   }
 
-  /**
-   * Get the date of the month of this date.
-   */
+  /** Get the date of the month of this date. */
   public int getDateOfMonth() {
     return day;
   }
 
-  /**
-   * Set the hour.
-   */
+  /** Set the hour. */
   public void setHour(int hour) {
     validateHour(hour);
     this.hour = hour;
   }
 
-  /**
-   * Get the hour of this date.
-   */
+  /** Get the hour of this date. */
   public int getHour() {
     return hour;
   }
 
-  /**
-   * Set the minute.
-   */
+  /** Set the minute. */
   public void setMinute(int minute) {
     validateMinute(minute);
     this.minute = minute;
   }
 
-  /**
-   * Get the minute of this date.
-   */
+  /** Get the minute of this date. */
   public int getMinute() {
     return minute;
   }
 
-  /**
-   * Set the second.
-   */
+  /** Set the second. */
   public void setSecond(int second) {
     validateSecond(second);
     this.second = second;
   }
 
-  /**
-   * Get the second of this date.
-   */
+  /** Get the second of this date. */
   public int getSecond() {
     return second;
   }
 
   /**
-   * Return the string representation of this PSDate object with a format.
-   * The format follows yyyy-MM-dd HH:mm:ss, such as 1999-02-16 14:08:45
+   * Return the string representation of this PSDate object with a format. The format follows
+   * yyyy-MM-dd HH:mm:ss, such as 1999-02-16 14:08:45
    */
   @Override
   public String toString() {
@@ -237,6 +209,7 @@ public class PSDate {
 
   /**
    * Convert this PSDate to a LocalDateTime object.
+   *
    * @return LocalDateTime representation of this PSDate
    */
   public LocalDateTime toLocalDateTime() {
@@ -245,6 +218,7 @@ public class PSDate {
 
   /**
    * Create a PSDate from a LocalDateTime object.
+   *
    * @param localDateTime the LocalDateTime to convert
    * @return new PSDate instance
    */

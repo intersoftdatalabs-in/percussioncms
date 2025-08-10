@@ -21,24 +21,22 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A utility class used to parse a string that contains multiple fragments. Each
- * fragment is specified between {@link #START_DELIMITER} and
- * {@link #END_DELIMITER}. Each {@link #START_DELIMITER} must has a name which
- * is a space separated from the {@link #START_DELIMITER}.
- * <p>
- * Note, the text beginning with {@link #COMMENT_PREFIX} will be ignored.
+ * A utility class used to parse a string that contains multiple fragments. Each fragment is
+ * specified between {@link #START_DELIMITER} and {@link #END_DELIMITER}. Each {@link
+ * #START_DELIMITER} must has a name which is a space separated from the {@link #START_DELIMITER}.
+ *
+ * <p>Note, the text beginning with {@link #COMMENT_PREFIX} will be ignored.
  *
  * @author erikserating
  */
 public class PSParseFragments {
   /**
-   * Parse the specified text. Assumed it is in the format of grouping each
-   * fragment between {@link #START_DELIMITER} and {@link #END_DELIMITER}.
-   * Each {@link #START_DELIMITER} must has a name which is a space separated
-   * from the {@link #START_DELIMITER}.
+   * Parse the specified text. Assumed it is in the format of grouping each fragment between {@link
+   * #START_DELIMITER} and {@link #END_DELIMITER}. Each {@link #START_DELIMITER} must has a name
+   * which is a space separated from the {@link #START_DELIMITER}.
    *
-   * @return the parsed result in a map, where the map key is the name of the
-   * fragment, the map value is the fragment content.
+   * @return the parsed result in a map, where the map key is the name of the fragment, the map
+   *     value is the fragment content.
    */
   public static Map<String, String> parseContent(String raw) {
     Map<String, String> fragments = new HashMap<String, String>();
@@ -68,14 +66,13 @@ public class PSParseFragments {
   }
 
   /**
-   * Splits the specified string by newline and trim off the carriage return
-   * for each returned string element.
-   * <p>
-   * Assume the specified string is delimited by either just newline "\n" or
-   * carriage return and line feed, "\r\n".
+   * Splits the specified string by newline and trim off the carriage return for each returned
+   * string element.
+   *
+   * <p>Assume the specified string is delimited by either just newline "\n" or carriage return and
+   * line feed, "\r\n".
    *
    * @param rawText the text in question, may not be <code>null</code>.
-   *
    * @return the split strings, never <code>null</code>.
    */
   public static String[] splitByNewlines(String rawText) {
@@ -89,18 +86,12 @@ public class PSParseFragments {
     return lines;
   }
 
-  /**
-   * The beginning of a fragment.
-   */
+  /** The beginning of a fragment. */
   public static final String START_DELIMITER = "@@@@STARTFRAGMENT";
 
-  /**
-   * The end of a fragment.
-   */
+  /** The end of a fragment. */
   public static final String END_DELIMITER = "@@@@ENDFRAGMENT";
 
-  /**
-   * Prefix of a comment
-   */
+  /** Prefix of a comment */
   public static final String COMMENT_PREFIX = "#";
 }

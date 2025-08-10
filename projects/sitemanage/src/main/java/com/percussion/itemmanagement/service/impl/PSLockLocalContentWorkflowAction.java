@@ -17,52 +17,46 @@
 package com.percussion.itemmanagement.service.impl;
 
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
+import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Will lock local content when the page is in 
- * {@value #LOCK_STATE} state.
- * @author adamgent
+ * Will lock local content when the page is in {@value #LOCK_STATE} state.
  *
+ * @author adamgent
  */
-public class PSLockLocalContentWorkflowAction extends PSAbstractWorkflowExtension implements IPSWorkflowAction
-{
-    private static final Logger log = LogManager.getLogger(PSLockLocalContentWorkflowAction.class);
-    /**
-     * The workflow state that page must be in for local content to be locked.
-     */
-    protected static final String LOCK_STATE = "Pending";
+public class PSLockLocalContentWorkflowAction extends PSAbstractWorkflowExtension
+    implements IPSWorkflowAction {
+  private static final Logger log = LogManager.getLogger(PSLockLocalContentWorkflowAction.class);
 
-    @Override
-    public void performAction(IPSWorkFlowContext wfContext, @SuppressWarnings("unused") IPSRequestContext request) 
-    {
-        log.debug("Started workflowing local assets");
+  /** The workflow state that page must be in for local content to be locked. */
+  protected static final String LOCK_STATE = "Pending";
 
-        var currentUser = getUser();
-        setSecurity();
+  @Override
+  public void performAction(
+      IPSWorkFlowContext wfContext, @SuppressWarnings("unused") IPSRequestContext request) {
+    log.debug("Started workflowing local assets");
 
-        try
-        {
-            var params = new HashMap<String, String>();
-            params.put(STATE_PARAMETER, LOCK_STATE);
-            var worker = getWorker(params);
-            worker.processItem(wfContext);
+    var currentUser = getUser();
+    setSecurity();
 
-            log.debug("Finished workflowing assets");
-        } catch (IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
-            log.error("Error workflowing local assets Error: {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        } finally
-        {
-            setSecurity(currentUser);
-        }
+    try {
+      var params = new HashMap<String, String>();
+      params.put(STATE_PARAMETER, LOCK_STATE);
+      var worker = getWorker(params);
+      worker.processItem(wfContext);
+
+      log.debug("Finished workflowing assets");
+    } catch (IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
+      log.error("Error workflowing local assets Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    } finally {
+      setSecurity(currentUser);
     }
+  }
 }

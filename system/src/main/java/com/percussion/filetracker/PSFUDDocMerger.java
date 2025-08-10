@@ -27,24 +27,20 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class encapsulates the document merge process. When user loads the
- * remote document if a local snapshot exists for this document the merging is
- * performed as specified in the functional specification. The merge process
- * is what marks nodes with proper status values. This has only one public
- * method merge() (besides a static helper method). All other methods are used
- * in the merging process within the class.
+ * This class encapsulates the document merge process. When user loads the remote document if a
+ * local snapshot exists for this document the merging is performed as specified in the functional
+ * specification. The merge process is what marks nodes with proper status values. This has only one
+ * public method merge() (besides a static helper method). All other methods are used in the merging
+ * process within the class.
  */
 public class PSFUDDocMerger {
   /**
-   * Constructor taking snapshot and remote documents. Just makes sure none
-   * of these is null and stores references to these as local varaibles.
+   * Constructor taking snapshot and remote documents. Just makes sure none of these is null and
+   * stores references to these as local varaibles.
    *
    * @param snapshot document as DPM Document
-   *
    * @param remot document as DOM Document.
-   *
    * @throws PSFUDNullDocumentsException if any of the documents is null.
-   *
    */
   public PSFUDDocMerger(Document snapshotDoc, Document remoteDoc)
       throws PSFUDNullDocumentsException {
@@ -58,15 +54,13 @@ public class PSFUDDocMerger {
   }
 
   /**
-   * Only public (not-static) method. The caller object calls this method after
-   * constructing object of this class.
+   * Only public (not-static) method. The caller object calls this method after constructing object
+   * of this class.
    *
-   * @param app the PSFUDApplication object. This object is required for
-   * cleaning the tree after merging the remote and local content item list
-   * (snapshot) documents.If <code>null</code> method returns without cleaning.
-   *
-   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs
-   *         during merge process.
+   * @param app the PSFUDApplication object. This object is required for cleaning the tree after
+   *     merging the remote and local content item list (snapshot) documents.If <code>null</code>
+   *     method returns without cleaning.
+   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs during merge process.
    */
   public void merge(PSFUDApplication app) throws PSFUDMergeDocumentsException {
     Element oldElem = m_snapshotDoc.getDocumentElement();
@@ -103,18 +97,15 @@ public class PSFUDDocMerger {
   }
 
   /**
-   * This method cleans the an element in the snapshot document. Cleaning in
-   * general means, if a FUDNode has no childs at all and a remote version
-   * does not exist that node shall be deleted from the document. In case of
-   * a file FUD node, the node will be deleted only if there is no local copy
-   * exists.
+   * This method cleans the an element in the snapshot document. Cleaning in general means, if a
+   * FUDNode has no childs at all and a remote version does not exist that node shall be deleted
+   * from the document. In case of a file FUD node, the node will be deleted only if there is no
+   * local copy exists.
    *
-   * @param current FUD Node to be cleaned, can be
-   * <code>null</code>, in which case method simply returns <code>false</code>.
-   *
-   * @return <code>true</code> if the current is deleted from the tree,
-   * <code>flase</code> otherwise.
-   *
+   * @param current FUD Node to be cleaned, can be <code>null</code>, in which case method simply
+   *     returns <code>false</code>.
+   * @return <code>true</code> if the current is deleted from the tree, <code>flase</code>
+   *     otherwise.
    */
   private boolean cleanup(IPSFUDNode current) {
     if (null == current) return false;
@@ -149,14 +140,9 @@ public class PSFUDDocMerger {
   /**
    * The private version of the merge() method.
    *
-   * @param elemOld element in the snapshot document as DOM Element,
-   *        never <code>null</code>
-   *
-   * @param elemNew element in the remote document as DOM Element,
-   *        never <code>null</code>
-   *
-   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs
-   *         during merge process
+   * @param elemOld element in the snapshot document as DOM Element, never <code>null</code>
+   * @param elemNew element in the remote document as DOM Element, never <code>null</code>
+   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs during merge process
    */
   private void merge(Element elemOld, Element elemNew) throws PSFUDMergeDocumentsException {
     if (null == elemOld) // never happens
@@ -213,18 +199,12 @@ public class PSFUDDocMerger {
   }
 
   /**
-   * This method extracts a map of child elements and key attributes for a given
-   * parent element.
+   * This method extracts a map of child elements and key attributes for a given parent element.
    *
    * @param parent element as DOM Element, not <code>null</code>
-   *
    * @param child element name as String, not <code>null</code> or empty
-   *
    * @param key attribute as String, not <code>null</code> or empty
-   *
-   * @return map of child element-key pairs, never <code>null</code> but may
-   *         be empty
-   *
+   * @return map of child element-key pairs, never <code>null</code> but may be empty
    */
   private HashMap getMap(Element elemParent, String child, String attrib) {
     HashMap map = new HashMap();
@@ -250,14 +230,10 @@ public class PSFUDDocMerger {
    * Yet another version of merg() method.
    *
    * @param map of Old element-key pairs as HashMap, not <code>null</code>
-   *
    * @param map of new element-key pairs as HashMap, not <code>null</code>
-   *
-   * @param old parent element as DOM Element. This is used to set the status
-   *        code. Not <code>null</code>
-   *
-   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs
-   *         during merge process
+   * @param old parent element as DOM Element. This is used to set the status code. Not <code>null
+   *     </code>
+   * @throws PSFUDMergeDocumentsException when unrecoverable error occurs during merge process
    */
   private void merge(HashMap mapOldElem, HashMap mapNewElem, Element oldParent)
       throws PSFUDMergeDocumentsException {
@@ -307,9 +283,7 @@ public class PSFUDDocMerger {
    * Any additional work beyond copying attributes for file elements
    *
    * @param elemOld element in the snapshot document as DOM Element
-   *
    * @param elemNew element in the remote document as DOM Element
-   *
    */
   private void mergeFileElements(Element oldElem, Element newElem) {
     if (null == oldElem || null == newElem) return;
@@ -327,12 +301,8 @@ public class PSFUDDocMerger {
   /**
    * Helper method to copy all attributes from new element to old one.
    *
-   * @param elemOld element in the snapshot document as DOM Element,
-   *        never <code>null</code>
-   *
-   * @param elemNew element in the remote document as DOM Element,
-   *        never <code>null</code>
-   *
+   * @param elemOld element in the snapshot document as DOM Element, never <code>null</code>
+   * @param elemNew element in the remote document as DOM Element, never <code>null</code>
    */
   private void copyAttributes(Element oldElem, Element newElem) {
     if (null == oldElem || null == newElem) return;
@@ -346,9 +316,7 @@ public class PSFUDDocMerger {
     }
   }
 
-  /**
-   * Helper function to set status code and text for a node element
-   */
+  /** Helper function to set status code and text for a node element */
   private void setStatus(Element parent, int nCode, String msg) {
     if (null == parent) return;
     if (null == msg) msg = "";
@@ -373,9 +341,7 @@ public class PSFUDDocMerger {
    * A generic method to get the status child element of an element
    *
    * @param the parent node as Element
-   *
    * @return the status element if exists, null otherwise.
-   *
    */
   public static Element getChildElement(Element parent, String elemName) {
     Element elem = null;
@@ -398,17 +364,12 @@ public class PSFUDDocMerger {
   }
 
   /**
-   * Creates a child element if does not already exist. This is a static
-   * helper method to append a child element.
+   * Creates a child element if does not already exist. This is a static helper method to append a
+   * child element.
    *
    * @param parent as Element. Never <code>null</code>.
-   *
-   * @param elemName name of the child element to be appended.
-   *        Never <code>null</code>.
-   *
-   * @return new element as Element, <code>null</code> if parent iis
-   *         <code>null</code>
-   *
+   * @param elemName name of the child element to be appended. Never <code>null</code>.
+   * @return new element as Element, <code>null</code> if parent iis <code>null</code>
    */
   public static Element createChildElement(Element parent, String elemName) {
     if (null == parent || null == elemName) return null;

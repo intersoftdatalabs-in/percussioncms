@@ -27,11 +27,10 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Provides a simple wrapper that allows access to an object "property" by
- * referencing the java get method through reflection. The first time a property
- * is accessed, the method is looked up and stored in a hashmap with a key of
- * the property name and the class of the object. After that, the method can be
- * found directly.
+ * Provides a simple wrapper that allows access to an object "property" by referencing the java get
+ * method through reflection. The first time a property is accessed, the method is looked up and
+ * stored in a hashmap with a key of the property name and the class of the object. After that, the
+ * method can be found directly.
  *
  * @author dougrand
  */
@@ -41,25 +40,18 @@ public class PSPropertyWrapper {
   private static final Object[] emptyargs = new Object[0];
 
   /**
-   * The wrapped object, only <code>null</code> after the constructor is
-   * called if this should be lazy loaded
+   * The wrapped object, only <code>null</code> after the constructor is called if this should be
+   * lazy loaded
    */
   protected Object m_wrappedObject;
 
-  /**
-   * The loader, defined for lazy loaded properties and <code>null</code>
-   * otherwise.
-   */
+  /** The loader, defined for lazy loaded properties and <code>null</code> otherwise. */
   protected IPSPropertyLoader m_loader = null;
 
-  /**
-   * Set to true once initialized
-   */
+  /** Set to true once initialized */
   protected boolean m_initialized = false;
 
-  /**
-   * Lookup key for the method map
-   */
+  /** Lookup key for the method map */
   private static class Key {
     private String m_property;
 
@@ -69,6 +61,7 @@ public class PSPropertyWrapper {
 
     /**
      * Create a new key, assume that arguments are always correct
+     *
      * @param clazz
      * @param prop
      * @param type
@@ -118,9 +111,7 @@ public class PSPropertyWrapper {
     }
   }
 
-  /**
-   * Storage for method maps by property and class
-   */
+  /** Storage for method maps by property and class */
   private static Map<Key, Method> ms_methodMap = new ConcurrentHashMap<>(16, 0.9f, 1);
   ;
 
@@ -136,17 +127,14 @@ public class PSPropertyWrapper {
     m_wrappedObject = obj;
   }
 
-  /**
-   * Ctor intended for subclasses that don't need to always use the
-   * capabilities of this class
-   */
+  /** Ctor intended for subclasses that don't need to always use the capabilities of this class */
   protected PSPropertyWrapper() {}
 
   /**
    * Ctor
    *
-   * @param loader the property loader to use when initializing this property,
-   *           never <code>null</code>
+   * @param loader the property loader to use when initializing this property, never <code>null
+   *     </code>
    */
   protected PSPropertyWrapper(IPSPropertyLoader loader) {
     if (loader == null) {
@@ -160,8 +148,8 @@ public class PSPropertyWrapper {
    *
    * @param pname the property name, never <code>null</code> or empty
    * @return the value, may be any value
-   * @throws PSPropertyAccessException if there is a problem accessing the
-   *            property method, class or another runtime error
+   * @throws PSPropertyAccessException if there is a problem accessing the property method, class or
+   *     another runtime error
    */
   public Object getPropertyValue(String pname) throws PSPropertyAccessException {
     if (pname == null || pname.trim().length() < 2) {
@@ -215,11 +203,10 @@ public class PSPropertyWrapper {
   /**
    * Set the named property on the wrapped object.
    *
-   * @param propertyName the name of the property to get, never
-   *           <code>null</code> or empty
+   * @param propertyName the name of the property to get, never <code>null</code> or empty
    * @param value the new value, may be <code>null</code>
-   * @throws PSPropertyAccessException if there is a problem accessing the
-   *            property method, class or another runtime error
+   * @throws PSPropertyAccessException if there is a problem accessing the property method, class or
+   *     another runtime error
    */
   public void setProperty(String propertyName, Object value) throws PSPropertyAccessException {
     if (propertyName == null || propertyName.trim().length() < 2) {
@@ -238,9 +225,7 @@ public class PSPropertyWrapper {
     }
   }
 
-  /**
-   * Initialize, if this is a lazy loaded object, call the loader
-   */
+  /** Initialize, if this is a lazy loaded object, call the loader */
   public synchronized void init() {
     if (m_initialized && m_wrappedObject != null) return;
 

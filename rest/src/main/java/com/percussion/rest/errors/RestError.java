@@ -23,95 +23,102 @@ import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a REST error returned to the client.
- * Sunny Sal: "Error ho gaya? No worries, this class will tell you what went wrong!"
+ * Represents a REST error returned to the client. Sunny Sal: "Error ho gaya? No worries, this class
+ * will tell you what went wrong!"
  */
 @XmlRootElement(name = "Error")
 public class RestError {
 
-    private int errorCode;
-    private String errorType;
-    private String message;
-    private String detailMessage;
-    private Object errorData;
+  private int errorCode;
+  private String errorType;
+  private String message;
+  private String detailMessage;
+  private Object errorData;
 
-    /**
-     * Default constructor for serialization.
-     */
-    public RestError() {
-        // No-arg constructor for frameworks
-    }
+  /** Default constructor for serialization. */
+  public RestError() {
+    // No-arg constructor for frameworks
+  }
 
-    /**
-     * Constructs a RestError with all fields.
-     *
-     * @param errorCode     the error code
-     * @param errorType     the error type
-     * @param message       the error message
-     * @param detailMessage the detailed error message
-     * @param errorData     additional error data
-     */
-    public RestError(int errorCode, String errorType, String message, String detailMessage, Object errorData) {
-        this.errorCode = errorCode;
-        this.errorType = errorType;
-        this.message = message;
-        this.detailMessage = detailMessage;
-        this.errorData = errorData;
-    }
+  /**
+   * Constructs a RestError with all fields.
+   *
+   * @param errorCode the error code
+   * @param errorType the error type
+   * @param message the error message
+   * @param detailMessage the detailed error message
+   * @param errorData additional error data
+   */
+  public RestError(
+      int errorCode, String errorType, String message, String detailMessage, Object errorData) {
+    this.errorCode = errorCode;
+    this.errorType = errorType;
+    this.message = message;
+    this.detailMessage = detailMessage;
+    this.errorData = errorData;
+  }
 
-    public int getErrorCode() {
-        return errorCode;
-    }
+  public int getErrorCode() {
+    return errorCode;
+  }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
+  public void setErrorCode(int errorCode) {
+    this.errorCode = errorCode;
+  }
 
-    public String getErrorType() {
-        return errorType;
-    }
+  public String getErrorType() {
+    return errorType;
+  }
 
-    public void setErrorType(String errorType) {
-        this.errorType = errorType;
-    }
+  public void setErrorType(String errorType) {
+    this.errorType = errorType;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public String getDetailMessage() {
-        return detailMessage;
-    }
+  public String getDetailMessage() {
+    return detailMessage;
+  }
 
-    public void setDetailMessage(String detailMessage) {
-        this.detailMessage = detailMessage;
-    }
+  public void setDetailMessage(String detailMessage) {
+    this.detailMessage = detailMessage;
+  }
 
-    /**
-     * Returns the error data as an Optional.
-     *
-     * @return Optional containing error data if present
-     */
-    public Optional<Object> getErrorData() {
-        return Optional.ofNullable(errorData);
-    }
+  /**
+   * Returns the error data as an Optional.
+   *
+   * @return Optional containing error data if present
+   */
+  public Optional<Object> getErrorData() {
+    return Optional.ofNullable(errorData);
+  }
 
-    public void setErrorData(Object errorData) {
-        this.errorData = errorData;
-    }
+  public void setErrorData(Object errorData) {
+    this.errorData = errorData;
+  }
 
-    @Override
-    public String toString() {
-        return "RestError{" +
-                "errorCode=" + errorCode +
-                ", errorType='" + errorType + '\'' +
-                ", message='" + message + '\'' +
-                ", detailMessage='" + detailMessage + '\'' +
-                ", errorData=" + errorData +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "RestError{"
+        + "errorCode="
+        + errorCode
+        + ", errorType='"
+        + errorType
+        + '\''
+        + ", message='"
+        + message
+        + '\''
+        + ", detailMessage='"
+        + detailMessage
+        + '\''
+        + ", errorData="
+        + errorData
+        + '}';
+  }
 }

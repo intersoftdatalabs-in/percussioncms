@@ -24,14 +24,15 @@ import javax.jcr.ValueFormatException;
 
 /**
  * Represents a boolean value, allowing for some conversions to other types
- * @author dougrand
  *
+ * @author dougrand
  */
 public class PSBooleanValue extends PSBaseValue<Boolean> {
   /**
    * Ctor
-   * @param value must be compatible with {@link Boolean#parseBoolean(String)}
-   * and not <code>null</code>
+   *
+   * @param value must be compatible with {@link Boolean#parseBoolean(String)} and not <code>null
+   *     </code>
    */
   public PSBooleanValue(String value) {
     m_value = Boolean.parseBoolean(value);
@@ -39,6 +40,7 @@ public class PSBooleanValue extends PSBaseValue<Boolean> {
 
   /**
    * Ctor
+   *
    * @param arg0
    */
   public PSBooleanValue(boolean arg0) {

@@ -30,12 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Component("siteArchitectureDataService")
 @Lazy
-public class PSSiteArchitectureDataService extends
-      PSAbstractSimpleDataService<PSSiteArchitecture, String> implements
-      IPSSiteArchitectureDataService {
+public class PSSiteArchitectureDataService
+    extends PSAbstractSimpleDataService<PSSiteArchitecture, String>
+    implements IPSSiteArchitectureDataService {
 
-   @Autowired
-   public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao) {
-      super(dao);
-   }
+  @Autowired
+  public PSSiteArchitectureDataService(IPSSiteArchitectureDao dao) {
+    super(dao);
+  }
 }

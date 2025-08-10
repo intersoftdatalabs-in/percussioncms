@@ -25,8 +25,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and
- * {@link PSSimpleJavaUdf_dateFormatEx}.
+ * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and {@link PSSimpleJavaUdf_dateFormatEx}.
  *
  * @author DougRand
  */

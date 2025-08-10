@@ -19,23 +19,20 @@ package com.percussion.delivery.comments.data;
 
 /**
  * A small data class to hold sortby info for a comment result set.
+ *
  * @author erikserating
  */
 public class PSCommentSort {
 
-  /**
-   * The sort by field value. Initialized in the ctor.
-   */
+  /** The sort by field value. Initialized in the ctor. */
   private SORTBY sortby;
 
-  /**
-   * Indicates an ascending sort direction if set to <code>true</code>.
-   * Initialized in the ctor.
-   */
+  /** Indicates an ascending sort direction if set to <code>true</code>. Initialized in the ctor. */
   private boolean ascending = true;
 
   /**
    * Ctor
+   *
    * @param sortby sort by option, cannot be <code>null</code>.
    * @param isAscending <code>true</code> indicates an ascending sort order.
    */
@@ -59,9 +56,7 @@ public class PSCommentSort {
     return ascending;
   }
 
-  /**
-   * Enumeration of sort field options.
-   */
+  /** Enumeration of sort field options. */
   public enum SORTBY {
     CREATEDDATE,
     EMAIL,

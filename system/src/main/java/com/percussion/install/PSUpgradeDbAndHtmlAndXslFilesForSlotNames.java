@@ -61,31 +61,31 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * Plugin to modify the database table "RXSLOTTYPE", HTML source files, XSL
- * files and Navigation property file {@link #NAVIGATION_PROPERTIES} used in the
- * assembly applications in the system for the slot name references NOT to have
- * blank spaces in between.
+ * Plugin to modify the database table "RXSLOTTYPE", HTML source files, XSL files and Navigation
+ * property file {@link #NAVIGATION_PROPERTIES} used in the assembly applications in the system for
+ * the slot name references NOT to have blank spaces in between.
+ *
+ * <p>First we modify the database table "RXSLOTTYPE" for the "SLOTNAME" not to have blank spaces in
+ * between. The logic is explained in {@link #modifySlotName(String)}. The modified slot names are
+ * now applied to the XSL and HTML files. Since we do not have an easy way of getting the assembly
+ * applications, we take all the applications whose names do not start with "sys_" or "psx_" or part
+ * of the set {@link #EXCLUDE_APP_SET}.
+ *
  * <p>
- * First we modify the database table "RXSLOTTYPE" for the "SLOTNAME" not to
- * have blank spaces in between. The logic is explained in
- * {@link #modifySlotName(String)}. The modified slot names are now applied to
- * the XSL and HTML files. Since we do not have an easy way of getting the
- * assembly applications, we take all the applications whose names do not start
- * with "sys_" or "psx_" or part of the set {@link #EXCLUDE_APP_SET}.
- * <p>
+ *
  * <ol>
- * <li>In each application directory we modify all *.xsl files</li>
- * <li>In each application directory we modify all *.htm* files in "src"
- * subdirectory</li>
- * <li>In each application directory we empty "edit" subdirectory</li>
+ *   <li>In each application directory we modify all *.xsl files
+ *   <li>In each application directory we modify all *.htm* files in "src" subdirectory
+ *   <li>In each application directory we empty "edit" subdirectory
  * </ol>
+ *
  * The slot names are located based on:
+ *
  * <ol>
- * <li>in an HTML file, we look for the attribute name "slotname" and if the
- * value consists of a slot name requires modification we replace with new name</li>
- * <li>in an XSL file, we look for the attribute name "select" and if the value
- * consists of the string "@slotname" and a slot name that needs modification we
- * replace with new name</li>
+ *   <li>in an HTML file, we look for the attribute name "slotname" and if the value consists of a
+ *       slot name requires modification we replace with new name
+ *   <li>in an XSL file, we look for the attribute name "select" and if the value consists of the
+ *       string "@slotname" and a slot name that needs modification we replace with new name
  * </ol>
  */
 public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlugin {
@@ -161,8 +161,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Update the slot names in the navigation properties file
-   * {@link #NAVIGATION_PROPERTIES}.
+   * Update the slot names in the navigation properties file {@link #NAVIGATION_PROPERTIES}.
    *
    * @param logStream print stream for logging, assumed not <code>null</code>.
    */
@@ -221,13 +220,11 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Builds the slot name map from the supplied list of slot names. The keys in
-   * the map will be the old slot names and the values will be the new slot
-   * names. The names are made unique by appending "X" to the name if required.
-   * Another map is created that holds only the names that are truely modifed.
-   * A sorted array (by string length of slot name) is built off of the
-   * modified slot names so that the replacement is performed with longest
-   * string first.
+   * Builds the slot name map from the supplied list of slot names. The keys in the map will be the
+   * old slot names and the values will be the new slot names. The names are made unique by
+   * appending "X" to the name if required. Another map is created that holds only the names that
+   * are truely modifed. A sorted array (by string length of slot name) is built off of the modified
+   * slot names so that the replacement is performed with longest string first.
    *
    * @param slotNames list of slot names, assumed not null.
    */
@@ -264,8 +261,8 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
 
   /**
    * Removes whitespaces from the slot name provided to the
-   * Java/global/percussion/fastforward/managednav/rxs_NavTreeSlotMarker
-   * exit for the given application.
+   * Java/global/percussion/fastforward/managednav/rxs_NavTreeSlotMarker exit for the given
+   * application.
    *
    * @param app the application, may not be <code>null</code>
    * @return the number of slot names which were converted
@@ -313,16 +310,12 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Get the list files with matching extension pattern. Does not recurse into
-   * sub-folders.
+   * Get the list files with matching extension pattern. Does not recurse into sub-folders.
    *
-   * @param folder the folder to list the files from, assumed not
-   * <code>null</code>.
-   * @param extnPattern Only one extensionfor the files to be returned. It can
-   * be a simple pattern like ".htm*", if <code>null</code> all files under
-   * the folder are returned.
-   * @return List of files matching the pattern, may be <code>null</code> or
-   * empty.
+   * @param folder the folder to list the files from, assumed not <code>null</code>.
+   * @param extnPattern Only one extensionfor the files to be returned. It can be a simple pattern
+   *     like ".htm*", if <code>null</code> all files under the folder are returned.
+   * @return List of files matching the pattern, may be <code>null</code> or empty.
    * @throws IOException
    */
   private List getFilesOfType(File folder, String extnPattern) throws IOException {
@@ -340,20 +333,21 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
 
   /**
    * Upgrade files as described below:
+   *
    * <p>
+   *
    * <ol>
-   * <li>Modify all HTML files under "src" subfolder of the supplied folder
-   * without recursing into subfolders</li>
-   * <li>Modify all XSL files under the supplied folder witout recursing into
-   * sub folders</li>
-   * <li>Delete all files in the "edit" subfolder of the supplied folder
-   * without recursing into subfolders</li>
+   *   <li>Modify all HTML files under "src" subfolder of the supplied folder without recursing into
+   *       subfolders
+   *   <li>Modify all XSL files under the supplied folder witout recursing into sub folders
+   *   <li>Delete all files in the "edit" subfolder of the supplied folder without recursing into
+   *       subfolders
    * </ol>
    *
-   * @param folder folder object, assumed not <code>null</code> and is a
-   * folder. Typically a Rhythmyx application directory.
-   * @param testMode <code>true</code> to run in test mode, i.e. don't
-   * actually modifying the file and just report the changes.
+   * @param folder folder object, assumed not <code>null</code> and is a folder. Typically a
+   *     Rhythmyx application directory.
+   * @param testMode <code>true</code> to run in test mode, i.e. don't actually modifying the file
+   *     and just report the changes.
    * @param logStream print stream for logging, assumed not <code>null</code>.
    * @throws MalformedURLException
    * @throws IOException
@@ -393,14 +387,12 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Modifies XSL files from the supplied folder. Calls
-   * {@link #upgradeFile(File, boolean, PrintStream)} for each XSL file in the
-   * folder.
+   * Modifies XSL files from the supplied folder. Calls {@link #upgradeFile(File, boolean,
+   * PrintStream)} for each XSL file in the folder.
    *
-   * @param folder XSl source folder, assumed not <code>null</code> and a
-   * folder.
-   * @param testMode <code>true</code> to run in test mode, i.e. don't
-   * actually modifying the file and just report the changes.
+   * @param folder XSl source folder, assumed not <code>null</code> and a folder.
+   * @param testMode <code>true</code> to run in test mode, i.e. don't actually modifying the file
+   *     and just report the changes.
    * @param logStream print stream for logging, assumed not <code>null</code>.
    * @throws IOException
    */
@@ -421,14 +413,12 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Modifies HTML files from the supplied folder. Calls
-   * {@link #upgradeFile(File, boolean, PrintStream)} for each HTML file in the
-   * folder.
+   * Modifies HTML files from the supplied folder. Calls {@link #upgradeFile(File, boolean,
+   * PrintStream)} for each HTML file in the folder.
    *
-   * @param folder HTML source folder, assumed not <code>null</code> and a
-   * folder.
-   * @param testMode <code>true</code> to run in test mode, i.e. don't
-   * actually modifying the file and just report the changes.
+   * @param folder HTML source folder, assumed not <code>null</code> and a folder.
+   * @param testMode <code>true</code> to run in test mode, i.e. don't actually modifying the file
+   *     and just report the changes.
    * @param logStream print stream for logging, assumed not <code>null</code>.
    * @throws IOException
    */
@@ -452,10 +442,9 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    * Modifies a single file to replace the blank spaces in the slot names.
    *
    * @param file the file to be modified, assumed not <code>null</code>.
-   * @param testMode <code>true</code> to run in test mode i.e. do not
-   * actally save the file but report the changes.
-   * @param logStream print stream to write the log, assume dnot
-   * <code>null</code>.
+   * @param testMode <code>true</code> to run in test mode i.e. do not actally save the file but
+   *     report the changes.
+   * @param logStream print stream to write the log, assume dnot <code>null</code>.
    * @throws MalformedURLException
    * @throws IOException
    */
@@ -546,16 +535,14 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * This method does the actual job of modifying the attribute value. Returns
-   * modified value or <code>null</code> if not modified.
+   * This method does the actual job of modifying the attribute value. Returns modified value or
+   * <code>null</code> if not modified.
    *
-   * @param attr the current attribute which may need a modification, assumed
-   * not <code>null</code>.
-   * @param sTag Start tag that is the owner of the attribute. This can provide
-   * additional context information to see whether the attribute value needs to
-   * be changed. Assumed not <code>null</code>.
-   * @return modified value for the attribute or <code>null</code> if not
-   * modified.
+   * @param attr the current attribute which may need a modification, assumed not <code>null</code>.
+   * @param sTag Start tag that is the owner of the attribute. This can provide additional context
+   *     information to see whether the attribute value needs to be changed. Assumed not <code>null
+   *     </code>.
+   * @return modified value for the attribute or <code>null</code> if not modified.
    */
   private String getModifiedValue(Attribute attr, StartTag sTag) {
     String name = attr.getName();
@@ -583,18 +570,15 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   }
 
   /**
-   * Returns the name of the slot the supplied string contains (anywhere in the
-   * string) as well as the newly converted name from
-   * {@link #m_oldNewNameModifiedMap}, which will be the replacement value.
-   * The slot names are taken from the array {@link #m_sortedSlotNames} so that
-   * h the search is done in the order of longest slot names to shortest.  The
-   * comparison is case-insensitive.
+   * Returns the name of the slot the supplied string contains (anywhere in the string) as well as
+   * the newly converted name from {@link #m_oldNewNameModifiedMap}, which will be the replacement
+   * value. The slot names are taken from the array {@link #m_sortedSlotNames} so that h the search
+   * is done in the order of longest slot names to shortest. The comparison is case-insensitive.
    *
-   * @param value value to find the slot in, assumed not <code>null</code> or
-   * empty.
-   * @return array of string values, the first is the matching slot name in the
-   * string, the second is the new slot name from
-   * {@link #m_oldNewNameModifiedMap}, <code>null</code> if one does not exist.
+   * @param value value to find the slot in, assumed not <code>null</code> or empty.
+   * @return array of string values, the first is the matching slot name in the string, the second
+   *     is the new slot name from {@link #m_oldNewNameModifiedMap}, <code>null</code> if one does
+   *     not exist.
    */
   private String[] getContainedSlot(String value) {
     String[] slotNames = new String[2];
@@ -616,9 +600,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
    * Helper function to load slot names from the database.
    *
    * @param logStream print stream for logging, assumed not null.
-   *
-   * @return List of all slot names in the system, never <code>null</code>
-   * may be empty.
+   * @return List of all slot names in the system, never <code>null</code> may be empty.
    */
   private static List updateLabelsAndLoadSlotNamesFromDatabase(PrintStream logStream)
       throws Exception {
@@ -661,8 +643,8 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
   /**
    * Helper function to update the old slot names with new ones.
    *
-   * @param oldNewNameMap map of old and new names for the slots, assumed not
-   * <code>null</code> may be empty.
+   * @param oldNewNameMap map of old and new names for the slots, assumed not <code>null</code> may
+   *     be empty.
    * @param logStream print stream for logging, assumed not null.
    */
   private static void updateSlotNamesInDatabase(Map oldNewNameMap, PrintStream logStream)
@@ -702,9 +684,7 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     logStream.println();
   }
 
-  /**
-   * Set of special app folder names to exclude from upgrade.
-   */
+  /** Set of special app folder names to exclude from upgrade. */
   private static Set EXCLUDE_APP_SET = new HashSet();
 
   static {
@@ -715,32 +695,22 @@ public class PSUpgradeDbAndHtmlAndXslFilesForSlotNames implements IPSUpgradePlug
     EXCLUDE_APP_SET.add("web_resources");
   }
 
-  /**
-   * Map of old and new slot names, old names being the keys.
-   */
+  /** Map of old and new slot names, old names being the keys. */
   private Map m_oldNewNameMap = null;
 
-  /**
-   * Array of old slot names (modified only) sorted by the length of the
-   * string.
-   */
+  /** Array of old slot names (modified only) sorted by the length of the string. */
   private String[] m_sortedSlotNames = null;
 
-  /**
-   * This will be the subset of m_oldNewNameMap in which the key and values are
-   * different.
-   */
+  /** This will be the subset of m_oldNewNameMap in which the key and values are different. */
   private Map m_oldNewNameModifiedMap = new HashMap();
 
   /**
-   * Name of the property holding the list slot names in the property file
-   * {@link #NAVIGATION_PROPERTIES}
+   * Name of the property holding the list slot names in the property file {@link
+   * #NAVIGATION_PROPERTIES}
    */
   private static final String NAVON_PROPERTY_SLOTNAMES = "navon.slotnames";
 
-  /**
-   * Path of the Navigation property files with respect to the Rx root.
-   */
+  /** Path of the Navigation property files with respect to the Rx root. */
   private static final String NAVIGATION_PROPERTIES = "rxconfig/Server/Navigation.properties";
 
   /**

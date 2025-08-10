@@ -18,19 +18,15 @@
 package com.percussion.rx.config;
 
 import com.percussion.rx.config.data.PSConfigStatus;
-import com.percussion.rx.config.impl.PSConfigMapper;
-import com.percussion.rx.config.impl.PSConfigMerger;
-import com.percussion.rx.config.impl.PSConfigNormalizer;
 import com.percussion.utils.types.PSPair;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Configuration service for applying, uninstalling, and validating configurations.
- * Applies configuration only when all required configuration files exist for the given config name.
+ * Configuration service for applying, uninstalling, and validating configurations. Applies
+ * configuration only when all required configuration files exist for the given config name.
  *
  * @author bjoginipally
  */
@@ -40,13 +36,16 @@ public interface IPSConfigService {
    * Applies the supplied configurations.
    *
    * @param configNames array of configuration names, must not be {@code null}.
-   * @param deltasOnly if {@code true}, apply only local config changes; otherwise, apply the complete local config.
-   * @return list of {@link PSPair} (config name and exception if occurs, or {@code null}), never {@code null}, may be empty.
+   * @param deltasOnly if {@code true}, apply only local config changes; otherwise, apply the
+   *     complete local config.
+   * @return list of {@link PSPair} (config name and exception if occurs, or {@code null}), never
+   *     {@code null}, may be empty.
    */
   List<PSPair<String, Exception>> applyConfiguration(String[] configNames, boolean deltasOnly);
 
   /**
-   * Unregisters the local configuration file and deletes all configuration files for the specified configuration.
+   * Unregisters the local configuration file and deletes all configuration files for the specified
+   * configuration.
    *
    * @param configName the configuration name, must not be {@code null} or empty.
    * @return map of undeleted files and exception, never {@code null}, may be empty.
@@ -69,7 +68,8 @@ public interface IPSConfigService {
   List<PSConfigValidation> validateConfiguartion(String configName);
 
   /**
-   * Returns the name of the configuration for the given file, or {@code null} if not a configuration file.
+   * Returns the name of the configuration for the given file, or {@code null} if not a
+   * configuration file.
    *
    * @param configFile configuration file, must not be {@code null}.
    * @return name of the configuration or {@code null}.
@@ -95,7 +95,8 @@ public interface IPSConfigService {
   /**
    * Returns the configuration status for a given configuration name, ordered by latest first.
    *
-   * @param configName name of the configuration, if {@code null} returns all status entries. SQL-like wildcards (%) may be used.
+   * @param configName name of the configuration, if {@code null} returns all status entries.
+   *     SQL-like wildcards (%) may be used.
    * @return list of configuration status objects, may be empty but never {@code null}.
    */
   List<PSConfigStatus> getConfigStatus(String configName);
@@ -127,13 +128,12 @@ public interface IPSConfigService {
    *
    * @param communities new Community Visibility, never {@code null}, but may be empty.
    * @param pkgName the name of the package, never {@code null} or empty.
-   * @param isReplace if {@code true}, replaces the communities of the package; otherwise, merges with existing.
+   * @param isReplace if {@code true}, replaces the communities of the package; otherwise, merges
+   *     with existing.
    */
   void saveCommunityVisibility(Collection<String> communities, String pkgName, boolean isReplace);
 
-  /**
-   * Enumeration of all configuration file types.
-   */
+  /** Enumeration of all configuration file types. */
   enum ConfigTypes {
     /** Local configuration file type. */
     LOCAL_CONFIG,

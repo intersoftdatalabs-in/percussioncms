@@ -21,39 +21,38 @@ package com.percussion.sitemanage.importer.utils;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Utility for filtering out bad keywords from link text.
- */
+/** Utility for filtering out bad keywords from link text. */
 public class PSLinkBadKeywords {
-    private static final Set<String> FILTER_SET = new HashSet<>() {{
-        add("more");
-        add("this");
-        add("that");
-        add("click here");
-        add("there");
-        add("here");
-        add("over there");
-    }};
+  private static final Set<String> FILTER_SET =
+      new HashSet<>() {
+        {
+          add("more");
+          add("this");
+          add("that");
+          add("click here");
+          add("there");
+          add("here");
+          add("over there");
+        }
+      };
 
-    /**
-     * Checks if the given string is in the filter list.
-     */
-    public static boolean isStringInFilterList(final String stringToFind) {
-        return FILTER_SET.contains(stringToFind.toLowerCase());
-    }
+  /** Checks if the given string is in the filter list. */
+  public static boolean isStringInFilterList(final String stringToFind) {
+    return FILTER_SET.contains(stringToFind.toLowerCase());
+  }
 
-    /**
-     * Filters out common bad keywords from link text.
-     */
-    public static String filterLinkTextString(String stringForFilter) {
-        var returnString = stringForFilter.replace("Link to ", "")
-                .replace("link to ", "")
-                .replace("Browse to ", "")
-                .replace("browse to ", "")
-                .replace("Navigate to ", "")
-                .replace("navigate to ", "")
-                .replace("Click here for ", "")
-                .replace("click here for ", "");
-        return returnString;
-    }
+  /** Filters out common bad keywords from link text. */
+  public static String filterLinkTextString(String stringForFilter) {
+    var returnString =
+        stringForFilter
+            .replace("Link to ", "")
+            .replace("link to ", "")
+            .replace("Browse to ", "")
+            .replace("browse to ", "")
+            .replace("Navigate to ", "")
+            .replace("navigate to ", "")
+            .replace("Click here for ", "")
+            .replace("click here for ", "");
+    return returnString;
+  }
 }

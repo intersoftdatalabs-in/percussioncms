@@ -54,32 +54,26 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * PSExtensionRunners are used by the com.percussion.data package to
- * encapsulate and simplify the process of binding runtime extension params
- * to their extractors before running a particular extension.
- * <P>
- * The binding process happens the same as in the old PSJavaExtensionSandbox
- * class. The runner lets the extension model itself take care of security
- * considerations.
- * <P>
- * Typically the caller will construct this extension runner with an
- * extension
+ * PSExtensionRunners are used by the com.percussion.data package to encapsulate and simplify the
+ * process of binding runtime extension params to their extractors before running a particular
+ * extension.
+ *
+ * <p>The binding process happens the same as in the old PSJavaExtensionSandbox class. The runner
+ * lets the extension model itself take care of security considerations.
+ *
+ * <p>Typically the caller will construct this extension runner with an extension
  */
 public class PSExtensionRunner {
   private static final Logger ms_log = LogManager.getLogger(PSExtensionRunner.class);
 
   /**
-   * Constructs a new extension runner that can run the given extension,
-   * extracting data based on the params defined in the extension
-   * call.
+   * Constructs a new extension runner that can run the given extension, extracting data based on
+   * the params defined in the extension call.
    *
-   * @param call The extension call which defines the params to be
-   * bound to the extension for each invocation. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param call The extension call which defines the params to be bound to the extension for each
+   *     invocation. Must not be <CODE>null</CODE>.
    * @param ext The extension instance. Must not be <CODE>null</CODE>.
    * @return extension runner, never <code>null</code>.
-   *
    */
   public static PSExtensionRunner createRunner(PSExtensionCall call, IPSExtension ext) {
     if (ext == null) throw new IllegalArgumentException("ext cannot be null");
@@ -124,15 +118,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Constructs a new extension runner that will run the given
-   * request preprocessor extension.
+   * Constructs a new extension runner that will run the given request preprocessor extension.
    *
-   * @param call The extension call which defines the params to be
-   * bound to the extension for each invocation. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param call The extension call which defines the params to be bound to the extension for each
+   *     invocation. Must not be <CODE>null</CODE>.
    * @param ext The extension instance. Must not be <CODE>null</CODE>.
-   *
    */
   public PSExtensionRunner(IPSRequestPreProcessor ext, PSExtensionCall call) {
     this(call);
@@ -142,15 +132,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Constructs a new extension runner that will run the given
-   * result document processor extension.
+   * Constructs a new extension runner that will run the given result document processor extension.
    *
-   * @param call The extension call which defines the params to be
-   * bound to the extension for each invocation. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param call The extension call which defines the params to be bound to the extension for each
+   *     invocation. Must not be <CODE>null</CODE>.
    * @param ext The extension instance. Must not be <CODE>null</CODE>.
-   *
    */
   public PSExtensionRunner(IPSResultDocumentProcessor ext, PSExtensionCall call) {
     this(call);
@@ -160,15 +146,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Constructs a new extension runner that will run the given
-   * UDF processor extension.
+   * Constructs a new extension runner that will run the given UDF processor extension.
    *
-   * @param call The extension call which defines the params to be
-   * bound to the extension for each invocation. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param call The extension call which defines the params to be bound to the extension for each
+   *     invocation. Must not be <CODE>null</CODE>.
    * @param ext The extension instance. Must not be <CODE>null</CODE>.
-   *
    */
   public PSExtensionRunner(IPSUdfProcessor ext, PSExtensionCall call) {
     this(call);
@@ -178,12 +160,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Constructs a new extension runner that will run the given relationship
-   * effect.
+   * Constructs a new extension runner that will run the given relationship effect.
    *
    * @param effect the effect instance, not <code>null</code>.
-   * @param call the extension call which defines the params to be
-   *    bound to the extension for each invocation, not <code>null</code>.
+   * @param call the extension call which defines the params to be bound to the extension for each
+   *     invocation, not <code>null</code>.
    */
   public PSExtensionRunner(IPSEffect effect, PSExtensionCall call) {
     this(call);
@@ -193,11 +174,9 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Private constructor that builds extractors for the params defined
-   * in the given extension call.
+   * Private constructor that builds extractors for the params defined in the given extension call.
    *
    * @param call The extension call. Must not be <CODE>null</CODE>.
-   *
    */
   protected PSExtensionRunner(PSExtensionCall call) {
     if (call == null) throw new IllegalArgumentException("call cannot be null");
@@ -225,11 +204,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Gets an iterator over the extractors that correspond to the
-   * extension call with which this runner was constructed.
+   * Gets an iterator over the extractors that correspond to the extension call with which this
+   * runner was constructed.
    *
-   * @return An Iterator over 0 or more possibly <CODE>null</CODE>
-   * IPSDataExtractor objects. Never <CODE>null</CODE>.
+   * @return An Iterator over 0 or more possibly <CODE>null</CODE> IPSDataExtractor objects. Never
+   *     <CODE>null</CODE>.
    */
   public Iterator getExtractors() {
     return m_extractors.iterator();
@@ -323,20 +302,16 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Executes the test() method of the relationship effect associated with
-   * this extension runner.
+   * Executes the test() method of the relationship effect associated with this extension runner.
    *
    * @param data the execution data to operate on, not <code>null</code>.
    * @param context the execution context to operate on, may be <code>null</code>.
-   * @return <code>PSResult</code> object with status data, <code>null</code>
-   * only when the effect associated with this object is <code>null</code>.
-   * @throws PSExtensionProcessingException for any error occurred while
-   * processing the effect.
-   * @throws PSDataExtractionException if the required data could not be
-   * extracted from the execution data.
-   * incorrect.
-   * @throws PSParameterMismatchException if the supplied parameters are
-   * incorrect.
+   * @return <code>PSResult</code> object with status data, <code>null</code> only when the effect
+   *     associated with this object is <code>null</code>.
+   * @throws PSExtensionProcessingException for any error occurred while processing the effect.
+   * @throws PSDataExtractionException if the required data could not be extracted from the
+   *     execution data. incorrect.
+   * @throws PSParameterMismatchException if the supplied parameters are incorrect.
    */
   public PSResult testEffect(PSExecutionData data, IPSExecutionContext context)
       throws PSExtensionProcessingException,
@@ -346,21 +321,17 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Run the search result processsor given the data and the search result rows
-   * to be processed by the runner.
+   * Run the search result processsor given the data and the search result rows to be processed by
+   * the runner.
    *
    * @param data execution data object, must not be <code>null</code>.
-   * @param searchResultRows search result rows to be processed, must not be
-   *           <code>null</code> or empty.
-   * @return search result rows processed by the extension, may be
-   *         <code>null</code> or empty.
-   * @throws PSDataExtractionException if required extension arguments could
-   *            not be extracted from the execution data.
-   * @throws PSExtensionProcessingException if thrown by the extension
-   *            implementation.
-   *
-   * @see IPSSearchResultsProcessor#processRows(Object[], List,
-   *      IPSRequestContext)
+   * @param searchResultRows search result rows to be processed, must not be <code>null</code> or
+   *     empty.
+   * @return search result rows processed by the extension, may be <code>null</code> or empty.
+   * @throws PSDataExtractionException if required extension arguments could not be extracted from
+   *     the execution data.
+   * @throws PSExtensionProcessingException if thrown by the extension implementation.
+   * @see IPSSearchResultsProcessor#processRows(Object[], List, IPSRequestContext)
    */
   public List runSearchResultProcessor(PSExecutionData data, List searchResultRows)
       throws PSDataExtractionException, PSExtensionProcessingException {
@@ -390,20 +361,16 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Executes the attempt() method of the relationship effect associated with
-   * this extension runner.
+   * Executes the attempt() method of the relationship effect associated with this extension runner.
    *
    * @param data the execution data to operate on, not <code>null</code>.
    * @param context the execution context to operate on, may be <code>null</code>.
-   * @return <code>PSResult</code> object with status data, <code>null</code>
-   * only when the effect associated with this object is <code>null</code>.
-   * @throws PSExtensionProcessingException for any error occurred while
-   * processing the effect.
-   * @throws PSDataExtractionException if the required data could not be
-   * extracted from the execution data.
-   * incorrect.
-   * @throws PSParameterMismatchException if the supplied parameters are
-   * incorrect.
+   * @return <code>PSResult</code> object with status data, <code>null</code> only when the effect
+   *     associated with this object is <code>null</code>.
+   * @throws PSExtensionProcessingException for any error occurred while processing the effect.
+   * @throws PSDataExtractionException if the required data could not be extracted from the
+   *     execution data. incorrect.
+   * @throws PSParameterMismatchException if the supplied parameters are incorrect.
    */
   public PSResult attemptEffect(PSExecutionData data, IPSExecutionContext context)
       throws PSExtensionProcessingException,
@@ -413,22 +380,17 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Executes the recover() method of the relationship effect associated with
-   * this extension runner.
+   * Executes the recover() method of the relationship effect associated with this extension runner.
    *
    * @param data the execution data to operate on, not <code>null</code>.
    * @param context the execution context to operate on, may be <code>null</code>.
-   * @param e <code>PSExtensionProcessingException</code> object that caused
-   * recovery to invoke.
-   * @return <code>PSResult</code> object with status data, <code>null</code>
-   * only when the effect associated with this object is <code>null</code>.
-   * @throws PSExtensionProcessingException for any error occurred while
-   * processing the effect.
-   * @throws PSDataExtractionException if the required data could not be
-   * extracted from the execution data.
-   * incorrect.
-   * @throws PSParameterMismatchException if the supplied parameters are
-   * incorrect.
+   * @param e <code>PSExtensionProcessingException</code> object that caused recovery to invoke.
+   * @return <code>PSResult</code> object with status data, <code>null</code> only when the effect
+   *     associated with this object is <code>null</code>.
+   * @throws PSExtensionProcessingException for any error occurred while processing the effect.
+   * @throws PSDataExtractionException if the required data could not be extracted from the
+   *     execution data. incorrect.
+   * @throws PSParameterMismatchException if the supplied parameters are incorrect.
    */
   public PSResult recoverEffect(
       PSExecutionData data, IPSExecutionContext context, PSExtensionProcessingException e)
@@ -439,26 +401,22 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Helper method that executes one of the methods (viz. test() or attempt()
-   * or recover() which have somehwhat similar signature) of the relationship
-   * effect associated with this extension runner.
+   * Helper method that executes one of the methods (viz. test() or attempt() or recover() which
+   * have somehwhat similar signature) of the relationship effect associated with this extension
+   * runner.
    *
    * @param data the execution data to operate on, not <code>null</code>.
    * @param context the execution context to operate on, may be <code>null</code>.
-   * @param executeMethod 1 to run the test() method and 2 to run the attempt()
-   * method.
-   * @param e <code>PSExtensionProcessingException</code> object that caused
-   * recovery to invoke. Will be meaningful only for recover() method and hence
-   * is <code>null</code> for other methods.
-   * @return <code>PSResult</code> object with status data, <code>null</code>
-   * only when the effect associated with this object is <code>null</code>.
-   * @throws PSExtensionProcessingException for any error occurred while
-   * processing the effect.
-   * @throws PSDataExtractionException if the required data could not be
-   * extracted from the execution data.
-   * incorrect.
-   * @throws PSParameterMismatchException if the supplied parameters are
-   * incorrect.
+   * @param executeMethod 1 to run the test() method and 2 to run the attempt() method.
+   * @param e <code>PSExtensionProcessingException</code> object that caused recovery to invoke.
+   *     Will be meaningful only for recover() method and hence is <code>null</code> for other
+   *     methods.
+   * @return <code>PSResult</code> object with status data, <code>null</code> only when the effect
+   *     associated with this object is <code>null</code>.
+   * @throws PSExtensionProcessingException for any error occurred while processing the effect.
+   * @throws PSDataExtractionException if the required data could not be extracted from the
+   *     execution data. incorrect.
+   * @throws PSParameterMismatchException if the supplied parameters are incorrect.
    */
   protected PSResult executeEffect(
       PSExecutionData data,
@@ -581,17 +539,12 @@ public class PSExtensionRunner {
   /**
    * Uses the prebuilt extractors to extract execution data.
    *
-   * @param data The execution data associated with a request. Must not
-   * be <CODE>null</CODE>.
-   *
-   * @return An array of Objects, corresponding to the extracted value
-   * in the same position (defined by the PSExtensionCall). Extractors
-   * that are <CODE>null</CODE> will cause a <CODE>null</CODE> value
-   * to be stored at the corresponding position in this returned array.
-   * Never <CODE>null</CODE>.
-   *
+   * @param data The execution data associated with a request. Must not be <CODE>null</CODE>.
+   * @return An array of Objects, corresponding to the extracted value in the same position (defined
+   *     by the PSExtensionCall). Extractors that are <CODE>null</CODE> will cause a <CODE>null
+   *     </CODE> value to be stored at the corresponding position in this returned array. Never
+   *     <CODE>null</CODE>.
    * @see #buildExtractors
-   *
    * @throws PSDataExtractionException
    */
   private Object[] extractData(PSExecutionData data) throws PSDataExtractionException {
@@ -609,13 +562,11 @@ public class PSExtensionRunner {
   }
 
   /**
-   * Builds an extractor for each non-<CODE>null</CODE> parameter
-   * defined in the extension call. Any parameter values defined as
-   * <CODE>null</CODE> will cause a <CODE>null</CODE> extractor
-   * to be added to the extractors list.
+   * Builds an extractor for each non-<CODE>null</CODE> parameter defined in the extension call. Any
+   * parameter values defined as <CODE>null</CODE> will cause a <CODE>null</CODE> extractor to be
+   * added to the extractors list.
    *
    * @param call The extension call. Must not be <CODE>null</CODE>.
-   *
    */
   private void buildExtractors(PSExtensionCall call) {
     ArrayList extractors = new ArrayList();
@@ -642,21 +593,13 @@ public class PSExtensionRunner {
   /** UDF processor. Could be <CODE>null</CODE>. */
   protected IPSUdfProcessor m_udfExt;
 
-  /**
-   * The relationship effect processor, initialized in ctor, may be
-   * <code>null</code>.
-   */
+  /** The relationship effect processor, initialized in ctor, may be <code>null</code>. */
   protected IPSEffect m_effect = null;
 
-  /**
-   * The search results processor, initialized in ctor, may be
-   * <code>null</code>.
-   */
+  /** The search results processor, initialized in ctor, may be <code>null</code>. */
   protected IPSSearchResultsProcessor m_searchResultsProcessor = null;
 
-  /**
-   * extension def interface, once this runner is created never <code>null</code>
-   */
+  /** extension def interface, once this runner is created never <code>null</code> */
   private IPSExtensionDef m_extDef;
 
   /** Extractors. */

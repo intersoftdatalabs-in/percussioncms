@@ -68,35 +68,26 @@ import org.apache.logging.log4j.Logger;
  * A collection of static methods for finding our objects within folders.
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolderUtils {
-  /**
-   * Name of request private object used to pass workflow id when creating a navon.
-   */
+  /** Name of request private object used to pass workflow id when creating a navon. */
   public static final String SYS_WORKFLOWID = "sys_workflowid";
 
-  /**
-   * Static methods only, never constructed.
-   */
+  /** Static methods only, never constructed. */
   private PSNavFolderUtils() {}
 
   /**
-   *
-   * Adds a Navon to a child folder. The Navon should alwayas be added in the
-   * community of the parent Navon (which is in the parent folder) even if the
-   * user is in a different community. For this reason, this method allows the
-   * caller to temporarily override the user's community. The Navon type
-   * specified in the master config must be valid in this community.
+   * Adds a Navon to a child folder. The Navon should alwayas be added in the community of the
+   * parent Navon (which is in the parent folder) even if the user is in a different community. For
+   * this reason, this method allows the caller to temporarily override the user's community. The
+   * Navon type specified in the master config must be valid in this community.
    *
    * @param req the parent request, must not be <code>null</code>.
-   * @param parentFolder the parent folder, which may contains the parent
-   * Navon. Do nothing if there is no navon in the parent folder.
-   * @param childFolder the child folder to add the navon in,
-   * not <code>null</code>.
-   *
-   * @return the added navon. It may be <code>null</code> if there is no
-   * parent navon in the parent folder.
+   * @param parentFolder the parent folder, which may contains the parent Navon. Do nothing if there
+   *     is no navon in the parent folder.
+   * @param childFolder the child folder to add the navon in, not <code>null</code>.
+   * @return the added navon. It may be <code>null</code> if there is no parent navon in the parent
+   *     folder.
    */
   public static PSComponentSummary addNavonToChildFolder(
       IPSRequestContext req, PSComponentSummary parentFolder, PSComponentSummary childFolder) {
@@ -108,28 +99,24 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Adds a Navon to a child folder. The Navon should alwayas be added in the
-   * community of the parent Navon (which is in the parent folder) even if the
-   * user is in a different community. For this reason, this method allows the
-   * caller to temporarily override the user's community. The Navon type
-   * specified in the master config must be valid in this community.
+   * Adds a Navon to a child folder. The Navon should alwayas be added in the community of the
+   * parent Navon (which is in the parent folder) even if the user is in a different community. For
+   * this reason, this method allows the caller to temporarily override the user's community. The
+   * Navon type specified in the master config must be valid in this community.
    *
    * @param req the parent request, must not be <code>null</code>.
-   * @param parentFolder the parent folder, which may contains the parent
-   * Navon. Do nothing if there is no navon in the parent folder.
-   * @param childFolder the child folder to add the navon in,
-   * not <code>null</code>.
-   * @param slotId the UUID of the menu slot. It may be <code>null</code> if
-   * unknown. This is used for creating the relationship between the parent
-   * navigation node and the child navigation node.
-   * @param templateId the UUID of a template ID. This is used for creating
-   * the relationship between the parent navigation node and the child
-   * navigation node. It may be <code>null</code> if unknown. It may also
-   * be <code>-2</code> if the template is not used to render the navigation
-   * (title).
-   *
-   * @return the added navon. It may be <code>null</code> if there is no
-   * parent navon in the parent folder.
+   * @param parentFolder the parent folder, which may contains the parent Navon. Do nothing if there
+   *     is no navon in the parent folder.
+   * @param childFolder the child folder to add the navon in, not <code>null</code>.
+   * @param slotId the UUID of the menu slot. It may be <code>null</code> if unknown. This is used
+   *     for creating the relationship between the parent navigation node and the child navigation
+   *     node.
+   * @param templateId the UUID of a template ID. This is used for creating the relationship between
+   *     the parent navigation node and the child navigation node. It may be <code>null</code> if
+   *     unknown. It may also be <code>-2</code> if the template is not used to render the
+   *     navigation (title).
+   * @return the added navon. It may be <code>null</code> if there is no parent navon in the parent
+   *     folder.
    */
   public static PSComponentSummary addNavonToChildFolder(
       IPSRequestContext req,
@@ -167,8 +154,8 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Attempts to locate the closest parent NavOn for a folder.  This is to handle
-   * situations where a nav section is created under a regular folder.
+   * Attempts to locate the closest parent NavOn for a folder. This is to handle situations where a
+   * nav section is created under a regular folder.
    *
    * @param req The current request
    * @param parentFolder The locator for the parent folder.
@@ -193,8 +180,7 @@ public class PSNavFolderUtils {
    *
    * @param req parents request context
    * @param loc the item whose parent is desired.
-   * @return the set of summaries representing folders where which contain this
-   *         item.
+   * @return the set of summaries representing folders where which contain this item.
    * @throws PSNavException if anything unexpected happens.
    */
   public static PSComponentSummaries getParentFolders(IPSRequestContext req, PSLocator loc)
@@ -217,14 +203,12 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Locate the single folder parent of this folder. Folders should not have
-   * multiple parents, but this method does not check for this condition. The
-   * first folder returned is always returned.
+   * Locate the single folder parent of this folder. Folders should not have multiple parents, but
+   * this method does not check for this condition. The first folder returned is always returned.
    *
    * @param req the callers
    * @param folderSummary the folder
-   * @return the parent folder summary or <code>null</code> if this folder
-   *         has n parents.
+   * @return the parent folder summary or <code>null</code> if this folder has n parents.
    * @throws PSNavException when an unexpected runtime exception occurs.
    */
   public static PSComponentSummary getParentFolder(
@@ -245,8 +229,7 @@ public class PSNavFolderUtils {
    * @param req the parent request context
    * @param parentFolder the folder which contains the navon
    * @return the Navon or <code>null</code> if no Navon was found.
-   * @throws PSNavException if there is more than 1 navon in this folder or a
-   *            runtime error occurs.
+   * @throws PSNavException if there is more than 1 navon in this folder or a runtime error occurs.
    */
   public static PSComponentSummary getChildNavonSummary(
       IPSRequestContext req, PSComponentSummary parentFolder) throws PSNavException {
@@ -257,12 +240,9 @@ public class PSNavFolderUtils {
    * Finds a navigation node/item under a specified folder.
    *
    * @param req current request, never <code>null</code>.
-   * @param folderLoc the locator of the folder in question, never
-   * <code>null</code>.
-   *
-   * @return the locator of the navigation node/item. It may be
-   * <code>null</code> if there is no navigation node under the folder.
-   *
+   * @param folderLoc the locator of the folder in question, never <code>null</code>.
+   * @return the locator of the navigation node/item. It may be <code>null</code> if there is no
+   *     navigation node under the folder.
    * @throws PSNavException if an error occurs.
    */
   public static PSLocator findChildNavonLocator(
@@ -313,13 +293,9 @@ public class PSNavFolderUtils {
    * Finds the navigation node/item contained in the specified folder.
    *
    * @param req the parent request context, never <code>null</code>.
-   * @param folderLoc the locator of the folder which contains the navon, never
-   * <code>null</code>.
-   *
+   * @param folderLoc the locator of the folder which contains the navon, never <code>null</code>.
    * @return the Navon or <code>null</code> if no Navon was found.
-   *
-   * @throws PSNavException if there is more than 1 navon in this folder or a
-   *            runtime error occurs.
+   * @throws PSNavException if there is more than 1 navon in this folder or a runtime error occurs.
    */
   public static PSComponentSummary getChildNavonSummary(IPSRequestContext req, PSLocator folderLoc)
       throws PSNavException {
@@ -334,16 +310,14 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Builds a PSNavFolder from a component summary. If the current folder
-   * contains a navon, create the object directly. If the recurse flag is
-   * <code>true</code> then the ancestor folders will be checked for a Navon
-   * The first folder that contains a Navon will stop the processing.
+   * Builds a PSNavFolder from a component summary. If the current folder contains a navon, create
+   * the object directly. If the recurse flag is <code>true</code> then the ancestor folders will be
+   * checked for a Navon The first folder that contains a Navon will stop the processing.
    *
    * @param req parent request
    * @param folder starting folder
    * @param recurseFlag indicates that the ancestor folders should be searched.
-   * @return the nav folder object, or <code>null</code> if no folder with a
-   *         Navon can be found.
+   * @return the nav folder object, or <code>null</code> if no folder with a Navon can be found.
    * @throws PSNavException
    */
   public static PSNavFolder getNavParentFolder(
@@ -378,10 +352,9 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Builds a set Nav Folders from this item. This set includes all parent
-   * folders that contain a Navon, including indirect ancestors. If the parent
-   * folder does not contain a Navon, its parent is checked for a Navon, and so
-   * on back to the root.
+   * Builds a set Nav Folders from this item. This set includes all parent folders that contain a
+   * Navon, including indirect ancestors. If the parent folder does not contain a Navon, its parent
+   * is checked for a Navon, and so on back to the root.
    *
    * @param req the parent request
    * @param item the item to start with, usually the page to be assembled.
@@ -406,19 +379,15 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Adds a Navon to a folder. The Navon should alwayas be added in the
-   * community of the parent Navon, even if the user is in a different
-   * community. For this reason, this method allows the caller to temporarily
-   * override the user's community. The Navon type specified in the master
+   * Adds a Navon to a folder. The Navon should alwayas be added in the community of the parent
+   * Navon, even if the user is in a different community. For this reason, this method allows the
+   * caller to temporarily override the user's community. The Navon type specified in the master
    * config must be valid in this community.
    *
    * @param req the parent request, must not be <code>null</code>.
    * @param folder the folder to add the navon in, must not be <code>null</code>.
-   * @param communityId a valid community id, which should be the community
-   * of the parent navon.
-   *
+   * @param communityId a valid community id, which should be the community of the parent navon.
    * @return the summary of the added navon, never <code>null</code>.
-   *
    * @throws PSNavException if an error occurs.
    */
   public static PSComponentSummary addNavonToFolder(
@@ -430,22 +399,17 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Adds a Navon to a folder. The Navon should alwayas be added in the
-   * community of the parent Navon, even if the user is in a different
-   * community. For this reason, this method allows the caller to temporarily
-   * override the user's community. The Navon type specified in the master
+   * Adds a Navon to a folder. The Navon should alwayas be added in the community of the parent
+   * Navon, even if the user is in a different community. For this reason, this method allows the
+   * caller to temporarily override the user's community. The Navon type specified in the master
    * config must be valid in this community.
    *
    * @param req the parent request, must not be <code>null</code>.
-   * @param folderLoc the locator of the folder to add the navon in, must not
-   *   be <code>null</code>.
-   * @param communityId a valid community id, which should be the community
-   * of the parent navon.
+   * @param folderLoc the locator of the folder to add the navon in, must not be <code>null</code>.
+   * @param communityId a valid community id, which should be the community of the parent navon.
    * @param navonName the name of the to be created navon, not blank.
    * @param navonTitle the title of the to be created navon, not blank.
-   *
    * @return the summary of the added navon, never <code>null</code>.
-   *
    * @throws PSNavException if an error occurs.
    */
   public static PSComponentSummary addNavonToFolder(
@@ -537,9 +501,8 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Helper method to checkin and item specified by its locator. Makes an
-   * internal request to the content editor URL with appropriate htmnl
-   * parameters.
+   * Helper method to checkin and item specified by its locator. Makes an internal request to the
+   * content editor URL with appropriate htmnl parameters.
    *
    * @param req request conetxt object, must not be <code>null</code>.
    * @param loc locator of the item to checkin, must nor be <code>null</code>.
@@ -569,14 +532,12 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Helper method to set a field value for a content item. Nothing happens if
-   * the specified field by name does not exist in the item.
+   * Helper method to set a field value for a content item. Nothing happens if the specified field
+   * by name does not exist in the item.
    *
    * @param item server item object must not be <code>null</code>.
-   * @param fieldName name of the field to set, must not be <code>null</code>
-   *           or empty.
-   * @param fieldValue value of the field to set, may be <code>null</code> or
-   *           empty.
+   * @param fieldName name of the field to set, must not be <code>null</code> or empty.
+   * @param fieldValue value of the field to set, may be <code>null</code> or empty.
    */
   private static void setFieldValue(PSServerItem item, String fieldName, IPSFieldValue fieldValue) {
     if (item == null) {
@@ -595,14 +556,11 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Helper method to remove specified child Navon item of a specified paranet
-   * Navon item.
+   * Helper method to remove specified child Navon item of a specified paranet Navon item.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param parentNavon Locator of the parent Navon item, must not be
-   *           <code>null</code>.
-   * @param childNavon Locator of the child Navon item, must not be
-   *           <code>null</code>.
+   * @param parentNavon Locator of the parent Navon item, must not be <code>null</code>.
+   * @param childNavon Locator of the child Navon item, must not be <code>null</code>.
    * @throws PSNavException if the operation fails for any reason.
    */
   public static void removeNavonChild(
@@ -611,17 +569,13 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Helper method to remove specified child Navon item of a specified paranet
-   * Navon item.
+   * Helper method to remove specified child Navon item of a specified paranet Navon item.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param parentNavon Locator of the parent Navon item, must not be
-   *           <code>null</code>.
-   * @param childNavon Locator of the child Navon item, must not be
-   *           <code>null</code>.
-   * @param authType Authtype to be filtered with. Do not filter by authtype
-   * if it is <code>null</code>.
-   *
+   * @param parentNavon Locator of the parent Navon item, must not be <code>null</code>.
+   * @param childNavon Locator of the child Navon item, must not be <code>null</code>.
+   * @param authType Authtype to be filtered with. Do not filter by authtype if it is <code>null
+   *     </code>.
    * @throws PSNavException if the operation fails for any reason.
    */
   public static void removeNavonChild(
@@ -656,12 +610,13 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Remove all AA category relationships where the dependent is the specified child Navon item,
-   * or just remove the relationship with the specified parent.
+   * Remove all AA category relationships where the dependent is the specified child Navon item, or
+   * just remove the relationship with the specified parent.
    *
    * @param req request context object, must not be <code>null</code>.
    * @param childNavon Locator of the child Navon item, must not be <code>null</code>.
-   * @param includeParent the parent locator. It may be <code>null</code> if remove all AA relationships.
+   * @param includeParent the parent locator. It may be <code>null</code> if remove all AA
+   *     relationships.
    * @throws PSNavException if the process fails for any reason.
    */
   public static void removeNavonParents(
@@ -698,15 +653,12 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Add specified child Navon to the parent navon for menu slot with
-   * appropriate variant and AA configuration.
+   * Add specified child Navon to the parent navon for menu slot with appropriate variant and AA
+   * configuration.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param parentNavon Locator of the parent Navon item, must not be
-   *           <code>null</code>.
-   * @param childNavon Locator of the child Navon tem, must not be
-   *           <code>null</code>.
-   *
+   * @param parentNavon Locator of the parent Navon item, must not be <code>null</code>.
+   * @param childNavon Locator of the child Navon tem, must not be <code>null</code>.
    * @throws PSNavException if process fails for any reason.
    */
   public static void addNavonSubmenu(
@@ -715,23 +667,19 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Add specified child Navon to the parent navon for menu slot with
-   * appropriate variant and AA configuration.
+   * Add specified child Navon to the parent navon for menu slot with appropriate variant and AA
+   * configuration.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param parentNavon Locator of the parent Navon item, must not be
-   *           <code>null</code>.
-   * @param childNavon Locator of the child Navon tem, must not be
-   *           <code>null</code>.
-   * @param slotId the UUID of the menu slot. It may be <code>null</code> if
-   * unknown. This is used for creating the relationship between the parent
-   * navigation node and the child navigation node.
-   * @param templateId the UUID of a template ID. This is used for creating
-   * the relationship between the parent navigation node and the child
-   * navigation node. It may be <code>null</code> if unknown. It may also
-   * be <code>-2</code> if the template is not used to render the navigation
-   * (title).
-   *
+   * @param parentNavon Locator of the parent Navon item, must not be <code>null</code>.
+   * @param childNavon Locator of the child Navon tem, must not be <code>null</code>.
+   * @param slotId the UUID of the menu slot. It may be <code>null</code> if unknown. This is used
+   *     for creating the relationship between the parent navigation node and the child navigation
+   *     node.
+   * @param templateId the UUID of a template ID. This is used for creating the relationship between
+   *     the parent navigation node and the child navigation node. It may be <code>null</code> if
+   *     unknown. It may also be <code>-2</code> if the template is not used to render the
+   *     navigation (title).
    * @throws PSNavException if process fails for any reason.
    */
   public static void addNavonSubmenu(
@@ -745,27 +693,22 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Add specified child Navon to the parent navon for menu slot with
-   * appropriate variant and AA configuration.
+   * Add specified child Navon to the parent navon for menu slot with appropriate variant and AA
+   * configuration.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param parentNavon Locator of the parent Navon item, must not be
-   *           <code>null</code>.
-   * @param childNavon Locator of the child Navon tem, must not be
-   *           <code>null</code>.
-   * @param slotId the UUID of the menu slot. It may be <code>null</code> if
-   * unknown. This is used for creating the relationship between the parent
-   * navigation node and the child navigation node.
-   * @param templateId the UUID of a template ID. This is used for creating
-   * the relationship between the parent navigation node and the child
-   * navigation node. It may be <code>null</code> if unknown. It may also
-   * be <code>-2</code> if the template is not used to render the navigation
-   * (title).
-   * @param index the location index where to insert the new supplied
-   *    relationships into existing relationships. Supply -1 or a value
-   *    greater than the existing relationship size to append the ones to the
-   *    end. It is <code>1</code> based number.
-   *
+   * @param parentNavon Locator of the parent Navon item, must not be <code>null</code>.
+   * @param childNavon Locator of the child Navon tem, must not be <code>null</code>.
+   * @param slotId the UUID of the menu slot. It may be <code>null</code> if unknown. This is used
+   *     for creating the relationship between the parent navigation node and the child navigation
+   *     node.
+   * @param templateId the UUID of a template ID. This is used for creating the relationship between
+   *     the parent navigation node and the child navigation node. It may be <code>null</code> if
+   *     unknown. It may also be <code>-2</code> if the template is not used to render the
+   *     navigation (title).
+   * @param index the location index where to insert the new supplied relationships into existing
+   *     relationships. Supply -1 or a value greater than the existing relationship size to append
+   *     the ones to the end. It is <code>1</code> based number.
    * @throws PSNavException if process fails for any reason.
    */
   public static void addNavonSubmenu(
@@ -823,15 +766,13 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Find the parent Navon related via AA category relationship for a specified
-   * item and return the component summary of that item.
+   * Find the parent Navon related via AA category relationship for a specified item and return the
+   * component summary of that item.
    *
    * @param req request context object, must not be <code>null</code>.
    * @param loc Locator of the child item, must not be <code>null</code>.
-   * @return Component summary of the unique parent Navon item, may be
-   *         <code>null</code>.
-   * @throws PSNavException if it cannot find a Navon parent item or finds more
-   *            than one.
+   * @return Component summary of the unique parent Navon item, may be <code>null</code>.
+   * @throws PSNavException if it cannot find a Navon parent item or finds more than one.
    */
   public static PSComponentSummary findParentSummary(IPSRequestContext req, PSLocator loc)
       throws PSNavException {
@@ -892,10 +833,10 @@ public class PSNavFolderUtils {
    * Find the first navon variant for the specified slot.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param ourSlot slot object for which the nav type variant has to be found,
-   *           must not be <code>null</code>.
-   * @return the first navon type content type variant object, if found.
-   *         <code>null</code> if not found.
+   * @param ourSlot slot object for which the nav type variant has to be found, must not be <code>
+   *     null</code>.
+   * @return the first navon type content type variant object, if found. <code>null</code> if not
+   *     found.
    * @throws PSNavException if lookup cannot be performed for any reason.
    */
   public static PSContentTypeTemplate findFirstVariant(IPSRequestContext req, PSSlotType ourSlot)
@@ -922,17 +863,13 @@ public class PSNavFolderUtils {
   }
 
   /**
-   * Process the folder and its subfolders in the each folder will be added
-   * with a Navon item and linked appropriately to its parent via nav menu slot
-   * with appropriate variant and AA config.
+   * Process the folder and its subfolders in the each folder will be added with a Navon item and
+   * linked appropriately to its parent via nav menu slot with appropriate variant and AA config.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param folder Locator of the folder to start processing, must not be
-   *           <code>null</code>.
-   * @param navon Navon item of the current folder, must not be
-   *           <code>null</code>.
-   * @param propFlag flag to indicate if the process has to be recursed into
-   *           child folders.
+   * @param folder Locator of the folder to start processing, must not be <code>null</code>.
+   * @param navon Navon item of the current folder, must not be <code>null</code>.
+   * @param propFlag flag to indicate if the process has to be recursed into child folders.
    * @throws PSNavException if process fails for any reason.
    */
   public static void processSubFolders(
@@ -1034,8 +971,6 @@ public class PSNavFolderUtils {
     return MessageFormat.format(pattern, parray);
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSNavFolderUtils.class);
 }

@@ -18,16 +18,14 @@
 package com.percussion.tools;
 
 /**
- * This class provides two static methods for escaping and unescaping the
- * HTML parameters (x-www-form-urlencoded) a URI. Code is taken from w3c web
- * site.
+ * This class provides two static methods for escaping and unescaping the HTML parameters
+ * (x-www-form-urlencoded) a URI. Code is taken from w3c web site.
  */
 public class PSURIEncoder {
   /**
    * Unescape a string from the "x-www-form-urlencoded" form, to a normal form.
    *
    * @param s - the escaped URI form parameter to be unescaped.
-   *
    */
   public static String unescape(String s) {
     StringBuilder sbuf = new StringBuilder();
@@ -78,23 +76,21 @@ public class PSURIEncoder {
   }
 
   /**
-   * Escpae a string to the "x-www-form-urlencoded" form, enhanced
-   * with the UTF-8-in-URL proposal. This is what happens:
+   * Escpae a string to the "x-www-form-urlencoded" form, enhanced with the UTF-8-in-URL proposal.
+   * This is what happens:
    *
    * <ul>
-   * <li><p>The ASCII characters 'a' through 'z', 'A' through 'Z',
-   *        and '0' through '9' remain the same.
-   *
-   * <li><p>The space character ' ' is converted into a plus sign '+'.
-   *
-   * <li><p>All other ASCII characters are converted into the
-   *        3-character string "%xy", where xy is
-   *        the two-digit hexadecimal representation of the character
-   *        code
-   *
-   * <li><p>All non-ASCII characters are encoded in two steps: first
-   *        to a sequence of 2 or 3 bytes, using the UTF-8 algorithm;
-   *        secondly each of these bytes is encoded as "%xx".
+   *   <li>
+   *       <p>The ASCII characters 'a' through 'z', 'A' through 'Z', and '0' through '9' remain the
+   *       same.
+   *   <li>
+   *       <p>The space character ' ' is converted into a plus sign '+'.
+   *   <li>
+   *       <p>All other ASCII characters are converted into the 3-character string "%xy", where xy
+   *       is the two-digit hexadecimal representation of the character code
+   *   <li>
+   *       <p>All non-ASCII characters are encoded in two steps: first to a sequence of 2 or 3
+   *       bytes, using the UTF-8 algorithm; secondly each of these bytes is encoded as "%xx".
    * </ul>
    *
    * @param s The string to be escaped
@@ -127,9 +123,7 @@ public class PSURIEncoder {
     return sbuf.toString();
   }
 
-  /**
-   * String array of hex chars required while escaping.
-   */
+  /** String array of hex chars required while escaping. */
   static final String[] hex = {
     "%00", "%01", "%02", "%03", "%04", "%05", "%06", "%07",
     "%08", "%09", "%0a", "%0b", "%0c", "%0d", "%0e", "%0f",

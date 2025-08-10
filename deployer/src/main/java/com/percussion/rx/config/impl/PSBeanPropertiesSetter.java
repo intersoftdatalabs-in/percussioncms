@@ -20,57 +20,61 @@ import com.percussion.rx.config.IPSBeanProperties;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.PSBeanPropertiesLocator;
 import com.percussion.rx.design.IPSAssociationSet;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * This class provides a way to set arbitrary properties that are managed by
- * {@link IPSBeanProperties}. This setter will override the existing properties
- * or append new properties to the {@link IPSBeanProperties} instance. 
+ * This class provides a way to set arbitrary properties that are managed by {@link
+ * IPSBeanProperties}. This setter will override the existing properties or append new properties to
+ * the {@link IPSBeanProperties} instance.
  *
  * @author YuBingChen
  */
 public class PSBeanPropertiesSetter extends PSSimplePropertySetter {
-    @Override
-    public boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
-        m_configProps.clear();
-        if (!super.applyProperties(obj, state, aSets)) return false;
-        if (!m_configProps.isEmpty()) {
-            m_propsMgr.save(m_configProps);
-            return true;
-        }
-        return false;
+  @Override
+  public boolean applyProperties(Object obj, ObjectState state, List<IPSAssociationSet> aSets) {
+    m_configProps.clear();
+    if (!super.applyProperties(obj, state, aSets)) return false;
+    if (!m_configProps.isEmpty()) {
+      m_propsMgr.save(m_configProps);
+      return true;
     }
+    return false;
+  }
 
-    @Override
-    protected boolean applyProperty(Object obj, ObjectState state, List<IPSAssociationSet> aSets, String propName, Object propValue) throws Exception {
-        m_configProps.put(propName, propValue);
-        return true;
+  @Override
+  protected boolean applyProperty(
+      Object obj,
+      ObjectState state,
+      List<IPSAssociationSet> aSets,
+      String propName,
+      Object propValue)
+      throws Exception {
+    m_configProps.put(propName, propValue);
+    return true;
+  }
+
+  @Override
+  protected boolean addPropertyDefs(
+      Object obj, String propName, Object pvalue, Map<String, Object> defs) {
+    if (defs == null) throw new IllegalArgumentException("defs may not be null.");
+    if (pvalue instanceof String) {
+      super.addPropertyDefs((String) pvalue, null, defs);
+    } else if (pvalue instanceof List) {
+      addFixmePropertyDefsForList(propName, (List<?>) pvalue, defs);
+    } else if (pvalue instanceof Map) {
+      addPropertyDefsForMap(propName, pvalue, null, defs);
     }
+    return true;
+  }
 
-    @Override
-    protected boolean addPropertyDefs(Object obj, String propName, Object pvalue, Map<String, Object> defs) {
-        if (defs == null) throw new IllegalArgumentException("defs may not be null.");
-        if (pvalue instanceof String) {
-            super.addPropertyDefs((String) pvalue, null, defs);
-        } else if (pvalue instanceof List) {
-            addFixmePropertyDefsForList(propName, (List<?>) pvalue, defs);
-        } else if (pvalue instanceof Map) {
-            addPropertyDefsForMap(propName, pvalue, null, defs);
-        }
-        return true;
-    }
+  /** The bean property manager. */
+  IPSBeanProperties m_propsMgr = PSBeanPropertiesLocator.getBeanProperties();
 
-    /**
-     * The bean property manager.
-     */
-    IPSBeanProperties m_propsMgr = PSBeanPropertiesLocator.getBeanProperties();
-
-    /**
-     * The place-holder to collect all defined properties while executing
-     * {@link #applyProperty(Object, ObjectState, List, String, Object)}.
-     */
-    Map<String, Object> m_configProps = new HashMap<>();
+  /**
+   * The place-holder to collect all defined properties while executing {@link
+   * #applyProperty(Object, ObjectState, List, String, Object)}.
+   */
+  Map<String, Object> m_configProps = new HashMap<>();
 }

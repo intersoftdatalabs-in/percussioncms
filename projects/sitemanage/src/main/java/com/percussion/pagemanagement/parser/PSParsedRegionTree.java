@@ -17,17 +17,16 @@
  */
 package com.percussion.pagemanagement.parser;
 
+import com.percussion.pagemanagement.data.PSAbstractRegion;
+import com.percussion.pagemanagement.data.PSRegionCode;
+import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegionFactory;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSAbstractRegion;
-import com.percussion.pagemanagement.data.PSRegionCode;
-import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegionFactory;
-
 /**
- * An Abstract Syntax Tree of Regions parsed from an unexpanded HTML template.
- * Groups top-level {@link PSAbstractRegion} objects by id and keeps track of all child regions.
+ * An Abstract Syntax Tree of Regions parsed from an unexpanded HTML template. Groups top-level
+ * {@link PSAbstractRegion} objects by id and keeps track of all child regions.
  *
  * @param <REGION> Region type.
  * @param <CODE> Code type.
@@ -35,40 +34,44 @@ import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegio
  */
 public class PSParsedRegionTree<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
 
-    private static final String ROOT_NODE_ID = "percRoot";
-    private final REGION rootNode;
-    private final Map<String, REGION> regions = new HashMap<>();
+  private static final String ROOT_NODE_ID = "percRoot";
+  private final REGION rootNode;
+  private final Map<String, REGION> regions = new HashMap<>();
 
-    /**
-     * Constructs a parsed region tree with the given region factory.
-     * @param regionFactory the factory, never null.
-     */
-    public PSParsedRegionTree(IPSRegionParserRegionFactory<REGION, CODE> regionFactory) {
-        this.rootNode = regionFactory.createRootRegion();
-        this.rootNode.setRegionId(ROOT_NODE_ID);
-    }
+  /**
+   * Constructs a parsed region tree with the given region factory.
+   *
+   * @param regionFactory the factory, never null.
+   */
+  public PSParsedRegionTree(IPSRegionParserRegionFactory<REGION, CODE> regionFactory) {
+    this.rootNode = regionFactory.createRootRegion();
+    this.rootNode.setRegionId(ROOT_NODE_ID);
+  }
 
-    /**
-     * Gets the root node of the region tree.
-     * @return never null.
-     */
-    public REGION getRootNode() {
-        return rootNode;
-    }
+  /**
+   * Gets the root node of the region tree.
+   *
+   * @return never null.
+   */
+  public REGION getRootNode() {
+    return rootNode;
+  }
 
-    /**
-     * Gets the region id to region map.
-     * @return never null, unmodifiable.
-     */
-    public Map<String, REGION> getRegions() {
-        return Collections.unmodifiableMap(regions);
-    }
+  /**
+   * Gets the region id to region map.
+   *
+   * @return never null, unmodifiable.
+   */
+  public Map<String, REGION> getRegions() {
+    return Collections.unmodifiableMap(regions);
+  }
 
-    /**
-     * Internal use: gets the mutable region map.
-     * @return the mutable map.
-     */
-    Map<String, REGION> getMutableRegions() {
-        return regions;
-    }
+  /**
+   * Internal use: gets the mutable region map.
+   *
+   * @return the mutable map.
+   */
+  Map<String, REGION> getMutableRegions() {
+    return regions;
+  }
 }

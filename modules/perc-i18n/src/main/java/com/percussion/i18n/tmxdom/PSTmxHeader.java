@@ -24,15 +24,15 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class wraps the header DOM node of the TMX document and provides easy
- * methods to manipulate the header properties. We use the header element to
- * store the supported languages by the TMX document using the &lt;prop&gt;
- * child elements of the &lt;header&gt; element.
+ * This class wraps the header DOM node of the TMX document and provides easy methods to manipulate
+ * the header properties. We use the header element to store the supported languages by the TMX
+ * document using the &lt;prop&gt; child elements of the &lt;header&gt; element.
  */
 public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
   /**
-   * Contsructor. (ani:typo) Takes the TMX document object parses for the header, notes
-   * and supported languages.
+   * Contsructor. (ani:typo) Takes the TMX document object parses for the header, notes and
+   * supported languages.
+   *
    * @param TMXDoc parent TMX Document object, must not be <code>null</code>.
    */
   PSTmxHeader(IPSTmxDocument TMXDoc) {
@@ -55,9 +55,8 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
   }
 
   /**
-   * Helper method to process the header element. Parses for the supported
-   * languages and Notes and stores to appropriate objects. Adds all default
-   * required properties.
+   * Helper method to process the header element. Parses for the supported languages and Notes and
+   * stores to appropriate objects. Adds all default required properties.
    */
   private void processHeaderElement() {
     NodeList nl = m_DOMElement.getElementsByTagName(IPSTmxNode.NODENAMEMAP[IPSTmxNode.TMXPROPERTY]);
@@ -85,6 +84,7 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
 
   /**
    * Helper method to get the header element of the TMX document.
+   *
    * @param TMXDocument TMX document object, must not be <code>null</code>.
    * @return header element may be <code>null</code>.
    */
@@ -128,34 +128,25 @@ public class PSTmxHeader extends PSTmxNode implements IPSTmxHeader {
   }
 
   /**
-   *
-   * @return array of language strings of of suported languages. May be
-   * <code>null</code>.
+   * @return array of language strings of of suported languages. May be <code>null</code>.
    */
   public Object[] getSupportedLanguages() {
     return m_Languages.keySet().toArray();
   }
 
-  /**
-   * Map of all notes in the header. Never <code>null</code>. May be
-   * <code>empty</code>.
-   */
+  /** Map of all notes in the header. Never <code>null</code>. May be <code>empty</code>. */
   protected Map m_Notes = new HashMap();
 
   /**
-   * Map of all supported languages in the header. Never <code>null</code>.
-   * May be <code>empty</code>. These are actually {@link IPSTmxProperty}
-   * object with special attribute of "supportedlanguage".
+   * Map of all supported languages in the header. Never <code>null</code>. May be <code>empty
+   * </code>. These are actually {@link IPSTmxProperty} object with special attribute of
+   * "supportedlanguage".
    */
   protected Map m_Languages = new HashMap();
 
-  /**
-   * Node type value for the TMX header, constant
-   */
+  /** Node type value for the TMX header, constant */
   public static final int TMXNODETYPE = IPSTmxNode.TMXHEADER;
 
-  /**
-   * Node name value for the TMX header, constant
-   */
+  /** Node name value for the TMX header, constant */
   public static final String TMXNODENAME = IPSTmxNode.NODENAMEMAP[TMXNODETYPE];
 }

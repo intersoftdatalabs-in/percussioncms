@@ -25,17 +25,16 @@ import org.apache.commons.jexl3.parser.TokenMgrError;
 
 /**
  * A util class for parsing jexl expressions or scripts
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
 public class PSJexlParserUtils {
-  /**
-   * the jexl parser
-   */
+  /** the jexl parser */
   protected static Parser ms_parser = new Parser(new StringReader(";"));
 
   /**
    * With the JEXL script, parse it
+   *
    * @param scriptText
    * @return the parsed expression as a simple node
    * @throws Exception any parser exception
@@ -51,6 +50,7 @@ public class PSJexlParserUtils {
 
   /**
    * With the JEXL expression, parse it
+   *
    * @param expression
    * @return the parsed expression as a simple node
    */

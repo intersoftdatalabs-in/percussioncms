@@ -32,22 +32,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implements the PSXContentEditorMapper DTD defined in
- * ContentEditorLocalDef.dtd.
- */
+/** Implements the PSXContentEditorMapper DTD defined in ContentEditorLocalDef.dtd. */
 public class PSContentEditorMapper extends PSComponent {
   /**
    * Creates a new content editor mapper for the provided parameters.
    *
-   * @param systemFieldExcludes a list of system field excludes, may be
-   *    <code>null</code> or empty.
-   * @param sharedFieldIncludes a list of shared field includes, may be
-   *    <code>null</code> or empty.
-   * @param fieldSet the field set to use for this mapper, not
-   *    <code>null</code>.
-   * @param uiDefinition the UI definition to used for this mapper, not
-   *    <code>null</code>.
+   * @param systemFieldExcludes a list of system field excludes, may be <code>null</code> or empty.
+   * @param sharedFieldIncludes a list of shared field includes, may be <code>null</code> or empty.
+   * @param fieldSet the field set to use for this mapper, not <code>null</code>.
+   * @param uiDefinition the UI definition to used for this mapper, not <code>null</code>.
    */
   public PSContentEditorMapper(
       ArrayList systemFieldExcludes,
@@ -63,30 +56,23 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditorMapper(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSContentEditorMapper() {}
 
   /**
    * Recurses all field sets looking for a match and returns it if found.
    *
-   * @param ref the field set reference we are looking for, may be
-   *    <code>null</code> or empty.
+   * @param ref the field set reference we are looking for, may be <code>null</code> or empty.
    * @return the field set found or <code>null</code> if not found.
    */
   public PSFieldSet getFieldSet(String ref) {
@@ -101,8 +87,7 @@ public class PSContentEditorMapper extends PSComponent {
    * Recurse all field set looking for the reference one.
    *
    * @param fieldSet the field set to start with, may be <code>null</code>.
-   * @param ref the field set reference we are looking for, may be
-   *    <code>null</code> or empty.
+   * @param ref the field set reference we are looking for, may be <code>null</code> or empty.
    * @return the field set found or <code>null</code> if not found.
    */
   private PSFieldSet getFieldSet(PSFieldSet fieldSet, String ref) {
@@ -125,8 +110,8 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Get the system field excludes.
    *
-   * @return a list of system field excludes (Strings of field
-   *    names), never <code>null</code>, may be empty.
+   * @return a list of system field excludes (Strings of field names), never <code>null</code>, may
+   *     be empty.
    */
   public Iterator getSystemFieldExcludes() {
     return m_systemFieldExcludes.iterator();
@@ -135,8 +120,8 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Set the list of system field name excludes (a list of String objects).
    *
-   * @param systemFieldExcludes the new list of system field excludes,
-   *    may be <code>null</code> or empty.
+   * @param systemFieldExcludes the new list of system field excludes, may be <code>null</code> or
+   *     empty.
    */
   public void setSystemFieldExcludes(ArrayList systemFieldExcludes) {
     if (systemFieldExcludes == null) m_systemFieldExcludes = new ArrayList();
@@ -146,19 +131,18 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Get the shared field includes.
    *
-   * @return a list of shared field group names (String) included,
-   *    never <code>null</code>, may be empty.
+   * @return a list of shared field group names (String) included, never <code>null</code>, may be
+   *     empty.
    */
   public Iterator getSharedFieldIncludes() {
     return m_sharedFieldIncludes.iterator();
   }
 
   /**
-   * Set a new list of shared field group names included (a list of String
-   * objects).
+   * Set a new list of shared field group names included (a list of String objects).
    *
-   * @param sharedFieldIncludes the new list of shared field group names
-   *    (String) included, may be <code>null</code> or empty.
+   * @param sharedFieldIncludes the new list of shared field group names (String) included, may be
+   *     <code>null</code> or empty.
    */
   public void setSharedFieldIncludes(ArrayList sharedFieldIncludes) {
     if (sharedFieldIncludes == null) m_sharedFieldIncludes = new ArrayList();
@@ -168,8 +152,8 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Get the shared field excludes.
    *
-   * @return a list of shared field excludes (Strings of field
-   *    names), never <code>null</code>, may be empty.
+   * @return a list of shared field excludes (Strings of field names), never <code>null</code>, may
+   *     be empty.
    */
   public Iterator getSharedFieldExcludes() {
     return m_sharedFieldExcludes.iterator();
@@ -178,8 +162,8 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Set the list of shared field name excludes (a list of String objects).
    *
-   * @param sharedFieldExcludes the new list of shared field excludes,
-   *    may be <code>null</code> or empty.
+   * @param sharedFieldExcludes the new list of shared field excludes, may be <code>null</code> or
+   *     empty.
    */
   public void setSharedFieldExcludes(ArrayList sharedFieldExcludes) {
     if (sharedFieldExcludes == null) m_sharedFieldExcludes = new ArrayList();
@@ -209,8 +193,7 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Get the UI definition.
    *
-   * @return the current UI definition, never
-   *    <code>null</code>.
+   * @return the current UI definition, never <code>null</code>.
    */
   public PSUIDefinition getUIDefinition() {
     return m_uiDefinition;
@@ -228,9 +211,8 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSContentEditorMapper, not <code>null</code>.
    */
@@ -275,7 +257,6 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   @SuppressWarnings("unchecked") // $NON-NLS-1$
@@ -362,7 +343,6 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -432,8 +412,8 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Adds the shared fieldset name to all contained fields of
-   * the passed in shared definition.
+   * Adds the shared fieldset name to all contained fields of the passed in shared definition.
+   *
    * @param def the shared definition. Cannot be <code>null</code>.
    */
   public static void addSharedFieldMeta(final PSContentEditorSharedDef def) {
@@ -449,30 +429,24 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Validates the mapper and gets copy of this mapper merged with system and
-   * shared definitions. The merged mapper will have corrected field excludes
-   * list as user may specify a system/shared field as included which does not
-   * have mapping defined either in the local or in the respective definition.
-   * Does not modify the local fields or corresponding mappings in any way.
-   * <br>
-   * For example if one of the system field/mapping is overridden in the local
-   * content editor mapper, the returned mapper will have an entry for that
-   * system field merged with its definition keeping its overridden attributes
-   * or if it is just included then that field and mapping gets added to this
-   * local definition.
+   * Validates the mapper and gets copy of this mapper merged with system and shared definitions.
+   * The merged mapper will have corrected field excludes list as user may specify a system/shared
+   * field as included which does not have mapping defined either in the local or in the respective
+   * definition. Does not modify the local fields or corresponding mappings in any way. <br>
+   * For example if one of the system field/mapping is overridden in the local content editor
+   * mapper, the returned mapper will have an entry for that system field merged with its definition
+   * keeping its overridden attributes or if it is just included then that field and mapping gets
+   * added to this local definition.
    *
    * @param sysDef the content editor system definition, may not be <code>null
    * </code>
    * @param sharedDef the content editor shared definition, may not be <code>
    * null</code>
-   * @param mergeDefault if <code>true</code> the UI set provided for local
-   * system/shared field mapping merged with its Default UI set before merging
-   * with UI set defined in system/shared definition(the UI set merged with
-   * its default), otherwise it simply merges with UI set defined in
-   * system/shared definition
-   *
+   * @param mergeDefault if <code>true</code> the UI set provided for local system/shared field
+   *     mapping merged with its Default UI set before merging with UI set defined in system/shared
+   *     definition(the UI set merged with its default), otherwise it simply merges with UI set
+   *     defined in system/shared definition
    * @return the merged content editor mapper, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in merging.
    */
   public PSContentEditorMapper getMergedMapper(
@@ -541,25 +515,20 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Gets the copy of this editor's parent field set merged with system and
-   * shared definition. Validates the fields and fieldset after merging have
-   * unique names.
+   * Gets the copy of this editor's parent field set merged with system and shared definition.
+   * Validates the fields and fieldset after merging have unique names. <br>
+   * For example, if a field from system definition is included then that field gets merged if that
+   * field is overridden in the local definition, otherwise gets added to the local definition. Same
+   * for fieldset too.
    *
-   * <br>
-   * For example, if a field from system definition is included then that field
-   * gets merged if that field is overridden in the local definition, otherwise
-   * gets added to the local definition. Same for fieldset too.
-   *
-   * @param sysDef the content editor system definition, assumed not to be
-   *    <code>null</code>
-   * @param sharedDef the content editor shared definition, assumed not to be
-   *    <code>null</code>
-   * @param systemFieldExcludes the list of all system field excludes as
-   *    <code>String</code>, assumed not <code>null</code>.
-   * @param sharedFieldIncludes the list of all shared field includes as
-   *    <code>String</code>, assumed not <code>null</code>.
-   * @param sharedFieldExcludes the list of all shared field excludes as
-   *    <code>String</code>, assumed not <code>null</code>.
+   * @param sysDef the content editor system definition, assumed not to be <code>null</code>
+   * @param sharedDef the content editor shared definition, assumed not to be <code>null</code>
+   * @param systemFieldExcludes the list of all system field excludes as <code>String</code>,
+   *     assumed not <code>null</code>.
+   * @param sharedFieldIncludes the list of all shared field includes as <code>String</code>,
+   *     assumed not <code>null</code>.
+   * @param sharedFieldExcludes the list of all shared field excludes as <code>String</code>,
+   *     assumed not <code>null</code>.
    * @return the merged field set, never <code>null</code>
    * @throws PSSystemValidationException if an error happens in merging.
    */
@@ -618,15 +587,13 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Get all system field excludes for the supplied system definition. This
-   * makes sure that the returned list does NOT contain any system mandatory
-   * fields.
+   * Get all system field excludes for the supplied system definition. This makes sure that the
+   * returned list does NOT contain any system mandatory fields.
    *
-   * @param sysDef the system definition for which to get the excludes,
-   *    may be <code>null</code> in which case the excludes from this object
-   *    will be returned.
-   * @return a list with all excluded field names as <code>String</code>,
-   *    never <code>null</code>, may be empty.
+   * @param sysDef the system definition for which to get the excludes, may be <code>null</code> in
+   *     which case the excludes from this object will be returned.
+   * @return a list with all excluded field names as <code>String</code>, never <code>null</code>,
+   *     may be empty.
    */
   @SuppressWarnings("unchecked") // $NON-NLS-1$
   private List getSystemFieldExcludes(PSContentEditorSystemDef sysDef) {
@@ -639,18 +606,16 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Get all shared field includes and excludes. This makes sure that the
-   * returned list of shared includes does include all shared groups with
-   * system mandatory fields. This also makes sure that the shared field
-   * excludes do NOT contain system mandatory fields.
+   * Get all shared field includes and excludes. This makes sure that the returned list of shared
+   * includes does include all shared groups with system mandatory fields. This also makes sure that
+   * the shared field excludes do NOT contain system mandatory fields.
    *
-   * @param sharedDef the shared definition for which to get the includes
-   *    and excludes, may be <code>null</code> in which case the includes
-   *    and excludes from this object will be returned.
-   * @param sharedFieldExcludes the list into which the shared excludes will
-   *    be collected, assumed not <code>null</code>.
-   * @return the list of shared includes, never <code>null</code>, may be
-   *    empty.
+   * @param sharedDef the shared definition for which to get the includes and excludes, may be
+   *     <code>null</code> in which case the includes and excludes from this object will be
+   *     returned.
+   * @param sharedFieldExcludes the list into which the shared excludes will be collected, assumed
+   *     not <code>null</code>.
+   * @return the list of shared includes, never <code>null</code>, may be empty.
    */
   @SuppressWarnings("unchecked") // $NON-NLS-1$
   private List getSharedFieldIncludes(
@@ -693,15 +658,12 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Get the real excludes for the supplied field set. This makes sure that
-   * no system mandatory fields are excluded because they are required by the
-   * system to work properly.
+   * Get the real excludes for the supplied field set. This makes sure that no system mandatory
+   * fields are excluded because they are required by the system to work properly.
    *
-   * @param fieldSet the field set for which to get the excludes,
-   *    assumed not <code>null</code>.
+   * @param fieldSet the field set for which to get the excludes, assumed not <code>null</code>.
    * @param excludes the current excludes list, assumed not <code>null</code>.
-   * @return the real list of excluded fields, never <code>null</code>,
-   *    may be empty.
+   * @return the real list of excluded fields, never <code>null</code>, may be empty.
    */
   @SuppressWarnings("unchecked") // $NON-NLS-1$
   private List getRealExcludes(PSFieldSet fieldSet, List excludes) {
@@ -722,28 +684,23 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Gets the copy of this editor's UI definition merged with the UI definition
-   * for included system and shared fields defined in system and shared
-   * definition. If the mapping is defined for an included system/shared field
-   * in the local definition, then that mapping is merged with the mapping
-   * defined in the respective definition, otherwise adds the mapping to local
-   * definition.
+   * Gets the copy of this editor's UI definition merged with the UI definition for included system
+   * and shared fields defined in system and shared definition. If the mapping is defined for an
+   * included system/shared field in the local definition, then that mapping is merged with the
+   * mapping defined in the respective definition, otherwise adds the mapping to local definition.
    *
-   * @param sysDef the content editor system definition, assumed not to be
-   *    <code>null</code>
-   * @param sharedDef the content editor shared definition, assumed not to be
-   *    <code>null</code>
-   * @param systemFieldExcludes the list of all system field excludes as
-   *    <code>String</code>, assumed not <code>null</code>.
-   * @param sharedFieldIncludes the list of all shared field includes as
-   *    <code>String</code>, assumed not <code>null</code>.
-   * @param sharedFieldExcludes the list of all shared field excludes as
-   *    <code>String</code>, assumed not <code>null</code>.
-   * @param mergeDefault if <code>true</code> the UI set provided for local
-   *    system/shared field mapping merged with it's Default UI set before
-   *    merging with UI set defined in system/shared definition(the UI set
-   *    merged with its default), otherwise it simply merges with UI set
-   *    defined in system/shared definition
+   * @param sysDef the content editor system definition, assumed not to be <code>null</code>
+   * @param sharedDef the content editor shared definition, assumed not to be <code>null</code>
+   * @param systemFieldExcludes the list of all system field excludes as <code>String</code>,
+   *     assumed not <code>null</code>.
+   * @param sharedFieldIncludes the list of all shared field includes as <code>String</code>,
+   *     assumed not <code>null</code>.
+   * @param sharedFieldExcludes the list of all shared field excludes as <code>String</code>,
+   *     assumed not <code>null</code>.
+   * @param mergeDefault if <code>true</code> the UI set provided for local system/shared field
+   *     mapping merged with it's Default UI set before merging with UI set defined in system/shared
+   *     definition(the UI set merged with its default), otherwise it simply merges with UI set
+   *     defined in system/shared definition
    * @return the merged UI definition, never <code>null</code>
    * @throws PSSystemValidationException if an error happens in merging.
    */
@@ -799,12 +756,11 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Recurses through the supplied mapper and sets the source type on various
-   * elements.
+   * Recurses through the supplied mapper and sets the source type on various elements.
    *
    * @param dispMapper to be recursed. Assumed not <code>null</code>.
-   * @param type the source type. Assumed to be a valid type which are
-   *    "sys_system", "sys_local", "sys_shared".
+   * @param type the source type. Assumed to be a valid type which are "sys_system", "sys_local",
+   *     "sys_shared".
    */
   private void setSourceType(PSDisplayMapper dispMapper, String type) {
     Iterator itr = dispMapper.iterator();
@@ -852,10 +808,9 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Determines the system field excludes, shared group includes and shared
-   * field excludes from this mapper's fieldset and UI definition and updates
-   * those. This should be called for a mapper which is merged with system and
-   * shared definition.
+   * Determines the system field excludes, shared group includes and shared field excludes from this
+   * mapper's fieldset and UI definition and updates those. This should be called for a mapper which
+   * is merged with system and shared definition.
    *
    * @param sysDef the content editor system definition, may not be <code>null
    * </code>
@@ -921,17 +876,15 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Finds the fields that are in the <code>sourceSet</code> and not used by
-   * the provided target UI definition and the target set.
+   * Finds the fields that are in the <code>sourceSet</code> and not used by the provided target UI
+   * definition and the target set.
    *
-   * @param sourceSet the source fieldset to be checked, cannot be
-   * <code>null</code>
-   * @param targetUIDef the UI definition to check whether the fields of source
-   * set are used, cannot be <code>null</code>
-   * @param targetSet the target fieldset to check whether the field is
-   * included or not, cannot be <code>null</code>
+   * @param sourceSet the source fieldset to be checked, cannot be <code>null</code>
+   * @param targetUIDef the UI definition to check whether the fields of source set are used, cannot
+   *     be <code>null</code>
+   * @param targetSet the target fieldset to check whether the field is included or not, cannot be
+   *     <code>null</code>
    * @param type the type of the fields in the source set
-   *
    * @return the list of fields that are not used (excluded), never <code>null
    * </code>, may be empty.
    */
@@ -981,24 +934,21 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Gets copy of this mapper containing local fieldset and UI definition that
-   * is demerged from system and shared definition. The demerged mapper will
-   * contain the fields or mappings with overridden attributes only for
-   * included system or shared fields. This should be called for a mapper that
-   * is already merged with system and shared definition. Does not modify the
-   * local fields or corresponding mappings in any way.
+   * Gets copy of this mapper containing local fieldset and UI definition that is demerged from
+   * system and shared definition. The demerged mapper will contain the fields or mappings with
+   * overridden attributes only for included system or shared fields. This should be called for a
+   * mapper that is already merged with system and shared definition. Does not modify the local
+   * fields or corresponding mappings in any way.
    *
    * @param sysDef the content editor system definition, may not be <code>null
    * </code>
    * @param sharedDef the content editor shared definition, may not be <code>
    * null</code>
-   * @param demergeDefault supply <code>true</code> if the UI set of the merged    *
-   * system/shared field mapping is merged with it's Default UI set before
-   * merging with UI set defined in system/shared definition(the UI set merged
-   * with its default), otherwise supply <code>false</code>
-   *
+   * @param demergeDefault supply <code>true</code> if the UI set of the merged * system/shared
+   *     field mapping is merged with it's Default UI set before merging with UI set defined in
+   *     system/shared definition(the UI set merged with its default), otherwise supply <code>false
+   *     </code>
    * @return the demerged content editor mapper, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in demerging.
    */
   public PSContentEditorMapper getDemergedMapper(
@@ -1021,18 +971,13 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Gets the copy of this editor's parent field set demerged with system and
-   * shared definition. The demerged mapper will contain the system/shared
-   * fields that are overridden. If none of the fields of the fieldset is
-   * overridden, then that fieldset is removed from the local fieldset.
+   * Gets the copy of this editor's parent field set demerged with system and shared definition. The
+   * demerged mapper will contain the system/shared fields that are overridden. If none of the
+   * fields of the fieldset is overridden, then that fieldset is removed from the local fieldset.
    *
-   * @param sysDef the content editor system definition, assumed not to be
-   * <code>null</code>
-   * @param sharedDef the content editor shared definition, assumed not to be
-   * <code>null</code>
-   *
+   * @param sysDef the content editor system definition, assumed not to be <code>null</code>
+   * @param sharedDef the content editor shared definition, assumed not to be <code>null</code>
    * @return the demerged field set, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in demerging.
    */
   private PSFieldSet getDemergedFieldSet(
@@ -1088,20 +1033,16 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Gets the copy of this editor's UI definition demerged with the UI
-   * definition for included system and shared fields defined in system and
-   * shared definition.
+   * Gets the copy of this editor's UI definition demerged with the UI definition for included
+   * system and shared fields defined in system and shared definition.
    *
-   * @param sysDef the content editor system definition, assumed not to be
-   * <code>null</code>
+   * @param sysDef the content editor system definition, assumed not to be <code>null</code>
    * @param sharedDef the content editor shared definition, assumed not to be
-   * @param demergeDefault supply <code>true</code> if the UI set of the merged    *
-   * system/shared field mapping is merged with it's Default UI set before
-   * merging with UI set defined in system/shared definition(the UI set merged
-   * with its default), otherwise supply <code>false</code>
-   *
+   * @param demergeDefault supply <code>true</code> if the UI set of the merged * system/shared
+   *     field mapping is merged with it's Default UI set before merging with UI set defined in
+   *     system/shared definition(the UI set merged with its default), otherwise supply <code>false
+   *     </code>
    * @return the demerged UI Definition, never <code>null</code>
-   *
    * @throws PSSystemValidationException if an error happens in demerging.
    */
   private PSUIDefinition getDemergedUIDefinition(
@@ -1141,24 +1082,22 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Ensures that all shared groups included can be found in the shared def,
-   * and that any shared field excludes can be found in those groups' fieldsets.
-   * Also does the following validations:
+   * Ensures that all shared groups included can be found in the shared def, and that any shared
+   * field excludes can be found in those groups' fieldsets. Also does the following validations:
+   *
    * <ul>
-   *    <li>Shared group name and it's fieldSet name match.</li>
-   *    <li>FieldSet name and display mapper's fieldSetRef match.</li>
-   *    <li>Simple child fields have the required child mapping
-   *    defined in the fields ui definition.</li>
+   *   <li>Shared group name and it's fieldSet name match.
+   *   <li>FieldSet name and display mapper's fieldSetRef match.
+   *   <li>Simple child fields have the required child mapping defined in the fields ui definition.
    * </ul>
-   * If any of these validations fail they will be returned in an iterator of
-   * <code>PSSystemValidationException</code> objects that can be sent to the console.
+   *
+   * If any of these validations fail they will be returned in an iterator of <code>
+   * PSSystemValidationException</code> objects that can be sent to the console.
    *
    * @param sharedDef the content editor shared def, assumed not to be <code>
    * null</code>
-   *
-   * @return iterator of <code>PSSystemValidationException</code> objects to capture
-   * warnings. Never <code>null</code>, may be empty.
-   *
+   * @return iterator of <code>PSSystemValidationException</code> objects to capture warnings. Never
+   *     <code>null</code>, may be empty.
    * @throws PSSystemValidationException if the above conditions are not met.
    */
   public Iterator validateSharedGroups(PSContentEditorSharedDef sharedDef)
@@ -1287,20 +1226,17 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Validates that none of the mapped shared fields is defined in more than
-   * one included shared groups. The reason that this validation is needed
-   * is due to a problem that the CE shared field doesn't have an explicit refe-
-   * rence to a shared group name where it is defined, hence if more than
-   * one included shared group defines a duplicate shared field, it then poses
-   * a problem to determine which shared group contains a definition of a given
-   * shared field.
+   * Validates that none of the mapped shared fields is defined in more than one included shared
+   * groups. The reason that this validation is needed is due to a problem that the CE shared field
+   * doesn't have an explicit refe- rence to a shared group name where it is defined, hence if more
+   * than one included shared group defines a duplicate shared field, it then poses a problem to
+   * determine which shared group contains a definition of a given shared field.
    *
    * @param sharedDef all server CE shared groups with all shared fields defined
-   * @param itSharedGroupIncludes a list of shared group names that a given CE
-   * includes as the <SharedFieldIncludes><SharedFieldGroupName>... nodes.
-   *
-   * @throws PSMinorValidationException in case if there are more then one included
-   * shared fields with a duplicate name.
+   * @param itSharedGroupIncludes a list of shared group names that a given CE includes as the
+   *     <SharedFieldIncludes><SharedFieldGroupName>... nodes.
+   * @throws PSMinorValidationException in case if there are more then one included shared fields
+   *     with a duplicate name.
    */
   @SuppressWarnings("unchecked") // $NON-NLS-1$
   public void validateSharedFieldDuplication(
@@ -1390,7 +1326,6 @@ public class PSContentEditorMapper extends PSComponent {
    *
    * @param systemDef the content editor system def, assumed not to be <code>
    * null</code>
-   *
    * @throws PSSystemValidationException if any of the excludes are not defined.
    */
   private void validateSystemFieldExcludes(PSContentEditorSystemDef systemDef)
@@ -1419,12 +1354,10 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Returns a new list with all elements in supplied list converted to upper
-   * case.
+   * Returns a new list with all elements in supplied list converted to upper case.
    *
-   * @param list the list of <code>String</code>s, may not be <code>null</code>
-   * If it is empty, the returned list will be empty.
-   *
+   * @param list the list of <code>String</code>s, may not be <code>null</code> If it is empty, the
+   *     returned list will be empty.
    * @return the new converted list, never <code>null</code>
    */
   private List convertToUpper(List list) {
@@ -1444,9 +1377,8 @@ public class PSContentEditorMapper extends PSComponent {
   /**
    * Validates the supplied source type.
    *
-   * @param sourceType the source type to validate, may be <code>null</code>
-   *    or must be one of <code>SYSTEM</code>, <code>SHARED</code>
-   *    or <code>LOCAL</code>.
+   * @param sourceType the source type to validate, may be <code>null</code> or must be one of
+   *     <code>SYSTEM</code>, <code>SHARED</code> or <code>LOCAL</code>.
    */
   public static void validateSourceType(String sourceType) {
     if (sourceType == null) return;
@@ -1459,11 +1391,11 @@ public class PSContentEditorMapper extends PSComponent {
   }
 
   /**
-   * Get the list of system mandatory fields that have been added while
-   * getting the merged content editor mapper.
+   * Get the list of system mandatory fields that have been added while getting the merged content
+   * editor mapper.
    *
-   * @return a collection of system mandatory field names added as
-   *    <code>String</code> objects, never <code>null</code>, may be empty.
+   * @return a collection of system mandatory field names added as <code>String</code> objects,
+   *     never <code>null</code>, may be empty.
    */
   public Collection getAddedSystemMandatoryFields() {
     return m_addedSystemMandatoryFields;
@@ -1472,41 +1404,33 @@ public class PSContentEditorMapper extends PSComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXContentEditorMapper";
 
-  /**
-   * Used to indicate an element was defined in the system defintion.
-   */
+  /** Used to indicate an element was defined in the system defintion. */
   public static final String SYSTEM = "sys_system";
 
-  /**
-   * Used to indicate an element was defined or overridden in a shared defintion.
-   */
+  /** Used to indicate an element was defined or overridden in a shared defintion. */
   public static final String SHARED = "sys_shared";
 
-  /**
-   * Used to indicate an element was defined or overridden in a local defintion.
-   */
+  /** Used to indicate an element was defined or overridden in a local defintion. */
   public static final String LOCAL = "sys_local";
 
-  /**
-   * An array of all defined source types.
-   */
+  /** An array of all defined source types. */
   public static final String[] SOURCE_TYPES = {SYSTEM, SHARED, LOCAL};
 
   /**
-   * A list of field refs (String) excluded from the system field
-   * efinition. Always valid after construction.
+   * A list of field refs (String) excluded from the system field efinition. Always valid after
+   * construction.
    */
   private ArrayList m_systemFieldExcludes = new ArrayList();
 
   /**
-   * A list of field group names (String) included from the shared field
-   * definitions. Always valid after construction.
+   * A list of field group names (String) included from the shared field definitions. Always valid
+   * after construction.
    */
   private ArrayList m_sharedFieldIncludes = new ArrayList();
 
   /**
-   * A list of field refs (String) excluded from any of the include shared
-   * groups' field sets. Always valid after construction, may be empty.
+   * A list of field refs (String) excluded from any of the include shared groups' field sets.
+   * Always valid after construction, may be empty.
    */
   private ArrayList m_sharedFieldExcludes = new ArrayList();
 
@@ -1517,13 +1441,11 @@ public class PSContentEditorMapper extends PSComponent {
   private PSUIDefinition m_uiDefinition = null;
 
   /**
-   * A list of system mandatory field names added while getting the merged
-   * content editor mapper as <code>String</code> objects. Reset for each call
-   * to {@link #getMergedMapper(PSContentEditorSystemDef,
-   * PSContentEditorSharedDef, boolean)}, never <code>null</code>, may be
-   * empty.
-   * This value is not available in the XML representation of this object nor
-   * is it copied during clone / ccopy from actions.
+   * A list of system mandatory field names added while getting the merged content editor mapper as
+   * <code>String</code> objects. Reset for each call to {@link
+   * #getMergedMapper(PSContentEditorSystemDef, PSContentEditorSharedDef, boolean)}, never <code>
+   * null</code>, may be empty. This value is not available in the XML representation of this object
+   * nor is it copied during clone / ccopy from actions.
    */
   private transient Collection m_addedSystemMandatoryFields = new ArrayList();
 

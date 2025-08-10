@@ -17,9 +17,10 @@
 package com.percussion.cms;
 
 /**
- * This inteface is provided as a convenient mechanism for accessing the
- * various CMS system related error codes. Errors are in the range
- * 13001 - 14000. Within this range, errors are further broken down as follows:
+ * This inteface is provided as a convenient mechanism for accessing the various CMS system related
+ * error codes. Errors are in the range 13001 - 14000. Within this range, errors are further broken
+ * down as follows:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>1601 - 1700</TD><TD>This range is actually defined in the
@@ -33,19 +34,18 @@ package com.percussion.cms;
  */
 public interface IPSCmsErrors {
   /**
-   * Uses an existing message. Used to translate a SQLException to one of ours.
-   * Assumed that the message was formatted w/
-   * PSSqlException.getFormattedExceptionText().
+   * Uses an existing message. Used to translate a SQLException to one of ours. Assumed that the
+   * message was formatted w/ PSSqlException.getFormattedExceptionText().
    */
   public static final int SQL_EXCEPTION_WRAPPER = 1002;
 
   /**
-   * While performing an operation on the system tables in the database, an
-   * unexpected condition was found. This might be duplicate rows (because a
-   * primary key was not properly defined), data that doesn't have the proper
-   * format, etc.
-   * <p>
-   * The arguments passed in for this message are:
+   * While performing an operation on the system tables in the database, an unexpected condition was
+   * found. This might be duplicate rows (because a primary key was not properly defined), data that
+   * doesn't have the proper format, etc.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the CMS component that was being processed
@@ -58,10 +58,11 @@ public interface IPSCmsErrors {
   public static final int CORRUPT_DATABASE_ENTRY = 13001;
 
   /**
-   * An operation that required a valid content type id was supplied with
-   * an invalid one. A valid content type is one that has a running handler.
-   * <p>
-   * The arguments passed in for this message are:
+   * An operation that required a valid content type id was supplied with an invalid one. A valid
+   * content type is one that has a running handler.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the content type that was passed. May be
@@ -72,8 +73,9 @@ public interface IPSCmsErrors {
 
   /**
    * Caught an exception while send message to server
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the exception</TD></TR>
@@ -83,8 +85,9 @@ public interface IPSCmsErrors {
 
   /**
    * Received un-expected data after sending message to server
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected node</TD></TR>
@@ -95,8 +98,9 @@ public interface IPSCmsErrors {
 
   /**
    * Folder operation failed
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>folder operation</TD></TR>
@@ -106,8 +110,9 @@ public interface IPSCmsErrors {
 
   /**
    * Error message from a folder operation failure
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the error message</TD></TR>
@@ -117,23 +122,24 @@ public interface IPSCmsErrors {
 
   /**
    * The requested folder operation failed because of insufficient privileges.
-   * <p>
-   * No arguments required for this message.
+   *
+   * <p>No arguments required for this message.
    */
   public static final int FOLDER_PERMISSION_DENIED = 13007;
 
   /**
-   * Insufficient privileges to create the folder. The user must have read
-   * access for the folder to be created successfully.
-   * <p>
-   * No arguments required for this message.
+   * Insufficient privileges to create the folder. The user must have read access for the folder to
+   * be created successfully.
+   *
+   * <p>No arguments required for this message.
    */
   public static final int FOLDER_CREATE_ERROR = 13008;
 
   /**
    * Site lookup for given site id failed.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Name of the Rhythmyx intenrnal request resource to perform the site lookup</TD></TR>
@@ -143,10 +149,11 @@ public interface IPSCmsErrors {
   public static final int SITE_LOOKUP_FAILED = 13009;
 
   /**
-   * Failed to clone (or create new copy) a Content Item since the Content
-   * Type of the Item is not visible by the Community
-   * <p>
-   * The arguments passed in for this message are:
+   * Failed to clone (or create new copy) a Content Item since the Content Type of the Item is not
+   * visible by the Community
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the id of the Content Item</TD></TR>
@@ -154,14 +161,14 @@ public interface IPSCmsErrors {
    * <TR><TD>2</TD><TD>the id of the Content Type</TD></TR>
    * <TR><TD>3</TD><TD>the id of the Community</TD></TR>
    * </TABLE>
-   *
    */
   public static final int CONTENT_TYPE_NOT_VISIBLE_BY_COMMUNITY = 13010;
 
   /**
    * Invalid content type supplied. To be valid a handler must be running.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The content type name or id.</TD></TR>
@@ -170,10 +177,10 @@ public interface IPSCmsErrors {
   public static final int INVALID_CONTENT_TYPE = 13102;
 
   /**
-   * An operation attempted to open a content type and it could not
-   * be opened or acquired.
-   * <p>
-   * The arguments passed in for this message are:
+   * An operation attempted to open a content type and it could not be opened or acquired.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the content type that was passed. May be
@@ -185,10 +192,10 @@ public interface IPSCmsErrors {
   public static final int CONTENT_TYPE_CANNOT_BE_OPENED = 13103;
 
   /**
-   * An operation attempted to locate a  content item and it could not
-   * be opened or acquired.
-   * <p>
-   * The arguments passed in for this message are:
+   * An operation attempted to locate a content item and it could not be opened or acquired.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The contentId of the item to be located.</TD></TR>
@@ -198,16 +205,19 @@ public interface IPSCmsErrors {
   public static final int CONTENT_ITEM_CANNOT_BE_LOCATED = 13104;
 
   /**
-   * An operation attempted to locate a extract the datapipe from a
-   * content editor and it returned null.
+   * An operation attempted to locate a extract the datapipe from a content editor and it returned
+   * null.
+   *
    * <p>
    */
   public static final int DATA_EXTRACTION_ERROR_NULL_DATAPIPE = 13106;
 
   /**
-   * An error occurred when trying to convert a IPSFieldValue object to its
-   * <code>String</code> representation.
+   * An error occurred when trying to convert a IPSFieldValue object to its <code>String</code>
+   * representation.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The description of the possible problem.  If
@@ -218,7 +228,9 @@ public interface IPSCmsErrors {
 
   /**
    * A necessary XML document cannot be found.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Submitted location</TD></TR>
@@ -227,8 +239,10 @@ public interface IPSCmsErrors {
   public static final int REQUIRED_DOCUMENT_MISSING_ERROR = 13107;
 
   /**
-   * An error occurred while parsing a XML Document.  Node type is unknown.
+   * An error occurred while parsing a XML Document. Node type is unknown.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Brief information, Node name if possible.</TD></TR>
@@ -238,7 +252,9 @@ public interface IPSCmsErrors {
 
   /**
    * An error occurred while making an internal request in the CMS layer.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Location url or app/source.</TD></TR>
@@ -250,8 +266,8 @@ public interface IPSCmsErrors {
   /**
    * Object does not have the same type of PSKey.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The expected key parts / definitions</TD></TR>
@@ -260,17 +276,14 @@ public interface IPSCmsErrors {
    */
   public static final int KEY_PARTS_NOT_MATCH = 13110;
 
-  /**
-   * An operation on a key required that it already have a value, but it
-   * didn't.
-   */
+  /** An operation on a key required that it already have a value, but it didn't. */
   public static final int KEY_NOT_ASSIGNED = 13111;
 
   /**
    * Component type not supported by this processor.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The value returned by IPSDbComponent.getComponentType()
@@ -282,7 +295,9 @@ public interface IPSCmsErrors {
 
   /**
    * A required property was missing from the processor config file.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the required property</TD></TR>
@@ -294,7 +309,9 @@ public interface IPSCmsErrors {
 
   /**
    * The supplied document was of the wrong type.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>1</TD><TD>The value returned by IPSDbComponent.getComponentType()
@@ -305,15 +322,14 @@ public interface IPSCmsErrors {
    */
   public static final int SERIALIZED_COMPONENTS_WRONG_XML_DOC = 13114;
 
-  /**
-   * An xml document with no children was supplied, but children were
-   * expected.
-   */
+  /** An xml document with no children was supplied, but children were expected. */
   public static final int EMPTY_XML_DOCUMENT = 13115;
 
   /**
    * A required Rhythmyx resource could not be found. (Maybe it's not running?)
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the resource, in form app/resource</TD></TR>
@@ -323,7 +339,9 @@ public interface IPSCmsErrors {
 
   /**
    * The configuration file for the CMS objectstore processors can't be found.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the config file.</TD></TR>
@@ -333,7 +351,9 @@ public interface IPSCmsErrors {
 
   /**
    * Wraps a SAXException.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the xml document. If there isn't one,
@@ -346,9 +366,11 @@ public interface IPSCmsErrors {
   public static final int XML_PARSING_ERROR = 13118;
 
   /**
-   * Multiple properties found for a processor under a single component type
-   * in the processor config file.
+   * Multiple properties found for a processor under a single component type in the processor config
+   * file.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the processor.</TD></TR>
@@ -359,9 +381,10 @@ public interface IPSCmsErrors {
   public static final int DUPLICATE_PROCESSOR_PROPERTY = 13119;
 
   /**
-   * Duplicate processors found under the same component type in the
-   * processor config file.
+   * Duplicate processors found under the same component type in the processor config file.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the processor.</TD></TR>
@@ -371,9 +394,11 @@ public interface IPSCmsErrors {
   public static final int DUPLICATE_PROCESSOR_ENTRY = 13120;
 
   /**
-   * There is no processor defined for the specified component type. One must
-   * be defined in the processor configuration file.
+   * There is no processor defined for the specified component type. One must be defined in the
+   * processor configuration file.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type.</TD></TR>
@@ -383,9 +408,11 @@ public interface IPSCmsErrors {
   public static final int NO_PROCESSOR_ENTRY = 13121;
 
   /**
-   * While instantiating a processor from a class name specified in a config
-   * file, the required ctor was missing.
+   * While instantiating a processor from a class name specified in a config file, the required ctor
+   * was missing.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified name of the class that is
@@ -399,16 +426,15 @@ public interface IPSCmsErrors {
    */
   public static final int PROCESSOR_NO_SUCH_METHOD = 13122;
 
-  /**
-   * Instantiated class for objectststore processor must inherit from
-   * PSCmsProcessor.
-   */
+  /** Instantiated class for objectststore processor must inherit from PSCmsProcessor. */
   public static final int PROCESSOR_BAD_HERITAGE = 13123;
 
   /**
-   * While instantiating a processor using reflection from a class name
-   * specified in a config file, one of several possible exceptions occurred.
+   * While instantiating a processor using reflection from a class name specified in a config file,
+   * one of several possible exceptions occurred.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
@@ -421,9 +447,11 @@ public interface IPSCmsErrors {
   public static final int PROCESSOR_INSTANTIATION_ERROR = 13124;
 
   /**
-   * While instantiating a component using reflection during re-serialization
-   * of a db component, one of serveral possible exceptions occurred.
+   * While instantiating a component using reflection during re-serialization of a db component, one
+   * of serveral possible exceptions occurred.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
@@ -436,9 +464,11 @@ public interface IPSCmsErrors {
   public static final int COMPONENT_INSTANTIATION_ERROR = 13125;
 
   /**
-   * During key assignment, the number of values returned to assign did not
-   * match the number of parts in the key.
+   * During key assignment, the number of values returned to assign did not match the number of
+   * parts in the key.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
@@ -448,10 +478,11 @@ public interface IPSCmsErrors {
   public static final int KEY_MISMATCH = 13126;
 
   /**
-   * During key assignment, a parent key was supplied, but after assigning the
-   * values to the available parts, there was no part left for the foreign
-   * key assignment.
+   * During key assignment, a parent key was supplied, but after assigning the values to the
+   * available parts, there was no part left for the foreign key assignment.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
@@ -461,10 +492,11 @@ public interface IPSCmsErrors {
   public static final int TOO_MANY_FOREIGN_KEY_PARTS = 13127;
 
   /**
-   * During key assignment, a parent key was supplied, but there weren't
-   * enough matching parts in the foreign key to fill the remaining parts of
-   * the component key.
+   * During key assignment, a parent key was supplied, but there weren't enough matching parts in
+   * the foreign key to fill the remaining parts of the component key.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component type as returned by getComponentType()
@@ -474,10 +506,11 @@ public interface IPSCmsErrors {
   public static final int TOO_FEW_FOREIGN_KEY_PARTS = 13128;
 
   /**
-   * While de-serializing a list/collection of objects, while attempting to
-   * instantiate new ones using reflection, one of several possible exceptions
-   * occurred.
+   * While de-serializing a list/collection of objects, while attempting to instantiate new ones
+   * using reflection, one of several possible exceptions occurred.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The fully qualified class name that caused the
@@ -490,10 +523,11 @@ public interface IPSCmsErrors {
   public static final int LIST_ENTRY_INSTANTIATION_ERROR = 13129;
 
   /**
-   * While de-serializing a PSDbComponentList of objects, the entry node name
-   * found in the serialized stream didn't start with PSX and no className
-   * attribute was present.
+   * While de-serializing a PSDbComponentList of objects, the entry node name found in the
+   * serialized stream didn't start with PSX and no className attribute was present.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The node name.</TD></TR>
@@ -505,7 +539,9 @@ public interface IPSCmsErrors {
 
   /**
    * A lookup key for id allocation was not provided.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name as provided by getComponentType().
@@ -515,9 +551,11 @@ public interface IPSCmsErrors {
   public static final int MISSING_LOOKUP_KEY = 13131;
 
   /**
-   * While restoring a serialized object, a validation failed. A property
-   * used as part of the key did not match the re-serialized key.
+   * While restoring a serialized object, a validation failed. A property used as part of the key
+   * did not match the re-serialized key.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The component name as provided by getComponentType().
@@ -529,10 +567,11 @@ public interface IPSCmsErrors {
   public static final int MISMATCH_BETWEEN_KEY_AND_DATA = 13132;
 
   /**
-   * A wrapper for an IOException while communicating w/ the server. The
-   * context should give an idea of what was being done when the exception
-   * happened. For example, what was the request url.
+   * A wrapper for an IOException while communicating w/ the server. The context should give an idea
+   * of what was being done when the exception happened. For example, what was the request url.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Context - what were you doing when it happened.
@@ -543,10 +582,12 @@ public interface IPSCmsErrors {
   public static final int COMM_ERROR_WITH_SERVER = 13133;
 
   /**
-   * A wrapper for a SAXxception. The context should give an idea of what
-   * was being done when the exception happened. For example, if processing
-   * a document returned by the server, what was the request url.
+   * A wrapper for a SAXxception. The context should give an idea of what was being done when the
+   * exception happened. For example, if processing a document returned by the server, what was the
+   * request url.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Context - what were you doing when it happened.
@@ -557,9 +598,10 @@ public interface IPSCmsErrors {
   public static final int SAX_PROCESSING_EXCEPTION = 13134;
 
   /**
-   * An exit required a parameter that was not supplied or didn't have a
-   * valid value.
+   * An exit required a parameter that was not supplied or didn't have a valid value.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
@@ -570,7 +612,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed to get component summaries, may caused by invalid content ids
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
@@ -581,7 +625,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed get parent folder, may caused by invalid child id
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
@@ -592,7 +638,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed open folder with a specified folder id
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Parameter name</TD></TR>
@@ -603,7 +651,9 @@ public interface IPSCmsErrors {
 
   /**
    * Invalid folder id
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>id</TD></TR>
@@ -613,7 +663,9 @@ public interface IPSCmsErrors {
 
   /**
    * No content type definition found for the specified source object.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>source object id</TD></TR>
@@ -623,7 +675,9 @@ public interface IPSCmsErrors {
 
   /**
    * The creation of circular folder references is not allowed.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the target folder.</TD></TR>
@@ -634,7 +688,9 @@ public interface IPSCmsErrors {
 
   /**
    * Cannot move a folder to its descendent folder.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the moved folder</TD></TR>
@@ -646,10 +702,11 @@ public interface IPSCmsErrors {
   public static final int CANNOT_MOVE_FOLDER_TO_ITS_DESCENDENT = 13142;
 
   /**
-   * An unknown related type was supplied for a related item. Related types
-   * must be relationship configurations of category
-   * <code>rs_activeassembly</code>.
+   * An unknown related type was supplied for a related item. Related types must be relationship
+   * configurations of category <code>rs_activeassembly</code>.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied related type.</TD></TR>
@@ -658,10 +715,11 @@ public interface IPSCmsErrors {
   public static final int UNKNOWN_RELATED_TYPE = 13146;
 
   /**
-   * An invalid related type was supplied for a related item. Related types
-   * must be relationship configurations of category
-   * <code>rs_activeassembly</code>.
+   * An invalid related type was supplied for a related item. Related types must be relationship
+   * configurations of category <code>rs_activeassembly</code>.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied related type.</TD></TR>
@@ -671,7 +729,9 @@ public interface IPSCmsErrors {
 
   /**
    * Cannot copy a folder to its descendent folder.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the copied folder</TD></TR>
@@ -683,9 +743,11 @@ public interface IPSCmsErrors {
   public static final int CANNOT_COPY_FOLDER_TO_ITS_DESCENDENT = 13143;
 
   /**
-   * Moving an item from a folder is not allowed, when the source folder id
-   * is referenced by a cross site link (AA relationship).
+   * Moving an item from a folder is not allowed, when the source folder id is referenced by a cross
+   * site link (AA relationship).
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the moved item.</TD></TR>
@@ -699,10 +761,11 @@ public interface IPSCmsErrors {
   public static final int FOLDERID_REF_BY_CROSS_SITE_LINK = 13144;
 
   /**
-   * Moving an item from a folder is not allowed, when the target folder
-   * is not under the site that is referenced by a cross site link
-   * (AA relationship).
+   * Moving an item from a folder is not allowed, when the target folder is not under the site that
+   * is referenced by a cross site link (AA relationship).
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the moved item.</TD></TR>
@@ -717,7 +780,9 @@ public interface IPSCmsErrors {
 
   /**
    * An invalid complex child field name was specified.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name.</TD></TR>
@@ -728,7 +793,9 @@ public interface IPSCmsErrors {
 
   /**
    * A request for an unknown relationship type was received.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The requested relationship type.</TD></TR>
@@ -738,7 +805,9 @@ public interface IPSCmsErrors {
 
   /**
    * An invalid key type was supplied.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The required key type.</TD></TR>
@@ -747,14 +816,14 @@ public interface IPSCmsErrors {
    */
   public static final int UNEXPECTED_KEY_TYPE = 13202;
 
-  /**
-   * A persisted key was expected.
-   */
+  /** A persisted key was expected. */
   public static final int PERSISTED_KEY_EXPECTED = 13203;
 
   /**
    * Invalid relatonship type for inserts.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The requested relationship type.</TD></TR>
@@ -764,7 +833,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed to generate a new relationship id.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message.</TD></TR>
@@ -774,7 +845,9 @@ public interface IPSCmsErrors {
 
   /**
    * An unexpected error occurred, such as IOException.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message.</TD></TR>
@@ -784,7 +857,9 @@ public interface IPSCmsErrors {
 
   /**
    * Invalid relatonship type for active assembly.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
@@ -796,7 +871,9 @@ public interface IPSCmsErrors {
 
   /**
    * Unknown active assembly command.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied command</TD></TR>
@@ -806,7 +883,9 @@ public interface IPSCmsErrors {
 
   /**
    * Missing required parameter for the active assembly request handler.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The required parameters</TD></TR>
@@ -816,7 +895,9 @@ public interface IPSCmsErrors {
 
   /**
    * Error occurred while reading data from the config of processor proxy.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The text of the exception</TD></TR>
@@ -825,10 +906,11 @@ public interface IPSCmsErrors {
   public static final int PROCESSOR_CONFIG_IO_ERROR = 13210;
 
   /**
-   * The 'Default' named transition was selected for promotable versions but
-   * none is specified in the workflow.
+   * The 'Default' named transition was selected for promotable versions but none is specified in
+   * the workflow.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The workflowid</TD></TR>
@@ -838,10 +920,11 @@ public interface IPSCmsErrors {
   public static final int UNDEFINED_DEFAULT_TRANSITION = 13211;
 
   /**
-   * Failed to add child items to a folder due to non-unique child item
-   * name(s) in the current target or the new supplied child list.
+   * Failed to add child items to a folder due to non-unique child item name(s) in the current
+   * target or the new supplied child list.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The parent folder name</TD></TR>
@@ -860,10 +943,10 @@ public interface IPSCmsErrors {
   public static final int DUPLICATE_ITEM_NAME = 13212;
 
   /**
-   * Fail to delete a list of folders due to one of the element is not folder
-   * component.
+   * Fail to delete a list of folders due to one of the element is not folder component.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The non-folder component name</TD></TR>
@@ -875,6 +958,7 @@ public interface IPSCmsErrors {
    * Fail to get component summaries due to unexpected error: {0}
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The un-expected exception</TD></TR>
@@ -886,6 +970,7 @@ public interface IPSCmsErrors {
    * Un-expected error while catalogging from remote server
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The catalog resource</TD></TR>
@@ -898,6 +983,7 @@ public interface IPSCmsErrors {
    * The length of a folder value is too long
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the invalid value</TD></TR>
@@ -911,6 +997,7 @@ public interface IPSCmsErrors {
    * An invalid relationship property value was supplied
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The owner id</TD></TR>
@@ -921,15 +1008,14 @@ public interface IPSCmsErrors {
    */
   public static final int INVALID_RELATIONSHIP_PROP_VALUE = 13217;
 
-  /**
-   * The clone handler did not create the originating relationship.
-   */
+  /** The clone handler did not create the originating relationship. */
   public static final int NO_ORIGINATING_RELATIONSHIP = 13218;
 
   /**
    * An validation error occurs while processing a request
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The resource path of the request</TD></TR>
@@ -940,8 +1026,9 @@ public interface IPSCmsErrors {
 
   /**
    * An error occurred while using search web service.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -950,10 +1037,11 @@ public interface IPSCmsErrors {
   public static final int SEARCH_ERROR = 13220;
 
   /**
-   * An error occurred while validating unique child names under a given folder
-   * in the modify handler
-   * <p>
-   * The arguments passed in for this message are:
+   * An error occurred while validating unique child names under a given folder in the modify
+   * handler
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child content id</TD></TR>
@@ -965,10 +1053,11 @@ public interface IPSCmsErrors {
   public static final int MODIFY_ERROR_DUPLICATED_CHILDNAME = 13221;
 
   /**
-   * An error occurred while validating unique child names under a given folder
-   * in folder relationship effect
-   * <p>
-   * The arguments passed in for this message are:
+   * An error occurred while validating unique child names under a given folder in folder
+   * relationship effect
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name</TD></TR>
@@ -981,8 +1070,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed to get the component summary from a given locator
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The locator id</TD></TR>
@@ -992,10 +1082,11 @@ public interface IPSCmsErrors {
   public static final int FAILED_GET_SUMMARY = 13223;
 
   /**
-   * Failed to add child items to a folder due to non-unique child item name(s)
-   * but new copies were created.
+   * Failed to add child items to a folder due to non-unique child item name(s) but new copies were
+   * created.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Original message</TD></TR>
@@ -1004,10 +1095,11 @@ public interface IPSCmsErrors {
   public static final int DUPLICATE_ITEM_NAME_COPY_CREATED = 13224;
 
   /**
-   * Error during execution of an iternal server request to check if a given
-   * set of relationships by id exist in the system.
+   * Error during execution of an iternal server request to check if a given set of relationships by
+   * id exist in the system.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR>
    * <TH>Arg</TH>
@@ -1026,10 +1118,10 @@ public interface IPSCmsErrors {
   public static final int RELATIONSHIP_EXISTENCE_CHECK_FAILED = 13225;
 
   /**
-   * Error message shown if a user tries to create a relationship from a
-   * non-existing owner item.
-   * <p>
-   * The arguments passed in for this message are:
+   * Error message shown if a user tries to create a relationship from a non-existing owner item.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The owner id</TD></TR>
@@ -1038,10 +1130,10 @@ public interface IPSCmsErrors {
   public static final int NON_EXITING_OWNER = 13226;
 
   /**
-   * Error message shown if a user tries to create a relationship to a
-   * non-existing dependent item.
-   * <p>
-   * The arguments passed in for this message are:
+   * Error message shown if a user tries to create a relationship to a non-existing dependent item.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The dependent id</TD></TR>
@@ -1050,10 +1142,11 @@ public interface IPSCmsErrors {
   public static final int NON_EXITING_DEPENDENT = 13227;
 
   /**
-   * An error occurred while validating unique child names under a given folder
-   * in folder relationship effect for a child that has not yet been saved
-   * <p>
-   * The arguments passed in for this message are:
+   * An error occurred while validating unique child names under a given folder in folder
+   * relationship effect for a child that has not yet been saved
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The child name</TD></TR>
@@ -1064,8 +1157,9 @@ public interface IPSCmsErrors {
 
   /**
    * The requested authtype has not been configured in the authtype configuration file.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Authtype value</TD></TR>
@@ -1076,8 +1170,9 @@ public interface IPSCmsErrors {
 
   /**
    * The relationship is invalid because it has an invalid variantid.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
@@ -1088,8 +1183,9 @@ public interface IPSCmsErrors {
 
   /**
    * The variant lookup failed because the variant was not registered.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Variantid</TD></TR>
@@ -1098,10 +1194,10 @@ public interface IPSCmsErrors {
   public static final int VARIANT_LOOKUP_FAILED = 13231;
 
   /**
-   * Invalid Active Assembly relationship since the slot does not allow the
-   * variant.
-   * <p>
-   * The arguments passed in for this message are:
+   * Invalid Active Assembly relationship since the slot does not allow the variant.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Relationshipid</TD></TR>
@@ -1112,18 +1208,18 @@ public interface IPSCmsErrors {
   public static final int INVALID_AA_RELATIONSHIP_SLOT_VARIANT = 13232;
 
   /**
-   * The context for AA processor proxy must be either PSRequest or
-   * IPSRequestContext
-   * <p>
-   * No argument is required for this message.
+   * The context for AA processor proxy must be either PSRequest or IPSRequestContext
+   *
+   * <p>No argument is required for this message.
    */
   public static final int INVALID_CONTEXT_FOR_AA_PROXY = 13233;
 
   /**
-   * An attempt is made to assemble a snippet which was already assembled in
-   * the same parent context within the assembly tree.
+   * An attempt is made to assemble a snippet which was already assembled in the same parent context
+   * within the assembly tree.
    *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR>
    * <TH>Arg</TH>
@@ -1143,7 +1239,9 @@ public interface IPSCmsErrors {
 
   /**
    * An attempt was made to create or save a folder with an invalid name.
+   *
    * <p>
+   *
    * <TABLE BORDER="1">
    * <TR>
    * <TH>Arg</TH>
@@ -1158,10 +1256,10 @@ public interface IPSCmsErrors {
   public static final int INVALID_FOLDER_NAME = 13235;
 
   /**
-   * Failed to create a relationship configuration set from its XML
-   * representation.
-   * <p>
-   * The arguments passed in for this message are:
+   * Failed to create a relationship configuration set from its XML representation.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>error occurred</TD></TR>
@@ -1170,10 +1268,10 @@ public interface IPSCmsErrors {
   public static final int FAILED_GET_REL_CONFIG_FROM_XML = 13236;
 
   /**
-   * The id of a system relationship config does not match the pre-defined
-   * one with the same name.
-   * <p>
-   * The arguments passed in for this message are:
+   * The id of a system relationship config does not match the pre-defined one with the same name.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>name of the system relationship config</TD></TR>
@@ -1184,10 +1282,11 @@ public interface IPSCmsErrors {
   public static final int UNKOWN_SYS_REL_CONFIG_ID = 13238;
 
   /**
-   * Failed to delete a (user) relationship config name. This relationship
-   * config may still be referenced by relationship instances.
-   * <p>
-   * The arguments passed in for this message are:
+   * Failed to delete a (user) relationship config name. This relationship config may still be
+   * referenced by relationship instances.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the deleted relationship config</TD></TR>
@@ -1197,10 +1296,11 @@ public interface IPSCmsErrors {
   public static final int FAILED_DELETE_REL_CONFIG_NAME = 13240;
 
   /**
-   * The id ''{0}'' of a relationship config ''{1}'' has already
-   * been used by other relationship config.
-   * <p>
-   * The arguments passed in for this message are:
+   * The id ''{0}'' of a relationship config ''{1}'' has already been used by other relationship
+   * config.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>id of the relationship config in question</TD></TR>
@@ -1210,10 +1310,10 @@ public interface IPSCmsErrors {
   public static final int INVALID_REL_CONFIG_ID = 13241;
 
   /**
-   * The name ''{0}'' of a relationship config has already
-   * been used by other relationship config.
-   * <p>
-   * The arguments passed in for this message are:
+   * The name ''{0}'' of a relationship config has already been used by other relationship config.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>name of the relationship config in question</TD></TR>
@@ -1223,8 +1323,9 @@ public interface IPSCmsErrors {
 
   /**
    * Loading sites from server failed with some message
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Error message from server</TD></TR>
@@ -1233,10 +1334,10 @@ public interface IPSCmsErrors {
   public static final int ERROR_LOADING_SITES = 13243;
 
   /**
-   * Attempted to move items that are checked out to someone else from site
-   * folders.
-   * <p>
-   * The arguments passed in for this message are:
+   * Attempted to move items that are checked out to someone else from site folders.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
@@ -1247,8 +1348,9 @@ public interface IPSCmsErrors {
 
   /**
    * Attempted to move items that are in public state from site folders.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
@@ -1258,10 +1360,11 @@ public interface IPSCmsErrors {
   public static final int CANNOT_MOVE_PUBLIC_ITEMS = 13245;
 
   /**
-   * Attempted to move or remove items that participate in cross site linking
-   * and force action is required.
-   * <p>
-   * The arguments passed in for this message are:
+   * Attempted to move or remove items that participate in cross site linking and force action is
+   * required.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>list of item content ids</TD></TR>
@@ -1272,8 +1375,9 @@ public interface IPSCmsErrors {
 
   /**
    * Saving relationships to server failed with some message
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Error message from server</TD></TR>
@@ -1283,8 +1387,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed to load the relationship with specified relationship id.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>relationship id</TD></TR>
@@ -1294,8 +1399,9 @@ public interface IPSCmsErrors {
 
   /**
    * Folder action failed as well as cross links' save failed.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>action failure message</TD></TR>
@@ -1306,8 +1412,9 @@ public interface IPSCmsErrors {
 
   /**
    * Failed to get navon nodes, due to encounter an AA circular relationship.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the owner id of the bad relationship</TD></TR>

@@ -54,43 +54,38 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class handles the action to add a new language to the Rhythmyx Content
- * Manager. Adding new language simply means to add a new row to RXLOCALE table.
- * However, this is only the first step in adding a new language to Rhythmyx
- * Content Manager as whole. The next step would be to generate the TMX document
- * with that include the stubs for new language. This Document goes to a
+ * This class handles the action to add a new language to the Rhythmyx Content Manager. Adding new
+ * language simply means to add a new row to RXLOCALE table. However, this is only the first step in
+ * adding a new language to Rhythmyx Content Manager as whole. The next step would be to generate
+ * the TMX document with that include the stubs for new language. This Document goes to a
  * translator. The translated docment is then merged with that on Rhythmyx server.
- * <p>
- * This class also includes some static utility methods relevant to languages.
- * For repeated use of the static methods, construct and hold an instance of
- * the class to prevent any cached member data from being garbage collected.
- * </p>
+ *
+ * <p>This class also includes some static utility methods relevant to languages. For repeated use
+ * of the static methods, construct and hold an instance of the class to prevent any cached member
+ * data from being garbage collected.
  */
 public class PSLocaleHandler implements IPSActionHandler {
 
   private static final Logger log = LogManager.getLogger(PSLocaleHandler.class);
 
   /**
-   * This is a utility method to get array of all languages registered in the
-   * Rhythmyx Content Manager. It makes use of the database settings from the
-   * repository properties file which is written by the installer during
-   * installation.
-   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and
-   * may be <code>empty</code>
-   * @return array of language strings (like "en-us"), may be <code>empty</code>
-   * but not <code>null</code>.
-   * @throws FileNotFoundException if the repository file is not be found with
-   * given Rhythmyx root directoy
+   * This is a utility method to get array of all languages registered in the Rhythmyx Content
+   * Manager. It makes use of the database settings from the repository properties file which is
+   * written by the installer during installation.
+   *
+   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and may be <code>empty
+   *     </code>
+   * @return array of language strings (like "en-us"), may be <code>empty</code> but not <code>null
+   *     </code>.
+   * @throws FileNotFoundException if the repository file is not be found with given Rhythmyx root
+   *     directoy
    * @throws IOException in case of error reading repository properties file
-   * @throws SAXException in case of error building the result XML document
-   * with the list of locales
-   * @throws PSJdbcTableFactoryException in case of an error during JDBC table
-   * factory processing.
+   * @throws SAXException in case of error building the result XML document with the list of locales
+   * @throws PSJdbcTableFactoryException in case of an error during JDBC table factory processing.
    * @throws SQLException if any JDBC error occurs
-   * @throws PSMissingApplicationPolicyException if an error occurs while
-   * getting the repository properties
-   * @throws PSInvalidXmlException if an error occurs while getting the
-   * repository properties
+   * @throws PSMissingApplicationPolicyException if an error occurs while getting the repository
+   *     properties
+   * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    * @see #getLocaleDocument
    */
   public static Object[] getLocaleStrings(String rxroot)
@@ -125,31 +120,24 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Another utility method that returns the XML document with RXLOCALE table
-   * data. The document conforms to the DTD defined in PSJdbcTableFactory
-   * package. The repository properties file that is written by the installer
-   * during installation is used to get the database settings for Rhythmyx
-   * server and then JDBC table factory is used to get the locale data.
+   * Another utility method that returns the XML document with RXLOCALE table data. The document
+   * conforms to the DTD defined in PSJdbcTableFactory package. The repository properties file that
+   * is written by the installer during installation is used to get the database settings for
+   * Rhythmyx server and then JDBC table factory is used to get the locale data.
    *
-   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and
-   * may be <code>empty</code>
-   *
+   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and may be <code>empty
+   *     </code>
    * @return DOM Document of the data from the RXLOCALE table.
-   *
-   * @throws IllegalArgumentException if <code>rxroot</code> is
-   * <code>null</code>.
-   * @throws FileNotFoundException if repository properties file is not found
-   * with the given Rhythmyx root directory
+   * @throws IllegalArgumentException if <code>rxroot</code> is <code>null</code>.
+   * @throws FileNotFoundException if repository properties file is not found with the given
+   *     Rhythmyx root directory
    * @throws IOException any error reading the repository properties file
-   * @throws SAXException any parse error or error building the result XML
-   * document for the locales
-   * @throws PSJdbcTableFactoryException if there is any error during JDBC
-   * table factory processing
+   * @throws SAXException any parse error or error building the result XML document for the locales
+   * @throws PSJdbcTableFactoryException if there is any error during JDBC table factory processing
    * @throws SQLException if any JDBC error occurs
-   * @throws PSMissingApplicationPolicyException if an error occurs while
-   * getting the repository properties
-   * @throws PSInvalidXmlException if an error occurs while getting the
-   * repository properties
+   * @throws PSMissingApplicationPolicyException if an error occurs while getting the repository
+   *     properties
+   * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static Document getLocaleDocument(String rxroot)
       throws FileNotFoundException,
@@ -170,23 +158,18 @@ public class PSLocaleHandler implements IPSActionHandler {
   /**
    * Get the data type map used when querying or updating the repository.
    *
-   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and
-   * may be <code>empty</code>
-   *
+   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and may be <code>empty
+   *     </code>
    * @return The data type map, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>rxroot</code> is
-   * <code>null</code>.
-   * @throws FileNotFoundException if repository properties file is not found
-   * with the given Rhythmyx root directory
+   * @throws IllegalArgumentException if <code>rxroot</code> is <code>null</code>.
+   * @throws FileNotFoundException if repository properties file is not found with the given
+   *     Rhythmyx root directory
    * @throws IOException any error reading the repository properties file
    * @throws PSJdbcTableFactoryException if any other error occurs.
-   * @throws SAXException if an error occurs while getting the repository
-   * properties
-   * @throws PSMissingApplicationPolicyException if an error occurs while
-   * getting the repository properties
-   * @throws PSInvalidXmlException if an error occurs while getting the
-   * repository properties
+   * @throws SAXException if an error occurs while getting the repository properties
+   * @throws PSMissingApplicationPolicyException if an error occurs while getting the repository
+   *     properties
+   * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static PSJdbcDbmsDef getDbmsDef(String rxroot)
       throws FileNotFoundException,
@@ -205,22 +188,18 @@ public class PSLocaleHandler implements IPSActionHandler {
   /**
    * Get the data type map used when querying or updating the repository.
    *
-   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and
-   * may be <code>empty</code>
-   *
+   * @param rxroot Rhythmyx root directory, must not be <code>null</code> and may be <code>empty
+   *     </code>
    * @return The data type map, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>rxroot</code> is
-   * <code>null</code>.
-   * @throws FileNotFoundException if repository properties file is not found
-   * with the given Rhythmyx root directory
+   * @throws IllegalArgumentException if <code>rxroot</code> is <code>null</code>.
+   * @throws FileNotFoundException if repository properties file is not found with the given
+   *     Rhythmyx root directory
    * @throws IOException any error reading the repository properties file
    * @throws SAXException any parse error or error building the data type map.
    * @throws PSJdbcTableFactoryException if there are any other errors.
-   * @throws PSMissingApplicationPolicyException if an error occurs while
-   * getting the repository properties
-   * @throws PSInvalidXmlException if an error occurs while getting the
-   * repository properties
+   * @throws PSMissingApplicationPolicyException if an error occurs while getting the repository
+   *     properties
+   * @throws PSInvalidXmlException if an error occurs while getting the repository properties
    */
   public static PSJdbcDataTypeMap getDataTypeMap(String rxroot)
       throws FileNotFoundException,
@@ -252,9 +231,10 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Method to enable or disable the specified language. The data is taken
-   * from the the configuration element. First the current state of the language
-   * is queried. If the status is enabled it will disabled and vice versa.
+   * Method to enable or disable the specified language. The data is taken from the the
+   * configuration element. First the current state of the language is queried. If the status is
+   * enabled it will disabled and vice versa.
+   *
    * @param cfgData must not be <code>null</code>.
    * @throws PSActionProcessingException
    */
@@ -306,12 +286,12 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Method to add the language. Data is taken from the configuration data
-   * element. The new language is disabled by default. Finds the next Localeid
-   * and sort order by querying the existing data.
+   * Method to add the language. Data is taken from the configuration data element. The new language
+   * is disabled by default. Finds the next Localeid and sort order by querying the existing data.
+   *
    * @param cfgData must not be <code>null</code>.
-   * @throws PSActionProcessingException if there is an error adding the
-   * language to Rhythmyx Content Manager
+   * @throws PSActionProcessingException if there is an error adding the language to Rhythmyx
+   *     Content Manager
    */
   @SuppressWarnings("unused")
   private static void processAddLanguage(Element cfgData) throws PSActionProcessingException {
@@ -354,12 +334,12 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Method to edit the display name of the specified language (locale).
-   * The data is taken from the the configuration element. Finds the specified
-   * language and changes displayname and description attributes.
+   * Method to edit the display name of the specified language (locale). The data is taken from the
+   * the configuration element. Finds the specified language and changes displayname and description
+   * attributes.
+   *
    * @param cfgData must not be <code>null</code>.
-   * @throws PSActionProcessingException if there is an error editing an existing
-   * language or locale
+   * @throws PSActionProcessingException if there is an error editing an existing language or locale
    */
   @SuppressWarnings("unused")
   private static void processEditLanguage(Element cfgData) throws PSActionProcessingException {
@@ -410,15 +390,10 @@ public class PSLocaleHandler implements IPSActionHandler {
    * @param conn SQL connection to the database, must not be <code>null</code>.
    * @param dbmsDef DBMS definition object, must not be <code>null</code>.
    * @param dataTypeMap datatyppemap object, must not be <code>null</code>.
-   *
-   * @return DOM document containing the table data. The DTD for this is
-   * defined JDBC TableFactory package, may be <code>null</code> if the backend
-   * table cannot be located.
-   *
-   * @throws IllegalArgumentException if any of the arguments is
-   * <code>null</code>
-   * @throws PSJdbcTableFactoryException in case of any error in JDBC table
-   * factory processing
+   * @return DOM document containing the table data. The DTD for this is defined JDBC TableFactory
+   *     package, may be <code>null</code> if the backend table cannot be located.
+   * @throws IllegalArgumentException if any of the arguments is <code>null</code>
+   * @throws PSJdbcTableFactoryException in case of any error in JDBC table factory processing
    */
   public static Document getTableDataDoc(
       Connection conn, PSJdbcDbmsDef dbmsDef, PSJdbcDataTypeMap dataTypeMap)
@@ -442,24 +417,19 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Utility method to generate backend table data representing the specified
-   * locale(s).  All rows in the data will have an action of
-   * {@link PSJdbcRowData#ACTION_INSERT}.
+   * Utility method to generate backend table data representing the specified locale(s). All rows in
+   * the data will have an action of {@link PSJdbcRowData#ACTION_INSERT}.
    *
-   * @param conn SQL connection to the repository, may not be <code>null</code>
-   * and must be a valid connection.
-   * @param dbmsDef The dbms defintion for the database containing the
-   * repository, may not be <code>null</code>.
-   * @param dataTypeMap The dbms defintion for the database containing the
-   * repository, may not be <code>null</code>.
-   * @param languageString The identifier for the locale to retrive, may be
-   * <code>null</code> to get all locales defined in the repository.  May not
-   * be empty.
-   *
-   * @return The table data for the specified language(s).  May be
-   * <code>null</code> if no rows were returned or if the backend table cannot
-   * be located.
-   *
+   * @param conn SQL connection to the repository, may not be <code>null</code> and must be a valid
+   *     connection.
+   * @param dbmsDef The dbms defintion for the database containing the repository, may not be <code>
+   *     null</code>.
+   * @param dataTypeMap The dbms defintion for the database containing the repository, may not be
+   *     <code>null</code>.
+   * @param languageString The identifier for the locale to retrive, may be <code>null</code> to get
+   *     all locales defined in the repository. May not be empty.
+   * @return The table data for the specified language(s). May be <code>null</code> if no rows were
+   *     returned or if the backend table cannot be located.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSJdbcTableFactoryException if there are any other errors.
    */
@@ -494,14 +464,13 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Method to know if a given language string is supported by JRE. A language
-   * string that is being added to Rhythmyx as part of localization must be
-   * supported by JRE for dates to be localized.
-   * @param languageString the language string in XML syntax (e.q. fr-ca)
-   * must not be <code>null</code> or <code>empty</code>.
+   * Method to know if a given language string is supported by JRE. A language string that is being
+   * added to Rhythmyx as part of localization must be supported by JRE for dates to be localized.
+   *
+   * @param languageString the language string in XML syntax (e.q. fr-ca) must not be <code>null
+   *     </code> or <code>empty</code>.
    * @return <code>true</code> if supported, <code>false</code> otherwise.
-   * @throws IllegalArgumentException if languageString is <code>null</code> or
-   * <code>empty</code>
+   * @throws IllegalArgumentException if languageString is <code>null</code> or <code>empty</code>
    */
   public static synchronized boolean isLocaleSupported(String languageString)
       throws IllegalArgumentException {
@@ -523,26 +492,21 @@ public class PSLocaleHandler implements IPSActionHandler {
   /**
    * Saves the supplied locale infomation to the database.
    *
-   * @param conn SQL connection to the repository, may not be <code>null</code>
-   * and must be a valid connection.
-   * @param dbmsDef The dbms defintion for the database containing the
-   * repository, may not be <code>null</code>.
-   * @param dataTypeMap The dbms defintion for the database containing the
-   * repository, may not be <code>null</code>.
-   * @param languageString The language string used to uniquely identify this
-   * locale, may not be <code>null</code> or empty.
-   * @param displayName The display name of the locale, may not be
-   * <code>null</code> or empty.
+   * @param conn SQL connection to the repository, may not be <code>null</code> and must be a valid
+   *     connection.
+   * @param dbmsDef The dbms defintion for the database containing the repository, may not be <code>
+   *     null</code>.
+   * @param dataTypeMap The dbms defintion for the database containing the repository, may not be
+   *     <code>null</code>.
+   * @param languageString The language string used to uniquely identify this locale, may not be
+   *     <code>null</code> or empty.
+   * @param displayName The display name of the locale, may not be <code>null</code> or empty.
    * @param desc An optional description, may be <code>null</code> or empty.
    * @param status The status of the locale.
-   * @param overwrite If <code>true</code>, an existing locale will be
-   * overwritten.  Otherwise, this method perform a <code>noop</code> if the
-   * locale already exists.
-   *
-   * @return <code>true</code> if the locale is saved, <code>false</code> if
-   * <code>overwrite</code> is <code>false</code> and the locale already
-   * exists (i.e. the locale is not saved).
-   *
+   * @param overwrite If <code>true</code>, an existing locale will be overwritten. Otherwise, this
+   *     method perform a <code>noop</code> if the locale already exists.
+   * @return <code>true</code> if the locale is saved, <code>false</code> if <code>overwrite</code>
+   *     is <code>false</code> and the locale already exists (i.e. the locale is not saved).
    * @throws IllegalArgumentException if any param is invalid.
    * @throws SQLException If there are any errors generating system ids.
    * @throws PSJdbcTableFactoryException if there are any other errors.
@@ -629,17 +593,12 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Gets the repository properties, loading them from disk if they are not
-   * already loaded.
+   * Gets the repository properties, loading them from disk if they are not already loaded.
    *
-   * @param rxroot Rhythmyx root directory, assumed not <code>null</code>, may
-   * be empty.
-   *
+   * @param rxroot Rhythmyx root directory, assumed not <code>null</code>, may be empty.
    * @return The properties, never <code>null</code>.
-   *
-   * The following exceptions are thrown if an error occurs while getting the
-   * repository properties:
-   *
+   *     <p>The following exceptions are thrown if an error occurs while getting the repository
+   *     properties:
    * @throws FileNotFoundException
    * @throws IOException
    * @throws SAXException
@@ -660,19 +619,15 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Gets and caches the table schema for the repository table containing the
-   * locale defintions.
+   * Gets and caches the table schema for the repository table containing the locale defintions.
    *
-   * @param conn SQL connection to the repository, assumed not
-   * <code>null</code> and to be a valid connection.
-   * @param dbmsDef The dbms defintion for the database containing the
-   * repository, assumed not <code>null</code>.
-   * @param dataTypeMap The dbms defintion for the database containing the
-   * repository, assumed not <code>null</code>.
-   *
-   * @return The schema defintion, may be <code>null</code> if the table cannot
-   * be located.
-   *
+   * @param conn SQL connection to the repository, assumed not <code>null</code> and to be a valid
+   *     connection.
+   * @param dbmsDef The dbms defintion for the database containing the repository, assumed not
+   *     <code>null</code>.
+   * @param dataTypeMap The dbms defintion for the database containing the repository, assumed not
+   *     <code>null</code>.
+   * @return The schema defintion, may be <code>null</code> if the table cannot be located.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   private static PSJdbcTableSchema getTableSchema(
@@ -688,18 +643,16 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * Gets system column values for a new locale.  This includes the values for
-   * the following columns:
+   * Gets system column values for a new locale. This includes the values for the following columns:
+   *
    * <ol>
-   * <li>LOCALEID</li>
-   * <li>SORTORDER</li>
+   *   <li>LOCALEID
+   *   <li>SORTORDER
    * </ol>
    *
    * @param conn The connection to use, assumed not <code>null</code>.
-   *
-   * @return An array of columns values, never <code>null</code>.  The number
-   * and order corresponds to the above list.
-   *
+   * @return An array of columns values, never <code>null</code>. The number and order corresponds
+   *     to the above list.
    * @throws SQLException If there are any errors.
    */
   private static int[] generateSystemColumnValues(Connection conn) throws SQLException {
@@ -740,65 +693,61 @@ public class PSLocaleHandler implements IPSActionHandler {
   }
 
   /**
-   * XML Language string version of all languages supported by JAVA. When user
-   * adds a new language, it is better if the user selects from this list.
-   * Otherwise date formatting would not work for that unknown locale and
-   * System's default Locale is used to formatting the date. We depend on Java
-   * for date formatting. This list is built only once when it is required.
+   * XML Language string version of all languages supported by JAVA. When user adds a new language,
+   * it is better if the user selects from this list. Otherwise date formatting would not work for
+   * that unknown locale and System's default Locale is used to formatting the date. We depend on
+   * Java for date formatting. This list is built only once when it is required.
    */
   private static List<String> supportedLocaleStrings = null;
 
   /**
-   * The repository properties, <code>null</code> until loaded by a call to
-   * {@link #getRepositoryProperties}.
+   * The repository properties, <code>null</code> until loaded by a call to {@link
+   * #getRepositoryProperties}.
    */
   private static Properties repositoryProperties = null;
 
   /**
-   * The table schema for the locales table, <code>null</code> until loaded by
-   * a call to <code>getTableSchema()</code>.
+   * The table schema for the locales table, <code>null</code> until loaded by a call to <code>
+   * getTableSchema()</code>.
    */
   private static PSJdbcTableSchema localeSchema = null;
 
-  /**
-   * Constant for the name of the repository table containing locale
-   * definitions.
-   */
+  /** Constant for the name of the repository table containing locale definitions. */
   public static final String LOCALE_TABLE = "RXLOCALE";
 
   /**
-   * Constant for the name of the LANGUAGESTRING column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the LANGUAGESTRING column in the repository table containing locale
+   * definitions.
    */
   public static final String COL_LANGUAGE_STRING = "LANGUAGESTRING";
 
   /**
-   * Constant for the name of the DISPLAYNAME column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the DISPLAYNAME column in the repository table containing locale
+   * definitions.
    */
   public static final String COL_DISPLAY_NAME = "DISPLAYNAME";
 
   /**
-   * Constant for the name of the DESCRIPTION column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the DESCRIPTION column in the repository table containing locale
+   * definitions.
    */
   public static final String COL_DESCRIPTION = "DESCRIPTION";
 
   /**
-   * Constant for the name of the STATUS column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the STATUS column in the repository table containing locale
+   * definitions.
    */
   public static final String COL_STATUS = "STATUS";
 
   /**
-   * Constant for the name of the LOCALEID column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the LOCALEID column in the repository table containing locale
+   * definitions.
    */
   private static final String COL_LOCALE_ID = "LOCALEID";
 
   /**
-   * Constant for the name of the SORTORDER column in the repository table
-   * containing locale definitions.
+   * Constant for the name of the SORTORDER column in the repository table containing locale
+   * definitions.
    */
   private static final String COL_SORT_ORDER = "SORTORDER";
 

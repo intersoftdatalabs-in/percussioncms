@@ -82,39 +82,33 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This generic UDF generates public locations for all contexts. The preview
- * generator is hardcoded here while the generators for all other contexts are
- * specified in the system table RXLOCATIONSCHEME.
+ * This generic UDF generates public locations for all contexts. The preview generator is hardcoded
+ * here while the generators for all other contexts are specified in the system table
+ * RXLOCATIONSCHEME.
  */
 public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
-  /**
-   * Commons logging logger for this class
-   */
+  /** Commons logging logger for this class */
   private static final Logger log = LogManager.getLogger(PSGeneratePubLocation.class);
 
   /**
-   * Overwrite the base class to save the extension definition used to report
-   * errors.
-   * <p>
-   * See {@link IPSExtension#init(IPSExtensionDef, File) init}for details.
+   * Overwrite the base class to save the extension definition used to report errors.
+   *
+   * <p>See {@link IPSExtension#init(IPSExtensionDef, File) init}for details.
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     m_def = def;
   }
 
   /**
-   * First this will check that all required HTML paramaeters are available.
-   * Then the location generator is called. The generator for context 0
-   * (preview) is hardcoded, while all other generators are looked up in the
-   * RXLOCATIONSCHEME table making an internal request to the system support
-   * application 'sys_casSupport'.
-   * <p>
-   * See
-   * {@link IPSUdfProcessor#processUdf(Object[], IPSRequestContext) processUdf}
-   * for details.
+   * First this will check that all required HTML paramaeters are available. Then the location
+   * generator is called. The generator for context 0 (preview) is hardcoded, while all other
+   * generators are looked up in the RXLOCATIONSCHEME table making an internal request to the system
+   * support application 'sys_casSupport'.
+   *
+   * <p>See {@link IPSUdfProcessor#processUdf(Object[], IPSRequestContext) processUdf} for details.
    *
    * @param params the parameters for this extension, never <code>null</code>
-   *           <table>
+   *     <table>
    *           <tr>
    *           <th>0</th>
    *           <td>the variantid for which the location url will be created.
@@ -177,6 +171,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    *           extension.</td>
    *           </tr>
    *           </table>
+   *
    * @param request the parameter request, never <code>null</code>
    */
   @SuppressWarnings("deprecation")
@@ -336,13 +331,12 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   /**
    * Gets the customer link generator if specified in the request.
    *
-   * @param request the request may contain the specified link generator for preview,
-   * assumed not <code>null</code>.
+   * @param request the request may contain the specified link generator for preview, assumed not
+   *     <code>null</code>.
    * @param variantid the ID of the template, used for the link, assumed not <code>null</code>.
-   *
-   * @return the (fully qualified) name of the custom generator.
-   * It may be <code>null</code> if the request does not contain a custom generator
-   * or the generator should not be used for current link.
+   * @return the (fully qualified) name of the custom generator. It may be <code>null</code> if the
+   *     request does not contain a custom generator or the generator should not be used for current
+   *     link.
    */
   private String getCustomUrlGenerator(IPSRequestContext request, Number variantid) {
     String[] values = (String[]) request.getPrivateObject(SYS_OVERWRITE_PREVIEW_URL_GEN);
@@ -353,22 +347,22 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Generate the preview location, which is always fixed and passes through
-   * the assembly service. The parameters to this method, plus the command
-   * information is simply concatenated into a simple URL
+   * Generate the preview location, which is always fixed and passes through the assembly service.
+   * The parameters to this method, plus the command information is simply concatenated into a
+   * simple URL
    *
    * @param request the original request, assumed never <code>null</code>
    * @param contentid the content id, assumed never <code>null</code>
    * @param variantid the variant id, assumed never <code>null</code>
    * @param revision the revision, assumed never <code>null</code>
-   * @param paramsBackup the original parameters before being overriden,
-   *           assumed never <code>null</code>
+   * @param paramsBackup the original parameters before being overriden, assumed never <code>null
+   *     </code>
    * @param siteid the siteid, may be <code>null</code>
    * @param folderid the folderid, may be <code>null</code>
    * @param authtype the authtype, may be <code>null</code>
    * @param filtername the filtername, may be <code>null</code>
-   * @param page if not <code>null</code> and &gt; 0 then a sys_page parameter
-   *     will be added to the url to allow paging through a paged content item.
+   * @param page if not <code>null</code> and &gt; 0 then a sys_page parameter will be added to the
+   *     url to allow paging through a paged content item.
    * @return the url string, never <code>null</code>
    * @throws PSConversionException
    * @throws PSInternalRequestCallException
@@ -446,9 +440,7 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
    * @param contentid the ID of the item in question.
    * @param revision the revision of the item.
    * @param fqnUdfName the fully qualified UDF name, assumed not blank.
-   *
    * @return the preview URL, not blank.
-   *
    * @throws PSConversionException if an error occurs.
    */
   private String generateCustomPreviewUrl(Number contentid, Number revision, String fqnUdfName)
@@ -469,20 +461,18 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Generate the location from the location scheme. This method looks up the
-   * correct location scheme, then uses it to run the appropriate scheme
-   * generator with the parameters registered for the scheme. The scheme is
-   * first chosen to match the given content type id and template id within the
-   * specified context. If there's no match then the default scheme is used.
+   * Generate the location from the location scheme. This method looks up the correct location
+   * scheme, then uses it to run the appropriate scheme generator with the parameters registered for
+   * the scheme. The scheme is first chosen to match the given content type id and template id
+   * within the specified context. If there's no match then the default scheme is used.
    *
    * @param contextid the context, assumed never <code>null</code>
-   * @param request the request context with the overriden parameters, assumed
-   *           never <code>null</code>
+   * @param request the request context with the overriden parameters, assumed never <code>null
+   *     </code>
    * @param contentid the content id, assumed never <code>null</code>
    * @param revision the revision, assumed never <code>null</code>
    * @param variantid the template being used, assumed never <code>null</code>
-   * @return the location string, which is used for either the assembly or
-   *         publishing process
+   * @return the location string, which is used for either the assembly or publishing process
    * @throws PSConversionException
    * @throws SQLException
    * @throws PSNotFoundException
@@ -568,15 +558,12 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Check if the location is to be generated for a cross site link. This is
-   * evaluated by comparing the current siteid and the originating siteid from
-   * the request.
+   * Check if the location is to be generated for a cross site link. This is evaluated by comparing
+   * the current siteid and the originating siteid from the request.
    *
    * @param request request context object, must not be <code>null</code>.
-   * @param currentSiteId current siteid for the link to be generated, may be
-   *           <code>null</code>
-   * @return <code>true</code> if the link is across sites,
-   *         <code>false</code> otherwise.
+   * @param currentSiteId current siteid for the link to be generated, may be <code>null</code>
+   * @return <code>true</code> if the link is across sites, <code>false</code> otherwise.
    */
   public static boolean isCrossSite(IPSRequestContext request, String currentSiteId) {
     if (request == null) throw new IllegalArgumentException("request must not be null");
@@ -594,15 +581,13 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   /**
    * Get all exit parameters from the provided generator element.
    *
-   * @param scheme the scheme to get the parameters from, assumed never
-   *           <code>null</code>
-   * @param contentid the contentid for which to get the parameters for. This
-   *           is only used for BackendColumn parameter types.
-   * @param revision the revision for which to get the parameters for. This is
-   *           only used for BackendColumn parameter types.
-   *
-   * @return an array of PSExtensionParamValue objects with all parameters
-   *         found, never <code>null</code>, might be empty.
+   * @param scheme the scheme to get the parameters from, assumed never <code>null</code>
+   * @param contentid the contentid for which to get the parameters for. This is only used for
+   *     BackendColumn parameter types.
+   * @param revision the revision for which to get the parameters for. This is only used for
+   *     BackendColumn parameter types.
+   * @return an array of PSExtensionParamValue objects with all parameters found, never <code>null
+   *     </code>, might be empty.
    * @throws SQLException if any SQL operation fails.
    * @throws NamingException
    */
@@ -710,13 +695,12 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
   /**
    * Prepare the SQL statement to lookup the provided column.
    *
-   * @param table the from which to lookup the column, assumed not
-   *           <code>null</code> and to have been properly qualified.
+   * @param table the from which to lookup the column, assumed not <code>null</code> and to have
+   *     been properly qualified.
    * @param column the column to lookup, assumed not <code>null</code>.
    * @param contentid the id of the content to lookup the column for.
    * @param revision the revision of the content to lookup the column for.
-   * @param connection the connection to use for all database lookups, assumed
-   *           valid.
+   * @param connection the connection to use for all database lookups, assumed valid.
    * @return the prepared statement, never <code>null</code>.
    * @throws SQLException if any SQL operation fails.
    */
@@ -746,8 +730,6 @@ public class PSGeneratePubLocation extends PSSimpleJavaUdfExtension {
     return statement;
   }
 
-  /**
-   * '0' is reserved as the preview context, never <code>null</code>.
-   */
+  /** '0' is reserved as the preview context, never <code>null</code>. */
   private static final String PREVIEW_CONTEXT = "0";
 }

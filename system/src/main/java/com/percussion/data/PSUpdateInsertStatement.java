@@ -22,27 +22,22 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestStatistics;
 
 /**
- * The PSUpdateInsertStatement class is used to execute UPDATE and
- * optionally INSERT statements. It first attempts to process the UPDATE.
- * If this processes no rows, an INSERT is then attempted.
+ * The PSUpdateInsertStatement class is used to execute UPDATE and optionally INSERT statements. It
+ * first attempts to process the UPDATE. If this processes no rows, an INSERT is then attempted.
  *
- * @see        com.percussion.design.objectstore.PSUpdatePipe
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.design.objectstore.PSUpdatePipe
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUpdateInsertStatement extends PSUpdateStatement {
   /**
-   * Construct an update statement which can be executed as part of the
-   * update execution plan. The query may contain place holders, which
-   * must be filled prior to execution.
+   * Construct an update statement which can be executed as part of the update execution plan. The
+   * query may contain place holders, which must be filled prior to execution.
    *
-   * @param   connKey      the connection key to use to get the db conn
-   *
-   * @param   updBlocks   the update statement blocks
-   *
-   * @param   insBlocks   the insert statement blocks
+   * @param connKey the connection key to use to get the db conn
+   * @param updBlocks the update statement blocks
+   * @param insBlocks the insert statement blocks
    */
   public PSUpdateInsertStatement(
       int connKey, IPSStatementBlock[] updBlocks, IPSStatementBlock[] insBlocks)
@@ -52,15 +47,13 @@ public class PSUpdateInsertStatement extends PSUpdateStatement {
   }
 
   /**
-   * Set the name of the node which we will iterate over executing this
-   * statement.
-   * As long as a node of the specified name exists, this statement should
-   * be executed. This object does not actually make use of this
-   * information. It will only execute once in the context specified to
-   * the execute call. This is primarily used as the storage are so that
-   * the PSTransactionSet object calling this knows what to iterate on.
+   * Set the name of the node which we will iterate over executing this statement. As long as a node
+   * of the specified name exists, this statement should be executed. This object does not actually
+   * make use of this information. It will only execute once in the context specified to the execute
+   * call. This is primarily used as the storage are so that the PSTransactionSet object calling
+   * this knows what to iterate on.
    *
-   * @param   nodeName      the name of the node to iterate on
+   * @param nodeName the name of the node to iterate on
    */
   public void setIteratorNode(String nodeName) {
     super.setIteratorNode(nodeName);
@@ -68,10 +61,10 @@ public class PSUpdateInsertStatement extends PSUpdateStatement {
   }
 
   /**
-   * Get the data extractors used to get the replacement values which will
-   * be used to execute the statement.
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
    *
-   * @return            the list of replacement values
+   * @return the list of replacement values
    */
   public java.util.List getReplacementValueExtractors() {
     java.util.ArrayList retList = new java.util.ArrayList();
@@ -85,15 +78,12 @@ public class PSUpdateInsertStatement extends PSUpdateStatement {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statement as a step in the execution
-   * plan. A result set will be generated containing the number of rows
-   * effected by the execution of this statement. The result set will be
-   * added to the execution data.
+   * Execute the data modification statement as a step in the execution plan. A result set will be
+   * generated containing the number of rows effected by the execution of this statement. The result
+   * set will be added to the execution data.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @exception   SQLException
-   *                     if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @exception SQLException if a SQL error occurs
    */
   public void execute(PSExecutionData data)
       throws java.sql.SQLException,

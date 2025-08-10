@@ -20,17 +20,14 @@ package com.percussion.filetracker;
 import org.w3c.dom.Element;
 
 /**
- * An interface that defines some common methods required for Tree Node interface
- * in the application. All the nodes in the model must implement this interface
- * directly or indirectly.
- *
+ * An interface that defines some common methods required for Tree Node interface in the
+ * application. All the nodes in the model must implement this interface directly or indirectly.
  */
 public interface IPSFUDNode {
   /**
    * return String version of the node that is displayed in the treetable
    *
    * @return String representation of the node.
-   *
    */
   String toString();
 
@@ -38,7 +35,6 @@ public interface IPSFUDNode {
    * return DOM element of the node
    *
    * @return DOM Element
-   *
    */
   Element getElement();
 
@@ -46,7 +42,6 @@ public interface IPSFUDNode {
    * return array of child Nodes for the node
    *
    * @return DOM Element
-   *
    */
   Object[] getChildren();
 
@@ -54,7 +49,6 @@ public interface IPSFUDNode {
    * return status code for the node
    *
    * @return int value of the status
-   *
    */
   int getStatusCode();
 
@@ -62,53 +56,40 @@ public interface IPSFUDNode {
    * return the status string for the node
    *
    * @return status string as String
-   *
    */
   String getStatusText();
 
   /**
    * returns true if remote file exists
    *
-   *  @return true if remote file exists else false
+   * @return true if remote file exists else false
    */
   boolean isRemoteExists();
 
   /**
-   * Element name that stores the status for any node. This is assumed to be
-   * the same for all derived nodes too.
-   *
+   * Element name that stores the status for any node. This is assumed to be the same for all
+   * derived nodes too.
    */
   String ELEM_STATUS = "status";
 
   /**
-   * Attribute name of the element ELEM_STATUS that stores the status code for
-   * the node. This is assumed to be the same for all derived nodes too.
-   *
+   * Attribute name of the element ELEM_STATUS that stores the status code for the node. This is
+   * assumed to be the same for all derived nodes too.
    */
   String ATTRIB_CODE = "code";
 
-  /**
-   * Status code indicating that the remote counter part is missing.
-   */
+  /** Status code indicating that the remote counter part is missing. */
   int STATUS_CODE_ABSENT = -1;
 
-  /**
-   * Status code indicating normal status -> remote exists, local does not.
-   */
+  /** Status code indicating normal status -> remote exists, local does not. */
   int STATUS_CODE_NORMAL = 0;
 
-  /**
-   * Status code indicating that the remote copy and local copy are in sync.
-   */
+  /** Status code indicating that the remote copy and local copy are in sync. */
   int STATUS_CODE_INSYNC = 1;
 
-  /**
-   * Status code indicating that the remote copy is newer than the local one.
-   */
+  /** Status code indicating that the remote copy is newer than the local one. */
   int STATUS_CODE_REMOTENEW = 2;
 
-  /**
-   * Status code indicating that the local copy is newer thatn the remote one.
-   */
+  /** Status code indicating that the local copy is newer thatn the remote one. */
   int STATUS_CODE_LOCALNEW = 3;
 }

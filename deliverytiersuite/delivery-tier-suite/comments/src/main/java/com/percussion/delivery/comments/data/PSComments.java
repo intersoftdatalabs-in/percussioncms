@@ -25,11 +25,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when
+ * A simple container. Its use is just to add a root element name for Jersey to spit out when
  * serializing to JSON.
- * @author erikserating
  *
+ * @author erikserating
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
@@ -57,7 +56,6 @@ public class PSComments {
   }
 
   /**
-   *
    * @return the list of comments. Never <code>null</code>.
    */
   public List<IPSComment> getComments() {

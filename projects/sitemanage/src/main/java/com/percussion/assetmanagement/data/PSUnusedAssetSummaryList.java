@@ -20,16 +20,13 @@
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * List wrapper for PSUnusedAssetSummary.
- */
+/** List wrapper for PSUnusedAssetSummary. */
 @JsonRootName("UnusedAssetSummary")
 public class PSUnusedAssetSummaryList extends ArrayList<PSUnusedAssetSummary> {
-    public PSUnusedAssetSummaryList(Collection<? extends PSUnusedAssetSummary> c) {
-        super(c);
-    }
+  public PSUnusedAssetSummaryList(Collection<? extends PSUnusedAssetSummary> c) {
+    super(c);
+  }
 }

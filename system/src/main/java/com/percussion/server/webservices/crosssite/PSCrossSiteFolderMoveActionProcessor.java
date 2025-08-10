@@ -35,9 +35,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class handles the modification of the AA relationships of the dependent
- * item based on the items existence in multiple site folders for move action.
- * Implements mainly the base class method
+ * This class handles the modification of the AA relationships of the dependent item based on the
+ * items existence in multiple site folders for move action. Implements mainly the base class method
  * {@link #modifyLinks(PSAaFolderDependent)}.
  */
 public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActionProcessor {
@@ -48,10 +47,7 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
     this.data = data;
   }
 
-  /**
-   * Only ctor. Invokes base class version. Does additional initialization.
-   *
-   */
+  /** Only ctor. Invokes base class version. Does additional initialization. */
   public PSCrossSiteFolderMoveActionProcessor(
       PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId)
       throws PSCmsException, PSNotFoundException {
@@ -99,10 +95,7 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
     return false;
   }
 
-  /**
-   * See move action matrix in the functional specification for more details of
-   * each case.
-   */
+  /** See move action matrix in the functional specification for more details of each case. */
   @Override
   public void modifyLinks(PSAaFolderDependent depItem) throws PSCmsException {
     log.debug(
@@ -184,16 +177,13 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
   }
 
   /**
-   * Set the site id property of the supplied relationship to the target
-   * siteid. The modification is performed only if the source siteid of the
-   * dependent item is empty or matches with the siteid property of the
-   * supplied relationship. The idea of this is not to touch a relationship
-   * that does not have the item's source siteid as its property.
+   * Set the site id property of the supplied relationship to the target siteid. The modification is
+   * performed only if the source siteid of the dependent item is empty or matches with the siteid
+   * property of the supplied relationship. The idea of this is not to touch a relationship that
+   * does not have the item's source siteid as its property.
    *
-   * @param rel relationship in which the siteid is to be set, assumed not
-   * <code>null</code>.
-   * @return <code>true</code> if the property needed to set,
-   * <code>false</code> otherwise.
+   * @param rel relationship in which the siteid is to be set, assumed not <code>null</code>.
+   * @return <code>true</code> if the property needed to set, <code>false</code> otherwise.
    */
   private boolean setSiteId(PSRelationship rel) {
     String newSiteId = (data.getTargetSiteId() == null) ? "" : data.getTargetSiteId().toString();
@@ -231,9 +221,8 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
   }
 
   /**
-   * Evaluate the move action category based on the source and traget site ids.
-   * Assume the source and target siteids are evaluated already from the source
-   * and traget folders.
+   * Evaluate the move action category based on the source and traget site ids. Assume the source
+   * and target siteids are evaluated already from the source and traget folders.
    *
    * @return appropriate enumeration value.
    */
@@ -261,8 +250,6 @@ public class PSCrossSiteFolderMoveActionProcessor extends PSCrossSiteFolderActio
     return c;
   }
 
-  /**
-   * Name of the action this processor handles.
-   */
+  /** Name of the action this processor handles. */
   public static final String ACTION_NAME = "Move";
 }

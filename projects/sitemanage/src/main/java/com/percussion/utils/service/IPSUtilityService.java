@@ -18,52 +18,53 @@
 
 package com.percussion.utils.service;
 
-public interface IPSUtilityService
-{
+public interface IPSUtilityService {
 
-    /**
-     * Encrypts the provided string using the secret key if supplied, otherwise
-     * uses the default key.
-     *
-     * @param val The string to encrypt; cannot be empty or <code>null</code>.
-     * @param key Key to use for encryption; can be <code>null</code> or empty.
-     * @return The encrypted string, never <code>null</code>, may be empty.
-     */
-    String encryptString(String val, String key);
+  /**
+   * Encrypts the provided string using the secret key if supplied, otherwise uses the default key.
+   *
+   * @param val The string to encrypt; cannot be empty or <code>null</code>.
+   * @param key Key to use for encryption; can be <code>null</code> or empty.
+   * @return The encrypted string, never <code>null</code>, may be empty.
+   */
+  String encryptString(String val, String key);
 
-    /**
-     * Decrypts the provided string using the secret key if supplied, otherwise
-     * uses the default key.
-     *
-     * @param val The string to decrypt; cannot be empty or <code>null</code>.
-     * @param key Key to use for decryption; can be <code>null</code> or empty.
-     * @return The decrypted string, never <code>null</code>, may be empty.
-     */
-    String decryptString(String val, String key);
+  /**
+   * Decrypts the provided string using the secret key if supplied, otherwise uses the default key.
+   *
+   * @param val The string to decrypt; cannot be empty or <code>null</code>.
+   * @param key Key to use for decryption; can be <code>null</code> or empty.
+   * @return The decrypted string, never <code>null</code>, may be empty.
+   */
+  String decryptString(String val, String key);
 
-    /**
-     * Generic log method for logging messages from the client.
-     * @param type If blank or not a valid LogTypeEnum value, treated as LogTypeEnum.info.
-     * @param category If blank or not a valid LogCategoryEnum value, treated as LogCategoryEnum.General.
-     * @param message If blank, no message is logged.
-     */
-    void log(String type, String category, String message);
+  /**
+   * Generic log method for logging messages from the client.
+   *
+   * @param type If blank or not a valid LogTypeEnum value, treated as LogTypeEnum.info.
+   * @param category If blank or not a valid LogCategoryEnum value, treated as
+   *     LogCategoryEnum.General.
+   * @param message If blank, no message is logged.
+   */
+  void log(String type, String category, String message);
 
-    /**
-     * If a property called doSAAS exists in server.properties and its value
-     * is set to either true or yes, returns <code>true</code>.
-     * Otherwise, returns <code>false</code>.
-     * @return <code>true</code> if it is a SaaS environment.
-     */
-    boolean isSaaSEnvironment();
+  /**
+   * If a property called doSAAS exists in server.properties and its value is set to either true or
+   * yes, returns <code>true</code>. Otherwise, returns <code>false</code>.
+   *
+   * @return <code>true</code> if it is a SaaS environment.
+   */
+  boolean isSaaSEnvironment();
 
-    enum LogTypeEnum {
-        info, debug, error
-    }
+  enum LogTypeEnum {
+    info,
+    debug,
+    error
+  }
 
-    enum LogCategoryEnum {
-        General,
-        PageOptimizer,
-        SocialPromotion
-    }
+  enum LogCategoryEnum {
+    General,
+    PageOptimizer,
+    SocialPromotion
+  }
 }

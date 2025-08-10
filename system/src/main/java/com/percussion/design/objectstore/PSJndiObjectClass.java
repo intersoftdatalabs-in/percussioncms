@@ -17,19 +17,15 @@
 
 package com.percussion.design.objectstore;
 
-/**
- * Class to define an objectClass and its properties for Jndi group providers.
- */
+/** Class to define an objectClass and its properties for Jndi group providers. */
 public class PSJndiObjectClass {
   /**
    * Creates an instance with the provided values.
    *
-   * @param objectClass The name of this object class.  May not be
-   * <code>null</code> or empty.
-   * @param memberAttr The name of the attribute containing the member list
-   * of this object class.  May not be <code>null</code> or empty.
-   * @param attrType The type of member list, one of the
-   * MEMBER_ATTR_xxx types.
+   * @param objectClass The name of this object class. May not be <code>null</code> or empty.
+   * @param memberAttr The name of the attribute containing the member list of this object class.
+   *     May not be <code>null</code> or empty.
+   * @param attrType The type of member list, one of the MEMBER_ATTR_xxx types.
    */
   public PSJndiObjectClass(String objectClass, String memberAttr, int attrType) {
     if (objectClass == null || objectClass.trim().length() == 0)
@@ -54,8 +50,7 @@ public class PSJndiObjectClass {
   }
 
   /**
-   * @return The name of the member attribute, never <code>null</code> or
-   * empty.
+   * @return The name of the member attribute, never <code>null</code> or empty.
    */
   public String getMemberAttribute() {
     return m_memberAttribute;
@@ -72,9 +67,8 @@ public class PSJndiObjectClass {
    * compares this instance to another object.
    *
    * @param obj the object to compare
-   * @return returns <code>true</code> if the object is a
-   * PSJndiObjectClass with identical values. Otherwise returns
-   * <code>false</code>.
+   * @return returns <code>true</code> if the object is a PSJndiObjectClass with identical values.
+   *     Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -89,50 +83,45 @@ public class PSJndiObjectClass {
     return isMatch;
   }
 
-  /**
-   * Generates object hash code.
-   */
+  /** Generates object hash code. */
   @Override
   public int hashCode() {
     return this.m_objectClass.hashCode() + m_memberAttribute.hashCode() + m_attributeType;
   }
 
   /**
-   * The name of this objectClass.  Initialized during construction, never
-   * <code>null</code>, empty, or modified after that.
+   * The name of this objectClass. Initialized during construction, never <code>null</code>, empty,
+   * or modified after that.
    */
   private String m_objectClass = null;
 
   /**
-   * The name of the attribute containing the member list.  Initialized
-   * during construction, never <code>null</code>, empty, or modified after
-   * that.
+   * The name of the attribute containing the member list. Initialized during construction, never
+   * <code>null</code>, empty, or modified after that.
    */
   private String m_memberAttribute = null;
 
   /**
-   * The type of memberlist contained in the member attribute.  One of the
-   * MEMBER_ATTR_xxx types.  Set during the ctor, never modified after that.
+   * The type of memberlist contained in the member attribute. One of the MEMBER_ATTR_xxx types. Set
+   * during the ctor, never modified after that.
    */
   private int m_attributeType = MEMBER_ATTR_STATIC;
 
   /**
-   * Constant value to represent a member attribute whose value is a static
-   * list of member's distinguished names.
+   * Constant value to represent a member attribute whose value is a static list of member's
+   * distinguished names.
    */
   public static final int MEMBER_ATTR_STATIC = 0;
 
   /**
-   * Constant value to represent a member attribute whose value is a dynamic
-   * list of search filters.
+   * Constant value to represent a member attribute whose value is a dynamic list of search filters.
    */
   public static final int MEMBER_ATTR_DYNAMIC = 1;
 
   /**
-   * Array of String values to represent a member attribute whose value is a
-   * dynamic list of search filters.  Each of the <code>MEMBER_ATTR_xxx</code>
-   * constants may be used as an index into this array to retrieve its
-   * corresponding String representation.
+   * Array of String values to represent a member attribute whose value is a dynamic list of search
+   * filters. Each of the <code>MEMBER_ATTR_xxx</code> constants may be used as an index into this
+   * array to retrieve its corresponding String representation.
    */
   public static final String[] MEMBER_ATTR_TYPE_ENUM = {"static", "dynamic"};
 }

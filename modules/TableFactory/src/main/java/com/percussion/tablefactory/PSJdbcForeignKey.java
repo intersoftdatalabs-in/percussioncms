@@ -28,25 +28,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to represent a set of foreign key contraints for a table,
- * and the action to perform when that table schema is used to create or modify a
- * table.
+ * This class is used to represent a set of foreign key contraints for a table, and the action to
+ * perform when that table schema is used to create or modify a table.
  */
 public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
-   * Basic constructor for this class.  Constructs a foreign Key definition
-   * with a constraint on one column.  Additional columns may be added using
-   * {@link #addColumn(String, String, String) addColumn}.
+   * Basic constructor for this class. Constructs a foreign Key definition with a constraint on one
+   * column. Additional columns may be added using {@link #addColumn(String, String, String)
+   * addColumn}.
    *
-   * @param colName The name of the column in the table with the constraint.
-   * May not be <code>null</code> or empty.
-   * @param extTable The table that contains the externally referenced column.
-   * May not be <code>null</code> or empty.
-   * @param extCol The external column whose value constrains the value of
-   * the column referenced by colName. May not be <code>null</code> or empty.
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   *    constants.
-   *
+   * @param colName The name of the column in the table with the constraint. May not be <code>null
+   *     </code> or empty.
+   * @param extTable The table that contains the externally referenced column. May not be <code>null
+   *     </code> or empty.
+   * @param extCol The external column whose value constrains the value of the column referenced by
+   *     colName. May not be <code>null</code> or empty.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJdbcForeignKey(String colName, String extTable, String extCol, int action) {
@@ -59,14 +56,11 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Constructs a foreign Key definition from a list of constraints.
    *
-   * @param cols A list of foreign key columns.  Each entry is a String[] with
-   * 3 entries, the column name, the external table name, and the external
-   * column name respectively, all not <code>null</code> or empty.  Each entry
-   * in the list may not be <code>null</code>.  May not be <code>null</code> or
-   * empty.
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   *    constants.
-   *
+   * @param cols A list of foreign key columns. Each entry is a String[] with 3 entries, the column
+   *     name, the external table name, and the external column name respectively, all not <code>
+   *     null</code> or empty. Each entry in the list may not be <code>null</code>. May not be
+   *     <code>null</code> or empty.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJdbcForeignKey(Iterator<String[]> cols, int action) {
@@ -91,13 +85,11 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
    * Constructs a foreign Key definition from a name and a list of constraints.
    *
    * @param fkName FK name, never <code>null</code> or <code>empty</code>.
-   * @param cols A list of foreign key columns.  Each entry is a String[] with
-   * 3 entries, the column name, the external table name, and the external
-   * column name respectively, all not <code>null</code> or empty.  Each entry
-   * in the list may not be <code>null</code>.  May not be <code>null</code> or
-   * empty.
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   *    constants.
+   * @param cols A list of foreign key columns. Each entry is a String[] with 3 entries, the column
+   *     name, the external table name, and the external column name respectively, all not <code>
+   *     null</code> or empty. Each entry in the list may not be <code>null</code>. May not be
+   *     <code>null</code> or empty.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
    */
   public PSJdbcForeignKey(String fkName, Iterator<String[]> cols, int action) {
     this(cols, action);
@@ -105,16 +97,15 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element) fromXml} for
+   * more information.
    *
-   * @param sourceNode The element from which this object is to be constructed.
-   *    Element must conform to the definition for the foreignkey element in
-   *    the tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which this object is to be constructed. Element must conform
+   *     to the definition for the foreignkey element in the tabledef.dtd. May not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition is invalid,
-   *    or if there are any other errors.
+   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or if there are any other
+   *     errors.
    */
   public PSJdbcForeignKey(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -125,13 +116,12 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Adds a column definition.
    *
-   * @param colName The name of the column in the table with the constraint.
-   * May not be <code>null</code> or empty.
-   * @param extTable The table that contains the externally referenced column.
-   * May not be <code>null</code> or empty.
-   * @param extCol The external column whose value constrains the value of
-   * the column referenced by colName. May not be <code>null</code> or empty.
-   *
+   * @param colName The name of the column in the table with the constraint. May not be <code>null
+   *     </code> or empty.
+   * @param extTable The table that contains the externally referenced column. May not be <code>null
+   *     </code> or empty.
+   * @param extCol The external column whose value constrains the value of the column referenced by
+   *     colName. May not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addColumn(String colName, String extTable, String extCol) {
@@ -152,20 +142,18 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Returns the list of foreign key columns.
    *
-   * @return An iterator over one or more foreign key columns.   Each entry is
-   * a String[] with 3 entries, the column name, the external table name, and
-   * the external column name respectively, all not <code>null</code> or empty.
+   * @return An iterator over one or more foreign key columns. Each entry is a String[] with 3
+   *     entries, the column name, the external table name, and the external column name
+   *     respectively, all not <code>null</code> or empty.
    */
   public Iterator<String[]> getColumns() {
     return m_columns.iterator();
   }
 
   /**
-   * Returns the list of the internal column names included in the foreign key
-   * columns.
+   * Returns the list of the internal column names included in the foreign key columns.
    *
-   * @return An iterator over one or more column names as Strings.
-   * Never <code>null</code>.
+   * @return An iterator over one or more column names as Strings. Never <code>null</code>.
    */
   public Iterator<String> getInternalColumns() {
     List<String> names = new ArrayList<>();
@@ -176,22 +164,16 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Returns the list of foreign key columns that reference a particular
-   * external table.
+   * Returns the list of foreign key columns that reference a particular external table.
    *
-   * @param tableName The external table name, may not be <code>null</code> or
-   * emtpy.
-   *
-   * @return An iterator over one or more foreign key columns.   Each entry is
-   * a String[] with 3 entries, the column name, the external table name, and
-   * the external column name respectively, all not <code>null</code> or empty.
-   * If there are no foreign keys defined that referenced the specifed
-   * tablename, then an empty iterator is returned.  If the tableName provided
-   * is from the list returned by {@link #getTables()}, the iterator is
-   * guaranteed to have at least one element.
-   *
-   * @throws IllegalArgumentException if tableName is <code>null</code> or
-   * empty.
+   * @param tableName The external table name, may not be <code>null</code> or emtpy.
+   * @return An iterator over one or more foreign key columns. Each entry is a String[] with 3
+   *     entries, the column name, the external table name, and the external column name
+   *     respectively, all not <code>null</code> or empty. If there are no foreign keys defined that
+   *     referenced the specifed tablename, then an empty iterator is returned. If the tableName
+   *     provided is from the list returned by {@link #getTables()}, the iterator is guaranteed to
+   *     have at least one element.
+   * @throws IllegalArgumentException if tableName is <code>null</code> or empty.
    */
   public Iterator<String[]> getColumns(String tableName) {
     if (tableName == null || tableName.trim().length() == 0)
@@ -224,8 +206,7 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Returns an iterator over one or more tables that are referenced by this
-   * foreign key constraint.
+   * Returns an iterator over one or more tables that are referenced by this foreign key constraint.
    *
    * @return The table names, never <code>null</code> or empty.
    */
@@ -236,13 +217,12 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the foreignKey
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the foreignKey element in the tabledef.dtd. May not be <code>null</code>
+   *     .
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition contains
-   *    any empty or duplicate column names, or if there are any other errors.
+   * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
+   *     column names, or if there are any other errors.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -280,12 +260,10 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -309,16 +287,14 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Converts a single foreign key definition into a list where separate tables
-   * are defined in seaparate key objects. This is provided to convert old xml
-   * that is defined in a single foriegn key element into an object per foriegn
-   * key contraint in the database and allow effective comparison between old
-   * and new.
+   * Converts a single foreign key definition into a list where separate tables are defined in
+   * seaparate key objects. This is provided to convert old xml that is defined in a single foriegn
+   * key element into an object per foriegn key contraint in the database and allow effective
+   * comparison between old and new.
    *
    * @return The A list of PSJdbcForeignKey objects never null <code>
-   *    null</code>. If the foreign key does not reference more than one table
-   *         the list will contain a single instance of the current object.
-   *
+   *    null</code>. If the foreign key does not reference more than one table the list will contain
+   *     a single instance of the current object.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public List<PSJdbcForeignKey> normalizeForeignKeys() {
@@ -351,8 +327,8 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcForeignKey with
-   *    the same columns. Otherwise returns <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcForeignKey with the same columns. Otherwise
+   *     returns <code>false</code>.
    */
   @Override
   public boolean equals(Object obj) {
@@ -367,17 +343,14 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Compares this key object to another foreign key object. Ignores the name
-   * and action of the keys while comparing. Returns <code>true</code> if both
-   * keys comprise the same tables, and same columns from the corresponding
-   * table, <code>false</code> otherwise.
+   * Compares this key object to another foreign key object. Ignores the name and action of the keys
+   * while comparing. Returns <code>true</code> if both keys comprise the same tables, and same
+   * columns from the corresponding table, <code>false</code> otherwise.
    *
-   * @param other the foreign key object to compare, may be <code>null</code>
-   * in which case <code>false</code> is returned.
-   *
-   * @return <code>true</code> if this object and <code>other</code> comprise
-   * the same tables, and same columns from the corresponding table.
-   * Otherwise returns <code>false</code>.
+   * @param other the foreign key object to compare, may be <code>null</code> in which case <code>
+   *     false</code> is returned.
+   * @return <code>true</code> if this object and <code>other</code> comprise the same tables, and
+   *     same columns from the corresponding table. Otherwise returns <code>false</code>.
    */
   public boolean isComponentEqual(PSJdbcForeignKey other) {
     if (other == null) return false;
@@ -415,9 +388,8 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -434,8 +406,8 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Used by <code>toXml</code> and <code>fromXml</code> to determine if the
-   * name attribute is required.
+   * Used by <code>toXml</code> and <code>fromXml</code> to determine if the name attribute is
+   * required.
    *
    * @return <code>true</code> if name is required, <code>false</code> if not.
    */
@@ -444,20 +416,16 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Gets the element data from an required attribute or child element.
-   * It is an error for a required node to be absent or empty.
+   * Gets the element data from an required attribute or child element. It is an error for a
+   * required node to be absent or empty.
    *
-   * @param tree a valid PSXmlTreeWalker currently positioned at the element
-   *        that is the parent of the required node. Assumed not <code>null
+   * @param tree a valid PSXmlTreeWalker currently positioned at the element that is the parent of
+   *     the required node. Assumed not <code>null
    *        </code>.
-   * @param elemName the name of the node to retrieve data from; assumed not
-   *        <code>null</code>
-   *
-   * @return not empty, not <code>null</code> String containing the element
-   *         data from the specified node.
-   *
-   * @throws PSJdbcTableFactoryException if the specified node is missing,
-   *         or empty.
+   * @param elemName the name of the node to retrieve data from; assumed not <code>null</code>
+   * @return not empty, not <code>null</code> String containing the element data from the specified
+   *     node.
+   * @throws PSJdbcTableFactoryException if the specified node is missing, or empty.
    */
   private static String getRequiredElement(PSXmlTreeWalker tree, String elemName)
       throws PSJdbcTableFactoryException {
@@ -470,28 +438,22 @@ public class PSJdbcForeignKey extends PSJdbcTableComponent {
     return data;
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "foreignkey";
 
-  /**
-   * name of this container for error messages.
-   */
+  /** name of this container for error messages. */
   public static String CONTAINER_NAME = "foreign key";
 
   /**
-   * A list of foreign key columns.  Each entry is a String[] with 3 entries,
-   * the column name, the external table name, and the external column name
-   * respectively, all not <code>null</code> or empty.  Each entry in the
-   * list is not <code>null</code>.  Never <code>null</code> or empty.
+   * A list of foreign key columns. Each entry is a String[] with 3 entries, the column name, the
+   * external table name, and the external column name respectively, all not <code>null</code> or
+   * empty. Each entry in the list is not <code>null</code>. Never <code>null</code> or empty.
    */
   private List<String[]> m_columns = new ArrayList<>();
 
   /**
-   * A Set of tables referenced by foreign key columns.  Each entry is the
-   * tableName as a String.  Each entry in the list is not <code>null</code> or
-   * empty. Never <code>null</code> or empty.
+   * A Set of tables referenced by foreign key columns. Each entry is the tableName as a String.
+   * Each entry in the list is not <code>null</code> or empty. Never <code>null</code> or empty.
    */
   private Set<String> m_tables = new HashSet<>();
 

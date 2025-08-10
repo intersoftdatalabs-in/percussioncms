@@ -30,12 +30,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSAttributesCatalogHandler class implements cataloging of
- * attributes. This request type is used to locate the attributes
- * associated with an object defined in the specified security provider.
- * <p>
- * Attribute catalog requests are sent to the server using the
- * PSXSecurityAttributesCatalog XML document. Its definition is as follows:
+ * The PSAttributesCatalogHandler class implements cataloging of attributes. This request type is
+ * used to locate the attributes associated with an object defined in the specified security
+ * provider.
+ *
+ * <p>Attribute catalog requests are sent to the server using the PSXSecurityAttributesCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityAttributesCatalog (instanceName, objectType*)&gt;
  *
@@ -51,8 +52,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT objectType       (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityAttributesCatalogResults XML document is sent as the
- * response. Its definition is as follows:
+ * The PSXSecurityAttributesCatalogResults XML document is sent as the response. Its definition is
+ * as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityAttributesCatalogResults (instanceName, Attributes*)&gt;
  *
@@ -74,16 +76,14 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name               (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSAttributesCatalogHandler
     extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements com.percussion.design.catalog.IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSAttributesCatalogHandler() {
     super();
   }
@@ -91,10 +91,9 @@ public class PSAttributesCatalogHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_RequestDTD};
@@ -103,12 +102,10 @@ public class PSAttributesCatalogHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -187,9 +184,7 @@ public class PSAttributesCatalogHandler
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

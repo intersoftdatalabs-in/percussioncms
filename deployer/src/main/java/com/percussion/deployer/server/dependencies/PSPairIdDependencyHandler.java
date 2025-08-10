@@ -38,19 +38,16 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Utility class for the dependency handlers whose id a the combination of
- * its parent id and its name (not the id column of its database table)
+ * Utility class for the dependency handlers whose id a the combination of its parent id and its
+ * name (not the id column of its database table)
  */
 public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSPairIdDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -97,23 +94,17 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
   protected abstract String getPairParentType();
 
   /**
-   * Create a dependency object from the given parameters. It does the same
-   * as the base class specified, except the <code>id</code> is a pair id
-   * and some extra parameters.
+   * Create a dependency object from the given parameters. It does the same as the base class
+   * specified, except the <code>id</code> is a pair id and some extra parameters.
    *
    * @param tok The Security token, it may not be <code>null</code>
-   * @param id The (pair) id of the dependency, it may not be
-   * <code>null</code> or empty
-   * @param table The table name, which contains the dependency definition,
-   * it may not be <code>null</code> or empty.
-   * @param childNameCol The column name for the name of the dependency,
-   * it may not be <code>null</code> or empty.
-   * @param parentIdCol The column name for the parent id, it may not be
-   * <code>null</code> or empty.
-   *
-   * @return The created dependency object, it may be <code>null</code> if
-   * not exist.
-   *
+   * @param id The (pair) id of the dependency, it may not be <code>null</code> or empty
+   * @param table The table name, which contains the dependency definition, it may not be <code>null
+   *     </code> or empty.
+   * @param childNameCol The column name for the name of the dependency, it may not be <code>null
+   *     </code> or empty.
+   * @param parentIdCol The column name for the parent id, it may not be <code>null</code> or empty.
+   * @return The created dependency object, it may be <code>null</code> if not exist.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -149,20 +140,17 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
   }
 
   /**
-   * Get a filter for a given pair id. The filter will be in the form of:
-   * WHERE CHILD_NAME = childId AND PARENT_ID = parentId.
+   * Get a filter for a given pair id. The filter will be in the form of: WHERE CHILD_NAME = childId
+   * AND PARENT_ID = parentId.
    *
-   * Note: the CHILD_NAME column must be <code>VARCHAR</code>, and the
-   * PARENT_ID column must be <code>INTEGER</code>
+   * <p>Note: the CHILD_NAME column must be <code>VARCHAR</code>, and the PARENT_ID column must be
+   * <code>INTEGER</code>
    *
    * @param id The pair id, it may not be <code>null</code> or empty.
-   * @param parentIdCol The parent column name, it may not be
-   * <code>null</code> or empty.
-   * @param childNameCol The column name of the current object, it may not be
-   * <code>null</code> or empty.
-   *
+   * @param parentIdCol The parent column name, it may not be <code>null</code> or empty.
+   * @param childNameCol The column name of the current object, it may not be <code>null</code> or
+   *     empty.
    * @return The filter specified above, will never to <code>null</code>.
-   *
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws PSDeployException if any error occurs.
    */
@@ -192,31 +180,26 @@ public abstract class PSPairIdDependencyHandler extends PSDataObjectDependencyHa
   }
 
   /**
-   * Delete a given dependency from a specified table.
-   * The deletion where clause looks like:
-   *     PARENT_ID=parentId and NAME=childId; Both parentId and childId
-   *     are part of the <code>dep.getDependencyId()</code>.
+   * Delete a given dependency from a specified table. The deletion where clause looks like:
+   * PARENT_ID=parentId and NAME=childId; Both parentId and childId are part of the <code>
+   * dep.getDependencyId()</code>.
    *
-   *     Note: The parentId (above) is a transfered or mapped id on the
-   *           target server
+   * <p>Note: The parentId (above) is a transfered or mapped id on the target server
    *
-   *     Also Note: An update key is set on the supplied <code>schema</code>
-   *                object.
+   * <p>Also Note: An update key is set on the supplied <code>schema</code> object.
    *
    * @param tok The security token, it may not be <code>null</code>.
    * @param dep The dependency object, it may not be <code>null</code>.
-   * @param ctx The import context used to transform the dependency id for
-   * deletion if found in id map, it may not be <code>null</code>.
+   * @param ctx The import context used to transform the dependency id for deletion if found in id
+   *     map, it may not be <code>null</code>.
    * @param schema The schema object, it may not be <code>null</code>.
-   * @param table The table name, which contains the dependency definition,
-   * it may not be <code>null</code> or empty.
-   * @param childNameCol The column name for the name of the dependency,
-   * it may not be <code>null</code> or empty.
-   * @param parentIdCol The column name for the parent id, it may not be
-   * <code>null</code> or empty.
-   * @param parentDepType The type of the dependency handler, it may not be
-   * <code>null</code> or empty.
-   *
+   * @param table The table name, which contains the dependency definition, it may not be <code>null
+   *     </code> or empty.
+   * @param childNameCol The column name for the name of the dependency, it may not be <code>null
+   *     </code> or empty.
+   * @param parentIdCol The column name for the parent id, it may not be <code>null</code> or empty.
+   * @param parentDepType The type of the dependency handler, it may not be <code>null</code> or
+   *     empty.
    * @throws IllegalArgumentException if any parameter is invalid.
    * @throws PSDeployException if any error occurs.
    */

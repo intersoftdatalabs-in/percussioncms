@@ -180,10 +180,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     m_traceOut = null;
   }
 
-  /**
-   * We do no special processing here. Proceed immediately to children.
-   *
-   */
+  /** We do no special processing here. Proceed immediately to children. */
   public Object visit(SimpleNode node, Object data) {
     // --+trace("Visit SimpleNode(" + data + ")");
     ASTStatementRoot stRoot = (ASTStatementRoot) node.jjtGetChild(0);
@@ -191,10 +188,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return stRoot.jjtAccept(this, data);
   }
 
-  /**
-   * We do no special processing here. Proceed immediately to children.
-   *
-   */
+  /** We do no special processing here. Proceed immediately to children. */
   public Object visit(ASTStatementRoot node, Object data) {
     // --+trace("Visit statement root: (" + data + ")");
     ASTDirectSQLDataStatement dirStmt = (ASTDirectSQLDataStatement) node.jjtGetChild(0);
@@ -202,10 +196,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return dirStmt.jjtAccept(this, data);
   }
 
-  /**
-   * We do no special processing here. Proceed immediately to children.
-   *
-   */
+  /** We do no special processing here. Proceed immediately to children. */
   public Object visit(ASTDirectSQLDataStatement node, Object data) {
     // --+trace("Visit SQL statement: (" + data + ")");
     ASTDirectSelectStatementMultipleRows dSel =
@@ -216,10 +207,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     // TODO: handle ORDER BY clause
   }
 
-  /**
-   * We do no special processing here. Proceed immediately to children.
-   *
-   */
+  /** We do no special processing here. Proceed immediately to children. */
   public Object visit(ASTDirectSelectStatementMultipleRows node, Object data) {
     // --+trace("Visit direct select statement (" + data + ")");
     ASTQuerySpecification qSpec = (ASTQuerySpecification) node.jjtGetChild(0);
@@ -228,10 +216,10 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * Marks the starting point for the query context, which will be passed to
-   * other nodes and filled out as we visit them.
+   * Marks the starting point for the query context, which will be passed to other nodes and filled
+   * out as we visit them.
    *
-   * Returns a result set which is the result of the query specification.
+   * <p>Returns a result set which is the result of the query specification.
    */
   public Object visit(ASTQuerySpecification node, Object data) {
     // --+trace("Visit query specification (" + data + ")");
@@ -285,20 +273,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return joins;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTLiteral node, Object data) {
     // --+trace("Visit literal (" + data + ")");
     node.childrenAccept(this, data);
     return node;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTColumnReference node, Object data) {
     // --+trace("Visit column reference (" + data + ")");
     node.childrenAccept(this, data);
@@ -337,10 +319,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTFileSpec node, Object data) {
     // --+trace("Visit file specification (" + data + ")");
 
@@ -349,20 +328,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTParameterSpecification node, Object data) {
     // --+trace("Visit parameter specification (" + data + ")");
     node.childrenAccept(this, data);
     return node;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTSelectList node, Object data) {
     // --+trace("Visit select list (" + data + ")");
     QueryContext con = (QueryContext) data;
@@ -380,8 +353,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * Could be a reference to a derived column in either a SELECT list
-   * or a WHERE clause
+   * Could be a reference to a derived column in either a SELECT list or a WHERE clause
    *
    * @return IPSReplacementValue
    */
@@ -410,20 +382,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return retVal;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTTableExpression node, Object data) {
     // --+trace("Visit table expression (" + data + ")");
     node.childrenAccept(this, data);
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTFromClause node, Object data) {
     // --+trace("Visit FROM clause: (" + data + ")");
 
@@ -572,10 +538,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTWhereClause node, Object data) {
     // --+trace("Visit WHERE clause (" + data + ")");
 
@@ -586,20 +549,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTGroupByClause node, Object data) {
     // --+trace("Visit GROUP BY clause (" + data + ")");
     node.childrenAccept(this, data);
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTHavingClause node, Object data) {
     // --+trace("Visit HAVING clause: (" + data + ")");
     node.childrenAccept(this, data);
@@ -611,8 +568,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
    *
    * @param node
    * @param data A query context
-   *
-   * THIS IS ORPHANED, NO ONE EVER VISITS THIS NODE
+   *     <p>THIS IS ORPHANED, NO ONE EVER VISITS THIS NODE
    */
   public Object visit(ASTBooleanTerm node, Object data) {
     // --+trace("Visit boolean term (" + data + ")");
@@ -620,10 +576,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   * BooleanFactor ( <AND> BooleanFactor )*
-   *
-   */
+  /** BooleanFactor ( <AND> BooleanFactor )* */
   public Object visit(ASTBooleanFactor node, Object data) {
     // --+trace("Visit boolean factor (" + data + ")");
 
@@ -653,16 +606,11 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/9
-   *
-   *
-   *
-   * @param   node the node
-   * @param   data a query context
-   *
-   * @return   PSConditional
+   * @param node the node
+   * @param data a query context
+   * @return PSConditional
    */
   public Object visit(ASTComparisonPredicate node, Object data) {
     // --+trace("Visit comparison predicate (" + data + ")");
@@ -714,7 +662,6 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   *
    * @return PSConditional
    */
   public Object visit(ASTBetweenPredicate node, Object data) {
@@ -744,7 +691,6 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   *
    * @return PSConditional
    */
   public Object visit(ASTLikePredicate node, Object data) {
@@ -773,20 +719,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return cond;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTEscapeClause node, Object data) {
     // --+trace("Visit ESCAPE clause (" + data + ")");
     node.childrenAccept(this, data);
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTNullPredicate node, Object data) {
     // --+trace("Visit IS NULL predicate (" + data + ")");
 
@@ -816,20 +756,14 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTOrderByClause node, Object data) {
     // --+trace("Visit ORDER BY clause (" + data + ")");
     node.childrenAccept(this, data);
     return null;
   }
 
-  /**
-   *
-   *
-   */
+  /** */
   public Object visit(ASTSortSpecification node, Object data) {
     // --+trace("Visit sort specification (" + data + ")");
     node.childrenAccept(this, data);
@@ -837,15 +771,10 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/4
-   *
-   * Private utilility method to build a relational table structure from
-   * a DTD.
-   *
-   * @param   dtdTree The DTD
-   *
+   *     <p>Private utilility method to build a relational table structure from a DTD.
+   * @param dtdTree The DTD
    */
   private void generateTables(PSDtdTree dtdTree, QueryContext con) {
     PSDtdRelationalMapper mapper = new PSDtdRelationalMapper(dtdTree, m_traceOut);
@@ -855,15 +784,11 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/4
-   *
-   * Private utility method to flatten an XML document to a series of ResultSets,
-   * one for each table defined in the relational mapping.
-   *
-   * @param   mapper
-   *
+   *     <p>Private utility method to flatten an XML document to a series of ResultSets, one for
+   *     each table defined in the relational mapping.
+   * @param mapper
    */
   private void flattenDocument(QueryContext con) {
     // --+trace("Flattening document...");
@@ -889,21 +814,15 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/4
-   *
-   * A recursive function that looks at the table definition and adds all
-   * the relevant column data to the result set according to the columns
-   * in the table def. Then, for every table that uses one of this table's
-   * columns as a foreign key, process that table, setting that table's
-   * foreign key column to the value of the corresponding column in this
-   * table.
-   *
-   * @param   el
-   * @param   table
-   * @param   rs
-   *
+   *     <p>A recursive function that looks at the table definition and adds all the relevant column
+   *     data to the result set according to the columns in the table def. Then, for every table
+   *     that uses one of this table's columns as a foreign key, process that table, setting that
+   *     table's foreign key column to the value of the corresponding column in this table.
+   * @param el
+   * @param table
+   * @param rs
    */
   private void processElement(
       QueryContext con,
@@ -1002,21 +921,15 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/4
-   *
-   * Process a single row for a table.
-   *
-   * @param   el   The element (whose name is generally equal to the table name) that
-   * contains, directly or indirectly, all of the values for a row in the table.
-   *
-   * @param   table The table definition
-   *
-   * @param   rs   The result set to which a row
-   *
-   * @param   uniqueIDValue   The value for the unique ID column of the table, if
-   * one exists. This parameter will be ignored if there is no unique ID column.
+   *     <p>Process a single row for a table.
+   * @param el The element (whose name is generally equal to the table name) that contains, directly
+   *     or indirectly, all of the values for a row in the table.
+   * @param table The table definition
+   * @param rs The result set to which a row
+   * @param uniqueIDValue The value for the unique ID column of the table, if one exists. This
+   *     parameter will be ignored if there is no unique ID column.
    */
   private void processRow(
       Element el, PSDtdRelationalMapper.TableDef table, PSResultSet rs, int uniqueIDValue) {
@@ -1064,17 +977,13 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/4
-   *
-   * Find the highest level element with the given name that is, or is under,
-   * the given element.
-   *
-   * @param   el   The element
-   * @param   name The name. If el's name equals name, returns el.
-   *
-   * @return   Element The highest level element named name, or null.
+   *     <p>Find the highest level element with the given name that is, or is under, the given
+   *     element.
+   * @param el The element
+   * @param name The name. If el's name equals name, returns el.
+   * @return Element The highest level element named name, or null.
    */
   private Element seekToFirstElement(Element el, String name) {
     if (!el.getNodeName().equals(name)) {
@@ -1108,17 +1017,13 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/7
-   *
-   * Gets the column value for the first element with the given name that
-   * is, or is under, the given element.
-   *
-   * @param   el
-   * @param   colName
-   *
-   * @return   String
+   *     <p>Gets the column value for the first element with the given name that is, or is under,
+   *     the given element.
+   * @param el
+   * @param colName
+   * @return String
    */
   private String getColumnValue(Element el, String colName) {
     // the column name uses forward slash to separate levels
@@ -1144,13 +1049,11 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * Get the value (text data) associated with the specified element.
-   * If the specified element is null or has no text data,
-   * returns the empty string.
+   * Get the value (text data) associated with the specified element. If the specified element is
+   * null or has no text data, returns the empty string.
    *
-   * @param   node the element to retrieve data from
-   *
-   * @return                 the value of the element
+   * @param node the element to retrieve data from
+   * @return the value of the element
    */
   public java.lang.String getElementData(org.w3c.dom.Element node) {
     String ret = "";
@@ -1170,18 +1073,12 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/7
-   *
-   * Gets the fully qualified column name for a given column reference.
-   *
-   * @param   col   The column reference.
-   *
-   * @param   con   The query context which contains, among other things,
-   * the table alias mappings.
-   *
-   * @return   PSBackEndColumn
+   *     <p>Gets the fully qualified column name for a given column reference.
+   * @param col The column reference.
+   * @param con The query context which contains, among other things, the table alias mappings.
+   * @return PSBackEndColumn
    */
   PSBackEndColumn qualifyColumnName(ASTColumnReference col, QueryContext con) {
     // *TODO* if column ref starts with a slash, then only look from root
@@ -1274,27 +1171,18 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/8
-   *
-   * A recursive method to disambiguate and qualify a column name that
-   * may contain only part of a full column name.
-   *
-   * @param   occurrences   The number of disambiguations. If there is more
-   * than one element in this list after calling this method, it means
-   * the column name is still ambiguous. If there are no elements in
-   * this list after calling this method, then no disambiguation was
-   * found.
-   *
-   * @param   prefix The string prefix for this table level, used for
-   * recursion. The initial string prefix should be "/".
-   *
-   * @param   tabDef The starting table definition. This method will
-   * look in this table and all of its child tables.
-   *
-   * @param   colName The column name fragment to disambiguate.
-   *
+   *     <p>A recursive method to disambiguate and qualify a column name that may contain only part
+   *     of a full column name.
+   * @param occurrences The number of disambiguations. If there is more than one element in this
+   *     list after calling this method, it means the column name is still ambiguous. If there are
+   *     no elements in this list after calling this method, then no disambiguation was found.
+   * @param prefix The string prefix for this table level, used for recursion. The initial string
+   *     prefix should be "/".
+   * @param tabDef The starting table definition. This method will look in this table and all of its
+   *     child tables.
+   * @param colName The column name fragment to disambiguate.
    */
   void findColumnName(
       List occurrences, String prefix, PSDtdRelationalMapper.TableDef tabDef, String colName) {
@@ -1332,12 +1220,10 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   }
 
   /**
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/6/15
-   *
-   * Gets the warnings, useful for adding to SQL objects.
-   * @return   Collection
+   *     <p>Gets the warnings, useful for adding to SQL objects.
+   * @return Collection
    */
   Collection getWarnings() {
     return Collections.unmodifiableCollection(m_warnings);
@@ -1355,7 +1241,7 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
   /** the current state of the query processer */
   private int m_state = STATE_INVALID;
 
-  /** a collection of warning strings **/
+  /** a collection of warning strings * */
   private Collection m_warnings = new ArrayList();
 
   private static final int STATE_INVALID = 0;
@@ -1369,9 +1255,8 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
    */
 
   /**
-   * Defines a query context containing table aliases and derived column names.
-   * This query context is also known as a scope.
-   *
+   * Defines a query context containing table aliases and derived column names. This query context
+   * is also known as a scope.
    */
   private class QueryContext {
     public QueryContext() {
@@ -1391,15 +1276,11 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/7
-     *
-     * Adds a derived column along with an AS name (alias) for that column.
-     *
-     * @param   dCol   The derived column data source
-     * @param   asName   The AS name for the column
-     *
+     *     <p>Adds a derived column along with an AS name (alias) for that column.
+     * @param dCol The derived column data source
+     * @param asName The AS name for the column
      */
     public void addSelectColumn(IPSReplacementValue dCol, String asName) {
       if (asName != null) {
@@ -1516,25 +1397,19 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/10
+     *     <p>Adds a WHERE conditional to the query context. The conditional will be analyzed and
+     *     put in the appropriate place according to these rules:
+     *     <UL>
+     *       <LI>If all arguments to the conditional are either from the same table or literals,
+     *           then add that conditional to the pre-join selection criteria for that table.
+     *       <LI>If arguments are from different tables, then add that conditional to the post-join
+     *           selection criteria for the lowest-level (child) table, because higher values cannot
+     *           be compared with lower values until a join has made their relation meaningful.
+     *     </UL>
      *
-     * Adds a WHERE conditional to the query context. The conditional
-     * will be analyzed and put in the appropriate place according to
-     * these rules:
-     * <UL>
-     * <LI>If all arguments to the conditional are either from the same
-     * table or literals, then add that conditional to the pre-join
-     * selection criteria for that table.
-     * <LI>If arguments are from different tables, then add that conditional
-     * to the post-join selection criteria for the lowest-level (child)
-     * table, because higher values cannot be compared with lower values
-     * until a join has made their relation meaningful.
-     * </UL>
-     *
-     * @param   cond
-     *
+     * @param cond
      */
     public void addWhereConditional(PSConditional cond) {
       // --+trace("Adding where conditional: " + cond.toString());
@@ -1646,30 +1521,22 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/10
-     *
-     * @param   tableName The name of the table to which the selection
-     * conditions should be applied.
-     *
-     * @return   PSCollection of PSConditional objects that can be applied
-     * to this table before joining it with anything.
+     * @param tableName The name of the table to which the selection conditions should be applied.
+     * @return PSCollection of PSConditional objects that can be applied to this table before
+     *     joining it with anything.
      */
     public PSCollection getPreJoinSelectionConditionals(String tableName) {
       return (PSCollection) m_preJoinSelectionCriteria.get(tableName);
     }
 
     /**
-     * @author   chad loder
-     *
+     * @author chad loder
      * @version 1.0 1999/6/10
-     *
-     * @param   tableName The name of the table to which the selection
-     * conditions should be applied.
-     *
-     * @return   PSCollection of PSConditional objects that can be applied
-     * to this table after it is joined to the appropriate parent table(s).
+     * @param tableName The name of the table to which the selection conditions should be applied.
+     * @return PSCollection of PSConditional objects that can be applied to this table after it is
+     *     joined to the appropriate parent table(s).
      */
     public PSCollection getPostJoinSelectionConditionals(String tableName) {
       return (PSCollection) m_postJoinSelectionCriteria.get(tableName);
@@ -1926,12 +1793,9 @@ public class PSXmlDocumentQuery implements SQLParserVisitor {
       /**
        * Execute this step in the execution plan.
        *
-       * @param   data     execution data is a container for the input data
-       *                   as well as a collection of result sets generated
-       *                   by queries.
-       *
-       * @exception   SQLException
-       *                                                                                                                                                                                                       if a SQL error occurs
+       * @param data execution data is a container for the input data as well as a collection of
+       *     result sets generated by queries.
+       * @exception SQLException if a SQL error occurs
        */
       public void execute(PSExecutionData data) throws java.sql.SQLException {
         // there had better be a result set and a collection of conditionals on the stack

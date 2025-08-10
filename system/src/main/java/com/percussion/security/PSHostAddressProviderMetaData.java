@@ -18,27 +18,24 @@
 package com.percussion.security;
 
 /**
- * The PSHostAddressProviderMetaData class implements cataloging for
- * the Host Address security provider.
+ * The PSHostAddressProviderMetaData class implements cataloging for the Host Address security
+ * provider.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHostAddressProviderMetaData extends Object {
   /**
-   * Construct a meta data object for the specified provider
-   * instance.
+   * Construct a meta data object for the specified provider instance.
    *
-   * @param      inst            the provider instance
+   * @param inst the provider instance
    */
   PSHostAddressProviderMetaData(PSHostAddressProvider inst) {
     m_instance = inst;
   }
 
-  /**
-   * Default constructor to find connection properties, etc.
-   */
+  /** Default constructor to find connection properties, etc. */
   public PSHostAddressProviderMetaData() {
     this(null);
   }
@@ -46,7 +43,7 @@ public class PSHostAddressProviderMetaData extends Object {
   /**
    * Get the name of this security provider.
    *
-   * @return      the provider's name
+   * @return the provider's name
    */
   public String getName() {
     return PSHostAddressProvider.SP_NAME;
@@ -55,7 +52,7 @@ public class PSHostAddressProviderMetaData extends Object {
   /**
    * Get the full name of this security provider.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return "Host Address Security Provider";
@@ -64,7 +61,7 @@ public class PSHostAddressProviderMetaData extends Object {
   /**
    * Get the descritpion of this security provider.
    *
-   * @return      the provider's description
+   * @return the provider's description
    */
   public String getDescription() {
     return "Authentication through host (TCP/IP) addresses.";

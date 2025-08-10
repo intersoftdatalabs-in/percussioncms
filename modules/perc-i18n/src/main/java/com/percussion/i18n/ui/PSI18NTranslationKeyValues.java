@@ -35,22 +35,20 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to access key and values generated from the Rhythmyx
- * Language Tool.  The keys and values are used for the localization of
- * exception messages as well as labels and other GUI entities.  This class is
- * a Singleton.
+ * This class is used to access key and values generated from the Rhythmyx Language Tool. The keys
+ * and values are used for the localization of exception messages as well as labels and other GUI
+ * entities. This class is a Singleton.
  */
 @SuppressWarnings("unchecked")
 public class PSI18NTranslationKeyValues {
   private PSI18NTranslationKeyValues() {}
 
   /**
-   * For the correct dtd see {@link #toXml(Document) toXml(Document)}
-   * Populates this object with data from the sourceNode.  All existing keys
-   * and values will be replaced by the data in this <code>Element</code>.
+   * For the correct dtd see {@link #toXml(Document) toXml(Document)} Populates this object with
+   * data from the sourceNode. All existing keys and values will be replaced by the data in this
+   * <code>Element</code>.
    *
-   * @param sourceNode  must not be <code>null</code> and must constrain to
-   * said dtd.
+   * @param sourceNode must not be <code>null</code> and must constrain to said dtd.
    */
   public void fromXml(Element sourceNode) throws PSBeansException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode must not be null");
@@ -87,14 +85,16 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * Returns an element populated with data from this object.  The dtd to
-   * which this objects document will be constrained is as follows:
+   * Returns an element populated with data from this object. The dtd to which this objects document
+   * will be constrained is as follows:
+   *
    * <pre>
    * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
    * &lt;!ELEMENT KeyValue (#PCDATA)&gt;
    * &lt;!ATTLIST KeyValue key CDATA #REQUIRED&gt;
    * &lt;!ELEMENT KeyValues (KeyValue+)&gt;
    * </pre>
+   *
    * @param doc must not be <code>null</code>
    * @return not <code>null</code>
    */
@@ -136,10 +136,9 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * This method loads data from the application found at the end of the
-   * {@link #LOOKUP_APP_RESOURCE_URL LOOKUP_APP_RESOURCE_URL} given a
-   * <code>IPSRemoteRequester</code>.  This serves as a convience method and
-   * calls the {@link #fromXml(Element) fromXml(Element)} with the
+   * This method loads data from the application found at the end of the {@link
+   * #LOOKUP_APP_RESOURCE_URL LOOKUP_APP_RESOURCE_URL} given a <code>IPSRemoteRequester</code>. This
+   * serves as a convience method and calls the {@link #fromXml(Element) fromXml(Element)} with the
    * document retrieved by the request to the url.
    *
    * @param requester with the must not be <code>null</code>.
@@ -159,14 +158,13 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * Populates the instance of this class with the keys and values supplied
-   * in the <code>keyValueMap</code>.
+   * Populates the instance of this class with the keys and values supplied in the <code>keyValueMap
+   * </code>.
    *
-   * @param keyValueMap the data that will be used to populate the instance of
-   * this class.  All existing keys and values will be replaced by the data
-   * in this <code>Map</code>.  Both the keys and values must be of type
-   * <code>String</code> or a ClassCastExceptionException will be thrown.
-   * Must not be <code>null</code>.
+   * @param keyValueMap the data that will be used to populate the instance of this class. All
+   *     existing keys and values will be replaced by the data in this <code>Map</code>. Both the
+   *     keys and values must be of type <code>String</code> or a ClassCastExceptionException will
+   *     be thrown. Must not be <code>null</code>.
    */
   public void fromMap(Map keyValueMap) {
     if (keyValueMap == null) throw new IllegalArgumentException("keyValueMap must not be null.");
@@ -185,10 +183,9 @@ public class PSI18NTranslationKeyValues {
   /**
    * Returns the value that corresponds to the provided key.
    *
-   * @param key, is treated as  case-sensitive key.  Must not be
-   * <code>null</code> or empty.
-   * @return the substring of the <code>key</code> (after the "@" if it is
-   * in the key) if not found.  Never <code>null</code>.
+   * @param key, is treated as case-sensitive key. Must not be <code>null</code> or empty.
+   * @return the substring of the <code>key</code> (after the "@" if it is in the key) if not found.
+   *     Never <code>null</code>.
    */
   public String getTranslationValue(String key) {
     if (key == null || key.trim().length() == 0)
@@ -212,8 +209,7 @@ public class PSI18NTranslationKeyValues {
   /**
    * Returns the tooltip that corresponds to the provided key.
    *
-   * @param key, is treated as  case-sensitive key.  Must not be
-   * <code>null</code> or empty.
+   * @param key, is treated as case-sensitive key. Must not be <code>null</code> or empty.
    * @return the tooltip defined, or <code>null</code> if no tooltip exists
    */
   public String getTooltip(String key) {
@@ -229,8 +225,7 @@ public class PSI18NTranslationKeyValues {
 
   /**
    * @param key the key to lookup, must never be <code>null</code> or empty
-   * @return the mnemonic or <code>0</code> if the key is not found or the
-   * mnemonic was not defined
+   * @return the mnemonic or <code>0</code> if the key is not found or the mnemonic was not defined
    */
   public int getMnemonic(String key) {
     if (key == null || key.trim().length() == 0)
@@ -255,12 +250,12 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * Populates the key value map of this class.  If either key or value
-   * are <code>null</code> or empty neither will be added.
+   * Populates the key value map of this class. If either key or value are <code>null</code> or
+   * empty neither will be added.
    *
-   * @param key the key to be used in the map.  If <code>null</code>
-   * or empty will not be added to map.
-   * @param value the value to be used in the map.  If <code>null
+   * @param key the key to be used in the map. If <code>null</code> or empty will not be added to
+   *     map.
+   * @param value the value to be used in the map. If <code>null
    * </code> or empty it will not be added to map.
    */
   private void populateMap(String key, PSTmxUnit value) {
@@ -270,23 +265,22 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * The keys and values in of this object.  Its keys and values will be
-   * only <code>Strings</code>.  Populated by
-   * {@link #populateMap(String, String) populateMap(String, String)}.
-   * Never <code>null</code>.  Invariant.
+   * The keys and values in of this object. Its keys and values will be only <code>Strings</code>.
+   * Populated by {@link #populateMap(String, String) populateMap(String, String)}. Never <code>null
+   * </code>. Invariant.
    */
   private Map m_keyValueMap = new HashMap();
 
   /**
-   * If this has any values, use them to limit the packages that should
-   * be loaded from the server.
+   * If this has any values, use them to limit the packages that should be loaded from the server.
    */
   private List<String> m_packages = Collections.emptyList();
 
   /**
    * Limit the package names to retrieve keys from the server for
-   * @param packageNames the package names, may be <code>null</code> or
-   * empty, which means to load all packages.
+   *
+   * @param packageNames the package names, may be <code>null</code> or empty, which means to load
+   *     all packages.
    */
   public void setPackages(List<String> packageNames) {
     if (packageNames == null) m_packages = Collections.emptyList();
@@ -294,44 +288,44 @@ public class PSI18NTranslationKeyValues {
   }
 
   /**
-   * The single instance allowed.  Instantiated by
-   * {@link #getInstance() getInstance()}, once instantiated never <code>null
+   * The single instance allowed. Instantiated by {@link #getInstance() getInstance()}, once
+   * instantiated never <code>null
    * </code>
    */
   private static PSI18NTranslationKeyValues ms_theInstance = null;
 
   /**
    * The root element name.
+   *
    * @see toXml(Document) toXml(Document)
    */
   public static final String ELEM_KEYVALUES = "KeyValues";
 
   /**
    * The child element name that will hold the key attribute.
+   *
    * @see toXml(Document) toXml(Document)
    */
   public static final String ELEM_KEYVALUE = "KeyValue";
 
   /**
-   * Attribute name of the element <code>ELEM_KEYVALUE</code> representing the
-   * key of the translation value.
+   * Attribute name of the element <code>ELEM_KEYVALUE</code> representing the key of the
+   * translation value.
+   *
    * @see toXml(Document) toXml(Document)
    */
   public static final String ATTR_KEY = "key";
 
-  /**
-   * Attribute name that represents the mnemonic value for the lookup
-   */
+  /** Attribute name that represents the mnemonic value for the lookup */
   public static final String ATTR_MNEMONIC = "mnemonic";
 
-  /**
-   * Attribute name that represents the tooltip value for the lookup
-   */
+  /** Attribute name that represents the tooltip value for the lookup */
   public static final String ATTR_TOOLTIP = "tooltip";
 
   /**
-   * The url path to the resource for this class.  This resource outputs
-   * xml that conforms to the dtd for this class.
+   * The url path to the resource for this class. This resource outputs xml that conforms to the dtd
+   * for this class.
+   *
    * @see toXml(Document) toXml(Document doc)
    */
   public static final String LOOKUP_APP_RESOURCE_URL =

@@ -20,18 +20,14 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * See base class for description. Represents a property of a given
- * {@link com.percussion.cms.objectstore.PSDisplayFormat}
+ * See base class for description. Represents a property of a given {@link
+ * com.percussion.cms.objectstore.PSDisplayFormat}
  */
 public class PSDFProperty extends PSCmsProperty {
-  /**
-   * Empty constructor
-   */
+  /** Empty constructor */
   public PSDFProperty() {}
 
-  /**
-   * Required ctor taking a element
-   */
+  /** Required ctor taking a element */
   public PSDFProperty(Element e) throws PSUnknownNodeTypeException {
     super(PSDFProperty.createKey(new String[] {}), "dummy");
     fromXml(e);
@@ -40,11 +36,8 @@ public class PSDFProperty extends PSCmsProperty {
   /**
    * convience Ctor that takes in name, value
    *
-   * @param strName of property. Never <code>null</code> or
-   *    empty.
-   *
+   * @param strName of property. Never <code>null</code> or empty.
    * @param strValue may be <code>null</code> to specify empty.
-   *
    */
   public PSDFProperty(String strName, String strValue) {
     super(PSDFProperty.createKey(new String[] {}), strName, strValue, null, KEYASSIGN_ALL);
@@ -67,7 +60,6 @@ public class PSDFProperty extends PSCmsProperty {
    * Because the value is used in key assignment, it cannot be reset.
    *
    * @param value Unused
-   *
    * @throws UnsupportedOperationException Always.
    */
   public void setValue(String value) {

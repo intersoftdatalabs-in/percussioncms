@@ -34,16 +34,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to encapsulate low-level archive detail added at completion of
- * creating all export packages.
+ * Class to encapsulate low-level archive detail added at completion of creating all export
+ * packages.
  */
 public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Construct this class from its member info.
    *
-   * @param desc The export descriptor used to create the archive.  May not be
-   * <code>null</code>.
-   *
+   * @param desc The export descriptor used to create the archive. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSArchiveDetail(PSExportDescriptor desc) {
@@ -57,11 +55,9 @@ public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSArchiveDetail(Element source) throws PSUnknownNodeTypeException, PSDeployException {
@@ -73,16 +69,13 @@ public class PSArchiveDetail implements IPSDeployComponent {
   }
 
   /**
-   * Sets the external dbms info list for the specified package.  Replaces any
-   * previously added list for this package.  See
-   * {@link #getExternalDbmsList(PSDeployableElement)} for more info.
+   * Sets the external dbms info list for the specified package. Replaces any previously added list
+   * for this package. See {@link #getExternalDbmsList(PSDeployableElement)} for more info.
    *
-   * @param pkg The element to add it for, may not be <code>null</code>.  Must
-   * be a package specified in the export descriptor supplied during
-   * construction.
-   * @param infoList The list of <code>PSDbmsInfo</code> objects to add, may
-   * not be <code>null</code>, may be empty.
-   *
+   * @param pkg The element to add it for, may not be <code>null</code>. Must be a package specified
+   *     in the export descriptor supplied during construction.
+   * @param infoList The list of <code>PSDbmsInfo</code> objects to add, may not be <code>null
+   *     </code>, may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void setDbmsInfoList(PSDeployableElement pkg, List infoList) {
@@ -105,8 +98,8 @@ public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Get the deployable elements packaged in this archive.
    *
-   * @return An Iterator over one or more <code>PSDeployableElement</code>
-   * objects.  Never <code>null</code>.
+   * @return An Iterator over one or more <code>PSDeployableElement</code> objects. Never <code>null
+   *     </code>.
    */
   public Iterator getPackages() {
     return m_exportDescriptor.getPackages();
@@ -124,9 +117,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Get the non-cms dbms definitions used by the supplied package.
    *
-   * @param pkg The package to get definitions for.  May not be
-   * <code>null</code>.
-   *
+   * @param pkg The package to get definitions for. May not be <code>null</code>.
    * @return iterator over zero or more <code>PSDbmsInfo</code> objects
    */
   public Iterator<PSDatasourceMap> getExternalDbmsList(PSDeployableElement pkg) {
@@ -137,7 +128,8 @@ public class PSArchiveDetail implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXArchiveDetail (PSXExportDescriptor, DbmsInfoMap)>
    * &lt;!ELEMENT DbmsInfoMap (DbmsInfoMapping*)>
@@ -179,9 +171,8 @@ public class PSArchiveDetail implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
@@ -278,8 +269,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
   /**
    * Initializes the external dbms info map.
    *
-   * @param desc The descriptor used to init the map.  Assumed not
-   * <code>null</code>.
+   * @param desc The descriptor used to init the map. Assumed not <code>null</code>.
    */
   private void initDbmsInfoMap(PSExportDescriptor desc) {
     m_externalDbmsMap.clear();
@@ -287,10 +277,7 @@ public class PSArchiveDetail implements IPSDeployComponent {
         .forEachRemaining(pkg -> m_externalDbmsMap.put(pkg.getKey(), new ArrayList<>()));
   }
 
-  /**
-   * Ensures the external dbms info map has all packages currently in the
-   * export descriptor.
-   */
+  /** Ensures the external dbms info map has all packages currently in the export descriptor. */
   private void refreshDbmsInfoMap() {
     var newMap = new HashMap<String, List<PSDbmsInfo>>();
     m_exportDescriptor
@@ -305,27 +292,23 @@ public class PSArchiveDetail implements IPSDeployComponent {
     m_externalDbmsMap = newMap;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXArchiveDetail";
 
   /**
-   * The export descriptor supplied during ctor.  Never <code>null</code> after
-   * that.  May be modified externally if reference passed to ctor is held by
-   * the caller and modified after this class is constructed.
+   * The export descriptor supplied during ctor. Never <code>null</code> after that. May be modified
+   * externally if reference passed to ctor is held by the caller and modified after this class is
+   * constructed.
    */
   private PSExportDescriptor m_exportDescriptor;
 
   /**
-   * Map of external database information for each package in the
-   * {@link #m_exportDescriptor}.  The key is a package key
-   * (<code>String</code> object) constructed from each of the
-   * <code>PSDeployableElement</code> objects from the export descriptor,
-   * and the value is a <code>List</code> of <code>PSDbmsInfo</code> objects.
-   * There is an entry for each package, and each value will contain a list
-   * even if it is empty.  Contents are initialized during ctor and
-   * {@link #fromXml(Element)}, never <code>null</code>.
+   * Map of external database information for each package in the {@link #m_exportDescriptor}. The
+   * key is a package key (<code>String</code> object) constructed from each of the <code>
+   * PSDeployableElement</code> objects from the export descriptor, and the value is a <code>List
+   * </code> of <code>PSDbmsInfo</code> objects. There is an entry for each package, and each value
+   * will contain a list even if it is empty. Contents are initialized during ctor and {@link
+   * #fromXml(Element)}, never <code>null</code>.
    */
   private Map m_externalDbmsMap = new HashMap();
 

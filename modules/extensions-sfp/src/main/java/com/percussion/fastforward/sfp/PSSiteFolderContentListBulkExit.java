@@ -20,8 +20,8 @@ import com.percussion.server.IPSRequestContext;
 import java.util.Set;
 
 /**
- * This Exit uses {@link PSSiteFolderCListBulk}to generate the content list for
- * a specified site folder.
+ * This Exit uses {@link PSSiteFolderCListBulk}to generate the content list for a specified site
+ * folder.
  *
  * @see PSSiteFolderCListBulk
  */

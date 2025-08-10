@@ -30,21 +30,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Helper class to handle the encoding and decoding of HTML form tag elements
- * to and from a div tag marker used to represent the form tag. This is needed as a workaround
- * for EditLive single instance when form tags need to be present in the content.
+ * Helper class to handle the encoding and decoding of HTML form tag elements to and from a div tag
+ * marker used to represent the form tag. This is needed as a workaround for EditLive single
+ * instance when form tags need to be present in the content.
  *
- * Will also encode and decode embed tags as well.
+ * <p>Will also encode and decode embed tags as well.
+ *
  * @author erikserating
- *
  */
 public class PSFormEncodeDecodeHelper {
 
   private static final Logger log = LogManager.getLogger(PSFormEncodeDecodeHelper.class);
 
   /**
-   * Looks for form tags and turns them into div tags with a special rxFormTagMarker
-   * attribute that indicates the div tag is being used as a form tag placeholder.
+   * Looks for form tags and turns them into div tags with a special rxFormTagMarker attribute that
+   * indicates the div tag is being used as a form tag placeholder.
+   *
    * @param content the html content string, cannot be <code>null</code>.
    * @return the encoded content string, never <code>null</code>.
    */
@@ -57,8 +58,9 @@ public class PSFormEncodeDecodeHelper {
   }
 
   /**
-   * Looks for div tags with a special rxFormTagMarker attribute that indicates
-   * the div tag is being used as a form tag placeholder and turns them back into form tags.
+   * Looks for div tags with a special rxFormTagMarker attribute that indicates the div tag is being
+   * used as a form tag placeholder and turns them back into form tags.
+   *
    * @param content the html content string, cannot be <code>null</code>.
    * @return the encoded content string, never <code>null</code>.
    */
@@ -71,8 +73,8 @@ public class PSFormEncodeDecodeHelper {
   }
 
   /**
-   * Helper method to encapsulate the transformation of the tag from a encoded or
-   * decoded state.
+   * Helper method to encapsulate the transformation of the tag from a encoded or decoded state.
+   *
    * @param content cannot be <code>null</code>
    * @param tagname cannot be <code>null</code> or empty.
    * @param encode flag indicating this is a encode transform.
@@ -154,9 +156,9 @@ public class PSFormEncodeDecodeHelper {
   }
 
   /**
-   * Fixes comments that have no spaces in them. This is to get around
-   * a Jericho parsing bug where a comment without spaces such as
-   * &lt;!--something--&gt; causes invalid parsing.
+   * Fixes comments that have no spaces in them. This is to get around a Jericho parsing bug where a
+   * comment without spaces such as &lt;!--something--&gt; causes invalid parsing.
+   *
    * @param str the content string to be fixed, may be <code>null</code>.
    * @return the fixed up comment, may be <code>null</code>.
    */
@@ -189,35 +191,22 @@ public class PSFormEncodeDecodeHelper {
     log.info(decoded);
   }
 
-  /**
-   * Tags that will be included in the decoding and encoding.
-   */
+  /** Tags that will be included in the decoding and encoding. */
   public static String[] ms_includedTags = new String[] {"embed", "form", "script"};
 
-  /**
-   * Constant for the div element.
-   */
+  /** Constant for the div element. */
   public static final String ELEM_DIV = "div";
 
-  /**
-   * Constant for a single space.
-   */
+  /** Constant for a single space. */
   public static final String SPACE = " ";
 
-  /**
-   * Constant for HTML comment begin.
-   */
+  /** Constant for HTML comment begin. */
   private static final String HTML_COMMENT_BEGIN = "<!--";
 
-  /**
-   * Constant for HTML comment end.
-   */
+  /** Constant for HTML comment end. */
   private static final String HTML_COMMENT_END = "-->";
 
-  /**
-   * Constant for the unique string that is concatenated to
-   * a comment begin or end.
-   */
+  /** Constant for the unique string that is concatenated to a comment begin or end. */
   private static final String UNIQUE = "@@__8SCR";
 
   // Test string

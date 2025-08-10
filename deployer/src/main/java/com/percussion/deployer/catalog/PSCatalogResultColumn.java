@@ -28,18 +28,13 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The class to represent metadata of a column of the cataloged results.
- */
+/** The class to represent metadata of a column of the cataloged results. */
 public class PSCatalogResultColumn implements IPSDeployComponent {
   /**
    * Constructs this object from supplied values.
    *
-   * @param name the name of the result column, may not be <code>null</code> or
-   * empty.
-   * @param type the type of data this column represents, must be one of the
-   * TYPE_xxx values.
-   *
+   * @param name the name of the result column, may not be <code>null</code> or empty.
+   * @param type the type of data this column represents, must be one of the TYPE_xxx values.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSCatalogResultColumn(String name, int type) {
@@ -56,22 +51,18 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    * Validates that the type to be one of the TYPE_xxx values.
    *
    * @param type the type to check
-   *
-   * @return <code>true</code> if the validation is successful, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if the validation is successful, otherwise <code>false</code>
    */
   static boolean validateType(int type) {
     return ms_typeObjects.containsValue(new Integer(type));
   }
 
   /**
-   * Validates the object as one of the supported types. The supported column
-   * types are {@link #TYPE_TEXT text}, {@link #TYPE_NUMERIC numeric}, {@link
-   * #TYPE_DATE date} and {@link #TYPE_BOOL boolean}. Please see the links for
-   * the supported object type(class) for each column type.
+   * Validates the object as one of the supported types. The supported column types are {@link
+   * #TYPE_TEXT text}, {@link #TYPE_NUMERIC numeric}, {@link #TYPE_DATE date} and {@link #TYPE_BOOL
+   * boolean}. Please see the links for the supported object type(class) for each column type.
    *
    * @param obj the object to check, assumed not to be <code>null</code>
-   *
    * @return <code>true</code> if it is supported, otherwise <code>false</code>
    */
   static boolean validateObject(Object obj) {
@@ -84,18 +75,14 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   }
 
   /**
-   * Validates that the object is a supported instance of specified column
-   * type. Please see {@link #validateObject(Object) validateObject} for the
-   * description of the supported column types and corresponding object types.
+   * Validates that the object is a supported instance of specified column type. Please see {@link
+   * #validateObject(Object) validateObject} for the description of the supported column types and
+   * corresponding object types.
    *
    * @param type the type of column, must be one of the TYPE_xxx values.
    * @param obj the object to validate, may not be <code>null</code>
-   *
-   * @return <code>true</code> if the type supports the object, otherwise
-   * <code>false</code>
-   *
-   * @throws IllegalArgumentException if obj is <code>null</code> or type is
-   * invalid.
+   * @return <code>true</code> if the type supports the object, otherwise <code>false</code>
+   * @throws IllegalArgumentException if obj is <code>null</code> or type is invalid.
    */
   static boolean validateObjectType(int type, Object obj) {
     if (!validateType(type)) throw new IllegalArgumentException("type is invalid");
@@ -112,11 +99,9 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    * Gets the type string for the object based on the object instance.
    *
    * @param obj the object to test, may not be <code>null</code>
-   *
    * @return one of the TYPE_ENUM values, never <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if obj is <code>null</code> and obj is
-   * not one of the supported column types instance.
+   * @throws IllegalArgumentException if obj is <code>null</code> and obj is not one of the
+   *     supported column types instance.
    */
   static String getTypeString(Object obj) {
     if (obj == null) throw new IllegalArgumentException("obj may not be null.");
@@ -128,12 +113,9 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   /**
    * Gets the type based on the type string passed in.
    *
-   * @param typeString the type string to check, may not be <code>null</code>
-   * or empty.
-   *
-   * @return one of the TYPE_xxx values. May be TYPE_UNKNOWN if the type string
-   * does not match supported type strings.
-   *
+   * @param typeString the type string to check, may not be <code>null</code> or empty.
+   * @return one of the TYPE_xxx values. May be TYPE_UNKNOWN if the type string does not match
+   *     supported type strings.
    * @throws IllegalArgumentException if typeString is <code>null</code>
    */
   static int getType(String typeString) {
@@ -154,11 +136,10 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   /**
    * Constructs the object from the supplied element.
    *
-   * @param sourceNode the element to construct the object from, may not be
-   * <code>null</code>. See {@link #toXml(Document)} for format of XML.
-   *
-   * @throws PSUnknownNodeTypeException if the element does not have elements
-   * or attributes expected by this class or its children.
+   * @param sourceNode the element to construct the object from, may not be <code>null</code>. See
+   *     {@link #toXml(Document)} for format of XML.
+   * @throws PSUnknownNodeTypeException if the element does not have elements or attributes expected
+   *     by this class or its children.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
    */
   public PSCatalogResultColumn(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -166,9 +147,8 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -190,7 +170,7 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    %lt;!--
@@ -275,33 +255,22 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
     return entry.getKey();
   }
 
-  /**
-   * The name of the column, initialized in constructor and never modified
-   * after that.
-   */
+  /** The name of the column, initialized in constructor and never modified after that. */
   private String m_name;
 
   /**
-   * The type of the column data in the result, set in constructor and never
-   * modified after that, will be one of the TYPE_xxx values.
+   * The type of the column data in the result, set in constructor and never modified after that,
+   * will be one of the TYPE_xxx values.
    */
   private int m_type = TYPE_UNKNOWN;
 
-  /**
-   * Constant to represent unknown type.
-   */
+  /** Constant to represent unknown type. */
   public static final int TYPE_UNKNOWN = -1;
 
-  /**
-   * Constant to indicate that column will contain a <code>String</code>
-   * object.
-   */
+  /** Constant to indicate that column will contain a <code>String</code> object. */
   public static final int TYPE_TEXT = 0;
 
-  /**
-   * Constant to indicate that column will contain a <code>Integer</code>
-   * object.
-   */
+  /** Constant to indicate that column will contain a <code>Integer</code> object. */
   public static final int TYPE_NUMERIC = 1;
 
   /**
@@ -310,24 +279,20 @@ public class PSCatalogResultColumn implements IPSDeployComponent {
    */
   public static final int TYPE_DATE = 2;
 
-  /**
-   * Constant to indicate that column will contain a <code>Boolean</code>
-   * object.
-   */
+  /** Constant to indicate that column will contain a <code>Boolean</code> object. */
   public static final int TYPE_BOOL = 3;
 
   /**
-   * An array of XML attribute values for the column type. They are specified
-   * at the index of the specifier.
+   * An array of XML attribute values for the column type. They are specified at the index of the
+   * specifier.
    */
   public static final String[] TYPE_ENUM = {"text", "numeric", "date", "boolean"};
 
   /**
-   * Map of supported objects for each type, with supported object class as key
-   * and the <code>Integer</code> object wrapped with column type as value.
-   * Never <code>null</code> or modified. See {@link #TYPE_TEXT text}, {@link
-   * #TYPE_NUMERIC numeric}, {@link #TYPE_DATE date} and {@link #TYPE_BOOL
-   * boolean} for the corresponding supported object types(classes).
+   * Map of supported objects for each type, with supported object class as key and the <code>
+   * Integer</code> object wrapped with column type as value. Never <code>null</code> or modified.
+   * See {@link #TYPE_TEXT text}, {@link #TYPE_NUMERIC numeric}, {@link #TYPE_DATE date} and {@link
+   * #TYPE_BOOL boolean} for the corresponding supported object types(classes).
    */
   private static Map<Class, Integer> ms_typeObjects = new HashMap<>();
 

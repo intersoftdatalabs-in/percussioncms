@@ -14,111 +14,103 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package com.percussion.deployer.objectstore;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.util.PSFormatVersion;
-
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.io.TempDir;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
- * Unit test for the <code>PSArchiveInfo</code> object.
- */
+/** Unit test for the <code>PSArchiveInfo</code> object. */
 @Tag("UnitTest")
-public class PSArchiveInfoTest
-{
+public class PSArchiveInfoTest {
 
-   @Rule
-   public Path temporaryFolder;
-   private String rxdeploydir;
+  @Rule public Path temporaryFolder;
+  private String rxdeploydir;
 
-   @BeforeEach 
-   public void setup() throws IOException {
+  @BeforeEach
+  public void setup() throws IOException {
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
-   }
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
 
-   @AfterEach
-   public void teardown(){
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+  @AfterEach
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-   /**
-    * Test the xml serialization
-    * 
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-         
-      PSArchiveInfo info1 = getArchiveInfo(false);
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element el = info1.toXml(doc);
-      PSArchiveInfo info2 = new PSArchiveInfo(el);
-      assertEquals(info1, info2);
-      
-      
-      // now do it with a detail too
-      info1 = getArchiveInfo(true);
-      el = info1.toXml(doc);
+  /**
+   * Test the xml serialization
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
 
-      info2 = new PSArchiveInfo(el);
-      assertEquals(info1, info2);
-   }
-   
-   /**
-    * Construct an archive info object.
-    * 
-    * @param includeDetail <code>true</code> to include an archive detail
-    * object, <code>false</code> otherwise.
-    * 
-    * @return The archive info object, never <code>null</code>.
-    */
-   public static PSArchiveInfo getArchiveInfo(boolean includeDetail)
-   {
-      PSDbmsInfo rep = new PSDbmsInfo("RhythmyxData", "driver", "server",
-            "database", "origin", "uid", "pwd", false);
-      
-      PSArchiveInfo info = new PSArchiveInfo("test", "myServer", 
-         new PSFormatVersion("com.percussion.util.test"), rep, "admin1", "USER");
-         
-      if (includeDetail)
-      {
-         PSExportDescriptor desc = PSDescriptorTest.getExportDescriptor(true);
-         PSArchiveDetail detail = new PSArchiveDetail(desc);
-            
-         Iterator pkgs = desc.getPackages();
-         if (pkgs.hasNext())
-         {
-            PSDeployableElement de = (PSDeployableElement) pkgs.next();
-            final List<PSDatasourceMap> infoList = new ArrayList<PSDatasourceMap>();
-            PSDatasourceMap dsMap = new PSDatasourceMap("RhythmyxData", "");
-            infoList.add(dsMap);
+    PSArchiveInfo info1 = getArchiveInfo(false);
 
-            detail.setDbmsInfoList(de, infoList);
-         }
-         info.setArchiveDetail(detail);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = info1.toXml(doc);
+    PSArchiveInfo info2 = new PSArchiveInfo(el);
+    assertEquals(info1, info2);
+
+    // now do it with a detail too
+    info1 = getArchiveInfo(true);
+    el = info1.toXml(doc);
+
+    info2 = new PSArchiveInfo(el);
+    assertEquals(info1, info2);
+  }
+
+  /**
+   * Construct an archive info object.
+   *
+   * @param includeDetail <code>true</code> to include an archive detail object, <code>false</code>
+   *     otherwise.
+   * @return The archive info object, never <code>null</code>.
+   */
+  public static PSArchiveInfo getArchiveInfo(boolean includeDetail) {
+    PSDbmsInfo rep =
+        new PSDbmsInfo(
+            "RhythmyxData", "driver", "server", "database", "origin", "uid", "pwd", false);
+
+    PSArchiveInfo info =
+        new PSArchiveInfo(
+            "test",
+            "myServer",
+            new PSFormatVersion("com.percussion.util.test"),
+            rep,
+            "admin1",
+            "USER");
+
+    if (includeDetail) {
+      PSExportDescriptor desc = PSDescriptorTest.getExportDescriptor(true);
+      PSArchiveDetail detail = new PSArchiveDetail(desc);
+
+      Iterator pkgs = desc.getPackages();
+      if (pkgs.hasNext()) {
+        PSDeployableElement de = (PSDeployableElement) pkgs.next();
+        final List<PSDatasourceMap> infoList = new ArrayList<PSDatasourceMap>();
+        PSDatasourceMap dsMap = new PSDatasourceMap("RhythmyxData", "");
+        infoList.add(dsMap);
+
+        detail.setDbmsInfoList(de, infoList);
       }
-      
-      return info;
-   }
+      info.setArchiveDetail(detail);
+    }
+
+    return info;
+  }
 }

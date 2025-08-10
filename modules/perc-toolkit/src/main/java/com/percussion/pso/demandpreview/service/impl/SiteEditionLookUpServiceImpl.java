@@ -50,7 +50,6 @@ import org.apache.logging.log4j.Logger;
  * Site look up service implementation as a Spring bean.
  *
  * @author ravikatam
- *
  */
 public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   private static final Logger log = LogManager.getLogger(SiteEditionLookUpServiceImpl.class);
@@ -61,9 +60,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   private IPSAssemblyService asm = null;
   private Map<String, SiteEditionConfig> siteLookUpMap;
 
-  /**
-   * Default Constructor
-   */
+  /** Default Constructor */
   public SiteEditionLookUpServiceImpl() {}
 
   /**
@@ -88,13 +85,12 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   }
 
   /**
-   * Gets the preview site, template, edition and context information from the
-   * configuration.
+   * Gets the preview site, template, edition and context information from the configuration.
    *
    * @param siteId the site id to use as a lookup key.
    * @return the SiteTemplateHolder object. Never <code>null</code>
-   * @throws SiteLookUpException when the site information cannot be located, or the
-   * names in the configuration are invalid.
+   * @throws SiteLookUpException when the site information cannot be located, or the names in the
+   *     configuration are invalid.
    */
   public SiteEditionHolder LookUpSiteEdition(String siteId) throws SiteLookUpException {
     String emsg;
@@ -179,9 +175,9 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   }
 
   /**
-   * Gets the set of sites for which there are configuration entries.	  *
-   * @return the set of names. Never <code>null</code> but may be
-   * <code>empty</code>
+   * Gets the set of sites for which there are configuration entries. *
+   *
+   * @return the set of names. Never <code>null</code> but may be <code>empty</code>
    */
   public Set<String> getConfiguredSiteNames() {
     Set<String> names = new LinkedHashSet<String>();
@@ -191,6 +187,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * Gets the edition
+   *
    * @param editionName
    * @return the edition. Never <code>null</code>
    * @throws SiteLookUpException
@@ -209,6 +206,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * Gets the site look up map instance
+   *
    * @return the siteLookUpMap
    */
   public Map<String, SiteEditionConfig> getSiteLookUpMap() {
@@ -217,6 +215,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * Sets the site look up map instance.
+   *
    * @param siteLookUpMap
    */
   public void setSiteLookUpMap(Map<String, SiteEditionConfig> siteLookUpMap) {
@@ -225,6 +224,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * This method is only for testing purpose.
+   *
    * @param siteManager
    */
   protected void setSiteManager(IPSSiteManager siteManager) {
@@ -232,8 +232,8 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
   }
 
   /**
-   * Sets the publisher service.
-   * This method is only for testing purpose.
+   * Sets the publisher service. This method is only for testing purpose.
+   *
    * @param publisherService
    */
   protected void setPubisherService(IPSPublisherService publisherService) {
@@ -242,6 +242,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * This method is only for testing purpose.
+   *
    * @param guidManager
    */
   protected void setGuidManager(IPSGuidManager guidManager) {
@@ -250,6 +251,7 @@ public class SiteEditionLookUpServiceImpl implements SiteEditionLookUpService {
 
   /**
    * This method is only for testing purpose.
+   *
    * @param asm the asm to set
    */
   protected void setAsm(IPSAssemblyService asm) {

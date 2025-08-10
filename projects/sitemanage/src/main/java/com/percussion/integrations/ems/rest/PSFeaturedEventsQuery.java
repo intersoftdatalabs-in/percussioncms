@@ -18,82 +18,82 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.ems.rest;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Query object for featured events in EMS integration.
- * Sunny Sal says: "FeaturedEventsQuery, now Java 11 and Google-styled!"
+ * Query object for featured events in EMS integration. Sunny Sal says: "FeaturedEventsQuery, now
+ * Java 11 and Google-styled!"
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSFeaturedEventsQuery {
 
-    private String startDate;
-    private String endDate;
-    private String eventNameSearch;
-    private String locationNameSearch;
-    private List<Integer> calendarsToSearch = new ArrayList<>();
-    private List<Integer> eventTypesToSearch = new ArrayList<>();
-    private String uDQanswer;
+  private String startDate;
+  private String endDate;
+  private String eventNameSearch;
+  private String locationNameSearch;
+  private List<Integer> calendarsToSearch = new ArrayList<>();
+  private List<Integer> eventTypesToSearch = new ArrayList<>();
+  private String uDQanswer;
 
-    public String getStartDate() {
-        return startDate;
-    }
+  public String getStartDate() {
+    return startDate;
+  }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    public String getEndDate() {
-        return endDate;
-    }
+  public String getEndDate() {
+    return endDate;
+  }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 
-    public String getEventNameSearch() {
-        return eventNameSearch;
-    }
+  public String getEventNameSearch() {
+    return eventNameSearch;
+  }
 
-    public void setEventNameSearch(String eventNameSearch) {
-        this.eventNameSearch = eventNameSearch;
-    }
+  public void setEventNameSearch(String eventNameSearch) {
+    this.eventNameSearch = eventNameSearch;
+  }
 
-    public String getLocationNameSearch() {
-        return locationNameSearch;
-    }
+  public String getLocationNameSearch() {
+    return locationNameSearch;
+  }
 
-    public void setLocationNameSearch(String locationNameSearch) {
-        this.locationNameSearch = locationNameSearch;
-    }
+  public void setLocationNameSearch(String locationNameSearch) {
+    this.locationNameSearch = locationNameSearch;
+  }
 
-    public List<Integer> getCalendarsToSearch() {
-        return Optional.ofNullable(calendarsToSearch).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getCalendarsToSearch() {
+    return Optional.ofNullable(calendarsToSearch).orElseGet(ArrayList::new);
+  }
 
-    public void setCalendarsToSearch(List<Integer> calendarsToSearch) {
-        this.calendarsToSearch = Optional.ofNullable(calendarsToSearch).orElseGet(ArrayList::new);
-    }
+  public void setCalendarsToSearch(List<Integer> calendarsToSearch) {
+    this.calendarsToSearch = Optional.ofNullable(calendarsToSearch).orElseGet(ArrayList::new);
+  }
 
-    public List<Integer> getEventTypesToSearch() {
-        return Optional.ofNullable(eventTypesToSearch).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getEventTypesToSearch() {
+    return Optional.ofNullable(eventTypesToSearch).orElseGet(ArrayList::new);
+  }
 
-    public void setEventTypesToSearch(List<Integer> eventTypesToSearch) {
-        this.eventTypesToSearch = Optional.ofNullable(eventTypesToSearch).orElseGet(ArrayList::new);
-    }
+  public void setEventTypesToSearch(List<Integer> eventTypesToSearch) {
+    this.eventTypesToSearch = Optional.ofNullable(eventTypesToSearch).orElseGet(ArrayList::new);
+  }
 
-    public String getuDQanswer() {
-        return uDQanswer;
-    }
+  public String getuDQanswer() {
+    return uDQanswer;
+  }
 
-    public void setuDQanswer(String uDQanswer) {
-        this.uDQanswer = uDQanswer;
-    }
+  public void setuDQanswer(String uDQanswer) {
+    this.uDQanswer = uDQanswer;
+  }
 }

@@ -36,10 +36,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- * The class that is used to represent menu actions as defined by
- * 'sys_Action.dtd'.
- */
+/** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 public class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   @Override
@@ -50,10 +47,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   private static final Logger log = LogManager.getLogger(PSAction.class);
 
   /**
-   * Convenience constructor for {@link
-   * #PSAction(String, String, String, String, String, int)
-   * PSAction(name, label, TYPE_MENUITEM, "", HANDLER_CLIENT, 0) }. See the
-   * link for more description.
+   * Convenience constructor for {@link #PSAction(String, String, String, String, String, int)
+   * PSAction(name, label, TYPE_MENUITEM, "", HANDLER_CLIENT, 0) }. See the link for more
+   * description.
    */
   public PSAction(String name, String label) {
     this(name, label, TYPE_MENUITEM, "", HANDLER_CLIENT, 0);
@@ -66,12 +62,10 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
    * @param label label to show as a menu/menu item, may not be <code>null
    * </code> or empty.
    * @param type type of the action, must be one of the TYPE_XXX values.
-   * @param url relative url to the applet to execute for the action, may be
-   * <code>null</code> or empty.
-   * @param handler handler of the action, must be one of the HANDLER_xxx
-   * values.
+   * @param url relative url to the applet to execute for the action, may be <code>null</code> or
+   *     empty.
+   * @param handler handler of the action, must be one of the HANDLER_xxx values.
    * @param sortrank the sort rank of the action.
-   *
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSAction(
@@ -103,11 +97,10 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Constructs the action object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs the action object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
@@ -117,9 +110,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     fromXml(element);
   }
 
-  /**
-   * Creates the correct key for this component.
-   */
+  /** Creates the correct key for this component. */
   public static PSKey createKey(String value) {
     PSKey key = null;
 
@@ -149,7 +140,6 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
    * Creates a GUID from an id.
    *
    * @param id the action id, which is saved in the repository.
-   *
    * @return the created GUID, never <code>null</code>.
    */
   public static IPSGuid getGuidFromId(int id) {
@@ -157,12 +147,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Gets the action id (which is saved in the repository) from a
-   * GUID object.
+   * Gets the action id (which is saved in the repository) from a GUID object.
    *
-   * @param guid the guid object, which must be a {@link PSTypeEnum#ACTION}
-   *    type.
-   *
+   * @param guid the guid object, which must be a {@link PSTypeEnum#ACTION} type.
    * @return the UUID of the guid.
    */
   public static int getIdFromGuid(IPSGuid guid) {
@@ -173,8 +160,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * @param newguid the new GUID, its type must be {@link PSTypeEnum#ACTION},
-   *    never <code>null</code>.
+   * @param newguid the new GUID, its type must be {@link PSTypeEnum#ACTION}, never <code>null
+   *     </code>.
    */
   public void setGUID(IPSGuid newguid) {
     if (newguid == null) throw new IllegalArgumentException("newguid may not be null.");
@@ -186,8 +173,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Gets the list of mode-uicontexts with the action
    *
-   * @return the list of mode-uicontexts with the action, never
-   *    <code>null</code> may be <code>empty</code>.
+   * @return the list of mode-uicontexts with the action, never <code>null</code> may be <code>empty
+   *     </code>.
    */
   public PSDbComponentCollection getModeUIContexts() {
     return m_modeUiContexts;
@@ -283,7 +270,6 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
    * Sets the name of the action.
    *
    * @param name never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if the argument is invalid
    */
   public void setName(String name) {
@@ -305,11 +291,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Sets display label for this action. Can be used to set the label for
-   * dynamic context menu.
+   * Sets display label for this action. Can be used to set the label for dynamic context menu.
    *
    * @param label the label, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if label is <code>null</code>.
    */
   public void setLabel(String label) {
@@ -360,8 +344,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Sets the action url that is relative to the applet's document base.
    *
-   * @param url the url, may be <code>null</code> or empty. Whitespace is
-   * trimmed.
+   * @param url the url, may be <code>null</code> or empty. Whitespace is trimmed.
    */
   public void setURL(String url) {
     url = StringUtils.defaultString(url).trim();
@@ -392,29 +375,25 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Sets the type for this action.
    *
-   * @param type the type, may not be <code>null</code> or empty and must be
-   * one of the TYPE_xxx values.
-   *
-   * @throws IllegalArgumentException if type is not valid.
-   * public void setType(String type)
-   * {
-   * if (validType(type))
-   * m_type = type;
-   * }
+   * @param type the type, may not be <code>null</code> or empty and must be one of the TYPE_xxx
+   *     values.
+   * @throws IllegalArgumentException if type is not valid. public void setType(String type) { if
+   *     (validType(type)) m_type = type; }
    */
 
   /**
    * Validate the specified type, must be one of the following:
+   *
    * <ul>
-   *    <li>TYPE_MENUITEM</li>
-   *    <li>TYPE_CASCADEDMENU</li>
-   *    <li>TYPE_CONTEXTMENU</li>
-   *    <li>TYPE_DYNAMICMENU</li>
+   *   <li>TYPE_MENUITEM
+   *   <li>TYPE_CASCADEDMENU
+   *   <li>TYPE_CONTEXTMENU
+   *   <li>TYPE_DYNAMICMENU
    * </ul>
    *
    * @param type the type of menu, may not be <code>null</code> or empty
-   * @return <code>true</code> if the type is one of the required types,
-   *    otherwise <code>false</code>.
+   * @return <code>true</code> if the type is one of the required types, otherwise <code>false
+   *     </code>.
    */
   private boolean validateType(String type) {
     if (type == null || type.trim().length() == 0)
@@ -466,8 +445,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Sets the menu type.
    *
-   * @param type the new menu type, never <code>null</code> or empty, must be
-   *    a valid menu type. See {@link #validateType(String)} for more info.
+   * @param type the new menu type, never <code>null</code> or empty, must be a valid menu type. See
+   *     {@link #validateType(String)} for more info.
    */
   public void setMenuType(String type) {
     validateType(type);
@@ -480,16 +459,15 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Gets the menu type.
    *
-   * @return the menu type, never <code>null</code> or empty. It is one of
-   *   the TYPE_XXX.
+   * @return the menu type, never <code>null</code> or empty. It is one of the TYPE_XXX.
    */
   public String getMenuType() {
     return m_type;
   }
 
   /**
-   * Finds whether the action to be handled by client or not. An action that
-   * can not be handled by client is handled by server.
+   * Finds whether the action to be handled by client or not. An action that can not be handled by
+   * client is handled by server.
    *
    * @return <code>true</code> if it is, otherwise <code>false</code>.
    */
@@ -498,11 +476,10 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Sets the flag which indicates whether the action is handled by client or
-   * by server.
+   * Sets the flag which indicates whether the action is handled by client or by server.
    *
-   * @param isClient <code>true</code> if the action is handled by client;
-   *   otherwise the action is handled by server.
+   * @param isClient <code>true</code> if the action is handled by client; otherwise the action is
+   *     handled by server.
    */
   public void setClientAction(boolean isClient) {
     if (isClient) m_handler = HANDLER_CLIENT;
@@ -512,9 +489,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * A property is typically used to add custom behavior.
    *
-   * @return The collection of all properties. The caller should edit this
-   *    collection directly. Any changes made will be seen by this action.
-   *    Never <code>null</code>.
+   * @return The collection of all properties. The caller should edit this collection directly. Any
+   *     changes made will be seen by this action. Never <code>null</code>.
    */
   public PSActionProperties getProperties() {
     return m_props;
@@ -523,11 +499,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Gets the value of a given property name.
    *
-   * @param propName the name of the property, may not be <code>null</code>
-   *   or empty.
-   *
-   * @return the value of the property, it may be <code>null</code> if cannot
-   *   find the specified property.
+   * @param propName the name of the property, may not be <code>null</code> or empty.
+   * @return the value of the property, it may be <code>null</code> if cannot find the specified
+   *     property.
    */
   public String getProperty(String propName) {
     return m_props.getProperty(propName);
@@ -536,11 +510,9 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * Convenience method for getting a property with a boolean value.
    *
-   * @param propName the name of the property, may not be <code>null</code>
-   *   or empty.
-   *
-   * @return <code>true</code> if the value of the property is {@link #YES};
-   *   otherwise, return <code>false</code>.
+   * @param propName the name of the property, may not be <code>null</code> or empty.
+   * @return <code>true</code> if the value of the property is {@link #YES}; otherwise, return
+   *     <code>false</code>.
    */
   public boolean getPropertyBoolean(String propName) {
     String value = m_props.getProperty(propName);
@@ -548,23 +520,19 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * A visibility context is used to control when this action will be
-   * visible.
+   * A visibility context is used to control when this action will be visible.
    *
-   * @return The collection of all contexts. The caller should edit this
-   *    collection directly. Any changes made will be seen by this action.
-   *    Never <code>null</code>.
+   * @return The collection of all contexts. The caller should edit this collection directly. Any
+   *     changes made will be seen by this action. Never <code>null</code>.
    */
   public PSActionVisibilityContexts getVisibilityContexts() {
     return m_visContexts;
   }
 
   /**
-   * Set the visibility contexts that is used to control when this action will
-   * be visible.
+   * Set the visibility contexts that is used to control when this action will be visible.
    *
-   * @param visCtxs the new visibility contexts, never <code>null</code>, may
-   *    be empty.
+   * @param visCtxs the new visibility contexts, never <code>null</code>, may be empty.
    */
   public void setVisibilityContexts(PSActionVisibilityContexts visCtxs) {
     if (visCtxs == null) throw new IllegalArgumentException("visCtxs may not be null.");
@@ -575,32 +543,30 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   /**
    * A collection of action url parameters.
    *
-   * @return The collection of all parameters. The caller must edit this
-   *    collection directly. Any changes made will be seen by this action.
-   *    Never <code>null</code>.
+   * @return The collection of all parameters. The caller must edit this collection directly. Any
+   *     changes made will be seen by this action. Never <code>null</code>.
    */
   public PSActionParameters getParameters() {
     return m_params;
   }
 
   /**
-   * Gets children actions of this action. Should be called only if the action
-   * represents a menu as indicated by {@link #isCascadedMenu()} or
-   * {@link #isDynamicMenu()}.
+   * Gets children actions of this action. Should be called only if the action represents a menu as
+   * indicated by {@link #isCascadedMenu()} or {@link #isDynamicMenu()}.
    *
-   * @return If this action represents a menu, then a valid object is returned,
-   * otherwise, it may be empty, but never <code>null</code>.
+   * @return If this action represents a menu, then a valid object is returned, otherwise, it may be
+   *     empty, but never <code>null</code>.
    */
   public PSChildActions getChildren() {
     return m_children;
   }
 
   /**
-   * Implements the IPSComponent interface method to produce XML representation
-   * of this object. See the interface for description of the method and
-   * parameters.
-   * <p>
-   * The xml format is:
+   * Implements the IPSComponent interface method to produce XML representation of this object. See
+   * the interface for description of the method and parameters.
+   *
+   * <p>The xml format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT Action (Props?, Params?, Action*)>
    * &lt;!ATTLIST Action
@@ -663,10 +629,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     return root;
   }
 
-  /**
-   * Must be overridden to properly deal with all the children of this
-   * component.
-   */
+  /** Must be overridden to properly deal with all the children of this component. */
   @Override
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
       throws PSCmsException {
@@ -683,9 +646,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     if (state == DBSTATE_MARKEDFORDELETE) super.toDbXml(doc, root, keyGen, parent);
   }
 
-  /**
-   * Override to deal with all child components.
-   */
+  /** Override to deal with all child components. */
   @Override
   public void setPersisted() throws PSCmsException {
     super.setPersisted();
@@ -696,9 +657,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     m_modeUiContexts.setPersisted();
   }
 
-  /**
-   * Override to deal with all child components.
-   */
+  /** Override to deal with all child components. */
   @Override
   public void markForDeletion() {
     super.markForDeletion();
@@ -710,14 +669,11 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Merges PSAction objects based merge rules and returns the merge result
-   * as PSAction object.
+   * Merges PSAction objects based merge rules and returns the merge result as PSAction object.
    *
-   * @param newAction may be <code>null</code> in which case merge result will
-   * be current action.
-   *
-   * @return merge result as PSAction object, <code>null</code> only when the
-   * two actions to be merged are <code>null</code>.
+   * @param newAction may be <code>null</code> in which case merge result will be current action.
+   * @return merge result as PSAction object, <code>null</code> only when the two actions to be
+   *     merged are <code>null</code>.
    */
   public PSAction merge(PSAction newAction) {
     // if new action is null, merge result is current action.
@@ -750,84 +706,45 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Method to find the supplied action as one of its
-   * child actions. Test is made using the equals() method.
+   * Method to find the supplied action as one of its child actions. Test is made using the equals()
+   * method.
    *
    * @param action the action to test, must not be <code>null</code>.
-   *
-   * @return
-   * public PSAction findChildAction(PSAction action)
-   * {
-   * if (null == action)
-   * throw new IllegalArgumentException("Action cannot be null.");
-   *
-   * PSAction child = null;
-   * Iterator iter = getChildren();
-   * while (iter.hasNext())
-   * {
-   * child = (PSAction)iter.next();
-   * if (child.equals(action))
-   * return child;
-   * }
-   * return null;
-   * }
+   * @return public PSAction findChildAction(PSAction action) { if (null == action) throw new
+   *     IllegalArgumentException("Action cannot be null.");
+   *     <p>PSAction child = null; Iterator iter = getChildren(); while (iter.hasNext()) { child =
+   *     (PSAction)iter.next(); if (child.equals(action)) return child; } return null; }
    */
 
   /**
-   * Method to test if this action contains the supplied action as one of its
-   * child actions. Test is made using the equals() method.
+   * Method to test if this action contains the supplied action as one of its child actions. Test is
+   * made using the equals() method.
    *
    * @param action the action to test, must not be <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied action is equivalent to one of
-   * the child actions, <code>false</code> otherwise.
-   * public boolean containsChildAction(PSAction action)
-   * {
-   * PSAction child = null;
-   * Iterator iter = getChildren();
-   * while (iter.hasNext())
-   * {
-   * child = (PSAction)iter.next();
-   * if (child.equals(action))
-   * return true;
-   * }
-   * return false;
-   * }
+   * @return <code>true</code> if the supplied action is equivalent to one of the child actions,
+   *     <code>false</code> otherwise. public boolean containsChildAction(PSAction action) {
+   *     PSAction child = null; Iterator iter = getChildren(); while (iter.hasNext()) { child =
+   *     (PSAction)iter.next(); if (child.equals(action)) return true; } return false; }
    */
 
   /**
-   * Used to compare the sort ranks of 2 <code>PSAction</code> objects. The
-   * algorithm for sorting is that if the 2 sort ranks are the same we then
-   * sort using the label of the object.
+   * Used to compare the sort ranks of 2 <code>PSAction</code> objects. The algorithm for sorting is
+   * that if the 2 sort ranks are the same we then sort using the label of the object.
    *
-   * @param obj1 the first <code>PSAction</code> object to compare,
-   * assumed not <code>null</code>
-   *
-   * @param obj2 the second <code>PSAction</code> object to compare,
-   * assumed not <code>null</code>
-   *
-   * @return a negative integer, zero, or a positive integer as the
-   * first object's <code>sort</code> value is less than, equal to, or
-   * greater than that of the second object, if the <code>sort</code> values
-   * are equal it does a compare on the <code>label</code> field, the compare
-   * is done case insensitive
+   * @param obj1 the first <code>PSAction</code> object to compare, assumed not <code>null</code>
+   * @param obj2 the second <code>PSAction</code> object to compare, assumed not <code>null</code>
+   * @return a negative integer, zero, or a positive integer as the first object's <code>sort</code>
+   *     value is less than, equal to, or greater than that of the second object, if the <code>sort
+   *     </code> values are equal it does a compare on the <code>label</code> field, the compare is
+   *     done case insensitive
    */
   /**
-   * public static int compare(Object obj1, Object obj2)
-   * {
-   * PSAction a1 = (PSAction)obj1;
-   * PSAction a2 = (PSAction)obj2;
+   * public static int compare(Object obj1, Object obj2) { PSAction a1 = (PSAction)obj1; PSAction a2
+   * = (PSAction)obj2;
    *
-   * // if the sort numbers are the same
-   * // check the labels for the proper order
-   * int ret = a1.getSortRank() - a2.getSortRank();
-   * if (ret == 0)
-   * {
-   * return a1.getLabel().toUpperCase().compareTo(
-   * a2.getLabel().toUpperCase());
-   * }
-   * return (ret);
-   * }
+   * <p>// if the sort numbers are the same // check the labels for the proper order int ret =
+   * a1.getSortRank() - a2.getSortRank(); if (ret == 0) { return
+   * a1.getLabel().toUpperCase().compareTo( a2.getLabel().toUpperCase()); } return (ret); }
    */
   // see IPSDbComponent
   @Override
@@ -906,8 +823,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * We must calculate our state because all our children can be edited
-   * outside of our knowledge. See base class for more details.
+   * We must calculate our state because all our children can be edited outside of our knowledge.
+   * See base class for more details.
    */
   @Override
   public int getState() {
@@ -929,11 +846,11 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * Sets the menu as dynamic or cascading depending on the
-   * flag passed in. If cascading then the URL is cleared.
-   * Does nothing if this action is not of type TYPE_MENU.
-   * @param flag if <code>true</code> then set this menu as dynamic,
-   * else if <code>false</code> then set to cascading.
+   * Sets the menu as dynamic or cascading depending on the flag passed in. If cascading then the
+   * URL is cleared. Does nothing if this action is not of type TYPE_MENU.
+   *
+   * @param flag if <code>true</code> then set this menu as dynamic, else if <code>false</code> then
+   *     set to cascading.
    */
   public void setMenuDynamic(boolean flag) {
     if (m_type != null && !m_type.equals(TYPE_MENU)) return;
@@ -965,107 +882,91 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   private String m_label;
 
   /**
-   * An action menu description, initialized while constructed, never
-   * <code>null</code> after that, might be empty.
+   * An action menu description, initialized while constructed, never <code>null</code> after that,
+   * might be empty.
    */
   private String m_description = "";
 
   /**
-   * The menu type of the action, initialized in the constructor and never
-   * <code>null</code>, empty or modified after that. Will be one of the
-   * TYPE_xxx values.
+   * The menu type of the action, initialized in the constructor and never <code>null</code>, empty
+   * or modified after that. Will be one of the TYPE_xxx values.
    */
   private String m_type;
 
   /**
-   * Flag indicating that this menu is dynamic. This only
-   *  applies to actions whose type is TYPE_MENU. If
-   *  false then this is a cascading menu.
+   * Flag indicating that this menu is dynamic. This only applies to actions whose type is
+   * TYPE_MENU. If false then this is a cascading menu.
    */
   private boolean m_isDynamic;
 
   /**
-   * The action url, initialized in the constructor and never <code>null</code>
-   * or modified after that. May be empty.
+   * The action url, initialized in the constructor and never <code>null</code> or modified after
+   * that. May be empty.
    */
   private String m_actionURL = "";
 
   /**
-   * The handler of the action, initialized in the constructor and never
-   * <code>null</code>, empty or modified after that. Will be one of the
-   * HANDLER_xxx values.
+   * The handler of the action, initialized in the constructor and never <code>null</code>, empty or
+   * modified after that. Will be one of the HANDLER_xxx values.
    */
   private String m_handler;
 
   /**
-   * The sortrank with in its siblings, initialized in the constructor and
-   * never modified after that.
+   * The sortrank with in its siblings, initialized in the constructor and never modified after
+   * that.
    */
   private int m_sortrank;
 
   /**
-   * The list of properties associated with the action, initialized in
-   * {@link #PSAction(Element) constructor}. May be <code>null</code> if the
-   * action does not have any properties associated with.
+   * The list of properties associated with the action, initialized in {@link #PSAction(Element)
+   * constructor}. May be <code>null</code> if the action does not have any properties associated
+   * with.
    */
   private PSActionProperties m_props = new PSActionProperties();
 
   /**
-   * The list of parameters to apply to the action url, initialized in
-   * {@link #PSAction(Element) constructor}. May be <code>null</code> if the
-   * action url does not have any parameters associated with.
+   * The list of parameters to apply to the action url, initialized in {@link #PSAction(Element)
+   * constructor}. May be <code>null</code> if the action url does not have any parameters
+   * associated with.
    */
   private PSActionParameters m_params = new PSActionParameters();
 
   /**
-   * The list of visibility contexts associated with the action, initialized in
-   * {@link #PSAction(Element) constructor}. May be <code>null</code> if the
-   * action does not have any visibilty contexts associated with.
+   * The list of visibility contexts associated with the action, initialized in {@link
+   * #PSAction(Element) constructor}. May be <code>null</code> if the action does not have any
+   * visibilty contexts associated with.
    */
   private PSActionVisibilityContexts m_visContexts = new PSActionVisibilityContexts();
 
   /**
-   * The list of mode-uicontexts with the action, initialized in
-   * {@link #PSAction(Element) constructor}. Never <code>null</code> may be
-   * <code>empty</code>.
+   * The list of mode-uicontexts with the action, initialized in {@link #PSAction(Element)
+   * constructor}. Never <code>null</code> may be <code>empty</code>.
    */
   private PSDbComponentCollection m_modeUiContexts =
       new PSDbComponentCollection(PSMenuModeContextMapping.class);
 
   /**
-   * If an action contains sub-actions (cascading menu item), they are stored
-   * in this container. Never <code>null</code>.
+   * If an action contains sub-actions (cascading menu item), they are stored in this container.
+   * Never <code>null</code>.
    */
   private PSChildActions m_children = new PSChildActions();
 
-  /**
-   * The constant to indicate this action as 'menuitem'.
-   */
+  /** The constant to indicate this action as 'menuitem'. */
   public static final String TYPE_MENUITEM = "MENUITEM";
 
-  /**
-   * The constant to indicate this action as cascaded or dynamic menu.
-   */
+  /** The constant to indicate this action as cascaded or dynamic menu. */
   public static final String TYPE_MENU = "MENU";
 
-  /**
-   * The constant to indicate this action as 'context menu'.
-   */
+  /** The constant to indicate this action as 'context menu'. */
   public static final String TYPE_CONTEXTMENU = "CONTEXTMENU";
 
-  /**
-   * The constant to indicate 'client' as the handler for the action.
-   */
+  /** The constant to indicate 'client' as the handler for the action. */
   public static final String HANDLER_CLIENT = "CLIENT";
 
-  /**
-   * The constant to indicate 'server' as the handler for the action.
-   */
+  /** The constant to indicate 'server' as the handler for the action. */
   public static final String HANDLER_SERVER = "SERVER";
 
-  /**
-   * The list of action/menu types.
-   */
+  /** The list of action/menu types. */
   private static final List<String> ms_menuTypes = new ArrayList<>();
 
   static {
@@ -1074,9 +975,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     ms_menuTypes.add(TYPE_CONTEXTMENU);
   }
 
-  /**
-   * The list of action handlers.
-   */
+  /** The list of action handlers. */
   private static final List<String> ms_handlers = new ArrayList<>();
 
   static {
@@ -1084,92 +983,62 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
     ms_handlers.add(HANDLER_SERVER);
   }
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "PSXAction";
 
-  /**
-   * The boolean constant to indicate <code>true</code>.
-   */
+  /** The boolean constant to indicate <code>true</code>. */
   public static final String YES = "yes";
 
-  /**
-   * The boolean constant to indicate <code>false</code>.
-   */
+  /** The boolean constant to indicate <code>false</code>. */
   public static final String NO = "no";
 
-  /**
-   * The name of the property that defines accelerator key for this action.
-   */
+  /** The name of the property that defines accelerator key for this action. */
   public static final String PROP_ACCEL_KEY = "AcceleratorKey";
 
-  /**
-   * The name of the property that defines mnemonic key for this action.
-   */
+  /** The name of the property that defines mnemonic key for this action. */
   public static final String PROP_MNEM_KEY = "MnemonicKey";
 
-  /**
-   * The name of the property that defines tooltip text for this action.
-   */
+  /** The name of the property that defines tooltip text for this action. */
   public static final String PROP_SHORT_DESC = "ShortDescription";
 
-  /**
-   * Specifies whether to launch a new window.
-   */
+  /** Specifies whether to launch a new window. */
   public static final String PROP_LAUNCH_NEW_WND = "launchesWindow";
 
-  /**
-   * Specifies what needs to be refreshed after the action is performed.
-   */
+  /** Specifies what needs to be refreshed after the action is performed. */
   public static final String PROP_REFRESH_HINT = "refreshHint";
 
-  /**
-   * Specifies that the attached Command supports batch processing.
-   */
+  /** Specifies that the attached Command supports batch processing. */
   public static final String PROP_MUTLI_SELECT = "SupportsMultiSelect";
 
-  /**
-   * The name of the property that defines url of the icon for this action.
-   */
+  /** The name of the property that defines url of the icon for this action. */
   public static final String PROP_SMALL_ICON = "SmallIcon";
 
-  /**
-   * The name of the property that defines description of this menu action.
-   */
+  /** The name of the property that defines description of this menu action. */
   public static final String PROP_DESCRIPTION = "Description";
 
   /**
-   * The name of the property that defines the name of the target to which to
-   * go after the action was executed.
+   * The name of the property that defines the name of the target to which to go after the action
+   * was executed.
    */
   public static final String PROP_TARGET = "target";
 
-  /**
-   * The name of the property that defines the name of the target style.
-   */
+  /** The name of the property that defines the name of the target style. */
   public static final String PROP_TARGET_STYLE = "targetStyle";
 
-  /**
-   * A list of valid values for the {@link #PROP_REFRESH_HINT} property
-   */
+  /** A list of valid values for the {@link #PROP_REFRESH_HINT} property */
   public enum RefreshHint {
     NONE("none"),
     PARENT("parent"),
     ROOT("root"),
     SELECTED("selected");
 
-    /**
-     * The value of the refresh hint, init by ctor, never <code>null</code>
-     * or empty.
-     */
+    /** The value of the refresh hint, init by ctor, never <code>null</code> or empty. */
     private String m_value;
 
     /**
      * Creates an object from the given value.
      *
-     * @param value the value of the object, it may not be <code>null</code>
-     *    or empty.
+     * @param value the value of the object, it may not be <code>null</code> or empty.
      */
     private RefreshHint(String value) {
       if (value == null || value.trim().length() == 0)
@@ -1195,9 +1064,7 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   private static final String SORTRANK_ATTR = "sortrank";
   private static final String VERSION_ATTR = "version";
 
-  /**
-   * The name of the table column that is the primary key.
-   */
+  /** The name of the table column that is the primary key. */
   public static final String PRIMARY_KEY = "ACTIONID";
 
   // main method for test purpose
@@ -1277,9 +1144,8 @@ public class PSAction extends PSVersionableDbComponent implements IPSCatalogSumm
   }
 
   /**
-   * The value used for the action URL if this is a dynamic menu but the url
-   * has not been set yet. It's presence is used as a flag to indicate a
-   * dynamic menu.
+   * The value used for the action URL if this is a dynamic menu but the url has not been set yet.
+   * It's presence is used as a flag to indicate a dynamic menu.
    */
   private static final String URL_PLACEHOLDER = "???";
 }

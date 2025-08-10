@@ -23,13 +23,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 /**
- * PSCleanProps removes the provided list of properties from the given
- * properties file of the current installation.
+ * PSCleanProps removes the provided list of properties from the given properties file of the
+ * current installation. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -47,7 +45,6 @@ import java.io.FileOutputStream;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSCleanProps extends PSAction {
   // see base class
@@ -98,40 +95,39 @@ public class PSCleanProps extends PSAction {
    **************************************************************************/
 
   /**
-   *  Returns the properties to remove
+   * Returns the properties to remove
    *
-   *  @return the names of the properties to be removed, never <code>null</code>,
-   *  may be an empty array.
+   * @return the names of the properties to be removed, never <code>null</code>, may be an empty
+   *     array.
    */
   public String[] getProperties() {
     return properties;
   }
 
   /**
-   *  Sets the properties to remove
+   * Sets the properties to remove
    *
-   *  @param properties the names of the properties to be removed,
-   *  never <code>null</code>, may be empty.
+   * @param properties the names of the properties to be removed, never <code>null</code>, may be
+   *     empty.
    */
   public void setProperties(String properties) {
     this.properties = convertToArray(properties);
   }
 
   /**
-   *  Returns the properties file
+   * Returns the properties file
    *
-   *  @return the relative location of the properties file, never
-   *  <code>null</code>, may empty.
+   * @return the relative location of the properties file, never <code>null</code>, may empty.
    */
   public String getPropertiesFile() {
     return propertiesFile;
   }
 
   /**
-   *  Sets the properties file
+   * Sets the properties file
    *
-   *  @param propsFile the relative location of the properties file,
-   *  never <code>null</code>, may be empty.
+   * @param propsFile the relative location of the properties file, never <code>null</code>, may be
+   *     empty.
    */
   public void setPropertiesFile(String propsFile) {
     propertiesFile = propsFile;
@@ -142,14 +138,14 @@ public class PSCleanProps extends PSAction {
    **************************************************************************/
 
   /**
-   * Properties which should be removed from server.properties,
-   * never <code>null</code>, may be empty
+   * Properties which should be removed from server.properties, never <code>null</code>, may be
+   * empty
    */
   private String[] properties = new String[0];
 
   /**
-   * Location of the properties file relative to the Rhythmyx root, never
-   * <code>null</code>, may be empty
+   * Location of the properties file relative to the Rhythmyx root, never <code>null</code>, may be
+   * empty
    */
   private String propertiesFile = "";
 }

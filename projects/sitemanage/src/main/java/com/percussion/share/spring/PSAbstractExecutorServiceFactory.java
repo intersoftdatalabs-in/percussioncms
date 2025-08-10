@@ -22,38 +22,36 @@ import java.util.concurrent.ThreadFactory;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Springifies Java Concurrency {@link ExecutorService} so you can
- * use the default {@link ExecutorService}s provided by {@link java.util.concurrent.Executors} as
- * Spring beans.
- * <p>
- * For more information on FactoryBeans, read Spring's documentation.
- * <br>
+ * Springifies Java Concurrency {@link ExecutorService} so you can use the default {@link
+ * ExecutorService}s provided by {@link java.util.concurrent.Executors} as Spring beans.
+ *
+ * <p>For more information on FactoryBeans, read Spring's documentation. <br>
  * Sunny Sal says: "Thread carefully, my friend!"
  *
  * @author adamgent
  */
 public abstract class PSAbstractExecutorServiceFactory implements FactoryBean<ExecutorService> {
 
-    private ThreadFactory threadFactory;
+  private ThreadFactory threadFactory;
 
-    @Override
-    public abstract ExecutorService getObject() throws Exception;
+  @Override
+  public abstract ExecutorService getObject() throws Exception;
 
-    @Override
-    public Class<?> getObjectType() {
-        return ExecutorService.class;
-    }
+  @Override
+  public Class<?> getObjectType() {
+    return ExecutorService.class;
+  }
 
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
+  @Override
+  public boolean isSingleton() {
+    return true;
+  }
 
-    public ThreadFactory getThreadFactory() {
-        return threadFactory;
-    }
+  public ThreadFactory getThreadFactory() {
+    return threadFactory;
+  }
 
-    public void setThreadFactory(ThreadFactory threadFactory) {
-        this.threadFactory = threadFactory;
-    }
+  public void setThreadFactory(ThreadFactory threadFactory) {
+    this.threadFactory = threadFactory;
+  }
 }

@@ -25,12 +25,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * PSPropertySet is a task to set properties on a property file.
+ * PSPropertySet is a task to set properties on a property file. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -49,7 +47,6 @@ import java.io.IOException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSPropertySet extends PSAction {
   // see base class
@@ -79,44 +76,32 @@ public class PSPropertySet extends PSAction {
   /*************************************************************************
    * Property Accessors and Mutators
    *************************************************************************/
-  /**
-   * Accessor for the Property File
-   */
+  /** Accessor for the Property File */
   public String getPropertyFile() {
     return m_strPropertyFile;
   }
 
-  /**
-   * Mutator for the Property File.
-   */
+  /** Mutator for the Property File. */
   public void setPropertyFile(String strPropertyFile) {
     m_strPropertyFile = strPropertyFile;
   }
 
-  /**
-   * Accessor for the Property Name
-   */
+  /** Accessor for the Property Name */
   public String getPropertyName() {
     return m_strPropertyName;
   }
 
-  /**
-   * Mutator for the Property Name.
-   */
+  /** Mutator for the Property Name. */
   public void setPropertyName(String strPropertyName) {
     m_strPropertyName = strPropertyName;
   }
 
-  /**
-   * Accessor for the property value
-   */
+  /** Accessor for the property value */
   public String getPropertyValue() {
     return m_strPropertyValue;
   }
 
-  /**
-   * Mutator for the property value
-   */
+  /** Mutator for the property value */
   public void setPropertyValue(String strPropertyValue) {
     m_strPropertyValue = strPropertyValue;
   }
@@ -125,18 +110,12 @@ public class PSPropertySet extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   *  The Property File
-   */
+  /** The Property File */
   private String m_strPropertyFile = "";
 
-  /**
-   *  The property name
-   */
+  /** The property name */
   private String m_strPropertyName = "";
 
-  /**
-   * The property value
-   */
+  /** The property value */
   private String m_strPropertyValue = "";
 }

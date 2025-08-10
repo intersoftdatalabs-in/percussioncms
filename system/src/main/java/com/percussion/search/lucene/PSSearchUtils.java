@@ -32,20 +32,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A collection of generically useful methods that are specific to the RW
- * search engine implementation.
+ * A collection of generically useful methods that are specific to the RW search engine
+ * implementation.
  *
  * @author paulhoward
  */
 public class PSSearchUtils {
 
   /**
-   * A utility method to get the node text. Gets the text from the nodes
-   * recursively and appends the data to the supplied StringBuilder.
+   * A utility method to get the node text. Gets the text from the nodes recursively and appends the
+   * data to the supplied StringBuilder.
    *
    * @param sb Object of StringBuilder must not be <code>null</code>.
-   * @param node Node from which text needs to be extracted. Must not be
-   * <code>null</code>.
+   * @param node Node from which text needs to be extracted. Must not be <code>null</code>.
    */
   public static void getNodeText(StringBuilder sb, Node node) {
     if (sb == null) throw new IllegalArgumentException("sb must not be null");
@@ -65,18 +64,16 @@ public class PSSearchUtils {
   }
 
   /**
-   * Find all fields for a parent or one of its complex children. These
-   * include sdmp and mdsp, but not complex child fields. The field list is
-   * based on the most recent item def passed to the search admin handler for
-   * updating.
+   * Find all fields for a parent or one of its complex children. These include sdmp and mdsp, but
+   * not complex child fields. The field list is based on the most recent item def passed to the
+   * search admin handler for updating.
+   *
    * <p>Assumes the search engine has already been initialized.
    *
-   * @param key Never <code>null</code>. Content type id and child
-   * content type id (if present) expected to be numeric values.
-   *
-   * @return An iteration over 1 or more PSFields. If a child id is present
-   * in the key, then the fields for that child are returned, otherwise the
-   * fields for the main item are returned.
+   * @param key Never <code>null</code>. Content type id and child content type id (if present)
+   *     expected to be numeric values.
+   * @return An iteration over 1 or more PSFields. If a child id is present in the key, then the
+   *     fields for that child are returned, otherwise the fields for the main item are returned.
    * @throws PSInvalidContentTypeException
    */
   public static Iterator getFields(PSSearchKey key) throws PSInvalidContentTypeException {
@@ -104,9 +101,8 @@ public class PSSearchUtils {
   /**
    * Find all fields for a given item definition which are searchable.
    *
-   * @param itemDef the item definition.  Never <code>null</code>.
-   *
-   * @return A collection of PSFields.  Never <code>null</code>, may be empty.
+   * @param itemDef the item definition. Never <code>null</code>.
+   * @return A collection of PSFields. Never <code>null</code>, may be empty.
    */
   public static Collection<PSField> getSearchableFields(PSItemDefinition itemDef) {
     if (itemDef == null) {
@@ -128,13 +124,13 @@ public class PSSearchUtils {
   }
 
   /**
-   * A convenient method to find the Java Locale object corresponding to the
-   * supplied languageString  .Defaults to US English if not supplied.
+   * A convenient method to find the Java Locale object corresponding to the supplied languageString
+   * .Defaults to US English if not supplied.
    *
-   * @param languageString in the form of two letter language code hyphen two
-   * letter country code for which the Java Locale needs to be found.
-   * @return Locale object corresponding to the supplied language string or
-   * <code>US English</code> if not found.
+   * @param languageString in the form of two letter language code hyphen two letter country code
+   *     for which the Java Locale needs to be found.
+   * @return Locale object corresponding to the supplied language string or <code>US English</code>
+   *     if not found.
    */
   public static Locale getJavaLocale(String languageString) {
     if (StringUtils.isEmpty(languageString)) languageString = "en-us";

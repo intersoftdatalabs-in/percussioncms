@@ -28,9 +28,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The compare panel defaults to using the previous revision if the second
- * revision isn't supplied, and there is either only a single content id
- * supplied, or the two content ids match.
+ * The compare panel defaults to using the previous revision if the second revision isn't supplied,
+ * and there is either only a single content id supplied, or the two content ids match.
  *
  * @author dougrand
  */
@@ -39,9 +38,10 @@ public class PSCalculateCompareRevision implements IPSRequestPreProcessor {
   private static final Logger log = LogManager.getLogger(PSCalculateCompareRevision.class);
 
   /**
-   * Calculate the right revision to use for the second revision. Returns an
-   * empty string if the second revision is not determined. The arguments to
-   * this extension are: <table>
+   * Calculate the right revision to use for the second revision. Returns an empty string if the
+   * second revision is not determined. The arguments to this extension are:
+   *
+   * <table>
    * <tr>
    * <th>Index</th>
    * <th>Description</th>
@@ -63,17 +63,15 @@ public class PSCalculateCompareRevision implements IPSRequestPreProcessor {
    * <td>2nd item revision, optional</td>
    * </tr>
    * </table>
-   * <ul>
-   * <li> If there are two different content ids then the 2nd item revision
-   * value is returned without processing.
-   * <li> If the second item revision is supplied, then nothing is changed
-   * in the request
-   * <li> If the second item revision is not supplied, and the two content ids
-   * match, or the second content id is not supplied, then the first revision
-   * less 1 is set in place of the current sys_revision2.
-   * If the first revision is 1 then sys_revision2 is set to that value.
-   * </ul>
    *
+   * <ul>
+   *   <li>If there are two different content ids then the 2nd item revision value is returned
+   *       without processing.
+   *   <li>If the second item revision is supplied, then nothing is changed in the request
+   *   <li>If the second item revision is not supplied, and the two content ids match, or the second
+   *       content id is not supplied, then the first revision less 1 is set in place of the current
+   *       sys_revision2. If the first revision is 1 then sys_revision2 is set to that value.
+   * </ul>
    */
   @SuppressWarnings("unused")
   public void preProcessRequest(Object[] params, IPSRequestContext request) {

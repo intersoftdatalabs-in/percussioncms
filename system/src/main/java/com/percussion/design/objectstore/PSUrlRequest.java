@@ -26,19 +26,15 @@ import java.util.Set;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXUrlRequest DTD defined in BasicObjects.dtd.
- */
+/** Implements the PSXUrlRequest DTD defined in BasicObjects.dtd. */
 public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Creates a new request object for the provided name, href and parameters.
    *
-   * @param name an optional name, must be unique within the document in
-   *    which it is used. May be <code>null</code>, not empty.
-   * @param href the base URL part with the query string, might be
-   *    <code>null</code> or empty.
-   * @param parameters a collection of PSParam objects, never
-   *    <code>null</code>, may be empty.
+   * @param name an optional name, must be unique within the document in which it is used. May be
+   *     <code>null</code>, not empty.
+   * @param href the base URL part with the query string, might be <code>null</code> or empty.
+   * @param parameters a collection of PSParam objects, never <code>null</code>, may be empty.
    */
   public PSUrlRequest(String name, String href, PSCollection parameters) {
     setName(name);
@@ -47,11 +43,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   * Creates a new request object for the provided UDF. The UDF must return
-   * a URL.
+   * Creates a new request object for the provided UDF. The UDF must return a URL.
    *
-   * @param name an optional name, must be unique within the document in
-   *    which it is used. May be <code>null</code>, not empty.
+   * @param name an optional name, must be unique within the document in which it is used. May be
+   *     <code>null</code>, not empty.
    * @param converter a UDF which returns a URL. Never <coe>null</code>.
    */
   public PSUrlRequest(String name, PSExtensionCall converter) {
@@ -62,14 +57,10 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUrlRequest(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -89,11 +80,11 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   * Constructor for XML serialization by subclasses.  Needed because if
-   * subclass calls {@link #PSUrlRequest(Element,IPSDocument,List) super}
-   * in its constructor, then this class will call the subclass <code>
-   * fromXml()</code> (because of it is overridden), but the subclass hasn't
-   * had a chance to initialize its fields -- null pointer!
+   * Constructor for XML serialization by subclasses. Needed because if subclass calls {@link
+   * #PSUrlRequest(Element,IPSDocument,List) super} in its constructor, then this class will call
+   * the subclass <code>
+   * fromXml()</code> (because of it is overridden), but the subclass hasn't had a chance to
+   * initialize its fields -- null pointer!
    */
   protected PSUrlRequest() {}
 
@@ -113,8 +104,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Get the request name.
    *
-   * @return the name of this request, may be <code>null</code> but
-   *    not empty.
+   * @return the name of this request, may be <code>null</code> but not empty.
    */
   public String getName() {
     return m_name;
@@ -123,8 +113,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Set the request name.
    *
-   * @param name the name for this request. May be <code>null</code> but not
-   *    empty.
+   * @param name the name for this request. May be <code>null</code> but not empty.
    */
   public void setName(String name) {
     if (name != null && name.trim().length() == 0)
@@ -134,9 +123,9 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   * Converts this <code>PSUrlRequest</code> object to a String by using
-   * the either the base href or the string representation of the converter.
-   * The parameter names and values are not currently included.
+   * Converts this <code>PSUrlRequest</code> object to a String by using the either the base href or
+   * the string representation of the converter. The parameter names and values are not currently
+   * included.
    *
    * @return the URL, never <code>null</code>, may be empty.
    * @see #getHref
@@ -169,8 +158,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Get the base URL.
    *
-   * @return the base part of the URL. Never <code>null</code>, may
-   *    be empty.
+   * @return the base part of the URL. Never <code>null</code>, may be empty.
    */
   public String getHref() {
     return m_href;
@@ -179,8 +167,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Set the new base URL.
    *
-   * @param href the base part of the URL, might be <code>null</code> or
-   *    empty.
+   * @param href the base part of the URL, might be <code>null</code> or empty.
    */
   public void setHref(String href) {
     if (href == null) m_href = "";
@@ -190,8 +177,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Gets the query parameters.
    *
-   * @return an Iterator of PSParam objects, never <code>null</code>,
-   * might be empty.
+   * @return an Iterator of PSParam objects, never <code>null</code>, might be empty.
    */
   public Iterator getQueryParameters() {
     return m_queryParameters.iterator();
@@ -200,8 +186,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Sets the query parameters.
    *
-   * @param queryParameters a collection of PSParam objects. Not
-   *    <code>null</code>, might be empty.
+   * @param queryParameters a collection of PSParam objects. Not <code>null</code>, might be empty.
    */
   public void setQueryParameters(PSCollection queryParameters) {
     if (queryParameters == null)
@@ -244,8 +229,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSUrlRequest)) return false;
@@ -265,8 +249,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Get the anchor part of the URL.
    *
-   * @return the anchor part of the URL, never <code>null</code>,
-   *    might be empty.
+   * @return the anchor part of the URL, never <code>null</code>, might be empty.
    */
   public String getAnchor() {
     return m_anchor;
@@ -286,8 +269,7 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   /**
    * Get the converter extension.
    *
-   * @return a UDF which creates a URL, might be
-   *    <code>null</code>.
+   * @return a UDF which creates a URL, might be <code>null</code>.
    */
   public PSExtensionCall getConverter() {
     return m_converter;
@@ -309,9 +291,8 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSUrlRequest, not <code>null</code>.
    */
@@ -391,7 +372,6 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -463,9 +443,8 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   }
 
   /**
-   * Compare two collection elements as if they were sets. Two such elements
-   * are equal if each element in one is present in the other, regardless of
-   * ordering constraints.
+   * Compare two collection elements as if they were sets. Two such elements are equal if each
+   * element in one is present in the other, regardless of ordering constraints.
    *
    * @param first
    * @param second
@@ -482,27 +461,24 @@ public class PSUrlRequest extends PSComponent implements IPSReplacementValue {
   public static final String XML_NODE_NAME = "PSXUrlRequest";
 
   /**
-   * The value type associated with this instances of this class, used as the
-   * value type in IPSReplacementValue.
+   * The value type associated with this instances of this class, used as the value type in
+   * IPSReplacementValue.
    */
   public static final String VALUE_TYPE = "UrlRequest";
 
   /**
-   * An optional identifier for this request. Must be unique within the
-   * document it is used. Might be <code>null</code> but not empty.
+   * An optional identifier for this request. Must be unique within the document it is used. Might
+   * be <code>null</code> but not empty.
    */
   private String m_name = null;
 
   /**
-   * The base part of the URL including the query string, not
-   * <code>null</code> after construction, might be empty.
+   * The base part of the URL including the query string, not <code>null</code> after construction,
+   * might be empty.
    */
   private String m_href = "";
 
-  /**
-   * A collection of PSParam objects, not <code>null</code>, might be empty
-   * after construction.
-   */
+  /** A collection of PSParam objects, not <code>null</code>, might be empty after construction. */
   protected PSCollection m_queryParameters = new PSCollection(PSParam.class);
 
   /** The anchor part of the URL, never <code>null</code>, might be empty. */

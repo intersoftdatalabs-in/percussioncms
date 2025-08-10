@@ -28,25 +28,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The result set that represents the catalog request results. This is useful
- * to represent the results data in tabular form.
+ * The result set that represents the catalog request results. This is useful to represent the
+ * results data in tabular form.
  */
 public class PSCatalogResultSet implements IPSDeployComponent {
-  /**
-   * Constructs the result set with <code>null</code> column meta data and
-   * empty result set.
-   */
+  /** Constructs the result set with <code>null</code> column meta data and empty result set. */
   public PSCatalogResultSet() {}
 
   /**
    * Constructs the object with the specified column metadata.
    *
-   * @param columns the column meta data of the results, may not be
-   * <code>null</code> or empty. The values in the array should not be
-   * <code>null</code>
-   *
-   * @throws IllegalArgumentException if the objects in the results list is not
-   * of type <code>PSCatalogResult</code>
+   * @param columns the column meta data of the results, may not be <code>null</code> or empty. The
+   *     values in the array should not be <code>null</code>
+   * @throws IllegalArgumentException if the objects in the results list is not of type <code>
+   *     PSCatalogResult</code>
    */
   public PSCatalogResultSet(PSCatalogResultColumn[] columns) {
     if (columns == null || columns.length == 0)
@@ -62,11 +57,10 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   /**
    * Constructs the object from the supplied element.
    *
-   * @param sourceNode the element to construct the object from, may not be
-   * <code>null</code>. See {@link #toXml(Document)} for format of XML.
-   *
-   * @throws PSUnknownNodeTypeException if the document does not have elements
-   * or attributes expected by this class or its children.
+   * @param sourceNode the element to construct the object from, may not be <code>null</code>. See
+   *     {@link #toXml(Document)} for format of XML.
+   * @throws PSUnknownNodeTypeException if the document does not have elements or attributes
+   *     expected by this class or its children.
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public PSCatalogResultSet(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -76,9 +70,8 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -129,7 +122,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
    *    %lt;!--
@@ -210,11 +203,10 @@ public class PSCatalogResultSet implements IPSDeployComponent {
 
   /**
    * Validates and adds the result to this set. Please see {@link
-   * #validateResultToAdd(PSCatalogResult) validate} for more information on
-   * how the result is validated.
+   * #validateResultToAdd(PSCatalogResult) validate} for more information on how the result is
+   * validated.
    *
    * @param result the result to be added, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if the result is invalid to add.
    */
   public void addResult(PSCatalogResult result) {
@@ -223,18 +215,15 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   }
 
   /**
-   * Validates that the result can be added to this result set. Does the
-   * following for validation.
+   * Validates that the result can be added to this result set. Does the following for validation.
+   *
    * <ol>
-   * <li>Makes sure that either both(resultset and result) support column data
-   * or do not support column data.</li>
-   * <li>If both support columns, the column data in the result must be
-   * supported by the corresponding column metadata definition in the resultset
-   * testing in the order.
-   * </li>
+   *   <li>Makes sure that either both(resultset and result) support column data or do not support
+   *       column data.
+   *   <li>If both support columns, the column data in the result must be supported by the
+   *       corresponding column metadata definition in the resultset testing in the order.
    *
    * @param result the result to add, may not be <code>null</code>
-   *
    * @return <code>true</code> if it can be added, otherwise <code>false</code>
    */
   public boolean validateResultToAdd(PSCatalogResult result) {
@@ -267,8 +256,7 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   }
 
   /**
-   * The column metadata of this result set if it has results with multiple
-   * columns.
+   * The column metadata of this result set if it has results with multiple columns.
    *
    * @return the column metadata, may be <code>null</code>
    */
@@ -277,14 +265,14 @@ public class PSCatalogResultSet implements IPSDeployComponent {
   }
 
   /**
-   * The column metadata of the resultset, initialized if this resultset
-   * represents data with multiple columns, <code>null</code> otherwise.
+   * The column metadata of the resultset, initialized if this resultset represents data with
+   * multiple columns, <code>null</code> otherwise.
    */
   private PSCatalogResultColumn[] m_columns = null;
 
   /**
-   * The list of <code>PSCatalogResult</code> objects, initialized to empty
-   * list and gets updated with results.
+   * The list of <code>PSCatalogResult</code> objects, initialized to empty list and gets updated
+   * with results.
    */
   private List m_results = new ArrayList();
 

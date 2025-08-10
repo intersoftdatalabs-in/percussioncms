@@ -20,29 +20,26 @@ package com.percussion.server;
 import java.util.Date;
 
 /**
- * This is the base class for statistical reporting on a handler. It
- * implements timers for min/avg/max processing time, time up and
- * counters for events successful/failed/pending, cache hits/misses.
+ * This is the base class for statistical reporting on a handler. It implements timers for
+ * min/avg/max processing time, time up and counters for events successful/failed/pending, cache
+ * hits/misses.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSHandlerStatistics {
   /**
    * Construct a statistics object with the specified start time
    *
-   * @param   startTime      the time/date the handler was started
+   * @param startTime the time/date the handler was started
    */
   protected PSHandlerStatistics(Date startTime) {
     super();
     m_startTime = startTime;
   }
 
-  /**
-   * Construct a statistics object using the current time as
-   * the time the handler was started.
-   */
+  /** Construct a statistics object using the current time as the time the handler was started. */
   protected PSHandlerStatistics() {
     super();
     m_startTime = new Date();
@@ -51,7 +48,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Add the statistics for the specified request.
    *
-   * @param      stats         the statistics for the processed request
+   * @param stats the statistics for the processed request
    */
   public synchronized void update(PSRequestStatistics stats) {
     m_cacheHits += stats.getCacheHits();
@@ -74,20 +71,18 @@ public abstract class PSHandlerStatistics {
   }
 
   /**
-   * Get the number of database requests which could not be handled
-   * from the cache.
+   * Get the number of database requests which could not be handled from the cache.
    *
-   * @return      the number of cache hits
+   * @return the number of cache hits
    */
   public int getCacheHits() {
     return m_cacheHits;
   }
 
   /**
-   * Get the number of database requests which could not be handled
-   * from the cache.
+   * Get the number of database requests which could not be handled from the cache.
    *
-   * @return      the number of cache misses
+   * @return the number of cache misses
    */
   public int getCacheMisses() {
     return m_cacheMisses;
@@ -96,7 +91,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the number of events (requests) processed successfully.
    *
-   * @return      the number of requests
+   * @return the number of requests
    */
   public int getSuccessfulEventCount() {
     return m_eventsSucceeded;
@@ -105,31 +100,26 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the number of events (requests) that failed during processing.
    *
-   * @return      the number of requests
+   * @return the number of requests
    */
   public int getFailedEventCount() {
     return m_eventsFailed;
   }
 
-  /**
-   * Increment the pending event count.
-   */
+  /** Increment the pending event count. */
   public synchronized void incrementPendingEventCount() {
     m_eventsPending++;
   }
 
-  /**
-   * Decrement the pending event count.
-   */
+  /** Decrement the pending event count. */
   public synchronized void decrementPendingEventCount() {
     m_eventsPending--;
   }
 
   /**
-   * Get the number of events (requests) pending (currently being
-   * processed).
+   * Get the number of events (requests) pending (currently being processed).
    *
-   * @return      the number of requests
+   * @return the number of requests
    */
   public int getPendingEventCount() {
     return m_eventsPending;
@@ -138,7 +128,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the maximum amount of time taken to process a request.
    *
-   * @return      the amount of time in milliseconds
+   * @return the amount of time in milliseconds
    */
   public int getMaximumEventTime() {
     return m_eventTimeMax;
@@ -147,7 +137,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the minimum amount of time taken to process a request.
    *
-   * @return      the amount of time in milliseconds
+   * @return the amount of time in milliseconds
    */
   public int getMinimumEventTime() {
     return m_eventTimeMin;
@@ -156,7 +146,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the average amount of time taken to process a request.
    *
-   * @return      the amount of time in milliseconds
+   * @return the amount of time in milliseconds
    */
   public int getAverageEventTime() {
     int totalEvents = m_eventsSucceeded + m_eventsFailed;
@@ -169,15 +159,13 @@ public abstract class PSHandlerStatistics {
   /**
    * Set the time the server was shutdown.
    *
-   * @param      endTime      the time/date the Server was shutdown
+   * @param endTime the time/date the Server was shutdown
    */
   public void setShutdownTime(Date endTime) {
     m_endTime = endTime;
   }
 
-  /**
-   * Set the time the was shutdown to the current time.
-   */
+  /** Set the time the was shutdown to the current time. */
   public void setShutdownTime() {
     m_endTime = new Date();
   }
@@ -185,7 +173,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the time the server was shutdown.
    *
-   * @return      the time/date the Server was shutdown
+   * @return the time/date the Server was shutdown
    */
   public Date getShutdownTime() {
     return m_endTime;
@@ -194,7 +182,7 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the time the server was started.
    *
-   * @return      the time/date the Server was started
+   * @return the time/date the Server was started
    */
   public Date getStartTime() {
     return m_startTime;
@@ -203,8 +191,8 @@ public abstract class PSHandlerStatistics {
   /**
    * Get the amount of time, in milliseconds, the server was up.
    *
-   * @return      the amount of time, in milliseconds or -1 if the
-   *               Server is still running or was never started
+   * @return the amount of time, in milliseconds or -1 if the Server is still running or was never
+   *     started
    */
   public long getProcessingTime() {
     if ((m_startTime == null) || (m_endTime == null)) return -1;

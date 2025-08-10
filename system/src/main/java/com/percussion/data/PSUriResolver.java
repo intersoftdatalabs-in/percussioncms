@@ -26,22 +26,19 @@ import javax.xml.transform.stream.StreamSource;
 
 /**
  * Implements URIResolver to resolve style sheet URIs.
+ *
  * @deprecated Use PSCategoryResolver
- **/
+ */
 @Deprecated
 public class PSUriResolver implements URIResolver {
   /**
-   * Implementation for resolving style sheet URI. Returns source object of
-   * style sheet specified in passed in reference if it has protocol, otherwise
-   * creates a source of file by resolving the reference from 'Rhythmyx' server
-   * root. The passed in <code>base</code> is ignored, because the URI can be
-   * resolved directly from <code>href</code>.
+   * Implementation for resolving style sheet URI. Returns source object of style sheet specified in
+   * passed in reference if it has protocol, otherwise creates a source of file by resolving the
+   * reference from 'Rhythmyx' server root. The passed in <code>base</code> is ignored, because the
+   * URI can be resolved directly from <code>href</code>.
    *
-   * @throws TransformerException if it can not resolve URI or error happens
-   * while resolving.
-   *
-   * @see javax.xml.transform.URIResolver#resolve
-   * resolve(String href, String base)
+   * @throws TransformerException if it can not resolve URI or error happens while resolving.
+   * @see javax.xml.transform.URIResolver#resolve resolve(String href, String base)
    */
   public Source resolve(String href, String base) throws TransformerException {
 
@@ -82,31 +79,24 @@ public class PSUriResolver implements URIResolver {
     throw new TransformerException("Can not resolve the provided URI: " + href);
   }
 
-  /**
-   * Constant to indicate the path is relative.
-   */
+  /** Constant to indicate the path is relative. */
   public static final String RELATIVE_PATH = "..";
 
-  /**
-   * Constant to indicate the URI is relative.
-   */
+  /** Constant to indicate the URI is relative. */
   public static final String RELATIVE_URI = RELATIVE_PATH + "/";
 
   /**
-   * Constant to indicate http protocol. If a reference URL string starts
-   * with this, it is a HTTP url stream.
+   * Constant to indicate http protocol. If a reference URL string starts with this, it is a HTTP
+   * url stream.
    */
   public static final String HTTP_PROTOCOL = "http:";
 
   /**
-   * Constant to indicate file protocol. If a reference URL string starts
-   * with this, it is a file stream.
+   * Constant to indicate file protocol. If a reference URL string starts with this, it is a file
+   * stream.
    */
   public static final String FILE_PROTOCOL = "file:";
 
-  /**
-   * Constant to indicate that a file in in the rhythmyx root
-   * directory
-   */
+  /** Constant to indicate that a file in in the rhythmyx root directory */
   public static final String RXROOT_URI = FILE_PROTOCOL + "///Rhythmyx/";
 }

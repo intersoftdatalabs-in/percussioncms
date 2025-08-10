@@ -29,19 +29,15 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
 /**
- * Fails build if finds bundled jar with the same name
- * existing in more than one manifest file.
- * It is possible to exclude some jars from the check by specifying them
- * as excludes.
- * A jar can be excluded if, for example, exporting the library from one
- * plugin to another will cause classloader problems.
+ * Fails build if finds bundled jar with the same name existing in more than one manifest file. It
+ * is possible to exclude some jars from the check by specifying them as excludes. A jar can be
+ * excluded if, for example, exporting the library from one plugin to another will cause classloader
+ * problems.
  *
  * @author Andriy Palamarchuk
  */
 public class PSCheckManifestsForDuplicateFiles extends Task {
-  /**
-   * Adds list of files to check.
-   */
+  /** Adds list of files to check. */
   public void addFileset(final FileSet fileset) {
     m_fileSets.add(fileset);
   }
@@ -72,6 +68,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
 
   /**
    * Executes the task.
+   *
    * @see org.apache.tools.ant.Task#execute()
    */
   @Override
@@ -99,6 +96,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
 
   /**
    * Creates set of filenames to be excluded from the check.
+   *
    * @return The excludes names set stored in {@link #m_excludes}.
    */
   private Set<String> getExcludedLibs() {
@@ -111,6 +109,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
 
   /**
    * Parses the provided manifest and extracts the specified libraries.
+   *
    * @return a set with library names, as specified in the manifest.
    */
   private Set<String> extractLibs(File file) {
@@ -135,9 +134,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     return libs;
   }
 
-  /**
-   * Adds library specification to the name-path map.
-   */
+  /** Adds library specification to the name-path map. */
   private void parseLibSpec(String s, Set<String> libs) {
     String path = s.trim();
     if (path.endsWith(",")) {
@@ -147,10 +144,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     libs.add(file.getName());
   }
 
-  /**
-   * Reads lines from the specified file. Any exceptions are wrapped in
-   * {@link BuildException}.
-   */
+  /** Reads lines from the specified file. Any exceptions are wrapped in {@link BuildException}. */
   @SuppressWarnings("unchecked")
   private List<String> readLines(File file) {
     try {
@@ -165,9 +159,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     }
   }
 
-  /**
-   * Returns list of the specified manifest files.
-   */
+  /** Returns list of the specified manifest files. */
   private List<File> getManifestFiles() {
     if (m_fileSets.isEmpty()) {
       throw new BuildException("No manifest files are specified");
@@ -197,14 +189,13 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     return manifestFiles;
   }
 
-  /**
-   * Stores file name of a library excluded from the check.
-   */
+  /** Stores file name of a library excluded from the check. */
   public static class Exclude {
     /**
      * File name of a library to be excluded from a check.
-     * @return name of a library to exclude which is set before by call to
-     * {@link #getName()}. Never <code>null</code>.
+     *
+     * @return name of a library to exclude which is set before by call to {@link #getName()}. Never
+     *     <code>null</code>.
      */
     public String getName() {
       return mi_name;
@@ -224,18 +215,12 @@ public class PSCheckManifestsForDuplicateFiles extends Task {
     private String mi_name;
   }
 
-  /**
-   * The line beginning for the library specification section.
-   */
+  /** The line beginning for the library specification section. */
   private static final String LIB_SPEC_DELIM = "Bundle-ClassPath:";
 
-  /**
-   * Files to process.
-   */
+  /** Files to process. */
   private final List<FileSet> m_fileSets = new ArrayList<FileSet>();
 
-  /**
-   * Excludes - files do not include in processing.
-   */
+  /** Excludes - files do not include in processing. */
   private final List<Exclude> m_excludes = new ArrayList<Exclude>();
 }

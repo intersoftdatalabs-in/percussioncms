@@ -24,9 +24,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class provides for the cataloging of active server datasources.
- * Datasource catalog requests are sent to the server using the
- * PSXDatasourceCatalog XML document. Its definition is as follows:
+ * This class provides for the cataloging of active server datasources. Datasource catalog requests
+ * are sent to the server using the PSXDatasourceCatalog XML document. Its definition is as follows:
  *
  * <pre>
  * <code>
@@ -40,8 +39,8 @@ import org.w3c.dom.Element;
  * </code>
  * </pre>
  *
- * The PSXDataspirceCatalogResults XML document is sent as the response. Its
- * definition is as follows:
+ * The PSXDataspirceCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
  *
  * <pre>
  * <code>
@@ -102,14 +101,13 @@ import org.w3c.dom.Element;
  * </pre>
  */
 public class PSDatasourceCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSDatasourceCatalogHandler() {}
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -125,9 +123,8 @@ public class PSDatasourceCatalogHandler implements IPSCatalogHandler {
    *       <td>no</td></tr>
    * </table>
    *
-   * @param req The request information, may not be <code>null</code> and must
-   * contain the expected request properties.
-   *
+   * @param req The request information, may not be <code>null</code> and must contain the expected
+   *     request properties.
    * @return The formatted document, never <code>null</code>.
    */
   public Document formatRequest(Properties req) {

@@ -22,22 +22,18 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A collection of PSRelationship objects. See PSXRelationshipSet.dtd.
- */
+/** A collection of PSRelationship objects. See PSXRelationshipSet.dtd. */
 public class PSRelationshipSet extends PSCollectionComponent {
-  /**
-   * Constucts an empty relationship set.
-   */
+  /** Constucts an empty relationship set. */
   public PSRelationshipSet() {
     super(PSRelationship.class);
   }
 
   /**
-   * Constucts an empty relationship set with the specified initial capacity
-   * and with its capacity increment equal to zero.
+   * Constucts an empty relationship set with the specified initial capacity and with its capacity
+   * increment equal to zero.
    *
-   * @param initialCapacity   the initial capacity of the set.
+   * @param initialCapacity the initial capacity of the set.
    */
   public PSRelationshipSet(int initialCapacity) {
     super(PSRelationship.class, initialCapacity);
@@ -56,14 +52,10 @@ public class PSRelationshipSet extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationshipSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -72,7 +64,9 @@ public class PSRelationshipSet extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -110,7 +104,9 @@ public class PSRelationshipSet extends PSCollectionComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     for (int i = 0; i < size(); i++) {

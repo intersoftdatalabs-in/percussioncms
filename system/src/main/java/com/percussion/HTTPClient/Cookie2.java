@@ -25,12 +25,12 @@ import java.util.Vector;
 
 /**
  * This class represents an http cookie as specified in the <A
- * HREF="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</A>
- * (also known as a version 1 cookie).
+ * HREF="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</A> (also known
+ * as a version 1 cookie).
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 public class Cookie2 extends Cookie {
@@ -51,22 +51,20 @@ public class Cookie2 extends Cookie {
   /**
    * Create a cookie.
    *
-   * @param name      the cookie name
-   * @param value     the cookie value
-   * @param domain    the host this cookie will be sent to
-   * @param port_list an array of allowed server ports for this cookie,
-   *                  or null if the the cookie may be sent to any port
-   * @param path      the path prefix for which this cookie will be sent
-   * @param epxires   the Date this cookie expires, or null if never
-   * @param discard   if true then the cookie will be discarded at the
-   *                  end of the session regardless of expiry
-   * @param secure    if true this cookie will only be over secure connections
-   * @param comment   the comment associated with this cookie, or null if none
-   * @param comment_url the comment URL associated with this cookie, or null
-   *                    if none
-   * @exception NullPointerException if <var>name</var>, <var>value</var>,
-   *                                 <var>domain</var>, or <var>path</var>
-   *                                 is null
+   * @param name the cookie name
+   * @param value the cookie value
+   * @param domain the host this cookie will be sent to
+   * @param port_list an array of allowed server ports for this cookie, or null if the the cookie
+   *     may be sent to any port
+   * @param path the path prefix for which this cookie will be sent
+   * @param epxires the Date this cookie expires, or null if never
+   * @param discard if true then the cookie will be discarded at the end of the session regardless
+   *     of expiry
+   * @param secure if true this cookie will only be over secure connections
+   * @param comment the comment associated with this cookie, or null if none
+   * @param comment_url the comment URL associated with this cookie, or null if none
+   * @exception NullPointerException if <var>name</var>, <var>value</var>, <var>domain</var>, or
+   *     <var>path</var> is null
    */
   public Cookie2(
       String name,
@@ -420,15 +418,14 @@ public class Cookie2 extends Cookie {
   }
 
   /**
-   * @return true if the cookie should be discarded at the end of the
-   *         session; false otherwise
+   * @return true if the cookie should be discarded at the end of the session; false otherwise
    */
   public boolean discard() {
     return discard;
   }
 
   /**
-   * @param  req  the request to be sent
+   * @param req the request to be sent
    * @return true if this cookie should be sent with the request
    */
   protected boolean sendWith(RoRequest req) {
@@ -493,8 +490,8 @@ public class Cookie2 extends Cookie {
   }
 
   /**
-   * Create a string containing all the cookie fields. The format is that
-   * used in the Set-Cookie header.
+   * Create a string containing all the cookie fields. The format is that used in the Set-Cookie
+   * header.
    */
   public String toString() {
     StringBuilder res = new StringBuilder(name.length() + value.length() + 50);

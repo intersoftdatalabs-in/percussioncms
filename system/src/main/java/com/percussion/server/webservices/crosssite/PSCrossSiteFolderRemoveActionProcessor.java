@@ -28,9 +28,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class handles the modifcation of the AA relationships of the dependent
- * item based on the items existence in multiple site folders for remove action.
- * Implements the base class method {@link #modifyLinks(PSAaFolderDependent)}.
+ * This class handles the modifcation of the AA relationships of the dependent item based on the
+ * items existence in multiple site folders for remove action. Implements the base class method
+ * {@link #modifyLinks(PSAaFolderDependent)}.
  */
 public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderActionProcessor {
 
@@ -38,10 +38,7 @@ public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderAct
     super(data);
   }
 
-  /**
-   * Only ctor. Invokes base class version.
-   *
-   */
+  /** Only ctor. Invokes base class version. */
   public PSCrossSiteFolderRemoveActionProcessor(PSLocator sourceFolderId, List<PSLocator> children)
       throws PSCmsException, PSNotFoundException {
     super(sourceFolderId, children);
@@ -56,10 +53,7 @@ public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderAct
     return data;
   }
 
-  /**
-   * See remove action matrix in the functional specification for more details
-   * of each case.
-   */
+  /** See remove action matrix in the functional specification for more details of each case. */
   @Override
   public void modifyLinks(PSAaFolderDependent depItem) {
     log.debug("Modifying AA relationships for the dependent item: {}", depItem.getItem().getId());
@@ -125,12 +119,12 @@ public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderAct
   }
 
   /**
-   * Helper to find if the supplied relationship's siteid property value
-   * matches with the source sieid of the item in process.
+   * Helper to find if the supplied relationship's siteid property value matches with the source
+   * sieid of the item in process.
    *
    * @param rel relationship object, assumed not <code>null</code>.
-   * @return <code>true</code> if the property value matches with source
-   * siteid, <code>false</code> otherwise.
+   * @return <code>true</code> if the property value matches with source siteid, <code>false</code>
+   *     otherwise.
    */
   private boolean isSiteIdMatches(PSRelationship rel) {
     return data.getSourceSiteId().toString().equals(rel.getProperty(IPSHtmlParameters.SYS_SITEID));
@@ -150,11 +144,10 @@ public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderAct
   }
 
   /**
-   * Evaluate the remove move action category based on the dependent items
-   * existece in site folders.
+   * Evaluate the remove move action category based on the dependent items existece in site folders.
    *
-   * @param depItem dependent item that is being removed from the site folder,
-   * must not be <code>null</code>.
+   * @param depItem dependent item that is being removed from the site folder, must not be <code>
+   *     null</code>.
    * @return appropriate enumeration value.
    */
   private PSRemoveActionCategoryEnum evaluateActionCategory(PSAaFolderDependent depItem) {
@@ -177,8 +170,6 @@ public class PSCrossSiteFolderRemoveActionProcessor extends PSCrossSiteFolderAct
     return PSRemoveActionCategoryEnum.ACTION_CATEGORY_SAMESITE_MULTIPLE_FOLDERS;
   }
 
-  /**
-   * Name of the action this processor handles.
-   */
+  /** Name of the action this processor handles. */
   public static final String ACTION_NAME = "Remove";
 }

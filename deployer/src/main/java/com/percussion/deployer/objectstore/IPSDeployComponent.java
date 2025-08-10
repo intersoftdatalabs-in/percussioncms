@@ -24,18 +24,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The IPSDeployComponent interface defines required methods for all component
- * level object store objects.
+ * The IPSDeployComponent interface defines required methods for all component level object store
+ * objects.
  */
 public interface IPSDeployComponent extends Cloneable {
   /**
    * Creates an XML element node with the appropriate format for the given object.
    *
-   * @param doc The document to use to create the element, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   Element toXml(Document doc);
@@ -43,34 +40,26 @@ public interface IPSDeployComponent extends Cloneable {
   /**
    * Populates an object from its XML representation.
    *
-   * @param sourceNode the XML element node to populate from, not
-   * <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param sourceNode the XML element node to populate from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException;
 
   /**
-   * Creates a new instance of this object, performing a shallow copy of all
-   * members.
+   * Creates a new instance of this object, performing a shallow copy of all members.
    *
    * @param obj The object from which to copy values.
-   *
-   * @throws IllegalArgumentException if the supplied object is
-   * <code>null</code> or of the wrong type.
+   * @throws IllegalArgumentException if the supplied object is <code>null</code> or of the wrong
+   *     type.
    */
   void copyFrom(IPSDeployComponent obj);
 
-  /**
-   * Returns a hash code value for the object.
-   */
+  /** Returns a hash code value for the object. */
   @Override
   int hashCode();
 
-  /**
-   * Determines if this object is equal to another.
-   */
+  /** Determines if this object is equal to another. */
   @Override
   boolean equals(Object obj);
 }

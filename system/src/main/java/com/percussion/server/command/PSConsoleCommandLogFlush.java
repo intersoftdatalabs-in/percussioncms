@@ -43,22 +43,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommandLogFlush class implements processing of the
- * "log flush" console command.
+ * The PSConsoleCommandLogFlush class implements processing of the "log flush" console command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConsoleCommandLogFlush extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
-   *
+   * @param cmdArgs the argument string to use when executing this command
    */
   public PSConsoleCommandLogFlush(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -71,11 +67,11 @@ public class PSConsoleCommandLogFlush extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
    *
@@ -95,12 +91,9 @@ public class PSConsoleCommandLogFlush extends PSConsoleCommand {
    *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
    * </CODE></PRE>
    *
-   * @param      request                     the requestor object
-   *
-   * @return                                 the result document
-   *
-   * @exception   PSConsoleCommandException   if an error occurs during
-   *                                          execution
+   * @param request the requestor object
+   * @return the result document
+   * @exception PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -115,8 +108,6 @@ public class PSConsoleCommandLogFlush extends PSConsoleCommand {
     return respDoc;
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "log flush";
 }

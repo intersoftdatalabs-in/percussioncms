@@ -23,32 +23,25 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSStringOperation;
 
 /**
- * The PSSimpleJavaUdf_replace class replaces strings given by a user
- * defined function (UDF).
+ * The PSSimpleJavaUdf_replace class replaces strings given by a user defined function (UDF).
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSSimpleJavaUdf_replace extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Replaces every occurrence of params[1] in params[0] with the string in
-   * params[2].
+   * Replaces every occurrence of params[1] in params[0] with the string in params[2].
    *
-   * @param      params         the parameter values to use in the UDF
-   *
-   * @param      request         the current request context
-   *
-   * @return                     The string after the substitution has been
-   *                            completed. If params[1] or params[2] is null,
-   *                            params[0] is returned w/o modification.
-   *
-   * @exception  PSConversionException
-   *                            if params[0] is <code>null</code> or more than
-   *                            3 argument are supplied.
+   * @param params the parameter values to use in the UDF
+   * @param request the current request context
+   * @return The string after the substitution has been completed. If params[1] or params[2] is
+   *     null, params[0] is returned w/o modification.
+   * @exception PSConversionException if params[0] is <code>null</code> or more than 3 argument are
+   *     supplied.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

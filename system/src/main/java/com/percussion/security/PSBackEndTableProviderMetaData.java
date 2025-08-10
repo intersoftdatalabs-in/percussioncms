@@ -32,32 +32,21 @@ import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * The PSBackEndTableProviderMetaData class implements cataloging for
- *    the JDBC (back-end) table security provider.
- *
+ * The PSBackEndTableProviderMetaData class implements cataloging for the JDBC (back-end) table
+ * security provider.
  */
 public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   /**
-   * Construct a meta data object for the specified provider
-   *    instance.
+   * Construct a meta data object for the specified provider instance.
    *
-   *
-   * @param      inst            The provider instance.
-   *                             (must not be <code>null</code>)
-   *
-   * @param      uidCol          The column to query for uids.
-   *                             (must not be <code>null</code> &
-   *                              must not be empty string)
-   *
-   * @param      tableName       The table to query for uids.
-   *                             (must not be <code>null</code> &
-   *                              must not be empty string)
-   *
-   * @param      userAttributes The names of all attributes defined for this
-   *                             provider. May be <code>null</code>.
-   *
-   * @throws     IllegalArgumentException
-   *                             If any parameter is invalid.
+   * @param inst The provider instance. (must not be <code>null</code>)
+   * @param uidCol The column to query for uids. (must not be <code>null</code> & must not be empty
+   *     string)
+   * @param tableName The table to query for uids. (must not be <code>null</code> & must not be
+   *     empty string)
+   * @param userAttributes The names of all attributes defined for this provider. May be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException If any parameter is invalid.
    */
   PSBackEndTableProviderMetaData(
       PSBackEndTableProvider inst, String uidCol, String tableName, String[] userAttributes) {
@@ -88,9 +77,8 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Construct a meta data object for the specified provider
-   *    instance.  This default constructor is used by the
-   *    security provider pool.
+   * Construct a meta data object for the specified provider instance. This default constructor is
+   * used by the security provider pool.
    */
   public PSBackEndTableProviderMetaData() {
     // Nada!
@@ -99,7 +87,7 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the name of this security provider.
    *
-   * @return      the provider's name
+   * @return the provider's name
    */
   public String getName() {
     return PSBackEndTableProvider.SP_NAME;
@@ -108,7 +96,7 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the full name of this security provider.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return SP_FULLNAME;
@@ -117,7 +105,7 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the descritpion of this security provider.
    *
-   * @return      the provider's description
+   * @return the provider's description
    */
   public String getDescription() {
     return SP_DESCRIPTION;
@@ -126,25 +114,24 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the connection properties required for logging into this provider.
    *
-   * @return      the connection properties (never <code>null</code>)
+   * @return the connection properties (never <code>null</code>)
    */
   public Properties getConnectionProperties() {
     return PSBackEndConnection.getConnectionProperties();
   }
 
   /**
-   * Get the names of servers available to authenticate users.
-   *    The caller is responsible for closing the result set.
+   * Get the names of servers available to authenticate users. The caller is responsible for closing
+   * the result set.
    *
-   * <p>
-   * The result set contains:
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>SERVER_NAME</B> String => server name</LI>
+   *   <LI><B>SERVER_NAME</B> String => server name
    * </OL>
    *
-   * @return     a result set containing one server per row
-   *
-   * @throws     SQLException   If a SQL exception occurs.
+   * @return a result set containing one server per row
+   * @throws SQLException If a SQL exception occurs.
    */
   @Override
   public ResultSet getServers() throws SQLException {
@@ -168,18 +155,17 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Get the types of objects available through this provider.
-   *    The caller must close the result set when finished with it.
+   * Get the types of objects available through this provider. The caller must close the result set
+   * when finished with it.
    *
-   * <p>
-   * The result set contains:
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the object type name</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the object type name
    * </OL>
    *
-   * @return     a result set containing one object type per row
-   *
-   * @throws     SQLException Never thrown
+   * @return a result set containing one object type per row
+   * @throws SQLException Never thrown
    */
   @Override
   public ResultSet getObjectTypes() throws SQLException {
@@ -284,10 +270,9 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getServers <code>getServers</code>}
-   *    supported?
+   * Are calls to {@link #getServers <code>getServers</code>} supported?
    *
-   * @return                  <code>true</code>
+   * @return <code>true</code>
    */
   @Override
   public boolean supportsGetServers() {
@@ -295,10 +280,9 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getObjects <code>getObjects</code>}
-   *    supported?
+   * Are calls to {@link #getObjects <code>getObjects</code>} supported?
    *
-   * @return                  <code>true</code>
+   * @return <code>true</code>
    */
   @Override
   public boolean supportsGetObjects() {
@@ -306,10 +290,9 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>}
-   *    supported?
+   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>} supported?
    *
-   * @return                  <code>true</code>
+   * @return <code>true</code>
    */
   @Override
   public boolean supportsGetObjectTypes() {
@@ -317,40 +300,36 @@ public class PSBackEndTableProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * The name of the column in the back end table which contains the
-   * user id.
-   *    (created by constructor & can be <code>null</code>, but never empty)
+   * The name of the column in the back end table which contains the user id. (created by
+   * constructor & can be <code>null</code>, but never empty)
    */
   private String m_uidCol = null;
 
   /**
-   * Store the query statement so that a query can be executed.
-   *    (created by constructor & can be <code>null</code>, but never empty)
+   * Store the query statement so that a query can be executed. (created by constructor & can be
+   * <code>null</code>, but never empty)
    */
   private String m_uidSelect = null;
 
-  /** The description for this provider.
-   */
+  /** The description for this provider. */
   private static final String SP_DESCRIPTION =
       "Authentication using a back-end table as a user directory.";
 
-  /** The full name for this provider
-   */
+  /** The full name for this provider */
   public static final String SP_FULLNAME = "Back-end Table Security Provider";
 
-  /** The name of the user object supported for cataloging.
-   */
+  /** The name of the user object supported for cataloging. */
   private static final String USER_OBJECT_NAME = "user";
 
-  /** The BackEndTableProvider instance associate with this metadata.
-   *    (created by constructor & can be <code>null</code>)
+  /**
+   * The BackEndTableProvider instance associate with this metadata. (created by constructor & can
+   * be <code>null</code>)
    */
   private PSBackEndTableProvider m_instance;
 
   /**
-   * An array containing all of the names of the attributes supported
-   * by this provider. Initialized with data when the non-default ctor is
-   * called. Never <code>null</code>, may be empty.
+   * An array containing all of the names of the attributes supported by this provider. Initialized
+   * with data when the non-default ctor is called. Never <code>null</code>, may be empty.
    */
   private String[] m_userAttributes = new String[0];
 }

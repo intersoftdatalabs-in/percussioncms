@@ -16,65 +16,62 @@
  */
 package com.percussion.pagemanagement.data;
 
-import net.sf.oval.constraint.AssertValid;
-import org.apache.commons.beanutils.BeanUtils;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import net.sf.oval.constraint.AssertValid;
+import org.apache.commons.beanutils.BeanUtils;
 
 /**
- * Contains the page regions that will override the template's regions.
- * Also contains the region-widgets associations ({@link #getRegionWidgetAssociations()}).
+ * Contains the page regions that will override the template's regions. Also contains the
+ * region-widgets associations ({@link #getRegionWidgetAssociations()}).
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "RegionBranches")
 public class PSRegionBranches extends PSRegionWidgetAssociations {
 
-    @AssertValid
-    private List<PSRegion> regions = new ArrayList<>();
+  @AssertValid private List<PSRegion> regions = new ArrayList<>();
 
-    @AssertValid
-    @XmlElementWrapper(name = "regions")
-    @XmlElement(name = "region")
-    public List<PSRegion> getRegions() {
-        return regions;
-    }
+  @AssertValid
+  @XmlElementWrapper(name = "regions")
+  @XmlElement(name = "region")
+  public List<PSRegion> getRegions() {
+    return regions;
+  }
 
-    public void setRegions(List<PSRegion> pageRegions) {
-        this.regions = pageRegions;
-    }
+  public void setRegions(List<PSRegion> pageRegions) {
+    this.regions = pageRegions;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSRegionBranches)) return false;
-        if (!super.equals(o)) return false;
-        var that = (PSRegionBranches) o;
-        return Objects.equals(getRegions(), that.getRegions());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSRegionBranches)) return false;
+    if (!super.equals(o)) return false;
+    var that = (PSRegionBranches) o;
+    return Objects.equals(getRegions(), that.getRegions());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), getRegions());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getRegions());
+  }
 
-    @Override
-    public String toString() {
-        return "PSRegionBranches{" +
-                "regions=" + regions +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSRegionBranches{" + "regions=" + regions + '}';
+  }
 
-    @Override
-    public PSRegionBranches clone() {
-        try {
-            return (PSRegionBranches) BeanUtils.cloneBean(this);
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot clone", e);
-        }
+  @Override
+  public PSRegionBranches clone() {
+    try {
+      return (PSRegionBranches) BeanUtils.cloneBean(this);
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot clone", e);
     }
+  }
 }

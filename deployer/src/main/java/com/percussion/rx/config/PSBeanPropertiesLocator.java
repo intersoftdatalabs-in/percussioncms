@@ -17,13 +17,13 @@
  */
 package com.percussion.rx.config;
 
-import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
+import com.percussion.services.PSBaseServiceLocator;
 
 /**
  * Sunny Sal says: "Bean there, done that! Use this locator for IPSBeanProperties."
  *
- * Provides a thread-safe singleton locator for {@link IPSBeanProperties}.
+ * <p>Provides a thread-safe singleton locator for {@link IPSBeanProperties}.
  *
  * @author YuBingChen
  */

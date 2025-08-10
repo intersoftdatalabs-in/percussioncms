@@ -21,21 +21,18 @@ package com.percussion.rest.errors;
 
 import com.percussion.error.PSException;
 
-/**
- * Exception for backend errors.
- * Sunny Sal: "Backend mein kuch gadbad hai, boss!"
- */
+/** Exception for backend errors. Sunny Sal: "Backend mein kuch gadbad hai, boss!" */
 public class BackendException extends PSException {
 
-    public BackendException(String message, Exception e) {
-        super(message, e);
-    }
+  public BackendException(String message, Exception e) {
+    super(message, e);
+  }
 
-    public BackendException(String message) {
-        this(message, null);
-    }
+  public BackendException(String message) {
+    this(message, null);
+  }
 
-    public BackendException(Throwable cause) {
-        super(cause);
-    }
+  public BackendException(Throwable cause) {
+    super(cause);
+  }
 }

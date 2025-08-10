@@ -21,18 +21,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-/**
- * Resolves an <code>IPSConnectionInfo</code> object to an
- * {@link IPSDatasourceConfig} object.
- */
+/** Resolves an <code>IPSConnectionInfo</code> object to an {@link IPSDatasourceConfig} object. */
 public interface IPSDatasourceResolver extends IPSBeanConfig {
   /**
-   * Given a connection info object, returns a datasource configuration.  Match
-   * is made on the datasource name, case-insensitive.
+   * Given a connection info object, returns a datasource configuration. Match is made on the
+   * datasource name, case-insensitive.
    *
-   * @param info The info, may be <code>null</code> to indicate the repository
-   * configuration.
-   *
+   * @param info The info, may be <code>null</code> to indicate the repository configuration.
    * @return The config, <code>null</code> if no matching config is found.
    */
   IPSDatasourceConfig resolveDatasource(IPSConnectionInfo info);
@@ -52,19 +47,18 @@ public interface IPSDatasourceResolver extends IPSBeanConfig {
   void setDatasourceConfigurations(List<IPSDatasourceConfig> configs);
 
   /**
-   * Get the configurations to use to resolve datasources.
-   * s
-   * @return The configs, never <code>null</code>, only empty if
-   * {@link #setDatasourceConfigurations(List)} has never been called.
+   * Get the configurations to use to resolve datasources. s
+   *
+   * @return The configs, never <code>null</code>, only empty if {@link
+   *     #setDatasourceConfigurations(List)} has never been called.
    */
   List<IPSDatasourceConfig> getDatasourceConfigurations();
 
   /**
-   * Sets the repository datasource name, used to resolve requests for the
-   * repository datasource.
+   * Sets the repository datasource name, used to resolve requests for the repository datasource.
    *
-   * @param datasourceName The name of one of the datasource configurations,
-   * may not be <code>null</code> or empty.
+   * @param datasourceName The name of one of the datasource configurations, may not be <code>null
+   *     </code> or empty.
    */
   void setRepositoryDatasource(String datasourceName);
 

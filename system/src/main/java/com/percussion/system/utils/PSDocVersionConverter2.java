@@ -55,15 +55,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This doc version converter is used to convert Rhythmyx 1.1 application
- * documents to Rhythmyx 2.0 application documents.
+ * This doc version converter is used to convert Rhythmyx 1.1 application documents to Rhythmyx 2.0
+ * application documents.
  */
 public class PSDocVersionConverter2 {
   private static final Logger log = LogManager.getLogger(PSDocVersionConverter2.class);
 
-  /**
-   * The main method for command-line testing.
-   */
+  /** The main method for command-line testing. */
   public static void main(String[] args) {
     try {
       InputStream in = null;
@@ -107,26 +105,20 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts a Rhythmyx 1.1 application document to Rhythmyx 2.0. The
-   * conversion process will translate all extension references and
-   * calls into the new extension model. Conversion will also process
-   * all JavaScript UDFs defined directly in the application and convert
-   * them into JavaScript extensions which are stored with the central
-   * extension manager.
+   * Converts a Rhythmyx 1.1 application document to Rhythmyx 2.0. The conversion process will
+   * translate all extension references and calls into the new extension model. Conversion will also
+   * process all JavaScript UDFs defined directly in the application and convert them into
+   * JavaScript extensions which are stored with the central extension manager.
    *
-   * @param mgr The extension manager with which UDFs will be registered.
-   * Can be <CODE>null</CODE>, in which case the conversion will convert
-   * all extension references but it will not install any newly converted
-   * extensions with a manager. This may result in an application that
-   * depends on extensions which are not installed.
-   *
-   * @param inDoc The document to convert. If the document is an application
-   * with a version other than 1.1, this method will return
-   * <CODE>false</CODE>. Otherwise, the document will be modified in place.
-   *
-   * @return <CODE>true</CODE> if and only if the document was converted
-   * successfully from 1.1 to 2.0.
-   *
+   * @param mgr The extension manager with which UDFs will be registered. Can be <CODE>null</CODE>,
+   *     in which case the conversion will convert all extension references but it will not install
+   *     any newly converted extensions with a manager. This may result in an application that
+   *     depends on extensions which are not installed.
+   * @param inDoc The document to convert. If the document is an application with a version other
+   *     than 1.1, this method will return <CODE>false</CODE>. Otherwise, the document will be
+   *     modified in place.
+   * @return <CODE>true</CODE> if and only if the document was converted successfully from 1.1 to
+   *     2.0.
    * @throws PSExtensionException
    * @throws PSNonUniqueException
    * @throws PSNotFoundException
@@ -139,27 +131,19 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts a Rhythmyx 1.1 application file to Rhythmyx 2.0. The
-   * conversion process will translate all extension references and
-   * calls into the new extension model. Conversion will also process
-   * all JavaScript UDFs defined directly in the application and convert
-   * them into JavaScript extensions which are stored with the central
-   * extension manager.
+   * Converts a Rhythmyx 1.1 application file to Rhythmyx 2.0. The conversion process will translate
+   * all extension references and calls into the new extension model. Conversion will also process
+   * all JavaScript UDFs defined directly in the application and convert them into JavaScript
+   * extensions which are stored with the central extension manager.
    *
-   * @param mgr The extension manager with which UDFs will be registered.
-   * Can be <CODE>null</CODE>, in which case the conversion will convert
-   * all extension references but it will not install any newly converted
-   * extensions with a manager. This may result in an application that
-   * depends on extensions which are not installed.
-   *
-   * @param appFile The file containing the application to convert. If the
-   * file represents an application with a version other than 1.1, this
-   * method will return <CODE>false</CODE>. Otherwise, the file will be
-   * modified in place.
-   *
-   * @return <CODE>true</CODE> if and only if the file was converted
-   * successfully from 1.1 to 2.0.
-   *
+   * @param mgr The extension manager with which UDFs will be registered. Can be <CODE>null</CODE>,
+   *     in which case the conversion will convert all extension references but it will not install
+   *     any newly converted extensions with a manager. This may result in an application that
+   *     depends on extensions which are not installed.
+   * @param appFile The file containing the application to convert. If the file represents an
+   *     application with a version other than 1.1, this method will return <CODE>false</CODE>.
+   *     Otherwise, the file will be modified in place.
+   * @return <CODE>true</CODE> if and only if the file was converted successfully from 1.1 to 2.0.
    * @throws PSExtensionException
    * @throws PSNonUniqueException
    * @throws PSNotFoundException
@@ -176,31 +160,22 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts a Rhythmyx 1.1 application file to Rhythmyx 2.0 and
-   * stores the resulting document in the given file. The original
-   * file will be unchanged. The conversion process will translate all
-   * extension references and calls into the new extension model. Conversion
-   * will also process all JavaScript UDFs defined directly in the
-   * application and convert them into JavaScript extensions which are stored
-   * with the central extension manager.
+   * Converts a Rhythmyx 1.1 application file to Rhythmyx 2.0 and stores the resulting document in
+   * the given file. The original file will be unchanged. The conversion process will translate all
+   * extension references and calls into the new extension model. Conversion will also process all
+   * JavaScript UDFs defined directly in the application and convert them into JavaScript extensions
+   * which are stored with the central extension manager.
    *
-   * @param mgr The extension manager with which UDFs will be registered.
-   * Can be <CODE>null</CODE>, in which case the conversion will convert
-   * all extension references but it will not install any newly converted
-   * extensions with a manager. This may result in an application that
-   * depends on extensions which are not installed.
-   *
-   * @param appFileIn The file containing the application to convert. If the
-   * file represents an application with a version other than 1.1, this
-   * method will return <CODE>false</CODE>. Otherwise, the file will be
-   * modified in place.
-   *
-   * @param appFileOut The file to which the converted application will
-   * be saved. Any existing file content will be overwritten.
-   *
-   * @return <CODE>true</CODE> if and only if the file was converted
-   * successfully from 1.1 to 2.0.
-   *
+   * @param mgr The extension manager with which UDFs will be registered. Can be <CODE>null</CODE>,
+   *     in which case the conversion will convert all extension references but it will not install
+   *     any newly converted extensions with a manager. This may result in an application that
+   *     depends on extensions which are not installed.
+   * @param appFileIn The file containing the application to convert. If the file represents an
+   *     application with a version other than 1.1, this method will return <CODE>false</CODE>.
+   *     Otherwise, the file will be modified in place.
+   * @param appFileOut The file to which the converted application will be saved. Any existing file
+   *     content will be overwritten.
+   * @return <CODE>true</CODE> if and only if the file was converted successfully from 1.1 to 2.0.
    * @throws PSExtensionException
    * @throws PSNonUniqueException
    * @throws PSNotFoundException
@@ -221,8 +196,8 @@ public class PSDocVersionConverter2 {
   /**
    * Constructs a doc version converter for the default version.
    *
-   * @param manager The extension manager instance, which must have
-   * been properly initialized with the JavaScript handler installed.
+   * @param manager The extension manager instance, which must have been properly initialized with
+   *     the JavaScript handler installed.
    */
   private PSDocVersionConverter2(IPSExtensionManager manager) {
     this(manager, "2.0");
@@ -231,10 +206,8 @@ public class PSDocVersionConverter2 {
   /**
    * Constructs a doc version converter for the specified version.
    *
-   * @param manager The extension manager instance, which must have
-   * been properly initialized with the JavaScript handler installed.
-   * It can be <CODE>null</CODE>.
-   *
+   * @param manager The extension manager instance, which must have been properly initialized with
+   *     the JavaScript handler installed. It can be <CODE>null</CODE>.
    * @param newVersion The new version. Must be "2.0".
    */
   private PSDocVersionConverter2(IPSExtensionManager manager, String newVersion) {
@@ -249,24 +222,18 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts app with version 1.1 to app with version 2.0. If the
-   * app file does not have version 1.1, then no conversion will
-   * be done.
+   * Converts app with version 1.1 to app with version 2.0. If the app file does not have version
+   * 1.1, then no conversion will be done.
    *
-   * @param app The application XML file. May be <CODE>null</CODE>,
-   * in which case nothing will happen.
-   *
-   * @return <CODE>true</CODE> if conversion from 1.1 was done,
-   * false otherwise.
-   *
-   * @throws IOException If an I/O error occurred during conversion.
-   * File <CODE>outApp</CODE> will be in an unknown state.
-   *
-   * @throws PSExtensionException If the extension manager reported
-   * an error. File <CODE>outApp</CODE> will be untouched.
-   *
-   * @throws SAXException If <CODE>app</CODE> is not a valid application
-   * XML file. File <CODE>outApp</CODE> will be untouched.
+   * @param app The application XML file. May be <CODE>null</CODE>, in which case nothing will
+   *     happen.
+   * @return <CODE>true</CODE> if conversion from 1.1 was done, false otherwise.
+   * @throws IOException If an I/O error occurred during conversion. File <CODE>outApp</CODE> will
+   *     be in an unknown state.
+   * @throws PSExtensionException If the extension manager reported an error. File <CODE>outApp
+   *     </CODE> will be untouched.
+   * @throws SAXException If <CODE>app</CODE> is not a valid application XML file. File <CODE>outApp
+   *     </CODE> will be untouched.
    */
   private boolean convertOneOneToTwoZero(File app, File outApp)
       throws IOException,
@@ -314,17 +281,14 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts app document with version 1.1 to app with version 2.0. If the
-   * app file does not have version 1.1, then no conversion will
-   * be done.
+   * Converts app document with version 1.1 to app with version 2.0. If the app file does not have
+   * version 1.1, then no conversion will be done.
    *
    * @param app The application XML document. Must not be <CODE>null</CODE>.
-   *
-   * @return The document, which may or may not have been converted
-   * (depending on whether conversion was necessary).
-   *
-   * @throws PSExtensionException If the extension manager reported
-   * an error. The document will be in an unknown state.
+   * @return The document, which may or may not have been converted (depending on whether conversion
+   *     was necessary).
+   * @throws PSExtensionException If the extension manager reported an error. The document will be
+   *     in an unknown state.
    */
   private boolean convertOneOneToTwoZero(Document app)
       throws PSExtensionException, PSNonUniqueException, PSNotFoundException {
@@ -490,7 +454,6 @@ public class PSDocVersionConverter2 {
    * Checks if the supplied def is one of the Java UDFs shipped w/ Rx.
    *
    * @param def Must be a def for a Java UDF.
-   *
    * @return <code>true</code> if it is, <code>false</code> otherwise.
    */
   private boolean isGlobalJavaUdf(IPSExtensionDef def) {
@@ -527,8 +490,8 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts the given PSXScriptExtensionDef element into an
-   * extension def. The element is <STRONG>not</STRONG> modified or removed.
+   * Converts the given PSXScriptExtensionDef element into an extension def. The element is
+   * <STRONG>not</STRONG> modified or removed.
    */
   private IPSExtensionDef defineApplicationUDFExtension(Element scriptDefEl)
       throws PSExtensionException {
@@ -650,8 +613,8 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * Converts the given PSXJavaExtensionDef element into an
-   * extension def. The element is <STRONG>not</STRONG> modified or removed.
+   * Converts the given PSXJavaExtensionDef element into an extension def. The element is
+   * <STRONG>not</STRONG> modified or removed.
    */
   private IPSExtensionDef defineApplicationJavaUDFExtension(Element scriptDefEl)
       throws PSExtensionException {
@@ -773,9 +736,8 @@ public class PSDocVersionConverter2 {
   }
 
   /**
-   * This method is called to populate a new PSExtensionCall Java object
-   * from an old-style PSXExtensionCall XML element node.
-   *
+   * This method is called to populate a new PSExtensionCall Java object from an old-style
+   * PSXExtensionCall XML element node.
    */
   private PSExtensionCall buildExtensionCall(Element sourceNode) {
     // this method is a duplicate of PSExtensionCall.fromXml() in
@@ -840,19 +802,13 @@ public class PSDocVersionConverter2 {
   /** The unique context for application extensions. */
   private String m_appContext;
 
-  /**
-   * This extension is a user defined function (UDF) processor.
-   */
+  /** This extension is a user defined function (UDF) processor. */
   private static final int EXT_TYPE_UDF_PROC = 0x01;
 
-  /**
-   * This extension is a request pre-processor.
-   */
+  /** This extension is a request pre-processor. */
   private static final int EXT_TYPE_REQUEST_PRE_PROC = 0x02;
 
-  /**
-   * This extension is a result document processor.
-   */
+  /** This extension is a result document processor. */
   private static final int EXT_TYPE_RESULT_DOC_PROC = 0x04;
 
   private static final int firstFlag =

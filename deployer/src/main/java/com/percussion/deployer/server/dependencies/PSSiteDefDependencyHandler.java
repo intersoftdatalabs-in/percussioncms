@@ -63,20 +63,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * Class to handle packaging and deploying a site definition.
- */
+/** Class to handle packaging and deploying a site definition. */
 public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSiteDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -84,11 +79,12 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * ID Map context ids since PSSite does not give an opportunity to id map
-   * contexts during deserialization and tries to load a non-existent Context
+   * ID Map context ids since PSSite does not give an opportunity to id map contexts during
+   * deserialization and tries to load a non-existent Context
+   *
    * @param siteStr never <code>null</code> the serialized output of site
    * @return a serialized site string with fixed context ids
-   * @throws PSDeployException  if xml parsing fails
+   * @throws PSDeployException if xml parsing fails
    */
   private String fixContextsInXmlSite(PSImportCtx ctx, String siteStr) throws PSDeployException {
     Document doc = null;
@@ -129,9 +125,8 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Helper method to
-   * 1. find and load all the **NEW** Sites: List<IPSSite>
-   * 2. generate a map m_namedSites
+   * Helper method to 1. find and load all the **NEW** Sites: List<IPSSite> 2. generate a map
+   * m_namedSites
    */
   private void init() {
     m_siteMgr = PSSiteManagerLocator.getSiteManager();
@@ -155,6 +150,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Utility method to find the Site by a given dependency id(as a string).
+   *
    * @param depId the id, may not be <code>null</code> or empty.
    * @return <code>null</code> if Site is not found.
    * @throws PSDeployException
@@ -189,10 +185,10 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Returns a mixed list of templates and legacy templates aka VARIANTS
+   *
    * @param tok the security token, assumed not <code>null</code>.
    * @param site the actual site loaded, assumed not <code>null</code>.
-   * @return child template/variant dependencies as a list, never
-   * <code>null</code> may be empty.
+   * @return child template/variant dependencies as a list, never <code>null</code> may be empty.
    * @throws PSDeployException
    */
   private List<PSDependency> getTemplateDependencies(PSSecurityToken tok, IPSSite site)
@@ -222,10 +218,10 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Iterate through site properties and get context dependencies if any
+   *
    * @param tok the security token, assumed not <code>null</code>.
    * @param site the actual site loaded, assumed not <code>null</code>.
-   * @return child context deps dependencies as a list, never <code>null</code>
-   * may be empty.
+   * @return child context deps dependencies as a list, never <code>null</code> may be empty.
    * @throws PSDeployException
    */
   private Set<PSDependency> getContextDependencies(PSSecurityToken tok, IPSSite site)
@@ -250,10 +246,10 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Retrieves the edition child dependencies for a given site.
+   *
    * @param tok the security token, assumed not <code>null</code>.
    * @param site the actual site loaded, assumed not <code>null</code>.
-   * @return child edition dependencies as a list, never <code>null</code>,
-   * may be empty.
+   * @return child edition dependencies as a list, never <code>null</code>, may be empty.
    * @throws PSDeployException
    */
   private List<PSDependency> getEditionDependencies(PSSecurityToken tok, IPSSite site)
@@ -352,18 +348,18 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContextVariableDef</li>
-   * <li>EditionDef</li>
-   * <li>PublisherDef</li>
-   * <li>VariantDef</li>
+   *   <li>ContextVariableDef
+   *   <li>EditionDef
+   *   <li>PublisherDef
+   *   <li>VariantDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -391,8 +387,8 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Creates a dependency file from a given dependency data object.
-   * @param site the site that needs to be serialized to a file, never
-   * <code>null</code>
+   *
+   * @param site the site that needs to be serialized to a file, never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
@@ -432,17 +428,17 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Given the serialized data for a Site, create such PSSite. Also the
-   * associated templates are transformed
+   * Given the serialized data for a Site, create such PSSite. Also the associated templates are
+   * transformed
+   *
    * @param tok the security token, assumed not <code>null</code>.
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   * archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   * may not be <code>null</code>
-   * @param site the existing site that will be updated by the contents of the
-   * depFile, null if there is no existing site to update in which case a
-   * new site is created, may or may not be <code>null</code>,
-   * if <code>null</code>, create a new site, else use an existing site
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
+   * @param site the existing site that will be updated by the contents of the depFile, null if
+   *     there is no existing site to update in which case a new site is created, may or may not be
+   *     <code>null</code>, if <code>null</code>, create a new site, else use an existing site
    * @param ctx the import context never <code>null</code>
    * @return the deserialized site may not be <code>null</code>
    * @throws PSDeployException if there is a problem reading the file content
@@ -486,10 +482,9 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * @param s the Site itself, may be <code>null</code>, if so create a new
-   * site using SiteManager else deserialize on the passed in Object
-   * @param tmpStr the serialized form of Site representation, never
-   * <code>null</code>
+   * @param s the Site itself, may be <code>null</code>, if so create a new site using SiteManager
+   *     else deserialize on the passed in Object
+   * @param tmpStr the serialized form of Site representation, never <code>null</code>
    * @return the site as an Object
    * @throws PSDeployException
    */
@@ -509,16 +504,15 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   @SuppressWarnings("unchecked")
   protected Iterator<PSDependencyFile> getSiteDependecyFilesFromArchive(
@@ -607,17 +601,16 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Helper method to provide the correct mapping based on two attempts:
-   * first try it as template if it does not exist, then try again as
-   * variant definition. If there is no mapping, then <code>null</code>
-   * is returned.
+   * Helper method to provide the correct mapping based on two attempts: first try it as template if
+   * it does not exist, then try again as variant definition. If there is no mapping, then <code>
+   * null</code> is returned.
+   *
    * @param tok the security token, assumed not <code>null</code>.
    * @param ctx the import context never <code>null</code>
    * @param tmpId the template id never <code>null</code>
    * @return the mapping if it exists else <code>null</code>
-   * @throws PSDeployException
-   * (other than IPSDeploymentErrors.MISSING_ID_MAPPING, which is handled
-   * by a <code>null</code> return.)
+   * @throws PSDeployException (other than IPSDeploymentErrors.MISSING_ID_MAPPING, which is handled
+   *     by a <code>null</code> return.)
    */
   private PSIdMapping getTemplateOrVariantMapping(
       PSSecurityToken tok, PSImportCtx ctx, String tmpId) throws PSDeployException {
@@ -638,6 +631,7 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Helper method to calculate the new template ids on the target
+   *
    * @param tok PSSecurity Token may not be <code>null</code>
    * @param dep the dependency for which the transformation has to happen
    * @param ctx ImportContext may not be <code>null</code>
@@ -705,35 +699,22 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler {
     return PSDeploymentManager.getBundle().getString("previewSite");
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "SiteDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * Get the site manager
-   */
+  /** Get the site manager */
   private static IPSSiteManager m_siteMgr = PSSiteManagerLocator.getSiteManager();
 
-  /**
-   * List of sites stored using their names
-   */
+  /** List of sites stored using their names */
   private HashMap<String, IPSSite> m_namedSites = null;
 
-  /**
-   * List of sites stored using their guids
-   */
+  /** List of sites stored using their guids */
   private HashMap<IPSGuid, IPSSite> m_guidSites = null;
 
-  /**
-   * Get the publisher service
-   */
+  /** Get the publisher service */
   private static IPSPublisherService m_pubSvc = PSPublisherServiceLocator.getPublisherService();
 
   static {

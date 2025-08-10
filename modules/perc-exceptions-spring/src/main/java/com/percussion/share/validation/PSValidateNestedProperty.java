@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 /**
  * This annotation tells custom spring validator to follow the path and validate a nested property
  * object.
- * @author SergeyZ
  *
+ * @author SergeyZ
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

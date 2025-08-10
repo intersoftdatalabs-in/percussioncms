@@ -19,7 +19,6 @@ package com.percussion.rest.actions;
 
 import com.percussion.rest.Guid;
 import com.percussion.system.utils.PSSiteManageBean;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -27,118 +26,128 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean(value = "restActionMenuResource")
 @Path("/actions")
 @Tag(name = "Action Menu", description = "Action Menu operations")
 public class ActionMenuResource {
 
-    private static final Logger log = LogManager.getLogger(ActionMenuResource.class);
+  private static final Logger log = LogManager.getLogger(ActionMenuResource.class);
 
-    @Autowired
-    private IActionMenuAdaptor adaptor;
+  @Autowired private IActionMenuAdaptor adaptor;
 
-    @Context
-    private UriInfo uriInfo;
+  @Context private UriInfo uriInfo;
 
-    public ActionMenuResource() {}
+  public ActionMenuResource() {}
 
-    @GET
-    @Path("/find")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(
-            summary = "Finds action menus",
-            description = "Returns a list of Action Menus that matches the criteria.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
-                    @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
-                    @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
-            }
-    )
-    public List<ActionMenu> findActions(
-            @Parameter(name = "name", required = false) @QueryParam("name") String name,
-            @Parameter(name = "label", required = false) @QueryParam("label") String label,
-            @Parameter(name = "dynamic", required = false) @QueryParam("dynamic") Boolean dynamic,
-            @Parameter(name = "item", required = false) @QueryParam("item") Boolean item,
-            @Parameter(name = "cascading", required = false) @QueryParam("cascading") Boolean cascading
-    ) {
-        var safeName = StringUtils.isBlank(name) ? null : name;
-        var safeLabel = StringUtils.isBlank(label) ? null : label;
-        try {
-            return Optional.ofNullable(adaptor.findMenus(safeName, safeLabel, item, dynamic, cascading))
-                    .orElse(Collections.emptyList());
-        } catch (Exception e) {
-            log.error("Error finding action menus: {}", e.getMessage(), e);
-            return Collections.emptyList();
-        }
+  @GET
+  @Path("/find")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Finds action menus",
+      description = "Returns a list of Action Menus that matches the criteria.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
+        @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
+        @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
+      })
+  public List<ActionMenu> findActions(
+      @Parameter(name = "name", required = false) @QueryParam("name") String name,
+      @Parameter(name = "label", required = false) @QueryParam("label") String label,
+      @Parameter(name = "dynamic", required = false) @QueryParam("dynamic") Boolean dynamic,
+      @Parameter(name = "item", required = false) @QueryParam("item") Boolean item,
+      @Parameter(name = "cascading", required = false) @QueryParam("cascading") Boolean cascading) {
+    var safeName = StringUtils.isBlank(name) ? null : name;
+    var safeLabel = StringUtils.isBlank(label) ? null : label;
+    try {
+      return Optional.ofNullable(adaptor.findMenus(safeName, safeLabel, item, dynamic, cascading))
+          .orElse(Collections.emptyList());
+    } catch (Exception e) {
+      log.error("Error finding action menus: {}", e.getMessage(), e);
+      return Collections.emptyList();
     }
+  }
 
-    public ActionMenu[] loadActions(List<Guid> guids) {
-        // Not implemented yet
-        return new ActionMenu[0];
-    }
+  public ActionMenu[] loadActions(List<Guid> guids) {
+    // Not implemented yet
+    return new ActionMenu[0];
+  }
 
-    @POST
-    @Operation(description = "Accepts an object with an array of contentid's and assignment types and returns the allowed menus")
-    public ActionMenuList getAllowedTransitions(AllowedWorkflowTransitionsRequest request) {
-        // Not implemented yet
-        return new ActionMenuList();
-    }
+  @POST
+  @Operation(
+      description =
+          "Accepts an object with an array of contentid's and assignment types and returns the"
+              + " allowed menus")
+  public ActionMenuList getAllowedTransitions(AllowedWorkflowTransitionsRequest request) {
+    // Not implemented yet
+    return new ActionMenuList();
+  }
 
-    @POST
-    @Path("/find/types")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(
-            summary = "Finds action menus by content type",
-            description = "Returns a list of Action Menus that matches the criteria. ActionId should be ignored for these menus.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "OK",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
-                    @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
-                    @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
-            }
-    )
-    public ActionMenuList getAllowedContentTypeMenus(AllowedContentTypeMenusRequest request) {
-        var contentIds = Arrays.stream(request.getContentIds()).boxed().toArray(Integer[]::new);
-        return new ActionMenuList(adaptor.findAllowedContentTypes(contentIds));
-    }
+  @POST
+  @Path("/find/types")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Finds action menus by content type",
+      description =
+          "Returns a list of Action Menus that matches the criteria. ActionId should be ignored for"
+              + " these menus.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content =
+                @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
+        @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
+        @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
+      })
+  public ActionMenuList getAllowedContentTypeMenus(AllowedContentTypeMenusRequest request) {
+    var contentIds = Arrays.stream(request.getContentIds()).boxed().toArray(Integer[]::new);
+    return new ActionMenuList(adaptor.findAllowedContentTypes(contentIds));
+  }
 
-    @GET
-    @Path("/find/templates/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(
-            summary = "Returns a list of allowed Templates for the given content id",
-            description = "ActionId should be ignored for these menus.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Success",
-                            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
-                    @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
-                    @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
-            }
-    )
-    public ActionMenuList getAllowedTemplateMenus(
-            @Parameter(required = true, description = "The content id to retrieve template URLS for.")
-            @PathParam(value = "id") int contentId,
-            @Parameter(description = "Set to true to include AA menus.")
-            @QueryParam(value = "isAA") boolean isAA
-    ) {
-        return new ActionMenuList(adaptor.findAllowedTemplates(contentId, isAA));
-    }
+  @GET
+  @Path("/find/templates/{id}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Returns a list of allowed Templates for the given content id",
+      description = "ActionId should be ignored for these menus.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Success",
+            content =
+                @Content(
+                    array = @ArraySchema(schema = @Schema(implementation = ActionMenu.class)))),
+        @ApiResponse(responseCode = "404", description = "No Action Menu's found"),
+        @ApiResponse(responseCode = "500", description = "Error searching for Action Menu")
+      })
+  public ActionMenuList getAllowedTemplateMenus(
+      @Parameter(required = true, description = "The content id to retrieve template URLS for.")
+          @PathParam(value = "id")
+          int contentId,
+      @Parameter(description = "Set to true to include AA menus.") @QueryParam(value = "isAA")
+          boolean isAA) {
+    return new ActionMenuList(adaptor.findAllowedTemplates(contentId, isAA));
+  }
 }

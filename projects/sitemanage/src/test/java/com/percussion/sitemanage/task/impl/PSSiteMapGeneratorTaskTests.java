@@ -17,44 +17,40 @@
 
 package com.percussion.sitemanage.task.impl;
 
-import com.percussion.services.sitemgr.IPSSite;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.percussion.services.sitemgr.data.PSSite;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-/**
- * Tests for canonical URL generation in site map generator.
- * // REFACTORED: CP-JAVA11
- */
+/** Tests for canonical URL generation in site map generator. // REFACTORED: CP-JAVA11 */
 public class PSSiteMapGeneratorTaskTests {
 
-    @Test
-    public void testCanonicalUrl() {
-        var testSite = new PSSite();
-        testSite.setDefaultDocument("index.html");
-        testSite.setCanonical(true);
-        testSite.setCanonicalDist("sections");
+  @Test
+  public void testCanonicalUrl() {
+    var testSite = new PSSite();
+    testSite.setDefaultDocument("index.html");
+    testSite.setCanonical(true);
+    testSite.setCanonicalDist("sections");
 
-        var result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
-        assertEquals("/section1/", result);
+    var result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
+    assertEquals("/section1/", result);
 
-        testSite.setCanonical(false);
-        result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
-        assertEquals("/section1/index.html", result);
+    testSite.setCanonical(false);
+    result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
+    assertEquals("/section1/index.html", result);
 
-        testSite.setCanonical(true);
-        testSite.setCanonicalDist("pages");
-        result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
-        assertEquals("/section1/index.html", result);
+    testSite.setCanonical(true);
+    testSite.setCanonicalDist("pages");
+    result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
+    assertEquals("/section1/index.html", result);
 
-        testSite.setCanonical(true);
-        testSite.setCanonicalDist("sections");
-        testSite.setDefaultDocument("index");
-        result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
-        assertEquals("/section1/index.html", result);
+    testSite.setCanonical(true);
+    testSite.setCanonicalDist("sections");
+    testSite.setDefaultDocument("index");
+    result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index.html");
+    assertEquals("/section1/index.html", result);
 
-        result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index");
-        assertEquals("/section1/", result);
-    }
+    result = PSSiteMapGeneratorTask.getCanonicalLocation(testSite, "/section1/index");
+    assertEquals("/section1/", result);
+  }
 }

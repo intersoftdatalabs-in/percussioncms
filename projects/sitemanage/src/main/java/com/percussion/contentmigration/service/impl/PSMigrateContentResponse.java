@@ -18,48 +18,45 @@
 package com.percussion.contentmigration.service.impl;
 
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Response object for content migration.
- */
+/** Response object for content migration. */
 @XmlRootElement(name = "MigrateResponse")
 public class PSMigrateContentResponse {
-    private PSMigrateResponseStatus status;
-    private String message;
-    private Map<String, String> errors;
+  private PSMigrateResponseStatus status;
+  private String message;
+  private Map<String, String> errors;
 
-    /** Default constructor. */
-    public PSMigrateContentResponse() {
-    }
+  /** Default constructor. */
+  public PSMigrateContentResponse() {}
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public PSMigrateResponseStatus getStatus() {
-        return status;
-    }
+  public PSMigrateResponseStatus getStatus() {
+    return status;
+  }
 
-    public void setStatus(PSMigrateResponseStatus status) {
-        this.status = status;
-    }
+  public void setStatus(PSMigrateResponseStatus status) {
+    this.status = status;
+  }
 
-    public Map<String, String> getErrors() {
-        return errors;
-    }
+  public Map<String, String> getErrors() {
+    return errors;
+  }
 
-    public void setErrors(Map<String, String> errors) {
-        this.errors = errors;
-    }
+  public void setErrors(Map<String, String> errors) {
+    this.errors = errors;
+  }
 
-    /** Status of the migration response. */
-    public enum PSMigrateResponseStatus {
-        SUCCESS, ERROR
-    }
+  /** Status of the migration response. */
+  public enum PSMigrateResponseStatus {
+    SUCCESS,
+    ERROR
+  }
 }

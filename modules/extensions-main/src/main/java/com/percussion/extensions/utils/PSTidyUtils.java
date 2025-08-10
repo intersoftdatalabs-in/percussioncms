@@ -37,9 +37,7 @@ import org.w3c.dom.Document;
  * @author yubingchen
  */
 public class PSTidyUtils {
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger ms_logger = LogManager.getLogger("PSHtmlUtils");
 
   private static Properties m_tidyProperties = null;
@@ -49,11 +47,9 @@ public class PSTidyUtils {
    *
    * @param source the string in question, not <code>null</code>.
    * @param filename the file name that contains the source. It may be <code>null</code> or empty.
-   *
    * @return the text after apply tidy to the HTML string in question, not <code>null</code>.
-   *
-   * @throws PSExtractHTMLException if a tidy error occurs.
-   * no error will be logged here, but expecting caller to log the error as needed.
+   * @throws PSExtractHTMLException if a tidy error occurs. no error will be logged here, but
+   *     expecting caller to log the error as needed.
    */
   public static String applyTidy(String source, String filename) {
     notNull(source, "source");
@@ -71,7 +67,6 @@ public class PSTidyUtils {
    *
    * @param source the string in question, not <code>null</code>.
    * @param filename the file name that contains the source. It may be <code>null</code> or empty.
-   *
    * @return the text after apply tidy to the HTML string in question, not <code>null</code>.
    */
   public static Document getTidiedDocument(String source, String filename) {

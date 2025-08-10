@@ -17,80 +17,84 @@
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Structure for doc type options for templates.
- * Contains an option name and its value.
+ * Structure for doc type options for templates. Contains an option name and its value.
+ *
  * @author leonardohildt
  */
 @XmlRootElement(name = "Options")
 public class PSMetadataDocTypeOptions extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String option;
-    private String value;
+  private String option;
+  private String value;
 
-    /** Default constructor. */
-    public PSMetadataDocTypeOptions() {
-        super();
-    }
+  /** Default constructor. */
+  public PSMetadataDocTypeOptions() {
+    super();
+  }
 
-    /**
-     * Constructs with option and value.
-     * @param option the option name
-     * @param value the value
-     */
-    public PSMetadataDocTypeOptions(String option, String value) {
-        this.option = option;
-        this.value = value;
-    }
+  /**
+   * Constructs with option and value.
+   *
+   * @param option the option name
+   * @param value the value
+   */
+  public PSMetadataDocTypeOptions(String option, String value) {
+    this.option = option;
+    this.value = value;
+  }
 
-    /**
-     * Gets the option name.
-     * @return the option name
-     */
-    public String getOption() {
-        return option;
-    }
+  /**
+   * Gets the option name.
+   *
+   * @return the option name
+   */
+  public String getOption() {
+    return option;
+  }
 
-    /**
-     * Sets the option name.
-     * @param option the option name
-     */
-    public void setOption(String option) {
-        this.option = option;
-    }
+  /**
+   * Sets the option name.
+   *
+   * @param option the option name
+   */
+  public void setOption(String option) {
+    this.option = option;
+  }
 
-    /**
-     * Gets the value.
-     * @return the value
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value.
+   *
+   * @return the value
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value.
-     * @param value the value
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value.
+   *
+   * @param value the value
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSMetadataDocTypeOptions)) return false;
-        var that = (PSMetadataDocTypeOptions) o;
-        return Objects.equals(getOption(), that.getOption())
-                && Objects.equals(getValue(), that.getValue());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSMetadataDocTypeOptions)) return false;
+    var that = (PSMetadataDocTypeOptions) o;
+    return Objects.equals(getOption(), that.getOption())
+        && Objects.equals(getValue(), that.getValue());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getOption(), getValue());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getOption(), getValue());
+  }
 }

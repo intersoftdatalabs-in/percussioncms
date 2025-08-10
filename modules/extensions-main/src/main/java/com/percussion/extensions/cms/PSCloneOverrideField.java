@@ -28,22 +28,23 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This is a generic UDF that can be used to compute field value to override
- * when cloning. The schme basically involves executing a Rhythmyx URL that
- * generates an XML document with predefined DTD. Then the value is located
- * based on the name of the element supplied. The parameter description is as
- * follows:
+ * This is a generic UDF that can be used to compute field value to override when cloning. The schme
+ * basically involves executing a Rhythmyx URL that generates an XML document with predefined DTD.
+ * Then the value is located based on the name of the element supplied. The parameter description is
+ * as follows:
+ *
  * <p>
+ *
  * <ul>
- * <li>First parameter is the name of the Rhythmyx resource that generates
- * the field value to be overridden. This has a syntax of ../<rxApp>/
- * <resource>.cml</li>
- * <li>Second parameter is the exact name of the element that contains the
- * child node as the value of the field to oevrride. If there are more than
- * one sch elements, only the first one is considered</li>
- * <li>Rest of the parameters are the parameter name-value pairs that are
- * required fo rthe resource to generate the field value.</li>
+ *   <li>First parameter is the name of the Rhythmyx resource that generates the field value to be
+ *       overridden. This has a syntax of ../<rxApp>/ <resource>.cml
+ *   <li>Second parameter is the exact name of the element that contains the child node as the value
+ *       of the field to oevrride. If there are more than one sch elements, only the first one is
+ *       considered
+ *   <li>Rest of the parameters are the parameter name-value pairs that are required fo rthe
+ *       resource to generate the field value.
  * </ul>
+ *
  * @author RammohanVangapalli
  */
 public class PSCloneOverrideField extends PSSimpleJavaUdfExtension {

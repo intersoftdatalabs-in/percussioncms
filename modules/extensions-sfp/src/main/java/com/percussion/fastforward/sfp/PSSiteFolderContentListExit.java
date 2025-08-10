@@ -22,8 +22,8 @@ import java.util.Set;
 /**
  * This Exit is used to generate the content list for a specified site folder.
  *
- * @deprecated This Exit may have poor performance with large amount of items.
- *             Use {@link PSSiteFolderContentListBulkExit} instead.
+ * @deprecated This Exit may have poor performance with large amount of items. Use {@link
+ *     PSSiteFolderContentListBulkExit} instead.
  */
 public class PSSiteFolderContentListExit extends PSSiteFolderContentListBaseExit {
   // implements the abstract method getSiteFolderCListObject()

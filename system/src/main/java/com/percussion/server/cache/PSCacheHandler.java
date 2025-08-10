@@ -31,23 +31,18 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * Base class for all cache handlers, implements common functionality.  Each
- * cache handler is responsible for creating and managing its own cache for a
- * specific set of request types.
+ * Base class for all cache handlers, implements common functionality. Each cache handler is
+ * responsible for creating and managing its own cache for a specific set of request types.
  */
 public abstract class PSCacheHandler implements IPSCacheHandler {
   /**
    * Called by derived classes to initialize common settings.
    *
-   * @param keySize The size of the array that must be used to specify a set
-   * of keys that uniquely identifies an item in the cache. Must be greater
-   * than <code>0</code>.
-   * @param cacheSettings The server cache settings.  May not be
-   * <code>null</code>.
-   *
+   * @param keySize The size of the array that must be used to specify a set of keys that uniquely
+   *     identifies an item in the cache. Must be greater than <code>0</code>.
+   * @param cacheSettings The server cache settings. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if the <code>PSCacheManager</code> has not
-   * been initialized.
+   * @throws IllegalStateException if the <code>PSCacheManager</code> has not been initialized.
    */
   PSCacheHandler(int keySize, PSServerCacheSettings cacheSettings) {
     if (keySize <= 0) throw new IllegalArgumentException("keySize must be greater than 0");
@@ -59,19 +54,15 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   }
 
   /**
-   * Reinitializes this handler with the specified settings.  Will flush and
-   * shutdown the current cache and create a new cache using the new settings.
-   * All cache access will be blocked during execution of this method.
+   * Reinitializes this handler with the specified settings. Will flush and shutdown the current
+   * cache and create a new cache using the new settings. All cache access will be blocked during
+   * execution of this method.
    *
-   * @param cacheSettings The server cache settings.  May not be
-   * <code>null</code>.  A copy of the passed object is kept locally.  Changes
-   * to this object after it is passed in will not be recognized. You must
-   * pass it again to this method.
-   *
-   * @throws IllegalArgumentException if <code>cacheSettings</code> is
-   * <code>null</code>
-   * @throws IllegalStateException if the <code>PSCacheManager</code> has not
-   * been initialized.
+   * @param cacheSettings The server cache settings. May not be <code>null</code>. A copy of the
+   *     passed object is kept locally. Changes to this object after it is passed in will not be
+   *     recognized. You must pass it again to this method.
+   * @throws IllegalArgumentException if <code>cacheSettings</code> is <code>null</code>
+   * @throws IllegalStateException if the <code>PSCacheManager</code> has not been initialized.
    */
   void reinitialize(PSServerCacheSettings cacheSettings) {
     if (cacheSettings == null) throw new IllegalArgumentException("cacheSettings may not be null");
@@ -131,7 +122,7 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   /**
    * Caches the supplied response object.
    *
-   * See base class for more info.
+   * <p>See base class for more info.
    */
   public void storeResponse(PSCacheContext context, PSCachedResponse response)
       throws PSCacheException {
@@ -291,9 +282,7 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
    * Determines if the specified size is cacheable.
    *
    * @param size The size of the data to cache.
-   *
-   * @return <code>true</code> if it is cacheable, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it is cacheable, <code>false</code> otherwise.
    */
   private boolean isDataCacheable(long size) {
 
@@ -306,11 +295,11 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   }
 
   /**
-   * Allows cache handler to perform any startup operations that must wait
-   * until after the server has intialized the application handlers.  No
-   * requests or listeners event will occur until after this method has
-   * completed.  Derived classes should override this method to perform any
-   * startup operations.
+   * Allows cache handler to perform any startup operations that must wait until after the server
+   * has intialized the application handlers. No requests or listeners event will occur until after
+   * this method has completed. Derived classes should override this method to perform any startup
+   * operations.
+   *
    * @throws PSCacheException
    */
   @SuppressWarnings("unused")
@@ -319,33 +308,27 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   }
 
   /**
-   * Used to register for the appropriate change events so that dirty cache
-   * items may be detected and automatically flushed.
+   * Used to register for the appropriate change events so that dirty cache items may be detected
+   * and automatically flushed.
    *
-   * @param requestHandler If the handler is of the correct type, derived
-   * classes may register themselves as listeners of certain change events.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>requestHandler</code> is
-   * <code>null</code>.
+   * @param requestHandler If the handler is of the correct type, derived classes may register
+   *     themselves as listeners of certain change events. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>requestHandler</code> is <code>null</code>.
    */
   abstract void initHandler(IPSRequestHandler requestHandler);
 
   /**
-   * Notifies the listener that the hander is is shutting down, so that it may
-   * free any resources.
+   * Notifies the listener that the hander is is shutting down, so that it may free any resources.
    *
-   * @param requestHandler The request handler that is shutting down.  May not
-   * be <code>null</code>.
+   * @param requestHandler The request handler that is shutting down. May not be <code>null</code>.
    */
   abstract void shutdownHandler(IPSRequestHandler requestHandler);
 
   /**
-   * Clears all cached responses and frees any related resources.  Derived
-   * classes should override this method if they have any resources to release
-   * at shutdown, first calling <code>super()</code> in order to free any
-   * commonly held resources by this class.  Once shutdown, a handler cannot be
-   * used again.
+   * Clears all cached responses and frees any related resources. Derived classes should override
+   * this method if they have any resources to release at shutdown, first calling <code>super()
+   * </code> in order to free any commonly held resources by this class. Once shutdown, a handler
+   * cannot be used again.
    */
   void shutdown() {
     PSMultiLevelCache cache = null;
@@ -361,49 +344,39 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
     cache.shutdown();
   }
 
-  /**
-   * Flushes all cached responses.
-   */
+  /** Flushes all cached responses. */
   void flush() {
     PSMultiLevelCache cache = getCache();
     if (cache != null) cache.flush();
   }
 
   /**
-   * Flushes cache items based on the supplied keys.  The keys supplied may
-   * identify one or more cached items.  Any items identified by the supplied
-   * keys are flushed.
+   * Flushes cache items based on the supplied keys. The keys supplied may identify one or more
+   * cached items. Any items identified by the supplied keys are flushed.
    *
-   * @param keys A map of key names and their values.  The keys that are
-   * supported is determined by the derived class.   For a handler to process
-   * the flush request, all keys required by that handler must have an entry
-   * in the map.  To omit a key, use <code>null</code> or an empty
-   * <code>String</code> for the value of the entry.  If keys are not supported
-   * by the handler, the call is silently ignored.
-   *
-   * @throws IllegalArgumentException if <code>keys</code> is
-   * <code>null</code>.
+   * @param keys A map of key names and their values. The keys that are supported is determined by
+   *     the derived class. For a handler to process the flush request, all keys required by that
+   *     handler must have an entry in the map. To omit a key, use <code>null</code> or an empty
+   *     <code>String</code> for the value of the entry. If keys are not supported by the handler,
+   *     the call is silently ignored.
+   * @throws IllegalArgumentException if <code>keys</code> is <code>null</code>.
    */
   abstract void flush(Map keys);
 
   /**
    * Flushes all pages cached by the supplied application.
    *
-   * @param appName The name of the application to flush, may not be
-   * <code>null</code> or empty.
-   *
+   * @param appName The name of the application to flush, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>appName</code> is invalid.
    */
   abstract void flushApplication(String appName);
 
   /**
-   * Flushes all pages cached by the supplied session id.  This method will
-   * not flush anything by default.  Derived classes should override this
-   * method if they cache based on session id.
+   * Flushes all pages cached by the supplied session id. This method will not flush anything by
+   * default. Derived classes should override this method if they cache based on session id.
    *
-   * @param sessionId Identifies the session for which all cached pages should
-   * be flushed, may not be <code>null</code> or empty.
-   *
+   * @param sessionId Identifies the session for which all cached pages should be flushed, may not
+   *     be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>sessionId</code> is invalid.
    */
   void flushSession(@SuppressWarnings("unused") String sessionId) {}
@@ -411,8 +384,7 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   /**
    * Get the cache used by this handler.
    *
-   * @return The cache, may be <code>null</code> if <code>shutdown</code> has
-   * been called.
+   * @return The cache, may be <code>null</code> if <code>shutdown</code> has been called.
    */
   protected PSMultiLevelCache getCache() {
     synchronized (m_cacheMonitor) {
@@ -432,13 +404,11 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
   }
 
   /**
-   * Logs the specified debug message appending the <code>String</code>
-   * representation of the keys onto the message.
+   * Logs the specified debug message appending the <code>String</code> representation of the keys
+   * onto the message.
    *
    * @param message The message, may not be <code>null</code> or empty.
-   * @param keys The keys, may be <code>null</code> if message is not key
-   * specific.
-   *
+   * @param keys The keys, may be <code>null</code> if message is not key specific.
    * @throws IllegalArgumentException if any param is invalid.
    */
   protected void logDebugMessage(String message, Object[] keys) {
@@ -454,27 +424,20 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
    * Get the keys used to cache or retrieve a page using the supplied context.
    *
    * @param context The current cache context, may not be <code>null</code>.
-   *
-   * @return An array of <code>String</code> objects that comprise the cache
-   * key for this item, or <code>null</code> if all required keys are not
-   * supplied by the request.
-   *
-   * @throws IllegalArgumentException if <code>context</code> is
-   * <code>null</code>.
+   * @return An array of <code>String</code> objects that comprise the cache key for this item, or
+   *     <code>null</code> if all required keys are not supplied by the request.
+   * @throws IllegalArgumentException if <code>context</code> is <code>null</code>.
    * @throws PSCacheException if there are any errors.
    */
   protected abstract Object[] getKeys(PSCacheContext context) throws PSCacheException;
 
   /**
-   * Creates the cache, and gets the memory and stats managers and add them
-   * as listeners to the cache.
+   * Creates the cache, and gets the memory and stats managers and add them as listeners to the
+   * cache.
    *
-   * @param keySize The size of the array that must be used to specify a set
-   * of keys that uniquely identifies an item in the cache. Assumed to be
-   * greater than <code>0</code>.
-   *
-   * @throws IllegalStateException if the cache manager has not been
-   * intialized.
+   * @param keySize The size of the array that must be used to specify a set of keys that uniquely
+   *     identifies an item in the cache. Assumed to be greater than <code>0</code>.
+   * @throws IllegalStateException if the cache manager has not been intialized.
    */
   private void initCache(int keySize) {
     m_cache = new PSMultiLevelCache(keySize, m_cacheSettings.getAgingTime());
@@ -488,58 +451,45 @@ public abstract class PSCacheHandler implements IPSCacheHandler {
     m_cache.addCacheModifiedListener(m_memoryManager);
   }
 
-  /**
-   * Constant to indicate a cached item's object is a response object.
-   */
+  /** Constant to indicate a cached item's object is a response object. */
   private static final String ITEM_TYPE_RESPONSE = "response";
 
-  /**
-   * Constant to indicate a cached item's object is a result document.
-   */
+  /** Constant to indicate a cached item's object is a result document. */
   private static final String ITEM_TYPE_DOCUMENT = "document";
 
-  /**
-   * Constant to indicate a cached item's object is a merged result.
-   */
+  /** Constant to indicate a cached item's object is a merged result. */
   private static final String ITEM_TYPE_MERGED = "merged";
 
   /**
-   * The cache settings the cache this handler and its cache.  Set during
-   * construction and modified by calls to <code>reinitialize()</code>, never
-   * <code>null</code> after construction.
+   * The cache settings the cache this handler and its cache. Set during construction and modified
+   * by calls to <code>reinitialize()</code>, never <code>null</code> after construction.
    */
   private PSServerCacheSettings m_cacheSettings;
 
   /**
-   * The cache used by this handler.  Initialized during construction, replaced
-   * during calls to <code>reinitialize</code>, and set to <code>null</code>
-   * during <code>shutdown</code>
+   * The cache used by this handler. Initialized during construction, replaced during calls to
+   * <code>reinitialize</code>, and set to <code>null</code> during <code>shutdown</code>
    */
   private PSMultiLevelCache m_cache;
 
   /**
-   * Object used to synchronize access to the handler's cache.  Never
-   * <code>null</code>, immutable.
+   * Object used to synchronize access to the handler's cache. Never <code>null</code>, immutable.
    */
   private Object m_cacheMonitor = new Object();
 
-  /**
-   * Latch to indicate shutdown
-   */
+  /** Latch to indicate shutdown */
   private boolean m_shutdown = false;
 
   /**
-   * The object used to track cache statistics for all caches, set during
-   * {@link #initCache(int)}, modified by calls to
-   * {@link #reinitialize(PSServerCacheSettings)}.  Never <code>null</code>
+   * The object used to track cache statistics for all caches, set during {@link #initCache(int)},
+   * modified by calls to {@link #reinitialize(PSServerCacheSettings)}. Never <code>null</code>
    * after it is first initialized.
    */
   private PSCacheStatistics m_stats;
 
   /**
-   * The object used to manage memory resources for all caches, set during
-   * {@link #initCache(int)}, modified by calls to
-   * {@link #reinitialize(PSServerCacheSettings)}.  Never <code>null</code>
+   * The object used to manage memory resources for all caches, set during {@link #initCache(int)},
+   * modified by calls to {@link #reinitialize(PSServerCacheSettings)}. Never <code>null</code>
    * after it is first initialized.
    */
   private PSCacheMemoryManager m_memoryManager;

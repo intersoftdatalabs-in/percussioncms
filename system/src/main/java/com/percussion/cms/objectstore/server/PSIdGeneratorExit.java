@@ -30,8 +30,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a system exit used to allocate ids from the next number table.
- * See the description of processResultDocument for details of its functioning.
+ * This is a system exit used to allocate ids from the next number table. See the description of
+ * processResultDocument for details of its functioning.
  *
  * @author Paul Howard
  * @version 1.0
@@ -47,36 +47,26 @@ public class PSIdGeneratorExit extends PSDefaultExtension implements IPSResultDo
   }
 
   /**
-   * Makes a call to the id generator using a supplied lookup key. The
-   * allocated ids are returned in a document that replaces the supplied one
-   * w a new one of the form:
-   * <code><pre>
+   * Makes a call to the id generator using a supplied lookup key. The allocated ids are returned in
+   * a document that replaces the supplied one w a new one of the form: <code><pre>
    * &lt;rootelement key="lookup" firstId="100", count="count or less"&gt;
-   * </pre></code>
-   * Where 'lookup' is the lookup key used to find the next available ids,
-   * firstId is the first of a series of 1 or more ids allocated for the
-   * caller's use and count is the actual number of allocated ids.
-   * <p>This exit expects 1 html parameter to be present and 1 to optionally
-   * be present. A parameter called sys_lookupkey is required. It is passed
-   * to the id generator. An optional parameter called sys_idcount specifies
-   * how many ids to allocate. If not supplied, 1 is assumed. A maximum of
-   * 1000 is allowed.
+   * </pre></code> Where 'lookup' is the lookup key used to find the next available ids, firstId is
+   * the first of a series of 1 or more ids allocated for the caller's use and count is the actual
+   * number of allocated ids.
+   *
+   * <p>This exit expects 1 html parameter to be present and 1 to optionally be present. A parameter
+   * called sys_lookupkey is required. It is passed to the id generator. An optional parameter
+   * called sys_idcount specifies how many ids to allocate. If not supplied, 1 is assumed. A maximum
+   * of 1000 is allowed.
    *
    * @param params unused.
-   *
    * @param request Guaranteed not <code>null</code> by interface.
-   *
-   * @param resultDoc The key, firstId and count attributes are added to the
-   *    root element of this doc. If there is no root, PSXIdGenerator root
-   *    is added. Guaranteed not <code>null</code> by interface.
-   *
+   * @param resultDoc The key, firstId and count attributes are added to the root element of this
+   *     doc. If there is no root, PSXIdGenerator root is added. Guaranteed not <code>null</code> by
+   *     interface.
    * @return The supplied doc.
-   *
-   * @throws PSParameterMismatchException If the required html parameter
-   *    is missing.
-   *
-   * @throws PSExtensionProcessingException If a sql error occurs while
-   *    allocating the ids.
+   * @throws PSParameterMismatchException If the required html parameter is missing.
+   * @throws PSExtensionProcessingException If a sql error occurs while allocating the ids.
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

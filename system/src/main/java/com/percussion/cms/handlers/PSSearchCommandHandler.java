@@ -107,38 +107,34 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class handles the 'search' command. It will create a new
- * dynamic search query based on specific data. The search input
- * document is defined in the sys_SearchParameters.xsd schema file.
- * The request contains an input document that defines the response
- * elements for the specified search. The input document also contains
- * the where clause data (also defined in sys_SearchParameters.xsd) that
- * indicates to the search what conditional clauses to create.
+ * This class handles the 'search' command. It will create a new dynamic search query based on
+ * specific data. The search input document is defined in the sys_SearchParameters.xsd schema file.
+ * The request contains an input document that defines the response elements for the specified
+ * search. The input document also contains the where clause data (also defined in
+ * sys_SearchParameters.xsd) that indicates to the search what conditional clauses to create.
  *
- * Because of the preceding requirements, this command handler can only be
- * accessed via an internal request, currently support for standard browser
- * requests has not bee implemented.
+ * <p>Because of the preceding requirements, this command handler can only be accessed via an
+ * internal request, currently support for standard browser requests has not bee implemented.
  */
 public class PSSearchCommandHandler extends PSCommandHandler
     implements IPSInternalCommandRequestHandlerEx, IPSInternalResultHandler {
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "search";
 
   /**
    * Initializes a search command handler.
    *
-   * @param ah The handler for the application that contains this editor
-   * resource. See base class for requirements.
+   * @param ah The handler for the application that contains this editor resource. See base class
+   *     for requirements.
    * @param ceh The parent handler of this handler. Never <code>null</code>.
    * @param ce The definition of the editor. See base class for requirements.
-   * @param app Any resources that are created dynamically will be added to
-   * this application. Never <code>null</code>.
+   * @param app Any resources that are created dynamically will be added to this application. Never
+   *     <code>null</code>.
    * @throws PSNotFoundException If an exit cannot be found.
-   * @throws PSExtensionException If any problems occur druing extension
-   * initialization.
+   * @throws PSExtensionException If any problems occur druing extension initialization.
    * @throws PSServerException
    */
   public PSSearchCommandHandler(
@@ -207,8 +203,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
    * Creates a search result document using the supplied request.
    *
    * @param request the request to make, not <code>null</code>.
-   * @return the result document created through the provided request,
-   *    never <code>null</code>.
+   * @return the result document created through the provided request, never <code>null</code>.
    * @throws PSInternalRequestCallException
    * @throws PSAuthorizationException
    * @throws PSAuthenticationFailedException
@@ -243,9 +238,7 @@ public class PSSearchCommandHandler extends PSCommandHandler
    * Determine if the back end is case sensitive or not.
    *
    * @return <code>true</code> if it is, <code>false</code> otherwise.
-   *
-   * @throws IllegalStateException if at least one instance of this class has
-   * not been initialized.
+   * @throws IllegalStateException if at least one instance of this class has not been initialized.
    */
   public static boolean isDBCaseSensitive() {
     if (!ms_isInited)
@@ -265,23 +258,17 @@ public class PSSearchCommandHandler extends PSCommandHandler
    * Executes the provided search request to produce the execution data.
    *
    * @param req the request, assumed not <code>null</code>.
-   * @param execDataCleanupList a list of execution data objects that need
-   *    cleanup when done with the request.
-   *
+   * @param execDataCleanupList a list of execution data objects that need cleanup when done with
+   *     the request.
    * @return The results of the search, never <code>null</code>.
-   *
-   * @throws PSInternalRequestCallException If there is an error making an
-   * internal request
-   * @throws PSAuthorizationException If the user is not authorized to perform
-   * this search.
-   * @throws PSAuthenticationFailedException If the user has not been
-   * authenticated.
-   * @throws PSSystemValidationException If there is an error adding the dynamic
-   * search dataset.
-   * @throws PSUnsupportedConversionException if an invalid page type is
-   * requested based on the page extension.
-   * @throws PSUnknownNodeTypeException if the input doc does not conform to
-   * the sys_SearchParameters.xsd schema.
+   * @throws PSInternalRequestCallException If there is an error making an internal request
+   * @throws PSAuthorizationException If the user is not authorized to perform this search.
+   * @throws PSAuthenticationFailedException If the user has not been authenticated.
+   * @throws PSSystemValidationException If there is an error adding the dynamic search dataset.
+   * @throws PSUnsupportedConversionException if an invalid page type is requested based on the page
+   *     extension.
+   * @throws PSUnknownNodeTypeException if the input doc does not conform to the
+   *     sys_SearchParameters.xsd schema.
    */
   @SuppressWarnings("unchecked")
   private Document executeSearchRequest(PSRequest req, List execDataCleanupList)
@@ -346,9 +333,8 @@ public class PSSearchCommandHandler extends PSCommandHandler
   /**
    * Get the result set data filter based on the supplied cms object
    *
-   * @param cmsObject The cmsObject to use to define the correct filter,
-   * assumed not <code>null</code>.
-   *
+   * @param cmsObject The cmsObject to use to define the correct filter, assumed not <code>null
+   *     </code>.
    * @return The filter to use, or <code>null</code> if no filter is required.
    */
   private static IPSResultSetDataFilter getResulSetDataFilter(PSCmsObject cmsObject) {
@@ -363,17 +349,14 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Creates a new dynamic dataset to be added to the current handler to
-   * execute the search request.
+   * Creates a new dynamic dataset to be added to the current handler to execute the search request.
    *
    * @param request the request, assumed not <code>null</code>.
-   * @return a complete dataset to be added to the command handler to build
-   * the SQL for the specified search, this is then removed after the search
-   * has been executed.  Will be <code>null</code> if the supplied
-   * <code>request</code> does not specify any search criteria.
-   *
-   * @throws PSUnknownNodeTypeException if the input doc does not conform to
-   * the sys_SearchParameters.xsd schema.
+   * @return a complete dataset to be added to the command handler to build the SQL for the
+   *     specified search, this is then removed after the search has been executed. Will be <code>
+   *     null</code> if the supplied <code>request</code> does not specify any search criteria.
+   * @throws PSUnknownNodeTypeException if the input doc does not conform to the
+   *     sys_SearchParameters.xsd schema.
    */
   @SuppressWarnings({"unchecked", "unchecked"})
   private PSDataSet createSearchDataSet(PSRequest request) throws PSUnknownNodeTypeException {
@@ -589,10 +572,9 @@ public class PSSearchCommandHandler extends PSCommandHandler
       dtdRoot += "/" + EL_RESULT;
 
       /**
-       * Note: the following fields are added this way because we dont't
-       * want to add them to the system definition. If you add additional
-       * fields, you should add them into the static list unless the field
-       * is not specified in the system definition.
+       * Note: the following fields are added this way because we dont't want to add them to the
+       * system definition. If you add additional fields, you should add them into the static list
+       * unless the field is not specified in the system definition.
        */
 
       // always add the current revision to the search result
@@ -770,13 +752,12 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Produces the final search result document, this includes all the results
-   * retrieved from the search. The definition of each result row was defined
-   * by the dynamic mapper passed in. Each field within the dynMapper is
-   * checked against the backend to get the proper locator and if it does not
-   * exist to just ignore that field for this content type. Converts to
-   * a document with the completed search results, defined in
-   * sys_SearchParameters.xsd schema file, may be <code>null</code>
+   * Produces the final search result document, this includes all the results retrieved from the
+   * search. The definition of each result row was defined by the dynamic mapper passed in. Each
+   * field within the dynMapper is checked against the backend to get the proper locator and if it
+   * does not exist to just ignore that field for this content type. Converts to a document with the
+   * completed search results, defined in sys_SearchParameters.xsd schema file, may be <code>null
+   * </code>
    *
    * @param doc the document to convert, assumed not <code>null</code>.
    */
@@ -811,12 +792,10 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * A simple helper routine to return the system field based on the
-   * "display" names given in the search message.
+   * A simple helper routine to return the system field based on the "display" names given in the
+   * search message.
    *
-   * @param fieldName the name of the system field to retrieve, the match
-   * is done case insensitive
-   *
+   * @param fieldName the name of the system field to retrieve, the match is done case insensitive
    * @return returns the field if found, otherwise <code>null</code>
    */
   private PSField getSystemFieldByName(String fieldName) {
@@ -829,7 +808,6 @@ public class PSSearchCommandHandler extends PSCommandHandler
    * Creates a copy of the supplied backend column.
    *
    * @param column The column to copy, assumed not <code>null</code>.
-   *
    * @return The copy of the column, never <code>null</code>.
    */
   private PSBackEndColumn copyBackendColumn(PSBackEndColumn column) {
@@ -841,23 +819,21 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * This has not been implemented for general use by the browser front end,
-   * currently we expect an input XML document for the where clauses as well
-   * as the definition of the output data elements. It is a non standard
-   * command handler that currently supports only internal requests.
+   * This has not been implemented for general use by the browser front end, currently we expect an
+   * input XML document for the where clauses as well as the definition of the output data elements.
+   * It is a non standard command handler that currently supports only internal requests.
    *
    * @param req not used
    */
   public void processRequest(@SuppressWarnings("unused") PSRequest req) {}
 
   /**
-   * Cleanup all resources created during a request. Provide <code>null</code>
-   * to keep the execution data and clean it yourself.
+   * Cleanup all resources created during a request. Provide <code>null</code> to keep the execution
+   * data and clean it yourself.
    *
-   * @param data the execution data to be cleaned, <code>null</code> if nothing
-   *    to clean.
-   * @param execDataCleanupList a list of execution data to be cleaned,
-   *    assumed not <code>null</code>.
+   * @param data the execution data to be cleaned, <code>null</code> if nothing to clean.
+   * @param execDataCleanupList a list of execution data to be cleaned, assumed not <code>null
+   *     </code>.
    */
   private void cleanup(PSExecutionData data, List execDataCleanupList) {
     Iterator execData = execDataCleanupList.iterator();
@@ -871,46 +847,33 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Performs resource cleanup when the handler is shut down. If derived
-   * classes override this method, they must perform their own cleanup, then
-   * call the base class.
+   * Performs resource cleanup when the handler is shut down. If derived classes override this
+   * method, they must perform their own cleanup, then call the base class.
    */
   public void shutdown() {
     // dynamic app shutdown by content editor handler
   }
 
   /**
-   * Used to create the where clauses from the search fields in the supplied
-   * search request.
+   * Used to create the where clauses from the search fields in the supplied search request.
    *
-   * @param searchReq The object defining the search request, assumed not
-   * <code>null</code> and for {@link PSWSSearchRequest#getSearchParams()}
-   * not to return <code>null</code>.
-   *
-   * @param fieldSet this content editor's field set to determine the
-   * true location of the field within the backend table assumed not
-   * <code>null</code>
-   *
-   * @param tables the <code>PSBackEndTable</code> objects that will be used to
-   * return the column names for the conditional requirements assumed not
-   * <code>null</code>.
-   *
-   * @param tableMap the map of existing tables to retrieve the connection
-   * and other specific details of the table.  Key is the lowercased table
-   * alias as a <code>String</code>, and the value is the corresponding
-   * <code>PSBackEndTable</code> object.
-   *
-   * @param childTables the child tables used by this search, assumed
-   * not <code>null</code>, entries for child tables required are added to the
-   * map.  The key is the lowercased table alias as a <code>String</code>, and
-   * the value is the corresponding <code>PSBackEndTable</code> object.
-   * @param stateSearchTables List to which tables required for statename
-   * search are added if required, assumed not <code>null</code>.
-   *
-   * @return returns a collection of conditionals that define the where
-   * clauses for a specific search command, the collection may be empty if no
-   * input document is found in the request or it doesn't contain any
-   * elements that define conditions
+   * @param searchReq The object defining the search request, assumed not <code>null</code> and for
+   *     {@link PSWSSearchRequest#getSearchParams()} not to return <code>null</code>.
+   * @param fieldSet this content editor's field set to determine the true location of the field
+   *     within the backend table assumed not <code>null</code>
+   * @param tables the <code>PSBackEndTable</code> objects that will be used to return the column
+   *     names for the conditional requirements assumed not <code>null</code>.
+   * @param tableMap the map of existing tables to retrieve the connection and other specific
+   *     details of the table. Key is the lowercased table alias as a <code>String</code>, and the
+   *     value is the corresponding <code>PSBackEndTable</code> object.
+   * @param childTables the child tables used by this search, assumed not <code>null</code>, entries
+   *     for child tables required are added to the map. The key is the lowercased table alias as a
+   *     <code>String</code>, and the value is the corresponding <code>PSBackEndTable</code> object.
+   * @param stateSearchTables List to which tables required for statename search are added if
+   *     required, assumed not <code>null</code>.
+   * @return returns a collection of conditionals that define the where clauses for a specific
+   *     search command, the collection may be empty if no input document is found in the request or
+   *     it doesn't contain any elements that define conditions
    */
   @SuppressWarnings("unchecked")
   private PSCollection createConditionals(
@@ -998,24 +961,18 @@ public class PSSearchCommandHandler extends PSCommandHandler
   /**
    * Private helper function to append to the list of conditionals.
    *
-   * @param conditionals the current collection of conditions, assumed not
-   * <code>null</code>, may be an empty collection
-   *
-   * @param leftVal the left value of the conditional,
-   * assumed not <code>null</code>
-   *
-   * @param dataType the data type of the field used to determine the type of
-   * literal to build for the right hand side of the expression, allowed types
-   * one of the <code>PSField.DT_xxx</code> values, assumed not <code>null</code>
-   *
-   * @param searchField the current field that is being added as a condition
-   * assumed not <code>null</code>
-   *
-   * @param useDatabaseCase if <code>false</code> and database is
-   * case-sensitive, then the database function "UPPER" is applied to the
-   * left value of the conditional if it is an instance of
-   * <code>com.percussion.design.objectstore.PSBackEndColumn</code> and
-   * <code>data</code> is converted to uppercase.
+   * @param conditionals the current collection of conditions, assumed not <code>null</code>, may be
+   *     an empty collection
+   * @param leftVal the left value of the conditional, assumed not <code>null</code>
+   * @param dataType the data type of the field used to determine the type of literal to build for
+   *     the right hand side of the expression, allowed types one of the <code>PSField.DT_xxx</code>
+   *     values, assumed not <code>null</code>
+   * @param searchField the current field that is being added as a condition assumed not <code>null
+   *     </code>
+   * @param useDatabaseCase if <code>false</code> and database is case-sensitive, then the database
+   *     function "UPPER" is applied to the left value of the conditional if it is an instance of
+   *     <code>com.percussion.design.objectstore.PSBackEndColumn</code> and <code>data</code> is
+   *     converted to uppercase.
    */
   private void appendConditional(
       PSCollection conditionals,
@@ -1149,40 +1106,28 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Creates the right val of the condition and modifies the left val based on
-   * the case-sensitivity of the database.
-   * <p>
-   * The first element of the returned array is the left val of the
-   * conditional. If the database is not case-sensitive, left val is returned
-   * without any changes, otherwise it is modified to be a
-   * <code>PSFunctionCall</code> object (constructed using the the
-   * database function "UPPER" and the original left val specified as
-   * parameter to this method).
-   * <p>
-   * The second element of the returned array is the right val of the
-   * conditional. It is a <code>PSTextLiteral</code> object constructed using
-   * the string <code>data</code>. If the database is case-sensitive,
-   * <code>data</code> is converted to uppercase before creating right val.
+   * Creates the right val of the condition and modifies the left val based on the case-sensitivity
+   * of the database.
    *
-   * @param leftVal the left value of the conditional,
-   * assumed not <code>null</code>
+   * <p>The first element of the returned array is the left val of the conditional. If the database
+   * is not case-sensitive, left val is returned without any changes, otherwise it is modified to be
+   * a <code>PSFunctionCall</code> object (constructed using the the database function "UPPER" and
+   * the original left val specified as parameter to this method).
    *
-   * @param data the value being conditioned against, may be <code>null</code>
-   * or empty
+   * <p>The second element of the returned array is the right val of the conditional. It is a <code>
+   * PSTextLiteral</code> object constructed using the string <code>data</code>. If the database is
+   * case-sensitive, <code>data</code> is converted to uppercase before creating right val.
    *
-   * @param useDatabaseCase if <code>false</code> and database is
-   * case-sensitive, then the database function "UPPER" is applied to the
-   * left value of the conditional if it is an instance of
-   * <code>com.percussion.design.objectstore.PSBackEndColumn</code> and
-   * right val is created using <code>data</code> converted to uppercase.
-   *
-   * @return array containing two elements, modified left val is the first
-   * element and right val is the second element of the array. Never
-   * <code>null</code> and always contains two elements.
-   *
-   * @throws IllegalArgumentException if the database function manager does
-   * not return a valid (non-<code>null</code>) definition of the database
-   * function "UPPER" for the database driver
+   * @param leftVal the left value of the conditional, assumed not <code>null</code>
+   * @param data the value being conditioned against, may be <code>null</code> or empty
+   * @param useDatabaseCase if <code>false</code> and database is case-sensitive, then the database
+   *     function "UPPER" is applied to the left value of the conditional if it is an instance of
+   *     <code>com.percussion.design.objectstore.PSBackEndColumn</code> and right val is created
+   *     using <code>data</code> converted to uppercase.
+   * @return array containing two elements, modified left val is the first element and right val is
+   *     the second element of the array. Never <code>null</code> and always contains two elements.
+   * @throws IllegalArgumentException if the database function manager does not return a valid (non-
+   *     <code>null</code>) definition of the database function "UPPER" for the database driver
    */
   private IPSReplacementValue[] handleDatabaseCase(
       IPSReplacementValue leftVal, String data, boolean useDatabaseCase) {
@@ -1209,16 +1154,12 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Utility to convert from a search field operator to our internal
-   * operator names.
+   * Utility to convert from a search field operator to our internal operator names.
    *
-   * @param searchField The search field whose operator is to be converted,
-   *                    assumed not <code>null</code>.
-   *
-   * @return            the operator converted to an internal PSConditional
-   *                    constant value, see PSConditional for values, if the
-   *                    supplied operator was not found the default operator
-   *                    "=" is returned
+   * @param searchField The search field whose operator is to be converted, assumed not <code>null
+   *     </code>.
+   * @return the operator converted to an internal PSConditional constant value, see PSConditional
+   *     for values, if the supplied operator was not found the default operator "=" is returned
    */
   private String convertOperator(PSWSSearchField searchField) {
     String strOp = PSConditional.OPTYPE_EQUALS;
@@ -1278,16 +1219,12 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Utility to convert from a search field connector to our internal
-   * connector names.
+   * Utility to convert from a search field connector to our internal connector names.
    *
-   * @param searchField The search field whose operator is to be converted,
-   *                    assumed not <code>null</code>.
-   *
-   * @return            the string converted to an internal PSConditional
-   *                    constant value, see PSConditional for values, if
-   *                    supplied connector is not found, returns the default
-   *                    "AND" connector
+   * @param searchField The search field whose operator is to be converted, assumed not <code>null
+   *     </code>.
+   * @return the string converted to an internal PSConditional constant value, see PSConditional for
+   *     values, if supplied connector is not found, returns the default "AND" connector
    */
   private String convertConnector(PSWSSearchField searchField) {
     int conn = searchField.getConnectorEnum().getOrdinal();
@@ -1306,12 +1243,12 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Initialization routine. If this is the first instance of this object then
-   * obtains the case sensitivity of the database, otherwise it simply returns.
+   * Initialization routine. If this is the first instance of this object then obtains the case
+   * sensitivity of the database, otherwise it simply returns.
    *
-   * @throws PSServerException if any error occurs getting the response
-   * document when making the internal request to the resources
-   * <code>DBLOOKUP_UPPER_URL</code> or <code>DBLOOKUP_LOWER_URL</code>
+   * @throws PSServerException if any error occurs getting the response document when making the
+   *     internal request to the resources <code>DBLOOKUP_UPPER_URL</code> or <code>
+   *     DBLOOKUP_LOWER_URL</code>
    */
   private void init() throws PSServerException {
     if (!ms_isInited) {
@@ -1350,14 +1287,12 @@ public class PSSearchCommandHandler extends PSCommandHandler
   /**
    * Makes a request to the specified URL and parses the response document.
    *
-   * @param resourceName the url of the resource relative to the Rhythmyx root,
-   * assumed not <code>null</code> and non-empty
-   *
-   * @return <code>true</code> if the response document has an integer value
-   * for <code>ATTR_CASE_SENSITVE</code> attribute, ortherwise false.
-   *
-   * @throws PSServerException if any error occurs getting the response
-   * document when making the internal request to the specified resource
+   * @param resourceName the url of the resource relative to the Rhythmyx root, assumed not <code>
+   *     null</code> and non-empty
+   * @return <code>true</code> if the response document has an integer value for <code>
+   *     ATTR_CASE_SENSITVE</code> attribute, ortherwise false.
+   * @throws PSServerException if any error occurs getting the response document when making the
+   *     internal request to the specified resource
    */
   private boolean makeDBLookupRequest(String resourceName) throws PSServerException {
     boolean ret = false;
@@ -1385,10 +1320,9 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * A static collection of field references as <code>String</code> which
-   * will be added to all search results. Never <code>null</code> or empty.
-   * If this list is updated, also update the documentation in
-   * <code>sys_SearchParameters.xsd</code>.
+   * A static collection of field references as <code>String</code> which will be added to all
+   * search results. Never <code>null</code> or empty. If this list is updated, also update the
+   * documentation in <code>sys_SearchParameters.xsd</code>.
    */
   private static Collection<String> ms_staticSearchResults = null;
 
@@ -1406,52 +1340,45 @@ public class PSSearchCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Stores the case sensitivity of the database. If <code>true</code> then
-   * the database is case-sensitive, otherwise not. Initialized to
-   * <code>true</code>. Set in the <code>init()</code> method when the first
-   * object of this class is created. Never modified after that.
+   * Stores the case sensitivity of the database. If <code>true</code> then the database is
+   * case-sensitive, otherwise not. Initialized to <code>true</code>. Set in the <code>init()</code>
+   * method when the first object of this class is created. Never modified after that.
    */
   private static boolean ms_isDBCaseSensitive = true;
 
   /**
-   * Indicates if any object of this class has been created. <code>false</code>
-   * until the first object of this class is created, <code>true</code>
-   * otherwise. Modified in the <code>init()</code> method when the first
-   * object is created, never modified after that.
+   * Indicates if any object of this class has been created. <code>false</code> until the first
+   * object of this class is created, <code>true</code> otherwise. Modified in the <code>init()
+   * </code> method when the first object is created, never modified after that.
    */
   private static boolean ms_isInited = false;
 
   /**
-   * URL for the resource which performs a query similar to:
-   * SELECT NEXTNR FROM NEXTNUMBER WHERE UPPER(KEYNAME) = UPPER('PSX_PROPERTIES')
-   * This URL should return single row irrespective of the case-sensitivity
-   * of the database.
+   * URL for the resource which performs a query similar to: SELECT NEXTNR FROM NEXTNUMBER WHERE
+   * UPPER(KEYNAME) = UPPER('PSX_PROPERTIES') This URL should return single row irrespective of the
+   * case-sensitivity of the database.
    */
   private static final String DBLOOKUP_UPPER_URL = "sys_psxCms/DBLookupUpper.xml";
 
   /**
-   * URL for the resource which performs a query similar to:
-   * SELECT NEXTNR FROM NEXTNUMBER WHERE KEYNAME = 'psx_properties'
-   * This URL will return a row only if the database is case-insensitive.
+   * URL for the resource which performs a query similar to: SELECT NEXTNR FROM NEXTNUMBER WHERE
+   * KEYNAME = 'psx_properties' This URL will return a row only if the database is case-insensitive.
    */
   private static final String DBLOOKUP_LOWER_URL = "sys_psxCms/DBLookupLower.xml";
 
-  /**
-   * parameter on the request to define the maximum results for the search
-   */
+  /** parameter on the request to define the maximum results for the search */
   public static final String MAXIMUM_RESULTS = "maximumresults";
 
   /**
-   * Key to use when setting or retrieving the <code>PSWSSearchRequest</code>
-   * request private object.
+   * Key to use when setting or retrieving the <code>PSWSSearchRequest</code> request private
+   * object.
    */
   public static final String SEARCH_REQUEST_OBJECT = "sys_wsSearchRequest";
 
   /**
-   * replacement value for the backend column CONTENTSTATUS.CONTENTID,
-   * initialized to <code>null</code>, set to non-<code>null</code> value
-   * in <code>init()</code> method for "oracle:thin" driver only, never
-   * modified after that
+   * replacement value for the backend column CONTENTSTATUS.CONTENTID, initialized to <code>null
+   * </code>, set to non-<code>null</code> value in <code>init()</code> method for "oracle:thin"
+   * driver only, never modified after that
    */
   private static PSBackEndColumn ms_contentStatusContentIdColumn = null;
 
@@ -1465,47 +1392,34 @@ public class PSSearchCommandHandler extends PSCommandHandler
   // database case-sensitivity lookup response attributes
   private static final String ATTR_CASE_SENSITVE = "caseSensitive";
 
-  /**
-   * Constant for the name of the database function "IN-NUMBER-ARRAY"
-   */
+  /** Constant for the name of the database function "IN-NUMBER-ARRAY" */
   private static final String FUNC_NAME_IN_NUMBER_ARRAY = "IN-NUMBER-ARRAY";
 
-  /**
-   * Constant for the name of the database function "IN-NUMBER"
-   */
+  /** Constant for the name of the database function "IN-NUMBER" */
   private static final String FUNC_NAME_IN_NUMBER = "IN-NUMBER";
 
   /**
-   * States table used to perform state name search, never <code>null</code>
-   * after {@link #init()}
+   * States table used to perform state name search, never <code>null</code> after {@link #init()}
    */
   private static PSBackEndTable ms_statesTable;
 
   /**
-   * Workflow table used to perform state name search, never <code>null</code>
-   * after {@link #init()}
+   * Workflow table used to perform state name search, never <code>null</code> after {@link #init()}
    */
   private static PSBackEndTable ms_workflowAppsTable;
 
   /**
-   * Statename field used to perform state name search, never <code>null</code>
-   * after {@link #init()}
+   * Statename field used to perform state name search, never <code>null</code> after {@link
+   * #init()}
    */
   private static PSField ms_stateNameField;
 
-  /**
-   * Constant for the column name identifying the workflow id.
-   */
+  /** Constant for the column name identifying the workflow id. */
   private static final String WORKFLOWAPPID = "WORKFLOWAPPID";
 
-  /**
-   * Constant for the column name identifying the state id in the content
-   * status table
-   */
+  /** Constant for the column name identifying the state id in the content status table */
   private static final String CONTENTSTATEID = "CONTENTSTATEID";
 
-  /**
-   * Constant for the column name identifying the state id in the STATES table
-   */
+  /** Constant for the column name identifying the state id in the STATES table */
   private static final String STATEID = "STATEID";
 }

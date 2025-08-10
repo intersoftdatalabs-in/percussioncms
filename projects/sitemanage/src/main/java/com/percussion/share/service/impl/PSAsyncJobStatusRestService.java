@@ -17,23 +17,22 @@
 
 package com.percussion.share.service.impl;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.foldermanagement.service.IPSFolderService;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.async.IPSAsyncJobService;
 import com.percussion.share.async.PSAsyncJobStatus;
 import com.percussion.share.service.IPSAsyncJobStatusRestService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 /**
  * Implementation of {@link IPSAsyncJobStatusRestService}.
@@ -45,45 +44,45 @@ import javax.ws.rs.core.MediaType;
 @Lazy
 public class PSAsyncJobStatusRestService implements IPSAsyncJobStatusRestService {
 
-    private final IPSAsyncJobService asyncJobService;
+  private final IPSAsyncJobService asyncJobService;
 
-    public static final Logger log = LogManager.getLogger(PSAsyncJobStatusRestService.class);
+  public static final Logger log = LogManager.getLogger(PSAsyncJobStatusRestService.class);
 
-    public PSAsyncJobStatusRestService() {
-        this.asyncJobService = null;
+  public PSAsyncJobStatusRestService() {
+    this.asyncJobService = null;
+  }
+
+  @Autowired
+  public PSAsyncJobStatusRestService(IPSAsyncJobService asyncJobService) {
+    this.asyncJobService = asyncJobService;
+  }
+
+  @Override
+  @GET
+  @Path("/{jobId}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSAsyncJobStatus getStatus(@PathParam("jobId") Long jobId) {
+    var jobStatus = asyncJobService.getJobStatus(jobId);
+    return jobStatus != null ? jobStatus : new PSAsyncJobStatus();
+  }
+
+  /**
+   * Dummy method used to create an async job, used for unit testing purposes only.
+   *
+   * @return Long - the id of the job created
+   */
+  @GET
+  @Path("/startTestJob")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Long startTestJob() {
+    try {
+      var jobId = asyncJobService.startJob("asyncJobTest", 1);
+      log.info("Created dummy async job with id: {}", jobId);
+      return jobId;
+    } catch (IPSFolderService.PSWorkflowNotFoundException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
     }
-
-    @Autowired
-    public PSAsyncJobStatusRestService(IPSAsyncJobService asyncJobService) {
-        this.asyncJobService = asyncJobService;
-    }
-
-    @Override
-    @GET
-    @Path("/{jobId}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSAsyncJobStatus getStatus(@PathParam("jobId") Long jobId) {
-        var jobStatus = asyncJobService.getJobStatus(jobId);
-        return jobStatus != null ? jobStatus : new PSAsyncJobStatus();
-    }
-
-    /**
-     * Dummy method used to create an async job, used for unit testing purposes only.
-     *
-     * @return Long - the id of the job created
-     */
-    @GET
-    @Path("/startTestJob")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Long startTestJob() {
-        try {
-            var jobId = asyncJobService.startJob("asyncJobTest", 1);
-            log.info("Created dummy async job with id: {}", jobId);
-            return jobId;
-        } catch (IPSFolderService.PSWorkflowNotFoundException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new WebApplicationException(e);
-        }
-    }
+  }
 }

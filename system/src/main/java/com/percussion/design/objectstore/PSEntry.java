@@ -23,16 +23,13 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXEntry DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXEntry DTD in BasicObjects.dtd. */
 public class PSEntry extends PSComponent {
   /**
    * Creates a new entry for the provided parameters.
    *
    * @param value the value of this entry, not <code>null</code>,may be empty.
-   * @param label the label for this entry, not <code>null</code>, may be
-   *    empty.
+   * @param label the label for this entry, not <code>null</code>, may be empty.
    */
   public PSEntry(String value, String label) {
     this(value, new PSDisplayText(label));
@@ -42,8 +39,7 @@ public class PSEntry extends PSComponent {
    * Creates a new entry for the provided parameters.
    *
    * @param value the value of this entry, not <code>null</code> or empty.
-   * @param label the label for this entry, not <code>null</code>, may be
-   *    empty.
+   * @param label the label for this entry, not <code>null</code>, may be empty.
    */
   public PSEntry(String value, PSDisplayText label) {
     setValue(value);
@@ -53,14 +49,10 @@ public class PSEntry extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSEntry(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -68,9 +60,7 @@ public class PSEntry extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for XML serialization by subclasses.
-   */
+  /** Constructor for XML serialization by subclasses. */
   protected PSEntry() {}
 
   // see interface for description
@@ -95,8 +85,7 @@ public class PSEntry extends PSComponent {
   /**
    * Set a new default status.
    *
-   * @param defaultStatus <code>true</code> to set this as default,
-   *    <code>false</code> otherwise.
+   * @param defaultStatus <code>true</code> to set this as default, <code>false</code> otherwise.
    */
   public void setDefault(boolean defaultStatus) {
     m_default = defaultStatus;
@@ -115,8 +104,7 @@ public class PSEntry extends PSComponent {
    * Set the value of this entry.
    *
    * @param value the new value, not <code>null</code>.
-   * @throws IllegalArgumentException if the provided value is
-   *    <code>null</code>.
+   * @throws IllegalArgumentException if the provided value is <code>null</code>.
    */
   public void setValue(String value) {
     if (value == null) throw new IllegalArgumentException("the value cannot be null");
@@ -127,8 +115,7 @@ public class PSEntry extends PSComponent {
   /**
    * Set the source type. See {#link getSourceType()} for allowed types.
    *
-   * @param sourceType the new source type to set, may be <code>null</code>
-   *    but not empty.
+   * @param sourceType the new source type to set, may be <code>null</code> but not empty.
    */
   public void setSourceType(String sourceType) {
     PSContentEditorMapper.validateSourceType(sourceType);
@@ -136,10 +123,8 @@ public class PSEntry extends PSComponent {
   }
 
   /**
-   * Get the source type, one of
-   * <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> or
-   * <code>PSContentEditorMapper.LOCAL</code>, defaults to
+   * Get the source type, one of <code>PSContentEditorMapper.SYSTEM</code>, <code>
+   * PSContentEditorMapper.SHARED</code> or <code>PSContentEditorMapper.LOCAL</code>, defaults to
    * <code>PSContentEditorMapper.SYSTEM</code>.
    *
    * @return the source type. Can be <code>null</code> but not empty.
@@ -149,8 +134,8 @@ public class PSEntry extends PSComponent {
   }
 
   /**
-   * Converts this <code>PSEntry</code> object to a String by getting the
-   * display text for the label.
+   * Converts this <code>PSEntry</code> object to a String by getting the display text for the
+   * label.
    *
    * @return the display text, never <code>null</code>, may be empty.
    */
@@ -198,9 +183,8 @@ public class PSEntry extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSEntry, not <code>null</code>.
    */
@@ -223,8 +207,7 @@ public class PSEntry extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSEntry)) return false;
@@ -253,7 +236,6 @@ public class PSEntry extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -318,7 +300,6 @@ public class PSEntry extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -359,45 +340,36 @@ public class PSEntry extends PSComponent {
   public static final String XML_NODE_NAME = "PSXEntry";
 
   /**
-   * An array of XML attribute values for all boolean attributes. They are
-   * ordered as <code>true</code>, <code>false</code>.
+   * An array of XML attribute values for all boolean attributes. They are ordered as <code>true
+   * </code>, <code>false</code>.
    */
   private static final String[] BOOLEAN_ENUM = {"yes", "no"};
 
   /**
-   * This is used for output documents. Whichever entries are marked as
-   * default by the definition, the output document will set this attribute
-   * on those entries.
+   * This is used for output documents. Whichever entries are marked as default by the definition,
+   * the output document will set this attribute on those entries.
    */
   private boolean m_default = false;
 
   /**
-   * What order is this entry relative to others. Whether it is used is
-   * determined by the container. -1 specifies not used.
+   * What order is this entry relative to others. Whether it is used is determined by the container.
+   * -1 specifies not used.
    */
   private int m_sequence = -1;
 
-  /**
-   * The value of this entry, never <code>null</code>, may be  empty after
-   * construction.
-   */
+  /** The value of this entry, never <code>null</code>, may be empty after construction. */
   private String m_value = null;
 
-  /**
-   * The display text for this entry, never <code>null</code> after
-   * construction.
-   */
+  /** The display text for this entry, never <code>null</code> after construction. */
   private PSDisplayText m_label = null;
 
   /**
-   * Indicates where the definition of this entry was located. If an
-   * entry is originally defined in the system def, then overridden in the
-   * local def, this value will be <code>PSContentEditorMapper.LOCAL</code>.
-   * Allowed values are <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> and
-   * <code>PSContentEditorMapper.LOCAL</code>. This attribute will not be
-   * persisted, and is therefore excluded from to/from XML methods. It will
-   * be included in all other operations like cloning, comparing, etc.
+   * Indicates where the definition of this entry was located. If an entry is originally defined in
+   * the system def, then overridden in the local def, this value will be <code>
+   * PSContentEditorMapper.LOCAL</code>. Allowed values are <code>PSContentEditorMapper.SYSTEM
+   * </code>, <code>PSContentEditorMapper.SHARED</code> and <code>PSContentEditorMapper.LOCAL</code>
+   * . This attribute will not be persisted, and is therefore excluded from to/from XML methods. It
+   * will be included in all other operations like cloning, comparing, etc.
    */
   private String m_sourceType = null;
 

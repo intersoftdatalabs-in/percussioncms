@@ -46,9 +46,9 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
 /**
- * This exit was written for the specific purpose of adding an ACL for a newly
- * created workflow so the workflow would be visible in the user's community.
- * It was not made generic for multi-purpose usage.
+ * This exit was written for the specific purpose of adding an ACL for a newly created workflow so
+ * the workflow would be visible in the user's community. It was not made generic for multi-purpose
+ * usage.
  *
  * @author paulhoward
  */
@@ -64,21 +64,18 @@ public class PSExitCreateDefaultCommunityAcl extends PSDefaultExtension
   }
 
   /**
-   * Creates an ACL for a newly created workflow. It is assumed that the
-   * workflow identified by the 'workflowid' parameter does not have an ACL.
-   * The acl is configured to give the special entry Default all access and
-   * ownership and the user's community read access.
-   * <p>
-   * If there is no community set in the session, returns w/o creating the ACL.
+   * Creates an ACL for a newly created workflow. It is assumed that the workflow identified by the
+   * 'workflowid' parameter does not have an ACL. The acl is configured to give the special entry
+   * Default all access and ownership and the user's community read access.
+   *
+   * <p>If there is no community set in the session, returns w/o creating the ACL.
    *
    * @param params Unused.
    * @param request Used to obtain the workflow and user's community.
    * @param resultDoc Returned on success.
-   *
    * @return The supplied doc.
-   *
-   * @throws PSExtensionProcessingException If the workflowid or communityid
-   * can't be parsed into numbers or the community cannot be loaded.
+   * @throws PSExtensionProcessingException If the workflowid or communityid can't be parsed into
+   *     numbers or the community cannot be loaded.
    */
   public Document processResultDocument(
       @SuppressWarnings("unused") Object[] params, IPSRequestContext request, Document resultDoc)

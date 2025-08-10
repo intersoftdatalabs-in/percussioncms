@@ -16,9 +16,9 @@
  */
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Request for details of a site publish log.
@@ -28,34 +28,34 @@ import com.percussion.share.data.PSAbstractDataObject;
 @XmlRootElement(name = "SitePublishLogDetailsRequest")
 @JsonRootName("SitePublishLogDetailsRequest")
 public class PSSitePublishLogDetailsRequest extends PSAbstractDataObject {
-    // REFACTORED: CP-JAVA11
-    private static final long serialVersionUID = 1L;
+  // REFACTORED: CP-JAVA11
+  private static final long serialVersionUID = 1L;
 
-    private long jobid;
-    private int skipCount;
-    private boolean showOnlyFailures;
+  private long jobid;
+  private int skipCount;
+  private boolean showOnlyFailures;
 
-    public long getJobid() {
-        return jobid;
-    }
+  public long getJobid() {
+    return jobid;
+  }
 
-    public void setJobid(long jobid) {
-        this.jobid = jobid;
-    }
+  public void setJobid(long jobid) {
+    this.jobid = jobid;
+  }
 
-    public int getSkipCount() {
-        return skipCount;
-    }
+  public int getSkipCount() {
+    return skipCount;
+  }
 
-    public void setSkipCount(int skipCount) {
-        this.skipCount = skipCount;
-    }
+  public void setSkipCount(int skipCount) {
+    this.skipCount = skipCount;
+  }
 
-    public boolean isShowOnlyFailures() {
-        return showOnlyFailures;
-    }
+  public boolean isShowOnlyFailures() {
+    return showOnlyFailures;
+  }
 
-    public void setShowOnlyFailures(boolean showOnlyFailures) {
-        this.showOnlyFailures = showOnlyFailures;
-    }
+  public void setShowOnlyFailures(boolean showOnlyFailures) {
+    this.showOnlyFailures = showOnlyFailures;
+  }
 }

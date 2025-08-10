@@ -181,41 +181,38 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSServer class is the main E2 server application. The server,
- * when started, performs the following tasks:
+ * The PSServer class is the main E2 server application. The server, when started, performs the
+ * following tasks:
+ *
  * <ul>
- * <li>loads server configuration settings</li>
- * <li>initializes the log mananger
- *     ({@link com.percussion.log.PSLogManager PSLogManager})</li>
- * <li>initializes the error mananger
- *     ({@link com.percussion.error.PSErrorManager PSErrorManager})</li>
- * <li>loads all applications from the object store</li>
- * <li>registers the object store listener
- *     ({@link com.percussion.server.PSObjectStoreListener
- *             PSObjectStoreListener})</li>
- * <li>creates all application handlers</li>
- * <li>starts the request listener threads</li>
- * <li> ??? </li>
+ *   <li>loads server configuration settings
+ *   <li>initializes the log mananger ({@link com.percussion.log.PSLogManager PSLogManager})
+ *   <li>initializes the error mananger ({@link com.percussion.error.PSErrorManager PSErrorManager})
+ *   <li>loads all applications from the object store
+ *   <li>registers the object store listener ({@link com.percussion.server.PSObjectStoreListener
+ *       PSObjectStoreListener})
+ *   <li>creates all application handlers
+ *   <li>starts the request listener threads
+ *   <li>???
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSServer {
 
   private static final Logger logger = LogManager.getLogger(PSServer.class);
 
   /**
-   * The property to define the broken link logic on publishing managed links
-   * to be configurable based on a server property
-   * brokenManagedLinkBehavior=
+   * The property to define the broken link logic on publishing managed links to be configurable
+   * based on a server property brokenManagedLinkBehavior=
    *
-   * deadLink - Broken links will be replaced by #
+   * <p>deadLink - Broken links will be replaced by #
    *
-   * removeLink - Broken links will be removed completely
+   * <p>removeLink - Broken links will be removed completely
    *
-   * leaveLink - Link will be left broken
+   * <p>leaveLink - Link will be left broken
    */
   public static final String BROKEN_MANAGED_LINK_BEHAVIOR = "brokenManagedLinkBehavior";
 
@@ -226,18 +223,16 @@ public class PSServer {
 
   public static final String PROP_DISABLE_HTML_CLEANING = "disableHTMLCleaningExtensions";
 
-  /**
-   * No external construction of this allowed.
-   */
+  /** No external construction of this allowed. */
   private PSServer() {
     super();
   }
 
   /**
-   * Returns a complete version string, such as Version 1.2  Build 20001012 (257)
+   * Returns a complete version string, such as Version 1.2 Build 20001012 (257)
    *
-   * @return the version string including build; never <code>null</code>;
-   *         will be empty if the server hasn't initialized the version yet
+   * @return the version string including build; never <code>null</code>; will be empty if the
+   *     server hasn't initialized the version yet
    */
   public static String getVersionString() {
     if (ms_version != null) return ms_version.getVersionString();
@@ -247,8 +242,8 @@ public class PSServer {
   /**
    * Returns the version in the format major.minor (1.0, 2.4, ...)
    *
-   * @return the version string; never <code>null</code>; will be empty
-   *         if the server hasn't initialized the version yet
+   * @return the version string; never <code>null</code>; will be empty if the server hasn't
+   *     initialized the version yet
    */
   public static String getVersion() {
     if (ms_version != null) return ms_version.getVersion();
@@ -256,30 +251,27 @@ public class PSServer {
   }
 
   /**
-   * Get the root directory to use when looking up files and directories
-   * with server configuration and applications.
-   * Default value returned by this method is a directory specified
-   * by "rxdeploydir" system property. If this property
-   * does not exist, contains invalid value or points to inexistent directory
-   * then this method returns current directory.
-   * Initialization from system property was created to specify Rhythmyx
-   * root directory during unit tests.
-   * @return the current root dir, never <code>null</code> and will never
-   * change after initialization
+   * Get the root directory to use when looking up files and directories with server configuration
+   * and applications. Default value returned by this method is a directory specified by
+   * "rxdeploydir" system property. If this property does not exist, contains invalid value or
+   * points to inexistent directory then this method returns current directory. Initialization from
+   * system property was created to specify Rhythmyx root directory during unit tests.
+   *
+   * @return the current root dir, never <code>null</code> and will never change after
+   *     initialization
    */
   public static File getRxDir() {
     return PathUtils.getRxDir(null);
   }
 
   /**
-   * If the passed url is a file url and is "relative" to the root, then
-   * resolve it to be relative to the real filesystem root. Add the JSESSIONID
-   * cookie by rewriting the URL for http connections that are coming back to
-   * this application.
+   * If the passed url is a file url and is "relative" to the root, then resolve it to be relative
+   * to the real filesystem root. Add the JSESSIONID cookie by rewriting the URL for http
+   * connections that are coming back to this application.
    *
    * @param url url to check, must never be <code>null</code>
-   * @return either the original URL for absolute paths or non-file protocols,
-   * or a new URL with the path fixed up.
+   * @return either the original URL for absolute paths or non-file protocols, or a new URL with the
+   *     path fixed up.
    * @throws IOException if there's a problem transforming the url
    */
   public static URL getResolvedURL(URL url) throws IOException {
@@ -327,8 +319,8 @@ public class PSServer {
 
   /**
    * Get the configuration directory
-   * @return the configuration directory relative to the root directory,
-   * never <code>null</code>
+   *
+   * @return the configuration directory relative to the root directory, never <code>null</code>
    */
   public static String getRxConfigDir() {
     return getRxFile(SERVER_DIR);
@@ -337,21 +329,19 @@ public class PSServer {
   /**
    * Get the directory that contains all other configuration directories.
    *
-   * @return the directory relative to the root directory, never
-   * <code>null</code>. If it doesn't exist, an IllegalArgumentException is
-   * thrown.
+   * @return the directory relative to the root directory, never <code>null</code>. If it doesn't
+   *     exist, an IllegalArgumentException is thrown.
    */
   public static String getBaseConfigDir() {
     return getRxFile(BASE_CONFIG_DIR);
   }
 
   /**
-   * Return the string path to a file or directory that is relative to the
-   * rhythmyx root
+   * Return the string path to a file or directory that is relative to the rhythmyx root
    *
    * @param path Input path, never <code>null</code> or empty
-   * @return a fully qualified path to the file or directory desired. If it
-   * doesn't exist, an IllegalArgumentException is thrown.
+   * @return a fully qualified path to the file or directory desired. If it doesn't exist, an
+   *     IllegalArgumentException is thrown.
    */
   public static String getRxFile(String path) {
     if (path == null) {
@@ -365,10 +355,9 @@ public class PSServer {
   }
 
   /**
-   * Gets the extension manager. Meant for use only by the object store handler
-   * so that it may install extensions.  Now extended to allow external
-   * server objects to interact with the manager (using <code>null</code> as
-   * the parameter.
+   * Gets the extension manager. Meant for use only by the object store handler so that it may
+   * install extensions. Now extended to allow external server objects to interact with the manager
+   * (using <code>null</code> as the parameter.
    */
   public static IPSExtensionManager getExtensionManager(IPSObjectStoreHandler osHandler) {
     if ((osHandler == ms_objectStore) || (osHandler == null)) return ms_extensionMgr;
@@ -388,21 +377,16 @@ public class PSServer {
   }
 
   /**
-   * Initializes the server, starting all required services, listeners, and
-   * handlers.
+   * Initializes the server, starting all required services, listeners, and handlers.
    *
    * @param config The servlet configuration for the front-end servlet.
-   *
-   * @param args The arguments passed into the <code>main</code> method, in
-   * case any of them are needed here.  May be not be <code>null</code>, may
-   * be empty.
-   *
-   * @param toInit A set of flags to indicate what should be initialized.  Each
-   * of the <code>INITED_xxx</code> flags are Or'd against this to determine
-   * which services should be initialized.
-   *
-   * @return <code>true</code> if the server is successfully initialized,
-   * <code>false</code> otherwise.
+   * @param args The arguments passed into the <code>main</code> method, in case any of them are
+   *     needed here. May be not be <code>null</code>, may be empty.
+   * @param toInit A set of flags to indicate what should be initialized. Each of the <code>
+   *     INITED_xxx</code> flags are Or'd against this to determine which services should be
+   *     initialized.
+   * @return <code>true</code> if the server is successfully initialized, <code>false</code>
+   *     otherwise.
    */
   @SuppressWarnings(value = "unchecked")
   public static boolean init(ServletConfig config, String[] args, int toInit) {
@@ -622,14 +606,12 @@ public class PSServer {
   }
 
   /**
-   * A file lock created after server init. When this lock is acquired
-   * it means the server is running. Must be called only once and that must be
-   * at the startup time. A destroy method will release the lock
-   * See {@link #destroyStartupFileLock(FileLock)}
-   * @param  name the file to lock, never <code>null</code> or empty. This will
-   * be a hidden file
-   * @return  FileLock on successfully locking the resource file, else return
-   * <code>null</code>
+   * A file lock created after server init. When this lock is acquired it means the server is
+   * running. Must be called only once and that must be at the startup time. A destroy method will
+   * release the lock See {@link #destroyStartupFileLock(FileLock)}
+   *
+   * @param name the file to lock, never <code>null</code> or empty. This will be a hidden file
+   * @return FileLock on successfully locking the resource file, else return <code>null</code>
    */
   public static FileLock createServerStartupFileLock(String name) {
     if (StringUtils.isBlank(name))
@@ -659,12 +641,11 @@ public class PSServer {
   }
 
   /**
-   * Check if the file lock exists and release it. Must be called during
-   * shutdown of the server. If the server is killed abruptly without handling
-   * the shutdown hooks, even then this lock will be released by the system.
+   * Check if the file lock exists and release it. Must be called during shutdown of the server. If
+   * the server is killed abruptly without handling the shutdown hooks, even then this lock will be
+   * released by the system.
    *
    * @param lf the filelock to test and release may be <code>null</code>
-   *
    */
   public static void destroyStartupFileLock(FileLock lf) {
     if (lf == null) return;
@@ -677,8 +658,8 @@ public class PSServer {
   }
 
   /**
-   * Check that the database is compatible with Rhythmyx. This currently
-   * checks that the database supports unicode.
+   * Check that the database is compatible with Rhythmyx. This currently checks that the database
+   * supports unicode.
    */
   private static void checkDatabaseCompatibility() {
     /*
@@ -710,10 +691,7 @@ public class PSServer {
     }
   }
 
-  /**
-   * Gets the container's JMX server mbean and looks up the http and https
-   * listener ports.
-   */
+  /** Gets the container's JMX server mbean and looks up the http and https listener ports. */
   private static void loadListenerInfo() {
     ms_listenerPort = -1;
     ms_sslListenerPort = 0;
@@ -741,42 +719,36 @@ public class PSServer {
     PSConsole.printMsg("Server", "Listening for HTTPS requests on port: " + ms_sslListenerPort);
   }
 
-  /**
-   * Sets up the version field by reading com.percussion.util properties file
-   */
+  /** Sets up the version field by reading com.percussion.util properties file */
   private static void initVersion() {
 
     ms_version = new PSFormatVersion(PSServer.class, "/com/percussion/util/Version.properties");
   }
 
   /**
-   * Get the server's log handler. Logging through the server's log handler
-   * should only be done when an application context does not exist.
+   * Get the server's log handler. Logging through the server's log handler should only be done when
+   * an application context does not exist.
    */
   public static PSLogHandler getLogHandler() {
     return ms_serverLogHandler;
   }
 
   /**
-   * Get the server's error handler. Error handling through the server's
-   * error handler should only be done when an application context does
-   * not exist.
+   * Get the server's error handler. Error handling through the server's error handler should only
+   * be done when an application context does not exist.
    */
   public static PSErrorHandler getErrorHandler() {
     return ms_serverErrorHandler;
   }
 
   /**
-   * Check the server access level for the user's security token and throw
-   * an exception if access is denied.
+   * Check the server access level for the user's security token and throw an exception if access is
+   * denied.
    *
    * @param tok The user's security token.
    * @param level The desired access level.
-   *
-   * @throws PSAuthorizationException if the user does not have the desired
-   * access level.
-   * @throws PSAuthenticationRequiredException if we have not yet tried to
-   * authenticate the user.
+   * @throws PSAuthorizationException if the user does not have the desired access level.
+   * @throws PSAuthenticationRequiredException if we have not yet tried to authenticate the user.
    */
   public static void checkAccessLevel(PSSecurityToken tok, int level)
       throws PSAuthorizationException, PSAuthenticationRequiredException {
@@ -797,12 +769,11 @@ public class PSServer {
   }
 
   /**
-   * Check the server access level for the specified request and throw
-   * an exception if access is denied.
+   * Check the server access level for the specified request and throw an exception if access is
+   * denied.
    *
-   * @param   request     the request object to check
-   *
-   * @param   level       the desired access level
+   * @param request the request object to check
+   * @param level the desired access level
    */
   public static void checkAccessLevel(PSRequest request, int level)
       throws PSAuthorizationException,
@@ -840,55 +811,40 @@ public class PSServer {
     }
   }
 
-  /**
-   * Gets the server configuration object for this server.
-   */
+  /** Gets the server configuration object for this server. */
   public static PSServerConfiguration getServerConfiguration() {
     return ms_srvConfig;
   }
 
   /**
-   * Gets the internal request object used to execute a request against the
-   * specified resource.  The internal request object will have its own
-   * request context seeded with the values of, but independent from, this
-   * request context.  (Changes made to the request context during the
-   * internal request will not be reflected in the original request context.)
-   * Any parameters specified in a query string as part of
-   * <code>resource</code> or included <code>extraParams</code> will be added
-   * to the internal request's context.
+   * Gets the internal request object used to execute a request against the specified resource. The
+   * internal request object will have its own request context seeded with the values of, but
+   * independent from, this request context. (Changes made to the request context during the
+   * internal request will not be reflected in the original request context.) Any parameters
+   * specified in a query string as part of <code>resource</code> or included <code>extraParams
+   * </code> will be added to the internal request's context.
    *
-   * @param path specifies the application and page of the dataset to make
-   * an internal request of.  May optionally include a "query string" --
-   * name/value pairs, separated by equals, delimited by ampersand, and
-   * identified as the portion of the path following a question mark.  May be
-   * as little as "<code>appName/pageName</code>" or as much as
-   * "<code>http://127.0.0.1:9992/Rhythmyx/AppTest/nov.xml?alpha=bravo&test=5
-   * </code>".  Not <code>null</code> or empty.
-   *
-   * @param request the current request.  Will be cloned to provide the
-   * inital state for the internal request.  Not <code>null</code>.
-   *
-   * @param extraParams an optional group of parameters to be added to the
-   * internal request's context.  Skipped if <code>null</code>.
-   *
-   * @param inheritParams If <code>true</code>, the internal request
-   * context will contain copies of all of the parameters in the current
-   * request in addition to any parameters from the query string in
-   * <code>path</code> and <code>extraParams</code>.
-   * <p>
-   * If <code>false</code>, the internal request context will only
-   * have those parameters supplied by the query string in
-   * <code>path</code> and <code>extraParams</code>.
-   *
-   * @param inputDoc If not <code>null</code>, it is set as the input doc
-   *    on the cloned request object before it is passed to the resource.
-   *
-   * @return a new <code>IPSInternalRequest</code>, or <code>null</code> if
-   * no handler could be found for the specified path
-   *
-   * @throws IllegalArgumentException if the specified path is
-   * <code>null</code>, empty, or not in the correct format; or if
-   * <code>request</code> is <code>null</code>.
+   * @param path specifies the application and page of the dataset to make an internal request of.
+   *     May optionally include a "query string" -- name/value pairs, separated by equals, delimited
+   *     by ampersand, and identified as the portion of the path following a question mark. May be
+   *     as little as "<code>appName/pageName</code>" or as much as "<code>
+   *     http://127.0.0.1:9992/Rhythmyx/AppTest/nov.xml?alpha=bravo&test=5
+   * </code>". Not <code>null</code> or empty.
+   * @param request the current request. Will be cloned to provide the inital state for the internal
+   *     request. Not <code>null</code>.
+   * @param extraParams an optional group of parameters to be added to the internal request's
+   *     context. Skipped if <code>null</code>.
+   * @param inheritParams If <code>true</code>, the internal request context will contain copies of
+   *     all of the parameters in the current request in addition to any parameters from the query
+   *     string in <code>path</code> and <code>extraParams</code>.
+   *     <p>If <code>false</code>, the internal request context will only have those parameters
+   *     supplied by the query string in <code>path</code> and <code>extraParams</code>.
+   * @param inputDoc If not <code>null</code>, it is set as the input doc on the cloned request
+   *     object before it is passed to the resource.
+   * @return a new <code>IPSInternalRequest</code>, or <code>null</code> if no handler could be
+   *     found for the specified path
+   * @throws IllegalArgumentException if the specified path is <code>null</code>, empty, or not in
+   *     the correct format; or if <code>request</code> is <code>null</code>.
    */
   public static PSInternalRequest getInternalRequest(
       String path, PSRequest request, Map extraParams, boolean inheritParams, Document inputDoc) {
@@ -974,13 +930,12 @@ public class PSServer {
   }
 
   /**
-   * Convenience method just like
-   * {@link #getInternalRequest(String,PSRequest,Map,boolean,Document)},
-   * except it gets the request from the supplied context and calls the other
-   * method.
+   * Convenience method just like {@link
+   * #getInternalRequest(String,PSRequest,Map,boolean,Document)}, except it gets the request from
+   * the supplied context and calls the other method.
    *
-   * @param ctx the request context which cannot be <code>null</code> and
-   *    must be an instance of <code>PSRequestContext</code>.
+   * @param ctx the request context which cannot be <code>null</code> and must be an instance of
+   *     <code>PSRequestContext</code>.
    */
   public static PSInternalRequest getInternalRequest(
       String path,
@@ -999,9 +954,7 @@ public class PSServer {
    * Gets the request from the given request context.
    *
    * @param ctx the request context, never <code>null</code>.
-   *
-   * @return the request that is contained in the request context, never
-   * <code>null</code>.
+   * @return the request that is contained in the request context, never <code>null</code>.
    */
   public static PSRequest getRequest(IPSRequestContext ctx) {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null.");
@@ -1009,28 +962,19 @@ public class PSServer {
     return ((PSRequestContext) ctx).getRequest();
   }
 
-  /**
-   * Convenience method that calls the other 5 parameter version.
-   */
+  /** Convenience method that calls the other 5 parameter version. */
   public static PSInternalRequest getInternalRequest(
       String path, PSRequest request, Map extraParams, boolean inheritParams) {
     return getInternalRequest(path, request, extraParams, inheritParams, null);
   }
 
   /**
-   * Get the internal request handler capable of handling the specified
-   *    request.
+   * Get the internal request handler capable of handling the specified request.
    *
-   * @param   request  the request to analyze in the format
-   *                   appName/resource, never <code>null</code>
-   *
-   * @return           the internal request handler, <code>null</code> if
-   *                   no suitable handler was found
-   *
-   * @throws  IllegalArgumentException if the request string is invalid
-   * <B>
-   * <I>TODO:- Update this documentation when category support is
-   * implemented</I>
+   * @param request the request to analyze in the format appName/resource, never <code>null</code>
+   * @return the internal request handler, <code>null</code> if no suitable handler was found
+   * @throws IllegalArgumentException if the request string is invalid <B> <I>TODO:- Update this
+   *     documentation when category support is implemented</I>
    */
   public static IPSInternalRequestHandler getInternalRequestHandler(String request) {
     IPSInternalRequestHandler irh = null;
@@ -1061,16 +1005,11 @@ public class PSServer {
     return irh;
   }
 
-  /**
-   * Contains the mappings described by the
-   * {@link #getTranslatedTarget(String, String)} method.
-   */
+  /** Contains the mappings described by the {@link #getTranslatedTarget(String, String)} method. */
   private static Map<PSPair<String, String>, PSPair<String, String>> ms_resourceMap =
       new HashMap<PSPair<String, String>, PSPair<String, String>>();
 
-  /**
-   * Initialize the resource map
-   */
+  /** Initialize the resource map */
   static void initResourceMap() {
     Exception ex = null;
     File f = null;
@@ -1133,8 +1072,8 @@ public class PSServer {
   /**
    * See {@link #getTranslatedTarget(String, String)}.
    *
-   * @return <code>true</code> if a translation could occur when the
-   * referenced method was called, <code>false</code> otherwise.
+   * @return <code>true</code> if a translation could occur when the referenced method was called,
+   *     <code>false</code> otherwise.
    */
   private static boolean isResourcePathTranslatable() {
     return !ms_resourceMap.isEmpty();
@@ -1160,30 +1099,26 @@ public class PSServer {
   }
 
   /**
-   * Server requests can be 'forwarded' by specifying a mapping in a file of
-   * the form
-   * <p>
-   * appName/resourceName=appName2/resourceName2
-   * </p>. This method does the lookup and either returns the translated value
-   * or the supplied values if a mapping is not found.
-   * <p>
-   * To save a little time, call {@link #isResourcePathTranslatable()} first to
-   * see if this method may perform a conversion.
-   * <p>
-   * The purpose of this is to provide backwards compatibility from 5.x to 6.x.
-   * In 6.0, we moved content editors into their own application and needed
-   * a way to redirect requests to the old resource to the new resource
-   * (mainly for Generic Word and any user created extensions that may be
-   * calling the editor directly.). If no mapping is found with appName and
-   * pageName, then tries to get the mapping with just appName by passing
-   * <code>null</code> for pageName. If found the pageName is added as second
-   * part.
+   * Server requests can be 'forwarded' by specifying a mapping in a file of the form
+   *
+   * <p>appName/resourceName=appName2/resourceName2 . This method does the lookup and either returns
+   * the translated value or the supplied values if a mapping is not found.
+   *
+   * <p>To save a little time, call {@link #isResourcePathTranslatable()} first to see if this
+   * method may perform a conversion.
+   *
+   * <p>The purpose of this is to provide backwards compatibility from 5.x to 6.x. In 6.0, we moved
+   * content editors into their own application and needed a way to redirect requests to the old
+   * resource to the new resource (mainly for Generic Word and any user created extensions that may
+   * be calling the editor directly.). If no mapping is found with appName and pageName, then tries
+   * to get the mapping with just appName by passing <code>null</code> for pageName. If found the
+   * pageName is added as second part.
    *
    * @param appName Assumed not <code>null</code> or empty.
    * @param pageName Assumed not <code>null</code> or empty.
-   * @return <code>null</code> if no mapping is present. Otherwise, the first
-   * entry is the translated app name and the 2nd entry is the translated
-   * resource name. Both entries are non-empty strings.
+   * @return <code>null</code> if no mapping is present. Otherwise, the first entry is the
+   *     translated app name and the 2nd entry is the translated resource name. Both entries are
+   *     non-empty strings.
    */
   private static PSPair<String, String> getTranslatedTarget(String appName, String pageName) {
     PSPair<String, String> key =
@@ -1206,24 +1141,19 @@ public class PSServer {
   }
 
   /**
-   * Returns the internal request handler for the provided URL. The URL has
-   * to be in one of the following formats:
+   * Returns the internal request handler for the provided URL. The URL has to be in one of the
+   * following formats:
+   *
    * <ul>
-   * <li>
-   *    http://host:port/serverRoot/appRoot/page.ext?...
-   * </li>
-   * <li>
-   *    http://host/serverRoot/appRoot/page.ext?...
-   * </li>
+   *   <li>http://host:port/serverRoot/appRoot/page.ext?...
+   *   <li>http://host/serverRoot/appRoot/page.ext?...
    * </ul>
    *
-   * @param request the request URL we want the internal request handler for,
-   *    may be <code>null</code>.
+   * @param request the request URL we want the internal request handler for, may be <code>null
+   *     </code>.
    * @return the internal request handler or <code>null</code> if not found.
-   *
-   * @deprecated This method does not consider page selection criteria or
-   * supported mime types when selecting a page.  Use
-   * {@link #getInternalRequest(String, PSRequest, Map, boolean)} instead.
+   * @deprecated This method does not consider page selection criteria or supported mime types when
+   *     selecting a page. Use {@link #getInternalRequest(String, PSRequest, Map, boolean)} instead.
    */
   @SuppressWarnings(value = "unchecked")
   public static IPSInternalRequestHandler getInternalRequestHandler(URL request) {
@@ -1265,16 +1195,12 @@ public class PSServer {
   }
 
   /**
-   * Get the request handler capable of handling the specified request. If all
-   * handlers have not been initialized yet, an error is reported to the
-   * requestor and <code>null</code> is returned.
+   * Get the request handler capable of handling the specified request. If all handlers have not
+   * been initialized yet, an error is reported to the requestor and <code>null</code> is returned.
    *
    * @param req the request to analyze, may not be <code>null</code>.
-   *
-   * @return the request handler, may be <code>null</code> if a handler was not
-   * found to handle the supplied request or if all handlers have not yet been
-   * initialized.
-   *
+   * @return the request handler, may be <code>null</code> if a handler was not found to handle the
+   *     supplied request or if all handlers have not yet been initialized.
    * @throws IllegalArgumentException if <code>req</code> is <code>null</code>.
    */
   public static IPSRequestHandler getRequestHandler(PSRequest req) {
@@ -1360,9 +1286,8 @@ public class PSServer {
   /**
    * Get the application handler for the specified application.
    *
-   * @param   appName     the name of the app to locate
-   *
-   * @return              the application handler
+   * @param appName the name of the app to locate
+   * @return the application handler
    */
   public static PSApplicationHandler getApplicationHandler(String appName) {
     if (ms_RequestHandlers == null) return null; // Only for unit testing
@@ -1375,12 +1300,10 @@ public class PSServer {
   }
 
   /**
-   * Determine whether the specified application is active on the
-   *    server.
+   * Determine whether the specified application is active on the server.
    *
-   * @param         appName  The name of the application to check
-   *
-   * @return        whether the specified application is active
+   * @param appName The name of the application to check
+   * @return whether the specified application is active
    */
   public static boolean isApplicationActive(String appName) {
 
@@ -1390,37 +1313,34 @@ public class PSServer {
   }
 
   /**
-   * Get the server statistics object. This is updated constantly by
-   * the running applications. Any user of this object should minimize the
-   * time spent in synchronized methods to avoid overall performance
-   * degredation.
+   * Get the server statistics object. This is updated constantly by the running applications. Any
+   * user of this object should minimize the time spent in synchronized methods to avoid overall
+   * performance degredation.
    *
-   * @return        the server statistics
+   * @return the server statistics
    */
   public static PSServerStatistics getStatistics() {
     return ms_Statistics;
   }
 
   /**
-   * Get the object store statistics object. This is updated whenever an
-   * action is performed against the object store. Any user of this object
-   * should minimize the time spent in synchronized methods to avoid
-   * overall performance degredation.
+   * Get the object store statistics object. This is updated whenever an action is performed against
+   * the object store. Any user of this object should minimize the time spent in synchronized
+   * methods to avoid overall performance degredation.
    *
-   * @return        the object store statistics
+   * @return the object store statistics
    */
   public static PSObjectStoreStatistics getObjectStoreStatistics() {
     return ms_objectStore.getStatistics();
   }
 
   /**
-   * Schedule a shut down of the application server, which will in turn cause
-   * the rx servlet to shutdown. This is the method to use when trying to shut
-   * down the server from within any server code. Method returns and the
-   * shutdown is requested asynchronously from a separate thread.
+   * Schedule a shut down of the application server, which will in turn cause the rx servlet to
+   * shutdown. This is the method to use when trying to shut down the server from within any server
+   * code. Method returns and the shutdown is requested asynchronously from a separate thread.
    *
-   * @param downWhen the amount of time, in milliseconds, to wait before
-   * shutting down the server, ignored if not > 0.
+   * @param downWhen the amount of time, in milliseconds, to wait before shutting down the server,
+   *     ignored if not > 0.
    */
   public static void scheduleShutdown(final long downWhen) {
     Thread thread =
@@ -1451,12 +1371,11 @@ public class PSServer {
   }
 
   /**
-   * Loads the system definition for Content Editors. All fields are fixed
-   * up for data type and mime type; and the backend columns for all fields
-   * are fully defined.
+   * Loads the system definition for Content Editors. All fields are fixed up for data type and mime
+   * type; and the backend columns for all fields are fully defined.
    *
-   * @return The content editor system def object.  May be <code>null</code>
-   * if there was an error loading the def from the Xml, or one wasn't found.
+   * @return The content editor system def object. May be <code>null</code> if there was an error
+   *     loading the def from the Xml, or one wasn't found.
    */
   public static PSContentEditorSystemDef getContentEditorSystemDef() {
     PSContentEditorSystemDef systemDef = null;
@@ -1478,12 +1397,11 @@ public class PSServer {
   }
 
   /**
-   * Gets the shared definition for Content Editors.  Delegates to
-   * <code>PSServerXmlObjectStore</code>.
+   * Gets the shared definition for Content Editors. Delegates to <code>PSServerXmlObjectStore
+   * </code>.
    *
-   * @return The content editor shared def object. May be <code>null</code>
-   *    if there was an error loading the def from the Xml. If none was found,
-   *    an empty shared def will be returned.
+   * @return The content editor shared def object. May be <code>null</code> if there was an error
+   *     loading the def from the Xml. If none was found, an empty shared def will be returned.
    * @see PSServerXmlObjectStore#getContentEditorSharedDef()
    */
   public static PSContentEditorSharedDef getContentEditorSharedDef() {
@@ -1510,21 +1428,17 @@ public class PSServer {
   }
 
   /**
-   * Gets the Acl entries matching the specified criteria from all active
-   * applications and the server's Acl.
+   * Gets the Acl entries matching the specified criteria from all active applications and the
+   * server's Acl.
    *
-   * @param type The type of Acl entry to locate.  Must be one of the
-   * <code>PSAclEntry.ACE_TYPE_xxx</code> value.
-   *
-   * @return An Iterator over <code>0</code> or more <code>PSEntry</code>
-   * objects.  The specific type of entry will be determined by the type of Acl
-   * entry requested.  Never <code>null</code>. The list will not contain
-   * duplicate entries based on name, providerType, and providerInstance.  The
-   * access level of the entries returned will be undefined and should be
-   * ignored.
-   *
-   * @throws IllegalArgumentException if <code>type</code> does not represent a
-   * valid type.
+   * @param type The type of Acl entry to locate. Must be one of the <code>PSAclEntry.ACE_TYPE_xxx
+   *     </code> value.
+   * @return An Iterator over <code>0</code> or more <code>PSEntry</code> objects. The specific type
+   *     of entry will be determined by the type of Acl entry requested. Never <code>null</code>.
+   *     The list will not contain duplicate entries based on name, providerType, and
+   *     providerInstance. The access level of the entries returned will be undefined and should be
+   *     ignored.
+   * @throws IllegalArgumentException if <code>type</code> does not represent a valid type.
    */
   @SuppressWarnings(value = "unchecked")
   public static Iterator<PSEntry> getAclEntries(int type) {
@@ -1562,8 +1476,8 @@ public class PSServer {
   /**
    * Load the configuration files.
    *
-   * @return <code>true</code> if it is successfully loaded, <code>false</code>
-   * if there were errors.
+   * @return <code>true</code> if it is successfully loaded, <code>false</code> if there were
+   *     errors.
    */
   private static boolean loadConfig() {
     PSConsole.printInfoMsg("Server", IPSServerErrors.LOADING_CONFIG, (Object[]) null);
@@ -1647,9 +1561,8 @@ public class PSServer {
 
   /**
    * Initialize the object store handler and load the server configuration.
-   * @return <code>true</code> if it is successfully initialized,
-   * <code>false</code> if not.
    *
+   * @return <code>true</code> if it is successfully initialized, <code>false</code> if not.
    * @throws PSServerException if the server is not responding.
    * @throws PSNotFoundException if the server configuration is not be found.
    */
@@ -1685,14 +1598,11 @@ public class PSServer {
   }
 
   /**
-   * Initialize the object store by loading all the apps and registering
-   * the change listener.
+   * Initialize the object store by loading all the apps and registering the change listener.
    *
-   * @return  PSApplication[] All of the ENABLED application objects defined
-   * in the object store.
-   *
-   * @throws  PSServerException
-   * @throws  PSAuthorizationException
+   * @return PSApplication[] All of the ENABLED application objects defined in the object store.
+   * @throws PSServerException
+   * @throws PSAuthorizationException
    */
   private static PSApplication[] initObjectStore()
       throws PSServerException, PSAuthorizationException {
@@ -1732,30 +1642,29 @@ public class PSServer {
   }
 
   /**
-   * Returns the current server request root. If case sensitivity is disabled,
-   * the request root is lower cased before returning it. The leading slash is
-   * part of the root.
+   * Returns the current server request root. If case sensitivity is disabled, the request root is
+   * lower cased before returning it. The leading slash is part of the root.
    *
-   * @return the server request root as it is if case sensitivity is enabled,
-   *    lower cased if case sensitivity is disabled.
+   * @return the server request root as it is if case sensitivity is enabled, lower cased if case
+   *     sensitivity is disabled.
    */
   public static String getRequestRoot() {
     return isCaseSensitiveURL() ? ms_requestRoot : ms_requestRoot.toLowerCase();
   }
 
   /**
-   * Returns <code>true</code> if case sensitivity for the server and
-   * application root is enabled, <code>false</code> otherwise.
+   * Returns <code>true</code> if case sensitivity for the server and application root is enabled,
+   * <code>false</code> otherwise.
    *
-   * @return code>true</code> if case sensitivity for the server and
-   * application root is enabled, <code>false</code> otherwise.
+   * @return code>true</code> if case sensitivity for the server and application root is enabled,
+   *     <code>false</code> otherwise.
    */
   public static boolean isCaseSensitiveURL() {
     return ms_caseSensitiveUrl;
   }
 
   /**
-   * Returns  BROKEN_MANAGED_LINK_BEHAVIOR
+   * Returns BROKEN_MANAGED_LINK_BEHAVIOR
    *
    * @return BROKEN_MANAGED_LINK_BEHAVIOR Options defined in Server.properties
    */
@@ -1768,15 +1677,13 @@ public class PSServer {
   }
 
   /**
-   * Determines if content editors are required to have unique names among all
-   * fields and fieldsets. If value is <code>true</code>, then when content
-   * editors are initialized, if duplicate names are found, the application
-   * should fail to start.  If value is <code>false</code> or the property is
-   * not defined, if there are duplicates a warning should be written to the
-   * console and the log, but the application should be allowed to initialize.
+   * Determines if content editors are required to have unique names among all fields and fieldsets.
+   * If value is <code>true</code>, then when content editors are initialized, if duplicate names
+   * are found, the application should fail to start. If value is <code>false</code> or the property
+   * is not defined, if there are duplicates a warning should be written to the console and the log,
+   * but the application should be allowed to initialize.
    *
-   * @return <code>true</code> if unique names are required, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if unique names are required, <code>false</code> otherwise.
    */
   public static boolean requireUniqueFieldNames() {
     return ms_requireUniqueFieldNames;
@@ -1887,14 +1794,12 @@ public class PSServer {
   /**
    * Get the status of all request handlers.
    *
-   * @param doc the document for which to create the status element, not
-   *    <code>null</code>.
-   * @param full <code>true</code> to request a full status, <code>false</code>
-   *    for a summary status only.
-   * @return the element containing all request handlers status
-   *    information, never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param doc the document for which to create the status element, not <code>null</code>.
+   * @param full <code>true</code> to request a full status, <code>false</code> for a summary status
+   *     only.
+   * @return the element containing all request handlers status information, never <code>null</code>
+   *     .
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   @SuppressWarnings(value = "unchecked")
   public static Element getRequestHandlersStatus(Document doc, boolean full) {
@@ -1959,14 +1864,12 @@ public class PSServer {
   }
 
   /**
-   * Initialize the internal and application data request handlers. A data
-   * handler is started for each resource in each app in the supplied list.
-   * The apps are started in priority order based on each apps start priority
-   * property.
+   * Initialize the internal and application data request handlers. A data handler is started for
+   * each resource in each app in the supplied list. The apps are started in priority order based on
+   * each apps start priority property.
    *
-   * @param apps All applications that need to be started. If an entry in
-   *    the array is <code>null</code> it is skipped. If <code>null</code> is
-   *    supplied, no app handlers will be started.
+   * @param apps All applications that need to be started. If an entry in the array is <code>null
+   *     </code> it is skipped. If <code>null</code> is supplied, no app handlers will be started.
    */
   @SuppressWarnings(value = "unchecked")
   private static void initRequestHandlers(PSApplication[] apps)
@@ -2095,14 +1998,12 @@ public class PSServer {
   }
 
   /**
-   * Sets the estimate (table) statistics, which is specified by the the
-   * server property {@link #PROP_ESTIMATE_STATS}.
-   * The value of the property is consisted of a set of table-name and row
-   * pairs with ';' (semicolon) delimiters between the pairs. Each pair is
-   * separated with a ',' (comma).
+   * Sets the estimate (table) statistics, which is specified by the the server property {@link
+   * #PROP_ESTIMATE_STATS}. The value of the property is consisted of a set of table-name and row
+   * pairs with ';' (semicolon) delimiters between the pairs. Each pair is separated with a ','
+   * (comma).
    *
-   * For example:
-   *    RXPUBDOCS,1000000;RXRELATEDCONTENT,1000000
+   * <p>For example: RXPUBDOCS,1000000;RXRELATEDCONTENT,1000000
    */
   private static void setEstimatedStatistics() {
     String estStats = (String) ms_serverProps.get(PROP_ESTIMATE_STATS);
@@ -2136,10 +2037,9 @@ public class PSServer {
   }
 
   /**
-   * Initializes all loadable request handlers, adding them to the request
-   * handler map, and their request roots to the rooted handler map. Constructs
-   * the loadable handler using the signature (IPSObjectStoreHandler,
-   * IPSExtensionManager) if such a ctor is available.  Otherwise, constructs
+   * Initializes all loadable request handlers, adding them to the request handler map, and their
+   * request roots to the rooted handler map. Constructs the loadable handler using the signature
+   * (IPSObjectStoreHandler, IPSExtensionManager) if such a ctor is available. Otherwise, constructs
    * with an empty ctor.
    *
    * @throws PSServerException for any errors.
@@ -2222,8 +2122,7 @@ public class PSServer {
   /**
    * Get all defined macros for this server.
    *
-   * @return the macro set defined in this server, never <code>null</code>,
-   *    may be empty.
+   * @return the macro set defined in this server, never <code>null</code>, may be empty.
    */
   public static PSMacroDefinitionSet getMacros() {
     return ms_macros;
@@ -2280,8 +2179,8 @@ public class PSServer {
 
   /**
    * Initialize the server's log handler.
-   * @return <code>true</code> if it is successfully initialized,
-   * <code>false</code> otherwise.
+   *
+   * @return <code>true</code> if it is successfully initialized, <code>false</code> otherwise.
    */
   @SuppressWarnings(value = "unchecked")
   private static boolean initLogHandling() {
@@ -2370,11 +2269,11 @@ public class PSServer {
   }
 
   /**
-   * Get the first bind address. The bind address is the value of
-   * "bindAddress" property, which is defined in server.properties.
+   * Get the first bind address. The bind address is the value of "bindAddress" property, which is
+   * defined in server.properties.
    *
-   * @return The retrieved value. It may be <code>null</code> if the value of
-   *    "bindAddress" property is empty or undefined.
+   * @return The retrieved value. It may be <code>null</code> if the value of "bindAddress" property
+   *     is empty or undefined.
    */
   private static String getFirstBindAddress() {
     String addresses = (String) ms_serverProps.get(PROP_REQLISTENER_HOST);
@@ -2398,8 +2297,8 @@ public class PSServer {
   /**
    * Determines whether the server has completed initialization
    *
-   * @return <code>true</code> if the server has completed initialization;
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if the server has completed initialization; <code>false</code>
+   *     otherwise.
    */
   public static boolean isInitialized() {
     return isInited(INITED_ALL);
@@ -2408,10 +2307,8 @@ public class PSServer {
   /**
    * Shutdown the specified application.
    *
-   * @param   appName     the name of the app to shut down
-   *
-   * @return              <code>true</code> if the app was located and shut
-   *                      down; <code>false</code> otherwise
+   * @param appName the name of the app to shut down
+   * @return <code>true</code> if the app was located and shut down; <code>false</code> otherwise
    */
   public static boolean shutdownApplication(String appName) {
     String appKey = "data-" + appName.toLowerCase();
@@ -2446,14 +2343,14 @@ public class PSServer {
 
   /**
    * Register handler state listener with the server.
-   * @param listener handler state event lister to register with the server,
-   * must not be <code>null</code>.
-   * @param handlerName unique name of the handler, must not be
-   * <code>null</code> or empty. If a handler with this name already
-   * registered previously, the state events will be merged or ORed.
-   * @param events One or more state events {@link PSHandlerStateEvent#
-   * HANDLER_EVENT_STARTED HANDLER_EVENT_XXX} ORed together. No validation
-   * is done on the event flags.
+   *
+   * @param listener handler state event lister to register with the server, must not be <code>null
+   *     </code>.
+   * @param handlerName unique name of the handler, must not be <code>null</code> or empty. If a
+   *     handler with this name already registered previously, the state events will be merged or
+   *     ORed.
+   * @param events One or more state events {@link PSHandlerStateEvent# HANDLER_EVENT_STARTED
+   *     HANDLER_EVENT_XXX} ORed together. No validation is done on the event flags.
    * @see IPSHandlerStateListener
    * @see PSHandlerStateEvent
    */
@@ -2479,14 +2376,13 @@ public class PSServer {
   }
 
   /**
-   * Fire the state changed event for all listeners registered  for the event.
-   * @param ah handler whose state has changed and to be notified to the
-   * listeners, never <code>null</code>. The call is synchronous and hence
-   * it is the listener's responsibilty to deal with any processes that take
-   * long time to finish.
-   * @param stateEvent a valid state event, one of the
-   * {@link PSHandlerStateEvent#HANDLER_EVENT_STARTED HANDLER_EVENT_XXX}
-   * flags.
+   * Fire the state changed event for all listeners registered for the event.
+   *
+   * @param ah handler whose state has changed and to be notified to the listeners, never <code>null
+   *     </code>. The call is synchronous and hence it is the listener's responsibilty to deal with
+   *     any processes that take long time to finish.
+   * @param stateEvent a valid state event, one of the {@link
+   *     PSHandlerStateEvent#HANDLER_EVENT_STARTED HANDLER_EVENT_XXX} flags.
    */
   @SuppressWarnings(value = "unchecked")
   private static void fireAppHandlerStateChanged(PSApplicationHandler ah, int stateEvent) {
@@ -2543,29 +2439,25 @@ public class PSServer {
     ms_handlerInitListeners = null;
   }
 
-  /**
-   * Get a collection of the rooted app handlers
-   *
-   */
+  /** Get a collection of the rooted app handlers */
   static Collection getRootedAppHandlers() {
     return ms_rootedRequestHandlers.values();
   }
 
   /**
-   * Get the list of listeners to be notified of request handler
-   * initialization.
+   * Get the list of listeners to be notified of request handler initialization.
    *
-   * @return An iterator over zero or more {@link IPSHandlerInitListener}
-   * objects, never <code>null</code>;
+   * @return An iterator over zero or more {@link IPSHandlerInitListener} objects, never <code>null
+   *     </code>;
    */
   static Iterator getHandlerInitListeners() {
     return ms_handlerInitListeners.iterator();
   }
 
   /**
-   * Add a listener to the list. These listeners are called whenever there
-   * is a change to the applications. Such listeners can then add further
-   * listeners to the specific applications being started or shutdown.
+   * Add a listener to the list. These listeners are called whenever there is a change to the
+   * applications. Such listeners can then add further listeners to the specific applications being
+   * started or shutdown.
    *
    * @param listener the listener, never <code>null</code>
    */
@@ -2577,11 +2469,10 @@ public class PSServer {
   }
 
   /**
-   * Notifies all registered {@link IPSHandlerInitListener} of an init event
-   * passing the supplied request handler
+   * Notifies all registered {@link IPSHandlerInitListener} of an init event passing the supplied
+   * request handler
    *
-   * @param rh The request handler being initialized, may not be
-   * <code>null</code>.
+   * @param rh The request handler being initialized, may not be <code>null</code>.
    */
   @SuppressWarnings(value = "unchecked")
   public static void notifyHandlerInitListeners(IPSRequestHandler rh) {
@@ -2595,11 +2486,10 @@ public class PSServer {
   }
 
   /**
-   * Notifies all registered {@link IPSHandlerInitListener} of a shutdown event
-   * passing the supplied request handler
+   * Notifies all registered {@link IPSHandlerInitListener} of a shutdown event passing the supplied
+   * request handler
    *
-   * @param rh The request handler being shutdown, may not be
-   * <code>null</code>.
+   * @param rh The request handler being shutdown, may not be <code>null</code>.
    */
   @SuppressWarnings(value = "unchecked")
   public static void notifyHandlerShutdownListeners(IPSRequestHandler rh) {
@@ -2614,6 +2504,7 @@ public class PSServer {
 
   /**
    * Query if the server is shutting down.
+   *
    * @return <code>true</code> if the server is shutting down
    */
   public static boolean isShuttingDown() {
@@ -2621,9 +2512,9 @@ public class PSServer {
   }
 
   /**
-   * Shut down the server.  This method should only be called from the destroy
-   * method of the servlet.  Use {@link #scheduleShutdown(long)} if you need
-   * to shut the server down from elsewhere in the server code.
+   * Shut down the server. This method should only be called from the destroy method of the servlet.
+   * Use {@link #scheduleShutdown(long)} if you need to shut the server down from elsewhere in the
+   * server code.
    */
   public static void shutdown() {
     synchronized (PSServer.class) {
@@ -2768,12 +2659,11 @@ public class PSServer {
   /**
    * Inform user of a terminal error and that the server is shutting down.
    *
-   * @param waitIndefinitely If <code>true</code>, pause the system and then
-   * wait forever.  If <code>false</code> and server has not completed
-   * intializing, give the user 10 seconds to press [Enter] and cause the
-   * system to pause until they press [Enter] again. Should return after 10
-   * seconds if there is no user input possible.  If <code>false</code> and
-   * system has completed initializing, then this method will simply return.
+   * @param waitIndefinitely If <code>true</code>, pause the system and then wait forever. If <code>
+   *     false</code> and server has not completed intializing, give the user 10 seconds to press
+   *     [Enter] and cause the system to pause until they press [Enter] again. Should return after
+   *     10 seconds if there is no user input possible. If <code>false</code> and system has
+   *     completed initializing, then this method will simply return.
    */
   private static void pauseOnExitForUser(boolean waitIndefinitely) {
     if (ms_noPauseOnExit && !waitIndefinitely) {
@@ -2837,8 +2727,8 @@ public class PSServer {
   /**
    * Get the ODBC_HOME variable for DSN resolution.
    *
-   * @return  the ODBC_HOME property value, or <code>null</code>
-   *          if none has been specified or server properties is absent.
+   * @return the ODBC_HOME property value, or <code>null</code> if none has been specified or server
+   *     properties is absent.
    */
   public static String getOdbcIniFile() {
     if (ms_serverProps == null) return null;
@@ -2848,8 +2738,8 @@ public class PSServer {
   /**
    * Get the server properties.
    *
-   * @return  the server properties as java <code>Properties</code>
-   * Object loaded during server initialization, may be <code>null</code>
+   * @return the server properties as java <code>Properties</code> Object loaded during server
+   *     initialization, may be <code>null</code>
    */
   public static Properties getServerProps() {
     return ms_serverProps;
@@ -2857,6 +2747,7 @@ public class PSServer {
 
   /**
    * Gets the server properties
+   *
    * @param reloadFromDisk when true the properties will be re-read from disk
    * @return the properties
    */
@@ -2877,6 +2768,7 @@ public class PSServer {
 
   /**
    * Gets the specified server property.
+   *
    * @param key the key of the property, not <code>null</code>.
    * @return the value of the property, it may be <code>null</code> if not exist.
    */
@@ -2889,8 +2781,8 @@ public class PSServer {
   }
 
   /**
-   * Get a property from the main rxconfig/server.properties file using the supplied default value if
-   * the property is not found or set.
+   * Get a property from the main rxconfig/server.properties file using the supplied default value
+   * if the property is not found or set.
    *
    * @param key The property name, never null.
    * @param defaultValue The value to return if this property is not set, never null.
@@ -2936,16 +2828,13 @@ public class PSServer {
   }
 
   /**
-   * Get the default server character set to use when dealing with
-   * escaped values sent in an HttpRequest.  When this is set in the
-   * server's properties file, it is recommended to use the IANA
-   * mime-preferred name for the character set or the Java canonical name
-   * (preferred).
+   * Get the default server character set to use when dealing with escaped values sent in an
+   * HttpRequest. When this is set in the server's properties file, it is recommended to use the
+   * IANA mime-preferred name for the character set or the Java canonical name (preferred).
    *
-   * @return The default server character set, never <code>null</code>
-   * or empty.  Returns {@link PSCharSets#rxJavaEnc()} if no entry exists in
-   * server.properties. This is the default character set for the Rhythmyx
-   * server.
+   * @return The default server character set, never <code>null</code> or empty. Returns {@link
+   *     PSCharSets#rxJavaEnc()} if no entry exists in server.properties. This is the default
+   *     character set for the Rhythmyx server.
    */
   public static String getDefaultServerHttpCharset() {
     String charset = null;
@@ -2960,14 +2849,13 @@ public class PSServer {
   }
 
   /**
-   * Get the default server character set to use when dealing with
-   * uploaded files.  When this is set in the server's properties file, it is
-   * recommended to use the IANA mime-preferred name for the character set or
-   * the Java canonical name (preferred).
+   * Get the default server character set to use when dealing with uploaded files. When this is set
+   * in the server's properties file, it is recommended to use the IANA mime-preferred name for the
+   * character set or the Java canonical name (preferred).
    *
-   * @return The default server character set, if <code>null</code>,
-   * it indicates to use the default methods when handling file streams
-   * (the methods which take no character set encoding names).  Never empty.
+   * @return The default server character set, if <code>null</code>, it indicates to use the default
+   *     methods when handling file streams (the methods which take no character set encoding
+   *     names). Never empty.
    */
   public static String getDefaultServerFileCharset() {
     String charset = null;
@@ -2983,10 +2871,9 @@ public class PSServer {
   }
 
   /**
-   * Returns the listener port that the server is listening for requests
-   * on.
+   * Returns the listener port that the server is listening for requests on.
    *
-   * @return  The port we are listening on (for example: 8888)
+   * @return The port we are listening on (for example: 8888)
    */
   public static int getListenerPort() {
     return ms_listenerPort;
@@ -3001,11 +2888,9 @@ public class PSServer {
   }
 
   /**
-   * Returns the SSL listener port that the server is listening for secure
-   * requests on.
+   * Returns the SSL listener port that the server is listening for secure requests on.
    *
-   * @return the SSL port the server is listening for secure requests, 0 if
-   *    SSL is not enabled.
+   * @return the SSL port the server is listening for secure requests, 0 if SSL is not enabled.
    */
   public static int getSslListenerPort() {
     return ms_sslListenerPort;
@@ -3028,46 +2913,41 @@ public class PSServer {
   }
 
   /**
-   * Returns the host address of this machine. This is determined by
-   * calling <code>InetAddress.getLocalHost().getHostAddress()</code> when
-   * the server starts up.
-   * <p>
-   * However, the bind address will be returned if there is one defined in the
-   * "bindAddress" property.
+   * Returns the host address of this machine. This is determined by calling <code>
+   * InetAddress.getLocalHost().getHostAddress()</code> when the server starts up.
    *
-   * @return The first address that is defined in the "bindAddress" property
-   *    if the value of the property is not empty; otherwise it is the address
-   *    of the machine in a %d.%d.%d.%d format, <code>127.0.0.1</code> if the
-   *    IP address cannot be determined. Never <code>null</code> or empty.
+   * <p>However, the bind address will be returned if there is one defined in the "bindAddress"
+   * property.
+   *
+   * @return The first address that is defined in the "bindAddress" property if the value of the
+   *     property is not empty; otherwise it is the address of the machine in a %d.%d.%d.%d format,
+   *     <code>127.0.0.1</code> if the IP address cannot be determined. Never <code>null</code> or
+   *     empty.
    */
   public static String getHostAddress() {
     return ms_hostAddress;
   }
 
   /**
-   * Returns the host name of this machine.  This is determined by
-   * calling <code>InetAddress.getLocalHost().getHostName()</code> when
-   * the server starts up.
+   * Returns the host name of this machine. This is determined by calling <code>
+   * InetAddress.getLocalHost().getHostName()</code> when the server starts up.
    *
-   * @return the returned value from
-   *    <code>InetAddress.getLocalHost().getHostName()</code>;  otherwise it
-   *    is the <code>localhost</code> if the name cannot be determined,
-   *    never <code>null</code> or empty.
+   * @return the returned value from <code>InetAddress.getLocalHost().getHostName()</code>;
+   *     otherwise it is the <code>localhost</code> if the name cannot be determined, never <code>
+   *     null</code> or empty.
    */
   public static String getHostName() {
     return ms_hostName;
   }
 
   /**
-   * Returns the host name of this machine.  This is determined by
-   * calling <code>InetAddress.getLocalHost().getHostName()</code> or
-   * the first entry in the "bindAddress" (if it is not empty) when the server
-   * starts up.
+   * Returns the host name of this machine. This is determined by calling <code>
+   * InetAddress.getLocalHost().getHostName()</code> or the first entry in the "bindAddress" (if it
+   * is not empty) when the server starts up.
    *
-   * @return The first address that is defined in the "bindAddress" property
-   *    if the value of the property is not empty; otherwise it is the
-   *    <code>localhost</code> if the name cannot be determined, never
-   *    <code>null</code> or empty.
+   * @return The first address that is defined in the "bindAddress" property if the value of the
+   *     property is not empty; otherwise it is the <code>localhost</code> if the name cannot be
+   *     determined, never <code>null</code> or empty.
    */
   public static String getServerName() {
     return ms_serverName;
@@ -3075,6 +2955,7 @@ public class PSServer {
 
   /**
    * Returns the servername but takes into account the scenario when behind a reverse proxy.
+   *
    * @param request A valid http request
    * @return
    */
@@ -3087,24 +2968,21 @@ public class PSServer {
   }
 
   /**
-   * Returns the fully qualified host name (e.g. foo.company.com). This is
-   * normally determined by calling
-   * <code>InetAddress.getByName(getHostAddress()).getHostName()</code>. The
-   * documentation on this method is not very specific, therefore we keep a
-   * backdoor open in case we run into a problem. To use the backdoor,
-   * specify an entry <code>domain=company.com</code>. If this property is
-   * found, the fully qualified host name returned is the simple
-   * host name (got through <code>getHostName()</code>) with the specified
-   * domain appended. The domain can be specified with or without a leading
-   * dot. Returns the simple host name if the fully qualified name could not
-   * be determined and prints a warning to the server console.
-   * <p>
-   * However, the bind address will be returned if there is one defined in the
-   * "bindAddress" property.
+   * Returns the fully qualified host name (e.g. foo.company.com). This is normally determined by
+   * calling <code>InetAddress.getByName(getHostAddress()).getHostName()</code>. The documentation
+   * on this method is not very specific, therefore we keep a backdoor open in case we run into a
+   * problem. To use the backdoor, specify an entry <code>domain=company.com</code>. If this
+   * property is found, the fully qualified host name returned is the simple host name (got through
+   * <code>getHostName()</code>) with the specified domain appended. The domain can be specified
+   * with or without a leading dot. Returns the simple host name if the fully qualified name could
+   * not be determined and prints a warning to the server console.
    *
-   * @return the fully qualified host name if the "bindAddress" property is
-   *    undefined; otherwise it is the first address that is defined in the
-   *    "bindAddress" property, never <code>null</code> or empty.
+   * <p>However, the bind address will be returned if there is one defined in the "bindAddress"
+   * property.
+   *
+   * @return the fully qualified host name if the "bindAddress" property is undefined; otherwise it
+   *     is the first address that is defined in the "bindAddress" property, never <code>null</code>
+   *     or empty.
    */
   public static String getFullyQualifiedHostName() {
     String bindAddress = getFirstBindAddress();
@@ -3132,8 +3010,7 @@ public class PSServer {
   }
 
   /**
-   * Get the resource bundle for all non-error string resources used in the
-   * server.
+   * Get the resource bundle for all non-error string resources used in the server.
    *
    * @return the resource bundle, never <code>null</code>.
    */
@@ -3142,8 +3019,7 @@ public class PSServer {
   }
 
   /**
-   * Returns the key value to use as part one with the Rhythmyx encyrption
-   * algorithm.
+   * Returns the key value to use as part one with the Rhythmyx encyrption algorithm.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -3154,8 +3030,7 @@ public class PSServer {
   }
 
   /**
-   * Returns the key value to use as part two with the Rhythmyx encyrption
-   * algorithm.
+   * Returns the key value to use as part two with the Rhythmyx encyrption algorithm.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -3168,11 +3043,8 @@ public class PSServer {
   /**
    * Get a specified system object, which is an entry in the object table
    *
-   * @param typeId The object type id, which is the primary key of the
-   *    object table.
-   *
-   * @return The requested object. It may be <code>null</code> if cannot
-   *    found one.
+   * @param typeId The object type id, which is the primary key of the object table.
+   * @return The requested object. It may be <code>null</code> if cannot found one.
    */
   public static PSCmsObject getCmsObject(int typeId) {
     if (m_cmsObjectMap == null) // do lazy query
@@ -3197,10 +3069,9 @@ public class PSServer {
   }
 
   /**
-   * The same as {@link #getCmsObject(int) getCmsObject}, except this method
-   * will only throw RuntimeException if an error occurs. This should only
-   * be called if the caller does not know what to do with the exceptions
-   * which may throw from this method.
+   * The same as {@link #getCmsObject(int) getCmsObject}, except this method will only throw
+   * RuntimeException if an error occurs. This should only be called if the caller does not know
+   * what to do with the exceptions which may throw from this method.
    *
    * @return maybe null so be careful, if its null this is bad.
    */
@@ -3217,18 +3088,15 @@ public class PSServer {
   }
 
   /**
-   * Version of {@link #verifyCommunity(PSRequest)} that takes the request
-   * context.  This is temporarily implemented to support the
-   * sys_commAuthenticateUser exit until that exit is deprecated completely.
-   * At that time this method will be removed, and so should be considered
+   * Version of {@link #verifyCommunity(PSRequest)} that takes the request context. This is
+   * temporarily implemented to support the sys_commAuthenticateUser exit until that exit is
+   * deprecated completely. At that time this method will be removed, and so should be considered
    * deprecated.
    *
-   * @param ctx the request context which cannot be <code>null</code> and
-   *    must be an instance of <code>PSRequestContext</code>.
-   *
+   * @param ctx the request context which cannot be <code>null</code> and must be an instance of
+   *     <code>PSRequestContext</code>.
    * @throws IllegalArgumentException if <code>ctx</code> is invalid.
    * @throws PSServerException if there are any other errors.
-   *
    * @see #verifyCommunity(PSRequest)
    */
   public static void verifyCommunity(IPSRequestContext ctx) throws PSServerException {
@@ -3240,16 +3108,14 @@ public class PSServer {
   }
 
   /**
-   * Determines the user's current community and verifies it is valid.  Checks
-   * the user's session, a cookie, the override parameter, or the subject
-   * attributes of the user in that order for the current community.  The
-   * result is then tested to be sure the user belongs to that community.  The
+   * Determines the user's current community and verifies it is valid. Checks the user's session, a
+   * cookie, the override parameter, or the subject attributes of the user in that order for the
+   * current community. The result is then tested to be sure the user belongs to that community. The
    * result if successful is then set in the user's session private object.
    *
    * @param request The current request, may not be <code>null</code>.
-   *
-   * @throws PSServerException If the user's community is not valid or
-   * if there is an error trying to verify it.
+   * @throws PSServerException If the user's community is not valid or if there is an error trying
+   *     to verify it.
    */
   public static void verifyCommunity(PSRequest request) throws PSServerException {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -3351,14 +3217,11 @@ public class PSServer {
   }
 
   /**
-   * This method retrieves the default community from the first role that
-   * belongs to the user. If user belongs to multiple roles, the first
-   * non-empty value is considered.
+   * This method retrieves the default community from the first role that belongs to the user. If
+   * user belongs to multiple roles, the first non-empty value is considered.
    *
    * @return community id of the default community
-   *
-   * @throws PSInternalRequestCallException if there is an error retrieving
-   * the default community
+   * @throws PSInternalRequestCallException if there is an error retrieving the default community
    */
   private static String getUserDefaultCommunity(PSRequest request)
       throws PSInternalRequestCallException {
@@ -3368,16 +3231,13 @@ public class PSServer {
   }
 
   /**
-   * This method retrieves the value of the given attribute for the user role.
-   * If user happens to be in multiple roles the first non empty value is
-   * considered
+   * This method retrieves the value of the given attribute for the user role. If user happens to be
+   * in multiple roles the first non empty value is considered
    *
    * @param req The current request, assumed not <code>null</code>.
-   * @param srcAttrName Name of the role attribute to retrieve, assumed not
-   * <code>null</code> or empty.
-   *
-   * @return value of the given attribute, may be <code>null</code>, never
-   * empty.
+   * @param srcAttrName Name of the role attribute to retrieve, assumed not <code>null</code> or
+   *     empty.
+   * @return value of the given attribute, may be <code>null</code>, never empty.
    */
   @SuppressWarnings(value = "unchecked")
   private static String getUserRoleAttribute(PSRequest req, String srcAttrName) {
@@ -3415,15 +3275,14 @@ public class PSServer {
   }
 
   /**
-   * This is used to cache the object table (PSX_OBJECTS). It is set by
-   * <code>getCmsObject</code> once, never <code>null</code> after that.
+   * This is used to cache the object table (PSX_OBJECTS). It is set by <code>getCmsObject</code>
+   * once, never <code>null</code> after that.
    */
   private static volatile Map<Integer, PSCmsObject> m_cmsObjectMap = null;
 
   /**
-   * Adds a handler to the request type list, with the appropriate type.
-   * Handler may have already been added to the list with a different type.
-   * Types are uppercased before adding them.
+   * Adds a handler to the request type list, with the appropriate type. Handler may have already
+   * been added to the list with a different type. Types are uppercased before adding them.
    *
    * @param handler The request handler
    * @param type The type of request (i.e. "GET" or "POST")
@@ -3443,8 +3302,8 @@ public class PSServer {
   }
 
   /**
-   * Returns list of request methods used by applications.  Currently
-   * includes the "POST", "GET" and "HEAD" types.
+   * Returns list of request methods used by applications. Currently includes the "POST", "GET" and
+   * "HEAD" types.
    *
    * @return The ArrayList, never <code>null</code>.
    */
@@ -3464,8 +3323,8 @@ public class PSServer {
   }
 
   /**
-   * Returns list of request methods used by most request handlers. Currently
-   * includes the "POST" type.
+   * Returns list of request methods used by most request handlers. Currently includes the "POST"
+   * type.
    *
    * @return The ArrayList, never <code>null</code>.
    */
@@ -3485,10 +3344,8 @@ public class PSServer {
   /**
    * Initializes the search subsystem.
    *
-   * @param apps An array of applications known to the server. This
-   * array is walked to find all content types. The array may be
-   * <code>null</code>.
-   *
+   * @param apps An array of applications known to the server. This array is walked to find all
+   *     content types. The array may be <code>null</code>.
    * @throws PSSearchException if there are any errors.
    */
   @SuppressWarnings(value = "unchecked")
@@ -3515,10 +3372,9 @@ public class PSServer {
     }
 
     /**
-     * If FTS is not enabled, the engine is only required for text extraction,
-     * so we can just return.  If not enabled and the engine failed to
-     * initialize, then log a non-fatal error and return.  If FTS is enabled,
-     * then any failure to initialize the engine is fatal.
+     * If FTS is not enabled, the engine is only required for text extraction, so we can just
+     * return. If not enabled and the engine failed to initialize, then log a non-fatal error and
+     * return. If FTS is enabled, then any failure to initialize the engine is fatal.
      */
     if (searchConfig.isFtsEnabled() == false) {
       if (se != null) {
@@ -3665,60 +3521,49 @@ public class PSServer {
     if (ms_searchEngine != null) ms_searchEngine.shutdown(false);
   }
 
-  /**
-   * the FileLock that is acquired when the server is running.
-   */
+  /** the FileLock that is acquired when the server is running. */
   private static FileLock ms_serverStartupLock = null;
 
   /**
-   * the lock file resource name that will be created. This is created
-   *  in the RxHome directory when the server is inited. A client such as
-   *  installer can check the existence of this file and warn the user that
-   *  installation cannot proceed if the server is running as some
-   *  installations need to update the JRE.
+   * the lock file resource name that will be created. This is created in the RxHome directory when
+   * the server is inited. A client such as installer can check the existence of this file and warn
+   * the user that installation cannot proceed if the server is running as some installations need
+   * to update the JRE.
    */
   public static final String SERVER_FILE_LOCK = "server_run_lock";
 
   /**
-   * The host name of the machine. It is either the value of
-   * <code>InetAddress.getLocalHost().getHostName()</code> or the
-   * <code>localhost</code> if the host name cannot be determined.
+   * The host name of the machine. It is either the value of <code>
+   * InetAddress.getLocalHost().getHostName()</code> or the <code>localhost</code> if the host name
+   * cannot be determined.
    */
   private static String ms_hostName = "localhost";
 
-  /**
-   * The name of the local server (this server).
-   */
+  /** The name of the local server (this server). */
   private static String ms_serverName = "localhost";
 
-  /**
-   * The server request root (path)
-   */
+  /** The server request root (path) */
   private static String ms_requestRoot = "/Rhythmyx";
 
-  /**
-   * The default application's name
-   */
+  /** The default application's name */
   static String ms_defaultAppName = null;
 
   private static boolean ms_hasDefaultApp = false;
 
   /**
-   * This is the server's log handler, which can be accessed by the
-   * server package through the getLogHandler method.  Assigned in the methods
-   * <code>initObjectStore</code> and <code>initLogHandling</code>.
+   * This is the server's log handler, which can be accessed by the server package through the
+   * getLogHandler method. Assigned in the methods <code>initObjectStore</code> and <code>
+   * initLogHandling</code>.
    */
   static PSLogHandler ms_serverLogHandler = null;
 
   /**
-   * This is the server's error handler, which can be accessed by the
-   * server package through the getErrorHandler method.
+   * This is the server's error handler, which can be accessed by the server package through the
+   * getErrorHandler method.
    */
   static PSErrorHandler ms_serverErrorHandler = null;
 
-  /**
-   * The ACL handler for this server
-   */
+  /** The ACL handler for this server */
   static PSAclHandler ms_AclHandler = null;
 
   private static PSServerStatistics ms_Statistics = new PSServerStatistics();
@@ -3750,28 +3595,23 @@ public class PSServer {
   private static final String PROP_ESTIMATE_STATS = "estimateStatistics";
 
   /**
-   * Property indicating if character encoding settings in xsl stylesheets
-   * will be modified to reflect the encoding specified in the resource
-   * via the workbench.
+   * Property indicating if character encoding settings in xsl stylesheets will be modified to
+   * reflect the encoding specified in the resource via the workbench.
    */
   public static final String PROP_ALLOW_XSL_ENCODING_MODS = "allowXslEncodingMods";
 
   /**
-   * Property that when set to true will cause all non-xhtml namespace
-   * declarations to be stripped from the resulting output of a XSL
-   * stylesheet transformation.
+   * Property that when set to true will cause all non-xhtml namespace declarations to be stripped
+   * from the resulting output of a XSL stylesheet transformation.
    */
   public static final String PROP_CLEANUP_NAMESPACES = "cleanupNamespaces";
 
-  /**
-   * Property that determines the response close delay
-   * in milliseconds.
-   */
+  /** Property that determines the response close delay in milliseconds. */
   public static final String PROP_RESP_CLOSE_DELAY = "responseCloseDelay";
 
   /**
-   * Property to indicate if server should require all cms fieldset and field
-   * names to be unique. See {@link #requireUniqueFieldNames()} for more info.
+   * Property to indicate if server should require all cms fieldset and field names to be unique.
+   * See {@link #requireUniqueFieldNames()} for more info.
    */
   private static final String PROP_UNIQUE_FIELD_NAMES = "requireUniqueFieldNames";
 
@@ -3781,10 +3621,7 @@ public class PSServer {
   private static PSProperties ms_serverProps = new PSProperties();
   static ConcurrentHashMap<String, IPSRequestHandler> ms_RequestHandlers = null;
 
-  /**
-   * List of request handlers that will process requests based on the request
-   * root of the URL.
-   */
+  /** List of request handlers that will process requests based on the request root of the URL. */
   private static ConcurrentHashMap<String, IPSRequestHandler> ms_rootedRequestHandlers = null;
 
   protected static PSConsole ms_console = null;
@@ -3793,9 +3630,8 @@ public class PSServer {
   private static boolean ms_noPauseOnExit = false;
 
   /**
-   * this flag specifies whether or not to create an input console. if
-   * <code>true</code> we will not create an input console, otherwise we
-   * will. by default we will create an input console.
+   * this flag specifies whether or not to create an input console. if <code>true</code> we will not
+   * create an input console, otherwise we will. by default we will create an input console.
    */
   private static boolean ms_noInputConsole = false;
 
@@ -3806,169 +3642,139 @@ public class PSServer {
   private static boolean ms_caseSensitiveUrl = false;
 
   /**
-   * Flag to indicate if unique field and fieldset names for content editors
-   * should be enforced.  Initially <code>false</code>, value is possibly set
-   * to <code>true</code> when the server properties are loaded. See
-   * {@link #requireUniqueFieldNames()} for more info.
+   * Flag to indicate if unique field and fieldset names for content editors should be enforced.
+   * Initially <code>false</code>, value is possibly set to <code>true</code> when the server
+   * properties are loaded. See {@link #requireUniqueFieldNames()} for more info.
    */
   private static boolean ms_requireUniqueFieldNames = false;
 
-  /**
-   * The server configuration object, as built from the object store
-   */
+  /** The server configuration object, as built from the object store */
   static PSServerConfiguration ms_srvConfig = null;
 
-  /**
-   * Stores the server version information
-   */
+  /** Stores the server version information */
   private static PSFormatVersion ms_version = null;
 
-  /**
-   * The port we are listening on, set by initSocketListeners
-   */
+  /** The port we are listening on, set by initSocketListeners */
   public static int ms_listenerPort = -1;
 
   /**
-   * The SSL port we are listening on, set by initSocketListeners. This will
-   * be 0 is SSL support is disabled.
+   * The SSL port we are listening on, set by initSocketListeners. This will be 0 is SSL support is
+   * disabled.
    */
   public static int ms_sslListenerPort;
 
-  /**
-   * The host address of the local machine, determined by
-   * InetAddress.getLocalHost()
-   */
+  /** The host address of the local machine, determined by InetAddress.getLocalHost() */
   public static String ms_hostAddress;
 
   /**
-   * This variable contains all applications known to the server, whether
-   * enabled or not. It is set in <code>initObjectStore</code> and cleared
-   * when the initialization is complete.
+   * This variable contains all applications known to the server, whether enabled or not. It is set
+   * in <code>initObjectStore</code> and cleared when the initialization is complete.
    */
   protected static PSApplication[] ms_allApps;
 
   /**
-   * List of allowable request methods for applications.  Initialized in
-   * first call to {@link #getStdAppRequestMethods()}, never <code>null</code>
-   * after that.
+   * List of allowable request methods for applications. Initialized in first call to {@link
+   * #getStdAppRequestMethods()}, never <code>null</code> after that.
    */
   private static List<String> m_stdAppRequestTypes = null;
 
   /**
-   * List of allowable request methods for most request handlers.  Initialized
-   * in first call to {@link #getStdHandlerRequestMethods()}, never
-   * <code>null</code> after that.
+   * List of allowable request methods for most request handlers. Initialized in first call to
+   * {@link #getStdHandlerRequestMethods()}, never <code>null</code> after that.
    */
   private static List<String> m_stdHandlerRequestTypes = null;
 
   /**
-   * List of request handlers and what types of request methods they can handle
-   * (i.e. GET or POST) - all types should be uppercased.
+   * List of request handlers and what types of request methods they can handle (i.e. GET or POST) -
+   * all types should be uppercased.
    */
   private static ConcurrentHashMap<IPSRequestHandler, List<String>> ms_requestHandlerTypes =
       new ConcurrentHashMap<IPSRequestHandler, List<String>>();
 
-  /**
-   * Constant for the name of the entry that reperesents workflow's name/value
-   * pair.
-   */
+  /** Constant for the name of the entry that reperesents workflow's name/value pair. */
   public static final String ENTRY_NAME = "server_config_base_dir";
 
-  /**
-   * Constant for the directory containing all other configuration directories.
-   */
+  /** Constant for the directory containing all other configuration directories. */
   public static final String BASE_CONFIG_DIR = "rxconfig";
 
   /**
-   * Constant for the directory containing server configs.
-   * Assumed to be relative to the Rx directory. No trailing slash.
+   * Constant for the directory containing server configs. Assumed to be relative to the Rx
+   * directory. No trailing slash.
    */
   public static final String SERVER_DIR = BASE_CONFIG_DIR + "/Server";
 
-  /**
-   * The server default http charset property.
-   */
+  /** The server default http charset property. */
   public static final String SERVER_DEFAULT_HTTP_CHARSET = "defaultHttpCharacterSet";
 
-  /**
-   * The server default file charset property.
-   */
+  /** The server default file charset property. */
   public static final String SERVER_DEFAULT_FILE_CHARSET = "defaultFileCharacterSet";
 
   /**
-   * Cache manager to manage caching of cms pages.  Intialized and started in
-   * <code>initRequestHandlers()</code>, never <code>null</code> after that.
+   * Cache manager to manage caching of cms pages. Intialized and started in <code>
+   * initRequestHandlers()</code>, never <code>null</code> after that.
    */
   static PSCacheManager ms_cacheManager = null;
 
   /**
-   * Queue to asynchronously process change events and update the search index.
-   * Initialized and started in the {@link #initSearch(PSApplication[])} method,
-   * never <code>null</code> after that.  Shutdown by {@link #shutdownQueues()}
+   * Queue to asynchronously process change events and update the search index. Initialized and
+   * started in the {@link #initSearch(PSApplication[])} method, never <code>null</code> after that.
+   * Shutdown by {@link #shutdownQueues()}
    */
   private static PSSearchIndexEventQueue ms_searchIndexQueue = null;
 
-  /**
-   * Resource bundle for non-error string resources used in the server.
-   */
+  /** Resource bundle for non-error string resources used in the server. */
   private static ResourceBundle ms_bundle =
       ResourceBundle.getBundle("com.percussion.server.PSStringResources");
 
-  /**
-   * Value of the system default community, hardcoded to 1.
-   */
+  /** Value of the system default community, hardcoded to 1. */
   private static final String SYSTEM_COMMUNITY = "1";
 
-  /**
-   * Name of user default community properties.
-   */
+  /** Name of user default community properties. */
   private static final String SYS_DEFAULTCOMMUNITY = "sys_defaultCommunity";
 
   /**
-   * A set with all defined macros for this server. Initialized in
-   * {@link #init(ServletConfig, String[], int)}, never changed after that.
+   * A set with all defined macros for this server. Initialized in {@link #init(ServletConfig,
+   * String[], int)}, never changed after that.
    */
   private static PSMacroDefinitionSet ms_macros;
 
   /**
-   * Map of all handler state listeners. The key for the map is the name of
-   * the handler (string) and the value is a map of listener events. The key
-   * of this map is the {@link IPSHandlerStateListener listener} and the
-   * value is and integer object of applicable events ORed together. This is
-   * to facilitate registering multiple handler state listeners and state
-   * events for each handler.
+   * Map of all handler state listeners. The key for the map is the name of the handler (string) and
+   * the value is a map of listener events. The key of this map is the {@link
+   * IPSHandlerStateListener listener} and the value is and integer object of applicable events ORed
+   * together. This is to facilitate registering multiple handler state listeners and state events
+   * for each handler.
    */
   private static Map ms_handlerStateListenerMap = new HashMap();
 
   /**
-   * List of listeners to be notified of handler initializations.  Listeners
-   * are added during server init, never <code>null</code> or empty after that.
+   * List of listeners to be notified of handler initializations. Listeners are added during server
+   * init, never <code>null</code> or empty after that.
    */
   private static List<IPSHandlerInitListener> ms_handlerInitListeners =
       new ArrayList<IPSHandlerInitListener>();
 
   /**
-   * Search engine singleton, initialized during server init by
-   * <code>initSearch()</code>, never <code>null</code> after that.
+   * Search engine singleton, initialized during server init by <code>initSearch()</code>, never
+   * <code>null</code> after that.
    */
   private static PSSearchEngine ms_searchEngine = null;
 
   /**
-   * Custom control manager singleton, initialized during server init, never
-   * <code>null</code> after that.
+   * Custom control manager singleton, initialized during server init, never <code>null</code> after
+   * that.
    */
   private static PSCustomControlManager ms_customCtrlMgr = null;
 
   /**
-   * System control manager singleton, initialized during server init, never
-   * <code>null</code> after that.
+   * System control manager singleton, initialized during server init, never <code>null</code> after
+   * that.
    */
   private static PSSystemControlManager ms_sysCtrlMgr = null;
 
   /**
-   * Executor for executing threads a little after server startup.
-   * It is current the Runnable/Callables responsibility to delay (sleep).
-   * Never <code>null</code>.
+   * Executor for executing threads a little after server startup. It is current the
+   * Runnable/Callables responsibility to delay (sleep). Never <code>null</code>.
    */
   private static ExecutorService ms_delayedInitExecutor = Executors.newSingleThreadExecutor();
 
@@ -3988,13 +3794,12 @@ public class PSServer {
 
     /**
      * Changes have been made to the application.
-     * <P>
-     * If the application has been modified, including a rename, the
-     * applicationRenamed method will be called first, then the
-     * applicationUpdated method. If a rename did not occur,
+     *
+     * <p>If the application has been modified, including a rename, the applicationRenamed method
+     * will be called first, then the applicationUpdated method. If a rename did not occur,
      * applicationRenamed will not be called.
      *
-     * @param   app         the application object
+     * @param app the application object
      */
     public void applicationUpdated(PSApplication app)
         throws PSSystemValidationException, PSServerException, PSNotFoundException {
@@ -4009,7 +3814,7 @@ public class PSServer {
     /**
      * A new application has been created.
      *
-     * @param   app         the application object
+     * @param app the application object
      */
     public void applicationCreated(PSApplication app)
         throws PSSystemValidationException, PSServerException, PSNotFoundException {
@@ -4021,16 +3826,13 @@ public class PSServer {
 
     /**
      * The name of the application has been changed.
-     * <P>
-     * If additional changes have also been made to the application, the
-     * applicationRenamed method will be called first, then the
-     * applicationUpdated method.
      *
-     * @param   app         the application object
+     * <p>If additional changes have also been made to the application, the applicationRenamed
+     * method will be called first, then the applicationUpdated method.
      *
-     * @param   oldName     the original name of the application
-     *
-     * @param   newName     the new name of the application
+     * @param app the application object
+     * @param oldName the original name of the application
+     * @param newName the new name of the application
      */
     public void applicationRenamed(PSApplication app, String oldName, String newName) {
       String appKey = "data-" + oldName.toLowerCase();
@@ -4044,10 +3846,10 @@ public class PSServer {
     }
 
     /**
-     * The application has been removed from the object store.
-     * It is guaranteed that no other information has changed.
+     * The application has been removed from the object store. It is guaranteed that no other
+     * information has changed.
      *
-     * @param   app         the application object
+     * @param app the application object
      */
     public void applicationRemoved(PSApplication app) {
       String appName = app.getName();
@@ -4055,16 +3857,13 @@ public class PSServer {
     }
   }
 
-  /**
-   * Listens for server configuration changes and updates the appropriate
-   * parts as required.
-   */
+  /** Listens for server configuration changes and updates the appropriate parts as required. */
   class PSServerConfigChangeListener implements IPSServerConfigurationListener {
     /**
      * Handle notification of changes to the server configuration object.
      *
-     * @param config the configuration object, may be <code>null</code> in
-     *    which case this does nothing.
+     * @param config the configuration object, may be <code>null</code> in which case this does
+     *     nothing.
      */
     public void configurationUpdated(PSServerConfiguration config) {
       if (config == null) return;

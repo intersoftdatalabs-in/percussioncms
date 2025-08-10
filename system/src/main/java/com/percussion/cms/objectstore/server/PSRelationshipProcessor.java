@@ -44,10 +44,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * This class encapsulates all relationship functionality provided on the
- * server side.
- */
+/** This class encapsulates all relationship functionality provided on the server side. */
 public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   private static final Logger log = LogManager.getLogger(PSRelationshipProcessor.class);
 
@@ -98,8 +95,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Deletes all supplied relationships.
    *
-   * @param relationships the relationships to be deleted, not
-   *    <code>null</code>, may be empty.
+   * @param relationships the relationships to be deleted, not <code>null</code>, may be empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public void delete(PSRelationshipSet relationships) throws PSCmsException {
@@ -109,18 +105,16 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Delete all relationships with the relationship ids that are in the array
-   * of the provided relationship ids which have the supplied type and owner.
+   * Delete all relationships with the relationship ids that are in the array of the provided
+   * relationship ids which have the supplied type and owner.
    *
-   * @param relationshipType the relationship type to delete, may be
-   * <code>null</code> but not empty, in which case the dependents of all
-   * relationship types will be deleted. An exception is thrown if the
-   * requested type was not found in the relationship configuration.
-   * @param owner the owner from which to delete the dependents, must be
-   * a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   * what's a valid key.
-   * @param rids an array of relationship ids to be deleted. If
-   * <code>null</code>, returns immediately.
+   * @param relationshipType the relationship type to delete, may be <code>null</code> but not
+   *     empty, in which case the dependents of all relationship types will be deleted. An exception
+   *     is thrown if the requested type was not found in the relationship configuration.
+   * @param owner the owner from which to delete the dependents, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what's a valid key.
+   * @param rids an array of relationship ids to be deleted. If <code>null</code>, returns
+   *     immediately.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public void delete(String relationshipType, PSKey owner, int[] rids) throws PSCmsException {
@@ -146,22 +140,19 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Deletes all relationships of the specified type between the supplied
-   * owner and dependents. Provide <code>null</code> for type and dependents
-   * to delete all relationships for the supplied owner.
+   * Deletes all relationships of the specified type between the supplied owner and dependents.
+   * Provide <code>null</code> for type and dependents to delete all relationships for the supplied
+   * owner.
    *
-   * @param relationshipType the relationship type to delete, may be
-   * <code>null</code> but not empty, in which case the dependents of all
-   * relationship types will be deleted. An exception is thrown if the
-   * requested type was not found in the relationship configuration.
-   * @param owner the owner of the relationships to delete , must be a
-   * valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   * what is a valid key.
-   * @param dependents a list of <code>PSKey</code> objects that are
-   * dependents of the relationships to be deleted, <code>null</code> to
-   * delete all relationships for the specified type. Dependents that do not
-   * have any relationship to the owner of the specified type will silently be
-   * skipped.
+   * @param relationshipType the relationship type to delete, may be <code>null</code> but not
+   *     empty, in which case the dependents of all relationship types will be deleted. An exception
+   *     is thrown if the requested type was not found in the relationship configuration.
+   * @param owner the owner of the relationships to delete , must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what is a valid key.
+   * @param dependents a list of <code>PSKey</code> objects that are dependents of the relationships
+   *     to be deleted, <code>null</code> to delete all relationships for the specified type.
+   *     Dependents that do not have any relationship to the owner of the specified type will
+   *     silently be skipped.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public void delete(String relationshipType, PSKey owner, List dependents) throws PSCmsException {
@@ -186,9 +177,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getAncestors(String, PSKey, int)
-   * getAncestors(String, PSKey, 0)}
+   * Convenience method that calls {@link #getAncestors(String, PSKey, int) getAncestors(String,
+   * PSKey, 0)}
    */
   public PSRelationshipSet getAncestors(String relationshipType, PSKey owner)
       throws PSCmsException {
@@ -198,19 +188,15 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Get all ancestorsts for the supplied object.
    *
-   * @param relationshipType the relationship type used to get the ancestors,
-   *  not <code>null</code> or empty.
-   * @param object the object key for which to get the ancestors, must be a
-   * valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   * what's a valid key.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to
-   * be performed.
-   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may
-   * be empty.
+   * @param relationshipType the relationship type used to get the ancestors, not <code>null</code>
+   *     or empty.
+   * @param object the object key for which to get the ancestors, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what's a valid key.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may be empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public PSRelationshipSet getAncestors(
@@ -231,9 +217,9 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * This API checks if a relationship with
-   *   Same ownerId , same dependentId, same RelationshipConfig, and same revisions
-   *   already exists, then don't create a new Relationship.
+   * This API checks if a relationship with Same ownerId , same dependentId, same
+   * RelationshipConfig, and same revisions already exists, then don't create a new Relationship.
+   *
    * @param rel
    * @return
    */
@@ -306,8 +292,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getDependentLocators(String, PSKey, int)
+   * Convenience method that calls {@link #getDependentLocators(String, PSKey, int)
    * getDependentLocators(String, PSKey, 0)}
    */
   public List getDependentLocators(String type, PSKey owner) throws PSCmsException {
@@ -315,25 +300,20 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Catalogs all dependents of the supplied owner that are related through
-   * the provided relationship type.
+   * Catalogs all dependents of the supplied owner that are related through the provided
+   * relationship type.
    *
-   * @param relationshipType the relationship type to catalog, may be <code>null</code>
-   *    but not empty, in which case the dependents of all relationship types
-   *    will be returned. An exception is thrown if the requested type was
-   *    not found in the relationship configuration.
-   * @param owner the owner for which to catalog the dependents, must be
-   *    a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   *    what's a valid key.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a list of <code>PSLocator</code> objects addressing dependents of
-   *    the supplied owner. Never <code>null</code>, may be empty.
+   * @param relationshipType the relationship type to catalog, may be <code>null</code> but not
+   *     empty, in which case the dependents of all relationship types will be returned. An
+   *     exception is thrown if the requested type was not found in the relationship configuration.
+   * @param owner the owner for which to catalog the dependents, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what's a valid key.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a list of <code>PSLocator</code> objects addressing dependents of the supplied owner.
+   *     Never <code>null</code>, may be empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public List<PSLocator> getDependentLocators(
@@ -350,33 +330,27 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Convenience method that calls {@link #getDependents(String, PSKey, int)}.
-   * passes last param - doNotApplyFilters = 0;
+   * Convenience method that calls {@link #getDependents(String, PSKey, int)}. passes last param -
+   * doNotApplyFilters = 0;
    */
   public PSRelationshipSet getDependents(String type, PSKey owner) throws PSCmsException {
     return getDependents(type, owner, 0);
   }
 
   /**
-   * Catalogs all dependents of the supplied owner that are related through
-   * the provided relationship type.
+   * Catalogs all dependents of the supplied owner that are related through the provided
+   * relationship type.
    *
-   * @param type the relationship type to catalog, may be <code>null</code>
-   *    but not empty, in which case the dependents of all relationship types
-   *    will be returned. An exception is thrown if the requested type was
-   *    not found in the relationship configuration.
-   * @param owner the owner for which to catalog the dependents, must be
-   *    a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   *    what's a valid key.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may
-   *    be empty.
+   * @param type the relationship type to catalog, may be <code>null</code> but not empty, in which
+   *     case the dependents of all relationship types will be returned. An exception is thrown if
+   *     the requested type was not found in the relationship configuration.
+   * @param owner the owner for which to catalog the dependents, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what's a valid key.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may be empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public PSRelationshipSet getDependents(String type, PSKey owner, int doNotApplyFilters)
@@ -385,9 +359,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getParents(String, PSKey, int)
-   * getParents(String, PSKey, 0)}
+   * Convenience method that calls {@link #getParents(String, PSKey, int) getParents(String, PSKey,
+   * 0)}
    */
   public List<PSLocator> getParents(String type, PSKey owner) throws PSCmsException {
     return getParents(type, owner, 0);
@@ -396,20 +369,15 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Get all parents for the supplied object.
    *
-   * @param type the relationship type used to get the parents, not
-   *    <code>null</code> or empty.
-   * @param object the object key for which to get the parents, must be
-   *    a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   *    what's a valid key.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a list of <code>PSLocator</code> objects for all parents found.
-   *    Never <code>null</code>, may be empty.
+   * @param type the relationship type used to get the parents, not <code>null</code> or empty.
+   * @param object the object key for which to get the parents, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what's a valid key.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a list of <code>PSLocator</code> objects for all parents found. Never <code>null</code>
+   *     , may be empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public List<PSLocator> getParents(String type, PSKey object, int doNotApplyFilters)
@@ -425,10 +393,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     return parents;
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#getParents(String, String, PSKey)
-   * interface}
-   */
+  /** See {@link IPSRelationshipProcessor#getParents(String, String, PSKey) interface} */
   public PSComponentSummary[] getParents(String type, String relationshipType, PSKey locator)
       throws PSCmsException {
     List locatorList = getParents(relationshipType, locator);
@@ -445,14 +410,12 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Just like {@link #getRelationships(PSRelationshipFilter)}, except
-   * returns all relationships in a list.
+   * Just like {@link #getRelationships(PSRelationshipFilter)}, except returns all relationships in
+   * a list.
    *
-   * @return a list of zero or more relationships with no particular order,
-   *    never <code>null</code>, but may be empty.
-   *
+   * @return a list of zero or more relationships with no particular order, never <code>null</code>,
+   *     but may be empty.
    * @see IPSRelationshipProcessor#getRelationships(PSRelationshipFilter)
-   *
    * @throws PSCmsException if an error occurred while retrieving relationships.
    */
   public List<PSRelationship> getRelationshipList(PSRelationshipFilter filter)
@@ -476,8 +439,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Convenience method that calls {@link #getSiblings(String, PSKey, int)}
-   * passes doNotApplyFilters = 0.
+   * Convenience method that calls {@link #getSiblings(String, PSKey, int)} passes doNotApplyFilters
+   * = 0.
    */
   public List getSiblings(String type, PSKey owner) throws PSCmsException {
     return getSiblings(type, owner, 0);
@@ -486,24 +449,17 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Get all siblings for the supplied object.
    *
-   * @param type the relationship type used to get the siblings, not
-   *    <code>null</code> or empty.
-   *
-   * @param object the object key for which to get the siblings, must be
-   *    a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   *    what is a valid key.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a list of <code>List</code> objects for each parent found, each
-   *    containing a <code>List</code> of <code>PSKey</code> objects for all
-   *    siblings found in that particular parent. The returned list does not
-   *    include the object key itself. Never <code>null</code>, may be empty.
-   *
+   * @param type the relationship type used to get the siblings, not <code>null</code> or empty.
+   * @param object the object key for which to get the siblings, must be a valid key to a persisted
+   *     object, see {@link #validateKey(PSKey)} for what is a valid key.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a list of <code>List</code> objects for each parent found, each containing a <code>List
+   *     </code> of <code>PSKey</code> objects for all siblings found in that particular parent. The
+   *     returned list does not include the object key itself. Never <code>null</code>, may be
+   *     empty.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public List getSiblings(String type, PSKey object, int doNotApplyFilters) throws PSCmsException {
@@ -570,11 +526,11 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Just like {@link #getSummaryByPath(String, String, String)}, except it
-   * returns the content id of the supplied path.
+   * Just like {@link #getSummaryByPath(String, String, String)}, except it returns the content id
+   * of the supplied path.
    *
-   * @return the content id. Returns <code>-1</code> if there is no such
-   *    relationship path exists in the system.
+   * @return the content id. Returns <code>-1</code> if there is no such relationship path exists in
+   *     the system.
    */
   public int getIdByPath(String componentType, String path, String relationshipTypeName)
       throws PSCmsException {
@@ -584,26 +540,21 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Just like {@link #add(String, List, PSLocator)}, but in addition to that
-   * the relationships are inserted at the given index into the existing
-   * order of relationships for the supplied type and owner. This requires
-   * that the relationship configuration for the supplied type defines the
-   * system property <code>sys_sortrank</code>. An exception is thrown if
-   * <code>sys_sortrank</code> is not defined.
+   * Just like {@link #add(String, List, PSLocator)}, but in addition to that the relationships are
+   * inserted at the given index into the existing order of relationships for the supplied type and
+   * owner. This requires that the relationship configuration for the supplied type defines the
+   * system property <code>sys_sortrank</code>. An exception is thrown if <code>sys_sortrank</code>
+   * is not defined.
    *
-   * @param type the relationship type to create, not <code>null</code> or
-   *    empty. An exception is thrown if the requested type was not found
-   *    in the relationship configuration.
-   * @param owner the owner of the new relationships beeing created, must be
-   *    a valid key to a persisted object, see {@link #validateKey(PSKey)} for
-   *    what is a valid key.
-   * @param dependents a list of <code>PSKey</code> of all dependents which
-   *    need to be related to the supplied owner. All supplied keys must
-   *    reference persisted objects and must be valid, see
-   *    {@link #validateKey(PSKey)} for what is a valid key.
-   * @param index the index where to insert the new relationships, must be > 0.
-   *    If the index is bigger then the current size of relationships, the
-   *    new dependents will be appendend.
+   * @param type the relationship type to create, not <code>null</code> or empty. An exception is
+   *     thrown if the requested type was not found in the relationship configuration.
+   * @param owner the owner of the new relationships beeing created, must be a valid key to a
+   *     persisted object, see {@link #validateKey(PSKey)} for what is a valid key.
+   * @param dependents a list of <code>PSKey</code> of all dependents which need to be related to
+   *     the supplied owner. All supplied keys must reference persisted objects and must be valid,
+   *     see {@link #validateKey(PSKey)} for what is a valid key.
+   * @param index the index where to insert the new relationships, must be > 0. If the index is
+   *     bigger then the current size of relationships, the new dependents will be appendend.
    * @throws PSCmsException if any errors occur processing the request.
    */
   public void insert(String type, PSKey owner, List dependents, int index) throws PSCmsException {
@@ -717,18 +668,15 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Tests whether the dependent of a relationship is contained in the
-   * provided list of <code>PSKey</code> objects. Containment is tested using
-   * the id if the dependent revision is ignored; otherwise using the
-   * keys <code>equal</code> methods.
+   * Tests whether the dependent of a relationship is contained in the provided list of <code>PSKey
+   * </code> objects. Containment is tested using the id if the dependent revision is ignored;
+   * otherwise using the keys <code>equal</code> methods.
    *
-   * @param possibleDeps a list of <code>PSLocator</code> objects, assumed not
-   *    <code>null</code>, may be empty.
-   * @param relationship the relationship to test, assumed not
-   *    <code>null</code>.
-   *
-   * @return <code>true</code> if the list contains the supplied locator,
-   *    <code>false</code> otherwise.
+   * @param possibleDeps a list of <code>PSLocator</code> objects, assumed not <code>null</code>,
+   *     may be empty.
+   * @param relationship the relationship to test, assumed not <code>null</code>.
+   * @return <code>true</code> if the list contains the supplied locator, <code>false</code>
+   *     otherwise.
    * @throws PSCmsException if the supplied list contains invalid locators.
    */
   private boolean containsDependent(Iterator possibleDeps, PSRelationship relationship)
@@ -747,12 +695,9 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * Determines whether a locator equals the dependent of a relationship.
    *
    * @param locator The to be compared locator, assume not <code>null</code>.
-   *
-   * @param relationship The to be compared relationship, assume not
-   *    <code>null</code>.
-   *
-   * @return <code>true</code> if the locator equals the dependent of the
-   *    relationship; otherwise return <code>false</code>.
+   * @param relationship The to be compared relationship, assume not <code>null</code>.
+   * @return <code>true</code> if the locator equals the dependent of the relationship; otherwise
+   *     return <code>false</code>.
    */
   private boolean equalsDependent(PSLocator locator, PSRelationship relationship) {
     PSRelationshipConfig config = relationship.getConfig();
@@ -766,15 +711,14 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Uses Local PSComponentProcessorProxy to get ComponentSummaries
-   * of a given collection of PSLocators.
-   * @param locators collection of PSLocator objects,
-   * never <code>null</code>, may be <code>empty</code>.
-   * @return array of PSComponentSummary objects,
-   * never <code>null</code>, may be <code>empty</code>.
+   * Uses Local PSComponentProcessorProxy to get ComponentSummaries of a given collection of
+   * PSLocators.
    *
-   * @throws PSCmsException if encounters any problems while
-   * fetching or parsing the XML document.
+   * @param locators collection of PSLocator objects, never <code>null</code>, may be <code>empty
+   *     </code>.
+   * @return array of PSComponentSummary objects, never <code>null</code>, may be <code>empty</code>
+   *     .
+   * @throws PSCmsException if encounters any problems while fetching or parsing the XML document.
    */
   private PSComponentSummary[] getComponentSummaries(Collection locators) throws PSCmsException {
     if (locators.isEmpty()) return new PSComponentSummary[0];
@@ -789,11 +733,10 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Get the relationship config for the supplied type.
    *
-   * @param relationshipType the relationship type for which to get the configuration,
-   *    not <code>null</code> or empty.
+   * @param relationshipType the relationship type for which to get the configuration, not <code>
+   *     null</code> or empty.
    * @return the relationship configuration, may be <code>null</code>.
-   * @throws PSCmsException if the supplied relationship type is not defined
-   *    in the system.
+   * @throws PSCmsException if the supplied relationship type is not defined in the system.
    */
   public PSRelationshipConfig getConfig(String relationshipType) throws PSCmsException {
     if (relationshipType == null || relationshipType.trim().length() == 0)
@@ -867,16 +810,12 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Helper method to recursively retrieve all descendent locators
    *
-   * @param relationshipTypeName the relationship type name, assume not
-   * <code>null</code> or empty.
-   * @param parent A valid key that references the current owner of
-   *    the relationships to all the supplied children. A valid key is one
-   *    that references an existing object in the database. Never
-   *    <code>null</code>.
-   * @param results A List that will be used to store the results. It is
-   *    a list over zero or more {@link PSLocator} objects. Assume it is
-   *    not <code>null</code>, may be empty.
-   *
+   * @param relationshipTypeName the relationship type name, assume not <code>null</code> or empty.
+   * @param parent A valid key that references the current owner of the relationships to all the
+   *     supplied children. A valid key is one that references an existing object in the database.
+   *     Never <code>null</code>.
+   * @param results A List that will be used to store the results. It is a list over zero or more
+   *     {@link PSLocator} objects. Assume it is not <code>null</code>, may be empty.
    * @throws PSCmsException if any error occurs
    */
   private void getDescendentLocators(String relationshipTypeName, PSKey parent, List results)
@@ -905,9 +844,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Validates a component type. It must be <code>COMPONENT_TYPE</code>.
    *
-   * @param type
-   *           The component type to be validated.
-   *
+   * @param type The component type to be validated.
    */
   private void validateComponentType(String type) {
     if (type == null || type.trim().length() == 0)
@@ -924,15 +861,12 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Validates the supplied key. Must not be <code>null</code>, must be
-   * persisted and must be of type <code>PSLocator</code>.
-   * The supplied key cast to the proper type.
+   * Validates the supplied key. Must not be <code>null</code>, must be persisted and must be of
+   * type <code>PSLocator</code>. The supplied key cast to the proper type.
    *
-   * @param key the key to validate, not <code>null</code> and of type
-   *    <code>PSLocator</code>.
+   * @param key the key to validate, not <code>null</code> and of type <code>PSLocator</code>.
    * @return a <code>PSLocator</code>, never <code>null</code>.
-   * @throws PSCmsException if the supplied key is not persisted or of
-   *    expected type.
+   * @throws PSCmsException if the supplied key is not persisted or of expected type.
    */
   private PSLocator validateKey(PSKey key) throws PSCmsException {
     if (key == null) throw new IllegalArgumentException("key may not be null");
@@ -948,16 +882,17 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Helper method to check if a locator list contains the specified locator.
-   * Comparison can be revision sensitive.
-   * @param locatorList list of {@link com.percussion.design.objectstore.PSLocator locators}
-   *                    to check in, assumed not <code>null</code> may be empty.
-   * @param locator {@link com.percussion.design.objectstore.PSLocator locator}
-   * to check for, assumed not <code>null</code>.
-   * @param revisionSensitive <code>true</code> is the check has to be
-   * revision sensitive, <code>false</code> otherwise.
-   * @return <code>true</code> if the list contains the specified locator,
-   * <code>false</code> otherwise.
+   * Helper method to check if a locator list contains the specified locator. Comparison can be
+   * revision sensitive.
+   *
+   * @param locatorList list of {@link com.percussion.design.objectstore.PSLocator locators} to
+   *     check in, assumed not <code>null</code> may be empty.
+   * @param locator {@link com.percussion.design.objectstore.PSLocator locator} to check for,
+   *     assumed not <code>null</code>.
+   * @param revisionSensitive <code>true</code> is the check has to be revision sensitive, <code>
+   *     false</code> otherwise.
+   * @return <code>true</code> if the list contains the specified locator, <code>false</code>
+   *     otherwise.
    */
   private boolean listContains(List locatorList, PSLocator locator, boolean revisionSensitive) {
     if (revisionSensitive) return locatorList.contains(locator);
@@ -975,14 +910,14 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * Request object used to process various operations. Initialized by the
-   * constructor, never <code>null</code> after that.
+   * Request object used to process various operations. Initialized by the constructor, never <code>
+   * null</code> after that.
    */
   protected IPSRequestContext m_request;
 
   /**
-   * The relationship database processor, initialized in constructor, never
-   * <code>null</code> or modified after that.
+   * The relationship database processor, initialized in constructor, never <code>null</code> or
+   * modified after that.
    */
   private PSRelationshipDbProcessor m_dbProcessor = null;
 

@@ -27,60 +27,60 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "SitePublishLogRequest")
 public class PSSitePublishLogRequest extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String siteId;
-    private int days;
-    private int maxcount;
-    private int skipCount;
-    private String pubServerId;
-    private boolean showOnlyFailures;
+  private String siteId;
+  private int days;
+  private int maxcount;
+  private int skipCount;
+  private String pubServerId;
+  private boolean showOnlyFailures;
 
-    public String getSiteId() {
-        return siteId;
-    }
+  public String getSiteId() {
+    return siteId;
+  }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public int getDays() {
-        return days;
-    }
+  public int getDays() {
+    return days;
+  }
 
-    public void setDays(int days) {
-        this.days = days;
-    }
+  public void setDays(int days) {
+    this.days = days;
+  }
 
-    public int getMaxcount() {
-        return maxcount;
-    }
+  public int getMaxcount() {
+    return maxcount;
+  }
 
-    public void setMaxcount(int maxcount) {
-        this.maxcount = maxcount;
-    }
+  public void setMaxcount(int maxcount) {
+    this.maxcount = maxcount;
+  }
 
-    public int getSkipCount() {
-        return skipCount;
-    }
+  public int getSkipCount() {
+    return skipCount;
+  }
 
-    public void setSkipCount(int skipCount) {
-        this.skipCount = skipCount;
-    }
+  public void setSkipCount(int skipCount) {
+    this.skipCount = skipCount;
+  }
 
-    public String getPubServerId() {
-        return pubServerId;
-    }
+  public String getPubServerId() {
+    return pubServerId;
+  }
 
-    public void setPubServerId(String pubServerId) {
-        this.pubServerId = pubServerId;
-    }
+  public void setPubServerId(String pubServerId) {
+    this.pubServerId = pubServerId;
+  }
 
-    public boolean isShowOnlyFailures() {
-        return showOnlyFailures;
-    }
+  public boolean isShowOnlyFailures() {
+    return showOnlyFailures;
+  }
 
-    public void setShowOnlyFailures(boolean showOnlyFailures) {
-        this.showOnlyFailures = showOnlyFailures;
-    }
+  public void setShowOnlyFailures(boolean showOnlyFailures) {
+    this.showOnlyFailures = showOnlyFailures;
+  }
 }

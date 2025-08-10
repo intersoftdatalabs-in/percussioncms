@@ -29,25 +29,22 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Takes a parameter that contains a delimited string list and
- * turns it into a multiple value parameter. However, do nothing if the
- * value of the parameter does not contain a delimiter and the source and
- * the destination parameters are the same; otherwise simply copy the
- * value of the source parameter to the destination parameter.
+ * Takes a parameter that contains a delimited string list and turns it into a multiple value
+ * parameter. However, do nothing if the value of the parameter does not contain a delimiter and the
+ * source and the destination parameters are the same; otherwise simply copy the value of the source
+ * parameter to the destination parameter.
  */
 public class PSParamStringListToMultiParams extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
-  /**
-   * See {@link #process(Object[], IPSRequestContext)} for the description.
-   */
+  /** See {@link #process(Object[], IPSRequestContext)} for the description. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException {
     process(params, request);
   }
 
   /**
-   * See {@link #process(Object[], IPSRequestContext)} for the description.
-   * Does not change the supplied result document.
+   * See {@link #process(Object[], IPSRequestContext)} for the description. Does not change the
+   * supplied result document.
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -64,18 +61,19 @@ public class PSParamStringListToMultiParams extends PSDefaultExtension
   }
 
   /**
-   * Takes a parameter that contains a delimited string list and
-   * turns it into a multiple value parameter.
+   * Takes a parameter that contains a delimited string list and turns it into a multiple value
+   * parameter.
+   *
    * @param params takes the following four parameters:
-   * <p>
-   * <pre>
+   *     <p>
+   *     <pre>
    *    [0] = Name of the source parameter, not <code>null</code> or empty.
    *    [1] = The delimiter, not <code>null</code>, may be empty.
    *    [2] = Name of the target parameter, not <code>null</code> or empty.
    *    [3] = Replace the target parameter if this parameter starts with
    *          'y'; otherwise append to existing target param value.
    * </pre>
-   * </p>
+   *
    * @param request the current request context, assumed not <code>null</code>.
    * @throws PSParameterMismatchException for any error.
    */
@@ -138,8 +136,6 @@ public class PSParamStringListToMultiParams extends PSDefaultExtension
     }
   }
 
-  /**
-   * The logger for this class
-   */
+  /** The logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSParamStringListToMultiParams.class);
 }

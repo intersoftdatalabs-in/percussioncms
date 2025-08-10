@@ -21,22 +21,18 @@ import com.percussion.deployer.objectstore.PSDependency;
 import java.util.Optional;
 
 /**
- * A pluggable class for PSExportJob to determine if a given dependency should
- * be suppressed from the exported file.  Typically, this is used to suppress
- * dependencies that have been added by the addMissingDependencies process that
- * the caller of the job does not want included.
+ * A pluggable class for PSExportJob to determine if a given dependency should be suppressed from
+ * the exported file. Typically, this is used to suppress dependencies that have been added by the
+ * addMissingDependencies process that the caller of the job does not want included.
  */
 public interface IPSDependencySuppressor {
 
   /**
-   * Determines if the specified dependency should be suppressed from
-   * the dependency tree being assembled.  It is the responsibility of the
-   * caller to enforce the suppression.
+   * Determines if the specified dependency should be suppressed from the dependency tree being
+   * assembled. It is the responsibility of the caller to enforce the suppression.
    *
    * @param dependency the dependency to consider, never <code>null</code>
-   *
-   * @return <code>true</code> if the dependency should be suppressed;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the dependency should be suppressed; <code>false</code> otherwise.
    */
   boolean suppress(Optional<PSDependency> dependency);
 }

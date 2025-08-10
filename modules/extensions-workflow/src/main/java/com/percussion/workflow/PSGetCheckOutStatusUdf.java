@@ -23,16 +23,16 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * A document in workflow can be in 1 of 3 conditions regarding its checked
- * out status:
+ * A document in workflow can be in 1 of 3 conditions regarding its checked out status:
+ *
  * <ol>
- *    <li>Not checked out</li>
- *    <li>Checked out by the current user</li>
- *    <li>Checked out by someone else</li>
+ *   <li>Not checked out
+ *   <li>Checked out by the current user
+ *   <li>Checked out by someone else
  * </ol>
- * This exit analyzes the user information and returns a String that contains
- * a String representation of the value. These constants are defined in
- * PSWorkFlowUtils.
+ *
+ * This exit analyzes the user information and returns a String that contains a String
+ * representation of the value. These constants are defined in PSWorkFlowUtils.
  *
  * @see PSWorkFlowUtils
  */
@@ -42,18 +42,14 @@ public class PSGetCheckOutStatusUdf extends PSSimpleJavaUdfExtension {
   /**
    * Returns a constant indicating the checked-out state of the document.
    *
-   * @param params A single parameter is expected which is the name of the
-   *    user who currently has the document checked out. Typically, this
-   *    is passed in by using a Backend column replacement value that gets
-   *    the data from the contentstatus table. May be empty or <code>null
+   * @param params A single parameter is expected which is the name of the user who currently has
+   *     the document checked out. Typically, this is passed in by using a Backend column
+   *     replacement value that gets the data from the contentstatus table. May be empty or <code>
+   *     null
    *    </code>.
-   *
    * @param request The current request context, never <code>null</code>.
-   *
    * @return An integer as a String indicating the status.
-   *
-   * @throws  PSConversionException If any data extraction from the request
-   *    fails.
+   * @throws PSConversionException If any data extraction from the request fails.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -82,24 +78,23 @@ public class PSGetCheckOutStatusUdf extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * One of the possible constants returned by this method. It means the
-   * current document is not checked out. Immutable after it is initialized
-   * in the <code>init</code> method.
+   * One of the possible constants returned by this method. It means the current document is not
+   * checked out. Immutable after it is initialized in the <code>init</code> method.
    */
   private static String CHECKOUT_STATUS_NONE = "" + PSWorkFlowUtils.CHECKOUT_STATUS_NONE;
 
   /**
-   * One of the possible constants returned by this method. It means the
-   * current document is checked out by the user making this request.
-   * Immutable after it is initialized in the <code>init</code> method.
+   * One of the possible constants returned by this method. It means the current document is checked
+   * out by the user making this request. Immutable after it is initialized in the <code>init</code>
+   * method.
    */
   private static String CHECKOUT_STATUS_CURRENT_USER =
       "" + PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER;
 
   /**
-   * One of the possible constants returned by this method. It means the
-   * current document is checked out by someone other than the requestor.
-   * Immutable after it is initialized in the <code>init</code> method.
+   * One of the possible constants returned by this method. It means the current document is checked
+   * out by someone other than the requestor. Immutable after it is initialized in the <code>init
+   * </code> method.
    */
   private static String CHECKOUT_STATUS_OTHER = "" + PSWorkFlowUtils.CHECKOUT_STATUS_OTHER;
 }

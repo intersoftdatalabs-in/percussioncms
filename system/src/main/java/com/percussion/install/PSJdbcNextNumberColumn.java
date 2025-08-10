@@ -34,8 +34,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Data handler object which makes all the values of the column (specified in
- * the handler's Xml) unique based on the NextNumber table.
+ * Data handler object which makes all the values of the column (specified in the handler's Xml)
+ * unique based on the NextNumber table.
  */
 public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
   /*
@@ -95,12 +95,10 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * Returns a column data object containing the modified value for the
-   * column which is being made altered.
+   * Returns a column data object containing the modified value for the column which is being made
+   * altered.
    *
-   * @param value the current value of the column in the database, may be
-   * <code>null</code>
-   *
+   * @param value the current value of the column in the database, may be <code>null</code>
    * @return the modified column value, may not be <code>null</code>
    * @throws PSJdbcTableFactoryException
    * @throws SQLException
@@ -124,11 +122,10 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
   /**
    * Get the next number for the supplied key.
    *
-   * @param key the key to get the next number for, not <code>null</code>
-   * or empty.
+   * @param key the key to get the next number for, not <code>null</code> or empty.
    * @return the next number.
-   * @throws PSJdbcTableFactoryException if anything goes wrong looking
-   * up next number for a given key.
+   * @throws PSJdbcTableFactoryException if anything goes wrong looking up next number for a given
+   *     key.
    */
   private int getNextNumber(String key) throws PSJdbcTableFactoryException {
     if (key == null || key.trim().length() == 0)
@@ -142,9 +139,8 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   * See {@link #toXml(Document)} for the DTD that <code>sourceNode</code>
-   * should follow.
+   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler See {@link #toXml(Document)} for the
+   *     DTD that <code>sourceNode</code> should follow.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -186,26 +182,13 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
 
   /**
    * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   *
-   * The child element of the datahandler element
-   * <code>IPSJdbcTableDataHandler.NODE_NAME</code> is based on the following
-   * DTD :
-   *
-   * &lt;!--
-   * Specifies the column whose values should be based on NextNumber table and
-   * the value of the key to lookup in the NextNumber table.
-   *
-   * Attributes:
-   * name - The name of the column
-   * value - Base value to be used for <code>null</code> values in the
-   * specified column
-   * -->
-   *
-   * &lt;!ELEMENT column>
-   * &lt;!ATTLIST column
-   *    name CDATA #REQUIRED
-   * >
-   *
+   *     <p>The child element of the datahandler element <code>IPSJdbcTableDataHandler.NODE_NAME
+   *     </code> is based on the following DTD :
+   *     <p>&lt;!-- Specifies the column whose values should be based on NextNumber table and the
+   *     value of the key to lookup in the NextNumber table.
+   *     <p>Attributes: name - The name of the column value - Base value to be used for <code>null
+   *     </code> values in the specified column -->
+   *     <p>&lt;!ELEMENT column> &lt;!ATTLIST column name CDATA #REQUIRED >
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -231,35 +214,29 @@ public class PSJdbcNextNumberColumn implements IPSJdbcTableDataHandler {
 
   }
 
-  /**
-   * DB Connection.
-   */
+  /** DB Connection. */
   private Connection m_conn = null;
 
   /**
-   * provides the database/schema information for the table, initialized in the
-   * <code>init()</code> method, never <code>null</code> after initialization
+   * provides the database/schema information for the table, initialized in the <code>init()</code>
+   * method, never <code>null</code> after initialization
    */
   protected PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * Schema of the table which contains the column specified by
-   * <code>m_column</code>, initialized in the <code>init()</code> method,
-   * never <code>null</code> after initialization. This table schema should
-   * contain the column specified by <code>m_column</code>.
+   * Schema of the table which contains the column specified by <code>m_column</code>, initialized
+   * in the <code>init()</code> method, never <code>null</code> after initialization. This table
+   * schema should contain the column specified by <code>m_column</code>.
    */
   protected PSJdbcTableSchema m_tblSchema = null;
 
   /**
-   * Name of the column whose values are to be made unique, initialized in the
-   * <code>fromXml()</code> method, never <code>null</code> or empty after
-   * initialization
+   * Name of the column whose values are to be made unique, initialized in the <code>fromXml()
+   * </code> method, never <code>null</code> or empty after initialization
    */
   protected String m_column = null;
 
-  /**
-   * NextNumber table Key name, never <code>null</code> or <code>empty</code>.
-   */
+  /** NextNumber table Key name, never <code>null</code> or <code>empty</code>. */
   protected String m_nextNumberKey = null;
 
   // Xml elements and attributes

@@ -20,11 +20,9 @@ package com.percussion.share.service.exception;
 import com.percussion.share.validation.PSValidationErrors;
 
 /**
- *
  * Used to validate parameters of a method call.
  *
  * @author adamgent
- *
  */
 public class PSParametersValidationException extends PSValidationException {
 

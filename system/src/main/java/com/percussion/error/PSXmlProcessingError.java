@@ -26,51 +26,40 @@ import java.util.Locale;
 import org.w3c.dom.Element;
 
 /**
- * The PSXmlProcessingError class is used to report an error
- * encountered during XML construction or deconstruction. This will most
- * often occur due to an invalid document structure.
- * <p>
- * The following information is logged:
+ * The PSXmlProcessingError class is used to report an error encountered during XML construction or
+ * deconstruction. This will most often occur due to an invalid document structure.
+ *
+ * <p>The following information is logged:
+ *
  * <ul>
- * <li>the text of the error</li>
- * <li>the XML element node(s) in error</li>
+ *   <li>the text of the error
+ *   <li>the XML element node(s) in error
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXmlProcessingError extends PSLogError {
 
   /**
    * Report an error encountered during XML construction/deconstruction.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      source         the XML sub-tree containing the element(s)
-   *                            causing the error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param source the XML sub-tree containing the element(s) causing the error
    */
   public PSXmlProcessingError(
       int applId, java.lang.String sessionId, int errorCode, Object[] errorParams, Element source) {
@@ -85,10 +74,7 @@ public class PSXmlProcessingError extends PSLogError {
     else m_source = PSXmlDocumentBuilder.toString(source);
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     int msgCount = (m_source.length() > 0) ? 3 : 2;
     PSLogSubMessage[] msgs = new PSLogSubMessage[msgCount];

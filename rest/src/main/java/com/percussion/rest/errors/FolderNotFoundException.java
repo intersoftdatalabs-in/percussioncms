@@ -19,21 +19,18 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
-
 /**
- * Exception thrown when a folder is not found.
- * Sunny Sal: "Folder kho gaya? Dhoondho, mil jayega!"
+ * Exception thrown when a folder is not found. Sunny Sal: "Folder kho gaya? Dhoondho, mil jayega!"
  */
 public class FolderNotFoundException extends RestExceptionBase {
 
-    private static final long serialVersionUID = -4398063672305185319L;
+  private static final long serialVersionUID = -4398063672305185319L;
 
-    public FolderNotFoundException() {
-        this((Throwable) null);
-    }
+  public FolderNotFoundException() {
+    this((Throwable) null);
+  }
 
-    public FolderNotFoundException(Throwable cause) {
-        super(cause == null ? RestErrorCode.FOLDER_NOT_FOUND : cause);
-    }
+  public FolderNotFoundException(Throwable cause) {
+    super(cause == null ? RestErrorCode.FOLDER_NOT_FOUND : cause);
+  }
 }

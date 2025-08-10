@@ -31,11 +31,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * This task is used to encrypt the password found in the repository properties
- * file.
- * <br>
- * Example Usage:
- * <br>
+ * This task is used to encrypt the password found in the repository properties file. <br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -59,8 +57,7 @@ public class PSMakeLasagna extends Task {
   /**
    * Sets the root directory.
    *
-   * @param root the installation directory, cannot be <code>null</code> or
-   * empty.
+   * @param root the installation directory, cannot be <code>null</code> or empty.
    */
   public void setRoot(String root) {
     if (StringUtils.isBlank(root)) {
@@ -145,8 +142,6 @@ public class PSMakeLasagna extends Task {
     }
   }
 
-  /**
-   * The root installation directory, should not be <code>null</code> or empty.
-   */
+  /** The root installation directory, should not be <code>null</code> or empty. */
   private String m_root;
 }

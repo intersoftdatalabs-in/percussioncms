@@ -17,64 +17,64 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Contains the workflow state and all possible transitions for an item.
- * Sunny Sal says: "State transitions are like plot twists—keep them clear!"
+ * Contains the workflow state and all possible transitions for an item. Sunny Sal says: "State
+ * transitions are like plot twists—keep them clear!"
  */
 @XmlRootElement(name = "ItemStateTransition")
 public class PSItemStateTransition extends PSAbstractDataObject {
 
-    private String itemId;
-    private String stateId;
-    private String stateName;
-    private String workflowId;
-    private List<String> transitionTriggers = new ArrayList<>();
+  private String itemId;
+  private String stateId;
+  private String stateName;
+  private String workflowId;
+  private List<String> transitionTriggers = new ArrayList<>();
 
-    public String getItemId() {
-        return itemId;
-    }
+  public String getItemId() {
+    return itemId;
+  }
 
-    public void setItemId(String id) {
-        this.itemId = id;
-    }
+  public void setItemId(String id) {
+    this.itemId = id;
+  }
 
-    public String getStateName() {
-        return stateName;
-    }
+  public String getStateName() {
+    return stateName;
+  }
 
-    public void setStateName(String stateName) {
-        this.stateName = stateName;
-    }
+  public void setStateName(String stateName) {
+    this.stateName = stateName;
+  }
 
-    public String getStateId() {
-        return stateId;
-    }
+  public String getStateId() {
+    return stateId;
+  }
 
-    public void setStateId(String id) {
-        this.stateId = id;
-    }
+  public void setStateId(String id) {
+    this.stateId = id;
+  }
 
-    public String getWorkflowId() {
-        return workflowId;
-    }
+  public String getWorkflowId() {
+    return workflowId;
+  }
 
-    public void setWorkflowId(String id) {
-        this.workflowId = id;
-    }
+  public void setWorkflowId(String id) {
+    this.workflowId = id;
+  }
 
-    public List<String> getTransitionTriggers() {
-        return transitionTriggers;
-    }
+  public List<String> getTransitionTriggers() {
+    return transitionTriggers;
+  }
 
-    public void setTransitionTriggers(List<String> triggers) {
-        if (triggers != null) {
-            transitionTriggers = triggers;
-        } else {
-            transitionTriggers.clear();
-        }
+  public void setTransitionTriggers(List<String> triggers) {
+    if (triggers != null) {
+      transitionTriggers = triggers;
+    } else {
+      transitionTriggers.clear();
     }
+  }
 }

@@ -19,18 +19,16 @@ package com.percussion.UTComponents;
 import javax.swing.*;
 
 /**
- * This extends <code>DefaultCellEditor</code> to accept panel with many
- * controls as editor component as <code>DefauleCellEditor</code> accepts only
- * <code>JComboBox</code>, <code>JCheckBox</code> and <code>JTextField</code>.
+ * This extends <code>DefaultCellEditor</code> to accept panel with many controls as editor
+ * component as <code>DefauleCellEditor</code> accepts only <code>JComboBox</code>, <code>JCheckBox
+ * </code> and <code>JTextField</code>.
  */
 public class UTCellEditor extends DefaultCellEditor {
   /**
    * Constructor for creating a cell editor with panel as editor component.
    *
    * @param component the editor component, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if the component is <code>null</code>.
-   *
    * @see UTEditorComponent
    */
   public UTCellEditor(final UTEditorComponent component) {
@@ -50,8 +48,8 @@ public class UTCellEditor extends DefaultCellEditor {
     delegate =
         new EditorDelegate() {
           /**
-           * Sets the value to the editing control of this editor component.
-           * The value is set based on the editing control.
+           * Sets the value to the editing control of this editor component. The value is set based
+           * on the editing control.
            *
            * @param value the value to be set.
            */
@@ -81,9 +79,8 @@ public class UTCellEditor extends DefaultCellEditor {
           }
 
           /**
-           * Gets value from editor control. The value is based on the editor
-           * control. If the control is check box, it returns a
-           * <code>Boolean</code> object.
+           * Gets value from editor control. The value is based on the editor control. If the
+           * control is check box, it returns a <code>Boolean</code> object.
            *
            * @return the cell editor value, may be <code>null</code>
            */

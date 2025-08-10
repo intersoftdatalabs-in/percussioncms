@@ -20,12 +20,9 @@ package com.percussion.rx.config;
 import com.percussion.rx.config.data.PSConfigStatus.ConfigStatus;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.Collection;
 
-/**
- * Listener interface for changes to package configurations.
- */
+/** Listener interface for changes to package configurations. */
 public interface IPSConfigChangeListener {
 
   /**

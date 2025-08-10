@@ -18,95 +18,97 @@
 package com.percussion.pagemanagement.assembler;
 
 /**
- * Represents the rendering result of an element in a region,
- * which can be either a widget or a subregion.
- * <p>
- * The rendering results of an entire region are a list of these objects.
- * </p>
+ * Represents the rendering result of an element in a region, which can be either a widget or a
+ * subregion.
+ *
+ * <p>The rendering results of an entire region are a list of these objects.
+ *
  * @author adamgent
  */
 public class PSRegionResult {
 
-    private String result;
-    private PSRegionResultType type = PSRegionResultType.WIDGET;
-    private boolean publishMode;
-    /**
-     * The widget instance for this region result.
-     * May be {@code null} if {@link #getType()} is {@link PSRegionResultType#SUBREGION}.
-     */
-    private PSWidgetInstance widget;
-    /**
-     * The cause of an error during rendering, if any.
-     * May be {@code null}.
-     */
-    private Throwable errorCause;
+  private String result;
+  private PSRegionResultType type = PSRegionResultType.WIDGET;
+  private boolean publishMode;
 
-    /**
-     * Gets the exception thrown during rendering, if any.
-     * @return the exception, or {@code null} if no exception was thrown.
-     */
-    public Throwable getErrorCause() {
-        return errorCause;
-    }
+  /**
+   * The widget instance for this region result. May be {@code null} if {@link #getType()} is {@link
+   * PSRegionResultType#SUBREGION}.
+   */
+  private PSWidgetInstance widget;
 
-    /**
-     * Sets the error cause and publish mode.
-     * @param errorCause the exception thrown during rendering.
-     * @param publishMode whether this is in publish mode.
-     */
-    public void setErrorCause(Throwable errorCause, boolean publishMode) {
-        this.errorCause = errorCause;
-        this.publishMode = publishMode;
-    }
+  /** The cause of an error during rendering, if any. May be {@code null}. */
+  private Throwable errorCause;
 
-    /**
-     * Gets the widget instance for this region result.
-     * @return the widget instance, or {@code null} if this is a subregion.
-     */
-    public PSWidgetInstance getWidget() {
-        return widget;
-    }
+  /**
+   * Gets the exception thrown during rendering, if any.
+   *
+   * @return the exception, or {@code null} if no exception was thrown.
+   */
+  public Throwable getErrorCause() {
+    return errorCause;
+  }
 
-    public void setWidget(PSWidgetInstance widget) {
-        this.widget = widget;
-    }
+  /**
+   * Sets the error cause and publish mode.
+   *
+   * @param errorCause the exception thrown during rendering.
+   * @param publishMode whether this is in publish mode.
+   */
+  public void setErrorCause(Throwable errorCause, boolean publishMode) {
+    this.errorCause = errorCause;
+    this.publishMode = publishMode;
+  }
 
-    public String getResult() {
-        return result;
-    }
+  /**
+   * Gets the widget instance for this region result.
+   *
+   * @return the widget instance, or {@code null} if this is a subregion.
+   */
+  public PSWidgetInstance getWidget() {
+    return widget;
+  }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
+  public void setWidget(PSWidgetInstance widget) {
+    this.widget = widget;
+  }
 
-    public PSRegionResultType getType() {
-        return type;
-    }
+  public String getResult() {
+    return result;
+  }
 
-    public void setType(PSRegionResultType type) {
-        this.type = type;
-    }
+  public void setResult(String result) {
+    this.result = result;
+  }
 
-    /**
-     * Indicates whether this region result is a widget rendering or a subregion.
-     */
-    public enum PSRegionResultType {
-        WIDGET, SUBREGION
-    }
+  public PSRegionResultType getType() {
+    return type;
+  }
 
-    /**
-     * Overridden for ease of use in Velocity templates.
-     * @return the rendered result, or an error message if rendering failed.
-     */
-    @Override
-    public String toString() {
-        if (getErrorCause() != null) {
-            if (!publishMode) {
-                return "Error Displaying Contents. See logs for more details";
-            } else {
-                return "";
-            }
-        }
-        return result;
+  public void setType(PSRegionResultType type) {
+    this.type = type;
+  }
+
+  /** Indicates whether this region result is a widget rendering or a subregion. */
+  public enum PSRegionResultType {
+    WIDGET,
+    SUBREGION
+  }
+
+  /**
+   * Overridden for ease of use in Velocity templates.
+   *
+   * @return the rendered result, or an error message if rendering failed.
+   */
+  @Override
+  public String toString() {
+    if (getErrorCause() != null) {
+      if (!publishMode) {
+        return "Error Displaying Contents. See logs for more details";
+      } else {
+        return "";
+      }
     }
+    return result;
+  }
 }

@@ -20,22 +20,16 @@ import com.percussion.cms.IPSCmsErrors;
 import com.percussion.error.PSException;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Indicates that an invalid complex child field name has been specified.
- */
+/** Indicates that an invalid complex child field name has been specified. */
 public class PSInvalidChildTypeException extends PSException {
-  /**
-   * For java serialization
-   */
+  /** For java serialization */
   private static final long serialVersionUID = 1L;
 
   /**
    * Construct the exception with the default message.
    *
-   * @param childName The invalid child type name, may not be <code>null</code>
-   * or empty.
-   * @param contentType The content type name or id, may not be
-   * <code>null</code> or empty.
+   * @param childName The invalid child type name, may not be <code>null</code> or empty.
+   * @param contentType The content type name or id, may not be <code>null</code> or empty.
    */
   public PSInvalidChildTypeException(String childName, String contentType) {
     super(IPSCmsErrors.INVALID_CHILD_TYPE, new String[] {childName, contentType});

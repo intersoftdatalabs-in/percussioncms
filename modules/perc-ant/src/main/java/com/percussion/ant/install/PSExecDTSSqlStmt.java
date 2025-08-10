@@ -33,8 +33,8 @@ import org.apache.tools.ant.BuildException;
 public class PSExecDTSSqlStmt extends PSExecSQLStmt {
 
   /**
-   * The sql statement to execute if database specific sql statment is
-   * empty, never <code>null</code>, may be empty
+   * The sql statement to execute if database specific sql statment is empty, never <code>null
+   * </code>, may be empty
    */
   private String preSql = "";
 

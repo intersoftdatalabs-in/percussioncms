@@ -23,8 +23,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Encapsulates an error or warning validation result.
- * Used for validating configuration files in one package against another.
+ * Encapsulates an error or warning validation result. Used for validating configuration files in
+ * one package against another.
  *
  * <p>Sunny Sal says: "Validation is like a seatbelt—better safe than sorry!"
  *
@@ -78,25 +78,42 @@ public class PSConfigValidation {
    */
   public String getValidationMsg() {
     if (exception != null) {
-      String expMsg = StringUtils.isBlank(exception.getLocalizedMessage())
-          ? exception.toString()
-          : exception.getLocalizedMessage();
-      return "While verifying package \"" + pkgName
-          + "\", an error occurred: " + expMsg;
+      String expMsg =
+          StringUtils.isBlank(exception.getLocalizedMessage())
+              ? exception.toString()
+              : exception.getLocalizedMessage();
+      return "While verifying package \"" + pkgName + "\", an error occurred: " + expMsg;
     }
     String msgType = isError ? "error" : "warning";
     String type = objType == null ? "" : " (type=" + objType.name() + ")";
     if (propertyName != null) {
-      return "While verifying package \"" + pkgName
-          + "\", found a conflict on property \"" + propertyName
-          + "\" of design object \"" + objName + "\"" + type
-          + " in package \"" + otherPkgName + "\". The " + msgType
-          + " is: " + message;
+      return "While verifying package \""
+          + pkgName
+          + "\", found a conflict on property \""
+          + propertyName
+          + "\" of design object \""
+          + objName
+          + "\""
+          + type
+          + " in package \""
+          + otherPkgName
+          + "\". The "
+          + msgType
+          + " is: "
+          + message;
     } else {
-      return "While verifying package \"" + pkgName
-          + "\", found a conflict on design object \"" + objName + "\""
-          + type + " in package \"" + otherPkgName + "\". The "
-          + msgType + " is: " + message;
+      return "While verifying package \""
+          + pkgName
+          + "\", found a conflict on design object \""
+          + objName
+          + "\""
+          + type
+          + " in package \""
+          + otherPkgName
+          + "\". The "
+          + msgType
+          + " is: "
+          + message;
     }
   }
 

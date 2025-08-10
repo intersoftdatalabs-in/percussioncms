@@ -27,17 +27,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class is used to determine if a particular package configuration file
- * is empty.  A package configuration file is empty if it does not specify
- * configuration for any package elements.
+ * This class is used to determine if a particular package configuration file is empty. A package
+ * configuration file is empty if it does not specify configuration for any package elements.
  *
- * Returns <code>true</code> if the package configuration file specified by
- * <code>m_relativeFilePath</code> member variable is empty, <code>false</code>
- * otherwise.
+ * <p>Returns <code>true</code> if the package configuration file specified by <code>
+ * m_relativeFilePath</code> member variable is empty, <code>false</code> otherwise. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -58,7 +54,6 @@ import org.w3c.dom.NodeList;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -121,10 +116,10 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
    ***************************************************************/
 
   /**
-   * Returns the relative path of the package configuration file from the
-   * installation directory.
-   * @return the relative path of the package configuration file from the
-   * installation directory, may be <code>null</code> or empty
+   * Returns the relative path of the package configuration file from the installation directory.
+   *
+   * @return the relative path of the package configuration file from the installation directory,
+   *     may be <code>null</code> or empty
    */
   public String getRelativeFilePath() {
     return m_relativeFilePath;
@@ -132,10 +127,10 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
 
   /**
    * Sets the relative path of the xml file from the installation directory.
-   * @param relativeFilePath the relative path of the xml file from the
-   * installation directory, never <code>null</code> or empty
-   * @throw IllegalArgumentException if relativeFilePath is <code>null</code>
-   * or empty
+   *
+   * @param relativeFilePath the relative path of the xml file from the installation directory,
+   *     never <code>null</code> or empty
+   * @throw IllegalArgumentException if relativeFilePath is <code>null</code> or empty
    */
   public void setRelativeFilePath(String relativeFilePath) {
     if ((relativeFilePath == null) || (relativeFilePath.trim().length() == 0))
@@ -143,9 +138,7 @@ public class PSPkgConfigFileEmptyCondition extends PSAction implements Condition
     this.m_relativeFilePath = relativeFilePath;
   }
 
-  /**
-   * Stores the relative path of the package configuration file.
-   */
+  /** Stores the relative path of the package configuration file. */
   private String m_relativeFilePath =
       "rxconfig/Packages/DefaultConfigs/perc.SystemObjects_defaultConfig.xml";
 }

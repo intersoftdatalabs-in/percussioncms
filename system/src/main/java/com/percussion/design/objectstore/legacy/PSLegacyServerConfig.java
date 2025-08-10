@@ -45,27 +45,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Provides access to obsolete legacy objects defined in a server configuration.
- * Will restore them via {@link #fromXml(Document)}, but will not save them
- * when {@link PSServerConfiguration#toXml()} is called.
+ * Provides access to obsolete legacy objects defined in a server configuration. Will restore them
+ * via {@link #fromXml(Document)}, but will not save them when {@link PSServerConfiguration#toXml()}
+ * is called.
  */
 public class PSLegacyServerConfig extends PSServerConfiguration {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
-   * Additionally supports loading the legacy
-   * BackEndConnections/PSXBackendConnection,
-   * Credentials/PSXBackendCredential, and
-   * SecurityProviderInstance/PSXSecurityProviderInstance elements.  The newly
-   * supported Jdbc Driver Configuration/PSXJdbcDriverConfig elements will also
-   * be loaded.
+   * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for
+   * a description of the XML object. Additionally supports loading the legacy
+   * BackEndConnections/PSXBackendConnection, Credentials/PSXBackendCredential, and
+   * SecurityProviderInstance/PSXSecurityProviderInstance elements. The newly supported Jdbc Driver
+   * Configuration/PSXJdbcDriverConfig elements will also be loaded.
    *
    * @param sourceDoc the XML document to construct this object from
-   *
-   * @throws PSUnknownNodeTypeException if an XML element node is not of the
-   * appropriate type
-   * @throws PSUnknownDocTypeException if the XML document is not of the
-   * appropriate type
+   * @throws PSUnknownNodeTypeException if an XML element node is not of the appropriate type
+   * @throws PSUnknownDocTypeException if the XML document is not of the appropriate type
    */
   public PSLegacyServerConfig(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -73,9 +67,7 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
     fromXml(sourceDoc);
   }
 
-  /**
-   * Construct an empty legacy server configuration object.
-   */
+  /** Construct an empty legacy server configuration object. */
   @SuppressWarnings("unchecked")
   PSLegacyServerConfig() {
     super();
@@ -86,12 +78,11 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * This method is called to populate a PSServerConfiguration Java object
-   * from a PSXserver configuration XML document. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * This method is called to populate a PSServerConfiguration Java object from a PSXserver
+   * configuration XML document. See the {@link #toXml() toXml} method for a description of the XML
+   * object.
    *
-   * @throws     PSUnknownDocTypeException  if the XML document is not
-   *                                        of type PSXserver configuration
+   * @throws PSUnknownDocTypeException if the XML document is not of type PSXserver configuration
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -514,36 +505,32 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the server's default data encryption settings. Through this object,
-   * E2 can force users to make requests through SSL. It can even be used to
-   * enforce the key strength is appropriate for the given server. This
-   * allows the server's data to be sent over secure channels. Incoming
-   * requests from users, however, can still be sent in the clear. For this
-   * reason, care must be taken when designing web pages so that forms
-   * containing sensitive data, including user ids and passwords, are
-   * submitted using HTTPS, not HTTP.
+   * Get the server's default data encryption settings. Through this object, E2 can force users to
+   * make requests through SSL. It can even be used to enforce the key strength is appropriate for
+   * the given server. This allows the server's data to be sent over secure channels. Incoming
+   * requests from users, however, can still be sent in the clear. For this reason, care must be
+   * taken when designing web pages so that forms containing sensitive data, including user ids and
+   * passwords, are submitted using HTTPS, not HTTP.
    *
-   * @return      the server's data encrytion settings or <code>null</code> if
-   * one has not been previously defined
+   * @return the server's data encrytion settings or <code>null</code> if one has not been
+   *     previously defined
    */
   public PSDataEncryptor getDefaultDataEncryptor() {
     return m_dataEncryptor;
   }
 
   /**
-   * Overwrite the server's default data encryption object with the
-   * specified data encryption object. If you only want to modify some data
-   * encryption settings, use getDataEncryptor to get the existing object
-   * and modify the returned object directly.
-   * <p>
-   * The PSDataEncryptor object supplied to this method will be stored with
-   * the PSServerConfiguration object. Any subsequent changes made to the object by
-   * the caller will also effect the server.
+   * Overwrite the server's default data encryption object with the specified data encryption
+   * object. If you only want to modify some data encryption settings, use getDataEncryptor to get
+   * the existing object and modify the returned object directly.
    *
-   * @param   encryptor   the new data encryptor for the server or
-   * <code>null</code> to disable this functionality
+   * <p>The PSDataEncryptor object supplied to this method will be stored with the
+   * PSServerConfiguration object. Any subsequent changes made to the object by the caller will also
+   * effect the server.
    *
-   * @see                  PSDataEncryptor
+   * @param encryptor the new data encryptor for the server or <code>null</code> to disable this
+   *     functionality
+   * @see PSDataEncryptor
    */
   public void setDataEncryptor(PSDataEncryptor encryptor) {
     m_dataEncryptor = encryptor;
@@ -551,38 +538,33 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the server's admin encryption settings. Through this object,
-   * E2 can force users to make administration requests through SSL.
-   * It can even be used to enforce the key strength is appropriate
-   * for the given server. This
-   * allows admin responses to be sent over secure channels. Incoming
-   * requests from users, however, can still be sent in the clear. For this
-   * reason, care must be taken when designing web pages so that forms
-   * containing sensitive data, including user ids and passwords, are
-   * submitted using HTTPS, not HTTP.
+   * Get the server's admin encryption settings. Through this object, E2 can force users to make
+   * administration requests through SSL. It can even be used to enforce the key strength is
+   * appropriate for the given server. This allows admin responses to be sent over secure channels.
+   * Incoming requests from users, however, can still be sent in the clear. For this reason, care
+   * must be taken when designing web pages so that forms containing sensitive data, including user
+   * ids and passwords, are submitted using HTTPS, not HTTP.
    *
-   * @return      the server's admin encrytion settings or <code>null</code> if
-   * one has not been previously defined
+   * @return the server's admin encrytion settings or <code>null</code> if one has not been
+   *     previously defined
    */
   public PSDataEncryptor getAdminEncryptor() {
     return m_adminEncryptor;
   }
 
   /**
-   * Overwrite the server's admin encryption object with the
-   * specified object. If you only want to modify some
-   * encryption settings, use getAdminEncryptor to get the existing object
-   * and modify the returned object directly.
-   * <p>
-   * The PSDataEncryptor object supplied to this method will be stored with
-   * the PSServerConfiguration object. Any subsequent changes made to the
-   * object by the caller will also effect the server.
+   * Overwrite the server's admin encryption object with the specified object. If you only want to
+   * modify some encryption settings, use getAdminEncryptor to get the existing object and modify
+   * the returned object directly.
    *
-   * @param   encryptor   the new data encryptor for the server or
-   * <code>null</code> to disable this functionality
+   * <p>The PSDataEncryptor object supplied to this method will be stored with the
+   * PSServerConfiguration object. Any subsequent changes made to the object by the caller will also
+   * effect the server.
    *
-   * @see                  #getAdminEncryptor
-   * @see                  PSDataEncryptor
+   * @param encryptor the new data encryptor for the server or <code>null</code> to disable this
+   *     functionality
+   * @see #getAdminEncryptor
+   * @see PSDataEncryptor
    */
   public void setAdminEncryptor(PSDataEncryptor encryptor) {
     m_adminEncryptor = encryptor;
@@ -590,49 +572,40 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the maximum number of threads any given application may
-   * consume. The server maintains a pool of threads, which can grow as
-   * activity increases. The number of threads can be limited to avoid the
-   * resource problems that arise from excessive thread use.
-   * <P>
-   * This may not be an exact number as the total number of
-   * threads used by the server can be limited. For instance, if the
-   * application limit is set to 50 and the server limit is set to 200,
-   * ten applications cannot each use 50 threads. That would bring the
-   * threads in use to 500, which is well beyond the server limit of 200.
-   * <P>
-   * The thread limit can also be set on an application, to allow less
-   * critical applications from consuming resources. An application
-   * cannot exceed the server defined limit.
+   * Get the maximum number of threads any given application may consume. The server maintains a
+   * pool of threads, which can grow as activity increases. The number of threads can be limited to
+   * avoid the resource problems that arise from excessive thread use.
    *
-   * @return         the maximum number of threads an application is
-   * permitted to use
+   * <p>This may not be an exact number as the total number of threads used by the server can be
+   * limited. For instance, if the application limit is set to 50 and the server limit is set to
+   * 200, ten applications cannot each use 50 threads. That would bring the threads in use to 500,
+   * which is well beyond the server limit of 200.
    *
-   * @see            #getMaxThreadsOnServer
+   * <p>The thread limit can also be set on an application, to allow less critical applications from
+   * consuming resources. An application cannot exceed the server defined limit.
+   *
+   * @return the maximum number of threads an application is permitted to use
+   * @see #getMaxThreadsOnServer
    */
   public int getMaxThreadsPerApp() {
     return m_maxThreadsPerApp;
   }
 
   /**
-   * Set the maximum number of threads any given application may
-   * consume. The server maintains a pool of threads, which can grow as
-   * activity increases. The number of threads can be limited to avoid the
-   * resource problems that arise from excessive thread use.
-   * <P>
-   * This may not be an exact number as the total number of
-   * threads used by the server can be limited. For instance, if the
-   * application limit is set to 50 and the server limit is set to 200,
-   * ten applications cannot each use 50 threads. That would bring the
-   * threads in use to 500, which is well beyond the server limit of 200.
-   * <P>
-   * The thread limit can also be set on an application, to allow less
-   * critical applications from consuming resources.
+   * Set the maximum number of threads any given application may consume. The server maintains a
+   * pool of threads, which can grow as activity increases. The number of threads can be limited to
+   * avoid the resource problems that arise from excessive thread use.
    *
-   * @param   max   the maximum number of threads an application is
-   * permitted to use
+   * <p>This may not be an exact number as the total number of threads used by the server can be
+   * limited. For instance, if the application limit is set to 50 and the server limit is set to
+   * 200, ten applications cannot each use 50 threads. That would bring the threads in use to 500,
+   * which is well beyond the server limit of 200.
    *
-   * @see            #setMaxThreadsOnServer
+   * <p>The thread limit can also be set on an application, to allow less critical applications from
+   * consuming resources.
+   *
+   * @param max the maximum number of threads an application is permitted to use
+   * @see #setMaxThreadsOnServer
    */
   public void setMaxThreadsPerApp(int max) {
     m_maxThreadsPerApp = max;
@@ -640,28 +613,24 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the maximum number of threads the server may assign to applications
-   * for servicing user requests. The server maintains a pool of threads,
-   * which can grow as activity increases. The number of threads can be
-   * limited to avoid the resource problems that arise from excessive
+   * Get the maximum number of threads the server may assign to applications for servicing user
+   * requests. The server maintains a pool of threads, which can grow as activity increases. The
+   * number of threads can be limited to avoid the resource problems that arise from excessive
    * thread use.
    *
-   * @return      the maximum number of threads the server may use for
-   * servicing requests
+   * @return the maximum number of threads the server may use for servicing requests
    */
   public int getMaxThreadsOnServer() {
     return m_maxThreadsOnServer;
   }
 
   /**
-   * Set the maximum number of threads the server may assign to applications
-   * for servicing user requests. The server maintains a pool of threads,
-   * which can grow as activity increases. The number of threads can be
-   * limited to avoid the resource problems that arise from excessive
+   * Set the maximum number of threads the server may assign to applications for servicing user
+   * requests. The server maintains a pool of threads, which can grow as activity increases. The
+   * number of threads can be limited to avoid the resource problems that arise from excessive
    * thread use.
    *
-   * @param   max   set the maximum number of threads the server may use for
-   * servicing requests
+   * @param max set the maximum number of threads the server may use for servicing requests
    */
   public void setMaxThreadsOnServer(int max) {
     m_maxThreadsOnServer = max;
@@ -669,32 +638,27 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the minimum number of threads the server should make available
-   * for servicing user requests. The server maintains a pool of threads,
-   * which can grow and shrink as activity increases or decreases.
-   * The minimum number of threads can be set to speed processing for the
-   * expected request load.
+   * Get the minimum number of threads the server should make available for servicing user requests.
+   * The server maintains a pool of threads, which can grow and shrink as activity increases or
+   * decreases. The minimum number of threads can be set to speed processing for the expected
+   * request load.
    *
-   * @return the minimum number of threads the server should make
-   * available for servicing requests
-   *
-   * @see            #setIdleThreadTimeout
+   * @return the minimum number of threads the server should make available for servicing requests
+   * @see #setIdleThreadTimeout
    */
   public int getMinThreadsOnServer() {
     return m_minThreadsOnServer;
   }
 
   /**
-   * Set the minimum number of threads the server should make available
-   * for servicing user requests. The server maintains a pool of threads,
-   * which can grow and shrink as activity increases or decreases.
-   * The minimum number of threads can be set to speed processing for the
-   * expected request load.
+   * Set the minimum number of threads the server should make available for servicing user requests.
+   * The server maintains a pool of threads, which can grow and shrink as activity increases or
+   * decreases. The minimum number of threads can be set to speed processing for the expected
+   * request load.
    *
-   * @param   min   the minimum number of threads the server should make
-   * available for servicing requests
-   *
-   * @see            #setIdleThreadTimeout
+   * @param min the minimum number of threads the server should make available for servicing
+   *     requests
+   * @see #setIdleThreadTimeout
    */
   public void setMinThreadsOnServer(int min) {
     m_minThreadsOnServer = min;
@@ -702,79 +666,66 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the amount of idle time, in minutes, that will cause a thread
-   * to be terminated. Even if a thread stays idle beyond the idle time
-   * limit, it will not be terminated if that would cause the number of
-   * available threads to fall below the minimum number of threads required.
+   * Get the amount of idle time, in minutes, that will cause a thread to be terminated. Even if a
+   * thread stays idle beyond the idle time limit, it will not be terminated if that would cause the
+   * number of available threads to fall below the minimum number of threads required.
    *
-   * @return            the amount of idle time, in seconds, which will
-   * cause an idle thread to terminate
-   *
-   * @see               #getMinThreadsOnServer
+   * @return the amount of idle time, in seconds, which will cause an idle thread to terminate
+   * @see #getMinThreadsOnServer
    */
   public int getIdleThreadTimeout() {
     return m_idleThreadTimeout;
   }
 
   /**
-   * Set the amount of idle time, in minutes, that will cause a thread
-   * to be terminated. Even if a thread stays idle beyond the idle time
-   * limit, it will not be terminated if that would cause the number of
-   * available threads to fall below the minimum number of threads required.
+   * Set the amount of idle time, in minutes, that will cause a thread to be terminated. Even if a
+   * thread stays idle beyond the idle time limit, it will not be terminated if that would cause the
+   * number of available threads to fall below the minimum number of threads required.
    *
-   * @param   seconds   the amount of idle time, in seconds, which will
-   * cause an idle thread to terminate
-   *
-   * @see               #getMinThreadsOnServer
+   * @param seconds the amount of idle time, in seconds, which will cause an idle thread to
+   *     terminate
+   * @see #getMinThreadsOnServer
    */
   public void setIdleThreadTimeout(int seconds) {
     m_idleThreadTimeout = seconds;
   }
 
   /**
-   * Get the maximum number of requests which may be queued for processing
-   * by an application. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
-   * <P>
-   * This may not be an exact number as the total number of requests in the
-   * queue can be limited by the server. For instance, if the
-   * application limit is set to 50 and the server limit is set to 200,
-   * ten applications cannot each queue 50 requests. That would bring the
-   * number of requests queued to 500, which is well beyond the server
-   * limit of 200.
-   * <P>
-   * The request queue limit can also be set on an application, to allow
-   * less critical applications from consuming resources. An application
-   * cannot exceed the server defined limit.
+   * Get the maximum number of requests which may be queued for processing by an application. When
+   * this limit is exceeded, the user is notified that the server is too busy (HTTP status code
+   * 503).
    *
-   * @return         the maximum number of requests to queue
+   * <p>This may not be an exact number as the total number of requests in the queue can be limited
+   * by the server. For instance, if the application limit is set to 50 and the server limit is set
+   * to 200, ten applications cannot each queue 50 requests. That would bring the number of requests
+   * queued to 500, which is well beyond the server limit of 200.
    *
-   * @see            #getMaxRequestsInQueueOnServer
+   * <p>The request queue limit can also be set on an application, to allow less critical
+   * applications from consuming resources. An application cannot exceed the server defined limit.
+   *
+   * @return the maximum number of requests to queue
+   * @see #getMaxRequestsInQueueOnServer
    */
   public int getMaxRequestsInQueuePerApp() {
     return m_maxRequestsInQueuePerApp;
   }
 
   /**
-   * Set the maximum number of requests which may be queued for processing
-   * by an application. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
-   * <P>
-   * This may not be an exact number as the total number of requests in the
-   * queue can be limited by the server. For instance, if the
-   * application limit is set to 50 and the server limit is set to 200,
-   * ten applications cannot each queue 50 requests. That would bring the
-   * number of requests queued to 500, which is well beyond the server
-   * limit of 200.
-   * <P>
-   * The request queue limit can also be set on an application, to allow
-   * less critical applications from consuming resources.
+   * Set the maximum number of requests which may be queued for processing by an application. When
+   * this limit is exceeded, the user is notified that the server is too busy (HTTP status code
+   * 503).
    *
-   * @param   max   the maximum number of requests which can be queued.
-   * Use 0 to prevent queueing. Use -1 for unlimited
-   * queueing.
+   * <p>This may not be an exact number as the total number of requests in the queue can be limited
+   * by the server. For instance, if the application limit is set to 50 and the server limit is set
+   * to 200, ten applications cannot each queue 50 requests. That would bring the number of requests
+   * queued to 500, which is well beyond the server limit of 200.
    *
-   * @see            #setMaxRequestsInQueueOnServer
+   * <p>The request queue limit can also be set on an application, to allow less critical
+   * applications from consuming resources.
+   *
+   * @param max the maximum number of requests which can be queued. Use 0 to prevent queueing. Use
+   *     -1 for unlimited queueing.
+   * @see #setMaxRequestsInQueueOnServer
    */
   public void setMaxRequestsInQueuePerApp(int max) {
     m_maxRequestsInQueuePerApp = max;
@@ -782,23 +733,21 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   }
 
   /**
-   * Get the maximum number of requests which may be queued for processing
-   * by the server. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
+   * Get the maximum number of requests which may be queued for processing by the server. When this
+   * limit is exceeded, the user is notified that the server is too busy (HTTP status code 503).
    *
-   * @return        the maximum number of requests to queue
+   * @return the maximum number of requests to queue
    */
   public int getMaxRequestsInQueueOnServer() {
     return m_maxRequestsInQueueOnServer;
   }
 
   /**
-   * Set the maximum number of requests which may be queued for processing
-   * by the server. When this limit is exceeded, the user is notified
-   * that the server is too busy (HTTP status code 503).
+   * Set the maximum number of requests which may be queued for processing by the server. When this
+   * limit is exceeded, the user is notified that the server is too busy (HTTP status code 503).
    *
-   * @param   max   the maximum number of requests which can be queued.
-   * Use 0 to prevent queueing. Use -1 for unlimited queueing.
+   * @param max the maximum number of requests which can be queued. Use 0 to prevent queueing. Use
+   *     -1 for unlimited queueing.
    */
   public void setMaxRequestsInQueueOnServer(int max) {
     m_maxRequestsInQueueOnServer = max;
@@ -807,14 +756,11 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
 
   /**
    * Get the maximum amount of time to spend servicing a request.
-   * <P>
-   * The request time limit can also be set on an application basis.
-   * Unlike threads and the request queue, the application may exceed
-   * the value specified on the server.
    *
-   * @return         the maximum amount of time to spend servicing a request,
-   * in seconds
+   * <p>The request time limit can also be set on an application basis. Unlike threads and the
+   * request queue, the application may exceed the value specified on the server.
    *
+   * @return the maximum amount of time to spend servicing a request, in seconds
    */
   public int getMaxRequestTime() {
     return m_maxRequestTime;
@@ -822,14 +768,11 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
 
   /**
    * Set the maximum amount of time to spend servicing a request.
-   * <P>
-   * The request time limit can also be set on an application basis.
-   * Unlike threads and the request queue, the application may exceed
-   * the value specified on the server.
    *
-   * @param   max   the maximum amount of time to spend servicing a request,
-   * in seconds
+   * <p>The request time limit can also be set on an application basis. Unlike threads and the
+   * request queue, the application may exceed the value specified on the server.
    *
+   * @param max the maximum amount of time to spend servicing a request, in seconds
    */
   public void setMaxRequestTime(int max) {
     m_maxRequestTime = max;
@@ -848,22 +791,21 @@ public class PSLegacyServerConfig extends PSServerConfiguration {
   /**
    * Returns a list of legacy backend connections.
    *
-   * @return A list of zero or more backend connections,
-   * never <code>null</code>.
+   * @return A list of zero or more backend connections, never <code>null</code>.
    */
   public List<PSLegacyBackEndConnection> getBackEndConnections() {
     return m_backEndConnections;
   }
 
   /**
-   * List of backend connections instantiated during construction, never
-   * <code>null</code> or modified after that.
+   * List of backend connections instantiated during construction, never <code>null</code> or
+   * modified after that.
    */
   private List<PSLegacyBackEndConnection> m_backEndConnections;
 
   /**
-   * List of backend credentials instantiated during construction, never
-   * <code>null</code> or modified after that.
+   * List of backend credentials instantiated during construction, never <code>null</code> or
+   * modified after that.
    */
   private List<PSLegacyBackEndCredential> m_backEndCredentials;
 

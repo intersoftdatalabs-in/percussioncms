@@ -20,28 +20,20 @@ import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
-/**
- * Strips leading and trailing white space from the supplied string.
- */
+/** Strips leading and trailing white space from the supplied string. */
 public class PSStringTrimmerUdf extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Strips leading and trailing white space from the supplied string. It
-   * does this by calling <code>toString()</code> on the supplied object
-   * first.
+   * Strips leading and trailing white space from the supplied string. It does this by calling
+   * <code>toString()</code> on the supplied object first.
    *
-   * @param params A single parameter that will be converted to a String
-   *    with the toString method, then trim() is called on this string before
-   *    it is returned. If <code>null</code> is supplied, <code>null</code>
-   *    is returned.
-   *
-   * @param request   Not used.
-   *
-   * @return A copy of the supplied string with all leading and trailing
-   *    white space removed.
-   *
-   * @throws  PSConversionException Never thrown.
+   * @param params A single parameter that will be converted to a String with the toString method,
+   *     then trim() is called on this string before it is returned. If <code>null</code> is
+   *     supplied, <code>null</code> is returned.
+   * @param request Not used.
+   * @return A copy of the supplied string with all leading and trailing white space removed.
+   * @throws PSConversionException Never thrown.
    */
   @SuppressWarnings("unused") // param and exception
   public Object processUdf(Object[] params, IPSRequestContext request)

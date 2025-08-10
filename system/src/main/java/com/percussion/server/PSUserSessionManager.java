@@ -41,18 +41,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUserSessionManager class provides access to user sessions. Sessions
- * are used to associate various attributes with users logged in to the
- * system.
+ * The PSUserSessionManager class provides access to user sessions. Sessions are used to associate
+ * various attributes with users logged in to the system.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserSessionManager extends Thread implements IPSServerConfigurationListener {
-  /**
-   * Not for external construction.
-   */
+  /** Not for external construction. */
   private PSUserSessionManager() {
     this.setName("User Session Manager");
     this.setDaemon(true);
@@ -63,7 +60,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Initialize the user session manager.
    *
-   * @param   config      the server configuration defining session setup
+   * @param config the server configuration defining session setup
    * @param os the objectstore handler to add us to the server listener
    */
   public static synchronized void init(PSServerConfiguration config, IPSObjectStoreHandler os)
@@ -85,10 +82,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
     ms_SessionManager.start();
   }
 
-  /**
-   * A thread to manage the user sessions -- that is, remove them when the
-   * timeout is expired.
-   */
+  /** A thread to manage the user sessions -- that is, remove them when the timeout is expired. */
   public void run() {
     while (!ms_stopped) {
       validateSessions();
@@ -96,13 +90,11 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Loops through the user sessions once.  Any session whose idle time
-   * has exceeded the configured timeout is deleted.  Additionally,
-   * if we've exceeded the total number of allowed sessions, collects lists
-   * of anonymous and credentialed sessions.  Starting from the oldest
-   * sessions in each category, deletes enough anonymous
-   * sessions, then credentialed sessions, to bring us down under the session
-   * limit.
+   * Loops through the user sessions once. Any session whose idle time has exceeded the configured
+   * timeout is deleted. Additionally, if we've exceeded the total number of allowed sessions,
+   * collects lists of anonymous and credentialed sessions. Starting from the oldest sessions in
+   * each category, deletes enough anonymous sessions, then credentialed sessions, to bring us down
+   * under the session limit.
    */
   @SuppressWarnings("unchecked")
   private void validateSessions() {
@@ -225,9 +217,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
     }
   }
 
-  /**
-   * shutdown the user session manager, clearing all sessions.
-   */
+  /** shutdown the user session manager, clearing all sessions. */
   public static void shutdown() {
     ms_flags = F_NONE;
     ms_Sessions.clear();
@@ -238,10 +228,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Get the session associated with the specified request.
    *
-   * @param      request     the request object to locate the session for
-   *
-   * @return                 the session object (which may be a temporary
-   * session object)
+   * @param request the request object to locate the session for
+   * @return the session object (which may be a temporary session object)
    */
   @SuppressWarnings("unchecked")
   public static synchronized PSUserSession getUserSession(PSRequest request) {
@@ -292,8 +280,7 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Are sessions enabled overall.
    *
-   * @return <code>true</code> if they are enabled, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if they are enabled, <code>false</code> otherwise.
    */
   public static boolean areSessionsEnabled() {
     return ((ms_flags & F_ENABLED) != 0);
@@ -302,10 +289,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Determines if user has an existing session.
    *
-   * @param      request     the request object to locate the session for
-   *
-   * @return <code>true</code> if there is an existing session,
-   * <code>false</code> otherwise.
+   * @param request the request object to locate the session for
+   * @return <code>true</code> if there is an existing session, <code>false</code> otherwise.
    */
   public static boolean doesSessionExist(PSRequest request) {
     PSUserSession sess = null;
@@ -319,10 +304,9 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Is the provided request a designer (or admin) request.
    *
-   * @param request the request to test, if <code>null</code> is provided,
-   *    <code>false</code> is returned.
-   * @return <code>true</code> if this is a designer request,
-   *  <code>false</code> otherwise.
+   * @param request the request to test, if <code>null</code> is provided, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if this is a designer request, <code>false</code> otherwise.
    */
   public static boolean isDesignerRequest(PSRequest request) {
     if (request != null) {
@@ -338,13 +322,12 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Is the provided request an attmept to connect from the designer
-   * connection?
+   * Is the provided request an attmept to connect from the designer connection?
    *
-   * @param request the request to test, if <code>null</code> is provided,
-   *    <code>false</code> is returned.
-   * @return <code>true</code> if this is a designer request to connect,
-   * <code>false</code> otherwise.
+   * @param request the request to test, if <code>null</code> is provided, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if this is a designer request to connect, <code>false</code>
+   *     otherwise.
    */
   public static boolean isDesignerConnectRequest(PSRequest request) {
     if (request != null) {
@@ -358,8 +341,9 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * This API checks against the maximum number of users allowed in the system
-   * if logged in users already reached the maximum allowed, then returns false
+   * This API checks against the maximum number of users allowed in the system if logged in users
+   * already reached the maximum allowed, then returns false
+   *
    * @return
    */
   public static synchronized boolean checkIfNewUserAllowed() {
@@ -393,10 +377,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   /**
    * Get the session associated with the specified session id.
    *
-   * @param      sessId      the session id
-   *
-   * @return                 the session object or <code>null</code> if
-   *                         the requested session does not exist
+   * @param sessId the session id
+   * @return the session object or <code>null</code> if the requested session does not exist
    */
   public static synchronized PSUserSession getUserSession(String sessId) {
     isTrue(!ms_stopped, "Cannot get user session because session manager has been stopped");
@@ -408,10 +390,9 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Release the specified user session. This removes it from the
-   * list of active sessions.
+   * Release the specified user session. This removes it from the list of active sessions.
    *
-   * @param sess      the session to release
+   * @param sess the session to release
    */
   public static void releaseUserSession(PSUserSession sess) {
     if (sess != null) {
@@ -425,8 +406,8 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Does any necessary cleanup to close down a user session.  Assumes that the
-   * session has not yet been removed from the cache.
+   * Does any necessary cleanup to close down a user session. Assumes that the session has not yet
+   * been removed from the cache.
    *
    * @param sess The user session to close down; assumed non-<code>null</code>
    */
@@ -459,11 +440,10 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Implementation for the IPSServerConfigurationListener interface. If
-   * <code>null</code> is provided we will keep the existing settings.
+   * Implementation for the IPSServerConfigurationListener interface. If <code>null</code> is
+   * provided we will keep the existing settings.
    *
-   * @see
-   * com.percussion.design.objectstore.server.IPSServerConfigurationListener
+   * @see com.percussion.design.objectstore.server.IPSServerConfigurationListener
    */
   public void configurationUpdated(PSServerConfiguration config) {
     if (config != null) {
@@ -472,18 +452,15 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
-   * Get the user session manager status. This includes information about the
-   * session manager thread as well as about all open sessions at the time
-   * this method is called.
+   * Get the user session manager status. This includes information about the session manager thread
+   * as well as about all open sessions at the time this method is called.
    *
-   * @param doc the document for which to create the status element, not
-   *    <code>null</code>.
-   * @param full <code>true</code> to request a full status, <code>false</code>
-   *    for a summary status only.
-   * @return the element containing all user session manager status
-   *    information, never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param doc the document for which to create the status element, not <code>null</code>.
+   * @param full <code>true</code> to request a full status, <code>false</code> for a summary status
+   *     only.
+   * @return the element containing all user session manager status information, never <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public static Element getUserSessionManagerStatus(Document doc, boolean full) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
@@ -538,14 +515,14 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   private static final int F_ENABLED = 0x01;
 
   /**
-   * Singleton instance of the session manager.  Set at init time;
-   * never <code>null</code> after that.
+   * Singleton instance of the session manager. Set at init time; never <code>null</code> after
+   * that.
    */
   private static PSUserSessionManager ms_SessionManager = null;
 
   /**
-   * Single HashMap for holding user sessions.  All access to
-   *  <code>ms_Sessions</code> is synchronized on <code>
+   * Single HashMap for holding user sessions. All access to <code>ms_Sessions</code> is
+   * synchronized on <code>
    * m_sessionMonitor</code>
    */
   private static ConcurrentHashMap<String, PSUserSession> ms_Sessions =
@@ -562,32 +539,27 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   private static volatile long ms_userTimeout = 0;
 
   /**
-   * The session timeout for designer sessions is fix 12 hours. This is
-   * longer then the request timeout since designer sessions are typically
-   * open longer than request sessions. The value is specified in milliseconds.
+   * The session timeout for designer sessions is fix 12 hours. This is longer then the request
+   * timeout since designer sessions are typically open longer than request sessions. The value is
+   * specified in milliseconds.
    */
   private static final long DESIGNER_TIMEOUT = 1000 * 60 * 60 * 12;
 
   /**
-   * Defines the maximal allowed open user sessions. If the number of open
-   * sessions exceeds this number we will start releasing the anonymous
-   * sessions with the longest idle time. If thats still not enough we do the
-   * same with authenticated sessions. Designer connections are excluded
+   * Defines the maximal allowed open user sessions. If the number of open sessions exceeds this
+   * number we will start releasing the anonymous sessions with the longest idle time. If thats
+   * still not enough we do the same with authenticated sessions. Designer connections are excluded
    * from this algorithm.
    */
   private static volatile int ms_maxOpenUserSessions = PSServerConfiguration.DEFAULT_OPEN_SESSIONS;
 
   /**
-   * Releasing user sessions is an expensive process. Therefor we release more
-   * than just the number above the maximal open user sessions. This number
-   * specifies how much more we release.
+   * Releasing user sessions is an expensive process. Therefor we release more than just the number
+   * above the maximal open user sessions. This number specifies how much more we release.
    */
   private static volatile int ms_releaseOffset = ms_maxOpenUserSessions / 4;
 
-  /**
-   * The maximum number of requests the Rhythmyx server is able to handle in
-   * any case.
-   */
+  /** The maximum number of requests the Rhythmyx server is able to handle in any case. */
   public static final int MAX_REQUESTS_PER_SECOND = 120;
 
   /*
@@ -599,16 +571,14 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   private static volatile long ms_maximumSleep =
       ms_maxOpenUserSessions / MAX_REQUESTS_PER_SECOND * 1000;
 
-  /**  #################################################################
-   * # The property to define Maximum no of users that can login in CMS at the same time.
-   * #  0 - unlimited
+  /**
+   * ################################################################# # The property to define
+   * Maximum no of users that can login in CMS at the same time. # 0 - unlimited
    * #################################################################
-   **/
+   */
   private static final String MAX_USERS_ALLOWED = "maxUsersAllowed";
 
-  /**
-   * Set this flag to <code>true</code> to stop the user session manager.
-   */
+  /** Set this flag to <code>true</code> to stop the user session manager. */
   private static volatile boolean ms_stopped = false;
 
   private static final Logger log = LogManager.getLogger(PSUserSessionManager.class);

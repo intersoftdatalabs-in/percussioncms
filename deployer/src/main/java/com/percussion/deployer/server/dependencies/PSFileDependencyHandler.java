@@ -37,20 +37,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Base class for handlers that package and install files directly to and from
- * the file system.
- */
+/** Base class for handlers that package and install files directly to and from the file system. */
 public abstract class PSFileDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSFileDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -58,10 +52,9 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * This class returns an empty list.  Derrived class should override this
-   * method if they support child types.  See
-   * {@link PSDependencyHandler#getChildDependencies(PSSecurityToken,
-   * PSDependency) Base Class} for more info.
+   * This class returns an empty list. Derrived class should override this method if they support
+   * child types. See {@link PSDependencyHandler#getChildDependencies(PSSecurityToken, PSDependency)
+   * Base Class} for more info.
    */
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
@@ -174,9 +167,8 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * Base class returns an empty list.  Derrived class should override this
-   * method if they support child types.
+   * Provides the list of child dependency types this class can discover. Base class returns an
+   * empty list. Derrived class should override this method if they support child types.
    *
    * @return An empty iterator, never <code>null</code>.
    */

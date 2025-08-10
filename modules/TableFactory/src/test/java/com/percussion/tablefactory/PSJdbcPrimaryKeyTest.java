@@ -26,13 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcPrimaryKey.
- */
+/** Unit test for PSJdbcPrimaryKey. */
 public class PSJdbcPrimaryKeyTest {
-  /**
-   * Test the def
-   */
+  /** Test the def */
   @Test
   public void testDef() throws Exception {
     // build a def with a dupe name
@@ -105,9 +101,7 @@ public class PSJdbcPrimaryKeyTest {
     assertEquals(pk, pk2);
   }
 
-  /**
-   * Tests that the ctor assigns the fields
-   */
+  /** Tests that the ctor assigns the fields */
   @Test
   public void testGetters() throws Exception {
     ArrayList<String> cols = new ArrayList<>();

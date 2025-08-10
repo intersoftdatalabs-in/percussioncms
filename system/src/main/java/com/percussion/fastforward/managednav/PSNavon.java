@@ -46,14 +46,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSNavon represents a navigation section. This can be represented as
- * either a Navon or NavTree content item.
+ * The PSNavon represents a navigation section. This can be represented as either a Navon or NavTree
+ * content item.
+ *
  * <p>
  *
  * @author DavidBenua
- *
- *
- *
  */
 public class PSNavon {
   /**
@@ -85,8 +83,7 @@ public class PSNavon {
   }
 
   /**
-   * Construct a navon from a content item. Used when the PSNavComponentSummary
-   * is not available.
+   * Construct a navon from a content item. Used when the PSNavComponentSummary is not available.
    *
    * @param req the parent request context.
    * @param summary the content item.
@@ -158,8 +155,8 @@ public class PSNavon {
   }
 
   /**
-   * Sets the inherited info from the parent navon. The relative and absolute
-   * levels are incremented and the navon type is set based on the parent type.
+   * Sets the inherited info from the parent navon. The relative and absolute levels are incremented
+   * and the navon type is set based on the parent type.
    *
    * @see PSNavonType#getDescendentType(PSNavonType, int)
    * @param req
@@ -174,12 +171,11 @@ public class PSNavon {
   }
 
   /**
-   * Tests if another navon has the same content id. Cannot use
-   * <code>equals</code> for this because the contract with <code>hash</code>
+   * Tests if another navon has the same content id. Cannot use <code>equals</code> for this because
+   * the contract with <code>hash</code>
    *
    * @param other the navon to compare against.
-   * @return <code>true</code> if the navons have the same content id,
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if the navons have the same content id, <code>false</code> otherwise.
    */
   public boolean hasSameId(PSNavon other) {
     if (this.m_loc.getId() == other.m_loc.getId()) {
@@ -205,20 +201,17 @@ public class PSNavon {
   }
 
   /**
-   * Creates a link from the first item in a slot. The link will either point
-   * at the snippet variant, or will assemble the snippet and take the first
-   * link within the snippet.
+   * Creates a link from the first item in a slot. The link will either point at the snippet
+   * variant, or will assemble the snippet and take the first link within the snippet.
    *
    * @param parentDoc the parent document (this Navon)
    * @param slotName the name of the slot to examine
    * @param req the callers request context
    * @param useVariant override the variant in the slot with this variant
-   * @param followLink flag to determine which link to build. If
-   *           <code>true</code> the first snippet will be assembled, and the
-   *           first link within that snippet becomes the link URI.
+   * @param followLink flag to determine which link to build. If <code>true</code> the first snippet
+   *     will be assembled, and the first link within that snippet becomes the link URI.
    * @return the new link, or <code>null</code> if the slot is empty.
-   * @throws PSNavException when the slot does not exist or an internal
-   *            processing exception occurs.
+   * @throws PSNavException when the slot does not exist or an internal processing exception occurs.
    */
   private PSNavLink buildLinkFromSlot(
       PSLocator parentDoc,
@@ -252,8 +245,7 @@ public class PSNavon {
   }
 
   /**
-   * Finds the parent for this navon. <code>null</code> if this navon is at
-   * the root of the tree.
+   * Finds the parent for this navon. <code>null</code> if this navon is at the root of the tree.
    *
    * @param req the parent request context.
    * @return the parent navon or <code>null</code>
@@ -358,8 +350,8 @@ public class PSNavon {
   }
 
   /**
-   * Sets the absolute level of this Navon within the tree. Level 0 is the root
-   * node, with each level below the root increasing by 1.
+   * Sets the absolute level of this Navon within the tree. Level 0 is the root node, with each
+   * level below the root increasing by 1.
    *
    * @param i the new level.
    */
@@ -368,9 +360,8 @@ public class PSNavon {
   }
 
   /**
-   * Sets the relative level of this Navon within the tree. Level 0 is the self
-   * node. Levels above the self node (closer to the root) are negative, and
-   * descendents of the self node are positive.
+   * Sets the relative level of this Navon within the tree. Level 0 is the self node. Levels above
+   * the self node (closer to the root) are negative, and descendents of the self node are positive.
    *
    * @param i the new level.
    */
@@ -407,8 +398,8 @@ public class PSNavon {
   }
 
   /**
-   * This is a unique identifier for the navon within the scope of all navons.
-   * It is the system title of the navon.
+   * This is a unique identifier for the navon within the scope of all navons. It is the system
+   * title of the navon.
    *
    * @return the name of the Navon. Never <code>null</code> or empty.
    */
@@ -420,10 +411,8 @@ public class PSNavon {
   /**
    * Finds the children of this Navon using the Navon SubMenu Slot.
    *
-   * @param req the callers request context. Used to obtain the appropriate
-   *           proxy objects.
-   * @throws PSNavException when the slot cannot be found, or an unexpected
-   *            exception occurs.
+   * @param req the callers request context. Used to obtain the appropriate proxy objects.
+   * @throws PSNavException when the slot cannot be found, or an unexpected exception occurs.
    */
   public void findChildren(IPSRequestContext req) throws PSNavException {
     Set<Integer> nodeSet = new HashSet<>();
@@ -431,8 +420,8 @@ public class PSNavon {
   }
 
   /**
-   * Finds the children of this navon. The nodeset is used to prevent the same
-   * node from being added to the tree more than once.
+   * Finds the children of this navon. The nodeset is used to prevent the same node from being added
+   * to the tree more than once.
    *
    * @param req the parent request context.
    * @param nodeSet the set of Integers representing all nodes in this tree.
@@ -492,8 +481,8 @@ public class PSNavon {
   }
 
   /**
-   * Gets the image color selector. If the selector is <code>null</code> the
-   * value will be inherited from the parent navon.
+   * Gets the image color selector. If the selector is <code>null</code> the value will be inherited
+   * from the parent navon.
    *
    * @return the image color selector.
    */
@@ -502,8 +491,8 @@ public class PSNavon {
   }
 
   /**
-   * Gets the variable selector. If the selector is <code>null</code> the
-   * value will be inherited from the parent navon.
+   * Gets the variable selector. If the selector is <code>null</code> the value will be inherited
+   * from the parent navon.
    *
    * @return the variable selector.
    */
@@ -512,12 +501,11 @@ public class PSNavon {
   }
 
   /**
-   * creates an XML element for this Navon as described in the NavTree schema.
-   * See Navtree.xsd for full details.
-   * <p>
-   * This routine is recursive. All child Navons (and their children, and so
-   * on) will be contained within the resulting <code>&lt;navon&gt;</code>
-   * element.
+   * creates an XML element for this Navon as described in the NavTree schema. See Navtree.xsd for
+   * full details.
+   *
+   * <p>This routine is recursive. All child Navons (and their children, and so on) will be
+   * contained within the resulting <code>&lt;navon&gt;</code> element.
    *
    * @param doc the parent documentin which to create the element.
    * @return the Element, which is never <code>null</code>
@@ -627,52 +615,34 @@ public class PSNavon {
     }
   }
 
-  /**
-   * Pointer to the config object.
-   */
+  /** Pointer to the config object. */
   private PSNavConfig ms_config = null;
 
-  /**
-   * the text label for this Navon.
-   */
+  /** the text label for this Navon. */
   private String m_label = null;
 
-  /**
-   * The internal name (system title) for this Navon.
-   */
+  /** The internal name (system title) for this Navon. */
   private String m_name = null;
 
-  /**
-   * The absolute level. Level 0 is the root, level 1 is the level below the
-   * root, and so on.
-   */
+  /** The absolute level. Level 0 is the root, level 1 is the level below the root, and so on. */
   private int m_absLevel = 0;
 
   /**
-   * The Relative level. Level 0 is the same level as the <code>self</code>
-   * node. Levels above the self node (that is, closer to the root0 are
-   * negative.
+   * The Relative level. Level 0 is the same level as the <code>self</code> node. Levels above the
+   * self node (that is, closer to the root0 are negative.
    */
   private int m_relLevel = 0;
 
-  /**
-   * The locator for the content item that represents this Navon.
-   */
+  /** The locator for the content item that represents this Navon. */
   private PSLocator m_loc = null;
 
-  /**
-   * A link to the landing page for this section.
-   */
+  /** A link to the landing page for this section. */
   private PSNavLink m_landingPage = null;
 
-  /**
-   * The link to the info variant for this section.
-   */
+  /** The link to the info variant for this section. */
   private PSNavLink m_infoLink = new PSNavLink();
 
-  /**
-   * List of images
-   */
+  /** List of images */
   private List<PSNavImageLink> imageList = new ArrayList<>();
 
   /**
@@ -682,60 +652,50 @@ public class PSNavon {
    */
   private PSNavonType m_type = new PSNavonType();
 
-  /**
-   * The child PSNavon objects.
-   */
+  /** The child PSNavon objects. */
   private List<PSNavon> m_children = new ArrayList<>();
 
   /**
    * Get a list of navon object.
    *
-   * @return An iterator of zero or more <code>PSnavon</code>
-   *    objects. Never <code>null</code>, but may be empty.
+   * @return An iterator of zero or more <code>PSnavon</code> objects. Never <code>null</code>, but
+   *     may be empty.
    */
   public Iterator getChildren() {
     return m_children.iterator();
   }
 
   /**
-   * The value of the image color selector for this nav section. Will be
-   * <code>null</code> if no image color has been selected. In this case, the
-   * image color of the parent section will be used.
+   * The value of the image color selector for this nav section. Will be <code>null</code> if no
+   * image color has been selected. In this case, the image color of the parent section will be
+   * used.
    */
   private String m_imageSelector = null;
 
   /**
-   * The value of the context variable selector for this nav section. Will be
-   * <code>null</code> if no variable selector has been chosen. In ths case,
-   * the variable selector will inherit the value from the parent nav section.
+   * The value of the context variable selector for this nav section. Will be <code>null</code> if
+   * no variable selector has been chosen. In ths case, the variable selector will inherit the value
+   * from the parent nav section.
    */
   private String m_variableSelector = null;
 
-  /**
-   * Set of child navons. Used to maintain uniqueness.
-   */
+  /** Set of child navons. Used to maintain uniqueness. */
   private Set m_childSet = new HashSet();
 
   /**
-   * The direct descendent navon. In an ancestor or root navon, this indicates
-   * the path to the self navon. In all other navons, including descedent
-   * navons and sibling navons, this will be <code>null</code>
+   * The direct descendent navon. In an ancestor or root navon, this indicates the path to the self
+   * navon. In all other navons, including descedent navons and sibling navons, this will be <code>
+   * null</code>
    */
   private PSNavon m_directDescendent = null;
 
-  /**
-   * The direct parent navon.
-   */
+  /** The direct parent navon. */
   private PSNavon m_directParent = null;
 
-  /**
-   * Writes the log.
-   */
+  /** Writes the log. */
   private static final Logger log = LogManager.getLogger(PSNavon.class);
 
-  /**
-   * SQL Statement for loading the Navon data in preview mode.
-   */
+  /** SQL Statement for loading the Navon data in preview mode. */
   private static final String SQL_LOAD_PREVIEW =
       "select sh.DISPLAYTITLE, cs.TITLE, "
           + "navon.NO_SELECTOR, navon.NO_VARIABLE "
@@ -751,9 +711,7 @@ public class PSNavon {
           + " and cs.CURRENTREVISION = sh.REVISIONID and cs.CONTENTID = navtree.CONTENTID "
           + " and sh.REVISIONID = navtree.REVISIONID and cs.CONTENTID = ? ";
 
-  /**
-   * SQL Statement for loading the Navon data in publish mode.
-   */
+  /** SQL Statement for loading the Navon data in publish mode. */
   private static final String SQL_LOAD_PUBLISH =
       "select sh.DISPLAYTITLE, cs.TITLE, "
           + "navon.NO_SELECTOR, navon.NO_VARIABLE "
@@ -769,63 +727,39 @@ public class PSNavon {
           + " and sh.REVISIONID = ? and cs.CONTENTID = navtree.CONTENTID "
           + " and sh.REVISIONID = navtree.REVISIONID and cs.CONTENTID = ? ";
 
-  /**
-   * XML Element name for the navon. Used for serialization to XML.
-   */
+  /** XML Element name for the navon. Used for serialization to XML. */
   public static final String XML_ELEMENT_NAME = "navon";
 
-  /**
-   * XML Attribute name for the navon name. Used for serialization to XML.
-   */
+  /** XML Attribute name for the navon name. Used for serialization to XML. */
   public static final String XML_ATTR_NAME = "name";
 
-  /**
-   * XML Attribute name for the content id. Used for serialization to XML.
-   */
+  /** XML Attribute name for the content id. Used for serialization to XML. */
   public static final String XML_ATTR_CONTENTID = IPSHtmlParameters.SYS_CONTENTID;
 
-  /**
-   * XML Attribute name for the revision id. Used for serialization to XML.
-   */
+  /** XML Attribute name for the revision id. Used for serialization to XML. */
   public static final String XML_ATTR_REVISION = IPSHtmlParameters.SYS_REVISION;
 
-  /**
-   * XML Attribute name for the navon type. Used for serialization to XML.
-   */
+  /** XML Attribute name for the navon type. Used for serialization to XML. */
   public static final String XML_ATTR_TYPE = "relation";
 
-  /**
-   * XML Attribute name for the absolute level. Used for serialization to XML.
-   */
+  /** XML Attribute name for the absolute level. Used for serialization to XML. */
   public static final String XML_ATTR_ABS_LEVEL = "absolute-level";
 
-  /**
-   * XML Attribute name for the relative level. Used for serialization to XML.
-   */
+  /** XML Attribute name for the relative level. Used for serialization to XML. */
   public static final String XML_ATTR_REL_LEVEL = "relative-level";
 
-  /**
-   * XML Attribute name for the navon label. Used for serialization to XML.
-   */
+  /** XML Attribute name for the navon label. Used for serialization to XML. */
   public static final String XML_ELEMENT_LABEL = "label";
 
-  /**
-   * XML Attribute name for the info link. Used for serialization to XML.
-   */
+  /** XML Attribute name for the info link. Used for serialization to XML. */
   public static final String XML_ELEMENT_INFOLINK = "info-link";
 
-  /**
-   * XML Attribute name for the image list. Used for serialization to XML.
-   */
+  /** XML Attribute name for the image list. Used for serialization to XML. */
   public static final String XML_ELEMENT_IMAGELIST = "image-list";
 
-  /**
-   * XML Attribute name for the landing page. Used for serialization to XML.
-   */
+  /** XML Attribute name for the landing page. Used for serialization to XML. */
   public static final String XML_ELEMENT_LANDINGPAGE = "landing-page";
 
-  /**
-   * Error message for missing menu slot.
-   */
+  /** Error message for missing menu slot. */
   private static final String MSG_MENU_SLOT_NOT_FOUND = "Configuration error: Menu slot not found!";
 }

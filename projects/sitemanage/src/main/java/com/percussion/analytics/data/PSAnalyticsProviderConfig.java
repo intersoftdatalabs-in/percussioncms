@@ -23,8 +23,8 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Simple data class to represent the analytics provider config.
- * Sunny Sal says: "Config is king, but don't lose your keys!"
+ * Simple data class to represent the analytics provider config. Sunny Sal says: "Config is king,
+ * but don't lose your keys!"
  */
 @JsonRootName(value = "providerConfig")
 public class PSAnalyticsProviderConfig implements Serializable {
@@ -46,9 +46,9 @@ public class PSAnalyticsProviderConfig implements Serializable {
   /**
    * Constructs a config with required fields.
    *
-   * @param userid        cannot be null or empty.
-   * @param password      cannot be null or empty.
-   * @param isEncrypted   flag indicating that the password is encrypted.
+   * @param userid cannot be null or empty.
+   * @param password cannot be null or empty.
+   * @param isEncrypted flag indicating that the password is encrypted.
    * @param extraParamsMap extra params for the analytics provider, may be null or empty.
    */
   public PSAnalyticsProviderConfig(
@@ -139,9 +139,7 @@ public class PSAnalyticsProviderConfig implements Serializable {
     this.extraParams = extraParams;
   }
 
-  /**
-   * Holds extra parameters as a list of key-value pairs.
-   */
+  /** Holds extra parameters as a list of key-value pairs. */
   static class ExtraParamsClass implements Serializable {
     private List<PSGAPairConfig> entry = new ArrayList<>();
 
@@ -154,9 +152,7 @@ public class PSAnalyticsProviderConfig implements Serializable {
     }
   }
 
-  /**
-   * Represents a key-value pair for extra parameters.
-   */
+  /** Represents a key-value pair for extra parameters. */
   static class PSGAPairConfig implements Serializable {
     private String key;
     private String value;

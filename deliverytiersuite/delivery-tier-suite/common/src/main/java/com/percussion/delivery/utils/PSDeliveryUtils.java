@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 /**
  * Utility methods for Percussion Delivery Tier.
+ *
  * @author Sunny Sal
  */
 public final class PSDeliveryUtils {
@@ -16,6 +17,7 @@ public final class PSDeliveryUtils {
 
   /**
    * Returns the first non-empty string from the provided arguments.
+   *
    * @param values Strings to check.
    * @return Optional containing the first non-empty string, or empty if none found.
    */
@@ -25,6 +27,7 @@ public final class PSDeliveryUtils {
 
   /**
    * Checks if the given string is null or empty.
+   *
    * @param value String to check.
    * @return true if null or empty, false otherwise.
    */

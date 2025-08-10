@@ -19,11 +19,11 @@ package com.percussion.fastforward.managednav;
 import com.percussion.cms.objectstore.PSContentTypeTemplate;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
@@ -35,22 +35,20 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * This class copies the Navon Tree variant into another assembler request. This
- * extension is intended for use on the Navon content assemblers.
- * <p>
- * The reason for the indirect approach is that by registering the NavTree
- * variant, the assembler cache will store the tree for us automatically. This
- * means that the tree will be built only the first time it is requested. Since
- * the same tree will be used repeatedly for each Navon variant that is
- * assembled, this should speed the process up.
- * <p>
- * The call to the Navon Tree assembler is made via internal request. The
- * resulting document replaces the current XML from the query.
- * <p>
- * This extension has no parameters.
+ * This class copies the Navon Tree variant into another assembler request. This extension is
+ * intended for use on the Navon content assemblers.
+ *
+ * <p>The reason for the indirect approach is that by registering the NavTree variant, the assembler
+ * cache will store the tree for us automatically. This means that the tree will be built only the
+ * first time it is requested. Since the same tree will be used repeatedly for each Navon variant
+ * that is assembled, this should speed the process up.
+ *
+ * <p>The call to the Navon Tree assembler is made via internal request. The resulting document
+ * replaces the current XML from the query.
+ *
+ * <p>This extension has no parameters.
  *
  * @author DavidBenua
- *
  */
 public class PSNavTreeLinkExtension extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -66,8 +64,9 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
   /**
    * Execute the extension. There are no parameters
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -89,13 +88,12 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
   }
 
   /**
-   * Gets the Clean XML for the NavTree. The Clean XML has all of the links and
-   * attributes cleaned up so that they match the parameters of the original
-   * request.
+   * Gets the Clean XML for the NavTree. The Clean XML has all of the links and attributes cleaned
+   * up so that they match the parameters of the original request.
    *
    * @param req the parent request context
-   * @param loc the locator of the self node. If <code>null</code> the
-   *           content id and revision from the parent context will be used.
+   * @param loc the locator of the self node. If <code>null</code> the content id and revision from
+   *     the parent context will be used.
    * @return the clean XML document. Never <code>null</code>
    * @throws PSNavException
    */
@@ -123,13 +121,12 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
   }
 
   /**
-   * Gets the Raw XML for the NavTree. The Raw xml is the XML stored in the
-   * cache. Only the root level attributes (e.g. the color selector and the
-   * variable selector) have been modified.
+   * Gets the Raw XML for the NavTree. The Raw xml is the XML stored in the cache. Only the root
+   * level attributes (e.g. the color selector and the variable selector) have been modified.
    *
    * @param req the parent request context.
-   * @param loc the locator of the self node. If <code>null</code> the
-   *           content id and revision from the parent context will be used.
+   * @param loc the locator of the self node. If <code>null</code> the content id and revision from
+   *     the parent context will be used.
    * @return the Raw XML document. Never <code>null</code>
    * @throws PSNavException
    */
@@ -236,8 +233,6 @@ public class PSNavTreeLinkExtension extends PSDefaultExtension
     return resDoc;
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSNavTreeLinkExtension.class);
 }

@@ -23,9 +23,7 @@ import com.percussion.webservices.content.PSContentWsLocator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Catalogs the locales on the system and returns the number of them.
- */
+/** Catalogs the locales on the system and returns the number of them. */
 public class PSGetLocaleCountAction extends PSAAActionBase {
   // see interface for details
   @SuppressWarnings("unused") // exception

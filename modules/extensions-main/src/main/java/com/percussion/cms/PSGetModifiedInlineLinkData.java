@@ -36,17 +36,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit is specifically written to help processing inline links with
- * promotable versions in Word OCX control. Expects 3 html parameters in the
- * request, viz. "sys_contentid", "sys_revision" and "inlinecontentids". The
- * first two parameters refer to the parent content item that has the inline
- * links. The third parameter is a semi-colon separated list of contentids of
- * the inline items for the parent item. The result document produced by the
- * exit is described in {@link #processResultDocument(Object[],
- * IPSRequestContext, Document)}. The Word control requests this document while
- * processing inline links for an item and replaces the contentids and revisions
+ * This exit is specifically written to help processing inline links with promotable versions in
+ * Word OCX control. Expects 3 html parameters in the request, viz. "sys_contentid", "sys_revision"
+ * and "inlinecontentids". The first two parameters refer to the parent content item that has the
+ * inline links. The third parameter is a semi-colon separated list of contentids of the inline
+ * items for the parent item. The result document produced by the exit is described in {@link
+ * #processResultDocument(Object[], IPSRequestContext, Document)}. The Word control requests this
+ * document while processing inline links for an item and replaces the contentids and revisions
  * appropriately.
- *
  */
 public class PSGetModifiedInlineLinkData extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -59,23 +56,19 @@ public class PSGetModifiedInlineLinkData extends PSDefaultExtension
   }
 
   /**
-   * Replaces the rusult document with the docoument like this.
-   * <Parent sys_contentid="301" sys_revision="1">
-   *    <Child oldContentId="312" newContentId="333" newRevision="1"/>
-   *    <Child oldContentId="323" newContentId="323" newRevision="2"/>
-   *    <Child oldContentId="345" newContentId="345" newRevision="2"/>
-   * </Parent>
-   * As the name indicates Parent represents the parent item and Child element
-   * represents the inline child of the parent item. oldContentId is the
-   * current content id of the inline item stored in the content. newContentId
-   * is the active promotable version of the old item. This will be the same
-   * as the old one if the item is not replaced by its promotable version. The
-   * newRevision always represents the current revision of the item with
-   * newContentId.
+   * Replaces the rusult document with the docoument like this. <Parent sys_contentid="301"
+   * sys_revision="1"> <Child oldContentId="312" newContentId="333" newRevision="1"/> <Child
+   * oldContentId="323" newContentId="323" newRevision="2"/> <Child oldContentId="345"
+   * newContentId="345" newRevision="2"/> </Parent> As the name indicates Parent represents the
+   * parent item and Child element represents the inline child of the parent item. oldContentId is
+   * the current content id of the inline item stored in the content. newContentId is the active
+   * promotable version of the old item. This will be the same as the old one if the item is not
+   * replaced by its promotable version. The newRevision always represents the current revision of
+   * the item with newContentId.
    *
    * @see com.percussion.extension.IPSResultDocumentProcessor#
-   * processResultDocument(java.lang.Object[], com.percussion.server.
-   * IPSRequestContext, org.w3c.dom.Document)
+   *     processResultDocument(java.lang.Object[], com.percussion.server. IPSRequestContext,
+   *     org.w3c.dom.Document)
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

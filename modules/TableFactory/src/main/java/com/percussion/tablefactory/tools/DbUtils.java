@@ -33,33 +33,26 @@ import java.sql.SQLException;
 public class DbUtils {
 
   /**
-   * Creates backup of existing table. First we will attempt to copy the
-   * data using copy table statement (INSERT INTO ... SELECT .. FROM ..)
-   * If this fails, (for example, if the table has a LONG column on Oracle)
-   * then we will catalog data from the source table and insert into the
-   * destination table.
-   * This method does not close the database connection.
+   * Creates backup of existing table. First we will attempt to copy the data using copy table
+   * statement (INSERT INTO ... SELECT .. FROM ..) If this fails, (for example, if the table has a
+   * LONG column on Oracle) then we will catalog data from the source table and insert into the
+   * destination table. This method does not close the database connection.
    *
    * @param conn Database connection, may not be <code>null</code>
-   * @param dbmsDef Used to connect to the database and provides correct
-   * schema/origin. May not be <code>null</code>.
-   * @param dataTypeMap Required to create the tableSchema object. May not be
-   * <code>null</code>.
-   * @param srcTableName Name of the table whose backup is to be created,
-   * may not be <code>null</code> or empty.
-   * @param destTableName Name of the backup table, may not be <code>null</code>
-   * or empty.
-   * @param logOut If not <code>null</code>, log messages will be written to
-   * this stream.  If <code>null</code>, they will not. This method does not
-   * take ownership of the stream and will not attempt to close it when
-   * processing is completed.
-   * @param logDebug If <code>true</code> and logOut is not <code>null</code>,
-   * debugging messages will also be written to the logging output stream.  If
-   * <code>false</code>, they will not.  If logOut is <code>null</code>, this
-   * parameter has no effect.
-   *
-   * @return <code>true</code> if the backup of the table was sucessful,
-   * <code>false</code> otherwise.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin. May not be
+   *     <code>null</code>.
+   * @param dataTypeMap Required to create the tableSchema object. May not be <code>null</code>.
+   * @param srcTableName Name of the table whose backup is to be created, may not be <code>null
+   *     </code> or empty.
+   * @param destTableName Name of the backup table, may not be <code>null</code> or empty.
+   * @param logOut If not <code>null</code>, log messages will be written to this stream. If <code>
+   *     null</code>, they will not. This method does not take ownership of the stream and will not
+   *     attempt to close it when processing is completed.
+   * @param logDebug If <code>true</code> and logOut is not <code>null</code>, debugging messages
+   *     will also be written to the logging output stream. If <code>false</code>, they will not. If
+   *     logOut is <code>null</code>, this parameter has no effect.
+   * @return <code>true</code> if the backup of the table was sucessful, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if any param is invalid
    */
   public static boolean backupTable(

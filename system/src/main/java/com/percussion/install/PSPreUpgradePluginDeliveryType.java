@@ -27,23 +27,19 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * Load the url's for all content lists and checks to see if the delivery type
- * parameter value is a standard type, {@link #ms_deliveryTypes}, or if it is
- * custom, in which case it requires re-implementation and registration in
- * publisher-beans.xml.
+ * Load the url's for all content lists and checks to see if the delivery type parameter value is a
+ * standard type, {@link #ms_deliveryTypes}, or if it is custom, in which case it requires
+ * re-implementation and registration in publisher-beans.xml.
  */
 public class PSPreUpgradePluginDeliveryType implements IPSUpgradePlugin {
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSPreUpgradePluginDeliveryType() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin. Looks for content
-   * list url delivery type values which are not standard types.  If any are
-   * found, a message is returned informing the user about these delivery
-   * types.
+   * Implements the process function of IPSUpgradePlugin. Looks for content list url delivery type
+   * values which are not standard types. If any are found, a message is returned informing the user
+   * about these delivery types.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -135,19 +131,13 @@ public class PSPreUpgradePluginDeliveryType implements IPSUpgradePlugin {
     return response;
   }
 
-  /**
-   * Set of standard delivery types.
-   */
+  /** Set of standard delivery types. */
   private static Set<String> ms_deliveryTypes = new HashSet<>();
 
-  /**
-   * Name of the ftp delivery type.
-   */
+  /** Name of the ftp delivery type. */
   private static final String DELIVERY_TYPE_FTP = "ftp";
 
-  /**
-   * Name of the sftp delivery type.
-   */
+  /** Name of the sftp delivery type. */
   private static final String DELIVERY_TYPE_SFTP = "sftp";
 
   static {

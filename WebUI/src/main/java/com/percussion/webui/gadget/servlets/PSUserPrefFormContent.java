@@ -40,13 +40,12 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- * This class will takes a JSON object with gadget user preference meta data and will turn it into an html form
- * that is used by the gadget framework to present a form for users to modify gadget user preference settings. It
- * is based on the public Google settings service found at http://www.gmodules.com/ig/gadgetsettings.
- *
+ * This class will takes a JSON object with gadget user preference meta data and will turn it into
+ * an html form that is used by the gadget framework to present a form for users to modify gadget
+ * user preference settings. It is based on the public Google settings service found at
+ * http://www.gmodules.com/ig/gadgetsettings.
  *
  * @author erikserating
- *
  */
 public final class PSUserPrefFormContent {
 
@@ -74,11 +73,11 @@ public final class PSUserPrefFormContent {
 
   /**
    * Initialize and build form content based on passed in user prefs.
+   *
    * @param prefs the JSON preferences object, can not be <code>null</code>.
    * @param moduleId the moduleId, may be <code>null</code> or empty, in which
-   * @param upValues map of name/values that the user persisted for gadget preferences
-   * for this gadget. Cannot be <code>null</code>.
-   * case it will default to &quote;0&quote;.
+   * @param upValues map of name/values that the user persisted for gadget preferences for this
+   *     gadget. Cannot be <code>null</code>. case it will default to &quote;0&quote;.
    */
   public PSUserPrefFormContent(
       List<JSONObject> prefs,
@@ -104,8 +103,9 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Returns the form content within a javascript variable and also
-   * adds the other needed js functions for user prefs to work.
+   * Returns the form content within a javascript variable and also adds the other needed js
+   * functions for user prefs to work.
+   *
    * @return js string, never <code>null</code> or empty.
    */
   public String toJavaScript() {
@@ -120,8 +120,8 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Builds the html form based on the passed in JSON preferences
-   * object.
+   * Builds the html form based on the passed in JSON preferences object.
+   *
    * @param prefs the JSON preferences object, assumed not <code>null</code>.
    */
   private void buildFormContent(List<JSONObject> prefs) throws IOException {
@@ -153,9 +153,9 @@ public final class PSUserPrefFormContent {
 
   /**
    * Creates an HTML start tag string.
+   *
    * @param name the name of the tag, assumed not <code>null</code>.
-   * @param attribs map of attributes that the tag should contain. May
-   * be <code>null</code>.
+   * @param attribs map of attributes that the tag should contain. May be <code>null</code>.
    * @param isEmpty flag indicating that the HTML tag is empty.
    * @return the HTML string, never <code>null</code> or empty.
    */
@@ -173,8 +173,8 @@ public final class PSUserPrefFormContent {
 
   /**
    * Hex encodes the following chars: ( &lt; &gt; &amp; ' &quot; = ? ).
-   * @param str the string to be encoded, assumed not <code>null</code>,
-   * can be empty.
+   *
+   * @param str the string to be encoded, assumed not <code>null</code>, can be empty.
    * @return hex encoded string, never <code>null</code>.
    */
   private String hexEncodeString(String str) {
@@ -218,6 +218,7 @@ public final class PSUserPrefFormContent {
 
   /**
    * Creates an HTML end tag string.
+   *
    * @param name the tag name, assumed not <code>null</code>.
    * @return HTML end tag string, never <code>null</code> or empty.
    */
@@ -226,8 +227,8 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Adds a form field to the content buffer based on the passed in JSON preference
-   * object.
+   * Adds a form field to the content buffer based on the passed in JSON preference object.
+   *
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addField(JSONObject pref) throws IOException {
@@ -265,10 +266,9 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Add a text form field to the content buffer. Sets default value if
-   * one exists.
-   * @param fieldname the fieldname for the input field, assumed not <code>null</code>,
-   * or empty.
+   * Add a text form field to the content buffer. Sets default value if one exists.
+   *
+   * @param fieldname the fieldname for the input field, assumed not <code>null</code>, or empty.
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addTextField(String fieldname, JSONObject pref) {
@@ -283,10 +283,10 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Add a select form field to the content buffer. Sets the enumeration values as options
-   * to the select field and selects default value if it exists in the list.
-   * @param fieldname the fieldname for the input field, assumed not <code>null</code>,
-   * or empty.
+   * Add a select form field to the content buffer. Sets the enumeration values as options to the
+   * select field and selects default value if it exists in the list.
+   *
+   * @param fieldname the fieldname for the input field, assumed not <code>null</code>, or empty.
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addEnumField(String fieldname, JSONObject pref) throws IOException {
@@ -327,7 +327,8 @@ public final class PSUserPrefFormContent {
   /**
    * Get a list of available sites.
    *
-   * "@url:/services/sitemanage/site/choices"
+   * <p>"@url:/services/sitemanage/site/choices"
+   *
    * @return Returns a JSON string containing a list of sites
    */
   protected String getSiteList() {
@@ -348,7 +349,8 @@ public final class PSUserPrefFormContent {
   /**
    * Get a list of available workflows.
    *
-   * "@url:/Rhythmyx/services/workflowmanagement/workflows/"
+   * <p>"@url:/Rhythmyx/services/workflowmanagement/workflows/"
+   *
    * @return A json string containing workflows.
    */
   protected String getWorkflows() {
@@ -371,6 +373,7 @@ public final class PSUserPrefFormContent {
   /**
    * Get a list of workflow states for the supplied workflow name
    * "@url:/Rhythmyx/services/workflowmanagement/workflows/@ssworkflow@/states/choices"
+   *
    * @param workflowName Required. A valid workflow name, if null or empty returns {}
    * @return A json string representing the list of workflows.
    */
@@ -393,9 +396,10 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Handles remote enumeration options. The service must return a JSON array
-   * with JSONObjects that have a &quot;value&quot; and a &quot;display_value&quot; property,
-   * with the &quot;display_value&quot; option being optional.
+   * Handles remote enumeration options. The service must return a JSON array with JSONObjects that
+   * have a &quot;value&quot; and a &quot;display_value&quot; property, with the
+   * &quot;display_value&quot; option being optional.
+   *
    * @param defaultVal
    */
   // TODO: If this is an @url param, we need to validate that the URL is safe.
@@ -467,10 +471,10 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Add a checkbox form field representing a boolean to the content buffer. Sets as checked if
-   * that default exists.
-   * @param fieldname the fieldname for the input field, assumed not <code>null</code>,
-   * or empty.
+   * Add a checkbox form field representing a boolean to the content buffer. Sets as checked if that
+   * default exists.
+   *
+   * @param fieldname the fieldname for the input field, assumed not <code>null</code>, or empty.
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addBooleanField(String fieldname, String displayName, JSONObject pref) {
@@ -493,8 +497,8 @@ public final class PSUserPrefFormContent {
   /**
    * Add a select form field to the content buffer. No option values are added as this is done
    * programatically by the gadget.
-   * @param fieldname the fieldname for the input field, assumed not <code>null</code>,
-   * or empty.
+   *
+   * @param fieldname the fieldname for the input field, assumed not <code>null</code>, or empty.
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addListField(String fieldname, JSONObject pref) {
@@ -508,8 +512,8 @@ public final class PSUserPrefFormContent {
 
   /**
    * Add a hidden form field to the content buffer. Uses the default value as its value.
-   * @param fieldname the fieldname for the input field, assumed not <code>null</code>,
-   * or empty.
+   *
+   * @param fieldname the fieldname for the input field, assumed not <code>null</code>, or empty.
    * @param pref the JSON preference object, assumed not <code>null</code>.
    */
   private void addHiddenField(String fieldname, JSONObject pref) {
@@ -550,8 +554,9 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Helper method to return the user set value of a field if it exists and
-   * if not, then the default value, or <code>null</code> if neither exists.
+   * Helper method to return the user set value of a field if it exists and if not, then the default
+   * value, or <code>null</code> if neither exists.
+   *
    * @param pref assumed not <code>null</code>.
    * @return the user or default field value.
    */
@@ -563,8 +568,9 @@ public final class PSUserPrefFormContent {
   }
 
   /**
-   * Replaces @@MODULEID@@ and @@FIELDIDX@@ tokens with the m_moduleId and
-   * m_fieldCount values respectively.
+   * Replaces @@MODULEID@@ and @@FIELDIDX@@ tokens with the m_moduleId and m_fieldCount values
+   * respectively.
+   *
    * @param str the string to do the replacement on, assumed not <code>null</code>.
    * @return the replaced string, never <code>null</code>, may be empty.
    */
@@ -578,10 +584,7 @@ public final class PSUserPrefFormContent {
     return obj != null;
   }
 
-  /**
-   * The module id value. Never <code>null</code> or empty, generally
-   * set by the ctor.
-   */
+  /** The module id value. Never <code>null</code> or empty, generally set by the ctor. */
   private String m_moduleId = "0";
 
   /**
@@ -590,10 +593,7 @@ public final class PSUserPrefFormContent {
    */
   private Map<String, String> m_userPrefValues;
 
-  /**
-   * The content buffer where the form is built up, never <code>null</code>, may
-   * be empty.
-   */
+  /** The content buffer where the form is built up, never <code>null</code>, may be empty. */
   private StringBuilder m_content = new StringBuilder();
 
   /**

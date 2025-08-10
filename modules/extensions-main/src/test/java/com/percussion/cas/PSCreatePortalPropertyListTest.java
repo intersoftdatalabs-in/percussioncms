@@ -26,17 +26,14 @@ import org.w3c.dom.Document;
 
 /**
  * @author DougRand
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ *     <p>To change the template for this generated type comment go to
+ *     Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 @Tag("UnitTest")
 public class PSCreatePortalPropertyListTest {
   private static final Logger log = LogManager.getLogger(PSCreatePortalPropertyListTest.class);
 
-  /**
-   * Test parameters for the test
-   */
+  /** Test parameters for the test */
   Object[] params = {
     "METADATA",
     "searchKeywords",

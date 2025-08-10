@@ -37,11 +37,10 @@ import org.apache.commons.lang.Validate;
 import org.w3c.dom.Element;
 
 /**
- * Add the Designer Role to the system.  @Todo: Add the role to existing workflows as an assignee of every state as we do
- * for Admin role.
+ * Add the Designer Role to the system. @Todo: Add the role to existing workflows as an assignee of
+ * every state as we do for Admin role.
  *
  * @author JaySeletz
- *
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDesignerRole extends PSSpringUpgradePluginBase {
@@ -77,9 +76,7 @@ public class PSUpgradePluginAddDesignerRole extends PSSpringUpgradePluginBase {
     return new PSPluginResponse(PSPluginResponse.SUCCESS, "");
   }
 
-  /**
-   * Add the designer role as an assignee to all workflows in the system
-   */
+  /** Add the designer role as an assignee to all workflows in the system */
   private void addRoleToWorkflows() {
     List<PSWorkflow> allWorkflows = wfService.findWorkflowsByName(null);
     for (PSWorkflow workflow : allWorkflows) {
@@ -108,8 +105,8 @@ public class PSUpgradePluginAddDesignerRole extends PSSpringUpgradePluginBase {
   }
 
   /**
-   * For all states in the supplied workflow, set any assigned roles matching the supplied roleId as an assignee, and add to
-   * all transitions.  Assumes the role has already been added to the state.
+   * For all states in the supplied workflow, set any assigned roles matching the supplied roleId as
+   * an assignee, and add to all transitions. Assumes the role has already been added to the state.
    *
    * @param roleId
    * @param workflow
@@ -185,9 +182,7 @@ public class PSUpgradePluginAddDesignerRole extends PSSpringUpgradePluginBase {
     logger = out;
   }
 
-  /**
-   * Add the role
-   */
+  /** Add the role */
   private void addRoleToSystem() {
     logger.println("Adding " + DESIGNER_ROLE_NAME + " role to the system...");
     backEndRoleMgr.createRole(DESIGNER_ROLE_NAME, DESIGNER_ROLE_DESC);

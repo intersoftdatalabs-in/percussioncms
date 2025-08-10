@@ -22,95 +22,101 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Represents a year in a blog, containing months and entry counts.
- */
+/** Represents a year in a blog, containing months and entry counts. */
 public class PSBlogYear {
 
-    private Integer year;
-    private Integer yearCount;
-    private List<PSBlogMonth> months;
+  private Integer year;
+  private Integer yearCount;
+  private List<PSBlogMonth> months;
 
-    /**
-     * Constructs a blog year with the specified year.
-     * Initializes months with zero counts up to the current month if the year is current.
-     * @param year the year
-     */
-    public PSBlogYear(Integer year) {
-        this.year = year;
-        this.yearCount = 0;
+  /**
+   * Constructs a blog year with the specified year. Initializes months with zero counts up to the
+   * current month if the year is current.
+   *
+   * @param year the year
+   */
+  public PSBlogYear(Integer year) {
+    this.year = year;
+    this.yearCount = 0;
 
-        var cal = Calendar.getInstance();
-        var currentYear = cal.get(Calendar.YEAR);
-        var currentMonth = cal.get(Calendar.MONTH);
+    var cal = Calendar.getInstance();
+    var currentYear = cal.get(Calendar.YEAR);
+    var currentMonth = cal.get(Calendar.MONTH);
 
-        var emptyMonths = new ArrayList<PSBlogMonth>();
-        var localeMonths = new DateFormatSymbols(Locale.getDefault()).getMonths();
-        var indexMonth = localeMonths.length - 2;
-        if (currentYear.equals(year)) {
-            indexMonth = currentMonth;
-        }
-
-        for (int i = indexMonth; i >= 0; i--) {
-            var newMonth = new PSBlogMonth(localeMonths[i], 0);
-            emptyMonths.add(newMonth);
-        }
-        this.months = emptyMonths;
+    var emptyMonths = new ArrayList<PSBlogMonth>();
+    var localeMonths = new DateFormatSymbols(Locale.getDefault()).getMonths();
+    var indexMonth = localeMonths.length - 2;
+    if (currentYear.equals(year)) {
+      indexMonth = currentMonth;
     }
 
-    /**
-     * Gets the year.
-     * @return the year
-     */
-    public Integer getYear() {
-        return year;
+    for (int i = indexMonth; i >= 0; i--) {
+      var newMonth = new PSBlogMonth(localeMonths[i], 0);
+      emptyMonths.add(newMonth);
     }
+    this.months = emptyMonths;
+  }
 
-    /**
-     * Sets the year.
-     * @param year the year to set
-     */
-    public void setYear(Integer year) {
-        this.year = year;
-    }
+  /**
+   * Gets the year.
+   *
+   * @return the year
+   */
+  public Integer getYear() {
+    return year;
+  }
 
-    /**
-     * Sets the year count.
-     * @param yearCount the year count to set
-     */
-    public void setYearCount(Integer yearCount) {
-        this.yearCount = yearCount;
-    }
+  /**
+   * Sets the year.
+   *
+   * @param year the year to set
+   */
+  public void setYear(Integer year) {
+    this.year = year;
+  }
 
-    /**
-     * Gets the count for the year.
-     * @return the count for the year
-     */
-    public Integer getYearCount() {
-        return yearCount;
-    }
+  /**
+   * Sets the year count.
+   *
+   * @param yearCount the year count to set
+   */
+  public void setYearCount(Integer yearCount) {
+    this.yearCount = yearCount;
+  }
 
-    /**
-     * Gets the months for this year.
-     * @return the list of months
-     */
-    public List<PSBlogMonth> getMonths() {
-        return months;
-    }
+  /**
+   * Gets the count for the year.
+   *
+   * @return the count for the year
+   */
+  public Integer getYearCount() {
+    return yearCount;
+  }
 
-    /**
-     * Sets the months for this year.
-     * @param months the months to set
-     */
-    public void setMonths(List<PSBlogMonth> months) {
-        this.months = months;
-    }
+  /**
+   * Gets the months for this year.
+   *
+   * @return the list of months
+   */
+  public List<PSBlogMonth> getMonths() {
+    return months;
+  }
 
-    /**
-     * Adds a month to this year.
-     * @param month the month to add
-     */
-    public void addMonth(PSBlogMonth month) {
-        this.months.add(month);
-    }
+  /**
+   * Sets the months for this year.
+   *
+   * @param months the months to set
+   */
+  public void setMonths(List<PSBlogMonth> months) {
+    this.months = months;
+  }
+
+  /**
+   * Adds a month to this year.
+   *
+   * @param month the month to add
+   */
+  public void addMonth(PSBlogMonth month) {
+    this.months.add(month);
+  }
 }

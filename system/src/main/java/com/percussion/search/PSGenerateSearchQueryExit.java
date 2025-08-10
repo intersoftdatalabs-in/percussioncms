@@ -82,27 +82,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class generates an output doc conforming to the SearchQueryDef element
- * defined in the SearchQueryDef.dtd to be used for generating an HTML search
- * query page.  This exit expects different parameters to be present in the
- * supplied request context depending on the type of search to be performed:
- * <br>
- *
+ * This class generates an output doc conforming to the SearchQueryDef element defined in the
+ * SearchQueryDef.dtd to be used for generating an HTML search query page. This exit expects
+ * different parameters to be present in the supplied request context depending on the type of
+ * search to be performed: <br>
  * Active Assembly
- * <ul>
- * <li>sys_slotname</li>
- * <li>sys_contentid</li>
- * <li>sys_revision</li>
- * <li>sys_activeitemid</li>
- * <li></li>
- * </ul>
- * <br>
  *
- * Inline content
  * <ul>
- * <li>inlinetext</li>
- * <li>inlineslotid</li>
- * <li>inlinetype</li>
+ *   <li>sys_slotname
+ *   <li>sys_contentid
+ *   <li>sys_revision
+ *   <li>sys_activeitemid
+ *   <li>
+ * </ul>
+ *
+ * <br>
+ * Inline content
+ *
+ * <ul>
+ *   <li>inlinetext
+ *   <li>inlineslotid
+ *   <li>inlinetype
  * </ul>
  */
 @SuppressWarnings("unchecked")
@@ -125,11 +125,9 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Generate the result document as described in the class header.
    *
    * @param params No params are expected, this parameter is unused.
-   * @param request The request context, guaranteed not <code>null</code>
-   * by the interface.
-   * @param resultDoc The current result doc, this parameter is unused, and a
-   * new result document is created and returned by this method.
-   *
+   * @param request The request context, guaranteed not <code>null</code> by the interface.
+   * @param resultDoc The current result doc, this parameter is unused, and a new result document is
+   *     created and returned by this method.
    * @return The document conforming to
    */
   public Document processResultDocument(
@@ -213,21 +211,18 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Adds display fields for the result setting fields using the values defined
-   * in the supplied search.
+   * Adds display fields for the result setting fields using the values defined in the supplied
+   * search.
    *
-   * @param proc The processor to use to load display format choices, assumed
-   * not <code>null</code>.
+   * @param proc The processor to use to load display format choices, assumed not <code>null</code>.
    * @param doc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
    * @param search The search to use, assumed not <code>null</code>.
    * @param locale The user locale, assumed not <code>null</code> or empty.
-   * @param communityId The current user's community, may be <code>null</code>
-   *    or empty.
-   * @throws PSCmsException if there are any errors loading display format
-   * XML.
-   * @throws PSUnknownNodeTypeException if there is an error restoring a loaded
-   * display format from its XML representation.
+   * @param communityId The current user's community, may be <code>null</code> or empty.
+   * @throws PSCmsException if there are any errors loading display format XML.
+   * @throws PSUnknownNodeTypeException if there is an error restoring a loaded display format from
+   *     its XML representation.
    */
   private void addResultSettings(
       PSComponentProcessorProxy proc,
@@ -298,15 +293,14 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Adds display fields for the full text search settings using the values
-   * defined in the supplied search.
+   * Adds display fields for the full text search settings using the values defined in the supplied
+   * search.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
    * @param search The search to use, assumed not <code>null</code>.
    * @param locale The user locale, assumed not <code>null</code> or empty.
-   * @param communityId the current users community, may be <code>null</code>
-   *    or empty.
+   * @param communityId the current users community, may be <code>null</code> or empty.
    */
   private void addFTSSettings(
       Document doc, Element root, PSSearch search, String locale, String communityId) {
@@ -356,22 +350,18 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Adds display fields for all search fields defined in the supplied search.
-   * Also builds and adds the keyword dependencies data for cascaded keywords.
+   * Adds display fields for all search fields defined in the supplied search. Also builds and adds
+   * the keyword dependencies data for cascaded keywords.
    *
    * @param request The request context to use, assumed not <code>null</code>.
    * @param doc The doc to use, assumed not <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
    * @param search The search to use, assumed not <code>null</code>.
-   * @param slotType The slot for which the search is being performed, may be
-   * <code>null</code>.
+   * @param slotType The slot for which the search is being performed, may be <code>null</code>.
    * @param locale The user locale, assumed not <code>null</code> or empty.
-   * @param communityId the current users community, may be <code>null</code>
-   *    or empty.
-   * @throws PSCmsException if there are any errors loading field catalog
-   * XML.
-   * @throws IOException if the search field filter map is required and cannot
-   * be retrieved.
+   * @param communityId the current users community, may be <code>null</code> or empty.
+   * @throws PSCmsException if there are any errors loading field catalog XML.
+   * @throws IOException if the search field filter map is required and cannot be retrieved.
    */
   private void addSearchFields(
       IPSRequestContext request,
@@ -515,17 +505,16 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Loads all possible combinations of keyword data for the supplied
-   * <code>keyField</code>.  Method calls itself recursively.
+   * Loads all possible combinations of keyword data for the supplied <code>keyField</code>. Method
+   * calls itself recursively.
    *
    * @param req The request to use, assumed not <code>null</code>.
-   * @param keyField The key field on which the data is set, assumed not
-   * <code>null</code>.
-   * @param keyFieldFiltersMap Map of all keyword fields used to obtain
-   * possible parent values, assumed not <code>null</code>.  Key is the field
-   * name, value is the <code>PSKeywordField</code> value.
-   * @param processedList List to which each <code>keyField</code> is added to
-   * avoid infinite looping, intial call should pass an empty list.
+   * @param keyField The key field on which the data is set, assumed not <code>null</code>.
+   * @param keyFieldFiltersMap Map of all keyword fields used to obtain possible parent values,
+   *     assumed not <code>null</code>. Key is the field name, value is the <code>PSKeywordField
+   *     </code> value.
+   * @param processedList List to which each <code>keyField</code> is added to avoid infinite
+   *     looping, intial call should pass an empty list.
    */
   private void loadKeyFieldData(
       PSRequest req, PSKeywordField keyField, Map keyFieldFiltersMap, List processedList) {
@@ -578,14 +567,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Executes the choice filter defined by the supplied <code>keyField</code>
    *
    * @param req The request to use, assumed not <code>null</code>.
-   * @param keyField The key field containing the choice filter definition,
-   * assumed not <code>null</code>.
-   * @param values A list of parent field values, assumed not <code>null</code>
-   * and to be of the same number and in the order as the parent fields
-   * in the <code>keyField</code>.
-   *
-   * @return A list of <code>PSEntry</code> objects, never <code>null</code>,
-   * may be empty if none could be obtained.
+   * @param keyField The key field containing the choice filter definition, assumed not <code>null
+   *     </code>.
+   * @param values A list of parent field values, assumed not <code>null</code> and to be of the
+   *     same number and in the order as the parent fields in the <code>keyField</code>.
+   * @return A list of <code>PSEntry</code> objects, never <code>null</code>, may be empty if none
+   *     could be obtained.
    */
   private List executeChoiceFilter(PSRequest req, PSKeywordField keyField, List values) {
     List choices = new ArrayList();
@@ -621,12 +608,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Adds extra settings for any pass thru parameters as display fields.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
-   * @param request All html params are supplied as hidden display fields,
-   * never <code>null</code>.
+   * @param request All html params are supplied as hidden display fields, never <code>null</code>.
    * @param root The root element to append to, assumed not <code>null</code>.
    * @param search The search to use, assumed not <code>null</code>.
-   * @param slotType The slot for which the search is being performed, may be
-   * <code>null</code>.
+   * @param slotType The slot for which the search is being performed, may be <code>null</code>.
    */
   private void addExtraSettings(
       Document doc, IPSRequestContext request, Element root, PSSearch search, PSSlotType slotType) {
@@ -670,11 +655,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   /**
    * Creates display choices for the operator based on the specified field.
    *
-   * @param field The field for which the operators are to be determined,
-   * assumed not <code>null</code>.
-   * @param locale The locale to use to localize the choice display text,
-   * assumed not <code>null</code> or empty.
-   *
+   * @param field The field for which the operators are to be determined, assumed not <code>null
+   *     </code>.
+   * @param locale The locale to use to localize the choice display text, assumed not <code>null
+   *     </code> or empty.
    * @return The choices, never <code>null</code> or empty.
    */
   private PSDisplayChoices getOperatorChoices(PSSearchField field, String locale) {
@@ -689,10 +673,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   /**
    * Get the correct control name for a search field.
    *
-   * @param type The data type of the field, assumed not <code>null</code> or
-   * empty.
+   * @param type The data type of the field, assumed not <code>null</code> or empty.
    * @param choices The field choices, may be <code>null</code>.
-   *
    * @return The control name, never <code>null</code> or empty.
    */
   private String getControlName(String type, PSDisplayChoices choices) {
@@ -710,11 +692,9 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Convenience method that calls {@link #createField(Document, String,
-   * String, String, Object, String, String, PSDisplayChoices, Object, String)
-   * createField(doc, label, controlName, fieldName, value,
-   * PSDisplayFieldElementBuilder.DIMENSION_SINGLE, accessKey, null, null,
-   * null)}
+   * Convenience method that calls {@link #createField(Document, String, String, String, Object,
+   * String, String, PSDisplayChoices, Object, String) createField(doc, label, controlName,
+   * fieldName, value, PSDisplayFieldElementBuilder.DIMENSION_SINGLE, accessKey, null, null, null)}
    */
   private Element createField(
       Document doc,
@@ -740,24 +720,17 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Creates a DisplayField Element from the supplied data.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
-   * @param label The label of the field, assumed not <code>null</code> or
-   * empty.
-   * @param controlName The name of the control to use to render the field,
-   * assumed not <code>null</code> or empty.
-   * @param fieldName The internal name of the field, assumed not
-   * <code>null</code> or empty.
+   * @param label The label of the field, assumed not <code>null</code> or empty.
+   * @param controlName The name of the control to use to render the field, assumed not <code>null
+   *     </code> or empty.
+   * @param fieldName The internal name of the field, assumed not <code>null</code> or empty.
    * @param value The value of the field, may be <code>null</code> or empty.
-   * @param dimension One of the
-   * <code>PSDisplayFieldElementBuilder.DIMENSION_xxx</code> constants.
-   * @param accessKey The mnemonic key to use for accessibility, may be
-   * <code>null</code> or empty.
-   * @param choices Any choices available for keyword support, may be
-   * <code>null</code>.
-   * @param selected The value to select if choices are supplied, may be
-   * <code>null</code> or empty to have no selection.  Ignored if
-   * <code>choices</code> is <code>null</code>.
-   * @param communityId the current users community, may be <code>null</code>
-   *    or empty.
+   * @param dimension One of the <code>PSDisplayFieldElementBuilder.DIMENSION_xxx</code> constants.
+   * @param accessKey The mnemonic key to use for accessibility, may be <code>null</code> or empty.
+   * @param choices Any choices available for keyword support, may be <code>null</code>.
+   * @param selected The value to select if choices are supplied, may be <code>null</code> or empty
+   *     to have no selection. Ignored if <code>choices</code> is <code>null</code>.
+   * @param communityId the current users community, may be <code>null</code> or empty.
    * @return The element, never <code>null</code>.
    */
   private Element createField(
@@ -835,17 +808,13 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   }
 
   /**
-   * Creates a display choices for the display format ids available for
-   * related content searches.
+   * Creates a display choices for the display format ids available for related content searches.
    *
    * @param proc The processor proxy to use, assumed not <code>null</code>.
-   *
    * @return The choices, never <code>null</code>.
-   *
-   * @throws PSCmsException if there are any errors loading a display format
-   * XML.
-   * @throws PSUnknownNodeTypeException if there is an error restoring a loaded
-   * display format from its XML representation.
+   * @throws PSCmsException if there are any errors loading a display format XML.
+   * @throws PSUnknownNodeTypeException if there is an error restoring a loaded display format from
+   *     its XML representation.
    */
   private PSDisplayChoices loadDisplayFormatChoices(PSComponentProcessorProxy proc)
       throws PSUnknownNodeTypeException, PSCmsException {
@@ -866,15 +835,11 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Load the correct slot type object for the specified slot identifier
    *
    * @param proc The processor proxy to use, assumed not <code>null</code>.
-   * @param slotId Either the slot name or id, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param slotId Either the slot name or id, assumed not <code>null</code> or empty.
    * @return The slot type object, or <code>null</code> if not found.
-   *
-   * @throws PSUnknownNodeTypeException if there is an error restoring an
-   * object from its xml representation
-   * @throws PSCmsException if there is an error loading the object data from
-   * the repository.
+   * @throws PSUnknownNodeTypeException if there is an error restoring an object from its xml
+   *     representation
+   * @throws PSCmsException if there is an error loading the object data from the repository.
    */
   private PSSlotType getSlotType(PSComponentProcessorProxy proc, String slotId)
       throws PSCmsException, PSUnknownNodeTypeException {
@@ -919,9 +884,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    *
    * @param request The request to use, may not be <code>null</code>.
    * @param slotId The slot id, may not be <code>null</code> or empty.
-   *
    * @return The map, never <code>null</code>.
-   *
    * @throws IOException if the map cannot be loaded.
    */
   @SuppressWarnings("unused")
@@ -957,12 +920,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Loads the specified default search.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   * @param communityId communityid as string, must not be <code>null</code>
-   * or empty. Attempt is made to find the search that is configured for this
-   * commuity. If not configured one, the default will be returned.
-   *
+   * @param communityId communityid as string, must not be <code>null</code> or empty. Attempt is
+   *     made to find the search that is configured for this commuity. If not configured one, the
+   *     default will be returned.
    * @return The specified search, never <code>null</code>.
-   *
    * @throws PSErrorResultsException
    * @throws PSErrorException
    */
@@ -1021,14 +982,11 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
    * Retrieves the translated string from the i18n object.
    *
    * @param key Assumed not <code>null</code> or empty.
-   *
-   * @param addColon If <code>true</code>, a ':' is appended to the value
-   *    before it is returned (if there isn't one there already).
-   *
+   * @param addColon If <code>true</code>, a ':' is appended to the value before it is returned (if
+   *     there isn't one there already).
    * @param locale The locale, assumed not <code>null</code> or empty.
-   *
-   * @return The text associated with the supplied key, or if the key is not
-   *    found, the key is returned. Never <code>null</code> or empty.
+   * @return The text associated with the supplied key, or if the key is not found, the key is
+   *     returned. Never <code>null</code> or empty.
    */
   private String getResource(String key, boolean addColon, String locale) {
     String value = PSI18nUtils.getString(getClass().getName() + "@" + key, locale);
@@ -1041,13 +999,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
   /**
    * Gets the translated mnemonic key value.
    *
-   * @param label The label for which the mnemonic is supplied, may be
-   * <code>null</code> or empty in which case no translation occurs.
-   * @param mnemonic The untranslated mnemonic key, assumed not
-   * <code>null</code> or empty if <code>label</code> is not.
-   * @param locale The locale to which the mnemonic is translated, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param label The label for which the mnemonic is supplied, may be <code>null</code> or empty in
+   *     which case no translation occurs.
+   * @param mnemonic The untranslated mnemonic key, assumed not <code>null</code> or empty if <code>
+   *     label</code> is not.
+   * @param locale The locale to which the mnemonic is translated, assumed not <code>null</code> or
+   *     empty.
    * @return The possibly translated mnemonic.
    */
   private String getMnemonicResource(String label, String mnemonic, String locale) {
@@ -1059,59 +1016,46 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     return StringUtils.defaultString(mnemonic);
   }
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger log = LogManager.getLogger("PSGenerateSearchQueryExit");
 
   /**
-   * The fully qualified name of this extension. Intialized in the
-   * {@link #init(IPSExtensionDef, File)} method, never <code>null</code>,
-   * empty, or modified after that.
+   * The fully qualified name of this extension. Intialized in the {@link #init(IPSExtensionDef,
+   * File)} method, never <code>null</code>, empty, or modified after that.
    */
   private static String ms_fullExtensionName = "";
 
   /**
-   * The message prefix that includes the extension name and is used
-   * for logging.  Intialized in the {@link #init(IPSExtensionDef, File)}
-   * method, never <code>null</code>, empty, or modified after that.
+   * The message prefix that includes the extension name and is used for logging. Intialized in the
+   * {@link #init(IPSExtensionDef, File)} method, never <code>null</code>, empty, or modified after
+   * that.
    */
   private static String ms_msgPrefix = "";
 
-  /**
-   * Constant for the slotId param name.
-   */
+  /** Constant for the slotId param name. */
   private static final String SLOTID_PARAM = "slotId";
 
-  /**
-   * Constant for the slotId param name.
-   */
+  /** Constant for the slotId param name. */
   private static final String GENMODE_PARAM = "genMode";
 
-  /**
-   * Constant for the slotId param name.
-   */
+  /** Constant for the slotId param name. */
   private static final String AAJS_GENMODE_PARAM = "aaJS";
 
-  /**
-   * Constant for the sys_HiddenInput control name.
-   */
+  /** Constant for the sys_HiddenInput control name. */
   private static final String SYS_HIDDENINPUT = "sys_HiddenInput";
 
   /**
-   * Class to encapsulate the data for each KeywordData child element of the
-   * KeywordDependencies element in the SearchQueryDef.dtd
+   * Class to encapsulate the data for each KeywordData child element of the KeywordDependencies
+   * element in the SearchQueryDef.dtd
    */
   private class PSKeywordField {
     /**
      * Construct a keyword field object.
      *
-     * @param name The name of the field, assumed not <code>null</code> or
-     * empty.
+     * @param name The name of the field, assumed not <code>null</code> or empty.
      * @param choices Choices to use, assumed not <code>null</code>.
-     * @param filter Used to filter all possible values, may be
-     * <code>null</code>.  Assumed that the supplied <code>choices</code>
-     * is already filtered as required.
+     * @param filter Used to filter all possible values, may be <code>null</code>. Assumed that the
+     *     supplied <code>choices</code> is already filtered as required.
      */
     public PSKeywordField(String name, PSDisplayChoices choices, PSSearchFieldFilter filter) {
       mi_name = name;
@@ -1155,9 +1099,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Get list of parent field names.
      *
-     * @return Iterator over one or more parent field names as
-     * <code>String</code> objects, never <code>null</code>, may be empty
-     * if no parent fields are supplied.
+     * @return Iterator over one or more parent field names as <code>String</code> objects, never
+     *     <code>null</code>, may be empty if no parent fields are supplied.
      */
     public Iterator getParentFields() {
       return mi_parentFields.iterator();
@@ -1166,8 +1109,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Get the url request for the choice filter lookup.
      *
-     * @return the request, will be <code>null</code> if
-     * {@link #hasParentFields()} returns <code>false</code>
+     * @return the request, will be <code>null</code> if {@link #hasParentFields()} returns <code>
+     *     false</code>
      */
     public PSUrlRequest getUrlRequest() {
       return mi_urlRequest;
@@ -1176,8 +1119,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Determines if this field needs keydata to be set.
      *
-     * @return <code>true</code> if key data still needs to be loaded,
-     * <code>false</code> if not.
+     * @return <code>true</code> if key data still needs to be loaded, <code>false</code> if not.
      */
     public boolean missingKeyData() {
       return hasParentFields() && (!mi_noKeyDataAvailable && mi_keyData.isEmpty());
@@ -1186,13 +1128,12 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Sets data for a set of parent keys.
      *
-     * @param keys List of parent ids as <code>String</code> objects.  Must
-     * have same number of entries as returned by {@link #getParentFields()},
-     * each id corresponds to respective field name in that list. A copy of
-     * this list is stored in this object.
-     * @param choices The choices resulting from the supplied parent keys,
-     * assumed not <code>null</code>, each is a <code>PSEntry</code> object.
-     * A copy of this list is stored in this object.
+     * @param keys List of parent ids as <code>String</code> objects. Must have same number of
+     *     entries as returned by {@link #getParentFields()}, each id corresponds to respective
+     *     field name in that list. A copy of this list is stored in this object.
+     * @param choices The choices resulting from the supplied parent keys, assumed not <code>null
+     *     </code>, each is a <code>PSEntry</code> object. A copy of this list is stored in this
+     *     object.
      */
     public void addKeyData(List keys, List choices) {
       if (mi_noKeyDataAvailable) throw new IllegalStateException("cannot add key data");
@@ -1206,8 +1147,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Marks if this keyword does not have key data available.
      *
-     * @param notAvailable <code>true</code> if no key data can be loaded,
-     * <code>false</code> if it can.
+     * @param notAvailable <code>true</code> if no key data can be loaded, <code>false</code> if it
+     *     can.
      */
     public void setNoKeyDataAvailable(boolean notAvailable) {
       if (notAvailable && !mi_keyData.isEmpty())
@@ -1219,8 +1160,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Determine if any key data has been set on this object.
      *
-     * @return <code>true</code> if data has been set, <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if data has been set, <code>false</code> otherwise.
      */
     public boolean hasKeyData() {
       return !mi_keyData.isEmpty();
@@ -1230,9 +1170,7 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
      * Gets all possible values for this keyword.
      *
      * @return A collection of possbile values as <code>String</code> objects.
-     *
-     * @throws IllegalStateException if {@link #missingKeyData()} returns
-     * <code>true</code>.
+     * @throws IllegalStateException if {@link #missingKeyData()} returns <code>true</code>.
      */
     public Collection getPossibleValues() {
       if (missingKeyData())
@@ -1255,12 +1193,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     }
 
     /**
-     * Serializes this objects data to the XML representation described by the
-     * KeywordField element in the SearchQueryDef.dtd
+     * Serializes this objects data to the XML representation described by the KeywordField element
+     * in the SearchQueryDef.dtd
      *
-     * @param doc The doc to use to create elements, assumed not
-     * <code>null</code>.
-     *
+     * @param doc The doc to use to create elements, assumed not <code>null</code>.
      * @return The KeywordField element, never <code>null</code>.
      */
     public Element toXml(Document doc) {
@@ -1300,74 +1236,63 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       return root;
     }
 
-    /**
-     * XML constant for the KeywordField element.
-     */
+    /** XML constant for the KeywordField element. */
     public static final String XML_NODE_NAME = "KeywordField";
 
-    /**
-     * The name of this keyword field, never <code>null</code> or empty or
-     * modified after ctor.
-     */
+    /** The name of this keyword field, never <code>null</code> or empty or modified after ctor. */
     private String mi_name;
 
-    /**
-     * Default choices supplied during ctor, may be <code>null</code>, never
-     * modified.
-     */
+    /** Default choices supplied during ctor, may be <code>null</code>, never modified. */
     private PSDisplayChoices mi_defaultChoices;
 
     /**
-     * List of parent field names as <code>String</code> objects, supplied
-     * to ctor, never <code>null</code> or empty or modified.
+     * List of parent field names as <code>String</code> objects, supplied to ctor, never <code>null
+     * </code> or empty or modified.
      */
     private List mi_parentFields;
 
     /**
-     * List of keyword data, each entry is a <code>PSMapPair</code> where the
-     * key is a <code>List</code> of parent values as <code>String</code>
-     * objects and the value is <code>List</code> of <code>PSEntry</code>
-     * objects, never <code>null</code>, modified by calls to
-     * {@link #addKeyData(List, List)}.  Number of parent values is assumed
-     * to match the size of {@link #mi_parentFields}.
+     * List of keyword data, each entry is a <code>PSMapPair</code> where the key is a <code>List
+     * </code> of parent values as <code>String</code> objects and the value is <code>List</code> of
+     * <code>PSEntry</code> objects, never <code>null</code>, modified by calls to {@link
+     * #addKeyData(List, List)}. Number of parent values is assumed to match the size of {@link
+     * #mi_parentFields}.
      */
     private List mi_keyData = new ArrayList();
 
     /**
-     * Flag to indicate that an attempt was made to load key data for this
-     * keyword, but none was available.  <code>true</code> to indicate none
-     * is available, <code>false</code> to indicate data may be available.
-     * Initially <code>false</code>, modified by calls to
-     * {@link #setNoKeyDataAvailable(boolean)}.
+     * Flag to indicate that an attempt was made to load key data for this keyword, but none was
+     * available. <code>true</code> to indicate none is available, <code>false</code> to indicate
+     * data may be available. Initially <code>false</code>, modified by calls to {@link
+     * #setNoKeyDataAvailable(boolean)}.
      */
     private boolean mi_noKeyDataAvailable = false;
 
     /**
-     * Url request to execute to retrieve the key data, may be
-     * <code>null</code> if no choice filter was supplied during construction.
+     * Url request to execute to retrieve the key data, may be <code>null</code> if no choice filter
+     * was supplied during construction.
      */
     private PSUrlRequest mi_urlRequest;
 
     /**
-     * Used to filter final results, may be <code>null</code> if no filter was
-     * supplied during construction.
+     * Used to filter final results, may be <code>null</code> if no filter was supplied during
+     * construction.
      */
     private PSSearchFieldFilter mi_fieldFilter;
   }
 
   /**
-   * Provides iterator functionality over all possible combinations of each
-   * element across a list of lists.
+   * Provides iterator functionality over all possible combinations of each element across a list of
+   * lists.
    */
   private class PSValueListIterator implements Iterator {
     /**
      * Construct with list of value lists.
      *
-     * @param values List of <code>List</code> objects to iterate across.  May
-     * not be <code>null</code> or empty, and each entry must be a
-     * non-<code>null</code> non-empty <code>List</code>.  This implementation
-     * does not check for concurrent modifications, so the provided data
-     * should not be modified after supplied to this constructor.
+     * @param values List of <code>List</code> objects to iterate across. May not be <code>null
+     *     </code> or empty, and each entry must be a non-<code>null</code> non-empty <code>List
+     *     </code>. This implementation does not check for concurrent modifications, so the provided
+     *     data should not be modified after supplied to this constructor.
      */
     public PSValueListIterator(List values) {
       if (values == null || values.size() == 0)
@@ -1396,12 +1321,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     }
 
     /**
-     * Determines if another combination is availble to be returned by the
-     * next call to {@link #next()}
+     * Determines if another combination is availble to be returned by the next call to {@link
+     * #next()}
      *
-     * @return <code>true</code> if one is available, <code>false</code>
-     * if not.
-     *
+     * @return <code>true</code> if one is available, <code>false</code> if not.
      * @see Iterator#hasNext()
      */
     public boolean hasNext() {
@@ -1409,12 +1332,10 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     }
 
     /**
-     * Returns the next combination of values, one from each list provided
-     * during construction.
+     * Returns the next combination of values, one from each list provided during construction.
      *
-     * @return The next combination as a <code>List</code> containing one
-     * element from each of the lists provided during construction, never
-     * <code>null</code> or empty.
+     * @return The next combination as a <code>List</code> containing one element from each of the
+     *     lists provided during construction, never <code>null</code> or empty.
      */
     public Object next() {
       if (!mi_hasNext) throw new NoSuchElementException("no more values");
@@ -1436,8 +1357,8 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
     /**
      * Increments the appropriate {@link #mi_counters} values.
      *
-     * @return <code>true</code> if a counter was incremented,
-     * <code>false</code> if no more indexes are available.
+     * @return <code>true</code> if a counter was incremented, <code>false</code> if no more indexes
+     *     are available.
      */
     private boolean incrementCounter() {
       boolean hasNext = false;
@@ -1463,21 +1384,16 @@ public class PSGenerateSearchQueryExit extends PSDefaultExtension
       throw new UnsupportedOperationException("remove not supported");
     }
 
-    /**
-     * Determine if {@link #next()} may be called again.
-     */
+    /** Determine if {@link #next()} may be called again. */
     private boolean mi_hasNext;
 
-    /**
-     * The list of values supplied during ctor, never modified after that.
-     */
+    /** The list of values supplied during ctor, never modified after that. */
     private List mi_values;
 
     /**
-     * Array of indexes into each list contained by {@link #mi_values}.  Each
-     * value represents the next index to retrieve from the corresponding
-     * list.  Size of this array will match the size of {@link #mi_values}.
-     * Each value of this array is always less than the size of its
+     * Array of indexes into each list contained by {@link #mi_values}. Each value represents the
+     * next index to retrieve from the corresponding list. Size of this array will match the size of
+     * {@link #mi_values}. Each value of this array is always less than the size of its
      * corresponding list.
      */
     private int[] mi_counters;

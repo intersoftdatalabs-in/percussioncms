@@ -24,21 +24,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This contains methods that extract the component urls needed to create
- * the existing l&f of the HTML interface. The object is created with
- * a document obtained from an internal request, and after creation allows
- * the caller to retrieve the header, user status and left nav urls.
- * <p>
- * This class is primarily intended for use in JSPs to build up a full page
+ * This contains methods that extract the component urls needed to create the existing l&f of the
+ * HTML interface. The object is created with a document obtained from an internal request, and
+ * after creation allows the caller to retrieve the header, user status and left nav urls.
+ *
+ * <p>This class is primarily intended for use in JSPs to build up a full page
  *
  * @author dougrand
- *
  */
 public class PSExtractComponentUrls {
   private Map<String, String> m_componentUrls = null;
 
   /**
    * Ctor
+   *
    * @param document the document to use for lookups, never <code>null</code>
    */
   public PSExtractComponentUrls(Document document) {
@@ -59,6 +58,7 @@ public class PSExtractComponentUrls {
 
   /**
    * Extract the named slot's url from the document
+   *
    * @param name the name, never <code>null</code> or empty
    * @return the url or <code>null</code> if not found
    */

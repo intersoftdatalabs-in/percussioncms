@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.io.Serializable;
 import java.util.Optional;
 
-/**
- * A request object used for getting the content activity data from the rest service.
- */
+/** A request object used for getting the content activity data from the rest service. */
 @JsonRootName(value = "ContentActivityRequest")
 public class PSContentActivityRequest implements Serializable {
 

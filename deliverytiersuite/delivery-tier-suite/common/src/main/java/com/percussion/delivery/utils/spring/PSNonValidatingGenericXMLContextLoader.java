@@ -28,11 +28,10 @@ import org.springframework.util.ObjectUtils;
 public class PSNonValidatingGenericXMLContextLoader extends AbstractGenericContextLoader {
 
   /**
-   * Factory method for creating a new {@link BeanDefinitionReader} for loading
-   * bean definitions into the supplied {@link GenericApplicationContext context}.
+   * Factory method for creating a new {@link BeanDefinitionReader} for loading bean definitions
+   * into the supplied {@link GenericApplicationContext context}.
    *
-   * @param context the context for which the {@code BeanDefinitionReader}
-   *                should be created
+   * @param context the context for which the {@code BeanDefinitionReader} should be created
    * @return a {@code BeanDefinitionReader} for the supplied context
    * @see #loadContext(String...)
    * @see #loadBeanDefinitions
@@ -50,12 +49,12 @@ public class PSNonValidatingGenericXMLContextLoader extends AbstractGenericConte
   }
 
   /**
-   * Get the suffix to append to {@link ApplicationContext} resource locations
-   * when detecting default locations.
-   * <p>Subclasses must provide an implementation of this method that returns
-   * a single suffix. Alternatively subclasses may provide a  <em>no-op</em>
-   * implementation of this method and override {@link #getResourceSuffixes()}
-   * in order to provide multiple custom suffixes.
+   * Get the suffix to append to {@link ApplicationContext} resource locations when detecting
+   * default locations.
+   *
+   * <p>Subclasses must provide an implementation of this method that returns a single suffix.
+   * Alternatively subclasses may provide a <em>no-op</em> implementation of this method and
+   * override {@link #getResourceSuffixes()} in order to provide multiple custom suffixes.
    *
    * @return the resource suffix; never {@code null} or empty
    * @see #generateDefaultLocations(Class)
@@ -68,8 +67,9 @@ public class PSNonValidatingGenericXMLContextLoader extends AbstractGenericConte
   }
 
   /**
-   * Ensure that the supplied {@link MergedContextConfiguration} does not
-   * contain {@link MergedContextConfiguration#getClasses() classes}.
+   * Ensure that the supplied {@link MergedContextConfiguration} does not contain {@link
+   * MergedContextConfiguration#getClasses() classes}.
+   *
    * @since 4.0.4
    * @see AbstractGenericContextLoader#validateMergedContextConfiguration
    */

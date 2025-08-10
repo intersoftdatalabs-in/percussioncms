@@ -22,52 +22,44 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 
 /**
- * This class is used to allow the readLine method to be called on an
- * input stream.
+ * This class is used to allow the readLine method to be called on an input stream.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSInputStreamReader extends PushbackInputStream {
   /**
-   * Construct an input stream reader for the specified stream. Depending on the
-   * noBuffer flag, the supplied stream can be wrapped in a buffered stream.
-   * The underlying pushback stream buffer will default to 1 byte.
+   * Construct an input stream reader for the specified stream. Depending on the noBuffer flag, the
+   * supplied stream can be wrapped in a buffered stream. The underlying pushback stream buffer will
+   * default to 1 byte.
    *
-   * @param   in            the input stream to wrapper
-   *
-   * @param   noBuffer      if <code>true</code> do not wrap in
-   *                        with a BufferedInputStream
+   * @param in the input stream to wrapper
+   * @param noBuffer if <code>true</code> do not wrap in with a BufferedInputStream
    */
   public PSInputStreamReader(InputStream in, boolean noBuffer) {
     this(in, noBuffer, 1);
   }
 
   /**
-   * Construct an input stream reader for the specified stream. This
-   * will be wrapped with a BufferedInputStream. The underlying pushback stream
-   * buffer will default to 1 byte.
+   * Construct an input stream reader for the specified stream. This will be wrapped with a
+   * BufferedInputStream. The underlying pushback stream buffer will default to 1 byte.
    *
-   * @param   in            the input stream to wrapper
+   * @param in the input stream to wrapper
    */
   public PSInputStreamReader(InputStream in) {
     this(in, false, 1);
   }
 
   /**
-   * Construct an input stream reader for the specified stream. Depending on the
-   * noBuffer flag, the supplied stream can be wrapped in a buffered stream.
-   * The underlying pushback stream buffer will default to 1 byte.
+   * Construct an input stream reader for the specified stream. Depending on the noBuffer flag, the
+   * supplied stream can be wrapped in a buffered stream. The underlying pushback stream buffer will
+   * default to 1 byte.
    *
-   * @param   in            the input stream to wrapper
-   *
-   * @param   noBuffer      if <code>true</code> do not wrap in
-   *                        with a BufferedInputStream
-   *
-   * @param pushbackBufSize The number of bytes in the pushback buffer in the
-   * underlying PushbackInputStream. This value is passed to the constructor
-   * of the base class.
+   * @param in the input stream to wrapper
+   * @param noBuffer if <code>true</code> do not wrap in with a BufferedInputStream
+   * @param pushbackBufSize The number of bytes in the pushback buffer in the underlying
+   *     PushbackInputStream. This value is passed to the constructor of the base class.
    */
   public PSInputStreamReader(InputStream in, boolean noBuffer, int pushbackBufSize) {
     super((noBuffer ? in : new BufferedInputStream(in)), pushbackBufSize);
@@ -76,7 +68,7 @@ public class PSInputStreamReader extends PushbackInputStream {
   /**
    * Read a line from this stream.
    *
-   * @return               the next line or null if no more lines exist
+   * @return the next line or null if no more lines exist
    */
   public String readLine() throws java.io.IOException {
     return readLine(null);
@@ -85,10 +77,8 @@ public class PSInputStreamReader extends PushbackInputStream {
   /**
    * Read a line from this stream.
    *
-   * @param enc The character encoding that will be used to transform the bytes
-   * to chars.
-   *
-   * @return               the next line or null if no more lines exist
+   * @param enc The character encoding that will be used to transform the bytes to chars.
+   * @return the next line or null if no more lines exist
    */
   public String readLine(String enc) throws java.io.IOException {
     java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();

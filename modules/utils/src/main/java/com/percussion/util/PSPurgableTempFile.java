@@ -26,49 +26,42 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is used to create a temporary file which is deleted when
- * it is garbage collected. Consider to use <code>PSPurgableFileInputStream
+ * This class is used to create a temporary file which is deleted when it is garbage collected.
+ * Consider to use <code>PSPurgableFileInputStream
  * </code> if need to delete the file upon closing the input stream.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSPurgableTempFile extends File implements AutoCloseable {
 
-  /**
-   * logger
-   */
+  /** logger */
   private static final Logger log = LogManager.getLogger(PSPurgableTempFile.class);
 
   /**
-   * Convenience constructor that calls {@link #PSPurgableTempFile(String,
-   * String, File, String, String, String) PSPurgableTempFile(prefix,
-   * suffix, dir, null, null, null)}.
+   * Convenience constructor that calls {@link #PSPurgableTempFile(String, String, File, String,
+   * String, String) PSPurgableTempFile(prefix, suffix, dir, null, null, null)}.
    */
   public PSPurgableTempFile(String prefix, String suffix, File dir) throws IOException {
     this(prefix, suffix, dir, null, null, null);
   }
 
   /**
-   * Construct a purgable temp file storing additional information
-   * about the source.
+   * Construct a purgable temp file storing additional information about the source.
    *
-   * @param prefix the prefix to use for the temp file name, must be at
-   *    least 3 characters.
-   * @param suffix the suffix to use for the temp file name, may be
-   *    <code>null</code> to use the default <code>.tmp</code>.
-   * @param dir the directory to create the file in, may be <code>null</code>
-   *    to use the default temp dir.
-   * @param sourceFile the fully qualified path if the source of this
-   *    tempfile is a file. May be <code>null</code> or <code>zero</code>
-   *    length if the source is not a file or not known.
-   * @param contentType the type of content the source, may be
-   *    <code>null</code>. The character set is often defined in the content
-   *    type string.
-   * @param encType the method used to encode this file, may be
-   *    <code>null</code> if this is a binary file or if the encoding is
-   *    not known. This is not the character set encoding for the file.
+   * @param prefix the prefix to use for the temp file name, must be at least 3 characters.
+   * @param suffix the suffix to use for the temp file name, may be <code>null</code> to use the
+   *     default <code>.tmp</code>.
+   * @param dir the directory to create the file in, may be <code>null</code> to use the default
+   *     temp dir.
+   * @param sourceFile the fully qualified path if the source of this tempfile is a file. May be
+   *     <code>null</code> or <code>zero</code> length if the source is not a file or not known.
+   * @param contentType the type of content the source, may be <code>null</code>. The character set
+   *     is often defined in the content type string.
+   * @param encType the method used to encode this file, may be <code>null</code> if this is a
+   *     binary file or if the encoding is not known. This is not the character set encoding for the
+   *     file.
    * @throws IOException if any IO operation fails.
    */
   public PSPurgableTempFile(
@@ -91,10 +84,11 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   }
 
   /**
-   * Calculate the path. If the directory is specified then we just use it
-   * (or rather {@link File#createTempFile(java.lang.String, java.lang.String, java.io.File)}
-   * will use it) after creating the directory if it doesn't exist. If not then
-   * we'll use the system temp directory, extracted on class load.
+   * Calculate the path. If the directory is specified then we just use it (or rather {@link
+   * File#createTempFile(java.lang.String, java.lang.String, java.io.File)} will use it) after
+   * creating the directory if it doesn't exist. If not then we'll use the system temp directory,
+   * extracted on class load.
+   *
    * @param prefix the prefix, see the ctor for details
    * @param suffix the suffix, see the ctor for details
    * @param dir the directory, may be <code>null</code>
@@ -130,6 +124,7 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
 
   /**
    * Sets up the temp file directory structure if necessary.
+   *
    * @throws IOException
    */
   private static void createTempFileDir() throws IOException {
@@ -139,10 +134,9 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   }
 
   /**
-   * Returns the name of the source file of this
-   * file, or <CODE>null</CODE> if it is not known.
+   * Returns the name of the source file of this file, or <CODE>null</CODE> if it is not known.
    *
-   * @return   the content type as a string
+   * @return the content type as a string
    */
   public String getSourceFileName() {
     return m_sourceFile;
@@ -153,10 +147,10 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   }
 
   /**
-   * Returns the content type of the source file of this
-   * file, or <CODE>null</CODE> if it is not known.
+   * Returns the content type of the source file of this file, or <CODE>null</CODE> if it is not
+   * known.
    *
-   * @return   the content type as a string
+   * @return the content type as a string
    */
   public String getSourceContentType() {
     return m_contentType;
@@ -167,31 +161,27 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   }
 
   /**
-   * Returns the name of the encoding scheme (the content-transfer-encoding,
-   * not charset encoding) used to create this file, or <CODE>null</CODE>
-   * if the encoding is not known.
+   * Returns the name of the encoding scheme (the content-transfer-encoding, not charset encoding)
+   * used to create this file, or <CODE>null</CODE> if the encoding is not known.
    *
-   * @return   the transfer encoding scheme if known; <CODE>null</CODE>
-   *          otherwise
+   * @return the transfer encoding scheme if known; <CODE>null</CODE> otherwise
    */
   public String getTransferEncoding() {
     return m_encType;
   }
 
   /**
-   * Returns the name of the character set used to encode this text
-   * file, or <CODE>null</CODE> if this is a binary file or if the
-   * encoding is not known.
+   * Returns the name of the character set used to encode this text file, or <CODE>null</CODE> if
+   * this is a binary file or if the encoding is not known.
    *
-   * @return   the encoding type as a string
+   * @return the encoding type as a string
    */
   public String getCharacterSetEncoding() {
     return (String) m_contentProperties.get("charset");
   }
 
   /**
-   * Deletes the file if exists. This method should be called after the file
-   * is no longer needed.
+   * Deletes the file if exists. This method should be called after the file is no longer needed.
    */
   public void release() {
     // if the file hasn't been deleted, do so now
@@ -210,48 +200,39 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
     }
   }
 
-  /**
-   * Fully qualified path of the source of this file if it is known.
-   */
+  /** Fully qualified path of the source of this file if it is known. */
   private String m_sourceFile = null;
 
-  /**
-   * Content type of the source of this file if it is known.
-   */
+  /** Content type of the source of this file if it is known. */
   private String m_contentType = null;
 
-  /**
-   * Encoding type of the source of this file if it is known.
-   */
+  /** Encoding type of the source of this file if it is known. */
   private String m_encType = null;
 
   /**
-   * Indicates if the temp file has been deleted, this is to avoid
-   * to check whether the file exists more than once. Initialize to
-   * <code>false</code>, only modified once by {@link #release()}
+   * Indicates if the temp file has been deleted, this is to avoid to check whether the file exists
+   * more than once. Initialize to <code>false</code>, only modified once by {@link #release()}
    */
   private boolean m_isDeleted = false;
 
   /**
-   * The content properties associated with this file.  Determined
-   * at initialization time by parsing the content-type string for
-   * possible attributes.  Never modified after construction.  Never
-   * <code>null</code> after construction.  May be empty.
+   * The content properties associated with this file. Determined at initialization time by parsing
+   * the content-type string for possible attributes. Never modified after construction. Never
+   * <code>null</code> after construction. May be empty.
    */
   HashMap m_contentProperties = null;
 
   /**
-   * The temp directory is calculated based on the user's configuration. This
-   * is done on class load. The directory is a subdirectory of the temp dir,
-   * which allows us to delete all the contained files on init without worrying
-   * that they belong to another application. Never <code>null</code> after
-   * initialization, and never modified after initialization.
+   * The temp directory is calculated based on the user's configuration. This is done on class load.
+   * The directory is a subdirectory of the temp dir, which allows us to delete all the contained
+   * files on init without worrying that they belong to another application. Never <code>null</code>
+   * after initialization, and never modified after initialization.
    */
   private static File ms_psxTempDirectory = null;
 
   /**
-   * On first load, calculate the temp dir location and cleanup any leftover
-   * temp files in that directory.
+   * On first load, calculate the temp dir location and cleanup any leftover temp files in that
+   * directory.
    */
   static {
     try {
@@ -273,53 +254,42 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
 
   private static Object makeTempLock = new Object();
 
-  /**
-   * The id used for serialization.
-   */
+  /** The id used for serialization. */
   private static final long serialVersionUID = 5509791791093541540L;
 
   /**
-   * Closes this resource, relinquishing any underlying resources.
-   * This method is invoked automatically on objects managed by the
-   * {@code try}-with-resources statement.
+   * Closes this resource, relinquishing any underlying resources. This method is invoked
+   * automatically on objects managed by the {@code try}-with-resources statement.
    *
-   * <p>While this interface method is declared to throw {@code
-   * Exception}, implementers are <em>strongly</em> encouraged to
-   * declare concrete implementations of the {@code close} method to
-   * throw more specific exceptions, or to throw no exception at all
-   * if the close operation cannot fail.
+   * <p>While this interface method is declared to throw {@code Exception}, implementers are
+   * <em>strongly</em> encouraged to declare concrete implementations of the {@code close} method to
+   * throw more specific exceptions, or to throw no exception at all if the close operation cannot
+   * fail.
    *
-   * <p> Cases where the close operation may fail require careful
-   * attention by implementers. It is strongly advised to relinquish
-   * the underlying resources and to internally <em>mark</em> the
-   * resource as closed, prior to throwing the exception. The {@code
-   * close} method is unlikely to be invoked more than once and so
-   * this ensures that the resources are released in a timely manner.
-   * Furthermore it reduces problems that could arise when the resource
-   * wraps, or is wrapped, by another resource.
+   * <p>Cases where the close operation may fail require careful attention by implementers. It is
+   * strongly advised to relinquish the underlying resources and to internally <em>mark</em> the
+   * resource as closed, prior to throwing the exception. The {@code close} method is unlikely to be
+   * invoked more than once and so this ensures that the resources are released in a timely manner.
+   * Furthermore it reduces problems that could arise when the resource wraps, or is wrapped, by
+   * another resource.
    *
-   * <p><em>Implementers of this interface are also strongly advised
-   * to not have the {@code close} method throw {@link
-   * InterruptedException}.</em>
-   * <p>
-   * This exception interacts with a thread's interrupted status,
-   * and runtime misbehavior is likely to occur if an {@code
-   * InterruptedException} is {@linkplain Throwable#addSuppressed
+   * <p><em>Implementers of this interface are also strongly advised to not have the {@code close}
+   * method throw {@link InterruptedException}.</em>
+   *
+   * <p>This exception interacts with a thread's interrupted status, and runtime misbehavior is
+   * likely to occur if an {@code InterruptedException} is {@linkplain Throwable#addSuppressed
    * suppressed}.
-   * <p>
-   * More generally, if it would cause problems for an
-   * exception to be suppressed, the {@code AutoCloseable.close}
-   * method should not throw it.
    *
-   * <p>Note that unlike the {@link Closeable#close close}
-   * method of {@link Closeable}, this {@code close} method
-   * is <em>not</em> required to be idempotent.  In other words,
-   * calling this {@code close} method more than once may have some
-   * visible side effect, unlike {@code Closeable.close} which is
-   * required to have no effect if called more than once.
-   * <p>
-   * However, implementers of this interface are strongly encouraged
-   * to make their {@code close} methods idempotent.
+   * <p>More generally, if it would cause problems for an exception to be suppressed, the {@code
+   * AutoCloseable.close} method should not throw it.
+   *
+   * <p>Note that unlike the {@link Closeable#close close} method of {@link Closeable}, this {@code
+   * close} method is <em>not</em> required to be idempotent. In other words, calling this {@code
+   * close} method more than once may have some visible side effect, unlike {@code Closeable.close}
+   * which is required to have no effect if called more than once.
+   *
+   * <p>However, implementers of this interface are strongly encouraged to make their {@code close}
+   * methods idempotent.
    *
    * @throws Exception if this resource cannot be closed
    */

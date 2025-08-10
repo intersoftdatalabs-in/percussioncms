@@ -16,66 +16,65 @@
  */
 package com.percussion.delivery.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class PSDeliveryInfoServiceTest {
+  @Disabled
+  @Test
+  public void testAvailableServices() throws Exception {
+    var tempConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
 
-public class PSDeliveryInfoServiceTest
-{
-    @Disabled
-    @Test
-    public void testAvailableServices() throws Exception
-    {
-        var tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
+    PSDeliveryInfo server;
+    IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
 
-        PSDeliveryInfo server;
-        IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
+    assertTrue(server != null);
 
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
-        assertTrue(server != null);
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
+    assertTrue(server != null);
 
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-        assertTrue(server != null);
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
+    assertTrue(server != null);
+  }
 
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
-        assertTrue(server != null);
+  @Disabled
+  @Test
+  public void testAvailableServicesServersInfo() throws Exception {
+    var tempConfigFile =
+        createTempConfigFileBasedOn(
+            this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
+
+    PSDeliveryInfo server;
+    IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
+
+    assertEquals("admin2", server.getUsername());
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
+
+    assertEquals("admin2", server.getUsername());
+
+    server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
+    assertEquals("admin1", server.getUsername());
+  }
+
+  private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
+    var tempConfigFile = File.createTempFile("deliveryServers", ".xml");
+    try (var out = new FileOutputStream(tempConfigFile)) {
+      IOUtils.copy(baseConfigFile, out);
     }
-
-    @Disabled
-    @Test
-    public void testAvailableServicesServersInfo() throws Exception
-    {
-        var tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
-
-        PSDeliveryInfo server;
-        IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
-
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
-
-        assertEquals("admin2", server.getUsername());
-
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-
-        assertEquals("admin2", server.getUsername());
-
-        server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
-        assertEquals("admin1", server.getUsername());
-    }
-
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
-    {
-        var tempConfigFile = File.createTempFile("deliveryServers", ".xml");
-        try (var out = new FileOutputStream(tempConfigFile)) {
-            IOUtils.copy(baseConfigFile, out);
-        }
-        return tempConfigFile;
-    }
+    return tempConfigFile;
+  }
 }

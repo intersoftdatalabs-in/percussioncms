@@ -70,8 +70,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to cache all folder relationships. However, it only
- * caches the skeleton of the folder relationship for less memory consumption.
+ * This class is used to cache all folder relationships. However, it only caches the skeleton of the
+ * folder relationship for less memory consumption.
  */
 @PSBaseBean("sys_folderRelationshipCache")
 @Scope("singleton")
@@ -85,13 +85,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Creates and obtains the single instance of this class.  This method
-   * should only be called once (this should be done by the server when
-   * initializing).
+   * Creates and obtains the single instance of this class. This method should only be called once
+   * (this should be done by the server when initializing).
    *
    * @return The instance of this class.
-   * @throws IllegalStateException if {@link #createInstance()} has already
-   *                               been called.
+   * @throws IllegalStateException if {@link #createInstance()} has already been called.
    */
   public static IPSFolderRelationshipCache createInstance() {
     if (PSFolderRelationshipCache.ms_instance != null) return PSFolderRelationshipCache.ms_instance;
@@ -108,11 +106,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Returns the singleton instance of this class. This singleton instance
-   * must be instantiated by call {@link #createInstance()}
+   * Returns the singleton instance of this class. This singleton instance must be instantiated by
+   * call {@link #createInstance()}
    *
-   * @return the singleton instance of this class, may be <code>null</code>
-   * if it has not been initialized (or started).
+   * @return the singleton instance of this class, may be <code>null</code> if it has not been
+   *     initialized (or started).
    */
   public static IPSFolderRelationshipCache getInstance() {
     if (PSFolderRelationshipCache.ms_instance == null) {
@@ -170,21 +168,15 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
     return ms_itemcache;
   }
 
-  /**
-   * Private constructor. Must use {@link #createInstance()} to create an
-   * instance.
-   */
+  /** Private constructor. Must use {@link #createInstance()} to create an instance. */
   private PSFolderRelationshipCache() {}
 
   /**
    * Reinitialize the caching operation according to the supplied flag.
    *
-   * @param isEnabled
-   *           <code>true</code> if re-initializing the caching; otherwise
-   *           stop the caching operation.
-   *
-   * @throws PSCacheException
-   *            if an error occurs.
+   * @param isEnabled <code>true</code> if re-initializing the caching; otherwise stop the caching
+   *     operation.
+   * @throws PSCacheException if an error occurs.
    */
   public void reinitialize(boolean isEnabled) throws PSCacheException {
     m_rwlock.writeLock().lock();
@@ -204,8 +196,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
 
   /**
    * Stop the caching operation. Release all cached data.
-   * <p>
-   * Note: Assume the caller is locked by {@see m_rwlock.writeLock.lock()}.
+   *
+   * <p>Note: Assume the caller is locked by {@see m_rwlock.writeLock.lock()}.
    */
   private void stop() {
     if (!m_isStarted) return; // already stopped
@@ -217,10 +209,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * It populates all folder relationships in memory. Do nothing if already
-   * started.
-   * <p>
-   * Note: Assume the caller is locked by {@see #m_rwlock.writeLock.lock()}.
+   * It populates all folder relationships in memory. Do nothing if already started.
+   *
+   * <p>Note: Assume the caller is locked by {@see #m_rwlock.writeLock.lock()}.
    *
    * @throws PSCacheException if an error occurs.
    */
@@ -354,18 +345,15 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Returns the paths to the root for the supplied item.
-   * Note: Assume the caller is locked by {@see #m_rwlock.readLock.lock()}.
+   * Returns the paths to the root for the supplied item. Note: Assume the caller is locked by {@see
+   * #m_rwlock.readLock.lock()}.
    *
-   * @param locator
-   *           the locator of the item, never <code>null</code>. The
-   *           revision of the locator is ignored.
-   *
-   * @return a 2 dimension array. The 1st dimension is a list of paths; the
-   *         2nd dimension contains the actual paths. Within each path, the 1st
-   *         element is the root, followed by its immediate child, ...etc.
-   *         Never <code>null</code>, but may be empty if the supplied
-   *         object is the root, which does not have a parent.
+   * @param locator the locator of the item, never <code>null</code>. The revision of the locator is
+   *     ignored.
+   * @return a 2 dimension array. The 1st dimension is a list of paths; the 2nd dimension contains
+   *     the actual paths. Within each path, the 1st element is the root, followed by its immediate
+   *     child, ...etc. Never <code>null</code>, but may be empty if the supplied object is the
+   *     root, which does not have a parent.
    */
   private List<List<PSLocator>> getPathsToRoot(PSLocator locator, String relationshipTypeName) {
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
@@ -393,17 +381,13 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Gets all locators of the ancesters for the supplied locator. This
-   * is a convenience method, it calls {@link #getParentLocators(PSLocator)}
-   * and then all all paths into a list, the 1st path, followed by the 2nd path
-   * and so forth.
+   * Gets all locators of the ancesters for the supplied locator. This is a convenience method, it
+   * calls {@link #getParentLocators(PSLocator)} and then all all paths into a list, the 1st path,
+   * followed by the 2nd path and so forth.
    *
-   * @param itemLocator the locator of an item or folder, never
-   *    <code>null</code>.
-   *
-   * @return a list over zero or more {@link PSLocator} objects. Never
-   *    <code>null</code>, may be empty if there is no parent for the supplied
-   *    locator.
+   * @param itemLocator the locator of an item or folder, never <code>null</code>.
+   * @return a list over zero or more {@link PSLocator} objects. Never <code>null</code>, may be
+   *     empty if there is no parent for the supplied locator.
    */
   @Override
   public List<PSLocator> getOwnerLocators(PSLocator itemLocator, String relationshipTypeName) {
@@ -422,18 +406,17 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Get parent path built for the specified item's parents. If the item happens
-   * to have multiple immediate parents, the method returns all paths. The path
-   * is build as described below:
-   * <p>
-   * "/sys_title_root/.../sys_title_second/sys_title_first"
-   * <p>
-   * If the item has no parents it returns an empty array NOT its title alone.
-   * <p>
-   * @param locator
-   *           the locator of the item, never <code>null</code>.
-   * @param relationshipTypeName the type of the relationship, never <code>null</code>.
+   * Get parent path built for the specified item's parents. If the item happens to have multiple
+   * immediate parents, the method returns all paths. The path is build as described below:
    *
+   * <p>"/sys_title_root/.../sys_title_second/sys_title_first"
+   *
+   * <p>If the item has no parents it returns an empty array NOT its title alone.
+   *
+   * <p>
+   *
+   * @param locator the locator of the item, never <code>null</code>.
+   * @param relationshipTypeName the type of the relationship, never <code>null</code>.
    * @return the parent paths, never <code>null</code>, may be empty.
    */
   @Override
@@ -473,11 +456,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Returns the immediate children locators for the supplied folder locator.
    *
-   * @param locator
-   *           the folder locator, never <code>null</code>.
-   *
-   * @return the children locators, never <code>null</code>, but may be
-   *         empty.
+   * @param locator the folder locator, never <code>null</code>.
+   * @return the children locators, never <code>null</code>, but may be empty.
    */
   @Override
   public List<PSLocator> getChildLocators(PSLocator locator) {
@@ -496,9 +476,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Returns the immediate children IDs for the supplied parent folder.
    *
-   * @param parentID
-   *           the folder ID, never <code>null</code>.
-   *
+   * @param parentID the folder ID, never <code>null</code>.
    * @return the children IDs, never <code>null</code>, but may be empty.
    */
   @Override
@@ -521,9 +499,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Returns the immediate parent locators for the supplied item.
    *
-   * @param locator
-   *           the item, never <code>null</code>.
-   *
+   * @param locator the item, never <code>null</code>.
    * @return the parent locators, never <code>null</code>, but may be empty.
    */
   @Override
@@ -547,10 +523,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Converts the supplied array of {@link PSGraphEntry}to array of locators.
    *
-   * @param entries
-   *           the array of {@link PSGraphEntry}objects, assume it is array of
-   *           <code>Integer</code> objects and it not <code>null</code>.
-   *
+   * @param entries the array of {@link PSGraphEntry}objects, assume it is array of <code>Integer
+   *     </code> objects and it not <code>null</code>.
    * @return the converted locators, never <code>null</code>.
    */
   private List<PSLocator> convertToLocator(List<PSGraphEntry> entries) {
@@ -564,12 +538,10 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Updates the supplied relationships to the cache. The relationships will
-   * be added into the cache if not exist. The relationships will be ignored
-   * for none folder relationship type.
+   * Updates the supplied relationships to the cache. The relationships will be added into the cache
+   * if not exist. The relationships will be ignored for none folder relationship type.
    *
-   * @param relationships the to be updated relationship, never
-   *    <code>null</code>.
+   * @param relationships the to be updated relationship, never <code>null</code>.
    */
   @Override
   @Transactional(noRollbackFor = Exception.class)
@@ -587,14 +559,12 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Updates the supplied relationship to the cache. The relationship will
-   * be added into the cache if not exist. Do nothing if it is not a folder
-   * relationship.
+   * Updates the supplied relationship to the cache. The relationship will be added into the cache
+   * if not exist. Do nothing if it is not a folder relationship.
    *
    * <p>Note: Assume the caller is locked by {@see #m_rwlock.writeLock().lock()}.
    *
-   * @param relationship the to be updated relationship, assume never
-   *    <code>null</code>.
+   * @param relationship the to be updated relationship, assume never <code>null</code>.
    */
   private void update(PSRelationship relationship) {
     boolean isFolder = isFolderRelationship(relationship.getConfig());
@@ -682,8 +652,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Log error message for the supplied parameters. This is used when fail to
-   * add a folder relationship.
+   * Log error message for the supplied parameters. This is used when fail to add a folder
+   * relationship.
    *
    * @param rid the relationship id, assume not <code>null</code>.
    * @param parent the parent folder id, assume not <code>null</code>.
@@ -707,15 +677,14 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Adds a new folder relationship from the supplied parameters. Log error
-   * and do nothing if fail to validate the parameters.
+   * Adds a new folder relationship from the supplied parameters. Log error and do nothing if fail
+   * to validate the parameters.
    *
    * @param rid the relationship id, assume not <code>null</code>.
    * @param parent the parent folder id, assume not <code>null</code>.
    * @param child the child id, assume not <code>null</code>.
    * @param configId the id of the relationship type, assume not <code>null</code>.
-   *
-   * <p>Note: Assume the caller is synchronized by {@see #m_cacheMonitor}.
+   *     <p>Note: Assume the caller is synchronized by {@see #m_cacheMonitor}.
    */
   private void addRelationship(Integer rid, PSLocator parent, PSLocator child, int configId) {
     // Validating the relationship during the folder cache starting process.
@@ -736,12 +705,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Adds a new Aa relationship from the supplied parameters. Log error
-   * and do nothing if fail to validate the parameters.
+   * Adds a new Aa relationship from the supplied parameters. Log error and do nothing if fail to
+   * validate the parameters.
    *
    * @param rdata The relationship data
-   *
-   * <p>Note: Assume the caller is synchronized by {@see #m_cacheMonitor}.
+   *     <p>Note: Assume the caller is synchronized by {@see #m_cacheMonitor}.
    */
   private void addAARelationship(PSRelationshipData rdata) {
     PSLocator ownerLocator = new PSLocator(rdata.getOwnerId(), rdata.getOwnerRevision());
@@ -767,9 +735,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
    * @param parent the parent folder id, assume not <code>null</code>.
    * @param child the child id, assume not <code>null</code>.
    * @param configId the relationship config Id, assume not <code>null</code>.
-   *
-   * @return <code>true</code> if the parameters are valid for creating
-   *    a new folder relationship; <code>false</code> otherwise.
+   * @return <code>true</code> if the parameters are valid for creating a new folder relationship;
+   *     <code>false</code> otherwise.
    */
   private boolean validateNewRelationship(
       Integer rid, PSLocator parent, PSLocator child, int configId) {
@@ -828,9 +795,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
    * @param rid the relationship id, assume not <code>null</code>.
    * @param parentLoc the parent folder id, assume not <code>null</code>.
    * @param child the child id, assume not <code>null</code>.
-   *
-   * @return <code>true</code> if the parameters are valid for creating
-   *    a new folder relationship; <code>false</code> otherwise.
+   * @return <code>true</code> if the parameters are valid for creating a new folder relationship;
+   *     <code>false</code> otherwise.
    */
   private boolean validateNewAaRelationship(Integer rid, PSLocator parentLoc, Integer child) {
     boolean isValid = true;
@@ -878,12 +844,10 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Deletes the supplied relationships from the cache. Do nothing is the
-   * relationship does not exist in the cache or it is not a folder
-   * relationship.
+   * Deletes the supplied relationships from the cache. Do nothing is the relationship does not
+   * exist in the cache or it is not a folder relationship.
    *
-   * @param relationships the to be deleted relationships, never
-   *    <code>null</code>.
+   * @param relationships the to be deleted relationships, never <code>null</code>.
    */
   @Override
   @Transactional(noRollbackFor = Exception.class)
@@ -914,12 +878,10 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
    * Gets the (folder) relationship from the supplied relationship id.
    *
    * @param rid the relationship id.
-   *
-   * @return the (created) relationship, may be <code>null</code> if the
-   *    relationship id does not exist.
-   *
-   * @throws IllegalStateException if the dependent of the relationship does
-   *    not exist in item cache.
+   * @return the (created) relationship, may be <code>null</code> if the relationship id does not
+   *     exist.
+   * @throws IllegalStateException if the dependent of the relationship does not exist in item
+   *     cache.
    */
   @Override
   public PSRelationship getRelationship(int rid) throws PSNotFoundException {
@@ -932,8 +894,8 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * The same as {@link #getRelationship(int)}, except this method assumed
-   * the caller own the read lock {@see m_rwlock.readLock().lock()}.
+   * The same as {@link #getRelationship(int)}, except this method assumed the caller own the read
+   * lock {@see m_rwlock.readLock().lock()}.
    */
   private PSRelationship getRelationshipNoLock(int rid) throws PSNotFoundException {
     FolderRelationship entry;
@@ -975,12 +937,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Gets the relationships between the supplied parent and its child items or
-   * folders.
+   * Gets the relationships between the supplied parent and its child items or folders.
    *
-   * @param parent
-   *           the locator of the parent. Never <code>null</code>.
-   *
+   * @param parent the locator of the parent. Never <code>null</code>.
    * @return the relationships, never <code>null</code>, but may be empty.
    */
   @Override
@@ -1021,9 +980,7 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Gets the relationships between the supplied child and its parent folders.
    *
-   * @param child
-   *           the locator of the child. Never <code>null</code>.
-   *
+   * @param child the locator of the child. Never <code>null</code>.
    * @return the relationships, never <code>null</code>, but may be empty.
    */
   @Override
@@ -1063,16 +1020,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Gets the locator from the supplied path.
    *
-   * @param paths
-   *           a list of one or more <code>String</code> objects, which is
-   *           the sys_title field value of the items. It must not be not be
-   *           <code>null</code> or empty. The first element is the immediate
-   *           child of the root folder. The second element is the child of the
-   *           first element, so forth. The list of names will be used in case
-   *           insensitive manner.
-   *
-   * @return contentid of the specified path, <code>-1</code> if no such path
-   *         exist in the system.
+   * @param paths a list of one or more <code>String</code> objects, which is the sys_title field
+   *     value of the items. It must not be not be <code>null</code> or empty. The first element is
+   *     the immediate child of the root folder. The second element is the child of the first
+   *     element, so forth. The list of names will be used in case insensitive manner.
+   * @return contentid of the specified path, <code>-1</code> if no such path exist in the system.
    */
   @Override
   public int getIdByPath(List<String> paths, String relationshipTypeName) {
@@ -1124,13 +1076,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Gets all folder descendants (child, grand child, ...etc) for the
-   * specified parent folder.
+   * Gets all folder descendants (child, grand child, ...etc) for the specified parent folder.
    *
    * @param parentGuid the folder id, never <code>null</code>.
-   *
-   * @return a list of folder child ids, which does not include
-   *    any item (or none folder) child ids. Never <code>null</code> or empty.
+   * @return a list of folder child ids, which does not include any item (or none folder) child ids.
+   *     Never <code>null</code> or empty.
    */
   @Override
   public List<IPSGuid> getFolderDescendants(IPSGuid parentGuid) {
@@ -1150,18 +1100,15 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * It recursively collects all the folder children of the specified parent
-   * folder id.
-   * <p>
-   * Note, assume the readlock is activated already.
+   * It recursively collects all the folder children of the specified parent folder id.
+   *
+   * <p>Note, assume the readlock is activated already.
    *
    * @param parentID the parent folder id, assumed not <code>null</code>.
-   * @param children the list, used to collect folder child ids, assume not
-   * <code>null</code>.
-   * @param isAddFolderID Determines if collecting the specified the given
-   * folder id to the child list. The initial call should be <code>false</code>
-   * (assume it is the parent folder), it should be <code>true</code> for any
-   * subsequent recursive calls.
+   * @param children the list, used to collect folder child ids, assume not <code>null</code>.
+   * @param isAddFolderID Determines if collecting the specified the given folder id to the child
+   *     list. The initial call should be <code>false</code> (assume it is the parent folder), it
+   *     should be <code>true</code> for any subsequent recursive calls.
    * @param itemCache the item cache object, assumed not <code>null</code>.
    */
   private void getFolderDescendants(
@@ -1187,8 +1134,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Get a snapshot of the current statistics of the folder cache relationship.
-   * The structure of the returned element is following:
+   * Get a snapshot of the current statistics of the folder cache relationship. The structure of the
+   * returned element is following:
+   *
    * <PRE><CODE>
    *    &lt;--
    *       The cache statistics element with each attribute referring to
@@ -1212,7 +1160,6 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
    * </CODE></PRE>
    *
    * @param doc the docment used to generate the XML, never <code>null</code>.
-   *
    * @return the generated statistics in XML, never <code>null</code>
    */
   @Override
@@ -1259,14 +1206,12 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Deletes the supplied relationship from the cache. Do nothing if the
-   * relationship does not exist in the cache or it is not a folder
-   * relationship.
+   * Deletes the supplied relationship from the cache. Do nothing if the relationship does not exist
+   * in the cache or it is not a folder relationship.
    *
    * <p>Note: Assume the caller is locked by {@see #m_rwlock.writeLock().lock()}.
    *
-   * @param relationship the to be deleted relationship, assume never
-   *    <code>null</code>.
+   * @param relationship the to be deleted relationship, assume never <code>null</code>.
    */
   private void deleteFromCache(PSRelationship relationship) {
     if (isFolderRelationship(relationship.getConfig())) {
@@ -1279,13 +1224,13 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * A convenience method, just like {@link #delete(PSRelationshipSet)}, except
-   * it accept a different parameters.
+   * A convenience method, just like {@link #delete(PSRelationshipSet)}, except it accept a
+   * different parameters.
    *
    * @param rid the to be deleted relationship id, assume not <code>null</code>.
-   * @param isValid <code>true</code> if delete a valid relationship;
-   *    otherwise, log a warning message for deleting an invalid relationship.
-   **/
+   * @param isValid <code>true</code> if delete a valid relationship; otherwise, log a warning
+   *     message for deleting an invalid relationship.
+   */
   private void deleteFolderRel(Integer rid, boolean isValid) {
     FolderRelationship cache = m_relationshipMap.get(rid);
     if (cache != null) {
@@ -1331,9 +1276,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Cleanup the folder structure, to make sure there is only one ROOT folder,
-   * which id is <code>PSFolder.ROOT_ID</code>; remove other folders which are
-   * not the descendents of the known ROOT folder.
+   * Cleanup the folder structure, to make sure there is only one ROOT folder, which id is <code>
+   * PSFolder.ROOT_ID</code>; remove other folders which are not the descendents of the known ROOT
+   * folder.
    */
   private void cleanupFolders() {
     // get valid folders
@@ -1358,14 +1303,12 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Walks the sub folders for the supplied parent id and collects all visited
-   * folder ids.
+   * Walks the sub folders for the supplied parent id and collects all visited folder ids.
    *
    * @param psLocator the parent id, assume not <code>null</code>.
-   * @param visitedFolders a set over zero or more <code>Integer</code>
-   *    objects, used to collect all visited folder ids. Assume not
-   *    <code>null</code>. The <code>parentId</code> and its sub-folders will
-   *    be added into this set.
+   * @param visitedFolders a set over zero or more <code>Integer</code> objects, used to collect all
+   *     visited folder ids. Assume not <code>null</code>. The <code>parentId</code> and its
+   *     sub-folders will be added into this set.
    */
   private void walkSubFolders(PSLocator psLocator, Set<PSLocator> visitedFolders) {
     visitedFolders.add(psLocator);
@@ -1388,7 +1331,6 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
    * Gets the item from the item cache for the given Content ID.
    *
    * @param id the content id, assumed not <code>null</code>.
-   *
    * @return the item, may be <code>null</code> if not found.
    */
   private IPSItemEntry getItem(Integer id) {
@@ -1398,13 +1340,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Determines whether the supplied relationship is a folder type
-   * relationship.
+   * Determines whether the supplied relationship is a folder type relationship.
    *
    * @param config the PSRelationshipConfig object, assume not <code>null</code>.
-   *
-   * @return <code>true</code> if it is a folder type relationship; otherwise
-   *    return <code>false</code>.
+   * @return <code>true</code> if it is a folder type relationship; otherwise return <code>false
+   *     </code>.
    */
   private boolean isFolderRelationship(PSRelationshipConfig config) {
     return config.getName().equalsIgnoreCase(PSRelationshipConfig.TYPE_FOLDER_CONTENT)
@@ -1412,13 +1352,11 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * Determines whether the supplied relationship is a Aa type
-   * relationship.
+   * Determines whether the supplied relationship is a Aa type relationship.
    *
    * @param config the PSRelationshipConfig object, assume not <code>null</code>.
-   *
-   * @return <code>true</code> if it is a folder type relationship; otherwise
-   *    return <code>false</code>.
+   * @return <code>true</code> if it is a folder type relationship; otherwise return <code>false
+   *     </code>.
    */
   private boolean isAARelationship(PSRelationshipConfig config) {
     return config.getCategory().equals(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY);
@@ -1624,12 +1562,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Creates a relationship property from a name and an integer value.
    *
-   * @param name the name of the property, assumed not <code>null</code> or
-   *    empty.
-   * @param value the value of the property. It may be <code>-1</code> if
-   *    the value of this property is unknown (or <code>null</code> in the
-   *    repository).
-   *
+   * @param name the name of the property, assumed not <code>null</code> or empty.
+   * @param value the value of the property. It may be <code>-1</code> if the value of this property
+   *     is unknown (or <code>null</code> in the repository).
    * @return the created relationship property, never <code>null</code>.
    */
   private PSRelationshipPropertyData getIntProp(String name, int value) {
@@ -1644,12 +1579,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   /**
    * Creates a relationship property from a name and a long value.
    *
-   * @param name the name of the property, assumed not <code>null</code> or
-   *           empty.
-   * @param value the value of the property. It may be <code>-1</code> if the
-   *           value of this property is unknown (or <code>null</code> in the
-   *           repository).
-   *
+   * @param name the name of the property, assumed not <code>null</code> or empty.
+   * @param value the value of the property. It may be <code>-1</code> if the value of this property
+   *     is unknown (or <code>null</code> in the repository).
    * @return the created relationship property, never <code>null</code>.
    */
   private PSRelationshipPropertyData getLongProp(String name, long value) {
@@ -1662,65 +1594,57 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * The singleton instance of the {@link PSFolderRelationshipCache} class.
-   * Initialized by {@link #createInstance()}, never <code>null</code> after
-   * that.
+   * The singleton instance of the {@link PSFolderRelationshipCache} class. Initialized by {@link
+   * #createInstance()}, never <code>null</code> after that.
    */
   private static IPSFolderRelationshipCache ms_instance = null;
 
   /**
-   * The item cache. It is initialized by {@link #createInstance()}, never
-   * <code>null</code> after that.
+   * The item cache. It is initialized by {@link #createInstance()}, never <code>null</code> after
+   * that.
    */
   private static PSItemSummaryCache ms_itemcache = null;
 
   /**
-   * A relationship between relationship / config_id and respective {@link PSRelationshipConfig}
-   * by id.
+   * A relationship between relationship / config_id and respective {@link PSRelationshipConfig} by
+   * id.
    */
   private static Map<Integer, PSRelationshipConfig> ms_relationshipConfigsById = null;
 
   /**
-   * A relationship between relationship / config_id and respective {@link PSRelationshipConfig}
-   * by name.
+   * A relationship between relationship / config_id and respective {@link PSRelationshipConfig} by
+   * name.
    */
   private static Map<String, PSRelationshipConfig> ms_relationshipConfigsByName = null;
 
   /**
-   * It contains all folder relationships. It maps the relationship id to its
-   * corresponding {@link FolderRelationship} object. The map keys are
-   * <code>Integer</code> objects; the map values are
-   * <code>FolderRelationship</code> objects. It is initialized by ctor, never
-   * <code>null</code> after that, but may be empty.
+   * It contains all folder relationships. It maps the relationship id to its corresponding {@link
+   * FolderRelationship} object. The map keys are <code>Integer</code> objects; the map values are
+   * <code>FolderRelationship</code> objects. It is initialized by ctor, never <code>null</code>
+   * after that, but may be empty.
    */
   private Map<Integer, FolderRelationship> m_relationshipMap;
 
   private Map<Integer, PSRelationshipData> m_aARelationshipMap;
 
   /**
-   * The graph representation of the relationships in
-   * {@link #m_relationshipMap}. It is initialized by ctor, never
-   * <code>null</code> after that.
+   * The graph representation of the relationships in {@link #m_relationshipMap}. It is initialized
+   * by ctor, never <code>null</code> after that.
    */
   private PSRelationshipGraph m_graph;
 
   private PSRelationshipGraph m_aa_graph;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger("FolderCache");
 
   /**
-   * Indicates whether it is initialized and in caching mode. <code>true</code>
-   * if it is in caching mode; otherwise it is not in caching mode. Default to
-   * be <code>false</code>
+   * Indicates whether it is initialized and in caching mode. <code>true</code> if it is in caching
+   * mode; otherwise it is not in caching mode. Default to be <code>false</code>
    */
   private static boolean m_isStarted = false;
 
-  /**
-   * Internal class, used to represent a folder relationship in the cache.
-   */
+  /** Internal class, used to represent a folder relationship in the cache. */
   private class FolderRelationship {
     /**
      * Constructs a folder relationship object from a parent and child id.
@@ -1740,10 +1664,9 @@ public class PSFolderRelationshipCache implements IPSFolderRelationshipCache {
   }
 
   /**
-   * This reader/writer lock allows safe update of the folder relationship while
-   * allowing general access for readers. The read lock is taken for normal
-   * operations. The write lock is taken when the item def manager updates the
-   * content repository information.
+   * This reader/writer lock allows safe update of the folder relationship while allowing general
+   * access for readers. The read lock is taken for normal operations. The write lock is taken when
+   * the item def manager updates the content repository information.
    */
   private static ReentrantReadWriteLock m_rwlock = new ReentrantReadWriteLock(true);
 

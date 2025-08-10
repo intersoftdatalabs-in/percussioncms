@@ -29,18 +29,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This post-exit appends user roles to the root element of the result document
- * as per the DTD below:
- * &lt;root&gt;
- *  &lt;UserRoles&gt;
- *  &lt;Role&gt;Admin&lt;/Role&gt;
- *  &lt;Role&gt;Author&lt;/Role&gt;
- *  &lt;/UserRoles&gt;
- * &lt;/root&gt;
+ * This post-exit appends user roles to the root element of the result document as per the DTD
+ * below: &lt;root&gt; &lt;UserRoles&gt; &lt;Role&gt;Admin&lt;/Role&gt;
+ * &lt;Role&gt;Author&lt;/Role&gt; &lt;/UserRoles&gt; &lt;/root&gt;
  *
- * Also there is an optional parameter that can be supplied when we need to use
- * a differnt element name for UserRoles in the above document. However, the
- * child element (of UserRoles) name is always "Role'.
+ * <p>Also there is an optional parameter that can be supplied when we need to use a differnt
+ * element name for UserRoles in the above document. However, the child element (of UserRoles) name
+ * is always "Role'.
  */
 public class PSAppendUserRoles implements IPSResultDocumentProcessor {
   /*
@@ -89,13 +84,9 @@ public class PSAppendUserRoles implements IPSResultDocumentProcessor {
     return false;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * Default UserRoles element name
-   */
+  /** Default UserRoles element name */
   private static String DEFAULT_USEROLE_ELEMENT_NAME = "UserRoles";
 }

@@ -32,20 +32,16 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Class to handle packaging and installing folder defintion dependencies.
- * See {@link PSFolderDependencyHandler} class description for more
- * information on folder dependencies.
+ * Class to handle packaging and installing folder defintion dependencies. See {@link
+ * PSFolderDependencyHandler} class description for more information on folder dependencies.
  */
 public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -94,20 +90,20 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>CommunityDef</li>
-   * <li>DisplayFormatDef</li>
-   * <li>FolderContents</li>
-   * <li>FolderDef</li>
-   * <li>FolderTranslation</li>
-   * <li>RoleDef</li>
+   *   <li>CommunityDef
+   *   <li>DisplayFormatDef
+   *   <li>FolderContents
+   *   <li>FolderDef
+   *   <li>FolderTranslation
+   *   <li>RoleDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -121,8 +117,7 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
   /**
    * See {@link PSDependencyHandler#isRequiredChild(String)} for details.
    *
-   * @return <code>false</code> for types matching this handler's type,
-   * <code>true</code> otherwise.
+   * @return <code>false</code> for types matching this handler's type, <code>true</code> otherwise.
    */
   public boolean isRequiredChild(String type) {
     // delegate validation
@@ -131,20 +126,13 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
     return !ms_optChildTypes.contains(type);
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER_DEF;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
-  /**
-   * List of optional child types, it will never be <code>null</code> or empty.
-   */
+  /** List of optional child types, it will never be <code>null</code> or empty. */
   private static List ms_optChildTypes = new ArrayList();
 
   static {

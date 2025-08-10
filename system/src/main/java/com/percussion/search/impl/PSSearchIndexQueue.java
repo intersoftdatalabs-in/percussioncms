@@ -45,9 +45,7 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Class description - implementation of {@link IPSSearchIndexQueue} See
- * interface for details
- *
+ * Class description - implementation of {@link IPSSearchIndexQueue} See interface for details
  *
  * @author BillLanglais
  */
@@ -212,8 +210,8 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   /**
-   * This method is used by the public method to delete all index items related
-   * to an id.  This can be used to clean up purged items from the queue.
+   * This method is used by the public method to delete all index items related to an id. This can
+   * be used to clean up purged items from the queue.
    *
    * @param id - content id of item to delete related index queue items
    * @throws DataAccessResourceFailureException
@@ -233,8 +231,8 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   /**
-   * This method is used by the public method to delete all index items related
-   * to an id.  This can be used to clean up purged items from the queue.
+   * This method is used by the public method to delete all index items related to an id. This can
+   * be used to clean up purged items from the queue.
    *
    * @param id - content id of item to delete related index queue items
    * @throws DataAccessResourceFailureException
@@ -292,11 +290,11 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   /**
-   * When we add an item to the queue there is a delay before it is available to the indexer.
-   * We want to only poll database when events are added but if we check immediately we will miss
-   * the new events due to the delay.  When we create an update we will update a wait time and
-   * notify the queue if it is waiting for events.  The queue can use this to know how long
-   * to wait before trying again.
+   * When we add an item to the queue there is a delay before it is available to the indexer. We
+   * want to only poll database when events are added but if we check immediately we will miss the
+   * new events due to the delay. When we create an update we will update a wait time and notify the
+   * queue if it is waiting for events. The queue can use this to know how long to wait before
+   * trying again.
    *
    * @param date
    */
@@ -320,9 +318,8 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   }
 
   /**
-   * Will wait for an event to be added and then an approprate delay to make
-   * sure the new event is available to the indexer query. Or will wait for an
-   * existing recent event.
+   * Will wait for an event to be added and then an approprate delay to make sure the new event is
+   * available to the indexer query. Or will wait for an existing recent event.
    *
    * @throws InterruptedException
    */
@@ -385,15 +382,14 @@ public class PSSearchIndexQueue implements IPSSearchIndexQueue {
   private static volatile boolean skipPollWait = false;
 
   /**
-   * Maximum items that can be used by the in list of the delete SQL command.
-   * The limit is currently 1000 for Oracle.
+   * Maximum items that can be used by the in list of the delete SQL command. The limit is currently
+   * 1000 for Oracle.
    */
   private static final int MAX_SQL_IN_LIST = 1000;
 
   /**
-   * We keep a local copy to decrease the performance impact and to make the
-   * code a little clearer. Initialized during class construction, then never
-   * <code>null</code> or modified.
+   * We keep a local copy to decrease the performance impact and to make the code a little clearer.
+   * Initialized during class construction, then never <code>null</code> or modified.
    */
   private static final Logger m_logger = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 }

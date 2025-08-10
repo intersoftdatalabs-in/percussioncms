@@ -28,15 +28,11 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates the information about an action performed by a content editor
- * on a content item.
- */
+/** Encapsulates the information about an action performed by a content editor on a content item. */
 public class PSEditorChangeEvent {
   /**
-   * Convenience ctor for parent item change that calls
-   * {@link ##PSEditorChangeEvent(int, int, int, int, int, long)}
-   * this(actionType, contentId, revisionId, -1, -1, contentTypeId}.
+   * Convenience ctor for parent item change that calls {@link ##PSEditorChangeEvent(int, int, int,
+   * int, int, long)} this(actionType, contentId, revisionId, -1, -1, contentTypeId}.
    */
   public PSEditorChangeEvent(int actionType, int contentId, int revisionId, long contentTypeId) {
     this(actionType, contentId, revisionId, -1, -1, contentTypeId);
@@ -45,16 +41,14 @@ public class PSEditorChangeEvent {
   /**
    * Creates an event object using the supplied information.
    *
-   * @param actionType The type of action performed, one of the ACTION_xxx
-   * constants.
+   * @param actionType The type of action performed, one of the ACTION_xxx constants.
    * @param contentId The content id of the modified item.
    * @param revisionId The revision id of the modified item.
-   * @param childId The id identifying which complex child was modified,
-   * <code>-1</code> if a parent item was modified.
-   * @param childRowId The id identifying which child row was modified,
-   * <code>-1</code> if a parent item was modified.
+   * @param childId The id identifying which complex child was modified, <code>-1</code> if a parent
+   *     item was modified.
+   * @param childRowId The id identifying which child row was modified, <code>-1</code> if a parent
+   *     item was modified.
    * @param contentTypeId The contenttype of the modified item.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSEditorChangeEvent(
@@ -77,9 +71,8 @@ public class PSEditorChangeEvent {
   /**
    * Constructs this object from its XML representation.
    *
-   * @param source The source element, may not be <code>null</code>.  See
-   * {@link #toXml(Document)} for format expected.
-   *
+   * @param source The source element, may not be <code>null</code>. See {@link #toXml(Document)}
+   *     for format expected.
    * @throws PSUnknownNodeTypeException if <code>source</code> is invalid.
    */
   public PSEditorChangeEvent(Element source) throws PSUnknownNodeTypeException {
@@ -92,9 +85,8 @@ public class PSEditorChangeEvent {
    * Validates the supplied action type.
    *
    * @param actionType The action type to validate.
-   *
-   * @return <code>true</code> if it is one of the <code>ACTION_XXX</code>
-   * type constant values, <code>false</code> if not.
+   * @return <code>true</code> if it is one of the <code>ACTION_XXX</code> type constant values,
+   *     <code>false</code> if not.
    */
   public boolean isValidActionType(int actionType) {
     return (actionType >= 0 && actionType < ACTION_ENUM.length);
@@ -148,8 +140,7 @@ public class PSEditorChangeEvent {
   /**
    * Get the id of the changed complex child.
    *
-   * @return The child id supplied in the ctor, <code>-1</code> if a parent
-   * item was modified.
+   * @return The child id supplied in the ctor, <code>-1</code> if a parent item was modified.
    */
   public int getChildId() {
     return m_childId;
@@ -158,35 +149,30 @@ public class PSEditorChangeEvent {
   /**
    * Get the id of the changed complex child row.
    *
-   * @return The child row id supplied in the ctor, <code>-1</code> if a parent
-   * item was modified.
+   * @return The child row id supplied in the ctor, <code>-1</code> if a parent item was modified.
    */
   public int getChildRowId() {
     return m_childRowId;
   }
 
   /**
-   * Get the collection of binary fields modified by this event, never
-   * <code>null</code>.
+   * Get the collection of binary fields modified by this event, never <code>null</code>.
    *
-   * @return The field names as <code>String</code> objects, never
-   * <code>null</code>, may be empty.  This is an iterator over a read-only
-   * version of the collection set by calls to
-   * {@link #setBinaryFields(Collection)}.
+   * @return The field names as <code>String</code> objects, never <code>null</code>, may be empty.
+   *     This is an iterator over a read-only version of the collection set by calls to {@link
+   *     #setBinaryFields(Collection)}.
    */
   public Iterator<String> getBinaryFields() {
     return Collections.unmodifiableCollection(m_binaryFields).iterator();
   }
 
   /**
-   * Set the collection of modifed binary fields.  See
-   * {@link #getBinaryFields()} for more info.
+   * Set the collection of modifed binary fields. See {@link #getBinaryFields()} for more info.
    *
-   * @param fields The collection of field names as <code>String</code>
-   * objects, may be <code>null</code> or empty to clear the list.  This method
-   * does not take ownership of the supplied collection; modifications to the
-   * collection after calling this method do not have any effect on this
-   * object.
+   * @param fields The collection of field names as <code>String</code> objects, may be <code>null
+   *     </code> or empty to clear the list. This method does not take ownership of the supplied
+   *     collection; modifications to the collection after calling this method do not have any
+   *     effect on this object.
    */
   public void setBinaryFields(Collection<String> fields) {
     m_binaryFields.clear();
@@ -194,11 +180,10 @@ public class PSEditorChangeEvent {
   }
 
   /**
-   * Get the priority of this event.  Defaults to {@link #DEFAULT_PRIORTY} if
-   * it has not been explicitly set.  The lower the number, the higher the
-   * priority. Events with a higher priority (lower numbers) may be processed
-   * sooner if the subscriber of the event is queuing events and is concerned
-   * with priority.
+   * Get the priority of this event. Defaults to {@link #DEFAULT_PRIORTY} if it has not been
+   * explicitly set. The lower the number, the higher the priority. Events with a higher priority
+   * (lower numbers) may be processed sooner if the subscriber of the event is queuing events and is
+   * concerned with priority.
    *
    * @return The priority level of this event.
    */
@@ -207,18 +192,17 @@ public class PSEditorChangeEvent {
   }
 
   /**
-   * Sets the priority of this event.  See {@link #getPriority()} for more
-   * info.
+   * Sets the priority of this event. See {@link #getPriority()} for more info.
    *
-   * @param priority The priority level of this event.  All possible values are
-   * valid.
+   * @param priority The priority level of this event. All possible values are valid.
    */
   public void setPriority(int priority) {
     m_priority = priority;
   }
 
   /**
-   * Serializes this object to its XML represetation.  The DTD is:
+   * Serializes this object to its XML represetation. The DTD is:
+   *
    * <pre><code>
    * <!ELEMENT PSXEditorChangeEvent (BinaryFields?)>
    * <!ATTLIST PSXEditorChangeEvent
@@ -234,9 +218,7 @@ public class PSEditorChangeEvent {
    * <!ELEMENT BinaryField (#PCDATA)>
    * </code></pre>
    *
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>.
    * @return The root element of the serialized XML, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -262,13 +244,11 @@ public class PSEditorChangeEvent {
   }
 
   /**
-   * Restore this object from its XML representation. See
-   * {@link #toXml(Document)} for more info.
+   * Restore this object from its XML representation. See {@link #toXml(Document)} for more info.
    *
    * @param source The source elment, may not be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied element does not
-   * conform to the expected format.
+   * @throws PSUnknownNodeTypeException If the supplied element does not conform to the expected
+   *     format.
    */
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -330,114 +310,81 @@ public class PSEditorChangeEvent {
         + m_binaryFields.hashCode();
   }
 
-  /**
-   * Name of root node of this object's XML representation.
-   */
+  /** Name of root node of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXEditorChangeEvent";
 
-  /**
-   * Constant to indicate the item was inserted.
-   */
+  /** Constant to indicate the item was inserted. */
   public static final int ACTION_INSERT = 0;
 
-  /**
-   * Constant to indicate the item was modified.
-   */
+  /** Constant to indicate the item was modified. */
   public static final int ACTION_UPDATE = 1;
 
-  /**
-   * Constant to indicate the item was deleted.
-   */
+  /** Constant to indicate the item was deleted. */
   public static final int ACTION_DELETE = 2;
 
-  /**
-   * Constant to indicate the item was checked in.
-   */
+  /** Constant to indicate the item was checked in. */
   public static final int ACTION_CHECKIN = 3;
 
-  /**
-   * Constant to indicate the item was checked out.
-   */
+  /** Constant to indicate the item was checked out. */
   public static final int ACTION_CHECKOUT = 4;
 
-  /**
-   * Constant to indicate the item was transitioned.
-   */
+  /** Constant to indicate the item was transitioned. */
   public static final int ACTION_TRANSITION = 5;
 
-  /**
-   * Constant to indicate the item was submitted for reindexing by the search
-   * engine.
-   */
+  /** Constant to indicate the item was submitted for reindexing by the search engine. */
   public static final int ACTION_REINDEX = 6;
 
-  /**
-   * Constant to indicate undefined action.
-   */
+  /** Constant to indicate undefined action. */
   public static final int ACTION_UNDEFINED = -1;
 
   /**
-   * Enumeration of the string representation of each <code>ACTION_xxx</code>
-   * constants, where the index into the array is the value of the constant.
-   * When a new constant is added, its string representation must be appended
-   * to this enumeration.
+   * Enumeration of the string representation of each <code>ACTION_xxx</code> constants, where the
+   * index into the array is the value of the constant. When a new constant is added, its string
+   * representation must be appended to this enumeration.
    */
   public static final String[] ACTION_ENUM = {
     "insert", "update", "delete", "checkin", "checkout", "transition", "reindex"
   };
 
-  /**
-   * Constant for default priority of 20.
-   */
+  /** Constant for default priority of 20. */
   public static final int DEFAULT_PRIORTY = 20;
 
-  /**
-   * The content id of the modified item.  Set during ctor, never modified
-   * after that.
-   */
+  /** The content id of the modified item. Set during ctor, never modified after that. */
   private int m_contentId;
 
-  /**
-   * The revision id of the modified item.  Set during ctor, never modified
-   * after that.
-   */
+  /** The revision id of the modified item. Set during ctor, never modified after that. */
   private int m_revisionId;
 
   /**
-   * The id representing the complex child modified.  <code>-1</code> if a
-   * parent item was modified.  Set during the ctor, never modified after that.
+   * The id representing the complex child modified. <code>-1</code> if a parent item was modified.
+   * Set during the ctor, never modified after that.
    */
   private int m_childId;
 
   /**
-   * The id of the child row that was modified.  <code>-1</code> if a
-   * parent item was modified.  Set during the ctor, never modified after that.
+   * The id of the child row that was modified. <code>-1</code> if a parent item was modified. Set
+   * during the ctor, never modified after that.
    */
   private int m_childRowId;
 
   /**
-   * The action that was taken when the content item was modified.  One of the
-   * <code>ACTION_xxx</code> values, set during ctor, never <code>null</code>
-   * or modified after that.
+   * The action that was taken when the content item was modified. One of the <code>ACTION_xxx
+   * </code> values, set during ctor, never <code>null</code> or modified after that.
    */
   private int m_action;
 
   /**
-   * Collection of binary field names that were modified by this event, as
-   * <code>String</code> objects.  Never <code>null</code>, modified by
-   * calls to {@link #setBinaryFields(Collection)}.
+   * Collection of binary field names that were modified by this event, as <code>String</code>
+   * objects. Never <code>null</code>, modified by calls to {@link #setBinaryFields(Collection)}.
    */
   private Collection<String> m_binaryFields = new HashSet<>();
 
-  /**
-   * Content type id of the item, set during the ctor, never modified after
-   * that.
-   */
+  /** Content type id of the item, set during the ctor, never modified after that. */
   private long m_contentTypeId;
 
   /**
-   * The priority of this event, defaults to {@link #DEFAULT_PRIORTY} if not
-   * explicitly modified by {@link #setPriority(int)}.
+   * The priority of this event, defaults to {@link #DEFAULT_PRIORTY} if not explicitly modified by
+   * {@link #setPriority(int)}.
    */
   private int m_priority = DEFAULT_PRIORTY;
 

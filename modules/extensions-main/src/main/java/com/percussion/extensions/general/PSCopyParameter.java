@@ -27,8 +27,8 @@ import com.percussion.server.PSRequestValidationException;
 import java.io.File;
 
 /**
- * This pre-exit copies a request parameter from the key specified by the
- * source exit parameter to the key specified by the destination exit parameter
+ * This pre-exit copies a request parameter from the key specified by the source exit parameter to
+ * the key specified by the destination exit parameter
  */
 public class PSCopyParameter implements IPSItemInputTransformer {
   public PSCopyParameter() {
@@ -59,10 +59,9 @@ public class PSCopyParameter implements IPSItemInputTransformer {
    *
    * @param params array of parameter objects from the calling function.
    * @param index the integer index into the parameters
-   *
    * @return a not-null, not-empty string which is the value of the parameter
    * @throws PSParameterMismatchException if the parameter is missing or empty
-   **/
+   */
   private static String getParameter(Object[] params, int index)
       throws PSParameterMismatchException {
     if (params.length < index + 1

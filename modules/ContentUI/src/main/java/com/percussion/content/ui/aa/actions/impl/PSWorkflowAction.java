@@ -32,11 +32,10 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * This action provides all workflow related operations, checkin, checkout
- * and transition items.
- * <p>
- * Expects the following parameters:
- * </p>
+ * This action provides all workflow related operations, checkin, checkout and transition items.
+ *
+ * <p>Expects the following parameters:
+ *
  * <table border="1" cellspacing="0" cellpadding="5">
  * <thead>
  * <th>Name</th><th>Allowed Values</th><th>Details</th>
@@ -64,7 +63,6 @@ import java.util.StringTokenizer;
  * </tr>
  * </tbody>
  * </table>
- *
  */
 public class PSWorkflowAction extends PSAAActionBase {
 
@@ -96,8 +94,7 @@ public class PSWorkflowAction extends PSAAActionBase {
   /**
    * Check in the specified content ids with the given comment and user name.
    *
-   * @param ids the ids of the to be checked in items, assumed not
-   *    <code>null</code> or empty.
+   * @param ids the ids of the to be checked in items, assumed not <code>null</code> or empty.
    * @param comment the check in comment, may be <code>null</code> or empty.
    * @throws PSAAClientActionException if an error occurs.
    */
@@ -111,11 +108,9 @@ public class PSWorkflowAction extends PSAAActionBase {
   }
 
   /**
-   * Check out the specified content ids with the given comment and current
-   * user.
+   * Check out the specified content ids with the given comment and current user.
    *
-   * @param ids the ids of the to be checked in items, assumed not
-   *    <code>null</code> or empty.
+   * @param ids the ids of the to be checked in items, assumed not <code>null</code> or empty.
    * @param comment the check out comment, may be <code>null</code> or empty.
    * @throws PSAAClientActionException if an error occurs.
    */
@@ -129,14 +124,11 @@ public class PSWorkflowAction extends PSAAActionBase {
   }
 
   /**
-   * Transition the specified content ids with the given comment,
-   * and other parameters.
+   * Transition the specified content ids with the given comment, and other parameters.
    *
-   * @param ids the ids of the to be checked in items, assumed not
-   *    <code>null</code> or empty.
+   * @param ids the ids of the to be checked in items, assumed not <code>null</code> or empty.
    * @param comment the check in comment, may be <code>null</code> or empty.
-   * @param params it contains other parameters, assumed not <code>null</code>
-   *    or empty.
+   * @param params it contains other parameters, assumed not <code>null</code> or empty.
    * @throws PSAAClientActionException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -163,48 +155,30 @@ public class PSWorkflowAction extends PSAAActionBase {
     }
   }
 
-  /**
-   * The name of the operation parameter
-   */
+  /** The name of the operation parameter */
   public static String OPERATION = "operation";
 
-  /**
-   * The operation value for check in
-   */
+  /** The operation value for check in */
   public static String CHECK_IN = "checkIn";
 
-  /**
-   * The operation value for check out
-   */
+  /** The operation value for check out */
   public static String CHECK_OUT = "checkOut";
 
-  /**
-   * The operation value for transition
-   */
+  /** The operation value for transition */
   public static String TRANSITION = "transition";
 
-  /**
-   * The operation value for transition and checkout
-   */
+  /** The operation value for transition and checkout */
   public static String TRANSITION_CHECKOUT = "transition_checkout";
 
-  /**
-   * The name of the content-id parameter
-   */
+  /** The name of the content-id parameter */
   public static String CONTENT_ID = "contentId";
 
-  /**
-   * The name of the comment parameter.
-   */
+  /** The name of the comment parameter. */
   public static String COMMENT = "comment";
 
-  /**
-   * The name of the parameter for (transition) trigger name
-   */
+  /** The name of the parameter for (transition) trigger name */
   public static String TRIGGER_NAME = "triggerName";
 
-  /**
-   * The name of the adhoc users parameter
-   */
+  /** The name of the adhoc users parameter */
   public static String ADHOC_USERS = "adHocUsers";
 }

@@ -21,27 +21,25 @@ package com.percussion.sitemanage.data;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Site configuration data.
- */
+/** Site configuration data. */
 public class PSSiteConfig {
 
-    private PSSiteInfo siteInfo;
-    private PSPublisherInfo publisherInfo;
+  private PSSiteInfo siteInfo;
+  private PSPublisherInfo publisherInfo;
 
-    public Optional<PSSiteInfo> getSiteInfo() {
-        return Optional.ofNullable(siteInfo);
-    }
+  public Optional<PSSiteInfo> getSiteInfo() {
+    return Optional.ofNullable(siteInfo);
+  }
 
-    public void setSiteInfo(PSSiteInfo siteInfo) {
-        this.siteInfo = Objects.requireNonNull(siteInfo, "siteInfo must not be null");
-    }
+  public void setSiteInfo(PSSiteInfo siteInfo) {
+    this.siteInfo = Objects.requireNonNull(siteInfo, "siteInfo must not be null");
+  }
 
-    public Optional<PSPublisherInfo> getPublisherInfo() {
-        return Optional.ofNullable(publisherInfo);
-    }
+  public Optional<PSPublisherInfo> getPublisherInfo() {
+    return Optional.ofNullable(publisherInfo);
+  }
 
-    public void setPublisherInfo(PSPublisherInfo publisherInfo) {
-        this.publisherInfo = Objects.requireNonNull(publisherInfo, "publisherInfo must not be null");
-    }
+  public void setPublisherInfo(PSPublisherInfo publisherInfo) {
+    this.publisherInfo = Objects.requireNonNull(publisherInfo, "publisherInfo must not be null");
+  }
 }

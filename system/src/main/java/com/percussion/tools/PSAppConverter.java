@@ -37,43 +37,27 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- *
- * This is a simple utility class that converts existing Rhythmyx applications
- * to point to a new backend database. It searches and replaces for driver,
- * server, database and origin fields in the applications with those specified
- * in the properties file. Please note that this is usefull only if all the
- * resources use the same backend database source.
- *
+ * This is a simple utility class that converts existing Rhythmyx applications to point to a new
+ * backend database. It searches and replaces for driver, server, database and origin fields in the
+ * applications with those specified in the properties file. Please note that this is usefull only
+ * if all the resources use the same backend database source.
  */
 public class PSAppConverter {
   private static final Logger logger = LogManager.getLogger(PSAppConverter.class);
 
-  /**
-   * Empty constructor
-   */
+  /** Empty constructor */
   public PSAppConverter() {}
 
   /**
    * The only static method that actually converts the application.
    *
    * @param props - JAVA Properties file that has all the new field values.
-   *
    * @param root - The Rhythmyx root directory name. e.g. c:/Rhythmyx
-   *
-   * @param appName - The Rhythmyx application name. e.g. WFEditor in
-   * (ObjectStore/WFEditor.xml).
-   *
-   * @param bModifyCredential <code>true</code> if credentials need to be
-   *        modified false otherwise.
-   *
-   * @param sPort new port number for existing workflow applications, can be
-   * <code>null</code>
-   *
+   * @param appName - The Rhythmyx application name. e.g. WFEditor in (ObjectStore/WFEditor.xml).
+   * @param bModifyCredential <code>true</code> if credentials need to be modified false otherwise.
+   * @param sPort new port number for existing workflow applications, can be <code>null</code>
    * @throws IOException - if file is invalid or inaccessible
-   *
-   * @throws SAXException - if the application file is not parseable XML
-   * document
-   *
+   * @throws SAXException - if the application file is not parseable XML document
    */
   /**
    * Converts the application using the provided properties.
@@ -96,25 +80,13 @@ public class PSAppConverter {
    * The only static method that actually converts the application.
    *
    * @param props - JAVA Properties file that has all the new field values.
-   *
    * @param root - The Rhythmyx root directory name. e.g. c:/Rhythmyx
-   *
-   * @param appName - The Rhythmyx application name. e.g. WFEditor in
-   * (ObjectStore/WFEditor.xml).
-   *
-   * @param bModifyCredential <code>true</code> if credentials need to be
-   *        modified false otherwise.
-   *
-   * @param sPort new port number for existing workflow applications, can be
-   * <code>null</code>
-   *
+   * @param appName - The Rhythmyx application name. e.g. WFEditor in (ObjectStore/WFEditor.xml).
+   * @param bModifyCredential <code>true</code> if credentials need to be modified false otherwise.
+   * @param sPort new port number for existing workflow applications, can be <code>null</code>
    * @param bEnable <code>true</code> if the app should be activated.
-   *
    * @throws IOException - if file is invalid or inaccessible
-   *
-   * @throws SAXException - if the application file is not parseable XML
-   * document
-   *
+   * @throws SAXException - if the application file is not parseable XML document
    */
   /**
    * Converts the application using the provided properties.
@@ -230,95 +202,72 @@ public class PSAppConverter {
   }
 
   /**
-   * The DB_DRIVER_NAME field name in the properties file.
-   * The syntax should be like - [DB_DRIVER_NAME=oracle:thin]
+   * The DB_DRIVER_NAME field name in the properties file. The syntax should be like -
+   * [DB_DRIVER_NAME=oracle:thin]
    */
   public static String DB_DRIVER_NAME = "DB_DRIVER_NAME";
 
   /**
-   * The DB_SERVER field name in the properties file.
-   * The syntax should be like - [DB_SERVER=@38.222.12.13:1521:ORCL]
+   * The DB_SERVER field name in the properties file. The syntax should be like -
+   * [DB_SERVER=@38.222.12.13:1521:ORCL]
    */
   public static String DB_SERVER = "DB_SERVER";
 
-  /**
-   * The DB_SCHEMA name in the properties file.
-   * The syntax should be like - [DB_SCHEMA=dbo]
-   */
+  /** The DB_SCHEMA name in the properties file. The syntax should be like - [DB_SCHEMA=dbo] */
   public static String DB_SCHEMA = "DB_SCHEMA";
 
-  /**
-   * The DB_NAME name in the properties file.
-   * The syntax should be like - [DB_NAME=RxWorkflow]
-   */
+  /** The DB_NAME name in the properties file. The syntax should be like - [DB_NAME=RxWorkflow] */
   public static String DB_NAME = "DB_NAME";
 
-  /**
-   * The UID name in the properties file.
-   * The syntax should be like - [UID=username]
-   */
+  /** The UID name in the properties file. The syntax should be like - [UID=username] */
   public static String DB_UID = "UID";
 
-  /**
-   * The PWD name in the properties file.
-   * The syntax should be like - [PWD=password]
-   */
+  /** The PWD name in the properties file. The syntax should be like - [PWD=password] */
   public static String DB_PWD = "PWD";
 
   /**
-   * The "driver" field name in the application XML Document. This field value
-   * will be replaced with DB_DRIVER_NAME field value in the properties file.
-   *
+   * The "driver" field name in the application XML Document. This field value will be replaced with
+   * DB_DRIVER_NAME field value in the properties file.
    */
   public static String DRIVER = "driver";
 
   /**
-   * The "server" field name in the application XML Document. This field value
-   * will be replaced with DB_SERVER field value in the properties file.
-   *
+   * The "server" field name in the application XML Document. This field value will be replaced with
+   * DB_SERVER field value in the properties file.
    */
   public static String SERVER = "server";
 
   /**
-   * The "origin" field name in the application XML Document. This field value
-   * will be replaced with DB_SCHEMA field value in the properties file.
-   *
+   * The "origin" field name in the application XML Document. This field value will be replaced with
+   * DB_SCHEMA field value in the properties file.
    */
   public static String ORIGIN = "origin";
 
   /**
-   * The "database" field name in the application XML Document. This field value
-   * will be replaced with DB_NAME field value in the properties file.
-   *
+   * The "database" field name in the application XML Document. This field value will be replaced
+   * with DB_NAME field value in the properties file.
    */
   public static String DATABASE = "database";
 
   /**
-   * The "userId" field name in the application XML Document. This field value
-   * will be replaced with UID field value in the properties file.
-   *
+   * The "userId" field name in the application XML Document. This field value will be replaced with
+   * UID field value in the properties file.
    */
   public static String USERID = "userId";
 
   /**
-   * The "password" field name in the application XML Document. This field value
-   * will be replaced with PWD field value in the properties file.
-   *
+   * The "password" field name in the application XML Document. This field value will be replaced
+   * with PWD field value in the properties file.
    */
   public static String PASSWORD = "password";
 
-  /**
-   * The "encrypted" attribute in the application XML Document.
-   *
-   */
+  /** The "encrypted" attribute in the application XML Document. */
   public static String ATTRIB_ENCRYPTED = "encrypted";
 
   /**
-   * The main method. This takes two command line parameters. The first one is
-   * the Properties file name (absolute path). Second one is the comma separated
-   * list of Rhythmyx application names (without any path specification and
-   * extension) to be converted.
-   *
+   * The main method. This takes two command line parameters. The first one is the Properties file
+   * name (absolute path). Second one is the comma separated list of Rhythmyx application names
+   * (without any path specification and extension) to be converted.
    */
   public static void main(String[] args) {
     if (args.length < 3) {

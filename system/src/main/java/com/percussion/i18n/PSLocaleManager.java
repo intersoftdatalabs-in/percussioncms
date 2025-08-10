@@ -28,17 +28,15 @@ import java.io.File;
 import java.util.Iterator;
 
 /**
- * A singleton class that provides Locale persistence services.  Locales can be
- * restored and saved, and their resource files can be cataloged.
+ * A singleton class that provides Locale persistence services. Locales can be restored and saved,
+ * and their resource files can be cataloged.
  */
 public class PSLocaleManager {
   /**
-   * Gets the singleton instance of this class.  If one has not been
-   * constructed, it is done so at this time.  A reference to this instance
-   * should be maintained to avoid gargage colleciton.
+   * Gets the singleton instance of this class. If one has not been constructed, it is done so at
+   * this time. A reference to this instance should be maintained to avoid gargage colleciton.
    *
    * @return The instance, never <code>null</code>.
-   *
    * @throws PSLocaleException If there is an error initializing the manager.
    */
   public static PSLocaleManager getInstance() throws PSLocaleException {
@@ -67,14 +65,11 @@ public class PSLocaleManager {
   /**
    * Get the locale object represented by the supplied language string.
    *
-   * @param languageString The unique identifier for the locale, may not be
-   * <code>null</code> or empty.
-   *
-   * @return The specified locale, may be <code>null</code> if the specified
-   * locale cannot be located.
-   *
-   * @throws IllegalArgumentException if <code>languageString</code> is
-   * <code>null</code> or empty.
+   * @param languageString The unique identifier for the locale, may not be <code>null</code> or
+   *     empty.
+   * @return The specified locale, may be <code>null</code> if the specified locale cannot be
+   *     located.
+   * @throws IllegalArgumentException if <code>languageString</code> is <code>null</code> or empty.
    * @throws PSLocaleException if there are any errors retrieving the locale.
    */
   public PSLocale getLocale(String languageString) throws PSLocaleException {
@@ -99,12 +94,9 @@ public class PSLocaleManager {
    * Get the locale object represented by the supplied locale id.
    *
    * @param localeId The unique identifier for the locale
-   *
-   * @return The specified locale, may be <code>null</code> if the specified
-   * locale cannot be located.
-   *
-   * @throws IllegalArgumentException if <code>languageString</code> is
-   * <code>null</code> or empty.
+   * @return The specified locale, may be <code>null</code> if the specified locale cannot be
+   *     located.
+   * @throws IllegalArgumentException if <code>languageString</code> is <code>null</code> or empty.
    * @throws PSLocaleException if there are any errors retrieving the locale.
    */
   public PSLocale getLocaleById(int localeId) throws PSLocaleException {
@@ -123,7 +115,6 @@ public class PSLocaleManager {
    * Gets all locales defined in the repository.
    *
    * @return An iterator over zero or more <code>PSLocale</code> objects
-   *
    * @throws PSLocaleException if there are any errors retrieving the locales.
    */
   public Iterator<PSLocale> getLocales() throws PSLocaleException {
@@ -137,14 +128,12 @@ public class PSLocaleManager {
   }
 
   /**
-   * Gets file references to all resource files for the supplied language
-   * string.
+   * Gets file references to all resource files for the supplied language string.
    *
-   * @param languageString The unique identifier of the locale for which
-   * resource files are to be returned, may not be <code>null</code> or empty.
-   *
-   * @return An iterator over zero or more <code>File</code> objects,
-   * never <code>null</code>.  Paths are relative to the Rhythmyx root.
+   * @param languageString The unique identifier of the locale for which resource files are to be
+   *     returned, may not be <code>null</code> or empty.
+   * @return An iterator over zero or more <code>File</code> objects, never <code>null</code>. Paths
+   *     are relative to the Rhythmyx root.
    */
   public Iterator getResourceFiles(String languageString) {
     if (languageString == null || languageString.trim().length() == 0)
@@ -157,13 +146,10 @@ public class PSLocaleManager {
   }
 
   /**
-   * Saves the provided locale, overwriting any existing locale with the same
-   * language string.
+   * Saves the provided locale, overwriting any existing locale with the same language string.
    *
    * @param locale The locale to save, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>locale</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>locale</code> is <code>null</code>.
    * @throws PSLocaleException if there are any errors saving the locale.
    */
   public void saveLocale(PSLocale locale) throws PSLocaleException {
@@ -182,14 +168,14 @@ public class PSLocaleManager {
   }
 
   /**
-   * Singleton instance of this class, <code>null</code> until the first call
-   * to {@link #getInstance()}, never <code>null</code> modified after that.
+   * Singleton instance of this class, <code>null</code> until the first call to {@link
+   * #getInstance()}, never <code>null</code> modified after that.
    */
   private static PSLocaleManager m_instance = null;
 
   /**
-   * The current directory, assumed to be the Rhythymyx root, initialized
-   * during construction, never <code>null</code> or modified after that.
+   * The current directory, assumed to be the Rhythymyx root, initialized during construction, never
+   * <code>null</code> or modified after that.
    */
   private String m_curDir;
 }

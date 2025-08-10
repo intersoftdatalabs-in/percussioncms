@@ -32,49 +32,42 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This is a singleton and can restore an object from its XML representation and
- * convert an object to its xml representation. It maintains a registry of all
- * classes that can be serilized to and from XML. The registry
- * (classregistry.xml) is read from class path location specified during call to
- * {@link #registerBeanClasses(Class)} and cached all along. This method must be
- * called before getting the singleton by calling {@link #getInstance()}
- * otherwise you cannot do much with it. It is an error trying to serialize or
- * deserialize an object of unregistered class an exception will be thrown in
- * such a case. The registry is basically list of fully qualified class names.
- * These classes must be in class path during runtime. The .betwixt file for
- * each class (if exists) must reside along with each class.
- * <p>
- * The file classregistry.xml has a simple DTD as follows:
- * <p>
- * &lt;!ELEMENT class EMPTY&gt; &lt;!ATTLIST class name (CDATA) #REQUIRED &gt;
- * &lt;!ELEMENT registry (class+)&gt;
- * <p>
- * This is a wrapper class on
- * {@link com.percussion.services.utils.xml.PSXmlSerializationHelper}
+ * This is a singleton and can restore an object from its XML representation and convert an object
+ * to its xml representation. It maintains a registry of all classes that can be serilized to and
+ * from XML. The registry (classregistry.xml) is read from class path location specified during call
+ * to {@link #registerBeanClasses(Class)} and cached all along. This method must be called before
+ * getting the singleton by calling {@link #getInstance()} otherwise you cannot do much with it. It
+ * is an error trying to serialize or deserialize an object of unregistered class an exception will
+ * be thrown in such a case. The registry is basically list of fully qualified class names. These
+ * classes must be in class path during runtime. The .betwixt file for each class (if exists) must
+ * reside along with each class.
  *
+ * <p>The file classregistry.xml has a simple DTD as follows:
  *
+ * <p>&lt;!ELEMENT class EMPTY&gt; &lt;!ATTLIST class name (CDATA) #REQUIRED &gt; &lt;!ELEMENT
+ * registry (class+)&gt;
+ *
+ * <p>This is a wrapper class on {@link com.percussion.services.utils.xml.PSXmlSerializationHelper}
  *
  * @version 6.0
  * @created 09-Sep-2005 2:49:09 PM
  */
 public class PSObjectSerializer {
   /**
-   * Private ctor for the singleton. Registers all bean classes that are listed
-   * in the registry file classregistry.xml file. This file is expected to be
-   * located where this class is..
+   * Private ctor for the singleton. Registers all bean classes that are listed in the registry file
+   * classregistry.xml file. This file is expected to be located where this class is..
    */
   private PSObjectSerializer() {}
 
   /**
-   * Register all bean classes that are listed in the file classregistry.xml
-   * file with bean reader.If it fails to register a class from the registry,
-   * the warning is logged. An error is logged if there is any error reading
-   * and parsing the registry file and the serializer will still work as long
-   * as the class is registered with the serialize using
-   * {@link PSXmlSerializationHelper#addType(Class)} method.
+   * Register all bean classes that are listed in the file classregistry.xml file with bean
+   * reader.If it fails to register a class from the registry, the warning is logged. An error is
+   * logged if there is any error reading and parsing the registry file and the serializer will
+   * still work as long as the class is registered with the serialize using {@link
+   * PSXmlSerializationHelper#addType(Class)} method.
    *
-   * @param classRegistryStreamSrc the classregistry.xml file is loaded from
-   * this class package, must not be <code>null</code>.
+   * @param classRegistryStreamSrc the classregistry.xml file is loaded from this class package,
+   *     must not be <code>null</code>.
    */
   public synchronized void registerBeanClasses(Class classRegistryStreamSrc) {
     if (classRegistryStreamSrc == null) {
@@ -101,8 +94,8 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Access the singleton object. The instance may not be all that useful if
-   * accessed before calling {@link #registerBeanClasses(Class)}.
+   * Access the singleton object. The instance may not be all that useful if accessed before calling
+   * {@link #registerBeanClasses(Class)}.
    *
    * @return the only object of this class, never <code>null</code>.
    */
@@ -112,13 +105,13 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Deserialize or restore an object from its XML representation.Throws an
-   * exception if the object type - XML is not a registered one.
+   * Deserialize or restore an object from its XML representation.Throws an exception if the object
+   * type - XML is not a registered one.
    *
-   * @return the object restored. The type of the object depends on how the
-   *         object type - XML mapping was registered with this class.
-   * @param element Root element of the XML representation of the object to
-   *           restore. Must not be <code>null</code>.
+   * @return the object restored. The type of the object depends on how the object type - XML
+   *     mapping was registered with this class.
+   * @param element Root element of the XML representation of the object to restore. Must not be
+   *     <code>null</code>.
    * @throws PSObjectSerializerException
    */
   public Object fromXml(Element element) throws PSObjectSerializerException {
@@ -128,13 +121,13 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Deserialize or restore an object from its XML string representation.Throws
-   * an exception if the object type - XML is not a registered one.
+   * Deserialize or restore an object from its XML string representation.Throws an exception if the
+   * object type - XML is not a registered one.
    *
-   * @return the object restored. The type of the object depends on how the
-   *         object type - XML mapping was registered with this class.
-   * @param xmlString XML stringrepresentation of the object to restore. Must
-   *           not be <code>null</code> or empty.
+   * @return the object restored. The type of the object depends on how the object type - XML
+   *     mapping was registered with this class.
+   * @param xmlString XML stringrepresentation of the object to restore. Must not be <code>null
+   *     </code> or empty.
    * @throws PSObjectSerializerException
    */
   public Object fromXmlString(String xmlString) throws PSObjectSerializerException {
@@ -154,11 +147,10 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Converts a given object to its XML representation. The DTD of the element
-   * is as per that specified in the registry.
+   * Converts a given object to its XML representation. The DTD of the element is as per that
+   * specified in the registry.
    *
-   * @return DOM element of the XML representation of the object, never
-   *         <code>null</code>.
+   * @return DOM element of the XML representation of the object, never <code>null</code>.
    * @param object Object to serialize to XML, must not be <code>null</code>.
    * @throws IntrospectionException
    * @throws SAXException
@@ -175,11 +167,10 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Converts a given object to its XML representation. The DTD of the element
-   * is as per that specified in the registry.
+   * Converts a given object to its XML representation. The DTD of the element is as per that
+   * specified in the registry.
    *
-   * @return XML string representation of the object, never <code>null</code>
-   *         or empty.
+   * @return XML string representation of the object, never <code>null</code> or empty.
    * @param object Object to serialize to XML, must not be <code>null</code>.
    * @throws IntrospectionException
    * @throws SAXException
@@ -190,29 +181,20 @@ public class PSObjectSerializer {
     return PSXmlSerializationHelper.writeToXml(object);
   }
 
-  /**
-   * Only instance of this class, initialized in {@link #getInstance()} for the
-   * first time.
-   */
+  /** Only instance of this class, initialized in {@link #getInstance()} for the first time. */
   private static volatile PSObjectSerializer serializer = null;
 
-  /**
-   * Logger instance for this class. Never <code>null</code>.
-   */
+  /** Logger instance for this class. Never <code>null</code>. */
   private static final Logger m_logger = LogManager.getLogger(PSObjectSerializer.class);
 
   /**
-   * Clones the supplied object by serializing to XML and then deserializing
-   * back to object. Assumes the object type has been registered with the
-   * serializer and appropriate betwixt files are avaialble or defaults work.
+   * Clones the supplied object by serializing to XML and then deserializing back to object. Assumes
+   * the object type has been registered with the serializer and appropriate betwixt files are
+   * avaialble or defaults work.
    *
    * @param source object to clone, must not be <code>null</code>.
-   *
-   * @return cloned object, may be <code>null</code> if the object could not
-   *         be restored from XML.
-   *
-   * @throws PSObjectSerializerException any error during serialization or
-   *            deserialization.
+   * @return cloned object, may be <code>null</code> if the object could not be restored from XML.
+   * @throws PSObjectSerializerException any error during serialization or deserialization.
    */
   public Object cloneObject(Object source) throws PSObjectSerializerException {
     if (source == null) {
@@ -226,8 +208,8 @@ public class PSObjectSerializer {
   }
 
   /**
-   * Name of the class registry file. This has a simple DTD and contains a list
-   * of all classes that need to be serialized and deserialized.
+   * Name of the class registry file. This has a simple DTD and contains a list of all classes that
+   * need to be serialized and deserialized.
    */
   private static final String CLASSREGISTRY_XML = "classregistry.xml";
 }

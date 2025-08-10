@@ -19,107 +19,106 @@
 package com.percussion.rest.editions;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Stores the information returned from a publish request.
- * <p>
- * Sunny Sal: "Publishing response received, boss!"
+ *
+ * <p>Sunny Sal: "Publishing response received, boss!"
  */
 @XmlRootElement(name = "EditionPublishResponse")
 @JsonRootName("EditionPublishResponse")
 public class PublishResponse {
 
-    private String siteName;
-    private String status;
-    private String delivered;
-    private String failures;
-    private String warningMessage;
-    private long jobid;
+  private String siteName;
+  private String status;
+  private String delivered;
+  private String failures;
+  private String warningMessage;
+  private long jobid;
 
-    /**
-     * @return the name of the site to be published.
-     */
-    public String getSiteName() {
-        return siteName;
-    }
+  /**
+   * @return the name of the site to be published.
+   */
+  public String getSiteName() {
+    return siteName;
+  }
 
-    /**
-     * @param siteName the name of the site to be published.
-     */
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  /**
+   * @param siteName the name of the site to be published.
+   */
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    /**
-     * @return the publishing status, never blank.
-     */
-    public String getStatus() {
-        return status;
-    }
+  /**
+   * @return the publishing status, never blank.
+   */
+  public String getStatus() {
+    return status;
+  }
 
-    /**
-     * @param status the publishing status. May not be blank.
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  /**
+   * @param status the publishing status. May not be blank.
+   */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    /**
-     * @return the number of items delivered, never blank.
-     */
-    public String getDelivered() {
-        return delivered;
-    }
+  /**
+   * @return the number of items delivered, never blank.
+   */
+  public String getDelivered() {
+    return delivered;
+  }
 
-    /**
-     * @param delivered the number of items delivered. May not be blank.
-     */
-    public void setDelivered(String delivered) {
-        this.delivered = delivered;
-    }
+  /**
+   * @param delivered the number of items delivered. May not be blank.
+   */
+  public void setDelivered(String delivered) {
+    this.delivered = delivered;
+  }
 
-    /**
-     * @return the number of failures, never blank.
-     */
-    public String getFailures() {
-        return failures;
-    }
+  /**
+   * @return the number of failures, never blank.
+   */
+  public String getFailures() {
+    return failures;
+  }
 
-    /**
-     * @param failures the number of failures. May not be blank.
-     */
-    public void setFailures(String failures) {
-        this.failures = failures;
-    }
+  /**
+   * @param failures the number of failures. May not be blank.
+   */
+  public void setFailures(String failures) {
+    this.failures = failures;
+  }
 
-    /**
-     * @return the warning message, if present.
-     */
-    public Optional<String> getWarningMessage() {
-        return Optional.ofNullable(warningMessage);
-    }
+  /**
+   * @return the warning message, if present.
+   */
+  public Optional<String> getWarningMessage() {
+    return Optional.ofNullable(warningMessage);
+  }
 
-    /**
-     * @param warningMessage the warning message.
-     */
-    public void setWarningMessage(String warningMessage) {
-        this.warningMessage = warningMessage;
-    }
+  /**
+   * @param warningMessage the warning message.
+   */
+  public void setWarningMessage(String warningMessage) {
+    this.warningMessage = warningMessage;
+  }
 
-    /**
-     * @return the job id for the publish operation.
-     */
-    public long getJobid() {
-        return jobid;
-    }
+  /**
+   * @return the job id for the publish operation.
+   */
+  public long getJobid() {
+    return jobid;
+  }
 
-    /**
-     * @param jobid the job id for the publish operation.
-     */
-    public void setJobid(long jobid) {
-        this.jobid = jobid;
-    }
+  /**
+   * @param jobid the job id for the publish operation.
+   */
+  public void setJobid(long jobid) {
+    this.jobid = jobid;
+  }
 }

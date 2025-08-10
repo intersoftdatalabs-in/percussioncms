@@ -34,19 +34,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a support file.
- */
+/** Class to handle packaging and deploying a support file. */
 public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSupportFileDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -113,15 +108,15 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
+   *   <li>Application
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -179,12 +174,10 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
    * Get the dependency files for the supplied id.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param id The dependency id, may not be <code>null</code> or empty.
-   * Should reference a support file.
-   *
-   * @return An iterator over zero or more <code>PSDependencyFile</code>
-   * objects, never <code>null</code>.
-   *
+   * @param id The dependency id, may not be <code>null</code> or empty. Should reference a support
+   *     file.
+   * @return An iterator over zero or more <code>PSDependencyFile</code> objects, never <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -211,12 +204,11 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
    * Installs the dependency files for the supplied file dependency.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param archive The archive handler to get the dependency data from,
-   * may not be <code>null</code>.
-   * @param dep The dependency, may not be <code>null</code>, and must be a
-   * type supported by this handler or one of its derived handlers.
+   * @param archive The archive handler to get the dependency data from, may not be <code>null
+   *     </code>.
+   * @param dep The dependency, may not be <code>null</code>, and must be a type supported by this
+   *     handler or one of its derived handlers.
    * @param ctx The import context, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -255,11 +247,9 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   /**
-   * Get the application dependency handler, from cached reference after first
-   * call.
+   * Get the application dependency handler, from cached reference after first call.
    *
    * @return The handler, never <code>null</code>.
-   *
    * @throws PSDeployException if the handler cannot be loaded.
    */
   private PSDependencyHandler getAppHandler() throws PSDeployException {
@@ -272,14 +262,10 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   /**
    * Determine if the specified file is a system file.
    *
-   * @param appName The name of the app supplying the file, it may not be
-   * <code>null</code> or empty.
-   *
-   * @return <code>true</code> if it is a system file, <code>false</code>
-   * otherwise
-   *
-   * @throws IllegalArgumentException if <code>appName</code> is
-   * <code>null</code> or empty
+   * @param appName The name of the app supplying the file, it may not be <code>null</code> or
+   *     empty.
+   * @return <code>true</code> if it is a system file, <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>appName</code> is <code>null</code> or empty
    */
   private static boolean isSystemFile(String appName) {
     if (appName == null || appName.trim().length() == 0)
@@ -297,25 +283,18 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   /**
-   * App dependency handler, initialized by first call to
-   * {@link #getAppHandler()}, never <code>null</code> or modified after that.
+   * App dependency handler, initialized by first call to {@link #getAppHandler()}, never <code>null
+   * </code> or modified after that.
    */
   private PSDependencyHandler m_appHandler = null;
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "SupportFile";
 
-  /**
-   * Constant for web resources app
-   */
+  /** Constant for web resources app */
   private static final String WEB_RESOURCES_APP = "web_resources";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
 }

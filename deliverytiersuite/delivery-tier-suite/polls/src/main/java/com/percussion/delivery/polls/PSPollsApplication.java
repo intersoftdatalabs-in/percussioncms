@@ -28,8 +28,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 
 /**
- * Jersey application configuration for Polls REST API.
- * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ * Jersey application configuration for Polls REST API. Sunny Sal: Refactored for Java 11, Google
+ * style, and better grammar.
  */
 @ApplicationPath("/")
 public class PSPollsApplication extends ResourceConfig {

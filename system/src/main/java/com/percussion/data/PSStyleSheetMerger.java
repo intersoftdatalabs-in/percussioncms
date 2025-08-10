@@ -30,26 +30,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * The PSStyleSheetMerger abstract class is used as the base for all
- * style sheet merger implementations.
+ * The PSStyleSheetMerger abstract class is used as the base for all style sheet merger
+ * implementations.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSStyleSheetMerger {
-  /**
-   * Create an XML + style sheet merger object.
-   */
+  /** Create an XML + style sheet merger object. */
   protected PSStyleSheetMerger() {}
 
   /**
    * Get the merger object capable of merging the specified style sheet.
    *
-   * @param   styleURL      the URL to check
-   *
-   * @return               the merger object or <code>null</code> if the
-   *                                    type is not supported
+   * @param styleURL the URL to check
+   * @return the merger object or <code>null</code> if the type is not supported
    */
   public static PSStyleSheetMerger getMerger(java.net.URL styleURL) {
     String urlExt = styleURL.getFile().toLowerCase();
@@ -60,33 +56,23 @@ public abstract class PSStyleSheetMerger {
     return (PSStyleSheetMerger) ms_StyleSheetMergers.get(urlExt);
   }
 
-  /**
-   * Convienience method for {@link #merge(PSRequest,Document,OutputStream, String)}
-   */
+  /** Convienience method for {@link #merge(PSRequest,Document,OutputStream, String)} */
   public static void merge(PSRequest req, Document doc, OutputStream out)
       throws PSConversionException, PSUnsupportedConversionException {
     merge(req, doc, out, (String) null);
   }
 
   /**
-   * Merge the style sheet defined in the XML document to generate
-   * HTML output.
+   * Merge the style sheet defined in the XML document to generate HTML output.
    *
-   * @param   req         the request object (may be <code>null</code>)
-   *
-   * @param   doc         the XML document to be processed
-   *
-   * @param   out         the output stream to which the results will be
-   *                      written
-   * @param encoding character encoding to be used in XSL stylesheet output
-   * element. Can be <code>null</code> or empty.
-   *
-   * @exception   PSConversionException
-   *                                    if the conversion fails
-   *
-   * @exception  PSUnsupportedConversionException
-   *                      if the style sheet defined in the XML document
-   *                      is of an unsupported type
+   * @param req the request object (may be <code>null</code>)
+   * @param doc the XML document to be processed
+   * @param out the output stream to which the results will be written
+   * @param encoding character encoding to be used in XSL stylesheet output element. Can be <code>
+   *     null</code> or empty.
+   * @exception PSConversionException if the conversion fails
+   * @exception PSUnsupportedConversionException if the style sheet defined in the XML document is
+   *     of an unsupported type
    */
   public static void merge(PSRequest req, Document doc, OutputStream out, String encoding)
       throws PSConversionException, PSUnsupportedConversionException {
@@ -149,36 +135,24 @@ public abstract class PSStyleSheetMerger {
     }
   }
 
-  /**
-   * Convienience method for {@link #merge(PSRequest,Document,OutputStream,URL,String)}
-   */
+  /** Convienience method for {@link #merge(PSRequest,Document,OutputStream,URL,String)} */
   public void merge(PSRequest req, Document doc, OutputStream out, java.net.URL styleFile)
       throws PSConversionException, PSUnsupportedConversionException {
     merge(req, doc, out, styleFile, null);
   }
 
   /**
-   * Merge the specified style sheet with the XML document to generate
-   * HTML output.
+   * Merge the specified style sheet with the XML document to generate HTML output.
    *
-   * @param   req         the request object (may be <code>null</code>)
-   *
-   * @param   doc         the XML document to be processed
-   *
-   * @param   out         the output stream to which the results will be
-   *                      written
-   *
-   * @param   styleFile   the style sheet to use
-   *
-   * @param encoding character encoding to be used in XSL stylesheet output
-   * element. Can be <code>null</code> or empty.
-   *
-   * @throws   PSConversionException
-   *                                    if the conversion fails
-   *
-   * @throws  PSUnsupportedConversionException
-   *                      if the style sheet defined in the XML document
-   *                      is of an unsupported type
+   * @param req the request object (may be <code>null</code>)
+   * @param doc the XML document to be processed
+   * @param out the output stream to which the results will be written
+   * @param styleFile the style sheet to use
+   * @param encoding character encoding to be used in XSL stylesheet output element. Can be <code>
+   *     null</code> or empty.
+   * @throws PSConversionException if the conversion fails
+   * @throws PSUnsupportedConversionException if the style sheet defined in the XML document is of
+   *     an unsupported type
    */
   public abstract void merge(
       PSRequest req, Document doc, OutputStream out, java.net.URL styleFile, String encoding)
@@ -199,15 +173,14 @@ public abstract class PSStyleSheetMerger {
   }
 
   /**
-   * This is a hash of our style sheet merging engines. The key is
-   * the style sheet MIME type (eg, text/css) and the value is an
-   * instance of the appropriate PSStyleSheetMerger subclass.
+   * This is a hash of our style sheet merging engines. The key is the style sheet MIME type (eg,
+   * text/css) and the value is an instance of the appropriate PSStyleSheetMerger subclass.
    */
   private static HashMap ms_StyleSheetMergers = new HashMap<>();
 
   /**
-   * Initializes the static merger map so that the appropriate mergers can
-   * be found for each MIME type.
+   * Initializes the static merger map so that the appropriate mergers can be found for each MIME
+   * type.
    */
   static {
     PSXslStyleSheetMerger xslMerger = new PSXslStyleSheetMerger();

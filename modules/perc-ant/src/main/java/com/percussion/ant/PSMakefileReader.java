@@ -28,9 +28,7 @@ import java.io.InputStreamReader;
  * @author Chad Loder
  */
 public class PSMakefileReader {
-  /**
-   * Constructs a new Makefilereader.
-   */
+  /** Constructs a new Makefilereader. */
   public PSMakefileReader(File makefile) throws IOException {
     try (InputStreamReader is = new InputStreamReader(new FileInputStream(makefile))) {
       m_rdr = new BufferedReader(is);
@@ -38,17 +36,12 @@ public class PSMakefileReader {
   }
 
   /**
-   * Reads a logical line from the makefile. A logical line may
-   * extend over several physical lines when the continuation
-   * character (backslash) is used at the end of all but the
-   * last line.
+   * Reads a logical line from the makefile. A logical line may extend over several physical lines
+   * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @param   rdr The reader
-   * @param   buf The buffer to which the logical line will be
-   * appendend.
-   *
-   * @return   The logical line. If <CODE>null</CODE>, it means
-   * the end of the file has been reached.
+   * @param rdr The reader
+   * @param buf The buffer to which the logical line will be appendend.
+   * @return The logical line. If <CODE>null</CODE>, it means the end of the file has been reached.
    */
   public String readLine() throws IOException {
     StringBuilder buf = new StringBuilder();
@@ -59,17 +52,13 @@ public class PSMakefileReader {
   }
 
   /**
-   * Reads a logical line from the makefile. A logical line may
-   * extend over several physical lines when the continuation
-   * character (backslash) is used at the end of all but the
-   * last line.
+   * Reads a logical line from the makefile. A logical line may extend over several physical lines
+   * when the continuation character (backslash) is used at the end of all but the last line.
    *
-   * @param   rdr The reader
-   * @param   buf The buffer to which the logical line will be
-   * appendend.
-   *
-   * @return   int The number of physical lines read. If less than
-   * 0, it means that the end of file was reached.
+   * @param rdr The reader
+   * @param buf The buffer to which the logical line will be appendend.
+   * @return int The number of physical lines read. If less than 0, it means that the end of file
+   *     was reached.
    */
   protected int readLogicalLine(StringBuilder buf) throws IOException {
     int numLines = 0;

@@ -30,17 +30,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Object store implementation for the <code>CloneSiteFolderRequest</code>
- * object as defined in schema sys_FolderParameters.xsd.
+ * Object store implementation for the <code>CloneSiteFolderRequest</code> object as defined in
+ * schema sys_FolderParameters.xsd.
  */
 public class PSCloneSiteFolderRequest extends PSComponent {
   /**
    * Construct a new clone site folder request object.
    *
-   * @param source the source folder locator to be cloned, not
-   *    <code>null</code>.
-   * @param target the target folder locator into which the source will be
-   *    cloned, not <code>null</code>.
+   * @param source the source folder locator to be cloned, not <code>null</code>.
+   * @param target the target folder locator into which the source will be cloned, not <code>null
+   *     </code>.
    * @param options the cloning options, not <code>null</code>.
    */
   public PSCloneSiteFolderRequest(PSLocator source, PSLocator target, PSCloningOptions options) {
@@ -58,8 +57,7 @@ public class PSCloneSiteFolderRequest extends PSComponent {
   /**
    * Constructs the clond site fodler request from its XML representation.
    *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter
-   *    descriptions.
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter descriptions.
    */
   public PSCloneSiteFolderRequest(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -131,8 +129,8 @@ public class PSCloneSiteFolderRequest extends PSComponent {
    * Tests if the supplied object is equal to this one.
    *
    * @param o the object to test, may be <code>null</code>.
-   * @return <code>true</code> if the supplied object is equal to this one,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied object is equal to this one, <code>false</code>
+   *     otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSCloneSiteFolderRequest)) return false;
@@ -206,26 +204,24 @@ public class PSCloneSiteFolderRequest extends PSComponent {
   }
 
   /**
-   * The source folder locator to be cloned, intialized while constructed,
-   * never <code>null</code> or changed after that.
+   * The source folder locator to be cloned, intialized while constructed, never <code>null</code>
+   * or changed after that.
    */
   private PSLocator m_source = null;
 
   /**
-   * The target folder locator into which to clone the source, intialized
-   * while constructed, never <code>null</code> or changed after that.
+   * The target folder locator into which to clone the source, intialized while constructed, never
+   * <code>null</code> or changed after that.
    */
   private PSLocator m_target = null;
 
   /**
-   * The cloning options, intialized while constructed, never <code>null</code>
-   * or changed after that.
+   * The cloning options, intialized while constructed, never <code>null</code> or changed after
+   * that.
    */
   private PSCloningOptions m_options = null;
 
-  /**
-   * The XML document node name.
-   */
+  /** The XML document node name. */
   public static final String XML_NODE_NAME = PSRemoteFolderProcessor.CLONE_SITEFOLDER_REQUEST;
 
   // XML element and attribute names

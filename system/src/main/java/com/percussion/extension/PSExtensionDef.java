@@ -27,27 +27,23 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import java.util.Objects;
 import java.util.Properties;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * An extension definition defines the name, initialization parameters,
- * and resource locations for an extension. The actual files (if any)
- * which make up the extension are supplied elsewhere.
+ * An extension definition defines the name, initialization parameters, and resource locations for
+ * an extension. The actual files (if any) which make up the extension are supplied elsewhere.
  */
 public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTuner {
-  /**
-   * Compiler generated serial version ID used for serialization.
-   */
+  /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = -4369644099981854127L;
 
   /**
-   * Convenients constructor that calls {@link #PSExtensionDef(PSExtensionRef,
-   * Iterator, Iterator, Properties, Iterator, Iterator, boolean, boolean)
-   * PSExtensionDef(ref, interfaces, resourceURLs, initParams, runtimeParams,
-   * null, false, false)}.
+   * Convenients constructor that calls {@link #PSExtensionDef(PSExtensionRef, Iterator, Iterator,
+   * Properties, Iterator, Iterator, boolean, boolean) PSExtensionDef(ref, interfaces, resourceURLs,
+   * initParams, runtimeParams, null, false, false)}.
    */
   public PSExtensionDef(
       PSExtensionRef ref,
@@ -62,34 +58,25 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
    * Constructs a new extension def.
    *
    * @param ref The extension reference. Must not be <CODE>null</CODE>.
-   *
-   * @param interfaces An Iterator over 1 or more non-<CODE>null</CODE>
-   * names of interfaces that this extension implements.
-   *
-   * @param resourceURLs An Iterator over 0 or more non-<CODE>null</CODE>
-   * URL objects referring to resources used by the extension. May be
-   * <CODE>null</CODE>, in which case the extension must be self-contained.
-   *
-   * @param initParams A Properties object containing 0 or more custom
-   * initialization properties required by the defined extension. May be
-   * <CODE>null</CODE>, in which case no properties will be set.
-   *
-   * @param runtimeParams An iterator over zero or non-<CODE>null</CODE>
-   * PSExtensionParamDef objects. The order of parameters
-   * is important. May be <CODE>null</CODE>, in which case no runtimeParam
-   * defs will be set.
-   *
-   * @param suppliedResources An Iterator over 0 or more non-<CODE>null</CODE>
-   * URL objects referring to files used by the extension. May be
-   * <CODE>null</CODE>, in which case they may be added later using
-   * {@link #setSuppliedResources(Iterator) setSuppliedResources()}.
-   *
-   * @param isDeprecated If <code>true</code>, then this extension will be
-   * flagged as deprecated, if <code>false</code>, it will not.
-   *
-   * @param isRestoreRequestParamsOnError <code>true</code> indicates that
-   * based on the Extensions.xml restoreRequestParamsOnError="yes" attribute
-   * this extension modifies request parameters, <code>false</code> otherwise.
+   * @param interfaces An Iterator over 1 or more non-<CODE>null</CODE> names of interfaces that
+   *     this extension implements.
+   * @param resourceURLs An Iterator over 0 or more non-<CODE>null</CODE> URL objects referring to
+   *     resources used by the extension. May be <CODE>null</CODE>, in which case the extension must
+   *     be self-contained.
+   * @param initParams A Properties object containing 0 or more custom initialization properties
+   *     required by the defined extension. May be <CODE>null</CODE>, in which case no properties
+   *     will be set.
+   * @param runtimeParams An iterator over zero or non-<CODE>null</CODE> PSExtensionParamDef
+   *     objects. The order of parameters is important. May be <CODE>null</CODE>, in which case no
+   *     runtimeParam defs will be set.
+   * @param suppliedResources An Iterator over 0 or more non-<CODE>null</CODE> URL objects referring
+   *     to files used by the extension. May be <CODE>null</CODE>, in which case they may be added
+   *     later using {@link #setSuppliedResources(Iterator) setSuppliedResources()}.
+   * @param isDeprecated If <code>true</code>, then this extension will be flagged as deprecated, if
+   *     <code>false</code>, it will not.
+   * @param isRestoreRequestParamsOnError <code>true</code> indicates that based on the
+   *     Extensions.xml restoreRequestParamsOnError="yes" attribute this extension modifies request
+   *     parameters, <code>false</code> otherwise.
    */
   public PSExtensionDef(
       PSExtensionRef ref,
@@ -155,8 +142,8 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   }
 
   /**
-   * Default ctor. Added mainly to facilitate serialization. Could be in an
-   * invalid state if required fields are not added using set/add methods.
+   * Default ctor. Added mainly to facilitate serialization. Could be in an invalid state if
+   * required fields are not added using set/add methods.
    */
   public PSExtensionDef() {
     initParams = new Properties();
@@ -176,6 +163,7 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
 
   /**
    * Set/Replace the extension ref.
+   *
    * @param extRef must not be <code>null</code>
    */
   public void setExtensionRef(PSExtensionRef extRef) {
@@ -195,10 +183,8 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   /**
    * Set the interface for the extension definition.
    *
-   * @param interfaces interface collection to set, must not be
-   * <code>null</code> or empty.
+   * @param interfaces interface collection to set, must not be <code>null</code> or empty.
    */
-  
   public void setInterfaces(Collection<String> interfaces) {
     if (interfaces == null || interfaces.size() == 0) {
       throw new IllegalArgumentException("interfaces must not be null or empty");
@@ -228,14 +214,10 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   }
 
   /**
-   * Sets the value of the named parameter, overwriting
-   * any existing value.
+   * Sets the value of the named parameter, overwriting any existing value.
    *
    * @param name The param name. Must not be <CODE>null</CODE>.
-   *
-   * @param value The param value. If <CODE>null</CODE>, the
-   * param will be erased.
-   *
+   * @param value The param value. If <CODE>null</CODE>, the param will be erased.
    * @throw IllegalArgumentException If any param is invalid.
    */
   public void setInitParameter(String name, String value) {
@@ -252,20 +234,24 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     return resourceUrls.iterator();
   }
 
-  /** @see IPSExtensionDef#getRuntimeParameterNames */
+  /**
+   * @see IPSExtensionDef#getRuntimeParameterNames
+   */
   public Iterator<String> getRuntimeParameterNames() {
     return new RuntimeParamNameIterator(runtimeParams.iterator());
   }
 
-  /** @see IPSExtensionDef#getRuntimeParameter */
+  /**
+   * @see IPSExtensionDef#getRuntimeParameter
+   */
   public IPSExtensionParamDef getRuntimeParameter(String name) {
     return runtimeParamsMap.get(name);
   }
 
   /**
    * Set the runtime parameters for this definition
-   * @param params may be <code>null</code>, if so then all
-   * params will be cleared.
+   *
+   * @param params may be <code>null</code>, if so then all params will be cleared.
    */
   public void setRuntimeParameters(Iterator<PSExtensionParamDef> params) {
     runtimeParams = new ArrayList<>();
@@ -279,11 +265,9 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   }
 
   /**
-   * Set the resource locations, see
-   * {@link IPSExtensionDef#getResourceLocations()} for details.
+   * Set the resource locations, see {@link IPSExtensionDef#getResourceLocations()} for details.
    *
-   * @param locations The locations, may not be <code>null</code>, may be
-   * empty.
+   * @param locations The locations, may not be <code>null</code>, may be empty.
    */
   public void setResourceLocations(Collection<URL> locations) {
     if (locations == null) throw new IllegalArgumentException("locations may not be null");
@@ -291,14 +275,18 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     resourceUrls = locations;
   }
 
-  /** @see IPSExtensionDef#getSuppliedResources */
+  /**
+   * @see IPSExtensionDef#getSuppliedResources
+   */
   public Iterator<URL> getSuppliedResources() {
     Iterator<URL> resources = null;
     if (suppliedResources != null) resources = suppliedResources.iterator();
     return resources;
   }
 
-  /** @see IPSExtensionDef#setSuppliedResources(Iterator) */
+  /**
+   * @see IPSExtensionDef#setSuppliedResources(Iterator)
+   */
   public void setSuppliedResources(Iterator<URL> resources) {
     // validate input
     if (resources == null) throw new IllegalArgumentException("resources may not be null");
@@ -310,17 +298,23 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
     }
   }
 
-  /** @see IPSExtensionDef#setDeprecated(boolean) */
+  /**
+   * @see IPSExtensionDef#setDeprecated(boolean)
+   */
   public void setDeprecated(boolean isDeprecated) {
     this.isDeprecated = isDeprecated;
   }
 
-  /** @see IPSExtensionDef#isDeprecated() */
+  /**
+   * @see IPSExtensionDef#isDeprecated()
+   */
   public boolean isDeprecated() {
     return isDeprecated;
   }
 
-  /** @see IPSExtensionDef#isRestoreRequestParamsOnError() */
+  /**
+   * @see IPSExtensionDef#isRestoreRequestParamsOnError()
+   */
   public boolean isRestoreRequestParamsOnError() {
     return isRestoreRequestParamsOnError;
   }
@@ -336,8 +330,10 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
 
   // see IPSExtensionDef
   public Iterator<PSExtensionRef> getRequiredApplications() {
-    // This method returns an iterator of PSExtensionRef, but m_requiredApplications stores names (String).
-    // If the interface expects PSExtensionRef, you should store those instead. For now, return empty iterator for compatibility.
+    // This method returns an iterator of PSExtensionRef, but m_requiredApplications stores names
+    // (String).
+    // If the interface expects PSExtensionRef, you should store those instead. For now, return
+    // empty iterator for compatibility.
     return new ArrayList<PSExtensionRef>().iterator();
   }
 
@@ -503,47 +499,37 @@ public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTu
   /** The runtime params, in the order passed into the constructor. */
   private Collection<PSExtensionParamDef> runtimeParams;
 
-  /**
-   * A map from runtime param names to runtime parameters, in no particular
-   * order.
-   */
+  /** A map from runtime param names to runtime parameters, in no particular order. */
   private Map<String, PSExtensionParamDef> runtimeParamsMap;
 
   /**
-   * The files required by this extension as URL objects.  Should be a catalog
-   * of files located in all locations supplied by {@link #resourceUrls}, unless
-   * it is a jar file, in which case the jar is included in this list as a
-   * file.
-   * May be <code>null</code>, unless {@link #setSuppliedResources(Iterator)}
-   * has been called, or the extension has been previously saved after such a
-   * call.
+   * The files required by this extension as URL objects. Should be a catalog of files located in
+   * all locations supplied by {@link #resourceUrls}, unless it is a jar file, in which case the jar
+   * is included in this list as a file. May be <code>null</code>, unless {@link
+   * #setSuppliedResources(Iterator)} has been called, or the extension has been previously saved
+   * after such a call.
    */
   private Collection<URL> suppliedResources;
 
   /**
-   * The names of applications referenced by the implementation of this
-   * extension as <code>String</code> objects.  Never <code>null</code> after
-   * construction, may be empty.  Modified by calls to
+   * The names of applications referenced by the implementation of this extension as <code>String
+   * </code> objects. Never <code>null</code> after construction, may be empty. Modified by calls to
    * {@link #setRequiredApplications(Iterator)}.
    */
   private Collection<String> requiredApplications;
 
   /**
-   * Indicates if this Extension has been deprecated.  <code>True</code> if it
-   * has been deprecated, <code>false</code> if not.  Modified by calls to
-   * {@link #setDeprecated(boolean)}.
+   * Indicates if this Extension has been deprecated. <code>True</code> if it has been deprecated,
+   * <code>false</code> if not. Modified by calls to {@link #setDeprecated(boolean)}.
    */
   private boolean isDeprecated = false;
 
   /**
-   * Indicates if this Extension modifies request params.  Set during
-   * construction, never modified after that.
+   * Indicates if this Extension modifies request params. Set during construction, never modified
+   * after that.
    */
   private boolean isRestoreRequestParamsOnError = false;
 
-  /**
-   * A map with all supported extension methods, never <code>null</code>,
-   * may be empty.
-   */
+  /** A map with all supported extension methods, never <code>null</code>, may be empty. */
   private Map<String, PSExtensionMethod> methods = new HashMap<>();
 }

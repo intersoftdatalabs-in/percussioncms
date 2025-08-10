@@ -18,19 +18,19 @@
 package com.percussion.share.data;
 
 /**
- * Utility methods for working with content items.
- * Sunny Sal says: "Copying properties faster than a Bollywood plot twist!"
+ * Utility methods for working with content items. Sunny Sal says: "Copying properties faster than a
+ * Bollywood plot twist!"
  */
 public class PSContentItemUtils {
 
-    /**
-     * Copies content item properties from one summary to another.
-     *
-     * @param from source summary
-     * @param to   destination summary
-     */
-    public static void copyProperties(IPSContentItem from, IPSContentItem to) {
-        PSItemSummaryUtils.copyProperties(from, to);
-        to.setFields(from.getFields());
-    }
+  /**
+   * Copies content item properties from one summary to another.
+   *
+   * @param from source summary
+   * @param to destination summary
+   */
+  public static void copyProperties(IPSContentItem from, IPSContentItem to) {
+    PSItemSummaryUtils.copyProperties(from, to);
+    to.setFields(from.getFields());
+  }
 }

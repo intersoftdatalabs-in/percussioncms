@@ -21,23 +21,21 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 /**
- * Utility class which manages the closing of connection related objects.  This
- * includes {@link Connection}, {@link Statement}, and {@link ResultSet}.
+ * Utility class which manages the closing of connection related objects. This includes {@link
+ * Connection}, {@link Statement}, and {@link ResultSet}.
  *
  * @author peterfrontiero
  */
 // REFACTORED: CP-JAVA11
 public class PSConnectionObject {
-  /**
-   * Create an uninitialized connection object.
-   */
+  /** Create an uninitialized connection object. */
   public PSConnectionObject() {}
 
   /**
    * Create a connection object for a given connection.
    *
-   * @param conn The {@link Connection} object to be managed by this object,
-   * may not be <code>null</code>.
+   * @param conn The {@link Connection} object to be managed by this object, may not be <code>null
+   *     </code>.
    */
   public PSConnectionObject(Connection conn) {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -48,10 +46,10 @@ public class PSConnectionObject {
   /**
    * Create a connection object for a given connection and statement.
    *
-   * @param conn The {@link Connection} object to be managed by this object,
-   * may not be <code>null</code>.
-   * @param stmt The {@link Statement} object to be managed by this object,
-   * may not be <code>null</code>.
+   * @param conn The {@link Connection} object to be managed by this object, may not be <code>null
+   *     </code>.
+   * @param stmt The {@link Statement} object to be managed by this object, may not be <code>null
+   *     </code>.
    */
   public PSConnectionObject(Connection conn, Statement stmt) {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -63,15 +61,14 @@ public class PSConnectionObject {
   }
 
   /**
-   * Create a connection object for a given connection, statement, and result
-   * set.
+   * Create a connection object for a given connection, statement, and result set.
    *
-   * @param conn The {@link Connection} object to be managed by this object,
-   * may not be <code>null</code>.
-   * @param stmt The {@link Statement} object to be managed by this object,
-   * may not be <code>null</code>.
-   * @param rs The {@link ResultSet} object to be managed by this object,
-   * may not be <code>null</code>.
+   * @param conn The {@link Connection} object to be managed by this object, may not be <code>null
+   *     </code>.
+   * @param stmt The {@link Statement} object to be managed by this object, may not be <code>null
+   *     </code>.
+   * @param rs The {@link ResultSet} object to be managed by this object, may not be <code>null
+   *     </code>.
    */
   public PSConnectionObject(Connection conn, Statement stmt, ResultSet rs) {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -88,10 +85,10 @@ public class PSConnectionObject {
   /**
    * Create a connection object for a given statement and result set.
    *
-   * @param stmt The {@link Statement} object to be managed by this object,
-   * may not be <code>null</code>.
-   * @param rs The {@link ResultSet} object to be managed by this object,
-   * may not be <code>null</code>.
+   * @param stmt The {@link Statement} object to be managed by this object, may not be <code>null
+   *     </code>.
+   * @param rs The {@link ResultSet} object to be managed by this object, may not be <code>null
+   *     </code>.
    */
   public PSConnectionObject(Statement stmt, ResultSet rs) {
     if (stmt == null) throw new IllegalArgumentException("stmt may not be null");
@@ -136,8 +133,8 @@ public class PSConnectionObject {
   }
 
   /**
-   * Closes the result set object managed by this object if it has been
-   * initialized.  The result set will be set to <code>null</code>.
+   * Closes the result set object managed by this object if it has been initialized. The result set
+   * will be set to <code>null</code>.
    */
   public void closeResultSet() {
     try {
@@ -150,8 +147,8 @@ public class PSConnectionObject {
   }
 
   /**
-   * Closes the statement object managed by this object if it has been
-   * initialized.  The statement will be set to <code>null</code>.
+   * Closes the statement object managed by this object if it has been initialized. The statement
+   * will be set to <code>null</code>.
    */
   public void closeStatement() {
     try {
@@ -164,8 +161,8 @@ public class PSConnectionObject {
   }
 
   /**
-   * Closes the connection object managed by this object if it has been
-   * initialized.  The connection will be set to <code>null</code>.
+   * Closes the connection object managed by this object if it has been initialized. The connection
+   * will be set to <code>null</code>.
    */
   public void closeConnection() {
     try {
@@ -178,9 +175,8 @@ public class PSConnectionObject {
   }
 
   /**
-   * Closes the result set, statement, and connection objects managed by this
-   * object if initialized.  The managed objects will be set to
-   * <code>null</code>.
+   * Closes the result set, statement, and connection objects managed by this object if initialized.
+   * The managed objects will be set to <code>null</code>.
    */
   public void close() {
     closeResultSet();
@@ -188,18 +184,12 @@ public class PSConnectionObject {
     closeConnection();
   }
 
-  /**
-   * The connection which may or may not be supplied during construction.
-   */
+  /** The connection which may or may not be supplied during construction. */
   private Connection m_conn = null;
 
-  /**
-   * The statement which may or may not be supplied during construction.
-   */
+  /** The statement which may or may not be supplied during construction. */
   private Statement m_stmt = null;
 
-  /**
-   * The result set which may or may not be supplied during construction.
-   */
+  /** The result set which may or may not be supplied during construction. */
   private ResultSet m_rs = null;
 }

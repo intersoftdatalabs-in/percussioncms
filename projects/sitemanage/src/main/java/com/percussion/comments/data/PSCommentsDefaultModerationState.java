@@ -20,40 +20,38 @@ package com.percussion.comments.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Small data class to hold info for the default moderation state arguments.
- */
+/** Small data class to hold info for the default moderation state arguments. */
 @XmlRootElement(name = "defaultModerationState")
 public class PSCommentsDefaultModerationState {
 
-    private String site;
-    private String state;
+  private String site;
+  private String state;
 
-    /**
-     * @return the site
-     */
-    public String getSite() {
-        return site;
-    }
+  /**
+   * @return the site
+   */
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site) {
-        this.site = site;
-    }
+  /**
+   * @param site the site to set
+   */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * @return the state
-     */
-    public String getState() {
-        return state;
-    }
+  /**
+   * @return the state
+   */
+  public String getState() {
+    return state;
+  }
 
-    /**
-     * @param state the state to set
-     */
-    public void setState(String state) {
-        this.state = state;
-    }
+  /**
+   * @param state the state to set
+   */
+  public void setState(String state) {
+    this.state = state;
+  }
 }

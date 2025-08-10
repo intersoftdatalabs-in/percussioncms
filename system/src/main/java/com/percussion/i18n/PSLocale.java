@@ -43,9 +43,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This is the object representation of a Locale defintion.
- */
+/** This is the object representation of a Locale defintion. */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLocale")
 @Table(name = "RXLOCALE")
@@ -53,14 +51,12 @@ public class PSLocale implements IPSCatalogSummary {
 
   /**
    * Construct this object from its member data.
-   * @param languageString The language string that identifies this locale. May
-   * not be <code>null</code> or empty.
-   * @param displayName The display name of the locale, may not be
-   * <code>null</code> or empty.
-   * @param description A description of this locale, may be <code>null</code>
-   * or empty.
-   * @param status One of the <code>STATUS_xxx</code> values.
    *
+   * @param languageString The language string that identifies this locale. May not be <code>null
+   *     </code> or empty.
+   * @param displayName The display name of the locale, may not be <code>null</code> or empty.
+   * @param description A description of this locale, may be <code>null</code> or empty.
+   * @param status One of the <code>STATUS_xxx</code> values.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSLocale(String languageString, String displayName, String description, int status) {
@@ -78,21 +74,16 @@ public class PSLocale implements IPSCatalogSummary {
     m_status = status;
   }
 
-  /**
-   * No arg constructor used for Hibernate
-   */
+  /** No arg constructor used for Hibernate */
   public PSLocale() {}
 
   /**
    * Construct this object from its XML representation.
    *
-   * @param source The source element, may not be <code>null</code>, must
-   * conform to the format defined by {@link #toXml(Document)}.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if <code>source</code> does not match
-   * the expected format.
+   * @param source The source element, may not be <code>null</code>, must conform to the format
+   *     defined by {@link #toXml(Document)}.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>source</code> does not match the expected format.
    */
   public PSLocale(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -101,13 +92,12 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Construct this object from its DB representation.  Package private since
-   * <code>rowData</code> is coupled to the database.
+   * Construct this object from its DB representation. Package private since <code>rowData</code> is
+   * coupled to the database.
    *
-   * @param rowData The table data for the row this object represents.  May not
-   * be <code>null</code> and must contain the columns expected by this object.
-   * Columns expected are:
-   * <table>
+   * @param rowData The table data for the row this object represents. May not be <code>null</code>
+   *     and must contain the columns expected by this object. Columns expected are:
+   *     <table>
    * <tr>
    * <th>Column</th><th>Description</th><th>Nullable</th>
    * <td>LANGUAGESTRING</td><td>The language string that identifies this
@@ -120,12 +110,10 @@ public class PSLocale implements IPSCatalogSummary {
    * <td>No</td>
    * </tr>
    * </table>
-   * Other columns may be provided without error, but will be ignored.
-   *
-   * @throws IllegalArgumentException if <code>rowData</code> is
-   * <code>null</code>.
-   * @throws PSDataExtractionException if <code>rowData</code> does not contain
-   * the expected columns and data.
+   *     Other columns may be provided without error, but will be ignored.
+   * @throws IllegalArgumentException if <code>rowData</code> is <code>null</code>.
+   * @throws PSDataExtractionException if <code>rowData</code> does not contain the expected columns
+   *     and data.
    */
   PSLocale(PSJdbcRowData rowData) throws PSDataExtractionException {
     if (rowData == null) throw new IllegalArgumentException("rowData may not be null");
@@ -228,7 +216,8 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  Format is:
+   * Serializes this object's state to its XML representation. Format is:
+   *
    * <pre><code>
    *    &lt;ELEMENT PSXLocale (Description?)>
    *    &lt;ATTLIST PSXLocale
@@ -239,14 +228,9 @@ public class PSLocale implements IPSCatalogSummary {
    *    &lt;ELEMENT Description (#PCDATA)>
    * </code></pre>
    *
-   * @param doc The document to use when serializing the XML, may not be
-   * <code>null</code>.
-   *
-   * @return The root element of the XML representation, never
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>doc</code> is
-   * <code>null</code>.
+   * @param doc The document to use when serializing the XML, may not be <code>null</code>.
+   * @return The root element of the XML representation, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -266,14 +250,10 @@ public class PSLocale implements IPSCatalogSummary {
   /**
    * Restores this object from its XML representation.
    *
-   * @param source The root element of this object's XML representation. See
-   * {@link #toXml(Document)} for the expected format.  May not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if <code>source</code> does not match
-   * the expected format.
+   * @param source The root element of this object's XML representation. See {@link
+   *     #toXml(Document)} for the expected format. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>source</code> does not match the expected format.
    */
   public void fromXml(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -314,19 +294,16 @@ public class PSLocale implements IPSCatalogSummary {
   /**
    * Gets the value of the specified column from the supplied row data.
    *
-   * @param rowData The data from which the column value is extracted, assumed
-   * not <code>null</code>.
-   * @param colName The name of the column, assumed not <code>null</code> or
-   * empty.
-   * @param required <code>true</code> to require the value not be
-   * <code>null</code> or empty, <code>false</code> otherwise.
-   *
-   * @return The value, may be empty.  May be <code>null</code> only if
-   * <code>required</code> is <code>false</code>.
-   *
-   * @throws PSDataExtractionException if the specified column cannot be found
-   * in the supplied row data, or if <code>requried</code> is <code>true</code>
-   * and the column value is <code>null</code> or empty.
+   * @param rowData The data from which the column value is extracted, assumed not <code>null</code>
+   *     .
+   * @param colName The name of the column, assumed not <code>null</code> or empty.
+   * @param required <code>true</code> to require the value not be <code>null</code> or empty,
+   *     <code>false</code> otherwise.
+   * @return The value, may be empty. May be <code>null</code> only if <code>required</code> is
+   *     <code>false</code>.
+   * @throws PSDataExtractionException if the specified column cannot be found in the supplied row
+   *     data, or if <code>requried</code> is <code>true</code> and the column value is <code>null
+   *     </code> or empty.
    */
   private String getColumnValue(PSJdbcRowData rowData, String colName, boolean required)
       throws PSDataExtractionException {
@@ -345,31 +322,24 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Check that the supplied status is one of the <code>STATUS_XXX</code>
-   * values.
+   * Check that the supplied status is one of the <code>STATUS_XXX</code> values.
    *
    * @param status The status to validate.
-   *
-   * @return <code>true</code> if the status is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the status is valid, <code>false</code> otherwise.
    */
   private boolean validateStatus(int status) {
     return (status > STATUS_UNDEFINED && status < STATUS_ENUM.length);
   }
 
   /**
-   * Utility method to get a required attibute value, validating that it is
-   * not <code>null</code> or empty.
+   * Utility method to get a required attibute value, validating that it is not <code>null</code> or
+   * empty.
    *
-   * @param source Element to get the attribute from, assumed not
-   * <code>null</code>.
-   * @param attName The name of the attribute to get, assumed not
-   * <code>null</code> or empty
-   *
+   * @param source Element to get the attribute from, assumed not <code>null</code>.
+   * @param attName The name of the attribute to get, assumed not <code>null</code> or empty
    * @return The attribute value, never <code>null</code> or empty.
-   *
-   * @throws PSUnknownNodeTypeException If the specified attribute cannot be
-   * found with a non-empty value.
+   * @throws PSUnknownNodeTypeException If the specified attribute cannot be found with a non-empty
+   *     value.
    */
   public static String getRequiredAttribute(Element source, String attName)
       throws PSUnknownNodeTypeException {
@@ -402,33 +372,27 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Implementation of {@link IPSCatalogSummary#getGUID()}, constructs and
-   * returns a guid from the locale id.
+   * Implementation of {@link IPSCatalogSummary#getGUID()}, constructs and returns a guid from the
+   * locale id.
    */
   @IPSXmlSerialization(suppress = true)
   public IPSGuid getGUID() {
     return new PSGuid(PSTypeEnum.LOCALE, m_localeId);
   }
 
-  /**
-   * Implementation of {@link IPSCatalogSummary#getName()}, returns the
-   * language string.
-   */
+  /** Implementation of {@link IPSCatalogSummary#getName()}, returns the language string. */
   public String getName() {
     return m_languageString;
   }
 
-  /**
-   * Implementation of {@link IPSCatalogSummary#getLabel()}, returns the
-   * display name.
-   */
+  /** Implementation of {@link IPSCatalogSummary#getLabel()}, returns the display name. */
   public String getLabel() {
     return m_displayName;
   }
 
   /**
-   * Set the version.  There are only limited cases where this needs to be
-   * used, such as with web services.
+   * Set the version. There are only limited cases where this needs to be used, such as with web
+   * services.
    *
    * @param version The new version, may not be <code>null</code>.
    */
@@ -441,8 +405,8 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
-   * Get the version.  There are only limited cases where this needs to be
-   * used, such as with web services.
+   * Get the version. There are only limited cases where this needs to be used, such as with web
+   * services.
    *
    * @return The version, may be <code>null</code> if it has not been set.
    */
@@ -451,65 +415,57 @@ public class PSLocale implements IPSCatalogSummary {
     return m_version;
   }
 
-  /**
-   * Constant to indicate locale's status is inactive.
-   */
+  /** Constant to indicate locale's status is inactive. */
   public static final int STATUS_INACTIVE = 0;
 
-  /**
-   * Constant to indicate locale's status is active.
-   */
+  /** Constant to indicate locale's status is active. */
   public static final int STATUS_ACTIVE = 1;
 
   /**
-   * Enumeration of status strings, uses the <code>STATUS_xxx</code> constant
-   * value as an index into the array to retrieve its corresponding string
-   * representation.  This must be maintained if a new public status constant
-   * is added.
+   * Enumeration of status strings, uses the <code>STATUS_xxx</code> constant value as an index into
+   * the array to retrieve its corresponding string representation. This must be maintained if a new
+   * public status constant is added.
    */
   public static final String[] STATUS_ENUM = {"inactive", "active"};
 
   /**
-   * Constant for the name of the root element used to serialize this object
-   *  to and from its XML format.
+   * Constant for the name of the root element used to serialize this object to and from its XML
+   * format.
    */
   public static final String XML_NODE_NAME = "PSXLocale";
 
   /**
-   * The language string used to uniquely identify this locale, never
-   * <code>null</code>, empty, or modified after construction.
+   * The language string used to uniquely identify this locale, never <code>null</code>, empty, or
+   * modified after construction.
    */
   @Basic
   @Column(name = "LANGUAGESTRING")
   private String m_languageString;
 
   /**
-   * The display name of this locale, never <code>null</code>, empty, or
-   * modified after construction.
+   * The display name of this locale, never <code>null</code>, empty, or modified after
+   * construction.
    */
   @Basic
   @Column(name = "DISPLAYNAME")
   private String m_displayName;
 
   /**
-   * The optional description of this locale, may be <code>null</code> or
-   * empty, set during construction, never modified after that.
+   * The optional description of this locale, may be <code>null</code> or empty, set during
+   * construction, never modified after that.
    */
   @Basic
   @Column(name = "DESCRIPTION")
   private String m_description;
 
-  /**
-   * The database id
-   */
+  /** The database id */
   @Id
   @Column(name = "LOCALEID")
   private int m_localeId;
 
   /**
-   * The status of this locale, one of the <code>STATUS_XXX</code> values.
-   * Initialized to {@link #STATUS_UNDEFINED}, set to a valid value during
-   * construction, never modified after that.
+   * The status of this locale, one of the <code>STATUS_XXX</code> values. Initialized to {@link
+   * #STATUS_UNDEFINED}, set to a valid value during construction, never modified after that.
    */
   @Basic
   @Column(name = "STATUS")
@@ -519,9 +475,7 @@ public class PSLocale implements IPSCatalogSummary {
   @Column(name = "VERSION")
   private Integer m_version = null;
 
-  /**
-   * Constant to inidcate the status is not yet defined.
-   */
+  /** Constant to inidcate the status is not yet defined. */
   private static final int STATUS_UNDEFINED = -1;
 
   // private constants to specify element and attributes when constructing this

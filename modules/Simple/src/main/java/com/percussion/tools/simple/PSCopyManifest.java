@@ -32,16 +32,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is used to copy a workbench plugin's MANIFEST.MF file to the
- * appropriate location.  In the process, it will perform the following
- * clean-up on the file to accommodate plugin deployment:
+ * This class is used to copy a workbench plugin's MANIFEST.MF file to the appropriate location. In
+ * the process, it will perform the following clean-up on the file to accommodate plugin deployment:
  *
- * 1) converts classpath entry references from local file system to lib directory
- * 2) removes classpath entry ending on name "classes"
- * 3) adds classpath entry for appropriate jar, client or workbench
+ * <p>1) converts classpath entry references from local file system to lib directory 2) removes
+ * classpath entry ending on name "classes" 3) adds classpath entry for appropriate jar, client or
+ * workbench
  *
- * It will also copy the jar files listed in the manifest to the plugin's lib
- * directory under system\eclipse\plugins\<plugin>.
+ * <p>It will also copy the jar files listed in the manifest to the plugin's lib directory under
+ * system\eclipse\plugins\<plugin>.
  */
 public class PSCopyManifest {
 
@@ -52,9 +51,8 @@ public class PSCopyManifest {
    *
    * @param srcFile The source manifest file, may not be <code>null</code>.
    * @param tgtDirectory The target manifest file directory, may not be <code>null</code>.
-   * @param additionalEntries additional classpath entries to add
-   * to the manifest. Never <code>null</code>.
-   *
+   * @param additionalEntries additional classpath entries to add to the manifest. Never <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs
    * @throws FileNotFoundException if any file cannot be located.
@@ -111,9 +109,9 @@ public class PSCopyManifest {
   }
 
   /**
-   * Throws {@link IllegalArgumentException} if any of the parameters
-   * does not confirm to {@link #copyManifest(File, File, List)} contract.
-   * See that method for the parameter description.
+   * Throws {@link IllegalArgumentException} if any of the parameters does not confirm to {@link
+   * #copyManifest(File, File, List)} contract. See that method for the parameter description.
+   *
    * @see #copyManifest(File, File, List)
    */
   private void validateCopyManifestParameters(File srcFile, File tgtDirectory) {
@@ -128,11 +126,10 @@ public class PSCopyManifest {
 
   /**
    * Writes entry of manifest file, copies the file described by the entry.
+   *
    * @param out where to write it from. Never <code>null</code>
-   * @param fromEntry file of the original manifest entry.
-   * Never <code>null</code>.
-   * @param pluginDir directory where plugin is constructed.
-   * Never <code>null</code>.
+   * @param fromEntry file of the original manifest entry. Never <code>null</code>.
+   * @param pluginDir directory where plugin is constructed. Never <code>null</code>.
    * @param endsWithComma whether written entry should end with comma.
    * @throws IOException if any problem happended during readin/writing the file.
    */
@@ -167,18 +164,12 @@ public class PSCopyManifest {
   /**
    * This class may be used from the command line.
    *
-   * Arguments expected are:
+   * <p>Arguments expected are:
    *
    * <ol>
-   * <li>sourceFile: The source manifest.mf file.
-   * Must point to an existing file.
-   * </li>
-   *
-   * <li>targetDir: The target directory.  Must point to an existing directory.
-   * </li>
-   *
-   * <li>0 or more additional classpath entries to add.
-   * </li>
+   *   <li>sourceFile: The source manifest.mf file. Must point to an existing file.
+   *   <li>targetDir: The target directory. Must point to an existing directory.
+   *   <li>0 or more additional classpath entries to add.
    * </ol>
    *
    * Any errors are written to System.out
@@ -211,17 +202,13 @@ public class PSCopyManifest {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSCopyManifest ");
     System.out.println("<source file> <target dir> <additional classpath entry>*");
   }
 
-  /**
-   * Marks beginning of the section for bundle classpath
-   */
+  /** Marks beginning of the section for bundle classpath */
   private static final String BUNDLE_CLASS_PATH_MARK = "Bundle-ClassPath:";
 }

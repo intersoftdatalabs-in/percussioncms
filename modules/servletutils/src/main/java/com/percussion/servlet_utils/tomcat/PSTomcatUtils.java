@@ -37,25 +37,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Utility class to load and save HTTP based connectors from a Tomcat server.xml
- * file.  See {@link PSTomcatConnector}.
+ * Utility class to load and save HTTP based connectors from a Tomcat server.xml file. See {@link
+ * PSTomcatConnector}.
  */
 public class PSTomcatUtils {
-  /**
-   * Private ctor to enforce static use.
-   */
+  /** Private ctor to enforce static use. */
   private PSTomcatUtils() {}
 
   /**
-   * Get list of all configured HTTP connectors.  These are connectors with
-   * a scheme of {@link PSTomcatConnector#SCHEME_HTTP} or
-   * {@link PSTomcatConnector#SCHEME_HTTPS}
+   * Get list of all configured HTTP connectors. These are connectors with a scheme of {@link
+   * PSTomcatConnector#SCHEME_HTTP} or {@link PSTomcatConnector#SCHEME_HTTPS}
    *
-   * @param serverFile The server.xml file in which the connectors are stored,
-   * may not be <code>null</code>.
-   *
+   * @param serverFile The server.xml file in which the connectors are stored, may not be <code>null
+   *     </code>.
    * @return The list, never <code>null</code> or empty.
-   *
    * @throws IOException If there is an error reading from the file.
    * @throws SAXException If the file is malformed.
    * @throws PSInvalidXmlException If the file format is invalid.
@@ -84,7 +79,8 @@ public class PSTomcatUtils {
     Element connEl = tree.getNextElement(PSTomcatConnector.CONNECTOR_NODE_NAME, firstFlag);
     while (connEl != null) {
       if (PSTomcatConnector.isHttpConnector(connEl)) {
-        connList.add(new PSTomcatConnector(serverFile.toPath(), connEl, new HashMap()));
+        connList.add(
+            new PSTomcatConnector(serverFile.toPath(), connEl, new HashMap<String, String>()));
       }
 
       connEl = tree.getNextElement(PSTomcatConnector.CONNECTOR_NODE_NAME, nextFlag);
@@ -94,15 +90,12 @@ public class PSTomcatUtils {
   }
 
   /**
-   * Saves the supplied list of connectors, replacing any existing connectors
-   * in the file that have a scheme of {@link PSTomcatConnector#SCHEME_HTTP} or
-   * {@link PSTomcatConnector#SCHEME_HTTPS}. Other connectors in the file are
-   * unmodified.
+   * Saves the supplied list of connectors, replacing any existing connectors in the file that have
+   * a scheme of {@link PSTomcatConnector#SCHEME_HTTP} or {@link PSTomcatConnector#SCHEME_HTTPS}.
+   * Other connectors in the file are unmodified.
    *
    * @param serverFile The Tomcat server.xml file, never <code>null</code>.
-   * @param connectors The connectors to write to the file, never
-   * <code>null</code> or empty.
-   *
+   * @param connectors The connectors to write to the file, never <code>null</code> or empty.
    * @throws IOException If there is an error reading from the file.
    * @throws SAXException If the file is malformed.
    * @throws PSInvalidXmlException If the file format is invalid.
@@ -136,7 +129,8 @@ public class PSTomcatUtils {
         PSXmlDocumentBuilder.addEmptyElement(newDoc, newServerEl, SERVICE_NODE_NAME);
 
     // find the old service element, copy attributes to new one
-    Element serviceEl = tree.getNextElement(SERVICE_NODE_NAME, tree.GET_NEXT_ALLOW_CHILDREN);
+    Element serviceEl =
+        tree.getNextElement(SERVICE_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (serviceEl == null)
       throw new PSInvalidXmlException(IPSXmlErrors.XML_ELEMENT_MISSING, SERVICE_NODE_NAME);
     copyAttributes(serviceEl, newServiceEl);
@@ -170,9 +164,7 @@ public class PSTomcatUtils {
    * Get the port of the first AJP connector found in the specified file.
    *
    * @param serverFile The file to check, may not be <code>null</code>.
-   *
    * @return The port, or <code>-1</code> if no AJP connector is found.
-   *
    * @throws IOException If there is an error reading from the file.
    * @throws SAXException If the file is malformed.
    * @throws PSInvalidXmlException If the connector port value is invalid.
@@ -204,7 +196,6 @@ public class PSTomcatUtils {
    * Search the doc for a connector element specifying the AJP protocol.
    *
    * @param doc The doc to check, assumed not <code>null</code>.
-   *
    * @return The element, or <code>null</code> if not found.
    */
   private static Element getAJPConnectorElement(Document doc) {
@@ -224,17 +215,14 @@ public class PSTomcatUtils {
   }
 
   /**
-   * Set the port of the first AJP connector found in the specified file.  It
-   * is an error if none are found.
+   * Set the port of the first AJP connector found in the specified file. It is an error if none are
+   * found.
    *
    * @param serverFile The file to update, may not be <code>null</code>.
    * @param port The port to update, must be > 0
-   *
-   * @throws IOException If there is an error reading from or writing to the
-   * file.
+   * @throws IOException If there is an error reading from or writing to the file.
    * @throws SAXException If the file is malformed.
-   * @throws PSInvalidXmlException If the specified connector element is not
-   * found.
+   * @throws PSInvalidXmlException If the specified connector element is not found.
    */
   public static void setAJPConnectorPort(File serverFile, int port)
       throws IOException, SAXException, PSInvalidXmlException {
@@ -268,9 +256,7 @@ public class PSTomcatUtils {
     }
   }
 
-  /**
-   * Constant for the protocol used by the AJP connector.
-   */
+  /** Constant for the protocol used by the AJP connector. */
   private static final String AJP_PROTOCOL = "AJP/1.3";
 
   // private XML constants

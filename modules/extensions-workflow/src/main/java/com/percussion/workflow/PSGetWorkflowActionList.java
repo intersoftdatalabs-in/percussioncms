@@ -33,19 +33,14 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Adds a list of all installed workflow action extensions to the result XML
- * document.
- */
+/** Adds a list of all installed workflow action extensions to the result XML document. */
 public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
   /*
    * Flag to indicate indicating that this exit has not been initialized yet.
    */
   private static boolean m_extensionInitialized = false;
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String m_fullExtensionName = "";
 
   /* *************  IPSExtension Interface Implementation ************* */
@@ -59,26 +54,20 @@ public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
 
   /* *******  IPSResultDocumentProcessor Interface Implementation ******* */
 
-  /**
-   * Return false, this extension can not modify the style sheet.
-   */
+  /** Return false, this extension can not modify the style sheet. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   * Adds a list of all installed workflow action extensions to the result XML
-   * document.
+   * Adds a list of all installed workflow action extensions to the result XML document.
    *
-   * @param  params          the parameters for this extension. Should be
-   *                         <CODE>null</CODE> or of size 0, because this
-   *                         extension does not have any parameters.
-   * @param requestContext   the context of the request associated with this
-   *                         extension
-   * @param  resultDoc       the result XML document with an element added
-   *                         specifying the list of workflow actions, with the
-   *                         following format:
-   *                         <PRE>
+   * @param params the parameters for this extension. Should be <CODE>null</CODE> or of size 0,
+   *     because this extension does not have any parameters.
+   * @param requestContext the context of the request associated with this extension
+   * @param resultDoc the result XML document with an element added specifying the list of workflow
+   *     actions, with the following format:
+   *     <PRE>
    *                         &lt;workflowactionlist&gt;
    *                           &lt;workflowaction
    *                            handlername="Java"
@@ -101,21 +90,15 @@ public class PSGetWorkflowActionList implements IPSResultDocumentProcessor {
    *                         &lt;/workflowactionlist&gt;
    *                         </PRE>
    *
-   * @return                 <code>resultDoc</code> is returned with an
-   *                         element listing the installed  workflow action
-   *                         extensions to the document root.
-   *
-   * @throws                 PSParameterMismatchException
-   *                         if any parameters are supplied.
-   * @throws                 PSExtensionProcessingException if
-   *                         <ul>
-   *               <li>the request context is <CODE>null</CODE>
-   *               </li>
-   *                         <li>the result document is <CODE>null</CODE>
-   *               </li>
-   *                         <li>an exception is thrown by the extension
-   *                         manager
-   *               </ul>
+   * @return <code>resultDoc</code> is returned with an element listing the installed workflow
+   *     action extensions to the document root.
+   * @throws PSParameterMismatchException if any parameters are supplied.
+   * @throws PSExtensionProcessingException if
+   *     <ul>
+   *       <li>the request context is <CODE>null</CODE>
+   *       <li>the result document is <CODE>null</CODE>
+   *       <li>an exception is thrown by the extension manager
+   *     </ul>
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext requestContext, Document resultDoc)

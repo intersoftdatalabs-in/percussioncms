@@ -57,22 +57,18 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * This exit allows you to make an internal request to an external resource.
- * <br/>
- * The request parameters that are non-null are copied to the provided url
- * that is to be called using HTTP GET.
+ * This exit allows you to make an internal request to an external resource. <br>
+ * The request parameters that are non-null are copied to the provided url that is to be called
+ * using HTTP GET.
  *
- * The results of the request are then converted to W3C DOM Document.
- * <em>If the results are not XML you will get an XML error.</em>
+ * <p>The results of the request are then converted to W3C DOM Document. <em>If the results are not
+ * XML you will get an XML error.</em>
  *
- * This is useful when you need to make a sys_Lookup XML document for a control
- * and would like to use JSP instead of a full blown legacy XML query resource.
- *
- * <br/>
+ * <p>This is useful when you need to make a sys_Lookup XML document for a control and would like to
+ * use JSP instead of a full blown legacy XML query resource. <br>
  * See Extensions.xml for the parameters that you can pass to this exit.
  *
  * @author adamgent
- *
  */
 public class PSProxyQueryResource extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
@@ -80,9 +76,7 @@ public class PSProxyQueryResource extends PSDefaultExtension implements IPSResul
   private static final String PARAM_USER = "user";
   private static final String PARAM_URL = "url";
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSProxyQueryResource.class);
 
   public boolean canModifyStyleSheet() {

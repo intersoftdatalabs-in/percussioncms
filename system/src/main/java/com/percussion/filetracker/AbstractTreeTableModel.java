@@ -23,9 +23,7 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
 
 /**
- * An abstract implementation of the PSFUDTreeTableModel interface, handling
- * the list of listeners.
- *
+ * An abstract implementation of the PSFUDTreeTableModel interface, handling the list of listeners.
  */
 public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
   protected Object root;
@@ -39,28 +37,20 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
   // Default implmentations for methods in the TreeModel interface.
   //
 
-  /**
-   * Default implementation for the method in TreeModel interface.
-   */
+  /** Default implementation for the method in TreeModel interface. */
   public Object getRoot() {
     return root;
   }
 
-  /**
-   * Default implementation for the method in TreeModel interface.
-   */
+  /** Default implementation for the method in TreeModel interface. */
   public boolean isLeaf(Object node) {
     return getChildCount(node) == 0;
   }
 
-  /**
-   * Default implementation for the method in TreeModel interface.
-   */
+  /** Default implementation for the method in TreeModel interface. */
   public void valueForPathChanged(TreePath path, Object newValue) {}
 
-  /**
-   * Default implementation for the method in TreeModel interface.
-   */
+  /** Default implementation for the method in TreeModel interface. */
   // This is not called in the JTree's default mode: use a native
   // implementation.
   public int getIndexOfChild(Object parent, Object child) {
@@ -76,7 +66,6 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
    * Add the TreeModelListener object to the model's listeners list
    *
    * @param l as TreeModelListener
-   *
    */
   public void addTreeModelListener(TreeModelListener l) {
     listenerList.add(TreeModelListener.class, l);
@@ -86,7 +75,6 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
    * Remove the specified TreeModelListener object from the listeners list
    *
    * @param l as TreeModelListener
-   *
    */
   public void removeTreeModelListener(TreeModelListener l) {
     listenerList.remove(TreeModelListener.class, l);
@@ -185,16 +173,15 @@ public abstract class AbstractTreeTableModel implements PSFUDTreeTableModel {
     }
   }
 
-  /**
-   * Default impelmentations for methods in the PSFUDTreeTableModel interface.
-   */
+  /** Default impelmentations for methods in the PSFUDTreeTableModel interface. */
   public Class getColumnClass(int column) {
     return Object.class;
   }
 
-  /** By default, make the column with the Tree in it the only editable one.
-   *  Making this column editable causes the JTable to forward mouse
-   *  and keyboard events in the Tree column to the underlying JTree.
+  /**
+   * By default, make the column with the Tree in it the only editable one. Making this column
+   * editable causes the JTable to forward mouse and keyboard events in the Tree column to the
+   * underlying JTree.
    */
   public boolean isCellEditable(Object node, int column) {
     return getColumnClass(column) == PSFUDTreeTableModel.class;

@@ -57,12 +57,11 @@ public class PSMacroCatalogHandler extends PSCatalogRequestHandler
   }
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are sent using <code>PSResponse</code> object in
-   * the supplied request object.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * sent using <code>PSResponse</code> object in the supplied request object.
    *
-   * @param request the request object containing all context data associated
-   *    with the request, may not be <code>null</code>
+   * @param request the request object containing all context data associated with the request, may
+   *     not be <code>null</code>
    */
   public void processRequest(PSRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -93,26 +92,17 @@ public class PSMacroCatalogHandler extends PSCatalogRequestHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }
 
-  /**
-   * The cataloger name. This is the name used for the root element of the
-   * request document.
-   */
+  /** The cataloger name. This is the name used for the root element of the request document. */
   public static final String CATALOGER_NAME = "PSXMacroCatalog";
 
-  /**
-   * The request category, used to construct the cataloger class name.
-   */
+  /** The request category, used to construct the cataloger class name. */
   public static final String REQ_CATEGORY_VALUE = "macro";
 
-  /**
-   * The request type, use to construct the cataloger class name.
-   */
+  /** The request type, use to construct the cataloger class name. */
   public static final String REQ_TYPE_VALUE = "Macro";
 }

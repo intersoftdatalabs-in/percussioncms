@@ -74,31 +74,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-/**
- * Helper class to manage loading and saving content types from web services
- */
+/** Helper class to manage loading and saving content types from web services */
 public class PSContentTypeHelper {
   private static final Logger log = LogManager.getLogger(PSContentTypeHelper.class);
 
-  /**
-   * Private ctor to ensure static use
-   */
+  /** Private ctor to ensure static use */
   private PSContentTypeHelper() {}
 
   /**
-   * Construct an item def from the supplied node def.  The item def will
-   * contain a content editor with the default settings.  Nothing is persisted
-   * as a result of this call.
+   * Construct an item def from the supplied node def. The item def will contain a content editor
+   * with the default settings. Nothing is persisted as a result of this call.
    *
    * @param nodeDef The node def to use, may not be <code>null</code>.
-   *
    * @return The item def, never <code>null</code>.
-   *
-   * @throws IOException If there is an error loading the default ce template
-   * file.
+   * @throws IOException If there is an error loading the default ce template file.
    * @throws SAXException If the default ce template file is malformed.
-   * @throws PSUnknownNodeTypeException If the default ce template file does
-   * not conform to the expected format.
+   * @throws PSUnknownNodeTypeException If the default ce template file does not conform to the
+   *     expected format.
    */
   public static PSItemDefinition createContentType(IPSNodeDefinition nodeDef)
       throws IOException, SAXException, PSUnknownNodeTypeException {
@@ -138,9 +130,8 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Convenience method that calls {@link #saveContentType(PSItemDefinition,
-   * descSet, int, IPSSaveNodeDefListener, boolean)}
-   *
+   * Convenience method that calls {@link #saveContentType(PSItemDefinition, descSet, int,
+   * IPSSaveNodeDefListener, boolean)}
    */
   public static void saveContentType(
       PSItemDefinition itemDef, Set<PSContentTemplateDesc> descSet, int version, boolean enable)
@@ -158,9 +149,8 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Convenience method that calls {@link #saveContentType(PSItemDefinition,
-   * int, IPSSaveNodeDefListener, List, boolean)}
-   *
+   * Convenience method that calls {@link #saveContentType(PSItemDefinition, int,
+   * IPSSaveNodeDefListener, List, boolean)}
    */
   public static void saveContentType(
       PSItemDefinition itemDef,
@@ -189,38 +179,31 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Saves the supplied item def by inserting or updating the respective
-   * {@link IPSNodeDefinition} and {@link PSApplication} objects.
+   * Saves the supplied item def by inserting or updating the respective {@link IPSNodeDefinition}
+   * and {@link PSApplication} objects.
    *
-   * @param itemDef Specifies all information about the content type being
-   * saved, may not be <code>null</code>.
-   * @param version The version of the {@link IPSNodeDefinition} to update,
-   * supply -1 for a new object.
-   * @param listener Used to be informed of successful save of the node def,
-   * may be <code>null</code>.
-   * @param templateGuids the list of template guids that needs to be
-   * associated with the content type. It is up to the user to provide the
-   * accurate list of descriptors ( such as MSM ), may be <code>null</code>.
-   * If it is null the template associations are not touched.
-   * @param enable Set to <code>true</code> if the associated content editor
-   * application should be enabled prior to being saved.  Set to
-   * <code>false</code> if the application should be disabled.
-   *
+   * @param itemDef Specifies all information about the content type being saved, may not be <code>
+   *     null</code>.
+   * @param version The version of the {@link IPSNodeDefinition} to update, supply -1 for a new
+   *     object.
+   * @param listener Used to be informed of successful save of the node def, may be <code>null
+   *     </code>.
+   * @param templateGuids the list of template guids that needs to be associated with the content
+   *     type. It is up to the user to provide the accurate list of descriptors ( such as MSM ), may
+   *     be <code>null</code>. If it is null the template associations are not touched.
+   * @param enable Set to <code>true</code> if the associated content editor application should be
+   *     enabled prior to being saved. Set to <code>false</code> if the application should be
+   *     disabled.
    * @throws PSLockedException If the application lock cannot be obtained.
    * @throws PSServerException If there are any errors obtaining the lock.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the application
+   * @throws PSAuthorizationException If the user is not authorized to access the application
    * @throws PSNotLockedException If the application cannot be locked.
    * @throws PSNotFoundException If an existing application cannot be found.
-   * @throws PSAuthenticationRequiredException If the current session is not
-   * authenticated.
+   * @throws PSAuthenticationRequiredException If the current session is not authenticated.
    * @throws IOException If There is an error saving the application
-   * @throws PSNonUniqueException If an application already exists with the
-   * specified name.
-   * @throws PSSystemValidationException If the supplied content editor does not pass
-   * validation.
-   * @throws RepositoryException If the content type definition cannot be
-   * saved.
+   * @throws PSNonUniqueException If an application already exists with the specified name.
+   * @throws PSSystemValidationException If the supplied content editor does not pass validation.
+   * @throws RepositoryException If the content type definition cannot be saved.
    */
   @SuppressWarnings(value = {"unchecked"})
   public static void saveContentType(
@@ -470,10 +453,9 @@ public class PSContentTypeHelper {
   /**
    * Add the given workflow to the ctwf rels.Adds only if it is not found.
    *
-   * @param nodeDef The node def for which the workflows need to be merged.
-   * Must not be <code>null</code>.
-   * @param wfGuid set of workflow guids never <code>null</code>, may be
-   * empty
+   * @param nodeDef The node def for which the workflows need to be merged. Must not be <code>null
+   *     </code>.
+   * @param wfGuid set of workflow guids never <code>null</code>, may be empty
    */
   private static void addWorkflowGuidsToCollection(PSNodeDefinition nodeDef, Set<IPSGuid> wfGuid) {
     PSContentTypeWorkflow ctwf = null;
@@ -508,13 +490,12 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Given a Collection of workflow ids as IPSGuids, sync them with the
-   * existing list of workflow associations for the given NodeDef
+   * Given a Collection of workflow ids as IPSGuids, sync them with the existing list of workflow
+   * associations for the given NodeDef
    *
-   * @param nodeDef The node def for which the workflows need to be merged.
-   * Must not be <code>null</code>.
-   * @param newWs set of string workflow ids never <code>null</code>, may be
-   * empty
+   * @param nodeDef The node def for which the workflows need to be merged. Must not be <code>null
+   *     </code>.
+   * @param newWs set of string workflow ids never <code>null</code>, may be empty
    */
   public static void mergeWorkflowIds(PSNodeDefinition nodeDef, Set<IPSGuid> newWfs) {
     if (nodeDef == null) throw new IllegalArgumentException("nodeDef must not be null");
@@ -534,9 +515,8 @@ public class PSContentTypeHelper {
     for (PSContentTypeWorkflow ctwf : ctWfRels) curWfs.add(ctwf.getWorkflowId());
 
     /**
-     * 1. commons = intersection of curWfs, newWfs 2. removes =
-     * curWfs - newWfs 3. delete removes from curWfs 4. delete
-     * commons from newWfs
+     * 1. commons = intersection of curWfs, newWfs 2. removes = curWfs - newWfs 3. delete removes
+     * from curWfs 4. delete commons from newWfs
      */
     Collection commons = CollectionUtils.intersection(curWfs, newWfs);
     Collection removes = CollectionUtils.subtract(curWfs, newWfs);
@@ -551,9 +531,7 @@ public class PSContentTypeHelper {
    * Validates that no content type with the supplied name exists.
    *
    * @param name The name to check, may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if a content type with the specified
-   * name already exists.
+   * @throws IllegalArgumentException if a content type with the specified name already exists.
    */
   public static void validateUniqueName(String name) {
     if (doesContentTypeExist(name)) {
@@ -566,12 +544,11 @@ public class PSContentTypeHelper {
   /**
    * Load all content type summaries for the specified name.
    *
-   * @param name the content type name for which to load the content type
-   * summaries, may be <code>null</code> or empty, wildcards are accepted.
-   * All content type summaries will be loaded if <code>null</code> or empty.
-   *
-   * @return a list with all loaded content type summaries, never
-   * <code>null</code>, may be empty, oalpha ordered by name.
+   * @param name the content type name for which to load the content type summaries, may be <code>
+   *     null</code> or empty, wildcards are accepted. All content type summaries will be loaded if
+   *     <code>null</code> or empty.
+   * @return a list with all loaded content type summaries, never <code>null</code>, may be empty,
+   *     oalpha ordered by name.
    */
   public static List<PSContentTypeSummary> loadContentTypeSummaries(String name) {
     List<PSContentTypeSummary> sums = new ArrayList<>();
@@ -613,24 +590,17 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Deletes the node definition and associated application specified by the
-   * supplied guid.
+   * Deletes the node definition and associated application specified by the supplied guid.
    *
    * @param guid The guid of the node definition, may not be <code>null</code>.
    * @param version The version of the {@link IPSNodeDefinition} to delete.
-   *
-   * @return <code>true</code> if a node definion was found to delete,
-   * <code>false</code> if not.
-   *
-   * @throws RepositoryException If there is an error deleting the node
-   * definition.
+   * @return <code>true</code> if a node definion was found to delete, <code>false</code> if not.
+   * @throws RepositoryException If there is an error deleting the node definition.
    * @throws PSLockedException If the application is locked by someone else.
    * @throws PSNotLockedException If the application cannot be locked.
    * @throws PSNotFoundException If the application file cannot be located.
-   * @throws PSAuthorizationException If the user is not authorized to delete
-   * the application.
-   * @throws PSAuthenticationRequiredException If the current session is not
-   * authenticated.
+   * @throws PSAuthorizationException If the user is not authorized to delete the application.
+   * @throws PSAuthenticationRequiredException If the current session is not authenticated.
    * @throws PSServerException if there are any other errors.
    */
   public static boolean deleteContentType(IPSGuid guid, Integer version)
@@ -687,9 +657,8 @@ public class PSContentTypeHelper {
   /**
    * Loads the matching load defininitions
    *
-   * @param name The name to match, may be <code>null</code> or empty to load
-   * all, "*" supported as a match any wildcard.
-   *
+   * @param name The name to match, may be <code>null</code> or empty to load all, "*" supported as
+   *     a match any wildcard.
    * @return The list, never <code>null</code>, may be empty.
    */
   public static List<IPSNodeDefinition> loadNodeDefs(String name) {
@@ -708,7 +677,6 @@ public class PSContentTypeHelper {
    * Loads the matching load defininitions
    *
    * @param ids The ids of the node defs to load, may not be <code>null</code>.
-   *
    * @return The list, never <code>null</code>, may be empty.
    */
   public static List<IPSNodeDefinition> loadNodeDefs(List<IPSGuid> ids) {
@@ -724,20 +692,16 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Constructs an item definition from the node def and first content editor
-   * resource found in the application referenced by that node def.
+   * Constructs an item definition from the node def and first content editor resource found in the
+   * application referenced by that node def.
    *
    * @param id The id of the content type, may not be <code>null</code>.
-   *
    * @return The item def, never <code>null</code>.
-   *
    * @throws PSInvalidContentTypeException If the id is invalid.
    * @throws PSServerException If there are any errors obtaining the lock.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the application
+   * @throws PSAuthorizationException If the user is not authorized to access the application
    * @throws PSNotFoundException If an existing application cannot be found.
-   * @throws PSAuthenticationRequiredException If the current session is not
-   * authenticated.
+   * @throws PSAuthenticationRequiredException If the current session is not authenticated.
    */
   @SuppressWarnings(value = {"unchecked"})
   public static PSItemDefinition loadItemDef(IPSGuid id)
@@ -793,7 +757,6 @@ public class PSContentTypeHelper {
    * Determine if a content type with the supplied name already exists.
    *
    * @param name The name to check, may not be <code>null</code> or empty.
-   *
    * @return <code>true</code> if it exists, <code>false</code> if not.
    */
   public static boolean doesContentTypeExist(String name) {
@@ -816,7 +779,6 @@ public class PSContentTypeHelper {
    * Locate a content type using the supplied guid.
    *
    * @param guid The guid to check for, may not be <code>null</code>.
-   *
    * @return The node def, or <code>null</code> if not found.
    */
   public static PSNodeDefinition findNodeDef(IPSGuid guid) {
@@ -838,7 +800,6 @@ public class PSContentTypeHelper {
    * Get the field type from the supplied field.
    *
    * @param field The field to check, assumed not <code>null</code>.
-   *
    * @return The type, never <code>null</code>.
    */
   @SuppressWarnings("deprecation")
@@ -861,27 +822,22 @@ public class PSContentTypeHelper {
   }
 
   /**
-   * Used to be informed of a successful save of a node def during a call to
-   * {@link PSContentTypeHelper#saveContentType(PSItemDefinition, Set, int,
-   * IPSSaveNodeDefListener)}
+   * Used to be informed of a successful save of a node def during a call to {@link
+   * PSContentTypeHelper#saveContentType(PSItemDefinition, Set, int, IPSSaveNodeDefListener)}
    */
   public interface IPSSaveNodeDefListener {
-    /**
-     * Called to inform listener of successful save.
-     */
+    /** Called to inform listener of successful save. */
     public void nodeDefSaved();
   }
 
   /**
-   * Gets the name of a shared field, which may be just a field name or in the
-   * format of "shared-group-name"."field-name".
+   * Gets the name of a shared field, which may be just a field name or in the format of
+   * "shared-group-name"."field-name".
    *
-   * @param fieldName the shared field name in question, never <code>null</code>
-   * or empty.
-   *
-   * @return an array of 1 or 2 elements. The 1st element is always the actual
-   * name of the field; the 2nd element (if there is one) is the name of the
-   * shared group. It is never <code>null</code> or empty.
+   * @param fieldName the shared field name in question, never <code>null</code> or empty.
+   * @return an array of 1 or 2 elements. The 1st element is always the actual name of the field;
+   *     the 2nd element (if there is one) is the name of the shared group. It is never <code>null
+   *     </code> or empty.
    */
   public static String[] getSharedFieldName(String fieldName) {
     String names[] = fieldName.split("\\.");
@@ -897,12 +853,10 @@ public class PSContentTypeHelper {
   /**
    * Gets the shared group that contains a specified shared field.
    *
-   * @param fieldName the field name in question, may be <code>null</code> or
-   * empty. The field name may be a simple field name or in the format of
-   * "shared-group-name"."field-name".
-   *
-   * @return the shared group of the shared field. It may be <code>null</code>
-   * if cannot find a shared field with the name.
+   * @param fieldName the field name in question, may be <code>null</code> or empty. The field name
+   *     may be a simple field name or in the format of "shared-group-name"."field-name".
+   * @return the shared group of the shared field. It may be <code>null</code> if cannot find a
+   *     shared field with the name.
    */
   @SuppressWarnings("unchecked")
   public static PSSharedFieldGroup getSharedGroup(String fieldName) {

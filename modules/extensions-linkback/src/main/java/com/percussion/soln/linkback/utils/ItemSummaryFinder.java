@@ -29,16 +29,13 @@ import org.apache.logging.log4j.Logger;
 /**
  * Class finds content summaries for content item ids.
  *
- * Taken from the PSO Toolkit.
+ * <p>Taken from the PSO Toolkit.
  *
  * @author adamgent
- *
  */
 public class ItemSummaryFinder {
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(ItemSummaryFinder.class);
 
   private IPSCmsContentSummaries cmsContentSummaries = null;
@@ -50,8 +47,7 @@ public class ItemSummaryFinder {
   /**
    * Programmatic constructor
    *
-   * @param cmsContentSummaries
-   *            - CMS content summaries service.
+   * @param cmsContentSummaries - CMS content summaries service.
    */
   public ItemSummaryFinder(IPSCmsContentSummaries cmsContentSummaries) {
     super();
@@ -109,11 +105,9 @@ public class ItemSummaryFinder {
   /**
    * Gets the component summary for an item.
    *
-   * @param contentId
-   *            the content id
+   * @param contentId the content id
    * @return the component summary. Never <code>null</code>.
-   * @throws PhotoGalleryException
-   *             when the item does not exist
+   * @throws PhotoGalleryException when the item does not exist
    */
   public PSComponentSummary getSummary(String contentId) throws PSException {
     if (StringUtils.isBlank(contentId) || !StringUtils.isNumeric(contentId)) {

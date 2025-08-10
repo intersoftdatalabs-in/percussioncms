@@ -42,9 +42,9 @@ public class PSAesCBC {
   private static final int IV_LENGTH = 16;
 
   /**
-   * Legacy static IV to preserve backward compatibility with older payloads that
-   * assumed a fixed IV value named 'InitialVector'. This constant mirrors the legacy
-   * field usage. For new encrypt(byte[]) API below we prepend a random IV for safety.
+   * Legacy static IV to preserve backward compatibility with older payloads that assumed a fixed IV
+   * value named 'InitialVector'. This constant mirrors the legacy field usage. For new
+   * encrypt(byte[]) API below we prepend a random IV for safety.
    */
   private static final byte[] INITIAL_VECTOR = new byte[IV_LENGTH];
 
@@ -60,13 +60,11 @@ public class PSAesCBC {
   }
 
   /**
-   * Encrypt a given plain text String using a given encryption key. Character encode
-   * the encrypted text as ISO-8859-1 String.
+   * Encrypt a given plain text String using a given encryption key. Character encode the encrypted
+   * text as ISO-8859-1 String.
    *
-   * @param plainText
-   *            String to encrypt. Not null.
-   * @param encryptionKey
-   *            String used for encryption. Not null.
+   * @param plainText String to encrypt. Not null.
+   * @param encryptionKey String used for encryption. Not null.
    * @return The resultant String of encrypted text
    * @throws Exception
    */
@@ -90,10 +88,8 @@ public class PSAesCBC {
    * Decode a given ISO-8859-1 character encoded String. Decrypt resulting String using encryption
    * key String.
    *
-   * @param secretText
-   *            String to decyrpt. May be null.
-   * @param encryptionKey
-   *            String used for decryption. Not null.
+   * @param secretText String to decyrpt. May be null.
+   * @param encryptionKey String used for decryption. Not null.
    * @return The resultant String of decrypted and decoded text.
    * @throws Exception
    */
@@ -126,10 +122,8 @@ public class PSAesCBC {
   /**
    * Decrypt a given byte array using a given encryption key.
    *
-   * @param cipherText
-   *            Byte array to decrypt. Not null.
-   * @param encryptionKey
-   *            String used for decryption. Not null.
+   * @param cipherText Byte array to decrypt. Not null.
+   * @param encryptionKey String used for decryption. Not null.
    * @return The resultant byte array of decrypted text.
    * @throws Exception
    */
@@ -153,10 +147,10 @@ public class PSAesCBC {
   }
 
   /**
-   * Encrypt a UTF-8 plaintext to a byte[] with a random IV prepended.
-   * This overload matches legacy caller expectations in PSLegacyEncrypter.
+   * Encrypt a UTF-8 plaintext to a byte[] with a random IV prepended. This overload matches legacy
+   * caller expectations in PSLegacyEncrypter.
    *
-   * Layout: [16-byte IV][ciphertext bytes]
+   * <p>Layout: [16-byte IV][ciphertext bytes]
    */
   public byte[] encrypt(byte[] plaintextUtf8) throws GeneralSecurityException {
     if (plaintextUtf8 == null) {

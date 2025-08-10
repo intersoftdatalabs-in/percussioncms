@@ -25,16 +25,13 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXDisplayMapper DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXDisplayMapper DTD in BasicObjects.dtd. */
 public class PSDisplayMapper extends PSCollectionComponent {
   /**
-   * Creates a new display mapper collection (a collection of
-   * PSDisplayMapping objects) for the provided class name.
+   * Creates a new display mapper collection (a collection of PSDisplayMapping objects) for the
+   * provided class name.
    *
-   * @param fieldSetRef the name of an existing field set, not
-   *    <code>null</code> or empty.
+   * @param fieldSetRef the name of an existing field set, not <code>null</code> or empty.
    */
   public PSDisplayMapper(String fieldSetRef) {
     this();
@@ -44,14 +41,10 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    * @throws ClassCastException if the class could be found.
    */
   public PSDisplayMapper(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -60,9 +53,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSDisplayMapper() {
     super(PSDisplayMapping.class);
   }
@@ -84,8 +75,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Get the name of the field set reference.
    *
-   * @return the name of a field set reference, never
-   *    <code>null</code> or empty.
+   * @return the name of a field set reference, never <code>null</code> or empty.
    */
   public String getFieldSetRef() {
     return m_fieldSetRef;
@@ -94,8 +84,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Set the new field set reference name.
    *
-   * @param fieldSetRef the new field set reference name, never
-   *    <code>null</code> or empty.
+   * @param fieldSetRef the new field set reference name, never <code>null</code> or empty.
    */
   public void setFieldSetRef(String fieldSetRef) {
     if (fieldSetRef == null || fieldSetRef.trim().length() == 0)
@@ -105,9 +94,8 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSDisplayMapper, not <code>null</code>.
    */
@@ -125,8 +113,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   @Override
   public boolean equals(Object o) {
@@ -160,7 +147,6 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -214,7 +200,6 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -252,15 +237,12 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Gets the mapping for the provided field reference recursively checking
-   * this mapper and all child mappers of this mapper's mappings. The check is
-   * case sensitive.
+   * Gets the mapping for the provided field reference recursively checking this mapper and all
+   * child mappers of this mapper's mappings. The check is case sensitive.
    *
-   * @param fieldRef the field reference to get the mapping for, may not be
-   * <code>null</code> or empty.
-   *
-   * @return the mapping found for the provided field
-   *    reference or <code>null</code> if not found.
+   * @param fieldRef the field reference to get the mapping for, may not be <code>null</code> or
+   *     empty.
+   * @return the mapping found for the provided field reference or <code>null</code> if not found.
    */
   public PSDisplayMapping getMapping(String fieldRef) {
     PSPair<PSDisplayMapping, Integer> pair = getMappingAndSequence(fieldRef);
@@ -268,16 +250,14 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Gets the mapping for the provided field reference recursively checking
-   * this mapper and all child mappers of this mapper's mappings. The check is
-   * case sensitive.
+   * Gets the mapping for the provided field reference recursively checking this mapper and all
+   * child mappers of this mapper's mappings. The check is case sensitive.
    *
-   * @param fieldRef the field reference to get the mapping for, may not be
-   * <code>null</code> or empty.
-   *
-   * @return a pair, where the 1st value is the mapping found for the provided
-   * field reference and 2nd value is the position of the mapping (0 based).
-   * It may be <code>null</code> if not found.
+   * @param fieldRef the field reference to get the mapping for, may not be <code>null</code> or
+   *     empty.
+   * @return a pair, where the 1st value is the mapping found for the provided field reference and
+   *     2nd value is the position of the mapping (0 based). It may be <code>null</code> if not
+   *     found.
    */
   public PSPair<PSDisplayMapping, Integer> getMappingAndSequence(String fieldRef) {
     if (fieldRef == null || fieldRef.trim().length() == 0)
@@ -301,16 +281,13 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Checks the mapping for the provided field reference recursively checking
-   * this mapper and all child mappers of this mapper's mappings and removes
-   * that mapping from the corresponding display mapper. The check is
-   * case sensitive.
+   * Checks the mapping for the provided field reference recursively checking this mapper and all
+   * child mappers of this mapper's mappings and removes that mapping from the corresponding display
+   * mapper. The check is case sensitive.
    *
-   * @param fieldRef the field reference of the mapping to remove, may not be
-   * <code>null</code> or empty.
-   *
-   * @return <code>true</code> if it finds and removes the mapping, otherwise
-   * <code>false</code>
+   * @param fieldRef the field reference of the mapping to remove, may not be <code>null</code> or
+   *     empty.
+   * @return <code>true</code> if it finds and removes the mapping, otherwise <code>false</code>
    */
   public boolean removeMapping(String fieldRef) {
     if (fieldRef == null || fieldRef.trim().length() == 0)
@@ -332,12 +309,12 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Replaces the given mapping with the mapping matching the field reference
-   * of supplied mapping. Goes through all mappings and replaces the one with a
-   * matching field reference. The check is case sensitive.
+   * Replaces the given mapping with the mapping matching the field reference of supplied mapping.
+   * Goes through all mappings and replaces the one with a matching field reference. The check is
+   * case sensitive.
    *
-   * @param mapping the new mapping which will replace the referenced
-   *    mapping, not <code>null</code>.
+   * @param mapping the new mapping which will replace the referenced mapping, not <code>null</code>
+   *     .
    */
   public void replaceMapping(PSDisplayMapping mapping) {
     if (mapping == null) throw new IllegalArgumentException("the mapping cannot be null");
@@ -357,43 +334,34 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Gets a copy of this mapper merged with all mappings of the source def
-   * except the mappings that refer to the fields in the excluded list. If
-   * this mapper does not have a place holder for a mapping for the included
-   * field, that mapping is added to the mapper. If the mappings have child
-   * mappers they are recursively merged.
-   * <br>
+   * Gets a copy of this mapper merged with all mappings of the source def except the mappings that
+   * refer to the fields in the excluded list. If this mapper does not have a place holder for a
+   * mapping for the included field, that mapping is added to the mapper. If the mappings have child
+   * mappers they are recursively merged. <br>
    * The following steps are taken for merging UI set of a mapping.
+   *
    * <ol>
-   * <li>The source mapping has any missing values applied from it's
-   * UIDef's default uiset</li>
-   * <li>The placeholder mapping in this mapper has any missing values applied
-   * from provided default uiset if it exists and <code>mergeDefault</code> is
-   * <code>true</code> </li>
-   * <li>The combined placeholder mapping has any missing values applied
-   * from the combined source mapping</li>
-   * <li>If there is no placeholder mapping, then the combined source mapping
-   * is added to this mapper.</li>
+   *   <li>The source mapping has any missing values applied from it's UIDef's default uiset
+   *   <li>The placeholder mapping in this mapper has any missing values applied from provided
+   *       default uiset if it exists and <code>mergeDefault</code> is <code>true</code>
+   *   <li>The combined placeholder mapping has any missing values applied from the combined source
+   *       mapping
+   *   <li>If there is no placeholder mapping, then the combined source mapping is added to this
+   *       mapper.
    * </ol>
    *
-   * @param mergeDefault if <code>true</code> merges with provided default
-   * uiset before merging with source mapping, otherwise it does not merge
-   * with default uiset.
+   * @param mergeDefault if <code>true</code> merges with provided default uiset before merging with
+   *     source mapping, otherwise it does not merge with default uiset.
    * @param defaultUISet The default UI set to merge with, may be <code>null
    * </code>
-   * @param sourceMapper the source display mapper to merge with, may not be
-   * <code>null</code>
+   * @param sourceMapper the source display mapper to merge with, may not be <code>null</code>
    * @param sourceDefaultUISet the source default UI set, may be <code>null
    * </code>
-   * @param mergeChild if <code>true</code> merges the source display mapper
-   * with the child mapper of matching mapping in this display mapper, otherwise
-   * with this display mapper.
-   * @param fieldExcludes the list of fields as Strings to be ignored while
-   * demerging, may not be <code>null</code>, can be empty.
-   *
-   * @return the copy of this mapper merged with provided source mapper, never
-   * <code>null</code>.
-   *
+   * @param mergeChild if <code>true</code> merges the source display mapper with the child mapper
+   *     of matching mapping in this display mapper, otherwise with this display mapper.
+   * @param fieldExcludes the list of fields as Strings to be ignored while demerging, may not be
+   *     <code>null</code>, can be empty.
+   * @return the copy of this mapper merged with provided source mapper, never <code>null</code>.
    * @throws PSSystemValidationException if there are any errors.
    */
   public PSDisplayMapper merge(
@@ -457,41 +425,32 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Gets a copy of this mapper demerged with all mappings of the source def
-   * that have placeholders in this mapper. If the mappings have child
-   * mappers they are recursively demerged.
-   * <br>
+   * Gets a copy of this mapper demerged with all mappings of the source def that have placeholders
+   * in this mapper. If the mappings have child mappers they are recursively demerged. <br>
    * The following steps are taken for demerging UI set of a mapping.
+   *
    * <ol>
-   * <li>The source mapping has any missing values applied from it's
-   * UIDef's default uiset</li>
-   * <li>The place holder mapping on this mapper demerged with source mapping
-   * </li>
-   * <li>The resulted placeholder mapping demerged from provided default uiset
-   * if <code>demergeDefault</code> is <code>true</code> </li>
-   * <li>Ultimately the mapping will have a uiset that has overridden attributes
-   * from source and its default. Even though the uiset has no overridden
-   * attributes the mapping is kept as a place holder.
+   *   <li>The source mapping has any missing values applied from it's UIDef's default uiset
+   *   <li>The place holder mapping on this mapper demerged with source mapping
+   *   <li>The resulted placeholder mapping demerged from provided default uiset if <code>
+   *       demergeDefault</code> is <code>true</code>
+   *   <li>Ultimately the mapping will have a uiset that has overridden attributes from source and
+   *       its default. Even though the uiset has no overridden attributes the mapping is kept as a
+   *       place holder.
    * </ol>
    *
-   * @param demergeDefault if <code>true</code> demerges from provided default
-   * uiset after demerging from source mapping, otherwise it does not demerge
-   * from default uiset.
+   * @param demergeDefault if <code>true</code> demerges from provided default uiset after demerging
+   *     from source mapping, otherwise it does not demerge from default uiset.
    * @param defaultUISet The default UI set to demerge from, may be <code>null
    * </code>
-   * @param sourceMapper the source display mapper to demerge from, may not be
-   * <code>null</code>
+   * @param sourceMapper the source display mapper to demerge from, may not be <code>null</code>
    * @param sourceDefaultUI the source default UI set, may be <code>null
    * </code>
-   * @param demergeChild if <code>true</code> demerges the source display mapper
-   * from the child mapper of the matching mapping in this display mapper,
-   * otherwise with this display mapper.
-   * @param fieldExcludes the list of fields as Strings to be ignored while
-   * demerging, may not be <code>null</code>, can be empty.
-   *
-   * @return the copy of this mapper demerged from provided source mapper, never
-   * <code>null</code>.
-   *
+   * @param demergeChild if <code>true</code> demerges the source display mapper from the child
+   *     mapper of the matching mapping in this display mapper, otherwise with this display mapper.
+   * @param fieldExcludes the list of fields as Strings to be ignored while demerging, may not be
+   *     <code>null</code>, can be empty.
+   * @return the copy of this mapper demerged from provided source mapper, never <code>null</code>.
    * @throws PSSystemValidationException if there are any errors.
    */
   public PSDisplayMapper demerge(
@@ -523,31 +482,25 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Merges any mapping from the source def that has a place holder in the
-   * supplied mapper.  Handles overlaying of the default uiset values in the
-   * process.  Does not modify mappings that are not referencing source
-   * mappings.  Will recurse and promote/merges mappings in any child mappers.
+   * Merges any mapping from the source def that has a place holder in the supplied mapper. Handles
+   * overlaying of the default uiset values in the process. Does not modify mappings that are not
+   * referencing source mappings. Will recurse and promote/merges mappings in any child mappers.
    *
-   * @param mergeDefault if <code>true</code> merges with provided target
-   * default uiset before merging with source mapping, otherwise it does not
-   * merge with default uiset.
-   * @param targetDisplayMapper The local def Mapper to walk and promote any
-   * uiset required, assumed not to be <code>null</code>
-   * @param targetDefaultUISet The target default UI set to merge with, may be
-   * <code>null</code>
-   * @param sourceMapper the source display mapper to merge with, assumed not
-   * <code>null</code>
+   * @param mergeDefault if <code>true</code> merges with provided target default uiset before
+   *     merging with source mapping, otherwise it does not merge with default uiset.
+   * @param targetDisplayMapper The local def Mapper to walk and promote any uiset required, assumed
+   *     not to be <code>null</code>
+   * @param targetDefaultUISet The target default UI set to merge with, may be <code>null</code>
+   * @param sourceMapper the source display mapper to merge with, assumed not <code>null</code>
    * @param sourceDefaultUISet the source default UI set, may be <code>null
    * </code>
-   * @param mergeChild if <code>true</code> merges the source display mapper
-   * with the child mapper of matching mapping in the target display mapper,
-   * otherwise with the target display mapper.
-   * @param fieldExcludes the list of fields as <code>String</code>s to be
-   * ignored while merging, assumed not to be <code>null</code>, can be empty.
-   * @param usedMappings List of mapping names that needs to be added from
-   * source mapper. Will be updated with any mappings used from the source def.
-   * Assumed not to be <code>null</code> and empty.
-   *
+   * @param mergeChild if <code>true</code> merges the source display mapper with the child mapper
+   *     of matching mapping in the target display mapper, otherwise with the target display mapper.
+   * @param fieldExcludes the list of fields as <code>String</code>s to be ignored while merging,
+   *     assumed not to be <code>null</code>, can be empty.
+   * @param usedMappings List of mapping names that needs to be added from source mapper. Will be
+   *     updated with any mappings used from the source def. Assumed not to be <code>null</code> and
+   *     empty.
    * @throws PSSystemValidationException if there are any errors.
    */
   private void mergeMapper(
@@ -627,13 +580,11 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Removes any display mappings that reference fields in the exclude list.
    *
-   * @param mapper The display mapper to remove mappings from, assumed not
-   * <code>null</code>.  This mapper is not modified in any way.
-   * @param excludes The list of field names as Strings to exclude.  Assumed
-   * not <code>null</code>.
-   *
-   * @return A copy of the supplied mapper with the excluded mappings removed,
-   * never <code>null</code>
+   * @param mapper The display mapper to remove mappings from, assumed not <code>null</code>. This
+   *     mapper is not modified in any way.
+   * @param excludes The list of field names as Strings to exclude. Assumed not <code>null</code>.
+   * @return A copy of the supplied mapper with the excluded mappings removed, never <code>null
+   *     </code>
    */
   private PSDisplayMapper removeExcludedMappings(PSDisplayMapper mapper, List excludes) {
     PSDisplayMapper newMapper = new PSDisplayMapper(mapper.getFieldSetRef());
@@ -648,15 +599,14 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Adds the source mapper as a child of the target mapping, first
-   * applying the source default uiset to each mapping.  Will also append all
-   * child mappers of those mappings in the same fashion.  All params assumed
-   * not to be <code>null</code>. The ids of added mappers are -1 and these
-   * need to be fixed later.
+   * Adds the source mapper as a child of the target mapping, first applying the source default
+   * uiset to each mapping. Will also append all child mappers of those mappings in the same
+   * fashion. All params assumed not to be <code>null</code>. The ids of added mappers are -1 and
+   * these need to be fixed later.
    *
    * @param targetMapping The mapping to add the child mapper to.
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
    * @param sourceMapper The mapper to add as the child of the target mapping.
    * @throws PSSystemValidationException if there are any errors.
    */
@@ -687,19 +637,16 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Adds a copy of the source mapping to the target mapper, applying any
-   * defaults specified by the source uidef.  If this mapping contains a child
-   * mapper, will recurse that mapper and add it's mapping and their children
-   * as well, appyling the appropriate defaults.  All params assumed not to be
-   * <code>null</code>.
+   * Adds a copy of the source mapping to the target mapper, applying any defaults specified by the
+   * source uidef. If this mapping contains a child mapper, will recurse that mapper and add it's
+   * mapping and their children as well, appyling the appropriate defaults. All params assumed not
+   * to be <code>null</code>.
    *
    * @param targetMapper The mapper to add the mapping to.
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
    * @param sourceMapping The mapping to add to the targetMapper.
-   *
    * @return the new target mapping, never <code>null</code>.
-   *
    * @throws PSSystemValidationException if there are any errors.
    */
   private PSDisplayMapping addMapping(
@@ -723,30 +670,26 @@ public class PSDisplayMapper extends PSCollectionComponent {
 
   /**
    * Merges the two supplied mappings as follows:
-   * <ol>
-   * <li>Overlays the source mapping's uiset on top of the correct source uidef
-   * default uiset</li>
-   * <li>Does the same for the target mapping if <code>mergeDefault</code> is
-   * <code>true</code></li>
-   * <li>Overlays the merged target uiset onto the merged source uiset</li>
-   * <li>Sets the target mappings uiSet with this new composite uiset</li>
-   * <li>Will recurse any child mappers and do the same for them</li>
-   * <ol>
-   * All params assumed not to be <code>null</code>.
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
-   * @param sourceMapping The display mapping to retrieve the source uiset
-   * from, assumed not to be <code>null</code>.
-   * @param mergeDefault if <code>true</code> merges target mapping uiset with
-   * its default, otherwise not
-   * @param targetDefaultUI The defaultUI for target uiset to merge with, may
-   * be <code>null</code>
-   * @param targetMapping The display mapping to retrieve the target uiset
-   * from, assumed not to be <code>null</code>.
    *
-   * @return A copy of the target updated with the source as described, never
-   * <code>null</code>
+   * <ol>
+   *   <li>Overlays the source mapping's uiset on top of the correct source uidef default uiset
+   *   <li>Does the same for the target mapping if <code>mergeDefault</code> is <code>true</code>
+   *   <li>Overlays the merged target uiset onto the merged source uiset
+   *   <li>Sets the target mappings uiSet with this new composite uiset
+   *   <li>Will recurse any child mappers and do the same for them
+   *       <ol>
+   *         All params assumed not to be <code>null</code>.
    *
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
+   * @param sourceMapping The display mapping to retrieve the source uiset from, assumed not to be
+   *     <code>null</code>.
+   * @param mergeDefault if <code>true</code> merges target mapping uiset with its default,
+   *     otherwise not
+   * @param targetDefaultUI The defaultUI for target uiset to merge with, may be <code>null</code>
+   * @param targetMapping The display mapping to retrieve the target uiset from, assumed not to be
+   *     <code>null</code>.
+   * @return A copy of the target updated with the source as described, never <code>null</code>
    * @throws PSSystemValidationException if there are any errors.
    */
   private PSDisplayMapping mergeMapping(
@@ -806,20 +749,16 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Merges all mappings of the target child mapper with source child mapper.
    *
-   * @param sourceChildMapper the source child mapper to get the source
-   * mappings, assumed not to be <code>null</code>
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
-   * @param targetChildMapper The child mapper to merge its mappings with
-   * source, assumed not to be <code>null</code>.
-   * @param mergeDefault if <code>true</code> merges target mapping uiset
-   * with its default, otherwise not
-   * @param targetDefaultUI The defaultUI for target uiset to merge with, may
-   * be <code>null</code>
-   *
-   * @return copy of target child mapper merged with source childmapper,
-   * never <code>null</code>
-   *
+   * @param sourceChildMapper the source child mapper to get the source mappings, assumed not to be
+   *     <code>null</code>
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
+   * @param targetChildMapper The child mapper to merge its mappings with source, assumed not to be
+   *     <code>null</code>.
+   * @param mergeDefault if <code>true</code> merges target mapping uiset with its default,
+   *     otherwise not
+   * @param targetDefaultUI The defaultUI for target uiset to merge with, may be <code>null</code>
+   * @return copy of target child mapper merged with source childmapper, never <code>null</code>
    * @throws PSSystemValidationException if an error happens in merging.
    */
   private PSDisplayMapper getMergedChildMapper(
@@ -881,21 +820,16 @@ public class PSDisplayMapper extends PSCollectionComponent {
 
   /**
    * Merges the uiset with the appropriate default uiset from provided <code>
-   * defaultUISet</code> if the default set name is specified in uiset. If the
-   * uiSet does not have a default specified, return the original uiset
-   * unchanged.
+   * defaultUISet</code> if the default set name is specified in uiset. If the uiSet does not have a
+   * default specified, return the original uiset unchanged.
    *
-   * @param defaultUISet The collection of default uisets to check, may be
-   * <code>null</code>
+   * @param defaultUISet The collection of default uisets to check, may be <code>null</code>
    * @param uiSet The uiset to be merged with default, may not be <code>null
    * </code>
-   *
-   * @return a new ui set, merged from the default and the supplied uiset, or
-   * the uiSet passed in if it is not modified in any way. Never
-   * <code>null</code>.
-   *
-   * @throws PSSystemValidationException if the default specified in the uiSet is not
-   * found in the collection of the default uisets.
+   * @return a new ui set, merged from the default and the supplied uiset, or the uiSet passed in if
+   *     it is not modified in any way. Never <code>null</code>.
+   * @throws PSSystemValidationException if the default specified in the uiSet is not found in the
+   *     collection of the default uisets.
    */
   private PSUISet mergeDefaultUISet(Iterator defaultUISet, PSUISet uiSet)
       throws PSSystemValidationException {
@@ -935,14 +869,11 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Recursively sets the id to this mapper and its children if they have
-   * undefined id. The provided id is incremented by 1 to set to the next
-   * child with undefined id.
+   * Recursively sets the id to this mapper and its children if they have undefined id. The provided
+   * id is incremented by 1 to set to the next child with undefined id.
    *
    * @param nextId the id to set, assumed >= 1
-   *
-   * @return the next highest(available) id after setting ids to this mapper
-   * and its children.
+   * @return the next highest(available) id after setting ids to this mapper and its children.
    */
   private int setMapperIds(int nextId) {
     if (getId() == -1) setId(nextId++);
@@ -960,8 +891,7 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Gets the highest mapper id used in this mapper and child mappers of its
-   * mappings.
+   * Gets the highest mapper id used in this mapper and child mappers of its mappings.
    *
    * @return the highest mapper id
    */
@@ -980,12 +910,11 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Here lists the additional parameter
-   * description. Please see the above link for more description.
+   * Here lists the additional parameter description. Please see the above link for more
+   * description.
    *
-   * @param localMapper the mapper that needs to be demerged from source def,
-   * assumed not to be <code>null</code>
-   *
+   * @param localMapper the mapper that needs to be demerged from source def, assumed not to be
+   *     <code>null</code>
    */
   private void demergeMapper(
       PSDisplayMapper localMapper,
@@ -1054,24 +983,20 @@ public class PSDisplayMapper extends PSCollectionComponent {
   }
 
   /**
-   * Demerges the target mapping from source mapping and recursively demerges
-   * all child mappers. See {@link #demergeMapping(Iterator, PSDisplayMapping, boolean, Iterator, PSDisplayMapping)}
-   * for more description de-merging process.
+   * Demerges the target mapping from source mapping and recursively demerges all child mappers. See
+   * {@link #demergeMapping(Iterator, PSDisplayMapping, boolean, Iterator, PSDisplayMapping)} for
+   * more description de-merging process.
    *
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
-   * @param sourceMapping The display mapping to retrieve the source uiset
-   * from, assumed not to be <code>null</code>.
-   * @param demergeDefault if <code>true</code> demerges target mapping uiset
-   * from its default, otherwise not
-   * @param targetDefaultUI The defaultUI for target uiset to demerge from, may
-   * be <code>null</code>
-   * @param targetMapping The display mapping to retrieve the target uiset
-   * from, assumed not to be <code>null</code>.
-   *
-   * @return A copy of the target updated with the source as described, never
-   * <code>null</code>
-   *
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
+   * @param sourceMapping The display mapping to retrieve the source uiset from, assumed not to be
+   *     <code>null</code>.
+   * @param demergeDefault if <code>true</code> demerges target mapping uiset from its default,
+   *     otherwise not
+   * @param targetDefaultUI The defaultUI for target uiset to demerge from, may be <code>null</code>
+   * @param targetMapping The display mapping to retrieve the target uiset from, assumed not to be
+   *     <code>null</code>.
+   * @return A copy of the target updated with the source as described, never <code>null</code>
    * @throws PSSystemValidationException if there are any errors.
    */
   private PSDisplayMapping demergeMapping(
@@ -1124,20 +1049,16 @@ public class PSDisplayMapper extends PSCollectionComponent {
   /**
    * Demerges all mappings of the target child mapper from source child mapper.
    *
-   * @param sourceChildMapper the source child mapper to get the source
-   * mappings, assumed not to be <code>null</code>
-   * @param sourceDefaultUI The source default ui to merge uiset in source
-   * mapping, may be <code>null</code>
-   * @param targetChildMapper The child mapper to demerge its mappings from
-   * source, assumed not to be <code>null</code>.
-   * @param demergeDefault if <code>true</code> demerges target mapping uiset
-   * from its default, otherwise not
-   * @param targetDefaultUI The defaultUI for target uiset to demerge from, may
-   * be <code>null</code>
-   *
-   * @return copy of target child mapper demerged from source childmapper,
-   * never <code>null</code>
-   *
+   * @param sourceChildMapper the source child mapper to get the source mappings, assumed not to be
+   *     <code>null</code>
+   * @param sourceDefaultUI The source default ui to merge uiset in source mapping, may be <code>
+   *     null</code>
+   * @param targetChildMapper The child mapper to demerge its mappings from source, assumed not to
+   *     be <code>null</code>.
+   * @param demergeDefault if <code>true</code> demerges target mapping uiset from its default,
+   *     otherwise not
+   * @param targetDefaultUI The defaultUI for target uiset to demerge from, may be <code>null</code>
+   * @return copy of target child mapper demerged from source childmapper, never <code>null</code>
    * @throws PSSystemValidationException if an error happens in demerging.
    */
   private PSDisplayMapper getDemergedChildMapper(
@@ -1196,21 +1117,16 @@ public class PSDisplayMapper extends PSCollectionComponent {
 
   /**
    * Demerges the uiset from the appropriate default uiset from provided <code>
-   * defaultUISet</code> if the default set name is specified in uiset. If the
-   * uiSet does not have a default specified, return the original uiset
-   * unchanged.
+   * defaultUISet</code> if the default set name is specified in uiset. If the uiSet does not have a
+   * default specified, return the original uiset unchanged.
    *
-   * @param defaultUISet The collection of default uisets to check, may be
-   * <code>null</code>
+   * @param defaultUISet The collection of default uisets to check, may be <code>null</code>
    * @param uiSet The uiset to be demerged with default, may not be <code>null
    * </code>
-   *
-   * @return a new ui set, demerged the supplied uiset from default, or
-   * the uiSet passed in if it is not modified in any way. Never
-   * <code>null</code>.
-   *
-   * @throws PSSystemValidationException if the default specified in the uiSet is not
-   * found in the collection of the default uisets.
+   * @return a new ui set, demerged the supplied uiset from default, or the uiSet passed in if it is
+   *     not modified in any way. Never <code>null</code>.
+   * @throws PSSystemValidationException if the default specified in the uiSet is not found in the
+   *     collection of the default uisets.
    */
   private PSUISet demergeDefaultUISet(Iterator defaultUISet, PSUISet uiSet)
       throws PSSystemValidationException {
@@ -1252,8 +1168,8 @@ public class PSDisplayMapper extends PSCollectionComponent {
   public static final String XML_NODE_NAME = "PSXDisplayMapper";
 
   /**
-   * The name of a field set this is referenceing, never <code>null</code>
-   * or empty after construction.
+   * The name of a field set this is referenceing, never <code>null</code> or empty after
+   * construction.
    */
   private String m_fieldSetRef;
 

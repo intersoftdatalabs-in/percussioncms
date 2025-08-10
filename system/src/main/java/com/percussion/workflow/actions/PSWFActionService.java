@@ -37,48 +37,34 @@ import org.apache.commons.logging.LogFactory;
  * This is the implementation of {@link IPSWFActionService }
  *
  * @author DavidBenua
- *
  */
 public class PSWFActionService implements IPSWFActionService {
-  /**
-   * Logger for class.
-   */
+  /** Logger for class. */
   private static Log log = LogFactory.getLog(PSWFActionService.class);
 
-  /**
-   * Workflow Info finder.
-   */
+  /** Workflow Info finder. */
   private IPSWorkflowInfoFinder wfFinder = null;
 
-  /**
-   * Extension Manager for loading any Workflow Actions we find.
-   */
+  /** Extension Manager for loading any Workflow Actions we find. */
   private IPSExtensionManager extMgr = null;
 
   /**
-   * Configuration map. The outmost key is the Workflow Name, the inner key is
-   * the TransitionLabel and the values are the list of Workflow Action Names.
+   * Configuration map. The outmost key is the Workflow Name, the inner key is the TransitionLabel
+   * and the values are the list of Workflow Action Names.
    */
   private Map<String, Map<String, List<String>>> transitionActions;
 
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSWFActionService() {
     transitionActions = new HashMap<String, Map<String, List<String>>>(); // add
     // empty
     // map.
   }
 
-  /**
-   * Initialization method. Should be called from Spring after initialization
-   * is complete.
-   */
+  /** Initialization method. Should be called from Spring after initialization is complete. */
   public void init() {}
 
-  /**
-   * Internal initialization method.
-   */
+  /** Internal initialization method. */
   private void initServices() {
     if (wfFinder == null) {
       log.debug("loading new PSWorkflowInfoFinder");

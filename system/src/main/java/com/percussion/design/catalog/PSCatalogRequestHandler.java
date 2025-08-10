@@ -32,28 +32,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSCatalogRequestHandler abstract class contains some useful
- * routines most catalog request handlers can use. As such, catalog request
- * handlers should extend this class. They must still implement the
- * IPSCatalogRequestHandler interface directly.
+ * The PSCatalogRequestHandler abstract class contains some useful routines most catalog request
+ * handlers can use. As such, catalog request handlers should extend this class. They must still
+ * implement the IPSCatalogRequestHandler interface directly.
  *
- * @see       IPSCatalogRequestHandler
- * @see       com.percussion.server.IPSRequestHandler
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSCatalogRequestHandler
+ * @see com.percussion.server.IPSRequestHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSValidateSession {
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a data related catalog request. This uses the input context
-   * information and data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process a data related catalog request. This uses the input context information and data. The
+   * results are written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request    the request object containing all context
-   *                  data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     try {
@@ -101,18 +97,15 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public abstract void shutdown();
 
   /**
-   * Create the error response for this request. This will return the
-   * result to the request and log the conditon.
+   * Create the error response for this request. This will return the result to the request and log
+   * the conditon.
    *
-   * @param   request      the request object
-   *
-   * @param   t            the exception that was thrown during processing
+   * @param request the request object
+   * @param t the exception that was thrown during processing
    */
   protected static void createErrorResponse(PSRequest request, Throwable t) {
     /* log all designer error conditions!!
@@ -174,9 +167,8 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
   /**
    * Send the specified XML document as the response for this request.
    *
-   * @param   request      the request object
-   *
-   * @param   doc         the response doc to send
+   * @param request the request object
+   * @param doc the response doc to send
    */
   protected static void sendXmlData(PSRequest request, Document doc) {
     try {
@@ -201,10 +193,9 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
   }
 
   /**
-   * Add a handler to the hash table. The handler is stored for each
-   * request type it supports.
+   * Add a handler to the hash table. The handler is stored for each request type it supports.
    *
-   * @param   rh      the request handler
+   * @param rh the request handler
    */
   protected void addHandler(IPSCatalogRequestHandler rh) {
     String[] reqTypes = rh.getSupportedRequestTypes();
@@ -215,8 +206,8 @@ public abstract class PSCatalogRequestHandler implements IPSRequestHandler, IPSV
   }
 
   /**
-   * We keep a hash of XML document types and their appropriate catalog
-   * handler for fast execution of the request
+   * We keep a hash of XML document types and their appropriate catalog handler for fast execution
+   * of the request
    */
   protected ConcurrentHashMap m_catalogHandlers = null;
 }

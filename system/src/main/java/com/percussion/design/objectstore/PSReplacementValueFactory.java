@@ -26,43 +26,35 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to help build replacement value objects without prior
- * knowledge of their type.
+ * This class is used to help build replacement value objects without prior knowledge of their type.
  *
- * @see         IPSReplacementValue
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSReplacementValue
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSReplacementValueFactory {
-  /**
-   * No need to construct this.
-   */
+  /** No need to construct this. */
   private PSReplacementValueFactory() {
     super();
   }
 
   /**
-   * Creates a new replacement value from an XML field definition.  Looks
-   * up the node's name in a static hash of <code>IPSReplacementValue</code>
-   * classes, and uses reflection to construct a new instance.
+   * Creates a new replacement value from an XML field definition. Looks up the node's name in a
+   * static hash of <code>IPSReplacementValue</code> classes, and uses reflection to construct a new
+   * instance.
    *
-   * @param parentDoc the doc containing this XML field.  Passed on to
-   * IPSReplacementValue constructor.  May be <code>null</code>.
-   * @param parentComponents the parents of this component.  Passed on to
-   * IPSReplacementValue constructor.  May be <code>null</code>.
-   * @param node the node to convert to a replacement value.  May not be
-   * <code>null</code>.
-   * @param xmlNodeName the name of the container XML node.  Used in error
-   * messages.
-   * @param xmlVarName the name of the XML node containing the replacement
-   * value.  Used in error messages.
-   *
+   * @param parentDoc the doc containing this XML field. Passed on to IPSReplacementValue
+   *     constructor. May be <code>null</code>.
+   * @param parentComponents the parents of this component. Passed on to IPSReplacementValue
+   *     constructor. May be <code>null</code>.
+   * @param node the node to convert to a replacement value. May not be <code>null</code>.
+   * @param xmlNodeName the name of the container XML node. Used in error messages.
+   * @param xmlVarName the name of the XML node containing the replacement value. Used in error
+   *     messages.
    * @return the replacement value, never <code>null</code>
-   *
-   * @throws PSUnknownNodeTypeException if the node is <code>null</code>, or
-   * is not a known replacement value, or if a reflection error occurs.
+   * @throws PSUnknownNodeTypeException if the node is <code>null</code>, or is not a known
+   *     replacement value, or if a reflection error occurs.
    */
   public static IPSReplacementValue getReplacementValueFromXml(
       IPSDocument parentDoc,
@@ -119,13 +111,11 @@ public abstract class PSReplacementValueFactory {
   }
 
   /**
-   * Create the appropriate replacement value from the specified XML
-   * field name. We allow users to specify PSXParam/... as an XML field
-   * name, though it's really a PSHtmlParameter object. This returns the
-   * appropriate object type based on field name.
+   * Create the appropriate replacement value from the specified XML field name. We allow users to
+   * specify PSXParam/... as an XML field name, though it's really a PSHtmlParameter object. This
+   * returns the appropriate object type based on field name.
    *
    * @param xmlField the XML field name to build an object for
-   *
    * @return the appropriate replacement value for the specified field name
    */
   public static IPSReplacementValue getReplacementValueFromXmlFieldName(String xmlField) {
@@ -156,12 +146,11 @@ public abstract class PSReplacementValueFactory {
   }
 
   /**
-   * Creates a replacement value for the supplied string. Assumes the supplied
-   * string to be in two parts separated by /. The first part is assumed as the
-   * type like (PSX...) and second one is assumed to be value. Looks up the
-   * type in a static hash of <code>IPSReplacementValue</code> classes, and
-   * uses reflection to construct a new instance, if the class is an
-   * instance of <code>PSNamedReplacementValue</code>. Otherwise
+   * Creates a replacement value for the supplied string. Assumes the supplied string to be in two
+   * parts separated by /. The first part is assumed as the type like (PSX...) and second one is
+   * assumed to be value. Looks up the type in a static hash of <code>IPSReplacementValue</code>
+   * classes, and uses reflection to construct a new instance, if the class is an instance of <code>
+   * PSNamedReplacementValue</code>. Otherwise
    *
    * @param repString must not be <code>null</code>.
    * @return the replacement value, never <code>null</code>
@@ -192,15 +181,13 @@ public abstract class PSReplacementValueFactory {
   }
 
   /**
-   * Determine if the supplied <code>name</code> may be used to create a
-   * replacement value using
-   * {@link #getReplacementValueFromXmlFieldName(String)}, or can be used to
-   * specify a {@link PSXmlField}.
+   * Determine if the supplied <code>name</code> may be used to create a replacement value using
+   * {@link #getReplacementValueFromXmlFieldName(String)}, or can be used to specify a {@link
+   * PSXmlField}.
    *
-   * @param field The name to check, may not be <code>null</code> or empty.
-   * Generally in the form PSX&lt;type&gt;/&lt;value&gt; where there is a class
-   * PS&lt;type&gt; that has a ctor in the form PSX&lt;type&gt;(String).
-   *
+   * @param field The name to check, may not be <code>null</code> or empty. Generally in the form
+   *     PSX&lt;type&gt;/&lt;value&gt; where there is a class PS&lt;type&gt; that has a ctor in the
+   *     form PSX&lt;type&gt;(String).
    * @return <code>true</code> if it is valid, <code>false</code> if not.
    */
   public static boolean isValidFieldName(String field) {
@@ -215,16 +202,13 @@ public abstract class PSReplacementValueFactory {
   }
 
   /**
-   * Get the ctor of the class specified by the supplied field name.  If a
-   * replacement value class is specified, checks for a single arg ctor that
-   * takes a <code>String</code> object.
+   * Get the ctor of the class specified by the supplied field name. If a replacement value class is
+   * specified, checks for a single arg ctor that takes a <code>String</code> object.
    *
-   * @param type The replacement value type to check, from the form specified
-   * by {@link #isValidFieldName(String)}.
-   *
-   * @return The matching constructor or <code>null</code> if not found.  The
-   * value to supply to the ctor is appended to the supplied <code>value</code>
-   * string buffer if supplied.
+   * @param type The replacement value type to check, from the form specified by {@link
+   *     #isValidFieldName(String)}.
+   * @return The matching constructor or <code>null</code> if not found. The value to supply to the
+   *     ctor is appended to the supplied <code>value</code> string buffer if supplied.
    */
   private static Constructor getReplacementValueCtor(String type) {
     Constructor ctor = null;
@@ -246,12 +230,9 @@ public abstract class PSReplacementValueFactory {
   /**
    * Parse the supplied field into its type name and value portions.
    *
-   * @param field The field to parse, see
-   * {@link #isValidFieldName(String)} for more info.
-   *
-   * @return A <code>String[2]</code>, never <code>null</code>, where the first
-   * value is the type name and the second is the value, both may be
-   * <code>null</code> or empty.
+   * @param field The field to parse, see {@link #isValidFieldName(String)} for more info.
+   * @return A <code>String[2]</code>, never <code>null</code>, where the first value is the type
+   *     name and the second is the value, both may be <code>null</code> or empty.
    */
   private static String[] parseFieldName(String field) {
     String[] result = new String[2];
@@ -264,10 +245,7 @@ public abstract class PSReplacementValueFactory {
     return result;
   }
 
-  /**
-   * Maps from lowercased XML node name (String) to the proper replacement
-   * value class (Class).
-   */
+  /** Maps from lowercased XML node name (String) to the proper replacement value class (Class). */
   private static ConcurrentHashMap ms_rvClasses = new ConcurrentHashMap();
 
   static {

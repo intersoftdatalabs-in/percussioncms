@@ -18,18 +18,18 @@
 package com.percussion.install;
 
 /**
- * This class encapsulates the response from a pre-upgrade plugin.  Three types
- * of responses are supported: SUCCESS, EXCEPTION, and WARNING.
+ * This class encapsulates the response from a pre-upgrade plugin. Three types of responses are
+ * supported: SUCCESS, EXCEPTION, and WARNING.
  */
 public class PSPluginResponse {
   /**
    * Constructor
    *
-   * @param type the type of the plugin response.
-   * <code>SUCCESS</code>, <code>EXCEPTION</code>, and <code>WARNING</code>
+   * @param type the type of the plugin response. <code>SUCCESS</code>, <code>EXCEPTION</code>, and
+   *     <code>WARNING</code>
    * @param message the plugin response message.
-   * @throws IllegalArgumentException if type is not one of
-   * <code>SUCCESS</code>, <code>EXCEPTION</code>, or <code>WARNING</code>
+   * @throws IllegalArgumentException if type is not one of <code>SUCCESS</code>, <code>EXCEPTION
+   *     </code>, or <code>WARNING</code>
    */
   public PSPluginResponse(int type, String message) {
     if (!((type == SUCCESS) || (type == EXCEPTION) || (type == WARNING)))
@@ -50,10 +50,10 @@ public class PSPluginResponse {
   /**
    * Sets the response type.
    *
-   * @param type the type of the plugin response.
-   * <code>SUCCESS</code>, <code>EXCEPTION</code>, and <code>WARNING</code>
-   * @throws IllegalArgumentException if type is not one of
-   * <code>SUCCESS</code>, <code>EXCEPTION</code>, or <code>WARNING</code>
+   * @param type the type of the plugin response. <code>SUCCESS</code>, <code>EXCEPTION</code>, and
+   *     <code>WARNING</code>
+   * @throws IllegalArgumentException if type is not one of <code>SUCCESS</code>, <code>EXCEPTION
+   *     </code>, or <code>WARNING</code>
    */
   public void setType(int type) {
     if (!((type == SUCCESS) || (type == EXCEPTION) || (type == WARNING)))
@@ -63,6 +63,7 @@ public class PSPluginResponse {
 
   /**
    * Returns the response message.
+   *
    * @return the message part of the plugin response.
    */
   public String getMessage() {
@@ -71,6 +72,7 @@ public class PSPluginResponse {
 
   /**
    * Sets the response message.
+   *
    * @param message the plugin response message.
    */
   public void setMessage(String message) {
@@ -78,30 +80,20 @@ public class PSPluginResponse {
   }
 
   /**
-   * The type of response, valid values are:
-   * <code>SUCCESS</code> or
-   * <code>EXCEPTION</code> or
+   * The type of response, valid values are: <code>SUCCESS</code> or <code>EXCEPTION</code> or
    * <code>WARNING</code>
    */
   private int m_type = SUCCESS;
 
-  /**
-   * The response message
-   */
+  /** The response message */
   private String m_message = "";
 
-  /**
-   * The success constant
-   */
+  /** The success constant */
   public static final int SUCCESS = 1;
 
-  /**
-   * The exception constant
-   */
+  /** The exception constant */
   public static final int EXCEPTION = 0;
 
-  /**
-   * The warning constant
-   */
+  /** The warning constant */
   public static final int WARNING = 2;
 }

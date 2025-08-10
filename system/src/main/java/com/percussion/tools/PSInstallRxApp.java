@@ -27,15 +27,13 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- *
- * This is a simple utility class that installs a Rhythmyx application from a
- * specified JAR file.
- *
+ * This is a simple utility class that installs a Rhythmyx application from a specified JAR file.
  */
 public class PSInstallRxApp {
 
   /**
-   * Constructor that takes the JAR file containing all application files. Paths must be relative to the Rhythmyx root directory.
+   * Constructor that takes the JAR file containing all application files. Paths must be relative to
+   * the Rhythmyx root directory.
    *
    * @param jarFilePath full path to the JAR file
    * @throws FileNotFoundException if the JAR file is not found
@@ -48,8 +46,8 @@ public class PSInstallRxApp {
   }
 
   /**
-   * Installs the application from the JAR file.
-   * Copies the application file 'ObjectStore/&lt;appName.xml&gt;' and all files in the app folder to the target directory.
+   * Installs the application from the JAR file. Copies the application file
+   * 'ObjectStore/&lt;appName.xml&gt;' and all files in the app folder to the target directory.
    *
    * @param targetRoot Rhythmyx root directory (e.g., c:/Rhythmyx)
    * @param appName application name (e.g., WFEditor)
@@ -101,13 +99,9 @@ public class PSInstallRxApp {
    * This method copies the InputStream to the specified directory and file name.
    *
    * @param is - the InputStream to be written to the specified file.
-   *
    * @param tgtRoot - the target root diectory
-   *
    * @param fileName - the fileName to which the stream is to be written
-   *
    * @throws - IOExceptione when the target file cannot be created or written.
-   *
    */
   private void copyInputStreamToFile(InputStream is, String tgtRoot, String fileName)
       throws IOException {
@@ -127,16 +121,13 @@ public class PSInstallRxApp {
     fos.close();
   }
 
-  /**
-   * Instanec of the jar file that has all Rx application files.
-   */
+  /** Instanec of the jar file that has all Rx application files. */
   protected JarFile m_JF = null;
 
   /**
-   * The main method that takes three command line parameters. The first one is
-   * JAR file full path, second one is the Rhythmyx root directory name and the
-   * last one is the name of application to be installed.
-   *
+   * The main method that takes three command line parameters. The first one is JAR file full path,
+   * second one is the Rhythmyx root directory name and the last one is the name of application to
+   * be installed.
    */
   public static void main(String[] args) {
     if (args.length < 3) {

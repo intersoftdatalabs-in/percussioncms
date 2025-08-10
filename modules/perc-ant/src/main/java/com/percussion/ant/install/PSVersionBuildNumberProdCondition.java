@@ -27,13 +27,11 @@ import java.util.Properties;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSVersionBuildNumberProdCondition is a condition which will return
- * <code>true</code> when <code>eval</code> is invoked if the installed build on
- * the system lies between the specified minimum and maximum builds.
+ * PSVersionBuildNumberProdCondition is a condition which will return <code>true</code> when <code>
+ * eval</code> is invoked if the installed build on the system lies between the specified minimum
+ * and maximum builds. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -60,7 +58,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSVersionBuildNumberProdCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -72,8 +69,9 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   }
 
   /**
-   * Required abstract method.  Name of condition.
-   * @return the name of the condition.  Cannot be <code>null</code>.
+   * Required abstract method. Name of condition.
+   *
+   * @return the name of the condition. Cannot be <code>null</code>.
    */
   public String defaultName() {
     return "Rx Version Build Number Product Condition";
@@ -84,17 +82,15 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    **************************************************************************/
 
   /**
-   * Returns the value of the specified property <code>propName</code>, -1
-   * if the property does not exist or is not an integer.
+   * Returns the value of the specified property <code>propName</code>, -1 if the property does not
+   * exist or is not an integer.
    *
-   * @param propName the name of the property whose value is required, may
-   * not be <code>null</code> or empty
-   * @param prop the properties object from which the value of the specified
-   * property is to be obtained, may not be <code>null</code>
-   *
-   * @return the value of the specifed property, -1 if the specified property
-   * does not exist or if any error occurs converting the property value to
-   * integer.
+   * @param propName the name of the property whose value is required, may not be <code>null</code>
+   *     or empty
+   * @param prop the properties object from which the value of the specified property is to be
+   *     obtained, may not be <code>null</code>
+   * @return the value of the specifed property, -1 if the specified property does not exist or if
+   *     any error occurs converting the property value to integer.
    */
   private int getRequiredProperty(String propName, Properties prop) {
     if ((propName == null) || (propName.trim().length() < 1))
@@ -119,13 +115,11 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   }
 
   /**
-   * Checks if the installed build on the system lies between the specified
-   * builds.
+   * Checks if the installed build on the system lies between the specified builds.
    *
    * @param strInstallDir the install directory, may be <code>null</code>.
-   *
-   * @return <code>true</code> if the installed build on the system lies
-   * between the specified builds, <code>false</code> otherwise.
+   * @return <code>true</code> if the installed build on the system lies between the specified
+   *     builds, <code>false</code> otherwise.
    */
   public synchronized boolean checkVersion(String strInstallDir) {
     int installMajorVersion = -1;
@@ -222,22 +216,21 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    **************************************************************************/
 
   /**
-   * The minimum major version number which can be upgraded by the build
-   * currently being installed.
+   * The minimum major version number which can be upgraded by the build currently being installed.
    *
-   * @return the minimum major version number which can be upgraded by the build
-   * currently being installed.
+   * @return the minimum major version number which can be upgraded by the build currently being
+   *     installed.
    */
   public synchronized int getMajorVersionFrom() {
     return majorVersionFrom;
   }
 
   /**
-   * Sets the minimum major version number which can be upgraded by the build
-   * currently being installed.
+   * Sets the minimum major version number which can be upgraded by the build currently being
+   * installed.
    *
-   * @param aMajorVersionFrom minimum major version number which can be
-   * upgraded by the build currently being installed.
+   * @param aMajorVersionFrom minimum major version number which can be upgraded by the build
+   *     currently being installed.
    */
   public synchronized void setMajorVersionFrom(int aMajorVersionFrom) {
     majorVersionFrom = aMajorVersionFrom;
@@ -255,52 +248,50 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   /**
    * Sets the minor version corresponding to <code>majorVersionFrom</code>.
    *
-   * @param aMinorVersionFrom the minor version corresponding to
-   * <code>majorVersionFrom</code>.
+   * @param aMinorVersionFrom the minor version corresponding to <code>majorVersionFrom</code>.
    */
   public synchronized void setMinorVersionFrom(int aMinorVersionFrom) {
     minorVersionFrom = aMinorVersionFrom;
   }
 
   /**
-   * The build number corresponding to <code>majorVersionFrom</code> and
-   * <code>minorVersionFrom</code>
+   * The build number corresponding to <code>majorVersionFrom</code> and <code>minorVersionFrom
+   * </code>
    *
-   * @return the build number corresponding to <code>majorVersionFrom</code> and
-   * <code>minorVersionFrom</code>
+   * @return the build number corresponding to <code>majorVersionFrom</code> and <code>
+   *     minorVersionFrom</code>
    */
   public synchronized int getBuildFrom() {
     return buildFrom;
   }
 
   /**
-   * Sets the build number corresponding to <code>majorVersionFrom</code> and
-   * <code>minorVersionFrom</code>
+   * Sets the build number corresponding to <code>majorVersionFrom</code> and <code>minorVersionFrom
+   * </code>
    *
-   * @param aBuildFrom the build number corresponding to
-   * <code>majorVersionFrom</code> and <code>minorVersionFrom</code>
+   * @param aBuildFrom the build number corresponding to <code>majorVersionFrom</code> and <code>
+   *     minorVersionFrom</code>
    */
   public synchronized void setBuildFrom(int aBuildFrom) {
     buildFrom = aBuildFrom;
   }
 
   /**
-   * The maximum major version number which can be upgraded by the build
-   * currently being installed.
+   * The maximum major version number which can be upgraded by the build currently being installed.
    *
-   * @return the maximum major version number which can be upgraded by the build
-   * currently being installed.
+   * @return the maximum major version number which can be upgraded by the build currently being
+   *     installed.
    */
   public synchronized int getMajorVersionTo() {
     return majorVersionTo;
   }
 
   /**
-   * Sets the maximum major version number which can be upgraded by the build
-   * currently being installed.
+   * Sets the maximum major version number which can be upgraded by the build currently being
+   * installed.
    *
-   * @param aMajorVersionTo the maximum major version number which can be
-   * upgraded by the build currently being installed.
+   * @param aMajorVersionTo the maximum major version number which can be upgraded by the build
+   *     currently being installed.
    */
   public synchronized void setMajorVersionTo(int aMajorVersionTo) {
     majorVersionTo = aMajorVersionTo;
@@ -318,8 +309,7 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   /**
    * Sets the minor version corresponding to <code>majorVersionTo</code>.
    *
-   * @param aMinorVersionTo the minor version corresponding to
-   * <code>majorVersionTo</code>.
+   * @param aMinorVersionTo the minor version corresponding to <code>majorVersionTo</code>.
    */
   public synchronized void setMinorVersionTo(int aMinorVersionTo) {
     minorVersionTo = aMinorVersionTo;
@@ -328,8 +318,7 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   /**
    * Sets the minor version corresponding to <code>majorVersionTo</code>.
    *
-   * @param aMicroVersionTo the minor version corresponding to
-   * <code>majorVersionTo</code>.
+   * @param aMicroVersionTo the minor version corresponding to <code>majorVersionTo</code>.
    */
   public synchronized void setMicroVersionTo(int aMicroVersionTo) {
     microVersionTo = aMicroVersionTo;
@@ -345,22 +334,21 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
   }
 
   /**
-   * The build number corresponding to <code>majorVersionTo</code> and
-   * <code>minorVersionTo</code>
+   * The build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo</code>
    *
-   * @return the build number corresponding to <code>majorVersionTo</code> and
-   * <code>minorVersionTo</code>
+   * @return the build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo
+   *     </code>
    */
   public synchronized int getBuildTo() {
     return buildTo;
   }
 
   /**
-   * Sets the build number corresponding to <code>majorVersionTo</code> and
-   * <code>minorVersionTo</code>
+   * Sets the build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo
+   * </code>
    *
-   * @param aBuildTo the build number corresponding to
-   * <code>majorVersionTo</code> and <code>minorVersionTo</code>
+   * @param aBuildTo the build number corresponding to <code>majorVersionTo</code> and <code>
+   *     minorVersionTo</code>
    */
   public synchronized void setBuildTo(int aBuildTo) {
     buildTo = aBuildTo;
@@ -371,48 +359,39 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    **************************************************************************/
 
   /**
-   * The minimum major version number which can be upgraded by the build
-   * currently being installed.
+   * The minimum major version number which can be upgraded by the build currently being installed.
    */
   private int majorVersionFrom = 4;
 
-  /**
-   * The minor version corresponding to <code>majorVersionFrom</code>.
-   */
+  /** The minor version corresponding to <code>majorVersionFrom</code>. */
   private int minorVersionFrom = 0;
 
   /**
-   * The minimum micro version number which can be upgraded by the build
-   * currently being installed.
+   * The minimum micro version number which can be upgraded by the build currently being installed.
    */
   private int microVersionFrom = 0;
 
   /**
-   * The build number corresponding to <code>majorVersionFrom</code> and
-   * <code>minorVersionFrom</code>
+   * The build number corresponding to <code>majorVersionFrom</code> and <code>minorVersionFrom
+   * </code>
    */
   private int buildFrom = 20011114;
 
   /**
-   * The maximum major version number which can be upgraded by the build
-   * currently being installed.
+   * The maximum major version number which can be upgraded by the build currently being installed.
    */
   private int majorVersionTo = 4;
 
-  /**
-   * The micro version corresponding to <code>majorVersionTo</code>.
-   */
+  /** The micro version corresponding to <code>majorVersionTo</code>. */
   private int minorVersionTo = 51;
 
   /**
-   * The maximum major version number which can be upgraded by the build
-   * currently being installed.
+   * The maximum major version number which can be upgraded by the build currently being installed.
    */
   private int microVersionTo = -1;
 
   /**
-   * The build number corresponding to <code>majorVersionTo</code> and
-   * <code>minorVersionTo</code>
+   * The build number corresponding to <code>majorVersionTo</code> and <code>minorVersionTo</code>
    */
   private int buildTo = -1;
 
@@ -421,8 +400,8 @@ public class PSVersionBuildNumberProdCondition extends PSAction implements Condi
    **************************************************************************/
 
   /**
-   * In memory representation of "version.properties" file under the
-   * Rhythmyx root directory. May be <code>null</code>.
+   * In memory representation of "version.properties" file under the Rhythmyx root directory. May be
+   * <code>null</code>.
    */
   private static Properties m_versionProps = null;
 }

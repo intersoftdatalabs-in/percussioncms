@@ -38,20 +38,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The output document is built up over a number of steps. Most of the work
- * is performed by the base class. The main purpose of this class is to create
- * the appropriate build step objects needed for document editor that modifies
- * an existing content item.
+ * The output document is built up over a number of steps. Most of the work is performed by the base
+ * class. The main purpose of this class is to create the appropriate build step objects needed for
+ * document editor that modifies an existing content item.
  */
 public abstract class PSModifyDocumentBuilder extends PSEditorDocumentBuilder {
   /**
-   * Processes the supplied editor definition, creating an executable plan
-   * that will be used when requests are made. Adds the system params
-   * sys_contentid and sys_revision as hidden fields.
+   * Processes the supplied editor definition, creating an executable plan that will be used when
+   * requests are made. Adds the system params sys_contentid and sys_revision as hidden fields.
+   *
    * <p>See base class for a description of params and exceptions.
    *
-   * @param isError For future use. Indicates this document was created based
-   *    on a validation failure.
+   * @param isError For future use. Indicates this document was created based on a validation
+   *     failure.
    */
   public PSModifyDocumentBuilder(
       PSContentEditor ce, PSEditorDocumentContext ctx, int pageId, boolean isError)
@@ -112,13 +111,11 @@ public abstract class PSModifyDocumentBuilder extends PSEditorDocumentBuilder {
   }
 
   /**
-   * Creates an internal request handler for each resource that needs to be
-   * queried while creating the result document. They are stored in document
-   * order.
+   * Creates an internal request handler for each resource that needs to be queried while creating
+   * the result document. They are stored in document order.
    *
-   * @return A list of 2 IPSInternalResultHandler objects, sequenced
-   *    in the order needed to generate the document. Never <code>null</code>.
-   *
+   * @return A list of 2 IPSInternalResultHandler objects, sequenced in the order needed to generate
+   *     the document. Never <code>null</code>.
    * @throws PSDataExtractionException If a needed resource cannot be found.
    */
   private List<?> getWorkflowResources() throws PSDataExtractionException {
@@ -140,25 +137,23 @@ public abstract class PSModifyDocumentBuilder extends PSEditorDocumentBuilder {
     return handlers;
   }
 
-  /**
-   * Tag name for the Workflow element in the ContentEditor dtd. Never empty.
-   */
+  /** Tag name for the Workflow element in the ContentEditor dtd. Never empty. */
   /** XML document element name. */
   public static final String WORKFLOW_NAME = "Workflow";
 
   private static final String CONTENTID_NAME = "contentId";
 
   /**
-   * The name of the dataset (not the request name, but the actual dataset
-   * name), located in the <code>EDITOR_SUPPORT_APPNAME</code> application.
-   * It is used to obtain the history entries for the output doc.
+   * The name of the dataset (not the request name, but the actual dataset name), located in the
+   * <code>EDITOR_SUPPORT_APPNAME</code> application. It is used to obtain the history entries for
+   * the output doc.
    */
   private static final String HISTORY_DATASET_NAME = "history";
 
   /**
-   * The name of the dataset (not the request name, but the actual dataset
-   * name), located in the <code>EDITOR_SUPPORT_APPNAME</code> application.
-   * It is used to obtain the content status info for the output doc.
+   * The name of the dataset (not the request name, but the actual dataset name), located in the
+   * <code>EDITOR_SUPPORT_APPNAME</code> application. It is used to obtain the content status info
+   * for the output doc.
    */
   private static final String CONTENTSTATUS_DATATSET_NAME = "contentstatus";
 }

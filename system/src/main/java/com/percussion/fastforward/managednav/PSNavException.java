@@ -23,7 +23,6 @@ import com.percussion.security.error.PSExceptionUtils;
  * A general purpose exception for the Navigation package.
  *
  * @author DavidBenua
- *
  */
 public class PSNavException extends PSRuntimeException {
   /**
@@ -58,8 +57,7 @@ public class PSNavException extends PSRuntimeException {
   }
 
   /**
-   * Creates an exception that encapsulates an exception and a label for the
-   * calling routine.
+   * Creates an exception that encapsulates an exception and a label for the calling routine.
    *
    * @param routine the routine where the exception occurred.
    * @param ex the exception to encapsulate.
@@ -132,13 +130,12 @@ public class PSNavException extends PSRuntimeException {
     super(code, arg);
   }
 
-  /**
-   * The underlying exception that caused this exception.
-   */
+  /** The underlying exception that caused this exception. */
   @Deprecated Exception parentException = null;
 
   /**
    * The message buffer for this exception.
+   *
    * @deprecated
    */
   @Deprecated StringBuilder message = new StringBuilder();

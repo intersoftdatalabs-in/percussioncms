@@ -31,32 +31,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * An item definition contains all of the design elements that define what an
- * item is. (May also loosely be called a content type. A new term was used
- * to (hopefully) avoid confusion.) This class provides some key pieces of
- * information about a type that is useful when building UIs. Once the user has
- * selected one of these, the id can be used to get further information.
- * <p>This class doesn't override the clone method because the clone provided
- * by the Object base class is satisfactory.
+ * An item definition contains all of the design elements that define what an item is. (May also
+ * loosely be called a content type. A new term was used to (hopefully) avoid confusion.) This class
+ * provides some key pieces of information about a type that is useful when building UIs. Once the
+ * user has selected one of these, the id can be used to get further information.
+ *
+ * <p>This class doesn't override the clone method because the clone provided by the Object base
+ * class is satisfactory.
  */
 public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummary {
   /**
    * Creates an instance.
    *
-   * @param name The unique name for the associated item definition. Never
-   *    <code>null</code> or empty.
-   *
-   * @param label a display label for the associated item definition. Never
-   *    <code>null</code>, may be empty.
-   *
-   * @param typeId The unique numeric identifier for the associated item
-   *    definition.
-   *
-   * @param editorUrl The url where the content editor lives within the
-   * system. Never <code>null</code>.
-   *
-   * @param description An optional message that describes what the associated
-   *    item is used for. May be <code>null</code> or empty.
+   * @param name The unique name for the associated item definition. Never <code>null</code> or
+   *     empty.
+   * @param label a display label for the associated item definition. Never <code>null</code>, may
+   *     be empty.
+   * @param typeId The unique numeric identifier for the associated item definition.
+   * @param editorUrl The url where the content editor lives within the system. Never <code>null
+   *     </code>.
+   * @param description An optional message that describes what the associated item is used for. May
+   *     be <code>null</code> or empty.
    */
   public PSItemDefSummary(
       String name,
@@ -87,20 +82,14 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * Creates an instance.
    *
-   * @param name The unique name for the associated item definition. Never
-   *    <code>null</code> or empty.
-   *
-   * @param typeId The unique numeric identifier for the associated item
-   *    definition.
-   *
-   * @param editorUrl The url where the content editor lives within the
-   * system. Never <code>null</code>.
-   *
-   * @param description An optional message that describes what the associated
-   *    item is used for. May be <code>null</code> or empty.
-   *
-   * @deprecated use
-   * instead
+   * @param name The unique name for the associated item definition. Never <code>null</code> or
+   *     empty.
+   * @param typeId The unique numeric identifier for the associated item definition.
+   * @param editorUrl The url where the content editor lives within the system. Never <code>null
+   *     </code>.
+   * @param description An optional message that describes what the associated item is used for. May
+   *     be <code>null</code> or empty.
+   * @deprecated use instead
    */
   public PSItemDefSummary(String name, int typeId, String editorUrl, String description) {
     this(name, name, typeId, editorUrl, description, false);
@@ -121,14 +110,13 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   *  For use by derived classes. If using this method, the instance must
-   *  be populated with data using the fromXml method before it is used.
+   * For use by derived classes. If using this method, the instance must be populated with data
+   * using the fromXml method before it is used.
    */
   protected PSItemDefSummary() {}
 
   /**
-   * This is the name of the root element in the serialized version of this
-   * object.
+   * This is the name of the root element in the serialized version of this object.
    *
    * @return The root name, never <code>null</code> or empty.
    */
@@ -137,11 +125,10 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * A numeric value that uniquely identifies a content type. May be used to
-   * obtain the associated definition.
+   * A numeric value that uniquely identifies a content type. May be used to obtain the associated
+   * definition.
    *
-   * @return The id that was passed into the ctor or assigned from
-   *    serialization.
+   * @return The id that was passed into the ctor or assigned from serialization.
    */
   public int getTypeId() {
     return (int) m_typeId;
@@ -159,8 +146,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * The name is a unique identifier for an item definition.
    *
-   * @return The name that was passed into the ctor or assigned from
-   *    serialization.
+   * @return The name that was passed into the ctor or assigned from serialization.
    */
   public String getName() {
     return m_name;
@@ -169,8 +155,8 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * The display name for an item definition.
    *
-   * @return The label that was passed into the ctor or assigned from
-   *    serialization. Never <code>null</code>, may be empty.
+   * @return The label that was passed into the ctor or assigned from serialization. Never <code>
+   *     null</code>, may be empty.
    */
   public String getLabel() {
     return m_label;
@@ -179,8 +165,7 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * The url of where this content editor lives.
    *
-   * @return The description that was passed into the ctor or assigned from
-   *    serialization.
+   * @return The description that was passed into the ctor or assigned from serialization.
    */
   public String getEditorUrl() {
     return m_editorUrl;
@@ -189,20 +174,19 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * A short message that describes what this item is for.
    *
-   * @return The description that was passed into the ctor or assigned from
-   *    serialization or empty if one wasn't assigned.
+   * @return The description that was passed into the ctor or assigned from serialization or empty
+   *     if one wasn't assigned.
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. All
-   * members except the name are compared for exact matches. The name is
-   * compared case insensitive.
+   * Overrides the base class to compare each of the member properties. All members except the name
+   * are compared for exact matches. The name is compared case insensitive.
    *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   @Override
   public boolean equals(Object o) {
@@ -221,9 +205,8 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   /**
    * Must be overridden to properly fulfill the contract in Object.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   @Override
   public int hashCode() {
@@ -232,8 +215,9 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <ELEMENT PSXItemDefSummary (Description?)>
    * <ATTLIST PSXItemDefSummary
@@ -245,7 +229,6 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -269,14 +252,12 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Replaces the data in this instance with that in a previously serialized
-   * version. If any data is invalid, an exception is thrown.
+   * Replaces the data in this instance with that in a previously serialized version. If any data is
+   * invalid, an exception is thrown.
    *
-   * @param source An xml fragment conforming to the dtd described in
-   *    {@link #toXml(Document) toXml}. Never <code>null</code>.
-   *
+   * @param source An xml fragment conforming to the dtd described in {@link #toXml(Document)
+   *     toXml}. Never <code>null</code>.
    * @param parentDoc Unused.
-   *
    * @param parentComponents Unused.
    */
   public void fromXml(
@@ -343,9 +324,8 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Provides a common location for business rules associated with this
-   * property. All assignment should only be done thru this method, never
-   * set the property directly.
+   * Provides a common location for business rules associated with this property. All assignment
+   * should only be done thru this method, never set the property directly.
    *
    * @param name Never <code>null</code> or empty.
    */
@@ -358,8 +338,9 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
 
   /**
    * Sets the label
-   * @param label can be <code>null</code> or empty.
-   * If <code>null</code> then the label will be set to an empty string.
+   *
+   * @param label can be <code>null</code> or empty. If <code>null</code> then the label will be set
+   *     to an empty string.
    */
   public void setLabel(String label) {
     if (label == null) m_label = "";
@@ -367,9 +348,8 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Provides a common location for business rules associated with this
-   * property. All assignment should only be done thru this method, never
-   * set the property directly.
+   * Provides a common location for business rules associated with this property. All assignment
+   * should only be done thru this method, never set the property directly.
    *
    * @param id No validation performed at this time.
    */
@@ -378,9 +358,8 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Provides a common location for business rules associated with this
-   * property. All assignment should only be done thru this method, never
-   * set the property directly.
+   * Provides a common location for business rules associated with this property. All assignment
+   * should only be done thru this method, never set the property directly.
    *
    * @param editorUrl May not be <code>null</code>.
    */
@@ -389,12 +368,10 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * Provides a common location for business rules associated with this
-   * property. All assignment should only be done thru this method, never
-   * set the property directly.
+   * Provides a common location for business rules associated with this property. All assignment
+   * should only be done thru this method, never set the property directly.
    *
-   * @param desc May be <code>null</code> or empty. If <code>null</code>,
-   *    stored as "".
+   * @param desc May be <code>null</code> or empty. If <code>null</code>, stored as "".
    */
   public void setDescription(String desc) {
     if (null == desc) desc = "";
@@ -410,40 +387,29 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
   }
 
   /**
-   * See {@link #PSItemDefSummary(String, int, String, String) ctor}
-   * for description.
-   * Set in ctor or <code>toXml</code> method. Never <code>null</code> or
-   * empty after set.
+   * See {@link #PSItemDefSummary(String, int, String, String) ctor} for description. Set in ctor or
+   * <code>toXml</code> method. Never <code>null</code> or empty after set.
    */
   private String m_name;
 
-  /**
-   * See {@link #PSItemDefSummary(String, int, String, String) ctor}
-   * for description.
-   */
+  /** See {@link #PSItemDefSummary(String, int, String, String) ctor} for description. */
   private long m_typeId;
 
   /**
-   * See {@link #PSItemDefSummary(String, int, String, String) ctor}
-   * for description.
-   * Set in ctor or <code>toXml</code> method, then never <code>null</code>
-   * or changed after that (may be empty).
+   * See {@link #PSItemDefSummary(String, int, String, String) ctor} for description. Set in ctor or
+   * <code>toXml</code> method, then never <code>null</code> or changed after that (may be empty).
    */
   private String m_editorUrl;
 
   /**
-   * See {@link #PSItemDefSummary(String, int, String, String) ctor}
-   * for description.
-   * Set in ctor or <code>toXml</code> method, then never <code>null</code>
-   * or changed after that (may be empty).
+   * See {@link #PSItemDefSummary(String, int, String, String) ctor} for description. Set in ctor or
+   * <code>toXml</code> method, then never <code>null</code> or changed after that (may be empty).
    */
   private String m_description;
 
   /**
-   * See
-   * for description.
-   * Set in ctor or <code>toXml</code> method, then never <code>null</code>
-   * or changed after that (may be empty).
+   * See for description. Set in ctor or <code>toXml</code> method, then never <code>null</code> or
+   * changed after that (may be empty).
    */
   private String m_label;
 

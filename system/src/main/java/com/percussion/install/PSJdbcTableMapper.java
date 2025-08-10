@@ -36,10 +36,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Data handler object which wraps the functionality of
- * <code>PSJdbcTableMapping</code> object.
- */
+/** Data handler object which wraps the functionality of <code>PSJdbcTableMapping</code> object. */
 public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
   /**
    * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
@@ -56,13 +53,10 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler
-   *
-   * <code>fromXml</code> method must be called before calling this method
-   * so that the row mappings are defined.
-   *
-   * @throws IllegalStateException if <code>fromXml</code> method has not
-   * been called before calling this method
+   * @see com.percussion.tablefactory.IPSJdbcTableDataHandler <code>fromXml</code> method must be
+   *     called before calling this method so that the row mappings are defined.
+   * @throws IllegalStateException if <code>fromXml</code> method has not been called before calling
+   *     this method
    */
   public PSJdbcRowData execute(Connection conn, PSJdbcRowData row)
       throws PSJdbcTableFactoryException {
@@ -97,18 +91,16 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * Applies the row mappings defined in the table mapping to all the rows
-   * in the source table.
+   * Applies the row mappings defined in the table mapping to all the rows in the source table.
    *
    * @param conn the database connection to use, assumed not <code>null</code>
    * @param tableMapping contains all the row mappings, assumed not <code>null</code>
-   * @param srcSchema schema of the source table from which data will be
-   * obtained, assumed not <code>null</code>
-   * @param destSchema schema of the destination table into which data will be
-   * updated, assumed not <code>null</code>
-   *
-   * @throws SQLException if any error occurs reading data from source table
-   * or updating data in the destination table
+   * @param srcSchema schema of the source table from which data will be obtained, assumed not
+   *     <code>null</code>
+   * @param destSchema schema of the destination table into which data will be updated, assumed not
+   *     <code>null</code>
+   * @throws SQLException if any error occurs reading data from source table or updating data in the
+   *     destination table
    * @throws IOException if any error occurs reading or writing LOB data
    * @throws PSJdbcTableFactoryException if any error occurs
    */
@@ -214,29 +206,26 @@ public class PSJdbcTableMapper implements IPSJdbcTableDataHandler {
   }
 
   /**
-   * provides the database/schema information for the table, initialized in the
-   * constructor, never <code>null</code> after initialization
+   * provides the database/schema information for the table, initialized in the constructor, never
+   * <code>null</code> after initialization
    */
   private PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * name of the destination table into which data needs to be inserted,
-   * initialized in the <code>fromXml</code> method,
-   * never <code>null</code> after initialization
+   * name of the destination table into which data needs to be inserted, initialized in the <code>
+   * fromXml</code> method, never <code>null</code> after initialization
    */
   private String m_destTable = null;
 
   /**
-   * name of the source table from which data will be copied,
-   * initialized in the <code>fromXml</code> method,
-   * never <code>null</code> after initialization
+   * name of the source table from which data will be copied, initialized in the <code>fromXml
+   * </code> method, never <code>null</code> after initialization
    */
   private String m_srcTable = null;
 
   /**
-   * Element from which to obtain the table mapping,
-   * initialized in the <code>fromXml</code> method, never <code>null</code>
-   * after initialization.
+   * Element from which to obtain the table mapping, initialized in the <code>fromXml</code> method,
+   * never <code>null</code> after initialization.
    */
   private Element m_tableMapEl = null;
 

@@ -44,9 +44,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * A filter that contains a set of matching rules that determine what namespace
- * declarations, elements, and attributes are allowed. The matching expressions
- * use Glob type patterns for matching.
+ * A filter that contains a set of matching rules that determine what namespace declarations,
+ * elements, and attributes are allowed. The matching expressions use Glob type patterns for
+ * matching.
+ *
  * <p>
  *
  * <pre>
@@ -55,25 +56,21 @@ import org.xml.sax.SAXException;
  *     * = 0 or more of any character
  *     ? = 1 instance of any character
  * </pre>
- *
- * </p>
  */
 public class PSStylesheetCleanupFilter {
   private static final Logger log = LogManager.getLogger(PSStylesheetCleanupFilter.class);
 
   /**
-   * Private ctor. This class is a singleton. Use {@link #getInstance()}
-   * to get an object instance.
+   * Private ctor. This class is a singleton. Use {@link #getInstance()} to get an object instance.
    */
   private PSStylesheetCleanupFilter() {
     // no-op
   }
 
   /**
-   * Returns the Singleton instance of the <code>PSStylesheetFilter</code>
-   * class. The filter object is created from the stylesheetCleanupFilter.xml
-   * file that resides under rxconfig/Server. If the file does not exist then a
-   * hard coded default filter is used.
+   * Returns the Singleton instance of the <code>PSStylesheetFilter</code> class. The filter object
+   * is created from the stylesheetCleanupFilter.xml file that resides under rxconfig/Server. If the
+   * file does not exist then a hard coded default filter is used.
    *
    * <pre>
    *     &lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot; ?&gt;
@@ -101,8 +98,8 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Call this to initialize the class for testing or other purposes where the
-   * location may not be standard.
+   * Call this to initialize the class for testing or other purposes where the location may not be
+   * standard.
    *
    * @param location the location, never <code>null</code>
    * @return the instance, never <code>null</code>
@@ -167,8 +164,8 @@ public class PSStylesheetCleanupFilter {
 
   /**
    * Adds all the matching rules from the xml passed in.
-   * <p>
-   * Uses the following DTD: <br>
+   *
+   * <p>Uses the following DTD: <br>
    *
    * <pre>
    *     &lt;!ELEMENT allowedAttribute EMPTY&gt;
@@ -228,13 +225,12 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Adds a namespace to the allowed namespaces hash map. This creates an array
-   * that holds three arrayLists and puts them into the allowed namespaces hash
-   * map.
+   * Adds a namespace to the allowed namespaces hash map. This creates an array that holds three
+   * arrayLists and puts them into the allowed namespaces hash map.
    *
    * @param ns the namespace, may be <code>null</code> or empty.
-   * @param namespaceUri the uri associated with this namespace, may be
-   *           <code>null</code> or empty for bc
+   * @param namespaceUri the uri associated with this namespace, may be <code>null</code> or empty
+   *     for bc
    */
   @SuppressWarnings("unchecked")
   private void addNamespace(String ns, String namespaceUri) {
@@ -246,8 +242,7 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Adds an element rule to the appropriate list under the specified
-   * namespace.
+   * Adds an element rule to the appropriate list under the specified namespace.
    *
    * @param ns the namespace, may be <code>null</code> or empty.
    * @param elem the element rule pattern
@@ -260,8 +255,7 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Adds an attribute rule to the appropriate list under the specified
-   * namespace.
+   * Adds an attribute rule to the appropriate list under the specified namespace.
    *
    * @param ns the namespace, may be <code>null</code> or empty.
    * @param attr the attribute rule pattern
@@ -274,8 +268,7 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Adds a declaration rule to the appropriate list under the specified
-   * namespace.
+   * Adds a declaration rule to the appropriate list under the specified namespace.
    *
    * @param ns the namespace, may be <code>null</code> or empty.
    * @param dec the declaration value rule pattern
@@ -288,8 +281,8 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Looks for a pattern match between the value passed in and the Glob type
-   * expressions that exist in the specified namespace list.
+   * Looks for a pattern match between the value passed in and the Glob type expressions that exist
+   * in the specified namespace list.
    *
    * @param ns the namespace string, may be <code>null</code> or empty.
    * @param val the value to be matched
@@ -341,8 +334,7 @@ public class PSStylesheetCleanupFilter {
    *
    * @param ns the namespace to which this list belongs.
    * @param index the appropriate list index
-   * @return the specified list or <code>null</code> if the namespace does
-   *         not exist.
+   * @return the specified list or <code>null</code> if the namespace does not exist.
    */
   private List<String> getList(String ns, int index) {
     List<String> list = null;
@@ -354,10 +346,10 @@ public class PSStylesheetCleanupFilter {
   /**
    * Get the namespace associated with the given prefix
    *
-   * @param namespaceName prefix, may be <code>null</code> or empty, in which
-   *           case the default namespace is used
-   * @return the namespace uri, may be <code>null</code> or empty for some
-   *         namespaces (default and xml)
+   * @param namespaceName prefix, may be <code>null</code> or empty, in which case the default
+   *     namespace is used
+   * @return the namespace uri, may be <code>null</code> or empty for some namespaces (default and
+   *     xml)
    */
   public String getNSUri(String namespaceName) {
     if (StringUtils.isBlank(namespaceName)) namespaceName = "";
@@ -390,22 +382,19 @@ public class PSStylesheetCleanupFilter {
   }
 
   /**
-   * Map to hold pattern rules for all allowed namespaces. The data structure
-   * is a map that has an entry for each allowed namespace and the value of
-   * each entry is 3 Lists (elements, attributes, namespace declaration values)
-   * Namespace devlaration values really doesn't need to be a list as it is
-   * only a single value.
+   * Map to hold pattern rules for all allowed namespaces. The data structure is a map that has an
+   * entry for each allowed namespace and the value of each entry is 3 Lists (elements, attributes,
+   * namespace declaration values) Namespace devlaration values really doesn't need to be a list as
+   * it is only a single value.
    */
   private Map<String, List<String>[]> m_allowedNS = new HashMap<String, List<String>[]>();
 
-  /**
-   * A map that associates namespace prefixes with their corresponding uris.
-   */
+  /** A map that associates namespace prefixes with their corresponding uris. */
   private Map<String, String> m_uris = new HashMap<String, String>();
 
   /**
-   * The singleton instance of this class, initialized in
-   * {@link #getInstance()}, never <code>null</code> after that.
+   * The singleton instance of this class, initialized in {@link #getInstance()}, never <code>null
+   * </code> after that.
    */
   private static PSStylesheetCleanupFilter ms_instance;
 
@@ -433,9 +422,8 @@ public class PSStylesheetCleanupFilter {
   private static final String ATTR_DECLARATION_VALUE = "declValue";
 
   /**
-   * Default stylesheet cleanup filter. This is used as a fallback if no
-   * stylesheetCleanFilter.xml file exists. Which in most cases should never
-   * happen.
+   * Default stylesheet cleanup filter. This is used as a fallback if no stylesheetCleanFilter.xml
+   * file exists. Which in most cases should never happen.
    */
   private static final String DEFAULT_FILTER_XML =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"

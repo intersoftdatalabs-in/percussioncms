@@ -20,22 +20,22 @@ import com.percussion.server.command.PSConsoleCommandException;
 import org.w3c.dom.Document;
 
 /**
- * The IPSConsoleCommand interface defines the methods a console command
- * handler class must implement.
+ * The IPSConsoleCommand interface defines the methods a console command handler class must
+ * implement.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSConsoleCommand {
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document appropriate to the command. The following format (dtd)
-   * is suggested as basis for this document to provide consistency and
-   * machine processing capability.
-   * <P>Additional nodes can be appended to the root node after resultText.
+   * Execute the command specified by this object. The results are returned as an XML document
+   * appropriate to the command. The following format (dtd) is suggested as basis for this document
+   * to provide consistency and machine processing capability.
+   *
+   * <p>Additional nodes can be appended to the root node after resultText.
+   *
    * <PRE><CODE>
    *    &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode,
    *    resultText)&gt;
@@ -57,10 +57,8 @@ public interface IPSConsoleCommand {
    * </CODE></PRE>
    *
    * @param request the requestor object, may be <code>null</code>
-   *
    * @return the result document, never <code>null</code>
-   *
-   * @throws PSConsoleCommandException   if an error occurs during execution
+   * @throws PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException;
 }

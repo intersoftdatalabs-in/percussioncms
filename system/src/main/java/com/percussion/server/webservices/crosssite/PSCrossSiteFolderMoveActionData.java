@@ -21,12 +21,10 @@ import com.percussion.design.objectstore.PSLocator;
 import java.util.List;
 
 /**
- * Serializable data object for PSCrossSiteFolderMoveProcessor.
- * See Parent Class.
+ * Serializable data object for PSCrossSiteFolderMoveProcessor. See Parent Class.
  *
  * @author adamgent
  * @see PSCrossSiteFolderMoveActionProcessor
- *
  */
 public class PSCrossSiteFolderMoveActionData extends PSCrossSiteFolderActionData {
 
@@ -80,22 +78,19 @@ public class PSCrossSiteFolderMoveActionData extends PSCrossSiteFolderActionData
   }
 
   /**
-   * Target folder locator for the move action being processed, set in the
-   * ctor. Never <code>null</code>.
+   * Target folder locator for the move action being processed, set in the ctor. Never <code>null
+   * </code>.
    */
   private PSLocator m_targetFolderId = null;
 
   /**
-   * Target siteid for the action being processed, computed in the ctor.
-   * Corresponds to the target folderid. May be <code>null</code> if the
-   * target folder is not part of any site.
+   * Target siteid for the action being processed, computed in the ctor. Corresponds to the target
+   * folderid. May be <code>null</code> if the target folder is not part of any site.
    */
   private Integer m_targetSiteId = null;
 
   private List<Integer> m_targetSiteIds = null;
 
-  /**
-   * Action category evaluated in the ctor.
-   */
+  /** Action category evaluated in the ctor. */
   private PSMoveActionCategoryEnum m_actionCategory = null;
 }

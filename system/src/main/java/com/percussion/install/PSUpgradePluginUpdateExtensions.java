@@ -34,23 +34,18 @@ import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Element;
 
 /**
- * This upgrade plug-in will add/modify extensions that have these interfaces
- * included:
- * IPSResultDocumentProcessor    (may include) --> IPSItemValidator
- * IPSUdfProcessor               (may include) --> IPSFieldValidator
- * IPSUdfProcessor               (may include) --> IPSFieldOutputTransformer
+ * This upgrade plug-in will add/modify extensions that have these interfaces included:
+ * IPSResultDocumentProcessor (may include) --> IPSItemValidator IPSUdfProcessor (may include) -->
+ * IPSFieldValidator IPSUdfProcessor (may include) --> IPSFieldOutputTransformer
  *
- * A list of all the extension names that need these modifications is pre-
- * computed. So in future if you need to add/delete/modify these lists do so
- * here and run this tool standalone on the source extensions.xml
- * These modifications are performed only on JAVA handlers that are not
+ * <p>A list of all the extension names that need these modifications is pre- computed. So in future
+ * if you need to add/delete/modify these lists do so here and run this tool standalone on the
+ * source extensions.xml These modifications are performed only on JAVA handlers that are not
  * deprecated and
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     log("PSUpgradePluginUpdateExtensions.process()");
@@ -74,15 +69,13 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   }
 
   /**
-   * Modify the set of extension names provided in the extList:
-   * modification is to add the interface to the list of interfaces if not
-   * already present
+   * Modify the set of extension names provided in the extList: modification is to add the interface
+   * to the list of interfaces if not already present
+   *
    * @param mgr the extension manager never <code>null</code>
    * @param ifPattern the interface pattern as a filter on extensions
-   * @param extSet Set of extension names may be empty but never
-   *    <code>null</code>
-   * @param ifName the interface name that needs to be added, never
-   *    <code>null</code>
+   * @param extSet Set of extension names may be empty but never <code>null</code>
+   * @param ifName the interface name that needs to be added, never <code>null</code>
    */
   private void updateExtensions(
       IPSExtensionManager mgr, String ifPattern, Set extSet, String ifName)
@@ -113,8 +106,9 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   }
 
   /**
-   * Add IPSItemValidator interface to the extension references specified in
-   * <code>m_itemValidatorList</code>
+   * Add IPSItemValidator interface to the extension references specified in <code>
+   * m_itemValidatorList</code>
+   *
    * @param mgr
    * @throws PSExtensionException
    */
@@ -130,8 +124,9 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   }
 
   /**
-   * Add IPSFieldValidator interface to the extension references specified in
-   * <code>m_fieldValidators</code>
+   * Add IPSFieldValidator interface to the extension references specified in <code>
+   * m_fieldValidators</code>
+   *
    * @param mgr the extension manager never <code>null</code>
    * @throws PSExtensionException
    */
@@ -147,8 +142,9 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   }
 
   /**
-   * Add IPSFieldTransformer interface to the extension references specified in
-   * <code>m_fieldTransformers</code>
+   * Add IPSFieldTransformer interface to the extension references specified in <code>
+   * m_fieldTransformers</code>
+   *
    * @param mgr the extension manager never <code>null</code>
    * @throws PSExtensionException
    */
@@ -187,18 +183,12 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
     m_fieldTransformers.add("sys_MapOutputValue");
   }
 
-  /**
-   * Convenience method to add any of the extensions that need to implement
-   * IPSFieldValidator
-   */
+  /** Convenience method to add any of the extensions that need to implement IPSFieldValidator */
   private void initFieldValidators() {
     m_fieldValidators.add("sys_GetBase64EncodedBody");
   }
 
-  /**
-   * Convenience method to add any of the extensions that need to implement
-   * IPSItemValidator
-   */
+  /** Convenience method to add any of the extensions that need to implement IPSItemValidator */
   private void initItemValidators() {
     m_itemValidators.add("sys_comAddDefaultCommunity");
     m_itemValidators.add("sys_casAutoRelatedContent");
@@ -209,8 +199,7 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists or just sends it to
-   * System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -226,50 +215,32 @@ public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * The upgrade context information
-   */
+  /** The upgrade context information */
   private IPSUpgradeModule m_config;
 
-  /**
-   * List of extension names for which a new interface must be added
-   */
+  /** List of extension names for which a new interface must be added */
   private Set m_itemValidators = new HashSet();
 
-  /**
-   * List of extension names for which a new interface must be added
-   */
+  /** List of extension names for which a new interface must be added */
   private Set m_fieldValidators = new HashSet();
 
-  /**
-   * List of extension names for which a new interface must be added
-   */
+  /** List of extension names for which a new interface must be added */
   private Set m_fieldTransformers = new HashSet();
 
-  /**
-   * A string defining the interface that needs to be added
-   */
+  /** A string defining the interface that needs to be added */
   private static final String ITEM_VALIDATOR = "com.percussion.extension.IPSItemValidator";
 
-  /**
-   * A string defining the interface that needs to be added
-   */
+  /** A string defining the interface that needs to be added */
   private static final String FIELD_VALIDATOR = "com.percussion.extension.IPSFieldValidator";
 
-  /**
-   * A string defining the interface that needs to be added
-   */
+  /** A string defining the interface that needs to be added */
   private static final String FIELD_TRANSFORMER =
       "com.percussion.extension.IPSFieldOutputTransformer";
 
-  /**
-   * A pattern to match extensions that extend IPSResultDocumentProcessor
-   */
+  /** A pattern to match extensions that extend IPSResultDocumentProcessor */
   private static final String PATTERN_RESULT_DOC_PROC =
       "com.percussion.extension.IPSResultDocumentProcessor";
 
-  /**
-   * A pattern to match extensions that extend IPSUdfProcessor
-   */
+  /** A pattern to match extensions that extend IPSUdfProcessor */
   private static final String PATTERN_UDF_PROC = "com.percussion.extension.IPSUdfProcessor";
 }

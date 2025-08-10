@@ -67,8 +67,8 @@ public interface IPSBeanProperties {
   Map<?, ?> getMap(String name);
 
   /**
-   * Saves a set of properties. The specified properties will override and merge into current properties,
-   * and will be saved into the repository.
+   * Saves a set of properties. The specified properties will override and merge into current
+   * properties, and will be saved into the repository.
    *
    * @param props the properties to save. Never {@code null}.
    */

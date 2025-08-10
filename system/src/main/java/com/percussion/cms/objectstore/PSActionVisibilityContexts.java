@@ -21,19 +21,16 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 public class PSActionVisibilityContexts extends PSDbComponentCollection {
-  /**
-   * The default constructor to create parameters with empty list.
-   */
+  /** The default constructor to create parameters with empty list. */
   public PSActionVisibilityContexts() {
     super(PSActionVisibilityContext.class);
   }
 
   /**
-   * Constructs this object from the supplied element. See {@link
-   * #toXml(org.w3c.dom.Document)} for the expected form of xml.
+   * Constructs this object from the supplied element. See {@link #toXml(org.w3c.dom.Document)} for
+   * the expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    */
   public PSActionVisibilityContexts(Element element) throws PSUnknownNodeTypeException {
@@ -43,9 +40,7 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
   /**
    * If a context by the supplied name can be found, it is returned.
    *
-   * @param name Name of the context. Never <code>null</code> or empty.
-   *    Compare is case insensitive.
-   *
+   * @param name Name of the context. Never <code>null</code> or empty. Compare is case insensitive.
    * @return The context by that name, or <code>null</code> if not found.
    */
   public PSActionVisibilityContext getContext(String name) {
@@ -56,7 +51,6 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
    * Adds a new context w/ a single value.
    *
    * @param name The name of the context. Never <code>null</code> or empty.
-   *
    * @param value One of the values. If <code>null</code>, "" is used.
    */
   public void addContext(String name, String value) {
@@ -67,12 +61,9 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
   /**
    * Adds a new context w/ multiple values.
    *
-   * @param name The name of the context. Never <code>null</code> or empty.
-   *    If a context by that name is present, the supplied values are assigned
-   *    to the existing one.
-   *
-   * @param values Zero or more values. If <code>null</code>, a single value
-   *    of "" is used.
+   * @param name The name of the context. Never <code>null</code> or empty. If a context by that
+   *     name is present, the supplied values are assigned to the existing one.
+   * @param values Zero or more values. If <code>null</code>, a single value of "" is used.
    */
   public void addContext(String name, String[] values) {
     if (null == name || name.trim().length() == 0)
@@ -93,14 +84,12 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
   }
 
   /**
-   * If a context by the supplied name exists in this set, it is removed.
-   * Otherwise, no action is taken.
+   * If a context by the supplied name exists in this set, it is removed. Otherwise, no action is
+   * taken.
    *
-   * @param name If <code>null</code> or empty, no action is taken. The name
-   *    is compared case insensitive.
-   *
-   * @return <code>true</code> if an entry was removed, <code>false</code>
-   *    otherwise.
+   * @param name If <code>null</code> or empty, no action is taken. The name is compared case
+   *     insensitive.
+   * @return <code>true</code> if an entry was removed, <code>false</code> otherwise.
    */
   public boolean removeContext(String name) {
     if (null == name || name.trim().length() == 0) return false;
@@ -109,9 +98,9 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
   }
 
   /**
-   * This method is overridden to guarantee that the names of all members
-   * forms a set. If you add a context that is already present, the values
-   * in the new context replace those in the existing one.
+   * This method is overridden to guarantee that the names of all members forms a set. If you add a
+   * context that is already present, the values in the new context replace those in the existing
+   * one.
    *
    * @param comp Never <code>null</code>. Must be a PSActionVisibilityContext.
    */
@@ -138,9 +127,7 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
   /**
    * Finds the context in this set that has the specified name.
    *
-   * @param name Never <code>null</code> or empty. The name is compared
-   *    case insensitive.
-   *
+   * @param name Never <code>null</code> or empty. The name is compared case insensitive.
    * @return A valid context, or <code>null</code> if one can't be found.
    */
   private PSActionVisibilityContext getContextObject(String name) {
@@ -152,9 +139,7 @@ public class PSActionVisibilityContexts extends PSDbComponentCollection {
     return null;
   }
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "PSXActionVisibilityContexts";
 
   // xml constants

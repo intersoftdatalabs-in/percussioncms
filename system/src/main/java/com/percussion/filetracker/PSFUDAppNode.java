@@ -22,29 +22,23 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class wraps the Application node in the Tree Table model and extends
- * the abstract class PSFUDAbstractNode. This is the root node of the model.
- * An application node can have two states, viz. normal remote absent.
+ * This class wraps the Application node in the Tree Table model and extends the abstract class
+ * PSFUDAbstractNode. This is the root node of the model. An application node can have two states,
+ * viz. normal remote absent.
  *
  * @see IPSFUDNode for node states.
- *
  */
 public class PSFUDAppNode extends PSFUDAbstractNode {
-  /**
-   * Constructor. Loads the snapshot document on construction.
-   */
+  /** Constructor. Loads the snapshot document on construction. */
   public PSFUDAppNode(PSFUDApplication app) throws PSFUDNullElementException {
     super(null, app.getElement());
     m_Application = app;
   }
 
   /**
-   * Returns the the string to be used to display this node in the first
-   * colummn of the JTreeTable.
+   * Returns the the string to be used to display this node in the first colummn of the JTreeTable.
    *
-   * @return string representation of the node. This gets displayed in the
-   *         tree table.
-   *
+   * @return string representation of the node. This gets displayed in the tree table.
    */
   public String toString() {
     String value = MainFrame.getConfig().getServerAlias();
@@ -54,12 +48,11 @@ public class PSFUDAppNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Loads the children, caching the results. The application node shall
-   * obtain only category nodes as its children.
+   * Loads the children, caching the results. The application node shall obtain only category nodes
+   * as its children.
    *
-   * @return array of child nodes as an array Objects, can be empty
-   *         <code>null</code> it does have category child nodes.
-   *
+   * @return array of child nodes as an array Objects, can be empty <code>null</code> it does have
+   *     category child nodes.
    */
   public Object[] getChildren() {
     if (m_Children != null || null == m_Element) {
@@ -90,9 +83,8 @@ public class PSFUDAppNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Reference to the PSFUDApplication object. This is used to access required
-   * methods, if any. Can never be <code>null</code>.
-   *
+   * Reference to the PSFUDApplication object. This is used to access required methods, if any. Can
+   * never be <code>null</code>.
    */
   private PSFUDApplication m_Application = null;
 }

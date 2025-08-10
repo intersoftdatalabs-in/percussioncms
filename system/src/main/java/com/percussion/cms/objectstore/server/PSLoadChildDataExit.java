@@ -32,9 +32,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class is used by the CMS Layer to simulate outer joins when querying
- * objects.  It will replace a child element of a cms object's xml using the
- * results of a query specified by an attribute on that child element.
+ * This class is used by the CMS Layer to simulate outer joins when querying objects. It will
+ * replace a child element of a cms object's xml using the results of a query specified by an
+ * attribute on that child element.
  */
 public class PSLoadChildDataExit extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
@@ -50,30 +50,23 @@ public class PSLoadChildDataExit extends PSDefaultExtension implements IPSResult
    * See class description.
    *
    * @param params The parameters are as follows:
-   * <ol>
-   * <li>The name of the base element as a <code>String</code>, may not be
-   * <code>null</code> or empty.  This is the parent of the element that will
-   * contain the child data.</li>
-   * <li>The name of the child element as a <code>String</code>, may not be
-   * <code>null</code> or empty. This is the element that will contain the
-   * child data</li>
-   * <li>The name of the attribute on the child element that contains the query
-   * that will return the child data, as a <code>String</code>.  The returned
-   * xml element will replace the child element within the base element.</li>
-   * </ol>
+   *     <ol>
+   *       <li>The name of the base element as a <code>String</code>, may not be <code>null</code>
+   *           or empty. This is the parent of the element that will contain the child data.
+   *       <li>The name of the child element as a <code>String</code>, may not be <code>null</code>
+   *           or empty. This is the element that will contain the child data
+   *       <li>The name of the attribute on the child element that contains the query that will
+   *           return the child data, as a <code>String</code>. The returned xml element will
+   *           replace the child element within the base element.
+   *     </ol>
    *
    * @param request Guaranteed not <code>null</code> by interface.
-   *
    * @param resultDoc Guaranteed not <code>null</code> by interface.
-   *
-   * @return The doc as supplied with the specified child element replaced by
-   * the results of the query, never <code>null</code>.
-   *
-   * @throws PSParameterMismatchException if the correct parameters are not
-   * supplied.
-   * @throws PSExtensionProcessingException if there is an error parsing the
-   * expected object XML in the supplied resultDoc or if a handler can't be
-   * found for the supplied query.
+   * @return The doc as supplied with the specified child element replaced by the results of the
+   *     query, never <code>null</code>.
+   * @throws PSParameterMismatchException if the correct parameters are not supplied.
+   * @throws PSExtensionProcessingException if there is an error parsing the expected object XML in
+   *     the supplied resultDoc or if a handler can't be found for the supplied query.
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -134,18 +127,14 @@ public class PSLoadChildDataExit extends PSDefaultExtension implements IPSResult
   }
 
   /**
-   * Executes the specified query as an internal request and returns the
-   * result doc's root element.
+   * Executes the specified query as an internal request and returns the result doc's root element.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
    * @param req The request to use, assumed not <code>null</code>.
    * @param query The query to run, assumed not <code>null</code> or empty.
-   *
-   * @return The element, may be <code>null</code> if a null or empty doc is
-   * returned.
-   *
-   * @throws PSExtensionProcessingException if the requested resource doesn't
-   * exist or if there are any other errors.
+   * @return The element, may be <code>null</code> if a null or empty doc is returned.
+   * @throws PSExtensionProcessingException if the requested resource doesn't exist or if there are
+   *     any other errors.
    */
   private Element executeQuery(IPSRequestContext req, String query)
       throws PSExtensionProcessingException {

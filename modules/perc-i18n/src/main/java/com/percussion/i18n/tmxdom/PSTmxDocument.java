@@ -47,24 +47,24 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This is a wrapper around the TMX (Translation Memory Exchange) Document which
- * is an XML document. TMX has a DTD that very generic, however, for the purpose
- * of Rhythmyx i18n, we use only a subset of features provided by the TMX DTD.
- * This class provides means to
- * <ol>
- * <li>Create a TMX document from scratch </li>
- * <li>Modify an existing one</li>
- * <li>Merge two TMX documents with configurable merge options</li>
- * </ol>
+ * This is a wrapper around the TMX (Translation Memory Exchange) Document which is an XML document.
+ * TMX has a DTD that very generic, however, for the purpose of Rhythmyx i18n, we use only a subset
+ * of features provided by the TMX DTD. This class provides means to
  *
- **/
+ * <ol>
+ *   <li>Create a TMX document from scratch
+ *   <li>Modify an existing one
+ *   <li>Merge two TMX documents with configurable merge options
+ * </ol>
+ */
 public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
 
   private static final Logger log = LogManager.getLogger(PSTmxDocument.class);
 
   /**
-   * Default constructor. Creates an empty TMX document. Initializes default
-   * merge configuration object and XSL document for sorting.
+   * Default constructor. Creates an empty TMX document. Initializes default merge configuration
+   * object and XSL document for sorting.
+   *
    * @throws PSTmxDomException creation fails for any reason.
    */
   public PSTmxDocument() throws PSTmxDomException {
@@ -77,24 +77,20 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     }
   }
 
-  /**
-   * Convenience ctor that calls {@link #PSTmxDocument(Document, boolean)
-   * this(DOMDoc, true)}
-   */
+  /** Convenience ctor that calls {@link #PSTmxDocument(Document, boolean) this(DOMDoc, true)} */
   public PSTmxDocument(Document DOMDoc) throws PSTmxDomException {
     this(DOMDoc, true);
   }
 
   /**
-   * Constructor that takes the input TMX file as XML DOM document.
-   * Creates an TMX document object from the supplied XML document. Initializes
-   * default  merge configuration object and XSL document for sorting.
+   * Constructor that takes the input TMX file as XML DOM document. Creates an TMX document object
+   * from the supplied XML document. Initializes default merge configuration object and XSL document
+   * for sorting.
    *
    * @param DOMDoc the input XML DOM document, must not be <code>null</code>.
-   * @param createDefault If <code>true</code>, a variant is also
-   * added for the default language to each translation unit if it does not
-   * already exist.  If <code>false</code>, no defaults are added.
-   *
+   * @param createDefault If <code>true</code>, a variant is also added for the default language to
+   *     each translation unit if it does not already exist. If <code>false</code>, no defaults are
+   *     added.
    * @throws PSTmxDomException if initialization fails for any reason
    * @throws IllegalArgumentException if argument is <code>null</code>.
    */
@@ -109,10 +105,7 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
     }
   }
 
-  /**
-   * Helper method to create an empty TMX DOM documet. Sets the TMX version to
-   * '1.4'.
-   */
+  /** Helper method to create an empty TMX DOM documet. Sets the TMX version to '1.4'. */
   private void createNew() {
     m_DOMDocument = PSXmlDocumentBuilder.createXmlDocument();
     m_DOMElement = PSXmlDocumentBuilder.createRoot(m_DOMDocument, TMXNODENAME);
@@ -120,14 +113,13 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Helper method to initialize the TMX document object. Sets default merge
-   * configuratoin. Constructs required parts of the TMX document, viz. header
-   * and body. Also initializes the sorting XSL document.
+   * Helper method to initialize the TMX document object. Sets default merge configuratoin.
+   * Constructs required parts of the TMX document, viz. header and body. Also initializes the
+   * sorting XSL document.
    *
-   * @param createDefault If <code>true</code>, a variant is also
-   * added for the default language to each translation unit if it does not
-   * already exist.  If <code>false</code>, no defaults are added.
-   *
+   * @param createDefault If <code>true</code>, a variant is also added for the default language to
+   *     each translation unit if it does not already exist. If <code>false</code>, no defaults are
+   *     added.
    * @throws IOException
    * @throws SAXException
    */
@@ -146,10 +138,10 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Override the method defined in the interface {@link IPSTmxNode} to apply
-   * sorting stylesheet.
-   * @return String representation of the sorted XML document associated with
-   * this TMX document. Never <code>null</code> or <code>empty</code>.
+   * Override the method defined in the interface {@link IPSTmxNode} to apply sorting stylesheet.
+   *
+   * @return String representation of the sorted XML document associated with this TMX document.
+   *     Never <code>null</code> or <code>empty</code>.
    * @throws PSTmxDomException
    */
   public String toString() throws PSTmxDomException {
@@ -204,11 +196,11 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Merges the header object from the supplied TMX document object with the
-   * header of this TMX document object. Merging header simply means adding the
-   * supported linguages from the supplied document, if they already do not exist.
-   * @param srcDoc the TMX document object whose header is to merged with that
-   * of current one.
+   * Merges the header object from the supplied TMX document object with the header of this TMX
+   * document object. Merging header simply means adding the supported linguages from the supplied
+   * document, if they already do not exist.
+   *
+   * @param srcDoc the TMX document object whose header is to merged with that of current one.
    * @throws IllegalArgumentException if argument is <code>null</code>.
    */
   protected void mergeHeader(IPSTmxDocument srcDoc) {
@@ -220,10 +212,10 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Merges the body of the supplied TMX document object with the that of this
-   * TMX document object using the merge configuration set.
-   * @param srcDoc the TMX document object whose body is to merged with that
-   * of current one.
+   * Merges the body of the supplied TMX document object with the that of this TMX document object
+   * using the merge configuration set.
+   *
+   * @param srcDoc the TMX document object whose body is to merged with that of current one.
    * @throws IllegalArgumentException if argument is <code>null</code>.
    */
   protected void mergeBody(IPSTmxDocument srcDoc) {
@@ -268,9 +260,9 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Overriding the method from the interface {@link #IPSTmxNode}.
-   * Only two types of nodes are allowed for merging, viz. {@link #IPSTmxDocument},
-   * {@link #IPSTmxTranslationUnit}
+   * Overriding the method from the interface {@link #IPSTmxNode}. Only two types of nodes are
+   * allowed for merging, viz. {@link #IPSTmxDocument}, {@link #IPSTmxTranslationUnit}
+   *
    * @param node must not be <code>null</code>.
    * @throws PSTmxDomException if merge cannot proceed.
    * @throws IllegalArgumentExcpetion supplied node is <code>null</code>.
@@ -423,8 +415,8 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Convenience method that calls {@link #transformXML(Document, Document,
-   * Map) transformXML(srcDoc, xslDoc, null)}
+   * Convenience method that calls {@link #transformXML(Document, Document, Map)
+   * transformXML(srcDoc, xslDoc, null)}
    */
   public static Document transformXML(Document srcDoc, Document xslDoc)
       throws SAXException, TransformerException {
@@ -432,25 +424,20 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * Show how to transform a DOM tree into another DOM tree.
-   * This uses the javax.xml.parsers to parse an XML file into a
-   * DOM, and create an output DOM.
+   * Show how to transform a DOM tree into another DOM tree. This uses the javax.xml.parsers to
+   * parse an XML file into a DOM, and create an output DOM.
    *
    * @param srcDoc source document, must not be <code>null</code>.
    * @param xslDoc xsl Document for transforming, must not be <code>null</code>.
-   * @param   params An optional map of parameters, where for each entry the
-   * the key is the param name as a <code>String</code> and the value is an
-   * object whose <code>toString</code> method will be used as the value of the
-   * param.  The params are passed to the style sheet processor, and will be
-   * used to set the value of any global parameters defined as an <code>
-   * xsl:param</code> element in the stylesheet with a matching name (the
-   * parameter must be defined as a child of the xsl:stylesheet
-   * element).  If a matching parameter declaration is not found in the
-   * stylesheet, the supplied parameter is silently ignored.  May be <code>
+   * @param params An optional map of parameters, where for each entry the the key is the param name
+   *     as a <code>String</code> and the value is an object whose <code>toString</code> method will
+   *     be used as the value of the param. The params are passed to the style sheet processor, and
+   *     will be used to set the value of any global parameters defined as an <code>
+   * xsl:param</code> element in the stylesheet with a matching name (the parameter must be defined
+   *     as a child of the xsl:stylesheet element). If a matching parameter declaration is not found
+   *     in the stylesheet, the supplied parameter is silently ignored. May be <code>
    * null</code> if no parameters are to be supplied.
-   *
    * @return the transformed XML DOM Document. Never <code>null</code>.
-   *
    * @throws SAXException
    * @throws TransformerException
    * @throws IllegalArgumentException
@@ -486,69 +473,66 @@ public class PSTmxDocument extends PSTmxNode implements IPSTmxDocument {
   }
 
   /**
-   * TMX header object. A TMX document must have one header. Never <code>null</code>
-   * after the class object is constructed.
+   * TMX header object. A TMX document must have one header. Never <code>null</code> after the class
+   * object is constructed.
    */
   protected IPSTmxHeader m_Header;
 
   /**
-   * TMX header object. A TMX document must have one header. Never<code>null</code>
-   * after the object is created.
+   * TMX header object. A TMX document must have one header. Never<code>null</code> after the object
+   * is created.
    */
   protected PSTmxBody m_Body;
 
   /**
-   * XML DOM document representing the tmx resource this object is wrapping.
-   * Never <code>null</code> after the object is created.
+   * XML DOM document representing the tmx resource this object is wrapping. Never <code>null</code>
+   * after the object is created.
    */
   protected Document m_DOMDocument;
 
   /**
-   * The merge configuration object. Never <code>null</code> after this object
-   * is created. One of the main purposes of wrapinng the DOM document onto TMX
-   * Document is to provide configurable merge mechanism. A default merge
-   * configuration is shipped as part of the package. Can be changed later using
-   * {@link #setMergeConfigDoc} method
+   * The merge configuration object. Never <code>null</code> after this object is created. One of
+   * the main purposes of wrapinng the DOM document onto TMX Document is to provide configurable
+   * merge mechanism. A default merge configuration is shipped as part of the package. Can be
+   * changed later using {@link #setMergeConfigDoc} method
    */
   protected PSTmxMergeConfig m_MergeConfig = null;
 
   /**
-   * This is an XSL document that is used to sort the result TMX document
-   * meaningfully. The stylesheet for this purpose is shipped part of the
-   * project and not changeable. May be <code>null</code> after this object is
-   * created if there was an error loading it during the static intializer.
+   * This is an XSL document that is used to sort the result TMX document meaningfully. The
+   * stylesheet for this purpose is shipped part of the project and not changeable. May be <code>
+   * null</code> after this object is created if there was an error loading it during the static
+   * intializer.
    */
   protected static Document ms_xslMergeDoc = null;
 
   /**
-   * This is an XSL document that is used to extract a single language from the
-   * document. The stylesheet for this purpose is shipped part of the
-   * project and not changeable. May be <code>null</code> after this object is
-   * created if there was an error loading it during the static intializer.
+   * This is an XSL document that is used to extract a single language from the document. The
+   * stylesheet for this purpose is shipped part of the project and not changeable. May be <code>
+   * null</code> after this object is created if there was an error loading it during the static
+   * intializer.
    */
   protected static Document ms_xslExtractDoc = null;
 
-  /**
-   * Root element name for the TMX document.
-   */
+  /** Root element name for the TMX document. */
   public static final String TMXNODENAME = IPSTmxNode.NODENAMEMAP[IPSTmxNode.TMXROOT];
 
   /**
-   * Name of the stylesheet used to sort the TMX document. This is shipped as
-   * resource in the package. Whenever the document is converted to string, this
-   * stylesheet is used to sorting.
+   * Name of the stylesheet used to sort the TMX document. This is shipped as resource in the
+   * package. Whenever the document is converted to string, this stylesheet is used to sorting.
    */
   public static final String SORTING_XSL = "sortresourcebundle.xsl";
 
   /**
-   * Name of the stylesheet used to extract a language from the TMX document.
-   * This is shipped as resource in the package.
+   * Name of the stylesheet used to extract a language from the TMX document. This is shipped as
+   * resource in the package.
    */
   public static final String EXTRACT_XSL = "extractresourcebundle.xsl";
 
   /**
    * main method for testing purpose.
-   * @param    args
+   *
+   * @param args
    */
   public static void main(String[] args) {
 

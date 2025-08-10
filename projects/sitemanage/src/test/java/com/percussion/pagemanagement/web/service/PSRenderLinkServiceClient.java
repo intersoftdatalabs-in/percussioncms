@@ -23,40 +23,43 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import com.percussion.pagemanagement.data.PSInlineLinkRequest;
 import com.percussion.pagemanagement.data.PSInlineRenderLink;
 import com.percussion.share.test.PSObjectRestClient;
-
 import java.io.InputStream;
 
 public class PSRenderLinkServiceClient extends PSObjectRestClient {
-    private final String path = "/Rhythmyx/services/pagemanagement/renderlink";
-    {
-        addAccept("text/html");
-        addAccept("image/*");
-    }
+  private final String path = "/Rhythmyx/services/pagemanagement/renderlink";
 
-    public String getPath() {
-        return path;
-    }
+  {
+    addAccept("text/html");
+    addAccept("image/*");
+  }
 
-    public PSInlineRenderLink getPreviewPageLink(String pageId) {
-        notEmpty(pageId, "pageId");
-        return getObjectFromPath(concatPath(getPath(), "preview", pageId, "default"), PSInlineRenderLink.class);
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public PSInlineRenderLink getPreviewLink(String itemId) {
-        notEmpty(itemId, "pageId");
-        return getObjectFromPath(concatPath(getPath(), "preview", itemId, "default"), PSInlineRenderLink.class);
-    }
+  public PSInlineRenderLink getPreviewPageLink(String pageId) {
+    notEmpty(pageId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", pageId, "default"), PSInlineRenderLink.class);
+  }
 
-    public PSInlineRenderLink getPreviewLink(String itemId, String resourceDefinitionId) {
-        notEmpty(itemId, "pageId");
-        return getObjectFromPath(concatPath(getPath(), "preview", itemId, resourceDefinitionId), PSInlineRenderLink.class);
-    }
+  public PSInlineRenderLink getPreviewLink(String itemId) {
+    notEmpty(itemId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", itemId, "default"), PSInlineRenderLink.class);
+  }
 
-    public PSInlineRenderLink previewPostLinkRequest(PSInlineLinkRequest renLink) {
-        return postObjectToPath(concatPath(getPath(), "preview"), renLink, PSInlineRenderLink.class);
-    }
+  public PSInlineRenderLink getPreviewLink(String itemId, String resourceDefinitionId) {
+    notEmpty(itemId, "pageId");
+    return getObjectFromPath(
+        concatPath(getPath(), "preview", itemId, resourceDefinitionId), PSInlineRenderLink.class);
+  }
 
-    public InputStream followLink(String fullPath) {
-        return GET_BINARY(fullPath);
-    }
+  public PSInlineRenderLink previewPostLinkRequest(PSInlineLinkRequest renLink) {
+    return postObjectToPath(concatPath(getPath(), "preview"), renLink, PSInlineRenderLink.class);
+  }
+
+  public InputStream followLink(String fullPath) {
+    return GET_BINARY(fullPath);
+  }
 }

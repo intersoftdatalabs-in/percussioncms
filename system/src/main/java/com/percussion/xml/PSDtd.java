@@ -43,23 +43,18 @@ import org.apache.xerces.xni.grammars.XMLGrammarDescription;
 import org.apache.xerces.xni.parser.XMLInputSource;
 
 /**
- * This class represents the DTD object. For usage of this class, see the
- * <code>main</code> method. First create the <code>PSDtdParser</code> object,
- * then call the appropriate <code>parseDtd</code> method of the newly
- * created object. To obtain the <code>PSDtd</code> object representing the
+ * This class represents the DTD object. For usage of this class, see the <code>main</code> method.
+ * First create the <code>PSDtdParser</code> object, then call the appropriate <code>parseDtd</code>
+ * method of the newly created object. To obtain the <code>PSDtd</code> object representing the
  * parsed DTD call the <code>getDtd</code> method of the DTD parser object.
  */
 public class PSDtd extends DTDGrammar {
   private static final Logger log = LogManager.getLogger(PSDtd.class);
 
   /**
-   * Main method - used for tesing.
-   * Usage is :
-   * -d (DTD_FILE_PATH)
-   * -x (XML_FILE_PATH)
-   * For DTD files, it will parse the DTD and print debug information to the
-   * console. For XML files, it will first create the DTD and follow the same
-   * process as explained for DTD files.
+   * Main method - used for tesing. Usage is : -d (DTD_FILE_PATH) -x (XML_FILE_PATH) For DTD files,
+   * it will parse the DTD and print debug information to the console. For XML files, it will first
+   * create the DTD and follow the same process as explained for DTD files.
    *
    * @param argv -d|x (DTD_OR_XML_FILE_PATH)
    */
@@ -269,18 +264,12 @@ public class PSDtd extends DTDGrammar {
   /**
    * Constructor.
    *
-   * @param source the location of the entity which forms the starting point
-   * of the grammar to be constructed, may not be <code>null</code>
-   *
-   * @param symbolTable The symbol table to use. May not be <code>null</code>.
-   * For details, please see the Xerces javadoc of class
-   * org.apache.xerces.util.org.apache.xerces.util
-   *
-   * @param desc stores information specific to DTD grammars.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>
+   * @param source the location of the entity which forms the starting point of the grammar to be
+   *     constructed, may not be <code>null</code>
+   * @param symbolTable The symbol table to use. May not be <code>null</code>. For details, please
+   *     see the Xerces javadoc of class org.apache.xerces.util.org.apache.xerces.util
+   * @param desc stores information specific to DTD grammars. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>
    */
   public PSDtd(XMLInputSource source, SymbolTable symbolTable, XMLDTDDescription desc) {
     super(symbolTable, desc);
@@ -289,13 +278,13 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Return an Enumeration instance of all attribute list declarations for the
-   * specified elementName in this DTD's internal and external subsets.
-   * @param elementName the Element name to match in the internal and external
-   * DTD subsets, may not be <code>null</code> or empty
+   * Return an Enumeration instance of all attribute list declarations for the specified elementName
+   * in this DTD's internal and external subsets.
+   *
+   * @param elementName the Element name to match in the internal and external DTD subsets, may not
+   *     be <code>null</code> or empty
    * @return an enumeration of all attribute list declarations.
-   * @throw IllegalArgumentException if elementName is <code>null</code>
-   * or empty
+   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
    */
   public Enumeration getAttributeDeclarations(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -314,24 +303,18 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Returns this DTD's name. This value is also known as the DOCTYPE
-   * and the root Element Name.
+   * Returns this DTD's name. This value is also known as the DOCTYPE and the root Element Name.
    *
-   * To determine the root of the DTD the following logic is used:
+   * <p>To determine the root of the DTD the following logic is used:
    *
-   * 1> If Xerces gives a non-<code>null</code> or non-empty DTD root, return
-   * it
-   * 2> If the list of possible root elements contains only one element, then
-   * return the single element contained in the list.
-   * 3> From the list of possible root elements, create a new list of elements
-   * which have a valid content model. If there is only one element in this
-   * new list return it.
-   * 4> In this new list, eliminate all elements which are contained in
-   * any other element's content model. If the new list now has only one
-   * element, then return it.
-   * 5> If any element with same name as the DTD file name exists, then
-   * return it as root.
-   * 6> Finally just return the first declared element as root.
+   * <p>1> If Xerces gives a non-<code>null</code> or non-empty DTD root, return it 2> If the list
+   * of possible root elements contains only one element, then return the single element contained
+   * in the list. 3> From the list of possible root elements, create a new list of elements which
+   * have a valid content model. If there is only one element in this new list return it. 4> In this
+   * new list, eliminate all elements which are contained in any other element's content model. If
+   * the new list now has only one element, then return it. 5> If any element with same name as the
+   * DTD file name exists, then return it as root. 6> Finally just return the first declared element
+   * as root.
    *
    * @return This DTD's name, or <code>null</code> if no name.
    */
@@ -432,10 +415,10 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Return an Enumeration instance of all element declarations in this
-   * DTD's internal and external subsets.
-   * @return an enumeration of all element declarations.
-   * Never <code>null</code>. May be empty.
+   * Return an Enumeration instance of all element declarations in this DTD's internal and external
+   * subsets.
+   *
+   * @return an enumeration of all element declarations. Never <code>null</code>. May be empty.
    */
   public Enumeration getElementDeclarations() {
     Vector elementList = new Vector();
@@ -449,13 +432,13 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Return an PSXMLElementDecl instance that matches the specified elementName
-   * in this DTD's internal and external subsets.
-   * @param elementName the Element name to match in the internal and
-   * external DTD subsets, may not be <code>null</code> or empty
+   * Return an PSXMLElementDecl instance that matches the specified elementName in this DTD's
+   * internal and external subsets.
+   *
+   * @param elementName the Element name to match in the internal and external DTD subsets, may not
+   *     be <code>null</code> or empty
    * @return The matching element definition, or <code>null</code> if no match.
-   * @throw IllegalArgumentException if elementName is <code>null</code>
-   * or empty
+   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
    */
   public PSXmlElementDecl getElementDeclaration(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -465,14 +448,14 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Returns the Content Model for the specified elementName in this DTD's
-   * internal and external subset.
-   * @param elementName the name of element definition to check in this DTD's
-   * internal and external subset, may not be <code>null</code> or empty
-   * @return the element definition's content model, or <code>null</code>
-   * if the element definition does not exist.
-   * @throw IllegalArgumentException if elementName is <code>null</code>
-   * or empty
+   * Returns the Content Model for the specified elementName in this DTD's internal and external
+   * subset.
+   *
+   * @param elementName the name of element definition to check in this DTD's internal and external
+   *     subset, may not be <code>null</code> or empty
+   * @return the element definition's content model, or <code>null</code> if the element definition
+   *     does not exist.
+   * @throw IllegalArgumentException if elementName is <code>null</code> or empty
    */
   public CMNode getContentModelNode(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -491,13 +474,12 @@ public class PSDtd extends DTDGrammar {
 
   /**
    * Returns the content model as a string.
-   * @param elementName the element whose content model is to be obtained,
-   * may not be <code>null</code> or empty
-   * @return the content model as a string, may be<code>null</code> if the
-   * element declaration does not exist in the DTD.
-   * Never empty, if not <code>null</code>.
-   * @throw IllegalArgumentException if elementName is <code>null</code>
-   * or empty.
+   *
+   * @param elementName the element whose content model is to be obtained, may not be <code>null
+   *     </code> or empty
+   * @return the content model as a string, may be<code>null</code> if the element declaration does
+   *     not exist in the DTD. Never empty, if not <code>null</code>.
+   * @throw IllegalArgumentException if elementName is <code>null</code> or empty.
    */
   public String getContentModelAsString(String elementName) {
     if ((elementName == null) || (elementName.trim().length() == 0))
@@ -508,12 +490,11 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Returns an PSXMLElementDecl instance that is at the element index of
-   * element declarations array
+   * Returns an PSXMLElementDecl instance that is at the element index of element declarations array
+   *
    * @param elementDeclIndex the element index of element declarations array
-   * @return The matching element definition, or <code>null</code> if
-   * elementIndex is equal to -1 or exceeds the size of element declarations
-   * array.
+   * @return The matching element definition, or <code>null</code> if elementIndex is equal to -1 or
+   *     exceeds the size of element declarations array.
    */
   protected PSXmlElementDecl getElementDeclaration(int elementDeclIndex) {
     if (elementDeclIndex == -1) return null;
@@ -593,8 +574,8 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * Stores the content spec index corresponding to each element in a
-   * <code>Map</code>
+   * Stores the content spec index corresponding to each element in a <code>Map</code>
+   *
    * @param elementDeclIndex the index of the Element
    * @param contentSpecIndex the content spec index corresponding to the element
    */
@@ -604,8 +585,7 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * This method is overriden so that we ignore any element declared in
-   * parameter entities.
+   * This method is overriden so that we ignore any element declared in parameter entities.
    *
    * @see org.apache.xerces.impl.dtd.DTDGrammar
    */
@@ -617,8 +597,7 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * This method is overriden so that we ignore any element declared in
-   * parameter entities.
+   * This method is overriden so that we ignore any element declared in parameter entities.
    *
    * @see org.apache.xerces.impl.dtd.DTDGrammar
    */
@@ -628,9 +607,9 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * This method is overriden so that we can add element declarations
-   * to the list of possible root elements. This is a callback method and
-   * name is guaranteed to be non-<code>null</code> and non-empty
+   * This method is overriden so that we can add element declarations to the list of possible root
+   * elements. This is a callback method and name is guaranteed to be non-<code>null</code> and
+   * non-empty
    *
    * @see org.apache.xerces.impl.dtd.DTDGrammar
    */
@@ -642,45 +621,36 @@ public class PSDtd extends DTDGrammar {
   }
 
   /**
-   * If <code>true</code> any element declaration is added to the list of
-   * possible root elements <code>m_possibleRootElements</code>, otherwise
-   * the element is not added to this list. Initialized to <code>true</code>.
+   * If <code>true</code> any element declaration is added to the list of possible root elements
+   * <code>m_possibleRootElements</code>, otherwise the element is not added to this list.
+   * Initialized to <code>true</code>.
    */
   private boolean m_bAddPossibleRootElement = true;
 
   /**
-   * List of possible root elements as <code>String</code> objects,
-   * never <code>null</code>, may be empty.
+   * List of possible root elements as <code>String</code> objects, never <code>null</code>, may be
+   * empty.
    */
   private List m_possibleRootElements = new ArrayList();
 
-  /**
-   * used in the buildSyntaxTree method.
-   */
+  /** used in the buildSyntaxTree method. */
   protected int m_leafCount = 0;
 
-  /**
-   * Temporary qualified name of an element. Used in the buildSyntaxTree method.
-   */
+  /** Temporary qualified name of an element. Used in the buildSyntaxTree method. */
   protected QName m_qName = new QName();
 
-  /**
-   * Map that stores the content spec index of an element corresponding to the
-   * element's index.
-   */
+  /** Map that stores the content spec index of an element corresponding to the element's index. */
   protected Map m_contentSpecIndexList = new HashMap();
 
   /**
-   * the location of the entity which forms the starting point of the grammar
-   * to be constructed, never <code>null</code>, initialized in the
-   * constructor, never modified after that.
+   * the location of the entity which forms the starting point of the grammar to be constructed,
+   * never <code>null</code>, initialized in the constructor, never modified after that.
    */
   private XMLInputSource m_source = null;
 
   /**
-   * The root of the DTD represented by this object, initialized to
-   * <code>null</code>, set in the first call to the <code>getName()</code>
-   * method, never modified after that.
+   * The root of the DTD represented by this object, initialized to <code>null</code>, set in the
+   * first call to the <code>getName()</code> method, never modified after that.
    */
   private String m_dtdRoot = null;
 }

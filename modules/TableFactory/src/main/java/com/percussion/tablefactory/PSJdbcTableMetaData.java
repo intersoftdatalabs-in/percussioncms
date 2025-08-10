@@ -33,21 +33,20 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Retrieves and caches table info from {@link java.sql.DatabaseMetaData}.
- * Class is immutable after ctor.
+ * Retrieves and caches table info from {@link java.sql.DatabaseMetaData}. Class is immutable after
+ * ctor.
  */
 public class PSJdbcTableMetaData {
   /**
    * Retrieve and cache table meta data for the specified table.
    *
    * @param dmd Provides the table metadata, may not be <code>null</code>.
-   * @param dbmsDef Provides the database/schema to retrieve meta data from.
-   * May not be <code>null</code>.
-   * @param dataTypeMap Used to create column objects.  May not be <code>
+   * @param dbmsDef Provides the database/schema to retrieve meta data from. May not be <code>null
+   *     </code>.
+   * @param dataTypeMap Used to create column objects. May not be <code>
    * null</code>.
-   * @param tableName The table to retrieve meta data for.  May not be <code>
+   * @param tableName The table to retrieve meta data for. May not be <code>
    * null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -128,9 +127,9 @@ public class PSJdbcTableMetaData {
   /**
    * Gets a list of all columns in this table.
    *
-   * @return Iterator over zero or more PSJdbcColumnDef objects.  Never <code>
-   * null</code>, may be empty.  The action of each column is set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}.
+   * @return Iterator over zero or more PSJdbcColumnDef objects. Never <code>
+   * null</code>, may be empty. The action of each column is set to {@link
+   *     PSJdbcTableComponent#ACTION_NONE}.
    */
   public Iterator<PSJdbcColumnDef> getColumns() {
     return m_columns.iterator();
@@ -139,19 +138,16 @@ public class PSJdbcTableMetaData {
   /**
    * Gets a list of all the primary key columns for this table's primary key.
    *
-   * @return Iterator over zero or more column names, never <code>null</code>,
-   * may be empty.
+   * @return Iterator over zero or more column names, never <code>null</code>, may be empty.
    */
   public Iterator<String> getPrimaryKeyColumns() {
     return m_primaryKeyColumns.iterator();
   }
 
   /**
-   * Gets the identifier of the primary key constraint, if it was discovered
-   * in the metadata.
+   * Gets the identifier of the primary key constraint, if it was discovered in the metadata.
    *
-   * @return the name of the primary key constraint, or <code>null</code> if
-   * the name is not known.
+   * @return the name of the primary key constraint, or <code>null</code> if the name is not known.
    */
   public String getPrimaryKeyName() {
     return m_primaryKeyName;
@@ -160,18 +156,15 @@ public class PSJdbcTableMetaData {
   /**
    * Gets a list of all the foreign key columns for this table.
    *
-   * @return A Map of Foreign Key Column names against a List of
-   * a String[] with 3 entries, the column name, the external table name, and
-   * the external column name respectively, all not <code>null</code> or empty.
+   * @return A Map of Foreign Key Column names against a List of a String[] with 3 entries, the
+   *     column name, the external table name, and the external column name respectively, all not
+   *     <code>null</code> or empty.
    */
   public Map<String, List<String[]>> getForeignKeys() {
     return m_foreignKeyColumns;
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)}
-   */
+  /** Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)} */
   public Iterator<Map.Entry<String, List<String>>> getIndexes() {
     return getIndexes(PSJdbcIndex.TYPE_UNIQUE);
   }
@@ -179,14 +172,12 @@ public class PSJdbcTableMetaData {
   /**
    * Returns an iterator containing the indexes of the specified type.
    *
-   * @param type the type of indexes to include in the returned iterator,
-   * should be one of <code>PSJdbcIndex.TYPE_XXX</code> or
-   * multiple <code>PSJdbcIndex.TYPE_XXX</code> values OR'ed together.
-   *
-   * @return an iterator over zero or more <code>Map.Entry</code> objects
-   * containing the index name (<code>String</code>) as key and a
-   * <code>List</code> of column names (<code>String</code>) as value.
-   * Never <code>null</code>, may be empty.
+   * @param type the type of indexes to include in the returned iterator, should be one of <code>
+   *     PSJdbcIndex.TYPE_XXX</code> or multiple <code>PSJdbcIndex.TYPE_XXX</code> values OR'ed
+   *     together.
+   * @return an iterator over zero or more <code>Map.Entry</code> objects containing the index name
+   *     (<code>String</code>) as key and a <code>List</code> of column names (<code>String</code>)
+   *     as value. Never <code>null</code>, may be empty.
    */
   public Iterator<Map.Entry<String, List<String>>> getIndexes(int type) {
     Map<String, List<String>> indexes = new HashMap<>();
@@ -198,15 +189,13 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Returns an iterator over a list containing the indexes of the specified
-   * type.
+   * Returns an iterator over a list containing the indexes of the specified type.
    *
-   * @param type the type of indexes to include in the returned iterator,
-   * should be one of <code>PSJdbcIndex.TYPE_XXX</code> or
-   * multiple <code>PSJdbcIndex.TYPE_XXX</code> values OR'ed together.
-   *
-   * @return the Iterator over a list of <code>PSJdbcIndex</code> objects,
-   * never <code>null</code>, may be empty.
+   * @param type the type of indexes to include in the returned iterator, should be one of <code>
+   *     PSJdbcIndex.TYPE_XXX</code> or multiple <code>PSJdbcIndex.TYPE_XXX</code> values OR'ed
+   *     together.
+   * @return the Iterator over a list of <code>PSJdbcIndex</code> objects, never <code>null</code>,
+   *     may be empty.
    */
   public Iterator<PSJdbcIndex> getIndexObjects(int type) {
     List<PSJdbcIndex> list = new ArrayList<>();
@@ -217,16 +206,17 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * @return <code>true</code> if the table represented by this meta data is a
-   * "VIEW", <code>false</code> if not.
+   * @return <code>true</code> if the table represented by this meta data is a "VIEW", <code>false
+   *     </code> if not.
    */
   public boolean isView() {
     return m_isView;
   }
 
   /**
-   * Private utility method to check if the table for which the metadata is
-   * being created is a "VIEW".
+   * Private utility method to check if the table for which the metadata is being created is a
+   * "VIEW".
+   *
    * @param md The meta data to use, assumed not <code>null</code>.
    * @throws SQLException if a database access error occurs
    */
@@ -299,11 +289,10 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Private utility method to load the column information for this table from
-   * the specified resultset meta data.
+   * Private utility method to load the column information for this table from the specified
+   * resultset meta data.
    *
    * @param meta The resultset meta data to use, assumed not <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   private void loadColumnInformation(ResultSetMetaData meta) throws SQLException {
@@ -356,7 +345,6 @@ public class PSJdbcTableMetaData {
    * Private utility method to load the column information for this table
    *
    * @param md The meta data to use, assumed not <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   private void loadColumnInformation(DatabaseMetaData md) throws SQLException {
@@ -426,18 +414,15 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Converts <code>size</code> to an appropriate value to store as a
-   * column definition's size.
+   * Converts <code>size</code> to an appropriate value to store as a column definition's size.
    *
    * @param type The jdbc datatype returned by the metadata
    * @param size The size returned by the metadata
    * @param driver the driver name never <code>null</code>
-   * @return The value to store for size, either a string representation of
-   * <code>size</code>, or <code>null</code> if size is not supported for this
-   * type, if the supplied size equals the default size, or if no mapping was
-   * found for the specified <code>type</code>. Never empty.
-   *
-   * Note: Conversion occurs only if the default size is greater than 1
+   * @return The value to store for size, either a string representation of <code>size</code>, or
+   *     <code>null</code> if size is not supported for this type, if the supplied size equals the
+   *     default size, or if no mapping was found for the specified <code>type</code>. Never empty.
+   *     <p>Note: Conversion occurs only if the default size is greater than 1
    */
   private String convertSize(int type, String size, String driver) {
     // see if the data type map has defined a default size for this type
@@ -447,16 +432,13 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Converts <code>scale</code> to an appropriate value to store as a
-   * column definition's scale.
+   * Converts <code>scale</code> to an appropriate value to store as a column definition's scale.
    *
    * @param type The jdbc datatype returned by the metadata
    * @param scale The scale returned by the metadata
-   *
-   * @return The value to store for scale, either a string representation of
-   * <code>scale</code>, or <code>null</code> if scale is not supported for
-   * this type, if the supplied scale equals the default scale, or if no
-   * mapping was found for the supplied <code>type</code>. Never empty.
+   * @return The value to store for scale, either a string representation of <code>scale</code>, or
+   *     <code>null</code> if scale is not supported for this type, if the supplied scale equals the
+   *     default scale, or if no mapping was found for the supplied <code>type</code>. Never empty.
    */
   private String convertScale(int type, String scale) {
     // see if the data type map has defined a default scale for this type
@@ -472,7 +454,6 @@ public class PSJdbcTableMetaData {
    * Private utility method to load the key information for this table
    *
    * @param md The meta data to use, assumed not <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   private void loadKeyInformation(DatabaseMetaData md) throws SQLException {
@@ -540,6 +521,7 @@ public class PSJdbcTableMetaData {
 
   /**
    * Returns FK name.
+   *
    * @return FK name, may be <code>null</code>, never empty.
    */
   public String getFKName() {
@@ -547,12 +529,11 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Private utility method to load the unique index information for this
-   * table.  Must be called after {@link #loadKeyInformation(DatabaseMetaData)
-   * loadKeyInformation} to avoid listing the primary key as an index as well.
+   * Private utility method to load the unique index information for this table. Must be called
+   * after {@link #loadKeyInformation(DatabaseMetaData) loadKeyInformation} to avoid listing the
+   * primary key as an index as well.
    *
    * @param md The meta data to use, assumed not <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   private void loadIndexInformation(DatabaseMetaData md) throws SQLException {
@@ -603,23 +584,17 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * Returns a list of index definitions created from the specified map
-   * containing the index name and columns.
+   * Returns a list of index definitions created from the specified map containing the index name
+   * and columns.
    *
-   * @param indexMap the map containing the index name (<code>String</code>)
-   * as key and a list (<code>List</code>) of column names
-   * (<code>String</code>) as value, assumed not-<code>null</code>, may be
-   * empty
-   *
-   * @param type indicates the type of index, should be one of
-   * <code>PSJdbcIndex.TYPE_XXX</code> value.
-   *
-   * @return the list of index definitions, never <code>null</code>, may be
-   * empty
-   *
-   * @throws PSJdbcTableFactoryException if any value in the specified map
-   * contains any <code>null</code>, empty or duplicate column names, or if
-   * there are any other errors.
+   * @param indexMap the map containing the index name (<code>String</code>) as key and a list (
+   *     <code>List</code>) of column names (<code>String</code>) as value, assumed not-<code>null
+   *     </code>, may be empty
+   * @param type indicates the type of index, should be one of <code>PSJdbcIndex.TYPE_XXX</code>
+   *     value.
+   * @return the list of index definitions, never <code>null</code>, may be empty
+   * @throws PSJdbcTableFactoryException if any value in the specified map contains any <code>null
+   *     </code>, empty or duplicate column names, or if there are any other errors.
    */
   private List<PSJdbcIndex> getIndexes(Map<String, List<String>> indexMap, int type)
       throws PSJdbcTableFactoryException {
@@ -635,60 +610,50 @@ public class PSJdbcTableMetaData {
   }
 
   /**
-   * A list (in key order) of the primary key columns, initialized during
-   * ctor, never <code>null</code> or modified after that.  May be empty.
-   * Column name is stored as a String.
+   * A list (in key order) of the primary key columns, initialized during ctor, never <code>null
+   * </code> or modified after that. May be empty. Column name is stored as a String.
    */
   private List<String> m_primaryKeyColumns = new ArrayList<>();
 
-  /**
-   * The name of this table's primary key if available during ctor, may be
-   * <code>null</code>.
-   */
+  /** The name of this table's primary key if available during ctor, may be <code>null</code>. */
   private String m_primaryKeyName;
 
   /**
-   * A list of the foreignkey columns, initialized during
-   * ctor, never <code>null</code> or modified after that.  May be empty.
-   * <br>
-   * Each entry is a String[] with 3 entries,
-   * the column name, the external table name, and the external column name
-   * respectively.  Each entry in the list is not <code>null</code>.
+   * A list of the foreignkey columns, initialized during ctor, never <code>null</code> or modified
+   * after that. May be empty. <br>
+   * Each entry is a String[] with 3 entries, the column name, the external table name, and the
+   * external column name respectively. Each entry in the list is not <code>null</code>.
    */
   private Map<String, List<String[]>> m_foreignKeyColumns = new HashMap<>();
 
   /**
-   * A List of PSJdbcColumnDef objects, initialized during ctor, never
-   * <code>null</code>, may be empty.
+   * A List of PSJdbcColumnDef objects, initialized during ctor, never <code>null</code>, may be
+   * empty.
    */
   private List<PSJdbcColumnDef> m_columns = new ArrayList<>();
 
   /**
-   * A list of index definitions (<code>PSJdbcIndex</code> objects).
-   * These index definitions are obtained from the database for this table and
-   * so always have a valid and unique name.
-   * Never <code>null</code>, may be empty.
+   * A list of index definitions (<code>PSJdbcIndex</code> objects). These index definitions are
+   * obtained from the database for this table and so always have a valid and unique name. Never
+   * <code>null</code>, may be empty.
    */
   private List<PSJdbcIndex> m_indexes = new ArrayList<>();
 
   /**
    * The table to retrieve data for, initialized in the ctor, never <code>null
-   * </code>, empty or modified after that.  Normalized for the specified
-   * backend database.
+   * </code>, empty or modified after that. Normalized for the specified backend database.
    */
   private String m_tableName;
 
   /**
-   * The database to retrieve data from, initialized in the ctor, may be
-   * <code>null</code>, never empty or modified after that. Normalized for the
-   * specified backend database.
+   * The database to retrieve data from, initialized in the ctor, may be <code>null</code>, never
+   * empty or modified after that. Normalized for the specified backend database.
    */
   private String m_database;
 
   /**
-   * The schema to retrieve data from, initialized in the ctor, may be
-   * <code>null</code>, never empty or modified after that. Normalized for the
-   * specified backend database.
+   * The schema to retrieve data from, initialized in the ctor, may be <code>null</code>, never
+   * empty or modified after that. Normalized for the specified backend database.
    */
   private String m_schema;
 
@@ -705,20 +670,17 @@ public class PSJdbcTableMetaData {
   private PSJdbcDataTypeMap m_dataTypeMap;
 
   /**
-   * <code>true</code> if the table exists, <code>false</code> if not.  Set
-   * in the ctor, never modified after that.
+   * <code>true</code> if the table exists, <code>false</code> if not. Set in the ctor, never
+   * modified after that.
    */
   private boolean m_tableExists = false;
 
   /**
-   * <code>true</code> if the table represented by this meta data is a
-   * "VIEW", <code>false</code> if not.  Set in the ctor, never modified
-   * after that.
+   * <code>true</code> if the table represented by this meta data is a "VIEW", <code>false</code> if
+   * not. Set in the ctor, never modified after that.
    */
   private boolean m_isView = false;
 
-  /**
-   * FK name if any. may be <code>null</code>.
-   */
+  /** FK name if any. may be <code>null</code>. */
   private String m_fkName = null;
 }

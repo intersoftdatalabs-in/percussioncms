@@ -223,11 +223,10 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Get the value of the OBJECTYPE column. This column has been added since
-   * version 5.0.
+   * Get the value of the OBJECTYPE column. This column has been added since version 5.0.
    *
-   * @return the object type, it should be one of the values in the
-   *    OBJECTTYPE column of the PSX_OBJECTS table
+   * @return the object type, it should be one of the values in the OBJECTTYPE column of the
+   *     PSX_OBJECTS table
    */
   public int getObjectType() {
     return m_nObjectType;
@@ -393,11 +392,9 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Produce a string describing the content status aging related context
-   * values, one to a line.
+   * Produce a string describing the content status aging related context values, one to a line.
    *
-   * @return string describing the content status  aging related context
-   * values.
+   * @return string describing the content status aging related context values.
    */
   public String toString(boolean agingOnly) {
     if (!agingOnly) {
@@ -459,8 +456,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   }
 
   /**
-   * Produce a string describing the content status aging related context
-   * values, one to a line.
+   * Produce a string describing the content status aging related context values, one to a line.
    *
    * @return string describing the content status context values.
    */
@@ -562,30 +558,30 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   /* The following set methods are for testing use only */
 
   /**
-   * Sets the value of the content start date, which can be used to initiate a
-   * system field aging transition.
+   * Sets the value of the content start date, which can be used to initiate a system field aging
+   * transition.
    *
-   * @param startDate  the content start date
+   * @param startDate the content start date
    */
   void setStartDate(Date startDate) {
     m_StartDate = startDate;
   }
 
   /**
-   * Sets the value of the content expiry date, which can be used to initiate
-   * a system field aging transition.
+   * Sets the value of the content expiry date, which can be used to initiate a system field aging
+   * transition.
    *
-   * @param expiryDate  the content expiry date
+   * @param expiryDate the content expiry date
    */
   void setExpiryDate(Date expiryDate) {
     m_ExpiryDate = expiryDate;
   }
 
   /**
-   * Sets the value of the content reminder date, which can be used to
-   * initiate a system field aging transition.
+   * Sets the value of the content reminder date, which can be used to initiate a system field aging
+   * transition.
    *
-   * @param reminderDate  the content reminder date
+   * @param reminderDate the content reminder date
    */
   void setReminderDate(Date reminderDate) {
     m_ReminderDate = reminderDate;
@@ -598,41 +594,33 @@ public class PSContentStatusContext implements IPSContentStatusContext {
 
   /******** Context Data Members ********/
 
-  /** ID of the workflow for this item  */
+  /** ID of the workflow for this item */
   private int m_nWorkflowID = 0;
 
   /** content type ID of this content */
   private int m_nContentTypeID = 0;
 
-  /**
-   * The content Id for this content status entry.
-   * May not be more than 40 characters.
-   */
+  /** The content Id for this content status entry. May not be more than 40 characters. */
   private String m_sSessionID = "";
 
   /** The ID of the current state at completion of transition or action */
   private int m_nStateID = 1;
 
   /**
-   * Name of the user that checked out this content item, or
-   * <CODE>null</CODE> item is not checked out
-   * May not be more than 255 characters.
+   * Name of the user that checked out this content item, or <CODE>null</CODE> item is not checked
+   * out May not be more than 255 characters.
    */
   private String m_sCheckOutUserName = null;
 
-  /**
-   * name of the user that last modified this content item
-   * May not be more than 255 characters.
-   */
+  /** name of the user that last modified this content item May not be more than 255 characters. */
   private String m_sLastModifierName = null;
 
-  /** the largest numbered  revision that is not checked out */
+  /** the largest numbered revision that is not checked out */
   private int m_nCurrentRevision = IPSConstants.NO_CORRESPONDING_REVISION_VALUE;
 
   /**
-   * if the content item that is not checked out =
-   *          IPSConstants.NO_CORRESPONDING_REVISION_VALUE <BR>
-   * otherwise =  revision of the  content item checked out for editing
+   * if the content item that is not checked out = IPSConstants.NO_CORRESPONDING_REVISION_VALUE <br>
+   * otherwise = revision of the content item checked out for editing
    */
   private int m_nEditRevision = IPSConstants.NO_CORRESPONDING_REVISION_VALUE;
 
@@ -640,15 +628,11 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   private int m_nTipRevision = IPSConstants.NO_CORRESPONDING_REVISION_VALUE;
 
   /**
-   * <CODE>true</CODE> if a new revision should be made for each checkout,
-   * else  <CODE>false</CODE>
+   * <CODE>true</CODE> if a new revision should be made for each checkout, else <CODE>false</CODE>
    */
   private boolean m_bRevisionLocked = false;
 
-  /**
-   * title of the content item
-   * May not be more than 40 characters.
-   */
+  /** title of the content item May not be more than 40 characters. */
   private String m_sTitle = null;
 
   /** the date/time this content item was last modified */
@@ -657,10 +641,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   /** date this content item last underwent a transition */
   private Date m_LastTransitionDate = null;
 
-  /**
-   * name of the user that created this content item
-   * May not be more than 255 characters.
-   */
+  /** name of the user that created this content item May not be more than 255 characters. */
   private String m_sCreatedByName = null;
 
   /** date this content item was created */
@@ -679,8 +660,8 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   private Date m_StateEnteredDate = null;
 
   /**
-   * Date for the next aging transition for this content item or
-   * <CODE>null</CODE> if there is none */
+   * Date for the next aging transition for this content item or <CODE>null</CODE> if there is none
+   */
   private Date m_NextAgingDate = null;
 
   /** the ID of the next aging transition or 0 if there is none */
@@ -693,8 +674,8 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   private int m_nCommunityId = 0;
 
   /**
-   *  The object type (id) to which the item belongs. Initialized by ctor. See
-   *  {@link getObjectType()} for detail description.
+   * The object type (id) to which the item belongs. Initialized by ctor. See {@link
+   * getObjectType()} for detail description.
    */
   private int m_nObjectType = 0;
 
@@ -709,14 +690,10 @@ public class PSContentStatusContext implements IPSContentStatusContext {
   /** Result of database query */
   private ResultSet m_Rs = null;
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_CSC = PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUS");
 
-  /**
-   * SQL query string to get data base record for the content status
-   */
+  /** SQL query string to get data base record for the content status */
   private static String QRYSTRING =
       "SELECT "
           + TABLE_CSC
@@ -771,10 +748,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
           + TABLE_CSC
           + ".CONTENTID=?";
 
-  /**
-   * Portion of SQL update string specifying content status record fields to
-   * be updated.
-   */
+  /** Portion of SQL update string specifying content status record fields to be updated. */
   private static final String UPDATEWHATSTRING =
       "UPDATE "
           + TABLE_CSC
@@ -808,15 +782,10 @@ public class PSContentStatusContext implements IPSContentStatusContext {
           + TABLE_CSC
           + ".REPEATEDAGINGTRANSSTARTDATE=? ";
 
-  /**
-   * Portion of SQL update string specifying which status record fields to
-   * update.
-   */
+  /** Portion of SQL update string specifying which status record fields to update. */
   private static final String WHERESTRING = " WHERE " + TABLE_CSC + ".CONTENTID=?";
 
-  /**
-   * Column names for CONTENTSTATUS table
-   */
+  /** Column names for CONTENTSTATUS table */
   private static final String CONTENTID = "CONTENTID";
 
   private static final String CONTENTSTATEID = "CONTENTSTATEID";

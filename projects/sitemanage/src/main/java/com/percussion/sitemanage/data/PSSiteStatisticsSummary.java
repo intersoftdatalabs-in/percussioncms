@@ -17,72 +17,65 @@
 package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-/**
- * Summary of site statistics and issues.
- */
+/** Summary of site statistics and issues. */
 @XmlRootElement(name = "SiteSummaryData")
 public class PSSiteStatisticsSummary extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @NotBlank
-    @NotNull
-    private String name;
+  @NotBlank @NotNull private String name;
 
-    private long id;
+  private long id;
 
-    private PSSiteStatistics statistics;
+  private PSSiteStatistics statistics;
 
-    private List<PSSiteIssueSummary> issues = new ArrayList<>();
+  private List<PSSiteIssueSummary> issues = new ArrayList<>();
 
-    private String abridgedErrorMessage;
+  private String abridgedErrorMessage;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public long getSiteId() {
-        return this.id;
-    }
+  public long getSiteId() {
+    return this.id;
+  }
 
-    public void setSiteId(long id) {
-        this.id = id;
-    }
+  public void setSiteId(long id) {
+    this.id = id;
+  }
 
-    public Optional<PSSiteStatistics> getStatistics() {
-        return Optional.ofNullable(statistics);
-    }
+  public Optional<PSSiteStatistics> getStatistics() {
+    return Optional.ofNullable(statistics);
+  }
 
-    public void setStatistics(PSSiteStatistics statistics) {
-        this.statistics = statistics;
-    }
+  public void setStatistics(PSSiteStatistics statistics) {
+    this.statistics = statistics;
+  }
 
-    public List<PSSiteIssueSummary> getIssues() {
-        return issues;
-    }
+  public List<PSSiteIssueSummary> getIssues() {
+    return issues;
+  }
 
-    public void setIssues(List<PSSiteIssueSummary> issues) {
-        this.issues = issues == null ? new ArrayList<>() : issues;
-    }
+  public void setIssues(List<PSSiteIssueSummary> issues) {
+    this.issues = issues == null ? new ArrayList<>() : issues;
+  }
 
-    public void setAbridgedErrorMessage(String message) {
-        this.abridgedErrorMessage = message;
-    }
+  public void setAbridgedErrorMessage(String message) {
+    this.abridgedErrorMessage = message;
+  }
 
-    public Optional<String> getAbridgedErrorMessage() {
-        return Optional.ofNullable(abridgedErrorMessage);
-    }
+  public Optional<String> getAbridgedErrorMessage() {
+    return Optional.ofNullable(abridgedErrorMessage);
+  }
 }

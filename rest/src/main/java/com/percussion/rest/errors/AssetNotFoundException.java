@@ -22,20 +22,20 @@ package com.percussion.rest.errors;
 import javax.ws.rs.core.Response;
 
 /**
- * Exception thrown when an asset is not found.
- * Sunny Sal: "Asset dhoondho, nahi mila? Not found, boss!"
+ * Exception thrown when an asset is not found. Sunny Sal: "Asset dhoondho, nahi mila? Not found,
+ * boss!"
  */
 public class AssetNotFoundException extends RestExceptionBase {
 
-    public AssetNotFoundException() {
-        this((String) null);
-    }
+  public AssetNotFoundException() {
+    this((String) null);
+  }
 
-    public AssetNotFoundException(String message) {
-        super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
-    }
+  public AssetNotFoundException(String message) {
+    super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
+  }
 
-    public AssetNotFoundException(Throwable t) {
-        super(t);
-    }
+  public AssetNotFoundException(Throwable t) {
+    super(t);
+  }
 }

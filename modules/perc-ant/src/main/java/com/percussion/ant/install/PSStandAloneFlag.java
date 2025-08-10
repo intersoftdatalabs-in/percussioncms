@@ -17,12 +17,10 @@
 package com.percussion.ant.install;
 
 /**
- * An install action bean to set up a flag indicating a standalone installation.
- * This will be used currently by devtoolssetup.exe.
+ * An install action bean to set up a flag indicating a standalone installation. This will be used
+ * currently by devtoolssetup.exe. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -42,7 +40,6 @@ package com.percussion.ant.install;
  * </pre>
  *
  * @author vamsinukala
- *
  */
 public class PSStandAloneFlag extends PSAction {
   // see base class
@@ -50,28 +47,25 @@ public class PSStandAloneFlag extends PSAction {
   public void execute() {}
 
   /**
-   *  The standalone property setter.
+   * The standalone property setter.
    *
-   *  @param <code>true</code> if this is a standalone install,
-   *  <code>false</code> otherwise.
+   * @param <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
   public void setStandalone(boolean flag) {
     m_bStandalone = flag;
   }
 
   /**
-   *  The standalone property getter.
+   * The standalone property getter.
    *
-   *  @return <code>true</code> if this is a standalone install,
-   *  <code>false</code> otherwise.
+   * @return <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
   public boolean getStandalone() {
     return m_bStandalone;
   }
 
   /**
-   *  @return <code>true</code> if this is a standalone install,
-   *  <code>false</code> otherwise.
+   * @return <code>true</code> if this is a standalone install, <code>false</code> otherwise.
    */
   public static boolean isStandalone() {
     return m_bStandalone;
@@ -79,15 +73,14 @@ public class PSStandAloneFlag extends PSAction {
 
   /**
    * Sets the type of Rx installation to standalone install.
-   * @param type of installation, if <code>true</code> then the install is
-   * not a multi suite, but rather a standalone such as DevToolsSetup.exe
+   *
+   * @param type of installation, if <code>true</code> then the install is not a multi suite, but
+   *     rather a standalone such as DevToolsSetup.exe
    */
   public static void updateStandalone(boolean isStandalone) {
     m_bStandalone = isStandalone;
   }
 
-  /**
-   * standalone flag
-   */
+  /** standalone flag */
   public static boolean m_bStandalone = false;
 }

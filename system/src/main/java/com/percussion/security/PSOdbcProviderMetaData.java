@@ -21,28 +21,24 @@ import com.percussion.data.PSResultSet;
 import com.percussion.error.PSSqlException;
 
 /**
- * The PSOdbcProviderMetaData class implements cataloging for
- * the ODBC security provider.
+ * The PSOdbcProviderMetaData class implements cataloging for the ODBC security provider.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   /**
-   * Construct a meta data object for the specified provider
-   * instance.
+   * Construct a meta data object for the specified provider instance.
    *
-   * @param      inst            the provider instance
+   * @param inst the provider instance
    */
   PSOdbcProviderMetaData(PSOdbcProvider inst) {
     super();
     m_instance = inst;
   }
 
-  /**
-   * Default constructor to find connection properties, etc.
-   */
+  /** Default constructor to find connection properties, etc. */
   public PSOdbcProviderMetaData() {
     this(null);
   }
@@ -50,7 +46,7 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the name of this security provider.
    *
-   * @return      the provider's name
+   * @return the provider's name
    */
   public String getName() {
     return PSOdbcProvider.SP_NAME;
@@ -59,7 +55,7 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the full name of this security provider.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return "ODBC Security Provider";
@@ -68,7 +64,7 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the descritpion of this security provider.
    *
-   * @return      the provider's description
+   * @return the provider's description
    */
   public String getDescription() {
     return "Authentication through the ODBC login mechanism.";
@@ -77,7 +73,7 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the connection properties required for logging into this provider.
    *
-   * @return      the connection properties (may be null)
+   * @return the connection properties (may be null)
    */
   public java.util.Properties getConnectionProperties() {
     java.util.Properties props = new java.util.Properties();
@@ -97,15 +93,16 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Get the names of servers available to authenticate users. An empty
-   * result set is returned if this feature is not supported.
-   * <p>
-   * The result set contains:
+   * Get the names of servers available to authenticate users. An empty result set is returned if
+   * this feature is not supported.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>SERVER_NAME</B> String => server name</LI>
+   *   <LI><B>SERVER_NAME</B> String => server name
    * </OL>
    *
-   * @return     a result set containing one server per row
+   * @return a result set containing one server per row
    */
   public java.sql.ResultSet getServers() throws java.sql.SQLException {
     com.percussion.data.jdbc.PSOdbcDriverMetaData psOdbc =
@@ -131,15 +128,16 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Get the types of objects available through this provider. An empty
-   * result set is returned if this feature is not supported.
-   * <p>
-   * The result set contains:
+   * Get the types of objects available through this provider. An empty result set is returned if
+   * this feature is not supported.
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the object type name</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the object type name
    * </OL>
    *
-   * @return     a result set containing one object type per row
+   * @return a result set containing one object type per row
    */
   public java.sql.ResultSet getObjectTypes() {
     // ??? need a constructor with the result set meta data info
@@ -157,20 +155,18 @@ public class PSOdbcProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getServers <code>getServers</code>}
-   * supported?
+   * Are calls to {@link #getServers <code>getServers</code>} supported?
    *
-   * @return                  <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetServers() {
     return true; // this is supported
   }
 
   /**
-   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>}
-   * supported?
+   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>} supported?
    *
-   * @return                  <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetObjectTypes() {
     return true; // this is supported

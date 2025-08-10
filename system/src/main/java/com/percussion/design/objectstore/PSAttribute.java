@@ -32,30 +32,22 @@ import org.w3c.dom.Element;
 /**
  * The PSAttribute class is used to store attribute values.
  *
- * Attributes are named collections containing PSAttributeValue objects,
- * which are hidden using list interfaces to retrieve and set the values
- * for each specific attribute.
+ * <p>Attributes are named collections containing PSAttributeValue objects, which are hidden using
+ * list interfaces to retrieve and set the values for each specific attribute.
  *
  * @see PSDatabaseComponentCollection
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSAttribute extends PSDatabaseComponentCollection {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode        the XML element node to construct this
-   *                               object from, never <code>null</code>
-   *
-   * @param   parentDoc         the Java object which is the parent of this
-   *                               object, may be <code>null</code>
-   *
-   * @param   parentComponents  the parent objects of this object, may be
-   *                               <code>null</code>
-   *
-   * @throws  PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type or null
+   * @param sourceNode the XML element node to construct this object from, never <code>null</code>
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type or
+   *     null
    */
   public PSAttribute(Element sourceNode, IPSDocument parentDoc, List<?> parentComponents)
       throws PSUnknownNodeTypeException {
@@ -65,9 +57,7 @@ public class PSAttribute extends PSDatabaseComponentCollection {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSAttribute() {
     super(
         (new PSAttributeValue()).getClass(),
@@ -77,8 +67,7 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   /**
    * Constructs an empty attribute.
    *
-   * @param   name   the name of the attribute
-   *
+   * @param name the name of the attribute
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public PSAttribute(String name) {
@@ -87,14 +76,14 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   }
 
   /**
-   * This method is called to create one or more Action XML elements
-   * containing the data described in this object that is used to update
-   * the database. The Elements are appended to the root of the passed in doc.
-   * This method then calls the <code>toDatabaseXml</code> method on any of
-   * this object's children.
-   * <p>
-   * The structure of the XML element(s) appended to the document (using a
-   * root element called 'root') is:
+   * This method is called to create one or more Action XML elements containing the data described
+   * in this object that is used to update the database. The Elements are appended to the root of
+   * the passed in doc. This method then calls the <code>toDatabaseXml</code> method on any of this
+   * object's children.
+   *
+   * <p>The structure of the XML element(s) appended to the document (using a root element called
+   * 'root') is:
+   *
    * <pre><code>
    * &lt;!ELEMENT root (Action*)&gt;
    * &lt;!ELEMENT Action (PSXAttribute)
@@ -137,9 +126,8 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   }
 
   /**
-   * Loads this object from the supplied element using {@link #fromXml},
-   * then calls the super to load the values. See {@link
-   * PSDatabaseComponent#fromDatabaseXml} for more information.
+   * Loads this object from the supplied element using {@link #fromXml}, then calls the super to
+   * load the values. See {@link PSDatabaseComponent#fromDatabaseXml} for more information.
    */
   public void fromDatabaseXml(Element e, PSDatabaseComponentLoader cl, PSRelation relationContext)
       throws PSUnknownNodeTypeException {
@@ -162,10 +150,8 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   /**
    * Set the name of the attribute.
    *
-   * @param   name  the name of the attribute.
-   * Can't be <code>null</code> or empty
-   *
-   * @throws  IllegalArgumentException if name is <code>null</code> or empty
+   * @param name the name of the attribute. Can't be <code>null</code> or empty
+   * @throws IllegalArgumentException if name is <code>null</code> or empty
    */
   private void setName(String name) {
     if ((name == null) || (name.trim().length() < 1))
@@ -195,8 +181,8 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   public static Comparator<?> getAttributeComparator() {
     return new Comparator<Object>() {
       /**
-       * We want to sort ignoring case, and that means a Collator (may be
-       * able to improve performance by using CollatorKeys).
+       * We want to sort ignoring case, and that means a Collator (may be able to improve
+       * performance by using CollatorKeys).
        */
       private Collator m_collator = Collator.getInstance();
 
@@ -231,10 +217,11 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXAttribute XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXAttribute XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAttribute (PSXAttributeValue*)&gt;
    * &lt;!ATTLIST PSXAttribute
@@ -245,10 +232,8 @@ public class PSAttribute extends PSDatabaseComponentCollection {
    * &gt;
    * </code></pre>
    *
-   * @param doc The parent document.   May not be <code>null</code>.
-   *
-   * @return     the newly created PSXAttribute XML element node
-   *
+   * @param doc The parent document. May not be <code>null</code>.
+   * @return the newly created PSXAttribute XML element node
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public Element toXml(Document doc) {
@@ -258,24 +243,19 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   }
 
   /**
-   * This method serializes all the properties of this object, optionally
-   * including those properties that are PSDatabaseComponent objects. It
-   * creates a node with a name unique to this object and adds attributes
-   * and child elements to this node, which is returned when complete.
+   * This method serializes all the properties of this object, optionally including those properties
+   * that are PSDatabaseComponent objects. It creates a node with a name unique to this object and
+   * adds attributes and child elements to this node, which is returned when complete.
    *
-   * @param doc The document to which the returned element will be added.
-   *    Assumed not <code>null</code>.
-   *
-   * @param includeCompChildren A flag to indicate whether to include
-   *    properties whose data type is PSDatabaseComponent. They are included
-   *    if this is <code>true</code>, otherwise they aren't. It was designed
-   *    to set this to <code>true</code> when calling from <code>toXml</code>
-   *    and <code>false</code> when calling from <code>toDatabaseXml</code>.
-   *    The db children are left out when saving to the db to make the
-   *    update work correctly.
-   *
-   * @return An XML element containing some or all of the properties of this
-   *    node, depending on the supplied flag, never <code>null</code>.
+   * @param doc The document to which the returned element will be added. Assumed not <code>null
+   *     </code>.
+   * @param includeCompChildren A flag to indicate whether to include properties whose data type is
+   *     PSDatabaseComponent. They are included if this is <code>true</code>, otherwise they aren't.
+   *     It was designed to set this to <code>true</code> when calling from <code>toXml</code> and
+   *     <code>false</code> when calling from <code>toDatabaseXml</code>. The db children are left
+   *     out when saving to the db to make the update work correctly.
+   * @return An XML element containing some or all of the properties of this node, depending on the
+   *     supplied flag, never <code>null</code>.
    */
   private Element toXml(Document doc, boolean includeCompChildren) {
     // create PSXSubject element and add type attribute
@@ -299,15 +279,11 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   }
 
   /**
-   * This method is called to populate a PSAttribute Java object
-   * from a PSXAttribute XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSAttribute Java object from a PSXAttribute XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRole
-   *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the
-   * interface description
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the interface description
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -366,11 +342,10 @@ public class PSAttribute extends PSDatabaseComponentCollection {
   /**
    * Set the attribute values for this attribute.
    *
-   * @param list The list of <code>String</code> values for this attribute,
-   * if <code>null</code>, the attribute values for this attribute will be
-   * cleared.  If non-string members are included in the list, toString()
-   * will be called to obtain a string value to store, though this is strongly
-   * discouraged.  Any <code>null</code> members of the list will be ignored.
+   * @param list The list of <code>String</code> values for this attribute, if <code>null</code>,
+   *     the attribute values for this attribute will be cleared. If non-string members are included
+   *     in the list, toString() will be called to obtain a string value to store, though this is
+   *     strongly discouraged. Any <code>null</code> members of the list will be ignored.
    */
   public void setValues(List list) {
     // Set any old values as deleted and move them to the delete list.
@@ -421,9 +396,7 @@ public class PSAttribute extends PSDatabaseComponentCollection {
     setValues(curVals);
   }
 
-  /**
-   * The name of this attribute, never <code>null</code> or empty.
-   */
+  /** The name of this attribute, never <code>null</code> or empty. */
   private String m_name = "attrib";
 
   /* package access on this so they may reference each other in fromXml */

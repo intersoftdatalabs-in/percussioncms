@@ -19,39 +19,37 @@ package com.percussion.pagemanagement.assembler.impl;
 
 import com.percussion.pagemanagement.data.PSResourceInstance;
 import com.percussion.sitemanage.data.PSSiteSummary;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * A null site used for resource generation of assets during preview.
- * During preview of assets, we do not have a site associated with them.
- * Instead of giving the assets a {@code null} value for sites
- * in the {@link PSResourceInstance resource instance}, we use this object.
- * <p>
- * This follows the Null Object pattern as we prefer to avoid null when we can.
+ * A null site used for resource generation of assets during preview. During preview of assets, we
+ * do not have a site associated with them. Instead of giving the assets a {@code null} value for
+ * sites in the {@link PSResourceInstance resource instance}, we use this object.
+ *
+ * <p>This follows the Null Object pattern as we prefer to avoid null when we can.
  *
  * @author adamgent
  */
 @XmlRootElement
 public class PSNullSiteSummary extends PSSiteSummary {
 
-    private static final long serialVersionUID = 1L;
-    private static final PSNullSiteSummary siteSummary;
+  private static final long serialVersionUID = 1L;
+  private static final PSNullSiteSummary siteSummary;
 
-    static {
-        var summary = new PSNullSiteSummary();
-        summary.setBaseUrl("http://localhost/");
-        summary.setFolderPath("//Sites/$NullSite$");
-        summary.setName("NullSite");
-        summary.setId(null);
-        siteSummary = summary;
-    }
+  static {
+    var summary = new PSNullSiteSummary();
+    summary.setBaseUrl("http://localhost/");
+    summary.setFolderPath("//Sites/$NullSite$");
+    summary.setName("NullSite");
+    summary.setId(null);
+    siteSummary = summary;
+  }
 
-    private PSNullSiteSummary() {
-        // Prevent external instantiation
-    }
+  private PSNullSiteSummary() {
+    // Prevent external instantiation
+  }
 
-    public static PSNullSiteSummary getInstance() {
-        return siteSummary;
-    }
+  public static PSNullSiteSummary getInstance() {
+    return siteSummary;
+  }
 }

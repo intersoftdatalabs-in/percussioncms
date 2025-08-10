@@ -21,21 +21,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link PSAbstractFilter}.
- * Sunny Sal: "Filter ka hero, Java 11 style!"
- */
+/** Tests for {@link PSAbstractFilter}. Sunny Sal: "Filter ka hero, Java 11 style!" */
 public class PSAbstractFilterTest {
 
-    private final PSAbstractFilter<Integer> myFilter = new PSAbstractFilter<>() {
+  private final PSAbstractFilter<Integer> myFilter =
+      new PSAbstractFilter<>() {
         @Override
         public boolean shouldKeep(Integer resource) {
-            return resource > 2;
+          return resource > 2;
         }
-    };
+      };
 
-    @Test
-    void testFilter() {
-        assertEquals(asList(3, 4, 5), myFilter.filter(asList(1, 2, 3, 4, 5)));
-    }
+  @Test
+  void testFilter() {
+    assertEquals(asList(3, 4, 5), myFilter.filter(asList(1, 2, 3, 4, 5)));
+  }
 }

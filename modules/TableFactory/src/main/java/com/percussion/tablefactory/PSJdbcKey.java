@@ -28,29 +28,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is the base class for classes used to represent an object in a table
- * schema consisting of a distinct list of column names.
+ * This is the base class for classes used to represent an object in a table schema consisting of a
+ * distinct list of column names.
  */
 public abstract class PSJdbcKey extends PSJdbcTableComponent {
   /**
    * Basic constructor for this class.
    *
    * @param name The name of this key, may be <code>null</code>.
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   *    constants.
-   * @param names An iterator over one or more column names as Strings to
-   *    include in the key.  May not be <code>null</code>.  May not
-   *    contain <code>null</code>, empty or duplicate names.
-   * @param containerName The name of this key type to use in error messages.  May
-   * not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if names is <code>null</code> or does not
-   *    contain at least one element or if action is not valid  or
-   *    nodeName is <code>null</code> or empty, or if name is required and
-   *    name is required.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
+   * @param names An iterator over one or more column names as Strings to include in the key. May
+   *     not be <code>null</code>. May not contain <code>null</code>, empty or duplicate names.
+   * @param containerName The name of this key type to use in error messages. May not be <code>null
+   *     </code> or empty.
+   * @throws IllegalArgumentException if names is <code>null</code> or does not contain at least one
+   *     element or if action is not valid or nodeName is <code>null</code> or empty, or if name is
+   *     required and name is required.
    * @throws PSJdbcTableFactoryException if names contains any <code>null
-   * </code>, empty or duplicate column names, or if there are any other
-   * errors.
+   * </code>, empty or duplicate column names, or if there are any other errors.
    */
   protected PSJdbcKey(String name, int action, Iterator<String> names, String containerName)
       throws PSJdbcTableFactoryException {
@@ -68,22 +63,20 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element) fromXml} for
+   * more information.
    *
-   * @param sourceNode The element from which this object is to be constructed.
-   *    Element must conform to the definition for the primarykey element in
-   *    the tabledef.dtd.  May not be <code>null</code>.
-   * @param nodeName The expected name of the supplied element.  May not be
-   *    <code>null</code> or empty.
-   * @param containerName The name of this key type to use in error messages.  May
-   *    not be <code>null</code> or empty.
-   *
-   *
-   * @throws IllegalArgumentException if sourceNode is <code>null</code> or
-   * nodeName is <code>null</code> or empty.
-   * @throws PSJdbcTableFactoryException if the Xml definition contains
-   *    any empty or duplicate column names, or if there are any other errors.
+   * @param sourceNode The element from which this object is to be constructed. Element must conform
+   *     to the definition for the primarykey element in the tabledef.dtd. May not be <code>null
+   *     </code>.
+   * @param nodeName The expected name of the supplied element. May not be <code>null</code> or
+   *     empty.
+   * @param containerName The name of this key type to use in error messages. May not be <code>null
+   *     </code> or empty.
+   * @throws IllegalArgumentException if sourceNode is <code>null</code> or nodeName is <code>null
+   *     </code> or empty.
+   * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
+   *     column names, or if there are any other errors.
    */
   protected PSJdbcKey(Element sourceNode, String nodeName, String containerName)
       throws PSJdbcTableFactoryException {
@@ -103,16 +96,14 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   * @param nodeName The name of the root element for this object.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param nodeName The name of the root element for this object. May not be <code>null</code> or
+   *     empty.
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
-   * @throws IllegalArgumentException if doc is <code>null</code>  or if
-   * nodeName is <code>null</code> or empty.
+   * @throws IllegalArgumentException if doc is <code>null</code> or if nodeName is <code>null
+   *     </code> or empty.
    */
   protected Element toXml(Document doc, String nodeName) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -135,16 +126,15 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the primarykey
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   * @param nodeName The expected name of the supplied element.  May not be
-   *    <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if sourceNode is <code>null</code> or
-   * nodeName is <code>null</code> or empty.
-   * @throws PSJdbcTableFactoryException if the Xml definition contains
-   *    any empty column names, or if there are any other errors.
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the primarykey element in the tabledef.dtd. May not be <code>null</code>
+   *     .
+   * @param nodeName The expected name of the supplied element. May not be <code>null</code> or
+   *     empty.
+   * @throws IllegalArgumentException if sourceNode is <code>null</code> or nodeName is <code>null
+   *     </code> or empty.
+   * @throws PSJdbcTableFactoryException if the Xml definition contains any empty column names, or
+   *     if there are any other errors.
    */
   protected void fromXml(Element sourceNode, String nodeName) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -189,9 +179,8 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcKey with
-   * the same (case-sensitive) column names. Otherwise returns
-   * <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcKey with the same (case-sensitive) column
+   *     names. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     if (!(obj instanceof PSJdbcKey)) return false;
@@ -200,16 +189,12 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Compares this column to another object.
-   * See  for values returned
-   * by this method.
+   * Compares this column to another object. See for values returned by this method.
    *
    * @param obj the object to compare, may be <code>null</code>
-   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed
-   * together
-   *
-   * @return a code indicating the type of match/mismatch between this object
-   * and the specified object <code>obj</code>
+   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed together
+   * @return a code indicating the type of match/mismatch between this object and the specified
+   *     object <code>obj</code>
    */
   public int compare(Object obj, int flags) {
     int match;
@@ -242,19 +227,14 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Compares the columns names in the specified lists.
-   * The default implementation does not consider
-   * the order of the names in the lists,
-   * only that they contain the same number of items and have the same names.
+   * Compares the columns names in the specified lists. The default implementation does not consider
+   * the order of the names in the lists, only that they contain the same number of items and have
+   * the same names.
    *
-   * @param cols1 list containing column names.
-   * Not <code>null</code>, may be empty.
-   *
-   * @param cols2 list containing column names.
-   * Not <code>null</code>, may be empty.
-   *
+   * @param cols1 list containing column names. Not <code>null</code>, may be empty.
+   * @param cols2 list containing column names. Not <code>null</code>, may be empty.
    * @return
-   * <table>
+   *     <table>
    * <tr>
    * <td> IS_GENERIC_MISMATCH </td>
    * <td> the columns in the specified lists do not match </td>
@@ -318,9 +298,8 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -333,11 +312,10 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Returns the list of key columns as an Iterator over one or more
-   * columns names as Strings.
+   * Returns the list of key columns as an Iterator over one or more columns names as Strings.
    *
-   * @return The names iterator, never <code>null</code>, will always contain
-   * at least one non-<code>null</code> entry.
+   * @return The names iterator, never <code>null</code>, will always contain at least one non-
+   *     <code>null</code> entry.
    */
   public Iterator<String> getColumnNames() {
     return m_names.iterator();
@@ -348,17 +326,14 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Set a list of column names that comprise this key.  Existing list
-   * of columns is replaced.
+   * Set a list of column names that comprise this key. Existing list of columns is replaced.
    *
-   * @param columnNames An Iterator over one or more column names as non-empty
-   * Strings.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if columnNames is <code>null</code>, does
-   * not contain at least one entry, or if it contains any entries that are not
-   * non-<code>null</code> Strings.
-   * @throws PSJdbcTableFactoryException if columnNames contains any empty or
-   * duplicate names (case sensitive).
+   * @param columnNames An Iterator over one or more column names as non-empty Strings. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if columnNames is <code>null</code>, does not contain at least
+   *     one entry, or if it contains any entries that are not non-<code>null</code> Strings.
+   * @throws PSJdbcTableFactoryException if columnNames contains any empty or duplicate names (case
+   *     sensitive).
    */
   public void setColumnNames(Iterator<String> columnNames) throws PSJdbcTableFactoryException {
     if (columnNames == null || !columnNames.hasNext())
@@ -383,15 +358,14 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * name of this container for error messages, not <code>null</code>, empty,
-   * or modified after construction.
+   * name of this container for error messages, not <code>null</code>, empty, or modified after
+   * construction.
    */
   private String m_containerName;
 
   /**
-   * List of column names as Strings comprising this primary key.  Never
-   * <code>null</code> or empty after ctor, never contains <code>null</code>,
-   * empty or duplicate values.
+   * List of column names as Strings comprising this primary key. Never <code>null</code> or empty
+   * after ctor, never contains <code>null</code>, empty or duplicate values.
    */
   private List<String> m_names = null;
 

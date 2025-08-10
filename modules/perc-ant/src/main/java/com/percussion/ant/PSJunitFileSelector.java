@@ -35,19 +35,17 @@ import org.apache.tools.ant.types.selectors.BaseExtendSelector;
 import org.apache.tools.ant.types.selectors.SelectorUtils;
 
 /**
- * Custom Ant selector, used to select junit test cases based on a set of
- * include/exclude filters.  See
- * {@link com.percussion.testing.PSCustomFileFilter} for a description of the
- * custom selector definition supported.
+ * Custom Ant selector, used to select junit test cases based on a set of include/exclude filters.
+ * See {@link com.percussion.testing.PSCustomFileFilter} for a description of the custom selector
+ * definition supported.
  */
 public class PSJunitFileSelector extends BaseExtendSelector {
 
   private static final Logger log = LogManager.getLogger(PSJunitFileSelector.class);
 
   /**
-   * Selects the file based on the filters specified.  See class header and
-   * {@link org.apache.tools.ant.types.selectors.BaseSelector base class}
-   * for more info.
+   * Selects the file based on the filters specified. See class header and {@link
+   * org.apache.tools.ant.types.selectors.BaseSelector base class} for more info.
    */
   @Override
   public boolean isSelected(File baseDir, String filename, File file) {
@@ -118,13 +116,10 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   /**
    * Determines if the supplied class is to be excluded.
    *
-   * @param className The name of the class, assumed not <code>null</code> or
-   * empty.
-   * @param theClass The class object, assumed not <code>null</code> and to
-   * match the supplied <code>className</code>.
-   *
-   * @return <code>true</code> if it should be excluded, <code>false</code>
-   * if not.
+   * @param className The name of the class, assumed not <code>null</code> or empty.
+   * @param theClass The class object, assumed not <code>null</code> and to match the supplied
+   *     <code>className</code>.
+   * @return <code>true</code> if it should be excluded, <code>false</code> if not.
    */
   private boolean isClassExcluded(String className, Class theClass) {
     boolean isExcluded = false;
@@ -141,13 +136,10 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   /**
    * Determines if the supplied class is to be included.
    *
-   * @param className The name of the class, assumed not <code>null</code> or
-   * empty.
-   * @param theClass The class object, assumed not <code>null</code> and to
-   * match the supplied <code>className</code>.
-   *
-   * @return <code>true</code> if it should be included, <code>false</code>
-   * if not.
+   * @param className The name of the class, assumed not <code>null</code> or empty.
+   * @param theClass The class object, assumed not <code>null</code> and to match the supplied
+   *     <code>className</code>.
+   * @return <code>true</code> if it should be included, <code>false</code> if not.
    */
   private boolean isClassIncluded(String className, Class theClass) {
     // default to true is no filters provided
@@ -166,11 +158,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   /**
    * Determines if the specified package is to be included.
    *
-   * @param pkgName The name of the package, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if it should be included, <code>false</code>
-   * if not.
+   * @param pkgName The name of the package, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if it should be included, <code>false</code> if not.
    */
   private boolean isPkgIncluded(String pkgName) {
     return hasMatch(pkgName, m_packageIncludes.iterator(), true);
@@ -179,11 +168,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   /**
    * Determines if the specified package is to be excluded.
    *
-   * @param pkgName The name of the package, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if it should be included, <code>false</code>
-   * if not.
+   * @param pkgName The name of the package, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if it should be included, <code>false</code> if not.
    */
   private boolean isPkgExcluded(String pkgName) {
     return hasMatch(pkgName, m_packageExcludes.iterator(), false);
@@ -193,15 +179,12 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * Determine if a name matches any of a list of patterns.
    *
    * @param name The name, assumed not <code>null</code>.
-   * @param patterns An iterator over patterns as <code>String</code> objects,
-   * assumed not <code>null</code>.
-   * @param matchEmpty <code>true</code> to treat an empty
-   * <code>patterns</code> as a match, <code>false</code> to treat it as a
-   * failure to match.
-   *
-   * @return <code>true</code> if the name matches any patterns, or if
-   * <code>patterns</code> is empty and <code>matchEmpty</code> is
-   * <code>true</code>, <code>false</code> otherwise.
+   * @param patterns An iterator over patterns as <code>String</code> objects, assumed not <code>
+   *     null</code>.
+   * @param matchEmpty <code>true</code> to treat an empty <code>patterns</code> as a match, <code>
+   *     false</code> to treat it as a failure to match.
+   * @return <code>true</code> if the name matches any patterns, or if <code>patterns</code> is
+   *     empty and <code>matchEmpty</code> is <code>true</code>, <code>false</code> otherwise.
    */
   private boolean hasMatch(String name, Iterator patterns, boolean matchEmpty) {
     boolean hasMatch = (matchEmpty && !patterns.hasNext());
@@ -214,21 +197,17 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Determines if the specified class is an "instanceof" any of the supplied
-   * class names.
+   * Determines if the specified class is an "instanceof" any of the supplied class names.
    *
-   * @param theClass The class to check against the list of class names,
-   * assumed not <code>null</code>.
-   * @param classNames An iterator over zero or more class names as
-   * <code>String</code> objects, assumed not <code>null</code>, may be
-   * empty.
-   * @param matchEmpty <code>true</code> to consider an empty
-   * <code>classNames</code> as a match, <code>false</code> to consider it as
-   * a failure to match.
-   *
-   * @return <code>true</code> if the class is an instanceof any of the class
-   * names, or if <code>classNames</code> is empty and <code>matchEmpty</code>
-   * is <code>true</code>, <code>false</code> otherwise.
+   * @param theClass The class to check against the list of class names, assumed not <code>null
+   *     </code>.
+   * @param classNames An iterator over zero or more class names as <code>String</code> objects,
+   *     assumed not <code>null</code>, may be empty.
+   * @param matchEmpty <code>true</code> to consider an empty <code>classNames</code> as a match,
+   *     <code>false</code> to consider it as a failure to match.
+   * @return <code>true</code> if the class is an instanceof any of the class names, or if <code>
+   *     classNames</code> is empty and <code>matchEmpty</code> is <code>true</code>, <code>false
+   *     </code> otherwise.
    */
   private boolean hasMatch(Class theClass, Iterator classNames, boolean matchEmpty) {
     boolean hasMatch = (matchEmpty && !classNames.hasNext());
@@ -248,11 +227,11 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Adds the specified filter to the appropriate list of package filters.      *
+   * Adds the specified filter to the appropriate list of package filters. *
    *
    * @param filter The filter to add, may not be <code>null</code> or empty.
-   * @param isInclude <code>true</code> to add the filter to the list of
-   * package includes, <code>false</code> to add it to the package excludes.
+   * @param isInclude <code>true</code> to add the filter to the list of package includes, <code>
+   *     false</code> to add it to the package excludes.
    */
   public void setPackageFilter(String filter, boolean isInclude) {
     if (filter == null || filter.trim().length() == 0)
@@ -266,9 +245,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
    * Adds the specified filter to the appropriate list of class name filters.
    *
    * @param filter The filter to add, may not be <code>null</code> or empty.
-   * @param isInclude <code>true</code> to add the filter to the list of
-   * class name includes, <code>false</code> to add it to the class name
-   * excludes.
+   * @param isInclude <code>true</code> to add the filter to the list of class name includes, <code>
+   *     false</code> to add it to the class name excludes.
    */
   public void setClassNameFilter(String filter, boolean isInclude) {
     if (filter == null || filter.trim().length() == 0)
@@ -279,13 +257,11 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Adds the specified filter to the appropriate list of class implementation
-   * filters.
+   * Adds the specified filter to the appropriate list of class implementation filters.
    *
    * @param filter The filter to add, may not be <code>null</code> or empty.
-   * @param isInclude <code>true</code> to add the filter to the list of
-   * class impl includes, <code>false</code> to add it to the class impl
-   * excludes.
+   * @param isInclude <code>true</code> to add the filter to the list of class impl includes, <code>
+   *     false</code> to add it to the class impl excludes.
    */
   public void setClassImplFilter(String filter, boolean isInclude) {
     if (filter == null || filter.trim().length() == 0)
@@ -296,13 +272,12 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Sets the parameters from the XML build file.  Expects parameters with a
-   * name matching one of the <code>XXX_ATTR</code> values, a type of either
-   * 'include' or 'exclude', defaults to 'include' if no value is supplied, and
-   * the value is the filter pattern, which may not be empty.
+   * Sets the parameters from the XML build file. Expects parameters with a name matching one of the
+   * <code>XXX_ATTR</code> values, a type of either 'include' or 'exclude', defaults to 'include' if
+   * no value is supplied, and the value is the filter pattern, which may not be empty.
    *
    * @see org.apache.tools.ant.types.Parameterizable#setParameters(Parameter[]
-   * Paraeterizable.setParameters()) for more info.
+   *     Paraeterizable.setParameters()) for more info.
    */
   public void setParameters(Parameter parameters[]) {
     super.setParameters(parameters);
@@ -369,11 +344,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   /**
    * Parses the supplied classpath into an array of URL objects.
    *
-   * @param classPath The classpath to parse, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return An array of url objects for each classpath element that is found
-   * to exist.
+   * @param classPath The classpath to parse, assumed not <code>null</code> or empty.
+   * @return An array of url objects for each classpath element that is found to exist.
    */
   private URL[] pathToURLs(String classPath) {
     List<URL> urlList = new ArrayList<URL>();
@@ -395,15 +367,12 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Loads the specified class using the appropriate class loader.  If a
-   * custom classpath parameter has been specified, that classloader is used,
-   * otherwise the default classloader is used.
+   * Loads the specified class using the appropriate class loader. If a custom classpath parameter
+   * has been specified, that classloader is used, otherwise the default classloader is used.
    *
-   * @param className The fully qualified name of the class to load, assumed
-   * not <code>null</code> or empty.
-   *
+   * @param className The fully qualified name of the class to load, assumed not <code>null</code>
+   *     or empty.
    * @return The class, never <code>null</code>.
-   *
    * @throws ClassNotFoundException If the class cannot be loaded.
    */
   private Class loadClass(String className) throws ClassNotFoundException {
@@ -415,14 +384,11 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Determines if a class represents a JUnit4-style test class.  It does this
-   * by checking for methods annotated with the {@link org.junit.Test}
-   * annotation.
+   * Determines if a class represents a JUnit4-style test class. It does this by checking for
+   * methods annotated with the {@link org.junit.Test} annotation.
    *
    * @param theClass The test class to inspect, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the test class is JUnit4, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the test class is JUnit4, <code>false</code> otherwise.
    */
   private boolean isJUnit4(Class theClass) {
     Method[] methods = theClass.getMethods();
@@ -437,8 +403,8 @@ public class PSJunitFileSelector extends BaseExtendSelector {
   }
 
   /**
-   * Loads the class which represents the JUnit4 test annotation.  The
-   * class is loaded once and stored in {@link #ms_testAnnotation}.
+   * Loads the class which represents the JUnit4 test annotation. The class is loaded once and
+   * stored in {@link #ms_testAnnotation}.
    *
    * @throws ClassNotFoundException If the class cannot be loaded.
    */
@@ -446,104 +412,81 @@ public class PSJunitFileSelector extends BaseExtendSelector {
     if (ms_testAnnotation == null) ms_testAnnotation = loadClass("org.junit.Test");
   }
 
-  /**
-   * The parameter name to indicate the supplied filter is a package filter.
-   */
+  /** The parameter name to indicate the supplied filter is a package filter. */
   public static final String PACKAGE_FILTER_ATTR = "packageFilter";
 
-  /**
-   * The parameter name to indicate the supplied filter is a class name filter.
-   */
+  /** The parameter name to indicate the supplied filter is a class name filter. */
   public static final String CLASS_NAME_FILTER_ATTR = "classNameFilter";
 
-  /**
-   * The parameter name to indicate the supplied filter is a class
-   * implementation filter.
-   */
+  /** The parameter name to indicate the supplied filter is a class implementation filter. */
   public static final String CLASS_IMPL_FILTER_ATTR = "classImplFilter";
 
   /**
-   * The parameter name to indicate a classpath is specified, used to define
-   * the classpath the selector's class loader should use.
+   * The parameter name to indicate a classpath is specified, used to define the classpath the
+   * selector's class loader should use.
    */
   public static final String FILTER_CLASS_PATH_ATTR = "filterClasspath";
 
-  /**
-   * The value to indicate the supplied parameter should be treated as an
-   * exclude filter.
-   */
+  /** The value to indicate the supplied parameter should be treated as an exclude filter. */
   public static final String TYPE_EXCLUDE = "exclude";
 
-  /**
-   * The value to indicate the supplied parameter should be treated as an
-   * include filter.
-   */
+  /** The value to indicate the supplied parameter should be treated as an include filter. */
   public static final String TYPE_INCLUDE = "include";
 
-  /**
-   * The value to indicate the supplied parameter will supply a path
-   */
+  /** The value to indicate the supplied parameter will supply a path */
   public static final String TYPE_PATH = "path";
 
   /**
-   * List of package include filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of package include filters, never <code>null</code>, filters as <code>String</code>objects
+   * are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_packageIncludes = new ArrayList<String>();
 
   /**
-   * List of package exlude filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of package exlude filters, never <code>null</code>, filters as <code>String</code>objects
+   * are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_packageExcludes = new ArrayList<String>();
 
   /**
-   * List of classname include filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of classname include filters, never <code>null</code>, filters as <code>String</code>
+   * objects are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_classNameIncludes = new ArrayList<String>();
 
   /**
-   * List of classname exclude filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of classname exclude filters, never <code>null</code>, filters as <code>String</code>
+   * objects are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_classNameExcludes = new ArrayList<String>();
 
   /**
-   * List of class impl include filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of class impl include filters, never <code>null</code>, filters as <code>String</code>
+   * objects are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_classImplIncludes = new ArrayList<String>();
 
   /**
-   * List of class impl exclude filters, never <code>null</code>, filters as
-   * <code>String</code>objects are added during the call to
-   * {@link #setParameters(Parameter[])}.
+   * List of class impl exclude filters, never <code>null</code>, filters as <code>String</code>
+   * objects are added during the call to {@link #setParameters(Parameter[])}.
    */
   private List<String> m_classImplExcludes = new ArrayList<String>();
 
   /**
-   * Class path to use to load test classes, initialized by
-   * {@link #setParameters(Parameter[])}, <code>null</code> if a classpath
-   * is not specified in the parameters.   Never modified otherwise.
+   * Class path to use to load test classes, initialized by {@link #setParameters(Parameter[])},
+   * <code>null</code> if a classpath is not specified in the parameters. Never modified otherwise.
    */
   private static String ms_classPath = null;
 
   /**
-   * Class loader to use to load test classes, initialized by
-   * {@link #setParameters(Parameter[])}, <code>null</code> if a classpath
-   * is not specified in the parameters.   Never modified otherwise.
+   * Class loader to use to load test classes, initialized by {@link #setParameters(Parameter[])},
+   * <code>null</code> if a classpath is not specified in the parameters. Never modified otherwise.
    */
   private static ClassLoader ms_classLoader = null;
 
   /**
-   * Stores the test annotation class used by JUnit4-style test classes.
-   * Initialized in {@link #loadTestAnnotation()}.
+   * Stores the test annotation class used by JUnit4-style test classes. Initialized in {@link
+   * #loadTestAnnotation()}.
    */
   private static Class ms_testAnnotation = null;
 }

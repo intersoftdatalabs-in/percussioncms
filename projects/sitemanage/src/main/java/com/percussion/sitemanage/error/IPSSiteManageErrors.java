@@ -18,17 +18,11 @@
 
 package com.percussion.sitemanage.error;
 
-/**
- * Defines the error codes produced by the site management service.
- */
+/** Defines the error codes produced by the site management service. */
 public interface IPSSiteManageErrors {
-    /**
-     * Error code category for site management service errors.
-     */
-    int SITE_MANAGE_SERVICE_CATEGORY = 18251; // through 1900
+  /** Error code category for site management service errors. */
+  int SITE_MANAGE_SERVICE_CATEGORY = 18251; // through 1900
 
-    /**
-     * Error code for deleting a bad site record.
-     */
-    int SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD = SITE_MANAGE_SERVICE_CATEGORY + 1;
+  /** Error code for deleting a bad site record. */
+  int SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD = SITE_MANAGE_SERVICE_CATEGORY + 1;
 }

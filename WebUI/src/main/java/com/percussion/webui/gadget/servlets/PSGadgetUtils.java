@@ -31,9 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Utility functions for gadgets
- */
+/** Utility functions for gadgets */
 public final class PSGadgetUtils {
   private PSGadgetUtils() {
     // Private constructor to force static access
@@ -43,8 +41,8 @@ public final class PSGadgetUtils {
   public static final File gadgetsRoot = new File(PSServer.getRxDir() + "/cm/gadgets/repository");
 
   /**
-   * Validates the input URL against the gadget registry and allowed hosts.
-   * Blocks malicious calls to gadget servlets.
+   * Validates the input URL against the gadget registry and allowed hosts. Blocks malicious calls
+   * to gadget servlets.
    *
    * @param request the servlet request
    * @param url a non-null URI
@@ -99,6 +97,7 @@ public final class PSGadgetUtils {
 
   /**
    * Returns a list of installed gadget config XML files.
+   *
    * @return list of gadget config files
    */
   @NotNull
@@ -125,6 +124,7 @@ public final class PSGadgetUtils {
 
   /**
    * Converts a canonical file path to normalized URL format.
+   *
    * @param canonicalPath canonical file path
    * @return normalized path string
    */

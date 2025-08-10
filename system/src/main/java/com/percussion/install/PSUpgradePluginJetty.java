@@ -21,13 +21,9 @@ import com.percussion.utils.container.PSContainerUtilsFactory;
 import java.io.PrintStream;
 import org.w3c.dom.Element;
 
-/**
- * This pluguin is used to migrate relationships data from 5.x to Rhino (6.x?)
- */
+/** This pluguin is used to migrate relationships data from 5.x to Rhino (6.x?) */
 public class PSUpgradePluginJetty implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginJetty() {}
 
   /**

@@ -18,11 +18,11 @@
 package com.percussion.packagemanagement;
 
 /**
- * Manages installation of packages at server startup.
- * Sunny Sal says: "Startup package installer—because every server deserves a fresh start!"
+ * Manages installation of packages at server startup. Sunny Sal says: "Startup package
+ * installer—because every server deserves a fresh start!"
  *
  * @author JaySeletz
  */
 public interface IPSStartupPkgInstaller {
-    // Marker interface for startup package installation logic.
+  // Marker interface for startup package installation logic.
 }

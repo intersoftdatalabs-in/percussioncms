@@ -35,25 +35,20 @@ import com.percussion.server.PSRequestValidationException;
 import java.util.Iterator;
 import org.w3c.dom.Document;
 
-/**
- * A conditional extension runner.
- */
+/** A conditional extension runner. */
 public class PSConditionalExtensionRunner extends PSExtensionRunner {
   /**
-   * Constructs a new conditional extension runner that can run the given
-   * extension, extracting data based on the params defined in the extension
-   * call.
+   * Constructs a new conditional extension runner that can run the given extension, extracting data
+   * based on the params defined in the extension call.
    *
-   * @param call the extension call which defines the params to be bound to
-   *    the extension for each invocation, must not be <code>null</code>.
+   * @param call the extension call which defines the params to be bound to the extension for each
+   *     invocation, must not be <code>null</code>.
    * @param ext the extension instance, must not be <code>null</code>.
-   * @param conditions the conditions which must evaluate to <code>true</code>
-   *    combined in order to execute this runner, may be <code>null</code> or
-   *    empty.
+   * @param conditions the conditions which must evaluate to <code>true</code> combined in order to
+   *     execute this runner, may be <code>null</code> or empty.
    * @throws PSNotFoundException if an execption is not found.
    * @throws PSExtensionException for any exception that failed initializing.
-   * @throws PSIllegalArgumentException if the extension call params do not
-   *    match the extension.
+   * @throws PSIllegalArgumentException if the extension call params do not match the extension.
    */
   public PSConditionalExtensionRunner(
       PSExtensionCall call, IPSExtension ext, Iterator<Object> conditions)
@@ -116,7 +111,7 @@ public class PSConditionalExtensionRunner extends PSExtensionRunner {
 
   /**
    * @see PSExtensionRunner#recoverEffect(PSExecutionData, IPSExecutionContext,
-   * PSExtensionProcessingException)
+   *     PSExtensionProcessingException)
    */
   public PSResult recoverEffect(
       PSExecutionData data, IPSExecutionContext context, PSExtensionProcessingException e)
@@ -143,8 +138,7 @@ public class PSConditionalExtensionRunner extends PSExtensionRunner {
   }
 
   /**
-   * @see IPSResultDocumentProcessor#processResultDocument(Object[],
-   *    IPSRequestContext, Document)
+   * @see IPSResultDocumentProcessor#processResultDocument(Object[], IPSRequestContext, Document)
    */
   public Document processResultDoc(PSExecutionData data, Document doc)
       throws PSExtensionProcessingException,
@@ -166,8 +160,8 @@ public class PSConditionalExtensionRunner extends PSExtensionRunner {
   }
 
   /**
-   * A <code>PSRuleListEvaluator</code> evaluator, initialized in ctor, may
-   * be <code>null</code> or empty and is never changed after construction.
+   * A <code>PSRuleListEvaluator</code> evaluator, initialized in ctor, may be <code>null</code> or
+   * empty and is never changed after construction.
    */
   private PSRuleListEvaluator m_evaluator = null;
 }

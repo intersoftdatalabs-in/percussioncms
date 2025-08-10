@@ -38,23 +38,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Sets an HTML Parameter to the request with an
- * {@link java.util.List array list} of values. Takes the following parameters.
+ * Sets an HTML Parameter to the request with an {@link java.util.List array list} of values. Takes
+ * the following parameters.
+ *
  * <ol>
- * <li>paramName Name of the HTML parameter, must not be <code>null</code> or
- * empty.</li>
- * <li>resourceName Makes an Internal request to this resource for the values.
- * Must not be <code>null</code> or empty. Throws an exception if resource
- * does not exist.</li>
- * <li>elementName - Loops through all the elements with this name and prepares
- * the list with the text values of this element.If the list is empty HTML
- * parameter will not be added.</li>
- * <li>maxNumber - The list size will be limited to this number or to the size
- * of elements, which ever is smaller.If provided, the value must be an Integer.
- * This will be overridden by the HTML parameter in the request (if exists). If
- * no value is provided for this and no HTML parameter is specified then all
- * element values will be added. One can control first or last n number of items
- * by building the rhythmyx request with a definite sort order</li>
+ *   <li>paramName Name of the HTML parameter, must not be <code>null</code> or empty.
+ *   <li>resourceName Makes an Internal request to this resource for the values. Must not be <code>
+ *       null</code> or empty. Throws an exception if resource does not exist.
+ *   <li>elementName - Loops through all the elements with this name and prepares the list with the
+ *       text values of this element.If the list is empty HTML parameter will not be added.
+ *   <li>maxNumber - The list size will be limited to this number or to the size of elements, which
+ *       ever is smaller.If provided, the value must be an Integer. This will be overridden by the
+ *       HTML parameter in the request (if exists). If no value is provided for this and no HTML
+ *       parameter is specified then all element values will be added. One can control first or last
+ *       n number of items by building the rhythmyx request with a definite sort order
  * </ol>
  */
 public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
@@ -179,18 +176,12 @@ public class PSSetArrayHtmlParameter implements IPSRequestPreProcessor {
 
   public static void main(String[] args) {}
 
-  /**
-   * Logger for this exit.
-   */
+  /** Logger for this exit. */
   private Logger m_log = LogManager.getLogger(PSSetArrayHtmlParameter.class);
 
-  /**
-   * Expected number of parameters of this exit
-   */
+  /** Expected number of parameters of this exit */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 4;
 
-  /**
-   * The exit name used for error handling
-   */
+  /** The exit name used for error handling */
   private static final String ms_className = "PSSetArrayHtmlParameter";
 }

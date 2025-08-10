@@ -26,20 +26,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Represents the metadata for a single parameter to a content editor control,
- * as defined by the &lt;psxctl:Param&gt; node in <code>
+ * Represents the metadata for a single parameter to a content editor control, as defined by the
+ * &lt;psxctl:Param&gt; node in <code>
  * sys_LibraryControlDef.dtd</code>
  */
 public class PSControlParameter extends PSComponent {
   /**
-   * Initializes a newly created <code>PSControlParameter</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSControlParameter</code> object, from an XML representation.
+   * See {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format.
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public PSControlParameter(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null.");
@@ -47,16 +45,14 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -99,10 +95,10 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
+   *
    * <pre><code>
    * &lt;!ELEMENT psxctl:Param (psxctl:Description, psxctl:ChoiceList?, psxctl:DefaultValue?)>
    * &lt;!ATTLIST psxctl:Param
@@ -117,7 +113,7 @@ public class PSControlParameter extends PSComponent {
    * &lt;!ELEMENT psxctl:DefaultValue (#PCDATA)>
    * </code></pre>
    *
-   * @return    the newly created XML element node
+   * @return the newly created XML element node
    * @todo write choicelists back
    */
   public Element toXml(Document doc) {
@@ -135,8 +131,7 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
    * @param object a valid (not null) <code>PSControlParameter</code>
    */
@@ -162,32 +157,31 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * @return <code>true</code> if this parameter is required for its control;
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if this parameter is required for its control; <code>false</code>
+   *     otherwise.
    */
   public boolean isRequired() {
     return m_required;
   }
 
   /**
-   * @return The default value for this parameter.  Never <code>null</code>,
-   *         but may be empty.
+   * @return The default value for this parameter. Never <code>null</code>, but may be empty.
    */
   public String getDefaultValue() {
     return m_defaultValue;
   }
 
   /**
-   * @return A descriptive term for the type of the expected data supplied to
-   *         this parameter. May be empty, but never <code>null</code>.
+   * @return A descriptive term for the type of the expected data supplied to this parameter. May be
+   *     empty, but never <code>null</code>.
    */
   public String getDataType() {
     return m_dataType;
   }
 
   /**
-   * @return The type of this parameter. The possible values are control-
-   *         specific. May be empty, but never <code>null</code>.
+   * @return The type of this parameter. The possible values are control- specific. May be empty,
+   *     but never <code>null</code>.
    */
   public String getParamType() {
     return m_paramType;
@@ -201,8 +195,7 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * @return The description of this parameter; may be empty, but never
-   *         <code>null</code>.
+   * @return The description of this parameter; may be empty, but never <code>null</code>.
    */
   public String getDescription() {
     return m_description;
@@ -211,8 +204,7 @@ public class PSControlParameter extends PSComponent {
   /**
    * Gets the list of entries for this parameter's choice list.
    *
-   * @return List of Entry objects, or <code>null</code> if no list is defined
-   * for this parameter.
+   * @return List of Entry objects, or <code>null</code> if no list is defined for this parameter.
    */
   public List getChoiceList() {
     return m_choiceList;
@@ -221,19 +213,17 @@ public class PSControlParameter extends PSComponent {
   /**
    * Sets the list of entries for this parameter's choice list.
    *
-   * @param choiceList List of Entry objects, or <code>null</code> to clear
-   * the list.
+   * @param choiceList List of Entry objects, or <code>null</code> to clear the list.
    */
   public void setChoiceList(List choiceList) {
     m_choiceList = choiceList;
   }
 
   /**
-   * Sets the parameter type member variable, enforcing the assertion that this
-   * variable will never be <code>null</code>.
+   * Sets the parameter type member variable, enforcing the assertion that this variable will never
+   * be <code>null</code>.
    *
-   * @param paramType The value to assign. If <code>null</code>, the empty
-   *        string is used instead.
+   * @param paramType The value to assign. If <code>null</code>, the empty string is used instead.
    */
   private void setParamType(String paramType) {
     if (null == paramType) m_paramType = "";
@@ -241,11 +231,10 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * Sets the description member variable, enforcing the assertion that this
-   * variable will never be <code>null</code>.
+   * Sets the description member variable, enforcing the assertion that this variable will never be
+   * <code>null</code>.
    *
-   * @param description The value to assign. If <code>null</code>, the empty
-   *        string is used instead.
+   * @param description The value to assign. If <code>null</code>, the empty string is used instead.
    */
   private void setDescription(String description) {
     if (null == description) m_description = "";
@@ -253,11 +242,11 @@ public class PSControlParameter extends PSComponent {
   }
 
   /**
-   * Sets the default value member variable, enforcing the assertion that this
-   * variable will never be <code>null</code>.
+   * Sets the default value member variable, enforcing the assertion that this variable will never
+   * be <code>null</code>.
    *
-   * @param defaultValue The value to assign. If <code>null</code>, the empty
-   *        string is used instead.
+   * @param defaultValue The value to assign. If <code>null</code>, the empty string is used
+   *     instead.
    */
   private void setDefaultValue(String defaultValue) {
     if (null == defaultValue) m_defaultValue = "";
@@ -267,17 +256,15 @@ public class PSControlParameter extends PSComponent {
   /**
    * Sets whether this parameter is required
    *
-   * @param required "yes" if this parameter is required; any other value will
-   * be iinterpreted as not required.
+   * @param required "yes" if this parameter is required; any other value will be iinterpreted as
+   *     not required.
    */
   public void setRequired(String required) {
     if (required != null && required.equals("yes")) m_required = true;
     else m_required = false;
   }
 
-  /**
-   * Name of parent XML node
-   */
+  /** Name of parent XML node */
   public static final String XML_NODE_NAME = "psxctl:Param";
 
   private static final String XML_NAME_ATTR = "name";
@@ -290,65 +277,50 @@ public class PSControlParameter extends PSComponent {
   private static final String XML_CHOICELIST_NODE = "psxctl:ChoiceList";
 
   /**
-   * An array of legal values for the choiceset XML attribute.  The value at
-   * index 0 is the default.
+   * An array of legal values for the choiceset XML attribute. The value at index 0 is the default.
    */
   private static final String[] XML_REQUIRED_ENUM = {"no", "yes"};
 
-  /**
-   * Name of this parameter. Never <code>null</code> or empty after
-   * construction.
-   */
+  /** Name of this parameter. Never <code>null</code> or empty after construction. */
   private String m_name;
 
   /**
-   * Describes the type of the expected data supplied as the value of this
-   * parameter. Recommend one of: String, Date, Time, Datetime, Number.
-   * Never <code>null</code> after construction.
+   * Describes the type of the expected data supplied as the value of this parameter. Recommend one
+   * of: String, Date, Time, Datetime, Number. Never <code>null</code> after construction.
    */
   private String m_dataType;
 
-  /**
-   * Indicates if this parameter is required.
-   */
+  /** Indicates if this parameter is required. */
   private boolean m_required;
 
   /**
-   * Specifies what category of parameter this is.  The possible values are
-   * control specific.  For example, generic, custom, or img. Never <code>null
+   * Specifies what category of parameter this is. The possible values are control specific. For
+   * example, generic, custom, or img. Never <code>null
    * </code> after construction.
    */
   private String m_paramType;
 
-  /**
-   * A full description of this parameter. Never <code>null</code>.
-   */
+  /** A full description of this parameter. Never <code>null</code>. */
   private String m_description = "";
 
-  /**
-   * Defines a value to use for the parameter if no value is supplied.
-   * Never <code>null</code>.
-   */
+  /** Defines a value to use for the parameter if no value is supplied. Never <code>null</code>. */
   private String m_defaultValue = "";
 
   /**
-   * Holds the entries that make up the choice list for this parameter.  Will
-   * be <code>null</code> if this parameter has not defined a choice list.
+   * Holds the entries that make up the choice list for this parameter. Will be <code>null</code> if
+   * this parameter has not defined a choice list.
    */
   private List m_choiceList = null;
 
-  /**
-   * A single entry in the choice list
-   */
+  /** A single entry in the choice list */
   public class Entry {
     /**
-     * Initializes a newly created <code>Entry</code> object, from
-     * an XML representation.  See {@link #fromXml} for the format.
+     * Initializes a newly created <code>Entry</code> object, from an XML representation. See {@link
+     * #fromXml} for the format.
      *
-     * @param sourceNode the XML element node to construct this object from.
-     * Cannot be <code>null</code>.
-     * @throws PSUnknownNodeTypeException if the XML representation is not
-     * in the expected format.
+     * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+     *     </code>.
+     * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
      */
     public Entry(Element sourceNode) throws PSUnknownNodeTypeException {
       if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null.");
@@ -356,19 +328,18 @@ public class PSControlParameter extends PSComponent {
     }
 
     /**
-     * Populates the fields of this object from an XML representation.  The
-     * format of the XML is specified in sys_LibraryControlDef.dtd:
-     * <code><pre>
+     * Populates the fields of this object from an XML representation. The format of the XML is
+     * specified in sys_LibraryControlDef.dtd: <code><pre>
      * &lt;!ELEMENT psxctl:Entry (#PCDATA)>
      * &lt;!ATTLIST psxctl:Entry
      *    internalName CDATA #IMPLIED
      * >
      * </pre></code>
      *
-     * @param sourceNode element with name specified by
-     * {@link #XML_NODE_NAME}; cannot be <code>null</code>
-     * @throws PSUnknownNodeTypeException if <code>sourceNode</code> fails
-     * to {@link PSComponent#validateElementName validate}.
+     * @param sourceNode element with name specified by {@link #XML_NODE_NAME}; cannot be <code>null
+     *     </code>
+     * @throws PSUnknownNodeTypeException if <code>sourceNode</code> fails to {@link
+     *     PSComponent#validateElementName validate}.
      */
     private void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
       PSComponent.validateElementName(sourceNode, XML_NODE_NAME);
@@ -377,11 +348,12 @@ public class PSControlParameter extends PSComponent {
     }
 
     /**
-     * Gets the value that should be passed to the parameter when this Entry
-     * is selected.  If an internal name has not been explictly defined,
-     * the display value is used (with spaces converted to underscores).
-     * @return the value that should be passed to the parameter; never
-     * <code>null</code>, may be empty.
+     * Gets the value that should be passed to the parameter when this Entry is selected. If an
+     * internal name has not been explictly defined, the display value is used (with spaces
+     * converted to underscores).
+     *
+     * @return the value that should be passed to the parameter; never <code>null</code>, may be
+     *     empty.
      */
     public String getInternalName() {
       if (null == m_internalName) {
@@ -394,8 +366,7 @@ public class PSControlParameter extends PSComponent {
     /**
      * Sets the value used when this Entry is passed to a parameter
      *
-     * @param internalName String to assign.  If empty, <code>null</code>
-     * is assigned
+     * @param internalName String to assign. If empty, <code>null</code> is assigned
      */
     public void setInternalName(String internalName) {
       // force empty to null
@@ -404,8 +375,7 @@ public class PSControlParameter extends PSComponent {
     }
 
     /**
-     * @return String representation of this object, obtained by
-     * {@link #getDisplayValue}
+     * @return String representation of this object, obtained by {@link #getDisplayValue}
      */
     public String toString() {
       return getDisplayValue();
@@ -413,6 +383,7 @@ public class PSControlParameter extends PSComponent {
 
     /**
      * Gets the value that should be displayed when choosing between entries.
+     *
      * @return String; never <code>null</code>, may be empty
      */
     public String getDisplayValue() {
@@ -420,15 +391,15 @@ public class PSControlParameter extends PSComponent {
     }
 
     /**
-     * The value that should be passed to the parameter when this Entry
-     * is selected.  Set in {@link #fromXml} from the internalName attribute.
-     * Will be <code>null</code> if not defined; never empty.
+     * The value that should be passed to the parameter when this Entry is selected. Set in {@link
+     * #fromXml} from the internalName attribute. Will be <code>null</code> if not defined; never
+     * empty.
      */
     private String m_internalName = null;
 
     /**
-     * The value that should be displayed when choosing which Entry to use.
-     * Never <code>null</code>, may be empty.  Set in {@link #fromXml}.
+     * The value that should be displayed when choosing which Entry to use. Never <code>null</code>,
+     * may be empty. Set in {@link #fromXml}.
      */
     private String m_displayValue;
 

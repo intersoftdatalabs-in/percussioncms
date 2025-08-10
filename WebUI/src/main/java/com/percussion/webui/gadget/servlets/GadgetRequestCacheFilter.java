@@ -38,7 +38,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * This class validates the urls passed in for Gadgets Meta calls to make sure urls passed in are valid.
+ * This class validates the urls passed in for Gadgets Meta calls to make sure urls passed in are
+ * valid.
  */
 public class GadgetRequestCacheFilter implements Filter {
   private static final Logger log = LogManager.getLogger(IPSConstants.DASHBOARD_LOG);

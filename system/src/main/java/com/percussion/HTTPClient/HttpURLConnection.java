@@ -29,22 +29,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is a wrapper around HTTPConnection providing the interface defined
- * by java.net.URLConnection and java.net.HttpURLConnection.
+ * This class is a wrapper around HTTPConnection providing the interface defined by
+ * java.net.URLConnection and java.net.HttpURLConnection.
  *
- * <P>
- * This class can be used to replace the HttpClient in the JDK with this
- * HTTPClient by defining the property
- * <code>java.protocol.handler.pkgs=HTTPClient</code>.
+ * <p>This class can be used to replace the HttpClient in the JDK with this HTTPClient by defining
+ * the property <code>java.protocol.handler.pkgs=HTTPClient</code>.
  *
- * <P>
- * One difference between Sun's HttpClient and this one is that this one will
- * provide you with a real output stream if possible. This leads to two changes:
- * you should set the request property "Content-Length", if possible, before
- * invoking getOutputStream(); and in many cases getOutputStream() implies
- * connect(). This should be transparent, though, apart from the fact that you
- * can't change any headers or other settings anymore once you've gotten the
- * output stream. So, for large data do:
+ * <p>One difference between Sun's HttpClient and this one is that this one will provide you with a
+ * real output stream if possible. This leads to two changes: you should set the request property
+ * "Content-Length", if possible, before invoking getOutputStream(); and in many cases
+ * getOutputStream() implies connect(). This should be transparent, though, apart from the fact that
+ * you can't change any headers or other settings anymore once you've gotten the output stream. So,
+ * for large data do:
  *
  * <PRE>
  *
@@ -59,37 +55,29 @@ import java.util.Map;
  *
  * </PRE>
  *
- * <P>
- * The HTTPClient will send the request data using the chunked transfer encoding
- * when no Content-Length is specified and the server is HTTP/1.1 compatible.
- * Because cgi-scripts can't usually handle this, you may experience problems
- * trying to POST data. For this reason, whenever the Content-Type is
- * application/x-www-form-urlencoded getOutputStream() will buffer the data
- * before sending it so as prevent chunking. If you are sending requests with a
- * different Content-Type and are experiencing problems then you may want to try
- * setting the system property <var>HTTPClient.dontChunkRequests </var> to
- * <var>true </var> (this needs to be done either on the command line or
- * somewhere in the code before the first URLConnection.openConnection() is
+ * <p>The HTTPClient will send the request data using the chunked transfer encoding when no
+ * Content-Length is specified and the server is HTTP/1.1 compatible. Because cgi-scripts can't
+ * usually handle this, you may experience problems trying to POST data. For this reason, whenever
+ * the Content-Type is application/x-www-form-urlencoded getOutputStream() will buffer the data
+ * before sending it so as prevent chunking. If you are sending requests with a different
+ * Content-Type and are experiencing problems then you may want to try setting the system property
+ * <var>HTTPClient.dontChunkRequests </var> to <var>true </var> (this needs to be done either on the
+ * command line or somewhere in the code before the first URLConnection.openConnection() is
  * invoked).
  *
- * <P>
- * A second potential incompatibility is that the HTTPClient aggresively resuses
- * connections, and can do so more often that Sun's client. This can cause
- * problems if you send multiple requests, and the first one has a long
- * response. In this case (assuming the server allows the connection to be used
- * for multiple requests) the responses to second, third, etc request won't be
- * received until the first response has been completely read. With Sun's client
- * on the other hand you may not experience this, as it may not be able to keep
- * the connection open and there may create multiple connections for the
- * requests. This allows the responses to the second, third, etc requests to be
- * read before the first response has completed. <strong>Note: </strong> whether
- * this will happen depends on details of the resource being requested and the
- * server. In many cases the HTTPClient and Sun's client will exhibit the same
- * behaviour. Also, applications which depend on being able to read the second
- * response before the first one has completed must be considered broken,
- * because A) this behaviour cannot be relied upon even in Sun's current client,
- * and B) Sun's implementation will exhibit the same problem if they ever switch
- * to HTTP/1.1.
+ * <p>A second potential incompatibility is that the HTTPClient aggresively resuses connections, and
+ * can do so more often that Sun's client. This can cause problems if you send multiple requests,
+ * and the first one has a long response. In this case (assuming the server allows the connection to
+ * be used for multiple requests) the responses to second, third, etc request won't be received
+ * until the first response has been completely read. With Sun's client on the other hand you may
+ * not experience this, as it may not be able to keep the connection open and there may create
+ * multiple connections for the requests. This allows the responses to the second, third, etc
+ * requests to be read before the first response has completed. <strong>Note: </strong> whether this
+ * will happen depends on details of the resource being requested and the server. In many cases the
+ * HTTPClient and Sun's client will exhibit the same behaviour. Also, applications which depend on
+ * being able to read the second response before the first one has completed must be considered
+ * broken, because A) this behaviour cannot be relied upon even in Sun's current client, and B)
+ * Sun's implementation will exhibit the same problem if they ever switch to HTTP/1.1.
  *
  * @version 0.3-3 06/05/2001
  * @author Ronald Tschalär
@@ -165,8 +153,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   private static int proxy_port = -1;
 
   /**
-   * Obtain the connection map on a thread basis to avoid thread issues with
-   * connections across thread boundaries.
+   * Obtain the connection map on a thread basis to avoid thread issues with connections across
+   * thread boundaries.
    *
    * @return the map, never <code>null</code>
    */
@@ -180,10 +168,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Construct a connection to the specified url. A cache of HTTPConnections is
-   * used to maximize the reuse of these across multiple HttpURLConnections.
-   *
-   * <BR>
+   * Construct a connection to the specified url. A cache of HTTPConnections is used to maximize the
+   * reuse of these across multiple HttpURLConnections. <br>
    * The default method is "GET".
    *
    * @param url the url of the request
@@ -231,9 +217,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Returns an HTTPConnection. A cache of connections is kept and first
-   * consulted; only when the cache lookup fails is a new one created and added
-   * to the cache.
+   * Returns an HTTPConnection. A cache of connections is kept and first consulted; only when the
+   * cache lookup fails is a new one created and added to the cache.
    *
    * @param urlparam the url
    * @return an HTTPConnection
@@ -266,8 +251,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   // Methods
 
   /**
-   * Sets the request method (e.g. "PUT" or "HEAD"). Can only be set before
-   * connect() is called.
+   * Sets the request method (e.g. "PUT" or "HEAD"). Can only be set before connect() is called.
    *
    * @param method the http method.
    * @exception ProtocolException if already connected.
@@ -306,8 +290,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Get the response message describing the response code. Calls connect() if
-   * not connected.
+   * Get the response message describing the response code. Calls connect() if not connected.
    *
    * @return the http response message returned with the response code.
    */
@@ -337,9 +320,9 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Get the value part of a header and converts it to an int. If the header
-   * does not exist or if its value could not be converted to an int then the
-   * default is returned. Calls connect() if not connected.
+   * Get the value part of a header and converts it to an int. If the header does not exist or if
+   * its value could not be converted to an int then the default is returned. Calls connect() if not
+   * connected.
    *
    * @param name the of the header.
    * @param def the default value to return in case of an error.
@@ -355,10 +338,9 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Get the value part of a header, interprets it as a date and converts it to
-   * a long representing the number of milliseconds since 1970. If the header
-   * does not exist or if its value could not be converted to a date then the
-   * default is returned. Calls connect() if not connected.
+   * Get the value part of a header, interprets it as a date and converts it to a long representing
+   * the number of milliseconds since 1970. If the header does not exist or if its value could not
+   * be converted to a date then the default is returned. Calls connect() if not connected.
    *
    * @param name the of the header.
    * @param def the default value to return in case of an error.
@@ -376,9 +358,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   private String[] hdr_keys, hdr_values;
 
   /**
-   * Gets header name of the n-th header. Calls connect() if not connected. The
-   * name of the 0-th header is <var>null </var>, even though it the 0-th
-   * header has a value.
+   * Gets header name of the n-th header. Calls connect() if not connected. The name of the 0-th
+   * header is <var>null </var>, even though it the 0-th header has a value.
    *
    * @param n which header to return.
    * @return the header name, or null if not that many headers.
@@ -391,8 +372,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Gets header value of the n-th header. Calls connect() if not connected.
-   * The value of 0-th header is the Status-Line (e.g. "HTTP/1.1 200 Ok").
+   * Gets header value of the n-th header. Calls connect() if not connected. The value of 0-th
+   * header is the Status-Line (e.g. "HTTP/1.1 200 Ok").
    *
    * @param n which header to return.
    * @return the header value, or null if not that many headers.
@@ -404,9 +385,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
     else return null;
   }
 
-  /**
-   * Cache the list of headers.
-   */
+  /** Cache the list of headers. */
   private void fill_hdr_arrays() {
     try {
       if (!connected) connect();
@@ -438,8 +417,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Gets an input stream from which the data in the response may be read.
-   * Calls connect() if not connected.
+   * Gets an input stream from which the data in the response may be read. Calls connect() if not
+   * connected.
    *
    * @return an InputStream
    * @exception ProtocolException if input not enabled.
@@ -461,14 +440,12 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Returns the error stream if the connection failed but the server sent
-   * useful data nonetheless.
+   * Returns the error stream if the connection failed but the server sent useful data nonetheless.
    *
-   * <P>
-   * This method will not cause a connection to be initiated.
+   * <p>This method will not cause a connection to be initiated.
    *
-   * @return an InputStream, or null if either the connection hasn't been
-   *         established yet or no error occurred
+   * @return an InputStream, or null if either the connection hasn't been established yet or no
+   *     error occurred
    * @see java.net.HttpURLConnection#getErrorStream()
    * @since V0.3-1
    */
@@ -486,24 +463,20 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Gets an output stream which can be used send an entity with the request.
-   * Can be called multiple times, in which case always the same stream is
-   * returned.
+   * Gets an output stream which can be used send an entity with the request. Can be called multiple
+   * times, in which case always the same stream is returned.
    *
-   * <P>
-   * The default request method changes to "POST" when this method is called.
-   * Cannot be called after connect().
+   * <p>The default request method changes to "POST" when this method is called. Cannot be called
+   * after connect().
    *
-   * <P>
-   * If no Content-type has been set it defaults to
-   * <var>application/x-www-form-urlencoded </var>. Furthermore, if the
-   * Content-type is <var>application/x-www-form-urlencoded </var> then all
-   * output will be collected in a buffer before sending it to the server;
-   * otherwise an HttpOutputStream is used.
+   * <p>If no Content-type has been set it defaults to <var>application/x-www-form-urlencoded
+   * </var>. Furthermore, if the Content-type is <var>application/x-www-form-urlencoded </var> then
+   * all output will be collected in a buffer before sending it to the server; otherwise an
+   * HttpOutputStream is used.
    *
    * @return an OutputStream
-   * @exception ProtocolException if already connect()'ed, if output is not
-   *               enabled or if the request method does not support output.
+   * @exception ProtocolException if already connect()'ed, if output is not enabled or if the
+   *     request method does not support output.
    * @see java.net.URLConnection#setDoOutput(boolean)
    * @see HTTPClient.HttpOutputStream
    */
@@ -540,8 +513,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Gets the url for this connection. If we're connect()'d and the request was
-   * redirected then the url returned is that of the final request.
+   * Gets the url for this connection. If we're connect()'d and the request was redirected then the
+   * url returned is that of the final request.
    *
    * @return the final url, or null if any exception occurred.
    */
@@ -602,8 +575,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Sets an arbitrary default request header. All headers set here are
-   * automatically sent with each request.
+   * Sets an arbitrary default request header. All headers set here are automatically sent with each
+   * request.
    *
    * @param name the name of the header.
    * @param value the value for the header.
@@ -637,8 +610,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * Enables or disables the automatic handling of redirection responses for
-   * this instance only. Cannot be called after <code>connect()</code>.
+   * Enables or disables the automatic handling of redirection responses for this instance only.
+   * Cannot be called after <code>connect()</code>.
    *
    * @param set enables automatic redirection handling if true.
    */
@@ -649,17 +622,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
   }
 
   /**
-   * @return true if automatic redirection handling for this instance is
-   *         enabled.
+   * @return true if automatic redirection handling for this instance is enabled.
    */
   public boolean getInstanceFollowRedirects() {
     return do_redir;
   }
 
-  /**
-   * Connects to the server (if connection not still kept alive) and issues the
-   * request.
-   */
+  /** Connects to the server (if connection not still kept alive) and issues the request. */
   public synchronized void connect() throws IOException {
     if (connected) return;
 
@@ -687,9 +656,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
     connected = true;
   }
 
-  /**
-   * Closes all the connections to this server.
-   */
+  /** Closes all the connections to this server. */
   public void disconnect() {
     Log.write(Log.URLC, "URLC:  (" + urlString + ") Disconnecting ...");
 

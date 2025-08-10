@@ -26,8 +26,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.io.File;
 
 /**
- * Used by server to determine if a request should be cached using the sessionid
- * as one of the keys.
+ * Used by server to determine if a request should be cached using the sessionid as one of the keys.
  */
 public class PSCacheBySessionRule implements IPSUdfProcessor {
   // see IPSUdfProcessor doc
@@ -36,29 +35,23 @@ public class PSCacheBySessionRule implements IPSUdfProcessor {
   }
 
   /**
-   * Determines if the supplied request should be cached by session id.
-   * Returns a <code>Boolean</code> whose value indicates the result.  Will be
-   * <code>true</code> if the request is for a top-level Site Explorer page or
-   * if it is an active snippet within a Site Explorer page.  This is
-   * true if the value of the <code>sys_command</code> parameter is not
-   * <code>null</code> and is equal to "<code>editrc</code>", and one of
-   * the following conditions are also true:
+   * Determines if the supplied request should be cached by session id. Returns a <code>Boolean
+   * </code> whose value indicates the result. Will be <code>true</code> if the request is for a
+   * top-level Site Explorer page or if it is an active snippet within a Site Explorer page. This is
+   * true if the value of the <code>sys_command</code> parameter is not <code>null</code> and is
+   * equal to "<code>editrc</code>", and one of the following conditions are also true:
+   *
    * <ol>
-   * <li>The <code>relateitemid</code> parameter is <code>null</code>
-   * (indicates a top-level page), or</li>
-   * <li>The <code>sys_activeitemid</code> is not <code>null</code> and
-   * equal to the <code>relateditemid</code> parameter (indicates an active
-   * snippet)</li>
+   *   <li>The <code>relateitemid</code> parameter is <code>null</code> (indicates a top-level
+   *       page), or
+   *   <li>The <code>sys_activeitemid</code> is not <code>null</code> and equal to the <code>
+   *       relateditemid</code> parameter (indicates an active snippet)
    * </ol>
    *
-   * @param params The input parameters.  None are expected.
+   * @param params The input parameters. None are expected.
    * @param request The request context, may not be <code>null</code>.
-   *
-   * @return A <code>Boolean</code> indicating the result.  Never
-   * <code>null</code>.
-   *
-   * @throws PSConversionException If <code>request</code> is
-   * <code>null</code>.
+   * @return A <code>Boolean</code> indicating the result. Never <code>null</code>.
+   * @throws PSConversionException If <code>request</code> is <code>null</code>.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

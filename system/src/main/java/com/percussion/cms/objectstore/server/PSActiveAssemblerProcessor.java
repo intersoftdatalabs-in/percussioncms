@@ -45,21 +45,18 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class encasulates all server side functionality for active assembly.
- * This only deals with relationships of category
- * <code>PSRelationshipConfig.CATEGORY_ATIVE_ASSEMBLY</code>.
+ * This class encasulates all server side functionality for active assembly. This only deals with
+ * relationships of category <code>PSRelationshipConfig.CATEGORY_ATIVE_ASSEMBLY</code>.
  */
 public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   /**
    * Create the backend processor for the supplied request.
    *
-   * @param type the relationship type on which to operate, must be of category
-   *    <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If
-   *    <code>null</code> is supplied, the default
-   *    <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
-   * @throws PSCmsException if no configuration was found for the requested
-   *    type or if the requested type is not of category
-   *    <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
+   * @param type the relationship type on which to operate, must be of category <code>
+   *     PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If <code>null</code> is supplied, the
+   *     default <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
+   * @throws PSCmsException if no configuration was found for the requested type or if the requested
+   *     type is not of category <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
    */
   public PSActiveAssemblerProcessor() {
     super();
@@ -68,37 +65,30 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   /**
    * Create the backend processor for the supplied context.
    *
-   * @param context the request context to use, if <code>null</code> is
-   *    provided, the internal rhythmyx user will be used to perform the
-   *    requests.
-   * @param type the relationship type on which to operate, must be of category
-   *    <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If
-   *    <code>null</code> is supplied, the default
-   *    <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
-   * @throws PSCmsException if no configuration was found for the requested
-   *    type or if the requested type is not of category
-   *    <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
+   * @param context the request context to use, if <code>null</code> is provided, the internal
+   *     rhythmyx user will be used to perform the requests.
+   * @param type the relationship type on which to operate, must be of category <code>
+   *     PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>. If <code>null</code> is supplied, the
+   *     default <code>PSRelationshipConfig.TYPE_RELATED_CONTENT</code> is used.
+   * @throws PSCmsException if no configuration was found for the requested type or if the requested
+   *     type is not of category <code>PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY</code>.
    */
   public PSActiveAssemblerProcessor(IPSRequestContext context) throws PSCmsException {
     super();
   }
 
   /**
-   * Inserts all supplied dependents for the provided owner into the
-   * relationship table. This method assumes that the <code>sys_sortrank</code>
-   * in all existing relationships is continious.
+   * Inserts all supplied dependents for the provided owner into the relationship table. This method
+   * assumes that the <code>sys_sortrank</code> in all existing relationships is continious.
    *
-   * @param owner the owner for the newly create relationships,
-   *    not <code>null</code>.
-   * @param dependents a list of dependents for which to create a
-   *    relation to the owner, not <code>null</code>, may be empty.  All
-   *    dependents must specify the same value for the sys_slotid
-   *    property.
-   * @param index the index where to insert the new relationships, must be > 0.
-   *    If the index is bigger then the current size of relationships, the
-   *    new dependents will be appendend.
-   * @throws PSCmsException if all dependents do not specify the same slot, or
-   * if anything goes wrong processing the request.
+   * @param owner the owner for the newly create relationships, not <code>null</code>.
+   * @param dependents a list of dependents for which to create a relation to the owner, not <code>
+   *     null</code>, may be empty. All dependents must specify the same value for the sys_slotid
+   *     property.
+   * @param index the index where to insert the new relationships, must be > 0. If the index is
+   *     bigger then the current size of relationships, the new dependents will be appendend.
+   * @throws PSCmsException if all dependents do not specify the same slot, or if anything goes
+   *     wrong processing the request.
    */
   public void insert(PSLocator owner, PSDependentSet dependents, int index) throws PSCmsException {
     if (owner == null) throw new IllegalArgumentException("owner cannot be null");
@@ -150,20 +140,18 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Makes an internal request to get the name of the relationship type allowed
-   * for the slot. Returns the matching relationship object by relationship
-   * type name.
-   * @param request request context to make an internal request to the Rhythmyx
-   * resource, must not be <code>null</code>.
-   * @param slotid slotid to get the configuration for the allowed relationship
-   * type. Must not be <code>null</code> ro empty.
-   * @return relationship configuration based on the allowed relationship type
-   * for the slot. May be <code>null</code> if matching relationship config is
-   * not found (Which is a very rare case).
-   * @throws PSNotFoundException if the resource for internal request is not
-   * found.
-   * @throws IllegalArgumentException if the request context supplied is
-   * <code>null</code> and slotid supplied is <code>null</code> or empty.
+   * Makes an internal request to get the name of the relationship type allowed for the slot.
+   * Returns the matching relationship object by relationship type name.
+   *
+   * @param request request context to make an internal request to the Rhythmyx resource, must not
+   *     be <code>null</code>.
+   * @param slotid slotid to get the configuration for the allowed relationship type. Must not be
+   *     <code>null</code> ro empty.
+   * @return relationship configuration based on the allowed relationship type for the slot. May be
+   *     <code>null</code> if matching relationship config is not found (Which is a very rare case).
+   * @throws PSNotFoundException if the resource for internal request is not found.
+   * @throws IllegalArgumentException if the request context supplied is <code>null</code> and
+   *     slotid supplied is <code>null</code> or empty.
    */
   public static PSRelationshipConfig getConfigForSlot(IPSRequestContext request, String slotid)
       throws PSCmsException {
@@ -202,10 +190,9 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   /**
    * Deletes all relationships between the owner and the dependents.
    *
-   * @param owner the owner for which to delete the relationships, not
-   *    <code>null</code>.
-   * @param dependents the dependents for which to delete the relationships,
-   *    not <code>null</code> may be empty.
+   * @param owner the owner for which to delete the relationships, not <code>null</code>.
+   * @param dependents the dependents for which to delete the relationships, not <code>null</code>
+   *     may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   public void delete(PSLocator owner, PSDependentSet dependents) throws PSCmsException {
@@ -229,12 +216,12 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Helper method that builds the map of slotid and the associated dependent
-   * from the dependent set.
-   * @param dependents dependent set to categorize by slot, assumed
-   * not <code>null</code>
-   * @return map of slotid (String) and dependents for this slot (List), never
-   * <code>null</code> may be empty.
+   * Helper method that builds the map of slotid and the associated dependent from the dependent
+   * set.
+   *
+   * @param dependents dependent set to categorize by slot, assumed not <code>null</code>
+   * @return map of slotid (String) and dependents for this slot (List), never <code>null</code> may
+   *     be empty.
    */
   private Map buildSlotDependentMap(PSDependentSet dependents) {
     Map slotDependentMap = new HashMap();
@@ -255,20 +242,16 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Reorders the supplied dependents for the provided owner. This method
-   * assumes that the <code>sys_sortrank</code> in all existing relationships
-   * is continious starting with 1.
+   * Reorders the supplied dependents for the provided owner. This method assumes that the <code>
+   * sys_sortrank</code> in all existing relationships is continious starting with 1.
    *
-   * @param owner the owner to reorder the relationships for, not
-   *    <code>null</code>.
-   * @param dependents the dependents to be reordered, not <code>null</code>,
-   *    may be empty.  All dependents must specify the same value for the
-   *    sys_slotid property.
-   * @param index the index where to insert the new relationships, must be > 0.
-   *    If the index is bigger then the current size of relationships, the
-   *    dependents will be moved to the end.
-   * @throws PSCmsException if all dependents do not specify the same slot, or
-   * if anything goes wrong processing the request.
+   * @param owner the owner to reorder the relationships for, not <code>null</code>.
+   * @param dependents the dependents to be reordered, not <code>null</code>, may be empty. All
+   *     dependents must specify the same value for the sys_slotid property.
+   * @param index the index where to insert the new relationships, must be > 0. If the index is
+   *     bigger then the current size of relationships, the dependents will be moved to the end.
+   * @throws PSCmsException if all dependents do not specify the same slot, or if anything goes
+   *     wrong processing the request.
    */
   public void reorder(PSLocator owner, PSDependentSet dependents, int index) throws PSCmsException {
     if (owner == null) throw new IllegalArgumentException("owner cannot be null");
@@ -320,17 +303,15 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Get the all current relationships for the specified slot id, sorted
-   * ascending to their sort rank property with sort rank normalized starting
-   * at 1 continiously incrementing.
+   * Get the all current relationships for the specified slot id, sorted ascending to their sort
+   * rank property with sort rank normalized starting at 1 continiously incrementing.
    *
-   * @param owner the owner for which to get the sorted relationships, assumed
-   *    not <code>null</code>.
-   * @param slotId The slot id to use to filter the returned relationships,
-   * assumed not <code>null</code> or empty.
-   *
-   * @return a collection of relationships sorted ascending based on their
-   *    sort rank property, never <code>null</code>, may be empty.
+   * @param owner the owner for which to get the sorted relationships, assumed not <code>null</code>
+   *     .
+   * @param slotId The slot id to use to filter the returned relationships, assumed not <code>null
+   *     </code> or empty.
+   * @return a collection of relationships sorted ascending based on their sort rank property, never
+   *     <code>null</code>, may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   private PSRelationshipSet getSortedRelationships(PSLocator owner, String slotId)
@@ -383,11 +364,11 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Normalizes the sort rank property of the supplied relationships starting
-   * at 1 continiously incremented.
+   * Normalizes the sort rank property of the supplied relationships starting at 1 continiously
+   * incremented.
    *
-   * @param relationships a collection of relationships to normalize, assumed
-   *    not <code>null</code>, may be empty.
+   * @param relationships a collection of relationships to normalize, assumed not <code>null</code>,
+   *     may be empty.
    */
   private void normalizeSortRank(PSRelationshipSet relationships) {
     for (int i = 0; i < relationships.size(); i++) {
@@ -399,10 +380,10 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   /**
    * Updates all relationships between the owner and the dependents.
    *
-   * @param owner the relationship owner for which to update the relationships,
-   *    not <code>null</code>.
-   * @param dependents the dependents which contain all the update
-   *    informations, not <code>null</code>, may be empty.
+   * @param owner the relationship owner for which to update the relationships, not <code>null
+   *     </code>.
+   * @param dependents the dependents which contain all the update informations, not <code>null
+   *     </code>, may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   public void update(PSLocator owner, PSDependentSet dependents) throws PSCmsException {
@@ -432,14 +413,13 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Updates the properties in the supplied relationship with the properties
-   * from the provided depenent. Properties with <code>null</code> values
-   * will be skipped.
+   * Updates the properties in the supplied relationship with the properties from the provided
+   * depenent. Properties with <code>null</code> values will be skipped.
    *
-   * @param relationship the relationship in which to update the properties,
-   *    assumed not <code>null</code>.
-   * @param dependent the dependent containing the properties to which the
-   *    relationship is updated, assumed not <code>null</code>.
+   * @param relationship the relationship in which to update the properties, assumed not <code>null
+   *     </code>.
+   * @param dependent the dependent containing the properties to which the relationship is updated,
+   *     assumed not <code>null</code>.
    */
   private void updateProperties(PSRelationship relationship, PSDependent dependent) {
     Iterator properties = dependent.getProperties().iterator();
@@ -451,15 +431,14 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Tests whether the supplied relationship is contained in the provided list
-   * of <code>PSDependent</code> objects. Containment is tested using the
-   * relationship id.
+   * Tests whether the supplied relationship is contained in the provided list of <code>PSDependent
+   * </code> objects. Containment is tested using the relationship id.
    *
-   * @param list a list of <code>PSDependent</code> objects, assumed not
-   *    <code>null</code>, may be empty.
+   * @param list a list of <code>PSDependent</code> objects, assumed not <code>null</code>, may be
+   *     empty.
    * @param relationship the relationship to test, assumed not <code>null</code>.
-   * @return the matching <code>PSDependent</code> if the list contains the
-   *    supplied locator, <code>null</code> otherwise.
+   * @return the matching <code>PSDependent</code> if the list contains the supplied locator, <code>
+   *     null</code> otherwise.
    * @throws PSCmsException if the supplied list contains invalid locators.
    */
   private PSDependent contains(Iterator list, PSRelationship relationship) throws PSCmsException {
@@ -472,21 +451,15 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Gets the value of the specified property name from the dependent set,
-   * validating that all dependents have the same non-<code>null</code>
-   * non-empty value for the specified property.
+   * Gets the value of the specified property name from the dependent set, validating that all
+   * dependents have the same non-<code>null</code> non-empty value for the specified property.
    *
-   * @param propertyName The property name, assumed not <code>null</code> or
-   * empty.
+   * @param propertyName The property name, assumed not <code>null</code> or empty.
    * @param owner The id of the owner, used for error messages.
-   * @param dependents The dependent set, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param dependents The dependent set, assumed not <code>null</code> or empty.
    * @return The property value, never <code>null</code> or empty.
-   *
-   * @throws PSCmsException if the specified property is not found, or if
-   * all dependents in the <code>dependents</code> set do not have the same
-   * value.
+   * @throws PSCmsException if the specified property is not found, or if all dependents in the
+   *     <code>dependents</code> set do not have the same value.
    */
   private String checkPropertyValue(String propertyName, int owner, PSDependentSet dependents)
       throws PSCmsException {
@@ -521,19 +494,13 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Catalogs all dependents of the supplied owner that are related through
-   * the provided relationship type, that contain the specified property
-   * value.  Delegates dependency retrieval to
-   * <code>super.getDependents(type, owner)</code>.  Only additional
-   * information is specified here.
+   * Catalogs all dependents of the supplied owner that are related through the provided
+   * relationship type, that contain the specified property value. Delegates dependency retrieval to
+   * <code>super.getDependents(type, owner)</code>. Only additional information is specified here.
    *
-   * @param propName The name of the property to filter on, assumed not
-   * <code>null</code> or empty.
-   * @param propVal The value of the property, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may
-   *    be empty.
+   * @param propName The name of the property to filter on, assumed not <code>null</code> or empty.
+   * @param propVal The value of the property, assumed not <code>null</code> or empty.
+   * @return a <code>PSRelationshipSet</code>, never <code>null</code>, may be empty.
    */
   private PSRelationshipSet getDependents(
       String type, PSLocator owner, String propName, String propVal) throws PSCmsException {
@@ -549,13 +516,13 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Get the relationships for all related content attached to the supplied
-   * item locator unfiltered by community.
+   * Get the relationships for all related content attached to the supplied item locator unfiltered
+   * by community.
    *
-   * @param locator the locator of the item for which to lookup the related
-   *    content relationships, not <code>null</code>.
-   * @return the relationships of all related content unfiltered by community,
-   *    never <code>null</code>, may be empty.
+   * @param locator the locator of the item for which to lookup the related content relationships,
+   *     not <code>null</code>.
+   * @return the relationships of all related content unfiltered by community, never <code>null
+   *     </code>, may be empty.
    * @throws PSCmsException for any error making the lookup.
    */
   public PSRelationshipSet getRelatedContent(PSLocator locator) throws PSCmsException {
@@ -574,8 +541,8 @@ public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   }
 
   /**
-   * Name of the Rhythmyx resource that produces an XML document with slotid
-   * and allowed relationship type name.
+   * Name of the Rhythmyx resource that produces an XML document with slotid and allowed
+   * relationship type name.
    */
   public static final String SLOT_RELATIONSHIP_LOOKUP = "slotrelation";
 

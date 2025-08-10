@@ -33,44 +33,38 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * The PSLogHandler class defines the logging rules used by a particular server
- * or application. The server and each application may follow different logging
- * rules. All loggings enabled for the server will also be enabled for each
- * application. An application may specify additional loggings. As such, each
- * has its own PSLogHandler object. This object is used to determine if the
- * specified type of action should be logged. It is also used to send the log
- * message to the back-end log. The server or application passes the
- * PSLogInformation sub-object to this object through the
- * {@link #write(PSLogInformation) write}method which in turn passes it on to
- * the PSLogManager for writing to the log.
- * <p>
- * If an attempt is made to log something while currently processing a log
- * request (within the same thread), those secondary requests will be ignored.
- * This is done to prevent infinite loops in the system. This is accomplished in
- * two ways. First, if any of the <code>isXXX</code> methods are called, they
- * will return <code>false</code>. Secondly, if the log request is called
- * anyway, it will return w/o performing the requested logging and without
- * indicating any errors.
+ * The PSLogHandler class defines the logging rules used by a particular server or application. The
+ * server and each application may follow different logging rules. All loggings enabled for the
+ * server will also be enabled for each application. An application may specify additional loggings.
+ * As such, each has its own PSLogHandler object. This object is used to determine if the specified
+ * type of action should be logged. It is also used to send the log message to the back-end log. The
+ * server or application passes the PSLogInformation sub-object to this object through the {@link
+ * #write(PSLogInformation) write}method which in turn passes it on to the PSLogManager for writing
+ * to the log.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>If an attempt is made to log something while currently processing a log request (within the
+ * same thread), those secondary requests will be ignored. This is done to prevent infinite loops in
+ * the system. This is accomplished in two ways. First, if any of the <code>isXXX</code> methods are
+ * called, they will return <code>false</code>. Secondly, if the log request is called anyway, it
+ * will return w/o performing the requested logging and without indicating any errors.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogHandler {
   /**
-   * Construct a log handler with the specified logging rules. If rules is
-   * <CODE>null</CODE>, all types of logging will be disabled.
+   * Construct a log handler with the specified logging rules. If rules is <CODE>null</CODE>, all
+   * types of logging will be disabled.
    *
-   * @param      rules    the logging rules this object should enforce
+   * @param rules the logging rules this object should enforce
    */
   public PSLogHandler(PSLogger rules) {
     m_rules = rules;
     m_combinedRules = m_rules;
   }
 
-  /**
-   * Construct a log handler with all types of logging disabled.
-   */
+  /** Construct a log handler with all types of logging disabled. */
   public PSLogHandler() {
     this(null);
   }
@@ -78,8 +72,8 @@ public class PSLogHandler {
   /**
    * Is the logging of errors enabled?
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isErrorLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -90,8 +84,8 @@ public class PSLogHandler {
   /**
    * Is the logging of server startup and shutdown events enabled?
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isServerStartStopLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -102,8 +96,8 @@ public class PSLogHandler {
   /**
    * Is the logging of application startup and shutdown events enabled?
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppStartStopLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -112,11 +106,10 @@ public class PSLogHandler {
   }
 
   /**
-   * Is the logging of application statistics when the application shuts down
-   * enabled?
+   * Is the logging of application statistics when the application shuts down enabled?
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppStatisticsLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -127,8 +120,8 @@ public class PSLogHandler {
   /**
    * Is the execution plan logged when an application is started?
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isExecutionPlanLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -139,8 +132,8 @@ public class PSLogHandler {
   /**
    * Is the logging of basic user activity enabled?
    *
-   * @return <code>true</code> if basic or detailed user logging is enabled,
-   *         <code>false</code> if it is disabled
+   * @return <code>true</code> if basic or detailed user logging is enabled, <code>false</code> if
+   *     it is disabled
    */
   public boolean isBasicUserActivityLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -151,8 +144,8 @@ public class PSLogHandler {
   /**
    * Is the logging of detailed user activity enabled?
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isDetailedUserActivityLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -163,8 +156,8 @@ public class PSLogHandler {
   /**
    * Is the logging of full user activity enabled?
    *
-   * @return      <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isFullUserActivityLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -174,17 +167,15 @@ public class PSLogHandler {
 
   /**
    * Is the detection and logging of multiple handlers for a request enabled?
-   * <p>
-   * When processing requests, the first data set matching the request criteria
-   * handles it. If other data sets exist which are alse interested in the
-   * request, they will be ignored. This may cause confusion to end users and
-   * application designers. By enabling logging, E2 will check subsequent
-   * applications and log a message for each application also matching the
-   * request criteria. This should only be used for debugging purposes as it
-   * may impact performance.
    *
-   * @return     <code>true</code> if this type of logging is enabled,
-   *             <code>false</code> if it is disabled
+   * <p>When processing requests, the first data set matching the request criteria handles it. If
+   * other data sets exist which are alse interested in the request, they will be ignored. This may
+   * cause confusion to end users and application designers. By enabling logging, E2 will check
+   * subsequent applications and log a message for each application also matching the request
+   * criteria. This should only be used for debugging purposes as it may impact performance.
+   *
+   * @return <code>true</code> if this type of logging is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isMultipleHandlerLoggingEnabled() {
     if (m_combinedRules == null || isInRequest()) return false;
@@ -195,11 +186,9 @@ public class PSLogHandler {
   /**
    * Write the log message.
    *
-   * @param      msg                     the log message to be written
-   *
-   * @exception IllegalStateException if the log manager is not associated with
-   *               a log mechanism (init was not called or close was already
-   *               called)
+   * @param msg the log message to be written
+   * @exception IllegalStateException if the log manager is not associated with a log mechanism
+   *     (init was not called or close was already called)
    */
   public void write(PSLogInformation msg) throws IllegalStateException {
     write(msg, false);
@@ -208,14 +197,11 @@ public class PSLogHandler {
   /**
    * Write the log message.
    *
-   * @param      msg                     the log message to be written
-   *
-   * @param forceLogging if <code>true</code>, the entry will be logged even
-   *           if the log handler has this type of logging disabled
-   *
-   * @exception IllegalStateException if the log manager is not associated with
-   *               a log mechanism (init was not called or close was already
-   *               called)
+   * @param msg the log message to be written
+   * @param forceLogging if <code>true</code>, the entry will be logged even if the log handler has
+   *     this type of logging disabled
+   * @exception IllegalStateException if the log manager is not associated with a log mechanism
+   *     (init was not called or close was already called)
    */
   public void write(PSLogInformation msg, boolean forceLogging) throws IllegalStateException {
     int msgType = msg.getMessageType();
@@ -279,7 +265,7 @@ public class PSLogHandler {
   /**
    * Helper method to log basic user activity info for the specified request.
    *
-   * @param   request         the request to log
+   * @param request the request to log
    */
   public void logBasicUserActivity(PSRequest request) {
     logBasicUserActivity(request, false);
@@ -288,10 +274,9 @@ public class PSLogHandler {
   /**
    * Helper method to log basic user activity info for the specified request.
    *
-   * @param   request         the request to log
-   *
-   * @param forceLogging if <code>true</code>, the entry will be logged even
-   *           if the log handler has this type of logging disabled
+   * @param request the request to log
+   * @param forceLogging if <code>true</code>, the entry will be logged even if the log handler has
+   *     this type of logging disabled
    */
   public void logBasicUserActivity(PSRequest request, boolean forceLogging) {
     if (isInRequest()) return;
@@ -343,23 +328,20 @@ public class PSLogHandler {
   }
 
   /**
-   * Helper method to log detailed user activity info for the specified
-   * request.
+   * Helper method to log detailed user activity info for the specified request.
    *
-   * @param   request         the request to log
+   * @param request the request to log
    */
   public void logDetailedUserActivity(PSRequest request) {
     logDetailedUserActivity(request, false);
   }
 
   /**
-   * Helper method to log detailed user activity info for the specified
-   * request.
+   * Helper method to log detailed user activity info for the specified request.
    *
-   * @param   request         the request to log
-   *
-   * @param forceLogging if <code>true</code>, the entry will be logged even
-   *           if the log handler has this type of logging disabled
+   * @param request the request to log
+   * @param forceLogging if <code>true</code>, the entry will be logged even if the log handler has
+   *     this type of logging disabled
    */
   public void logDetailedUserActivity(PSRequest request, boolean forceLogging) {
     if (isInRequest()) return;
@@ -448,32 +430,24 @@ public class PSLogHandler {
   }
 
   /**
-   * Helper method to log detailed user activity info for the specified
-   * request.
+   * Helper method to log detailed user activity info for the specified request.
    *
-   * @param   request         the request to log
-   *
-   * @param   msgCode         the message code to use
-   *
-   * @param   msgArgs         the arguments associated with the message
+   * @param request the request to log
+   * @param msgCode the message code to use
+   * @param msgArgs the arguments associated with the message
    */
   public void logFullUserActivityAction(PSRequest request, int msgCode, Object[] msgArgs) {
     logFullUserActivityAction(request, msgCode, msgArgs, false);
   }
 
   /**
-   * Helper method to log detailed user activity info for the specified
-   * request.
+   * Helper method to log detailed user activity info for the specified request.
    *
-   * @param   request         the request to log
-   *
-   * @param   msgCode         the message code to use
-   *
-   * @param   msgArgs         the arguments associated with the message
-   *
-   * @param   forceLogging   if <code>true</code>, the entry will be logged
-   *                           even if the log handler has this type of
-   *                           logging disabled
+   * @param request the request to log
+   * @param msgCode the message code to use
+   * @param msgArgs the arguments associated with the message
+   * @param forceLogging if <code>true</code>, the entry will be logged even if the log handler has
+   *     this type of logging disabled
    */
   public void logFullUserActivityAction(
       PSRequest request, int msgCode, Object[] msgArgs, boolean forceLogging) {
@@ -504,56 +478,50 @@ public class PSLogHandler {
   }
 
   /**
-   * Every logging method must call this method with <code>true</code> before
-   * initiating the actual logging work and <code>false</code> upon leaving.
-   * The 2nd call must be executed from a finally block to prevent leaving the
-   * logger in state in which it would never log again.
+   * Every logging method must call this method with <code>true</code> before initiating the actual
+   * logging work and <code>false</code> upon leaving. The 2nd call must be executed from a finally
+   * block to prevent leaving the logger in state in which it would never log again.
    *
-   * @param active <code>true</code> if starting a log request,
-   *           <code>false</code> when finishing the request.
+   * @param active <code>true</code> if starting a log request, <code>false</code> when finishing
+   *     the request.
    */
   private void setInRequest(boolean active) {
     m_inLogRequest.set(active ? new Object() : null);
   }
 
   /**
-   * All <code>isXXX</code> methods must call this method and return
-   * <code>false</code> if this method returns <code>true</code>.
+   * All <code>isXXX</code> methods must call this method and return <code>false</code> if this
+   * method returns <code>true</code>.
+   *
+   * <p>If a logging method does not call one of the <code>isXXX</code> methods, then it must call
+   * this method and if <code>true</code> is returned, they must return immediately without
+   * performing the requested logging action. No error should be indicated.
    *
    * <p>
-   * If a logging method does not call one of the <code>isXXX</code> methods,
-   * then it must call this method and if <code>true</code> is returned, they
-   * must return immediately without performing the requested logging action.
-   * No error should be indicated.
-   * <p>
    *
-   * @return <code>true</code> if a logging request is currently being
-   *         processed within this thread, <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if a logging request is currently being processed within this thread,
+   *     <code>false</code> otherwise.
    * @see #setInRequest(boolean)
    */
   private boolean isInRequest() {
     return m_inLogRequest.get() != null;
   }
 
-  /**
-   *   The rules we use to decide whether to log the message or not
-   */
+  /** The rules we use to decide whether to log the message or not */
   private PSLogger m_rules;
 
   /**
-   * The combined (ORed) rules for this log handler and the server settings.
-   * This will be set each time a log message is written.
+   * The combined (ORed) rules for this log handler and the server settings. This will be set each
+   * time a log message is written.
    */
   private PSLogger m_combinedRules;
 
   /**
-   * This property stores a flag that indicates whether a logging request is
-   * currently being processed within the current thread. Initialized before
-   * ctor, then never <code>null</code>.
-   * <p>
-   * Should only be accessed through the {@link #isInRequest()}and
-   * {@link #setInRequest(boolean)} methods.
+   * This property stores a flag that indicates whether a logging request is currently being
+   * processed within the current thread. Initialized before ctor, then never <code>null</code>.
+   *
+   * <p>Should only be accessed through the {@link #isInRequest()}and {@link #setInRequest(boolean)}
+   * methods.
    */
   private ThreadLocal<Object> m_inLogRequest = new ThreadLocal<>();
 }

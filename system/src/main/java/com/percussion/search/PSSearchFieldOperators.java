@@ -28,27 +28,24 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This class exposes all functionality to translate search field operators
- * from / to the display mapping and from / to the internal mapping. Also all
- * data transformations for updating the UI and repository is provided.
+ * This class exposes all functionality to translate search field operators from / to the display
+ * mapping and from / to the internal mapping. Also all data transformations for updating the UI and
+ * repository is provided.
  */
 public class PSSearchFieldOperators {
   /**
    * Get the internationalized operator mappings for the supplied parameters.
    *
-   * @param field the search field for which to get the operator mappings,
-   *    not <code>null</code>.
-   * @param translator the translator used to internationalize the entry
-   *    labels, if <code>null</code> is supplied, <code>PSI18nUtils</code>
-   *    will be used as translator along with the specified locale.
-   * @param locale the locale for which to internationalize the entry
-   *    labels, may <code>null</code> or empty in which case the default
-   *    locale is used. Ignored if the <code>translator</code> is not
-   *    <code>null</code>.
-   * @return an array of <code>PSEntry</code> objects with the operator
-   *    mappings for the supplied field type, never <code>null</code>, may
-   *    be empty. The entry values are set to the I18N key of the operator, the
-   *    labels are set to the internationalized operator.
+   * @param field the search field for which to get the operator mappings, not <code>null</code>.
+   * @param translator the translator used to internationalize the entry labels, if <code>null
+   *     </code> is supplied, <code>PSI18nUtils</code> will be used as translator along with the
+   *     specified locale.
+   * @param locale the locale for which to internationalize the entry labels, may <code>null</code>
+   *     or empty in which case the default locale is used. Ignored if the <code>translator</code>
+   *     is not <code>null</code>.
+   * @return an array of <code>PSEntry</code> objects with the operator mappings for the supplied
+   *     field type, never <code>null</code>, may be empty. The entry values are set to the I18N key
+   *     of the operator, the labels are set to the internationalized operator.
    */
   public static Object[] getOperators(
       PSSearchField field, PSI18NTranslationKeyValues translator, String locale) {
@@ -76,12 +73,10 @@ public class PSSearchFieldOperators {
   /**
    * Get the operator entry for the supplied parameters.
    *
-   * @param field the field for which to get the operator entry, not
-   *    <code>null</code>.
-   * @param key the I18N operator key for which to get the operator,
-   *    not <code>null</code> or empty.
-   * @return the entry found for the supplied field and key, may be
-   *    <code>null</code> if no entry was found for the supplied key.
+   * @param field the field for which to get the operator entry, not <code>null</code>.
+   * @param key the I18N operator key for which to get the operator, not <code>null</code> or empty.
+   * @return the entry found for the supplied field and key, may be <code>null</code> if no entry
+   *     was found for the supplied key.
    */
   public static PSEntry getOperator(PSSearchField field, String key) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -103,19 +98,16 @@ public class PSSearchFieldOperators {
   /**
    * Get the internationalized operator entry for the supplied parameters.
    *
-   * @param field the field for which to get the operator entry, not
-   *    <code>null</code>.
-   * @param key the I18N operator key fro which to get the operator,
-   *    not <code>null</code> or empty.
-   * @param translator the translator used to internationalize the entry
-   *    labels, if <code>null</code> is supplied, <code>PSI18nUtils</code>
-   *    will be used as translator along with the specified locale.
-   * @param locale the locale for which to internationalize the entry
-   *    labels, may <code>null</code> or empty in which case the default
-   *    locale is used. Ignored if the <code>translator</code> is not
-   *    <code>null</code>.
-   * @return the internationalized entry found for the supplied field and key,
-   *    may be <code>null</code> if no entry was found for the supplied key.
+   * @param field the field for which to get the operator entry, not <code>null</code>.
+   * @param key the I18N operator key fro which to get the operator, not <code>null</code> or empty.
+   * @param translator the translator used to internationalize the entry labels, if <code>null
+   *     </code> is supplied, <code>PSI18nUtils</code> will be used as translator along with the
+   *     specified locale.
+   * @param locale the locale for which to internationalize the entry labels, may <code>null</code>
+   *     or empty in which case the default locale is used. Ignored if the <code>translator</code>
+   *     is not <code>null</code>.
+   * @return the internationalized entry found for the supplied field and key, may be <code>null
+   *     </code> if no entry was found for the supplied key.
    */
   public static PSEntry getOperator(
       PSSearchField field, String key, PSI18NTranslationKeyValues translator, String locale) {
@@ -139,10 +131,8 @@ public class PSSearchFieldOperators {
   /**
    * Get the input field operator, the operator used in user interfaces.
    *
-   * @param field the field for which to get the input search operator,
-   *    not <code>null</code>.
-   * @return the i18n key value for the UI representation of the operator,
-   *    never <code>null</code>.
+   * @param field the field for which to get the input search operator, not <code>null</code>.
+   * @return the i18n key value for the UI representation of the operator, never <code>null</code>.
    */
   public static String getInputOperator(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -179,14 +169,12 @@ public class PSSearchFieldOperators {
   /**
    * Get the output field operator, the operator used internally.
    *
-   * @param field the field for which to get the output search operator,
-   *    not <code>null</code>.
-   * @param operator the UI operator for which to get the output search
-   *    operator, not <code>null</code> or empty, one of the
-   *    <code>PSSearchField.OP_xxx</code> values.
-   * @return the search field operator how it is used internally, never
-   *    <code>null</code>, one of the <code>PSSearchField.OP_XXX</code>
-   *    values, or <code>PSSearchField.OP_EQUALS</code> if no match is found.
+   * @param field the field for which to get the output search operator, not <code>null</code>.
+   * @param operator the UI operator for which to get the output search operator, not <code>null
+   *     </code> or empty, one of the <code>PSSearchField.OP_xxx</code> values.
+   * @return the search field operator how it is used internally, never <code>null</code>, one of
+   *     the <code>PSSearchField.OP_XXX</code> values, or <code>PSSearchField.OP_EQUALS</code> if no
+   *     match is found.
    */
   public static String getOutputOperator(PSSearchField field, String operator) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -219,8 +207,8 @@ public class PSSearchFieldOperators {
   }
 
   /**
-   * Convenience version of {@link #getInputValues(PSSearchField)} that
-   * assumes the field has a single value.
+   * Convenience version of {@link #getInputValues(PSSearchField)} that assumes the field has a
+   * single value.
    *
    * @return The value, never <code>null</code> may be empty
    */
@@ -233,14 +221,12 @@ public class PSSearchFieldOperators {
   }
 
   /**
-   * Convert the supplied search field values on input, e.g. while
-   * initializing the user interface from the internal data.
+   * Convert the supplied search field values on input, e.g. while initializing the user interface
+   * from the internal data.
    *
-   * @param field the search field for which to convert it's value for input,
-   *    not <code>null</code>.
-   * @return the converted values based on the search field type,
-   *    never <code>null</code>, may be empty.  The caller takes ownership of
-   *    the returned list.
+   * @param field the search field for which to convert it's value for input, not <code>null</code>.
+   * @return the converted values based on the search field type, never <code>null</code>, may be
+   *     empty. The caller takes ownership of the returned list.
    */
   public static List getInputValues(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -274,16 +260,15 @@ public class PSSearchFieldOperators {
   }
 
   /**
-   * Convert the supplied search field value on output, e.g. while saving
-   * the user interface data to the internal data.
+   * Convert the supplied search field value on output, e.g. while saving the user interface data to
+   * the internal data.
    *
    * @param value the value to convert, not <code>null</code>, may be empty.
-   * @param operator the operator for which to do the conversion, not
-   *    <code>null</code> or empty.
-   * @param field the search field for which to convert it's value for output,
-   *    not <code>null</code>.
-   * @return the converted value base on the supplied search field type and
-   *    operator, never <code>null</code>, may be empty.
+   * @param operator the operator for which to do the conversion, not <code>null</code> or empty.
+   * @param field the search field for which to convert it's value for output, not <code>null</code>
+   *     .
+   * @return the converted value base on the supplied search field type and operator, never <code>
+   *     null</code>, may be empty.
    */
   public static String getOutputValue(String value, String operator, PSSearchField field) {
     if (value == null) throw new IllegalArgumentException("value cannot be null");
@@ -319,20 +304,19 @@ public class PSSearchFieldOperators {
   }
 
   /**
-   * Validates that the value supplied for the search field is correct for the
-   * field's type. Currently only validate that numeric values are supplied to
-   * a field of type {@link PSSearchField#TYPE_NUMBER}.
+   * Validates that the value supplied for the search field is correct for the field's type.
+   * Currently only validate that numeric values are supplied to a field of type {@link
+   * PSSearchField#TYPE_NUMBER}.
    *
    * @param field The field, may not be <code>null</code>.
-   * @param translator the translator used to internationalize the error
-   * message, if <code>null</code> is supplied, <code>PSI18nUtils</code>
-   * will be used as translator along with the specified locale.
-   * @param locale the locale for which to internationalize the error message,
-   * may be <code>null</code> or empty in which case the default locale is
-   * used. Ignored if the <code>translator</code> is not <code>null</code>.
-   *
-   * @return <code>null</code> if the values are valid, otherwise a non-
-   * <code>null</code> internationalized error message.
+   * @param translator the translator used to internationalize the error message, if <code>null
+   *     </code> is supplied, <code>PSI18nUtils</code> will be used as translator along with the
+   *     specified locale.
+   * @param locale the locale for which to internationalize the error message, may be <code>null
+   *     </code> or empty in which case the default locale is used. Ignored if the <code>translator
+   *     </code> is not <code>null</code>.
+   * @return <code>null</code> if the values are valid, otherwise a non- <code>null</code>
+   *     internationalized error message.
    */
   public static String validateSearchFieldValue(
       PSSearchField field, PSI18NTranslationKeyValues translator, String locale) {
@@ -366,19 +350,16 @@ public class PSSearchFieldOperators {
     return msg;
   }
 
-  /**
-   * Do not instantiate this class. Use it's static members instead.
-   */
+  /** Do not instantiate this class. Use it's static members instead. */
   private PSSearchFieldOperators() {}
 
   /**
    * Get the operators list for the supplied field.
    *
-   * @param field the search field for which to get the operators list,
-   *    assumed not <code>null</code>.
-   * @return a list of I18N key's with all operators supported for the
-   *    supplied search field, never <code>null</code>, may be empty if the
-   *    type of the supplied search field is not supported.
+   * @param field the search field for which to get the operators list, assumed not <code>null
+   *     </code>.
+   * @return a list of I18N key's with all operators supported for the supplied search field, never
+   *     <code>null</code>, may be empty if the type of the supplied search field is not supported.
    */
   private static List getOperatorsList(PSSearchField field) {
     List operators = new ArrayList();
@@ -391,9 +372,8 @@ public class PSSearchFieldOperators {
   }
 
   /**
-   * A list of operators used for search fields of type <code>Date</code>. The
-   * list contains the I18N key's used to lookup the localized strings used
-   * in user interfaces.
+   * A list of operators used for search fields of type <code>Date</code>. The list contains the
+   * I18N key's used to lookup the localized strings used in user interfaces.
    */
   private static final List ms_dateOperators = new ArrayList();
 
@@ -407,6 +387,7 @@ public class PSSearchFieldOperators {
 
   /**
    * A list of operators used for search fields of type number.
+   *
    * @see PSSearchFieldOperators#ms_dateOperators for more info.
    */
   private static final List ms_numberOperators = new ArrayList();
@@ -421,6 +402,7 @@ public class PSSearchFieldOperators {
 
   /**
    * A list of operators used for search fields of type text.
+   *
    * @see PSSearchFieldOperators#ms_dateOperators for more info.
    */
   private static final List ms_textOperators = new ArrayList();

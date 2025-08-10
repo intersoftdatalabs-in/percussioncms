@@ -47,13 +47,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The class <CODE>PSWorkflowRoleInfo</CODE> provides static
- * methods for obtaining, manipulating and classifying state role and content
- * adhoc user information, and can be instantiated to provide methods for
- * setting and getting "state" variables such as the roles in which the user
- * is acting, enabling the sharing this information between contexts. This
- * sharing is done using a private object created by
- * <CODE>IPSRequestContext.setPrivateObject</CODE> with key  {@link
+ * The class <CODE>PSWorkflowRoleInfo</CODE> provides static methods for obtaining, manipulating and
+ * classifying state role and content adhoc user information, and can be instantiated to provide
+ * methods for setting and getting "state" variables such as the roles in which the user is acting,
+ * enabling the sharing this information between contexts. This sharing is done using a private
+ * object created by <CODE>IPSRequestContext.setPrivateObject</CODE> with key {@link
  * #WORKFLOW_ROLE_INFO_PRIVATE_OBJECT }
  */
 @SuppressWarnings("unchecked")
@@ -61,15 +59,12 @@ public class PSWorkflowRoleInfoStatic {
   /* Manipulate state role information */
 
   /**
-   * Given a list of state role IDs, produce a list of the corresponding
-   * state role names.
+   * Given a list of state role IDs, produce a list of the corresponding state role names.
    *
    * @param roleIDList list of state role IDs, may be <CODE>null</CODE>
-   * @param src        state role context containing the roles, may not be
-   *                   <CODE>null</CODE>
-   * @return           list of the corresponding state role names,
-   *                   <CODE>null</CODE> or empty list if original list is
-   *                   <CODE>null</CODE> or empty.
+   * @param src state role context containing the roles, may not be <CODE>null</CODE>
+   * @return list of the corresponding state role names, <CODE>null</CODE> or empty list if original
+   *     list is <CODE>null</CODE> or empty.
    */
   public static List<String> roleIDListToRoleNameList(
       List<Integer> roleIDList, PSStateRolesContext src) {
@@ -319,18 +314,17 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Add a list of adhoc roles if a user is acting as either normal adhoc or
-   * anonymous adhoc. If adhoc username(s) are found then it compares current
-   * username with those adhoc. This username check override user role by
-   * only allowing the user with a username who was adhoc to act on the state
+   * Add a list of adhoc roles if a user is acting as either normal adhoc or anonymous adhoc. If
+   * adhoc username(s) are found then it compares current username with those adhoc. This username
+   * check override user role by only allowing the user with a username who was adhoc to act on the
+   * state
    *
    * @param actorRoles a list of role ids in which the actor is acting
    * @param userName current user name
    * @param userAdhocRoles a list of role ids which were adhoc-ed to the state
    * @param adhocUserNames a list of usernames which were adhoc-ed to the state
    * @param stateAdhocRoles a list of role ids who are state assignees
-   * @param authUser if true indicates that PSExitAuthenticateUser
-   * is the caller, false otherwise
+   * @param authUser if true indicates that PSExitAuthenticateUser is the caller, false otherwise
    */
   private static void addAdhocActorRoles(
       List<Integer> actorRoles,
@@ -378,14 +372,11 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets the highest assignment type for a list of state roles in which a
-   * user is acting.
+   * Gets the highest assignment type for a list of state roles in which a user is acting.
    *
-   * @param src            state role context containing the roles
-   *
-   * @param actorRoleList  list of ID of roles in which the user is acting.
-   *
-   * @return               highest assignment type for the state roles
+   * @param src state role context containing the roles
+   * @param actorRoleList list of ID of roles in which the user is acting.
+   * @return highest assignment type for the state roles
    */
   public static int getAssignmentType(PSStateRolesContext src, List<Integer> actorRoleList) {
     int assignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
@@ -401,21 +392,16 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets the highest assignment type for a list of state roles in which a
-   * user is acting.
+   * Gets the highest assignment type for a list of state roles in which a user is acting.
    *
-   * @param assignmentTypeMap Map with role ID as key and value =
-   *                          assignment type, cannot be <CODE>null</CODE>
-   *
-   * @param actorRoleList  list of ID of roles in which the user is acting.
-   *                       may be <CODE>null</CODE> or empty
-   *
-   * @return               highest assignment type for the state roles or
-   *              <CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW</CODE>
-   *                       if the actor role list is <CODE>null</CODE> or
-   *                       empty
-   * @throws               IllegalArgumentException if any of the input
-   *                       parameters is not valid.
+   * @param assignmentTypeMap Map with role ID as key and value = assignment type, cannot be <CODE>
+   *     null</CODE>
+   * @param actorRoleList list of ID of roles in which the user is acting. may be <CODE>null</CODE>
+   *     or empty
+   * @return highest assignment type for the state roles or <CODE>
+   *     PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW</CODE> if the actor role list is <CODE>null
+   *     </CODE> or empty
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   static int getAssignmentType(
       Map<Integer, Integer> assignmentTypeMap, List<Integer> actorRoleList) {
@@ -440,20 +426,17 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Given a username and a state role context, return a list of IDs for
-   * the user's adhoc normal state roles
+   * Given a username and a state role context, return a list of IDs for the user's adhoc normal
+   * state roles
    *
-   * @param userName name of user for whom ad hoc roles are desired
-   *                 cannot be <CODE>null</CODE> or empty
-   * @param src      context of state roles with assignment type of at
-   *                 least assignee, cannot be <CODE>null</CODE>
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called.
-   *                 cannot be <CODE>null</CODE>
-   * @return         List of IDs for user's adhoc normal state roles
-   *                 <CODE>null</CODE> if there are none
-   * @throws         IllegalArgumentException if any of the input
-   *                 parameters is not valid.
+   * @param userName name of user for whom ad hoc roles are desired cannot be <CODE>null</CODE> or
+   *     empty
+   * @param src context of state roles with assignment type of at least assignee, cannot be <CODE>
+   *     null</CODE>
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @return List of IDs for user's adhoc normal state roles <CODE>null</CODE> if there are none
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   static List<Integer> findAdhocNormalRoles(
       String userName, PSStateRolesContext src, IPSRequestContext request) {
@@ -501,30 +484,21 @@ public class PSWorkflowRoleInfoStatic {
   /* Methods for classifying a list of proposed adhoc users */
 
   /**
-   * Classify a list of proposed adhoc users producing a content adhoc users
-   * context specifying adhoc normal users and their roles, and lists of
-   * adhoc anonymous users and roles. For adhoc normal roles checks with
-   * server that user is actually in that role.
+   * Classify a list of proposed adhoc users producing a content adhoc users context specifying
+   * adhoc normal users and their roles, and lists of adhoc anonymous users and roles. For adhoc
+   * normal roles checks with server that user is actually in that role.
    *
-   * @param contentID       item content ID
-   * @param adhocUserNames  list of proposed adhoc users to classify
-   *                        may be <CODE>null</CODE> or empty
-   * @param src             corresponding state role context
-   *                        cannot be <CODE>null</CODE>
-   * @param request         the context of the request associated with
-   *                        the extension from which the method is called.
-   *                        cannot be <CODE>null</CODE>
-   * @return                content adhoc users context specifying adhoc
-   *                        cannot be <CODE>null</CODE>
-   *                        users and roles. Calling method must commit
-   *                        the changes to the database
-   *                        <CODE>null</CODE> if the adhocUserNames list is
-   *                        <CODE>null</CODE>, empty or contains no usernames
-   *
-   * @throws                PSRoleException if a user cannot be given an ad
-   *                        hoc role
-   * @throws                IllegalArgumentException if any of the input
-   *                        parameters is not valid.
+   * @param contentID item content ID
+   * @param adhocUserNames list of proposed adhoc users to classify may be <CODE>null</CODE> or
+   *     empty
+   * @param src corresponding state role context cannot be <CODE>null</CODE>
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @return content adhoc users context specifying adhoc cannot be <CODE>null</CODE> users and
+   *     roles. Calling method must commit the changes to the database <CODE>null</CODE> if the
+   *     adhocUserNames list is <CODE>null</CODE>, empty or contains no usernames
+   * @throws PSRoleException if a user cannot be given an ad hoc role
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   static PSContentAdhocUsersContext classifyAdhocUsers(
       int contentID, String adhocUserNames, PSStateRolesContext src, IPSRequestContext request)
@@ -600,17 +574,12 @@ public class PSWorkflowRoleInfoStatic {
   /* Get information for notification */
 
   /**
-   * Given a list of role IDs, returns a list of ones with notification
-   * turned on.
+   * Given a list of role IDs, returns a list of ones with notification turned on.
    *
-   * @param roleList    list of role IDs to check for notification enabled
-   * @param src         context of state roles with assignment type of at
-   *                    least assignee
-   *
-   * @return            List of roles from <CODE>roleList</CODE> for which
-   *                    notification is turned on. Returns <CODE>null</CODE>
-   *                    if the role list is null, or no roles have
-   *                    notification enabled.
+   * @param roleList list of role IDs to check for notification enabled
+   * @param src context of state roles with assignment type of at least assignee
+   * @return List of roles from <CODE>roleList</CODE> for which notification is turned on. Returns
+   *     <CODE>null</CODE> if the role list is null, or no roles have notification enabled.
    */
   static List<Integer> filterRolesNotificationEnabled(
       List<Integer> roleList, PSStateRolesContext src) {
@@ -619,16 +588,14 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Given a state role context, returns a list of IDs of non adhoc roles with
-   * notification  turned  on.
-   * @param src         context of state roles with assignment type of at
-   *                    least assignee,  cannot be <CODE>null</CODE>
-   * @param contentId The content id of the item being processed.
+   * Given a state role context, returns a list of IDs of non adhoc roles with notification turned
+   * on.
    *
-   * @return            List of IDs of non adhoc state roles for which
-   *                    notification is turned on.
-   * @throws            IllegalArgumentException if any of the input
-   *                    parameters is not valid.
+   * @param src context of state roles with assignment type of at least assignee, cannot be <CODE>
+   *     null</CODE>
+   * @param contentId The content id of the item being processed.
+   * @return List of IDs of non adhoc state roles for which notification is turned on.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   static List<Integer> getStateRoleIDNotificationList(PSStateRolesContext src, int contentId) {
     if (null == src) {
@@ -642,16 +609,14 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Given a state role context, return a list of names of non adhoc roles
-   * with notification turned  on.
-   * @param src         context of state roles with assignment type of at
-   *                    least assignee, cannot be <CODE>null</CODE>
-   * @param contentId The content ID of the item being processed.
+   * Given a state role context, return a list of names of non adhoc roles with notification turned
+   * on.
    *
-   * @return            List of non adhoc state role names for which
-   *                    notification is turned on.
-   * @throws            IllegalArgumentException if any of the input
-   *                    parameters is not valid.
+   * @param src context of state roles with assignment type of at least assignee, cannot be <CODE>
+   *     null</CODE>
+   * @param contentId The content ID of the item being processed.
+   * @return List of non adhoc state role names for which notification is turned on.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   static List<String> getStateRoleNameNotificationList(PSStateRolesContext src, int contentId) {
     if (null == src) {
@@ -663,9 +628,8 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Convenience method that constructs a list of all adhoc actors for all
-   * state roles that have notification on, validating role membership for
-   * adhoc normal roles.
+   * Convenience method that constructs a list of all adhoc actors for all state roles that have
+   * notification on, validating role membership for adhoc normal roles.
    */
   static List<String> getStateAdhocActorNotificationList(
       IPSContentAdhocUsersContext cauc,
@@ -676,24 +640,19 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Constructs list of all adhoc actors for all state roles that have
-   * notification on.
-   * @param cauc        content ad hoc user context for the state
-   *                    may be <CODE>null</CODE>
-   * @param src         context of state roles with assignment type of at
-   *                    least assignee,cannot be <CODE>null</CODE>
-   * @param contentId   Content ID of the item being processed
-   * @param request     the context of the request associated with
-   *                    the extension from which the method is called.
-   *                    may not be <CODE>null</CODE>
-   * @param validateRoleMembership  <CODE>true</CODE> if users role membership
-   *       should be validated for adhoc normal roles, else <CODE>false</CODE>
+   * Constructs list of all adhoc actors for all state roles that have notification on.
    *
-   * @return            List of adhoc actors that should be notified.
-   *                    <CODE>null</CODE> if content ad hoc user context is
-   *                    null.
-   * @throws            IllegalArgumentException if any of the input
-   *                    parameters is not valid.
+   * @param cauc content ad hoc user context for the state may be <CODE>null</CODE>
+   * @param src context of state roles with assignment type of at least assignee,cannot be <CODE>
+   *     null</CODE>
+   * @param contentId Content ID of the item being processed
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. may not be <CODE>null</CODE>
+   * @param validateRoleMembership <CODE>true</CODE> if users role membership should be validated
+   *     for adhoc normal roles, else <CODE>false</CODE>
+   * @return List of adhoc actors that should be notified. <CODE>null</CODE> if content ad hoc user
+   *     context is null.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   @SuppressWarnings("unchecked")
   static List<String> getStateAdhocActorNotificationList(
@@ -803,6 +762,7 @@ public class PSWorkflowRoleInfoStatic {
 
   /**
    * Determines if the "notify add-hoc users only" feature is enabled.
+   *
    * @return <code>true</code> if it is enabled.
    */
   static boolean isNotifyAddHocOnly() {
@@ -810,14 +770,12 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Filters the supplied map of role IDs to notification setting by community.
-   * See {@link PSAssignmentTypeHelper#filterAssignedRolesByCommunity(int,
-   * Collection)} for details.
+   * Filters the supplied map of role IDs to notification setting by community. See {@link
+   * PSAssignmentTypeHelper#filterAssignedRolesByCommunity(int, Collection)} for details.
    *
    * @param contentId The contentId of the item being processed.
-   * @param notifyEnabledMap Map of workflow role id to its notification
-   * setting value (value is not read by this method), assumed not
-   * <code>null</code>.  Entries are removed from the map.
+   * @param notifyEnabledMap Map of workflow role id to its notification setting value (value is not
+   *     read by this method), assumed not <code>null</code>. Entries are removed from the map.
    */
   private static void filterNotifyEnabledMapByCommunity(
       int contentId, Map<Integer, Boolean> notifyEnabledMap) {
@@ -835,17 +793,13 @@ public class PSWorkflowRoleInfoStatic {
   /**
    * Gets a list of IDs of a subject's state roles
    *
-   * @param subject  name of subject for whom roles are requested
-   *                 cannot be <CODE>null</CODE> or empty
-   * @param src      corresponding state role context
-   *                 cannot be <CODE>null</CODE>
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called
-   *                 cannot be <CODE>null</CODE>
-   * @return         list of subject's state role IDs, <CODE>null</CODE>
-   *                 if they have no roles
-   * @throws         IllegalArgumentException if any of the input
-   *                 parameters is not valid.
+   * @param subject name of subject for whom roles are requested cannot be <CODE>null</CODE> or
+   *     empty
+   * @param src corresponding state role context cannot be <CODE>null</CODE>
+   * @param request the context of the request associated with the extension from which the method
+   *     is called cannot be <CODE>null</CODE>
+   * @return list of subject's state role IDs, <CODE>null</CODE> if they have no roles
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<Integer> getSubjectRoleIDs(
       String subject, PSStateRolesContext src, IPSRequestContext request) {
@@ -906,14 +860,12 @@ public class PSWorkflowRoleInfoStatic {
   /**
    * Gets a list of names of a subject's state roles
    *
-   * @param subject  name of subject for whom roles are requested,
-   *                 cannot be <CODE>null</CODE> or empty
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called
-   *                 cannot be <CODE>null</CODE>
-   * @return         list of subject's state role names
-   * @throws         IllegalArgumentException if any of the input
-   *                 parameters is not valid.
+   * @param subject name of subject for whom roles are requested, cannot be <CODE>null</CODE> or
+   *     empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called cannot be <CODE>null</CODE>
+   * @return list of subject's state role names
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<String> getSubjectRoles(String subject, IPSRequestContext request) {
     PSWorkFlowUtils.printWorkflowMessage(request, "    Entering Method getSubjectRoles");
@@ -929,14 +881,11 @@ public class PSWorkflowRoleInfoStatic {
   /**
    * Gets (from the server) a list of subjects belonging to a role
    *
-   * @param roleName role for which subjects are desired,
-   *                 cannot be <CODE>null</CODE> or empty
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called.
-   *                 cannot be <CODE>null</CODE>
-   * @return         a list of subjects belonging to the role
-   * @throws                   IllegalArgumentException if any of the input
-   *                           parameters is not valid.
+   * @param roleName role for which subjects are desired, cannot be <CODE>null</CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @return a list of subjects belonging to the role
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<PSSubject> getRoleSubjects(String roleName, IPSRequestContext request) {
     PSWorkFlowUtils.printWorkflowMessage(request, "    Entering Method getRoleSubjects");
@@ -961,22 +910,17 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets a list of Strings containing the attribute text values for a
-   * specified subject and attribute name; a list containing a specified
-   * default string is returned if the subject's attribute list does not
-   * contain a value for the attribute.
+   * Gets a list of Strings containing the attribute text values for a specified subject and
+   * attribute name; a list containing a specified default string is returned if the subject's
+   * attribute list does not contain a value for the attribute.
    *
-   * @param subject        subject object for which attribute is desired
-   * @param attributeName  name of the attribute to be found
-   *                       cannot be <CODE>null</CODE> or empty
-   * @param defaultValue   default value if an attribute value is not found
-   *
-   * @return               a list of subjects each of which has an attribute
-   *                       list that is empty, or contains an attribute list
-   * for the desired attribute.
-   * @throws               IllegalArgumentException if the subject is
-   *                        <CODE>null</CODE> or the attribute name
-   *                       is <CODE>null</CODE> or empty.
+   * @param subject subject object for which attribute is desired
+   * @param attributeName name of the attribute to be found cannot be <CODE>null</CODE> or empty
+   * @param defaultValue default value if an attribute value is not found
+   * @return a list of subjects each of which has an attribute list that is empty, or contains an
+   *     attribute list for the desired attribute.
+   * @throws IllegalArgumentException if the subject is <CODE>null</CODE> or the attribute name is
+   *     <CODE>null</CODE> or empty.
    */
   public static List<String> getSubjectAttributeValueTextList(
       PSSubject subject, String attributeName, String defaultValue) {
@@ -1025,25 +969,18 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets (from the server) a list of all subjects belonging to a role for
-   * which each subject has an attribute list that is empty, or contains an
-   * attribute list for a specified attribute.
+   * Gets (from the server) a list of all subjects belonging to a role for which each subject has an
+   * attribute list that is empty, or contains an attribute list for a specified attribute.
    *
-   * @param roleName       role for which the subjects are desired,
-   *                       cannot be <CODE>null</CODE> or empty
-   * @param attributeName  name of the attribute to be found
-   *                       cannot be <CODE>null</CODE> or empty
-   * @param request        the context of the request associated with
-   *                       the extension from which the method is called.
-   *                       cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the community filter.
-   * @return               a list of subjects each of which has an attribute
-   *                       list that is empty, or contains an attribute list
-   * for the desired attribute.
-   * @throws               IllegalArgumentException if any of the input
-   *                       parameters is not valid.
+   * @param roleName role for which the subjects are desired, cannot be <CODE>null</CODE> or empty
+   * @param attributeName name of the attribute to be found cannot be <CODE>null</CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the community filter.
+   * @return a list of subjects each of which has an attribute list that is empty, or contains an
+   *     attribute list for the desired attribute.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<PSSubject> getRoleSubjectsGlobalAttribute(
       String roleName, String attributeName, IPSRequestContext request, String communityId) {
@@ -1084,25 +1021,19 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets (from the server) a list of all subjects belonging to a subject for
-   * which each subject has an attribute list that is empty, or contains an
-   * attribute list for a specified attribute.
+   * Gets (from the server) a list of all subjects belonging to a subject for which each subject has
+   * an attribute list that is empty, or contains an attribute list for a specified attribute.
    *
-   * @param subjectName    subject for which the attribute is desired,
-   *                       cannot be <CODE>null</CODE> or empty
-   * @param attributeName  name of the attribute to be found
-   *                       cannot be <CODE>null</CODE> or empty
-   * @param request        the context of the request associated with
-   *                       the extension from which the method is called.
-   *                       cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the community filter.
-   * @return               a list of subjects each of which has an attribute
-   *                       list that is empty, or contains an attribute list
-   * for the desired attribute.
-   * @throws               IllegalArgumentException if any of the input
-   *                       parameters is not valid.
+   * @param subjectName subject for which the attribute is desired, cannot be <CODE>null</CODE> or
+   *     empty
+   * @param attributeName name of the attribute to be found cannot be <CODE>null</CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the community filter.
+   * @return a list of subjects each of which has an attribute list that is empty, or contains an
+   *     attribute list for the desired attribute.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<PSSubject> getSubjectGlobalAttribute(
       String subjectName, String attributeName, IPSRequestContext request, String communityId) {
@@ -1148,27 +1079,23 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets a list of the email addresses of all subjects belonging to any role
-   * in a role list, using the subject name for role members that do not have
-   * the email attribute.
+   * Gets a list of the email addresses of all subjects belonging to any role in a role list, using
+   * the subject name for role members that do not have the email attribute.
    *
-   * @param roleList list of roles for which  email addresses of subjects are
-   *                 desired, can be <CODE>null</CODE> or empty
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called.
-   *                 cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the community filter.
-   * @return         a list (never <CODE>null</CODE> may be empty) containing
-   *                 for each role subject, either
-   *                 <ul><li>their email address(es) given by the system
-   *                 global email address attribute, or </<li>
-   *                 <li>their subject name</li> </ul>
-   *                 All redundant (considered case insensitively) addresses
-   *                 are removed.
-   * @throws         IllegalArgumentException if any of the input
-   *                 parameters is not valid.
+   * @param roleList list of roles for which email addresses of subjects are desired, can be <CODE>
+   *     null</CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the community filter.
+   * @return a list (never <CODE>null</CODE> may be empty) containing for each role subject, either
+   *     <ul>
+   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>
+   *       <li>their subject name
+   *     </ul>
+   *     All redundant (considered case insensitively) addresses are removed.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<String> getRolesEmailAddresses(
       List<String> roleList, IPSRequestContext request, String communityId) {
@@ -1210,24 +1137,23 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets  a list of email addresses of subjects belonging to
-   * a role, using the subject name for role members that do not have the
-   * email attribute.
+   * Gets a list of email addresses of subjects belonging to a role, using the subject name for role
+   * members that do not have the email attribute.
    *
-   * @param roleName role for which  email addresses of subjects are desired,
-   *                 cannot be <CODE>null</CODE> or empty
-   * @param request  the context of the request associated with
-   *                 the extension from which the method is called.
-   *                 cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the community filter.
-   * @return         a list containing for each role subject, either
-   *                 <ul><li>their email address(es) given by the system
-   *                 global email address attribute, or </<li>
-   *                 <li>their subject name</li> </ul>
-   * @throws         IllegalArgumentException if any of the input
-   *                 parameters is not valid.
+   * @param roleName role for which email addresses of subjects are desired, cannot be <CODE>null
+   *     </CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the community filter.
+   * @return a list containing for each role subject, either
+   *     <ul>
+   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>
+   *       <li>their subject name
+   *     </ul>
+   *
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<String> getRoleEmailAddresses(
       String roleName, IPSRequestContext request, String communityId) {
@@ -1257,6 +1183,7 @@ public class PSWorkflowRoleInfoStatic {
 
   /**
    * Just like {@link #getRolesEmailAddresses(List, IPSRequestContext, String)}.
+   *
    * @param princes not null maybe empty.
    * @param communityId maybe null.
    * @return not null maybe empty.
@@ -1273,7 +1200,6 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   *
    * @param princes
    * @param contentid
    * @param revisionid
@@ -1315,8 +1241,8 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets the CM system from the list of roles.
-   * This does not expand groups.
+   * Gets the CM system from the list of roles. This does not expand groups.
+   *
    * @param fromStateRoles not null maybe empty.
    * @return not null maybe empty.
    */
@@ -1335,6 +1261,7 @@ public class PSWorkflowRoleInfoStatic {
 
   /**
    * Converts a list of usernames to a list of principals
+   *
    * @param userNames the list of usernames, not <code>null</code>, may be empty.
    * @return the list of converted principals, never <code>null</code>, may be empty.
    */
@@ -1348,6 +1275,7 @@ public class PSWorkflowRoleInfoStatic {
 
   /**
    * Gets the community id from an item.
+   *
    * @param contentid not null, valid content id.
    * @return community id.
    */
@@ -1363,27 +1291,23 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets a list of the email addresses of all subjects
-   * in a list, using the subject name for list members that do not have
-   * the email attribute.
+   * Gets a list of the email addresses of all subjects in a list, using the subject name for list
+   * members that do not have the email attribute.
    *
-   * @param subjectList list of subjects for which  email addresses are
-   *                    desired, can be <CODE>null</CODE> or empty
-   * @param request     the context of the request associated with
-   *                    the extension from which the method is called.
-   *                    cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the ccommunity filter.
-   * @return            a list (never <CODE>null</CODE> may be empty)
-   *                    containing for each subject, either
-   *                    <ul><li>their email address(es) given by the system
-   *                    global email address attribute, or </<li>
-   *                    <li>their subject name</li> </ul>
-   *                    All redundant (considered case insensitively)
-   *                    addresses are removed.
-   * @throws            IllegalArgumentException if any of the input
-   *                    parameters is not valid.
+   * @param subjectList list of subjects for which email addresses are desired, can be <CODE>null
+   *     </CODE> or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the ccommunity filter.
+   * @return a list (never <CODE>null</CODE> may be empty) containing for each subject, either
+   *     <ul>
+   *       <li>their email address(es) given by the system global email address attribute, or </
+   *       <li>
+   *       <li>their subject name
+   *     </ul>
+   *     All redundant (considered case insensitively) addresses are removed.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<PSNotificationEmailAddress> getSubjectsEmailAddresses(
       List<String> subjectList, IPSRequestContext request, String communityId) {
@@ -1422,24 +1346,23 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Gets  a list of email addresses of subjects belonging to
-   * a subject, using the subject name if the subject does not have the
-   * email attribute.
+   * Gets a list of email addresses of subjects belonging to a subject, using the subject name if
+   * the subject does not have the email attribute.
    *
-   * @param subjectName subject for which  email addresses are desired,
-   *                    cannot be <CODE>null</CODE> or empty
-   * @param request     the context of the request associated with
-   *                    the extension from which the method is called.
-   *                    cannot be <CODE>null</CODE>
-   * @param communityId the community id by which to filter the subjects to
-   *    which the notifications are sent, may be <code>null</code> to
-   *    ignore the community filter.
-   * @return            a list either
-   *                    <ul><li>the email address(es) given by the system
-   *                    global email address attribute, or </<li>
-   *                    <li>the subject name</li> </ul>
-   * @throws            IllegalArgumentException if any of the input
-   *                    parameters is not valid.
+   * @param subjectName subject for which email addresses are desired, cannot be <CODE>null</CODE>
+   *     or empty
+   * @param request the context of the request associated with the extension from which the method
+   *     is called. cannot be <CODE>null</CODE>
+   * @param communityId the community id by which to filter the subjects to which the notifications
+   *     are sent, may be <code>null</code> to ignore the community filter.
+   * @return a list either
+   *     <ul>
+   *       <li>the email address(es) given by the system global email address attribute, or </
+   *       <li>
+   *       <li>the subject name
+   *     </ul>
+   *
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public static List<PSNotificationEmailAddress> getSubjectEmailAddresses(
       String subjectName, IPSRequestContext request, String communityId) {
@@ -1459,18 +1382,15 @@ public class PSWorkflowRoleInfoStatic {
   }
 
   /**
-   * Get the list of subject names that are members of the supplied list of
-   * role ids.
+   * Get the list of subject names that are members of the supplied list of role ids.
    *
-   * @param src Used to convert the role ids to role names, may not be
-   * <code>null</code>.
-   * @param request The request used to get the role membership from the
-   * server, may not be <code>null</code>.
-   * @param roleIds The list of role ids as <code>Integer</code> objects,
-   * may not be <code>null</code>, may be empty.
-   *
-   * @return The role member subject names as <code>String</code> objects,
-   * never <code>null</code>, may be empty.
+   * @param src Used to convert the role ids to role names, may not be <code>null</code>.
+   * @param request The request used to get the role membership from the server, may not be <code>
+   *     null</code>.
+   * @param roleIds The list of role ids as <code>Integer</code> objects, may not be <code>null
+   *     </code>, may be empty.
+   * @return The role member subject names as <code>String</code> objects, never <code>null</code>,
+   *     may be empty.
    */
   public static List<String> getRoleSubjectNames(
       PSStateRolesContext src, IPSRequestContext request, List<Integer> roleIds) {
@@ -1492,14 +1412,12 @@ public class PSWorkflowRoleInfoStatic {
     return new ArrayList<>(subjectNames);
   }
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   public static final Logger log = LogManager.getLogger(PSWorkflowRoleInfoStatic.class);
 
   /**
-   * Key used to set and obtain the <CODE>PSWorkflowRoleInfo</CODE>
-   * private object created by <CODE>IPSRequestContext.setPrivateObject</CODE>
+   * Key used to set and obtain the <CODE>PSWorkflowRoleInfo</CODE> private object created by <CODE>
+   * IPSRequestContext.setPrivateObject</CODE>
    */
   public static final String WORKFLOW_ROLE_INFO_PRIVATE_OBJECT = "workflowroleinfoprivateobject";
 }

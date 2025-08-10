@@ -29,22 +29,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a row in search results. The XML representation of this object has
- * the DTD specified in sys_SearchResponse.dtd file.
+ * Represents a row in search results. The XML representation of this object has the DTD specified
+ * in sys_SearchResponse.dtd file.
  */
 public class PSSearchResultRow implements IPSSearchResultRow {
-  /**
-   * Ctor. Give it private access so that it cannot be instantiated from
-   * elsewhere
-   */
+  /** Ctor. Give it private access so that it cannot be instantiated from elsewhere */
   private PSSearchResultRow() {}
 
   /**
-   * ctor. Give it package access so that it cannot be instantiated from
-   * outside
+   * ctor. Give it package access so that it cannot be instantiated from outside
    *
-   * @param sourceElem source element to construct the object, must not be
-   *           <code>null</code>
+   * @param sourceElem source element to construct the object, must not be <code>null</code>
    * @throws PSUnknownNodeTypeException if source element is invalid.
    */
   PSSearchResultRow(Element sourceElem) throws PSUnknownNodeTypeException {
@@ -52,8 +47,8 @@ public class PSSearchResultRow implements IPSSearchResultRow {
   }
 
   /**
-   * Add a column to the row. Given package access to hide from external
-   * implementers. The added column is owned by the object.
+   * Add a column to the row. Given package access to hide from external implementers. The added
+   * column is owned by the object.
    *
    * @param field field to be added, must not be <code>null</code>
    */
@@ -183,10 +178,10 @@ public class PSSearchResultRow implements IPSSearchResultRow {
   /**
    * Convert the object to its XML representation.
    *
-   * @param doc the parent document for the XML element for the object, must
-   *           not be <code>null</code>.
-   * @return XML element representing the object. See the DTD specified in teh
-   *         class description, never <code>null</code>.
+   * @param doc the parent document for the XML element for the object, must not be <code>null
+   *     </code>.
+   * @return XML element representing the object. See the DTD specified in teh class description,
+   *     never <code>null</code>.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc must not be null");
@@ -202,12 +197,11 @@ public class PSSearchResultRow implements IPSSearchResultRow {
   }
 
   /**
-   * Construct the object from XML source element. Look at the DTD for the
-   * element specified in the class description.
+   * Construct the object from XML source element. Look at the DTD for the element specified in the
+   * class description.
    *
    * @param sourceNode source node as per the DTD.
-   * @throws PSUnknownNodeTypeException if DTD does not match with the
-   *            required.
+   * @throws PSUnknownNodeTypeException if DTD does not match with the required.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -267,25 +261,22 @@ public class PSSearchResultRow implements IPSSearchResultRow {
   }
 
   /**
-   * Return an iterator of colums in the result row. Each entry in the iterator
-   * is an object of type {@link PSSearchResultColumn}.
+   * Return an iterator of colums in the result row. Each entry in the iterator is an object of type
+   * {@link PSSearchResultColumn}.
    *
-   * @return iterator of search result columns, never <code>null</code> may
-   *    be empty.
+   * @return iterator of search result columns, never <code>null</code> may be empty.
    */
   public Iterator<PSSearchResultColumn> getColumns() {
     return Collections.unmodifiableMap(m_fields).values().iterator();
   }
 
   /**
-   * map of all fields in the search result row. The key in the map is the
-   * internal name of the field and the value is {@link PSSearchResultColumn}
-   * object. Never <code>null</code> may be empty.
+   * map of all fields in the search result row. The key in the map is the internal name of the
+   * field and the value is {@link PSSearchResultColumn} object. Never <code>null</code> may be
+   * empty.
    */
   private Map<String, PSSearchResultColumn> m_fields = new HashMap<String, PSSearchResultColumn>();
 
-  /**
-   * The name of the root element of the XML representation of the object.
-   */
+  /** The name of the root element of the XML representation of the object. */
   public static final String XML_NODE_NAME = "Result";
 }

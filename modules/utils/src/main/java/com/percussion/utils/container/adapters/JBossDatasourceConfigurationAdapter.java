@@ -124,31 +124,22 @@ public class JBossDatasourceConfigurationAdapter
   }
 
   /**
-   * Load all JNDI datasources from the specified file.  Any settings
-   * configured that are not supported by the {@link IPSJndiDatasource} class
-   * are loaded and preserved when the datasource is saved
-   * (see {@link #saveRxDatasources(File, File, List, String)}.
+   * Load all JNDI datasources from the specified file. Any settings configured that are not
+   * supported by the {@link IPSJndiDatasource} class are loaded and preserved when the datasource
+   * is saved (see {@link #saveRxDatasources(File, File, List, String)}.
    *
-   * @param dsFile The file from which the datasources should be loaded,
-   * identified by . May not be <code>null</code>
-   * and must be a file conforming to the JBoss "jboss-ds_1_5.dtd" DTD.
-   *
-   * @param loginCfgFile The file from which encrypted credentials are
-   * loaded, identified by the .  May not be
-   * <code>null</code> and must conform to the JBoss "security_config.dtd" DTD.
-   *
-   * @param secretKey The key to use when decrypting passwords, may not be
-   * <code>null</code> or empty.
-   *
+   * @param dsFile The file from which the datasources should be loaded, identified by . May not be
+   *     <code>null</code> and must be a file conforming to the JBoss "jboss-ds_1_5.dtd" DTD.
+   * @param loginCfgFile The file from which encrypted credentials are loaded, identified by the .
+   *     May not be <code>null</code> and must conform to the JBoss "security_config.dtd" DTD.
+   * @param secretKey The key to use when decrypting passwords, may not be <code>null</code> or
+   *     empty.
    * @return A list of datasources, never <code>null</code>, may be empty.
-   *
    * @throws IOException If any errors occur reading from the files.
    * @throws SAXException If either document is malformed.
-   * @throws PSInvalidXmlException If either document does not conform to the
-   * expected format.
-   * @throws PSMissingApplicationPolicyException If a datasource specfies a
-   * security domain name that cannot be located in the supplied
-   * <code>logingCfgFile</code>
+   * @throws PSInvalidXmlException If either document does not conform to the expected format.
+   * @throws PSMissingApplicationPolicyException If a datasource specfies a security domain name
+   *     that cannot be located in the supplied <code>logingCfgFile</code>
    */
   private List<IPSJndiDatasource> loadRxDatasources(
       File dsFile, File loginCfgFile, String secretKey)
@@ -181,13 +172,11 @@ public class JBossDatasourceConfigurationAdapter
   /**
    * Load the specified security domain from the supplied cfg file.
    *
-   * @param loginCfgFile The cfg file, assumed not <code>null</code>, to
-   * exist, and to be in the expected format.
-   * @param secDomain The name of the security domain for which the credentials
-   * are to be loaded, assumed not <code>null</code> or empty.
-   *
+   * @param loginCfgFile The cfg file, assumed not <code>null</code>, to exist, and to be in the
+   *     expected format.
+   * @param secDomain The name of the security domain for which the credentials are to be loaded,
+   *     assumed not <code>null</code> or empty.
    * @return The credentials, may be <code>null</code> if a match is not found.
-   *
    * @throws IOException If there are any errors reading from the file.
    * @throws SAXException If the document is malformed.
    * @throws PSInvalidXmlException
@@ -253,22 +242,19 @@ public class JBossDatasourceConfigurationAdapter
   }
 
   /**
-   * Saves the supplied JNDI datasource configurations to the supplied files,
-   * replacing any existing configurations. For existing datasources loaded by
-   * {@link #saveRxDatasources(File, File, List, String)}, any settings that
-   * were configured but not supported by the {@link IPSJndiDatasource} class
-   * are saved intact. See that method for more detailed parameter information.
-   * Note that {@link IPSJndiDatasource#setSecurityDomain(String)} will be
-   * called on all supplied datasources.
+   * Saves the supplied JNDI datasource configurations to the supplied files, replacing any existing
+   * configurations. For existing datasources loaded by {@link #saveRxDatasources(File, File, List,
+   * String)}, any settings that were configured but not supported by the {@link IPSJndiDatasource}
+   * class are saved intact. See that method for more detailed parameter information. Note that
+   * {@link IPSJndiDatasource#setSecurityDomain(String)} will be called on all supplied datasources.
    *
-   * @param dsFile The file to which the datasources should be saved, may not
-   * be <code>null</code>.
-   * @param loginCfgFile The file to which encrypted credentials are saved, may
-   * not be <code>null</code>.
-   * @param datasources The list of datasources to saved, may not be
-   * <code>null</code>, may be empty.
-   * @param secretKey The key to use when decrypting passwords, may not be
-   * <code>null</code> or empty.
+   * @param dsFile The file to which the datasources should be saved, may not be <code>null</code>.
+   * @param loginCfgFile The file to which encrypted credentials are saved, may not be <code>null
+   *     </code>.
+   * @param datasources The list of datasources to saved, may not be <code>null</code>, may be
+   *     empty.
+   * @param secretKey The key to use when decrypting passwords, may not be <code>null</code> or
+   *     empty.
    * @throws IOException If there is an error saving to the files.
    * @throws SAXException If there is an error reading an existing file.
    */
@@ -332,16 +318,13 @@ public class JBossDatasourceConfigurationAdapter
   }
 
   /**
-   * Saves the supplied list of credentials, replacing any application-policy
-   * elements in the specified file that represent credentials for Rhythmyx
-   * datasources.
+   * Saves the supplied list of credentials, replacing any application-policy elements in the
+   * specified file that represent credentials for Rhythmyx datasources.
    *
-   * @param loginCfgFile The file, assumed not <code>null</code> and to exist
-   * and to be in the expected format.
+   * @param loginCfgFile The file, assumed not <code>null</code> and to exist and to be in the
+   *     expected format.
    * @param creds The credentials to save, assumed not <code>null</code>.
-   *
-   * @throws IOException If there are any errors reading from or writing to the
-   * config file.
+   * @throws IOException If there are any errors reading from or writing to the config file.
    * @throws SAXException If the file is malformed.
    */
   private void saveSecureCredentials(File loginCfgFile, List<PSSecureCredentials> creds)

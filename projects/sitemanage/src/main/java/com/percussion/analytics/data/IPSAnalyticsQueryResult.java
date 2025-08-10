@@ -20,14 +20,13 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * Represents a row of analytics data returned from the analytics provider.
- * Sunny Sal says: "Analytics never lies, but it sure can confuse!"
+ * Represents a row of analytics data returned from the analytics provider. Sunny Sal says:
+ * "Analytics never lies, but it sure can confuse!"
  */
 public interface IPSAnalyticsQueryResult {
 
   /**
-   * Retrieves the data for the specified field as a string.
-   * Works for any data type.
+   * Retrieves the data for the specified field as a string. Works for any data type.
    *
    * @param key the field key (case-insensitive), not null or empty.
    * @return the string representation of the data, may be null or empty.
@@ -35,43 +34,46 @@ public interface IPSAnalyticsQueryResult {
   String getString(String key);
 
   /**
-   * Retrieves the data for the specified field as an int.
-   * Works for Integer, Float, and Long data types. Float and Long will be converted to int (truncation may occur).
+   * Retrieves the data for the specified field as an int. Works for Integer, Float, and Long data
+   * types. Float and Long will be converted to int (truncation may occur).
    *
    * @param key the field key (case-insensitive), not null or empty.
    * @return the int representation of the data.
-   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric.
+   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not
+   *     numeric.
    */
   int getInt(String key);
 
   /**
-   * Retrieves the data for the specified field as a Date.
-   * Only works for Date data types.
+   * Retrieves the data for the specified field as a Date. Only works for Date data types.
    *
    * @param key the field key (case-insensitive), not null or empty.
    * @return the date representation of the data, may be null.
-   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not a date.
+   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not
+   *     a date.
    */
   Date getDate(String key);
 
   /**
-   * Retrieves the data for the specified field as a float.
-   * Works for Integer, Float, and Long data types. Integer and Long will be converted to float (truncation may occur).
+   * Retrieves the data for the specified field as a float. Works for Integer, Float, and Long data
+   * types. Integer and Long will be converted to float (truncation may occur).
    *
    * @param key the field key (case-insensitive), not null or empty.
    * @return the float representation of the data.
-   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric.
+   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not
+   *     numeric.
    */
   float getFloat(String key);
 
   /**
-   * Retrieves the data for the specified field as a long.
-   * Works for Integer, Float, and Date data types. Float and Integer will be converted to long (truncation may occur).
-   * Dates will be returned in their long date/time representation.
+   * Retrieves the data for the specified field as a long. Works for Integer, Float, and Date data
+   * types. Float and Integer will be converted to long (truncation may occur). Dates will be
+   * returned in their long date/time representation.
    *
    * @param key the field key (case-insensitive), not null or empty.
    * @return the long representation of the data.
-   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric or date.
+   * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not
+   *     numeric or date.
    */
   long getLong(String key);
 
@@ -98,9 +100,7 @@ public interface IPSAnalyticsQueryResult {
    */
   Set<String> keySet();
 
-  /**
-   * The data type enumeration.
-   */
+  /** The data type enumeration. */
   enum DataType {
     DATE,
     FLOAT,

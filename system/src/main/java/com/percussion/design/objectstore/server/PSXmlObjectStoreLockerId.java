@@ -22,9 +22,8 @@ import com.percussion.design.objectstore.PSLockedException;
 import java.util.Properties;
 
 /**
- * Used by the PSXmlObjectStoreHandler class. Basically stores session,
- * user name, and whether or not to override locks held by the same
- * user under a different session.
+ * Used by the PSXmlObjectStoreHandler class. Basically stores session, user name, and whether or
+ * not to override locks held by the same user under a different session.
  */
 public class PSXmlObjectStoreLockerId implements IPSLockerId {
   public PSXmlObjectStoreLockerId(Properties props) {
@@ -33,15 +32,12 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   }
 
   /**
-   * Creates a locker id that can optionally be used to override an existing
-   * lock owned by this user in another session.
+   * Creates a locker id that can optionally be used to override an existing lock owned by this user
+   * in another session.
    *
    * @param userName The name of the user.
-   *
-   * @param overrideSameUser A flag to indicate whether this user can
-   *    acquire an existing lock if it is locked by the same user in a
-   *    different session.
-   *
+   * @param overrideSameUser A flag to indicate whether this user can acquire an existing lock if it
+   *     is locked by the same user in a different session.
    * @param The unique identifier for the session.
    */
   public PSXmlObjectStoreLockerId(String userName, boolean overrideSameUser, String sessionId) {
@@ -51,14 +47,12 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   }
 
   /**
-   * A constructor that allows this id to optionally override any existing
-   * lock. See {@link #PSXmlObjectStoreLockerId(String,boolean,String) other
-   * ctor} for details not described below. Must be used with great
-   * discretion.
+   * A constructor that allows this id to optionally override any existing lock. See {@link
+   * #PSXmlObjectStoreLockerId(String,boolean,String) other ctor} for details not described below.
+   * Must be used with great discretion.
    *
-   * @param overrideDifferentUser If <code>true</code>, when this user
-   *    attempts to acquire a lock, they will acquire it no matter who
-   *    currently owns the lock.
+   * @param overrideDifferentUser If <code>true</code>, when this user attempts to acquire a lock,
+   *     they will acquire it no matter who currently owns the lock.
    */
   public PSXmlObjectStoreLockerId(
       String userName, boolean overrideSameUser, boolean overrideDifferentUser, String sessionId) {
@@ -67,16 +61,11 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   }
 
   /**
-   * Reads all uniquely identifying properties from the given properties
-   * object.
+   * Reads all uniquely identifying properties from the given properties object.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/6
-   *
-   *
-   * @param   props
-   *
+   * @param props
    */
   public void readFrom(Properties props) {
     m_userName = props.getProperty("locker");
@@ -84,16 +73,11 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   }
 
   /**
-   * Writes all uniquely identifying properties to the given properties
-   * object.
+   * Writes all uniquely identifying properties to the given properties object.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/6
-   *
-   *
-   * @param   props
-   *
+   * @param props
    */
   public void writeTo(Properties props) {
     if (m_userName != null) props.setProperty("locker", m_userName);
@@ -102,24 +86,17 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   }
 
   /**
-   * Returns <CODE>true</CODE> if this locker id is the same
-   * as the given locker id. This may or may not be consistent
-   * with the equals method for this object (for example, under
-   * some situations, the implementation is free to treat two
-   * distinct ids as the same id).
+   * Returns <CODE>true</CODE> if this locker id is the same as the given locker id. This may or may
+   * not be consistent with the equals method for this object (for example, under some situations,
+   * the implementation is free to treat two distinct ids as the same id).
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/6
-   *
-   * @param   other The other id
-   *
-   * @param   ex An exception to be filled out explaining that
-   * the resource is locked by this locked id (not other), and
-   * any other applicable error messages. May be <CODE>null</CODE>,
-   * in which case no reporting will be done.
-   *
-   * @return   boolean
+   * @param other The other id
+   * @param ex An exception to be filled out explaining that the resource is locked by this locked
+   *     id (not other), and any other applicable error messages. May be <CODE>null</CODE>, in which
+   *     case no reporting will be done.
+   * @return boolean
    */
   public boolean sameId(IPSLockerId other, PSLockedException ex) {
     if (!(other instanceof PSXmlObjectStoreLockerId)) return false;
@@ -182,15 +159,14 @@ public class PSXmlObjectStoreLockerId implements IPSLockerId {
   private String m_sessionId;
 
   /**
-   * A flag that indicates this id should obtain the lock from an id of
-   * the same user in a different session.
+   * A flag that indicates this id should obtain the lock from an id of the same user in a different
+   * session.
    */
   private boolean m_overrideSameUser;
 
   /**
-   * A flag that indicates this id should obtain the lock no matter who
-   * currently has it locked. It should be used with great discretion.
-   * Defaults to <code>false</code>.
+   * A flag that indicates this id should obtain the lock no matter who currently has it locked. It
+   * should be used with great discretion. Defaults to <code>false</code>.
    */
   private boolean m_overrideDifferentUser = false;
 }

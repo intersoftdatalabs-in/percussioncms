@@ -21,8 +21,7 @@ import com.percussion.design.catalog.PSCatalogRequestHandler;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class processes database functions related catalog requests for the
- * Rhythmyx server.
+ * This class processes database functions related catalog requests for the Rhythmyx server.
  *
  * @see com.percussion.server.IPSRequestHandler
  */
@@ -30,17 +29,14 @@ public class PSFunctionCatalogHandler extends PSCatalogRequestHandler {
   /**
    * Construct the database functions catalog handler.
    *
-   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is
-   * <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncMgr</code> is <code>null</code>
    */
   public PSFunctionCatalogHandler() {
     m_catalogHandlers = new ConcurrentHashMap();
     addHandler(new PSDatabaseFunctionCatalogHandler());
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

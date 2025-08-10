@@ -23,8 +23,8 @@ import java.util.Hashtable;
 /**
  * This class implements a Hashtable with case-insensitive Strings as keys.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  * @deprecated
  */
 @Deprecated
@@ -32,8 +32,7 @@ class CIHashtable extends Hashtable {
   // Constructors
 
   /**
-   * Create a new CIHashtable with the specified initial capacity and the
-   * specified load factor.
+   * Create a new CIHashtable with the specified initial capacity and the specified load factor.
    *
    * @param initialCapacity the initial number of buckets
    * @param loadFactor a number between 0.0 and 1.0
@@ -65,8 +64,7 @@ class CIHashtable extends Hashtable {
   // Methods
 
   /**
-   * Retrieves the object associated with the specified key. The key lookup
-   * is case-insensitive.
+   * Retrieves the object associated with the specified key. The key lookup is case-insensitive.
    *
    * @param key the key
    * @return the object associated with the key, or null if none found.
@@ -81,8 +79,7 @@ class CIHashtable extends Hashtable {
    *
    * @param key the key
    * @param value the object to be associated with the key
-   * @return the object previously associated with the key, or null if
-   *         there was none.
+   * @return the object previously associated with the key, or null if there was none.
    * @see java.util.Hashtable#put(Object, Object)
    */
   public Object put(String key, Object value) {
@@ -90,8 +87,8 @@ class CIHashtable extends Hashtable {
   }
 
   /**
-   * Looks whether any object is associated with the specified key. The
-   * key lookup is case insensitive.
+   * Looks whether any object is associated with the specified key. The key lookup is case
+   * insensitive.
    *
    * @param key the key
    * @return true is there is an object associated with key, false otherwise
@@ -102,8 +99,8 @@ class CIHashtable extends Hashtable {
   }
 
   /**
-   * Removes the object associated with this key from the Hashtable. The
-   * key lookup is case insensitive.
+   * Removes the object associated with this key from the Hashtable. The key lookup is case
+   * insensitive.
    *
    * @param key the key
    * @return the object associated with this key, or null if there was none.
@@ -125,9 +122,8 @@ class CIHashtable extends Hashtable {
 }
 
 /**
- * A simple enumerator which delegates everything to the real enumerator.
- * If a CIString element is returned, then the string it represents is
- * returned instead.
+ * A simple enumerator which delegates everything to the real enumerator. If a CIString element is
+ * returned, then the string it represents is returned instead.
  */
 final class CIHashtableEnumeration implements Enumeration {
   Enumeration HTEnum;
@@ -149,12 +145,11 @@ final class CIHashtableEnumeration implements Enumeration {
 }
 
 /**
- * This class' raison d'etre is that I want to use a Hashtable using
- * Strings as keys and I want the lookup be case insensitive, but I
- * also want to be able retrieve the keys with original case (otherwise
- * I could just use toLowerCase() in the get() and put()). Since the
- * class String is final we create a new class that holds the string
- * and overrides the methods hashCode() and equals().
+ * This class' raison d'etre is that I want to use a Hashtable using Strings as keys and I want the
+ * lookup be case insensitive, but I also want to be able retrieve the keys with original case
+ * (otherwise I could just use toLowerCase() in the get() and put()). Since the class String is
+ * final we create a new class that holds the string and overrides the methods hashCode() and
+ * equals().
  */
 final class CIString {
   /** the string */
@@ -180,9 +175,8 @@ final class CIString {
   }
 
   /**
-   * We smash case before calculation so that the hash code is
-   * "case insensitive". This is based on code snarfed from
-   * java.lang.String.hashCode().
+   * We smash case before calculation so that the hash code is "case insensitive". This is based on
+   * code snarfed from java.lang.String.hashCode().
    */
   private static final int calcHashCode(String str) {
     int hash = 0;
@@ -194,9 +188,7 @@ final class CIString {
     return hash;
   }
 
-  /**
-   * Uses the case insensitive comparison.
-   */
+  /** Uses the case insensitive comparison. */
   public boolean equals(Object obj) {
     if (obj != null) {
       if (obj instanceof CIString) return string.equalsIgnoreCase(((CIString) obj).string);
@@ -207,9 +199,7 @@ final class CIString {
     return false;
   }
 
-  /**
-   * Just return the internal string.
-   */
+  /** Just return the internal string. */
   public String toString() {
     return string;
   }

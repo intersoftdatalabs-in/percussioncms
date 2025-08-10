@@ -32,14 +32,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements the exit that is used by sys_report/PubTimeStatistics.
- * This exit creates XML representation from the SQL result set which is
- * returned from sys_report/PubTimeStatistics resource.
+ * This class implements the exit that is used by sys_report/PubTimeStatistics. This exit creates
+ * XML representation from the SQL result set which is returned from sys_report/PubTimeStatistics
+ * resource.
  */
 public class PSPubTimeStatistics implements IPSResultDocumentProcessor {
   /**
-   * Implementation of the method required by the interface
-   * IPSResultDocumentProcessor. The returned XML conforms the following DTD
+   * Implementation of the method required by the interface IPSResultDocumentProcessor. The returned
+   * XML conforms the following DTD
+   *
    * <pre>
    *    &lt;!ELEMENT Publishing_Time_Statistics (Publishing_Time_Statistic* )>
    *    &lt;!ELEMENT Publishing_Time_Statistic (Publish_Status_Id,
@@ -61,30 +62,17 @@ public class PSPubTimeStatistics implements IPSResultDocumentProcessor {
    *    &lt;!ELEMENT Publish_Status_Id (#PCDATA)>
    * </pre>
    *
-   * @param params
-   *         the parameter values supplied with the request in the appropriate
-   *         order. There is one optional parameter to specify the maximum
-   *         rows (from the SQL result set) included in the result document.
-   *         Defaults to 65000 (-1 is unlimited).
-   *
-   * @param request
-   *           the request context object
-   *
-   * @param resDoc
-   *           the result XML document, can be <code>null</code>
-   *
-   * @return the processed document, which contains the statistics of the
-   *         publishing time in the format described above.
-   *
-   * @throws PSParameterMismatchException
-   *            if a call to setParamValues was never made, or the runtime
-   *            parameters specified in that call are incorrect for the usage
-   *            of this extension.
-   *
-   * @throws PSExtensionProcessingException
-   *            if any other exception occurs which prevents the proper
-   *            handling of this request.
-   *
+   * @param params the parameter values supplied with the request in the appropriate order. There is
+   *     one optional parameter to specify the maximum rows (from the SQL result set) included in
+   *     the result document. Defaults to 65000 (-1 is unlimited).
+   * @param request the request context object
+   * @param resDoc the result XML document, can be <code>null</code>
+   * @return the processed document, which contains the statistics of the publishing time in the
+   *     format described above.
+   * @throws PSParameterMismatchException if a call to setParamValues was never made, or the runtime
+   *     parameters specified in that call are incorrect for the usage of this extension.
+   * @throws PSExtensionProcessingException if any other exception occurs which prevents the proper
+   *     handling of this request.
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -182,47 +170,34 @@ public class PSPubTimeStatistics implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Implementation of the method required by the interface IPSExtension.
-   * Do nothing here.
+   * Implementation of the method required by the interface IPSExtension. Do nothing here.
    *
-   * @param extensionDef The extension def, it is not used, may be
-   *    <code>null</code>.
-   *
-   * @param file The root directory, which is not used, may be
-   *    <code>null</code>.
-   *
-   * @throws PSExtensionException as defined by the interface, however, we do
-   * not throw any exception here.
-   *
+   * @param extensionDef The extension def, it is not used, may be <code>null</code>.
+   * @param file The root directory, which is not used, may be <code>null</code>.
+   * @throws PSExtensionException as defined by the interface, however, we do not throw any
+   *     exception here.
    */
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {}
 
   /**
-   * Implementation of the method required by the interface
-   * IPSResultDocumentProcessor.
+   * Implementation of the method required by the interface IPSResultDocumentProcessor.
+   *
    * <p>
    *
-   * @return  always <code>false</code> since
-   *          {@link #processResultDocument processResultDocument} never need
-   *          to modify the XML-stylesheet processing instruction.
+   * @return always <code>false</code> since {@link #processResultDocument processResultDocument}
+   *     never need to modify the XML-stylesheet processing instruction.
    */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * The logger used for this class.
-   */
+  /** The logger used for this class. */
   private static Logger ms_log = Logger.getLogger("PubTimeStatistics");
 
-  /**
-   * The resource name, used to query the statistics of the publishing time
-   */
+  /** The resource name, used to query the statistics of the publishing time */
   private static final String RESOURCE_NAME = "sys_reports/PubTimeStatistics";
 
-  /**
-   * XML element and attribute names and values
-   */
+  /** XML element and attribute names and values */
   private String EL_PUB_STATISTICS = "Publishing_Time_Statistics";
 
   private String EL_PUB_STATISTIC = "Publishing_Time_Statistic";

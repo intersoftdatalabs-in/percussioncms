@@ -20,7 +20,6 @@ package com.percussion.delivery.utils.paging;
  * Convenience enum indicating the direction of a sort.
  *
  * @author natechadwick
- *
  */
 public enum PSRangedPageSortDirection {
   ASCENDING,

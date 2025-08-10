@@ -17,18 +17,16 @@
 package com.percussion.util;
 
 /**
- * A simple implementation of the Map.Entry class which is not available
- * publicly. It forms an immutable pairing of 2 objects, one of which may
- * be <code>null</code>. Useful for storing param/value pairings.
+ * A simple implementation of the Map.Entry class which is not available publicly. It forms an
+ * immutable pairing of 2 objects, one of which may be <code>null</code>. Useful for storing
+ * param/value pairings.
  */
 public class PSMapPair {
   /**
    * The only constructor.
    *
    * @param key A non-<code>null</code> object.
-   *
    * @param value The other half of the pair. May be <code>null</code>.
-   *
    * @throws IllegalArgumentException if key is <code>null</code>.
    */
   public PSMapPair(Object key, Object value) {
@@ -55,13 +53,9 @@ public class PSMapPair {
     return m_value;
   }
 
-  /**
-   * The key part of the pairing. Never <code>null</code> after construction.
-   */
+  /** The key part of the pairing. Never <code>null</code> after construction. */
   private Object m_key;
 
-  /**
-   * The value part of the pairing. May be <code>null</code>.
-   */
+  /** The value part of the pairing. May be <code>null</code>. */
   private Object m_value;
 }

@@ -30,34 +30,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSResultPage class defines the style sheet to associate with the
- * result data. This allows formatting to be applied to the output data.
- * Conditionals can be associated with the result page allowing different
- * results to be generated based upon the request context.
+ * The PSResultPage class defines the style sheet to associate with the result data. This allows
+ * formatting to be applied to the output data. Conditionals can be associated with the result page
+ * allowing different results to be generated based upon the request context.
  *
  * @see PSResultPageSet
  * @see PSResultPageSet#getResultPages
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultPage extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                                          object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                                          object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                                          if the XML element node is not of the
-   *                                          appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSResultPage(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -65,9 +56,7 @@ public class PSResultPage extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSResultPage() {
     super();
     m_conditionals = new PSCollection(com.percussion.design.objectstore.PSConditional.class);
@@ -77,8 +66,7 @@ public class PSResultPage extends PSComponent {
   /**
    * Construct a result page object.
    *
-   * @param   styleSheet      the URL of the style sheet defining the output
-   *                                    format for the results
+   * @param styleSheet the URL of the style sheet defining the output format for the results
    */
   public PSResultPage(java.net.URL styleSheet) {
     this();
@@ -87,14 +75,13 @@ public class PSResultPage extends PSComponent {
 
   /**
    * Get the style sheet defining the output format for the results.
-   * <p>
-   * This can be a CSS or XSL file. If HTML conversion is desired, this
-   * must be an XSL file which generates HTML output. CSS or XSL specific
-   * formatting objects are not supported for HTML generation.
    *
-   * @return      the URL of the style sheet defining the output
-   *                        format for the results. If this is null, the default
-   *                        E2 style sheet is being used.
+   * <p>This can be a CSS or XSL file. If HTML conversion is desired, this must be an XSL file which
+   * generates HTML output. CSS or XSL specific formatting objects are not supported for HTML
+   * generation.
+   *
+   * @return the URL of the style sheet defining the output format for the results. If this is null,
+   *     the default E2 style sheet is being used.
    */
   public java.net.URL getStyleSheet() {
     return m_styleSheet;
@@ -102,57 +89,48 @@ public class PSResultPage extends PSComponent {
 
   /**
    * Get the style sheet defining the output format for the results.
-   * <p>
-   * This can be a CSS or XSL file. If HTML conversion is desired, this
-   * must be an XSL file which generates HTML output. CSS or XSL specific
-   * formatting objects are not supported for HTML generation.
-   * <p>
-   * The URL defining the style sheet must refer to a file which is
-   * available to the E2 server at run-time. This can be on the E2 file
-   * system, or on a web site which E2 can access. As such, validation
-   * of the URL is not performed until the application is saved to the
-   * server.
    *
-   * @param   styleSheet      the URL of the style sheet defining the output
-   *                                    format for the results. Specify null to use
-   *                                    the default E2 style sheet.
+   * <p>This can be a CSS or XSL file. If HTML conversion is desired, this must be an XSL file which
+   * generates HTML output. CSS or XSL specific formatting objects are not supported for HTML
+   * generation.
+   *
+   * <p>The URL defining the style sheet must refer to a file which is available to the E2 server at
+   * run-time. This can be on the E2 file system, or on a web site which E2 can access. As such,
+   * validation of the URL is not performed until the application is saved to the server.
+   *
+   * @param styleSheet the URL of the style sheet defining the output format for the results.
+   *     Specify null to use the default E2 style sheet.
    */
   public void setStyleSheet(java.net.URL styleSheet) {
     m_styleSheet = styleSheet;
   }
 
   /**
-   * Get the conditional statements associated with this object. If the
-   * conditionals evaluate to true, this object will be used.
+   * Get the conditional statements associated with this object. If the conditionals evaluate to
+   * true, this object will be used.
    *
-   * @return       a collection of PSConditional objects (may be null)
-   *
-   * @see          com.percussion.design.objectstore.PSConditional
+   * @return a collection of PSConditional objects (may be null)
+   * @see com.percussion.design.objectstore.PSConditional
    */
   public com.percussion.util.PSCollection getConditionals() {
     return m_conditionals;
   }
 
   /**
-   * Set the conditional statement(s) associated with this object. If the
-   * conditional evaluates to true, this object will be used.
-   * <p>
-   * Specifying a conditional of null will allow this object to be used
-   * without testing any conditions. Result pages can be chained. The
-   * conditionals will be tested in the order in which the result page
-   * objects exist in the chain. When an objects conditions are met, or a
-   * null condition is encountered, no further execution will occur. Be sure
-   * not to include more than one result page with a null conditional. Also
-   * be sure not to place the result page with the null conditional before
-   * result pages with conditionals.
-   * <P>
-   * Conditional syntax will not be validated until the application
-   * is saved to the server.
+   * Set the conditional statement(s) associated with this object. If the conditional evaluates to
+   * true, this object will be used.
    *
-   * @param      conditionals         the new conditional statement(s)
-   *                                                (may be null)
+   * <p>Specifying a conditional of null will allow this object to be used without testing any
+   * conditions. Result pages can be chained. The conditionals will be tested in the order in which
+   * the result page objects exist in the chain. When an objects conditions are met, or a null
+   * condition is encountered, no further execution will occur. Be sure not to include more than one
+   * result page with a null conditional. Also be sure not to place the result page with the null
+   * conditional before result pages with conditionals.
    *
-   * @see          com.percussion.design.objectstore.PSConditional
+   * <p>Conditional syntax will not be validated until the application is saved to the server.
+   *
+   * @param conditionals the new conditional statement(s) (may be null)
+   * @see com.percussion.design.objectstore.PSConditional
    */
   public void setConditionals(PSCollection conditionals) {
     IllegalArgumentException ex = validateConditionals(conditionals);
@@ -174,45 +152,38 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Get the data sets which are linked to this result page. E2 can be
-   * used to generate the appopriate URL links in the result page.
-   * <p>
-   * When defining pages with relationships to other pages, E2 can be used
-   * to dynamically generate the appropriate URL to access the desired
-   * data set. For instance, one data set may return a list of orders.
-   * From this result page, it may be desirable to get the order details.
-   * By linking the order list result page to the order detail data tank,
-   * E2 can automatically generate the appropriate URL to access a
-   * specific order.
+   * Get the data sets which are linked to this result page. E2 can be used to generate the
+   * appopriate URL links in the result page.
    *
-   * @return      a collection containing the linked data sets
-   *                        (PSRequestLink objects) (may be null)
+   * <p>When defining pages with relationships to other pages, E2 can be used to dynamically
+   * generate the appropriate URL to access the desired data set. For instance, one data set may
+   * return a list of orders. From this result page, it may be desirable to get the order details.
+   * By linking the order list result page to the order detail data tank, E2 can automatically
+   * generate the appropriate URL to access a specific order.
+   *
+   * @return a collection containing the linked data sets (PSRequestLink objects) (may be null)
    */
   public com.percussion.util.PSCollection getRequestLinks() {
     return m_requestLinks;
   }
 
   /**
-   * Overwrite the request links associated with this result page with
-   * the specified collection. If you only want to modify certain links,
-   * add a new link, etc. use getRequestLinks to get the existing
-   * collection and modify the returned collection directly.
-   * <p>
-   * When defining pages with relationships to other pages, E2 can be used
-   * to dynamically generate the appropriate URL to access the desired
-   * data set. For instance, one data set may return a list of orders.
-   * From this result page, it may be desirable to get the order details.
-   * By linking the order list result page to the order detail data tank,
-   * E2 can automatically generate the appropriate URL to access a
-   * specific order.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSResultPage object. Any subsequent changes made to the object by
-   * the caller will also effect the result page object.
+   * Overwrite the request links associated with this result page with the specified collection. If
+   * you only want to modify certain links, add a new link, etc. use getRequestLinks to get the
+   * existing collection and modify the returned collection directly.
    *
-   * @param      links    the new request links (may be null)
+   * <p>When defining pages with relationships to other pages, E2 can be used to dynamically
+   * generate the appropriate URL to access the desired data set. For instance, one data set may
+   * return a list of orders. From this result page, it may be desirable to get the order details.
+   * By linking the order list result page to the order detail data tank, E2 can automatically
+   * generate the appropriate URL to access a specific order.
    *
-   * @see         PSRequestLink
+   * <p>The PSCollection object supplied to this method will be stored with the PSResultPage object.
+   * Any subsequent changes made to the object by the caller will also effect the result page
+   * object.
+   *
+   * @param links the new request links (may be null)
+   * @see PSRequestLink
    */
   public void setRequestLinks(com.percussion.util.PSCollection links) {
     IllegalArgumentException ex = validateRequestLinks(links);
@@ -234,9 +205,8 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param page a valid PSResultPage.
    */
@@ -255,10 +225,11 @@ public class PSResultPage extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXResultPage XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXResultPage XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *          &lt;!--
    *                  PSXResultPage defines the style sheet to associate with the
@@ -330,7 +301,7 @@ public class PSResultPage extends PSComponent {
    *          &lt;!ELEMENT extension               (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXResultPage XML element node
+   * @return the newly created PSXResultPage XML element node
    */
   // Ravi URL object will be saved as text in XML
   public Element toXml(Document doc) {
@@ -381,12 +352,10 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSResultPage Java object
-   * from a PSXResultPage XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSResultPage Java object from a PSXResultPage XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                                   of type PSXResultPage
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResultPage
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -497,18 +466,15 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -599,59 +565,49 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Set the MIME type for the specified result page. Set this MIME type
-   *    to null to use the requestor's mime map.  Set it to the empty string
-   *    (i.e. new PSTestLiteral("")) to omit the mime-type from the http
-   *    header.  Or set this to a valid replacement value which will be
-   *    set in the http header when this result page is used.
+   * Set the MIME type for the specified result page. Set this MIME type to null to use the
+   * requestor's mime map. Set it to the empty string (i.e. new PSTestLiteral("")) to omit the
+   * mime-type from the http header. Or set this to a valid replacement value which will be set in
+   * the http header when this result page is used.
    *
-   * @param mimeType  The MIME type override for this result page.
-   *                      Can be <code>null</code> (no override)
-   *                      or the empty string (omit MIME type from header)
+   * @param mimeType The MIME type override for this result page. Can be <code>null</code> (no
+   *     override) or the empty string (omit MIME type from header)
    */
   public void setMimeType(IPSReplacementValue mimeType) {
     m_mimeType = mimeType;
   }
 
   /**
-   * Get the MIME type for the specified result page.  If set,
-   *    this value is used as the HTTP Content-Type header value in
-   *    the response. If null, the Requestor MIME map will be honored,
-   *    if empty string, the Content-Type header is not sent as
-   *    part of the response.
+   * Get the MIME type for the specified result page. If set, this value is used as the HTTP
+   * Content-Type header value in the response. If null, the Requestor MIME map will be honored, if
+   * empty string, the Content-Type header is not sent as part of the response.
    *
-   * @return  The MIME type override for this result page.
-   *                      Can be <code>null</code> (no override)
-   *                      or the empty string (omit MIME type from header)
+   * @return The MIME type override for this result page. Can be <code>null</code> (no override) or
+   *     the empty string (omit MIME type from header)
    */
   public IPSReplacementValue getMimeType() {
     return m_mimeType;
   }
 
   /**
-   * Get the encoding scheme associated with this result page.  If set,
-   *    this value is used as the HTTP character-encoding header value in
-   *    the response.  If this is null, the Requestor encoding will be used.
-   *    If it is the empty string, the encoding will not be set in the
-   *    header.
+   * Get the encoding scheme associated with this result page. If set, this value is used as the
+   * HTTP character-encoding header value in the response. If this is null, the Requestor encoding
+   * will be used. If it is the empty string, the encoding will not be set in the header.
    *
-   * @return  The character encoding string identifier.
-   *             Can be <code>null</code> (no override)
-   *             or the empty string (omit encoding from header).
+   * @return The character encoding string identifier. Can be <code>null</code> (no override) or the
+   *     empty string (omit encoding from header).
    */
   public String getCharacterEncoding() {
     return m_encoding;
   }
 
   /**
-   * Set the encoding scheme associated with this result page.  To use
-   *    the Requestor's encoding, set this value to null.  To omit encoding,
-   *    set the value to the empty string ("").  Otherwise set it to the
-   *    character encoding identifier you wish to be set in the http header.
+   * Set the encoding scheme associated with this result page. To use the Requestor's encoding, set
+   * this value to null. To omit encoding, set the value to the empty string (""). Otherwise set it
+   * to the character encoding identifier you wish to be set in the http header.
    *
-   * @param  encoding The encoding string identifier. UTF-8 is an example.
-   *          Can be <code>null</code> (no override)
-   *          or the empty string (omit encoding from header).
+   * @param encoding The encoding string identifier. UTF-8 is an example. Can be <code>null</code>
+   *     (no override) or the empty string (omit encoding from header).
    */
   public void setCharacterEncoding(String encoding) {
     m_encoding = encoding;
@@ -660,14 +616,11 @@ public class PSResultPage extends PSComponent {
   /**
    * Is the specified request handled by this result page?
    *
-   * <B>Note:</B> Comparisons on extensions are case insensitive, and
-   * are stored in lower case in the map.
+   * <p><B>Note:</B> Comparisons on extensions are case insensitive, and are stored in lower case in
+   * the map.
    *
    * @param reqUrl the url associated with the request
-   *
-   *
-   * @return  <code>true</code> if it is supported,
-   *          <code>false</code> otherwise
+   * @return <code>true</code> if it is supported, <code>false</code> otherwise
    */
   public boolean requestIsSupported(String reqUrl) {
     if (reqUrl == null) return false;
@@ -693,15 +646,14 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Set the collection of extensions supported by this result page.  All
-   *    members must be <code>String</code> objects which indicate extensions
-   *    accepted by this result page.
+   * Set the collection of extensions supported by this result page. All members must be <code>
+   * String</code> objects which indicate extensions accepted by this result page.
    *
-   * <B>Note:</B>  These extensions must be lower case!  This is to ensure
-   *    that we treat extensions case-insensitive.
+   * <p><B>Note:</B> These extensions must be lower case! This is to ensure that we treat extensions
+   * case-insensitive.
    *
-   * @param c The collection of extensions supported. If empty or
-   *    <code>null</code> all extensions will be accepted.
+   * @param c The collection of extensions supported. If empty or <code>null</code> all extensions
+   *     will be accepted.
    */
   public void setExtensions(Collection c) {
     if (c != null) {
@@ -712,12 +664,11 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Return the collection of extensions supported by this result page.
-   *    All entries will be strings, and no entry will be <code>null</code>.
-   *    An empty collection indicates that all extensions are supported by
-   *    this result page.
+   * Return the collection of extensions supported by this result page. All entries will be strings,
+   * and no entry will be <code>null</code>. An empty collection indicates that all extensions are
+   * supported by this result page.
    *
-   * @return  the extensions supported, never <code>null</code>
+   * @return the extensions supported, never <code>null</code>
    */
   public Collection getExtensions() {
     return m_extensions;
@@ -725,6 +676,7 @@ public class PSResultPage extends PSComponent {
 
   /**
    * Creates a deep copy of this PSResultPage object
+   *
    * @return a clone of this instance
    */
   public Object clone() {
@@ -741,20 +693,18 @@ public class PSResultPage extends PSComponent {
   }
 
   /**
-   * Indicates that XHTML compliance namespace cleanup can be
-   * performed on the results of the style sheet transformation for
-   * this results page.
-   * @return <code>true</code> if the namespace cleanup can run for
-   * this result page.
+   * Indicates that XHTML compliance namespace cleanup can be performed on the results of the style
+   * sheet transformation for this results page.
+   *
+   * @return <code>true</code> if the namespace cleanup can run for this result page.
    */
   public boolean allowNamespaceCleanup() {
     return m_allowNamespaceCleanup;
   }
 
   /**
-   * Sets flag that indicates that XHTML compliance namespace cleanup can be
-   * performed on the results of the style sheet transformation for
-   * this results page.
+   * Sets flag that indicates that XHTML compliance namespace cleanup can be performed on the
+   * results of the style sheet transformation for this results page.
    */
   public void setAllowNamespaceCleanup(boolean allow) {
     m_allowNamespaceCleanup = allow;
@@ -763,23 +713,22 @@ public class PSResultPage extends PSComponent {
   // NOTE: when adding members, be sure to update the copyFrom, equals, and validate methods
 
   /**
-   * The collection of supported extensions, never <code>null</code>,
-   *    and will not contain any null entries in the set.
+   * The collection of supported extensions, never <code>null</code>, and will not contain any null
+   * entries in the set.
    */
   private Collection m_extensions = new HashSet();
 
   /**
-   * The replacement value signifying the MIME type to be used when this
-   *    result page is selected.  The initial value is <code>null</code>,
-   *    indicating that the Requestor's MIME map will be used by default.
+   * The replacement value signifying the MIME type to be used when this result page is selected.
+   * The initial value is <code>null</code>, indicating that the Requestor's MIME map will be used
+   * by default.
    */
   private IPSReplacementValue m_mimeType = null;
 
   /**
-   * The string signifying the character encoding to be used when this
-   *    result page is selected.  The initial value is <code>null</code>,
-   *    indicating that the Requestor's character encoding setting
-   *    will be used by default.
+   * The string signifying the character encoding to be used when this result page is selected. The
+   * initial value is <code>null</code>, indicating that the Requestor's character encoding setting
+   * will be used by default.
    */
   private String m_encoding = null;
 
@@ -788,17 +737,14 @@ public class PSResultPage extends PSComponent {
   private PSCollection m_requestLinks = null;
 
   /**
-   * Flag indicating that XHTML compliance namespace cleanup can be
-   * performed on the results of the style sheet transformation for
-   * this results page. Defaults to <code>false</code>.
+   * Flag indicating that XHTML compliance namespace cleanup can be performed on the results of the
+   * style sheet transformation for this results page. Defaults to <code>false</code>.
    */
   private boolean m_allowNamespaceCleanup = false;
 
   /* package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXResultPage";
 
-  /**
-   *  XML attribute that indicates if the namspace cleanup is allowed
-   */
+  /** XML attribute that indicates if the namspace cleanup is allowed */
   private static final String ATTR_ALLOW_NAMESPACE_CLEANUP = "allowNamespaceCleanup";
 }

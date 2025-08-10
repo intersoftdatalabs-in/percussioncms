@@ -22,12 +22,11 @@ package com.percussion.rest.errors;
 import javax.ws.rs.core.Response;
 
 /**
- * Exception for location mismatch errors.
- * Sunny Sal: "Location match nahi hua? Check karo, boss!"
+ * Exception for location mismatch errors. Sunny Sal: "Location match nahi hua? Check karo, boss!"
  */
 public class LocationMismatchException extends RestExceptionBase {
 
-    public LocationMismatchException() {
-        super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
-    }
+  public LocationMismatchException() {
+    super(RestErrorCode.LOCATION_MISMATCH, null, null, Response.Status.CONFLICT);
+  }
 }

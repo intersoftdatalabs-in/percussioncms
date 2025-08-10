@@ -44,39 +44,29 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * <p>
- * This exit is to be used along with the NavTreeLink extension for generation
- * of a navigation tree for a specific navon. When this extension processes
- * subsequent to NavTreeLink, it will walk down the navtree and check the
- * info-url for each "ancestor" node. If it determines that the navon has
- * content in a specified slot, it will mark the navon element with a special
- * attribute set to "yes" which can then be leveraged in XSLT processing.
- * </p>
+ * This exit is to be used along with the NavTreeLink extension for generation of a navigation tree
+ * for a specific navon. When this extension processes subsequent to NavTreeLink, it will walk down
+ * the navtree and check the info-url for each "ancestor" node. If it determines that the navon has
+ * content in a specified slot, it will mark the navon element with a special attribute set to "yes"
+ * which can then be leveraged in XSLT processing.
  *
- * <p>
- * The purpose of this extension is to allow for links in custom slots on the
- * navon variants to propogate down the ancestor tree and appear on each child
- * navon. It can of course be used for other appropriate logic built into the
- * XSL stylesheets that process the result document.
- * </p>
+ * <p>The purpose of this extension is to allow for links in custom slots on the navon variants to
+ * propogate down the ancestor tree and appear on each child navon. It can of course be used for
+ * other appropriate logic built into the XSL stylesheets that process the result document.
  *
- * <p>
- * This should process after the NavTreeLink extension. It can be used multiple
- * times to create a marker for more than one slot.
- * </p>
- *
+ * <p>This should process after the NavTreeLink extension. It can be used multiple times to create a
+ * marker for more than one slot.
  */
 public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResultDocumentProcessor {
 
-  /**
-   * This extension never modifies the stylesheet.
-   */
+  /** This extension never modifies the stylesheet. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   * @param params the parameters passed in: <table border="1" cellpadding="3"
+   * @param params the parameters passed in:
+   *     <table border="1" cellpadding="3"
    *           cellspacing="0">
    *           <tr>
    *           <td>markerName</td>
@@ -91,11 +81,10 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
    *           content</td>
    *           </tr>
    *           </table>
-   *           <p>
+   *     <p>
    * @param request the request context object
    * @param doc the result XML document
    * @throws PSExtensionProcessingException upon any error
-   *            </p>
    */
   public Document processResultDocument(
       final Object[] params, final IPSRequestContext request, final Document doc)
@@ -156,10 +145,8 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
   /**
    * Walks the Nav tree looking for content
    *
-   * @param req request the request context object, assumed not
-   *           <code>null</code>
-   * @param node the tree node that we start walking from, assumed not
-   *           <code>null</code>
+   * @param req request the request context object, assumed not <code>null</code>
+   * @param node the tree node that we start walking from, assumed not <code>null</code>
    * @param slotNames list of slot names, assumed not <code>null</code>
    * @param markerNames list of marker names, assumed not <code>null</code>
    * @throws PSNavException
@@ -191,8 +178,7 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
   /**
    * Validates that item is or is not a content item
    *
-   * @param req request the request context object, assumed not
-   *           <code>null</code>
+   * @param req request the request context object, assumed not <code>null</code>
    * @param node the item node to be validated, assumed not <code>null</code>
    * @param slotNames list of slot names, assumed not <code>null</code>
    * @param markerNames list of marker names, assumed not <code>null</code>
@@ -231,20 +217,16 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
   }
 
   /**
-   * Get a set of slotnames for given the parent locator that has content in it
-   * based on the supplied authorization type value. The set is obtained by
-   * executing the internal request to "sys_casSupport/casSupport_x" Rhythmyx
-   * resource, where x is the authorization type value.
+   * Get a set of slotnames for given the parent locator that has content in it based on the
+   * supplied authorization type value. The set is obtained by executing the internal request to
+   * "sys_casSupport/casSupport_x" Rhythmyx resource, where x is the authorization type value.
    *
-   * @param req request the request context object, assumed not
-   *           <code>null</code>
+   * @param req request the request context object, assumed not <code>null</code>
    * @param parent Locator for the patent item, assumed not <code>null</code>
-   * @param authType authorization type value one of the valid authorization
-   *           type valuess. This auth type must have been implemented in
-   *           sys_casSupport application. It is an error if the requested auth
-   *           type is not implemented.
-   * @return A set of all slotnames with content in it. Never <code>null</code>
-   *         may be empty.
+   * @param authType authorization type value one of the valid authorization type valuess. This auth
+   *     type must have been implemented in sys_casSupport application. It is an error if the
+   *     requested auth type is not implemented.
+   * @return A set of all slotnames with content in it. Never <code>null</code> may be empty.
    * @throws PSNavException upon any error
    */
   private Set getSlotNames(final IPSRequestContext req, PSLocator parent, int authType)
@@ -282,25 +264,17 @@ public class PSNavTreeSlotMarker extends PSDefaultExtension implements IPSResult
     return resultSet;
   }
 
-  /**
-   * The logger for this class
-   */
+  /** The logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSNavTreeSlotMarker.class);
 
-  /**
-   * This class's name
-   */
+  /** This class's name */
   private static final String CLASSNAME = PSNavTreeSlotMarker.class.getName();
 
-  /**
-   * Error message used when parameters are missing
-   */
+  /** Error message used when parameters are missing */
   private static final String MSG_INVALID_PARAMSLENGTH =
       "Invalid parameters. Expects pairs of markerName and slotNames.";
 
-  /**
-   * Error message used when parameters are missing
-   */
+  /** Error message used when parameters are missing */
   private static final String MSG_INVALID_PARAMS =
       "At least one pair of markerName and slotName is expected.";
 }

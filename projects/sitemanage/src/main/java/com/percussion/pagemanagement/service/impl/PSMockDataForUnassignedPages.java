@@ -24,112 +24,110 @@ import com.percussion.share.data.PSUnassignedResults.ItemStatus;
 import com.percussion.share.data.PSUnassignedResults.UnassignedItem;
 import com.percussion.share.data.PSUnassignedResults.UnassignedItemList;
 import com.percussion.utils.types.PSPair;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Mock data factory for unassigned pages.
- * Sunny Sal says: "Mock data—because sometimes you just need to fake it till you make it!"
+ * Mock data factory for unassigned pages. Sunny Sal says: "Mock data—because sometimes you just
+ * need to fake it till you make it!"
  */
 public class PSMockDataForUnassignedPages {
 
-    public static final int MAX_COUNT = 32;
-    public static final int INC_COUNT = 4;
-    public static final int TRY_COUNT = 3;
+  public static final int MAX_COUNT = 32;
+  public static final int INC_COUNT = 4;
+  public static final int TRY_COUNT = 3;
 
-    private List<PSPair<Integer, ItemStatus>> itemList;
-    private int importedCount;
-    private int totalCount;
-    private int tryCount;
-    private static final Logger log = LogManager.getLogger(PSMockDataForUnassignedPages.class);
+  private List<PSPair<Integer, ItemStatus>> itemList;
+  private int importedCount;
+  private int totalCount;
+  private int tryCount;
+  private static final Logger log = LogManager.getLogger(PSMockDataForUnassignedPages.class);
 
-    public PSMockDataForUnassignedPages() {
+  public PSMockDataForUnassignedPages() {
+    init();
+    itemList = createItemList();
+  }
+
+  public PSUnassignedResults getUnassignedResults(int startIndex, int maxResults) {
+    log.info("startIndex: {}, maxResults: {}", startIndex, maxResults);
+
+    var results = new PSUnassignedResults();
+
+    int catalogedPage = totalCount - importedCount;
+    var status = new ImportStatus(catalogedPage, importedCount);
+    results.setImportStatus(status);
+    results.setUnassignedItemList(getUnassignedItemList(startIndex, maxResults));
+
+    log.info("Results: {}", results);
+
+    return results;
+  }
+
+  /**
+   * Updates the unassigned pages, to simulate more pages have been imported and/or cataloged. The
+   * cataloged pages will be increased by {@link #INC_COUNT} until {@link #MAX_COUNT}.
+   */
+  public void update() {
+    if (importedCount == totalCount) {
+      tryCount++;
+      if (tryCount == TRY_COUNT) {
         init();
-        itemList = createItemList();
+      }
+    } else {
+      totalCount = (totalCount >= MAX_COUNT) ? totalCount : totalCount + INC_COUNT;
+      importedCount = (importedCount >= totalCount) ? importedCount : importedCount + 1;
+    }
+    itemList = createItemList();
+  }
+
+  public void importCompleted() {
+    totalCount = MAX_COUNT;
+    importedCount = totalCount;
+    tryCount = 0;
+    itemList = createItemList();
+  }
+
+  private UnassignedItemList getUnassignedItemList(int startIndex, int maxResults) {
+    var pageGroup = PSPagedObjectList.getPage(itemList, startIndex, maxResults);
+
+    var items = new ArrayList<UnassignedItem>();
+    for (var p : pageGroup.getChildrenInPage()) {
+      var item = getUnassignedItem(p.getFirst(), p.getSecond());
+      items.add(item);
     }
 
-    public PSUnassignedResults getUnassignedResults(int startIndex, int maxResults) {
-        log.info("startIndex: {}, maxResults: {}", startIndex, maxResults);
+    var result = new UnassignedItemList();
+    result.setChildrenCount(pageGroup.getChildrenCount());
+    result.setStartIndex(pageGroup.getStartIndex());
+    result.setChildrenInPage(items);
 
-        var results = new PSUnassignedResults();
+    return result;
+  }
 
-        int catalogedPage = totalCount - importedCount;
-        var status = new ImportStatus(catalogedPage, importedCount);
-        results.setImportStatus(status);
-        results.setUnassignedItemList(getUnassignedItemList(startIndex, maxResults));
+  private UnassignedItem getUnassignedItem(Integer id, ItemStatus status) {
+    return new UnassignedItem(
+        "166775-101-1" + id, "page" + id + ".html", "/mock-site/page" + id + ".html", status);
+  }
 
-        log.info("Results: {}", results);
+  private void init() {
+    totalCount = INC_COUNT;
+    importedCount = 0;
+    tryCount = 0;
+  }
 
-        return results;
+  private List<PSPair<Integer, ItemStatus>> createItemList() {
+    var result = new ArrayList<PSPair<Integer, ItemStatus>>();
+    for (int i = 0; i < totalCount; i++) {
+      var status = ItemStatus.Cataloged;
+      if (importedCount > 0) {
+        if (i < importedCount) status = ItemStatus.Imported;
+        else if (i == importedCount) status = ItemStatus.Importing;
+      }
+      var item = new PSPair<>(i, status);
+      result.add(item);
     }
-
-    /**
-     * Updates the unassigned pages, to simulate more pages have been imported and/or cataloged.
-     * The cataloged pages will be increased by {@link #INC_COUNT} until {@link #MAX_COUNT}.
-     */
-    public void update() {
-        if (importedCount == totalCount) {
-            tryCount++;
-            if (tryCount == TRY_COUNT) {
-                init();
-            }
-        } else {
-            totalCount = (totalCount >= MAX_COUNT) ? totalCount : totalCount + INC_COUNT;
-            importedCount = (importedCount >= totalCount) ? importedCount : importedCount + 1;
-        }
-        itemList = createItemList();
-    }
-
-    public void importCompleted() {
-        totalCount = MAX_COUNT;
-        importedCount = totalCount;
-        tryCount = 0;
-        itemList = createItemList();
-    }
-
-    private UnassignedItemList getUnassignedItemList(int startIndex, int maxResults) {
-        var pageGroup = PSPagedObjectList.getPage(itemList, startIndex, maxResults);
-
-        var items = new ArrayList<UnassignedItem>();
-        for (var p : pageGroup.getChildrenInPage()) {
-            var item = getUnassignedItem(p.getFirst(), p.getSecond());
-            items.add(item);
-        }
-
-        var result = new UnassignedItemList();
-        result.setChildrenCount(pageGroup.getChildrenCount());
-        result.setStartIndex(pageGroup.getStartIndex());
-        result.setChildrenInPage(items);
-
-        return result;
-    }
-
-    private UnassignedItem getUnassignedItem(Integer id, ItemStatus status) {
-        return new UnassignedItem("166775-101-1" + id, "page" + id + ".html", "/mock-site/page" + id + ".html", status);
-    }
-
-    private void init() {
-        totalCount = INC_COUNT;
-        importedCount = 0;
-        tryCount = 0;
-    }
-
-    private List<PSPair<Integer, ItemStatus>> createItemList() {
-        var result = new ArrayList<PSPair<Integer, ItemStatus>>();
-        for (int i = 0; i < totalCount; i++) {
-            var status = ItemStatus.Cataloged;
-            if (importedCount > 0) {
-                if (i < importedCount)
-                    status = ItemStatus.Imported;
-                else if (i == importedCount)
-                    status = ItemStatus.Importing;
-            }
-            var item = new PSPair<>(i, status);
-            result.add(item);
-        }
-        return result;
-    }
+    return result;
+  }
 }

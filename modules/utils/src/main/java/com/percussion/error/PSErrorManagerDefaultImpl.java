@@ -39,10 +39,9 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * Initialize the error manager to use the specified locale.
-   * Called from server only.
+   * Initialize the error manager to use the specified locale. Called from server only.
    *
-   * @param      loc      the locale to use
+   * @param loc the locale to use
    */
   public static synchronized void init(Locale loc)
       throws MissingResourceException, NumberFormatException {
@@ -62,12 +61,10 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * This method is used to get the string resources hash table for a
-   * locale. If the resources are not already loaded for the locale,
-   * they will be.
+   * This method is used to get the string resources hash table for a locale. If the resources are
+   * not already loaded for the locale, they will be.
    *
-   * @param      loc         the locale
-   *
+   * @param loc the locale
    */
   private static ResourceBundle getErrorStringBundle(Locale loc) throws MissingResourceException {
     ResourceBundle strBundle = null;
@@ -82,18 +79,15 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * Shut down the error manager. This discards all the error page and
-   * error string information. Use the {@link #init() init}
-   * method to re-initialize the error facility.
+   * Shut down the error manager. This discards all the error page and error string information. Use
+   * the {@link #init() init} method to re-initialize the error facility.
    */
   public synchronized void close() {
     m_errorURLs.clear(); /* we never want this null, just empty */
     m_errorStrings.clear(); /* we never want this null, just empty */
   }
 
-  /**
-   * The default locale to use when one is not specified.
-   */
+  /** The default locale to use when one is not specified. */
   protected static Locale m_defaultLocale = Locale.getDefault();
 
   private static PSMapClassToObject getErrorPageMaps(Locale loc)
@@ -126,11 +120,9 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error URL to use for the specified error code.
    *
-   * @param   error  the error code
-   *
-   * @return  the URL to use for the
-   * specified error, or <code>null</code> if the error
-   * code is not supported.
+   * @param error the error code
+   * @return the URL to use for the specified error, or <code>null</code> if the error code is not
+   *     supported.
    */
   public URL getErrorURL(PSLogInformation error) {
     return getErrorURL(error, m_defaultLocale);
@@ -139,12 +131,10 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error URL to use for the specified error code.
    *
-   * @param   error  the error code
-   * @param   loc the locale of the error.
-   *
-   * @return  the URL to use for the
-   * specified error, or <code>null</code> if the error
-   * code is not supported.
+   * @param error the error code
+   * @param loc the locale of the error.
+   * @return the URL to use for the specified error, or <code>null</code> if the error code is not
+   *     supported.
    */
   @Override
   public URL getErrorURL(PSLogInformation error, Locale loc) {
@@ -157,9 +147,8 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code     the error code
-   *
-   * @return           the error text
+   * @param code the error code
+   * @return the error text
    */
   public String getErrorText(int code) {
     return getErrorText(code, false, m_defaultLocale);
@@ -168,12 +157,9 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @return the error text
    */
   public String getErrorText(int code, boolean nullNotFound) {
     return getErrorText(code, nullNotFound, m_defaultLocale);
@@ -182,14 +168,10 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @param   loc            the locale to use
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @param loc the locale to use
+   * @return the error text
    */
   public String getErrorText(int code, boolean nullNotFound, Locale loc) {
     try {
@@ -206,14 +188,10 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @param   language       the language string to use
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @param language the language string to use
+   * @return the error text
    */
   public String getErrorText(int code, boolean nullNotFound, String language) {
     ResourceBundle bundle = m_errorStrings.get(language);
@@ -232,15 +210,11 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * Create a formatted message for messages taking only a single
-   * argument.
+   * Create a formatted message for messages taking only a single argument.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   singleArg      the argument to use as the sole argument in
-   *                         the error message
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message
+   * @return the formatted message
    */
   public String createMessage(int msgCode, Object singleArg) {
     Object[] args = {singleArg};
@@ -248,34 +222,25 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @return the formatted message
    */
   public String createMessage(int msgCode, Object[] arrayArgs) {
     return createMessage(msgCode, arrayArgs, m_defaultLocale);
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @param   loc            the locale to use
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param loc the locale to use
+   * @return the formatted message
    */
   public String createMessage(int msgCode, Object[] arrayArgs, Locale loc) {
     if (arrayArgs == null) arrayArgs = new Object[0];
@@ -307,18 +272,13 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @param   language       the language string to use
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param language the language string to use
+   * @return the formatted message
    */
   public String createMessage(int msgCode, Object[] arrayArgs, String language) {
     if (arrayArgs == null) arrayArgs = new Object[0];
@@ -350,27 +310,25 @@ public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   }
 
   /**
-   * This is a hash table using the locale as the key and the
-   * PSMapClassToObject object as the value.
+   * This is a hash table using the locale as the key and the PSMapClassToObject object as the
+   * value.
    *
-   * The PSMapClassToObject object is a hash table using the
-   * PSLogError subclass as the key and the error URL (URL) as the value.
+   * <p>The PSMapClassToObject object is a hash table using the PSLogError subclass as the key and
+   * the error URL (URL) as the value.
    */
   protected static ConcurrentHashMap<String, PSMapClassToObject> m_errorURLs =
       new ConcurrentHashMap<>();
 
   /**
-   * This is a hash table using Locale.toString as the key and the
-   * ResourceBundle object as the value.
+   * This is a hash table using Locale.toString as the key and the ResourceBundle object as the
+   * value.
    *
-   * The ResourceBundle object is a property file backed string
-   * resource bundle containing our error strings in the specified locale
+   * <p>The ResourceBundle object is a property file backed string resource bundle containing our
+   * error strings in the specified locale
    */
   protected static ConcurrentHashMap<String, ResourceBundle> m_errorStrings =
       new ConcurrentHashMap<>();
 
-  /**
-   * Flag that indicates if this class is used on the server side.
-   */
+  /** Flag that indicates if this class is used on the server side. */
   protected static boolean ms_isServerSide;
 }

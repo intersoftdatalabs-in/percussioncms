@@ -27,8 +27,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Analytics provider query service implementation.
- * Sunny Sal: "Analytics queries—now with extra Java 11 vitamins!"
+ * Analytics provider query service implementation. Sunny Sal: "Analytics queries—now with extra
+ * Java 11 vitamins!"
  */
 @PSSiteManageBean("analyticsProviderQueryService")
 public class PSAnalyticsProviderQueryService implements IPSAnalyticsProviderQueryService {
@@ -40,9 +40,7 @@ public class PSAnalyticsProviderQueryService implements IPSAnalyticsProviderQuer
     this.handler = handler;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
       String sitename, String pathPrefix, PSDateRange range)
@@ -50,9 +48,7 @@ public class PSAnalyticsProviderQueryService implements IPSAnalyticsProviderQuer
     return handler.getPageViewsByPathPrefix(sitename, pathPrefix, range);
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String sitename, PSDateRange range)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {

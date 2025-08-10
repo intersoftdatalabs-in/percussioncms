@@ -26,9 +26,7 @@ import com.percussion.server.PSUserSession;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * See {@link IPSVirtualDirectory} for details.
- */
+/** See {@link IPSVirtualDirectory} for details. */
 public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDataErrors {
   /**
    * Construct a virtual directory entry that answers to the given <CODE>
@@ -36,19 +34,13 @@ public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDa
    * </CODE>.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/15
-   *
-   * @param virtualDir The virtual directory that this entry "answers to". For
-   * applications, this will be the requestRoot.
-   *
-   * @param appDir The physical directory where the application's files live.
-   * If <CODE>null</CODE>, it means that the application exists but has no
-   * associated directory.
-   *
-   * @param osHandler The object store handler that this entry can use to
-   * obtain dynamic information about itself (security, the files contained
-   * within, etc.).
+   * @param virtualDir The virtual directory that this entry "answers to". For applications, this
+   *     will be the requestRoot.
+   * @param appDir The physical directory where the application's files live. If <CODE>null</CODE>,
+   *     it means that the application exists but has no associated directory.
+   * @param osHandler The object store handler that this entry can use to obtain dynamic information
+   *     about itself (security, the files contained within, etc.).
    */
   public PSVirtualApplicationDirectory(
       String virtualDir, File appDir, IPSObjectStoreHandler osHandler) {
@@ -59,20 +51,14 @@ public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDa
   }
 
   /**
-   * Gets the physical path that the given file would have within this virtual
-   * directory.
+   * Gets the physical path that the given file would have within this virtual directory.
    *
-   * If this method returns <CODE>null</CODE>, it means that the application
-   * exists but has no associated directory, therefore queries for the
-   * directory contents should return an empty list.
+   * <p>If this method returns <CODE>null</CODE>, it means that the application exists but has no
+   * associated directory, therefore queries for the directory contents should return an empty list.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/14
-   *
-   *
    * @param relPath
-   *
    * @return File
    */
   public File getPhysicalPath(File relPath) {
@@ -103,13 +89,10 @@ public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDa
    * Returns true if all the permissions are held.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/15
-   *
    * @param session The user session whose permissions should be returned.
-   *
-   * @return boolean <CODE>true</CODE> if all the permissions are held by
-   * this session for this virtual directory.
+   * @return boolean <CODE>true</CODE> if all the permissions are held by this session for this
+   *     virtual directory.
    */
   public boolean hasPermissions(PSUserSession session, int permissions) {
     boolean has = false;
@@ -129,9 +112,7 @@ public class PSVirtualApplicationDirectory implements IPSVirtualDirectory, IPSDa
    * Gets the name of the virtual directory that this object represents.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/14
-   *
    * @return String
    */
   public String getVirtualDirectory() {

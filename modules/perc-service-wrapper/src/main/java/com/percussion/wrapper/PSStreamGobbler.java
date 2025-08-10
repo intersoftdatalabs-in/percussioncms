@@ -26,17 +26,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Empties stream passed into it in a separate thread line by line and
- * prints the line just read to the console.
- * To launch the gobbler call {@link #start()}.
- * The idea is borrowed from
+ * Empties stream passed into it in a separate thread line by line and prints the line just read to
+ * the console. To launch the gobbler call {@link #start()}. The idea is borrowed from
  * http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html.
  */
 class PSStreamGobbler extends Thread {
 
-  /**
-   * The stream to read.
-   */
+  /** The stream to read. */
   private final InputStream m_in;
 
   private final String startupString;
@@ -47,8 +43,7 @@ class PSStreamGobbler extends Thread {
   /**
    * Creates new stream gobbler.
    *
-   * @param in the stream to copy to the console.
-   *           Assumed not <code>null</code>.
+   * @param in the stream to copy to the console. Assumed not <code>null</code>.
    */
   PSStreamGobbler(String name, InputStream in) {
     this(name, in, null, null);
@@ -64,8 +59,8 @@ class PSStreamGobbler extends Thread {
   }
 
   /**
-   * Reads the stream provided in the constructor and prints it line-by-line
-   * to the console. The method finishes when the stream is empty.
+   * Reads the stream provided in the constructor and prints it line-by-line to the console. The
+   * method finishes when the stream is empty.
    *
    * @see Runnable#run()
    */

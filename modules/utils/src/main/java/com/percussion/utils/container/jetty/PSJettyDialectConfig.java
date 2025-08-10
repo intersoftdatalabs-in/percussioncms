@@ -24,8 +24,8 @@ import java.util.Map;
 public class PSJettyDialectConfig implements IPSHibernateDialectConfig {
 
   /**
-   * Map of jdbc driver name to hibernate sql dialect, never <code>null</code>,
-   * may be empty. Modified by calls to {@link #setDialects(Map)}.
+   * Map of jdbc driver name to hibernate sql dialect, never <code>null</code>, may be empty.
+   * Modified by calls to {@link #setDialects(Map)}.
    */
   private static volatile Map<String, String> m_sqlDialects = new HashMap<String, String>();
 

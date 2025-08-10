@@ -24,18 +24,13 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Implementation of the "canCreateItem" action.
- */
+/** Implementation of the "canCreateItem" action. */
 public class PSCanCreateItemAction extends PSAAActionBase {
   /**
-   * @param params parameters expected in the map are a valid
-   * {@link IPSHtmlParameters#SYS_FOLDERID parentFolderId}
-   * and a valid
-   * {@link IPSHtmlParameters#SYS_CONTENTTYPEID contentTypeId}.
-   * @return String equivalent of boolean value <code>true</code> if user can
-   * create an item of the given content typeid in the folder with given
-   * folderid, <code>false</code> otherwise.
+   * @param params parameters expected in the map are a valid {@link IPSHtmlParameters#SYS_FOLDERID
+   *     parentFolderId} and a valid {@link IPSHtmlParameters#SYS_CONTENTTYPEID contentTypeId}.
+   * @return String equivalent of boolean value <code>true</code> if user can create an item of the
+   *     given content typeid in the folder with given folderid, <code>false</code> otherwise.
    */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, IPSHtmlParameters.SYS_FOLDERID);

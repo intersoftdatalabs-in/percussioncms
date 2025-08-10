@@ -17,59 +17,58 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.workflow.service.impl;
 
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.maintenance.service.IPSMaintenanceManager;
 import com.percussion.maintenance.service.IPSMaintenanceProcess;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.workflow.IPSWorkflowService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Builds and warms up the workflow cache in a background thread.
- */
+/** Builds and warms up the workflow cache in a background thread. */
 public class PSWorkflowCacheBuilder implements Runnable, IPSMaintenanceProcess {
 
-    private static final Logger log = LogManager.getLogger(PSWorkflowCacheBuilder.class);
-    static final String MAINT_PROC_NAME = PSWorkflowCacheBuilder.class.getName();
+  private static final Logger log = LogManager.getLogger(PSWorkflowCacheBuilder.class);
+  static final String MAINT_PROC_NAME = PSWorkflowCacheBuilder.class.getName();
 
-    private final IPSWorkflowService workflowService;
-    private final IPSMaintenanceManager maintenanceManager;
+  private final IPSWorkflowService workflowService;
+  private final IPSMaintenanceManager maintenanceManager;
 
-    public PSWorkflowCacheBuilder(IPSWorkflowService workflowService, IPSMaintenanceManager maintenanceManager) {
-        this.workflowService = workflowService;
-        this.maintenanceManager = maintenanceManager;
+  public PSWorkflowCacheBuilder(
+      IPSWorkflowService workflowService, IPSMaintenanceManager maintenanceManager) {
+    this.workflowService = workflowService;
+    this.maintenanceManager = maintenanceManager;
+  }
+
+  /** Starts the workflow cache build in a background daemon thread. */
+  public void buildWorkflowCache() {
+    var thread = new Thread(this);
+    thread.setDaemon(true);
+    thread.start();
+  }
+
+  @Override
+  public void run() {
+    try {
+      maintenanceManager.startingWork(this);
+      buildCache();
+      maintenanceManager.workCompleted(this);
+    } catch (Exception e) {
+      log.error(
+          "Failed to build the workflow cache, the cache will be filled on demand, Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      maintenanceManager.workFailed(this);
     }
+  }
 
-    /**
-     * Starts the workflow cache build in a background daemon thread.
-     */
-    public void buildWorkflowCache() {
-        var thread = new Thread(this);
-        thread.setDaemon(true);
-        thread.start();
-    }
+  private void buildCache() {
+    log.info("Initializing workflow cache");
+    workflowService.findWorkflowsByName("");
+    log.info("Workflow cache initialized");
+  }
 
-    @Override
-    public void run() {
-        try {
-            maintenanceManager.startingWork(this);
-            buildCache();
-            maintenanceManager.workCompleted(this);
-        } catch (Exception e) {
-            log.error("Failed to build the workflow cache, the cache will be filled on demand, Error: {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            maintenanceManager.workFailed(this);
-        }
-    }
-
-    private void buildCache() {
-        log.info("Initializing workflow cache");
-        workflowService.findWorkflowsByName("");
-        log.info("Workflow cache initialized");
-    }
-
-    @Override
-    public String getProcessId() {
-        return MAINT_PROC_NAME;
-    }
+  @Override
+  public String getProcessId() {
+    return MAINT_PROC_NAME;
+  }
 }

@@ -39,20 +39,17 @@ import javax.jcr.ValueFormatException;
  * @author dougrand
  */
 public class PSValueFactory implements ValueFactory {
-  /**
-   * Used in the static method
-   */
+  /** Used in the static method */
   private static final PSValueFactory ms_fact = new PSValueFactory();
 
   /**
-   * Takes the input object and determines which concrete subclass should be
-   * used to represent the data. If no subclass is appropriate then this throws
-   * an exception.
+   * Takes the input object and determines which concrete subclass should be used to represent the
+   * data. If no subclass is appropriate then this throws an exception.
    *
    * @param data the data to encapsulate, never <code>null</code>
    * @return an appropriate value object that implements the value interface
-   * @throws ValueFormatException if the object doesn't match a known type and
-   *            cannot be coerced to a type
+   * @throws ValueFormatException if the object doesn't match a known type and cannot be coerced to
+   *     a type
    */
   public static Value createValue(Object data) throws ValueFormatException {
     if (data == null) {

@@ -43,51 +43,37 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This effect typically is attached to {@link com.percussion.design.objectstore.PSRelationshipConfig#CATEGORY_TRANSLATION translation}
- * category of relationships.
- * <p>
- * The newly translated object (item or folder) is attached to all parent
- * folders. Parent folders are determined as follows:
+ * This effect typically is attached to {@link
+ * com.percussion.design.objectstore.PSRelationshipConfig#CATEGORY_TRANSLATION translation} category
+ * of relationships.
+ *
+ * <p>The newly translated object (item or folder) is attached to all parent folders. Parent folders
+ * are determined as follows:
+ *
  * <ol>
- *    <li>
- *    Collect all parent folders of the translated object where the folder
- *    is the owner of the translation relationship and the translation
- *    relationship name matches the name of the currently processed translation
- *    relationship.
- *    </li>
- *    <li>
- *    Collect all parent folders of the translated object where the folder
- *    is the dependent of the translation relationship and the translation
- *    relationship name matches the name of the currently processed translation
- *    relationship.
- *    </li>
- *    <li>
- *    Determine the locale through the dependent of the current translation
- *    relationship.
- *    </li>
- *    <li>
- *    From all collected parent folders weed out the ones which do not match
- *    the determined locale.
- *    </li>
+ *   <li>Collect all parent folders of the translated object where the folder is the owner of the
+ *       translation relationship and the translation relationship name matches the name of the
+ *       currently processed translation relationship.
+ *   <li>Collect all parent folders of the translated object where the folder is the dependent of
+ *       the translation relationship and the translation relationship name matches the name of the
+ *       currently processed translation relationship.
+ *   <li>Determine the locale through the dependent of the current translation relationship.
+ *   <li>From all collected parent folders weed out the ones which do not match the determined
+ *       locale.
  * </ol>
- * <p>
- * The translated object will be attached to all translated parent folders if
- * found or to all original parent folders for which no translated parent
- * folder was found. If the original object is not attached to any folder, the
- * translated object will not be attached to any folder.
- * <p>
- * This effect will be active for he following situations only:
+ *
+ * <p>The translated object will be attached to all translated parent folders if found or to all
+ * original parent folders for which no translated parent folder was found. If the original object
+ * is not attached to any folder, the translated object will not be attached to any folder.
+ *
+ * <p>This effect will be active for he following situations only:
+ *
  * <ol>
- *    <li>
- *    The execution context must be {@link com.percussion.relationship.IPSExecutionContext#RS_PRE_CONSTRUCTION}
- *    </li>
- *    <li>
- *    The originating relationship and the current relationship both must be
- *    of {@link PSRelationshipConfig#CATEGORY_TRANSLATION translation}
- *    </li>
- *    <li>
- *    The originating relationshipship's owner must be a Folder
- *    </li>
+ *   <li>The execution context must be {@link
+ *       com.percussion.relationship.IPSExecutionContext#RS_PRE_CONSTRUCTION}
+ *   <li>The originating relationship and the current relationship both must be of {@link
+ *       PSRelationshipConfig#CATEGORY_TRANSLATION translation}
+ *   <li>The originating relationshipship's owner must be a Folder
  * </ol>
  *
  * @author RammohanVangapalli
@@ -305,19 +291,15 @@ public class PSAttachTranslatedFolder extends PSEffect {
   }
 
   /**
-   * Walks all supplied summaries and weeds out the ones which do not match
-   * the supplied locale. The new parents locator list will be updated with
-   * all summaries that match the supplied locale.
+   * Walks all supplied summaries and weeds out the ones which do not match the supplied locale. The
+   * new parents locator list will be updated with all summaries that match the supplied locale.
    *
-   * @param summaries the summaries to walk, assumed not <code>null</code>,
-   *    may be empty.
-   * @param locale the locale to filter by, assumed not <code>null</code>,
-   *    may be empty.
-   * @param newParents the list of new parent locators which will be updated
-   *    for all summaries that match the supplied locale, assumed not
-   *    <code>null</code>, may be empty.
-   * @return <code>true</code> if the supplied list of new parents was
-   *    updated, <code>false</code> otherwise.
+   * @param summaries the summaries to walk, assumed not <code>null</code>, may be empty.
+   * @param locale the locale to filter by, assumed not <code>null</code>, may be empty.
+   * @param newParents the list of new parent locators which will be updated for all summaries that
+   *     match the supplied locale, assumed not <code>null</code>, may be empty.
+   * @return <code>true</code> if the supplied list of new parents was updated, <code>false</code>
+   *     otherwise.
    */
   private boolean updateNewParents(
       Iterator<PSComponentSummary> summaries, String locale, List<PSLocator> newParents) {

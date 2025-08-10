@@ -18,12 +18,12 @@
 
 package com.percussion.assetmanagement.data;
 
+import com.percussion.share.data.IPSFolderPath;
+import com.percussion.share.data.PSAbstractDataObject;
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.MatchPattern;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-import com.percussion.share.data.IPSFolderPath;
-import com.percussion.share.data.PSAbstractDataObject;
 
 /**
  * Represents an association between an asset and a folder.
@@ -33,55 +33,55 @@ import com.percussion.share.data.PSAbstractDataObject;
 @XmlRootElement(name = "AssetFolderRelationship")
 public class PSAssetFolderRelationship extends PSAbstractDataObject implements IPSFolderPath {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String assetId;
-    private String folderPath;
+  private String assetId;
+  private String folderPath;
 
-    /**
-     * Gets the asset ID.
-     *
-     * @return the asset ID; never blank.
-     */
-    @NotBlank
-    @NotNull
-    public String getAssetId() {
-        return assetId;
+  /**
+   * Gets the asset ID.
+   *
+   * @return the asset ID; never blank.
+   */
+  @NotBlank
+  @NotNull
+  public String getAssetId() {
+    return assetId;
+  }
+
+  /**
+   * Sets the asset ID.
+   *
+   * @param assetId the asset ID; must not be blank.
+   */
+  public void setAssetId(String assetId) {
+    if (assetId == null || assetId.isBlank()) {
+      throw new IllegalArgumentException("assetId must not be blank");
     }
+    this.assetId = assetId;
+  }
 
-    /**
-     * Sets the asset ID.
-     *
-     * @param assetId the asset ID; must not be blank.
-     */
-    public void setAssetId(String assetId) {
-        if (assetId == null || assetId.isBlank()) {
-            throw new IllegalArgumentException("assetId must not be blank");
-        }
-        this.assetId = assetId;
-    }
+  /**
+   * Gets the folder path.
+   *
+   * @return the folder path; must start with '/'.
+   */
+  @NotBlank
+  @NotNull
+  @MatchPattern(pattern = {"^/.*$"})
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    /**
-     * Gets the folder path.
-     *
-     * @return the folder path; must start with '/'.
-     */
-    @NotBlank
-    @NotNull
-    @MatchPattern(pattern = {"^/.*$"})
-    public String getFolderPath() {
-        return folderPath;
+  /**
+   * Sets the folder path.
+   *
+   * @param folderPath the folder path; must start with '/'.
+   */
+  public void setFolderPath(String folderPath) {
+    if (folderPath == null || !folderPath.startsWith("/")) {
+      throw new IllegalArgumentException("folderPath must start with '/' and not be null");
     }
-
-    /**
-     * Sets the folder path.
-     *
-     * @param folderPath the folder path; must start with '/'.
-     */
-    public void setFolderPath(String folderPath) {
-        if (folderPath == null || !folderPath.startsWith("/")) {
-            throw new IllegalArgumentException("folderPath must start with '/' and not be null");
-        }
-        this.folderPath = folderPath;
-    }
+    this.folderPath = folderPath;
+  }
 }

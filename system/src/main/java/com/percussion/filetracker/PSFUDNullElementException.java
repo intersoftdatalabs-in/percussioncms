@@ -16,15 +16,13 @@
  */
 
 /**
- * This exception is thrown when the remote and local snapshot content list
- * documents happen to be null.
+ * This exception is thrown when the remote and local snapshot content list documents happen to be
+ * null.
  */
 package com.percussion.filetracker;
 
 public class PSFUDNullElementException extends Exception {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSFUDNullElementException() {
     super();
   }
@@ -33,7 +31,6 @@ public class PSFUDNullElementException extends Exception {
    * Constructor that takes the message as a parameter.
    *
    * @param msg as String
-   *
    */
   public PSFUDNullElementException(String msg) {
     super(msg);

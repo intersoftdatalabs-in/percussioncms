@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.percussion.sitemanage.servlet;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
@@ -31,247 +30,316 @@ import com.percussion.server.PSServer;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
+import com.percussion.test.PSServletTestCase;
+import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.system.IPSSystemWs;
+import java.net.URL;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.jupiter.api.*;
+import org.junit.Assert;
+import org.junit.experimental.categories.Category;
 
-import java.net.URL;
+// @Ignore("If you want to run these unit tests, adjust the SERVER_URL constant and start your CMS "
+// + "server.")
+@Category(IntegrationTest.class)
+public class PSPreviewItemContentTest extends PSServletTestCase {
+  private PSSiteDataServletTestCaseFixture fixture;
 
-/**
- * Integration tests for previewing item content via friendly URLs.
- * // REFACTORED: CP-JAVA11
- * @author Percussion (modernized by Sunny Sal)
- */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PSPreviewItemContentTest {
+  private String pageFinderPath = "";
 
-    private PSSiteDataServletTestCaseFixture fixture;
-    private String pageFinderPath = "";
-    private String assetFinderPath = "";
-    private static final String ASSET_FOLDER = "//Folders/$System$/Assets/uploads";
-    private static HttpClient conn;
+  private String assetFinderPath = "";
 
-    private IPSPageService pageService;
-    private IPSIdMapper idMapper;
-    private IPSSystemWs systemWs;
-    private IPSPageDao pageDao;
-    private IPSWidgetAssetRelationshipService widgetService;
-    private IPSContentWs contentWs;
-    private IPSAssetService assetService;
-    private IPSItemService itemService;
+  private static final String ASSET_FOLDER = "//Folders/$System$/Assets/uploads";
 
-    @BeforeEach All
-    public void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp();
+  /** Used for all tests */
+  private static HttpClient conn;
 
-        var url = new URL(getUrlRoot());
-        int port = url.getPort();
-        String host = url.getHost();
+  @Override
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp();
 
-        conn = new HttpClient();
-        conn.getState().setCredentials(new AuthScope(host, port), new UsernamePasswordCredentials("admin1", "demo"));
+    URL url = new URL(getUrlRoot());
+    int port = url.getPort();
+    String host = url.getHost();
+
+    conn = new HttpClient();
+    conn.getState()
+        .setCredentials(
+            new AuthScope(host, port), new UsernamePasswordCredentials("admin1", "demo"));
+    // FB:IJU_SETUP_NO_SUPER NC 1-16-16
+    super.setUp();
+  }
+
+  private String getUrlRoot() {
+    return "http://" + PSServer.getHostName() + ":" + PSServer.getListenerPort();
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    fixture.tearDown();
+  }
+
+  public void testPageFriendlyUrl() throws Exception {
+    // create a page
+    String name = "Page1";
+    String title = "Page1";
+    String folderPath = fixture.site1.getFolderPath();
+    String linkTitle = "TestLink";
+    String url = "testurl.file";
+    String pageId =
+        createPage(
+            name,
+            title,
+            fixture.template1.getId(),
+            folderPath,
+            linkTitle,
+            url,
+            "true",
+            "This is Page 1.");
+
+    // Check pageId is not null
+    assertNotNull(pageId);
+
+    pageFinderPath = fixture.site1.getFolderPath().substring(1) + "/Page1";
+    String path = getUrlRoot() + pageFinderPath;
+
+    System.out.println("pageFinderPath " + pageFinderPath);
+    GetMethod req = new GetMethod(path);
+    try {
+      int status = conn.executeMethod(req);
+
+      Assert.assertTrue(
+          "Request to get page " + req.getPath() + " succeed with http status code " + status,
+          status == 200);
+      String src = req.getResponseBodyAsString();
+      System.out.println(status + "\n" + src);
+    } finally {
+      req.releaseConnection();
     }
+  }
 
-    private String getUrlRoot() {
-        return "http://" + PSServer.getHostName() + ":" + PSServer.getListenerPort();
+  public void testUpperCasePageFriendlyUrl() throws Exception {
+    // create a page
+    String name = "pageStory399";
+    String title = "Page1";
+    String folderPath = fixture.site1.getFolderPath();
+    String linkTitle = "TestLink";
+    String url = "testurl.file";
+    String pageId =
+        createPage(
+            name,
+            title,
+            fixture.template1.getId(),
+            folderPath,
+            linkTitle,
+            url,
+            "true",
+            "This is Page 1.");
+
+    // Check pageId is not null
+    assertNotNull(pageId);
+
+    fixture.assetCleaner.remove(pageId);
+
+    pageFinderPath = fixture.site1.getFolderPath().substring(1) + "/Pagestory399";
+
+    String path = getUrlRoot() + pageFinderPath;
+    System.out.println("pageFinderPath " + pageFinderPath);
+
+    GetMethod req = new GetMethod(path);
+    try {
+      int status = conn.executeMethod(req);
+      Assert.assertTrue(
+          "Request to get asset " + req.getPath() + " succeed with http status code " + status,
+          status == 200);
+      String src = req.getResponseBodyAsString();
+      System.out.println(status + "\n" + src);
+    } finally {
+      req.releaseConnection();
     }
+  }
 
-    @AfterAll
-    public void tearDown() throws Exception {
-        fixture.tearDown();
+  public void testNotFoundFriendlyUrl() throws Exception {
+    // generate a fake finder path
+    pageFinderPath = fixture.site1.getFolderPath() + "/PageTest";
+    String path = getUrlRoot() + pageFinderPath;
+    System.out.println("pageFinderPath " + pageFinderPath);
+
+    GetMethod req = new GetMethod(path);
+    try {
+      int status = conn.executeMethod(req);
+      Assert.assertTrue(
+          "Request to get page " + req.getPath() + " failed with http status code " + status,
+          status == 404);
+      String src = req.getResponseBodyAsString();
+      System.out.println(status + "\n" + src);
+    } finally {
+      req.releaseConnection();
     }
+  }
 
-    @Test
-    @Order(1)
-    public void testPageFriendlyUrl() throws Exception {
-        var name = "Page1";
-        var title = "Page1";
-        var folderPath = fixture.site1.getFolderPath();
-        var linkTitle = "TestLink";
-        var url = "testurl.file";
-        var pageId = createPage(name, title, fixture.template1.getId(), folderPath, linkTitle, url, "true", "This is Page 1.");
+  public void testAssetFriendlyUrl() throws Exception {
+    PSAsset assetCreated = new PSAsset();
+    String assetTitle = "testAssetHtmlSearch" + System.currentTimeMillis();
+    assetCreated.getFields().put("sys_title", assetTitle);
+    assetCreated.setType("percRawHtmlAsset");
+    assetCreated.getFields().put("html", "TestHTML");
+    assetCreated.setFolderPaths(asList(ASSET_FOLDER));
 
-        assertNotNull(pageId);
+    String localAssetId = fixture.saveAsset(assetCreated).getId();
 
-        pageFinderPath = fixture.site1.getFolderPath().substring(1) + "/Page1";
-        var path = getUrlRoot() + pageFinderPath;
+    fixture.assetCleaner.remove(localAssetId);
 
-        System.out.println("pageFinderPath " + pageFinderPath);
-        var req = new GetMethod(path);
-        try {
-            int status = conn.executeMethod(req);
-            assertEquals(200, status, "Request to get page " + req.getPath() + " should succeed");
-            var src = req.getResponseBodyAsString();
-            System.out.println(status + "\n" + src);
-        } finally {
-            req.releaseConnection();
-        }
+    assertNotNull(localAssetId);
+
+    assetFinderPath = "/Assets/uploads/" + assetTitle;
+
+    String path = getUrlRoot() + assetFinderPath;
+    System.out.println("assetFinderPath " + assetFinderPath);
+
+    GetMethod req = new GetMethod(path);
+    try {
+      int status = conn.executeMethod(req);
+      Assert.assertTrue(
+          "Request to get asset " + req.getPath() + " succeed with http status code " + status,
+          status == 200);
+      String src = req.getResponseBodyAsString();
+      System.out.println(status + "\n" + src);
+    } finally {
+      req.releaseConnection();
     }
+  }
 
-    @Test
-    @Order(2)
-    public void testUpperCasePageFriendlyUrl() throws Exception {
-        var name = "pageStory399";
-        var title = "Page1";
-        var folderPath = fixture.site1.getFolderPath();
-        var linkTitle = "TestLink";
-        var url = "testurl.file";
-        var pageId = createPage(name, title, fixture.template1.getId(), folderPath, linkTitle, url, "true", "This is Page 1.");
+  /**
+   * Creates and saves a page using the testcase fixture {@link PSSiteDataServletTestCaseFixture}.
+   *
+   * @param name assumed not <code>null</code>.
+   * @param title assumed not <code>null</code>.
+   * @param templateId assumed not <code>null</code>.
+   * @param folderPath assumed not <code>null</code>.
+   * @param linkTitle assumed not <code>null</code>.
+   * @param url assumed not <code>null</code>.
+   * @param noindex assumed not <code>null</code>.
+   * @param description assumed not <code>null</code>.
+   * @return the id of the created page, never blank.
+   */
+  private String createPage(
+      String name,
+      String title,
+      String templateId,
+      String folderPath,
+      String linkTitle,
+      String url,
+      String noindex,
+      String description)
+      throws PSDataServiceException {
+    PSPage page = new PSPage();
+    page.setFolderPath(folderPath);
+    page.setName(name);
+    page.setTitle(title);
+    page.setTemplateId(templateId);
+    page.setFolderPath(folderPath);
+    page.setLinkTitle(linkTitle);
+    page.setNoindex(noindex);
+    page.setDescription(description);
 
-        assertNotNull(pageId);
+    return fixture.createPage(page).getId();
+  }
 
-        fixture.assetCleaner.remove(pageId);
+  public IPSPageService getPageService() {
+    return pageService;
+  }
 
-        pageFinderPath = fixture.site1.getFolderPath().substring(1) + "/Pagestory399";
-        var path = getUrlRoot() + pageFinderPath;
-        System.out.println("pageFinderPath " + pageFinderPath);
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-        var req = new GetMethod(path);
-        try {
-            int status = conn.executeMethod(req);
-            assertEquals(200, status, "Request to get asset " + req.getPath() + " should succeed");
-            var src = req.getResponseBodyAsString();
-            System.out.println(status + "\n" + src);
-        } finally {
-            req.releaseConnection();
-        }
-    }
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
 
-    @Test
-    @Order(3)
-    public void testNotFoundFriendlyUrl() throws Exception {
-        pageFinderPath = fixture.site1.getFolderPath() + "/PageTest";
-        var path = getUrlRoot() + pageFinderPath;
-        System.out.println("pageFinderPath " + pageFinderPath);
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
 
-        var req = new GetMethod(path);
-        try {
-            int status = conn.executeMethod(req);
-            assertEquals(404, status, "Request to get page " + req.getPath() + " should fail with 404");
-            var src = req.getResponseBodyAsString();
-            System.out.println(status + "\n" + src);
-        } finally {
-            req.releaseConnection();
-        }
-    }
+  public IPSSystemWs getSystemWs() {
+    return systemWs;
+  }
 
-    @Test
-    @Order(4)
-    public void testAssetFriendlyUrl() throws Exception {
-        var assetCreated = new PSAsset();
-        var assetTitle = "testAssetHtmlSearch" + System.currentTimeMillis();
-        assetCreated.getFields().put("sys_title", assetTitle);
-        assetCreated.setType("percRawHtmlAsset");
-        assetCreated.getFields().put("html", "TestHTML");
-        assetCreated.setFolderPaths(asList(ASSET_FOLDER));
+  public void setSystemWs(IPSSystemWs systemWs) {
+    this.systemWs = systemWs;
+  }
 
-        var localAssetId = fixture.saveAsset(assetCreated).getId();
+  public IPSPageDao getPageDao() {
+    return pageDao;
+  }
 
-        fixture.assetCleaner.remove(localAssetId);
+  public void setPageDao(IPSPageDao pageDao) {
+    this.pageDao = pageDao;
+  }
 
-        assertNotNull(localAssetId);
+  public IPSWidgetAssetRelationshipService getWidgetService() {
+    return widgetService;
+  }
 
-        assetFinderPath = "/Assets/uploads/" + assetTitle;
-        var path = getUrlRoot() + assetFinderPath;
-        System.out.println("assetFinderPath " + assetFinderPath);
+  public void setWidgetService(IPSWidgetAssetRelationshipService widgetService) {
+    this.widgetService = widgetService;
+  }
 
-        var req = new GetMethod(path);
-        try {
-            int status = conn.executeMethod(req);
-            assertEquals(200, status, "Request to get asset " + req.getPath() + " should succeed");
-            var src = req.getResponseBodyAsString();
-            System.out.println(status + "\n" + src);
-        } finally {
-            req.releaseConnection();
-        }
-    }
+  public IPSAssetService getAssetService() {
+    return assetService;
+  }
 
-    /**
-     * Creates and saves a page using the testcase fixture.
-     */
-    private String createPage(String name, String title, String templateId, String folderPath, String linkTitle,
-                              String url, String noindex, String description) throws PSDataServiceException {
-        var page = new PSPage();
-        page.setFolderPath(folderPath);
-        page.setName(name);
-        page.setTitle(title);
-        page.setTemplateId(templateId);
-        page.setLinkTitle(linkTitle);
-        page.setNoindex(noindex);
-        page.setDescription(description);
+  public void setAssetService(IPSAssetService assetService) {
+    this.assetService = assetService;
+  }
 
-        return fixture.createPage(page).getId();
-    }
+  /**
+   * @return the contentWs
+   */
+  public IPSContentWs getContentWs() {
+    return contentWs;
+  }
 
-    // Dependency injection setters
-    public IPSPageService getPageService() {
-        return pageService;
-    }
+  /**
+   * @param contentWs the contentWs to set
+   */
+  public void setContentWs(IPSContentWs contentWs) {
+    this.contentWs = contentWs;
+  }
 
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
+  /**
+   * @return the itemService
+   */
+  public IPSItemService getItemService() {
+    return itemService;
+  }
 
-    public IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+  /**
+   * @param itemService the itemService to set
+   */
+  public void setItemService(IPSItemService itemService) {
+    this.itemService = itemService;
+  }
 
-    public void setIdMapper(IPSIdMapper idMapper) {
-        this.idMapper = idMapper;
-    }
+  private IPSPageService pageService;
 
-    public IPSSystemWs getSystemWs() {
-        return systemWs;
-    }
+  private IPSIdMapper idMapper;
 
-    public void setSystemWs(IPSSystemWs systemWs) {
-        this.systemWs = systemWs;
-    }
+  private IPSSystemWs systemWs;
 
-    public IPSPageDao getPageDao() {
-        return pageDao;
-    }
+  private IPSPageDao pageDao;
 
-    public void setPageDao(IPSPageDao pageDao) {
-        this.pageDao = pageDao;
-    }
+  private IPSWidgetAssetRelationshipService widgetService;
 
-    public IPSWidgetAssetRelationshipService getWidgetService() {
-        return widgetService;
-    }
+  private IPSContentWs contentWs;
 
-    public void setWidgetService(IPSWidgetAssetRelationshipService widgetService) {
-        this.widgetService = widgetService;
-    }
+  private IPSAssetService assetService;
 
-    public IPSAssetService getAssetService() {
-        return assetService;
-    }
-
-    public void setAssetService(IPSAssetService assetService) {
-        this.assetService = assetService;
-    }
-
-    public IPSContentWs getContentWs() {
-        return contentWs;
-    }
-
-    public void setContentWs(IPSContentWs contentWs) {
-        this.contentWs = contentWs;
-    }
-
-    public IPSItemService getItemService() {
-        return itemService;
-    }
-
-    public void setItemService(IPSItemService itemService) {
-        this.itemService = itemService;
-    }
+  private IPSItemService itemService;
 }

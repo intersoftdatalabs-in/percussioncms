@@ -26,29 +26,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to specify the relationship a class has to its parent.
- * This relationship identifies a row in a relationship table in the database.
+ * This class is used to specify the relationship a class has to its parent. This relationship
+ * identifies a row in a relationship table in the database.
  */
 public class PSRelation extends PSDatabaseComponent implements Cloneable {
-  /**
-   * Construct a new, empty relation object.
-   */
+  /** Construct a new, empty relation object. */
   public PSRelation() {}
 
   /**
-   * Construct a new PSRelation with a name and a
-   * value.  This is not a real relation until a second
+   * Construct a new PSRelation with a name and a value. This is not a real relation until a second
    * key and value are present.
    *
-   * @param keyName The name used to identify the first
-   * piece of relation context, can't be <code>null</code> or
-   * empty.
-   *
-   * @param keyValue The value used to identify the specific
-   * id of the first piece of relation context, can't be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if keyName is <code>null</code>
-   * or empty.
+   * @param keyName The name used to identify the first piece of relation context, can't be <code>
+   *     null</code> or empty.
+   * @param keyValue The value used to identify the specific id of the first piece of relation
+   *     context, can't be <code>null</code>.
+   * @throws IllegalArgumentException if keyName is <code>null</code> or empty.
    */
   public PSRelation(String keyName, String keyValue) {
     if (keyName == null || keyName.trim().length() == 0)
@@ -63,24 +56,20 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * Convenience constructor that takes an integer for the keyValue instead
-   * of a String.  See {@link #PSRelation(String, String) this} for more info.
+   * Convenience constructor that takes an integer for the keyValue instead of a String. See {@link
+   * #PSRelation(String, String) this} for more info.
    */
   public PSRelation(String keyName, int keyValue) {
     this(keyName, String.valueOf(keyValue));
   }
 
-  /**
-   * Private constructor, used for {@link #clone() clone} operation.
-   */
+  /** Private constructor, used for {@link #clone() clone} operation. */
   private PSRelation(PSCollection keyNameCollection, PSCollection keyValueCollection) {
     m_keyNames.addAll(keyNameCollection);
     m_keyValues.addAll(keyValueCollection);
   }
 
-  /**
-   * Make a new deep copy of this relation.
-   */
+  /** Make a new deep copy of this relation. */
   public Object clone() {
     PSRelation copy =
         new PSRelation(
@@ -94,19 +83,14 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * Add another piece of relation context information.  Components
-   * making relations should add their role component type name as
-   * their key for relations.
+   * Add another piece of relation context information. Components making relations should add their
+   * role component type name as their key for relations.
    *
-   * @param keyName The name used to identify the first
-   * piece of relation context, can't be <code>null</code> or
-   * empty.
-   *
-   * @param keyValue The value used to identify the specific
-   * id of the first piece of relation context, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if keyName is <code>null</code>
-   * or empty.
+   * @param keyName The name used to identify the first piece of relation context, can't be <code>
+   *     null</code> or empty.
+   * @param keyValue The value used to identify the specific id of the first piece of relation
+   *     context, may not be <code>null</code>.
+   * @throws IllegalArgumentException if keyName is <code>null</code> or empty.
    */
   public void addKey(String keyName, String keyValue) {
     if ((keyName == null) || (keyName.length() == 0))
@@ -120,9 +104,8 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * Convenience method to add a key using an integer for the keyValue.
-   * Converts the keyValue to a String, and calls {@link #addKey(String,
-   * String)}.
+   * Convenience method to add a key using an integer for the keyValue. Converts the keyValue to a
+   * String, and calls {@link #addKey(String, String)}.
    */
   public void addKey(String keyName, int keyValue) {
     addKey(keyName, String.valueOf(keyValue));
@@ -131,16 +114,11 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   /**
    * Gets the value of the specified key as an integer.
    *
-   * @param keyName The name of the key.  May not be <code>null</code> or
-   * empty.
-   *
+   * @param keyName The name of the key. May not be <code>null</code> or empty.
    * @return The value as an integer.
-   *
-   * @throws IllegalArgumentException if keyName is <code>null</code>, empty,
-   * or if the specified keyName is not found in this relation.
-   *
-   * @throws NumberFormatException if the specified key's value cannot be
-   * converted to an integer.
+   * @throws IllegalArgumentException if keyName is <code>null</code>, empty, or if the specified
+   *     keyName is not found in this relation.
+   * @throws NumberFormatException if the specified key's value cannot be converted to an integer.
    */
   public int getIntValue(String keyName) {
     return Integer.parseInt(getValue(keyName));
@@ -149,11 +127,8 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   /**
    * Gets the value of the specified key as an String.
    *
-   * @param keyName The name of the key.  May not be <code>null</code> or
-   * empty.
-   *
-   * @return The value as a String, if <code>null</code>, the key was
-   * not found.
+   * @param keyName The name of the key. May not be <code>null</code> or empty.
+   * @return The value as a String, if <code>null</code>, the key was not found.
    */
   public String getValue(String keyName) {
     if (keyName == null || keyName.trim().length() == 0)
@@ -174,9 +149,8 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   /**
    * Get the relation type of this object.
    *
-   * @return The relation type, a name containing all key name information,
-   * which can be used to create an appropriate update action element for
-   * serialization with the back-end.
+   * @return The relation type, a name containing all key name information, which can be used to
+   *     create an appropriate update action element for serialization with the back-end.
    */
   public String getRelationType() {
     String relationType = "PSX";
@@ -190,10 +164,9 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * Create an action element to insert or delete a relation in the back
-   * end, if indicated.  The element root is a concatenation of each key's
-   * name.  Each key is added as a child of the element root, with their value
-   * as the element value.  For example, if there are two keys, "Key1" and
+   * Create an action element to insert or delete a relation in the back end, if indicated. The
+   * element root is a concatenation of each key's name. Each key is added as a child of the element
+   * root, with their value as the element value. For example, if there are two keys, "Key1" and
    * "Key2", (using a root element called 'root') is:
    *
    * <pre><code>
@@ -204,10 +177,8 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
    * &gt;
    * </code></pre>
    *
-   *
    * @see #toXml(Document) for more info on the xml structure
-   * @see PSDatabaseComponent#toDatabaseXml(Document, Element, PSRelation)
-   * for more information.
+   * @see PSDatabaseComponent#toDatabaseXml(Document, Element, PSRelation) for more information.
    */
   public void toDatabaseXml(Document doc, Element actionRoot, PSRelation relation)
       throws PSDatabaseComponentException {
@@ -221,11 +192,8 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   /**
    * Does this relation match the relation context provided?
    *
-   * @param relationContext The relation context to match against.
-   * May not be <code>null</code>.
-   *
+   * @param relationContext The relation context to match against. May not be <code>null</code>.
    * @return <code>true</code> if it does, or <code>false</code> otherwise.
-   *
    * @throws IllegalArgumentException if relationContext is <code>null</code>
    */
   public boolean isMatch(PSRelation relationContext) {
@@ -245,20 +213,18 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * This method is called to create an  XML element
-   * node containing the data described in this object.
-   * <p>
-   * The element root is a concatenation of each key's
-   * name.  Each key is added as a child of the element root, with their value
-   * as the element value.  For example, if there are two keys, "Key1" and
-   * "Key2", (using a
-   * root element called 'root') is:
+   * This method is called to create an XML element node containing the data described in this
+   * object.
+   *
+   * <p>The element root is a concatenation of each key's name. Each key is added as a child of the
+   * element root, with their value as the element value. For example, if there are two keys, "Key1"
+   * and "Key2", (using a root element called 'root') is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXKey1Key2Relation (Key1, Key2)&gt;
    * &lt;!ELEMENT Key1 (#PCDATA)&gt;
    * &lt;!ELEMENT Key2 (#PCDATA)&gt;
    * </code></pre>
-   *
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -277,14 +243,13 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * This method is called to populate a PSRelation Java object from
-   * its XML element node.  A key will be created from each element immediately
-   * below the supplied sourceNode, with the element name as the key name and
-   * the element's value as it's value.  See {@link #toXml(Document) toXml} for
-   * more information on the Xml structure.
+   * This method is called to populate a PSRelation Java object from its XML element node. A key
+   * will be created from each element immediately below the supplied sourceNode, with the element
+   * name as the key name and the element's value as it's value. See {@link #toXml(Document) toXml}
+   * for more information on the Xml structure.
    *
-   * @throws  PSUnknownNodeTypeException if the XML element node does not
-   *          contain at least two elements each with (#PCDATA) as their value.
+   * @throws PSUnknownNodeTypeException if the XML element node does not contain at least two
+   *     elements each with (#PCDATA) as their value.
    */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -308,10 +273,9 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * Override {@link PSDatabaseComponent#getActionElement(Document, Element)}
-   * since relations are not updated unless an insert or delete is being
-   * performed, updates to objects do not change the relations between
-   * them.
+   * Override {@link PSDatabaseComponent#getActionElement(Document, Element)} since relations are
+   * not updated unless an insert or delete is being performed, updates to objects do not change the
+   * relations between them.
    */
   protected Element getActionElement(Document doc, Element actionRoot) {
     Element actionElement = null;
@@ -322,8 +286,7 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * See {@link PSDatabaseComponent#getDatabaseAppQueryDatasetName} for more
-   * info.
+   * See {@link PSDatabaseComponent#getDatabaseAppQueryDatasetName} for more info.
    *
    * @throws IllegalStateException if this relation contains no keys.
    */
@@ -337,9 +300,7 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
     return resourceName;
   }
 
-  /**
-   *
-   */
+  /** */
   public String getDatabaseAppQueryDatasetName(String componentName) {
     if (m_keyNames.size() == 0) throw new IllegalStateException("This relation contains no keys");
 
@@ -353,16 +314,14 @@ public class PSRelation extends PSDatabaseComponent implements Cloneable {
   }
 
   /**
-   * The collection of key names for this relation.
-   * Initialized to an empty String collection, never empty or
-   * <code>null</code> after construction.
+   * The collection of key names for this relation. Initialized to an empty String collection, never
+   * empty or <code>null</code> after construction.
    */
   PSCollection m_keyNames = new PSCollection(String.class);
 
   /**
-   * The collection of key values for this relation.
-   * Initialized to an empty String collection, never empty or
-   * <code>null</code> after construction.
+   * The collection of key values for this relation. Initialized to an empty String collection,
+   * never empty or <code>null</code> after construction.
    */
   PSCollection m_keyValues = new PSCollection(String.class);
 }

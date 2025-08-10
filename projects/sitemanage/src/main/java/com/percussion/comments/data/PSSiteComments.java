@@ -21,46 +21,42 @@ package com.percussion.comments.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-/**
- * Represents a list of comments that belongs to the specified site.
- */
+/** Represents a list of comments that belongs to the specified site. */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "site",
-    "comments"
-})
+@XmlType(
+    name = "",
+    propOrder = {"site", "comments"})
 public class PSSiteComments {
 
-    private String site;
-    private List<String> comments;
+  private String site;
+  private List<String> comments;
 
-    public PSSiteComments() {
-        comments = new ArrayList<>();
-    }
+  public PSSiteComments() {
+    comments = new ArrayList<>();
+  }
 
-    public String getSite() {
-        return site;
-    }
+  public String getSite() {
+    return site;
+  }
 
-    public void setSite(String site) {
-        this.site = site;
-    }
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /**
-     * Returns the actual (modifiable) list of comment IDs.
-     *
-     * @return The actual list of comment IDs.
-     */
-    public List<String> getComments() {
-        return comments;
-    }
+  /**
+   * Returns the actual (modifiable) list of comment IDs.
+   *
+   * @return The actual list of comment IDs.
+   */
+  public List<String> getComments() {
+    return comments;
+  }
 
-    public void setComments(List<String> comments) {
-        this.comments = comments;
-    }
+  public void setComments(List<String> comments) {
+    this.comments = comments;
+  }
 }

@@ -26,27 +26,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements the execution of 'dump folderrelationshipcache' console
- * command and dumps the results as an XML document to the console.
+ * This class implements the execution of 'dump folderrelationshipcache' console command and dumps
+ * the results as an XML document to the console.
  */
 public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleCommandCache {
   /**
    * The constructor for this class. The command arguments is optional.
    *
-   * @param cmdArgs   the argument string to use when executing   this command, may
-   * be <code>null</code> or empty. If it is not empty, it is expected to be
-   * the id of a folder relationship.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty. If it is not empty, it is expected to be the id of a folder relationship.
    */
   public PSConsoleCommandDumpFolderRelationshipCache(String cmdArgs) {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    *    &lt;!--
    *       The cache statistics element with each attribute referring to
@@ -74,13 +73,9 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
    *
    * </CODE></PRE>
    *
-   * @param request
-   *           the requestor object, may be <code>null</code>
-   *
+   * @param request the requestor object, may be <code>null</code>
    * @return the result document, never <code>null</code>
-   *
-   * @throws PSConsoleCommandException
-   *            if an error occurs during execution
+   * @throws PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     Document respDoc = getResultsDocument();
@@ -93,18 +88,14 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
   }
 
   /**
-   * Creates the cache statistics element. See {@link #execute(PSRequest)}for
-   * the structure of the element.
+   * Creates the cache statistics element. See {@link #execute(PSRequest)}for the structure of the
+   * element.
    *
-   * @param doc
-   *           the document to use to create the element, may not be <code>
+   * @param doc the document to use to create the element, may not be <code>
    * null</code>
-   *
-   * @return the xml element representing cache statistics or a folder
-   *         relationship, never <code>null</code>
-   *
-   * @throws PSConsoleCommandException
-   *            failed to pass argument.
+   * @return the xml element representing cache statistics or a folder relationship, never <code>
+   *     null</code>
+   * @throws PSConsoleCommandException failed to pass argument.
    */
   Element getFolderRelationshipCacheDoc(Document doc) throws PSConsoleCommandException {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -148,8 +139,6 @@ public class PSConsoleCommandDumpFolderRelationshipCache extends PSConsoleComman
     return ms_cmdName;
   }
 
-  /**
-   * The command executed by this class.
-   */
+  /** The command executed by this class. */
   public static final String ms_cmdName = "dump folderrelationshipcache";
 }

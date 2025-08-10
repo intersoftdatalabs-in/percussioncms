@@ -23,27 +23,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * An abstract class to encapsulate enable or disable an app policy,
- * the ancestor class for all other policy setting subclasses.
+ * An abstract class to encapsulate enable or disable an app policy, the ancestor class for all
+ * other policy setting subclasses.
  */
 public abstract class PSAppPolicySetting implements IPSDeployComponent {
 
   /**
    * Determines if the app policy is enabled.
    *
-   * @return <code>true</code> to apply the setting to the application,
-   * <code>false</code> to leave the application unmodified by this setting.
+   * @return <code>true</code> to apply the setting to the application, <code>false</code> to leave
+   *     the application unmodified by this setting.
    */
   public boolean useSetting() {
     return m_enableAppPolicy;
   }
 
   /**
-   * Enables the setting by <code>useSetting</code>.
-   * See {@link #useSetting()} for information.
+   * Enables the setting by <code>useSetting</code>. See {@link #useSetting()} for information.
    *
-   * @param    useSetting <code>true</code> if enable the app policy;
-   * <code>false</code> otherwise.
+   * @param useSetting <code>true</code> if enable the app policy; <code>false</code> otherwise.
    */
   public void setUseSetting(boolean useSetting) {
     m_enableAppPolicy = useSetting;
@@ -124,8 +122,6 @@ public abstract class PSAppPolicySetting implements IPSDeployComponent {
   protected static final String XML_ATTR_TRUE = "Yes";
   protected static final String XML_ATTR_FALSE = "No";
 
-  /**
-   * Determines if the app policy is enabled. Default to <code>true</code>.
-   */
+  /** Determines if the app policy is enabled. Default to <code>true</code>. */
   protected boolean m_enableAppPolicy = true;
 }

@@ -28,50 +28,47 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class PSAuthenticateUserUtils {
-  /**
-   * Name of user default community properties.
-   */
+  /** Name of user default community properties. */
   public static final String SYS_DEFAULTCOMMUNITY = "sys_defaultCommunity";
 
   /**
-   * Name of the internal request to get the community id with a c
-   * community name. Requires parameter communityname=value, where value is
-   * a valid community name.
+   * Name of the internal request to get the community id with a c community name. Requires
+   * parameter communityname=value, where value is a valid community name.
    */
   public static final String IREQ_COMMUNITYLOOKUP = "sys_commSupport/communityidlookup";
 
   /**
-   * Name of the parameter requires for community id lookup. This
-   * paremeter is added when we lookup the community id.
+   * Name of the parameter requires for community id lookup. This paremeter is added when we lookup
+   * the community id.
    */
   public static final String COMMUNITYNAME = "communityname";
 
   /**
-   * Name of the element "Community" in the result document of the internal
-   * request for user communities.
+   * Name of the element "Community" in the result document of the internal request for user
+   * communities.
    */
   public static final String ELEM_COMMUNITY = "Community";
 
   /**
-   * Name of the attribute of the communityid of the element "Community" in
-   * the result document of the internal request for user communities.
+   * Name of the attribute of the communityid of the element "Community" in the result document of
+   * the internal request for user communities.
    */
   public static final String ATTR_COMMID = "commid";
 
   /**
-   * Name of the internal request to get the user communities. This is a
-   * standard Rhythmyx resource meant for internal request.
+   * Name of the internal request to get the user communities. This is a standard Rhythmyx resource
+   * meant for internal request.
    */
   public static final String IREQ_USERCOMMUNITIES = "sys_commSupport/usercommunities";
 
   /**
-   * This method retrieves the list user's role-communities, viz. list of all
-   * communities via his role membership.
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
-   * @return list of user communities (community ids) as Java List object never
-   * <code>null</code> may be empty.
+   * This method retrieves the list user's role-communities, viz. list of all communities via his
+   * role membership.
    *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
+   * @return list of user communities (community ids) as Java List object never <code>null</code>
+   *     may be empty.
    */
   private List getUserCommunities(IPSRequestContext request) throws Exception {
     ArrayList list = new ArrayList();
@@ -128,16 +125,15 @@ public class PSAuthenticateUserUtils {
   }
 
   /**
-   * This method retrieves the value of the given attribute for the user role.
-   * If user happens to be in multiple roles the first non empty value is
-   * considered
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
-   * @param srcAttrName, Name of the role attribute to retrieve, cannot be
-   * <code>null</code>, if <code>null</code> the result will be <code>null</code>.
+   * This method retrieves the value of the given attribute for the user role. If user happens to be
+   * in multiple roles the first non empty value is considered
+   *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
+   * @param srcAttrName, Name of the role attribute to retrieve, cannot be <code>null</code>, if
+   *     <code>null</code> the result will be <code>null</code>.
    * @return value of the given attribute, may be <code>null</code>
-   * @throws Exception, if it cannot retrieve tha role
-   * attribute for any reason.
+   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
    */
   public static String getUserRoleAttribute(IPSRequestContext request, String srcAttrName)
       throws Exception {

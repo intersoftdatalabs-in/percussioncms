@@ -31,10 +31,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests to validate that the html cleaner properties
- * are working properly.
- */
+/** Tests to validate that the html cleaner properties are working properly. */
 public class TestPSHtmlCleanerProperties {
 
   @Test

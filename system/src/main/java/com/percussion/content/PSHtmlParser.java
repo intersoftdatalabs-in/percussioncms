@@ -36,28 +36,25 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 /**
- * PSHtmlParser is a DOM-compliant HTML parser that yields
- * Document or Element trees from HTML files. It tries to deal
- * with the fact that HTML is not always well-formed from an
- * XML standpoint.
- * <P>
- * CURRENT LIMITATIONS
+ * PSHtmlParser is a DOM-compliant HTML parser that yields Document or Element trees from HTML
+ * files. It tries to deal with the fact that HTML is not always well-formed from an XML standpoint.
+ *
+ * <p>CURRENT LIMITATIONS
+ *
  * <UL>
- * <LI>Does not deal with entity references.</LI>
- * <LI>Does not deal with &lt;!DOCTYPE ... &gt;</LI>
- * <LI>Adds whitespace where it shouldn't in some situations.</LI>
- * <LI>Whitespace definition is less restrictive than HTML's</LI>
+ *   <LI>Does not deal with entity references.
+ *   <LI>Does not deal with &lt;!DOCTYPE ... &gt;
+ *   <LI>Adds whitespace where it shouldn't in some situations.
+ *   <LI>Whitespace definition is less restrictive than HTML's
  * </UL>
- * <P>
- * <B>GUARANTEES:</B><BR>
- * This parser reads character by character and will always return
- * so that every char read is added to the literal buffer, and
- * you can use the combination of the literal buffer plus whatever's
- * left in the reader to reconstruct the exact sequence of characters
- * that came through the parser. Note that this guarantee may be
- * invalidated by the use of buffered readers or streams. If you want
- * the parser's buffer to bear this exact relation to the unread stream,
- * you must not use any buffering on input streams or readers.
+ *
+ * <p><B>GUARANTEES:</B><br>
+ * This parser reads character by character and will always return so that every char read is added
+ * to the literal buffer, and you can use the combination of the literal buffer plus whatever's left
+ * in the reader to reconstruct the exact sequence of characters that came through the parser. Note
+ * that this guarantee may be invalidated by the use of buffered readers or streams. If you want the
+ * parser's buffer to bear this exact relation to the unread stream, you must not use any buffering
+ * on input streams or readers.
  */
 // REFACTORED: CP-JAVA11
 public class PSHtmlParser {
@@ -173,9 +170,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a < character.
-   */
+  /** Handle a < character. */
   private void handleLT() {
     switch (m_lexState) {
       case ST_ONTEXT:
@@ -218,9 +213,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a > character.
-   */
+  /** Handle a > character. */
   private void handleGT() {
     switch (m_lexState) {
       case ST_SAWTAGNAME:
@@ -304,9 +297,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle an = character.
-   */
+  /** Handle an = character. */
   private void handleEQ() {
     switch (m_lexState) {
       case ST_ONTEXT:
@@ -354,9 +345,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a ! character
-   */
+  /** Handle a ! character */
   private void handleBang() {
     // TODO: handle generic processing instructions that start with
     // ! (such as <!DOCTYPE HTML .... >
@@ -394,9 +383,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a - character.
-   */
+  /** Handle a - character. */
   private void handleDash() {
     switch (m_lexState) {
       case ST_ONPROCINT:
@@ -438,23 +425,17 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a " character.
-   */
+  /** Handle a " character. */
   private void handleDQuote() {
     handleQuote('"');
   }
 
-  /**
-   * Handle a ' character.
-   */
+  /** Handle a ' character. */
   private void handleSQuote() {
     handleQuote('\'');
   }
 
-  /**
-   * Handle a ' or " character.
-   */
+  /** Handle a ' or " character. */
   private void handleQuote(char c) {
     switch (m_lexState) {
       case ST_ONTEXT:
@@ -508,9 +489,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle a whitespace character.
-   */
+  /** Handle a whitespace character. */
   private void handleWhitespace(char c) {
     if (c == '\r') {
       m_sawCR = true;
@@ -594,9 +573,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handles an open bracket character ([). NOTE: mention lookAheadForCDATA()
-   */
+  /** Handles an open bracket character ([). NOTE: mention lookAheadForCDATA() */
   private void handleOBracket() {
     switch (m_lexState) {
       case ST_SAWPROCINTBANG:
@@ -610,11 +587,10 @@ public class PSHtmlParser {
   }
 
   /**
-   * Takes temporary control over the Reader member and looks ahead for valid
-   * CDATA Section start.
+   * Takes temporary control over the Reader member and looks ahead for valid CDATA Section start.
    *
-   * @return <CODE>true</CODE> if the six chars ahead is a valid CDATA section
-   * head. <CODE>false</CODE> if the six chars is not "CDATA[".
+   * @return <CODE>true</CODE> if the six chars ahead is a valid CDATA section head. <CODE>false
+   *     </CODE> if the six chars is not "CDATA[".
    */
   private boolean lookAheadForCDATA() {
     char[] charBuffer = new char[ms_strCdataHead.length()];
@@ -631,9 +607,7 @@ public class PSHtmlParser {
     return sbHead.toString().equals(ms_strCdataHead);
   }
 
-  /**
-   * Handles an close bracket character (]).
-   */
+  /** Handles an close bracket character (]). */
   private void handleCBracket() {
     switch (m_lexState) {
       case ST_ONCDATA:
@@ -654,9 +628,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Handle any other kind of character.
-   */
+  /** Handle any other kind of character. */
   private void handleChar(char c) {
     if (Character.isWhitespace(c)) {
       handleWhitespace(c);
@@ -744,9 +716,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Adds the character to the appropriate node for the current state.
-   */
+  /** Adds the character to the appropriate node for the current state. */
   private void accumulate(char c) {
     // System.out.print(c);
 
@@ -775,9 +745,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Report an illegal token.
-   */
+  /** Report an illegal token. */
   public void illegalToken(char c) throws HTMLException {
     StringBuilder buf = new StringBuilder(20);
     buf.append("Invalid token '");
@@ -796,19 +764,16 @@ public class PSHtmlParser {
   }
 
   /**
-   * Gets the state name for a state. For now just
-   * returns the number, but should in the future return
-   * things like "INSIDE ATTRIBUTE VALUE" and so on.
+   * Gets the state name for a state. For now just returns the number, but should in the future
+   * return things like "INSIDE ATTRIBUTE VALUE" and so on.
    */
   private static String getStateName(int state) {
     return "" + state;
   }
 
   /**
-   * Mark the end of a tag name (not necessarily the end
-   * of a tag). This would occur after the tag name but
-   * before the first attribute and certainly before the
-   * closing >.
+   * Mark the end of a tag name (not necessarily the end of a tag). This would occur after the tag
+   * name but before the first attribute and certainly before the closing >.
    */
   private void finishTagName() throws HTMLException {
     String tagName = m_tagName.toString();
@@ -905,9 +870,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Reached the > at the end of a tag.
-   */
+  /** Reached the > at the end of a tag. */
   private void finishTag() throws HTMLException {
     if (m_elStack.empty()) htmlException("Wrong context for finish tag");
 
@@ -961,8 +924,8 @@ public class PSHtmlParser {
   }
 
   /**
-   * Finished an attribute name. Called after an attribute name but before
-   * the = sign, the beginning of another attribute, or the end of the tag.
+   * Finished an attribute name. Called after an attribute name but before the = sign, the beginning
+   * of another attribute, or the end of the tag.
    */
   private void finishAtName() {
     m_curAtName = m_attrName.toString();
@@ -970,25 +933,19 @@ public class PSHtmlParser {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.11 1999/05/20
-   *
-   * A private utility method to prepare an attribute value.
-   *
-   * Section 7.9.3 of the SGML standard says that attribute values should
-   * be transformed by:
-   * <UL>
-   *   <LI>Removing quotes (done by the parser)
-   *   <LI>Replacing character and entity references (we do only as much of this
-   *  as is needed to make sure that our dquote delimiters don't get broken on
-   *  output.
-   *   <LI>Deleting character 10 (ASCII LF)
-   *   <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
-   * </UL>
-   *
-   * The characters will be converted according to this scheme:
-   * <TABLE BORDER=1>
+   *     <p>A private utility method to prepare an attribute value.
+   *     <p>Section 7.9.3 of the SGML standard says that attribute values should be transformed by:
+   *     <UL>
+   *       <LI>Removing quotes (done by the parser)
+   *       <LI>Replacing character and entity references (we do only as much of this as is needed to
+   *           make sure that our dquote delimiters don't get broken on output.
+   *       <LI>Deleting character 10 (ASCII LF)
+   *       <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
+   *     </UL>
+   *     The characters will be converted according to this scheme:
+   *     <TABLE BORDER=1>
    * <TR>
    *   <TD>&lt;</TD>
    * <TD>&amp;lt;</TD>
@@ -1007,10 +964,8 @@ public class PSHtmlParser {
    * </TR>
    * </TABLE>
    *
-   * @param   input
-   *
-   * @return   String A new String with all special characters transformed
-   * into their entities.
+   * @param input
+   * @return String A new String with all special characters transformed into their entities.
    */
   public static void prepareAttribute(String input, Writer out) throws java.io.IOException {
     /* This implementation should be fairly efficient in that
@@ -1084,25 +1039,19 @@ public class PSHtmlParser {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.11 1999/05/20
-   *
-   * A private utility method to prepare an attribute value.
-   *
-   * Section 7.9.3 of the SGML standard says that attribute values should
-   * be transformed by:
-   * <UL>
-   *   <LI>Removing quotes (done by the parser)
-   *   <LI>Replacing character and entity references (we do only as much of this
-   *  as is needed to make sure that our dquote delimiters don't get broken on
-   *  output.
-   *   <LI>Deleting character 10 (ASCII LF)
-   *   <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
-   * </UL>
-   *
-   * The characters will be converted according to this scheme:
-   * <TABLE BORDER=1>
+   *     <p>A private utility method to prepare an attribute value.
+   *     <p>Section 7.9.3 of the SGML standard says that attribute values should be transformed by:
+   *     <UL>
+   *       <LI>Removing quotes (done by the parser)
+   *       <LI>Replacing character and entity references (we do only as much of this as is needed to
+   *           make sure that our dquote delimiters don't get broken on output.
+   *       <LI>Deleting character 10 (ASCII LF)
+   *       <LI>Replacing character 9 and 13 (ASCII HT and CR) with character 32 (SPACE)
+   *     </UL>
+   *     The characters will be converted according to this scheme:
+   *     <TABLE BORDER=1>
    * <TR>
    *   <TD>&lt;</TD>
    * <TD>&amp;lt;</TD>
@@ -1121,10 +1070,8 @@ public class PSHtmlParser {
    * </TR>
    * </TABLE>
    *
-   * @param   input
-   *
-   * @return   String A new String with all special characters transformed
-   * into their entities.
+   * @param input
+   * @return String A new String with all special characters transformed into their entities.
    */
   public static String prepareAttribute(String input) {
     try {
@@ -1138,8 +1085,8 @@ public class PSHtmlParser {
   }
 
   /**
-   * Finished an attribute value. Called after an attribute name but before
-   * the name of the next attrbitue or the end of the tag.
+   * Finished an attribute value. Called after an attribute name but before the name of the next
+   * attrbitue or the end of the tag.
    */
   private void finishAtVal() throws HTMLException {
     String atVal = prepareAttribute(m_attrVal.toString());
@@ -1165,9 +1112,7 @@ public class PSHtmlParser {
     m_curAtName = null;
   }
 
-  /**
-   * Finished a text node (encountered the start of a tag).
-   */
+  /** Finished a text node (encountered the start of a tag). */
   private void finishText() throws HTMLException {
     if (m_text.length() > 0) {
       String text = m_text.toString();
@@ -1184,9 +1129,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Finished a comment node.
-   */
+  /** Finished a comment node. */
   private void finishComment() throws HTMLException {
     m_comment.setLength(0);
     if (m_elStack.empty()) {
@@ -1198,9 +1141,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Finished a CDATA node.
-   */
+  /** Finished a CDATA node. */
   private void finishCDATA() throws HTMLException {
     String text = m_cdata.toString();
     m_cdata.setLength(0);
@@ -1213,9 +1154,7 @@ public class PSHtmlParser {
     }
   }
 
-  /**
-   * Prints the given element to System.out via DOM printing.
-   */
+  /** Prints the given element to System.out via DOM printing. */
   private static void dumpElement(HTMLElement el) {
     try {
       PSXmlDocumentBuilder.write(el, System.out);
@@ -1263,13 +1202,12 @@ public class PSHtmlParser {
   }
 
   /**
-   * Writes the HTML tree to the writer, starting with the start
-   * node and through all its children (not siblings) up to
-   * and including the start of the end node. If the end node is
-   * an element, only its start tag (with attributes) will be written.
-   * <P>
-   * The end object must itself be a child of start,
-   * otherwise all children of start will be printed.
+   * Writes the HTML tree to the writer, starting with the start node and through all its children
+   * (not siblings) up to and including the start of the end node. If the end node is an element,
+   * only its start tag (with attributes) will be written.
+   *
+   * <p>The end object must itself be a child of start, otherwise all children of start will be
+   * printed.
    */
   public static boolean writeHtmlTree(Node start, Node end, Writer out) throws IOException {
     // System.out.println("Writing node " + start);
@@ -1471,8 +1409,8 @@ public class PSHtmlParser {
    */
 
   /**
-   * noclose elements ALWAYS close immediately and never get pushed onto the stack,
-   * because they are not allowed to have close tags.
+   * noclose elements ALWAYS close immediately and never get pushed onto the stack, because they are
+   * not allowed to have close tags.
    */
   private static Map<String, Boolean> ms_autoCloseElements = new HashMap<>();
 
@@ -1496,8 +1434,8 @@ public class PSHtmlParser {
   }
 
   /**
-   * Block-level elements are "higher level" elements that can contain
-   * other block-level and text-level elements.
+   * Block-level elements are "higher level" elements that can contain other block-level and
+   * text-level elements.
    */
   private static Map<String, Boolean> ms_blockElements = new HashMap<>();
 
@@ -1541,8 +1479,8 @@ public class PSHtmlParser {
   }
 
   /**
-   * Text-level elements are "lower-level" and generally cannot contain
-   * block-level elements. They can contain other text-level elements.
+   * Text-level elements are "lower-level" and generally cannot contain block-level elements. They
+   * can contain other text-level elements.
    */
   private static Map<String, Boolean> ms_textElements = new HashMap<>();
 
@@ -1581,8 +1519,8 @@ public class PSHtmlParser {
   }
 
   /**
-   * Some elements can act as either block- or text-level, depending on
-   * their context. I call these "special".
+   * Some elements can act as either block- or text-level, depending on their context. I call these
+   * "special".
    */
   private static Map<String, Boolean> ms_specialElements = new HashMap<>();
 

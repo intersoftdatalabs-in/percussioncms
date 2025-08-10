@@ -41,101 +41,92 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * This class presents the interfaces supported by the processor classes, but
- * doesn't actually perform any work. It has a configuration file that is read
- * to find the appropriate processor given a component type. That processor is
- * instantiated and is used to perform the heavy lifting. Once the processor
- * type is known, the config is searched for associated properties for the
- * supplied component and procesor. These properties are made available to the
- * real processor. The default processors support web
- * services and direct server access both locally and remotely.
- * <p>See the config schema, sys_CmsProcessorConfig.xsd for details on the
- * format of the configuration file.
- * <p>To provide an idea of how it will work, let's look at what happens when an
- * operation is performed on a remote client using web services, say creating a
- * new instance of some type.
+ * This class presents the interfaces supported by the processor classes, but doesn't actually
+ * perform any work. It has a configuration file that is read to find the appropriate processor
+ * given a component type. That processor is instantiated and is used to perform the heavy lifting.
+ * Once the processor type is known, the config is searched for associated properties for the
+ * supplied component and procesor. These properties are made available to the real processor. The
+ * default processors support web services and direct server access both locally and remotely.
+ *
+ * <p>See the config schema, sys_CmsProcessorConfig.xsd for details on the format of the
+ * configuration file.
+ *
+ * <p>To provide an idea of how it will work, let's look at what happens when an operation is
+ * performed on a remote client using web services, say creating a new instance of some type.
+ *
  * <ol>
- *    <li>A new instance of the object would be created locally using the
- *       standard technique (e.g., new PSFolder("foo")).</li>
- *    <li>The object would be manipulated until it reached the desired state.
- *       </li>
- *    <li>The object would then be passed to the
- *       {@link IPSComponentProcessor#save(IPSDbComponent[])
- *       save} method of this class. </li>
- *    <li>The proxy would look up the real processor and pass it the
- *       properties from the config file, which would include the name of the
- *       web service to use.</li>
- *    <li>The real processor would call toXml on the component and pass this
- *       element as the document when making the web service request. This
- *       request would be received by the web services handler at the server.
- *       </li>
- *    <li>The handler would re-create the original object, passing the supplied
- *       xml to the component's fromXml method.</li>
- *    <li>This object would then be passed to the local proxy processor's save
- *       method.</li>
- *    <li>The local proxy would look up the real processor and pass the
- *       config information. By default this processor will generate a new key
- *       and call toDbXml on the component and pass the generated fragment to
- *       the resource defined in the processor's config</li>
- *    <li>After this is successful, setPersisted is called on the component.
- *       </li>
- *    <li>Success is returned to the web service caller.</li>
- *    <li>The WS processor will call setPersisted on the remote object.</li>
+ *   <li>A new instance of the object would be created locally using the standard technique (e.g.,
+ *       new PSFolder("foo")).
+ *   <li>The object would be manipulated until it reached the desired state.
+ *   <li>The object would then be passed to the {@link IPSComponentProcessor#save(IPSDbComponent[])
+ *       save} method of this class.
+ *   <li>The proxy would look up the real processor and pass it the properties from the config file,
+ *       which would include the name of the web service to use.
+ *   <li>The real processor would call toXml on the component and pass this element as the document
+ *       when making the web service request. This request would be received by the web services
+ *       handler at the server.
+ *   <li>The handler would re-create the original object, passing the supplied xml to the
+ *       component's fromXml method.
+ *   <li>This object would then be passed to the local proxy processor's save method.
+ *   <li>The local proxy would look up the real processor and pass the config information. By
+ *       default this processor will generate a new key and call toDbXml on the component and pass
+ *       the generated fragment to the resource defined in the processor's config
+ *   <li>After this is successful, setPersisted is called on the component.
+ *   <li>Success is returned to the web service caller.
+ *   <li>The WS processor will call setPersisted on the remote object.
  * </ol>
- * When the methods of a processor are called, a component type must be supplied
- * (or it is obtained from the supplied component). In general, this should be
- * the base name of the component (but for the relationship processor methods,
- * it is an arbitrary name, usually based on the type of relationship being
- * processed). This name is used to find the 'real' processor class name and a
- * set of properties appropriate for this type of component. Most components
- * will use the generic processor, which performs an internal request to a
- * resource as described above.
+ *
+ * When the methods of a processor are called, a component type must be supplied (or it is obtained
+ * from the supplied component). In general, this should be the base name of the component (but for
+ * the relationship processor methods, it is an arbitrary name, usually based on the type of
+ * relationship being processed). This name is used to find the 'real' processor class name and a
+ * set of properties appropriate for this type of component. Most components will use the generic
+ * processor, which performs an internal request to a resource as described above.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public abstract class PSProcessorProxy {
   /**
-   * Processors are associated with component types by a type (or category)
-   * name. The types correspond generically to how the processor accomplishes
-   * its work. These are the defaults, any other arbitrary name is allowed.
-   * Not every component type is necessarily supported by every processor
-   * type. Processor types are case-insensitive.
-   * <p>This type of processor should be used on remote clients if you want
-   * to interface to the server with Web Services.
+   * Processors are associated with component types by a type (or category) name. The types
+   * correspond generically to how the processor accomplishes its work. These are the defaults, any
+   * other arbitrary name is allowed. Not every component type is necessarily supported by every
+   * processor type. Processor types are case-insensitive.
+   *
+   * <p>This type of processor should be used on remote clients if you want to interface to the
+   * server with Web Services.
    */
   public static final String PROCTYPE_WEBSERVICE = "webservice";
 
   /**
    * See {@link #PROCTYPE_WEBSERVICE} for more details.
-   * <p>This type of processor should be used on remote clients for direct
-   * access to support apps. It is nearly identical to the {@link
-   * #PROCTYPE_SERVERLOCAL}, except it makes http requests rather than
-   * internal requests.
+   *
+   * <p>This type of processor should be used on remote clients for direct access to support apps.
+   * It is nearly identical to the {@link #PROCTYPE_SERVERLOCAL}, except it makes http requests
+   * rather than internal requests.
    */
   public static final String PROCTYPE_REMOTE = "remote";
 
   /**
    * See {@link #PROCTYPE_WEBSERVICE} for more4 details.
-   * <p>This type of processor should be used when operating in the same VM
-   * as the Rhythmyx server. It uses internal requests to accomplish its work.
+   *
+   * <p>This type of processor should be used when operating in the same VM as the Rhythmyx server.
+   * It uses internal requests to accomplish its work.
    */
   public static final String PROCTYPE_SERVERLOCAL = "local";
 
   /**
-   * Creates a proxy for a specific type of processor. The config file is
-   * obtained from the default location (in the jar containing this class).
-   * It is assumed the file name is CmsProcessorConfig.xml.
+   * Creates a proxy for a specific type of processor. The config file is obtained from the default
+   * location (in the jar containing this class). It is assumed the file name is
+   * CmsProcessorConfig.xml.
    *
-   * @param type  The type of processor for which this class is acting as a
-   *    proxy. This is a general category such as "webservice", "remote" or
-   *    "local". Several predefined ones are included with the PROCTYPE_xxx
-   *    constants. See the config file for all possibilities.
-   *    Never empty or <code>null</code>. This name will be used to find
-   *    the processor's entry in the config document when the methods of this
-   *    class are called.
-   * @param ctx A context object appropriate for the processor type,
-   *    may be <code>null</code> if the processor does not require one.
+   * @param type The type of processor for which this class is acting as a proxy. This is a general
+   *     category such as "webservice", "remote" or "local". Several predefined ones are included
+   *     with the PROCTYPE_xxx constants. See the config file for all possibilities. Never empty or
+   *     <code>null</code>. This name will be used to find the processor's entry in the config
+   *     document when the methods of this class are called.
+   * @param ctx A context object appropriate for the processor type, may be <code>null</code> if the
+   *     processor does not require one.
    * @throws PSCmsException for all errors constucting this processor.
    */
   public PSProcessorProxy(String type, Object ctx) throws PSCmsException {
@@ -181,25 +172,17 @@ public abstract class PSProcessorProxy {
   }
 
   /**
-   * Reads the next component node in the walker, parses it into a set of
-   * properties for each processor and adds the results to the supplied
-   * map.
+   * Reads the next component node in the walker, parses it into a set of properties for each
+   * processor and adds the results to the supplied map.
    *
-   * @param procType The type of processor to extract. Assumed not
-   *    <code>null</code>.
-   *
-   * @param walker Assumed not <code>null</code>. The first time this method
-   *    is called, it should be at the root. Each successive time it should
-   *    be where this method left it.
-   *
-   * @param cfg  The storage location for the extracted properties. If
-   *    <code>null</code>, a new one is created.
-   *
-   * @return If a component node is found, the ProcessorConfig is returned.
-   *    If cfg was supplied as <code>null</code>, a new config is created
-   *    and returned, otherwise the one supplied is returned. If no
-   *    component node is found, <code>null</code> is returned.
-   *
+   * @param procType The type of processor to extract. Assumed not <code>null</code>.
+   * @param walker Assumed not <code>null</code>. The first time this method is called, it should be
+   *     at the root. Each successive time it should be where this method left it.
+   * @param cfg The storage location for the extracted properties. If <code>null</code>, a new one
+   *     is created.
+   * @return If a component node is found, the ProcessorConfig is returned. If cfg was supplied as
+   *     <code>null</code>, a new config is created and returned, otherwise the one supplied is
+   *     returned. If no component node is found, <code>null</code> is returned.
    * @throws PSUnknownNodeTypeException If the document is not properly formed.
    */
   private ProcessorConfig processComponentConfig(
@@ -280,19 +263,14 @@ public abstract class PSProcessorProxy {
   /**
    * Creates a proxy for a specific type of processor.
    *
-   * @param configXml  The source containing the configuration file for
-   *    the processors. The content must conform to the sys_CmsProcessorConfig
-   *    schema. Never <code>null</code>. Takes ownership and closes the stream
-   *    when finished.
-   *
-   * @param type  The type of processor for which this class is acting as a
-   *    proxy. This is a general category such as "webservice", "remote" or
-   *    "local". Several predefined ones are included with the PROCTYPE_xxx
-   *    constants. See the config file for all possibilities.
-   *    Never empty or <code>null</code>. This name will be used to find
-   *    the processor's entry in the config document when the methods of this
-   *    class are called.
-   *
+   * @param configXml The source containing the configuration file for the processors. The content
+   *     must conform to the sys_CmsProcessorConfig schema. Never <code>null</code>. Takes ownership
+   *     and closes the stream when finished.
+   * @param type The type of processor for which this class is acting as a proxy. This is a general
+   *     category such as "webservice", "remote" or "local". Several predefined ones are included
+   *     with the PROCTYPE_xxx constants. See the config file for all possibilities. Never empty or
+   *     <code>null</code>. This name will be used to find the processor's entry in the config
+   *     document when the methods of this class are called.
    * @throws IOException If any problems occur reading data from the config.
    */
   public PSProcessorProxy(Reader configXml, String type) throws IOException {
@@ -300,18 +278,18 @@ public abstract class PSProcessorProxy {
   }
 
   /**
-   * Each processor has a specified context which is required for the
-   * processor to perform the requested operations. The supplied object
-   * must match the type required by the processor type specified in the
-   * ctor. If one is required and not supplied, all requests will fail.
-   * <p>This method may need to be called more than once during the life of
-   * the proxy, see the description for the processor type for details.
-   * <p>Each time this method is called, a new processor will be instantiated,
-   * otherwise, each instantiated processor is cached and reused across
-   * multiple operations.
+   * Each processor has a specified context which is required for the processor to perform the
+   * requested operations. The supplied object must match the type required by the processor type
+   * specified in the ctor. If one is required and not supplied, all requests will fail.
    *
-   * @param ctx An object appropriate for the processor type. May be
-   *    <code>null</code> if the processor does not require one.
+   * <p>This method may need to be called more than once during the life of the proxy, see the
+   * description for the processor type for details.
+   *
+   * <p>Each time this method is called, a new processor will be instantiated, otherwise, each
+   * instantiated processor is cached and reused across multiple operations.
+   *
+   * @param ctx An object appropriate for the processor type. May be <code>null</code> if the
+   *     processor does not require one.
    */
   public void setProcessorContext(Object ctx) {
     m_processorConfig.flushCache();
@@ -319,18 +297,15 @@ public abstract class PSProcessorProxy {
   }
 
   /**
-   * Looks up the processor for every supplied component and creates a
-   * collection for those that have the same processor.
+   * Looks up the processor for every supplied component and creates a collection for those that
+   * have the same processor.
    *
-   * @param components Assumed not <code>null</code> and that no entries are
-   *    <code>null</code>.
-   *
-   * @return Never <code>null</code>. Each entry has a processor as the key
-   *    and a Collection as the value. The collection contains all the
-   *    components in the supplied array that use that processor.
-   *
-   * @throws PSCmsException  If the processor cannot be found or instantiated
-   *    for any of the components.
+   * @param components Assumed not <code>null</code> and that no entries are <code>null</code>.
+   * @return Never <code>null</code>. Each entry has a processor as the key and a Collection as the
+   *     value. The collection contains all the components in the supplied array that use that
+   *     processor.
+   * @throws PSCmsException If the processor cannot be found or instantiated for any of the
+   *     components.
    */
   protected Map createComponentProcessorGroups(IPSDbComponent[] components) throws PSCmsException {
     Map procGroups = new HashMap();
@@ -350,22 +325,17 @@ public abstract class PSProcessorProxy {
   }
 
   /**
-   * For every component in the supplied array that has an unassigned key,
-   * the key is assigned. This is equivalent to what a processor will do
-   * when it is saving a component with an unassigned key.
+   * For every component in the supplied array that has an unassigned key, the key is assigned. This
+   * is equivalent to what a processor will do when it is saving a component with an unassigned key.
+   *
    * <p>This method is not supported by all processors.
    *
    * @param comps Never <code>null</code> and no entry can be <code>
    *    null</code>.
-   *
-   * @param parentKey If the supplied components are children of another
-   *    component, then the key of the parent must be supplied. If supplied,
-   *    it must be assigned.
-   *
+   * @param parentKey If the supplied components are children of another component, then the key of
+   *     the parent must be supplied. If supplied, it must be assigned.
    * @throws PSCmsException If any errors occur while allocating the ids.
-   *
-   * @throws UnsupportedOperationException if the processor can't fulfill the
-   *    request.
+   * @throws UnsupportedOperationException if the processor can't fulfill the request.
    */
   public void assignKey(IPSDbComponent comps[], PSKey parentKey) throws PSCmsException {
     if (null == comps) throw new IllegalArgumentException("Component array cannot be null.");
@@ -392,28 +362,26 @@ public abstract class PSProcessorProxy {
   }
 
   /**
-   * The component type for relationship type operations, such as
-   * getChildren(), getParents() for a specified relationship.
+   * The component type for relationship type operations, such as getChildren(), getParents() for a
+   * specified relationship.
    */
   public static final String RELATIONSHIP_COMPTYPE = "Relationship";
 
   /**
-   * <code>null</code> until the first component entry is found in the
-   * config, then never <code>null</code> after that. After ctor is finished,
-   * never changes after that.
+   * <code>null</code> until the first component entry is found in the config, then never <code>null
+   * </code> after that. After ctor is finished, never changes after that.
    */
   protected ProcessorConfig m_processorConfig = null;
 
   /**
-   * Passed to the processor when the various proxy methods are called.
-   * Set by the setProcessorContext method. May be <code>null</code>. What
-   * and whether this is needed is defined by the processors.
+   * Passed to the processor when the various proxy methods are called. Set by the
+   * setProcessorContext method. May be <code>null</code>. What and whether this is needed is
+   * defined by the processors.
    */
   protected Object m_context = null;
 
   /**
-   * A simple class to manage the properties associated with a single
-   * processor.
+   * A simple class to manage the properties associated with a single processor.
    *
    * @author Paul Howard
    * @version 1.0
@@ -423,9 +391,8 @@ public abstract class PSProcessorProxy {
      * Create the processor w/ no properties.
      *
      * @param processorType Assumed not <code>null</code> or empty.
-     *
-     * @param className  The fully qualified class name of the processor,
-     *    assumed not <code>null</code> or empty.
+     * @param className The fully qualified class name of the processor, assumed not <code>null
+     *     </code> or empty.
      */
     public ProcessorConfig(String processorType, String className) {
       m_type = processorType;
@@ -434,16 +401,12 @@ public abstract class PSProcessorProxy {
     /**
      * Adds all the properties associated with a particular component type.
      *
-     * @param componentType  Assumed not <code>null</code> or empty.
-     *
+     * @param componentType Assumed not <code>null</code> or empty.
      * @param props Assumed not <code>null</code>.
-     *
-     * @param procClassName  The fully qualified name of the processor
-     *    to instantiate for this component. Assumed not <code>null</code>
-     *    or empty.
-     *
-     * @return <code>true</code> if the property already existed in this
-     *    configuration, <code>false</code> otherwise.
+     * @param procClassName The fully qualified name of the processor to instantiate for this
+     *     component. Assumed not <code>null</code> or empty.
+     * @return <code>true</code> if the property already existed in this configuration, <code>false
+     *     </code> otherwise.
      */
     public boolean addComponentPropertySet(String componentType, Map props, String procClassName) {
       String type = componentType.toLowerCase();
@@ -454,17 +417,14 @@ public abstract class PSProcessorProxy {
     }
 
     /**
-     * Returns the class implementing the processor as specified by the
-     * className property in the ctor. The first time this method is
-     * called, the class is instantiated, it is then cached.
+     * Returns the class implementing the processor as specified by the className property in the
+     * ctor. The first time this method is called, the class is instantiated, it is then cached.
      *
      * @param compType Assumed not <code>null</code> or empty;
-     *
-     * @return The cached copy. If no processor can be found for the
-     *    supplied type, an exception is thrown.
-     *
-     * @throws PSCmsException If the class cannot be found, there are
-     *    any problems instantiating it, or it doesn't extend PSProcessorCommon.
+     * @return The cached copy. If no processor can be found for the supplied type, an exception is
+     *     thrown.
+     * @throws PSCmsException If the class cannot be found, there are any problems instantiating it,
+     *     or it doesn't extend PSProcessorCommon.
      */
     public Object getProcessor(String compType) throws PSCmsException {
       String name = null;
@@ -546,21 +506,17 @@ public abstract class PSProcessorProxy {
     }
 
     /**
-     * Returns the class implementing the processor as specified by the
-     * className property in the ctor. The first time this method is
-     * called, the class is instantiated, it is then cached.
+     * Returns the class implementing the processor as specified by the className property in the
+     * ctor. The first time this method is called, the class is instantiated, it is then cached.
      *
-     * @param comp The component whose processor type defines the processor
-     * returned.  Assumed not <code>null</code>.  If an instance of a
-     * <code>PSDbComponentCollection</code> or <code>PSDbComponentList</code>
-     * is supplied (but not a derived class instance), the member processor
-     * type is used.
-     *
-     * @return The cached copy. If no processor can be found for the
-     *    supplied type, an exception is thrown.
-     *
-     * @throws PSCmsException If the class cannot be found, there are
-     *    any problems instantiating it, or it doesn't extend PSProcessorCommon.
+     * @param comp The component whose processor type defines the processor returned. Assumed not
+     *     <code>null</code>. If an instance of a <code>PSDbComponentCollection</code> or <code>
+     *     PSDbComponentList</code> is supplied (but not a derived class instance), the member
+     *     processor type is used.
+     * @return The cached copy. If no processor can be found for the supplied type, an exception is
+     *     thrown.
+     * @throws PSCmsException If the class cannot be found, there are any problems instantiating it,
+     *     or it doesn't extend PSProcessorCommon.
      */
     public Object getProcessor(IPSDbComponent comp) throws PSCmsException {
       String compType = comp.getComponentType();
@@ -579,8 +535,8 @@ public abstract class PSProcessorProxy {
     }
 
     /**
-     * Removes all processor entries that had been previously cached. This
-     * should be called whenever the context of the proxy changes.
+     * Removes all processor entries that had been previously cached. This should be called whenever
+     * the context of the proxy changes.
      */
     public void flushCache() {
       m_cachedProcs.clear();
@@ -589,39 +545,36 @@ public abstract class PSProcessorProxy {
     /**
      * Get the map that contains all properties for all component types.
      *
-     * @return The returned map has String component types as keys and
-     *    maps as values. The maps contain name/value pairs. The value
-     *    is either a String or an Element. This should be treated read-
-     *    only by the caller.
+     * @return The returned map has String component types as keys and maps as values. The maps
+     *     contain name/value pairs. The value is either a String or an Element. This should be
+     *     treated read- only by the caller.
      */
     public Map getComponentPropertySets() {
       return m_componentProps;
     }
 
     /**
-     * This processor's type (e.g., local, webservice). Set in ctor,
-     * then never <code>null</code> or empty after that (assumed).
+     * This processor's type (e.g., local, webservice). Set in ctor, then never <code>null</code> or
+     * empty after that (assumed).
      */
     private String m_type;
 
     /**
-     * See {@link #getComponentPropertySets()} for description of contents.
-     * Never <code>null</code>.
+     * See {@link #getComponentPropertySets()} for description of contents. Never <code>null</code>.
      */
     private Map<String, Map<String, Object>> m_componentProps = new ConcurrentHashMap<>();
 
     /**
-     * Never <code>null</code>. Each time {@link #getProcessor(String)}
-     * instantiates a new processor, it will be added to this cache.
-     * The key is the class name, the value is the processor instance.
+     * Never <code>null</code>. Each time {@link #getProcessor(String)} instantiates a new
+     * processor, it will be added to this cache. The key is the class name, the value is the
+     * processor instance.
      */
     private Map<String, Object> m_cachedProcs = new ConcurrentHashMap<>();
 
     /**
-     * Never <code>null</code>. Contains 1 entry for every component added
-     * to this config. The key is the component name, the value is the
-     * processor class name. Assumed that entries are never <code>null</code>
-     * or empty.
+     * Never <code>null</code>. Contains 1 entry for every component added to this config. The key
+     * is the component name, the value is the processor class name. Assumed that entries are never
+     * <code>null</code> or empty.
      */
     private Map<String, String> m_procClassNames = new ConcurrentHashMap<>();
   }

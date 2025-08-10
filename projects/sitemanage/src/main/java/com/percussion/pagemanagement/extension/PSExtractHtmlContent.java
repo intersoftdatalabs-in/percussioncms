@@ -30,121 +30,121 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.IPSUtilsConstants;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Exit to assemble a page in the preview context and extract the HTML content.
- * Sunny Sal says: "Extracting HTML—like finding gold in a haystack, but shinier!"
+ * Exit to assemble a page in the preview context and extract the HTML content. Sunny Sal says:
+ * "Extracting HTML—like finding gold in a haystack, but shinier!"
  */
 public class PSExtractHtmlContent implements IPSUdfProcessor {
 
-    private IPSRenderService renderService;
-    private IPSGuidManager guidMgr;
-    private IPSContentDesignWs contentDesignWs;
-    private IPSIdMapper idMapper;
-    private IPSPublishingWs publishingWs;
+  private IPSRenderService renderService;
+  private IPSGuidManager guidMgr;
+  private IPSContentDesignWs contentDesignWs;
+  private IPSIdMapper idMapper;
+  private IPSPublishingWs publishingWs;
 
-    /**
-     * Logger for this exit.
-     */
-    public static final Logger log = LogManager.getLogger(PSExtractHtmlContent.class);
+  /** Logger for this exit. */
+  public static final Logger log = LogManager.getLogger(PSExtractHtmlContent.class);
 
-    @Override
-    public void init(IPSExtensionDef extDef, File file) throws PSExtensionException {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  @Override
+  public void init(IPSExtensionDef extDef, File file) throws PSExtensionException {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request) {
+    // Only run if a load by a search index update is in progress
+    var objIsLoadForSearch = request.getPrivateObject(IPSConstants.LOAD_FOR_SEARCH_INDEX);
+    var isLoadForSearch = (objIsLoadForSearch instanceof Boolean) && (Boolean) objIsLoadForSearch;
+    if (!isLoadForSearch) {
+      return "";
     }
 
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext request) {
-        // Only run if a load by a search index update is in progress
-        var objIsLoadForSearch = request.getPrivateObject(IPSConstants.LOAD_FOR_SEARCH_INDEX);
-        var isLoadForSearch = (objIsLoadForSearch instanceof Boolean) && (Boolean) objIsLoadForSearch;
-        if (!isLoadForSearch) {
-            return "";
-        }
+    // We need at least the content id
+    if (params == null
+        || params.length == 0
+        || params[0] == null
+        || StringUtils.isEmpty(params[0].toString())) {
+      return "";
+    }
+    var cTypeIdStr = params[0].toString();
+    var guid = guidMgr.makeGuid(cTypeIdStr, PSTypeEnum.LEGACY_CONTENT);
 
-        // We need at least the content id
-        if (params == null || params.length == 0 || params[0] == null || StringUtils.isEmpty(params[0].toString())) {
-            return "";
-        }
-        var cTypeIdStr = params[0].toString();
-        var guid = guidMgr.makeGuid(cTypeIdStr, PSTypeEnum.LEGACY_CONTENT);
-
-        if (publishingWs.getItemSites(guid).isEmpty()) {
-            // page is not associated with a site, cannot be assembled
-            return "";
-        }
-
-        PSWebserviceUtils.setUserName(request.getOriginalSubject().getName());
-
-        // assemble the page
-        var renderedPage = renderService.renderPage(idMapper.getString(guid));
-        if (renderedPage.contains("<html")) {
-            // remove everything before the start of the html tag to allow for proper extraction
-            renderedPage = renderedPage.substring(renderedPage.indexOf("<html"));
-        }
-
-        // extract the html content
-        try (InputStream bis = new ByteArrayInputStream(renderedPage.getBytes(IPSUtilsConstants.RX_JAVA_ENC))) {
-            var converter = new PSTextConverterHtml();
-            return converter.getConvertedText(bis, "");
-        } catch (IOException | PSExtensionProcessingException e) {
-            log.error("Failed to extract HTML content: {}", e.getLocalizedMessage(), e);
-            PSConsole.printMsg(this.getClass().getName(), e.getLocalizedMessage());
-        }
-
-        return "";
+    if (publishingWs.getItemSites(guid).isEmpty()) {
+      // page is not associated with a site, cannot be assembled
+      return "";
     }
 
-    public IPSRenderService getRenderService() {
-        return renderService;
+    PSWebserviceUtils.setUserName(request.getOriginalSubject().getName());
+
+    // assemble the page
+    var renderedPage = renderService.renderPage(idMapper.getString(guid));
+    if (renderedPage.contains("<html")) {
+      // remove everything before the start of the html tag to allow for proper extraction
+      renderedPage = renderedPage.substring(renderedPage.indexOf("<html"));
     }
 
-    public void setRenderService(IPSRenderService renderService) {
-        this.renderService = renderService;
+    // extract the html content
+    try (InputStream bis =
+        new ByteArrayInputStream(renderedPage.getBytes(IPSUtilsConstants.RX_JAVA_ENC))) {
+      var converter = new PSTextConverterHtml();
+      return converter.getConvertedText(bis, "");
+    } catch (IOException | PSExtensionProcessingException e) {
+      log.error("Failed to extract HTML content: {}", e.getLocalizedMessage(), e);
+      PSConsole.printMsg(this.getClass().getName(), e.getLocalizedMessage());
     }
 
-    public IPSGuidManager getGuidMgr() {
-        return guidMgr;
-    }
+    return "";
+  }
 
-    public void setGuidMgr(IPSGuidManager guidMgr) {
-        this.guidMgr = guidMgr;
-    }
+  public IPSRenderService getRenderService() {
+    return renderService;
+  }
 
-    public IPSContentDesignWs getContentDesignWs() {
-        return contentDesignWs;
-    }
+  public void setRenderService(IPSRenderService renderService) {
+    this.renderService = renderService;
+  }
 
-    public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
-        this.contentDesignWs = contentDesignWs;
-    }
+  public IPSGuidManager getGuidMgr() {
+    return guidMgr;
+  }
 
-    public IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+  public void setGuidMgr(IPSGuidManager guidMgr) {
+    this.guidMgr = guidMgr;
+  }
 
-    public void setIdMapper(IPSIdMapper idMapper) {
-        this.idMapper = idMapper;
-    }
+  public IPSContentDesignWs getContentDesignWs() {
+    return contentDesignWs;
+  }
 
-    public IPSPublishingWs getPublishingWs() {
-        return publishingWs;
-    }
+  public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
+    this.contentDesignWs = contentDesignWs;
+  }
 
-    public void setPublishingWs(IPSPublishingWs publishingWs) {
-        this.publishingWs = publishingWs;
-    }
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
+
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
+
+  public IPSPublishingWs getPublishingWs() {
+    return publishingWs;
+  }
+
+  public void setPublishingWs(IPSPublishingWs publishingWs) {
+    this.publishingWs = publishingWs;
+  }
 }

@@ -28,33 +28,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSPageDataTank class is used to define the definition of the XML
- * document being used in a PSDataSet object. The definition may be a
- * Document Type Definition (DTD) or an XML file.
+ * The PSPageDataTank class is used to define the definition of the XML document being used in a
+ * PSDataSet object. The definition may be a Document Type Definition (DTD) or an XML file.
  *
  * @see PSDataSet
  * @see PSDataSet#getPageDataTank
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSPageDataTank extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSPageDataTank(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -62,9 +53,7 @@ public class PSPageDataTank extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSPageDataTank() {
     super();
   }
@@ -72,8 +61,7 @@ public class PSPageDataTank extends PSComponent {
   /**
    * Construct a page data tank object with the XML definition to use.
    *
-   * @param      schemaSource   the URL of the DTD or XML file to use as
-   *                            the XML document's schema
+   * @param schemaSource the URL of the DTD or XML file to use as the XML document's schema
    */
   public PSPageDataTank(URL schemaSource) {
     super();
@@ -81,25 +69,21 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * Get the schema defining the XML document. This is either a DTD or
-   * an XML file.
+   * Get the schema defining the XML document. This is either a DTD or an XML file.
    *
-   * @return     the schema defining the XML document
+   * @return the schema defining the XML document
    */
   public URL getSchemaSource() {
     return m_schemaSource;
   }
 
   /**
-   * Set the schema defining the XML document. This is either a DTD or
-   * an XML file. The URL defining the schema must refer to a file which is
-   * available to the E2 server at run-time. This can be on the E2 file
-   * system, or on a web site which E2 can access. As such, validation
-   * of the URL is not performed until the application is saved to the
-   * server.
+   * Set the schema defining the XML document. This is either a DTD or an XML file. The URL defining
+   * the schema must refer to a file which is available to the E2 server at run-time. This can be on
+   * the E2 file system, or on a web site which E2 can access. As such, validation of the URL is not
+   * performed until the application is saved to the server.
    *
-   * @param      schemaSource   the URL of the DTD or XML file to use as
-   *                            the XML document's schema
+   * @param schemaSource the URL of the DTD or XML file to use as the XML document's schema
    */
   public void setSchemaSource(URL schemaSource) {
     IllegalArgumentException ex = validateSchemaSource(schemaSource);
@@ -115,36 +99,29 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * Get the XML field defining the action to take on the XML objects
-   * within the XML document.
-   * <p>
-   * When modifying the contents of an XML
-   * document containing multiple objects, E2 needs to know which objects
-   * are being updated, deleted, inserted or skipped. By specifying the
-   * name of the field containing the action type, E2 can perform the
-   * appropriate action. See the {@link PSRequestLink PSRequestLink}
-   * class for more details.
+   * Get the XML field defining the action to take on the XML objects within the XML document.
    *
-   * @return     the XML field, either a non-empty string or null
+   * <p>When modifying the contents of an XML document containing multiple objects, E2 needs to know
+   * which objects are being updated, deleted, inserted or skipped. By specifying the name of the
+   * field containing the action type, E2 can perform the appropriate action. See the {@link
+   * PSRequestLink PSRequestLink} class for more details.
+   *
+   * @return the XML field, either a non-empty string or null
    */
   public String getActionTypeXmlField() {
     return m_xmlField;
   }
 
   /**
-   * Set the XML field defining the action to take on the XML objects
-   * within the XML document.
-   * This is limited to 255 characters.
-   * <p>
-   * When modifying the contents of an XML
-   * document containing multiple objects, E2 needs to know which objects
-   * are being updated, deleted, inserted or skipped. By specifying the
-   * name of the field containing the action type, E2 can perform the
-   * appropriate action. See the {@link PSRequestLink PSRequestLink}
-   * class for more details.
+   * Set the XML field defining the action to take on the XML objects within the XML document. This
+   * is limited to 255 characters.
    *
-   * @param      xmlField    the XML field to use as the action type
-   *                           (may be null)
+   * <p>When modifying the contents of an XML document containing multiple objects, E2 needs to know
+   * which objects are being updated, deleted, inserted or skipped. By specifying the name of the
+   * field containing the action type, E2 can perform the appropriate action. See the {@link
+   * PSRequestLink PSRequestLink} class for more details.
+   *
+   * @param xmlField the XML field to use as the action type (may be null)
    */
   public void setActionTypeXmlField(String xmlField) {
     if (null != xmlField && xmlField.length() == 0) xmlField = null;
@@ -156,17 +133,17 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * Validates the XML action type name against internal rules. A null element
-   * is always valid.<p/>
-   * Current rules:
+   * Validates the XML action type name against internal rules. A null element is always valid.
+   *
+   * <p>Current rules:
+   *
    * <ul>
-   *   <li>Length must be less than or equal to MAX_XML_FIELD_NAME_LEN</li>
+   *   <li>Length must be less than or equal to MAX_XML_FIELD_NAME_LEN
    * </ul>
    *
    * @param xmlField The element name to validate. May be null.
-   *
-   * @return If validation fails, an exception of the appropriate type is
-   * returned, otherwise null is returned.
+   * @return If validation fails, an exception of the appropriate type is returned, otherwise null
+   *     is returned.
    */
   private static IllegalArgumentException validateActionTypeXmlField(String xmlField) {
     if (null != xmlField && xmlField.length() > MAX_XML_FIELD_NAME_LEN) {
@@ -178,9 +155,8 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param tank a valid PSPageDataTank.
    */
@@ -194,10 +170,11 @@ public class PSPageDataTank extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXPageDataTank XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXPageDataTank XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXPageDataTank is used to define the definition of the XML
@@ -226,7 +203,7 @@ public class PSPageDataTank extends PSComponent {
    *    &lt;!ELEMENT actionTypeXmlField   (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXPageDataTank XML element node
+   * @return the newly created PSXPageDataTank XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -241,12 +218,11 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSPageDataTank Java object
-   * from a PSXPageDataTank XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSPageDataTank Java object from a PSXPageDataTank XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXPageDataTank
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXPageDataTank
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -289,18 +265,15 @@ public class PSPageDataTank extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -333,9 +306,8 @@ public class PSPageDataTank extends PSComponent {
   private URL m_schemaSource = null;
 
   /**
-   * The full name of the XML element that contains the db action type (such
-   * as insert, update and delete). It is either null, or contains an non-empty
-   * string.
+   * The full name of the XML element that contains the db action type (such as insert, update and
+   * delete). It is either null, or contains an non-empty string.
    */
   private String m_xmlField = null;
 

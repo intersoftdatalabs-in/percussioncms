@@ -24,12 +24,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Container for monitor designators.
- * Sunny Sal says: "Designate your monitors, or they'll designate themselves!"
+ * Container for monitor designators. Sunny Sal says: "Designate your monitors, or they'll designate
+ * themselves!"
  */
 @XmlRootElement
 public class PSMonitorDesignators {
 
-    @XmlElement
-    public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+  @XmlElement public Set<String> designator = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 }

@@ -27,20 +27,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Evaluator for field set validation rules. Evaluates the field set
- * occurrence rules.
- */
+/** Evaluator for field set validation rules. Evaluates the field set occurrence rules. */
 public class PSFieldSetValidationRulesEvaluator {
   /**
    * Create a new field set validation evaluator for the provided field set.
    *
-   * @param fieldSet the field set to create the validation evaluator for,
-   *    not <code>null</code>.
-   * @param uiSet the ui set to create the validation evaluator for,
-   *    not <code>null</code>.
-   * @throws IllegalArgumentException if the provided field set or ui set is
-   *    <code>null</code>.
+   * @param fieldSet the field set to create the validation evaluator for, not <code>null</code>.
+   * @param uiSet the ui set to create the validation evaluator for, not <code>null</code>.
+   * @throws IllegalArgumentException if the provided field set or ui set is <code>null</code>.
    */
   public PSFieldSetValidationRulesEvaluator(PSFieldSet fieldSet, PSUISet uiSet) {
     if (fieldSet == null) throw new IllegalArgumentException("fieldSet and uiSet cannot be null");
@@ -52,20 +46,19 @@ public class PSFieldSetValidationRulesEvaluator {
   /**
    * Validates the repeatability settings for this field set.
    *
-   * @param pageId the pageid which we are validating, not
-   *    <code>null</code>.
-   * @param page the page document based on which the validation will be
-   *    performed, not <code>null</code>.
-   * @param errorCollector the error collector to be updated in case of a
-   *    validation error, not <code>null</code>.
-   * @param lang the language/locale string to be used to produce the localized
-   *    error message. This must follow the XML notation for language or locale
-   *    string. See {@link PSI18nUtils#getLocaleFromString} for details. May be
-   *    <code>null</code> or <code>empty</code>.
-   * @return <code>true</code> if the repeatability settings are fulfilled,
-   *    <code>false</code> otherwise.
-   * @throws IllegalArgumentException if any of the provided parameters except
-   * lang is <code>null</code>.
+   * @param pageId the pageid which we are validating, not <code>null</code>.
+   * @param page the page document based on which the validation will be performed, not <code>null
+   *     </code>.
+   * @param errorCollector the error collector to be updated in case of a validation error, not
+   *     <code>null</code>.
+   * @param lang the language/locale string to be used to produce the localized error message. This
+   *     must follow the XML notation for language or locale string. See {@link
+   *     PSI18nUtils#getLocaleFromString} for details. May be <code>null</code> or <code>empty
+   *     </code>.
+   * @return <code>true</code> if the repeatability settings are fulfilled, <code>false</code>
+   *     otherwise.
+   * @throws IllegalArgumentException if any of the provided parameters except lang is <code>null
+   *     </code>.
    */
   public boolean isValidRepeatability(
       Integer pageId, Document page, PSErrorCollector errorCollector, String lang) {
@@ -107,13 +100,10 @@ public class PSFieldSetValidationRulesEvaluator {
   }
 
   /**
-   * Get the number of rows from the page document for the provided
-   * parameter name.
+   * Get the number of rows from the page document for the provided parameter name.
    *
-   * @paramName the parameter name we want the row count for, assumed not
-   *    <code>null</code>.
-   * @param page the page document to get the row count from, assumed not
-   *    <code>null</code>.
+   * @paramName the parameter name we want the row count for, assumed not <code>null</code>.
+   * @param page the page document to get the row count from, assumed not <code>null</code>.
    * @return the number of parameter rows found.
    */
   private int getRowCount(String paramName, Document page) {
@@ -135,8 +125,7 @@ public class PSFieldSetValidationRulesEvaluator {
   }
 
   /**
-   * Get the field set evaluated through this evaluator. This should be
-   * treated as read only object.
+   * Get the field set evaluated through this evaluator. This should be treated as read only object.
    *
    * @return the field set to be evaludated, never <code>null</code>.
    */
@@ -145,25 +134,24 @@ public class PSFieldSetValidationRulesEvaluator {
   }
 
   /**
-   * Get the fields UI set this evaluator is validating. This should be
-   * treated as a read only object.
+   * Get the fields UI set this evaluator is validating. This should be treated as a read only
+   * object.
    *
-   * @param the UI set of the field beeing evaluated, never
-   *    <code>null</code>.
+   * @param the UI set of the field beeing evaluated, never <code>null</code>.
    */
   public PSUISet getUISet() {
     return m_uiSet;
   }
 
   /**
-   * The field set this evaluator is validating, specified during
-   * construction, never <code>null</code> after that.
+   * The field set this evaluator is validating, specified during construction, never <code>null
+   * </code> after that.
    */
   private PSFieldSet m_fieldSet = null;
 
   /**
-   * The UI set for the field set this evaluator was created with. Specified
-   * during construction, never <code>null</code> after that.
+   * The UI set for the field set this evaluator was created with. Specified during construction,
+   * never <code>null</code> after that.
    */
   private PSUISet m_uiSet = null;
 }

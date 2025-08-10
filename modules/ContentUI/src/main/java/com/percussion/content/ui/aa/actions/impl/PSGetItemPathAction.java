@@ -31,10 +31,10 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Gets the path corresponding to the supplied item id. Builds the path by
- * getting the folder path and then appending the item name to it. Gets the
- * folder id from the supplied objectId, if it is null then gets the sitefolder
- * id of the item. If folder id is null then returns item name as path..
+ * Gets the path corresponding to the supplied item id. Builds the path by getting the folder path
+ * and then appending the item name to it. Gets the folder id from the supplied objectId, if it is
+ * null then gets the sitefolder id of the item. If folder id is null then returns item name as
+ * path..
  */
 public class PSGetItemPathAction extends PSAAActionBase {
 
@@ -73,8 +73,7 @@ public class PSGetItemPathAction extends PSAAActionBase {
   /**
    * Returns the path of the supplied folder guid
    *
-   * @param fguid assumed not <code>null</code> and assumed to be a folder
-   *           guid.
+   * @param fguid assumed not <code>null</code> and assumed to be a folder guid.
    * @return path of the supplied folder guid or empty if not found.
    * @throws PSErrorException
    */

@@ -31,15 +31,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- * An object representation of the StandardItem RelatedItem element.
- */
+/** An object representation of the StandardItem RelatedItem element. */
 public class PSItemRelatedItem extends PSItemComponent {
   public PSItemRelatedItem() {}
 
-  /**
-   * Construct using xml nodes
-   */
+  /** Construct using xml nodes */
   public PSItemRelatedItem(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode cannot be null");
 
@@ -47,8 +43,8 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * Sets the relationship id for this related item. This is the internal id
-   * assigned to each relationship.
+   * Sets the relationship id for this related item. This is the internal id assigned to each
+   * relationship.
    *
    * @param relationshipId the id to set this related item to
    */
@@ -84,21 +80,18 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * Sets an action to be taken on the item.  Only one action per item.
+   * Sets an action to be taken on the item. Only one action per item.
    *
-   * @param action the action to take. Must not be <code>null</code>, empty
-   *    or invalid action.
+   * @param action the action to take. Must not be <code>null</code>, empty or invalid action.
    */
   public void setAction(String action) {
     m_action = PSRelatedItemAction.valueOf(action.toUpperCase());
   }
 
   /**
-   * Gets an action to be taken on the related item.  Only one action per item
-   * related item.
+   * Gets an action to be taken on the related item. Only one action per item related item.
    *
-   * @return the action to take, a value defined in
-   *    <code>PSRelatedItemAction</code>.
+   * @return the action to take, a value defined in <code>PSRelatedItemAction</code>.
    */
   public String getAction() {
     return m_action.toString().toLowerCase();
@@ -107,8 +100,7 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Set the relationship type.
    *
-   * @param relatedType the name of the relationship type, not
-   *    <code>null</code> or empty.
+   * @param relatedType the name of the relationship type, not <code>null</code> or empty.
    */
   public void setRelatedType(String relatedType) {
     if (relatedType == null) throw new IllegalArgumentException("relatedType cannot be null");
@@ -123,20 +115,18 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Get the relationship type of the related item.
    *
-   * @return the relationship type of the related item, never <code>null</code>
-   *    or empty.
+   * @return the relationship type of the related item, never <code>null</code> or empty.
    */
   public String getRelatedType() {
     return m_relatedType;
   }
 
   /**
-   * Adds the specified key and value to the property map, if the key already
-   * exists it's value will be overridden.
+   * Adds the specified key and value to the property map, if the key already exists it's value will
+   * be overridden.
    *
-   * @param key describes the key for the property to be added, must not be
-   * <code>null</code> or empty
-   *
+   * @param key describes the key for the property to be added, must not be <code>null</code> or
+   *     empty
    * @param value the value for the key, must not be <code>null</code> or empty
    */
   public void addProperty(String key, String value) {
@@ -146,20 +136,16 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Removes the specified property from the list.
    *
-   * @param key the key to remove from the property list, must not be
-   * <code>null</code> or empty
+   * @param key the key to remove from the property list, must not be <code>null</code> or empty
    */
   public void removeProperty(String key) {
     m_propertyMap.remove(key);
   }
 
   /**
-   * Gets the specified property from the list of properties for this related
-   * item.
+   * Gets the specified property from the list of properties for this related item.
    *
-   * @param key the key to get the data for, must not be <code>null</code>
-   * or empty
-   *
+   * @param key the key to get the data for, must not be <code>null</code> or empty
    * @return the value for the specified key, may be empty
    */
   public String getProperty(String key) {
@@ -169,9 +155,8 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Returns all of the <code>keys</code> as <code>Strings</code>
    *
-   * @return unmodifiable <code>Iterator</code> of all of the
-   * <code>key</code> names as <code>Strings</code>.
-   * May be empty but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of all of the <code>key</code> names as <code>
+   *     Strings</code>. May be empty but not <code>null</code>.
    */
   public Iterator getAllProperties() {
     return Collections.unmodifiableCollection(m_propertyMap.keySet()).iterator();
@@ -180,8 +165,7 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Sets the content id of this related item.
    *
-   * @param dependentId the content id of the related item, must be > 0 and
-   * a valid content id
+   * @param dependentId the content id of the related item, must be > 0 and a valid content id
    */
   public void setDependentId(int dependentId) {
     m_dependentId = dependentId;
@@ -197,27 +181,24 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * Returns the document of related item data to be inserted if it does
-   * not exist. After this data is inserted, we then relate to the new
-   * content id.
+   * Returns the document of related item data to be inserted if it does not exist. After this data
+   * is inserted, we then relate to the new content id.
    *
-   * @param relatedItemData the data that is a Standard item, must not be
-   * <code>null</code> or empty, may contain just the content key or a
-   * complete standard item, see <code>sys_StandardItem.xsd</code> for more
-   * info.
+   * @param relatedItemData the data that is a Standard item, must not be <code>null</code> or
+   *     empty, may contain just the content key or a complete standard item, see <code>
+   *     sys_StandardItem.xsd</code> for more info.
    */
   public void setRelatedItemData(Element relatedItemData) {
     m_relatedItemData = relatedItemData;
   }
 
   /**
-   * Returns the document of related item data to be inserted if it does
-   * not exist. After this data is inserted, we then relate to the new
-   * content id.
+   * Returns the document of related item data to be inserted if it does not exist. After this data
+   * is inserted, we then relate to the new content id.
    *
-   * @return This data is a Standard item, must not be <code>null</code> or
-   * empty, may contain just the content key or a complete standard item,
-   * see <code>sys_StandardItem.xsd</code> for more info.
+   * @return This data is a Standard item, must not be <code>null</code> or empty, may contain just
+   *     the content key or a complete standard item, see <code>sys_StandardItem.xsd</code> for more
+   *     info.
    */
   public Element getRelatedItemData() {
     return m_relatedItemData;
@@ -226,9 +207,8 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Adds a key field to use for the search.
    *
-   * @param key a field name to use for searching for a content item, this may
-   *     be a system, shared, or local field name, must not be <code>null</code> or
-   *     empty
+   * @param key a field name to use for searching for a content item, this may be a system, shared,
+   *     or local field name, must not be <code>null</code> or empty
    * @param el the element to associate with the key
    */
   public void addKeyField(String key, Element el) {
@@ -238,19 +218,16 @@ public class PSItemRelatedItem extends PSItemComponent {
   /**
    * Removes the specified key field from the map to use for the search.
    *
-   * @param key the field name to remove from the search map, must not be
-   *     <code>null</code> or empty
+   * @param key the field name to remove from the search map, must not be <code>null</code> or empty
    */
   public void removeKeyField(String key) {
     m_keyFieldsMap.remove(key);
   }
 
   /**
-   * Gets the specified keyfield from the list of keyfields for this related
-   * item.
+   * Gets the specified keyfield from the list of keyfields for this related item.
    *
-   * @param key the key to get the data for, must not be <code>null</code>
-   *     or empty
+   * @param key the key to get the data for, must not be <code>null</code> or empty
    * @return the value for the specified key, may be empty
    */
   public Element getKeyField(String key) {
@@ -262,12 +239,10 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * Returns all of the <code>keys</code> of the keyfieldmap as
-   * <code>Strings</code>.
+   * Returns all of the <code>keys</code> of the keyfieldmap as <code>Strings</code>.
    *
-   * @return unmodifiable <code>Iterator</code> of all of the
-   *     <code>key</code> names as <code>Strings</code>.
-   *     May be empty but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of all of the <code>key</code> names as <code>
+   *     Strings</code>. May be empty but not <code>null</code>.
    */
   public Iterator<String> getAllKeyFields() {
     return Collections.unmodifiableCollection(m_keyFieldsMap.keySet()).iterator();
@@ -323,6 +298,7 @@ public class PSItemRelatedItem extends PSItemComponent {
 
   /**
    * Convenience method to <code>toXml(doc, null)</code>.
+   *
    * @see #toXml(Document, PSAcceptElements)
    */
   @Override
@@ -409,8 +385,7 @@ public class PSItemRelatedItem extends PSItemComponent {
    *
    * @param a the first element to compare, may be <code>null</code>.
    * @param b the second element to compare, may be <code>null</code>.
-   * @return true if the two supplied elements are equal, <code>false</code>
-   *    otherwise.
+   * @return true if the two supplied elements are equal, <code>false</code> otherwise.
    */
   private boolean equalXmlElements(Element a, Element b) {
     if ((a == null) && (b != null)) return false;
@@ -445,16 +420,16 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
-   * An element node may contain a hierarchical structure, including child
+   * This method is called to populate an object from its XML representation. It assumes that the
+   * object may already have a complete data structure, therefore method only overlays the data onto
+   * the existing object. An element node may contain a hierarchical structure, including child
    * objects. The element node can also be a child of another element node.
+   *
    * <p>
-   * @param sourceNode the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by this class.
    */
   @Override
   public void loadXmlData(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -498,9 +473,7 @@ public class PSItemRelatedItem extends PSItemComponent {
     }
   }
 
-  /**
-   * Enumerates all valid actions.
-   */
+  /** Enumerates all valid actions. */
   public enum PSRelatedItemAction {
     IGNORE,
     INSERT,
@@ -509,51 +482,43 @@ public class PSItemRelatedItem extends PSItemComponent {
   }
 
   /**
-   * Storage for the type of related content, never <code>null</code> or
-   * empty, defaults to <code>Active Assembly</code>.
+   * Storage for the type of related content, never <code>null</code> or empty, defaults to <code>
+   * Active Assembly</code>.
    */
   private String m_relatedType = PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY;
 
   /**
-   * Storage for the action to be performed on this particular related
-   * content, valid values are defined in <code>sys_StandardItem.xsd</code>
+   * Storage for the action to be performed on this particular related content, valid values are
+   * defined in <code>sys_StandardItem.xsd</code>
    */
   private PSRelatedItemAction m_action = PSRelatedItemAction.IGNORE;
 
   /**
-   * Storage for the property and values for the related item,
-   * contains a list of property values
+   * Storage for the property and values for the related item, contains a list of property values
    */
   private Map<String, String> m_propertyMap = new HashMap<>();
 
   /**
-   * Storage for the list of keyfields for this related item, this is to
-   * allow for searching for a related content item, if found insert it,
-   * if not insert the item in the relatedItemData variable.
+   * Storage for the list of keyfields for this related item, this is to allow for searching for a
+   * related content item, if found insert it, if not insert the item in the relatedItemData
+   * variable.
    */
   private Map<String, Node> m_keyFieldsMap = new HashMap<>();
 
-  /**
-   * Storage for the relationship id
-   */
+  /** Storage for the relationship id */
   private int m_relationshipId = -1;
 
   /**
-   * The relationship which leads to this related item, may be
-   * <code>null</code>. This property is not persisted and not part of the
-   * XML representation of this object. It is currently only used for the
-   * webservice converters.
+   * The relationship which leads to this related item, may be <code>null</code>. This property is
+   * not persisted and not part of the XML representation of this object. It is currently only used
+   * for the webservice converters.
    */
   private transient PSAaRelationship m_relationship = null;
 
-  /**
-   * Storage for the dependent id, will be -1 if inserting a new item
-   */
+  /** Storage for the dependent id, will be -1 if inserting a new item */
   private int m_dependentId = -1;
 
-  /**
-   * Storage for the new inserted Items to be related
-   */
+  /** Storage for the new inserted Items to be related */
   private Element m_relatedItemData = null;
 
   /** Name of the root element in this class' XML representation */

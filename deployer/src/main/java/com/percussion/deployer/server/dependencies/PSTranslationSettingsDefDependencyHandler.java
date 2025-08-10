@@ -50,9 +50,8 @@ import org.apache.commons.lang.StringUtils;
 import org.xml.sax.SAXException;
 
 /**
- * Class to handle packaging and deploying TranslationSettings definition for
- * a particular locale. This will serialize/deserialize as aggregate translation
- * settings.
+ * Class to handle packaging and deploying TranslationSettings definition for a particular locale.
+ * This will serialize/deserialize as aggregate translation settings.
  *
  * @author vamsinukala
  */
@@ -61,11 +60,9 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   /**
    * Construct the dependency handler for translation settings.
    *
-   * @param def The def for the type supported by this handler. May not be
-   *           <code>null</code> and must be of the type supported by this
-   *           class. See {@link #getType()} for more info.
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
    * @param dependencyMap The full dependency map. May not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSTranslationSettingsDefDependencyHandler(
@@ -77,8 +74,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
    * Utility method to find the TranslationSettings by a given locale
    *
    * @param depId the locale id
-   * @return <code>null</code> if TranslationSettings don't exist else get
-   *         DA TranslationSettings
+   * @return <code>null</code> if TranslationSettings don't exist else get DA TranslationSettings
    */
   private List<PSAutoTranslation> findTranslationSettingsByLocaleID(String depId) {
     if (StringUtils.isBlank(depId)) {
@@ -317,13 +313,12 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   }
 
   /**
-   * Use the serialized data for translation settings to  recreate them
+   * Use the serialized data for translation settings to recreate them
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   *           archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   *           may not be <code>null</code>
-   *
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
    * @return the actual template
    * @throws PSDeployException
    */
@@ -353,9 +348,10 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   }
 
   /**
-   * Utility method that serializes and deserializes the translation settings.
-   * The need for aggregation is to avoid tons of individual files for
-   * translation setttings that need to be written, read in an iteration.
+   * Utility method that serializes and deserializes the translation settings. The need for
+   * aggregation is to avoid tons of individual files for translation setttings that need to be
+   * written, read in an iteration.
+   *
    * @param str the list of translation settings separated by a delimiter
    * @return a list of AutoTranslations never <code>null</code>, may be empty
    * @throws SAXException
@@ -383,16 +379,14 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   /**
    * Return an iterator for dependency files in the archive
    *
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getTranslationSettingsDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
@@ -500,27 +494,17 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE =
       IPSDeployConstants.DEP_OBJECT_TYPE_TRANSLATIONSETTINGS_DEF;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<String>();
 
-  /**
-   * Assembly Helper instance
-   */
+  /** Assembly Helper instance */
   private static IPSContentService m_svc = PSContentServiceLocator.getContentService();
 
-  /**
-   * a delimiter for deserializing the translation settings that have been
-   * aggregated
-   */
+  /** a delimiter for deserializing the translation settings that have been aggregated */
   public static final String AUTOTRANSLATIONS_DELIM = "<!--  -->";
 
   static {

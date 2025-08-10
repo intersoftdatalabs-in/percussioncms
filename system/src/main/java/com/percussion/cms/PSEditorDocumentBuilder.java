@@ -69,120 +69,106 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This is the base class for all document builders. It knows the basic
- * structure of the output document (based on the ContentEditor dtd). The
- * document has several sections, the editing section, and all other sections.
- * <p>The editing section is built using classes that implement the
- * {@link IPSBuildStep} interface. Each build step creates a 'row' in the
- * editing section of the output document (i.e. a &lt;DisplayField&gt; element).
- * <p>The other sections are created by making calls to methods in
- * this class that can be overridden by derived classes. These methods include
- * the following:
+ * This is the base class for all document builders. It knows the basic structure of the output
+ * document (based on the ContentEditor dtd). The document has several sections, the editing
+ * section, and all other sections.
+ *
+ * <p>The editing section is built using classes that implement the {@link IPSBuildStep} interface.
+ * Each build step creates a 'row' in the editing section of the output document (i.e. a
+ * &lt;DisplayField&gt; element).
+ *
+ * <p>The other sections are created by making calls to methods in this class that can be overridden
+ * by derived classes. These methods include the following:
+ *
  * <ul>
- *   <li>CreateActionElement</li>
- *   <li>CreateActionLinkElement</li>
- *   <li>CreateControlNameSetElement</li>
- *   <li>CreateSectionLinkElement</li>
- *   <li>CreateUserStatusElement</li>
- *   <li>CreateWorkflowInfo</li>
+ *   <li>CreateActionElement
+ *   <li>CreateActionLinkElement
+ *   <li>CreateControlNameSetElement
+ *   <li>CreateSectionLinkElement
+ *   <li>CreateUserStatusElement
+ *   <li>CreateWorkflowInfo
  * </ul>
- * All of these methods return a node that is added into the document at the
- * proper location. Some of the methods have a default implementation in
- * this class and some return no element.
- * <p>Each of the build steps for the editing section has 1 of 3 options:
- * create a standard, editable field, create a hidden field, or create an
- * error field. If a hidden field is created, it should be added to this
- * object's build context using its {@link IPSBuildContext#addHiddenField(
- * Element, String) addHiddenField} method. Otherwise, it should be added using
- * its {@link IPSBuildContext#addVisibleField(Element,String) addVisibleField}
- * method.
+ *
+ * All of these methods return a node that is added into the document at the proper location. Some
+ * of the methods have a default implementation in this class and some return no element.
+ *
+ * <p>Each of the build steps for the editing section has 1 of 3 options: create a standard,
+ * editable field, create a hidden field, or create an error field. If a hidden field is created, it
+ * should be added to this object's build context using its {@link IPSBuildContext#addHiddenField(
+ * Element, String) addHiddenField} method. Otherwise, it should be added using its {@link
+ * IPSBuildContext#addVisibleField(Element,String) addVisibleField} method.
  */
 public abstract class PSEditorDocumentBuilder {
   /**
-   * A 1 letter string used as a key to obtain the content id extractor.
-   * Use with {@link #getExtractor(String) getExtractor}.
+   * A 1 letter string used as a key to obtain the content id extractor. Use with {@link
+   * #getExtractor(String) getExtractor}.
    */
   public static final String CONTENT_ID_EXTRACTOR_KEY = "a";
 
   /**
-   * A 1 letter string used as a key to obtain the revision id extractor.
-   * Use with {@link #getExtractor(String) getExtractor}.
+   * A 1 letter string used as a key to obtain the revision id extractor. Use with {@link
+   * #getExtractor(String) getExtractor}.
    */
   public static final String REVISION_ID_EXTRACTOR_KEY = "b";
 
   /**
-   * A 1 letter string used as a key to obtain the child id extractor.
-   * Use with {@link #getExtractor(String) getExtractor}.
+   * A 1 letter string used as a key to obtain the child id extractor. Use with {@link
+   * #getExtractor(String) getExtractor}.
    */
   public static final String CHILD_ID_EXTRACTOR_KEY = "c";
 
   /**
-   * A 1 letter string used as a key to obtain the child row id extractor.
-   * Use with {@link #getExtractor(String) getExtractor}.
+   * A 1 letter string used as a key to obtain the child row id extractor. Use with {@link
+   * #getExtractor(String) getExtractor}.
    */
   public static final String ROW_ID_EXTRACTOR_KEY = "d";
 
   /**
-   * A 1 letter string used as a key to obtain the page id extractor.
-   * Use with {@link #getExtractor(String) getExtractor}.
+   * A 1 letter string used as a key to obtain the page id extractor. Use with {@link
+   * #getExtractor(String) getExtractor}.
    */
   public static final String PAGE_ID_EXTRACTOR_KEY = "e";
 
   /**
-   * Must be all of the letters used for the xxx_ID_EXTRACTOR_KEY constants.
-   * Used for validation.
+   * Must be all of the letters used for the xxx_ID_EXTRACTOR_KEY constants. Used for validation.
    */
   private static final String EXTRACTOR_KEY_SET = "abcde";
 
   // public element names
-  /**
-   * The name of the element in the output doc that contains display text.
-   */
+  /** The name of the element in the output doc that contains display text. */
   public static final String LABEL_NAME = "DisplayLabel";
 
-  /**
-   * The name of the attribute for the mnemonic key.
-   */
+  /** The name of the attribute for the mnemonic key. */
   public static final String ATTR_ACCESSKEY = "accessKey";
 
-  /**
-   * The name of the element in the output doc that contains a parameter.
-   */
+  /** The name of the element in the output doc that contains a parameter. */
   public static final String PARAM_NAME = "Param";
 
   /**
-   * This is the ContentEditor attribute name that contains the url to use
-   * when submitting the document for update. Never <code>null</code> or
-   * empty.
+   * This is the ContentEditor attribute name that contains the url to use when submitting the
+   * document for update. Never <code>null</code> or empty.
    */
   public static final String FORMACTION_NAME = "submitHref";
 
   /**
-   * The internal name of the 'Return to parent' button. Will not change. The
-   * name is 'returntoroot'. This name will be set as the name attribute of
-   * the ActionLink for this button in the output doc.
+   * The internal name of the 'Return to parent' button. Will not change. The name is
+   * 'returntoroot'. This name will be set as the name attribute of the ActionLink for this button
+   * in the output doc.
    */
   public static final String PARENT_RETURN_NAME = "returntoroot";
 
   /**
-   * Processes the supplied editor definition, creating an executable plan
-   * that will be used when requests are made. This is the base class for all
-   * document builders.
+   * Processes the supplied editor definition, creating an executable plan that will be used when
+   * requests are made. This is the base class for all document builders.
    *
    * @param ce The editor definition for the result document. Never <code>null
    *    </code>
-   *
-   * @param ctx A set of properties that are needed to build the document but
-   *    cannot be derived from the editor definition. Never <code>null</code>.
-   *
-   * @param pageId The unique id for this particular editor within the
-   *    collection of editors that make up a content editor.
-   *
-   * @throws PSSystemValidationException If anything is not kosher with the editor
-   *    def.
-   *
-   * @throws PSExtensionException If an extension is used by the definition
-   *    and it can't be loaded.
+   * @param ctx A set of properties that are needed to build the document but cannot be derived from
+   *     the editor definition. Never <code>null</code>.
+   * @param pageId The unique id for this particular editor within the collection of editors that
+   *     make up a content editor.
+   * @throws PSSystemValidationException If anything is not kosher with the editor def.
+   * @throws PSExtensionException If an extension is used by the definition and it can't be loaded.
    */
   protected PSEditorDocumentBuilder(PSContentEditor ce, PSEditorDocumentContext ctx, int pageId)
       throws PSExtensionException, PSSystemValidationException {
@@ -307,17 +293,15 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * If a DisplayField element created by a sub-step should be hidden, it
-   * should be added using this method after the node is created.
+   * If a DisplayField element created by a sub-step should be hidden, it should be added using this
+   * method after the node is created.
    *
-   * @param ctx The build context that contains the list of hidden fields and.
-   * control names.  May not be <code>null</code>.
-   *
-   * @param dispNode A DisplayField element that should not be visible when
-   *    the editor is rendered. Must not be <code>null</code>.
-   *
-   * @param controlName name of the control that should render this node. Must not
-   *    be <code>null</code> or empty.
+   * @param ctx The build context that contains the list of hidden fields and. control names. May
+   *     not be <code>null</code>.
+   * @param dispNode A DisplayField element that should not be visible when the editor is rendered.
+   *     Must not be <code>null</code>.
+   * @param controlName name of the control that should render this node. Must not be <code>null
+   *     </code> or empty.
    */
   private void addHiddenField(
       PSEditorDocumentBuildContext ctx, Element dispNode, String controlName) {
@@ -331,17 +315,15 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * If a DisplayField element created by a sub-step should be visible when
-   * rendered, it should be added using this method after the node is created.
+   * If a DisplayField element created by a sub-step should be visible when rendered, it should be
+   * added using this method after the node is created.
    *
-   * @param ctx The build context that contains the list of hidden fields and.
-   * control names.  May not be <code>null</code>.
-   *
-   * @param dispNode A DisplayField element that should be visible when
-   *    the editor is rendered. Must not be <code>null</code>.
-   *
-   * @param controlName name of the control that should render this node. Must not
-   *    be <code>null</code> or empty.
+   * @param ctx The build context that contains the list of hidden fields and. control names. May
+   *     not be <code>null</code>.
+   * @param dispNode A DisplayField element that should be visible when the editor is rendered. Must
+   *     not be <code>null</code>.
+   * @param controlName name of the control that should render this node. Must not be <code>null
+   *     </code> or empty.
    */
   private void addVisibleField(
       PSEditorDocumentBuildContext ctx, Element dispNode, String controlName) {
@@ -355,9 +337,8 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Each content editor builds 1 or more editors. There is a builder for
-   * each one of these editors. The page id uniquely identifies the page
-   * within the context of this content editor.
+   * Each content editor builds 1 or more editors. There is a builder for each one of these editors.
+   * The page id uniquely identifies the page within the context of this content editor.
    *
    * @return The page id, greater than or = ROOT_PARENT_PAGE_ID.
    */
@@ -366,20 +347,15 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * A method to determine if the request is for a new document or an
-   * existing item. Builders may behave differently in these 2 contexts.
+   * A method to determine if the request is for a new document or an existing item. Builders may
+   * behave differently in these 2 contexts.
    *
-   * @param data The execution data, used to obtain information needed to
-   *    perform the check.
-   *
-   * @param isRowEditor A flag that indicates whether this builder is a
-   *    row editor. [Todo: looking at this again, it is hokey that the base
-   *    class knows something about a derived class. Can this be reworked
-   *    to remove this knowledge?]
-   *
-   * @return <code>true</code> if this request is for an editor to create
-   *    new content for the parent or any child item, <code>false</code>
-   *    otherwise.
+   * @param data The execution data, used to obtain information needed to perform the check.
+   * @param isRowEditor A flag that indicates whether this builder is a row editor. [Todo: looking
+   *     at this again, it is hokey that the base class knows something about a derived class. Can
+   *     this be reworked to remove this knowledge?]
+   * @return <code>true</code> if this request is for an editor to create new content for the parent
+   *     or any child item, <code>false</code> otherwise.
    */
   public static boolean isNewDocument(PSExecutionData data, boolean isRowEditor)
       throws PSDataExtractionException {
@@ -406,15 +382,13 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * This class maintains a set of extractors for system parameters. They
-   * can be obtained by passing in one of the public keys. The map contains
-   * the parameter name (String) as the key with an IPSDataExtractor for that
-   * param as the value.
+   * This class maintains a set of extractors for system parameters. They can be obtained by passing
+   * in one of the public keys. The map contains the parameter name (String) as the key with an
+   * IPSDataExtractor for that param as the value.
    *
    * @param key Must be one of the ...EXTRACTOR_KEY constants.
-   *
-   * @return A map containing the system HTML param name and it's extractor.
-   *    Never <code>null</code>.
+   * @return A map containing the system HTML param name and it's extractor. Never <code>null</code>
+   *     .
    */
   public static Map.Entry getExtractorSet(String key) {
     if (null == key || key.length() > 1 || EXTRACTOR_KEY_SET.indexOf(key) < 0) {
@@ -426,11 +400,9 @@ public abstract class PSEditorDocumentBuilder {
   /**
    * Returns an extractor to get a system parameter using the supplied key.
    *
-   * @param key One of the xxx_ID_EXTRACTOR_KEY constants. No validation is
-   *    performed on the key.
-   *
-   * @return A valid extractor if the key is one of the defined constants,
-   *    otherwise, <code>null</code> is returned.
+   * @param key One of the xxx_ID_EXTRACTOR_KEY constants. No validation is performed on the key.
+   * @return A valid extractor if the key is one of the defined constants, otherwise, <code>null
+   *     </code> is returned.
    */
   public static IPSDataExtractor getExtractor(String key) {
     Map.Entry entry = getExtractorSet(key);
@@ -449,20 +421,16 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * This method creates the main document, adding all fields added to this
-   * object's build context with its {@link IPSBuildContext#addHiddenField(
-   * Element, String) addHiddenField} and {@link
-   * IPSBuildContext#addVisibleField(Element, String) addVisibleField} methods
-   * in the correct location and order.
+   * This method creates the main document, adding all fields added to this object's build context
+   * with its {@link IPSBuildContext#addHiddenField( Element, String) addHiddenField} and {@link
+   * IPSBuildContext#addVisibleField(Element, String) addVisibleField} methods in the correct
+   * location and order.
    *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
-   * @return The final document, ready for return to the requestor. Never
-   *    <code>null</code>
-   *
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    values from the execution data.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
+   * @return The final document, ready for return to the requestor. Never <code>null</code>
+   * @throws PSDataExtractionException If any problems occur while getting values from the execution
+   *     data.
    */
   public Document createResultDocument(PSExecutionData data) throws PSDataExtractionException {
     if (null == data) throw new IllegalArgumentException("Execution data cannot be null");
@@ -542,32 +510,28 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Two general forms of documents are created: those generated as the
-   * result of an agent request, and those generated due to validation
-   * errors.
+   * Two general forms of documents are created: those generated as the result of an agent request,
+   * and those generated due to validation errors.
    *
-   * @return <code>true</code> if this document is being generated because
-   * validation failed, <code>false</code> otherwise.
+   * @return <code>true</code> if this document is being generated because validation failed, <code>
+   *     false</code> otherwise.
    */
   public boolean isErrorDoc() {
     return false;
   }
 
   /**
-   * Most builders use data from result sets. This method is called during the
-   * processing of the result document. Any derived class that uses result
-   * sets should override this method to set the result sets and their
-   * associated context in the execution data. The default behavior is to do
-   * nothing. The result sets in the incoming object have not been set up in
-   * any way.
-   * <p>Derived classes do not need to worry about cleaning up result sets
-   * in the execution data; this will be done by the handler.
+   * Most builders use data from result sets. This method is called during the processing of the
+   * result document. Any derived class that uses result sets should override this method to set the
+   * result sets and their associated context in the execution data. The default behavior is to do
+   * nothing. The result sets in the incoming object have not been set up in any way.
    *
-   * @throws PSConversionException If the appropriate data was not present
-   *    (e.g. too many or too few rows or result sets).
+   * <p>Derived classes do not need to worry about cleaning up result sets in the execution data;
+   * this will be done by the handler.
    *
+   * @throws PSConversionException If the appropriate data was not present (e.g. too many or too few
+   *     rows or result sets).
    * @throws SQLException If any errors occur while preparing the data.
-   *
    * @see PSExecutionData#getNextResultSet()
    * @see PSExecutionData#getCurrentResultRowData()
    * @see PSExecutionData#readRow()
@@ -578,25 +542,20 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * This method is called by the handler after all post exits have run.
-   * The document returned from this method is either returned directly to
-   * the requestor (if the request was for xml) or sent to the xsl processor.
-   * The default implementation adds a 'Return to parent' button at the
-   * bottom of the workflow action list. The button is enabled unless this is
-   * the parent editor, in which case it is disabled.  It also adds a 'New
-   * Version' just above the 'Return to parent' button that is always enabled.
+   * This method is called by the handler after all post exits have run. The document returned from
+   * this method is either returned directly to the requestor (if the request was for xml) or sent
+   * to the xsl processor. The default implementation adds a 'Return to parent' button at the bottom
+   * of the workflow action list. The button is enabled unless this is the parent editor, in which
+   * case it is disabled. It also adds a 'New Version' just above the 'Return to parent' button that
+   * is always enabled.
    *
    * @param doc The result document after all exits have run. May be <code>
    *    null</code>.
-   *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
-   * @return The document to return to the user. If <code>null</code> was
-   *    passed in, it is returned.
-   *
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    values from the execution data.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
+   * @return The document to return to the user. If <code>null</code> was passed in, it is returned.
+   * @throws PSDataExtractionException If any problems occur while getting values from the execution
+   *     data.
    */
   public Document postProcessDocument(Document doc, PSExecutionData data)
       throws PSDataExtractionException {
@@ -742,18 +701,15 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Adds an element to the supplied document that contains all of the workflow
-   * information as defined in the ContentEditor dtd. This is a hook for
-   * derived classes, this class does not add any workflow information.
+   * Adds an element to the supplied document that contains all of the workflow information as
+   * defined in the ContentEditor dtd. This is a hook for derived classes, this class does not add
+   * any workflow information.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
-   * @return A Workflow element with all needed children. This class always
-   *    returns <code>null</code>.
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
+   * @return A Workflow element with all needed children. This class always returns <code>null
+   *     </code>.
    */
   protected Node createWorkflowInfo(Document doc, PSExecutionData data)
       throws PSDataExtractionException {
@@ -763,21 +719,17 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Certain documents require a variant list. A variant list is a set of
-   * objects that supply information necessary to preview the page in
-   * a particular format. Each content item has a specified set of formats
-   * that it can be used with. The variant list must match the format
+   * Certain documents require a variant list. A variant list is a set of objects that supply
+   * information necessary to preview the page in a particular format. Each content item has a
+   * specified set of formats that it can be used with. The variant list must match the format
    * specified by the ContentEditor dtd.
-   * <p>The <code>createResultDocument</code> method of this class calls this
-   * method at the appropriate time, only adding the node if a valid node is
-   * returned.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
+   * <p>The <code>createResultDocument</code> method of this class calls this method at the
+   * appropriate time, only adding the node if a valid node is returned.
    *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
    * @return A VariantList element with all needed children. <code>null
    *    </code> is returned by default.
    */
@@ -789,19 +741,14 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Adds the ControlNames element to the supplied document according to the
-   * ControlEditor dtd. Every name in the supplied list is added as a child
-   * element.
+   * Adds the ControlNames element to the supplied document according to the ControlEditor dtd.
+   * Every name in the supplied list is added as a child element.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param controlNames A valid set containing 0 or more names of display
-   *    controls used by the fields in this document. If no names are supplied,
-   *    no element is added. Never <code>null</code>. If any entry is <code>
-   *    null</code>, it is ignored. This list should contain a unique set of
-   *    control names.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param controlNames A valid set containing 0 or more names of display controls used by the
+   *     fields in this document. If no names are supplied, no element is added. Never <code>null
+   *     </code>. If any entry is <code>
+   *    null</code>, it is ignored. This list should contain a unique set of control names.
    * @return The node, if created, otherwise <code>null</code>.
    */
   protected Node createControlNameSetElement(Document doc, Iterator controlNames) {
@@ -821,16 +768,12 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Adds an element to the supplied document that contains all of the
-   * information in the UserStatus element. The element meets the ContentEditor
-   * dtd.
+   * Adds an element to the supplied document that contains all of the information in the UserStatus
+   * element. The element meets the ContentEditor dtd.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
    * @return The node, if created, otherwise <code>null</code>.
    */
   protected Node createUserStatusElement(Document doc, PSExecutionData data)
@@ -903,15 +846,12 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Checks the supplied field against a cached set of information to determine
-   * if this is a binary field. It also considers the 'forceBinary' flag in
-   * its calculation.
+   * Checks the supplied field against a cached set of information to determine if this is a binary
+   * field. It also considers the 'forceBinary' flag in its calculation.
    *
    * @param field A valid field that needs to be checked. Never <code>null
    *    </code>.
-   *
    * @return <code>true</code> if the supplied field is a binary column
-   *
    * @throws PSSystemValidationException if there are any errors
    */
   public boolean isBinaryField(PSField field) throws PSSystemValidationException {
@@ -974,9 +914,8 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Gets this builder's view evaluator, used to determine if fields should
-   * be visible, and to get the name to use for the view parameter when
-   * creating action links.
+   * Gets this builder's view evaluator, used to determine if fields should be visible, and to get
+   * the name to use for the view parameter when creating action links.
    *
    * @return The view evaluator, never <code>null</code>.
    */
@@ -985,15 +924,13 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Extracts the user's locale/language string from the execution data object
-   * which in turn taken from the user's session. This string shall be in the
-   * syntax of XML language attribute like "fr-ca" or "en-us".
+   * Extracts the user's locale/language string from the execution data object which in turn taken
+   * from the user's session. This string shall be in the syntax of XML language attribute like
+   * "fr-ca" or "en-us".
    *
-   * @param data The execution data, used to obtain locale string, must not
-   * be <code>null</code>.
-   * @return User's locale string as stored in the user session or as the
-   * default language if not found in the session. Never <code>null</code>
-   * or <code>empty</code>.
+   * @param data The execution data, used to obtain locale string, must not be <code>null</code>.
+   * @return User's locale string as stored in the user session or as the default language if not
+   *     found in the session. Never <code>null</code> or <code>empty</code>.
    */
   protected String getUserLocaleString(PSExecutionData data) {
     String lang = PSI18nUtils.DEFAULT_LANG;
@@ -1009,16 +946,14 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Determines whether this field should appear in the output document.
-   * Before creating each display field, this method is called. This allows
-   * derived classes an opportunity to hide a field. This class always
-   * returns <code>true</code>.
+   * Determines whether this field should appear in the output document. Before creating each
+   * display field, this method is called. This allows derived classes an opportunity to hide a
+   * field. This class always returns <code>true</code>.
    *
-   * @param field A valid field for which you want to determine if it should
-   *    be shown. Never <code>null</code>.
-   *
-   * @return <code>true</code> if the field should be placed in the output
-   *    document, <code>false</code> otherwise.
+   * @param field A valid field for which you want to determine if it should be shown. Never <code>
+   *     null</code>.
+   * @return <code>true</code> if the field should be placed in the output document, <code>false
+   *     </code> otherwise.
    */
   boolean showField(PSField field) {
     if (null == field) throw new IllegalArgumentException("field can't be null");
@@ -1026,20 +961,15 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Creates an element for the supplied document that contains all of the
-   * links in the supplied list. If there are no links, no element is added.
-   * The element meets the ContentEditor dtd. Section links are URLs used by
-   * the stylesheet.
+   * Creates an element for the supplied document that contains all of the links in the supplied
+   * list. If there are no links, no element is added. The element meets the ContentEditor dtd.
+   * Section links are URLs used by the stylesheet.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param linkExtractors A valid set containing 0 or more user defined links.
-   *    If empty, no node is created. Never <code>null</code>.
-   *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param linkExtractors A valid set containing 0 or more user defined links. If empty, no node is
+   *     created. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
    * @return The node, if created, otherwise <code>null</code>.
    */
   protected Node createSectionLinkElement(
@@ -1067,19 +997,17 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Creates an element for the supplied document that contains 1 or more
-   * URLs used for Action elements such as buttons (e.g. Insert). The element
-   * meets the ContentEditor dtd. The set of possible actions includes those
-   * set by the user, plus the default actions for the type of document.
-   * <p>Action links are generated by derived classes by implmenting the
-   * {@link #getActionLinks(Document,PSExecutionData) getActionLinks} method.
+   * Creates an element for the supplied document that contains 1 or more URLs used for Action
+   * elements such as buttons (e.g. Insert). The element meets the ContentEditor dtd. The set of
+   * possible actions includes those set by the user, plus the default actions for the type of
+   * document.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
+   * <p>Action links are generated by derived classes by implmenting the {@link
+   * #getActionLinks(Document,PSExecutionData) getActionLinks} method.
    *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
    * @return The node, if created, otherwise <code>null</code>.
    */
   private Node createActionLinkElement(Document doc, PSExecutionData data)
@@ -1107,31 +1035,25 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Creates 0 or more ActionLink elements and returns them. These should
-   * include any designer specified links. These are typically placed at the
-   * bottom of the page and are used to submit the modified document. If
-   * there is no submission, then the list could be empty. All params for
-   * each action are URL encoded so they are ready to be made part of a url,
-   * unless indicated otherwise by the overriding method.
+   * Creates 0 or more ActionLink elements and returns them. These should include any designer
+   * specified links. These are typically placed at the bottom of the page and are used to submit
+   * the modified document. If there is no submission, then the list could be empty. All params for
+   * each action are URL encoded so they are ready to be made part of a url, unless indicated
+   * otherwise by the overriding method.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param data Contains the data associated with this request, used to
-   *    calculate any replacement values. Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param data Contains the data associated with this request, used to calculate any replacement
+   *     values. Never <code>null</code>.
    * @return A list with 0 or more Element entries, never <code>null</code>.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   protected abstract Iterator getActionLinks(Document doc, PSExecutionData data)
       throws PSDataExtractionException;
 
   /**
-   * A convenience method when calling the 6 parameter version of this
-   * method. Passes <code>null</code> for the name of the action and
-   * accesskey.
+   * A convenience method when calling the 6 parameter version of this method. Passes <code>null
+   * </code> for the name of the action and accesskey.
    */
   public static Element createActionElement(
       Document doc, String label, Iterator params, boolean isEnabled) {
@@ -1139,8 +1061,8 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * A convenience method when calling the 6 parameter version of this
-   * method. Passes <code>null</code> for the accesskey.
+   * A convenience method when calling the 6 parameter version of this method. Passes <code>null
+   * </code> for the accesskey.
    */
   public static Element createActionElement(
       Document doc, String label, String name, Iterator params, boolean isEnabled) {
@@ -1150,31 +1072,18 @@ public abstract class PSEditorDocumentBuilder {
   /**
    * Creates an <ActionLink> element according to the ContenetEditor dtd.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param label The text displayed to the user to indicate the action of
-   *    the widget. Non-empty.
-   *
-   * @param name The internal name of the button. If not <code>null</code> or
-   *    empty, then the name param is added to the generated ActionLink
-   *    element.
-   *
-   * @param params A list containing PSMapPair objects. Each object has a
-   *    key that is the name of the param and a value that is the value of
-   *    the param. Each key must be a non-empty String and each value is
-   *    either a String or <code>null</code>. The list is never <code>null
-   *    </code>, may be empty. The params will be added in the order they
-   *    appear in this list.
-   *
-   * @param isEnabled A flag to indicate how the widget should be rendered.
-   *    If <code>true</code> it will appear normally. Otherwise it may be
-   *    grayed or missing all together.
-   *
-   * @param accesskey the mnemonic key for the action, if <code>null</code>
-   *    ignored. If length of the string is more than one after trim, then
-   *    the first character will be considered.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param label The text displayed to the user to indicate the action of the widget. Non-empty.
+   * @param name The internal name of the button. If not <code>null</code> or empty, then the name
+   *     param is added to the generated ActionLink element.
+   * @param params A list containing PSMapPair objects. Each object has a key that is the name of
+   *     the param and a value that is the value of the param. Each key must be a non-empty String
+   *     and each value is either a String or <code>null</code>. The list is never <code>null
+   *    </code>, may be empty. The params will be added in the order they appear in this list.
+   * @param isEnabled A flag to indicate how the widget should be rendered. If <code>true</code> it
+   *     will appear normally. Otherwise it may be grayed or missing all together.
+   * @param accesskey the mnemonic key for the action, if <code>null</code> ignored. If length of
+   *     the string is more than one after trim, then the first character will be considered.
    * @return The generated node, never <code>null</code>.
    */
   public static Element createActionElement(
@@ -1220,11 +1129,10 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Adds a step to the collection of steps that will be executed when a
-   * request is processed. They will be processed in the order they were added.
+   * Adds a step to the collection of steps that will be executed when a request is processed. They
+   * will be processed in the order they were added.
    *
-   * @param step A valid step that creates a DisplayField element while
-   * building a document.
+   * @param step A valid step that creates a DisplayField element while building a document.
    */
   protected void addBuildStep(IPSBuildStep step) {
     if (null == step) throw new IllegalArgumentException("step cannot be null");
@@ -1232,20 +1140,14 @@ public abstract class PSEditorDocumentBuilder {
   }
 
   /**
-   * Adds all of the fields in the supplied list to the document in the
-   * proper location and in the order they appear in the list.
+   * Adds all of the fields in the supplied list to the document in the proper location and in the
+   * order they appear in the list.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Never <code>null</code>.
-   *
-   * @param parent The node to which the generated node will be added.
-   *    Never <code>null</code>.
-   *
+   * @param doc The document to which the element will eventually be added. Never <code>null</code>.
+   * @param parent The node to which the generated node will be added. Never <code>null</code>.
    * @param fields The fields to add. If empty, nothing is done. Never <code>
    *    null</code>. Each entry in the list must be an Element object.
-   *
-   * @return <code>true</code> if any elements are added, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if any elements are added, <code>false</code> otherwise.
    */
   private boolean addFieldElements(Document doc, Element parent, Iterator fields) {
     if (null == doc || null == parent || null == fields)
@@ -1264,8 +1166,8 @@ public abstract class PSEditorDocumentBuilder {
   They are never empty. */
 
   /**
-   * This is the doc root element tag name of the result document. Must not
-   * be empty or <code>null</code>.
+   * This is the doc root element tag name of the result document. Must not be empty or <code>null
+   * </code>.
    */
   /** XML document element name. */
   public static final String ROOT_NAME = "ContentEditor";
@@ -1297,7 +1199,7 @@ public abstract class PSEditorDocumentBuilder {
   /** XML document attribute name */
   private static final String NEW_DOC_ATTRIB = "newDocument";
 
-  /** XML attribute for item locale **/
+  /** XML attribute for item locale * */
   private static final String ITEM_LOCALE_ATTR = "itemLocale";
 
   private static final String TIME_NAME = "Time";
@@ -1331,17 +1233,13 @@ public abstract class PSEditorDocumentBuilder {
 
   private static final String SESSIONID_NAME = "sessionId";
 
-  /**
-   * Attribute name for action link.
-   */
+  /** Attribute name for action link. */
   private static final String DISABLED_NAME = "isDisabled";
 
   private static final String NAME_ANAME = "name";
   private static final String NAME_ENAME = "Name";
 
-  /**
-   * The name of the element that contains the name of an XSL control.
-   */
+  /** The name of the element that contains the name of an XSL control. */
   public static final String CONTROLNAME_NAME = "ControlName";
 
   private static final String USERAGENT_NAME = "UserAgent";
@@ -1350,182 +1248,160 @@ public abstract class PSEditorDocumentBuilder {
   private static final String LANGUAGE = "language";
 
   /**
-   * This is the xml path to the BasicInfo node in the output document,
-   * not including the root. It contains a trailing slash. Never <code>null
+   * This is the xml path to the BasicInfo node in the output document, not including the root. It
+   * contains a trailing slash. Never <code>null
    * </code> or empty.
    */
   private static final String BASICINFO_PATH = "Workflow/BasicInfo/";
 
   /**
-   * The label for the clone button that is added to the workflow actions list.
-   * This button is available in all parent and child
-   * editors and it makes a complete copy of the current item and adds it as
-   * a new item, taking the user to the parent edit screen. Never
-   * <code>null</code> or empty.
+   * The label for the clone button that is added to the workflow actions list. This button is
+   * available in all parent and child editors and it makes a complete copy of the current item and
+   * adds it as a new item, taking the user to the parent edit screen. Never <code>null</code> or
+   * empty.
    */
   private static final String CLONE_LABEL = "New Version";
 
   /**
-   * The button label for the 'Return to parent' button that is added to the
-   * workflow actions list. This button is available in all child editors
-   * and it takes the user back to the root parent. Never <code>null</code>
-   * or empty.
+   * The button label for the 'Return to parent' button that is added to the workflow actions list.
+   * This button is available in all child editors and it takes the user back to the root parent.
+   * Never <code>null</code> or empty.
    */
   private static final String PARENT_RETURN_LABEL = "Return to Parent";
 
-  /**
-   * A concated list of role names, seperated by commas. Never empty.
-   */
+  /** A concated list of role names, seperated by commas. Never empty. */
   private static final String ROLESET_NAME = "Roles";
 
   /**
-   * An array of 0 or more extractors that are used to generate the URLs
-   * passed through to the stylesheet for its own use. Each entry in the
-   * array corresponds to a single link. Never <code>null</code> after
-   * construction.
+   * An array of 0 or more extractors that are used to generate the URLs passed through to the
+   * stylesheet for its own use. Each entry in the array corresponds to a single link. Never <code>
+   * null</code> after construction.
    */
   private IPSDataExtractor[] m_sectionLinkExtractors;
 
   /**
-   * An array of 0 or more extractors that are used to generate the URLs used
-   * for action events such as updating the form. Each entry in the array
-   * corresponds to a single action link. Never <code>null</code> after
-   * construction.
+   * An array of 0 or more extractors that are used to generate the URLs used for action events such
+   * as updating the form. Each entry in the array corresponds to a single action link. Never <code>
+   * null</code> after construction.
    */
   private IPSDataExtractor[] m_actionLinkExtractors;
 
   /**
-   * Extractors to get the UserStatus information. Each entry has a key
-   * whose value is the name of the element tag for which the extractor data
-   * will be used as the value. Never <code>null</code>.
+   * Extractors to get the UserStatus information. Each entry has a key whose value is the name of
+   * the element tag for which the extractor data will be used as the value. Never <code>null</code>
+   * .
    */
   private Map m_userStatusExtractors = new HashMap<>();
 
   /**
-   * These are the operations that will be performed each time a result
-   * document is built. Each step optionally creates a DisplayField element
-   * and adds it to the hidden or visible lists in this object. May be empty
-   * (although unlikely in practice), never <code>null</code>.
+   * These are the operations that will be performed each time a result document is built. Each step
+   * optionally creates a DisplayField element and adds it to the hidden or visible lists in this
+   * object. May be empty (although unlikely in practice), never <code>null</code>.
    */
   private List<IPSBuildStep> m_buildSteps = new ArrayList<>(10);
 
   /**
-   * This is the 'action' for the main form of the resulting editor. It is
-   * relative to the original request. Never empty after construction.
+   * This is the 'action' for the main form of the resulting editor. It is relative to the original
+   * request. Never empty after construction.
    */
   private String m_formAction;
 
-  /**
-   * The name of the command handler that created this document. Never empty
-   * after construction.
-   */
+  /** The name of the command handler that created this document. Never empty after construction. */
   private String m_commandName;
 
   /**
-   * A flag to indicate whether this document was built for editing or
-   * previewing. Set at construction and never changed.
+   * A flag to indicate whether this document was built for editing or previewing. Set at
+   * construction and never changed.
    */
   private boolean m_isEditMode;
 
-  /**
-   * Never <code>null</code> after construction.
-   */
+  /** Never <code>null</code> after construction. */
   protected PSEditorDocumentContext m_docContext;
 
   /**
-   * This extractor can be used to get the content id from the execution
-   * data. The content id may or may not be present in the data. Never
-   * <code>null</code> after construction.
+   * This extractor can be used to get the content id from the execution data. The content id may or
+   * may not be present in the data. Never <code>null</code> after construction.
    */
   private IPSDataExtractor m_contentIdExtractor;
 
   /**
-   * This extractor can be used to get the item locale from the execution
-   * data. The item locale may or may not be present in the data. Never
-   * <code>null</code> after construction.
+   * This extractor can be used to get the item locale from the execution data. The item locale may
+   * or may not be present in the data. Never <code>null</code> after construction.
    */
   private IPSDataExtractor m_itemLocaleExtractor;
 
   /**
-   * A list of IPSInternalResultHandler objects. Each resource will be
-   * queried, and the resulting data will be added to the Workflow element in
-   * the output doc. Never <code>null</code> after construction. May be empty.
+   * A list of IPSInternalResultHandler objects. Each resource will be queried, and the resulting
+   * data will be added to the Workflow element in the output doc. Never <code>null</code> after
+   * construction. May be empty.
    */
   private List m_workflowHandlers;
 
   /**
-   * Contains Map.Entry objects, keyed with the constants
-   * ..._EXTRACTOR_KEY. Each entry has the HTML param as the key and an
-   * extractor to get the output value as the entry's value. Never <code>null
+   * Contains Map.Entry objects, keyed with the constants ..._EXTRACTOR_KEY. Each entry has the HTML
+   * param as the key and an extractor to get the output value as the entry's value. Never <code>
+   * null
    * </code> or empty after construction.
    */
   private static Map ms_paramExtractors;
 
   /**
-   * The unique id for this particular builder within the context of the
-   * content editor. Immutable after being set in ctor.
+   * The unique id for this particular builder within the context of the content editor. Immutable
+   * after being set in ctor.
    */
   private int m_pageId;
 
   /**
-   * Contains the table sets used by this editor. Set during construction,
-   * then immutable. Never <code>null</code>. Each item in the list is a
-   * PSTableSet.
+   * Contains the table sets used by this editor. Set during construction, then immutable. Never
+   * <code>null</code>. Each item in the list is a PSTableSet.
    */
   private List m_tableSets = new ArrayList();
 
   /**
-   * This is the unique content type identifier for this editor. Set during
-   * construction, then immutable. It is stored as a String to save the
-   * conversion for each document constructed.
+   * This is the unique content type identifier for this editor. Set during construction, then
+   * immutable. It is stored as a String to save the conversion for each document constructed.
    */
   private String m_contentTypeId;
 
   /**
-   * This flag holds the status whether or not related content is enabled for
-   * the current content editor. Initialized in ctor, never changed after that.
+   * This flag holds the status whether or not related content is enabled for the current content
+   * editor. Initialized in ctor, never changed after that.
    */
   private boolean m_isRelatedContentEnabled = false;
 
   /**
-   * The object type for this content editor. One of the
-   * PSContentEditor.OBJECT_TYPE_xxx values. Initialized by constructor,
-   * never changed after that.
+   * The object type for this content editor. One of the PSContentEditor.OBJECT_TYPE_xxx values.
+   * Initialized by constructor, never changed after that.
    */
   private int m_objectType;
 
   /**
-   * Map with tableRef alias uppercased as the key (a String) and the
-   * PSTableSet that the table is contained by as the value.  Never <code>null
-   * </code>, entries are added as fields are checked to see if backend column
-   * is binary.
+   * Map with tableRef alias uppercased as the key (a String) and the PSTableSet that the table is
+   * contained by as the value. Never <code>null
+   * </code>, entries are added as fields are checked to see if backend column is binary.
    */
   private Map m_tableRefMap = new HashMap();
 
   /**
-   * Used to determine if fields should be visible at runtime, and to determine
-   * the name to use for the view parameters when constructing actionlinks.
-   * Initialized during construction, never <code>null</code> or modified after
-   * that.
+   * Used to determine if fields should be visible at runtime, and to determine the name to use for
+   * the view parameters when constructing actionlinks. Initialized during construction, never
+   * <code>null</code> or modified after that.
    */
   private PSViewEvaluator m_viewEvaluator;
 
   /**
-   * This class encapsulates the members that are modified by the
-   * methods in the <code>IPSBuildContext interface</code> at run time, in
-   * order to avoid any threading issues.  All method calls are delegated back
-   * to the {@link PSEditorDocumentBuilder}, which in turn uses this class to
-   * access the members.
+   * This class encapsulates the members that are modified by the methods in the <code>
+   * IPSBuildContext interface</code> at run time, in order to avoid any threading issues. All
+   * method calls are delegated back to the {@link PSEditorDocumentBuilder}, which in turn uses this
+   * class to access the members.
    */
   private class PSEditorDocumentBuildContext implements IPSBuildContext {
     /**
-     * Creates a context object to contain the document, hidden field list and
-     * visible field list.
+     * Creates a context object to contain the document, hidden field list and visible field list.
      *
-     * @param parentBuilder The builder to delegate calls to.  May not be
-     * <code>null</code>.
-     * @param resultDoc The result document to provide to the buildsteps.  May
-     * not be <code>null</code>.
+     * @param parentBuilder The builder to delegate calls to. May not be <code>null</code>.
+     * @param resultDoc The result document to provide to the buildsteps. May not be <code>null
+     *     </code>.
      */
     public PSEditorDocumentBuildContext(PSEditorDocumentBuilder parentBuilder, Document resultDoc) {
       if (parentBuilder == null)
@@ -1540,9 +1416,8 @@ public abstract class PSEditorDocumentBuilder {
     /**
      * Accessor for the list of hidden fields.
      *
-     * @return The list, never <code>null</code>, may be empty.  Modifications
-     * to the returned list will be reflected by the list contained in this
-     * object.
+     * @return The list, never <code>null</code>, may be empty. Modifications to the returned list
+     *     will be reflected by the list contained in this object.
      */
     public List getHiddenFields() {
       return m_hiddenFields;
@@ -1551,9 +1426,8 @@ public abstract class PSEditorDocumentBuilder {
     /**
      * Accessor for the list of visible fields.
      *
-     * @return The list, never <code>null</code>, may be empty.  Modifications
-     * to the returned list will be reflected by the list contained in this
-     * object.
+     * @return The list, never <code>null</code>, may be empty. Modifications to the returned list
+     *     will be reflected by the list contained in this object.
      */
     public List getVisibleFields() {
       return m_visibleFields;
@@ -1579,34 +1453,30 @@ public abstract class PSEditorDocumentBuilder {
     }
 
     /**
-     * This is the document that will eventually be returned to the requestor.
-     * Never <code>null</code> after the ctor is called.  Modified by other
-     * classes that obtain this document through {@link #getResultDocument()}.
+     * This is the document that will eventually be returned to the requestor. Never <code>null
+     * </code> after the ctor is called. Modified by other classes that obtain this document through
+     * {@link #getResultDocument()}.
      */
     private Document m_resultDoc;
 
     /**
-     * Contains a list of DisplayField Element objects. They will be added to
-     * the output document at the top of the field list in the order they
-     * appear in this list. May be empty, never <code>null</code>.  Modified
-     * by calls to {@link IPSBuildContext#addHiddenField(
-     * Element, String)}.
+     * Contains a list of DisplayField Element objects. They will be added to the output document at
+     * the top of the field list in the order they appear in this list. May be empty, never <code>
+     * null</code>. Modified by calls to {@link IPSBuildContext#addHiddenField( Element, String)}.
      */
     private List m_hiddenFields = new ArrayList(10);
 
     /**
-     * Contains a list of DisplayField Element objects. They will be added to
-     * the output document following the hidden fields in the order they
-     * appear in this list. May be empty (although unlikely in practice),
-     * never <code>null</code>.   Modified by calls to {@link
+     * Contains a list of DisplayField Element objects. They will be added to the output document
+     * following the hidden fields in the order they appear in this list. May be empty (although
+     * unlikely in practice), never <code>null</code>. Modified by calls to {@link
      * #addVisibleField(Element, String)}.
      */
     private List m_visibleFields = new ArrayList(10);
 
     /**
-     * The editor document builder passed into the ctor to which
-     * IPSBuildContext calls to add hidden and visible fields are delegated.
-     * Never <code>null</code> or modified after that.
+     * The editor document builder passed into the ctor to which IPSBuildContext calls to add hidden
+     * and visible fields are delegated. Never <code>null</code> or modified after that.
      */
     private PSEditorDocumentBuilder m_parentBuilder = null;
   }

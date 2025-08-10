@@ -21,19 +21,14 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 
-/**
- * Handle the input and rendering for the progress bar
- */
+/** Handle the input and rendering for the progress bar */
 public class PSUIProgressBar extends UIOutput {
 
-  /**
-   * The percentage of the progress bar.
-   */
+  /** The percentage of the progress bar. */
   private int m_percent;
 
   /**
-   * @return the value of "percent" attribute. Default to <code>-1</code>
-   *    if any error occurs.
+   * @return the value of "percent" attribute. Default to <code>-1</code> if any error occurs.
    */
   private int getPercent() {
     String v = (String) getAttributes().get("percent");

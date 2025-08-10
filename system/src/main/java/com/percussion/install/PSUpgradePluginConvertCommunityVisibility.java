@@ -57,44 +57,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * Convert community visibility info from tables to acls.
- */
+/** Convert community visibility info from tables to acls. */
 public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePluginBase {
 
-  /**
-   * Db specific information
-   */
+  /** Db specific information */
   private IPSDatasourceManager m_dbm;
 
   // ...existing code...
   private IPSConnectionInfo m_info;
 
   /**
-   * The known community ids. Used for cases where we are returning the shown
-   * communities from the hidden
+   * The known community ids. Used for cases where we are returning the shown communities from the
+   * hidden
    */
   private List m_communityIds = new ArrayList();
 
-  /**
-   * A map of community ids to names.
-   */
+  /** A map of community ids to names. */
   private Map m_communityIdToName = new HashMap();
 
-  /**
-   * The connection details, used to qualify the table name
-   */
+  /** The connection details, used to qualify the table name */
   private PSConnectionDetail m_details;
 
-  /**
-   * Used for logging, initialized in
-   * {@link #process(IPSUpgradeModule, Element)}
-   */
+  /** Used for logging, initialized in {@link #process(IPSUpgradeModule, Element)} */
   private IPSUpgradeModule m_config;
 
-  /**
-   * How many acls to save after accumulating them across different sources.
-   */
+  /** How many acls to save after accumulating them across different sources. */
   private static final int ACL_BATCH_SIZE = 50;
 
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
@@ -150,10 +137,10 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
 
   /**
    * Save acls if the count is greater than the threshold.
+   *
    * @param asvc the acl service, assumed never <code>null</code>.
    * @param acls the list of acls to save, assumed never <code>null</code>.
-   * @param limit if the list has at least the number of elements in the
-   * limit, then save.
+   * @param limit if the list has at least the number of elements in the limit, then save.
    * @throws Exception if there's an error saving the acls
    */
   private void saveAcls(IPSAclService asvc, List acls, int limit) throws Exception {
@@ -163,9 +150,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     }
   }
 
-  /**
-   * Replaces spaces with underscores in community names.
-   */
+  /** Replaces spaces with underscores in community names. */
   private void fixCommunityNames() {
     final List communities = getRoleMgr().findCommunitiesByName(null);
     final List communitiesToFixNames = findCommunitiesToFixNames(communities);
@@ -180,9 +165,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     }
   }
 
-  /**
-   * Selects communities from the list which need their names to be fixed.
-   */
+  /** Selects communities from the list which need their names to be fixed. */
   private List findCommunitiesToFixNames(final List communities) {
     final List communitiesToFixNames = new ArrayList();
     for (Iterator i = communities.iterator(); i.hasNext(); ) {
@@ -195,9 +178,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     return communitiesToFixNames;
   }
 
-  /**
-   * Set of community names extracted from the provided communities.
-   */
+  /** Set of community names extracted from the provided communities. */
   private Set getCommunityNames(final List communities) {
     final Set names = new HashSet();
     for (Iterator i = communities.iterator(); i.hasNext(); ) {
@@ -211,11 +192,10 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * Process a single entry from the input document.
    *
    * @param el the single entry, never <code>null</code>
-   * @param acls the list to add the acls to, will be saved by the caller,
-   *           assumed never <code>null</code>.
-   * @return <code>null</code> if there are no errors, otherwise a
-   *         description of the problem(s) found
-   *
+   * @param acls the list to add the acls to, will be saved by the caller, assumed never <code>null
+   *     </code>.
+   * @return <code>null</code> if there are no errors, otherwise a description of the problem(s)
+   *     found
    */
   private String processEntry(Node el, List acls) {
     if (el == null) {
@@ -293,9 +273,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
     return null;
   }
 
-  /**
-   * Convenience method to access role manager.
-   */
+  /** Convenience method to access role manager. */
   private IPSBackEndRoleMgr getRoleMgr() {
     return PSRoleMgrLocator.getBackEndRoleManager();
   }
@@ -303,10 +281,9 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
   /**
    * Get the data from the element
    *
-   * @param element a dom element with the correct information to extract the
-   *           data
-   * @return the map contains Long ids to Long lists. The key is the object id
-   *         and the value is a list of visible community ids
+   * @param element a dom element with the correct information to extract the data
+   * @return the map contains Long ids to Long lists. The key is the object id and the value is a
+   *     list of visible community ids
    * @throws SQLException
    * @throws NamingException
    */
@@ -320,12 +297,11 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
   }
 
   /**
-   * Deletes the rows from the table that correspond to those described by the
-   * supplied element. If the table's style is not <code>property</code>,
-   * returns immediately.
+   * Deletes the rows from the table that correspond to those described by the supplied element. If
+   * the table's style is not <code>property</code>, returns immediately.
    *
-   * @param element a dom element with the correct information to extract the
-   *           data, assumed not <code>null</code>.
+   * @param element a dom element with the correct information to extract the data, assumed not
+   *     <code>null</code>.
    * @throws SQLException If any problems working w/ the db.
    * @throws NamingException If we can't lookup the name of the connection.
    */
@@ -369,15 +345,13 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
 
   /**
    * Get the information from a property table
-   * <p>
-   * Example: &lt;el type="SEARCH" style="property" name="psx_searchproperties"
-   * objectid="propertyid" property-column="propertyname"
-   * value-column="propertyvalue" property-name="sys_community" /&gt;
+   *
+   * <p>Example: &lt;el type="SEARCH" style="property" name="psx_searchproperties"
+   * objectid="propertyid" property-column="propertyname" value-column="propertyvalue"
+   * property-name="sys_community" /&gt;
    *
    * @param element the element
-   *
-   * @return a list, see {@link #getData(Element)} for details on the return
-   *         value
+   * @return a list, see {@link #getData(Element)} for details on the return value
    * @throws SQLException
    * @throws NamingException
    */
@@ -413,14 +387,12 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
 
   /**
    * Get the information from a join table
-   * <p>
-   * Example: &lt;el type="TEMPLATE" style="join" name="rxvariantcommunity"
-   * objectid="variantid" community="communityid" /&gt;
+   *
+   * <p>Example: &lt;el type="TEMPLATE" style="join" name="rxvariantcommunity" objectid="variantid"
+   * community="communityid" /&gt;
    *
    * @param element the element
-   *
-   * @return a map, see {@link #getData(Element)} for details on the return
-   *         value
+   * @return a map, see {@link #getData(Element)} for details on the return value
    * @throws SQLException
    * @throws NamingException
    */
@@ -448,10 +420,8 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
    * Do query on the session
    *
    * @param query
-   * @param hide if this is <code>true</code> then we're returning the
-   *           communities that are not in the query, i.e. the query returns
-   *           the communities that don't have access
-   *
+   * @param hide if this is <code>true</code> then we're returning the communities that are not in
+   *     the query, i.e. the query returns the communities that don't have access
    * @return a list of results, see the hibernate doc for details
    * @throws SQLException
    * @throws NamingException
@@ -525,8 +495,7 @@ public class PSUpgradePluginConvertCommunityVisibility extends PSSpringUpgradePl
   }
 
   /**
-   * Prints message to the log printstream if it exists or just sends it to
-   * System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

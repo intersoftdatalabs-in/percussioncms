@@ -28,7 +28,6 @@ import org.w3c.dom.NodeList;
 
 /**
  * @author JaySeletz
- *
  */
 public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePlugin {
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
@@ -50,15 +49,12 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
   }
 
   /**
-   * Upgrade the configuration.  Package access to allow for unit testing.
+   * Upgrade the configuration. Package access to allow for unit testing.
    *
-   * @param target the target file.  Must be non-<code>null</code> and must
-   * exist.
-   * @param backup a backup of the current target will be copied to this
-   * location, overwriting the current file if it exists.
-   *
+   * @param target the target file. Must be non-<code>null</code> and must exist.
+   * @param backup a backup of the current target will be copied to this location, overwriting the
+   *     current file if it exists.
    * @return <code>true</code> if this succeeds.
-   *
    * @throws Exception If an error occurs.
    */
   boolean upgradeConfig(File target, File backup) throws Exception {
@@ -124,7 +120,8 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
   }
 
   /**
-   * Calls {@link #upgradeDeliveryServer(Document, Element)} for each {@link #DELIVERY_SERVER_TAGNAME} found in the supplied doc.
+   * Calls {@link #upgradeDeliveryServer(Document, Element)} for each {@link
+   * #DELIVERY_SERVER_TAGNAME} found in the supplied doc.
    *
    * @param doc
    */
@@ -138,7 +135,9 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
   }
 
   /**
-   * Called by {@link #upgradeDeliveryServers(Document)}, each sub-class should override to provide the upgrade behavior.
+   * Called by {@link #upgradeDeliveryServers(Document)}, each sub-class should override to provide
+   * the upgrade behavior.
+   *
    * @param doc The doc being updated, not <code>null</code>
    * @param deliveryServer The {@link #DELIVERY_SERVER_TAGNAME} element to upgrade.
    */
@@ -151,9 +150,7 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
    */
   protected abstract String getDeliveryServersFilePath();
 
-  /**
-   * Xml tag, value constants
-   */
+  /** Xml tag, value constants */
   protected static final String DELIVERY_SERVER_TAGNAME = "DeliveryServer";
 
   protected static final String AVAILABLE_SERVICES_TAGNAME = "availableServices";
@@ -171,8 +168,8 @@ public abstract class PSUpgradePluginDeliveryServersBase implements IPSUpgradePl
   protected static final String ALLOW_SELF_SIGNED_CERT_TAGNAME = "allow-self-signed-certificate";
 
   /**
-   * Used for logging output to the plugin log file, initialized in
-   * {@link #process(IPSUpgradeModule, Element)}.
+   * Used for logging output to the plugin log file, initialized in {@link
+   * #process(IPSUpgradeModule, Element)}.
    */
   private static PrintStream ms_logger;
 }

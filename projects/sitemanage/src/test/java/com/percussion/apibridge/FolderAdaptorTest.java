@@ -28,332 +28,366 @@ import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.folders.Folder;
 import com.percussion.rest.folders.SectionInfo;
-import com.percussion.rest.pages.Page;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
-
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
+import java.net.URI;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-import java.net.URI;
-
 @Tag("IntegrationTest")
 class FolderAdaptorTest extends PSServletTestCase {
-    private static final String tempPrefix = "FolderAdaptorTest";
-    private static final String FIXTURE_SITE_NAME = "PSSiteDataServletTestCaseFixtureSite";
-    private static final String API_BASE_URL = "http://localhost:9992/Rhythmyx/rest";
-    private URI baseUri;
-    private PSSiteDataServletTestCaseFixture fixture;
-    private String templateId;
+  private static final String tempPrefix = "FolderAdaptorTest";
+  private static final String FIXTURE_SITE_NAME = "PSSiteDataServletTestCaseFixtureSite";
+  private static final String API_BASE_URL = "http://localhost:9992/Rhythmyx/rest";
+  private URI baseUri;
+  private PSSiteDataServletTestCaseFixture fixture;
+  private String templateId;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        baseUri = new URI(API_BASE_URL);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp("Admin", "demo", "Default");
-        fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/index.html");
-        super.setUp();
+  @BeforeEach
+  void setUp() throws Exception {
+    baseUri = new URI(API_BASE_URL);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp("Admin", "demo", "Default");
+    fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/index.html");
+    super.setUp();
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    fixture.tearDown();
+  }
+
+  @Test
+  void testGetSite() throws Exception {
+    var folder = folderAdaptor.getFolder(baseUri, fixture.site1.getName(), "", "");
+    assertNotNull(folder.getId());
+  }
+
+  private static final String RENAME_FOLDER_TEST = "renameFolder";
+
+  /** Test renaming folders. This test should be self-contained and clean up after itself. */
+  @Test
+  void testRenameFolder() throws BackendException {
+    var folder = new Folder();
+    var mFolder = new Folder();
+    var testRoot = new Folder();
+
+    var rootSec = new SectionInfo();
+    rootSec.setTemplateName(fixture.template1.getName());
+    rootSec.setDisplayTitle(RENAME_FOLDER_TEST);
+    testRoot.setSiteName(FIXTURE_SITE_NAME);
+    testRoot.setName(RENAME_FOLDER_TEST);
+    testRoot.setSectionInfo(rootSec);
+    testRoot.setPath("");
+    testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
+    assertEquals(RENAME_FOLDER_TEST, testRoot.getName());
+    fixture.pageCleaner.add(
+        "/Sites/" + FIXTURE_SITE_NAME + "/" + RENAME_FOLDER_TEST + "/index.html");
+
+    mFolder.setName(RENAME_FOLDER_TEST);
+    mFolder.setPath("");
+    mFolder.setSiteName(FIXTURE_SITE_NAME);
+    mFolder = folderAdaptor.updateFolder(baseUri, mFolder);
+
+    folder.setName("folder1");
+    folder.setPath(RENAME_FOLDER_TEST);
+    folder.setSiteName(FIXTURE_SITE_NAME);
+    folder = folderAdaptor.updateFolder(baseUri, folder);
+
+    var returnedRenamedFolder =
+        folderAdaptor.renameFolder(
+            baseUri, folder.getSiteName(), folder.getPath(), folder.getName(), "folder2");
+    var renamedFolder =
+        folderAdaptor.getFolder(baseUri, folder.getSiteName(), folder.getPath(), "folder2");
+
+    assertEquals(
+        returnedRenamedFolder.getName(), renamedFolder.getName(), "Folder names should match");
+    assertEquals(
+        returnedRenamedFolder.getPath(), renamedFolder.getPath(), "Folder paths should match");
+    assertEquals(
+        returnedRenamedFolder.getSiteName(),
+        renamedFolder.getSiteName(),
+        "Folder sites should match");
+  }
+
+  private static final String MOVE_FOLDER_TEST = "moveFolder";
+
+  /** Test moving a folder. This test should be self-contained and clean up after itself. */
+  @Test
+  void testMoveFolder() throws BackendException {
+    var folder = new Folder();
+    var folder2 = new Folder();
+    var testRoot = new Folder();
+
+    var rootSec = new SectionInfo();
+    rootSec.setTemplateName(fixture.template1.getName());
+    rootSec.setDisplayTitle(MOVE_FOLDER_TEST);
+    testRoot.setSiteName(FIXTURE_SITE_NAME);
+    testRoot.setName(MOVE_FOLDER_TEST);
+    testRoot.setSectionInfo(rootSec);
+    testRoot.setPath("");
+    testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
+    assertEquals(MOVE_FOLDER_TEST, testRoot.getName());
+    fixture.pageCleaner.add("/Sites/" + FIXTURE_SITE_NAME + "/" + MOVE_FOLDER_TEST + "/index.html");
+
+    folder.setName("folder1");
+    folder.setPath(MOVE_FOLDER_TEST);
+    folder.setSiteName(FIXTURE_SITE_NAME);
+    folder = folderAdaptor.updateFolder(baseUri, folder);
+
+    folder2.setName("folder2");
+    folder2.setPath(MOVE_FOLDER_TEST);
+    folder2.setSiteName(FIXTURE_SITE_NAME);
+    folder2 = folderAdaptor.updateFolder(baseUri, folder2);
+
+    folderAdaptor.moveFolder(
+        baseUri,
+        "/Sites/" + folder.getSiteName() + "/" + folder.getPath() + "/" + folder.getName(),
+        "/Sites/" + folder.getSiteName() + "/" + folder2.getPath() + "/" + folder2.getName());
+    var renamedFolder =
+        folderAdaptor.getFolder(
+            baseUri, folder2.getSiteName(), folder2.getPath() + "/" + folder2.getName(), "folder1");
+
+    assertEquals("folder1", renamedFolder.getName(), "Folder names should match");
+
+    try {
+      var oldFolder =
+          folderAdaptor.getFolder(
+              baseUri, folder.getSiteName(), folder.getPath(), folder.getName());
+      assertNull(oldFolder, "Old folder should be gone.");
+    } catch (Exception e) {
+      // Expected: folder should not exist
     }
+  }
 
-    @AfterEach
-    void tearDown() throws Exception {
-        fixture.tearDown();
-    }
+  private static final String MOVE_FOLDER_ITEM_TEST = "moveFolderItem";
 
-    @Test
-    void testGetSite() throws Exception {
-        var folder = folderAdaptor.getFolder(baseUri, fixture.site1.getName(), "", "");
-        assertNotNull(folder.getId());
-    }
+  /**
+   * Tests moving an item from one folder to another. Test should be self-contained and clean up
+   * after itself.
+   */
+  @Test
+  void testMoveFolderItem() throws BackendException, PSDataServiceException {
+    var folder = new Folder();
+    var folder2 = new Folder();
+    var testRoot = new Folder();
 
-    private static final String RENAME_FOLDER_TEST = "renameFolder";
+    var rootSec = new SectionInfo();
+    rootSec.setTemplateName(fixture.template1.getName());
+    rootSec.setDisplayTitle(MOVE_FOLDER_ITEM_TEST);
+    testRoot.setSiteName(FIXTURE_SITE_NAME);
+    testRoot.setName(MOVE_FOLDER_ITEM_TEST);
+    testRoot.setSectionInfo(rootSec);
+    testRoot.setPath("");
+    testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
+    assertEquals(MOVE_FOLDER_ITEM_TEST, testRoot.getName());
+    fixture.pageCleaner.add(
+        "/Sites/" + FIXTURE_SITE_NAME + "/" + MOVE_FOLDER_ITEM_TEST + "/index.html");
 
-    /**
-     * Test renaming folders. This test should be self-contained and clean up after itself.
-     */
-    @Test
-    void testRenameFolder() throws BackendException {
-        var folder = new Folder();
-        var mFolder = new Folder();
-        var testRoot = new Folder();
+    folder.setName("folder1");
+    folder.setPath(MOVE_FOLDER_ITEM_TEST);
+    folder.setSiteName(FIXTURE_SITE_NAME);
+    var sec = new SectionInfo();
+    sec.setDisplayTitle("folder1");
+    sec.setTemplateName(fixture.template1.getName());
+    folder.setSectionInfo(sec);
+    folder = folderAdaptor.updateFolder(baseUri, folder);
 
-        var rootSec = new SectionInfo();
-        rootSec.setTemplateName(fixture.template1.getName());
-        rootSec.setDisplayTitle(RENAME_FOLDER_TEST);
-        testRoot.setSiteName(FIXTURE_SITE_NAME);
-        testRoot.setName(RENAME_FOLDER_TEST);
-        testRoot.setSectionInfo(rootSec);
-        testRoot.setPath("");
-        testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
-        assertEquals(RENAME_FOLDER_TEST, testRoot.getName());
-        fixture.pageCleaner.add("/Sites/" + FIXTURE_SITE_NAME + "/" + RENAME_FOLDER_TEST + "/index.html");
+    folder2.setName("folder2");
+    folder2.setPath(MOVE_FOLDER_ITEM_TEST);
+    folder2.setSiteName(FIXTURE_SITE_NAME);
+    folder2 = folderAdaptor.updateFolder(baseUri, folder2);
 
-        mFolder.setName(RENAME_FOLDER_TEST);
-        mFolder.setPath("");
-        mFolder.setSiteName(FIXTURE_SITE_NAME);
-        mFolder = folderAdaptor.updateFolder(baseUri, mFolder);
+    folderAdaptor.moveFolderItem(
+        baseUri,
+        "/Sites/"
+            + folder.getSiteName()
+            + "/"
+            + folder.getPath()
+            + "/"
+            + folder.getName()
+            + "/index.html",
+        "/Sites/" + folder2.getSiteName() + "/" + folder2.getPath() + "/" + folder2.getName());
 
-        folder.setName("folder1");
-        folder.setPath(RENAME_FOLDER_TEST);
-        folder.setSiteName(FIXTURE_SITE_NAME);
-        folder = folderAdaptor.updateFolder(baseUri, folder);
+    var p =
+        pageAdaptor.getPage(
+            baseUri,
+            folder2.getSiteName(),
+            folder2.getPath() + "/" + folder2.getName(),
+            "index.html");
+    fixture.pageCleaner.add(
+        "/Sites/"
+            + FIXTURE_SITE_NAME
+            + "/"
+            + MOVE_FOLDER_ITEM_TEST
+            + "/"
+            + folder2.getName()
+            + "/index.html");
 
-        var returnedRenamedFolder = folderAdaptor.renameFolder(baseUri, folder.getSiteName(), folder.getPath(), folder.getName(), "folder2");
-        var renamedFolder = folderAdaptor.getFolder(baseUri, folder.getSiteName(), folder.getPath(), "folder2");
+    assertEquals("index.html", p.getName(), "Page name should match");
+    assertEquals(
+        folder2.getPath() + "/" + folder2.getName(),
+        p.getFolderPath(),
+        "Folder paths should match");
+  }
 
-        assertEquals(returnedRenamedFolder.getName(), renamedFolder.getName(), "Folder names should match");
-        assertEquals(returnedRenamedFolder.getPath(), renamedFolder.getPath(), "Folder paths should match");
-        assertEquals(returnedRenamedFolder.getSiteName(), renamedFolder.getSiteName(), "Folder sites should match");
-    }
+  public IPSPageService getPageService() {
+    return pageService;
+  }
 
-    private static final String MOVE_FOLDER_TEST = "moveFolder";
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-    /**
-     * Test moving a folder. This test should be self-contained and clean up after itself.
-     */
-    @Test
-    void testMoveFolder() throws BackendException {
-        var folder = new Folder();
-        var folder2 = new Folder();
-        var testRoot = new Folder();
+  public IPSTemplateService getTemplateService() {
+    return templateService;
+  }
 
-        var rootSec = new SectionInfo();
-        rootSec.setTemplateName(fixture.template1.getName());
-        rootSec.setDisplayTitle(MOVE_FOLDER_TEST);
-        testRoot.setSiteName(FIXTURE_SITE_NAME);
-        testRoot.setName(MOVE_FOLDER_TEST);
-        testRoot.setSectionInfo(rootSec);
-        testRoot.setPath("");
-        testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
-        assertEquals(MOVE_FOLDER_TEST, testRoot.getName());
-        fixture.pageCleaner.add("/Sites/" + FIXTURE_SITE_NAME + "/" + MOVE_FOLDER_TEST + "/index.html");
+  public void setTemplateService(IPSTemplateService templateService) {
+    this.templateService = templateService;
+  }
 
-        folder.setName("folder1");
-        folder.setPath(MOVE_FOLDER_TEST);
-        folder.setSiteName(FIXTURE_SITE_NAME);
-        folder = folderAdaptor.updateFolder(baseUri, folder);
+  public IPSAssetService getAssetService() {
+    return assetService;
+  }
 
-        folder2.setName("folder2");
-        folder2.setPath(MOVE_FOLDER_TEST);
-        folder2.setSiteName(FIXTURE_SITE_NAME);
-        folder2 = folderAdaptor.updateFolder(baseUri, folder2);
+  public void setAssetService(IPSAssetService assetService) {
+    this.assetService = assetService;
+  }
 
-        folderAdaptor.moveFolder(baseUri, "/Sites/" + folder.getSiteName() + "/" + folder.getPath() + "/" + folder.getName(),
-                "/Sites/" + folder.getSiteName() + "/" + folder2.getPath() + "/" + folder2.getName());
-        var renamedFolder = folderAdaptor.getFolder(baseUri, folder2.getSiteName(), folder2.getPath() + "/" + folder2.getName(), "folder1");
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
 
-        assertEquals("folder1", renamedFolder.getName(), "Folder names should match");
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
 
-        try {
-            var oldFolder = folderAdaptor.getFolder(baseUri, folder.getSiteName(), folder.getPath(), folder.getName());
-            assertNull(oldFolder, "Old folder should be gone.");
-        } catch (Exception e) {
-            // Expected: folder should not exist
-        }
-    }
+  public IPSSecurityWs getSecurityWs() {
+    return securityWs;
+  }
 
-    private static final String MOVE_FOLDER_ITEM_TEST = "moveFolderItem";
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
 
-    /**
-     * Tests moving an item from one folder to another. Test should be self-contained and clean up after itself.
-     */
-    @Test
-    void testMoveFolderItem() throws BackendException, PSDataServiceException {
-        var folder = new Folder();
-        var folder2 = new Folder();
-        var testRoot = new Folder();
+  public IPSSystemWs getSystemWs() {
+    return systemWs;
+  }
 
-        var rootSec = new SectionInfo();
-        rootSec.setTemplateName(fixture.template1.getName());
-        rootSec.setDisplayTitle(MOVE_FOLDER_ITEM_TEST);
-        testRoot.setSiteName(FIXTURE_SITE_NAME);
-        testRoot.setName(MOVE_FOLDER_ITEM_TEST);
-        testRoot.setSectionInfo(rootSec);
-        testRoot.setPath("");
-        testRoot = this.folderAdaptor.updateFolder(baseUri, testRoot);
-        assertEquals(MOVE_FOLDER_ITEM_TEST, testRoot.getName());
-        fixture.pageCleaner.add("/Sites/" + FIXTURE_SITE_NAME + "/" + MOVE_FOLDER_ITEM_TEST + "/index.html");
+  public void setSystemWs(IPSSystemWs systemWs) {
+    this.systemWs = systemWs;
+  }
 
-        folder.setName("folder1");
-        folder.setPath(MOVE_FOLDER_ITEM_TEST);
-        folder.setSiteName(FIXTURE_SITE_NAME);
-        var sec = new SectionInfo();
-        sec.setDisplayTitle("folder1");
-        sec.setTemplateName(fixture.template1.getName());
-        folder.setSectionInfo(sec);
-        folder = folderAdaptor.updateFolder(baseUri, folder);
+  public IPSWidgetService getWidgetService() {
+    return widgetService;
+  }
 
-        folder2.setName("folder2");
-        folder2.setPath(MOVE_FOLDER_ITEM_TEST);
-        folder2.setSiteName(FIXTURE_SITE_NAME);
-        folder2 = folderAdaptor.updateFolder(baseUri, folder2);
+  public void setWidgetService(IPSWidgetService widgetService) {
+    this.widgetService = widgetService;
+  }
 
-        folderAdaptor.moveFolderItem(baseUri, "/Sites/" + folder.getSiteName() + "/" + folder.getPath() + "/" + folder.getName() + "/index.html",
-                "/Sites/" + folder2.getSiteName() + "/" + folder2.getPath() + "/" + folder2.getName());
+  public IPSContentWs getContentWs() {
+    return contentWs;
+  }
 
-        var p = pageAdaptor.getPage(baseUri, folder2.getSiteName(), folder2.getPath() + "/" + folder2.getName(), "index.html");
-        fixture.pageCleaner.add("/Sites/" + FIXTURE_SITE_NAME + "/" + MOVE_FOLDER_ITEM_TEST + "/" + folder2.getName() + "/index.html");
+  public void setContentWs(IPSContentWs contentWs) {
+    this.contentWs = contentWs;
+  }
 
-        assertEquals("index.html", p.getName(), "Page name should match");
-        assertEquals(folder2.getPath() + "/" + folder2.getName(), p.getFolderPath(), "Folder paths should match");
-    }
+  public IPSAssetDao getAssetDao() {
+    return assetDao;
+  }
 
-    public IPSPageService getPageService() {
-        return pageService;
-    }
+  public void setAssetDao(IPSAssetDao assetDao) {
+    this.assetDao = assetDao;
+  }
 
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
+  public IPSWidgetAssetRelationshipService getWidgetAssetRelationshipService() {
+    return widgetAssetRelationshipService;
+  }
 
-    public IPSTemplateService getTemplateService() {
-        return templateService;
-    }
+  public void setWidgetAssetRelationshipServiceao(
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
+    this.widgetAssetRelationshipService = widgetAssetRelationshipService;
+  }
 
-    public void setTemplateService(IPSTemplateService templateService) {
-        this.templateService = templateService;
-    }
+  public IPSContentDesignWs getContentDesignWs() {
+    return contentDesignWs;
+  }
 
-    public IPSAssetService getAssetService() {
-        return assetService;
-    }
+  public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
+    this.contentDesignWs = contentDesignWs;
+  }
 
-    public void setAssetService(IPSAssetService assetService) {
-        this.assetService = assetService;
-    }
+  public IPSItemWorkflowService getItemWorkflowService() {
+    return itemWorkflowService;
+  }
 
-    public IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+  public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
+    this.itemWorkflowService = itemWorkflowService;
+  }
 
-    public void setIdMapper(IPSIdMapper idMapper) {
-        this.idMapper = idMapper;
-    }
+  public IPSCmsObjectMgr getCmsObjectMgr() {
+    return cmsObjectMgr;
+  }
 
-    public IPSSecurityWs getSecurityWs() {
-        return securityWs;
-    }
+  public void setCmsObjectMgr(IPSCmsObjectMgr cmsObjectMgr) {
+    this.cmsObjectMgr = cmsObjectMgr;
+  }
 
-    public void setSecurityWs(IPSSecurityWs securityWs) {
-        this.securityWs = securityWs;
-    }
+  public void setFolderHelper(IPSFolderHelper folderHelper) {
+    this.folderHelper = folderHelper;
+  }
 
-    public IPSSystemWs getSystemWs() {
-        return systemWs;
-    }
+  public FolderAdaptor getFolderAdaptor() {
+    return folderAdaptor;
+  }
 
-    public void setSystemWs(IPSSystemWs systemWs) {
-        this.systemWs = systemWs;
-    }
+  public void setFolderAdaptor(FolderAdaptor folderAdaptor) {
+    this.folderAdaptor = folderAdaptor;
+  }
 
-    public IPSWidgetService getWidgetService() {
-        return widgetService;
-    }
+  public PageAdaptor getPageAdaptor() {
+    return pageAdaptor;
+  }
 
-    public void setWidgetService(IPSWidgetService widgetService) {
-        this.widgetService = widgetService;
-    }
+  public void setPageAdaptor(PageAdaptor pageAdaptor) {
+    this.pageAdaptor = pageAdaptor;
+  }
 
-    public IPSContentWs getContentWs() {
-        return contentWs;
-    }
+  public AssetAdaptor getAssetAdaptor() {
+    return assetAdaptor;
+  }
 
-    public void setContentWs(IPSContentWs contentWs) {
-        this.contentWs = contentWs;
-    }
+  public void setAssetAdaptor(AssetAdaptor assetAdaptor) {
+    this.assetAdaptor = assetAdaptor;
+  }
 
-    public IPSAssetDao getAssetDao() {
-        return assetDao;
-    }
-
-    public void setAssetDao(IPSAssetDao assetDao) {
-        this.assetDao = assetDao;
-    }
-
-    public IPSWidgetAssetRelationshipService getWidgetAssetRelationshipService() {
-        return widgetAssetRelationshipService;
-    }
-
-    public void setWidgetAssetRelationshipServiceao(IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
-        this.widgetAssetRelationshipService = widgetAssetRelationshipService;
-    }
-
-    public IPSContentDesignWs getContentDesignWs() {
-        return contentDesignWs;
-    }
-
-    public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
-        this.contentDesignWs = contentDesignWs;
-    }
-
-    public IPSItemWorkflowService getItemWorkflowService() {
-        return itemWorkflowService;
-    }
-
-    public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
-        this.itemWorkflowService = itemWorkflowService;
-    }
-
-    public IPSCmsObjectMgr getCmsObjectMgr() {
-        return cmsObjectMgr;
-    }
-
-    public void setCmsObjectMgr(IPSCmsObjectMgr cmsObjectMgr) {
-        this.cmsObjectMgr = cmsObjectMgr;
-    }
-
-    public void setFolderHelper(IPSFolderHelper folderHelper) {
-        this.folderHelper = folderHelper;
-    }
-
-    public FolderAdaptor getFolderAdaptor() {
-        return folderAdaptor;
-    }
-
-    public void setFolderAdaptor(FolderAdaptor folderAdaptor) {
-        this.folderAdaptor = folderAdaptor;
-    }
-
-    public PageAdaptor getPageAdaptor() {
-        return pageAdaptor;
-    }
-
-    public void setPageAdaptor(PageAdaptor pageAdaptor) {
-        this.pageAdaptor = pageAdaptor;
-    }
-
-    public AssetAdaptor getAssetAdaptor() {
-        return assetAdaptor;
-    }
-
-    public void setAssetAdaptor(AssetAdaptor assetAdaptor) {
-        this.assetAdaptor = assetAdaptor;
-    }
-
-    private IPSPageService pageService;
-    private IPSTemplateService templateService;
-    private IPSAssetService assetService;
-    private IPSIdMapper idMapper;
-    private IPSSecurityWs securityWs;
-    private IPSSystemWs systemWs;
-    private IPSWidgetService widgetService;
-    private IPSContentWs contentWs;
-    private IPSAssetDao assetDao;
-    private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
-    private IPSContentDesignWs contentDesignWs;
-    private IPSItemWorkflowService itemWorkflowService;
-    private IPSCmsObjectMgr cmsObjectMgr;
-    private IPSFolderHelper folderHelper;
-    private FolderAdaptor folderAdaptor;
-    private PageAdaptor pageAdaptor;
-    private AssetAdaptor assetAdaptor;
+  private IPSPageService pageService;
+  private IPSTemplateService templateService;
+  private IPSAssetService assetService;
+  private IPSIdMapper idMapper;
+  private IPSSecurityWs securityWs;
+  private IPSSystemWs systemWs;
+  private IPSWidgetService widgetService;
+  private IPSContentWs contentWs;
+  private IPSAssetDao assetDao;
+  private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+  private IPSContentDesignWs contentDesignWs;
+  private IPSItemWorkflowService itemWorkflowService;
+  private IPSCmsObjectMgr cmsObjectMgr;
+  private IPSFolderHelper folderHelper;
+  private FolderAdaptor folderAdaptor;
+  private PageAdaptor pageAdaptor;
+  private AssetAdaptor assetAdaptor;
 }

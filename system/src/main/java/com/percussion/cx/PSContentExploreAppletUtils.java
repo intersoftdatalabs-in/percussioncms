@@ -22,9 +22,8 @@ import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 public class PSContentExploreAppletUtils {
 
   /**
-   * Convenience method that calls
-   * {@link PSContentExploreAppletUtils#getResourceMnemonic(String, String, char)
-   * getResourceMnemonic(resClass.getName(), label, mnemonic)}
+   * Convenience method that calls {@link PSContentExploreAppletUtils#getResourceMnemonic(String,
+   * String, char) getResourceMnemonic(resClass.getName(), label, mnemonic)}
    */
   public static char getResourceMnemonic(Class resClass, String label, char mnemonic) {
     if (resClass == null) throw new IllegalArgumentException("resClass may not be null.");
@@ -36,13 +35,12 @@ public class PSContentExploreAppletUtils {
   }
 
   /**
-   * This method retrieves a resource that must contain a single character to
-   * use as the mnemonic for a given label, button or menu item.
+   * This method retrieves a resource that must contain a single character to use as the mnemonic
+   * for a given label, button or menu item.
    *
-   * @param category the category of the resource, usually the classname, must
-   *           never be <code>null</code> or empty
-   * @param label the label of the specific item, must never be
-   *           <code>null</code> or empty
+   * @param category the category of the resource, usually the classname, must never be <code>null
+   *     </code> or empty
+   * @param label the label of the specific item, must never be <code>null</code> or empty
    * @param mnemonic the value to return if no mnemonic is found
    * @return The mnemonic or the mnemonic parameter if no mnemonic is found
    */

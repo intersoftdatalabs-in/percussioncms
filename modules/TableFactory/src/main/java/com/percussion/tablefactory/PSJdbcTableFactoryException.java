@@ -27,19 +27,17 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Exception class to used to report general exceptions, or may be subclassed
- * if necessary.  Handles formatting of messages stored in the
- * PSJdbcTableFactoryResources resource bundle using error codes and arguments.
- * Localization is also supported.
+ * Exception class to used to report general exceptions, or may be subclassed if necessary. Handles
+ * formatting of messages stored in the PSJdbcTableFactoryResources resource bundle using error
+ * codes and arguments. Localization is also supported.
  */
 public class PSJdbcTableFactoryException extends Exception {
   /**
    * Construct an exception for messages taking only a single argument.
    *
    * @param msgCode The error string to load.
-   *
-   * @param singleArg The argument to use as the sole argument in
-   *    the error message, may be <code>null</code>.
+   * @param singleArg The argument to use as the sole argument in the error message, may be <code>
+   *     null</code>.
    */
   public PSJdbcTableFactoryException(int msgCode, Object singleArg) {
     this(msgCode, new Object[] {singleArg});
@@ -49,26 +47,21 @@ public class PSJdbcTableFactoryException extends Exception {
    * Construct an exception for messages taking only a single argument.
    *
    * @param msgCode The error string to load.
-   *
-   * @param singleArg The argument to use as the sole argument in
-   *    the error message, may be <code>null</code>.
-   * @param t the exception which this exception encapsulates, may be
-   * <code>null</code>
+   * @param singleArg The argument to use as the sole argument in the error message, may be <code>
+   *     null</code>.
+   * @param t the exception which this exception encapsulates, may be <code>null</code>
    */
   public PSJdbcTableFactoryException(int msgCode, Object singleArg, Throwable t) {
     this(msgCode, new Object[] {singleArg}, t);
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The error string to load.
-   *
-   * @param arrayArgs The array of arguments to use as the arguments
-   *    in the error message.  May be <code>null</code>, and may contain
-   *    <code>null</code> elements.
+   * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, and may contain <code>null</code> elements.
    */
   public PSJdbcTableFactoryException(int msgCode, Object[] arrayArgs) {
     for (int i = 0; arrayArgs != null && i < arrayArgs.length; i++) {
@@ -80,17 +73,13 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The error string to load.
-   *
-   * @param arrayArgs The array of arguments to use as the arguments
-   *    in the error message.  May be <code>null</code>, and may contain
-   *    <code>null</code> elements.
-   * @param t the exception which this exception encapsulates, may be
-   * <code>null</code>
+   * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, and may contain <code>null</code> elements.
+   * @param t the exception which this exception encapsulates, may be <code>null</code>
    */
   public PSJdbcTableFactoryException(int msgCode, Object[] arrayArgs, Throwable t) {
     this(msgCode, arrayArgs);
@@ -110,17 +99,16 @@ public class PSJdbcTableFactoryException extends Exception {
    * Construct an exception for messages taking no arguments.
    *
    * @param msgCode The error string to load.
-   * @param t the exception which this exception encapsulates, may be
-   * <code>null</code>
+   * @param t the exception which this exception encapsulates, may be <code>null</code>
    */
   public PSJdbcTableFactoryException(int msgCode, Throwable t) {
     this(msgCode, null, t);
   }
 
   /**
-   * Prints this Throwable and its backtrace to the standard error stream.
-   * This method prints a stack trace for this Throwable object on the error
-   * output stream that is the value of the field System.err.
+   * Prints this Throwable and its backtrace to the standard error stream. This method prints a
+   * stack trace for this Throwable object on the error output stream that is the value of the field
+   * System.err.
    */
   public void printStackTrace() {
     if (m_th == null) super.printStackTrace();
@@ -129,6 +117,7 @@ public class PSJdbcTableFactoryException extends Exception {
 
   /**
    * Prints this Throwable and its backtrace to the specified print stream.
+   *
    * @param s PrintStream to use for output
    */
   public void printStackTrace(PrintStream s) {
@@ -138,6 +127,7 @@ public class PSJdbcTableFactoryException extends Exception {
 
   /**
    * Prints this Throwable and its backtrace to the specified print writer.
+   *
    * @param s PrintWriter to use for output
    */
   public void printStackTrace(PrintWriter s) {
@@ -148,18 +138,16 @@ public class PSJdbcTableFactoryException extends Exception {
   /**
    * Returns the localized detail message of this exception.
    *
-   * @param locale The locale to generate the message in.  If <code>null
+   * @param locale The locale to generate the message in. If <code>null
    *    </code>, the default locale is used.
-   *
-   * @return  The localized detail message
+   * @return The localized detail message
    */
   public String getLocalizedMessage(Locale locale) {
     return createMessage(m_code, m_args, locale);
   }
 
   /**
-   * Returns the localized detail message of this exception in the
-   * default locale for this system.
+   * Returns the localized detail message of this exception in the default locale for this system.
    *
    * @return The localized detail message, never <code>null</code>.
    */
@@ -177,8 +165,7 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Returns a description of this exception. The format used is
-   * "ExceptionClass: ExceptionMessage"
+   * Returns a description of this exception. The format used is "ExceptionClass: ExceptionMessage"
    *
    * @return the description
    */
@@ -207,7 +194,7 @@ public class PSJdbcTableFactoryException extends Exception {
   /**
    * Get the stack trace for the specified exception as a string.
    *
-   * @param   t         the throwable (usually an exception)
+   * @param t the throwable (usually an exception)
    */
   public static String getStackTraceAsString(Throwable t) {
     // for unknown exceptions, it's useful to log the stack trace
@@ -220,22 +207,16 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The error string to load.
-   *
-   * @param arrayArgs  The array of arguments to use as the arguments
-   *    in the error message, may be <code>null</code> or empty.
-   *
-   * @param loc The locale to use, may be <code>null</code>, in which case the
-   *    default locale is used.
-   *
-   * @return The formatted message, never <code>null</code>. If the appropriate
-   *    message cannot be created, a message is constructed from the msgCode
-   *    and args and is returned.
-   *
+   * @param arrayArgs The array of arguments to use as the arguments in the error message, may be
+   *     <code>null</code> or empty.
+   * @param loc The locale to use, may be <code>null</code>, in which case the default locale is
+   *     used.
+   * @return The formatted message, never <code>null</code>. If the appropriate message cannot be
+   *     created, a message is constructed from the msgCode and args and is returned.
    */
   public static String createMessage(int msgCode, Object[] arrayArgs, Locale loc) {
     if (arrayArgs == null) arrayArgs = new Object[0];
@@ -270,14 +251,10 @@ public class PSJdbcTableFactoryException extends Exception {
    * Get the error text associated with the specified error code.
    *
    * @param code The error code.
-   *
-   * @param nullNotFound  If <code>true</code>, return <code>null</code> if the
-   *    error string is not found, if <code>false</code>, return the code as
-   *    a String if the error string is not found.
-   *
-   * @param loc The locale to use, may be <code>null</code>, in which case the
-   * default locale is used.
-   *
+   * @param nullNotFound If <code>true</code>, return <code>null</code> if the error string is not
+   *     found, if <code>false</code>, return the code as a String if the error string is not found.
+   * @param loc The locale to use, may be <code>null</code>, in which case the default locale is
+   *     used.
    * @return the error text, may be <code>null</code>.
    */
   public static String getErrorText(int code, boolean nullNotFound, Locale loc) {
@@ -294,19 +271,16 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Returns a formatted string containing the test of all of the exceptions
-   * contained in the supplied SQLException.
-   * <p>There seems to be a bug in the Sprinta driver. We get an exception
-   * for Primary key constraint violation, which has a sql warning as the
-   * next exception (warning). But this next warning has a circular
-   * reference to itself in the next link. So we check for this problem and
+   * Returns a formatted string containing the test of all of the exceptions contained in the
+   * supplied SQLException.
+   *
+   * <p>There seems to be a bug in the Sprinta driver. We get an exception for Primary key
+   * constraint violation, which has a sql warning as the next exception (warning). But this next
+   * warning has a circular reference to itself in the next link. So we check for this problem and
    * limit the max errors we will process.
    *
-   * @param details details of the request, if <code>null</code> then
-   *    this is ignored.
-   * @param e The exception to process. If <code>null</code>, an empty
-   *    string is returned.
-   *
+   * @param details details of the request, if <code>null</code> then this is ignored.
+   * @param e The exception to process. If <code>null</code>, an empty string is returned.
    * @return The string, never <code>null</code>, may be empty.
    */
   public static String formatSqlException(String details, SQLException e) {
@@ -318,17 +292,15 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * Returns a formatted string containing the test of all of the exceptions
-   * contained in the supplied SQLException.
-   * <p>There seems to be a bug in the Sprinta driver. We get an exception
-   * for Primary key constraint violation, which has a sql warning as the
-   * next exception (warning). But this next warning has a circular
-   * reference to itself in the next link. So we check for this problem and
+   * Returns a formatted string containing the test of all of the exceptions contained in the
+   * supplied SQLException.
+   *
+   * <p>There seems to be a bug in the Sprinta driver. We get an exception for Primary key
+   * constraint violation, which has a sql warning as the next exception (warning). But this next
+   * warning has a circular reference to itself in the next link. So we check for this problem and
    * limit the max errors we will process.
    *
-   * @param e The exception to process. If <code>null</code>, an empty
-   *    string is returned.
-   *
+   * @param e The exception to process. If <code>null</code>, an empty string is returned.
    * @return The string, never <code>null</code>, may be empty.
    */
   public static String formatSqlException(SQLException e) {
@@ -361,9 +333,8 @@ public class PSJdbcTableFactoryException extends Exception {
   }
 
   /**
-   * This method is used to get the string resources hash table for a
-   * locale. If the resources are not already loaded for the locale,
-   * they will be.
+   * This method is used to get the string resources hash table for a locale. If the resources are
+   * not already loaded for the locale, they will be.
    *
    * @param loc The locale, assumed not <code>null</code>.
    */
@@ -376,28 +347,22 @@ public class PSJdbcTableFactoryException extends Exception {
     return ms_bundle;
   }
 
-  /**
-   * stores the encapsulated exception, may be <code>null</code>
-   */
+  /** stores the encapsulated exception, may be <code>null</code> */
   protected Throwable m_th = null;
 
-  /**
-   * The error code of this exception, set during ctor, never modified after
-   * that.
-   */
+  /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
 
   /**
-   * The array of arguments to use to format the message with.  Set during
-   * ctor, may be <code>null</code>, never modified after that.
+   * The array of arguments to use to format the message with. Set during ctor, may be <code>null
+   * </code>, never modified after that.
    */
   private Object[] m_args;
 
   /**
-   * The resource bundle containing error message formats.  <code>null</code>
-   * until the first call to {@link #getErrorStringBundle(Locale)
-   * getErrorStringBundle}, never <code>null</code> or modified after that
-   * unless an exception occurred loading the bundle.
+   * The resource bundle containing error message formats. <code>null</code> until the first call to
+   * {@link #getErrorStringBundle(Locale) getErrorStringBundle}, never <code>null</code> or modified
+   * after that unless an exception occurred loading the bundle.
    */
   private static ResourceBundle ms_bundle = null;
 }

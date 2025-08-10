@@ -20,9 +20,7 @@ package com.percussion.deployer.server.uninstall;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Implementation of {@link IPSUninstallResult}, see interface for details.
- */
+/** Implementation of {@link IPSUninstallResult}, see interface for details. */
 public class PSUninstallResult implements IPSUninstallResult {
 
   public PSUninstallResult(String pkgName, PSUninstallResultType resultType) {

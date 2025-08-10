@@ -21,108 +21,113 @@ package com.percussion.redirect.data;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Encapsulates a request for a new redirect.
- * Used for creating or updating redirect rules.
- */
+/** Encapsulates a request for a new redirect. Used for creating or updating redirect rules. */
 @SuppressWarnings("serial")
 @XmlRootElement
 public class PSCreateRedirectRequest implements Serializable {
 
-    private String category;
-    private String condition;
-    private boolean enabled;
-    private String key;
-    private boolean permanent;
-    private String redirectTo;
-    private String site;
-    private String type;
+  private String category;
+  private String condition;
+  private boolean enabled;
+  private String key;
+  private boolean permanent;
+  private String redirectTo;
+  private String site;
+  private String type;
 
-    /** @return the redirect category */
-    public String getCategory() {
-        return category;
-    }
+  /**
+   * @return the redirect category
+   */
+  public String getCategory() {
+    return category;
+  }
 
-    /** Sets the redirect category. */
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  /** Sets the redirect category. */
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    /** @return the redirect condition */
-    public String getCondition() {
-        return condition;
-    }
+  /**
+   * @return the redirect condition
+   */
+  public String getCondition() {
+    return condition;
+  }
 
-    /** Sets the redirect condition. */
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
+  /** Sets the redirect condition. */
+  public void setCondition(String condition) {
+    this.condition = condition;
+  }
 
-    /** @return true if the redirect is enabled */
-    public boolean isEnabled() {
-        return enabled;
-    }
+  /**
+   * @return true if the redirect is enabled
+   */
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-    /** Sets whether the redirect is enabled. */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+  /** Sets whether the redirect is enabled. */
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 
-    /**
-     * @return the license key used to sign the request
-     */
-    public String getKey() {
-        return key;
-    }
+  /**
+   * @return the license key used to sign the request
+   */
+  public String getKey() {
+    return key;
+  }
 
-    /**
-     * Sets the license key used to sign the request.
-     */
-    public void setKey(String key) {
-        this.key = key;
-    }
+  /** Sets the license key used to sign the request. */
+  public void setKey(String key) {
+    this.key = key;
+  }
 
-    /** @return true if the redirect is permanent */
-    public boolean isPermanent() {
-        return permanent;
-    }
+  /**
+   * @return true if the redirect is permanent
+   */
+  public boolean isPermanent() {
+    return permanent;
+  }
 
-    /** Sets whether the redirect is permanent. */
-    public void setPermanent(boolean permanent) {
-        this.permanent = permanent;
-    }
+  /** Sets whether the redirect is permanent. */
+  public void setPermanent(boolean permanent) {
+    this.permanent = permanent;
+  }
 
-    /** @return the target path or URL for the redirect */
-    public String getRedirectTo() {
-        return redirectTo;
-    }
+  /**
+   * @return the target path or URL for the redirect
+   */
+  public String getRedirectTo() {
+    return redirectTo;
+  }
 
-    /** Sets the target path or URL for the redirect. */
-    public void setRedirectTo(String redirectTo) {
-        this.redirectTo = redirectTo;
-    }
+  /** Sets the target path or URL for the redirect. */
+  public void setRedirectTo(String redirectTo) {
+    this.redirectTo = redirectTo;
+  }
 
-    /**
-     * @return the Amazon S3 bucket name for the site under management
-     */
-    public String getSite() {
-        return site;
-    }
+  /**
+   * @return the Amazon S3 bucket name for the site under management
+   */
+  public String getSite() {
+    return site;
+  }
 
-    /**
-     * Sets the site, should be an Amazon S3 bucket name.
-     */
-    public void setSite(String site) {
-        this.site = site;
-    }
+  /** Sets the site, should be an Amazon S3 bucket name. */
+  public void setSite(String site) {
+    this.site = site;
+  }
 
-    /** @return the redirect type */
-    public String getType() {
-        return type;
-    }
+  /**
+   * @return the redirect type
+   */
+  public String getType() {
+    return type;
+  }
 
-    /** Sets the redirect type. */
-    public void setType(String type) {
-        this.type = type;
-    }
+  /** Sets the redirect type. */
+  public void setType(String type) {
+    this.type = type;
+  }
 }

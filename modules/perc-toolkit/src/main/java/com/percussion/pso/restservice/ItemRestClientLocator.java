@@ -20,24 +20,20 @@ package com.percussion.pso.restservice;
 import com.percussion.pso.restservice.impl.ItemRestServiceImpl;
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- */
+/** */
 public class ItemRestClientLocator extends PSBaseServiceLocator {
-	  
-	   /**
-		* Method getItemServiceBase.
-		* @return ItemRestServiceImpl
-		*/
-	   public static ItemRestServiceImpl getItemServiceBase()
-	   {
-		  return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN); 
-	   }
-	   
-	   /**
-		* Field IMPORT_BASE_CLIENT_BEAN.
-		* (value is ""restItemClient"")
-		*/
-	   public static final String IMPORT_BASE_CLIENT_BEAN = "restItemClient";
+
+  /**
+   * Method getItemServiceBase.
+   *
+   * @return ItemRestServiceImpl
+   */
+  public static ItemRestServiceImpl getItemServiceBase() {
+    return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN);
+  }
+
+  /** Field IMPORT_BASE_CLIENT_BEAN. (value is ""restItemClient"") */
+  public static final String IMPORT_BASE_CLIENT_BEAN = "restItemClient";
 }
 
 	// REFACTORED: CP-JAVA11

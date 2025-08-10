@@ -88,17 +88,15 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Persisted queue for events which require reindexing. All events are queued
- * both in memory and in the repository so that in the event of a server crash
- * the unprocessed events remaining in the queue can be restored and processed
- * so that the index may be maintained. Queued events are processed
- * asynchronously in a separate thread, and are serialized even if the queue
- * isn't running. Events with the highest priority are processed first (these
- * are events with a lower valued priority indicator, as the lower the value of
- * the indicator, the higher the priority).
- * <p>
- * This class follows the singleton pattern, and a reference to the single
- * instance may be obtained using {@link #getInstance()}.
+ * Persisted queue for events which require reindexing. All events are queued both in memory and in
+ * the repository so that in the event of a server crash the unprocessed events remaining in the
+ * queue can be restored and processed so that the index may be maintained. Queued events are
+ * processed asynchronously in a separate thread, and are serialized even if the queue isn't
+ * running. Events with the highest priority are processed first (these are events with a lower
+ * valued priority indicator, as the lower the value of the indicator, the higher the priority).
+ *
+ * <p>This class follows the singleton pattern, and a reference to the single instance may be
+ * obtained using {@link #getInstance()}.
  */
 @ThreadSafe
 public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHandlerInitListener {
@@ -106,14 +104,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
 
   public static final String QUEUE_ALREADY_PAUSED = "The Search Index Queue is already paused";
 
-  /**
-   * Private ctor to enforce singleton pattern.
-   */
+  /** Private ctor to enforce singleton pattern. */
   private PSSearchIndexEventQueue() {}
 
   /**
-   * Obtain the single instance of this class. If one has not yet been created,
-   * it will be created and returned.
+   * Obtain the single instance of this class. If one has not yet been created, it will be created
+   * and returned.
    *
    * @return The instance, never <code>null</code>.
    */
@@ -135,37 +131,33 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Determine if the singleton instance of the index queue has been
-   * initialized. If the server is running, then this method should return
-   * <code>true</code>, used to ensure unit tests do not fail.
+   * Determine if the singleton instance of the index queue has been initialized. If the server is
+   * running, then this method should return <code>true</code>, used to ensure unit tests do not
+   * fail.
    *
-   * @return <code>true</code> if the queue is initialized, <code>false</code>
-   *         if not.
+   * @return <code>true</code> if the queue is initialized, <code>false</code> if not.
    */
   public static boolean isInitialized() {
     return ms_instance != null;
   }
 
   /**
-   * Returns the number of queue events in the repository. This is the number
-   * of events waiting to be processed because every item in the in memory
-   * queue has a copy in the DB. Once it has been indexed it is removed from
-   * the in memory queue and the repository. There may be more items in the
-   * repository than in the memory queue.
+   * Returns the number of queue events in the repository. This is the number of events waiting to
+   * be processed because every item in the in memory queue has a copy in the DB. Once it has been
+   * indexed it is removed from the in memory queue and the repository. There may be more items in
+   * the repository than in the memory queue.
    *
-   * @return A value of 0 or higher that indicates how many entries are
-   *         currently in the queue.
+   * @return A value of 0 or higher that indicates how many entries are currently in the queue.
    */
   public int size() {
     return m_queueService.getEventCount();
   }
 
   /**
-   * Causes any persisted events to be restored from the repository, and starts
-   * the thread that processes queued events.
+   * Causes any persisted events to be restored from the repository, and starts the thread that
+   * processes queued events.
    *
-   * @throws IllegalStateException if the queue has already been started or is
-   *            shutting down.
+   * @throws IllegalStateException if the queue has already been started or is shutting down.
    */
   public void start() {
 
@@ -236,9 +228,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Stops processing queued events and shuts down the queue. Will not return
-   * until it has completed any work in progress. Calling this multiple times
-   * is safe.
+   * Stops processing queued events and shuts down the queue. Will not return until it has completed
+   * any work in progress. Calling this multiple times is safe.
    */
   public void shutdown() {
     synchronized (m_shutdownMonitor) {
@@ -269,9 +260,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Pauses the processing of the queued events. Events may continue to be
-   * Multiple calls will queue up all requests.  resume must be called in a finally
-   * block or index may never resume.
+   * Pauses the processing of the queued events. Events may continue to be Multiple calls will queue
+   * up all requests. resume must be called in a finally block or index may never resume.
    *
    * @return Any results, never <code>null</code>.
    */
@@ -292,10 +282,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Resumes processing of queued events if the queue is paused (see
-   * {@link #pause()}). If this method is called and the queue is not paused,
-   * it is a no-op and a warning is logged.
-   *
+   * Resumes processing of queued events if the queue is paused (see {@link #pause()}). If this
+   * method is called and the queue is not paused, it is a no-op and a warning is logged.
    *
    * @return Any results, never <code>null</code>.
    */
@@ -320,8 +308,7 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Returns the current status
    *
-   * @return The status, either "Running", "Paused", "Stopped", or
-   *         "Shutting down"
+   * @return The status, either "Running", "Paused", "Stopped", or "Shutting down"
    */
   public String getStatus() {
     if (m_shutdown) return "Shutting down";
@@ -331,9 +318,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Queue's the supplied change event for asynchronous processing. If full
-   * text search is not enabled, the queue will not store events for later
-   * indexing.
+   * Queue's the supplied change event for asynchronous processing. If full text search is not
+   * enabled, the queue will not store events for later indexing.
    *
    * @param changeEvent The event to queue, may not be <code>null</code>.
    */
@@ -356,20 +342,17 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Causes the current revision of the specified item to be queued for
-   * (re)indexing. Calls {@link #queueEvent(PSSearchEditorChangeEvent)} with
-   * the appropriate event, and the actual indexing will occur asynchronously.
-   * Current index entries for this item are deleted first. These events will
-   * have a lower priority and be processed after any index events
-   * automatically submitted by the server due to actions taken on an item.
+   * Causes the current revision of the specified item to be queued for (re)indexing. Calls {@link
+   * #queueEvent(PSSearchEditorChangeEvent)} with the appropriate event, and the actual indexing
+   * will occur asynchronously. Current index entries for this item are deleted first. These events
+   * will have a lower priority and be processed after any index events automatically submitted by
+   * the server due to actions taken on an item.
    *
-   * @param locator The locator of the item to index, the revision is not
-   *           considered ({@link PSLocator#useRevision()} may return
-   *           <code>true</code>). May not be <code>null</code>.
-   *
-   * @return <code>1</code> if the item was queued for indexing, <code>0</code>
-   *         if the item did not exist, and <code>-1</code> if the item was
-   *         valid but it's content type was not valid for indexing.
+   * @param locator The locator of the item to index, the revision is not considered ({@link
+   *     PSLocator#useRevision()} may return <code>true</code>). May not be <code>null</code>.
+   * @return <code>1</code> if the item was queued for indexing, <code>0</code> if the item did not
+   *     exist, and <code>-1</code> if the item was valid but it's content type was not valid for
+   *     indexing.
    */
   public int indexItem(PSLocator locator) {
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
@@ -408,21 +391,17 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Causes the current revision of all items for the specified content type to
-   * be queued for (re)indexing. See {@link #indexItem(PSLocator)} for more
-   * info.
+   * Causes the current revision of all items for the specified content type to be queued for
+   * (re)indexing. See {@link #indexItem(PSLocator)} for more info.
    *
-   * @param contentTypeId Must be a valid content type id for an active content
-   *           editor application. A search for all items of this type will be
-   *           performed, and a call to
-   *           {@link #queueEvent(PSSearchEditorChangeEvent)} will be made for
-   *           each item returned to queue it for indexing.
-   *
-   * @return The number of items queued for indexing, or <code>-1</code> if the
-   *         content type was not valid for indexing.
-   *
-   * @throws PSSearchException if there is an error searching for all items of
-   *            the specified content type.
+   * @param contentTypeId Must be a valid content type id for an active content editor application.
+   *     A search for all items of this type will be performed, and a call to {@link
+   *     #queueEvent(PSSearchEditorChangeEvent)} will be made for each item returned to queue it for
+   *     indexing.
+   * @return The number of items queued for indexing, or <code>-1</code> if the content type was not
+   *     valid for indexing.
+   * @throws PSSearchException if there is an error searching for all items of the specified content
+   *     type.
    */
   public int indexContentType(int contentTypeId) throws PSSearchException {
     int results = -1;
@@ -483,11 +462,11 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Set a modifier to process fields values loaded for an item before the
-   * values are submitted to the indexer.
+   * Set a modifier to process fields values loaded for an item before the values are submitted to
+   * the indexer.
    *
-   * @param fieldValueModifier The modifier, will replace any existing
-   *           modifier, may be <code>null</code> to clear the value.
+   * @param fieldValueModifier The modifier, will replace any existing modifier, may be <code>null
+   *     </code> to clear the value.
    */
   public void setFieldValueModifier(IPSFieldValueModifier fieldValueModifier) {
     m_fieldValueModifier = fieldValueModifier;
@@ -502,22 +481,18 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Determines if the supplied content type id (or optional child type id) is
-   * indexable. It must have a running "visible" content editor, and it must be
-   * enabled for searching.
-   * <p>
-   * If the content type is not currently running, this method will wait 5
-   * seconds for it to restart (checking every second). This prevents the loss
-   * of a bunch of items if the editor is changed while several of a type are
-   * queued.
-   * <p>
-   * At this time the folder content type is not visible, as well as any
-   * inactive content editor.
+   * Determines if the supplied content type id (or optional child type id) is indexable. It must
+   * have a running "visible" content editor, and it must be enabled for searching.
+   *
+   * <p>If the content type is not currently running, this method will wait 5 seconds for it to
+   * restart (checking every second). This prevents the loss of a bunch of items if the editor is
+   * changed while several of a type are queued.
+   *
+   * <p>At this time the folder content type is not visible, as well as any inactive content editor.
    *
    * @param contentTypeId the content type id to check.
-   * @param childId The child id to check, <code>-1</code> to check parent type
-   *           only, otherwise combination of the parent and child are checked.
-   *
+   * @param childId The child id to check, <code>-1</code> to check parent type only, otherwise
+   *     combination of the parent and child are checked.
    * @return <code>true</code> if it can be indexed, <code>false</code> if not.
    */
   private boolean canIndexContentType(long contentTypeId, int childId) {
@@ -568,7 +543,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * Get the component summary for the supplied content id.
    *
    * @param contentId The content id for the item to load.
-   *
    * @return The summary, or <code>null</code> if none found.
    */
   private PSComponentSummary getComponentSummary(int contentId) {
@@ -577,22 +551,16 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Retrieves the next set of events from the queue and processes them. Events
-   * are queued by content id, and all events queued for a single content id
-   * are coalesced into a set and processed together. Will wait on an empty
-   * queue for a limited time before returning. Events with the highest
-   * priority are processed first (this means the actual value of their
-   * priority is lower). Events are coalesced and processed with those of a
-   * higher priority.
+   * Retrieves the next set of events from the queue and processes them. Events are queued by
+   * content id, and all events queued for a single content id are coalesced into a set and
+   * processed together. Will wait on an empty queue for a limited time before returning. Events
+   * with the highest priority are processed first (this means the actual value of their priority is
+   * lower). Events are coalesced and processed with those of a higher priority.
    *
-   * @param timeOut The number of milliseconds to wait before returning. Pass
-   *           zero to wait indefinitely, assumed not negative.
-   * @param request The request used to process the queue. Assume not
-   *           <code>null</code>.
-   *
-   * @return <code>true</code> if anything was found to process,
-   *         <code>false</code> if not.
-   *
+   * @param timeOut The number of milliseconds to wait before returning. Pass zero to wait
+   *     indefinitely, assumed not negative.
+   * @param request The request used to process the queue. Assume not <code>null</code>.
+   * @return <code>true</code> if anything was found to process, <code>false</code> if not.
    * @throws InterruptedException If interrupted while waiting on the queue.
    * @throws PSSearchException if there are any errors updating the index.
    * @throws PSCmsException if there is an error loading the item.
@@ -820,17 +788,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Loads the complete item specified by the parent locator and reindexes all
-   * applicable parts.
+   * Loads the complete item specified by the parent locator and reindexes all applicable parts.
    *
    * @param req Used to load the item, assumed not <code>null</code>.
-   * @param cTypeKey The content type key, assumed not <code>null</code> and to
-   *           be indexable.
-   * @param parentLoc The locator of the item to reindex, assumed not
-   *           <code>null</code>.
-   *
-   * @throws PSInvalidContentTypeException if the supplied parent locator is
-   *            invalid.
+   * @param cTypeKey The content type key, assumed not <code>null</code> and to be indexable.
+   * @param parentLoc The locator of the item to reindex, assumed not <code>null</code>.
+   * @throws PSInvalidContentTypeException if the supplied parent locator is invalid.
    * @throws PSCmsException if there is an error loading the item.
    * @throws PSSearchException if there is an error updating the index.
    * @throws PSException if there are any other errors.
@@ -869,22 +832,18 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Loads the server item using the supplied values. Sets the
-   * {@link IPSConstants#SKIP_FIELD_VISIBILITY_RULES} request private object to
-   * disable field visibility rules, and resets it to it's previous value when
-   * finished. Also sets the {@link IPSConstants#LOAD_FOR_SEARCH_INDEX} request
-   * private object to enable index specific functionality, and resets it to
-   * it's previous value when finished.
+   * Loads the server item using the supplied values. Sets the {@link
+   * IPSConstants#SKIP_FIELD_VISIBILITY_RULES} request private object to disable field visibility
+   * rules, and resets it to it's previous value when finished. Also sets the {@link
+   * IPSConstants#LOAD_FOR_SEARCH_INDEX} request private object to enable index specific
+   * functionality, and resets it to it's previous value when finished.
    *
    * @param req The request to use, assumed not <code>null</code>.
-   * @param itemLoc The locator of the item to load, assumed not
-   *           <code>null</code> and to reference a valid item.
-   * @param loadFlags Set of flags to specify what to load, see
-   *           {@link PSServerItem#loadItem(PSLocator, PSRequest, int)} for
-   *           details.
-   *
+   * @param itemLoc The locator of the item to load, assumed not <code>null</code> and to reference
+   *     a valid item.
+   * @param loadFlags Set of flags to specify what to load, see {@link
+   *     PSServerItem#loadItem(PSLocator, PSRequest, int)} for details.
    * @return The item, never <code>null</code>.
-   *
    * @throws PSInvalidContentTypeException If the locator is invalid.
    * @throws PSCmsException If there are any other errors.
    */
@@ -913,11 +872,9 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Get names of all fields in the supplied iterator that are binary.
    *
-   * @param fields An iterator over zero or more <code>PSItemField</code>
-   *           objects, assumed not <code>null</code>.
-   *
-   * @return A set of binary field names, never <code>null</code>, may be
-   *         empty.
+   * @param fields An iterator over zero or more <code>PSItemField</code> objects, assumed not
+   *     <code>null</code>.
+   * @return A set of binary field names, never <code>null</code>, may be empty.
    */
   @SuppressWarnings("unchecked")
   private Set getBinFieldNames(Iterator fields) {
@@ -933,17 +890,14 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Call the indexer to update itself with the supplied item changes.
    *
-   * @param contentType The content type of the item that has changed, assumed
-   *           not <code>null</code>.
-   * @param item The item that has changed, containing the current values for
-   *           the items fields and children specified by the
-   *           <code>itemChanges</code>.
-   * @param itemChanges Identifies the parts of the item that have changed. Key
-   *           is assumed to be either a {@link PSLocator} or a
-   *           {@link PSItemChildLocator}, value is a <code>Set</code> of
-   *           modified binary field names as <code>String</code> objects,
-   *           never <code>null</code>, may be empty.
-   *
+   * @param contentType The content type of the item that has changed, assumed not <code>null</code>
+   *     .
+   * @param item The item that has changed, containing the current values for the items fields and
+   *     children specified by the <code>itemChanges</code>.
+   * @param itemChanges Identifies the parts of the item that have changed. Key is assumed to be
+   *     either a {@link PSLocator} or a {@link PSItemChildLocator}, value is a <code>Set</code> of
+   *     modified binary field names as <code>String</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws PSCmsException if there is an error retrieving a field value.
    * @throws PSSearchException if there is an error updating the index.
    * @throws PSException if there are any other errors.
@@ -1037,19 +991,17 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Loads all system fields for the specified item by cataloging all system
-   * fields and then performing a search on the specified item.
-   * <p>
-   * NOTE: This implementation assumes that there are no binary fields in the
-   * system def as we get all values back as strings. This will need to change
-   * if we ever put a binary field in the system def.
+   * Loads all system fields for the specified item by cataloging all system fields and then
+   * performing a search on the specified item.
+   *
+   * <p>NOTE: This implementation assumes that there are no binary fields in the system def as we
+   * get all values back as strings. This will need to change if we ever put a binary field in the
+   * system def.
    *
    * @param key The key identifying the item, assumed not <code>null</code>.
-   *
-   * @return A map of system fields, key is the field name and value is the
-   *         value of the field, both as <code>String</code> objects. Will be
-   *         <code>null</code> if the specified item cannot be found.
-   *
+   * @return A map of system fields, key is the field name and value is the value of the field, both
+   *     as <code>String</code> objects. Will be <code>null</code> if the specified item cannot be
+   *     found.
    * @throws PSSearchException if the system field values cannot be obtained.
    */
   @SuppressWarnings("unchecked")
@@ -1067,12 +1019,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Loads all searchable fields which are found in the item definition of the
-   * item, but not in the item itself as they do not have an associated display
-   * mapping.
+   * Loads all searchable fields which are found in the item definition of the item, but not in the
+   * item itself as they do not have an associated display mapping.
    *
    * @return see {@link #loadFields(int, Set)}.
-   *
    * @throws PSSearchException if the additional fields cannot be obtained.
    */
   private Map<String, String> loadAdditionalFields(PSServerItem item) throws PSSearchException {
@@ -1095,11 +1045,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    *
    * @param contentId of the item.
    * @param fieldNames of the fields to load.
-   *
-   * @return A map of field-value pairs where the key is the field name as a
-   *         <code>String</code> and the value is the field value, also as a
-   *         <code>String</code>.
-   *
+   * @return A map of field-value pairs where the key is the field name as a <code>String</code> and
+   *     the value is the field value, also as a <code>String</code>.
    * @throws PSSearchException if the field values cannot be obtained.
    */
   @SuppressWarnings("unchecked")
@@ -1131,15 +1078,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Creates the map of field-value pairs used to update the indexer.
    *
-   * @param fields An iterator over zero or more {@link PSItemField} objects to
-   *           use to build the map, assumed not <code>null</code>.
-   * @param binFields A set of binary fields names that have been modified,
-   *           assumed not <code>null</code>, may be empty.
-   *
-   * @return A map of field-value pairs where the key is the field name as a
-   *         <code>String</code> and the value is an object representing the
-   *         value.
-   *
+   * @param fields An iterator over zero or more {@link PSItemField} objects to use to build the
+   *     map, assumed not <code>null</code>.
+   * @param binFields A set of binary fields names that have been modified, assumed not <code>null
+   *     </code>, may be empty.
+   * @return A map of field-value pairs where the key is the field name as a <code>String</code> and
+   *     the value is an object representing the value.
    * @throws PSCmsException if there is an error getting a field value.
    */
   @SuppressWarnings("unchecked")
@@ -1182,14 +1126,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Deletes all entries for the specified item from the index.
    *
-   * @param contentType The content type of the item, assumed not
-   *           <code>null</code>.
-   * @param itemId The locator identifying the item to remove, assumed not
-   *           <code>null</code>.
-   * @param childIds A list of {@link PSItemChildLocator} objects, may be
-   *           <code>null</code> to delete the parent item, which will cascade
-   *           to all child index entries as well.
-   *
+   * @param contentType The content type of the item, assumed not <code>null</code>.
+   * @param itemId The locator identifying the item to remove, assumed not <code>null</code>.
+   * @param childIds A list of {@link PSItemChildLocator} objects, may be <code>null</code> to
+   *     delete the parent item, which will cascade to all child index entries as well.
    * @throws PSSearchException if there are any errors.
    */
   private void indexItemDeletion(PSKey contentType, PSLocator itemId, List childIds)
@@ -1238,20 +1178,16 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Get next event, and return all related events that can be coalesced and
-   * processed at the same time. Events are removed from all in memory
-   * collections. Will wait on empty queues for a limited time before
-   * returning, but will not process any new events that are ready after
+   * Get next event, and return all related events that can be coalesced and processed at the same
+   * time. Events are removed from all in memory collections. Will wait on empty queues for a
+   * limited time before returning, but will not process any new events that are ready after
    * waiting. Queues are checked in priority order.
    *
-   * @param timeOut The number of milliseconds to wait before returning. Pass
-   *           zero to wait indefinitely, assumed not negative.
-   *
-   * @return The next set of events to process, may be <code>null</code> if
-   *         there are no events in the queue or if we waited.
-   *
-   * @throws InterruptedException if interrupted while waiting on the queue
-   *            monitor.
+   * @param timeOut The number of milliseconds to wait before returning. Pass zero to wait
+   *     indefinitely, assumed not negative.
+   * @return The next set of events to process, may be <code>null</code> if there are no events in
+   *     the queue or if we waited.
+   * @throws InterruptedException if interrupted while waiting on the queue monitor.
    */
   private List<PSSearchIndexQueueItem> getNextEventSet(long timeOut) throws InterruptedException {
     while (!m_shutdown) {
@@ -1278,7 +1214,6 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
    * persist's the supplied event to the repository.
    *
    * @param event The event to persist, assumed not <code>null</code>.
-   *
    * @return The id used to locate this event in the repository.
    */
   @SuppressWarnings("unchecked")
@@ -1301,8 +1236,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   /**
    * Deletes the specified events from the repository
    *
-   * @param queueIdList The list of queue id's to delete, as
-   *           <code>String</code> objects, assumed not <code>null</code>.
+   * @param queueIdList The list of queue id's to delete, as <code>String</code> objects, assumed
+   *     not <code>null</code>.
    */
   private void deletePersistedEvents(List<String> queueIdList) {
 
@@ -1359,12 +1294,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Gets up to <code>QUERY_MAX_EVENTS</code> persisted events from repository.
-   * A commit is done for every set so we may want to increase the size of
-   * <code>QUERY_MAX_EVENTS</code> if this is causing performance issues.
+   * Gets up to <code>QUERY_MAX_EVENTS</code> persisted events from repository. A commit is done for
+   * every set so we may want to increase the size of <code>QUERY_MAX_EVENTS</code> if this is
+   * causing performance issues.
    *
-   * @return map of queue ids and search editor change events. May be empty but
-   *         never <code>null</code>.
+   * @return map of queue ids and search editor change events. May be empty but never <code>null
+   *     </code>.
    */
   private Map<Integer, List<PSSearchIndexQueueItem>> getPersistedEventsByIds() {
     Map<Integer, List<PSSearchIndexQueueItem>> events = new HashMap<>();
@@ -1390,9 +1325,8 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * Clears all in memory events and repository events. Shuts down the queue
-   * first that clears all in memory events. Then deletes all repository
-   * events. Restarts the queue.
+   * Clears all in memory events and repository events. Shuts down the queue first that clears all
+   * in memory events. Then deletes all repository events. Restarts the queue.
    */
   public void clearQueues() {
     try {
@@ -1436,92 +1370,85 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   }
 
   /**
-   * The singleton instance of this class, <code>null</code> until first call
-   * to {@link #getInstance()}, never <code>null</code> or modified after that.
+   * The singleton instance of this class, <code>null</code> until first call to {@link
+   * #getInstance()}, never <code>null</code> or modified after that.
    */
   private static volatile PSSearchIndexEventQueue ms_instance = null;
 
-  /**
-   * The name of the aging thread created by this object.
-   */
+  /** The name of the aging thread created by this object. */
   public static final String QUEUE_THREAD_NAME = "FTSIndexQueue";
 
   /**
-   * Priority to use when constructing events for reindexing so that they will
-   * be processed after all other events.
+   * Priority to use when constructing events for reindexing so that they will be processed after
+   * all other events.
    */
   private static final int REINDEX_PRIORITY = 100;
 
   /**
-   * Name of the parameter to specify the limit of events to retrieve from the
-   * repository for large volumne of items
+   * Name of the parameter to specify the limit of events to retrieve from the repository for large
+   * volumne of items
    */
   private static final int QUERY_MAX_EVENT_IDS = 10;
 
   /**
-   * How long to wait of no items in queue before clearing out index writers
-   * and optimizing index
+   * How long to wait of no items in queue before clearing out index writers and optimizing index
    */
   private static final int INDEX_OPTIMIZE_WAIT = EVENT_WAIT_TIME_MS * 180;
 
   /**
-   * Monitor object to provide synchronization of start and shutdown. Never
-   * <code>null</code> or modified.
+   * Monitor object to provide synchronization of start and shutdown. Never <code>null</code> or
+   * modified.
    */
   private final Object m_runMonitor = new Object();
 
   /**
-   * Monitor object to provide synchronized access to the {@link #m_shutdown}
-   * flag. Never <code>null</code> or modified.
+   * Monitor object to provide synchronized access to the {@link #m_shutdown} flag. Never <code>null
+   * </code> or modified.
    */
   private final Object m_shutdownMonitor = new Object();
 
   /**
-   * Indicates if the queue is running. Initially <code>false</code>, set to
-   * <code>true</code> by {@link #start()}, set to <code>false</code> by
-   * {@link #shutdown()}. Value should only be modified if synchronized on the
-   * {@link #m_runMonitor} object.
+   * Indicates if the queue is running. Initially <code>false</code>, set to <code>true</code> by
+   * {@link #start()}, set to <code>false</code> by {@link #shutdown()}. Value should only be
+   * modified if synchronized on the {@link #m_runMonitor} object.
    */
   private boolean m_run = false;
 
   /**
-   * Indicates if the queue is paused. If paused, events are still queued, but
-   * they are not processed.
+   * Indicates if the queue is paused. If paused, events are still queued, but they are not
+   * processed.
    */
   private AtomicInteger m_pausedCount = new AtomicInteger(0);
 
   /**
-   * Thread to handle processing of events. Intialized by {@link #start()}, not
-   * <code>null</code> or modified until {@link #shutdown()} is called.
+   * Thread to handle processing of events. Intialized by {@link #start()}, not <code>null</code> or
+   * modified until {@link #shutdown()} is called.
    */
   private Thread m_queueThread;
 
   /**
-   * Indicates that the queue is shutting down. Initially <code>false</code>,
-   * set to <code>true</code> by {@link #shutdown()}, set back to
-   * <code>false</code> once shutdown is completed. Value should only be
-   * modified by the {@link #shutdown()} method, where access is synchrnoized
+   * Indicates that the queue is shutting down. Initially <code>false</code>, set to <code>true
+   * </code> by {@link #shutdown()}, set back to <code>false</code> once shutdown is completed.
+   * Value should only be modified by the {@link #shutdown()} method, where access is synchrnoized
    * appropriately.
    */
   private boolean m_shutdown = false;
 
   /**
-   * Map of params to submit when inserting events into the db queue.
-   * Initialized by a static intializer, never <code>null</code>, empty, or
-   * modified after that.
+   * Map of params to submit when inserting events into the db queue. Initialized by a static
+   * intializer, never <code>null</code>, empty, or modified after that.
    */
   private static Map<String, String> ms_insertParamMap;
 
   /**
-   * Map of params to submit when deleting events into the db queue.
-   * Initialized by a static intializer, never <code>null</code>, empty, or
-   * modified after that.
+   * Map of params to submit when deleting events into the db queue. Initialized by a static
+   * intializer, never <code>null</code>, empty, or modified after that.
    */
   private static Map<String, String> ms_deleteParamMap;
 
   /**
-   * During construction, this class checks the server configuration to see if
-   * full text search is enabled. This static holds the result.
+   * During construction, this class checks the server configuration to see if full text search is
+   * enabled. This static holds the result.
    */
   private static boolean ms_searchEnabled;
 
@@ -1533,15 +1460,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
     ms_deleteParamMap.put("DBActionType", "DELETE");
   }
 
-  /**
-   * Get hibernate class for Queue Events persisted to the db
-   */
+  /** Get hibernate class for Queue Events persisted to the db */
   private IPSSearchIndexQueue m_queueService = PSSearchIndexQueueLocator.getPSSearchIndexQueue();
 
   /**
-   * We keep a local copy to decrease the performance impact and to make the
-   * code a little clearer. Initialized during class construction, then never
-   * <code>null</code> or modified.
+   * We keep a local copy to decrease the performance impact and to make the code a little clearer.
+   * Initialized during class construction, then never <code>null</code> or modified.
    */
   private static final Logger log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 
@@ -1552,13 +1476,13 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
   private Map<Integer, List<PSSearchIndexQueueItem>> m_processingEvents = new HashMap<>();
 
   /**
-   * Key that can be used to identify a change for a particular content item.
-   * Objects of this class are immutable.
+   * Key that can be used to identify a change for a particular content item. Objects of this class
+   * are immutable.
    */
   private class PSQueueKey {
     /**
-     * Construct this key from an editor change event. The content id and
-     * revision id are extracted and used to create a key.
+     * Construct this key from an editor change event. The content id and revision id are extracted
+     * and used to create a key.
      *
      * @param e The change event, may not be <code>null</code>.
      */
@@ -1588,14 +1512,12 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
     }
 
     /**
-     * Determines if this key is equal to another key. See
-     * {@link Object#equals(Object)} for more info.
+     * Determines if this key is equal to another key. See {@link Object#equals(Object)} for more
+     * info.
      *
      * @param o The object to compare, may be <code>null</code>.
-     *
-     * @return <code>true</code> if the supplied object is a
-     *         <code>PSQueueKey</code> with the same contentid and revisionid,
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the supplied object is a <code>PSQueueKey</code> with the same
+     *     contentid and revisionid, <code>false</code> otherwise.
      */
     public boolean equals(Object o) {
       boolean isEqual = true;
@@ -1615,16 +1537,10 @@ public class PSSearchIndexEventQueue implements IPSEditorChangeListener, IPSHand
       return (m_contentId + "" + m_revisionId).hashCode();
     }
 
-    /**
-     * The content id of this key, initialized during ctor, never modified
-     * after that.
-     */
+    /** The content id of this key, initialized during ctor, never modified after that. */
     private int m_contentId;
 
-    /**
-     * The revision id of this key, initialized during ctor, never modified
-     * after that.
-     */
+    /** The revision id of this key, initialized during ctor, never modified after that. */
     private int m_revisionId;
   }
 }

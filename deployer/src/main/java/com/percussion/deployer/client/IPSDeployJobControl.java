@@ -21,45 +21,38 @@ import com.percussion.error.PSDeployException;
 import java.util.Optional;
 
 /**
- * Interface returned when a deployment job is started. Provides ability to
- * query the job for status and cancel the job.
+ * Interface returned when a deployment job is started. Provides ability to query the job for status
+ * and cancel the job.
  */
 public interface IPSDeployJobControl {
   /**
-   * Checks the status of the specified Deployment job. The result contains a
-   * value between <code>1-100</code> to indicate the % done.
-   * <code>100</code> indicates that the job has completed. A result of -1
-   * indicates that there has been an error and the job completed abnormally.
+   * Checks the status of the specified Deployment job. The result contains a value between <code>
+   * 1-100</code> to indicate the % done. <code>100</code> indicates that the job has completed. A
+   * result of -1 indicates that there has been an error and the job completed abnormally.
    *
    * @return The status.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public int getStatus() throws PSDeployException;
 
   /**
-   * Attempts to stop the currently running job.  Since job is running in its
-   * own thread, it may complete on its own before noticing that it has been
-   * requested to stop.  This method may take some time to return as it will
-   * wait for the job to respond to the cancel request (or finish).
+   * Attempts to stop the currently running job. Since job is running in its own thread, it may
+   * complete on its own before noticing that it has been requested to stop. This method may take
+   * some time to return as it will wait for the job to respond to the cancel request (or finish).
    *
-   * @return  Returns one of 3 possible result codes:<br>
-   * {@link #JOB_CANCELLED} - Job cancelled successfully<br>
-   * {@link #JOB_COMPLETED} - Job completed before cancelled<br>
-   * {@link #JOB_ABORTED} - Job aborted<br>
-   *
+   * @return Returns one of 3 possible result codes:<br>
+   *     {@link #JOB_CANCELLED} - Job cancelled successfully<br>
+   *     {@link #JOB_COMPLETED} - Job completed before cancelled<br>
+   *     {@link #JOB_ABORTED} - Job aborted<br>
    * @throws PSDeployException if there are any errors.
    */
   public int cancelDeployJob() throws PSDeployException;
 
   /**
-   * Get the status message generated with the last call to
-   * {@link #getStatus()}.
+   * Get the status message generated with the last call to {@link #getStatus()}.
    *
-   * @return The status message, wrapped in an Optional. If
-   * {@link #getStatus()} has not been called, this will return
-   * <code>Optional.empty()</code>.
-   *
+   * @return The status message, wrapped in an Optional. If {@link #getStatus()} has not been
+   *     called, this will return <code>Optional.empty()</code>.
    * @throws PSDeployException if there are any errors.
    */
   Optional<String> getStatusMessage() throws PSDeployException;
@@ -72,20 +65,20 @@ public interface IPSDeployJobControl {
   public int getJobId();
 
   /**
-   * Constant to indicate the job completed before it could be cancelled.  May
-   * be returned by call to {@link #cancelDeployJob()}.
+   * Constant to indicate the job completed before it could be cancelled. May be returned by call to
+   * {@link #cancelDeployJob()}.
    */
   public static final int JOB_COMPLETED = 0;
 
   /**
-   * Constant to indicate the job was successfully cancelled.  May be returned
-   * by call to {@link #cancelDeployJob()}.
+   * Constant to indicate the job was successfully cancelled. May be returned by call to {@link
+   * #cancelDeployJob()}.
    */
   public static final int JOB_CANCELLED = 1;
 
   /**
-   * Constant to indicate the job aborted before is could be cancelled.  May be
-   * returned by call to {@link #cancelDeployJob()}.
+   * Constant to indicate the job aborted before is could be cancelled. May be returned by call to
+   * {@link #cancelDeployJob()}.
    */
   public static final int JOB_ABORTED = 2;
 }

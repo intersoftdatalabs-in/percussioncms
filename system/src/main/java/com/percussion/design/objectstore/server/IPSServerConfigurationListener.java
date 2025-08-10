@@ -21,30 +21,26 @@ import com.percussion.design.objectstore.PSServerConfiguration;
 import java.util.EventListener;
 
 /**
- * The IPSServerConfigurationListener interface is implemented by classes
- * interested in trapping changes to the server's configuration object
- * in the object store. This allows applications to immediately react to
- * the changes.
- * <P>
- * At this time, changes are not vetoable. The recipient is merely notified
- * of the change after the action has been processed and a response has
- * been sent to the originator.
- * <P>
- * We are also not supporting notification for only changed components.
- * For instance, if you're only interested in changes to the
- * back-end connection objects, you must implement configurationUpdated
- * and determine if the back-end connection objects were changed on your
- * own.
+ * The IPSServerConfigurationListener interface is implemented by classes interested in trapping
+ * changes to the server's configuration object in the object store. This allows applications to
+ * immediately react to the changes.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>At this time, changes are not vetoable. The recipient is merely notified of the change after
+ * the action has been processed and a response has been sent to the originator.
+ *
+ * <p>We are also not supporting notification for only changed components. For instance, if you're
+ * only interested in changes to the back-end connection objects, you must implement
+ * configurationUpdated and determine if the back-end connection objects were changed on your own.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSServerConfigurationListener extends EventListener {
   /**
    * Handle notification of changes to the server configuration object.
    *
-   * @param   config         the configuration object
+   * @param config the configuration object
    */
   public void configurationUpdated(PSServerConfiguration config);
 }

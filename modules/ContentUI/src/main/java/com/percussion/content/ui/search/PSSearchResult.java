@@ -60,19 +60,18 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 /**
- * This class generates search results in response to a search form posting. In
- * general, the results generated are nodes readiliy renderable in the dojo
- * table widget in the form of JSON object.
+ * This class generates search results in response to a search form posting. In general, the results
+ * generated are nodes readiliy renderable in the dojo table widget in the form of JSON object.
  */
 public class PSSearchResult {
   /**
-   * Get search results as JSON string that is parseable as a JSON array that
-   * can directly be used in rendering the rows in dojo filtering table.
+   * Get search results as JSON string that is parseable as a JSON array that can directly be used
+   * in rendering the rows in dojo filtering table.
    *
-   * @param request Rhythmyx request object must not be <code>null</code> and
-   * must have the search form parameters.
-   * @return JSON string as explained above, never <code>null</code> or
-   * empty. May resolve to an empty JavaScript array.
+   * @param request Rhythmyx request object must not be <code>null</code> and must have the search
+   *     form parameters.
+   * @return JSON string as explained above, never <code>null</code> or empty. May resolve to an
+   *     empty JavaScript array.
    * @throws PSCmsException
    * @throws PSExtensionProcessingException
    * @throws PSUnknownNodeTypeException
@@ -253,9 +252,8 @@ public class PSSearchResult {
   }
 
   /**
-   * Gets the map of content id and icon paths. Creates a list of locators with
-   * current or tip revision based on the check out user is logged in user or
-   * not.
+   * Gets the map of content id and icon paths. Creates a list of locators with current or tip
+   * revision based on the check out user is logged in user or not.
    *
    * @param resp search response assumed not <code>null</code>.
    * @return May be empty but never <code>null</code>.
@@ -286,26 +284,22 @@ public class PSSearchResult {
   }
 
   /**
-   * Parse all parameters from the supplied parameter iterator. Search field
-   * parameters are expected in the format <code>searchField_n=value</code>
-   * for search field values and <code>searchField_OP</code> for search field
-   * operators. All other parameters are treated as standard HTML parameters.
+   * Parse all parameters from the supplied parameter iterator. Search field parameters are expected
+   * in the format <code>searchField_n=value</code> for search field values and <code>searchField_OP
+   * </code> for search field operators. All other parameters are treated as standard HTML
+   * parameters.
    *
-   * If sys_contenttypeid is not part of search fields and if the sys_variantid
-   * column is not present in the result columns (which will not be for marlin
-   * AA) the search results are not filtered by allowed content types to the
-   * slot. In this case a sys_contenttypeid search field is added to the
-   * searchFields map with all the content types that are allowed to the slot.
+   * <p>If sys_contenttypeid is not part of search fields and if the sys_variantid column is not
+   * present in the result columns (which will not be for marlin AA) the search results are not
+   * filtered by allowed content types to the slot. In this case a sys_contenttypeid search field is
+   * added to the searchFields map with all the content types that are allowed to the slot.
    *
-   * @param params an iterator over all request parameters, not
-   *           <code>null</code>, may be empty.
-   * @param searchFields a map into which all search fields are collected. The
-   *           map key will be the field name as <code>String</code>, while
-   *           the value is a <code>SerchField</code> object. Not
-   *           <code>null</code>, may be empty.
-   * @return a map with all standard HTML parameters where the key is the
-   *         parameter name as <code>String</code> and the value is the
-   *         parameter value as <code>String</code>.
+   * @param params an iterator over all request parameters, not <code>null</code>, may be empty.
+   * @param searchFields a map into which all search fields are collected. The map key will be the
+   *     field name as <code>String</code>, while the value is a <code>SerchField</code> object. Not
+   *     <code>null</code>, may be empty.
+   * @return a map with all standard HTML parameters where the key is the parameter name as <code>
+   *     String</code> and the value is the parameter value as <code>String</code>.
    * @throws PSAssemblyException
    */
   @SuppressWarnings("unchecked")
@@ -381,8 +375,8 @@ public class PSSearchResult {
   }
 
   /**
-   * Container class to hold all information for one search field retrieved
-   * from the request parameters.
+   * Container class to hold all information for one search field retrieved from the request
+   * parameters.
    */
   private class SearchField {
     /**
@@ -403,8 +397,7 @@ public class PSSearchResult {
      * Construct a new search field for the supplied name and value.
      *
      * @param name the search field name, not <code>null</code> or empty.
-     * @param value the value to set for this field, not <code>null</code>
-     * or empty
+     * @param value the value to set for this field, not <code>null</code> or empty
      */
     public SearchField(String name, String value) {
       this(name);
@@ -415,8 +408,7 @@ public class PSSearchResult {
     /**
      * Add a new value to this field.
      *
-     * @param value the value to add to this field, not <code>null</code>,
-     * may be empty.
+     * @param value the value to add to this field, not <code>null</code>, may be empty.
      */
     @SuppressWarnings("unchecked")
     public void addValue(String value) {
@@ -428,13 +420,11 @@ public class PSSearchResult {
     /**
      * Add a new value or value list to this field at the supplied index.
      *
-     * @param index the index where to add the value. If the index supplied is
-     * greater than the actual size, the value will be appended.
-     * @param value the value to add to this field, not <code>null</code>,
-     * may be empty. This can either be a <code>String</code> or
-     * <code>List</code> object.
-     * @throws IndexOutOfBoundsException if the index is out of range
-     * <code>index &lt; 0</code>.
+     * @param index the index where to add the value. If the index supplied is greater than the
+     *     actual size, the value will be appended.
+     * @param value the value to add to this field, not <code>null</code>, may be empty. This can
+     *     either be a <code>String</code> or <code>List</code> object.
+     * @throws IndexOutOfBoundsException if the index is out of range <code>index &lt; 0</code>.
      */
     @SuppressWarnings("unchecked")
     public void addValue(int index, Object value) {
@@ -453,8 +443,7 @@ public class PSSearchResult {
     /**
      * Set the operator used with this search field.
      *
-     * @param operator the new operator, may be <code>null</code> but not
-     * empty.
+     * @param operator the new operator, may be <code>null</code> but not empty.
      */
     public void setOperator(String operator) {
       if (operator != null) {
@@ -478,8 +467,7 @@ public class PSSearchResult {
      * Get the search field operator.
      *
      * @param field the matching search field, not <code>null</code>.
-     * @return the search field operator, may be <code>null</code>, never
-     * empty.
+     * @return the search field operator, may be <code>null</code>, never empty.
      */
     public String getOperator(PSSearchField field) {
       if (field == null) throw new IllegalArgumentException("field cannot be null");
@@ -500,9 +488,8 @@ public class PSSearchResult {
      * Get all search field values.
      *
      * @param field the matching search field, not <code>null</code>.
-     * @return a list of search field values as <code>String</code> objects,
-     * never <code>null</code>, may be empty. The caller takes ownership of
-     * the returned list.
+     * @return a list of search field values as <code>String</code> objects, never <code>null</code>
+     *     , may be empty. The caller takes ownership of the returned list.
      */
     @SuppressWarnings("unchecked")
     public List getValues(PSSearchField field) {
@@ -522,21 +509,20 @@ public class PSSearchResult {
     }
 
     /**
-     * The search field name. Initialized while constucted, never
-     * <code>null</code>, empty or changed after that.
+     * The search field name. Initialized while constucted, never <code>null</code>, empty or
+     * changed after that.
      */
     private String mi_name = null;
 
     /**
-     * The search field operator, set through {@link #setOperator(String)},
-     * may be <code>null</code> but not empty.
+     * The search field operator, set through {@link #setOperator(String)}, may be <code>null</code>
+     * but not empty.
      */
     private String mi_operator = null;
 
     /**
-     * A list of search field values as <code>String</code>, never
-     * <code>null</code>, may be empty. The values in this list are
-     * guaranteed not <code>null</code> and not empty.
+     * A list of search field values as <code>String</code>, never <code>null</code>, may be empty.
+     * The values in this list are guaranteed not <code>null</code> and not empty.
      */
     private List mi_values = new ArrayList();
   }
@@ -544,16 +530,14 @@ public class PSSearchResult {
   /**
    * Get the requested parameter from the supplied map.
    *
-   * @param name the name of the parameter to get, assumed not
-   * <code>null</code> or empty.
-   * @param defaultValue the default value which will be returned if no value
-   * was found in the supplied map for the specified parnameter name, may be
-   * <code>null</code> or empty.
-   * @param parameters a map of parameters in which to look for the requested
-   * parameter, assumed not <code>null</code>.
-   * @return the value of the requested parameter, the supplied default value
-   * if no value was found. For lists this will return the first element and
-   * for files the <code>toString()</code> value.
+   * @param name the name of the parameter to get, assumed not <code>null</code> or empty.
+   * @param defaultValue the default value which will be returned if no value was found in the
+   *     supplied map for the specified parnameter name, may be <code>null</code> or empty.
+   * @param parameters a map of parameters in which to look for the requested parameter, assumed not
+   *     <code>null</code>.
+   * @return the value of the requested parameter, the supplied default value if no value was found.
+   *     For lists this will return the first element and for files the <code>toString()</code>
+   *     value.
    */
   private static String getParameter(String name, String defaultValue, Map parameters) {
     Object value = parameters.get(name);
@@ -589,38 +573,33 @@ public class PSSearchResult {
   }
 
   /**
-   * The delimiter used to mark request parameters as search field parameters.
-   * Search field parameters are delimited at the end with <code>_n</code>,
-   * where n is an incrementing number starting with 1.
+   * The delimiter used to mark request parameters as search field parameters. Search field
+   * parameters are delimited at the end with <code>_n</code>, where n is an incrementing number
+   * starting with 1.
    */
   private static final String FIELD_DELIMITER = "_";
 
   /**
-   * The delimiter used to mark request parameters as search operator
-   * parameter. Search operators are delimited at the end with
-   * <code>_op</code>.
+   * The delimiter used to mark request parameters as search operator parameter. Search operators
+   * are delimited at the end with <code>_op</code>.
    */
   private static final String OP_DELIMITER = "_op";
 
-  /**
-   * Column name for the site in the JSON object to be returned.
-   */
+  /** Column name for the site in the JSON object to be returned. */
   private static final String COLUMN_SITE = "Site";
 
-  /**
-   * Column name for the folder path in the JSON object to be returned.
-   */
+  /** Column name for the folder path in the JSON object to be returned. */
   private static final String COLUMN_FOLDER = "Folder";
 
   /**
-   * Name of the HTML parameter in the request to indicate the site column is
-   * to be added part of the search results.
+   * Name of the HTML parameter in the request to indicate the site column is to be added part of
+   * the search results.
    */
   private static final String INCLUDE_SITES = "includeSites";
 
   /**
-   * Name of the HTML parameter in the request to indicate the fodler path
-   * column is to be added part of the search results.
+   * Name of the HTML parameter in the request to indicate the fodler path column is to be added
+   * part of the search results.
    */
   private static final String INCLUDE_FOLDERS = "includeFolders";
 }

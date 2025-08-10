@@ -69,6 +69,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * REST/Webservice layer used to access the comments service.
+ *
  * @author erikserating
  */
 @Path("/comment")
@@ -323,8 +324,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     }
 
     /**
-     * if the hidden Honeypot field isn't empty,  it was likely filled out by a robot.
-     * we can return a successful response to indicate normal behavior to trick the bot.
+     * if the hidden Honeypot field isn't empty, it was likely filled out by a robot. we can return
+     * a successful response to indicate normal behavior to trick the bot.
      */
     if (!StringUtils.isBlank(params.getFirst(FORM_PARAM_HONEYPOT))) {
       log.debug(
@@ -477,9 +478,10 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
 
   /**
    * Ensures comments are <code>PSRestComment</code> object instances.
+   *
    * @param comments never <code>null</code>, may be empty.
-   * @return comments with only <code>PSRestComment</code> instances.
-   * Never <code>null</code>, may be empty.
+   * @return comments with only <code>PSRestComment</code> instances. Never <code>null</code>, may
+   *     be empty.
    */
   private PSComments toRestComments(PSComments comments) {
     PSComments results = new PSComments();

@@ -18,14 +18,13 @@
 package com.percussion.extension;
 
 /**
- * This interface provides a convenient way to bundle together information
- * needed to process a workflow content item. It is used by
- * <CODE>IPSWorkflowAction</CODE>.
+ * This interface provides a convenient way to bundle together information needed to process a
+ * workflow content item. It is used by <CODE>IPSWorkflowAction</CODE>.
  */
 public interface IPSWorkFlowContext {
   /**
-   * Key used to obtain the <CODE>PSWorkFlowContext</CODE> private object
-   * created by <CODE>IPSRequestContext.setPrivateObject</CODE>
+   * Key used to obtain the <CODE>PSWorkFlowContext</CODE> private object created by <CODE>
+   * IPSRequestContext.setPrivateObject</CODE>
    */
   public static final String WORKFLOW_CONTEXT_PRIVATE_OBJECT = "wfcontextprivateobject";
 
@@ -37,24 +36,26 @@ public interface IPSWorkFlowContext {
   /**
    * Gets the workflow database ID.
    *
-   * @return  database ID of workflow
+   * @return database ID of workflow
    */
   public int getWorkflowID();
 
   /**
    * Gets the content item database ID.
    *
-   * @return   database ID of content item
+   * @return database ID of content item
    */
   public int getContentID();
 
   /**
    * Gets a revision number for the content item
-   * <ul><li>for transitions - current revision</li>
-   * <li>for checkin - revision being checked in</li>
-   * <li>for checkout - base revision for the item being checked out:
-   *                      either 1, or the revision of the item copied to
-   *                      create the revision checked out</li></ul>
+   *
+   * <ul>
+   *   <li>for transitions - current revision
+   *   <li>for checkin - revision being checked in
+   *   <li>for checkout - base revision for the item being checked out: either 1, or the revision of
+   *       the item copied to create the revision checked out
+   * </ul>
    *
    * @return revision number of content item
    */
@@ -63,18 +64,18 @@ public interface IPSWorkFlowContext {
   /**
    * Gets the transition database ID.
    *
-   * @return   <ul><li>database ID of transition</li>
-   *         <li>0 for checkin or checkout</li>
-   *             <li>IPSConstants.TRANSITIONID_NO_ACTION_TAKEN if no
-   *             action was taken</li>
-   *             </li>
-   *             </ul>
+   * @return
+   *     <ul>
+   *       <li>database ID of transition
+   *       <li>0 for checkin or checkout
+   *       <li>IPSConstants.TRANSITIONID_NO_ACTION_TAKEN if no action was taken
+   *     </ul>
    */
   public int getTransitionID();
 
   /**
-   * Gets the current content state database ID. If a transition has
-   * occurred this will be the new state ID.
+   * Gets the current content state database ID. If a transition has occurred this will be the new
+   * state ID.
    *
    * @return database ID of current/new content state
    */
@@ -83,9 +84,8 @@ public interface IPSWorkFlowContext {
   /**
    * Gets the content status history entry database ID.
    *
-   * @return     content status history entry database ID or
-   *             WORKFLOW_CONTEXT_INITIAL_INTEGER_VALUE if the content status
-   *             history entry has not yet been created.
+   * @return content status history entry database ID or WORKFLOW_CONTEXT_INITIAL_INTEGER_VALUE if
+   *     the content status history entry has not yet been created.
    */
   public int getHistoryID();
 }

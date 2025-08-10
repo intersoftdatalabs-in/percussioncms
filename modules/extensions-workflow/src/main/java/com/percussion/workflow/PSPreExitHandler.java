@@ -29,26 +29,19 @@ import java.io.StringWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * This extension returns the value of a counter obtained from a database
- * stored procedure.
- */
+/** This extension returns the value of a counter obtained from a database stored procedure. */
 public class PSPreExitHandler implements IPSRequestPreProcessor {
 
   private static final Logger log = LogManager.getLogger(PSPreExitHandler.class);
 
-  /**
-   * Default constructor, as requiredL for use by IPSExtensionHandler.
-   */
+  /** Default constructor, as requiredL for use by IPSExtensionHandler. */
   public PSPreExitHandler() {
     super();
   }
 
   public void init(IPSExtensionDef extensionDef, File file) throws PSExtensionException {}
 
-  /**
-   * This is the main request processing handler
-   */
+  /** This is the main request processing handler */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
     log.info("");

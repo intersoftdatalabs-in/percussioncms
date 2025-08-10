@@ -51,16 +51,14 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
   }
 
   /**
-   * Converts the data specified by the params to text, based on the
-   * mimetype associated with the field.
+   * Converts the data specified by the params to text, based on the mimetype associated with the
+   * field.
    *
-   * @params The parameters, never <code>null</code>. The following params
-   * are expected. <code>toString</code> is called on all parameters to
-   * obtain their values unless otherwise specified. If a parameter value is
-   * <code>null</code> or empty, it is considered to have been ommitted
-   * (required parameters must be supplied):
-   *
-   * <table>
+   * @params The parameters, never <code>null</code>. The following params are expected. <code>
+   *     toString</code> is called on all parameters to obtain their values unless otherwise
+   *     specified. If a parameter value is <code>null</code> or empty, it is considered to have
+   *     been ommitted (required parameters must be supplied):
+   *     <table>
    * <tr>
    * <th>Param #</th>
    * <th>Description</th>
@@ -88,14 +86,11 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
    * </tr>
    * </table>
    *
-   * @param request The request context, guaranteed not to be <code>null</code>
-   * by the interface.
-   *
-   * @throws PSParameterMismatchException if a required parameter is missing,
-   * or if a parameter value is invalid.
-   * @throws PSExtensionProcessingException if an unsupported file type is
-   * supplied, or if there are any other errors, and an error message request
-   * parameter was not supplied.
+   * @param request The request context, guaranteed not to be <code>null</code> by the interface.
+   * @throws PSParameterMismatchException if a required parameter is missing, or if a parameter
+   *     value is invalid.
+   * @throws PSExtensionProcessingException if an unsupported file type is supplied, or if there are
+   *     any other errors, and an error message request parameter was not supplied.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
@@ -176,8 +171,8 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
    * Extracts the mimetype from the request paramters for the given field.
    *
    * @param request Assumed not <code>null</code>.
-   * @param fieldParam Name of the filed for which the mimetype needs to be
-   * extracted assumed not <code>null</code>.
+   * @param fieldParam Name of the filed for which the mimetype needs to be extracted assumed not
+   *     <code>null</code>.
    * @return mimetype or null if not found.
    * @throws PSExtensionProcessingException
    */
@@ -211,14 +206,12 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
   }
 
   /**
-   * Convenient method to hanlde the exception. Writes the message to
-   * m_errorMessageParam if not <code>null</code> otherwise throws
-   * PSExtensionProcessingException.
+   * Convenient method to hanlde the exception. Writes the message to m_errorMessageParam if not
+   * <code>null</code> otherwise throws PSExtensionProcessingException.
    *
    * @param request assumed not <code>null</code>.
    * @param e Exception that needs to be handled.
-   * @throws PSExtensionProcessingException if m_errorMessageParam is
-   * <code>null</code>.
+   * @throws PSExtensionProcessingException if m_errorMessageParam is <code>null</code>.
    */
   private void handleException(IPSRequestContext request, String msg)
       throws PSExtensionProcessingException {
@@ -228,14 +221,12 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
   }
 
   /**
-   * Convenient method to hanlde the exception. Writes the exception message to
-   * m_errorMessageParam if not <code>null</code> otherwise throws
-   * PSExtensionProcessingException.
+   * Convenient method to hanlde the exception. Writes the exception message to m_errorMessageParam
+   * if not <code>null</code> otherwise throws PSExtensionProcessingException.
    *
    * @param request assumed not <code>null</code>.
    * @param e Exception that needs to be handled.
-   * @throws PSExtensionProcessingException if m_errorMessageParam is
-   * <code>null</code>.
+   * @throws PSExtensionProcessingException if m_errorMessageParam is <code>null</code>.
    */
   private void handleException(IPSRequestContext request, Exception e)
       throws PSExtensionProcessingException {
@@ -246,29 +237,25 @@ public class PSTextExtractorExit extends PSDefaultExtension implements IPSItemIn
   }
 
   /**
-   * The fully qualified name of this extension. Intialized in the
-   * {@link #init(IPSExtensionDef, File)} method, never <code>null</code>,
-   * empty, or modified after that.
+   * The fully qualified name of this extension. Intialized in the {@link #init(IPSExtensionDef,
+   * File)} method, never <code>null</code>, empty, or modified after that.
    */
   private static String ms_fullExtensionName = "";
 
   /**
-   * The message prefix that includes the extension name and is used
-   * for logging.  Intialized in the {@link #init(IPSExtensionDef, File)}
-   * method, never <code>null</code>, empty, or modified after that.
+   * The message prefix that includes the extension name and is used for logging. Intialized in the
+   * {@link #init(IPSExtensionDef, File)} method, never <code>null</code>, empty, or modified after
+   * that.
    */
   private static String ms_msgPrefix = "";
 
   /**
-   * The name of the request parameter in which any error messages are to be
-   * stored as text. If not supplied, the extension will throw exceptions for
-   * any errors encountered. If supplied, any error encountered will be written
-   * to this parameter, and the exit will silently return.
+   * The name of the request parameter in which any error messages are to be stored as text. If not
+   * supplied, the extension will throw exceptions for any errors encountered. If supplied, any
+   * error encountered will be written to this parameter, and the exit will silently return.
    */
   private String m_errorMessageParam = null;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSTextExtractorExit.class);
 }

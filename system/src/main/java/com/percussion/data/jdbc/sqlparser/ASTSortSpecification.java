@@ -48,7 +48,7 @@ public class ASTSortSpecification extends SimpleNode {
   private int m_type = ASC;
   private String m_coll;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

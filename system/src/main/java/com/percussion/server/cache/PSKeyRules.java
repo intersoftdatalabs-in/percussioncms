@@ -33,10 +33,9 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to determine if an optional key is to be included.  The
- * keys and their inclusion rules are defined in PSKeyRules.xml, which is
- * loaded as a resource from the package in which this class is defined.  This
- * resource file must conform to the following DTD:
+ * This class is used to determine if an optional key is to be included. The keys and their
+ * inclusion rules are defined in PSKeyRules.xml, which is loaded as a resource from the package in
+ * which this class is defined. This resource file must conform to the following DTD:
  *
  * <pre><code>
  * &lt;!-- Include the shared definitions -->
@@ -70,20 +69,16 @@ import org.w3c.dom.Element;
  */
 public class PSKeyRules {
   /**
-   * Loads the <code>PSKeyRules.xml</code> resource file and intializes
-   * all required runtime rule evaluators.
+   * Loads the <code>PSKeyRules.xml</code> resource file and intializes all required runtime rule
+   * evaluators.
    *
-   * @param sourceNode The element containing the <code>PSXKeyRules</code>
-   * defintion.  May not be <code>null</code>.  See class documentation for
-   * more information.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the document does not contain the
-   * expected format.
+   * @param sourceNode The element containing the <code>PSXKeyRules</code> defintion. May not be
+   *     <code>null</code>. See class documentation for more information.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the document does not contain the expected format.
    * @throws PSNotFoundException if a specified extension cannot be found.
-   * @throws PSExtensionException If any errors occur while preparing a
-   * runnable version of an extension.
+   * @throws PSExtensionException If any errors occur while preparing a runnable version of an
+   *     extension.
    */
   public PSKeyRules(Element sourceNode)
       throws PSUnknownNodeTypeException, PSNotFoundException, PSExtensionException {
@@ -142,18 +137,15 @@ public class PSKeyRules {
   }
 
   /**
-   * Check rules for the supplied key to determine if the key should be
-   * included when caching the item represented by the supplied request.
+   * Check rules for the supplied key to determine if the key should be included when caching the
+   * item represented by the supplied request.
    *
-   * @param key The key to check rules for, may not be <code>null</code> or
-   * empty.
-   * @param req The request to use to determine if the specified key should be
-   * included.  May not be <code>null</code>.
-   *
-   * @return <code>true</code> if the rules for the specified <code>key</code>
-   * resolve to <code>true</code> or if no rules are supplied for that
-   * <code>key</code>, <code>false</code> otherwise.
-   *
+   * @param key The key to check rules for, may not be <code>null</code> or empty.
+   * @param req The request to use to determine if the specified key should be included. May not be
+   *     <code>null</code>.
+   * @return <code>true</code> if the rules for the specified <code>key</code> resolve to <code>true
+   *     </code> or if no rules are supplied for that <code>key</code>, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if any param is invalid.
    */
   boolean isIncluded(String key, PSRequest req) {
@@ -173,9 +165,9 @@ public class PSKeyRules {
   }
 
   /**
-   * Map of evaluators for each key name.  Key is the name of a cache key as a
-   * <code>String</code>, value is a <code>PSRuleListEvaluator</code> for that
-   * key.  Never <code>null</code> or modified after construction.
+   * Map of evaluators for each key name. Key is the name of a cache key as a <code>String</code>,
+   * value is a <code>PSRuleListEvaluator</code> for that key. Never <code>null</code> or modified
+   * after construction.
    */
   private Map m_evaluators = new HashMap();
 

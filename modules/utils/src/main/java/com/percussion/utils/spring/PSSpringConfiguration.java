@@ -38,31 +38,25 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Handles the loading of Spring beans from a Spring configuration file. The
- * file must conform to the "spring-beans.dtd", and beans are loaded and saved
- * using the {@link IPSBeanConfig} interface.
- * <p>
- * Note that calls {@link #setBean(IPSBeanConfig)} will only add the bean to the
- * in-memory configuration and that {@link #save()} must be called to save the
- * changes to the configuration file.
+ * Handles the loading of Spring beans from a Spring configuration file. The file must conform to
+ * the "spring-beans.dtd", and beans are loaded and saved using the {@link IPSBeanConfig} interface.
+ *
+ * <p>Note that calls {@link #setBean(IPSBeanConfig)} will only add the bean to the in-memory
+ * configuration and that {@link #save()} must be called to save the changes to the configuration
+ * file.
  */
 public class PSSpringConfiguration {
-  /**
-   * The name of the bean containing the datasource resolver definition.
-   */
+  /** The name of the bean containing the datasource resolver definition. */
   public static final String DS_RESOLVER_NAME = "sys_datasourceResolver";
 
-  /**
-   * The name of the bean containing the hibernate dialect map defintion.
-   */
+  /** The name of the bean containing the hibernate dialect map defintion. */
   public static final String HIBERNATE_DIALECT_MAP_NAME = "sys_hibernateDialects";
 
   /**
    * Constructs an instance of the configuration from the source file.
    *
-   * @param configFile The source configuration file, may not be
-   *           <code>null</code> and must conform to the "spring-beans.dtd"
-   *           DTD.
+   * @param configFile The source configuration file, may not be <code>null</code> and must conform
+   *     to the "spring-beans.dtd" DTD.
    * @throws SAXException If the file cannot be parsed.
    * @throws IOException If there is an error reading from the file.
    * @throws FileNotFoundException If the file cannot be found.
@@ -118,16 +112,13 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Gets the bean with the specified name from the configuration. The class
-   * specified by supplied bean name must implement {@link IPSBeanConfig} and
-   * have a ctor that takes no parameters.
+   * Gets the bean with the specified name from the configuration. The class specified by supplied
+   * bean name must implement {@link IPSBeanConfig} and have a ctor that takes no parameters.
    *
    * @param name The name of the bean, may not be <code>null</code> or empty.
-   *
    * @return The requested bean configuration, never <code>null</code>.
-   *
-   * @throws PSInvalidXmlException If the XML in the spring configuration is
-   *            invalid for the specified bean.
+   * @throws PSInvalidXmlException If the XML in the spring configuration is invalid for the
+   *     specified bean.
    * @throws RuntimeException if no matching bean is found.
    */
   public Object getBean(String name) throws PSInvalidXmlException {
@@ -147,14 +138,12 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Return the root xml element of the specified bean definition.  This is
-   * intended for limited use where {@link #getBean(String)} cannot be used
-   * i.e. there is no implementation of {@link IPSBeanConfig} available.
+   * Return the root xml element of the specified bean definition. This is intended for limited use
+   * where {@link #getBean(String)} cannot be used i.e. there is no implementation of {@link
+   * IPSBeanConfig} available.
    *
    * @param name The name of the bean, may not be <code>null</code> or empty.
-   *
-   * @return The bean root element, or <code>null</code> if the specified
-   * bean cannot be found.
+   * @return The bean root element, or <code>null</code> if the specified bean cannot be found.
    */
   public Element getBeanXml(String name) {
     if (StringUtils.isBlank(name))
@@ -168,14 +157,12 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Set the root xml element of the specified bean definition. This is
-   * intended for limited use where {@link #setBean(IPSBeanConfig)} cannot
-   * be used, i.e. there is no implementation of {@link IPSBeanConfig}
-   * available.
+   * Set the root xml element of the specified bean definition. This is intended for limited use
+   * where {@link #setBean(IPSBeanConfig)} cannot be used, i.e. there is no implementation of {@link
+   * IPSBeanConfig} available.
    *
    * @param name the name of the bean, never <code>null</code> or empty.
-   * @param xmlel the element representing the bean's data,
-   *   never <code>null</code>.
+   * @param xmlel the element representing the bean's data, never <code>null</code>.
    */
   public void setBeanXml(String name, Element xmlel) {
     if (StringUtils.isBlank(name)) {
@@ -200,11 +187,11 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Saves the supplied bean to the in-memory configuration. {@link #save()}
-   * must be called to persist the change to the underlying configuration file.
+   * Saves the supplied bean to the in-memory configuration. {@link #save()} must be called to
+   * persist the change to the underlying configuration file.
    *
-   * @param beanConfig The bean configuration, may not be <code>null</code>.
-   *           See {@link #getBean(String)} for more info.
+   * @param beanConfig The bean configuration, may not be <code>null</code>. See {@link
+   *     #getBean(String)} for more info.
    */
   public void setBean(IPSBeanConfig beanConfig) {
     PSBeanData data = m_beanDataMap.get(beanConfig.getBeanName());
@@ -217,13 +204,12 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Remove the specified bean from the configuration.  {@link #save()}
-   * must be called to persist the change to the underlying configuration file.
+   * Remove the specified bean from the configuration. {@link #save()} must be called to persist the
+   * change to the underlying configuration file.
    *
    * @param name The bean name, may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the specified bean was found and removed,
-   * <code>false</code> if not.
+   * @return <code>true</code> if the specified bean was found and removed, <code>false</code> if
+   *     not.
    */
   public boolean removeBean(String name) {
     if (StringUtils.isBlank(name))
@@ -233,8 +219,7 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Saves the in-memory configuration to the file specified during
-   * construction.
+   * Saves the in-memory configuration to the file specified during construction.
    *
    * @throws IOException If there are any errors writing to the file.
    */
@@ -265,16 +250,15 @@ public class PSSpringConfiguration {
   }
 
   /**
-   * Creates a new, empty document with which elements are created when
-   * {@link #setBean(IPSBeanConfig)} is called, and to which all elements are
-   * added when {@link #save()} is called.
-   * <p>
-   * Copies all the attributes of the old root element to the new document
-   * to maintain any such information. Checks and adds the spring namespace
-   * schema configuration and xsi schema location to the attributes.
+   * Creates a new, empty document with which elements are created when {@link
+   * #setBean(IPSBeanConfig)} is called, and to which all elements are added when {@link #save()} is
+   * called.
    *
-   * @param doc the document to copy the attributes from, assumed never
-   *           <code>null</code>
+   * <p>Copies all the attributes of the old root element to the new document to maintain any such
+   * information. Checks and adds the spring namespace schema configuration and xsi schema location
+   * to the attributes.
+   *
+   * @param doc the document to copy the attributes from, assumed never <code>null</code>
    */
   private void initConfigDoc(Document doc) {
     Element oldroot = doc.getDocumentElement();
@@ -333,42 +317,31 @@ public class PSSpringConfiguration {
     }
   }
 
-  /**
-   * The file specified during construction, never <code>null</code> or
-   * modified after that.
-   */
+  /** The file specified during construction, never <code>null</code> or modified after that. */
   private File m_configFile;
 
   /**
-   * The document used for adding beans and saving the config. See
-   * {@link #initConfigDoc(Document)} for details.
+   * The document used for adding beans and saving the config. See {@link #initConfigDoc(Document)}
+   * for details.
    */
   private Document m_configDoc;
 
   /**
-   * Map of bean id's to bean data objects, initialized during construction,
-   * never <code>null</code> after that.
+   * Map of bean id's to bean data objects, initialized during construction, never <code>null</code>
+   * after that.
    */
   private Map<String, PSBeanData> m_beanDataMap;
 
   // private xml constants
-  /**
-   * Beans element text
-   */
+  /** Beans element text */
   private static final String BEANS = "beans";
 
-  /**
-   * Simple structure to hold a bean's class name and element data.
-   */
+  /** Simple structure to hold a bean's class name and element data. */
   class PSBeanData {
-    /**
-     * The class name
-     */
+    /** The class name */
     String m_className;
 
-    /**
-     * The element data
-     */
+    /** The element data */
     Element m_element;
   }
 }

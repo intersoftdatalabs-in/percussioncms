@@ -46,176 +46,126 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Performs the requested workflow transition (such as approval, check-in or
- * check-out) based on the action trigger from the HTML form submitted by the
- * user, after validating the conditions for the transition. These conditions
- * include the role required to perform the transition, the check-in/check-out
- * status of the content, and whether a transition comment is required and has
- * been provided. Information concerning the workflow context and the workflow
- * actions for this transition is placed into private objects in the request
- * context.
+ * Performs the requested workflow transition (such as approval, check-in or check-out) based on the
+ * action trigger from the HTML form submitted by the user, after validating the conditions for the
+ * transition. These conditions include the role required to perform the transition, the
+ * check-in/check-out status of the content, and whether a transition comment is required and has
+ * been provided. Information concerning the workflow context and the workflow actions for this
+ * transition is placed into private objects in the request context.
  */
 public class PSExitPerformTransition implements IPSRequestPreProcessor {
   /**
-   * This is an inner class to encapsulate the parameters. We cannot keep
-   * these as class variables due to threading issues. We instantiate this
-   * object in the main processrequest method (called by server) and pass
-   * around the methods. This is meant for convenience only.
+   * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
+   * due to threading issues. We instantiate this object in the main processrequest method (called
+   * by server) and pass around the methods. This is meant for convenience only.
    */
   private class Params {
 
-    /**
-     * the workflow app ID for this transition
-     */
+    /** the workflow app ID for this transition */
     public int m_workflowAppID = 0;
 
-    /**
-     * the ContentID for this transition
-     */
+    /** the ContentID for this transition */
     public int m_contentID = 0;
 
     /**
      * The revision number for the content item in the workflow context:
-     * <ul><li>for transitions - current revision</li>
-     * <li>for checkin - revision being checked in</li>
-     * <li>for checkout - base revision for the item being checked out:
-     *                    either 1, or the revision of the item copied to
-     *                    create the revision checked out</li></ul>
+     *
+     * <ul>
+     *   <li>for transitions - current revision
+     *   <li>for checkin - revision being checked in
+     *   <li>for checkout - base revision for the item being checked out: either 1, or the revision
+     *       of the item copied to create the revision checked out
+     * </ul>
      */
     public int m_contextRevision = IPSWorkFlowContext.WORKFLOW_CONTEXT_INITIAL_INTEGER_VALUE;
 
     /**
      * The revision number for the content item for html parameter
-     * <ul> After reading the system_revision html parameter
-     * <li>for transitions, or if value is not set - 0 </li>
-     * <li>for checkin - revision being checked in (optional) - </li>
-     * <li>checkout - revision requested for check out</li></ul>
-     * <ul> After processing checkin/checkout value to set for
-     *     system_revision html parameter
-     * <li>for transitions - 0 - do not set html parameter </li>
-     * <li>for checkin - revision checked in</li>
-     * <li>checkout - revision actually checked out: either 1, or a new
-     *                revision with a content item that must be copied from
-     *                the item with the revision requested.</li></ul>
+     *
+     * <ul>
+     *   After reading the system_revision html parameter
+     *   <li>for transitions, or if value is not set - 0
+     *   <li>for checkin - revision being checked in (optional) -
+     *   <li>checkout - revision requested for check out
+     * </ul>
+     *
+     * <ul>
+     *   After processing checkin/checkout value to set for system_revision html parameter
+     *   <li>for transitions - 0 - do not set html parameter
+     *   <li>for checkin - revision checked in
+     *   <li>checkout - revision actually checked out: either 1, or a new revision with a content
+     *       item that must be copied from the item with the revision requested.
+     * </ul>
      */
     public int m_htmlRevision = IPSConstants.NO_CORRESPONDING_REVISION_VALUE;
 
-    /**
-     * the transition ID for this transition
-     */
+    /** the transition ID for this transition */
     public int m_transitionID = IPSConstants.TRANSITIONID_NO_ACTION_TAKEN;
 
-    /**
-     * the user that will perform this transition or action
-     * including check in and check out
-     */
+    /** the user that will perform this transition or action including check in and check out */
     public String m_userName = null;
 
-    /**
-     * action trigger name e.g. "reject"
-     */
+    /** action trigger name e.g. "reject" */
     public String m_actionTrigger = null;
 
-    /**
-     * the state ID for the state in which the content item begins this
-     * transition.
-     */
+    /** the state ID for the state in which the content item begins this transition. */
     public int m_transitionFromStateID = 0;
 
-    /**
-     * the state ID for the state in which the content item  this
-     * transition.
-     */
+    /** the state ID for the state in which the content item this transition. */
     public int m_transitionToStateID = 0;
 
-    /**
-     * <CODE>true</CODE> if a transition was performed.
-     *  else <CODE>false</CODE>.
-     */
+    /** <CODE>true</CODE> if a transition was performed. else <CODE>false</CODE>. */
     public boolean b_transitionPerformed = false;
 
     /**
-     * the name of the user who has this content item checked out, or
-     * <CODE>null</CODE> if the item is not checked out.
+     * the name of the user who has this content item checked out, or <CODE>null</CODE> if the item
+     * is not checked out.
      */
     public String m_checkedOutUser = null;
 
-    /**
-     * <CODE>true</CODE> if this a check in or check out,
-     *  else <CODE>false</CODE>.
-     */
+    /** <CODE>true</CODE> if this a check in or check out, else <CODE>false</CODE>. */
     public boolean m_isCheckinOrCheckout = false;
 
-    /**
-     * <CODE>true</CODE> if this a check in
-     *  else <CODE>false</CODE>.
-     */
+    /** <CODE>true</CODE> if this a check in else <CODE>false</CODE>. */
     public boolean m_isCheckin = false;
 
     /**
      * Status code indicating whether this item is checked out:
+     *
      * <ul>
-     * <li>
-     * PSWorkFlowUtils.CHECKOUT_STATUS_NONE - Not checked-out by anybody
-     * </li>
-     * <li>
-     * PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER - Checked out by current
-     *                                                user
-     * </li>
-     * <li>
-     * PSWorkFlowUtils.CHECKOUT_STATUS_OTHER - Checked out by some body else
-     * </li>
+     *   <li>PSWorkFlowUtils.CHECKOUT_STATUS_NONE - Not checked-out by anybody
+     *   <li>PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_USER - Checked out by current user
+     *   <li>PSWorkFlowUtils.CHECKOUT_STATUS_OTHER - Checked out by some body else
      * </ul>
      */
     public int m_checkoutStatus = PSWorkFlowUtils.CHECKOUT_STATUS_NONE;
 
-    /**
-     * <CODE>true</CODE> if this item is checked out,
-     * <CODE>false</CODE> if not.
-     */
+    /** <CODE>true</CODE> if this item is checked out, <CODE>false</CODE> if not. */
     public boolean m_checkedOut = true;
 
-    /**
-     * the request context for this extension call (used for tracing).
-     */
+    /** the request context for this extension call (used for tracing). */
     public IPSRequestContext m_request = null;
 
-    /**
-     * <CODE>true</CODE> if the user is an administrator,
-     * <CODE>false</CODE> if not.
-     */
+    /** <CODE>true</CODE> if the user is an administrator, <CODE>false</CODE> if not. */
     public boolean m_isAdministrator = false;
 
-    /**
-     * descriptive comment for this transition. maybe <CODE>null</CODE>
-     */
+    /** descriptive comment for this transition. maybe <CODE>null</CODE> */
     public String m_transitionComment = null;
 
-    /**
-     *  list of proposed new adhoc users. May be <CODE>null</CODE>
-     */
+    /** list of proposed new adhoc users. May be <CODE>null</CODE> */
     public String m_adhocUserList = null;
 
-    /**
-     * Object containing role information. Not <CODE>null</CODE> once
-     * initialized.
-     */
+    /** Object containing role information. Not <CODE>null</CODE> once initialized. */
     public PSWorkflowRoleInfo m_wfRoleInfo = null;
 
-    /**
-     * Item's Community
-     */
+    /** Item's Community */
     public int m_itemCommunity = -1;
 
-    /**
-     * user's login community
-     */
+    /** user's login community */
     public int m_userCommunity = -1;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 
   /* Set the parameter count to not initialized */
@@ -239,92 +189,60 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   /* *******  IPSRequestPreProcessor Interface Implementation ******* */
 
   /**
-   * Performs the transition or checkout or checkin action after validating
-   * the input data. Creates a workflow context private object. if any
-   * transition workflow actions exist, they are put in a private object.
+   * Performs the transition or checkout or checkin action after validating the input data. Creates
+   * a workflow context private object. if any transition workflow actions exist, they are put in a
+   * private object.
    *
-   * @param  params          the parameters for this extension.
-   *         params[0]       the content ID
-   *         params[1]       the user name
-   *         params[2]       the action trigger
-   * @param request          the context of the request associated with this
-   *                         extension.
-   *                         names of request HTML parameters used as input:
-   *                         assignment type: value of workflow property
-   *                           HTML_PARAM_ASSIGNMENTTYPE, default value is
-   *                           PSWorkFlowUtils.ASSIGNMENT_TYPE_CURRENT_USER
-   *                         transition comments: value of workflow property
-   *                           HTML_PARAM_TRANSITION_COMMENT, default value is
-   *                           PSWorkFlowUtils.TRANSITION_COMMENT
-   *                         system revision:  IPSHtmlParameters.SYS_REVISION
-   *                         <P>
-   *                         Modifications to <CODE>request</CODE> by this
-   *                         method
-   *                         <ul>
-   *                         <li>
-   *                         creation of the workflow context private object
-   *                         which has the key <CODE>
+   * @param params the parameters for this extension. params[0] the content ID params[1] the user
+   *     name params[2] the action trigger
+   * @param request the context of the request associated with this extension. names of request HTML
+   *     parameters used as input: assignment type: value of workflow property
+   *     HTML_PARAM_ASSIGNMENTTYPE, default value is PSWorkFlowUtils.ASSIGNMENT_TYPE_CURRENT_USER
+   *     transition comments: value of workflow property HTML_PARAM_TRANSITION_COMMENT, default
+   *     value is PSWorkFlowUtils.TRANSITION_COMMENT system revision: IPSHtmlParameters.SYS_REVISION
+   *     <p>Modifications to <CODE>request</CODE> by this method
+   *     <ul>
+   *       <li>creation of the workflow context private object which has the key <CODE>
    *                        IPSWorkFlowContext.WORKFLOW_CONTEXT_PRIVATE_OBJECT
    *                         </CODE>
-   *                         </li>
-   *                         <li>if a list of workflow action extensions
-   *                         exists a private object with key <CODE>
+   *       <li>if a list of workflow action extensions exists a private object with key <CODE>
    *                         IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT
-   *                         </CODE> is  created.
-   *                         </li>
-   *                         <li> a private object with key <CODE>
+   *                         </CODE> is created.
+   *       <li>a private object with key <CODE>
    *                         PSWorkflowRoleInfo.
-   *                         WORKFLOW_ROLE_INFO_PRIVATE_OBJECT </CODE>
-   *                         is used to obtain the roles in which the user is
-   *                         acting. It is updated with content adhoc user
-   *                         information.
-   *                         </li>
-   *                         <li>
-   *                         HTML parameters used as input that may be
-   *                         modified:
-   *                         assignment type,
-   *                         system revision - value
-   *                         <ul><li>for transition - not set</li>
-   *                         <li>for checkin - revision checked in</li>
-   *                         <li>checkout - revision actually checked out:
-   *                         either 1, or a new revision with a content item
-   *                         that must be copied from the item with the
-   *                         revision requested.</li></ul>
-   *                         HTML parameters with the following names are set:
-   *                         new state id: value of workflow property
-   *                           HTML_PARAM_NEWSTATEID,  default value is
-   *                           PSWorkFlowUtils.DEFAULT_NEWSTATEID_NAME
-   *                         value is new state ID if a transition was
-   *                           performed, otherwise equals the empty string
-   *                         checkout user name: value of workflow property
-   *                           HTML_PARAM_CHECKOUTUSERNAME, default value is
-   *                           PSWorkFlowUtils.CHECKOUT_USER_NAME
-   *                         checkout status: value of workflow property
-   *                           HTML_PARAM_CHECKOUTSTATUS, default value is
-   *                          PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_DOCUMENT
+   *                         WORKFLOW_ROLE_INFO_PRIVATE_OBJECT </CODE> is used to obtain the roles
+   *           in which the user is acting. It is updated with content adhoc user information.
+   *       <li>HTML parameters used as input that may be modified: assignment type, system revision
+   *           - value
+   *           <ul>
+   *             <li>for transition - not set
+   *             <li>for checkin - revision checked in
+   *             <li>checkout - revision actually checked out: either 1, or a new revision with a
+   *                 content item that must be copied from the item with the revision requested.
+   *           </ul>
+   *           HTML parameters with the following names are set: new state id: value of workflow
+   *           property HTML_PARAM_NEWSTATEID, default value is
+   *           PSWorkFlowUtils.DEFAULT_NEWSTATEID_NAME value is new state ID if a transition was
+   *           performed, otherwise equals the empty string checkout user name: value of workflow
+   *           property HTML_PARAM_CHECKOUTUSERNAME, default value is
+   *           PSWorkFlowUtils.CHECKOUT_USER_NAME checkout status: value of workflow property
+   *           HTML_PARAM_CHECKOUTSTATUS, default value is
+   *           PSWorkFlowUtils.CHECKOUT_STATUS_CURRENT_DOCUMENT
+   *     </ul>
    *
-   *                         </li>
-   *                         </ul>
-   * @throws                 PSExtensionProcessingException if
-   *                         <ul>
-   *                         <li>content ID is <CODE>null</CODE> or
-   *                         empty. </li>
-   *                         <li>user name parameter is <CODE>null</CODE> or
-   *                         empty on input, or <CODE>null</CODE> after
-   *                         removing host names. </li>
-   *                         <li>if a parameter of the wrong type is
-   *                         supplied</li>
-   *                         <ul>
-   *                         <li>if wrong number of parameters is supplied.
-   *                         </li>
-   *                         <li><CODE>request</CODE> is <CODE>null</CODE>
-   *                         </li>
-   *                         <li>an SQL exception is caught
-   *                         </li>
-   *                         <li>a PSEntryNotFoundException is caught because
-   *                         an expected data base entry does not exist
-   *                         </li>
-   *                         </ul>
+   * @throws PSExtensionProcessingException if
+   *     <ul>
+   *       <li>content ID is <CODE>null</CODE> or empty.
+   *       <li>user name parameter is <CODE>null</CODE> or empty on input, or <CODE>null</CODE>
+   *           after removing host names.
+   *       <li>if a parameter of the wrong type is supplied
+   *           <ul>
+   *             <li>if wrong number of parameters is supplied.
+   *             <li><CODE>request</CODE> is <CODE>null</CODE>
+   *             <li>an SQL exception is caught
+   *             <li>a PSEntryNotFoundException is caught because an expected data base entry does
+   *                 not exist
+   *           </ul>
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -618,34 +536,37 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Does the work of performing the transition, delegates work to
-   * for check in and checkout<CODE>checkInOut</CODE>.
+   * Does the work of performing the transition, delegates work to for check in and checkout<CODE>
+   * checkInOut</CODE>.
    *
-   * @param connection      data base connection
-   * @param userRoleList    comma separated list of user's roles
-   * @param localParams     the local parameters object
-   *                        <ul>members used as input:
-   *                        <li>m_request</li>
-   *                        <li>m_transitionComment</li>
-   *                        <ul>members modified:
-   *                        <li>m_workflowAppID</li>
-   *                        <li>m_contentID</li>
-   *                        <li>m_transitionFromStateID</li>
-   *                        <li>m_transitionToStateID</li>
-   *                        <li>m_transitionID</li>
-   *                        <li>m_checkedOutUser</li>
-   *                        <li>m_checkedOut</li>
-   *                        <li>m_checkoutStatus</li></ul>
-   *                        <li>m_contextRevision</li>
-   *                        <li>m_htmlRevision</li></ul>
-   * @param request         current request, assumed not <code>null</code>.
+   * @param connection data base connection
+   * @param userRoleList comma separated list of user's roles
+   * @param localParams the local parameters object
+   *     <ul>
+   *       members used as input:
+   *       <li>m_request
+   *       <li>m_transitionComment
+   *           <ul>
+   *             members modified:
+   *             <li>m_workflowAppID
+   *             <li>m_contentID
+   *             <li>m_transitionFromStateID
+   *             <li>m_transitionToStateID
+   *             <li>m_transitionID
+   *             <li>m_checkedOutUser
+   *             <li>m_checkedOut
+   *             <li>m_checkoutStatus
+   *           </ul>
+   *       <li>m_contextRevision
+   *       <li>m_htmlRevision
+   *     </ul>
    *
-   * @throws                SQLException if an SQL error occurs
-   * @throws                PSCheckInCheckOutException the user is
-   *                        not authorized to perform the checkin or checkout
-   * @throws                PSTransitionException if an error occurs
-   * @throws                PSEntryNotFoundException if a data base entry is
-   *                        not found
+   * @param request current request, assumed not <code>null</code>.
+   * @throws SQLException if an SQL error occurs
+   * @throws PSCheckInCheckOutException the user is not authorized to perform the checkin or
+   *     checkout
+   * @throws PSTransitionException if an error occurs
+   * @throws PSEntryNotFoundException if a data base entry is not found
    * @throws PSORMException
    */
   private void performTransition(
@@ -679,13 +600,11 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     localParams.m_itemCommunity = csc.getCommunityID();
 
     /**
-     * [Vitaly: Oct 27 2003]: DO NOT compare the user community and
-     * the item community. Communities were never designed to work
-     * as a server security feature. Filtering by community, if desired,
-     * should be done at the action visibility level (already in place). Filtering here
-     * makes it impossible to perform such relationships operation as
-     * a Translation of an item with new copies going into another community.
-     * For more info see bug Rx-03-10-0057.
+     * [Vitaly: Oct 27 2003]: DO NOT compare the user community and the item community. Communities
+     * were never designed to work as a server security feature. Filtering by community, if desired,
+     * should be done at the action visibility level (already in place). Filtering here makes it
+     * impossible to perform such relationships operation as a Translation of an item with new
+     * copies going into another community. For more info see bug Rx-03-10-0057.
      */
     PSStateRolesContext toStateSrc = null;
     PSStateRolesContext fromStateSrc = null;
@@ -776,11 +695,9 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     localParams.m_transitionID = tc.getTransitionID();
 
     /**
-     * Make transition specific checks that this user is authorized to
-     * perform this transition. Only the aging agent may perform  aging
-     * transitions.
-     * Otherwise, the user must belong the transition-required role list, if
-     * one exists.
+     * Make transition specific checks that this user is authorized to perform this transition. Only
+     * the aging agent may perform aging transitions. Otherwise, the user must belong the
+     * transition-required role list, if one exists.
      */
     if (tc.isAgingTransition()) {
       //           // check that it's  the aging agent
@@ -903,36 +820,36 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Updates the checked out user name in the content status context object
-   * if the user is  authorized to perform the checkin or checkout.
+   * Updates the checked out user name in the content status context object if the user is
+   * authorized to perform the checkin or checkout.
    *
-   * @param csc           the content status context object for the content
-   *                      item.<P>
-   *                      the checked out user name will be updated if the
-   *                      action is successful
-   * @param connection    data base connection
-   * @param isCheckin     <CODE>true</CODE> if this a check in
-   *                      <CODE>false</CODE> if this a check out.
-   * @param localParams   the local parameters object
-   *                      <ul>members used as input:
-   *                      <li>m_request</li>
-   *                      <li>m_transitionID</li>
-   *                      <li>m_actionTrigger</li>
-   *                      <li>m_userName</li>
-   *                      <li>m_checkedOutUser</li>
-   *                      <li>m_checkedOut</li>
-   *                      <li>m_checkoutStatus</li></ul>
-   *                      <li>m_isAdministrator</li>
-   *                      <ul>members modified:
-   *                      <li>m_contextRevision</li>
-   *                      <li>m_htmlRevision</li></ul>
-   * @param request       current request, assumed not <code>null</code>.
+   * @param csc the content status context object for the content item.
+   *     <p>the checked out user name will be updated if the action is successful
+   * @param connection data base connection
+   * @param isCheckin <CODE>true</CODE> if this a check in <CODE>false</CODE> if this a check out.
+   * @param localParams the local parameters object
+   *     <ul>
+   *       members used as input:
+   *       <li>m_request
+   *       <li>m_transitionID
+   *       <li>m_actionTrigger
+   *       <li>m_userName
+   *       <li>m_checkedOutUser
+   *       <li>m_checkedOut
+   *       <li>m_checkoutStatus
+   *     </ul>
+   *     <li>m_isAdministrator
+   *         <ul>
+   *           members modified:
+   *           <li>m_contextRevision
+   *           <li>m_htmlRevision
+   *         </ul>
    *
-   * @throws              SQLException if an SQL error occurs
-   * @throws              PSCheckInCheckOutException if the user is
-   *                      not authorized to perform the checkin or checkout
-   * @throws PSEntryNotFoundException if an expected data base entry does
-   *    not exist.
+   * @param request current request, assumed not <code>null</code>.
+   * @throws SQLException if an SQL error occurs
+   * @throws PSCheckInCheckOutException if the user is not authorized to perform the checkin or
+   *     checkout
+   * @throws PSEntryNotFoundException if an expected data base entry does not exist.
    * @throws PSORMException
    */
   private void checkInOut(
@@ -1010,9 +927,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     // Checkout action
     else {
       /**
-       * We do not allow to checkout an item that is in a public state. The
-       * user must first transition the item to a non-public state and then
-       * check it out.
+       * We do not allow to checkout an item that is in a public state. The user must first
+       * transition the item to a non-public state and then check it out.
        */
       IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
       IPSStatesContext stateContext =
@@ -1118,54 +1034,31 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * @todo This method should really be private.
-   * Checks whether the appropriate number of approvals have been provided,
-   * and updates the content status and content approvals contexts if needed;
-   * calls method to update aging related information.
-   * This method has been given package scope for testing purposes, but should
-   * not be invoked outside of this exit in production code.
-   *
-   * @param csc                      the content status context object for the
-   *                                 content item.<P>
-   *                                 if the  action is successful, the
-   *                                 following members will be updated as
-   *                                 needed: content state ID, last transition
-   *                                 date, next aging transition, next aging
-   *                                 transition date, state entered date, last
-   *                                 repeated transition date. These changes
-   *                                 are not committed here. Assumed not
-   *                                 <code>null</code>.
-   * @param tc                       the data base context object for this
-   *                                 transition.  Assumed not
-   *                                 <code>null</code>.
-   * @param userName                 the user that will perform this
-   *                                 transition or action including check in
-   *                                 and check out, may be <code>null</code> or
-   *                                 empty.
-   * @param now                      time at which the transition occurs,
-   *                                 assumed not <code>null</code>.
-   * @param request                  the request context for this extension
-   *                                 call (used for tracing), assumed not
-   *                                 <code>null</code>.
-   * @param connection               the data base connection, assumed not
-   *                                 <code>null</code>.
-   * @param roleIdNameMap            A map of role id as key and role name
-   *                                 as value to be used in determining if this
-   *                                 transition can proceed, assumed not
-   *                                 <code>null</code>.
-   * @param localParams              The local parameters object, assumed not
-   *                                 <code>null</code>.
-   *
-   * @return                         <CODE>true</CODE> if a transition was
-   *                                 performed else <CODE>false</CODE>.
-   *
-   * @throws                         SQLException if an SQL error occurs
-   * @throws                         PSEntryNotFoundException if a data base
-   *                                 entry is not found
-   * @throws                         PSDuplicateApprovalException if an
-   *                                 attempt is made to insert an approval for
-   *                                 a user/state/workflow that already has
-   *                                 one.
+   * @todo This method should really be private. Checks whether the appropriate number of approvals
+   *     have been provided, and updates the content status and content approvals contexts if
+   *     needed; calls method to update aging related information. This method has been given
+   *     package scope for testing purposes, but should not be invoked outside of this exit in
+   *     production code.
+   * @param csc the content status context object for the content item.
+   *     <p>if the action is successful, the following members will be updated as needed: content
+   *     state ID, last transition date, next aging transition, next aging transition date, state
+   *     entered date, last repeated transition date. These changes are not committed here. Assumed
+   *     not <code>null</code>.
+   * @param tc the data base context object for this transition. Assumed not <code>null</code>.
+   * @param userName the user that will perform this transition or action including check in and
+   *     check out, may be <code>null</code> or empty.
+   * @param now time at which the transition occurs, assumed not <code>null</code>.
+   * @param request the request context for this extension call (used for tracing), assumed not
+   *     <code>null</code>.
+   * @param connection the data base connection, assumed not <code>null</code>.
+   * @param roleIdNameMap A map of role id as key and role name as value to be used in determining
+   *     if this transition can proceed, assumed not <code>null</code>.
+   * @param localParams The local parameters object, assumed not <code>null</code>.
+   * @return <CODE>true</CODE> if a transition was performed else <CODE>false</CODE>.
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if a data base entry is not found
+   * @throws PSDuplicateApprovalException if an attempt is made to insert an approval for a
+   *     user/state/workflow that already has one.
    * @throws PSORMException
    */
   private static boolean processTransition(
@@ -1212,10 +1105,9 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
     }
 
     /**
-     * Determine if there are sufficient approvals to perform the transition.
-     * Always create the approvals context. Some approvals may exist and need
-     * to be cleared. They may exist because the number of  required
-     * approvals may have changed, or they may be from a different
+     * Determine if there are sufficient approvals to perform the transition. Always create the
+     * approvals context. Some approvals may exist and need to be cleared. They may exist because
+     * the number of required approvals may have changed, or they may be from a different
      * transition.
      */
     cac = new PSContentApprovalsContext(workflowID, connection, contentID, tc);
@@ -1228,9 +1120,8 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
       approvalsNeeded -= nApproved;
 
       /**
-       * If more approvals are needed and the current user has already acted
-       * on this document, it is an error;
-       * otherwise, decrement the required approvals by 1
+       * If more approvals are needed and the current user has already acted on this document, it is
+       * an error; otherwise, decrement the required approvals by 1
        */
       bHasActed = cac.hasUserActed(userName);
       if (bHasActed) {
@@ -1362,19 +1253,19 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Private helper method to add an approval for the first role assigned to
-   * the specified user.  See RX-15731 for details.
-   * @param cac The content approval context, used to actually set the state
-   *    of the approval for each of the specified roles, assumed not <code>
+   * Private helper method to add an approval for the first role assigned to the specified user. See
+   * RX-15731 for details.
+   *
+   * @param cac The content approval context, used to actually set the state of the approval for
+   *     each of the specified roles, assumed not <code>
    *    null</code>
-   * @param roleIdNameMap A map of role id as key and role name as value to be
-   *    used in determining if this transition can proceed, assumed not <code>
+   * @param roleIdNameMap A map of role id as key and role name as value to be used in determining
+   *     if this transition can proceed, assumed not <code>
    *    null</code>.
    * @param userRoles The list of roles to be approved on, assumed not <code>
    *    null</code>.
-   * @param userName The specific user used to execute the transition, assumed
-   *    not <code>null</code>.
-   *
+   * @param userName The specific user used to execute the transition, assumed not <code>null</code>
+   *     .
    * @throws SQLException if an SQL error occurs
    */
   @SuppressWarnings("unchecked")
@@ -1391,33 +1282,22 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Updates aging start dates, and next aging transition data in the content
-   * status context.
-   * This method has been given package scope for testing purposes, but should
-   * not be be invoked outside of this exit in production code.
+   * Updates aging start dates, and next aging transition data in the content status context. This
+   * method has been given package scope for testing purposes, but should not be be invoked outside
+   * of this exit in production code.
    *
-   * @param csc                      the content status context object for the
-   *                                 content item. may not be
-   *                                 <CODE>null </CODE><P>
-   *                                 if the  action is successful, the
-   *                                 following members will be updated as
-   *                                 needed: next aging transition, next aging
-   *                                 transition date, state entered date, last
-   *                                 repeated transition date. These changes
-   *                                 are not committed here.
-   * @param tc                       the transition data base context object
-   *                                 if this is a transition
-   * @param now                      time at which the transition occurs
-   *                                 <CODE>null</CODE> if this is a checkin.
-   * @param request                  the request context for this extension
-   *                                 call (used for tracing), may be
-   *                                 <CODE>null </CODE> if no application
-   *                                 tracing is required
-   * @param connection               open data base connection,  may not be
-   *                                 <CODE>null </CODE>
-   * @throws                         SQLException if an SQL error occurs
-   * @throws                         PSEntryNotFoundException if a data base
-   *                                 entry is not found
+   * @param csc the content status context object for the content item. may not be <CODE>null
+   *     </CODE>
+   *     <p>if the action is successful, the following members will be updated as needed: next aging
+   *     transition, next aging transition date, state entered date, last repeated transition date.
+   *     These changes are not committed here.
+   * @param tc the transition data base context object if this is a transition
+   * @param now time at which the transition occurs <CODE>null</CODE> if this is a checkin.
+   * @param request the request context for this extension call (used for tracing), may be <CODE>
+   *     null </CODE> if no application tracing is required
+   * @param connection open data base connection, may not be <CODE>null </CODE>
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if a data base entry is not found
    */
   static void updateAgingInformation(
       PSContentStatusContext csc,
@@ -1712,16 +1592,14 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Gets the revision for checkout or checkin from the HTML Parameter
-   * hash map.
+   * Gets the revision for checkout or checkin from the HTML Parameter hash map.
    *
-   * @param   htmlParams hash map containing the HTML parameters for this
-   *          request
-   *
-   * @return  <li>for transitions, or if value is not set - 0 </li>
-   *          <li>for checkin - revision being checked in (optional) - </li>
-   *          <li>checkout - revision requested for check out</li>
-   *          </ul>
+   * @param htmlParams hash map containing the HTML parameters for this request
+   * @return
+   *     <li>for transitions, or if value is not set - 0
+   *     <li>for checkin - revision being checked in (optional) -
+   *     <li>checkout - revision requested for check out
+   *     </ul>
    */
   private static int getRevisionFromHTMLParams(Map<String, Object> htmlParams) {
     int revision = IPSConstants.NO_CORRESPONDING_REVISION_VALUE;
@@ -1735,20 +1613,18 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
   }
 
   /**
-   * Sets the revision HTML Parameter in a hash map; used to set the revision
-   * actually checked out, which will differ from the revision requested for
-   * checkout if copying is required.
+   * Sets the revision HTML Parameter in a hash map; used to set the revision actually checked out,
+   * which will differ from the revision requested for checkout if copying is required.
    *
-   * @param   htmlParams hash map containing the HTML parameters for this
-   *          request
-   *
-   * @param   revision  <ul> revision HTML Parameter after processing
-   *          checkin/checkout value
-   *           <li>checkout - revision actually checked out: either 1, or a
-   *              new revision with a content item that must be copied from
-   *              the item with the revision requested.</li>
-   *           <li>for transitions - 0 - do nothing </li>
-   *           <li>for checkin - revision checked in</li></ul>
+   * @param htmlParams hash map containing the HTML parameters for this request
+   * @param revision
+   *     <ul>
+   *       revision HTML Parameter after processing checkin/checkout value
+   *       <li>checkout - revision actually checked out: either 1, or a new revision with a content
+   *           item that must be copied from the item with the revision requested.
+   *       <li>for transitions - 0 - do nothing
+   *       <li>for checkin - revision checked in
+   *     </ul>
    */
   private static void setRevisionFromHTMLParams(Map<String, Object> htmlParams, int revision) {
     if (0 == revision) {

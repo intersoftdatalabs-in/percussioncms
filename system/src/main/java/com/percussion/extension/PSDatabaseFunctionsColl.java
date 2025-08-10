@@ -28,9 +28,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a collection of database functions. It acts as a
- * container of <code>PSDatabaseFunction</code> objects which represents a
- * database function.
+ * This class represents a collection of database functions. It acts as a container of <code>
+ * PSDatabaseFunction</code> objects which represents a database function.
  *
  * @see com.percussion.extension.PSDatabaseFunctionDef
  * @see com.percussion.extension.PSDatabaseFunction
@@ -39,15 +38,13 @@ public class PSDatabaseFunctionsColl {
   /**
    * Constructs this object from its XML representation.
    *
-   * @param type of database functions, should be one of
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
-   * @param sourceNode the XML element from which to load this object, may
-   * not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code> or <code>type</code> is invalid
-   * @throws PSUnknownNodeTypeException If the specified element content does
-   * not conform to the DTD specified in {@link#toXml(Document) toXml()}
+   * @param type of database functions, should be one of <code>
+   *     PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
+   * @param sourceNode the XML element from which to load this object, may not be <code>null</code>
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code> or <code>type
+   *     </code> is invalid
+   * @throws PSUnknownNodeTypeException If the specified element content does not conform to the DTD
+   *     specified in {@link#toXml(Document) toXml()}
    */
   public PSDatabaseFunctionsColl(int type, Element sourceNode) throws PSUnknownNodeTypeException {
     PSDatabaseFunctionManager.verifyType(type);
@@ -56,14 +53,12 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Constructs this collection using the specified type and containing
-   * no <code>PSDatabaseFunction</code> objects. Use the
-   * {@link#add(PSDatabaseFunction) add()} method to add
-   * <code>PSDatabaseFunction</code> objects to this collection.
+   * Constructs this collection using the specified type and containing no <code>PSDatabaseFunction
+   * </code> objects. Use the {@link#add(PSDatabaseFunction) add()} method to add <code>
+   * PSDatabaseFunction</code> objects to this collection.
    *
-   * @param type of database functions, should be one of
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
-   *
+   * @param type of database functions, should be one of <code>
+   *     PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
    * @throws IllegalArgumentException if <code>type</code> is invalid
    */
   public PSDatabaseFunctionsColl(int type) {
@@ -72,15 +67,13 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Loads the database functions from the supplied element.
-   * See {@link#toXml(Document) toXml()} for the expected form of XML.
+   * Loads the database functions from the supplied element. See {@link#toXml(Document) toXml()} for
+   * the expected form of XML.
    *
    * @param sourceNode the element to load from, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>
-   * @throws PSUnknownNodeTypeException If the specified element does not
-   * conform to the DTD specified in {@link#toXml(Document) toXml()}
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>
+   * @throws PSUnknownNodeTypeException If the specified element does not conform to the DTD
+   *     specified in {@link#toXml(Document) toXml()}
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -107,19 +100,16 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Serializes this object's state to Xml conforming to the DTD of the
-   * "PSXDatabaseFunctionsColl" element as defined in the
-   * "sys_DatabaseFunctionDefs.dtd" file.
+   * Serializes this object's state to Xml conforming to the DTD of the "PSXDatabaseFunctionsColl"
+   * element as defined in the "sys_DatabaseFunctionDefs.dtd" file.
    *
-   * See {@link com.percussion.extension.PSDatabaseFunction#toXml(Document)}
-   * for the DTD of the FunctionDef element.
+   * <p>See {@link com.percussion.extension.PSDatabaseFunction#toXml(Document)} for the DTD of the
+   * FunctionDef element.
    *
    * @param doc The document to use when creating elements, may not be <code>
    *  null</code>.
-   *
    * @return The element containing this object's state, never <code>
    * null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -138,21 +128,15 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Compares this object with the specified object. Compares the type and
-   * the contained <code>PSDatabaseFunction</code> objects
-   * (using its <code>equals()</code> method).
-   * See {@link com.percussion.extension.PSDatabaseFunction#equals(Object)}
+   * Compares this object with the specified object. Compares the type and the contained <code>
+   * PSDatabaseFunction</code> objects (using its <code>equals()</code> method). See {@link
+   * com.percussion.extension.PSDatabaseFunction#equals(Object)}
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <false> if the specified object is not an instance of this class.
-   * <code>true</code> if this object and the contained
-   * <code>PSDatabaseFunction</code> objects match that of the specified
-   * object, <code>false</code> otherwise.
-   *
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
+   *     this object and the contained <code>PSDatabaseFunction</code> objects match that of the
+   *     specified object, <code>false</code> otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
-   *
    * @see equalsFull(Object)
    */
   public boolean equals(Object obj) {
@@ -169,21 +153,15 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Compares this object with the specified object.
-   * Compares the type and the contained <code>PSDatabaseFunction</code>
-   * objects (using its <code>equalsFull()</code> method).
-   * See {@link com.percussion.extension.PSDatabaseFunction#equalsFull(Object)}
+   * Compares this object with the specified object. Compares the type and the contained <code>
+   * PSDatabaseFunction</code> objects (using its <code>equalsFull()</code> method). See {@link
+   * com.percussion.extension.PSDatabaseFunction#equalsFull(Object)}
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <false> if the specified object is not an instance of this class.
-   * <code>true</code> if this object and the contained
-   * <code>PSDatabaseFunction</code> objects match that of the specified
-   * object, <code>false</code> otherwise.
-   *
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <false> if the specified object is not an instance of this class. <code>true</code> if
+   *     this object and the contained <code>PSDatabaseFunction</code> objects match that of the
+   *     specified object, <code>false</code> otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
-   *
    * @see equals(Object)
    */
   public boolean equalsFull(Object obj) {
@@ -200,22 +178,16 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Compares the contained database function objects
-   * (<code>PSDatabaseFunction</code>) with that of the specified object
-   * <code>dbFuncsColl</code>.
+   * Compares the contained database function objects (<code>PSDatabaseFunction</code>) with that of
+   * the specified object <code>dbFuncsColl</code>.
    *
-   * @param dbFuncsColl the object with which to compare the contained database
-   * function objects (<code>PSDatabaseFunction</code>),
-   * assumed not <code>null</code>
-   *
-   * @param full if <code>true</code> then uses
-   * <code>PSDatabaseFunction.equalsFull()</code> method for comparing the
-   * contained database function objects, otherwise uses
-   *  <code>PSDatabaseFunction.equals()</code> method for comparison.
-   *
-   * @return <code>true</code> if this object and the object to compare
-   * <code>dbFuncsColl</code> contain the same database function
-   * objects, <code>false</code> otherwise.
+   * @param dbFuncsColl the object with which to compare the contained database function objects (
+   *     <code>PSDatabaseFunction</code>), assumed not <code>null</code>
+   * @param full if <code>true</code> then uses <code>PSDatabaseFunction.equalsFull()</code> method
+   *     for comparing the contained database function objects, otherwise uses <code>
+   *     PSDatabaseFunction.equals()</code> method for comparison.
+   * @return <code>true</code> if this object and the object to compare <code>dbFuncsColl</code>
+   *     contain the same database function objects, <code>false</code> otherwise.
    */
   private boolean compareDatabaseFunctions(PSDatabaseFunctionsColl dbFuncsColl, boolean full) {
     boolean equals = true;
@@ -237,13 +209,11 @@ public class PSDatabaseFunctionsColl {
   /**
    * Calculates the hashcode of the contained database function objects.
    *
-   * @param full if <code>true</code> then uses the
-   * <code>PSDatabaseFunction.hashCodeFull()</code> method for obtaining the
-   * hashcode of the contained database function objects,
-   * otherwise uses <code>PSDatabaseFunction.hashCode()</code> method.
-   *
-   * @return the sum of the hashcodes of the
-   * <code>PSDatabaseFunction</code> objects contained within this object
+   * @param full if <code>true</code> then uses the <code>PSDatabaseFunction.hashCodeFull()</code>
+   *     method for obtaining the hashcode of the contained database function objects, otherwise
+   *     uses <code>PSDatabaseFunction.hashCode()</code> method.
+   * @return the sum of the hashcodes of the <code>PSDatabaseFunction</code> objects contained
+   *     within this object
    */
   private int getDatabaseFunctionDefsHashCode(boolean full) {
     int code = 0;
@@ -258,12 +228,10 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Computes the hash code for this object using the type and the sum of the
-   * value returned by <code>PSDatabaseFunction.hashCode()</code> method
-   * for all the contained database functions.
+   * Computes the hash code for this object using the type and the sum of the value returned by
+   * <code>PSDatabaseFunction.hashCode()</code> method for all the contained database functions.
    *
    * @return the hash code for this object
-   *
    * @see hashCodeFull()
    */
   public int hashCode() {
@@ -271,12 +239,10 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Computes the hash code for this object using the type and the sum of the
-   * value returned by <code>PSDatabaseFunction.hashCodeFull()</code> method
-   * for all the contained database functions.
+   * Computes the hash code for this object using the type and the sum of the value returned by
+   * <code>PSDatabaseFunction.hashCodeFull()</code> method for all the contained database functions.
    *
    * @return the hash code for this object
-   *
    * @see hashCode()
    */
   public int hashCodeFull() {
@@ -284,12 +250,10 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Returns the tag name of the root element from which this object can be
-   * constructed.
+   * Returns the tag name of the root element from which this object can be constructed.
    *
-   * @return the name of the root node of the XML document returned by a call
-   * to {@link#toXml(Document) toXml()} method.
-   *
+   * @return the name of the root node of the XML document returned by a call to
+   *     {@link#toXml(Document) toXml()} method.
    * @see toXml(Document)
    */
   public static String getNodeName() {
@@ -299,27 +263,22 @@ public class PSDatabaseFunctionsColl {
   /**
    * Returns the type of database functions, user-defined or system-defined.
    *
-   * @return one of <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code>
-   * values
+   * @return one of <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
    */
   public int getType() {
     return m_type;
   }
 
   /**
-   * Returns the <code>PSDatabaseFunction</code> object which contains the
-   * implementation of the specified database function for various drivers.
-   * The database function name is case-insensitive.
+   * Returns the <code>PSDatabaseFunction</code> object which contains the implementation of the
+   * specified database function for various drivers. The database function name is
+   * case-insensitive.
    *
-   * @param the name of the database function, may not be <code>null</code>
-   * or empty
-   *
-   * @return the object containing the implementation of the specified
-   * database function for different databases, may be <code>null</code> if
-   * this collection does not contain the specified function
-   *
-   * @throws IllegalArgumentException if <code>dbFuncName</code> is
-   * <code>null</code> or empty
+   * @param the name of the database function, may not be <code>null</code> or empty
+   * @return the object containing the implementation of the specified database function for
+   *     different databases, may be <code>null</code> if this collection does not contain the
+   *     specified function
+   * @throws IllegalArgumentException if <code>dbFuncName</code> is <code>null</code> or empty
    */
   public PSDatabaseFunction getDatabaseFunction(String dbFuncName) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))
@@ -328,20 +287,16 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Convenience method for getting the database function definition for the
-   * specified function name (case-insensitive) and driver (case-insensitive).
+   * Convenience method for getting the database function definition for the specified function name
+   * (case-insensitive) and driver (case-insensitive).
    *
-   * @param the name of the database function, may not be <code>null</code>
-   * or empty
-   *
-   * @param driver type of driver for which the database function definition
-   * is to be obtained, may not be <code>null</code> or empty
-   *
-   * @return the database function definition, may be <code>null</code> if
-   * the database function definition does not exist
-   *
-   * @throws IllegalArgumentException if <code>dbFuncName</code> or
-   * <code>driver</code> is <code>null</code> or empty
+   * @param the name of the database function, may not be <code>null</code> or empty
+   * @param driver type of driver for which the database function definition is to be obtained, may
+   *     not be <code>null</code> or empty
+   * @return the database function definition, may be <code>null</code> if the database function
+   *     definition does not exist
+   * @throws IllegalArgumentException if <code>dbFuncName</code> or <code>driver</code> is <code>
+   *     null</code> or empty
    */
   public PSDatabaseFunctionDef getDatabaseFunctionDef(String dbFuncName, String driver) {
     if ((dbFuncName == null) || (dbFuncName.trim().length() < 1))
@@ -357,19 +312,14 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Returns an iterator over a list of database function defintion
-   * (<code>PSDatabaseFunctionDef</code>) objects defined for the specified
-   * driver (case-insensitive).
+   * Returns an iterator over a list of database function defintion (<code>PSDatabaseFunctionDef
+   * </code>) objects defined for the specified driver (case-insensitive).
    *
-   * @param driver the driver for which the database function definitions is
-   * to be returned, may not be <code>null</code> or empty
-   *
-   * @return an iterator over a list of <code>PSDatabaseFunctionDef</code>
-   * objects, never <code>null</code>, may be empty if no database function
-   * has been defined for the specified driver.
-   *
-   * @throws IllegalArgumentException if <code>driver</code> is
-   * <code>null</code> or empty
+   * @param driver the driver for which the database function definitions is to be returned, may not
+   *     be <code>null</code> or empty
+   * @return an iterator over a list of <code>PSDatabaseFunctionDef</code> objects, never <code>null
+   *     </code>, may be empty if no database function has been defined for the specified driver.
+   * @throws IllegalArgumentException if <code>driver</code> is <code>null</code> or empty
    */
   public Iterator getDatabaseFunctionsDef(String driver) {
     if ((driver == null) || (driver.trim().length() < 1))
@@ -389,16 +339,13 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Adds the database function to the collection. If a database function
-   * with the same name (case-insensitive) already exists, then it is replaced
-   * by the specified function <code>dbFunc</code>
+   * Adds the database function to the collection. If a database function with the same name
+   * (case-insensitive) already exists, then it is replaced by the specified function <code>dbFunc
+   * </code>
    *
-   * @param dbFunc the database function to add to the collection, may not be
-   * <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbFunc</code> is
-   * <code>null</code> or if the type of the specified database function does
-   * not match the type of this collection
+   * @param dbFunc the database function to add to the collection, may not be <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFunc</code> is <code>null</code> or if the type of
+   *     the specified database function does not match the type of this collection
    */
   public void add(PSDatabaseFunction dbFunc) {
     if (dbFunc == null) throw new IllegalArgumentException("dbFunc may not be null");
@@ -410,18 +357,15 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Convenience method for adding the database function definition to the
-   * corresponding database function. If the corresponding database function
-   * does not exist, it is created and then this definition added. The database
-   * function definition <code>dbFuncDef</code> replaces previous database
-   * function definition if one already exists.
+   * Convenience method for adding the database function definition to the corresponding database
+   * function. If the corresponding database function does not exist, it is created and then this
+   * definition added. The database function definition <code>dbFuncDef</code> replaces previous
+   * database function definition if one already exists.
    *
-   * @param dbFuncDef the database function definition to add to the database
-   * function, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbFuncDef</code> is
-   * <code>null</code> or if the type of the specified database function
-   * definition does not match the type of this collection.
+   * @param dbFuncDef the database function definition to add to the database function, may not be
+   *     <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncDef</code> is <code>null</code> or if the type
+   *     of the specified database function definition does not match the type of this collection.
    */
   public void add(PSDatabaseFunctionDef dbFuncDef) {
     if (dbFuncDef == null) throw new IllegalArgumentException("dbFuncDef may not be null");
@@ -447,17 +391,13 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Check if a database function with the same name (case-insensitive)
-   * exists in this collection.
+   * Check if a database function with the same name (case-insensitive) exists in this collection.
    *
-   * @param dbFunc the function to test for existence in this collection,
-   * may not be <code>null</code>
-   *
-   * @return <code>true</code> if the specified function is contained in this
-   * collection, <code>false</code> otherwise
-   *
-   * @throws IllegalArgumentException if <code>dbFunc</code> is
-   * <code>null</code>
+   * @param dbFunc the function to test for existence in this collection, may not be <code>null
+   *     </code>
+   * @return <code>true</code> if the specified function is contained in this collection, <code>
+   *     false</code> otherwise
+   * @throws IllegalArgumentException if <code>dbFunc</code> is <code>null</code>
    */
   public boolean contains(PSDatabaseFunction dbFunc) {
     if (dbFunc == null) throw new IllegalArgumentException("dbFunc may not be null");
@@ -469,18 +409,15 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Convenience method for checking if a database function definition of the
-   * same type and name (case-insensitive) is contained in the corresponding
-   * database function. If the corresponding database function definition does
-   * not exist, <code>false</code> is returned. If the type of
-   * <code>dbFuncDef</code> does not match the type of this collection,
-   * <code>false</code> is returned.
+   * Convenience method for checking if a database function definition of the same type and name
+   * (case-insensitive) is contained in the corresponding database function. If the corresponding
+   * database function definition does not exist, <code>false</code> is returned. If the type of
+   * <code>dbFuncDef</code> does not match the type of this collection, <code>false</code> is
+   * returned.
    *
-   * @param dbFuncDef the database function definition to test for existence
-   * in the corresponding database function, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbFuncDef</code> is
-   * <code>null</code>
+   * @param dbFuncDef the database function definition to test for existence in the corresponding
+   *     database function, may not be <code>null</code>
+   * @throws IllegalArgumentException if <code>dbFuncDef</code> is <code>null</code>
    */
   public boolean contains(PSDatabaseFunctionDef dbFuncDef) {
     if (dbFuncDef == null) throw new IllegalArgumentException("dbFuncDef may not be null");
@@ -493,9 +430,7 @@ public class PSDatabaseFunctionsColl {
     return contains;
   }
 
-  /**
-   * Removes all of the database functions from this collection.
-   */
+  /** Removes all of the database functions from this collection. */
   public void clear() {
     m_dbFuncs.clear();
   }
@@ -503,26 +438,23 @@ public class PSDatabaseFunctionsColl {
   /**
    * Check if this collection is empty
    *
-   * @return <code>true</code> if this collection does not contain any
-   * database function, <code>false</code> otherwise
+   * @return <code>true</code> if this collection does not contain any database function, <code>
+   *     false</code> otherwise
    */
   public boolean isEmpty() {
     return m_dbFuncs.isEmpty();
   }
 
   /**
-   * Removes the database function with the same name (case-insensitive) as
-   * the specified database function from this collection if it is present.
+   * Removes the database function with the same name (case-insensitive) as the specified database
+   * function from this collection if it is present.
    *
-   * @param dbFunc the database function to remove from this collection, may
-   * not be <code>null</code>
-   *
-   * @return <code>true</code> if this collection contained the specified
-   * function and was removed from this collection, <code>false</code> if this
-   * collection did not contain the specified function.
-   *
-   * @throws IllegalArgumentException if <code>dbFunc</code> is
-   * <code>null</code>
+   * @param dbFunc the database function to remove from this collection, may not be <code>null
+   *     </code>
+   * @return <code>true</code> if this collection contained the specified function and was removed
+   *     from this collection, <code>false</code> if this collection did not contain the specified
+   *     function.
+   * @throws IllegalArgumentException if <code>dbFunc</code> is <code>null</code>
    */
   public boolean remove(PSDatabaseFunction dbFunc) {
     if (dbFunc == null) throw new IllegalArgumentException("dbFunc may not be null");
@@ -534,14 +466,12 @@ public class PSDatabaseFunctionsColl {
   }
 
   /**
-   * Convenience method for removing the specified database function definition
-   * from the corresponding database function.
+   * Convenience method for removing the specified database function definition from the
+   * corresponding database function.
    *
-   * @param dbFuncDef the database function definition to remove, may not be
-   * <code>null</code>
-   *
-   * @return <code>true</code> if the specified database function definition
-   * existed and was removed, <code>false</code> otherwise
+   * @param dbFuncDef the database function definition to remove, may not be <code>null</code>
+   * @return <code>true</code> if the specified database function definition existed and was
+   *     removed, <code>false</code> otherwise
    */
   public boolean remove(PSDatabaseFunctionDef dbFuncDef) {
     if (dbFuncDef == null) throw new IllegalArgumentException("dbFuncDef may not be null");
@@ -555,33 +485,28 @@ public class PSDatabaseFunctionsColl {
   /**
    * Returns an iterator over the database functions in this collection.
    *
-   * @return an iterator over over a collection of
-   * <code>PSDatabaseFunction</code> objects, never <code>null</code>, the
-   * collection may be empty.
+   * @return an iterator over over a collection of <code>PSDatabaseFunction</code> objects, never
+   *     <code>null</code>, the collection may be empty.
    */
   public Iterator iterator() {
     return m_dbFuncs.values().iterator();
   }
 
-  /**
-   * Constants for XML element and attributes
-   */
+  /** Constants for XML element and attributes */
   private static final String NODE_NAME = "PSXDatabaseFunctionsColl";
 
   /**
-   * Map for storing the database functions.
-   * The function name (<code>String</code> converted to lowercase) is used as
-   * key and the <code>PSDatabaseFunction</code> object which represents the
-   * database function as the value. Initialized to an empty map, modified in
-   * the <code>fromXml</code> and <code>add()</code> and <code>remove()</code>
-   * and <code>clear()</code> methods. Never <code>null</code>, may be empty.
+   * Map for storing the database functions. The function name (<code>String</code> converted to
+   * lowercase) is used as key and the <code>PSDatabaseFunction</code> object which represents the
+   * database function as the value. Initialized to an empty map, modified in the <code>fromXml
+   * </code> and <code>add()</code> and <code>remove()</code> and <code>clear()</code> methods.
+   * Never <code>null</code>, may be empty.
    */
   private Map m_dbFuncs = new HashMap();
 
   /**
-   * type of database functions, initialized in the ctor, never modified
-   * after initialization, valid values for type are one of the
-   * <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
+   * type of database functions, initialized in the ctor, never modified after initialization, valid
+   * values for type are one of the <code>PSDatabaseFunctionManager.FUNCTION_TYPE_XXX</code> values
    */
   private int m_type;
 }

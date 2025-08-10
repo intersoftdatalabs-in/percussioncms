@@ -22,24 +22,20 @@ import com.percussion.server.PSConsole;
 import java.util.LinkedList;
 
 /**
- * Collects statistics based on cache usage.  See {@link
- * PSCacheStatisticsSnapshot} for more information about the statistics.
- * A separate thread is used to asynchronously process any cache events that
- * will affect the statistics compiled by this class.  Point-in-time snapshots
- * may thus be requested without blocking the requests that generate these
- * events.
+ * Collects statistics based on cache usage. See {@link PSCacheStatisticsSnapshot} for more
+ * information about the statistics. A separate thread is used to asynchronously process any cache
+ * events that will affect the statistics compiled by this class. Point-in-time snapshots may thus
+ * be requested without blocking the requests that generate these events.
  */
 class PSCacheStatistics extends Thread
     implements IPSCacheAccessedListener, IPSCacheModifiedListener {
   /**
-   * Creates an instance of this object and starts the thread that will process
-   * any events queued by calls to the <code>cacheAccessed</code> or
-   * <code>cacheModified</code> methods.  If caching is not enabled, will
-   * not start the thread and provide snapshots with all <code>0</code> values.
+   * Creates an instance of this object and starts the thread that will process any events queued by
+   * calls to the <code>cacheAccessed</code> or <code>cacheModified</code> methods. If caching is
+   * not enabled, will not start the thread and provide snapshots with all <code>0</code> values.
    *
-   * @param cacheSettings The cache settings that are used to determine if
-   * caching is enabled.  May not be <code>null</code>.
-   *
+   * @param cacheSettings The cache settings that are used to determine if caching is enabled. May
+   *     not be <code>null</code>.
    * @throws IllegalArgumentException if <code>cacheSettings</code> is <code>
    * null</code>.
    */
@@ -64,14 +60,13 @@ class PSCacheStatistics extends Thread
   }
 
   /**
-   * Processes the cache modified event to update the statistics only if the
-   * cache is enabled and this thread is running. Adds itself as an access
-   * listener to the cached item if the event is <code>
-   * PSCacheEvent.CACHE_ITEM_ADDED</code>. See {@link IPSCacheModifiedListener}
-   * for more description.
+   * Processes the cache modified event to update the statistics only if the cache is enabled and
+   * this thread is running. Adds itself as an access listener to the cached item if the event is
+   * <code>
+   * PSCacheEvent.CACHE_ITEM_ADDED</code>. See {@link IPSCacheModifiedListener} for more
+   * description.
    *
    * @param e the cached event to queue, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if e is <code>null</code>.
    */
   public void cacheModified(PSCacheEvent e) {
@@ -92,7 +87,6 @@ class PSCacheStatistics extends Thread
    * Queues the event to process (update cache statistics).
    *
    * @param e the cached event to queue, assumed not to be <code>null</code>
-   *
    */
   private void queueEvent(PSCacheEvent e) {
     synchronized (m_cachedEvents) {
@@ -125,10 +119,9 @@ class PSCacheStatistics extends Thread
   }
 
   /**
-   * All events received thru the {@link IPSCacheAccessedListener} and
-   * {@link IPSCacheModifiedListener} interfaces are queued and
-   * processed asynchronously by this method and update the statistics
-   * accordingly.
+   * All events received thru the {@link IPSCacheAccessedListener} and {@link
+   * IPSCacheModifiedListener} interfaces are queued and processed asynchronously by this method and
+   * update the statistics accordingly.
    */
   public void run() {
     while (m_run) {
@@ -158,9 +151,9 @@ class PSCacheStatistics extends Thread
   }
 
   /**
-   * Updates the cache statistics by processing the supplied event.
-   * The cache statistics are calculated as following based on cached event
-   * action.
+   * Updates the cache statistics by processing the supplied event. The cache statistics are
+   * calculated as following based on cached event action.
+   *
    * <table border=1>
    * <tr><th>Event action</th><th>Updated statistics</th>
    * <tr><td><code>PSCacheEvent.CACHE_ITEM_ADDED</code></td><td>If it is added
@@ -188,7 +181,6 @@ class PSCacheStatistics extends Thread
    * </table>
    *
    * @param event the cached event queued, assumed not to be <code>null</code>
-   *
    */
   private void processEvent(PSCacheEvent event) {
     int action = event.getAction();
@@ -248,88 +240,78 @@ class PSCacheStatistics extends Thread
     }
   }
 
-  /**
-   * Terminates the thread which processes the queued cache events.
-   */
+  /** Terminates the thread which processes the queued cache events. */
   public void shutdown() {
     interrupt();
     m_run = false;
   }
 
   /**
-   * The flag to indicate whether the thread should continue to run or stop.
-   * Initialized to <code>true</code> and set to <code>false</code> when <code>
-   * shutdown()</code> is called to stop the thread or during ctor if the cache
-   * is not enabled.
+   * The flag to indicate whether the thread should continue to run or stop. Initialized to <code>
+   * true</code> and set to <code>false</code> when <code>
+   * shutdown()</code> is called to stop the thread or during ctor if the cache is not enabled.
    */
   private boolean m_run = true;
 
   /**
-   * The list of cached events that are queued, initialized to an empty list
-   * and adds the events to the list when either {@link #cacheAccessed} or
-   * {@link #cacheModified} are called and removes the events from the list
-   * when they get processed by this thread. Never <code>null</code>
+   * The list of cached events that are queued, initialized to an empty list and adds the events to
+   * the list when either {@link #cacheAccessed} or {@link #cacheModified} are called and removes
+   * the events from the list when they get processed by this thread. Never <code>null</code>
    */
   private LinkedList m_cachedEvents = new LinkedList();
 
-  /**
-   * Object to use to synchronize to get the cache statistics snapshot.
-   * Never <code>null</code>.
-   */
+  /** Object to use to synchronize to get the cache statistics snapshot. Never <code>null</code>. */
   private Object m_cacheMonitor = new Object();
 
   /**
-   * The instance of the cache that this listener is listening to for events.
-   * Gets set when this listener is registered with this cache instance and
-   * set to <code>null</code> when <code>shutdown()</code> is called.
+   * The instance of the cache that this listener is listening to for events. Gets set when this
+   * listener is registered with this cache instance and set to <code>null</code> when <code>
+   * shutdown()</code> is called.
    */
   private PSMultiLevelCache m_cache;
 
   /**
-   * The number of failed attempts to retrieve an item from cache. Initialized
-   * to <code>0</code> and modified as the cached events occur.
+   * The number of failed attempts to retrieve an item from cache. Initialized to <code>0</code> and
+   * modified as the cached events occur.
    */
   private long m_misses = 0;
 
   /**
-   * The number of successful attempts to retrieve an item from cache either
-   * from memory or disk. Initialized to <code>0</code> and modified as the
-   * cached events occur.
+   * The number of successful attempts to retrieve an item from cache either from memory or disk.
+   * Initialized to <code>0</code> and modified as the cached events occur.
    */
   private long m_totalHits = 0;
 
   /**
-   * The amount of memory used by the items cached in memory. Initialized to
-   * <code>0</code> and modified as the cached events occur.
+   * The amount of memory used by the items cached in memory. Initialized to <code>0</code> and
+   * modified as the cached events occur.
    */
   private long m_memUsage = 0;
 
   /**
-   * The amount of disk space used by the items cached in disk. Initialized
-   * to <code>0</code> and modified as the cached events occur.
+   * The amount of disk space used by the items cached in disk. Initialized to <code>0</code> and
+   * modified as the cached events occur.
    */
   private long m_diskUsage = 0;
 
   /**
-   * The number of items cached in memory. Initialized to <code>0</code> and
-   * modified as the cached events occur.
+   * The number of items cached in memory. Initialized to <code>0</code> and modified as the cached
+   * events occur.
    */
   private long m_memItems = 0;
 
   /**
-   * The number of items cached in disk. Initialized to <code>0</code> and
-   * modified as the cached events occur.
+   * The number of items cached in disk. Initialized to <code>0</code> and modified as the cached
+   * events occur.
    */
   private long m_diskItems = 0;
 
   /**
-   * The number of items accessed from disk. Initialized to <code>0</code> and
-   * modified as the cached events occur.
+   * The number of items accessed from disk. Initialized to <code>0</code> and modified as the
+   * cached events occur.
    */
   private long m_diskHits = 0;
 
-  /**
-   * The name of this thread.
-   */
+  /** The name of this thread. */
   private static final String THREAD_NAME = "CacheStatistics";
 }

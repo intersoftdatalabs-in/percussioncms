@@ -29,17 +29,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Catalogs all server security providers by querying the
- * ../sys_components/getSecurityProviders.xml app.
+ * Catalogs all server security providers by querying the ../sys_components/getSecurityProviders.xml
+ * app.
  */
 public class PSSecurityProviderCataloger {
   /**
-   * Constructor meant to be used in the context of an applet. This may not work
-   * in other contexts since there is no way of supplying credentials for logging
-   * in.
+   * Constructor meant to be used in the context of an applet. This may not work in other contexts
+   * since there is no way of supplying credentials for logging in.
+   *
    * @param urlBase the document or code base for the applet.
-   * @throws PSCmsException if request to server to get the data fails for
-   * any reason.
+   * @throws PSCmsException if request to server to get the data fails for any reason.
    */
   public PSSecurityProviderCataloger(URL urlBase) throws PSCmsException {
     try {
@@ -52,16 +51,11 @@ public class PSSecurityProviderCataloger {
   }
 
   /**
-   * Extracts <code>PSSecurityProviderInstanceSummary</code> Nodes
-   * from the xml, creates the instances and adds them to
-   * the provider list.
+   * Extracts <code>PSSecurityProviderInstanceSummary</code> Nodes from the xml, creates the
+   * instances and adds them to the provider list.
    *
-   * @param src the element representing the list of provider summaries.
-   * May be <code>null</code>.
-   *
-   * Expects Xml document based on the following DTD:
-   *
-   * <code><pre>
+   * @param src the element representing the list of provider summaries. May be <code>null</code>.
+   *     <p>Expects Xml document based on the following DTD: <code><pre>
    *
    *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
    *  &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
@@ -87,6 +81,7 @@ public class PSSecurityProviderCataloger {
 
   /**
    * Return iterator of providers.
+   *
    * @return iterator. Never <code>null</code>.
    */
   public Iterator getProviders() {
@@ -95,6 +90,7 @@ public class PSSecurityProviderCataloger {
 
   /**
    * Return provider by id
+   *
    * @param id id of provider to be found
    * @return provider if found, else <code>null</code>.
    */
@@ -110,6 +106,7 @@ public class PSSecurityProviderCataloger {
 
   /**
    * Return provider by name.
+   *
    * @param name name of provider to be found
    * @return provider if found, else <code>null</code>.
    */
@@ -124,18 +121,14 @@ public class PSSecurityProviderCataloger {
   }
 
   /**
-   * This is a list of lists of strings. The parent list contains provider type
-   * names, the sublist contains a lists of provider type instance names.
+   * This is a list of lists of strings. The parent list contains provider type names, the sublist
+   * contains a lists of provider type instance names.
    */
   private List m_providers = new ArrayList();
 
-  /**
-   * The security providers XML root element node.
-   */
+  /** The security providers XML root element node. */
   public static final String XML_ELEM_ROOT = "SecurityProviders";
 
-  /**
-   * The application resource that fetches the security providers.
-   */
+  /** The application resource that fetches the security providers. */
   private static final String RESOURCE = "../sys_components/getSecurityProviders.xml";
 }

@@ -21,17 +21,16 @@ import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * <P>This class checks whether a sequence of requests is idempotent. This
- * is used to determine which requests may be automatically retried. This
- * class also serves as a central place to record which methods have side
- * effects and which methods are idempotent.
+ * This class checks whether a sequence of requests is idempotent. This is used to determine which
+ * requests may be automatically retried. This class also serves as a central place to record which
+ * methods have side effects and which methods are idempotent.
  *
- * <P>Note: unknown methods (i.e. a method which is not HEAD, GET, POST, PUT,
- * DELETE, OPTIONS, TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, or
- * UNLOCK) are treated conservatively, meaning they are assumed to have side
- * effects and are not idempotent.
+ * <p>Note: unknown methods (i.e. a method which is not HEAD, GET, POST, PUT, DELETE, OPTIONS,
+ * TRACE, PROPFIND, PROPPATCH, MKCOL, COPY, MOVE, LOCK, or UNLOCK) are treated conservatively,
+ * meaning they are assumed to have side effects and are not idempotent.
  *
- * <P>Usage:
+ * <p>Usage:
+ *
  * <PRE>
  *     IdempotentSequence seq = new IdempotentSequence();
  *     seq.add(r1);
@@ -40,8 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *     ...
  * </PRE>
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class IdempotentSequence {
@@ -77,9 +76,7 @@ class IdempotentSequence {
 
   // Constructors
 
-  /**
-   * Start a new sequence of requests.
-   */
+  /** Start a new sequence of requests. */
   public IdempotentSequence() {
     m_history = new int[10];
     r_history = new String[10];
@@ -90,9 +87,8 @@ class IdempotentSequence {
   // Methods
 
   /**
-   * Add the request to the end of the list of requests. This is used
-   * to build the complete sequence of requests before determining
-   * whether the sequence is idempotent.
+   * Add the request to the end of the list of requests. This is used to build the complete sequence
+   * of requests before determining whether the sequence is idempotent.
    *
    * @param req the next request
    */
@@ -105,31 +101,27 @@ class IdempotentSequence {
   }
 
   /**
-   * Is this request part of an idempotent sequence? This method <em>must
-   * not</em> be called before all requests have been added to this
-   * sequence; similarly, <var>add()</var> <em>must not</em> be called
-   * after this method was invoked.
+   * Is this request part of an idempotent sequence? This method <em>must not</em> be called before
+   * all requests have been added to this sequence; similarly, <var>add()</var> <em>must not</em> be
+   * called after this method was invoked.
    *
-   * <P>We split up the sequence of requests into individual sub-sequences,
-   * or threads, with all requests in a thread having the same request-URI
-   * and no two threads having the same request-URI. Each thread is then
-   * marked as idempotent or not according to the following rules:
+   * <p>We split up the sequence of requests into individual sub-sequences, or threads, with all
+   * requests in a thread having the same request-URI and no two threads having the same
+   * request-URI. Each thread is then marked as idempotent or not according to the following rules:
    *
    * <OL>
-   * <LI>If any method is UNKNOWN then the thread is not idempotent;
-   * <LI>else, if no method has side effects then the thread is idempotent;
-   * <LI>else, if the first method has side effects and is complete then
-   *     the thread is idempotent;
-   * <LI>else, if the first method has side effects, is not complete,
-   *     and no other method has side effects then the thread is idempotent;
-   * <LI>else the thread is not idempotent.
+   *   <LI>If any method is UNKNOWN then the thread is not idempotent;
+   *   <LI>else, if no method has side effects then the thread is idempotent;
+   *   <LI>else, if the first method has side effects and is complete then the thread is idempotent;
+   *   <LI>else, if the first method has side effects, is not complete, and no other method has side
+   *       effects then the thread is idempotent;
+   *   <LI>else the thread is not idempotent.
    * </OL>
    *
-   * <P>The major assumption here is that the side effects of any method
-   * only apply to resource specified. E.g. a <tt>"PUT /barbara.html"</tt>
-   * will only affect the resource "/barbara.html" and nothing else.
-   * This assumption is violated by POST of course; however, POSTs are
-   * not pipelined and will therefore never show up here.
+   * <p>The major assumption here is that the side effects of any method only apply to resource
+   * specified. E.g. a <tt>"PUT /barbara.html"</tt> will only affect the resource "/barbara.html"
+   * and nothing else. This assumption is violated by POST of course; however, POSTs are not
+   * pipelined and will therefore never show up here.
    *
    * @param req the request
    */
@@ -170,9 +162,8 @@ class IdempotentSequence {
   }
 
   /**
-   * A method is idempotent if the side effects of N identical
-   * requests is the same as for a single request (Section 9.1.2
-   * of RFC-????).
+   * A method is idempotent if the side effects of N identical requests is the same as for a single
+   * request (Section 9.1.2 of RFC-????).
    *
    * @return true if method is idempotent
    */
@@ -204,12 +195,10 @@ class IdempotentSequence {
   }
 
   /**
-   * A method is complete if any side effects of the request affect
-   * the complete resource. For example, a PUT is complete but a
-   * PUT with byte-ranges wouldn't be. In essence, if a request uses
-   * a method which has side effects and is complete then the state
-   * of the resource after the request is independent of the state of
-   * the resource before the request.
+   * A method is complete if any side effects of the request affect the complete resource. For
+   * example, a PUT is complete but a PUT with byte-ranges wouldn't be. In essence, if a request
+   * uses a method which has side effects and is complete then the state of the resource after the
+   * request is independent of the state of the resource before the request.
    *
    * @return true if method is complete
    */
@@ -286,9 +275,7 @@ class IdempotentSequence {
     return UNKNOWN;
   }
 
-  /**
-   * Test code.
-   */
+  /** Test code. */
   public static void main(String args[]) {
     IdempotentSequence seq = new IdempotentSequence();
 

@@ -32,51 +32,39 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 
 /**
- * This UDF is a hybrid of makeIntLink and CasGenPubLocation. This UDF will
- * query the SYS_CASSUPPORT application to get the assembly URL of the variant
- * id passed and generates the internal link (similar to the SYS_MAKEINTLINK
- * UDF).
+ * This UDF is a hybrid of makeIntLink and CasGenPubLocation. This UDF will query the SYS_CASSUPPORT
+ * application to get the assembly URL of the variant id passed and generates the internal link
+ * (similar to the SYS_MAKEINTLINK UDF).
  */
 public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
   /**
-   * Generates an internal URL to the assembler for the specified variant. The
-   * assembler resource name is obtained by querying the sys_casSupport
-   * application.
+   * Generates an internal URL to the assembler for the specified variant. The assembler resource
+   * name is obtained by querying the sys_casSupport application.
    *
-   * @param params [0] the variantid of the variant for which the location url
-   *           is generated, not <code>null</code> or empty.
-   *        params [1] the contentid for which the location url is generated.
-   *           Optional, but required if revisionid is passed.
-   *       params [2] the revisionid of the content for which the location url
-   *           is generated. Optional, but required if contentid is passed.
-   *      params [3] the sys_authtype parameter to be added to the assembler
-   *           url. Optional. If not supplied, the value will be obtained from
-   *           the request context.
-   *           <li>sys_context (optional)
-   *           <li>sys_siteid (optional)
-   *           <li>relatedItemId (optional) This parameter is included when
-   *           building linkurls for an auto index while active assembly is
-   *           enabled, to ensure the correct operation the Rhythmyx cache. If
-   *           this parameter is not supplied, the <code>sys_command</code>
-   *           parameter will not be included in the link.
-   *           </ol>
-   *
-   * Any optional values not supplied as parameters will be taken from the
-   * request context parameters.
-   *
+   * @param params [0] the variantid of the variant for which the location url is generated, not
+   *     <code>null</code> or empty. params [1] the contentid for which the location url is
+   *     generated. Optional, but required if revisionid is passed. params [2] the revisionid of the
+   *     content for which the location url is generated. Optional, but required if contentid is
+   *     passed. params [3] the sys_authtype parameter to be added to the assembler url. Optional.
+   *     If not supplied, the value will be obtained from the request context.
+   *     <li>sys_context (optional)
+   *     <li>sys_siteid (optional)
+   *     <li>relatedItemId (optional) This parameter is included when building linkurls for an auto
+   *         index while active assembly is enabled, to ensure the correct operation the Rhythmyx
+   *         cache. If this parameter is not supplied, the <code>sys_command</code> parameter will
+   *         not be included in the link.
+   *     </ol>
+   *     Any optional values not supplied as parameters will be taken from the request context
+   *     parameters.
    * @param request The current request context, not <code>null</code>.
-   *
-   * @return An internal URL including the following parameters: sys_contentid,
-   *         sys_revision, sys_context, sys_variantid, sys_authtype, and
-   *         pssessionid. The URL will also include the active assembly
-   *         parameters sys_command, relateditemid, and activeitemid if a
-   *         relatedItemId parameter has been passed to this exit, and the
-   *         current request includes a sys_command parameter with a value of
-   *         <code>editrc</code>. Never <code>null</code>.
-   *
-   * @throws PSConversionException if supplied parameters are invalid, if the
-   *            variant lookup resource cannot be found, if the xpath
-   *            extraction fails, or if building the internal URL fails.
+   * @return An internal URL including the following parameters: sys_contentid, sys_revision,
+   *     sys_context, sys_variantid, sys_authtype, and pssessionid. The URL will also include the
+   *     active assembly parameters sys_command, relateditemid, and activeitemid if a relatedItemId
+   *     parameter has been passed to this exit, and the current request includes a sys_command
+   *     parameter with a value of <code>editrc</code>. Never <code>null</code>.
+   * @throws PSConversionException if supplied parameters are invalid, if the variant lookup
+   *     resource cannot be found, if the xpath extraction fails, or if building the internal URL
+   *     fails.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -186,9 +174,8 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Gets the base URL for the assembler resource associated with the supplied
-   * variant ID. Makes an internal request to a system query resource to obtain
-   * the URL.
+   * Gets the base URL for the assembler resource associated with the supplied variant ID. Makes an
+   * internal request to a system query resource to obtain the URL.
    *
    * @param variantid
    * @param request
@@ -234,18 +221,12 @@ public class PSGenerateAssemblerLink extends PSSimpleJavaUdfExtension {
     return assemblyURL;
   }
 
-  /**
-   * The url of the application that does the look up of the variants table.
-   */
+  /** The url of the application that does the look up of the variants table. */
   private static final String VARIANT_LOOKUP_URL = "sys_casSupport/AssemblyUrl.xml";
 
-  /**
-   * The node name to look for in the XML result
-   */
+  /** The node name to look for in the XML result */
   private static final String ASSEMBLY_URL_NODE = "AssemblyUrl";
 
-  /**
-   * The name of the attribute that has the value of the current asssembly url
-   */
+  /** The name of the attribute that has the value of the current asssembly url */
   private static final String URL_ATTR = "current";
 }

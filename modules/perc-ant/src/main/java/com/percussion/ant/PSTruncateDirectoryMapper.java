@@ -20,10 +20,12 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.util.FileNameMapper;
 
 /**
- * This is an ant mapper that will truncate a directory mapping
- * by dropping anything that appears before the specified truncation
- * string. Correctly handles differences in Unix and Windows-style paths.
+ * This is an ant mapper that will truncate a directory mapping by dropping anything that appears
+ * before the specified truncation string. Correctly handles differences in Unix and Windows-style
+ * paths.
+ *
  * <p>
+ *
  * <pre>
  *    USAGE:
  *
@@ -38,23 +40,18 @@ import org.apache.tools.ant.util.FileNameMapper;
  *         the directory path
  *
  * </pre>
- * </p>
- *
  */
 public class PSTruncateDirectoryMapper implements FileNameMapper {
 
-  /**
-   * Ignored.
-   */
+  /** Ignored. */
   public void setFrom(@SuppressWarnings("unused") String from) {}
 
   /**
-   * Enter string to truncate directory string. Strips off
-   * everything preceeding the truncation string in the
-   * directory path.
+   * Enter string to truncate directory string. Strips off everything preceeding the truncation
+   * string in the directory path.
    *
-   * @param to the string to truncate the directory path. Everything
-   * before this string will be chopped off. Cannot be <code>null</code>
+   * @param to the string to truncate the directory path. Everything before this string will be
+   *     chopped off. Cannot be <code>null</code>
    */
   public void setTo(String to) {
     if (null == to || to.trim().length() == 0)
@@ -64,10 +61,9 @@ public class PSTruncateDirectoryMapper implements FileNameMapper {
   }
 
   /**
-   * Truncates the file path by stripping off everything
-   * that comes before the truncation string that was specified
-   * in the "to" attribute. Return <code>null</code> if the truncation
-   * string is not found.
+   * Truncates the file path by stripping off everything that comes before the truncation string
+   * that was specified in the "to" attribute. Return <code>null</code> if the truncation string is
+   * not found.
    *
    * @param sourceFileName the raw source file path string
    * @return the truncated path string
@@ -84,6 +80,7 @@ public class PSTruncateDirectoryMapper implements FileNameMapper {
 
   /**
    * Modifies extension case
+   *
    * @param s the file path string to be modified
    * @return the modified string
    */
@@ -98,16 +95,14 @@ public class PSTruncateDirectoryMapper implements FileNameMapper {
   }
 
   /**
-   * The truncation string with slashes.
-   * Intialized in {@link #setTo(String)}.
-   * Never <code>null</code> or empty after that.
+   * The truncation string with slashes. Intialized in {@link #setTo(String)}. Never <code>null
+   * </code> or empty after that.
    */
   private String m_truncBefore_Slash;
 
   /**
-   * The truncation string with back slashes.
-   * Intialized in {@link #setTo(String)}.
-   * Never <code>null</code> or empty after that.
+   * The truncation string with back slashes. Intialized in {@link #setTo(String)}. Never <code>null
+   * </code> or empty after that.
    */
   private String m_truncBefore_BackSlash;
 }

@@ -31,17 +31,15 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class contains a list of <code>PSJdbcExecutionPlanLog</code>
- * objects. It encapsulates the log of execution of multiple execution plans.
+ * This class contains a list of <code>PSJdbcExecutionPlanLog</code> objects. It encapsulates the
+ * log of execution of multiple execution plans.
  */
 public class PSJdbcExecutionPlanLogsContainer {
   /**
-   * Returns an iterator over the list of
-   * <code>PSJdbcExecutionPlanLog</code> objects.
+   * Returns an iterator over the list of <code>PSJdbcExecutionPlanLog</code> objects.
    *
-   * @return an iterator over the list of
-   * <code>PSJdbcExecutionPlanLog</code> objects, never <code>null</code>,
-   * may be empty.
+   * @return an iterator over the list of <code>PSJdbcExecutionPlanLog</code> objects, never <code>
+   *     null</code>, may be empty.
    */
   public Iterator<PSJdbcExecutionPlanLog> getPlanLogs() {
     return m_logDataList.iterator();
@@ -50,10 +48,8 @@ public class PSJdbcExecutionPlanLogsContainer {
   /**
    * Adds a <code>PSJdbcExecutionPlanLog</code> object to its internal list.
    *
-   * @param planLogData the <code>PSJdbcExecutionPlanLog</code> object
-   * containing the log of execution of a plan, never
-   * <code>null</code>
-   *
+   * @param planLogData the <code>PSJdbcExecutionPlanLog</code> object containing the log of
+   *     execution of a plan, never <code>null</code>
    * @throws IllegalArgumentException if planLogData is <code>null</code>
    */
   public void addPlanLogData(PSJdbcExecutionPlanLog planLogData) {
@@ -62,8 +58,7 @@ public class PSJdbcExecutionPlanLogsContainer {
   }
 
   /**
-   * Removes all the elements from its internal list of
-   * <code>PSJdbcExecutionPlanLog</code> objects.
+   * Removes all the elements from its internal list of <code>PSJdbcExecutionPlanLog</code> objects.
    */
   public void clearPlanLogs() {
     m_logDataList.clear();
@@ -72,12 +67,8 @@ public class PSJdbcExecutionPlanLogsContainer {
   /**
    * Serializes this object's state to Xml.
    *
-   * @param doc the document to use when creating elements, may not be
-   * <code>null</code>.
-   *
-   * @return the element containing this object's state,
-   * never <code>null</code>.
-   *
+   * @param doc the document to use when creating elements, may not be <code>null</code>.
+   * @return the element containing this object's state, never <code>null</code>.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -97,9 +88,7 @@ public class PSJdbcExecutionPlanLogsContainer {
   /**
    * Serializes this object's state to String.
    *
-   * @return the string containing this object's state,
-   * never <code>null</code> or empty
-   *
+   * @return the string containing this object's state, never <code>null</code> or empty
    */
   public synchronized String toString() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -108,13 +97,12 @@ public class PSJdbcExecutionPlanLogsContainer {
   }
 
   /**
-   * Logs all execution plan logs to the supplied print stream. The provided
-   * stream is only borrowed and will therefor not be closed.
+   * Logs all execution plan logs to the supplied print stream. The provided stream is only borrowed
+   * and will therefor not be closed.
    *
-   * @param ps the print stream to where all execution plan logs will be
-   *    written, not <code>null</code>.
-   * @throws IllegalArgumentException if the provided print stream is
-   *    <code>null</code>.
+   * @param ps the print stream to where all execution plan logs will be written, not <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if the provided print stream is <code>null</code>.
    */
   public void write(PrintStream ps) {
     if (ps == null) throw new IllegalArgumentException("print stream cannot be null");
@@ -125,12 +113,10 @@ public class PSJdbcExecutionPlanLogsContainer {
   /**
    * Writes the log data to the provided log file.
    *
-   * @param logFile the file in which to log including path information, not
-   *    <code>null</code> or empty.
-   * @throws IllegalArgumentException if the supplied log file is
-   *    <code>null</code>.
-   * @throws PSJdbcTableFactoryException if anything goes wrong writing the
-   *    log file.
+   * @param logFile the file in which to log including path information, not <code>null</code> or
+   *     empty.
+   * @throws IllegalArgumentException if the supplied log file is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if anything goes wrong writing the log file.
    */
   public void write(String logFile) throws PSJdbcTableFactoryException {
     if ((logFile == null) || (logFile.trim().length() == 0))
@@ -158,8 +144,7 @@ public class PSJdbcExecutionPlanLogsContainer {
   /**
    * Analyzed all plan logs and determines the database action taken.
    *
-   * @return the database action performed, one of INSERT, UPDATE, DELETE or
-   *    UNKNOWN.
+   * @return the database action performed, one of INSERT, UPDATE, DELETE or UNKNOWN.
    */
   public synchronized int getDbActionType() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -200,14 +185,12 @@ public class PSJdbcExecutionPlanLogsContainer {
     return action;
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "LogData";
 
   /**
-   * Contains a list of <code>PSJdbcExecutionPlanLog</code> objects,
-   * never <code>null</code>, may be empty
+   * Contains a list of <code>PSJdbcExecutionPlanLog</code> objects, never <code>null</code>, may be
+   * empty
    */
   private List<PSJdbcExecutionPlanLog> m_logDataList = new ArrayList<>();
 

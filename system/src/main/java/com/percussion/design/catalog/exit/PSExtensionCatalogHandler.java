@@ -54,18 +54,14 @@ import org.w3c.dom.Element;
  * <pre><code>
  */
 public class PSExtensionCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler. This is used primarily
-   * by the cataloger.
-   */
+  /** Constructs an instance of this handler. This is used primarily by the cataloger. */
   public PSExtensionCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified
-   * request information. The request information for this
-   * request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
    *
    * <table border="1">
    * <tr>
@@ -90,10 +86,8 @@ public class PSExtensionCatalogHandler implements IPSCatalogHandler {
    *   </tr>
    * </table>
    *
-   * @param   req         the request information
-   *
-   * @return               an XML document containing the appropriate
-   *                        catalog request information
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public org.w3c.dom.Document formatRequest(Properties req) {
     String sTemp = (String) req.get("RequestCategory");
@@ -128,9 +122,8 @@ public class PSExtensionCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Convenience method that doesn't limit the types of interfaces or
-   * contexts. See {@link #getCatalog(PSCataloger,String,String,String)
-   * getCatalog} for details.
+   * Convenience method that doesn't limit the types of interfaces or contexts. See {@link
+   * #getCatalog(PSCataloger,String,String,String) getCatalog} for details.
    */
   public static IPSExtensionDef[] getCatalog(PSCataloger cataloger, String handlerName)
       throws com.percussion.conn.PSServerException,
@@ -141,42 +134,24 @@ public class PSExtensionCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Get an array containing the extensions installed
-   * on the server. This is a convenience method which makes a
-   * call to the cataloger's catalog method using the appropriate
-   * properties for this request type.
+   * Get an array containing the extensions installed on the server. This is a convenience method
+   * which makes a call to the cataloger's catalog method using the appropriate properties for this
+   * request type.
    *
-   * @param   cataloger      a cataloger containing a connection to
-   *                           the Rhythmyx server we will catalog through
-   *
-   * @param   handlerName      the name of the extension handler to catalog
-   *
-   * @param   context        The extension context to look in. This cannot
-   *                         be a pattern. Pass in <code>null</code> to get all
-   *                         contexts.
-   *
-   * @param   interfacePattern
-   *                         A filter to limit the types of extensions
-   *                         returned. Pass in <code>null</code> to get all
-   *                         interfaces. Use SQL search syntax for any patterns.
-   *
-   * @return                  an array containing the extension handlers
-   *                           installed on the server.
-   *
-   * @exception   PSServerException
-   *                           if the server is not responding.
-   *
-   * @exception   PSAuthenticationFailedException
-   *                           if the credentials specified for the
-   *                           server connection are invalid.
-   *
-   * @exception   PSAuthorizationException
-   *                           if the user does not have designer or
-   *                           administrator access to the server.
-   *
-   * @exception   IOException
-   *                           if a communication error occurs while
-   *                           processing the request
+   * @param cataloger a cataloger containing a connection to the Rhythmyx server we will catalog
+   *     through
+   * @param handlerName the name of the extension handler to catalog
+   * @param context The extension context to look in. This cannot be a pattern. Pass in <code>null
+   *     </code> to get all contexts.
+   * @param interfacePattern A filter to limit the types of extensions returned. Pass in <code>null
+   *     </code> to get all interfaces. Use SQL search syntax for any patterns.
+   * @return an array containing the extension handlers installed on the server.
+   * @exception PSServerException if the server is not responding.
+   * @exception PSAuthenticationFailedException if the credentials specified for the server
+   *     connection are invalid.
+   * @exception PSAuthorizationException if the user does not have designer or administrator access
+   *     to the server.
+   * @exception IOException if a communication error occurs while processing the request
    */
   public static IPSExtensionDef[] getCatalog(
       PSCataloger cataloger, String handlerName, String context, String interfacePattern)

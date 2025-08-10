@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * List of PSTrafficDetails objects.
- */
+/** List of PSTrafficDetails objects. */
 @JsonRootName(value = "TrafficDetails")
 public class PSTrafficDetailsList extends ArrayList<PSTrafficDetails> {
   public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {

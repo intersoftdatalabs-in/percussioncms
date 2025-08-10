@@ -19,23 +19,18 @@
 
 package com.percussion.rest.itemfilter;
 
+import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.percussion.system.utils.PSSiteManageBean;
-
-/**
- * REST resource for Item Filter operations.
- * Sunny Sal: "Filter resource, ready for action!"
- */
+/** REST resource for Item Filter operations. Sunny Sal: "Filter resource, ready for action!" */
 @PSSiteManageBean(value = "restItemFilterResource")
 @Tag(name = "Item Filters")
 public class ItemFilterResource {
 
-    @Autowired
-    private IItemFilterAdaptor adaptor;
+  @Autowired private IItemFilterAdaptor adaptor;
 
-    public ItemFilterResource() {
-        // Default constructor
-    }
+  public ItemFilterResource() {
+    // Default constructor
+  }
 }

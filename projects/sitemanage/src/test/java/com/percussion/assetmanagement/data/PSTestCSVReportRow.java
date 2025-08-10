@@ -21,23 +21,31 @@ import com.percussion.share.data.PSAbstractBaseCSVReportRow;
 
 /**
  * Used to test the CSV row base class.
+ *
  * @author natechadwick
  */
 public class PSTestCSVReportRow extends PSAbstractBaseCSVReportRow {
 
-    public String col1;
-    public String col2;
-    public String col3multiline;
-    public String col4empty;
+  public String col1;
+  public String col2;
+  public String col3multiline;
+  public String col4empty;
 
-    @Override
-    public String toCSVRow() {
-        return this.delimitValue(col1) + "," + this.delimitValue(col2) + "," + this.delimitValue(col3multiline) + "," + this.delimitValue(col4empty) + this.endRow();
-    }
+  @Override
+  public String toCSVRow() {
+    return this.delimitValue(col1)
+        + ","
+        + this.delimitValue(col2)
+        + ","
+        + this.delimitValue(col3multiline)
+        + ","
+        + this.delimitValue(col4empty)
+        + this.endRow();
+  }
 
-    @Override
-    public String getHeaderRow() {
-        // Not implemented for test stub
-        return null;
-    }
+  @Override
+  public String getHeaderRow() {
+    // Not implemented for test stub
+    return null;
+  }
 }

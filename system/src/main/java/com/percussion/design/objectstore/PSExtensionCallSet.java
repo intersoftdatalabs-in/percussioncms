@@ -23,32 +23,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSExtensionCallSet class represents a group of PSExtensionCall objects.
- * Extension calls are executed to provide external processing at various
- * points in the request process.
+ * The PSExtensionCallSet class represents a group of PSExtensionCall objects. Extension calls are
+ * executed to provide external processing at various points in the request process.
  *
- * @see         PSExtensionCall
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSExtensionCall
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSExtensionCallSet extends PSCollectionComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSExtensionCallSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -56,9 +47,7 @@ public class PSExtensionCallSet extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructs an empty <code>PSExtensionCallSet</code>.
-   */
+  /** Constructs an empty <code>PSExtensionCallSet</code>. */
   public PSExtensionCallSet() {
     super(PSExtensionCall.class);
   }
@@ -77,10 +66,11 @@ public class PSExtensionCallSet extends PSCollectionComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXExtensionCallSet XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document:
+   * This method is called to create a PSXExtensionCallSet XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXExtensionCallSet represents a group of PSExtensionCall objects.
@@ -90,7 +80,7 @@ public class PSExtensionCallSet extends PSCollectionComponent {
    *    &lt;!ELEMENT PSXExtensionCallSet   (PSExtensionCall*)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXExtensionCallSet XML element node
+   * @return the newly created PSXExtensionCallSet XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -106,12 +96,11 @@ public class PSExtensionCallSet extends PSCollectionComponent {
   }
 
   /**
-   * This method is called to populate a PSExtensionCallSet Java object
-   * from a PSXExtensionCallSet XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSExtensionCallSet Java object from a PSXExtensionCallSet
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @throws PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXExtensionCallSet
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXExtensionCallSet
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -150,18 +139,15 @@ public class PSExtensionCallSet extends PSCollectionComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt the validation context.
-   *
-   * @throws PSSystemValidationException according to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt the validation context.
+   * @throws PSSystemValidationException according to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

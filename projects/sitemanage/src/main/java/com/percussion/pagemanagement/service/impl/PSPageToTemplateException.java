@@ -19,19 +19,19 @@
 package com.percussion.pagemanagement.service.impl;
 
 /**
- * Exception thrown when a page-to-template operation fails.
- * Sunny Sal says: "When in doubt, throw it out (an exception, not your code)!"
+ * Exception thrown when a page-to-template operation fails. Sunny Sal says: "When in doubt, throw
+ * it out (an exception, not your code)!"
  */
 public class PSPageToTemplateException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructs a new exception with the specified detail message.
-     *
-     * @param message the detail message, not null
-     */
-    public PSPageToTemplateException(String message) {
-        super(message);
-    }
+  /**
+   * Constructs a new exception with the specified detail message.
+   *
+   * @param message the detail message, not null
+   */
+  public PSPageToTemplateException(String message) {
+    super(message);
+  }
 }

@@ -34,19 +34,16 @@ import org.w3c.dom.Element;
  */
 public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   /**
-   * Parameterless constructor for this class.  Used for serialization.
-   * Should always call <code>fromXml</code> following use of this constructor.
+   * Parameterless constructor for this class. Used for serialization. Should always call <code>
+   * fromXml</code> following use of this constructor.
    */
   protected PSJndiGroupProviderInstance() {}
 
   /**
    * Constructs an instance of this class from its member values.
    *
-   * @param name The name of this provider, may not be <code>null</code> or
-   * empty.
-   * @param type The one of the <code>PSSecurityProvider.SP_TYPE_xxx</code>
-   * types.
-   *
+   * @param name The name of this provider, may not be <code>null</code> or empty.
+   * @param type The one of the <code>PSSecurityProvider.SP_TYPE_xxx</code> types.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJndiGroupProviderInstance(String name, int type) {
@@ -54,10 +51,10 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   }
 
   /**
-   * Called by base class to serialize this provider.
-   * Creates an element with this provider's state.
-   * <p>
-   * The structure of the xml element is:
+   * Called by base class to serialize this provider. Creates an element with this provider's state.
+   *
+   * <p>The structure of the xml element is:
+   *
    * <pre><code>
    *  &lt;!--
    *        PSXJnidGroupProviderInstance defines a group provider used
@@ -105,13 +102,9 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
    *
    * </code></pre>
    *
-   *
-   * @param doc The document to use when creating the element containing the
-   * state of this class.  May not be <code>null</code>.
-   *
-   * @return The element containing the state.  Never
-   * <code>null</code>.
-   *
+   * @param doc The document to use when creating the element containing the state of this class.
+   *     May not be <code>null</code>.
+   * @return The element containing the state. Never <code>null</code>.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   protected Element toXmlEx(Document doc) {
@@ -228,20 +221,19 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   /**
    * Gets a list of group locations to search.
    *
-   * @return An iterator over zero or more group locations. Each location is a
-   * String representation of the distinguished name of the node to search,
-   * never <code>null</code>.
+   * @return An iterator over zero or more group locations. Each location is a String representation
+   *     of the distinguished name of the node to search, never <code>null</code>.
    */
   public Iterator getGroupNodes() {
     return m_groupNodes.iterator();
   }
 
   /**
-   * Gets a list of supported group objectclasses. Modifying the returned list
-   * does not modify this instance's objectclasses.
+   * Gets a list of supported group objectclasses. Modifying the returned list does not modify this
+   * instance's objectclasses.
    *
-   * @return An iterator over zero or more <code>PSJndiObjectClass</code>
-   * objects, never <code>null</code>.
+   * @return An iterator over zero or more <code>PSJndiObjectClass</code> objects, never <code>null
+   *     </code>.
    */
   public Iterator getObjectClasses() {
     List classes = new ArrayList(m_objectClasses.size());
@@ -255,8 +247,7 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   /**
    * Gets a list of supported group objectclasses.
    *
-   * @return An iterator over zero or more objectclass names as Strings, never
-   * <code>null</code>.
+   * @return An iterator over zero or more objectclass names as Strings, never <code>null</code>.
    */
   public Iterator getObjectClassesNames() {
     // need to return names in list order, so build list of names
@@ -271,18 +262,13 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   }
 
   /**
-   * Gets the name of the attribute in which this objectClass' members are
-   * stored.
+   * Gets the name of the attribute in which this objectClass' members are stored.
    *
-   * @param objectClass The name of the objectClass, may not be
-   * <code>null</code> or empty, must be an objectClass supported by this
-   * provider.  Use {@link #getObjectClasses()} to get a list of supported
-   * objectClass names.  Comparison is case insensitive.
-   *
+   * @param objectClass The name of the objectClass, may not be <code>null</code> or empty, must be
+   *     an objectClass supported by this provider. Use {@link #getObjectClasses()} to get a list of
+   *     supported objectClass names. Comparison is case insensitive.
    * @return The Attribute, never <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if objectClass is
-   * <code>null</code>, empty, or not supported.
+   * @throws IllegalArgumentException if objectClass is <code>null</code>, empty, or not supported.
    */
   public String getMemberAttribute(String objectClass) {
     if (objectClass == null) throw new IllegalArgumentException("objectClass may not be null");
@@ -295,18 +281,13 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   }
 
   /**
-   * Gets the type of the attribute in which this objectClass' members are
-   * stored.
+   * Gets the type of the attribute in which this objectClass' members are stored.
    *
-   * @param objectClass The name of the objectClass, may not be
-   * <code>null</code> or empty, must be an objectClass supported by this
-   * provider.  Use {@link #getObjectClasses()} to get a list of supported
-   * objectClass names.  Comparison is case insensitive.
-   *
+   * @param objectClass The name of the objectClass, may not be <code>null</code> or empty, must be
+   *     an objectClass supported by this provider. Use {@link #getObjectClasses()} to get a list of
+   *     supported objectClass names. Comparison is case insensitive.
    * @return The type, one of the MEMBER_ATTR_xxx types.
-   *
-   * @throws IllegalArgumentException if objectClass is
-   * <code>null</code>, empty, or not supported.
+   * @throws IllegalArgumentException if objectClass is <code>null</code>, empty, or not supported.
    */
   public int getMemberAttributeType(String objectClass) {
     if (objectClass == null) throw new IllegalArgumentException("objectClass may not be null");
@@ -319,9 +300,8 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   }
 
   /**
-   * Removes all current informations regarding objectclasses supported and
-   * their member attributes and types.  see {@link #addObjectClass(String,
-   * String, int)} for more info.
+   * Removes all current informations regarding objectclasses supported and their member attributes
+   * and types. see {@link #addObjectClass(String, String, int)} for more info.
    */
   public void clearObjectClasses() {
     m_objectClasses.clear();
@@ -329,18 +309,15 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
   }
 
   /**
-   * Adds info regarding a supported objectclass.  Defines a group objectClass
-   * to support, its member attribute name, and whether or not that attribute
-   * contains a static list of names, or a dynamic search filter used to
-   * determine membership.
+   * Adds info regarding a supported objectclass. Defines a group objectClass to support, its member
+   * attribute name, and whether or not that attribute contains a static list of names, or a dynamic
+   * search filter used to determine membership.
    *
-   * @param objectClass The name of the object class.  May not be
-   * <code>null</code> or empty.
-   * @param memberAttribute The name of the attribute in which this objectClass
-   * stores its member list.  May not be <code>null</code> or empty.
-   * @param attributeType The type of memberlist stored in the memberAttribute.
-   * Must be one of the <code>MEMBER_ATTR_xxx</code> constant values.
-   *
+   * @param objectClass The name of the object class. May not be <code>null</code> or empty.
+   * @param memberAttribute The name of the attribute in which this objectClass stores its member
+   *     list. May not be <code>null</code> or empty.
+   * @param attributeType The type of memberlist stored in the memberAttribute. Must be one of the
+   *     <code>MEMBER_ATTR_xxx</code> constant values.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addObjectClass(String objectClass, String memberAttribute, int attributeType) {
@@ -350,24 +327,19 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     m_objectClassMap.put(oc.getObjectClassName().toLowerCase(), oc);
   }
 
-  /**
-   * Clears all group node entires.  See {@link #addGroupNode(String)} for more
-   * information.
-   */
+  /** Clears all group node entires. See {@link #addGroupNode(String)} for more information. */
   public void clearGroupNodes() {
     m_groupNodes.clear();
   }
 
   /**
-   * Adds a group node to the list of group locations to search.  See
-   * {@link #getGroupNodes()} for more info.
+   * Adds a group node to the list of group locations to search. See {@link #getGroupNodes()} for
+   * more info.
    *
-   * @param groupNode The distinguished name of a node in the directory that
-   * may contain group objects.  May not be <code>null</code> or empty.
-   * Assumed to be a valid url for the directory this provider is using.
-   *
-   * @throws IllegalArgumentException if groupNode is <code>null</code> or
-   * empty.
+   * @param groupNode The distinguished name of a node in the directory that may contain group
+   *     objects. May not be <code>null</code> or empty. Assumed to be a valid url for the directory
+   *     this provider is using.
+   * @throws IllegalArgumentException if groupNode is <code>null</code> or empty.
    */
   public void addGroupNode(String groupNode) {
     if (groupNode == null || groupNode.trim().length() == 0)
@@ -380,9 +352,8 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
    * compares this instance to another object.
    *
    * @param obj the object to compare
-   * @return returns <code>true</code> if the object is a
-   * PSJndiGroupProviderInstance with identical values. Otherwise returns
-   * <code>false</code>.
+   * @return returns <code>true</code> if the object is a PSJndiGroupProviderInstance with identical
+   *     values. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -397,21 +368,17 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     return isMatch;
   }
 
-  /**
-   * Returns hash code.
-   */
+  /** Returns hash code. */
   @Override
   public int hashCode() {
     return super.hashCode() + m_objectClasses.hashCode() + m_groupNodes.hashCode();
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSGroupProviderInstance. May not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if c is null
    */
   public void copyFrom(PSJndiGroupProviderInstance c) {
@@ -447,32 +414,23 @@ public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
     return copy;
   }
 
-  /**
-   * Name of root XML element.
-   */
+  /** Name of root XML element. */
   public static final String XML_NODE_NAME = "PSXJnidGroupProviderInstance";
 
-  /**
-   * List of PSJndiObjectClass objects.  Never <code>null</code>, may be
-   * empty.
-   */
+  /** List of PSJndiObjectClass objects. Never <code>null</code>, may be empty. */
   private List m_objectClasses = new ArrayList();
 
   /**
-   * Map of objectClasses with the name lowercased as the key (a String) and
-   * the corresponding PSJndiObjectClass as the value.  Never <code>null</code>
-   * or empty.  Maintained in addition to the List so as to provide case
-   * insensitive named access to an object class, and to maintain an ordered
-   * list as well.
+   * Map of objectClasses with the name lowercased as the key (a String) and the corresponding
+   * PSJndiObjectClass as the value. Never <code>null</code> or empty. Maintained in addition to the
+   * List so as to provide case insensitive named access to an object class, and to maintain an
+   * ordered list as well.
    *
    * @todo write a PSListMap class.
    */
   private Map m_objectClassMap = new HashMap();
 
-  /**
-   * List of group nodes as Strings.  Never <code>null</code>, may be
-   * empty.
-   */
+  /** List of group nodes as Strings. Never <code>null</code>, may be empty. */
   private List m_groupNodes = new ArrayList();
 
   /*

@@ -37,41 +37,37 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Exception class used to report general exceptions, or may be subclassed
- * if necessary. Handles formatting of messages stored in the
- * PSDeploymentErrorStringBundle resource bundle using error codes and
- * arguments. Localization is also supported.
+ * Exception class used to report general exceptions, or may be subclassed if necessary. Handles
+ * formatting of messages stored in the PSDeploymentErrorStringBundle resource bundle using error
+ * codes and arguments. Localization is also supported.
  */
 public class PSDeployException extends Exception {
 
   private static final Logger log = LogManager.getLogger(PSDeployException.class);
 
-  /**
-   * Eclipse was complaining
-   */
+  /** Eclipse was complaining */
   private static final long serialVersionUID = 4192931463127484706L;
 
   /**
    * Construct an exception for messages taking only a single argument.
    *
    * @param msgCode The code of the error string to load.
-   *
-   * @param singleArg The argument to use as the sole argument in
-   *    the error message, may be <code>null</code>.
+   * @param singleArg The argument to use as the sole argument in the error message, may be <code>
+   *     null</code>.
    */
   public PSDeployException(int msgCode, Object singleArg) {
     this(msgCode, new Object[] {singleArg});
   }
 
   /**
-   * Same as {@link #PSDeployException(int, Object[])} but takes one additional
-   * parameter to indicate the exception that caused this exception.
+   * Same as {@link #PSDeployException(int, Object[])} but takes one additional parameter to
+   * indicate the exception that caused this exception.
+   *
    * @param msgCode The code of the error string to load.
-   * @param cause The original exception that caused this exception to be
-   * thrown, may be <code>null</code>.
-   * @param arrayArgs The array of arguments to use as the arguments
-   *    in the error message.  May be <code>null</code>, and may contain
-   *    <code>null</code> elements.
+   * @param cause The original exception that caused this exception to be thrown, may be <code>null
+   *     </code>.
+   * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, and may contain <code>null</code> elements.
    */
   public PSDeployException(int msgCode, Throwable cause, Object... arrayArgs) {
     this(msgCode, arrayArgs);
@@ -80,15 +76,12 @@ public class PSDeployException extends Exception {
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The code of the error string to load.
-   *
-   * @param arrayArgs The array of arguments to use as the arguments
-   *    in the error message.  May be <code>null</code>, and may contain
-   *    <code>null</code> elements.
+   * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, and may contain <code>null</code> elements.
    */
   public PSDeployException(int msgCode, Object[] arrayArgs) {
     for (int i = 0; arrayArgs != null && i < arrayArgs.length; i++) {
@@ -109,12 +102,11 @@ public class PSDeployException extends Exception {
   }
 
   /**
-   * Construct an exception from a class derived from PSException.  The name of
-   * the original exception class is saved.
+   * Construct an exception from a class derived from PSException. The name of the original
+   * exception class is saved.
    *
-   * @param ex The exception to use.  Its message code and arguments are stored
-   * along with the original exception class name.  May not be
-   * <code>null</code>.
+   * @param ex The exception to use. Its message code and arguments are stored along with the
+   *     original exception class name. May not be <code>null</code>.
    */
   public PSDeployException(PSException ex) {
     this(ex.getErrorCode(), ex.getErrorArguments());
@@ -124,14 +116,11 @@ public class PSDeployException extends Exception {
   /**
    * Construct an exception from its XML representation.
    *
-   * @param source The root element of this object's XML representation.
-   * Format expected is defined by the {@link #toXml(Document) toXml} method
-   * documentation.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param source The root element of this object's XML representation. Format expected is defined
+   *     by the {@link #toXml(Document) toXml} method documentation. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSDeployException(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -167,8 +156,8 @@ public class PSDeployException extends Exception {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. The format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. The format is:
    *
    * <pre><code>
    * <!ELEMENT PSXDeployException (Arg*)
@@ -179,11 +168,8 @@ public class PSDeployException extends Exception {
    * <!ELEMENT Arg (#PCDATA)>
    * </code></pre>
    *
-   * @param doc The document to use to create the element, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>
-   *
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -204,41 +190,34 @@ public class PSDeployException extends Exception {
   /**
    * Returns the localized detail message of this exception.
    *
-   * @param locale The locale to generate the message in.  If <code>null
+   * @param locale The locale to generate the message in. If <code>null
    *    </code>, the default locale is used.
-   *
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    */
   public String getLocalizedMessage(Locale locale) {
     return createMessage(m_code, m_args, locale);
   }
 
   /**
-   * Returns the localized detail message of this exception in the
-   * default locale for this system.
+   * Returns the localized detail message of this exception in the default locale for this system.
    *
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    */
   public String getLocalizedMessage() {
     return getLocalizedMessage(Locale.getDefault());
   }
 
   /**
-   * Returns the localized detail message of this exception in the
-   * default locale for this system.
+   * Returns the localized detail message of this exception in the default locale for this system.
    *
-   * @return  The localized detail message, never <code>null</code>, may be
-   * empty.
+   * @return The localized detail message, never <code>null</code>, may be empty.
    */
   public String getMessage() {
     return getLocalizedMessage();
   }
 
   /**
-   * Returns a description of this exception. The format used is
-   * "ExceptionClass: ExceptionMessage"
+   * Returns a description of this exception. The format used is "ExceptionClass: ExceptionMessage"
    *
    * @return the description, never <code>null</code> or empty.
    */
@@ -268,7 +247,6 @@ public class PSDeployException extends Exception {
    * Get the stack trace for the specified exception as a string.
    *
    * @param t The throwable (usually an exception), never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>t</code> is <code>null</code>.
    */
   public static String getStackTraceAsString(Throwable t) {
@@ -285,22 +263,16 @@ public class PSDeployException extends Exception {
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The code of the error string to load.
-   *
-   * @param arrayArgs  The array of arguments to use as the arguments
-   *    in the error message, may be <code>null</code> or empty.
-   *
-   * @param loc The locale to use, may be <code>null</code>, in which case the
-   *    default locale is used.
-   *
-   * @return The formatted message, never <code>null</code>. If the appropriate
-   *    message cannot be created, a message is constructed from the msgCode
-   *    and args and is returned.
-   *
+   * @param arrayArgs The array of arguments to use as the arguments in the error message, may be
+   *     <code>null</code> or empty.
+   * @param loc The locale to use, may be <code>null</code>, in which case the default locale is
+   *     used.
+   * @return The formatted message, never <code>null</code>. If the appropriate message cannot be
+   *     created, a message is constructed from the msgCode and args and is returned.
    */
   private String createMessage(int msgCode, Object[] arrayArgs, Locale loc) {
     if (arrayArgs == null) arrayArgs = new Object[0];
@@ -338,14 +310,10 @@ public class PSDeployException extends Exception {
    * Get the error text associated with the specified error code.
    *
    * @param code The error code.
-   *
-   * @param nullNotFound  If <code>true</code>, return <code>null</code> if the
-   *    error string is not found, if <code>false</code>, return the code as
-   *    a String if the error string is not found.
-   *
-   * @param loc The locale to use, may be <code>null</code>, in which case the
-   * default locale is used.
-   *
+   * @param nullNotFound If <code>true</code>, return <code>null</code> if the error string is not
+   *     found, if <code>false</code>, return the code as a String if the error string is not found.
+   * @param loc The locale to use, may be <code>null</code>, in which case the default locale is
+   *     used.
    * @return the error text, may be <code>null</code> or empty.
    */
   public static String getErrorText(int code, boolean nullNotFound, Locale loc) {
@@ -362,17 +330,15 @@ public class PSDeployException extends Exception {
   }
 
   /**
-   * Returns a formatted string containing the test of all of the exceptions
-   * contained in the supplied SQLException.
-   * <p>There seems to be a bug in the Sprinta driver. We get an exception
-   * for Primary key constraint violation, which has a sql warning as the
-   * next exception (warning). But this next warning has a circular
-   * reference to itself in the next link. So we check for this problem and
+   * Returns a formatted string containing the test of all of the exceptions contained in the
+   * supplied SQLException.
+   *
+   * <p>There seems to be a bug in the Sprinta driver. We get an exception for Primary key
+   * constraint violation, which has a sql warning as the next exception (warning). But this next
+   * warning has a circular reference to itself in the next link. So we check for this problem and
    * limit the max errors we will process to <code>20</code>.
    *
-   * @param e The exception to process. If <code>null</code>, an empty
-   *    string is returned.
-   *
+   * @param e The exception to process. If <code>null</code>, an empty string is returned.
    * @return The string, never <code>null</code>, may be empty.
    */
   public static String formatSqlException(SQLException e) {
@@ -407,20 +373,17 @@ public class PSDeployException extends Exception {
   /**
    * Gets the original exception class if one was supplied at construction.
    *
-   * @return The name of the class, or <code>null</code> if one has not
-   * been supplied.
+   * @return The name of the class, or <code>null</code> if one has not been supplied.
    */
   public String getOriginalExceptionClass() {
     return m_originalExceptionClass;
   }
 
   /**
-   * This method is used to get the string resources hash table for a
-   * locale. If the resources are not already loaded for the locale,
-   * they will be.
+   * This method is used to get the string resources hash table for a locale. If the resources are
+   * not already loaded for the locale, they will be.
    *
    * @param loc The locale, assumed not <code>null</code>.
-   *
    * @return the bundle, never <code>null</code>.
    */
   private static ResourceBundle getErrorStringBundle(Locale loc) throws MissingResourceException {
@@ -432,36 +395,29 @@ public class PSDeployException extends Exception {
     return ms_bundle;
   }
 
-  /**
-   * Constant for the root element name for this object when serialized to and
-   * from XML.
-   */
+  /** Constant for the root element name for this object when serialized to and from XML. */
   public static final String XML_NODE_NAME = "PSXDeployException";
 
-  /**
-   * The error code of this exception, set during ctor, never modified after
-   * that.
-   */
+  /** The error code of this exception, set during ctor, never modified after that. */
   private int m_code;
 
   /**
-   * The array of arguments to use to format the message with.  Set during
-   * ctor, may be <code>null</code>, never modified after that.
+   * The array of arguments to use to format the message with. Set during ctor, may be <code>null
+   * </code>, never modified after that.
    */
   private Object[] m_args;
 
   /**
-   * If this exception was constructed from a <code>PSException</code> class,
-   * this will contain the name of the class.  May be initialized during ctor,
-   * otherwise <code>null</code>, never modified after that.
+   * If this exception was constructed from a <code>PSException</code> class, this will contain the
+   * name of the class. May be initialized during ctor, otherwise <code>null</code>, never modified
+   * after that.
    */
   protected String m_originalExceptionClass = null;
 
   /**
-   * The resource bundle containing error message formats.  <code>null</code>
-   * until the first call to {@link #getErrorStringBundle(Locale)
-   * getErrorStringBundle}, never <code>null</code> or modified after that
-   * unless an exception occurred loading the bundle.
+   * The resource bundle containing error message formats. <code>null</code> until the first call to
+   * {@link #getErrorStringBundle(Locale) getErrorStringBundle}, never <code>null</code> or modified
+   * after that unless an exception occurred loading the bundle.
    */
   private static ResourceBundle ms_bundle = null;
 

@@ -25,55 +25,53 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
- * Represents a display property for a path item.
- * Used for XML serialization/deserialization.
- * Sunny Sal says: "Display property: the cherry on top of your path item sundae!"
+ * Represents a display property for a path item. Used for XML serialization/deserialization. Sunny
+ * Sal says: "Display property: the cherry on top of your path item sundae!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PSPathItemDisplayProperty", propOrder = {
-    "value"
-})
+@XmlType(
+    name = "PSPathItemDisplayProperty",
+    propOrder = {"value"})
 public class PSPathItemDisplayProperty {
 
-    @XmlValue
-    protected String value;
+  @XmlValue protected String value;
 
-    @XmlAttribute(required = true)
-    protected String name;
+  @XmlAttribute(required = true)
+  protected String name;
 
-    /**
-     * Gets the value of the display property.
-     *
-     * @return the value
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Gets the value of the display property.
+   *
+   * @return the value
+   */
+  public String getValue() {
+    return value;
+  }
 
-    /**
-     * Sets the value of the display property.
-     *
-     * @param value the value to set
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+  /**
+   * Sets the value of the display property.
+   *
+   * @param value the value to set
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    /**
-     * Gets the name of the display property.
-     *
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
+  /**
+   * Gets the name of the display property.
+   *
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
 
-    /**
-     * Sets the name of the display property.
-     *
-     * @param name the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+  /**
+   * Sets the name of the display property.
+   *
+   * @param name the name to set
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 }

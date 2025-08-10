@@ -20,9 +20,8 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * A simple testing extension used from the command line. The extension
- * can create its own def, create its own manager, then install itself
- * to the PSTestingExtensionHandler.
+ * A simple testing extension used from the command line. The extension can create its own def,
+ * create its own manager, then install itself to the PSTestingExtensionHandler.
  */
 public class PSTestingExtension implements IPSExtension {
   public PSTestingExtension() {

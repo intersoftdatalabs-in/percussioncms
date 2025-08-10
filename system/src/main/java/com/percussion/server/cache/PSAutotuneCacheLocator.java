@@ -27,8 +27,8 @@ public class PSAutotuneCacheLocator extends PSBaseServiceLocator {
    * Get summary manager.
    *
    * @return Summary manager, never <code>null</code>
-   * @throws PSMissingBeanConfigurationException If the configuration does not
-   * contain the required bean.
+   * @throws PSMissingBeanConfigurationException If the configuration does not contain the required
+   *     bean.
    */
   public static PSAutotuneCache getAutotuneCache() throws PSMissingBeanConfigurationException {
     if (autoTuneCache == null) {

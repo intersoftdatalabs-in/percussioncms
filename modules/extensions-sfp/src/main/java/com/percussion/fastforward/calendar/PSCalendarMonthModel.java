@@ -36,8 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Supports templates rendering a monthly calendar by providing details about the
- * month and its events.
+ * Supports templates rendering a monthly calendar by providing details about the month and its
+ * events.
  *
  * @author James Schultz
  * @since 6.0
@@ -130,8 +130,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return a calendar set to midnight on the first day of the assigned month,
-   *         never <code>null</code>
+   * @return a calendar set to midnight on the first day of the assigned month, never <code>null
+   *     </code>
    */
   public Calendar getStartDate() {
     PSCalendarMonthModel model = getModel();
@@ -144,16 +144,15 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return the date of the first day of the assigned month, formatted as
-   *         <code>yyyy-MM-dd</code>
+   * @return the date of the first day of the assigned month, formatted as <code>yyyy-MM-dd</code>
    */
   public String getStart() {
     return getModel().m_formatter.format(getStartDate().getTime());
   }
 
   /**
-   * @return a calendar set to the final millisecond of the last day of the
-   *         assigned month, never <code>null</code>
+   * @return a calendar set to the final millisecond of the last day of the assigned month, never
+   *     <code>null</code>
    */
   public Calendar getEndDate() {
     PSCalendarMonthModel model = getModel();
@@ -165,8 +164,7 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * @return the date of the last day of the assigned month, formatted as
-   *         <code>yyyy-MM-dd</code>
+   * @return the date of the last day of the assigned month, formatted as <code>yyyy-MM-dd</code>
    */
   public String getEnd() {
     return getModel().m_formatter.format(getEndDate().getTime());
@@ -176,9 +174,8 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
    * Gets the events that occur on the specified day of the month.
    *
    * @param day day of the month whose events will be returned
-   * @return a collection of assembled events for the specified day. will be
-   *         <code>null</code> if no events have been set or events occur on
-   *         the specified day
+   * @return a collection of assembled events for the specified day. will be <code>null</code> if no
+   *     events have been set or events occur on the specified day
    */
   public Collection<IPSAssemblyResult> getEvents(int day) {
     if (getModel().m_eventsByDay == null) {
@@ -189,13 +186,12 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
   }
 
   /**
-   * Sets the events that occur in the month. Any events whose start date does
-   * not fall within the current month are ignored.  The event start date must
-   * be available as a node property named {@link #EVENT_START_PROP_NAME
-   * rx:event_start}.
+   * Sets the events that occur in the month. Any events whose start date does not fall within the
+   * current month are ignored. The event start date must be available as a node property named
+   * {@link #EVENT_START_PROP_NAME rx:event_start}.
    *
-   * @param events list of event snippets to assign to the calendar, may be
-   * <code>null</code> to clear events
+   * @param events list of event snippets to assign to the calendar, may be <code>null</code> to
+   *     clear events
    */
   public void setEvents(List<IPSAssemblyResult> events) {
     if (events == null) {
@@ -235,6 +231,7 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
 
   /**
    * Get thread safe instance.
+   *
    * @return the instance, never <code>null</code>.
    */
   private PSCalendarMonthModel getModel() {
@@ -244,38 +241,25 @@ public class PSCalendarMonthModel extends PSJexlUtilBase {
     return m_model.get();
   }
 
-  /**
-   * The name of the event field (jsr-170 property) that contains the event
-   * start date.
-   */
+  /** The name of the event field (jsr-170 property) that contains the event start date. */
   public static final String EVENT_START_PROP_NAME = "rx:event_start";
 
-  /**
-   * Need to use a model setup for the specific thread to keep this thread safe
-   */
+  /** Need to use a model setup for the specific thread to keep this thread safe */
   private static ThreadLocal<PSCalendarMonthModel> m_model =
       new ThreadLocal<PSCalendarMonthModel>();
 
-  /**
-   * Used for calculating month details, never <code>null</code>.
-   */
+  /** Used for calculating month details, never <code>null</code>. */
   private Calendar m_cal = Calendar.getInstance();
 
-  /**
-   * Used for formatting the start and end date strings, never
-   * <code>null</code>
-   */
+  /** Used for formatting the start and end date strings, never <code>null</code> */
   private FastDateFormat m_formatter = FastDateFormat.getInstance("yyyy-MM-dd");
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSCalendarMonthModel.class);
 
   /**
-   * A mapping of events, keyed by day of the month (Integer), returning a
-   * list of IPSAssemblyResult.  Will be <code>null</code> until setEvents is
-   * called.
+   * A mapping of events, keyed by day of the month (Integer), returning a list of
+   * IPSAssemblyResult. Will be <code>null</code> until setEvents is called.
    */
   private MultiMap m_eventsByDay;
 }

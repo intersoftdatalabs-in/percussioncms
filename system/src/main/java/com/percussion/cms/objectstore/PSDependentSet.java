@@ -27,13 +27,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class encapsulates a collection of <code>PSDependent</code> objects as
- * a <code>PSCollectionComponent</code>.
+ * This class encapsulates a collection of <code>PSDependent</code> objects as a <code>
+ * PSCollectionComponent</code>.
  */
 public class PSDependentSet extends PSCollectionComponent {
-  /**
-   * Constucts an empty dependent set.
-   */
+  /** Constucts an empty dependent set. */
   public PSDependentSet() {
     super(PSDependent.class);
   }
@@ -41,14 +39,10 @@ public class PSDependentSet extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDependentSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -57,7 +51,9 @@ public class PSDependentSet extends PSCollectionComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -94,7 +90,9 @@ public class PSDependentSet extends PSCollectionComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(getNodeName());
     for (int i = 0; i < size(); i++) {
@@ -106,8 +104,7 @@ public class PSDependentSet extends PSCollectionComponent {
   }
 
   /**
-   * This is the name of the root element in the serialized version of this
-   * object.
+   * This is the name of the root element in the serialized version of this object.
    *
    * @return the root name, never <code>null</code> or empty.
    */

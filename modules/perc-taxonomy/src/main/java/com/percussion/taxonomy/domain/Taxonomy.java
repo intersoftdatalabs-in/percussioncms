@@ -19,10 +19,7 @@ package com.percussion.taxonomy.domain;
 
 import java.util.Collection;
 
-/**
- * Taxonomy class to represent information regarding taxonomy.
- *
- */
+/** Taxonomy class to represent information regarding taxonomy. */
 public class Taxonomy {
 
   private int id;
@@ -52,6 +49,7 @@ public class Taxonomy {
 
   /**
    * Set collection of visibilities of a Taxonomy
+   *
    * @param visibilities - Visibilities collection
    */
   public void setVisibilities(Collection<Visibility> visibilities) {
@@ -60,6 +58,7 @@ public class Taxonomy {
 
   /**
    * Returns boolean true or false to determine whether a Taxonomy has related taxons ui
+   *
    * @return has_related_ui - true or false to identify whether a Taxonomy has related taxons
    */
   public boolean getHas_related_ui() {
@@ -68,7 +67,8 @@ public class Taxonomy {
 
   /**
    * Set boolean true or false to determine whether a Taxonomy has related taxons ui
-   * @param hasRelatedUi -  boolean true or false to set for related taxons ui or not
+   *
+   * @param hasRelatedUi - boolean true or false to set for related taxons ui or not
    */
   public void setHas_related_ui(boolean hasRelatedUi) {
     has_related_ui = hasRelatedUi;
@@ -76,6 +76,7 @@ public class Taxonomy {
 
   /**
    * Returns collection of Taxonomy nodes
+   *
    * @return nodes - collection of taxonomy nodes
    */
   public Collection<Node> getNodes() {
@@ -84,6 +85,7 @@ public class Taxonomy {
 
   /**
    * Set collection of nodes
+   *
    * @param nodes - collection of taxonomy nodes
    */
   public void setNodes(Collection<Node> nodes) {
@@ -92,6 +94,7 @@ public class Taxonomy {
 
   /**
    * Add node to a taxonomy
+   *
    * @param node - Node to add to a taxonomy
    */
   public void addNode(Node node) {
@@ -101,6 +104,7 @@ public class Taxonomy {
 
   /**
    * Returns collection of Taxonomy attributes
+   *
    * @return attributes - collection of attributes
    */
   public Collection<Attribute> getAttributes() {
@@ -109,6 +113,7 @@ public class Taxonomy {
 
   /**
    * Set collection of taxonomy attribites
+   *
    * @param attributes - taxonomy attributes
    */
   public void setAttributes(Collection<Attribute> attributes) {
@@ -117,6 +122,7 @@ public class Taxonomy {
 
   /**
    * Add an attribute to a Taxonomy
+   *
    * @param attribute
    */
   public void addAttribute(Attribute attribute) {
@@ -126,6 +132,7 @@ public class Taxonomy {
 
   /**
    * Returns unique int id of Taxonomy
+   *
    * @return id - int id value of Taxonomy
    */
   public int getId() {
@@ -134,6 +141,7 @@ public class Taxonomy {
 
   /**
    * Set unique int id of Taxonomy
+   *
    * @param id - taxonomy id
    */
   public void setId(int id) {
@@ -142,6 +150,7 @@ public class Taxonomy {
 
   /**
    * Returns name of the Taxonomy
+   *
    * @return name - String taxonomy name
    */
   public String getName() {
@@ -150,6 +159,7 @@ public class Taxonomy {
 
   /**
    * Set taxonomy name
+   *
    * @param name
    */
   public void setName(String name) {
@@ -158,6 +168,7 @@ public class Taxonomy {
 
   /**
    * Returns id of Admin_role
+   *
    * @return admin_role_id - Taxonomy admin role id
    */
   public int getAdmin_role_id() {
@@ -166,6 +177,7 @@ public class Taxonomy {
 
   /**
    * Set Admin role id
+   *
    * @param admin_role_id - int admin_role_id
    */
   public void setAdmin_role_id(int admin_role_id) {
@@ -174,6 +186,7 @@ public class Taxonomy {
 
   /**
    * Returns Taxonomy Scheme
+   *
    * @return scheme
    */
   public String getScheme() {
@@ -182,6 +195,7 @@ public class Taxonomy {
 
   /**
    * Set Taxonomy scheme
+   *
    * @param scheme
    */
   public void setScheme(String scheme) {

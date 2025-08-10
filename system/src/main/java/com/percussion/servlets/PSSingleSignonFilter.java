@@ -36,18 +36,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A filter designed to redirect the requests to the percussion cm server login
- * page if the user is not authenticated otherwise to the requested page.
+ * A filter designed to redirect the requests to the percussion cm server login page if the user is
+ * not authenticated otherwise to the requested page.
  *
  * @author bjoginipally
- *
  */
 public class PSSingleSignonFilter implements Filter {
   /**
-   * Finds the pssessionid cookie from the cookies and calls the
-   * {@link #validateSession(String)}method to validate the session, if not
-   * validated redirects to percussion cm server login page by passing in the
-   * requested url as sys_redirect parameter.
+   * Finds the pssessionid cookie from the cookies and calls the {@link
+   * #validateSession(String)}method to validate the session, if not validated redirects to
+   * percussion cm server login page by passing in the requested url as sys_redirect parameter.
    */
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
@@ -113,9 +111,9 @@ public class PSSingleSignonFilter implements Filter {
   }
 
   /**
-   * Helper method to create the base url from the request. The returned URL
-   * does not include the trailing /. Example http(s)://<Server>:<Port>. The
-   * port part is included only if it is not a default port for the protocol.
+   * Helper method to create the base url from the request. The returned URL does not include the
+   * trailing /. Example http(s)://<Server>:<Port>. The port part is included only if it is not a
+   * default port for the protocol.
    *
    * @param httpReq assumed not <code>null</code>.
    * @return The base url fo the request, never <code>null</code>.
@@ -137,14 +135,12 @@ public class PSSingleSignonFilter implements Filter {
   }
 
   /**
-   * Helper method to make a http client request to Rhythmyx server to validate
-   * the passed in session. Incase of an exception validating the session with
-   * Rhythmyx, logs the error and returns <code>false</code>.
+   * Helper method to make a http client request to Rhythmyx server to validate the passed in
+   * session. Incase of an exception validating the session with Rhythmyx, logs the error and
+   * returns <code>false</code>.
    *
-   * @param pssessid The session id to be validated, assumed not
-   * <code>null</code>.
-   * @return <code>true</code> if the session is valid otherwise
-   * <code>false</code>.
+   * @param pssessid The session id to be validated, assumed not <code>null</code>.
+   * @return <code>true</code> if the session is valid otherwise <code>false</code>.
    */
   private boolean validateSession(String pssessid, String baseUrl) {
     // make call to server
@@ -188,18 +184,14 @@ public class PSSingleSignonFilter implements Filter {
   }
 
   /**
-   * A reference to the filter configuration. Initialized in {@link #init(FilterConfig)},
-   * never <code>null</code> after that.
+   * A reference to the filter configuration. Initialized in {@link #init(FilterConfig)}, never
+   * <code>null</code> after that.
    */
   private FilterConfig m_config;
 
-  /**
-   * log to use, never <code>null</code>.
-   */
+  /** log to use, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSSingleSignonFilter.class);
 
-  /**
-   * Context name of Rhythmyx server application context
-   */
+  /** Context name of Rhythmyx server application context */
   private static final String SSOSERVER_APPCONTEXT_ROOT = "Rhythmyx";
 }

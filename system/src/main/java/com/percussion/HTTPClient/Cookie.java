@@ -25,31 +25,30 @@ import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * This class represents an http cookie as specified in <a
- * href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's
- * cookie spec</a>; however, because not even Netscape follows their own spec,
- * and because very few folks out there actually read specs but instead just
- * look whether Netscape accepts their stuff, the Set-Cookie header field
- * parser actually tries to follow what Netscape has implemented, instead of
- * what the spec says. Additionally, the parser it will also recognize the
- * Max-Age parameter from <a
- * href="http://www.ietf.org/rfc/rfc2109.txt">rfc-2109</a>, as that uses the
- * same header field (Set-Cookie).
+ * href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's cookie spec</a>; however,
+ * because not even Netscape follows their own spec, and because very few folks out there actually
+ * read specs but instead just look whether Netscape accepts their stuff, the Set-Cookie header
+ * field parser actually tries to follow what Netscape has implemented, instead of what the spec
+ * says. Additionally, the parser it will also recognize the Max-Age parameter from <a
+ * href="http://www.ietf.org/rfc/rfc2109.txt">rfc-2109</a>, as that uses the same header field
+ * (Set-Cookie).
  *
- * <P>Some notes about how Netscape (4.7) parses:
+ * <p>Some notes about how Netscape (4.7) parses:
+ *
  * <ul>
- * <LI>Quoting: only quotes around the expires value are recognized as such;
- *     quotes around any other value are treated as part of the value.
- * <LI>White space: white space around names and values is ignored
- * <LI>Default path: if no path parameter is given, the path defaults to the
- *     path in the request-uri up to, but not including, the last '/'. Note
- *     that this is entirely different from what the spec says.
- * <LI>Commas and other delimiters: Netscape just parses until the next ';'.
- *     This means will allow commas etc inside values.
+ *   <LI>Quoting: only quotes around the expires value are recognized as such; quotes around any
+ *       other value are treated as part of the value.
+ *   <LI>White space: white space around names and values is ignored
+ *   <LI>Default path: if no path parameter is given, the path defaults to the path in the
+ *       request-uri up to, but not including, the last '/'. Note that this is entirely different
+ *       from what the spec says.
+ *   <LI>Commas and other delimiters: Netscape just parses until the next ';'. This means will allow
+ *       commas etc inside values.
  * </ul>
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 public class Cookie implements Serializable {
@@ -66,16 +65,14 @@ public class Cookie implements Serializable {
   /**
    * Create a cookie.
    *
-   * @param name    the cookie name
-   * @param value   the cookie value
-   * @param domain  the host this cookie will be sent to
-   * @param path    the path prefix for which this cookie will be sent
-   * @param expires the Date this cookie expires, null if at end of
-   *                session
-   * @param secure  if true this cookie will only be over secure connections
-   * @exception NullPointerException if <var>name</var>, <var>value</var>,
-   *                                 <var>domain</var>, or <var>path</var>
-   *                                 is null
+   * @param name the cookie name
+   * @param value the cookie value
+   * @param domain the host this cookie will be sent to
+   * @param path the path prefix for which this cookie will be sent
+   * @param expires the Date this cookie expires, null if at end of session
+   * @param secure if true this cookie will only be over secure connections
+   * @exception NullPointerException if <var>name</var>, <var>value</var>, <var>domain</var>, or
+   *     <var>path</var> is null
    * @since V0.3-1
    */
   public Cookie(
@@ -270,9 +267,9 @@ public class Cookie implements Serializable {
   /**
    * Set the given attribute, if valid.
    *
-   * @param cookie     the cookie on which to set the value
-   * @param name       the name of the attribute
-   * @param value      the value of the attribute
+   * @param cookie the cookie on which to set the value
+   * @param name the name of the attribute
+   * @param value the value of the attribute
    * @param set_cookie the complete Set-Cookie header
    * @return true if the attribute is legal; false otherwise
    */
@@ -402,16 +399,12 @@ public class Cookie implements Serializable {
     return true;
   }
 
-  /**
-   * Return the name of this cookie.
-   */
+  /** Return the name of this cookie. */
   public String getName() {
     return name;
   }
 
-  /**
-   * Return the value of this cookie.
-   */
+  /** Return the value of this cookie. */
   public String getValue() {
     return value;
   }
@@ -424,30 +417,23 @@ public class Cookie implements Serializable {
   }
 
   /**
-   * @return true if the cookie should be discarded at the end of the
-   *         session; false otherwise
+   * @return true if the cookie should be discarded at the end of the session; false otherwise
    */
   public boolean discard() {
     return (expires == null);
   }
 
-  /**
-   * Return the domain this cookie is valid in.
-   */
+  /** Return the domain this cookie is valid in. */
   public String getDomain() {
     return domain;
   }
 
-  /**
-   * Return the path this cookie is associated with.
-   */
+  /** Return the path this cookie is associated with. */
   public String getPath() {
     return path;
   }
 
-  /**
-   * Return whether this cookie should only be sent over secure connections.
-   */
+  /** Return whether this cookie should only be sent over secure connections. */
   public boolean isSecure() {
     return secure;
   }
@@ -460,7 +446,7 @@ public class Cookie implements Serializable {
   }
 
   /**
-   * @param  req  the request to be sent
+   * @param req the request to be sent
    * @return true if this cookie should be sent with the request
    */
   protected boolean sendWith(RoRequest req) {
@@ -474,16 +460,12 @@ public class Cookie implements Serializable {
         && (!secure || con.getProtocol().equals("https") || con.getProtocol().equals("shttp")));
   }
 
-  /**
-   * Hash up name, path and domain into new hash.
-   */
+  /** Hash up name, path and domain into new hash. */
   public int hashCode() {
     return (name.hashCode() + path.hashCode() + domain.hashCode());
   }
 
-  /**
-   * Two cookies match if the name, path and domain match.
-   */
+  /** Two cookies match if the name, path and domain match. */
   public boolean equals(Object obj) {
     if ((obj != null) && (obj instanceof Cookie)) {
       Cookie other = (Cookie) obj;
@@ -502,8 +484,8 @@ public class Cookie implements Serializable {
   }
 
   /**
-   * Create a string containing all the cookie fields. The format is that
-   * used in the Set-Cookie header.
+   * Create a string containing all the cookie fields. The format is that used in the Set-Cookie
+   * header.
    */
   public String toString() {
     StringBuilder res = new StringBuilder(name.length() + value.length() + 30);

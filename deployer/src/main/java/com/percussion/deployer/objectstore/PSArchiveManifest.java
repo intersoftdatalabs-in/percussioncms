@@ -26,24 +26,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Encapsulates a list of <code>PSDependencyFile</code> and
- * <code>PSApplicationIDTypes</code> objects (in pairs), and its related
- * <code>PSDependency</code> object (via its key).
+ * Encapsulates a list of <code>PSDependencyFile</code> and <code>PSApplicationIDTypes</code>
+ * objects (in pairs), and its related <code>PSDependency</code> object (via its key).
  */
 public class PSArchiveManifest implements IPSDeployComponent {
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSArchiveManifest() {}
 
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSArchiveManifest(Element source) throws PSUnknownNodeTypeException {
@@ -53,18 +48,14 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Adds a list of <code>PSDependencyFile</code> objects for the given
-   * <code>PSDependency</code>. If the given <code>PSDependency</code>
-   * already has a list of <code>PSDependencyFile</code> objects in the
-   * current object, then do nothing.
+   * Adds a list of <code>PSDependencyFile</code> objects for the given <code>PSDependency</code>.
+   * If the given <code>PSDependency</code> already has a list of <code>PSDependencyFile</code>
+   * objects in the current object, then do nothing.
    *
-   * @param    dep The <code>PSDependency</code> object which relates to
-   * the list of <code>PSDependencyFile</code> objects. It may not be
-   * <code>null</code>.
-   * @param    depfiles    An iterator over one or more
-   * <code>PSDependencyFile</code> objects, it may not be <code>null</code>
-   * or empty.
-   *
+   * @param dep The <code>PSDependency</code> object which relates to the list of <code>
+   *     PSDependencyFile</code> objects. It may not be <code>null</code>.
+   * @param depfiles An iterator over one or more <code>PSDependencyFile</code> objects, it may not
+   *     be <code>null</code> or empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public void addFiles(PSDependency dep, Iterator<PSDependencyFile> depfiles) {
@@ -86,15 +77,12 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Get a list of <code>PSDependencyFile</code> objects for a given
-   * <code>PSDependency</code> object.
+   * Get a list of <code>PSDependencyFile</code> objects for a given <code>PSDependency</code>
+   * object.
    *
-   * @param    dep The <code>PSDependency</code> object. It may not be
-   * <code>null</code>.
-   *
-   * @return an Iterator over zero or more <code>PSDependencyFile</code>
-   * objects. It will never be <code>null</code>.
-   *
+   * @param dep The <code>PSDependency</code> object. It may not be <code>null</code>.
+   * @return an Iterator over zero or more <code>PSDependencyFile</code> objects. It will never be
+   *     <code>null</code>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public Iterator<PSDependencyFile> getFiles(PSDependency dep) {
@@ -106,11 +94,10 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Get a list of all <code>PSDependencyFile</code> objects in this
-   * manifest.
+   * Get a list of all <code>PSDependencyFile</code> objects in this manifest.
    *
-   * @return an Iterator over zero or more <code>PSDependencyFile</code>
-   * objects. It will never be <code>null</code>.
+   * @return an Iterator over zero or more <code>PSDependencyFile</code> objects. It will never be
+   *     <code>null</code>.
    */
   public Iterator<PSDependencyFile> getFiles() {
     var files =
@@ -122,16 +109,12 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Determines if the object contains a given <code>PSDependency</code>
-   * and its related <code>PSDependencyFile</code>.
+   * Determines if the object contains a given <code>PSDependency</code> and its related <code>
+   * PSDependencyFile</code>.
    *
-   * @param    dep The <code>PSDependency</code> object. It may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the given <code>PSDependency</code> has its
-   * related <code>PSDependencyFile</code> object; <code>false</code>
-   * otherwise.
-   *
+   * @param dep The <code>PSDependency</code> object. It may not be <code>null</code>.
+   * @return <code>true</code> if the given <code>PSDependency</code> has its related <code>
+   *     PSDependencyFile</code> object; <code>false</code> otherwise.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public boolean hasDependencyFiles(PSDependency dep) {
@@ -142,15 +125,12 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Adds <code>PSApplicationIDTypes</code> for its related
-   * <code>PSDependency</code> object. If this pair relationship already
-   * exist, do nothing.
+   * Adds <code>PSApplicationIDTypes</code> for its related <code>PSDependency</code> object. If
+   * this pair relationship already exist, do nothing.
    *
-   * @param    dep The <code>PSDependency</code> object. It may not be
-   * <code>null</code>.
-   * @param    idTypes The to be added <code>PSApplicationIDTypes</code>.
-   * It may not be <code>null</code>.
-   *
+   * @param dep The <code>PSDependency</code> object. It may not be <code>null</code>.
+   * @param idTypes The to be added <code>PSApplicationIDTypes</code>. It may not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public void addIdTypes(PSDependency dep, PSApplicationIDTypes idTypes) {
@@ -170,9 +150,8 @@ public class PSArchiveManifest implements IPSDeployComponent {
    * Adds the external dbms info for the specified dependency.
    *
    * @param dep The dependency to add it for, may not be <code>null</code>.
-   * @param infoList A list of zero or more <code>PSDbmsInfo</code>
-   * objects, may not be <code>null</code>.
-   *
+   * @param infoList A list of zero or more <code>PSDbmsInfo</code> objects, may not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addDbmsInfoList(PSDependency dep, List<PSDatasourceMap> infoList) {
@@ -189,16 +168,11 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Get the <code>PSApplicationIDTypes</code> object for the given
-   * <code>PSDependency</code>.
+   * Get the <code>PSApplicationIDTypes</code> object for the given <code>PSDependency</code>.
    *
-   * @param    dep The <code>PSDependency</code> object. It may not be
-   * <code>null</code>.
-   *
-   * @return The related <code>PSApplicationIDTypes</code> object which
-   * relate to <code>dep</code> (via its key) if it exists; otherwise,
-   * return <code>null</code>.
-   *
+   * @param dep The <code>PSDependency</code> object. It may not be <code>null</code>.
+   * @return The related <code>PSApplicationIDTypes</code> object which relate to <code>dep</code>
+   *     (via its key) if it exists; otherwise, return <code>null</code>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public PSApplicationIDTypes getIdTypes(PSDependency dep) {
@@ -210,15 +184,11 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Get the list of external dbmsinfo objects for the given
-   * <code>PSDependency</code>.
+   * Get the list of external dbmsinfo objects for the given <code>PSDependency</code>.
    *
-   * @param dep The <code>PSDependency</code> object. It may not be
-   * <code>null</code>.
-   *
-   * @return The list of <code>PSDbmsInfo</code> objects for the specified
-   * dependency, may be <code>null</code> or empty.
-   *
+   * @param dep The <code>PSDependency</code> object. It may not be <code>null</code>.
+   * @return The list of <code>PSDbmsInfo</code> objects for the specified dependency, may be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public List<PSDatasourceMap> getDbmsInfoList(PSDependency dep) {
@@ -229,7 +199,8 @@ public class PSArchiveManifest implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXArchiveManifest (PSXDepFilesIdTypes*)>
    * &lt;!ELEMENT PSXDepFilesIdTypes (PSXApplicationIDTypes |
@@ -302,61 +273,47 @@ public class PSArchiveManifest implements IPSDeployComponent {
     return bEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXArchiveManifest";
 
-  /**
-   * Child node name of this object's XML representation.
-   */
+  /** Child node name of this object's XML representation. */
   private static final String XML_CHILD_NODE = "PSXDepFilesIdTypes";
 
-  /**
-   * The attribute of the child node.
-   */
+  /** The attribute of the child node. */
   private static final String XML_CHILD_NODE_ATTR = "DependencyKey";
 
   /**
-   * It maps a list of <code>DepFilesIdTypes</code> objects (as the value
-   * of the Map) to its related Dependency's key (as the key of the Map in
-   * <code>String</code>). It will never <code>null</code>, but may be empty.
+   * It maps a list of <code>DepFilesIdTypes</code> objects (as the value of the Map) to its related
+   * Dependency's key (as the key of the Map in <code>String</code>). It will never <code>null
+   * </code>, but may be empty.
    */
   private Map<String, DepFilesIdTypes> m_depMap = new HashMap<>();
 
-  /**
-   * flags to walk to a child node of an XML tree
-   */
+  /** flags to walk to a child node of an XML tree */
   private static final int FIRST_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * flags to walk to a sibling node of an XML tree
-   */
+  /** flags to walk to a sibling node of an XML tree */
   private static final int NEXT_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
   /**
-   * Encapsulates a pair of <code>PSDependencyFile</code> and
-   * <code>PSApplicationIDTypes</code> objects for a specific
-   * <code>PSDependency</code> (via its key), as well as a list of external
+   * Encapsulates a pair of <code>PSDependencyFile</code> and <code>PSApplicationIDTypes</code>
+   * objects for a specific <code>PSDependency</code> (via its key), as well as a list of external
    * <code>PSDbmsInfo</code> objects.
    */
   private static class DepFilesIdTypes implements IPSDeployComponent {
     /**
      * Constructing the object with given parameters.
      *
-     * @param key The key of the related Dependency object, assume it is
-     * not <code>null</code> or empty.
-     * @param files The list of <code>PSDependencyFile</code> objects, it
-     * may be <code>null</code>.
-     * @param idtypes The <code>PSApplicationIdTypes</code> object, it may be
-     * <code>null</code>.
-     * @param dbmsInfoList The list of external dbmsinfo objects for this dependency, it
-     * may be <code>null</code>
-     * <br/>
-     * NOTE: Assuming any of the parameters may be <code>null</code>, but not
-     * all are <code>null</code>.
+     * @param key The key of the related Dependency object, assume it is not <code>null</code> or
+     *     empty.
+     * @param files The list of <code>PSDependencyFile</code> objects, it may be <code>null</code>.
+     * @param idtypes The <code>PSApplicationIdTypes</code> object, it may be <code>null</code>.
+     * @param dbmsInfoList The list of external dbmsinfo objects for this dependency, it may be
+     *     <code>null</code> <br>
+     *     NOTE: Assuming any of the parameters may be <code>null</code>, but not all are <code>null
+     *     </code>.
      */
     public DepFilesIdTypes(
         String key,
@@ -372,11 +329,9 @@ public class PSArchiveManifest implements IPSDeployComponent {
     /**
      * Create this object from its XML representation
      *
-     * @param source The source element.  See {@link #toXml(Document)} for
-     * the expected format.  May not be <code>null</code>.
-     *
-     * @throws IllegalArgumentException If <code>source</code> is
-     * <code>null</code>.
+     * @param source The source element. See {@link #toXml(Document)} for the expected format. May
+     *     not be <code>null</code>.
+     * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
      * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
      */
     public DepFilesIdTypes(Element source) throws PSUnknownNodeTypeException {
@@ -387,6 +342,7 @@ public class PSArchiveManifest implements IPSDeployComponent {
 
     /**
      * Serializes this object's state to its XML representation. Format is:
+     *
      * <pre><code>
      * &lt;!ELEMENT PSXDepFilesIdTypes (PSXApplicationIDTypes?, DBMSInfoList?,
      *    PSXDependencyFile*)>
@@ -395,9 +351,7 @@ public class PSArchiveManifest implements IPSDeployComponent {
      * &lt;!ELEMENT DBMSInfoList (PSXDbmsInfo*)>
      * </code></pre>
      *
-     * @param doc The Document for creating XML Element. Assumed not
-     * <code>null</code>.
-     *
+     * @param doc The Document for creating XML Element. Assumed not <code>null</code>.
      * @return The serialized XML Element.
      */
     public Element toXml(Document doc) {
@@ -491,15 +445,12 @@ public class PSArchiveManifest implements IPSDeployComponent {
     }
 
     /**
-     * Get the list of <code>PSDependencyFile</code> objects from the
-     * given parameters.
+     * Get the list of <code>PSDependencyFile</code> objects from the given parameters.
      *
      * @param depfileEl XML Element, assume not <code>null</code>.
      * @param tree The XML tree, assume not <code>null</code>.
-     *
-     * @return The list of <code>PSDependencyFile</code> objects, it will
-     * never be <code>null</code>.
-     *
+     * @return The list of <code>PSDependencyFile</code> objects, it will never be <code>null</code>
+     *     .
      * @throws PSUnknownNodeTypeException if MALFORMED XML occurs.
      */
     private List<PSDependencyFile> getDepFilesFromXml(Element depfileEl, PSXmlTreeWalker tree)
@@ -517,15 +468,12 @@ public class PSArchiveManifest implements IPSDeployComponent {
     }
 
     /**
-     * Get the list of <code>PSDbmsInfo</code> objects from the
-     * given parameters.
+     * Get the list of <code>PSDbmsInfo</code> objects from the given parameters.
      *
-     * @param tree The XML tree, assumed not <code>null</code> and to be
-     * positioned on a <code>XML_DBMS_LIST_EL</code> element.
-     *
-     * @return The list of <code>PSDbmsInfo</code> objects, it will
-     * never be <code>null</code>, may be empty.
-     *
+     * @param tree The XML tree, assumed not <code>null</code> and to be positioned on a <code>
+     *     XML_DBMS_LIST_EL</code> element.
+     * @return The list of <code>PSDbmsInfo</code> objects, it will never be <code>null</code>, may
+     *     be empty.
      * @throws PSUnknownNodeTypeException if MALFORMED XML occurs.
      */
     private List<PSDatasourceMap> getInfoListFromXml(PSXmlTreeWalker tree)
@@ -567,26 +515,22 @@ public class PSArchiveManifest implements IPSDeployComponent {
     }
 
     /**
-     * The key of the related Dependency object. Initialized by the
-     * constructor, it may not be <code>null</code> or empty after that.
+     * The key of the related Dependency object. Initialized by the constructor, it may not be
+     * <code>null</code> or empty after that.
      */
     protected String m_key;
 
     /**
-     * A list of <code>PSDependencyFile</code> objects, it may be
-     * <code>null</code>, never empty if not null.
+     * A list of <code>PSDependencyFile</code> objects, it may be <code>null</code>, never empty if
+     * not null.
      */
     protected List<PSDependencyFile> m_depFiles;
 
-    /**
-     * The <code>PSApplicationIdTypes</code> object, it may be
-     * <code>null</code>
-     */
+    /** The <code>PSApplicationIdTypes</code> object, it may be <code>null</code> */
     protected PSApplicationIDTypes m_idtypes;
 
     /**
-     * A <code>List</code> of <code>PSDbmsInfo</code> objects, it may be
-     * <code>null</code> or empty.
+     * A <code>List</code> of <code>PSDbmsInfo</code> objects, it may be <code>null</code> or empty.
      */
     protected List<PSDatasourceMap> m_dbmsInfoList = null;
 

@@ -24,20 +24,17 @@ import java.util.List;
 
 /**
  * Class to handle packaging and deploying a content list definition.
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
 public class PSContentListDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentListDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -65,22 +62,16 @@ public class PSContentListDependencyHandler extends PSElementDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "ContentList";
 
   /**
-   * The content list definition handler, initialized by
-   * <code>getChildHandler()</code> if it is <code>null</code>, will never
-   * be <code>null</code> after that.
+   * The content list definition handler, initialized by <code>getChildHandler()</code> if it is
+   * <code>null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_childHandler = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

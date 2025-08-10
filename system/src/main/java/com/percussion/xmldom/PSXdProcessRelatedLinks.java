@@ -30,28 +30,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A Rhythmyx pre-exit called to process inline related links that may exist
- * in an HTML body field.
+ * A Rhythmyx pre-exit called to process inline related links that may exist in an HTML body field.
  *
- * The related links of the form
- * <code>
+ * <p>The related links of the form <code>
  *    &lt;a href="http://RxServer:RxPort/Rhythmyx/AppName/Request.html?sys_contentid=123&amp;sys_variantid=1" &gt;
- * </code>
- * will be processed, and extra parameters for the <code>sys_contentid</code>
- * and <code>sys_variantid</code> will be added.
- * <p>
- * This processing will be performed for all links and images, or any other
- * <code>&lt;html&gt;</code> element with a <code>src=</code> or <code>href=</code>
- * attribute.
- * <p>
- * Before this exit can be called, the HTML text field must be converted to an
- * XMLDOM private object with sys_XdDOMToText. This function will also be called from
- * within sys_XdTextCleanup.
- * <p>
- * There is only one parameter: the name of the XMLDOM private object to be scanned.
+ * </code> will be processed, and extra parameters for the <code>sys_contentid</code> and <code>
+ * sys_variantid</code> will be added.
  *
+ * <p>This processing will be performed for all links and images, or any other <code>&lt;html&gt;
+ * </code> element with a <code>src=</code> or <code>href=</code> attribute.
  *
- **/
+ * <p>Before this exit can be called, the HTML text field must be converted to an XMLDOM private
+ * object with sys_XdDOMToText. This function will also be called from within sys_XdTextCleanup.
+ *
+ * <p>There is only one parameter: the name of the XMLDOM private object to be scanned.
+ */
 public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   public void preProcessRequest(Object[] params, IPSRequestContext request)
@@ -87,14 +80,13 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
   }
 
   /**
-   * This method scans the elements of a org.w3c.dom.Document for any
-   * InLine Related links or images.  This function will be used in this exit
-   * as well as from @link{PSXdTextCleanup}.
+   * This method scans the elements of a org.w3c.dom.Document for any InLine Related links or
+   * images. This function will be used in this exit as well as from @link{PSXdTextCleanup}.
    *
    * @param xmlDoc the source xml document to scan
-   * @param HostPortRoot the Rhythmyx host, port and root name as a single
-   * string such as: <code>RxServer:9992/Rhythmyx</code>
-   **/
+   * @param HostPortRoot the Rhythmyx host, port and root name as a single string such as: <code>
+   *     RxServer:9992/Rhythmyx</code>
+   */
   static void processLinks(Document xmlDoc, String HostPortRoot) {
 
     String linkStart = "http://" + HostPortRoot.toLowerCase();
@@ -102,11 +94,11 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
   }
 
   /**
-   * This method recursively scans all nodes that have children looking for
-   * Element nodes.
+   * This method recursively scans all nodes that have children looking for Element nodes.
+   *
    * @param nd the parent node to scan
    * @param linkStart the initial part of the link to scan for.
-   **/
+   */
   private static void searchNodes(Node nd, String linkStart) {
 
     if (nd.getNodeType() == Node.ELEMENT_NODE) {
@@ -122,14 +114,12 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
   }
 
   /**
-   * This method scans the attributes of an element looking for a
-   * <code>href</code> or <code>src</code> attribute.
+   * This method scans the attributes of an element looking for a <code>href</code> or <code>src
+   * </code> attribute.
    *
    * @param el the element to scan
-   *
    * @param linkStart the initial part of the string to scan for
-   *
-   **/
+   */
   private static void searchElement(Element el, String linkStart) {
     String attribValue;
     for (int i = 0; i < ms_attribArray.length; i++) {
@@ -175,29 +165,18 @@ public class PSXdProcessRelatedLinks extends PSDefaultExtension implements IPSRe
     }
   }
 
-  /**
-   * The allowable list of attributes to scan for.
-   **/
+  /** The allowable list of attributes to scan for. */
   private static final String[] ms_attribArray = {"href", "src"};
 
-  /**
-   * The name of the content id HTML parameter
-   **/
+  /** The name of the content id HTML parameter */
   private static final String CONTENTID = "sys_contentid";
 
-  /**
-   * The name of the variant id HTML parameter
-   **/
+  /** The name of the variant id HTML parameter */
   private static final String VARIANTID = "sys_variantid";
 
-  /**
-   * The allowable delimiters when scanning an <code>href</code> or
-   * <code>src</code> attribute.
-   **/
+  /** The allowable delimiters when scanning an <code>href</code> or <code>src</code> attribute. */
   private static final String DELIMS = "?&=";
 
-  /**
-   * the class name used for error reporting
-   **/
+  /** the class name used for error reporting */
   private static final String ms_className = "PSXdProcessRelatedLinks";
 }

@@ -28,23 +28,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * ID Context to represent a binding in a template
- * This binding is usually a <name, value> pair, but sometimes name may be null.
- * To circumvent problems with name as a key, an index is introduced for the
- * binding. Thus bindings are referenced by both an index and a name.
- * @author vamsinukala
+ * ID Context to represent a binding in a template This binding is usually a <name, value> pair, but
+ * sometimes name may be null. To circumvent problems with name as a key, an index is introduced for
+ * the binding. Thus bindings are referenced by both an index and a name.
  *
+ * @author vamsinukala
  */
 public class PSBindingIdContext extends PSApplicationIdContext {
   /**
    * Construct a JEXL binding.
    *
-   * @param  index of the binding, never <code>null</code> or empty
-   * @param  name may be <code>null</code> or empty
-   * @param  value may not be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if <code>index</code> is
-   * <code>null</code> or empty.
+   * @param index of the binding, never <code>null</code> or empty
+   * @param name may be <code>null</code> or empty
+   * @param value may not be <code>null</code> or empty
+   * @throws IllegalArgumentException if <code>index</code> is <code>null</code> or empty.
    */
   public PSBindingIdContext(String index, String name, String value) {
     if (StringUtils.isBlank(index)) throw new IllegalArgumentException("index may not be null");
@@ -58,12 +55,9 @@ public class PSBindingIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSBindingIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -75,37 +69,34 @@ public class PSBindingIdContext extends PSApplicationIdContext {
   /**
    * Get the ordinal position of this context's extension in its parent's list.
    *
-   * @return The index, will be <code>-1</code> if the index has not been
-   * specified.
+   * @return The index, will be <code>-1</code> if the index has not been specified.
    */
   public int getIndex() {
     return m_index;
   }
 
-  /**
-   * Set the ordinal position of this context's binding in its parent's list.
-   */
+  /** Set the ordinal position of this context's binding in its parent's list. */
   public void setIndex(int ix) {
     m_index = ix;
   }
 
   /**
    * the name of the binding
+   *
    * @return name it may be <code>null</code> or empty
    */
   public String getName() {
     return m_name;
   }
 
-  /**
-   * sets the name of the binding
-   */
+  /** sets the name of the binding */
   private void setName(String name) {
     this.m_name = name;
   }
 
   /**
    * the value of the binding, this is either an expression or a script
+   *
    * @return value it may be <code>null</code> or empty
    */
   public String getValue() {
@@ -114,6 +105,7 @@ public class PSBindingIdContext extends PSApplicationIdContext {
 
   /**
    * set the value of this binding
+   *
    * @param value
    */
   private void setValue(String value) {
@@ -141,12 +133,13 @@ public class PSBindingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXBindingIdContext
    * &lt;!ATTLIST  PSXBindingIdContext
@@ -174,9 +167,8 @@ public class PSBindingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -260,45 +252,32 @@ public class PSBindingIdContext extends PSApplicationIdContext {
    * Check the supplied index to see if it is valid (>=0)
    *
    * @param index The index to check.
-   *
    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
    */
   private boolean validateIndex(int index) {
     return index >= 0;
   }
 
-  /**
-   * the value of the binding, binding has a name, value pair.
-   */
+  /** the value of the binding, binding has a name, value pair. */
   private String m_value;
 
-  /**
-   * the name of the binding, binding has a name, value pair. name may be
-   * <code>null</code>
-   */
+  /** the name of the binding, binding has a name, value pair. name may be <code>null</code> */
   private String m_name;
 
   /**
-   * Index of this call in its parent's list.  Intialized during ctor, modfied
-   * only by calls to <code>copyFrom()</code>.  Will be <code>-1</code> if an
-   * index has not been specified.
+   * Index of this call in its parent's list. Intialized during ctor, modfied only by calls to
+   * <code>copyFrom()</code>. Will be <code>-1</code> if an index has not been specified.
    */
   private int m_index = -1;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXBindingIdContext";
 
   // private xml constant
-  /**
-   * the binding name if any, may be <code>null</code>
-   */
+  /** the binding name if any, may be <code>null</code> */
   private static final String XML_ATTR_BNAME = "bName";
 
-  /**
-   * the binding value may be <code>null</code>
-   */
+  /** the binding value may be <code>null</code> */
   private static final String XML_ATTR_BVALUE = "bValue";
 
   private static final String XML_ATTR_INDEX = "index";

@@ -40,20 +40,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a component slot
- */
+/** Class to handle packaging and deploying a component slot */
 public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSComponentSlotDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -100,15 +95,15 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ComponentDef</li>
+   *   <li>ComponentDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -180,15 +175,11 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   /**
    * Transfer ids from the given data for the <code>CR_TABLE</code>.
    *
-   * @param srcData The data from the source server, assume not
-   * <code>null</code>
-   * @param ctx The import context to aid in the installation, assume not
-   * <code>null</code>.
+   * @param srcData The data from the source server, assume not <code>null</code>
+   * @param ctx The import context to aid in the installation, assume not <code>null</code>.
    * @param tok The security token, assume not <code>null</code>.
-   *
-   * @return The transfered table data, it will never <code>null</code>, all
-   * rows will have their action set to {@link PSJdbcRowData#ACTION_INSERT}.
-   *
+   * @return The transfered table data, it will never <code>null</code>, all rows will have their
+   *     action set to {@link PSJdbcRowData#ACTION_INSERT}.
    * @throws PSDeployException if an error occurs.
    */
   private PSJdbcTableData transferIdsForCRData(
@@ -230,9 +221,7 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
     return newData;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ComponentSlot";
 
   // Constants for component slot table and column names
@@ -242,15 +231,12 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler 
   private static final String CR_PARENT_ID = "COMPONENTID";
 
   /**
-   * The schema for CR_TABLE, initialized by constructor, will never
-   * be <code>null</code> or modified after that.
+   * The schema for CR_TABLE, initialized by constructor, will never be <code>null</code> or
+   * modified after that.
    */
   PSJdbcTableSchema m_crSchema;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

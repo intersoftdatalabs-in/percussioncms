@@ -37,9 +37,7 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Utility class used to organize a property file into ascending order
- */
+/** Utility class used to organize a property file into ascending order */
 public class PSOrganizeProperties {
 
   private static final Logger log = LogManager.getLogger(PSOrganizeProperties.class);
@@ -47,6 +45,7 @@ public class PSOrganizeProperties {
 
   /**
    * Performs the actual sort
+   *
    * @param file, cannot be <code>null</code>.
    * @throws IOException upon any error
    */
@@ -57,9 +56,7 @@ public class PSOrganizeProperties {
     Map<String, String> propsMap =
         new TreeMap<>(
             new Comparator<String>() {
-              /**
-               * Compare case-insensitive.
-               */
+              /** Compare case-insensitive. */
               public int compare(String s1, String s2) {
                 return s1.compareToIgnoreCase(s2);
               }
@@ -75,6 +72,7 @@ public class PSOrganizeProperties {
 
   /**
    * Load the specified properties file
+   *
    * @param file cannot be <code>null</code>.
    * @param comments_list
    * @return the Properties, never <code>null</code>.
@@ -98,8 +96,8 @@ public class PSOrganizeProperties {
   }
 
   /**
-   * Parses the header comment from the properties file and
-   * stores it for later use.
+   * Parses the header comment from the properties file and stores it for later use.
+   *
    * @param file
    * @throws IOException
    */
@@ -122,8 +120,9 @@ public class PSOrganizeProperties {
   }
 
   /**
-   * Parses out all comments except the header comments and adds them
-   * to the comments map using the following entry as the key.
+   * Parses out all comments except the header comments and adds them to the comments map using the
+   * following entry as the key.
+   *
    * @param file
    * @param comments_list
    * @throws IOException
@@ -156,6 +155,7 @@ public class PSOrganizeProperties {
 
   /**
    * Formats and saves the properties back to the specified file
+   *
    * @param file assumed not <code>null</code>.
    * @param props the sorted properties to be saved.
    * @param comments_list
@@ -204,6 +204,7 @@ public class PSOrganizeProperties {
 
   /**
    * Adds all the comments for the specified key
+   *
    * @param sb
    * @param key
    */
@@ -218,8 +219,8 @@ public class PSOrganizeProperties {
   }
 
   /**
-   * Handles escaping the property value to remain ISO 8859-1
-   * compatible
+   * Handles escaping the property value to remain ISO 8859-1 compatible
+   *
    * @param value the value, assumed not <code>null</code>
    * @return the escaped value, never <code>null</code>.
    */
@@ -264,12 +265,14 @@ public class PSOrganizeProperties {
 
   /**
    * The main method for this class.
+   *
    * <p>
+   *
    * <pre>
    * Arguments:
    * [0] = The file path of the properties file
    * </pre>
-   * </p>
+   *
    * @param args
    * @throws Exception
    */

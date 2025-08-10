@@ -17,11 +17,8 @@
 
 package com.percussion.rest.sites;
 
-/**
- * Enum for sitemap type.
- * Sunny Sal: "Sitemap type ka enum, XML ka fun!"
- */
+/** Enum for sitemap type. Sunny Sal: "Sitemap type ka enum, XML ka fun!" */
 public enum SiteMapType {
-    STANDARD,
-    INDEXED
+  STANDARD,
+  INDEXED
 }

@@ -20,25 +20,17 @@ package com.percussion.data.vfs;
 import com.percussion.server.PSUserSession;
 import java.io.File;
 
-/**
- * Represents a virtual application directory.
- */
+/** Represents a virtual application directory. */
 public interface IPSVirtualDirectory {
   /**
-   * Gets the physical path that the given file would have within this virtual
-   * directory.
+   * Gets the physical path that the given file would have within this virtual directory.
    *
-   * If this method returns <CODE>null</CODE>, it means that the application
-   * exists but has no associated directory, therefore queries for the
-   * directory contents should return an empty list.
+   * <p>If this method returns <CODE>null</CODE>, it means that the application exists but has no
+   * associated directory, therefore queries for the directory contents should return an empty list.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/14
-   *
-   *
    * @param relPath
-   *
    * @return File
    */
   public File getPhysicalPath(File relPath);
@@ -46,8 +38,8 @@ public interface IPSVirtualDirectory {
   /**
    * Get the actual directory this virtual directory represents.
    *
-   * @return The directory, may be <code>null</code> if the application exists
-   * but has no associated directory.
+   * @return The directory, may be <code>null</code> if the application exists but has no associated
+   *     directory.
    */
   public File getPhysicalLocation();
 
@@ -55,14 +47,11 @@ public interface IPSVirtualDirectory {
    * Returns true if all the permissions are held.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/15
-   *
    * @param session The user session whose permissions should be returned.
-   *
    * @param permissions The permissions from PSAclEntry
-   * @return boolean <CODE>true</CODE> if all the permissions are held by
-   * this session for this virtual directory.
+   * @return boolean <CODE>true</CODE> if all the permissions are held by this session for this
+   *     virtual directory.
    */
   public boolean hasPermissions(PSUserSession session, int permissions);
 
@@ -70,9 +59,7 @@ public interface IPSVirtualDirectory {
    * Gets the name of the virtual directory that this object represents.
    *
    * @author chad loder
-   *
    * @version 1.0 1999/7/14
-   *
    * @return String
    */
   public String getVirtualDirectory();

@@ -29,15 +29,12 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * Initial release of Site Explorer did not have New Version menu item. The aim
- * of this plugin is to look for the New Version menu item relation for site
- * explorer and if does not exists add it.
+ * Initial release of Site Explorer did not have New Version menu item. The aim of this plugin is to
+ * look for the New Version menu item relation for site explorer and if does not exists add it.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddNewVersionToSiteExplorer implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginAddNewVersionToSiteExplorer() {}
 
   /**

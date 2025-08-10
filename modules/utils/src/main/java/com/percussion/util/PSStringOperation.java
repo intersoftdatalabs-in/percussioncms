@@ -26,12 +26,12 @@ import java.util.Locale;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * The PSStringOperation class plays a supplementary role in String handling.
- * It extends the power of Java's String object.
+ * The PSStringOperation class plays a supplementary role in String handling. It extends the power
+ * of Java's String object.
  *
- * @author     Jian Huang
- * @version    2.0
- * @since      1.0
+ * @author Jian Huang
+ * @version 2.0
+ * @since 1.0
  */
 public class PSStringOperation {
   public PSStringOperation() {
@@ -39,21 +39,20 @@ public class PSStringOperation {
   }
 
   /**
-   * Given a source string and a pattern substring, use a replacement string
-   * to substitute with every pattern substring within the source string.
-   * <p>
-   * For example, Let strSrc = "Simba is the name of a bear bear, he is a famous bear",
-   * then strSrc = replace(strSrc, "bear", "lion") returns a string result
-   * strSrc = "Simba is the name of a lion lion, he is a famous lion". And call
-   * replace(strSrc, "lion lion", "lion") substitutes "lion lion" with "lion".
-   * <p>
-   * Also see the singleReplace method for single replacement.
+   * Given a source string and a pattern substring, use a replacement string to substitute with
+   * every pattern substring within the source string.
    *
-   * @param   strSrc   the source string
-   * @param   strSub   the substring of the src string to be replaced with
-   * @param   strRep   the replacement string
+   * <p>For example, Let strSrc = "Simba is the name of a bear bear, he is a famous bear", then
+   * strSrc = replace(strSrc, "bear", "lion") returns a string result strSrc = "Simba is the name of
+   * a lion lion, he is a famous lion". And call replace(strSrc, "lion lion", "lion") substitutes
+   * "lion lion" with "lion".
    *
-   * @return     a string of the replacement result
+   * <p>Also see the singleReplace method for single replacement.
+   *
+   * @param strSrc the source string
+   * @param strSub the substring of the src string to be replaced with
+   * @param strRep the replacement string
+   * @return a string of the replacement result
    */
   public static String replace(String strSrc, String strSub, String strRep) {
     if (strSrc == null) return null;
@@ -76,19 +75,17 @@ public class PSStringOperation {
   }
 
   /**
-   * Given a source string and a pattern substring, use a replacement string
-   * to substitute with the first pattern substring within the source string.
-   * <p>
-   * For example, let SourceString = "Simba is the name of a lion lion cub",
-   * PatternString = "lion ", and ReplacementString = "". Then calling
-   * singleReplace(SourceString, PatternString, ReplacementString) results in
-   * "Simba is the name of a lion cub".
+   * Given a source string and a pattern substring, use a replacement string to substitute with the
+   * first pattern substring within the source string.
    *
-   * @param   strSrc   the source string
-   * @param   strSub   the substring of the src string to be replaced with
-   * @param   strRep   the replacement string
+   * <p>For example, let SourceString = "Simba is the name of a lion lion cub", PatternString =
+   * "lion ", and ReplacementString = "". Then calling singleReplace(SourceString, PatternString,
+   * ReplacementString) results in "Simba is the name of a lion cub".
    *
-   * @return     a string of the replacement result
+   * @param strSrc the source string
+   * @param strSub the substring of the src string to be replaced with
+   * @param strRep the replacement string
+   * @return a string of the replacement result
    */
   public static String singleReplace(String strSrc, String strSub, String strRep) {
     if (strSrc == null) return null;
@@ -111,30 +108,25 @@ public class PSStringOperation {
   }
 
   /**
-   * Returns a new string object resulting from replacing all occurrences of
-   * <code>oldChr</code> in <code>text</code> with <code>newChr</code>.
-   * If the <code>oldChr</code> is escaped by itself, it is not replaced, and
-   * is un-escaped.
-   * <p>
-   * Example1, If strSrc = "string1;string2;string3;",
-   * then strSrc = replace(strSrc, ';', ':') returns a string result
-   * strSrc = "string1:string2:string3:" replacing all occurrences of ';' with
-   * ":".
-   * <p>
-   * Example2, If strSrc = "string1;;string2;string3;",
-   * then strSrc = replace(strSrc, ';', ':') returns a string result
-   * strSrc = "string1;string2:string3:" un-escaping first ';' and replcing
+   * Returns a new string object resulting from replacing all occurrences of <code>oldChr</code> in
+   * <code>text</code> with <code>newChr</code>. If the <code>oldChr</code> is escaped by itself, it
+   * is not replaced, and is un-escaped.
+   *
+   * <p>Example1, If strSrc = "string1;string2;string3;", then strSrc = replace(strSrc, ';', ':')
+   * returns a string result strSrc = "string1:string2:string3:" replacing all occurrences of ';'
+   * with ":".
+   *
+   * <p>Example2, If strSrc = "string1;;string2;string3;", then strSrc = replace(strSrc, ';', ':')
+   * returns a string result strSrc = "string1;string2:string3:" un-escaping first ';' and replcing
    * last ';' with ':'.
    *
-   * @param   text     the string in which <code>oldChr</code> should be
-   * replaced with  <code>newChr</code>. If this is <code>null</code>, return
-   * value is <code>null</code>.
-   * @param   oldChr   the character to be replaced.
-   * @param   newChr   the character to replace with.
-   *
-   * @return  a string after replacing every occurrence of <code>oldChr</code>
-   * with <code>newChr</code> in <code>text</code> unless it is escaped. It
-   * will be <code>null</code>, if passed in text is <code>null</code>.
+   * @param text the string in which <code>oldChr</code> should be replaced with <code>newChr</code>
+   *     . If this is <code>null</code>, return value is <code>null</code>.
+   * @param oldChr the character to be replaced.
+   * @param newChr the character to replace with.
+   * @return a string after replacing every occurrence of <code>oldChr</code> with <code>newChr
+   *     </code> in <code>text</code> unless it is escaped. It will be <code>null</code>, if passed
+   *     in text is <code>null</code>.
    */
   public static String replaceChar(String text, char oldChr, char newChr) {
     if (text == null) return null;
@@ -167,32 +159,25 @@ public class PSStringOperation {
   }
 
   /**
-   * Returns a new string object resulting from replacing all occurrences of
-   * <code>oldChr</code> in <code>text</code> with <code>newChr</code>.
-   * Any existing occurences of <code>newChr</code> are escaped, even if there
-   * are no occurences of <code>oldChr</code>
+   * Returns a new string object resulting from replacing all occurrences of <code>oldChr</code> in
+   * <code>text</code> with <code>newChr</code>. Any existing occurences of <code>newChr</code> are
+   * escaped, even if there are no occurences of <code>oldChr</code>
    *
-   * <p>
-   * Example1, If strSrc = "string1;string2;string3;",
-   * then strSrc = replace(strSrc, ';', ':') returns a string result
-   * strSrc = "string1:string2:string3:"
-   * <p>
-   * Example2, If strSrc = "string1;;string2;string3;",
-   * then strSrc = replace(strSrc, ';', ':') returns a string result
-   * strSrc = "string1::::string2:string3:"
-   * <p>
-   * Example3, If strSrc = "string1;string2:string3;",
-   * then strSrc = replace(strSrc, ';', ':') returns a string result
-   * strSrc = "string1:string2::string3:"
+   * <p>Example1, If strSrc = "string1;string2;string3;", then strSrc = replace(strSrc, ';', ':')
+   * returns a string result strSrc = "string1:string2:string3:"
    *
-   * @param   text     the string in which <code>oldChr</code> should be
-   * replaced with  <code>newChr</code>. If this is <code>null</code>, return
-   * value is <code>null</code>.  May be empty.
-   * @param   oldChr   the character to be replaced.
-   * @param   newChr   the character to replace with.
+   * <p>Example2, If strSrc = "string1;;string2;string3;", then strSrc = replace(strSrc, ';', ':')
+   * returns a string result strSrc = "string1::::string2:string3:"
    *
-   * @return  The modified string.  It will be <code>null</code> if the
-   * supplied <code>text</code> is <code>null</code>.
+   * <p>Example3, If strSrc = "string1;string2:string3;", then strSrc = replace(strSrc, ';', ':')
+   * returns a string result strSrc = "string1:string2::string3:"
+   *
+   * @param text the string in which <code>oldChr</code> should be replaced with <code>newChr</code>
+   *     . If this is <code>null</code>, return value is <code>null</code>. May be empty.
+   * @param oldChr the character to be replaced.
+   * @param newChr the character to replace with.
+   * @return The modified string. It will be <code>null</code> if the supplied <code>text</code> is
+   *     <code>null</code>.
    */
   public static String replace(String text, char oldChr, char newChr) {
     if (text == null) return null;
@@ -212,22 +197,17 @@ public class PSStringOperation {
   }
 
   /**
-   * Gets list of values from given text by splitting it using the passed in
-   * separator. If the separator is escaped by itself, it just unescapes that
-   * and doesn't split at that location.
-   * <br>
-   * For Example if you call getSplittedList(text, ';') where text is
-   * "Testing split text;and;not split;;text" will return you a list of strings
-   * like these "Testing split text", "and", "not split;text".
+   * Gets list of values from given text by splitting it using the passed in separator. If the
+   * separator is escaped by itself, it just unescapes that and doesn't split at that location. <br>
+   * For Example if you call getSplittedList(text, ';') where text is "Testing split text;and;not
+   * split;;text" will return you a list of strings like these "Testing split text", "and", "not
+   * split;text".
    *
    * @param text the text which should be split, may not be <code>null</code>.
    * @param separator separator used for splitting.
-   *
    * @return list of splitted strings, never <code>null</code>, may be empty.
-   *
    * @throws IllegalArgumentException if <code>text</code> is <code>null</code>
-   *
-   **/
+   */
   public static List<String> getSplittedList(String text, char separator) {
     if (text == null)
       throw new IllegalArgumentException("the text which should be splitted may not be null");
@@ -279,11 +259,11 @@ public class PSStringOperation {
   }
 
   /**
-   * Convenience method that calls {@link #getSplittedList(String, char)
-   * getSplittedList(text, separator.charAt(0))}.
+   * Convenience method that calls {@link #getSplittedList(String, char) getSplittedList(text,
+   * separator.charAt(0))}.
    *
-   * @param separator Never <code>null</code> or empty. Only the first char
-   * is used as the seperator.
+   * @param separator Never <code>null</code> or empty. Only the first char is used as the
+   *     seperator.
    */
   public static List<String> getSplittedList(String text, String separator) {
     if (null == separator || separator.length() < 1) {
@@ -293,21 +273,19 @@ public class PSStringOperation {
   }
 
   /**
-   * Appends list of values by putting separator in between them. If separator
-   * is part of the value in the list, it will be escaped by itself.
-   * <p>
-   * For Example, if the list of values to be appended are "Simple", "Test",
-   * "For", "Append;List" and if append(values,";") is called it returns a
-   * string like this "Simple;Test;For;Append;;List".
+   * Appends list of values by putting separator in between them. If separator is part of the value
+   * in the list, it will be escaped by itself.
+   *
+   * <p>For Example, if the list of values to be appended are "Simple", "Test", "For", "Append;List"
+   * and if append(values,";") is called it returns a string like this
+   * "Simple;Test;For;Append;;List".
    *
    * @param values list of values to be appended, may not be <code>null</code>
-   * @param separator the separator with which list of values to be appended,
-   * If it is <code>null</code> default separator ";" will be used.
-   *
+   * @param separator the separator with which list of values to be appended, If it is <code>null
+   *     </code> default separator ";" will be used.
    * @return appended list of values, may be empty, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if list of values is <code>null</code>.
-   **/
+   */
   public static String append(List<String> values, String separator) {
     if (values == null) throw new IllegalArgumentException("values to append can not be null");
 
@@ -336,9 +314,8 @@ public class PSStringOperation {
    * Converts the input string to proper case. For example, strVal = "Simba is a lion";
    * toProperCase(strVal) returns a string "Simba Is A Lion".
    *
-   * @param   strVal   the input string
-   *
-   * @return           the string having been properly cased
+   * @param strVal the input string
+   * @return the string having been properly cased
    */
   public static String toProperCase(String strVal) {
     if (strVal == null) return null;
@@ -382,43 +359,39 @@ public class PSStringOperation {
   }
 
   /**
-   * Convenience version of {@link #dateFormat(String, java.util.Date, Locale)}
-   * that calls <code>dateFormat(strFormat, oneDate, null)</code> and returns
-   * the result.
+   * Convenience version of {@link #dateFormat(String, java.util.Date, Locale)} that calls <code>
+   * dateFormat(strFormat, oneDate, null)</code> and returns the result.
    */
   public static String dateFormat(String strFormat, java.util.Date oneDate) {
     return dateFormat(strFormat, oneDate, null);
   }
 
   /**
-   * Format a reference date into a desired form. A valid format pattern, in this
-   * case, strFormat, should follow the rule defined in the document comment of
-   * java.text.SimpleDateFormat. In addition to follow the rule, the user bears
-   * the responsibility for making a valid pattern good. MM-dd-yyyy is a good
-   * pattern, but yy-MM-yyyy-dd is not a good one, although it could be a valid one.
-   * <p>
-   * Warning: try to avoid two-digit-year pattern like yy, instead, use yyyy to
-   * play safe. Remember, 99 as year is ambiguous, no one knows whether the year is
-   * 1999, 2099, or just 99.
-   * <p>
-   * Example 1, suppose strFormat = "EEE, d MMM yyyy HH:mm:ss"; and oneDate is the
-   * object representing "1999-12-15 19:32:12", then dateFormat(strFormat, oneDate)
-   * returns a string "Wed, 15 Dec 1999 19:32:12".
-   * <p>
-   * Example 2, suppose strFormat = "yyyy-MMMM-dd 'at' hh:mm:ss aaa"; and oneDate is
-   * the object representing "1999-12-15 19:32:12", then dateFormat(strFormat, oneDate)
-   * returns a string "1999-December-15 at 07:32:12 PM".
+   * Format a reference date into a desired form. A valid format pattern, in this case, strFormat,
+   * should follow the rule defined in the document comment of java.text.SimpleDateFormat. In
+   * addition to follow the rule, the user bears the responsibility for making a valid pattern good.
+   * MM-dd-yyyy is a good pattern, but yy-MM-yyyy-dd is not a good one, although it could be a valid
+   * one.
+   *
+   * <p>Warning: try to avoid two-digit-year pattern like yy, instead, use yyyy to play safe.
+   * Remember, 99 as year is ambiguous, no one knows whether the year is 1999, 2099, or just 99.
+   *
+   * <p>Example 1, suppose strFormat = "EEE, d MMM yyyy HH:mm:ss"; and oneDate is the object
+   * representing "1999-12-15 19:32:12", then dateFormat(strFormat, oneDate) returns a string "Wed,
+   * 15 Dec 1999 19:32:12".
+   *
+   * <p>Example 2, suppose strFormat = "yyyy-MMMM-dd 'at' hh:mm:ss aaa"; and oneDate is the object
+   * representing "1999-12-15 19:32:12", then dateFormat(strFormat, oneDate) returns a string
+   * "1999-December-15 at 07:32:12 PM".
+   *
    * <p>
    *
-   * @param   strFormat   the intended new format to display date
-   * @param   oneDate     the reference date in any known format
-   *
-   * @param   outputLocale     Locale to use to formatting the date, may be
-   * <code>null</code>, in which case system default locale is used.
-   *
-   * @return              a string of date with the format defined by strFormat
-   *
-   * @throws  IllegalArgumentException    if oneDate is <code>null</code>.
+   * @param strFormat the intended new format to display date
+   * @param oneDate the reference date in any known format
+   * @param outputLocale Locale to use to formatting the date, may be <code>null</code>, in which
+   *     case system default locale is used.
+   * @return a string of date with the format defined by strFormat
+   * @throws IllegalArgumentException if oneDate is <code>null</code>.
    */
   public static String dateFormat(String strFormat, Date oneDate, Locale outputLocale) {
     if (oneDate == null) {

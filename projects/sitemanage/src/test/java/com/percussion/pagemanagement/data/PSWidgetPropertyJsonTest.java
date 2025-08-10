@@ -18,8 +18,8 @@
 package com.percussion.pagemanagement.data;
 
 import static com.percussion.share.dao.PSSerializerUtils.*;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,33 +28,31 @@ import org.junit.jupiter.api.Test;
 
 public class PSWidgetPropertyJsonTest {
 
-    private final String number = "234";
-    private final String string = "'hello'";
-    private final String list = "['a','b','c']";
-    private final String empty = "";
+  private final String number = "234";
+  private final String string = "'hello'";
+  private final String list = "['a','b','c']";
+  private final String empty = "";
 
-    @Test
-    public void testJson() throws Exception {
-        log.debug(getObjectFromJson(list));
-        log.debug(getObjectFromJson(number));
-        log.debug(getObjectFromJson(string));
-        log.debug(getJsonFromObject(42));
-        log.debug(getJsonFromObject("42"));
+  @Test
+  public void testJson() throws Exception {
+    log.debug(getObjectFromJson(list));
+    log.debug(getObjectFromJson(number));
+    log.debug(getObjectFromJson(string));
+    log.debug(getJsonFromObject(42));
+    log.debug(getJsonFromObject("42"));
 
-        var trueJson = getJsonFromObject(Boolean.TRUE);
-        var trueObject = getObjectFromJson(trueJson);
-        assertTrue(trueObject instanceof Boolean);
-        assertTrue((Boolean) trueObject);
-    }
+    var trueJson = getJsonFromObject(Boolean.TRUE);
+    var trueObject = getObjectFromJson(trueJson);
+    assertTrue(trueObject instanceof Boolean);
+    assertTrue((Boolean) trueObject);
+  }
 
-    @Test
-    public void testEmptyJsonString() throws Exception {
-        var o = getObjectFromJson(empty);
-        assertThat(o, nullValue());
-    }
+  @Test
+  public void testEmptyJsonString() throws Exception {
+    var o = getObjectFromJson(empty);
+    assertThat(o, nullValue());
+  }
 
-    /**
-     * The log instance to use for this class, never null.
-     */
-    private static final Logger log = LogManager.getLogger(PSWidgetPropertyJsonTest.class);
+  /** The log instance to use for this class, never null. */
+  private static final Logger log = LogManager.getLogger(PSWidgetPropertyJsonTest.class);
 }

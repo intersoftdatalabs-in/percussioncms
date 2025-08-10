@@ -17,10 +17,7 @@
 
 package com.percussion.taxonomy.domain;
 
-/**
- * Taxonomy Attribute_lang class to represent its attribute language
- *
- */
+/** Taxonomy Attribute_lang class to represent its attribute language */
 public class Attribute_lang {
 
   private int id;
@@ -30,7 +27,8 @@ public class Attribute_lang {
 
   /**
    * Returns unique id of the
-   *  @returns id - unique id of attribute language
+   *
+   * @returns id - unique id of attribute language
    */
   public int getId() {
     return id;
@@ -38,6 +36,7 @@ public class Attribute_lang {
 
   /**
    * Set the id to uniquely identify a language
+   *
    * @param id
    */
   public void setId(int id) {
@@ -53,6 +52,7 @@ public class Attribute_lang {
 
   /**
    * Set a name of the language
+   *
    * @param name
    */
   public void setName(String name) {
@@ -61,6 +61,7 @@ public class Attribute_lang {
 
   /**
    * Returns attribute
+   *
    * @return attribute
    */
   public Attribute getAttribute() {
@@ -69,6 +70,7 @@ public class Attribute_lang {
 
   /**
    * Set attribute value
+   *
    * @param attribute
    */
   public void setAttribute(Attribute attribute) {
@@ -77,6 +79,7 @@ public class Attribute_lang {
 
   /**
    * Returns language of an attribute
+   *
    * @return language
    */
   public Language getLanguage() {
@@ -85,15 +88,14 @@ public class Attribute_lang {
 
   /**
    * Set attribute language
+   *
    * @param language
    */
   public void setLanguage(Language language) {
     this.language = language;
   }
 
-  /**
-   * Returns a string representation of the object.
-   */
+  /** Returns a string representation of the object. */
   /*   public String toString(){
       return "Attribute Lang ----------------------\n"+
               "ID: "+id+"\n"+

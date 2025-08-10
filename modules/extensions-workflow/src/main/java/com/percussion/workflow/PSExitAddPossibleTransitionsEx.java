@@ -59,17 +59,16 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   private static final Logger log = LogManager.getLogger(PSExitAddPossibleTransitionsEx.class);
 
   /**
-   * This class is used to save and restore workflow state information
-   * during a single set of related requests.
+   * This class is used to save and restore workflow state information during a single set of
+   * related requests.
    */
   static class PSWorkflowStateCacheKey {
-    /**
-     * The workflow and state being cached
-     */
+    /** The workflow and state being cached */
     private int m_workflowid, m_stateid;
 
     /**
      * Ctor
+     *
      * @param w Workflow id
      * @param s State id
      */
@@ -103,119 +102,85 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   }
 
   /**
-   * The internal name of the Check-in button. Will not change. The name is
-   * 'checkin'. This name will be set as the name attribute of the
-   * ActionLink for this button in the output doc.
+   * The internal name of the Check-in button. Will not change. The name is 'checkin'. This name
+   * will be set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String CHECKIN_BUTTON_NAME = "checkin";
 
   /**
-   * The internal name of the Check-out button. Will not change. The name is
-   * 'checkout'. This name will be set as the name attribute of the
-   * ActionLink for this button in the output doc.
+   * The internal name of the Check-out button. Will not change. The name is 'checkout'. This name
+   * will be set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String CHECKOUT_BUTTON_NAME = "checkout";
 
   /**
-   * The internal name of the Force Check-in button. Will not change.
-   * The name is 'forcecheckin'. This name will be set as the name
-   * attribute of the ActionLink for this button in the output doc.
+   * The internal name of the Force Check-in button. Will not change. The name is 'forcecheckin'.
+   * This name will be set as the name attribute of the ActionLink for this button in the output
+   * doc.
    */
   public static final String FORCE_CHECKIN_BUTTON_NAME = "forcecheckin";
 
   /**
-   * The internal name of the Edit button. Will not change. The name is
-   * 'edit'. This name will be set as the name attribute of the
-   * ActionLink for this button in the output doc.
+   * The internal name of the Edit button. Will not change. The name is 'edit'. This name will be
+   * set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String EDIT_BUTTON_NAME = "edit";
 
   /**
-   * The internal name of the Preview button. Will not change. The name is
-   * 'preview'. This name will be set as the name attribute of the
-   * ActionLink for this button in the output doc.
+   * The internal name of the Preview button. Will not change. The name is 'preview'. This name will
+   * be set as the name attribute of the ActionLink for this button in the output doc.
    */
   public static final String PREVIEW_BUTTON_NAME = "preview";
 
   /**
-   * This is an inner class to encapsulate the parameters. We cannot keep
-   * these  as class variables due to threading issues. We instantiate this
-   * object in the main processrequest method (called by server) and pass
-   * around the  methods. This is meant for convenience only.
+   * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
+   * due to threading issues. We instantiate this object in the main processrequest method (called
+   * by server) and pass around the methods. This is meant for convenience only.
    */
   private static class Params {
-    /**
-     * data base connection
-     */
+    /** data base connection */
     public Connection m_connection = null;
 
-    /**
-     * the user for whom the transitions are being computed
-     */
+    /** the user for whom the transitions are being computed */
     public String m_userName = null;
 
-    /**
-     * the status document element name
-     */
+    /** the status document element name */
     public String m_statusDocElementName = null;
 
-    /**
-     * the content ID Name node name
-     */
+    /** the content ID Name node name */
     public String m_contentIDNodeName = null;
 
-    /**
-     * the content ID Name
-     */
+    /** the content ID Name */
     public String m_contentIDName = null;
 
-    /**
-     * Comma-separated list of roles to which the user belongs
-     */
+    /** Comma-separated list of roles to which the user belongs */
     public String m_roleNameList = "";
 
-    /**
-     * <CODE>true</CODE> if the user is an administrator,
-     * <CODE>false</CODE> if not.
-     */
+    /** <CODE>true</CODE> if the user is an administrator, <CODE>false</CODE> if not. */
     public boolean m_isAdministrator = false;
 
-    /**
-     * the assignment type for the user in their "new" role
-     */
+    /** the assignment type for the user in their "new" role */
     public int m_assignmentType = PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
 
-    /**
-     * Comma-separated list of roles in which the user acts
-     */
+    /** Comma-separated list of roles in which the user acts */
     public List m_actorRoleNameList = null;
 
-    /**
-     * Comma-separated list of roles in which the user acts
-     */
+    /** Comma-separated list of roles in which the user acts */
     public String m_actorRoleNames = "";
 
-    /**
-     * Comma-separated list of roles in which the user acts
-     */
+    /** Comma-separated list of roles in which the user acts */
     public boolean m_addAssignmentInfoOnly = false;
 
-    /**
-     * user's login community
-     */
+    /** user's login community */
     public int m_userCommunity = -1;
 
-    /**
-     * The content status context for the current content item.
-     */
+    /** The content status context for the current content item. */
     public PSContentStatusContext m_contentStatusCtx = null;
   }
 
   private static String ms_actionTriggerName = "";
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String m_fullExtensionName = "";
 
   /* Set the parameter count to not initialized */
@@ -321,17 +286,11 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   }
 
   /**
-   * Gets the user's assigment type from the supplied request context and
-   * content id.
+   * Gets the user's assigment type from the supplied request context and content id.
    *
-   * @param request    The request context, it may not be <code>null</code>.
-   *
-   * @param contentid  ID of the content item, it may not be empty or
-   *    <code>null</code>.
-   *
-   * @return  The highest assignment type for the user, based on the roles in
-   *    which they are acting.
-   *
+   * @param request The request context, it may not be <code>null</code>.
+   * @param contentid ID of the content item, it may not be empty or <code>null</code>.
+   * @return The highest assignment type for the user, based on the roles in which they are acting.
    * @throws PSExtensionProcessingException if an error occurs.
    */
   public static int getAssignmentType(IPSRequestContext request, String contentid)
@@ -549,11 +508,8 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * Get the user information from the supplied request context.
    *
    * @param request The request context, assume not <code>null</code>.
-   *
-   * @param localParams Class used to contain the returned values, which are
-   *    <code>m_isAdministrator</code>,
-   *    <code>m_roleNameList</code>,
-   *    <code>m_userCommunity</code>.
+   * @param localParams Class used to contain the returned values, which are <code>m_isAdministrator
+   *     </code>, <code>m_roleNameList</code>, <code>m_userCommunity</code>.
    */
   private static void getUserInfo(IPSRequestContext request, Params localParams) {
     String assignmentTypeString =
@@ -582,27 +538,17 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   }
 
   /**
-   * The the content info for the supplied content-id. The returned info
-   * is in the <code>localParams</code> parameters.
+   * The the content info for the supplied content-id. The returned info is in the <code>localParams
+   * </code> parameters.
    *
-   * @param contentID     ID of the content item
-   *
-   * @param connection    open data base connection, assume not
-   *    <code>null</code>.
-   *
-   * @param userName      The user's name, assume not <CODE>null</CODE>
-   *
-   * @param roleNameList  A comma-delimited list of the user's roles,
-   *    assume not <code>null</code>, but may be empty.
-   *
-   * @param localParams Class used to contain the returned values, which are
-   *    <code>m_contentStatusCtx</code>,
-   *    <code>m_isAdministrator</code>,
-   *    <code>m_checkoutUserName</code>
-   *
-   * @return <code>true</code> if successful get the content info;
-   *    <code>false</code> otherwise.
-   *
+   * @param contentID ID of the content item
+   * @param connection open data base connection, assume not <code>null</code>.
+   * @param userName The user's name, assume not <CODE>null</CODE>
+   * @param roleNameList A comma-delimited list of the user's roles, assume not <code>null</code>,
+   *     but may be empty.
+   * @param localParams Class used to contain the returned values, which are <code>
+   *     m_contentStatusCtx</code>, <code>m_isAdministrator</code>, <code>m_checkoutUserName</code>
+   * @return <code>true</code> if successful get the content info; <code>false</code> otherwise.
    * @throws SQLException if an sql error occurs.
    */
   private static boolean getContentInfo(
@@ -636,16 +582,12 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   }
 
   /**
-   * Creates the Param element in the ContentEditor dtd, using the supplied
-   * name and value.
+   * Creates the Param element in the ContentEditor dtd, using the supplied name and value.
    *
-   * @param doc The document to which this node will eventually belong.
-   *    Assumed not <code>null</code>.
-   *
+   * @param doc The document to which this node will eventually belong. Assumed not <code>null
+   *     </code>.
    * @param name The name of the HTML parameter, never empty.
-   *
    * @param value The content of the parameter. May be <code>null</code>.
-   *
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   private Node createParamNode(Document doc, String name, String value) {
@@ -662,14 +604,12 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * Adds assigned role ifo to the supplied doc
    *
    * @param doc The doc, assumed not <code>null</code>.
-   * @param elemParent The element to which info is appended, assumed not
-   * <code>null</code>.
+   * @param elemParent The element to which info is appended, assumed not <code>null</code>.
    * @param nWorkflowAppID The workflow id of the item being processed.
    * @param stateid The state id of the item being processed.
    * @param contentId The content id of the item being processed.
    * @param connection The connection to use, assumed not <code>null</code>.
    * @param request The request to use, assumed not <code>null</code>.
-   *
    * @throws SQLException
    */
   private void addAssignedRolesInfo(
@@ -800,10 +740,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       buttonLabel = CHECKIN_BUTTON_LABEL;
       buttonName = CHECKIN_BUTTON_NAME;
     } else {
-      /**
-       * Only add the check-out action if the current content item is not
-       * in a public state.
-       */
+      /** Only add the check-out action if the current content item is not in a public state. */
       if (!stateContext.getIsValid()) {
         triggerValue = PSWorkFlowUtils.properties.getProperty(PSWorkFlowUtils.TRIGGER_CHECK_OUT);
         buttonLabel = CHECKOUT_BUTTON_LABEL;
@@ -824,8 +761,8 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     String tmpLabel = null;
 
     /**
-     * If the trigger value is <code>null</code> now, we do not add an
-     * action for checkin or chechout.
+     * If the trigger value is <code>null</code> now, we do not add an action for checkin or
+     * chechout.
      */
     if (triggerValue != null) {
       params.put(ms_actionTriggerName, triggerValue);
@@ -924,28 +861,18 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   /**
    * Creates an ActionLink element according to the ContentEditor dtd.
    *
-   * @param doc The document to which the element will eventually be added.
-   *    Assumed not to be <code>null</code>.
-   *
-   * @param label The display text for the action widget (usually a button).
-   *    Assumed not to be <code>null</code> or empty.
-   *
-   * @param name The internal name of the button. If not <code>null</code> or
-   *    empty, then the name param is added to the generated ActionLink
-   *    element.
-   *
-   * @param params A list conting 0 or more Map.Entry objects, whose key is
-   *    the param name and whose value is the param value. If the key is
-   *    <code>null</code>, it is skipped. If the value is <code>null</code>,
-   *    the parameter is added with an empty value.
-   *
-   * @param isTransition A flag to indicate whether this action performs a
-   *    workflow transition or not. If <code>true</code>, an attribute is
-   *    set.
-   *
-   * @param isDisabled A flag to indicate whether this action should be made
-   *    available to the user.
-   *
+   * @param doc The document to which the element will eventually be added. Assumed not to be <code>
+   *     null</code>.
+   * @param label The display text for the action widget (usually a button). Assumed not to be
+   *     <code>null</code> or empty.
+   * @param name The internal name of the button. If not <code>null</code> or empty, then the name
+   *     param is added to the generated ActionLink element.
+   * @param params A list conting 0 or more Map.Entry objects, whose key is the param name and whose
+   *     value is the param value. If the key is <code>null</code>, it is skipped. If the value is
+   *     <code>null</code>, the parameter is added with an empty value.
+   * @param isTransition A flag to indicate whether this action performs a workflow transition or
+   *     not. If <code>true</code>, an attribute is set.
+   * @param isDisabled A flag to indicate whether this action should be made available to the user.
    * @return The resulting element with its children, never <code>null</code>.
    */
   private static Node createActionLink(
@@ -996,42 +923,26 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   /**
    * Gets the user's assigment type and the roles the user acts in
    *
-   * @param workflowID    ID of the workflow
-   *
-   * @param contentID     ID of the content item
-   *
+   * @param workflowID ID of the workflow
+   * @param contentID ID of the content item
    * @param itemCommunityID ID of the item's community
-   *
-   * @param connection    open data base connection, assume not
-   *    <code>null</code>.
-   *
-   * @param stateid       ID of the state
-   *
-   * @param userName      The user's name, assume not <CODE>null</CODE>
-   *
-   * @param userCommunityID The community-id of the authenticated user in the
-   *   session. It may be <code>-1</code> if the community object has not
-   *   been set in the session of the request context.
-   *
-   * @param roleNameList  A comma-delimited list of the user's roles,
-   *    assume not <code>null</code>, but may be empty.
-   *
-   * @param isAdministrator <code>true</code> if the current user is
-   *   administrator type in the request context; <code>false</code> otherwise.
-   *
-   * @param localParams   Class used to return some values. It may be
-   *                      <code>null</code>. If it is not <code>null</code>,
-   *                      then the returned values are:
-   *                       <code>m_assignmentType</code>,
-   *                       <code>m_actorRoleNames</code>,
-   *                       <code>m_actorRoleNameList</code>.
-   * @param requestContext the requestContext, assumed not <code>null</code>,
-   * is used to store information across calls during the same request.
-   *
-   * @return              highest assignment type for the user, based on
-   *                      the roles in which they are acting.
-   *
-   * @throws                   SQLException if a SQL error occurs
+   * @param connection open data base connection, assume not <code>null</code>.
+   * @param stateid ID of the state
+   * @param userName The user's name, assume not <CODE>null</CODE>
+   * @param userCommunityID The community-id of the authenticated user in the session. It may be
+   *     <code>-1</code> if the community object has not been set in the session of the request
+   *     context.
+   * @param roleNameList A comma-delimited list of the user's roles, assume not <code>null</code>,
+   *     but may be empty.
+   * @param isAdministrator <code>true</code> if the current user is administrator type in the
+   *     request context; <code>false</code> otherwise.
+   * @param localParams Class used to return some values. It may be <code>null</code>. If it is not
+   *     <code>null</code>, then the returned values are: <code>m_assignmentType</code>, <code>
+   *     m_actorRoleNames</code>, <code>m_actorRoleNameList</code>.
+   * @param requestContext the requestContext, assumed not <code>null</code>, is used to store
+   *     information across calls during the same request.
+   * @return highest assignment type for the user, based on the roles in which they are acting.
+   * @throws SQLException if a SQL error occurs
    */
   @SuppressWarnings("unchecked")
   private static int getAssignmentInfo(
@@ -1119,13 +1030,9 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
    * @param connection open data base connection, may not be <code>null</code>.
    * @param stateid ID of the state
    * @param userName The user's name, may not be <CODE>null</CODE> or empty.
-   * @param roleNameList A comma-delimited list of the user's roles, may not be
-   * <code>null</code>.
+   * @param roleNameList A comma-delimited list of the user's roles, may not be <code>null</code>.
    * @param req The current request, may not be <code>null</code>.
-   *
-   * @return highest assignment type for the user, based on the roles in which
-   * they are acting.
-   *
+   * @return highest assignment type for the user, based on the roles in which they are acting.
    * @throws SQLException if a SQL error occurs
    */
   public static int getAssignmentType(
@@ -1193,9 +1100,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     }
   }
 
-  /**
-   * Element and attribute names for the workflow information node.
-   */
+  /** Element and attribute names for the workflow information node. */
   public static final String ELEMENT_WORKFLOWINFO = "BasicInfo";
 
   public static final String ATTRIB_CONTENTID = "contentId";
@@ -1219,19 +1124,13 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   private static final String EDIT_BUTTON_LABEL = "Edit";
   private static final String PREVIEW_BUTTON_LABEL = "Preview";
 
-  /**
-   * XML attribute value that represents true
-   */
+  /** XML attribute value that represents true */
   private static final String ATTRIB_BOOLEAN_TRUE = "yes";
 
-  /**
-   * XML attribute value that represents false
-   */
+  /** XML attribute value that represents false */
   private static final String ATTRIB_BOOLEAN_FALSE = "no";
 
-  /**
-   * XML attribute value that represents false
-   */
+  /** XML attribute value that represents false */
   private static final String ATTRIB_HIDE = "hide";
 
   public static final String ELEMENT_USERNAME = "UserName";
@@ -1243,9 +1142,7 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
   public static final String ELEMENT_ASSIGNEDROLE = "Role";
   public static final String ATTRIB_ROLEID = "roleId";
 
-  /**
-   * The internal name of the command handler that processes workflow actions.
-   */
+  /** The internal name of the command handler that processes workflow actions. */
   private static final String WORKFLOW_COMMAND = "workflow";
 
   private static final String PREVIEW_COMMAND = "preview";

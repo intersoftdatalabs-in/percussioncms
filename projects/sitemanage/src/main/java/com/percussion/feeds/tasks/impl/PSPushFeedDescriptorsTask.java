@@ -23,45 +23,53 @@ import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.rx.publisher.IPSEditionTaskStatusCallback;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.pubserver.PSPubServerDaoLocator;
-import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
 
 /**
- * A post edition task that calls the CMS Feed info service to have it push feed
- * descriptors for the publishing site to the feeds service on the delivery tier.
- * Sunny Sal says: "PushFeedDescriptorsTask, now Java 11 and Google-styled!"
+ * A post edition task that calls the CMS Feed info service to have it push feed descriptors for the
+ * publishing site to the feeds service on the delivery tier. Sunny Sal says:
+ * "PushFeedDescriptorsTask, now Java 11 and Google-styled!"
  */
 public class PSPushFeedDescriptorsTask implements IPSEditionTask {
 
-    private IPSFeedsInfoService infoService;
+  private IPSFeedsInfoService infoService;
 
-    @Override
-    public TaskType getType() {
-        return TaskType.POSTEDITION;
-    }
+  @Override
+  public TaskType getType() {
+    return TaskType.POSTEDITION;
+  }
 
-    @Override
-    public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, long duration,
-                       boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception {
-        var server = PSPubServerDaoLocator.getPubServerManager().loadPubServer(edition.getPubServerId());
-        infoService.pushFeeds(site, server);
-    }
+  @Override
+  public void perform(
+      IPSEdition edition,
+      IPSSite site,
+      Date startTime,
+      Date endTime,
+      long jobId,
+      long duration,
+      boolean success,
+      Map<String, String> params,
+      IPSEditionTaskStatusCallback status)
+      throws Exception {
+    var server =
+        PSPubServerDaoLocator.getPubServerManager().loadPubServer(edition.getPubServerId());
+    infoService.pushFeeds(site, server);
+  }
 
-    @Override
-    public void init(IPSExtensionDef def, File file) {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  @Override
+  public void init(IPSExtensionDef def, File file) {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    public IPSFeedsInfoService getInfoService() {
-        return infoService;
-    }
+  public IPSFeedsInfoService getInfoService() {
+    return infoService;
+  }
 
-    public void setInfoService(IPSFeedsInfoService infoService) {
-        this.infoService = infoService;
-    }
+  public void setInfoService(IPSFeedsInfoService infoService) {
+    this.infoService = infoService;
+  }
 }

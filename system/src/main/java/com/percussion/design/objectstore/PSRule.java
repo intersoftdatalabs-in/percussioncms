@@ -24,15 +24,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXRule DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXRule DTD in BasicObjects.dtd. */
 public class PSRule extends PSComponent {
   /**
    * Creates a new rule objects.
    *
-   * @param extensionRules the extension rule set, not <code>null</code>
-   *    only UDF's are allowed.
+   * @param extensionRules the extension rule set, not <code>null</code> only UDF's are allowed.
    */
   public PSRule(PSExtensionCallSet extensionRules) {
     setExtensionRules(extensionRules);
@@ -41,8 +38,8 @@ public class PSRule extends PSComponent {
   /**
    * Creates a new rule objects.
    *
-   * @param conditionalRules a collection of PSConditional objects,
-   *    not <code>null</code>, might be empty.
+   * @param conditionalRules a collection of PSConditional objects, not <code>null</code>, might be
+   *     empty.
    */
   public PSRule(PSCollection conditionalRules) {
     setConditionalRules(conditionalRules);
@@ -51,14 +48,10 @@ public class PSRule extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRule(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -66,8 +59,8 @@ public class PSRule extends PSComponent {
   }
 
   /**
-   * Constructor that can be removed once all four classes that call
-   * new PSRule().getClass() are switched to PSRule.class
+   * Constructor that can be removed once all four classes that call new PSRule().getClass() are
+   * switched to PSRule.class
    */
   protected PSRule() {}
 
@@ -91,8 +84,7 @@ public class PSRule extends PSComponent {
   /**
    * Is this rule an extension set rule?
    *
-   * @return <code>true</code> if this rule is an
-   * extension set rule, else <code>false</code>.
+   * @return <code>true</code> if this rule is an extension set rule, else <code>false</code>.
    */
   public boolean isExtensionSetRule() {
     return (m_extensionRules != null);
@@ -124,8 +116,7 @@ public class PSRule extends PSComponent {
   /**
    * Get the conditional rules.
    *
-   * @return the conditional rules, never <code>null</code> might
-   *    be empty.
+   * @return the conditional rules, never <code>null</code> might be empty.
    */
   public Iterator getConditionalRules() {
     return m_conditionalRules.iterator();
@@ -134,8 +125,7 @@ public class PSRule extends PSComponent {
   /**
    * Get the conditional rules.
    *
-   * @return the conditional rules, never <code>null</code> might
-   *    be empty.
+   * @return the conditional rules, never <code>null</code> might be empty.
    */
   public PSCollection getConditionalRulesCollection() {
     return m_conditionalRules;
@@ -144,8 +134,7 @@ public class PSRule extends PSComponent {
   /**
    * Set new conditional rules.
    *
-   * @param conditionalRules a collection of PSConditional objects, might be
-   *    <code>null</code>.
+   * @param conditionalRules a collection of PSConditional objects, might be <code>null</code>.
    */
   private void setConditionalRules(PSCollection conditionalRules) {
     if (!conditionalRules.getMemberClassName().equals(m_conditionalRules.getMemberClassName()))
@@ -158,8 +147,7 @@ public class PSRule extends PSComponent {
   /**
    * Get the extension rules.
    *
-   * @return the extension rules, might be
-   *    <code>null</code>.
+   * @return the extension rules, might be <code>null</code>.
    */
   public PSExtensionCallSet getExtensionRules() {
     return m_extensionRules;
@@ -195,9 +183,8 @@ public class PSRule extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSRule, not <code>null</code>.
    */
@@ -219,8 +206,7 @@ public class PSRule extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSRule)) return false;
@@ -245,7 +231,6 @@ public class PSRule extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -321,7 +306,6 @@ public class PSRule extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -373,18 +357,15 @@ public class PSRule extends PSComponent {
   public static final int BOOLEAN_OR = 1;
 
   /**
-   * An array of XML attribute values for the boolean. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the boolean. They are specified at the index of the
+   * specifier.
    */
   private static final String[] BOOLEAN_ENUM = {"and", "or"};
 
   /** The operator for how to combine this with the next rule. */
   private int m_operator = BOOLEAN_AND;
 
-  /**
-   * A collection of PSConditional objects, never <code>null</code> after
-   * construction.
-   */
+  /** A collection of PSConditional objects, never <code>null</code> after construction. */
   private PSCollection m_conditionalRules = new PSCollection(PSConditional.class);
 
   /** A set of extensions, might be <code>null</code>. */

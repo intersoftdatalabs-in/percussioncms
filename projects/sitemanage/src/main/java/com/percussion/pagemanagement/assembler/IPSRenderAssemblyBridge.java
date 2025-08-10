@@ -25,8 +25,8 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * Low-level API that works directly with the Rhythmyx Assembly engine.
- * All render methods assume editMode unless they expose the flag in their signature.
+ * Low-level API that works directly with the Rhythmyx Assembly engine. All render methods assume
+ * editMode unless they expose the flag in their signature.
  *
  * <p>Implementations must be thread-safe and stateless.
  *
@@ -34,118 +34,124 @@ import com.percussion.utils.guid.IPSGuid;
  */
 public interface IPSRenderAssemblyBridge {
 
-    /**
-     * Renders a page object.
-     *
-     * @param page never {@code null}
-     * @param editMode edit mode flag
-     * @param scriptsOff disables scripts if true
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     */
-    String renderPage(PSPage page, boolean editMode, boolean scriptsOff) throws IPSPageService.PSPageException;
+  /**
+   * Renders a page object.
+   *
+   * @param page never {@code null}
+   * @param editMode edit mode flag
+   * @param scriptsOff disables scripts if true
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   */
+  String renderPage(PSPage page, boolean editMode, boolean scriptsOff)
+      throws IPSPageService.PSPageException;
 
-    /**
-     * Renders a template object. Sets editMode to {@code true}.
-     *
-     * @param template never {@code null}
-     * @param scriptsOff disables scripts if true
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     */
-    String renderTemplate(PSTemplate template, boolean scriptsOff) throws IPSPageService.PSPageException;
+  /**
+   * Renders a template object. Sets editMode to {@code true}.
+   *
+   * @param template never {@code null}
+   * @param scriptsOff disables scripts if true
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   */
+  String renderTemplate(PSTemplate template, boolean scriptsOff)
+      throws IPSPageService.PSPageException;
 
-    /**
-     * Renders a template with a page. Sets editMode to {@code true}.
-     *
-     * @param template never {@code null}
-     * @param page never {@code null}
-     * @param scriptsOff disables scripts if true
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     */
-    String renderTemplateWithPage(PSTemplate template, PSPage page, boolean scriptsOff) throws IPSPageService.PSPageException;
+  /**
+   * Renders a template with a page. Sets editMode to {@code true}.
+   *
+   * @param template never {@code null}
+   * @param page never {@code null}
+   * @param scriptsOff disables scripts if true
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   */
+  String renderTemplateWithPage(PSTemplate template, PSPage page, boolean scriptsOff)
+      throws IPSPageService.PSPageException;
 
-    /**
-     * Assembles a page by ID.
-     *
-     * @param id not blank (string format of an {@link IPSGuid})
-     * @param editMode edit mode flag
-     * @param scriptsOff disables scripts if true
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     * @throws PSValidationException if validation fails
-     */
-    String renderPage(String id, boolean editMode, boolean scriptsOff) throws IPSPageService.PSPageException, PSValidationException;
+  /**
+   * Assembles a page by ID.
+   *
+   * @param id not blank (string format of an {@link IPSGuid})
+   * @param editMode edit mode flag
+   * @param scriptsOff disables scripts if true
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   * @throws PSValidationException if validation fails
+   */
+  String renderPage(String id, boolean editMode, boolean scriptsOff)
+      throws IPSPageService.PSPageException, PSValidationException;
 
-    /**
-     * Assembles a page by ID, specifying the edited item type.
-     *
-     * @param id not blank
-     * @param editMode edit mode flag
-     * @param scriptsOff disables scripts if true
-     * @param type edited item type
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     * @throws PSValidationException if validation fails
-     */
-    String renderPage(String id, boolean editMode, boolean scriptsOff, EditType type) throws IPSPageService.PSPageException, PSValidationException;
+  /**
+   * Assembles a page by ID, specifying the edited item type.
+   *
+   * @param id not blank
+   * @param editMode edit mode flag
+   * @param scriptsOff disables scripts if true
+   * @param type edited item type
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   * @throws PSValidationException if validation fails
+   */
+  String renderPage(String id, boolean editMode, boolean scriptsOff, EditType type)
+      throws IPSPageService.PSPageException, PSValidationException;
 
-    /**
-     * Renders a template by ID. Sets editMode to {@code true}.
-     *
-     * @param id never {@code null}, empty, or blank
-     * @param scriptsOff disables scripts if true
-     * @return rendered output, never {@code null}
-     * @throws IPSPageService.PSPageException if rendering fails
-     * @throws PSValidationException if validation fails
-     */
-    String renderTemplate(String id, boolean scriptsOff) throws IPSPageService.PSPageException, PSValidationException;
+  /**
+   * Renders a template by ID. Sets editMode to {@code true}.
+   *
+   * @param id never {@code null}, empty, or blank
+   * @param scriptsOff disables scripts if true
+   * @return rendered output, never {@code null}
+   * @throws IPSPageService.PSPageException if rendering fails
+   * @throws PSValidationException if validation fails
+   */
+  String renderTemplate(String id, boolean scriptsOff)
+      throws IPSPageService.PSPageException, PSValidationException;
 
-    /**
-     * Gets the name of the legacy assembly template used to assemble the page/template.
-     * This is for the legacy assembler and is usually configured through Spring.
-     *
-     * @return never {@code null}, empty, or blank
-     */
-    String getDispatchTemplate();
+  /**
+   * Gets the name of the legacy assembly template used to assemble the page/template. This is for
+   * the legacy assembler and is usually configured through Spring.
+   *
+   * @return never {@code null}, empty, or blank
+   */
+  String getDispatchTemplate();
 
-    /**
-     * Gets the ID of the dispatch template.
-     *
-     * @return the ID, never {@code null}
-     * @throws IPSPageService.PSPageException if lookup fails
-     */
-    IPSGuid getDispatchTemplateId() throws IPSPageService.PSPageException;
+  /**
+   * Gets the ID of the dispatch template.
+   *
+   * @return the ID, never {@code null}
+   * @throws IPSPageService.PSPageException if lookup fails
+   */
+  IPSGuid getDispatchTemplateId() throws IPSPageService.PSPageException;
 
-    /**
-     * Gets the {@link IPSAssemblyItem} used for previewing the specified page.
-     *
-     * @param id the page ID, must not be blank
-     * @param editMode edit mode flag
-     * @param scriptsOff disables scripts if true
-     * @param editType edited item type
-     * @return the assembly item, never {@code null}
-     * @throws IPSPageService.PSPageException if lookup fails
-     */
-    IPSAssemblyItem getWorkItemForPreview(String id, boolean editMode, boolean scriptsOff, EditType editType) throws IPSPageService.PSPageException;
+  /**
+   * Gets the {@link IPSAssemblyItem} used for previewing the specified page.
+   *
+   * @param id the page ID, must not be blank
+   * @param editMode edit mode flag
+   * @param scriptsOff disables scripts if true
+   * @param editType edited item type
+   * @return the assembly item, never {@code null}
+   * @throws IPSPageService.PSPageException if lookup fails
+   */
+  IPSAssemblyItem getWorkItemForPreview(
+      String id, boolean editMode, boolean scriptsOff, EditType editType)
+      throws IPSPageService.PSPageException;
 
-    /**
-     * Exception for render assembly bridge errors.
-     */
-    class PSRenderAssemblyBridgeException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+  /** Exception for render assembly bridge errors. */
+  class PSRenderAssemblyBridgeException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
-        public PSRenderAssemblyBridgeException(String message) {
-            super(message);
-        }
-
-        public PSRenderAssemblyBridgeException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSRenderAssemblyBridgeException(Throwable cause) {
-            super(cause);
-        }
+    public PSRenderAssemblyBridgeException(String message) {
+      super(message);
     }
+
+    public PSRenderAssemblyBridgeException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSRenderAssemblyBridgeException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

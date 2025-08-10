@@ -28,21 +28,18 @@ import com.percussion.design.objectstore.PSUIDefinition;
 import java.util.Iterator;
 
 /**
- * This class extracts definition data for <code>PSCoreItem</code> object
- * population.  It parses a <code>PSContentEditor</code> object and populates a
- * <code>PSCoreItem</code> object from that definition.  This cannot be
- * instantiated explicitely by callers.  This also uses a Visitor like pattern,
- * passing itself to acceptable object methods, and those objects understand
- * to call <code>getObject()</code> on this class.
+ * This class extracts definition data for <code>PSCoreItem</code> object population. It parses a
+ * <code>PSContentEditor</code> object and populates a <code>PSCoreItem</code> object from that
+ * definition. This cannot be instantiated explicitely by callers. This also uses a Visitor like
+ * pattern, passing itself to acceptable object methods, and those objects understand to call <code>
+ * getObject()</code> on this class.
  */
 public class PSItemDefExtractor implements IPSVisitor {
   /**
-   * Cannot be instantiated by outsiders.  Does any initialization then calls
-   * processFieldSet();
+   * Cannot be instantiated by outsiders. Does any initialization then calls processFieldSet();
    *
    * @param coreItem - assumed not <code>null</code>
-   * @throws PSCmsException if an error occurs populating the
-   * <code>coreItem</code>
+   * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
    */
   private PSItemDefExtractor(PSCoreItem coreItem) throws PSCmsException {
     m_coreItem = coreItem;
@@ -50,16 +47,13 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * Populates the <code>PSCoreItem</code> with it's definition.  This a
-   * utility method that removes this responsibility from the
-   * <code>PSCoreItem</code>.  This allows high-cohesion in the
-   * <code>PSCoreItem</code> and lowers the coupling between the
-   * <code>PSCoreItem</code> and the <code>com.percussion.objectstore</code>
-   * package.
+   * Populates the <code>PSCoreItem</code> with it's definition. This a utility method that removes
+   * this responsibility from the <code>PSCoreItem</code>. This allows high-cohesion in the <code>
+   * PSCoreItem</code> and lowers the coupling between the <code>PSCoreItem</code> and the <code>
+   * com.percussion.objectstore</code> package.
    *
    * @param coreItem must not be <code>null</code>.
-   * @throws PSCmsException if an error occurs populating the
-   * <code>coreItem</code>
+   * @throws PSCmsException if an error occurs populating the <code>coreItem</code>
    */
   public static void populateItemDefinition(PSCoreItem coreItem) throws PSCmsException {
     if (coreItem == null) throw new IllegalArgumentException("coreItem must not be null");
@@ -68,26 +62,20 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * This is the method that does the work.  Given a <code>PSFieldSet</code>
-   * it will create <code>PSItemFields</code>.  If an element of the
-   * <code>PSFieldSet</code> is another <code>PSFieldSet</code> and is of
-   * type complex child it creates a
-   * <code>PSItemChild</code> and <code>PSItemChildEntry</code> and then
-   * recursively calls itself to add the <code>PSItemFields</code> to the
-   * <code>PSItemChildEntry</code>.
+   * This is the method that does the work. Given a <code>PSFieldSet</code> it will create <code>
+   * PSItemFields</code>. If an element of the <code>PSFieldSet</code> is another <code>PSFieldSet
+   * </code> and is of type complex child it creates a <code>PSItemChild</code> and <code>
+   * PSItemChildEntry</code> and then recursively calls itself to add the <code>PSItemFields</code>
+   * to the <code>PSItemChildEntry</code>.
    *
-   * The PSCoreItem and the <code>PSItemChildEntry</code> are
-   * <code>IPSItemAccessor</code> objects and this object is a
-   * <code>IPSVisitor</code>.  This passes itself to the
-   * <code>IPSItemAccessors</code> <code>accept()</code> method.  The
-   * <code>IPSItemAccessor</code> then acts upon this object by
-   * calling <code>getObject()</code>.
+   * <p>The PSCoreItem and the <code>PSItemChildEntry</code> are <code>IPSItemAccessor</code>
+   * objects and this object is a <code>IPSVisitor</code>. This passes itself to the <code>
+   * IPSItemAccessors</code> <code>accept()</code> method. The <code>IPSItemAccessor</code> then
+   * acts upon this object by calling <code>getObject()</code>.
    *
    * @param fieldSet the fieldset to parse - assumed not <code>null</code>
-   * @param itemAccessor the item on which to add the elements -
-   * assumed not <code>null</code>
-   * @param isMultiValue <code>true</code> if it is, otherwise
-   * <code>false</code>.
+   * @param itemAccessor the item on which to add the elements - assumed not <code>null</code>
+   * @param isMultiValue <code>true</code> if it is, otherwise <code>false</code>.
    */
   private void processFieldSet(
       PSFieldSet fieldSet, IPSItemAccessor itemAccessor, boolean isMultiValue) {
@@ -148,15 +136,12 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * Returns the <code>PSDisplayMapping</code> for the specified field name.
-   * This depends on <code>getFieldSet()</code> being called first.  Which is
-   * called by the ctor.
+   * Returns the <code>PSDisplayMapping</code> for the specified field name. This depends on <code>
+   * getFieldSet()</code> being called first. Which is called by the ctor.
    *
-   * @param fieldName - assumed not <code>null</code> or empty,
-   * is case sensitive
-   *
-   * @return may be <code>null</code> as fields are not required to have a
-   * <code>PSDisplayMapping</code>
+   * @param fieldName - assumed not <code>null</code> or empty, is case sensitive
+   * @return may be <code>null</code> as fields are not required to have a <code>PSDisplayMapping
+   *     </code>
    */
   private PSDisplayMapping getDisplayMapping(String fieldName) {
     // get ui definition for the label:
@@ -172,8 +157,9 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * Returns an <code>Object</code>.  This is called by a
-   * <code>IPSItemAccessor</code> when parsing a definition.
+   * Returns an <code>Object</code>. This is called by a <code>IPSItemAccessor</code> when parsing a
+   * definition.
+   *
    * @return Object - may be <code>null</code>
    */
   public Object getObject() {
@@ -182,6 +168,7 @@ public class PSItemDefExtractor implements IPSVisitor {
 
   /**
    * Gets the field set from the content editor, called by the ctor.
+   *
    * @return the parent field set, never <code>null</code>.
    */
   private PSFieldSet getFieldSet() throws PSCmsException {
@@ -203,25 +190,19 @@ public class PSItemDefExtractor implements IPSVisitor {
   }
 
   /**
-   * The definition to be used to create the <code>PSCoreItem</code>, set by
-   * <code>getFieldSet()</code> and should not change and should not be
-   * <code>null</code>.
+   * The definition to be used to create the <code>PSCoreItem</code>, set by <code>getFieldSet()
+   * </code> and should not change and should not be <code>null</code>.
    */
 
   /**
-   * The Parent Mapper.  The top most mapper of the
-   * <code>PSContentEditor</code>, set by <code>getFieldSet()</code>, never
-   * <code>null</code>.
+   * The Parent Mapper. The top most mapper of the <code>PSContentEditor</code>, set by <code>
+   * getFieldSet()</code>, never <code>null</code>.
    */
   private PSContentEditorMapper m_parentMapper;
 
-  /**
-   * The PSCoreItem being populated, set by the ctor, never <code>null</code>.
-   */
+  /** The PSCoreItem being populated, set by the ctor, never <code>null</code>. */
   private PSCoreItem m_coreItem;
 
-  /**
-   * Temporary field.  Mostly <code>null</code>.  Used in creation of objects.
-   */
+  /** Temporary field. Mostly <code>null</code>. Used in creation of objects. */
   private Object m_object;
 }

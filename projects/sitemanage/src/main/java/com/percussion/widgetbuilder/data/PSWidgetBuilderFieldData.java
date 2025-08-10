@@ -18,90 +18,94 @@
 package com.percussion.widgetbuilder.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a single widget field definition.
- */
+/** Represents a single widget field definition. */
 @XmlRootElement(name = "WidgetBuilderFieldData")
 public class PSWidgetBuilderFieldData extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String name;
-    private String label;
-    private String type;
+  private String name;
+  private String label;
+  private String type;
 
-    public PSWidgetBuilderFieldData() {
-        // Default constructor
-    }
+  public PSWidgetBuilderFieldData() {
+    // Default constructor
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getLabel() {
-        return label;
-    }
+  public String getLabel() {
+    return label;
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    /**
-     * Set the type of the field. Must be a valid FieldType.
-     *
-     * @param type the type string
-     * @throws IllegalArgumentException if type is not valid
-     */
-    public void setType(String type) {
-        FieldType.valueOf(type);
-        this.type = type;
-    }
+  /**
+   * Set the type of the field. Must be a valid FieldType.
+   *
+   * @param type the type string
+   * @throws IllegalArgumentException if type is not valid
+   */
+  public void setType(String type) {
+    FieldType.valueOf(type);
+    this.type = type;
+  }
 
-    public enum FieldType {
-        TEXT,
-        TEXT_AREA,
-        DATE,
-        RICH_TEXT,
-        FILE,
-        FILE_LINK,
-        IMAGE,
-        IMAGE_LINK,
-        PAGE,
-        PAGE_LINK
-    }
+  public enum FieldType {
+    TEXT,
+    TEXT_AREA,
+    DATE,
+    RICH_TEXT,
+    FILE,
+    FILE_LINK,
+    IMAGE,
+    IMAGE_LINK,
+    PAGE,
+    PAGE_LINK
+  }
 
-    @Override
-    public String toString() {
-        return "PSWidgetBuilderFieldData{" +
-                "name='" + name + '\'' +
-                ", label='" + label + '\'' +
-                ", type='" + type + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderFieldData{"
+        + "name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + '}';
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderFieldData)) return false;
-        var that = (PSWidgetBuilderFieldData) o;
-        return Objects.equals(getName(), that.getName())
-                && Objects.equals(getLabel(), that.getLabel())
-                && Objects.equals(getType(), that.getType());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderFieldData)) return false;
+    var that = (PSWidgetBuilderFieldData) o;
+    return Objects.equals(getName(), that.getName())
+        && Objects.equals(getLabel(), that.getLabel())
+        && Objects.equals(getType(), that.getType());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getLabel(), getType());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getName(), getLabel(), getType());
+  }
 }

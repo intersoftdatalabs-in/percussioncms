@@ -21,11 +21,10 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * The PSSingleHtmlParameter class is used to define a replacement value that is
- * an HTML parameter value, but if it is a list of values, specifies the first
- * value in the list.
+ * The PSSingleHtmlParameter class is used to define a replacement value that is an HTML parameter
+ * value, but if it is a list of values, specifies the first value in the list.
  *
- * @see         IPSReplacementValue
+ * @see IPSReplacementValue
  */
 public class PSSingleHtmlParameter extends PSHtmlParameter {
   /**
@@ -33,10 +32,8 @@ public class PSSingleHtmlParameter extends PSHtmlParameter {
    *
    * @param sourceNode the XML element node to construct this object from
    * @param parentDoc the Java object which is the parent of this object
-   * @param parentComponents   the parent objects of this object
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *   appropriate type
+   * @param parentComponents the parent objects of this object
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSSingleHtmlParameter(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -53,8 +50,9 @@ public class PSSingleHtmlParameter extends PSHtmlParameter {
   }
 
   /**
-   * Gets the text which can be displayed to represent this value, using the
-   * format <i>node_type</i>/<i>name</i>.
+   * Gets the text which can be displayed to represent this value, using the format
+   * <i>node_type</i>/<i>name</i>.
+   *
    * @return the text, never <code>null</code> or empty
    */
   public String getValueDisplayText() {
@@ -63,6 +61,7 @@ public class PSSingleHtmlParameter extends PSHtmlParameter {
 
   /**
    * Get the type of replacement value this object represents.
+   *
    * @return {@link #VALUE_TYPE}
    */
   public String getValueType() {
@@ -74,9 +73,7 @@ public class PSSingleHtmlParameter extends PSHtmlParameter {
     return ms_NodeType;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "SingleHtmlParameter";
 
   /* package access on this so they may reference each other in fromXml */

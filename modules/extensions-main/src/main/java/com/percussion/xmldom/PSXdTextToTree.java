@@ -32,24 +32,20 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
 /**
- * A Rhythmyx post-exit called to transform a text node into an XML tree
- * and add it to the result Document.
+ * A Rhythmyx post-exit called to transform a text node into an XML tree and add it to the result
+ * Document.
  */
 public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
    * This method handles the post-exit request.
    *
-   * @param params an array of objects representing the parameters. See the
-   * description under {@link PSXdTextToTree} for parameter details.
-   *
+   * @param params an array of objects representing the parameters. See the description under {@link
+   *     PSXdTextToTree} for parameter details.
    * @param request the request context for this request
-   *
-   * @param resultDoc the XML document resulting from the Rhythmyx server
-   * operation.  The output text will be added as an XML node in this document.
-   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server operation. The output text
+   *     will be added as an XML node in this document.
    * @throws PSExtensionProcessingException when a run time error is detected.
-   *
-   **/
+   */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -91,23 +87,18 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
   }
 
   /**
-   * Returns a list which is either empty or contains a single element. This
-   * element is the first node in the document with the specified tag name
-   * <code>textSourceName</code>
+   * Returns a list which is either empty or contains a single element. This element is the first
+   * node in the document with the specified tag name <code>textSourceName</code>
    *
-   * @param resultDoc the document in which to search for the node with the
-   * specified tag name, may not be <code>null</code>
-   * @param textSourceName the tag name of the element to search for in the
-   * document, the returned list contains the reference to the first element
-   * in the document with matching tag name, may not be <code>null</code> or
-   * empty
-   *
-   * @return an iterator over an empty or a single element list, never
-   * <code>null</code>. The list contains <code>org.w3c.dom.Node</code> objects
-   *
-   * @throws IllegalArgumentException if <code>resultDoc</code> is
-   * <code>null</code> or if <code>textSourceName</code> is <code>null</code>
-   * or empty
+   * @param resultDoc the document in which to search for the node with the specified tag name, may
+   *     not be <code>null</code>
+   * @param textSourceName the tag name of the element to search for in the document, the returned
+   *     list contains the reference to the first element in the document with matching tag name,
+   *     may not be <code>null</code> or empty
+   * @return an iterator over an empty or a single element list, never <code>null</code>. The list
+   *     contains <code>org.w3c.dom.Node</code> objects
+   * @throws IllegalArgumentException if <code>resultDoc</code> is <code>null</code> or if <code>
+   *     textSourceName</code> is <code>null</code> or empty
    */
   protected Iterator getNodes(Document resultDoc, String textSourceName) {
     if (resultDoc == null) throw new IllegalArgumentException("resultDoc may not be null");
@@ -123,18 +114,17 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
     return nodeList.iterator();
   }
 
-  /**
-   * This exit will never modify the stylesheet
-   **/
+  /** This exit will never modify the stylesheet */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
    * This method performs the common parameter checking and parsing.
+   *
    * @param contxt the XMLDOM context for this request
    * @param params the parameter object array from the original request.
-   **/
+   */
   private void setupContextParameters(PSXmlDomContext contxt, Object[] params)
       throws PSExtensionProcessingException {
     // TODO: this method should be migrated to PSXmlDomContext
@@ -154,8 +144,9 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
 
   /**
    * Remove all text and entity nodes from an element
+   *
    * @param el the parent element whose child nodes will be removed.
-   **/
+   */
   private static void removeAllTextNodes(Node el) {
     NodeList children = el.getChildNodes();
     Node ch;
@@ -168,8 +159,6 @@ public class PSXdTextToTree extends PSDefaultExtension implements IPSResultDocum
     }
   }
 
-  /**
-   * The function name used for error handling
-   */
+  /** The function name used for error handling */
   protected static final String ms_className = "PSXdTextToTree";
 }

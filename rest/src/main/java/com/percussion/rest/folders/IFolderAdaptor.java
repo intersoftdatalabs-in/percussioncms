@@ -20,62 +20,43 @@
 package com.percussion.rest.folders;
 
 import com.percussion.rest.errors.BackendException;
-
 import java.net.URI;
 
-/**
- * Adaptor interface for Folder operations.
- * Sunny Sal: "Adaptor pattern FTW, boss!"
- */
+/** Adaptor interface for Folder operations. Sunny Sal: "Adaptor pattern FTW, boss!" */
 public interface IFolderAdaptor {
 
-    /**
-     * Gets a folder by site, path, and folder name.
-     */
-    Folder getFolder(URI baseURI, String site, String path, String folderName) throws BackendException;
+  /** Gets a folder by site, path, and folder name. */
+  Folder getFolder(URI baseURI, String site, String path, String folderName)
+      throws BackendException;
 
-    /**
-     * Updates or creates a folder.
-     */
-    Folder updateFolder(URI baseURI, Folder folder) throws BackendException;
+  /** Updates or creates a folder. */
+  Folder updateFolder(URI baseURI, Folder folder) throws BackendException;
 
-    /**
-     * Deletes a folder.
-     */
-    void deleteFolder(URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders) throws BackendException;
+  /** Deletes a folder. */
+  void deleteFolder(
+      URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders)
+      throws BackendException;
 
-    /**
-     * Gets a folder by id.
-     */
-    Folder getFolder(URI baseURI, String id) throws BackendException;
+  /** Gets a folder by id. */
+  Folder getFolder(URI baseURI, String id) throws BackendException;
 
-    /**
-     * Moves a folder item.
-     */
-    void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws BackendException;
+  /** Moves a folder item. */
+  void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath)
+      throws BackendException;
 
-    /**
-     * Moves a folder.
-     */
-    void moveFolder(URI baseURI, String folderPath, String targetFolderPath) throws BackendException;
+  /** Moves a folder. */
+  void moveFolder(URI baseURI, String folderPath, String targetFolderPath) throws BackendException;
 
-    /**
-     * Renames a folder.
-     */
-    Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName) throws BackendException;
+  /** Renames a folder. */
+  Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName)
+      throws BackendException;
 
-    /**
-     * Copies a folder item.
-     */
-    void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws Exception;
+  /** Copies a folder item. */
+  void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws Exception;
 
-    /**
-     * Copies a folder.
-     */
-    void copyFolder(URI baseURI, String folderPath, String targetFolderPath) throws Exception;
+  /** Copies a folder. */
+  void copyFolder(URI baseURI, String folderPath, String targetFolderPath) throws Exception;
 
-    /**
-     * Deletes a folder item.
-     */
-    void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
+  /** Deletes a folder item. */
+  void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
 }

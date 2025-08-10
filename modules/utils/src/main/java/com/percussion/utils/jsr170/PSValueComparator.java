@@ -31,28 +31,25 @@ import javax.jcr.ValueFormatException;
  */
 public class PSValueComparator implements Comparator<Value> {
   /**
-   * The locale to use when comparing strings or string versions of values.
-   * Never <code>null</code>.
+   * The locale to use when comparing strings or string versions of values. Never <code>null</code>.
    */
   private Locale m_locale = Locale.getDefault();
 
   /**
-   * The collator to compare string values. Initiallly <code>null</code>, but
-   * set to a value on first use. Reset to <code>null</code> if the locale
-   * is changed.
+   * The collator to compare string values. Initiallly <code>null</code>, but set to a value on
+   * first use. Reset to <code>null</code> if the locale is changed.
    */
   private Collator m_collator = null;
 
   /**
-   * Compare the two values. The values must be of the same type or a runtime
-   * exception is thrown. The values are compared according to the type
+   * Compare the two values. The values must be of the same type or a runtime exception is thrown.
+   * The values are compared according to the type
    *
    * @param v1 the first value
    * @param v2 the second value
-   * @return <code>+1</code> if v1 is greater than v2 or v2 is
-   *         <code>null</code>, <code>-1</code> if v1 is less than v2 or
-   *         v1 is <code>null</code> , or <code>0</code> if the two values
-   *         are equal
+   * @return <code>+1</code> if v1 is greater than v2 or v2 is <code>null</code>, <code>-1</code> if
+   *     v1 is less than v2 or v1 is <code>null</code> , or <code>0</code> if the two values are
+   *     equal
    */
   public int compare(Value v1, Value v2) {
     if (v1 != null && v2 != null && v1.getType() != v2.getType()) {
@@ -116,6 +113,7 @@ public class PSValueComparator implements Comparator<Value> {
 
   /**
    * Set the locale for string comparisons
+   *
    * @param locale the locale to set, never <code>null</code>
    */
   public void setLocale(Locale locale) {

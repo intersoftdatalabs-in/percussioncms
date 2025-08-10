@@ -37,31 +37,29 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Creates a dependency tree for migrating content to a specific target server.
- * The top-level element of the tree will be a folder, and the tree will be
- * populated with folder definitions, folder contents, content items, and
- * content relations by recursively descending the folder hierarchy.
- * <p>
- * It is intended that the dependency tree created the <code>build</code>
- * method will be exported by the caller using a <code>PSExportJob</code>.
- * The job's <code>
- * setDepKeysToExclude</code> method should be set with the
- * result from this class' <code>getExcludedDependencies</code>, so that the
- * export job will not add those dependencies as "missing".
- * <p>
- * All included content items must have their application ids typed. When using
- * the MSM client, this is accomplished by user-interaction with a dialog. When
- * using this class, this is accomplished by providing a
- * <code>IPSApplicationIDTypesResolver</code> to the <code>setIdTyper</code>
- * method.
- * <p>
- * It is possible to include only a subset of content in the dependency tree.
- * Any content items from a content type that does not have an id mapping will
- * not be included. Additionally, any variants or slots that do not have an id
- * mapping will be suppressed as dependencies of the included content items and
- * relations.
- * <p>
- * Example code for invoking the class:
+ * Creates a dependency tree for migrating content to a specific target server. The top-level
+ * element of the tree will be a folder, and the tree will be populated with folder definitions,
+ * folder contents, content items, and content relations by recursively descending the folder
+ * hierarchy.
+ *
+ * <p>It is intended that the dependency tree created the <code>build</code> method will be exported
+ * by the caller using a <code>PSExportJob</code>. The job's <code>
+ * setDepKeysToExclude</code> method should be set with the result from this class' <code>
+ * getExcludedDependencies</code>, so that the export job will not add those dependencies as
+ * "missing".
+ *
+ * <p>All included content items must have their application ids typed. When using the MSM client,
+ * this is accomplished by user-interaction with a dialog. When using this class, this is
+ * accomplished by providing a <code>IPSApplicationIDTypesResolver</code> to the <code>setIdTyper
+ * </code> method.
+ *
+ * <p>It is possible to include only a subset of content in the dependency tree. Any content items
+ * from a content type that does not have an id mapping will not be included. Additionally, any
+ * variants or slots that do not have an id mapping will be suppressed as dependencies of the
+ * included content items and relations.
+ *
+ * <p>Example code for invoking the class:
+ *
  * <pre><code>
  * PSDeploymentManager deployMgr = new PSDeploymentManager(sourceConn);
  * PSFolderContentsDescriptorBuilder builder = new PSFolderContentsDescriptorBuilder(
@@ -81,19 +79,18 @@ import org.apache.logging.log4j.Logger;
 public class PSFolderContentsDescriptorBuilder {
 
   /**
-   * Constructs a builder that can create a dependency tree of all the folders
-   * and content items beneath the specified folder path, as long as the
-   * dependent items are included in the specified ID map.
+   * Constructs a builder that can create a dependency tree of all the folders and content items
+   * beneath the specified folder path, as long as the dependent items are included in the specified
+   * ID map.
    *
-   * @param sourceManager manages all client communication with the source
-   *           Rhythmyx server, never <code>null</code>
-   * @param sourceFolderPath path to the Rhythmyx folder that will be the root
-   *           of the dependency tree, never <code>null</code> or empty
-   * @param idMap ID mapping between the source and target servers. New content
-   *           items will be added to the map, so they will receive new ids on
-   *           import. Also used to limit which content items are included in
-   *           the dependency tree; items from unmapped content types are not
-   *           included. Never <code>null</code>.
+   * @param sourceManager manages all client communication with the source Rhythmyx server, never
+   *     <code>null</code>
+   * @param sourceFolderPath path to the Rhythmyx folder that will be the root of the dependency
+   *     tree, never <code>null</code> or empty
+   * @param idMap ID mapping between the source and target servers. New content items will be added
+   *     to the map, so they will receive new ids on import. Also used to limit which content items
+   *     are included in the dependency tree; items from unmapped content types are not included.
+   *     Never <code>null</code>.
    */
   public PSFolderContentsDescriptorBuilder(
       PSDeploymentManager sourceManager, String sourceFolderPath, PSIdMap idMap) {
@@ -153,24 +150,22 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Sets the class that will be used to define any undefined application ID
-   * types in included dependencies.
+   * Sets the class that will be used to define any undefined application ID types in included
+   * dependencies.
    *
-   * @param idTyper will be used to define any undefined application ID types
-   *           in included dependencies. May be <code>null</code> if source
-   *           data contains no undefined application ID types.
+   * @param idTyper will be used to define any undefined application ID types in included
+   *     dependencies. May be <code>null</code> if source data contains no undefined application ID
+   *     types.
    */
   public void setIdTyper(IPSApplicationIDTypesResolver idTyper) {
     m_idTyper = idTyper;
   }
 
   /**
-   * Gets the deployable element that represents the top-level folder of the
-   * source folder.
+   * Gets the deployable element that represents the top-level folder of the source folder.
    *
-   * @return The top-level folder deployable element that contains the source
-   *         folder, or <code>null</code> if no such folder can be found.
-   *
+   * @return The top-level folder deployable element that contains the source folder, or <code>null
+   *     </code> if no such folder can be found.
    * @throws PSDeployException
    */
   private PSDeployableElement getTopFolderElement() throws PSDeployException {
@@ -203,15 +198,13 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Loads any id types for the specified dependency and delegates undefined
-   * types to user-provided class for resolution. The class must define all ID
-   * types or an exception will be thrown.
+   * Loads any id types for the specified dependency and delegates undefined types to user-provided
+   * class for resolution. The class must define all ID types or an exception will be thrown.
    *
-   * @param dep the dependency whose id types will be loaded and defined,
-   *           assumed not <code>null</code>
-   * @throws PSDeployException if an error occurs while loading or saving id
-   *            types, or if the user-provided class does not define all id
-   *            types.
+   * @param dep the dependency whose id types will be loaded and defined, assumed not <code>null
+   *     </code>
+   * @throws PSDeployException if an error occurs while loading or saving id types, or if the
+   *     user-provided class does not define all id types.
    */
   private void defineIdTypes(PSDependency dep) throws PSDeployException {
     Iterator depIDTypes = m_sourceMgr.getIdTypes(Collections.singleton(dep).iterator());
@@ -253,10 +246,9 @@ public class PSFolderContentsDescriptorBuilder {
    * TODO
    *
    * @param dep
-   * @return <code>true</code> if the dependency should be removed from the
-   *         dependency tree (because it is not ID mapped and its presence in
-   *         the tree would cause a validation error); <code>false</code>
-   *         otherwise.
+   * @return <code>true</code> if the dependency should be removed from the dependency tree (because
+   *     it is not ID mapped and its presence in the tree would cause a validation error); <code>
+   *     false</code> otherwise.
    * @throws PSDeployException
    */
   private boolean processDependency(PSDependency dep) throws PSDeployException {
@@ -308,19 +300,15 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Determines if the specified slot should be removed from the descriptor.
-   * Since slots are never mapped, this method fetches the dependent slot
-   * defintion and checks to see if it has been ID mapped. If it has not been
-   * mapped, the slot should be removed and the method returns
-   * <code>true</code>. Before returning, the slot's dependents are cleared,
-   * so that if the slot is not removed, addMissingDependencies does not expand
-   * the slot definition.
+   * Determines if the specified slot should be removed from the descriptor. Since slots are never
+   * mapped, this method fetches the dependent slot defintion and checks to see if it has been ID
+   * mapped. If it has not been mapped, the slot should be removed and the method returns <code>true
+   * </code>. Before returning, the slot's dependents are cleared, so that if the slot is not
+   * removed, addMissingDependencies does not expand the slot definition.
    *
    * @param slot the slot to test, assumed not <code>null</code>.
-   * @return <code>true</code> if the slot should be removed from the
-   *         descriptor, <code>false</code> if the slot should remain in the
-   *         descriptor.
-   *
+   * @return <code>true</code> if the slot should be removed from the descriptor, <code>false</code>
+   *     if the slot should remain in the descriptor.
    * @throws PSDeployException propagated if errors occur in loadDependencies
    */
   private boolean shouldRemoveSlot(PSDependency slot) throws PSDeployException {
@@ -400,16 +388,16 @@ public class PSFolderContentsDescriptorBuilder {
    * Checks if the supplied dependency has already been seen and removed.
    *
    * @param dep
-   * @return <code>true</code> if the dependency has already been seen and
-   *         removed; <code>false</code> otherwise.
+   * @return <code>true</code> if the dependency has already been seen and removed; <code>false
+   *     </code> otherwise.
    */
   private boolean previouslyRemoved(PSDependency dep) {
     return m_excludedDependencies.contains(dep.getKey());
   }
 
   /**
-   * Remembers the supplied dependency was seen and removed by caching it in a
-   * <code>Set</code>. Paired with {@link #previouslyRemoved(PSDependency)}
+   * Remembers the supplied dependency was seen and removed by caching it in a <code>Set</code>.
+   * Paired with {@link #previouslyRemoved(PSDependency)}
    *
    * @param dep
    */
@@ -418,12 +406,11 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Determines if the specified folder is an ancestor or descendent of the
-   * source folder.
+   * Determines if the specified folder is an ancestor or descendent of the source folder.
    *
    * @param folder
-   * @return <code>true</code> if the folder is an ancestor or descendent of
-   *         the source folder, <code>false</code> otherwise.
+   * @return <code>true</code> if the folder is an ancestor or descendent of the source folder,
+   *     <code>false</code> otherwise.
    */
   private boolean isSelectedByPath(String folder) {
     boolean selected;
@@ -444,8 +431,8 @@ public class PSFolderContentsDescriptorBuilder {
    * Checks if the specified dependency is defined in the idMap field.
    *
    * @param dep dependency to check, assumed not <code>null</code>.
-   * @return <code>true</code> if the specified dependency is defined in the
-   *         idMap field; <code>false</code> otherwise.
+   * @return <code>true</code> if the specified dependency is defined in the idMap field; <code>
+   *     false</code> otherwise.
    */
   private boolean isIdMapped(PSDependency dep) {
     return m_idMap.getMapping(dep) != null;
@@ -466,9 +453,9 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Marks the specified dependency as included, and updates the
-   * <code>m_included</code> cache. If the dependency supports ID types, it
-   * is stored in <code>m_idTypesLocalDeps</code> for later processing.
+   * Marks the specified dependency as included, and updates the <code>m_included</code> cache. If
+   * the dependency supports ID types, it is stored in <code>m_idTypesLocalDeps</code> for later
+   * processing.
    *
    * @param dep the dependency to include, assumed not <code>null</code>
    */
@@ -529,68 +516,59 @@ public class PSFolderContentsDescriptorBuilder {
   }
 
   /**
-   * Tracks the dependencies that have been included, using the dependency key
-   * for uniqueness. The dependency object itself cannot be used as a key,
-   * since a dependency with children is not equal to the same dependency
-   * without children. Assigned in the <code>build()</code> method, never
+   * Tracks the dependencies that have been included, using the dependency key for uniqueness. The
+   * dependency object itself cannot be used as a key, since a dependency with children is not equal
+   * to the same dependency without children. Assigned in the <code>build()</code> method, never
    * <code>null</code>.
    */
   private Map m_included;
 
-  /**
-   * Counts how many dependencies have been included.
-   */
+  /** Counts how many dependencies have been included. */
   private int m_includedCount;
 
   /**
-   * Tracks the dependencies that have been removed, using the dependency key
-   * for uniqueness. Assigned in the <code>build()</code> method, never
-   * <code>null</code>.
+   * Tracks the dependencies that have been removed, using the dependency key for uniqueness.
+   * Assigned in the <code>build()</code> method, never <code>null</code>.
    */
   private Set m_excludedDependencies;
 
   /**
-   * Full path to the source folder, whose content will be recursively
-   * migrated. Assigned in ctor, never <code>null</code> or empty.
+   * Full path to the source folder, whose content will be recursively migrated. Assigned in ctor,
+   * never <code>null</code> or empty.
    */
   private String m_sourceFolderId;
 
   /**
-   * Manages client requests to the Rhythmyx server defined by
-   * <code>m_sourceConn</code>. Assigned in ctor, never <code>null</code>.
+   * Manages client requests to the Rhythmyx server defined by <code>m_sourceConn</code>. Assigned
+   * in ctor, never <code>null</code>.
    */
   private PSDeploymentManager m_sourceMgr;
 
   /**
-   * Defines the ID transformation from source to target. Any source
-   * dependencies that are not included in the map will be suppressed. Assigned
-   * in ctor, never <code>null</code>.
+   * Defines the ID transformation from source to target. Any source dependencies that are not
+   * included in the map will be suppressed. Assigned in ctor, never <code>null</code>.
    */
   private PSIdMap m_idMap;
 
   /**
-   * The job handle to use to update the status. Assigned in the
-   * <code>build()</code> method, may be <code>null</code>, but then the
-   * process cannot be cancelled.
+   * The job handle to use to update the status. Assigned in the <code>build()</code> method, may be
+   * <code>null</code>, but then the process cannot be cancelled.
    */
   private IPSJobHandle m_job;
 
   /**
-   * Resolves any undefined application ID types. Assigned by setter, may be
-   * <code>null</code> if there are no undefined application ID types in the
-   * source data to be exported.
+   * Resolves any undefined application ID types. Assigned by setter, may be <code>null</code> if
+   * there are no undefined application ID types in the source data to be exported.
    */
   private IPSApplicationIDTypesResolver m_idTyper;
 
   /**
-   * Determines the maximum number of child dependencies that will be loaded
-   * for a single parent dependency. Assign to a system property
-   * {@link IPSDeployConstants#PROP_MAX_DEPS} to override the default.
+   * Determines the maximum number of child dependencies that will be loaded for a single parent
+   * dependency. Assign to a system property {@link IPSDeployConstants#PROP_MAX_DEPS} to override
+   * the default.
    */
   private static final int MAX_DEPS = 1000;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSFolderContentsDescriptorBuilder.class);
 }

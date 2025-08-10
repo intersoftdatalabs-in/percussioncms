@@ -38,22 +38,21 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /**
- * Tests the copier by parsing an external file and comparing the original
- * document with the document created by the sax copier. The external file
- * should be maintained to include all types of elements copied.
+ * Tests the copier by parsing an external file and comparing the original document with the
+ * document created by the sax copier. The external file should be maintained to include all types
+ * of elements copied.
  *
- * Note that the comparison method doesn't allow certain elements to be tested
- * so don't add this. The current known list:
+ * <p>Note that the comparison method doesn't allow certain elements to be tested so don't add this.
+ * The current known list:
+ *
  * <ul>
- * <li>Comments
+ *   <li>Comments
  * </ul>
  *
  * @author dougrand
  */
 public class PSSaxCopierTest {
-  /**
-   * Test file in the unit resources tree
-   */
+  /** Test file in the unit resources tree */
   public static final File ms_testFile =
       new File(
           getResourcePath(PSSaxCopierTest.class, "/com/percussion/utils/xml/SaxCopierInput.xml"));

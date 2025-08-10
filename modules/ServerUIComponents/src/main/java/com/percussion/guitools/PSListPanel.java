@@ -36,32 +36,28 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- * This class functions in a simlilar fashion as a <code>JTabbedPane</code>, but
- * instead of tabs, there is list box to one side displaying the title of each
- * panel, and a panel next to it that displays the panel corresponding to the
- * selected item in the list.  There are optional reorder buttons that will
- * allow for reordering the list.
- * <p>
- * Note: This class does not override all inherited methods and so the user of
- * this class should not attempt to add, remove, or modify the
- * panel contents through the base class methods as the results will be
- * unpredictable.  Only the methods defined by this class should be used to
- * modify the contents of this panel.
+ * This class functions in a simlilar fashion as a <code>JTabbedPane</code>, but instead of tabs,
+ * there is list box to one side displaying the title of each panel, and a panel next to it that
+ * displays the panel corresponding to the selected item in the list. There are optional reorder
+ * buttons that will allow for reordering the list.
+ *
+ * <p>Note: This class does not override all inherited methods and so the user of this class should
+ * not attempt to add, remove, or modify the panel contents through the base class methods as the
+ * results will be unpredictable. Only the methods defined by this class should be used to modify
+ * the contents of this panel.
  */
 public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
-   * Constructs an empty list panel.  Panels should then be added using one of
-   * the <code>addPanel()</code> methods.   By default, the first panel in the
-   * list is selected if any panels have been added.
+   * Constructs an empty list panel. Panels should then be added using one of the <code>addPanel()
+   * </code> methods. By default, the first panel in the list is selected if any panels have been
+   * added.
    *
-   * @param labelText The text of the label that may appear above the list box,
-   * may be <code>null</code> or empty.
-   * @param listAlignment Either {@link #ALIGN_LEFT} or {@link #ALIGN_RIGHT} to
-   * determine the placement of the list.
-   * @param allowReorder If <code>true</code>, buttons next to the list box
-   * will allow the panel list to be reordered, otherwise the buttons are not
-   * displayed.
-   *
+   * @param labelText The text of the label that may appear above the list box, may be <code>null
+   *     </code> or empty.
+   * @param listAlignment Either {@link #ALIGN_LEFT} or {@link #ALIGN_RIGHT} to determine the
+   *     placement of the list.
+   * @param allowReorder If <code>true</code>, buttons next to the list box will allow the panel
+   *     list to be reordered, otherwise the buttons are not displayed.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSListPanel(String labelText, String listAlignment, boolean allowReorder) {
@@ -76,9 +72,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     initDialog(listAlignment);
   }
 
-  /**
-   * Overriden as this method is not supported. Manager supplied is ignored.
-   */
+  /** Overriden as this method is not supported. Manager supplied is ignored. */
   public void setLayout(LayoutManager mgr) {
     // noop;
   }
@@ -86,8 +80,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Sets the message to display when the list is empty.
    *
-   * @param message The message, may be <code>null</code> or empty to clear
-   * the message.
+   * @param message The message, may be <code>null</code> or empty to clear the message.
    */
   public void setEmptyListMessage(String message) {
     if (message == null) message = "";
@@ -96,14 +89,12 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Adds the supplied panel, appending it to the end of the list.
-   * {@link #getName()} is called on the panel to get the title used in the
-   * list.  The first panel in the list is selected by default.
+   * Adds the supplied panel, appending it to the end of the list. {@link #getName()} is called on
+   * the panel to get the title used in the list. The first panel in the list is selected by
+   * default.
    *
    * @param panel The panel to add, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>panel</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>panel</code> is <code>null</code>.
    */
   public void addPanel(JPanel panel) {
     if (panel == null) throw new IllegalArgumentException("panel may not be null");
@@ -112,13 +103,11 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Adds the panel with the specified title, appending it to the end of the
-   * list.  The first panel in the list is selected by default.
+   * Adds the panel with the specified title, appending it to the end of the list. The first panel
+   * in the list is selected by default.
    *
-   * @param title The title that will appear in the list, may not be
-   * <code>null</code> or empty.
+   * @param title The title that will appear in the list, may not be <code>null</code> or empty.
    * @param panel The panel to add, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addPanel(String title, JPanel panel) {
@@ -131,16 +120,14 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Adds the supplied panel, inserting it at the specified index in the list.
-   * {@link #getName()} is called on the panel to get the title used in the
-   * list.  The first panel in the list is selected by default.
+   * Adds the supplied panel, inserting it at the specified index in the list. {@link #getName()} is
+   * called on the panel to get the title used in the list. The first panel in the list is selected
+   * by default.
    *
    * @param panel The panel to add, may not be <code>null</code>.
-   * @param index The index at which the panel is to be inserted.
-   * A value of <code>-1</code> or a value that exceeds the current panel count
-   * will append the panel to the end of the list.  May not be less than
-   * <code>-1</code>.
-   *
+   * @param index The index at which the panel is to be inserted. A value of <code>-1</code> or a
+   *     value that exceeds the current panel count will append the panel to the end of the list.
+   *     May not be less than <code>-1</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addPanel(JPanel panel, int index) {
@@ -152,20 +139,17 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Adds the specified panel, inserting it at the specified index in the list
-   * with the supplied title.
+   * Adds the specified panel, inserting it at the specified index in the list with the supplied
+   * title.
    *
-   * @param title The title that will appear in the list, may not be
-   * <code>null</code> or empty.
+   * @param title The title that will appear in the list, may not be <code>null</code> or empty.
    * @param panel The panel to add, may not be <code>null</code>.
-   * @param index The index at which the panel is to be inserted.
-   * A value of <code>-1</code> or a value that exceeds the current panel count
-   * will append the panel to the end of the list.  May not be less than
-   * <code>-1</code>.
-   * @param selected If <code>true</code>, the added panel will be selected.
-   * If <code>false</code>, the currently selected panel will remain selected,
-   * or if none are selected, the first panel will be selected.
-   *
+   * @param index The index at which the panel is to be inserted. A value of <code>-1</code> or a
+   *     value that exceeds the current panel count will append the panel to the end of the list.
+   *     May not be less than <code>-1</code>.
+   * @param selected If <code>true</code>, the added panel will be selected. If <code>false</code>,
+   *     the currently selected panel will remain selected, or if none are selected, the first panel
+   *     will be selected.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public void addPanel(String title, JPanel panel, int index, boolean selected) {
@@ -201,11 +185,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Removes the supplied panel from the list.
    *
-   * @param panel The panel to remove, may not be <code>null</code>.  The first
-   * matching panel found in the list is removed.
-   *
-   * @throws IllegalArgumentException if <code>panel</code> is
-   * <code>null</code>.
+   * @param panel The panel to remove, may not be <code>null</code>. The first matching panel found
+   *     in the list is removed.
+   * @throws IllegalArgumentException if <code>panel</code> is <code>null</code>.
    */
   public void removePanel(JPanel panel) {
     if (panel == null) throw new IllegalArgumentException("panel may not be null");
@@ -218,11 +200,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Removes the panel at the specified index.
    *
-   * @param index The index into the list specifying the panel to remove.  Must
-   * be greater than or equal to zero, and less than {@link #getPanelCount()}.
-   *
-   * @throws IllegalArgumentException if <code>index</code> is
-   * invalid.
+   * @param index The index into the list specifying the panel to remove. Must be greater than or
+   *     equal to zero, and less than {@link #getPanelCount()}.
+   * @throws IllegalArgumentException if <code>index</code> is invalid.
    */
   public void removePanel(int index) {
     checkIndex(index);
@@ -236,9 +216,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     resetSelection(selected);
   }
 
-  /**
-   * Removes all panels from the list.
-   */
+  /** Removes all panels from the list. */
   public void removeAll() {
     m_model.removeAllElements();
     resetSelection(-1);
@@ -256,9 +234,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Gets the selected panel's index.
    *
-   * @return The index, will be greater than or equal to zero, and less than
-   * {@link #getPanelCount()}, or if no panels have been added, <code>-1</code>
-   * is returned.
+   * @return The index, will be greater than or equal to zero, and less than {@link
+   *     #getPanelCount()}, or if no panels have been added, <code>-1</code> is returned.
    */
   public int getSelectedIndex() {
     return m_list.getSelectedIndex();
@@ -267,11 +244,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Selects the panel at the specified index in the list.
    *
-   * @param index The index into the list specifying the panel to select.  Must
-   * be greater than or equal to zero, and less than {@link #getPanelCount()}.
-   *
-   * @throws IllegalArgumentException if <code>index</code> is
-   * invalid.
+   * @param index The index into the list specifying the panel to select. Must be greater than or
+   *     equal to zero, and less than {@link #getPanelCount()}.
+   * @throws IllegalArgumentException if <code>index</code> is invalid.
    * @throws IllegalStateException if no panels have been added to the list.
    */
   public void setSelectedIndex(int index) {
@@ -284,12 +259,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Sets the title color of the panel at the specified index.
    *
-   * @param index The index of the panel for which the title color is to be
-   * set.  Must be greater than or equal to zero, and less than
-   * {@link #getPanelCount()}.
-   *
-   * @param color The color, may be <code>null</code> to clear any previously
-   * set color.
+   * @param index The index of the panel for which the title color is to be set. Must be greater
+   *     than or equal to zero, and less than {@link #getPanelCount()}.
+   * @param color The color, may be <code>null</code> to clear any previously set color.
    */
   public void setTitleColor(int index, Color color) {
     checkIndex(index);
@@ -305,13 +277,10 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Sets the title image of the panel at the specified index.
    *
-   * @param index The index of the panel for which the title image is to be
-   * set.  Must be greater than or equal to zero, and less than
-   * {@link #getPanelCount()}.
-   *
-   * @param image The image, may be <code>null</code> to clear any previously
-   * set image.  If supplied, image is displayed at the leading end of the
-   * title.
+   * @param index The index of the panel for which the title image is to be set. Must be greater
+   *     than or equal to zero, and less than {@link #getPanelCount()}.
+   * @param image The image, may be <code>null</code> to clear any previously set image. If
+   *     supplied, image is displayed at the leading end of the title.
    */
   public void setTitleImage(int index, ImageIcon image) {
     checkIndex(index);
@@ -328,7 +297,6 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
    * Gets the currently selected panel.
    *
    * @return The selected panel, never <code>null</code> .
-   *
    * @throws IllegalStateException if no panels have been added to the list.
    */
   public JPanel getSelectedPanel() {
@@ -341,12 +309,11 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Sets the supplied panel as selected.
    *
-   * @param panel The panel to select, may not be <code>null</code>.  The first
-   * matching panel found in the list will be selected.
-   *
+   * @param panel The panel to select, may not be <code>null</code>. The first matching panel found
+   *     in the list will be selected.
    * @throws IllegalStateException if no panels have been added to the list.
-   * @throws IllegalArgumentException if <code>panel</code> is
-   * <code>null</code> or if it is not found in the list.
+   * @throws IllegalArgumentException if <code>panel</code> is <code>null</code> or if it is not
+   *     found in the list.
    */
   public void setSelectedPanel(JPanel panel) {
     checkState();
@@ -362,14 +329,10 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Gets the panel with the matching title.
    *
-   * @param title The title to check for, may not be <code>null</code> or
-   * empty.
-   *
-   * @return The first panel found in the list with the specified title, or
-   * <code>null</code> if no matching panel is found.
-   *
-   * @throws IllegalArgumentException if <code>title</code> is
-   * <code>null</code> or empty.
+   * @param title The title to check for, may not be <code>null</code> or empty.
+   * @return The first panel found in the list with the specified title, or <code>null</code> if no
+   *     matching panel is found.
+   * @throws IllegalArgumentException if <code>title</code> is <code>null</code> or empty.
    */
   public JPanel getPanel(String title) {
     if (title == null || title.trim().length() == 0)
@@ -392,11 +355,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
    * Gets the index of the first matching panel found in the list.
    *
    * @param panel The panel to match, may not be <code>null</code>.
-   *
    * @return The index, or <code>-1</code> if no matching panel is found.
-   *
-   * @throws IllegalArgumentException if <code>panel</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>panel</code> is <code>null</code>.
    */
   public int getIndex(JPanel panel) {
     if (panel == null) throw new IllegalArgumentException("panel may not be null");
@@ -418,11 +378,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Get the panel at the specified index.
    *
-   * @param index The index of the panel to return, greater than or equal to
-   * zero, and less than {@link #getPanelCount()}.
-   *
+   * @param index The index of the panel to return, greater than or equal to zero, and less than
+   *     {@link #getPanelCount()}.
    * @return The panel, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>index</code> is invalid.
    */
   public JPanel getPanel(int index) {
@@ -434,12 +392,11 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Gets an iterator over the list of panels.  Will not include hidden
-   * panels (see {@link #hidePanel(JPanel)}.
+   * Gets an iterator over the list of panels. Will not include hidden panels (see {@link
+   * #hidePanel(JPanel)}.
    *
-   * @return The iterator, never <code>null</code>, may be empty.  Backed by
-   * an immutable list, so its contents will not change as panels are hidden
-   * and shown.
+   * @return The iterator, never <code>null</code>, may be empty. Backed by an immutable list, so
+   *     its contents will not change as panels are hidden and shown.
    */
   public Iterator getPanels() {
     List panelList = new ArrayList();
@@ -453,11 +410,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Gets the title of the panel at the specified index.
    *
-   * @param index The index of the panel in the list, must be greater than or
-   * equal to zero, and less than {@link #getPanelCount()}.
-   *
+   * @param index The index of the panel in the list, must be greater than or equal to zero, and
+   *     less than {@link #getPanelCount()}.
    * @return The title, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>index</code> is invalid.
    */
   public String getTitle(int index) {
@@ -469,15 +424,12 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Hides the specified panel.  Panel may be unhidden by calling
-   * {@link #showPanel(JPanel)}.  Not allowed if reordering is enabled (see
-   * ctor for more info).
+   * Hides the specified panel. Panel may be unhidden by calling {@link #showPanel(JPanel)}. Not
+   * allowed if reordering is enabled (see ctor for more info).
    *
    * @param panel The panel to hide, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if the specified panel was hidden,
-   * <code>false</code> if it was not found in the list.
-   *
+   * @return <code>true</code> if the specified panel was hidden, <code>false</code> if it was not
+   *     found in the list.
    * @throws IllegalStateException if reordering is enabled.
    */
   public boolean hidePanel(JPanel panel) {
@@ -506,13 +458,12 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Shows the previously hidden panel.  Attempts to show it at the original
-   * index if available, otherwise it is added to the end of the list.
+   * Shows the previously hidden panel. Attempts to show it at the original index if available,
+   * otherwise it is added to the end of the list.
    *
    * @param panel The panel to show, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if a the same panel was hidden and is now
-   * showing, <code>false</code> if the panel was not currently hidden.
+   * @return <code>true</code> if a the same panel was hidden and is now showing, <code>false</code>
+   *     if the panel was not currently hidden.
    */
   public boolean showPanel(JPanel panel) {
     if (panel == null) throw new IllegalArgumentException("panel may not be null");
@@ -547,9 +498,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Get all panels that are currently hidden
    *
-   * @return An iterator over zero or more <code>JPanel</code> objects,
-   * never <code>null</code>.  Iterator is backed by immutable list, so its
-   * contents will not change as panels are hidden and shown.
+   * @return An iterator over zero or more <code>JPanel</code> objects, never <code>null</code>.
+   *     Iterator is backed by immutable list, so its contents will not change as panels are hidden
+   *     and shown.
    */
   public Iterator getHiddenPanels() {
     List hiddenList = new ArrayList();
@@ -563,12 +514,10 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Checks to see if the index refers to a valid index into the current
-   * panel list.
+   * Checks to see if the index refers to a valid index into the current panel list.
    *
-   * @param index The index to check.  Must be less than the number of panels
-   * currently in the list, and greater than or equal to zero.
-   *
+   * @param index The index to check. Must be less than the number of panels currently in the list,
+   *     and greater than or equal to zero.
    * @throws IllegalArgumentException If the index is invalid.
    */
   private void checkIndex(int index) {
@@ -576,8 +525,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Checks to see if any panels have been added.  Used by methods that require
-   * at least one panel to have been added.
+   * Checks to see if any panels have been added. Used by methods that require at least one panel to
+   * have been added.
    *
    * @throws IllegalStateException if no panels have been added.
    */
@@ -586,10 +535,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Resets the current selection in the list to a valid selection. Usually
-   * called when an entry has been added or removed.  Resets the selection to
-   * the provided <code>index</code> if it is valid, otherwise sets it to the
-   * previous item in the list if there is one.  If the list is now empty,
+   * Resets the current selection in the list to a valid selection. Usually called when an entry has
+   * been added or removed. Resets the selection to the provided <code>index</code> if it is valid,
+   * otherwise sets it to the previous item in the list if there is one. If the list is now empty,
    * clears the bottom panel.
    *
    * @param index The index to use for the selection.
@@ -626,8 +574,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Initializes the panel's default components.
    *
-   * @param listAlignment One of the <code>ALIGN_xxx</code> constants,
-   * determines placement of the listbox.
+   * @param listAlignment One of the <code>ALIGN_xxx</code> constants, determines placement of the
+   *     listbox.
    */
   private void initDialog(String listAlignment) {
     super.setLayout(new BorderLayout(5, 0));
@@ -653,8 +601,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Creates the list panel including the label, listbox, and if appropriate,
-   * the reorder buttons.
+   * Creates the list panel including the label, listbox, and if appropriate, the reorder buttons.
    *
    * @return The newly created panel, never <code>null</code>.
    */
@@ -750,9 +697,9 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Handles the list selection change event. Resets the bottom panel to
-   * contain the panel corresponding to the current list selection.  See
-   * {@link ListSelectionListener} for more information.
+   * Handles the list selection change event. Resets the bottom panel to contain the panel
+   * corresponding to the current list selection. See {@link ListSelectionListener} for more
+   * information.
    */
   public void valueChanged(ListSelectionEvent e) {
     // show the correct panel
@@ -767,8 +714,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   /**
    * Make the specified panel the currently displayed panel
    *
-   * @param index The index into the list of the panels to display, assumed to
-   * be a valid index into the list.
+   * @param index The index into the list of the panels to display, assumed to be a valid index into
+   *     the list.
    */
   private void changeDisplayPanel(int index) {
     ListElement element = (ListElement) m_model.get(index);
@@ -778,8 +725,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * UI doesn't always get the changes correct, so this forces the repaint so
-   * it works correctly.
+   * UI doesn't always get the changes correct, so this forces the repaint so it works correctly.
    */
   private void refreshPanel() {
     revalidate();
@@ -787,9 +733,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Checks preferred size of supplied panel against current preferred size
-   * of display panel to ensure it is able to accomodate the largest height and
-   * width of every panel.
+   * Checks preferred size of supplied panel against current preferred size of display panel to
+   * ensure it is able to accomodate the largest height and width of every panel.
    *
    * @param newPanel The new panel to check, assumed not <code>null</code>.
    */
@@ -802,8 +747,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Moves the currently selected item in the list up one position.  If the
-   * list is empty or the first item in the list is selected, nothing happens.
+   * Moves the currently selected item in the list up one position. If the list is empty or the
+   * first item in the list is selected, nothing happens.
    */
   private void moveUp() {
     int index = m_list.getSelectedIndex();
@@ -816,8 +761,8 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Moves the currently selected item in the list down one position.  If the
-   * list is empty or the last item in the list is selected, nothing happens.
+   * Moves the currently selected item in the list down one position. If the list is empty or the
+   * last item in the list is selected, nothing happens.
    */
   private void moveDown() {
     int index = m_list.getSelectedIndex();
@@ -832,14 +777,13 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
   }
 
   /**
-   * Gets the resource string identified by the specified key.  If the
-   * resource cannot be found, the key itself is returned.
+   * Gets the resource string identified by the specified key. If the resource cannot be found, the
+   * key itself is returned.
    *
    * @param key identifies the resource to be fetched; assumed not <code>null
    * </code> or empty.
-   *
-   * @return String value of the resource identified by <code>key</code>, or
-   * <code>key</code> itself.
+   * @return String value of the resource identified by <code>key</code>, or <code>key</code>
+   *     itself.
    */
   private static String getResourceString(String key) {
     String resourceValue = key;
@@ -854,73 +798,63 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     return resourceValue;
   }
 
-  /**
-   * Constant to indicate the list should be placed on the left side of the
-   * display panel.
-   */
+  /** Constant to indicate the list should be placed on the left side of the display panel. */
   public static final String ALIGN_LEFT = BorderLayout.WEST;
 
-  /**
-   * Constant to indicate the list should be placed on the right side of the
-   * display panel.
-   */
+  /** Constant to indicate the list should be placed on the right side of the display panel. */
   public static final String ALIGN_RIGHT = BorderLayout.EAST;
 
   /**
-   * The list box containing the list of panel titles. Initialized during
-   * construction, never <code>null</code> or modified after that.
+   * The list box containing the list of panel titles. Initialized during construction, never <code>
+   * null</code> or modified after that.
    */
   private JList m_list;
 
   /**
-   * The list model supplied when creating {@link #m_list}, initialized during
-   * construction, never <code>null</code> or modified after that.
+   * The list model supplied when creating {@link #m_list}, initialized during construction, never
+   * <code>null</code> or modified after that.
    */
   private DefaultListModel m_model;
 
   /**
-   * The display panel, acts as a container for the currently selected panel
-   * in the list.   Initialized during construction, never <code>null</code>
-   * after that.  Displays different panels depending on the selection in
-   * {@link #m_list}.
+   * The display panel, acts as a container for the currently selected panel in the list.
+   * Initialized during construction, never <code>null</code> after that. Displays different panels
+   * depending on the selection in {@link #m_list}.
    */
   private JPanel m_displayPanel;
 
   /**
-   * Determines if the top panel will display up and down buttons to allow the
-   * user to reorder the list items.  Intialized during constructor, never
-   * modified after that.
+   * Determines if the top panel will display up and down buttons to allow the user to reorder the
+   * list items. Intialized during constructor, never modified after that.
    */
   private boolean m_allowReorder = false;
 
   /**
-   * The label text to display above the list box, supplied during
-   * construction, may be <code>null</code> or empty, never modified after
-   * that.
+   * The label text to display above the list box, supplied during construction, may be <code>null
+   * </code> or empty, never modified after that.
    */
   private String m_labelText;
 
   /**
-   * Map of hidden panels. Key is the <code>JPanel</code> that is hidden, value
-   * is a {@link HiddenPanel}.  Never <code>null</code>.
+   * Map of hidden panels. Key is the <code>JPanel</code> that is hidden, value is a {@link
+   * HiddenPanel}. Never <code>null</code>.
    */
   private Map m_hiddenPanels = new LinkedHashMap();
 
   /**
-   * Message to display when the list is empty.  Never <code>null</code>,
-   * initially an empty string.
+   * Message to display when the list is empty. Never <code>null</code>, initially an empty string.
    */
   private String m_emptyMessage = "";
 
   /**
-   * Image loader used to load images for buttons.  Initialized by static
-   * initializer, never <code>null</code> after that.
+   * Image loader used to load images for buttons. Initialized by static initializer, never <code>
+   * null</code> after that.
    */
   private static BitmapManager ms_imageLoader;
 
   /**
-   * Resource bundle for this class.  Initialized by static initializer, never
-   * <code>null</code> after that.
+   * Resource bundle for this class. Initialized by static initializer, never <code>null</code>
+   * after that.
    */
   private static ResourceBundle ms_res = null;
 
@@ -936,18 +870,13 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
   }
 
-  /**
-   * Utility class to use as object in the list model encapsulating a panel and
-   * its title.
-   */
+  /** Utility class to use as object in the list model encapsulating a panel and its title. */
   private class ListElement {
     /**
      * Construct the list element from its member data.
      *
-     * @param title The title of the panel, may not be <code>null</code> or
-     * empty.
+     * @param title The title of the panel, may not be <code>null</code> or empty.
      * @param panel The panel, may not be <code>null</code>.
-     *
      * @throws IllegalArgumentException if any param is invalid.
      */
     private ListElement(String title, JPanel panel) {
@@ -988,8 +917,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
 
     /**
-     * Sets the foreground color of the title.  See {@link #getTitleColor()}
-     * for more info.
+     * Sets the foreground color of the title. See {@link #getTitleColor()} for more info.
      *
      * @param c The color, may be <code>null</code> to clear it.
      */
@@ -998,19 +926,16 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
 
     /**
-     * Get the foreground color of the title.  If not set, the default color
-     * is used.
+     * Get the foreground color of the title. If not set, the default color is used.
      *
-     * @return The color, or <code>null</code> to indicate the default should
-     * be used.
+     * @return The color, or <code>null</code> to indicate the default should be used.
      */
     private Color getTitleColor() {
       return m_color;
     }
 
     /**
-     * Set the image to use to decorate the title.  See
-     * {@link #getTitleImage()} for more info.
+     * Set the image to use to decorate the title. See {@link #getTitleImage()} for more info.
      *
      * @param image The image, may be <code>null</code>.
      */
@@ -1019,8 +944,7 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
 
     /**
-     * Get the image used to decorate the title.  Image is displayed
-     * immediately before the title.
+     * Get the image used to decorate the title. Image is displayed immediately before the title.
      *
      * @return The image, or <code>null</code> if one has not been set.
      */
@@ -1029,44 +953,36 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
 
     /**
-     * The title of the panel, initialized during ctor, never
-     * <code>null</code>, empty, or modified after that.
+     * The title of the panel, initialized during ctor, never <code>null</code>, empty, or modified
+     * after that.
      */
     private String m_title;
 
-    /**
-     * The panel, initialized during ctor, never <code>null</code> or modified
-     * after that.
-     */
+    /** The panel, initialized during ctor, never <code>null</code> or modified after that. */
     private JPanel m_panel;
 
     /**
-     * Color to use for foreground color of title in the list, may be
-     * <code>null</code> if never set.
+     * Color to use for foreground color of title in the list, may be <code>null</code> if never
+     * set.
      */
     private Color m_color = null;
 
     /**
-     * Image icon to use to decorate the title in the list, may be
-     * <code>null</code> if never set.
+     * Image icon to use to decorate the title in the list, may be <code>null</code> if never set.
      */
     private ImageIcon m_image;
   }
 
-  /**
-   * Renderer to allow both text and an image.
-   */
+  /** Renderer to allow both text and an image. */
   private class ImageListCellRenderer extends DefaultListCellRenderer {
     /**
-     * See {@link DefaultListCellRenderer#getListCellRendererComponent(
-     * JList, Object, int, boolean, boolean)} for all info but the
-     * additional parameter noted below.
+     * See {@link DefaultListCellRenderer#getListCellRendererComponent( JList, Object, int, boolean,
+     * boolean)} for all info but the additional parameter noted below.
      *
-     * @param image The image to display, may be <code>null</code> if none is
-     * desired, otherwise displayed at the leading end of the title.  Note
-     * that if supplied and the <code>value</code> supplied is also an
-     * <code>Icon</code>,then only the supplied <code>image</code> will
-     * be displayed.
+     * @param image The image to display, may be <code>null</code> if none is desired, otherwise
+     *     displayed at the leading end of the title. Note that if supplied and the <code>value
+     *     </code> supplied is also an <code>Icon</code>,then only the supplied <code>image</code>
+     *     will be displayed.
      */
     public Component getListCellRendererComponent(
         JList list,
@@ -1084,18 +1000,12 @@ public class PSListPanel extends JPanel implements ListSelectionListener {
     }
   }
 
-  /**
-   * Encapsulates info about a panel that has been hidden.
-   */
+  /** Encapsulates info about a panel that has been hidden. */
   private class HiddenPanel {
-    /**
-     * The list element of the panel.
-     */
+    /** The list element of the panel. */
     public ListElement m_listElement = null;
 
-    /**
-     * The index of the panel
-     */
+    /** The index of the panel */
     public int m_index = -1;
   }
 }

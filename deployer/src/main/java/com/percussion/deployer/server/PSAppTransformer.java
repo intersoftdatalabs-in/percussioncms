@@ -101,13 +101,12 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Handles discovery and transformations of literal ids specified in
- * application and other objectstore elements.
+ * Handles discovery and transformations of literal ids specified in application and other
+ * objectstore elements.
  */
 public class PSAppTransformer {
   /**
-   * Checks the supplied item data for literals and adds the required mappings
-   * to the supplied list.
+   * Checks the supplied item data for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param itemData The item data to check, may not be <code>null</code>.
@@ -129,13 +128,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied fieldset data for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the supplied fieldset data for literals and adds the required mappings to the supplied
+   * list.
    *
    * @param mappings The list, assumed not <code>null</code>.
    * @param fieldSet The fieldset being checked, assumed not <code>null</code>.
-   * @param itemData The data to retrieve field values from, assumed not
-   * <code>null</code>.
+   * @param itemData The data to retrieve field values from, assumed not <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   private static void checkFieldSetData(
@@ -163,15 +161,14 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied field data for literals and adds the required mappings
-   * to the supplied list.
+   * Checks the supplied field data for literals and adds the required mappings to the supplied
+   * list.
    *
    * @param mappings The list, assumed not <code>null</code>.
    * @param field The field being checked, assumed not <code>null</code>.
-   * @param itemData The data to retrieve field values from, assumed not
-   * <code>null</code>.
-   * @param fieldSetType One of the <code>PSFieldSet.TYPE_XXX</code> values to
-   * indicate the type of field set containing this field.
+   * @param itemData The data to retrieve field values from, assumed not <code>null</code>.
+   * @param fieldSetType One of the <code>PSFieldSet.TYPE_XXX</code> values to indicate the type of
+   *     field set containing this field.
    * @param ctx The current context, may be <code>null</code>.
    */
   private static void checkFieldData(
@@ -244,11 +241,9 @@ public class PSAppTransformer {
    * Transforms the supplied item data using the supplied mapping.
    *
    * @param itemData The item data to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformItemData(
@@ -282,14 +277,12 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied item data using the supplied mapping and fieldset.
    *
-   * @param fieldSet The fieldset to check for the field referenced by the
-   * supplied mapping's context, assumed not <code>null</code>.
+   * @param fieldSet The fieldset to check for the field referenced by the supplied mapping's
+   *     context, assumed not <code>null</code>.
    * @param itemData The item data to transform, assumed not <code>null</code>.
-   * @param mapping The mapping to use for the transformation, assumed not
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, assumed not <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   private static void transformFieldSetData(
@@ -365,14 +358,12 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied item data using the supplied mapping and field.
    *
-   * @param field The field referenced by the supplied mapping's context,
-   * assumed not <code>null</code>.
+   * @param field The field referenced by the supplied mapping's context, assumed not <code>null
+   *     </code>.
    * @param itemData The item data to transform, assumed not <code>null</code>.
-   * @param mapping The mapping to use for the transformation, assumed not
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, assumed not <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   private static void transformFieldData(
@@ -521,8 +512,7 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied field set for literals and adds the required mappings
-   * to the supplied list.
+   * Checks the supplied field set for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param fs The field set to check, may not be <code>null</code>.
@@ -614,11 +604,9 @@ public class PSAppTransformer {
    * Transforms the supplied fieldset using the supplied mapping.
    *
    * @param fieldSet The field set to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformFieldSet(
@@ -715,8 +703,7 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied ui def for literals and adds the required mappings
-   * to the supplied list.
+   * Checks the supplied ui def for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param uiDef The ui def to check, may not be <code>null</code>.
@@ -747,13 +734,11 @@ public class PSAppTransformer {
    * Transforms the supplied ui def using the supplied mapping.
    *
    * @param uiDef The ui def to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the mapping's context is not valid
-   * for this method or any param is <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
+   * @throws IllegalArgumentException if the mapping's context is not valid for this method or any
+   *     param is <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformUIDef(
@@ -796,8 +781,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied display mapper for literals and adds the required
-   * mappings to the supplied list.  Recursively checks any child mappers.
+   * Checks the supplied display mapper for literals and adds the required mappings to the supplied
+   * list. Recursively checks any child mappers.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param mapper The mappper to check, may not be <code>null</code>.
@@ -833,11 +818,9 @@ public class PSAppTransformer {
    * Transforms the supplied display mapper using the supplied mapping.
    *
    * @param mapper The mappper to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformDisplayMapper(
@@ -880,8 +863,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied application flow for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the supplied application flow for literals and adds the required mappings to the
+   * supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param appFlow The appFlow to check, may not be <code>null</code>.
@@ -922,11 +905,9 @@ public class PSAppTransformer {
    * Transforms the supplied application flow using the supplied mapping.
    *
    * @param appFlow The appflow to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformAppFlow(
@@ -970,8 +951,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied data mapper for literals and adds the required
-   * mappings to the supplied list.  Recursively checks any child mappers.
+   * Checks the supplied data mapper for literals and adds the required mappings to the supplied
+   * list. Recursively checks any child mappers.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param mapper The mappper to check, may not be <code>null</code>.
@@ -1014,15 +995,13 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the supplied data mapper using the supplied mapping.  Also
-   * transforms the context value.
+   * Transforms the supplied data mapper using the supplied mapping. Also transforms the context
+   * value.
    *
    * @param mapper The mappper to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformDataMapper(
@@ -1062,13 +1041,11 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the conditional exits for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the conditional exits for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param exits An iterator over zero or more
-   * <code>PSConditionalExit</code> objects to check, may not be
-   * <code>null</code>.
+   * @param exits An iterator over zero or more <code>PSConditionalExit</code> objects to check, may
+   *     not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalExits(
@@ -1092,14 +1069,11 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied conditional exits using the supplied mapping.
    *
-   * @param exits An iterator over zero or more
-   * <code>PSConditionalExit</code> objects to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param exits An iterator over zero or more <code>PSConditionalExit</code> objects to transform,
+   *     may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalExits(
@@ -1135,13 +1109,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the conditional effects for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the conditional effects for literals and adds the required mappings to the supplied
+   * list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param effects An iterator over zero or more
-   * <code>PSConditionalEffect</code> objects to check, may not be
-   * <code>null</code>.
+   * @param effects An iterator over zero or more <code>PSConditionalEffect</code> objects to check,
+   *     may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalEffects(
@@ -1168,14 +1141,11 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied conditional effects using the supplied mapping.
    *
-   * @param effects An iterator over zero or more
-   * <code>PSConditionalEffect</code> objects to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param effects An iterator over zero or more <code>PSConditionalEffect</code> objects to
+   *     transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalEffects(
@@ -1214,13 +1184,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the conditional extensions for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the conditional extensions for literals and adds the required mappings to the supplied
+   * list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param extensions An iterator over zero or more
-   * <code>PSConditionalExtension</code> objects to check, may not be
-   * <code>null</code>.
+   * @param extensions An iterator over zero or more <code>PSConditionalExtension</code> objects to
+   *     check, may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionalExtensions(
@@ -1248,14 +1217,11 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied conditional extensions using the supplied mapping.
    *
-   * @param extensions An iterator over zero or more
-   * <code>PSConditionalExtension</code> objects to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param extensions An iterator over zero or more <code>PSConditionalExtension</code> objects to
+   *     transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionalExtensions(
@@ -1294,13 +1260,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the custom action groups for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the custom action groups for literals and adds the required mappings to the supplied
+   * list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param groups An iterator over zero or more
-   * <code>PSCustomActionGroup</code> objects to check, may not be
-   * <code>null</code>.
+   * @param groups An iterator over zero or more <code>PSCustomActionGroup</code> objects to check,
+   *     may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkCustomActionGroups(
@@ -1331,13 +1296,11 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied custom action groups using the supplied mapping.
    *
-   * @param groups An iterator over zero or more
-   * <code>PSCustomActionGroup</code> objects to transform, may not be
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param groups An iterator over zero or more <code>PSCustomActionGroup</code> objects to
+   *     transform, may not be
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformCustomActionGroups(
@@ -1377,8 +1340,7 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the stylesheet set for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the stylesheet set for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param sheets The set to check, may not be <code>null</code>.
@@ -1417,11 +1379,9 @@ public class PSAppTransformer {
    * Transforms the supplied stylesheet set using the supplied mapping.
    *
    * @param sheets The set to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformStylesheetSet(
@@ -1468,12 +1428,10 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the result page for literals and adds the required
-   * mappings to the supplied list.
+   * Checks the result page for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param page The result page object to check, may not be
-   * <code>null</code>.
+   * @param page The result page object to check, may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkResultPage(
@@ -1500,11 +1458,9 @@ public class PSAppTransformer {
    * Transforms the supplied result page using the supplied mapping.
    *
    * @param page resultPage to check, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformResultPage(
@@ -1537,8 +1493,7 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied ui set for literals and adds the required mappings
-   * to the supplied list.
+   * Checks the supplied ui set for literals and adds the required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param uiSet The uiset to check, may not be <code>null</code>.
@@ -1581,11 +1536,9 @@ public class PSAppTransformer {
    * Transforms the supplied uiSet using the supplied mapping.
    *
    * @param uiSet The uiset to check, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformUISet(
@@ -1637,8 +1590,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied choices and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied choices and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param choices The choices to check, may not be <code>null</code>.
@@ -1679,13 +1632,10 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied choices using the supplied mapping.
    *
-   * @param choices The choices to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param choices The choices to transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformChoices(
@@ -1734,8 +1684,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied applyWhen and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied applyWhen and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param applyWhen The applyWhen to check, may not be <code>null</code>.
@@ -1757,13 +1707,10 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied apply when using the supplied mapping.
    *
-   * @param applyWhen The applyWhen to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param applyWhen The applyWhen to transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformApplyWhen(
@@ -1788,12 +1735,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied rules and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied rules and adds mappings to the supplied list for each literal found. Target
+   * of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param rules An iterator over zero or more <code>PSRule</code> objects to
-   * check, may not be <code>null</code>.
+   * @param rules An iterator over zero or more <code>PSRule</code> objects to check, may not be
+   *     <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkRules(
@@ -1816,14 +1763,13 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied process checks and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied process checks and adds mappings to the supplied list for each literal
+   * found. Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param procChecks an iterator over zero or more process checks
-   * (<code>PSProcessCheck</code> objects), may not be <code>null</code>.
+   * @param procChecks an iterator over zero or more process checks (<code>PSProcessCheck</code>
+   *     objects), may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static void checkProcessChecks(
@@ -1845,16 +1791,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the appropriate rule in the supplied list using the supplied
-   * mapping.
+   * Transforms the appropriate rule in the supplied list using the supplied mapping.
    *
-   * @param rules Iterator of <code>PSRule</code> objects, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param rules Iterator of <code>PSRule</code> objects, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformRules(
@@ -1893,18 +1835,15 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the appropriate process checks in the supplied list using the
-   * supplied mapping.
+   * Transforms the appropriate process checks in the supplied list using the supplied mapping.
    *
-   * @param procChecks an iterator over zero or more process checks
-   * (<code>PSProcessCheck</code> objects), may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the mapping's context is not valid
-   * for this method or any param is <code>null</code>.
+   * @param procChecks an iterator over zero or more process checks (<code>PSProcessCheck</code>
+   *     objects), may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
+   * @throws IllegalArgumentException if the mapping's context is not valid for this method or any
+   *     param is <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformProcessChecks(
@@ -1939,12 +1878,11 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied overrides and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied overrides and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param overrideList List of clone field overrides to check, may not be
-   * <code>null</code>.
+   * @param overrideList List of clone field overrides to check, may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkCloneFieldOverrides(
@@ -1969,16 +1907,13 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied overrides and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied overrides and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
-   * @param overrideList List of clone field overrides to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param overrideList List of clone field overrides to transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformCloneFieldOverrides(
@@ -2017,9 +1952,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied entry and adds mappings to the supplied
-   * list for each numeric literal found.  Target of the mappings will be
-   * unspecified.
+   * Checks the supplied entry and adds mappings to the supplied list for each numeric literal
+   * found. Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param entry The entry to check, may not be <code>null</code>.
@@ -2041,15 +1975,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the supplied entry using the supplied mapping.  Also transforms
-   * the mapping value and context values.
+   * Transforms the supplied entry using the supplied mapping. Also transforms the mapping value and
+   * context values.
    *
    * @param entry The entry to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformEntry(
@@ -2075,8 +2006,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied urlRequest and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied urlRequest and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param urlRequest The request to check, may not be <code>null</code>.
@@ -2109,11 +2040,8 @@ public class PSAppTransformer {
    * Transforms the supplied urlRequest using the supplied mapping.
    *
    * @param urlRequest The request to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformUrlRequest(
@@ -2151,8 +2079,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied param and adds mappings to the supplied
-   * list for each literal found.  Target of the mappings will be unspecified.
+   * Checks the supplied param and adds mappings to the supplied list for each literal found. Target
+   * of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param param The param to check, may not be <code>null</code>.
@@ -2171,11 +2099,10 @@ public class PSAppTransformer {
   }
 
   /**
-   * checks the supplied bindings for any id types and adds the required
-   * mappings
+   * checks the supplied bindings for any id types and adds the required mappings
+   *
    * @param mappings the list, assumed not <code>null</code>.
-   * @param bindings the jexl bindings from which to retrieve the values,
-   *        never <code>null</code>
+   * @param bindings the jexl bindings from which to retrieve the values, never <code>null</code>
    * @throws PSDeployException
    */
   public static void checkJexlBinding(
@@ -2241,13 +2168,14 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the current binding that has a jexl expression and adds
-   * mappings based on the supplied list of "ids"
+   * Checks the current binding that has a jexl expression and adds mappings based on the supplied
+   * list of "ids"
+   *
    * @param mappings the list, may not be <code>null</code>.
-   * @param param  the param to check, may not be <code>null</code>.
+   * @param param the param to check, may not be <code>null</code>.
    * @param paramIx the parameter index in this expression
-   * @param occur the occurence of this parameter such as 301's occurence in this
-   *        expression $rx.db.getFoo("301", "356, "301") . . .
+   * @param occur the occurence of this parameter such as 301's occurence in this expression
+   *     $rx.db.getFoo("301", "356, "301") . . .
    * @param bCtx the binding context never <code>null</code>
    */
   public static void checkJexlBindingParam(
@@ -2286,11 +2214,8 @@ public class PSAppTransformer {
    * Transforms the supplied param using the supplied mapping.
    *
    * @param param The param to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformParam(
@@ -2316,22 +2241,18 @@ public class PSAppTransformer {
   }
 
   /**
-   * Problem: You can have a binding<name,expression> pair like this:
-   *    SAMPLE BINDING: name="", expression=$myfuncs.foo.bar("301", "301","301")
-   *    bindings from the template is a <code><b>List</b></code> of PSJexlBinding
-   *    based with the following attrs:
-   *     <LI> <code><b>index</b></code> of the binding</LI>
-   *     <LI> <code><b>name</b></code> of the binding</LI>
-   *     <LI> <code><b>expression</b></code> for the binding</LI>
-   *    The problem is replacing the nth occurence of id "301".
-   *    Solution:
+   * Problem: You can have a binding<name,expression> pair like this: SAMPLE BINDING: name="",
+   * expression=$myfuncs.foo.bar("301", "301","301") bindings from the template is a <code>
+   * <b>List</b></code> of PSJexlBinding based with the following attrs:
+   * <LI><code><b>index</b></code> of the binding
+   * <LI><code><b>name</b></code> of the binding
+   * <LI><code><b>expression</b></code> for the binding The problem is replacing the nth occurence
+   *     of id "301". Solution:
    *
-   * @param mapping The mapping to use for the transformation, may not be
-   *                <code>null</code>, must contain a context appropriate
-   *                for this method.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
    * @param idMap The idMap to use for the transform,may not be <code>null</code>
-   * @param bindings the jexl bindings that are indexed, never <code>null</code>
-   *        may be empty
+   * @param bindings the jexl bindings that are indexed, never <code>null</code> may be empty
    * @throws PSDeployException
    */
   public static void transformJexlBinding(
@@ -2368,15 +2289,14 @@ public class PSAppTransformer {
 
   /**
    * updates the binding for the correct parameter based on :
-   *    <li> index </li>
-   *    <li> occurence</li> of the parameter in the original exp. If more than
-   *    one time, then figure out the earlier occurence of this id. This id has
-   *    already been replaced with a new value. Get this new value and iterate
-   *    until you find the <code>occurence</code> value.
-   * @param binding the jexl binding  never <code>null</code>
-   * @param mapping The mapping to use for the transformation, may not be
-   *                <code>null</code>, must contain a context appropriate
-   *                for this method.
+   * <li>index
+   * <li>occurence of the parameter in the original exp. If more than one time, then figure out the
+   *     earlier occurence of this id. This id has already been replaced with a new value. Get this
+   *     new value and iterate until you find the <code>occurence</code> value.
+   *
+   * @param binding the jexl binding never <code>null</code>
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
    * @param idMap The idMap to use for the transform,may not be <code>null</code>
    * @param je the jexl expression helper never <code>null</code>
    * @throws PSDeployException
@@ -2434,12 +2354,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied properties and adds mappings to the supplied list for
-   * each literal found. Target of the mappings will be unspecified.
+   * Checks the supplied properties and adds mappings to the supplied list for each literal found.
+   * Target of the mappings will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param props An iterator over zero or more <code>PSProperty</code>
-   *           objects to check, may not be <code>null</code>.
+   * @param props An iterator over zero or more <code>PSProperty</code> objects to check, may not be
+   *     <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkProperties(
@@ -2465,13 +2385,10 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied param using the supplied mapping.
    *
-   * @param props An iterator over zero or more <code>PSProperty</code> objects
-   * to transform, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param props An iterator over zero or more <code>PSProperty</code> objects to transform, may
+   *     not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformProperties(
@@ -2502,13 +2419,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied extension calls and adds mappings to the supplied
-   * list for each literal found in one of the extensions.  Target of the
-   * mapping will be unspecified.
+   * Checks the supplied extension calls and adds mappings to the supplied list for each literal
+   * found in one of the extensions. Target of the mapping will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param calls An iterator over zero or more <code>PSExtensionCall</code>
-   * objects to check, may not be <code>null</code>.
+   * @param calls An iterator over zero or more <code>PSExtensionCall</code> objects to check, may
+   *     not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkExtensionCalls(
@@ -2530,11 +2446,8 @@ public class PSAppTransformer {
    * Transforms the supplied extension calls using the supplied mapping.
    *
    * @param calls An iterator over zero or more <code>PSExtensionCall</code>
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformExtensionCalls(
@@ -2565,14 +2478,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the suppplied data locator and adds mappings to the supplied list
-   * for each literal found.  Target of the mapping will be unspecified.
+   * Checks the suppplied data locator and adds mappings to the supplied list for each literal
+   * found. Target of the mapping will be unspecified.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param locator The data locator's replacement value, may not be
-   * <code>null</code>.
+   * @param locator The data locator's replacement value, may not be <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static void checkDataLocator(
@@ -2592,13 +2503,9 @@ public class PSAppTransformer {
   /**
    * Transforms the supplied data locator using the supplied mapping.
    *
-   * @param locator The data locator's replacement value, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param locator The data locator's replacement value, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformDataLocator(
@@ -2623,14 +2530,13 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the suppplied conditionals and adds a mapping to the supplied list
-   * for each literal found.  Target of the mapping will be unspecified.
-   * Does not add mappings when both sides of the conditional specify a literal
-   * replacement value.
+   * Checks the suppplied conditionals and adds a mapping to the supplied list for each literal
+   * found. Target of the mapping will be unspecified. Does not add mappings when both sides of the
+   * conditional specify a literal replacement value.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param conds An iterator over zero or more <code>PSConditional</code>
-   * objects, may not be <code>null</code>.
+   * @param conds An iterator over zero or more <code>PSConditional</code> objects, may not be
+   *     <code>null</code>.
    * @param ctx The current context, may be <code>null</code>.
    */
   public static void checkConditionals(
@@ -2663,16 +2569,14 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the supplied conditionals using the supplied mapping.  Also
-   * transforms the context value.
+   * Transforms the supplied conditionals using the supplied mapping. Also transforms the context
+   * value.
    *
-   * @param conds An iterator over zero or more <code>PSConditional</code>
-   * objects, may not be <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>, must contain a context appropriate for this method.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param conds An iterator over zero or more <code>PSConditional</code> objects, may not be
+   *     <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>, must
+   *     contain a context appropriate for this method.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformConditionals(
@@ -2705,13 +2609,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied call's params to see if a literal has been
-   * specified and if so creates and add required mappings to the supplied
-   * list.
+   * Checks the supplied call's params to see if a literal has been specified and if so creates and
+   * add required mappings to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
-   * @param params An iterator over zero or more
-   * <code>PSAbstractParamValue</code> objects, may not be <code>null</code>.
+   * @param params An iterator over zero or more <code>PSAbstractParamValue</code> objects, may not
+   *     be <code>null</code>.
    * @param ctx The current context, may not be <code>null</code>.
    */
   public static void checkCallParams(
@@ -2730,17 +2633,13 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the supplied call params using the supplied mapping.  Also
-   * transforms the context value.
+   * Transforms the supplied call params using the supplied mapping. Also transforms the context
+   * value.
    *
-   * @param params An iterator over zero or more
-   * <code>PSAbstractParamValue</code> objects to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param params An iterator over zero or more <code>PSAbstractParamValue</code> objects to
+   *     transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformCallParams(
@@ -2769,8 +2668,8 @@ public class PSAppTransformer {
   }
 
   /**
-   * Checks the supplied replacement value to see if a numeric literal has been
-   * specified and if so creates and adds a mapping to the supplied list.
+   * Checks the supplied replacement value to see if a numeric literal has been specified and if so
+   * creates and adds a mapping to the supplied list.
    *
    * @param mappings The list, may not be <code>null</code>.
    * @param value The value to check, may not be <code>null</code>.
@@ -2806,16 +2705,12 @@ public class PSAppTransformer {
   }
 
   /**
-   * Transforms the supplied replacement value using the supplied mapping.
-   * Also transforms the mapping value.
+   * Transforms the supplied replacement value using the supplied mapping. Also transforms the
+   * mapping value.
    *
-   * @param value The replacement value to transform, may not be
-   * <code>null</code>.
-   * @param mapping The mapping to use for the transformation, may not be
-   * <code>null</code>.
-   * @param idMap The idMap to use for the transform, may not be
-   * <code>null</code>.
-   *
+   * @param value The replacement value to transform, may not be <code>null</code>.
+   * @param mapping The mapping to use for the transformation, may not be <code>null</code>.
+   * @param idMap The idMap to use for the transform, may not be <code>null</code>.
    * @throws PSDeployException if a valid id mapping cannot be located.
    */
   public static void transformReplacementValue(
@@ -2859,9 +2754,7 @@ public class PSAppTransformer {
    * Attempts to parse the supplied text value to an integer.
    *
    * @param value The value to check, assumed not <code>null</code> or empty.
-   *
-   * @return <code>true</code> if it can be parsed, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it can be parsed, <code>false</code> otherwise.
    */
   private static boolean isNumeric(String value) {
     try {
@@ -2873,16 +2766,14 @@ public class PSAppTransformer {
   }
 
   /**
-   * Gets the new id for the specified mapping, and updates the mapping with
-   * the new id information. If this has already been done once before, it just
-   * returns the current mapping value, which will be the new id.
+   * Gets the new id for the specified mapping, and updates the mapping with the new id information.
+   * If this has already been done once before, it just returns the current mapping value, which
+   * will be the new id.
    *
-   * @param mapping The mapping to use to get the new id and to update with
-   * the new id infomation, assumed not <code>null</code>.
+   * @param mapping The mapping to use to get the new id and to update with the new id infomation,
+   *     assumed not <code>null</code>.
    * @param idMap The idMap to use, assumed not <code>null</code>.
-   *
    * @return The new id.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private static int getNewId(PSApplicationIDTypeMapping mapping, PSIdMap idMap)

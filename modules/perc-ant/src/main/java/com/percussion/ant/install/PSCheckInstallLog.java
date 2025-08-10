@@ -26,12 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 
 /**
- * An install action bean to check for errors in the installation log file.  If
- * any errors are found, a build exception will be thrown.
+ * An install action bean to check for errors in the installation log file. If any errors are found,
+ * a build exception will be thrown. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -51,7 +49,6 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  *
  * @author peterfrontiero
- *
  */
 public class PSCheckInstallLog extends PSAction {
   // see base class
@@ -123,35 +120,22 @@ public class PSCheckInstallLog extends PSAction {
     }
   }
 
-  /**
-   * Defines the set of keywords to search for as indication of errors.
-   */
+  /** Defines the set of keywords to search for as indication of errors. */
   private static Set<String> m_errorKeywords = new HashSet<String>();
 
-  /**
-   * Defines the set of keywords to search for as indication of errors.
-   */
+  /** Defines the set of keywords to search for as indication of errors. */
   private static Set<String> m_errorAntKeywords = new HashSet<String>();
 
-  /**
-   * Defines the set of keywords to search for as indication of
-   * Package install errors.
-   */
+  /** Defines the set of keywords to search for as indication of Package install errors. */
   private static Set<String> m_errorPackageInstall = new HashSet<String>();
 
-  /**
-   * The relative location of the installation log file.
-   */
+  /** The relative location of the installation log file. */
   private static final String INSTALL_LOG_FILE = "rxconfig/Installer/install.log";
 
-  /**
-   * The relative location of the ant log file.
-   */
+  /** The relative location of the ant log file. */
   private static final String ANT_LOG_FILE = "rxconfig/Installer/ant.log";
 
-  /**
-   * Start log entry string
-   */
+  /** Start log entry string */
   private static final String START_ENTRY = "Started Rx Log";
 
   static {

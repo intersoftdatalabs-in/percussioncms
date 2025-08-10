@@ -30,38 +30,38 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
 import com.percussion.category.data.PSDateAdapter;
 import com.percussion.system.utils.PSSiteManageBean;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.ws.rs.ext.ContextResolver;
 import javax.xml.bind.JAXBException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @PSSiteManageBean("categoryContextResolver")
 public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
 
-    private final ObjectMapper objectMapper;
-    private final Class<?>[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
-    private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class);
+  private final ObjectMapper objectMapper;
+  private final Class<?>[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
+  private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class);
 
-    public PSJAXBContextResolver() throws JAXBException {
-        this.objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true)
-                .setAnnotationIntrospector(AnnotationIntrospector.pair(
-                        new JacksonAnnotationIntrospector(),
-                        new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
-    }
+  public PSJAXBContextResolver() throws JAXBException {
+    this.objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    objectMapper
+        .configure(SerializationFeature.INDENT_OUTPUT, true)
+        .setAnnotationIntrospector(
+            AnnotationIntrospector.pair(
+                new JacksonAnnotationIntrospector(),
+                new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
+  }
 
-    @Override
-    public ObjectMapper getContext(Class<?> arg0) {
-        for (var type : types) {
-            if (type == arg0) {
-                log.debug("Check changes to PSJAXBContextResolver");
-                return this.objectMapper;
-            }
-        }
-        return null;
+  @Override
+  public ObjectMapper getContext(Class<?> arg0) {
+    for (var type : types) {
+      if (type == arg0) {
+        log.debug("Check changes to PSJAXBContextResolver");
+        return this.objectMapper;
+      }
     }
+    return null;
+  }
 }

@@ -46,19 +46,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Evaluator for field validation rules. Evaluates the field validation
- * rules for the supplied field.
+ * Evaluator for field validation rules. Evaluates the field validation rules for the supplied
+ * field.
  */
 public class PSFieldValidationRulesEvaluator {
   /**
    * Create a new field validation evaluator for the provided field.
    *
-   * @param field the field to create the validation evaluator for, not
-   *    <code>null</code>.
-   * @param uiSet the ui set to create the validation evaluator for,
-   *    not <code>null</code>.
-   * @throws IllegalArgumentException if the provided field is
-   *    <code>null</code>.
+   * @param field the field to create the validation evaluator for, not <code>null</code>.
+   * @param uiSet the ui set to create the validation evaluator for, not <code>null</code>.
+   * @throws IllegalArgumentException if the provided field is <code>null</code>.
    */
   public PSFieldValidationRulesEvaluator(PSField field, PSUISet uiSet) {
     if (field == null || uiSet == null)
@@ -71,16 +68,13 @@ public class PSFieldValidationRulesEvaluator {
   /**
    * Checks if this field is valid against the provided data.
    *
-   * @param pageId the pageid which we are validating, not
-   *    <code>null</code>.
-   * @param data the execution data based on which the validation will be
-   *    performed, not <code>null</code>.
-   * @param errorCollector the error collector to be updated in case of a
-   *    validation error, not <code>null</code>.
-   * @return <code>true</code> if the validation succeeded,
-   *    <code>false</code> otherwise.
-   * @throws IllegalArgumentException if any of the provided parameters is
-   *    <code>null</code>.
+   * @param pageId the pageid which we are validating, not <code>null</code>.
+   * @param data the execution data based on which the validation will be performed, not <code>null
+   *     </code>.
+   * @param errorCollector the error collector to be updated in case of a validation error, not
+   *     <code>null</code>.
+   * @return <code>true</code> if the validation succeeded, <code>false</code> otherwise.
+   * @throws IllegalArgumentException if any of the provided parameters is <code>null</code>.
    */
   public boolean isValid(Integer pageId, PSExecutionData data, PSErrorCollector errorCollector) {
     if (pageId == null || data == null || errorCollector == null)
@@ -107,22 +101,20 @@ public class PSFieldValidationRulesEvaluator {
   /**
    * Validates the occurrence settings for this field.
    *
-   * @param data the execution data to evaluate against, not
-   *    <code>null</code>.
-   * @param pageId the pageid which we are validating, not
-   *    <code>null</code>.
-   * @param page the page document based on which the validation will be
-   *    performed, not <code>null</code>.
-   * @param errorCollector the error collector to be updated in case of a
-   *    validation error, not <code>null</code>.
-   * @param lang the language/locale string to be used to produce the localized
-   *    error message. This must follow the XML notation for language or locale
-   *    string. See {@link PSI18nUtils#getLocaleFromString} for details. May be
-   *    <code>null</code> or <code>empty</code>.
-   * @return <code>true</code> if the occurrence settings are fulfilled,
-   *    <code>false</code> otherwise.
-   * @throws IllegalArgumentException if any of the provided parameters except
-   * lang is <code>null</code>.
+   * @param data the execution data to evaluate against, not <code>null</code>.
+   * @param pageId the pageid which we are validating, not <code>null</code>.
+   * @param page the page document based on which the validation will be performed, not <code>null
+   *     </code>.
+   * @param errorCollector the error collector to be updated in case of a validation error, not
+   *     <code>null</code>.
+   * @param lang the language/locale string to be used to produce the localized error message. This
+   *     must follow the XML notation for language or locale string. See {@link
+   *     PSI18nUtils#getLocaleFromString} for details. May be <code>null</code> or <code>empty
+   *     </code>.
+   * @return <code>true</code> if the occurrence settings are fulfilled, <code>false</code>
+   *     otherwise.
+   * @throws IllegalArgumentException if any of the provided parameters except lang is <code>null
+   *     </code>.
    */
   public boolean isValidOccurrence(
       PSExecutionData data,
@@ -213,26 +205,20 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * Evaluate the apply when rules. Before the apply rules are evaluated
-   * a few implicit rules will be checked.
-   * <ol><li>
-   *    If no apply rules are specified, this will return <code>true</code>
-   *    so the field validation will be processed.
-   * </li>
-   * <li>
-   *    If empty fields are allowed and the provided field does not have
-   *    a value this will return <code>false</code>, meaning no validation
-   *    will be processed.
-   * </li>
-   * <li>
-   *    If all tests are passed so far, the apply rules will be evaluated,
-   *    initializing the result value.
-   * </li></ol>
+   * Evaluate the apply when rules. Before the apply rules are evaluated a few implicit rules will
+   * be checked.
    *
-   * @param data the execution data to evaluate against, assumed not
-   *    <code>null</code>.
-   * @return <code>true</code> if the field should be validated,
-   *    <code>false</code> otherwise.
+   * <ol>
+   *   <li>If no apply rules are specified, this will return <code>true</code> so the field
+   *       validation will be processed.
+   *   <li>If empty fields are allowed and the provided field does not have a value this will return
+   *       <code>false</code>, meaning no validation will be processed.
+   *   <li>If all tests are passed so far, the apply rules will be evaluated, initializing the
+   *       result value.
+   * </ol>
+   *
+   * @param data the execution data to evaluate against, assumed not <code>null</code>.
+   * @return <code>true</code> if the field should be validated, <code>false</code> otherwise.
    */
   private boolean evaluateApplyWhen(PSExecutionData data)
       throws PSExtensionException, PSNotFoundException {
@@ -253,24 +239,18 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * Get the number of values from the execution data for the provided
-   * parameter name.
+   * Get the number of values from the execution data for the provided parameter name.
    *
-   * @paramName the parameter name we want the value count for, assumed not
-   *    <code>null</code>.
-   * @param data the execution data to get the value count from, assumed not
-   *    <code>null</code>.
-   * @return The number of parameter values found.<br />
-   *   Returns 0 if, the value extracted from <code>data</code> is
-   *   <ul>
+   * @paramName the parameter name we want the value count for, assumed not <code>null</code>.
+   * @param data the execution data to get the value count from, assumed not <code>null</code>.
+   * @return The number of parameter values found.<br>
+   *     Returns 0 if, the value extracted from <code>data</code> is
+   *     <ul>
    *       <li>a <code>String</code> which is empty, blank filled, or null.
-   *       </li>
    *       <li>a <code>List</code> which is empty or null.
-   *       </li>
-   *       <li>a <code>List</code> whose elements are either null or
-   *       a <code>String</code> which is empty, blank filled, or null.
-   *       </li>
-   *   </ul>
+   *       <li>a <code>List</code> whose elements are either null or a <code>String</code> which is
+   *           empty, blank filled, or null.
+   *     </ul>
    */
   private int getValueCount(String paramName, PSExecutionData data) {
     PSHtmlParameterExtractor extractor =
@@ -306,13 +286,10 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * Get the number of values from the page document for the provided
-   * parameter name.
+   * Get the number of values from the page document for the provided parameter name.
    *
-   * @paramName the parameter name we want the value count for, assumed not
-   *    <code>null</code>.
-   * @param page the page document to get the value count from, assumed not
-   *    <code>null</code>.
+   * @paramName the parameter name we want the value count for, assumed not <code>null</code>.
+   * @param page the page document to get the value count from, assumed not <code>null</code>.
    * @return the number of parameter values found.
    */
   private int getValueCount(String paramName, Document page) {
@@ -359,8 +336,7 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * Get the field evaluated through this evaluator. This should be treated
-   * as read only object.
+   * Get the field evaluated through this evaluator. This should be treated as read only object.
    *
    * @return the field to be evaludated, never <code>null</code>.
    */
@@ -369,11 +345,10 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * Get the fields UI set this evaluator is validating. This should be
-   * treated as a read only object.
+   * Get the fields UI set this evaluator is validating. This should be treated as a read only
+   * object.
    *
-   * @param the UI set of the field beeing evaluated, never
-   *    <code>null</code>.
+   * @param the UI set of the field beeing evaluated, never <code>null</code>.
    */
   public PSUISet getUISet() {
     return m_uiSet;
@@ -382,8 +357,7 @@ public class PSFieldValidationRulesEvaluator {
   /**
    * Returns the apply when rules of the validation rule being evaluated.
    *
-   * @return The PSApplyWhen object if the rule contains apply when rules,
-   * <code>null</code> if not.
+   * @return The PSApplyWhen object if the rule contains apply when rules, <code>null</code> if not.
    */
   public PSApplyWhen getApplyWhen() {
     PSFieldValidationRules validationRules = m_field.getValidationRules();
@@ -393,14 +367,14 @@ public class PSFieldValidationRulesEvaluator {
   }
 
   /**
-   * The field this evaluator is validating, specified during construction,
-   * never <code>null</code> after that.
+   * The field this evaluator is validating, specified during construction, never <code>null</code>
+   * after that.
    */
   private PSField m_field = null;
 
   /**
-   * The UI set for the field this evaluator was created. Specified during
-   * construction, never <code>null</code> after that.
+   * The UI set for the field this evaluator was created. Specified during construction, never
+   * <code>null</code> after that.
    */
   private PSUISet m_uiSet = null;
 }

@@ -49,12 +49,11 @@ import java.util.Vector;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * The PSFileSystemStatement class implements statement handling for
- * the File System driver.
+ * The PSFileSystemStatement class implements statement handling for the File System driver.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileSystemStatement implements Statement {
 
@@ -66,55 +65,51 @@ public class PSFileSystemStatement implements Statement {
 
   /**
    * Execute a SQL statement that returns a single ResultSet.
-   * <p>
-   * Limited search capabilities are supported against the file system
-   * using SQL constructs. In particular, queries can be generated
-   * using the syntax:
+   *
+   * <p>Limited search capabilities are supported against the file system using SQL constructs. In
+   * particular, queries can be generated using the syntax:
+   *
    * <pre><code>
    *    SELECT FieldList FROM SearchPath
    *                     WHERE SearchConditions
    *                     ORDER BY FieldList
    * </code></pre>
+   *
    * where:
+   *
    * <ul>
-   * <li>FieldList - one or more comma delimited fields, as defined
-   *     in the Fields in the File System Result Set section. For
-   *     example, <code>SELECT fullname, name, modified, length</code></li>
-   * <li>SearchPath - the directory(ies) to search in. To search multiple
-   *     directories, separate entries with commas. To perform a search in
-   *     a directory plus all its sub-directories, append the path
-   *     separator and * to the path name. E2 defines the forward slash
-   *     (/) as the path separator. To search the directory c:\mydir and
-   *     the directory c:\mydir2 plus all its sub-directories, use:
-   *     <code>FROM c:/mydir, c:/mydir2/*</code></li>
-   * <li>SearchConditions - we support limited search capabilities using
-   *     the syntax <code>Field SearchOperator Value</code>. To use
-   *     multiple search conditions, use <code>AND</code> to require both
-   *     conditions be true and <code>OR</code> to require that at least
-   *     one of the conditions is true. For instance, use
-   *     <code>SearchCondition AND SearchCondition</code> to check that
-   *     both conditions are met. Use <code>SearchCondition OR
-   *     SearchCondition</code> to check that at least one of the
-   *     conditions is met. Supported search operators are:
-   *     <ul>
-   *     <li>=, >, >=, <, <= - standard operators to test equality, etc.
-   *         such as length <= 1024 to check for files which are no larger
-   *         than 1K. These operations are supported against character,
-   *         time/date and integer fields.</li>
-   *     <li>LIKE - perform character string pattern matching, following
-   *         SQL string rules. Namely, it must be surrounded by single
-   *         quotes, % is the wildcard character and the string comparison
-   *         is case sensitive. This option is only supported against the
-   *         path, name and fullname fields. At this time, searching the
-   *         contents field is not supported. For example, to test for
-   *         files ending with .xml use: <code>name LIKE '%.xml'</code></li>
-   *     </ul></li>
+   *   <li>FieldList - one or more comma delimited fields, as defined in the Fields in the File
+   *       System Result Set section. For example, <code>SELECT fullname, name, modified, length
+   *       </code>
+   *   <li>SearchPath - the directory(ies) to search in. To search multiple directories, separate
+   *       entries with commas. To perform a search in a directory plus all its sub-directories,
+   *       append the path separator and * to the path name. E2 defines the forward slash (/) as the
+   *       path separator. To search the directory c:\mydir and the directory c:\mydir2 plus all its
+   *       sub-directories, use: <code>FROM c:/mydir, c:/mydir2/*</code>
+   *   <li>SearchConditions - we support limited search capabilities using the syntax <code>
+   *       Field SearchOperator Value</code>. To use multiple search conditions, use <code>AND
+   *       </code> to require both conditions be true and <code>OR</code> to require that at least
+   *       one of the conditions is true. For instance, use <code>
+   *       SearchCondition AND SearchCondition</code> to check that both conditions are met. Use
+   *       <code>SearchCondition OR
+   *     SearchCondition</code> to check that at least one of the conditions is met. Supported
+   *       search operators are:
+   *       <ul>
+   *         <li>=, >, >=, <, <= - standard operators to test equality, etc. such as length <= 1024
+   *             to check for files which are no larger than 1K. These operations are supported
+   *             against character, time/date and integer fields.
+   *         <li>LIKE - perform character string pattern matching, following SQL string rules.
+   *             Namely, it must be surrounded by single quotes, % is the wildcard character and the
+   *             string comparison is case sensitive. This option is only supported against the
+   *             path, name and fullname fields. At this time, searching the contents field is not
+   *             supported. For example, to test for files ending with .xml use: <code>
+   *             name LIKE '%.xml'</code>
+   *       </ul>
    * </ul>
    *
-   * @param   sql      typically this is a static SQL SELECT statement
-   * @return           returns a ResultSet that contains the data produced
-   *                   by the query; never null
-   * @exception  SQLException   if an error occurs
+   * @param sql typically this is a static SQL SELECT statement
+   * @return returns a ResultSet that contains the data produced by the query; never null
+   * @exception SQLException if an error occurs
    */
   public java.sql.ResultSet executeQuery(java.lang.String sql) throws SQLException {
     try {
@@ -128,310 +123,262 @@ public class PSFileSystemStatement implements Statement {
   }
 
   /**
-   * Execute a SQL INSERT, UPDATE or DELETE statement. In addition,
-   * SQL statements that return nothing such as SQL DDL statements
-   * can be executed.
+   * Execute a SQL INSERT, UPDATE or DELETE statement. In addition, SQL statements that return
+   * nothing such as SQL DDL statements can be executed.
    *
-   * @param   sql      a SQL INSERT, UPDATE or DELETE statement or a SQL
-   *                   statement that returns nothing
-   * @return           either the row count for INSERT, UPDATE or DELETE
-   *                   or 0 for SQL statements that return nothing
-   * @exception  SQLException   if an error occurs
+   * @param sql a SQL INSERT, UPDATE or DELETE statement or a SQL statement that returns nothing
+   * @return either the row count for INSERT, UPDATE or DELETE or 0 for SQL statements that return
+   *     nothing
+   * @exception SQLException if an error occurs
    */
   public int executeUpdate(java.lang.String sql) throws SQLException {
     return 0;
   }
 
   /**
-   * In many cases, it is desirable to immediately release a Statements's
-   * database and JDBC resources instead of waiting for this to happen
-   * when it is automatically closed; the close method provides this
-   * immediate release.
-   * <p>
-   * Note: A Statement is automatically closed when it is garbage
-   * collected. When a Statement is closed, its current ResultSet, if
-   * one exists, is also closed.
+   * In many cases, it is desirable to immediately release a Statements's database and JDBC
+   * resources instead of waiting for this to happen when it is automatically closed; the close
+   * method provides this immediate release.
    *
-   * @exception  SQLException   if an error occurs
+   * <p>Note: A Statement is automatically closed when it is garbage collected. When a Statement is
+   * closed, its current ResultSet, if one exists, is also closed.
+   *
+   * @exception SQLException if an error occurs
    */
   public void close() throws SQLException {}
 
   /**
-   * The maxFieldSize limit (in bytes) is the maximum amount of data
-   * returned for any column value; it only applies to BINARY, VARBINARY,
-   * LONGVARBINARY, CHAR, VARCHAR, and LONGVARCHAR columns. If the limit
-   * is exceeded, the excess data is silently discarded.
+   * The maxFieldSize limit (in bytes) is the maximum amount of data returned for any column value;
+   * it only applies to BINARY, VARBINARY, LONGVARBINARY, CHAR, VARCHAR, and LONGVARCHAR columns. If
+   * the limit is exceeded, the excess data is silently discarded.
    *
-   * @return     the current max column size limit; zero means unlimited
-   * @exception  SQLException   if an error occurs
+   * @return the current max column size limit; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public int getMaxFieldSize() throws SQLException {
     return 0;
   }
 
   /**
-   * The maxFieldSize limit (in bytes) is set to limit the size of data
-   * that can be returned for any column value; it only applies to
-   * BINARY, VARBINARY, LONGVARBINARY, CHAR, VARCHAR, and LONGVARCHAR
-   * fields. If the limit is exceeded, the excess data is silently
-   * discarded. For maximum portability use values greater than 256.
+   * The maxFieldSize limit (in bytes) is set to limit the size of data that can be returned for any
+   * column value; it only applies to BINARY, VARBINARY, LONGVARBINARY, CHAR, VARCHAR, and
+   * LONGVARCHAR fields. If the limit is exceeded, the excess data is silently discarded. For
+   * maximum portability use values greater than 256.
    *
-   * @param      max            the new max column size limit; zero means
-   *                            unlimited
-   * @exception  SQLException   if an error occurs
+   * @param max the new max column size limit; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public void setMaxFieldSize(int max) throws SQLException {}
 
   /**
-   * The maxRows limit is the maximum number of rows that a ResultSet
-   * can contain. If the limit is exceeded, the excess rows are silently
-   * dropped.
+   * The maxRows limit is the maximum number of rows that a ResultSet can contain. If the limit is
+   * exceeded, the excess rows are silently dropped.
    *
-   * @return     the current max row limit; zero means unlimited
-   * @exception  SQLException   if an error occurs
+   * @return the current max row limit; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public int getMaxRows() throws SQLException {
     return 0;
   }
 
   /**
-   * The maxRows limit is set to limit the number of rows that any
-   * ResultSet can contain. If the limit is exceeded, the excess rows
-   * are silently dropped.
+   * The maxRows limit is set to limit the number of rows that any ResultSet can contain. If the
+   * limit is exceeded, the excess rows are silently dropped.
    *
-   * @param      max            the new max rows limit; zero means unlimited
-   * @exception  SQLException   if an error occurs
+   * @param max the new max rows limit; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public void setMaxRows(int max) throws SQLException {}
 
   /**
-   * If escape scanning is on (the default), the driver will do escape
-   * substitution before sending the SQL to the database. Note: Since
-   * prepared statements have usually been parsed prior to making this
-   * call, disabling escape processing for prepared statements will like
-   * have no affect.
+   * If escape scanning is on (the default), the driver will do escape substitution before sending
+   * the SQL to the database. Note: Since prepared statements have usually been parsed prior to
+   * making this call, disabling escape processing for prepared statements will like have no affect.
    *
-   * @param      enable         <code>true</code> to enable;
-   *                            <code>false</code> to disable
-   * @exception  SQLException   if an error occurs
+   * @param enable <code>true</code> to enable; <code>false</code> to disable
+   * @exception SQLException if an error occurs
    */
   public void setEscapeProcessing(boolean enable) throws SQLException {}
 
   /**
-   * The queryTimeout limit is the number of seconds the driver will
-   * wait for a Statement to execute. If the limit is exceeded, a
-   * SQLException is thrown.
+   * The queryTimeout limit is the number of seconds the driver will wait for a Statement to
+   * execute. If the limit is exceeded, a SQLException is thrown.
    *
-   * @return                    the current query timeout limit in seconds;
-   *                            zero means unlimited
-   * @exception  SQLException   if an error occurs
+   * @return the current query timeout limit in seconds; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public int getQueryTimeout() throws SQLException {
     return 0;
   }
 
   /**
-   * The queryTimeout limit is the number of seconds the driver will
-   * wait for a Statement to execute. If the limit is exceeded, a
-   * SQLException is thrown.
+   * The queryTimeout limit is the number of seconds the driver will wait for a Statement to
+   * execute. If the limit is exceeded, a SQLException is thrown.
    *
-   * @param      seconds        the new query timeout limit in seconds;
-   *                            zero means unlimited
-   * @exception  SQLException   if an error occurs
+   * @param seconds the new query timeout limit in seconds; zero means unlimited
+   * @exception SQLException if an error occurs
    */
   public void setQueryTimeout(int seconds) throws SQLException {}
 
   /**
-   * Cancel can be used by one thread to cancel a statement that is
-   * being executed by another thread.
+   * Cancel can be used by one thread to cancel a statement that is being executed by another
+   * thread.
    *
-   * @exception  SQLException   if an error occurs
+   * @exception SQLException if an error occurs
    */
   public void cancel() throws SQLException {}
 
   /**
-   * The first warning reported by calls on this Statement is returned.
-   * A Statment's execute methods clear its SQLWarning chain. Subsequent
-   * Statement warnings will be chained to this SQLWarning.
-   * <p>
-   * The warning chain is automatically cleared each time a statement is
-   * (re)executed.
-   * <p>
-   * Note: If you are processing a ResultSet then any warnings associated
-   * with ResultSet reads will be chained on the ResultSet object.
+   * The first warning reported by calls on this Statement is returned. A Statment's execute methods
+   * clear its SQLWarning chain. Subsequent Statement warnings will be chained to this SQLWarning.
    *
-   * @return                    the first SQLWarning or null
-   * @exception  SQLException   if an error occurs
+   * <p>The warning chain is automatically cleared each time a statement is (re)executed.
+   *
+   * <p>Note: If you are processing a ResultSet then any warnings associated with ResultSet reads
+   * will be chained on the ResultSet object.
+   *
+   * @return the first SQLWarning or null
+   * @exception SQLException if an error occurs
    */
   public SQLWarning getWarnings() throws SQLException {
     return null;
   }
 
   /**
-   * After this call, getWarnings returns null until a new warning is
-   * reported for this Statement.
+   * After this call, getWarnings returns null until a new warning is reported for this Statement.
    *
-   * @exception  SQLException   if an error occurs
+   * @exception SQLException if an error occurs
    */
   public void clearWarnings() throws SQLException {}
 
   /**
-   * setCursorname defines the SQL cursor name that will be used by
-   * subsequent Statement execute methods. This name can then be used
-   * in SQL positioned update/delete statements to identify the current
-   * row in the ResultSet generated by this statement. If the database
-   * doesn't support positioned update/delete, this method is a noop.
-   * <p>
-   * Note: By definition, positioned update/delete execution must be
-   * done by a different Statement than the one which generated the
-   * ResultSet being used for positioning. Also, cursor names must be
-   * unique within a Connection.
+   * setCursorname defines the SQL cursor name that will be used by subsequent Statement execute
+   * methods. This name can then be used in SQL positioned update/delete statements to identify the
+   * current row in the ResultSet generated by this statement. If the database doesn't support
+   * positioned update/delete, this method is a noop.
    *
-   * @param      name           the new cursor name.
-   * @exception  SQLException   if an error occurs
+   * <p>Note: By definition, positioned update/delete execution must be done by a different
+   * Statement than the one which generated the ResultSet being used for positioning. Also, cursor
+   * names must be unique within a Connection.
+   *
+   * @param name the new cursor name.
+   * @exception SQLException if an error occurs
    */
   public void setCursorName(java.lang.String name) throws SQLException {}
 
   /**
-   * Execute a SQL statement that may return multiple results.
-   * Under some (uncommon) situations a single SQL statement may return
-   * multiple result sets and/or update counts. Normally you can ignore
-   * this, unless you're executing a stored procedure that you know may
-   * return multiple results, or unless you're dynamically executing an
-   * unknown SQL string. The "execute", "getMoreResults", "getResultSet"
-   * and "getUpdateCount" methods let you navigate through multiple
-   * results. The "execute" method executes a SQL statement and indicates
-   * the form of the first result. You can then use getResultSet or
-   * getUpdateCount to retrieve the result, and getMoreResults to move
-   * to any subsequent result(s).
-   * <p>
-   * This driver does not support multiple result sets. See the
-   * {@link #executeQuery(java.lang.String) executeQuery} and
-   * {@link #executeUpdate(java.lang.String) executeUpdate} methods for
-   * a description of the SQL syntax supported by this driver.
+   * Execute a SQL statement that may return multiple results. Under some (uncommon) situations a
+   * single SQL statement may return multiple result sets and/or update counts. Normally you can
+   * ignore this, unless you're executing a stored procedure that you know may return multiple
+   * results, or unless you're dynamically executing an unknown SQL string. The "execute",
+   * "getMoreResults", "getResultSet" and "getUpdateCount" methods let you navigate through multiple
+   * results. The "execute" method executes a SQL statement and indicates the form of the first
+   * result. You can then use getResultSet or getUpdateCount to retrieve the result, and
+   * getMoreResults to move to any subsequent result(s).
    *
-   * @param      sql            any SQL statement
-   * @return                    <code>true</code> if the next result is a
-   *                            ResultSet; <code>false</code> if it is an
-   *                            update count or there are no more results
-   * @exception  SQLException   if an error occurs
-   * @see        #getResultSet
-   * @see        #getUpdateCount
-   * @see        #getMoreResults
+   * <p>This driver does not support multiple result sets. See the {@link
+   * #executeQuery(java.lang.String) executeQuery} and {@link #executeUpdate(java.lang.String)
+   * executeUpdate} methods for a description of the SQL syntax supported by this driver.
+   *
+   * @param sql any SQL statement
+   * @return <code>true</code> if the next result is a ResultSet; <code>false</code> if it is an
+   *     update count or there are no more results
+   * @exception SQLException if an error occurs
+   * @see #getResultSet
+   * @see #getUpdateCount
+   * @see #getMoreResults
    */
   public boolean execute(java.lang.String sql) throws SQLException {
     return false;
   }
 
   /**
-   * getResultSet returns the current result as a ResultSet. It should
-   * only be called once per result.
+   * getResultSet returns the current result as a ResultSet. It should only be called once per
+   * result.
    *
-   * @return                    the current result as a ResultSet;
-   *                            <code>null</code> if the result is an
-   *                            update count or there are no more results
-   * @exception  SQLException   if an error occurs
-   * @see        #execute
+   * @return the current result as a ResultSet; <code>null</code> if the result is an update count
+   *     or there are no more results
+   * @exception SQLException if an error occurs
+   * @see #execute
    */
   public ResultSet getResultSet() throws SQLException {
     return null;
   }
 
   /**
-   * getUpdateCount returns the current result as an update count; if
-   * the result is a ResultSet or there are no more results, -1 is
-   * returned. It should only be called once per result.
+   * getUpdateCount returns the current result as an update count; if the result is a ResultSet or
+   * there are no more results, -1 is returned. It should only be called once per result.
    *
-   * @return                    the current result as an update count;
-   *                            -1 if it is a ResultSet or there are no
-   *                            more results
-   * @exception  SQLException   if an error occurs
-   * @see        #execute
+   * @return the current result as an update count; -1 if it is a ResultSet or there are no more
+   *     results
+   * @exception SQLException if an error occurs
+   * @see #execute
    */
   public int getUpdateCount() throws SQLException {
     return -1;
   }
 
   /**
-   * getMoreResults moves to a Statement's next result. It returns
-   * <code>true</code> if this result is a ResultSet. getMoreResults
-   * also implicitly closes any current ResultSet obtained with
-   * getResultSet. There are no more results when
-   * <code>(!getMoreResults() && (getUpdateCount() == -1)</code>
+   * getMoreResults moves to a Statement's next result. It returns <code>true</code> if this result
+   * is a ResultSet. getMoreResults also implicitly closes any current ResultSet obtained with
+   * getResultSet. There are no more results when <code>
+   * (!getMoreResults() && (getUpdateCount() == -1)</code>
    *
-   * @return                    <code>true</code> if the next result is
-   *                            a ResultSet; false if it is an update
-   *                            count or there are no more results
-   *
-   * @exception  SQLException   if an error occurs
-   * @see        #execute
+   * @return <code>true</code> if the next result is a ResultSet; false if it is an update count or
+   *     there are no more results
+   * @exception SQLException if an error occurs
+   * @see #execute
    */
   public boolean getMoreResults() throws SQLException {
     return false;
   }
 
   /**
-   * JDBC 2.0 Gives the driver a hint as to the direction in which the
-   * rows in a result set will be processed. The hint applies only to
-   * result sets created using this Statement object. The default value
-   * is ResultSet.FETCH_FORWARD.
+   * JDBC 2.0 Gives the driver a hint as to the direction in which the rows in a result set will be
+   * processed. The hint applies only to result sets created using this Statement object. The
+   * default value is ResultSet.FETCH_FORWARD.
    *
-   * Note that this method sets the default fetch direction for result
-   * sets generated by this Statement object. Each result set has its
-   * own methods for getting and setting its own fetch direction.
+   * <p>Note that this method sets the default fetch direction for result sets generated by this
+   * Statement object. Each result set has its own methods for getting and setting its own fetch
+   * direction.
    *
-   * @param      direction      the initial direction for processing rows
-   *
-   * @exception  SQLException   if a database access error occurs or the
-   *                            given direction is not one of
-   *                            ResultSet.FETCH_FORWARD,
-   *                            ResultSet.FETCH_REVERSE, or
-   *                            ResultSet.FETCH_UNKNOWN
+   * @param direction the initial direction for processing rows
+   * @exception SQLException if a database access error occurs or the given direction is not one of
+   *     ResultSet.FETCH_FORWARD, ResultSet.FETCH_REVERSE, or ResultSet.FETCH_UNKNOWN
    */
   public void setFetchDirection(int direction) throws SQLException {}
 
   /**
-   * JDBC 2.0 Retrieves the direction for fetching rows from database
-   * tables that is the default for result sets generated from this
-   * Statement object. If this Statement object has not set a fetch
-   * direction by calling the method setFetchDirection, the return
-   * value is implementation-specific.
+   * JDBC 2.0 Retrieves the direction for fetching rows from database tables that is the default for
+   * result sets generated from this Statement object. If this Statement object has not set a fetch
+   * direction by calling the method setFetchDirection, the return value is implementation-specific.
    *
-   * @return     the default fetch direction for result sets generated
-   *             from this Statement object
-   *
-   * @exception  SQLException   if a database access error occurs
+   * @return the default fetch direction for result sets generated from this Statement object
+   * @exception SQLException if a database access error occurs
    */
   public int getFetchDirection() throws SQLException {
     return 0;
   }
 
   /**
-   * JDBC 2.0 Gives the JDBC driver a hint as to the number of rows
-   * that should be fetched from the database when more rows are needed.
-   * The number of rows specified affects only result sets created using
-   * this statement. If the value specified is zero, then the hint is
-   * ignored. The default value is zero.
+   * JDBC 2.0 Gives the JDBC driver a hint as to the number of rows that should be fetched from the
+   * database when more rows are needed. The number of rows specified affects only result sets
+   * created using this statement. If the value specified is zero, then the hint is ignored. The
+   * default value is zero.
    *
-   * @param      rows           the number of rows to fetch
-   *
-   * @exception  SQLException   if a database access error occurs,
-   *                            or the condition 0 <= rows <=
-   *                            this.getMaxRows() is not satisfied.
+   * @param rows the number of rows to fetch
+   * @exception SQLException if a database access error occurs, or the condition 0 <= rows <=
+   *     this.getMaxRows() is not satisfied.
    */
   public void setFetchSize(int rows) throws SQLException {}
 
   /**
-   * JDBC 2.0 Retrieves the number of result set rows that is the
-   * default fetch size for result sets generated from this Statement
-   * object. If this Statement object has not set a fetch size by
-   * calling the method setFetchSize, the return value is
-   * implementation-specific.
+   * JDBC 2.0 Retrieves the number of result set rows that is the default fetch size for result sets
+   * generated from this Statement object. If this Statement object has not set a fetch size by
+   * calling the method setFetchSize, the return value is implementation-specific.
    *
-   * @return     the default fetch size for result sets generated from
-   *             this Statement object
-   *
-   * @exception  SQLException   if a database access error occurs
+   * @return the default fetch size for result sets generated from this Statement object
+   * @exception SQLException if a database access error occurs
    */
   public int getFetchSize() throws SQLException {
     return 0;
@@ -440,9 +387,8 @@ public class PSFileSystemStatement implements Statement {
   /**
    * JDBC 2.0 Retrieves the result set concurrency.
    *
-   * @return     the result set concurrency
-   *
-   * @exception  SQLException   if a database access error occurs
+   * @return the result set concurrency
+   * @exception SQLException if a database access error occurs
    */
   public int getResultSetConcurrency() throws SQLException {
     return 0;
@@ -451,65 +397,54 @@ public class PSFileSystemStatement implements Statement {
   /**
    * JDBC 2.0 Determine the result set type.
    *
-   * @return     the result set type
-   *
-   * @exception  SQLException   if a database access error occurs
+   * @return the result set type
+   * @exception SQLException if a database access error occurs
    */
   public int getResultSetType() throws SQLException {
     return 0;
   }
 
   /**
-   * JDBC 2.0 Adds a SQL command to the current batch of commmands for
-   * the statement. This method is optional.
+   * JDBC 2.0 Adds a SQL command to the current batch of commmands for the statement. This method is
+   * optional.
    *
-   * @param      sql            typically this is a static SQL INSERT or
-   *                            UPDATE statement
-   *
-   * @exception  SQLException   if a database access error occurs, or
-   *                            the driver does not support batch statements
+   * @param sql typically this is a static SQL INSERT or UPDATE statement
+   * @exception SQLException if a database access error occurs, or the driver does not support batch
+   *     statements
    */
   public void addBatch(java.lang.String sql) throws SQLException {}
 
   /**
-   * JDBC 2.0 Makes the set of commands in the current batch empty.
-   * This method is optional.
+   * JDBC 2.0 Makes the set of commands in the current batch empty. This method is optional.
    *
-   * @exception  SQLException   if a database access error occurs or
-   *                            the driver does not support batch statements
+   * @exception SQLException if a database access error occurs or the driver does not support batch
+   *     statements
    */
   public void clearBatch() throws SQLException {}
 
   /**
-   * JDBC 2.0 Submits a batch of commands to the database for execution.
-   * This method is optional.
+   * JDBC 2.0 Submits a batch of commands to the database for execution. This method is optional.
    *
-   * @return     an array of update counts containing one element for each
-   *             command in the batch. The array is ordered according to
-   *             the order in which commands were inserted into the batch.
-   *
-   * @exception  SQLException   if a database access error occurs or
-   *                            the driver does not support batch statements
+   * @return an array of update counts containing one element for each command in the batch. The
+   *     array is ordered according to the order in which commands were inserted into the batch.
+   * @exception SQLException if a database access error occurs or the driver does not support batch
+   *     statements
    */
   public int[] executeBatch() throws SQLException {
     return null;
   }
 
   /**
-   * JDBC 2.0 Returns the Connection object that produced this Statement
-   * object.
+   * JDBC 2.0 Returns the Connection object that produced this Statement object.
    *
-   * @return     the connection that produced this statement
-   *
-   * @exception  SQLException   if a database access error occurs
+   * @return the connection that produced this statement
+   * @exception SQLException if a database access error occurs
    */
   public java.sql.Connection getConnection() throws SQLException {
     return null;
   }
 
-  /**
-   * A utility function to parse a string
-   */
+  /** A utility function to parse a string */
   protected SimpleNode parse(String sql) throws ParseException {
     sql = sql.trim();
     if (!sql.endsWith(";")) sql = sql + ";";
@@ -522,10 +457,7 @@ public class PSFileSystemStatement implements Statement {
     return statement;
   }
 
-  /**
-   * A utility function to execute the file query and store the result data
-   *
-   */
+  /** A utility function to execute the file query and store the result data */
   private void doFileQuery(Node node) throws java.io.IOException, SQLException {
     ASTStatementRoot root = (ASTStatementRoot) node;
 
@@ -598,10 +530,7 @@ public class PSFileSystemStatement implements Statement {
     m_results = fileList.getResults();
   }
 
-  /**
-   * A utility function to return the appropriate column constant for
-   * a SQL column name
-   */
+  /** A utility function to return the appropriate column constant for a SQL column name */
   private static int getColumnConstant(String name) throws SQLException {
     int colIdx;
     // ensure that name is one of: path, name, fullname, modified, length, contents
@@ -622,10 +551,7 @@ public class PSFileSystemStatement implements Statement {
     return colIdx;
   }
 
-  /**
-   * A utility function to return the appropriate column type for
-   * a given column constant
-   */
+  /** A utility function to return the appropriate column type for a given column constant */
   private static short getColumnType(int columnConstant) throws SQLException {
     short colType = java.sql.Types.VARCHAR; // default
     switch (columnConstant) {
@@ -642,10 +568,7 @@ public class PSFileSystemStatement implements Statement {
     return colType;
   }
 
-  /**
-   * A utility function to return the appropriate column size for
-   * a given column constant
-   */
+  /** A utility function to return the appropriate column size for a given column constant */
   private static int getColumnSize(int columnConstant) throws SQLException {
     int colSize = 1024; // default
     switch (columnConstant) {
@@ -680,32 +603,22 @@ public class PSFileSystemStatement implements Statement {
     public static final int CONTENTS = 5;
 
     /**
-     * Constructor - build a file list starting in the specified
-     * directory, including all and only those files which are
-     * accepted by the given filter. Can be recursive.
+     * Constructor - build a file list starting in the specified directory, including all and only
+     * those files which are accepted by the given filter. Can be recursive.
      *
-     * @param   rootDirs   The starting directories of the file list.
-     * The directories themselves will not be incldued in the list.
-     * Every directory will be processed in order.
-     *
-     * @param   fileFilter   The filter that will be used to select
-     * the files for the list. Specify <CODE>null</CODE> to select
-     * all files.
-     *
-     * @param   addDirs   If <CODE>true</CODE>, will add any dirs to
-     * the list that match the filter. If <CODE>false</CODE>, will
-     * not add any dirs to the list (even though it may recurse into
-     * those dirs).
-     *
-     * @param   recursive   If <CODE>true</CODE>, will recurse into
-     * all directories which pass through the filter. If <CODE>false</CODE>,
-     * will only add matching files/dirs from the root dir, and will not
-     * recurse into any directories.
-     *
-     * @param   columnConstants   The definition of the columns. Each element
-     * is an integer constant representing the particular file data that
-     * will go in that column. The number of columns is equal to the length
-     * of the columnConstants array
+     * @param rootDirs The starting directories of the file list. The directories themselves will
+     *     not be incldued in the list. Every directory will be processed in order.
+     * @param fileFilter The filter that will be used to select the files for the list. Specify
+     *     <CODE>null</CODE> to select all files.
+     * @param addDirs If <CODE>true</CODE>, will add any dirs to the list that match the filter. If
+     *     <CODE>false</CODE>, will not add any dirs to the list (even though it may recurse into
+     *     those dirs).
+     * @param recursive If <CODE>true</CODE>, will recurse into all directories which pass through
+     *     the filter. If <CODE>false</CODE>, will only add matching files/dirs from the root dir,
+     *     and will not recurse into any directories.
+     * @param columnConstants The definition of the columns. Each element is an integer constant
+     *     representing the particular file data that will go in that column. The number of columns
+     *     is equal to the length of the columnConstants array
      */
     public FileList(
         File[] rootDirs,

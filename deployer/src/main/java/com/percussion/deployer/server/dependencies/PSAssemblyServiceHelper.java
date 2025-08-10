@@ -46,18 +46,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A helper class for the new templates, slots, bindings, contentlists etc to
- * use
- * @author vamsinukala
+ * A helper class for the new templates, slots, bindings, contentlists etc to use
  *
+ * @author vamsinukala
  */
 public class PSAssemblyServiceHelper {
 
   private static final Logger log = LogManager.getLogger(PSAssemblyServiceHelper.class);
 
-  /**
-   * CTOR
-   */
+  /** CTOR */
   public PSAssemblyServiceHelper() {
     if (m_namedTemplatesMap != null) {
       m_namedTemplatesMap.clear();
@@ -102,11 +99,11 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Helper method to
-   * 1. find and load all the **NEW** templates: List<IPSAssemblyTemplate>
-   * 2. generate a map m_templatesMap
-   * @param doLegacyTmps if <code>true</code> build legacyTemplatesMap else
-   *        build the new templates map
+   * Helper method to 1. find and load all the **NEW** templates: List<IPSAssemblyTemplate> 2.
+   * generate a map m_templatesMap
+   *
+   * @param doLegacyTmps if <code>true</code> build legacyTemplatesMap else build the new templates
+   *     map
    * @throws PSDeployException
    */
   private void doCatalogTemplatesMap(boolean doLegacyTmps) throws PSDeployException {
@@ -141,6 +138,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility Method to init LegacyTemplatesMap
+   *
    * @throws PSDeployException
    */
   private void catalogLegacyTemplatesMap() throws PSDeployException {
@@ -151,7 +149,9 @@ public class PSAssemblyServiceHelper {
     doCatalogTemplatesMap(false);
   }
 
-  /** Get slots associated with a template
+  /**
+   * Get slots associated with a template
+   *
    * @param name the template name
    * @return a list of all the slots associated with this template(name)
    */
@@ -160,8 +160,8 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Get all the ContentType GUIDs that reference this template,
-   * <b>dynamically.</b>
+   * Get all the ContentType GUIDs that reference this template, <b>dynamically.</b>
+   *
    * @param t the template definition never <code>null</code>
    * @return the content type guids associated with the template
    */
@@ -182,11 +182,11 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Catalog templates which match a pattern in ASSEMBLYURL.
-   * Pattern such as "../appname/%" etc
+   * Catalog templates which match a pattern in ASSEMBLYURL. Pattern such as "../appname/%" etc
+   *
    * @param pattern never <code>null</code>
-   * @return the list of templates that satisfy the pattern in assemblyurl. May
-   * return <code>null</code>
+   * @return the list of templates that satisfy the pattern in assemblyurl. May return <code>null
+   *     </code>
    */
   public List<IPSAssemblyTemplate> findTemplatesByAssemblyURL(String pattern) {
     if (StringUtils.isBlank(pattern)) throw new IllegalArgumentException("pattern may not be null");
@@ -201,6 +201,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * A helper method for catalogTemplateSlotsAssociations
+   *
    * @param tmpMap
    */
   private void doCatalogTemplateSlotAssociations(HashMap<String, IPSAssemblyTemplate> tmpMap) {
@@ -214,9 +215,8 @@ public class PSAssemblyServiceHelper {
   }
 
   /**
-   * Create a map of list of all slots(their GUIDs) associated with a template
-   * TemplateName <--> Set of SLOTS
-   *
+   * Create a map of list of all slots(their GUIDs) associated with a template TemplateName <--> Set
+   * of SLOTS
    */
   private void catalogTemplateSlotsAssociations() {
     // only set here
@@ -226,6 +226,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility method to return all <templateName, ListOfSlots> Map
+   *
    * @return <templateName, ListOfSlots>
    */
   public HashMap<String, Set<IPSTemplateSlot>> getTemplateSlotsMap() {
@@ -236,6 +237,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility method to return all <slotGUID, ListOfTemplates> Map
+   *
    * @return <slotGUID, ListOfTemplates>
    */
   public HashMap<IPSGuid, Set<IPSAssemblyTemplate>> getSlotTemplatesMap() {
@@ -244,6 +246,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility method to return all <slotGUID, ListOfContentTypeDefs> Map
+   *
    * @return <slotGUID, ListOfContentTypeDefs> Map
    */
   public HashMap<IPSGuid, Set<IPSNodeDefinition>> getSlotContentTypesMap() {
@@ -252,6 +255,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility method to get TemplatesMap
+   *
    * @return the hashmap of templates
    * @throws PSDeployException
    */
@@ -271,6 +275,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Utility method to get the template <==> ContentType map
+   *
    * @return this association template <==> ContentType map
    */
   public HashMap<String, List<IPSNodeDefinition>> getTemplateCTMap() {
@@ -279,6 +284,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * Convenience method to return all VARIANTS to be known as Legacry Templates
+   *
    * @return a map of <template name, Template>
    * @throws PSDeployException
    */
@@ -307,6 +313,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * method name says it all
+   *
    * @return assembly service
    */
   public IPSAssemblyService getAssemblySvc() {
@@ -315,6 +322,7 @@ public class PSAssemblyServiceHelper {
 
   /**
    * clear the list and re-catalog to return all the slots
+   *
    * @return List of all slots
    */
   public List<IPSTemplateSlot> getSlots() {
@@ -323,61 +331,41 @@ public class PSAssemblyServiceHelper {
     return m_slots;
   }
 
-  /**
-   * Da assembly Service
-   */
+  /** Da assembly Service */
   private static IPSAssemblyService m_assemblySvc = PSAssemblyServiceLocator.getAssemblyService();
 
-  /**
-   * ContentManagerService
-   */
+  /** ContentManagerService */
   private static IPSContentMgr m_contentMgr = PSContentMgrLocator.getContentMgr();
 
-  /**
-   * Map of a list of all the Content Types associated with a template
-   */
+  /** Map of a list of all the Content Types associated with a template */
   private HashMap<String, List<IPSNodeDefinition>> m_templateCTMap = null;
 
-  /**
-   * Map of all the legacy templates name aka VARIANTS,IPSAssemblyTemplate
-   */
+  /** Map of all the legacy templates name aka VARIANTS,IPSAssemblyTemplate */
   private HashMap<String, IPSAssemblyTemplate> m_legacyTemplatesMap = null;
 
-  /**
-   * Map of all the assembly templates name,IPSAssemblyTemplate
-   */
+  /** Map of all the assembly templates name,IPSAssemblyTemplate */
   private HashMap<String, IPSAssemblyTemplate> m_namedTemplatesMap = null;
 
-  /**
-   * Map of all the assembly templates name,IPSAssemblyTemplate
-   */
+  /** Map of all the assembly templates name,IPSAssemblyTemplate */
   private HashMap<IPSGuid, IPSAssemblyTemplate> m_guidTemplatesMap = null;
 
-  /**
-   * Map of all the slots associated to a template
-   */
+  /** Map of all the slots associated to a template */
   private HashMap<String, Set<IPSTemplateSlot>> m_templateSlotMap = null;
 
-  /**
-   * given a slot guid, find all the templates that refer this slot
-   */
+  /** given a slot guid, find all the templates that refer this slot */
   private HashMap<IPSGuid, Set<IPSAssemblyTemplate>> m_slotTemplatesMap = null;
 
-  /**
-   * Slot <--> Contenttype List
-   */
+  /** Slot <--> Contenttype List */
   private HashMap<IPSGuid, Set<IPSNodeDefinition>> m_slotContentTypeMap = null;
 
-  /**
-   * Listing of TemplateSlots
-   */
+  /** Listing of TemplateSlots */
   private List<IPSTemplateSlot> m_slots = null;
 }
 
 /**
  * Utility sorter for list
- * @author vamsinukala
  *
+ * @author vamsinukala
  */
 class SlotsComparer implements Comparator {
   public int compare(Object obj1, Object obj2) {

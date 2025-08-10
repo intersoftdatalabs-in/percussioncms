@@ -20,86 +20,75 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pagemanagement.assembler.impl.PSAssemblyItemBridge;
-import com.percussion.pagemanagement.assembler.impl.PSAssemblyItemBridge.TemplateAndPage;
 import com.percussion.services.assembly.IPSAssemblyErrors;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator;
 import com.percussion.services.assembly.impl.plugin.PSDatabaseAssembler;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
 import java.io.File;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This assembler is used to publish a page to a set of database tables.
- * It provides "$perc" binding variable (as {@link PSPageAssemblyContext}) 
- * in addition of other binding variables provided by {@link PSDatabaseAssembler}
- * 
+ * This assembler is used to publish a page to a set of database tables. It provides "$perc" binding
+ * variable (as {@link PSPageAssemblyContext}) in addition of other binding variables provided by
+ * {@link PSDatabaseAssembler}
+ *
  * @author YuBingChen
  */
 // REFACTORED: CP-JAVA11
-public class PSPageDatabaseAssembler extends PSDatabaseAssembler
-{
-    private PSPageAssemblyContextFactory pageAssemblyContextFactory;
-    private PSAssemblyItemBridge assemblyItemBridge;
+public class PSPageDatabaseAssembler extends PSDatabaseAssembler {
+  private PSPageAssemblyContextFactory pageAssemblyContextFactory;
+  private PSAssemblyItemBridge assemblyItemBridge;
 
-    @Override
-    public void init(IPSExtensionDef def, File file) throws PSExtensionException
-    {
-        super.init(def, file);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+  @Override
+  public void init(IPSExtensionDef def, File file) throws PSExtensionException {
+    super.init(def, file);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see com.percussion.services.assembly.impl.plugin.PSAssemblerBase#preProcessItemBinding(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator)
+   */
+  @Override
+  public void preProcessItemBinding(IPSAssemblyItem pageItem, PSAssemblyJexlEvaluator eval)
+      throws PSAssemblyException {
+    try {
+      // clone the page item, which may be polluted by the following process.
+      final var assemblyItem = (IPSAssemblyItem) pageItem.clone();
+
+      final var tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
+      final var context = getPageAssemblyContextFactory().createContext(assemblyItem, tp, false);
+
+      eval.bind("$perc", context);
+    } catch (Exception e) {
+      final var msg =
+          "Failed to create page assembly context ($perc). The underlying error is: "
+              + e.getMessage();
+      log.error(msg, e);
+      throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, e, msg);
     }
+  }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.services.assembly.impl.plugin.PSAssemblerBase#preProcessItemBinding(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator)
-     */
-    @Override
-    public void preProcessItemBinding(IPSAssemblyItem pageItem, PSAssemblyJexlEvaluator eval) throws PSAssemblyException
-    {
-        try
-        {
-            // clone the page item, which may be polluted by the following process.
-            final var assemblyItem = (IPSAssemblyItem) pageItem.clone();
+  public PSPageAssemblyContextFactory getPageAssemblyContextFactory() {
+    return pageAssemblyContextFactory;
+  }
 
-            final var tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
-            final var context = getPageAssemblyContextFactory().createContext(assemblyItem, tp, false);
+  public void setPageAssemblyContextFactory(
+      PSPageAssemblyContextFactory pageAssemblyContextFactory) {
+    this.pageAssemblyContextFactory = pageAssemblyContextFactory;
+  }
 
-            eval.bind("$perc", context);
-        }
-        catch (Exception e)
-        {
-            final var msg = "Failed to create page assembly context ($perc). The underlying error is: " + e.getMessage();
-            log.error(msg, e);
-            throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, e, msg);
-        }
-    }
+  public PSAssemblyItemBridge getAssemblyItemBridge() {
+    return assemblyItemBridge;
+  }
 
-    public PSPageAssemblyContextFactory getPageAssemblyContextFactory()
-    {
-        return pageAssemblyContextFactory;
-    }
+  public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge) {
+    this.assemblyItemBridge = assemblyItemBridge;
+  }
 
-    public void setPageAssemblyContextFactory(PSPageAssemblyContextFactory pageAssemblyContextFactory)
-    {
-        this.pageAssemblyContextFactory = pageAssemblyContextFactory;
-    }
-
-    public PSAssemblyItemBridge getAssemblyItemBridge()
-    {
-        return assemblyItemBridge;
-    }
-
-    public void setAssemblyItemBridge(PSAssemblyItemBridge assemblyItemBridge)
-    {
-        this.assemblyItemBridge = assemblyItemBridge;
-    }
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSPageDatabaseAssembler.class);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSPageDatabaseAssembler.class);
 }

@@ -41,20 +41,16 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXRelationship element defined in PSXRelationshipSet.dtd.
- */
+/** Implements the PSXRelationship element defined in PSXRelationshipSet.dtd. */
 public class PSRelationship extends PSComponent {
-  /**
-   * Generated serial number.
-   */
+  /** Generated serial number. */
   private static final long serialVersionUID = 1L;
 
   /**
    * Creates a new relationship object for the supplied parameters.
    *
-   * @param id the relationship id. This is used as update key to the
-   *    {@link IPSConstants#PSX_RELATIONSHIPS} table.
+   * @param id the relationship id. This is used as update key to the {@link
+   *     IPSConstants#PSX_RELATIONSHIPS} table.
    * @param owner the owner locator, not <code>null</code>.
    * @param dependent the dependent locator, not <code>null</code>.
    * @param config the relationship configuration, not <code>null</code>.
@@ -90,16 +86,14 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Creates a new relationship object for the supplied parameters that allows
-   * derived classes to defer assignment of relationship configuration.
-   * Dervived classes must call {@link #setConfig} immediately after
-   * construction.
+   * Creates a new relationship object for the supplied parameters that allows derived classes to
+   * defer assignment of relationship configuration. Dervived classes must call {@link #setConfig}
+   * immediately after construction.
    *
-   * @param id the relationship id. This is used as update key to the
-   *           {@link IPSConstants#PSX_RELATIONSHIPS} table.
+   * @param id the relationship id. This is used as update key to the {@link
+   *     IPSConstants#PSX_RELATIONSHIPS} table.
    * @param owner the owner (parent) of the relationship, not <code>null</code>.
-   * @param dependent the dependent (child) of the relationship, not
-   *           <code>null</code>.
+   * @param dependent the dependent (child) of the relationship, not <code>null</code>.
    */
   protected PSRelationship(int id, PSLocator owner, PSLocator dependent) {
     if (owner == null || dependent == null)
@@ -111,14 +105,12 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Sets the configuration used for this relationship and initializes the user
-   * properties. This method only may be used after calling the constructor
-   * that allows deferred config assignment. This method may not be used to
-   * change an already assigned config.
+   * Sets the configuration used for this relationship and initializes the user properties. This
+   * method only may be used after calling the constructor that allows deferred config assignment.
+   * This method may not be used to change an already assigned config.
    *
    * @param config the relationship configuration, not <code>null</code>.
-   * @throws IllegalStateException if this relationship has already been
-   *            assigned a config.
+   * @throws IllegalStateException if this relationship has already been assigned a config.
    */
   public void setConfig(PSRelationshipConfig config) {
     if (config == null) throw new IllegalArgumentException("relationship config may not be null");
@@ -127,9 +119,8 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Initialize the user properties according to the supplied relationship
-   * configuration object and current relationshiip id.
-   * Note, both {@link #m_id} and {@link #m_config} have to be set.
+   * Initialize the user properties according to the supplied relationship configuration object and
+   * current relationshiip id. Note, both {@link #m_id} and {@link #m_config} have to be set.
    */
   @SuppressWarnings("unchecked")
   private void initUserProperties() {
@@ -149,14 +140,10 @@ public class PSRelationship extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationship(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
@@ -167,11 +154,8 @@ public class PSRelationship extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   *    not <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationship(Element sourceNode) throws PSUnknownNodeTypeException {
     this(sourceNode, null, null, null);
@@ -180,16 +164,11 @@ public class PSRelationship extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   *    <code>null</code>.
-   * @param config the relationship configuration, might be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @param config the relationship configuration, might be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationship(
       Element sourceNode,
@@ -203,9 +182,9 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Creates a new relationship object from the supplied source.
+   *
    * @param id relationship id that overrides source id.
-   * @param source object to make a copy from,
-   * never <code>null</code>.
+   * @param source object to make a copy from, never <code>null</code>.
    */
   public PSRelationship(int id, PSRelationship source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -216,9 +195,8 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid <code>PSRelationship</code>, not <code>null</code>.
    */
@@ -242,8 +220,7 @@ public class PSRelationship extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to, may be <code>null</code>.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   @Override
   public boolean equals(Object o) {
@@ -263,9 +240,7 @@ public class PSRelationship extends PSComponent {
         .isEquals();
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
@@ -281,9 +256,8 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Makes a deep copy of this object.
-   * Note, the relationship config object is not cloned since this object
-   * does not own the config object.
+   * Makes a deep copy of this object. Note, the relationship config object is not cloned since this
+   * object does not own the config object.
    *
    * @return a deep copy of this object, never <code>null</code>.
    */
@@ -309,12 +283,11 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Sets a new GUID to this object. This can only be called when this object
-   * does not have a valid GUID.
+   * Sets a new GUID to this object. This can only be called when this object does not have a valid
+   * GUID.
    *
-   * @param newguid the new GUID, never <code>null</code>, must be a valid
-   *   GUID, where its type is {@link PSTypeEnum#RELATIONSHIP} and its value
-   *   is greater than zero.
+   * @param newguid the new GUID, never <code>null</code>, must be a valid GUID, where its type is
+   *     {@link PSTypeEnum#RELATIONSHIP} and its value is greater than zero.
    */
   public void setGUID(IPSGuid newguid) {
     if (newguid == null) {
@@ -359,9 +332,7 @@ public class PSRelationship extends PSComponent {
     return m_dependentCommunityId;
   }
 
-  /**
-   * Set the relationship dependent's community id.
-   */
+  /** Set the relationship dependent's community id. */
   public void setDependentCommunityId(int dependentCommunityId) {
     m_dependentCommunityId = dependentCommunityId;
   }
@@ -397,23 +368,18 @@ public class PSRelationship extends PSComponent {
     m_dependent = dependent;
   }
 
-  /**
-   * Set the relationship dependent's object type.
-   */
+  /** Set the relationship dependent's object type. */
   public void setDependentObjectType(int dependentObjectType) {
     m_dependentObjectType = dependentObjectType;
   }
 
   /**
-   * Get the requested property. First tries to get the requested property
-   * from the system property of the relationship configuration, if that fails
-   * it tries the user properties.
+   * Get the requested property. First tries to get the requested property from the system property
+   * of the relationship configuration, if that fails it tries the user properties.
    *
-   * @param name the property name to get the property for, not
-   *    <code>null</code> or empty.
-   *
-   * @return the requested property, might be <code>null</code> if no
-   *    property for the supplied name exists.
+   * @param name the property name to get the property for, not <code>null</code> or empty.
+   * @return the requested property, might be <code>null</code> if no property for the supplied name
+   *     exists.
    */
   public String getProperty(String name) {
     if (name == null || name.trim().length() == 0)
@@ -431,9 +397,7 @@ public class PSRelationship extends PSComponent {
   /**
    * Find a user property with the supplied name.
    *
-   * @param name the name of the searched user property, assumed not
-   *   <code>null</code>.
-   *
+   * @param name the name of the searched user property, assumed not <code>null</code>.
    * @return the user property, it may be <code>null</code> if cannot find.
    */
   private PSRelationshipPropertyData findUserProperty(String name) {
@@ -446,9 +410,8 @@ public class PSRelationship extends PSComponent {
   /**
    * Set the supplied value for the provided user property name.
    *
-   * @param name the property name to set the property for, not
-   *    <code>null</code> or empty. It must be one of the defined user
-   *    property name and cannot be one of the system property name.
+   * @param name the property name to set the property for, not <code>null</code> or empty. It must
+   *     be one of the defined user property name and cannot be one of the system property name.
    * @param value the new value to set, may be <code>null</code> or empty.
    */
   public void setProperty(String name, String value) {
@@ -469,7 +432,6 @@ public class PSRelationship extends PSComponent {
    * Is the revision used for the owner locator?
    *
    * @return <code>true</code> if used, <code>false</code> otherwise.
-   *
    * @deprecated use PSRelationshipConfig#useOwnerRevision() instead.
    */
   @Deprecated
@@ -481,7 +443,6 @@ public class PSRelationship extends PSComponent {
    * Is the revision used for the dependents locator?
    *
    * @return <code>true</code> if used, <code>false</code> otherwise.
-   *
    * @deprecated use PSRelationshipConfig#useDependentRevision() instead.
    */
   @Deprecated
@@ -492,9 +453,7 @@ public class PSRelationship extends PSComponent {
   /**
    * Is cloning allowed for this relationship type?
    *
-   * @return <code>true</code> if cloning is allowed, <code>false</code>
-   *    otherwise.
-   *
+   * @return <code>true</code> if cloning is allowed, <code>false</code> otherwise.
    * @deprecated use PSRelationshipConfig#isCloningAllowed() instead.
    */
   @Deprecated
@@ -506,7 +465,6 @@ public class PSRelationship extends PSComponent {
    * Is the promotable system effect enabled?
    *
    * @return <code>true</code> if it is, <code>false</code> otherwise.
-   *
    * @deprecated use PSRelationshipConfig#isPromotable() instead.
    */
   @Deprecated
@@ -518,7 +476,6 @@ public class PSRelationship extends PSComponent {
    * Is this relationship to be skipped when the item is promoted?
    *
    * @return <code>true</code> if it is, <code>false</code> otherwise.
-   *
    * @deprecated use PSRelationshipConfig#isSkipPromotion() instead.
    */
   @Deprecated
@@ -544,9 +501,8 @@ public class PSRelationship extends PSComponent {
   /**
    * Test if this relationship instance is of category active assembly.
    *
-   * @return <code>true</code> if this is an active assembly relationship,
-   *    <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if this is an active assembly relationship, <code>false</code>
+   *     otherwise.
    * @deprecated use PSRelationshipConfig#isActiveAssemblyRelationship() instead.
    */
   @Deprecated
@@ -555,12 +511,9 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Should the server id or the current request user be used to execute
-   * effects?
+   * Should the server id or the current request user be used to execute effects?
    *
-   * @return <code>true</code> to use the server id, <code>false</code>
-   *    otherwise.
-   *
+   * @return <code>true</code> to use the server id, <code>false</code> otherwise.
    * @deprecated use PSRelationshipConfig#useServerId() instead.
    */
   @Deprecated
@@ -569,13 +522,11 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Get both system and user relationship properties. System properties are
-   * always all returned. Only non-<code>null</code>, non-empty user properties
-   * will be returned.
+   * Get both system and user relationship properties. System properties are always all returned.
+   * Only non-<code>null</code>, non-empty user properties will be returned.
    *
-   * @return the relationship instance properties, never
-   *    <code>null</code>, might be empty. The returned map values are never
-   *    <code>null</code> or empty.
+   * @return the relationship instance properties, never <code>null</code>, might be empty. The
+   *     returned map values are never <code>null</code> or empty.
    */
   public Map<String, String> getProperties() {
     if (m_userProperties.isEmpty()) {
@@ -589,13 +540,11 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Get a map with all system and user properties defined for this
-   * relationship. All defined properties will be returned no matter what
-   * their values are.
+   * Get a map with all system and user properties defined for this relationship. All defined
+   * properties will be returned no matter what their values are.
    *
-   * @return a map with all system and user properties, never
-   *    <code>null</code>, may be empty. The returned map values may be
-   *    <code>null</code> or empty.
+   * @return a map with all system and user properties, never <code>null</code>, may be empty. The
+   *     returned map values may be <code>null</code> or empty.
    */
   public Map<String, String> getAllProperties() {
     Map<String, String> props = new HashMap<>();
@@ -610,6 +559,7 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Gets the folder id of the relationship used for Cross Site Linking.
+   *
    * @return maybe null.
    */
   public Integer getLegacyFolderId() {
@@ -622,6 +572,7 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Gets the folder id of the relationship used for Cross Site Linking.
+   *
    * @return maybe null.
    */
   public void setLegacyFolderId(Integer folderId) {
@@ -631,6 +582,7 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Gets the site id of the relationship used for Cross Site Linking.
+   *
    * @return maybe null.
    */
   public Integer getLegacySiteId() {
@@ -643,6 +595,7 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Gets the folder id of the relationship used for Cross Site Linking.
+   *
    * @return maybe null.
    */
   public void setLegacySiteId(Integer siteId) {
@@ -669,11 +622,8 @@ public class PSRelationship extends PSComponent {
   /**
    * Gets a user property by name.
    *
-   * @param propertyName the name of the user property. It may be
-   *   <code>null</code> or empty.
-   *
-   * @return the user property. It may be <code>null</code> if cannot find
-   *   such user property.
+   * @param propertyName the name of the user property. It may be <code>null</code> or empty.
+   * @return the user property. It may be <code>null</code> if cannot find such user property.
    */
   public PSRelationshipPropertyData getUserProperty(String propertyName) {
     for (PSRelationshipPropertyData prop : m_userProperties) {
@@ -684,8 +634,8 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Set a supplied user property. This property will be added if cannot find
-   * a user property with such name.
+   * Set a supplied user property. This property will be added if cannot find a user property with
+   * such name.
    *
    * @param srcProperty the source user property. Never <code>null</code>.
    */
@@ -702,11 +652,9 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Gets all user properties. This method cannot be overridden by derived
-   * classes.
+   * Gets all user properties. This method cannot be overridden by derived classes.
    *
-   * @return a list of user properties, never <code>null</code>, but may be
-   *   empty.
+   * @return a list of user properties, never <code>null</code>, but may be empty.
    */
   public final List<PSRelationshipPropertyData> getAllUserProperties() {
     return m_userProperties;
@@ -732,6 +680,7 @@ public class PSRelationship extends PSComponent {
 
   /**
    * Sets the description for this relationship
+   *
    * @param desc the description, may be <code>null</code> or empty
    */
   public void setDescription(String desc) {
@@ -739,19 +688,19 @@ public class PSRelationship extends PSComponent {
   }
 
   /**
-   * Method to reset the relationship id so that when saved will create a new
-   * relationship instead of modifying the existing one. This will be useful
-   * for example, when you have an existing relationship and want to create a
-   * new one based on this with some properties/attributes of the relationship
-   * changed.
-   *
+   * Method to reset the relationship id so that when saved will create a new relationship instead
+   * of modifying the existing one. This will be useful for example, when you have an existing
+   * relationship and want to create a new one based on this with some properties/attributes of the
+   * relationship changed.
    */
   public void resetId() {
     m_id = -1;
     m_isPersisted = false;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(
       Element sourceNode,
       @SuppressWarnings("unused") IPSDocument parentDoc,
@@ -872,7 +821,9 @@ public class PSRelationship extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(ATTR_ID, Integer.toString(m_id));
@@ -906,29 +857,27 @@ public class PSRelationship extends PSComponent {
   /**
    * Determines if this object is persisted in the repository.
    *
-   * @return <code>true</code> if this object does exist in the repository;
-   *    otherwise return <code>false</code>. Default to <code>false</code>.
+   * @return <code>true</code> if this object does exist in the repository; otherwise return <code>
+   *     false</code>. Default to <code>false</code>.
    */
   public boolean isPersisted() {
     return m_id != -1 && m_isPersisted;
   }
 
   /**
-   * Set the persistent status. It is typically used in conjunction with
-   * {@link #setId(int)} when creating a new object.
+   * Set the persistent status. It is typically used in conjunction with {@link #setId(int)} when
+   * creating a new object.
    *
-   * @param isPersisted the to be set persistent status. <code>true</code> if
-   *    the object is already persisted in the repository; otherwise
-   *    <code>false</code>. Default to <code>false</code>.
+   * @param isPersisted the to be set persistent status. <code>true</code> if the object is already
+   *     persisted in the repository; otherwise <code>false</code>. Default to <code>false</code>.
    */
   public void setPersisted(boolean isPersisted) {
     m_isPersisted = isPersisted;
   }
 
   /**
-   * Indicate if this object has been persisted in the repository.
-   * <code>true</code> if it is persisted; otherwise <code>false</code>.
-   * Default to <code>false</code>.
+   * Indicate if this object has been persisted in the repository. <code>true</code> if it is
+   * persisted; otherwise <code>false</code>. Default to <code>false</code>.
    */
   @Transient private boolean m_isPersisted = false;
 
@@ -946,45 +895,40 @@ public class PSRelationship extends PSComponent {
   public static final String XML_NODE_NAME = "PSXRelationship";
 
   /**
-   * The owner locator, initialized in ctor, never <code>null</code> after
-   * that, may be modified by calls to <code>setOwner()</code>.
+   * The owner locator, initialized in ctor, never <code>null</code> after that, may be modified by
+   * calls to <code>setOwner()</code>.
    */
   private PSLocator m_owner = null;
 
   /**
-   * The dependent locator, initialized in ctor, never <code>null</code> after
-   * that, may be modified by calls to <code>setDependent()</code>.
+   * The dependent locator, initialized in ctor, never <code>null</code> after that, may be modified
+   * by calls to <code>setDependent()</code>.
    */
   private PSLocator m_dependent = null;
 
   /**
-   * The dependent's community id, set by default to -1 (indicating all
-   * communities), set in the ctor, may be reset by setDependentCommunityId()
+   * The dependent's community id, set by default to -1 (indicating all communities), set in the
+   * ctor, may be reset by setDependentCommunityId()
    */
   private int m_dependentCommunityId = -1;
 
   /**
-   * The dependent's object type, set by default to 1 (indicating an ITEM), set
-   * in the ctor, may be reset by setDependentObjectType()
+   * The dependent's object type, set by default to 1 (indicating an ITEM), set in the ctor, may be
+   * reset by setDependentObjectType()
    */
   private int m_dependentObjectType = PSCmsObject.TYPE_ITEM;
 
-  /**
-   * The relationship configuration, initialized in constructor, never changed
-   * after that.
-   */
+  /** The relationship configuration, initialized in constructor, never changed after that. */
   private PSRelationshipConfig m_config = null;
 
   /**
-   * The user properties. Defaults to EMPTY list, never <code>null</code>.
-   * Note, we must to use {@link List} for the user properties; otherwise
-   * the {@link #equals(Object)} method may not work correctly.
+   * The user properties. Defaults to EMPTY list, never <code>null</code>. Note, we must to use
+   * {@link List} for the user properties; otherwise the {@link #equals(Object)} method may not work
+   * correctly.
    */
   private List<PSRelationshipPropertyData> m_userProperties = Collections.emptyList();
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSRelationship.class);
 
   /*
@@ -1001,13 +945,9 @@ public class PSRelationship extends PSComponent {
 
   private static final String PROPERTY_LIST = "PropertyList";
 
-  /**
-   * True boolean value in XML
-   */
+  /** True boolean value in XML */
   public static final String XML_TRUE = "true";
 
-  /**
-   * False boolean value in XML
-   */
+  /** False boolean value in XML */
   public static final String XML_FALSE = "false";
 }

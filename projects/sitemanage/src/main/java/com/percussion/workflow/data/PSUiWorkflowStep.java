@@ -18,59 +18,53 @@
 package com.percussion.workflow.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
  * Represents a workflow step with its name, permissions, and roles.
- * <p>
- * Sunny Sal says: "Every step in a workflow is like a dance move—get it right, and the show goes on!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Every step in a workflow is like a dance move—get it right, and the show goes
+ * on!"
  */
 @XmlRootElement(name = "WorkflowSteps")
 @XmlType(propOrder = {"stepName", "permissionNames", "stepRoles"})
 public class PSUiWorkflowStep extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String stepName;
-    private List<PSUiWorkflowStepRole> stepRoles = new ArrayList<>();
-    private List<String> permissionNames = new ArrayList<>();
+  private String stepName;
+  private List<PSUiWorkflowStepRole> stepRoles = new ArrayList<>();
+  private List<String> permissionNames = new ArrayList<>();
 
-    public PSUiWorkflowStep() {
-        super();
-    }
+  public PSUiWorkflowStep() {
+    super();
+  }
 
-    public String getStepName() {
-        return stepName;
-    }
+  public String getStepName() {
+    return stepName;
+  }
 
-    public void setStepName(String stepName) {
-        this.stepName = stepName;
-    }
+  public void setStepName(String stepName) {
+    this.stepName = stepName;
+  }
 
-    /**
-     * Gets the step roles. May be empty but never {@code null}.
-     */
-    public List<PSUiWorkflowStepRole> getStepRoles() {
-        return stepRoles;
-    }
+  /** Gets the step roles. May be empty but never {@code null}. */
+  public List<PSUiWorkflowStepRole> getStepRoles() {
+    return stepRoles;
+  }
 
-    public void setStepRoles(List<PSUiWorkflowStepRole> stepRoles) {
-        this.stepRoles = stepRoles;
-    }
+  public void setStepRoles(List<PSUiWorkflowStepRole> stepRoles) {
+    this.stepRoles = stepRoles;
+  }
 
-    /**
-     * Gets the permission names. May be empty but never {@code null}.
-     */
-    public List<String> getPermissionNames() {
-        return permissionNames;
-    }
+  /** Gets the permission names. May be empty but never {@code null}. */
+  public List<String> getPermissionNames() {
+    return permissionNames;
+  }
 
-    public void setPermissionNames(List<String> permissionNames) {
-        this.permissionNames = permissionNames;
-    }
+  public void setPermissionNames(List<String> permissionNames) {
+    this.permissionNames = permissionNames;
+  }
 }

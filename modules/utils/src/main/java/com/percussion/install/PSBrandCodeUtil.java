@@ -34,33 +34,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * This class has general utility methods.
- */
+/** This class has general utility methods. */
 public class PSBrandCodeUtil {
 
   /**
-   * Returns the value of the specified attribute of the given element.
-   * If required is <code>true</code> and the attribute does not exist then
-   * <code>CodeException</code> is thrown.
-   * If required is <code>false</code> and the attribute does not exist then
-   * <code>null</code> is returned.
+   * Returns the value of the specified attribute of the given element. If required is <code>true
+   * </code> and the attribute does not exist then <code>CodeException</code> is thrown. If required
+   * is <code>false</code> and the attribute does not exist then <code>null</code> is returned.
    *
-   * @param el the reference to the element whose attribute value is required,
-   * may not be <code>null</code>
-   * @param attrName the name of the attribute whose value is required, may not
-   * be <code>null</code> or empty
-   * @param required if the attribute is a required attribute of the element,
-   * <code>true</code> if require, <code>false</code> if optional.
-   *
-   * @return the value of the specified attribute of the element,
-   * if required is <code>true</code> then never <code>null</code> but may be empty
-   * if required is <code>false</code> then may be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if el is <code>null</code>
-   * or attrName is <code>null</code> or empty
-   * @throws CodeException if required is <code>true</code> and the element
-   * does not have the specified attribute defined.
+   * @param el the reference to the element whose attribute value is required, may not be <code>null
+   *     </code>
+   * @param attrName the name of the attribute whose value is required, may not be <code>null</code>
+   *     or empty
+   * @param required if the attribute is a required attribute of the element, <code>true</code> if
+   *     require, <code>false</code> if optional.
+   * @return the value of the specified attribute of the element, if required is <code>true</code>
+   *     then never <code>null</code> but may be empty if required is <code>false</code> then may be
+   *     <code>null</code> or empty
+   * @throws IllegalArgumentException if el is <code>null</code> or attrName is <code>null</code> or
+   *     empty
+   * @throws CodeException if required is <code>true</code> and the element does not have the
+   *     specified attribute defined.
    */
   public static String getAttributeValue(Element el, String attrName, boolean required)
       throws CodeException {
@@ -79,17 +73,14 @@ public class PSBrandCodeUtil {
   }
 
   /**
-   * Returns the reference to the first child element of the given parent
-   * element <code>parentElement</code> whose tag name matches
-   * <code>elementName</code>
-   * @param parentElement the reference to the parent element, may not be
-   * <code>null</code>
-   * @param elementName the tag name of the child element whose reference
-   * is required
+   * Returns the reference to the first child element of the given parent element <code>
+   * parentElement</code> whose tag name matches <code>elementName</code>
    *
+   * @param parentElement the reference to the parent element, may not be <code>null</code>
+   * @param elementName the tag name of the child element whose reference is required
    * @return the reference to the child element, never <code>null</code>.
-   * @throws IllegalArgumentException if parentElement is <code>null</code>
-   * or elementName is <code>null</code> or empty
+   * @throws IllegalArgumentException if parentElement is <code>null</code> or elementName is <code>
+   *     null</code> or empty
    * @throws CodeException if the child element cannot be found.
    */
   public static Element getRequiredChildElement(Element parentElement, String elementName)
@@ -109,11 +100,12 @@ public class PSBrandCodeUtil {
 
   /**
    * Serializes an Xml document to the specified file.
+   *
    * @param doc the document to write to the file, may not be <code>null</code>
-   * @param filePath the path of the file to which this object should
-   * be serialized, may not be <code>null</code> or empty.
-   * @throws IllegalArgumentException if filePath is <code>null</code> or empty,
-   * or if doc is <code>null</code>
+   * @param filePath the path of the file to which this object should be serialized, may not be
+   *     <code>null</code> or empty.
+   * @throws IllegalArgumentException if filePath is <code>null</code> or empty, or if doc is <code>
+   *     null</code>
    * @throws IOException
    * @throws ParserConfigurationException
    */
@@ -131,9 +123,10 @@ public class PSBrandCodeUtil {
 
   /**
    * Creates a empty Xml document.
+   *
    * @return empty Xml document, never <code>null</code>
-   * @throws ParserConfigurationException if the parser is not configured
-   * correctly in the xerces jar file
+   * @throws ParserConfigurationException if the parser is not configured correctly in the xerces
+   *     jar file
    */
   public static Document createXmlDocument() throws ParserConfigurationException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -145,13 +138,14 @@ public class PSBrandCodeUtil {
 
   /**
    * Create an XML document by parsing the specified input stream.
+   *
    * @param in the byte input stream to read from, not <code>null</code>
    * @return the document created by parsing the input stream.
    * @throws IllegalArgumentException if <code>in</code> is <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
-   * @throws ParserConfigurationException if the parser is not configured
-   * correctly in the xerces jar file
+   * @throws ParserConfigurationException if the parser is not configured correctly in the xerces
+   *     jar file
    */
   public static Document createXmlDocument(InputStream in)
       throws IOException, SAXException, ParserConfigurationException {
@@ -170,16 +164,13 @@ public class PSBrandCodeUtil {
 
   /**
    * Returns the integer represented by the string argument.
-   * @param convertStr the String containing the integer, may not be
-   * <code>null</code> or empty.
-   * @param errMsg the error message to be passed on to the generated
-   * CodeException if any error occurs converting the string to an integer,
-   * may not be <code>null</code> or empty.
+   *
+   * @param convertStr the String containing the integer, may not be <code>null</code> or empty.
+   * @param errMsg the error message to be passed on to the generated CodeException if any error
+   *     occurs converting the string to an integer, may not be <code>null</code> or empty.
    * @return the integer represented by the string argument.
-   * @throws CodeException if if any error occurs converting the string to
-   * an integer.
-   * @throws IllegalArgumentException if convertStr or errMsg is
-   * <code>null</code> or empty.
+   * @throws CodeException if if any error occurs converting the string to an integer.
+   * @throws IllegalArgumentException if convertStr or errMsg is <code>null</code> or empty.
    */
   public static int toInt(String convertStr, String errMsg) throws CodeException {
     if ((convertStr == null) || (convertStr.trim().length() < 1))

@@ -30,13 +30,12 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * Exit to add a newly created item to a specified folder. This typically used
- * to create an item and add to a folder from the content explorer UI. The
- * contentid is parsed from the request HTML parameters. Exit assumes that the
- * psredirect URL parameter exists in the request has the target folder id is
- * one of the HTML parameters in the redirect URL. After validadting these HTML
- * parameters, it instantiates the <code>PSRelationshipProcessorProxy</code> to
- * add the content itm to the folder.
+ * Exit to add a newly created item to a specified folder. This typically used to create an item and
+ * add to a folder from the content explorer UI. The contentid is parsed from the request HTML
+ * parameters. Exit assumes that the psredirect URL parameter exists in the request has the target
+ * folder id is one of the HTML parameters in the redirect URL. After validadting these HTML
+ * parameters, it instantiates the <code>PSRelationshipProcessorProxy</code> to add the content itm
+ * to the folder.
  */
 public class PSAddNewItemToFolder implements IPSResultDocumentProcessor {
   // see IPSResultDocumentProcessor#canModifyStyleSheet()
@@ -144,8 +143,9 @@ public class PSAddNewItemToFolder implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper method to handle any exception. Basically throws the exception as
-   * <code>PSExtensionProcessingException</code>.
+   * Helper method to handle any exception. Basically throws the exception as <code>
+   * PSExtensionProcessingException</code>.
+   *
    * @param e the exception, assumed never <code>null</code>
    * @throws PSExtensionProcessingException
    */
@@ -154,18 +154,14 @@ public class PSAddNewItemToFolder implements IPSResultDocumentProcessor {
   }
 
   /**
-   * The fully qualified name of this extension. Nerver <code>null</code> or
-   * <code>empty</code> after initialization.
+   * The fully qualified name of this extension. Nerver <code>null</code> or <code>empty</code>
+   * after initialization.
    */
   private String ms_fullExtensionName = "";
 
-  /**
-   * HTML parameter representing sysid for the item.
-   */
+  /** HTML parameter representing sysid for the item. */
   private static final String PARAM_SYS_FOLDERID = "sys_folderid";
 
-  /**
-   * HTML parameter representing sysid for the item.
-   */
+  /** HTML parameter representing sysid for the item. */
   private static final String PARAM_SYS_CONTENTID = "sys_contentid";
 }

@@ -32,10 +32,8 @@ import javax.swing.table.TableModel;
 
 /**
  * @author DougRand
- *
- * A useful common subclass of JTable taht provides additional
- * helper methods to avoid the use of the embedded models for columns,
- * rows and such.
+ *     <p>A useful common subclass of JTable taht provides additional helper methods to avoid the
+ *     use of the embedded models for columns, rows and such.
  */
 public class PSJTable extends JTable {
 
@@ -55,14 +53,16 @@ public class PSJTable extends JTable {
   }
 
   /**
-   * @see javax.swing.JTable#JTable(javax.swing.table.TableModel, javax.swing.table.TableColumnModel, javax.swing.ListSelectionModel)
+   * @see javax.swing.JTable#JTable(javax.swing.table.TableModel,
+   *     javax.swing.table.TableColumnModel, javax.swing.ListSelectionModel)
    */
   public PSJTable(TableModel dm, TableColumnModel cm, ListSelectionModel sm) {
     super(dm, cm, sm);
   }
 
   /**
-   * @see javax.swing.JTable#JTable(javax.swing.table.TableModel, javax.swing.table.TableColumnModel)
+   * @see javax.swing.JTable#JTable(javax.swing.table.TableModel,
+   *     javax.swing.table.TableColumnModel)
    */
   public PSJTable(TableModel dm, TableColumnModel cm) {
     super(dm, cm);
@@ -92,11 +92,9 @@ public class PSJTable extends JTable {
   /**
    * Add new column to table model by name
    *
-   * @param columnName for the new column, may not be <code>null</code>
-   * or empty. Method will throw exception for an invalid column name.
-   * The value forms the displayed text for the column unless the table
-   * model overrides it.
-   *
+   * @param columnName for the new column, may not be <code>null</code> or empty. Method will throw
+   *     exception for an invalid column name. The value forms the displayed text for the column
+   *     unless the table model overrides it.
    * @return the index of the column within the model
    */
   public int addColumn(String columnName) {
@@ -111,9 +109,8 @@ public class PSJTable extends JTable {
   }
 
   /**
-   * Appends a row to the model. The model will notify all listeners.
-   * The argument may not be <code>null</code> or an exception will
-   * be thrown.
+   * Appends a row to the model. The model will notify all listeners. The argument may not be <code>
+   * null</code> or an exception will be thrown.
    *
    * @param newRow
    */
@@ -126,10 +123,7 @@ public class PSJTable extends JTable {
     model.appendRow(newRow);
   }
 
-  /**
-   * Remove the row that is currently selected. If no row is selected,
-   * do nothing.
-   */
+  /** Remove the row that is currently selected. If no row is selected, do nothing. */
   public void removeSelectedRow() {
     PSEditTableModel model = (PSEditTableModel) getModel();
     int sel = getSelectedRow();
@@ -139,13 +133,12 @@ public class PSJTable extends JTable {
   }
 
   /**
-   * Add a selection listener to the list of listeners. The behavior
-   * of this method can be divined by reading the documentation
-   * on the list selection model.
-   * @see javax.swing.ListSelectionModel#addListSelectionListener
+   * Add a selection listener to the list of listeners. The behavior of this method can be divined
+   * by reading the documentation on the list selection model.
    *
-   * @param listener a list selection listener, may not be <code>null</code>
-   * or an exception will be thrown.
+   * @see javax.swing.ListSelectionModel#addListSelectionListener
+   * @param listener a list selection listener, may not be <code>null</code> or an exception will be
+   *     thrown.
    */
   public void addSelectionListener(ListSelectionListener listener) {
     if (listener == null) {
@@ -157,9 +150,8 @@ public class PSJTable extends JTable {
   }
 
   /**
-   * Add a new cell editor for the specified column. Note that
-   * default cell editor can wrap a number of components. Add
-   * more methods like this if you need to extend the components.
+   * Add a new cell editor for the specified column. Note that default cell editor can wrap a number
+   * of components. Add more methods like this if you need to extend the components.
    *
    * @param i index of column, must be &gt;= 0
    * @param editor editor to add, must not be <code>null</code>
@@ -196,9 +188,9 @@ public class PSJTable extends JTable {
 
   /**
    * Select a specific row in the table.
-   * @param row which must be from zero, inclusive, to the row
-   * count for the table, exclusive. Exceptions are thrown for invalid
-   * values.
+   *
+   * @param row which must be from zero, inclusive, to the row count for the table, exclusive.
+   *     Exceptions are thrown for invalid values.
    */
   public void setSelectedRow(int row) {
     if (row < 0) {

@@ -32,35 +32,28 @@ import java.util.Iterator;
 /**
  * The PSJavaScriptUdfExtension executes JavaScript functions.
  *
- * @author     Paul Howard
- * @version    1.1
- * @since      2.0
+ * @author Paul Howard
+ * @version 1.1
+ * @since 2.0
  */
 public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
   /**
    * The standard ctor for this object.
    *
    * @param ref A valid name reference for this object.
-   *
-   * @throws IllegalArgumentException if ref is <code>null</code>
-   *
-   * public PSJavaScriptUdfExtension()
-   * {
-   * m_ref = ref;
-   * }
+   * @throws IllegalArgumentException if ref is <code>null</code> public PSJavaScriptUdfExtension()
+   *     { m_ref = ref; }
    */
 
   /*************** Implement IPSExtension and IPSUdfProcessor ***************/
 
   /**
-   * Initialize this extension. The init properties in the def must contain
-   * a ScriptBody key, whose value is the function body. If already initialized,
-   * it is re-initialized w/ the passed definition.
+   * Initialize this extension. The init properties in the def must contain a ScriptBody key, whose
+   * value is the function body. If already initialized, it is re-initialized w/ the passed
+   * definition.
    *
-   * @param codeRoot Not used by this class since all needed resources are
-   * in the def.
-   *
-   * See {@link IPSExtension#init(IPSExtensionDef,File) init} for more info.
+   * @param codeRoot Not used by this class since all needed resources are in the def.
+   *     <p>See {@link IPSExtension#init(IPSExtensionDef,File) init} for more info.
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     if (null == def) throw new IllegalArgumentException("extension def can't be null");
@@ -85,10 +78,9 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
   /**
    * Execute the function with the supplied arguments.
    *
-   * @param      params         the parameter values to use in the UDF
-   * @param      request         the current request context
-   *
-   * @return            the result of the function execution
+   * @param params the parameter values to use in the UDF
+   * @param request the current request context
+   * @return the result of the function execution
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws com.percussion.data.PSConversionException {
@@ -116,9 +108,9 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
   /**
    * Convert the JavaScript parameters into a Java object.
    *
-   * @param   p  the JavaScript parameter definition
-   * @param   o  the Java object
-   * @exception  PSConversionException   if cannot convert
+   * @param p the JavaScript parameter definition
+   * @param o the Java object
+   * @exception PSConversionException if cannot convert
    */
   private Object convertParameter(Object o, IPSExtensionParamDef p)
       throws com.percussion.data.PSConversionException {
@@ -304,8 +296,8 @@ public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
   private IPSExtensionDef m_extensionDef;
 
   /**
-   * Contains all of the parameter definitions for this function. If a fct
-   * has no params, this will be an array of 0 elements. Never <code>null
+   * Contains all of the parameter definitions for this function. If a fct has no params, this will
+   * be an array of 0 elements. Never <code>null
    * </code> once initialized in ctor.
    */
   private IPSExtensionParamDef[] m_paramDefs;

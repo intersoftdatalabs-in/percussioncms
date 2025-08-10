@@ -24,13 +24,11 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 /**
- * This is used to update an existing property in a properties file or to add a
- * new property to a properties file.
+ * This is used to update an existing property in a properties file or to add a new property to a
+ * properties file. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -50,7 +48,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpdatePropFileWizAction extends PSAction {
   // see base class
@@ -114,8 +111,8 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Returns the absolute property file path.
-   * @return the absolute property file path, never <code>null</code>
-   * or empty.
+   *
+   * @return the absolute property file path, never <code>null</code> or empty.
    */
   public String getPropertyFile() {
     return propertyFile;
@@ -123,8 +120,8 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Sets the absolute property file path.
-   * @param propertyFile the absolute property file path,
-   * may not be <code>null</code> or empty
+   *
+   * @param propertyFile the absolute property file path, may not be <code>null</code> or empty
    */
   public void setPropertyFile(String propertyFile) {
     if ((propertyFile == null) || (propertyFile.trim().length() < 1))
@@ -133,24 +130,25 @@ public class PSUpdatePropFileWizAction extends PSAction {
   }
 
   /**
-   * Returns the <code>boolean</code> indicating if the property should be
-   * updated only if already exists.
-   * @return <code>true</code> if the specified property must be updated only if
-   * it already exists but should not be added if it does not exist.
-   * <code>false</code> if the specified property must be updated if it
-   * already exists else should be added if it does not exist.
+   * Returns the <code>boolean</code> indicating if the property should be updated only if already
+   * exists.
+   *
+   * @return <code>true</code> if the specified property must be updated only if it already exists
+   *     but should not be added if it does not exist. <code>false</code> if the specified property
+   *     must be updated if it already exists else should be added if it does not exist.
    */
   public boolean getOnlyIfExists() {
     return onlyIfExists;
   }
 
   /**
-   * Sets the the <code>boolean</code> indicating if the property should be
-   * updated only if already exists.
-   * @param onlyIfExists <code>true</code> if the specified property must be
-   * updated only if it already exists but should not be added if it does not
-   * exist. <code>false</code> if the specified property must be updated if it
-   * already exists else should be added if it does not exist.
+   * Sets the the <code>boolean</code> indicating if the property should be updated only if already
+   * exists.
+   *
+   * @param onlyIfExists <code>true</code> if the specified property must be updated only if it
+   *     already exists but should not be added if it does not exist. <code>false</code> if the
+   *     specified property must be updated if it already exists else should be added if it does not
+   *     exist.
    */
   public void setOnlyIfExists(boolean onlyIfExists) {
     this.onlyIfExists = onlyIfExists;
@@ -158,8 +156,8 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Returns the key for the property to be updated.
-   * @return the key for the property to be updated, never <code>null</code>
-   * or empty.
+   *
+   * @return the key for the property to be updated, never <code>null</code> or empty.
    */
   public String getPropertyName() {
     return propertyName;
@@ -167,8 +165,9 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Sets the key for the property to be updated.
-   * @param propertyName the key for the property to be updated,
-   * may not be <code>null</code> or empty
+   *
+   * @param propertyName the key for the property to be updated, may not be <code>null</code> or
+   *     empty
    */
   public void setPropertyName(String propertyName) {
     if ((propertyName == null) || (propertyName.trim().length() < 1))
@@ -178,8 +177,8 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Returns the value for the property to be updated.
-   * @return the value for the property to be updated, may be <code>null</code>
-   * or empty.
+   *
+   * @return the value for the property to be updated, may be <code>null</code> or empty.
    */
   public String getPropertyValue() {
     return propertyValue;
@@ -187,8 +186,9 @@ public class PSUpdatePropFileWizAction extends PSAction {
 
   /**
    * Sets the value for the property to be updated.
-   * @param propertyValue the value for the property to be updated,
-   * may be <code>null</code> or empty. If <code>null</code> then set to empty.
+   *
+   * @param propertyValue the value for the property to be updated, may be <code>null</code> or
+   *     empty. If <code>null</code> then set to empty.
    */
   public void setPropertyValue(String propertyValue) {
     if (propertyValue == null) propertyValue = "";
@@ -200,30 +200,29 @@ public class PSUpdatePropFileWizAction extends PSAction {
    *************************************************************************/
 
   /**
-   * absolute file path of the properties file,
-   * never <code>null</code>, empty until setter is called.
+   * absolute file path of the properties file, never <code>null</code>, empty until setter is
+   * called.
    */
   private String propertyFile = "";
 
   /**
-   * if <code>true</code> then updates the property if the specified property
-   * already exists but does not add the property if it does not exist.
-   * if <code>false</code> then updates the property if the specified property
-   * already exists else adds the property.
+   * if <code>true</code> then updates the property if the specified property already exists but
+   * does not add the property if it does not exist. if <code>false</code> then updates the property
+   * if the specified property already exists else adds the property.
    */
   private boolean onlyIfExists = false;
 
   /**
-   * key for the property to be updated, never <code>null</code> or empty
-   * The value "CE_TemplateDirectory" is only a sample value used to show the usage,
-   * actual value will be set using the Installshield UI.
+   * key for the property to be updated, never <code>null</code> or empty The value
+   * "CE_TemplateDirectory" is only a sample value used to show the usage, actual value will be set
+   * using the Installshield UI.
    */
   private String propertyName = "CE_TemplateDirectory";
 
   /**
-   * value for the property to be updated, may be <code>null</code> or empty
-   * The value "rx_ceTemplates" is only a sample value used to show the usage,
-   * actual value will be set using the Installshield UI.
+   * value for the property to be updated, may be <code>null</code> or empty The value
+   * "rx_ceTemplates" is only a sample value used to show the usage, actual value will be set using
+   * the Installshield UI.
    */
   private String propertyValue = "rx_ceTemplates";
 }

@@ -19,12 +19,10 @@ package com.percussion.delivery.multitenant;
 import javax.servlet.ServletRequest;
 
 /**
- * Defines a simple cache for storing tenant data
- * intended to be used by services that require authorization
- * of tenant data.
+ * Defines a simple cache for storing tenant data intended to be used by services that require
+ * authorization of tenant data.
  *
  * @author natechadwick
- *
  */
 public interface IPSTenantCache {
 
@@ -45,8 +43,8 @@ public interface IPSTenantCache {
   /**
    * Returns weather or not the service will authorize expired urls.
    *
-   * When false, the cache will simply return null for missing tenants
-   * and remove tenants from cache when their TTL expires.
+   * <p>When false, the cache will simply return null for missing tenants and remove tenants from
+   * cache when their TTL expires.
    *
    * @return
    */

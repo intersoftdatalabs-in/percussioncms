@@ -26,14 +26,12 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This class provides a container to cache pages. The user should
- * create the singleton object, so its never collected during the entire
- * lifetime of the server.
+ * This class provides a container to cache pages. The user should create the singleton object, so
+ * its never collected during the entire lifetime of the server.
  */
 public class PSPageCache extends Thread {
   /**
-   * Get the singleton instance object for this class, will be created if
-   * it does not exist yet.
+   * Get the singleton instance object for this class, will be created if it does not exist yet.
    *
    * @return the singleton object for this class.
    */
@@ -43,10 +41,7 @@ public class PSPageCache extends Thread {
     return ms_instance;
   }
 
-  /**
-   * Wakes up every minute and removes expired error pages from the
-   * cache.
-   */
+  /** Wakes up every minute and removes expired error pages from the cache. */
   public void run() {
     /*
      * The thread sleep time (in milli seconds) after each cleanup cycle.
@@ -77,23 +72,19 @@ public class PSPageCache extends Thread {
     }
   }
 
-  /**
-   * Clear the cache and stop the cleanup process.
-   */
+  /** Clear the cache and stop the cleanup process. */
   public static void shutdown() {
     ms_cache.clear();
     ms_stopped = true;
   }
 
   /**
-   * Adds the provided page to the cache with a newly created unique cacheid.
-   * Creates the expiration date after which the page will be removed from
-   * this cache.
+   * Adds the provided page to the cache with a newly created unique cacheid. Creates the expiration
+   * date after which the page will be removed from this cache.
    *
    * @param page the error page document, not <code>null</code>.
    * @return the unique cacheid created for this page.
-   * @throws IllegalArgumentException if the provided page is
-   *    <code>null</code>.
+   * @throws IllegalArgumentException if the provided page is <code>null</code>.
    */
   public static synchronized int addPage(Document page) {
     if (page == null) throw new IllegalArgumentException("page cannot be null");
@@ -111,11 +102,9 @@ public class PSPageCache extends Thread {
   }
 
   /**
-   * Get the page for the provided cacheid. The timestamp will be reset to
-   * the current time.
+   * Get the page for the provided cacheid. The timestamp will be reset to the current time.
    *
-   * @param the cacheid of the page we are looking for, might be
-   *    <code>null</code>.
+   * @param the cacheid of the page we are looking for, might be <code>null</code>.
    * @return the page document or <code>null</code> if not found.
    */
   public static Document getPage(Integer id) {
@@ -130,9 +119,7 @@ public class PSPageCache extends Thread {
     return null;
   }
 
-  /**
-   * Private since we only allow a singleton object.
-   */
+  /** Private since we only allow a singleton object. */
   PSPageCache() {
     setDaemon(true);
     start();
@@ -143,30 +130,25 @@ public class PSPageCache extends Thread {
   }
 
   /**
-   * Contains the single instance of this class. <code>null</code> until the
-   * first time {@link #getInstance} is called. Never <code>null</code>
-   * after that.
+   * Contains the single instance of this class. <code>null</code> until the first time {@link
+   * #getInstance} is called. Never <code>null</code> after that.
    */
   private static volatile PSPageCache ms_instance = null;
 
   /**
-   * The page cache where the key is the cacheid (Integer) and the value
-   * is a list of objects, the first element representing the time (Date)
-   * this entry was created and the secon element being the page (Document).
+   * The page cache where the key is the cacheid (Integer) and the value is a list of objects, the
+   * first element representing the time (Date) this entry was created and the secon element being
+   * the page (Document).
    */
   private static Map<Integer, List<Object>> ms_cache = createFIFOCache();
 
   /**
-   * Storage for the next cache id. Will be incremented each time a new page
-   * is added to the cache. If the maximal number is reached it will start
-   * over again at 0.
+   * Storage for the next cache id. Will be incremented each time a new page is added to the cache.
+   * If the maximal number is reached it will start over again at 0.
    */
   private static int ms_nextId = 0;
 
-  /**
-   * Set this flag to <code>true</code> to stop the page cache cleanup
-   * process.
-   */
+  /** Set this flag to <code>true</code> to stop the page cache cleanup process. */
   private static boolean ms_stopped = false;
 
   /**
@@ -199,8 +181,8 @@ public class PSPageCache extends Thread {
   }
 
   /**
-   * The page cache timeout (in milli seconds) after which each cached
-   * page will be removed from the cache. Only leave the errors in cache for 5 minutes.
+   * The page cache timeout (in milli seconds) after which each cached page will be removed from the
+   * cache. Only leave the errors in cache for 5 minutes.
    */
   private static long ms_cacheTimeout = 5 * 60 * 1000;
 }

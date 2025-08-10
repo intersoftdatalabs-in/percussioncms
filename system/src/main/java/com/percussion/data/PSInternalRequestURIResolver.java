@@ -41,16 +41,14 @@ import org.w3c.dom.Document;
 public class PSInternalRequestURIResolver implements IPSInternalRequestURIResolver {
 
   /**
-   * Called by the processor when it encounters
-   * an xsl:include, xsl:import, or document() function.
+   * Called by the processor when it encounters an xsl:include, xsl:import, or document() function.
    *
    * @param href An href attribute, which may be relative or absolute.
-   * @param base The base URI against which the first argument will be made
-   *             absolute if the absolute URI is required.
-   * @return A Source object, or null if the href cannot be resolved,
-   * and the processor should try to resolve the URI itself.
-   * @throws TransformerException if an error occurs when trying to
-   *                              resolve the URI.
+   * @param base The base URI against which the first argument will be made absolute if the absolute
+   *     URI is required.
+   * @return A Source object, or null if the href cannot be resolved, and the processor should try
+   *     to resolve the URI itself.
+   * @throws TransformerException if an error occurs when trying to resolve the URI.
    */
   @Override
   public Source resolve(String href, String base) throws TransformerException {
@@ -130,14 +128,14 @@ public class PSInternalRequestURIResolver implements IPSInternalRequestURIResolv
   }
 
   /**
-   * Constant to indicate http protocol. If a reference URL string starts
-   * with this, it is a HTTP url stream.
+   * Constant to indicate http protocol. If a reference URL string starts with this, it is a HTTP
+   * url stream.
    */
   public static final String HTTP_PROTOCOL = "http:";
 
   /**
-   * Constant to indicate file protocol. If a reference URL string starts
-   * with this, it is a file stream.
+   * Constant to indicate file protocol. If a reference URL string starts with this, it is a file
+   * stream.
    */
   public static final String FILE_PROTOCOL = "file:";
 }

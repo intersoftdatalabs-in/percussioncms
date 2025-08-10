@@ -24,20 +24,15 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXConditionalStylesheet DTD defined in BasicObjects.dtd.
- */
+/** Implements the PSXConditionalStylesheet DTD defined in BasicObjects.dtd. */
 public class PSConditionalStylesheet extends PSStylesheet {
   /**
-   * Create a new conditional stylesheet for the provided request and
-   * conditions.
+   * Create a new conditional stylesheet for the provided request and conditions.
    *
    * @param request the stylesheet request, not <code>null</code>.
-   * @param conditions a collection of PSRule objects, never
-   *    <code>null</code> or empty.
-   * @throws IllegalArgumentException if the stylesheet request or
-   *    conditions are <code>null</code> or if the conditions are not of
-   *    type PSRule.
+   * @param conditions a collection of PSRule objects, never <code>null</code> or empty.
+   * @throws IllegalArgumentException if the stylesheet request or conditions are <code>null</code>
+   *     or if the conditions are not of type PSRule.
    */
   public PSConditionalStylesheet(PSUrlRequest request, PSCollection conditions) {
     super(request);
@@ -45,14 +40,12 @@ public class PSConditionalStylesheet extends PSStylesheet {
   }
 
   /**
-   * Create a new conditional stylesheet for the provided stylesheet and
-   * conditions.
+   * Create a new conditional stylesheet for the provided stylesheet and conditions.
    *
    * @param stylesheet the stylesheet, not <code>null</code>.
-   * @param conditions a collection of PSRule objects, never
-   *    <code>null</code> or empty.
-   * @throws IllegalArgumentException if the stylesheet or conditions are
-   *    <code>null</code> or if the conditions are not of type PSRule.
+   * @param conditions a collection of PSRule objects, never <code>null</code> or empty.
+   * @throws IllegalArgumentException if the stylesheet or conditions are <code>null</code> or if
+   *     the conditions are not of type PSRule.
    */
   public PSConditionalStylesheet(PSStylesheet stylesheet, PSCollection conditions) {
     super(stylesheet.getRequest());
@@ -62,31 +55,23 @@ public class PSConditionalStylesheet extends PSStylesheet {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSConditionalStylesheet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSConditionalStylesheet() {}
 
   /**
-   * Get the current collection of conditions (a collection of PSRule
-   * objects).
+   * Get the current collection of conditions (a collection of PSRule objects).
    *
-   * @return the collection (PSRule) of conditions, never
-   *    <code>null</code>, may be empty.
+   * @return the collection (PSRule) of conditions, never <code>null</code>, may be empty.
    */
   public Iterator getConditions() {
     return m_conditions.iterator();
@@ -96,8 +81,8 @@ public class PSConditionalStylesheet extends PSStylesheet {
    * Set a new conditions collection.
    *
    * @param conditions the new collection of PSRule objects.
-   * @throws IllegalArgumentException if the provided collection is
-   *    <code>null</code>, empty or of the wrong object type.
+   * @throws IllegalArgumentException if the provided collection is <code>null</code>, empty or of
+   *     the wrong object type.
    */
   public void setConditions(PSCollection conditions) {
     if (conditions == null) throw new IllegalArgumentException("conditions can't be null");
@@ -112,9 +97,8 @@ public class PSConditionalStylesheet extends PSStylesheet {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSConditionalStylesheet, not <code>null</code>.
    * @throws IllegalArgumentException if c is <code>null</code>.
@@ -140,7 +124,6 @@ public class PSConditionalStylesheet extends PSStylesheet {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -192,7 +175,6 @@ public class PSConditionalStylesheet extends PSStylesheet {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -233,9 +215,7 @@ public class PSConditionalStylesheet extends PSStylesheet {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXConditionalStylesheet";
 
-  /**
-   * A collection PSRule objects, never <code>null</code> after construction.
-   */
+  /** A collection PSRule objects, never <code>null</code> after construction. */
   private PSCollection m_conditions = new PSCollection((new PSRule()).getClass());
 
   /*

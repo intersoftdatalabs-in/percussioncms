@@ -28,11 +28,10 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * Upgrade plugin that changes the assignment type from Reader to Assignee of
- * all the roles of Draft state of Local Content workflow.
+ * Upgrade plugin that changes the assignment type from Reader to Assignee of all the roles of Draft
+ * state of Local Content workflow.
  *
  * @author rafaelsalis
- *
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateWorkflowAssignmentType implements IPSUpgradePlugin {
@@ -43,9 +42,7 @@ public class PSUpgradePluginUpdateWorkflowAssignmentType implements IPSUpgradePl
    */
   private Connection conn;
 
-  /**
-   * Constants names.
-   */
+  /** Constants names. */
   private static final String WORKFLOW_TABLE = "WORKFLOWAPPS";
 
   private static final String STATE_TABLE = "STATES";
@@ -53,25 +50,21 @@ public class PSUpgradePluginUpdateWorkflowAssignmentType implements IPSUpgradePl
   private static final String LOCAL_CONTENT_WORKFLOW = "LocalContent";
   private static final String DRAFT_STATE = "Draft";
 
-  /**
-   * Tables names.
-   */
+  /** Tables names. */
   private static String workflowTable;
 
   private static String stateTable;
   private static String stateRoleTable;
 
-  /**
-   * Id's for the workflow, states and assignment types.
-   */
+  /** Id's for the workflow, states and assignment types. */
   private int localContentWorkflowId;
 
   private int draftLocalContentId;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -139,8 +132,8 @@ public class PSUpgradePluginUpdateWorkflowAssignmentType implements IPSUpgradePl
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid.
    * @return the table

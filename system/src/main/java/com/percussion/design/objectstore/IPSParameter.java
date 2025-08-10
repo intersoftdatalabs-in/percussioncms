@@ -18,8 +18,8 @@
 package com.percussion.design.objectstore;
 
 /**
- * This interface represents a parameter whose value is represented by a
- * <code>IPSReplacementValue</code>.
+ * This interface represents a parameter whose value is represented by a <code>IPSReplacementValue
+ * </code>.
  */
 public interface IPSParameter extends Cloneable {
   /**
@@ -39,6 +39,7 @@ public interface IPSParameter extends Cloneable {
 
   /**
    * Creates a new instance of this object, deep copying all member variables.
+   *
    * @return a clone of this instance.
    */
   @Deprecated

@@ -29,6 +29,7 @@ import java.util.TreeMap;
 public class PSTestPrinter {
   /**
    * Print the map entries in alphabetic order of the contained keys
+   *
    * @param map the map, never <code>null</code>
    */
   @SuppressWarnings("unchecked")
@@ -52,6 +53,7 @@ public class PSTestPrinter {
 
   /**
    * Print the property entries in alphabetic order of the contained keys
+   *
    * @param props the properties, never <code>null</code>
    */
   public static void printMapEntries(Properties props) {

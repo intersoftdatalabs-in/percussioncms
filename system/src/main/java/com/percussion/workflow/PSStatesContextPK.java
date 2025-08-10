@@ -31,13 +31,12 @@ public class PSStatesContextPK implements Serializable, IPSStatesContextPK {
   private static final long serialVersionUID = -5449054234437911309L;
   private int m_workflowid, m_stateid;
 
-  /**
-   * Default Ctor
-   */
+  /** Default Ctor */
   public PSStatesContextPK() {}
 
   /**
    * Ctor to create new primary key with data
+   *
    * @param wf the workflow id
    * @param stid the state id
    */

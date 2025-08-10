@@ -18,22 +18,20 @@
 
 package com.percussion.cloudservice.data;
 
-/**
- * Enum representing cloud license types for Percussion CMS.
- */
+/** Enum representing cloud license types for Percussion CMS. */
 public enum PSCloudLicenseType {
-    PAGE_OPTIMIZER,
-    SOCIAL_PROMOTION;
+  PAGE_OPTIMIZER,
+  SOCIAL_PROMOTION;
 
-    /**
-     * Returns a user-friendly string for the license type.
-     *
-     * @return the friendly string representation.
-     */
-    public String toFriendlyString() {
-        return switch (this) {
-            case PAGE_OPTIMIZER -> "Page Optimizer";
-            case SOCIAL_PROMOTION -> "Social Promotion";
-        };
-    }
+  /**
+   * Returns a user-friendly string for the license type.
+   *
+   * @return the friendly string representation.
+   */
+  public String toFriendlyString() {
+    return switch (this) {
+      case PAGE_OPTIMIZER -> "Page Optimizer";
+      case SOCIAL_PROMOTION -> "Social Promotion";
+    };
+  }
 }

@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.Response.Status;
  * Returns a 400 Bad Request response with the supplied message
  *
  * @author JaySeletz
- *
  */
 public class PSBadRequestException extends WebApplicationException {
 

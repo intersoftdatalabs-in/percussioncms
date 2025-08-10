@@ -134,7 +134,6 @@ public class PSJdbcImportExportHelper {
   }
 
   /**
-   *
    * @param dboption assumed to be either -dbexport or -dbimport.
    */
   private static void usage(String dboption) {

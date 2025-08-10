@@ -27,9 +27,7 @@ public class PSMembershipConfiguration {
   private String membershipSessionCookieName;
   private String useLdap;
 
-  /**
-   * Set on first access by {@link #getBaseUrl()}, not modified after that.
-   */
+  /** Set on first access by {@link #getBaseUrl()}, not modified after that. */
   private String baseUrl = null;
 
   /**
@@ -57,7 +55,8 @@ public class PSMembershipConfiguration {
   /**
    * Sets the protocol to use to access the membership service.
    *
-   * @param membershipServiceProtocol The protocol (http or https), must not be {@code null} or empty.
+   * @param membershipServiceProtocol The protocol (http or https), must not be {@code null} or
+   *     empty.
    */
   public void setMembershipServiceProtocol(String membershipServiceProtocol) {
     Objects.requireNonNull(membershipServiceProtocol, "membershipServiceProtocol must not be null");
@@ -70,7 +69,8 @@ public class PSMembershipConfiguration {
   /**
    * Sets the port to use to access the membership service.
    *
-   * @param membershipServicePort The port, must not be {@code null} or empty, should be valid for the specified protocol.
+   * @param membershipServicePort The port, must not be {@code null} or empty, should be valid for
+   *     the specified protocol.
    */
   public void setMembershipServicePort(String membershipServicePort) {
     Objects.requireNonNull(membershipServicePort, "membershipServicePort must not be null");
@@ -110,7 +110,8 @@ public class PSMembershipConfiguration {
   /**
    * Gets the property which defines whether to use secure LDAP membership.
    *
-   * @return The value provided by the user in the perc-secured-sections.properties file for perc.use.ldap.
+   * @return The value provided by the user in the perc-secured-sections.properties file for
+   *     perc.use.ldap.
    */
   public String getUseLdap() {
     return useLdap;

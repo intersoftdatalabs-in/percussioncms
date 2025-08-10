@@ -19,27 +19,23 @@ package com.percussion.utils.collections;
 import java.util.*;
 
 /**
- * PSIteratorUtils is a factory for many kinds of Iterators, including
- * Iterators over a single object, Iterators over two objects, empty
- * Iterators, and counted Iterators over a single object.
+ * PSIteratorUtils is a factory for many kinds of Iterators, including Iterators over a single
+ * object, Iterators over two objects, empty Iterators, and counted Iterators over a single object.
  */
 public abstract class PSIteratorUtils {
-  /**
-   * Returns an iterator over this object.
-   */
+  /** Returns an iterator over this object. */
   public static Iterator iterator(Object o) {
     return iterator(o, 1);
   }
 
-  /**
-   * Returns an iterator over this object N times.
-   */
+  /** Returns an iterator over this object N times. */
   public static Iterator iterator(Object o, int numIterations) {
     return new CountedIterator(o, numIterations);
   }
 
   /**
    * Returns an empty iterator.
+   *
    * @deprecated Use Collections.emptyIterator
    */
   @Deprecated
@@ -47,9 +43,7 @@ public abstract class PSIteratorUtils {
     return Collections.emptyIterator();
   }
 
-  /**
-   * Returns a double iterator over the two given objects.
-   */
+  /** Returns a double iterator over the two given objects. */
   public static Iterator iterator(Object a, Object b) {
     return new DoubleIterator(a, b);
   }
@@ -57,8 +51,7 @@ public abstract class PSIteratorUtils {
   /**
    * Returns a protected (non-destructive) version of the current iterator.
    *
-   * @param i The iterator to wrap.  May not be <code>null</code>.
-   *
+   * @param i The iterator to wrap. May not be <code>null</code>.
    * @throws IllegalArgumentException If it is <code>null</code>
    */
   public static Iterator protectedIterator(Iterator i) {
@@ -67,9 +60,7 @@ public abstract class PSIteratorUtils {
     return new ProtectedIterator(i);
   }
 
-  /**
-   * Returns an iterator over the given array.
-   */
+  /** Returns an iterator over the given array. */
   public static Iterator iterator(Object[] array) {
     return new ArrayIterator(array);
   }
@@ -82,7 +73,6 @@ public abstract class PSIteratorUtils {
    * Gets the list from an iterator.
    *
    * @param iter the iter, may not be <code>null</code>
-   *
    * @return the list, never <code>null</code>, may be empty if supplied <code>
    * iter</code> is empty.
    */
@@ -98,10 +88,7 @@ public abstract class PSIteratorUtils {
   }
 
   private static class CountedIterator implements Iterator {
-    /**
-     * Constructs a counted iterator over a single object
-     * N times.
-     */
+    /** Constructs a counted iterator over a single object N times. */
     CountedIterator(Object o, int iterations) {
       if (iterations < 0) throw new IllegalArgumentException("iterations must be >= 0");
 
@@ -140,9 +127,7 @@ public abstract class PSIteratorUtils {
     private Object m_ob;
   }
 
-  /**
-   * An iterator over two objects.
-   */
+  /** An iterator over two objects. */
   private static class DoubleIterator implements Iterator {
     DoubleIterator(Object a, Object b) {
       m_a = a;
@@ -245,17 +230,13 @@ public abstract class PSIteratorUtils {
     private Iterator m_second;
   }
 
-  /**
-   * This class wraps an iterator and does not allow remove() to be
-   * called.
-   */
+  /** This class wraps an iterator and does not allow remove() to be called. */
   private static class ProtectedIterator implements Iterator {
     /**
-     * Create a protected iterator by wrapping the specified iterator
-     * and delegating all non-destructive calls to that iterator.
+     * Create a protected iterator by wrapping the specified iterator and delegating all
+     * non-destructive calls to that iterator.
      *
      * @param i The iterator to wrap, may not be <code>null</code>.
-     *
      * @throws IllegalArgumentException If it is <code>null</code>.
      */
     public ProtectedIterator(Iterator i) {
@@ -264,32 +245,24 @@ public abstract class PSIteratorUtils {
       m_iterator = i;
     }
 
-    /**
-     * Delegate <code>next()</code> to the wrapped iterator.
-     */
+    /** Delegate <code>next()</code> to the wrapped iterator. */
     public Object next() {
       return m_iterator.next();
     }
 
-    /**
-     * Delegate <code>hasNext()</code> to the wrapped iterator.
-     */
+    /** Delegate <code>hasNext()</code> to the wrapped iterator. */
     public boolean hasNext() {
       return m_iterator.hasNext();
     }
 
     /**
-     *
      * @throws UnsupportedOperationException always.
      */
     public void remove() {
       throw new UnsupportedOperationException("This operation is not supported.");
     }
 
-    /**
-     * The iterator to proxy.  Initialized in constructor,
-     * never <code>null</code> thereafter.
-     */
+    /** The iterator to proxy. Initialized in constructor, never <code>null</code> thereafter. */
     Iterator m_iterator = null;
   }
 }

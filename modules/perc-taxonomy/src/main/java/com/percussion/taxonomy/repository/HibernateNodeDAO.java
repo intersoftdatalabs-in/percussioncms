@@ -211,9 +211,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return (refined);
   }
 
-  /**
-   * Return nodeID, parentID, and name of all nodes for a given taxonomy
-   */
+  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
   @SuppressWarnings("unchecked")
   public Collection<Object[]> getAllNodeNames(int taxonomyID, int langID) {
     String queryString =
@@ -230,9 +228,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             this.getHibernateTemplate().execute(new HibernateQuery(queryString))));
   }
 
-  /**
-   * Return nodeID, parentID, and name of all nodes for a given taxonomy
-   */
+  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
   @SuppressWarnings("unchecked")
   public Collection<Object[]> getSomeNodeNames(Collection<Integer> ids, int langID) {
     String queryString =
@@ -249,9 +245,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
             this.getHibernateTemplate().execute(new HibernateQuery(queryString))));
   }
 
-  /**
-   * Return nodes for ides
-   */
+  /** Return nodes for ides */
   @SuppressWarnings("unchecked")
   public Collection<Node> getSomeNodes(Collection<Integer> ids) {
     String queryString =
@@ -261,9 +255,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         this.getHibernateTemplate().execute(new HibernateQuery(queryString)));
   }
 
-  /**
-   * Return all values associated with a given node
-   */
+  /** Return all values associated with a given node */
   @SuppressWarnings("unchecked")
   public Collection<Value> getValuesForNode(int nodeID, int langID) {
     String queryString =
@@ -274,9 +266,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return (Collection<Value>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all values associated with a given node and attribute combo
-   */
+  /** Return all values associated with a given node and attribute combo */
   @SuppressWarnings("unchecked")
   public Collection<Value> getSpecificValuesForNode(int nodeID, int attrID, int langID) {
     String queryString =
@@ -290,9 +280,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return (Collection<Value>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all nodes 'related to' the given node
-   */
+  /** Return all nodes 'related to' the given node */
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     String queryString =
@@ -301,9 +289,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all related nodes 'that reference' the given node
-   */
+  /** Return all related nodes 'that reference' the given node */
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getRelatedNodeReferences(int nodeID) {
     String queryString =
@@ -314,9 +300,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all nodes 'similar to' the given node
-   */
+  /** Return all nodes 'similar to' the given node */
   @SuppressWarnings("unchecked")
   public Collection<Related_node> getSimilarNodes(int nodeID) {
     String queryString =
@@ -326,9 +310,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all child nodes of the given node
-   */
+  /** Return all child nodes of the given node */
   @SuppressWarnings("unchecked")
   public Collection<Node> getChildNodes(int nodeID) {
 
@@ -338,9 +320,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return (Collection<Node>) this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all NodeEditors for the given node
-   */
+  /** Return all NodeEditors for the given node */
   @SuppressWarnings("unchecked")
   public Collection<Node_editor> getNodeEditors(int nodeID) {
 
@@ -350,9 +330,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
         this.getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return a nodeName for the given node
-   */
+  /** Return a nodeName for the given node */
   @SuppressWarnings("unchecked")
   public Collection<String> getNodeName(int nodeID, int langID) {
 
@@ -398,9 +376,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return errors;
   }
 
-  /**
-   * Return all titles for all nodes
-   */
+  /** Return all titles for all nodes */
   @SuppressWarnings("unchecked")
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID) {
 
@@ -423,9 +399,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
     return (Collection<Object[]>) raw;
   }
 
-  /**
-   * Change the parent of a node
-   */
+  /** Change the parent of a node */
   public void changeParent(int nodeID, int newParentID) {
 
     String queryString =
@@ -446,9 +420,7 @@ public class HibernateNodeDAO extends HibernateDaoSupport implements NodeDAO {
 
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Special case query used specifically to update the parent of a node
-   */
+  /** Special case query used specifically to update the parent of a node */
   private class ParentUpdateQuery implements HibernateCallback {
 
     ///////////////////////////////////////////////////////////////////////////////////////////

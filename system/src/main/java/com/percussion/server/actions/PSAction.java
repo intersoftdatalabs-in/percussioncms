@@ -49,16 +49,12 @@ import org.w3c.dom.Element;
  */
 public class PSAction {
   /**
-   * Creates a newly created <code>PSAction</code> object, from
-   * an XML representation described in <code>sys_StoredActions.dtd</code>.
-   * The {@link #init(IPSExtensionManager) init} method must be called before
-   * using the getter methods.
+   * Creates a newly created <code>PSAction</code> object, from an XML representation described in
+   * <code>sys_StoredActions.dtd</code>. The {@link #init(IPSExtensionManager) init} method must be
+   * called before using the getter methods.
    *
-   * @param sourceNode XML element to construct this object from, not
-   * <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   * in the expected format
+   * @param sourceNode XML element to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSAction(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null");
@@ -67,14 +63,11 @@ public class PSAction {
   }
 
   /**
-   * Prepares internal data structures for runtime processing.  Creates
-   * an extractor for the action URL and prepares each exit.
+   * Prepares internal data structures for runtime processing. Creates an extractor for the action
+   * URL and prepares each exit.
    *
-   * @param extMgr responsible for resolving exit references, not
-   * <code>null</code>.
-   *
-   * @throws PSException if there is a problem preparing the redirect URL for
-   * extraction.
+   * @param extMgr responsible for resolving exit references, not <code>null</code>.
+   * @throws PSException if there is a problem preparing the redirect URL for extraction.
    */
   public void init(IPSExtensionManager extMgr) throws PSException {
     if (extMgr == null) throw new IllegalArgumentException("Extension manager may not be null");
@@ -103,19 +96,15 @@ public class PSAction {
   }
 
   /**
-   * Initializes this object from its XML representation:
-   *
-   * <code><pre>
+   * Initializes this object from its XML representation: <code><pre>
    * &lt;!ELEMENT Action (PSXParam*, PSXExtensionCallSet?)>
    * &lt;!ATTLIST Action
    *    name CDATA #REQUIRED
    * >
    * </pre></code>
    *
-   * @param sourceNode XML element to construct this object from, assumed not
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   * in the expected format
+   * @param sourceNode XML element to construct this object from, assumed not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   private void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     // validate the root element
@@ -173,8 +162,7 @@ public class PSAction {
   }
 
   /**
-   * Gets the name of this action, which should be unique across all actions
-   * in a given action set.
+   * Gets the name of this action, which should be unique across all actions in a given action set.
    *
    * @return the name of this action, never <code>null</code> or empty.
    */
@@ -183,16 +171,14 @@ public class PSAction {
   }
 
   /**
-   * Gets the URL for this action.  It will use the provided href as its base
-   * and will resolve its replacement values using the provided execution data.
+   * Gets the URL for this action. It will use the provided href as its base and will resolve its
+   * replacement values using the provided execution data.
    *
-   * @return The string representation of the action URL using the provided
-   * href as a base and with any replacement values resolved using the
-   * specified execution data.  Will be <code>null</code> if the the
-   * replacement value specified by the URL request is not found.
-   *
-   * @throws IllegalStateException if the {@link #init(IPSExtensionManager)
-   * init} method has not been called.
+   * @return The string representation of the action URL using the provided href as a base and with
+   *     any replacement values resolved using the specified execution data. Will be <code>null
+   *     </code> if the the replacement value specified by the URL request is not found.
+   * @throws IllegalStateException if the {@link #init(IPSExtensionManager) init} method has not
+   *     been called.
    */
   public String getUrl(String ceHref, PSExecutionData execData) throws PSDataExtractionException {
     if (ceHref == null || ceHref.trim().length() == 0)
@@ -210,11 +196,9 @@ public class PSAction {
   }
 
   /**
-   * Gets the extensions to be run after this action has successfully been
-   * peformed, if any.
+   * Gets the extensions to be run after this action has successfully been peformed, if any.
    *
-   * @return an iterator of PSExtensionRunner objects, never <code>null</code>
-   * but may be empty.
+   * @return an iterator of PSExtensionRunner objects, never <code>null</code> but may be empty.
    */
   public Iterator getExtensionRunners() {
     if (m_extensionInstances != null) return m_extensionInstances.iterator();
@@ -222,22 +206,21 @@ public class PSAction {
   }
 
   /**
-   * Should an exception generated by this action stop the execution of the
-   * action set?
+   * Should an exception generated by this action stop the execution of the action set?
    *
-   * @return <code>true</code> if any error should be ignored, and execution
-   * continue; <code>false</code> if any error should abort execution.
+   * @return <code>true</code> if any error should be ignored, and execution continue; <code>false
+   *     </code> if any error should abort execution.
    */
   public boolean ignoreError() {
     return m_ignoreError;
   }
 
   /**
-   * Gets the member variable holding the extension call set registered for
-   * this action.  Protected access for use by unit test.
+   * Gets the member variable holding the extension call set registered for this action. Protected
+   * access for use by unit test.
    *
-   * @return the member variable or <code>null</code> if an extension call
-   * set has not been assigned.
+   * @return the member variable or <code>null</code> if an extension call set has not been
+   *     assigned.
    */
   PSExtensionCallSet getExtensions() {
     return m_extensions;
@@ -247,27 +230,25 @@ public class PSAction {
   public static final String XML_NODE_NAME = "Action";
 
   /**
-   * Name of the attribute that holds the name of the action. Package-level
-   * protection so the unit test can reference.
+   * Name of the attribute that holds the name of the action. Package-level protection so the unit
+   * test can reference.
    */
   static final String NAME_XATTR = "name";
 
   /**
-   * Name of the attribute that determines whether errors generated by this
-   * action abort the execution of the set.  Package-level protection so the
-   * unit test can reference.
+   * Name of the attribute that determines whether errors generated by this action abort the
+   * execution of the set. Package-level protection so the unit test can reference.
    */
   static final String IGNORE_ERROR_XATTR = "ignoreError";
 
   /**
-   * Name of this action, used in the results.  Never <code>null</code> or
-   * empty after construction.
+   * Name of this action, used in the results. Never <code>null</code> or empty after construction.
    */
   private String m_name;
 
   /**
-   * Collection of param objects added to the URL generated by this action.
-   * Never <code>null</code> after ctor, but maybe empty.
+   * Collection of param objects added to the URL generated by this action. Never <code>null</code>
+   * after ctor, but maybe empty.
    */
   private PSCollection m_params;
 
@@ -275,33 +256,30 @@ public class PSAction {
   private PSUrlRequest m_url;
 
   /**
-   * The extractor for <code>m_url</code>, used for efficient runtime
-   * resolution of the replacement value.  Assigned in the <code>init</code>
-   * method and, never <code>null</code> or modified after that.
+   * The extractor for <code>m_url</code>, used for efficient runtime resolution of the replacement
+   * value. Assigned in the <code>init</code> method and, never <code>null</code> or modified after
+   * that.
    */
   private IPSDataExtractor m_extractor;
 
   /**
-   * A group of extensions to run after the action as been successfully
-   * completed.  Assigned in the <code>fromXml</code> method and prepared for
-   * runtime use in the <code>init</code> method.  Optional, may be
-   * <code>null</code>.
+   * A group of extensions to run after the action as been successfully completed. Assigned in the
+   * <code>fromXml</code> method and prepared for runtime use in the <code>init</code> method.
+   * Optional, may be <code>null</code>.
    */
   private PSExtensionCallSet m_extensions = null;
 
   /**
-   * A list of <code>PSExtensionRunner</code> objects created from the
-   * extensions in <code>m_extensions</code> during the init method.
-   * Will be <code>null</code> if <code>m_extensions</code> is
-   * <code>null</code>.
+   * A list of <code>PSExtensionRunner</code> objects created from the extensions in <code>
+   * m_extensions</code> during the init method. Will be <code>null</code> if <code>m_extensions
+   * </code> is <code>null</code>.
    */
   private List m_extensionInstances = null;
 
   /**
-   * Determines whether an action set should stop executing if this action
-   * generates an exception.  If <code>true</code>, the error is ignored, and
-   * the action set continues.  If <code>false</code> (the default), the error
-   * stops the set.  Assigned in the <code>fromXml</code> method.
+   * Determines whether an action set should stop executing if this action generates an exception.
+   * If <code>true</code>, the error is ignored, and the action set continues. If <code>false</code>
+   * (the default), the error stops the set. Assigned in the <code>fromXml</code> method.
    */
   private boolean m_ignoreError = false;
 }

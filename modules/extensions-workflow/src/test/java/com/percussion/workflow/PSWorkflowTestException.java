@@ -17,9 +17,9 @@
 package com.percussion.workflow;
 
 /**
- * This is the only checked exception that may be thrown by the method
- * <CODE>ExecuteTest</CODE> in any class that implements
- * <CODE>PSWorkflowTest</CODE>, it is a wrapper for the original exception.
+ * This is the only checked exception that may be thrown by the method <CODE>ExecuteTest</CODE> in
+ * any class that implements <CODE>PSWorkflowTest</CODE>, it is a wrapper for the original
+ * exception.
  */
 public class PSWorkflowTestException extends Exception {
   public PSWorkflowTestException() {
@@ -33,8 +33,8 @@ public class PSWorkflowTestException extends Exception {
   /**
    * Constructor specifying a <CODE>Throwable</CODE>
    *
-   * @param throwable The original <CODE>Exception</CODE> or
-   *                  <CODE>Error</CODE> being wrapped by this exception
+   * @param throwable The original <CODE>Exception</CODE> or <CODE>Error</CODE> being wrapped by
+   *     this exception
    */
   public PSWorkflowTestException(Throwable throwable) {
     super();
@@ -44,9 +44,9 @@ public class PSWorkflowTestException extends Exception {
   /**
    * Constructor specifying a <CODE>Throwable</CODE>
    *
-   * @param s         error string
-   * @param throwable The original <CODE>Exception</CODE> or
-   *                  <CODE>Error</CODE> being wrapped by this exception
+   * @param s error string
+   * @param throwable The original <CODE>Exception</CODE> or <CODE>Error</CODE> being wrapped by
+   *     this exception
    */
   public PSWorkflowTestException(String s, Throwable throwable) {
     super(s);

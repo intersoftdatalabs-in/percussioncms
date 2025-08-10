@@ -35,26 +35,25 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This class contains the know how to implement the necessary processing
- * when operating in a different JVM than the server. It uses http requests
- * to accomplish its work. All requests are performed on behalf of
- * the user specified in the config params.
- * <p>Generally, this is designed for use by remote clients such as the
- * workbench.
+ * This class contains the know how to implement the necessary processing when operating in a
+ * different JVM than the server. It uses http requests to accomplish its work. All requests are
+ * performed on behalf of the user specified in the config params.
+ *
+ * <p>Generally, this is designed for use by remote clients such as the workbench.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSRemoteProcessor extends PSProcessorCommon {
   /**
-   * Creates a processor that can fulfill database operation requests Remotely
-   * from the Rhythmyx server. Implementors
-   * should not instantiate this class directly but should use the {@link
+   * Creates a processor that can fulfill database operation requests Remotely from the Rhythmyx
+   * server. Implementors should not instantiate this class directly but should use the {@link
    * com.percussion.cms.objectstore.PSProcessorProxy PSProcessorProxy} class.
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class}
-   * for further details. (Note, parameters (except ssl) are the same as
-   * those of the {@link com.percussion.conn.PSDesignerConnection
-   * PSDesignerConnection} class.
+   *
+   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details. (Note,
+   * parameters (except ssl) are the same as those of the {@link
+   * com.percussion.conn.PSDesignerConnection PSDesignerConnection} class.
+   *
    * <table border="1">
    *    <tr>
    *       <th>Key</th>
@@ -93,15 +92,14 @@ public class PSRemoteProcessor extends PSProcessorCommon {
    *          </td>
    *    </tr>
    * </table>
-   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class}
-   * for further details.
    *
-   * @param connInfo Never <code>null</code>. All work is performed as the user
-   *    identified with these connection parameters. See description for
-   *    required and optional parameters. All property names are
-   *    case-sensitive. The needed props are read and stored locally. If any
-   *    required props are missing or empty or any integral props can't be
-   *    parsed, an IAE is thrown.
+   * <p>See {@link PSServerProcessor#PSServerProcessor(Map) base class} for further details.
+   *
+   * @param connInfo Never <code>null</code>. All work is performed as the user identified with
+   *     these connection parameters. See description for required and optional parameters. All
+   *     property names are case-sensitive. The needed props are read and stored locally. If any
+   *     required props are missing or empty or any integral props can't be parsed, an IAE is
+   *     thrown.
    */
   public PSRemoteProcessor(IPSRemoteRequester conn, Map procConfig) {
     super(procConfig);
@@ -114,11 +112,10 @@ public class PSRemoteProcessor extends PSProcessorCommon {
 
   /**
    * See base class for details.
-   * <li>For each entry in ids, create N html parameters whose name is the name
-   *    of the entry key. The value of each instance should be the value of
-   *    one of the entries in the associated collection.</li>
-   * <li>Generate an http/s request to the resource specified in
-   *    loadResource.</li>
+   * <li>For each entry in ids, create N html parameters whose name is the name of the entry key.
+   *     The value of each instance should be the value of one of the entries in the associated
+   *     collection.
+   * <li>Generate an http/s request to the resource specified in loadResource.
    */
   protected Document doLoad(String resourceName, Map ids) throws PSCmsException {
     String path = "";
@@ -249,9 +246,6 @@ public class PSRemoteProcessor extends PSProcessorCommon {
     }
   }
 
-  /**
-   * Object used to make the requests to the server. Never <code>null</code>
-   * after construction.
-   */
+  /** Object used to make the requests to the server. Never <code>null</code> after construction. */
   private IPSRemoteRequester m_conn = null;
 }

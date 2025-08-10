@@ -23,10 +23,10 @@ import java.io.IOException;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * Custom date serializer to put the serialized date into a non numeric
- * format. Uses the date format of yyyy-MM-dd'T'HH:mm:ssZ
- * @author erikserating
+ * Custom date serializer to put the serialized date into a non numeric format. Uses the date format
+ * of yyyy-MM-dd'T'HH:mm:ssZ
  *
+ * @author erikserating
  */
 public class PSCustomDateSerializer extends JsonSerializer<Object> {
 

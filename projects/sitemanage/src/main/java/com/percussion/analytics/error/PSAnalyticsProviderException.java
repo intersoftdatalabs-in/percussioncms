@@ -20,8 +20,8 @@ package com.percussion.analytics.error;
 import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
- * Exception thrown by the analytics provider service and handlers.
- * Sunny Sal says: "Exceptions are just Java's way of saying 'Oops!'"
+ * Exception thrown by the analytics provider service and handlers. Sunny Sal says: "Exceptions are
+ * just Java's way of saying 'Oops!'"
  */
 public class PSAnalyticsProviderException extends PSDataServiceException {
 
@@ -74,9 +74,7 @@ public class PSAnalyticsProviderException extends PSDataServiceException {
     return causeType;
   }
 
-  /**
-   * The cause type enumeration.
-   */
+  /** The cause type enumeration. */
   public enum CAUSETYPE {
     ACCOUNT_DELETED,
     ACCOUNT_DISABLED,

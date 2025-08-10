@@ -21,7 +21,6 @@ package com.percussion.share.service.exception;
  * Should be used when a method is not yet implemented
  *
  * @author natechadwick
- *
  */
 public class PSNotImplementedException extends RuntimeException {
 

@@ -22,21 +22,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Helper class to resolve different HTML parameter definitions. This is in
- * view of the fact that there are old and new names for the HTML parameters
- * Rhythmyx uses, e.g. contentid vs sys_contentid.
+ * Helper class to resolve different HTML parameter definitions. This is in view of the fact that
+ * there are old and new names for the HTML parameters Rhythmyx uses, e.g. contentid vs
+ * sys_contentid.
  */
 public class PSHtmlParameters {
   /**
-   * This creates a new map of parameters with standard names out of the
-   * supplied map. All parameters found without a known standard name will
-   * be recreated like the original.
+   * This creates a new map of parameters with standard names out of the supplied map. All
+   * parameters found without a known standard name will be recreated like the original.
    *
-   * @param params a map of HTML parameters from which this will create a
-   *    map using standard parameter names. An empty map will be returned
-   *    if <code>null</code> is provided.
-   * @return a new map of HTML parameters using standard parameter names.
-   *    Never <code>null</code>, might be empty.
+   * @param params a map of HTML parameters from which this will create a map using standard
+   *     parameter names. An empty map will be returned if <code>null</code> is provided.
+   * @return a new map of HTML parameters using standard parameter names. Never <code>null</code>,
+   *     might be empty.
    */
   public static Map createStandardParams(Map params) {
     Map standardParams = new HashMap();
@@ -52,17 +50,14 @@ public class PSHtmlParameters {
   }
 
   /**
-   * Get the parameter value from the supplied map for the provided name.
-   * The name must be a standard name specified in IPSHtmlParameters.
-   * If no parameter is found for the provided name old names are checked
-   * and if still not found <code>null</code> will be returned.
+   * Get the parameter value from the supplied map for the provided name. The name must be a
+   * standard name specified in IPSHtmlParameters. If no parameter is found for the provided name
+   * old names are checked and if still not found <code>null</code> will be returned.
    *
-   * @param name the of the parameter we are interested in. Use a constant
-   *    defined in IPSHtmlParameters. Migth be <code>null</code> or empty.
-   * @param request the request to get the parameter from. Might be
-   *    <code>null</code> or empty.
-   * @return the HTML parameter value as String, <code>null</code> if not
-   *    found, might be empty.
+   * @param name the of the parameter we are interested in. Use a constant defined in
+   *     IPSHtmlParameters. Migth be <code>null</code> or empty.
+   * @param request the request to get the parameter from. Might be <code>null</code> or empty.
+   * @return the HTML parameter value as String, <code>null</code> if not found, might be empty.
    */
   public static String get(String name, IPSRequestContext request) {
     if (request == null) return null;
@@ -71,17 +66,14 @@ public class PSHtmlParameters {
   }
 
   /**
-   * Get the parameter value from the supplied map for the provided name.
-   * The name must be a standard name specified in IPSHtmlParameters.
-   * If no parameter is found for the provided name old names are checked
-   * and if still not found <code>null</code> will be returned.
+   * Get the parameter value from the supplied map for the provided name. The name must be a
+   * standard name specified in IPSHtmlParameters. If no parameter is found for the provided name
+   * old names are checked and if still not found <code>null</code> will be returned.
    *
-   * @param name the of the parameter we are interested in. Use a constant
-   *    defined in IPSHtmlParameters. Migth be <code>null</code> or empty.
-   * @param params a map of HTML parameters. Might be <code>null</code> or
-   *    empty.
-   * @return the HTML parameter value as String, <code>null</code> if not
-   *    found, might be empty.
+   * @param name the of the parameter we are interested in. Use a constant defined in
+   *     IPSHtmlParameters. Migth be <code>null</code> or empty.
+   * @param params a map of HTML parameters. Might be <code>null</code> or empty.
+   * @return the HTML parameter value as String, <code>null</code> if not found, might be empty.
    */
   public static String get(String name, Map params) {
     if (name == null || params == null) return null;
@@ -93,13 +85,11 @@ public class PSHtmlParameters {
   }
 
   /**
-   * Checks teh provided HTML parameter map for the old name(s) of the
-   * supplied name.
+   * Checks teh provided HTML parameter map for the old name(s) of the supplied name.
    *
-   * @param new name the name of the parameter we need the value for, assumed
-   *    not <code>null</code>.
-   * @param params the parameter map the get the value from for the supplied
-   *    name, assumed not <code>null</code>.
+   * @param new name the name of the parameter we need the value for, assumed not <code>null</code>.
+   * @param params the parameter map the get the value from for the supplied name, assumed not
+   *     <code>null</code>.
    * @return old name of the HTML parameter.
    */
   private static String checkForOldNames(String name, Map params) {
@@ -119,8 +109,8 @@ public class PSHtmlParameters {
   /**
    * This converts the provided name to a standard parameter name.
    *
-   * @param the name we need the standard name for. If no standard is
-   *    defined the original name is returned. Assumed not <code>null</code>.
+   * @param the name we need the standard name for. If no standard is defined the original name is
+   *     returned. Assumed not <code>null</code>.
    * @return the standard parameter name, never <code>null</code>.
    */
   private static String toStandardName(String name) {
@@ -133,14 +123,12 @@ public class PSHtmlParameters {
     return name;
   }
 
-  /**
-   * Do not instantiate this class. Use the static functions instead.
-   */
+  /** Do not instantiate this class. Use the static functions instead. */
   private PSHtmlParameters() {}
 
   /**
-   * An array of standard - old name HTML parameter pairs, element[0] is
-   * defining the standard name, while element[1] defines an old name.
+   * An array of standard - old name HTML parameter pairs, element[0] is defining the standard name,
+   * while element[1] defines an old name.
    */
   private static final String[][] OLD_NAMES = {
     {IPSHtmlParameters.SYS_CONTENTID, "contentid"},

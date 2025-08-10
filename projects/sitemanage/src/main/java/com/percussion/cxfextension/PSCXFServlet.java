@@ -16,26 +16,24 @@
  */
 package com.percussion.cxfextension;
 
-import javax.servlet.ServletConfig;
 import org.apache.cxf.transport.servlet.CXFServlet;
-import org.apache.cxf.transport.servlet.ServletController;
 
 /**
  * Custom CXF servlet for Percussion REST services.
- * <p>
- * Sunny Sal says: "May the CXF be with you!"
+ *
+ * <p>Sunny Sal says: "May the CXF be with you!"
  */
 public class PSCXFServlet extends CXFServlet {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /*
-    // Uncomment and customize if you want to override the service list path.
-    @Override
-    public ServletController createServletController(ServletConfig servletConfig) {
-        ServletController ctrl = super.createServletController(servletConfig);
-        ctrl.setServiceListRelativePath("/perc-rest-services");
-        return ctrl;
-    }
-    */
+  /*
+  // Uncomment and customize if you want to override the service list path.
+  @Override
+  public ServletController createServletController(ServletConfig servletConfig) {
+      ServletController ctrl = super.createServletController(servletConfig);
+      ctrl.setServiceListRelativePath("/perc-rest-services");
+      return ctrl;
+  }
+  */
 }

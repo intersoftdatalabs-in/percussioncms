@@ -31,25 +31,25 @@ import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
+ * This object will contain the summary information for an application.
  *
- *   This object will contain the summary information for an application.
- *   <p>It will also include an AclHandler to check against when performing
- *   application updates, and a the file's last modified time to ensure the
- * AclHandler is valid (current).<p>
+ * <p>It will also include an AclHandler to check against when performing application updates, and a
+ * the file's last modified time to ensure the AclHandler is valid (current).
  *
- *   @see   PSXmlObjectStoreHandler
+ * <p>
+ *
+ * @see PSXmlObjectStoreHandler
  */
 public class PSApplicationSummary {
 
   /**
+   * Create an application summary based on the application itself
    *
-   *   Create an application summary based on the application itself<p>
+   * <p>
    *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   * @param   app   The application
+   * @param app The application
    */
   public PSApplicationSummary(PSApplication app) {
     m_name = app.getName();
@@ -77,122 +77,96 @@ public class PSApplicationSummary {
   }
 
   /**
-   * Returns the ACL for the app. This will be <CODE>null</CODE>
-   * after the first call to <CODE>setAclHandler()</CODE>. It could
-   * also be <CODE>null</CODE> if the app did not define an ACL
+   * Returns the ACL for the app. This will be <CODE>null</CODE> after the first call to <CODE>
+   * setAclHandler()</CODE>. It could also be <CODE>null</CODE> if the app did not define an ACL
    * handler.
-   * <p>
-   * This is a package-access method because only PSXmlObjectStoreHandler
-   * should use it.
    *
-   * @author   chadloder
+   * <p>This is a package-access method because only PSXmlObjectStoreHandler should use it.
    *
+   * @author chadloder
    * @version 1.6 1999/07/21
-   *
-   * @return   PSAcl
+   * @return PSAcl
    */
   PSAcl getAcl() {
     return m_acl;
   }
 
   /**
-   * Returns the roles for the app. This will be <CODE>null</CODE>
-   * after the first call to <CODE>setAclHandler()</CODE>. It could
-   * also be <CODE>null</CODE> if the app did not define an ACL
+   * Returns the roles for the app. This will be <CODE>null</CODE> after the first call to <CODE>
+   * setAclHandler()</CODE>. It could also be <CODE>null</CODE> if the app did not define an ACL
    * handler.
-   * <p>
-   * This is a package-access method because only PSXmlObjectStoreHandler
-   * should use it.
    *
-   * @author   chadloder
+   * <p>This is a package-access method because only PSXmlObjectStoreHandler should use it.
    *
+   * @author chadloder
    * @version 1.6 1999/07/21
-   *
-   * @return   PSAcl
+   * @return PSAcl
    */
   PSCollection getRoles() {
     return m_roles;
   }
 
   /**
-   *   Returns the Id of this application.
+   * Returns the Id of this application.
    *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @return   The app id
+   * @return The app id
    */
   public int getId() {
     return m_id;
   }
 
   /**
+   * Returns the name of this application.
    *
-   *   Returns the name of this application.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @return   The name
+   * @return The name
    */
   public String getName() {
     return m_name;
   }
 
   /**
+   * Returns the description of this application.
    *
-   *   Returns the description of this application.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @return   The description
+   * @return The description
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
+   * Returns the acl handler for this application.
    *
-   *   Returns the acl handler for this application.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @return   The acl handler for this application
+   * @return The acl handler for this application
    */
   public PSAclHandler getAclHandler() {
     return m_handler;
   }
 
   /**
+   * Returns the application's root directory.
    *
-   *   Returns the application's root directory.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/25
-   *
-   *   @return   The application root directory
+   * @return The application root directory
    */
   public String getAppRoot() {
     return m_appRoot;
   }
 
   /**
+   * Returns the last modified time for the file which contains this application's definition.
    *
-   *   Returns the last modified time for the file
-   *      which contains this application's definition.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @return   The last modified time.
+   * @return The last modified time.
    */
   public long getFileLastModified() {
     return m_fileLastModified;
@@ -216,8 +190,7 @@ public class PSApplicationSummary {
   /**
    * Is this a hidden application?
    *
-   * @return  <code>true</code> if it is, <code>false</code> indicates
-   *          a normal application.
+   * @return <code>true</code> if it is, <code>false</code> indicates a normal application.
    */
   public boolean isHidden() {
     return m_hidden;
@@ -226,8 +199,7 @@ public class PSApplicationSummary {
   /**
    * Is this a hidden application?
    *
-   * @return  <code>true</code> if it is, <code>false</code> indicates
-   *          a normal application.
+   * @return <code>true</code> if it is, <code>false</code> indicates a normal application.
    */
   public boolean isEmpty() {
     return m_isEmpty;
@@ -236,7 +208,7 @@ public class PSApplicationSummary {
   /**
    * Get the application type.
    *
-   * @return  one of the {@link PSApplicationType} enumertated values.
+   * @return one of the {@link PSApplicationType} enumertated values.
    */
   public PSApplicationType getAppType() {
     return m_appType;
@@ -260,81 +232,64 @@ public class PSApplicationSummary {
   /**
    * Returns the version of this application.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/07/12
-   *
-   * @return   String
+   * @return String
    */
   public String getVersion() {
     return m_version;
   }
 
   /**
+   * Sets the application id.
    *
-   *   Sets the application id.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   id   The application id
+   * @param id The application id
    */
   void setId(int id) {
     m_id = id;
   }
 
   /**
+   * Sets the application name.
    *
-   *   Sets the application name.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   name   The application name
+   * @param name The application name
    */
   void setName(String name) {
     m_name = name;
   }
 
   /**
+   * Sets the application id.
    *
-   *   Sets the application id.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   description   The application description
+   * @param description The application description
    */
   void setDescription(String description) {
     m_description = description;
   }
 
   /**
+   * Sets the enabled status of the application.
    *
-   *   Sets the enabled status of the application.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   isEnabled  is this application enabled?
+   * @param isEnabled is this application enabled?
    */
   void setEnabled(boolean isEnabled) {
     m_isEnabled = isEnabled;
   }
 
   /**
+   * Stores the acl handler associated with this application.
    *
-   *   Stores the acl handler associated with this application.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   handler   The application's acl handler.
+   * @param handler The application's acl handler.
    */
   void setAclHandler(PSAclHandler handler) {
     m_handler = handler;
@@ -344,39 +299,32 @@ public class PSApplicationSummary {
   /**
    * Set whether this application is hidden or not.
    *
-   * @param hidden  <code>true</code> if it is to be hidden,
-   *                <code>false</code> indicates a normal application.
+   * @param hidden <code>true</code> if it is to be hidden, <code>false</code> indicates a normal
+   *     application.
    */
   public void setHidden(boolean hidden) {
     m_hidden = hidden;
   }
 
   /**
+   * Stores the last modified time associated with this application, to be used in conjunction with
+   * the acl handler to check security...
    *
-   *   Stores the last modified time associated with this application,
-   *      to be used in conjunction with the acl handler to check
-   *      security...
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/24
-   *
-   *   @param   lastModified   The application's on-file last modified time
+   * @param lastModified The application's on-file last modified time
    */
   void setFileLastModified(long lastModified) {
     m_fileLastModified = lastModified;
   }
 
   /**
+   * Stores the appRoot for this application, to be used in application file save logic, to
+   * determine root.
    *
-   *   Stores the appRoot for this application,
-   *      to be used in application file save logic, to determine root.
-   *
-   * @author   David Gennaco
-   *
+   * @author David Gennaco
    * @version 1.0 1999/6/25
-   *
-   *   @param   appRoot   The application's on-file last modified time
+   * @param appRoot The application's on-file last modified time
    */
   void setAppRoot(String appRoot) {
     m_appRoot = appRoot;
@@ -385,11 +333,9 @@ public class PSApplicationSummary {
   /**
    * Sets the version of the product that created this application.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/07/12
-   *
-   * @return   String
+   * @return String
    */
   void setVersion(String version) {
     m_version = version;
@@ -436,11 +382,11 @@ public class PSApplicationSummary {
   }
 
   /**
-   * Returns an object that implements Comparator that is capable of comparing
-   * two application summary objects.
+   * Returns an object that implements Comparator that is capable of comparing two application
+   * summary objects.
    *
-   * @return The Comparator.  Never <code>null</code>, compares the two objects
-   * lexicographically, ignoring case.
+   * @return The Comparator. Never <code>null</code>, compares the two objects lexicographically,
+   *     ignoring case.
    */
   public static Comparator getComparator() {
     return new PSApplicationSummaryComparator();
@@ -480,27 +426,24 @@ public class PSApplicationSummary {
   PSApplicationType m_appType;
 
   /**
-   * A class that can compare two PSApplicationSummary objects
-   * lexicographically by application name.
+   * A class that can compare two PSApplicationSummary objects lexicographically by application
+   * name.
    */
   private static class PSApplicationSummaryComparator implements Comparator {
     /**
-     * Compares the m_name elements of two PSApplicationSummary objects
-     * lexicographically, case insensitive.
+     * Compares the m_name elements of two PSApplicationSummary objects lexicographically, case
+     * insensitive.
      *
-     * @param o1 The first PSApplicationSummary object.  May not be <code>null
+     * @param o1 The first PSApplicationSummary object. May not be <code>null
      * </code>.
      * @param o2 The second PSApplicationSummary object. May not be <code>null
      * </code>.
-     *
-     * @return a negative integer, zero, or a positive integer as the
-     * first object's name is less than, equal to, or greater than the second
-     * lexicographically.
-     *
+     * @return a negative integer, zero, or a positive integer as the first object's name is less
+     *     than, equal to, or greater than the second lexicographically.
      * @throws IllegalArgumentException if either argument is <code>null
      * </code>.
-     * @throws ClassCastException if either parameter is not an instance of
-     * a PSApplicationSummary object.
+     * @throws ClassCastException if either parameter is not an instance of a PSApplicationSummary
+     *     object.
      */
     public int compare(Object o1, Object o2) {
       if (o1 == null || o2 == null)

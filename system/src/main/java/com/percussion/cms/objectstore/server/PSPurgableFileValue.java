@@ -20,16 +20,13 @@ import com.percussion.util.PSPurgableTempFile;
 import java.io.InputStream;
 
 /**
- * A binary value that is created from a temporary file in order to support
- * uploads of large files.
+ * A binary value that is created from a temporary file in order to support uploads of large files.
  */
 public class PSPurgableFileValue extends PSBinaryFileValue {
   /**
-   * Stores the supplied file. Use
-   * {@link #getTempFile()} to get the purgable file.
+   * Stores the supplied file. Use {@link #getTempFile()} to get the purgable file.
    *
-   * @param file The file containing the binary data.
-   * See {@link #getTempFile()}.
+   * @param file The file containing the binary data. See {@link #getTempFile()}.
    */
   public PSPurgableFileValue(PSPurgableTempFile file) {
     m_tempFile = file;

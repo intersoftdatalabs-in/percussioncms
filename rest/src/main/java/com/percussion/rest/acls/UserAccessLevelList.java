@@ -22,42 +22,39 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
-/**
- * List of UserAccessLevel objects.
- */
+/** List of UserAccessLevel objects. */
 @XmlRootElement(name = "AclEntryList")
 @XmlSeeAlso({UserAccessLevel.class, Permissions.class})
 @ArraySchema(schema = @Schema(implementation = UserAccessLevel.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAccessLevelList extends ArrayList<UserAccessLevel> {
 
-    public UserAccessLevelList() {
-        super();
-    }
+  public UserAccessLevelList() {
+    super();
+  }
 
-    public UserAccessLevelList(Collection<? extends UserAccessLevel> c) {
-        super(c);
-    }
+  public UserAccessLevelList(Collection<? extends UserAccessLevel> c) {
+    super(c);
+  }
 
-    @Override
-    public String toString() {
-        return "UserAccessLevelList" + super.toString();
-    }
+  @Override
+  public String toString() {
+    return "UserAccessLevelList" + super.toString();
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof UserAccessLevelList && super.equals(o);
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof UserAccessLevelList && super.equals(o);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 }

@@ -20,12 +20,12 @@
 package com.percussion.rest.publishingserver;
 
 /**
- * Represents a Publishing Server in Percussion CMS.
- * Sunny Sal: "Publishing server ka hero, deployment ka zero!"
+ * Represents a Publishing Server in Percussion CMS. Sunny Sal: "Publishing server ka hero,
+ * deployment ka zero!"
  */
 public class PublishingServer {
 
-    public PublishingServer() {
-        // Default constructor
-    }
+  public PublishingServer() {
+    // Default constructor
+  }
 }

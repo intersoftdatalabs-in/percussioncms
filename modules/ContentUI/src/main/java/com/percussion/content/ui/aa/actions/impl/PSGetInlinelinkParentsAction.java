@@ -34,12 +34,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 /**
- * This class is used to get the parent ids of the inline links, where the
- * parent/owner of the inline links is one of the managed objects (slot, snippet
- * or field) and the dependent of the links equals to the specified content id.
+ * This class is used to get the parent ids of the inline links, where the parent/owner of the
+ * inline links is one of the managed objects (slot, snippet or field) and the dependent of the
+ * links equals to the specified content id.
  *
- * Expects the following parameters:
- * </p>
+ * <p>Expects the following parameters:
+ *
  * <table border="1" cellspacing="0" cellpadding="5">
  * <thead>
  * <th>Name</th><th>Allowed Values</th><th>Details</th>
@@ -71,11 +71,9 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
   }
 
   /**
-   * Gets the owner ids of the inline links where the dependent id is the given
-   * dependent id.
+   * Gets the owner ids of the inline links where the dependent id is the given dependent id.
    *
    * @param dependentId the id of the dependent.
-   *
    * @return the owner ids, never <code>null</code>, but may be empty.
    */
   private Set<Integer> getInlinelinkOwners(int dependentId) {
@@ -103,9 +101,7 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
   /**
    * Gets the managed ids from the given parameters.
    *
-   * @param params the parameters that contains the ids, assumed not
-   *    <code>null</code>.
-   *
+   * @param params the parameters that contains the ids, assumed not <code>null</code>.
    * @return the managed ids, never <code>null</code>, but may be empty.
    */
   private Set<Integer> getManagedIds(Map<String, Object> params) {
@@ -135,9 +131,7 @@ public class PSGetInlinelinkParentsAction extends PSAAActionBase {
     return ids;
   }
 
-  /**
-   * Input parameter names of this action.
-   */
+  /** Input parameter names of this action. */
   public static String MANAGED_IDS = "managedIds";
 
   public static String DEPENDENT_ID = "dependentId";

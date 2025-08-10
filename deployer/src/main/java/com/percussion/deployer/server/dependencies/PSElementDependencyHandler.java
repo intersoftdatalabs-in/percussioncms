@@ -28,11 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The abstract parent class for all deployable element (or concept) handlers.
- * It contains convenient methods for those concept handlers. The concept
- * handlers do not have any concrete objects associate with them in the system,
- * they have only one child dependency and they will always operate on the
- * child handler for any of the dependency handler's operations, which are
+ * The abstract parent class for all deployable element (or concept) handlers. It contains
+ * convenient methods for those concept handlers. The concept handlers do not have any concrete
+ * objects associate with them in the system, they have only one child dependency and they will
+ * always operate on the child handler for any of the dependency handler's operations, which are
  * defined in this class.
  */
 public abstract class PSElementDependencyHandler extends PSDependencyHandler {
@@ -40,13 +39,10 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be one of the type supported by the derived
-   * class implementing the <code>getType()</code> method. See
-   * {@link PSDependencyHandler#getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be one of the type supported by the derived class implementing the <code>getType()
+   *     </code> method. See {@link PSDependencyHandler#getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSElementDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -54,8 +50,8 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Get the child handler used to delegate all abstract base class method
-   * overriden by this handler.
+   * Get the child handler used to delegate all abstract base class method overriden by this
+   * handler.
    *
    * @return The child handler object. It will never be <code>null</code>.
    */

@@ -33,24 +33,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * PSUpgradeServerPageTags is a product action task that upgrades
- * the following files if they already exist in a Rhythmyx installation:
+ * PSUpgradeServerPageTags is a product action task that upgrades the following files if they
+ * already exist in a Rhythmyx installation:
  *
- * serverPageTags.xml
- * rxW2KserverPageTags.xml
+ * <p>serverPageTags.xml rxW2KserverPageTags.xml
  *
- * It retrieves the current files from the sandbox from the source tree during
- * the install, then creates a list of all "tag" elements whose "isXslTag"
- * attribute has the value "yes". Then it iterates over this list. For each
- * "tag" element, it loops through all the "tag" elements in the currently
- * installed Xml document looking for a matching "tag" element.  "tag" elements
- * are equal if the value of child elements "opening" and "closing" are equal
- * (comparison is case-sensitive). If a matching "tag" element is found, then
- * the value of its "isXslTag" attribute is set to "yes".
- *
+ * <p>It retrieves the current files from the sandbox from the source tree during the install, then
+ * creates a list of all "tag" elements whose "isXslTag" attribute has the value "yes". Then it
+ * iterates over this list. For each "tag" element, it loops through all the "tag" elements in the
+ * currently installed Xml document looking for a matching "tag" element. "tag" elements are equal
+ * if the value of child elements "opening" and "closing" are equal (comparison is case-sensitive).
+ * If a matching "tag" element is found, then the value of its "isXslTag" attribute is set to "yes".
  * <br>
- * Example Usage:
- * <br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -72,7 +68,6 @@ import org.w3c.dom.NodeList;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpgradeServerPageTags extends PSAction {
   // see base class
@@ -204,26 +199,21 @@ public class PSUpgradeServerPageTags extends PSAction {
    ***************************************************************/
 
   /**
-   * Returns the path of the server page tags xml file relative to the
-   * installation directory.
+   * Returns the path of the server page tags xml file relative to the installation directory.
    *
-   * @return the path of the server page tags xml file relative to the
-   * installation directory, never <code>null</code> or empty
+   * @return the path of the server page tags xml file relative to the installation directory, never
+   *     <code>null</code> or empty
    */
   public String getServerPageTagsXmlRxFilePath() {
     return serverPageTagsXmlRxFilePath;
   }
 
   /**
-   * Sets the path of the server page tags xml file relative to the
-   * installation directory.
+   * Sets the path of the server page tags xml file relative to the installation directory.
    *
-   * @param serverPageTagsXmlRxFilePath the path of the server page tags xml
-   * file relative to the installation directory, may not be
-   * <code>null</code> or empty
-   *
-   * @throw IllegalArgumentException if serverPageTagsXmlRxFilePath is
-   * <code>null</code> or empty
+   * @param serverPageTagsXmlRxFilePath the path of the server page tags xml file relative to the
+   *     installation directory, may not be <code>null</code> or empty
+   * @throw IllegalArgumentException if serverPageTagsXmlRxFilePath is <code>null</code> or empty
    */
   public void setServerPageTagsXmlRxFilePath(String serverPageTagsXmlRxFilePath) {
     if ((serverPageTagsXmlRxFilePath == null) || (serverPageTagsXmlRxFilePath.trim().length() == 0))
@@ -234,8 +224,8 @@ public class PSUpgradeServerPageTags extends PSAction {
   /**
    * Returns the path of the server page tags xml file on the build machine.
    *
-   * @return the path of the server page tags xml file on the build machine,
-   * never <code>null</code> or empty
+   * @return the path of the server page tags xml file on the build machine, never <code>null</code>
+   *     or empty
    */
   public String getServerPageTagsXmlE2FilePath() {
     return serverPageTagsXmlE2FilePath;
@@ -244,11 +234,9 @@ public class PSUpgradeServerPageTags extends PSAction {
   /**
    * Sets the path of the server page tags xml file on the build machine.
    *
-   * @param serverPageTagsXmlE2FilePath the path of the server page tags xml
-   * file on the build machine, may not be <code>null</code> or empty
-   *
-   * @throw IllegalArgumentException if serverPageTagsXmlE2FilePath is
-   * <code>null</code> or empty
+   * @param serverPageTagsXmlE2FilePath the path of the server page tags xml file on the build
+   *     machine, may not be <code>null</code> or empty
+   * @throw IllegalArgumentException if serverPageTagsXmlE2FilePath is <code>null</code> or empty
    */
   public void setServerPageTagsXmlE2FilePath(String serverPageTagsXmlE2FilePath) {
     if ((serverPageTagsXmlE2FilePath == null) || (serverPageTagsXmlE2FilePath.trim().length() == 0))
@@ -261,14 +249,14 @@ public class PSUpgradeServerPageTags extends PSAction {
    ***************************************************************/
 
   /**
-   * path of the server page tags xml file relative to the installation
-   * root directory, never <code>null</code> or empty.
+   * path of the server page tags xml file relative to the installation root directory, never <code>
+   * null</code> or empty.
    */
   String serverPageTagsXmlRxFilePath = "rxconfig/XSpLit/serverPageTags.xml";
 
   /**
-   * path of the server page tags xml file on the build machine, never
-   * <code>null</code>, may be empty.
+   * path of the server page tags xml file on the build machine, never <code>null</code>, may be
+   * empty.
    */
   private String serverPageTagsXmlE2FilePath = "";
 

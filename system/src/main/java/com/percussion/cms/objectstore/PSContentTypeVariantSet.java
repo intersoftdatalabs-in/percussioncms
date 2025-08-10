@@ -24,34 +24,29 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * This is content variant Set class, which is a dependent
- * class of the PSContentType. This wrapps up a relationship between
- * the parent CONTENTTYPES and the child CONTENTVARIANTS tables.
- * @deprecated Use the assembly service to load and manipulate variant
- * information
+ * This is content variant Set class, which is a dependent class of the PSContentType. This wrapps
+ * up a relationship between the parent CONTENTTYPES and the child CONTENTVARIANTS tables.
+ *
+ * @deprecated Use the assembly service to load and manipulate variant information
  */
 @Deprecated
 public class PSContentTypeVariantSet extends PSDbComponentSet {
-  /**
-   * Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)}
-   * for more details.
-   */
+  /** Default constructor. See {@link PSDbComponentSet#PSDbComponentSet(Class)} for more details. */
   @SuppressWarnings("unused")
   public PSContentTypeVariantSet() throws PSCmsException {
     super(PSContentTypeTemplate.class);
   }
 
   /**
-   * Ctor for reserializing. See {@link
-   * PSDbComponentSet#PSDbComponentSet(Element) base ctor} for more details.
+   * Ctor for reserializing. See {@link PSDbComponentSet#PSDbComponentSet(Element) base ctor} for
+   * more details.
    */
   public PSContentTypeVariantSet(Element src) throws PSUnknownNodeTypeException {
     super(src);
   }
 
   /**
-   * Ctor that takes array of elements, each must represent one
-   * PSContentTypeVariant.
+   * Ctor that takes array of elements, each must represent one PSContentTypeVariant.
    *
    * @see PSDbComponentSet#PSDbComponentSet(Element[], Class)
    */
@@ -60,8 +55,8 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
   }
 
   /**
-   * Ctor that takes a list of assembly templates and creates the right
-   * deprecated structures
+   * Ctor that takes a list of assembly templates and creates the right deprecated structures
+   *
    * @param templates the list of templates, never <code>null</code>
    */
   public PSContentTypeVariantSet(Set<IPSAssemblyTemplate> templates) {
@@ -82,8 +77,8 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
 
   /**
    * Find the variant by name.
-   * @param variantName name of the variant to find, must not be
-   * <code>null</code> or empty.
+   *
+   * @param variantName name of the variant to find, must not be <code>null</code> or empty.
    * @return matching variant if found. <code>null</code> if not found.
    */
   public PSContentTypeTemplate getContentVariantByName(String variantName) {
@@ -100,6 +95,7 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
 
   /**
    * Find the variant by variantid.
+   *
    * @param variantId of the varint to find, must be > 0.
    * @return matching variant if found. <code>null</code> if not found.
    */
@@ -114,8 +110,6 @@ public class PSContentTypeVariantSet extends PSDbComponentSet {
     return null;
   }
 
-  /**
-   * XML node name for th object's xml representation.
-   */
+  /** XML node name for th object's xml representation. */
   public static final String XML_NODE_NAME = "PSXContentTypeVariantSet";
 }

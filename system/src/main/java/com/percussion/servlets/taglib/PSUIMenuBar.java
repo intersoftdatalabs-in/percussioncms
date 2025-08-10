@@ -23,8 +23,8 @@ import javax.faces.context.ResponseWriter;
 
 /**
  * Handle the menubar output
- * @author dougrand
  *
+ * @author dougrand
  */
 public class PSUIMenuBar extends UIOutput {
   /* (non-Javadoc)

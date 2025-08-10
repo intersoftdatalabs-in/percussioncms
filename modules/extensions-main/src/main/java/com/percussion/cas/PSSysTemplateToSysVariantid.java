@@ -38,12 +38,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit will turn the sys_template values into the appropriate
- * sys_variantid by doing a lookup. This will only occur if sys_variantid
- * does not exist but sys_template does.
+ * This exit will turn the sys_template values into the appropriate sys_variantid by doing a lookup.
+ * This will only occur if sys_variantid does not exist but sys_template does.
  *
- * This exit requires the existance of App resource
- * sys_ceSupport/variantlist.xml.
+ * <p>This exit requires the existance of App resource sys_ceSupport/variantlist.xml.
  */
 public class PSSysTemplateToSysVariantid implements IPSRequestPreProcessor {
 
@@ -68,8 +66,8 @@ public class PSSysTemplateToSysVariantid implements IPSRequestPreProcessor {
   }
 
   /**
-   * Queries the variant list resource and creates a map
-   * of template name/ variantids.
+   * Queries the variant list resource and creates a map of template name/ variantids.
+   *
    * @param request the request associated with this exit call.
    * @return never <code>null</code>, may be empty.
    */
@@ -110,9 +108,7 @@ public class PSSysTemplateToSysVariantid implements IPSRequestPreProcessor {
     // no-op
   }
 
-  /**
-   * Variant list lookup resource
-   */
+  /** Variant list lookup resource */
   private static final String VARIANT_LIST_RESOURCE = "sys_ceSupport/variantlist.xml";
 
   // Various XML constants

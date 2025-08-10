@@ -20,107 +20,102 @@ package com.percussion.rest.acls;
 
 import com.percussion.security.IPSTypedPrincipal;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema(description = "Typed Principal")
 public class TypedPrincipal implements IPSTypedPrincipal {
 
-    @Schema(description = "name", required = true)
-    private String name;
+  @Schema(description = "name", required = true)
+  private String name;
 
-    @Schema(description = "type", required = true)
-    private PrincipalTypes type;
+  @Schema(description = "type", required = true)
+  private PrincipalTypes type;
 
-    public TypedPrincipal() {}
+  public TypedPrincipal() {}
 
-    public TypedPrincipal(String name, PrincipalTypes type) {
-        this.name = name;
-        this.type = type;
-    }
+  public TypedPrincipal(String name, PrincipalTypes type) {
+    this.name = name;
+    this.type = type;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public PrincipalTypes getType() {
-        return type;
-    }
+  public PrincipalTypes getType() {
+    return type;
+  }
 
-    public void setType(PrincipalTypes type) {
-        this.type = type;
-    }
+  public void setType(PrincipalTypes type) {
+    this.type = type;
+  }
 
-    @Override
-    public boolean isType(PrincipalTypes principalType) {
-        return type == principalType;
-    }
+  @Override
+  public boolean isType(PrincipalTypes principalType) {
+    return type == principalType;
+  }
 
-    @Override
-    public boolean isCommunity() {
-        return type == PrincipalTypes.COMMUNITY;
-    }
+  @Override
+  public boolean isCommunity() {
+    return type == PrincipalTypes.COMMUNITY;
+  }
 
-    @Override
-    public boolean isRole() {
-        return type == PrincipalTypes.ROLE;
-    }
+  @Override
+  public boolean isRole() {
+    return type == PrincipalTypes.ROLE;
+  }
 
-    @Override
-    public boolean isUser() {
-        return type == PrincipalTypes.USER || type == PrincipalTypes.SYSTEM_ENTRY;
-    }
+  @Override
+  public boolean isUser() {
+    return type == PrincipalTypes.USER || type == PrincipalTypes.SYSTEM_ENTRY;
+  }
 
-    @Override
-    public boolean isGroup() {
-        return type == PrincipalTypes.GROUP;
-    }
+  @Override
+  public boolean isGroup() {
+    return type == PrincipalTypes.GROUP;
+  }
 
-    @Override
-    public boolean isSubject() {
-        return type == PrincipalTypes.SUBJECT;
-    }
+  @Override
+  public boolean isSubject() {
+    return type == PrincipalTypes.SUBJECT;
+  }
 
-    @Override
-    public boolean isSystemEntry() {
-        return type == PrincipalTypes.SYSTEM_ENTRY;
-    }
+  @Override
+  public boolean isSystemEntry() {
+    return type == PrincipalTypes.SYSTEM_ENTRY;
+  }
 
-    @Override
-    public boolean isSystemCommunity() {
-        return type == PrincipalTypes.SYSTEM_COMMUNITY;
-    }
+  @Override
+  public boolean isSystemCommunity() {
+    return type == PrincipalTypes.SYSTEM_COMMUNITY;
+  }
 
-    @Override
-    public PrincipalTypes getPrincipalType() {
-        return type;
-    }
+  @Override
+  public PrincipalTypes getPrincipalType() {
+    return type;
+  }
 
-    @Override
-    public String toString() {
-        return "TypedPrincipal{" +
-                "name='" + name + '\'' +
-                ", type=" + type +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "TypedPrincipal{" + "name='" + name + '\'' + ", type=" + type + '}';
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TypedPrincipal)) return false;
-        var that = (TypedPrincipal) o;
-        return Objects.equals(name, that.name) && type == that.type;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof TypedPrincipal)) return false;
+    var that = (TypedPrincipal) o;
+    return Objects.equals(name, that.name) && type == that.type;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, type);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, type);
+  }
 }

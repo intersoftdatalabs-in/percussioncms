@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author erikserating
- *
  */
 public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao {
   /*
@@ -184,8 +183,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
   }
 
   /**
-   * Prepares the Hibernate Criteria object according to the settings in
-   * PSCommentCriteria object.
+   * Prepares the Hibernate Criteria object according to the settings in PSCommentCriteria object.
    *
    * @param criteria The comment criteria. Must not be <code>null</code>.
    * @param queryCriteria The Hibernate Criteria object.

@@ -25,55 +25,47 @@ import com.percussion.share.test.PSObjectRestClient;
 
 /**
  * The class used for unit test on REST layer.
- * 
+ *
  * @author peterfrontiero
  */
-public class PSItemWorkflowServiceRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/itemmanagement/workflow/";
+public class PSItemWorkflowServiceRestClient extends PSObjectRestClient {
+  private String path = "/Rhythmyx/services/itemmanagement/workflow/";
 
-    public PSItemWorkflowServiceRestClient(String baseUrl)
-    {
-        super(baseUrl);
-    }
+  public PSItemWorkflowServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    public void checkIn(String id)
-    {
-        GET(concatPath(getPath(), "checkIn", id));
-    }
+  public void checkIn(String id) {
+    GET(concatPath(getPath(), "checkIn", id));
+  }
 
-    public PSItemUserInfo checkOut(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "checkOut", id), PSItemUserInfo.class);
-    }
+  public PSItemUserInfo checkOut(String id) {
+    return getObjectFromPath(concatPath(getPath(), "checkOut", id), PSItemUserInfo.class);
+  }
 
-    public PSItemUserInfo forceCheckOut(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "forceCheckOut", id), PSItemUserInfo.class);
-    }
+  public PSItemUserInfo forceCheckOut(String id) {
+    return getObjectFromPath(concatPath(getPath(), "forceCheckOut", id), PSItemUserInfo.class);
+  }
 
-    public PSItemStateTransition getTransitions(String id)
-    {
-        return getObjectFromPath(concatPath(getPath(), "getTransitions", id), PSItemStateTransition.class);
-    }
+  public PSItemStateTransition getTransitions(String id) {
+    return getObjectFromPath(
+        concatPath(getPath(), "getTransitions", id), PSItemStateTransition.class);
+  }
 
-    public PSItemTransitionResults transition(String id, String trigger)
-    {
-        return getObjectFromPath(concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
-    }
+  public PSItemTransitionResults transition(String id, String trigger) {
+    return getObjectFromPath(
+        concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
+  }
 
-    public void approvePages(PSApprovableItems items)
-    {
-        postObjectToPath(concatPath(getPath(), "bulkapprove"), items);
-    }
+  public void approvePages(PSApprovableItems items) {
+    postObjectToPath(concatPath(getPath(), "bulkapprove"), items);
+  }
 
-    public String getPath()
-    {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

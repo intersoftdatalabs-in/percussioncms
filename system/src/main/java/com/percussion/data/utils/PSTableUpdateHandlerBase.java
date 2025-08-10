@@ -30,23 +30,22 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Base class that looks for update events from update handlers and causes
- * subclass specific actions to be taken. This class is instantiated and added
- * as a listener on {@link com.percussion.server.PSServer}.
+ * Base class that looks for update events from update handlers and causes subclass specific actions
+ * to be taken. This class is instantiated and added as a listener on {@link
+ * com.percussion.server.PSServer}.
  *
  * @author dougrand
  */
 public abstract class PSTableUpdateHandlerBase
     implements IPSHandlerInitListener, IPSTableChangeListener {
   /**
-   * Table names that are of interested for this update handler. Initialized
-   * in the ctor, never empty
+   * Table names that are of interested for this update handler. Initialized in the ctor, never
+   * empty
    */
   protected final List<String> m_tables = new ArrayList<String>();
 
   /**
-   * @param tables the array of tables that we're interested in, never
-   *           <code>null</code> or empty
+   * @param tables the array of tables that we're interested in, never <code>null</code> or empty
    */
   public PSTableUpdateHandlerBase(String tables[]) {
     if (tables == null || tables.length == 0) {

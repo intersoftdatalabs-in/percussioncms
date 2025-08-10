@@ -21,23 +21,16 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class represents the FieldError element of the sys_ContentEditor.dtd.
- *
- */
+/** This class represents the FieldError element of the sys_ContentEditor.dtd. */
 public class PSFieldError {
   /**
    * Ctor
    *
-   * @param sourceNode The xml element that represents the FieldError element.
-   *           Expects the element as per the following DTD
-   *           &lt;!ELEMENT FieldError (#PCDATA)&gt;
-   *           &lt;!ATTLIST FieldError
-   *             submitName CDATA #REQUIRED
-   *             displayName CDATA #REQUIRED
-   *           &gt;
-   * @throws PSUnknownNodeTypeException If the supplied source xml does not
-   *            confirm to the above mentioned DTD.
+   * @param sourceNode The xml element that represents the FieldError element. Expects the element
+   *     as per the following DTD &lt;!ELEMENT FieldError (#PCDATA)&gt; &lt;!ATTLIST FieldError
+   *     submitName CDATA #REQUIRED displayName CDATA #REQUIRED &gt;
+   * @throws PSUnknownNodeTypeException If the supplied source xml does not confirm to the above
+   *     mentioned DTD.
    */
   public PSFieldError(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode must not be null");
@@ -61,6 +54,7 @@ public class PSFieldError {
 
   /**
    * Converts the object to xml.
+   *
    * @param doc The parent doc for this element, must not be <code>null</code>.
    * @return Element representing this class object.
    */
@@ -76,6 +70,7 @@ public class PSFieldError {
 
   /**
    * Gets the display name value. May be empty, but never <code>null</code>.
+   *
    * @return String displayName attribute value.
    */
   public String getDisplayName() {
@@ -84,6 +79,7 @@ public class PSFieldError {
 
   /**
    * Gets the error text value. May be empty, but never <code>null</code>.
+   *
    * @return String error text corresponding to this field error.
    */
   public String getErrorText() {
@@ -92,6 +88,7 @@ public class PSFieldError {
 
   /**
    * Gets the display name value. May be empty, but never <code>null</code>.
+   *
    * @return String submitName attribute value.
    */
   public String getSubmitName() {
@@ -99,35 +96,29 @@ public class PSFieldError {
   }
 
   /**
-   * Represents the submitName attribute of FieldError element.
-   * Initalized in ctor and never <code>null</code> after that.
+   * Represents the submitName attribute of FieldError element. Initalized in ctor and never <code>
+   * null</code> after that.
    */
   private String m_submitName;
 
   /**
-   * Represents the displayName attribute of FieldError element.
-   * Initalized in ctor and never <code>null</code> after that.
+   * Represents the displayName attribute of FieldError element. Initalized in ctor and never <code>
+   * null</code> after that.
    */
   private String m_displayName;
 
   /**
-   * Represents the error text value of FieldError element.
-   * Initalized in ctor and never <code>null</code> after that.
+   * Represents the error text value of FieldError element. Initalized in ctor and never <code>null
+   * </code> after that.
    */
   private String m_errorText;
 
-  /**
-   * Constant for the root element name of this class.
-   */
+  /** Constant for the root element name of this class. */
   public static final String XML_NODE_NAME = "FieldError";
 
-  /**
-   * Constant for the submitName attribute.
-   */
+  /** Constant for the submitName attribute. */
   public static final String XML_ATTR_NAME_SUBMIT_NAME = "submitName";
 
-  /**
-   * Constant for the displayName attribute.
-   */
+  /** Constant for the displayName attribute. */
   public static final String XML_ATTR_NAME_DISPLAY_NAME = "displayName";
 }

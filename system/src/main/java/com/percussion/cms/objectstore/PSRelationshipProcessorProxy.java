@@ -23,54 +23,47 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import java.util.List;
 
 /**
- * This class presents the interfaces supported by the processor classes, but
- * doesn't actually perform any work. It has a configuration file that is read
- * to find the appropriate processor g178iven a component type. That processor is
- * instantiated and is used to perform the heavy lifting. Once the processor
- * type is known, the config is searched for associated properties for the
- * supplied component and procesor. These properties are made available to the
- * real processor. The default processors support web
- * services and direct server access both locally and remotely.
- * <p>See the config schema, sys_CmsProcessorConfig.xsd for details on the
- * format of the configuration file.
- * <p>To provide an idea of how it will work, let's look at what happens when an
- * operation is performed on a remote client using web services, say creating a
- * new instance of some type.
+ * This class presents the interfaces supported by the processor classes, but doesn't actually
+ * perform any work. It has a configuration file that is read to find the appropriate processor
+ * g178iven a component type. That processor is instantiated and is used to perform the heavy
+ * lifting. Once the processor type is known, the config is searched for associated properties for
+ * the supplied component and procesor. These properties are made available to the real processor.
+ * The default processors support web services and direct server access both locally and remotely.
+ *
+ * <p>See the config schema, sys_CmsProcessorConfig.xsd for details on the format of the
+ * configuration file.
+ *
+ * <p>To provide an idea of how it will work, let's look at what happens when an operation is
+ * performed on a remote client using web services, say creating a new instance of some type.
+ *
  * <ol>
- *    <li>A new instance of the object would be created locally using the
- *       standard technique (e.g., new PSFolder("foo")).</li>
- *    <li>The object would be manipulated until it reached the desired state.
- *       </li>
- *    <li>The object would then be passed to the {@link #save(PSRelationshipSet)
- *       save} method of this class. </li>
- *    <li>The proxy would look up the real processor and pass it the
- *       properties from the config file, which would include the name of the
- *       web service to use.</li>
- *    <li>The real processor would call toXml on the component and pass this
- *       element as the document when making the web service request. This
- *       request would be received by the web services handler at the server.
- *       </li>
- *    <li>The handler would re-create the original object, passing the supplied
- *       xml to the component's fromXml method.</li>
- *    <li>This object would then be passed to the local proxy processor's save
- *       method.</li>
- *    <li>The local proxy would look up the real processor and pass the
- *       config information. By default this processor will generate a new key
- *       and call toDbXml on the component and pass the generated fragment to
- *       the resource defined in the processor's config</li>
- *    <li>After this is successful, setPersisted is called on the component.
- *       </li>
- *    <li>Success is returned to the web service caller.</li>
- *    <li>The WS processor will call setPersisted on the remote object.</li>
+ *   <li>A new instance of the object would be created locally using the standard technique (e.g.,
+ *       new PSFolder("foo")).
+ *   <li>The object would be manipulated until it reached the desired state.
+ *   <li>The object would then be passed to the {@link #save(PSRelationshipSet) save} method of this
+ *       class.
+ *   <li>The proxy would look up the real processor and pass it the properties from the config file,
+ *       which would include the name of the web service to use.
+ *   <li>The real processor would call toXml on the component and pass this element as the document
+ *       when making the web service request. This request would be received by the web services
+ *       handler at the server.
+ *   <li>The handler would re-create the original object, passing the supplied xml to the
+ *       component's fromXml method.
+ *   <li>This object would then be passed to the local proxy processor's save method.
+ *   <li>The local proxy would look up the real processor and pass the config information. By
+ *       default this processor will generate a new key and call toDbXml on the component and pass
+ *       the generated fragment to the resource defined in the processor's config
+ *   <li>After this is successful, setPersisted is called on the component.
+ *   <li>Success is returned to the web service caller.
+ *   <li>The WS processor will call setPersisted on the remote object.
  * </ol>
- * When the methods of a processor are called, a component type must be supplied
- * (or it is obtained from the supplied component). In general, this should be
- * the base name of the component (but for the relationship processor methods,
- * it is an arbitrary name, usually based on the type of relationship being
- * processed). This name is used to find the 'real' processor class name and a
- * set of properties appropriate for this type of component. Most components
- * will use the generic processor, which performs an internal request to a
- * resource as described above.
+ *
+ * When the methods of a processor are called, a component type must be supplied (or it is obtained
+ * from the supplied component). In general, this should be the base name of the component (but for
+ * the relationship processor methods, it is an arbitrary name, usually based on the type of
+ * relationship being processed). This name is used to find the 'real' processor class name and a
+ * set of properties appropriate for this type of component. Most components will use the generic
+ * processor, which performs an internal request to a resource as described above.
  *
  * @author Paul Howard
  * @version 1.0
@@ -78,8 +71,7 @@ import java.util.List;
 public class PSRelationshipProcessorProxy extends PSProcessorProxy
     implements IPSRelationshipProcessor {
   /**
-   * Delegates to the base class. See
-   * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
+   * Delegates to the base class. See {@link PSProcessorProxy#PSProcessorProxy(String, Object)
    * super(location, ctx)} for more information.
    */
   public PSRelationshipProcessorProxy(String location, Object ctx) throws PSCmsException {
@@ -87,13 +79,11 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
   }
 
   /**
-   * Delegates to the base class. See
-   * {@link PSProcessorProxy#PSProcessorProxy(String, Object)
+   * Delegates to the base class. See {@link PSProcessorProxy#PSProcessorProxy(String, Object)
    * super(location, ctx)} for more information.
    *
-   * @param componentType name of the component the processor is used to
-   *    manipulate. This must match an entry in the configuration document.
-   *    Not <code>null</code> or empty.
+   * @param componentType name of the component the processor is used to manipulate. This must match
+   *     an entry in the configuration document. Not <code>null</code> or empty.
    */
   public PSRelationshipProcessorProxy(String location, Object ctx, String componentType)
       throws PSCmsException {
@@ -163,15 +153,12 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
   }
 
   /**
-   * Helper method that overrides the base class version to return a specfic
-   * type of processor (relationship processor) object from the configuration.
+   * Helper method that overrides the base class version to return a specfic type of processor
+   * (relationship processor) object from the configuration.
    *
-   * @param componentType component type for the processor, not
-   *    <code>null</code> or empty.
-   * @return IPSRelationshipProcessor the requested relationship processor,
-   *    never <code>null</code>.
-   * @throws PSCmsException if no processor was found for the supplied
-   *    component type.
+   * @param componentType component type for the processor, not <code>null</code> or empty.
+   * @return IPSRelationshipProcessor the requested relationship processor, never <code>null</code>.
+   * @throws PSCmsException if no processor was found for the supplied component type.
    */
   public IPSRelationshipProcessor getProcessor(String componentType) throws PSCmsException {
     if (componentType == null) throw new IllegalArgumentException("componentType cannot be null");
@@ -186,9 +173,9 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
   /**
    * Get current component type for relationship processor.
    *
-   * @return the component type for the relationship processor, never
-   *    <code>null</code> or empty. The value set in the constructor or
-   *    defaults to <code>RELATIONSHIP_COMPTYPE</code> is not supplied.
+   * @return the component type for the relationship processor, never <code>null</code> or empty.
+   *     The value set in the constructor or defaults to <code>RELATIONSHIP_COMPTYPE</code> is not
+   *     supplied.
    */
   public String getComponentType() {
     return m_componentType;
@@ -309,12 +296,10 @@ public class PSRelationshipProcessorProxy extends PSProcessorProxy
   }
 
   /**
-   * The component type to locate the appropriate processor from the
-   * configuration document. Default is
-   * {@link PSProcessorProxy#RELATIONSHIP_COMPTYPE}. This can be
-   * set in one of the constructors. Note: Currently we have only one
-   * relationship processor and hence the default is the only one component
-   * type used for relationship processing until we have another one.
+   * The component type to locate the appropriate processor from the configuration document. Default
+   * is {@link PSProcessorProxy#RELATIONSHIP_COMPTYPE}. This can be set in one of the constructors.
+   * Note: Currently we have only one relationship processor and hence the default is the only one
+   * component type used for relationship processing until we have another one.
    */
   private String m_componentType = RELATIONSHIP_COMPTYPE;
 }

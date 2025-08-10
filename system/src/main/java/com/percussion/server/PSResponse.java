@@ -41,21 +41,19 @@ import java.util.Locale;
 import org.w3c.dom.Document;
 
 /**
- * The PSResponse class hides the details of the HTTP protocol, allowing
- * for simplified response generation. This also contains all the
- * HTTP status codes for easy reference.
+ * The PSResponse class hides the details of the HTTP protocol, allowing for simplified response
+ * generation. This also contains all the HTTP status codes for easy reference.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResponse extends PSBaseResponse {
   /**
    * Construct a response object.
    *
-   * @param   keepAlive   the Connection header sent with the request
-   *
-   * @param   loc         the locale to use
+   * @param keepAlive the Connection header sent with the request
+   * @param loc the locale to use
    */
   public PSResponse(String keepAlive, Locale loc) {
     super(keepAlive, loc);
@@ -64,20 +62,18 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Construct a response object.
    *
-   * @param   keepAlive   the Connection header sent with the request
+   * @param keepAlive the Connection header sent with the request
    */
   public PSResponse(String keepAlive) {
     this(keepAlive, Locale.getDefault());
   }
 
   /**
-   * Set the status code and text to use as the body of the message.
-   * The body can contain plain text or HTML, which will be wrapped with
-   * the <HTML> and </HTML> tags.
+   * Set the status code and text to use as the body of the message. The body can contain plain text
+   * or HTML, which will be wrapped with the <HTML> and </HTML> tags.
    *
-   * @param   statusCode         the HTTP status code to return
-   *
-   * @param   statusMessage      the status message to provide
+   * @param statusCode the HTTP status code to return
+   * @param statusMessage the status message to provide
    */
   public void setStatus(int statusCode, String statusMessage) {
     // set the status line
@@ -96,11 +92,10 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Set the status code to use on the status line. Use setContent to
-   * set the message body, unless a message body is not required for
-   * the specified status code.
+   * Set the status code to use on the status line. Use setContent to set the message body, unless
+   * a message body is not required for the specified status code.
    *
-   * @param   statusCode         the HTTP status code to return
+   * @param statusCode the HTTP status code to return
    */
   public void setStatus(int statusCode) {
     try {
@@ -122,9 +117,8 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Set the status code to use on the status line (default text is used).
    *
-   * @param   header         the header field name
-   *
-   * @param   value            the header field value
+   * @param header the header field name
+   * @param value the header field value
    */
   public void setHeader(String header, String value) {
     if (!setGeneralHeader(header, value))
@@ -135,15 +129,10 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Set a general header field.
    *
-   * @param   header         the header field name
-   *
-   * @param   value            the header field value
-   *
-   * @return                  <code>true</code> if the header field was
-   *                                                                           added as a general header field;
-   *                                                                           <code>false</code> if it wasn't, in which
-   *                                                                           case it may be a response or entity header
-   *                                                                           field
+   * @param header the header field name
+   * @param value the header field value
+   * @return <code>true</code> if the header field was added as a general header field; <code>false
+   *     </code> if it wasn't, in which case it may be a response or entity header field
    */
   public boolean setGeneralHeader(String header, String value) {
     String useHdr = (String) ms_GeneralHeaders.get(header.toLowerCase());
@@ -158,15 +147,10 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Set a response header field.
    *
-   * @param   header         the header field name
-   *
-   * @param   value            the header field value
-   *
-   * @return                  <code>true</code> if the header field was
-   *                                                                           added as a response header field;
-   *                                                                           <code>false</code> if it wasn't, in which
-   *                                                                           case it may be a general or entity header
-   *                                                                           field
+   * @param header the header field name
+   * @param value the header field value
+   * @return <code>true</code> if the header field was added as a response header field; <code>false
+   *     </code> if it wasn't, in which case it may be a general or entity header field
    */
   public boolean setResponseHeader(String header, String value) {
     String useHdr = (String) ms_ResponseHeaders.get(header.toLowerCase());
@@ -185,15 +169,10 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Set an entity header field.
    *
-   * @param   header         the header field name
-   *
-   * @param   value            the header field value
-   *
-   * @return                  <code>true</code> if the header field was
-   *                                                                           added as an entity header field;
-   *                                                                           <code>false</code> if it wasn't, in which
-   *                                                                           case it may be a general or response header
-   *                                                                           field
+   * @param header the header field name
+   * @param value the header field value
+   * @return <code>true</code> if the header field was added as an entity header field; <code>false
+   *     </code> if it wasn't, in which case it may be a general or response header field
    */
   public boolean setEntityHeader(String header, String value) {
     String useHdr = (String) ms_EntityHeaders.get(header.toLowerCase());
@@ -219,14 +198,11 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Set a cookie. Cookies are actually response header fields, however,
-   * there may be multiple cookies in the header. To avoid overwriting
-   * other cookies, use of this method is recommended.
+   * Set a cookie. Cookies are actually response header fields, however, there may be multiple
+   * cookies in the header. To avoid overwriting other cookies, use of this method is recommended.
    *
-   * @param   cookie         the name of the cookie
-   *
-   * @param   value            the cookie's value (including any optional
-   *                                                                           data)
+   * @param cookie the name of the cookie
+   * @param value the cookie's value (including any optional data)
    */
   public void setCookie(String name, String value) {
     if (m_cookies == null) m_cookies = new HashMap();
@@ -247,26 +223,17 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   *                                                      A convenience routine for setting a cookie which will be sent along
-   *                                                         with the response.<p>
+   * A convenience routine for setting a cookie which will be sent along with the response.
    *
-   *                                                      Cookies are often used to provide context information (state) between
-   *                                                         and server.
+   * <p>Cookies are often used to provide context information (state) between and server.
    *
-   *                                                      @param      name   the name of the cookie (eg, mycookie)
-   *
-   *                                                      @param      value   the value of the cookies (eg, myvalue)
-   *
-   *                                                      @param      path   the URL path the cookie is valid for (eg, / for
-   *                                                                           the entire site, /x for requests in the /x path,
-   *                                                                           etc.)
-   *
-   *                                                      @param      domain   the host the cookie is valid for (eg, www.percussion.com)
-   *
-   *                                                      @param      expires   the date the cookie expires on
-   *
-   *                                                      @param      secure   <code>true</code> if the cookie should only be
-   *                                                                              sent over HTTPS connections
+   * @param name the name of the cookie (eg, mycookie)
+   * @param value the value of the cookies (eg, myvalue)
+   * @param path the URL path the cookie is valid for (eg, / for the entire site, /x for requests in
+   *     the /x path, etc.)
+   * @param domain the host the cookie is valid for (eg, www.percussion.com)
+   * @param expires the date the cookie expires on
+   * @param secure <code>true</code> if the cookie should only be sent over HTTPS connections
    */
   public void setCookie(
       String name,
@@ -291,10 +258,9 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * A simpler version of the 4 parameter method ({@link #setContent(
-   * InputStream, long, String, boolean) setContent }. Defaults the flag that
-   * indicates the charset parameter of the ContentType header variable should
-   * be set if it is not.
+   * A simpler version of the 4 parameter method ({@link #setContent( InputStream, long, String,
+   * boolean) setContent }. Defaults the flag that indicates the charset parameter of the
+   * ContentType header variable should be set if it is not.
    */
   public void setContent(InputStream content, long length, String type) {
     /* Fix for bug Rx00-04-0004. This is the original version of this method.
@@ -304,21 +270,16 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Set the content (message body) associated with the response. The
-   * input stream (content) should not be touched in any way by the
-   * caller until a call to send or clear has been made.
+   * Set the content (message body) associated with the response. The input stream (content) should
+   * not be touched in any way by the caller until a call to send or clear has been made.
    *
-   * @param content an input stream from which to read the content.  May be
-   * <code>null</code>.  This method assumes ownership of the stream, and it
-   * will be closed once the response has been sent.
-   *
+   * @param content an input stream from which to read the content. May be <code>null</code>. This
+   *     method assumes ownership of the stream, and it will be closed once the response has been
+   *     sent.
    * @param length the amount of data in the stream
-   *
    * @param type the content type (eg, text/xml)
-   *
-   * @param addCharsetSpec If <code>true</code>, will add the 'charset='
-   * param to the ContentType header if it's not already there. The value will
-   * be the Rx server standard encoding.
+   * @param addCharsetSpec If <code>true</code>, will add the 'charset=' param to the ContentType
+   *     header if it's not already there. The value will be the Rx server standard encoding.
    */
   public void setContent(InputStream content, long length, String type, boolean addCharsetSpec) {
     if (content == null) length = 0;
@@ -359,14 +320,12 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Reset the content stream to the specified input stream.
-   * The existing content stream will be closed afterwards if it is not
-   * <code>null</code>.
-   * <p>
-   * NOTE: this should only be called if the caller is responsible to
-   *       set other corresponding values, such as m_contentLength, or
-   *       the new input stream contains exactly the same content as
-   *       the existing one.
+   * Reset the content stream to the specified input stream. The existing content stream will be
+   * closed afterwards if it is not <code>null</code>.
+   *
+   * <p>NOTE: this should only be called if the caller is responsible to set other corresponding
+   * values, such as m_contentLength, or the new input stream contains exactly the same content as
+   * the existing one.
    *
    * @param content The to be set content stream, it may be <code>null</code>.
    */
@@ -381,25 +340,23 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Set the content (message body) associated with the response to
-   * an XML document, using MIME type text/xml.
-   * The XML document should not be touched in any way
-   * by the caller until a call to send or clear has been made.
+   * Set the content (message body) associated with the response to an XML document, using MIME type
+   * text/xml. The XML document should not be touched in any way by the caller until a call to send
+   * or clear has been made.
    *
-   * @param   doc            the XML document to use as the output
+   * @param doc the XML document to use as the output
    */
   public void setContent(Document doc) {
     setContent(doc, IPSMimeContentTypes.MIME_TYPE_TEXT_XML + "; charset=" + PSCharSets.rxStdEnc());
   }
 
   /**
-   * Set the content (message body) associated with the response to
-   * an XML document. The XML document should not be touched in any way
-   * by the caller until a call to send or clear has been made.
+   * Set the content (message body) associated with the response to an XML document. The XML
+   * document should not be touched in any way by the caller until a call to send or clear has been
+   * made.
    *
-   * @param   doc            the XML document to use as the output
-   *
-   * @param   type            the content type (eg, text/xml)
+   * @param doc the XML document to use as the output
+   * @param type the content type (eg, text/xml)
    */
   public void setContent(Document doc, String type) {
     long length = 0;
@@ -454,16 +411,15 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Prepares the reponse to send a redirection response by setting the HTTP
-   * status code to <code>IPSHttpErrors.HTTP_MOVED_TEMPORARILY</code> and the
-   * Location header to the URL provided.  Does not actually send the response.
-   * If the request has the IPSHtmlParameters.WIFXUPLOAD flag set
-   * to <code>true</code> then send the special WebImageFx response and
-   * special redirect header that will be handled by javascript.
+   * Prepares the reponse to send a redirection response by setting the HTTP status code to <code>
+   * IPSHttpErrors.HTTP_MOVED_TEMPORARILY</code> and the Location header to the URL provided. Does
+   * not actually send the response. If the request has the IPSHtmlParameters.WIFXUPLOAD flag set to
+   * <code>true</code> then send the special WebImageFx response and special redirect header that
+   * will be handled by javascript.
    *
    * @param url the URL to redirect to; cannot be <code>null</code> or empty
-   * @param request the {@link com.percussion.server.PSRequest} object;
-   * cannot be <code>null</code> or empty.
+   * @param request the {@link com.percussion.server.PSRequest} object; cannot be <code>null</code>
+   *     or empty.
    * @throws IOException if an I/O error occurs
    */
   public void sendRedirect(String url, PSRequest request) throws IOException {
@@ -487,12 +443,10 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Sends the special WebImageFx response and sets the special redirect
-   * header "WebImageFx-Redirect" which is intended to be parsed by the
-   * javascript in the content editor.
+   * Sends the special WebImageFx response and sets the special redirect header
+   * "WebImageFx-Redirect" which is intended to be parsed by the javascript in the content editor.
    *
-   * @param url the url to redirect to , cannot be <code>null</code> or
-   * empty.
+   * @param url the url to redirect to , cannot be <code>null</code> or empty.
    * @throws IOException if an I/O error occurs
    */
   private void setWifxUploadRedirect(String url) throws IOException {
@@ -511,7 +465,7 @@ public class PSResponse extends PSBaseResponse {
    * Sends the actual output, the headers are written by the servlet code.
    *
    * @param os <code>OutputStream</code> to send the output to
-   * @exception   IOException         if an i/o error occurs
+   * @exception IOException if an i/o error occurs
    */
   public void send(OutputStream os) throws IOException {
     try {
@@ -577,22 +531,22 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * Flags whether this repsonse contains a result that is an error rather than
-   * the content expected by the requestor.
+   * Flags whether this repsonse contains a result that is an error rather than the content expected
+   * by the requestor.
    *
-   * @param isError <code>true</code> indicates the response is an error
-   * message, <code>false</code> indicates it is the expected response.
+   * @param isError <code>true</code> indicates the response is an error message, <code>false</code>
+   *     indicates it is the expected response.
    */
   public void setIsErrorResponse(boolean isError) {
     m_isError = isError;
   }
 
   /**
-   * Determines if this repsonse contains a result that is an error rather than
-   * the content expected by the requestor.
+   * Determines if this repsonse contains a result that is an error rather than the content expected
+   * by the requestor.
    *
-   * @return <code>true</code> if is contains an error message,
-   * <code>false</code> if it will send the expected results.
+   * @return <code>true</code> if is contains an error message, <code>false</code> if it will send
+   *     the expected results.
    */
   public boolean isErrorResponse() {
     return m_isError;
@@ -601,11 +555,9 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Write a set of headers.
    *
-   * @param      buf               the buffer to write to
-   *
-   *   *   @param      headers            the headers to write
-   *
-   * @exception   IOException         if an i/o error occurs
+   * @param buf the buffer to write to
+   *     <p>* @param headers the headers to write
+   * @exception IOException if an i/o error occurs
    */
   private void writeHeaders(BufferedOutputStream buf, HashMap headers) throws IOException {
     if (headers != null)
@@ -630,9 +582,8 @@ public class PSResponse extends PSBaseResponse {
   /**
    * Write the cookies as response headers.
    *
-   * @param      buf               the buffer to write to
-   *
-   * @exception   IOException         if an i/o error occurs
+   * @param buf the buffer to write to
+   * @exception IOException if an i/o error occurs
    */
   private void writeCookies(BufferedOutputStream buf) throws IOException {
     if (m_cookies != null)
@@ -656,15 +607,14 @@ public class PSResponse extends PSBaseResponse {
   }
 
   /**
-   * This flag indicates whether or not this is an error response. Initialized
-   * to <code>false</code>, set through {@link #setIsErrorResponse(boolean)}.
+   * This flag indicates whether or not this is an error response. Initialized to <code>false</code>
+   * , set through {@link #setIsErrorResponse(boolean)}.
    */
   private boolean m_isError = false;
 
   /**
-   * The response close delay in milliseconds, can be set by using
-   * server property "responseCloseDelay". Defaults to 10 milliseconds,
-   * and can never be less then 10 milliseconds.
+   * The response close delay in milliseconds, can be set by using server property
+   * "responseCloseDelay". Defaults to 10 milliseconds, and can never be less then 10 milliseconds.
    */
   private static int ms_delay = 10;
 
@@ -678,9 +628,7 @@ public class PSResponse extends PSBaseResponse {
     }
   }
 
-  /**
-   * Special xml response needed for WebImageFx
-   */
+  /** Special xml response needed for WebImageFx */
   private static final StringBuilder ms_wifxResponse = new StringBuilder();
 
   static {

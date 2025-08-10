@@ -24,21 +24,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class holds one clone handler configuration in memory. It creates or
- * reads documents conforming to the sys_CloneHandlerConfig.dtd.
+ * This class holds one clone handler configuration in memory. It creates or reads documents
+ * conforming to the sys_CloneHandlerConfig.dtd.
  */
 public class PSCloneHandlerConfig extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCloneHandlerConfig(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -57,15 +53,11 @@ public class PSCloneHandlerConfig extends PSComponent {
   /**
    * Get the process check for the supplied name and context.
    *
-   * @param name the name to get the process check for, not <code>null</code>
-   *    or empty.
-   * @param context the context to get the process check for, not
-   *    <code>null</code> or empty.
-   * @return the process check found for the supplied name and context, might
-   *    be <code>null</code> if no process check exits for the provided
-   *    parameters.
-   * @throws IllegalArgumentException if name or context is <code>null</code>
-   *    or empty.
+   * @param name the name to get the process check for, not <code>null</code> or empty.
+   * @param context the context to get the process check for, not <code>null</code> or empty.
+   * @return the process check found for the supplied name and context, might be <code>null</code>
+   *     if no process check exits for the provided parameters.
+   * @throws IllegalArgumentException if name or context is <code>null</code> or empty.
    */
   public PSProcessCheck getProcessCheck(String name, String context) {
     if (name == null || name.trim().length() == 0)
@@ -86,14 +78,16 @@ public class PSCloneHandlerConfig extends PSComponent {
   /**
    * Gets all process checks ordered according to the sequence setting.
    *
-   * @return a list in the correct order for processing with all defined
-   *    process checks for this clone handler.
+   * @return a list in the correct order for processing with all defined process checks for this
+   *     clone handler.
    */
   public Iterator getProcessChecks() {
     return m_processChecks.iterator();
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -161,7 +155,9 @@ public class PSCloneHandlerConfig extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(NAME_ATTR, m_name);
@@ -183,15 +179,14 @@ public class PSCloneHandlerConfig extends PSComponent {
   public static final String XML_NODE_NAME = "PSXCloneHandlerConfig";
 
   /**
-   * The clone handler name, server-wide unique.  Initialized in ctor, nerver
-   * changed after that, never <code>null</code> or empty.
+   * The clone handler name, server-wide unique. Initialized in ctor, nerver changed after that,
+   * never <code>null</code> or empty.
    */
   private String m_name = null;
 
   /**
-   * A collection of process checks. Initialized in ctor, nerver changed
-   * after that. Never <code>null</code>, might be empty. The collection is
-   * sorted in order of specified sequence.
+   * A collection of process checks. Initialized in ctor, nerver changed after that. Never <code>
+   * null</code>, might be empty. The collection is sorted in order of specified sequence.
    */
   private PSCollection m_processChecks = new PSCollection(PSProcessCheck.class);
 

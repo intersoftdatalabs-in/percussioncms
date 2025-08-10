@@ -16,79 +16,87 @@
  */
 package com.percussion.searchmanagement.service;
 
+import com.percussion.searchmanagement.data.PSSearchCriteria;
+import com.percussion.searchmanagement.error.PSSearchServiceException;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.data.PSPagedItemPropertiesList;
-import com.percussion.searchmanagement.data.PSSearchCriteria;
-import com.percussion.searchmanagement.error.PSSearchServiceException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSValidationException;
-
 import java.util.List;
 
-/**
- * Provides search services for {@link PSItemProperties} and related objects.
- */
+/** Provides search services for {@link PSItemProperties} and related objects. */
 public interface IPSSearchService {
 
-    /**
-     * Retrieves items found after performing a full text search for the given criteria.
-     *
-     * @param criteria search criteria, must not be {@code null}
-     * @return list of search result objects, never {@code null}, may be empty
-     * @throws PSSearchServiceException if any error occurs
-     * @throws PSValidationException if validation fails
-     * @throws PSNotFoundException if referenced data is not found
-     * @throws IPSDataService.DataServiceLoadException if data cannot be loaded
-     */
-    PSPagedItemList search(PSSearchCriteria criteria)
-            throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
+  /**
+   * Retrieves items found after performing a full text search for the given criteria.
+   *
+   * @param criteria search criteria, must not be {@code null}
+   * @return list of search result objects, never {@code null}, may be empty
+   * @throws PSSearchServiceException if any error occurs
+   * @throws PSValidationException if validation fails
+   * @throws PSNotFoundException if referenced data is not found
+   * @throws IPSDataService.DataServiceLoadException if data cannot be loaded
+   */
+  PSPagedItemList search(PSSearchCriteria criteria)
+      throws PSSearchServiceException,
+          PSValidationException,
+          PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
 
-    /**
-     * Creates the search result objects for the supplied content ids and returns them.
-     *
-     * @param criteria search criteria for result columns
-     * @param contentIdList must not be {@code null}
-     * @return list of search result objects, never {@code null}, may be empty
-     * @throws PSSearchServiceException if any error occurs
-     */
-    PSPagedItemList search(PSSearchCriteria criteria, List<Integer> contentIdList)
-            throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
+  /**
+   * Creates the search result objects for the supplied content ids and returns them.
+   *
+   * @param criteria search criteria for result columns
+   * @param contentIdList must not be {@code null}
+   * @return list of search result objects, never {@code null}, may be empty
+   * @throws PSSearchServiceException if any error occurs
+   */
+  PSPagedItemList search(PSSearchCriteria criteria, List<Integer> contentIdList)
+      throws PSSearchServiceException,
+          PSValidationException,
+          PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
 
-    /**
-     * Retrieves items found after performing a full text search for the given criteria.
-     *
-     * @param criteria search criteria
-     * @return list of search result objects, never {@code null}, may be empty. The item list will have the list of {@link PSItemProperties}
-     * @throws PSSearchServiceException if any error occurs
-     */
-    PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria) throws PSSearchServiceException;
+  /**
+   * Retrieves items found after performing a full text search for the given criteria.
+   *
+   * @param criteria search criteria
+   * @return list of search result objects, never {@code null}, may be empty. The item list will
+   *     have the list of {@link PSItemProperties}
+   * @throws PSSearchServiceException if any error occurs
+   */
+  PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria)
+      throws PSSearchServiceException;
 
-    /**
-     * Gets content IDs for fetching by status.
-     *
-     * @param criteria search criteria
-     * @return list of content IDs, never {@code null}
-     */
-    List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria);
+  /**
+   * Gets content IDs for fetching by status.
+   *
+   * @param criteria search criteria
+   * @return list of content IDs, never {@code null}
+   */
+  List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria);
 
-    /**
-     * Searches by status.
-     *
-     * @param criteria search criteria
-     * @param contentIdList content IDs to search
-     * @return paged item list
-     * @throws PSSearchServiceException if any error occurs
-     */
-    PSPagedItemList searchByStatus(PSSearchCriteria criteria, List<Integer> contentIdList)
-            throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException;
+  /**
+   * Searches by status.
+   *
+   * @param criteria search criteria
+   * @param contentIdList content IDs to search
+   * @return paged item list
+   * @throws PSSearchServiceException if any error occurs
+   */
+  PSPagedItemList searchByStatus(PSSearchCriteria criteria, List<Integer> contentIdList)
+      throws PSSearchServiceException,
+          PSValidationException,
+          PSNotFoundException,
+          IPSDataService.DataServiceLoadException;
 
-    /**
-     * Validates the search criteria.
-     *
-     * @param criteria search criteria
-     * @return validated search criteria
-     */
-    PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria);
+  /**
+   * Validates the search criteria.
+   *
+   * @param criteria search criteria
+   * @return validated search criteria
+   */
+  PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria);
 }

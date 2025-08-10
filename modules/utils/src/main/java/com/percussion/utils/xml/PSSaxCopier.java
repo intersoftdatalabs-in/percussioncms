@@ -33,51 +33,35 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.ext.DefaultHandler2;
 
 /**
- * A sax content handler that outputs the input SAX events to a new XML document
- * being written with an {@link javax.xml.stream.XMLStreamWriter}, which is
- * part of the STaX implementation. Ignores the start and end document calls to
- * support merging documents.
+ * A sax content handler that outputs the input SAX events to a new XML document being written with
+ * an {@link javax.xml.stream.XMLStreamWriter}, which is part of the STaX implementation. Ignores
+ * the start and end document calls to support merging documents.
  *
  * @author dougrand
  */
 public class PSSaxCopier extends DefaultHandler2 {
-  /**
-   * Logger for the sax copier
-   */
+  /** Logger for the sax copier */
   private static final Logger ms_log = LogManager.getLogger(PSSaxCopier.class);
 
-  /**
-   * The stream writer, initialized in the Ctor and never modified
-   */
+  /** The stream writer, initialized in the Ctor and never modified */
   protected XMLStreamWriter m_writer = null;
 
-  /**
-   * Maintains state of parsing a cdata so cdatas are maintained on output
-   */
+  /** Maintains state of parsing a cdata so cdatas are maintained on output */
   private boolean m_inCData = false;
 
-  /**
-   * A map of elements to rename in copying
-   */
+  /** A map of elements to rename in copying */
   protected Map<String, String> m_elementRenames = new HashMap<>();
 
-  /**
-   * A filler string that is used to fill the empty elements. So that they
-   * are not self closed.
-   */
+  /** A filler string that is used to fill the empty elements. So that they are not self closed. */
   public static final String RX_FILLER = "##RX_FILLER##";
 
-  /**
-   * Flag to indicate the whether to fill the empty elements with filler text
-   * or not.
-   */
+  /** Flag to indicate the whether to fill the empty elements with filler text or not. */
   private boolean m_addFillerTextToEmptyElements;
 
   /**
-   * This member keeps track of the last character output. Used to determine
-   * if we may need to output a single whitespace character to avoid one
-   * of the elements that can't be output "empty" from being output as an
-   * empty element. Set in the {@link #characters(char[], int, int)} method,
+   * This member keeps track of the last character output. Used to determine if we may need to
+   * output a single whitespace character to avoid one of the elements that can't be output "empty"
+   * from being output as an empty element. Set in the {@link #characters(char[], int, int)} method,
    * reset almost everywhere else.
    */
   protected int m_lastcharcount = 0;
@@ -86,13 +70,12 @@ public class PSSaxCopier extends DefaultHandler2 {
    * Ctor
    *
    * @param writer the stream writer, never <code>null</code>
-   * @param renames a map of names to modify when copying elements, may be
-   * <code>null</code> or empty
-   * @param addFillerTextToEmptyElements a flag to indicate whether the
-   * empty elements needs to be added with filler text so that the parser
-   * does not self close them. The filter text added is {@link #RX_FILLER}.
-   * It is callers responsibility to replace this filler with empty string
-   * after getting the string from the writer.
+   * @param renames a map of names to modify when copying elements, may be <code>null</code> or
+   *     empty
+   * @param addFillerTextToEmptyElements a flag to indicate whether the empty elements needs to be
+   *     added with filler text so that the parser does not self close them. The filter text added
+   *     is {@link #RX_FILLER}. It is callers responsibility to replace this filler with empty
+   *     string after getting the string from the writer.
    */
   public PSSaxCopier(
       XMLStreamWriter writer, Map<String, String> renames, boolean addFillerTextToEmptyElements) {
@@ -226,9 +209,7 @@ public class PSSaxCopier extends DefaultHandler2 {
     }
   }
 
-  /**
-   * Reset the character count on methods that introduce a boundary.
-   */
+  /** Reset the character count on methods that introduce a boundary. */
   protected void resetCharCount() {
     m_lastcharcount = 0;
   }

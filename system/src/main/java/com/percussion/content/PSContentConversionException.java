@@ -19,10 +19,7 @@ package com.percussion.content;
 import com.percussion.error.PSException;
 import java.util.Objects;
 
-/**
- * This exception is used to propagate errors that occur during content
- * conversion operations.
- */
+/** This exception is used to propagate errors that occur during content conversion operations. */
 // REFACTORED: CP-JAVA11
 public final class PSContentConversionException extends PSException {
   /**

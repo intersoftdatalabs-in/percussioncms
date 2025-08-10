@@ -31,22 +31,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A Rhythmyx pre-exit that tokenizes delimited input parameters into multiple
- * lists for insert.
+ * A Rhythmyx pre-exit that tokenizes delimited input parameters into multiple lists for insert.
  *
- * <p>
- * For example, the related content search screen contains a series of
- * checkboxes. The value of each checkbox contains the contentid and
- * variantid of the inserted child document separated by a delimiter.
- * All  of the checkboxes have the same name.  This results in a list of values
- * in an ArrayList.
- * <p>
- * The function of this exit is to parse the delimited array into
- * two or more other arrays. The number of arrays parsed depends on the number
- * of parameters passed.
+ * <p>For example, the related content search screen contains a series of checkboxes. The value of
+ * each checkbox contains the contentid and variantid of the inserted child document separated by a
+ * delimiter. All of the checkboxes have the same name. This results in a list of values in an
+ * ArrayList.
  *
- * <p>
- * There are N parameters:
+ * <p>The function of this exit is to parse the delimited array into two or more other arrays. The
+ * number of arrays parsed depends on the number of parameters passed.
+ *
+ * <p>There are N parameters:
+ *
  * <ul>
  *   <li>CheckBoxArrayName
  *   <li>FirstOutputArrayName
@@ -54,10 +50,8 @@ import org.apache.logging.log4j.Logger;
  *   <li>etc, etc.
  * </ul>
  *
- * <p>
- * This exit supports 3 delimiters: semicolon, period, and comma.
- *
- **/
+ * <p>This exit supports 3 delimiters: semicolon, period, and comma.
+ */
 public class PSParameterTokenizer extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
@@ -65,15 +59,10 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
   /**
    * Process the pre-exit request.
    *
-   * @param params the array of parameter objects. See the class summary for
-   * details.
-   *
+   * @param params the array of parameter objects. See the class summary for details.
    * @param request the request context for the exit
-   *
-   *
    * @throws PSExtensionProcessingException in case of any errors
-   *
-   **/
+   */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException, PSParameterMismatchException {
     int i;
@@ -168,34 +157,29 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
     }
   }
 
-  /**
-   * Separator characters determine the boundaries between the tokens.
-   **/
+  /** Separator characters determine the boundaries between the tokens. */
   private static final String SEPARATORS = ";.,";
 
-  /**
-   * This inner class represents a single HTML parameter, which may have multiple
-   * values.
-   **/
+  /** This inner class represents a single HTML parameter, which may have multiple values. */
   private class HTMLParameter {
 
     /**
-     * the name of this HTML parameter. This name will appear in the HTML form,
-     * and in the resource's mapper.
-     **/
+     * the name of this HTML parameter. This name will appear in the HTML form, and in the
+     * resource's mapper.
+     */
     private String m_ParaName;
 
     /**
-     * the array of values for this parameter.  It will be <code>null</code> for
-     * new paraemeters and parameters which have only one value.
-     **/
+     * the array of values for this parameter. It will be <code>null</code> for new paraemeters and
+     * parameters which have only one value.
+     */
     private ArrayList m_Array;
 
     /**
      * build a new HTMLParameter with the specified name.
      *
      * @param pName the name of the HTML parameter.
-     **/
+     */
     HTMLParameter(String pName) {
       m_ParaName = pName;
     }
@@ -204,7 +188,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
      * add a String value to an existing parameter.
      *
      * @param sValue the string value to append to this parameter.
-     **/
+     */
     private void addParamValue(String sValue) {
       // the array is not always needed
       // so we add it the first time through
@@ -215,11 +199,11 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
     }
 
     /**
-     * return the array value of this parameter. Will be <code>null</code>
-     * if the HTML parameter is newly initialized, or only has a single value
+     * return the array value of this parameter. Will be <code>null</code> if the HTML parameter is
+     * newly initialized, or only has a single value
      *
      * @return the array value, which may be <code>null</code>.
-     **/
+     */
     private ArrayList getArray() {
       return m_Array;
     }
@@ -228,7 +212,7 @@ public class PSParameterTokenizer extends PSDefaultExtension implements IPSReque
      * return the name of this HTML Parameter.
      *
      * @return the name of the HTML parameter.
-     **/
+     */
     String getName() {
       return m_ParaName;
     }

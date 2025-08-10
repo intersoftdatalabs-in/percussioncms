@@ -44,27 +44,23 @@ import org.hibernate.Transaction;
  * Tools for extracting Taxonomy Information
  *
  * @author Aaron and Shawn
- *
  */
 public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(TaxonomyJexl.class);
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public TaxonomyJexl() {}
 
   /**
    * Returns a list of taxon attributes for a given taxonomy name or id
    *
-   * @param taxonomy_name  Object The node can be passed as Integer or any Object
-   *           where the toString can be converted to an Integer.  If the value cannot be mapped to an Integer then the
-   *           Taxonomy is located by name
-   * @return a map of taxon attributes with some helper functions {@see TaxAttMap} where the key is the attribute name for a given taxonomy name or id
+   * @param taxonomy_name Object The node can be passed as Integer or any Object where the toString
+   *     can be converted to an Integer. If the value cannot be mapped to an Integer then the
+   *     Taxonomy is located by name
+   * @return a map of taxon attributes with some helper functions {@see TaxAttMap} where the key is
+   *     the attribute name for a given taxonomy name or id
    * @throws PSErrorException
    * @throws PSExtensionProcessingException
    */
@@ -127,11 +123,11 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * Returns a list of related nodes (taxons) for a given node_id and
-   * relationship_type_name. e.g. 'Related To'
+   * Returns a list of related nodes (taxons) for a given node_id and relationship_type_name. e.g.
+   * 'Related To'
    *
-   * @param node_id Object The node can be passed as Integer or any Object
-   *           where the toString can be converted to an Integer
+   * @param node_id Object The node can be passed as Integer or any Object where the toString can be
+   *     converted to an Integer
    * @param relationship_type_name
    * @return List of related nodes {@see TaxNodeList}
    * @throws PSErrorException
@@ -200,8 +196,8 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
   /**
    * Returns a list of taxonomy nodes (taxons) for from a string of nodes IDs
    *
-   * @param node_ids - An Object or Collection of Objects where the toString
-   *           can be converted to an Integer or a comma separated list of ids
+   * @param node_ids - An Object or Collection of Objects where the toString can be converted to an
+   *     Integer or a comma separated list of ids
    * @return list of nodes with some helper functions {@see TaxNodeList}
    * @throws PSErrorException
    * @throws PSExtensionProcessingException
@@ -278,13 +274,13 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * Returns a list of taxonomy nodes (taxons) for a given taxonomy name
-   * All Taxons are loaded in memory normally you should use {@link #getNodesFromIds(Object)}
-   * as this may slow down page assembly for large Taxonomies.
+   * Returns a list of taxonomy nodes (taxons) for a given taxonomy name All Taxons are loaded in
+   * memory normally you should use {@link #getNodesFromIds(Object)} as this may slow down page
+   * assembly for large Taxonomies.
    *
-   * @param taxonomy_name  Object The node can be passed as Integer or any Object
-   *           where the toString can be converted to an Integer.  If the value cannot be mapped to an Integer then the
-   *           Taxonomy is located by name
+   * @param taxonomy_name Object The node can be passed as Integer or any Object where the toString
+   *     can be converted to an Integer. If the value cannot be mapped to an Integer then the
+   *     Taxonomy is located by name
    * @return list of nodes with some helper functions {@see TaxNodeList}
    * @throws PSErrorException
    * @throws PSExtensionProcessingException
@@ -362,9 +358,10 @@ public class TaxonomyJexl extends PSJexlUtilBase implements IPSJexlExpression {
   }
 
   /**
-   * Allow Jexl Function to handle multiple object types, check for type
-   * And return a list of integers.  This can handle comma seperated list as well
-   * as Collection, and an Integer represented as itself or a String
+   * Allow Jexl Function to handle multiple object types, check for type And return a list of
+   * integers. This can handle comma seperated list as well as Collection, and an Integer
+   * represented as itself or a String
+   *
    * @param node_ids the Object to convert
    * @return The list of integers
    */

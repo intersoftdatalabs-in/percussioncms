@@ -25,37 +25,37 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Container for user summaries, used for JSON serialization.
- * Sunny Sal says: "Summing up users, one summary at a time!"
+ * Container for user summaries, used for JSON serialization. Sunny Sal says: "Summing up users, one
+ * summary at a time!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userSummaries"
-})
+@XmlType(
+    name = "",
+    propOrder = {"userSummaries"})
 @XmlRootElement(name = "getUsersResponse")
 public class PSUserSummaries {
 
-    private List<PSUserSummary> userSummaries;
+  private List<PSUserSummary> userSummaries;
 
-    public PSUserSummaries() {
-        userSummaries = new ArrayList<>();
-    }
+  public PSUserSummaries() {
+    userSummaries = new ArrayList<>();
+  }
 
-    /**
-     * Constructs with a list of summaries.
-     *
-     * @param summaries The list, never null, may be empty.
-     */
-    public PSUserSummaries(List<PSUserSummary> summaries) {
-        this.userSummaries = summaries != null ? summaries : new ArrayList<>();
-    }
+  /**
+   * Constructs with a list of summaries.
+   *
+   * @param summaries The list, never null, may be empty.
+   */
+  public PSUserSummaries(List<PSUserSummary> summaries) {
+    this.userSummaries = summaries != null ? summaries : new ArrayList<>();
+  }
 
-    /**
-     * Gets the list of user summaries.
-     *
-     * @return the list, never null, may be empty
-     */
-    public List<PSUserSummary> getSummaries() {
-        return userSummaries;
-    }
+  /**
+   * Gets the list of user summaries.
+   *
+   * @return the list, never null, may be empty
+   */
+  public List<PSUserSummary> getSummaries() {
+    return userSummaries;
+  }
 }

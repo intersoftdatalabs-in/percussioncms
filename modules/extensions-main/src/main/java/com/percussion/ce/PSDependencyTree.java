@@ -47,8 +47,8 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 
 /**
- * This class modifies the result document to append all child and paraent
- * dependents of the current content item as a tree.
+ * This class modifies the result document to append all child and paraent dependents of the current
+ * content item as a tree.
  */
 public class PSDependencyTree implements IPSResultDocumentProcessor {
 
@@ -117,16 +117,16 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method is called recursively to render the child and/or parent items
-   * to render their children or parents.
-   * @param itemsRendered is a list all items rendered so far. List is different
-   *    for child treeand parent tree.
-   * @param indent to be used to indicate the child-parent relationship. Each
-   * recursive call increments the indent by INDENT.
+   * This method is called recursively to render the child and/or parent items to render their
+   * children or parents.
+   *
+   * @param itemsRendered is a list all items rendered so far. List is different for child treeand
+   *     parent tree.
+   * @param indent to be used to indicate the child-parent relationship. Each recursive call
+   *     increments the indent by INDENT.
    * @param parent is the result element being built
    * @param request HTTPConnection object to extract the child XML document.
-   * @param url the URL object for the child or parent item of the current
-   * item
+   * @param url the URL object for the child or parent item of the current item
    */
   private void processUrl(
       ArrayList itemsRendered,
@@ -214,8 +214,8 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This helper function builds the text to be rendered by stylesheet for each
-   * item in the tree by appending titlt, contentid, content type etc.
+   * This helper function builds the text to be rendered by stylesheet for each item in the tree by
+   * appending titlt, contentid, content type etc.
    */
   private String makeItemText(Element elem, Element res) {
     String result = getElementData(getChildElement(elem, "Title"));
@@ -236,8 +236,8 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to return the first child element with iven name of a
-   * given paranet.
+   * Helper function to return the first child element with iven name of a given paranet.
+   *
    * @param parent, parent element - may be <code>null</code>
    * @param child, child element name may be <code>null</code>
    */
@@ -253,6 +253,7 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
 
   /**
    * Helper function to get the text data of a given element
+   *
    * @param elem - Elelemnt to extract data of - may be <code>null</code>.
    */
   private String getElementData(Element elem) {
@@ -264,14 +265,10 @@ public class PSDependencyTree implements IPSResultDocumentProcessor {
     return "";
   }
 
-  /**
-   * Indent string for rendering the tree for the style sheet
-   */
+  /** Indent string for rendering the tree for the style sheet */
   public static final String INDENT = "..";
 
-  /**
-   * Main routine for testing
-   */
+  /** Main routine for testing */
   public static void main(String[] args) {
 
     PSDependencyTree pSDependencyTree = new PSDependencyTree();

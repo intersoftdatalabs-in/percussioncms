@@ -27,8 +27,8 @@ import java.util.Map;
  */
 public class PSCopier {
   /**
-   * Deep copy the passed map. Most map elements will be copied by value
-   * but any map values will be deep copied themselves.
+   * Deep copy the passed map. Most map elements will be copied by value but any map values will be
+   * deep copied themselves.
    *
    * @param input the input map, never <code>null</code>
    * @return a deep copied map, never <code>null</code>

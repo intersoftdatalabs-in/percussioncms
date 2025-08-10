@@ -54,19 +54,14 @@ import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Document;
 
-/**
- * Class to handle packaging and deploying a system def
- */
+/** Class to handle packaging and deploying a system def */
 public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSystemDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -74,21 +69,21 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Keyword</li>
-   * <li>Control</li>
-   * <li>ControlFile</li>
-   * <li>TableSchema</li>
-   * <li>Exit</li>
-   * <li>Any ID Type</li>
+   *   <li>Application
+   *   <li>Keyword
+   *   <li>Control
+   *   <li>ControlFile
+   *   <li>TableSchema
+   *   <li>Exit
+   *   <li>Any ID Type
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -450,10 +445,9 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
   /**
    * Transform all required id's within the def.
    *
-   * @param ctx The current import context, assumed not <code>null</code> and
-   * to have a current Id Map.
+   * @param ctx The current import context, assumed not <code>null</code> and to have a current Id
+   *     Map.
    * @param def The def to tranform, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void transformDef(PSImportCtx ctx, PSContentEditorSystemDef def)
@@ -469,7 +463,6 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
    * Get the system def.
    *
    * @return The def, never <code>null</code>
-   *
    * @throws PSDeployException If the def cannot be loaded.
    */
   private PSContentEditorSystemDef getSystemDef() throws PSDeployException {
@@ -482,15 +475,10 @@ public class PSSystemDefDependencyHandler extends PSContentEditorObjectDependenc
     return def;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "SystemDef";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(
           PSApplicationDependencyHandler.DEPENDENCY_TYPE,

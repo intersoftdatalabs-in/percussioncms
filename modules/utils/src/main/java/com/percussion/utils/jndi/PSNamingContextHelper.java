@@ -24,32 +24,23 @@ import javax.naming.NamingException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Takes a set of property values and binds them into the jndi context to allow
- * later lookups to succeed. Only used for local testing, on a server the "real"
- * bindings are used.
+ * Takes a set of property values and binds them into the jndi context to allow later lookups to
+ * succeed. Only used for local testing, on a server the "real" bindings are used.
  *
  * @author dougrand
  */
 public class PSNamingContextHelper {
-  /**
-   * The actual naming context to use. This is setup to use the mock naming
-   * provider.
-   */
+  /** The actual naming context to use. This is setup to use the mock naming provider. */
   Context m_ctx = null;
 
-  /**
-   * The initial bindings to set, never used afterward.
-   */
+  /** The initial bindings to set, never used afterward. */
   Map m_bindings = null;
 
-  /**
-   * The root jndi path
-   */
+  /** The root jndi path */
   String m_root = null;
 
   /**
    * @throws NamingException
-   *
    */
   public PSNamingContextHelper() throws NamingException {
     m_ctx = new InitialContext();
@@ -82,8 +73,8 @@ public class PSNamingContextHelper {
   /**
    * Add a single additional binding to the mock jndi bindings
    *
-   * @param key the name of the binding, the root will be prepended, never
-   *           <code>null</code> or empty.
+   * @param key the name of the binding, the root will be prepended, never <code>null</code> or
+   *     empty.
    * @param binding the bound data, never <code>null</code>.
    * @throws NamingException
    */

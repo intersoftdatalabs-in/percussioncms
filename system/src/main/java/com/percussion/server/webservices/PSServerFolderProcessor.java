@@ -138,18 +138,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is designed to be used locally on the server for folder related
- * operations. It uses <code>PSServerItem</code> to save, update and load the
- * folder component. It uses relationship processor to handle all relationship
- * related operations.
- * <p>
- * Note: It uses the folder entry in the PSX_OBJECTS table to determine whether
- * the revision is ignored for folders. If the revision is ignored, then the
- * revision of the locator may be set to <code>1</code> for folder specific
- * operations such as <code>load</code>, <code>delete</code>. However, the
- * revision of the returned locator will be <code>-1</code> for relationship
- * operations, such as <code>move</code>, <code>add</code>,
- * <code>getChildren</code>, <code>getParent</code>, ...etc.
+ * This class is designed to be used locally on the server for folder related operations. It uses
+ * <code>PSServerItem</code> to save, update and load the folder component. It uses relationship
+ * processor to handle all relationship related operations.
+ *
+ * <p>Note: It uses the folder entry in the PSX_OBJECTS table to determine whether the revision is
+ * ignored for folders. If the revision is ignored, then the revision of the locator may be set to
+ * <code>1</code> for folder specific operations such as <code>load</code>, <code>delete</code>.
+ * However, the revision of the returned locator will be <code>-1</code> for relationship
+ * operations, such as <code>move</code>, <code>add</code>, <code>getChildren</code>, <code>
+ * getParent</code>, ...etc.
  */
 @Transactional
 @PSBaseBean
@@ -162,9 +160,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Creates an instance with a request and config properties. This is expected
-   * to be called by the Proxy class.
-   *
+   * Creates an instance with a request and config properties. This is expected to be called by the
+   * Proxy class.
    */
   public PSServerFolderProcessor() {
     m_folderObject = PSServer.getCmsObjectRequired(PSCmsObject.TYPE_FOLDER);
@@ -173,17 +170,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Returns the item cache object.
    *
-   * @return the item cache object, may be <code>null</code> if the cache is
-   * not initialized or instantiated.
+   * @return the item cache object, may be <code>null</code> if the cache is not initialized or
+   *     instantiated.
    */
   private PSItemSummaryCache getItemCache() {
     return PSItemSummaryCache.getInstance();
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator)
-   * interface}
-   */
+  /** See {@link IPSRelationshipProcessor#add(String, List, PSLocator) interface} */
   public void add(
       String componentType,
       @SuppressWarnings("unused") String relationshipType,
@@ -193,10 +187,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     add(componentType, children, targetParent);
   }
 
-  /**
-   * See {@link IPSComponentProcessor#save(IPSDbComponent[]) interface} for
-   * general description.
-   */
+  /** See {@link IPSComponentProcessor#save(IPSDbComponent[]) interface} for general description. */
   @Override
   public PSSaveResults save(IPSDbComponent[] components) throws PSCmsException {
     if (null == components) throw new IllegalArgumentException("Null array not allowed.");
@@ -228,14 +219,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Save a specified folder object to the database. Inserts the folder if the
-   * its key is not persisted, otherwise, do update for the folder.
+   * Save a specified folder object to the database. Inserts the folder if the its key is not
+   * persisted, otherwise, do update for the folder.
    *
    * @param folder The to be saved folder object, not <code>null</code>.
-   *
-   * @return The saved folder, which contains all persisted keys as well as the
-   * data.
-   *
+   * @return The saved folder, which contains all persisted keys as well as the data.
    * @throws PSCmsException if an error occurs.
    */
   public PSFolder save(PSFolder folder) throws PSCmsException {
@@ -270,11 +258,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Determines if the folder needs to be saved and if the folder
-   * effects should be called.
-   * <p>
-   * If the target folder has not changed in name or properties
-   * then nothing will happen.
+   * Determines if the folder needs to be saved and if the folder effects should be called.
+   *
+   * <p>If the target folder has not changed in name or properties then nothing will happen.
    *
    * @param target never null.
    * @throws PSCmsException thrown if there is an repository error.
@@ -296,8 +282,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Determines if the folder names are the same for the publish name
-   * and system name.
+   * Determines if the folder names are the same for the publish name and system name.
+   *
    * @param origFolder not null.
    * @param target not null.
    * @return <code>true</code> if same.
@@ -312,9 +298,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Validates all the values in a given folder object.
    *
-   * @param folder The to be validated folder object, assume not
-   * <code>null</code>.
-   *
+   * @param folder The to be validated folder object, assume not <code>null</code>.
    * @throws PSCmsException if one of the value is invalid
    */
   private void validateFolderValues(PSFolder folder) throws PSCmsException {
@@ -349,13 +333,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Throws an exception from the given parameters.
    *
-   * @param valueName The name of the invalid value. Assume not
-   * <code>null</code> or empty.
-   *
+   * @param valueName The name of the invalid value. Assume not <code>null</code> or empty.
    * @param currLength The current length of the invalid value.
-   *
    * @param max The maximum length for the given string value.
-   *
    * @throws PSCmsException always throw this exception.
    */
   private void throwInvalidException(String valueName, int currLength, int max)
@@ -365,12 +345,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Updates a given folder to the database through the
-   * <code>PSServerItem</code> object.
+   * Updates a given folder to the database through the <code>PSServerItem</code> object.
    *
-   * @param folder The to be updated folder object, assume not
-   * <code>null</code>.
-   *
+   * @param folder The to be updated folder object, assume not <code>null</code>.
    * @throws PSException if an error occurs.
    */
   private void updateFolder(PSFolder folder) throws PSException {
@@ -404,11 +381,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Insert a folder object to the database.
    *
-   * @param folder The to be inserted folder object, assume not
-   * <code>null</code>.
-   *
+   * @param folder The to be inserted folder object, assume not <code>null</code>.
    * @return The locator of the inserted folder, never <code>null</code>.
-   *
    * @throws PSException if an error occurs during the inserting operation.
    */
   private PSLocator insertFolder(PSFolder folder) throws PSException {
@@ -436,16 +410,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Load a folder that is specified by a locator. This is done by loading the
-   * item of the folder, then creates a folder from the loaded item.
+   * Load a folder that is specified by a locator. This is done by loading the item of the folder,
+   * then creates a folder from the loaded item.
    *
-   * @param locator The locator of the specified folder, assumed not
-   * <code>null</code>.
-   *
+   * @param locator The locator of the specified folder, assumed not <code>null</code>.
    * @param locator The locator object, assumed not <code>null</code>.
-   *
    * @return The loaded folder object. Never <code>null</code>.
-   *
    * @throws PSCmsException if any error occurs.
    */
   private PSFolder loadFolder(PSLocator locator) throws PSCmsException {
@@ -567,11 +537,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Get the content type id for the folder.
    *
-   * @return the content type id with the name as
-   * <code>FOLDER_CONTENTTYPE</code>
-   *
-   * @throws PSInvalidContentTypeException If the
-   * <code>FOLDER_CONTENTTYPE</code> does not match any running content type.
+   * @return the content type id with the name as <code>FOLDER_CONTENTTYPE</code>
+   * @throws PSInvalidContentTypeException If the <code>FOLDER_CONTENTTYPE</code> does not match any
+   *     running content type.
    */
   private static long getFolderTypeId() throws PSInvalidContentTypeException {
     if (m_folderContentTypeId == -1) {
@@ -582,11 +550,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This class allows us to set members in <code>PSChildEntry</code> through
-   * a visitor that sets the rowid.
+   * This class allows us to set members in <code>PSChildEntry</code> through a visitor that sets
+   * the rowid.
    *
-   * FIX ME this code is copied from PSServerItem.java, this needs to be
-   * re-worked so that we don't duplicate the code in the future.
+   * <p>FIX ME this code is copied from PSServerItem.java, this needs to be re-worked so that we
+   * don't duplicate the code in the future.
    */
   private class PSChildEntrySetter implements IPSVisitor {
     /**
@@ -607,20 +575,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
       return rowId;
     }
 
-    /**
-     * Holds rowid.
-     */
+    /** Holds rowid. */
     int rowId;
   }
 
   /**
-   * Creates an empty <code>PSServerItem</code> for the folder content type.
-   * Assume the folder content type never change since it is used by the
-   * system, should not be modified by end user.
-   *
+   * Creates an empty <code>PSServerItem</code> for the folder content type. Assume the folder
+   * content type never change since it is used by the system, should not be modified by end user.
    *
    * @return The empty server item object, never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   private PSServerItem newServerItem() throws PSCmsException {
@@ -643,11 +606,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Get a <code>PSServerItem</code> object from a folder object.
    *
-   *
    * @param folder The folder object, assume not <code>null</code>.
-   *
    * @return The <code>PSServerItem</code> object, never <code>null</code>.
-   *
    * @throws PSException if any other error occurs.
    */
   private PSServerItem getServerItemFromFolder(PSFolder folder) throws PSException {
@@ -780,9 +740,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     return fItem;
   }
 
-  /**
-   * validates a list of keys.
-   */
+  /** validates a list of keys. */
   private void validateKeys(Iterator locators) {
     while (locators.hasNext()) {
       PSKey key = (PSKey) locators.next();
@@ -791,9 +749,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Just like the {@link #validateKeys(Iterator) validateKeys}, except it
-   * also set the revision of the locators to <code>1</code> if the revision
-   * is ignored and it is not <code>1</code>, see {@link #isRevisionable()}.
+   * Just like the {@link #validateKeys(Iterator) validateKeys}, except it also set the revision of
+   * the locators to <code>1</code> if the revision is ignored and it is not <code>1</code>, see
+   * {@link #isRevisionable()}.
    */
   private void validateAndSetKeys(PSKey[] locators) {
     for (PSKey psKey : locators) {
@@ -806,12 +764,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Validates a single key.
    *
-   * @param locator The to be validated key. The key may not be
-   * <code>null</code> and it must be an instance of <code>PSLocator</code>
-   * type. The values of "id" must be greater than <code>0</code>. The value
-   * of "revision" may be ignored if folder revision is ignored, see
-   * {@link #isRevisionable()}.
-   *
+   * @param locator The to be validated key. The key may not be <code>null</code> and it must be an
+   *     instance of <code>PSLocator</code> type. The values of "id" must be greater than <code>0
+   *     </code>. The value of "revision" may be ignored if folder revision is ignored, see {@link
+   *     #isRevisionable()}.
    * @throws IllegalArgumentException if it is invalid.
    */
   private void validateKey(PSKey locator) {
@@ -831,8 +787,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Validating a given component type.
    *
-   * @param componentType The to be validated component type. It may not be
-   * <code>null</code> or empty, and it must be <code>PSFolder</code>.
+   * @param componentType The to be validated component type. It may not be <code>null</code> or
+   *     empty, and it must be <code>PSFolder</code>.
    */
   private void validateComponentType(String componentType) {
     if (null == componentType
@@ -844,8 +800,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Validating a given rel type.
    *
-   * @param relType The to be validated component type. It may not be
-   * <code>null</code> or empty, and it must be <code>PSFolder</code>.
+   * @param relType The to be validated component type. It may not be <code>null</code> or empty,
+   *     and it must be <code>PSFolder</code>.
    */
   private void validateRelType(String relType) {
     if (null == relType
@@ -855,10 +811,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSComponentProcessor#load(String,PSKey[]) interface} for
-   * general description, except the <code>locators</code> must not be
-   * <code>null</code>. See {@link #validateAndSetKeys(PSKey[])} for the
-   * requirement of the locators.
+   * See {@link IPSComponentProcessor#load(String,PSKey[]) interface} for general description,
+   * except the <code>locators</code> must not be <code>null</code>. See {@link
+   * #validateAndSetKeys(PSKey[])} for the requirement of the locators.
    *
    * @throws UnsupportedOperationException if locators is <code>null</code>
    */
@@ -886,13 +841,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Loads a list of folder objects from the supplied folder locators. The
-   * folder objects may load from item cache if available. The item cache will
-   * be updated with the loaded folder objects if the item cache is enabled.
+   * Loads a list of folder objects from the supplied folder locators. The folder objects may load
+   * from item cache if available. The item cache will be updated with the loaded folder objects if
+   * the item cache is enabled.
    *
    * @param locators the folder locators, not <code>null</code>.
-   * @return array of folder objects, never <code>null</code>. The number of
-   *    folder objects matches the number of locators.
+   * @return array of folder objects, never <code>null</code>. The number of folder objects matches
+   *     the number of locators.
    * @throws PSCmsException if an error occurs.
    */
   public PSFolder[] openFolder(PSKey[] locators) throws PSCmsException {
@@ -905,15 +860,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Loads the folder object from the supplied folder locator. The
-   * folder object may be load from the item cache if available. The item
-   * cache will be updated with the loaded folder object if the item cache
-   * is enabled.
+   * Loads the folder object from the supplied folder locator. The folder object may be load from
+   * the item cache if available. The item cache will be updated with the loaded folder object if
+   * the item cache is enabled.
    *
    * @param locator the folder locator, not <code>null</code>.
-   *
    * @return the loaded folder object, never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   public PSFolder openFolder(PSKey locator) throws PSCmsException {
@@ -936,15 +888,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets the specified folder from the item cache and return the cloned
-   * object.
+   * Gets the specified folder from the item cache and return the cloned object.
    *
    * @param cache the instance of the item cache, assumed not <code>null</code>.
    * @param id the specified folder id.
-   *
-   * @return the cloned folder object, may be <code>null</code> if the
-   * specified folder does not exit.
-   *
+   * @return the cloned folder object, may be <code>null</code> if the specified folder does not
+   *     exit.
    * @throws PSCmsException if an error occurs.
    */
   private PSFolder getFolderFromCache(PSItemSummaryCache cache, int id) throws PSCmsException {
@@ -971,15 +920,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Recursively delete a specified folder and the relationships between the
-   * folder and its children. Its children can be item or folder. The same
-   * operation also apply to all its folder child, but not the item child.
+   * Recursively delete a specified folder and the relationships between the folder and its
+   * children. Its children can be item or folder. The same operation also apply to all its folder
+   * child, but not the item child.
    *
-   *
-   * @param locator The to be deleted folder locator, assume not
-   * <code>null</code>
+   * @param locator The to be deleted folder locator, assume not <code>null</code>
    * @param relationshipTypeName
-   *
    * @throws PSCmsException if an error occurs.
    */
   private void deleteFolderRecursive(PSLocator locator, String relationshipTypeName)
@@ -1089,13 +1035,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Convenience method. Simply call
-   * {@link #deleteFolder(PSLocator)}  for each element from the
+   * Convenience method. Simply call {@link #deleteFolder(PSLocator)} for each element from the
    * supplied folders
    *
-   * @param folders a list of zero or more <code>PSLocator</code> objects,
-   * never <code>null</code>, may be empty.
-   *
+   * @param folders a list of zero or more <code>PSLocator</code> objects, never <code>null</code>,
+   *     may be empty.
    * @throws PSCmsException if an error occurs.
    */
   private void deleteFolders(List<PSLocator> folders) throws PSCmsException {
@@ -1111,7 +1055,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Deletes one specified folder from the database.
    *
    * @param folderLocator The to be deleted folder locator.
-   *
    * @throws PSCmsException if any other error occurs.
    */
   private void deleteFolder(PSLocator folderLocator) throws PSCmsException {
@@ -1125,11 +1068,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * For each of folder in a given list of folders, recursively deletes the
-   * folder and its relationship with its children.
+   * For each of folder in a given list of folders, recursively deletes the folder and its
+   * relationship with its children.
    *
-   * See {@link IPSComponentProcessor#delete(IPSDbComponent[]) interface} for
-   * general description.
+   * <p>See {@link IPSComponentProcessor#delete(IPSDbComponent[]) interface} for general
+   * description.
    */
   @Override
   public int delete(IPSDbComponent[] comps) throws PSCmsException {
@@ -1143,8 +1086,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Recursively deletes a folder and its relationship with its children.
    *
-   * See {@link IPSComponentProcessor#delete(IPSDbComponent) interface} for
-   * general description.
+   * <p>See {@link IPSComponentProcessor#delete(IPSDbComponent) interface} for general description.
    */
   @Override
   public int delete(IPSDbComponent comp) throws PSCmsException {
@@ -1152,19 +1094,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Just like {@link #delete(IPSDbComponent[])}, except the to be deleted
-   * folders are specified by its locators.
-   * <p>
-   * See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for
-   * general description. See {@link #validateAndSetKeys(PSKey[])} for the
-   * requirement of the <code>locators</code>.
+   * Just like {@link #delete(IPSDbComponent[])}, except the to be deleted folders are specified by
+   * its locators.
    *
-   * NOTE: This method should be the only method which performs the delete
-   * operation on folders. All other <code>delete()</code> methods should
-   * delegate to this method. This method ensures that the delete operation
-   * will succeed before performing the actual delete. If the delete operation
-   * will fail because of folder permissions, then this method throws
-   * <code>PSCmsException</code> and the delete operation does not start.
+   * <p>See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for general description.
+   * See {@link #validateAndSetKeys(PSKey[])} for the requirement of the <code>locators</code>.
+   *
+   * <p>NOTE: This method should be the only method which performs the delete operation on folders.
+   * All other <code>delete()</code> methods should delegate to this method. This method ensures
+   * that the delete operation will succeed before performing the actual delete. If the delete
+   * operation will fail because of folder permissions, then this method throws <code>PSCmsException
+   * </code> and the delete operation does not start.
    */
   @Override
   @Deprecated
@@ -1173,7 +1113,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   *
    * @see PSServerFolderProcessor#deleteFolders(PSKey[], boolean, String)
    */
   public int deleteFolders(PSKey[] locators, boolean checkFolderPermission) throws PSCmsException {
@@ -1182,26 +1121,22 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Deletes a list of specified folders.
-   * <p>
-   * See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for
-   * general description. See {@link #validateAndSetKeys(PSKey[])} for the
-   * requirement of the <code>locators</code>.
    *
-   * NOTE: This method should be the only method which performs the delete
-   * operation on folders. All other <code>delete()</code> methods should
-   * delegate to this method. This method ensures that the delete operation
-   * will succeed before performing the actual delete. If the delete operation
-   * will fail because of folder permissions, then this method throws
-   * <code>PSCmsException</code> and the delete operation does not start.
+   * <p>See {@link IPSComponentProcessor#delete(String,PSKey[]) interface} for general description.
+   * See {@link #validateAndSetKeys(PSKey[])} for the requirement of the <code>locators</code>.
+   *
+   * <p>NOTE: This method should be the only method which performs the delete operation on folders.
+   * All other <code>delete()</code> methods should delegate to this method. This method ensures
+   * that the delete operation will succeed before performing the actual delete. If the delete
+   * operation will fail because of folder permissions, then this method throws <code>PSCmsException
+   * </code> and the delete operation does not start.
    *
    * @param locators the IDs of the folders, not <code>null</code>.
-   * @param checkFolderPermission determines if needs to validate the folder
-   * permissions before the delete operations. If it is <code>true</code>,
-   * then validates the folder permissions; otherwise ignore the folder
-   * permission during the delete operation.
-   * @param relationshipTypeName the relationship type name
-   * e.g.{@link PSRelationshipConfig#TYPE_FOLDER_CONTENT}
-   *
+   * @param checkFolderPermission determines if needs to validate the folder permissions before the
+   *     delete operations. If it is <code>true</code>, then validates the folder permissions;
+   *     otherwise ignore the folder permission during the delete operation.
+   * @param relationshipTypeName the relationship type name e.g.{@link
+   *     PSRelationshipConfig#TYPE_FOLDER_CONTENT}
    * @return the number of deleted folder.
    */
   public int deleteFolders(
@@ -1234,7 +1169,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Validating a list of locators, make sure it is a list of folders.
    *
    * @param locators The to be validated locators, assume not <code>null</code>.
-   *
    * @throws PSCmsException if one of the locator is not folder.
    */
   @SuppressWarnings("unchecked")
@@ -1282,18 +1216,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     }
   }
 
-  /**
-   * Not supported.
-   */
+  /** Not supported. */
   @SuppressWarnings("unused")
   public void reorder(int insertAt, List comp) throws PSCmsException {
     throw new IllegalStateException("reorder(int, List) is not supported");
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator)} for
-   * general description. See {@link #validateKey(PSKey)} for the requirement
-   * of the locators, <code>children</code> and <code>targetParent</code>.
+   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator)} for general description. See
+   * {@link #validateKey(PSKey)} for the requirement of the locators, <code>children</code> and
+   * <code>targetParent</code>.
    */
   @SuppressWarnings("unchecked")
   public void add(String componentType, List children, PSKey targetParent) throws PSCmsException {
@@ -1331,18 +1263,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This class groups a list of summary components into 2 list. A to be copied
-   * list and a to be linked list. The to be copied list is a list of folder
-   * locators who has a parent. The to be linked list is a list of locators for
-   * folder and non-folder items where the folder has no parent. See
-   * {@link #copiedList} and {@link #linkedList}
+   * This class groups a list of summary components into 2 list. A to be copied list and a to be
+   * linked list. The to be copied list is a list of folder locators who has a parent. The to be
+   * linked list is a list of locators for folder and non-folder items where the folder has no
+   * parent. See {@link #copiedList} and {@link #linkedList}
    */
   private class ComponentGroup {
     /**
      * Construct a component group from a summaries object.
      *
      * @param summaries The summaries object, assume not <code>null</code>.
-     *
      * @throws PSCmsException if an error occurs.
      */
     @SuppressWarnings("unchecked")
@@ -1367,39 +1297,33 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     }
 
     /**
-     * A list of to be copied folder locators. The list of folders who has a
-     * parent already. Since a folder cannot have more than one parent, so
-     * this list of folders will be cloned to a new parent. Initialized by
-     * constructor, never <code>null</code>, but may be empty.
+     * A list of to be copied folder locators. The list of folders who has a parent already. Since a
+     * folder cannot have more than one parent, so this list of folders will be cloned to a new
+     * parent. Initialized by constructor, never <code>null</code>, but may be empty.
      */
     private List copiedList = new ArrayList();
 
     /**
-     * A list of folders and non-folder items. Each folder components has no
-     * parent. This list of items can be simply linked to a parent folder.
-     * Initialized by constructor, never <code>null</code>, but may be
-     * empty.
+     * A list of folders and non-folder items. Each folder components has no parent. This list of
+     * items can be simply linked to a parent folder. Initialized by constructor, never <code>null
+     * </code>, but may be empty.
      */
     private List linkedList = new ArrayList();
   }
 
   /**
-   * Validates all supplied children against the provided parent. This method
-   * calls {@link #validateChildNames(PSComponentSummaries, PSKey)} See that
-   * method for a description of the validation process.
+   * Validates all supplied children against the provided parent. This method calls {@link
+   * #validateChildNames(PSComponentSummaries, PSKey)} See that method for a description of the
+   * validation process.
    *
-   * @param children a list of <code>PSLocator</code> objects of all children
-   * to be validated, assumed not <code>null</code>. All objects that
-   * already are linked to the supplied target are removed from this list.
-   * @param childSummaries the component summaries of the children. Assume not
-   * <code>null</code>.
-   * @param target the target key against which to validate the supplied
-   * children, assumed not <code>null</code>.
-   *
-   * @return a collection of <code>PSComponentSummary</code> objects with
-   * children that are already linked to the target, never <code>null</code>,
-   * may be empty.
-   *
+   * @param children a list of <code>PSLocator</code> objects of all children to be validated,
+   *     assumed not <code>null</code>. All objects that already are linked to the supplied target
+   *     are removed from this list.
+   * @param childSummaries the component summaries of the children. Assume not <code>null</code>.
+   * @param target the target key against which to validate the supplied children, assumed not
+   *     <code>null</code>.
+   * @return a collection of <code>PSComponentSummary</code> objects with children that are already
+   *     linked to the target, never <code>null</code>, may be empty.
    * @throws PSCmsException if the validation fails.
    */
   private PSComponentSummaries validateChildren(
@@ -1425,15 +1349,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Method to test if a given (target) parent is a descendent of one of the
-   * supplied children. throw exception if the test is successful.
+   * Method to test if a given (target) parent is a descendent of one of the supplied children.
+   * throw exception if the test is successful.
    *
    * @param targetParent the target parent, assume not <code>null</code>.
-   * @param folderChildren the folder children list, a list over zero or more
-   * <code>PSComponentSummary</code> objects. Assume not <code>null</code>.
-   * @param copyItem <code>true</code> if this validation is used for coy
-   * item/folder operation; otherwise it is used for move item/folder.
-   *
+   * @param folderChildren the folder children list, a list over zero or more <code>
+   *     PSComponentSummary</code> objects. Assume not <code>null</code>.
+   * @param copyItem <code>true</code> if this validation is used for coy item/folder operation;
+   *     otherwise it is used for move item/folder.
    * @throws PSCmsException if the test described above is successful.
    */
   @SuppressWarnings("unchecked")
@@ -1472,24 +1395,24 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Validates all children supplied as component summaries against the
-   * provided parent. The only rules checked is are follows: it is an error if
-   * the target already contains a component (item or folder) with the same
-   * name or if the supplied list of children contains two or more components
-   * with the same name.
+   * Validates all children supplied as component summaries against the provided parent. The only
+   * rules checked is are follows: it is an error if the target already contains a component (item
+   * or folder) with the same name or if the supplied list of children contains two or more
+   * components with the same name.
+   *
+   * <p>This method throws {@link IllegalArgumentException} if any of the child has no or empty
+   * title.
+   *
    * <p>
-   * This method throws {@link IllegalArgumentException} if any of the child
-   * has no or empty title.
-   * <p>
-   * @param children the component summaries of all children to be validated,
-   * assumed not <code>null</code>. All objects that already are linked to
-   * the supplied target are removed from this collection. Also all components
-   * which are duplicates based on their names will be removed.
-   * @param target the target key against which to validate the supplied
-   * children, assumed not <code>null</code>.
-   * @return a collection of <code>PSComponentSummary</code> objects with
-   * children that are already linked to the target or were duplicates based on
-   * their names, never <code>null</code>, may be empty.
+   *
+   * @param children the component summaries of all children to be validated, assumed not <code>null
+   *     </code>. All objects that already are linked to the supplied target are removed from this
+   *     collection. Also all components which are duplicates based on their names will be removed.
+   * @param target the target key against which to validate the supplied children, assumed not
+   *     <code>null</code>.
+   * @return a collection of <code>PSComponentSummary</code> objects with children that are already
+   *     linked to the target or were duplicates based on their names, never <code>null</code>, may
+   *     be empty.
    * @throws PSCmsException if the validation fails.
    */
   @SuppressWarnings("unchecked")
@@ -1581,10 +1504,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Formats a string of comma separated names for all supplied summaries.
    *
-   * @param summaries the summaries for which to format a string of comma
-   * separated name string, assumed not <code>null</code>, may be empty.
-   * @return a string with all summary names of the supplied summaries
-   * separated by comma, never <code>null</code>, may be empty.
+   * @param summaries the summaries for which to format a string of comma separated name string,
+   *     assumed not <code>null</code>, may be empty.
+   * @return a string with all summary names of the supplied summaries separated by comma, never
+   *     <code>null</code>, may be empty.
    */
   private String formatSummaryNames(Iterator summaries) {
     StringBuilder names = new StringBuilder();
@@ -1599,10 +1522,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#move(String, PSKey, List, PSKey)}
-   * interface} for general description. See {@link #validateKey(PSKey)} for
-   * the requirement of the locators, <code>children</code> and
-   * <code>sourceParent</code>.
+   * See {@link IPSRelationshipProcessor#move(String, PSKey, List, PSKey)} interface} for general
+   * description. See {@link #validateKey(PSKey)} for the requirement of the locators, <code>
+   * children</code> and <code>sourceParent</code>.
    */
   public void move(String componentType, PSKey sourceParent, List children, PSKey targetParent)
       throws PSCmsException {
@@ -1610,16 +1532,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Move specified folder children from specified source folder to specified
-   * target folder.
+   * Move specified folder children from specified source folder to specified target folder.
    *
    * @param sourceParent the ID of the source folder, not <code>null</code>.
-   * @param children the list of child IDs contained in the source folder, not
-   * <code>null</code>.
+   * @param children the list of child IDs contained in the source folder, not <code>null</code>.
    * @param targetParent the ID of the target folder, not <code>null</code>.
-   * @param checkFolderPermission if <code>true</code>, then enforce folder
-   * permission while moving the items; otherwise ignore the folder permission.
-   *
+   * @param checkFolderPermission if <code>true</code>, then enforce folder permission while moving
+   *     the items; otherwise ignore the folder permission.
    * @throws PSCmsException if an error occurs.
    */
   public void moveFolderChildren(
@@ -1748,6 +1667,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Removes Source and Target parameters used for effects on move.
+   *
    * @see IPSHtmlParameters#SYS_MOVE_SOURCE_FOLDER_ID
    * @see IPSHtmlParameters#SYS_MOVE_TARGET_FOLDER_ID
    */
@@ -1758,6 +1678,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Sets Source and Target parameters used for effects on move.
+   *
    * @param sourceParent source folder, never null.
    * @param targetParent target folder, never null.
    * @see IPSHtmlParameters#SYS_MOVE_SOURCE_FOLDER_ID
@@ -1773,7 +1694,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * For every folder in the supplied list, place it's locator in the new list.
    *
    * @param source List of folder and item ids. Assumed not <code>null</code>.
-   *
    * @return A new list with just the folder ids. Never <code>null</code>.
    */
   private List<PSLocator> filterItems(List<PSLocator> source) {
@@ -1799,16 +1719,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Tests whether a circulur reference would be encountered if any of the
-   * supplied children were moved to any of the supplied parents.
+   * Tests whether a circulur reference would be encountered if any of the supplied children were
+   * moved to any of the supplied parents.
    *
-   * @param parents the parents to test for circular references, assumed not
-   * <code>null</code>, assumed to be folder ids.
-   * @param children the children to test for circular references, assumed not
-   * <code>null</code>, each entry assumed to be a <code>PSKey</code>.
+   * @param parents the parents to test for circular references, assumed not <code>null</code>,
+   *     assumed to be folder ids.
+   * @param children the children to test for circular references, assumed not <code>null</code>,
+   *     each entry assumed to be a <code>PSKey</code>.
    * @param filter the filter flags to use to lookup folder parents.
-   * @return <code>true</code> if this would create a circular reference,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this would create a circular reference, <code>false</code>
+   *     otherwise.
    * @throws PSCmsException for any error.
    */
   private boolean testCircularReferences(PSKey[] parents, Collection children, int filter)
@@ -1832,18 +1752,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Recursively copy a list of components (items or folder) to a target
-   * folder. This is done by creating relationships between the list of items
-   * and the target folder. For each folder on the list of components, creates
-   * a new folder and creates relationship between the new folder and the
-   * target folder. Go through the same process for each folder component.
-   * <p>
-   * See {@link IPSRelationshipProcessor#copy(String,List,PSKey) interface} for
-   * general description. See {@link #validateKey(PSKey)} for the requirement
-   * of the locators, <code>children</code> and <code>targetParent</code>.
+   * Recursively copy a list of components (items or folder) to a target folder. This is done by
+   * creating relationships between the list of items and the target folder. For each folder on the
+   * list of components, creates a new folder and creates relationship between the new folder and
+   * the target folder. Go through the same process for each folder component.
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#copyChildren(List, PSLocator)}.
+   * <p>See {@link IPSRelationshipProcessor#copy(String,List,PSKey) interface} for general
+   * description. See {@link #validateKey(PSKey)} for the requirement of the locators, <code>
+   * children</code> and <code>targetParent</code>.
+   *
+   * @deprecated Use {@link PSFolderProcessorProxy#copyChildren(List, PSLocator)}.
    */
   public void copy(
       @SuppressWarnings("unused") String relationshipType, List children, PSKey targetParent)
@@ -1864,16 +1782,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The subfolders of the specified parent folder identified by its locator
-   * <code>parent</code>, are not filtered by community (of the current
-   * user).
+   * The subfolders of the specified parent folder identified by its locator <code>parent</code>,
+   * are not filtered by community (of the current user).
    *
-   * See {@link IPSRelationshipProcessor#getChildren(String,PSKey) interface}
-   * for general description. See {@link #validateKey(PSKey)} for the
-   * requirement of the <code>parent</code> locator.
+   * <p>See {@link IPSRelationshipProcessor#getChildren(String,PSKey) interface} for general
+   * description. See {@link #validateKey(PSKey)} for the requirement of the <code>parent</code>
+   * locator.
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#getChildSummaries(PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#getChildSummaries(PSLocator)}.
    */
   @Deprecated
   public PSComponentSummary[] getChildren(
@@ -1882,21 +1798,18 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets the children of <code>parentFolder</code>, plus their children
-   * recursively and returns their ids.
+   * Gets the children of <code>parentFolder</code>, plus their children recursively and returns
+   * their ids.
    *
-   * @param parentFolder The id of the folder for which you want the tree of
-   * children. Never <code>null</code>. Must be a persisted key, meaning it
-   * must be obtained from a query, not created manually.
-   *
-   * @param recurse If <code>true</code>, get all ids in the tree under the
-   * parent, otherwise, only return the direct children.
-   *
-   * @return Never <code>null</code>, may be empty. Each entry is an
-   * <code>Integer</code> containing the content id of the item or folder.
-   *
-   * @throws PSCmsException If any problems getting the children, including
-   * parentFolder being invalid.
+   * @param parentFolder The id of the folder for which you want the tree of children. Never <code>
+   *     null</code>. Must be a persisted key, meaning it must be obtained from a query, not created
+   *     manually.
+   * @param recurse If <code>true</code>, get all ids in the tree under the parent, otherwise, only
+   *     return the direct children.
+   * @return Never <code>null</code>, may be empty. Each entry is an <code>Integer</code> containing
+   *     the content id of the item or folder.
+   * @throws PSCmsException If any problems getting the children, including parentFolder being
+   *     invalid.
    */
   public Set<Integer> getChildIds(PSLocator parentFolder, boolean recurse) throws PSCmsException {
     return getChildIds(parentFolder, recurse, FOLDER_RELATE_TYPE);
@@ -1937,8 +1850,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Centralizes the hack described in the method.
    *
-   * @return A set of <code>PSRelationshipConfig.FILTER_TYPE_</code> flags
-   * appropriate for getting the children of a folder.
+   * @return A set of <code>PSRelationshipConfig.FILTER_TYPE_</code> flags appropriate for getting
+   *     the children of a folder.
    */
   private int getFilterFlags() {
     int donotfilterby = PSRelationshipConfig.FILTER_TYPE_COMMUNITY;
@@ -1959,17 +1872,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * If the property mentioned below is set, then folders that are assigned to
-   * a particular community will be visible to all communities as controlled by
-   * the 'Folder Community' ACL entry. Otherwise, folders assigned to a
-   * community are only visible to users currently logged into that community
-   * when requested from the CX.
-   * <p>
-   * See bug RX-13261 for details.
+   * If the property mentioned below is set, then folders that are assigned to a particular
+   * community will be visible to all communities as controlled by the 'Folder Community' ACL entry.
+   * Otherwise, folders assigned to a community are only visible to users currently logged into that
+   * community when requested from the CX.
    *
-   * @return <code>true</code> if the
-   * <code>enableCommunityFolderVisibilityByAcl</code> server property is
-   * <code>true</code>, <code>false</code> otherwise.
+   * <p>See bug RX-13261 for details.
+   *
+   * @return <code>true</code> if the <code>enableCommunityFolderVisibilityByAcl</code> server
+   *     property is <code>true</code>, <code>false</code> otherwise.
    */
   private boolean isCommunityFolderVisibilityOverride() {
     String value =
@@ -1980,17 +1891,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Deletes relationship between the specified parent and a list of its
-   * children. For each folder children, recursively delete the folder and the
-   * relationship with its children. Do the same to each "grand" children.
-   * <p>
-   * See {@link IPSRelationshipProcessor#delete(String,PSKey,List) interface}
-   * for general description. See {@link #validateKey(PSKey)} for the
-   * requirement of the locators. <code>children</code> and
-   * <code>sourceParent</code>.
+   * Deletes relationship between the specified parent and a list of its children. For each folder
+   * children, recursively delete the folder and the relationship with its children. Do the same to
+   * each "grand" children.
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
+   * <p>See {@link IPSRelationshipProcessor#delete(String,PSKey,List) interface} for general
+   * description. See {@link #validateKey(PSKey)} for the requirement of the locators. <code>
+   * children</code> and <code>sourceParent</code>.
+   *
+   * @deprecated Use {@link PSFolderProcessorProxy#removeChildren(PSLocator, List)}.
    */
   @SuppressWarnings("unchecked")
   public void delete(String relType, PSKey sourceParent, List children) throws PSCmsException {
@@ -2024,35 +1933,26 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Get summary information for a parent and a list of its child locators. The
-   * revision of the locator is not used.
-   * <p>
-   * <br>
-   * This method sets the actuals permissions on the folders, which has a
-   * performance penalty. If you do not need the actual permission values on
-   * folders, use the
-   * <code>getComponentSummaries(PSRequest, Iterator, PSLocator, boolean)</code>
-   * method instead.
-   * <p>
-   * <br>
-   * Convenience method that calls
-   * {@link #getComponentSummaries(Iterator, PSLocator, boolean)}
+   * Get summary information for a parent and a list of its child locators. The revision of the
+   * locator is not used.
    *
-   * @param childIds A list of one or more <code>PSLocator</code> objects,
-   * may not be <code>null</code>, but may be empty.
+   * <p><br>
+   * This method sets the actuals permissions on the folders, which has a performance penalty. If
+   * you do not need the actual permission values on folders, use the <code>
+   * getComponentSummaries(PSRequest, Iterator, PSLocator, boolean)</code> method instead.
    *
-   * @param plocator The parent locator, it may be <code>null</code> if don't
-   * want to use the parent to filter the children, this has not been
-   * implemented yet.
+   * <p><br>
+   * Convenience method that calls {@link #getComponentSummaries(Iterator, PSLocator, boolean)}
    *
-   * @return The creates component summaries object, never <code>null</code>.
-   * It contains the requested number of components, which is the length of
-   * <code>childIds</code>.
-   *
-   * @throws PSCmsException if unable to get the number of requested components
-   * which may caused by invalid <code>PSLocator</code> in <code>childIds
-   *    </code>
-   * or <code>plocator</code>.
+   * @param childIds A list of one or more <code>PSLocator</code> objects, may not be <code>null
+   *     </code>, but may be empty.
+   * @param plocator The parent locator, it may be <code>null</code> if don't want to use the parent
+   *     to filter the children, this has not been implemented yet.
+   * @return The creates component summaries object, never <code>null</code>. It contains the
+   *     requested number of components, which is the length of <code>childIds</code>.
+   * @throws PSCmsException if unable to get the number of requested components which may caused by
+   *     invalid <code>PSLocator</code> in <code>childIds
+   *    </code> or <code>plocator</code>.
    */
   public PSComponentSummaries getComponentSummaries(
       Iterator<PSLocator> childIds, PSLocator plocator) throws PSCmsException {
@@ -2063,12 +1963,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Gets a list of folder acls from the supplied folder ids.
    *
    * @param ids the folder ids, which must be a list of existing folder ids.
-   *
-   * @return An array of folder acl objects, never <code>null</code>, may be
-   * emtpy. Not guaranteed to contain an acl corresponding to each id supplied.
-   *
-   * @throws IllegalArgumentException if any of the folder ids not exist in the
-   * folder cache when folder cache is on.
+   * @return An array of folder acl objects, never <code>null</code>, may be emtpy. Not guaranteed
+   *     to contain an acl corresponding to each id supplied.
+   * @throws IllegalArgumentException if any of the folder ids not exist in the folder cache when
+   *     folder cache is on.
    * @throws PSCmsException if any other error occurs.
    */
   public PSFolderAcl[] getFolderAcls(int[] ids) throws PSCmsException {
@@ -2097,14 +1995,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Returns the publishing file name for the supplied folder id. It is the
-   * same value that is described in {@link PSFolder#getPubFileName()}.
+   * Returns the publishing file name for the supplied folder id. It is the same value that is
+   * described in {@link PSFolder#getPubFileName()}.
    *
    * @param contentid the folder content id.
-   *
-   * @return the publishing file name, never <code>null</code>, but may be
-   * empty if the folder does not exist.
-   *
+   * @return the publishing file name, never <code>null</code>, but may be empty if the folder does
+   *     not exist.
    * @throws PSCmsException if an error occurs.
    */
   public String getPubFileName(int contentid) throws PSCmsException {
@@ -2126,16 +2022,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Returns the global template property for the supplied folder id. It is the
-   * same value that is described in
-   * {@link PSFolder#getGlobalTemplateProperty()}.
+   * Returns the global template property for the supplied folder id. It is the same value that is
+   * described in {@link PSFolder#getGlobalTemplateProperty()}.
    *
    * @param contentid the folder content id.
-   *
-   * @return the global template property, may be <code>null</code> or empty
-   * if the folder does not exist or the global template property is not
-   * defined in the folder.
-   *
+   * @return the global template property, may be <code>null</code> or empty if the folder does not
+   *     exist or the global template property is not defined in the folder.
    * @throws PSCmsException if an error occurs.
    */
   public String getGlobalTemplateProperty(int contentid) throws PSCmsException {
@@ -2158,16 +2050,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Same as {@link #getComponentSummaries(Iterator, PSLocator, boolean)} except the additional parameter described below.
+   * Same as {@link #getComponentSummaries(Iterator, PSLocator, boolean)} except the additional
+   * parameter described below.
    *
-   * @param setFolderPermissions if <code>true</code> and the component is of
-   * folder type then it loads the folder to get its ACL, calculates the user's
-   * permission on the folder and sets it in the component summary object. If
-   * <code>false</code> and the component is a folder, then sets the folder
-   * permission to <code>PSObjectPermissions.ACCESS_DENY</code>. Setting
-   * this parameter to <code>true</code> has a performance penalty so use
-   * <code>false</code> unless the actual permissions on the folder is
-   * required. This parameter is ignored for non-folder objects.
+   * @param setFolderPermissions if <code>true</code> and the component is of folder type then it
+   *     loads the folder to get its ACL, calculates the user's permission on the folder and sets it
+   *     in the component summary object. If <code>false</code> and the component is a folder, then
+   *     sets the folder permission to <code>PSObjectPermissions.ACCESS_DENY</code>. Setting this
+   *     parameter to <code>true</code> has a performance penalty so use <code>false</code> unless
+   *     the actual permissions on the folder is required. This parameter is ignored for non-folder
+   *     objects.
    * @param plocator
    * @param setFolderPermissions
    */
@@ -2196,11 +2088,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Set the folder permissions for a group of component summaries for a
-   * specific request. This will only modify the summaries that are folders.
+   * Set the folder permissions for a group of component summaries for a specific request. This will
+   * only modify the summaries that are folders.
    *
-   * @param summarylist the list of component summaries, assumed never
-   * <code>null</code>
+   * @param summarylist the list of component summaries, assumed never <code>null</code>
    * @throws PSCmsException
    */
   private void setFolderPermissions(List<PSComponentSummary> summarylist) throws PSCmsException {
@@ -2236,16 +2127,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * A helper method to recursively copy or link a list of components to a
-   * folder. See {@link #copy(String, List, PSKey)} for its detail description.
+   * A helper method to recursively copy or link a list of components to a folder. See {@link
+   * #copy(String, List, PSKey)} for its detail description.
    *
-   * @param children a list <code>PSlocator</code> or
-   * <code>PSLocatorWithName</code> objects with all children that need to be
-   * copied, assumed not <code>null</code> nor mixed objects.
-   * @param targetParent the target folder locator, assume not
-   * <code>null</code>.
-   * @param copyItem <code>true</code> to copy both items and folders;
-   * otherwise copy folders only and link items to the specified parent.
+   * @param children a list <code>PSlocator</code> or <code>PSLocatorWithName</code> objects with
+   *     all children that need to be copied, assumed not <code>null</code> nor mixed objects.
+   * @param targetParent the target folder locator, assume not <code>null</code>.
+   * @param copyItem <code>true</code> to copy both items and folders; otherwise copy folders only
+   *     and link items to the specified parent.
    * @throws PSException if an error occurs during the copy process.
    */
   private void processFolderChildren(
@@ -2273,13 +2162,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Set the override name from the supplied locators to all component
-   * summaries
+   * Set the override name from the supplied locators to all component summaries
    *
-   * @param summaries the component summaries, assume not <code>null</code>,
-   * but may be empty.
-   * @param locators the locators of the summaries, assume not
-   * <code>null</code>, but may be empty.
+   * @param summaries the component summaries, assume not <code>null</code>, but may be empty.
+   * @param locators the locators of the summaries, assume not <code>null</code>, but may be empty.
    */
   private void setSummariesWithNewName(PSComponentSummaries summaries, List locators) {
     PSComponentSummary[] sumArray = summaries.toArray();
@@ -2297,16 +2183,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Just like
-   * except this takes component summaries instead of a list for the 2nd
-   * parameter.
+   * Just like except this takes component summaries instead of a list for the 2nd parameter.
    *
-   * @param summaries The to be copied child component summaries. Assume not
-   * <code>null</code>. The name of the components will be used for cloned
-   * items and folders if <code>isOverrideName</code> is <code>true</code>.
-   * @param isOverrideName Indicates override the sys_title when clone items.
-   * <code>true</code> if do override the sys_title.
-   *
+   * @param summaries The to be copied child component summaries. Assume not <code>null</code>. The
+   *     name of the components will be used for cloned items and folders if <code>isOverrideName
+   *     </code> is <code>true</code>.
+   * @param isOverrideName Indicates override the sys_title when clone items. <code>true</code> if
+   *     do override the sys_title.
    * @throws PSException if an error occurs.
    */
   private void processFolderChildrenRecursive(
@@ -2411,27 +2294,22 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Clone a list of items.
    *
-   * @param summaries A list of to be cloned <code>PSComponentSummary</code>
-   * objectslocators. Assume not <code>null</code>, but may be empty.
-   * @param isOverrideName Indicates override sys_title when an clone item.
-   * <code>true</code> if do override.
-   * @param communityMappings a map of source to target community mappings, may
-   * be <code>null</code> or empty. The key is the source community as
-   * <code>Integer</code>, the value is the target community as
-   * <code>Integer</code>.
-   * @param isUseUserCommunity <code>true</code> if the community of the
-   *    cloned item is set to the current user community; otherwise the
-   *    community of the cloned item is resolved from the
-   *    <code>communityMappings</code> parameter. The community of the cloned
-   *    item will be set to the community of the source item if cannot find
-   *    the community id from the session of the request or the mapping
-   *    parameter.
-   * @param useSrcWorfklow true to use the source item's workflow if valid for
-   * the content type and community, <code>false</code> to calculate the workflow
-   * as when creating a new item.
-   * @return a list of new locators which have been cloned from the input
-   * locators in the same order as requested. Never <code>null</code>, may
-   * be empty.
+   * @param summaries A list of to be cloned <code>PSComponentSummary</code> objectslocators. Assume
+   *     not <code>null</code>, but may be empty.
+   * @param isOverrideName Indicates override sys_title when an clone item. <code>true</code> if do
+   *     override.
+   * @param communityMappings a map of source to target community mappings, may be <code>null</code>
+   *     or empty. The key is the source community as <code>Integer</code>, the value is the target
+   *     community as <code>Integer</code>.
+   * @param isUseUserCommunity <code>true</code> if the community of the cloned item is set to the
+   *     current user community; otherwise the community of the cloned item is resolved from the
+   *     <code>communityMappings</code> parameter. The community of the cloned item will be set to
+   *     the community of the source item if cannot find the community id from the session of the
+   *     request or the mapping parameter.
+   * @param useSrcWorfklow true to use the source item's workflow if valid for the content type and
+   *     community, <code>false</code> to calculate the workflow as when creating a new item.
+   * @return a list of new locators which have been cloned from the input locators in the same order
+   *     as requested. Never <code>null</code>, may be empty.
    * @throws PSException if an error occurs.
    */
   private List cloneItems(
@@ -2552,32 +2430,23 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Get children for a specified folder. The child item can be either item or
-   * folder.
+   * Get children for a specified folder. The child item can be either item or folder.
    *
    * @param folderLocator The specified folder locator.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to
-   * be performed.
-   *
-   * @param setFolderPermissions if <code>true</code> and the component is of
-   * folder type then it loads the folder to get its ACL, calculates the user's
-   * permission on the folder and sets it in the component summary object. If
-   * <code>false</code> and the component is a folder, then sets the folder
-   * permission to <code>PSObjectPermissions.ACCESS_DENY</code>. Setting
-   * this parameter to <code>true</code> has a performance penalty so use
-   * <code>false</code> unless the actual permissions on the folder is
-   * required. This parameter is ignored for non-folder objects. Must be
-   * <code>true</code> if the previous parameter (doNotApplyFilters) does not
-   * include the flag
-   * {@link PSRelationshipConfig#FILTER_TYPE_FOLDER_PERMISSIONS} else throws
-   * illegal argument exception.
-   *
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @param setFolderPermissions if <code>true</code> and the component is of folder type then it
+   *     loads the folder to get its ACL, calculates the user's permission on the folder and sets it
+   *     in the component summary object. If <code>false</code> and the component is a folder, then
+   *     sets the folder permission to <code>PSObjectPermissions.ACCESS_DENY</code>. Setting this
+   *     parameter to <code>true</code> has a performance penalty so use <code>false</code> unless
+   *     the actual permissions on the folder is required. This parameter is ignored for non-folder
+   *     objects. Must be <code>true</code> if the previous parameter (doNotApplyFilters) does not
+   *     include the flag {@link PSRelationshipConfig#FILTER_TYPE_FOLDER_PERMISSIONS} else throws
+   *     illegal argument exception.
    * @return The component summaries object, never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -2631,24 +2500,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets all children of a folder (items and folders) and returns their
-   * locators.
+   * Gets all children of a folder (items and folders) and returns their locators.
    *
-   * @param proc Assumed not <code>null</code>. Used to get the child
-   * relationships.
-   *
+   * @param proc Assumed not <code>null</code>. Used to get the child relationships.
    * @param folderId Must be a persisted key. Assumed not <code>null</code>.
-   *
-   * @param doNotApplyFilters A set of flags from the set of
-   * <code>PSRelationshipConfig.FILTER_TYPE_xxx</code> flags.
-   *
-   * @param recursive If <code>true</code>, then calls itself for each child
-   * that is a folder and adds those children to the list before adding the
-   * current child folder.
-   *
-   * @return Each entry is a PSLocator. Never <code>null</code>, may be
-   * empty.
-   *
+   * @param doNotApplyFilters A set of flags from the set of <code>
+   *     PSRelationshipConfig.FILTER_TYPE_xxx</code> flags.
+   * @param recursive If <code>true</code>, then calls itself for each child that is a folder and
+   *     adds those children to the list before adding the current child folder.
+   * @return Each entry is a PSLocator. Never <code>null</code>, may be empty.
    * @throws PSCmsException If any problems getting the relationships.
    */
   @SuppressWarnings("unchecked")
@@ -2689,18 +2549,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Filters out the component summaries for folders on which the user does
-   * have the specified access. This does not filter out non-folder objects.
+   * Filters out the component summaries for folders on which the user does have the specified
+   * access. This does not filter out non-folder objects.
    *
-   * @param summaries collection of component summaries which needs to be
-   * filtered, assumed not <code>null</code>, may be empty
-   *
-   * @param permission the permission that the user must have on the folder
-   * object, should be non-negative, assumed to be a valid access level
-   *
-   * @return the filtered component summary collection, this contains all the
-   * non-folder components and all folder components on which the user has the
-   * specified permission
+   * @param summaries collection of component summaries which needs to be filtered, assumed not
+   *     <code>null</code>, may be empty
+   * @param permission the permission that the user must have on the folder object, should be
+   *     non-negative, assumed to be a valid access level
+   * @return the filtered component summary collection, this contains all the non-folder components
+   *     and all folder components on which the user has the specified permission
    */
   private PSComponentSummaries filterByFolderPermissions(
       PSComponentSummaries summaries, int permission) {
@@ -2721,19 +2578,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Helper method to recursively retrieve all descendant folder IDs
    *
-   * @param parent A valid key that references the current owner of the
-   * relationships to all the supplied children. A valid key is one that
-   * references an existing object in the database. Never <code>null</code>.
-   * @param results A List that will be used to store the results. This is a
-   * list over zero or more {@link PSLocator} objects.
-   * @param collectFolderWithItem if it is <code>true</code>, then collect
-   * the folder IDs that contain items (object-type = TYPE_ITEM)
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
+   * @param parent A valid key that references the current owner of the relationships to all the
+   *     supplied children. A valid key is one that references an existing object in the database.
+   *     Never <code>null</code>.
+   * @param results A List that will be used to store the results. This is a list over zero or more
+   *     {@link PSLocator} objects.
+   * @param collectFolderWithItem if it is <code>true</code>, then collect the folder IDs that
+   *     contain items (object-type = TYPE_ITEM)
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
    * @throws PSCmsException if any error occurs
    */
   private void getDescendents(
@@ -2771,14 +2626,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Get locators for all immediate child folders of the supplied parent folder locator.  Only
+   * Get locators for all immediate child folders of the supplied parent folder locator. Only
    * folders with Read access for the current user are returned.
    *
    * @param parent The parent locator, expected to reference a valid folder
-   *
-   * @return The list of child folder summaries, never <code>null</code>, may be empty if there are none, or
-   * if the supplied locator does not represent a valid folder.
-   *
+   * @return The list of child folder summaries, never <code>null</code>, may be empty if there are
+   *     none, or if the supplied locator does not represent a valid folder.
    * @throws PSCmsException If there are any errors.
    */
   public PSComponentSummaries getChildFolderSummaries(PSLocator parent) throws PSCmsException {
@@ -2815,11 +2668,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Determines if the specified relationship set contains any dependent which is item
-   * object type {@link PSCmsObject#TYPE_ITEM}.
+   * Determines if the specified relationship set contains any dependent which is item object type
+   * {@link PSCmsObject#TYPE_ITEM}.
    *
    * @param rels the relationship set in question, assumed not <code>null</code>.
-   *
    * @return <code>true</code> if the specified relationship contains an item dependent.
    */
   private boolean hasItemDependent(PSRelationshipSet rels) {
@@ -2832,15 +2684,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Finds all folders which matches the specified folder path. The path is a
-   * slash separated folder path using the '%' character as a wildcard.
+   * Finds all folders which matches the specified folder path. The path is a slash separated folder
+   * path using the '%' character as a wildcard.
    *
-   * @param path the path, never <code>null</code> or empty. It must contain
-   *    zero or one match pattern.
-   * @return zero or more guids that each identify a folder. It may be
-   *    <code>null</code> if the specified path does not contain a valid root
-   *    path.
-   *
+   * @param path the path, never <code>null</code> or empty. It must contain zero or one match
+   *     pattern.
+   * @return zero or more guids that each identify a folder. It may be <code>null</code> if the
+   *     specified path does not contain a valid root path.
    * @throws PSCmsException if an error occurs.
    */
   public List<IPSGuid> findMatchingFolders(String path) throws PSCmsException {
@@ -2872,19 +2722,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The same as the {@link #findMatchingFolders(String)}, except it will access
-   * folder cache to look for the matching folders.
+   * The same as the {@link #findMatchingFolders(String)}, except it will access folder cache to
+   * look for the matching folders.
    *
    * @param matchPath the matching path, assume not <code>null</code> or empty.
-   * @param matchPatterns the matching pattens, assume not
-   *    <code>null</code> or empty.
+   * @param matchPatterns the matching pattens, assume not <code>null</code> or empty.
    * @param rootID the root folder id.
    * @param rootPath the root path, assume not <code>null</code> or empty.
    * @param itemCache the item cache, assume not <code>null</code>.
    * @param folderCache the folder cache, assume not <code>null</code>.
-   *
    * @return zero or more guids that each identify a folder
-   *
    * @throws PSCmsException if an error occurs.
    */
   private List<IPSGuid> findMatchingFoldersFromCache(
@@ -2921,22 +2768,20 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Process one folder, recurse into children. The current folder is
-   * assumed to have been checked. The children have their paths extracted
-   * and are checked before recursively calling this method. Because the
-   * match pattern may have a number of segments, all folders below the root
-   * much be checked.
+   * Process one folder, recurse into children. The current folder is assumed to have been checked.
+   * The children have their paths extracted and are checked before recursively calling this method.
+   * Because the match pattern may have a number of segments, all folders below the root much be
+   * checked.
    *
-   * @param preWildCard the 1st part of the match path, right before the 1st
-   *    wild card if there is one, assumed not <code>null</code> or emtpy.
-   * @param matchPatterns patterns to match when looking at folder paths,
-   *           assumed never <code>null</code>
+   * @param preWildCard the 1st part of the match path, right before the 1st wild card if there is
+   *     one, assumed not <code>null</code> or emtpy.
+   * @param matchPatterns patterns to match when looking at folder paths, assumed never <code>null
+   *     </code>
    * @param folder the folder to process, assume not <code>null</code>.
    * @param paths the path of the specified folder, assume not <code>null</code>
    * @param rval the list of guids being built, assumed not <code>null</code>.
    * @param itemCache the item cache, assume not <code>null</code>.
    * @param folderCache the folder cache, assume not <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs in the folder processor
    */
   private void findMatchingFoldersFromCache(
@@ -2967,31 +2812,25 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Determines if needs to continue the matching process for the given
-   * folder path. This is used to avoid triverse down to a folder which
-   * path does not event match the "preWildCard", so it will save time to
-   * match any of its descendents.
-   * <p>
-   * It returns <code>true</code> for the following scenarios:
-   * (1) preWildCard = "//Sites/EI", testPath = "//Sites"
-   * (2) preWildCard = "//Sites/EI", testPath = "//Sites/E"
-   * (3) preWildCard = "//Sites/EI", testPath = "//Sites/EI"
-   * (4) preWildCard = "//Sites/EI", testPath = "//Sites/EI/Foo"
-   * <p>
-   * It returns <code>false</code> for the following scenarios:
-   * (1) preWildCard = "//Sites/EI", testPath = "//Folders"
-   * (2) preWildCard = "//Sites/EI", testPath = "//Sites/C"
-   * (3) preWildCard = "//Sites/EI", testPath = "//Sites/CI"
-   * (4) preWildCard = "//Sites/EI", testPath = "//Sites/E/Foo"
+   * Determines if needs to continue the matching process for the given folder path. This is used to
+   * avoid triverse down to a folder which path does not event match the "preWildCard", so it will
+   * save time to match any of its descendents.
    *
-   * @param preWildCard the 1st part of the original matching path, right
-   *    before the wild card. Assumed not <code>null</code> or empty.
-   * @param testPath the tested folder path, assumed not <code>null</code> or
-   *    empty.
+   * <p>It returns <code>true</code> for the following scenarios: (1) preWildCard = "//Sites/EI",
+   * testPath = "//Sites" (2) preWildCard = "//Sites/EI", testPath = "//Sites/E" (3) preWildCard =
+   * "//Sites/EI", testPath = "//Sites/EI" (4) preWildCard = "//Sites/EI", testPath =
+   * "//Sites/EI/Foo"
    *
-   * @return <code>true</code> if continue the matching process for the
-   *    specified folder; otherwise stop the process for this folder and its
-   *    child folders.
+   * <p>It returns <code>false</code> for the following scenarios: (1) preWildCard = "//Sites/EI",
+   * testPath = "//Folders" (2) preWildCard = "//Sites/EI", testPath = "//Sites/C" (3) preWildCard =
+   * "//Sites/EI", testPath = "//Sites/CI" (4) preWildCard = "//Sites/EI", testPath =
+   * "//Sites/E/Foo"
+   *
+   * @param preWildCard the 1st part of the original matching path, right before the wild card.
+   *     Assumed not <code>null</code> or empty.
+   * @param testPath the tested folder path, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if continue the matching process for the specified folder; otherwise
+   *     stop the process for this folder and its child folders.
    */
   private boolean isContinueMatch(String preWildCard, String testPath) {
     if (testPath.length() < preWildCard.length()) {
@@ -3004,15 +2843,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The same as the {@link #findMatchingFoldersFromCache(String, Pattern[], int, String, PSItemSummaryCache, IPSFolderRelationshipCache)},
-   * except this is processed without accessing folder cache.
+   * The same as the {@link #findMatchingFoldersFromCache(String, Pattern[], int, String,
+   * PSItemSummaryCache, IPSFolderRelationshipCache)}, except this is processed without accessing
+   * folder cache.
    *
    * @param path the path, assumed never <code>null</code> or empty
-   * @param matchPatterns the to be matches pattens, assume not
-   *    <code>null</code> or empty.
+   * @param matchPatterns the to be matches pattens, assume not <code>null</code> or empty.
    * @param rootID the root folder id.
    * @param rootPath the root path, assumed not <code>null</code> or empty.
-   *
    * @return zero or more guids that each identify a folder
    * @throws InvalidQueryException if a path is invalid or is not found
    */
@@ -3029,14 +2867,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The same as the {@link #findMatchingFoldersFromCache(String, Pattern[], int, String, PSItemSummaryCache, IPSFolderRelationshipCache)}
-   * except this is processed without accessing folder cache.
+   * The same as the {@link #findMatchingFoldersFromCache(String, Pattern[], int, String,
+   * PSItemSummaryCache, IPSFolderRelationshipCache)} except this is processed without accessing
+   * folder cache.
    *
    * @param folder the folder to process, assumed not <code>null</code>.
-   * @param matchPatterns patterns to match when looking at folder paths,
-   * assumed never <code>null</code>.
+   * @param matchPatterns patterns to match when looking at folder paths, assumed never <code>null
+   *     </code>.
    * @param rval the list of guids being built, assumed never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs in the folder processor
    */
   private void findMatchingFoldersFromDB(
@@ -3059,11 +2897,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Return all descendent folders of the parent folder locator passed in. see
-   * {@link IPSRelationshipProcessor#getDescendentsLocators(String, String, PSKey)}
+   * Return all descendent folders of the parent folder locator passed in. see {@link
+   * IPSRelationshipProcessor#getDescendentsLocators(String, String, PSKey)}
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#getDescendentFolderLocators(PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#getDescendentFolderLocators(PSLocator)}.
    */
   @Deprecated
   public PSKey[] getDescendentsLocators(String type, String relationshipType, PSKey parent)
@@ -3078,14 +2915,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets all descendant folder IDs of the specified folder, where the folder
-   * must contain items (object-type = TYPE_ITEM). The returned folder IDs may
-   * contain the specified folder ID if it contains items.
+   * Gets all descendant folder IDs of the specified folder, where the folder must contain items
+   * (object-type = TYPE_ITEM). The returned folder IDs may contain the specified folder ID if it
+   * contains items.
    *
    * @param folderId the ID of the specified folder, not <code>null</code>.
-   *
    * @return the list of folder IDs, never <code>null</code>, may be empty.
-   *
    * @throws PSCmsException if an error occurs.
    */
   public Collection<PSLocator> getDescendantFoldersWithItems(PSLocator folderId)
@@ -3096,8 +2931,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey)
-   * interface} for description
+   * See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey) interface} for
+   * description
    */
   @SuppressWarnings("deprecation")
   public PSComponentSummary[] getChildren(String type, String relationshipType, PSKey parent)
@@ -3112,11 +2947,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getParents(String, String, PSKey)
-   * interface} for description
+   * See {@link IPSRelationshipProcessor#getParents(String, String, PSKey) interface} for
+   * description
    *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#getParentSummaries(PSLocator)}.
+   * @deprecated Use {@link PSFolderProcessorProxy#getParentSummaries(PSLocator)}.
    */
   @SuppressWarnings("unchecked")
   @Deprecated
@@ -3156,20 +2990,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Returns the locators for the parent folders for the specified child
-   * folders.
+   * Returns the locators for the parent folders for the specified child folders.
    *
-   * @param locators locators for the folders whose parent folders are to be
-   * returned, assumed not <code>null</code>, may be empty
-   *
-   * @param donotfilterby mask to restrict the filtering of relationships based
-   * on community or folder permissions (bitwise OR the FILTER_BY_xxx constants
-   * defined in <code>PSRelationshipConfig</code> to restrict filtering on
-   * both), should be set to <code>0</code> if filtering is to be performed.
-   *
-   * @return locators for the parent folders, never <code>null</code>, may
-   * be empty
-   *
+   * @param locators locators for the folders whose parent folders are to be returned, assumed not
+   *     <code>null</code>, may be empty
+   * @param donotfilterby mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return locators for the parent folders, never <code>null</code>, may be empty
    * @throws PSCmsException if an error occurs.
    */
   private PSKey[] getFolderParents(PSKey[] locators, int donotfilterby) throws PSCmsException {
@@ -3184,18 +3013,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Returns the locators in the specified list of locators which are for
-   * folder objects. This method filters out the locators for non-folder
-   * objects.
+   * Returns the locators in the specified list of locators which are for folder objects. This
+   * method filters out the locators for non-folder objects.
    *
-   * @param locators list containing locators (<code>PSKey</code> objects)
-   * for folders and items, assumed not <code>null</code>, may be empty
-   *
-   * @return an array of locators of folders, filters out the locators for
-   * items, never <code>null</code>, may be empty
-   *
-   * @throws PSCmsException if any error occurs getting the component summaries
-   * for the specified locators
+   * @param locators list containing locators (<code>PSKey</code> objects) for folders and items,
+   *     assumed not <code>null</code>, may be empty
+   * @return an array of locators of folders, filters out the locators for items, never <code>null
+   *     </code>, may be empty
+   * @throws PSCmsException if any error occurs getting the component summaries for the specified
+   *     locators
    */
   @SuppressWarnings("unchecked")
   private PSKey[] getFolderLocators(List locators) throws PSCmsException {
@@ -3225,35 +3051,27 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Checks if the user has permissions to delete the specified folders.
-   * <p>
-   * For deleting a folder, the user must have the following permissions: 1>
-   * write access on the parent folder 2> admin access on the folder being
-   * deleted 3> admin access on all the folders contained by the folder being
-   * deleted
-   * <p>
-   * Returns <code>true</code> if the user has the permission to delete all
-   * the specified folders, <code>false</code> otherwise. If
-   * <code>throwException</code> is <code>true</code> and the permissions
-   * required for deleting a folder is not met then a
-   * <code>PSCmsException</code> is thrown.
    *
+   * <p>For deleting a folder, the user must have the following permissions: 1> write access on the
+   * parent folder 2> admin access on the folder being deleted 3> admin access on all the folders
+   * contained by the folder being deleted
    *
-   * @param locators locators for the folders on which the delete permissions
-   * are to be verified, may not be <code>null</code>, may be empty
+   * <p>Returns <code>true</code> if the user has the permission to delete all the specified
+   * folders, <code>false</code> otherwise. If <code>throwException</code> is <code>true</code> and
+   * the permissions required for deleting a folder is not met then a <code>PSCmsException</code> is
+   * thrown.
    *
-   * @param throwException if <code>true</code> and the user does not the
-   * permission to delete the folders, then a <code>PSCmsException</code> is
-   * thrown, otherwise <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the user has the permissions to delete all
-   * the specified folders, <code>false</code> otherwise
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the permissions to delete
-   * all the specified folders
-   *
-   * @throws IllegalArgumentException if <code>request</code> or
-   * <code>locators</code> is <code>null</code>
+   * @param locators locators for the folders on which the delete permissions are to be verified,
+   *     may not be <code>null</code>, may be empty
+   * @param throwException if <code>true</code> and the user does not the permission to delete the
+   *     folders, then a <code>PSCmsException</code> is thrown, otherwise <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if the user has the permissions to delete all the specified folders,
+   *     <code>false</code> otherwise
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the permissions to delete all the specified folders
+   * @throws IllegalArgumentException if <code>request</code> or <code>locators</code> is <code>null
+   *     </code>
    */
   private boolean checkHasDeletePermission(PSKey[] locators, boolean throwException)
       throws PSCmsException {
@@ -3286,44 +3104,31 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Checks if the user has permissions to move the specified child folders
-   * from the source to the target folder.
-   * <p>
-   * For moving a folder, the user must have the following permissions: 1>
-   * write access on the source parent folder 2> write access on the target
-   * parent folder 3> admin access on the folder being moved 4> admin access on
-   * all the folders contained by the folder being moved
-   * <p>
-   * Returns <code>true</code> if the user has the permission to move all the
-   * specified child folders from the source to the target folder,
-   * <code>false</code> otherwise. If <code>throwException</code> is
-   * <code>true</code> and the permissions required for moving the folders is
-   * not met then a <code>PSCmsException</code> is thrown.
+   * Checks if the user has permissions to move the specified child folders from the source to the
+   * target folder.
    *
-   * @param sourceParent locator for source parent folder, may not be
-   * <code>null</code>
+   * <p>For moving a folder, the user must have the following permissions: 1> write access on the
+   * source parent folder 2> write access on the target parent folder 3> admin access on the folder
+   * being moved 4> admin access on all the folders contained by the folder being moved
    *
-   * @param children contains the locators for the child folders to move from
-   * the source to the target folder, may not be <code>null</code>, may be
-   * empty
+   * <p>Returns <code>true</code> if the user has the permission to move all the specified child
+   * folders from the source to the target folder, <code>false</code> otherwise. If <code>
+   * throwException</code> is <code>true</code> and the permissions required for moving the folders
+   * is not met then a <code>PSCmsException</code> is thrown.
    *
-   * @param targetParent locator for target parent folder, may not be
-   * <code>null</code>
-   *
-   * @param throwException if <code>true</code> and the user does not the
-   * permission to move the folders, then a <code>PSCmsException</code> is
-   * thrown, otherwise <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the user has the permissions to move all
-   * the specified folders, <code>false</code> otherwise
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the permissions to move all
-   * the specified folders
-   *
-   * @throws IllegalArgumentException if <code>request</code> or
-   * <code>sourceParent</code> or <code>children</code> or
-   * <code>targetParent</code> is <code>null</code>
+   * @param sourceParent locator for source parent folder, may not be <code>null</code>
+   * @param children contains the locators for the child folders to move from the source to the
+   *     target folder, may not be <code>null</code>, may be empty
+   * @param targetParent locator for target parent folder, may not be <code>null</code>
+   * @param throwException if <code>true</code> and the user does not the permission to move the
+   *     folders, then a <code>PSCmsException</code> is thrown, otherwise <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if the user has the permissions to move all the specified folders,
+   *     <code>false</code> otherwise
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the permissions to move all the specified folders
+   * @throws IllegalArgumentException if <code>request</code> or <code>sourceParent</code> or <code>
+   *     children</code> or <code>targetParent</code> is <code>null</code>
    */
   private boolean checkHasMovePermission(
       PSKey sourceParent, List children, PSKey targetParent, boolean throwException)
@@ -3362,40 +3167,29 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Checks if the user has permissions to copy the specified list of folders
-   * to the target folder.
-   * <p>
-   * For copying a folder, the user must have the following permissions: 1>
-   * write access on the target parent folder 2> read access on the folder
-   * being copied 4> read access on all the folders contained by the folder
-   * being copied
-   * <p>
-   * Returns <code>true</code> if the user has the permission to copy all the
-   * specified folders to the target folder, <code>false</code> otherwise. If
-   * <code>throwException</code> is <code>true</code> and the permissions
-   * required for copying the folders is not met then a
-   * <code>PSCmsException</code> is thrown.
+   * Checks if the user has permissions to copy the specified list of folders to the target folder.
    *
-   * @param children contains the locators for the olders to move to the target
-   * folder, may not be <code>null</code>, may be empty
+   * <p>For copying a folder, the user must have the following permissions: 1> write access on the
+   * target parent folder 2> read access on the folder being copied 4> read access on all the
+   * folders contained by the folder being copied
    *
-   * @param targetParent locator for target parent folder, may not be
-   * <code>null</code>
+   * <p>Returns <code>true</code> if the user has the permission to copy all the specified folders
+   * to the target folder, <code>false</code> otherwise. If <code>throwException</code> is <code>
+   * true</code> and the permissions required for copying the folders is not met then a <code>
+   * PSCmsException</code> is thrown.
    *
-   * @param throwException if <code>true</code> and the user does not the
-   * permission to copy the folders, then a <code>PSCmsException</code> is
-   * thrown, otherwise <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the user has the permissions to copy all
-   * the specified folders, <code>false</code> otherwise
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the permissions to copy all
-   * the specified folders
-   *
-   * @throws IllegalArgumentException if <code>request</code> or or
-   * <code>children</code> or <code>targetParent</code> is
-   * <code>null</code>
+   * @param children contains the locators for the olders to move to the target folder, may not be
+   *     <code>null</code>, may be empty
+   * @param targetParent locator for target parent folder, may not be <code>null</code>
+   * @param throwException if <code>true</code> and the user does not the permission to copy the
+   *     folders, then a <code>PSCmsException</code> is thrown, otherwise <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if the user has the permissions to copy all the specified folders,
+   *     <code>false</code> otherwise
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the permissions to copy all the specified folders
+   * @throws IllegalArgumentException if <code>request</code> or or <code>children</code> or <code>
+   *     targetParent</code> is <code>null</code>
    */
   private boolean checkHasCopyPermission(List children, PSKey targetParent, boolean throwException)
       throws PSCmsException {
@@ -3423,22 +3217,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Checks if the user has permissions to save the specified folder objects.
    *
-   * @param comps array of folder (<code>PSFolder</code>) objects, assumed
-   * not <code>null</code>, may be empty
-   *
-   * @param throwException if <code>true</code> and the user does not the
-   * permission to save the folders, then a <code>PSCmsException</code> is
-   * thrown, otherwise <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the user has the permissions to save all
-   * the specified folders, <code>false</code> otherwise
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the permissions to save all
-   * the specified folders
-   *
-   * @throws IllegalArgumentException if <code>request</code> or or
-   * <code>components</code> is <code>null</code>
+   * @param comps array of folder (<code>PSFolder</code>) objects, assumed not <code>null</code>,
+   *     may be empty
+   * @param throwException if <code>true</code> and the user does not the permission to save the
+   *     folders, then a <code>PSCmsException</code> is thrown, otherwise <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if the user has the permissions to save all the specified folders,
+   *     <code>false</code> otherwise
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the permissions to save all the specified folders
+   * @throws IllegalArgumentException if <code>request</code> or or <code>components</code> is
+   *     <code>null</code>
    */
   private boolean checkHasSavePermission(IPSDbComponent[] comps, boolean throwException)
       throws PSCmsException {
@@ -3484,40 +3273,28 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Checks if the user has the permission specified by
-   * <code>accessLevel</code> on all the folders specfied by the
-   * <code>locators</code> array. The permissions are verified recursively if
-   * <code>recursive</code> is <code>true</code>, that is for all the
-   * child folders of a given folder. If on any folder the user does not have
-   * the specified permission then this method returns <code>false</code> if
-   * <code>throwException</code> is false, otherwise a
-   * <code>PSCmsException</code> is thrown.
+   * Checks if the user has the permission specified by <code>accessLevel</code> on all the folders
+   * specfied by the <code>locators</code> array. The permissions are verified recursively if <code>
+   * recursive</code> is <code>true</code>, that is for all the child folders of a given folder. If
+   * on any folder the user does not have the specified permission then this method returns <code>
+   * false</code> if <code>throwException</code> is false, otherwise a <code>PSCmsException</code>
+   * is thrown.
    *
-   * @param locators specifies the folders on which the permissions are to be
-   * checked, may not be <code>null</code>, may be empty
-   *
-   * @param accessLevel the access level to be checked for on each folder,
-   * should be non-negative, assumed valid access level
-   *
-   * @param recursive <code>true</code> if the permissions on all the
-   * subfolders of the specified folders is to be verified, <code>false</code>
-   * otherwise
-   *
-   * @param throwException if <code>true</code> then a
-   * <code>PSCmsException</code> is thrown if the user does not have the
-   * specified permission on any folder, otherwise <code>false</code> is
-   * returned.
-   *
-   * @return <code>true</code> if the user has the specifed permission on all
-   * the folders (and their subfolders), otherwise <code>false</code>
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the specified permission on
-   * any folder
-   *
-   * @throw IllegalArgumentException if <code>request</code> or
-   * <code>locators</code> is <code>null</code> or <code>accessLevel</code>
-   * is invalid
+   * @param locators specifies the folders on which the permissions are to be checked, may not be
+   *     <code>null</code>, may be empty
+   * @param accessLevel the access level to be checked for on each folder, should be non-negative,
+   *     assumed valid access level
+   * @param recursive <code>true</code> if the permissions on all the subfolders of the specified
+   *     folders is to be verified, <code>false</code> otherwise
+   * @param throwException if <code>true</code> then a <code>PSCmsException</code> is thrown if the
+   *     user does not have the specified permission on any folder, otherwise <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if the user has the specifed permission on all the folders (and their
+   *     subfolders), otherwise <code>false</code>
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the specified permission on any folder
+   * @throw IllegalArgumentException if <code>request</code> or <code>locators</code> is <code>null
+   *     </code> or <code>accessLevel</code> is invalid
    */
   private boolean checkHasFolderPermission(
       PSKey[] locators, int accessLevel, boolean recursive, boolean throwException)
@@ -3538,14 +3315,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Same as {@link #checkHasFolderPermission(PSLocator, int, boolean, boolean)} except that it verifies the permissions on a
-   * single folder. This first checks the permission on the specified folder.
-   * If the user has the specified permission, then it obtains all the child
-   * folders if <code>recursive</code> is <code>true</code> and calls this
-   * method itself for each child folder to verify the permissions on the child
-   * folders. If the user does not have the specified permission, then it
-   * returns <code>false</code> if <code>throwException</code> if
-   * <code>false</code> otherwise it throws a <code>PSCmsException</code>
+   * Same as {@link #checkHasFolderPermission(PSLocator, int, boolean, boolean)} except that it
+   * verifies the permissions on a single folder. This first checks the permission on the specified
+   * folder. If the user has the specified permission, then it obtains all the child folders if
+   * <code>recursive</code> is <code>true</code> and calls this method itself for each child folder
+   * to verify the permissions on the child folders. If the user does not have the specified
+   * permission, then it returns <code>false</code> if <code>throwException</code> if <code>false
+   * </code> otherwise it throws a <code>PSCmsException</code>
    */
   public boolean checkHasFolderPermission(
       PSLocator locator, int accessLevel, boolean recursive, boolean throwException)
@@ -3621,28 +3397,21 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Checks if the user has the permission specified by
-   * <code>permissions</code> on the folder specfied by <code>folder</code>
-   * object. If on the folder the user does not have the specified permission
-   * then this method returns <code>false</code> if
-   * <code>throwException</code> is false, otherwise a
-   * <code>PSCmsException</code> is thrown.
+   * Checks if the user has the permission specified by <code>permissions</code> on the folder
+   * specfied by <code>folder</code> object. If on the folder the user does not have the specified
+   * permission then this method returns <code>false</code> if <code>throwException</code> is false,
+   * otherwise a <code>PSCmsException</code> is thrown.
    *
-   * @param folder the folder object on which the permissions should be
-   * checked, assumed not <code>null</code>
-   *
-   * @param permissions the access level to be checked for the folder, should
-   * be non-negative, assumed valid access level
-   *
-   * @param throwException <code>true</code> if an exception should be thrown
-   * if the user does not have the specified permission, <code>false</code>
-   * otherwise
-   *
-   * @return <code>true</code> if the user has the specified permission on
-   * the folder, <code>false</code> otherwise
-   *
-   * @throws PSCmsException if <code>throwException</code> is
-   * <code>true</code> and the user does not have the specified permission
+   * @param folder the folder object on which the permissions should be checked, assumed not <code>
+   *     null</code>
+   * @param permissions the access level to be checked for the folder, should be non-negative,
+   *     assumed valid access level
+   * @param throwException <code>true</code> if an exception should be thrown if the user does not
+   *     have the specified permission, <code>false</code> otherwise
+   * @return <code>true</code> if the user has the specified permission on the folder, <code>false
+   *     </code> otherwise
+   * @throws PSCmsException if <code>throwException</code> is <code>true</code> and the user does
+   *     not have the specified permission
    */
   private boolean checkHasFolderPermission(PSFolder folder, int permissions, boolean throwException)
       throws PSCmsException {
@@ -3660,10 +3429,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Validates a given relationship type.
    *
-   * @param relationshipType The to be validated relationship type, it may not
-   * be <code>null</code> or empty. It must be
-   * <code>FOLDER_RELATE_TYPE</code>.
-   *
+   * @param relationshipType The to be validated relationship type, it may not be <code>null</code>
+   *     or empty. It must be <code>FOLDER_RELATE_TYPE</code>.
    * @throws IllegalArgumentException if it is invalid.
    */
   private void validateRelationshipType(String relationshipType) {
@@ -3705,8 +3472,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Determines whether to ignore the revisions for all folder locators.
    *
-   * @return <code>true</code> if not ignore revision for folder locators;
-   * otherwise return <code>false</code>.
+   * @return <code>true</code> if not ignore revision for folder locators; otherwise return <code>
+   *     false</code>.
    */
   private boolean isRevisionable() {
     return m_folderObject.isRevisionable();
@@ -3714,7 +3481,6 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * @see IPSRelationshipProcessor#getSummaryByPath(String, String, String)
-   *
    * @deprecated Use {@link PSFolderProcessorProxy#getSummary(String)}.
    */
   public PSComponentSummary getSummaryByPath(
@@ -3754,12 +3520,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#add(
-   * java.lang.String, java.util.List,
-   * com.percussion.design.objectstore.PSLocator)
-   *
-   * @deprecated Use
-   * {@link PSFolderProcessorProxy#addChildren(List, PSLocator)}.
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#add( java.lang.String,
+   *     java.util.List, com.percussion.design.objectstore.PSLocator)
+   * @deprecated Use {@link PSFolderProcessorProxy#addChildren(List, PSLocator)}.
    */
   @Deprecated
   public void add(String relationshipType, List children, PSLocator targetParent)
@@ -3797,15 +3560,14 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Helper method to get summaries for owner or child of each relationship in
-   * the relationship list.
+   * Helper method to get summaries for owner or child of each relationship in the relationship
+   * list.
    *
-   * @param relationships iterator of {@link com.percussion.design.objectstore.PSRelationship relationship} objects, must not be
-   * <code>null</code>.
-   * @param owner specify <code>true</code> if the summaries required is for
-   * owners of the relationships, <code>false</code> if for dependents.
-   * @return summaries for all the owners/children of the relationships
-   * supplied.
+   * @param relationships iterator of {@link com.percussion.design.objectstore.PSRelationship
+   *     relationship} objects, must not be <code>null</code>.
+   * @param owner specify <code>true</code> if the summaries required is for owners of the
+   *     relationships, <code>false</code> if for dependents.
+   * @return summaries for all the owners/children of the relationships supplied.
    * @throws PSCmsException if it could not fetch the summaries for any reason.
    */
   @SuppressWarnings("unchecked")
@@ -3891,21 +3653,19 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Implements {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(
-   * String, PSLocator, String)} method similar to that implemented by {@link
-   * PSRelationshipProcessor#getRelationshipOwnerPaths(String, PSLocator,
-   * String)} with the following differences.
+   * Implements {@link IPSRelationshipProcessor#getRelationshipOwnerPaths( String, PSLocator,
+   * String)} method similar to that implemented by {@link
+   * PSRelationshipProcessor#getRelationshipOwnerPaths(String, PSLocator, String)} with the
+   * following differences.
+   *
    * <ol>
-   * <li>The relationship type name accepted is only
-   * {@link #FOLDER_RELATE_TYPE Folder Content}</li>
-   * <li>Each path in the result generated is modified to start with "//"
-   * instead of "/Root". This is to be compataible with the path generation
-   * scheme used everywhere.</li>
+   *   <li>The relationship type name accepted is only {@link #FOLDER_RELATE_TYPE Folder Content}
+   *   <li>Each path in the result generated is modified to start with "//" instead of "/Root". This
+   *       is to be compataible with the path generation scheme used everywhere.
    *
    * @see com.percussion.cms.objectstore.IPSRelationshipProcessor
-   * #getRelationshipOwnerPaths(java.lang.String, com.percussion.design.
-   * objectstore.PSLocator, java.lang.String)
-   *
+   *     #getRelationshipOwnerPaths(java.lang.String, com.percussion.design. objectstore.PSLocator,
+   *     java.lang.String)
    * @deprecated Use {@link PSFolderProcessorProxy#getFolderPaths(PSLocator)}.
    */
   @Deprecated
@@ -3933,8 +3693,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * (non-Javadoc)
    *
-   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#isDescendent(
-   * String, PSLocator, PSLocator, String)
+   * @see com.percussion.cms.objectstore.IPSRelationshipProcessor#isDescendent( String, PSLocator,
+   *     PSLocator, String)
    */
   public boolean isDescendent(
       String componentType, PSLocator parent, PSLocator child, String relationshipTypeName)
@@ -4036,8 +3796,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets the cross site link queue threshold to determine
-   * when the number of items is exceeded to use the queue.
+   * Gets the cross site link queue threshold to determine when the number of items is exceeded to
+   * use the queue.
+   *
    * @return the queue threshold <code>0</code> means the queue will always be used.
    */
   private static int queueThreshold() {
@@ -4059,17 +3820,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Moves specified folder children from a source folder to a target folder.
    *
    * @param sourceFolderId the ID of the source folder, not <code>null</code>.
-   * @param children a list of to be moved child items in source folder, not
-   * <code>null</code>.
+   * @param children a list of to be moved child items in source folder, not <code>null</code>.
    * @param targetFolderId the ID of the target folder, not <code>null</code>.
-   * @param force <code>true</code> to force the action to modify the active
-   * assembly relations in which this item is dependent and the relationships
-   * are with non empty siteid and/or folderid properties. <code>false</code>
-   * not force action and throw error in such situation.
-   * @param checkFolderPermission if <code>true</code>, then validates
-   * the folder permissions before moving the child items; otherwise ignore
-   * the folder permissions during the move operation.
-   *
+   * @param force <code>true</code> to force the action to modify the active assembly relations in
+   *     which this item is dependent and the relationships are with non empty siteid and/or
+   *     folderid properties. <code>false</code> not force action and throw error in such situation.
+   * @param checkFolderPermission if <code>true</code>, then validates the folder permissions before
+   *     moving the child items; otherwise ignore the folder permissions during the move operation.
    * @throws PSCmsException if an error occurs.
    */
   public void moveFolderChildren(
@@ -4182,13 +3939,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Get the content id from the supplied path list names.
    *
-   * @param path fully qualified relationship path as explained in
-   * {@link #getFolderLocatorPaths(PSLocator)} must not be <code>null</code>
-   * or empty.
-   *
-   * @return contentid of the dependent item, -1 if the specified there is no
-   * such path exist.
-   *
+   * @param path fully qualified relationship path as explained in {@link
+   *     #getFolderLocatorPaths(PSLocator)} must not be <code>null</code> or empty.
+   * @return contentid of the dependent item, -1 if the specified there is no such path exist.
    * @throws PSCmsException if an error occurs.
    */
   public int getIdByPath(String path) throws PSCmsException {
@@ -4198,13 +3951,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Get the content id from the supplied path list names.
    *
-   * @param path fully qualified relationship path as explained in
-   * {@link #getFolderLocatorPaths(PSLocator)} must not be <code>null</code>
-   * or empty.
-   *
-   * @return contentid of the dependent item, -1 if the specified there is no
-   * such path exist.
-   *
+   * @param path fully qualified relationship path as explained in {@link
+   *     #getFolderLocatorPaths(PSLocator)} must not be <code>null</code> or empty.
+   * @return contentid of the dependent item, -1 if the specified there is no such path exist.
    * @throws PSCmsException if an error occurs.
    */
   public int getIdByPath(String path, String relationshipTypeName) throws PSCmsException {
@@ -4233,8 +3982,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * For the object specified by the given locator, find the folder paths and
-   * include the item's name in the path.
+   * For the object specified by the given locator, find the folder paths and include the item's
+   * name in the path.
    *
    * @param locator the locator of the item, never <code>null</code>
    * @return an array of paths, may be empty
@@ -4272,19 +4021,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The same as {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}, except
-   * here the current logged in user is considered the author of the new items.
+   * The same as {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}, except here the
+   * current logged in user is considered the author of the new items.
    *
-   * @param sourceFolderId the site folder or site subfolder locator which needs to be
-   *           cloned, not <code>null</code>.
-   * @param targetFolderId the folder parent locator into which to clone the source,
-   *           not <code>null</code>.
+   * @param sourceFolderId the site folder or site subfolder locator which needs to be cloned, not
+   *     <code>null</code>.
+   * @param targetFolderId the folder parent locator into which to clone the source, not <code>null
+   *     </code>.
    * @param options the cloning options, not <code>null</code>.
-   * @return the name of the log file if there were errors, <code>null</code>
-   *         otherwise.
+   * @return the name of the log file if there were errors, <code>null</code> otherwise.
    * @throws PSCmsException for any error.
-   * @todo ph: PSCloningOptions includes navigation options which don't belong
-   * here.
+   * @todo ph: PSCloningOptions includes navigation options which don't belong here.
    */
   public String copyFolderAuthorUser(
       PSLocator sourceFolderId, PSLocator targetFolderId, PSCloningOptions options)
@@ -4302,19 +4049,16 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The same as copyFolder(PSLocator, PSLocator, PSCloningOptions) method,
-   * but depending on the useInternalUser parameter, the author of the new items
-   * will be different.
+   * The same as copyFolder(PSLocator, PSLocator, PSCloningOptions) method, but depending on the
+   * useInternalUser parameter, the author of the new items will be different.
    *
-   * @param source the site folder or site subfolder locator which needs to be
-   *           cloned, not <code>null</code>.
-   * @param target the folder parent locator into which to clone the source,
-   *           not <code>null</code>.
+   * @param source the site folder or site subfolder locator which needs to be cloned, not <code>
+   *     null</code>.
+   * @param target the folder parent locator into which to clone the source, not <code>null</code>.
    * @param options the cloning options, not <code>null</code>.
-   * @return the name of the log file if there were errors, <code>null</code>
-   *         otherwise.
-   * @param useInternalUser If <code>true</code>, the author is the internal user.
-   * If <code>false</code>, the author is the logged in user.
+   * @return the name of the log file if there were errors, <code>null</code> otherwise.
+   * @param useInternalUser If <code>true</code>, the author is the internal user. If <code>false
+   *     </code>, the author is the logged in user.
    * @throws PSCmsException for any error.
    */
   @Transactional
@@ -4475,13 +4219,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Connect the navigation for copy site subfolder actions. This is required
-   * if any navigation content was copied and connects the navigation item of
-   * the copied subfolder with the navigation item of the target folder.
-   * @param copiedContent the locator of the copied subfolder, assumed not
-   * <code>null</code>.
-   * @param navSections the target sections into which the copy was created, assumed
-   * not <code>null</code>.
+   * Connect the navigation for copy site subfolder actions. This is required if any navigation
+   * content was copied and connects the navigation item of the copied subfolder with the navigation
+   * item of the target folder.
+   *
+   * @param copiedContent the locator of the copied subfolder, assumed not <code>null</code>.
+   * @param navSections the target sections into which the copy was created, assumed not <code>null
+   *     </code>.
    * @param assemblyTemplate
    * @throws PSCmsException for any error.
    */
@@ -4599,16 +4343,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Convert the supplied home page url to the new copied site, folder and
-   * content ids. If parameters or mappings are not found, the url remains
-   * unchanged for the paramter, no error will be reported.
+   * Convert the supplied home page url to the new copied site, folder and content ids. If
+   * parameters or mappings are not found, the url remains unchanged for the paramter, no error will
+   * be reported.
    *
-   * @param homePageUrl the home page url to be converted, may be
-   * <code>null</code> or empty.
-   * @param options the copy folder options is used to lookup the source to
-   * target siteid mapping, assumed not <code>null</code>.
-   * @param tracker the relationship tracker is used to lookup the source to
-   * target folderid and contentid mappings, assumed not <code>null</code>.
+   * @param homePageUrl the home page url to be converted, may be <code>null</code> or empty.
+   * @param options the copy folder options is used to lookup the source to target siteid mapping,
+   *     assumed not <code>null</code>.
+   * @param tracker the relationship tracker is used to lookup the source to target folderid and
+   *     contentid mappings, assumed not <code>null</code>.
    * @return the converted string, never <code>null</code>or empty.
    */
   private String convertHomePageUrl(
@@ -4651,23 +4394,20 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Get the logger for the current thread. Two possible loggers can be
-   * returned, one for the copy folder action and the class logger for all
-   * other actions.
+   * Get the logger for the current thread. Two possible loggers can be returned, one for the copy
+   * folder action and the class logger for all other actions.
    *
-   * @return the logger for the copy folder action if set, otherwise the
-   * default logger for this class, never <code>null</code>.
+   * @return the logger for the copy folder action if set, otherwise the default logger for this
+   *     class, never <code>null</code>.
    */
   private Logger getLogger() {
     return log;
   }
 
   /**
-   * Set the global error flag to the supplied value. This is only used for the
-   * copy folder action.
+   * Set the global error flag to the supplied value. This is only used for the copy folder action.
    *
-   * @param value the new value for the global error flag usd in the copy
-   * folder action.
+   * @param value the new value for the global error flag usd in the copy folder action.
    */
   @SuppressWarnings("unchecked")
   private void setHadErrors(boolean value) {
@@ -4677,8 +4417,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Tests whether managed navigation is used or not.
    *
-   * @return always <code>false</code> if the threal local variable is not
-   * initialized, otherwise the boolean value of its value object.
+   * @return always <code>false</code> if the threal local variable is not initialized, otherwise
+   *     the boolean value of its value object.
    */
   private boolean isManagedNavUsed() {
     Boolean isManagedNavUsed = (Boolean) m_isManagedNavUsed.get();
@@ -4707,13 +4447,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Collect all component summaries recursively  down to the bottom starting
-   * with the supplied source locator.
+   * Collect all component summaries recursively down to the bottom starting with the supplied
+   * source locator.
    *
-   * @param parentFolder the locator of the source component to start the
-   * collection from, assumed not <code>null</code>.
-   * @param summaries the container for the results, assumed not
-   * <code>null</code>.
+   * @param parentFolder the locator of the source component to start the collection from, assumed
+   *     not <code>null</code>.
+   * @param summaries the container for the results, assumed not <code>null</code>.
    * @throws PSCmsException for any error.
    */
   private void collectComponentSummaries(PSLocator parentFolder, PSComponentSummaries summaries)
@@ -4729,23 +4468,21 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Clone the supplied site folder children recursivly and adds them to the
-   * target folder. Duplicates based on their names will be removed from the
-   * children before the process is started and an error is logged.
+   * Clone the supplied site folder children recursivly and adds them to the target folder.
+   * Duplicates based on their names will be removed from the children before the process is started
+   * and an error is logged.
    *
-   * @param request the request used for the cloning operation, assumed not
-   * <code>null</code>.
-   * @param context the request context used for the operation, assumed not
-   * <code>null</code>.
-   * @param children the component summaries for the children to be cloned,
-   * assumed not <code>null</code>, may be empty. All duplicates based on
-   * component names will be removed from this list.
-   * @param target the target folder into which to clone the children, assumed
-   * not <code>null</code>.
+   * @param request the request used for the cloning operation, assumed not <code>null</code>.
+   * @param context the request context used for the operation, assumed not <code>null</code>.
+   * @param children the component summaries for the children to be cloned, assumed not <code>null
+   *     </code>, may be empty. All duplicates based on component names will be removed from this
+   *     list.
+   * @param target the target folder into which to clone the children, assumed not <code>null</code>
+   *     .
    * @param options the cloning options, assumed not <code>null</code>.
-   * @param copiedContent maps all copied content. The key identifies the
-   * original content the was copied, the value identifies the new created
-   * copy, assumed not <code>null</code>, may be empty.
+   * @param copiedContent maps all copied content. The key identifies the original content the was
+   *     copied, the value identifies the new created copy, assumed not <code>null</code>, may be
+   *     empty.
    * @throws PSException for any error.
    */
   @SuppressWarnings("unchecked")
@@ -4956,23 +4693,20 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   /**
    * Clone all supplied component summaries either as link or as new copy.
    *
-   * @param request the request used for the cloning operation, assumed not
-   * <code>null</code>.
-   * @param children the child component summaries to be cloned, assumed not
-   * <code>null</code>, may be empty.
-   * @param target the target folder into which to clone the supplied children,
-   * assumed not <code>null</code>.
-   * @param isAsNewCopy <code>true</code> to clone the children as new copy,
-   * <code>false</code> to clone them as link.
-   * @param communityMappings a map of source to target community ids. Assumed
-   * not <code>null</code>, may be empty.
-   * @param copiedContent maps all copied content. The key identifies the
-   * original content the was copied, the value identifies the new created
-   * copy, assumed not <code>null</code>, may be empty.
-   * @param useSrcWorfklow true to use the source item's workflow if valid for
-   * the content type and community, <code>false</code> to calculate the workflow
-   * as when creating a new item.
-   *
+   * @param request the request used for the cloning operation, assumed not <code>null</code>.
+   * @param children the child component summaries to be cloned, assumed not <code>null</code>, may
+   *     be empty.
+   * @param target the target folder into which to clone the supplied children, assumed not <code>
+   *     null</code>.
+   * @param isAsNewCopy <code>true</code> to clone the children as new copy, <code>false</code> to
+   *     clone them as link.
+   * @param communityMappings a map of source to target community ids. Assumed not <code>null</code>
+   *     , may be empty.
+   * @param copiedContent maps all copied content. The key identifies the original content the was
+   *     copied, the value identifies the new created copy, assumed not <code>null</code>, may be
+   *     empty.
+   * @param useSrcWorfklow true to use the source item's workflow if valid for the content type and
+   *     community, <code>false</code> to calculate the workflow as when creating a new item.
    * @throws PSException for any error.
    */
   @SuppressWarnings("unchecked")
@@ -5086,13 +4820,12 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Recreated all relationships tracked during a clone site folder action and
-   * fixup inline links as needed.
+   * Recreated all relationships tracked during a clone site folder action and fixup inline links as
+   * needed.
    *
-   * @param request the request used for this process, assumed not
-   * <code>null</code>.
-   * @param options the cloning options are used to get the site id mappings,
-   * assumed not <code>null</code>.
+   * @param request the request used for this process, assumed not <code>null</code>.
+   * @param options the cloning options are used to get the site id mappings, assumed not <code>null
+   *     </code>.
    * @throws PSException for any error.
    */
   @SuppressWarnings("unchecked")
@@ -5241,9 +4974,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Checks if the supplied item is a navigation item.
    *
    * @param summary the item summary to test, assumed not <code>null</code>.
-   * @return <code>true</code> if the supplied item is a navigation item,
-   * <code>false</code> otherwise or if managed navigation is not used for
-   * the copied folder.
+   * @return <code>true</code> if the supplied item is a navigation item, <code>false</code>
+   *     otherwise or if managed navigation is not used for the copied folder.
    */
   private boolean isNavItem(PSComponentSummary summary) {
     if (!isManagedNavUsed()) return false;
@@ -5270,20 +5002,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Gets all folder paths to the root for the supplied locator. It is similar
-   * with {@link #getRelationshipOwnerPaths(String, PSLocator, String)} except
-   * each folder path contains a list of locators to the root, where the 1st
-   * entry is the locator of its direct parent and the last enty is the locator
-   * of the root.
-   * <p>
-   * The folder is not filtered by community
+   * Gets all folder paths to the root for the supplied locator. It is similar with {@link
+   * #getRelationshipOwnerPaths(String, PSLocator, String)} except each folder path contains a list
+   * of locators to the root, where the 1st entry is the locator of its direct parent and the last
+   * enty is the locator of the root.
+   *
+   * <p>The folder is not filtered by community
    *
    * @param itemLocator the item locator, never <code>null</code>.
-   *
-   * @return a list of <code>List</code> objects, never <code>null</code>,
-   * may be empty. Each <code>List</code> object contains a list of
-   * <code>PSLocator</code> objects, as the folder locators to the root.
-   *
+   * @return a list of <code>List</code> objects, never <code>null</code>, may be empty. Each <code>
+   *     List</code> object contains a list of <code>PSLocator</code> objects, as the folder
+   *     locators to the root.
    * @throws PSCmsException if an error occurs.
    */
   public List<List<PSLocator>> getFolderLocatorPaths(PSLocator itemLocator) throws PSCmsException {
@@ -5292,19 +5021,15 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * The utility method used by {@link #getFolderLocatorPaths(PSLocator)}. See
-   * {@link #getFolderLocatorPaths(PSLocator)} for detail.
+   * The utility method used by {@link #getFolderLocatorPaths(PSLocator)}. See {@link
+   * #getFolderLocatorPaths(PSLocator)} for detail.
    *
-   * @param itemLocator the locator of an item or folder, assume not
-   * <code>null</code> and it is a folder locator if the <code>parents</code>
-   * is not <code>null</code>.
-   * @param parents the parent locators. It is used to collect all parent
-   * locators for the supplied folder if it is not <code>null</code>.
-   *
-   * @return a list of locator paths if <code>parents</code> is
-   * <code>null</code>; otherwise returns the <code>parents</code>. Never
-   * <code>null</code>, may be empty.
-   *
+   * @param itemLocator the locator of an item or folder, assume not <code>null</code> and it is a
+   *     folder locator if the <code>parents</code> is not <code>null</code>.
+   * @param parents the parent locators. It is used to collect all parent locators for the supplied
+   *     folder if it is not <code>null</code>.
+   * @return a list of locator paths if <code>parents</code> is <code>null</code>; otherwise returns
+   *     the <code>parents</code>. Never <code>null</code>, may be empty.
    * @throws PSCmsException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -5343,13 +5068,11 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * Validates name of the modified item, which is the value of the
-   * "sys_title" field. The item name must be unique within all its
-   * parent folders.
+   * Validates name of the modified item, which is the value of the "sys_title" field. The item name
+   * must be unique within all its parent folders.
    *
    * @param request The current request, assume not <code>null</code>.
    * @param isInsert flag indicating that this is an insert action
-   *
    * @throws PSCmsException if an error occurs during the validation process.
    */
   @SuppressWarnings("unchecked")
@@ -5449,20 +5172,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Validates the supplied dependent with the following rules:
-   * <p>
-   * The the dependent's name must be different (case-insensitive) then
-   * the names of all other children of the owner (folder) unless the same
-   * object is already a child of the supplied owner. A folder does not allow
-   * children with duplicate names.
+   *
+   * <p>The the dependent's name must be different (case-insensitive) then the names of all other
+   * children of the owner (folder) unless the same object is already a child of the supplied owner.
+   * A folder does not allow children with duplicate names.
    *
    * @param owner the locator of the owner folder, not <code>null</code>.
-   * @param dependent the locator of the dependent item, may be
-   *    <code>null</code> if the dependent is being inserted, in which case
-   *    <code>depName</code> must be supplied.
-   * @param depName The name (or sys_title) of the dependent. It may be
-   *    <code>null</code> or empty only if <code>dependent</code> is not
-   *    <code>null</code>, in which case it will be looked up using
-   *    the supplied dependent locator.
+   * @param dependent the locator of the dependent item, may be <code>null</code> if the dependent
+   *     is being inserted, in which case <code>depName</code> must be supplied.
+   * @param depName The name (or sys_title) of the dependent. It may be <code>null</code> or empty
+   *     only if <code>dependent</code> is not <code>null</code>, in which case it will be looked up
+   *     using the supplied dependent locator.
    * @param request the current request, not <code>null</code>.
    * @return <code>true</code> if validated, <code>false</code> otherwise.
    */
@@ -5473,20 +5193,17 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Validates the supplied dependent with the following rules:
-   * <p>
-   * The the dependent's name must be different (case-insensitive) then
-   * the names of all other children of the owner (folder) unless the same
-   * object is already a child of the supplied owner. A folder does not allow
-   * children with duplicate names.
+   *
+   * <p>The the dependent's name must be different (case-insensitive) then the names of all other
+   * children of the owner (folder) unless the same object is already a child of the supplied owner.
+   * A folder does not allow children with duplicate names.
    *
    * @param owner the locator of the owner folder, not <code>null</code>.
-   * @param dependent the locator of the dependent item, may be
-   *    <code>null</code> if the dependent is being inserted, in which case
-   *    <code>depName</code> must be supplied.
-   * @param depName The name (or sys_title) of the dependent. It may be
-   *    <code>null</code> or empty only if <code>dependent</code> is not
-   *    <code>null</code>, in which case it will be looked up using
-   *    the supplied dependent locator.
+   * @param dependent the locator of the dependent item, may be <code>null</code> if the dependent
+   *     is being inserted, in which case <code>depName</code> must be supplied.
+   * @param depName The name (or sys_title) of the dependent. It may be <code>null</code> or empty
+   *     only if <code>dependent</code> is not <code>null</code>, in which case it will be looked up
+   *     using the supplied dependent locator.
    * @param request the current request, not <code>null</code>.
    * @return <code>true</code> if validated, <code>false</code> otherwise.
    */
@@ -5506,22 +5223,18 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * See {@link #validateUniqueDepName(PSLocator, PSLocator, String,
-   * PSRequest)} for description.
+   * See {@link #validateUniqueDepName(PSLocator, PSLocator, String, PSRequest)} for description.
    *
-   * @param ownerLocator the locator of the owner folder, assumed not
-   *    <code>null</code>.
-   * @param depLocator the locator of the dependent item, assumed not
-   *    <code>null</code> if <code>depName</code> is <code>null</code> or
-   *    empty.  If <code>null</code>, it is assumed the dependent is being
-   *    inserted.
-   * @param depName The name (or sys_title) of the dependent. Assumed not
-   *    <code>null</code> or empty unless <code>dependent</code> is not
-   *    <code>null</code> in which case it will be looked up using
-   *    the supplied dependent locator.
+   * @param ownerLocator the locator of the owner folder, assumed not <code>null</code>.
+   * @param depLocator the locator of the dependent item, assumed not <code>null</code> if <code>
+   *     depName</code> is <code>null</code> or empty. If <code>null</code>, it is assumed the
+   *     dependent is being inserted.
+   * @param depName The name (or sys_title) of the dependent. Assumed not <code>null</code> or empty
+   *     unless <code>dependent</code> is not <code>null</code> in which case it will be looked up
+   *     using the supplied dependent locator.
    * @param request the current request, not <code>null</code>.
-   * @param result the result object into which the result of the validation
-   *    will be set, assume it is not <code>null</code>.
+   * @param result the result object into which the result of the validation will be set, assume it
+   *     is not <code>null</code>.
    */
   private static void validateUniqueDepName(
       PSLocator ownerLocator,
@@ -5593,10 +5306,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @param owner the locator of the owner, assume not <code>null</code>.
    * @param request the current request object, assume not <code>null</code>.
-   *
-   * @return a list of child items, never <code>null</code>, but may be empty.
-   * where each element contains a name (1st object) and its content id (2nd object).
-   *
+   * @return a list of child items, never <code>null</code>, but may be empty. where each element
+   *     contains a name (1st object) and its content id (2nd object).
    * @throws PSCmsException if an error occurs.
    */
   /**
@@ -5604,10 +5315,8 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    *
    * @param owner the locator of the owner, assume not <code>null</code>.
    * @param request the current request object, assume not <code>null</code>.
-   *
-   * @return a list of child items, never <code>null</code>, but may be empty.
-   * where each element contains a name (1st object) and its content id (2nd object).
-   *
+   * @return a list of child items, never <code>null</code>, but may be empty. where each element
+   *     contains a name (1st object) and its content id (2nd object).
    * @throws PSCmsException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -5672,9 +5381,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Determines if the specified item exist.
    *
    * @param contentId the content ID the item, not <code>null</code>.
-   *
-   * @return <code>true</code> if the item exist; otherwise return
-   *         <code>false</code>.
+   * @return <code>true</code> if the item exist; otherwise return <code>false</code>.
    */
   public boolean doesItemExist(int contentId) {
     PSItemSummaryCache cache = PSItemSummaryCache.getInstance();
@@ -5688,6 +5395,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   /**
    * Fast way to determine if the item is a folder or not from a locator.
+   *
    * @param locator
    * @return
    * @throws PSCmsException
@@ -5702,12 +5410,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
    * Get the item from the supplied locator.
    *
    * @param locator The locator, never <code>null</code>.
-   *
-   * @return The summary info with object type as an array, never <code>null</code>,
-   * Indice info: 0 = name, 1 = id, 2 = object type (folder or item),
-   * 3 = content type id (<code>Long</code>).
+   * @return The summary info with object type as an array, never <code>null</code>, Indice info: 0
+   *     = name, 1 = id, 2 = object type (folder or item), 3 = content type id (<code>Long</code>).
    * @throws PSCmsException
-   *
    * @throws PSException if an error occurs while retrieving the item.
    */
   public static Object[] getItem(PSLocator locator) throws PSCmsException {
@@ -5748,11 +5453,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This is a fast Database method for purging items and folders from the
-   * system If folders are selected subfolders will be recursively purged as
-   * well as content unless the items are also linked to other folders not
-   * being purged. No effects will be run on this action to prevent any side
-   * effects, all relationships to and from the items will be removed.
+   * This is a fast Database method for purging items and folders from the system If folders are
+   * selected subfolders will be recursively purged as well as content unless the items are also
+   * linked to other folders not being purged. No effects will be run on this action to prevent any
+   * side effects, all relationships to and from the items will be removed.
    *
    * @param items list if items to delete
    * @throws PSCmsException
@@ -5766,15 +5470,13 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This is a fast Database method for purging items and folders from the
-   * system If folders are selected subfolders will be recursively purged as
-   * well as content unless the items are also linked to other folders not
-   * being purged. No effects will be run on this action to prevent any side
-   * effects, all relationships to and from the items will be removed.
+   * This is a fast Database method for purging items and folders from the system If folders are
+   * selected subfolders will be recursively purged as well as content unless the items are also
+   * linked to other folders not being purged. No effects will be run on this action to prevent any
+   * side effects, all relationships to and from the items will be removed.
    *
-   * This version with the parent is intended to prevent purge of items in
-   * parent folder if they are in other folders. The parent folder itself is
-   * not actually purged.
+   * <p>This version with the parent is intended to prevent purge of items in parent folder if they
+   * are in other folders. The parent folder itself is not actually purged.
    *
    * @param items list if items to delete
    * @throws PSCmsException
@@ -5794,9 +5496,9 @@ public class PSServerFolderProcessor extends PSProcessorCommon
   }
 
   /**
-   * This is a fast Database method for purging Navon and Navtree items from a
-   * folder and subfolders. This will prevent inconsistent navigation making
-   * sure navon items are not left without a parent.
+   * This is a fast Database method for purging Navon and Navtree items from a folder and
+   * subfolders. This will prevent inconsistent navigation making sure navon items are not left
+   * without a parent.
    *
    * @param folder
    * @throws PSCmsException
@@ -5814,106 +5516,87 @@ public class PSServerFolderProcessor extends PSProcessorCommon
     return instance;
   }
 
-  /**
-   * The relationship type for folder object
-   */
+  /** The relationship type for folder object */
   public static final String FOLDER_RELATE_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
 
-  /**
-   * The relationship type for recycled objects
-   */
+  /** The relationship type for recycled objects */
   private static final String RECYCLED_RELATE_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
 
-  /**
-   * The processor proxy type for folder object
-   */
+  /** The processor proxy type for folder object */
   public static final String FOLDER_PROXY_TYPE = PSDbComponent.getComponentType(PSFolder.class);
 
   /**
-   * The folder object in the PSX_OBJECTS table. Initialized by ctor, never
-   * <code>null</code> or modified after that.
+   * The folder object in the PSX_OBJECTS table. Initialized by ctor, never <code>null</code> or
+   * modified after that.
    */
   private static PSCmsObject m_folderObject;
 
   /**
-   * The Relationship DB processor object, initialized by ctor, never
-   * <code>null</code> after that.
+   * The Relationship DB processor object, initialized by ctor, never <code>null</code> after that.
    */
   PSRelationshipDbProcessor m_dbProcessor = null;
 
-  /**
-   * The request object, initialized by constructor, never <code>null</code>
-   * after that.
-   */
+  /** The request object, initialized by constructor, never <code>null</code> after that. */
   private PSRequest m_request;
 
   /**
-   * The request context object, initialized in the constructor, never
-   * <code>null</code> or modified after that.
+   * The request context object, initialized in the constructor, never <code>null</code> or modified
+   * after that.
    */
   private IPSRequestContext m_reqCtx = null;
 
   /**
-   * The logger used to log site and site subfolder cloning operations. This is
-   * a thread local storage and should only be accessed through
-   * {@link #getLogger()}. The logger is reinitialized with each call to
-   * {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}.
+   * The logger used to log site and site subfolder cloning operations. This is a thread local
+   * storage and should only be accessed through {@link #getLogger()}. The logger is reinitialized
+   * with each call to {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}.
    */
   private ThreadLocal m_log = new ThreadLocal();
 
   /**
-   * This flag is used to keep track whether a clone site folder action
-   * produced errors or not. Initialized to <code>false</code> with each call
-   * to (@link #cloneSiteFolder(String, PSLocator, PSLocator,
-   * PSCloningOptions), updated in {@link #cloneItems(PSRequest, PSComponentSummaries, PSLocator, boolean, Map, Map, boolean)}.
+   * This flag is used to keep track whether a clone site folder action produced errors or not.
+   * Initialized to <code>false</code> with each call to (@link #cloneSiteFolder(String, PSLocator,
+   * PSLocator, PSCloningOptions), updated in {@link #cloneItems(PSRequest, PSComponentSummaries,
+   * PSLocator, boolean, Map, Map, boolean)}.
    */
   private ThreadLocal m_hadErrors = new ThreadLocal();
 
   /**
-   * This flag is used to store whether managed navigation is used in the
-   * copied folder or not. Initialized in
-   * {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}, never
-   * changed after that.
+   * This flag is used to store whether managed navigation is used in the copied folder or not.
+   * Initialized in {@link #copyFolder(PSLocator, PSLocator, PSCloningOptions)}, never changed after
+   * that.
    */
   private ThreadLocal m_isManagedNavUsed = new ThreadLocal();
 
   /**
-   * This container is used to collect all related content relationships found
-   * for each copied object during a copy site or site subfolder action.
-   * Reinitialized in each call to {@link IPSFolderProcessor#copyFolder(
-   * PSLocator, PSLocator, PSCloningOptions)}
+   * This container is used to collect all related content relationships found for each copied
+   * object during a copy site or site subfolder action. Reinitialized in each call to {@link
+   * IPSFolderProcessor#copyFolder( PSLocator, PSLocator, PSCloningOptions)}
    */
   private ThreadLocal m_tracker = new ThreadLocal();
 
   /**
-   * The content type id for folder. This is used to cache the content type.
-   * Init to <code>-1</code>, lazy assign to real number when needed.
+   * The content type id for folder. This is used to cache the content type. Init to <code>-1</code>
+   * , lazy assign to real number when needed.
    */
   private static long m_folderContentTypeId = -1;
 
   /**
-   * Item definition for "Folder" content type. It is used to cache the content
-   * type. Initialize to <code>null</code>. Lazy assigned when needed later.
-   * Never <code>null</code> after that. Assume the folder content type never
-   * change since it is used by the system, should not be modified by end user.
+   * Item definition for "Folder" content type. It is used to cache the content type. Initialize to
+   * <code>null</code>. Lazy assigned when needed later. Never <code>null</code> after that. Assume
+   * the folder content type never change since it is used by the system, should not be modified by
+   * end user.
    */
   private PSItemDefinition m_folderItemDef = null;
 
   private static final Logger log = LogManager.getLogger(PSServerFolderProcessor.class);
 
-  /**
-   * The beginning part of a folder path to the root.
-   */
+  /** The beginning part of a folder path to the root. */
   private static final String ROOT_PATH_START = "/" + PSFolder.ROOT_TITLE;
 
-  /**
-   * Folder content type.
-   */
+  /** Folder content type. */
   private static final String FOLDER_CONTENTTYPE = "Folder";
 
-  /**
-   * Field name for the folder item
-   */
+  /** Field name for the folder item */
   private static final String NAME = "sys_title";
 
   private static final String COMMUNITYID = "sys_communityid";
@@ -5924,14 +5607,10 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   private static final String CHILD_NAME_PROPERTIES = "properties";
 
-  /**
-   * Field name for the folder property name field.
-   */
+  /** Field name for the folder property name field. */
   public static final String PROP_NAME = "propertyName";
 
-  /**
-   * Field name for the folder property value field.
-   */
+  /** Field name for the folder property value field. */
   public static final String PROP_VALUE = "propertyValue";
 
   private static final String PROP_DESC = "propertyDescription";
@@ -5944,9 +5623,7 @@ public class PSServerFolderProcessor extends PSProcessorCommon
 
   private static final String ACL_PERMISSIONS = "permissions";
 
-  /**
-   * private constants for table and column names
-   */
+  /** private constants for table and column names */
   private static final int DESCRIPTION_MAX = 255;
 
   private static final int NAME_MAX = 100;

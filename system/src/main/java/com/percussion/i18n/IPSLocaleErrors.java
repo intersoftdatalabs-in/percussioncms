@@ -18,22 +18,23 @@
 package com.percussion.i18n;
 
 /**
- * The IPSDataErrors inteface is provided as a convenient mechanism
- * for accessing the various locale related error codes. The data error
- * code ranges are:
+ * The IPSDataErrors inteface is provided as a convenient mechanism for accessing the various locale
+ * related error codes. The data error code ranges are:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>1801 - 1850</TD><TD>All locale specific errors</TD></TR>
  * </TABLE>
- * The text of the error messages is stored in the properties file
- * <code>com.percussion.error.PSErrorStringBundle</code>
+ *
+ * The text of the error messages is stored in the properties file <code>
+ * com.percussion.error.PSErrorStringBundle</code>
  */
 public interface IPSLocaleErrors {
   /**
-   * Invalid column value provided to restore a locale object from the
-   * database.
-   * <p>
-   * The arguments passed in for this message are:
+   * Invalid column value provided to restore a locale object from the database.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The column name</TD></TR>
@@ -43,10 +44,10 @@ public interface IPSLocaleErrors {
   public static final int INVALID_COLUMN_VALUE = 1801;
 
   /**
-   * Missing column in row data provided to restore locale object from the
-   * database.
-   * <p>
-   * The arguments passed in for this message are:
+   * Missing column in row data provided to restore locale object from the database.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The column name</TD></TR>
@@ -56,8 +57,9 @@ public interface IPSLocaleErrors {
 
   /**
    * Error while initializing the locale manager.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error text</TD></TR>
@@ -67,8 +69,9 @@ public interface IPSLocaleErrors {
 
   /**
    * Unexpected error encountered by the locale manager.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error text</TD></TR>

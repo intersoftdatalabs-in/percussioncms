@@ -77,9 +77,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to cache all items and folders. However, it only
- * caches the skeleton, name and Acl (for folder), of the items at the
- * beginning.  The complete folder objects will be lazily loaded.
+ * This class is used to cache all items and folders. However, it only caches the skeleton, name and
+ * Acl (for folder), of the items at the beginning. The complete folder objects will be lazily
+ * loaded.
  */
 @Transactional
 public class PSItemSummaryCache implements IPSTableChangeListener {
@@ -95,14 +95,11 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   private Map<Integer, PSItemEntry> m_publicItems;
 
   /**
-   * Creates and obtains the single instance of this class.  This method
-   * should only be called once (this should be done by the server when
-   * initializing).
+   * Creates and obtains the single instance of this class. This method should only be called once
+   * (this should be done by the server when initializing).
    *
    * @return The instance of this class.
-   *
-   * @throws IllegalStateException if has already
-   *    been called.
+   * @throws IllegalStateException if has already been called.
    * @throws PSCacheException if other error occurs.
    */
   static synchronized PSItemSummaryCache createInstance() {
@@ -114,26 +111,23 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     return ms_instance;
   }
 
-  /**
-   * Private constructor. Must use {@link #createInstance()} to create an
-   * instance.
-   */
+  /** Private constructor. Must use {@link #createInstance()} to create an instance. */
   private PSItemSummaryCache() {}
 
   /**
-   * Returns the singleton instance of this class. This singleton instance
-   * must be instantiated by call {@link #createInstance()}
+   * Returns the singleton instance of this class. This singleton instance must be instantiated by
+   * call {@link #createInstance()}
    *
-   * @return the singleton instance of this class, may be <code>null</code>
-   *    if it has not been created or initialized.
+   * @return the singleton instance of this class, may be <code>null</code> if it has not been
+   *     created or initialized.
    */
   public static PSItemSummaryCache getInstance() {
     return ms_instance;
   }
 
   /**
-   * It populates the cache with name and acl for all folders. Do nothing if
-   * it is already started.
+   * It populates the cache with name and acl for all folders. Do nothing if it is already started.
+   *
    * <p>
    *
    * @throws PSCacheException if an error occurs.
@@ -164,12 +158,9 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   /**
    * Reinitialize the caching operation according to the supplied flag.
    *
-   * @param isEnabled
-   *           <code>true</code> if re-initializing the caching; otherwise
-   *           stop the caching operation.
-   *
-   * @throws PSCacheException
-   *            if an error occurs.
+   * @param isEnabled <code>true</code> if re-initializing the caching; otherwise stop the caching
+   *     operation.
+   * @throws PSCacheException if an error occurs.
    */
   void reinitialize(boolean isEnabled) throws PSCacheException {
     if (isEnabled) {
@@ -182,6 +173,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Stops the caching operation and release all cached data.
+   *
    * <p>
    */
   private void stop() {
@@ -191,10 +183,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     m_items.clear();
   }
 
-  /**
-   * Convenience method,
-   * call {@link #getCachedItem(Integer) getCacheItem(Integer.valueof(id))}
-   */
+  /** Convenience method, call {@link #getCachedItem(Integer) getCacheItem(Integer.valueof(id))} */
   private PSItemEntry getCachedItem(int id) {
     return getCachedItem(Integer.valueOf(id));
   }
@@ -203,8 +192,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Returns a item from the cache with the supplied id.
    *
    * @param id the content id, assume not <code>null</code>.
-   *
-   * @return the internal cached item. It may be <code>null</code> if the item does not exist in cache.
+   * @return the internal cached item. It may be <code>null</code> if the item does not exist in
+   *     cache.
    */
   private PSItemEntry getCachedItem(Integer id) {
     PSItemEntry item = m_items.get(id);
@@ -215,11 +204,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     return item;
   }
 
-  /**
-   * Load the sys_pubFileName property value for given contentId  from the backend
-   * repository.
-   *
-   */
+  /** Load the sys_pubFileName property value for given contentId from the backend repository. */
   private PSItemEntry loadItem(int id) {
 
     PSItemEntry item = null;
@@ -243,18 +228,18 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * This class is used to determine if a set of columns (of the CONTENTSTATUS table)
-   * contains required (updated) columns for insert, update or delete operation upon receiving
-   * a table change event notification.
+   * This class is used to determine if a set of columns (of the CONTENTSTATUS table) contains
+   * required (updated) columns for insert, update or delete operation upon receiving a table change
+   * event notification.
    *
    * @author YuBingChen
-   *
    */
   private class FoundColumns {
     ConcurrentMap<String, Boolean> mi_foundColumns = new ConcurrentHashMap<>();
 
     /**
      * Constructs the object for a list of updated columns.
+     *
      * @param updateColumns the list of updated columns in question, assumed not <code>null</code>.
      */
     FoundColumns(Iterator<PSUpdateColumn> updateColumns) {
@@ -264,8 +249,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
     }
 
     /**
-     * Look up (or processing) the given updated columns before determine if the columns
-     * contain required columns for insert, update or delete operations.
+     * Look up (or processing) the given updated columns before determine if the columns contain
+     * required columns for insert, update or delete operations.
      *
      * @param updateColumns the columns in question, not <code>null</code>.
      */
@@ -287,6 +272,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if the object contains required columns for update operation.
+     *
      * @return <code>true</code> if it contains required columns for update.
      */
     boolean hasUpdateColumns() {
@@ -301,6 +287,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if the object contains required columns for insert operation.
+     *
      * @return <code>true</code> if it contains required columns for insert.
      */
     boolean hasInsertColumns() {
@@ -312,6 +299,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if the object contains required columns for delete operation.
+     *
      * @return <code>true</code> if it contains required columns for delete.
      */
     boolean hasDeleteColumns() {
@@ -320,19 +308,17 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Setup the table change listener. Let the handler notify us if the
-   * supplied request handler is an update handler, which updates the
-   * <code>CONTENTSTATUS</code> table for the following columns:
-   * <p>
-   *    <code>CONTENTID</code>
-   *    <code>TITLE</code>
-   *    <code>COMMUNITYID</code>
-   *    <code>CONTENTTYPEID</code>
-   *    <code>OBJECTTYPE</code>
+   * Setup the table change listener. Let the handler notify us if the supplied request handler is
+   * an update handler, which updates the <code>CONTENTSTATUS</code> table for the following
+   * columns:
+   *
+   * <p><code>CONTENTID</code> <code>TITLE</code> <code>COMMUNITYID</code> <code>CONTENTTYPEID
+   * </code> <code>OBJECTTYPE</code>
+   *
    * <p>
    *
-   * @param requestHandler the request handler. It will be ignored if it is
-   *    not an instance of <code>PSUpdateHandler</code>.
+   * @param requestHandler the request handler. It will be ignored if it is not an instance of
+   *     <code>PSUpdateHandler</code>.
    */
   public void initNotifyListener(IPSRequestHandler requestHandler) {
     if (requestHandler instanceof PSUpdateHandler) {
@@ -436,6 +422,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if this object contains all required data for insertion.
+     *
      * @return <code>true</code> if it does.
      */
     private boolean hasInsertData() {
@@ -447,6 +434,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if this object contains all required data for updates.
+     *
      * @return <code>true</code> if it does.
      */
     private boolean hasUpdateData() {
@@ -465,6 +453,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
     /**
      * Determines if this object contains all required data for deletion.
+     *
      * @return <code>true</code> if it does.
      */
     private boolean hasDeleteData() {
@@ -475,8 +464,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   /**
    * Handles table change events for the <code>CONTENTSTATUS</code> table.
    *
-   * @param event the table change event, assumed not <code>null</code> and
-   *    for the <code>CONTENTSTATUS</code> table.
+   * @param event the table change event, assumed not <code>null</code> and for the <code>
+   *     CONTENTSTATUS</code> table.
    */
   private void contentStatusChanged(PSTableChangeEvent event) {
     int action = event.getActionType();
@@ -510,6 +499,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Gets the specified items.
+   *
    * @param itemIds the IDs of the items.
    * @return the items, never <code>null</code>, but may be empty.
    */
@@ -529,9 +519,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Returns the item entry from the supplied item id.
    *
    * @param itemId the content id of the item, never <code>null</code>.
-   *
-   * @return the item entry object, may be <code>null</code> if cannot find
-   *    the item the cached.
+   * @return the item entry object, may be <code>null</code> if cannot find the item the cached.
    */
   public IPSItemEntry getItem(Integer itemId) {
     if (itemId == null) throw new IllegalArgumentException("itemId must not be null");
@@ -543,8 +531,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Converts the given string to integer.
    *
    * @param s the number string, which may be blank.
-   *
-   * @return the converted integer. It may be <code>-1</code> if the string is blank or failed to convert to number.
+   * @return the converted integer. It may be <code>-1</code> if the string is blank or failed to
+   *     convert to number.
    */
   private int getInteger(String s) {
     if (isBlank(s)) return -1;
@@ -635,6 +623,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Set the workflow state name for the specified item.
+   *
    * @param item the item in question, never <code>null</code>.
    */
   private void setWorkflowStateName(PSItemEntry item) {
@@ -647,6 +636,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Set the content type label for the specified item.
+   *
    * @param item the item in question, never <code>null</code>.
    */
   private void setContentTypeLabel(PSItemEntry item) {
@@ -741,8 +731,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Returns the Acl of the supplied content id.
    *
    * @param contentId the content id.
-   * @return the folder Acl object, may be <code>null</code> if the folder
-   *    for the supplied id is not cached.
+   * @return the folder Acl object, may be <code>null</code> if the folder for the supplied id is
+   *     not cached.
    */
   public PSFolderAcl getFolderAcl(int contentId) {
     PSItemEntry item = getCachedItem(contentId);
@@ -758,9 +748,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Returns the {@link PSFolder} object of the supplied folder id.
    *
    * @param folderId the content id of the folder.
-   *
-   * @return the {@link PSFolder} object. It may be <code>null</code> if it
-   *    has not been lazily loaded or the id is not a cached folder id.
+   * @return the {@link PSFolder} object. It may be <code>null</code> if it has not been lazily
+   *     loaded or the id is not a cached folder id.
    */
   public PSFolder getFolder(int folderId) {
     PSItemEntry item = getCachedItem(folderId);
@@ -776,9 +765,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * Determines if the supplied content id exists in the cache.
    *
    * @param id the content id.
-   *
-   * @return <code>true</code> if the item exists in the cache;
-   *    otherwise return <code>false</code>.
+   * @return <code>true</code> if the item exists in the cache; otherwise return <code>false</code>.
    */
   public boolean isItemExist(int id) {
     PSItemEntry item = getCachedItem(id);
@@ -786,13 +773,11 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Determines if the supplied content id exist in the cache and it is a
-   * folder entry.
+   * Determines if the supplied content id exist in the cache and it is a folder entry.
    *
    * @param id the content id.
-   *
-   * @return <code>true</code> if there is a folder entry in the cache;
-   *    otherwise return <code>false</code>.
+   * @return <code>true</code> if there is a folder entry in the cache; otherwise return <code>false
+   *     </code>.
    */
   public boolean isFolderExist(int id) {
     PSItemEntry folder = getCachedItem(id);
@@ -801,8 +786,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Update the supplied folder object into the cache. The folder will be
-   * added into the cache if it does not exist in the cache.
+   * Update the supplied folder object into the cache. The folder will be added into the cache if it
+   * does not exist in the cache.
    *
    * @param folder the to be updated folder object.
    */
@@ -825,8 +810,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Updates the supplied item into the cache. The item will be added into the
-   * cache if it not exist; otherwise the same item will be updated.
+   * Updates the supplied item into the cache. The item will be added into the cache if it not
+   * exist; otherwise the same item will be updated.
    *
    * @param item the to be cached item, never <code>null</code>.
    */
@@ -848,6 +833,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Updates the last modified date for the specified items.
+   *
    * @param contentIds the IDs of the items in question. Note <code>null</code>.
    * @param date the new last modified date of the items, not <code>null</code>.
    */
@@ -865,6 +851,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Updates the post date for the specified items.
+   *
    * @param contentIds the IDs of the items in question. Note <code>null</code>.
    * @param date the new post date of the items, not <code>null</code>.
    */
@@ -882,6 +869,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Updates the workflow and state ids for the specified items.
+   *
    * @param contentIds the IDs of the items in question. Note <code>null</code>.
    * @param workflowId
    * @param stateId
@@ -901,8 +889,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Deletes the supplied item from the cache. Do nothing if the supplied
-   * item id does not exist in the cache.
+   * Deletes the supplied item from the cache. Do nothing if the supplied item id does not exist in
+   * the cache.
    *
    * @param itemInfo the deleted item info, assumed not <code>null</code>.
    */
@@ -917,6 +905,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
 
   /**
    * Loads all folder ACL's for the cached folders from the repository.
+   *
    * <p>
    *
    * @throws IllegalStateException if {@link #m_items} has not been initialized
@@ -938,13 +927,13 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Loads all folder ACL's from the repository and set EMPTY folder acl object
-   * for the folders who's folder acl are not defined.
+   * Loads all folder ACL's from the repository and set EMPTY folder acl object for the folders
+   * who's folder acl are not defined.
+   *
    * <p>
    *
-   * @param idList a list of folder id's as <code>Integer</code>. This is used
-   *    to set EMPTY acls, assumed not <code>null</code>, may be empty.
-   *
+   * @param idList a list of folder id's as <code>Integer</code>. This is used to set EMPTY acls,
+   *     assumed not <code>null</code>, may be empty.
    * @throws PSCacheException if an error occurs.
    */
   private void loadFolderAcls(List idList) throws PSCacheException {
@@ -992,8 +981,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Load the sys_pubFileName property value for all folders from the backend
-   * repository.
+   * Load the sys_pubFileName property value for all folders from the backend repository.
+   *
    * <p>
    *
    * @throws PSCacheException if an error occurs.
@@ -1026,8 +1015,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Load the cached property values for all folders from the backend
-   * repository.
+   * Load the cached property values for all folders from the backend repository.
+   *
    * <p>
    *
    * @throws PSCacheException if an error occurs.
@@ -1071,8 +1060,9 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   }
 
   /**
-   * Get a snapshot of the current statistics of the item cache.
-   * The structure of the returned element is the following:
+   * Get a snapshot of the current statistics of the item cache. The structure of the returned
+   * element is the following:
+   *
    * <PRE><CODE>
    *    &lt;--
    *       The cache statistics element with each attribute referring to
@@ -1096,7 +1086,6 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
    * </CODE></PRE>
    *
    * @param doc the docment used to generate the XML, never <code>null</code>.
-   *
    * @return the generated statistics in XML, never <code>null</code>
    */
   public Element getCacheStatistics(Document doc) {
@@ -1126,35 +1115,29 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
       (IPSCmsObjectMgrInternal) PSCmsObjectMgrLocator.getObjectManager();
 
   /**
-   * The singleton instance of the {@link PSItemSummaryCache} class.
-   * Initialized by {@link #createInstance()}, never <code>null</code> after
-   * that.
+   * The singleton instance of the {@link PSItemSummaryCache} class. Initialized by {@link
+   * #createInstance()}, never <code>null</code> after that.
    */
   private static PSItemSummaryCache ms_instance = new PSItemSummaryCache();
 
   /**
-   * It contains all item objects. It maps the item id to its
-   * corresponding {@link PSItemEntry} object. The map keys are
-   * <code>Integer</code> objects; the map values are
-   * <code>PSItemEntry</code> objects. It is initialized by ctor, never
-   * <code>null</code> after that, but may be empty.
+   * It contains all item objects. It maps the item id to its corresponding {@link PSItemEntry}
+   * object. The map keys are <code>Integer</code> objects; the map values are <code>PSItemEntry
+   * </code> objects. It is initialized by ctor, never <code>null</code> after that, but may be
+   * empty.
    */
   private ConcurrentHashMap<Integer, PSItemEntry> m_items = new ConcurrentHashMap<>();
 
   /**
-   * Indicates whether the {@link #start()} has been called. <code>true</code>
-   * if the cache has been initialized; otherwise <code>false</code>.
+   * Indicates whether the {@link #start()} has been called. <code>true</code> if the cache has been
+   * initialized; otherwise <code>false</code>.
    */
   private boolean m_isStarted = false;
 
-  /**
-   * The logger object, never <code>null</code>.
-   */
+  /** The logger object, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger("PSItemSummaryCache");
 
-  /**
-   * The column names in {@link #ms_columns}
-   */
+  /** The column names in {@link #ms_columns} */
   private static final String CONTENTID_COLUMN = "CONTENTID";
 
   private static final String CONTENTTYPEID_COLUMN = "CONTENTTYPEID";
@@ -1176,8 +1159,8 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
   private static final String CONTENTPUBLISHDATE_COLUMN = "CONTENTPUBLISHDATE";
 
   /**
-   * The updated column names for the update handlers, used for setup
-   * the table changed notification.
+   * The updated column names for the update handlers, used for setup the table changed
+   * notification.
    */
   private static final String[] ms_columns =
       new String[] {
@@ -1200,9 +1183,7 @@ public class PSItemSummaryCache implements IPSTableChangeListener {
         CONTENTPUBLISHDATE_COLUMN
       };
 
-  /**
-   * Resource used to query the cached properties for all folders.
-   */
+  /** Resource used to query the cached properties for all folders. */
   private static final String GET_CACHED_FOLDER_PROPS_RSC =
       "sys_psxInternalResources/getCachedFolderProperties";
 

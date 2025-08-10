@@ -46,9 +46,7 @@ public class JettyStartUtils {
 
   private static String OS = System.getProperty("os.name").toLowerCase();
 
-  /**
-   * Load java.properties from root directory
-   */
+  /** Load java.properties from root directory */
   static {
     File rxDir = locateRxDir();
     File javaPropsFile = new File(rxDir.getAbsolutePath() + "/" + JAVA_PROPS_PATH);
@@ -203,12 +201,11 @@ public class JettyStartUtils {
   }
 
   /**
-   * Returns the value of the requested property from the root
-   * java.properties file.
+   * Returns the value of the requested property from the root java.properties file.
    *
    * @param name the property to retrieve from the file.
-   * @return the value of the requested property, may be <code>empty</code>,
-   * never <code>null</code>.
+   * @return the value of the requested property, may be <code>empty</code>, never <code>null</code>
+   *     .
    */
   public static String getJavaProperty(String name) {
     return javaProps.getProperty(name, "");
@@ -216,8 +213,9 @@ public class JettyStartUtils {
 
   /**
    * Returns the java.properties file from the system root.
-   * @return Server's root java.properties file if it exists, otherwise
-   * returns an empty Properties object.
+   *
+   * @return Server's root java.properties file if it exists, otherwise returns an empty Properties
+   *     object.
    */
   public static Properties getJavaProperties() {
     return javaProps == null ? new Properties() : javaProps;

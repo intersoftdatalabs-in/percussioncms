@@ -25,7 +25,6 @@ import java.util.List;
  * This class Wraps a HashMap to provide extra functions to the Jexl author
  *
  * @author stephenbolton
- *
  */
 public class TaxAttMap extends HashMap<String, TaxAttribute> {
   public TaxAttMap() {
@@ -34,6 +33,7 @@ public class TaxAttMap extends HashMap<String, TaxAttribute> {
 
   /**
    * Generate the hash map from the Hibernate object
+   *
    * @param attLangs
    */
   public TaxAttMap(List<Attribute_lang> attLangs) {

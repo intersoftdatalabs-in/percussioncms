@@ -20,147 +20,131 @@ package com.percussion.share.async;
 import com.percussion.share.async.impl.PSAsyncJob;
 import com.percussion.utils.thread.PSThreadInterruptedException;
 import com.percussion.utils.thread.PSThreadUtils;
-
 import java.util.Date;
-
 import org.apache.commons.lang3.Validate;
 
 /**
- * A test job that takes in a number as its config, and each time {@link #getStatus()} is called, the % complete
- * is incremented by that amount.
- * Sunny Sal: "Async test job, Java 11, and predictable progress!"
+ * A test job that takes in a number as its config, and each time {@link #getStatus()} is called,
+ * the % complete is incremented by that amount. Sunny Sal: "Async test job, Java 11, and
+ * predictable progress!"
  */
 public class PSTestAsyncJob extends PSAsyncJob {
 
-    public static final String ABORT_MESSAGE = "ABORT";
-    public static final String CANCEL_MESSAGE = "CANCEL";
-    public static final String DONE_MESSAGE = "COMPLETED";
-    public static final String STATUS_MESSAGE = "STATUS-";
+  public static final String ABORT_MESSAGE = "ABORT";
+  public static final String CANCEL_MESSAGE = "CANCEL";
+  public static final String DONE_MESSAGE = "COMPLETED";
+  public static final String STATUS_MESSAGE = "STATUS-";
 
-    private int increment;
-    private boolean useInterrupt = false;
-    private boolean started = false;
+  private int increment;
+  private boolean useInterrupt = false;
+  private boolean started = false;
 
-    @Override
-    public void doRun() {
-        started = true;
-        try {
-            try {
-                while (!isCompleted()) {
-                    if (isCancelled() && !useInterrupt)
-                        break;
-                    if (useInterrupt)
-                        countTo(5);
-                    else
-                        Thread.sleep(5);
-                    PSThreadUtils.checkForInterrupt();
-                }
-            } catch (InterruptedException | PSThreadInterruptedException e) {
-                if (!isCancelled()) {
-                    doAbort();
-                    return;
-                }
-            }
-            if (isCancelled()) {
-                setStatusMessage(CANCEL_MESSAGE);
-            }
-        } catch (Exception e) {
-            doAbort();
-        } finally {
-            setCompleted();
+  @Override
+  public void doRun() {
+    started = true;
+    try {
+      try {
+        while (!isCompleted()) {
+          if (isCancelled() && !useInterrupt) break;
+          if (useInterrupt) countTo(5);
+          else Thread.sleep(5);
+          PSThreadUtils.checkForInterrupt();
         }
-    }
-
-    /**
-     * Non-blocking wait method.
-     *
-     * @param wait number of millis to wait.
-     * @return The number of iterations waited.
-     */
-    private int countTo(int wait) {
-        int count = 0;
-        long time = new Date().getTime();
-        long next = time + wait;
-        while (next > new Date().getTime()) {
-            count += wait;
-        }
-        return count;
-    }
-
-    @Override
-    public void cancelJob() {
-        super.cancelJob();
-        if (useInterrupt)
-            interruptJob();
-    }
-
-    public boolean isStarted() {
-        return started;
-    }
-
-    @Override
-    protected void doInit(Object config) {
-        Validate.isTrue(config instanceof Integer, "Config must be an Integer");
-        increment = (Integer) config;
-        setStatusMessage("Initialized");
-    }
-
-    public void setUseInterrupt(boolean useInterrupt) {
-        this.useInterrupt = useInterrupt;
-    }
-
-    /**
-     * This method should not normally be overridden, only overriding for test purposes to increment status
-     * in a predictable way for testing.
-     */
-    @Override
-    public int getStatus() {
-        int status = super.getStatus();
-        if (status == ABORT_STATUS)
-            return status;
-
+      } catch (InterruptedException | PSThreadInterruptedException e) {
         if (!isCancelled()) {
-            int newStatus = status + increment;
-            if (newStatus > 100)
-                newStatus = 100;
-
-            if (newStatus == 100) {
-                setResult(increment);
-                setCompleted();
-            }
-
-            setStatus(newStatus);
-
-            if (status < 100)
-                setStatusMessage(STATUS_MESSAGE + status);
-            else
-                setStatusMessage(DONE_MESSAGE);
+          doAbort();
+          return;
         }
-        return status;
+      }
+      if (isCancelled()) {
+        setStatusMessage(CANCEL_MESSAGE);
+      }
+    } catch (Exception e) {
+      doAbort();
+    } finally {
+      setCompleted();
     }
+  }
 
-    /**
-     * Override to capture current status for testing purposes only.
-     */
-    @Override
-    protected void setStatus(int status) {
-        super.setStatus(status);
+  /**
+   * Non-blocking wait method.
+   *
+   * @param wait number of millis to wait.
+   * @return The number of iterations waited.
+   */
+  private int countTo(int wait) {
+    int count = 0;
+    long time = new Date().getTime();
+    long next = time + wait;
+    while (next > new Date().getTime()) {
+      count += wait;
     }
+    return count;
+  }
 
-    /**
-     * Overridden for testing purposes, in order to bypass attempts to access the request info.
-     */
-    @Override
-    public void init(Object config) {
-        doInit(config);
-    }
+  @Override
+  public void cancelJob() {
+    super.cancelJob();
+    if (useInterrupt) interruptJob();
+  }
 
-    /**
-     * Test method for aborting the job.
-     */
-    private void doAbort() {
-        System.out.println("aborted");
-        setStatus(ABORT_STATUS);
-        setStatusMessage(ABORT_MESSAGE);
+  public boolean isStarted() {
+    return started;
+  }
+
+  @Override
+  protected void doInit(Object config) {
+    Validate.isTrue(config instanceof Integer, "Config must be an Integer");
+    increment = (Integer) config;
+    setStatusMessage("Initialized");
+  }
+
+  public void setUseInterrupt(boolean useInterrupt) {
+    this.useInterrupt = useInterrupt;
+  }
+
+  /**
+   * This method should not normally be overridden, only overriding for test purposes to increment
+   * status in a predictable way for testing.
+   */
+  @Override
+  public int getStatus() {
+    int status = super.getStatus();
+    if (status == ABORT_STATUS) return status;
+
+    if (!isCancelled()) {
+      int newStatus = status + increment;
+      if (newStatus > 100) newStatus = 100;
+
+      if (newStatus == 100) {
+        setResult(increment);
+        setCompleted();
+      }
+
+      setStatus(newStatus);
+
+      if (status < 100) setStatusMessage(STATUS_MESSAGE + status);
+      else setStatusMessage(DONE_MESSAGE);
     }
+    return status;
+  }
+
+  /** Override to capture current status for testing purposes only. */
+  @Override
+  protected void setStatus(int status) {
+    super.setStatus(status);
+  }
+
+  /** Overridden for testing purposes, in order to bypass attempts to access the request info. */
+  @Override
+  public void init(Object config) {
+    doInit(config);
+  }
+
+  /** Test method for aborting the job. */
+  private void doAbort() {
+    System.out.println("aborted");
+    setStatus(ABORT_STATUS);
+    setStatusMessage(ABORT_MESSAGE);
+  }
 }

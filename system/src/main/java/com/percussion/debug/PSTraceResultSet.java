@@ -24,7 +24,7 @@ import java.util.Iterator;
 /**
  * Used to generate trace message for the Result SEt Trace message type (0x8000).
  *
- * Prints out result set.  Binary data is displayed in hex format.
+ * <p>Prints out result set. Binary data is displayed in hex format.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceResultSet extends PSTraceMessage {
@@ -40,12 +40,11 @@ public class PSTraceResultSet extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an array of objects containing the information required for the
-   * trace message:
-   * - PSResultSet the merged resultset after the join
+   * @param source an array of objects containing the information required for the trace message: -
+   *     PSResultSet the merged resultset after the join
    * @return the message body
    * @roseuid 3A03237C0148
    */
@@ -170,6 +169,7 @@ public class PSTraceResultSet extends PSTraceMessage {
 
   /**
    * appends the character to the buffer the specified number of times
+   *
    * @param buf the buffer to append to
    * @param addChar the character to repeat
    * @param len the number of chars to add
@@ -179,9 +179,10 @@ public class PSTraceResultSet extends PSTraceMessage {
   }
 
   /**
-   * returns the supplied string adjusted to the specified length.  If the
-   * string is longer than the specified witdth, it is truncated.  If it is
-   * shorter than the specified width, it is padded with the specified char
+   * returns the supplied string adjusted to the specified length. If the string is longer than the
+   * specified witdth, it is truncated. If it is shorter than the specified width, it is padded with
+   * the specified char
+   *
    * @param source the string to pad
    * @param addChar the character to repeat
    * @param len the number of chars to add
@@ -208,23 +209,15 @@ public class PSTraceResultSet extends PSTraceMessage {
     return result;
   }
 
-  /**
-   * the max column width for result set printout
-   */
+  /** the max column width for result set printout */
   private static final int MAX_COL_WIDTH = 20;
 
-  /**
-   * the number of spaces between each column
-   */
+  /** the number of spaces between each column */
   private static final String COL_SPACER = "  ";
 
-  /**
-   * the number of hex characters per byte of data used for binary conversions
-   */
+  /** the number of hex characters per byte of data used for binary conversions */
   private static final int BYTE2HEX_FACTOR = 2;
 
-  /**
-   * the string preprended to binary data displayed as hex
-   */
+  /** the string preprended to binary data displayed as hex */
   private static final String HEX_PREFIX = "0x";
 }

@@ -18,35 +18,34 @@
 package com.percussion.workflow.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a transition for a role in a specific workflow step.
- * <p>
- * Sunny Sal says: "Transitions are like Bollywood plot twists—unexpected, but always moving the story forward!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Transitions are like Bollywood plot twists—unexpected, but always moving the
+ * story forward!"
  */
 @XmlRootElement(name = "WorkflowStepRoleTransition")
 public class PSUiWorkflowStepRoleTransition extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String transitionPermission;
+  private String transitionPermission;
 
-    public PSUiWorkflowStepRoleTransition() {
-        super();
-    }
+  public PSUiWorkflowStepRoleTransition() {
+    super();
+  }
 
-    public PSUiWorkflowStepRoleTransition(String transitionPermission) {
-        super();
-        this.transitionPermission = transitionPermission;
-    }
+  public PSUiWorkflowStepRoleTransition(String transitionPermission) {
+    super();
+    this.transitionPermission = transitionPermission;
+  }
 
-    public String getTransitionPermission() {
-        return transitionPermission;
-    }
+  public String getTransitionPermission() {
+    return transitionPermission;
+  }
 
-    public void setTransitionPermission(String transitionPermission) {
-        this.transitionPermission = transitionPermission;
-    }
+  public void setTransitionPermission(String transitionPermission) {
+    this.transitionPermission = transitionPermission;
+  }
 }

@@ -22,28 +22,28 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Data access object for category operations.
- * Provides methods to delete categories and retrieve page IDs by category.
+ * Data access object for category operations. Provides methods to delete categories and retrieve
+ * page IDs by category.
  *
  * @author chriswright
  */
 public interface IPSCategoryDao {
 
-    /**
-     * Deletes the specified category IDs from the ct_page child categories table.
-     * Also evicts the provided page IDs from the Hibernate cache.
-     *
-     * @param ids     the category IDs to remove; must not be {@code null} or empty.
-     * @param pageIds IDs corresponding to pages using the categories; must not be {@code null} or empty.
-     *                Use {@link #getPageIdsFromCategoryIds(Set)} to obtain page IDs.
-     */
-    void delete(Set<String> ids, List<IPSGuid> pageIds);
+  /**
+   * Deletes the specified category IDs from the ct_page child categories table. Also evicts the
+   * provided page IDs from the Hibernate cache.
+   *
+   * @param ids the category IDs to remove; must not be {@code null} or empty.
+   * @param pageIds IDs corresponding to pages using the categories; must not be {@code null} or
+   *     empty. Use {@link #getPageIdsFromCategoryIds(Set)} to obtain page IDs.
+   */
+  void delete(Set<String> ids, List<IPSGuid> pageIds);
 
-    /**
-     * Retrieves the page IDs that use the specified category IDs.
-     *
-     * @param ids the category IDs; must not be {@code null}.
-     * @return a list of page IDs using the categories; never {@code null}, may be empty.
-     */
-    List<Integer> getPageIdsFromCategoryIds(Set<String> ids);
+  /**
+   * Retrieves the page IDs that use the specified category IDs.
+   *
+   * @param ids the category IDs; must not be {@code null}.
+   * @return a list of page IDs using the categories; never {@code null}, may be empty.
+   */
+  List<Integer> getPageIdsFromCategoryIds(Set<String> ids);
 }

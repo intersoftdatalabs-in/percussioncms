@@ -20,14 +20,14 @@ package com.percussion.deployer.server.uninstall;
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * Interface for the uninstall results. Package name and type are required and
- * the rest of the data is filled based on the stage at which the failure occurred.
+ * Interface for the uninstall results. Package name and type are required and the rest of the data
+ * is filled based on the stage at which the failure occurred.
  */
 public interface IPSUninstallResult {
 
   /**
-   * Returns the package GUID, may be <code>null</code> if the supplied
-   * package name does not have a corresponding GUID.
+   * Returns the package GUID, may be <code>null</code> if the supplied package name does not have a
+   * corresponding GUID.
    *
    * @return IPSGuid of the package, may be <code>null</code>.
    */
@@ -75,9 +75,7 @@ public interface IPSUninstallResult {
    */
   String getObjectName();
 
-  /**
-   * The uninstall message type enum.
-   */
+  /** The uninstall message type enum. */
   enum PSUninstallResultType {
     SUCCESS(1),
     INFO(2),

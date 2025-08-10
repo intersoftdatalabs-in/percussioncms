@@ -27,16 +27,14 @@ import org.apache.commons.lang.StringUtils;
  */
 public class PSFolderStringUtils {
   /**
-   * This translates an input path that uses '%' to indicate a wildcard and ';'
-   * to separate paths to an array of pattern objects. The paths are scanned
-   * and converted to valid patterns. Any non-alphanumeric, whitespace or
-   * forward slash is turned into a hex character to avoid issues with the
-   * regex package.
+   * This translates an input path that uses '%' to indicate a wildcard and ';' to separate paths to
+   * an array of pattern objects. The paths are scanned and converted to valid patterns. Any
+   * non-alphanumeric, whitespace or forward slash is turned into a hex character to avoid issues
+   * with the regex package.
    *
-   * @param folderList the input folder string, may be <code>null</code> or
-   *           empty
-   * @return an array of patterns, this will be empty for an empty input, but
-   *         never <code>null</code>
+   * @param folderList the input folder string, may be <code>null</code> or empty
+   * @return an array of patterns, this will be empty for an empty input, but never <code>null
+   *     </code>
    */
   public static Pattern[] getFolderPatterns(String folderList) {
     if (StringUtils.isBlank(folderList)) {
@@ -78,8 +76,8 @@ public class PSFolderStringUtils {
   }
 
   /**
-   * Find the root portion of the passed path. That is defined as the longest
-   * substring that does not involve a component that contains a '%'.
+   * Find the root portion of the passed path. That is defined as the longest substring that does
+   * not involve a component that contains a '%'.
    *
    * @param path the path, never <code>null</code> or empty
    * @return the largest substring
@@ -119,8 +117,7 @@ public class PSFolderStringUtils {
    * Does one of the passed paths match one of the patterns?
    *
    * @param paths zero or more paths to match, assumed not <code>null</code>
-   * @param matchPatterns one or more patterns to match, assumed not
-   *           <code>null</code>
+   * @param matchPatterns one or more patterns to match, assumed not <code>null</code>
    * @return <code>true</code> if a path is found that matches a pattern
    */
   public static boolean oneMatched(String[] paths, Pattern[] matchPatterns) {

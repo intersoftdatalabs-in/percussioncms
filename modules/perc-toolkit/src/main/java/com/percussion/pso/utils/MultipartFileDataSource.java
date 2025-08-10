@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- /*  
+/*
  * @author DavidBenua
  */
 package com.percussion.pso.utils;
@@ -26,54 +26,50 @@ import javax.activation.DataSource;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * A thin wrapper for a MultipartFile as a DataSource. 
+ * A thin wrapper for a MultipartFile as a DataSource.
  *
  * @author DavidBenua
  * @see javax.activation.DataSource
  * @see org.springframework.web.multipart.MultipartFile
  */
-public class MultipartFileDataSource implements DataSource
-{
-   /**
-    * the multipart file
-    */
-   private MultipartFile file = null; 
-  
-   /**
-    * Sole Constructor
-    * @param file the multipart file to wrap in this datasource. 
-    */
-   public MultipartFileDataSource(MultipartFile file)
-   {
-      this.file = file;
-   }
-   
-   /*
-    * @see javax.activation.DataSource#getInputStream()
-    */
-   public InputStream getInputStream() throws IOException
-   {
-       return file.getInputStream();  
-   }
-   /*
-    * @see javax.activation.DataSource#getOutputStream()
-    */
-   public OutputStream getOutputStream() throws IOException
-   {
-      throw new IOException("OutputStreams not supported");  
-   }
-   /*
-    * @see javax.activation.DataSource#getContentType()
-    */
-   public String getContentType()
-   {
-      return file.getContentType(); 
-   }
-   /*
-    * @see javax.activation.DataSource#getName()
-    */
-   public String getName()
-   {     
-      return file.getName(); 
-   }
+public class MultipartFileDataSource implements DataSource {
+  /** the multipart file */
+  private MultipartFile file = null;
+
+  /**
+   * Sole Constructor
+   *
+   * @param file the multipart file to wrap in this datasource.
+   */
+  public MultipartFileDataSource(MultipartFile file) {
+    this.file = file;
+  }
+
+  /*
+   * @see javax.activation.DataSource#getInputStream()
+   */
+  public InputStream getInputStream() throws IOException {
+    return file.getInputStream();
+  }
+
+  /*
+   * @see javax.activation.DataSource#getOutputStream()
+   */
+  public OutputStream getOutputStream() throws IOException {
+    throw new IOException("OutputStreams not supported");
+  }
+
+  /*
+   * @see javax.activation.DataSource#getContentType()
+   */
+  public String getContentType() {
+    return file.getContentType();
+  }
+
+  /*
+   * @see javax.activation.DataSource#getName()
+   */
+  public String getName() {
+    return file.getName();
+  }
 }

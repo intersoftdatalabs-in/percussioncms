@@ -26,14 +26,14 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * UDF to parse two dates (or date strings) and return the absolute difference
- * in days between the two dates. Second date is optional, if not supplied
- * today's date is considered for the difference.
+ * UDF to parse two dates (or date strings) and return the absolute difference in days between the
+ * two dates. Second date is optional, if not supplied today's date is considered for the
+ * difference.
  */
 public class PSDateDifference extends PSDefaultExtension implements IPSUdfProcessor {
   /**
    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[],
-   * com.percussion.server.IPSRequestContext)
+   *     com.percussion.server.IPSRequestContext)
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -79,12 +79,12 @@ public class PSDateDifference extends PSDefaultExtension implements IPSUdfProces
   }
 
   /**
-   * Helper method to parse the parameter into {@link Date} object. If it is
-   * already a {@link Date} object it will be cast and returned. Otherwise, it
-   * will be converted to string and parsed as date.
+   * Helper method to parse the parameter into {@link Date} object. If it is already a {@link Date}
+   * object it will be cast and returned. Otherwise, it will be converted to string and parsed as
+   * date.
    *
-   * @param param parmeter to parse as date, if <code>null</code> or empty, a
-   * <code>null</code> value is returned.
+   * @param param parmeter to parse as date, if <code>null</code> or empty, a <code>null</code>
+   *     value is returned.
    * @return parsed date, may be <code>null</code>.
    */
   private Date parseDateParam(Object param) {

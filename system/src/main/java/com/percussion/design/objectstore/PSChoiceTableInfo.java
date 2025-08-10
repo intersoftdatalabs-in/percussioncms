@@ -38,26 +38,18 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXChoiceTableInfo DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXChoiceTableInfo DTD in BasicObjects.dtd. */
 public class PSChoiceTableInfo extends PSComponent {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new choice table info object
    *
-   * @param dataSource name of the data source, must not be <code>null</code>
-   *           or empty.
-   * @param tableName name of the table, must not be <code>null</code> or
-   *           empty.
-   * @param lableColumn name of the label column, must not be <code>null</code>
-   *           or empty.
-   * @param valueColumn name of the value column, must not be <code>null</code>
-   *           or empty.
+   * @param dataSource name of the data source, must not be <code>null</code> or empty.
+   * @param tableName name of the table, must not be <code>null</code> or empty.
+   * @param lableColumn name of the label column, must not be <code>null</code> or empty.
+   * @param valueColumn name of the value column, must not be <code>null</code> or empty.
    */
   public PSChoiceTableInfo(
       String dataSource, String tableName, String lableColumn, String valueColumn) {
@@ -69,15 +61,11 @@ public class PSChoiceTableInfo extends PSComponent {
   }
 
   /**
-   * Constructs a new choice table info object with value column name same as
-   * label couln name.
+   * Constructs a new choice table info object with value column name same as label couln name.
    *
-   * @param dataSource name of the data source, must not be <code>null</code>
-   *           or empty.
-   * @param tableName name of the table, must not be <code>null</code> or
-   *           empty.
-   * @param labelColumn name of the label column, must not be <code>null</code>
-   *           or empty.
+   * @param dataSource name of the data source, must not be <code>null</code> or empty.
+   * @param tableName name of the table, must not be <code>null</code> or empty.
+   * @param labelColumn name of the label column, must not be <code>null</code> or empty.
    */
   PSChoiceTableInfo(String dataSource, String tableName, String labelColumn) {
     this(dataSource, tableName, labelColumn, labelColumn);
@@ -86,29 +74,22 @@ public class PSChoiceTableInfo extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from, not
-   *           <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object, not
-   *           <code>null</code>.
-   * @param parentComponents the parent objects of this object, not
-   *           <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *            appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSChoiceTableInfo(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSChoiceTableInfo() {}
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSChoiceTableInfo, not <code>null</code>.
    */
@@ -143,7 +124,6 @@ public class PSChoiceTableInfo extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -156,7 +136,6 @@ public class PSChoiceTableInfo extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -183,14 +162,12 @@ public class PSChoiceTableInfo extends PSComponent {
   }
 
   /**
-   * Get the choice entries corresponding to the table, label and value
-   * columns. As this gets called from content editor, in case of error We
-   * don't want to throw an exception here and break the content editor. Log
-   * the error and just add a choice entry that shows that the table info is
+   * Get the choice entries corresponding to the table, label and value columns. As this gets called
+   * from content editor, in case of error We don't want to throw an exception here and break the
+   * content editor. Log the error and just add a choice entry that shows that the table info is
    * invalid.
    *
-   * @return Iterator of PSEntry objects. May be empty but never
-   *         <code>null</code>.
+   * @return Iterator of PSEntry objects. May be empty but never <code>null</code>.
    */
   public Iterator<PSEntry> getChoiceEntries() {
     List<PSEntry> choices = new ArrayList<>();
@@ -275,8 +252,7 @@ public class PSChoiceTableInfo extends PSComponent {
   /**
    * Set the new data source
    *
-   * @param dataSource the new data source,  if <code>null</code> will be set to
-   *           empty.
+   * @param dataSource the new data source, if <code>null</code> will be set to empty.
    */
   public void setDataSource(String dataSource) {
     if (StringUtils.isBlank(dataSource)) m_dataSource = StringUtils.EMPTY;
@@ -295,8 +271,7 @@ public class PSChoiceTableInfo extends PSComponent {
   /**
    * Set the new label column
    *
-   * @param lableColumn the new label column, if <code>null</code> will be
-   * set to empty.
+   * @param lableColumn the new label column, if <code>null</code> will be set to empty.
    */
   public void setLableColumn(String lableColumn) {
     if (StringUtils.isBlank(lableColumn)) m_lableColumn = StringUtils.EMPTY;
@@ -315,8 +290,7 @@ public class PSChoiceTableInfo extends PSComponent {
   /**
    * Set the new table name
    *
-   * @param tableName the new table name, if <code>null</code> will be set to
-   *           empty.
+   * @param tableName the new table name, if <code>null</code> will be set to empty.
    */
   public void setTableName(String tableName) {
     if (StringUtils.isBlank(tableName)) m_tableName = StringUtils.EMPTY;
@@ -335,42 +309,29 @@ public class PSChoiceTableInfo extends PSComponent {
   /**
    * Set the new value column
    *
-   * @param valueColumn the new value column,  if <code>null</code> will be set to
-   *           empty.
+   * @param valueColumn the new value column, if <code>null</code> will be set to empty.
    */
   public void setValueColumn(String valueColumn) {
     if (StringUtils.isBlank(valueColumn)) m_valueColumn = StringUtils.EMPTY;
     else m_valueColumn = valueColumn;
   }
 
-  /**
-   * The data source, never <code>null</code> after construction may be empty.
-   */
+  /** The data source, never <code>null</code> after construction may be empty. */
   private String m_dataSource = "";
 
-  /**
-   * The table name, never <code>null</code> after construction may be empty.
-   */
+  /** The table name, never <code>null</code> after construction may be empty. */
   private String m_tableName;
 
-  /**
-   * The label column, never <code>null</code> after construction may be empty.
-   */
+  /** The label column, never <code>null</code> after construction may be empty. */
   private String m_lableColumn;
 
-  /**
-   * The value column, never <code>null</code> after construction may be empty.
-   */
+  /** The value column, never <code>null</code> after construction may be empty. */
   private String m_valueColumn;
 
-  /**
-   * The XML node name for this object
-   */
+  /** The XML node name for this object */
   public static final String XML_NODE_NAME = "PSXChoiceTableInfo";
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSChoiceTableInfo.class);
 
   /*

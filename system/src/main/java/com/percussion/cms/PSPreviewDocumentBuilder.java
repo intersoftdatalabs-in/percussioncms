@@ -38,20 +38,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * This class leverages most of its behavior from the base class. It adds a
- * node to the output document that is only used while previewing documents.
+ * This class leverages most of its behavior from the base class. It adds a node to the output
+ * document that is only used while previewing documents.
  */
 public class PSPreviewDocumentBuilder extends PSRowEditorDocumentBuilder {
   /**
-   * Processes the supplied editor definition, creating an efficient
-   * representation of the object for runtime. Creates a 'preview' page
-   * builder. A preview page includes the content fields which are marked as
-   * <code>showInPreview</code>. The visibility rules will be used in the
-   * same fashion as an editing document. It also displays child data in
-   * read-only tables if they are marked for preview display.
-   * <p>See the {@link PSModifyDocumentBuilder#PSModifyDocumentBuilder(
-   * PSContentEditor, PSEditorDocumentContext, int, boolean) base} class
-   * for a description of the params and exceptions.
+   * Processes the supplied editor definition, creating an efficient representation of the object
+   * for runtime. Creates a 'preview' page builder. A preview page includes the content fields which
+   * are marked as <code>showInPreview</code>. The visibility rules will be used in the same fashion
+   * as an editing document. It also displays child data in read-only tables if they are marked for
+   * preview display.
+   *
+   * <p>See the {@link PSModifyDocumentBuilder#PSModifyDocumentBuilder( PSContentEditor,
+   * PSEditorDocumentContext, int, boolean) base} class for a description of the params and
+   * exceptions.
    */
   public PSPreviewDocumentBuilder(
       PSContentEditor ce,
@@ -66,8 +66,8 @@ public class PSPreviewDocumentBuilder extends PSRowEditorDocumentBuilder {
   /**
    * See base for desc.
    *
-   * @return Since we don't want any action buttons on a preview page, we
-   *    always return an empty iterator.
+   * @return Since we don't want any action buttons on a preview page, we always return an empty
+   *     iterator.
    */
   protected Iterator<?> getActionLinks(Document doc, PSExecutionData data)
       throws PSDataExtractionException {
@@ -129,10 +129,9 @@ public class PSPreviewDocumentBuilder extends PSRowEditorDocumentBuilder {
   }
 
   /**
-   * The name of the dataset (not the request name, but the actual dataset
-   * name), located in the <code>EDITOR_SUPPORT_APPNAME</code> application.
-   * It is used to obtain the list of variants for the output doc. The root
-   * node returned by this resource is just added to the output doc.
+   * The name of the dataset (not the request name, but the actual dataset name), located in the
+   * <code>EDITOR_SUPPORT_APPNAME</code> application. It is used to obtain the list of variants for
+   * the output doc. The root node returned by this resource is just added to the output doc.
    */
   private static final String VARIANTLIST_DATASET_NAME = "variantlist";
 }

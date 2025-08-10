@@ -18,10 +18,12 @@
 
 package com.percussion.queue.impl;
 
-import com.percussion.security.error.PSExceptionUtils;
+import static com.percussion.share.service.IPSSystemProperties.IMPORT_PAGE_MAX;
+
 import com.percussion.pagemanagement.service.IPSPageCatalogService;
 import com.percussion.queue.IPSPageImportQueue;
 import com.percussion.queue.PSAbstractEventQueue;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -29,7 +31,6 @@ import com.percussion.services.notification.IPSNotificationListener;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
-import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSSystemProperties;
@@ -40,6 +41,10 @@ import com.percussion.sitemanage.service.IPSSiteImportService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,372 +54,369 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.percussion.share.service.IPSSystemProperties.IMPORT_PAGE_MAX;
-
-/**
- * Queue for managing page imports for sites.
- */
+/** Queue for managing page imports for sites. */
 @Component("pageImportQueue")
 @Lazy
 @Transactional
 public class PSPageImportQueue extends PSAbstractEventQueue<PSSiteQueue>
-        implements IPSPageImportQueue, IPSNotificationListener, IPSPerformPageImport {
+    implements IPSPageImportQueue, IPSNotificationListener, IPSPerformPageImport {
 
-    private final Map<Long, PSSiteQueue> siteCache = new ConcurrentHashMap<>();
-    private PSSiteQueue importingSite;
-    private final PSSiteImportCtx importContext = new PSSiteImportCtx();
+  private final Map<Long, PSSiteQueue> siteCache = new ConcurrentHashMap<>();
+  private PSSiteQueue importingSite;
+  private final PSSiteImportCtx importContext = new PSSiteImportCtx();
 
-    private final IPSSiteImportService importService;
-    private final IPSIdMapper idMapper;
-    private IPSSystemProperties systemProps;
+  private final IPSSiteImportService importService;
+  private final IPSIdMapper idMapper;
+  private IPSSystemProperties systemProps;
 
-    private boolean isServerStarted = false;
-    private final IPSPageCatalogService pageCatalogService;
-    private final IPSSiteManager siteMgr;
-    private static final Object siteQueueLock = new Object();
+  private boolean isServerStarted = false;
+  private final IPSPageCatalogService pageCatalogService;
+  private final IPSSiteManager siteMgr;
+  private static final Object siteQueueLock = new Object();
 
-    private static final Logger log = LogManager.getLogger(PSPageImportQueue.class);
+  private static final Logger log = LogManager.getLogger(PSPageImportQueue.class);
 
-    private IPSPerformPageImport pageImporter = this;
+  private IPSPerformPageImport pageImporter = this;
 
-    @Autowired
-    public PSPageImportQueue(@Qualifier("pageImportService") IPSSiteImportService importService,
-                             IPSIdMapper idMapper,
-                             IPSNotificationService notifyService,
-                             IPSPageCatalogService pageCatalogService,
-                             IPSSiteManager siteMgr) {
-        super();
-        this.importService = importService;
-        this.idMapper = idMapper;
-        this.pageCatalogService = pageCatalogService;
-        this.siteMgr = siteMgr;
-        registerServerShutdownNotification(notifyService);
+  @Autowired
+  public PSPageImportQueue(
+      @Qualifier("pageImportService") IPSSiteImportService importService,
+      IPSIdMapper idMapper,
+      IPSNotificationService notifyService,
+      IPSPageCatalogService pageCatalogService,
+      IPSSiteManager siteMgr) {
+    super();
+    this.importService = importService;
+    this.idMapper = idMapper;
+    this.pageCatalogService = pageCatalogService;
+    this.siteMgr = siteMgr;
+    registerServerShutdownNotification(notifyService);
+  }
+
+  private void registerServerShutdownNotification(IPSNotificationService notifyService) {
+    notifyService.addListener(EventType.CORE_SERVER_SHUTDOWN, this);
+    notifyService.addListener(EventType.CORE_SERVER_INITIALIZED, this);
+    notifyService.addListener(EventType.SITE_DELETED, this);
+  }
+
+  @Override
+  public void addCatalogedPageIds(PSSite site, String userAgent, List<Integer> ids) {
+    var sq = getSiteQueue(site.getSiteId());
+    if (sq.getUserAgent() == null) {
+      sq.setSite(site);
+      sq.setUserAgent(userAgent);
+      sq.setRequestInfoMap();
     }
-
-    private void registerServerShutdownNotification(IPSNotificationService notifyService) {
-        notifyService.addListener(EventType.CORE_SERVER_SHUTDOWN, this);
-        notifyService.addListener(EventType.CORE_SERVER_INITIALIZED, this);
-        notifyService.addListener(EventType.SITE_DELETED, this);
+    sq.addCatalogedIds(ids);
+    if (log.isDebugEnabled()) {
+      log.debug("Site[{}][addCatalogedPageIds] ids = {}", site.getSiteId(), ids);
     }
+    notifyEventQueue();
+  }
 
-    @Override
-    public void addCatalogedPageIds(PSSite site, String userAgent, List<Integer> ids) {
-        var sq = getSiteQueue(site.getSiteId());
-        if (sq.getUserAgent() == null) {
-            sq.setSite(site);
-            sq.setUserAgent(userAgent);
-            sq.setRequestInfoMap();
+  @Override
+  public void removeImportPage(String siteName, String pageId) {
+    var site = siteMgr.findSite(siteName);
+    if (site == null) {
+      return;
+    }
+    var sq = getSiteQueue(site.getSiteId());
+    var id = idMapper.getContentId(pageId);
+    sq.removeImportedId(id);
+  }
+
+  @Override
+  public void notifyEvent(PSNotificationEvent notification) {
+    if (notification.getType() == EventType.CORE_SERVER_INITIALIZED) {
+      setMaxImportCountForAllSites();
+      isServerStarted = true;
+      start();
+    } else if (notification.getType() == EventType.CORE_SERVER_SHUTDOWN) {
+      importContext.setCanceled(true);
+      doShutdown();
+    } else if (notification.getType() == EventType.SITE_DELETED) {
+      deleteSiteCache(notification);
+    }
+  }
+
+  /** Delegate shutdown to another thread to unblock the notification service. */
+  private void doShutdown() {
+    var runner = new Thread(this::shutdown);
+    runner.setDaemon(true);
+    runner.start();
+  }
+
+  private int getMaxImportPage() {
+    var maxVal = systemProps.getProperty(IMPORT_PAGE_MAX);
+    return NumberUtils.toInt(maxVal, -1);
+  }
+
+  @Autowired
+  public void setSystemProps(IPSSystemProperties systemProps) {
+    this.systemProps = systemProps;
+    if (isServerStarted) {
+      setMaxImportCountForAllSites();
+    }
+  }
+
+  public IPSSystemProperties getSystemProps() {
+    return systemProps;
+  }
+
+  @Override
+  public List<Integer> getImportingPageIds(Long siteId) {
+    return getSiteQueue(siteId).getImportingIds();
+  }
+
+  @Override
+  public PSSiteQueue getPageIds(PSSiteImportCtx context) {
+    return getSiteQueue(context);
+  }
+
+  @Override
+  public PSSiteQueue getPageIds(Long siteId) {
+    return getSiteQueue(siteId);
+  }
+
+  @Override
+  public List<Integer> getCatalogedPageIds(Long siteId) {
+    return getSiteQueue(siteId).getCatalogedIds();
+  }
+
+  @Override
+  public List<Integer> getImportedPageIds(Long siteId) {
+    return getSiteQueue(siteId).getImportedIds();
+  }
+
+  @Override
+  public void addImportedId(Long siteId, Integer id) {
+    getSiteQueue(siteId).addImportedId(id);
+  }
+
+  @Override
+  protected String getQueueName() {
+    return "PageImportQueue";
+  }
+
+  @Override
+  protected void preStart() {
+    // No-op for now
+  }
+
+  @Override
+  protected boolean doRun() {
+    try {
+      PSPair<PSSiteQueue, Integer> nextEvent;
+      try {
+        nextEvent = getNextQueueEvent(0);
+        if (nextEvent == null) {
+          return true;
         }
-        sq.addCatalogedIds(ids);
-        if (log.isDebugEnabled()) {
-            log.debug("Site[{}][addCatalogedPageIds] ids = {}", site.getSiteId(), ids);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      } catch (Throwable t) {
+        if (t instanceof ThreadDeath) {
+          return false;
         }
-        notifyEventQueue();
-    }
-
-    @Override
-    public void removeImportPage(String siteName, String pageId) {
-        var site = siteMgr.findSite(siteName);
-        if (site == null) {
-            return;
+        return true;
+      }
+      var importingSite = nextEvent.getFirst();
+      if (importingSite == null) {
+        return true;
+      }
+      var ids = importingSite.getImportingIds();
+      if (ids.isEmpty()) {
+        return true;
+      }
+      var site = importingSite.getSite();
+      Integer id = nextEvent.getSecond();
+      try {
+        setRequestInfo(importingSite);
+        pageImporter.performPageImport(site, id, importingSite.getUserAgent());
+        importingSite.checkSearchIndexQueueStatus(false);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        return false;
+      } catch (Throwable t) {
+        if (t instanceof ThreadDeath) {
+          return false;
         }
-        var sq = getSiteQueue(site.getSiteId());
-        var id = idMapper.getContentId(pageId);
-        sq.removeImportedId(id);
+        log.error(
+            "Failed to import page id={}, for site: {}, Error: {}",
+            id,
+            site.getName(),
+            t.getMessage());
+        log.debug(t.getMessage(), t);
+        importingSite.removeImportingId(id);
+      }
+      return true;
+    } catch (Exception e) {
+      return true;
     }
+  }
 
-    @Override
-    public void notifyEvent(PSNotificationEvent notification) {
-        if (notification.getType() == EventType.CORE_SERVER_INITIALIZED) {
-            setMaxImportCountForAllSites();
-            isServerStarted = true;
-            start();
-        } else if (notification.getType() == EventType.CORE_SERVER_SHUTDOWN) {
-            importContext.setCanceled(true);
-            doShutdown();
-        } else if (notification.getType() == EventType.SITE_DELETED) {
-            deleteSiteCache(notification);
-        }
+  private void setRequestInfo(PSSiteQueue importingSite) {
+    if (PSRequestInfo.isInited()) {
+      PSRequestInfo.resetRequestInfo();
     }
+    PSRequestInfo.initRequestInfo(importingSite.getRequestInfoMap());
+  }
 
-    /**
-     * Delegate shutdown to another thread to unblock the notification service.
-     */
-    private void doShutdown() {
-        var runner = new Thread(this::shutdown);
-        runner.setDaemon(true);
-        runner.start();
-    }
+  @Override
+  public void performPageImport(PSSite site, Integer id, String userAgent)
+      throws InterruptedException, PSSiteImportException {
+    var pageId = idMapper.getString(new PSLegacyGuid(id, -1));
+    var siteImportContext = new PSSiteImportCtx();
+    siteImportContext.setCanceled(this.importContext.isCanceled());
+    siteImportContext.setImportConfiguration(this.importContext.getImportConfiguration());
+    importService.importCatalogedPage(site, pageId, userAgent, siteImportContext);
+  }
 
-    private int getMaxImportPage() {
-        var maxVal = systemProps.getProperty(IMPORT_PAGE_MAX);
-        return NumberUtils.toInt(maxVal, -1);
-    }
+  public void setPageImporter(IPSPerformPageImport pageImporter) {
+    this.pageImporter = pageImporter;
+  }
 
-    @Autowired
-    public void setSystemProps(IPSSystemProperties systemProps) {
-        this.systemProps = systemProps;
-        if (isServerStarted) {
-            setMaxImportCountForAllSites();
-        }
-    }
+  public IPSPerformPageImport getPageImporter() {
+    return pageImporter;
+  }
 
-    public IPSSystemProperties getSystemProps() {
-        return systemProps;
-    }
+  @Override
+  protected void preShutdown() {
+    importContext.setCanceled(true);
+  }
 
-    @Override
-    public List<Integer> getImportingPageIds(Long siteId) {
-        return getSiteQueue(siteId).getImportingIds();
-    }
-
-    @Override
-    public PSSiteQueue getPageIds(PSSiteImportCtx context) {
-        return getSiteQueue(context);
-    }
-
-    @Override
-    public PSSiteQueue getPageIds(Long siteId) {
-        return getSiteQueue(siteId);
-    }
-
-    @Override
-    public List<Integer> getCatalogedPageIds(Long siteId) {
-        return getSiteQueue(siteId).getCatalogedIds();
-    }
-
-    @Override
-    public List<Integer> getImportedPageIds(Long siteId) {
-        return getSiteQueue(siteId).getImportedIds();
-    }
-
-    @Override
-    public void addImportedId(Long siteId, Integer id) {
-        getSiteQueue(siteId).addImportedId(id);
-    }
-
-    @Override
-    protected String getQueueName() {
-        return "PageImportQueue";
-    }
-
-    @Override
-    protected void preStart() {
-        // No-op for now
-    }
-
-    @Override
-    protected boolean doRun() {
-        try {
-            PSPair<PSSiteQueue, Integer> nextEvent;
-            try {
-                nextEvent = getNextQueueEvent(0);
-                if (nextEvent == null) {
-                    return true;
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            } catch (Throwable t) {
-                if (t instanceof ThreadDeath) {
-                    return false;
-                }
-                return true;
-            }
-            var importingSite = nextEvent.getFirst();
-            if (importingSite == null) {
-                return true;
-            }
-            var ids = importingSite.getImportingIds();
-            if (ids.isEmpty()) {
-                return true;
-            }
-            var site = importingSite.getSite();
-            Integer id = nextEvent.getSecond();
-            try {
-                setRequestInfo(importingSite);
-                pageImporter.performPageImport(site, id, importingSite.getUserAgent());
-                importingSite.checkSearchIndexQueueStatus(false);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            } catch (Throwable t) {
-                if (t instanceof ThreadDeath) {
-                    return false;
-                }
-                log.error("Failed to import page id={}, for site: {}, Error: {}", id, site.getName(), t.getMessage());
-                log.debug(t.getMessage(), t);
-                importingSite.removeImportingId(id);
-            }
-            return true;
-        } catch (Exception e) {
-            return true;
-        }
-    }
-
-    private void setRequestInfo(PSSiteQueue importingSite) {
-        if (PSRequestInfo.isInited()) {
-            PSRequestInfo.resetRequestInfo();
-        }
-        PSRequestInfo.initRequestInfo(importingSite.getRequestInfoMap());
-    }
-
-    @Override
-    public void performPageImport(PSSite site, Integer id, String userAgent)
-            throws InterruptedException, PSSiteImportException {
-        var pageId = idMapper.getString(new PSLegacyGuid(id, -1));
-        var siteImportContext = new PSSiteImportCtx();
-        siteImportContext.setCanceled(this.importContext.isCanceled());
-        siteImportContext.setImportConfiguration(this.importContext.getImportConfiguration());
-        importService.importCatalogedPage(site, pageId, userAgent, siteImportContext);
-    }
-
-    public void setPageImporter(IPSPerformPageImport pageImporter) {
-        this.pageImporter = pageImporter;
-    }
-
-    public IPSPerformPageImport getPageImporter() {
-        return pageImporter;
-    }
-
-    @Override
-    protected void preShutdown() {
-        importContext.setCanceled(true);
-    }
-
-    @Override
-    protected PSPair<PSSiteQueue, Integer> getNextEvent() {
-        var pair = new PSPair<PSSiteQueue, Integer>();
-        if (importingSite == null) {
-            var sq = getNextWaitingSite();
-            if (sq == null) {
-                return null;
-            }
-            importingSite = sq;
-        }
-        var id = importingSite.getNextId();
-        if (id == null) {
-            importingSite = getNextWaitingSite();
-            if (importingSite != null) {
-                id = importingSite.getNextId();
-                if (id == null) {
-                    return null;
-                }
-            }
-        }
-        pair.setFirst(importingSite);
-        pair.setSecond(id);
-        return pair;
-    }
-
-    private void setMaxImportCountForAllSites() {
-        var max = getMaxImportPage();
-        for (var sq : siteCache.values()) {
-            sq.setMaxImportCount(max);
-        }
-    }
-
-    private void deleteSiteCache(PSNotificationEvent notification) {
-        var siteId = (IPSGuid) notification.getTarget();
-        var id = siteId.longValue();
-        siteCache.remove(id);
-    }
-
-    private PSSiteQueue getNextWaitingSite() {
-        for (var sq : siteCache.values()) {
-            if (sq.containsPagesForImport()) {
-                return sq;
-            }
-        }
+  @Override
+  protected PSPair<PSSiteQueue, Integer> getNextEvent() {
+    var pair = new PSPair<PSSiteQueue, Integer>();
+    if (importingSite == null) {
+      var sq = getNextWaitingSite();
+      if (sq == null) {
         return null;
+      }
+      importingSite = sq;
     }
-
-    private PSSiteQueue getSiteQueue(Long siteId) {
-        var siteQueue = siteCache.get(siteId);
-        if (siteQueue == null) {
-            synchronized (siteQueueLock) {
-                if (siteCache.get(siteId) == null) {
-                    siteQueue = createSiteQueue(siteId);
-                    siteQueue.setMaxImportCount(getMaxImportPage());
-                    siteCache.put(siteId, siteQueue);
-                }
-            }
+    var id = importingSite.getNextId();
+    if (id == null) {
+      importingSite = getNextWaitingSite();
+      if (importingSite != null) {
+        id = importingSite.getNextId();
+        if (id == null) {
+          return null;
         }
-        return siteQueue;
+      }
     }
+    pair.setFirst(importingSite);
+    pair.setSecond(id);
+    return pair;
+  }
 
-    private PSSiteQueue getSiteQueue(PSSiteImportCtx context) {
-        var siteId = context.getSite().getSiteId();
-        var siteQueue = siteCache.get(siteId);
-        if (siteQueue == null) {
-            synchronized (siteQueueLock) {
-                if (siteCache.get(siteId) == null) {
-                    siteQueue = createSiteQueue(context);
-                    importContext.setImportConfiguration(context.getImportConfiguration());
-                    siteQueue.setMaxImportCount(getMaxImportPage());
-                    siteCache.put(siteId, siteQueue);
-                }
-            }
+  private void setMaxImportCountForAllSites() {
+    var max = getMaxImportPage();
+    for (var sq : siteCache.values()) {
+      sq.setMaxImportCount(max);
+    }
+  }
+
+  private void deleteSiteCache(PSNotificationEvent notification) {
+    var siteId = (IPSGuid) notification.getTarget();
+    var id = siteId.longValue();
+    siteCache.remove(id);
+  }
+
+  private PSSiteQueue getNextWaitingSite() {
+    for (var sq : siteCache.values()) {
+      if (sq.containsPagesForImport()) {
+        return sq;
+      }
+    }
+    return null;
+  }
+
+  private PSSiteQueue getSiteQueue(Long siteId) {
+    var siteQueue = siteCache.get(siteId);
+    if (siteQueue == null) {
+      synchronized (siteQueueLock) {
+        if (siteCache.get(siteId) == null) {
+          siteQueue = createSiteQueue(siteId);
+          siteQueue.setMaxImportCount(getMaxImportPage());
+          siteCache.put(siteId, siteQueue);
         }
-        return siteQueue;
+      }
     }
+    return siteQueue;
+  }
 
-    @Override
-    public void dirtySiteQueue(Long siteId) {
-        siteCache.remove(siteId);
-    }
-
-    private PSSiteQueue createSiteQueue(Long siteId) {
-        var siteName = getSiteName(siteId);
-        try {
-            if (siteName == null) {
-                return new PSSiteQueue();
-            }
-            var siteQueue = new PSSiteQueue();
-            var importedPages = pageCatalogService.findImportedPageIds(siteName);
-            siteQueue.addImportedIds(getContentIds(importedPages));
-            var catalogedPages = pageCatalogService.findCatalogPages(siteName);
-            siteQueue.addCatalogedIds(getContentIds(catalogedPages));
-            return siteQueue;
-        } catch (Exception e) {
-            log.error("An error occurred when getting the imported and cataloged pages for site name: {}, Error: {}",
-                    siteName, PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            return new PSSiteQueue();
+  private PSSiteQueue getSiteQueue(PSSiteImportCtx context) {
+    var siteId = context.getSite().getSiteId();
+    var siteQueue = siteCache.get(siteId);
+    if (siteQueue == null) {
+      synchronized (siteQueueLock) {
+        if (siteCache.get(siteId) == null) {
+          siteQueue = createSiteQueue(context);
+          importContext.setImportConfiguration(context.getImportConfiguration());
+          siteQueue.setMaxImportCount(getMaxImportPage());
+          siteCache.put(siteId, siteQueue);
         }
+      }
     }
+    return siteQueue;
+  }
 
-    private PSSiteQueue createSiteQueue(PSSiteImportCtx context) {
-        var siteId = context.getSite().getSiteId();
-        return getSiteQueue(siteId);
-    }
+  @Override
+  public void dirtySiteQueue(Long siteId) {
+    siteCache.remove(siteId);
+  }
 
-    private String getSiteName(Long siteId) {
-        try {
-            var id = new PSGuid(PSTypeEnum.SITE, siteId);
-            var site = siteMgr.findSite(id);
-            return site != null ? site.getName() : null;
-        } catch (Throwable e) {
-            return null;
-        }
+  private PSSiteQueue createSiteQueue(Long siteId) {
+    var siteName = getSiteName(siteId);
+    try {
+      if (siteName == null) {
+        return new PSSiteQueue();
+      }
+      var siteQueue = new PSSiteQueue();
+      var importedPages = pageCatalogService.findImportedPageIds(siteName);
+      siteQueue.addImportedIds(getContentIds(importedPages));
+      var catalogedPages = pageCatalogService.findCatalogPages(siteName);
+      siteQueue.addCatalogedIds(getContentIds(catalogedPages));
+      return siteQueue;
+    } catch (Exception e) {
+      log.error(
+          "An error occurred when getting the imported and cataloged pages for site name: {},"
+              + " Error: {}",
+          siteName,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return new PSSiteQueue();
     }
+  }
 
-    /**
-     * Builds a list of content ids from a list of complete ids.
-     *
-     * @param ids list of string representation of ids, not null
-     * @return list of content ids, never null but may be empty
-     */
-    private List<Integer> getContentIds(List<String> ids) {
-        var contentIds = new ArrayList<Integer>();
-        for (var id : ids) {
-            contentIds.add(((PSLegacyGuid) idMapper.getGuid(id)).getContentId());
-        }
-        return contentIds;
+  private PSSiteQueue createSiteQueue(PSSiteImportCtx context) {
+    var siteId = context.getSite().getSiteId();
+    return getSiteQueue(siteId);
+  }
+
+  private String getSiteName(Long siteId) {
+    try {
+      var id = new PSGuid(PSTypeEnum.SITE, siteId);
+      var site = siteMgr.findSite(id);
+      return site != null ? site.getName() : null;
+    } catch (Throwable e) {
+      return null;
     }
+  }
+
+  /**
+   * Builds a list of content ids from a list of complete ids.
+   *
+   * @param ids list of string representation of ids, not null
+   * @return list of content ids, never null but may be empty
+   */
+  private List<Integer> getContentIds(List<String> ids) {
+    var contentIds = new ArrayList<Integer>();
+    for (var id : ids) {
+      contentIds.add(((PSLegacyGuid) idMapper.getGuid(id)).getContentId());
+    }
+    return contentIds;
+  }
 }

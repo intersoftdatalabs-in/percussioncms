@@ -32,10 +32,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * This class currently exposes utility functions for server security options.
  *
- * @see com.percussion.security.SecureStringUtils in the perc-security-utils module to find, add, or update string
- * functions for validation / security.
- *
- * Please add any new general security / validation routines there instead of this class.
+ * @see com.percussion.security.SecureStringUtils in the perc-security-utils module to find, add, or
+ *     update string functions for validation / security.
+ *     <p>Please add any new general security / validation routines there instead of this class.
  */
 public final class PSSecurityUtility {
 
@@ -101,8 +100,9 @@ public final class PSSecurityUtility {
   public PSSecurityUtility() {}
 
   /**
-   * If requireHTTPS server property exists and its value is set to true or yes. The value is locally stored in a variable,
-   * instead of reading from a property each time.
+   * If requireHTTPS server property exists and its value is set to true or yes. The value is
+   * locally stored in a variable, instead of reading from a property each time.
+   *
    * @return <code>true</code> if it is a set to true.
    */
   public boolean httpsRequired() {
@@ -336,9 +336,9 @@ public final class PSSecurityUtility {
   }
 
   /**
-   * Will return an instance of secure random.  Will attempt to return a StrongSecureRandom first
-   * but will return a standard SecureRandom if Strong is unavailable.  May return null if
-   * secure random cannot be initialized.
+   * Will return an instance of secure random. Will attempt to return a StrongSecureRandom first but
+   * will return a standard SecureRandom if Strong is unavailable. May return null if secure random
+   * cannot be initialized.
    *
    * @return
    */
@@ -372,20 +372,15 @@ public final class PSSecurityUtility {
 
   public static final String PROPS_SERVER = "server.properties";
 
-  /**
-   * Constant for the name of the entry that reperesents workflow's name/value
-   * pair.
-   */
+  /** Constant for the name of the entry that reperesents workflow's name/value pair. */
   public static final String ENTRY_NAME = "server_config_base_dir";
 
-  /**
-   * Constant for the directory containing all other configuration directories.
-   */
+  /** Constant for the directory containing all other configuration directories. */
   public static final String BASE_CONFIG_DIR = "rxconfig";
 
   /**
-   * Constant for the directory containing server configs.
-   * Assumed to be relative to the Rx directory. No trailing slash.
+   * Constant for the directory containing server configs. Assumed to be relative to the Rx
+   * directory. No trailing slash.
    */
   public static final String SERVER_DIR = BASE_CONFIG_DIR + "/Server";
 

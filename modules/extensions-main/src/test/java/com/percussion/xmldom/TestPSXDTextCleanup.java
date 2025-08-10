@@ -37,9 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Test the text cleanup extension.
- */
+/** Test the text cleanup extension. */
 public class TestPSXDTextCleanup {
 
   @TempDir public Path temporaryFolder;

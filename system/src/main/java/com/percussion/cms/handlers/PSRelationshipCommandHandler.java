@@ -87,32 +87,28 @@ import java.util.Set;
 import org.w3c.dom.Document;
 
 /**
- * The relationship handler handles query and update requests for relationships.
- * This responds to requests that have the sys_command parameter set to
- * "relate". Several sub-commands like "create", "remove", etc. are supported.
+ * The relationship handler handles query and update requests for relationships. This responds to
+ * requests that have the sys_command parameter set to "relate". Several sub-commands like "create",
+ * "remove", etc. are supported.
  */
 public class PSRelationshipCommandHandler extends PSCommandHandler
     implements IPSRelationshipHandlerCallback {
   /**
-   * Creates a handler to process requests for querying and modifying
-   * relationships.
+   * Creates a handler to process requests for querying and modifying relationships.
    *
-   * @param ah The application handler for this app. May not be
-   *    <code>null</code>.
-   * @param ceh The content editor handler for this dataset. May not be
-   *    <code>null</code>.
-   * @param ce The dataset this command handler will process modify commands
-   *    for. Must be a PSContentEditor. May not be <code>null</code>.
-   * @param app The application created by the PSContentEditor for each
-   *    command handler to add datasets to. The app is started and stopped
-   *    by the ContentEditorHandler. May not be <code>null</code>.
+   * @param ah The application handler for this app. May not be <code>null</code>.
+   * @param ceh The content editor handler for this dataset. May not be <code>null</code>.
+   * @param ce The dataset this command handler will process modify commands for. Must be a
+   *     PSContentEditor. May not be <code>null</code>.
+   * @param app The application created by the PSContentEditor for each command handler to add
+   *     datasets to. The app is started and stopped by the ContentEditorHandler. May not be <code>
+   *     null</code>.
    * @throws PSIllegalArgumentException if there is any invalid data.
    * @throws PSExtensionException if there is an error preparing an exception.
    * @throws PSNotFoundException if a udf or extension cannot be located.
-   * @throws PSSystemValidationException if there is a problem starting an internal
-   *    application.
-   * @throws PSServerConfigException if a needed relationship or clone handler
-   *    configuration failed to load.
+   * @throws PSSystemValidationException if there is a problem starting an internal application.
+   * @throws PSServerConfigException if a needed relationship or clone handler configuration failed
+   *     to load.
    * @throws PSUnknownNodeTypeException for unknown XML nodes.
    * @throws IllegalArgumentException if any param is <code>null</code>.
    */
@@ -139,8 +135,8 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Registers the supplied listener for relationship change events. Listener
-   * will be notified of any requests that add, remove or modify relationships.
+   * Registers the supplied listener for relationship change events. Listener will be notified of
+   * any requests that add, remove or modify relationships.
    *
    * @param listener the listener to notify, may not be <code>null</code>.
    * @throws IllegalArgumentException if listener is <code>null</code>.
@@ -193,13 +189,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Process a content editor clone request using the input context
-   * information and data.  Creates a new content item with a new content id
-   * and a revision of <code>1</code>.
+   * Process a content editor clone request using the input context information and data. Creates a
+   * new content item with a new content id and a revision of <code>1</code>.
    *
-   * @param request the request object containing all context data associated
-   * with the request.
-   *
+   * @param request the request object containing all context data associated with the request.
    * @throws IllegalArgumentException if request is <code>null</code>.
    */
   public void processRequest(PSRequest request) {
@@ -266,8 +259,8 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
    * See {@link com.percussion.data.IPSInternalRequestHandler#makeInternalRequest(PSRequest)
    * IPSInternalRequestHandler} interface for method and parameter descriptions.
    *
-   * @return <code>null</code> always.  The execution data created by this
-   * request is released before returning to caller.
+   * @return <code>null</code> always. The execution data created by this request is released before
+   *     returning to caller.
    */
   public PSExecutionData makeInternalRequest(PSRequest request)
       throws PSInternalRequestCallException,
@@ -298,17 +291,16 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Get the relationships for the specified request. The returned document
-   * conforms to the PSXRelationshipSet.dtd.
+   * Get the relationships for the specified request. The returned document conforms to the
+   * PSXRelationshipSet.dtd.
    *
    * @param request the request to process
-   * @return a document with all requested relationships, may be
-   *    <code>null</code> on errors, might be empty.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @return a document with all requested relationships, may be <code>null</code> on errors, might
+   *     be empty.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSAuthenticationFailedException if the user failed to
-   *    authenticate.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    */
   public Document getResultDocument(PSRequest request)
       throws PSInternalRequestCallException,
@@ -339,33 +331,26 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Process the supplied request for the execution data provided.
    *
-   * @param data the execution data to operate on, assumed not
-   *    <code>null</code>.
-   *
-   * @return <code>true</code> if need to process redirect response;
-   *   otherwise don't process the redirect response.
-   *
+   * @param data the execution data to operate on, assumed not <code>null</code>.
+   * @return <code>true</code> if need to process redirect response; otherwise don't process the
+   *     redirect response.
    * @throws PSRequestValidationException if the supplied request is invalid.
    * @throws PSAuthorizationException if the requestor is not authorized.
-   * @throws PSInternalRequestCallException if anything goes wrong making
-   *    internal requests.
+   * @throws PSInternalRequestCallException if anything goes wrong making internal requests.
    * @throws PSSystemValidationException for any validation failed.
    * @throws SQLException for any failed sql operations.
-   * @throws PSAuthenticationFailedException if the requestor is not
-   *    authenticated.
+   * @throws PSAuthenticationFailedException if the requestor is not authenticated.
    * @throws PSNotFoundException for files/resources not found.
    * @throws PSExtensionProcessingException if any exit processing fails.
    * @throws PSDataExtractionException for all data extraction errors.
    * @throws PSParameterMismatchException for invalid exit parameters.
-   * @throws PSServerConfigException if a needed relationship or clone handler
-   *    configuration failed to load.
-   * @throws PSObjectException if cloning is not allowed for the supplied
-   *    object type.
+   * @throws PSServerConfigException if a needed relationship or clone handler configuration failed
+   *     to load.
+   * @throws PSObjectException if cloning is not allowed for the supplied object type.
    * @throws PSExtensionException if extensions fail in process checks.
-   * @throws PSRelationshipProcessorException for all errors occurred while
-   *    processing relationship effects
-   * @throws PSErrorException for any error thrown while processing the
-   *    pre- extensions.
+   * @throws PSRelationshipProcessorException for all errors occurred while processing relationship
+   *     effects
+   * @throws PSErrorException for any error thrown while processing the pre- extensions.
    */
   private boolean processRequest(PSExecutionData data)
       throws PSRequestValidationException,
@@ -409,10 +394,9 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
       }
     } catch (PSRequestValidationException e) {
       /**
-       * Relationship pre- exits throw this exception to indicate we must
-       * not process the request. This is used to implement constraints
-       * such as in
-       * <code>com.percussion.relationship.PSTranslationConstraint</code>.
+       * Relationship pre- exits throw this exception to indicate we must not process the request.
+       * This is used to implement constraints such as in <code>
+       * com.percussion.relationship.PSTranslationConstraint</code>.
        */
     } catch (PSCloneAlreadyExistsException e) {
       // The clone already exists. This is not an error and must be ignored.
@@ -427,8 +411,8 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Get all defined relationship configurations.
    *
-   * @return a list of <code>PSRelationshipConfig</code> objects, never
-   *    <code>null</code>, might be empty.
+   * @return a list of <code>PSRelationshipConfig</code> objects, never <code>null</code>, might be
+   *     empty.
    */
   public static Iterator<PSRelationshipConfig> getRelationshipConfigs() {
     if (ms_configs == null) {
@@ -446,9 +430,8 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
    * Get all relationship configurations for a given category.
    *
    * @param category the relationship category, not <code>null</code> or empty.
-   *
-   * @return a list of <code>PSRelationshipConfig</code> objects, never
-   *    <code>null</code>, might be empty.
+   * @return a list of <code>PSRelationshipConfig</code> objects, never <code>null</code>, might be
+   *     empty.
    */
   public static Iterator getRelationshipConfigs(String category) {
     if (ms_configs == null) {
@@ -486,12 +469,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Get the requested relationship configuration.
    *
-   * @param name the name or category to get the relationship configuration for,
-   * not <code>null</code> or empty. It is assumed to be the name of the
-   * relationship first. If not found a matching relationship config, it then
-   * assumed to be the category of the relationship.
-   * @return the requested relationship configuration or <code>null</code> if
-   * it does not exist.
+   * @param name the name or category to get the relationship configuration for, not <code>null
+   *     </code> or empty. It is assumed to be the name of the relationship first. If not found a
+   *     matching relationship config, it then assumed to be the category of the relationship.
+   * @return the requested relationship configuration or <code>null</code> if it does not exist.
    * @see PSRelationshipConfigSet#getConfigByNameOrCategory for more details.
    */
   public static PSRelationshipConfig getRelationshipConfig(String name) {
@@ -503,7 +484,6 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
 
   /**
    * @return the next available relationship id.
-   *
    * @throws PSCmsException if failed to generate the id.
    */
   public static int getNextId() throws PSCmsException {
@@ -518,14 +498,12 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Gets the requested parameter and validates it.
    *
-   * @param request the request to get the parameter from, not
-   *    <code>null</code>.
+   * @param request the request to get the parameter from, not <code>null</code>.
    * @param name the parameter name to get, not <code>null</code> or empty.
    * @return the parameter value, never <code>null</code> or empty.
-   * @throws IllegalArgumentException if the supplied request or name is
-   *    <code>null</code> or the name is empty.
-   * @throws PSRequestValidationException if the requested parameter is
-   *    <code>null</code> or empty.
+   * @throws IllegalArgumentException if the supplied request or name is <code>null</code> or the
+   *     name is empty.
+   * @throws PSRequestValidationException if the requested parameter is <code>null</code> or empty.
    */
   private String getParameter(PSRequest request, String name) throws PSRequestValidationException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
@@ -549,14 +527,13 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Get the requested parameter as integer.
    *
-   * @param request the request to get the parameter from, not
-   *    <code>null</code>.
+   * @param request the request to get the parameter from, not <code>null</code>.
    * @param name the parameter name, not <code>null</code> or empty.
    * @return the requested parameter as integer.
-   * @throws IllegalArgumentException if the supplied request or name is
-   *    <code>null</code> or the name is empty.
-   * @throws PSRequestValidationException if the requested parameter is
-   *    <code>null</code>, empty or cannot be parsed into an integer.
+   * @throws IllegalArgumentException if the supplied request or name is <code>null</code> or the
+   *     name is empty.
+   * @throws PSRequestValidationException if the requested parameter is <code>null</code>, empty or
+   *     cannot be parsed into an integer.
    */
   private int getParameterInt(PSRequest request, String name) throws PSRequestValidationException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
@@ -578,18 +555,15 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Modifies the requested relationship for the supplied request and
-   * execution data. If owner and dependent locators are provided, this
-   * will create a new relationship if none of this type exists or
-   * otherwise update the existing one. If the dependent is not specified, this
-   * will clone the owner if the relationship configuration allows that and
-   * then create the relationship between the owner and the new clone.
+   * Modifies the requested relationship for the supplied request and execution data. If owner and
+   * dependent locators are provided, this will create a new relationship if none of this type
+   * exists or otherwise update the existing one. If the dependent is not specified, this will clone
+   * the owner if the relationship configuration allows that and then create the relationship
+   * between the owner and the new clone.
    *
    * @param data the execution data to use, assumed not <code>null</code>.
-   * @param forceInsert <code>true</code> to force an insert,
-   *    <code>false</code> otherwise.
+   * @param forceInsert <code>true</code> to force an insert, <code>false</code> otherwise.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
    * @throws PSCmsException if any error occurr processing internal requests.
    */
   private void modifyRelationship(
@@ -678,15 +652,14 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Builds map of field name-value pairs for each of the clone override
-   * fields configured. The conditionals are evalauated to see if a field
-   * needs to be overridden or not. The value is evaluated based on the
-   * replacment value specified.
+   * Builds map of field name-value pairs for each of the clone override fields configured. The
+   * conditionals are evalauated to see if a field needs to be overridden or not. The value is
+   * evaluated based on the replacment value specified.
+   *
    * @param config relationship configuration object, assumed not <code>null</code>.
    * @param data execution data assumed not <code>null</code>.
-   * @return A map field name-values for the fields to be overridden. Never
-   * <code>null</code> may be empty.
-   *
+   * @return A map field name-values for the fields to be overridden. Never <code>null</code> may be
+   *     empty.
    * @throws PSCmsException if error occurs.
    */
   private Map buildCloneOverrideFields(PSRelationshipConfig config, PSExecutionData data)
@@ -721,14 +694,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Get the relationship update id for the supplied owner and dependent.
    *
-   * @param data the execution data to operate on, assumed not
-   *    <code>null</code>.
-   * @param owner the owner to get the update id for, assumed not
-   *    <code>null</code>.
-   * @param dependent the dependent to get the update id for, assumed not
-   *    <code>null</code>.
+   * @param data the execution data to operate on, assumed not <code>null</code>.
+   * @param owner the owner to get the update id for, assumed not <code>null</code>.
+   * @param dependent the dependent to get the update id for, assumed not <code>null</code>.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
    * @return the update id or -1 if not found.
    * @throws PSCmsException if any error occurr processing internal requests.
    */
@@ -757,13 +726,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Queries the relationships for the supplied request and send the response
-   * back to the requestor.
+   * Queries the relationships for the supplied request and send the response back to the requestor.
    *
-   * @param data the execution data to operate on, assumed not
-   *    <code>null</code>.
+   * @param data the execution data to operate on, assumed not <code>null</code>.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
    * @throws PSCmsException if any error occurr processing internal requests.
    */
   private void queryRelationships(PSExecutionData data, PSRelationshipDbProcessor processor)
@@ -783,21 +749,18 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Insert a new relationship for the supplied parameters.
    *
-   * @param data the execution data to operate on, assmued not
-   *    <code>null</code>.
-   * @param config the relationship configuration to do the insert for,
-   *    assumed not <code>null</code>.
-   * @param owner the owner of the relationship beeing inserted, assumed not
-   *    <code>null</code>.
-   * @param dependent the dependent or the relationship being inserted,
-   *    assumed not <code>null</code>.
-   * @param useOriginatingRelationship <code>true</code> to use the originating
-   *    relationship from the supplied execution data, <code>false</code> to
-   *    create a new relationship from the supplied parameters.
+   * @param data the execution data to operate on, assmued not <code>null</code>.
+   * @param config the relationship configuration to do the insert for, assumed not <code>null
+   *     </code>.
+   * @param owner the owner of the relationship beeing inserted, assumed not <code>null</code>.
+   * @param dependent the dependent or the relationship being inserted, assumed not <code>null
+   *     </code>.
+   * @param useOriginatingRelationship <code>true</code> to use the originating relationship from
+   *     the supplied execution data, <code>false</code> to create a new relationship from the
+   *     supplied parameters.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
-   * @throws PSRelationshipProcessorException for all errors occurred while
-   *    processing relationship effects.
+   * @throws PSRelationshipProcessorException for all errors occurred while processing relationship
+   *     effects.
    * @throws PSCmsException if any error occurr processing internal requests.
    * @throws SQLException for any failed SQL operation.
    */
@@ -823,19 +786,16 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Update the specified relationship for the supplied parameters.
    *
-   * @param data the execution data to operate on assmued not
-   *    <code>null</code>.
-   * @param config the relationship configuration to do the update for,
-   *    assumed not <code>null</code>.
+   * @param data the execution data to operate on assmued not <code>null</code>.
+   * @param config the relationship configuration to do the update for, assumed not <code>null
+   *     </code>.
    * @param relationshipid the update id to use.
-   * @param owner the owner of the relationship beeing updated, assumed not
-   *    <code>null</code>.
-   * @param dependent the dependent or the relationship beeing updated,
-   *    assumed not <code>null</code>.
+   * @param owner the owner of the relationship beeing updated, assumed not <code>null</code>.
+   * @param dependent the dependent or the relationship beeing updated, assumed not <code>null
+   *     </code>.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
-   * @throws PSRelationshipProcessorException for all errors occurred while
-   *    processing relationship effects.
+   * @throws PSRelationshipProcessorException for all errors occurred while processing relationship
+   *     effects.
    * @throws PSCmsException if any error occurr processing internal requests.
    */
   private void updateRelationship(
@@ -860,12 +820,10 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Remove the relationships for the supplied request.
    *
-   * @param data the execution data to operate on, assumed not
-   *    <code>null</code>.
+   * @param data the execution data to operate on, assumed not <code>null</code>.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
-   * @throws PSRelationshipProcessorException for all errors occurred while
-   *    processing relationship effects.
+   * @throws PSRelationshipProcessorException for all errors occurred while processing relationship
+   *     effects.
    * @throws PSCmsException if any error occurr processing internal requests.
    */
   private void removeRelationship(PSExecutionData data, PSRelationshipDbProcessor processor)
@@ -884,26 +842,23 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   /**
    * Perform the requested update operation for the supplied parameters.
    *
-   * @param data the execution data to operate on, assumed not
-   *    <code>null</code>.
-   * @param config the relationship configuration to do the update for,
-   *    assumed not <code>null</code>.
+   * @param data the execution data to operate on, assumed not <code>null</code>.
+   * @param config the relationship configuration to do the update for, assumed not <code>null
+   *     </code>.
    * @param relationshipid the update id to use, must use -1 for inserts.
-   * @param owner the owner of the relationship beeing updated, assumed not
-   *    <code>null</code>.
-   * @param dependent the dependent or the relationship beeing updated,
-   *    assumed not <code>null</code>.
-   * @param requestType the update type to perform, one of
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_UPDATE</code>,
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_INSERT</code>,
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_DELETE</code>.
-   * @param useOriginatingRelationship <code>true</code> to use the originating
-   *    relationship from the supplied execution data, <code>false</code> to
-   *    create a new relationship from the supplied parameters.
+   * @param owner the owner of the relationship beeing updated, assumed not <code>null</code>.
+   * @param dependent the dependent or the relationship beeing updated, assumed not <code>null
+   *     </code>.
+   * @param requestType the update type to perform, one of <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_UPDATE</code>, <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_INSERT</code>, <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_DELETE</code>.
+   * @param useOriginatingRelationship <code>true</code> to use the originating relationship from
+   *     the supplied execution data, <code>false</code> to create a new relationship from the
+   *     supplied parameters.
    * @param processor the relationship processor, assumed not <code>null</code>.
-   *
-   * @throws PSRelationshipProcessorException for all errors occurred while
-   *    processing relationship effects.
+   * @throws PSRelationshipProcessorException for all errors occurred while processing relationship
+   *     effects.
    * @throws PSCmsException if any error occurr processing internal requests.
    */
   private void putRelationship(
@@ -932,9 +887,8 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
 
       if (useOriginatingRelationship) {
         /**
-         * Get the originating relationship from the execution data
-         * because the user is allowed to change it during the cloning
-         * process.
+         * Get the originating relationship from the execution data because the user is allowed to
+         * change it during the cloning process.
          */
         PSRelationship originatingRelationship = data.getOriginatingRelationship();
         if (originatingRelationship == null)
@@ -959,14 +913,12 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Override all relationship properties for which they supplied an HTML
-   * parameter value. To override a property one must provide an HTML parameter
-   * with the same name as the property.
+   * Override all relationship properties for which they supplied an HTML parameter value. To
+   * override a property one must provide an HTML parameter with the same name as the property.
    *
-   * @param relationships the relationships for which to override properties,
-   *    assumed not <code>null</code>.
-   * @param htmlParameters a map of HTML parameters to override with, assumed
-   *    not <code>null</code>.
+   * @param relationships the relationships for which to override properties, assumed not <code>null
+   *     </code>.
+   * @param htmlParameters a map of HTML parameters to override with, assumed not <code>null</code>.
    */
   private void overrideProperties(PSRelationshipSet relationships, Map htmlParameters) {
     for (int i = 0; i < relationships.size(); i++) {
@@ -985,11 +937,11 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Loads the relationship configurations into a static member only if
-   * not loaded yet, does nothing otherwise.
+   * Loads the relationship configurations into a static member only if not loaded yet, does nothing
+   * otherwise.
    *
-   * @throws PSServerConfigException if a needed relationship or clone handler
-   *    configuration failed to load.
+   * @throws PSServerConfigException if a needed relationship or clone handler configuration failed
+   *     to load.
    * @throws PSUnknownNodeTypeException for unknown XML nodes.
    */
   public static void loadConfigs() throws PSServerConfigException, PSUnknownNodeTypeException {
@@ -1000,12 +952,11 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
 
   /**
    * Loads the relationship configurations into the internal static member.
-   * <p>
-   * Note, this must be called after the relationship configurations are
-   * updated.
    *
-   * @throws PSServerConfigException if a needed relationship or clone handler
-   *    configuration failed to load.
+   * <p>Note, this must be called after the relationship configurations are updated.
+   *
+   * @throws PSServerConfigException if a needed relationship or clone handler configuration failed
+   *     to load.
    * @throws PSUnknownNodeTypeException for unknown XML nodes.
    */
   public static void reloadConfigs() throws PSServerConfigException, PSUnknownNodeTypeException {
@@ -1030,60 +981,50 @@ public class PSRelationshipCommandHandler extends PSCommandHandler
   }
 
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "relate";
 
-  /**
-   * The sub-command used to query relationships.
-   */
+  /** The sub-command used to query relationships. */
   public static final String COMMAND_QUERY = "query";
 
   /**
-   * The sub-command used to create a new relationship. This is the default if
-   * no sub-command is supplied. It does an insert if not existing, an update
-   * otherwise.
+   * The sub-command used to create a new relationship. This is the default if no sub-command is
+   * supplied. It does an insert if not existing, an update otherwise.
    */
   public static final String COMMAND_CREATE = "create";
 
   /**
-   * List of {@link IPSRelationshipChangeListener} objects to notify when a
-   * relationship is added, removed or modified.  Never <code>null</code>,
-   * may be empty.
-   * Listeners are added using
-   * {@link #addRelationshipChangeListener(IPSRelationshipChangeListener)}
-   * and can be removed using
-   * {@link #removeRelationshipChangeListener(IPSRelationshipChangeListener)}.
+   * List of {@link IPSRelationshipChangeListener} objects to notify when a relationship is added,
+   * removed or modified. Never <code>null</code>, may be empty. Listeners are added using {@link
+   * #addRelationshipChangeListener(IPSRelationshipChangeListener)} and can be removed using {@link
+   * #removeRelationshipChangeListener(IPSRelationshipChangeListener)}.
    */
   protected List m_relationshipChangeListeners = new ArrayList();
 
   /**
-   * The sub-command used to insert a relationship. This does an insert whether
-   * or not the same relationship already exists.
+   * The sub-command used to insert a relationship. This does an insert whether or not the same
+   * relationship already exists.
    */
   public static final String COMMAND_INSERT = "insert";
 
-  /**
-   * The sub-command used to remove a relationship.
-   */
+  /** The sub-command used to remove a relationship. */
   public static final String COMMAND_REMOVE = "remove";
 
-  /**
-   * The relationship name used for related content.
-   */
+  /** The relationship name used for related content. */
   public static final String RELATED_CONTENT_RELATIONSHIP =
       PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY;
 
   /**
-   * A collection of all relationship configurations. Initialized in ctor,
-   * never <code>null</code> of changed after that.
+   * A collection of all relationship configurations. Initialized in ctor, never <code>null</code>
+   * of changed after that.
    */
   private static PSRelationshipConfigSet ms_configs = null;
 
   /**
-   * The copy handler used to copy items, initialized in ctor, never
-   * <code>null</code> or changed after that.
+   * The copy handler used to copy items, initialized in ctor, never <code>null</code> or changed
+   * after that.
    */
   private IPSCopyHandler m_copyHandler = null;
 }

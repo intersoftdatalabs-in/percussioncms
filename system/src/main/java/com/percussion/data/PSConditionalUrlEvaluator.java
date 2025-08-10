@@ -22,9 +22,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 import java.util.Iterator;
 
-/**
- * Extends the rule evaluator to evaluate conditional URL's.
- */
+/** Extends the rule evaluator to evaluate conditional URL's. */
 public class PSConditionalUrlEvaluator extends PSRuleListEvaluator {
   /**
    * Constructs a new conditional url evaluator.

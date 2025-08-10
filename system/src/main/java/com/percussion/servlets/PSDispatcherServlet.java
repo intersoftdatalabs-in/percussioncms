@@ -21,9 +21,8 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
 /**
- * Extends Spring's dispatcher servlet to automatically set the main Rhythmyx
- * application context, which must have been initialized before this servlet
- * is initialized.
+ * Extends Spring's dispatcher servlet to automatically set the main Rhythmyx application context,
+ * which must have been initialized before this servlet is initialized.
  */
 public class PSDispatcherServlet extends DispatcherServlet {
   @Override

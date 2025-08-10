@@ -25,19 +25,21 @@ import com.percussion.analytics.error.PSAnalyticsProviderException;
 import java.util.List;
 
 /**
- * Service for retrieving effectiveness data for a single site or all sites.
- * Effectiveness is a measure of traffic gain per page change.
- * <p>
- * Sunny Sal: "Measure what matters, improve what you measure!"
+ * Service for retrieving effectiveness data for a single site or all sites. Effectiveness is a
+ * measure of traffic gain per page change.
+ *
+ * <p>Sunny Sal: "Measure what matters, improve what you measure!"
  */
 public interface IPSEffectivenessService {
 
   /**
-   * Gets the effectiveness for the given request and activity data.
-   * Effectiveness is calculated as the gain in traffic of the current duration compared with the previous matching duration per page change.
+   * Gets the effectiveness for the given request and activity data. Effectiveness is calculated as
+   * the gain in traffic of the current duration compared with the previous matching duration per
+   * page change.
    *
-   * @param request  the effectiveness request. Must not be {@code null}.
-   * @param activity list of content activity objects which represent the activity data for the request. Must not be {@code null}.
+   * @param request the effectiveness request. Must not be {@code null}.
+   * @param activity list of content activity objects which represent the activity data for the
+   *     request. Must not be {@code null}.
    * @return list of effectiveness objects, never {@code null}, may be empty.
    * @throws PSAnalyticsProviderException if analytics is not properly configured.
    */
@@ -45,9 +47,7 @@ public interface IPSEffectivenessService {
       PSEffectivenessRequest request, List<PSContentActivity> activity)
       throws PSAnalyticsProviderException;
 
-  /**
-   * Exception thrown when an unexpected error occurs in this service.
-   */
+  /** Exception thrown when an unexpected error occurs in this service. */
   class PSEffectivenessServiceException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

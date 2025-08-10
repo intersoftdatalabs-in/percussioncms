@@ -19,25 +19,21 @@ package com.percussion.share.service;
 
 import java.util.Collection;
 
-/**
- * Custom utility methods for {@link Collection} objects.
- */
+/** Custom utility methods for {@link Collection} objects. */
 public class PSCollectionUtils {
 
-    /**
-     * Like {@link Collection#contains(Object)} but ignoring string case.
-     *
-     * @param strings never {@code null}
-     * @param string  the role name in question, assumed not blank
-     * @return {@code true} if the string is in the collection (case-insensitive)
-     */
-    public static boolean containsIgnoringCase(Collection<String> strings, String string) {
-        if (string == null) {
-            return false;
-        }
-        // Java 11 Streams for elegance and performance
-        return strings.stream()
-                .filter(s -> s != null)
-                .anyMatch(s -> s.equalsIgnoreCase(string));
+  /**
+   * Like {@link Collection#contains(Object)} but ignoring string case.
+   *
+   * @param strings never {@code null}
+   * @param string the role name in question, assumed not blank
+   * @return {@code true} if the string is in the collection (case-insensitive)
+   */
+  public static boolean containsIgnoringCase(Collection<String> strings, String string) {
+    if (string == null) {
+      return false;
     }
+    // Java 11 Streams for elegance and performance
+    return strings.stream().filter(s -> s != null).anyMatch(s -> s.equalsIgnoreCase(string));
+  }
 }

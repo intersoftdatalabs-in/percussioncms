@@ -60,13 +60,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Handles the caching of Content Assembler pages.  Will only cache pages with
- * a request URL that matches a registered content variant using the ASSEMBLYURL
- * column of the PSX_TEMPLATE table.  Manages the automatic flushing of stale
- * or dirty pages in the cache by monitoring all content editor resource
- * for modify and workflow requests, the relationship handler for any
- * relationship changes or any update resources that delete from the
- * CONTENTSTATUS table.
+ * Handles the caching of Content Assembler pages. Will only cache pages with a request URL that
+ * matches a registered content variant using the ASSEMBLYURL column of the PSX_TEMPLATE table.
+ * Manages the automatic flushing of stale or dirty pages in the cache by monitoring all content
+ * editor resource for modify and workflow requests, the relationship handler for any relationship
+ * changes or any update resources that delete from the CONTENTSTATUS table.
  */
 @SuppressWarnings("unchecked")
 public class PSAssemblerCacheHandler extends PSCacheHandler
@@ -75,18 +73,11 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   /**
    * Constructs an instance of this handler.
    *
-   * @param cacheSettings The server cache settings.  May not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>cacheSettings</code> is
-   * <code>null</code>.
-   * @throws IllegalStateException if the <code>PSCacheManager</code> has not
-   * been initialized.
-   * @throws RuntimeException if there are any errors loading the key rules
-   * resource file.
-   *
-   * @todo In future, handle resource file errors gracefully and disable
-   * caching.
+   * @param cacheSettings The server cache settings. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>cacheSettings</code> is <code>null</code>.
+   * @throws IllegalStateException if the <code>PSCacheManager</code> has not been initialized.
+   * @throws RuntimeException if there are any errors loading the key rules resource file.
+   * @todo In future, handle resource file errors gracefully and disable caching.
    */
   public PSAssemblerCacheHandler(PSServerCacheSettings cacheSettings) {
     super(KEY_SIZE, cacheSettings);
@@ -110,9 +101,8 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Makes an internal request to load data from the content variants table and
-   * creates the dependency tree.  Must be called before any listener events
-   * or cache requests will be processed.
+   * Makes an internal request to load data from the content variants table and creates the
+   * dependency tree. Must be called before any listener events or cache requests will be processed.
    *
    * @throws PSCacheException if there are any errors.
    */
@@ -123,15 +113,13 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Determines if the request in the supplied cache context may be cached.
-   * Only requests that match a registered content variant may be cached.
-   * <p>
-   * It always returns <code>false</code> if the HTML parameter,
-   * {@link IPSHtmlParameters#SYS_IS_ASSEMBLER_CACHE_OFF} equals
-   * {@link IPSConstants#BOOLEAN_TRUE}.
+   * Determines if the request in the supplied cache context may be cached. Only requests that match
+   * a registered content variant may be cached.
    *
-   * See base class for more info.
+   * <p>It always returns <code>false</code> if the HTML parameter, {@link
+   * IPSHtmlParameters#SYS_IS_ASSEMBLER_CACHE_OFF} equals {@link IPSConstants#BOOLEAN_TRUE}.
    *
+   * <p>See base class for more info.
    */
   public boolean isRequestCacheable(PSCacheContext context) {
     if (context == null) throw new IllegalArgumentException("context may not be null");
@@ -161,22 +149,19 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * See interface {@link IPSCacheHandler#getKeyNames} and {@link #flush(Map)}
-   * for more information.
+   * See interface {@link IPSCacheHandler#getKeyNames} and {@link #flush(Map)} for more information.
    */
   public String[] getKeyNames() {
     return KEY_ENUM;
   }
 
   /**
-   * Used to register for the appropriate change events so that dirty cache
-   * items may be detected and automatically flushed.  Will register with all
-   * instances of <code>PSContentEditorHandler</code>,
-   * <code>PSRelationshipCommandHandler</code> and any
-   * <code>PSUpdateHandler</code> that will update the PSX_TEMPLATE or
-   * CONTENTSTATUS tables.
+   * Used to register for the appropriate change events so that dirty cache items may be detected
+   * and automatically flushed. Will register with all instances of <code>PSContentEditorHandler
+   * </code>, <code>PSRelationshipCommandHandler</code> and any <code>PSUpdateHandler</code> that
+   * will update the PSX_TEMPLATE or CONTENTSTATUS tables.
    *
-   * See base class for more info.
+   * <p>See base class for more info.
    */
   void initHandler(IPSRequestHandler requestHandler) {
     if (requestHandler == null)
@@ -188,9 +173,8 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
       ceh.addEditorChangeListener(this);
 
       /**
-       * @todo uncomment the following code once all applications,
-       *    stylesheets use the relationship command handler for relationship
-       *    changes.
+       * @todo uncomment the following code once all applications, stylesheets use the relationship
+       *     command handler for relationship changes.
        */
       // ceh.addRelationshipChangeListener(this);
     } else if (requestHandler instanceof PSUpdateHandler) {
@@ -218,9 +202,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     // noop
   }
 
-  /**
-   * Flushes all cached responses.
-   */
+  /** Flushes all cached responses. */
   @Override
   void flush() {
     logFlushMessage(null);
@@ -228,11 +210,10 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Flushes cache items based on the supplied keys.  The keys supplied may
-   * identify one or more cached items.  Any items identified by the supplied
-   * keys are flushed.  The keys supplied to this handler must include each of
-   * the following keys or else the request is ignored and the method simply
-   * returns.
+   * Flushes cache items based on the supplied keys. The keys supplied may identify one or more
+   * cached items. Any items identified by the supplied keys are flushed. The keys supplied to this
+   * handler must include each of the following keys or else the request is ignored and the method
+   * simply returns.
    *
    * <table>
    * <tr>
@@ -258,12 +239,11 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * </tr>
    * </table>
    *
-   * To omit a key, use <code>null</code> or an empty
-   * <code>String</code> for the value of the entry.  For example, to flush
-   * all items with a particular variant id, pass <code>null</code> for the
-   * value of each key entry in the Map except for <code>VariantId</code>.
+   * To omit a key, use <code>null</code> or an empty <code>String</code> for the value of the
+   * entry. For example, to flush all items with a particular variant id, pass <code>null</code> for
+   * the value of each key entry in the Map except for <code>VariantId</code>.
    *
-   * See base class for more info.
+   * <p>See base class for more info.
    */
   void flush(Map keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
@@ -404,17 +384,11 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     List depKeys;
     Map done = new ConcurrentHashMap<>();
     List allKeys = new ArrayList();
-    /**
-     * We are only interested in relationship changes for Active Assembly
-     * categories.
-     */
+    /** We are only interested in relationship changes for Active Assembly categories. */
     for (PSRelationship psRelationship : (Iterable<PSRelationship>) event.getRelationships()) {
       PSRelationship relationship = psRelationship;
 
-      /**
-       * We are only interested in relationship changes for Active Assembly
-       * categories.
-       */
+      /** We are only interested in relationship changes for Active Assembly categories. */
       String category = relationship.getConfig().getCategory();
       if (category == null || !category.equals(PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY))
         continue;
@@ -473,8 +447,7 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * Tests if the supplied columns are addressing a variant id row or not.
    *
    * @param columns the columns to test, assumed not <code>null</code>.
-   * @return <code>true</code> if this is addressing a variant id row,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this is addressing a variant id row, <code>false</code> otherwise.
    */
   boolean isVariantIdRow(Map columns) {
     String propertyName = (String) columns.get(IPSConstants.RS_PROPERTYNAME);
@@ -483,25 +456,20 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Validates that the supplied keys represent all keys required by this
-   * handler to flush cached items. See {@link #flush(Map) flush} for
-   * description of keys.
-   * <br>
+   * Validates that the supplied keys represent all keys required by this handler to flush cached
+   * items. See {@link #flush(Map) flush} for description of keys. <br>
    * This method validates the following cases.
+   *
    * <ol>
-   * <li>The number of keys supplied is at least the size of {@link #KEY_ENUM}.
-   * </li>
-   * <li>Should have entries for all the keys required for this handler.</li>
-   * <li>The contentid, revisionid and variantid must be numbers.</li>
-   * <li>The revision id may not be specified if the contentid is not
-   * specified.</li>
+   *   <li>The number of keys supplied is at least the size of {@link #KEY_ENUM}.
+   *   <li>Should have entries for all the keys required for this handler.
+   *   <li>The contentid, revisionid and variantid must be numbers.
+   *   <li>The revision id may not be specified if the contentid is not specified.
    * </ol>
    *
    * @param keys A map of key names and their values. May not be <code>null
    * </code> or empty.
-   *
    * @throws IllegalArgumentException if keys is <code>null</code>.
-   *
    * @throws PSSystemValidationException if the validation fails.
    */
   public void validateKeys(Map keys) throws PSSystemValidationException {
@@ -548,12 +516,11 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Handles a delete from the CONTENTSTATUS table.  Flushes all revisions
-   * of the item deleted, and all dependent items as well.
+   * Handles a delete from the CONTENTSTATUS table. Flushes all revisions of the item deleted, and
+   * all dependent items as well.
    *
    * @param cache The cache to flush, assumed not <code>null</code>.
-   * @param e The event, assumed to be not <code>null</code> and for the
-   * CONTENTSTATUS table.
+   * @param e The event, assumed to be not <code>null</code> and for the CONTENTSTATUS table.
    */
   private void handleContentStatusChange(PSMultiLevelCache cache, PSTableChangeEvent e) {
     if (e.getActionType() == PSTableChangeEvent.ACTION_DELETE) {
@@ -579,12 +546,11 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Handles a change to the PSX_TEMPLATE table.  Flushes all pages
-   * with the changed variantid, and all items dependent on that item.
+   * Handles a change to the PSX_TEMPLATE table. Flushes all pages with the changed variantid, and
+   * all items dependent on that item.
    *
    * @param cache The cache to flush, assumed not <code>null</code>.
-   * @param e The event, assumed to be not <code>null</code> and for the
-   * PSX_TEMPLATE table.
+   * @param e The event, assumed to be not <code>null</code> and for the PSX_TEMPLATE table.
    */
   private void handleContentVariantChange(PSMultiLevelCache cache, PSTableChangeEvent e) {
     // need to update variants map
@@ -627,15 +593,14 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Handles a change to the RXASSEMBLERPROPERTIES table.
-   * If any of the assembler properties (context variables) change
-   * then it is not feasible to determine, which page got affected and which didn't.
-   * Assuming that such changes do not happen often we can justify
-   * flushing the whole cache.
+   * Handles a change to the RXASSEMBLERPROPERTIES table. If any of the assembler properties
+   * (context variables) change then it is not feasible to determine, which page got affected and
+   * which didn't. Assuming that such changes do not happen often we can justify flushing the whole
+   * cache.
    *
    * @param cache The cache to flush, assumed not <code>null</code>.
-   * @param e The event, assumed to be not <code>null</code> and for the
-   * RXASSEMBLERPROPERTIES table.
+   * @param e The event, assumed to be not <code>null</code> and for the RXASSEMBLERPROPERTIES
+   *     table.
    */
   @SuppressWarnings("unused")
   private void handleAssemblerPropertiesChange(PSMultiLevelCache cache, PSTableChangeEvent e) {
@@ -647,9 +612,9 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    * Flushes all items in the provided dependency list.
    *
    * @param cache The cache to flush, assumed not <code>null</code>.
-   * @param deps A list of contentid-revisionid pairs.  Each entry in the list
-   * is a <code>String[2]</code> where the first entry is the contentid and the
-   * second is the revisionid.  Assumed not <code>null</code>, may be empty.
+   * @param deps A list of contentid-revisionid pairs. Each entry in the list is a <code>String[2]
+   *     </code> where the first entry is the contentid and the second is the revisionid. Assumed
+   *     not <code>null</code>, may be empty.
    */
   private void flushDependencies(PSMultiLevelCache cache, List deps) {
     Object[] keys = new Object[KEY_SIZE];
@@ -665,26 +630,24 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Extracts the required keyset from the provided context.  Key values
-   * returned are as follows. For case-insensitive entries, they are lowercased
-   * before they are added:
+   * Extracts the required keyset from the provided context. Key values returned are as follows. For
+   * case-insensitive entries, they are lowercased before they are added:
+   *
    * <ol>
-   * <li>App name (case-sensitivity determined by server setting)</li>
-   * <li>Content Id </li>
-   * <li>Revision Id </li>
-   * <li>Variant Id</li>
-   * <li>Session Id</li>
-   * <li>The following values concatenated together, delimited by a "/":
-   * <ol>
-   * <li>Protocol  (case-insensitive)
-   * <li>Server/port (case-insensitive) - if port is 80, will not be added</li>
-   * <li>Rhythmyx root (case-sensitivity determined by server's setting)</li>
-   * <li>Resource Name including extension (case-insensitive)</li>
-   * <li>all HTML params (case-sensitive), sorted by name in form name=value
-   * </li>
+   *   <li>App name (case-sensitivity determined by server setting)
+   *   <li>Content Id
+   *   <li>Revision Id
+   *   <li>Variant Id
+   *   <li>Session Id
+   *   <li>The following values concatenated together, delimited by a "/":
+   *       <ol>
+   *         <li>Protocol (case-insensitive)
+   *         <li>Server/port (case-insensitive) - if port is 80, will not be added
+   *         <li>Rhythmyx root (case-sensitivity determined by server's setting)
+   *         <li>Resource Name including extension (case-insensitive)
+   *         <li>all HTML params (case-sensitive), sorted by name in form name=value
+   *       </ol>
    * </ol>
-   * </li>
-   *</ol>
    *
    * See base class for more info.
    */
@@ -773,9 +736,9 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Queries the backend for all content variants and stores them in the
-   * provided map.  Expects a document from the internal request conforming
-   * to the following:
+   * Queries the backend for all content variants and stores them in the provided map. Expects a
+   * document from the internal request conforming to the following:
+   *
    * <pre><code>
    *    <!--
    *       Contains a list of zero or more contentvariant elements.
@@ -798,13 +761,10 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
    *    >
    * </code></pre>
    *
-   * @param variantMap The map to which the variants will be added, may not be
-   * <code>null</code>.  Map is cleared before adding the enties.  Key is the
-   * variantid as an <code>String</code>, and the value is the assembly url as
-   * a <code>String</code>.  Assumed not <code>null</code>.
-   *
-   * @throws PSCacheException if there is an problem making the request to the
-   * backend.
+   * @param variantMap The map to which the variants will be added, may not be <code>null</code>.
+   *     Map is cleared before adding the enties. Key is the variantid as an <code>String</code>,
+   *     and the value is the assembly url as a <code>String</code>. Assumed not <code>null</code>.
+   * @throws PSCacheException if there is an problem making the request to the backend.
    */
   private void loadContentVariants(Map variantMap) throws PSCacheException {
     // clear the map
@@ -836,19 +796,18 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * Parses assembly url of a content variant and returns the base request
-   * page (without the extension) in the form of <code>appname/pagename</code>.
+   * Parses assembly url of a content variant and returns the base request page (without the
+   * extension) in the form of <code>appname/pagename</code>.
    *
-   * @param url The assembly url, assumed not <code>null</code>.  Forms that
-   * are expected are the following:
-   * <ul>
-   * <li>../appname/pagename[.ext]</li>
-   * <li>/Rhythmyx/appname/pagename[.ext]</li>
-   * </ul>
+   * @param url The assembly url, assumed not <code>null</code>. Forms that are expected are the
+   *     following:
+   *     <ul>
+   *       <li>../appname/pagename[.ext]
+   *       <li>/Rhythmyx/appname/pagename[.ext]
+   *     </ul>
    *
-   * @return The resulting page, may be <code>null</code> if the provided url
-   * cannot be parsed.  If server is not case-sensitive, appname in result is
-   * lowercase.
+   * @return The resulting page, may be <code>null</code> if the provided url cannot be parsed. If
+   *     server is not case-sensitive, appname in result is lowercase.
    */
   private String getRequestPage(String url) {
     StringBuilder requestPage = new StringBuilder();
@@ -894,143 +853,111 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
   }
 
   /**
-   * The dependency tree used to autoflush dependent pages based on different
-   * change events that may occur.  Intialized during construction, never
-   * <code>null</code> or modified after that.
+   * The dependency tree used to autoflush dependent pages based on different change events that may
+   * occur. Intialized during construction, never <code>null</code> or modified after that.
    */
   private PSContentItemDependencyTree m_dependencyTree;
 
   /**
-   * Map of all registered content variants.  Variants are added during ctor,
-   * and updated by calls to <code>tableChanged()</code>.  Key is the variant
-   * id as a <code>String</code>, and the value is the assembly request as a
-   * <code>String</code> in the form <appname>/<requestpage>.  Never
-   * <code>null</code>.
+   * Map of all registered content variants. Variants are added during ctor, and updated by calls to
+   * <code>tableChanged()</code>. Key is the variant id as a <code>String</code>, and the value is
+   * the assembly request as a <code>String</code> in the form <appname>/<requestpage>. Never <code>
+   * null</code>.
    */
   private Map m_variants = new ConcurrentHashMap();
 
   /**
-   * Key rules used to determine if optional keys should be used for a
-   * particular request.  Currently the only key that is optional is
-   * <code>sessionid</code>.  Intialized during construction, never
+   * Key rules used to determine if optional keys should be used for a particular request. Currently
+   * the only key that is optional is <code>sessionid</code>. Intialized during construction, never
    * <code>null</code> or modified after that.
    */
   private PSKeyRules m_keyRules = null;
 
   /**
-   * Constant for the key size this handler's cache will use.  Value is
-   * currently <code>6</code>.   All <code>KEY_XXX_INDEX</code> values must be
-   * between <code>0</code> and <code>KEY_SIZE - 1</code>, inclusive.
+   * Constant for the key size this handler's cache will use. Value is currently <code>6</code>. All
+   * <code>KEY_XXX_INDEX</code> values must be between <code>0</code> and <code>KEY_SIZE - 1</code>,
+   * inclusive.
    */
   private static final int KEY_SIZE = 6;
 
-  /**
-   * Index into the keyset array for the application name.
-   */
+  /** Index into the keyset array for the application name. */
   private static final int KEY_APP_INDEX = 0;
 
-  /**
-   * Index into the keyset array for the content id
-   */
+  /** Index into the keyset array for the content id */
   private static final int KEY_CONTENTID_INDEX = 1;
 
-  /**
-   * Index into the keyset array for the revision id
-   */
+  /** Index into the keyset array for the revision id */
   private static final int KEY_REVISIONID_INDEX = 2;
 
-  /**
-   * Index into the keyset array for the variant id
-   */
+  /** Index into the keyset array for the variant id */
   private static final int KEY_VARIANTID_INDEX = 3;
 
-  /**
-   * Index into the keyset array for the session id
-   */
+  /** Index into the keyset array for the session id */
   private static final int KEY_SESSIONID_INDEX = 4;
 
   /**
-   * Index into the keyset array for the composite key value. This is all other
-   * key values concatenated together.
+   * Index into the keyset array for the composite key value. This is all other key values
+   * concatenated together.
    */
   private static final int KEY_COMPOSITE_INDEX = 5;
 
   /**
-   * Static array of key names, each at the position in the array of its
-   * corresponding index in a valid keyset.  Never <code>null</code>.
+   * Static array of key names, each at the position in the array of its corresponding index in a
+   * valid keyset. Never <code>null</code>.
    */
   public static final String[] KEY_ENUM = {
     "appname", "contentid", "revisionid", "variantid", "sessionid"
   };
 
-  /**
-   * Type of request this handler will cache.  See {@link #getType()} for more
-   * information.
-   */
+  /** Type of request this handler will cache. See {@link #getType()} for more information. */
   public static final String HANDLER_TYPE = "Assembler";
 
-  /**
-   * Default value used to cache items without regard to session id.
-   */
+  /** Default value used to cache items without regard to session id. */
   private static final String NO_SESSION_ID = "-1";
 
-  /**
-   * Constant for an empty string.
-   */
+  /** Constant for an empty string. */
   private static final String EMPTY_STRING = "";
 
-  /**
-   * Constant for the separator used when building the composite key value.
-   */
+  /** Constant for the separator used when building the composite key value. */
   private static final String KEY_SEP = "/";
 
   /**
-   * Constant for the separator used between parameter names and values when
-   * building the composite key value.
+   * Constant for the separator used between parameter names and values when building the composite
+   * key value.
    */
   private static final String PARAM_SEP = "=";
 
-  /**
-   * Request name for app and resource to query all content variants.
-   */
+  /** Request name for app and resource to query all content variants. */
   private static final String VARIANT_REQUEST_NAME = "sys_Variants/cachevariants.xml";
 
-  /**
-   * Constant for element in query result doc defining a variant.
-   */
+  /** Constant for element in query result doc defining a variant. */
   private static final String VARIANT_NODE_NAME = "contentvariant";
 
   /**
-   * Constant for attribute of element in query result doc defining a variant
-   * that contains the variant id.
+   * Constant for attribute of element in query result doc defining a variant that contains the
+   * variant id.
    */
   private static final String VARIANT_ID_ATTR = "variantid";
 
   /**
-   * Constant for attribute of element in query result doc defining a variant
-   * that contains the assembly url.
+   * Constant for attribute of element in query result doc defining a variant that contains the
+   * assembly url.
    */
   private static final String ASSEMBLY_URL_ATTR = "assemblyurl";
 
-  /**
-   * Constant for / separator used in urls
-   */
+  /** Constant for / separator used in urls */
   private static final String URL_SEP = "/";
 
-  /**
-   * Name of the file containing the key rule definitions.
-   */
+  /** Name of the file containing the key rule definitions. */
   private static final String KEY_RULES_FILENAME = "PSAssemblerKeyRules.xml";
 
   /**
-   * Map of update tables and the columns to get values for when registering
-   * as a <code>IPSTableChangeListener</code>, by table name and action.
-   * Key is the table name as a <code>String</code>, value is a
-   * <code>Map</code> of <code>List</code> objects. The key is the
-   * <code>PSTableChangeEvent.ACTION_xxx</code> as an <code>Integer</code>.
-   * The value is a list of names to get values for in the event as
-   * <code>String</code> objects.  Initialized by static intializer, never
-   * <code>null</code> or modified after that.
+   * Map of update tables and the columns to get values for when registering as a <code>
+   * IPSTableChangeListener</code>, by table name and action. Key is the table name as a <code>
+   * String</code>, value is a <code>Map</code> of <code>List</code> objects. The key is the <code>
+   * PSTableChangeEvent.ACTION_xxx</code> as an <code>Integer</code>. The value is a list of names
+   * to get values for in the event as <code>String</code> objects. Initialized by static
+   * intializer, never <code>null</code> or modified after that.
    */
   private static Map<String, Map<Integer, List<String>>> m_updateTables;
 
@@ -1049,9 +976,8 @@ public class PSAssemblerCacheHandler extends PSCacheHandler
     m_updateTables.put(IPSConstants.CONTENT_STATUS_TABLE, actionMap);
 
     /**
-     * @todo: remove the following code for relationship tables once all
-     *    applications, stylesheets use the relationship command handler
-     *    for relationship changes.
+     * @todo: remove the following code for relationship tables once all applications, stylesheets
+     *     use the relationship command handler for relationship changes.
      */
     // create lists for {@link IPSConstants#PSX_RELATIONSHIPS} table
     actionMap = new ConcurrentHashMap<>(1);

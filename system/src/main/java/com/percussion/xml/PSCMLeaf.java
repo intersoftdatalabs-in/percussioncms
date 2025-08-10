@@ -21,20 +21,19 @@ import org.apache.xerces.impl.dtd.models.CMLeaf;
 import org.apache.xerces.xni.QName;
 
 /**
- * PSCMLeaf provides content model support for content model nodes that are
- * leaf node; in other words, nodes which do not have associated language
- * primitives and are not model groups. For example, Leaf nodes that represent
- * parsed character (#pcdata).
+ * PSCMLeaf provides content model support for content model nodes that are leaf node; in other
+ * words, nodes which do not have associated language primitives and are not model groups. For
+ * example, Leaf nodes that represent parsed character (#pcdata).
  */
 public class PSCMLeaf extends CMLeaf {
   /**
    * Constructs a content model leaf.
-   * @param element contains the name of the leaf content model node
-   * (such as #PCDATA or elementX). May not be <code>null</code>.
-   * @param position if its -1, that means its an epsilon node. Zero and
-   * greater are non-epsilon positions.
-   * For details, please see the Xerces javadoc for
-   * org.apache.xerces.framework.XMLContentSpecNode
+   *
+   * @param element contains the name of the leaf content model node (such as #PCDATA or elementX).
+   *     May not be <code>null</code>.
+   * @param position if its -1, that means its an epsilon node. Zero and greater are non-epsilon
+   *     positions. For details, please see the Xerces javadoc for
+   *     org.apache.xerces.framework.XMLContentSpecNode
    */
   public PSCMLeaf(QName element, int position) {
     super(element, position);
@@ -44,8 +43,9 @@ public class PSCMLeaf extends CMLeaf {
 
   /**
    * Constructs a content model leaf.
-   * @param element contains the name of the leaf content model node
-   * (such as #PCDATA or elementX).  May not be <code>null</code>.
+   *
+   * @param element contains the name of the leaf content model node (such as #PCDATA or elementX).
+   *     May not be <code>null</code>.
    */
   public PSCMLeaf(QName element) {
     super(element);
@@ -53,23 +53,17 @@ public class PSCMLeaf extends CMLeaf {
   }
 
   /**
-   * Returns the name of the leaf content model node
-   * (such as #PCDATA or elementX)
-   * @return the name of the left content model node, never <code>null</code>
-   * or empty
+   * Returns the name of the leaf content model node (such as #PCDATA or elementX)
+   *
+   * @return the name of the left content model node, never <code>null</code> or empty
    */
   public String getName() {
     return m_element.rawname;
   }
 
-  /**
-   * This is the element that this leaf represents.
-   */
+  /** This is the element that this leaf represents. */
   protected QName m_element = new QName();
 
-  /**
-   * If its -1, that means its an
-   * epsilon node. Zero and greater are non-epsilon positions.
-   */
+  /** If its -1, that means its an epsilon node. Zero and greater are non-epsilon positions. */
   protected int m_position = -1;
 }

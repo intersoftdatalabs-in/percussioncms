@@ -48,9 +48,7 @@ import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements functionality for the "Trace" console command in all its forms
- */
+/** Implements functionality for the "Trace" console command in all its forms */
 public class PSConsoleCommandTrace extends PSConsoleCommand {
 
   /**
@@ -144,11 +142,11 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   * <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    * &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
    * &lt;--
@@ -164,6 +162,7 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
    * --&gt;
    * &lt;ELEMENT resultText                  (#PCDATA)&gt;
    * </CODE></PRE>
+   *
    * @param request the requestor object
    * @return the result document
    * @roseuid 39FF04590119
@@ -241,33 +240,21 @@ public class PSConsoleCommandTrace extends PSConsoleCommand {
     return respDoc;
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "trace";
 
-  /**
-   * Determine if trace cmd with default options
-   */
+  /** Determine if trace cmd with default options */
   private boolean m_default = false;
 
-  /**
-   * Determine if help cmd
-   */
+  /** Determine if help cmd */
   private boolean m_help = false;
 
-  /**
-   * If trace cmd, the appname
-   */
+  /** If trace cmd, the appname */
   private String m_appname = null;
 
-  /**
-   * If trace cmd, the flags
-   */
+  /** If trace cmd, the flags */
   private int[] m_traceFlags = {0, 0, 0, 0};
 
-  /**
-   * If trace cmd, the number of flags passed
-   */
+  /** If trace cmd, the number of flags passed */
   private int m_flagCount = 0;
 }

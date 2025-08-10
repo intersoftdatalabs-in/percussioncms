@@ -21,20 +21,20 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 /**
- * The PSBackEndColumnExtractor class is used to extract data from the
- * back-end column associated with the current result row.
+ * The PSBackEndColumnExtractor class is used to extract data from the back-end column associated
+ * with the current result row.
  *
- * // REFACTORED: CP-JAVA11
+ * <p>// REFACTORED: CP-JAVA11
  *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndColumnExtractor extends PSDataExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param   source       the object defining the source of this value
+   * @param source the object defining the source of this value
    */
   public PSBackEndColumnExtractor(com.percussion.design.objectstore.PSBackEndColumn source) {
     super(source);
@@ -48,16 +48,11 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   data    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return   the associated value; <code>null</code> if a
-   *                       value is not found
-   *
-   * @exception   PSDataExtractionException
-   *                        if an error condition causes the extraction to
-   *                        fail. This is not thrown if the requested data
-   *                        does not exist.
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
+   * @exception PSDataExtractionException if an error condition causes the extraction to fail. This
+   *     is not thrown if the requested data does not exist.
    */
   @Override
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
@@ -67,22 +62,17 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param data the execution data associated with this request. This includes
-   * all context data, result sets, etc.
-   *
+   * @param data the execution data associated with this request. This includes all context data,
+   *     result sets, etc.
    * @param defValue the default value to use if a value is not found
-   *
-   * @return the associated value; <code>defValue</code> if a value is not
-   * found
-   *
+   * @return the associated value; <code>defValue</code> if a value is not found
    * @exception PSDataExtractionException is thrown in two conditions
-   * <ol>
-   * <li>the column does not exist in the result set in which case the error
-   * code will be {@link IPSDataErrors#BE_COL_EXTR_INVALID_COL}</li>
-   * <li>column exists but fails to extract the data from the result set in
-   * which case the erro code will be
-   * {@link IPSDataErrors#BE_COL_EXTR_EXCEPTION}</li>
-   * </ol>
+   *     <ol>
+   *       <li>the column does not exist in the result set in which case the error code will be
+   *           {@link IPSDataErrors#BE_COL_EXTR_INVALID_COL}
+   *       <li>column exists but fails to extract the data from the result set in which case the
+   *           erro code will be {@link IPSDataErrors#BE_COL_EXTR_EXCEPTION}
+   *     </ol>
    */
   @Override
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
@@ -124,18 +114,14 @@ public class PSBackEndColumnExtractor extends PSDataExtractor {
   }
 
   /**
-   * Looks in the supplied metadata to find the column that matches the
-   * supplied column name (in a case insensitive manner). The index of this
-   * column is returned.
+   * Looks in the supplied metadata to find the column that matches the supplied column name (in a
+   * case insensitive manner). The index of this column is returned.
    *
-   * @param colName The name of the column to find.  May not be <code>null
+   * @param colName The name of the column to find. May not be <code>null
    * </code>.
-   *
-   * @param meta The metadata in which to locate the column.  May not be <code>
+   * @param meta The metadata in which to locate the column. May not be <code>
    * null</code>.
-   *
    * @return The column index, or -1 if not found.
-   *
    * @throws PSDataExtractionException if there is an error.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */

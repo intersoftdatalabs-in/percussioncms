@@ -24,19 +24,14 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The class that is used to represent menu actions as defined by
- * 'sys_Action.dtd'.
- */
+/** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 public class PSMenuBar implements IPSComponent {
   /**
-   * Constructs the menu bar with supplied actions and no properties. Use
-   * {@link #setProperties(PSProperties)} to set properties.
+   * Constructs the menu bar with supplied actions and no properties. Use {@link
+   * #setProperties(PSProperties)} to set properties.
    *
-   * @param actions the list of menu actions, may not be <code>null</code> or
-   * empty and each action should represent a menu. See {@link
-   * PSAction#isMenu() } for more info.
-   *
+   * @param actions the list of menu actions, may not be <code>null</code> or empty and each action
+   *     should represent a menu. See {@link PSAction#isMenu() } for more info.
    * @throws IllegalArgumentException if any actions is invalid.
    */
   public PSMenuBar(Iterator actions) {
@@ -55,11 +50,10 @@ public class PSMenuBar implements IPSComponent {
   }
 
   /**
-   * Constructs the menu bar object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs the menu bar object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is not of expected format.
    */
@@ -102,11 +96,11 @@ public class PSMenuBar implements IPSComponent {
   }
 
   /**
-   * Implements the IPSComponent interface method to produce XML representation
-   * of this object. See the interface for description of the method and
-   * parameters.
-   * <p>
-   * The xml format is:
+   * Implements the IPSComponent interface method to produce XML representation of this object. See
+   * the interface for description of the method and parameters.
+   *
+   * <p>The xml format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT MenuBar (Props?, Action+)>
    * </code></pre>
@@ -128,8 +122,7 @@ public class PSMenuBar implements IPSComponent {
   /**
    * Sets the properties of this action.
    *
-   * @param props the properties, supply <code>null</code> to clear the
-   * existing properties.
+   * @param props the properties, supply <code>null</code> to clear the existing properties.
    */
   public void setProperties(PSProperties props) {
     m_props = props;
@@ -147,8 +140,8 @@ public class PSMenuBar implements IPSComponent {
   /**
    * Gets the menu actions of this menu bar.
    *
-   * @return an iterator over zero or more <code>PSAction</code> objects, never
-   * <code>null</code> or empty.
+   * @return an iterator over zero or more <code>PSAction</code> objects, never <code>null</code> or
+   *     empty.
    */
   public Iterator getActions() {
     return m_actions.iterator();
@@ -175,21 +168,18 @@ public class PSMenuBar implements IPSComponent {
   }
 
   /**
-   * The properties of the menu bar, initialized as this object is loaded from
-   * xml, may be <code>null</code> if not specified. Never modified after
-   * initialization.
+   * The properties of the menu bar, initialized as this object is loaded from xml, may be <code>
+   * null</code> if not specified. Never modified after initialization.
    */
   private PSProperties m_props = null;
 
   /**
-   * List of menu actions that this menu bar contains, initialized to an empty
-   * list and gets filled as this object is loaded from xml, never <code>null
+   * List of menu actions that this menu bar contains, initialized to an empty list and gets filled
+   * as this object is loaded from xml, never <code>null
    * </code> or empty after that.
    */
   private List m_actions = new ArrayList();
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "MenuBar";
 }

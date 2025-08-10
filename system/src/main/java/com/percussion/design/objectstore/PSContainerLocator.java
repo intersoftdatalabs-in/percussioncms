@@ -29,15 +29,13 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXContainerLocator DTD defined in BasicObjects.dtd.
- */
+/** Implements the PSXContainerLocator DTD defined in BasicObjects.dtd. */
 public class PSContainerLocator extends PSComponent {
   /**
    * Create a new table locator for the provided table sets.
    *
-   * @param tableSets the table sets for this locator, a collection of
-   *    PSTableSet objects, not <code>null</code> or empty.
+   * @param tableSets the table sets for this locator, a collection of PSTableSet objects, not
+   *     <code>null</code> or empty.
    */
   public PSContainerLocator(PSCollection tableSets) {
     setTableSets(tableSets);
@@ -46,41 +44,33 @@ public class PSContainerLocator extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContainerLocator(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSContainerLocator() {}
 
   /**
    * Get the collection of table sets.
    *
-   * @return a collection of PSTableSet objects, never
-   *    <code>null</code> or empty.
+   * @return a collection of PSTableSet objects, never <code>null</code> or empty.
    */
   public Iterator getTableSets() {
     return m_tableSets.iterator();
   }
 
   /**
-   * Set the new collection of new table sets (a collection of PSTableSet
-   * objects).
+   * Set the new collection of new table sets (a collection of PSTableSet objects).
    *
-   * @param tableSets the new collection of table sets(PSTableSet objects),
-   *    never <code>null</code>, never empty.
+   * @param tableSets the new collection of table sets(PSTableSet objects), never <code>null</code>,
+   *     never empty.
    */
   public void setTableSets(PSCollection tableSets) {
     if (tableSets == null || tableSets.isEmpty())
@@ -94,14 +84,13 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   * Merges the table sets from the supplied system and shared definitions into
-   * this locator.
+   * Merges the table sets from the supplied system and shared definitions into this locator.
+   *
    * @param systemDef The system def, may not be <code>null</code>.
    * @param sharedDef The shared def, may be <code>null</code>.
-   * @param sharedFieldIncludes uppercased list of shared group names whose
-   * tablesets are to be merged into this locator, may be <code>null</code> only
-   * if <code>sharedDef</code> is <code>null</code>, may be empty.
-   *
+   * @param sharedFieldIncludes uppercased list of shared group names whose tablesets are to be
+   *     merged into this locator, may be <code>null</code> only if <code>sharedDef</code> is <code>
+   *     null</code>, may be empty.
    * @throws PSSystemValidationException If there is a table alias collision.
    */
   public void mergeTableSets(
@@ -166,9 +155,8 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   * Returns a map of all table ref aliases contained in this locator, with
-   * table ref alias uppercased as the key and the tableset containing it as
-   * the value.
+   * Returns a map of all table ref aliases contained in this locator, with table ref alias
+   * uppercased as the key and the tableset containing it as the value.
    *
    * @return The HashMap, never <code>null</code>.
    */
@@ -191,17 +179,14 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   * Merges fields from the source tableset into the container's
-   * tableset collection.  Will check for any alias collisions (same alias,
-   * different table) in a case insensitive manner.  Any duplicate table refs
-   * within the same table locator will not be added.
+   * Merges fields from the source tableset into the container's tableset collection. Will check for
+   * any alias collisions (same alias, different table) in a case insensitive manner. Any duplicate
+   * table refs within the same table locator will not be added.
    *
    * @param source The source tableset, assumed not <code>null</code>.
-   * @param refMap A hash map of all table ref aliases from the target
-   * container with the table ref alias (uppercased) as the key and the
-   * tableset of that ref as the value. Used to check for alias collisions,
-   * assumed not <code>null</code>
-   *
+   * @param refMap A hash map of all table ref aliases from the target container with the table ref
+   *     alias (uppercased) as the key and the tableset of that ref as the value. Used to check for
+   *     alias collisions, assumed not <code>null</code>
    * @throws PSSystemValidationException if there is an alias collision.
    */
   private void mergeTableSet(PSTableSet source, Map refMap) throws PSSystemValidationException {
@@ -279,9 +264,8 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSContainerLocator, not <code>null</code>.
    */
@@ -296,12 +280,10 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   * Builds fully defined PSBackEndTables for every table specified in this
-   * locator.
+   * Builds fully defined PSBackEndTables for every table specified in this locator.
    *
-   * @return A map whose key is the table alias (lowercased) and whose value
-   *    is a PSBackEndTable that has all properties properly specified. Never
-   *    <code>null</code>, could be empty.
+   * @return A map whose key is the table alias (lowercased) and whose value is a PSBackEndTable
+   *     that has all properties properly specified. Never <code>null</code>, could be empty.
    */
   public Map getBackEndTables() {
     Map tableMap = null;
@@ -343,7 +325,6 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -384,7 +365,6 @@ public class PSContainerLocator extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -419,9 +399,6 @@ public class PSContainerLocator extends PSComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXContainerLocator";
 
-  /**
-   * A collection of PSTableSet objects, never <code>null</code> after
-   * construction.
-   */
+  /** A collection of PSTableSet objects, never <code>null</code> after construction. */
   private PSCollection m_tableSets = new PSCollection((new PSTableSet()).getClass());
 }

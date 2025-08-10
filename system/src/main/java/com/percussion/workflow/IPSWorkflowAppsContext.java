@@ -25,72 +25,55 @@ import java.sql.SQLException;
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
 public interface IPSWorkflowAppsContext {
   /**
    * Gets the Workflow application ID
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   *
-   * @param   none
-   *
-   * @return  WorkflowAppID
+   * @param none
+   * @return WorkflowAppID
    */
   public int getWorkFlowAppID() throws SQLException;
 
   /**
    * Gets the Workflow application name
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   *
-   * @param   none
-   *
-   * @return  Workflow app name
+   * @param none
+   * @return Workflow app name
    */
   public String getWorkFlowAppName() throws SQLException;
 
   /**
    * Gets the Workflow application description
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   *
-   * @param   none
-   *
-   * @return  Workflow app description
-   *
+   * @param none
+   * @return Workflow app description
    */
   public String getWorkFlowAppDescription() throws SQLException;
 
   /**
    * Gets the Workflow application's administrator name
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   *
-   * @param   none
-   *
-   * @return  name of the Workflow application's administrator
+   * @param none
+   * @return name of the Workflow application's administrator
    */
   public String getWorkFlowAdministrator() throws SQLException;
 
   /**
    * Gets the Workflow application's initial stateID
-   * @author   Ram
    *
+   * @author Ram
    * @version 1.0
-   *
-   *
-   * @param   none
-   *
-   * @return  Workflow's initial stateID
+   * @param none
+   * @return Workflow's initial stateID
    */
   public int getWorkFlowInitialStateID() throws SQLException;
 }

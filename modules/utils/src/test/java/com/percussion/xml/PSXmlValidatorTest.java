@@ -30,15 +30,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test the xml validator class.
- *
- */
+/** Test the xml validator class. */
 public class PSXmlValidatorTest {
 
-  /**
-   *
-   */
+  /** */
   public PSXmlValidatorTest() {
     super();
   }
@@ -73,6 +68,7 @@ public class PSXmlValidatorTest {
 
   /**
    * Utility method to create a file
+   *
    * @param file
    * @param content
    * @throws Exception

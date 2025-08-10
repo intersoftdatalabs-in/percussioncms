@@ -28,9 +28,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Update handler that deals with evicting objects from hibernate's secondary
- * cache. Needed to integrate updates in the Rhythmyx application framework to
- * services that are relying on cached data in Hibernate.
+ * Update handler that deals with evicting objects from hibernate's secondary cache. Needed to
+ * integrate updates in the Rhythmyx application framework to services that are relying on cached
+ * data in Hibernate.
  *
  * @author dougrand
  */
@@ -39,28 +39,22 @@ public class PSHibernateEvictionTableUpdateHandler extends PSTableUpdateHandlerB
   private static final Logger log =
       LogManager.getLogger(PSHibernateEvictionTableUpdateHandler.class);
 
-  /**
-   * The primary keys that correspond to the tables
-   */
+  /** The primary keys that correspond to the tables */
   private String[] m_keys;
 
-  /**
-   * The classes that correspond to the tables
-   */
+  /** The classes that correspond to the tables */
   private Class[] m_classes;
 
   /**
    * Ctor
    *
-   * @param tables the set of tables of interest. The count of tables, primary
-   *           key columns and persistence classes must match and must not be
-   *           zero.
-   * @param pkcolumns the primary key column names, the names must be non-<code>null</code>
-   *           and not empty
-   * @param persistenceClasses the persistence classes that correspond one for
-   *           one with the tables and primary keys, values may be
-   *           <code>null</code> to evict all instances of the matching class
-   *           from the cache, useful when objects specify a compound key.
+   * @param tables the set of tables of interest. The count of tables, primary key columns and
+   *     persistence classes must match and must not be zero.
+   * @param pkcolumns the primary key column names, the names must be non-<code>null</code> and not
+   *     empty
+   * @param persistenceClasses the persistence classes that correspond one for one with the tables
+   *     and primary keys, values may be <code>null</code> to evict all instances of the matching
+   *     class from the cache, useful when objects specify a compound key.
    */
   public PSHibernateEvictionTableUpdateHandler(
       String tables[], String pkcolumns[], Class persistenceClasses[]) {

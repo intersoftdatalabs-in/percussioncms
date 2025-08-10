@@ -26,13 +26,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Udf to parse an Xml fragment containing an element and return a Document with
- * the specified root and the parsed element as a child of that root. May be
- * used to retrieve Xml stored in a database column and include it as part of an
- * Xml document returned by a query.  When used in the mapper of a query
- * resource, the server will replace Xml element to which the udf is mapped with
- * the returned Xml document and provided that the mapped Xml element name and
- * the specified root name match.
+ * Udf to parse an Xml fragment containing an element and return a Document with the specified root
+ * and the parsed element as a child of that root. May be used to retrieve Xml stored in a database
+ * column and include it as part of an Xml document returned by a query. When used in the mapper of
+ * a query resource, the server will replace Xml element to which the udf is mapped with the
+ * returned Xml document and provided that the mapped Xml element name and the specified root name
+ * match.
  */
 public class PSTextToXml extends PSSimpleJavaUdfExtension {
   /**

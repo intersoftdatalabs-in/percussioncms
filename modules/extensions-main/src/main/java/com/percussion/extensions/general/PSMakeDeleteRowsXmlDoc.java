@@ -32,25 +32,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension builds a content item list for deletion by the Rhythmyx
- * update resource. The DTD for the document is:
- * <p>
- * &lt;!ELEMENT deleterows (row*) &gt;
- * &lt;!ELEMENT row (#PCDATA) &gt;
- * &lt;!ATTLIST row pkey CDATA #IMPLIED &gt;
- * &lt;!ATTLIST row pkey1 CDATA #IMPLIED &gt;
- * &lt;!ATTLIST row pkey2 CDATA #IMPLIED &gt;
- * <p>
- * This exit shall typically placed on an Rx update resource that deletes the
- * rows from one or more backend tables. The XML element pkey must be mapped to
- * the primary key in the backed table(s).
- * <p>
- * This exit supports primary key with 3 columns maximum. However the support
- * for multiple column values for primary key works only if the value
- * of the first parameter is not an instance of
- * <code>java.util.Collection</code>. This implies that if multiple rows are
- * being deleted at a time, then only the first parameter should be used.
- * The second and third parameters are ignored in this case.
+ * This extension builds a content item list for deletion by the Rhythmyx update resource. The DTD
+ * for the document is:
+ *
+ * <p>&lt;!ELEMENT deleterows (row*) &gt; &lt;!ELEMENT row (#PCDATA) &gt; &lt;!ATTLIST row pkey
+ * CDATA #IMPLIED &gt; &lt;!ATTLIST row pkey1 CDATA #IMPLIED &gt; &lt;!ATTLIST row pkey2 CDATA
+ * #IMPLIED &gt;
+ *
+ * <p>This exit shall typically placed on an Rx update resource that deletes the rows from one or
+ * more backend tables. The XML element pkey must be mapped to the primary key in the backed
+ * table(s).
+ *
+ * <p>This exit supports primary key with 3 columns maximum. However the support for multiple column
+ * values for primary key works only if the value of the first parameter is not an instance of
+ * <code>java.util.Collection</code>. This implies that if multiple rows are being deleted at a
+ * time, then only the first parameter should be used. The second and third parameters are ignored
+ * in this case.
  */
 public class PSMakeDeleteRowsXmlDoc implements IPSRequestPreProcessor {
   /*
@@ -138,8 +135,6 @@ public class PSMakeDeleteRowsXmlDoc implements IPSRequestPreProcessor {
     }
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 }

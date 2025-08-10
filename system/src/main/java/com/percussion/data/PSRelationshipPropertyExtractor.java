@@ -24,16 +24,16 @@ import com.percussion.design.objectstore.PSRelationshipProperty;
 import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
- * Extracts relationship properties from the currently processed relationship
- * available in the execution data.
+ * Extracts relationship properties from the currently processed relationship available in the
+ * execution data.
  */
 public class PSRelationshipPropertyExtractor extends PSDataExtractor {
   /**
-   * Creates a new <code>IPSReplacementValue</code> extractor for the
-   * supplied relationship property.
+   * Creates a new <code>IPSReplacementValue</code> extractor for the supplied relationship
+   * property.
    *
-   * @param source the relationship property to construct the
-   *    IPSReplacementValue for, may be <code>null</code>.
+   * @param source the relationship property to construct the IPSReplacementValue for, may be <code>
+   *     null</code>.
    */
   public PSRelationshipPropertyExtractor(PSRelationshipProperty source) {
     super(source);
@@ -42,26 +42,22 @@ public class PSRelationshipPropertyExtractor extends PSDataExtractor {
   /**
    * Extract the relationship property source from the supplied execution data.
    *
-   * @param data the execution data to extract the property from, may be
-   *    <code>null</code>.
-   * @return the extracted relationship property as <code>String</code>, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the property from, may be <code>null</code>.
+   * @return the extracted relationship property as <code>String</code>, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data) {
     return extract(data, null);
   }
 
   /**
-   * Extract the relationship property source from the supplied execution data
-   * for the currently processed relationship.
+   * Extract the relationship property source from the supplied execution data for the currently
+   * processed relationship.
    *
-   * @param data the execution data to extract the property from, may be
-   *    <code>null</code>.
-   * @param defValue the default value to be returned if the property cannot
-   *    be found, may be <code>null</code>.
-   * @return the extracted relationship property as <code>String</code> or
-   *    the supplied default value if the property cannot be found, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the property from, may be <code>null</code>.
+   * @param defValue the default value to be returned if the property cannot be found, may be <code>
+   *     null</code>.
+   * @return the extracted relationship property as <code>String</code> or the supplied default
+   *     value if the property cannot be found, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data, Object defValue) {
     if (data == null) return defValue;

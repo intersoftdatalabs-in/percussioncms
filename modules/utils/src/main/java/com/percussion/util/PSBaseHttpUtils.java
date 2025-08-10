@@ -35,26 +35,23 @@ import org.apache.commons.lang.StringUtils;
 public class PSBaseHttpUtils {
 
   /**
-   * Reads the HTTP status line, which consists a series of (possibly
-   * encoded) characters terminated by a \r\n.
-   * <P>
-   * It turns out that some browsers (like Netscape 4.6) do not escape
-   * non-ASCII characters (like &uuml;) properly. For example, Netscape sends
-   * &uuml; as byte value 252, which is the ISO-8859-1 (Latin) code for
-   * that character, whereas IE sends a URL encoded (using %) hex
-   * representation of the bytes.
-   * <P>
-   * The behavior of IE is bizarre when it comes to things like forms. If the
-   * form's page is in ISO-8859-1, but you have "Always send URLs as UTF-8"
-   * checked in the options, IE will send the first part of the URL (the
-   * directory, the page name, etc.) as ASCII-encoded UTF-8, but will
-   * send the second part as ASCII-encoded ISO-8859-1 (or whatever the
-   * form is in). We currently cannot deal with this situation, so the
-   * page author should either encode the page all in UTF-8 or put an
-   * accept-charset attribute on the FORM tag.
-   * <P>
-   * This method reads the line from the input stream and tries to guess
-   * the encoding of the bytes.
+   * Reads the HTTP status line, which consists a series of (possibly encoded) characters terminated
+   * by a \r\n.
+   *
+   * <p>It turns out that some browsers (like Netscape 4.6) do not escape non-ASCII characters (like
+   * &uuml;) properly. For example, Netscape sends &uuml; as byte value 252, which is the ISO-8859-1
+   * (Latin) code for that character, whereas IE sends a URL encoded (using %) hex representation of
+   * the bytes.
+   *
+   * <p>The behavior of IE is bizarre when it comes to things like forms. If the form's page is in
+   * ISO-8859-1, but you have "Always send URLs as UTF-8" checked in the options, IE will send the
+   * first part of the URL (the directory, the page name, etc.) as ASCII-encoded UTF-8, but will
+   * send the second part as ASCII-encoded ISO-8859-1 (or whatever the form is in). We currently
+   * cannot deal with this situation, so the page author should either encode the page all in UTF-8
+   * or put an accept-charset attribute on the FORM tag.
+   *
+   * <p>This method reads the line from the input stream and tries to guess the encoding of the
+   * bytes.
    */
   static String readStatusLine(PushbackInputStream in) throws IOException {
     try (java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream(100)) {
@@ -95,23 +92,25 @@ public class PSBaseHttpUtils {
 
   /**
    * Parse the HTTP Content-Type header.
-   * <P>
-   * The content-type header can have many parts. The syntax, which
-   * is summarized here, is defined fully in the HTTP 1.1 spec
-   * (RFC 2068), especially in section 3.7.
-   * <P>
-   * It is important to note that the HTTP 1.1 spec allows unlimited
-   * whitespace between tokens. From section 2.1:
-   * <P>
+   *
+   * <p>The content-type header can have many parts. The syntax, which is summarized here, is
+   * defined fully in the HTTP 1.1 spec (RFC 2068), especially in section 3.7.
+   *
+   * <p>It is important to note that the HTTP 1.1 spec allows unlimited whitespace between tokens.
+   * From section 2.1:
+   *
+   * <p>
+   *
    * <BLOCKQUOTE>
-   * The grammar described by this specification is word-based. Except
-   * where noted otherwise, linear whitespace (LWS) can be included
-   * between any two adjacent words (token or quoted-string), and
-   * between adjacent tokens and delimiters (tspecials), without
-   * changing the interpretation of a field. At least one delimiter
-   * (tspecials) must exist between any two tokens, since they would
+   *
+   * The grammar described by this specification is word-based. Except where noted otherwise, linear
+   * whitespace (LWS) can be included between any two adjacent words (token or quoted-string), and
+   * between adjacent tokens and delimiters (tspecials), without changing the interpretation of a
+   * field. At least one delimiter (tspecials) must exist between any two tokens, since they would
    * otherwise be interpreted as a single token.
+   *
    * </BLOCKQUOTE>
+   *
    * <PRE>
    * CTL            = <any US-ASCII control character (octets 0 - 31) and DEL (127)>
    * CHAR            = <any US-ASCII character (octets 0 - 127)>
@@ -129,40 +128,32 @@ public class PSBaseHttpUtils {
    * attribute      = token
    * value          = token | quoted-string
    * </PRE>
-   * The media-type is usually something like this:
-   *    <CODE>application/x-www-form-urlencoded</CODE>
+   *
+   * The media-type is usually something like this: <CODE>application/x-www-form-urlencoded</CODE>
    * conforming to MIME type syntax.
-   * <P>
-   * After the media-type, there may be zero or more parameters,
-   * each of which starts with a semicolon. That would look something
-   * like this:
-   *    <CODE>application/x-www-form-urlencoded ; charset=US-ASCII; foo="bar"</CODE>
-   * <P>
-   * Each parameter is of the form attribute=value, where value may
-   * be either a token or a quoted string. A quoted string is a string
-   * that starts and ends with a double quote ("). Since a token cannot
-   * start with a double quote (or any other of a list of special
-   * characters), our code makes the valid assumption that any value
-   * starting with a double quote must also end in a double quote.
-   * <P>
-   * One of these parameters can be the charset parameter, which
-   * specifies the character encoding of the form data. If this
-   * parameter is left out, the spec says we must assume its value is
+   *
+   * <p>After the media-type, there may be zero or more parameters, each of which starts with a
+   * semicolon. That would look something like this: <CODE>
+   * application/x-www-form-urlencoded ; charset=US-ASCII; foo="bar"</CODE>
+   *
+   * <p>Each parameter is of the form attribute=value, where value may be either a token or a quoted
+   * string. A quoted string is a string that starts and ends with a double quote ("). Since a token
+   * cannot start with a double quote (or any other of a list of special characters), our code makes
+   * the valid assumption that any value starting with a double quote must also end in a double
+   * quote.
+   *
+   * <p>One of these parameters can be the charset parameter, which specifies the character encoding
+   * of the form data. If this parameter is left out, the spec says we must assume its value is
    * ISO-8859-1.
    *
-   *
-   * @param    contentType The value of the Content-Type HTTP header. If
-   * <code>null</code> or empty, <code>null</code> is returned.
-   *
-   * @param    params A map in which we store the Content-Type parameters,
-   * keyed by their lowercased names. The map can be null, in which case
-   * no parameter values will be parsed or stored, except for the MIME type
-   * which is the return value of this function.
-   *
-   * @return  String The media (MIME) type which makes up the first part
-   * of the Content-Type header value. The media type will be all lowercase.
-   * If <code>null</code> is supplied for the content type, <code>null</code>
-   * is returned.
+   * @param contentType The value of the Content-Type HTTP header. If <code>null</code> or empty,
+   *     <code>null</code> is returned.
+   * @param params A map in which we store the Content-Type parameters, keyed by their lowercased
+   *     names. The map can be null, in which case no parameter values will be parsed or stored,
+   *     except for the MIME type which is the return value of this function.
+   * @return String The media (MIME) type which makes up the first part of the Content-Type header
+   *     value. The media type will be all lowercase. If <code>null</code> is supplied for the
+   *     content type, <code>null</code> is returned.
    */
   @SuppressWarnings("unchecked")
   public static String parseContentType(String contentType, Map params) {
@@ -190,13 +181,11 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Parse an HTTP params string which consists of 0 or more
-   * attribute=value pairs separated by semicolons. Unlimited whitespace
-   * is allowed between tokens. Values can also be quoted, which means
-   * that special characters (such as = and ;) should be ignored
-   * between the quote delimiters.
+   * Parse an HTTP params string which consists of 0 or more attribute=value pairs separated by
+   * semicolons. Unlimited whitespace is allowed between tokens. Values can also be quoted, which
+   * means that special characters (such as = and ;) should be ignored between the quote delimiters.
    *
-   * The params will be stored in the map as LCASE(name) -> value.
+   * <p>The params will be stored in the map as LCASE(name) -> value.
    */
   @SuppressWarnings("unchecked")
   protected static int parseHttpParamsString(String paramStr, Map params) {
@@ -256,12 +245,11 @@ public class PSBaseHttpUtils {
   /**
    * Build HTTP Content-Type header by concatenating mimeType and encoding.
    *
-   * @param   mimeType   mime type to add to header. if null or empty, an
-   *                     empty header will be generated.
-   * @param   encoding   character set encoding to add to header. if null or
-   *                     empty, charset will not be included in header.
-   * @return  The HTTP Content-Type header String; may be empty, but will
-   *          not be <code>null</code>
+   * @param mimeType mime type to add to header. if null or empty, an empty header will be
+   *     generated.
+   * @param encoding character set encoding to add to header. if null or empty, charset will not be
+   *     included in header.
+   * @return The HTTP Content-Type header String; may be empty, but will not be <code>null</code>
    */
   public static String constructContentTypeHeader(String mimeType, String encoding) {
     String contentHeader;
@@ -274,13 +262,12 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Looks for the first occurrence of '?' and returns everything up to, but
-   * not including that char.
+   * Looks for the first occurrence of '?' and returns everything up to, but not including that
+   * char.
    *
    * @param url Anything is allowed.
-   *
-   * @return All chars up to, but not including the param string delimiter. If
-   *         there isn't one, the supplied string is returned.
+   * @return All chars up to, but not including the param string delimiter. If there isn't one, the
+   *     supplied string is returned.
    */
   public static String parseHttpPath(String url) {
     if (StringUtils.isBlank(url)) return url;
@@ -290,15 +277,12 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Gets the path component of a given URL. It is the part between the port
-   * and the first occurrence of '?'.
+   * Gets the path component of a given URL. It is the part between the port and the first
+   * occurrence of '?'.
    *
    * @param url well formed URL string.
-   *
    * @return the path component. It may be <code>null</code> or empty.
-   *
    * @throws MalformedURLException if the URL is not well formed.
-   *
    * @see URL#getPath()
    */
   public static String getPath(String url) throws MalformedURLException {
@@ -307,8 +291,7 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #parseQueryParamsString(String, boolean, boolean)
+   * Convenience method that calls {@link #parseQueryParamsString(String, boolean, boolean)
    * parseQueryParamString(query, <code>false</code>, <code>true</code>)}.
    */
   public static Map<String, Object> parseQueryParamsString(String query) {
@@ -316,26 +299,23 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Parses the query part of a url, extracting the name/value pairs and
-   * returning them in a map. The values for multi-valued params are stored in
-   * a <code>List</code> that maintains the order of the values in the
-   * supplied string. Missing values are returned as empty strings. Each name
+   * Parses the query part of a url, extracting the name/value pairs and returning them in a map.
+   * The values for multi-valued params are stored in a <code>List</code> that maintains the order
+   * of the values in the supplied string. Missing values are returned as empty strings. Each name
    * and value is URL decoded.
-   * <p>
-   * Note
-   * <p>
-   * This is a simple implementation and does not conform to the full http URL
-   * specification.
    *
-   * @param query A string of the form [path?]p1=v1&p2=v2... where [path?] is
-   *        optional (searches for the first occurrence of ? and only uses rest
-   *        of supplied string), px is the parameter name and vx is the value
-   *        (which may be missing.) Parameter names may appear more than once.
-   *        May be <code>null</code> or empty.
-   * @param lowerCaseNames If <code>true</code>, the names are lower-cased
-   *        before being added to the returned map.
-   * @param urlDecode If <code>true</code>, the name and value will be
-   *        decoded, otherwise they will be added to the map w/o decoding.
+   * <p>Note
+   *
+   * <p>This is a simple implementation and does not conform to the full http URL specification.
+   *
+   * @param query A string of the form [path?]p1=v1&p2=v2... where [path?] is optional (searches for
+   *     the first occurrence of ? and only uses rest of supplied string), px is the parameter name
+   *     and vx is the value (which may be missing.) Parameter names may appear more than once. May
+   *     be <code>null</code> or empty.
+   * @param lowerCaseNames If <code>true</code>, the names are lower-cased before being added to the
+   *     returned map.
+   * @param urlDecode If <code>true</code>, the name and value will be decoded, otherwise they will
+   *     be added to the map w/o decoding.
    * @return Never <code>null</code>.
    * @throws RuntimeException If the query param string is malformed.
    */
@@ -390,16 +370,14 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * If the supplied URL contains a query param with the supplied name
-   * (case-insensitive,) the name/value pair is removed from the url,
-   * otherwise, the URL is unmodified.
+   * If the supplied URL contains a query param with the supplied name (case-insensitive,) the
+   * name/value pair is removed from the url, otherwise, the URL is unmodified.
    *
-   * @param url May be <code>null</code> or empty. A URL of the form
-   *        <code>[path[?p1=[v1][&p2=[v2]]]]</code>.
-   * @param paramName Anything allowed. Nothing is done to the name before
-   *        comparing to the query params in the URL.
-   * @return The supplied URL, without the param whose name matched the
-   *         supplied one.
+   * @param url May be <code>null</code> or empty. A URL of the form <code>
+   *     [path[?p1=[v1][&p2=[v2]]]]</code>.
+   * @param paramName Anything allowed. Nothing is done to the name before comparing to the query
+   *     params in the URL.
+   * @return The supplied URL, without the param whose name matched the supplied one.
    */
   public static String removeQueryParam(String url, String paramName) {
     Map<String, Object> params = PSBaseHttpUtils.parseQueryParamsString(url, true, true);
@@ -420,24 +398,19 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Appends the supplied name/value pairings onto the end of the supplied path
-   * to form a valid http scheme URL (assuming the supplied path is valid, the
-   * path is not checked for its conformance to the scheme.)
-   * <p>
-   * Note: this is not a fully compliant implementation, just what I needed for
-   * now.
+   * Appends the supplied name/value pairings onto the end of the supplied path to form a valid http
+   * scheme URL (assuming the supplied path is valid, the path is not checked for its conformance to
+   * the scheme.)
    *
-   * @param path Anything is allowed. This content will become the prefix in
-   *        the returned string. It may already contain a query string.
-   *        Trailing separators are handled correctly.
+   * <p>Note: this is not a fully compliant implementation, just what I needed for now.
    *
-   * @param params If provided, the values must either be <code>String</code>
-   *        or <code>Collection</code> objects. <code>null</code> or empty
-   *        keys are skipped. No URL encoding is done to the names or values.
-   *
-   * @param urlEncode If <code>true</code>, the name and value will be
-   *        encoded before appending, otherwise they will be added to the map
-   *        as is.
+   * @param path Anything is allowed. This content will become the prefix in the returned string. It
+   *     may already contain a query string. Trailing separators are handled correctly.
+   * @param params If provided, the values must either be <code>String</code> or <code>Collection
+   *     </code> objects. <code>null</code> or empty keys are skipped. No URL encoding is done to
+   *     the names or values.
+   * @param urlEncode If <code>true</code>, the name and value will be encoded before appending,
+   *     otherwise they will be added to the map as is.
    * @return The generated string. Never <code>null</code>, may be empty.
    */
   @SuppressWarnings("unchecked")
@@ -465,11 +438,10 @@ public class PSBaseHttpUtils {
   }
 
   /**
-   * Appends <code>param=value&</code> onto the supplied buffer if param is
-   * not blank.
+   * Appends <code>param=value&</code> onto the supplied buffer if param is not blank.
    *
-   * @param result The target of the appending. Assumed not <code>null</code>.
-   * Assumed that there is a trailing '&' or '?' character.
+   * @param result The target of the appending. Assumed not <code>null</code>. Assumed that there is
+   *     a trailing '&' or '?' character.
    * @param param Anything allowed. If blank, nothing is appended.
    * @param value Anything is allowed.
    */
@@ -491,51 +463,27 @@ public class PSBaseHttpUtils {
     result.append('&');
   }
 
-  /**
-   * Constant to use to indicate the operating system of the requestor is
-   * Macintosh based.
-   */
+  /** Constant to use to indicate the operating system of the requestor is Macintosh based. */
   static final String OS_MACINTOSH = "Macintosh";
 
-  /**
-   * Constant to use to indicate the operating system of the requestor is
-   * Windows based.
-   */
+  /** Constant to use to indicate the operating system of the requestor is Windows based. */
   static final String OS_WINDOWS = "Windows";
 
-  /**
-   * Constant to use to indicate the operating system of the requestor is
-   * Unix based.
-   */
+  /** Constant to use to indicate the operating system of the requestor is Unix based. */
   static final String OS_UNIX = "Unix";
 
-  /**
-   * Constant to use to indicate the operating system of the requestor is
-   * unknown.
-   */
+  /** Constant to use to indicate the operating system of the requestor is unknown. */
   static final String OS_OTHER = "Other";
 
-  /**
-   * Constant for the path separator to use when the requestor's OS is
-   * Mac based.
-   */
+  /** Constant for the path separator to use when the requestor's OS is Mac based. */
   static final String SEP_MACINTOSH = ":";
 
-  /**
-   * Constant for the path separator to use when the requestor's OS is
-   * Windows based.
-   */
+  /** Constant for the path separator to use when the requestor's OS is Windows based. */
   static final String SEP_WINDOWS = "\\";
 
-  /**
-   * Constant for the path separator to use when the requestor's OS is
-   * Unix based.
-   */
+  /** Constant for the path separator to use when the requestor's OS is Unix based. */
   static final String SEP_UNIX = "/";
 
-  /**
-   * Constant for the path separator to use when the requestor's OS is
-   * unknown.
-   */
+  /** Constant for the path separator to use when the requestor's OS is unknown. */
   static final String SEP_OTHER = "/";
 }

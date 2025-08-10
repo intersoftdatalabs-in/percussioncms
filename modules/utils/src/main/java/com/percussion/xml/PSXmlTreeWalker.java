@@ -49,94 +49,73 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 /**
- * The PSXmlTreeWalker class is used to simplify processing of XML trees.
- * It is a generic walker used to easily find top level elements,
- * child elements and their children.
- * <p>
- * To use the PSXmlTreeWalker, construct a walker for the XML document.
- * The walker can then be used to search for entries, retrieve a subset
- * of the document, etc. This greatly simplifies processing results, as XML
- * documents can contain fairly complex structures.
+ * The PSXmlTreeWalker class is used to simplify processing of XML trees. It is a generic walker
+ * used to easily find top level elements, child elements and their children.
+ *
+ * <p>To use the PSXmlTreeWalker, construct a walker for the XML document. The walker can then be
+ * used to search for entries, retrieve a subset of the document, etc. This greatly simplifies
+ * processing results, as XML documents can contain fairly complex structures.
  */
 public class PSXmlTreeWalker implements Serializable {
 
   private static final Logger log = LogManager.getLogger(PSXmlTreeWalker.class);
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -5622257592034103174L;
 
   /**
-   * If a matching node is not found during the traversal, reset the
-   * current node to the one prior to the search.
+   * If a matching node is not found during the traversal, reset the current node to the one prior
+   * to the search.
    */
   public static final int GET_NEXT_RESET_CURRENT = 0x0001;
 
-  /**
-   * Allow traversal of parent nodes.
-   */
+  /** Allow traversal of parent nodes. */
   public static final int GET_NEXT_ALLOW_PARENTS = 0x0002;
 
-  /**
-   * Allow traversal of siblings.
-   */
+  /** Allow traversal of siblings. */
   public static final int GET_NEXT_ALLOW_SIBLINGS = 0x0004;
 
-  /**
-   * Allow traversal of children.
-   */
+  /** Allow traversal of children. */
   public static final int GET_NEXT_ALLOW_CHILDREN = 0x0008;
 
-  /**
-   * A shorthand way to refer to the current node's parent.
-   */
+  /** A shorthand way to refer to the current node's parent. */
   public static final String NODENAME_PARENT = "..";
 
-  /**
-   * A shorthand way to refer to the current node.
-   */
+  /** A shorthand way to refer to the current node. */
   public static final String NODENAME_CURRENT = ".";
 
   /**
-   * The header which can be used to get a node using the relative
-   * position of the root. Simply append the node name under the root
-   * to this name. For instance, to get the first node named "data" from
-   * the root, use
-   * RELATIVE_NODENAME_ROOT + "data", which resolves to "/data".
+   * The header which can be used to get a node using the relative position of the root. Simply
+   * append the node name under the root to this name. For instance, to get the first node named
+   * "data" from the root, use RELATIVE_NODENAME_ROOT + "data", which resolves to "/data".
    */
   public static final String RELATIVE_NODENAME_ROOT = "/";
 
   /**
-   * The header which can be used to get a node using the relative
-   * position of the parent. Simply append the node name under the parent
-   * to this name. For instance, to get the first node named "data" from
-   * the parent of the current node, use
-   * RELATIVE_NODENAME_PARENT + "data", which resolves to "../data".
+   * The header which can be used to get a node using the relative position of the parent. Simply
+   * append the node name under the parent to this name. For instance, to get the first node named
+   * "data" from the parent of the current node, use RELATIVE_NODENAME_PARENT + "data", which
+   * resolves to "../data".
    */
   public static final String RELATIVE_NODENAME_PARENT = "../";
 
   /**
-   * The header which can be used to get a node using the relative
-   * position of the current node. Simply append the node name under the
-   * current node to this name. For instance, to get the first node named
-   * "data" from the current node, use
-   * RELATIVE_NODENAME_CURRENT + "data", which resolves to "./data".
-   * This is not really required, as "data" is also sufficient to find
-   * the appropriate child of the current node.
+   * The header which can be used to get a node using the relative position of the current node.
+   * Simply append the node name under the current node to this name. For instance, to get the first
+   * node named "data" from the current node, use RELATIVE_NODENAME_CURRENT + "data", which resolves
+   * to "./data". This is not really required, as "data" is also sufficient to find the appropriate
+   * child of the current node.
    */
   public static final String RELATIVE_NODENAME_CURRENT = "./";
 
-  /**
-   * The delimiter used to separate XML elements in an XPath expression.
-   */
+  /** The delimiter used to separate XML elements in an XPath expression. */
   public static final String XML_ELEMENT_DELIMITER = "/";
 
   /**
-   * Creates a walker for the specified document. Walkers provide
-   * a simplified way to traverse XML documents.
+   * Creates a walker for the specified document. Walkers provide a simplified way to traverse XML
+   * documents.
    *
-   * @param    doc    the document to traverse
+   * @param doc the document to traverse
    */
   public PSXmlTreeWalker(Document doc) {
     super();
@@ -147,10 +126,10 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Creates a walker for the specified element. Walkers provide
-   * a simplified way to traverse XML documents.
+   * Creates a walker for the specified element. Walkers provide a simplified way to traverse XML
+   * documents.
    *
-   * @param    root       the root node for traversal
+   * @param root the root node for traversal
    */
   public PSXmlTreeWalker(Element root) {
     super();
@@ -161,10 +140,10 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Creates a walker for the specified node. Walkers provide
-   * a simplified way to traverse XML documents.
+   * Creates a walker for the specified node. Walkers provide a simplified way to traverse XML
+   * documents.
    *
-   * @param    root       the root node for traversal
+   * @param root the root node for traversal
    */
   public PSXmlTreeWalker(Node root) {
     super();
@@ -175,27 +154,20 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the value (data) associated with an element, optionally starting
-   * the search for the element from the root node.
-   * <P>
-   * A subset of the XSL positioning rules are supported. When
-   * <code>fromRoot</code> is <code>false</code>, relative positioning
-   * can be used from the current node (<code>./</code>) or from the
-   * current node's parent (<code>../</code>). Attribute names can be
-   * located by preceeding the attribute name with <code>@</code>.
-   * Also, the tree can be traversed hierarchically to access children,
-   * such as <code>./Name/first</code> to access the data associated with
-   * the <code>first</code> which is a child of the <code>Name</code>
-   * element which is a child of the current node.
+   * Get the value (data) associated with an element, optionally starting the search for the element
+   * from the root node.
    *
-   * @param   name         the name of the element to retrieve
+   * <p>A subset of the XSL positioning rules are supported. When <code>fromRoot</code> is <code>
+   * false</code>, relative positioning can be used from the current node (<code>./</code>) or from
+   * the current node's parent (<code>../</code>). Attribute names can be located by preceeding the
+   * attribute name with <code>@</code>. Also, the tree can be traversed hierarchically to access
+   * children, such as <code>./Name/first</code> to access the data associated with the <code>first
+   * </code> which is a child of the <code>Name</code> element which is a child of the current node.
    *
-   * @param   fromRoot      <code>true</code> to start the search from
-   *                        the root element; <code>false</code> to start
-   *                        from the current element in the tree
-   *
-   * @return               the value of the element or <code>null</code>
-   *                        if a matching element is not found
+   * @param name the name of the element to retrieve
+   * @param fromRoot <code>true</code> to start the search from the root element; <code>false</code>
+   *     to start from the current element in the tree
+   * @return the value of the element or <code>null</code> if a matching element is not found
    */
   public java.lang.String getElementData(java.lang.String name, boolean fromRoot) {
     String ret = null;
@@ -277,53 +249,47 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the value (data) associated with an element. The search for a
-   * matching element will start from the root node.
+   * Get the value (data) associated with an element. The search for a matching element will start
+   * from the root node.
    *
-   * @param   name         the name of the element to retrieve
-   *
-   * @return               the value of the element or <code>null</code>
-   *                        if a matching element is not found
+   * @param name the name of the element to retrieve
+   * @return the value of the element or <code>null</code> if a matching element is not found
    */
   public String getElementData(String name) {
     return getElementData(name, true);
   }
 
   /**
-   * Gets the text data associated with the current node of this walker, by
-   * concatenating the values of all child TEXT_NODEs and
-   * ENTITY_REFERENCE_NODEs.
-   * @return text data of the node; never <code>null</code>, may be empty if
-   * the current node has no text data.
+   * Gets the text data associated with the current node of this walker, by concatenating the values
+   * of all child TEXT_NODEs and ENTITY_REFERENCE_NODEs.
+   *
+   * @return text data of the node; never <code>null</code>, may be empty if the current node has no
+   *     text data.
    */
   public String getElementData() {
     return getElementData(getCurrent());
   }
 
   /**
-   * Get the value (text data) associated with the specified element.
-   * If the specified element is null or has no text data,
-   * returns the empty string.
+   * Get the value (text data) associated with the specified element. If the specified element is
+   * null or has no text data, returns the empty string.
    *
-   * @param   element the element to retrieve data from
-   *
-   * @return  the value of the element, never <code>null</code> may be empty if
-   * the specified element is <code>null</code> or has no text data.
+   * @param element the element to retrieve data from
+   * @return the value of the element, never <code>null</code> may be empty if the specified element
+   *     is <code>null</code> or has no text data.
    */
   public static String getElementData(Element element) {
     return getElementData((Node) element);
   }
 
   /**
-   * Get the value (text data) associated with the specified node.
-   * If the specified node is <code>null</code> or has no text data,
-   * returns the empty string.
+   * Get the value (text data) associated with the specified node. If the specified node is <code>
+   * null</code> or has no text data, returns the empty string.
    *
-   * @param   node the element or entity ref node to retrieve the data from,
-   * if it is <code>null</code>, returns an empty string.
-   *
-   * @return   the value of the element, never <code>null</code> may be empty if
-   * the specified element is <code>null</code> or has no text data.
+   * @param node the element or entity ref node to retrieve the data from, if it is <code>null
+   *     </code>, returns an empty string.
+   * @return the value of the element, never <code>null</code> may be empty if the specified element
+   *     is <code>null</code> or has no text data.
    */
   public static String getElementData(Node node) {
     StringBuilder ret = new StringBuilder();
@@ -352,14 +318,12 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next element with the specified name. This method will
-   * traverse parents if it cannot find siblings or children with
-   * the specified name. Use getNextElement(name, true) to only
+   * Get the next element with the specified name. This method will traverse parents if it cannot
+   * find siblings or children with the specified name. Use getNextElement(name, true) to only
    * traverse siblings and children.
    *
-   * @param   name           the name of the element to retrieve
-   *
-   * @return                 the requested Element node
+   * @param name the name of the element to retrieve
+   * @return the requested Element node
    */
   public Element getNextElement(String name) {
     int flags = GET_NEXT_ALLOW_SIBLINGS | GET_NEXT_ALLOW_CHILDREN | GET_NEXT_ALLOW_PARENTS;
@@ -367,15 +331,12 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next element with the specified name, optionally traversing
-   * only siblings and children of the current node.
+   * Get the next element with the specified name, optionally traversing only siblings and children
+   * of the current node.
    *
-   * @param   name            the name of the element to retrieve
-   *
-   * @param   noParents      <code>true</code> to traverse only siblings
-   *                           and children
-   *
-   * @return                  the requested Element node
+   * @param name the name of the element to retrieve
+   * @param noParents <code>true</code> to traverse only siblings and children
+   * @return the requested Element node
    */
   public Element getNextElement(String name, boolean noParents) {
     int flags =
@@ -386,20 +347,14 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next element with the specified name, optionally traversing
-   * only siblings and children of the current node or resetting
-   * the current node upon failure.
+   * Get the next element with the specified name, optionally traversing only siblings and children
+   * of the current node or resetting the current node upon failure.
    *
-   * @param   name            the name of the element to retrieve
-   *
-   * @param   noParents      <code>true</code> to traverse only siblings
-   *                           and children
-   *
-   * @param   resetCur         <code>true</code> to restore the current
-   *                           node when a match is not found for the
-   *                           specified element
-   *
-   * @return                  the requested Element node
+   * @param name the name of the element to retrieve
+   * @param noParents <code>true</code> to traverse only siblings and children
+   * @param resetCur <code>true</code> to restore the current node when a match is not found for the
+   *     specified element
+   * @return the requested Element node
    */
   public Element getNextElement(String name, boolean noParents, boolean resetCur) {
     int flags = GET_NEXT_ALLOW_SIBLINGS | GET_NEXT_ALLOW_CHILDREN;
@@ -410,15 +365,12 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next element with the specified name, optionally traversing
-   * only siblings and children of the current node or resetting
-   * the current node upon failure.
+   * Get the next element with the specified name, optionally traversing only siblings and children
+   * of the current node or resetting the current node upon failure.
    *
-   * @param   name            the name of the element to retrieve
-   *
-   * @param   flags            the appropriate GET_NEXT_xxx flags
-   *
-   * @return                  the requested Element node
+   * @param name the name of the element to retrieve
+   * @param flags the appropriate GET_NEXT_xxx flags
+   * @return the requested Element node
    */
   public Element getNextElement(String name, int flags) {
     if (m_cur == null) return null;
@@ -490,6 +442,7 @@ public class PSXmlTreeWalker implements Serializable {
 
   /**
    * Return the node's name without any namespace qualifier
+   *
    * @param next Node make not be <code>null</code>
    * @return The unqualified name
    */
@@ -505,22 +458,17 @@ public class PSXmlTreeWalker implements Serializable {
    * Indicates that the name passed in is qualified.
    *
    * @param name the element name. May be <code>null</code>.
-   * @return <code>true</code> if the name passed in is
-   * qualified.
+   * @return <code>true</code> if the name passed in is qualified.
    */
   private boolean isQualifiedName(String name) {
     return null == name ? false : (name.indexOf(":") > 0);
   }
 
   /**
-   * Get the next element, optionally traversing only siblings and
-   * children of the current node.
+   * Get the next element, optionally traversing only siblings and children of the current node.
    *
-   * @param noParents <code>true</code> to traverse only siblings and
-   * children.
-   *
-   * @return the next Element node, or <code>null</code> if there are
-   * no more elements
+   * @param noParents <code>true</code> to traverse only siblings and children.
+   * @return the next Element node, or <code>null</code> if there are no more elements
    */
   public Element getNextElement(boolean noParents) {
     int flags =
@@ -531,24 +479,20 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next element, optionally traversing only siblings and
-   * children of the current node.
+   * Get the next element, optionally traversing only siblings and children of the current node.
    *
-   * @param   flags            the appropriate GET_NEXT_xxx flags
-   *
-   * @return the next Element node, or <code>null</code> if there are
-   * no more elements
+   * @param flags the appropriate GET_NEXT_xxx flags
+   * @return the next Element node, or <code>null</code> if there are no more elements
    */
   public Element getNextElement(int flags) {
     return getNextElement(null, flags);
   }
 
   /**
-   * Get the next node in the tree. This may be at any level. The search
-   * is done by walking down each child, and then across siblings and their
-   * associated children.
+   * Get the next node in the tree. This may be at any level. The search is done by walking down
+   * each child, and then across siblings and their associated children.
    *
-   * @return                 the next Node in the tree
+   * @return the next Node in the tree
    */
   public Node getNext() {
     int flags = GET_NEXT_ALLOW_SIBLINGS | GET_NEXT_ALLOW_CHILDREN | GET_NEXT_ALLOW_PARENTS;
@@ -556,16 +500,12 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next node in the tree, optionally traversing
-   * only siblings and children of the current node.
-   * This may be at any level. The search
-   * is done by walking down each child, and then across siblings and their
-   * associated children.
+   * Get the next node in the tree, optionally traversing only siblings and children of the current
+   * node. This may be at any level. The search is done by walking down each child, and then across
+   * siblings and their associated children.
    *
-   * @param   noParents        <code>true</code> to traverse only siblings
-   *                       and children
-   *
-   * @return                 the next Node in the tree
+   * @param noParents <code>true</code> to traverse only siblings and children
+   * @return the next Node in the tree
    */
   public Node getNext(boolean noParents) {
     int flags =
@@ -576,35 +516,26 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the next node in the tree, optionally traversing
-   * only siblings and children of the current node.
-   * This may be at any level. The search
-   * is done by walking down each child, and then across siblings and their
-   * associated children.
+   * Get the next node in the tree, optionally traversing only siblings and children of the current
+   * node. This may be at any level. The search is done by walking down each child, and then across
+   * siblings and their associated children.
    *
-   * @param   flags            the appropriate GET_NEXT_xxx flags
-   *
-   * @return                  the next Node in the tree or <code>null</code>
-   *                           if none found
+   * @param flags the appropriate GET_NEXT_xxx flags
+   * @return the next Node in the tree or <code>null</code> if none found
    */
   public Node getNext(int flags) {
     return getNext(flags, m_root);
   }
 
   /**
-   * Get the next node in the tree, optionally traversing
-   * only siblings and children of the current node.
-   * This may be at any level. The search
-   * is done by walking down each child, and then across siblings and their
-   * associated children.
+   * Get the next node in the tree, optionally traversing only siblings and children of the current
+   * node. This may be at any level. The search is done by walking down each child, and then across
+   * siblings and their associated children.
    *
-   * @param   flags            the appropriate GET_NEXT_xxx flags
-   *
-   * @param   stopNode         stop processing when this node is encountered
-   *                           (returning <code>null</code> for next
-   *
-   * @return                  the next Node in the tree or <code>null</code>
-   *                           if none found
+   * @param flags the appropriate GET_NEXT_xxx flags
+   * @param stopNode stop processing when this node is encountered (returning <code>null</code> for
+   *     next
+   * @return the next Node in the tree or <code>null</code> if none found
    */
   public Node getNext(int flags, Node stopNode) {
     Node next = null;
@@ -633,15 +564,14 @@ public class PSXmlTreeWalker implements Serializable {
   /**
    * Get the node the tree walker is currently position on.
    *
-   * @return                 the current Node
+   * @return the current Node
    */
   public Node getCurrent() {
     return m_cur;
   }
 
   /**
-   * Get the node name for the node that the tree walker is currently
-   * positioned on.
+   * Get the node name for the node that the tree walker is currently positioned on.
    *
    * @return the current {@link Node} name, never <code>null</code>.
    */
@@ -652,59 +582,52 @@ public class PSXmlTreeWalker implements Serializable {
   /**
    * Set the node the tree walker is currently position on.
    *
-   * @param   node           the node to set as the current node
+   * @param node the node to set as the current node
    */
   public void setCurrent(Node node) {
     m_cur = node;
   }
 
   /**
-   * Write the tree associated with this walker to the specified
-   * stream.
+   * Write the tree associated with this walker to the specified stream.
    *
-   * @param    ps       the print stream to write to
+   * @param ps the print stream to write to
    */
   public void write(PrintStream ps) throws IOException {
     write(new PrintWriter(ps));
   }
 
   /**
-   * Write the tree associated with this walker to the specified
-   * stream.
+   * Write the tree associated with this walker to the specified stream.
    *
-   * @param    out       the output stream to write to
+   * @param out the output stream to write to
    */
   public void write(OutputStream out) throws IOException {
     write(new OutputStreamWriter(out, IPSUtilsConstants.RX_JAVA_ENC));
   }
 
   /**
-   * Write the tree associated with this walker to the specified
-   * stream.
+   * Write the tree associated with this walker to the specified stream.
    *
-   * @param     out        the output stream to write to
-   *
+   * @param out the output stream to write to
    */
   public void write(Writer out) throws IOException {
     write(out, true);
   }
 
   /**
-   * Write the tree associated with this walker to the specified
-   * stream.
+   * Write the tree associated with this walker to the specified stream.
    *
-   * @param     out        the output stream to write to
-   *
-   * @param   indentFlag does this printwriter indent?
+   * @param out the output stream to write to
+   * @param indentFlag does this printwriter indent?
    */
   public void write(Writer out, boolean indentFlag) throws IOException {
     write(out, indentFlag, false, false);
   }
 
   /**
-   * Write the tree associated with this walker, calls
-   * {@link #write(Writer, boolean, boolean, boolean)
-   * write(out, indentFlag, omitXMLDeclaration, omitDocumentType, "UTF-8")}
+   * Write the tree associated with this walker, calls {@link #write(Writer, boolean, boolean,
+   * boolean) write(out, indentFlag, omitXMLDeclaration, omitDocumentType, "UTF-8")}
    */
   public void write(
       Writer out, boolean indentFlag, boolean omitXMLDeclaration, boolean omitDocumentType)
@@ -713,25 +636,22 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Write the tree associated with this walker to the specified
-   * stream.
+   * Write the tree associated with this walker to the specified stream.
    *
-   * @param out the output stream to write to. May not be <code>null</code>.
-   * This method does not close the output stream.
-   * @param indentFlag controls whether the output is indentented or written
-   * as a continuous stream. See {@link OutputKeys#INDENT} for more
-   * information about indentation behavior. Most uses of this method
-   * should pass <code>true</code> to have this routine indent.
-   * @param omitXMLDeclaration If <code>true</code> then the output will
-   * not contain a standard xml header.
-   * @param omitDocumentType If <code>true</code> then the output will
-   * definitely not include a DOCTYPE declaration. If <code>false</code> then
-   * the DOCTYPE and any contained references will be dependent on the
-   * contents of the document. Note that inline DOCTYPE declarations will
-   * always be included as they are simply processing instructions in
-   * the document structure.
-   * @param encoding The encoding to use for the output file, may
-   * be <code>null</code> or empty. Defaults to "UTF-8".
+   * @param out the output stream to write to. May not be <code>null</code>. This method does not
+   *     close the output stream.
+   * @param indentFlag controls whether the output is indentented or written as a continuous stream.
+   *     See {@link OutputKeys#INDENT} for more information about indentation behavior. Most uses of
+   *     this method should pass <code>true</code> to have this routine indent.
+   * @param omitXMLDeclaration If <code>true</code> then the output will not contain a standard xml
+   *     header.
+   * @param omitDocumentType If <code>true</code> then the output will definitely not include a
+   *     DOCTYPE declaration. If <code>false</code> then the DOCTYPE and any contained references
+   *     will be dependent on the contents of the document. Note that inline DOCTYPE declarations
+   *     will always be included as they are simply processing instructions in the document
+   *     structure.
+   * @param encoding The encoding to use for the output file, may be <code>null</code> or empty.
+   *     Defaults to "UTF-8".
    */
   public void write(
       Writer out,
@@ -796,14 +716,11 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the lowest level element from the specified lists. This is used
-   * to determine which node can be used as an iterator over the tree.
+   * Get the lowest level element from the specified lists. This is used to determine which node can
+   * be used as an iterator over the tree.
    *
-   * @param   elements         a list containing the String names of the
-   *                           elements to examine
-   *
-   * @return                  the name of the node to use as the iterator
-   *                           (may be <code>null</code>)
+   * @param elements a list containing the String names of the elements to examine
+   * @return the name of the node to use as the iterator (may be <code>null</code>)
    */
   @SuppressWarnings("unchecked")
   public static String getLowestLevelElement(List elements) {
@@ -884,15 +801,14 @@ public class PSXmlTreeWalker implements Serializable {
   /**
    * Get the common base of the two supplied xpath strings.
    *
-   * @param currentBase the current base element, an xpath <code>String</code>
-   *    that may be <code>null</code> or empty.
-   * @param xmlField the xml field element, an xpath <code>String</code> that
-   *    may be <code>null</code> or empty.
-   * @return the common base element found for the supplied xpath strings,
-   *    may be <code>null</code> or empty. If the supplied current base is
-   *    <code>null</code> or empty, the xml field is returned. If the supplied
-   *    xml field is <code>null</code> empty, the current base will be
-   *    returned.
+   * @param currentBase the current base element, an xpath <code>String</code> that may be <code>
+   *     null</code> or empty.
+   * @param xmlField the xml field element, an xpath <code>String</code> that may be <code>null
+   *     </code> or empty.
+   * @return the common base element found for the supplied xpath strings, may be <code>null</code>
+   *     or empty. If the supplied current base is <code>null</code> or empty, the xml field is
+   *     returned. If the supplied xml field is <code>null</code> empty, the current base will be
+   *     returned.
    */
   public static String getBaseElement(String currentBase, String xmlField) {
     if (currentBase == null || currentBase.trim().length() == 0) {
@@ -933,15 +849,12 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Get the relative XML field name for the specified field using
-   * the specified base. If the fields are unrelated, <code>xmlField</code>
-   * will be returned untouched.
+   * Get the relative XML field name for the specified field using the specified base. If the fields
+   * are unrelated, <code>xmlField</code> will be returned untouched.
    *
-   * @param   base            the base to use for the relative field name
-   *
-   * @param   xmlField         the XML field to be converted
-   *
-   * @return                  the relative XML field name
+   * @param base the base to use for the relative field name
+   * @param xmlField the XML field to be converted
+   * @return the relative XML field name
    */
   public static String getRelativeFieldName(String base, String xmlField) {
     String ret = xmlField;
@@ -978,9 +891,8 @@ public class PSXmlTreeWalker implements Serializable {
   /**
    * Get the root node name from the specified XML field.
    *
-   * @param   name      the XML field name
-   *
-   * @return            the root node name or null if name is null or empty
+   * @param name the XML field name
+   * @return the root node name or null if name is null or empty
    */
   public static String getRootNodeName(String name) {
     if (name == null) return null;
@@ -1033,10 +945,10 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * A private utility method to convert special characters to entity
-   * references.
+   * A private utility method to convert special characters to entity references.
    *
-   * The characters will be converted according to this scheme:
+   * <p>The characters will be converted according to this scheme:
+   *
    * <TABLE BORDER=1>
    * <TR>
    *   <TD>&amp;</TD>
@@ -1060,8 +972,7 @@ public class PSXmlTreeWalker implements Serializable {
    * </TR>
    * </TABLE>
    *
-   * @param   input
-   *
+   * @param input
    * @throws IOException if I/O error occurs.
    */
   public static void convertToXmlEntities(String input, Writer out) throws IOException {
@@ -1160,8 +1071,7 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * Just like {@link #convertToXmlEntities(String, Writer)}, except this
-   * suppress the IOException.
+   * Just like {@link #convertToXmlEntities(String, Writer)}, except this suppress the IOException.
    */
   public static void convertToXmlEntities(String input, PrintWriter out) {
     Writer writer = (Writer) out;
@@ -1173,10 +1083,10 @@ public class PSXmlTreeWalker implements Serializable {
   }
 
   /**
-   * A private utility method to convert special characters to entity
-   * references.
+   * A private utility method to convert special characters to entity references.
    *
-   * The characters will be converted according to this scheme:
+   * <p>The characters will be converted according to this scheme:
+   *
    * <TABLE BORDER=1>
    * <TR>
    *   <TD>&amp;</TD>
@@ -1200,10 +1110,8 @@ public class PSXmlTreeWalker implements Serializable {
    * </TR>
    * </TABLE>
    *
-   * @param   input
-   *
-   * @return   String A new String with all special characters transformed
-   * into their entities.
+   * @param input
+   * @return String A new String with all special characters transformed into their entities.
    */
   public static String convertToXmlEntities(String input) {
     java.io.StringWriter writer = new java.io.StringWriter((int) (input.length() * 1.5));
@@ -1216,38 +1124,35 @@ public class PSXmlTreeWalker implements Serializable {
   private org.w3c.dom.Node m_cur;
 
   /**
-   * Sets the boolean indicating if the special characters in the Xml Document
-   * should be transformed into the corresponding entities.
-   * @param convertXmlEntities <code>true</code> if the special characters in
-   * the Xml Document should be transformed into the corresponding entities,
-   * <code>false</code> otherwise.
+   * Sets the boolean indicating if the special characters in the Xml Document should be transformed
+   * into the corresponding entities.
+   *
+   * @param convertXmlEntities <code>true</code> if the special characters in the Xml Document
+   *     should be transformed into the corresponding entities, <code>false</code> otherwise.
    */
   public void setConvertXmlEntities(boolean convertXmlEntities) {
     m_convertXmlEntities = convertXmlEntities;
   }
 
   /**
-   * Returns the boolean indicating if the special characters in the Xml Document
-   * should be transformed into the corresponding entities.
-   * @return <code>true</code> if the special characters in
-   * the Xml Document should be transformed into the corresponding entities,
-   * <code>false</code> otherwise.
+   * Returns the boolean indicating if the special characters in the Xml Document should be
+   * transformed into the corresponding entities.
+   *
+   * @return <code>true</code> if the special characters in the Xml Document should be transformed
+   *     into the corresponding entities, <code>false</code> otherwise.
    */
   public boolean getConvertXmlEntities() {
     return m_convertXmlEntities;
   }
 
   /**
-   * <code>true</code> if the special characters in the Xml Document should be
-   * transformed into the corresponding entities, <code>false</code> otherwise.
+   * <code>true</code> if the special characters in the Xml Document should be transformed into the
+   * corresponding entities, <code>false</code> otherwise.
    */
   private boolean m_convertXmlEntities = false;
 
   /**
-   * Main method - used for tesing.
-   * Usage is :
-   * -i (INPUT_XML_FILE_PATH)
-   * -o (OUTPUT_XML_FILE_PATH)
+   * Main method - used for tesing. Usage is : -i (INPUT_XML_FILE_PATH) -o (OUTPUT_XML_FILE_PATH)
    */
   public static void main(String argv[]) {
     if (argv.length != 4) {
@@ -1290,27 +1195,22 @@ public class PSXmlTreeWalker implements Serializable {
     }
   }
 
-  /**
-   * Prints the usage of this class.
-   */
+  /** Prints the usage of this class. */
   public static void printUsage() {
     System.out.println("Usage is : ");
     System.out.println("-i [INPUT_XML_FILE_PATH] -o [OUTPUT_XML_FILE_PATH]");
   }
 
   /**
-   * Static boolean indicates if saxon is available to avoid throwing
-   * an exception in write. Initialized in static block, never modified
-   * afterward.
+   * Static boolean indicates if saxon is available to avoid throwing an exception in write.
+   * Initialized in static block, never modified afterward.
    */
   private static boolean ms_saxon_loaded;
 
   /**
-   * The transformer factory used to create
-   * {@link javax.xml.transform.Transformer}. It is initialized when the
-   * current class is loaded. Only one instance of the transformer is needed
-   * per JVM, but need to be used in a sychronized block since it is not
-   * thread safe.
+   * The transformer factory used to create {@link javax.xml.transform.Transformer}. It is
+   * initialized when the current class is loaded. Only one instance of the transformer is needed
+   * per JVM, but need to be used in a sychronized block since it is not thread safe.
    */
   private static TransformerFactory ms_transformerFactory = TransformerFactory.newInstance();
 

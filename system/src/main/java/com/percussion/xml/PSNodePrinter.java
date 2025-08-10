@@ -33,16 +33,16 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 /**
- * This class is separated from PSXmlTreeWaker.java to fix a specific bug for
- * xmldom package. The idea is to not jeopardise other areas (as treewalker is
- * used everywhere) by making this change for xmldom. The only difference is
- * that the pretty print via indentation is completely disabled. This is to
- * avoid problems with  mixing the content between xml (html) nodes which is
- * very common with any HTML editor control like Ektron control.
+ * This class is separated from PSXmlTreeWaker.java to fix a specific bug for xmldom package. The
+ * idea is to not jeopardise other areas (as treewalker is used everywhere) by making this change
+ * for xmldom. The only difference is that the pretty print via indentation is completely disabled.
+ * This is to avoid problems with mixing the content between xml (html) nodes which is very common
+ * with any HTML editor control like Ektron control.
  */
 public class PSNodePrinter {
   /**
    * Only constructor. Takes the print writer as the argument.
+   *
    * @param out must not be <code>null</code>.
    * @throws IllegalArgumentException
    */
@@ -158,6 +158,7 @@ public class PSNodePrinter {
 
   /**
    * Method to print the Element node
+   *
    * @param eNode must not be <code>null</code>
    * @throws IOException when it fails to print a node
    */
@@ -237,14 +238,9 @@ public class PSNodePrinter {
   }
 
   /**
-   * Cleanup the javascript so that the end result is something like this:
-   * &lt;script language="javascript"&gt;&lt;![CDATA[
-   * function test()
-   * {
-   *    alert("test");
-   * }
-   * ]]&gt;
-   * &lt;/script&gt;
+   * Cleanup the javascript so that the end result is something like this: &lt;script
+   * language="javascript"&gt;&lt;![CDATA[ function test() { alert("test"); } ]]&gt; &lt;/script&gt;
+   *
    * @param script text data of the script element, assumed not <code>null</code>.
    * @return cleanedup script text, never <code>null</code>.
    */
@@ -283,20 +279,16 @@ public class PSNodePrinter {
   }
 
   /**
-   * Helper method to determine if an empty element is allowed to be self
-   * closed.
+   * Helper method to determine if an empty element is allowed to be self closed.
+   *
    * @param name assumed not <code>null</code>.
-   * @return <code>true</code> if the element can be self
-   * closed.
+   * @return <code>true</code> if the element can be self closed.
    */
   public static boolean canBeSelfClosed(String name) {
     return PSSaxHelper.canBeSelfClosedElement(name);
   }
 
-  /**
-   * writer object to write the node tree. Never <code>null</code> after
-   * the object is created.
-   */
+  /** writer object to write the node tree. Never <code>null</code> after the object is created. */
   private Writer m_out;
 
   // String constants used in cleaning <script> element value

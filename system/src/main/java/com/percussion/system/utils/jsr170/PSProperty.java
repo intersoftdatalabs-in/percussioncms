@@ -75,56 +75,40 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
   private static final String PNAME_NULL_ERROR = "pname may not be null or empty";
   private static final String PARENT_NULL_ERROR = "parent may not be null";
 
-  /**
-   * The name of this property, never <code>null</code> after construction
-   */
+  /** The name of this property, never <code>null</code> after construction */
   protected String name;
 
-  /**
-   * The value of the property, extracted at initialization, could be
-   * <code>null</code>
-   */
+  /** The value of the property, extracted at initialization, could be <code>null</code> */
   protected Object value;
 
-  /**
-   * Cached string value for Clobs.
-   */
+  /** Cached string value for Clobs. */
   protected String strValue = null;
 
   /**
-   * The name of the bean property, normally the same as {@link #name}. May
-   * be <code>null</code>.
+   * The name of the bean property, normally the same as {@link #name}. May be <code>null</code>.
    */
   protected String beanPropertyName = null;
 
-  /**
-   * The parent (containing) node for this property, never <code>null</code>
-   * after construction
-   */
+  /** The parent (containing) node for this property, never <code>null</code> after construction */
   protected Node parent;
 
-  /**
-   * This tracks how deep this item is in the overall tree. Set in the ctor.
-   */
+  /** This tracks how deep this item is in the overall tree. Set in the ctor. */
   protected int depth;
 
   /**
-   * If this is not <code>null</code>, the listed interceptors are run,
-   * first to last, when accessing the property for the first time, i.e. during
-   * initialization.
+   * If this is not <code>null</code>, the listed interceptors are run, first to last, when
+   * accessing the property for the first time, i.e. during initialization.
    */
   protected List<IPSPropertyInterceptor> interceptors = null;
 
   /**
    * Ctor
    *
-   * @param pname the name of this property, never <code>null</code> or
-   *           empty, and must correspond to the underlying property used in
-   *           the mapping object
-   * @param parent the containing node of this property, never
-   *           <code>null</code>
-   * @param loader the underlying mapping object instance, never
-   *           <code>null</code>, checked in superclass
+   * @param pname the name of this property, never <code>null</code> or empty, and must correspond
+   *     to the underlying property used in the mapping object
+   * @param parent the containing node of this property, never <code>null</code>
+   * @param loader the underlying mapping object instance, never <code>null</code>, checked in
+   *     superclass
    * @throws RepositoryException If a backend error occurs
    */
   public PSProperty(String pname, Node parent, IPSPropertyLoader loader)
@@ -145,16 +129,12 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
   /**
    * Ctor
    *
-   * @param pname the name of this property, never <code>null</code> or
-   *           empty, and must correspond to the underlying property used in
-   *           the mapping object
-   * @param parent the containing node of this property, never
-   *           <code>null</code>
-   * @param instance the underlying mapping object instance, never
-   *           <code>null</code>
-   * @param beanPropertyName optional, may be <code>null</code>, if present,
-   *           this is used instead of the pname in accessing the underlying
-   *           bean property
+   * @param pname the name of this property, never <code>null</code> or empty, and must correspond
+   *     to the underlying property used in the mapping object
+   * @param parent the containing node of this property, never <code>null</code>
+   * @param instance the underlying mapping object instance, never <code>null</code>
+   * @param beanPropertyName optional, may be <code>null</code>, if present, this is used instead of
+   *     the pname in accessing the underlying bean property
    * @throws RepositoryException if a backend error occurs
    */
   public PSProperty(String pname, Node parent, Object instance, String beanPropertyName)
@@ -213,9 +193,9 @@ public class PSProperty extends PSPropertyWrapper implements IPSProperty, IPSJcr
   }
 
   /**
-   * Create explicit property, this method is intended primarily for testing.
-   * If used otherwise, it would be for artificial properties that are, for
-   * example, calculated and have no direct existence in the repository.
+   * Create explicit property, this method is intended primarily for testing. If used otherwise, it
+   * would be for artificial properties that are, for example, calculated and have no direct
+   * existence in the repository.
    *
    * @param pname the name of the property, never <code>null</code> or empty
    * @param parent the parent node, never <code>null</code>

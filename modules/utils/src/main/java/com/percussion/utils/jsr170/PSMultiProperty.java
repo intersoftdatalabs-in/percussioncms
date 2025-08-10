@@ -50,35 +50,25 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author dougrand
  */
 public class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCacheItem, IPSProperty {
-  /**
-   * The name of this property, never <code>null</code> after construction
-   */
+  /** The name of this property, never <code>null</code> after construction */
   public String m_name;
 
-  /**
-   * The values of the property, extracted at construction, could be
-   * <code>null</code>
-   */
+  /** The values of the property, extracted at construction, could be <code>null</code> */
   public Value m_value[];
 
-  /**
-   * The parent (containing) node for this property, never <code>null</code>
-   * after construction
-   */
+  /** The parent (containing) node for this property, never <code>null</code> after construction */
   public Node m_parent;
 
-  /**
-   * This tracks how deep this item is in the overall tree. Set in the ctor.
-   */
+  /** This tracks how deep this item is in the overall tree. Set in the ctor. */
   public int m_depth;
 
   /**
    * Ctor for multi valued property
+   *
    * @param property property name, never <code>null</code> or empty
    * @param parent parent node, never <code>null</code>
-   * @param rep the object to extract the value from,
-   * never <code>null</code> but could conceivably be empty. The property
-   * must reference a collection type bean property in the object
+   * @param rep the object to extract the value from, never <code>null</code> but could conceivably
+   *     be empty. The property must reference a collection type bean property in the object
    * @throws PSPropertyAccessException
    * @throws RepositoryException
    */

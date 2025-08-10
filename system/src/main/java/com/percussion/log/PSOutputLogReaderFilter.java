@@ -35,9 +35,8 @@
 package com.percussion.log;
 
 /**
- *   The PSOutputLogReaderFilter class writes messages to an output stream
- *   in either XML or raw text format.
- *
+ * The PSOutputLogReaderFilter class writes messages to an output stream in either XML or raw text
+ * format.
  */
 public class PSOutputLogReaderFilter implements IPSLogReaderFilter {
   // to provide support for additional output formats, add a constant
@@ -50,16 +49,13 @@ public class PSOutputLogReaderFilter implements IPSLogReaderFilter {
   private static final int OUTPUT_INVALID = OUTPUT_XML + 1;
 
   /**
-   * Constructs an output log reader filter to write all log
-   * messages to the output stream.
+   * Constructs an output log reader filter to write all log messages to the output stream.
    *
-   * @param   out   the output stream
-   *
-   * @param   outputFormat   OUTPUT_XML for XML format output, OUTPUT_RAW
-   * for straight text format output
-   *
-   * @exception   IllegalArgumentException   if out is null or if outputFormat
-   * is not a supported output format type
+   * @param out the output stream
+   * @param outputFormat OUTPUT_XML for XML format output, OUTPUT_RAW for straight text format
+   *     output
+   * @exception IllegalArgumentException if out is null or if outputFormat is not a supported output
+   *     format type
    */
   public PSOutputLogReaderFilter(java.io.OutputStream out, int outputFormat)
       throws IllegalArgumentException {
@@ -67,30 +63,21 @@ public class PSOutputLogReaderFilter implements IPSLogReaderFilter {
   }
 
   /**
-   * Constructs an output log reader filter to write all log
-   * messages created between startTime and endTime, inclusive,
-   * to the output stream.
+   * Constructs an output log reader filter to write all log messages created between startTime and
+   * endTime, inclusive, to the output stream.
    *
-   * @param   out   the output stream
-   *
-   * @param   outputFormat   OUTPUT_XML for XML format output, OUTPUT_RAW
-   * for straight text format output
-   *
-   * @param   startTime   the earliest date of log messages to read.
-   * Specify null if you want to read any messages created up to
-   * endTime
-   *
-   * @param   endTime   the latest date of log messages to read.
-   * Specify null if you want to read all messages created at or after
-   * startTime up through the most recent message
-   *
-   * @param   applicationIds[]   array of the application IDs whose
-   * messages will be retrieved. Any messages with an application ID not
-   * found in this array will not be retrieved. Specify null to retrieve
-   * messages with any application ID.
-   *
-   * @exception   IllegalArgumentException   if out is null or if outputFormat
-   * is not a supported output format type
+   * @param out the output stream
+   * @param outputFormat OUTPUT_XML for XML format output, OUTPUT_RAW for straight text format
+   *     output
+   * @param startTime the earliest date of log messages to read. Specify null if you want to read
+   *     any messages created up to endTime
+   * @param endTime the latest date of log messages to read. Specify null if you want to read all
+   *     messages created at or after startTime up through the most recent message
+   * @param applicationIds[] array of the application IDs whose messages will be retrieved. Any
+   *     messages with an application ID not found in this array will not be retrieved. Specify null
+   *     to retrieve messages with any application ID.
+   * @exception IllegalArgumentException if out is null or if outputFormat is not a supported output
+   *     format type
    */
   public PSOutputLogReaderFilter(
       java.io.OutputStream out,
@@ -114,51 +101,46 @@ public class PSOutputLogReaderFilter implements IPSLogReaderFilter {
   }
 
   /**
-   * Get the application id(s) to retrieve log entries for. Return
-   * <code>null</code> to get all log entries (server or application).
+   * Get the application id(s) to retrieve log entries for. Return <code>null</code> to get all log
+   * entries (server or application).
    *
-   * @return  the application id(s) to retrieve log entries for
+   * @return the application id(s) to retrieve log entries for
    */
   public int[] getApplicationIds() {
     return m_appIds;
   }
 
   /**
-   * Get the time to use as the earliest log entry to retrieve. Return
-   * <code>null</code> to retrieve entries starting from the earliest
-   * recorded log entry.
+   * Get the time to use as the earliest log entry to retrieve. Return <code>null</code> to retrieve
+   * entries starting from the earliest recorded log entry.
    *
-   * @return              the earliest log entry time to retrieve
+   * @return the earliest log entry time to retrieve
    */
   public java.util.Date getStartTime() {
     return m_startTime;
   }
 
   /**
-   * Get the time to use as the latest log entry to retrieve. Return
-   * <code>null</code> to retrieve entries including the most recently
-   * recorded log entry.
+   * Get the time to use as the latest log entry to retrieve. Return <code>null</code> to retrieve
+   * entries including the most recently recorded log entry.
    *
-   * @return              the latest log entry time to retrieve
+   * @return the latest log entry time to retrieve
    */
   public java.util.Date getEndTime() {
     return m_endTime;
   }
 
   /**
-   * Get the types of log entries to retrieve. Return
-   * <code>null</code> or an empty array to retrieve all types of log
-   * entries.
+   * Get the types of log entries to retrieve. Return <code>null</code> or an empty array to
+   * retrieve all types of log entries.
    *
-   * @return              the types of log entries
+   * @return the types of log entries
    */
   public int[] getEntryTypes() {
     return null;
   }
 
-  /**
-   * Dumps the message out to the output stream
-   */
+  /** Dumps the message out to the output stream */
   public void processMessage(PSLogEntry msg, boolean filterWasApplied) {
     if (msg == null) {
       m_out.println("There are no more messages");
@@ -178,14 +160,12 @@ public class PSOutputLogReaderFilter implements IPSLogReaderFilter {
   }
 
   /**
-   * Get the time to use for the next traversal of log entries. This
-   * uses the latest log time read by processMessage. If this log filter
-   * was not previously used in a call to the
-   * {@link com.percussion.log.IPSLogReader#read IPSLogReader's read}
-   * method, <code>null</code> will be returned.
+   * Get the time to use for the next traversal of log entries. This uses the latest log time read
+   * by processMessage. If this log filter was not previously used in a call to the {@link
+   * com.percussion.log.IPSLogReader#read IPSLogReader's read} method, <code>null</code> will be
+   * returned.
    *
-   * @return              the time to use for the next traversal of
-   *                      log entries
+   * @return the time to use for the next traversal of log entries
    */
   public java.util.Date getNextStartTime() {
     // advance by a millisecond, then return it

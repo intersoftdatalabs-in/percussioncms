@@ -36,8 +36,8 @@ public class PSStringUtils {
   private static final String ELIPSIS = ".../";
 
   /**
-   * Get the character set or return utf-8. The charset is after the string
-   * "charset=" if it is specified.
+   * Get the character set or return utf-8. The charset is after the string "charset=" if it is
+   * specified.
    *
    * @param mimeType
    * @return the charset for the mimetype
@@ -57,8 +57,8 @@ public class PSStringUtils {
    * Remove any extra whitespace, converting the whitespace to space characters
    *
    * @param input the input, never <code>null</code> or empty
-   * @return the output will contain one space character for any sequence of
-   *         whitespace characters in the input
+   * @return the output will contain one space character for any sequence of whitespace characters
+   *     in the input
    */
   public static String compressWhitespace(String input) {
     if (StringUtils.isBlank(input)) {
@@ -87,10 +87,8 @@ public class PSStringUtils {
   /**
    * Convert the supplied list of strings into a delimited string value.
    *
-   * @param input The list to convert, may not be <code>null</code>, may be
-   *           empty.
+   * @param input The list to convert, may not be <code>null</code>, may be empty.
    * @param delim The delimiter to use, may not be <code>null</code>.
-   *
    * @return The resulting string, never <code>null</code>, may be empty.
    */
   public static String listToString(List<String> input, String delim) {
@@ -112,8 +110,7 @@ public class PSStringUtils {
   /**
    * Convert the supplied array of strings into a delimited string value.
    *
-   * @param input The array to convert, may not be <code>null</code>, may be
-   *           empty.
+   * @param input The array to convert, may not be <code>null</code>, may be empty.
    * @return The resulting string, never <code>null</code>, may be empty.
    */
   public static String arrayToString(Object[] input) {
@@ -126,12 +123,12 @@ public class PSStringUtils {
   }
 
   /**
-   * Strip single or double quotes from a string. Quotes are stripped if they
-   * match (starts and ends with the same quote character).
+   * Strip single or double quotes from a string. Quotes are stripped if they match (starts and ends
+   * with the same quote character).
    *
    * @param str the input string, never <code>null</code>
-   * @return the stripped string, or the original if the input string had no
-   *         quotes or the quotes didn't match
+   * @return the stripped string, or the original if the input string had no quotes or the quotes
+   *     didn't match
    */
   public static String stripQuotes(String str) {
     if (str == null) {
@@ -150,14 +147,11 @@ public class PSStringUtils {
   }
 
   /**
-   * Converts the supplied string to camel case using an underscore as the word
-   * delimiter.
+   * Converts the supplied string to camel case using an underscore as the word delimiter.
    *
-   * @param src The string to camel case, may be <code>null</code> or empty
-   *           in which case the supplied value is returned unmodified.
-   *
-   * @return The converted string, may be <code>null</code> or empty if that
-   *         is what was supplied.
+   * @param src The string to camel case, may be <code>null</code> or empty in which case the
+   *     supplied value is returned unmodified.
+   * @return The converted string, may be <code>null</code> or empty if that is what was supplied.
    */
   public static String toCamelCase(String src) {
     if (StringUtils.isBlank(src)) return src;
@@ -174,8 +168,8 @@ public class PSStringUtils {
   }
 
   /**
-   * Replace or remove characters in the input string that are not alpha,
-   * numeric, or certain other allowable characters.
+   * Replace or remove characters in the input string that are not alpha, numeric, or certain other
+   * allowable characters.
    *
    * @param str the input string, never <code>null</code> or empty
    * @return a string copy with only id characters
@@ -199,11 +193,9 @@ public class PSStringUtils {
   }
 
   /**
-   * Loop over the strings, finding the first that matches the given left
-   * substring
+   * Loop over the strings, finding the first that matches the given left substring
    *
-   * @param leftSubstring left substring to match, never <code>null</code> or
-   *           empty
+   * @param leftSubstring left substring to match, never <code>null</code> or empty
    * @param candidates a string array of candidates, never <code>null</code>
    * @return the first match, or <code>null</code> if nothing matched
    */
@@ -217,11 +209,10 @@ public class PSStringUtils {
   }
 
   /**
-   * Using the passed font for metrics, compute a substring, which may be the
-   * entire string, that can be shown in the given dimension's width. If the
-   * string cannot be shown, first consider removing middle path elements. Then
-   * remove the leading components. Removed components are replaced with an
-   * elipsis.
+   * Using the passed font for metrics, compute a substring, which may be the entire string, that
+   * can be shown in the given dimension's width. If the string cannot be shown, first consider
+   * removing middle path elements. Then remove the leading components. Removed components are
+   * replaced with an elipsis.
    *
    * @param path the path to trim
    * @param dimension the dimention, never <code>null</code>
@@ -258,9 +249,8 @@ public class PSStringUtils {
   }
 
   /**
-   * Abbreviate the passed path by pieces. If the passed path can fit when
-   * rendered back. If it cannot fit, then we recurse, removing one component
-   * from each subpath
+   * Abbreviate the passed path by pieces. If the passed path can fit when rendered back. If it
+   * cannot fit, then we recurse, removing one component from each subpath
    *
    * @param startpath the start of the path, may be <code>null</code>
    * @param endpath the end of the path, assumed not <code>null</code>
@@ -301,13 +291,14 @@ public class PSStringUtils {
   }
 
   /**
-   * Search the passed source string for the given sequence ignoring the case
-   * of the characters in the sequence and the string.
+   * Search the passed source string for the given sequence ignoring the case of the characters in
+   * the sequence and the string.
+   *
    * @param src the source sequence, never <code>null</code>
    * @param sequence the search sequence, never <code>null</code> or empty
    * @param start the start position, greater or equals to <code>0</code>
-   * @return the position of the next match starting at <code>pos</code>, or
-   * <code>-1</code> if there is no match
+   * @return the position of the next match starting at <code>pos</code>, or <code>-1</code> if
+   *     there is no match
    */
   public static int indexOfIgnoringCase(String src, String sequence, int start) {
     if (StringUtils.isBlank(sequence))
@@ -337,18 +328,15 @@ public class PSStringUtils {
   }
 
   /**
-   * Validates the starting of a given name. The name must not start
-   * with any characters defined in {@link #INVALID_NAME_START_CHARS}.
-   * Note, an object name must start with a letter, but not a digit or any
-   * characters defined in {@link #INVALID_NAME_START_CHARS}. This is
-   * assumed the caller has or will be validate the name for other invalid
-   * characters, such as {@link #INVALID_NAME_CHARS} and {@link #SPACE_CHARS},
-   * ...etc.
+   * Validates the starting of a given name. The name must not start with any characters defined in
+   * {@link #INVALID_NAME_START_CHARS}. Note, an object name must start with a letter, but not a
+   * digit or any characters defined in {@link #INVALID_NAME_START_CHARS}. This is assumed the
+   * caller has or will be validate the name for other invalid characters, such as {@link
+   * #INVALID_NAME_CHARS} and {@link #SPACE_CHARS}, ...etc.
    *
    * @param name the name in question, not <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the 1st character of the name is valid;
-   *    otherwise <code>false</code>.
+   * @return <code>true</code> if the 1st character of the name is valid; otherwise <code>false
+   *     </code>.
    */
   public static boolean validateNameStart(final String name) {
     if (StringUtils.isBlank(name))
@@ -363,16 +351,13 @@ public class PSStringUtils {
   }
 
   /**
-   * Validate the string to make sure it does not contain the characters in the
-   * supplied string.
+   * Validate the string to make sure it does not contain the characters in the supplied string.
    *
-   * @param string string to validate, must not be <code>null</code> or
-   * empty.
-   * @param invalidChars string of characters to be avoided in the string, may
-   * not be <code>null</code> or empty. If <code>null</code> or empty he
-   * validation succeeds.
-   * @return <code>null</code> if validation succeeds or the first character
-   * from the start of the string that is not allowed.
+   * @param string string to validate, must not be <code>null</code> or empty.
+   * @param invalidChars string of characters to be avoided in the string, may not be <code>null
+   *     </code> or empty. If <code>null</code> or empty he validation succeeds.
+   * @return <code>null</code> if validation succeeds or the first character from the start of the
+   *     string that is not allowed.
    */
   public static Character validate(String string, String invalidChars) {
     if (string == null || string.length() == 0) {
@@ -385,22 +370,19 @@ public class PSStringUtils {
   }
 
   /**
-   * Validate the given Content Type name, to make sure it contains only
-   * alphanumeric and "_" characters.
-   * <p>
-   * Note, beside the characters defined in {@link #INVALID_NAME_CHARS},
-   * the ".()" characters may causing issues when creating database tables for
-   * the specified Content Type. The "." causing issues when identifying RX
-   * applications. Any other characters, such as non-ASCII (for non-English
-   * languages) may cause issues in parsing XML/DTD when starting RX
-   * application for the specified Content Type. These issues are mostly caused
-   * by the current implementation of Rhythmyx, but not the limitation of
-   * the database or XML parser.
+   * Validate the given Content Type name, to make sure it contains only alphanumeric and "_"
+   * characters.
+   *
+   * <p>Note, beside the characters defined in {@link #INVALID_NAME_CHARS}, the ".()" characters may
+   * causing issues when creating database tables for the specified Content Type. The "." causing
+   * issues when identifying RX applications. Any other characters, such as non-ASCII (for
+   * non-English languages) may cause issues in parsing XML/DTD when starting RX application for the
+   * specified Content Type. These issues are mostly caused by the current implementation of
+   * Rhythmyx, but not the limitation of the database or XML parser.
    *
    * @param name the name in question, must not be <code>null</code> or empty.
-   *
-   * @return <code>null</code> if validation succeeds or the first character
-   * from the start of the string that is not allowed.
+   * @return <code>null</code> if validation succeeds or the first character from the start of the
+   *     string that is not allowed.
    */
   public static Character validateContentTypeName(String name) {
     if (name == null || name.length() == 0) {
@@ -418,6 +400,7 @@ public class PSStringUtils {
 
   /**
    * Determines if the given character is valid for Content Type.
+   *
    * @param ch the character in question.
    * @return <code>true</code> if it is valid; otherwise <code>false</code>.
    */
@@ -430,17 +413,13 @@ public class PSStringUtils {
   }
 
   /**
-   * Validates the user name to warn of any special character from the string
-   * {@link #INVALID_USER_NAME_CHARS}. Calls {@link #validate(String, String)}
-   * with {@link #INVALID_USER_NAME_CHARS} as the second parameter.
+   * Validates the user name to warn of any special character from the string {@link
+   * #INVALID_USER_NAME_CHARS}. Calls {@link #validate(String, String)} with {@link
+   * #INVALID_USER_NAME_CHARS} as the second parameter.
    *
-   * @param userName user name to validate, must not be <code>null</code> or
-   * empty.
-   *
-   * @return <code>null</code> if successfully validated the given user name;
-   *    otherwise return the 1st invalid character that is not allowed in a
-   *    user name.
-   *
+   * @param userName user name to validate, must not be <code>null</code> or empty.
+   * @return <code>null</code> if successfully validated the given user name; otherwise return the
+   *     1st invalid character that is not allowed in a user name.
    * @see #validate(String, String)
    */
   public static Character validateUserName(String userName) {
@@ -451,14 +430,12 @@ public class PSStringUtils {
   }
 
   /**
-   * Determines if a given string contains any invalid characters used in a
-   * name.  The invalid name characters are specified by
-   * {@link #INVALID_NAME_CHARS}.
+   * Determines if a given string contains any invalid characters used in a name. The invalid name
+   * characters are specified by {@link #INVALID_NAME_CHARS}.
    *
    * @param str The string, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if the string contains any characters which are
-   * invalid for a name, <code>false</code> otherwise.
+   * @return <code>true</code> if the string contains any characters which are invalid for a name,
+   *     <code>false</code> otherwise.
    */
   public static boolean containsInvalidNameChars(String str) {
     if (str == null) throw new IllegalArgumentException("name may not be null");
@@ -471,9 +448,7 @@ public class PSStringUtils {
    *
    * @param str The string in question, assumed not <code>null</code>.
    * @param invalidChars the array of invalid characters.
-   *
-   * @return <code>true</code> if the string contains any characters,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if the string contains any characters, <code>false</code> otherwise.
    */
   private static boolean containsInvalidNameChars(String str, char[] invalidChars) {
     if (str == null) throw new IllegalArgumentException("name may not be null");
@@ -491,21 +466,20 @@ public class PSStringUtils {
 
   /**
    * This API is used for logging purposes to hide the password from log file.
+   *
    * @param string the password that needs to be hidden
-   * @return string [password unset] in case password passed is null or empty, and
-   *           [password hidden] incase password passed in has a value.
+   * @return string [password unset] in case password passed is null or empty, and [password hidden]
+   *     incase password passed in has a value.
    */
   public static String hidePass(String string) {
     return StringUtils.isNotEmpty(string) ? "[password hidden]" : "[password unset]";
   }
 
   /**
-   * Converts a given content type name to be valid for a name.  Any invalid
-   * characters identified by {@link #isValidCharForContentTypeName(char)}
-   * will be replaced by '_'.
+   * Converts a given content type name to be valid for a name. Any invalid characters identified by
+   * {@link #isValidCharForContentTypeName(char)} will be replaced by '_'.
    *
    * @param name The name in question, may not be <code>null</code> or empty.
-   *
    * @return The converted name, never <code>null</code> or empty.
    */
   public static String makeValidContentTypeName(String name) {
@@ -526,6 +500,7 @@ public class PSStringUtils {
 
   /**
    * Same as calling <code>notBlank(s, null)</code>.
+   *
    * @param s the string to validate.
    * @see #notBlank(String, String)
    */
@@ -534,13 +509,13 @@ public class PSStringUtils {
   }
 
   /**
-   * Insures that the provided string is not blank.
-   * Should be used for assertions only.
-   * Throws <code>IllegalArgumentException</code> if the string is null, empty,
-   * or contains only whitespace characters.
+   * Insures that the provided string is not blank. Should be used for assertions only. Throws
+   * <code>IllegalArgumentException</code> if the string is null, empty, or contains only whitespace
+   * characters.
+   *
    * @param s the string to validate. Can be <code>null</code>.
-   * @param message the message for the exception, when the validation fails.
-   * If blank, the exception is thrown with standard message.
+   * @param message the message for the exception, when the validation fails. If blank, the
+   *     exception is thrown with standard message.
    */
   public static void notBlank(String s, String message) {
     if (StringUtils.isBlank(s)) {
@@ -551,10 +526,10 @@ public class PSStringUtils {
   }
 
   /**
-   * Used to split the comma separated groups list entered by the user to
-   * secure a section. It assumes that the groups are separated by a comma
-   * character (with no spaces). If the group should contain the comma, it can
-   * be scaped with the backslash character ('\').
+   * Used to split the comma separated groups list entered by the user to secure a section. It
+   * assumes that the groups are separated by a comma character (with no spaces). If the group
+   * should contain the comma, it can be scaped with the backslash character ('\').
+   *
    * <table>
    * <tr>
    * <td>String entered</td>
@@ -582,8 +557,7 @@ public class PSStringUtils {
    * </tr>
    * </table>
    *
-   * @param allowAccessTo the string that the user has entered in the UI. May
-   *            be blank.
+   * @param allowAccessTo the string that the user has entered in the UI. May be blank.
    * @return a {@link String}[] object, never <code>null</code>.
    */
   public static String[] getAllowedGroups(String allowAccessTo) {
@@ -615,6 +589,7 @@ public class PSStringUtils {
 
   /**
    * Converts a null Long object to 0
+   *
    * @param arg 0 or the value
    * @return
    */
@@ -635,66 +610,56 @@ public class PSStringUtils {
   private static final String ESCAPE_REPLACEMENT_STRING = "<perc-escaped-comma-character>";
 
   /**
-   * Reserved characters for URL: ";", "/", "?", ":", "@", "=" and "&"
-   * See http://www.rfc-editor.org/rfc/rfc1738.txt for detail.
+   * Reserved characters for URL: ";", "/", "?", ":", "@", "=" and "&" See
+   * http://www.rfc-editor.org/rfc/rfc1738.txt for detail.
    */
   private static final String RESERVED_CHAR_FOR_URL = ";/?:@=&";
 
   /**
-   * The unsafe characters "<", ">", """, "#", "%", "{", "}", "|", "\", "^",
-   * "~", "[", "]", "`" and "+".
-   * See http://www.rfc-editor.org/rfc/rfc1738.txt for detail.
+   * The unsafe characters "<", ">", """, "#", "%", "{", "}", "|", "\", "^", "~", "[", "]", "`" and
+   * "+". See http://www.rfc-editor.org/rfc/rfc1738.txt for detail.
    */
   private static final String UNSAFE_CHAR = "<>\"#%{}|\\^~[]`+";
 
   /**
-   * Invalid characters for the file names in Windows are
-   * "\\", "/", ":", "*", "?", "\"", "<", ">", "|". Most of the characters are
-   * covered by either {@link #RESERVED_CHAR_FOR_URL} or {@link #UNSAFE_CHAR},
-   * except "*".
+   * Invalid characters for the file names in Windows are "\\", "/", ":", "*", "?", "\"", "<", ">",
+   * "|". Most of the characters are covered by either {@link #RESERVED_CHAR_FOR_URL} or {@link
+   * #UNSAFE_CHAR}, except "*".
    */
   private static final String INVALID_CHAR_IN_WINDOWS_FILENAME = "*";
 
   /**
-   * The space characters. These characters are not allowed for object names,
-   * such as template, site, edition names, ...etc.
+   * The space characters. These characters are not allowed for object names, such as template,
+   * site, edition names, ...etc.
    */
   public static final String SPACE_CHARS = " \t\r\n";
 
   /**
-   * The invalid characters used in an object name (such as Template, Site
-   * or Edition names, ...etc) are in the following categories:
+   * The invalid characters used in an object name (such as Template, Site or Edition names, ...etc)
+   * are in the following categories:
+   *
    * <ul>
-   *    <li>Reserved characters for URL</li>
-   *    <li>Unsafe characters used in a URL</li>
-   *    <li>Invalid characters for the file names in Windows</li>
+   *   <li>Reserved characters for URL
+   *   <li>Unsafe characters used in a URL
+   *   <li>Invalid characters for the file names in Windows
    * </ul>
-   * Note, these are basically all the reserved and unsafe to use in a URL,
-   * plus a "*" character. The characters in {@link #SPACE_CHARS} are also
-   * invalid for object names.
+   *
+   * Note, these are basically all the reserved and unsafe to use in a URL, plus a "*" character.
+   * The characters in {@link #SPACE_CHARS} are also invalid for object names.
    */
   public static final String INVALID_NAME_CHARS =
       RESERVED_CHAR_FOR_URL + UNSAFE_CHAR + INVALID_CHAR_IN_WINDOWS_FILENAME;
 
-  /**
-   * The invalid characters used at the beginning of an object name.
-   */
+  /** The invalid characters used at the beginning of an object name. */
   public static final String INVALID_NAME_START_CHARS = "0123456789_-()$'.";
 
-  /**
-   * Array of character strings of {@link #INVALID_NAME_START_CHARS}.
-   */
+  /** Array of character strings of {@link #INVALID_NAME_START_CHARS}. */
   private static final char[] INVALID_NAME_START_CHARS_ARRAY =
       INVALID_NAME_START_CHARS.toCharArray();
 
-  /**
-   * String of characters not allowed in a user name. Used to validate user
-   * name.
-   */
+  /** String of characters not allowed in a user name. Used to validate user name. */
   private static final String INVALID_USER_NAME_CHARS = "~`!@#$%^&*()-+=[{]}|\\;:\'\",<.>/?";
 
-  /**
-   * Array of character strings of {@link #INVALID_NAME_CHARS}.
-   */
+  /** Array of character strings of {@link #INVALID_NAME_CHARS}. */
   private static final char[] INVALID_NAME_CHARS_ARRAY = INVALID_NAME_CHARS.toCharArray();
 }

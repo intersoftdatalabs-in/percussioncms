@@ -29,20 +29,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * An object representation of the StandardItem FieldMeta element.  This class
- * contains all of the descriptive elements of the associated element.  That
- * associated element may be a field, child, child entry or a related item.
+ * An object representation of the StandardItem FieldMeta element. This class contains all of the
+ * descriptive elements of the associated element. That associated element may be a field, child,
+ * child entry or a related item.
  */
 public class PSItemFieldMeta extends PSItemComponent {
   /**
-   * Creates a new object.  Package protected constructor.
+   * Creates a new object. Package protected constructor.
    *
-   * @param fieldDef system definition of this field, must not be
-   * <code>null</code>.
-   * @param uiDef system definition of this fields ui, must not be
-   * <code>null</code>.
-   * @param isMultiValue <code>true</code> if it is, otherwise
-   * <code>false</code>.
+   * @param fieldDef system definition of this field, must not be <code>null</code>.
+   * @param uiDef system definition of this fields ui, must not be <code>null</code>.
+   * @param isMultiValue <code>true</code> if it is, otherwise <code>false</code>.
    */
   PSItemFieldMeta(PSField fieldDef, PSUISet uiDef, boolean isMultiValue) {
     super();
@@ -56,9 +53,7 @@ public class PSItemFieldMeta extends PSItemComponent {
     init();
   }
 
-  /**
-   * Initialize object.
-   */
+  /** Initialize object. */
   private void init() {
     // @todo: when ui is implemented add accessors for:
     m_mimeType = m_fieldDef.getMimeType();
@@ -66,14 +61,14 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * Add options to fields.  These supply the elements in the
-   * ValueChoices/Options element of the StandardItem.xsd.  They will be sorted
-   * based on the <code>displayName</code> by the <code>Comparable</code> rules.
+   * Add options to fields. These supply the elements in the ValueChoices/Options element of the
+   * StandardItem.xsd. They will be sorted based on the <code>displayName</code> by the <code>
+   * Comparable</code> rules.
    *
-   * @param displayName the name that may be used for UI purposes. It may be
-   *    <code>null</code> or empty. <code>null</code> will be treated as empty.
-   * @param optionValue the value that will be persisted.  It may be
-   *    <code>null</code> or empty. <code>null</code> will be treated as empty.
+   * @param displayName the name that may be used for UI purposes. It may be <code>null</code> or
+   *     empty. <code>null</code> will be treated as empty.
+   * @param optionValue the value that will be persisted. It may be <code>null</code> or empty.
+   *     <code>null</code> will be treated as empty.
    */
   public void addOptions(String displayName, String optionValue) {
     if (displayName == null) displayName = "";
@@ -84,20 +79,15 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * The data type of the column to which the field value will be persisted.
-   * Will be one of the following:
+   * The data type of the column to which the field value will be persisted. Will be one of the
+   * following:
+   *
    * <ul>
-   * <li>{@link PSItemFieldMeta#DATATYPE_DATE} if the backend data type is:
-   * date, time or datetime
-   * </li>
-   * <li>{@link PSItemFieldMeta#DATATYPE_TEXT} if the backend data type is:
-   * text, boolean or was not set (default)
-   * </li>
-   * <li>{@link PSItemFieldMeta#DATATYPE_NUMERIC}if the backend data type is:
-   * integer or float
-   * </li>
-   * <li>{@link PSItemFieldMeta#DATATYPE_BINARY}if the backend data type is:
-   * binary.</li>
+   *   <li>{@link PSItemFieldMeta#DATATYPE_DATE} if the backend data type is: date, time or datetime
+   *   <li>{@link PSItemFieldMeta#DATATYPE_TEXT} if the backend data type is: text, boolean or was
+   *       not set (default)
+   *   <li>{@link PSItemFieldMeta#DATATYPE_NUMERIC}if the backend data type is: integer or float
+   *   <li>{@link PSItemFieldMeta#DATATYPE_BINARY}if the backend data type is: binary.
    * </ul>
    *
    * @return return a valid type.
@@ -127,12 +117,12 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * Returns a list of the display names in the options.  With display name
-   * you can get the option value by calling <code>getOptionValueByDisplayName
+   * Returns a list of the display names in the options. With display name you can get the option
+   * value by calling <code>getOptionValueByDisplayName
    * </code>.
    *
-   * @return Iterator of <code>String</code>s that are the display names.
-   * May return <code>null</code> if options are empty.
+   * @return Iterator of <code>String</code>s that are the display names. May return <code>null
+   *     </code> if options are empty.
    */
   public Iterator getOptionDisplayNames() {
     return m_AllowedValuesOptionMap.keySet().iterator();
@@ -141,9 +131,8 @@ public class PSItemFieldMeta extends PSItemComponent {
   /**
    * Return the specified value for a display name.
    *
-   * @param displayName  Must not be <code>null</code> or empty.
-   * @return the value corresponding to the display name.  May be
-   *  <code>null</code> or empty.
+   * @param displayName Must not be <code>null</code> or empty.
+   * @return the value corresponding to the display name. May be <code>null</code> or empty.
    */
   public String getOptionValueByDisplayName(String displayName) {
     if (displayName == null || displayName.length() == 0)
@@ -155,8 +144,7 @@ public class PSItemFieldMeta extends PSItemComponent {
   /**
    * Does this <code>PSItemFieldMeta</code> have options?
    *
-   * @return <code>true</code> if there are options, otherwise
-   * <code>false</code>.
+   * @return <code>true</code> if there are options, otherwise <code>false</code>.
    */
   public boolean hasOptions() {
     return m_uiDef.getChoices() == null ? false : true;
@@ -195,6 +183,7 @@ public class PSItemFieldMeta extends PSItemComponent {
 
   /**
    * Convenience method to <code>toXml(doc, null)</code>.
+   *
    * @see #toXml(Document, PSAcceptElements)
    */
   public Element toXml(Document doc) {
@@ -203,7 +192,8 @@ public class PSItemFieldMeta extends PSItemComponent {
 
   /**
    * Create ValueChoices and Options elements.
-   * @param doc document on which to create.  Assumed not <code>null</code>
+   *
+   * @param doc document on which to create. Assumed not <code>null</code>
    * @return ValueChoices
    */
   private Element createOptionElements(Document doc) {
@@ -303,16 +293,16 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
-   * An element node may contain a hierarchical structure, including child
+   * This method is called to populate an object from its XML representation. It assumes that the
+   * object may already have a complete data structure, therefore method only overlays the data onto
+   * the existing object. An element node may contain a hierarchical structure, including child
    * objects. The element node can also be a child of another element node.
+   *
    * <p>
-   * @param sourceNode   the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by this class.
    */
   public void loadXmlData(Element sourceNode) throws PSUnknownNodeTypeException {
     loadXmlData(sourceNode, false);
@@ -328,7 +318,7 @@ public class PSItemFieldMeta extends PSItemComponent {
   /**
    * Returns the unique name of the field.
    *
-   * @return name of the field.  Never <code>null</code> or empty.
+   * @return name of the field. Never <code>null</code> or empty.
    */
   public String getName() {
     return m_fieldDef.getSubmitName();
@@ -344,29 +334,22 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * // TODO: Implement for treat as xml.
-   *  Returns the mime type of this field.
+   * // TODO: Implement for treat as xml. Returns the mime type of this field.
    *
    * @return the mime type of this field.
-   *
-   * public String getMimeType()
-   * {
-   * return m_mimeType;
-   * }
+   *     <p>public String getMimeType() { return m_mimeType; }
    */
 
   /**
-   * The source type of the field.  Will be one of the following types:
+   * The source type of the field. Will be one of the following types:
    *
    * <ul>
-   * <li>{@link PSItemFieldMeta#SOURCE_TYPE_UNKNOWN} - default
-   * </li>
-   * <li>{@link PSItemFieldMeta#SOURCE_TYPE_LOCAL}
-   * </li>
-   * <li>{@link PSItemFieldMeta#SOURCE_TYPE_SHARE}
-   * </li>
-   * <li>{@link PSItemFieldMeta#SOURCE_TYPE_SYSTEM}
+   *   <li>{@link PSItemFieldMeta#SOURCE_TYPE_UNKNOWN} - default
+   *   <li>{@link PSItemFieldMeta#SOURCE_TYPE_LOCAL}
+   *   <li>{@link PSItemFieldMeta#SOURCE_TYPE_SHARE}
+   *   <li>{@link PSItemFieldMeta#SOURCE_TYPE_SYSTEM}
    * </ul>
+   *
    * @return valid source value.
    */
   public int getSourceType() {
@@ -374,32 +357,27 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * Gets the transfer encoding type.  Will be one of the following types:
+   * Gets the transfer encoding type. Will be one of the following types:
    *
    * <ul>
-   * <li>{@link PSItemFieldMeta#ENCODING_TYPE_NONE} - default.  No encoding
-   * specified.
-   * </li>
-   * <li>{@link PSItemFieldMeta#ENCODING_TYPE_BASE64} - base64 encodes the
-   * field value before transfering.
+   *   <li>{@link PSItemFieldMeta#ENCODING_TYPE_NONE} - default. No encoding specified.
+   *   <li>{@link PSItemFieldMeta#ENCODING_TYPE_BASE64} - base64 encodes the field value before
+   *       transfering.
    * </ul>
    *
-   * @return transfer encoding of this item. Wwill not be <code>null</code> or
-   *  empty.
+   * @return transfer encoding of this item. Wwill not be <code>null</code> or empty.
    */
   public int getTransferEncoding() {
     return m_transferEncoding;
   }
 
   /**
-   * Sets the transfer encoding type.  Must be one of the following types:
+   * Sets the transfer encoding type. Must be one of the following types:
    *
    * <ul>
-   * <li>{@link PSItemFieldMeta#ENCODING_TYPE_NONE} - default.  No encoding
-   * specified.
-   * </li>
-   * <li>{@link PSItemFieldMeta#ENCODING_TYPE_BASE64} - base64 encodes the
-   * field value before transfering.
+   *   <li>{@link PSItemFieldMeta#ENCODING_TYPE_NONE} - default. No encoding specified.
+   *   <li>{@link PSItemFieldMeta#ENCODING_TYPE_BASE64} - base64 encodes the field value before
+   *       transfering.
    * </ul>
    *
    * @param encodingType must be a valid type.
@@ -412,31 +390,27 @@ public class PSItemFieldMeta extends PSItemComponent {
   }
 
   /**
-   * The field value type of the field.  Will be one of the following types:
+   * The field value type of the field. Will be one of the following types:
    *
    * <ul>
-   * <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_UNKNOWN} - default.
-   * </li>
-   * <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_CONTENT}
-   * </li>
-   * <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_META}
+   *   <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_UNKNOWN} - default.
+   *   <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_CONTENT}
+   *   <li>{@link PSItemFieldMeta#FIELD_VALUE_TYPE_META}
    * </ul>
+   *
    * @return valid source value.
    */
   public int getFieldValueType() {
     return m_fieldDef.getFieldValueType();
   }
 
-  /**
-   * The definitions for this fieldmeta, set in the ctor, invariant and never
-   * <code>null</code>
-   */
+  /** The definitions for this fieldmeta, set in the ctor, invariant and never <code>null</code> */
   public PSField getFieldDef() {
     return m_fieldDef;
   }
 
   /**
-   * Returns the display name for this field.  A display name is not required.
+   * Returns the display name for this field. A display name is not required.
    *
    * @return display name may be <code>null</code> never empty.
    */
@@ -453,9 +427,8 @@ public class PSItemFieldMeta extends PSItemComponent {
   /**
    * Should we display this field value in preview?
    *
-   * @return <code>true</code> the field value will be displayed in preview
-   * mode in the CMS, <code>false</code> it will not be.  Default is
-   * <code>false</code>.
+   * @return <code>true</code> the field value will be displayed in preview mode in the CMS, <code>
+   *     false</code> it will not be. Default is <code>false</code>.
    */
   public boolean showInPreview() {
     return m_fieldDef.isShowInPreview();
@@ -470,18 +443,12 @@ public class PSItemFieldMeta extends PSItemComponent {
     return m_fieldDef.isForceBinary() || getBackendDataType() == DATATYPE_BINARY;
   }
 
-  /** todo whem treat as xml is implemented use this:
-   * Is this field treat as xml?
+  /**
+   * todo whem treat as xml is implemented use this: Is this field treat as xml?
    *
    * @return <code>true</code> if it is, otherwise <code>false</code>.
-   *
-   * public boolean isXmlValue()
-   * {
-   * // todo: if the mime type = xml then true,
-   * // this should work just like isBinary, the value will be in the def.
-   * // and we just proxy
-   * return false;
-   * }
+   *     <p>public boolean isXmlValue() { // todo: if the mime type = xml then true, // this should
+   *     work just like isBinary, the value will be in the def. // and we just proxy return false; }
    */
 
   /**
@@ -489,49 +456,37 @@ public class PSItemFieldMeta extends PSItemComponent {
    *
    * @param el the element to retrieve the name from, must not be <code>
    * null</code>
-   *
    * @return the name of this field meta element
-   *
    * @throws PSUnknownNodeTypeException
    */
   static String getName(Element el) throws PSUnknownNodeTypeException {
     return el.getAttribute(ATTR_NAME);
   }
 
-  /**
-   * Set by the ctor, default is false, is invariant.
-   */
+  /** Set by the ctor, default is false, is invariant. */
   private boolean m_isMultiValueField;
 
   /**
-   * The mime type of the field, get from def, //TODO: when UI is completed
-   * for Treat As XML, accessors should be made for this field:
+   * The mime type of the field, get from def, //TODO: when UI is completed for Treat As XML,
+   * accessors should be made for this field:
    */
   private String m_mimeType;
 
-  /**
-   * Specifies how to encode the values of the field.
-   * TODO: does this have a default?
-   */
+  /** Specifies how to encode the values of the field. TODO: does this have a default? */
   private int m_transferEncoding = ENCODING_TYPE_NONE;
 
   /**
-   * The Map of allowed values.  The displayName is the <code>key</code>
-   * and the #TEXT child of the Option element is the <code>value</code>,
-   * initialized in <code>init()</code>, never <code>null</code> may be
-   * empty.
+   * The Map of allowed values. The displayName is the <code>key</code> and the #TEXT child of the
+   * Option element is the <code>value</code>, initialized in <code>init()</code>, never <code>null
+   * </code> may be empty.
    */
   private Map m_AllowedValuesOptionMap;
 
-  /**
-   * The definitions for this fieldmeta, set in the ctor, invariant and never
-   * <code>null</code>
-   */
+  /** The definitions for this fieldmeta, set in the ctor, invariant and never <code>null</code> */
   private PSField m_fieldDef;
 
   /**
-   * The ui definitions for this fieldmeta, set in the ctor, invariant and
-   * never <code>null</code>
+   * The ui definitions for this fieldmeta, set in the ctor, invariant and never <code>null</code>
    */
   private PSUISet m_uiDef;
 
@@ -548,8 +503,8 @@ public class PSItemFieldMeta extends PSItemComponent {
   public static final int ENCODING_TYPE_BASE64 = 1;
 
   /**
-   * An array of XML attribute values for the field value type.
-   * They are specified at the index of the specifier.
+   * An array of XML attribute values for the field value type. They are specified at the index of
+   * the specifier.
    */
   public static final String[] ENCODING_TYPE_ENUM = {"none", "base64"};
 

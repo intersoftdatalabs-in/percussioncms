@@ -17,8 +17,7 @@
 package com.percussion.servlets.taglib;
 
 /**
- * A menu bar component that emits the appropriate HTML for the menubar css
- * implementation.
+ * A menu bar component that emits the appropriate HTML for the menubar css implementation.
  *
  * @author dougrand
  */

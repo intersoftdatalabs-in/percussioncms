@@ -27,26 +27,25 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 /**
- * A class that provides methods for creating new content status history
- * records and accessing fields in existing ones, and that is a wrapper for the
- * backend table 'CONTENTSTATUSHISTORY'.
+ * A class that provides methods for creating new content status history records and accessing
+ * fields in existing ones, and that is a wrapper for the backend table 'CONTENTSTATUSHISTORY'.
+ *
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
 @Deprecated
 public class PSContentStatusHistoryContext implements IPSContentStatusHistoryContext {
 
   /**
-   * Constructor specifying the workFlowID, connection, and contentID, used
-   * for read-only access to content status history records.
+   * Constructor specifying the workFlowID, connection, and contentID, used for read-only access to
+   * content status history records.
    *
-   * @param workFlowID   ID of the workflow for this item
-   * @param connection   data base connection
-   * @param contentID    ID of the content item
-   * @throws             SQLException if a SQL error occurs
-   * @throws             PSEntryNotFoundException if no records were returned
+   * @param workFlowID ID of the workflow for this item
+   * @param connection data base connection
+   * @param contentID ID of the content item
+   * @throws SQLException if a SQL error occurs
+   * @throws PSEntryNotFoundException if no records were returned
    */
   public PSContentStatusHistoryContext(int workFlowID, Connection connection, int contentID)
       throws SQLException, PSEntryNotFoundException {
@@ -91,30 +90,25 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   }
 
   /**
-   * Constructor for a new ContentStatusHistory entry specifying all required
-   * data; commits the record to the data base and frees all JDBC objects.
+   * Constructor for a new ContentStatusHistory entry specifying all required data; commits the
+   * record to the data base and frees all JDBC objects.
    *
-   * @param contentStatusHistoryID  ID for new ContentStatusHistory entry.
-   * @param workFlowID        ID of the workflow for this item
-   * @param connection        data base connection
-   * @param contentID            ID of the content item
+   * @param contentStatusHistoryID ID for new ContentStatusHistory entry.
+   * @param workFlowID ID of the workflow for this item
+   * @param connection data base connection
+   * @param contentID ID of the content item
    * @param contentStatusContext PSContentStatusContext for the content item
-   * @param statesContext        the PSStatesContext for the content state
-   * @param transitionContext    the PSTransitionsContext for the transition
-   * @param transitionComment    descriptive comment for this action
-   * @param actorName            the name of the user that performed this
-   *                             transition, check in or check out.
-   * @param sessionID            the SessionID for this content status
-   *              history entry.
-   * @param roleName             list of names of assignee roles for the
-   *                             state of the content item
-   * @param baseRevisionNum      the base revision of the content item for
-   *                             checkouts, otherwise the current revision.
-   * @throws                  SQLException if a SQL error occurs
-   * @throws                  PSEntryNotFoundException if no records were
-   *                             returned for an existing entry.
-   * @throws                  IllegalArgumentException if any of the input
-   *                             parameters is not valid.
+   * @param statesContext the PSStatesContext for the content state
+   * @param transitionContext the PSTransitionsContext for the transition
+   * @param transitionComment descriptive comment for this action
+   * @param actorName the name of the user that performed this transition, check in or check out.
+   * @param sessionID the SessionID for this content status history entry.
+   * @param roleName list of names of assignee roles for the state of the content item
+   * @param baseRevisionNum the base revision of the content item for checkouts, otherwise the
+   *     current revision.
+   * @throws SQLException if a SQL error occurs
+   * @throws PSEntryNotFoundException if no records were returned for an existing entry.
+   * @throws IllegalArgumentException if any of the input parameters is not valid.
    */
   public PSContentStatusHistoryContext(
       int contentStatusHistoryID,
@@ -180,10 +174,9 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   }
 
   /**
-   * Prepares the SQL INSERT statement to create a new entry in the
-   * CONTENTSTATUSHISTORY table, using the connection associated with this
-   * PSContentStatusHistoryContext. Sets EVENTTIME  to the current time and
-   * gets LASTMODIFIEDDATE to the value from the content status record.
+   * Prepares the SQL INSERT statement to create a new entry in the CONTENTSTATUSHISTORY table,
+   * using the connection associated with this PSContentStatusHistoryContext. Sets EVENTTIME to the
+   * current time and gets LASTMODIFIEDDATE to the value from the content status record.
    */
   private void prepareInsertStatement() throws SQLException {
     m_Statement = PSPreparedStatement.getPreparedStatement(m_Connection, INSERTSTRING);
@@ -217,9 +210,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the content status history ID for this entry.
    *
-   * @param   contentStatusHistoryID the content status history ID for this
-   *                                 entry.
-   *                                 Must be  <CODE>> 0</CODE>.
+   * @param contentStatusHistoryID the content status history ID for this entry. Must be <CODE>> 0
+   *     </CODE>.
    */
   private void setContentStatusHistoryID(int contentStatusHistoryID)
       throws SQLException, PSEntryNotFoundException {
@@ -229,8 +221,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the ContentID for the content item acted on.
    *
-   * @param   contentID the ContentID for the content item.
-   *                    Must be <CODE>> 0</CODE>.
+   * @param contentID the ContentID for the content item. Must be <CODE>> 0</CODE>.
    */
   private void setContentID(int contentID) {
     m_nContentID = contentID;
@@ -239,7 +230,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the workFlowID for the content item acted on.
    *
-   * @param   workFlowID the workFlowID for the content item.
+   * @param workFlowID the workFlowID for the content item.
    */
   private void setWorkFlowID(int workFlowID) {
     m_nWorkflowID = workFlowID;
@@ -248,9 +239,9 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the revision for the content item acted on.
    *
-   * @param   revision the revision for the content item. For checkout this
-   *          is the base revision, which is either 1, or the revision of the
-   *          content item copied to create the revision checked out.
+   * @param revision the revision for the content item. For checkout this is the base revision,
+   *     which is either 1, or the revision of the content item copied to create the revision
+   *     checked out.
    */
   private void setRevision(int revision) {
     m_nRevision = revision;
@@ -259,8 +250,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the title of the content item for this content status history entry.
    *
-   * @param   title    the title of the content item
-   *                   May not be more than 255 characters
+   * @param title the title of the content item May not be more than 255 characters
    */
   private void setTitle(String title) {
     m_sTitle = title;
@@ -269,17 +259,17 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the SessionID for this content status history entry.
    *
-   * @param   sessionID the SessionID for this content status history entry.
+   * @param sessionID the SessionID for this content status history entry.
    */
   private void setSessionID(String sessionID) {
     m_sSessionID = sessionID;
   }
 
   /**
-   * Sets the name of the user that performed this transition or action
-   * including check in and check out.
+   * Sets the name of the user that performed this transition or action including check in and check
+   * out.
    *
-   * @param   actorName the name of the user that performed this action.
+   * @param actorName the name of the user that performed this action.
    */
   private void setActorName(String actorName) {
     m_sActor = actorName;
@@ -288,8 +278,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the TransitionID for this content status history entry.
    *
-   * @param   transitionID the TransitionID for this content
-   *                       status history entry. 0 for checkin or checkout.
+   * @param transitionID the TransitionID for this content status history entry. 0 for checkin or
+   *     checkout.
    */
   private void setTransitionID(int transitionID) {
     m_nTransitionID = transitionID;
@@ -298,14 +288,9 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the Transition Label for this content status history entry.
    *
-   * @param   transitionLabel  if this is a transition, the  label for the
-   *                           transition.
-   *                           It may not be more than 50 characters
-   *                           otherwise <CODE>null</CODE> for a check in
-   *                           or checkout.
-   *                           The transition label will be set to
-   *                           "CheckIn" for a check in,
-   *                           "CheckOut for a check out
+   * @param transitionLabel if this is a transition, the label for the transition. It may not be
+   *     more than 50 characters otherwise <CODE>null</CODE> for a check in or checkout. The
+   *     transition label will be set to "CheckIn" for a check in, "CheckOut for a check out
    */
   private void setTransitionLabel(String transitionLabel) {
     /*
@@ -330,8 +315,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets indicator as to whether this content is publishable
    *
-   * @param   isValid <CODE>true</CODE> if content is publishable
-   *                   else <CODE>false</CODE>
+   * @param isValid <CODE>true</CODE> if content is publishable else <CODE>false</CODE>
    */
   private void setContentIsValid(boolean isValid) {
     m_bValid = isValid;
@@ -340,31 +324,27 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the ContentStateID for this content status history entry.
    *
-   * @param   contentStateID the ID of the current state at completion of
-   * transition or action.
+   * @param contentStateID the ID of the current state at completion of transition or action.
    */
   private void setContentStateID(int contentStateID) {
     m_nStateID = contentStateID;
   }
 
   /**
-   * Sets the name of the current state at completion of transition or
-   * action.
+   * Sets the name of the current state at completion of transition or action.
    *
-   * @param   stateName the content state name for this content
-   *                         status history entry.
+   * @param stateName the content state name for this content status history entry.
    */
   private void setStateName(String stateName) {
     m_sStateName = stateName;
   }
 
   /**
-   * Sets the assigned role name for the state of the content item for this
-   * content status history entry.
+   * Sets the assigned role name for the state of the content item for this content status history
+   * entry.
    *
-   * @param   roleName the role name the state of the content item for this
-   *                   content status history entry.
-   *                   May not be more than 50 characters
+   * @param roleName the role name the state of the content item for this content status history
+   *     entry. May not be more than 50 characters
    */
   private void setContentStateRoleName(String roleName) {
     m_sRoleName = roleName;
@@ -373,9 +353,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the name of the user that checked out this content item.
    *
-   * @param   userName name of the user that checked out this content item
-   *          <CODE>null</CODE> if item is not checked out.
-   *          May not be more than 255 characters.
+   * @param userName name of the user that checked out this content item <CODE>null</CODE> if item
+   *     is not checked out. May not be more than 255 characters.
    */
   private void setContentCheckoutUserName(String userName) {
     m_sCheckOutUserName = userName;
@@ -384,9 +363,8 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the name of the user that last modified out this content item.
    *
-   * @param lastModifierName  name of the user that last modified this content
-   *                          item.  May not be more than 255 characters.
-   *                          Initial and final whitespace will be trimmed.
+   * @param lastModifierName name of the user that last modified this content item. May not be more
+   *     than 255 characters. Initial and final whitespace will be trimmed.
    */
   private void setContentLastModifierName(String lastModifierName) {
     m_sLastModifierName = lastModifierName;
@@ -395,19 +373,17 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /**
    * Sets the date this content item was last modified.
    *
-   * @param date   the date this content item was last modified
+   * @param date the date this content item was last modified
    */
   private void setContentLastModifiedDate(Date date) {
     m_LastModifiedDate = date;
   }
 
   /**
-   * Sets the descriptive comment for this transition in the content status
-   * history entry.
+   * Sets the descriptive comment for this transition in the content status history entry.
    *
-   * @param   transitionComment the descriptive comment the transition
-   *                      May be <CODE>null</CODE>.
-   *                      May not be more than 255 characters.
+   * @param transitionComment the descriptive comment the transition May be <CODE>null</CODE>. May
+   *     not be more than 255 characters.
    */
   private void setTransitionComment(String transitionComment) {
     m_sTransitionComment = transitionComment;
@@ -635,27 +611,23 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
 
   /******** Context Data Members ********/
 
-  /**
-   * The SessionID for this content status history entry.
-   * May not be more than 40 characters.
-   */
+  /** The SessionID for this content status history entry. May not be more than 40 characters. */
   private String m_sSessionID = "";
 
   /** The ID of the current state at completion of transition or action */
   private int m_nStateID = 0;
 
   /**
-   * Name of the current state at the time of transition or action.
-   * May not be more than 50 characters.
+   * Name of the current state at the time of transition or action. May not be more than 50
+   * characters.
    */
   private String m_sStateName = "";
 
-  /**  name of the user that performed this transition or action */
+  /** name of the user that performed this transition or action */
   private String m_sActor = null;
 
   /**
-   * the transition ID if the content item has undergone a transition
-   * 0 for check in and check out.
+   * the transition ID if the content item has undergone a transition 0 for check in and check out.
    */
   private int m_nTransitionID = 0;
 
@@ -663,36 +635,27 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   private boolean m_bValid = false;
 
   /**
-   * comma-separated list of assigned role names for the content
-   * item's current state
-   * May not be more than 255 characters.
+   * comma-separated list of assigned role names for the content item's current state May not be
+   * more than 255 characters.
    */
   private String m_sRoleName = null;
 
   /**
-   * Name of the user that checked out this content item, or
-   * <CODE>null</CODE> item is not checked out
-   * May not be more than 255 characters.
+   * Name of the user that checked out this content item, or <CODE>null</CODE> item is not checked
+   * out May not be more than 255 characters.
    */
   private String m_sCheckOutUserName = null;
 
-  /**
-   * name of the user that last modified this content item
-   * May not be more than 255 characters.
-   */
+  /** name of the user that last modified this content item May not be more than 255 characters. */
   private String m_sLastModifierName = null;
 
   /**
-   * The revision for the content item. For checkout the base revision, which
-   * is either 1, or the revision of the content item copied to create the
-   * revision checked out.
+   * The revision for the content item. For checkout the base revision, which is either 1, or the
+   * revision of the content item copied to create the revision checked out.
    */
   private int m_nRevision = 0;
 
-  /**
-   * title of the content item
-   * May not be more than 40 characters.
-   */
+  /** title of the content item May not be more than 40 characters. */
   private String m_sTitle = null;
 
   /** the date/time this content item was last modified */
@@ -701,10 +664,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /** date/time when this transition or action took place */
   private Date m_EventTime = null;
 
-  /**
-   * the descriptive comment for this transition.
-   * May not be more than 255 characters.
-   */
+  /** the descriptive comment for this transition. May not be more than 255 characters. */
   private String m_sTransitionComment = "";
 
   /** label of the transition or action */
@@ -724,14 +684,10 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
   /** Number of database records found */
   private int m_nCount = 0;
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_CSHC = PSConnectionMgr.getQualifiedIdentifier("CONTENTSTATUSHISTORY");
 
-  /**
-   * SQL query string to get data base records for the content status history.
-   */
+  /** SQL query string to get data base records for the content status history. */
   private static final String QRYSTRING =
       "SELECT "
           + TABLE_CSHC
@@ -776,10 +732,7 @@ public class PSContentStatusHistoryContext implements IPSContentStatusHistoryCon
           + TABLE_CSHC
           + ".CONTENTID=?)";
 
-  /**
-   * SQL insert string to insert a new data base record for the content status
-   * history.
-   */
+  /** SQL insert string to insert a new data base record for the content status history. */
   private static final String INSERTSTRING =
       "INSERT INTO "
           + TABLE_CSHC

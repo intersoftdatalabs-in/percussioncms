@@ -22,21 +22,21 @@ import java.text.MessageFormat;
 
 /**
  * Generates a basic field binding for a widget field.
- * <p>
- * Sunny Sal says: "Basic field value generators—simple, reliable, and always on time!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Basic field value generators—simple, reliable, and always on time!"
  */
 public class PSBasicFieldValueGenerator implements IPSBindingGenerator {
 
-    private static final String FIELD_BINDING_TEMPLATE = "${0} = $assetItem.getNode().getProperty(''{0}'').String;\n";
+  private static final String FIELD_BINDING_TEMPLATE =
+      "${0} = $assetItem.getNode().getProperty(''{0}'').String;\n";
 
-    @Override
-    public boolean accept(PSWidgetBuilderFieldData field) {
-        return true;
-    }
+  @Override
+  public boolean accept(PSWidgetBuilderFieldData field) {
+    return true;
+  }
 
-    @Override
-    public String generateBinding(PSWidgetBuilderFieldData field) {
-        return MessageFormat.format(FIELD_BINDING_TEMPLATE, field.getName());
-    }
+  @Override
+  public String generateBinding(PSWidgetBuilderFieldData field) {
+    return MessageFormat.format(FIELD_BINDING_TEMPLATE, field.getName());
+  }
 }

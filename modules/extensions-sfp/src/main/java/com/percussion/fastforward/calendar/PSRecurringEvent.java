@@ -36,19 +36,15 @@ public class PSRecurringEvent {
    * @param startDate Date of the first occurrence of the event
    * @param endDate Date beyond which no occurrences occur
    * @param interval how many units of time pass between occurrences
-   * @param intervalType Sets the interval type: {@link #DAILY_RECURRENCE},
-   *           {@link #WEEKLY_RECURRENCE},{@link #MONTHLY_RECURRENCE_DAY},
-   *           or {@link #MONTHLY_RECURRENCE_WEEK}
-   * @param dayOfMonth The day of month (1-31) that a montly recurring event
-   *           lands on. Must be assigned a value when using a monthly-by-day
-   *           interval type.
-   * @param dayOfWeek The day of week that a montly recurring event lands on.
-   *           Must be assigned a value when using a monthly-by-week interval
-   *           type.
-   * @param dayOfWeekOccurrence The week of the month (1-4 or
-   *           {@link #LAST_WEEK_OF_MONTH}) a montly recurring event lands on.
-   *           Must be assigned a value when using a monthly-by-week interval
-   *           type.
+   * @param intervalType Sets the interval type: {@link #DAILY_RECURRENCE}, {@link
+   *     #WEEKLY_RECURRENCE},{@link #MONTHLY_RECURRENCE_DAY}, or {@link #MONTHLY_RECURRENCE_WEEK}
+   * @param dayOfMonth The day of month (1-31) that a montly recurring event lands on. Must be
+   *     assigned a value when using a monthly-by-day interval type.
+   * @param dayOfWeek The day of week that a montly recurring event lands on. Must be assigned a
+   *     value when using a monthly-by-week interval type.
+   * @param dayOfWeekOccurrence The week of the month (1-4 or {@link #LAST_WEEK_OF_MONTH}) a montly
+   *     recurring event lands on. Must be assigned a value when using a monthly-by-week interval
+   *     type.
    */
   public PSRecurringEvent(
       Date startDate,
@@ -73,8 +69,7 @@ public class PSRecurringEvent {
   }
 
   /**
-   * Constructs a <code>RecurringEvent</code> from its XML representation:
-   * <code><pre>
+   * Constructs a <code>RecurringEvent</code> from its XML representation: <code><pre>
    *
    *  &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
    *  &lt;!ELEMENT event (interval, dayOfWeek?, dayOfMonth?)&gt;
@@ -96,10 +91,10 @@ public class PSRecurringEvent {
    * </pre></code>
    *
    * @param root an XML tree that must conform to the specified representation
-   * @throws UnknownNodeTypeException if the XML tree does not conform to the
-   *            specified representation
-   * @throws IllegalValueException if the XML tree contains illegal values for
-   *            construction of a recurrent event
+   * @throws UnknownNodeTypeException if the XML tree does not conform to the specified
+   *     representation
+   * @throws IllegalValueException if the XML tree contains illegal values for construction of a
+   *     recurrent event
    */
   public PSRecurringEvent(Element root) throws UnknownNodeTypeException, IllegalValueException {
     if (!(root.getTagName().equals(EVENT)))
@@ -213,8 +208,7 @@ public class PSRecurringEvent {
   }
 
   /**
-   * Sets the interval of recurrence (how many units of time pass between
-   * occurrences).
+   * Sets the interval of recurrence (how many units of time pass between occurrences).
    *
    * @param interval the interval of recurrence, must be greater than zero.
    */
@@ -227,15 +221,15 @@ public class PSRecurringEvent {
    * Sets the interval type (daily, weekly, or monthly)
    *
    * @param intervalType must be one of the following codes:
-   *           <ul>
-   *           <li>{@link #DAILY_RECURRENCE}
-   *           <li>{@link #WEEKLY_RECURRENCE}
-   *           <li>{@link #MONTHLY_RECURRENCE_DAY}
-   *           <li>{@link #MONTHLY_RECURRENCE_WEEK}
-   *           </ul>
+   *     <ul>
+   *       <li>{@link #DAILY_RECURRENCE}
+   *       <li>{@link #WEEKLY_RECURRENCE}
+   *       <li>{@link #MONTHLY_RECURRENCE_DAY}
+   *       <li>{@link #MONTHLY_RECURRENCE_WEEK}
+   *     </ul>
    *
-   * @throws IllegalStateException if the fields needed to resolve recurrences
-   *            for the desired interval type have not been specified.
+   * @throws IllegalStateException if the fields needed to resolve recurrences for the desired
+   *     interval type have not been specified.
    */
   private void setIntervalType(int intervalType) {
     if (intervalType != DAILY_RECURRENCE
@@ -259,16 +253,16 @@ public class PSRecurringEvent {
    * Sets the interval type (daily, weekly, or monthly)
    *
    * @param intervalType must be one of the following codes:
-   *           <ul>
-   *           <li><b>d </b>: DAILY_RECURRENCE
-   *           <li><b>dd </b>: WEEKDAILY_RECURRENCE
-   *           <li><b>w </b>: WEEKLY_RECURRENCE
-   *           <li><b>md </b>: MONTHLY_RECURRENCE_DAY
-   *           <li><b>mw </b>: MONTHLY_RECURRENCE_WEEK
-   *           </ul>
+   *     <ul>
+   *       <li><b>d </b>: DAILY_RECURRENCE
+   *       <li><b>dd </b>: WEEKDAILY_RECURRENCE
+   *       <li><b>w </b>: WEEKLY_RECURRENCE
+   *       <li><b>md </b>: MONTHLY_RECURRENCE_DAY
+   *       <li><b>mw </b>: MONTHLY_RECURRENCE_WEEK
+   *     </ul>
    *
-   * @throws IllegalStateException if the fields needed to resolve recurrences
-   *            for the desired interval type have not been specified.
+   * @throws IllegalStateException if the fields needed to resolve recurrences for the desired
+   *     interval type have not been specified.
    */
   private void setIntervalType(String intervalType) {
     if (intervalType == null)
@@ -285,6 +279,7 @@ public class PSRecurringEvent {
 
   /**
    * Set day of the week.
+   *
    * @param dayOfWeek must be a valid number.
    */
   public void setDayOfWeek(int dayOfWeek) {
@@ -294,6 +289,7 @@ public class PSRecurringEvent {
 
   /**
    * Set the day of wee occurrence.
+   *
    * @param dayOfWeekOccurrence
    */
   public void setDayOfWeekOccurrence(int dayOfWeekOccurrence) {
@@ -303,6 +299,7 @@ public class PSRecurringEvent {
 
   /**
    * Set day of month.
+   *
    * @param dayOfMonth
    */
   public void setDayOfMonth(int dayOfMonth) {
@@ -314,10 +311,9 @@ public class PSRecurringEvent {
    * Gets the date of the specified recurrence of this event.
    *
    * @param recurrence
-   * @return a calendar (with the default time zone and locale) set to the date
-   *         of the specified recurrence of this event, or <code>null</code>
-   *         if the date of the recurrence is greater than the end date of this
-   *         event.
+   * @return a calendar (with the default time zone and locale) set to the date of the specified
+   *     recurrence of this event, or <code>null</code> if the date of the recurrence is greater
+   *     than the end date of this event.
    */
   public Calendar getRecurrence(int recurrence) {
     Calendar calendar = Calendar.getInstance();
@@ -375,11 +371,10 @@ public class PSRecurringEvent {
   }
 
   /**
-   * Gets an iterator that can be used to step through each recurrence of this
-   * event.
+   * Gets an iterator that can be used to step through each recurrence of this event.
    *
-   * @return an iterator that can be used to step through each recurrence of
-   *         this event, never <code>null</code>.
+   * @return an iterator that can be used to step through each recurrence of this event, never
+   *     <code>null</code>.
    */
   public Iterator getRecurrenceIterator() {
     return new PSRecurrenceIterator(this);
@@ -392,111 +387,89 @@ public class PSRecurringEvent {
     return m_startDate;
   }
 
-  /**
-   * Value of the interval type field indicating daily recurrences.
-   */
+  /** Value of the interval type field indicating daily recurrences. */
   public static final int DAILY_RECURRENCE = 0;
 
-  /**
-   * Value of the interval type field indicating week-daily (no weekend)
-   * recurrences.
-   */
+  /** Value of the interval type field indicating week-daily (no weekend) recurrences. */
   public static final int WEEKDAILY_RECURRENCE = 1;
 
-  /**
-   * Value of the interval type field indicating weekly recurrences.
-   */
+  /** Value of the interval type field indicating weekly recurrences. */
   public static final int WEEKLY_RECURRENCE = 2;
 
-  /**
-   * Value of the interval type field indicating monthly recurrences on a
-   * specific date.
-   */
+  /** Value of the interval type field indicating monthly recurrences on a specific date. */
   public static final int MONTHLY_RECURRENCE_DAY = 3;
 
   /**
-   * Value of the interval type field indicating monthly recurrences on a
-   * specific week day and week number.
+   * Value of the interval type field indicating monthly recurrences on a specific week day and week
+   * number.
    */
   public static final int MONTHLY_RECURRENCE_WEEK = 4;
 
-  /**
-   * Value of the day of week occurrence field indicating the last week of the
-   * month.
-   */
+  /** Value of the day of week occurrence field indicating the last week of the month. */
   public static final int LAST_WEEK_OF_MONTH = -1;
 
   private Date m_startDate;
 
   private Date m_endDate;
 
-  /**
-   * The interval of recurrence.
-   */
+  /** The interval of recurrence. */
   private int m_interval;
 
   private int m_intervalType;
 
   /**
-   * The day of week that a montly recurring event lands on. Must be assigned a
-   * value when using a monthly-by-week interval type.
+   * The day of week that a montly recurring event lands on. Must be assigned a value when using a
+   * monthly-by-week interval type.
    */
   private int m_dayOfWeek;
 
   /**
-   * The week of the month (1-4 or {@link #LAST_WEEK_OF_MONTH}) a montly
-   * recurring event lands on. Must be assigned a value when using a
-   * monthly-by-week interval type.
+   * The week of the month (1-4 or {@link #LAST_WEEK_OF_MONTH}) a montly recurring event lands on.
+   * Must be assigned a value when using a monthly-by-week interval type.
    */
   private int m_dayOfWeekOccurrence;
 
   /**
-   * The day of month (1-31) that a montly recurring event lands on. Must be
-   * assigned a value when using a monthly-by-day interval type.
+   * The day of month (1-31) that a montly recurring event lands on. Must be assigned a value when
+   * using a monthly-by-day interval type.
    */
   private int m_dayOfMonth;
 
-  /**
-   * Name of the XML element used to represent a recurring event.
-   */
+  /** Name of the XML element used to represent a recurring event. */
   public static final String EVENT = "event";
 
-  /**
-   * Name of the XML attribute used to represent a recurring event's interval
-   * type
-   */
+  /** Name of the XML attribute used to represent a recurring event's interval type */
   public static final String TYPE_ATTR = "type";
 
-  /**
-   * Name of the XML element used to represent a recurring event's interval
-   */
+  /** Name of the XML element used to represent a recurring event's interval */
   public static final String INTERVAL_ELEM = "interval";
 
   /**
-   * Name of the XML element used to represent the day of week that a montly
-   * recurring event lands on.
+   * Name of the XML element used to represent the day of week that a montly recurring event lands
+   * on.
    */
   public static final String DAYOFWEEK_ELEM = "dayOfWeek";
 
   /**
-   * Name of the XML atribute used to represent which week of the month a
-   * montly recurring event lands on.
+   * Name of the XML atribute used to represent which week of the month a montly recurring event
+   * lands on.
    */
   public static final String OCCURRENCE_ATTR = "occurrence";
 
   /**
-   * Name of the XML element used to represent the day of month that a montly
-   * recurring event lands on.
+   * Name of the XML element used to represent the day of month that a montly recurring event lands
+   * on.
    */
   public static final String DAYOFMONTH_ELEM = "dayOfMonth";
 
   /**
-   * An internal exception to indicate that the supplied XML representation
-   * does not match the required format.
+   * An internal exception to indicate that the supplied XML representation does not match the
+   * required format.
    */
   public class UnknownNodeTypeException extends Exception {
     /**
      * Just calls the super class version.
+     *
      * @param s
      */
     public UnknownNodeTypeException(String s) {
@@ -506,12 +479,12 @@ public class PSRecurringEvent {
   ;
 
   /**
-   * An internal exception to indicate that the supplied XML representation
-   * contains illegal values.
+   * An internal exception to indicate that the supplied XML representation contains illegal values.
    */
   public class IllegalValueException extends Exception {
     /**
      * Just calls the super class version.
+     *
      * @param s
      */
     public IllegalValueException(String s) {

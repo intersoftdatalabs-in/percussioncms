@@ -71,8 +71,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * A utility class to produce the XML output for choices passed to the XSL
- * that generates the output.
+ * A utility class to produce the XML output for choices passed to the XSL that generates the
+ * output.
  */
 public class PSChoiceBuilder {
 
@@ -80,10 +80,9 @@ public class PSChoiceBuilder {
   static final String PARAMETER_NOT_NULL = "parameters cannot be null";
 
   /**
-   * Convenience method that calls {@link #addChoiceElement(Document, Element,
-   * PSChoices, PSExecutionData, boolean, boolean, boolean)
-   * addChoiceElement(doc, parent, choices, data, isNewDoc, ignoreNullEntry,
-   * true)}
+   * Convenience method that calls {@link #addChoiceElement(Document, Element, PSChoices,
+   * PSExecutionData, boolean, boolean, boolean) addChoiceElement(doc, parent, choices, data,
+   * isNewDoc, ignoreNullEntry, true)}
    */
   public static boolean addChoiceElement(
       Document doc,
@@ -101,15 +100,11 @@ public class PSChoiceBuilder {
    *
    * @param key The lookup key, may not be <code>null</code> or empty.
    * @param request The request to use, may not be <code>null</code>.
-   *
-   * @return An iterator over zero or more {@link PSEntry} objects, never
-   * <code>null</code>.
-   *
-   * @throws PSDataExtractionException If the internal lookup app/resource
-   * cannot be located (see {@link IPSConstants#GLOBAL_LOOKUP}).
+   * @return An iterator over zero or more {@link PSEntry} objects, never <code>null</code>.
+   * @throws PSDataExtractionException If the internal lookup app/resource cannot be located (see
+   *     {@link IPSConstants#GLOBAL_LOOKUP}).
    * @throws PSInternalRequestCallException If the query fails.
-   * @throws PSUnknownNodeTypeException If the query result is in the wrong
-   * format.
+   * @throws PSUnknownNodeTypeException If the query result is in the wrong format.
    */
   public static Iterator getGlobalLookupEntries(String key, PSRequest request)
       throws PSDataExtractionException, PSInternalRequestCallException, PSUnknownNodeTypeException {
@@ -140,30 +135,26 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * A field can be a user entered value or a set of options the user
-   * can choose from. This method adds the set of choices, or a link for the
-   * stylesheet to use to get the set of choices.
+   * A field can be a user entered value or a set of options the user can choose from. This method
+   * adds the set of choices, or a link for the stylesheet to use to get the set of choices.
    *
-   * @param doc The document to use to create the node. It will not be
-   *    modified. Never <code>null</code>.
-   * @param parent The node to which the data element will be added if one
-   *    is created. Never <code>null</code>.
-   * @param choices The choice set definition which defines where to get the
-   *    choices and how to order them. Never <code>null</code>.
-   * @param data The data that is used to evaluate all run-time operations.
-   *    Must not be <code>null</code>.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param ignoreNullEntry <code>true</code> to ignore the null entry,
-   *    <code>false</code> otherwise.
-   * @param ignoreFilter <code>true</code> to ignore the choice filter (if
-   *    any), <code>false</code> to include it in the output.
-   *
-   * @return <code>true</code> if an element is added, <code>false</code>
-   *    otherwise. Returns <code>false</code> by default.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param doc The document to use to create the node. It will not be modified. Never <code>null
+   *     </code>.
+   * @param parent The node to which the data element will be added if one is created. Never <code>
+   *     null</code>.
+   * @param choices The choice set definition which defines where to get the choices and how to
+   *     order them. Never <code>null</code>.
+   * @param data The data that is used to evaluate all run-time operations. Must not be <code>null
+   *     </code>.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param ignoreNullEntry <code>true</code> to ignore the null entry, <code>false</code>
+   *     otherwise.
+   * @param ignoreFilter <code>true</code> to ignore the choice filter (if any), <code>false</code>
+   *     to include it in the output.
+   * @return <code>true</code> if an element is added, <code>false</code> otherwise. Returns <code>
+   *     false</code> by default.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   public static boolean addChoiceElement(
       Document doc,
@@ -256,20 +247,16 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * If the current content editor specifies the WorkflowInfo element with
-   * either inclusions or exclusions, this method walks all DisplayEntry
-   * elements in the provided control element, and checks to see if its
-   * paramName attribute matches 'sys_workflowid'. If so, for inclusions all
-   * choices not in the included list will be removed, while for exclusions all
-   * choices in the exclusion list will be removed. This also sets the default
-   * workflow in the list to be the selected item. If the supplied request is
-   * not a request to a content editor application, the method simply returns
-   * having no effect.
+   * If the current content editor specifies the WorkflowInfo element with either inclusions or
+   * exclusions, this method walks all DisplayEntry elements in the provided control element, and
+   * checks to see if its paramName attribute matches 'sys_workflowid'. If so, for inclusions all
+   * choices not in the included list will be removed, while for exclusions all choices in the
+   * exclusion list will be removed. This also sets the default workflow in the list to be the
+   * selected item. If the supplied request is not a request to a content editor application, the
+   * method simply returns having no effect.
    *
-   * @param control the control to set the dynamic workflows for, assumed not
-   *           <code>null</code>.
-   * @param req the request of the current application, assumed not
-   *           <code>null</code>.
+   * @param control the control to set the dynamic workflows for, assumed not <code>null</code>.
+   * @param req the request of the current application, assumed not <code>null</code>.
    */
   private static void setDynamicWorkflows(Element control, PSRequest req) {
     // this needs to be done only if the paramName is sys_workflowid
@@ -355,29 +342,22 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the DisplayChoices element to the supplied parent element for
-   * PSChoices of type global. Does nothing if the provided PSChoices are not
-   * of type global.
-   * This makes a request against the sys_ceSupport/lookup resource and then
-   * produces the parameters out of the result document needed to call the
-   * generic addChoiceElement method.
+   * Adds the DisplayChoices element to the supplied parent element for PSChoices of type global.
+   * Does nothing if the provided PSChoices are not of type global. This makes a request against the
+   * sys_ceSupport/lookup resource and then produces the parameters out of the result document
+   * needed to call the generic addChoiceElement method.
    *
-   * @param doc the document in which to create the DisplayChoices element,
-   *    not <code>null</code>.
-   * @param parent the parent element to which this adds the DisplayChoices
-   *    element, not <code>null</code>.
-   * @param choices the choices to be added to the provided parent element,
-   *    not <code>null</code>.
-   * @param execData The data that is used to evaluate all run-time
-   *    operations, not <code>null</code>.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param ignoreNullEntry <code>true</code> to ignore the null entry,
-   *    <code>false</code> otherwise.
+   * @param doc the document in which to create the DisplayChoices element, not <code>null</code>.
+   * @param parent the parent element to which this adds the DisplayChoices element, not <code>null
+   *     </code>.
+   * @param choices the choices to be added to the provided parent element, not <code>null</code>.
+   * @param execData The data that is used to evaluate all run-time operations, not <code>null
+   *     </code>.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param ignoreNullEntry <code>true</code> to ignore the null entry, <code>false</code>
+   *     otherwise.
    * @param filter Optional choice filter, may be <code>null</code>.
-   *
-   * @return <code>true</code> if any element was added, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if any element was added, <code>false</code> otherwise.
    */
   private static boolean addGlobalChoiceElement(
       Document doc,
@@ -424,24 +404,18 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the DisplayChoices element to the supplied parent element for
-   * PSChoices of type local. Does nothing if the provided PSChoices are not
-   * of type local.
+   * Adds the DisplayChoices element to the supplied parent element for PSChoices of type local.
+   * Does nothing if the provided PSChoices are not of type local.
    *
-   * @param doc the document in which to create the DisplayChoices element,
-   *    not <code>null</code>.
-   * @param parent the parent element to which this adds the DisplayChoices
-   *    element, not <code>null</code>.
-   * @param choices the choices to be added to the provided parent element,
-   *    not <code>null</code>.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param ignoreNullEntry <code>true</code> to ignore the null entry,
-   *    <code>false</code> otherwise.
+   * @param doc the document in which to create the DisplayChoices element, not <code>null</code>.
+   * @param parent the parent element to which this adds the DisplayChoices element, not <code>null
+   *     </code>.
+   * @param choices the choices to be added to the provided parent element, not <code>null</code>.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param ignoreNullEntry <code>true</code> to ignore the null entry, <code>false</code>
+   *     otherwise.
    * @param filter Optional choice filter, may be <code>null</code>.
-   *
-   * @return <code>true</code> if any element was added, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if any element was added, <code>false</code> otherwise.
    */
   private static boolean addLocalChoiceElement(
       Document doc,
@@ -469,23 +443,17 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the DisplayChoices element to the supplied parent element for
-   * PSChoices of type lookup. Does nothing if the provided PSChoices are not
-   * of type lookup.
-   * Assembles the URL out of the URL parts provided in PSChoices and sets
-   * the href attribute in the DisplayChoices element.
+   * Adds the DisplayChoices element to the supplied parent element for PSChoices of type lookup.
+   * Does nothing if the provided PSChoices are not of type lookup. Assembles the URL out of the URL
+   * parts provided in PSChoices and sets the href attribute in the DisplayChoices element.
    *
-   * @param doc the document in which to create the DisplayChoices element,
-   *    not <code>null</code>.
-   * @param parent the parent element to which this adds the DisplayChoices
-   *    element, not <code>null</code>.
-   * @param choices the choices to be added to the provided parent element,
-   *    not <code>null</code>.
-   * @param execData The data that is used to evaluate all run-time
-   *    operations, not <code>null</code>.
-   *
-   * @return <code>true</code> if any element was added, <code>false</code>
-   *    otherwise.
+   * @param doc the document in which to create the DisplayChoices element, not <code>null</code>.
+   * @param parent the parent element to which this adds the DisplayChoices element, not <code>null
+   *     </code>.
+   * @param choices the choices to be added to the provided parent element, not <code>null</code>.
+   * @param execData The data that is used to evaluate all run-time operations, not <code>null
+   *     </code>.
+   * @return <code>true</code> if any element was added, <code>false</code> otherwise.
    */
   private static boolean addLookupChoiceElement(
       Document doc, Element parent, PSChoices choices, PSExecutionData execData)
@@ -505,29 +473,22 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the DisplayChoices element to the supplied parent element for
-   * PSChoices of type internal lookup. Does nothing if the provided
-   * PSChoices are not of type internal lookup.
-   * Assembles the URL out of the URL parts provided in PSChoices, makes the
-   * internal request to the appropriate rhythmyx resource and assembles
-   * the content editor with the results returned from the request.
+   * Adds the DisplayChoices element to the supplied parent element for PSChoices of type internal
+   * lookup. Does nothing if the provided PSChoices are not of type internal lookup. Assembles the
+   * URL out of the URL parts provided in PSChoices, makes the internal request to the appropriate
+   * rhythmyx resource and assembles the content editor with the results returned from the request.
    *
-   * @param doc the document in which to create the DisplayChoices element,
-   *    not <code>null</code>.
-   * @param parent the parent element to which this adds the DisplayChoices
-   *    element, not <code>null</code>.
-   * @param choices the choices to be added to the provided parent element,
-   *    not <code>null</code>.
-   * @param execData The data that is used to evaluate all run-time
-   *    operations, not <code>null</code>.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param ignoreNullEntry <code>true</code> to ignore the null entry,
-   *    <code>false</code> otherwise.
+   * @param doc the document in which to create the DisplayChoices element, not <code>null</code>.
+   * @param parent the parent element to which this adds the DisplayChoices element, not <code>null
+   *     </code>.
+   * @param choices the choices to be added to the provided parent element, not <code>null</code>.
+   * @param execData The data that is used to evaluate all run-time operations, not <code>null
+   *     </code>.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param ignoreNullEntry <code>true</code> to ignore the null entry, <code>false</code>
+   *     otherwise.
    * @param filter Optional choice filter, may be <code>null</code>.
-   *
-   * @return <code>true</code> if any element was added, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if any element was added, <code>false</code> otherwise.
    */
   private static boolean addInternalLookupChoiceElement(
       Document doc,
@@ -596,17 +557,13 @@ public class PSChoiceBuilder {
   /**
    * Get the parameter map for the provided request.
    *
-   * @request the request to get the parameter map from, assumed not
-   *    <code>null</code>.
-   * @param execData The data that is used to evaluate all run-time
-   *    operations, assumed not <code>null</code>.
-   *
-   * @return a map of parameters, the parameter name as map key and the
-   *    parameter value as map value, never <code>null</code>, might be
-   *    empty.
-   *
-   * @throws PSDataExtractionException if there are any errors evaluating
-   * replacement values specified by the <code>request</code>.
+   * @request the request to get the parameter map from, assumed not <code>null</code>.
+   * @param execData The data that is used to evaluate all run-time operations, assumed not <code>
+   *     null</code>.
+   * @return a map of parameters, the parameter name as map key and the parameter value as map
+   *     value, never <code>null</code>, might be empty.
+   * @throws PSDataExtractionException if there are any errors evaluating replacement values
+   *     specified by the <code>request</code>.
    */
   private static HashMap getParameterMap(PSUrlRequest request, PSExecutionData execData)
       throws PSDataExtractionException {
@@ -629,16 +586,14 @@ public class PSChoiceBuilder {
   /**
    * Get the lookup URL for the provided choices and execution data.
    *
-   * @choices the choices to get the lookup URL for, assumed not
-   *    <code>null</code>.
+   * @choices the choices to get the lookup URL for, assumed not <code>null</code>.
    * @param execData the execution data, assumed not <code>null</code>.
-   * @param addParams if <code>true</code>, and the url request in the supplied
-   * <code>choices</code> provides an href, not an extension call, then any
-   * parameters specified by the url request in the supplied
-   * <code>choices</code> are evaluated and added to the url, and the session
-   * id param is added as well.  Otherwise no parameters are added.
-   * @param isInternalRequest <code>true</code> if the url will be used to
-   * make an internal request, <code>false</code> otherwise.
+   * @param addParams if <code>true</code>, and the url request in the supplied <code>choices</code>
+   *     provides an href, not an extension call, then any parameters specified by the url request
+   *     in the supplied <code>choices</code> are evaluated and added to the url, and the session id
+   *     param is added as well. Otherwise no parameters are added.
+   * @param isInternalRequest <code>true</code> if the url will be used to make an internal request,
+   *     <code>false</code> otherwise.
    */
   private static URL getLookupUrl(
       PSChoices choices, PSExecutionData execData, boolean addParams, boolean isInternalRequest)
@@ -728,28 +683,24 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the DisplayChoices element to the supplied parent element for
-   * the provided choices, null entry and default selected elements.
+   * Adds the DisplayChoices element to the supplied parent element for the provided choices, null
+   * entry and default selected elements.
    *
-   * @param doc the document in which to create the DisplayChoices element,
-   *    assumed not <code>null</code>.
-   * @param parent the parent element to which this adds the DisplayChoices
-   *    element, assumed not <code>null</code>.
-   * @param choices an iterator of PSEntry objects defining all choices for
-   *    the current control, assumed not <code>null</code>.
-   * @param nullEntry the null entry to add to the choice list, may be
-   *    <code>null</code>.
-   * @param defaultSelected a list of choices to be selected by default,
-   *    assumed not <code>null</code>.
+   * @param doc the document in which to create the DisplayChoices element, assumed not <code>null
+   *     </code>.
+   * @param parent the parent element to which this adds the DisplayChoices element, assumed not
+   *     <code>null</code>.
+   * @param choices an iterator of PSEntry objects defining all choices for the current control,
+   *     assumed not <code>null</code>.
+   * @param nullEntry the null entry to add to the choice list, may be <code>null</code>.
+   * @param defaultSelected a list of choices to be selected by default, assumed not <code>null
+   *     </code>.
    * @param sortOrder the desired sort order, one supported in PSChoices.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param ignoreNullEntry <code>true</code> to ignore the null entry,
-   *    <code>false</code> otherwise.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param ignoreNullEntry <code>true</code> to ignore the null entry, <code>false</code>
+   *     otherwise.
    * @param filter Optional choice filter, may be <code>null</code>.
-   *
-   * @return <code>true</code> if any element was added, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if any element was added, <code>false</code> otherwise.
    */
   private static boolean addChoiceElement(
       Document doc,
@@ -867,14 +818,12 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Searches the provided DisplayChoices element for a DisplayEntry with
-   * a matching DisplayValue element to the provided label and sets the
-   * selected attribute to "yes" if found. Does nothing if not found.
+   * Searches the provided DisplayChoices element for a DisplayEntry with a matching DisplayValue
+   * element to the provided label and sets the selected attribute to "yes" if found. Does nothing
+   * if not found.
    *
-   * @param displayChoices an element of type DisplayChoices, not
-   *    <code>null</code>.
-   * @param value the value text of the DisplayValue to be selected,
-   *    not <code>null</code>.
+   * @param displayChoices an element of type DisplayChoices, not <code>null</code>.
+   * @param value the value text of the DisplayValue to be selected, not <code>null</code>.
    */
   public static void select(Element displayChoices, String value) {
     if (displayChoices == null || value == null)
@@ -895,11 +844,10 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Gets the DisplayEntry for the provided sequence and sets the
-   * selected attribute to "yes" if found. Does nothing if not found.
+   * Gets the DisplayEntry for the provided sequence and sets the selected attribute to "yes" if
+   * found. Does nothing if not found.
    *
-   * @param displayChoices an element of type DisplayChoices, assumed not
-   *    <code>null</code>.
+   * @param displayChoices an element of type DisplayChoices, assumed not <code>null</code>.
    * @param sequence the sequence number of the DisplayEntry to select.
    */
   private static void select(Element displayChoices, int sequence) {
@@ -916,14 +864,14 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * This sorts the provided list of entries in the specified order. The
-   * method assumes that to provided array is sorted in sequence, in other
-   * words it does nothing if the sort order is of type SORT_ORDER_USER.
+   * This sorts the provided list of entries in the specified order. The method assumes that to
+   * provided array is sorted in sequence, in other words it does nothing if the sort order is of
+   * type SORT_ORDER_USER.
    *
-   * @param entries a list of DisplayEntry objects sorted by sequence,
-   *    assumed not <code>null</code>.
-   * @param sortOrder to desired sort order, one of PSChoices specified
-   *    sort orders, assumed to be a valid sort order.
+   * @param entries a list of DisplayEntry objects sorted by sequence, assumed not <code>null</code>
+   *     .
+   * @param sortOrder to desired sort order, one of PSChoices specified sort orders, assumed to be a
+   *     valid sort order.
    */
   private static void sortEntries(ArrayList entries, int sortOrder) {
     if (!entries.isEmpty()) {
@@ -950,20 +898,15 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Adds the null entry to the provided parent element. Does nothing if
-   * the provided nullEntry is <code>null</code>.
+   * Adds the null entry to the provided parent element. Does nothing if the provided nullEntry is
+   * <code>null</code>.
    *
-   * @param doc the document in which to create the null entry, assumed not
-   *    <code>null</code>.
-   * @param parent the parent element to which to add the null entry, assumed
-   *    not <code>null</code>.
+   * @param doc the document in which to create the null entry, assumed not <code>null</code>.
+   * @param parent the parent element to which to add the null entry, assumed not <code>null</code>.
    * @param nullEntry the null entry to add, may be <code>null</code>.
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   * @param selectedValue the selected value of the control, never
-   * <code>null</code>, may be empty.
-   * @return <code>true</code> a nullEntry was added, <code>false</code>
-   *    otherwise.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @param selectedValue the selected value of the control, never <code>null</code>, may be empty.
+   * @return <code>true</code> a nullEntry was added, <code>false</code> otherwise.
    */
   private static boolean addNullEntry(
       Document doc, Element parent, PSNullEntry nullEntry, boolean isNewDoc, String selectedValue) {
@@ -1027,17 +970,13 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Creates a new DisplayEntry according to the ContentEditor.dtd
-   * specification.
+   * Creates a new DisplayEntry according to the ContentEditor.dtd specification.
    *
-   * @param doc the document in which to create the new element, assumed
-   *    not <code>null</code>.
-   * @param value the value string of the DisplayEntry to create, assumed
-   *    not <code>null</code>.
-   * @param label the label string of the DisplayEntry to create, assumed
-   *    not <code>null</code>.
-   * @param type the source type, whether its from the system, shared or
-   *    local content editor definition, may be <code>null</code>.
+   * @param doc the document in which to create the new element, assumed not <code>null</code>.
+   * @param value the value string of the DisplayEntry to create, assumed not <code>null</code>.
+   * @param label the label string of the DisplayEntry to create, assumed not <code>null</code>.
+   * @param type the source type, whether its from the system, shared or local content editor
+   *     definition, may be <code>null</code>.
    * @return the newly created DisplayElement, never <code>null</code>.
    */
   private static Element createDisplayEntry(Document doc, String value, String label, String type) {
@@ -1058,18 +997,13 @@ public class PSChoiceBuilder {
     return displayEntry;
   }
 
-  /**
-   * The comparator used to sort DisplayEntry elements in ascending order.
-   */
+  /** The comparator used to sort DisplayEntry elements in ascending order. */
   private static class ElementComparatorAscending implements Comparator {
     /**
-     * Compares the DISPLAYLABEL_NAME elements of two DISPLAYENTRY_NAME
-     * elements lexicographically.
+     * Compares the DISPLAYLABEL_NAME elements of two DISPLAYENTRY_NAME elements lexicographically.
      *
-     * @param left a DISPLAYLABEL_NAME element, assumed not
-     *    <code>null</code>.
-     * @param right a DISPLAYLABEL_NAME element, assumed not
-     *    <code>null</code>.
+     * @param left a DISPLAYLABEL_NAME element, assumed not <code>null</code>.
+     * @param right a DISPLAYLABEL_NAME element, assumed not <code>null</code>.
      */
     public int compare(Object left, Object right) {
       String leftValue = getFirstTagText((Element) left, DISPLAYLABEL_NAME);
@@ -1079,18 +1013,14 @@ public class PSChoiceBuilder {
     }
   }
 
-  /**
-   * The comparator used to sort DisplayEntry elements in descending order.
-   */
+  /** The comparator used to sort DisplayEntry elements in descending order. */
   private static class ElementComparatorDescending implements Comparator {
     /**
-     * Compares the DISPLAYLABEL_NAME elements of two DISPLAYENTRY_NAME
-     * elements reverse lexicographically.
+     * Compares the DISPLAYLABEL_NAME elements of two DISPLAYENTRY_NAME elements reverse
+     * lexicographically.
      *
-     * @param left a DISPLAYLABEL_NAME element, assumed not
-     *    <code>null</code>.
-     * @param right a DISPLAYLABEL_NAME element, assumed not
-     *    <code>null</code>.
+     * @param left a DISPLAYLABEL_NAME element, assumed not <code>null</code>.
+     * @param right a DISPLAYLABEL_NAME element, assumed not <code>null</code>.
      */
     public int compare(Object left, Object right) {
       String leftValue = getFirstTagText((Element) left, DISPLAYLABEL_NAME);
@@ -1105,16 +1035,13 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Helper to the get the first text value found in the provided tag and
-   * DISPLAYENTRY_NAME element.  Element is assumed to contain at least one
-   * value matching the specified tag.
+   * Helper to the get the first text value found in the provided tag and DISPLAYENTRY_NAME element.
+   * Element is assumed to contain at least one value matching the specified tag.
    *
-   * @param elem the element to look for the value text, not
-   *    <code>null</code>.
+   * @param elem the element to look for the value text, not <code>null</code>.
    * @param tag the tagname we are looking in, not <code>null</code>.
    * @return the value text found, never <code>null</code>, might be empty.
-   * @throws IllegalStateException if the element does not contain the
-   * specified tag name.
+   * @throws IllegalStateException if the element does not contain the specified tag name.
    */
   public static String getFirstTagText(Element elem, String tag) {
     if (elem == null || tag == null)
@@ -1147,14 +1074,11 @@ public class PSChoiceBuilder {
   /**
    * Loads a list of <code>PSEntry</code> objects from the supplied element.
    *
-   * @param src The element, must be a <code>DisplayChoices</code> element
-   * that conforms to the sys_ContentEditor.dtd.
-   *
-   * @return A list of zero or more <code>PSEntry</code> objects, never
-   * <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if <code>src</code> is not a valid
-   * <code>DisplayChoices</code> element.
+   * @param src The element, must be a <code>DisplayChoices</code> element that conforms to the
+   *     sys_ContentEditor.dtd.
+   * @return A list of zero or more <code>PSEntry</code> objects, never <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>src</code> is not a valid <code>DisplayChoices
+   *     </code> element.
    */
   public static List loadDisplayChoices(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -1198,14 +1122,12 @@ public class PSChoiceBuilder {
   }
 
   /**
-   * Creates a <code>DisplayChoices</code> element from the supplied list of
-   * <code>choices</code>.  No default selections are made or null entries
-   * handled.  The order is maintained as supplied.
+   * Creates a <code>DisplayChoices</code> element from the supplied list of <code>choices</code>.
+   * No default selections are made or null entries handled. The order is maintained as supplied.
    *
    * @param doc The doc to use, may not be <code>null</code>.
-   * @param choices An iterator over zero or more <code>PSEntry</code> objects,
-   * may not be <code>null</code>.
-   *
+   * @param choices An iterator over zero or more <code>PSEntry</code> objects, may not be <code>
+   *     null</code>.
    * @return The newly created element, never <code>null</code>.
    */
   public static Element createDisplayChoices(Document doc, Iterator choices) {
@@ -1234,10 +1156,7 @@ public class PSChoiceBuilder {
   /** The element name used for choices to produce the output XML. */
   public static final String DISPLAYCHOICES_NAME = "DisplayChoices";
 
-  /**
-   * Prefix on a url that is expected when it is relative to the rhythmyx
-   * root.
-   */
+  /** Prefix on a url that is expected when it is relative to the rhythmyx root. */
   public static final String RELATIVE_URL_PREFIX = "../";
 
   /** XML document element name. */

@@ -24,13 +24,13 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- *   Utility class to read in an entire resource bundle file into a hashtable
- *   that uses integer keys. Every key in the resource bundle must be
- *   representable as an integer.
+ * Utility class to read in an entire resource bundle file into a hashtable that uses integer keys.
+ * Every key in the resource bundle must be representable as an integer.
  *
- *   This class can be specialized to store any object which can be represented
- *   as a string. You would do this by overriding the putHash() method:
- *   <PRE>
+ * <p>This class can be specialized to store any object which can be represented as a string. You
+ * would do this by overriding the putHash() method:
+ *
+ * <PRE>
  *      // map from int to URL instead of String
  *      class URLHashFromBundle extends PSHashTableFromBundle
  *      {
@@ -54,14 +54,11 @@ import java.util.ResourceBundle;
 public class PSHashTableFromBundle extends Hashtable {
 
   /**
-   *   Convenience method that calls constructor with the default locale.
-   *   @param   bundleBaseName   The name of the bundle
+   * Convenience method that calls constructor with the default locale.
    *
-   *   @throw   MissingResourceException   if a bundle cannot be found for
-   *   the default locale
-   *
-   *   @throw   NumberFormatException   if any of the keys cannot be
-   *   represented as an integer
+   * @param bundleBaseName The name of the bundle
+   * @throw MissingResourceException if a bundle cannot be found for the default locale
+   * @throw NumberFormatException if any of the keys cannot be represented as an integer
    */
   public PSHashTableFromBundle(String bundleBaseName)
       throws MissingResourceException, NumberFormatException {
@@ -69,22 +66,14 @@ public class PSHashTableFromBundle extends Hashtable {
   }
 
   /**
-   *   Get a new hashtable representation of a resource bundle whose
-   *   keys can all be represented as numeric types, and whose values
-   *   can all be represented as Strings.
+   * Get a new hashtable representation of a resource bundle whose keys can all be represented as
+   * numeric types, and whose values can all be represented as Strings.
    *
-   *   @param   bundleBaseName   The name of the bundle
-   *
-   *   @param   loc   The locale to use
-   *
-   *   @return   A hashtable containing all of the values from the resource
-   *   bundle.
-   *
-   *   @throw   MissingResourceException   if a bundle cannot be found for
-   *   the given locale
-   *
-   *   @throw   NumberFormatException   if any of the keys cannot be
-   *   represented as an integer
+   * @param bundleBaseName The name of the bundle
+   * @param loc The locale to use
+   * @return A hashtable containing all of the values from the resource bundle.
+   * @throw MissingResourceException if a bundle cannot be found for the given locale
+   * @throw NumberFormatException if any of the keys cannot be represented as an integer
    */
   public PSHashTableFromBundle(String bundleBaseName, Locale loc)
       throws MissingResourceException, NumberFormatException {
@@ -100,10 +89,9 @@ public class PSHashTableFromBundle extends Hashtable {
   }
 
   /**
-   *   Puts the specified value into the hashtable using the given key.
-   *   Meant to be overridden by subclasses so they can put values
-   *   of a different type in the table, as long as those values can
-   *   be somehow built using a string.
+   * Puts the specified value into the hashtable using the given key. Meant to be overridden by
+   * subclasses so they can put values of a different type in the table, as long as those values can
+   * be somehow built using a string.
    */
   protected void putHash(int key, String value) {
     put(new Integer(key), value);

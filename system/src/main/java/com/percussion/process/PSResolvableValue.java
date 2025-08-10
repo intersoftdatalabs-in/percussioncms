@@ -19,15 +19,12 @@ package com.percussion.process;
 import com.percussion.util.PSXMLDomUtil;
 import org.w3c.dom.Element;
 
-/**
- * Class to encapsulate a value and it's resolver.
- */
+/** Class to encapsulate a value and it's resolver. */
 public class PSResolvableValue {
   /**
    * Restores this value from its XML representation.
    *
-   * @param source The element to use, may not be null.  See
-   * {@link #toXml(Element)} for more info.
+   * @param source The element to use, may not be null. See {@link #toXml(Element)} for more info.
    */
   public PSResolvableValue(Element source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -39,9 +36,8 @@ public class PSResolvableValue {
   /**
    * Set the resolver and value on the supplied element.
    *
-   * @param el The element, may not be <code>null</code>.  Adds the following
-   * attributes:
-   * <pre><code>
+   * @param el The element, may not be <code>null</code>. Adds the following attributes:
+   *     <pre><code>
    *    resolver CDATA #IMPLIED
    *    value CDATA #IMPLIED
    * </code></pre>
@@ -71,15 +67,12 @@ public class PSResolvableValue {
     return m_resolver;
   }
 
-  /**
-   * The value, may be <code>null</code>, never empty or modified
-   * after construction.
-   */
+  /** The value, may be <code>null</code>, never empty or modified after construction. */
   private String m_value;
 
   /**
-   * Fully qualified class mame of the resolver used to resolve this value.
-   * May be <code>null</code>, never empty or modified after construction.
+   * Fully qualified class mame of the resolver used to resolve this value. May be <code>null</code>
+   * , never empty or modified after construction.
    */
   private String m_resolver;
 

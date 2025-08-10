@@ -19,18 +19,16 @@ package com.percussion.sitemanage.data;
 
 import java.util.Optional;
 
-/**
- * Site information data object.
- */
+/** Site information data object. */
 public class PSSiteInfo {
 
-    private String siteName;
+  private String siteName;
 
-    public Optional<String> getSiteName() {
-        return Optional.ofNullable(siteName);
-    }
+  public Optional<String> getSiteName() {
+    return Optional.ofNullable(siteName);
+  }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 }

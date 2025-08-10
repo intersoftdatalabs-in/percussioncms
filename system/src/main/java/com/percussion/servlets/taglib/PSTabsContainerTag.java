@@ -25,41 +25,29 @@ import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
 /**
- * Output a set of tabs for the banner. This tag progressively evaluates through
- * the tabs in the {@link PSTopNavigation} model. Each tab have information about
- * whether it is selected and/or enabled, which is used when rendering.
+ * Output a set of tabs for the banner. This tag progressively evaluates through the tabs in the
+ * {@link PSTopNavigation} model. Each tab have information about whether it is selected and/or
+ * enabled, which is used when rendering.
  *
  * @author dougrand
  */
 public class PSTabsContainerTag extends BodyTagSupport {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * The value to be used when rendering.
-   */
+  /** The value to be used when rendering. */
   PSTopNavigation m_value;
 
-  /**
-   * A string naming the variable to be bound when evaluating the tab facet.
-   */
+  /** A string naming the variable to be bound when evaluating the tab facet. */
   String m_var;
 
-  /**
-   * A CSS style to be applied to the tabs containing DIV.
-   */
+  /** A CSS style to be applied to the tabs containing DIV. */
   String m_inlineStyle;
 
-  /**
-   * Page context, set by the system, assumed never <code>null</code>.
-   */
+  /** Page context, set by the system, assumed never <code>null</code>. */
   PageContext m_context;
 
-  /**
-   * Buffer to build the content in. Never <code>null</code>, may be empty.
-   */
+  /** Buffer to build the content in. Never <code>null</code>, may be empty. */
   StringBuilder m_buffer = new StringBuilder();
 
   /**
@@ -142,7 +130,6 @@ public class PSTabsContainerTag extends BodyTagSupport {
    * Write the tab entry to the buffer.
    *
    * @param tab the tab instance, assumed not <code>null</code>.
-   *
    */
   private void writeEntry(Tab tab) {
     if (!tab.getEnabled()) return;

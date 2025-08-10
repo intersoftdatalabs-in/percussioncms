@@ -33,14 +33,12 @@ import org.w3c.dom.Element;
 /**
  * The PSHookRequestHandler class is used to process .
  *
- * @author      Chad Loder
- * @version      1.0
- * @since      1.0
+ * @author Chad Loder
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHookRequestHandler implements IPSRequestHandler {
-  /**
-   * Creates a remote console handler for this server.
-   */
+  /** Creates a remote console handler for this server. */
   public PSHookRequestHandler() {
     super();
 
@@ -58,8 +56,8 @@ public class PSHookRequestHandler implements IPSRequestHandler {
   }
 
   /**
-   * Returns a document containing the server root, the number of non-rooted
-   * applications, and all of the names and roots of rooted applications.
+   * Returns a document containing the server root, the number of non-rooted applications, and all
+   * of the names and roots of rooted applications.
    */
   public Document loadRequestRoots(Document inDoc)
       throws PSServerException, PSAuthorizationException {
@@ -102,12 +100,10 @@ public class PSHookRequestHandler implements IPSRequestHandler {
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a hook request.
-   * If the requestor has the appropriate access, the
-   * command will be executed.
+   * Process a hook request. If the requestor has the appropriate access, the command will be
+   * executed.
    *
-   * @param   request      the request object containing all context
-   *                        data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document inDoc = request.getInputDocument();
@@ -150,17 +146,14 @@ public class PSHookRequestHandler implements IPSRequestHandler {
     resp.setContent(respDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {}
 
   /**
-   * Returns list of request methods used by the hook request handler.
-   * Currently includes the "GET" type.
+   * Returns list of request methods used by the hook request handler. Currently includes the "GET"
+   * type.
    *
-   * @return A list of HTTP methods the Hook request handler can handle,
-   *    never <code>null</code>.
+   * @return A list of HTTP methods the Hook request handler can handle, never <code>null</code>.
    */
   public static synchronized ArrayList<String> getStdHookRequestMethods() {
     if (m_stdHookRequestTypes == null) {
@@ -187,9 +180,8 @@ public class PSHookRequestHandler implements IPSRequestHandler {
   private Map<String, Method> m_requestHandlerMethods = null;
 
   /**
-   * List of allowable request methods for hook request handlers. Initialized
-   * in first call to {@link #getStdHookRequestMethods()}, never
-   * <code>null</code> after that.
+   * List of allowable request methods for hook request handlers. Initialized in first call to
+   * {@link #getStdHookRequestMethods()}, never <code>null</code> after that.
    */
   private static ArrayList<String> m_stdHookRequestTypes = null;
 }

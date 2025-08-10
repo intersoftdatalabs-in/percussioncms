@@ -34,16 +34,12 @@ import org.springframework.stereotype.Component;
  * REST/Webservice layer used to access the likes service.
  *
  * @author davidpardini
- *
  */
 @Path("/likes")
 @Component
 public class PSLikesRestService extends PSAbstractRestService {
 
-  /**
-   * The likes service reference. Initialized in the ctor. Never
-   * <code>null</code>.
-   */
+  /** The likes service reference. Initialized in the ctor. Never <code>null</code>. */
   private IPSLikesService likesService;
 
   private static final Logger log = LogManager.getLogger(PSLikesRestService.class);

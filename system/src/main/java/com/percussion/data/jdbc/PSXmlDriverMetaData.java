@@ -18,18 +18,15 @@
 package com.percussion.data.jdbc;
 
 /**
- * The PSXmlDriverMetaData class implements driver level catalog
- * support for the XML driver.
+ * The PSXmlDriverMetaData class implements driver level catalog support for the XML driver.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXmlDriverMetaData extends PSFileSystemDriverMetaData {
 
-  /**
-   * Construnct an XML driver meta data object.
-   */
+  /** Construnct an XML driver meta data object. */
   public PSXmlDriverMetaData() {
     super();
   }

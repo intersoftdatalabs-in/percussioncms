@@ -21,14 +21,14 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * Task to create the workbench's help hints xml file and moves the
- * required resources to a specified folder. This task requires that the
- * Jericho Html parser jar be on the classpath. *
+ * Task to create the workbench's help hints xml file and moves the required resources to a
+ * specified folder. This task requires that the Jericho Html parser jar be on the classpath. *
  */
 public class PSMakeHelpHints extends Task {
 
   /**
    * The location of the help mappings file (Required)
+   *
    * @param helpMappings
    */
   public void setHelpmappings(File helpMappings) {
@@ -36,8 +36,8 @@ public class PSMakeHelpHints extends Task {
   }
 
   /**
-   * The help plugin directory where all the help files can be found
-   * (Required)
+   * The help plugin directory where all the help files can be found (Required)
+   *
    * @param helpPath
    */
   public void setHelppath(File helpPath) {
@@ -46,6 +46,7 @@ public class PSMakeHelpHints extends Task {
 
   /**
    * The target path for the file to be created (Required)
+   *
    * @param target
    */
   public void setTarget(File target) {

@@ -30,23 +30,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-/**
- * A directory cataloger using the backend role/subject data as directory
- * source.
- */
+/** A directory cataloger using the backend role/subject data as directory source. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
-  /**
-   * Default ctor, sets the name of this cataloger.
-   */
+  /** Default ctor, sets the name of this cataloger. */
   public PSBackEndDirectoryCataloger() {
     super();
     setName(DEFAULT_NAME);
   }
 
-  /**
-   * Calls {@link #PSBackEndDirectoryCataloger()}, ignores params.
-   */
+  /** Calls {@link #PSBackEndDirectoryCataloger()}, ignores params. */
   public PSBackEndDirectoryCataloger(Properties properties, PSServerConfiguration config) {
     this();
   }
@@ -123,14 +116,10 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
   }
 
   /**
-   * Loads the subjects with the same name as the supplied subject and returns
-   * the first one found.
+   * Loads the subjects with the same name as the supplied subject and returns the first one found.
    *
-   * @param name The subject name to match, assumed not <code>null</code> or
-   * empty.
-   * @param attributeNames Attributes to return with the subject, may be
-   * <code>null</code> or empty.
-   *
+   * @param name The subject name to match, assumed not <code>null</code> or empty.
+   * @param attributeNames Attributes to return with the subject, may be <code>null</code> or empty.
    * @return The subject, or <code>null</code> if not found.
    */
   private PSSubject getMatchingSubject(String name, Collection attributeNames) {
@@ -141,8 +130,6 @@ public class PSBackEndDirectoryCataloger extends PSDirectoryCataloger {
     else return (PSSubject) subjects.iterator().next();
   }
 
-  /**
-   * Constant for the default name of this cataloger
-   */
+  /** Constant for the default name of this cataloger */
   private static final String DEFAULT_NAME = "Default";
 }

@@ -26,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /**
- * The PSProcessTransitionTest class is a test class for the method
- * processTransition. See  {@link #HelpMessage} for command line options.
+ * The PSProcessTransitionTest class is a test class for the method processTransition. See {@link
+ * #HelpMessage} for command line options.
  */
 @Tag("IntegrationTest")
 public class PSProcessTransitionTest extends PSAbstractWorkflowTest {
@@ -37,8 +37,7 @@ public class PSProcessTransitionTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - see  {@link #HelpMessage}
-   *               for options.
+   * @param args command line arguments - see {@link #HelpMessage} for options.
    */
   public PSProcessTransitionTest(String[] args) {
     m_sArgs = args;
@@ -142,17 +141,11 @@ public class PSProcessTransitionTest extends PSAbstractWorkflowTest {
           transitionPerformed = false;
 
           /**
-           * @todo When time add teh logic to perform this test.  This
-           * was commented out after the implementation of requirements:
-           * 2002.11-01572 and 2002.11-01573 - Workflow Enhancements.
-           * The method signature has changed.
-           *
-           * PSExitPerformTransition.processTransition(csc,
-           * tc,
-           * m_sUserName,
-           * m_now,
-           * request,
-           * connection);
+           * @todo When time add teh logic to perform this test. This was commented out after the
+           *     implementation of requirements: 2002.11-01572 and 2002.11-01573 - Workflow
+           *     Enhancements. The method signature has changed.
+           *     <p>PSExitPerformTransition.processTransition(csc, tc, m_sUserName, m_now, request,
+           *     connection);
            */
           if (m_bIsVerbose) {
             log.info("transition {} performed = {}", transitionID, transitionPerformed);
@@ -260,40 +253,25 @@ public class PSProcessTransitionTest extends PSAbstractWorkflowTest {
 
   /* Helper Method */
   /**
-   * Update some state and time status information for a content item.
-   * See details below.
+   * Update some state and time status information for a content item. See details below.
    *
-   * @param contentID            item content ID
-   * @param stateID              ID of state item should be in
-   * @param initSelfTransition   next aging transition, should be a self
-   *                             transition for the specified state. A
-   *                             "content start date " transition is a good
-   *                             choice.
-   * @param setBackHours         number of hours before current time to set
-   *                             state entered date, and other initial times.
-   * @param m_nReminderOffset    number of hours after the state entered
-   *                             date to set the reminder date
-   * @param now                  the current time
-   * @param connection           database connection
-   *
-   * The CONTENTSTATUS status table is updated as follows:
-   * now = current time
-   * start time = current time - setBackHours
-   *
-   * CONTENTSTATEID                    stateID
-   * CONTENTCHECKOUTUSERNAME           "" (empty string)
-   * CONTENTSTARTDATE                  start time
-   * CONTENTEXPIRYDATE                 now + setBackHours
-   * REMINDERDATE                      now + ReminderOffset + setBackHours
-   * EDITREVISION                      -1
-   * LASTTRANSITIONDATE                start time
-   * STATEENTEREDDATE                  start time
-   * NEXTAGINGDATE                     now
-   * NEXTAGINGTRANSITION               initSelfTransition
-   * REPEATEDAGINGTRANSSTARTDATE       now
-   *
-   * @throws                     SQLException if an SQL error occurs
-   * @throws                     PSEntryNotFoundException if an error occurs
+   * @param contentID item content ID
+   * @param stateID ID of state item should be in
+   * @param initSelfTransition next aging transition, should be a self transition for the specified
+   *     state. A "content start date " transition is a good choice.
+   * @param setBackHours number of hours before current time to set state entered date, and other
+   *     initial times.
+   * @param m_nReminderOffset number of hours after the state entered date to set the reminder date
+   * @param now the current time
+   * @param connection database connection
+   *     <p>The CONTENTSTATUS status table is updated as follows: now = current time start time =
+   *     current time - setBackHours
+   *     <p>CONTENTSTATEID stateID CONTENTCHECKOUTUSERNAME "" (empty string) CONTENTSTARTDATE start
+   *     time CONTENTEXPIRYDATE now + setBackHours REMINDERDATE now + ReminderOffset + setBackHours
+   *     EDITREVISION -1 LASTTRANSITIONDATE start time STATEENTEREDDATE start time NEXTAGINGDATE now
+   *     NEXTAGINGTRANSITION initSelfTransition REPEATEDAGINGTRANSSTARTDATE now
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if an error occurs
    */
   public void startInState(
       int contentID,

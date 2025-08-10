@@ -18,12 +18,11 @@
 package com.percussion.HTTPClient;
 
 /**
- * This interface represents the read-only interface of an http request.
- * It is the compile-time type passed to various handlers which might
- * need the request info but musn't modify the request.
+ * This interface represents the read-only interface of an http request. It is the compile-time type
+ * passed to various handlers which might need the request info but musn't modify the request.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public interface RoRequest {
@@ -58,8 +57,8 @@ public interface RoRequest {
   public HttpOutputStream getStream();
 
   /**
-   * @return true if the modules or handlers for this request may popup
-   *         windows or otherwise interact with the user
+   * @return true if the modules or handlers for this request may popup windows or otherwise
+   *     interact with the user
    */
   public boolean allowUI();
 }

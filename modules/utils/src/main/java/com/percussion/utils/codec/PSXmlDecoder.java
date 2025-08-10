@@ -22,15 +22,13 @@ import org.apache.commons.codec.Encoder;
 import org.apache.commons.codec.EncoderException;
 
 /**
- * Take the string version of an xml document and replace the four entities with
- * their character equivalents.
+ * Take the string version of an xml document and replace the four entities with their character
+ * equivalents.
  *
  * @author dougrand
  */
 public class PSXmlDecoder implements Encoder {
-  /**
-   *
-   */
+  /** */
   public PSXmlDecoder() {
     super();
   }

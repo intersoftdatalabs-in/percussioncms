@@ -26,26 +26,21 @@ import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Creates a properties element as used in portal publisher assemblers.
- */
+/** Creates a properties element as used in portal publisher assemblers. */
 public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
   /**
-   * Creates the <code>Properties</code> element as specified in the
-   * sys_PortalPublisher.dtd for the supplied parameters.
+   * Creates the <code>Properties</code> element as specified in the sys_PortalPublisher.dtd for the
+   * supplied parameters.
    *
-   * @params the property attributes and values for all properties that need
-   *    to be created. For each property a group of 4 parameters is expected
-   *    in the order name, type, pattern and value. The pattern can be
-   *    <code>null</code> or empty. If empty and the type is set to dateTime,
-   *    the default pattern "yyyy-MM-dd" is used. Multiple values can be
-   *    supplied as a coma separated list. May not be <code>null</code> or
-   *    empty.
+   * @params the property attributes and values for all properties that need to be created. For each
+   *     property a group of 4 parameters is expected in the order name, type, pattern and value.
+   *     The pattern can be <code>null</code> or empty. If empty and the type is set to dateTime,
+   *     the default pattern "yyyy-MM-dd" is used. Multiple values can be supplied as a coma
+   *     separated list. May not be <code>null</code> or empty.
    * @param request the request to be processed, assumed not <code>null</code>.
-   * @throws PSConversionException for all errors, including all parameter
-   *    validation errors.
-   * @return an <code>Element</code> with the <code>Properties</code> format
-   *    as specified in sys_PortalPublisher.dtd, never <code>null</code>.
+   * @throws PSConversionException for all errors, including all parameter validation errors.
+   * @return an <code>Element</code> with the <code>Properties</code> format as specified in
+   *     sys_PortalPublisher.dtd, never <code>null</code>.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -76,16 +71,14 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Creates <code>Property</code> elements as specified in
-   * sys_newPortalPublisher.dtd.
+   * Creates <code>Property</code> elements as specified in sys_newPortalPublisher.dtd.
    *
-   * @param params the parameters to use for the property creation, assumed
-   *    not <code>null</code> or empty.
-   * @param offset the offset from where in the <code>params</code> parameter
-   *    to start, assumed to be a valid offset for the supplied
-   *    <code>params</code>.
-   * @param doc the document for which to create the <code>Property</code>
-   *    element, assumed not <code>null</code>.
+   * @param params the parameters to use for the property creation, assumed not <code>null</code> or
+   *     empty.
+   * @param offset the offset from where in the <code>params</code> parameter to start, assumed to
+   *     be a valid offset for the supplied <code>params</code>.
+   * @param doc the document for which to create the <code>Property</code> element, assumed not
+   *     <code>null</code>.
    * @param parent the element on which to insert the created properties
    * @return false when the method is done processing parameters
    * @throws PSConversionException for any invalid property parameter.
@@ -172,8 +165,7 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Create a single property element and insert it into the document's child
-   * list
+   * Create a single property element and insert it into the document's child list
    *
    * @param doc
    * @param propertyName
@@ -212,13 +204,11 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Validates the supplied property type. The validation made is case
-   * sensitive.
+   * Validates the supplied property type. The validation made is case sensitive.
    *
-   * @param type the property type to be validated, assumed not
-   *    <code>null</code>.
-   * @return <code>null</code> if the supplied type is valid, a coma separated
-   *    list of valid types as <code>String</code> otherwise.
+   * @param type the property type to be validated, assumed not <code>null</code>.
+   * @return <code>null</code> if the supplied type is valid, a coma separated list of valid types
+   *     as <code>String</code> otherwise.
    */
   private String validateType(String type) {
     String validTypes = "";
@@ -234,89 +224,63 @@ public class PSCreatePortalPropertyList extends PSSimpleJavaUdfExtension {
   }
 
   /**
-   * Default date format that will be used to format properties of type date
-   * if no pattern is supplied.
+   * Default date format that will be used to format properties of type date if no pattern is
+   * supplied.
    */
   private static final String DEFAULT_FORMAT = "yyyy-MM-dd";
 
-  /**
-   * The tokenizer separators to use when processing an item
-   */
+  /** The tokenizer separators to use when processing an item */
   private static final String DELS = ",";
 
-  /**
-   * The name attribute for the <code>Property</code> element.
-   */
+  /** The name attribute for the <code>Property</code> element. */
   private static final String PROPERTY_NAME = "name";
 
-  /**
-   * The type attribute for the <code>Property</code> element.
-   */
+  /** The type attribute for the <code>Property</code> element. */
   private static final String PROPERTY_TYPE = "type";
 
-  /**
-   * The pattern attribute for the <code>Property</code> element.
-   */
+  /** The pattern attribute for the <code>Property</code> element. */
   private static final String PROPERTY_PATTERN = "pattern";
 
-  /**
-   * An array of all attributes for the <code>Property</code> element.
-   */
+  /** An array of all attributes for the <code>Property</code> element. */
   private static final String[] PROPERTY_ATTRS = {
     PROPERTY_NAME, PROPERTY_TYPE, PROPERTY_PATTERN,
   };
 
-  /**
-   * The number of parameters needed for each <code>Property</code> element.
-   */
+  /** The number of parameters needed for each <code>Property</code> element. */
   private static final int PROPERTY_PARAMSIZE = PROPERTY_ATTRS.length + 1;
 
-  /**
-   * The 'string' type used as value for the <code>Property</code> type
-   * attribute.
-   */
+  /** The 'string' type used as value for the <code>Property</code> type attribute. */
   private static final String TYPE_STRING = "string";
 
-  /**
-   * The 'numeric' type used as value for the <code>Property</code> type
-   * attribute.
-   */
+  /** The 'numeric' type used as value for the <code>Property</code> type attribute. */
   private static final String TYPE_NUMERIC = "integer";
 
-  /**
-   * The 'dateTime' type used as value for the <code>Property</code> type
-   * attribute.
-   */
+  /** The 'dateTime' type used as value for the <code>Property</code> type attribute. */
   private static final String TYPE_DATETIME = "date";
 
   /**
-   * The 'binary' type used as value for the <code>Property</code> type
-   * attribute. Indicates a blob column as a destination.
+   * The 'binary' type used as value for the <code>Property</code> type attribute. Indicates a blob
+   * column as a destination.
    */
   private static final String TYPE_BLOB = "binary";
 
   /**
-   * The 'clob' type used as value for the <code>Property</code> type
-   * attribute. Indicates a TEXT or CLOB column as a destination.
+   * The 'clob' type used as value for the <code>Property</code> type attribute. Indicates a TEXT or
+   * CLOB column as a destination.
    */
   private static final String TYPE_CLOB = "clob";
 
   /**
-   * An array with all valid values supported for the type attribute in the
-   * <code>Property</code> element.
+   * An array with all valid values supported for the type attribute in the <code>Property</code>
+   * element.
    */
   private static final String[] VALID_TYPES = {
     TYPE_STRING, TYPE_NUMERIC, TYPE_DATETIME, TYPE_BLOB, TYPE_CLOB
   };
 
-  /**
-   * An array of types that must be base64 encoded.
-   */
+  /** An array of types that must be base64 encoded. */
   private static final String[] ENCODED_TYPES = {TYPE_BLOB, TYPE_CLOB};
 
-  /**
-   * The following constants define element names as specified in
-   * sys_newPortalPublisher.dtd.
-   */
+  /** The following constants define element names as specified in sys_newPortalPublisher.dtd. */
   private static final String PROPERTY_ELEM = "Property";
 }

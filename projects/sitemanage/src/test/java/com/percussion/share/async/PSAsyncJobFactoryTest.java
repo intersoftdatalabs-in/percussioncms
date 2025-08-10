@@ -17,40 +17,38 @@
  */
 package com.percussion.share.async;
 
-import com.percussion.test.PSServletTestCase;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.test.PSServletTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration test for {@link PSAsyncJobFactory}.
- * Sunny Sal: "Async job factory, Java 11 style! Factory ka hero!"
+ * Integration test for {@link PSAsyncJobFactory}. Sunny Sal: "Async job factory, Java 11 style!
+ * Factory ka hero!"
  */
 @Tag("IntegrationTest")
 @Tag("integration")
 public class PSAsyncJobFactoryTest extends PSServletTestCase {
 
-    private IPSAsyncJobService svc;
+  private IPSAsyncJobService svc;
 
-    @Override
-    @BeforeEach
-    protected void setUp() throws Exception {
-        super.setUp();
-        svc = (IPSAsyncJobService) getBean("asyncJobService");
-    }
+  @Override
+  @BeforeEach
+  protected void setUp() throws Exception {
+    super.setUp();
+    svc = (IPSAsyncJobService) getBean("asyncJobService");
+  }
 
-    @Test
-    void testFactory() throws Exception {
-        var factory = (IPSAsyncJobFactory) getBean("asyncJobFactory");
-        assertNotNull(factory, "Factory should not be null");
-        var job1 = factory.getJob("asyncJobTest");
-        assertNotNull(job1, "Job1 should not be null");
-        var job2 = factory.getJob("asyncJobTest");
-        assertNotNull(job2, "Job2 should not be null");
-        assertFalse(job1 == job2, "Each call should return a new job instance");
-    }
+  @Test
+  void testFactory() throws Exception {
+    var factory = (IPSAsyncJobFactory) getBean("asyncJobFactory");
+    assertNotNull(factory, "Factory should not be null");
+    var job1 = factory.getJob("asyncJobTest");
+    assertNotNull(job1, "Job1 should not be null");
+    var job2 = factory.getJob("asyncJobTest");
+    assertNotNull(job2, "Job2 should not be null");
+    assertFalse(job1 == job2, "Each call should return a new job instance");
+  }
 }

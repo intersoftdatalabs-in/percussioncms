@@ -22,7 +22,6 @@ import java.util.Set;
 
 /**
  * @author erikserating
- *
  */
 public class PSRestComment implements IPSComment {
 

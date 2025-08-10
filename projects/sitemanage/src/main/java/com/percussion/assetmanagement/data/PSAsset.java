@@ -18,36 +18,34 @@
 
 package com.percussion.assetmanagement.data;
 
+import com.percussion.share.data.IPSContentItem;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
-import com.percussion.share.data.IPSContentItem;
 
-/**
- * Represents a CMS Asset with arbitrary fields.
- */
+/** Represents a CMS Asset with arbitrary fields. */
 @XmlRootElement(name = "Asset")
 public class PSAsset extends PSAssetSummary implements IPSContentItem {
 
-    private static final long serialVersionUID = 8252999104256582955L;
+  private static final long serialVersionUID = 8252999104256582955L;
 
-    private Map<String, Object> fields = new HashMap<>();
+  private Map<String, Object> fields = new HashMap<>();
 
-    /**
-     * Gets the asset fields.
-     *
-     * @return a map of field names to values; never {@code null}.
-     */
-    public Map<String, Object> getFields() {
-        return fields;
-    }
+  /**
+   * Gets the asset fields.
+   *
+   * @return a map of field names to values; never {@code null}.
+   */
+  public Map<String, Object> getFields() {
+    return fields;
+  }
 
-    /**
-     * Sets the asset fields.
-     *
-     * @param fields the fields map; must not be {@code null}.
-     */
-    public void setFields(Map<String, Object> fields) {
-        this.fields = fields;
-    }
+  /**
+   * Sets the asset fields.
+   *
+   * @param fields the fields map; must not be {@code null}.
+   */
+  public void setFields(Map<String, Object> fields) {
+    this.fields = fields;
+  }
 }

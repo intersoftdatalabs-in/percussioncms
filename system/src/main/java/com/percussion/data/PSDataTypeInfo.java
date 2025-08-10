@@ -20,41 +20,29 @@ package com.percussion.data;
 import java.sql.DatabaseMetaData;
 
 /**
- * The PSDataTypeInfo class offers a more tractable interface to
- * database meta data than does java.sql.DataTypeInfo. Results
- * are cached and put into a readily useable form.
+ * The PSDataTypeInfo class offers a more tractable interface to database meta data than does
+ * java.sql.DataTypeInfo. Results are cached and put into a readily useable form.
  *
- * A PSDataTypeInfo object may use JDBC resources during construction
- * or method invocation, but it does not keep any JDBC resources open
- * after the method returns, and caches meta data wherever possible.
+ * <p>A PSDataTypeInfo object may use JDBC resources during construction or method invocation, but
+ * it does not keep any JDBC resources open after the method returns, and caches meta data wherever
+ * possible.
  */
 // REFACTORED: CP-JAVA11
 public class PSDataTypeInfo {
   /**
    * Create a data type info object.
    *
-   * @param   typeName         the native data type name
-   *
-   * @param   jdbcType         the JDBC data type (Types.xxx)
-   *
-   * @param   maxPrecision   the max precision
-   *
-   * @param   literalPrefix   the prefix to use when quoting literals
-   *
-   * @param   literalSuffix   the suffix to use when quoting literals
-   *
-   * @param   nullable         are null values permitted (see the
-   *                           java.sql.DatabaseMetaData typeXXX settings)
-   *
-   * @param   searchable      what type of searching is supported
-   *
-   * @param   autoIncrement   is the value automatically incremented?
-   *
-   * @param   minScale         the minimum scale supported
-   *
-   * @param   maxScale         the maximum scale supported
-   *
-   *   @see      java.sql.DatabaseMetaData
+   * @param typeName the native data type name
+   * @param jdbcType the JDBC data type (Types.xxx)
+   * @param maxPrecision the max precision
+   * @param literalPrefix the prefix to use when quoting literals
+   * @param literalSuffix the suffix to use when quoting literals
+   * @param nullable are null values permitted (see the java.sql.DatabaseMetaData typeXXX settings)
+   * @param searchable what type of searching is supported
+   * @param autoIncrement is the value automatically incremented?
+   * @param minScale the minimum scale supported
+   * @param maxScale the maximum scale supported
+   * @see java.sql.DatabaseMetaData
    */
   PSDataTypeInfo(
       String typeName,
@@ -102,7 +90,7 @@ public class PSDataTypeInfo {
   /**
    * Get the native data type name.
    *
-   * @return         the native data type name
+   * @return the native data type name
    */
   public String getTypeName() {
     return m_typeName;
@@ -111,7 +99,7 @@ public class PSDataTypeInfo {
   /**
    * Get the JDBC data type.
    *
-   * @return         the jdbc data type
+   * @return the jdbc data type
    */
   public short getJdbcType() {
     return m_jdbcType;
@@ -120,7 +108,7 @@ public class PSDataTypeInfo {
   /**
    * Get the max precision (size).
    *
-   * @return         the max precision
+   * @return the max precision
    */
   public int getMaxPrecision() {
     return m_maxPrecision;
@@ -129,7 +117,7 @@ public class PSDataTypeInfo {
   /**
    * Get the prefix to use when quoting literals.
    *
-   * @return      the prefix to use when quoting literals
+   * @return the prefix to use when quoting literals
    */
   public String getLiteralPrefix() {
     return m_literalPrefix;
@@ -138,7 +126,7 @@ public class PSDataTypeInfo {
   /**
    * Get the suffix to use when quoting literals.
    *
-   * @return      the suffix to use when quoting literals
+   * @return the suffix to use when quoting literals
    */
   public String getLiteralSuffix() {
     return m_literalSuffix;
@@ -147,7 +135,7 @@ public class PSDataTypeInfo {
   /**
    * Are null values permitted?
    *
-   * @return      the java.sql.DatabaseMetaData typeXXX null setting
+   * @return the java.sql.DatabaseMetaData typeXXX null setting
    */
   public short getNullableSetting() {
     if ((m_flags & FLAG_NO_NULLS) == FLAG_NO_NULLS) return DatabaseMetaData.typeNoNulls;
@@ -160,7 +148,7 @@ public class PSDataTypeInfo {
   /**
    * What type of searching is supported?
    *
-   * @return      java.sql.DatabaseMetaData typeXXX search setting
+   * @return java.sql.DatabaseMetaData typeXXX search setting
    */
   public short getSearchableSetting() {
     if ((m_flags & FLAG_SEARCH_ALL) == FLAG_SEARCH_ALL) return DatabaseMetaData.typeSearchable;
@@ -175,7 +163,7 @@ public class PSDataTypeInfo {
   /**
    * is the value automatically incremented?
    *
-   * @return      <code>true</code> if it is
+   * @return <code>true</code> if it is
    */
   public boolean isAutoIncrement() {
     return ((m_flags & FLAG_AUTO_INCREMENT) == FLAG_AUTO_INCREMENT);
@@ -184,7 +172,7 @@ public class PSDataTypeInfo {
   /**
    * Get the minimum scale supported
    *
-   * @return      the minimum scale supported
+   * @return the minimum scale supported
    */
   public short getMinimumScale() {
     return m_minScale;
@@ -193,7 +181,7 @@ public class PSDataTypeInfo {
   /**
    * Get the maximum scale supported
    *
-   * @return      the maximum scale supported
+   * @return the maximum scale supported
    */
   public short getMaximumScale() {
     return m_maxScale;

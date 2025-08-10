@@ -31,17 +31,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * ID Context to represent an extension or function call param
- */
+/** ID Context to represent an extension or function call param */
 public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from a call param.
    *
-   * @param index The index into the param list of the call this
-   * parameter is from.  May not be less than 0.
+   * @param index The index into the param list of the call this parameter is from. May not be less
+   *     than 0.
    * @param param The param, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAppExtensionParamIdContext(int index, PSAbstractParamValue param) {
@@ -56,12 +53,9 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppExtensionParamIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -80,8 +74,7 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Get index into the param list of the extension/function call this
-   * parameter is from.
+   * Get index into the param list of the extension/function call this parameter is from.
    *
    * @return The index, >=0.
    */
@@ -92,8 +85,8 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   /**
    * Get the name of this param.
    *
-   * @return The name, may be <code>null</code> if
-   * {@link #setParamName(String)} has not been called, never empty.
+   * @return The name, may be <code>null</code> if {@link #setParamName(String)} has not been
+   *     called, never empty.
    */
   public String getParamName() {
     return m_paramName;
@@ -146,12 +139,13 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppExtensionParamIdContext (PSXExtensionParamValue?,
    *    PSXFunctionCallParamValue?, PSXApplicationIDContext?)>
@@ -177,9 +171,8 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -267,34 +260,30 @@ public class PSAppExtensionParamIdContext extends PSApplicationIdContext {
    * Check the supplied index to see if it is valid (>=0)
    *
    * @param index The index to check.
-   *
    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
    */
   private boolean validateIndex(int index) {
     return index >= 0;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppExtensionParamIdContext";
 
   /**
-   * Index of this param in its parent extension call's param list.  Intialized
-   * during ctor, modfied only by calls to <code>copyFrom()</code>.
+   * Index of this param in its parent extension call's param list. Intialized during ctor, modfied
+   * only by calls to <code>copyFrom()</code>.
    */
   private int m_index;
 
   /**
-   * Name of this param in its parent extension call's param list.  Initially
-   * <code>null</code>, modified by calls to {@link #setParamName(String)}.
+   * Name of this param in its parent extension call's param list. Initially <code>null</code>,
+   * modified by calls to {@link #setParamName(String)}.
    */
   private transient String m_paramName = null;
 
   /**
-   * The param this context refers to, never <code>null</code> after
-   * construction, modified by a calls to <code>copyFrom()</code>
-   * and <code>updateCtxValue()</code>.
+   * The param this context refers to, never <code>null</code> after construction, modified by a
+   * calls to <code>copyFrom()</code> and <code>updateCtxValue()</code>.
    */
   private PSAbstractParamValue m_param;
 

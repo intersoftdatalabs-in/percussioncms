@@ -35,18 +35,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is a Rhythmyx pre-exit which examines the incoming HTML
- * parameters for attached files. If one of the files is an image then
- * the width and height dimensions will be extracted and will be added to
- * the request as image size attributes. Requires the SUN JAI library.
+ * This class is a Rhythmyx pre-exit which examines the incoming HTML parameters for attached files.
+ * If one of the files is an image then the width and height dimensions will be extracted and will
+ * be added to the request as image size attributes. Requires the SUN JAI library.
  */
 public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTransformer {
 
   private static final Logger log = LogManager.getLogger(PSImageInfoExtractor.class);
 
-  /**
-   * Pre processes the request.
-   */
+  /** Pre processes the request. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
           PSRequestValidationException,
@@ -106,11 +103,9 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
   }
 
   /**
-   * Clears image size attribute parameters from
-   * the request.
+   * Clears image size attribute parameters from the request.
    *
-   * @param request the <code>IPSRequestContext</code> cannot
-   * be <code>null</code>.
+   * @param request the <code>IPSRequestContext</code> cannot be <code>null</code>.
    * @param paramName the parameter name prefix. Cannot be <code>null</code>.
    */
   private void clearImageParams(IPSRequestContext request, String paramName) {
@@ -124,10 +119,8 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
   /**
    * Returns image size dimensions
    *
-   * @param filename path of the image file. Cannot be <code>null</code>
-   * or empty.
-   * @return the image width and height as a <code>ImageSize</code>
-   * object.
+   * @param filename path of the image file. Cannot be <code>null</code> or empty.
+   * @return the image width and height as a <code>ImageSize</code> object.
    * @throws IOException
    */
   private ImageSize getImageSize(String filename) throws IOException {
@@ -138,9 +131,7 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
     return new ImageSize(src.getWidth(), src.getHeight());
   }
 
-  /**
-   * Helper inner class to hold image size dimensions
-   */
+  /** Helper inner class to hold image size dimensions */
   private class ImageSize {
     private ImageSize(String width, String height) {
       mi_width = width;
@@ -153,6 +144,7 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
 
     /**
      * Returns the image width as a String
+     *
      * @return image width
      */
     private String getWidth() {
@@ -161,6 +153,7 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
 
     /**
      * Returns the image height as a String
+     *
      * @return image height
      */
     private String getHeight() {
@@ -171,13 +164,9 @@ public class PSImageInfoExtractor extends PSFileInfo implements IPSItemInputTran
     private String mi_height;
   }
 
-  /**
-   * Image Height
-   */
+  /** Image Height */
   public static final String IMAGE_HEIGHT = "height";
 
-  /**
-   * Image Width
-   */
+  /** Image Width */
   public static final String IMAGE_WIDTH = "width";
 }

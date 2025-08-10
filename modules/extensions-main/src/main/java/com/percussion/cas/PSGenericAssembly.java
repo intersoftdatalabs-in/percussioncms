@@ -34,9 +34,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
- * Builds a delivery location by concatenating all the text nodes of the
- * XML document returned by the specified resource.
- * See {@link #createLocation(Object[], IPSRequestContext) createLocation()}
+ * Builds a delivery location by concatenating all the text nodes of the XML document returned by
+ * the specified resource. See {@link #createLocation(Object[], IPSRequestContext) createLocation()}
  * for the parameters supported by this exit.
  */
 public class PSGenericAssembly extends PSDefaultExtension implements IPSAssemblyLocation {
@@ -44,42 +43,30 @@ public class PSGenericAssembly extends PSDefaultExtension implements IPSAssembly
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 
   /**
-   * This method creates a new publishing location string using the provided
-   * parameters.
+   * This method creates a new publishing location string using the provided parameters.
    *
-   * See {@link IPSAssemblyLocation#createLocation(Object[],
-   * IPSRequestContext) createLocation} for details.
+   * <p>See {@link IPSAssemblyLocation#createLocation(Object[], IPSRequestContext) createLocation}
+   * for details.
    *
-   * @param params array containing one required element and two
-   * optional elememts as described below.
-   *
-   * param[0] is required. It must be the URL of the resource which returns
-   * an Xml document. The values of the text nodes of this Xml document will
-   * be concatenated to create the location. This URL is relative to the
-   * Rhythmyx root and is of the form: <i>RhythmyxApplication/Resource</i>
-   * This parameter is specified using the "resource" parameter name in the
-   * workbench.
-   *
-   * param[1] is optional. This is the content id of the item. If present,
-   * this will be added as an html parameter when querying the specified
-   * resource. This parameter is specified using the "contentid" parameter name
-   * in the workbench.
-   *
-   * param[2] is optional. This is the revision id of the item. If present,
-   * this will be added as an html parameter when querying the specified
-   * resource. This parameter is specified using the "revision" parameter name
-   * in the workbench.
-   *
-   * @param request the request context for this request, never
-   * <code>null</code>
-   *
-   * @return the publishing location generated using the text nodes of the
-   * XML document returned by the specified resource, never <code>null</code>,
-   * may be empty
-   *
-   * @throws PSExtensionException if a handler for the specified
-   * resource cannot be located, or an error occurs querying this resource or
-   * if param[0] is missing or is <code>null</code> or empty
+   * @param params array containing one required element and two optional elememts as described
+   *     below.
+   *     <p>param[0] is required. It must be the URL of the resource which returns an Xml document.
+   *     The values of the text nodes of this Xml document will be concatenated to create the
+   *     location. This URL is relative to the Rhythmyx root and is of the form:
+   *     <i>RhythmyxApplication/Resource</i> This parameter is specified using the "resource"
+   *     parameter name in the workbench.
+   *     <p>param[1] is optional. This is the content id of the item. If present, this will be added
+   *     as an html parameter when querying the specified resource. This parameter is specified
+   *     using the "contentid" parameter name in the workbench.
+   *     <p>param[2] is optional. This is the revision id of the item. If present, this will be
+   *     added as an html parameter when querying the specified resource. This parameter is
+   *     specified using the "revision" parameter name in the workbench.
+   * @param request the request context for this request, never <code>null</code>
+   * @return the publishing location generated using the text nodes of the XML document returned by
+   *     the specified resource, never <code>null</code>, may be empty
+   * @throws PSExtensionException if a handler for the specified resource cannot be located, or an
+   *     error occurs querying this resource or if param[0] is missing or is <code>null</code> or
+   *     empty
    */
   public String createLocation(Object[] params, IPSRequestContext request)
       throws PSExtensionException {
@@ -134,13 +121,9 @@ public class PSGenericAssembly extends PSDefaultExtension implements IPSAssembly
     }
   }
 
-  /**
-   * The function name used for error handling
-   */
+  /** The function name used for error handling */
   private static final String ms_className = "PSGenericAssembly";
 
-  /**
-   * The number of expected parameters.
-   */
+  /** The number of expected parameters. */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 1;
 }

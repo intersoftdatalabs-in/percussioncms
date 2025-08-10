@@ -44,23 +44,22 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * An application that converts all applications, the system def, and the
- * shared def to point all components to the repository datasource.
+ * An application that converts all applications, the system def, and the shared def to point all
+ * components to the repository datasource.
  */
 public class PSDatasourceConverter {
   /**
    * Invokes this application, must be run from the Rhythmyx root directory.
    *
-   * @param args If called with no arguments, all applicable files are
-   * converted (see class Javadoc).  Otherwise expects one of the following:
-   * <ul>
-   * <li>-appsOnly - will convert only applications, will not convert the
-   * system or shared defs</li>
-   * <li>-appsOnly:<appName> - will convert only the specified application. No
-   * other files are modified.</li>
-   * <li>-h[elp] - will display the commandline help (arg is case-insenstive)
-   * </li>
-   * </ul>
+   * @param args If called with no arguments, all applicable files are converted (see class
+   *     Javadoc). Otherwise expects one of the following:
+   *     <ul>
+   *       <li>-appsOnly - will convert only applications, will not convert the system or shared
+   *           defs
+   *       <li>-appsOnly:<appName> - will convert only the specified application. No other files are
+   *           modified.
+   *       <li>-h[elp] - will display the commandline help (arg is case-insenstive)
+   *     </ul>
    */
   public static void main(String[] args) {
     boolean appsOnly = false;
@@ -94,14 +93,12 @@ public class PSDatasourceConverter {
   /**
    * Performs the requested conversion.
    *
-   * @param rxRoot May be <code>null</code> to use the current working
-   * directory, otherwise specifies the installation to convert.
-   * @param appsOnly <code>true</code> to convert only applications,
-   * <code>false</code> to also convert the system and shared defs.
-   * @param appName Used to specify a single application name. May be
-   * <code>null</code> or empty to convert all applications. Ignored if
-   * <code>appsOnly</code> is <code>false</code>.
-   *
+   * @param rxRoot May be <code>null</code> to use the current working directory, otherwise
+   *     specifies the installation to convert.
+   * @param appsOnly <code>true</code> to convert only applications, <code>false</code> to also
+   *     convert the system and shared defs.
+   * @param appName Used to specify a single application name. May be <code>null</code> or empty to
+   *     convert all applications. Ignored if <code>appsOnly</code> is <code>false</code>.
    * @throws Exception If there are any errors.
    */
   public void convert(File rxRoot, boolean appsOnly, String appName) throws Exception {
@@ -120,17 +117,12 @@ public class PSDatasourceConverter {
   }
 
   /**
-   * Converts either all applications, or the specified application if
-   * supplied.
+   * Converts either all applications, or the specified application if supplied.
    *
    * @param rxRoot The rx root directory, assumed not <code>null</code>.
-   * @param appName Name of single app to convert, <code>null</code> or empty
-   * to convert all apps.
-   *
-   * @throws PSUnknownNodeTypeException If there is a problem with an XML file
-   * format
-   * @throws PSUnknownDocTypeException If an Xml file does not contain the
-   * expected root.
+   * @param appName Name of single app to convert, <code>null</code> or empty to convert all apps.
+   * @throws PSUnknownNodeTypeException If there is a problem with an XML file format
+   * @throws PSUnknownDocTypeException If an Xml file does not contain the expected root.
    * @throws SAXException If the XML doc is malformed.
    * @throws IOException If there is an error reading from a file.
    */
@@ -172,11 +164,8 @@ public class PSDatasourceConverter {
    * Convert the system and shared defs.
    *
    * @param rxRoot The rx root dir, assumed not <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If there is a problem with an XML file
-   * format
-   * @throws PSUnknownDocTypeException If an Xml file does not contain the
-   * expected root.
+   * @throws PSUnknownNodeTypeException If there is a problem with an XML file format
+   * @throws PSUnknownDocTypeException If an Xml file does not contain the expected root.
    * @throws SAXException If the XML doc is malformed.
    * @throws IOException If there is an error reading from a file.
    */
@@ -205,9 +194,7 @@ public class PSDatasourceConverter {
   /**
    * Creates a Document from the supplied file.
    *
-   * @param file The file reference to the XML file, assumed not
-   * <code>null</code>.
-   *
+   * @param file The file reference to the XML file, assumed not <code>null</code>.
    * @return The document, never <code>null</code>.
    * @throws SAXException If the XML doc is malformed.
    * @throws IOException If there is an error reading from the file.
@@ -221,10 +208,8 @@ public class PSDatasourceConverter {
   /**
    * Saves the Xml doc to the specified file.
    *
-   * @param file The file to which the doc is saved, assumed not
-   * <code>null</code>.
+   * @param file The file to which the doc is saved, assumed not <code>null</code>.
    * @param doc The document to save, assumed not <code>null</code>.
-   *
    * @throws IOException If there is a problem writing to the file.
    */
   private void saveXmlFile(File file, Document doc) throws IOException {
@@ -236,9 +221,7 @@ public class PSDatasourceConverter {
   /**
    * Create the list of component converters to be used.
    *
-   * @param ctx The context to use when creating the converters, assumed not
-   * <code>null</code>.
-   *
+   * @param ctx The context to use when creating the converters, assumed not <code>null</code>.
    * @return The list, never <code>null</code>.
    */
   private List<IPSComponentConverter> getConverters(PSConfigurationCtx ctx) {
@@ -252,18 +235,15 @@ public class PSDatasourceConverter {
     return converters;
   }
 
-  /**
-   * Write the usage text to the log and exits the program.
-   */
+  /** Write the usage text to the log and exits the program. */
   private static void showUsageAndExit() {
     ms_log.warn("ConvertDatasources[.bat | .sh] [-appsOnly[:appname] -h[elp]]");
     System.exit(1);
   }
 
   /**
-   * This method makes sure that log4j is configured for use.  If no root
-   * logger is defined, configures one with a console appender and a rolling
-   * log file appender.
+   * This method makes sure that log4j is configured for use. If no root logger is defined,
+   * configures one with a console appender and a rolling log file appender.
    */
   private static void ensureLog4jConfiguration() {
     if (ms_rootLogger == null) {
@@ -292,11 +272,9 @@ public class PSDatasourceConverter {
   }
 
   /**
-   * This reference to a root logger is used for stand-alone uses of
-   * this class. Note that this is not used by this class, it only
-   * prevents gc from removing log4j from memory as long as this class
-   * is in memory. It also serves as a flag to indicate that log4j has
-   * been configured.
+   * This reference to a root logger is used for stand-alone uses of this class. Note that this is
+   * not used by this class, it only prevents gc from removing log4j from memory as long as this
+   * class is in memory. It also serves as a flag to indicate that log4j has been configured.
    */
   private static final Logger ms_rootLogger = null;
 
@@ -304,31 +282,25 @@ public class PSDatasourceConverter {
     ensureLog4jConfiguration();
   }
 
-  /**
-   * The logger to be used by this class, never <code>null</code>.
-   */
+  /** The logger to be used by this class, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSDatasourceConverter.class);
 
-  /**
-   * Constant for the appsOnly command line option.
-   */
+  /** Constant for the appsOnly command line option. */
   private static final String APP_ONLY = "appsOnly";
 
   /**
-   * Constant for the separator used to specify an app name with the
-   * {@link #APP_ONLY} command line option.
+   * Constant for the separator used to specify an app name with the {@link #APP_ONLY} command line
+   * option.
    */
   private static final String APP_SEP = ":";
 
-  /**
-   * Locator for conversion
-   */
+  /** Locator for conversion */
   public class PSFileLocator implements IPSConfigFileLocator {
     /**
      * Ctor to provide the rx root location
      *
-     * @param rxRoot The Rhythmyx root directory, may not be <code>null</code>
-     * and must be a valid directory.
+     * @param rxRoot The Rhythmyx root directory, may not be <code>null</code> and must be a valid
+     *     directory.
      */
     public PSFileLocator(File rxRoot) {
       if (rxRoot == null || !rxRoot.exists() || !rxRoot.isDirectory())
@@ -348,21 +320,19 @@ public class PSDatasourceConverter {
     }
 
     /**
-     * Home directory for the application server, relative to the rx root,
-     * ends with a trailing file separator.
+     * Home directory for the application server, relative to the rx root, ends with a trailing file
+     * separator.
      */
     private static final String APP_SERVER_HOME_DIR = "AppServer/server/rx/";
 
     /**
-     * Directory containing the spring configuration files, relative to the rx
-     * root, ends with a trailing file separator.
+     * Directory containing the spring configuration files, relative to the rx root, ends with a
+     * trailing file separator.
      */
     private static final String SPRING_DIR =
         APP_SERVER_HOME_DIR + "deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/";
 
-    /**
-     * The rx root dir, never <code>null</code> after ctor.
-     */
+    /** The rx root dir, never <code>null</code> after ctor. */
     private File m_rxRoot;
   }
 }

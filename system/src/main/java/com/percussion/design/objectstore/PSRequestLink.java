@@ -27,41 +27,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSRequestLink class is used to define a link between a result page
- * and a data set. E2 can be used to generate the appopriate URL links in
- * the result page.
- * <p>
- * When defining pages with relationships to other pages, E2 can be used
- * to dynamically generate the appropriate URL to access the desired
- * data set. For instance, one data set may return a list of orders.
- * From this result page, it may be desirable to get the order details.
- * By linking the order list result page to the order detail data tank,
- * E2 can automatically generate the appropriate URL to access a
- * specific order.
+ * The PSRequestLink class is used to define a link between a result page and a data set. E2 can be
+ * used to generate the appopriate URL links in the result page.
+ *
+ * <p>When defining pages with relationships to other pages, E2 can be used to dynamically generate
+ * the appropriate URL to access the desired data set. For instance, one data set may return a list
+ * of orders. From this result page, it may be desirable to get the order details. By linking the
+ * order list result page to the order detail data tank, E2 can automatically generate the
+ * appropriate URL to access a specific order.
  *
  * @see PSResultPage
  * @see PSResultPage#getRequestLinks
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestLink extends PSComponent implements IPSResults {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRequestLink(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -69,23 +58,21 @@ public class PSRequestLink extends PSComponent implements IPSResults {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSRequestLink() {
     super();
   }
 
   /**
-   * Construct a request link object used to perform a query. The type
-   * of link can be changed by using the appropriate setLinkTypeXXX method.
+   * Construct a request link object used to perform a query. The type of link can be changed by
+   * using the appropriate setLinkTypeXXX method.
    *
-   * @param   targetDataSet   the name of the data set to link to
-   * @see      #setLinkTypeQuery
-   * @see      #setLinkTypeInsert
-   * @see      #setLinkTypeUpdate
-   * @see      #setLinkTypeDelete
-   * @see      #setLinkTypeNone
+   * @param targetDataSet the name of the data set to link to
+   * @see #setLinkTypeQuery
+   * @see #setLinkTypeInsert
+   * @see #setLinkTypeUpdate
+   * @see #setLinkTypeDelete
+   * @see #setLinkTypeNone
    */
   public PSRequestLink(java.lang.String targetDataSet) throws PSIllegalArgumentException {
     super();
@@ -95,16 +82,14 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Is this link being used to generate query URLs?
    *
-   * @return      <code>true</code> if query URLs are being generated with
-   *             this link, <code>false</code> otherwise
+   * @return <code>true</code> if query URLs are being generated with this link, <code>false</code>
+   *     otherwise
    */
   public boolean isLinkTypeQuery() {
     return (RL_TYPE_QUERY == m_requestType);
   }
 
-  /**
-   * Set this link to generate query URLs.
-   */
+  /** Set this link to generate query URLs. */
   public void setLinkTypeQuery() {
     m_requestType = RL_TYPE_QUERY;
   }
@@ -112,16 +97,14 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Is this link being used to generate insert URLs?
    *
-   * @return      <code>true</code> if insert URLs are being generated with
-   *             this link, <code>false</code> otherwise
+   * @return <code>true</code> if insert URLs are being generated with this link, <code>false</code>
+   *     otherwise
    */
   public boolean isLinkTypeInsert() {
     return (RL_TYPE_INSERT == m_requestType);
   }
 
-  /**
-   * Set this link to generate insert URLs.
-   */
+  /** Set this link to generate insert URLs. */
   public void setLinkTypeInsert() {
     m_requestType = RL_TYPE_INSERT;
   }
@@ -129,16 +112,14 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Is this link being used to generate update URLs?
    *
-   * @return      <code>true</code> if update URLs are being generated with
-   *             this link, <code>false</code> otherwise
+   * @return <code>true</code> if update URLs are being generated with this link, <code>false</code>
+   *     otherwise
    */
   public boolean isLinkTypeUpdate() {
     return (RL_TYPE_UPDATE == m_requestType);
   }
 
-  /**
-   * Set this link to generate update URLs.
-   */
+  /** Set this link to generate update URLs. */
   public void setLinkTypeUpdate() {
     m_requestType = RL_TYPE_UPDATE;
   }
@@ -146,16 +127,14 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Is this link being used to generate delete URLs?
    *
-   * @return      <code>true</code> if delete URLs are being generated with
-   *             this link, <code>false</code> otherwise
+   * @return <code>true</code> if delete URLs are being generated with this link, <code>false</code>
+   *     otherwise
    */
   public boolean isLinkTypeDelete() {
     return (RL_TYPE_DELETE == m_requestType);
   }
 
-  /**
-   * Set this link to generate delete URLs.
-   */
+  /** Set this link to generate delete URLs. */
   public void setLinkTypeDelete() {
     m_requestType = RL_TYPE_DELETE;
   }
@@ -163,16 +142,14 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Is this link for information purposes only (not URL generation)?
    *
-   * @return      <code>true</code> if URLs are not being generated with
-   *             this link, <code>false</code> otherwise
+   * @return <code>true</code> if URLs are not being generated with this link, <code>false</code>
+   *     otherwise
    */
   public boolean isLinkTypeNone() {
     return (RL_TYPE_NONE == m_requestType);
   }
 
-  /**
-   * Disable the generation of URLs for this link.
-   */
+  /** Disable the generation of URLs for this link. */
   public void setLinkTypeNone() {
     m_requestType = RL_TYPE_NONE;
   }
@@ -180,7 +157,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Get the name of the data set to link to.
    *
-   * @return      the name of the data set to link to
+   * @return the name of the data set to link to
    */
   public java.lang.String getTargetDataSet() {
     return m_dataSet;
@@ -188,14 +165,13 @@ public class PSRequestLink extends PSComponent implements IPSResults {
 
   /**
    * Set the name of the data set to link to.
-   * <p>
-   * When the application is saved, the name of the data set will be
-   * checked to verify it exists in the same application as this link.
-   * Linking across applications is not supported at this time.
    *
-   * @param   name      the name of the data set to link to.
+   * <p>When the application is saved, the name of the data set will be checked to verify it exists
+   * in the same application as this link. Linking across applications is not supported at this
+   * time.
    *
-   * @exception   PSIllegalArgumentException   if name is null or empty
+   * @param name the name of the data set to link to.
+   * @exception PSIllegalArgumentException if name is null or empty
    */
   public void setTargetDataSet(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateTargetDataSet(name);
@@ -212,34 +188,30 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   }
 
   /**
-   * Get the fully qualified XML field name (element or attribute) which
-   * will be used to store the link. XML field names are separated with
-   * the forward slash character. For instance, the id element of the
-   * following XML data is "Product/lookupUrl":
-   * <p>
-   * <code><Product lookupUrl="http://myserver/myurl"/></code>
+   * Get the fully qualified XML field name (element or attribute) which will be used to store the
+   * link. XML field names are separated with the forward slash character. For instance, the id
+   * element of the following XML data is "Product/lookupUrl":
    *
-   * @return     the fully qualified XML field name (may be null)
+   * <p><code><Product lookupUrl="http://myserver/myurl"/></code>
+   *
+   * @return the fully qualified XML field name (may be null)
    */
   public java.lang.String getXmlField() {
     return m_xmlField;
   }
 
   /**
-   * Get the fully qualified XML field name (element or attribute) which
-   * will be used to store the link. XML field names are separated with
-   * the forward slash character. For instance, the id element of the
-   * following XML data is "Product/lookupUrl":
-   * <p>
-   * <code><Product lookupUrl="http://myserver/myurl"/></code>
-   * <P>
-   * This is limited to 255 characters.
+   * Get the fully qualified XML field name (element or attribute) which will be used to store the
+   * link. XML field names are separated with the forward slash character. For instance, the id
+   * element of the following XML data is "Product/lookupUrl":
    *
-   * @param name    the fully qualified XML field name. This may be null if
-   *                generating URLs is not desired.
+   * <p><code><Product lookupUrl="http://myserver/myurl"/></code>
    *
-   * @exception   PSIllegalArgumentException   if name exceeds the specified
-   *                                        size limit
+   * <p>This is limited to 255 characters.
+   *
+   * @param name the fully qualified XML field name. This may be null if generating URLs is not
+   *     desired.
+   * @exception PSIllegalArgumentException if name exceeds the specified size limit
    */
   public void setXmlField(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateXmlField(name);
@@ -260,10 +232,11 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXRequestLink XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXRequestLink XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXRequestLink is used to define a link between a result page
@@ -318,7 +291,7 @@ public class PSRequestLink extends PSComponent implements IPSResults {
    *    &lt;!ELEMENT xmlField         (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXRequestLink XML element node
+   * @return the newly created PSXRequestLink XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -345,9 +318,9 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Set whether or not this link should use http responses for redirection
    *
-   * @param useHttpResponseForRedirect   <code>true</code> indicates to use
-   * http responses for redirection <code>false</code> indicates to call the
-   * linked resource's app handler directly.
+   * @param useHttpResponseForRedirect <code>true</code> indicates to use http responses for
+   *     redirection <code>false</code> indicates to call the linked resource's app handler
+   *     directly.
    */
   public void setUseHttpResponseForRedirect(boolean useHttpResponseForRedirect) {
     m_useHttpResponseForRedirect = useHttpResponseForRedirect;
@@ -356,21 +329,18 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Does this link use http responses for redirection?
    *
-   * @return <code>true</code> indicates to use http responses for redirection,
-   * <code>false</code> indicates to call the linked resource's app handler
-   * directly.
+   * @return <code>true</code> indicates to use http responses for redirection, <code>false</code>
+   *     indicates to call the linked resource's app handler directly.
    */
   public boolean useHttpResponseForRedirection() {
     return m_useHttpResponseForRedirect;
   }
 
   /**
-   * This method is called to populate a PSRequestLink Java object
-   * from a PSXRequestLink XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSRequestLink Java object from a PSXRequestLink XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRequestLink
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRequestLink
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -426,18 +396,15 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -468,19 +435,17 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   /**
    * Return the request type.
    *
-   * @return      request type
+   * @return request type
    */
   public int getType() {
     return m_requestType;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param link a valid PSRequestLink.
-   *
    * @throws PSIllegalArgumentException if req is null
    */
   public void copyFrom(PSRequestLink link) throws PSIllegalArgumentException {
@@ -517,12 +482,11 @@ public class PSRequestLink extends PSComponent implements IPSResults {
   public static final int RL_TYPE_DELETE = 4;
 
   /**
-   * If this request link is used for redirection, should it use
-   * an http response to do the redirect?  <code>true</code> indicates
-   * that it should, <code>false</code> indicates to use the old
-   * Rhythmyx method of indirection (use the app handler directly).
+   * If this request link is used for redirection, should it use an http response to do the
+   * redirect? <code>true</code> indicates that it should, <code>false</code> indicates to use the
+   * old Rhythmyx method of indirection (use the app handler directly).
    *
-   * Set when fromXml() contstructor is called.  Default is <code>true</code>.
+   * <p>Set when fromXml() contstructor is called. Default is <code>true</code>.
    */
   private boolean m_useHttpResponseForRedirect = true;
 

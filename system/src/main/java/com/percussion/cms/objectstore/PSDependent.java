@@ -28,9 +28,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This object encapsulates a locator together with properties.
- */
+/** This object encapsulates a locator together with properties. */
 public class PSDependent extends PSCmsComponent {
   /**
    * Create a new dependent for the supplied relationship id and locator.
@@ -47,8 +45,7 @@ public class PSDependent extends PSCmsComponent {
    *
    * @param relationshipId the relationship id
    * @param locator the dependent locator, not <code>null</code>.
-   * @param properties the depedent properties, may be <code>null</code> or
-   *    empty.
+   * @param properties the depedent properties, may be <code>null</code> or empty.
    */
   public PSDependent(int relationshipId, PSLocator locator, PSPropertySet properties) {
     setRelationshipId(relationshipId);
@@ -71,8 +68,7 @@ public class PSDependent extends PSCmsComponent {
   }
 
   /**
-   * This is the name of the root element in the serialized version of this
-   * object.
+   * This is the name of the root element in the serialized version of this object.
    *
    * @return the root name, never <code>null</code> or empty.
    */
@@ -130,8 +126,7 @@ public class PSDependent extends PSCmsComponent {
   /**
    * Set the dependent properties.
    *
-   * @param properties the new dependent properties, may be <code>null</code>
-   *    or empty.
+   * @param properties the new dependent properties, may be <code>null</code> or empty.
    */
   public void setProperties(PSPropertySet properties) {
     if (properties == null) m_properties = new PSPropertySet();
@@ -139,11 +134,10 @@ public class PSDependent extends PSCmsComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the members. All
-   * members are compared for exact matches.
+   * Overrides the base class to compare each of the members. All members are compared for exact
+   * matches.
    *
-   * @return <code>true</code> if all members are equal, otherwise
-   *    <code>false</code> is returned.
+   * @return <code>true</code> if all members are equal, otherwise <code>false</code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSDependent)) return false;
@@ -158,8 +152,9 @@ public class PSDependent extends PSCmsComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following DTD:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following DTD:
+   *
    * <pre>
    * <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>
    * <ATTRIBUTE PSXDependent relationshipId>
@@ -181,6 +176,7 @@ public class PSDependent extends PSCmsComponent {
 
   /**
    * Constructs a new object from its XML representation. The DTD expected is:
+   *
    * <pre>
    * <!ELEMENT PSXDependent (PSXLocator, PSXPropertySet?)>
    * <ATTRIBUTE PSXDependent relationshipId>
@@ -218,21 +214,20 @@ public class PSDependent extends PSCmsComponent {
   }
 
   /**
-   * The dependent relationship id. Initialized in constructor, may be changed
-   * through {@link #setRelationshipId(int)}.
+   * The dependent relationship id. Initialized in constructor, may be changed through {@link
+   * #setRelationshipId(int)}.
    */
   private int m_relationshipId = -1;
 
   /**
-   * The dependent locator. Initialized in constructor. Never <code>null</code>
-   * after that, may be changed through {@link #setLocator(PSLocator)}.
+   * The dependent locator. Initialized in constructor. Never <code>null</code> after that, may be
+   * changed through {@link #setLocator(PSLocator)}.
    */
   private PSLocator m_locator = null;
 
   /**
-   * The dependent properties, Initialized in constructor, never
-   * <code>null</code> after that, may be empty. May be changed through
-   * {@link #setProperties(PSPropertySet)}.
+   * The dependent properties, Initialized in constructor, never <code>null</code> after that, may
+   * be empty. May be changed through {@link #setProperties(PSPropertySet)}.
    */
   private PSPropertySet m_properties = null;
 }

@@ -35,19 +35,15 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This upgrade plug-in will insert entries into the PSX_CONTENTTYPE_TEMPLATE
- * table based on the VARIANTID/CONTENTTYPEID values of the CONTENTVARIANTS
- * table.  The PSX_TEMPLATE table will be populated using the contents of the
- * CONTENTVARIANTS table. Orphaned data cleanup will also be performed on the
- * CONTENTVARIANTS table prior to the mapping insertion.  The CONTENTVARIANTS
- * table will be dropped.  It will also write to the log file showing table rows
- * that were inserted.
+ * This upgrade plug-in will insert entries into the PSX_CONTENTTYPE_TEMPLATE table based on the
+ * VARIANTID/CONTENTTYPEID values of the CONTENTVARIANTS table. The PSX_TEMPLATE table will be
+ * populated using the contents of the CONTENTVARIANTS table. Orphaned data cleanup will also be
+ * performed on the CONTENTVARIANTS table prior to the mapping insertion. The CONTENTVARIANTS table
+ * will be dropped. It will also write to the log file showing table rows that were inserted.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     log("Executing PSUpgradePluginPsxCTTemplate...");
@@ -108,9 +104,8 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * Inserts a new entry (VARIANTID/CONTENTTYPEID mapping) into the
-   * PSX_CONTENTTYPE_TEMPLATE table for each VARIANTID found in the
-   * CONTENTVARIANTS table.
+   * Inserts a new entry (VARIANTID/CONTENTTYPEID mapping) into the PSX_CONTENTTYPE_TEMPLATE table
+   * for each VARIANTID found in the CONTENTVARIANTS table.
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    * @return <code>true</code> if modifications were made.
@@ -178,8 +173,8 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * Performs orphan data cleanup on the CONTENTVARIANTS table.  Must be
-   * called before the <code>insertMappings</code> method.
+   * Performs orphan data cleanup on the CONTENTVARIANTS table. Must be called before the <code>
+   * insertMappings</code> method.
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    */
@@ -215,9 +210,8 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * Populates the PSX_TEMPLATE table with the data contained in the
-   * CONTENTVARIANTS table.  This new table takes the place of CONTENTVARIANTS,
-   * which will instead become a view.
+   * Populates the PSX_TEMPLATE table with the data contained in the CONTENTVARIANTS table. This new
+   * table takes the place of CONTENTVARIANTS, which will instead become a view.
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    */
@@ -326,9 +320,9 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * This will update the NAME column of the PSX_TEMPLATE table with the values
-   * of the LABEL column but with all whitespace and hyphens removed.
-   * Uses {@link InstallUtil} to do name cleanup.
+   * This will update the NAME column of the PSX_TEMPLATE table with the values of the LABEL column
+   * but with all whitespace and hyphens removed. Uses {@link InstallUtil} to do name cleanup.
+   *
    * @throws SQLException
    */
   private void updateNames(Connection conn) throws SQLException {
@@ -386,8 +380,8 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */
@@ -400,8 +394,7 @@ public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

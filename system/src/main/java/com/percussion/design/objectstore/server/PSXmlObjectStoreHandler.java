@@ -120,24 +120,24 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- * The PSXmlObjectStoreHandler class implements XML file object store
- * access for the IPSObjectStoreHandler interface. It allows the E2 server
- * to access the objects from the file system as XML files.
+ * The PSXmlObjectStoreHandler class implements XML file object store access for the
+ * IPSObjectStoreHandler interface. It allows the E2 server to access the objects from the file
+ * system as XML files.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSXmlObjectStoreHandler extends PSObjectFactory
     implements IPSObjectStoreHandler, IPSObjectStoreErrors, IPSValidateSession {
   /**
-   * Constructs a PSXmlObjectStore object, using the specified directory
-   * as the object store.
-   * <p>
-   * <em>NOTE:</em> Only the E2 server should perform this operation.
-   * <p>
-   * The following connection information should be provided:
+   * Constructs a PSXmlObjectStore object, using the specified directory as the object store.
+   *
+   * <p><em>NOTE:</em> Only the E2 server should perform this operation.
+   *
+   * <p>The following connection information should be provided:
+   *
    * <table border="1">
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>objectDirectory</td>
@@ -145,9 +145,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * </tr>
    * </table>
    *
-   * @param      connInfo                     the object store definition
-   *
-   *
+   * @param connInfo the object store definition
    * @todo: make all request root string public and reuse them.
    */
   public PSXmlObjectStoreHandler(java.util.Properties connInfo) {
@@ -168,13 +166,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Initializes the object store, returning all applications (both
-   * enabled and disabled) that are defined in the object store.
+   * Initializes the object store, returning all applications (both enabled and disabled) that are
+   * defined in the object store.
    *
-   * @return   PSApplication[]
-   *
-   * @throws   PSServerException
-   * @throws   PSAuthorizationException
+   * @return PSApplication[]
+   * @throws PSServerException
+   * @throws PSAuthorizationException
    */
   public synchronized PSApplication[] init() throws PSServerException, PSAuthorizationException {
     File lockDir = null;
@@ -452,7 +449,6 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * Creates the required component converters.
    *
    * @return The list of converters, never <code>null</code> or empty.
-   *
    * @throws PSServerException If there are any errors.
    */
   private List<IPSComponentConverter> createComponentConverters() throws PSServerException {
@@ -479,7 +475,6 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * Creates the required component updaters.
    *
    * @return The list of updaters, never <code>null</code> or empty.
-   *
    */
   private List<IPSComponentUpdater> createComponentUpdaters() {
     List<IPSComponentUpdater> updaters = new ArrayList<IPSComponentUpdater>();
@@ -597,10 +592,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Add a listener for changes to application objects.
    *
-   * @param listener     the listener object
-   *
-   * @throws PSAuthorizationException if the user is not permitted to
-   *                                       listen for the specified events
+   * @param listener the listener object
+   * @throws PSAuthorizationException if the user is not permitted to listen for the specified
+   *     events
    */
   public void addApplicationListener(IPSApplicationListener listener)
       throws PSAuthorizationException {
@@ -610,7 +604,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Remove a previously installed application event listener.
    *
-   * @param listener     the listener object
+   * @param listener the listener object
    */
   public void removeApplicationListener(IPSApplicationListener listener) {
     m_AppListenerVector.remove(listener);
@@ -619,10 +613,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Add a listener for changes to server objects.
    *
-   * @param  listener    the listener object
-   *
-   * @throws   PSAuthorizationException   if the user is not permitted to
-   *                                             listen for the specified events
+   * @param listener the listener object
+   * @throws PSAuthorizationException if the user is not permitted to listen for the specified
+   *     events
    */
   public void addServerListener(IPSServerConfigurationListener listener)
       throws PSAuthorizationException {
@@ -632,45 +625,29 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Remove a previously installed server event listener.
    *
-   * @param listener     the listener object
+   * @param listener the listener object
    */
   public void removeServerListener(IPSServerConfigurationListener listener) {
     m_SrvListenerVector.remove(listener);
   }
 
   /**
-   * Extend the write lock on an application. Write locks are granted for a
-   * maximum of 30 minutes. If the designer needs more time to complete the
-   * task, an additional 30 minute extension can be requested.
+   * Extend the write lock on an application. Write locks are granted for a maximum of 30 minutes.
+   * If the designer needs more time to complete the task, an additional 30 minute extension can be
+   * requested.
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException      if the user is not permitted to
-   *                                          create applications on the
-   *                                          server
-   *
-   * @throws PSLockedException            if another user has acquired the
-   *                                          application lock. This usually
-   *                                          occurs if the application was
-   *                                          not previously locked or the
-   *                                          lock was lost due to a timeout.
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @throws   PSNotFoundException         if an application be that name
-   *                                          does not exist
-   *
-   * @see         com.percussion.design.objectstore.PSApplication
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if the user is not permitted to create applications on the
+   *     server
+   * @throws PSLockedException if another user has acquired the application lock. This usually
+   *     occurs if the application was not previously locked or the lock was lost due to a timeout.
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @throws PSNotFoundException if an application be that name does not exist
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public Document extendApplicationLock(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -731,36 +708,21 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Constructs an application object for the specified application. The
-   * application is loaded from the object store when this method is called.
-   * If the application is being loaded for editing, be sure to lock the
-   * application.
+   * Constructs an application object for the specified application. The application is loaded from
+   * the object store when this method is called. If the application is being loaded for editing, be
+   * sure to lock the application.
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws   PSServerException            if the server is not responding
-   *
-   * @throws   PSAuthorizationException   if user does not have designer
-   *                                          access to the application
-   *
-   * @throws   PSLockedException            if <CODE>mode</CODE> is <code>edit</code>
-   *                                          but another user already has the
-   *                                          application locked
-   *
-   * @throws   PSNotFoundException         if an application be that name
-   *                                          does not exist
-   *
-   * @throws   PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSApplication
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have designer access to the application
+   * @throws PSLockedException if <CODE>mode</CODE> is <code>edit</code> but another user already
+   *     has the application locked
+   * @throws PSNotFoundException if an application be that name does not exist
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public Document getApplication(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -837,10 +799,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Creates an enumeration containing the requested properties of each
-   * application for which the user has designer access.
-   * <p>
-   * The application properties which can be retrieved are:
+   * Creates an enumeration containing the requested properties of each application for which the
+   * user has designer access.
+   *
+   * <p>The application properties which can be retrieved are:
+   *
    * <table border="1">
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>name</td>
@@ -869,19 +832,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * </tr>
    * </table>
    *
-   * @param      inDoc                           the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
    */
   public Document getApplicationSummaries(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -1004,8 +960,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get the list of files below an application's root directory.
    *
-   * @param inDoc The document containing the request.  The expected format is:
-   * <pre><code>
+   * @param inDoc The document containing the request. The expected format is:
+   *     <pre><code>
    * &lt;ELEMENT PSXDesignAppListFiles (EMPTY)>
    * &lt;ATTLIST PSXDesignAppListFiles
    *    appRoot CDATA #REQUIRED
@@ -1015,9 +971,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * </code></pre>
    *
    * @param req The current request object, may not be <code>null</code>.
-   *
-   * @return The response doc.  Format is either an error response or:
-   * <pre><code>
+   * @return The response doc. Format is either an error response or:
+   *     <pre><code>
    * &lt;ELEMENT PSXDesignAppListFilesResults (PSXApplicationFile*)>
    * &lt;ELEMENT PSXApplicationFile (EMPTY)>
    * &lt;ATTLIST PSXApplicationFile
@@ -1073,30 +1028,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Remove the specified application from the object store. This
-   * permanently deletes the application, which cannot be recovered.
+   * Remove the specified application from the object store. This permanently deletes the
+   * application, which cannot be recovered.
    *
-   * @param      inDoc                           the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if the user does not have delete
-   *                                          access to the application
-   *
-   * @throws PSLockedException            if another user has the
-   *                                          application locked
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSApplication
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if the user does not have delete access to the application
+   * @throws PSLockedException if another user has the application locked
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public Document removeApplication(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -1146,37 +1089,20 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Rename the specified application defined in this object store. If the
-   * current app name and app root are the same, the app root will also be
-   * renamed to match the new app name
+   * Rename the specified application defined in this object store. If the current app name and app
+   * root are the same, the app root will also be renamed to match the new app name
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if user does not have update
-   *                                          access to the application
-   *
-   * @throws PSLockedException            if another user has the
-   *                                          application locked
-   *
-   * @throws PSNonUniqueException         if an application with the new
-   *                                          name already exists
-   *
-   * @throws PSNotFoundException         if an application with the old
-   *                                          name does not exist
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSApplication
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have update access to the application
+   * @throws PSLockedException if another user has the application locked
+   * @throws PSNonUniqueException if an application with the new name already exists
+   * @throws PSNotFoundException if an application with the old name does not exist
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public Document renameApplication(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -1249,20 +1175,19 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Gets the content editor system definition document. Delegates to <code>
    * PSServerXmlObjectStore</code>
-   * <p>Format of the request:
-   * <code><pre>
+   *
+   * <p>Format of the request: <code><pre>
    * &lt;PSXContentEditorSystemDefinitionLoad>
    * &lt;/PSXContentEditorSystemDefinitionLoad>
    * </pre></code>
+   *
    * @author James Schultz
-   * @param inDoc XML document containing the request data; cannot be
-   * <code>null</code>.
-   * @param req the request context, used for maintaining statistics;
-   * cannot be <code>null</code>.
-   * @return a valid Document, either an error or the content editor
-   * definition, never <code>null</code>.
-   * @throws PSUnknownDocTypeException  if inDoc is <code>null</code> or does
-   * not contain the appropriate format for this request type
+   * @param inDoc XML document containing the request data; cannot be <code>null</code>.
+   * @param req the request context, used for maintaining statistics; cannot be <code>null</code>.
+   * @return a valid Document, either an error or the content editor definition, never <code>null
+   *     </code>.
+   * @throws PSUnknownDocTypeException if inDoc is <code>null</code> or does not contain the
+   *     appropriate format for this request type
    * @see PSServerXmlObjectStore#getContentEditorSystemDef
    */
   public Document getContentEditorSystemDef(Document inDoc, PSRequest req)
@@ -1293,19 +1218,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Gets the content editor shared definition document. Delegates to <code>
    * PSServerXmlObjectStore</code>
-   * <p>Format of the request:
-   * <code><pre>
+   *
+   * <p>Format of the request: <code><pre>
    * &lt;PSXContentEditorSharedDefinitionLoad />
    * </pre></code>
+   *
    * @author James Schultz
-   * @param inDoc XML document containing the request data; cannot be
-   * <code>null</code>.
-   * @param req the request context, used for maintaining statistics;
-   * cannot be <code>null</code>.
-   * @return a valid Document, either an error or the shared content editor
-   * definition, never <code>null</code>.
-   * @throws PSUnknownDocTypeException  if inDoc is <code>null</code> or does
-   * not contain the appropriate format for this request type
+   * @param inDoc XML document containing the request data; cannot be <code>null</code>.
+   * @param req the request context, used for maintaining statistics; cannot be <code>null</code>.
+   * @return a valid Document, either an error or the shared content editor definition, never <code>
+   *     null</code>.
+   * @throws PSUnknownDocTypeException if inDoc is <code>null</code> or does not contain the
+   *     appropriate format for this request type
    * @see PSServerXmlObjectStore#getContentEditorSharedDef()
    */
   public Document getContentEditorSharedDef(Document inDoc, PSRequest req)
@@ -1370,30 +1294,24 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Uses the table factory to create and modify database tables based on
-   * the PSTableLocator and PSTableDefintion objects included in the request.
-   * It is an error to try to create a table with existing table name unlike
-   * the table factory.
-   * <p>
-   * Format of the request:
-   * <code><pre>
+   * Uses the table factory to create and modify database tables based on the PSTableLocator and
+   * PSTableDefintion objects included in the request. It is an error to try to create a table with
+   * existing table name unlike the table factory.
+   *
+   * <p>Format of the request: <code><pre>
    * &lt;PSXDesignTableDefinitionsSave>
    *    &lt;PSXTableLocator>...&lt;/PSXTableLocator>
    *    &lt;tables>
    *       &lt;table>...&lt;/table>
    *    &lt;/tables>
    * &lt;/PSXDesignTableDefinitionsSave>
-   * </pre></code>
-   * Format of the result document:
-   * <br>
-   * In case of exception during authorization or connecting to database
-   * <code><pre>
+   * </pre></code> Format of the result document: <br>
+   * In case of exception during authorization or connecting to database <code><pre>
    * &lt;PSXDesignTableDefinitionsSaveResults>
    *    &lt;error>error message&lt;/error>
    * &lt;/PSXDesignTableDefinitionsSaveResults>
-   * </pre></code>
-   * If we didn't get any exception the dtd of result document is:
-   * <br>
+   * </pre></code> If we didn't get any exception the dtd of result document is: <br>
+   *
    * <pre><code>
    *  &lt;!--
    *    Either 'success' or 'error' element for each table schema processed.
@@ -1410,16 +1328,13 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *       tableName CDATA #REQUIRED
    *       create(y|n) "y" &gt;
    * </code></pre>
-   * @author James Schultz
-   * @param inDoc XML document containing the request data; cannot be
-   * <code>null</code>.
-   * @param req the request context, used for checking security access;
-   * cannot be <code>null</code>.
-   * @return Either an error document or a success document, never
-   * <code>null</code>.
    *
-   * @throws PSUnknownDocTypeException  if inDoc is <code>null</code> or does
-   * not contain the appropriate format for this request type
+   * @author James Schultz
+   * @param inDoc XML document containing the request data; cannot be <code>null</code>.
+   * @param req the request context, used for checking security access; cannot be <code>null</code>.
+   * @return Either an error document or a success document, never <code>null</code>.
+   * @throws PSUnknownDocTypeException if inDoc is <code>null</code> or does not contain the
+   *     appropriate format for this request type
    */
   public Document saveTableDefinitions(Document inDoc, PSRequest req)
       throws PSUnknownDocTypeException {
@@ -1566,15 +1481,13 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Handles the exception by setting failure to request statistics and adds
-   * a new 'error' element with exception message as it's value to the document
-   * with specified root.
+   * Handles the exception by setting failure to request statistics and adds a new 'error' element
+   * with exception message as it's value to the document with specified root.
    *
    * @param req the request object, assumed not to be <code>null</code>
-   * @param doc the document to which error should be added, assumed not to be
-   * <code>null</code>
-   * @param root the root element to which the error element should be added,
-   * assumed not to be <code>null</code>
+   * @param doc the document to which error should be added, assumed not to be <code>null</code>
+   * @param root the root element to which the error element should be added, assumed not to be
+   *     <code>null</code>
    * @param e the exception, assumed not to be <code>null</code>
    */
   private void handleException(PSRequest req, Document doc, Element root, Exception e) {
@@ -1585,8 +1498,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Checks that <code>inDoc</code> is not null or empty, and contains the
-   * specified root element.
+   * Checks that <code>inDoc</code> is not null or empty, and contains the specified root element.
    *
    * @param inDoc object to be validated
    * @param rootElement name of the expected root element of <code>inDoc</code>
@@ -1605,50 +1517,27 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Saves the specified application to the object store. If the application
-   * was newly created, or it references a different object store, it will
-   * be created in this object store. If the application represents an
-   * existing application in this object store, it will be updated. This
+   * Saves the specified application to the object store. If the application was newly created, or
+   * it references a different object store, it will be created in this object store. If the
+   * application represents an existing application in this object store, it will be updated. This
    * behavior can also be overriden by using the createNewApp parameter.
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          application data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if creating a new application,
-   *                                          the user does not have create
-   *                                          access on the server. If
-   *                                          updating an existing
-   *                                          application, the user does not
-   *                                          have update access on the
-   *                                          application.
-   *
-   * @throws PSNotLockedException         when updating an existing
-   *                                          application and a lock is not
-   *                                          currently held (the timeout
-   *                                          already expired or
-   *                                          getApplication was not used
-   *                                          to lock the application)
-   *
-   * @throws PSNonUniqueException         if creating an application and
-   *                                          an application by the same name
-   *                                          already exists
-   *
-   * @throws PSSystemValidationException         if validate is <code>true</code>
-   *                                          and a validation error is
-   *                                          encountered
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSApplication
+   * @param inDoc the XML document containing the application data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if creating a new application, the user does not have create
+   *     access on the server. If updating an existing application, the user does not have update
+   *     access on the application.
+   * @throws PSNotLockedException when updating an existing application and a lock is not currently
+   *     held (the timeout already expired or getApplication was not used to lock the application)
+   * @throws PSNonUniqueException if creating an application and an application by the same name
+   *     already exists
+   * @throws PSSystemValidationException if validate is <code>true</code> and a validation error is
+   *     encountered
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public Document saveApplication(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -1952,28 +1841,17 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Loads the previously saved user configuration object for the specified
-   * user. If configuration information does not exist on the server,
-   * an empty object will be returned.
+   * Loads the previously saved user configuration object for the specified user. If configuration
+   * information does not exist on the server, an empty object will be returned.
    *
-   * @param      inDoc                           the XML document containing the
-   *                                          user configuration data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if user does not have designer
-   *                                          access to the server
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSUserConfiguration
+   * @param inDoc the XML document containing the user configuration data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have designer access to the server
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSUserConfiguration
    */
   public Document getUserConfiguration(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2035,10 +1913,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Loads the rx configuration object for the specified name in the request
-   * document. If the request is for editing, an attempt will be made to
-   * acquire the config lock. Expects the request document in the following
-   * format:
+   * Loads the rx configuration object for the specified name in the request document. If the
+   * request is for editing, an attempt will be made to acquire the config lock. Expects the request
+   * document in the following format:
+   *
    * <pre><code>
    * &lt;ELEMENT PSXDesignRxConfigLoad (EMPTY)>
    * &lt;ATTLIST PSXDesignerRxConfigLoad
@@ -2048,18 +1926,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *    overrideDifferentUser (yes|no) "no" >
    * </code></pre>
    *
-   * @param inDoc the xml document describing the request, may not be
-   * <code>null</code>
-   * @param req the request context to check for security, may not be
-   * <code>null</code>
-   *
-   * @return the document that describes the configuration as defined in
-   * {@link com.percussion.design.objectstore.PSConfig#toXml(Document)} if the
-   * request is successful, otherwise an error document. The error document
-   * represents the exception in xml format.
-   *
-   * @throws PSUnknownDocTypeException if the document is not a recognised
-   * document for the request.
+   * @param inDoc the xml document describing the request, may not be <code>null</code>
+   * @param req the request context to check for security, may not be <code>null</code>
+   * @return the document that describes the configuration as defined in {@link
+   *     com.percussion.design.objectstore.PSConfig#toXml(Document)} if the request is successful,
+   *     otherwise an error document. The error document represents the exception in xml format.
+   * @throws PSUnknownDocTypeException if the document is not a recognised document for the request.
    */
   public Document getRxConfiguration(Document inDoc, PSRequest req)
       throws PSUnknownDocTypeException {
@@ -2091,8 +1963,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Saves/Updates previously locked configuration that is specified in the
-   * request document or updates the lock state alone.
+   * Saves/Updates previously locked configuration that is specified in the request document or
+   * updates the lock state alone.
+   *
    * <pre><code>
    * &lt;ELEMENT PSXDesignRxConfigSave (CONFIGURATION?)>
    * &lt;ATTLIST PSXDesignRxConfigSave
@@ -2101,20 +1974,14 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    * &lt;ELEMENT CONFIGURATION (#PCDATA)>
    * </code></pre>
    *
-   * @param inDoc the XML document containing the save request, may not be
-   * <code>null</code>.
+   * @param inDoc the XML document containing the save request, may not be <code>null</code>.
    * @param req the request context for security, may not be <code>null</code>.
-   *
-   * @return the success document if the request is succeeded, otherwise an
-   * error document, never <code>null</code>. The xml format of the success
-   * document is:
-   * <pre><code>
+   * @return the success document if the request is succeeded, otherwise an error document, never
+   *     <code>null</code>. The xml format of the success document is:
+   *     <pre><code>
    * &lt;ELEMENT PSXDesignRxConfigSaveResults>
-   * </pre></code>
-   * The error document represents the exception in xml format.
-   *
-   * @throws PSUnknownDocTypeException if the document is not a recognised
-   * document for the request.
+   * </pre></code> The error document represents the exception in xml format.
+   * @throws PSUnknownDocTypeException if the document is not a recognised document for the request.
    */
   public Document saveRxConfiguration(Document inDoc, PSRequest req)
       throws PSUnknownDocTypeException {
@@ -2149,30 +2016,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Load the character encoding map from the installation root directory and
-   * return the xml document.
+   * Load the character encoding map from the installation root directory and return the xml
+   * document.
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          character encoding data
-   *
-   * @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if user does not have designer
-   *                                          access to the server
-   *
-   * @throws PSAuthenticationFailedException if the user is not
-   *                                            authenticated to perform this
-   *                                            command
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
+   * @param inDoc the XML document containing the character encoding data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have designer access to the server
+   * @throws PSAuthenticationFailedException if the user is not authenticated to perform this
+   *     command
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
    * @throws PSNotFoundException the character encoding map does not exist.
    */
   public Document getCharacterSetMap(Document inDoc, PSRequest req)
@@ -2209,32 +2064,19 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Remove the user configuration information for the specified user.
-   * This permanently deletes all the user configuration information,
-   * which cannot be recovered.
+   * Remove the user configuration information for the specified user. This permanently deletes all
+   * the user configuration information, which cannot be recovered.
    *
-   * @param      inDoc                           the XML document containing the
-   *                                          user configuration data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if user does not have designer
-   *                                          access to the server
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @throws PSNotFoundException         if user configuration
-   *                                          information does not exist for
-   *                                          the specified user
-   *
-   * @see         com.percussion.design.objectstore.PSUserConfiguration
+   * @param inDoc the XML document containing the user configuration data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have designer access to the server
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @throws PSNotFoundException if user configuration information does not exist for the specified
+   *     user
+   * @see com.percussion.design.objectstore.PSUserConfiguration
    */
   public Document removeUserConfiguration(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2288,27 +2130,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Saves the user configuration information for the specified user
-   * to the object store.
+   * Saves the user configuration information for the specified user to the object store.
    *
-   * @param      inDoc                        the XML document containing the
-   *                                          user configuration data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if user does not have designer
-   *                                          access to the server
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSUserConfiguration
+   * @param inDoc the XML document containing the user configuration data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if user does not have designer access to the server
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSUserConfiguration
    */
   public Document saveUserConfiguration(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2355,24 +2186,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Loads the server configuration object for this server. If the request
-   * is for editing, an attempt will be made to acquire the config lock.
+   * Loads the server configuration object for this server. If the request is for editing, an
+   * attempt will be made to acquire the config lock.
    *
    * @param inDoc The xml document containing the request. Never <code>null
    *    </code>.
-   *
    * @param req the request context (for security). Never <code>null</code>.
-   *
-   * @return An XML response document containing either the serialized
-   *    configuration object, or an error document. Never <code>null</code>.
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *    appropriate format for this request type or the input document is
-   *    <code>null</code>.
-   *
-   * @see         com.percussion.design.objectstore.PSServerConfiguration
+   * @return An XML response document containing either the serialized configuration object, or an
+   *     error document. Never <code>null</code>.
+   * @throws PSServerException if the server is not responding
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type or the input document is <code>null</code>.
+   * @see com.percussion.design.objectstore.PSServerConfiguration
    */
   public Document getServerConfiguration(Document inDoc, PSRequest req)
       throws PSServerException, PSUnknownDocTypeException {
@@ -2478,17 +2303,14 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Saves a previously locked role set to persistent storage. Any changes
-   * after successful completion will take effect either immediately or after
-   * the user session times out.
+   * Saves a previously locked role set to persistent storage. Any changes after successful
+   * completion will take effect either immediately or after the user session times out.
    *
-   * @param inDoc The XML document containing the save request. The root
-   *    element must be PSXDesignServerRoleSave. Never <code>null</code>.
-   *
+   * @param inDoc The XML document containing the save request. The root element must be
+   *     PSXDesignServerRoleSave. Never <code>null</code>.
    * @param req The context of the request, never <code>null</code>.
-   *
    * @return Either an error document or a success document (root will be
-   *    PSXDesignServerRolesSaveResults), never <code>null</code>.
+   *     PSXDesignServerRolesSaveResults), never <code>null</code>.
    */
   public Document saveRoleConfiguration(Document inDoc, PSRequest req) {
     if (null == inDoc || null == req) throw new IllegalArgumentException("params can't be null");
@@ -2548,35 +2370,21 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Extend the write lock on a server configuration. Write locks are granted for a
-   * maximum of 30 minutes. If the administrator needs more time to complete the
-   * task, an additional 30 minute extension can be requested.
+   * Extend the write lock on a server configuration. Write locks are granted for a maximum of 30
+   * minutes. If the administrator needs more time to complete the task, an additional 30 minute
+   * extension can be requested.
    *
-   * @param      inDoc                           the XML document containing the
-   *                                          server config data
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
-   * @return                                 the XML response document
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if the user is not permitted to
-   *                                          create applications on the
-   *                                          server
-   *
-   * @throws PSLockedException            if another user has acquired the
-   *                                          application lock. This usually
-   *                                          occurs if the application was
-   *                                          not previously locked or the
-   *                                          lock was lost due to a timeout.
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                          appropriate format for this
-   *                                          request type
-   *
-   * @see         com.percussion.design.objectstore.PSServerConfiguration
+   * @param inDoc the XML document containing the server config data
+   * @param req the request context (for security)
+   * @return the XML response document
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if the user is not permitted to create applications on the
+   *     server
+   * @throws PSLockedException if another user has acquired the application lock. This usually
+   *     occurs if the application was not previously locked or the lock was lost due to a timeout.
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSServerConfiguration
    */
   public Document extendServerConfigurationLock(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2635,26 +2443,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Saves the specified application file to the object store.
    *
-   * @param inDoc The XML document containing the application file
-   * data.  May not be <code>null</code>.
-   *
-   * @param req the request context (for security), may not be
-   * <code>null</code>.
-   *
+   * @param inDoc The XML document containing the application file data. May not be <code>null
+   *     </code>.
+   * @param req the request context (for security), may not be <code>null</code>.
    * @return The XML response document, never <code>null</code>.
-   *
    * @throws PSServerException if the server is not responding
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSAuthorizationException If the user is not authorized to perform
-   * this action.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSAuthorizationException If the user is not authorized to perform this action.
    * @throws PSNotLockedException if the application cannot be locked.
-   * @throws PSUnknownDocTypeException  if doc is <code>null</code> or does not
-   * contain the appropriate format for this request type
-   * @throws PSNotFoundException if the application could not be
-   * found.
-   *
-   * @see       com.percussion.design.objectstore.PSApplicationFile
+   * @throws PSUnknownDocTypeException if doc is <code>null</code> or does not contain the
+   *     appropriate format for this request type
+   * @throws PSNotFoundException if the application could not be found.
+   * @see com.percussion.design.objectstore.PSApplicationFile
    */
   public Document saveApplicationFile(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2775,26 +2575,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Loads the specified application file from the object store.
    *
-   * @param inDoc The XML document containing the application file
-   * data.  May not be <code>null</code>.
-   *
-   * @param req the request context (for security), may not be
-   * <code>null</code>.
-   *
+   * @param inDoc The XML document containing the application file data. May not be <code>null
+   *     </code>.
+   * @param req the request context (for security), may not be <code>null</code>.
    * @return The XML response document, never <code>null</code>.
-   *
    * @throws PSServerException if the server is not responding
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSAuthorizationException If the user is not authorized to perform
-   * this action.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSAuthorizationException If the user is not authorized to perform this action.
    * @throws PSNotLockedException if the application cannot be locked.
-   * @throws PSUnknownDocTypeException  if doc is <code>null</code> or does not
-   * contain the appropriate format for this request type
-   * @throws PSNotFoundException if the application could not be
-   * found.
-   *
-   * @see       com.percussion.design.objectstore.PSApplicationFile
+   * @throws PSUnknownDocTypeException if doc is <code>null</code> or does not contain the
+   *     appropriate format for this request type
+   * @throws PSNotFoundException if the application could not be found.
+   * @see com.percussion.design.objectstore.PSApplicationFile
    */
   public Document loadApplicationFile(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -2879,28 +2671,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Removes the specified application file from the object store.
    *
-   * @param inDoc The XML document containing the application file
-   * data.
-   *
-   *   @param      req                        the request context
-   *                                          (for security)
-   *
+   * @param inDoc The XML document containing the application file data.
+   * @param req the request context (for security)
    * @return The XML response document
-   *
-   * @throws PSServerException          if the server is not responding
-   *
+   * @throws PSServerException if the server is not responding
    * @throws PSAuthorizationException
-   *
    * @throws PSNotLockedException
-   *
-   * @throws PSNotFoundException if the application could not be
-   * found
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                 appropriate format for this
-   *                                 request type
-   *
-   * @see       com.percussion.design.objectstore.PSApplicationFile
+   * @throws PSNotFoundException if the application could not be found
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
+   * @see com.percussion.design.objectstore.PSApplicationFile
    */
   public Document removeApplicationFile(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -3037,29 +2817,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Renames the specified application file to the new name specified
-   * if the file name is not already in use.
+   * Renames the specified application file to the new name specified if the file name is not
+   * already in use.
    *
-   * @param inDoc The XML document containing the application file
-   * data.
-   *
+   * @param inDoc The XML document containing the application file data.
    * @param req the request context (for security)
-   *
    * @return The XML response document
-   *
    * @throws PSServerException if the server is not responding
-   *
    * @throws PSAuthorizationException if user is not authorized for operation
-   *
-   * @throws PSNotLockedException if the application is not or could not be
-   * locked.
-   *
-   * @throws PSNotFoundException if the application could not be
-   * found
-   *
-   * @throws PSUnknownDocTypeException   if doc does not contain the
-   *                                 appropriate format for this
-   *                                 request type
+   * @throws PSNotLockedException if the application is not or could not be locked.
+   * @throws PSNotFoundException if the application could not be found
+   * @throws PSUnknownDocTypeException if doc does not contain the appropriate format for this
+   *     request type
    */
   public Document renameApplicationFile(Document inDoc, PSRequest req)
       throws PSServerException,
@@ -3163,8 +2932,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Composes absolute file name using application name and file relative to
-   * application directory.
+   * Composes absolute file name using application name and file relative to application directory.
    */
   private File getAbsoluteFileName(final String appName, final PSApplicationFile appFile)
       throws PSNotFoundException, PSServerException {
@@ -3175,6 +2943,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Gets next application file from the provided tree.
+   *
    * @param walker the tree to search.
    */
   private PSApplicationFile getNextApplicationFile(PSXmlTreeWalker walker)
@@ -3191,6 +2960,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Retrieves application name from provided attribute.
+   *
    * @throws PSUnknownDocTypeException if nothing was found in the attribute.
    */
   private String getAppNameFromAttribute(Element root, String attributeName)
@@ -3203,9 +2973,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     return appName;
   }
 
-  /**
-   * Returns application directory for the given application name.
-   */
+  /** Returns application directory for the given application name. */
   private File getApplicationDirectory(String appName)
       throws PSNotFoundException, PSServerException {
     // we assume the request root is the application directory
@@ -3223,6 +2991,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Gives application summary for the provided application name.
+   *
    * @throws PSNotFoundException if the summary is not found
    * @throws PSServerException on server error
    */
@@ -3248,7 +3017,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get the request processing statistics for this object store.
    *
-   * @return      the statistics
+   * @return the statistics
    */
   public PSObjectStoreStatistics getStatistics() {
     return m_statistics;
@@ -3257,11 +3026,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the request using the input context information and data.
-   * The results must be written to the specified output stream.
+   * Process the request using the input context information and data. The results must be written
+   * to the specified output stream.
    *
-   * @param   request      the request object containing all context
-   *                        data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     /* mark that we have a pending event we're working on */
@@ -3342,29 +3110,21 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     // we have nothing to shutdown currently
   }
 
   /**
-   * Constructs an application object for the specified application. The
-   * application is loaded from the object store when this method is called.
-   * If the application is being loaded for editing, be sure to lock the
-   * application.
+   * Constructs an application object for the specified application. The application is loaded from
+   * the object store when this method is called. If the application is being loaded for editing, be
+   * sure to lock the application.
    *
    * @param app the name of the application
-   *
    * @return the application object
-   *
-   * @throws PSNotFoundException if an application be that name
-   * does not exist
-   *
-   * @throws PSServerException   for any other errors encountered
-   *
-   * @see   com.percussion.design.objectstore.PSApplication
+   * @throws PSNotFoundException if an application be that name does not exist
+   * @throws PSServerException for any other errors encountered
+   * @see com.percussion.design.objectstore.PSApplication
    */
   public PSApplication getApplicationObject(String app)
       throws PSServerException, PSNotFoundException {
@@ -3385,7 +3145,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Gets the server configuration object for this server.
    *
-   * @throws PSServerException   if the server is not responding
+   * @throws PSServerException if the server is not responding
    */
   public PSServerConfiguration getServerConfigurationObject() throws PSServerException {
     Document doc = loadServerConfig();
@@ -3401,18 +3161,14 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Loads the role configuration object for this server. If the request
-   * is for editing, an attempt will be made to acquire the config lock.
+   * Loads the role configuration object for this server. If the request is for editing, an attempt
+   * will be made to acquire the config lock.
    *
-   * @param inDoc The xml document containing a description of the request.
-   *    Throws exception if <code>null</code>.
-   *
-   * @param req The request context (for security). Throws exception if
-   *    <code>null</code>.
-   *
-   * @return The role configuration object in its XML format, or an error
-   *    document if a problem occurs trying to create the config.
-   *
+   * @param inDoc The xml document containing a description of the request. Throws exception if
+   *     <code>null</code>.
+   * @param req The request context (for security). Throws exception if <code>null</code>.
+   * @return The role configuration object in its XML format, or an error document if a problem
+   *     occurs trying to create the config.
    * @see com.percussion.design.objectstore.PSRoleConfiguration
    */
   public Document getRoleConfiguration(Document inDoc, PSRequest req) {
@@ -3481,16 +3237,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get all the applications defined in the object store.
    *
-   * @param      enabledOnly                  <code>true</code> to return
-   *                                          only enabled applications
-   *
-   * @return                                 an array of PSApplication
-   *                                          objects
-   *
-   * @throws PSServerException            if the server is not responding
-   *
-   * @throws PSAuthorizationException    if the user does not have design
-   *                                          access to the server
+   * @param enabledOnly <code>true</code> to return only enabled applications
+   * @return an array of PSApplication objects
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if the user does not have design access to the server
    */
   public PSApplication[] getApplicationObjects(boolean enabledOnly)
       throws PSServerException, PSAuthorizationException {
@@ -3534,17 +3284,13 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Creates an array of application summary objects. If the user has
-   * read access to the application, or is a server administrator, they
-   * will be shown the application in the summaries. However, an attempt
-   * to access the design of an application they are not readers on will
-   * fail.
+   * Creates an array of application summary objects. If the user has read access to the
+   * application, or is a server administrator, they will be shown the application in the summaries.
+   * However, an attempt to access the design of an application they are not readers on will fail.
    *
-   * @param req the request context (for security), may not be
-   * <code>null</code>.
-   *
-   * @return an array of PSApplicationSummary objects which the user is allowed
-   * to see (may be empty), sorted ascending by application name
+   * @param req the request context (for security), may not be <code>null</code>.
+   * @return an array of PSApplicationSummary objects which the user is allowed to see (may be
+   *     empty), sorted ascending by application name
    */
   public PSApplicationSummary[] getApplicationSummaryObjects(PSRequest req) {
     if (req == null) throw new IllegalArgumentException("req may not be null");
@@ -3554,22 +3300,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Validates the given application object with the default validator
-   * for the object store. Returns <CODE>true</CODE> if validation
-   * passed, returns <CODE>false</CODE> if validation fails or if validation
-   * could not be performed.
+   * Validates the given application object with the default validator for the object store. Returns
+   * <CODE>true</CODE> if validation passed, returns <CODE>false</CODE> if validation fails or if
+   * validation could not be performed.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.9 1999/06/30
-   *
-   * @param   app The application to be validated.
-   *
-   *
-   * @throws   PSServerException
-   * @throws   PSAuthorizationException
+   * @param app The application to be validated.
+   * @throws PSServerException
+   * @throws PSAuthorizationException
    * @throws PSSystemValidationException ;
-   *
    */
   public boolean validateApplicationObject(PSApplication app)
       throws PSServerException, PSAuthorizationException, PSSystemValidationException {
@@ -3592,24 +3332,20 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Extends the application lock for the given application. This method
-   * does NO checking on whether the name refers to a valid application.
+   * Extends the application lock for the given application. This method does NO checking on whether
+   * the name refers to a valid application.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.42 1999/07/15
-   *
-   * @param   req
-   * @param   appName
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
-   * @param   lockMins
-   *
-   * @throws   PSServerException
-   * @throws   PSLockedException
-   * @throws   PSNotFoundException
-   * @throws   PSLockAcquisitionException
+   * @param req
+   * @param appName
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
+   * @param lockMins
+   * @throws PSServerException
+   * @throws PSLockedException
+   * @throws PSNotFoundException
+   * @throws PSLockAcquisitionException
    */
   private void extendApplicationLock(
       PSRequest req, String appName, String uniqueId, int lockMins, boolean overrideSameUser)
@@ -3622,26 +3358,19 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Extends an application lock on the app with the given id. The app must
-   * exist in the summaries.
+   * Extends an application lock on the app with the given id. The app must exist in the summaries.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.42 1999/07/15
-   *
-   *
-   * @param   req
-   * @param   applid
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
-   * @param   lockMins
-   *
-   *
-   * @throws   PSServerException
-   * @throws   PSLockedException
-   * @throws   PSNotFoundException
-   * @throws   PSLockAcquisitionException
+   * @param req
+   * @param applid
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
+   * @param lockMins
+   * @throws PSServerException
+   * @throws PSLockedException
+   * @throws PSNotFoundException
+   * @throws PSLockAcquisitionException
    */
   private void extendApplicationLock(
       PSRequest req, int applid, String uniqueId, int lockMins, boolean overrideSameUser)
@@ -3655,22 +3384,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Releases the lock for the application with the given name. Does
-   * NO validation on whether the name refers to a real application.
+   * Releases the lock for the application with the given name. Does NO validation on whether the
+   * name refers to a real application.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.42 1999/07/15
-   *
-   * @param   appName
-   * @param   req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
-   *
-   *
-   * @throws   PSServerException if there is an error releasing the lock.
-   *
+   * @param appName
+   * @param req
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
+   * @throws PSServerException if there is an error releasing the lock.
    */
   private void releaseApplicationLock(String appName, PSRequest req, String uniqueId)
       throws PSServerException {
@@ -3683,21 +3406,14 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Releases the lock for the application with the given id.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.42 1999/07/15
-   *
-   *
-   * @param   applid
-   * @param   req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
-   *
-   *
-   * @throws   PSServerException if there is an error releasing the lock.
-   * @throws   PSNotFoundException
-   *
+   * @param applid
+   * @param req
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
+   * @throws PSServerException if there is an error releasing the lock.
+   * @throws PSNotFoundException
    */
   private void releaseApplicationLock(int applid, PSRequest req, String uniqueId)
       throws PSServerException, PSNotFoundException {
@@ -3710,11 +3426,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   *  Locks the server config file
+   * Locks the server config file
+   *
    * @param req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
    * @param lockMins
    * @param overrideSameUser
    * @throws PSServerException
@@ -3741,13 +3457,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Private utility method used to get an effective locker id for a request
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.36 1999/07/07
-   *
-   *
-   * @param   req
-   *
+   * @param req
    */
   private String getEffectiveUser(PSRequest req) {
     // get the locker id from the request's user session
@@ -3770,8 +3483,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Convenience method.
-   * Calls {@link #getEffectiveLockerId(PSRequest, String, boolean, boolean)
+   * Convenience method. Calls {@link #getEffectiveLockerId(PSRequest, String, boolean, boolean)
    * getEffectiveLockerId(req, uniqueId, false, false)}.
    */
   private IPSLockerId getEffectiveLockerId(PSRequest req, String uniqueId) {
@@ -3779,8 +3491,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Convenience method.
-   * Calls {@link #getEffectiveLockerId(PSRequest, String, boolean, boolean)
+   * Convenience method. Calls {@link #getEffectiveLockerId(PSRequest, String, boolean, boolean)
    * getEffectiveLockerId(req, uniqueId overrideSameUser, false)}.
    */
   private IPSLockerId getEffectiveLockerId(
@@ -3789,25 +3500,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Creates a locker identifier for the user in the supplied request with
-   * the supplied flags.
+   * Creates a locker identifier for the user in the supplied request with the supplied flags.
    *
    * @param req The context of the current request. Never <code>null</code>.
-   *
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
-   *
-   * @param overrideSameUser If <code>true</code>, when the lock is checked
-   *    against an existing lock, if it is owned by this user, or this user
-   *    in a different session, they will gain the lock. Otherwise, they
-   *    will only gain the lock if their particular session currently owns
-   *    it.
-   *
-   * @param overrideDifferentUser If <code>true</code>, when the lock is
-   *    checked against an existing lock, no matter who owns it, they will
-   *    gain control. This should only be used in very special circumstances.
-   *    This flag implies overrideSameUser.
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
+   * @param overrideSameUser If <code>true</code>, when the lock is checked against an existing
+   *     lock, if it is owned by this user, or this user in a different session, they will gain the
+   *     lock. Otherwise, they will only gain the lock if their particular session currently owns
+   *     it.
+   * @param overrideDifferentUser If <code>true</code>, when the lock is checked against an existing
+   *     lock, no matter who owns it, they will gain control. This should only be used in very
+   *     special circumstances. This flag implies overrideSameUser.
    */
   private IPSLockerId getEffectiveLockerId(
       PSRequest req, String uniqueId, boolean overrideSameUser, boolean overrideDifferentUser) {
@@ -3819,11 +3523,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Remove an application
+   *
    * @param applId
    * @param req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
    * @throws PSServerException
    * @throws PSLockedException
    * @throws PSNotFoundException
@@ -3862,12 +3566,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   *
    * @param appName
    * @param req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
    * @throws PSServerException
    * @throws PSLockedException
    * @throws PSNotFoundException
@@ -3889,12 +3591,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Rename the application
+   *
    * @param appName
    * @param newName
    * @param req
-   * @param uniqueId a unique Id supplied by the client used to hold a lock,
-   * we default to the user's session id if this value is
-   * <code>null</code> or empty.
+   * @param uniqueId a unique Id supplied by the client used to hold a lock, we default to the
+   *     user's session id if this value is <code>null</code> or empty.
    * @throws PSServerException
    * @throws PSAuthorizationException
    * @throws PSLockedException
@@ -4319,13 +4021,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * A utility method to get the ACL handler for an application,
-   * loading it from disk if necessary.
+   * A utility method to get the ACL handler for an application, loading it from disk if necessary.
    *
-   * @param   appName The app whose acl handler should be loaded.  Assumed
-   * not to be <code>null</code>.
-   *
-   * @return   PSAclHandler
+   * @param appName The app whose acl handler should be loaded. Assumed not to be <code>null</code>.
+   * @return PSAclHandler
    */
   PSAclHandler loadAclHandler(String appName) throws PSNotFoundException, PSServerException {
     Document doc = null;
@@ -4368,24 +4067,18 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Checks that the given session's security matches the given security for
-   * the application with the given request root.
+   * Checks that the given session's security matches the given security for the application with
+   * the given request root.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.11 1999/07/12
-   *
-   * @param   requestRoot The request root for the application.
-   * @param   accessLevel The access level.
-   * @param   session The user session.
-   *
-   * @return   boolean <CODE>true</CODE> if the session has the requested
-   * permissions for the app with the given request root, <CODE>false</CODE>
-   * otherwise.
-   *
-   * @throws   PSServerException
-   * @throws   PSNotFoundException
-   *
+   * @param requestRoot The request root for the application.
+   * @param accessLevel The access level.
+   * @param session The user session.
+   * @return boolean <CODE>true</CODE> if the session has the requested permissions for the app with
+   *     the given request root, <CODE>false</CODE> otherwise.
+   * @throws PSServerException
+   * @throws PSNotFoundException
    */
   public boolean checkApplicationSecurity(
       String requestRoot, int accessLevel, PSUserSession session)
@@ -4478,9 +4171,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Gets all JNDI datasource configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetJndiDatasourcesRequest (EMPTY)>
    *    &lt;ATTLIST PSXGetJndiDatasourcesRequest
@@ -4488,11 +4180,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *    >
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetJndiDatasourcesResults (local-tx-datasource*)>
    * </code>
@@ -4549,18 +4240,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Saves the supplied JNDI datasource configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveJndiDatasourcesRequest (local-tx-datasource+)>
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveJndiDatasourcesResults (EMPTY)>
    * </code>
@@ -4632,9 +4321,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get the datasource resolver that contains the datasource configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetDatasourceConfigsRequest (EMPTY)>
    *    &lt;ATTLIST PSXGetDatasourceConfigsRequest
@@ -4642,12 +4330,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *    >
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format, where "bean" is the spring bean XML config for the datasource
-   * resolver:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format, where "bean" is
+   *     the spring bean XML config for the datasource resolver:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetDatasourceConfigsResults (bean)>
    * </code>
@@ -4701,18 +4388,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Saves the supplied resolver containing the datasource configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveDatasourceConfigsRequest (bean)>
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveDatasourceConfigsResults (EMPTY)>
    * </code>
@@ -4778,9 +4463,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get the hibernate dialect configuration.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetHibernateDialectsRequest (EMPTY)>
    *    &lt;ATTLIST PSXGetHibernateDialectsRequest
@@ -4788,12 +4472,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *    >
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format, where "bean" is the spring bean XML config for the datasource
-   * resolver:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format, where "bean" is
+   *     the spring bean XML config for the datasource resolver:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetHibernateDialectsResults (bean>
    * </code>
@@ -4848,18 +4531,16 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Saves the supplied Hibernate dialect configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveHibernateDialectsRequest (bean)>
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveHibernateDialectsResults (EMPTY)>
    * </code>
@@ -4924,9 +4605,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Get the list of cataloger configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetCatalogerConfigsRequest (EMPTY)>
    *    &lt;ATTLIST PSXGetCatalogerConfigsRequest
@@ -4934,12 +4614,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *    >
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format, where "bean" is the spring bean XML config for the datasource
-   * resolver:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format, where "bean" is
+   *     the spring bean XML config for the datasource resolver:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXGetCatalogerConfigsResults (subjectConfigs?,
    *       roleConfigs?)>
@@ -5006,9 +4685,8 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   /**
    * Saves the supplied cataloger configurations.
    *
-   * @param inDoc The input doc, may not be <code>null</code> and must be in
-   * the following format:
-   * <pre>
+   * @param inDoc The input doc, may not be <code>null</code> and must be in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveCatalogerConfigsRequest (subjectConfigs?,
    *       roleConfigs?)>
@@ -5017,11 +4695,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
    *
    * </code>
    * </pre>
-   * @param request The request to use, may not be <code>null</code>.
    *
-   * @return The response doc, never <code>null</code> and in the following
-   * format:
-   * <pre>
+   * @param request The request to use, may not be <code>null</code>.
+   * @return The response doc, never <code>null</code> and in the following format:
+   *     <pre>
    * <code>
    *    &lt;ELEMENT PSXSaveCatalogerConfigsResults (EMPTY)>
    * </code>
@@ -5098,22 +4775,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   *
-   * @author   davidgennaco
-   *
+   * @author davidgennaco
    * @version 1.31 1999/06/23
-   *
-   * Check an application definition's acl to see if the current
-   *      user has the reqested access level.
-   *
-   * @param   appName   the application name
-   *
-   * @param   accessLevel   the requested access level to check for
-   *
-   * @param   req   the current user context
-   *
-   * @return   <code>true</code> if the user has this authorization
-   *            <code>false</code> if the user does not have this authorization
+   *     <p>Check an application definition's acl to see if the current user has the reqested access
+   *     level.
+   * @param appName the application name
+   * @param accessLevel the requested access level to check for
+   * @param req the current user context
+   * @return <code>true</code> if the user has this authorization <code>false</code> if the user
+   *     does not have this authorization
    */
   boolean checkApplicationSecurity(String appName, int accessLevel, PSRequest req)
       throws PSAuthorizationException,
@@ -5139,23 +4809,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   *
-   * @author   davidgennaco
-   *
+   * @author davidgennaco
    * @version 1.31 1999/06/24
-   *
-   * Check an application definition's acl to see if the current
-   *      user has the reqested access level, this is the non-disk
-   *      version required by creates and new saves...
-   *
-   * @param   app         the application
-   *
-   * @param   accessLevel   the requested access level to check for
-   *
-   * @param   req         the current user context
-   *
-   * @return   <code>true</code> if the user has this authorization
-   *            <code>false</code> if the user does not have this authorization
+   *     <p>Check an application definition's acl to see if the current user has the reqested access
+   *     level, this is the non-disk version required by creates and new saves...
+   * @param app the application
+   * @param accessLevel the requested access level to check for
+   * @param req the current user context
+   * @return <code>true</code> if the user has this authorization <code>false</code> if the user
+   *     does not have this authorization
    */
   boolean checkApplicationSecurity(PSApplication app, int accessLevel, PSRequest req)
       throws PSAuthenticationFailedException, PSAuthorizationException {
@@ -5194,22 +4856,15 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   *
-   * @author   davidgennaco
-   *
+   * @author davidgennaco
    * @version 1.31 1999/06/24
-   *
-   * Check an application definition's acl to see if the current
-   *      user has the reqested access level, based on application id.
-   *
-   * @param   id      the application id
-   *
-   * @param   accessLevel   the requested access level to check for
-   *
-   * @param   req   the current user context
-   *
-   * @return   <code>true</code> if the user has this authorization
-   *            <code>false</code> if the user does not have this authorization
+   *     <p>Check an application definition's acl to see if the current user has the reqested access
+   *     level, based on application id.
+   * @param id the application id
+   * @param accessLevel the requested access level to check for
+   * @param req the current user context
+   * @return <code>true</code> if the user has this authorization <code>false</code> if the user
+   *     does not have this authorization
    */
   boolean checkApplicationSecurity(int id, int accessLevel, PSRequest req)
       throws PSAuthorizationException,
@@ -5224,11 +4879,9 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Replace a summary entry with information loaded from the application
-   * file on disk
+   * Replace a summary entry with information loaded from the application file on disk
    *
-   * @param   appName The name of the application
-   *
+   * @param appName The name of the application
    * @throws PSNotFoundException
    */
   private void updateSummaryEntry(String appName) throws PSNotFoundException, PSServerException {
@@ -5272,12 +4925,11 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Returns the application name of the application with the given id.
-   * If no app with tha id is found, returns the empty string.
+   * Returns the application name of the application with the given id. If no app with tha id is
+   * found, returns the empty string.
    *
-   * @param   id The id of the application.
-   *
-   * @return   String
+   * @param id The id of the application.
+   * @return String
    */
   String getApplicationNameFromId(int id) {
     PSApplicationSummary sum = m_appSums.getSummary(id);
@@ -5289,12 +4941,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Gets an application id from the app name. If no app by that
-   * name is found, returns 0.
+   * Gets an application id from the app name. If no app by that name is found, returns 0.
    *
-   * @param   name The app name
-   *
-   * @return   int
+   * @param name The app name
+   * @return int
    */
   int getApplicationIdFromName(String name) {
     PSApplicationSummary sum = m_appSums.getSummary(name);
@@ -5382,17 +5032,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Update the virtual directory structure to reflect the addition
-   * of this application directory.
+   * Update the virtual directory structure to reflect the addition of this application directory.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.42 1999/07/15
-   *
-   *
-   * @param   appRoot
-   * @param   physicalPath
-   *
+   * @param appRoot
+   * @param physicalPath
    */
   void addVirtualAppDirectory(String appRoot, File physicalPath) {
     if (physicalPath == null) physicalPath = new File(appRoot); // in the objectstore directory
@@ -5408,11 +5053,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Notifies all listeners registered for application changes.
+   *
    * @param app The changed application object
-   * @param isNewApp <code>true</code> if app is being created and
-   * <code>false</code> if updating an existing app.
-   * @param isRemove <code>true</code> if removing an app, <code>false</code>
-   * if not, ignored if <code>isNewApp</code> is <code>true</code>.
+   * @param isNewApp <code>true</code> if app is being created and <code>false</code> if updating an
+   *     existing app.
+   * @param isRemove <code>true</code> if removing an app, <code>false</code> if not, ignored if
+   *     <code>isNewApp</code> is <code>true</code>.
    * @throws PSSystemValidationException if app fails validation on restart
    * @throws PSNotFoundException if app cannot be located on disk
    * @throws PSServerException for anything else that may go wrong.
@@ -5436,6 +5082,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   /**
    * Notifies all listeners registered for server config changes.
+   *
    * @param config The server config object
    */
   void notifyServerListeners(PSServerConfiguration config) {
@@ -5460,11 +5107,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   }
 
   /**
-   * Deletes a file or directory
-   * If it is a directory then it recursively deletes the directory
-   * and all of its children.
-   * @param file the file or directory to be deleted, assumed not
-   * <code>null</code>.
+   * Deletes a file or directory If it is a directory then it recursively deletes the directory and
+   * all of its children.
+   *
+   * @param file the file or directory to be deleted, assumed not <code>null</code>.
    * @return <code>true</code> if successful.
    */
   private boolean deleteFile(File file) {
@@ -5544,10 +5190,10 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   public static final String ms_RootExtLoad = "PSXDesignExtLoad";
   public static final String ms_RootExtRemove = "PSXDesignExtRemove";
 
-  /** The root element of the rx configuration load request. **/
+  /** The root element of the rx configuration load request. * */
   private static final String ms_RootRxConfigLoad = "PSXDesignRxConfigLoad";
 
-  /** The root element of the rx configuration save request. **/
+  /** The root element of the rx configuration save request. * */
   private static final String ms_RootRxConfigSave = "PSXDesignRxConfigSave";
 
   private HashMap m_requestHandlerMethods = null;
@@ -5560,19 +5206,13 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
   private PSObjectStoreStatistics m_statistics = new PSObjectStoreStatistics();
 
-  /**
-   * Constant for the name of the config file.
-   */
+  /** Constant for the name of the config file. */
   private static final String CONFIG_FILE = "config.xml";
 
-  /**
-   * The name of the root element for the PSRoleConfiguration object.
-   */
+  /** The name of the root element for the PSRoleConfiguration object. */
   private static final String ROLE_CONFIG_ROOT_TAGNAME = "PSXRoleConfiguration";
 
-  /**
-   * XML attribute for uniqueId used for aquiring a lock
-   */
+  /** XML attribute for uniqueId used for aquiring a lock */
   private static final String ATTR_UNIQUEID = "uniqueId";
 
   /*
@@ -5585,13 +5225,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
   java.io.File m_objectDirectory = null;
   PSApplicationSummaryCollection m_appSums = null;
 
-  /**
-   * Private implementation of the {@link IPSRepositoryInfo} interface
-   */
+  /** Private implementation of the {@link IPSRepositoryInfo} interface */
   private class PSOsRepositoryInfo implements IPSRepositoryInfo {
 
     /**
      * Construct the info object.
+     *
      * @throws PSServerException If there are any errors.
      */
     private PSOsRepositoryInfo() throws PSServerException {
@@ -5600,6 +5239,7 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
 
     /**
      * Construct the info object.
+     *
      * @return
      * @throws PSServerException If there are any errors.
      */
@@ -5657,15 +5297,13 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     private String mi_origin;
   }
 
-  /**
-   * Private implementation of the {@link IPSConfigFileLocator} interface
-   */
+  /** Private implementation of the {@link IPSConfigFileLocator} interface */
   private class PSOsConfigFileLocator implements IPSConfigFileLocator {
     /**
      * Construct the locator
      *
-     * @param serverConfigFile File reference to the server config file,
-     * assumed not <code>null</code>.
+     * @param serverConfigFile File reference to the server config file, assumed not <code>null
+     *     </code>.
      */
     private PSOsConfigFileLocator(File serverConfigFile) {
       mi_serverConfigFile = serverConfigFile;
@@ -5685,14 +5323,12 @@ public class PSXmlObjectStoreHandler extends PSObjectFactory
     private File mi_springConfigFile;
   }
 
-  /**
-   * Server properties, should check for null and initialize before use
-   */
+  /** Server properties, should check for null and initialize before use */
   private static Properties ms_serverProps = null;
 
   /**
-   * Server property that is set to ignore locking the xml
-   * application when editing the Workbench CMS Filesystem
+   * Server property that is set to ignore locking the xml application when editing the Workbench
+   * CMS Filesystem
    */
   private static final String DONT_LOCK_APPLICATION_FLAG =
       "disableWorkbenchCmsFileApplicationLocking";

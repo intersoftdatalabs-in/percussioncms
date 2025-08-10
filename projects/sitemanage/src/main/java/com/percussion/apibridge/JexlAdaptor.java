@@ -22,13 +22,11 @@ package com.percussion.apibridge;
 import com.percussion.rest.jexl.IJexlAdaptor;
 import com.percussion.system.utils.PSSiteManageBean;
 
-/**
- * Adaptor for JEXL-related operations in Percussion CMS.
- */
+/** Adaptor for JEXL-related operations in Percussion CMS. */
 @PSSiteManageBean
 public class JexlAdaptor implements IJexlAdaptor {
 
-    public JexlAdaptor() {
-        // No-op constructor for dependency injection.
-    }
+  public JexlAdaptor() {
+    // No-op constructor for dependency injection.
+  }
 }

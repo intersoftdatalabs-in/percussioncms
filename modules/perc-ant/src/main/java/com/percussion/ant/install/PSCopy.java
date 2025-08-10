@@ -22,17 +22,14 @@ import java.util.Enumeration;
 import org.apache.tools.ant.taskdefs.Copy;
 
 /**
- * This task extends Ant's copy task allowing for a refresh of files depending
- * on various project properties.  The type of copy operation is controlled by
- * a <code>replaceType</code> attribute, which allows three values: always,
- * date, and never.  If this attribute is not specified, the replace type will
- * default to always replace.  If a refresh of all files is required,
- * determined by {@link PSAction#refreshFiles()}, then the default Ant copy task
- * behavior (replace by date) will be used.
+ * This task extends Ant's copy task allowing for a refresh of files depending on various project
+ * properties. The type of copy operation is controlled by a <code>replaceType</code> attribute,
+ * which allows three values: always, date, and never. If this attribute is not specified, the
+ * replace type will default to always replace. If a refresh of all files is required, determined by
+ * {@link PSAction#refreshFiles()}, then the default Ant copy task behavior (replace by date) will
+ * be used. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -64,9 +61,7 @@ public class PSCopy extends Copy {
     super.execute();
   }
 
-  /**
-   * See base class method {@link Copy#doFileOperations()} for details.
-   */
+  /** See base class method {@link Copy#doFileOperations()} for details. */
   @Override
   protected void doFileOperations() {
     if (!PSAction.refreshFiles() && getReplaceType().equalsIgnoreCase(NEVER)) modifyFileMap();
@@ -74,8 +69,8 @@ public class PSCopy extends Copy {
   }
 
   /**
-   * This method modifies the map of files to be copied so that existing files
-   * will not be overwritten.  Used in never replace copy operations.
+   * This method modifies the map of files to be copied so that existing files will not be
+   * overwritten. Used in never replace copy operations.
    */
   private void modifyFileMap() {
     if (fileCopyMap.size() > 0) {
@@ -124,33 +119,30 @@ public class PSCopy extends Copy {
   }
 
   /**
-   * The type of replace option.  Valid values are:
-   * <br><br>
-   * {@link #ALWAYS}
+   * The type of replace option. Valid values are: <br>
    * <br>
-   * {@link #NEVER}
+   * {@link #ALWAYS} <br>
+   * {@link #NEVER} <br>
+   * {@link #DATE} <br>
    * <br>
-   * {@link #DATE}
-   * <br><br>
    * Defaults to always replace.
    */
   private String m_replaceType = ALWAYS;
 
   /**
-   * Constant for the always file replace option.  Indicates that existing
-   * files will be overwritten.
+   * Constant for the always file replace option. Indicates that existing files will be overwritten.
    */
   private static String ALWAYS = "always";
 
   /**
-   * Constant for the replace by date option.  Indicates that existing
-   * files will only be overwritten if source files are newer.
+   * Constant for the replace by date option. Indicates that existing files will only be overwritten
+   * if source files are newer.
    */
   private static String DATE = "date";
 
   /**
-   * Constant for the never file replace option.  Indicates that existing
-   * files will not be overwritten.
+   * Constant for the never file replace option. Indicates that existing files will not be
+   * overwritten.
    */
   private static String NEVER = "never";
 }

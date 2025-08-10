@@ -25,28 +25,28 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class RoleTestAdaptor implements IRoleAdaptor {
-    @Override
-    public Role getRole(URI baseURI, String roleName) {
-        return null;
-    }
+  @Override
+  public Role getRole(URI baseURI, String roleName) {
+    return null;
+  }
 
-    @Override
-    public Role updateRole(URI baseURI, Role role) {
-        return null;
-    }
+  @Override
+  public Role updateRole(URI baseURI, Role role) {
+    return null;
+  }
 
-    @Override
-    public Role createRole(URI baseURI, Role role) {
-        return null;
-    }
+  @Override
+  public Role createRole(URI baseURI, Role role) {
+    return null;
+  }
 
-    @Override
-    public void deleteRole(URI baseURI, String roleName) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deleteRole(URI baseURI, String roleName) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public List<Role> findRoles(URI baseURI, String pattern) {
-        return null;
-    }
+  @Override
+  public List<Role> findRoles(URI baseURI, String pattern) {
+    return null;
+  }
 }

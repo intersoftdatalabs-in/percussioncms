@@ -29,9 +29,7 @@ import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * The default location generator for content assemblers.
- */
+/** The default location generator for content assemblers. */
 public class PSDefaultAssemblyLocation implements IPSAssemblyLocation {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
@@ -42,26 +40,21 @@ public class PSDefaultAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This implementation takes 3 parameters, does a few sanity checks and
-   * then concatenates them together with the contentid. Provided parameters
-   * with backslashes will be transfomed to use forward slashes only. All
-   * parameters are required. The location url generated will have the
-   * following format:
-   * root + path + contentid + suffix (e.g. /xRoads/feature/art123.html)
-   * <p>
-   * See {@link IPSAssemblyLocation#createLocation(Object[], IPSRequestContext) createLocation}
+   * This implementation takes 3 parameters, does a few sanity checks and then concatenates them
+   * together with the contentid. Provided parameters with backslashes will be transfomed to use
+   * forward slashes only. All parameters are required. The location url generated will have the
+   * following format: root + path + contentid + suffix (e.g. /xRoads/feature/art123.html)
+   *
+   * <p>See {@link IPSAssemblyLocation#createLocation(Object[], IPSRequestContext) createLocation}
    * for details.
    *
-   * @param params [0] root the site root which makes up the start of the
-   *    location url created. Forward and backward slashes are allowed, if
-   *    it does not ent with a path delimiter, one will be added.
-   *    params[1] path the resource path which makes up the middle part
-   *    of the created location url. Forward and backward slashes are
-   *    allowed. The path can be provided with or without path delimiter
-   *    at its start and/or end.
-   *    params[2] suffix the resource suffix which makes up the end part
-   *    of the created location url. It can be provided with or without
-   *    suffix delimiter.
+   * @param params [0] root the site root which makes up the start of the location url created.
+   *     Forward and backward slashes are allowed, if it does not ent with a path delimiter, one
+   *     will be added. params[1] path the resource path which makes up the middle part of the
+   *     created location url. Forward and backward slashes are allowed. The path can be provided
+   *     with or without path delimiter at its start and/or end. params[2] suffix the resource
+   *     suffix which makes up the end part of the created location url. It can be provided with or
+   *     without suffix delimiter.
    * @param request The request context, never null.
    */
   public String createLocation(Object[] params, IPSRequestContext request)
@@ -102,23 +95,17 @@ public class PSDefaultAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This is the definition for this extension. You may want to use it for
-   * validation purposes in the <code>createLocation</code> method.
+   * This is the definition for this extension. You may want to use it for validation purposes in
+   * the <code>createLocation</code> method.
    */
   protected IPSExtensionDef m_def = null;
 
-  /**
-   * The number of expected parameters.
-   */
+  /** The number of expected parameters. */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 3;
 
-  /**
-   * Path delimiter, nerver <code>null</code>.
-   */
+  /** Path delimiter, nerver <code>null</code>. */
   private static final String PATH_DELIMITER = "/";
 
-  /**
-   * Suffix delimiter, never <code>null</code>.
-   */
+  /** Suffix delimiter, never <code>null</code>. */
   private static final String SUFFIX_DELIMITER = ".";
 }

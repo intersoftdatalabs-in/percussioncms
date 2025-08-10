@@ -31,24 +31,22 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- * This class is the default authorization handler. It currently handles the
- * authentication schemes "Basic", "Digest", and "SOCKS5" (used for the
- * SocksClient and not part of HTTP per se).
+ * This class is the default authorization handler. It currently handles the authentication schemes
+ * "Basic", "Digest", and "SOCKS5" (used for the SocksClient and not part of HTTP per se).
  *
- * <P>By default, when a username and password is required, this handler throws
- * up a message box requesting the desired info. However, applications can
- * {@link #setAuthorizationPrompter(HTTPClient.AuthorizationPrompter) set their
- * own authorization prompter} if desired.
+ * <p>By default, when a username and password is required, this handler throws up a message box
+ * requesting the desired info. However, applications can {@link
+ * #setAuthorizationPrompter(HTTPClient.AuthorizationPrompter) set their own authorization prompter}
+ * if desired.
  *
- * <P><strong>Note:</strong> all methods except for
- * <var>setAuthorizationPrompter</var> are meant to be invoked by the
- * AuthorizationModule only, i.e. should not be invoked by the application
- * (those methods are only public because implementing the
- * <var>AuthorizationHandler</var> interface requires them to be).
+ * <p><strong>Note:</strong> all methods except for <var>setAuthorizationPrompter</var> are meant to
+ * be invoked by the AuthorizationModule only, i.e. should not be invoked by the application (those
+ * methods are only public because implementing the <var>AuthorizationHandler</var> interface
+ * requires them to be).
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.2
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.2
  */
 @Deprecated
 public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants {
@@ -64,8 +62,8 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   private static boolean prompterSet = false;
 
   /**
-   * For Digest authentication we need to set the uri, response and
-   * opaque parameters. For "Basic" and "SOCKS5" nothing is done.
+   * For Digest authentication we need to set the uri, response and opaque parameters. For "Basic"
+   * and "SOCKS5" nothing is done.
    */
   public AuthorizationInfo fixupAuthInfo(
       AuthorizationInfo info, RoRequest req, AuthorizationInfo challenge, RoResponse resp)
@@ -98,10 +96,9 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
    * @param challenge the parsed challenge from the server.
    * @param req the request which solicited this response
    * @param resp the full response received
-   * @return a structure containing the necessary authorization info,
-   *         or null
-   * @exception AuthSchemeNotImplException if the authentication scheme
-   *             in the challenge cannot be handled.
+   * @return a structure containing the necessary authorization info, or null
+   * @exception AuthSchemeNotImplException if the authentication scheme in the challenge cannot be
+   *     handled.
    */
   public AuthorizationInfo getAuthorization(
       AuthorizationInfo challenge, RoRequest req, RoResponse resp)
@@ -185,10 +182,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return cred;
   }
 
-  /**
-   * We handle the "Authentication-Info" and "Proxy-Authentication-Info"
-   * headers here.
-   */
+  /** We handle the "Authentication-Info" and "Proxy-Authentication-Info" headers here. */
   public void handleAuthHeaders(
       Response resp, RoRequest req, AuthorizationInfo prev, AuthorizationInfo prxy)
       throws IOException {
@@ -209,10 +203,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     }
   }
 
-  /**
-   * We handle the "Authentication-Info" and "Proxy-Authentication-Info"
-   * trailers here.
-   */
+  /** We handle the "Authentication-Info" and "Proxy-Authentication-Info" trailers here. */
   public void handleAuthTrailers(
       Response resp, RoRequest req, AuthorizationInfo prev, AuthorizationInfo prxy)
       throws IOException {
@@ -305,9 +296,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return new AuthorizationInfo(host, port, "Digest", realm, params, info);
   }
 
-  /**
-   * The fixup handler
-   */
+  /** The fixup handler */
   private static AuthorizationInfo digest_fixup(
       AuthorizationInfo info, RoRequest req, AuthorizationInfo challenge, RoResponse resp)
       throws AuthSchemeNotImplException {
@@ -652,9 +641,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return cred;
   }
 
-  /**
-   * Handle nextnonce field.
-   */
+  /** Handle nextnonce field. */
   private static boolean handle_nextnonce(
       AuthorizationInfo prev, RoRequest req, HttpHeaderElement nextnonce) throws IOException {
     if (prev == null || nextnonce == null || nextnonce.getValue() == null) return false;
@@ -675,9 +662,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return true;
   }
 
-  /**
-   * Handle digest field of the Authentication-Info response header.
-   */
+  /** Handle digest field of the Authentication-Info response header. */
   private static boolean handle_digest(
       AuthorizationInfo prev, Response resp, RoRequest req, String hdr_name) throws IOException {
     if (prev == null) return false;
@@ -703,9 +688,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return true;
   }
 
-  /**
-   * Handle rspauth field of the Authentication-Info response header.
-   */
+  /** Handle rspauth field of the Authentication-Info response header. */
   private static boolean handle_rspauth(
       AuthorizationInfo prev, Response resp, RoRequest req, Vector auth_info, String hdr_name)
       throws IOException {
@@ -758,9 +741,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return true;
   }
 
-  /**
-   * Calc "response" attribute for a request.
-   */
+  /** Calc "response" attribute for a request. */
   private static String calcResponseAttr(
       String hash,
       String[] extra,
@@ -803,9 +784,9 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Calculates the digest of the request body. This was in RFC-2069
-   * and draft-ietf-http-authentication-00.txt, but has subsequently
-   * been removed. Here for backwards compatibility.
+   * Calculates the digest of the request body. This was in RFC-2069 and
+   * draft-ietf-http-authentication-00.txt, but has subsequently been removed. Here for backwards
+   * compatibility.
    */
   private static String calc_digest(RoRequest req, String A1_hash, String nonce) {
     if (req.getStream() != null) return "";
@@ -873,9 +854,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return MD5.hexDigest(entity_digest);
   }
 
-  /**
-   * Handle discard token
-   */
+  /** Handle discard token */
   private static boolean handle_discard(
       AuthorizationInfo prev, RoRequest req, HttpHeaderElement discard) {
     if (discard != null && prev != null) {
@@ -889,7 +868,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   /**
    * Generate <var>num</var> bytes of random data.
    *
-   * @param num  the number of bytes to generate
+   * @param num the number of bytes to generate
    * @return a byte array of random data
    */
   private static byte[] gen_random_bytes(int num) {
@@ -935,13 +914,12 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Return the value of the first NVPair whose name matches the key
-   * using a case-insensitive search.
+   * Return the value of the first NVPair whose name matches the key using a case-insensitive
+   * search.
    *
    * @param list an array of NVPair's
-   * @param key  the key to search for
-   * @return the value of the NVPair with that key, or null if not
-   *         found.
+   * @param key the key to search for
+   * @return the value of the NVPair with that key, or null if not found.
    */
   private static final String getValue(NVPair[] list, String key) {
     int len = list.length;
@@ -953,13 +931,12 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Return the index of the first NVPair whose name matches the key
-   * using a case-insensitive search.
+   * Return the index of the first NVPair whose name matches the key using a case-insensitive
+   * search.
    *
    * @param list an array of NVPair's
-   * @param key  the key to search for
-   * @return the index of the NVPair with that key, or -1 if not
-   *         found.
+   * @param key the key to search for
+   * @return the index of the NVPair with that key, or -1 if not found.
    */
   private static final int getIndex(NVPair[] list, String key) {
     int len = list.length;
@@ -970,12 +947,12 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Sets the value of the NVPair with the name that matches the key
-   * (case-insensitive). If no name matches, a new entry is created.
+   * Sets the value of the NVPair with the name that matches the key (case-insensitive). If no name
+   * matches, a new entry is created.
    *
    * @param list an array of NVPair's
-   * @param key  the name of the NVPair
-   * @param val  the value of the new NVPair
+   * @param key the name of the NVPair
+   * @param val the value of the new NVPair
    * @return the (possibly) new list
    */
   private static final NVPair[] setValue(NVPair[] list, String key, String val) {
@@ -990,8 +967,8 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Split a list into an array of Strings, using sep as the
-   * separator and removing whitespace around the separator.
+   * Split a list into an array of Strings, using sep as the separator and removing whitespace
+   * around the separator.
    */
   private static String[] splitList(String str, String sep) {
     if (str == null) return new String[0];
@@ -1003,9 +980,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
     return list;
   }
 
-  /**
-   * Produce a string of the form "A5:22:F1:0B:53"
-   */
+  /** Produce a string of the form "A5:22:F1:0B:53" */
   static String hex(byte[] buf) {
     StringBuilder str = new StringBuilder(buf.length * 3);
     for (int idx = 0; idx < buf.length; idx++) {
@@ -1031,9 +1006,8 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   /**
    * Set a new username/password prompter.
    *
-   * @param prompt the AuthorizationPrompter to use whenever a username
-   *               and password are needed; if null, no querying will be
-   *               done
+   * @param prompt the AuthorizationPrompter to use whenever a username and password are needed; if
+   *     null, no querying will be done
    * @return the previous prompter
    */
   public static synchronized AuthorizationPrompter setAuthorizationPrompter(
@@ -1045,9 +1019,8 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Set the default authorization prompter. It first tries to figure out
-   * if the AWT is running, and if it is then the GUI popup prompter is used;
-   * otherwise the command line prompter is used.
+   * Set the default authorization prompter. It first tries to figure out if the AWT is running, and
+   * if it is then the GUI popup prompter is used; otherwise the command line prompter is used.
    */
   private static void setDefaultPrompter() {
     // if the AWT is running use the popup box; else use the
@@ -1057,8 +1030,8 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 
   /**
-   * Try and figure out if the AWT is running. This is done by searching all
-   * threads and looking for one whose name starts with "AWT-".
+   * Try and figure out if the AWT is running. This is done by searching all threads and looking for
+   * one whose name starts with "AWT-".
    */
   private static final boolean isAWTRunning() {
     // find top-level thread group
@@ -1076,9 +1049,7 @@ public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants
   }
 }
 
-/**
- * This verifies the "rspauth" from draft-ietf-http-authentication-03
- */
+/** This verifies the "rspauth" from draft-ietf-http-authentication-03 */
 class VerifyRspAuth implements HashVerifier, GlobalConstants {
   private String uri;
   private String HA1;
@@ -1175,9 +1146,7 @@ class VerifyRspAuth implements HashVerifier, GlobalConstants {
   }
 }
 
-/**
- * This verifies the "digest" from rfc-2069
- */
+/** This verifies the "digest" from rfc-2069 */
 class VerifyDigest implements HashVerifier, GlobalConstants {
   private String HA1;
   private String nonce;
@@ -1287,11 +1256,11 @@ class SimpleAuthPopup implements AuthorizationPrompter {
   }
 
   /**
-   * This class implements a simple popup that request username and password
-   * used for the "basic" and "digest" authentication schemes.
+   * This class implements a simple popup that request username and password used for the "basic"
+   * and "digest" authentication schemes.
    *
-   * @version	0.3-3  06/05/2001
-   * @author	Ronald Tschalär
+   * @version 0.3-3 06/05/2001
+   * @author Ronald Tschalär
    */
   private static class BasicAuthBox extends Frame {
     private static final String title = "Authorization Request";
@@ -1301,9 +1270,7 @@ class SimpleAuthPopup implements AuthorizationPrompter {
     private int done;
     private static final int OK = 1, CANCEL = 0;
 
-    /**
-     * Constructs the popup with two lines of text above the input fields
-     */
+    /** Constructs the popup with two lines of text above the input fields */
     BasicAuthBox() {
       super(title);
 
@@ -1357,9 +1324,7 @@ class SimpleAuthPopup implements AuthorizationPrompter {
       pack();
     }
 
-    /**
-     * our event handlers
-     */
+    /** our event handlers */
     private class Ok implements ActionListener {
       public void actionPerformed(ActionEvent ae) {
         done = OK;
@@ -1446,12 +1411,11 @@ class SimpleAuthPopup implements AuthorizationPrompter {
 }
 
 /**
- * This class implements a simple command line prompter that request
- * username and password used for the "basic" and "digest" authentication
- * schemes.
+ * This class implements a simple command line prompter that request username and password used for
+ * the "basic" and "digest" authentication schemes.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 class SimpleAuthPrompt implements AuthorizationPrompter {
   /**

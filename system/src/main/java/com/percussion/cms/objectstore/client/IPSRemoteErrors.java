@@ -17,14 +17,13 @@
 
 package com.percussion.cms.objectstore.client;
 
-/**
- * Error codes for the <code>PSRemoteAgent</code> class.
- */
+/** Error codes for the <code>PSRemoteAgent</code> class. */
 public interface IPSRemoteErrors {
   /**
    * Got wrong soap response while communicating with remote server
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>expected response element</TD></TR>
@@ -35,8 +34,9 @@ public interface IPSRemoteErrors {
 
   /**
    * Caught unexpected error while communicating with remote server
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>unexpected error</TD></TR>

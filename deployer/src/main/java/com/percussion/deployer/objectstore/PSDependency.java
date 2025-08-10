@@ -36,9 +36,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Base class for dependency objects.  Provides all common dependency
- * functionality.  A dependency represents any deployable Rhythmyx server
- * element, e.g. a content type, variant definition, application, exit, etc.
+ * Base class for dependency objects. Provides all common dependency functionality. A dependency
+ * represents any deployable Rhythmyx server element, e.g. a content type, variant definition,
+ * application, exit, etc.
  */
 public abstract class PSDependency
     implements IPSDependencyBaseline, IPSDeployComponent, Comparable {
@@ -48,27 +48,23 @@ public abstract class PSDependency
   /**
    * Construct a dependency with all required parameters.
    *
-   * @param dependencyType The type of dependency, must be one of the
-   * <code>TYPE_xxx</code> types.
-   * @param dependencyId Combined with <code>objectType</code> uniquely
-   * identifies the object this dependency represents.  May not be
-   * <code>null</code> or empty.
-   * @param displayName Name to use when displaying this dependency.  May not
-   * be <code>null</code> or empty.
-   * @param objectType The type of object this dependency represents. May not
-   * be <code>null</code> or empty.
-   * @param objectTypeName Displayable form of the <code>objectType</code>,
-   * may not be <code>null</code> or empty.
-   * @param supportsIdTypes <code>true</code> if this object contains static
-   * ID's whose type must be identified, <code>false</code> if not.
-   * @param supportsIdMapping <code>true</code> if this object's ID can change
-   * across server's and thus may be included in an ID Mapping.
-   * @param supportsUserDependencies If <code>true</code>, this dependency
-   * allows user defined dependencies to be added as children,
-   * <code>false</code> otherwise.
-   * @param supportsParentId If <code>true</code>, supports a parent id to be
-   * specified, if <code>false</code>, does not.
-   *
+   * @param dependencyType The type of dependency, must be one of the <code>TYPE_xxx</code> types.
+   * @param dependencyId Combined with <code>objectType</code> uniquely identifies the object this
+   *     dependency represents. May not be <code>null</code> or empty.
+   * @param displayName Name to use when displaying this dependency. May not be <code>null</code> or
+   *     empty.
+   * @param objectType The type of object this dependency represents. May not be <code>null</code>
+   *     or empty.
+   * @param objectTypeName Displayable form of the <code>objectType</code>, may not be <code>null
+   *     </code> or empty.
+   * @param supportsIdTypes <code>true</code> if this object contains static ID's whose type must be
+   *     identified, <code>false</code> if not.
+   * @param supportsIdMapping <code>true</code> if this object's ID can change across server's and
+   *     thus may be included in an ID Mapping.
+   * @param supportsUserDependencies If <code>true</code>, this dependency allows user defined
+   *     dependencies to be added as children, <code>false</code> otherwise.
+   * @param supportsParentId If <code>true</code>, supports a parent id to be specified, if <code>
+   *     false</code>, does not.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDependency(
@@ -110,13 +106,10 @@ public abstract class PSDependency
   /**
    * Constructs a dependency from its XML representation.
    *
-   * @param src The source element.  Format expected is defined by
-   * {@link #toXml(Document)}.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param src The source element. Format expected is defined by {@link #toXml(Document)}.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSDependency(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -124,19 +117,16 @@ public abstract class PSDependency
     fromXml(src);
   }
 
-  /**
-   * Parameterless ctor for use by derived classes only.
-   */
+  /** Parameterless ctor for use by derived classes only. */
   protected PSDependency() {}
 
   /**
    * Determines if is this dependency is included in the package.
    *
-   * @return <code>true</code> if the dependency is included,
-   * <code>false</code> otherwise.  Dependencies of type
-   * {@link #TYPE_LOCAL} are always included, dependencies of type
-   * {@link #TYPE_SERVER} or {@link #TYPE_SYSTEM} may never be included,
-   * dependencies of type {@link #TYPE_SHARED} may optionally be included.
+   * @return <code>true</code> if the dependency is included, <code>false</code> otherwise.
+   *     Dependencies of type {@link #TYPE_LOCAL} are always included, dependencies of type {@link
+   *     #TYPE_SERVER} or {@link #TYPE_SYSTEM} may never be included, dependencies of type {@link
+   *     #TYPE_SHARED} may optionally be included.
    */
   public boolean isIncluded() {
     return m_isIncluded;
@@ -145,10 +135,8 @@ public abstract class PSDependency
   /**
    * Sets a new dependency id on this dependency.
    *
-   * @param id Combined with <code>objectType</code> uniquely
-   * identifies the object this dependency represents.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param id Combined with <code>objectType</code> uniquely identifies the object this dependency
+   *     represents. May not be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>id</code> is invalid.
    */
   public void setDependencyId(String id) {
@@ -159,14 +147,14 @@ public abstract class PSDependency
   }
 
   /**
-   * Sets whether this dependency is included in the package. In general this
-   * should only be called with force set to <code>false</code>.
-   * Only a special case should set force to <code>true</code>.
+   * Sets whether this dependency is included in the package. In general this should only be called
+   * with force set to <code>false</code>. Only a special case should set force to <code>true</code>
+   * .
    *
-   * @param isIncluded If <code>true</code>, the dependency is included, if
-   * <code>false</code> it is not.
-   * @param force allows forcing of package inclusion regardless
-   * of what {@link #canBeIncludedExcluded()} returns.
+   * @param isIncluded If <code>true</code>, the dependency is included, if <code>false</code> it is
+   *     not.
+   * @param force allows forcing of package inclusion regardless of what {@link
+   *     #canBeIncludedExcluded()} returns.
    */
   public void setIsIncluded(boolean isIncluded, boolean force) {
     if (!canBeIncludedExcluded()) throw new IllegalStateException("This value cannot be set");
@@ -175,19 +163,19 @@ public abstract class PSDependency
   }
 
   /**
-   * Convenience method to call {@link #setIsIncluded(boolean, boolean)} as
-   * setIsIncluded(boolean, false).
+   * Convenience method to call {@link #setIsIncluded(boolean, boolean)} as setIsIncluded(boolean,
+   * false).
    */
   public void setIsIncluded(boolean isIncluded) {
     setIsIncluded(isIncluded, false);
   }
 
   /**
-   * Determines if the <code>isIncluded</code> setting of this dependency
-   * is modifiable.  See {@link #setIsIncluded(boolean)} for more info.
+   * Determines if the <code>isIncluded</code> setting of this dependency is modifiable. See {@link
+   * #setIsIncluded(boolean)} for more info.
    *
-   * @return <code>true</code> if this dependency's included setting can be
-   * changed, <code>false</code> if not.
+   * @return <code>true</code> if this dependency's included setting can be changed, <code>false
+   *     </code> if not.
    */
   public boolean canBeIncludedExcluded() {
     boolean result = true;
@@ -203,12 +191,10 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if this dependency is deployable or not. Dependencies of types
-   * <code>TYPE_SERVER</code> and <code>TYPE_SYSTEM</code> are not deployable,
-   * all others are deployable.
+   * Determines if this dependency is deployable or not. Dependencies of types <code>TYPE_SERVER
+   * </code> and <code>TYPE_SYSTEM</code> are not deployable, all others are deployable.
    *
-   * @return <code>true</code> if this dependency is deployable, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if this dependency is deployable, otherwise <code>false</code>
    */
   public boolean isDeployable() {
     boolean result = true;
@@ -225,8 +211,8 @@ public abstract class PSDependency
   /**
    * Gets all dependencies of this dependency that have been set.
    *
-   * @return Iterator over zero or more <code>PSDependency</code> objects, or
-   * <code>null</code> if the dependencies have not been set on this object.
+   * @return Iterator over zero or more <code>PSDependency</code> objects, or <code>null</code> if
+   *     the dependencies have not been set on this object.
    */
   public Iterator<PSDependency> getDependencies() {
     Iterator<PSDependency> deps = null;
@@ -239,9 +225,8 @@ public abstract class PSDependency
    * Gets all dependencies for the specified type that have been set.
    *
    * @param type One of the <code>TYPE_XXX</code> types.
-   *
-   * @return Iterator over zero or more <code>PSDependency</code> objects, or
-   * <code>null</code> if the dependencies have not been set on this object.
+   * @return Iterator over zero or more <code>PSDependency</code> objects, or <code>null</code> if
+   *     the dependencies have not been set on this object.
    */
   public Iterator<PSDependency> getDependencies(int type) {
     if (m_dependencies == null) {
@@ -253,12 +238,9 @@ public abstract class PSDependency
   /**
    * Get child dependencies matching the specified object type.
    *
-   * @param objectType The type to find, may not be <code>null</code> or
-   * empty.
-   *
-   * @return an iterator over zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>.
-   *
+   * @param objectType The type to find, may not be <code>null</code> or empty.
+   * @return an iterator over zero or more <code>PSDependency</code> objects, never <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public Iterator<PSDependency> getDependencies(String objectType) {
@@ -273,15 +255,11 @@ public abstract class PSDependency
   /**
    * Get a child dependency for the given id and object type.
    *
-   * @param id The id of the child dependency, may not be <code>null</code> or
-   * empty.
-   * @param objType The object type of the child dependency, may not be
-   * <code>null</code> or empty.
-   *
-   * @return The specified child dependency in the dependency list;
-   * <code>null</code> if not found in the dependency list, which may be one of
-   * two things, the child dependency has not been set or the child
-   * dependency does not exist in the current object.
+   * @param id The id of the child dependency, may not be <code>null</code> or empty.
+   * @param objType The object type of the child dependency, may not be <code>null</code> or empty.
+   * @return The specified child dependency in the dependency list; <code>null</code> if not found
+   *     in the dependency list, which may be one of two things, the child dependency has not been
+   *     set or the child dependency does not exist in the current object.
    */
   public PSDependency getChildDependency(String id, String objType) {
     PSDependency childDep = null;
@@ -302,8 +280,8 @@ public abstract class PSDependency
   /**
    * Gets the ancestors of this dependency if they have been set.
    *
-   * @return Iterator over zero or more <code>PSDependency</code> objects, or
-   * <code>null</code> if the ancestors have not been set on this object.
+   * @return Iterator over zero or more <code>PSDependency</code> objects, or <code>null</code> if
+   *     the ancestors have not been set on this object.
    */
   public Iterator<PSDependency> getAncestors() {
     Iterator<PSDependency> ancestors = null;
@@ -316,12 +294,10 @@ public abstract class PSDependency
   /**
    * Sets the child dependencies of this object.
    *
-   * @param dependencies The dependencies to set, will replace any existing
-   * dependencies of this object.  May be <code>null</code> to clear the
-   * dependencies.
-   *
-   * @throws IllegalArgumentException if <code>dependencies</code> contains
-   * a <code>null</code> element.
+   * @param dependencies The dependencies to set, will replace any existing dependencies of this
+   *     object. May be <code>null</code> to clear the dependencies.
+   * @throws IllegalArgumentException if <code>dependencies</code> contains a <code>null</code>
+   *     element.
    */
   public void setDependencies(Iterator dependencies) {
     if (m_dependencies != null) {
@@ -348,12 +324,9 @@ public abstract class PSDependency
   /**
    * Sets the parent dependencies of this object.
    *
-   * @param ancestors The ancestors to set, will replace any existing
-   * ancestors of this object.  May be <code>null</code> to clear the
-   * ancestors.
-   *
-   * @throws IllegalArgumentException if <code>ancestors</code> is
-   * <code>null</code>
+   * @param ancestors The ancestors to set, will replace any existing ancestors of this object. May
+   *     be <code>null</code> to clear the ancestors.
+   * @throws IllegalArgumentException if <code>ancestors</code> is <code>null</code>
    */
   public void setAncestors(Iterator<PSDependency> ancestors) {
     if (ancestors == null) m_ancestors = null;
@@ -373,8 +346,8 @@ public abstract class PSDependency
   }
 
   /**
-   * Gets the string identifier of this element in the form "display
-   * name(object type name)". For example "Article(Content Editor)".
+   * Gets the string identifier of this element in the form "display name(object type name)". For
+   * example "Article(Content Editor)".
    *
    * @return the identifier never <code>null</code> or empty.
    */
@@ -383,8 +356,7 @@ public abstract class PSDependency
   }
 
   /**
-   * Gets String representation of this object. Uses the display name to
-   * represent this object.
+   * Gets String representation of this object. Uses the display name to represent this object.
    *
    * @return the string, never <code>null</code> or empty.
    */
@@ -393,8 +365,8 @@ public abstract class PSDependency
   }
 
   /**
-   * Get a string representation of this dependency and all it's children and
-   * ancestors.  Used for debugging purposes.
+   * Get a string representation of this dependency and all it's children and ancestors. Used for
+   * debugging purposes.
    *
    * @return The tree representation, never <code>null</code>.
    */
@@ -407,15 +379,13 @@ public abstract class PSDependency
   }
 
   /**
-   * Recursive worker method for {@link #printDependencyTree()}, recurses into
-   * all child dependencies and ancestors.
+   * Recursive worker method for {@link #printDependencyTree()}, recurses into all child
+   * dependencies and ancestors.
    *
-   * @param buf The buffer to which the tree data is appended, assumed not
-   * <code>null</code>.
-   * @param processed List of already processed dependencies to avoid infinite
-   * loops.
-   * @param prefix Used to indent for each level of the tree, assumed not
-   * <code>null</code>, may be empty.
+   * @param buf The buffer to which the tree data is appended, assumed not <code>null</code>.
+   * @param processed List of already processed dependencies to avoid infinite loops.
+   * @param prefix Used to indent for each level of the tree, assumed not <code>null</code>, may be
+   *     empty.
    */
   private void printDependencyTree(StringBuilder buf, List<PSDependency> processed, String prefix) {
     if (processed.contains(this)) {
@@ -441,8 +411,8 @@ public abstract class PSDependency
   /**
    * Determines if this dependency can be passed to retrieve an ID type map.
    *
-   * @return <code>true</code> if this dependency supports ID type mappings,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this dependency supports ID type mappings, <code>false</code>
+   *     otherwise.
    */
   public boolean supportsIdTypes() {
     return m_supportsIdTypes;
@@ -458,16 +428,16 @@ public abstract class PSDependency
   }
 
   /**
-   * Sets the type of this dependency. <br />
-   * If supplied type specifies
-   * {@link #TYPE_LOCAL}, then this dependency will be marked as
+   * Sets the type of this dependency. <br>
+   * If supplied type specifies {@link #TYPE_LOCAL}, then this dependency will be marked as
+   *
    * <ol>
-   *   <li>included: ({@link #isIncluded()} will return <code>true</code>),</li>
-   *   <li>NOT an association: ({@link #isAssociation()} will return
-   *   <code>false</code>) </li>
+   *   <li>included: ({@link #isIncluded()} will return <code>true</code>),
+   *   <li>NOT an association: ({@link #isAssociation()} will return <code>false</code>)
    * </ol>
-   * If the supplied type specifies {@link #TYPE_SERVER} or {@link #TYPE_SYSTEM},
-   * then it will be marked as not included. <br />
+   *
+   * If the supplied type specifies {@link #TYPE_SERVER} or {@link #TYPE_SYSTEM}, then it will be
+   * marked as not included. <br>
    *
    * @param type One of the <code>TYPE_XXX</code> types.
    */
@@ -488,7 +458,6 @@ public abstract class PSDependency
    * Sets the display name for this dependency.
    *
    * @param name The new display name, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   public void setDisplayName(String name) {
@@ -502,9 +471,8 @@ public abstract class PSDependency
    * Validates the supplied type as a valid dependency type.
    *
    * @param type the type to check
-   *
-   * @return <code>true</code> if it is one of the <code>TYPE_XXX</code> types,
-   * otherwise <code>false</code>
+   * @return <code>true</code> if it is one of the <code>TYPE_XXX</code> types, otherwise <code>
+   *     false</code>
    */
   public static boolean validateType(int type) {
     if (type < 0 || type >= TYPE_ENUM.length) return false;
@@ -513,9 +481,8 @@ public abstract class PSDependency
   }
 
   /**
-   * Gets an identifier that along with the object type uniquely
-   * identifies this dependency.  May not be unique across all element or
-   * object types.
+   * Gets an identifier that along with the object type uniquely identifies this dependency. May not
+   * be unique across all element or object types.
    *
    * @return The id, never <code>null</code> or empty.
    */
@@ -533,8 +500,7 @@ public abstract class PSDependency
   }
 
   /**
-   * Returns the name of the type of the object this dependency instance
-   * represents.
+   * Returns the name of the type of the object this dependency instance represents.
    *
    * @return The object type name, never <code>null</code> or empty.
    */
@@ -543,21 +509,15 @@ public abstract class PSDependency
   }
 
   /**
-   * Creates a user dependency, adds it to this object, and returns it so that
-   * it can be saved to the server.  If the user dependency is not also
-   * separately saved to the server, it will not appear as a dependency of this
-   * object the next time its dependencies are loaded.
+   * Creates a user dependency, adds it to this object, and returns it so that it can be saved to
+   * the server. If the user dependency is not also separately saved to the server, it will not
+   * appear as a dependency of this object the next time its dependencies are loaded.
    *
-   * @param path The path of the dependency file relative to the Rhythmyx
-   * server root directory.
-   *
+   * @param path The path of the dependency file relative to the Rhythmyx server root directory.
    * @return The user dependency, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>path</code> is
-   * <code>null</code>.
-   * @throws IllegalStateException if {@link #supportsUserDependencies()}
-   * would return <code>false</code> or if {@link #setDependencies(Iterator)}
-   * has not been called.
+   * @throws IllegalArgumentException if <code>path</code> is <code>null</code>.
+   * @throws IllegalStateException if {@link #supportsUserDependencies()} would return <code>false
+   *     </code> or if {@link #setDependencies(Iterator)} has not been called.
    */
   public PSUserDependency addUserDependency(File path) {
     if (path == null) throw new IllegalArgumentException("path may not be null");
@@ -579,11 +539,9 @@ public abstract class PSDependency
   /**
    * Removes the user dependency with the supplied path from this dependency.
    *
-   * @param path The path of the user dependency to be removed, may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if a matching child user dependency was found
-   * and removed, <code>false</code> if not.
+   * @param path The path of the user dependency to be removed, may not be <code>null</code>.
+   * @return <code>true</code> if a matching child user dependency was found and removed, <code>
+   *     false</code> if not.
    */
   public boolean removeUserDependency(File path) {
     if (path == null) throw new IllegalArgumentException("path may not be null");
@@ -606,22 +564,20 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if this dependency's ID can change across servers and thus may
-   * be included in an ID Mapping.
+   * Determines if this dependency's ID can change across servers and thus may be included in an ID
+   * Mapping.
    *
-   * @return <code>true</code> if this dependency can be referenced by an ID
-   * mapping, <code>false</code> otherwise.
+   * @return <code>true</code> if this dependency can be referenced by an ID mapping, <code>false
+   *     </code> otherwise.
    */
   public boolean supportsIDMapping() {
     return m_supportsIdMapping;
   }
 
   /**
-   * Determines if this dependency supports adding user depedencies as
-   * child dependencies.
+   * Determines if this dependency supports adding user depedencies as child dependencies.
    *
-   * @return <code>true</code> if it is suppported, <code>false</code> if
-   * it does not.
+   * @return <code>true</code> if it is suppported, <code>false</code> if it does not.
    */
   public boolean supportsUserDependencies() {
     return m_supportsUserDependencies;
@@ -630,8 +586,7 @@ public abstract class PSDependency
   /**
    * Determines if this dependency can have a parent id and type specified.
    *
-   * @return <code>true</code> if it supports specifying a parent id,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if it supports specifying a parent id, <code>false</code> otherwise.
    */
   public boolean supportsParentId() {
     return m_supportsParentId;
@@ -642,9 +597,7 @@ public abstract class PSDependency
    *
    * @param id The parent id, may not be <code>null</code> or empty.
    * @param type The parent type, may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if {@link #supportsParentId()} returns
-   * <code>false</code>
+   * @throws IllegalArgumentException if {@link #supportsParentId()} returns <code>false</code>
    */
   public void setParent(String id, String type) {
     if (!supportsParentId())
@@ -679,11 +632,10 @@ public abstract class PSDependency
   }
 
   /**
-   * Assigns the specified dependency as this dependency's parent, allowing the
-   * dependency tree to be transversed upwards.
+   * Assigns the specified dependency as this dependency's parent, allowing the dependency tree to
+   * be transversed upwards.
    *
-   * @param parent the dependency to assign as this dependency's parent, may be
-   * <code>null</code>
+   * @param parent the dependency to assign as this dependency's parent, may be <code>null</code>
    */
   private void setParentDependency(PSDependency parent) {
     m_parentDependency = parent;
@@ -699,36 +651,32 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if this dependency is an auto dependency, meaning it was added
-   * as a child dependency automatically during archive creation, and is not
-   * part of the original descriptor.
+   * Determines if this dependency is an auto dependency, meaning it was added as a child dependency
+   * automatically during archive creation, and is not part of the original descriptor.
    *
-   * @return <code>true</code> if this dependency is an auto dependency,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this dependency is an auto dependency, <code>false</code>
+   *     otherwise.
    */
   public boolean isAutoDependency() {
     return m_isAutoDependency;
   }
 
   /**
-   * Sets this dependency to be an auto dependency.  See
-   * {@link #isAutoDependency()} for more info.
+   * Sets this dependency to be an auto dependency. See {@link #isAutoDependency()} for more info.
    *
-   * @param isAuto <code>true</code> if this dependency is an auto dependency,
-   * <code>false</code> otherwise.
+   * @param isAuto <code>true</code> if this dependency is an auto dependency, <code>false</code>
+   *     otherwise.
    */
   public void setIsAutoDependency(boolean isAuto) {
     m_isAutoDependency = isAuto;
   }
 
   /**
-   * Determines if the supplied dependency is included in this dependency's
-   * child dependencies, recursively.
+   * Determines if the supplied dependency is included in this dependency's child dependencies,
+   * recursively.
    *
    * @param dep The dependency to check for, may not be <code>null</code>.
-   *
    * @return <code>true</code> if it is included, <code>false</code> otherwise.
-   *
    * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    */
   public boolean containsDependency(PSDependency dep) {
@@ -746,23 +694,19 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if the supplied dependency is included in this dependency's
-   * child dependencies and if so, if {@link #isIncluded()}
-   * returns <code>true</code>, recursively.  Since the same dependency can
-   * appear multiple times in the tree, the entire tree is searched, even if
-   * non-included matches are found.  If the supplied dependency is of type
-   * {@link #TYPE_LOCAL}, then it is only considered to be included if the
-   * first non-local ancestor found walking up its ancestors is included.
+   * Determines if the supplied dependency is included in this dependency's child dependencies and
+   * if so, if {@link #isIncluded()} returns <code>true</code>, recursively. Since the same
+   * dependency can appear multiple times in the tree, the entire tree is searched, even if
+   * non-included matches are found. If the supplied dependency is of type {@link #TYPE_LOCAL}, then
+   * it is only considered to be included if the first non-local ancestor found walking up its
+   * ancestors is included.
    *
    * @param dep The dependency to check for, may not be <code>null</code>.
-   * @param sameInstance Determine if match should be made using
-   * {@link #getKey()}, or if the same instance of the dependency must be
-   * located.  If <code>true</code>, the same instance is located, if
-   * <code>false</code>, the key is used.  <code>true</code> is used to
-   * determine if a local dependency should be considered to be included.
-   *
+   * @param sameInstance Determine if match should be made using {@link #getKey()}, or if the same
+   *     instance of the dependency must be located. If <code>true</code>, the same instance is
+   *     located, if <code>false</code>, the key is used. <code>true</code> is used to determine if
+   *     a local dependency should be considered to be included.
    * @return <code>true</code> if it is included, <code>false</code> otherwise.
-   *
    * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    */
   public boolean includesDependency(PSDependency dep, boolean sameInstance) {
@@ -820,14 +764,12 @@ public abstract class PSDependency
   }
 
   /**
-   * Implements interface method. Compares the display identifier of this
-   * dependency with the supplied dependency's display identifier
-   * lexicographically ignoring the case. Please see {@link
-   * java.lang.String#compareToIgnoreCase(String) compareToIgnoreCase} for more
-   * information about return value.
+   * Implements interface method. Compares the display identifier of this dependency with the
+   * supplied dependency's display identifier lexicographically ignoring the case. Please see {@link
+   * java.lang.String#compareToIgnoreCase(String) compareToIgnoreCase} for more information about
+   * return value.
    *
    * @param obj the object to compare, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if obj is <code>null</code>
    * @throws ClassCastException if obj is not an instance of PSDependency.
    */
@@ -845,13 +787,9 @@ public abstract class PSDependency
    * Parses the supplied key and returns the dependency's object type and id.
    *
    * @param key A valid dependency key, may not be <code>null</code> or empty.
-   *
-   * @return An array with two elements, the first being the type and the
-   * second being the id, never <code>null</code>, and neither element is ever
-   * <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>key</code> is not a valid
-   * dependency key.
+   * @return An array with two elements, the first being the type and the second being the id, never
+   *     <code>null</code>, and neither element is ever <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>key</code> is not a valid dependency key.
    */
   public static String[] parseKey(String key) {
     if (key == null || key.trim().length() == 0)
@@ -869,18 +807,16 @@ public abstract class PSDependency
   }
 
   /**
-   * Worker method for {@link #containsDependency(PSDependency)} that avoids
-   * infinite loops and performs the actual check.
+   * Worker method for {@link #containsDependency(PSDependency)} that avoids infinite loops and
+   * performs the actual check.
    *
    * @param dep The dependency to check for, assumed not <code>null</code>.
-   * @param checked A list of dependencies that have already been checked to
-   * see if <code>dep</code> is a child dependency.  If the instance this
-   * method is called on is already in this list, it will immediately return
-   * <code>false</code> to avoid infinite looping.  Assumed not
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if <code>dep</code> is one of this dependency's
-   * children, recursively, <code>false</code> otherwise.
+   * @param checked A list of dependencies that have already been checked to see if <code>dep</code>
+   *     is a child dependency. If the instance this method is called on is already in this list, it
+   *     will immediately return <code>false</code> to avoid infinite looping. Assumed not <code>
+   *     null</code>.
+   * @return <code>true</code> if <code>dep</code> is one of this dependency's children,
+   *     recursively, <code>false</code> otherwise.
    */
   private boolean containsDependency(PSDependency dep, List checked) {
     Iterator checkedDeps = checked.iterator();
@@ -914,23 +850,19 @@ public abstract class PSDependency
   }
 
   /**
-   * Worker method for {@link #includesDependency(PSDependency, boolean)} that
-   * avoids infinite loops and performs the actual check.  See that method's
-   * documentation for information and any parameters not described here.
+   * Worker method for {@link #includesDependency(PSDependency, boolean)} that avoids infinite loops
+   * and performs the actual check. See that method's documentation for information and any
+   * parameters not described here.
    *
-   * @param parentStack The parents of this dependency that have been checked
-   * so far.  Used to walk up the ancestors to determine if local dependencies
-   * are really included.  In each call to this method, this object is added
-   * to the list before recursing, and removed after returning from recursive
-   * calls.  Assumed not <code>null</code>.
-   * @param checked A list of dependencies that have already been checked to
-   * see if <code>dep</code> is included.  If the instance this
-   * method is called on is already in this list, it will immediately return
-   * <code>false</code> to avoid infinite looping.  Assumed not
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied dep is included,
-   * <code>false</code> otherwise.
+   * @param parentStack The parents of this dependency that have been checked so far. Used to walk
+   *     up the ancestors to determine if local dependencies are really included. In each call to
+   *     this method, this object is added to the list before recursing, and removed after returning
+   *     from recursive calls. Assumed not <code>null</code>.
+   * @param checked A list of dependencies that have already been checked to see if <code>dep</code>
+   *     is included. If the instance this method is called on is already in this list, it will
+   *     immediately return <code>false</code> to avoid infinite looping. Assumed not <code>null
+   *     </code>.
+   * @return <code>true</code> if the supplied dep is included, <code>false</code> otherwise.
    */
   private boolean includesDependency(
       PSDependency dep, boolean sameInstance, List parentStack, List checked) {
@@ -992,8 +924,7 @@ public abstract class PSDependency
   }
 
   /**
-   * Recursively gets the number of child dependencies that are set to be
-   * included.
+   * Recursively gets the number of child dependencies that are set to be included.
    *
    * @return The count, never less than 0.
    */
@@ -1002,13 +933,10 @@ public abstract class PSDependency
   }
 
   /**
-   * Recursively gets the number of child dependencies.  Does not include
-   * deployable elements
+   * Recursively gets the number of child dependencies. Does not include deployable elements
    *
-   * @param includedOnly If <code>true</code>, only included child dependencies
-   * will be added to the count.  If <code>false</code>, all child dependencies
-   * will be added to the count.
-   *
+   * @param includedOnly If <code>true</code>, only included child dependencies will be added to the
+   *     count. If <code>false</code>, all child dependencies will be added to the count.
    * @return The count, never less than 0.
    */
   public int getChildCount(boolean includedOnly) {
@@ -1028,12 +956,11 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if this dependency should auto-expand in to display all local
-   * dependencies in the dependency tree in the UI.  Use
-   * {@link #setShouldAutoExpand(boolean)} to modify this property.
+   * Determines if this dependency should auto-expand in to display all local dependencies in the
+   * dependency tree in the UI. Use {@link #setShouldAutoExpand(boolean)} to modify this property.
    *
-   * @return <code>true</code> if it should auto-expand, <code>false</code>
-   * otherwise.  Defaults to <code>true</code>.
+   * @return <code>true</code> if it should auto-expand, <code>false</code> otherwise. Defaults to
+   *     <code>true</code>.
    */
   public boolean shouldAutoExpand() {
     return m_autoExpand;
@@ -1042,16 +969,15 @@ public abstract class PSDependency
   /**
    * See {@link #shouldAutoExpand()} for an explanation of this property.
    *
-   * @param autoExpand <code>true</code> to auto-expand,
-   * <code>false</code> to supress auto-expand.
+   * @param autoExpand <code>true</code> to auto-expand, <code>false</code> to supress auto-expand.
    */
   public void setShouldAutoExpand(boolean autoExpand) {
     m_autoExpand = autoExpand;
   }
 
   /**
-   * Determines if this link is an association. That is,
-   * it is optional to include in a package.
+   * Determines if this link is an association. That is, it is optional to include in a package.
+   *
    * @return <code>true</code> if the link is an association.
    */
   public boolean isAssociation() {
@@ -1060,6 +986,7 @@ public abstract class PSDependency
 
   /**
    * See {@link #isAssociation()} for information on this property.
+   *
    * @param isAssociation <code>true</code> if link is an association.
    */
   public void setIsAssociation(boolean isAssociation) {
@@ -1067,13 +994,12 @@ public abstract class PSDependency
   }
 
   /**
-   * Determines if this dependency contains a child dependency that is
-   * included.  Does not consider <code>TYPE_LOCAL</code> dependencies or
-   * deployable elements, and does not recurse into deployable elements.  Does
-   * not check if this dependency is included.
+   * Determines if this dependency contains a child dependency that is included. Does not consider
+   * <code>TYPE_LOCAL</code> dependencies or deployable elements, and does not recurse into
+   * deployable elements. Does not check if this dependency is included.
    *
-   * @return <code>true</code> if this dependency contains an included
-   * dependency, <code>false</code> otherwise.
+   * @return <code>true</code> if this dependency contains an included dependency, <code>false
+   *     </code> otherwise.
    */
   public boolean containsIncludedDependency() {
     boolean hasIncluded = false;
@@ -1091,14 +1017,13 @@ public abstract class PSDependency
   }
 
   /**
-   * Update the typically immutable properties of this dependency from the
-   * supplied source dependency that may have changed since it was created.
-   * This should only be used when restoring a persisted dependency that may
-   * have been created with a previous version or build and whose defintion may
-   * have changed since it was last persisted.
+   * Update the typically immutable properties of this dependency from the supplied source
+   * dependency that may have changed since it was created. This should only be used when restoring
+   * a persisted dependency that may have been created with a previous version or build and whose
+   * defintion may have changed since it was last persisted.
    *
-   * @param src The source dependency whose defintion will be used, may not
-   * be <code>null</code> and must have the same object type and id.
+   * @param src The source dependency whose defintion will be used, may not be <code>null</code> and
+   *     must have the same object type and id.
    */
   public void updateDependencyDefinition(PSDependency src) {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -1118,8 +1043,9 @@ public abstract class PSDependency
 
   // Methods generated from implementation of interface IPSDeployComponent
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. Format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. Format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXDepenedency (Dependencies?, Ancestors?)>
    * &lt;!ATTLIST PSXDepenedency
@@ -1144,11 +1070,8 @@ public abstract class PSDependency
    * &lt;!ELEMENT Ancestors (PSPSXDeployableElement | PSXDeployableObject)*>
    * </pre></code>
    *
-   * @param doc The document to use to create the element, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -1200,13 +1123,11 @@ public abstract class PSDependency
   /**
    * This method is called to populate this object from its XML representation.
    *
-   * @param sourceNode the XML element node to populate from, not
-   * <code>null</code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param sourceNode the XML element node to populate from, not <code>null</code>. See {@link
+   *     #toXml(Document)} for the format expected.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -1367,10 +1288,9 @@ public abstract class PSDependency
   }
 
   /**
-   * Creates a new instance of this object, deep copying all member variables.
-   * If derived classes has mutable member variables, it must override this
-   * method and clone() each of those variables. This method will create a
-   * shallow copy of them if it is not overridden.
+   * Creates a new instance of this object, deep copying all member variables. If derived classes
+   * has mutable member variables, it must override this method and clone() each of those variables.
+   * This method will create a shallow copy of them if it is not overridden.
    *
    * @return a deep-copy clone of this instance, never <code>null</code>.
    */
@@ -1468,15 +1388,11 @@ public abstract class PSDependency
   /**
    * Utility method to get a required attibute value.
    *
-   * @param source Element to get the attribute from, assumed not
-   * <code>null</code>.
-   * @param attName The name of the attribute to get, assumed not
-   * <code>null</code> or empty
-   *
+   * @param source Element to get the attribute from, assumed not <code>null</code>.
+   * @param attName The name of the attribute to get, assumed not <code>null</code> or empty
    * @return The attribute value, never <code>null</code> or empty.
-   *
-   * @throws PSUnknownNodeTypeException If the specified attribute cannot be
-   * found with a non-empty value.
+   * @throws PSUnknownNodeTypeException If the specified attribute cannot be found with a non-empty
+   *     value.
    */
   protected String getRequiredAttribute(Element source, String attName)
       throws PSUnknownNodeTypeException {
@@ -1484,181 +1400,161 @@ public abstract class PSDependency
   }
 
   /**
-   * Constant for the local type.  Local dependencies must always be included
-   * in a package if their parent is included.
+   * Constant for the local type. Local dependencies must always be included in a package if their
+   * parent is included.
    */
   public static final int TYPE_LOCAL = 0;
 
   /**
-   * Constant for the shared type.  Shared dependencies may optionally be
-   * included in a package if their parent is included.
+   * Constant for the shared type. Shared dependencies may optionally be included in a package if
+   * their parent is included.
    */
   public static final int TYPE_SHARED = 1;
 
   /**
-   * Constant for dependencies that are defined by the end user, but cannot
-   * be included in a package as they cannot be deployed (for example, a
-   * loadable handler).
+   * Constant for dependencies that are defined by the end user, but cannot be included in a package
+   * as they cannot be deployed (for example, a loadable handler).
    */
   public static final int TYPE_SERVER = 2;
 
   /**
-   * Constant for dependencies that are part of the system (e.g. a system app
-   * or system exit) and can never be included in a package.
+   * Constant for dependencies that are part of the system (e.g. a system app or system exit) and
+   * can never be included in a package.
    */
   public static final int TYPE_SYSTEM = 3;
 
   /**
-   * Constant for the type user defined dependency.  This type can always be
-   * included in a package, and are always files.
+   * Constant for the type user defined dependency. This type can always be included in a package,
+   * and are always files.
    */
   public static final int TYPE_USER = 4;
 
   /**
-   * Enumeration of the names for the <code>TYPE_xxx</code> constants.  Index
-   * of the type constant is used as an index into this array to get its
-   * name and visa versa.
+   * Enumeration of the names for the <code>TYPE_xxx</code> constants. Index of the type constant is
+   * used as an index into this array to get its name and visa versa.
    */
   public static final String[] TYPE_ENUM = {"Local", "Shared", "Server", "System", "User"};
 
-  /**
-   * Constant for this object's root XML node.
-   */
+  /** Constant for this object's root XML node. */
   public static final String XML_NODE_NAME = "PSXDependency";
 
-  /**
-   * The separator used in dependency keys.
-   */
+  /** The separator used in dependency keys. */
   private static final String KEY_SEP = "-";
 
   /**
-   * Name of the object this dependency represents.  Never <code>null</code> or
-   * empty after ctor, may be modified by call to <code>setDisplayName()</code>
-   * or <code>copyFrom()</code>.
+   * Name of the object this dependency represents. Never <code>null</code> or empty after ctor, may
+   * be modified by call to <code>setDisplayName()</code> or <code>copyFrom()</code>.
    */
   private String m_displayName;
 
   /**
-   * Type of this dependency, one of the <code>TYPE_xxx</code> values, set
-   * during ctor, may be modified by call to <code>copyFrom()</code>.
+   * Type of this dependency, one of the <code>TYPE_xxx</code> values, set during ctor, may be
+   * modified by call to <code>copyFrom()</code>.
    */
   private int m_dependencyType = -1;
 
   /**
-   * Indicates if the object type of this instance may contain static ID's that
-   * must be identified as other types of dependencies.
-   * <code>true</code> if this dependency supports id types, <code>false</code>
-   * otherwise. Set during ctor, may be modified by call to
-   * <code>copyFrom()</code>.
+   * Indicates if the object type of this instance may contain static ID's that must be identified
+   * as other types of dependencies. <code>true</code> if this dependency supports id types, <code>
+   * false</code> otherwise. Set during ctor, may be modified by call to <code>copyFrom()</code>.
    */
   private boolean m_supportsIdTypes = false;
 
   /**
-   * The unique identifier for this dependency within its dependency type. Set
-   * during ctor, may be modified by call to <code>copyFrom()</code>.
+   * The unique identifier for this dependency within its dependency type. Set during ctor, may be
+   * modified by call to <code>copyFrom()</code>.
    */
   private String m_dependencyId;
 
   /**
-   * The type of object this class represents.  Set during construction, never
-   * <code>null</code> after that, may be modified by call to
-   * <code>copyFrom()</code>.
+   * The type of object this class represents. Set during construction, never <code>null</code>
+   * after that, may be modified by call to <code>copyFrom()</code>.
    */
   private String m_objectType;
 
   /**
-   * The display name of the type of object this class represents.  Set during
-   * construction, never <code>null</code> after that, may be modified by call
-   * to <code>copyFrom()</code>.
+   * The display name of the type of object this class represents. Set during construction, never
+   * <code>null</code> after that, may be modified by call to <code>copyFrom()</code>.
    */
   private String m_objectTypeName;
 
   /**
-   * Indicates if the object type of this instance has a numeric ID that needs
-   * to be mapped to different ID's when installing then on a different server.
-   * <code>true</code> if this dependency supports ID mapping,
-   * <code>false</code> otherwise.  Set during ctor, may be modified by call to
+   * Indicates if the object type of this instance has a numeric ID that needs to be mapped to
+   * different ID's when installing then on a different server. <code>true</code> if this dependency
+   * supports ID mapping, <code>false</code> otherwise. Set during ctor, may be modified by call to
    * <code>copyFrom()</code>.
    */
   private boolean m_supportsIdMapping = false;
 
   /**
-   * Marks this dependency for inclusion in a package archive.  If
-   * <code>true</code> it will be included, <code>false</code> otherwise.
-   * Initially <code>false</code>, set to <code>true</code> in the ctor if the
-   * type is {@link #TYPE_SHARED}, may be modified by a call to
-   * {@link #setIsIncluded(boolean)}.
+   * Marks this dependency for inclusion in a package archive. If <code>true</code> it will be
+   * included, <code>false</code> otherwise. Initially <code>false</code>, set to <code>true</code>
+   * in the ctor if the type is {@link #TYPE_SHARED}, may be modified by a call to {@link
+   * #setIsIncluded(boolean)}.
    */
   private boolean m_isIncluded = false;
 
   /**
-   * <code>true</code> if this dependency supports adding user
-   * dependencies, <code>false</code> otherwise.  Initialized during the ctor,
-   * never <code>null</code> or empty or modified after that.
+   * <code>true</code> if this dependency supports adding user dependencies, <code>false</code>
+   * otherwise. Initialized during the ctor, never <code>null</code> or empty or modified after
+   * that.
    */
   private boolean m_supportsUserDependencies = false;
 
   /**
-   * The <code>PSDependency</code> objects that have been set as child
-   * dependencies of this object.  <code>null</code> until the first call to
-   * {@link #setDependencies(Iterator)}.
+   * The <code>PSDependency</code> objects that have been set as child dependencies of this object.
+   * <code>null</code> until the first call to {@link #setDependencies(Iterator)}.
    */
   private Set<PSDependency> m_dependencies = null;
 
   /**
-   * The parent dependency of this dependency, if any.  This field allows a
-   * tree of dependencies to be traversed from descendents to ancestors.
-   * Assigned in <code>fromXml</code> and <code>setDependencies</code>.
+   * The parent dependency of this dependency, if any. This field allows a tree of dependencies to
+   * be traversed from descendents to ancestors. Assigned in <code>fromXml</code> and <code>
+   * setDependencies</code>.
    */
   private transient PSDependency m_parentDependency;
 
   /**
-   * The <code>PSDependency</code> objects that have been set as parent
-   * dependencies of this object.  <code>null</code> until the first call to
-   * {@link #setAncestors(Iterator)}.
+   * The <code>PSDependency</code> objects that have been set as parent dependencies of this object.
+   * <code>null</code> until the first call to {@link #setAncestors(Iterator)}.
    */
   private Set<PSDependency> m_ancestors = null;
 
   /**
-   * <code>true</code> if this dependency can specify a parent id,
-   * <code>false</code> otherwise.  Initialized during the ctor, never
-   * <code>null</code> or empty or modified after that.
+   * <code>true</code> if this dependency can specify a parent id, <code>false</code> otherwise.
+   * Initialized during the ctor, never <code>null</code> or empty or modified after that.
    */
   private boolean m_supportsParentId = false;
 
   /**
-   * The unique identifier for this dependency's parent within its parent's
-   * dependency type. Set by a call to {@link #setParent(String, String)}, may
-   * be <code>null</code>, never empty.
+   * The unique identifier for this dependency's parent within its parent's dependency type. Set by
+   * a call to {@link #setParent(String, String)}, may be <code>null</code>, never empty.
    */
   private String m_parentId = null;
 
   /**
-   * The type of object this dependency's parent represents. Set by a call to
-   * {@link #setParent(String, String)}, may be <code>null</code>, never empty.
+   * The type of object this dependency's parent represents. Set by a call to {@link
+   * #setParent(String, String)}, may be <code>null</code>, never empty.
    */
   private String m_parentType = null;
 
   /**
-   * <code>true</code> if the dependency tree in the UI should auto-expand
-   * to display all local dependencies, <code>false</code> if it should not
-   * auto-expand.  Defaults to <code>true</code>, may be modified by a call to
-   * {@link #setShouldAutoExpand(boolean)}.
+   * <code>true</code> if the dependency tree in the UI should auto-expand to display all local
+   * dependencies, <code>false</code> if it should not auto-expand. Defaults to <code>true</code>,
+   * may be modified by a call to {@link #setShouldAutoExpand(boolean)}.
    */
   private boolean m_autoExpand = true;
 
   /**
-   * Flag to indicate if this dependency was automatically added as a child
-   * by the system upon archive creation, or if it is part of the original
-   * descriptor.  Initially <code>false</code>, modified by calls to
-   * {@link #setIsAutoDependency(boolean)}.
+   * Flag to indicate if this dependency was automatically added as a child by the system upon
+   * archive creation, or if it is part of the original descriptor. Initially <code>false</code>,
+   * modified by calls to {@link #setIsAutoDependency(boolean)}.
    */
   private boolean m_isAutoDependency = false;
 
   /**
-   * Flag to indicate that the dependency is considered generic.
-   * Initially <code>true</code>, modified by calls to
-   * {@link #setIsAssociation(boolean)}.
+   * Flag to indicate that the dependency is considered generic. Initially <code>true</code>,
+   * modified by calls to {@link #setIsAssociation(boolean)}.
    */
   private boolean m_isAssociation = true;
 

@@ -24,14 +24,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is an abstract class that implements a simple name entry in the
- * database. A name entry has an internal name, external (or display) name
- * and a description. This class also enforces a read-only behavior on objects
- * derived from it. A read-only component is one that can be instantiated from
- * the database, but cannot be modified, and thus written to the db.
- * <p>It implements all modification methods (except fromXml) by overriding
- * them and throwing an UnsupportedOperationException. toDbXml is a noop,
- * therefore setPersisted and setDeleted are as well.
+ * This is an abstract class that implements a simple name entry in the database. A name entry has
+ * an internal name, external (or display) name and a description. This class also enforces a
+ * read-only behavior on objects derived from it. A read-only component is one that can be
+ * instantiated from the database, but cannot be modified, and thus written to the db.
+ *
+ * <p>It implements all modification methods (except fromXml) by overriding them and throwing an
+ * UnsupportedOperationException. toDbXml is a noop, therefore setPersisted and setDeleted are as
+ * well.
  *
  * @author Paul Howard
  * @version 1.0
@@ -57,8 +57,7 @@ public class PSName extends PSDbComponent {
   // *///<<<debug
 
   /**
-   * An internal identifier for this mode. Use getDisplayName() for an
-   * external identifier.
+   * An internal identifier for this mode. Use getDisplayName() for an external identifier.
    *
    * @return Never <code>null</code> or empty.
    */
@@ -67,8 +66,7 @@ public class PSName extends PSDbComponent {
   }
 
   /**
-   * An external identifier for this mode. Use getName() for an internal
-   * identifier.
+   * An external identifier for this mode. Use getName() for an internal identifier.
    *
    * @return Never <code>null</code> or empty.
    */
@@ -82,8 +80,8 @@ public class PSName extends PSDbComponent {
   }
 
   /**
-   * See interface/base class for description.
-   * The dtd (based on the base class) is:
+   * See interface/base class for description. The dtd (based on the base class) is:
+   *
    * <pre><code>
    *    &lt;!ELEMENT getNodeName() (getLocator().getNodeName(),
    *       Description?)&gt;
@@ -153,14 +151,10 @@ public class PSName extends PSDbComponent {
     throw new UnsupportedOperationException("This object is read only.");
   }
 
-  /**
-   * This class never modifies the db, so this action is a noop.
-   */
+  /** This class never modifies the db, so this action is a noop. */
   public void setDeleted() {}
 
-  /**
-   * This class never modifies the db, so this action is a noop.
-   */
+  /** This class never modifies the db, so this action is a noop. */
   public void setPersisted() throws PSCmsException {}
 
   // constants for element/attribute names
@@ -169,26 +163,23 @@ public class PSName extends PSDbComponent {
   public static final String XML_ELEM_DESCRIPTION = "Description";
 
   /**
-   * The internal name for this mode. Never <code>null</code>, empty or
-   * modified after construction.
+   * The internal name for this mode. Never <code>null</code>, empty or modified after construction.
    */
   private String m_name;
 
   /**
-   * The name shown to the implmentors.Never <code>null</code>, empty or
-   * modified after construction.
+   * The name shown to the implmentors.Never <code>null</code>, empty or modified after
+   * construction.
    */
   private String m_displayName;
 
   /**
-   * How is this mode used. Never <code>null</code> or modified after
-   * construction. May be empty. Defaults to "".
+   * How is this mode used. Never <code>null</code> or modified after construction. May be empty.
+   * Defaults to "".
    */
   private String m_description = "";
 
-  /**
-   * Does nothing.
-   */
+  /** Does nothing. */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
       throws PSCmsException {}
 

@@ -22,22 +22,16 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates a package name, package type and summary's log id.
- */
+/** Encapsulates a package name, package type and summary's log id. */
 public class PSArchivePackage implements IPSDeployComponent {
   /**
    * Constructing the object with given parameters.
    *
-   * @param pkgName The name of a package, may not be <code>null</code> or
-   * empty.
-   * @param pkgType The type of a package, may not be <code>null</code> or
-   * empty..
-   * @param status The status of a package, should be one of the
-   * <code>STATUS_XXX</code> values.
-   * @param logId the id of the log for this package in the log summary table,
-   * <code>-1</code> if no log for this package exists
-   *
+   * @param pkgName The name of a package, may not be <code>null</code> or empty.
+   * @param pkgType The type of a package, may not be <code>null</code> or empty..
+   * @param status The status of a package, should be one of the <code>STATUS_XXX</code> values.
+   * @param logId the id of the log for this package in the log summary table, <code>-1</code> if no
+   *     log for this package exists
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   public PSArchivePackage(String pkgName, String pkgType, int status, int logId) {
@@ -57,9 +51,8 @@ public class PSArchivePackage implements IPSDeployComponent {
    * Validating a given status.
    *
    * @param status The to be checked status value.
-   *
-   * @return <code>true</code> if the <code>status</code> is one of the
-   * <code>STATUS_XXX<</code> values; <code>false</code>otherwise.
+   * @return <code>true</code> if the <code>status</code> is one of the <code>STATUS_XXX<</code>
+   *     values; <code>false</code>otherwise.
    */
   public static boolean validateStatus(int status) {
     return (status == STATUS_COMPLETED || status == STATUS_ABORTED || status == STATUS_IN_PROGRESS);
@@ -68,12 +61,9 @@ public class PSArchivePackage implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSArchivePackage(Element source) throws PSUnknownNodeTypeException {
@@ -85,8 +75,8 @@ public class PSArchivePackage implements IPSDeployComponent {
   /**
    * Get the id of the log for this package in the log summary table.
    *
-   * @return the id of the log for this package in the log summary table,
-   * <code>-1</code> if no log for this package exists
+   * @return the id of the log for this package in the log summary table, <code>-1</code> if no log
+   *     for this package exists
    */
   public int getLogId() {
     return m_logId;
@@ -104,20 +94,20 @@ public class PSArchivePackage implements IPSDeployComponent {
   /**
    * Determines if the object has been successfully installed or not.
    *
-   * @return <code>true</code> if it has been installed, <code>false</code>
-   * if installation failed or was never attempted.
+   * @return <code>true</code> if it has been installed, <code>false</code> if installation failed
+   *     or was never attempted.
    */
   public boolean isInstalled() {
     return (m_status == STATUS_COMPLETED);
   }
 
   /**
-   * Determines if the installation of the object was attempted and aborted
-   * due to a failure of some kind.
+   * Determines if the installation of the object was attempted and aborted due to a failure of some
+   * kind.
    *
-   * @return <code>true</code> if it failed, <code>false</code> if it succeeded
-   * or if installation was never attempted (due to skipping the package or
-   * aborting installation due to a failure in a previous package).
+   * @return <code>true</code> if it failed, <code>false</code> if it succeeded or if installation
+   *     was never attempted (due to skipping the package or aborting installation due to a failure
+   *     in a previous package).
    */
   public boolean isFailed() {
     return (m_status == STATUS_ABORTED);
@@ -175,9 +165,8 @@ public class PSArchivePackage implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -228,24 +217,16 @@ public class PSArchivePackage implements IPSDeployComponent {
     return isEqual;
   }
 
-  /**
-   * The completed status for a deployed package
-   */
+  /** The completed status for a deployed package */
   public static final int STATUS_COMPLETED = 0;
 
-  /**
-   * The aborted status for a deployed package
-   */
+  /** The aborted status for a deployed package */
   public static final int STATUS_ABORTED = 1;
 
-  /**
-   * The In progress status for a deployed package
-   */
+  /** The In progress status for a deployed package */
   public static final int STATUS_IN_PROGRESS = 2;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXArchivePackage";
 
   // Private XML node and attribute names
@@ -255,26 +236,23 @@ public class PSArchivePackage implements IPSDeployComponent {
   private static final String XML_ATTR_LOGID = "logId";
 
   /**
-   * The name of the package. Initialized by constructor, will never be
-   * <code>null</code> or empty after that.
+   * The name of the package. Initialized by constructor, will never be <code>null</code> or empty
+   * after that.
    */
   private String m_name;
 
   /**
-   * The type of the package. Initialized by constructor, will never be
-   * <code>null</code> or empty after that.
+   * The type of the package. Initialized by constructor, will never be <code>null</code> or empty
+   * after that.
    */
   private String m_type;
 
   /**
-   * The status of the package. Initialized by constructor to be one of
-   * the <code>STATUS_XXXX</code> values after that.
+   * The status of the package. Initialized by constructor to be one of the <code>STATUS_XXXX</code>
+   * values after that.
    */
   private int m_status;
 
-  /**
-   * The id for the log summary table. Initialized by constructor, never
-   * modified after that.
-   */
+  /** The id for the log summary table. Initialized by constructor, never modified after that. */
   private int m_logId;
 }

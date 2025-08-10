@@ -29,9 +29,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 
 /**
- *
  * @author natechadwick
- *
  */
 // REFACTORED: CP-JAVA11
 public interface IPSPollsRestService extends IPSRestService {

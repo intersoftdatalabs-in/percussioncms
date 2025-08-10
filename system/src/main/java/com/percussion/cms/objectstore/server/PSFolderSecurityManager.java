@@ -43,10 +43,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class is used to obtain the permissions on a specified folder
- * for a particular user. It loads the folder specified by a locator or
- * content id using the local processor and hence can only be used on the
- * server side (and not by Content Explorer or Web Services which require a
+ * This class is used to obtain the permissions on a specified folder for a particular user. It
+ * loads the folder specified by a locator or content id using the local processor and hence can
+ * only be used on the server side (and not by Content Explorer or Web Services which require a
  * different processor).
  */
 public class PSFolderSecurityManager {
@@ -55,9 +54,8 @@ public class PSFolderSecurityManager {
    *
    * @param locator locator for the folder, may not be <code>null</code>
    * @param request request context information, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>locator</code> or
-   * <code>request</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>locator</code> or <code>request</code> is <code>null
+   *     </code>
    * @throws PSCmsException if any error occurs
    */
   public PSFolderSecurityManager(PSLocator locator, IPSRequestContext request)
@@ -73,9 +71,8 @@ public class PSFolderSecurityManager {
    *
    * @param contentId content id for the folder, should be non-negative
    * @param request request context information, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>contentId</code> is negative
-   * or <code>request</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>contentId</code> is negative or <code>request</code>
+   *     is <code>null</code>
    * @throws PSCmsException if any error occurs
    */
   public PSFolderSecurityManager(int contentId, IPSRequestContext request) throws PSCmsException {
@@ -83,16 +80,11 @@ public class PSFolderSecurityManager {
   }
 
   /**
-   * Loads the folder acl objects from the repository for the specified folder
-   * ids.
+   * Loads the folder acl objects from the repository for the specified folder ids.
    *
-   * @param ids The ids of the folders, it may be <code>null</code> for
-   *    loading all folder acles.
-   *
-   * @return An array of folder acl objects, never <code>null</code>, may be
-   * emtpy.  Not guaranteed to contain an acl corresponding to each id
-   * supplied.
-   *
+   * @param ids The ids of the folders, it may be <code>null</code> for loading all folder acles.
+   * @return An array of folder acl objects, never <code>null</code>, may be emtpy. Not guaranteed
+   *     to contain an acl corresponding to each id supplied.
    * @throws IllegalArgumentException if <code>ids</code> is <code>null</code>.
    * @throws PSCmsException if there are any other errors.
    */
@@ -161,38 +153,35 @@ public class PSFolderSecurityManager {
   }
 
   /**
-   * Loads the folder using local processor and obtains its ACL.
-   * Obtains the permissions set on the folder for the user using the
-   * folder's ACL and user's info obtained from the Request Context object.
-   * <p>
-   * If the request context object has a private object with a key of
-   * <code>CHECK_USER_FOLDER_PERMISSION</code> and a value of the current
-   * thread (<code>PSUserThread</code>) object, then this method does not
-   * load the folder to get its ACL, instead it just sets the permission to
-   * <code>PSFolderPermissions.ACCESS_ALL</code>. This is to avoid going into
-   * a recursive loop since loading a folder results in a call to this method
-   * from the <code>PSExitAuthenticateUser</code> exit. The first call to this
-   * method sets the private object in the request object associated with the
-   * thread and then loads the folder to get its ACL. The next calls to this
-   * method see the private object and do not try to load the folder.
+   * Loads the folder using local processor and obtains its ACL. Obtains the permissions set on the
+   * folder for the user using the folder's ACL and user's info obtained from the Request Context
+   * object.
+   *
+   * <p>If the request context object has a private object with a key of <code>
+   * CHECK_USER_FOLDER_PERMISSION</code> and a value of the current thread (<code>PSUserThread
+   * </code>) object, then this method does not load the folder to get its ACL, instead it just sets
+   * the permission to <code>PSFolderPermissions.ACCESS_ALL</code>. This is to avoid going into a
+   * recursive loop since loading a folder results in a call to this method from the <code>
+   * PSExitAuthenticateUser</code> exit. The first call to this method sets the private object in
+   * the request object associated with the thread and then loads the folder to get its ACL. The
+   * next calls to this method see the private object and do not try to load the folder.
+   *
    * <p>
    *
    * @param locator locator for the folder, assumed not <code>null</code>
    * @param request request context information, may not be <code>null</code>.
-   *
    * @throws PSCmsException if any error occurs
    */
   private void init(PSLocator locator, IPSRequestContext request) throws PSCmsException {}
 
   /**
-   * Returns a <code>PSObjectPermissions</code> object which encapsulates an
-   * access mask. This mask determines the level of access for the user
-   * accessing the folder.
+   * Returns a <code>PSObjectPermissions</code> object which encapsulates an access mask. This mask
+   * determines the level of access for the user accessing the folder.
+   *
    * @param i
    * @param ipsRequestContext
-   *
-   * @return the permissions set on the folder for the user accessing the
-   * folder, never <code>null</code>
+   * @return the permissions set on the folder for the user accessing the folder, never <code>null
+   *     </code>
    * @throws PSCmsException
    */
   public static PSObjectPermissions getPermissions(int i) throws PSCmsException {
@@ -240,20 +229,17 @@ public class PSFolderSecurityManager {
   }
 
   /**
-   * Checks if the user making the request has the specified permission on the
-   * folder whose content id equals <code>contentId</code>.
+   * Checks if the user making the request has the specified permission on the folder whose content
+   * id equals <code>contentId</code>.
    *
    * @param contentId content id for the folder, should be non-negative
    * @param request request context information, may not be <code>null</code>.
-   * @param permission the permission which the user should have on the folder
-   * for this method to return <code>true</code>
-   *
-   * @return <code>true</code> if the user making the request has the specified
-   * permission on the folder specified by <code>contentId</code>,
-   * <code>false</code> otherwise
-   *
-   * @throws IllegalArgumentException if <code>contentId</code> is negative
-   * or <code>request</code> is <code>null</code>
+   * @param permission the permission which the user should have on the folder for this method to
+   *     return <code>true</code>
+   * @return <code>true</code> if the user making the request has the specified permission on the
+   *     folder specified by <code>contentId</code>, <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>contentId</code> is negative or <code>request</code>
+   *     is <code>null</code>
    * @throws PSCmsException if any error occurs
    */
   public static boolean verifyFolderPermissions(int contentId, int permission)
@@ -263,23 +249,18 @@ public class PSFolderSecurityManager {
   }
 
   /**
-   * This method can be used to turn on or off user's folder permissions
-   * checking by the <code>PSExitAuthenticateUser</code> exit. This adds a
-   * private object with a key of <code>CHECK_USER_FOLDER_PERMISSION</code>
-   * and the value of the current thread (<code>PSUserThread</code>) object.
-   * This methods should be used only in case the caller will make sure that
-   * it will perform the necessary folder permission checking. This provides
-   * a workaround to the folder being loaded twice for the same request and
-   * the authorization being done twice.
+   * This method can be used to turn on or off user's folder permissions checking by the <code>
+   * PSExitAuthenticateUser</code> exit. This adds a private object with a key of <code>
+   * CHECK_USER_FOLDER_PERMISSION</code> and the value of the current thread (<code>PSUserThread
+   * </code>) object. This methods should be used only in case the caller will make sure that it
+   * will perform the necessary folder permission checking. This provides a workaround to the folder
+   * being loaded twice for the same request and the authorization being done twice.
    *
-   * @param request the request object on which to tun on or off the folder
-   * permission checking, may not be <code>null</code>
-   *
-   * @param checkPermission <code>true</code> if the folder permission checking
-   * should be done on the specified request, <code>false</code> otherwise
-   *
-   * @throws IllegalArgumentException if <code>request</code> is
-   * <code>null</code>
+   * @param request the request object on which to tun on or off the folder permission checking, may
+   *     not be <code>null</code>
+   * @param checkPermission <code>true</code> if the folder permission checking should be done on
+   *     the specified request, <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>request</code> is <code>null</code>
    */
   public static void setCheckFolderPermissions(boolean checkPermission) {
     PSRequest request = PSThreadRequestUtils.getPSRequest();
@@ -293,18 +274,14 @@ public class PSFolderSecurityManager {
   }
 
   /**
-   * If the request's private object contains this key and if the value of
-   * this key matches the current thread object then this class simply sets
-   * the access to "admin" access and does not actually load the folder to
-   * obtain its ACL and use it to obtain the user's permission. This is to
-   * prevent going into a loop.
-   * See {@link #init(PSLocator, IPSRequestContext)
-   * init(PSLocator, IPSRequestContext)} for details.
+   * If the request's private object contains this key and if the value of this key matches the
+   * current thread object then this class simply sets the access to "admin" access and does not
+   * actually load the folder to obtain its ACL and use it to obtain the user's permission. This is
+   * to prevent going into a loop. See {@link #init(PSLocator, IPSRequestContext) init(PSLocator,
+   * IPSRequestContext)} for details.
    */
   public static final String CHECK_USER_FOLDER_PERMISSION = "checkUserFolderPermission";
 
-  /**
-   * Resource used to query folder acl lists.
-   */
+  /** Resource used to query folder acl lists. */
   private static final String FOLDER_ACL_RESOURCE = "sys_psxInternalResources/getFolderAcls";
 }

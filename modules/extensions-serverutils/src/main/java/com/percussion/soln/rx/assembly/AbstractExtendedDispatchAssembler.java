@@ -27,9 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 public abstract class AbstractExtendedDispatchAssembler extends PSDispatchAssembler {
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Log log = LogFactory.getLog(AbstractExtendedDispatchAssembler.class);
 
   @Override

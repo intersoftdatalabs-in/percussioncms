@@ -22,48 +22,48 @@ import com.percussion.membership.data.PSUserGroup;
 import com.percussion.membership.data.PSUserSummaries;
 
 /**
- * Service to proxy calls to the delivery tier membership services.
- * Sunny Sal says: "Membership has its privileges!"
+ * Service to proxy calls to the delivery tier membership services. Sunny Sal says: "Membership has
+ * its privileges!"
  */
 public interface IPSMembershipService {
 
-    String MEMBERSHIP = "/membership";
-    String ADMIN_USERS = "/admin/users";
-    String ADMIN_ACCOUNT = "/admin/account";
-    String ADMIN_USER_GROUP = "/admin/user/group";
+  String MEMBERSHIP = "/membership";
+  String ADMIN_USERS = "/admin/users";
+  String ADMIN_ACCOUNT = "/admin/account";
+  String ADMIN_USER_GROUP = "/admin/user/group";
 
-    /**
-     * Gets the list of registered users.
-     *
-     * @param site the site name
-     * @return the list of summaries, may be empty but never null
-     */
-    PSUserSummaries getUsers(String site);
+  /**
+   * Gets the list of registered users.
+   *
+   * @param site the site name
+   * @return the list of summaries, may be empty but never null
+   */
+  PSUserSummaries getUsers(String site);
 
-    /**
-     * Changes the state of an account.
-     *
-     * @param account the account summary
-     * @param site the site name
-     * @return the list of summaries, may be empty but never null
-     */
-    PSUserSummaries changeStateAccount(PSAccountSummary account, String site);
+  /**
+   * Changes the state of an account.
+   *
+   * @param account the account summary
+   * @param site the site name
+   * @return the list of summaries, may be empty but never null
+   */
+  PSUserSummaries changeStateAccount(PSAccountSummary account, String site);
 
-    /**
-     * Deletes an account.
-     *
-     * @param email the email of the account to delete, never empty or null
-     * @param site the site name
-     * @return the list of summaries, may be empty but never null
-     */
-    PSUserSummaries deleteAccount(String email, String site);
+  /**
+   * Deletes an account.
+   *
+   * @param email the email of the account to delete, never empty or null
+   * @param site the site name
+   * @return the list of summaries, may be empty but never null
+   */
+  PSUserSummaries deleteAccount(String email, String site);
 
-    /**
-     * Updates the groups of an account.
-     *
-     * @param userGroup the user group data
-     * @param site the site name
-     * @return the list of summaries, may be empty but never null
-     */
-    PSUserSummaries updateGroupAccount(PSUserGroup userGroup, String site);
+  /**
+   * Updates the groups of an account.
+   *
+   * @param userGroup the user group data
+   * @param site the site name
+   * @return the list of summaries, may be empty but never null
+   */
+  PSUserSummaries updateGroupAccount(PSUserGroup userGroup, String site);
 }

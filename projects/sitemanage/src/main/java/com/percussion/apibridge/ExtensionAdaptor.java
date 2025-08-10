@@ -28,9 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Adaptor for managing Extensions in Percussion CMS.
- */
+/** Adaptor for managing Extensions in Percussion CMS. */
 @PSSiteManageBean
 public class ExtensionAdaptor implements IExtensionAdaptor {
 
@@ -128,9 +126,7 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
     }
   }
 
-  /**
-   * Gets all extensions based on the specified ExtensionFilterOptions.
-   */
+  /** Gets all extensions based on the specified ExtensionFilterOptions. */
   @Override
   public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
     var response = new ArrayList<Extension>();

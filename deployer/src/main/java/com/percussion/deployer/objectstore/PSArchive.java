@@ -40,21 +40,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to use to create and manage an archive, store and retrieve files to and
- * from it, and extract manifest and version information.
+ * Class to use to create and manage an archive, store and retrieve files to and from it, and
+ * extract manifest and version information.
  */
 public class PSArchive {
 
   private static final Logger log = LogManager.getLogger(PSArchive.class);
 
   /**
-   * Construct this object from an existing archive file.  This will open the
-   * archive for reading, and the caller is responsible for calling the
-   * {@link #close()} method when finished.
+   * Construct this object from an existing archive file. This will open the archive for reading,
+   * and the caller is responsible for calling the {@link #close()} method when finished.
    *
-   * @param archive The local archive file to open.  May not be
-   * <code>null</code> and must point to an existing valid archive file.
-   *
+   * @param archive The local archive file to open. May not be <code>null</code> and must point to
+   *     an existing valid archive file.
    * @throws IllegalArgumentException If any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -69,16 +67,12 @@ public class PSArchive {
   }
 
   /**
-   * Creates a new archive.  This will create the archive file and open it for
-   * writing operations.  If <code>archiveFile</code> points to an existing
-   * file, it will be overwritten.  The caller is responsible for calling the
-   * {@link #close()} method when finished.
+   * Creates a new archive. This will create the archive file and open it for writing operations. If
+   * <code>archiveFile</code> points to an existing file, it will be overwritten. The caller is
+   * responsible for calling the {@link #close()} method when finished.
    *
-   * @param archiveFile The archive file that will be created, may not be
-   * <code>null</code>.
-   * @param info The archive info desribing this archive, may not be
-   * <code>null</code>.
-   *
+   * @param archiveFile The archive file that will be created, may not be <code>null</code>.
+   * @param info The archive info desribing this archive, may not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -94,33 +88,29 @@ public class PSArchive {
   }
 
   /**
-   * @return <code>true</code> if the object is in writing mode, it can only
-   * process writing operations; <code>false</code> if it is in read only mode.
+   * @return <code>true</code> if the object is in writing mode, it can only process writing
+   *     operations; <code>false</code> if it is in read only mode.
    */
   public boolean isWriting() {
     return m_writing;
   }
 
   /**
-   * @return <code>true</code> if the object has been closed;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the object has been closed; <code>false</code> otherwise.
    */
   public boolean isClosed() {
     return m_closed;
   }
 
   /**
-   * Returns a boolean indicating whether the encapsulated archive file is a
-   * Rhythmyx sample application archive. Rhythmyx sample application archive
-   * is installed under the Rhythmyx tree by the installer. This archive
-   * contains sample applications such as RxArticle, RxBrief etc. The user
-   * can install sample archive using MSM even if the server is not licensed
-   * for MSM.
+   * Returns a boolean indicating whether the encapsulated archive file is a Rhythmyx sample
+   * application archive. Rhythmyx sample application archive is installed under the Rhythmyx tree
+   * by the installer. This archive contains sample applications such as RxArticle, RxBrief etc. The
+   * user can install sample archive using MSM even if the server is not licensed for MSM.
    *
-   * @return <code>true</code> if the encapsulated archive file is a
-   * Rhythmyx sample application archive, <code>false</code> otherwise.
-   * Returns <code>false</code> if an <code>IOException</code> occurs
-   * while obtaining the archive type.
+   * @return <code>true</code> if the encapsulated archive file is a Rhythmyx sample application
+   *     archive, <code>false</code> otherwise. Returns <code>false</code> if an <code>IOException
+   *     </code> occurs while obtaining the archive type.
    */
   public boolean isSampleArchive() {
     var sampleArchiveType =
@@ -141,7 +131,6 @@ public class PSArchive {
    * Gets the archive manifest from this archive if one has been stored.
    *
    * @return The manifest, may be <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public PSArchiveManifest getArchiveManifest() throws PSDeployException {
@@ -167,15 +156,13 @@ public class PSArchive {
   }
 
   /**
-   * Stores the supplied archive manifest in this archive, replacing the
-   * previous manifest if one has already been stored.
+   * Stores the supplied archive manifest in this archive, replacing the previous manifest if one
+   * has already been stored.
    *
    * @param manifest The manifest to store, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>manifest</code> is
-   * <code>null</code>.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for reading.
+   * @throws IllegalArgumentException if <code>manifest</code> is <code>null</code>.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for reading.
    * @throws PSDeployException if there are any errors.
    */
   public void storeArchiveManifest(PSArchiveManifest manifest) throws PSDeployException {
@@ -188,14 +175,13 @@ public class PSArchive {
   }
 
   /**
-   * Gets the archive info from this archive.  The archive info may optionally
-   * include a <code>PSArchiveDetail</code> object.
+   * Gets the archive info from this archive. The archive info may optionally include a <code>
+   * PSArchiveDetail</code> object.
    *
-   * @param includeDetail If <code>true</code>, the returned archive info
-   * object will include a <code>PSArchiveDetail</code> object if one has been
-   * stored (see {@link PSArchiveInfo#getArchiveDetail() getArchiveDetail}.
-   * If <code>false</code>, detail will not be included.
-   *
+   * @param includeDetail If <code>true</code>, the returned archive info object will include a
+   *     <code>PSArchiveDetail</code> object if one has been stored (see {@link
+   *     PSArchiveInfo#getArchiveDetail() getArchiveDetail}. If <code>false</code>, detail will not
+   *     be included.
    * @throws IllegalStateException if {@link #close()} has been called.
    * @throws PSDeployException if there are any errors.
    */
@@ -249,13 +235,11 @@ public class PSArchive {
   }
 
   /**
-   * Stores the supplied archive info in this archive, replacing any archive
-   * info already stored.
+   * Stores the supplied archive info in this archive, replacing any archive info already stored.
    *
    * @param info The info, may not be <code>null</code>.
-   *
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for reading.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for reading.
    * @throws PSDeployException if there are any errors.
    */
   public void storeArchiveInfo(PSArchiveInfo info) throws PSDeployException {
@@ -279,12 +263,10 @@ public class PSArchive {
   }
 
   /**
-   * Updates the external dbms info list for each dependency in each package in
-   * the supplied archive detail from this archive's manifest if one has been
-   * stored.
+   * Updates the external dbms info list for each dependency in each package in the supplied archive
+   * detail from this archive's manifest if one has been stored.
    *
    * @param detail The detail to update, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors
    */
   private void updateDbmsInfoList(PSArchiveDetail detail) throws PSDeployException {
@@ -309,10 +291,10 @@ public class PSArchive {
   /**
    * Recursive worker method for {@link #updateDbmsInfoList(PSArchiveDetail)}.
    *
-   * @param dep The dependency for which the dbms info list in the supplied
-   * <code>detail</code> is to be updated, assumed not <code>null</code>.
-   * @param infoSet The set to which dbmsInfo objects are to be added, assumed
-   * not <code>null</code>.
+   * @param dep The dependency for which the dbms info list in the supplied <code>detail</code> is
+   *     to be updated, assumed not <code>null</code>.
+   * @param infoSet The set to which dbmsInfo objects are to be added, assumed not <code>null</code>
+   *     .
    */
   private void updateDbmsInfoList(PSDependency dep, Set<PSDbmsInfo> infoSet) {
     if (m_archiveManifest != null && !(dep instanceof PSDeployableElement)) {
@@ -327,19 +309,15 @@ public class PSArchive {
    * Stores the supplied XML document in the archive.
    *
    * @param doc The document, assumed not <code>null</code>.
-   * @param archivePath Where to store the doc, assumed not <code>null</code>
-   * or empty.
-   * @param extra the value to be set in the optional extra field data for
-   * the entry corresponding to the specified file entry, may be
-   * <code>null</code>
-   *
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for reading.
+   * @param archivePath Where to store the doc, assumed not <code>null</code> or empty.
+   * @param extra the value to be set in the optional extra field data for the entry corresponding
+   *     to the specified file entry, may be <code>null</code>
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for reading.
    * @throws PSDeployException if there are any errors.
-   *
-   * @todo Add method to com.percussion.util.PSArchiveFiles class in later
-   * version that allows adding archive entry from a stream and perhaps even a
-   * document (cannot modify that class in 4.0 tree).
+   * @todo Add method to com.percussion.util.PSArchiveFiles class in later version that allows
+   *     adding archive entry from a stream and perhaps even a document (cannot modify that class in
+   *     4.0 tree).
    */
   private void storeXmlDocument(Document doc, String archivePath, byte[] extra)
       throws PSDeployException {
@@ -368,10 +346,9 @@ public class PSArchive {
   }
 
   /**
-   * Closes any archive resources currently maintained by this class and marks
-   * this archive as closed.  Any subsequent method calls may throw exceptions,
-   * and so the reference to the instance of this class should be discarded
-   * after calling this method.
+   * Closes any archive resources currently maintained by this class and marks this archive as
+   * closed. Any subsequent method calls may throw exceptions, and so the reference to the instance
+   * of this class should be discarded after calling this method.
    */
   public void close() {
     if (m_closed) return;
@@ -384,12 +361,11 @@ public class PSArchive {
   /**
    * Stores the supplied file in the archive.
    *
-   * Version of {@link #storeFile(File, archiveEntryPath)}
-   * with an additional <code>extra</code> parameter described below.
+   * <p>Version of {@link #storeFile(File, archiveEntryPath)} with an additional <code>extra</code>
+   * parameter described below.
    *
-   * @param extra the value to be set in the optional extra field data for
-   * the entry corresponding to the specified file entry, may be
-   * <code>null</code>
+   * @param extra the value to be set in the optional extra field data for the entry corresponding
+   *     to the specified file entry, may be <code>null</code>
    */
   public void storeFile(File file, String archiveEntryPath, byte[] extra) throws PSDeployException {
     if (file == null) throw new IllegalArgumentException("file may not be null");
@@ -413,16 +389,14 @@ public class PSArchive {
   /**
    * Stores the supplied file in the archive.
    *
-   * @param file The file to store.  May not be <code>null</code> and must be
-   * an existing file.
-   * @param archiveEntryPath The path to use when storing the file in the
-   * archive.  May not be <code>null</code> or empty.
-   *
+   * @param file The file to store. May not be <code>null</code> and must be an existing file.
+   * @param archiveEntryPath The path to use when storing the file in the archive. May not be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for reading.
-   * @throws PSDeployException if the source file is not found or if there is
-   * an error writing to the archive.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for reading.
+   * @throws PSDeployException if the source file is not found or if there is an error writing to
+   *     the archive.
    */
   public void storeFile(File file, String archiveEntryPath) throws PSDeployException {
     storeFile(file, archiveEntryPath, null);
@@ -431,17 +405,14 @@ public class PSArchive {
   /**
    * Gets an input stream to the specified file in the archive.
    *
-   * @param archiveEntryPath The path of the file in the archive.  May not be
-   * <code>null</code> or empty.
-   *
-   * @return the input stream, never <code>null</code>.  Caller is reponsible
-   * for closing the stream.
-   *
+   * @param archiveEntryPath The path of the file in the archive. May not be <code>null</code> or
+   *     empty.
+   * @return the input stream, never <code>null</code>. Caller is reponsible for closing the stream.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for writing.
-   * @throws PSDeployException if an error occurs reading from the archive or
-   * if file is not found in archive.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for writing.
+   * @throws PSDeployException if an error occurs reading from the archive or if file is not found
+   *     in archive.
    */
   public InputStream getFile(String archiveEntryPath) throws PSDeployException {
     if (archiveEntryPath == null || archiveEntryPath.trim().length() == 0)
@@ -460,16 +431,14 @@ public class PSArchive {
   /**
    * Gets size of the specified file in the archive.
    *
-   * @param archiveEntryPath The path of the file in the archive.  May not be
-   * <code>null</code> or empty.
-   *
-   * @return size.  Caller is reponsible for closing the stream.
-   *
+   * @param archiveEntryPath The path of the file in the archive. May not be <code>null</code> or
+   *     empty.
+   * @return size. Caller is reponsible for closing the stream.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for writing.
-   * @throws PSDeployException if an error occurs reading from the archive or
-   * if file is not found in archive.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for writing.
+   * @throws PSDeployException if an error occurs reading from the archive or if file is not found
+   *     in archive.
    */
   public int getFileSize(String archiveEntryPath) throws PSDeployException {
     if (archiveEntryPath == null || archiveEntryPath.trim().length() == 0)
@@ -485,9 +454,7 @@ public class PSArchive {
     }
   }
 
-  /**
-   * Closes any archive resources currently maintained by this class.
-   */
+  /** Closes any archive resources currently maintained by this class. */
   private void closeResources() {
     if (m_zipFile != null)
       try {
@@ -506,9 +473,8 @@ public class PSArchive {
    * Gets the archive for extracting files, first opening it if necessary.
    *
    * @return The zip file, never <code>null</code>.
-   *
-   * @throws IllegalStateException if {@link #close()} has been called, or if
-   * the archive was opened for writing.
+   * @throws IllegalStateException if {@link #close()} has been called, or if the archive was opened
+   *     for writing.
    * @throws IOException If there are any errors.
    */
   private ZipFile getZipFile() throws IOException {
@@ -524,14 +490,12 @@ public class PSArchive {
   }
 
   /**
-   * Gets an output stream for writing to the archive.  If one has not been
-   * opened yet, it will be opened, creating the archive.  Any previous archive
-   * will be overwritten.
+   * Gets an output stream for writing to the archive. If one has not been opened yet, it will be
+   * opened, creating the archive. Any previous archive will be overwritten.
    *
    * @return The stream, never <code>null</code>.
-   *
-   * @throws IllegalStateException if {@link #close()} has been called or if
-   * the archive has been opened for reading.
+   * @throws IllegalStateException if {@link #close()} has been called or if the archive has been
+   *     opened for reading.
    * @throws IOException if there are any errors.
    */
   private ZipOutputStream getZipOutputStream() throws IOException {
@@ -550,94 +514,77 @@ public class PSArchive {
   /**
    * Determine if an enry for the supplied file ref exists in the archive.
    *
-   * @parma zipFile The archive to check.  Assumed not <code>null</code>.
-   * @param archiveEntryPath The path of the file in the archive.  Assumed not
-   * <code>null</code> or empty.
-   *
-   * @return <code>true</code> if an entry exists, <code>false</code>
-   * otherwise.
-   *
-   * @todo Move this to com.percussion.util.PSArchiveFiles class in later
-   * version (cannot modify that class in 4.0 tree).
+   * @parma zipFile The archive to check. Assumed not <code>null</code>.
+   * @param archiveEntryPath The path of the file in the archive. Assumed not <code>null</code> or
+   *     empty.
+   * @return <code>true</code> if an entry exists, <code>false</code> otherwise.
+   * @todo Move this to com.percussion.util.PSArchiveFiles class in later version (cannot modify
+   *     that class in 4.0 tree).
    */
   private boolean hasEntry(ZipFile zipFile, String archiveEntryPath) {
     return Optional.ofNullable(zipFile.getEntry(archiveEntryPath)).isPresent();
   }
 
-  /**
-   * The archive file this object represents.  Never <code>null</code> or
-   * modified after ctor.
-   */
+  /** The archive file this object represents. Never <code>null</code> or modified after ctor. */
   private File m_archiveFile;
 
   /**
-   * The document restored from the archive containing the XML representation
-   * of the archive's PSArchiveInfo object.  <code>null</code> until the first
-   * call to {@link #getArchiveInfo(boolean)} or
-   * {@link #storeArchiveInfo(PSArchiveInfo)}, never <code>null</code> after
-   * that.
+   * The document restored from the archive containing the XML representation of the archive's
+   * PSArchiveInfo object. <code>null</code> until the first call to {@link
+   * #getArchiveInfo(boolean)} or {@link #storeArchiveInfo(PSArchiveInfo)}, never <code>null</code>
+   * after that.
    */
   private Document m_archiveInfoDoc = null;
 
   /**
-   * The full archive info object stored in this archive.  <code>null</code>
-   * until the first call to {@link #getArchiveInfo(boolean)
-   * getArchiveInfo(true)} or {@link #storeArchiveInfo(PSArchiveInfo)}, never
-   * <code>null</code> after that.
+   * The full archive info object stored in this archive. <code>null</code> until the first call to
+   * {@link #getArchiveInfo(boolean) getArchiveInfo(true)} or {@link
+   * #storeArchiveInfo(PSArchiveInfo)}, never <code>null</code> after that.
    */
   private PSArchiveInfo m_archiveInfoFull = null;
 
   /**
-   * The archive info object stored in this archive with its
-   * <code>PSArchiveDetail</code> object set to <code>null</code>.
-   * <code>null</code> until the first call to {@link #getArchiveInfo(boolean)
-   * getArchiveInfo(false)}, set to <code>null</code> by a call to
-   * {@link #storeArchiveInfo(PSArchiveInfo)}.
+   * The archive info object stored in this archive with its <code>PSArchiveDetail</code> object set
+   * to <code>null</code>. <code>null</code> until the first call to {@link #getArchiveInfo(boolean)
+   * getArchiveInfo(false)}, set to <code>null</code> by a call to {@link
+   * #storeArchiveInfo(PSArchiveInfo)}.
    */
   private PSArchiveInfo m_archiveInfoNoDetail = null;
 
   /**
-   * The archive manifest stored in this archive if one has been stored.  May
-   * be <code>null</code>.
+   * The archive manifest stored in this archive if one has been stored. May be <code>null</code>.
    */
   private PSArchiveManifest m_archiveManifest = null;
 
   /**
-   * Used to retrieve files from this archive, <code>null</code> until first
-   * call to {@link #getZipFile()}, set to <code>null</code> by a call to
-   * {@link #close()}.
+   * Used to retrieve files from this archive, <code>null</code> until first call to {@link
+   * #getZipFile()}, set to <code>null</code> by a call to {@link #close()}.
    */
   private ZipFile m_zipFile = null;
 
   /**
-   * Used to store files in this archive, <code>null</code> until first
-   * call to {@link #getZipOutputStream()}, set to <code>null</code> by a call
-   * to {@link #close()}.
+   * Used to store files in this archive, <code>null</code> until first call to {@link
+   * #getZipOutputStream()}, set to <code>null</code> by a call to {@link #close()}.
    */
   private ZipOutputStream m_zipOutputStream = null;
 
   /**
-   * Set to <code>true</code> by {@link #close()}, indicating this archive has
-   * been closed and is no longer valid for use.  <code>false</code> otherwise.
+   * Set to <code>true</code> by {@link #close()}, indicating this archive has been closed and is no
+   * longer valid for use. <code>false</code> otherwise.
    */
   private boolean m_closed = false;
 
   /**
-   * Determines if archive has been opened for reading or writing.  Creating
-   * a new archive will open it for writing, and instantiating this class with
-   * an existing archive will open it for reading.  If <code>true</code>,
-   * archive is opened for writing, if <code>false</code>, archive is opened
+   * Determines if archive has been opened for reading or writing. Creating a new archive will open
+   * it for writing, and instantiating this class with an existing archive will open it for reading.
+   * If <code>true</code>, archive is opened for writing, if <code>false</code>, archive is opened
    * for reading.
    */
   private boolean m_writing = false;
 
-  /**
-   * Archive file ref for the <code>PSArchiveInfo</code> document.
-   */
+  /** Archive file ref for the <code>PSArchiveInfo</code> document. */
   public static final String ARCHIVE_INFO_PATH = "psx_archiveInfo.xml";
 
-  /**
-   * Archive file ref for the <code>PSArchiveManifest</code> document.
-   */
+  /** Archive file ref for the <code>PSArchiveManifest</code> document. */
   public static final String ARCHIVE_MANIFEST_PATH = "psx_archiveManifest.xml";
 }

@@ -38,14 +38,13 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This effect notifies all assignees for the supplied workflowid, stateid
- * and transitionid if a new relationship is created.
+ * This effect notifies all assignees for the supplied workflowid, stateid and transitionid if a new
+ * relationship is created.
  */
 public class PSNotifyEffect extends PSEffect {
   /**
-   * This effect is only executed if the execution context indicates that
-   * this relationship was just created.
-   * See base class for additional information.
+   * This effect is only executed if the execution context indicates that this relationship was just
+   * created. See base class for additional information.
    */
   public void test(
       Object[] params,
@@ -56,27 +55,21 @@ public class PSNotifyEffect extends PSEffect {
   }
 
   /**
-   * Notifies all assignees for the supplied stateid and transitionid in the
-   * provided workflow.
+   * Notifies all assignees for the supplied stateid and transitionid in the provided workflow.
    *
-   * @param params this effect takes 4 parameters:
-   *    params[0] the workflowid of the workflow from which this should
-   *       notify all assignees, not <code>null</code> or empty.
-   *    params[1] the stateid for which this should notify all assignees,
-   *       not <code>null</code> or empty.
-   *    params[2] the transitionid for which this should notify all assignees,
-   *       not <code>null</code> or empty.
-   *    params[3] the username for which this should notify all assignees,
-   *       not <code>null</code> or empty.
-   * @param request the request for which to send the notifications, not
-   *    <code>null</code>.
-   * @param context the execution context for which to process this effect,
-   *    not used, can be <code>null</code>.
-   * @param result - effect result that is used to communicate effect result
-   *    back to the engine, assumed never <code>null</code>.
+   * @param params this effect takes 4 parameters: params[0] the workflowid of the workflow from
+   *     which this should notify all assignees, not <code>null</code> or empty. params[1] the
+   *     stateid for which this should notify all assignees, not <code>null</code> or empty.
+   *     params[2] the transitionid for which this should notify all assignees, not <code>null
+   *     </code> or empty. params[3] the username for which this should notify all assignees, not
+   *     <code>null</code> or empty.
+   * @param request the request for which to send the notifications, not <code>null</code>.
+   * @param context the execution context for which to process this effect, not used, can be <code>
+   *     null</code>.
+   * @param result - effect result that is used to communicate effect result back to the engine,
+   *     assumed never <code>null</code>.
    * @return <code>true</code> if the notifications are sent successfully.
-   * @throws PSExtensionProcessingException for any error catched while
-   *    notifying the assignees.
+   * @throws PSExtensionProcessingException for any error catched while notifying the assignees.
    */
   public void attempt(
       Object[] params,
@@ -85,8 +78,8 @@ public class PSNotifyEffect extends PSEffect {
       PSEffectResult result)
       throws PSExtensionProcessingException, PSParameterMismatchException {
     /**
-     * Build up a list with all parameters, with the parameter name as
-     * key and the parameter value as <code>String</code>.
+     * Build up a list with all parameters, with the parameter name as key and the parameter value
+     * as <code>String</code>.
      */
     Map<String, Object> parameters = Collections.synchronizedMap(new HashMap<String, Object>());
 
@@ -154,10 +147,9 @@ public class PSNotifyEffect extends PSEffect {
   }
 
   /**
-   * We don't want to throw an exeption if notify fails, but we want to
-   * log that problem.
+   * We don't want to throw an exeption if notify fails, but we want to log that problem.
    *
-   * See <code>IPSEffect</code> for additional description.
+   * <p>See <code>IPSEffect</code> for additional description.
    */
   public void recover(
       Object[] params,
@@ -173,13 +165,10 @@ public class PSNotifyEffect extends PSEffect {
   /**
    * Parses tha integer value from the supplied <code>String</code> value.
    *
-   * @param name the parameter name used for error messages only, assumed not
-   *    <code>null</code>.
-   * @param value the value to be parsed int an integer, assumed not
-   *    <code>null</code>.
+   * @param name the parameter name used for error messages only, assumed not <code>null</code>.
+   * @param value the value to be parsed int an integer, assumed not <code>null</code>.
    * @return the integer value.
-   * @throws PSExtensionProcessingException if the supplied value is not
-   *    a parsable integer.
+   * @throws PSExtensionProcessingException if the supplied value is not a parsable integer.
    */
   private int getIntParameter(String name, String value) throws PSExtensionProcessingException {
     try {
@@ -191,16 +180,14 @@ public class PSNotifyEffect extends PSEffect {
   }
 
   /**
-   * A list of names for all required parameters. The parameters are in the
-   * order as the are expected.
+   * A list of names for all required parameters. The parameters are in the order as the are
+   * expected.
    */
   private static final String[] REQUIRED_PARAMS = {
     "workflowid", "stateid", "transitionid", "username"
   };
 
-  /**
-   * A list of required HTML parameters.
-   */
+  /** A list of required HTML parameters. */
   private static final String[] REQUIRED_HTML_PARAMS = {
     IPSHtmlParameters.SYS_CONTENTID, IPSHtmlParameters.SYS_REVISION
   };

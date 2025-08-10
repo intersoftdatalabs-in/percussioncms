@@ -50,16 +50,13 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 
 /**
- * This exit handles all active assembly actions which modify the relationship
- * tables. The exit does all the work through the active assembly proxy
- * processor and is attached to the dummy update
- * <code>sys_rxSupport/updaterelateditems</code>. This approacch is taken to
- * keep the interface used for all active assembly update functionality.
+ * This exit handles all active assembly actions which modify the relationship tables. The exit does
+ * all the work through the active assembly proxy processor and is attached to the dummy update
+ * <code>sys_rxSupport/updaterelateditems</code>. This approacch is taken to keep the interface used
+ * for all active assembly update functionality.
  */
 public class PSModifyRelatedContent extends PSDefaultExtension implements IPSRequestPreProcessor {
-  /**
-   * This exit does not take any parameters.
-   */
+  /** This exit does not take any parameters. */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSExtensionProcessingException {
     try {
@@ -106,8 +103,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
    * Change the slot and/or variant for the supplied relationship.
    *
    * @param rid the id of the relationship to be modified.
-   * @param request the request used to perform the action, assumed not
-   *    <code>null</code>.
+   * @param request the request used to perform the action, assumed not <code>null</code>.
    * @throws PSException for any error.
    */
   public static void modifySlotVariant(int rid, IPSRequestContext request) throws PSException {
@@ -151,12 +147,10 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   * Delete the relationship addressed through the supplied relationship
-   * id.
+   * Delete the relationship addressed through the supplied relationship id.
    *
    * @param rid the id of the relationship to be deleted.
-   * @param request the request used to perform the action, assumed not
-   *    <code>null</code>.
+   * @param request the request used to perform the action, assumed not <code>null</code>.
    * @throws PSException for any error.
    */
   public static void deleteSlotItem(int rid, IPSRequestContext request) throws PSException {
@@ -171,16 +165,16 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   * Convenience method that calls {@link move(int, IPSRequestContext,
-   * boolean) move(rid, request, true)}.
+   * Convenience method that calls {@link move(int, IPSRequestContext, boolean) move(rid, request,
+   * true)}.
    */
   public static void moveUp(int rid, IPSRequestContext request) throws PSException {
     move(rid, request, true);
   }
 
   /**
-   * Convenience method that calls {@link move(int, IPSRequestContext,
-   * boolean) move(rid, request, false)}.
+   * Convenience method that calls {@link move(int, IPSRequestContext, boolean) move(rid, request,
+   * false)}.
    */
   public static void moveDown(int rid, IPSRequestContext request) throws PSException {
     move(rid, request, false);
@@ -190,10 +184,9 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
    * Move the supplied relationship by one position into the given direction.
    *
    * @param rid the id of the relationship to be moved.
-   * @param request the request used to perform the action, assumed not
-   *    <code>null</code>.
-   * @param up the moving direction, <code>true</code> to move up/right,
-   *    <code>false</code> to move down/left.
+   * @param request the request used to perform the action, assumed not <code>null</code>.
+   * @param up the moving direction, <code>true</code> to move up/right, <code>false</code> to move
+   *     down/left.
    * @throws PSException for any error.
    */
   public static void move(int rid, IPSRequestContext request, boolean up) throws PSException {
@@ -254,8 +247,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   /**
    * Insert all slot items supplied through the HTML request parameters.
    *
-   * @param request the request used to perform the action, assumed not
-   *    <code>null</code>.
+   * @param request the request used to perform the action, assumed not <code>null</code>.
    * @throws PSException for any error.
    */
   public static void insertSlotItems(IPSRequestContext request) throws PSException {
@@ -354,7 +346,6 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   *
    * @param rid
    * @param slotId
    * @param index
@@ -433,8 +424,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   /**
    * Get the relationship processor.
    *
-   * @param request the request for which to get the processor, assumed not
-   *    <code>null</code>.
+   * @param request the request for which to get the processor, assumed not <code>null</code>.
    * @return the relationship processor proxy, never <code>null</code>.
    * @throws PSCmsException for any errors creating the processor.
    */
@@ -446,8 +436,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   /**
    * Get the active assembly processor.
    *
-   * @param request the request for which to get the processor, assumed not
-   *    <code>null</code>.
+   * @param request the request for which to get the processor, assumed not <code>null</code>.
    * @return the active assembly processor proxy, never <code>null</code>.
    * @throws PSCmsException for any errors creating the processor.
    */
@@ -478,6 +467,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
 
   /**
    * Load a template using a string id
+   *
    * @param variantid the string id, assumed not <code>null</code> or empty
    * @return the template
    * @throws PSCmsException
@@ -495,9 +485,7 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
     }
   }
 
-  /**
-   * Convenience method that calls {@link getSlotType(int, request)}.
-   */
+  /** Convenience method that calls {@link getSlotType(int, request)}. */
   public static PSSlotType getSlotType(String slotid, IPSRequestContext request)
       throws PSCmsException {
     try {
@@ -512,10 +500,8 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
    * Get the slot type for the supplied parameters.
    *
    * @param slotid the slotid for which to get the slot type object.
-   * @param request the request used to lookup the slots, assumed not
-   *    <code>null</code>.
-   * @return the slot type object or <code>null</code> if none
-   *    was found for the supplied slotid.
+   * @param request the request used to lookup the slots, assumed not <code>null</code>.
+   * @return the slot type object or <code>null</code> if none was found for the supplied slotid.
    * @throws PSCmsException for any error looking up the slot types.
    */
   public static PSSlotType getSlotType(int slotid, IPSRequestContext request)
@@ -546,14 +532,13 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
   }
 
   /**
-   * This is a helper function that gets the XML document that gives the
-   * contentid and revision of the parent item from the relateditemid in the
-   * request. This function makes an internal request to a Rhythmyx resource
-   * in sys_rcSupport application.
+   * This is a helper function that gets the XML document that gives the contentid and revision of
+   * the parent item from the relateditemid in the request. This function makes an internal request
+   * to a Rhythmyx resource in sys_rcSupport application.
    *
    * @param request must not be <code>null</code>.
-   * @return the result document that has contentid and revisionid of the
-   *    parent item, may be <code>null</code>.
+   * @return the result document that has contentid and revisionid of the parent item, may be <code>
+   *     null</code>.
    * @throws PSExtensionProcessingException for any error.
    */
   public static Document getActiveItemInfo(IPSRequestContext request)
@@ -572,78 +557,51 @@ public class PSModifyRelatedContent extends PSDefaultExtension implements IPSReq
     return doc;
   }
 
-  /**
-   * Name of the attribute of the item element representing the
-   * contentid of the parent item.
-   */
+  /** Name of the attribute of the item element representing the contentid of the parent item. */
   private static final String ATTR_CONTENTID = "contentid";
 
-  /**
-   * Name of the attribute of the item element representing the
-   * revisionid of the parent item.
-   */
+  /** Name of the attribute of the item element representing the revisionid of the parent item. */
   private static final String ATTR_REVISION = "revision";
 
   /**
-   * HTML parameter representing the combination of item contentid
-   * and variantid in the format 'contentid;variantid'.
+   * HTML parameter representing the combination of item contentid and variantid in the format
+   * 'contentid;variantid'.
    */
   public static final String PARAM_CONIDVARID = "conidvarid";
 
-  /**
-   * HTML parameter representing sysid for the item.
-   */
+  /** HTML parameter representing sysid for the item. */
   private static final String PARAM_SYSID = "sysid";
 
-  /**
-   * HTML parameter representing the new slotid to move the item.
-   */
+  /** HTML parameter representing the new slotid to move the item. */
   private static final String PARAM_NEWSLOTID = "newslotid";
 
-  /**
-   * HTML parameter representing the new variantid for an item.
-   */
+  /** HTML parameter representing the new variantid for an item. */
   private static final String PARAM_NEWVARIANTID = "newvariantid";
 
-  /**
-   * Name of the command to move an item one position up or left in a slot.
-   */
+  /** Name of the command to move an item one position up or left in a slot. */
   private static final String COMMAND_MOVEUP = "moveup";
 
-  /**
-   * Name of the command to move an item one position down or right in a slot.
-   */
+  /** Name of the command to move an item one position down or right in a slot. */
   private static final String COMMAND_MOVEDOWN = "movedown";
 
-  /**
-   * Name of the command to delete an item from a slot.
-   */
+  /** Name of the command to delete an item from a slot. */
   private static final String COMMAND_DELETE = "delete";
 
   /**
-   * Name of the command to modify a slot item. This includes moving it to a
-   * new slot and/or changing its variant.
+   * Name of the command to modify a slot item. This includes moving it to a new slot and/or
+   * changing its variant.
    */
   private static final String COMMAND_MODIFY = "modify";
 
-  /**
-   * Name of the command to insert items into a slot
-   */
+  /** Name of the command to insert items into a slot */
   public static final String COMMAND_INSERT = "update";
 
-  /**
-   * HTML parameter representing the child variant id (might not be used here
-   * do not delete!)
-   */
+  /** HTML parameter representing the child variant id (might not be used here do not delete!) */
   public static final String PARAM_ITEMVARIANTID = "itemvariantid";
 
-  /**
-   * HTML parameter representing the httpcaller return URL
-   */
+  /** HTML parameter representing the httpcaller return URL */
   public static final String PARAM_HTTPCALLER = "httpcaller";
 
-  /**
-   * Constant for no variant found error message.
-   */
+  /** Constant for no variant found error message. */
   public static final String ERROR_MSG_NO_VARIANT_FOUND = "No variant type found for variantid: ";
 }

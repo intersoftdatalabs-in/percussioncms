@@ -32,29 +32,27 @@ import org.apache.commons.lang.StringUtils;
  */
 public class PSChildRelationshipParser extends PSChildRelationshipBase {
   /**
-   * Creates an instance of this class that will use the specified processor
-   * for querying and updating relationships.
+   * Creates an instance of this class that will use the specified processor for querying and
+   * updating relationships.
    *
-   * @param relProcessor processor for querying and updating relationships, not
-   *           <code>null</code>
+   * @param relProcessor processor for querying and updating relationships, not <code>null</code>
    */
   public PSChildRelationshipParser(IPSRelationshipProcessor relProcessor) {
     super(relProcessor);
   }
 
   /**
-   * Extracts the content ids from the owners of relationships in the specified
-   * slot with the specified item as the dependent.
+   * Extracts the content ids from the owners of relationships in the specified slot with the
+   * specified item as the dependent.
    *
    * @param childId id of the item that must be the dependent of relationship
    * @param slotName name of the slot to be queried, not blank.
-   * @return ids of relationship owners from the specified slot with the
-   *         specified child id, or <code>null</code> if there are no
-   *         matching relationships
-   * @throws PSAssemblyException propagated from assembly service, if there are
-   *            problems loading the slot
-   * @throws PSCmsException propagated from relationship API, if there are
-   *            problems querying relationships
+   * @return ids of relationship owners from the specified slot with the specified child id, or
+   *     <code>null</code> if there are no matching relationships
+   * @throws PSAssemblyException propagated from assembly service, if there are problems loading the
+   *     slot
+   * @throws PSCmsException propagated from relationship API, if there are problems querying
+   *     relationships
    */
   public List<Integer> parse(int childId, String slotName)
       throws PSAssemblyException, PSCmsException {

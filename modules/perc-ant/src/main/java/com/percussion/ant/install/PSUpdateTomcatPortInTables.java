@@ -20,9 +20,7 @@ package com.percussion.ant.install;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * See super class
- */
+/** See super class */
 public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
   // see base class
   @Override
@@ -50,8 +48,6 @@ public class PSUpdateTomcatPortInTables extends PSExecSQLStmt {
     this.tomcatPort = token;
   }
 
-  /**
-   * Tomcat port from the tomcat panel
-   */
+  /** Tomcat port from the tomcat panel */
   protected String tomcatPort = "9992";
 }

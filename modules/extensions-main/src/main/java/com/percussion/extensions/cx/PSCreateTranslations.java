@@ -35,10 +35,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension translates given array of items into supplied locale. It
- * needs corresponding array of revisions. Gets the internal request for the
- * content type url with required parameters for the translation and then
- * makes an internal request to execute the url. Builds the result document
+ * This extension translates given array of items into supplied locale. It needs corresponding array
+ * of revisions. Gets the internal request for the content type url with required parameters for the
+ * translation and then makes an internal request to execute the url. Builds the result document
  * with the status of translations for each content item.
  */
 public class PSCreateTranslations extends PSDefaultExtension implements IPSResultDocumentProcessor {
@@ -47,6 +46,7 @@ public class PSCreateTranslations extends PSDefaultExtension implements IPSResul
 
   /**
    * Required by the interface. This exit never modifies the stylesheet.
+   *
    * @see IPSResultDocumentProcessor#canModifyStyleSheet()
    */
   public boolean canModifyStyleSheet() {

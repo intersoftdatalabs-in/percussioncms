@@ -18,110 +18,106 @@
 package com.percussion.workflow.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a workflow with its name, description, staging roles, and steps.
- * <p>
- * Sunny Sal says: "Workflows are like Bollywood scripts—lots of drama, but every step counts!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Workflows are like Bollywood scripts—lots of drama, but every step counts!"
  */
 @XmlRootElement(name = "Workflow")
 public class PSUiWorkflow extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String workflowName = "";
-    private String workflowDescription = "";
-    private String stagingRoleNames = "";
-    private boolean defaultWorkflow = false;
+  private String workflowName = "";
+  private String workflowDescription = "";
+  private String stagingRoleNames = "";
+  private boolean defaultWorkflow = false;
 
-    // Used for update operations to identify the workflow to update.
-    private String previousWorkflowName = "";
+  // Used for update operations to identify the workflow to update.
+  private String previousWorkflowName = "";
 
-    // Used for step creation/update to identify the step to update or insert after.
-    private String previousStepName = "";
+  // Used for step creation/update to identify the step to update or insert after.
+  private String previousStepName = "";
 
-    private List<PSUiWorkflowStep> workflowSteps = new ArrayList<>();
+  private List<PSUiWorkflowStep> workflowSteps = new ArrayList<>();
 
-    public PSUiWorkflow() {
-        this("", new ArrayList<>());
-    }
+  public PSUiWorkflow() {
+    this("", new ArrayList<>());
+  }
 
-    public PSUiWorkflow(String workflowName, List<PSUiWorkflowStep> workflowSteps) {
-        this.workflowName = workflowName;
-        this.workflowSteps = workflowSteps;
-    }
+  public PSUiWorkflow(String workflowName, List<PSUiWorkflowStep> workflowSteps) {
+    this.workflowName = workflowName;
+    this.workflowSteps = workflowSteps;
+  }
 
-    public String getWorkflowName() {
-        return workflowName;
-    }
+  public String getWorkflowName() {
+    return workflowName;
+  }
 
-    public void setWorkflowName(String workflowName) {
-        this.workflowName = workflowName;
-    }
+  public void setWorkflowName(String workflowName) {
+    this.workflowName = workflowName;
+  }
 
-    public String getWorkflowDescription() {
-        return workflowDescription;
-    }
+  public String getWorkflowDescription() {
+    return workflowDescription;
+  }
 
-    public void setWorkflowDescription(String workflowDescription) {
-        this.workflowDescription = workflowDescription;
-    }
+  public void setWorkflowDescription(String workflowDescription) {
+    this.workflowDescription = workflowDescription;
+  }
 
-    /**
-     * Gets the workflow steps. May be empty but never {@code null}.
-     */
-    public List<PSUiWorkflowStep> getWorkflowSteps() {
-        return workflowSteps;
-    }
+  /** Gets the workflow steps. May be empty but never {@code null}. */
+  public List<PSUiWorkflowStep> getWorkflowSteps() {
+    return workflowSteps;
+  }
 
-    public void setWorkflowSteps(List<PSUiWorkflowStep> workflowSteps) {
-        this.workflowSteps = workflowSteps;
-    }
+  public void setWorkflowSteps(List<PSUiWorkflowStep> workflowSteps) {
+    this.workflowSteps = workflowSteps;
+  }
 
-    public String getPreviousWorkflowName() {
-        return previousWorkflowName;
-    }
+  public String getPreviousWorkflowName() {
+    return previousWorkflowName;
+  }
 
-    public void setPreviousWorkflowName(String previousWorkflowName) {
-        this.previousWorkflowName = previousWorkflowName;
-    }
+  public void setPreviousWorkflowName(String previousWorkflowName) {
+    this.previousWorkflowName = previousWorkflowName;
+  }
 
-    public String getPreviousStepName() {
-        return previousStepName;
-    }
+  public String getPreviousStepName() {
+    return previousStepName;
+  }
 
-    public void setPreviousStepName(String previousStepName) {
-        this.previousStepName = previousStepName;
-    }
+  public void setPreviousStepName(String previousStepName) {
+    this.previousStepName = previousStepName;
+  }
 
-    public boolean isDefaultWorkflow() {
-        return defaultWorkflow;
-    }
+  public boolean isDefaultWorkflow() {
+    return defaultWorkflow;
+  }
 
-    public void setDefaultWorkflow(boolean defaultWorkflow) {
-        this.defaultWorkflow = defaultWorkflow;
-    }
+  public void setDefaultWorkflow(boolean defaultWorkflow) {
+    this.defaultWorkflow = defaultWorkflow;
+  }
 
-    /**
-     * Gets a semicolon-separated list of role names.
-     *
-     * @return never {@code null}, may be empty.
-     */
-    public String getStagingRoleNames() {
-        return StringUtils.defaultString(stagingRoleNames);
-    }
+  /**
+   * Gets a semicolon-separated list of role names.
+   *
+   * @return never {@code null}, may be empty.
+   */
+  public String getStagingRoleNames() {
+    return StringUtils.defaultString(stagingRoleNames);
+  }
 
-    /**
-     * Sets a semicolon-separated list of staging role names.
-     *
-     * @param stagingRoleNames if {@code null}, will be set to empty string.
-     */
-    public void setStagingRoleNames(String stagingRoleNames) {
-        this.stagingRoleNames = StringUtils.defaultString(stagingRoleNames);
-    }
+  /**
+   * Sets a semicolon-separated list of staging role names.
+   *
+   * @param stagingRoleNames if {@code null}, will be set to empty string.
+   */
+  public void setStagingRoleNames(String stagingRoleNames) {
+    this.stagingRoleNames = StringUtils.defaultString(stagingRoleNames);
+  }
 }

@@ -28,17 +28,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Convenient class to hold the field/fieldset and its dispalymapping together.
- * This is useful for the fields and fieldsets that have the displaymapping.
- * The object this class holds will be either PSField or PSFieldSet
+ * Convenient class to hold the field/fieldset and its dispalymapping together. This is useful for
+ * the fields and fieldsets that have the displaymapping. The object this class holds will be either
+ * PSField or PSFieldSet
  */
 public class PSFieldDefinition {
   /**
-   * Constructs an object of this class, sets the PSFieldSet object as
-   * <code>null</code>.
+   * Constructs an object of this class, sets the PSFieldSet object as <code>null</code>.
+   *
    * @param field, object of PSField, must not be <code>null</code>.
-   * @param mapping, the mapping corresponding to the supplied field
-   *   must not be <code>null</code>.
+   * @param mapping, the mapping corresponding to the supplied field must not be <code>null</code>.
    */
   public PSFieldDefinition(PSField field, PSDisplayMapping mapping) {
     if (field == null) {
@@ -56,11 +55,11 @@ public class PSFieldDefinition {
   }
 
   /**
-   * Constructs an object of this class, sets the PSField object as
-   * <code>null</code>.
+   * Constructs an object of this class, sets the PSField object as <code>null</code>.
+   *
    * @param fieldSet Object of PSFieldSet, sets the PSFeild object as <code>null</code>.
-   * @param mapping, the mapping corresponding to the supplied fieldset
-   *   must not be <code>null</code>.
+   * @param mapping, the mapping corresponding to the supplied fieldset must not be <code>null
+   *     </code>.
    */
   public PSFieldDefinition(PSFieldSet fieldSet, PSDisplayMapping mapping) {
     if (fieldSet == null) {
@@ -79,15 +78,17 @@ public class PSFieldDefinition {
 
   /**
    * Gets the PSDisplayMapping object.
-   * @return the PSDisplayMapping object  never <code>null</code>.
+   *
+   * @return the PSDisplayMapping object never <code>null</code>.
    */
   public PSDisplayMapping getMapping() {
     return m_mapping;
   }
 
   /**
-   * Gets the PSField object. Call isFieldSet method before calling method,
-   * to determine whether the object represents a field or field set.
+   * Gets the PSField object. Call isFieldSet method before calling method, to determine whether the
+   * object represents a field or field set.
+   *
    * @return the PSField object, may be <code>null</code>.
    */
   public PSField getField() {
@@ -95,16 +96,17 @@ public class PSFieldDefinition {
   }
 
   /**
-   * Gets the PSFieldSet object. Call isFieldSet method before calling method,
-   * to determine whether the object represents a field or field set.
+   * Gets the PSFieldSet object. Call isFieldSet method before calling method, to determine whether
+   * the object represents a field or field set.
    */
   public PSFieldSet getFieldset() {
     return m_fieldSet;
   }
 
   /**
-   * Gets the list of control dependencies set by {@link setCtrlDependencies}.
-   * returns <code>null</code>if not set.
+   * Gets the list of control dependencies set by {@link setCtrlDependencies}. returns <code>null
+   * </code>if not set.
+   *
    * @return List of control dependencies, may be <code>null</code>.
    */
   public List<PSDependency> getCtrlDependencies() {
@@ -113,6 +115,7 @@ public class PSFieldDefinition {
 
   /**
    * Sets the list of control dependencies.
+   *
    * @param dependencies List of PSDependency objects.
    */
   public void setCtrlDependencies(List<PSDependency> dependencies) {
@@ -120,8 +123,8 @@ public class PSFieldDefinition {
   }
 
   /**
-   * @return <code>true</code>, if the PSFieldSet object is not <code>null</code>
-   * otherwise <code>false</code>.
+   * @return <code>true</code>, if the PSFieldSet object is not <code>null</code> otherwise <code>
+   *     false</code>.
    */
   public boolean isFieldSet() {
     return m_fieldSet != null ? true : false;
@@ -129,6 +132,7 @@ public class PSFieldDefinition {
 
   /**
    * Creates a deepcopy of this object by calling appropriate toXML methods.
+   *
    * @param fd PSFieldDefinition Object, must not be <code>null</code>.
    * @return deep copied PSFieldDefinition object.
    */
@@ -184,22 +188,13 @@ public class PSFieldDefinition {
     return fdCopy;
   }
 
-  /**
-   * PSField object, will be null if the object of this class represents
-   * PSFieldSet
-   */
+  /** PSField object, will be null if the object of this class represents PSFieldSet */
   private PSField m_field;
 
-  /**
-   * PSDisplayMapping object corresponding to the field or fieldset of
-   * this object.
-   */
+  /** PSDisplayMapping object corresponding to the field or fieldset of this object. */
   private PSDisplayMapping m_mapping;
 
-  /**
-   * PSFieldSet object, will be null if the object of this class represents
-   * PSField.
-   */
+  /** PSFieldSet object, will be null if the object of this class represents PSField. */
   private PSFieldSet m_fieldSet;
 
   private List<PSDependency> m_ctrlDependencies;

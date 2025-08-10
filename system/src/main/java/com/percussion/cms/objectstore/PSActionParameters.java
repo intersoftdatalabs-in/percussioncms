@@ -24,24 +24,18 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.w3c.dom.Element;
 
-/**
- * The class that is used to represent properties as defined by
- * 'sys_Params.dtd'.
- */
+/** The class that is used to represent properties as defined by 'sys_Params.dtd'. */
 public class PSActionParameters extends PSDbComponentCollection {
-  /**
-   * The default constructor to create parameters with empty list.
-   */
+  /** The default constructor to create parameters with empty list. */
   public PSActionParameters() {
     super(PSActionParameter.class);
   }
 
   /**
-   * Constructs this object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs this object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    */
   public PSActionParameters(Element element) throws PSUnknownNodeTypeException {
@@ -49,14 +43,12 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * Gets the value of the specified parameter. Uses case-insensitive
-   * comparison to get the parameter.
+   * Gets the value of the specified parameter. Uses case-insensitive comparison to get the
+   * parameter.
    *
    * @param name name of the parameter, may not be <code>null</code> or empty.
-   *
-   * @return The parameter value, may be <code>null</code> if the specified
-   * parameter does not exist. Never <code>null</code> if the parameter is
-   * present but may be empty.
+   * @return The parameter value, may be <code>null</code> if the specified parameter does not
+   *     exist. Never <code>null</code> if the parameter is present but may be empty.
    */
   public String getParameter(String name) {
     PSActionParameter param = getParameterObject(name);
@@ -65,9 +57,9 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * Sets the specified parameter with supplied value. If the parameter with
-   * that name (case-insensitive) exists it will be replaced. The values are
-   * compared case-sensitive when determing whether the property is dirty.
+   * Sets the specified parameter with supplied value. If the parameter with that name
+   * (case-insensitive) exists it will be replaced. The values are compared case-sensitive when
+   * determing whether the property is dirty.
    *
    * @param name name of the parameter, may not be <code>null</code> or empty.
    * @param value value of the parameter, may be <code>null</code> or empty.
@@ -83,8 +75,8 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * This method is overridden to guarantee that the names of all members
-   * forms a set based on case-insensitive property names.
+   * This method is overridden to guarantee that the names of all members forms a set based on
+   * case-insensitive property names.
    *
    * @param comp Never <code>null</code>. Must be a PSActionProperty.
    */
@@ -100,14 +92,12 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * If a property by the supplied name exists in this set, it is removed.
-   * Otherwise, no action is taken.
+   * If a property by the supplied name exists in this set, it is removed. Otherwise, no action is
+   * taken.
    *
-   * @param name If <code>null</code> or empty, no action is taken. The name
-   *    is compared case insensitive.
-   *
-   * @return <code>true</code> if an entry was removed, <code>false</code>
-   *    otherwise.
+   * @param name If <code>null</code> or empty, no action is taken. The name is compared case
+   *     insensitive.
+   * @return <code>true</code> if an entry was removed, <code>false</code> otherwise.
    */
   public boolean removeParameter(String name) {
     if (null == name || name.trim().length() == 0) return false;
@@ -116,13 +106,11 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * Creates a map of name/value pairs of this parameter collection. The caller
-   * takes over ownership of the returned map. The returned map is sorted in
-   * alpha order.
+   * Creates a map of name/value pairs of this parameter collection. The caller takes over ownership
+   * of the returned map. The returned map is sorted in alpha order.
    *
-   * @return a map of name/value pair <code>String</code> objects with all
-   *    parameters defined in this collection, never <code>null</code>,
-   *    may be empty.
+   * @return a map of name/value pair <code>String</code> objects with all parameters defined in
+   *     this collection, never <code>null</code>, may be empty.
    */
   public Map<String, String> toMap() {
     // we use a tree map to sort the map in alpha order
@@ -136,12 +124,10 @@ public class PSActionParameters extends PSDbComponentCollection {
   }
 
   /**
-   * Reset this parameter collection with the name/value pairs from the
-   * supplied map.
+   * Reset this parameter collection with the name/value pairs from the supplied map.
    *
-   * @param params a map of name/value pairs to reset this collection with,
-   *    may be <code>null</code> or empty in which case the collection will be
-   *    cleared.
+   * @param params a map of name/value pairs to reset this collection with, may be <code>null</code>
+   *     or empty in which case the collection will be cleared.
    */
   public void fromMap(Map<String, String> params) {
     if (params == null || params.isEmpty()) {
@@ -169,9 +155,7 @@ public class PSActionParameters extends PSDbComponentCollection {
   /**
    * Finds the property in this collection that has the specified name.
    *
-   * @param name Assumed not <code>null</code> or empty. The name is compared
-   *    case insensitive.
-   *
+   * @param name Assumed not <code>null</code> or empty. The name is compared case insensitive.
    * @return A valid parameter, or <code>null</code> if one can't be found.
    */
   private PSActionParameter getParameterObject(String name) {
@@ -183,8 +167,6 @@ public class PSActionParameters extends PSDbComponentCollection {
     return null;
   }
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "PSXActionParameters";
 }

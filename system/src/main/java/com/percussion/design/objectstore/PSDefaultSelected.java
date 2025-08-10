@@ -22,13 +22,9 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXDefaultSelected DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXDefaultSelected DTD in BasicObjects.dtd. */
 public class PSDefaultSelected extends PSComponent {
-  /**
-   * Creates a new default selected of type 'nullEntry'.
-   */
+  /** Creates a new default selected of type 'nullEntry'. */
   public PSDefaultSelected() {
     m_type = TYPE_NULL_ENTRY;
   }
@@ -61,14 +57,10 @@ public class PSDefaultSelected extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDefaultSelected(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -103,9 +95,8 @@ public class PSDefaultSelected extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSDefaultSelected, not <code>null</code>.
    */
@@ -138,7 +129,6 @@ public class PSDefaultSelected extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -203,7 +193,6 @@ public class PSDefaultSelected extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -240,45 +229,39 @@ public class PSDefaultSelected extends PSComponent {
   public static final String XML_NODE_NAME = "PSXDefaultSelected";
 
   /**
-   * Null entry type specifier. Specify this type to choose the associated
-   * PSNullEntry as the default.
+   * Null entry type specifier. Specify this type to choose the associated PSNullEntry as the
+   * default.
    */
   public static final int TYPE_NULL_ENTRY = 0;
 
   /**
-   * Sequence type specifier. Specify this type to choose the element with
-   * the specified sequence number as default.
+   * Sequence type specifier. Specify this type to choose the element with the specified sequence
+   * number as default.
    */
   public static final int TYPE_SEQUENCE = 1;
 
   /**
-   * Text type specifier. Specify this to check the value against each entry.
-   * The first matching entry (case insensitive) will become the default.
+   * Text type specifier. Specify this to check the value against each entry. The first matching
+   * entry (case insensitive) will become the default.
    */
   public static final int TYPE_TEXT = 2;
 
   /**
-   * An array of XML attribute values for the type. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the type. They are specified at the index of the
+   * specifier.
    */
   private static final String[] TYPE_ENUM = {"nullEntry", "sequence", "text"};
 
   /**
-   * If an entry in the database is <code>null</code> or empty, this
-   * specifies how to choose the default value.
+   * If an entry in the database is <code>null</code> or empty, this specifies how to choose the
+   * default value.
    */
   private int m_type = TYPE_NULL_ENTRY;
 
-  /**
-   * The sequence number is only used if type is 'sequence'. -1 means not
-   * specified.
-   */
+  /** The sequence number is only used if type is 'sequence'. -1 means not specified. */
   private int m_sequence = -1;
 
-  /**
-   * The text string is only used if type is 'text', might be
-   * <code>null</code>.
-   */
+  /** The text string is only used if type is 'text', might be <code>null</code>. */
   private String m_text = null;
 
   /*

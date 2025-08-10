@@ -20,13 +20,9 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 
-/**
- * Unit test for the <code>PSParamStringListToMultiParams</code> exit.
- */
+/** Unit test for the <code>PSParamStringListToMultiParams</code> exit. */
 public class PSParamStringListToMultiParamsTest extends TestCase {
-  /**
-   * Tets all exit contracts and functionality.
-   */
+  /** Tets all exit contracts and functionality. */
   public void testExit() throws Exception {
     PSParamStringListToMultiParams test = new PSParamStringListToMultiParams();
 
@@ -115,9 +111,7 @@ public class PSParamStringListToMultiParamsTest extends TestCase {
       assertTrue(values[i].toString().equals(expectedValues2[i]));
   }
 
-  /**
-   * Make empty constructor public for testing.
-   */
+  /** Make empty constructor public for testing. */
   private class TestRequest extends PSRequest {
     public TestRequest() {}
   }

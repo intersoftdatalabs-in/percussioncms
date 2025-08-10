@@ -25,10 +25,10 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * This upgrade plugin adds the feeds info post edition task to all editions that
- * don't currently have it.
- * @author erikserating
+ * This upgrade plugin adds the feeds info post edition task to all editions that don't currently
+ * have it.
  *
+ * @author erikserating
  */
 public class PSUpgradeAddFeedPostEditionTasks extends PSSpringUpgradePluginBase {
 

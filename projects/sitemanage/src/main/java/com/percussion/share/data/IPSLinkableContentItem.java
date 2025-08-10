@@ -20,9 +20,9 @@ package com.percussion.share.data;
 import com.percussion.share.service.IPSLinkableItem;
 
 /**
- * Marker interface for content items that are linkable.
- * Extends both {@link IPSContentItem} and {@link IPSLinkableItem}.
+ * Marker interface for content items that are linkable. Extends both {@link IPSContentItem} and
+ * {@link IPSLinkableItem}.
  */
 public interface IPSLinkableContentItem extends IPSContentItem, IPSLinkableItem {
-    // No additional methods; combines content and linkable item contracts.
+  // No additional methods; combines content and linkable item contracts.
 }

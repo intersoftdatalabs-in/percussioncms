@@ -38,17 +38,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * The PSRequestContext class contains all the context information of a given
- * request.
- */
+/** The PSRequestContext class contains all the context information of a given request. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSRequestContext implements IPSRequestContext {
   /**
    * Construct a PSRequestContext object.
    *
-   * @param req  the request
-   *
+   * @param req the request
    * @throws IllegalArgumentException if request is <code>null</code>
    */
   public PSRequestContext(PSRequest req) {
@@ -464,23 +460,21 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   * Sets the given object on the user's session see
-   * {@link PSUserSession#setSessionObject(String, Object)}.
+   * Sets the given object on the user's session see {@link PSUserSession#setSessionObject(String,
+   * Object)}.
    *
-   * @param key the key to the object, must never be <code>null</code>.
-   *           Checked by called method.
-   * @param o the object, must never be <code>null</code> Checked by called
-   *           method.
+   * @param key the key to the object, must never be <code>null</code>. Checked by called method.
+   * @param o the object, must never be <code>null</code> Checked by called method.
    */
   public void setSessionObject(String key, Object o) {
     m_requestToProxy.getUserSession().setSessionObject((String) key, o);
   }
 
   /**
-   * Clears the named key from the user's session see
-   * {@link PSUserSession#clearSessionObject(String)}.
-   * @param key the key to the object, must never be <code>null</code>.
-   * Checked by called method.
+   * Clears the named key from the user's session see {@link
+   * PSUserSession#clearSessionObject(String)}.
+   *
+   * @param key the key to the object, must never be <code>null</code>. Checked by called method.
    * @return original value that was cleared, may be <code>null</code>.
    */
   public Object clearSessionObject(String key) {
@@ -675,11 +669,10 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   * Gets the global attributes for the specified subjects.
-   * Convenience method that gets the attributes of the subject that made the
-   * current request. See {@link
-   * #getSubjectGlobalAttributes(String, int, String, String, boolean, String)}
-   * for a full description.
+   * Gets the global attributes for the specified subjects. Convenience method that gets the
+   * attributes of the subject that made the current request. See {@link
+   * #getSubjectGlobalAttributes(String, int, String, String, boolean, String)} for a full
+   * description.
    *
    * @param subjectNameFilter
    * @param subjectType
@@ -726,9 +719,9 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   *  (non-Javadoc)
-   * @see com.percussion.server.IPSRequestContext#getRoleMembers(java.lang.String, int, int)
+   * (non-Javadoc)
    *
+   * @see com.percussion.server.IPSRequestContext#getRoleMembers(java.lang.String, int, int)
    * @deprecated
    */
   public List getRoleMembers(String roleName, int flags, int memberFlags) {
@@ -828,8 +821,7 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   * Wrapper method that calls
-   * {@link #getInternalRequest(String, Map, boolean)
+   * Wrapper method that calls {@link #getInternalRequest(String, Map, boolean)
    * getInternalRequest(resource, null, true)}.
    */
   public IPSInternalRequest getInternalRequest(String resource, Map extraParams) {
@@ -890,8 +882,8 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   * Get the request. In order to prevent Exit to access the request object,
-   * made this method to be package protected.
+   * Get the request. In order to prevent Exit to access the request object, made this method to be
+   * package protected.
    *
    * @return the request object, never <code>null</code>.
    */
@@ -900,14 +892,12 @@ public class PSRequestContext implements IPSRequestContext {
   }
 
   /**
-   * Builds a new PSSubject from this object's request context. If there are
-   * no authenticated users, <code>null</code> is returned. Note that if the
-   * session contains more than 1 authenticated user, you will get the first
-   * one that happens to be in the array.
+   * Builds a new PSSubject from this object's request context. If there are no authenticated users,
+   * <code>null</code> is returned. Note that if the session contains more than 1 authenticated
+   * user, you will get the first one that happens to be in the array.
    *
-   * @return A valid subject based on the 1st authenticated user in the
-   *    session, or <code>null</code> if there are no authenticated users
-   *    therein.
+   * @return A valid subject based on the 1st authenticated user in the session, or <code>null
+   *     </code> if there are no authenticated users therein.
    */
   private PSSubject getSubjectFromSession() {
     PSUserEntry[] users = m_requestToProxy.getUserSession().getAuthenticatedUserEntries();
@@ -934,8 +924,6 @@ public class PSRequestContext implements IPSRequestContext {
     return PSRoleManager.getInstance().expandGroups(subjects);
   }
 
-  /**
-   * The request to proxy.  Never <code>null</code> after construction.
-   */
+  /** The request to proxy. Never <code>null</code> after construction. */
   private PSRequest m_requestToProxy;
 }

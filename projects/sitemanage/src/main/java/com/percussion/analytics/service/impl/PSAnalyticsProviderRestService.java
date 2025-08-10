@@ -37,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * REST service for analytics provider configuration and connection.
- * Sunny Sal: "REST easy, analytics is under control!"
+ * REST service for analytics provider configuration and connection. Sunny Sal: "REST easy,
+ * analytics is under control!"
  */
 @Path("/provider")
 @Component("analyticsProviderRestService")
@@ -52,9 +52,7 @@ public class PSAnalyticsProviderRestService {
     this.providerService = providerService;
   }
 
-  /**
-   * Gets analytics profiles.
-   */
+  /** Gets analytics profiles. */
   @GET
   @Path("/profiles")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -70,9 +68,7 @@ public class PSAnalyticsProviderRestService {
     }
   }
 
-  /**
-   * Tests analytics provider connection.
-   */
+  /** Tests analytics provider connection. */
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Path("/testConnection/{uid}")
@@ -100,9 +96,7 @@ public class PSAnalyticsProviderRestService {
     }
   }
 
-  /**
-   * Stores analytics provider config.
-   */
+  /** Stores analytics provider config. */
   @POST
   @Path("/config")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -120,9 +114,7 @@ public class PSAnalyticsProviderRestService {
     }
   }
 
-  /**
-   * Gets stored analytics provider config.
-   */
+  /** Gets stored analytics provider config. */
   @GET
   @Path("/config")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -140,9 +132,7 @@ public class PSAnalyticsProviderRestService {
     }
   }
 
-  /**
-   * Deletes analytics provider config.
-   */
+  /** Deletes analytics provider config. */
   @DELETE
   @Path("/config")
   public void deleteConfig() {
@@ -155,9 +145,7 @@ public class PSAnalyticsProviderRestService {
     }
   }
 
-  /**
-   * Checks if a profile is configured for the given site.
-   */
+  /** Checks if a profile is configured for the given site. */
   @GET
   @Path("/isProfileConfigured/{sitename}")
   @Produces(MediaType.TEXT_PLAIN)

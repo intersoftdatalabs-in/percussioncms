@@ -20,21 +20,17 @@ package com.percussion.design.catalog.security.server;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSecurityCatalogHandler class processes security related catalog
- * requests for the E2 server. This class interfaces with the security
- * providers directly to perform its cataloging.
+ * The PSSecurityCatalogHandler class processes security related catalog requests for the E2 server.
+ * This class interfaces with the security providers directly to perform its cataloging.
  *
- * @see       com.percussion.server.IPSRequestHandler
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.IPSRequestHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSecurityCatalogHandler
     extends com.percussion.design.catalog.PSCatalogRequestHandler {
-  /**
-   * Construct the data related catalog handler.
-   */
+  /** Construct the data related catalog handler. */
   public PSSecurityCatalogHandler() {
     super();
 
@@ -55,9 +51,7 @@ public class PSSecurityCatalogHandler
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

@@ -22,19 +22,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Monitors cache for expired items and flushes them.
- */
+/** Monitors cache for expired items and flushes them. */
 class PSCacheAgingManager implements IPSCacheModifiedListener {
   /**
-   * Creates a thread to monitor the cache for aged items.  If aging time is
-   * set to unlimited, the thread will not start.
+   * Creates a thread to monitor the cache for aged items. If aging time is set to unlimited, the
+   * thread will not start.
    *
-   * @param agingTime The amount of time (in mins) to allow an object to be
-   * present in the cache before it is flushed. Provide <code>-1</code> to
-   * allow unlimited time (never expires), or else a number greater than <code>
+   * @param agingTime The amount of time (in mins) to allow an object to be present in the cache
+   *     before it is flushed. Provide <code>-1</code> to allow unlimited time (never expires), or
+   *     else a number greater than <code>
    * 0</code>.
-   *
    * @throws IllegalArgumentException if <code>agingTime</code> is invalid.
    */
   PSCacheAgingManager(long agingTime) {
@@ -53,10 +50,9 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
       m_agingThread =
           new Thread(AGING_THREAD) {
             /**
-             * Starts a thread to monitor the cache for aged items. Will
-             * determine the next item that will age and will sleep until that
-             * time. If there are no items in the cache, will block waiting on
-             * an event that adds an item to the cache.  When an item has aged,
+             * Starts a thread to monitor the cache for aged items. Will determine the next item
+             * that will age and will sleep until that time. If there are no items in the cache,
+             * will block waiting on an event that adds an item to the cache. When an item has aged,
              * it is flushed from the cache.
              */
             public void run() {
@@ -107,9 +103,9 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
       m_queueThread =
           new Thread(QUEUE_THREAD) {
             /**
-             * This adds/removes all the items that are queued by the cache item
-             * events to/from the cached items list. Ignores if the items that
-             * are to be removed are already removed by aging thread.
+             * This adds/removes all the items that are queued by the cache item events to/from the
+             * cached items list. Ignores if the items that are to be removed are already removed by
+             * aging thread.
              */
             public void run() {
               while (m_run) {
@@ -142,9 +138,8 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
   }
 
   /**
-   * Shuts downs the threads created by this object and releases any resources.
-   * It is safe to call this method even if the threads are not currently
-   * running.
+   * Shuts downs the threads created by this object and releases any resources. It is safe to call
+   * this method even if the threads are not currently running.
    */
   void shutdown() {
     if (m_run) {
@@ -158,19 +153,17 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
   }
 
   /**
-   * Causes the item involved in the supplied event to be added or removed from
-   * this manager's internal list of item references (such list access must be
-   * synchronized with any list access from the threads that monitors the items
-   * ). See {@link IPSCacheModifiedListener#cacheModified(PSCacheEvent)} for
-   * more info.
+   * Causes the item involved in the supplied event to be added or removed from this manager's
+   * internal list of item references (such list access must be synchronized with any list access
+   * from the threads that monitors the items ). See {@link
+   * IPSCacheModifiedListener#cacheModified(PSCacheEvent)} for more info.
    *
    * @param e the cache event, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if the event or the item involved in the
-   * event is <code>null</code> or the item involved with event does not belong
-   * to the cache that this listener is listening to.
-   * @throws IllegalStateException if the cache that this listener is listening
-   * to for events is not yet set.
+   * @throws IllegalArgumentException if the event or the item involved in the event is <code>null
+   *     </code> or the item involved with event does not belong to the cache that this listener is
+   *     listening to.
+   * @throws IllegalStateException if the cache that this listener is listening to for events is not
+   *     yet set.
    */
   public void cacheModified(PSCacheEvent e) {
     if (e == null) throw new IllegalArgumentException("e may not be null");
@@ -210,80 +203,70 @@ class PSCacheAgingManager implements IPSCacheModifiedListener {
   }
 
   /**
-   * The amount of time in milliseconds that an item can be in the cache.
-   * The value of '-1' indicates that the items are never expired. Set in ctor
-   * and never modified after that.
+   * The amount of time in milliseconds that an item can be in the cache. The value of '-1'
+   * indicates that the items are never expired. Set in ctor and never modified after that.
    */
   private long m_agingTime;
 
   /**
-   * The flag to indicate whether the threads should continue to run or stop.
-   * Initialized to <code>true</code> and set to <code>false</code> when <code>
-   * shutdown()</code> is called to stop the threads or during ctor if the
-   * aging time is unlimited.
+   * The flag to indicate whether the threads should continue to run or stop. Initialized to <code>
+   * true</code> and set to <code>false</code> when <code>
+   * shutdown()</code> is called to stop the threads or during ctor if the aging time is unlimited.
    */
   private boolean m_run = true;
 
   /**
-   * The instance of the cache that this listener is listening to for events.
-   * Gets set when this listener is registered with this cache instance and
-   * set to <code>null</code> when <code>shutdown()</code> is called.
+   * The instance of the cache that this listener is listening to for events. Gets set when this
+   * listener is registered with this cache instance and set to <code>null</code> when <code>
+   * shutdown()</code> is called.
    */
   private PSMultiLevelCache m_cache;
 
   /**
-   * The thread that checks and flushes the items that are aged in the cache.
-   * Initialized in ctor and never <code>null</code> or modified after that.
-   * This thread will run only if the aging time is not unlimited. If it is
-   * running, this will be stopped when <code>shutdown()</code> is called.
+   * The thread that checks and flushes the items that are aged in the cache. Initialized in ctor
+   * and never <code>null</code> or modified after that. This thread will run only if the aging time
+   * is not unlimited. If it is running, this will be stopped when <code>shutdown()</code> is
+   * called.
    */
   private Thread m_agingThread;
 
   /**
-   * The thread that adds/removes the items that are added/removed from the
-   * cache to/from the cached items list. Initialized in ctor and never <code>
-   * null</code> or modified after that. This thread will run only if the aging
-   * time is not unlimited. If it is running, this will be stopped when <code>
+   * The thread that adds/removes the items that are added/removed from the cache to/from the cached
+   * items list. Initialized in ctor and never <code>
+   * null</code> or modified after that. This thread will run only if the aging time is not
+   * unlimited. If it is running, this will be stopped when <code>
    * shutdown()</code> is called.
    */
   private Thread m_queueThread;
 
   /**
-   * The list of {@link PSCacheItem}s that are added to cache. Initialized
-   * to an empty list and adds/removes the items to/from the list when queue
-   * thread processes the item added/removed events queue.
+   * The list of {@link PSCacheItem}s that are added to cache. Initialized to an empty list and
+   * adds/removes the items to/from the list when queue thread processes the item added/removed
+   * events queue.
    */
   private List m_cachedItems = new ArrayList();
 
   /**
-   * The list of {@link PSCacheEvent}s whose action is either {@link
-   * PSCacheEvent#CACHE_ITEM_ADDED} or {@link PSCacheEvent#CACHE_ITEM_REMOVED}.
-   * Initialized to an empty list and adds the items to the list when {@link
-   * #cacheModified} is called with the above mentioned events. The events get
+   * The list of {@link PSCacheEvent}s whose action is either {@link PSCacheEvent#CACHE_ITEM_ADDED}
+   * or {@link PSCacheEvent#CACHE_ITEM_REMOVED}. Initialized to an empty list and adds the items to
+   * the list when {@link #cacheModified} is called with the above mentioned events. The events get
    * removed from the list when the queue thread processes that event.
    */
   private LinkedList m_queuedItems = new LinkedList();
 
-  /**
-   * The constant to use to convert minutes to milli seconds.
-   */
+  /** The constant to use to convert minutes to milli seconds. */
   private static final long MIN_TO_MILLISEC = 60000;
 
   /**
-   * The time difference in milli seconds that is used to consider an item has
-   * expired if the current time is less than item's expiry time just by this
-   * or less than this amount of time (1/10th of minimum allowed aging time(1
-   * min) ).
+   * The time difference in milli seconds that is used to consider an item has expired if the
+   * current time is less than item's expiry time just by this or less than this amount of time
+   * (1/10th of minimum allowed aging time(1 min) ).
    */
   private static final long MIN_AGE_TIME = 10000;
 
-  /**
-   * The name of the aging thread created by this object.
-   */
+  /** The name of the aging thread created by this object. */
   private static final String AGING_THREAD = "CacheAgingManager";
 
-  /**
-   * The name of the queue thread.
-   */
+  /** The name of the queue thread. */
   private static final String QUEUE_THREAD = AGING_THREAD + "Queue";
 }

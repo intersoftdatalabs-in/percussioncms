@@ -33,36 +33,34 @@ import java.util.List;
  */
 public interface IPSResourceLinkAndLocationService {
 
-    /**
-     * Creates a resource instance from the link context, item, and resource definition id.
-     * The resource definition id should be fully qualified if it's not {@code null}.
-     * If the resource definition id resolves to a resource definition that is not applicable for the item,
-     * an exception will be thrown.
-     *
-     * @param context             never {@code null}
-     * @param item                never {@code null}
-     * @param resourceDefinitionId The unique id for a resource definition.
-     *                             If {@code null}, the resource definition with {@link PSAssetResource#isPrimary()} set to {@code true}
-     *                             for the item's type ({@link IPSLinkableItem#getType()}) will be used.
-     * @return never {@code null}
-     * @throws PSResourceServiceException If the resource definition is not applicable for the item
-     * @throws PSDataServiceException     If a data service error occurs
-     */
-    PSResourceInstance createResourceInstance(
-            PSRenderLinkContext context,
-            IPSLinkableItem item,
-            String resourceDefinitionId
-    ) throws PSResourceServiceException, PSDataServiceException;
+  /**
+   * Creates a resource instance from the link context, item, and resource definition id. The
+   * resource definition id should be fully qualified if it's not {@code null}. If the resource
+   * definition id resolves to a resource definition that is not applicable for the item, an
+   * exception will be thrown.
+   *
+   * @param context never {@code null}
+   * @param item never {@code null}
+   * @param resourceDefinitionId The unique id for a resource definition. If {@code null}, the
+   *     resource definition with {@link PSAssetResource#isPrimary()} set to {@code true} for the
+   *     item's type ({@link IPSLinkableItem#getType()}) will be used.
+   * @return never {@code null}
+   * @throws PSResourceServiceException If the resource definition is not applicable for the item
+   * @throws PSDataServiceException If a data service error occurs
+   */
+  PSResourceInstance createResourceInstance(
+      PSRenderLinkContext context, IPSLinkableItem item, String resourceDefinitionId)
+      throws PSResourceServiceException, PSDataServiceException;
 
-    /**
-     * Resolves link and locations for the resource instance.
-     *
-     * @param resourceInstance never {@code null}
-     * @return never {@code null}
-     * @throws PSResourceServiceException If resolving fails
-     * @throws IPSAssetService.PSAssetServiceException If asset service fails
-     * @see PSResourceInstance#getLinkAndLocations()
-     */
-    List<PSResourceLinkAndLocation> resolveLinkAndLocations(PSResourceInstance resourceInstance)
-            throws PSResourceServiceException, IPSAssetService.PSAssetServiceException;
+  /**
+   * Resolves link and locations for the resource instance.
+   *
+   * @param resourceInstance never {@code null}
+   * @return never {@code null}
+   * @throws PSResourceServiceException If resolving fails
+   * @throws IPSAssetService.PSAssetServiceException If asset service fails
+   * @see PSResourceInstance#getLinkAndLocations()
+   */
+  List<PSResourceLinkAndLocation> resolveLinkAndLocations(PSResourceInstance resourceInstance)
+      throws PSResourceServiceException, IPSAssetService.PSAssetServiceException;
 }

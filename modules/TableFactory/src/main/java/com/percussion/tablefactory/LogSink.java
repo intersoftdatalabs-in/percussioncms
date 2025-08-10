@@ -19,39 +19,30 @@ package com.percussion.tablefactory;
 public interface LogSink {
   /**
    * Logs the message.
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.2 1999/08/20
-   *
-   *
-   * @param   message
-   *
+   * @param message
    */
   public void log(String message);
 
   /**
    * Logs the exception, including a stack trace.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/08/20
-   *
-   * @param   t
-   *
+   * @param t
    */
   public void log(Throwable t);
 
   /**
-   * Logs the exception, including a stack trace, and a message.
-   * If the message is null, it will not be logged.
+   * Logs the exception, including a stack trace, and a message. If the message is null, it will not
+   * be logged.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/08/20
-   *
-   * @param   message
-   * @param   t
-   *
+   * @param message
+   * @param t
    */
   public void log(String message, Throwable t);
 }

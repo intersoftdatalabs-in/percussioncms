@@ -19,10 +19,9 @@ package com.percussion.design.objectstore;
 import java.util.Iterator;
 
 /**
- * This class is responsible for resolving macros in content editor dependency
- * parameters.  Macros take the form "$(macroName)".  The following macros are
- * currently supported:
- * <br>
+ * This class is responsible for resolving macros in content editor dependency parameters. Macros
+ * take the form "$(macroName)". The following macros are currently supported: <br>
+ *
  * <table border=1>
  * <tr><th>macroName</th><th>Resolution</th></tr>
  * <tr><td>fieldName</td><td>replaced by the html field name that this control
@@ -31,21 +30,18 @@ import java.util.Iterator;
  */
 public class PSContentEditorDependencyMacroResolver {
   /**
-   * Walks the values of <code>parameters</code>, mutating any macro names to
-   * to the macro's value.
-   * <p>
-   * A warning will be generated if a immutable <code>IPSReplacementValue
+   * Walks the values of <code>parameters</code>, mutating any macro names to to the macro's value.
+   *
+   * <p>A warning will be generated if a immutable <code>IPSReplacementValue
    * </code> contains a macro.
    *
-   * @param mapping the mapping that contains the dependency whose parameters
-   * we are modifing; may not be <code>null</code>.
+   * @param mapping the mapping that contains the dependency whose parameters we are modifing; may
+   *     not be <code>null</code>.
    * @param parameters the parameters from the dependency as <code>
    * IPSParameter</code> objects; may not be <code>null</code>.
-   * @throws IllegalArgumentException if either argument is <code>null</code>,
-   * or if <code>parameters</code> contains objects other than
-   * <code>IPSParameter</code>.
-   * @throws IllegalStateException if a macro is contained in an immutable
-   * replacement value
+   * @throws IllegalArgumentException if either argument is <code>null</code>, or if <code>
+   *     parameters</code> contains objects other than <code>IPSParameter</code>.
+   * @throws IllegalStateException if a macro is contained in an immutable replacement value
    */
   public static void replaceMacroWithValue(PSDisplayMapping mapping, Iterator<Object> parameters) {
     if (null == mapping) throw new IllegalArgumentException("mapping may not be null");
@@ -73,30 +69,26 @@ public class PSContentEditorDependencyMacroResolver {
 
   /**
    * Walks the <code>templateParameters</code> and <code>instanceParameters
-   * </code> in synch, and when the template's parameter's value is found to
-   * have a macro, the instance's parameter's value is checked to see if it is
-   * equal to the value of that macro, and if so, the instance's parameter's
-   * value is mutated to the macro name.
-   * <p>
-   * The loop will terminate when either <code>Iterator</code> is exhausted.
-   * If the template and the instance differ in the number of parameters, the
-   * extra parameters will not be processed.
-   * <p>
-   * This method assumes that the template's ordering of parameters does not
-   * differ from the instance's ordering of parameters.  If this assumption
-   * is violated, the macro values will not be restored to macro names.
+   * </code> in synch, and when the template's parameter's value is found to have a macro, the
+   * instance's parameter's value is checked to see if it is equal to the value of that macro, and
+   * if so, the instance's parameter's value is mutated to the macro name.
    *
-   * @param context the content editor component that contains the control
-   * with the dependency whose parameters we are modifing; may not be <code>
+   * <p>The loop will terminate when either <code>Iterator</code> is exhausted. If the template and
+   * the instance differ in the number of parameters, the extra parameters will not be processed.
+   *
+   * <p>This method assumes that the template's ordering of parameters does not differ from the
+   * instance's ordering of parameters. If this assumption is violated, the macro values will not be
+   * restored to macro names.
+   *
+   * @param context the content editor component that contains the control with the dependency whose
+   *     parameters we are modifing; may not be <code>
    * null</code>.
-   * @param templateParameters the parameters from the dependency template
-   * (obtained from the control metadata) as <code>IPSParameter</code>
-   * objects; may not be <code>null</code>.
-   * @param instanceParameters the parameters from the dependency being loaded
-   * as <code>IPSParameter</code> objects; may not be <code>null</code>.
-   * @throws IllegalArgumentException if any argument is <code>null</code>,
-   * or if either <code>Iterator</code> contains objects other than
-   * <code>IPSParameter</code>.
+   * @param templateParameters the parameters from the dependency template (obtained from the
+   *     control metadata) as <code>IPSParameter</code> objects; may not be <code>null</code>.
+   * @param instanceParameters the parameters from the dependency being loaded as <code>IPSParameter
+   *     </code> objects; may not be <code>null</code>.
+   * @throws IllegalArgumentException if any argument is <code>null</code>, or if either <code>
+   *     Iterator</code> contains objects other than <code>IPSParameter</code>.
    */
   public static void replaceValueWithMacro(
       PSDisplayMapping context,
@@ -135,8 +127,7 @@ public class PSContentEditorDependencyMacroResolver {
    * Searches <code>value</code> for a macro name and returns the name.
    *
    * @param value object that may contain macro; asssumed not <code>null</code>
-   * @return name of macro (without prefix or suffix), or <code>null</code>
-   * if no macro found.
+   * @return name of macro (without prefix or suffix), or <code>null</code> if no macro found.
    */
   private static String extractMacroName(IPSReplacementValue value) {
     String macroName = null;
@@ -150,13 +141,11 @@ public class PSContentEditorDependencyMacroResolver {
   /**
    * Determines a macro's value using the given <code>context</code>.
    *
-   * @param context component that contains the dependency; assumed not
-   * <code>null</code>.
-   * @param macroName name of the macro to resolve (without prefix or suffix);
-   * assumed not <code>null</code>.
-   *
-   * @return the value of the macro in the given context, or <code>null</code>
-   * if the macro could not be resolved.
+   * @param context component that contains the dependency; assumed not <code>null</code>.
+   * @param macroName name of the macro to resolve (without prefix or suffix); assumed not <code>
+   *     null</code>.
+   * @return the value of the macro in the given context, or <code>null</code> if the macro could
+   *     not be resolved.
    */
   private static String resolveMacro(PSDisplayMapping context, String macroName) {
     String macroValue = null;

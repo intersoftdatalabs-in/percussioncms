@@ -20,9 +20,7 @@ import com.percussion.error.PSDeployException;
 import com.percussion.services.error.PSNotFoundException;
 import java.io.File;
 
-/**
- * Interface for installing package files.
- */
+/** Interface for installing package files. */
 public interface IPSPackageInstaller {
 
   /**
@@ -37,7 +35,8 @@ public interface IPSPackageInstaller {
    * Installs a package file with an option to skip version validation.
    *
    * @param packageFile The file to install, must exist and be a valid package file.
-   * @param shouldValidateVersion {@code false} to skip the version check for reverted packages on uninstall of patch.
+   * @param shouldValidateVersion {@code false} to skip the version check for reverted packages on
+   *     uninstall of patch.
    * @throws PSDeployException If there are any errors.
    */
   void installPackage(File packageFile, boolean shouldValidateVersion)

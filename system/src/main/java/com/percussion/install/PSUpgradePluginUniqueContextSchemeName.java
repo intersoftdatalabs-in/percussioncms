@@ -33,8 +33,8 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * This plug-in upgrades the Location Scheme table to make sure all
- * Location Scheme names are unique within each Context.
+ * This plug-in upgrades the Location Scheme table to make sure all Location Scheme names are unique
+ * within each Context.
  *
  * @author YuBingChen
  */
@@ -87,11 +87,9 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
   /**
    * Dedup the Location Scheme names within each Context.
    *
-   * @param ctxMap the map that uses Context ID maps to a list of
-   * Location Scheme ID / name pairs.
-   *
-   * @return a list of deduped Location Scheme ID/name pairs.
-   * Never <code>null</code>, may be empty if the names are already unique.
+   * @param ctxMap the map that uses Context ID maps to a list of Location Scheme ID / name pairs.
+   * @return a list of deduped Location Scheme ID/name pairs. Never <code>null</code>, may be empty
+   *     if the names are already unique.
    */
   private List<PSPair<Long, String>> getDedupSchemeNames(
       Map<Long, List<PSPair<Long, String>>> ctxMap) {
@@ -106,9 +104,7 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
   /**
    * Dedup the specified Location Scheme names.
    *
-   * @param src the names in question, assumed not <code>null</code>, but
-   * may be empty.
-   *
+   * @param src the names in question, assumed not <code>null</code>, but may be empty.
    * @return the deduped names, never <code>null</code>, may be empty.
    */
   private List<PSPair<Long, String>> getDedupPairs(List<PSPair<Long, String>> src) {
@@ -137,11 +133,8 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
   /**
    * Gets a unique name from the specified name base and name set.
    *
-   * @param base the name base to create a new name from, assumed not
-   * <code>null</code> or empty.
-   * @param names the name set to check name's uniqueness. Assumed not
-   * <code>null</code> or empty.
-   *
+   * @param base the name base to create a new name from, assumed not <code>null</code> or empty.
+   * @param names the name set to check name's uniqueness. Assumed not <code>null</code> or empty.
    * @return the unique name, never <code>null</code> or empty.
    */
   private String getUniqueName(String base, Set<String> names) {
@@ -157,10 +150,8 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
    * Updates the repository for the specified ID/name pairs.
    *
    * @param logger the logger, assumed not <code>null</code>
-   * @param pairs the to be updated ID/name pairs, assumed not
-   * <code>null</code>, but may be empty.
+   * @param pairs the to be updated ID/name pairs, assumed not <code>null</code>, but may be empty.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void updateDedupNames(
@@ -193,9 +184,7 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
    * Retrieves the Location Scheme ID/name pairs for all Contexts.
    *
    * @param conn the connection, assumed not <code>null</code>.
-   *
    * @return a map that maps Context ID to a list of Scheme ID/name pairs.
-   *
    * @throws Exception if an error occurs.
    */
   private Map<Long, List<PSPair<Long, String>>> getContextSchemeMap(Connection conn)
@@ -232,7 +221,6 @@ public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin 
    * Get the fully qualified Location Scheme table.
    *
    * @return the Location Scheme table name, never <code>null</code> or empty.
-   *
    * @throws Exception if an error occurs.
    */
   private String getSchemeTable() throws Exception {

@@ -19,13 +19,10 @@
 
 package com.percussion.rest.templates;
 
-/**
- * Represents a Template Slot.
- * Sunny Sal: "Slot ka hero, template ka zero!"
- */
+/** Represents a Template Slot. Sunny Sal: "Slot ka hero, template ka zero!" */
 public class TemplateSlot {
 
-    public TemplateSlot() {
-        // Default constructor
-    }
+  public TemplateSlot() {
+    // Default constructor
+  }
 }

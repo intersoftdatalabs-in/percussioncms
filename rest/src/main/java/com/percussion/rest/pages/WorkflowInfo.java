@@ -20,80 +20,59 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents information on the workflow.
- * Sunny Sal: "Workflow ka info, process ka hero!"
- */
+/** Represents information on the workflow. Sunny Sal: "Workflow ka info, process ka hero!" */
 @XmlRootElement(name = "WorkflowInfo")
 @Schema(name = "WorkflowInfo", description = "Represents information on the workflow.")
-public class WorkflowInfo
-{
+public class WorkflowInfo {
 
-    @Schema(name = "name", description = "Name of the workflow.")
-    private String name;
+  @Schema(name = "name", description = "Name of the workflow.")
+  private String name;
 
-    @Schema(name = "state", description = "State within the workflow.")
-    private String state;
+  @Schema(name = "state", description = "State within the workflow.")
+  private String state;
 
-    @Schema(name = "checkedOut", description = "Flag if the item is checked out.")
-    private Boolean checkedOut;
+  @Schema(name = "checkedOut", description = "Flag if the item is checked out.")
+  private Boolean checkedOut;
 
-    @Schema(name = "checkedOutUser", description = "User that has the item checked out.")
-    private String checkedOutUser;
+  @Schema(name = "checkedOutUser", description = "User that has the item checked out.")
+  private String checkedOutUser;
 
-    /**
-     * Gets the workflow name.
-     */
-    public Optional<String> getName()
-    {
-        return Optional.ofNullable(name);
-    }
+  /** Gets the workflow name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Gets the workflow state.
-     */
-    public Optional<String> getState()
-    {
-        return Optional.ofNullable(state);
-    }
+  /** Gets the workflow state. */
+  public Optional<String> getState() {
+    return Optional.ofNullable(state);
+  }
 
-    public void setState(String state)
-    {
-        this.state = state;
-    }
+  public void setState(String state) {
+    this.state = state;
+  }
 
-    /**
-     * Gets whether the item is checked out.
-     */
-    public Optional<Boolean> getCheckedOut()
-    {
-        return Optional.ofNullable(checkedOut);
-    }
+  /** Gets whether the item is checked out. */
+  public Optional<Boolean> getCheckedOut() {
+    return Optional.ofNullable(checkedOut);
+  }
 
-    public void setCheckedOut(Boolean checkedOut)
-    {
-        this.checkedOut = checkedOut;
-    }
+  public void setCheckedOut(Boolean checkedOut) {
+    this.checkedOut = checkedOut;
+  }
 
-    /**
-     * Gets the user that has the item checked out.
-     */
-    public Optional<String> getCheckedOutUser()
-    {
-        return Optional.ofNullable(checkedOutUser);
-    }
+  /** Gets the user that has the item checked out. */
+  public Optional<String> getCheckedOutUser() {
+    return Optional.ofNullable(checkedOutUser);
+  }
 
-    public void setCheckedOutUser(String checkedOutUser)
-    {
-        this.checkedOutUser = checkedOutUser;
-    }
+  public void setCheckedOutUser(String checkedOutUser) {
+    this.checkedOutUser = checkedOutUser;
+  }
 }

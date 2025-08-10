@@ -18,9 +18,7 @@ package com.percussion.tablefactory;
 
 import java.util.Vector;
 
-/**
- * This class is used to define a column
- */
+/** This class is used to define a column */
 public class RxColumns {
   RxColumns() {}
 

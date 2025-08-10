@@ -20,11 +20,9 @@ import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
 import org.apache.commons.lang.Validate;
 
 /**
- * Represents the status information returned by
- * a call to the license service.
+ * Represents the status information returned by a call to the license service.
  *
  * @author natechadwick
- *
  */
 public class PSLicenseStatus {
 

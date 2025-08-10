@@ -20,20 +20,19 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "ValueList")
 @ArraySchema(schema = @Schema(implementation = String.class))
 public class ValueList extends ArrayList<String> {
-    public ValueList(Collection<? extends String> c) {
-        super(c);
-    }
+  public ValueList(Collection<? extends String> c) {
+    super(c);
+  }
 
-    public ValueList() {
-        // Default constructor
-    }
+  public ValueList() {
+    // Default constructor
+  }
 }

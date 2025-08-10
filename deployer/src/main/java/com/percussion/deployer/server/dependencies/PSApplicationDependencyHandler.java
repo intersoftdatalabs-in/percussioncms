@@ -80,20 +80,16 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
-/**
- * Class to handle packaging and deploying an application.
- */
+/** Class to handle packaging and deploying an application. */
 public class PSApplicationDependencyHandler extends PSContentEditorObjectDependencyHandler
     implements IPSIdTypeHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    */
   public PSApplicationDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
     super(def, dependencyMap);
@@ -532,26 +528,26 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Keyword</li>
-   * <li>UserControl</li>
-   * <li>SystemControl</li>
-   * <li>TableSchema</li>
-   * <li>Exit</li>
-   * <li>SharedGroup</li>
-   * <li>SystemDefElement</li>
-   * <li>Role</li>
-   * <li>Application</li>
-   * <li>StylesheetIncludes</li>
-   * <li>Workflow</li>
-   * <li>Any ID Type</li>
+   *   <li>Keyword
+   *   <li>UserControl
+   *   <li>SystemControl
+   *   <li>TableSchema
+   *   <li>Exit
+   *   <li>SharedGroup
+   *   <li>SystemDefElement
+   *   <li>Role
+   *   <li>Application
+   *   <li>StylesheetIncludes
+   *   <li>Workflow
+   *   <li>Any ID Type
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -758,11 +754,8 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * Get the current application id for the specified application.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param appName The name of the app, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return The id, or <code>-1</code> if an application by that name does
-   * not exist.
+   * @param appName The name of the app, assumed not <code>null</code> or empty.
+   * @return The id, or <code>-1</code> if an application by that name does not exist.
    */
   private int getAppId(PSSecurityToken tok, String appName) {
     int appId = -1;
@@ -780,9 +773,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * Transforms all ids in the app.
    *
    * @param app The app to transform, assumed not <code>null</code>.
-   * @param ctx The import context, assumed not <code>null</code>, and that it
-   * has a current id Map.
-   *
+   * @param ctx The import context, assumed not <code>null</code>, and that it has a current id Map.
    * @throws PSDeployException if any errors occur.
    */
   private void transformApp(PSApplication app, PSImportCtx ctx) throws PSDeployException {
@@ -798,13 +789,11 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Transforms all dbms entries in the application that match the source
-   * repository or that have mappings in the <code>dbmsMap</code> in the
-   * supplied <code>ctx</code>.
+   * Transforms all dbms entries in the application that match the source repository or that have
+   * mappings in the <code>dbmsMap</code> in the supplied <code>ctx</code>.
    *
    * @param app The app to transform, assumed not <code>null</code>.
    * @param ctx The import context, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur
    */
   private static void transformDbms(PSApplication app, PSImportCtx ctx) throws PSDeployException {
@@ -819,21 +808,17 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * Transforms dbms entries in the supplied application
    *
    * @param app The app to transform, may not be <code>null</code>.
-   * @param srcRepInfo The source repository info, optional.  If supplied, then
-   * only entries that match this source are transformed to the target.
-   * Entries not matching this source are transformed using the
-   * <code>dbmsMap</code> if supplied and it contains a mapping with a matching
-   * source, otherwise the entry is not transformed.  If this parameter is
-   * <code>null</code>, then all entries are transformed to the target info.
-   * @param tgtRepInfo The target repository info to use, may not be
-   * <code>null</code>.
-   * @param dbmsMap Optional mappings to use to select target info for entires
-   * that don't match the <code>srcRepInfo</code>.  Ignored if
-   * <code>srcRepInfo</code> is <code>null</code>.  Otherwise entries that
-   * don't match the source are transformed using this map if supplied.  If
-   * <code>null</code>, entries are transformed only if they match the source,
-   * or if no source info is supplied.
-   *
+   * @param srcRepInfo The source repository info, optional. If supplied, then only entries that
+   *     match this source are transformed to the target. Entries not matching this source are
+   *     transformed using the <code>dbmsMap</code> if supplied and it contains a mapping with a
+   *     matching source, otherwise the entry is not transformed. If this parameter is <code>null
+   *     </code>, then all entries are transformed to the target info.
+   * @param tgtRepInfo The target repository info to use, may not be <code>null</code>.
+   * @param dbmsMap Optional mappings to use to select target info for entires that don't match the
+   *     <code>srcRepInfo</code>. Ignored if <code>srcRepInfo</code> is <code>null</code>. Otherwise
+   *     entries that don't match the source are transformed using this map if supplied. If <code>
+   *     null</code>, entries are transformed only if they match the source, or if no source info is
+   *     supplied.
    * @throws PSDeployException if there are any errors.
    */
   public static void transformDbms(
@@ -887,9 +872,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * Determine if the specified app is a system app.
    *
    * @param appName The name, it may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if it is a system app, <code>false</code>
-   * otherwise
+   * @return <code>true</code> if it is a system app, <code>false</code> otherwise
    */
   public static boolean isSystemApp(String appName) {
     if (appName == null || appName.trim().length() == 0)
@@ -905,11 +888,10 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Transforms the provided table and credentials using the target info.
-   * Changes the datasource.
+   * Transforms the provided table and credentials using the target info. Changes the datasource.
+   *
    * @param tgtInfo The new dbms info, assumed not <code>null</code>.
    * @param table The table to transform, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private static void transformTable(String tgtInfo, PSBackEndTable table)
@@ -925,10 +907,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param dep The dependency to check, assumed not <code>null</code>.
-   *
-   * @return The list of child depenendencies, never <code>null</code>, may
-   * be empty.
-   *
+   * @return The list of child depenendencies, never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
   private List<PSDependency> getStyleSheetDependencies(PSSecurityToken tok, PSDependency dep)
@@ -954,12 +933,9 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Gets the resource name used to store id type mappings for the supplied
-   * resource.
+   * Gets the resource name used to store id type mappings for the supplied resource.
    *
-   * @param ds The dataset to store mappings for, assumed not
-   * <code>null</code>.
-   *
+   * @param ds The dataset to store mappings for, assumed not <code>null</code>.
    * @return The name, assumed not <code>null</code> or empty.
    */
   public static String getResourceName(PSDataSet ds) {
@@ -970,10 +946,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
    * Gets the dataset from the app represented by the supplied resourceName.
    *
    * @param app The application to check, assumed not <code>null</code>.
-   * @param resourceName A resource name returned by
-   * , assumed not
-   * <code>null</code> or empty.
-   *
+   * @param resourceName A resource name returned by , assumed not <code>null</code> or empty.
    * @return The dataset, or <code>null</code> if not found.
    */
   public static PSDataSet getResource(PSApplication app, String resourceName) {
@@ -992,19 +965,14 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Updates the "Back End Roles" on target system with the roles from the
-   * ACL of the Application.
-   * <p/>
-   * An Application Acl's Roles are no longer treated as dependencies of the
-   * Application.
-   * This allows allow multiple elements in separate packages to include the
-   * same role. (If treated as dependencies, when the Application is removed,
-   * the roles would be removed also, and any other object depending on those
-   * roles would be left misconfigured).
+   * Updates the "Back End Roles" on target system with the roles from the ACL of the Application.
    *
-   * @param app The application whose Role's in its ACL will be added to
-   * Back End Roles.
+   * <p>An Application Acl's Roles are no longer treated as dependencies of the Application. This
+   * allows allow multiple elements in separate packages to include the same role. (If treated as
+   * dependencies, when the Application is removed, the roles would be removed also, and any other
+   * object depending on those roles would be left misconfigured).
    *
+   * @param app The application whose Role's in its ACL will be added to Back End Roles.
    */
   private void updateBackEndRoles(PSApplication app) {
     IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
@@ -1020,25 +988,18 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Application";
 
-  /**
-   * Constant for system app prefix.
-   */
+  /** Constant for system app prefix. */
   private static final String SYS_PREFIX = "sys_";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   /**
-   * Set of all child types supported by this handler, including any type
-   * supporting idType mapping, never <code>null</code> or empty.
+   * Set of all child types supported by this handler, including any type supporting idType mapping,
+   * never <code>null</code> or empty.
    */
   private Set m_childTypes = new HashSet();
 

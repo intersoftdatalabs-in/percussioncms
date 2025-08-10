@@ -28,31 +28,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSNotifier class defines users to be sent e-mail based upon various
- * errors which may occur during request processing by an application.
+ * The PSNotifier class defines users to be sent e-mail based upon various errors which may occur
+ * during request processing by an application.
  *
  * @see PSApplication#getNotifier
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSNotifier extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSNotifier(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
@@ -61,15 +53,10 @@ public class PSNotifier extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Tells the notifier to use the Simple Mail Transfer Protocol (SMTP)
-   * mail provider.
-   */
+  /** Tells the notifier to use the Simple Mail Transfer Protocol (SMTP) mail provider. */
   public static final int MP_TYPE_SMTP = 1;
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   public PSNotifier() {
     super();
     // get the recipient list
@@ -77,18 +64,14 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * Construct a notifier object for sending notification through the
-   * specified mail server. The default user name "E2" will be set as
-   * the message originator (from).
+   * Construct a notifier object for sending notification through the specified mail server. The
+   * default user name "E2" will be set as the message originator (from).
    *
-   * @param   provider      the PSNotifier.MP_TYPE_xxx provider type
-   *
-   * @param   server      the server to send mail through
-   *
-   * @exception   PSIllegalArgumentException   if provider or server is invalid
-   *
-   * @see         #setProviderType
-   * @see         #setServer
+   * @param provider the PSNotifier.MP_TYPE_xxx provider type
+   * @param server the server to send mail through
+   * @exception PSIllegalArgumentException if provider or server is invalid
+   * @see #setProviderType
+   * @see #setServer
    */
   public PSNotifier(int provider, java.lang.String server) throws PSIllegalArgumentException {
     this();
@@ -99,19 +82,19 @@ public class PSNotifier extends PSComponent {
   /**
    * Gets the type of mail provider associated with this object.
    *
-   * @return     the mail provider type (PSNotifier.MP_TYPE_xxx)
+   * @return the mail provider type (PSNotifier.MP_TYPE_xxx)
    */
   public int getProviderType() {
     return m_providerType;
   }
 
   /**
-   * Sets the type of mail provider associated with this object.
-   * The specified mail provider will be used to send any messages.
+   * Sets the type of mail provider associated with this object. The specified mail provider will be
+   * used to send any messages.
    *
-   * @param provider   the mail provider to use. At this time, only
-   *                   PSNotifier.MP_TYPE_SMTP is supported.
-   * @exception   PSIllegalArgumentException   if provider is invalid
+   * @param provider the mail provider to use. At this time, only PSNotifier.MP_TYPE_SMTP is
+   *     supported.
+   * @exception PSIllegalArgumentException if provider is invalid
    */
   public void setProviderType(int provider) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateProviderType(provider);
@@ -131,25 +114,20 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * Gets the host name of the mail server through which messages
-   * will be routed.
+   * Gets the host name of the mail server through which messages will be routed.
    *
-   * @return     the name of the mail server
+   * @return the name of the mail server
    */
   public java.lang.String getServer() {
     return m_server;
   }
 
   /**
-   * Sets the host name of the mail server through which messages
-   * will be routed. This will not be verified as a valid host until
-   * run-time.
-   * This is limited to 255 characters.
+   * Sets the host name of the mail server through which messages will be routed. This will not be
+   * verified as a valid host until run-time. This is limited to 255 characters.
    *
-   * @param      name      the name of the mail server
-   *
-   * @exception   PSIllegalArgumentException      if name is null, empty or
-   *                                             exceeds the specified limit
+   * @param name the name of the mail server
+   * @exception PSIllegalArgumentException if name is null, empty or exceeds the specified limit
    */
   public void setServer(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateServer(name);
@@ -170,26 +148,21 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * Gets the e-mail address being used as the originator of the
-   * mail message.
+   * Gets the e-mail address being used as the originator of the mail message.
    *
-   * @return     the e-mail address of the mail originator
+   * @return the e-mail address of the mail originator
    */
   public java.lang.String getFrom() {
     return m_from;
   }
 
   /**
-   * Set the name of the mail originator (from).
-   * Sets the e-mail address to use as the originator of the
-   * mail message. If an address is not set (it is null or empty),
-   * "E2" will be used.
-   * This is limited to 255 characters.
+   * Set the name of the mail originator (from). Sets the e-mail address to use as the originator of
+   * the mail message. If an address is not set (it is null or empty), "E2" will be used. This is
+   * limited to 255 characters.
    *
-   * @param      from       the name of the mail originator
-   *
-   * @exception   PSIllegalArgumentException
-   *                        if from exceeds the specified limit
+   * @param from the name of the mail originator
+   * @exception PSIllegalArgumentException if from exceeds the specified limit
    */
   public void setFrom(java.lang.String from) throws PSIllegalArgumentException {
     if ((null == from) || (from.length() == 0)) from = DEFAULT_FROM;
@@ -212,29 +185,24 @@ public class PSNotifier extends PSComponent {
   /**
    * Get the recipients of any notifications sent by the application.
    *
-   * @return   a collection containing the recipients (PSRecipient objects)
+   * @return a collection containing the recipients (PSRecipient objects)
    */
   public com.percussion.util.PSCollection getRecipients() {
     return m_recipients;
   }
 
   /**
-   * Overwrite the recipients associated with this notifier with the
-   * specified collection. If you only want to modify certain recipients,
-   * add a new recipient, etc. use getRecipients to get the existing
-   * collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSNotifier object. Any subsequent changes made to the object
-   * by the caller will also effect the notifier.
+   * Overwrite the recipients associated with this notifier with the specified collection. If you
+   * only want to modify certain recipients, add a new recipient, etc. use getRecipients to get the
+   * existing collection and modify the returned collection directly.
+   *
+   * <p>The PSCollection object supplied to this method will be stored with the PSNotifier object.
+   * Any subsequent changes made to the object by the caller will also effect the notifier.
    *
    * @param recipients the new recipients
-   *
-   * @exception   PSIllegalArgumentException   if the collection contains
-   *                                          objects of an incorrect type
-   *
-   * @see               #getRecipients
-   * @see               PSRecipient
+   * @exception PSIllegalArgumentException if the collection contains objects of an incorrect type
+   * @see #getRecipients
+   * @see PSRecipient
    */
   public void setRecipients(com.percussion.util.PSCollection recipients)
       throws PSIllegalArgumentException {
@@ -256,13 +224,10 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param  notifier a valid PSNotifier. If null, a PSIllegalArgumentException is
-   * thrown.
-   *
+   * @param notifier a valid PSNotifier. If null, a PSIllegalArgumentException is thrown.
    * @throws PSIllegalArgumentException if notifier is null
    */
   public void copyFrom(PSNotifier notifier) throws PSIllegalArgumentException {
@@ -277,10 +242,11 @@ public class PSNotifier extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXNotifier XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXNotifier XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXNotifier defines users to be sent e-mail based upon various
@@ -318,7 +284,7 @@ public class PSNotifier extends PSComponent {
    *    &lt;!ELEMENT from          (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXNotifier XML element node
+   * @return the newly created PSXNotifier XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -349,12 +315,10 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSNotifier Java object
-   * from a PSXNotifier XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSNotifier Java object from a PSXNotifier XML element node.
+   * See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXNotifier
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXNotifier
    */
   public void fromXml(
       Element sourceNode, IPSDocument parentDoc, List<IPSComponent> parentComponents)
@@ -425,18 +389,15 @@ public class PSNotifier extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

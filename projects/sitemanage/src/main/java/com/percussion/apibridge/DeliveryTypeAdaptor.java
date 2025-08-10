@@ -35,9 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * Adaptor for managing Delivery Types in Percussion CMS.
- */
+/** Adaptor for managing Delivery Types in Percussion CMS. */
 @PSSiteManageBean
 public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
@@ -49,9 +47,7 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
     guidMgr = PSGuidManagerLocator.getGuidMgr();
   }
 
-  /**
-   * Gets a delivery type by id.
-   */
+  /** Gets a delivery type by id. */
   @Override
   public DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException {
     try {
@@ -63,9 +59,7 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
     }
   }
 
-  /**
-   * Creates or updates a delivery type.
-   */
+  /** Creates or updates a delivery type. */
   @Override
   public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
     try {
@@ -89,9 +83,7 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
     }
   }
 
-  /**
-   * Deletes a delivery type by id.
-   */
+  /** Deletes a delivery type by id. */
   @Override
   public void deleteDeliveryTypeById(URI baseURI, String id) throws BackendException {
     try {
@@ -103,9 +95,7 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
     }
   }
 
-  /**
-   * Gets the list of DeliveryTypes available on the system.
-   */
+  /** Gets the list of DeliveryTypes available on the system. */
   @Override
   public List<DeliveryType> getDeliveryTypes(URI baseURI) {
     return pubService.findAllDeliveryTypes().stream()

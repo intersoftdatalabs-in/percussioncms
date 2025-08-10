@@ -42,8 +42,8 @@ public class PSXMLEntityResolverWrapper implements XMLEntityResolver {
   }
 
   /**
-   * Resolves an external parsed entity. If the entity cannot be
-   * resolved, this method should return null.
+   * Resolves an external parsed entity. If the entity cannot be resolved, this method should return
+   * null.
    *
    * @param resourceIdentifier location of the XML resource to resolve
    * @throws XNIException Thrown on general error.

@@ -21,7 +21,9 @@ import com.percussion.design.objectstore.PSAclEntry;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the Application Security trace message type (0x0010).  Includes the ACL entry name, the access allowed, if the user was required to authenticate, and if so, the User ID(s), and Security provider(s)/instances(s) used for authentication.
+ * Used to generate trace messages for the Application Security trace message type (0x0010).
+ * Includes the ACL entry name, the access allowed, if the user was required to authenticate, and if
+ * so, the User ID(s), and Security provider(s)/instances(s) used for authentication.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceAppSecurity extends PSTraceMessage {
@@ -42,14 +44,12 @@ public class PSTraceAppSecurity extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source the source of the information to be used in generating the trace
-   * message.   May not be <code>null</code>. Object is an Object array with
-   * the following objects:
-   * - Integer: the access level required
-   * - Integer: the User access level
+   * @param source the source of the information to be used in generating the trace message. May not
+   *     be <code>null</code>. Object is an Object array with the following objects: - Integer: the
+   *     access level required - Integer: the User access level
    * @return the message body as a String
    * @roseuid 39FEE2F300BB
    */

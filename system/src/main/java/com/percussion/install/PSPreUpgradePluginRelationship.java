@@ -34,13 +34,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This plugin is used to validate relationship data before upgrade from
- * pre-Rhino to Rhino+ releases.
+ * This plugin is used to validate relationship data before upgrade from pre-Rhino to Rhino+
+ * releases.
  */
 public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSPreUpgradePluginRelationship() {}
 
   /**
@@ -115,16 +113,13 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param configSet all relationship configurations, never <code>null</code>.
    * @param conn the database connection, assumed not <code>null</code>.
-   * @param util the utility object which contains convenience methods,
-   *    assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if there is no undefined relationship names;
-   *    otherwise, return <code>false</code>.
-   *
+   * @param util the utility object which contains convenience methods, assumed not <code>null
+   *     </code>.
+   * @return <code>true</code> if there is no undefined relationship names; otherwise, return <code>
+   *     false</code>.
    * @throws Exception if an error occurs during the validation.
    */
   private boolean validateUnknownRelationshipProperties(
@@ -147,9 +142,8 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Just like {@link #validateUnknownRelationshipProperties(PrintStream,
-   * PSRelationshipConfigSet, Connection, PSUpgradePluginRelationship)}
-   * except this validates one relationship configuration.
+   * Just like {@link #validateUnknownRelationshipProperties(PrintStream, PSRelationshipConfigSet,
+   * Connection, PSUpgradePluginRelationship)} except this validates one relationship configuration.
    */
   private boolean validateUnknownRelationshipProperties(
       PrintStream logger,
@@ -224,9 +218,8 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Gets the property names from the given property list.
    *
-   * @param props a list of zero or more {@link PSProperty} element, never
-   *    <code>null</code>, but may be empty.
-   *
+   * @param props a list of zero or more {@link PSProperty} element, never <code>null</code>, but
+   *     may be empty.
    * @return the property names, never <code>null</code>.
    */
   private Collection getPropertyNames(Iterator props) {
@@ -240,18 +233,16 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Checks the 'ExtensionSet' element from the supplied document. Make sure
-   * the element does not have any unknown relationship extensions; otherwise
-   * log the error since the relationship extension is an unsupported feature.
-   * It skips the known extension, 'sys_TranslationConstraint', if exists.
+   * Checks the 'ExtensionSet' element from the supplied document. Make sure the element does not
+   * have any unknown relationship extensions; otherwise log the error since the relationship
+   * extension is an unsupported feature. It skips the known extension, 'sys_TranslationConstraint',
+   * if exists.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param doc the document contains all relationship configurations. Assumed
-   *   not <code>null</code>.
-   *
-   * @return <code>true</code> if there is no defined pre/post relationship
-   *   extensions; otherwise, return <code>false</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param doc the document contains all relationship configurations. Assumed not <code>null</code>
+   *     .
+   * @return <code>true</code> if there is no defined pre/post relationship extensions; otherwise,
+   *     return <code>false</code>.
    */
   private boolean validateExtensionSet(PrintStream logger, Document doc) {
     boolean emptyExtensions = true;
@@ -291,11 +282,8 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
    * Gets an unknown relationship extension from the specified ExtensionSet.
    *
    * @param logger the logger, assumed not <code>null</code>.
-   * @param exitSetNode the extension set node, may be <code>null</code> or
-   *    empty.
-   *
-   * @return an unknown relationship extension if found one; otherwise
-   *    return <code>null</code>.
+   * @param exitSetNode the extension set node, may be <code>null</code> or empty.
+   * @return an unknown relationship extension if found one; otherwise return <code>null</code>.
    */
   private PSConditionalExtension getUnknownExit(PrintStream logger, Element exitSetNode) {
     NodeList chidNodes = exitSetNode.getChildNodes();
@@ -327,22 +315,20 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * The known relationship extension, which is replaced with the
-   * 'sys_isCloneExists' effect if exist.
+   * The known relationship extension, which is replaced with the 'sys_isCloneExists' effect if
+   * exist.
    */
   private static final String KNOWN_EXIT = "sys_TranslationConstraint";
 
   /**
-   * Validates if the 'rs_expirationtime' system property is empty for all
-   * relationship configurations. This property has never been used by the
-   * system and it must be removed after upgrade.
+   * Validates if the 'rs_expirationtime' system property is empty for all relationship
+   * configurations. This property has never been used by the system and it must be removed after
+   * upgrade.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param configSet all relationship configurations, never <code>null</code>.
-   *
-   * @return <code>true</code> if the 'rs_expirationtime' system property
-   *   of all relationships are empty; otherwise, return <code>false</code>.
+   * @return <code>true</code> if the 'rs_expirationtime' system property of all relationships are
+   *     empty; otherwise, return <code>false</code>.
    */
   private boolean validateEmptyExpiretime(PrintStream logger, PSRelationshipConfigSet configSet) {
     boolean emptyExpiretime = true;
@@ -374,20 +360,16 @@ public class PSPreUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Validates if there are any undefined relationship configuration names,
-   * which exist in the relationship main table, but does not exist in the
-   * relationship configurations.
+   * Validates if there are any undefined relationship configuration names, which exist in the
+   * relationship main table, but does not exist in the relationship configurations.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param configs all relationship configurations, never <code>null</code>.
    * @param conn the database connection, assumed not <code>null</code>.
-   * @param util the utility object which contains convenience methods,
-   *    assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if there is no undefined relationship names;
-   *    otherwise, return <code>false</code>.
-   *
+   * @param util the utility object which contains convenience methods, assumed not <code>null
+   *     </code>.
+   * @return <code>true</code> if there is no undefined relationship names; otherwise, return <code>
+   *     false</code>.
    * @throws Exception if an error occurs during the validation.
    */
   private boolean validateRelationshipName(

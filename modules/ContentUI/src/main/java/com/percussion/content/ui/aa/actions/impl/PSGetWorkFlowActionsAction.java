@@ -36,10 +36,10 @@ import org.json.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
- * Return all available workflow actions for the content item based on
- * the current users permissions and the current community.
- * @author erikserating
+ * Return all available workflow actions for the content item based on the current users permissions
+ * and the current community.
  *
+ * @author erikserating
  */
 public class PSGetWorkFlowActionsAction extends PSAAActionBase {
 

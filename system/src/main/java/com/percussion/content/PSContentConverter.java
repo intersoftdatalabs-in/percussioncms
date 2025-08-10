@@ -25,52 +25,40 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Utility class to convert data from multiple file formats to either plain
- * text.
- */
+/** Utility class to convert data from multiple file formats to either plain text. */
 public class PSContentConverter {
   /**
    * Construct a converter with the specified options.
    *
-   * @param outputFormat The output format used to return the converted data,
-   * either {@link #FORMAT_TEXT} or {@link #FORMAT_HTML}.
-   *
-   * @param useLinefeed <code>true</code> to convert carriage returns to
-   * linefeeds, <code>false</code> to use carriage returns for line endings.
-   * Ignored if <code>outputFormat</code> is <code>TYPE_HTML</code>.
-   *
-   * @param htmlTemplate The template file to use to generate HTML results, may
-   * be <code>null</code> or empty to use the default template. To use a
-   * conversion template other than the default, it must be placed on the
-   * server hosting the search engine (which may not be hosting the Rx server).
-   * This parameter value must specify a valid file path to that template file,
-   * and it must be relative to the value specified for INSTALL_DIR, which is
-   * the value provided when running the installer (defaults to
-   * rxroot/sys_search/rware).
-   *
-   * @param outputEncoding Specifies encoding to use for the converted output.
-   * If not specified, then WINDOWS-1252 is used for TEXT, UTF-8 for HTML.
-   * Specifying an unsupported encoding will produce an error . Note that this
-   * may result in loss of data if the source file uses characters outside of
-   * that character set. Currently only the following encodings may be
-   * specified:
-   * <ul>
-   * <li>SHIFT_JIS (Japanese)</li>
-   * <li>EUC_KR (Korean)</li>
-   * <li>GB2312 (Simple Chinese)</li>
-   * <li>BIG5 (Traditional Chinese)</li>
-   * </ul>
-   * May be <code>null</code> or empty. Comparison is case-insensitive.
-   *
-   * @param pdfConversion Indicates how the conversion should be performed if
-   * the file type is determined to be a PDF (it is ignored otherwise). Must be
-   * one of the <code>PDF_XXX</code> values.
-   * @throws PSContentConversionException this contructor has been dropped use
-   * {@link PSContentConverter(String)}.
-   *
-   * @deprecated This constructor has been deprecated. Use
-   * {@link PSContentConverter(String)}.
+   * @param outputFormat The output format used to return the converted data, either {@link
+   *     #FORMAT_TEXT} or {@link #FORMAT_HTML}.
+   * @param useLinefeed <code>true</code> to convert carriage returns to linefeeds, <code>false
+   *     </code> to use carriage returns for line endings. Ignored if <code>outputFormat</code> is
+   *     <code>TYPE_HTML</code>.
+   * @param htmlTemplate The template file to use to generate HTML results, may be <code>null</code>
+   *     or empty to use the default template. To use a conversion template other than the default,
+   *     it must be placed on the server hosting the search engine (which may not be hosting the Rx
+   *     server). This parameter value must specify a valid file path to that template file, and it
+   *     must be relative to the value specified for INSTALL_DIR, which is the value provided when
+   *     running the installer (defaults to rxroot/sys_search/rware).
+   * @param outputEncoding Specifies encoding to use for the converted output. If not specified,
+   *     then WINDOWS-1252 is used for TEXT, UTF-8 for HTML. Specifying an unsupported encoding will
+   *     produce an error . Note that this may result in loss of data if the source file uses
+   *     characters outside of that character set. Currently only the following encodings may be
+   *     specified:
+   *     <ul>
+   *       <li>SHIFT_JIS (Japanese)
+   *       <li>EUC_KR (Korean)
+   *       <li>GB2312 (Simple Chinese)
+   *       <li>BIG5 (Traditional Chinese)
+   *     </ul>
+   *     May be <code>null</code> or empty. Comparison is case-insensitive.
+   * @param pdfConversion Indicates how the conversion should be performed if the file type is
+   *     determined to be a PDF (it is ignored otherwise). Must be one of the <code>PDF_XXX</code>
+   *     values.
+   * @throws PSContentConversionException this contructor has been dropped use {@link
+   *     PSContentConverter(String)}.
+   * @deprecated This constructor has been deprecated. Use {@link PSContentConverter(String)}.
    */
   public PSContentConverter(
       int outputFormat,
@@ -83,8 +71,7 @@ public class PSContentConverter {
   }
 
   /**
-   * @param mimetype The mimetype of the input stream must not be
-   * <code>null</code> or empty.
+   * @param mimetype The mimetype of the input stream must not be <code>null</code> or empty.
    */
   public PSContentConverter(String mimetype) throws PSContentConversionException {
     if (StringUtils.isEmpty(mimetype))
@@ -101,16 +88,14 @@ public class PSContentConverter {
   /**
    * Performs the conversion using the options specified during construction.
    *
-   * @param data The data to convert, may not be <code>null</code>. This
-   * method assumes ownership of the supplied stream.
-   *
-   * @return A results object that may be used to retrieve the converted data,
-   * never <code>null</code>.
-   *
-   * @throws PSContentConversionException if an unsupported file type is
-   * supplied, or if there are any errors.
+   * @param data The data to convert, may not be <code>null</code>. This method assumes ownership of
+   *     the supplied stream.
+   * @return A results object that may be used to retrieve the converted data, never <code>null
+   *     </code>.
+   * @throws PSContentConversionException if an unsupported file type is supplied, or if there are
+   *     any errors.
    * @deprecated This method has been deprecated use extractText method. Throws
-   * PSContentConversionException if any if called.
+   *     PSContentConversionException if any if called.
    */
   public PSConversionResults convert(InputStream data) throws PSContentConversionException {
     throw new PSContentConversionException(IPSContentErrors.UNSUPPORTED_CONVERT_METHOD);
@@ -119,13 +104,10 @@ public class PSContentConverter {
   /**
    * Extracts the text from the supplied input stream.
    *
-   * @param data The data from which the text needs to be extracted. Must not
-   * be <code>null</code>. This method assumes ownership of the supplied
-   * stream.
+   * @param data The data from which the text needs to be extracted. Must not be <code>null</code>.
+   *     This method assumes ownership of the supplied stream.
    * @return Extracted text may be empty but never <code>null</code>.
-   *
-   * @throws PSContentConversionException in case of an error converting to
-   * text.
+   * @throws PSContentConversionException in case of an error converting to text.
    */
   public String extractText(InputStream data) throws PSContentConversionException {
     if (data == null) throw new IllegalArgumentException("data must not be null");
@@ -149,19 +131,14 @@ public class PSContentConverter {
     return StringUtils.defaultString(extractedText);
   }
 
-  /**
-   * The mimetype of the input stream
-   */
+  /** The mimetype of the input stream */
   private String m_mimetype;
 
   /**
-   * The converter for the given mimetype. Initialized in ctor never
-   * <code>null</code> after that.
+   * The converter for the given mimetype. Initialized in ctor never <code>null</code> after that.
    */
   private IPSLuceneTextConverter m_converter;
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger ms_log = LogManager.getLogger(PSContentConverter.class);
 }

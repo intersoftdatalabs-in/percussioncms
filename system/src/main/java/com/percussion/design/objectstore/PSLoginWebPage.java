@@ -26,30 +26,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSLoginWebPage class defines the page which will be returned
- * to the requestor when login is required. This can be for server or
- * application login.
+ * The PSLoginWebPage class defines the page which will be returned to the requestor when login is
+ * required. This can be for server or application login.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLoginWebPage extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLoginWebPage(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -58,9 +50,7 @@ public class PSLoginWebPage extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Default construct for fromXml, serialization, etc.
-   */
+  /** Default construct for fromXml, serialization, etc. */
   PSLoginWebPage() {
     this(null, false);
   }
@@ -68,10 +58,9 @@ public class PSLoginWebPage extends PSComponent {
   /**
    * Construct a login web page object.
    *
-   * @param   url         the URL of the login page
-   *
-   * @param   isSecure      <code>true</code> if the login page may only be
-   *                        sent over secure channels (eg, HTTPS)
+   * @param url the URL of the login page
+   * @param isSecure <code>true</code> if the login page may only be sent over secure channels (eg,
+   *     HTTPS)
    */
   public PSLoginWebPage(java.net.URL url, boolean isSecure) {
     super();
@@ -81,13 +70,12 @@ public class PSLoginWebPage extends PSComponent {
 
   /**
    * Is the login page only sent over secure channels?
-   * <P>
-   * <EM>Note:</EM> This does not mean the password will be sent using
-   * secure channels. If the page uses a form which has a submit button
-   * hardcoded to use a protocol such as HTTP, it will be sent unencrypted.
    *
-   * @return               <code>true</code> if the login page may only be
-   *                        sent over secure channels (eg, HTTPS)
+   * <p><EM>Note:</EM> This does not mean the password will be sent using secure channels. If the
+   * page uses a form which has a submit button hardcoded to use a protocol such as HTTP, it will be
+   * sent unencrypted.
+   *
+   * @return <code>true</code> if the login page may only be sent over secure channels (eg, HTTPS)
    */
   public boolean isSecure() {
     return m_isSecure;
@@ -95,13 +83,13 @@ public class PSLoginWebPage extends PSComponent {
 
   /**
    * Enable or disable sending the login page only over secure channels.
-   * <P>
-   * <EM>Note:</EM> This does not mean the password will be sent using
-   * secure channels. If the page uses a form which has a submit button
-   * hardcoded to use a protocol such as HTTP, it will be sent unencrypted.
    *
-   * @param   isSecure      <code>true</code> if the login page may only be
-   *                        sent over secure channels (eg, HTTPS)
+   * <p><EM>Note:</EM> This does not mean the password will be sent using secure channels. If the
+   * page uses a form which has a submit button hardcoded to use a protocol such as HTTP, it will be
+   * sent unencrypted.
+   *
+   * @param isSecure <code>true</code> if the login page may only be sent over secure channels (eg,
+   *     HTTPS)
    */
   public void setSecure(boolean isSecure) {
     m_isSecure = isSecure;
@@ -110,7 +98,7 @@ public class PSLoginWebPage extends PSComponent {
   /**
    * Get the URL of the login page.
    *
-   * @return         the URL of the login page
+   * @return the URL of the login page
    */
   public java.net.URL getUrl() {
     return m_url;
@@ -119,20 +107,17 @@ public class PSLoginWebPage extends PSComponent {
   /**
    * Set the URL of the login page.
    *
-   * @param   url   the URL of the login page
+   * @param url the URL of the login page
    */
   public void setUrl(java.net.URL url) {
     m_url = url;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param  page a valid PSLoginWebPage. If null, a PSIllegalArgumentException is
-   * thrown.
-   *
+   * @param page a valid PSLoginWebPage. If null, a PSIllegalArgumentException is thrown.
    * @throws PSIllegalArgumentException if page is null
    */
   public void copyFrom(PSLoginWebPage page) throws PSIllegalArgumentException {
@@ -145,10 +130,11 @@ public class PSLoginWebPage extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXLoginWebPage XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXLoginWebPage XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXLoginWebPage defines the page which will be returned to the
@@ -172,7 +158,7 @@ public class PSLoginWebPage extends PSComponent {
    *    &lt;!ELEMENT url               (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXLoginWebPage XML element node
+   * @return the newly created PSXLoginWebPage XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -187,12 +173,11 @@ public class PSLoginWebPage extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSLoginWebPage Java object
-   * from a PSXLoginWebPage XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSLoginWebPage Java object from a PSXLoginWebPage XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXLoginWebPage
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXLoginWebPage
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -236,18 +221,15 @@ public class PSLoginWebPage extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

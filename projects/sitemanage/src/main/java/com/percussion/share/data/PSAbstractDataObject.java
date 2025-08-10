@@ -22,21 +22,21 @@ import java.io.Serializable;
 import org.apache.commons.beanutils.BeanUtils;
 
 /**
- * The base class for all data objects.
- * All data objects should extend this class or some derivative.
+ * The base class for all data objects. All data objects should extend this class or some
+ * derivative.
  *
  * @author adamgent
  */
 public class PSAbstractDataObject implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        try {
-            return BeanUtils.cloneBean(this);
-        } catch (Exception e) {
-            throw new CloneNotSupportedException("Clone failed: " + e.getMessage());
-        }
+  @Override
+  public Object clone() throws CloneNotSupportedException {
+    try {
+      return BeanUtils.cloneBean(this);
+    } catch (Exception e) {
+      throw new CloneNotSupportedException("Clone failed: " + e.getMessage());
     }
+  }
 }

@@ -24,14 +24,13 @@ import com.percussion.server.PSRequest;
 import com.percussion.util.PSPurgableTempFile;
 
 /**
- * This class facilitates the locating of binary content through the use of
- * internal Rhythmyx objects and returning the data of that binary content.
+ * This class facilitates the locating of binary content through the use of internal Rhythmyx
+ * objects and returning the data of that binary content.
  */
 public class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinaryLocator {
   /**
-   * Convenience ctor that calls
-   * {@link #PSServerBinaryLocator(PSRequest, PSLocator, String, long, int)
-   * this(request, locator, fieldName, contentTypeId, -1)}.
+   * Convenience ctor that calls {@link #PSServerBinaryLocator(PSRequest, PSLocator, String, long,
+   * int) this(request, locator, fieldName, contentTypeId, -1)}.
    */
   public PSServerBinaryLocator(
       PSRequest request, PSLocator locator, String fieldName, long contentTypeId) {
@@ -41,15 +40,15 @@ public class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinary
   /**
    * Constructs the object.
    *
-   * @param request to create an internal request. May be <code>null</code> to
-   *    use a request for the internal user.
-   * @param locator created to locate content items. Must have an id set and a
-   *    revision. Must not be <code>null</code>.
-   * @param fieldName the name of the field containing the binary information.
-   *    Must not be <code>null</code> or empty.
+   * @param request to create an internal request. May be <code>null</code> to use a request for the
+   *     internal user.
+   * @param locator created to locate content items. Must have an id set and a revision. Must not be
+   *     <code>null</code>.
+   * @param fieldName the name of the field containing the binary information. Must not be <code>
+   *     null</code> or empty.
    * @param contentTypeId the id of the content type containing the field.
-   * @param childRowId the row id if the data is to be loaded from a child
-   *    item, <code>-1</code> otherwise.
+   * @param childRowId the row id if the data is to be loaded from a child item, <code>-1</code>
+   *     otherwise.
    */
   public PSServerBinaryLocator(
       PSRequest request, PSLocator locator, String fieldName, long contentTypeId, int childRowId) {
@@ -96,8 +95,8 @@ public class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinary
   }
 
   /**
-   * Implements {@link Object#equals(Object)} for this class. Does
-   * not consider the <code>PSRequest</code> object supplied during ctor.
+   * Implements {@link Object#equals(Object)} for this class. Does not consider the <code>PSRequest
+   * </code> object supplied during ctor.
    */
   @Override
   public boolean equals(Object o) {
@@ -131,26 +130,20 @@ public class PSServerBinaryLocator extends PSFieldRetriever implements IPSBinary
   }
 
   /**
-   * The request used to locate the binary object, may be <code>null</code> in
-   * which case a request for the internal user will be used.
+   * The request used to locate the binary object, may be <code>null</code> in which case a request
+   * for the internal user will be used.
    */
   private PSRequest m_request;
 
-  /**
-   * The locator of the binary object, never <code>null</code>.
-   */
+  /** The locator of the binary object, never <code>null</code>. */
   private PSLocator m_locator;
 
-  /**
-   * The fieldname in which the binary object is stored, never
-   * <code>null</code> or empty.
-   */
+  /** The fieldname in which the binary object is stored, never <code>null</code> or empty. */
   private String m_fieldName;
 
   /**
-   * The childRowId for retrieving the correct child row data. If -1 then we
-   * are not trying to retrieve a child row. Set during ctor, never modified
-   * after that.
+   * The childRowId for retrieving the correct child row data. If -1 then we are not trying to
+   * retrieve a child row. Set during ctor, never modified after that.
    */
   private int m_childRowId = -1;
 }

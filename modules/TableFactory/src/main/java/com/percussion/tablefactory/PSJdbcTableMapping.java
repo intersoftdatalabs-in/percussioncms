@@ -25,30 +25,25 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * PSJdbcTableMapping is used to manipulate rows obtained from one table so
- * that it can be inserted/updated into another table. The
- * <code>processTable()</code> method iterates through all the rows and
- * modifies the column names based on the mappings that have been added through
- * the <code>addRowMapping()</code> method. Each row that is iterated
- * in the <code>processTable()</code> method results in one or more rows for the
- * destination table based on the number of mappings added. For each row from
- * the source table, the number of rows generated for the destination table is
- * equal to the number of row mappings (<code>IPSJdbcRowMapping</code>) added
- * through the <code>addRowMapping()</code> method. This is because each row
- * mapping (<code>IPSJdbcRowMapping</code> object) results in one row for the
- * destination table.
+ * PSJdbcTableMapping is used to manipulate rows obtained from one table so that it can be
+ * inserted/updated into another table. The <code>processTable()</code> method iterates through all
+ * the rows and modifies the column names based on the mappings that have been added through the
+ * <code>addRowMapping()</code> method. Each row that is iterated in the <code>processTable()</code>
+ * method results in one or more rows for the destination table based on the number of mappings
+ * added. For each row from the source table, the number of rows generated for the destination table
+ * is equal to the number of row mappings (<code>IPSJdbcRowMapping</code>) added through the <code>
+ * addRowMapping()</code> method. This is because each row mapping (<code>IPSJdbcRowMapping</code>
+ * object) results in one row for the destination table.
  */
 public class PSJdbcTableMapping {
   /**
    * Constructor
    *
-   * @param dbmsDef the database where the tables are located,
-   * may not be <code> null</code>.
-   * @param destTableSchema the schema for destination table for which this mapper
-   * object is creating table data, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>destTableSchema</code> is <code>null</code>
+   * @param dbmsDef the database where the tables are located, may not be <code> null</code>.
+   * @param destTableSchema the schema for destination table for which this mapper object is
+   *     creating table data, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>destTableSchema</code> is
+   *     <code>null</code>
    */
   public PSJdbcTableMapping(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema destTableSchema) {
     if (dbmsDef == null) throw new IllegalArgumentException("dbmsDef may not be null");
@@ -60,26 +55,21 @@ public class PSJdbcTableMapping {
   }
 
   /**
-   * Processes the rows obtained from the source table, applies all the
-   * mappings added through the <code>addRowMapping()</code> method and returns
-   * table data object which can be used to insert/update data
-   * into the destination table specified by the <code>destTableSchema</code>
+   * Processes the rows obtained from the source table, applies all the mappings added through the
+   * <code>addRowMapping()</code> method and returns table data object which can be used to
+   * insert/update data into the destination table specified by the <code>destTableSchema</code>
    * parameter in the constructor.
    *
    * @param conn the database connection to use, may not be <code>null</code>
-   * @param tblData object containing all the rows of data
-   * obtained from the source table, may not be <code>null</code>, may not
-   * contain any row of data
-   *
-   * @return the transformed table data which can be used to insert/update
-   * data into the destination table specified by the
-   * <code>destTableSchema</code> parameter in the constructor,
-   * never <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>conn</code> or
-   * <code>tblData</code> is <code>null</code>
-   * @throws PSJdbcTableFactoryException if any column specified in row mapping
-   * is not found in any row of this table data.
+   * @param tblData object containing all the rows of data obtained from the source table, may not
+   *     be <code>null</code>, may not contain any row of data
+   * @return the transformed table data which can be used to insert/update data into the destination
+   *     table specified by the <code>destTableSchema</code> parameter in the constructor, never
+   *     <code>null</code>
+   * @throws IllegalArgumentException if <code>conn</code> or <code>tblData</code> is <code>null
+   *     </code>
+   * @throws PSJdbcTableFactoryException if any column specified in row mapping is not found in any
+   *     row of this table data.
    */
   public PSJdbcTableData processTable(Connection conn, PSJdbcTableData tblData)
       throws PSJdbcTableFactoryException {
@@ -135,11 +125,10 @@ public class PSJdbcTableMapping {
   }
 
   /**
-   * Adds a row mapping rule to apply to each row during processing of rows
-   * in the <code>processTable()</code> method.
+   * Adds a row mapping rule to apply to each row during processing of rows in the <code>
+   * processTable()</code> method.
    *
    * @param rowMapping row mapping rule, never <code>null</code>
-   *
    * @throws IllegalArgumentException if mapping is <code>null</code>
    */
   public void addRowMapping(IPSJdbcRowMapping rowMapping) {
@@ -148,16 +137,13 @@ public class PSJdbcTableMapping {
   }
 
   /**
-   * Restores row mapping rules from Xml representation and then adds them
-   * to its internal list. These row mapping rules are applied to each row
-   * during processing of rows in the <code>processTable()</code> method.
+   * Restores row mapping rules from Xml representation and then adds them to its internal list.
+   * These row mapping rules are applied to each row during processing of rows in the <code>
+   * processTable()</code> method.
    *
-   * @param sourceNode The element from which to get row mapping rules.
-   * May not be <code>null</code>. The tag name of this node must equal the
-   * value of <code>NODE_NAME</code>.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
+   * @param sourceNode The element from which to get row mapping rules. May not be <code>null</code>
+   *     . The tag name of this node must equal the value of <code>NODE_NAME</code>.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public void addRowMapping(Element sourceNode) throws PSJdbcTableFactoryException {
@@ -186,26 +172,23 @@ public class PSJdbcTableMapping {
   }
 
   /**
-   * The database where the tables are located, initialized in the
-   * constructor, never <code>null</code> after that.
+   * The database where the tables are located, initialized in the constructor, never <code>null
+   * </code> after that.
    */
   private PSJdbcDbmsDef m_dbmsDef;
 
   /**
-   * The schema for destination table for which this mapper object is creating
-   * table data, initialized in the constructor, never <code>null</code> after
-   * that.
+   * The schema for destination table for which this mapper object is creating table data,
+   * initialized in the constructor, never <code>null</code> after that.
    */
   private PSJdbcTableSchema m_tableSchema;
 
   /**
-   * List of row mapping rules specified by IPSJdbcRowMapping objects,
-   * never <code>null</code>, may be empty
+   * List of row mapping rules specified by IPSJdbcRowMapping objects, never <code>null</code>, may
+   * be empty
    */
   private List<IPSJdbcRowMapping> m_rowMapList = new ArrayList<>();
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "tableMap";
 }

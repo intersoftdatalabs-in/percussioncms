@@ -62,36 +62,31 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Core relationship effect processing is performed by this class. This class
- * is typically instantiated by any command handler or processor that needs
- * processing relationship effects, for example, {@link com.percussion.cms.objectstore.server.PSRelationshipDbProcessor},
- * {@link com.percussion.cms.handlers.PSWorkflowCommandHandler}. This class is not thread safe and hence
+ * Core relationship effect processing is performed by this class. This class is typically
+ * instantiated by any command handler or processor that needs processing relationship effects, for
+ * example, {@link com.percussion.cms.objectstore.server.PSRelationshipDbProcessor}, {@link
+ * com.percussion.cms.handlers.PSWorkflowCommandHandler}. This class is not thread safe and hence
  * each thread must instantiate a new object of this class.
  */
 public class PSRelationshipEffectProcessor {
   /**
-   * Convenience ctor that calls
-   * {@link #PSRelationshipEffectProcessor(PSRelationshipSet, PSExecutionData, int)
-   * this(null, data, executionContext)}.
+   * Convenience ctor that calls {@link #PSRelationshipEffectProcessor(PSRelationshipSet,
+   * PSExecutionData, int) this(null, data, executionContext)}.
    */
   public PSRelationshipEffectProcessor(PSExecutionData data, int executionContext) {
     this(null, data, executionContext);
   }
 
   /**
-   * If the relationship set is supplied (non-<code>null</code>), its
-   * contents will be used, otherwise, the processor assumes that a locator
-   * for the item is available in the request associated with the execution
-   * data and assumes the relationships to be processed are all relationships
-   * that point to or from the item specified by the locator.
+   * If the relationship set is supplied (non-<code>null</code>), its contents will be used,
+   * otherwise, the processor assumes that a locator for the item is available in the request
+   * associated with the execution data and assumes the relationships to be processed are all
+   * relationships that point to or from the item specified by the locator.
    *
-   * @param relationshipSet relationship set for processing the effects, may be
-   * <code>null</code>.
+   * @param relationshipSet relationship set for processing the effects, may be <code>null</code>.
    * @param data execution data, must not be <code>null</code>
-   * @param executionContext must be one of the valid
-   * {@link IPSExecutionContext} RS_XXXX values.
-   * @throws IllegalArgumentException if any of the parameters is not a valid
-   * one.
+   * @param executionContext must be one of the valid {@link IPSExecutionContext} RS_XXXX values.
+   * @throws IllegalArgumentException if any of the parameters is not a valid one.
    */
   public PSRelationshipEffectProcessor(
       PSRelationshipSet relationshipSet, PSExecutionData data, int executionContext) {
@@ -105,23 +100,23 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * This method does perform the actual processing of the effects. The
-   * caller must call this method after instantiation. Effect processing
-   * involves the following steps:
+   * This method does perform the actual processing of the effects. The caller must call this method
+   * after instantiation. Effect processing involves the following steps:
+   *
    * <p>
+   *
    * <ol>
-   * <li>Depending on the version of the constructor of this class execute
-   * all test() methods of all effects. Testing of effects continues even
-   * if a test returns error while processing a relationship to process all
-   * the linked relationships depending on the direction of navigation.</li>
-   * <li>Check all test results to see if there is one or more errors
-   * returned by the test() methods of the effects. If there is one, throw
-   * an exception with returned error</li>
-   * <li>Run attempt() methods on all required relationships</li>
-   * <li>Run all recover methods for the effects for which the attempt()
-   * methods have been processed till then, in case of an error processing the
-   * attempt() methods</li>
+   *   <li>Depending on the version of the constructor of this class execute all test() methods of
+   *       all effects. Testing of effects continues even if a test returns error while processing a
+   *       relationship to process all the linked relationships depending on the direction of
+   *       navigation.
+   *   <li>Check all test results to see if there is one or more errors returned by the test()
+   *       methods of the effects. If there is one, throw an exception with returned error
+   *   <li>Run attempt() methods on all required relationships
+   *   <li>Run all recover methods for the effects for which the attempt() methods have been
+   *       processed till then, in case of an error processing the attempt() methods
    * </ol>
+   *
    * @throws PSNotFoundException
    * @throws PSExtensionException
    * @throws PSIllegalArgumentException
@@ -129,12 +124,11 @@ public class PSRelationshipEffectProcessor {
    * @throws PSExtensionProcessingException
    * @throws PSParameterMismatchException
    * @throws PSCmsException
-   * <p>
-   * @todo If there is an error running the test() methods of the effects
-   * then we need to generate a detailed error report consisting of all
-   * errors with details of the relationship, owner, dependent and effect
-   * being processed  and present somehow to teh end user requested the
-   * operation.
+   *     <p>
+   * @todo If there is an error running the test() methods of the effects then we need to generate a
+   *     detailed error report consisting of all errors with details of the relationship, owner,
+   *     dependent and effect being processed and present somehow to teh end user requested the
+   *     operation.
    */
   public void process()
       throws PSNotFoundException,
@@ -170,9 +164,7 @@ public class PSRelationshipEffectProcessor {
           ex.getLanguageString(), ex.getErrorCode(), ex.getErrorArguments());
     }
 
-    /**
-     * Run attempt method on all the relationships processed in test() methods
-     */
+    /** Run attempt method on all the relationships processed in test() methods */
     PSAttemptResult result = runAttempts();
     if (result != null) {
       /*
@@ -189,21 +181,17 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Method to get the list of relationship that this item is associated with
-   * (item is either owner or dependent of the relationship).
-   * <p>
-   * Note, the use owner revision property of the relationship configuration
-   * will be considered when retrieving the relationships. If the property is
-   * <code>true</code>, then the retreived relationships will only contain one
-   * owner revision per owner and dependent pair.
+   * Method to get the list of relationship that this item is associated with (item is either owner
+   * or dependent of the relationship).
    *
-   * @param locator the locator of the item for which the relationships are
-   *    being queried, assumed not <code>null</code>.
+   * <p>Note, the use owner revision property of the relationship configuration will be considered
+   * when retrieving the relationships. If the property is <code>true</code>, then the retreived
+   * relationships will only contain one owner revision per owner and dependent pair.
    *
-   * @return an iterator of all relationships (pointing onwards and outwards
-   *    of the item specified by the locator), never <code>null</code>,
-   *    may be empty.
-   *
+   * @param locator the locator of the item for which the relationships are being queried, assumed
+   *     not <code>null</code>.
+   * @return an iterator of all relationships (pointing onwards and outwards of the item specified
+   *     by the locator), never <code>null</code>, may be empty.
    * @exception PSCmsException if an error occurs.
    */
   private Iterator getAllRelationships(PSLocator locator) throws PSCmsException {
@@ -251,10 +239,7 @@ public class PSRelationshipEffectProcessor {
     set = relProc.getRelationships(filter);
     relationships.addAll(set);
 
-    /**
-     * Get all relationships with this items (as the dependent) and
-     * its owner's Public Revision.
-     */
+    /** Get all relationships with this items (as the dependent) and its owner's Public Revision. */
     filter = new PSRelationshipFilter();
     filter.setNames(allConfigNames);
     filter.setDependent(locator);
@@ -279,11 +264,10 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Get a list of relationships, where the effects of the relationships
-   * are interested in the current Execution Context.
+   * Get a list of relationships, where the effects of the relationships are interested in the
+   * current Execution Context.
    *
-   * @return a list of relationships. It may be empty, never
-   *   <code>null</code>.
+   * @return a list of relationships. It may be empty, never <code>null</code>.
    */
   private Collection<PSRelationshipConfig> getReleventRelationships() {
     int exeCtx = m_executionContext.getContextType();
@@ -305,13 +289,13 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Get a list of relationship configuration that either ignore the owner
-   * or the dependent revision.
+   * Get a list of relationship configuration that either ignore the owner or the dependent
+   * revision.
    *
-   * @param configs the relationship configurations that will be selected from.
-   *    Assumed not <code>null</code>.
-   * @return the requested relationship configuration which ignore the owner
-   *    or ependent revision, never <code>null</code>, may be empty.
+   * @param configs the relationship configurations that will be selected from. Assumed not <code>
+   *     null</code>.
+   * @return the requested relationship configuration which ignore the owner or ependent revision,
+   *     never <code>null</code>, may be empty.
    */
   private Collection<String> getConfigsWhichIgnoreOwnerRevision(
       Collection<PSRelationshipConfig> configs) {
@@ -327,14 +311,14 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Checl whether to process this effector not based who (owner or
-   * dependent) of the relationship is being processed and its activation
-   * endpoint.
-   * @param isOwner <code>true</code> if the item being processed is the
-   * owner of the current relationship and <code>false</code> if is dependent.
-   * @param activationEndPoint must be a valid activation end point from the
-   * relationship configuration, i.e. one of teh {link PSRelationshipConfig}
-   * ACTIVATION_ENDPOINT_XXXX strings. Assumed not <code>null</code>.
+   * Checl whether to process this effector not based who (owner or dependent) of the relationship
+   * is being processed and its activation endpoint.
+   *
+   * @param isOwner <code>true</code> if the item being processed is the owner of the current
+   *     relationship and <code>false</code> if is dependent.
+   * @param activationEndPoint must be a valid activation end point from the relationship
+   *     configuration, i.e. one of teh {link PSRelationshipConfig} ACTIVATION_ENDPOINT_XXXX
+   *     strings. Assumed not <code>null</code>.
    * @return
    */
   private boolean isProcessThisEffect(boolean isOwner, String activationEndPoint) {
@@ -352,12 +336,12 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Run all test() methods of all relationships for a given item locator.
-   * Method first gets all relationshiops associated with this item and
-   * processes each relationship by calling {@link #runTests(PSRelationship, boolean)}
-   * method.
-   * @param firstEnd the locator of the item for the relationships are to be
-   * processed, assumed not <code>null</code>.
+   * Run all test() methods of all relationships for a given item locator. Method first gets all
+   * relationshiops associated with this item and processes each relationship by calling {@link
+   * #runTests(PSRelationship, boolean)} method.
+   *
+   * @param firstEnd the locator of the item for the relationships are to be processed, assumed not
+   *     <code>null</code>.
    * @throws PSNotFoundException
    * @throws PSExtensionException
    * @throws PSIllegalArgumentException
@@ -382,39 +366,36 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Runs all test() methods of all effects on the given relationships.
-   * The followings is the scheme followed while processing all relationships
-   * and the efefcts attached to them.
+   * Runs all test() methods of all effects on the given relationships. The followings is the scheme
+   * followed while processing all relationships and the efefcts attached to them.
+   *
+   * <p>We keep track of all relationships processed in the local map (member variable {@link
+   * #m_relationshipsProcessed}) to facilitate duplicate processing of relationships. Each
+   * relationship is unique and we never need to process a relationship more than once during the
+   * entire recursive processing.
+   *
+   * <p>Get all effects attached to the relationship and process each of them to run the test()
+   * method. We run all the effects without worrying about the result of the run.
+   *
+   * <p>Add the relationship to the processed map.
+   *
+   * <p>We parse through all effect test results to see if any of those says to recurse dependents.
+   * If so we call the {@link #runTests(PSLocator)} method for the owner or dependent end of the
+   * relationship depending the activation end point set for the the relationship via configuration.
+   *
+   * <p>As can be seen from the above algorithm we process each relationship tree before we go to
+   * the next relationship for a particular item. At the end of the process we will end up with
+   * process web or graph. If test method returns error for one or more efects in the web we will be
+   * able to produce a detailed error report pointing out the actual relationships and the locators
+   * that caused the test() to fail.
+   *
    * <p>
-   * We keep track of all relationships processed in the local map (member
-   * variable {@link #m_relationshipsProcessed}) to facilitate duplicate
-   * processing of relationships. Each relationship is unique and we never need
-   * to process a relationship more than once during the entire recursive
-   * processing.
-   * <p>
-   * Get all effects attached to the relationship and process each of them to
-   * run the test() method. We run all the effects without worrying about the
-   * result of the run.
-   * <p>
-   * Add the relationship to the processed map.
-   * <p>
-   * We parse through all effect test results to see if any of those says to
-   * recurse dependents. If so we call the {@link #runTests(PSLocator)} method
-   * for the  owner or dependent end of the relationship depending the
-   * activation end point set for the the relationship via configuration.
-   * <p>
-   * As can be seen from the above algorithm we process each relationship tree
-   * before we go to the next relationship for a particular item. At the end of
-   * the process we will end up with process web or graph. If test method
-   * returns error for one or more efects in the web we will be able to produce
-   * a detailed error report pointing out the actual relationships and the
-   * locators that caused the test() to fail.
-   * <p>
-   * @param currentRel the relationship object to for which this effects are
-   * to be processed, assumed not <code>null</code>.
-   * @param isOwner flag indicating if owner end or dependent end of the
-   * relationship needs to be processed. <code>true</code> if the owner has to
-   * be processed and <code>false</code> if the dependent end has to processed.
+   *
+   * @param currentRel the relationship object to for which this effects are to be processed,
+   *     assumed not <code>null</code>.
+   * @param isOwner flag indicating if owner end or dependent end of the relationship needs to be
+   *     processed. <code>true</code> if the owner has to be processed and <code>false</code> if the
+   *     dependent end has to processed.
    * @throws PSNotFoundException
    * @throws PSExtensionException
    * @throws PSIllegalArgumentException
@@ -435,7 +416,9 @@ public class PSRelationshipEffectProcessor {
     PSExtensionRunner runner = null;
     PSTestResult result = null;
     if (m_relationshipsProcessed.containsKey(currentRel.getId())) {
-      /** @todo: Relationship already processed. What to do??? */
+      /**
+       * @todo: Relationship already processed. What to do???
+       */
       return;
     }
     try {
@@ -484,9 +467,8 @@ public class PSRelationshipEffectProcessor {
       m_relationshipsProcessed.put(relEffectResults.getRelationship().getId(), relEffectResults);
 
       /**
-       * @todo: do we test for success or failure here and stop recursing
-       * through dependents in case of failure or walk entire web and then
-       * report?
+       * @todo: do we test for success or failure here and stop recursing through dependents in case
+       *     of failure or walk entire web and then report?
        */
       Iterator iter = relEffectResults.getResults();
       while (iter.hasNext()) {
@@ -505,19 +487,19 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * This method executes attempt() methods of all effects of all relationships
-   * (that are from {@link #m_relationshipsProcessed})that have been processed
-   * for test() methods. The algorithm is as described below:
-   * For each of the processed relationship in the processed relationships,
+   * This method executes attempt() methods of all effects of all relationships (that are from
+   * {@link #m_relationshipsProcessed})that have been processed for test() methods. The algorithm is
+   * as described below: For each of the processed relationship in the processed relationships,
+   *
    * <ol>
-   * <li>get the effect and test result pair</li>
-   * <li>ignore if the result has a warning</li>
-   * <li>process the attempt() method of the effect otherwise</li>
-   * <li>check if the attempt() result is success and throw exception in case
-   * of error</li>
+   *   <li>get the effect and test result pair
+   *   <li>ignore if the result has a warning
+   *   <li>process the attempt() method of the effect otherwise
+   *   <li>check if the attempt() result is success and throw exception in case of error
    * </ol>
-   * @return <code>null</code> if attempt processing is successful, otherwise
-   * return the failed result.
+   *
+   * @return <code>null</code> if attempt processing is successful, otherwise return the failed
+   *     result.
    */
   private PSAttemptResult runAttempts()
       throws PSNotFoundException,
@@ -585,12 +567,10 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Supposed to run all recover method on all the effects that processed from
-   * the processed relationships till we find the effect result pair matching
-   * the failed attempt result's effect. This method is provided only for
-   * framework completeness sake and doe not do anything now. It needs to be
-   * implemented after server supports transaction.
-   *
+   * Supposed to run all recover method on all the effects that processed from the processed
+   * relationships till we find the effect result pair matching the failed attempt result's effect.
+   * This method is provided only for framework completeness sake and doe not do anything now. It
+   * needs to be implemented after server supports transaction.
    */
   private void runRecovers(PSAttemptResult attemptResult) {
     // avoid eclipse warning
@@ -602,11 +582,11 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Helper method that checks if test() method for all effects of the
-   * relationships processed yielded an overall success.
-   * @return PSException that was set by the failed effect nethod of a
-   * relationship. Will be <code>null</code> if there was no error processing
-   * the test() mthod of the effects.
+   * Helper method that checks if test() method for all effects of the relationships processed
+   * yielded an overall success.
+   *
+   * @return PSException that was set by the failed effect nethod of a relationship. Will be <code>
+   *     null</code> if there was no error processing the test() mthod of the effects.
    */
   private PSException isAllTestsSuccess() {
     Iterator keys = m_relationshipsProcessed.keySet().iterator();
@@ -627,13 +607,13 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Helper method to test if the supplied locator is on the owner end of the
-   * supplied relationship.
+   * Helper method to test if the supplied locator is on the owner end of the supplied relationship.
+   *
    * @param relation relationship to test, assumed not <code>null</code>.
-   * @param locator locator to if it is on th eowner side of the relationship,
-   * assumed not <code>null</code>.
-   * @return <code>true</code> if it is the owner, <code>false</code>
-   * othwerwise (if it is on the dependent side of the relationship).
+   * @param locator locator to if it is on th eowner side of the relationship, assumed not <code>
+   *     null</code>.
+   * @return <code>true</code> if it is the owner, <code>false</code> othwerwise (if it is on the
+   *     dependent side of the relationship).
    */
   private boolean isOwner(PSRelationship relation, PSLocator locator) {
     if (relation == null) throw new IllegalArgumentException("relation must not be null");
@@ -644,12 +624,11 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Helper method to get the current persisted version of the current
-   * relationship
+   * Helper method to get the current persisted version of the current relationship
    *
    * @param currentRel relationship to test, assumed not <code>null</code>.
-   * @return PSRelationship retrived based upon relationship id or
-   *         <code>null</code> if relationship id not set.
+   * @return PSRelationship retrived based upon relationship id or <code>null</code> if relationship
+   *     id not set.
    */
   private PSRelationship getSourceRel(PSRelationship currentRel) {
     int relId = currentRel.getId();
@@ -669,46 +648,41 @@ public class PSRelationshipEffectProcessor {
   }
 
   /**
-   * Map of all relationships processed by the engine. The key is the
-   * relationship object. and the value is the {@link PSRelationshipEffectTestResult}
-   * object that contains the test result data.
+   * Map of all relationships processed by the engine. The key is the relationship object. and the
+   * value is the {@link PSRelationshipEffectTestResult} object that contains the test result data.
    */
   private Map m_relationshipsProcessed = new HashMap();
 
   /**
-   * Reference to the execution data, set in the constructor,
-   * never <code>null</code> after that.
+   * Reference to the execution data, set in the constructor, never <code>null</code> after that.
    */
   private PSExecutionData m_execData = null;
 
   /**
-   * Reference to the execution context, initialized in the constructor,
-   * never <code>null</code> after that.
+   * Reference to the execution context, initialized in the constructor, never <code>null</code>
+   * after that.
    */
   private PSExecutionContext m_executionContext = null;
 
   /**
-   * Relationship set to process. Set by one of the constructors. If the object
-   * is constructed not using that constructor, this is <code>null</code>.
-   * never <code>null</code> after that.
+   * Relationship set to process. Set by one of the constructors. If the object is constructed not
+   * using that constructor, this is <code>null</code>. never <code>null</code> after that.
    */
   private PSRelationshipSet m_relSetToProcess = null;
 
   /**
-   * The request object that can be used to make requests on behalf of server.
-   * Built off of user request associated with the execution data. Initialized
-   * in the constructor, never <code>null</code> after that.
+   * The request object that can be used to make requests on behalf of server. Built off of user
+   * request associated with the execution data. Initialized in the constructor, never <code>null
+   * </code> after that.
    */
   private PSRequest m_serverRequest = null;
 
   /**
-   * Reference to the request object associated with the execution data.
-   * Initialized  in the constructor, never <code>null</code> after that.
+   * Reference to the request object associated with the execution data. Initialized in the
+   * constructor, never <code>null</code> after that.
    */
   private PSRequest m_userRequest = null;
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSRelationshipEffectProcessor.class);
 }

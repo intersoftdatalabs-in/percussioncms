@@ -43,11 +43,10 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class PSChildRelationshipBase {
   /**
-   * Creates an instance of this class that will use the specified processor
-   * for querying and updating relationships.
+   * Creates an instance of this class that will use the specified processor for querying and
+   * updating relationships.
    *
-   * @param relProcessor processor for querying and updating relationships, not
-   *           <code>null</code>
+   * @param relProcessor processor for querying and updating relationships, not <code>null</code>
    */
   protected PSChildRelationshipBase(IPSRelationshipProcessor relProcessor) {
     if (relProcessor == null)
@@ -56,14 +55,11 @@ public abstract class PSChildRelationshipBase {
   }
 
   /**
-   * Finds the definition for a slot given its name, using the assembly
-   * service.
+   * Finds the definition for a slot given its name, using the assembly service.
    *
-   * @param slotname name of the slot to find. not <code>null</code>, must
-   *           exist.
+   * @param slotname name of the slot to find. not <code>null</code>, must exist.
    * @return the slot definition for the specified name
-   * @throws PSAssemblyException propagated from assembly service if the slot
-   *            is not found
+   * @throws PSAssemblyException propagated from assembly service if the slot is not found
    */
   protected IPSTemplateSlot findSlot(String slotname) throws PSAssemblyException {
     IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
@@ -72,13 +68,10 @@ public abstract class PSChildRelationshipBase {
   }
 
   /**
-   * Finds the definition for a slot given its name, using the assembly
-   * service.
+   * Finds the definition for a slot given its name, using the assembly service.
    *
-   * @param templateName name of the template to find. not <code>null</code>,
-   *           must exist.
-   * @return the template definition for the specified name, never
-   *         <code>null</code>
+   * @param templateName name of the template to find. not <code>null</code>, must exist.
+   * @return the template definition for the specified name, never <code>null</code>
    * @throws PSAssemblyException if the template is not found
    */
   protected IPSAssemblyTemplate findTemplate(String templateName, IPSGuid type)
@@ -89,16 +82,14 @@ public abstract class PSChildRelationshipBase {
   }
 
   /**
-   * Gets all relationships in the specified slot whose dependent item matches
-   * the specified content item, limited to only the current/edit revision of
-   * the owner items.
+   * Gets all relationships in the specified slot whose dependent item matches the specified content
+   * item, limited to only the current/edit revision of the owner items.
    *
-   * @param dependentContentId content item that is the dependent of all
-   *           relationships, assumed not <code>null</code>
-   * @param slot slot whose relationships will be queried, assumed not
-   *           <code>null</code>
-   * @return the set of relationships for the specified slot with the specified
-   *         dependent item. never <code>null</code>, may be emptty.
+   * @param dependentContentId content item that is the dependent of all relationships, assumed not
+   *     <code>null</code>
+   * @param slot slot whose relationships will be queried, assumed not <code>null</code>
+   * @return the set of relationships for the specified slot with the specified dependent item.
+   *     never <code>null</code>, may be emptty.
    */
   protected PSRelationshipSet getRelationships(int dependentContentId, IPSTemplateSlot slot)
       throws PSCmsException {
@@ -114,26 +105,21 @@ public abstract class PSChildRelationshipBase {
   }
 
   /**
-   * Deletes the specified relationships using the
-   * <code>PSRelationshipProcessor</code>.
+   * Deletes the specified relationships using the <code>PSRelationshipProcessor</code>.
    *
-   * @param toBeDeleted set of relationships to be deleted. assumed not
-   *           <code>null</code>, may be empty.
-   * @throws PSCmsException propagated from
-   *            <code>PSRelationshipProcessor</code>
+   * @param toBeDeleted set of relationships to be deleted. assumed not <code>null</code>, may be
+   *     empty.
+   * @throws PSCmsException propagated from <code>PSRelationshipProcessor</code>
    */
   protected void deleteRelationships(PSRelationshipSet toBeDeleted) throws PSCmsException {
     if (toBeDeleted.size() > 0) m_relationshipProcessor.delete(toBeDeleted);
   }
 
   /**
-   * Saves the specified relationships using the
-   * <code>PSRelationshipProcessor</code>.
+   * Saves the specified relationships using the <code>PSRelationshipProcessor</code>.
    *
-   * @param toBeSaved set of relationships to be saved. assumed not
-   *           <code>null</code>, may be empty.
-   * @throws PSCmsException propagated from
-   *            <code>PSRelationshipProcessor</code>
+   * @param toBeSaved set of relationships to be saved. assumed not <code>null</code>, may be empty.
+   * @throws PSCmsException propagated from <code>PSRelationshipProcessor</code>
    */
   protected void saveRelationships(PSRelationshipSet toBeSaved) throws PSCmsException {
     if (toBeSaved.size() > 0) m_relationshipProcessor.save(toBeSaved);
@@ -142,11 +128,10 @@ public abstract class PSChildRelationshipBase {
   /**
    * Extracts the owner content ids from the specified relationships.
    *
-   * @param relationships set whose owner content ids will be extracted.
-   *           Assumed not <code>null</code>, may be empty.
-   * @return a list of the relationship set's owner content ids. never
-   *         <code>null</code> but will be empty if the relationship set is
-   *         empty.
+   * @param relationships set whose owner content ids will be extracted. Assumed not <code>null
+   *     </code>, may be empty.
+   * @return a list of the relationship set's owner content ids. never <code>null</code> but will be
+   *     empty if the relationship set is empty.
    */
   protected List<Integer> extractOwnerIds(PSRelationshipSet relationships) {
     // extract owner content ids from the relationship set
@@ -162,11 +147,9 @@ public abstract class PSChildRelationshipBase {
   }
 
   /**
-   * Sets the processor that will be used to query, save, and delete
-   * relationships.
+   * Sets the processor that will be used to query, save, and delete relationships.
    *
-   * @param processor processor for querying and updating relationships, not
-   *           <code>null</code>
+   * @param processor processor for querying and updating relationships, not <code>null</code>
    */
   private void setRelationshipProcessor(IPSRelationshipProcessor processor) {
     if (processor == null)
@@ -175,14 +158,11 @@ public abstract class PSChildRelationshipBase {
     m_relationshipProcessor = processor;
   }
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   protected static final Logger m_log = LogManager.getLogger(PSChildRelationshipBase.class);
 
   /**
-   * Processor for querying and updating relationships. Assigned in ctor, never
-   * <code>null</code>.
+   * Processor for querying and updating relationships. Assigned in ctor, never <code>null</code>.
    */
   private IPSRelationshipProcessor m_relationshipProcessor;
 }

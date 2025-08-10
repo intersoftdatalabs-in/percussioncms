@@ -17,6 +17,8 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.foldermanagement.service.IPSFolderService;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
@@ -29,286 +31,261 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.helpers.PSHelperTestUtils;
 import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
-
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.junit.jupiter.api.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Tests for import jobs (importSite and importTemplate) to ensure they run successfully.
- * They are considered successful when all helpers execute without errors and content is created.
+ * Tests for import jobs (importSite and importTemplate) to ensure they run successfully. They are
+ * considered successful when all helpers execute without errors and content is created.
+ *
  * @author LucasPiccoli, Sunny Sal (refactored)
  */
 @Tag("IntegrationTest")
 class PSImportFromUrlJobTest extends PSSiteImportTestBase {
 
-    private PSSiteDataServletTestCaseFixture fixture;
-    private PSSiteCreationHelper siteCreationHelper;
-    private PSSite importedSite;
-    private IPSSecurityWs securityWs;
-    private IPSiteDao siteDao;
-    private IPSPageService pageService;
-    private IPSAsyncJobFactory jobFactory;
-    private IPSAsyncJobService asyncJobService;
-    private final String EXTERNAL_TEST_URL = "http://www.google.com";
-    private final String TEST_SITE_NAME = "TestImportSite";
-    private final String SITE_IMPORT_JOB = "siteImportJob";
-    private final String TEMPLATE_IMPORT_JOB = "templateImportJob";
-    private boolean siteCreated = false;
-    private boolean fixtureCreated = false;
+  private PSSiteDataServletTestCaseFixture fixture;
+  private PSSiteCreationHelper siteCreationHelper;
+  private PSSite importedSite;
+  private IPSSecurityWs securityWs;
+  private IPSiteDao siteDao;
+  private IPSPageService pageService;
+  private IPSAsyncJobFactory jobFactory;
+  private IPSAsyncJobService asyncJobService;
+  private final String EXTERNAL_TEST_URL = "http://www.google.com";
+  private final String TEST_SITE_NAME = "TestImportSite";
+  private final String SITE_IMPORT_JOB = "siteImportJob";
+  private final String TEMPLATE_IMPORT_JOB = "templateImportJob";
+  private boolean siteCreated = false;
+  private boolean fixtureCreated = false;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        super.setUp();
-        // Inject dependencies
-        setSecurityWs((IPSSecurityWs) getBean("sys_securityWs"));
-        setSiteDao((IPSiteDao) getBean("siteDao"));
-        setPageService((IPSPageService) getBean("pageService"));
-        setAsyncJobService((IPSAsyncJobService) getBean("asyncJobService"));
-        setJobFactory((IPSAsyncJobFactory) getBean("asyncJobFactory"));
-        securityWs.login("Admin", "demo", "Default", null);
-        initData();
+  @BeforeEach
+  void setUp() throws Exception {
+    super.setUp();
+    // Inject dependencies
+    setSecurityWs((IPSSecurityWs) getBean("sys_securityWs"));
+    setSiteDao((IPSiteDao) getBean("siteDao"));
+    setPageService((IPSPageService) getBean("pageService"));
+    setAsyncJobService((IPSAsyncJobService) getBean("asyncJobService"));
+    setJobFactory((IPSAsyncJobFactory) getBean("asyncJobFactory"));
+    securityWs.login("Admin", "demo", "Default", null);
+    initData();
+  }
+
+  /** Placeholder test to keep JUnit happy, all other tests ignored as tech debt. */
+  @Test
+  void testNothing() {
+    // No-op
+  }
+
+  /** Tests if the jobs can gather the helpers they need from the context. */
+  @Disabled
+  public void ignore_testHelperAvailability() {
+    // Create jobs
+    PSImportFromUrlJob siteImportJob = (PSImportFromUrlJob) jobFactory.getJob(SITE_IMPORT_JOB);
+    PSImportFromUrlJob templateImportJob =
+        (PSImportFromUrlJob) jobFactory.getJob(TEMPLATE_IMPORT_JOB);
+
+    assertNotNull(siteImportJob);
+
+    assertNotNull(siteImportJob.getMandatoryHelpers());
+    assertTrue(!siteImportJob.getMandatoryHelpers().isEmpty());
+
+    assertNotNull(siteImportJob.getOptionalHelpers());
+    assertTrue(!siteImportJob.getOptionalHelpers().isEmpty());
+
+    assertNotNull(templateImportJob);
+
+    assertNotNull(templateImportJob.getMandatoryHelpers());
+    assertTrue(!templateImportJob.getMandatoryHelpers().isEmpty());
+
+    assertNotNull(templateImportJob.getOptionalHelpers());
+    assertTrue(!templateImportJob.getOptionalHelpers().isEmpty());
+  }
+
+  /** Tests if the whole process of importing a site is successful. */
+  @Disabled
+  public void ignore_testImportSite() {
+    importedSite = new PSSite();
+    importedSite.setName(TEST_SITE_NAME);
+    importedSite.setBaseUrl(EXTERNAL_TEST_URL);
+
+    PSSiteImportCtx importContext = new PSSiteImportCtx();
+    importContext.setSite(importedSite);
+    importContext.setSiteUrl(EXTERNAL_TEST_URL);
+    importContext.setUserAgent(PSHelperTestUtils.USER_AGENT);
+
+    try {
+      long jobId = asyncJobService.startJob(SITE_IMPORT_JOB, importContext);
+
+      // Keep polling for status until import is complete, and return
+      // result.
+      importContext = getImportedContext(jobId);
+
+      // Set siteCreated to true if a site was created, to delete it on
+      // teardown.
+      siteCreated = true;
+    } catch (RuntimeException | IPSFolderService.PSWorkflowNotFoundException e) {
+      fail();
     }
+    assertNotNull(importContext);
+    assertNotNull(importContext.getSite());
+    assertNotNull(importContext.getTemplateId());
+    assertNotNull(importContext.getPageName());
+  }
 
-    /**
-     * Placeholder test to keep JUnit happy, all other tests ignored as tech debt.
-     */
-    @Test
-    void testNothing() {
-        // No-op
+  /**
+   * Test if the correct helpers configured for templateImportService bean are executed correctly
+   * and without errors.
+   *
+   * @throws Exception
+   */
+  @Disabled
+  public void ignore_testImportTemplateFromUrl() throws Exception {
+    createFixture();
+
+    PSSiteImportCtx importContext = new PSSiteImportCtx();
+    importContext.setSite((PSSite) fixture.site1);
+    importContext.setSiteUrl(EXTERNAL_TEST_URL);
+    importContext.setUserAgent(PSHelperTestUtils.USER_AGENT);
+
+    try {
+      long jobId = asyncJobService.startJob(TEMPLATE_IMPORT_JOB, importContext);
+      // This method keeps polling for status until import is complete,
+      // and returns result.
+      importContext = getImportedContext(jobId);
+    } catch (RuntimeException e) {
+      fail();
     }
+    assertNotNull(importContext);
+    assertNotNull(importContext.getSite());
+    assertNotNull(importContext.getTemplateId());
+    assertNotNull(importContext.getPageName());
+  }
 
-    /**
-     * Tests if the jobs can gather the helpers they need from the context.
-     */
-    @Disabled
-    public void ignore_testHelperAvailability()
-    {
-        // Create jobs
-        PSImportFromUrlJob siteImportJob = (PSImportFromUrlJob) jobFactory.getJob(SITE_IMPORT_JOB);
-        PSImportFromUrlJob templateImportJob = (PSImportFromUrlJob) jobFactory.getJob(TEMPLATE_IMPORT_JOB);
-        
-        assertNotNull(siteImportJob);
-
-        assertNotNull(siteImportJob.getMandatoryHelpers());
-        assertTrue(!siteImportJob.getMandatoryHelpers().isEmpty());
-
-        assertNotNull(siteImportJob.getOptionalHelpers());
-        assertTrue(!siteImportJob.getOptionalHelpers().isEmpty());
-
-        assertNotNull(templateImportJob);
-
-        assertNotNull(templateImportJob.getMandatoryHelpers());
-        assertTrue(!templateImportJob.getMandatoryHelpers().isEmpty());
-
-        assertNotNull(templateImportJob.getOptionalHelpers());
-        assertTrue(!templateImportJob.getOptionalHelpers().isEmpty());
+  @AfterEach
+  void tearDown() throws Exception {
+    super.tearDown();
+    if (siteCreated) {
+      deleteSite();
+      siteCreated = false;
     }
-
-    /**
-     * Tests if the whole process of importing a site is successful.
-     */
-    @Disabled
-    public void ignore_testImportSite()
-    {
-        importedSite = new PSSite();
-        importedSite.setName(TEST_SITE_NAME);
-        importedSite.setBaseUrl(EXTERNAL_TEST_URL);
-
-        PSSiteImportCtx importContext = new PSSiteImportCtx();
-        importContext.setSite(importedSite);
-        importContext.setSiteUrl(EXTERNAL_TEST_URL);
-        importContext.setUserAgent(PSHelperTestUtils.USER_AGENT);
-
-        try
-        {
-            long jobId = asyncJobService.startJob(SITE_IMPORT_JOB, importContext);
-
-            // Keep polling for status until import is complete, and return
-            // result.
-            importContext = getImportedContext(jobId);
-
-            // Set siteCreated to true if a site was created, to delete it on
-            // teardown.
-            siteCreated = true;
-        }
-        catch (RuntimeException | IPSFolderService.PSWorkflowNotFoundException e)
-        {
-            fail();
-        }
-        assertNotNull(importContext);
-        assertNotNull(importContext.getSite());
-        assertNotNull(importContext.getTemplateId());
-        assertNotNull(importContext.getPageName());
+    if (fixtureCreated) {
+      fixture.tearDown();
+      fixtureCreated = false;
     }
+  }
 
-    /**
-     * Test if the correct helpers configured for templateImportService bean are
-     * executed correctly and without errors.
-     * @throws Exception 
-     * 
-     */
-    @Disabled
-    public void ignore_testImportTemplateFromUrl() throws Exception
-    {
-        createFixture();
+  private void initData() throws Exception {
+    createHelpers();
+  }
 
-        PSSiteImportCtx importContext = new PSSiteImportCtx();
-        importContext.setSite((PSSite) fixture.site1);
-        importContext.setSiteUrl(EXTERNAL_TEST_URL);
-        importContext.setUserAgent(PSHelperTestUtils.USER_AGENT);
-
-        try
-        {
-            long jobId = asyncJobService.startJob(TEMPLATE_IMPORT_JOB, importContext);
-            // This method keeps polling for status until import is complete,
-            // and returns result.
-            importContext = getImportedContext(jobId);
-        }
-        catch (RuntimeException e)
-        {
-            fail();
-        }
-        assertNotNull(importContext);
-        assertNotNull(importContext.getSite());
-        assertNotNull(importContext.getTemplateId());
-        assertNotNull(importContext.getPageName());
+  private void deleteSite() {
+    if (importedSite != null) {
+      var importCtx = new PSSiteImportCtx();
+      importCtx.setSite(importedSite);
+      siteCreationHelper.rollback(null, importCtx);
+      importedSite = null;
     }
+  }
 
-    @AfterEach
-    void tearDown() throws Exception {
-        super.tearDown();
-        if (siteCreated) {
-            deleteSite();
-            siteCreated = false;
-        }
-        if (fixtureCreated) {
-            fixture.tearDown();
-            fixtureCreated = false;
-        }
+  /**
+   * Polls job with jobId for status until it is completed or aborted. If the job ran successfully,
+   * returns its result (PSSiteImportCtx).
+   */
+  private PSSiteImportCtx getImportedContext(long jobId) {
+    PSAsyncJobStatus jobStatus = null;
+    try {
+      do {
+        Thread.sleep(500);
+        jobStatus = asyncJobService.getJobStatus(jobId);
+        assertNotNull(jobStatus);
+      } while (!jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)
+          && !jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS));
+
+      if (jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)) {
+        return null;
+      } else {
+        return (PSSiteImportCtx) asyncJobService.getJobResult(jobId);
+      }
+    } catch (Exception e) {
+      if (jobStatus != null && jobStatus.getStatus() != IPSAsyncJob.ABORT_STATUS) {
+        asyncJobService.cancelJob(jobId);
+      }
+      return null;
     }
+  }
 
-    private void initData() throws Exception {
-        createHelpers();
-    }
+  private void createHelpers() {
+    siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
+  }
 
-    private void deleteSite() {
-        if (importedSite != null) {
-            var importCtx = new PSSiteImportCtx();
-            importCtx.setSite(importedSite);
-            siteCreationHelper.rollback(null, importCtx);
-            importedSite = null;
-        }
-    }
+  private void createFixture() throws Exception {
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp();
+    fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
+    fixtureCreated = true;
+  }
 
-    /**
-     * Polls job with jobId for status until it is completed or aborted.
-     * If the job ran successfully, returns its result (PSSiteImportCtx).
-     */
-    private PSSiteImportCtx getImportedContext(long jobId) {
-        PSAsyncJobStatus jobStatus = null;
-        try {
-            do {
-                Thread.sleep(500);
-                jobStatus = asyncJobService.getJobStatus(jobId);
-                assertNotNull(jobStatus);
-            } while (!jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)
-                    && !jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS));
+  /**
+   * @return the securityWs
+   */
+  public IPSSecurityWs getSecurityWs() {
+    return securityWs;
+  }
 
-            if (jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)) {
-                return null;
-            } else {
-                return (PSSiteImportCtx) asyncJobService.getJobResult(jobId);
-            }
-        } catch (Exception e) {
-            if (jobStatus != null && jobStatus.getStatus() != IPSAsyncJob.ABORT_STATUS) {
-                asyncJobService.cancelJob(jobId);
-            }
-            return null;
-        }
-    }
+  /**
+   * @param securityWs the securityWs to set
+   */
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
 
-    private void createHelpers() {
-        siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
-    }
+  /**
+   * @return the siteDao
+   */
+  public IPSiteDao getSiteDao() {
+    return siteDao;
+  }
 
-    private void createFixture() throws Exception {
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp();
-        fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
-        fixtureCreated = true;
-    }
+  /**
+   * @param siteDao the siteDao to set
+   */
+  public void setSiteDao(IPSiteDao siteDao) {
+    this.siteDao = siteDao;
+  }
 
-    /**
-     * @return the securityWs
-     */
-    public IPSSecurityWs getSecurityWs()
-    {
-        return securityWs;
-    }
+  /**
+   * @return the pageService
+   */
+  public IPSPageService getPageService() {
+    return pageService;
+  }
 
-    /**
-     * @param securityWs the securityWs to set
-     */
-    public void setSecurityWs(IPSSecurityWs securityWs)
-    {
-        this.securityWs = securityWs;
-    }
+  /**
+   * @param pageService the pageService to set
+   */
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-    /**
-     * @return the siteDao
-     */
-    public IPSiteDao getSiteDao()
-    {
-        return siteDao;
-    }
+  /**
+   * @return the asyncJobService
+   */
+  public IPSAsyncJobService getAsyncJobService() {
+    return asyncJobService;
+  }
 
-    /**
-     * @param siteDao the siteDao to set
-     */
-    public void setSiteDao(IPSiteDao siteDao)
-    {
-        this.siteDao = siteDao;
-    }
+  /**
+   * @param asyncJobService the asyncJobService to set
+   */
+  public void setAsyncJobService(IPSAsyncJobService asyncJobService) {
+    this.asyncJobService = asyncJobService;
+  }
 
-    /**
-     * @return the pageService
-     */
-    public IPSPageService getPageService()
-    {
-        return pageService;
-    }
-
-    /**
-     * @param pageService the pageService to set
-     */
-    public void setPageService(IPSPageService pageService)
-    {
-        this.pageService = pageService;
-    }
-
-    /**
-     * @return the asyncJobService
-     */
-    public IPSAsyncJobService getAsyncJobService()
-    {
-        return asyncJobService;
-    }
-
-    /**
-     * @param asyncJobService the asyncJobService to set
-     */
-    public void setAsyncJobService(IPSAsyncJobService asyncJobService)
-    {
-        this.asyncJobService = asyncJobService;
-    }
-
-    /**
-     * @param jobFactory the jobFactory to set
-     */
-    public void setJobFactory(IPSAsyncJobFactory jobFactory)
-    {
-        this.jobFactory = jobFactory;
-    }
+  /**
+   * @param jobFactory the jobFactory to set
+   */
+  public void setJobFactory(IPSAsyncJobFactory jobFactory) {
+    this.jobFactory = jobFactory;
+  }
 }

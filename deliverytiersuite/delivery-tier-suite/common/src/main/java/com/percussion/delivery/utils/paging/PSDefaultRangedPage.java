@@ -22,17 +22,16 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Provides a generic implementation of a Ranged Page object.
  *
- * Intended for use in all Delivery Services that retrieve data
- * from the sever for processing in the client user interface.
+ * <p>Intended for use in all Delivery Services that retrieve data from the sever for processing in
+ * the client user interface.
  *
- * In general all find operations must implement paging to ensure
- * the viability/scalability and performance of both the client and server.
+ * <p>In general all find operations must implement paging to ensure the viability/scalability and
+ * performance of both the client and server.
  *
- * For corner case datasets where Ranged Paging will not work, an alternative
- * paging provider should be created.
+ * <p>For corner case datasets where Ranged Paging will not work, an alternative paging provider
+ * should be created.
  *
  * @author natechadwick
- *
  */
 public class PSDefaultRangedPage implements IPSRangedPage {
   /***

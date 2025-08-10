@@ -20,14 +20,10 @@ import com.percussion.utils.xml.PSInvalidXmlException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Simple test class implementing {@link IPSBeanConfig}
- */
+/** Simple test class implementing {@link IPSBeanConfig} */
 public class PSTestBeanConfig implements IPSBeanConfig {
 
-  /**
-   * default ctor
-   */
+  /** default ctor */
   public PSTestBeanConfig() {}
 
   public Element toXml(Document doc) {

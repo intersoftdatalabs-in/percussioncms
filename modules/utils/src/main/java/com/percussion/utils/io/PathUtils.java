@@ -36,16 +36,14 @@ public class PathUtils {
 
   private static ThreadLocal<File> threadRxRoot = new ThreadLocal<>();
 
-  /**
-   * Logger
-   */
+  /** Logger */
   private static final Logger log = LogManager.getLogger(IPSUtilsConstants.SERVER_LOG);
 
   private static volatile File RX_DIR = null;
 
   /**
-   * Name of system property storing Rhythmyx root directory name.
-   * Used for testing.
+   * Name of system property storing Rhythmyx root directory name. Used for testing.
+   *
    * @see #getRxDir(String)
    */
   public static final String DEPLOY_DIR_PROP = "rxdeploydir";
@@ -197,12 +195,11 @@ public class PathUtils {
   }
 
   /**
-   * Return the string path to a file or directory that is relative to the
-   * rhythmyx root
+   * Return the string path to a file or directory that is relative to the rhythmyx root
    *
    * @param path Input path, never <code>null</code> or empty
-   * @return a fully qualified path to the file or directory desired. If it
-   * doesn't exist, an IllegalArgumentException is thrown.
+   * @return a fully qualified path to the file or directory desired. If it doesn't exist, an
+   *     IllegalArgumentException is thrown.
    */
   public static String getRxFile(String path) {
     if (path == null) {

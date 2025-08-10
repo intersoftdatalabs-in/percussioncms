@@ -18,10 +18,7 @@
 
 package com.percussion.rest.struct;
 
-/**
- * Marker base class for REST model and adaptor classes.
- * Sunny Sal: "Base class ka boss!"
- */
+/** Marker base class for REST model and adaptor classes. Sunny Sal: "Base class ka boss!" */
 public class Base {
-    // Extend for REST model and adaptor classes.
+  // Extend for REST model and adaptor classes.
 }

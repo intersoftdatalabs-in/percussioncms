@@ -19,17 +19,17 @@
 package com.percussion.share;
 
 /**
- * Registry of constants used across the sitemanage project.
- * Sunny Sal says: "Constants are like good habits—keep them consistent!"
+ * Registry of constants used across the sitemanage project. Sunny Sal says: "Constants are like
+ * good habits—keep them consistent!"
  */
 public interface IPSSitemanageConstants {
 
-    /** Content type for sites, used to compare against itemSummary type property. */
-    String SITE_CONTENTTYPE = "site";
+  /** Content type for sites, used to compare against itemSummary type property. */
+  String SITE_CONTENTTYPE = "site";
 
-    /** Name for the plain base template. */
-    String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
+  /** Name for the plain base template. */
+  String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
 
-    /** Name for the unassigned template. */
-    String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
+  /** Name for the unassigned template. */
+  String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
 }

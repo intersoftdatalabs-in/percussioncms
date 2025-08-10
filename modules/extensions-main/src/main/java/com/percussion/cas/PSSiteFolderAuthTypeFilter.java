@@ -59,31 +59,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Site Folder Publishing facilitates publishing of Content Items in a Content
- * Explorer Site Folder tree to an identical folder tree on a delivery site or
- * multiple delivery sites. As only the site folder items get published in the
- * site folder publishing the related content links need to be filtered.
- * This exit is meant for casSupport resources and resources that generate
- * auto related content. When it is used on auto related content resources
- * this exits should be placed after sys_casAutoRelatedContent exit.
- * The exit filters the linkurl elements based on the following criteria.
- * Site based filtering:
- * If linkurl consists of sys_siteid attribute then checks whether a site with
- * this id exists in RXSITES table or not. If not removes that linkurl.
- * If siteid attribute does not exist then the sys_originalsiteid parameter from
- * the request will be used if that does not exist then sys_siteid from
- * the request will be used for filtering.
- * Folder based filtering:
- * If linkurl consists of sys_folderid attribute then checks whether the folder
- * exists or not. If not removes that linkurl.
- * Then checks whether the folder exists in above site or not. If not removes
- * the link.
- * Then checks whether the item exists in the above folder or not.
- * If not removes the link.
- * Variant based filtering.
- * If the variant is a page variant then checks whether it is a publishable
- * variant or not. If not removes the link.
- *
+ * Site Folder Publishing facilitates publishing of Content Items in a Content Explorer Site Folder
+ * tree to an identical folder tree on a delivery site or multiple delivery sites. As only the site
+ * folder items get published in the site folder publishing the related content links need to be
+ * filtered. This exit is meant for casSupport resources and resources that generate auto related
+ * content. When it is used on auto related content resources this exits should be placed after
+ * sys_casAutoRelatedContent exit. The exit filters the linkurl elements based on the following
+ * criteria. Site based filtering: If linkurl consists of sys_siteid attribute then checks whether a
+ * site with this id exists in RXSITES table or not. If not removes that linkurl. If siteid
+ * attribute does not exist then the sys_originalsiteid parameter from the request will be used if
+ * that does not exist then sys_siteid from the request will be used for filtering. Folder based
+ * filtering: If linkurl consists of sys_folderid attribute then checks whether the folder exists or
+ * not. If not removes that linkurl. Then checks whether the folder exists in above site or not. If
+ * not removes the link. Then checks whether the item exists in the above folder or not. If not
+ * removes the link. Variant based filtering. If the variant is a page variant then checks whether
+ * it is a publishable variant or not. If not removes the link.
  */
 public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   /* (non-Javadoc)
@@ -116,21 +106,19 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /**
-   * Filters the linkurl elements by calling following helper methods.
-   * {@link #isValidLinkBySiteID(IPSRequestContext, PSRelationshipProcessorProxy,
-   * Map, Map, Element)} to filter the linkurl Elements by site id in the
-   * linkurl or request.
-   * {@link #isValidLinkByFolderID(IPSRequestContext, PSRelationshipProcessorProxy,
-   * Map, Map, Map, Element)} to filter the linkurl Elements by folder id in
-   * the linkurl.
-   * {@link #isValidLinkByVariant(IPSRequestContext, PSContentTypeVariantSet,
-   * Map, Element)} to filter the linkurl elements by variant id in the linkurl.
+   * Filters the linkurl elements by calling following helper methods. {@link
+   * #isValidLinkBySiteID(IPSRequestContext, PSRelationshipProcessorProxy, Map, Map, Element)} to
+   * filter the linkurl Elements by site id in the linkurl or request. {@link
+   * #isValidLinkByFolderID(IPSRequestContext, PSRelationshipProcessorProxy, Map, Map, Map,
+   * Element)} to filter the linkurl Elements by folder id in the linkurl. {@link
+   * #isValidLinkByVariant(IPSRequestContext, PSContentTypeVariantSet, Map, Element)} to filter the
+   * linkurl elements by variant id in the linkurl.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param doc the resultDoc from which the links needs to be removed
-   * assumed not <code>null</code>.
-   * @throws PSExtensionProcessingException when there is an error while
-   * creating PSRelationshipProcessorProxy object.
+   * @param doc the resultDoc from which the links needs to be removed assumed not <code>null</code>
+   *     .
+   * @throws PSExtensionProcessingException when there is an error while creating
+   *     PSRelationshipProcessorProxy object.
    */
   private void filterLinkUrls(IPSRequestContext request, Document doc)
       throws PSExtensionProcessingException {
@@ -173,13 +161,11 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Utility method to validate the linkurl element and then build a map
-   * of required parameters for filtering the linkurl.
+   * Utility method to validate the linkurl element and then build a map of required parameters for
+   * filtering the linkurl.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param linkurl Element which needs to checked for siteid must not be
-   * <code>null</code>.
-   *
+   * @param linkurl Element which needs to checked for siteid must not be <code>null</code>.
    * @return Map of required parameters for filtering the linkurl or <code>
    * null</code> if any of the required parameter is missing.
    */
@@ -293,15 +279,13 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Makes an internal request to the @link{LOOKUP_SITE_FOLDER_ROOT}
-   * and builds the site and folder root map.
+   * Makes an internal request to the @link{LOOKUP_SITE_FOLDER_ROOT} and builds the site and folder
+   * root map.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @return Map of siteids and folderroot may be <code>empty</code> but never
-   * <code>null</code>.
-   * @throws PSExtensionProcessingException, if there are any errors
-   * getting the Site and Folder information from Rhythmyx resource
-   * {@link #LOOKUP_SITE_FOLDER_ROOT}
+   * @return Map of siteids and folderroot may be <code>empty</code> but never <code>null</code>.
+   * @throws PSExtensionProcessingException, if there are any errors getting the Site and Folder
+   *     information from Rhythmyx resource {@link #LOOKUP_SITE_FOLDER_ROOT}
    */
   private Map initializeSiteFolderRootMap(IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -360,19 +344,16 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Builds a folder path map by getting the component summaries for all
-   * the folderids in the linkurls. If a folder does not exist then we do not
-   * get the component summary for that folder and there will not be any entry
-   * for that folder in the map.
+   * Builds a folder path map by getting the component summaries for all the folderids in the
+   * linkurls. If a folder does not exist then we do not get the component summary for that folder
+   * and there will not be any entry for that folder in the map.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param relProxy object of PSRelationshipProcessor must not be
-   * <code>null</code>.
+   * @param relProxy object of PSRelationshipProcessor must not be <code>null</code>.
    * @param doc resultDoc Document must not be null.
-   * @return Map of folderids and folder paths may be <code>empty</code> but
-   * never <code>null</code>.
-   * @throws PSExtensionProcessingException, if there are any errors
-   * while getting the folder paths.
+   * @return Map of folderids and folder paths may be <code>empty</code> but never <code>null</code>
+   *     .
+   * @throws PSExtensionProcessingException, if there are any errors while getting the folder paths.
    */
   private Map<String, String> initializeFolderPathMap(
       IPSRequestContext request, PSRelationshipProcessor relProxy, Document doc)
@@ -430,23 +411,19 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Utility method to decide whether a link is valid by site id or not.
-   * Gets the site id from linkparams and checks that site id exists or not
-   * and checks whether item exists under that site or not.
+   * Utility method to decide whether a link is valid by site id or not. Gets the site id from
+   * linkparams and checks that site id exists or not and checks whether item exists under that site
+   * or not.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param relProxy object of PSRelationshipProcessor must not be
-   * <code>null</code>.
-   * @param siteFolderRoot map of site ids and folder roots must not be
-   * <code>null</code>.
-   * @param linkparams map of required parameters by which the removal of link
-   * will be decided must not be <code>null</code>.
-   * @param linkurl Element which needs to checked for siteid must not be
-   * <code>null</code>.
-   * @return <code>true</code> if siteid exits in the sites map otherwise
-   * <code>false</code>
-   * @throws PSExtensionProcessingException When there is an error while
-   * getting the owner paths for item.
+   * @param relProxy object of PSRelationshipProcessor must not be <code>null</code>.
+   * @param siteFolderRoot map of site ids and folder roots must not be <code>null</code>.
+   * @param linkparams map of required parameters by which the removal of link will be decided must
+   *     not be <code>null</code>.
+   * @param linkurl Element which needs to checked for siteid must not be <code>null</code>.
+   * @return <code>true</code> if siteid exits in the sites map otherwise <code>false</code>
+   * @throws PSExtensionProcessingException When there is an error while getting the owner paths for
+   *     item.
    */
   private boolean isValidLinkBySiteID(
       IPSRequestContext request,
@@ -523,31 +500,23 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Utility method to decide whether a link is valid by folder id or not.
-   * Gets the folder id from linkurl if does not present then returns
-   * <code>true</code> as we can not filter the link without a folder id.
-   * If folder exists then three checks will be performed, wherever it
-   * fails <code>false</code> will be returned. If succeeds in all checks
-   * <code>true</code> will be returned.
-   * Check 1: Folder exists or not
-   * Check 2: Folder exists under the specified site or not
+   * Utility method to decide whether a link is valid by folder id or not. Gets the folder id from
+   * linkurl if does not present then returns <code>true</code> as we can not filter the link
+   * without a folder id. If folder exists then three checks will be performed, wherever it fails
+   * <code>false</code> will be returned. If succeeds in all checks <code>true</code> will be
+   * returned. Check 1: Folder exists or not Check 2: Folder exists under the specified site or not
    * Check 3: Item exists under the folder or not.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param relProxy object of PSRelationshipProcessor must not be
-   * <code>null</code>.
-   * @param siteFolderRoot map of site ids and folder roots must not be
-   * <code>null</code>.
-   * @param folderPaths map of folder ids and folder paths must not be
-   * <code>null</code>.
-   * @param linkparams map of required parameters by which the removal of
-   * link will be decided must not be <code>null</code>.
-   * @param linkurl Element which needs to checked for siteid must not be
-   * <code>null</code>.
-   * @return <code>true</code> if it satisfies above rules otherwise
-   * <code>false</code>
-   * @throws PSExtensionProcessingException When error ouccurs while getting
-   * the folder relationships.
+   * @param relProxy object of PSRelationshipProcessor must not be <code>null</code>.
+   * @param siteFolderRoot map of site ids and folder roots must not be <code>null</code>.
+   * @param folderPaths map of folder ids and folder paths must not be <code>null</code>.
+   * @param linkparams map of required parameters by which the removal of link will be decided must
+   *     not be <code>null</code>.
+   * @param linkurl Element which needs to checked for siteid must not be <code>null</code>.
+   * @return <code>true</code> if it satisfies above rules otherwise <code>false</code>
+   * @throws PSExtensionProcessingException When error ouccurs while getting the folder
+   *     relationships.
    */
   private boolean isValidLinkByFolderID(
       IPSRequestContext request,
@@ -640,23 +609,19 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Utility method to decide whether a link is valid by variant id or not.
-   * Gets the variant id from linkurl and if it is a page variant then checks
-   * whether the variant is a publishable variant or not. If yes returns
-   * <code>true</code> otherwise <code>false</code>. If the variant under
-   * consideration is not a page variant then we can not decide and return
-   * <code>true</code> in that case.
+   * Utility method to decide whether a link is valid by variant id or not. Gets the variant id from
+   * linkurl and if it is a page variant then checks whether the variant is a publishable variant or
+   * not. If yes returns <code>true</code> otherwise <code>false</code>. If the variant under
+   * consideration is not a page variant then we can not decide and return <code>true</code> in that
+   * case.
    *
    * @param request object of IPSRequestContext must not be <code>null</code>.
-   * @param linkparams map of required parameters by which the removal of link
-   *           will be decided must not be <code>null</code>.
-   * @param linkurl Element which needs to checked for siteid must not be
-   *           <code>null</code>.
-   *
-   * @return <code>true</code> if it satisfies above rules otherwise
-   *         <code>false</code>
-   * @throws PSExtensionProcessingException When there is an error making an
-   *            internal request to find the publishable variant.
+   * @param linkparams map of required parameters by which the removal of link will be decided must
+   *     not be <code>null</code>.
+   * @param linkurl Element which needs to checked for siteid must not be <code>null</code>.
+   * @return <code>true</code> if it satisfies above rules otherwise <code>false</code>
+   * @throws PSExtensionProcessingException When there is an error making an internal request to
+   *     find the publishable variant.
    */
   private boolean isValidLinkByVariant(IPSRequestContext request, Map linkparams, Element linkurl)
       throws PSExtensionProcessingException {
@@ -767,40 +732,29 @@ public class PSSiteFolderAuthTypeFilter implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Name of the Rhythmyx internal resource used to query the site folder root
-   * for a given site id.
+   * Name of the Rhythmyx internal resource used to query the site folder root for a given site id.
    */
   private final String LOOKUP_SITE_FOLDER_ROOT = "sys_casSupport/SiteLookup";
 
   /**
-   * Name of the Rhythmyx internal resource used to query the publishable
-   * variants for the given item based on the given site id and revision.
+   * Name of the Rhythmyx internal resource used to query the publishable variants for the given
+   * item based on the given site id and revision.
    */
   private final String LOOKUP_VARIANTS_SITE_ITEM =
       "rx_supportSiteFolderContentList/lookupVariantsBySiteItem.xml";
 
-  /**
-   * The exit name used for error handling
-   */
+  /** The exit name used for error handling */
   private static final String ms_className = "PSSiteFolderAuthTypeFilter";
 
-  /**
-   * The element name for the relationship links
-   */
+  /** The element name for the relationship links */
   private static final String LINKURL = "linkurl";
 
-  /**
-   * The name of the attribute for variantid in linkurl
-   */
+  /** The name of the attribute for variantid in linkurl */
   private static final String VARIANTID = "variantid";
 
-  /**
-   * The name of the attribute for contentid in linkurl
-   */
+  /** The name of the attribute for contentid in linkurl */
   private static final String CONTENTID = "contentid";
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSSiteFolderAuthTypeFilter.class);
 }

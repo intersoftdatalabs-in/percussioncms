@@ -25,30 +25,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class defines a set of attributes stored as a database component.
- * Each attribute will be defined as a mapping from a name
- * (type <code>String</code>) and a collection of values
- * (The collection will contain <code>String</code> objects.
- *
+ * This class defines a set of attributes stored as a database component. Each attribute will be
+ * defined as a mapping from a name (type <code>String</code>) and a collection of values (The
+ * collection will contain <code>String</code> objects.
  */
 public class PSAttributeList extends PSDatabaseComponentCollection implements IPSComponent {
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   public PSAttributeList() {
     super((new PSAttribute()).getClass(), (new PSAttribute()).getDatabaseAppQueryDatasetName());
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSAttributeList(Element sourceNode) throws PSUnknownNodeTypeException {
     this();
@@ -58,9 +50,9 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   /**
    * Constructs a new attribute list for the supplied map of attributes.
    *
-   * @param attributes a map of attributes, may be <code>null</code> or empty.
-   *    The map keys must be <code>String</code> objects, while the map
-   *    values must either be of type <code>String</code> or <code>List</code>.
+   * @param attributes a map of attributes, may be <code>null</code> or empty. The map keys must be
+   *     <code>String</code> objects, while the map values must either be of type <code>String
+   *     </code> or <code>List</code>.
    */
   public PSAttributeList(Map attributes) {
     this();
@@ -89,12 +81,10 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   }
 
   /**
-   * Set an attribute's values, replacing existing values if they are already
-   * defined.
+   * Set an attribute's values, replacing existing values if they are already defined.
    *
    * @param name The attribute's name, may not be <code>null</code> or empty.
-   *
-   * @param value The list of values.  Can be <code>null</code>.
+   * @param value The list of values. Can be <code>null</code>.
    */
   public void setAttribute(String name, List value) {
     if ((name == null) || (name.length() == 0))
@@ -116,13 +106,10 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   /**
    * Get the attribute specified.
    *
-   * @param name The name of the attribute to retrieve, may not be
-   * <code>null</code> or empty.  A case-insensitive search is done.
-   *
-   * @return The attribute.  May be <code>null</code>, indicating
-   * the attribute is not defined in this list.  May be empty, indicating
-   * the attribute is in the list but has no value defined.
-   *
+   * @param name The name of the attribute to retrieve, may not be <code>null</code> or empty. A
+   *     case-insensitive search is done.
+   * @return The attribute. May be <code>null</code>, indicating the attribute is not defined in
+   *     this list. May be empty, indicating the attribute is in the list but has no value defined.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public PSAttribute getAttribute(String name) {
@@ -160,10 +147,8 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   }
 
   /**
-   *
-   * Test if this attribute list is equal to the supplied attribute list. Two
-   * attribute lists are equal if list 1 has the same entries as list 2. The
-   * order is not important.
+   * Test if this attribute list is equal to the supplied attribute list. Two attribute lists are
+   * equal if list 1 has the same entries as list 2. The order is not important.
    *
    * @param obj the object to test against, may be <code>null</code>.
    */
@@ -189,15 +174,11 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   /** IPSComponent interface implementation */
 
   /**
-   * This method is called to populate a PSRole Java object
-   * from a PSXRole XML element node. See the
+   * This method is called to populate a PSRole Java object from a PSXRole XML element node. See the
    * {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRole
-   *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the
-   * interface description
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the interface description
    */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -215,10 +196,11 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
   }
 
   /**
-   * This method is called to create a PSXAttributeList XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXAttributeList XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAttributeList (PSXAttribute*)&gt;
    * &lt;!ATTLIST PSXAttributeList
@@ -226,10 +208,8 @@ public class PSAttributeList extends PSDatabaseComponentCollection implements IP
    * &gt;
    * </code></pre>
    *
-   * @param doc The parent document.   May not be <code>null</code>.
-   *
+   * @param doc The parent document. May not be <code>null</code>.
    * @return the newly created PSXAttributeList XML element node
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   @Override

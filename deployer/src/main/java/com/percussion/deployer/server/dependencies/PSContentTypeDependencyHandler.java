@@ -95,21 +95,16 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to handle packaging and deploying a content type definition.
- */
+/** Class to handle packaging and deploying a content type definition. */
 public class PSContentTypeDependencyHandler extends PSContentEditorObjectDependencyHandler
     implements IPSIdTypeHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler. May not be
-   *           <code>null</code> and must be of the type supported by this
-   *           class. See {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map. May not be
-   *  <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentTypeDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -119,8 +114,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * A util method to get the CE dependencies from the PSDataSet
    *
-   * @param tok The security token to use if objectstore access is required,
-   *           may not be <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param name the application name that is a ContentEditor
    * @return an iterator for CE dependencies from the DataSet
    * @throws PSDeployException
@@ -217,8 +212,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Helper method to package child dependencies: template and or variant
    *
-   * @param tok The security token to use if objectstore access is required,
-   *           may not be <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param dep the ContentType Dependency may not be <code>null</code>
    * @return set of template dependencies
    * @throws PSDeployException
@@ -256,10 +251,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       if (t == null) continue;
       String guidStr = String.valueOf(t.getGUID().longValue());
 
-      /**
-       * IF t.isVariant() return "variantDef"Dependency
-       * else return "templateElement"Dependency
-       */
+      /** IF t.isVariant() return "variantDef"Dependency else return "templateElement"Dependency */
       if (t.isVariant()) childDep = varHandler.getDependency(tok, guidStr);
       else if (t.getTemplateType().equals(IPSAssemblyTemplate.TemplateType.Local)) {
         childDep = tmpDefHandler.getDependency(tok, guidStr);
@@ -320,7 +312,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param item the item definition, never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -364,16 +355,14 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Return an iterator for dependency files in the archive
    *
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected static Iterator getItemDefFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
@@ -420,15 +409,13 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Gets all schema (for all local tables of the) dependency files for the
-   * given Content Type dependency.
+   * Gets all schema (for all local tables of the) dependency files for the given Content Type
+   * dependency.
    *
    * @param tok the security token, assumed not <code>null</code>.
    * @param dep the Content Type dependency, assumed not <code>null</code>.
-   *
-   * @return all schema dependency files of the specified Content Type
-   * dependency, never <code>null</code>.
-   *
+   * @return all schema dependency files of the specified Content Type dependency, never <code>null
+   *     </code>.
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -455,12 +442,12 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Extract the item definition file from the archive and install/update
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   *           archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   *           may not be <code>null</code>
-   * @param item if not <code>null</code>, use it for deserialization else
-   *           ask service to create a new template
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
+   * @param item if not <code>null</code>, use it for deserialization else ask service to create a
+   *     new template
    * @return the actual template
    * @throws PSDeployException
    */
@@ -500,12 +487,12 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Extract the item definition file from the archive and install/update
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   *           archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   *           may not be <code>null</code>
-   * @param node if not <code>null</code>, use it for deserialization else
-   *           ask service to create a new node
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
+   * @param node if not <code>null</code>, use it for deserialization else ask service to create a
+   *     new node
    * @return the actual node
    * @throws PSDeployException
    */
@@ -611,8 +598,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param dep the dependency never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @param item the item definition never <code>null</code>
-   * @param descSet the cvDescriptors describing the contenttype<==>Template
-   *           relationships may be <code>null</code>
+   * @param descSet the cvDescriptors describing the contenttype<==>Template relationships may be
+   *     <code>null</code>
    * @param isNew boolean if the ContentType does not yet exist on the system
    * @throws PSDeployException
    * @return a set of PSContentTemplateDescriptors
@@ -723,12 +710,11 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
 
   /**
    * helper method to transform the contenttypeid
+   *
    * @param ctx the import context, assumed not <code>null</code>.
-   * @param descSet the ContentTypeTemplateDescriptor set, never
-   *           <code>null</code>
+   * @param descSet the ContentTypeTemplateDescriptor set, never <code>null</code>
    * @param id the contenttype id never <code>null</code>
    * @param isNew boolean <code>true</code> if itemDefinition is new
-   *
    * @return the ContentTypeTemplateDescriptor set
    * @throws PSDeployException
    */
@@ -832,7 +818,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    * @param file the to be saved schema, assumed not <code>null</code>.
    * @param archive the archive, assumed not <code>null</code>.
    * @param isNew <code>true</code> if save the schema for a new Content Type.
-   *
    * @throws PSDeployException if an error occurs.
    */
   private void saveSchema(PSDependencyFile file, PSArchiveHandler archive, boolean isNew)
@@ -866,11 +851,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
    *
    * @param dep the Content Type dependency, assumed not <code>null</code>.
    * @param ctx the import context, assumed not <code>null</code>.
-   *
-   * @return the item definition and version pair. The value of the 1st and
-   * 2nd may be <code>null</code> if the Content Type does not exist.
-   * The returned object never <code>null</code>.
-   *
+   * @return the item definition and version pair. The value of the 1st and 2nd may be <code>null
+   *     </code> if the Content Type does not exist. The returned object never <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -901,17 +883,16 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Saves the specified item definition dependency file
    *
-   * @param itemFile the dependency file that contains the to be saved item
-   * definition, assumed not <code>null</code>.
-   * @param curItemDef the current/existing item definition. It may be
-   * <code>null</code> if the above item definition is new.
-   * @param curVer the version of the current item definition. It may be
-   * <code>null</code> if the above item definition is new.
+   * @param itemFile the dependency file that contains the to be saved item definition, assumed not
+   *     <code>null</code>.
+   * @param curItemDef the current/existing item definition. It may be <code>null</code> if the
+   *     above item definition is new.
+   * @param curVer the version of the current item definition. It may be <code>null</code> if the
+   *     above item definition is new.
    * @param tok the security token, assumed not <code>null</code>.
    * @param archive the archive, assumed not <code>null</code>.
    * @param dep the Content Type dependency, assumed not <code>null</code>.
    * @param ctx the import context, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -1036,10 +1017,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     addTransactionLogEntryByGuidType(dep, ctx, PSTypeEnum.SLOT, isNew);
   }
 
-  /**
-   * catalog all the content types. This method delegates catalogging to
-   * PSContentTypeHelper.
-   */
+  /** catalog all the content types. This method delegates catalogging to PSContentTypeHelper. */
   private List<IPSNodeDefinition> getContentTypes() {
     List<IPSNodeDefinition> ctList = null;
     ctList = PSContentTypeHelper.loadNodeDefs("*");
@@ -1070,8 +1048,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Utility method to find the ItemDefinition given a node def
    *
-   * @param node the IPSNodeDefinition, all it does is save one lookup of a
-   *           node may not be <code>null</code>
+   * @param node the IPSNodeDefinition, all it does is save one lookup of a node may not be <code>
+   *     null</code>
    * @return the ItemDefinition for the node def, never <code>null</code>
    * @throws PSDeployException
    */
@@ -1093,8 +1071,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Utility method to find the ItemDefinition by a given guid(as a
-   * STRINGGGGGG)
+   * Utility method to find the ItemDefinition by a given guid(as a STRINGGGGGG)
    *
    * @param depId the guid
    * @return <code>null</code> if Variant is not found
@@ -1110,10 +1087,9 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       try {
         item = PSContentTypeHelper.loadItemDef(node.getGUID());
         /**
-         * Sometimes, there can be WorkflowInfo with empty values, in which
-         * case load the item definition and get WORKFLOWINFO, before
-         * packaging Only known scenario: Install pre 6.0, upgrade to 6.0
-         * and archive, this will not happen if the app is modified in WB.
+         * Sometimes, there can be WorkflowInfo with empty values, in which case load the item
+         * definition and get WORKFLOWINFO, before packaging Only known scenario: Install pre 6.0,
+         * upgrade to 6.0 and archive, this will not happen if the app is modified in WB.
          */
         PSWorkflowInfo wfInfo = item.getContentEditor().getWorkflowInfo();
         if (wfInfo != null && !wfInfo.getValues().hasNext()) {
@@ -1173,18 +1149,18 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Provides the list of child dependency types this class can discover. The
-   * child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Acl</li>
-   * <li>Template</li>
-   * <li>Image</li>
+   *   <li>Application
+   *   <li>Acl
+   *   <li>Template
+   *   <li>Image
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   *         objects, never <code>null</code>, does not contain
-   *         <code>null</code> or empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator getChildTypes() {
@@ -1330,8 +1306,8 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   /**
    * From a dependency figure out the CE Application name
    *
-   * @param tok The security token to use if objectstore access is required,
-   *           may not be <code>null</code>.
+   * @param tok The security token to use if objectstore access is required, may not be <code>null
+   *     </code>.
    * @param id the dependency id as a string never <code>null</code>
    * @return the application may be <code>null</code>
    * @throws PSDeployException
@@ -1462,14 +1438,12 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Searches the supplied workflow info in an effort to find a workflow which
-   * exists on the current system.  If such a workflow is not found, then the
-   * id of the 'Standard Workflow' on the system will be returned.
+   * Searches the supplied workflow info in an effort to find a workflow which exists on the current
+   * system. If such a workflow is not found, then the id of the 'Standard Workflow' on the system
+   * will be returned.
    *
    * @param wfInfo The workflow info to search.
-   *
-   * @return The id of the workflow to use as default or -1 if a workflow was
-   * not found.
+   * @return The id of the workflow to use as default or -1 if a workflow was not found.
    */
   @SuppressWarnings("unchecked")
   private Integer getDefaultWorkflowId(PSWorkflowInfo wfInfo) {
@@ -1499,10 +1473,9 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Removes workflow associations from the given content editor which do not
-   * exist in the package and do not exist on the target server.  If all
-   * workflow associations are removed, the editor's workflow info will be set
-   * to <code>null</code>.
+   * Removes workflow associations from the given content editor which do not exist in the package
+   * and do not exist on the target server. If all workflow associations are removed, the editor's
+   * workflow info will be set to <code>null</code>.
    *
    * @param tok the security token, assumed not <code>null</code>.
    * @param dep the dependency, assumed not <code>null</code>.
@@ -1545,15 +1518,13 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Removes template associations from the given set of content type template
-   * descriptors which do not exist in the package and do not exist on the
-   * target server.
+   * Removes template associations from the given set of content type template descriptors which do
+   * not exist in the package and do not exist on the target server.
    *
    * @param tok the security token, assumed not <code>null</code>.
    * @param dep the dependency, assumed not <code>null</code>.
    * @param ctx import context, assumed not <code>null</code>.
-   * @param descSet the content type template descriptors, assumed not
-   * <code>null</code>.
+   * @param descSet the content type template descriptors, assumed not <code>null</code>.
    * @throws PSDeployException
    */
   @SuppressWarnings("unchecked")
@@ -1583,30 +1554,19 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_TYPE;
 
-  /**
-   * logger
-   */
+  /** logger */
   private static final Logger log = LogManager.getLogger(PSContentTypeDependencyHandler.class);
 
-  /**
-   * List of child types supported by this handler, never <code>null</code>
-   * or empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * Get the workflow service.
-   */
+  /** Get the workflow service. */
   private static IPSWorkflowService ms_wfSvc = PSWorkflowServiceLocator.getWorkflowService();
 
-  /**
-   * Get the assembly service.
-   */
+  /** Get the assembly service. */
   private static IPSAssemblyService ms_assemblySvc = PSAssemblyServiceLocator.getAssemblyService();
 
   static {

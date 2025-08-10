@@ -28,14 +28,13 @@ import org.w3c.dom.Document;
 
 /**
  * A Rhythmyx extension that copies a temporary XML document into a field.
- * <p>
- * The text representation of the node or document is copied into a single field.
- * When called as a pre-exit, the output is stored in an HTML parameter. When
- * called as a post-exit, a single XML node is created which will contain the
- * resulting text.  When an entire XML document is copied, the result will be
- * escaped.
- * <p>
- * The parameters to the extension are:
+ *
+ * <p>The text representation of the node or document is copied into a single field. When called as
+ * a pre-exit, the output is stored in an HTML parameter. When called as a post-exit, a single XML
+ * node is created which will contain the resulting text. When an entire XML document is copied, the
+ * result will be escaped.
+ *
+ * <p>The parameters to the extension are:
  *
  * <table border="1">
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Required?</th>
@@ -62,31 +61,28 @@ import org.w3c.dom.Document;
  *     <td>&nbsp;</td>
  *   </tr>
  * </table>
+ *
+ * <p>When called as a pre-exit, the sourceName <code>InputDocument</code> can also be supplied.
+ * This name refers to the XML document loaded with the update request.
+ *
+ * <p>The output for a pre-exit is always stored in an HTML parameter.
+ *
+ * <p>When called as a post-exit, the output is a node in the XML result document The special node
+ * name "." (period) will cause the new document fragment to be copied directly underneath the
+ * <code>&lt;root&gt;</code> element.
+ *
  * <p>
- * When called as a pre-exit, the sourceName <code>InputDocument</code> can
- * also be supplied. This name refers to the XML document loaded with the
- * update request.
- * <p>
- * The output for a pre-exit is always stored in an HTML parameter.
- * <p>
- * When called as a post-exit, the output is a node in the XML result document
- * The special node name "." (period)  will cause the new document fragment
- * to be copied directly underneath the <code>&lt;root&gt;</code> element.
- * <p>
- **/
+ */
 public class PSXdDomToText extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
 
   /**
    * This method handles the pre-exit request.
    *
-   * @param params an array of objects representing the parameters. See the
-   * description under {@link PSXdDomToText} for parameter details.
-   *
+   * @param params an array of objects representing the parameters. See the description under {@link
+   *     PSXdDomToText} for parameter details.
    * @param request the request context for this request
-   *
    * @throws PSExtensionProcessingException when a run time error is detected.
-   *
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSAuthorizationException,
@@ -119,16 +115,12 @@ public class PSXdDomToText extends PSDefaultExtension
   /**
    * This method handles the post-exit request.
    *
-   * @param params an array of objects representing the parameters. See the
-   * description under {@link PSXdDomToText} for parameter details.
-   *
+   * @param params an array of objects representing the parameters. See the description under {@link
+   *     PSXdDomToText} for parameter details.
    * @param request the request context for this request
-   *
-   * @param resultDoc the XML document resulting from the Rhythmyx server
-   * operation.  The output text will be added as an XML node in this document.
-   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server operation. The output text
+   *     will be added as an XML node in this document.
    * @throws PSExtensionProcessingException when a run time error is detected.
-   *
    */
   public org.w3c.dom.Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -157,15 +149,11 @@ public class PSXdDomToText extends PSDefaultExtension
     return resultDoc;
   }
 
-  /**
-   * This exit will never modify the stylesheet.
-   */
+  /** This exit will never modify the stylesheet. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * the name of the class: used for error handling.
-   */
+  /** the name of the class: used for error handling. */
   private static final String ms_className = "PSXdDomToText";
 }

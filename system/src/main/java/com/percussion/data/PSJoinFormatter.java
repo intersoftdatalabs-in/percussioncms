@@ -23,14 +23,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * The PSJoinFormatter class is used for building
- * joins in SQL SELECT statements. Join syntax, such as for outer joins,
- * can be complex and differ across drivers.
- * <p>Derivitives of this class can also be used to help you create your own
- * join clause from pieces. For example, a SELECT statement containing a join
- * clause could be created as follows. By using the appropriate join formatter,
- * this statement would be valid on any platform.<p>
- * Example<p>
+ * The PSJoinFormatter class is used for building joins in SQL SELECT statements. Join syntax, such
+ * as for outer joins, can be complex and differ across drivers.
+ *
+ * <p>Derivitives of this class can also be used to help you create your own join clause from
+ * pieces. For example, a SELECT statement containing a join clause could be created as follows. By
+ * using the appropriate join formatter, this statement would be valid on any platform.
+ *
+ * <p>Example
+ *
+ * <p>
+ *
  * <pre>
  *          queryString.append(
  *             "SELECT t2.log_appl, t2.log_type, t2.log_id_high, t2.log_id_low,");
@@ -73,21 +76,20 @@ import java.util.HashMap;
  *             queryString.append(firstColJoin + andClause + secondColJoin);
  *        }
  * </pre>
- * When building your statement, clause combiners (such as WHERE and AND)
- * should be surrounded by spaces, the table names (with optional aliases),
- * operators, and column names must have <em>NO</em> spaces around them.
  *
- * @see         PSSqlQueryBuilder
+ * When building your statement, clause combiners (such as WHERE and AND) should be surrounded by
+ * spaces, the table names (with optional aliases), operators, and column names must have
+ * <em>NO</em> spaces around them.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSSqlQueryBuilder
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSJoinFormatter {
   /**
-   * Get the appropriate join formatter for the specified connection.
-   * The Connection object is used only within the constructor to
-   * determine the DBMS type. The caller can release this when the
+   * Get the appropriate join formatter for the specified connection. The Connection object is used
+   * only within the constructor to determine the DBMS type. The caller can release this when the
    * constructor returns without concern for problems with this class.
    */
   public static PSJoinFormatter getJoinFormatter(java.sql.Connection dbConn) {
@@ -163,9 +165,7 @@ public abstract class PSJoinFormatter {
     return reorderedJoins;
   }
 
-  /**
-   * Construct a join formatter.
-   */
+  /** Construct a join formatter. */
   protected PSJoinFormatter() {
     super();
   }
@@ -173,12 +173,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any prefix required in the FROM clause for the left side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addLeftTablePrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -186,12 +184,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any suffix required in the FROM clause for the left side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addLeftTableSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -199,12 +195,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any prefix required in the FROM clause for the right side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addRightTablePrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -212,21 +206,18 @@ public abstract class PSJoinFormatter {
   /**
    * Add any suffix required in the FROM clause for the right side table.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addRightTableSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
 
   /**
-   * Does this store the column joining information using an ON clause
-   * in the FROM clause? This is the syntax used by SQL-92 compliant
-   * drivers. If this is not the case, the column joining information
-   * is stored in the WHERE clause.
+   * Does this store the column joining information using an ON clause in the FROM clause? This is
+   * the syntax used by SQL-92 compliant drivers. If this is not the case, the column joining
+   * information is stored in the WHERE clause.
    *
    * @return <code>true</code> if ON clauses are used in the FROM clause
    */
@@ -235,12 +226,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any prefix required in the WHERE clause for the left side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addLeftColumnPrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -248,12 +237,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any suffix required in the WHERE clause for the left side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addLeftColumnSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -261,12 +248,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any prefix required in the WHERE clause for the right side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addRightColumnPrefix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -274,12 +259,10 @@ public abstract class PSJoinFormatter {
   /**
    * Add any suffix required in the WHERE clause for the right side column.
    *
-   * @param   context               the context to write to
-   *
-   * @param   join                  the join to operate on
-   *
-   * @param   inverseColumnOrder   if <code>true</code>, treat the left
-   *                                 column as the right and vice versa
+   * @param context the context to write to
+   * @param join the join to operate on
+   * @param inverseColumnOrder if <code>true</code>, treat the left column as the right and vice
+   *     versa
    */
   public abstract void addRightColumnSuffix(
       PSSqlBuilderContext context, PSBackEndJoin join, boolean inverseColumnOrder);
@@ -292,120 +275,88 @@ public abstract class PSJoinFormatter {
   /**
    * Get the Prefix for the right column, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   *          <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The right column prefix to be placed prior to the
-   *          right column in the query, with appropriate spacing.
-   *          Never <code>null</code>.
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The right column prefix to be placed prior to the right column in the query, with
+   *     appropriate spacing. Never <code>null</code>.
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getRightColumnPrefix(int joinType);
 
   /**
    * Get the Prefix for the left column, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The left column prefix to be placed prior to the
-   *          left column in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The left column prefix to be placed prior to the left column in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getLeftColumnPrefix(int joinType);
 
   /**
    * Get the Suffix for the right column, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The right column suffix to be placed prior to the
-   *          right column in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The right column suffix to be placed prior to the right column in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getRightColumnSuffix(int joinType);
 
   /**
    * Get the Suffix for the left column, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The left column suffix to be placed prior to the
-   *          left column in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The left column suffix to be placed prior to the left column in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getLeftColumnSuffix(int joinType);
 
   /**
    * Get the Prefix for the left table, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The left table prefix to be placed prior to the
-   *          left table in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The left table prefix to be placed prior to the left table in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getLeftTablePrefix(int joinType);
 
   /**
    * Get the Prefix for the right table, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The right table prefix to be placed prior to the
-   *          right table in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The right table prefix to be placed prior to the right table in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getRightTablePrefix(int joinType);
 
   /**
    * Get the Suffix for the left table, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The left table suffix to be placed prior to the
-   *          left table in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The left table suffix to be placed prior to the left table in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getLeftTableSuffix(int joinType);
 
   /**
    * Get the Suffix for the right table, based on the join type
    *
-   * @param   joinType    The type of join being performed. One of the
-   * <code>PSJoinFormatter.JOIN_TYPE...</code> types.
-   *
-   * @return  The right table suffix to be placed prior to the
-   *          right table in the query, with appropriate spacing.
-   *          Never <code>null</code>
-   *
-   * @throws  IllegalArgumentException if the join type is required,
-   *          but invalid
+   * @param joinType The type of join being performed. One of the <code>PSJoinFormatter.JOIN_TYPE...
+   *     </code> types.
+   * @return The right table suffix to be placed prior to the right table in the query, with
+   *     appropriate spacing. Never <code>null</code>
+   * @throws IllegalArgumentException if the join type is required, but invalid
    */
   public abstract String getRightTableSuffix(int joinType);
 
@@ -413,29 +364,29 @@ public abstract class PSJoinFormatter {
   creation methods */
 
   /**
-   * Used to specify the join type when getting various pieces of a join
-   * clause. This value is used for an Inner join. See the <code>get...Prefix
+   * Used to specify the join type when getting various pieces of a join clause. This value is used
+   * for an Inner join. See the <code>get...Prefix
    * </code> and <code>get...Suffix</code> methods.
    */
   public static int JOIN_TYPE_INNER = 1;
 
   /**
-   * Used to specify the join type when getting various pieces of a join
-   * clause. This value is used for a left outer join. See the <code>get...Prefix
+   * Used to specify the join type when getting various pieces of a join clause. This value is used
+   * for a left outer join. See the <code>get...Prefix
    * </code> and <code>get...Suffix</code> methods.
    */
   public static int JOIN_TYPE_LEFT_OUTER = 2;
 
   /**
-   * Used to specify the join type when getting various pieces of a join
-   * clause. This value is used for a right outer join. See the <code>get...Prefix
+   * Used to specify the join type when getting various pieces of a join clause. This value is used
+   * for a right outer join. See the <code>get...Prefix
    * </code> and <code>get...Suffix</code> methods.
    */
   public static int JOIN_TYPE_RIGHT_OUTER = 3;
 
   /**
-   * Used to specify the join type when getting various pieces of a join
-   * clause. This value is used for a full outer join. See the <code>get...Prefix
+   * Used to specify the join type when getting various pieces of a join clause. This value is used
+   * for a full outer join. See the <code>get...Prefix
    * </code> and <code>get...Suffix</code> methods.
    */
   public static int JOIN_TYPE_FULL_OUTER = 4;

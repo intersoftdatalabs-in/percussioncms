@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * This handler provides sample traffic data from an XML file.
- * Sunny Sal: "Traffic jams? Not here, just smooth Java Streams!"
+ * This handler provides sample traffic data from an XML file. Sunny Sal: "Traffic jams? Not here,
+ * just smooth Java Streams!"
  */
 public class PSTrafficDataHandler extends PSXmlDataHandler implements IPSTrafficService {
 

@@ -25,34 +25,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSResultPager class defines how result pages will be generated to
- * allow for partial result set processing. For instance, a request may
- * generate 100 rows of result data. It may be useful to limit this,
- * allow 10 rows per page, etc.
+ * The PSResultPager class defines how result pages will be generated to allow for partial result
+ * set processing. For instance, a request may generate 100 rows of result data. It may be useful to
+ * limit this, allow 10 rows per page, etc.
  *
- * @see          PSDataSet
- * @see          PSDataSet#getResultPager
- *
- * @author       Tas Giakouminakis
- * @version     1.0
- * @since    1.0
+ * @see PSDataSet
+ * @see PSDataSet#getResultPager
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultPager extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                                                            object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                                                            object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                                                            if the XML element node is not of the
-   *                                                            appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSResultPager(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -60,28 +51,23 @@ public class PSResultPager extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Construct a results paging object.
-   */
+  /** Construct a results paging object. */
   public PSResultPager() {
     super();
   }
 
   /**
    * Get the maximum number of rows which can be returned in a page.
-   * <p>
-   * Users may perform broad searches in an attempt to locate information.
-   * This may result in large result sets which negatively impact server
-   * performance. The impact of large searches can be minimized by defining
-   * the number of rows which can be returned in a result page. The maximum
-   * number of result pages can also be set. For instance, if a search
-   * finds 1000 matches and the maximum rows per page is set to 10, the
-   * first request will bring back the first 10 rows. The user can then ask
-   * for the next page of results. If the maximum number of pages is set to
-   * 5, the user can request the next 4 pages. This gives them at most 50
-   * of the 1000 matches.
    *
-   * @return       the maximum number of rows which can be returned in a page
+   * <p>Users may perform broad searches in an attempt to locate information. This may result in
+   * large result sets which negatively impact server performance. The impact of large searches can
+   * be minimized by defining the number of rows which can be returned in a result page. The maximum
+   * number of result pages can also be set. For instance, if a search finds 1000 matches and the
+   * maximum rows per page is set to 10, the first request will bring back the first 10 rows. The
+   * user can then ask for the next page of results. If the maximum number of pages is set to 5, the
+   * user can request the next 4 pages. This gives them at most 50 of the 1000 matches.
+   *
+   * @return the maximum number of rows which can be returned in a page
    */
   public int getMaxRowsPerPage() {
     return m_maxRowsPerPage;
@@ -89,78 +75,64 @@ public class PSResultPager extends PSComponent {
 
   /**
    * Set the maximum number of rows which can be returned in a page.
-   * <p>
-   * Users may perform broad searches in an attempt to locate information.
-   * This may result in large result sets which negatively impact server
-   * performance. The impact of large searches can be minimized by defining
-   * the number of rows which can be returned in a result page. The maximum
-   * number of result pages can also be set. For instance, if a search
-   * finds 1000 matches and the maximum rows per page is set to 10, the
-   * first request will bring back the first 10 rows. The user can then ask
-   * for the next page of results. If the maximum number of pages is set to
-   * 5, the user can request the next 4 pages. This gives them at most 50
-   * of the 1000 matches.
    *
-   * @param max    the maximum number of rows which can be returned in a page
-   * @see    #setMaxPages
+   * <p>Users may perform broad searches in an attempt to locate information. This may result in
+   * large result sets which negatively impact server performance. The impact of large searches can
+   * be minimized by defining the number of rows which can be returned in a result page. The maximum
+   * number of result pages can also be set. For instance, if a search finds 1000 matches and the
+   * maximum rows per page is set to 10, the first request will bring back the first 10 rows. The
+   * user can then ask for the next page of results. If the maximum number of pages is set to 5, the
+   * user can request the next 4 pages. This gives them at most 50 of the 1000 matches.
+   *
+   * @param max the maximum number of rows which can be returned in a page
+   * @see #setMaxPages
    */
   public void setMaxRowsPerPage(int max) {
     m_maxRowsPerPage = max;
   }
 
   /**
-   * Get the maximum number of pages which can be returned for multi-page
-   * requests.
-   * <p>
-   * Users may perform broad searches in an attempt to locate information.
-   * This may result in large result sets which negatively impact server
-   * performance. The impact of large searches can be minimized by defining
-   * the number of rows which can be returned in a result page. The maximum
-   * number of result pages can also be set. For instance, if a search
-   * finds 1000 matches and the maximum rows per page is set to 10, the
-   * first request will bring back the first 10 rows. The user can then ask
-   * for the next page of results. If the maximum number of pages is set to
-   * 5, the user can request the next 4 pages. This gives them at most 50
-   * of the 1000 matches.
+   * Get the maximum number of pages which can be returned for multi-page requests.
    *
-   * @return       the maximum number of rows which can be returned in a page
+   * <p>Users may perform broad searches in an attempt to locate information. This may result in
+   * large result sets which negatively impact server performance. The impact of large searches can
+   * be minimized by defining the number of rows which can be returned in a result page. The maximum
+   * number of result pages can also be set. For instance, if a search finds 1000 matches and the
+   * maximum rows per page is set to 10, the first request will bring back the first 10 rows. The
+   * user can then ask for the next page of results. If the maximum number of pages is set to 5, the
+   * user can request the next 4 pages. This gives them at most 50 of the 1000 matches.
+   *
+   * @return the maximum number of rows which can be returned in a page
    */
   public int getMaxPages() {
     return m_maxPages;
   }
 
   /**
-   * Set the maximum number of pages which can be returned for multi-page
-   * requests.
-   * <p>
-   * Users may perform broad searches in an attempt to locate information.
-   * This may result in large result sets which negatively impact server
-   * performance. The impact of large searches can be minimized by defining
-   * the number of rows which can be returned in a result page. The maximum
-   * number of result pages can also be set. For instance, if a search
-   * finds 1000 matches and the maximum rows per page is set to 10, the
-   * first request will bring back the first 10 rows. The user can then ask
-   * for the next page of results. If the maximum number of pages is set to
-   * 5, the user can request the next 4 pages. This gives them at most 50
-   * of the 1000 matches.
+   * Set the maximum number of pages which can be returned for multi-page requests.
    *
-   * @param max    the maximum number of pages which can be returned
-   * @see    #setMaxRowsPerPage
+   * <p>Users may perform broad searches in an attempt to locate information. This may result in
+   * large result sets which negatively impact server performance. The impact of large searches can
+   * be minimized by defining the number of rows which can be returned in a result page. The maximum
+   * number of result pages can also be set. For instance, if a search finds 1000 matches and the
+   * maximum rows per page is set to 10, the first request will bring back the first 10 rows. The
+   * user can then ask for the next page of results. If the maximum number of pages is set to 5, the
+   * user can request the next 4 pages. This gives them at most 50 of the 1000 matches.
+   *
+   * @param max the maximum number of pages which can be returned
+   * @see #setMaxRowsPerPage
    */
   public void setMaxPages(int max) {
     m_maxPages = max;
   }
 
   /**
-   * Get the maximum number of page links allowed to be displayed
-   * on a page.
-   * <p>
-   * Instead of returning potentially hundreds of page links
-   * on a page, we limit the number of links to this value.
-   * The links displayed are adjusted relative to the current
-   * page. Example if the users current page is 9 and
-   * the total pages is over 13 and the max is set to 10 then
-   * links for pages 4 thru 13 would be displayed.
+   * Get the maximum number of page links allowed to be displayed on a page.
+   *
+   * <p>Instead of returning potentially hundreds of page links on a page, we limit the number of
+   * links to this value. The links displayed are adjusted relative to the current page. Example if
+   * the users current page is 9 and the total pages is over 13 and the max is set to 10 then links
+   * for pages 4 thru 13 would be displayed.
    *
    * @return this can be any integer (-1, etc)?
    */
@@ -169,29 +141,24 @@ public class PSResultPager extends PSComponent {
   }
 
   /**
-   * Set the maximum number of page links allowed to be displayed
-   * on a page.
-   * <p>
-   * Instead of returning potentially hundreds of page links
-   * on a page, we limit the number of links to this value.
-   * The links displayed are adjusted relative to the current
-   * page. Example if the users current page is 9 and
-   * the total pages is over 13 and the max is set to 10 then
-   * links for pages 4 thru 13 would be displayed.
+   * Set the maximum number of page links allowed to be displayed on a page.
    *
-   * @param max  the max number of page links to be displayed
+   * <p>Instead of returning potentially hundreds of page links on a page, we limit the number of
+   * links to this value. The links displayed are adjusted relative to the current page. Example if
+   * the users current page is 9 and the total pages is over 13 and the max is set to 10 then links
+   * for pages 4 thru 13 would be displayed.
+   *
+   * @param max the max number of page links to be displayed
    */
   public void setMaxPageLinks(int max) {
     m_maxPageLinks = max;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param pager a valid PSResultPager. If null, a IllegalArgumentException is
-   * thrown.
+   * @param pager a valid PSResultPager. If null, a IllegalArgumentException is thrown.
    */
   public void copyFrom(PSResultPager pager) {
     copyFrom((PSComponent) pager);
@@ -204,10 +171,11 @@ public class PSResultPager extends PSComponent {
   /* **************   IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXResultPager XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXResultPager XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *   &lt;!--
    *       PSXResultPager defines how result pages will be generated to
@@ -247,7 +215,7 @@ public class PSResultPager extends PSComponent {
    *   &lt;!ELEMENT maxPageLinks       (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXResultPager XML element node
+   * @return the newly created PSXResultPager XML element node
    */
   public Element toXml(Document doc) {
     // make sure that given settings make sence
@@ -266,12 +234,10 @@ public class PSResultPager extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSResultPager Java object
-   * from a PSXResultPager XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSResultPager Java object from a PSXResultPager XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception    PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXResults
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXResults
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -331,9 +297,8 @@ public class PSResultPager extends PSComponent {
   }
 
   /**
-   * makes sure that given pager settings actually make sence
-   * and if they don't then makes necessary corrections.
-   * ie: it doesn't make sence to have more page links than pages..
+   * makes sure that given pager settings actually make sence and if they don't then makes necessary
+   * corrections. ie: it doesn't make sence to have more page links than pages..
    */
   private void fixupPagerSettings() {
     if (m_maxPageLinks > 0 && m_maxPages > 0 && m_maxPages < m_maxPageLinks)
@@ -341,18 +306,15 @@ public class PSResultPager extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

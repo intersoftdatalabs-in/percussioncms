@@ -84,10 +84,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * A PSCoreItem that is Rhythmyx server aware.  Meaning it can persist itself
- * to the system.
- */
+/** A PSCoreItem that is Rhythmyx server aware. Meaning it can persist itself to the system. */
 @Transactional
 public class PSServerItem extends PSCoreItem implements IPSPersister {
   @Override
@@ -101,37 +98,28 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Construct a new object from the definition, default field values will not
-   * be provided.
+   * Construct a new object from the definition, default field values will not be provided.
    *
    * @param itemDefinition must not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the supplied
-   * <code>itemDefinition</code> is <code>null</code>.
-   * @throws PSCmsException - if an extraction error occurs while the
-   * definition is being extracted.
+   * @throws IllegalArgumentException if the supplied <code>itemDefinition</code> is <code>null
+   *     </code>.
+   * @throws PSCmsException - if an extraction error occurs while the definition is being extracted.
    */
   public PSServerItem(PSItemDefinition itemDefinition) throws PSCmsException {
     super(itemDefinition);
   }
 
   /**
-   * Constructs and loads this item in one step.  See
-   * {@link #load(PSLocator, PSRequest)} for important information. Resulting
-   * item data will not include binary field values.
+   * Constructs and loads this item in one step. See {@link #load(PSLocator, PSRequest)} for
+   * important information. Resulting item data will not include binary field values.
    *
-   * @param itemDef Defines the content type this item will represent.  May not
-   * be <code>null</code>.
-   * @param itemId The locator of the item to load, may be <code>null</code> to
-   * load an item's default field values.
-   * @param tok Used to determine access to the item.  May not be
-   * <code>null</code>.
-   *
+   * @param itemDef Defines the content type this item will represent. May not be <code>null</code>.
+   * @param itemId The locator of the item to load, may be <code>null</code> to load an item's
+   *     default field values.
+   * @param tok Used to determine access to the item. May not be <code>null</code>.
    * @throws SecurityException if the user is not authorized.
-   * @throws PSCmsException if error occurs processing the item definition or
-   * loading the item.
-   * @throws PSInvalidContentTypeException if content type specified by the
-   * item def is invalid.
+   * @throws PSCmsException if error occurs processing the item definition or loading the item.
+   * @throws PSInvalidContentTypeException if content type specified by the item def is invalid.
    */
   public PSServerItem(PSItemDefinition itemDef, PSLocator itemId, PSSecurityToken tok)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -143,15 +131,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Constructs and loads this item in one step.  Same as
-   * {@link #PSServerItem(PSItemDefinition, PSLocator, PSSecurityToken)} with
-   * an extra param that controls what type of data is loaded.  Only the extra
-   * parameter is described below, see that method for other parameter and
-   * exception information.
+   * Constructs and loads this item in one step. Same as {@link #PSServerItem(PSItemDefinition,
+   * PSLocator, PSSecurityToken)} with an extra param that controls what type of data is loaded.
+   * Only the extra parameter is described below, see that method for other parameter and exception
+   * information.
    *
-   * @param loadFlags Flags to indicate what types of data should be loaded.
-   * Any of the <code>TYPE_XXX</code> flags Or'd together.
-   *
+   * @param loadFlags Flags to indicate what types of data should be loaded. Any of the <code>
+   *     TYPE_XXX</code> flags Or'd together.
    */
   public PSServerItem(
       PSItemDefinition itemDef, PSLocator itemId, PSSecurityToken tok, int loadFlags)
@@ -164,9 +150,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience constructor. Same as
-   * {@link #PSServerItem(PSItemDefinition, PSLocator, PSSecurityToken, int)}
-   * with the 3nd parameter as a request object instead of security token.
+   * Convenience constructor. Same as {@link #PSServerItem(PSItemDefinition, PSLocator,
+   * PSSecurityToken, int)} with the 3nd parameter as a request object instead of security token.
    *
    * @param req the request object, never <code>null</code>.
    */
@@ -180,22 +165,16 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Factory method that obtains the appropriate item def for the item
-   * referenced by the supplied locator and then constructs and returns an
-   * instance of this class representing that item.  The resulting item will
-   * not include binary field data.
+   * Factory method that obtains the appropriate item def for the item referenced by the supplied
+   * locator and then constructs and returns an instance of this class representing that item. The
+   * resulting item will not include binary field data.
    *
-   * @param itemId The locator of the item to load, may not be
-   * <code>null</code>.
-   * @param tok Used to determine access to the item.  May not be
-   * <code>null</code>.
-   *
+   * @param itemId The locator of the item to load, may not be <code>null</code>.
+   * @param tok Used to determine access to the item. May not be <code>null</code>.
    * @return The item, never <code>null</code>.
-   *
    * @throws SecurityException if the supplied token does not allow access.
    * @throws PSCmsException if error occurs loading the item.
-   * @throws PSInvalidContentTypeException if the supplied item id is not
-   * valid.
+   * @throws PSInvalidContentTypeException if the supplied item id is not valid.
    */
   public static PSServerItem loadItem(PSLocator itemId, PSSecurityToken tok)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -209,13 +188,12 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Same as {@link #loadItem(PSLocator, PSSecurityToken)} with an extra param
-   * that controls what type of data is loaded.  Only the extra parameter is
-   * described below, see that method for other parameter and exception
-   * information.
+   * Same as {@link #loadItem(PSLocator, PSSecurityToken)} with an extra param that controls what
+   * type of data is loaded. Only the extra parameter is described below, see that method for other
+   * parameter and exception information.
    *
-   * @param loadFlags Flags to indicate what types of data should be loaded.
-   * Any of the <code>TYPE_XXX</code> flags Or'd together.
+   * @param loadFlags Flags to indicate what types of data should be loaded. Any of the <code>
+   *     TYPE_XXX</code> flags Or'd together.
    */
   public static PSServerItem loadItem(PSLocator itemId, PSSecurityToken tok, int loadFlags)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -229,9 +207,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience method. Same as
-   * {@link #loadItem(PSLocator, PSSecurityToken, int)} with the 2nd parameter
-   * as a request object.
+   * Convenience method. Same as {@link #loadItem(PSLocator, PSSecurityToken, int)} with the 2nd
+   * parameter as a request object.
    *
    * @param req the request object, never <code>null</code>.
    */
@@ -247,11 +224,10 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Same as {@link #load(PSLocator, PSRequest)} except that it takes a
-   * security token instead of a request object.
+   * Same as {@link #load(PSLocator, PSRequest)} except that it takes a security token instead of a
+   * request object.
    *
-   * @param tok Used to determine access to the item.  May not be
-   * <code>null</code>.
+   * @param tok Used to determine access to the item. May not be <code>null</code>.
    */
   public void load(PSLocator itemId, PSSecurityToken tok)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -261,8 +237,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #load(PSLocator, PSRequest, boolean) load(itemId, request, false)}.
+   * Convenience method that calls {@link #load(PSLocator, PSRequest, boolean) load(itemId, request,
+   * false)}.
    */
   public void load(PSLocator itemId, PSRequest request)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -270,10 +246,9 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience version of {@link #load(PSLocator, PSRequest, int)} that
-   * includes the {@link #TYPE_BINARY} flag in the loadFlags only if
-   * <code>includeBinary</code> is <code>true</code>.  Includes all other
-   * <code>TYPE_xxx</code> flags.
+   * Convenience version of {@link #load(PSLocator, PSRequest, int)} that includes the {@link
+   * #TYPE_BINARY} flag in the loadFlags only if <code>includeBinary</code> is <code>true</code>.
+   * Includes all other <code>TYPE_xxx</code> flags.
    */
   public void load(PSLocator itemId, PSRequest request, boolean includeBinary)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -284,12 +259,11 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience version of {@link #load ##load(PSLocator, PSRequest)} that
-   * includes the {@link #TYPE_FIELDS} flag always and the other load flags
-   * depending on the supplied booleans.
+   * Convenience version of {@link #load ##load(PSLocator, PSRequest)} that includes the {@link
+   * #TYPE_FIELDS} flag always and the other load flags depending on the supplied booleans.
    *
-   * @param loadRelatedItems this will turn on the {@link #TYPE_RELATED_ITEM}
-   * flag. See {@link #TYPE_RELATED_ITEM} for detail.
+   * @param loadRelatedItems this will turn on the {@link #TYPE_RELATED_ITEM} flag. See {@link
+   *     #TYPE_RELATED_ITEM} for detail.
    */
   public void load(
       PSLocator itemId,
@@ -309,9 +283,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience version of {@link #load(PSLocator, PSRequest, int)} that
-   * includes the {@link #TYPE_FIELDS} flag always and the other loadd flags
-   * depending on the supplied booleans.
+   * Convenience version of {@link #load(PSLocator, PSRequest, int)} that includes the {@link
+   * #TYPE_FIELDS} flag always and the other loadd flags depending on the supplied booleans.
    */
   public void load(
       PSLocator itemId,
@@ -329,8 +302,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience method that calls {@link #load(PSLocator, PSRequest, int,
-   * int)} with binary fields as specified and all other field types enabled.
+   * Convenience method that calls {@link #load(PSLocator, PSRequest, int, int)} with binary fields
+   * as specified and all other field types enabled.
    */
   public void load(PSLocator itemId, PSRequest request, boolean includeBinary, int communityId)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -341,9 +314,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convenience method that calls {@link #load(PSLocator, PSRequest, int,
-   * int) load(itemId, request, loadFlags,
-   * request.getSecurityToken().getCommunityId())}.
+   * Convenience method that calls {@link #load(PSLocator, PSRequest, int, int) load(itemId,
+   * request, loadFlags, request.getSecurityToken().getCommunityId())}.
    */
   public void load(PSLocator itemId, PSRequest request, int loadFlags)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -353,17 +325,14 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Loads this item from the storage component. This will populate the
-   * item with definition and data.
+   * Loads this item from the storage component. This will populate the item with definition and
+   * data.
    *
-   * @param itemId the item locator. May be <code>null</code> to load an
-   *    items defaults.
-   * @param request the original request that prompted this update/insert,
-   *    not <code>null</code>.
-   * @param loadFlags flags to indicate what types of data should be loaded.
-   *    Any of the <code>TYPE_XXX</code> flags Or'd together.
-   * @param communityId the community id to filter by, -1 to ignore this
-   *    filter.
+   * @param itemId the item locator. May be <code>null</code> to load an items defaults.
+   * @param request the original request that prompted this update/insert, not <code>null</code>.
+   * @param loadFlags flags to indicate what types of data should be loaded. Any of the <code>
+   *     TYPE_XXX</code> flags Or'd together.
+   * @param communityId the community id to filter by, -1 to ignore this filter.
    * @throws PSCmsException if an error loading the item occurs.
    * @throws PSInvalidContentTypeException if the content type is invalid.
    */
@@ -397,21 +366,15 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Create new child entry for the specified child name that includes default
-   * field values by making a new request to the child editor page.
+   * Create new child entry for the specified child name that includes default field values by
+   * making a new request to the child editor page.
    *
    * @param request The request to use, may not be <code>null</code>.
-   * @param name The child name, may not be <code>null</code> and must be an
-   * existing child.
-   *
-   * @return The entry, never <code>null</code>, will not have been added to
-   * this item.
-   *
+   * @param name The child name, may not be <code>null</code> and must be an existing child.
+   * @return The entry, never <code>null</code>, will not have been added to this item.
    * @throws PSCmsException if there are any errors.
-   * @throws PSUnknownNodeTypeException If the requested child editor is doc
-   * is malformed.
-   * @throws PSInvalidChildTypeException If the specified child name is
-   * invalid.
+   * @throws PSUnknownNodeTypeException If the requested child editor is doc is malformed.
+   * @throws PSInvalidChildTypeException If the specified child name is invalid.
    */
   public PSItemChildEntry createChildEntry(PSRequest request, String name)
       throws PSCmsException, PSUnknownNodeTypeException, PSInvalidChildTypeException {
@@ -448,17 +411,14 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     /**
      * String requestUrl = stripUrlExtras(itemDef.getEditorUrl());
      *
-     * // calculate page id and add offset to get child edit page data
-     * int pageId = itemDef.getPageId(name) + 1;
+     * <p>// calculate page id and add offset to get child edit page data int pageId =
+     * itemDef.getPageId(name) + 1;
      *
-     * // see if there are any entries to make:
-     * // do request to get all non-binary entry values:
-     * Document childDoc =
-     *    getChildDocument(request, "" + pageId, requestUrl);
+     * <p>// see if there are any entries to make: // do request to get all non-binary entry values:
+     * Document childDoc = getChildDocument(request, "" + pageId, requestUrl);
      *
-     * // load the child item field data
-     * extractControlElementData(request, childDoc.getElementsByTagName(
-     *   "Control"), entry, requestUrl, true);
+     * <p>// load the child item field data extractControlElementData(request,
+     * childDoc.getElementsByTagName( "Control"), entry, requestUrl, true);
      */
     return entry;
   }
@@ -466,13 +426,11 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   /**
    * Get's the data (default or otherwise) from the system via a request.
    *
-   * @param request the request used to get the data, assumed not
-   *    <code>null</code>.
+   * @param request the request used to get the data, assumed not <code>null</code>.
    * @param contentTypeId the content type id of the data to fetch.
-   * @param isNewItem <code>true</code> to indicate the data is loaded for
-   *    a new (not persisted) item, <code>false</code> otherwise.
-   * @param communityId the community id to filter by, -1 to ignore this
-   *    filter.
+   * @param isNewItem <code>true</code> to indicate the data is loaded for a new (not persisted)
+   *     item, <code>false</code> otherwise.
+   * @param communityId the community id to filter by, -1 to ignore this filter.
    */
   private void getData(PSRequest request, long contentTypeId, boolean isNewItem, int communityId)
       throws PSCmsException, PSInvalidContentTypeException, PSUnknownNodeTypeException {
@@ -531,10 +489,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     extractLoginLocale(request);
   }
 
-  /**
-   * Makes a request to an app and extraces the Lock value and sets to
-   * isRevisionLock.
-   */
+  /** Makes a request to an app and extraces the Lock value and sets to isRevisionLock. */
   private void extractLock(PSRequest request) throws PSCmsException {
     Map<String, Integer> params = new HashMap<>();
     params.put(IPSHtmlParameters.SYS_CONTENTID, getContentId());
@@ -562,7 +517,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   /**
    * Gets the Locale object from the user session.
    *
-   * @param request  assumed not <code>null</code>
+   * @param request assumed not <code>null</code>
    */
   private void extractLoginLocale(PSRequest request) {
     PSUserSession session = request.getUserSession();
@@ -579,7 +534,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
 
   /**
    * Get the data from teh ContentStatus node.
-   * @param contentStatus  assumed not <code>null</code>
+   *
+   * @param contentStatus assumed not <code>null</code>
    */
   private void extractContentStatusData(NodeList contentStatus, PSCmsObject cmsObject)
       throws PSUnknownNodeTypeException {
@@ -612,14 +568,14 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Takes a <code>NodeList</code> of <code>Control</code> elements as
-   * described in the sys_ContentEditor.dtd and extracts field values from
-   * them, setting the values on the <code>PSItemField</code>s of this item.
-   * Binary field values are not loaded at this time, and instead are loaded
-   * lazily when the binary value's data is requested (See
-   * {@link PSBinaryValue}) for more info.
-   * @param nl   assumed not <code>null</code>
-   * @param item   assumed not <code>null</code>
+   * Takes a <code>NodeList</code> of <code>Control</code> elements as described in the
+   * sys_ContentEditor.dtd and extracts field values from them, setting the values on the <code>
+   * PSItemField</code>s of this item. Binary field values are not loaded at this time, and instead
+   * are loaded lazily when the binary value's data is requested (See {@link PSBinaryValue}) for
+   * more info.
+   *
+   * @param nl assumed not <code>null</code>
+   * @param item assumed not <code>null</code>
    * @throws PSUnknownNodeTypeException
    */
   private void extractControlElementData(
@@ -733,9 +689,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     }
   }
 
-  /**
-   * Extracts the many values for the field.
-   */
+  /** Extracts the many values for the field. */
   private void extractMultiValueData(PSItemField field, Element control)
       throws PSUnknownNodeTypeException {
     NodeList displayEntryList = control.getElementsByTagName("DisplayEntry");
@@ -774,12 +728,12 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * This operation is used to add all related content to the standard
-   * item document passed in.  If {@link #m_loadFlags} does not include
-   * {@link #TYPE_RELATED}, then this method returns without doing anything.
+   * This operation is used to add all related content to the standard item document passed in. If
+   * {@link #m_loadFlags} does not include {@link #TYPE_RELATED}, then this method returns without
+   * doing anything.
    *
-   * @param request the request to use while retrieving the related content,
-   *    assumed not <code>null</code>.
+   * @param request the request to use while retrieving the related content, assumed not <code>null
+   *     </code>.
    * @throws PSCmsException when the related content lookup fails.
    */
   private void addRelatedContentData(PSRequest request) throws PSCmsException {
@@ -816,16 +770,14 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Load the related server item from a given content ID. However, it only
-   * loads the fields and its child entries if there is any, but it does not
-   * load related items or binary data (if there is any).
+   * Load the related server item from a given content ID. However, it only loads the fields and its
+   * child entries if there is any, but it does not load related items or binary data (if there is
+   * any).
    *
    * @param contentId the ID of the content in question.
-   * @param request the request to use while retrieving the related content,
-   *    assumed not <code>null</code>.
-   *
+   * @param request the request to use while retrieving the related content, assumed not <code>null
+   *     </code>.
    * @return the server item in XML format, never <code>null</code>.
-   *
    * @throws PSCmsException if an error occurs.
    */
   private Element loadRelatedItem(int contentId, PSRequest request) throws PSCmsException {
@@ -846,12 +798,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * This class allows us to set members in <code>PSChildEntry</code>
-   * through a visitor this sets the rowid.
+   * This class allows us to set members in <code>PSChildEntry</code> through a visitor this sets
+   * the rowid.
    */
   private class PSChildEntrySetter implements IPSVisitor {
     /**
      * Create instance.
+     *
      * @param theRowId - the int to use as id.
      */
     PSChildEntrySetter(int theRowId) {
@@ -867,16 +820,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
       return rowId;
     }
 
-    /**
-     * Holds rowid.
-     */
+    /** Holds rowid. */
     int rowId;
   }
 
   /**
-   * Get's the child document.  This makes a request so taht all of the
-   * complex child values will be return regardless of show in preview
-   * or show in summary values.
+   * Get's the child document. This makes a request so taht all of the complex child values will be
+   * return regardless of show in preview or show in summary values.
    *
    * @param request assumed not <code>null</code>.
    * @param pageId
@@ -907,16 +857,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Simplifies making an internal request by wrapping the request call in
-   * a try/catch block. The supplied params are passed directly to the
-   * {@link PSServer#getInternalRequest(String, PSRequest, Map, boolean)}. See
-   * that method for a description of the params.
+   * Simplifies making an internal request by wrapping the request call in a try/catch block. The
+   * supplied params are passed directly to the {@link PSServer#getInternalRequest(String,
+   * PSRequest, Map, boolean)}. See that method for a description of the params.
    *
-   * @return The document returned by {@link PSInternalRequest#getResultDoc()}
-   * (which is the object returned by the above mentioned method).
-   *
-   * @throws PSCmsException If {@link PSInternalRequest#getResultDoc()} throws
-   * and exception.
+   * @return The document returned by {@link PSInternalRequest#getResultDoc()} (which is the object
+   *     returned by the above mentioned method).
+   * @throws PSCmsException If {@link PSInternalRequest#getResultDoc()} throws and exception.
    */
   private Document makeRequest(String path, PSRequest request, Map params, boolean inherit)
       throws PSCmsException {
@@ -930,10 +877,7 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
     }
   }
 
-  /**
-   * Convenience method that calls {@link #save(PSRequest)
-   * save(new PSRequest(tok)}.
-   */
+  /** Convenience method that calls {@link #save(PSRequest) save(new PSRequest(tok)}. */
   public void save(PSSecurityToken tok) throws PSCmsException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -951,14 +895,12 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Once a standard item object has been created use this function to
-   * update the data for that item on the server. For an update, this
-   * function assumes that we have a full standard item with all
+   * Once a standard item object has been created use this function to update the data for that item
+   * on the server. For an update, this function assumes that we have a full standard item with all
    * the fields.
    *
    * @param request the request used to execute the save request.
-   * @param communityId the community for which to save the item, -1 to
-   *    ignore the community.
+   * @param communityId the community for which to save the item, -1 to ignore the community.
    * @throws PSCmsException if there is any problem saving the item.
    */
   public void save(PSRequest request, int communityId) throws PSCmsException {
@@ -1002,14 +944,12 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Validates the related type of all related items. Related types must be
-   * existing relationship configurations of category
-   * <code>rs_activeassembly</code>.
+   * Validates the related type of all related items. Related types must be existing relationship
+   * configurations of category <code>rs_activeassembly</code>.
    *
-   * @param request the request used for the relationship processor, assumed
-   *    not <code>null</code>.
-   * @throws PSCmsException if the relationship processor cannot be created
-   *    or any related item specifies an unknown or invalid related type.
+   * @param request the request used for the relationship processor, assumed not <code>null</code>.
+   * @throws PSCmsException if the relationship processor cannot be created or any related item
+   *     specifies an unknown or invalid related type.
    */
   private void validateRelatedItems(PSRequest request) throws PSCmsException {
     PSRelationshipProcessor processor = PSRelationshipProcessor.getInstance();
@@ -1028,15 +968,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Update all the fields of the specified content item, if the content id is
-   * not set, we insert this as a new piece of content.
+   * Update all the fields of the specified content item, if the content id is not set, we insert
+   * this as a new piece of content.
    *
-   * @param request the request to work on, parameters already set to contentid
-   * and revision when appropriate, assumed not <code>null</code>
-   *
-   * @param path the path to the content editor to access for the update
-   * request, assumed not <code>null</code>
-   *
+   * @param request the request to work on, parameters already set to contentid and revision when
+   *     appropriate, assumed not <code>null</code>
+   * @param path the path to the content editor to access for the update request, assumed not <code>
+   *     null</code>
    * @throws PSCmsException if it cannot get the value from the field
    */
   private void saveAllFields(PSRequest request, String path) throws PSCmsException {
@@ -1055,18 +993,15 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Iterates over the supplied fields and adds entries to the params in
-   * preparation for calling
+   * Iterates over the supplied fields and adds entries to the params in preparation for calling
    * {@link #processUpdateAction(String, PSRequest, Map)}.
    *
-   * @param fieldParams Map of html params to which field values are added,
-   * assumed not <code>null</code>, key are <code>String</code> objects and
-   * values are objects.
-   * @param fieldIter An iterator over zero or more {@link PSItemField}
-   * objects, assumed not <code>null</code>.
-   *
-   * @throws PSCmsException If there is an error converting a field value to
-   * it's string representation
+   * @param fieldParams Map of html params to which field values are added, assumed not <code>null
+   *     </code>, key are <code>String</code> objects and values are objects.
+   * @param fieldIter An iterator over zero or more {@link PSItemField} objects, assumed not <code>
+   *     null</code>.
+   * @throws PSCmsException If there is an error converting a field value to it's string
+   *     representation
    */
   private void populateFieldParams(Map fieldParams, Iterator fieldIter) throws PSCmsException {
     while (fieldIter.hasNext()) {
@@ -1106,12 +1041,10 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   /**
    * Update all the children fields of the specified content item.
    *
-   * @param request the request to work on, parameters already set to contentid
-   * and revision when appropriate, assumed not <code>null</code>
-   *
-   * @param path the path to the content editor to access for the update
-   * request, assumed not <code>null</code>
-   *
+   * @param request the request to work on, parameters already set to contentid and revision when
+   *     appropriate, assumed not <code>null</code>
+   * @param path the path to the content editor to access for the update request, assumed not <code>
+   *     null</code>
    * @throws PSCmsException if it cannot get the value from the child field
    */
   private void saveAllChilds(PSRequest request, String path) throws PSCmsException {
@@ -1190,16 +1123,13 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Updates all the related items for this save request. First inserts any
-   * new content into the system and next applies any actions on the related
-   * items within this content.
+   * Updates all the related items for this save request. First inserts any new content into the
+   * system and next applies any actions on the related items within this content.
    *
-   * @param request the request to work on, parameters already set to contentid
-   * and revision when appropriate, assumed not <code>null</code>
-   *
-   * @param path the path to the content editor to access for the update
-   * request, assumed not <code>null</code>
-   *
+   * @param request the request to work on, parameters already set to contentid and revision when
+   *     appropriate, assumed not <code>null</code>
+   * @param path the path to the content editor to access for the update request, assumed not <code>
+   *     null</code>
    * @throws PSCmsException if it cannot create the server item from the def
    */
   private void saveAllRelated(PSRequest request, String path) throws PSCmsException {
@@ -1249,9 +1179,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
           }
         } catch (PSUnknownNodeTypeException | PSInvalidContentTypeException ex) {
           /**
-           * @todo is this right? do we really just want to ignore errors
-           * and continue on? this also catches the error when we are doing
-           * an insert and already have a content id
+           * @todo is this right? do we really just want to ignore errors and continue on? this also
+           *     catches the error when we are doing an insert and already have a content id
            */
           continue;
         }
@@ -1306,11 +1235,10 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
    * private convenience helper to return the item def given a contentTypeId
    *
    * @param request the original request
-   * @param contentTypeId a content type id as either a numeral or a
-   * string name, assumed not <code>null</code>
-   * @return an item definition based on the content type, may be
-   * <code>null</code> if a valid type id is not specified.
-   *
+   * @param contentTypeId a content type id as either a numeral or a string name, assumed not <code>
+   *     null</code>
+   * @return an item definition based on the content type, may be <code>null</code> if a valid type
+   *     id is not specified.
    * @todo move to common location, used by webservices as well
    */
   private PSItemDefinition getItemDefinition(PSRequest request, String contentTypeId)
@@ -1342,9 +1270,8 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Returns the PSLocator object of this item.  This is useful for new items
-   * being persisted.  This will then have the PSLocator object with the
-   * new content id and revision.
+   * Returns the PSLocator object of this item. This is useful for new items being persisted. This
+   * will then have the PSLocator object with the new content id and revision.
    *
    * @return a locator of the current content item
    */
@@ -1353,17 +1280,12 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Convienence method for performing internal updates. Has the side effect
-   * of updating the content id and revision on this server item.
+   * Convienence method for performing internal updates. Has the side effect of updating the content
+   * id and revision on this server item.
    *
-   * @param path the location of the app/resource to execute, assumed not
-   * <code>null</code>
-   *
-   * @param request the original request being worked on, assumed not
-   * <code>null</code>
-   *
-   * @param params a set of extra parameters to pass with the request, may be
-   * <code>null</code>
+   * @param path the location of the app/resource to execute, assumed not <code>null</code>
+   * @param request the original request being worked on, assumed not <code>null</code>
+   * @param params a set of extra parameters to pass with the request, may be <code>null</code>
    */
   private void processUpdateAction(String path, PSRequest request, Map params)
       throws PSCmsException {
@@ -1427,63 +1349,55 @@ public class PSServerItem extends PSCoreItem implements IPSPersister {
   }
 
   /**
-   * Flag to indicate binary fields should be loaded.  Binary field values
-   * will only be loaded if this flag is included.  If not loaded, item may
-   * be saved without affecting these field values.  Also, if not loaded, new
-   * binary field values may be set, but existing values cannot be retrieved
-   * from the server.  If loaded, data is not actually retrieved from the
-   * server until the value is requested from the {@link PSBinaryValue} object.
+   * Flag to indicate binary fields should be loaded. Binary field values will only be loaded if
+   * this flag is included. If not loaded, item may be saved without affecting these field values.
+   * Also, if not loaded, new binary field values may be set, but existing values cannot be
+   * retrieved from the server. If loaded, data is not actually retrieved from the server until the
+   * value is requested from the {@link PSBinaryValue} object.
    */
   public static final int TYPE_BINARY = 0x1;
 
   /**
-   * Flag to indicate fields should be loaded.  Absence of this flag means that
-   * no field values will be loaded, even if {@link #TYPE_BINARY} is also
-   * specified.  If not loaded, item may still be saved without affecting
-   * any field values.  TODO: This flag is not yet supported
+   * Flag to indicate fields should be loaded. Absence of this flag means that no field values will
+   * be loaded, even if {@link #TYPE_BINARY} is also specified. If not loaded, item may still be
+   * saved without affecting any field values. TODO: This flag is not yet supported
    */
   public static final int TYPE_FIELDS = 0x2;
 
   /**
-   * Flag to indicate if child items should be loaded.  If not loaded, new
-   * child items may still be added and saved without affecting any existing
-   * child items.
+   * Flag to indicate if child items should be loaded. If not loaded, new child items may still be
+   * added and saved without affecting any existing child items.
    */
   public static final int TYPE_CHILD = 0x4;
 
   /**
-   * Flag to indicate if the relationships of the related items should be
-   * loaded. If not loaded, new item relationships may still be added and
-   * saved without affecting any existing item relationships.
+   * Flag to indicate if the relationships of the related items should be loaded. If not loaded, new
+   * item relationships may still be added and saved without affecting any existing item
+   * relationships.
    */
   public static final int TYPE_RELATED = 0x08;
 
   /**
-   * Flag to indicate if the related (or dependent) items of the relationships
-   * should be loaded. This has to be used in conjunction with
-   * {@link #TYPE_RELATED} is on. If both {@link #TYPE_RELATED} and this flag
-   * are on, then load the relationships as well as the related items of the
-   * relationships.
-   * <p>
-   * Loading related items is an expensive operation and should be avoid if is
-   * not needed. The loaded items contain non-binary fields and child entries,
-   * but do not contain binary fields and the AA relationships with their
-   * dependent items. In other words, the related items are load with
-   * {@link #TYPE_FIELDS} and {@link #TYPE_CHILD} flags on, but the other
-   * TYPE_XXX flags are off.
+   * Flag to indicate if the related (or dependent) items of the relationships should be loaded.
+   * This has to be used in conjunction with {@link #TYPE_RELATED} is on. If both {@link
+   * #TYPE_RELATED} and this flag are on, then load the relationships as well as the related items
+   * of the relationships.
+   *
+   * <p>Loading related items is an expensive operation and should be avoid if is not needed. The
+   * loaded items contain non-binary fields and child entries, but do not contain binary fields and
+   * the AA relationships with their dependent items. In other words, the related items are load
+   * with {@link #TYPE_FIELDS} and {@link #TYPE_CHILD} flags on, but the other TYPE_XXX flags are
+   * off.
    */
   public static final int TYPE_RELATED_ITEM = 0x10;
 
   /**
-   * Flag to indicate what types of data to load.  Any of the TYPE_XXX flags
-   * Or'd together, except {@link #TYPE_RELATED_ITEM}.  Initial value is all
-   * such flags Or'd together, modified by
-   * {@link #load(PSLocator, PSRequest, int)}.
+   * Flag to indicate what types of data to load. Any of the TYPE_XXX flags Or'd together, except
+   * {@link #TYPE_RELATED_ITEM}. Initial value is all such flags Or'd together, modified by {@link
+   * #load(PSLocator, PSRequest, int)}.
    */
   private int m_loadFlags = TYPE_BINARY | TYPE_FIELDS | TYPE_CHILD | TYPE_RELATED;
 
-  /**
-   * Lookup app resource for content status information.
-   */
+  /** Lookup app resource for content status information. */
   private static final String CONTENT_STATUS_APP_URL = "sys_psxCms/contentStatus";
 }

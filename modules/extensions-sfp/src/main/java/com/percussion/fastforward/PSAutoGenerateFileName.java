@@ -34,15 +34,13 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Generates the file name for the content item specified by the the HTML
- * parameters
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTID contentid}and
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_REVISION revision}in the
- * request context. This is done by executing an internal request to the
- * Rhythmyx resource specified by the third parameter to the exit. Nothing will
- * be done if the second parameter is non-empty or if the html parameter
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is
- * not {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
+ * Generates the file name for the content item specified by the the HTML parameters {@link
+ * com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTID contentid}and {@link
+ * com.percussion.system.utils.IPSHtmlParameters#SYS_REVISION revision}in the request context. This
+ * is done by executing an internal request to the Rhythmyx resource specified by the third
+ * parameter to the exit. Nothing will be done if the second parameter is non-empty or if the html
+ * parameter {@link com.percussion.system.utils.IPSHtmlParameters#SYS_COMMAND} in the request is not
+ * {@link com.percussion.cms.handlers.PSModifyCommandHandler#COMMAND_NAME}
  */
 public class PSAutoGenerateFileName extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -62,18 +60,13 @@ public class PSAutoGenerateFileName extends PSDefaultExtension
   /**
    * Implementation of the interface method.
    *
-   * @param params parameters required for this exit. Three parameters are
-   *           expected as described below:
-   *           <p>
-   *           if the second parameter is non-empty, the third parameter can be
-   *           empty.
-   *           </p>
-   *           <p>
-   *           otherwise, the third parameter must be non-empty and should
-   *           represent the update resource that updates the filename in the
-   *           database.
-   * @param request The request context used to execute the internal request,
-   *           must not be <code>null</code>.
+   * @param params parameters required for this exit. Three parameters are expected as described
+   *     below:
+   *     <p>if the second parameter is non-empty, the third parameter can be empty.
+   *     <p>otherwise, the third parameter must be non-empty and should represent the update
+   *     resource that updates the filename in the database.
+   * @param request The request context used to execute the internal request, must not be <code>null
+   *     </code>.
    * @param doc The input document that is passed, never used.
    * @return The result document same as the input result document.
    * @throws PSParameterMismatchException

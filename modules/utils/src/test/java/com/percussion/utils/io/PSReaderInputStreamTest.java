@@ -29,17 +29,15 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.io.IOUtils;
 
 /**
- * Test reader input stream. In particular this test will try all unicode
- * characters to see that going from characters to input stream and back result
- * in an identical string.
+ * Test reader input stream. In particular this test will try all unicode characters to see that
+ * going from characters to input stream and back result in an identical string.
  *
  * @author dougrand
- *
  */
 public class PSReaderInputStreamTest {
   /**
-   * Create a string with all 2^16 code points. Move from a reader to a stream
-   * and back to a reader. Use the result and compare with the input.
+   * Create a string with all 2^16 code points. Move from a reader to a stream and back to a reader.
+   * Use the result and compare with the input.
    *
    * @throws Exception
    */
@@ -54,8 +52,7 @@ public class PSReaderInputStreamTest {
   }
 
   /**
-   * Where the first test checked all code points, the second just tests a
-   * small string.
+   * Where the first test checked all code points, the second just tests a small string.
    *
    * @throws Exception
    */
@@ -64,8 +61,7 @@ public class PSReaderInputStreamTest {
   }
 
   /**
-   * Check mid sized block that doesn't work out evenly into a multiple of
-   * the buffer size.
+   * Check mid sized block that doesn't work out evenly into a multiple of the buffer size.
    *
    * @throws Exception
    */
@@ -81,6 +77,7 @@ public class PSReaderInputStreamTest {
 
   /**
    * Run the data through the input strea <-> reader plumbing.
+   *
    * @param input the input string, assumed never <code>null</code> or empty.
    * @throws UnsupportedEncodingException
    * @throws IOException

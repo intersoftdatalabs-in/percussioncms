@@ -16,15 +16,13 @@
  */
 package com.percussion.utils.xml;
 
-/**
- * Provides error codes for messages located in
- * <code>PSXmlErrorStringBundle</code>
- */
+/** Provides error codes for messages located in <code>PSXmlErrorStringBundle</code> */
 public interface IPSXmlErrors {
   /**
    * Missing element
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the expected XML Element tag name</TD></TR>
@@ -34,8 +32,9 @@ public interface IPSXmlErrors {
 
   /**
    * Missing element value
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag name</TD></TR>
@@ -46,8 +45,9 @@ public interface IPSXmlErrors {
 
   /**
    * Multiple root elements defined in mapping
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>root element 1</TD></TR>
@@ -58,8 +58,9 @@ public interface IPSXmlErrors {
 
   /**
    * a required attribute of the XML element is missing or invalid
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
@@ -71,8 +72,9 @@ public interface IPSXmlErrors {
 
   /**
    * An XML element identified by an attribute value contains an invalid value.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the XML Element tag</TD></TR>
@@ -84,11 +86,12 @@ public interface IPSXmlErrors {
   public static final int XML_ELEMENT_ATTR_INVALID_VAL = 5;
 
   /**
-   * An unexpected error occurred trying to restore an object from its XML
-   * representation. In this case the XML conformed to the expected DTD, but
-   * the specific values specified caused an unexpected error.
-   * <p>
-   * The arguments passed in for this message are:
+   * An unexpected error occurred trying to restore an object from its XML representation. In this
+   * case the XML conformed to the expected DTD, but the specific values specified caused an
+   * unexpected error.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>

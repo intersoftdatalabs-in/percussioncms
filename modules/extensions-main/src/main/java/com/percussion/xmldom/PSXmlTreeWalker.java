@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 
 /**
  * The PSXmlTreeWalker class is used to simplify processing of XML trees.
+ *
  * @deprecated Use com.percussion.xml.PSXmlTreeWalker instead
  */
 public class PSXmlTreeWalker extends com.percussion.xml.PSXmlTreeWalker implements Serializable {

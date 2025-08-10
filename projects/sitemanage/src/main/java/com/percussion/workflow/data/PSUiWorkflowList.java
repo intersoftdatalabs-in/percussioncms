@@ -21,21 +21,18 @@ package com.percussion.workflow.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for PSUiWorkflow.
- */
+/** List wrapper for PSUiWorkflow. */
 @XmlRootElement(name = "Workflow")
 @ArraySchema(schema = @Schema(implementation = PSUiWorkflow.class))
 @JsonRootName("Workflow")
 public class PSUiWorkflowList extends ArrayList<PSUiWorkflow> {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSUiWorkflowList(Collection<? extends PSUiWorkflow> c) {
-        super(c);
-    }
+  public PSUiWorkflowList(Collection<? extends PSUiWorkflow> c) {
+    super(c);
+  }
 }

@@ -27,17 +27,13 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * ID Context to represent a <code>PSEntry</code> object
- */
+/** ID Context to represent a <code>PSEntry</code> object */
 public class PSAppEntryIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from the entry object
    *
    * @param entry The entry, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>call</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>call</code> is <code>null</code>.
    */
   public PSAppEntryIdContext(PSEntry entry) {
     if (entry == null) throw new IllegalArgumentException("entry may not be null");
@@ -49,12 +45,9 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppEntryIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -108,12 +101,13 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppEntryIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppEntryIdContext
@@ -135,9 +129,8 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -199,22 +192,19 @@ public class PSAppEntryIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Entry this context represents.  Never <code>null</code> after ctor,
-   * modified by a calls to <code>copyFrom()</code> and
-   * <code>updateCtxValue()</code>.
+   * Entry this context represents. Never <code>null</code> after ctor, modified by a calls to
+   * <code>copyFrom()</code> and <code>updateCtxValue()</code>.
    */
   private PSEntry m_entry;
 
   /**
-   * The entry this context represented at construction time, initially the
-   * same as {@link #m_entry}, but immutable after contruction. This value is
-   * not used as part of {@link #equals(Object)}, {@link #hashCode()}, nor is
-   * it serialized to and from this object's XML representation.
+   * The entry this context represented at construction time, initially the same as {@link
+   * #m_entry}, but immutable after contruction. This value is not used as part of {@link
+   * #equals(Object)}, {@link #hashCode()}, nor is it serialized to and from this object's XML
+   * representation.
    */
   private PSEntry m_origEntry;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppEntryIdContext";
 }

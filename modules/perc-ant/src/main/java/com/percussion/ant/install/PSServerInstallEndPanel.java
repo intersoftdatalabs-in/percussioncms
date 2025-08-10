@@ -26,12 +26,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * PSServerInstallEndPanel is a task that cleans up the installation
- * process.
+ * PSServerInstallEndPanel is a task that cleans up the installation process. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -52,7 +49,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSServerInstallEndPanel extends PSAction {
   // see base class
@@ -106,8 +102,7 @@ public class PSServerInstallEndPanel extends PSAction {
   /**
    * Accessor for the Property File Name property.
    *
-   * @return the property file name relative to the install root,
-   * never <code>null</code> or empty
+   * @return the property file name relative to the install root, never <code>null</code> or empty
    */
   public String getPropertyFileName() {
     return propertyFileName;
@@ -116,10 +111,8 @@ public class PSServerInstallEndPanel extends PSAction {
   /**
    * Mutator for the Property File Name property.
    *
-   * @param propertyFileName the property file name,
-   * never <code>null</code> or empty
-   * @throws IllegalArgumentException if propertyFileName is <code>null</code>
-   * or empty
+   * @param propertyFileName the property file name, never <code>null</code> or empty
+   * @throws IllegalArgumentException if propertyFileName is <code>null</code> or empty
    */
   public void setPropertyFileName(String propertyFileName) {
     if ((propertyFileName == null) || (propertyFileName.trim().length() == 0))
@@ -129,6 +122,7 @@ public class PSServerInstallEndPanel extends PSAction {
 
   /**
    * Returns the Rhythmyx Service Name
+   *
    * @return the Rhythmyx Service Name, never <code>null</code> or empty
    */
   public String getServiceName() {
@@ -137,10 +131,9 @@ public class PSServerInstallEndPanel extends PSAction {
 
   /**
    * Sets the Rhythmyx Service Name
-   * @param serviceName the Rhythmyx Service Name,
-   * may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serviceName is <code>null</code>
-   * or empty
+   *
+   * @param serviceName the Rhythmyx Service Name, may not be <code>null</code> or empty
+   * @throw IllegalArgumentException if serviceName is <code>null</code> or empty
    */
   public void setServiceName(String serviceName) {
     if ((serviceName == null) || (serviceName.trim().length() == 0))
@@ -150,6 +143,7 @@ public class PSServerInstallEndPanel extends PSAction {
 
   /**
    * Returns the Rhythmyx Service Description
+   *
    * @return the Rhythmyx Service Description, never <code>null</code> or empty
    */
   public String getServiceDesc() {
@@ -158,10 +152,9 @@ public class PSServerInstallEndPanel extends PSAction {
 
   /**
    * Sets the Rhythmyx Service Description
-   * @param serviceDesc the Rhythmyx Service Description,
-   * may not be <code>null</code> or empty
-   * @throw IllegalArgumentException if serviceDesc is <code>null</code>
-   * or empty
+   *
+   * @param serviceDesc the Rhythmyx Service Description, may not be <code>null</code> or empty
+   * @throw IllegalArgumentException if serviceDesc is <code>null</code> or empty
    */
   public void setServiceDesc(String serviceDesc) {
     if ((serviceDesc == null) || (serviceDesc.trim().length() == 0))
@@ -182,20 +175,15 @@ public class PSServerInstallEndPanel extends PSAction {
    *************************************************************************/
 
   /**
-   * The path of the installation.properties file relative to the root
-   * installation directory. This properties file contains the Rhythmyx
-   * Service Name and Description.
+   * The path of the installation.properties file relative to the root installation directory. This
+   * properties file contains the Rhythmyx Service Name and Description.
    */
   private String propertyFileName = "rxconfig/Installer/installation.properties";
 
-  /**
-   * stores the Rhythmyx Service Name
-   */
+  /** stores the Rhythmyx Service Name */
   private String serviceName = "Rhythmyx40";
 
-  /**
-   * stores the Rhythmyx Service Description
-   */
+  /** stores the Rhythmyx Service Description */
   private String serviceDesc = "";
 
   /*************************************************************************

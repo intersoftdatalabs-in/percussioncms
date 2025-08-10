@@ -28,22 +28,15 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * PSIdMap encapsulates a list of <code>PSIsMapping</code> objects for
- * a source server.
- */
+/** PSIdMap encapsulates a list of <code>PSIsMapping</code> objects for a source server. */
 public class PSIdMap implements IPSDeployComponent {
 
   /**
-   * Construcuting the object for a source server name,
-   * <code>sourceServer</code>.
+   * Construcuting the object for a source server name, <code>sourceServer</code>.
    *
    * @param sourceServer Identifies the source repository using the form
-   * <driver>:<server>:<database>:<origin>, it may not be <code>null</code>
-   * or empty.
-   *
-   * @throws IllegalArgumentException if <code>sourceServer</code> is
-   * <code>null</code> or empty.
+   *     <driver>:<server>:<database>:<origin>, it may not be <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>sourceServer</code> is <code>null</code> or empty.
    */
   public PSIdMap(String sourceServer) {
     if (sourceServer == null || sourceServer.trim().length() == 0)
@@ -55,12 +48,9 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSIdMap(Element source) throws PSUnknownNodeTypeException {
@@ -72,8 +62,7 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get a list of <code>PSIdMapping</code> objects.
    *
-   * @return iterator over zero or more <code>PSIdMapping</code> objects,
-   * never <code>null</code>.
+   * @return iterator over zero or more <code>PSIdMapping</code> objects, never <code>null</code>.
    */
   public Iterator<PSIdMapping> getMappings() {
     return m_mappingList.iterator();
@@ -83,9 +72,7 @@ public class PSIdMap implements IPSDeployComponent {
    * Get a specified <code>PSIdMapping</code> object.
    *
    * @param dep The specified dependency, may not be <code>null</code>.
-   *
-   * @return the mapping for the specified dependency, or <code>null</code>
-   *         if not found in the map.
+   * @return the mapping for the specified dependency, or <code>null</code> if not found in the map.
    */
   public PSIdMapping getMapping(PSDependency dep) {
     if (dep == null) throw new IllegalArgumentException("PSDependency may not be null");
@@ -99,13 +86,12 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get a specified <code>PSIdMapping</code> object.
    *
-   * @param sourceId The specified source ID of the <code>PSIdMapping</code>,
-   * it may not be <code>null</code> or empty.
-   * @param objectType The specified object-type of the
-   * <code>PSIdMapping</code>, it may not be <code>null</code> or empty.
-   *
-   * @return the mapping for the specified source id and type, or
-   * <code>null</code> if not found in the map.
+   * @param sourceId The specified source ID of the <code>PSIdMapping</code>, it may not be <code>
+   *     null</code> or empty.
+   * @param objectType The specified object-type of the <code>PSIdMapping</code>, it may not be
+   *     <code>null</code> or empty.
+   * @return the mapping for the specified source id and type, or <code>null</code> if not found in
+   *     the map.
    */
   public PSIdMapping getMapping(String sourceId, String objectType) {
     if (sourceId == null || sourceId.trim().length() == 0)
@@ -119,19 +105,16 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get a specified <code>PSIdMapping</code> object.
    *
-   * @param sourceId The specified source ID of the <code>PSIdMapping</code>,
-   * it may not be <code>null</code> or empty.
-   * @param objectType The specified object-type of the
-   * <code>PSIdMapping</code>, it may not be <code>null</code> or empty.
-   * @param parentId The id of the parent if the specified source supports
-   * parent id.  May be <code>null</code>, never empty.
-   * @param parentType The type of the parent if the specified source
-   * supports parent id.  May be <code>null</code> only if
-   * <code>parentId</code> is <code>null</code>, never empty.
-   *
-   * @return the mapping for the specified source id and type, or
-   * <code>null</code> if not found in the map.
-   *
+   * @param sourceId The specified source ID of the <code>PSIdMapping</code>, it may not be <code>
+   *     null</code> or empty.
+   * @param objectType The specified object-type of the <code>PSIdMapping</code>, it may not be
+   *     <code>null</code> or empty.
+   * @param parentId The id of the parent if the specified source supports parent id. May be <code>
+   *     null</code>, never empty.
+   * @param parentType The type of the parent if the specified source supports parent id. May be
+   *     <code>null</code> only if <code>parentId</code> is <code>null</code>, never empty.
+   * @return the mapping for the specified source id and type, or <code>null</code> if not found in
+   *     the map.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSIdMapping getMapping(
@@ -162,13 +145,12 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get a specified <code>PSIdMapping</code> object based on the target id.
    *
-   * @param targetId The specified target ID of the <code>PSIdMapping</code>,
-   * it may not be <code>null</code> or empty.
-   * @param objectType The specified object-type of the
-   * <code>PSIdMapping</code>, it may not be <code>null</code> or empty.
-   *
-   * @return the mapping for the specified target id and type, or
-   * <code>null</code> if not found in the map.
+   * @param targetId The specified target ID of the <code>PSIdMapping</code>, it may not be <code>
+   *     null</code> or empty.
+   * @param objectType The specified object-type of the <code>PSIdMapping</code>, it may not be
+   *     <code>null</code> or empty.
+   * @return the mapping for the specified target id and type, or <code>null</code> if not found in
+   *     the map.
    */
   public PSIdMapping getTargetMapping(String targetId, String objectType) {
     if (targetId == null || targetId.trim().length() == 0)
@@ -182,18 +164,16 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get a specified <code>PSIdMapping</code> object based on the target id.
    *
-   * @param targetId The specified target ID of the <code>PSIdMapping</code>,
-   * it may not be <code>null</code> or empty.
-   * @param objectType The specified object-type of the
-   * <code>PSIdMapping</code>, it may not be <code>null</code> or empty.
-   * @param targetParentId The id of the parent if the specified target
-   * supports parent id.  May be <code>null</code>, never empty.
-   * @param parentType The type of the parent if the specified target
-   * supports parent id.  May be <code>null</code> only if
-   * <code>parentId</code> is <code>null</code>, never empty.
-   *
-   * @return the mapping for the specified target id and type, or
-   * <code>null</code> if not found in the map.
+   * @param targetId The specified target ID of the <code>PSIdMapping</code>, it may not be <code>
+   *     null</code> or empty.
+   * @param objectType The specified object-type of the <code>PSIdMapping</code>, it may not be
+   *     <code>null</code> or empty.
+   * @param targetParentId The id of the parent if the specified target supports parent id. May be
+   *     <code>null</code>, never empty.
+   * @param parentType The type of the parent if the specified target supports parent id. May be
+   *     <code>null</code> only if <code>parentId</code> is <code>null</code>, never empty.
+   * @return the mapping for the specified target id and type, or <code>null</code> if not found in
+   *     the map.
    */
   public PSIdMapping getTargetMapping(
       String targetId, String objectType, String targetParentId, String parentType) {
@@ -227,11 +207,8 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Adding a <code>PSIdMapping</code> object.
    *
-   * @param mapping The <code>PSIdMapping</code> object to be added, it may
-   * not be <code>null</code>
-   *
-   * @throws IllegalArgumentException If <code>mapping</code> is
-   * <code>null</code>.
+   * @param mapping The <code>PSIdMapping</code> object to be added, it may not be <code>null</code>
+   * @throws IllegalArgumentException If <code>mapping</code> is <code>null</code>.
    */
   public void addMapping(PSIdMapping mapping) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -240,15 +217,12 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Removes the supplied <code>PSIdMapping</code> object if it exists in the
-   * map. Uses {@link #getMapping(String, String)
-   * getMapping(sourceId, objectType)} for checking existance of mapping.
+   * Removes the supplied <code>PSIdMapping</code> object if it exists in the map. Uses {@link
+   * #getMapping(String, String) getMapping(sourceId, objectType)} for checking existance of
+   * mapping.
    *
-   * @param mapping The <code>PSIdMapping</code> object to be removed, may
-   * not be <code>null</code>
-   *
-   * @throws IllegalArgumentException If <code>mapping</code> is
-   * <code>null</code>.
+   * @param mapping The <code>PSIdMapping</code> object to be removed, may not be <code>null</code>
+   * @throws IllegalArgumentException If <code>mapping</code> is <code>null</code>.
    */
   public void removeMapping(PSIdMapping mapping) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -265,22 +239,16 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Checks whether the mapping identified by the supplied id and type is
-   * mapped or not.
+   * Checks whether the mapping identified by the supplied id and type is mapped or not.
    *
-   * @param sourceId the source id of the mapping, may not be <code>null</code>
-   * or empty.
+   * @param sourceId the source id of the mapping, may not be <code>null</code> or empty.
    * @param objectType the object type of the mapping, may not be <code>null
    * </code> or empty.
-   * @param parentId The id of the parent if the specified source supports
-   * parent id.  May be <code>null</code>, never empty.
-   * @param parentType The type of the parent if the specified source
-   * supports parent id.  May be <code>null</code> only if
-   * <code>parentId</code> is <code>null</code>, never empty.
-   *
-   * @return <code>true</code> if the mapping exists and is mapped, otherwise
-   * <code>false</code>
-   *
+   * @param parentId The id of the parent if the specified source supports parent id. May be <code>
+   *     null</code>, never empty.
+   * @param parentType The type of the parent if the specified source supports parent id. May be
+   *     <code>null</code> only if <code>parentId</code> is <code>null</code>, never empty.
+   * @return <code>true</code> if the mapping exists and is mapped, otherwise <code>false</code>
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public boolean isMapped(String sourceId, String objectType, String parentId, String parentType) {
@@ -306,10 +274,9 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Convenience method for {@link #isMapped(String, String, String, String)
-   * isMapped(sourceId, objectType, null, null)}. Please see the link for more
-   * information. This should be called only if the supplied source id does not
-   * have a parent id.
+   * Convenience method for {@link #isMapped(String, String, String, String) isMapped(sourceId,
+   * objectType, null, null)}. Please see the link for more information. This should be called only
+   * if the supplied source id does not have a parent id.
    */
   public boolean isMapped(String sourceId, String objectType) {
     if (sourceId == null || sourceId.trim().length() == 0)
@@ -323,8 +290,7 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Get the name of the source server
    *
-   * @return The name of the source server, it never be <code>null</code> or
-   * empty.
+   * @return The name of the source server, it never be <code>null</code> or empty.
    */
   public String getSourceServer() {
     return m_sourceServer;
@@ -333,12 +299,9 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Gets the new id from this map for a given source id and type.
    *
-   * @param id The source id to get a new value for, may not be
-   * <code>null</code> or empty.
+   * @param id The source id to get a new value for, may not be <code>null</code> or empty.
    * @param type The type of id, may not be <code>null</code> or empty.
-   *
    * @return The new id, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the id cannot be obtained.
    */
@@ -353,20 +316,15 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Gets the new id from this map for a given source id and type, and parent
-   * id and type.
+   * Gets the new id from this map for a given source id and type, and parent id and type.
    *
-   * @param id The source id to get a new value for, may not be
-   * <code>null</code> or empty.
+   * @param id The source id to get a new value for, may not be <code>null</code> or empty.
    * @param type The type of id, may not be <code>null</code> or empty.
-   * @param parentId The id of the parent if the specified <code>type</code>
-   * supports parent id.  May be <code>null</code>, never empty.
-   * @param parentType The type of the parent if the specified
-   * <code>type</code> supports parent id.  May be <code>null</code> only if
-   * <code>parentId</code> is <code>null</code>, never empty.
-   *
+   * @param parentId The id of the parent if the specified <code>type</code> supports parent id. May
+   *     be <code>null</code>, never empty.
+   * @param parentType The type of the parent if the specified <code>type</code> supports parent id.
+   *     May be <code>null</code> only if <code>parentId</code> is <code>null</code>, never empty.
    * @return The new id, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the id cannot be obtained.
    */
@@ -402,20 +360,15 @@ public class PSIdMap implements IPSDeployComponent {
   }
 
   /**
-   * Gets the new id as an int from this map for a given source id and type,
-   * and parent id and type.
+   * Gets the new id as an int from this map for a given source id and type, and parent id and type.
    *
-   * @param id The source id to get a new value for, may not be
-   * <code>null</code> or empty.
+   * @param id The source id to get a new value for, may not be <code>null</code> or empty.
    * @param type The type of id, may not be <code>null</code> or empty.
-   * @param parentId The id of the parent if the specified <code>type</code>
-   * supports parent id.  May be <code>null</code>, never empty.
-   * @param parentType The type of the parent if the specified
-   * <code>type</code> supports parent id.  May be <code>null</code> only if
-   * <code>parentId</code> is <code>null</code>, never empty.
-   *
+   * @param parentId The id of the parent if the specified <code>type</code> supports parent id. May
+   *     be <code>null</code>, never empty.
+   * @param parentType The type of the parent if the specified <code>type</code> supports parent id.
+   *     May be <code>null</code> only if <code>parentId</code> is <code>null</code>, never empty.
    * @return The new id, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the id cannot be obtained.
    */
@@ -445,12 +398,9 @@ public class PSIdMap implements IPSDeployComponent {
   /**
    * Gets the new id from the supplied map for a given source id and type.
    *
-   * @param id The source id to get a new value for, may not be
-   * <code>null</code> or empty.
+   * @param id The source id to get a new value for, may not be <code>null</code> or empty.
    * @param type The type of id, may not be <code>null</code> or empty.
-   *
    * @return The new id, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the id cannot be obtained.
    */
@@ -485,10 +435,7 @@ public class PSIdMap implements IPSDeployComponent {
     return root;
   }
 
-  /**
-   * See {@link IPSDeployComponent#hashCode()} for more info on method
-   * signature.
-   */
+  /** See {@link IPSDeployComponent#hashCode()} for more info on method signature. */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
@@ -510,10 +457,7 @@ public class PSIdMap implements IPSDeployComponent {
     }
   }
 
-  /**
-   * See {@link IPSDeployComponent#copyFrom()} for more info on method
-   * signature.
-   */
+  /** See {@link IPSDeployComponent#copyFrom()} for more info on method signature. */
   public void copyFrom(IPSDeployComponent obj) {
     if (obj == null) throw new IllegalArgumentException("obj parameter should not be null");
 
@@ -527,18 +471,12 @@ public class PSIdMap implements IPSDeployComponent {
     m_mappingList.addAll(obj2.m_mappingList);
   }
 
-  /**
-   * See {@link IPSDeployComponent#hashCode()} for more info on method
-   * signature.
-   */
+  /** See {@link IPSDeployComponent#hashCode()} for more info on method signature. */
   public int hashCode() {
     return m_sourceServer.hashCode() + m_mappingList.hashCode();
   }
 
-  /**
-   * See {@link IPSDeployComponent#equals(Object)} for more info on method
-   * signature.
-   */
+  /** See {@link IPSDeployComponent#equals(Object)} for more info on method signature. */
   public boolean equals(Object obj) {
     boolean result = false;
 
@@ -550,9 +488,7 @@ public class PSIdMap implements IPSDeployComponent {
     return result;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXIdMap";
 
   // Private XML attribute constant for <code>XML_NODE_NAME</code>
@@ -566,20 +502,16 @@ public class PSIdMap implements IPSDeployComponent {
   private String m_sourceServer;
 
   /**
-   * Containing a list of <code>PSIdMapping</code> objects. It will never be
-   * <code>null</code>, may be empty.
+   * Containing a list of <code>PSIdMapping</code> objects. It will never be <code>null</code>, may
+   * be empty.
    */
   private List<PSIdMapping> m_mappingList = new ArrayList<>();
 
-  /**
-   * flags to walk to a child node of a XML tree
-   */
+  /** flags to walk to a child node of a XML tree */
   private static final int FIRST_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * flags to walk to a sibling node of a XML tree
-   */
+  /** flags to walk to a sibling node of a XML tree */
   private static final int NEXT_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 }

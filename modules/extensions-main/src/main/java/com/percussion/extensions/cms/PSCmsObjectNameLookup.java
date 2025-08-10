@@ -30,16 +30,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class implements the UDF processor interface so it can be used as a
- * Rhythmyx function. See {@link #processUdf(Object[], IPSRequestContext)
- * processUdf} for a description. This UDF is sepcifically designed to get name
- * of the CMS object given the Locator for the object. The locator is assumed to
- * have not more than three parts.
- * <p>
- * Note: This is very inefficient for the fact that it is a UDF which will be
- * called per roww in the result set and we make an internal request per row.
- * Ideally, we need to cache all CMS namelookups during server initialization
- * and avoid internal requests. In that this is a temporary feature.
+ * This class implements the UDF processor interface so it can be used as a Rhythmyx function. See
+ * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description. This UDF is
+ * sepcifically designed to get name of the CMS object given the Locator for the object. The locator
+ * is assumed to have not more than three parts.
+ *
+ * <p>Note: This is very inefficient for the fact that it is a UDF which will be called per roww in
+ * the result set and we make an internal request per row. Ideally, we need to cache all CMS
+ * namelookups during server initialization and avoid internal requests. In that this is a temporary
+ * feature.
  */
 public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
   // Implementation of the Interface
@@ -105,17 +104,14 @@ public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements I
   }
 
   /**
-   * Initializes the cache in the current request. If this extension is invoked
-   * more than once per overall request, but via more than one internal
-   * requests, since the cache is initialized in a clone of the request it's
-   * lifetime is then tied to each internal request and not the overall
-   * request. In this case this method should be called with the top level
-   * request object before the internal requests are made so that each cloned
-   * request used by the internal request has the same instance of the cache
-   * in it's private objects.
+   * Initializes the cache in the current request. If this extension is invoked more than once per
+   * overall request, but via more than one internal requests, since the cache is initialized in a
+   * clone of the request it's lifetime is then tied to each internal request and not the overall
+   * request. In this case this method should be called with the top level request object before the
+   * internal requests are made so that each cloned request used by the internal request has the
+   * same instance of the cache in it's private objects.
    *
    * @param request The current request, may not be <code>null</code>.
-   *
    * @return The map used as the cache, never <code>null</code>.
    */
   public static Map initLookupCache(IPSRequestContext request) {
@@ -133,15 +129,11 @@ public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements I
   /**
    * Creates a key to use to cache the name retrieved from the lookup.
    *
-   * @param cmsObjectType The object type used for the lookup, assumed not
-   * <code>null</code> or empty.
-   * @param part1 The first key used in the lookup, assumed not
-   * <code>null</code>, may be empty.
-   * @param part2 The second key used in the lookup, assumed not
-   * <code>null</code>, may be empty.
-   * @param part3 The third key used in the lookup, assumed not
-   * <code>null</code>, may be empty.
-   *
+   * @param cmsObjectType The object type used for the lookup, assumed not <code>null</code> or
+   *     empty.
+   * @param part1 The first key used in the lookup, assumed not <code>null</code>, may be empty.
+   * @param part2 The second key used in the lookup, assumed not <code>null</code>, may be empty.
+   * @param part3 The third key used in the lookup, assumed not <code>null</code>, may be empty.
    * @return The key to use, never <code>null</code> or empty.
    */
   private String getCacheKey(String cmsObjectType, String part1, String part2, String part3) {
@@ -151,8 +143,6 @@ public class PSCmsObjectNameLookup extends PSSimpleJavaUdfExtension implements I
   // String constant representing the lookup Rx application
   private static final String APP_CMS_LOOKUP = "sys_psxCms";
 
-  /**
-   * Constant for key used to store the cache in the request.
-   */
+  /** Constant for key used to store the cache in the request. */
   private static final String CACHE_KEY = "sys_cmsObjectNameLookupCache";
 }

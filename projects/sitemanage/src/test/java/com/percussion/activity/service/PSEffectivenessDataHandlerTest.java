@@ -19,39 +19,33 @@ package com.percussion.activity.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.activity.data.PSContentActivity;
-import com.percussion.activity.data.PSEffectiveness;
 import com.percussion.activity.data.PSEffectivenessRequest;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
 import com.percussion.activity.service.impl.PSEffectivenessDataHandler;
-
 import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link PSEffectivenessDataHandler}.
- */
+/** Tests for {@link PSEffectivenessDataHandler}. */
 class PSEffectivenessDataHandlerTest {
 
-    @Test
-    void testGetEffectiveness() throws Exception {
-        var handler = new PSEffectivenessDataHandler();
-        handler.setFile("src/test/resources/activity/Effectiveness.xml");
+  @Test
+  void testGetEffectiveness() throws Exception {
+    var handler = new PSEffectivenessDataHandler();
+    handler.setFile("src/test/resources/activity/Effectiveness.xml");
 
-        var request = new PSEffectivenessRequest();
-        request.setDurationType("days");
-        request.setDuration("5");
-        request.setPath("/Sites/");
-        request.setUsage(PSUsageEnum.pageviews);
-        request.setThreshold(10);
+    var request = new PSEffectivenessRequest();
+    request.setDurationType("days");
+    request.setDuration("5");
+    request.setPath("/Sites/");
+    request.setUsage(PSUsageEnum.pageviews);
+    request.setThreshold(10);
 
-        var emptyList = new ArrayList<PSContentActivity>();
-        var eList = handler.getEffectiveness(request, emptyList);
-        assertEquals(2, eList.size());
+    var emptyList = new ArrayList<PSContentActivity>();
+    var eList = handler.getEffectiveness(request, emptyList);
+    assertEquals(2, eList.size());
 
-        request.setPath("/Sites/MySite.com");
-        eList = handler.getEffectiveness(request, emptyList);
-        assertEquals(4, eList.size());
-    }
+    request.setPath("/Sites/MySite.com");
+    eList = handler.getEffectiveness(request, emptyList);
+    assertEquals(4, eList.size());
+  }
 }

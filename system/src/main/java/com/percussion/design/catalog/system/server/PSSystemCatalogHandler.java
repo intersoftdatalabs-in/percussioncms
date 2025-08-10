@@ -20,19 +20,15 @@ package com.percussion.design.catalog.system.server;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSystemCatalogHandler class processes system related catalog
- * requests for the E2 server.
+ * The PSSystemCatalogHandler class processes system related catalog requests for the E2 server.
  *
- * @see       com.percussion.server.IPSRequestHandler
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.IPSRequestHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSystemCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler {
-  /**
-   * Construct the data related catalog handler.
-   */
+  /** Construct the data related catalog handler. */
   public PSSystemCatalogHandler() {
     super();
 
@@ -49,9 +45,7 @@ public class PSSystemCatalogHandler extends com.percussion.design.catalog.PSCata
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

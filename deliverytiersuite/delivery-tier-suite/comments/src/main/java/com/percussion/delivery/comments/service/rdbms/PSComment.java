@@ -32,7 +32,6 @@ import org.hibernate.annotations.OnDeleteAction;
 
 /**
  * @author erikserating
- *
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments1")
@@ -98,8 +97,7 @@ public class PSComment implements IPSComment, Serializable {
   public PSComment() {}
 
   /**
-   * Creates a new comment with the same values as the given one,
-   * except for the id.
+   * Creates a new comment with the same values as the given one, except for the id.
    *
    * @param comment A comment to create a copy from.
    */

@@ -24,18 +24,16 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * A set of steps that may be executed in sequence. First executes the first
- * step and if the update count equals zero then executes the corresponding
- * second step
+ * A set of steps that may be executed in sequence. First executes the first step and if the update
+ * count equals zero then executes the corresponding second step
  */
 public class PSJdbcReplaceExecutionPlan {
   /**
    * Adds the steps to this plan.
    *
    * @param firstStep The step to execute, may not be <code>null</code>.
-   * @param secondStep The step to execute if the update count of the firstStep
-   * execution equals <code>0</code>, may not be <code>null</code>.
-   *
+   * @param secondStep The step to execute if the update count of the firstStep execution equals
+   *     <code>0</code>, may not be <code>null</code>.
    * @throws IllegalArgumentException if firstStep or secondStep is <code>null</code>.
    */
   public void addStep(PSJdbcExecutionStep firstStep, PSJdbcExecutionStep secondStep) {
@@ -51,7 +49,6 @@ public class PSJdbcReplaceExecutionPlan {
    * Adds all the steps of a plan to this plan.
    *
    * @param plan The plan whose steps are added to this plan.
-   *
    * @throws IllegalArgumentException if plan is <code>null</code>.
    */
   public void addPlan(PSJdbcReplaceExecutionPlan plan) {
@@ -62,12 +59,10 @@ public class PSJdbcReplaceExecutionPlan {
   }
 
   /**
-   * Executes each step in the plan sequentially in reverse order. First
-   * executes the first step and if the update count equals <code>0</code>
-   * then executes the corresponding second step.
+   * Executes each step in the plan sequentially in reverse order. First executes the first step and
+   * if the update count equals <code>0</code> then executes the corresponding second step.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   *
    * @throws SQLException if any errors occur.
    */
   public void reverseExecute(Connection conn) throws SQLException {
@@ -75,12 +70,10 @@ public class PSJdbcReplaceExecutionPlan {
   }
 
   /**
-   * Executes each step in the plan sequentially in forward order. First
-   * executes the first step and if the update count equals <code>0</code>
-   * then executes the corresponding second step.
+   * Executes each step in the plan sequentially in forward order. First executes the first step and
+   * if the update count equals <code>0</code> then executes the corresponding second step.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   *
    * @throws SQLException if any errors occur.
    */
   public void execute(Connection conn) throws SQLException {
@@ -88,18 +81,15 @@ public class PSJdbcReplaceExecutionPlan {
   }
 
   /**
-   * Executes each step in the plan sequentially.  First executes the first
-   * step and if the update count equals zero then executes the corresponding
-   * second step.
+   * Executes each step in the plan sequentially. First executes the first step and if the update
+   * count equals zero then executes the corresponding second step.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   * @param forward if true then executes the steps in the plan from the
-   * beginning to the end of the list, else executes the steps in reverse
-   * order.
-   *
+   * @param forward if true then executes the steps in the plan from the beginning to the end of the
+   *     list, else executes the steps in reverse order.
    * @throws IllegalArgumentException if conn is <code>null</code>.
-   * @throws SQLException if any errors occur and {@link
-   * PSJdbcExecutionStep#stopOnError() is <code>true</code>}.
+   * @throws SQLException if any errors occur and {@link PSJdbcExecutionStep#stopOnError() is
+   *     <code>true</code>}.
    */
   public void execute(Connection conn, boolean forward) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -175,29 +165,25 @@ public class PSJdbcReplaceExecutionPlan {
   }
 
   /**
-   * Returns the <code>PSJdbcExecutionPlanLog</code> object which stores
-   * the result of the execution of this plan.
+   * Returns the <code>PSJdbcExecutionPlanLog</code> object which stores the result of the execution
+   * of this plan.
    *
-   * @return the <code>PSJdbcExecutionStepLog</code> object which stores
-   * the result of the execution of this plan, never <code>null</code>
+   * @return the <code>PSJdbcExecutionStepLog</code> object which stores the result of the execution
+   *     of this plan, never <code>null</code>
    */
   public PSJdbcExecutionPlanLog getPlanLogData() {
     return m_planLogData;
   }
 
-  /**
-   * List of steps, never <code>null</code>, may be empty.
-   */
+  /** List of steps, never <code>null</code>, may be empty. */
   private List<PSJdbcExecutionStep> m_firstSteps = new ArrayList<>();
 
   /**
-   * List of steps executed if the corresponding firstStep update count
-   * equals <code>0</code>, never <code>null</code>, may be empty.
+   * List of steps executed if the corresponding firstStep update count equals <code>0</code>, never
+   * <code>null</code>, may be empty.
    */
   private List<PSJdbcExecutionStep> m_secondSteps = new ArrayList<>();
 
-  /**
-   * Stores the log of execution of this plan, never <code>null</code>
-   */
+  /** Stores the log of execution of this plan, never <code>null</code> */
   private PSJdbcExecutionPlanLog m_planLogData = new PSJdbcExecutionPlanLog();
 }

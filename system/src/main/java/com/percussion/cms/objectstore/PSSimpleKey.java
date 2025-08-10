@@ -31,8 +31,8 @@ public class PSSimpleKey extends PSKey {
   /**
    * Create an un-assigned key with a single part.
    *
-   * @param keyName The name for the key, typically, the column name of the
-   *    primary key of the associated table.
+   * @param keyName The name for the key, typically, the column name of the primary key of the
+   *     associated table.
    */
   public PSSimpleKey(String keyName) {
     super(new String[] {keyName});
@@ -41,27 +41,23 @@ public class PSSimpleKey extends PSKey {
   /**
    * Create a persisted key with a single part.
    *
-   * @param keyName The name for the key, typically, the column name of the
-   *    primary key of the associated table.
+   * @param keyName The name for the key, typically, the column name of the primary key of the
+   *     associated table.
    */
   public PSSimpleKey(String keyName, String value) {
     super(new String[] {keyName}, new String[] {value}, true);
   }
 
   /**
-   * Create an assigned key with a single part. The persisted property is
-   * dtermined by parameter <code>persisted</code>.
+   * Create an assigned key with a single part. The persisted property is dtermined by parameter
+   * <code>persisted</code>.
    *
-   * @param keyName The name for the key, typically, the column name of the
-   *    primary key of the associated table.
-   *
-   * @param value The value for the key. It may not be <code>null</code> or
-   *    empty.
-   *
-   * @param persisted A flag to indicate whether this key represents a a
-   *    component that exists in the db. Realize that this is a snapshot,
-   *    so the component represented by this key could be removed while
-   *    this key is instantiated.
+   * @param keyName The name for the key, typically, the column name of the primary key of the
+   *     associated table.
+   * @param value The value for the key. It may not be <code>null</code> or empty.
+   * @param persisted A flag to indicate whether this key represents a a component that exists in
+   *     the db. Realize that this is a snapshot, so the component represented by this key could be
+   *     removed while this key is instantiated.
    */
   public PSSimpleKey(String keyName, String value, boolean persisted) {
     super(new String[] {keyName}, new String[] {value}, persisted);
@@ -70,8 +66,8 @@ public class PSSimpleKey extends PSKey {
   /**
    * Create a key with a single part.
    *
-   * @param keyName The name for the key, typically, the column name of the
-   *    primary key of the associated table.
+   * @param keyName The name for the key, typically, the column name of the primary key of the
+   *     associated table.
    */
   public PSSimpleKey(String keyName, int value) {
     super(new String[] {keyName}, new int[] {value}, true);

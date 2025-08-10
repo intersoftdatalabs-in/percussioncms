@@ -20,11 +20,9 @@ package com.percussion.debug;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the Exit Processing trace message type (0x0400).  Includes:
- * Type of exit
- * Name of each exit executed
- * For each exit:
- * Value of each input param (by doing a toString on it) in the form 'param=value'.
+ * Used to generate trace messages for the Exit Processing trace message type (0x0400). Includes:
+ * Type of exit Name of each exit executed For each exit: Value of each input param (by doing a
+ * toString on it) in the form 'param=value'.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceExitProc extends PSTraceMessage {
@@ -45,14 +43,11 @@ public class PSTraceExitProc extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an array of objects containing the information required for the
-   * trace message:
-   * - String exit type
-   * - String classname of exit
-   * - object[] args for the exit
+   * @param source an array of objects containing the information required for the trace message: -
+   *     String exit type - String classname of exit - object[] args for the exit
    * @return the message body
    * @roseuid 39FEE2F4009C
    */

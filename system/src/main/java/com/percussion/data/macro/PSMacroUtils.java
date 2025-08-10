@@ -48,30 +48,28 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A container for common used macro utility functions.
- */
+/** A container for common used macro utility functions. */
 public class PSMacroUtils {
   /**
    * Compute and return the item's revision as follows:
+   *
    * <ul>
-   * <li>If the content valid flag for the item's current state is one of the
-   * supplied characters, extract the last public revision of the item. If the
-   * last public revision is not available for any reason return -1</li>
-   * <li>Otherwise, return the default revision supplied.</li>
+   *   <li>If the content valid flag for the item's current state is one of the supplied characters,
+   *       extract the last public revision of the item. If the last public revision is not
+   *       available for any reason return -1
+   *   <li>Otherwise, return the default revision supplied.
    * </ul>
    *
    * @param request the request used to make the lookup, not <code>null</code>.
-   * @param contentid the content of the item to make the lookup for, must not
-   *           be <code>null</code> or empty.
-   * @param contentValidFlags array of characters indicating the state valid
-   *           flags for which the revision needs to be corrected.
-   * @param defaultRevision the value to return if the item's current state
-   *           valid flag is not one of the characters in the supplied array,
-   *           may be <code>null</code> in which case the return value could
-   *           be <code>null</code>.
-   * @return the corrected or default revision computed as described in the
-   *         method description. above.
+   * @param contentid the content of the item to make the lookup for, must not be <code>null</code>
+   *     or empty.
+   * @param contentValidFlags array of characters indicating the state valid flags for which the
+   *     revision needs to be corrected.
+   * @param defaultRevision the value to return if the item's current state valid flag is not one of
+   *     the characters in the supplied array, may be <code>null</code> in which case the return
+   *     value could be <code>null</code>.
+   * @return the corrected or default revision computed as described in the method description.
+   *     above.
    * @throws PSInternalRequestCallException for any errors during the lookup.
    * @throws PSNotFoundException if the lookup resource was not found.
    */
@@ -88,21 +86,20 @@ public class PSMacroUtils {
 
   /**
    * Correct the revision inside the linkurl and return it:
+   *
    * <ul>
-   * <li>If {@link IPSHtmlParameters#SYS_CONTENTID}or {@link
-   * IPSHtmlParameters#SYS_REVISION} missing in linkUrl an unchanged url will
-   * be returned</li>
-   * <li>If the content valid flag for the item's current state is one of the
-   * supplied characters, the revision in supplied url will be replaced with
-   * the last public revision. If the last public revision is not available for
-   * any reason return value will be <code>null</code>.</li>
+   *   <li>If {@link IPSHtmlParameters#SYS_CONTENTID}or {@link IPSHtmlParameters#SYS_REVISION}
+   *       missing in linkUrl an unchanged url will be returned
+   *   <li>If the content valid flag for the item's current state is one of the supplied characters,
+   *       the revision in supplied url will be replaced with the last public revision. If the last
+   *       public revision is not available for any reason return value will be <code>null</code>.
    * </ul>
    *
    * @param request the request used to make the lookup, not <code>null</code>.
-   * @param linkUrl the url of the item in which the revision needs to be fixed,
-   *          must not be <code>null</code> or empty.
-   * @param contentValidFlags array of characters indicating the state valid
-   *           flags for which the revision needs to be corrected.
+   * @param linkUrl the url of the item in which the revision needs to be fixed, must not be <code>
+   *     null</code> or empty.
+   * @param contentValidFlags array of characters indicating the state valid flags for which the
+   *     revision needs to be corrected.
    * @return the corrected url or <code>null</code>, see details above.
    * @throws PSInternalRequestCallException for any errors during the lookup.
    * @throws PSNotFoundException if the lookup resource was not found.
@@ -153,14 +150,13 @@ public class PSMacroUtils {
   }
 
   /**
-   * Get the last public revision for the supplied parameters. This will lookup
-   * the last public revision from the items history.
+   * Get the last public revision for the supplied parameters. This will lookup the last public
+   * revision from the items history.
    *
-   * @param contentid
-   *            the content of the item to make the lookup for, not
-   *            <code>null</code> or empty.
-   * @return the last public revision for the supplied item or '-1' if the item
-   *         was never public yet, never <code>null</code> or empty.
+   * @param contentid the content of the item to make the lookup for, not <code>null</code> or
+   *     empty.
+   * @return the last public revision for the supplied item or '-1' if the item was never public
+   *     yet, never <code>null</code> or empty.
    */
   public static String getLastPublicRevision(String contentid) {
     if (contentid == null) throw new IllegalArgumentException("contentid cannot be null");
@@ -181,23 +177,17 @@ public class PSMacroUtils {
   }
 
   /**
-   * Get the last public revision for the supplied parameters. This will lookup
-   * the last public revision from the items history.
+   * Get the last public revision for the supplied parameters. This will lookup the last public
+   * revision from the items history.
    *
-   * @param contentIds
-   *            a list over one or more content ids (as <code>Integer</code>
-   *            objects) for the item to make the lookup for, not
-   *            <code>null</code> or empty.
-   * @return a map that maps content ids to its the last public revision.
-   *         Both map key and value are <code>Integer</code> objects. The
-   *         map keys are the content ids; the map values are the related
-   *         last public revision. The map value may be <code>null</code>
-   *         if the item was never public yet, never <code>null</code> or
-   *         empty.
-   * @throws PSInternalRequestCallException
-   *             for any errors doing the lookup.
-   * @throws PSNotFoundException
-   *             if the lookup resource was not found.
+   * @param contentIds a list over one or more content ids (as <code>Integer</code> objects) for the
+   *     item to make the lookup for, not <code>null</code> or empty.
+   * @return a map that maps content ids to its the last public revision. Both map key and value are
+   *     <code>Integer</code> objects. The map keys are the content ids; the map values are the
+   *     related last public revision. The map value may be <code>null</code> if the item was never
+   *     public yet, never <code>null</code> or empty.
+   * @throws PSInternalRequestCallException for any errors doing the lookup.
+   * @throws PSNotFoundException if the lookup resource was not found.
    */
   public static Map<Integer, Integer> getLastPublicRevisions(List<Integer> contentIds)
       throws PSInternalRequestCallException, PSNotFoundException {
@@ -230,19 +220,15 @@ public class PSMacroUtils {
   }
 
   /**
-   * Utility method, used by
-   * {@link #getLastPublicRevisions(List<Integer>)}to process a
-   * group of content ids at a time..
+   * Utility method, used by {@link #getLastPublicRevisions(List<Integer>)}to process a group of
+   * content ids at a time..
    *
-   * @param contentIds
-   *           a list over one or more content ids (as <code>Integer</code>
-   *           objects) for the item to make the lookup for, assume not
-   *           <code>null</code> or empty.
-   * @return a map that maps content ids to its the last public revision. Both
-   *         map key and value are <code>Integer</code> objects. The map keys
-   *         are the content ids; the map values are the related last public
-   *         revision. The map value may be <code>null</code> if the item was
-   *         never public yet, never <code>null</code> or empty.
+   * @param contentIds a list over one or more content ids (as <code>Integer</code> objects) for the
+   *     item to make the lookup for, assume not <code>null</code> or empty.
+   * @return a map that maps content ids to its the last public revision. Both map key and value are
+   *     <code>Integer</code> objects. The map keys are the content ids; the map values are the
+   *     related last public revision. The map value may be <code>null</code> if the item was never
+   *     public yet, never <code>null</code> or empty.
    */
   private static Map<Integer, Integer> getLastPublicRevisionsPerGroup(List<Integer> contentIds) {
     Map<Integer, Integer> result = new HashMap<>();
@@ -258,8 +244,8 @@ public class PSMacroUtils {
   }
 
   /**
-   * Convenience method that calls {@link #isItemPublic(PSRequest, String)},
-   * {@link #isItemPublic(PSRequest, String)} isItemPublic(new PSRequestContext(request), contentid)}.
+   * Convenience method that calls {@link #isItemPublic(PSRequest, String)}, {@link
+   * #isItemPublic(PSRequest, String)} isItemPublic(new PSRequestContext(request), contentid)}.
    */
   public static boolean isItemPublic(PSRequest request, String contentid)
       throws PSInternalRequestCallException, PSNotFoundException {
@@ -267,10 +253,8 @@ public class PSMacroUtils {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isItemStateFlag(IPSRequestContext, String, char[])
-   * isItemStateFlag(new PSRequestContext(request), contentid, validFlags)}
-   * with validFlags = {'y'}.
+   * Convenience method that calls {@link #isItemStateFlag(IPSRequestContext, String, char[])
+   * isItemStateFlag(new PSRequestContext(request), contentid, validFlags)} with validFlags = {'y'}.
    */
   public static boolean isItemPublic(IPSRequestContext request, String contentid)
       throws PSInternalRequestCallException, PSNotFoundException {
@@ -279,17 +263,14 @@ public class PSMacroUtils {
   }
 
   /**
-   * Test if the current workflow state of the item with supplied contentid has
-   * the valid flag matching one of the supplied characters.
+   * Test if the current workflow state of the item with supplied contentid has the valid flag
+   * matching one of the supplied characters.
    *
-   * @param request the request used to lookup the item details, not
-   *           <code>null</code>.
-   * @param contentid the content of the item to make the test for, not
-   *           <code>null</code> or empty.
+   * @param request the request used to lookup the item details, not <code>null</code>.
+   * @param contentid the content of the item to make the test for, not <code>null</code> or empty.
    * @param validFags array of valid characters, must not be <code>null</code>
-   * @return <code>true</code> if the supplied item's current workflow state
-   *         has a flag match one of the characters in the array.
-   *         <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied item's current workflow state has a flag match one of
+   *     the characters in the array. <code>false</code> otherwise.
    * @throws PSInternalRequestCallException for any errors doing the lookup.
    * @throws PSNotFoundException if the lookup resource was not found.
    */
@@ -329,16 +310,13 @@ public class PSMacroUtils {
   }
 
   /**
-   * Extracts the content id from the supplied data. First this tries to
-   * extract it from the execution data as database table
-   * coolumn(CONTENTSTATUS.CONTENTID). If found, it will be returned. If not
-   * found, this will try to get the content id from the request parameters.
+   * Extracts the content id from the supplied data. First this tries to extract it from the
+   * execution data as database table coolumn(CONTENTSTATUS.CONTENTID). If found, it will be
+   * returned. If not found, this will try to get the content id from the request parameters.
    *
-   * @param data the execution data to extract the content id from, not
-   * <code>null</code>.
+   * @param data the execution data to extract the content id from, not <code>null</code>.
    * @return the content id if found, <code>null</code> otherwise.
-   * @throws PSDataExtractionException for errors extracting the content id
-   * from the execution data.
+   * @throws PSDataExtractionException for errors extracting the content id from the execution data.
    */
   public static String extractContentId(PSExecutionData data) throws PSDataExtractionException {
     if (data == null) throw new IllegalArgumentException("data cannot be null");
@@ -370,12 +348,10 @@ public class PSMacroUtils {
   /**
    * Get the checkout user name from the content status for the supplied item.
    *
-   * @param contentid the content id for the item to extract the data for,
-   *    not <code>null</code> or empty.
-   * @param data the execution data used to make the lookup, not
-   *    <code>null</code>.
-   * @return the user name who has the supplied item checked out, may
-   *    be <code>null</code> or empty.
+   * @param contentid the content id for the item to extract the data for, not <code>null</code> or
+   *     empty.
+   * @param data the execution data used to make the lookup, not <code>null</code>.
+   * @return the user name who has the supplied item checked out, may be <code>null</code> or empty.
    * @throws PSDataExtractionException for any errors extracting the data.
    */
   public static String extractCheckoutUser(String contentid, PSExecutionData data)
@@ -393,12 +369,10 @@ public class PSMacroUtils {
   /**
    * Get the current revision from the content status for the supplied item.
    *
-   * @param contentid the content id for the item to extract the data for,
-   *    not <code>null</code> or empty.
-   * @param data the execution data used to make the lookup, not
-   *    <code>null</code>.
-   * @return the current revision for the supplied item, may be
-   *    <code>null</code> or empty.
+   * @param contentid the content id for the item to extract the data for, not <code>null</code> or
+   *     empty.
+   * @param data the execution data used to make the lookup, not <code>null</code>.
+   * @return the current revision for the supplied item, may be <code>null</code> or empty.
    * @throws PSDataExtractionException for any errors extracting the data.
    */
   public static String extractCurrentRevision(String contentid, PSExecutionData data)
@@ -416,12 +390,10 @@ public class PSMacroUtils {
   /**
    * Get the tip revision from content status for the supplied item.
    *
-   * @param contentid the content id for the item to extract the data for,
-   *    not <code>null</code> or empty.
-   * @param data the execution data used to make the lookup, not
-   *    <code>null</code>.
-   * @return the tip revision for the supplied item, may be <code>null</code>
-   *    or empty.
+   * @param contentid the content id for the item to extract the data for, not <code>null</code> or
+   *     empty.
+   * @param data the execution data used to make the lookup, not <code>null</code>.
+   * @return the tip revision for the supplied item, may be <code>null</code> or empty.
    * @throws PSDataExtractionException for any errors extracting the data.
    */
   public static String extractTipRevision(String contentid, PSExecutionData data)
@@ -439,14 +411,12 @@ public class PSMacroUtils {
   /**
    * Get the data for the supplied column from the contents status table.
    *
-   * @param contentid the content id for the item to extract the data for,
-   *    assumed not <code>null</code> or empty.
-   * @param data the execution data used to make the lookup, assumed not
-   *    <code>null</code>.
-   * @param column the name of the column from which to extract the data,
-   *    assumed not <code>null</code>.
-   * @return the extracted data for the supplied item, may be <code>null</code>
-   *    or empty.
+   * @param contentid the content id for the item to extract the data for, assumed not <code>null
+   *     </code> or empty.
+   * @param data the execution data used to make the lookup, assumed not <code>null</code>.
+   * @param column the name of the column from which to extract the data, assumed not <code>null
+   *     </code>.
+   * @return the extracted data for the supplied item, may be <code>null</code> or empty.
    * @throws PSDataExtractionException for any errors extracting the data.
    */
   private static String extractContentItemStatus(
@@ -471,25 +441,18 @@ public class PSMacroUtils {
     }
   }
 
-  /**
-   * Enforce static usage.
-   */
+  /** Enforce static usage. */
   private PSMacroUtils() {}
 
-  /**
-   * The resource used to lookup the content details.
-   */
+  /** The resource used to lookup the content details. */
   private static final String DETAILS_RESOURCE = "sys_ceSupport/contentdetails";
 
-  /**
-   * The resource through which the content item history will be looked up.
-   */
+  /** The resource through which the content item history will be looked up. */
   private static final String HISTORY_RESOURCE = "sys_ceSupport/history";
 
   /**
-   * The resource through which the last public revision of content items
-   * will be looked up. The query resource requires a list of content ids
-   * separated by comma.
+   * The resource through which the last public revision of content items will be looked up. The
+   * query resource requires a list of content ids separated by comma.
    */
   private static final String GET_LAST_PUBLIC_REVISION = "sys_ceSupport/getLastPublicRevisions";
 }

@@ -25,13 +25,13 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.PSExtensionException;
 
 /**
- * This class just like {@link PSPreviewDocumentBuilder}, except it override
- * the "showInPreview" to "yes".
+ * This class just like {@link PSPreviewDocumentBuilder}, except it override the "showInPreview" to
+ * "yes".
  */
 public class PSPreviewDocumentBuilderEx extends PSPreviewDocumentBuilder {
   /**
-   * Call {@link PSPreviewDocumentBuilder#PSPreviewDocumentBuilder(
-   * PSContentEditor, PSEditorDocumentContext, PSDisplayMapper, int, boolean)}
+   * Call {@link PSPreviewDocumentBuilder#PSPreviewDocumentBuilder( PSContentEditor,
+   * PSEditorDocumentContext, PSDisplayMapper, int, boolean)}
    */
   public PSPreviewDocumentBuilderEx(
       PSContentEditor ce,

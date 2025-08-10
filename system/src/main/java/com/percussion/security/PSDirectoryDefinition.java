@@ -22,15 +22,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Container for one directory with its associated authentication.
- */
+/** Container for one directory with its associated authentication. */
 public class PSDirectoryDefinition {
   /**
    * Constructs a new directory for the supplied parameters.
    *
-   * @param authentication the authentication associated with the directory,
-   *    not <code>null</code>.
+   * @param authentication the authentication associated with the directory, not <code>null</code>.
    * @param directory the directory definition, not <code>null</code>.
    */
   public PSDirectoryDefinition(PSAuthentication authentication, PSDirectory directory) {
@@ -44,8 +41,7 @@ public class PSDirectoryDefinition {
   /**
    * Get the authentication used for this directory.
    *
-   * @return the authentication associated with this directory, never
-   *    <code>null</code>.
+   * @return the authentication associated with this directory, never <code>null</code>.
    */
   public PSAuthentication getAuthentication() {
     return m_authentication;
@@ -61,16 +57,13 @@ public class PSDirectoryDefinition {
   }
 
   /**
-   * Creates an array with attribute names. The array is created with no
-   * duplicates as a combination of the attribute names defined in this
-   * directory and the additional names supplied.
+   * Creates an array with attribute names. The array is created with no duplicates as a combination
+   * of the attribute names defined in this directory and the additional names supplied.
    *
-   * @param additionalReturns a set with attribute names which should be
-   *    returned in addition to the returns defined in this directory. May
-   *    be <code>null</code> or empty, the method may change the supplied
-   *    set.
-   * @return a set of attribute names to be returned with search results,
-   *    never <code>null</code>.
+   * @param additionalReturns a set with attribute names which should be returned in addition to the
+   *     returns defined in this directory. May be <code>null</code> or empty, the method may change
+   *     the supplied set.
+   * @return a set of attribute names to be returned with search results, never <code>null</code>.
    */
   @SuppressWarnings(value = {"unchecked"})
   public Set<String> getReturnAttributeNames(Set additionalReturns) {
@@ -86,14 +79,14 @@ public class PSDirectoryDefinition {
   }
 
   /**
-   * The authentication associated with this directory. Initialized in
-   * constructor, never <code>null</code> or changed after that.
+   * The authentication associated with this directory. Initialized in constructor, never <code>null
+   * </code> or changed after that.
    */
   private PSAuthentication m_authentication = null;
 
   /**
-   * The directory definition. Initialized in constructor, never
-   * <code>null</code> or changed after that.
+   * The directory definition. Initialized in constructor, never <code>null</code> or changed after
+   * that.
    */
   private PSDirectory m_directory = null;
 }

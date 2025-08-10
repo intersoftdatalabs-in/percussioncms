@@ -22,13 +22,12 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 
 /**
- * This is the InputStream that gets returned to the user. The extensions
- * consist of the capability to have the data pushed into a buffer if the
- * stream demux needs to.
+ * This is the InputStream that gets returned to the user. The extensions consist of the capability
+ * to have the data pushed into a buffer if the stream demux needs to.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.2
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.2
  */
 @Deprecated
 final class RespInputStream extends InputStream implements GlobalConstants {
@@ -41,8 +40,7 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   /** our response handler */
   private ResponseHandler resph;
 
-  /** signals that the user has closed the stream and will therefore
-   * not read any further data */
+  /** signals that the user has closed the stream and will therefore not read any further data */
   boolean closed = false;
 
   /** signals that the connection may not be closed prematurely */
@@ -96,8 +94,7 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   }
 
   /**
-   * Reads <var>len</var> bytes into <var>b</var>, starting at offset
-   * <var>off</var>.
+   * Reads <var>len</var> bytes into <var>b</var>, starting at offset <var>off</var>.
    *
    * @return the number of bytes actually read, or -1 if EOF.
    * @exception IOException if any exception occurred on the connection.
@@ -165,8 +162,7 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   /**
    * closes the stream.
    *
-   * @exception if any exception occurred on the connection before or
-   *            during close.
+   * @exception if any exception occurred on the connection before or during close.
    */
   public synchronized void close() throws IOException {
     if (!closed) {
@@ -188,9 +184,7 @@ final class RespInputStream extends InputStream implements GlobalConstants {
     }
   }
 
-  /**
-   * A safety net to clean up.
-   */
+  /** A safety net to clean up. */
   protected void finalize() throws Throwable {
     try {
       close();
@@ -202,13 +196,11 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   // local Methods
 
   /**
-   * Reads all remainings data into buffer. This is used to force a read
-   * of upstream responses.
+   * Reads all remainings data into buffer. This is used to force a read of upstream responses.
    *
-   * <P>This is probably the most tricky and buggy method around. It's the
-   * only one that really violates the strict top-down method invocation
-   * from the Response through the ResponseStream to the StreamDemultiplexor.
-   * This means we need to be awfully careful about what is synchronized
+   * <p>This is probably the most tricky and buggy method around. It's the only one that really
+   * violates the strict top-down method invocation from the Response through the ResponseStream to
+   * the StreamDemultiplexor. This means we need to be awfully careful about what is synchronized
    * and what parameters are passed to whom.
    *
    * @param timeout the timeout to use for reading from the demux
@@ -268,9 +260,9 @@ final class RespInputStream extends InputStream implements GlobalConstants {
   }
 
   /**
-   * Sometime the full response body must be read, i.e. the connection may
-   * not be closed prematurely (by us). Currently this is needed when the
-   * chunked encoding with trailers is used in a response.
+   * Sometime the full response body must be read, i.e. the connection may not be closed prematurely
+   * (by us). Currently this is needed when the chunked encoding with trailers is used in a
+   * response.
    */
   synchronized void dontTruncate() {
     dont_truncate = true;

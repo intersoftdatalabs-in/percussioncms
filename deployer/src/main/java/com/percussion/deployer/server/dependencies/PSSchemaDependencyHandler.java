@@ -49,20 +49,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-/**
- * Class to handle packaging and deploying a schema definition.
- */
+/** Class to handle packaging and deploying a schema definition. */
 public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the system table schema cannot be loaded.
    */
@@ -151,14 +146,14 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @SuppressWarnings("unchecked")
   public Iterator getChildTypes() {
@@ -233,9 +228,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
    *
    * @param file the schema dependency file, assumed not <code>null</code>.
    * @param archive the archive, assumed not <code>null</code>.
-   *
    * @return the schema that is in the dependency file, never <code>null</code>.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public PSJdbcTableSchema getSchema(PSDependencyFile file, PSArchiveHandler archive)
@@ -269,14 +262,10 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Add a listener to the schema to flush the table meta data for any changed
-   * tables.
+   * Add a listener to the schema to flush the table meta data for any changed tables.
    *
-   * @param tableSchema The schema to add the listener to, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>schema</code> is
-   * <code>null</code>.
+   * @param tableSchema The schema to add the listener to, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>schema</code> is <code>null</code>.
    */
   protected void addTableChangeHandler(PSJdbcTableSchema tableSchema) {
     if (tableSchema == null) throw new IllegalArgumentException("tableSchema may not be null");
@@ -308,19 +297,13 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
         });
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log =
       LogManager.getLogger("com.percussion.deployer.server.dependencies.PSSchemaDependencyHandler");
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Schema";
 
-  /**
-   * Column number in result set for table name
-   */
+  /** Column number in result set for table name */
   private static final int COLNO_TABLE_NAME = 3;
 }

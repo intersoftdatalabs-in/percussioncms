@@ -24,20 +24,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Encapsulates the results of an attempt to lock a server resource.
- */
+/** Encapsulates the results of an attempt to lock a server resource. */
 public class PSServerLockResult {
 
   /**
    * Construct a failed result.
    *
-   * @param lock The requested lock, may not be <code>null</code>.  The id
-   * of the lock must be <code>-1</code>.
-   * @param conflicts An list of one or more
-   * <code>PSServerLock</code> objects, each locking one or more resources
-   * requested by the supplied <code>lock</code> object.  May not be
-   * <code>null</code> or empty.
+   * @param lock The requested lock, may not be <code>null</code>. The id of the lock must be <code>
+   *     -1</code>.
+   * @param conflicts An list of one or more <code>PSServerLock</code> objects, each locking one or
+   *     more resources requested by the supplied <code>lock</code> object. May not be <code>null
+   *     </code> or empty.
    */
   PSServerLockResult(PSServerLock lock, List conflicts) {
     if (lock == null) throw new IllegalArgumentException("lock may not be null");
@@ -56,8 +53,8 @@ public class PSServerLockResult {
   /**
    * Construct a successful result.
    *
-   * @param lock The requested lock, may not be <code>null</code>.  The id
-   * of the lock must be greater than or equal to <code>0</code>.
+   * @param lock The requested lock, may not be <code>null</code>. The id of the lock must be
+   *     greater than or equal to <code>0</code>.
    */
   PSServerLockResult(PSServerLock lock) {
     if (lock == null) throw new IllegalArgumentException("lock may not be null");
@@ -69,13 +66,11 @@ public class PSServerLockResult {
   }
 
   /**
-   * Determine whether or not the lock was successfully acquired.  If
-   * acquired, then call {@link #getLock()} to get the id of the lock,
-   * otherwise call {@link #getLockedResources()} to get the list of
-   * locked resources.
+   * Determine whether or not the lock was successfully acquired. If acquired, then call {@link
+   * #getLock()} to get the id of the lock, otherwise call {@link #getLockedResources()} to get the
+   * list of locked resources.
    *
-   * @return <code>true</code> if the lock was acquired, <code>false</code>
-   * if not.
+   * @return <code>true</code> if the lock was acquired, <code>false</code> if not.
    */
   public boolean wasLockAcquired() {
     return m_lock.getLockId() != -1;
@@ -84,20 +79,19 @@ public class PSServerLockResult {
   /**
    * Get the requested lock.
    *
-   * @return The lock, never <code>null</code>. For a failed result, the id
-   * will be <code>-1</code>.
+   * @return The lock, never <code>null</code>. For a failed result, the id will be <code>-1</code>.
    */
   public PSServerLock getLock() {
     return m_lock;
   }
 
   /**
-   * Get the list of requested resource flags that were already locked.
-   * Use {@link #getResourceLocker(int)} to determine who has it locked.
+   * Get the list of requested resource flags that were already locked. Use {@link
+   * #getResourceLocker(int)} to determine who has it locked.
    *
-   * @return An array of locked resource flags, each entry is one of the
-   * <code>RESOURCE_xxx</code> flags.  Never <code>null</code>, will be
-   * empty if {@link #wasLockAcquired()} returns <code>true</code>.
+   * @return An array of locked resource flags, each entry is one of the <code>RESOURCE_xxx</code>
+   *     flags. Never <code>null</code>, will be empty if {@link #wasLockAcquired()} returns <code>
+   *     true</code>.
    */
   public int[] getLockedResources() {
     List locks = new ArrayList();
@@ -116,14 +110,12 @@ public class PSServerLockResult {
   }
 
   /**
-   * Gets the description of the entity that has locked the specified
-   * resource.
+   * Gets the description of the entity that has locked the specified resource.
    *
-   * @param resource The flag indicating the resource that is locked, one of
-   * the <code>PSServerLockManager.RESOURCE_XXX</code> constants.
-   *
-   * @return The locker, or <code>null</code> if this result does not
-   * indicate the specified resource is locked.  Never empty.
+   * @param resource The flag indicating the resource that is locked, one of the <code>
+   *     PSServerLockManager.RESOURCE_XXX</code> constants.
+   * @return The locker, or <code>null</code> if this result does not indicate the specified
+   *     resource is locked. Never empty.
    */
   public String getResourceLocker(int resource) {
     Integer key = new Integer(resource);
@@ -137,11 +129,10 @@ public class PSServerLockResult {
   /**
    * Gets the date and time that the specified resource was locked.
    *
-   * @param resource The flag indicating the resource that is locked, one of
-   * the <code>PSServerLockManager.RESOURCE_XXX</code> constants.
-   *
-   * @return The date, or <code>null</code> if this result does not
-   * indicate the specified resource is locked.  Never empty.
+   * @param resource The flag indicating the resource that is locked, one of the <code>
+   *     PSServerLockManager.RESOURCE_XXX</code> constants.
+   * @return The date, or <code>null</code> if this result does not indicate the specified resource
+   *     is locked. Never empty.
    */
   public Date getLockTime(int resource) {
     Integer key = new Integer(resource);
@@ -155,23 +146,19 @@ public class PSServerLockResult {
   /**
    * Get the locks that conflict with the requested lock.
    *
-   * @return An iterator over zero or more <code>PSServerLock</code>
-   * objects.  Will only be empty if {@link #wasLockAcquired()} returns
-   * <code>true</code>.
+   * @return An iterator over zero or more <code>PSServerLock</code> objects. Will only be empty if
+   *     {@link #wasLockAcquired()} returns <code>true</code>.
    */
   public Iterator getConflicts() {
     return m_conflicts.iterator();
   }
 
   /**
-   * Creates a lock exception with a message indicating the conflicting locks.
-   * May only be called if {@link #wasLockAcquired()} returns
-   * <code>false</code>.
+   * Creates a lock exception with a message indicating the conflicting locks. May only be called if
+   * {@link #wasLockAcquired()} returns <code>false</code>.
    *
    * @return The exception, never <code>null</code>.
-   *
-   * @throws IllegalStateException if {@link #wasLockAcquired()} returns
-   * <code>true</code>.
+   * @throws IllegalStateException if {@link #wasLockAcquired()} returns <code>true</code>.
    */
   public PSServerLockException formatLockException() {
     if (wasLockAcquired()) throw new IllegalArgumentException("Lock was succesfully acquired");
@@ -191,11 +178,9 @@ public class PSServerLockResult {
   /**
    * Gets the conflicting lock that has the specified resource locked.
    *
-   * @param resource The flag indicating the resource that is locked, one of
-   * the <code>PSServerLockManager.RESOURCE_XXX</code> constants.
-   *
-   * @return The lock, may be <code>null</code> if the specified resource is
-   * not locked.
+   * @param resource The flag indicating the resource that is locked, one of the <code>
+   *     PSServerLockManager.RESOURCE_XXX</code> constants.
+   * @return The lock, may be <code>null</code> if the specified resource is not locked.
    */
   private PSServerLock getConflictLock(int resource) {
     PSServerLock lock = null;
@@ -207,12 +192,10 @@ public class PSServerLockResult {
   /**
    * Generates a map of conflicting locks by resource.
    *
-   * @param conflictList The list of conflicting locks, assumed not
-   * <code>null</code>.
-   *
-   * @return A map where the key is the resource as an <code>Integer</code>
-   * and the value is the <code>PSServerLock</code> object that has that
-   * resource locked, never <code>null</code>, may be empty.
+   * @param conflictList The list of conflicting locks, assumed not <code>null</code>.
+   * @return A map where the key is the resource as an <code>Integer</code> and the value is the
+   *     <code>PSServerLock</code> object that has that resource locked, never <code>null</code>,
+   *     may be empty.
    */
   private Map getLockerMap(List conflictList) {
     Map map = new HashMap();
@@ -226,25 +209,23 @@ public class PSServerLockResult {
   }
 
   /**
-   * The object representing the requested lock.  Initialized during
-   * construction, never <code>null</code> or modified after that.
+   * The object representing the requested lock. Initialized during construction, never <code>null
+   * </code> or modified after that.
    */
   private PSServerLock m_lock;
 
   /**
-   * List of conflicting <code>PSServerLock</code> objects.  Initialized during
-   * construction, never <code>null</code> after that, will be empty only if
-   * this result indicates a successful lock was acquired
-   * ({@link #wasLockAcquired()} returns <code>true</code>).
+   * List of conflicting <code>PSServerLock</code> objects. Initialized during construction, never
+   * <code>null</code> after that, will be empty only if this result indicates a successful lock was
+   * acquired ({@link #wasLockAcquired()} returns <code>true</code>).
    */
   private List m_conflicts = null;
 
   /**
-   * Map of locked resources, where the key is the resource as an
-   * <code>Integer</code> and the value is the <code>PSServerLock</code> object
-   * that has that resource locked.  <code>null</code> if the lock was
-   * successfully acquired, otherwise initialized during construction, and
-   * not <code>null</code> or empty.  Never modified after construction.
+   * Map of locked resources, where the key is the resource as an <code>Integer</code> and the value
+   * is the <code>PSServerLock</code> object that has that resource locked. <code>null</code> if the
+   * lock was successfully acquired, otherwise initialized during construction, and not <code>null
+   * </code> or empty. Never modified after construction.
    */
   private Map m_lockerMap = null;
 }

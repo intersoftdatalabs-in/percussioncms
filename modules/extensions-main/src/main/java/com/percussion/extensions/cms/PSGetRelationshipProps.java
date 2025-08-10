@@ -35,14 +35,16 @@ import org.w3c.dom.Element;
 
 /**
  * Get the properties of a specified relationship in the following format:
+ *
  * <pre>
  * &lt;!ELEMENT prop (#PCDATA)>
  * &lt;!ATTLIST  prop name CDATA #REQUIRED>
  * &lt;!ELEMENT relProps (prop* )>
  * &lt;!ATTLIST  relProps rid CDATA #REQUIRED>
  * </pre>
- * Expected parameter in the request context is "sys_relationshipid", which
- * is the id of the specified relationship.
+ *
+ * Expected parameter in the request context is "sys_relationshipid", which is the id of the
+ * specified relationship.
  */
 public class PSGetRelationshipProps extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -51,9 +53,7 @@ public class PSGetRelationshipProps extends PSDefaultExtension
     return false;
   }
 
-  /**
-   * See the class description for the expected input and return document.
-   */
+  /** See the class description for the expected input and return document. */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document doc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
     String sRid = request.getParameter(IPSHtmlParameters.SYS_RELATIONSHIPID);
@@ -84,13 +84,11 @@ public class PSGetRelationshipProps extends PSDefaultExtension
   }
 
   /**
-   * Create XML representation of the supplied relationship properties. The
-   * XML format is described in the class description.
+   * Create XML representation of the supplied relationship properties. The XML format is described
+   * in the class description.
    *
-   * @param doc the document used to create element, assumed not
-   *   <code>null</code>.
+   * @param doc the document used to create element, assumed not <code>null</code>.
    * @param rel the relationship object, it may be <code>null</code>.
-   *
    * @return the XML document according to the given relationship object.
    */
   private Document getRelationshipProps(Document doc, PSRelationship rel) {

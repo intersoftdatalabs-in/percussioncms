@@ -27,16 +27,16 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Filters rows representing folders based on the user's permissions for the
- * folder. The row is filtered out if the current user does not have read access
- * to the folder, or if no folder acl is located for the current row.
+ * Filters rows representing folders based on the user's permissions for the folder. The row is
+ * filtered out if the current user does not have read access to the folder, or if no folder acl is
+ * located for the current row.
  */
 public class PSFolderPermissionsDataFilter implements IPSResultSetDataFilter {
   /**
    * Create the filter.
    *
-   * @param folderIdColName The name of the result column specifying the
-   * folder id, may not be <code>null</code> or empty.
+   * @param folderIdColName The name of the result column specifying the folder id, may not be
+   *     <code>null</code> or empty.
    */
   public PSFolderPermissionsDataFilter(String folderIdColName) {
     if (StringUtils.isBlank(folderIdColName))
@@ -95,8 +95,8 @@ public class PSFolderPermissionsDataFilter implements IPSResultSetDataFilter {
   }
 
   /**
-   * Name of the column specifying the folder id, never <code>null</code> or
-   * empty or modified after construction.
+   * Name of the column specifying the folder id, never <code>null</code> or empty or modified after
+   * construction.
    */
   private final String m_folderIdColName;
 }

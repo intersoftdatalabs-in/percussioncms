@@ -34,12 +34,11 @@
         <module>modules/SSLTools</module>
         <module>modules/tlsutils</module>
         <module>modules/perc-rxapps</module>
-        <!-- <module>deliverytiersuite/delivery-tier-suite</module> -->
+        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>system</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
         <module>modules/perc-tinymce</module>
-        <module>modules/CMLight-Main-cactus-tests</module>
         <module>modules/perc-toolkit</module>
         <module>modules/perc-taxonomy</module>
         <module>deployer</module>
@@ -84,9 +83,6 @@
         <build.helper.maven.plugin.version>3.6.1</build.helper.maven.plugin.version>
         <build.profile.id>dev</build.profile.id>
         <buildNumber>${maven.build.timestamp}</buildNumber>
-        <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
-        <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
-        <cactus.version>13-1.7.1</cactus.version>
         <commons-cli.version>1.4</commons-cli.version>
         <commons-email.version>1.5</commons-email.version>
         <commons.beanutils.version>1.11.0</commons.beanutils.version>
@@ -219,7 +215,7 @@
         <swagger.ui.version>3.51.2</swagger.ui.version>
         <swagger.version>2.1.10</swagger.version>
         <tika.version>1.28.5</tika.version>
-        <tinymce.version>5.10.3</tinymce.version>
+        <tinymce.version>5.10.9</tinymce.version>
         <trinidad.version>1.0.2</trinidad.version>
         <twelvemonkeys.version>3.12.0</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
@@ -234,6 +230,40 @@
     </properties>
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.xbean</groupId>
+                <artifactId>xbean-spring</artifactId>
+                <version>4.8</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.javafaker</groupId>
+                <artifactId>javafaker</artifactId>
+                <version>1.0.2</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.yaml</groupId>
+                        <artifactId>snakeyaml</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.webjars.npm</groupId>
+                <artifactId>tinymce</artifactId>
+                <version>${tinymce.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-servlet</artifactId>
@@ -668,25 +698,6 @@
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjweaver</artifactId>
                 <version>1.5.4</version>
-            </dependency>
-            <dependency>
-                <groupId>cactus</groupId>
-                <artifactId>cactus</artifactId>
-                <version>${cactus.version}</version>
-                <scope>test</scope>
-                <optional>true</optional>
-                <exclusions>
-                    <exclusion>
-                        <groupId>nekohtml</groupId>
-                        <artifactId>nekohtml</artifactId>
-                        <!-- exclude 0.9.1 for 0.9.5 -->
-                    </exclusion>
-                    <exclusion>
-                        <groupId>rhino</groupId>
-                        <artifactId>js</artifactId>
-                        <!-- 1.5R4.1 -->
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
@@ -2288,8 +2299,7 @@
                                 <style>GOOGLE</style>
                                 <!-- or AOSP (optional) -->
                                 <reflowLongStrings>true</reflowLongStrings>
-                                <!-- optional -->
-                                <formatJavadoc>false</formatJavadoc>
+                                <formatJavadoc>true</formatJavadoc>
                                 <!-- optional -->
                                 <!-- optional: custom group artifact (you probably don't need this) -->
                                 <groupArtifact>com.google.googlejavaformat:google-java-format</groupArtifact>
@@ -2330,6 +2340,15 @@
                                 <sortExecutions>false</sortExecutions>
                             </sortPom>
                         </pom>
+                        <!-- For property files or other file types -->
+                        <misc>
+                            <indent>
+                                <spaces>true</spaces>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                            <endWithNewline/>
+                            <trimTrailingWhitespace/>
+                        </misc>
                     </configuration>
                     <dependencies>
                         <dependency>

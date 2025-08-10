@@ -20,22 +20,13 @@ package com.percussion.share.service.impl;
 import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.share.service.impl.jaxb.Data;
-import com.percussion.share.service.impl.jaxb.Property;
-import com.percussion.share.service.impl.jaxb.Request;
 import com.percussion.share.service.impl.jaxb.Response;
-import com.percussion.share.service.impl.jaxb.Settings;
-import com.percussion.share.service.impl.jaxb.Property.Pvalues;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,59 +37,58 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSXmlDataHandler {
 
-    private static final Logger log = LogManager.getLogger(PSXmlDataHandler.class);
+  private static final Logger log = LogManager.getLogger(PSXmlDataHandler.class);
 
-    /**
-     * The path to the XML data file. Initialized in constructor, never null after that.
-     */
-    private String file;
+  /** The path to the XML data file. Initialized in constructor, never null after that. */
+  private String file;
 
-    /**
-     * Gets the response data associated with the request which matches the specified properties.
-     *
-     * @param properties request properties, must not be null.
-     * @return Response containing result data or null if a matching request could not be found or an error occurs.
-     */
-    public Response getData(Map<String, Object> properties) {
-        notNull(properties, "properties must not be null");
-        try (InputStream is = new FileInputStream(new File(file))) {
-            var jc = JAXBContext.newInstance("com.percussion.share.service.impl.jaxb");
-            var unmarshaller = jc.createUnmarshaller();
-            var data = (Data) unmarshaller.unmarshal(is);
-            for (var request : data.getRequest()) {
-                var reqProps = new HashMap<String, Object>();
-                var settings = request.getSettings();
-                for (var prop : settings.getProperty()) {
-                    Object val;
-                    var pvalues = prop.getPvalues();
-                    if (pvalues != null) {
-                        val = pvalues.getPvalue();
-                    } else {
-                        val = prop.getValue();
-                    }
-                    reqProps.put(prop.getName(), val);
-                }
-                if (reqProps.equals(properties)) {
-                    return request.getResponse();
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error occurred getting response data: ", e);
+  /**
+   * Gets the response data associated with the request which matches the specified properties.
+   *
+   * @param properties request properties, must not be null.
+   * @return Response containing result data or null if a matching request could not be found or an
+   *     error occurs.
+   */
+  public Response getData(Map<String, Object> properties) {
+    notNull(properties, "properties must not be null");
+    try (InputStream is = new FileInputStream(new File(file))) {
+      var jc = JAXBContext.newInstance("com.percussion.share.service.impl.jaxb");
+      var unmarshaller = jc.createUnmarshaller();
+      var data = (Data) unmarshaller.unmarshal(is);
+      for (var request : data.getRequest()) {
+        var reqProps = new HashMap<String, Object>();
+        var settings = request.getSettings();
+        for (var prop : settings.getProperty()) {
+          Object val;
+          var pvalues = prop.getPvalues();
+          if (pvalues != null) {
+            val = pvalues.getPvalue();
+          } else {
+            val = prop.getValue();
+          }
+          reqProps.put(prop.getName(), val);
         }
-        return null;
+        if (reqProps.equals(properties)) {
+          return request.getResponse();
+        }
+      }
+    } catch (Exception e) {
+      log.error("Error occurred getting response data: ", e);
     }
+    return null;
+  }
 
-    /**
-     * @return the file
-     */
-    public String getFile() {
-        return file;
-    }
+  /**
+   * @return the file
+   */
+  public String getFile() {
+    return file;
+  }
 
-    /**
-     * @param file the file to set
-     */
-    public void setFile(String file) {
-        this.file = file;
-    }
+  /**
+   * @param file the file to set
+   */
+  public void setFile(String file) {
+    this.file = file;
+  }
 }

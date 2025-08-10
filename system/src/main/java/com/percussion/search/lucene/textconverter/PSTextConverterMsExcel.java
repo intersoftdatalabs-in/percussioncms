@@ -30,10 +30,9 @@ import org.apache.poi.xssf.extractor.XSSFExcelExtractor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * Extracts the text from input stream corresponding to Microsoft Excel file
- * using POI api. Gets the plain text from the cells that represent the String
- * from all the sheets. Appends the cell text with a blank space.
- *
+ * Extracts the text from input stream corresponding to Microsoft Excel file using POI api. Gets the
+ * plain text from the cells that represent the String from all the sheets. Appends the cell text
+ * with a blank space.
  */
 public class PSTextConverterMsExcel implements IPSLuceneTextConverter {
 
@@ -80,8 +79,6 @@ public class PSTextConverterMsExcel implements IPSLuceneTextConverter {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

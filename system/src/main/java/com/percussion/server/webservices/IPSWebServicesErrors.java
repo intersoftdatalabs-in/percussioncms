@@ -17,16 +17,15 @@
 package com.percussion.server.webservices;
 
 /**
- * The IPSWebServicesErrors interface is provided as a convenient mechanism
- * for accessing the various web service related error codes. Web Service
- * errors are in the range 14001 - 15000.
+ * The IPSWebServicesErrors interface is provided as a convenient mechanism for accessing the
+ * various web service related error codes. Web Service errors are in the range 14001 - 15000.
  */
 public interface IPSWebServicesErrors {
   /**
    * Content item not found, contentId = xxx, revision = xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the content id</TD></TR>
@@ -38,8 +37,8 @@ public interface IPSWebServicesErrors {
   /**
    * Content item could not be checked out, contentId = xxx, revision = xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the content id</TD></TR>
@@ -51,8 +50,8 @@ public interface IPSWebServicesErrors {
   /**
    * Content type does not exist, contentTypeId = xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the content type id</TD></TR>
@@ -63,17 +62,15 @@ public interface IPSWebServicesErrors {
   /**
    * Content could not be inserted.
    *
-   * <p>
-   * No arguments are passed for this message.
+   * <p>No arguments are passed for this message.
    */
   public static final int WEB_SERVICE_INSERT_FAILURE = 14004;
 
   /**
-   * Content item is checked out by someone else, contentId = xxx,
-   * checkedOutBy= xxx.
+   * Content item is checked out by someone else, contentId = xxx, checkedOutBy= xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the content id</TD></TR>
@@ -85,8 +82,8 @@ public interface IPSWebServicesErrors {
   /**
    * Transition does not exist, transitionId = xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the tranisition id</TD></TR>
@@ -97,8 +94,8 @@ public interface IPSWebServicesErrors {
   /**
    * Transition comment required, transitionId = xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the tranisition id</TD></TR>
@@ -109,8 +106,8 @@ public interface IPSWebServicesErrors {
   /**
    * Content item could not be validated, contentId = xxx, fieldName=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the content id</TD></TR>
@@ -122,8 +119,8 @@ public interface IPSWebServicesErrors {
   /**
    * Internal search not found, searchName=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the internal search name</TD></TR>
@@ -134,8 +131,8 @@ public interface IPSWebServicesErrors {
   /**
    * Invalid login credentials, userName=xxx, password=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the username</TD></TR>
@@ -147,19 +144,17 @@ public interface IPSWebServicesErrors {
   /**
    * Invalid client access, service must be called by the SOAP dispatcher.
    *
-   * <p>
-   * The arguments passed in for this message are:
-   * <p>
-   * No arguments are passed for this message.
+   * <p>The arguments passed in for this message are:
+   *
+   * <p>No arguments are passed for this message.
    */
   public static final int WEB_SERVICE_INVALID_CLIENT_ACESS = 14011;
 
   /**
-   * Invalid search params, the content type id must be the same for all
-   * fields, contentTypeId=xxx.
+   * Invalid search params, the content type id must be the same for all fields, contentTypeId=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid content type id</TD></TR>
@@ -168,11 +163,10 @@ public interface IPSWebServicesErrors {
   public static final int WEB_SERVICE_INVALID_SEARCH_PARAMS = 14012;
 
   /**
-   * Invalid search params, the content type id was not found,
-   * contentTypeId=xxx.
+   * Invalid search params, the content type id was not found, contentTypeId=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the invalid content type id</TD></TR>
@@ -183,8 +177,8 @@ public interface IPSWebServicesErrors {
   /**
    * Internal request failed, path=xxx.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the path</TD></TR>
@@ -195,8 +189,8 @@ public interface IPSWebServicesErrors {
   /**
    * Action 'xxx' for port 'xxx' not found. Exception: xxx
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>action name</TD></TR>
@@ -207,11 +201,10 @@ public interface IPSWebServicesErrors {
   public static final int WEB_SERVICE_ACTION_NOT_FOUND = 14015;
 
   /**
-   * openChild action: a child by the specified name was not found in the
-   * requested content type
+   * openChild action: a child by the specified name was not found in the requested content type
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>child name</TD></TR>
@@ -221,11 +214,11 @@ public interface IPSWebServicesErrors {
   public static final int WEB_SERVICE_ITEM_CHILD_NOT_FOUND = 14016;
 
   /**
-   * various actions: a certain element was expected as the first child of
-   * the root, but wasn't found.
+   * various actions: a certain element was expected as the first child of the root, but wasn't
+   * found.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Action name</TD></TR>
@@ -239,8 +232,8 @@ public interface IPSWebServicesErrors {
   /**
    * A required html parameter was not supplied.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The parameter name</TD></TR>
@@ -249,11 +242,10 @@ public interface IPSWebServicesErrors {
   public static final int WEB_SERVICE_MISSING_PARAMETER = 14018;
 
   /**
-   * While attempting to find and invoke the handler for an action, an error
-   * occurred.
+   * While attempting to find and invoke the handler for an action, an error occurred.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The action name</TD></TR>
@@ -267,8 +259,8 @@ public interface IPSWebServicesErrors {
   /**
    * Required content id is missing or invalid.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>action name</TD></TR>
@@ -279,8 +271,8 @@ public interface IPSWebServicesErrors {
   /**
    * Mixed ChildId elements are invalid.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>ChildId tag name</TD></TR>
@@ -292,8 +284,8 @@ public interface IPSWebServicesErrors {
   /**
    * The folder path submitted with a search does not exist.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The supplied folder path.</TD></TR>
@@ -304,8 +296,8 @@ public interface IPSWebServicesErrors {
   /**
    * Promote revision failed because the item could not be checked out.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
@@ -314,11 +306,10 @@ public interface IPSWebServicesErrors {
   public static final int WEB_SERVICE_PROMOTE_FAILED_CHECKOUT = 14023;
 
   /**
-   * Promote revision failed to complete because the item could not be checked
-   * in.
+   * Promote revision failed to complete because the item could not be checked in.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
@@ -329,8 +320,8 @@ public interface IPSWebServicesErrors {
   /**
    * The specified request does not exist, path={0}.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the path</TD></TR>
@@ -341,8 +332,8 @@ public interface IPSWebServicesErrors {
   /**
    * The search resource '{0}' does not exist.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the path</TD></TR>

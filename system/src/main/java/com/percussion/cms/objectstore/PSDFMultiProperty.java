@@ -20,8 +20,8 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * See base class for description. Represents a property of a given
- * {@link com.percussion.cms.objectstore.PSDisplayFormat}
+ * See base class for description. Represents a property of a given {@link
+ * com.percussion.cms.objectstore.PSDisplayFormat}
  */
 public class PSDFMultiProperty extends PSMultiValuedProperty {
   /**
@@ -32,16 +32,12 @@ public class PSDFMultiProperty extends PSMultiValuedProperty {
     super(src);
   }
 
-  /**
-   * Convienve ctor to specify property name.
-   */
+  /** Convienve ctor to specify property name. */
   public PSDFMultiProperty(String strName) {
     super(PSDFProperty.class, strName);
   }
 
-  /**
-   * no args constructor
-   */
+  /** no args constructor */
   public PSDFMultiProperty() {
     super();
   }

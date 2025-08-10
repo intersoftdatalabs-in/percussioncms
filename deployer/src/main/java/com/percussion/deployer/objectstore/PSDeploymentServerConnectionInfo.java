@@ -22,24 +22,19 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates the data necessary to construct a
- * <code>PSDeploymentServerConnection</code>.
- */
+/** Encapsulates the data necessary to construct a <code>PSDeploymentServerConnection</code>. */
 public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
   /**
    * Constructs the object using the specified parameters.
    *
-   * @param server The name of the server to connect to, may not be
-   *           <code>null</code> or empty.
+   * @param server The name of the server to connect to, may not be <code>null</code> or empty.
    * @param port The port on the server. Must be greater than 0.
-   * @param userid The user id to connect using, may not be <code>null</code>
-   *           or empty.
-   * @param password The password, may be <code>null</code> or empty. If
-   *           <code>null</code>, and empty <code>String</code> is stored.
-   * @param isPwdEncrypted If <code>true</code>, the password will be
-   *           treated as encrypted. Otherwise, it is assumed to be clear text
-   *           and will be encryted for storage or serialization to the server.
+   * @param userid The user id to connect using, may not be <code>null</code> or empty.
+   * @param password The password, may be <code>null</code> or empty. If <code>null</code>, and
+   *     empty <code>String</code> is stored.
+   * @param isPwdEncrypted If <code>true</code>, the password will be treated as encrypted.
+   *     Otherwise, it is assumed to be clear text and will be encryted for storage or serialization
+   *     to the server.
    */
   public PSDeploymentServerConnectionInfo(
       String server, int port, String userid, String password, boolean encrypted) {
@@ -62,11 +57,9 @@ public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
   /**
    * Constructs the object from its XML representation.
    *
-   * @param source the element that represents the object, not
-   *           <code>null</code>.
-   * @throws PSUnknownNodeTypeException propagated from <code>fromXml</code>
-   *            if the XML element node does not represent a type supported by
-   *            the class.
+   * @param source the element that represents the object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException propagated from <code>fromXml</code> if the XML element node
+   *     does not represent a type supported by the class.
    */
   public PSDeploymentServerConnectionInfo(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -174,76 +167,53 @@ public class PSDeploymentServerConnectionInfo implements IPSDeployComponent {
   /**
    * Returns a string representation of the object.
    *
-   * @return concatenation of the userid, server, and port fields, never
-   *         <code>null</code> or empty.
+   * @return concatenation of the userid, server, and port fields, never <code>null</code> or empty.
    */
   public String toString() {
     return m_userid + "@" + m_server + ":" + m_port;
   }
 
-  /**
-   * Root node name of the object's XML representation.
-   */
+  /** Root node name of the object's XML representation. */
   public static final String XML_NODE_NAME = "PSXServerConnectionInfo";
 
   /**
-   * The name of the server to connect to, set during ctor, never
-   * <code>null</code>, empty or modified after that.
+   * The name of the server to connect to, set during ctor, never <code>null</code>, empty or
+   * modified after that.
    */
   private String m_server;
 
-  /**
-   * The port on the server to connect to, set during ctor, never modified
-   * after that.
-   */
+  /** The port on the server to connect to, set during ctor, never modified after that. */
   private int m_port;
 
-  /**
-   * The user's id. Set during ctor, never <code>null</code> or empty or
-   * modified after that.
-   */
+  /** The user's id. Set during ctor, never <code>null</code> or empty or modified after that. */
   private String m_userid;
 
   /**
-   * The user's password. Set during ctor, may be empty, never
-   * <code>null</code> or modified after that.
+   * The user's password. Set during ctor, may be empty, never <code>null</code> or modified after
+   * that.
    */
   private String m_password;
 
   /**
-   * If <code>true</code>, the password will be treated as encrypted.
-   * Otherwise, it is assumed to be clear text and will be encryted for storage
-   * or serialization to the server.
+   * If <code>true</code>, the password will be treated as encrypted. Otherwise, it is assumed to be
+   * clear text and will be encryted for storage or serialization to the server.
    */
   private boolean m_isPwdEncrypted;
 
   /**
-   * Name of the attribute containing the isPwdEncrypted field in the object's
-   * XML representation.
+   * Name of the attribute containing the isPwdEncrypted field in the object's XML representation.
    */
   private static final String XML_ATTR_IS_PWD_ENCRYPTED = "isPwdEncrypted";
 
-  /**
-   * Name of the attribute containing the password field in the object's XML
-   * representation.
-   */
+  /** Name of the attribute containing the password field in the object's XML representation. */
   private static final String XML_ATTR_PASSWORD = "password";
 
-  /**
-   * Name of the attribute containing the userid field in the object's XML
-   * representation.
-   */
+  /** Name of the attribute containing the userid field in the object's XML representation. */
   private static final String XML_ATTR_USERID = "userid";
 
-  /**
-   * Name of the attribute containing the port field in the object's XML
-   * representation.
-   */
+  /** Name of the attribute containing the port field in the object's XML representation. */
   private static final String XML_ATTR_PORT = "port";
 
-  /**
-   * Name of the attribute containing the server field in the object's XML
-   * representation.
-   */
+  /** Name of the attribute containing the server field in the object's XML representation. */
   private static final String XML_ATTR_SERVER = "server";
 }

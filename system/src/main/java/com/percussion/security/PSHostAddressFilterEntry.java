@@ -21,36 +21,30 @@ import com.percussion.error.PSErrorManager;
 import java.util.StringTokenizer;
 
 /**
- * The PSHostAddressFilterEntry class implements filtering for
- * the HostAddress security provider.
- * <p>
- * Host address are either an IP address or a host (DNS) name.
- * To filter a host address, use an asterisk (*) in the appropriate
- * position. For example, to specify any machine in the class C
- * address range of 192.1.1.1 through 192.1.1.254, 192.1.1.* can be used.
- * To specify a user in the percussion.com domain, *.percussion.com
- * can be used. Only one asterisk is permitted in the string, as the
- * first or last character.
+ * The PSHostAddressFilterEntry class implements filtering for the HostAddress security provider.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <p>Host address are either an IP address or a host (DNS) name. To filter a host address, use an
+ * asterisk (*) in the appropriate position. For example, to specify any machine in the class C
+ * address range of 192.1.1.1 through 192.1.1.254, 192.1.1.* can be used. To specify a user in the
+ * percussion.com domain, *.percussion.com can be used. Only one asterisk is permitted in the
+ * string, as the first or last character.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHostAddressFilterEntry extends PSFilterEntry {
 
   /**
-   * Construct a host address filter. This can be used to compare a
-   * host address (IP address) or host name (DNS name).
-   * <p>
-   * To filter a host address, use an asterisk (*) in the appropriate
-   * position. For example, to specify any machine in the class C
-   * address range of 192.1.1.1 through 192.1.1.254, 192.1.1.* can be used.
-   * To specify a user in the percussion.com domain, *.percussion.com
-   * can be used.
+   * Construct a host address filter. This can be used to compare a host address (IP address) or
+   * host name (DNS name).
    *
-   * @param   filter      the filter string
+   * <p>To filter a host address, use an asterisk (*) in the appropriate position. For example, to
+   * specify any machine in the class C address range of 192.1.1.1 through 192.1.1.254, 192.1.1.*
+   * can be used. To specify a user in the percussion.com domain, *.percussion.com can be used.
    *
-   * @param   accessLevel         the access level to assign this entry
+   * @param filter the filter string
+   * @param accessLevel the access level to assign this entry
    */
   public PSHostAddressFilterEntry(java.lang.String filter, int accessLevel)
       throws IllegalArgumentException {
@@ -76,10 +70,8 @@ public class PSHostAddressFilterEntry extends PSFilterEntry {
   /**
    * Does the specified entry pass the filter condition?
    *
-   * @param      entry         the entry to check
-   *
-   * @return                  <code>true</code> if it does;
-   *                           <code>false</code> otherwise
+   * @param entry the entry to check
+   * @return <code>true</code> if it does; <code>false</code> otherwise
    */
   public boolean passesFilter(PSEntry entry) {
     /* PSFilterEntry.isMatch already validated we're using the same
@@ -95,10 +87,8 @@ public class PSHostAddressFilterEntry extends PSFilterEntry {
   /**
    * Does the host address match our filter string.
    *
-   * @param      addr         the host address to check
-   *
-   * @return                  <code>true</code> if it does;
-   *                           <code>false</code> otherwise
+   * @param addr the host address to check
+   * @return <code>true</code> if it does; <code>false</code> otherwise
    */
   private boolean isAddressMatch(java.lang.String addr) {
     // compare up to the wild card
@@ -108,10 +98,8 @@ public class PSHostAddressFilterEntry extends PSFilterEntry {
   /**
    * Does the host name match our filter string.
    *
-   * @param      name         the host name to check
-   *
-   * @return                  <code>true</code> if it does;
-   *                           <code>false</code> otherwise
+   * @param name the host name to check
+   * @return <code>true</code> if it does; <code>false</code> otherwise
    */
   private boolean isDomainMatch(java.lang.String name) {
     // compare up to the wild card
@@ -121,10 +109,8 @@ public class PSHostAddressFilterEntry extends PSFilterEntry {
   /**
    * Is the specified entry a host address?
    *
-   * @param      host         the host name or address
-   *
-   * @return                  <code>true</code> if it is an address;
-   *                           <code>false</code> if it is a name
+   * @param host the host name or address
+   * @return <code>true</code> if it is an address; <code>false</code> if it is a name
    */
   public static boolean isAddress(java.lang.String host) {
     StringTokenizer tok = new StringTokenizer(host, ".");

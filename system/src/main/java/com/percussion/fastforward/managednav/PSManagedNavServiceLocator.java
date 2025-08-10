@@ -26,9 +26,7 @@ public class PSManagedNavServiceLocator extends PSBaseServiceLocator {
    * Find and return the managed navigation service.
    *
    * @return the navigation service, never <code>null</code>.
-   *
-   * @throws PSMissingBeanConfigurationException if the requested bean is
-   *    missing.
+   * @throws PSMissingBeanConfigurationException if the requested bean is missing.
    */
   public static IPSManagedNavService getContentWebservice()
       throws PSMissingBeanConfigurationException {

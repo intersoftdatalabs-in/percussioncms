@@ -46,17 +46,13 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * PSDBXMLDataUpdate is a task that retrieves XML data
- * from a column in a table, creates an XML document from data, uses the
- * ISMP XSLclass to apply an XSL file to this XML document at install time,
- * then updates the data in the table with the modified XML document.
- * The XSL file is bundled with the installer and it can contain string
- * resolvers. This class uses the ISMP XSL processor that is used for command
- * builds.
+ * PSDBXMLDataUpdate is a task that retrieves XML data from a column in a table, creates an XML
+ * document from data, uses the ISMP XSLclass to apply an XSL file to this XML document at install
+ * time, then updates the data in the table with the modified XML document. The XSL file is bundled
+ * with the installer and it can contain string resolvers. This class uses the ISMP XSL processor
+ * that is used for command builds. <br>
+ * Example Usage: <br>
  *
- *  <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -78,7 +74,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   // see base class
@@ -204,22 +199,17 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
    * Private Functions
    ***************************************************************************/
 
-  /**
-   * directory to use for creating temporary XML files.
-   */
+  /** directory to use for creating temporary XML files. */
   private static final String TEMP_DIR = "rxconfig/Installer/tempXml";
 
   /**
    * Creates a backup of the existing table.
    *
    * @param conn the database connection to use, assumed not <code>null</code>
-   * @param dbmsDef the database where the table is located, assumed not
-   * <code>null</code>
-   * @param dataTypeMap used for creating the schema of the table, assumed
-   * not <code>null</code>
-   *
-   * @return <code>true</code> if the table exists and then backup was
-   * successfully created, <code>false</code> otherwise
+   * @param dbmsDef the database where the table is located, assumed not <code>null</code>
+   * @param dataTypeMap used for creating the schema of the table, assumed not <code>null</code>
+   * @return <code>true</code> if the table exists and then backup was successfully created, <code>
+   *     false</code> otherwise
    */
   private boolean backupTable(
       Connection conn, PSJdbcDbmsDef dbmsDef, PSJdbcDataTypeMap dataTypeMap) {
@@ -257,22 +247,18 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Writes the current column data to the file specified by
-   * <code>tempFile</code>, calls the <code>execute()</code> of
-   * <code>RxISXMLFileUpdate</code> to apply the stylesheet to the
-   * <code>tempFile</code>, reads the updated file, and creates a column data
-   * from the contents of the file.
+   * Writes the current column data to the file specified by <code>tempFile</code>, calls the <code>
+   * execute()</code> of <code>RxISXMLFileUpdate</code> to apply the stylesheet to the <code>
+   * tempFile</code>, reads the updated file, and creates a column data from the contents of the
+   * file.
    *
-   * @param colValue the current data in the column which will be written to
-   * the <code>tempFile</code> for applying the stylesheet, assumed not
-   * <code>null</code> and non-empty
-   * @param tempFile the temporary file to use for writing the current
-   * XML data specified by <code>colData</code>, assumed not <code>null</code>
-   *
+   * @param colValue the current data in the column which will be written to the <code>tempFile
+   *     </code> for applying the stylesheet, assumed not <code>null</code> and non-empty
+   * @param tempFile the temporary file to use for writing the current XML data specified by <code>
+   *     colData</code>, assumed not <code>null</code>
    * @return the updated column data, never <code>null</code>
-   *
-   * @throws IOException if any error occurs writing to the temporary file,
-   * or reading from the temporary file after applying the stylesheet
+   * @throws IOException if any error occurs writing to the temporary file, or reading from the
+   *     temporary file after applying the stylesheet
    */
   private PSJdbcColumnData updateColumnData(String colValue, File tempFile) throws IOException {
     PSJdbcColumnData columnData = new PSJdbcColumnData(columnName, colValue);
@@ -328,8 +314,8 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
    ***************************************************************************/
 
   /**
-   * Returns the name of the table which contains a column with XML data which
-   * needs to be updated by applying a stylesheet.
+   * Returns the name of the table which contains a column with XML data which needs to be updated
+   * by applying a stylesheet.
    *
    * @return the name of the table, never <code>null</code> or empty
    */
@@ -338,12 +324,10 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Sets the name of the table which contains a column with XML data which
-   * needs to be updated by applying a stylesheet.
+   * Sets the name of the table which contains a column with XML data which needs to be updated by
+   * applying a stylesheet.
    *
-   * @param tableName the name of the table, may not be <code>null</code>
-   * or empty
-   *
+   * @param tableName the name of the table, may not be <code>null</code> or empty
    * @throws IllegalArgumentException if <code>tableName</code> is invalid
    */
   public void setTableName(String tableName) {
@@ -353,8 +337,8 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Returns the name of the column which contains the XML data which needs to
-   * be updated by applying a stylesheet.
+   * Returns the name of the column which contains the XML data which needs to be updated by
+   * applying a stylesheet.
    *
    * @return the name of the column, never <code>null</code> or empty
    */
@@ -363,12 +347,10 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Sets the name of the column which contains the XML data which needs to
-   * be updated by applying a stylesheet.
+   * Sets the name of the column which contains the XML data which needs to be updated by applying a
+   * stylesheet.
    *
-   * @param columnName the name of the column, may not be <code>null</code> or
-   * empty
-   *
+   * @param columnName the name of the column, may not be <code>null</code> or empty
    * @throws IllegalArgumentException if <code>columnName</code> is invalid
    */
   public void setColumnName(String columnName) {
@@ -378,12 +360,12 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Returns the "WHERE" clause to use when catalogging the table data. This
-   * can be used to restrict the rows whose column value will be updated by
-   * applying the stylesheet on the existing data in the column.
+   * Returns the "WHERE" clause to use when catalogging the table data. This can be used to restrict
+   * the rows whose column value will be updated by applying the stylesheet on the existing data in
+   * the column.
    *
-   * @return the "WHERE" clause to use when catalogging the table data, never
-   * <code>null</code>, may be empty, does not include the "WHERE" keyword
+   * @return the "WHERE" clause to use when catalogging the table data, never <code>null</code>, may
+   *     be empty, does not include the "WHERE" keyword
    */
   public String getSelectFilter() {
     return selectFilter;
@@ -392,9 +374,9 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   /**
    * Sets the "WHERE" clause to use when catalogging the table data.
    *
-   * @param selectFilter the "WHERE" clause to use when catalogging the table
-   * data, may be <code>null</code> or empty, if <code>null</code> then set
-   * to empty, should not include the "WHERE" keyword
+   * @param selectFilter the "WHERE" clause to use when catalogging the table data, may be <code>
+   *     null</code> or empty, if <code>null</code> then set to empty, should not include the
+   *     "WHERE" keyword
    */
   public void setSelectFilter(String selectFilter) {
     if ((selectFilter == null) || (selectFilter.trim().length() < 1)) selectFilter = "";
@@ -402,9 +384,8 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Returns the name of the backup table which will store the data prior to
-   * modifications. A backup of the existing table is created before performing
-   * any data changes.
+   * Returns the name of the backup table which will store the data prior to modifications. A backup
+   * of the existing table is created before performing any data changes.
    *
    * @return the name of the backup table, never <code>null</code> or empty
    */
@@ -413,13 +394,10 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
   }
 
   /**
-   * Sets the the name of the backup table which will store the data prior to
-   * modifications. A backup of the existing table is created before performing
-   * any data changes.
+   * Sets the the name of the backup table which will store the data prior to modifications. A
+   * backup of the existing table is created before performing any data changes.
    *
-   * @param backupTableName name of the backup table, may not be
-   * <code>null</code> or empty
-   *
+   * @param backupTableName name of the backup table, may not be <code>null</code> or empty
    * @throws IllegalArgumentException if <code>backupTableName</code> is invalid
    */
   public void setBackupTableName(String backupTableName) {
@@ -433,35 +411,31 @@ public class PSDBXMLDataUpdate extends PSXMLFileUpdate {
    ***************************************************************************/
 
   /**
-   * The name of the table which contains a column with XML data which needs
-   * to be updated by applying a stylesheet. Never <code>null</code> or
-   * empty. The actual value for this property will be set through the
-   * Installshield UI.
+   * The name of the table which contains a column with XML data which needs to be updated by
+   * applying a stylesheet. Never <code>null</code> or empty. The actual value for this property
+   * will be set through the Installshield UI.
    */
   private String tableName = "PSX_RXCONFIGURATIONS";
 
   /**
-   * The name of the column which contains the XML data which needs to be
-   * updated by applying a stylesheet. Never <code>null</code> or empty.
-   * The actual value for this property will be set through the
-   * Installshield UI.
+   * The name of the column which contains the XML data which needs to be updated by applying a
+   * stylesheet. Never <code>null</code> or empty. The actual value for this property will be set
+   * through the Installshield UI.
    */
   private String columnName = "CONFIGURATION";
 
   /**
-   * The "WHERE" clause to use when catalogging the table data, may be
-   * <code>null</code> or empty. This can be used to restrict the rows
-   * whose column value will be updated by applying the stylesheet on the
-   * existing data in the column. Should not include the "WHERE" keyword.
+   * The "WHERE" clause to use when catalogging the table data, may be <code>null</code> or empty.
+   * This can be used to restrict the rows whose column value will be updated by applying the
+   * stylesheet on the existing data in the column. Should not include the "WHERE" keyword.
    */
   private String selectFilter = "NAME = 'relationships'";
 
   /**
-   * Before modifying the existing data in the table, a backup of the table
-   * will be created. This variable specifies the name of the backup table.
-   * Never <code>null</code> or empty. Actual value for this property
-   * will be set through the Installshield UI. The name of the backup table
-   * must be less than 30 characters (limitation on Oracle).
+   * Before modifying the existing data in the table, a backup of the table will be created. This
+   * variable specifies the name of the backup table. Never <code>null</code> or empty. Actual value
+   * for this property will be set through the Installshield UI. The name of the backup table must
+   * be less than 30 characters (limitation on Oracle).
    */
   private String backupTableName = "PSX_RXCONFIG_UP_BAKUP";
 }

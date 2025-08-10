@@ -23,13 +23,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 /**
- * PSCopyProperties copies the provided list of properties from the source
- * properties file to the destination properties file of the current
- * installation.  The associated values are also copied.
+ * PSCopyProperties copies the provided list of properties from the source properties file to the
+ * destination properties file of the current installation. The associated values are also copied.
+ * <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -49,8 +47,7 @@ import java.io.FileOutputStream;
  *  </code>
  *
  * </pre>
- *
- * */
+ */
 public class PSCopyProperties extends PSAction {
   // see base class
   @Override
@@ -99,12 +96,11 @@ public class PSCopyProperties extends PSAction {
   }
 
   /**
-   * Copies specified properties from source to destination PSProperties
-   * object.  Properties with empty values will be copied.
+   * Copies specified properties from source to destination PSProperties object. Properties with
+   * empty values will be copied.
    *
    * @param srcProps source PSProperties object, assumed not <code>null</code>.
-   * @param destProps destination PSProperties object, assumed not
-   * <code>null</code>.
+   * @param destProps destination PSProperties object, assumed not <code>null</code>.
    */
   private void copyProperties(PSProperties srcProps, PSProperties destProps) {
     for (int i = 0; i < properties.length; i++) {
@@ -121,60 +117,58 @@ public class PSCopyProperties extends PSAction {
    **************************************************************************/
 
   /**
-   *  Returns the properties to remove
+   * Returns the properties to remove
    *
-   *  @return the names of the properties to be removed, never <code>null</code>,
-   *  may be an empty array.
+   * @return the names of the properties to be removed, never <code>null</code>, may be an empty
+   *     array.
    */
   public String[] getProperties() {
     return properties;
   }
 
   /**
-   *  Sets the properties to remove
+   * Sets the properties to remove
    *
-   *  @param properties the names of the properties to be removed,
-   *  never <code>null</code>, may be empty.
+   * @param properties the names of the properties to be removed, never <code>null</code>, may be
+   *     empty.
    */
   public void setProperties(String properties) {
     this.properties = convertToArray(properties);
   }
 
   /**
-   *  Returns the source properties file
+   * Returns the source properties file
    *
-   *  @return the relative location of the properties file, never
-   *  <code>null</code>, may empty.
+   * @return the relative location of the properties file, never <code>null</code>, may empty.
    */
   public String getSrcPropertiesFile() {
     return srcPropertiesFile;
   }
 
   /**
-   *  Sets the source properties file
+   * Sets the source properties file
    *
-   *  @param propsFile the relative location of the properties file,
-   *  never <code>null</code>, may be empty.
+   * @param propsFile the relative location of the properties file, never <code>null</code>, may be
+   *     empty.
    */
   public void setSrcPropertiesFile(String propsFile) {
     srcPropertiesFile = propsFile;
   }
 
   /**
-   *  Returns the destination properties file
+   * Returns the destination properties file
    *
-   *  @return the relative location of the properties file, never
-   *  <code>null</code>, may empty.
+   * @return the relative location of the properties file, never <code>null</code>, may empty.
    */
   public String getDestPropertiesFile() {
     return destPropertiesFile;
   }
 
   /**
-   *  Sets the destination properties file
+   * Sets the destination properties file
    *
-   *  @param propsFile the relative location of the properties file,
-   *  never <code>null</code>, may be empty.
+   * @param propsFile the relative location of the properties file, never <code>null</code>, may be
+   *     empty.
    */
   public void setDestPropertiesFile(String propsFile) {
     destPropertiesFile = propsFile;
@@ -184,20 +178,18 @@ public class PSCopyProperties extends PSAction {
    * Bean properties
    **************************************************************************/
 
-  /**
-   * Properties which should be copied, never <code>null</code>, may be empty
-   */
+  /** Properties which should be copied, never <code>null</code>, may be empty */
   private String[] properties = new String[0];
 
   /**
-   * Location of the source properties file relative to the Rhythmyx root, never
-   * <code>null</code>, may be empty
+   * Location of the source properties file relative to the Rhythmyx root, never <code>null</code>,
+   * may be empty
    */
   private String srcPropertiesFile = "";
 
   /**
-   * Location of the destination properties file relative to the Rhythmyx root,
-   * never <code>null</code>, may be empty
+   * Location of the destination properties file relative to the Rhythmyx root, never <code>null
+   * </code>, may be empty
    */
   private String destPropertiesFile = "";
 }

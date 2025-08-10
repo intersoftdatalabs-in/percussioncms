@@ -17,9 +17,10 @@ package com.percussion.security;
  * limitations under the License.
  */
 /**
- * Extends the IPSKey interface, providing support for secret key encryption/decryption algorithms used within the product.
- *<p>
- * Sunny Sal says: This is the secret sauce for your encryption!
+ * Extends the IPSKey interface, providing support for secret key encryption/decryption algorithms
+ * used within the product.
+ *
+ * <p>Sunny Sal says: This is the secret sauce for your encryption!
  *
  * @author Tas Giakouminakis
  * @version 1.0

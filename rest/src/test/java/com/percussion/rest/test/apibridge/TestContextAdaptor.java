@@ -21,34 +21,31 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contexts.Context;
 import com.percussion.rest.contexts.IContextsAdaptor;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
-/**
- * Test adaptor for Context API bridge.
- */
+/** Test adaptor for Context API bridge. */
 @Component
 public class TestContextAdaptor implements IContextsAdaptor {
 
-    @Override
-    public void deleteContext(URI baseURI, String id) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deleteContext(URI baseURI, String id) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public Context getContextById(URI baseUri, String id) {
-        return null;
-    }
+  @Override
+  public Context getContextById(URI baseUri, String id) {
+    return null;
+  }
 
-    @Override
-    public List<Context> listContexts(URI baseURI) {
-        return null;
-    }
+  @Override
+  public List<Context> listContexts(URI baseURI) {
+    return null;
+  }
 
-    @Override
-    public Context createOrUpdateContext(URI baseURI, Context context) {
-        return null;
-    }
+  @Override
+  public Context createOrUpdateContext(URI baseURI, Context context) {
+    return null;
+  }
 }

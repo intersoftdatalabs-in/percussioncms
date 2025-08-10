@@ -28,24 +28,21 @@ import java.util.Iterator;
 import java.util.Properties;
 
 /**
- * Class to convert v5.x {@link PSLegacySecurityProviderInstance} to use
- * datasources.  Also performs decoupling for role, directory, connection
- * security, and back-end table security providers, and e-mail/role attribute
- * name updates to directories.
+ * Class to convert v5.x {@link PSLegacySecurityProviderInstance} to use datasources. Also performs
+ * decoupling for role, directory, connection security, and back-end table security providers, and
+ * e-mail/role attribute name updates to directories.
  */
 public class PSSecurityProviderConverter extends PSBaseDSConverter {
   /**
    * Construct the converter.
    *
-   * @param configCtx Supplies the configurations required for conversion, may
-   * not be <code>null</code>.
-   * @param repositoryInfo The repository info, used to determine if creating
-   * a datasource configuration that points to the repository, may not be
-   * <code>null</code>.
-   * @param updateConfig <code>true</code> to create required configurations
-   * if they are not found in the configurations supplied by the
-   * <code>configCtx</code>, <code>false</code> to throw an exception if
-   * the required configurations are not found.
+   * @param configCtx Supplies the configurations required for conversion, may not be <code>null
+   *     </code>.
+   * @param repositoryInfo The repository info, used to determine if creating a datasource
+   *     configuration that points to the repository, may not be <code>null</code>.
+   * @param updateConfig <code>true</code> to create required configurations if they are not found
+   *     in the configurations supplied by the <code>configCtx</code>, <code>false</code> to throw
+   *     an exception if the required configurations are not found.
    */
   public PSSecurityProviderConverter(
       PSConfigurationCtx configCtx, IPSRepositoryInfo repositoryInfo, boolean updateConfig) {
@@ -56,11 +53,10 @@ public class PSSecurityProviderConverter extends PSBaseDSConverter {
   }
 
   /**
-   * This method is responsible for performing the necessary conversion of all
-   * legacy security providers to the new configuration.  This includes datasource
-   * conversion for back-end table security providers, decoupling for role,
-   * directory connection security, and back-end table security providers, and
-   * email and/or role attribute updates to directory configurations.
+   * This method is responsible for performing the necessary conversion of all legacy security
+   * providers to the new configuration. This includes datasource conversion for back-end table
+   * security providers, decoupling for role, directory connection security, and back-end table
+   * security providers, and email and/or role attribute updates to directory configurations.
    *
    * @throws PSUnknownNodeTypeException If a source document is invalid
    * @throws PSIllegalArgumentException If an invalid argument was passed
@@ -175,13 +171,11 @@ public class PSSecurityProviderConverter extends PSBaseDSConverter {
   }
 
   /**
-   * Helper method which returns the directory names referenced by a given
-   * directory set
+   * Helper method which returns the directory names referenced by a given directory set
    *
    * @param dirSet the directory set, assumed not <code>null</code>
-   *
-   * @return an array containing the directories referenced by this directory
-   * set, never <code>null</code>, may be empty.
+   * @return an array containing the directories referenced by this directory set, never <code>null
+   *     </code>, may be empty.
    */
   private String[] getDirNames(PSDirectorySet dirSet) {
     // get the directory names
@@ -197,17 +191,14 @@ public class PSSecurityProviderConverter extends PSBaseDSConverter {
   }
 
   /**
-   * Resolves the connection information in the supplied security provider
-   * to a datasource.  If no configuration is found and {@link #shouldUpdateConfig()} is
-   * <code>true</code>, will create the required configurations.
+   * Resolves the connection information in the supplied security provider to a datasource. If no
+   * configuration is found and {@link #shouldUpdateConfig()} is <code>true</code>, will create the
+   * required configurations.
    *
    * @param oldProvider The security provider to convert, assumed not <code>null</code>.
-   *
-   * @return The datasource name, <code>null</code> if it is the respository
-   * datasource, never empty.
-   *
-   * @throws PSUnknownNodeTypeException If the datasource name cannot be
-   * resolved.
+   * @return The datasource name, <code>null</code> if it is the respository datasource, never
+   *     empty.
+   * @throws PSUnknownNodeTypeException If the datasource name cannot be resolved.
    */
   private String resolveToDatasource(PSLegacySecurityProviderInstance oldProvider)
       throws PSUnknownNodeTypeException {

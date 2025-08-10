@@ -21,28 +21,26 @@ package com.percussion.sitemanage.data;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * SaaS Site configuration wrapper.
- */
+/** SaaS Site configuration wrapper. */
 public class PSSaasSiteConfig {
 
-    private PSSiteConfig siteConfig;
+  private PSSiteConfig siteConfig;
 
-    /**
-     * Gets the site config.
-     *
-     * @return Optional of site config, empty if not set.
-     */
-    public Optional<PSSiteConfig> getSiteConfig() {
-        return Optional.ofNullable(siteConfig);
-    }
+  /**
+   * Gets the site config.
+   *
+   * @return Optional of site config, empty if not set.
+   */
+  public Optional<PSSiteConfig> getSiteConfig() {
+    return Optional.ofNullable(siteConfig);
+  }
 
-    /**
-     * Sets the site config.
-     *
-     * @param siteConfig the site config to set, must not be null.
-     */
-    public void setSiteConfig(PSSiteConfig siteConfig) {
-        this.siteConfig = Objects.requireNonNull(siteConfig, "siteConfig must not be null");
-    }
+  /**
+   * Sets the site config.
+   *
+   * @param siteConfig the site config to set, must not be null.
+   */
+  public void setSiteConfig(PSSiteConfig siteConfig) {
+    this.siteConfig = Objects.requireNonNull(siteConfig, "siteConfig must not be null");
+  }
 }

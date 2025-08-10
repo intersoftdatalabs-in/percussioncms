@@ -33,9 +33,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * In memory representation of the component map xml file.
- */
+/** In memory representation of the component map xml file. */
 @SuppressWarnings("unchecked")
 public class PSBrandCodeMap implements IPSBrandCodeMap {
 
@@ -185,9 +183,9 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
 
   /**
    * Returns the singleton instance of the <code>PSBrandCodeMap</code> object.
+   *
    * @return the singleton instance, never <code>null</code>
-   * @throws CodeException if any error occurs parsing the component map
-   * Xml document
+   * @throws CodeException if any error occurs parsing the component map Xml document
    */
   public static synchronized PSBrandCodeMap newInstance() throws CodeException {
     if (ms_instance == null) {
@@ -209,11 +207,10 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
 
   /**
    * Constructor
-   * @throws IllegalArgumentException if any error occurs parsing the
-   * ComponentMap.xml file
-   * @throws CodeException if any error occurs constructing the object from
-   * the Xml representation or if a failure occurs while opening an input
-   * stream to file ComponentMap.xml
+   *
+   * @throws IllegalArgumentException if any error occurs parsing the ComponentMap.xml file
+   * @throws CodeException if any error occurs constructing the object from the Xml representation
+   *     or if a failure occurs while opening an input stream to file ComponentMap.xml
    * @throws CodeException
    * @throws ParserConfigurationException
    * @throws IOException
@@ -243,12 +240,12 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
 
   /**
    * Restore this object from an Xml representation.
-   * @param sourceNode the document element of Component Map Document. Its
-   * tag name should equal <code>EL_COMPONENT_MAP</code>
-   * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * or its tag name does not equal <code>EL_COMPONENT_MAP</code>
-   * @throws CodeException if any error occurs constructing the object from
-   * the Xml representation.
+   *
+   * @param sourceNode the document element of Component Map Document. Its tag name should equal
+   *     <code>EL_COMPONENT_MAP</code>
+   * @throws IllegalArgumentException if sourceNode is <code>null</code> or its tag name does not
+   *     equal <code>EL_COMPONENT_MAP</code>
+   * @throws CodeException if any error occurs constructing the object from the Xml representation.
    */
   public void fromXml(Element sourceNode) throws CodeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -304,10 +301,9 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
 
   /**
    * Serializes this object's state to Xml.
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>
-   * @return the element containing this object's state,
-   * never <code>null</code>
+   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>
+   * @return the element containing this object's state, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -342,14 +338,14 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
   }
 
   /**
-   * Returns an <code>Integer</code> object wrapping the input parameter
-   * brandCodeMapVersion.
-   * @param brandCodeMapVersion the brand code map version to verify if it is
-   * defined in the component map Xml document.
-   * @return an <code>Integer</code> object wrapping the input parameter
-   * brandCodeMapVersion, never <code>null</code>
-   * @throws CodeException if brandCodeMapVersion is less than 1 or no brand
-   * code map is defined for the specified version.
+   * Returns an <code>Integer</code> object wrapping the input parameter brandCodeMapVersion.
+   *
+   * @param brandCodeMapVersion the brand code map version to verify if it is defined in the
+   *     component map Xml document.
+   * @return an <code>Integer</code> object wrapping the input parameter brandCodeMapVersion, never
+   *     <code>null</code>
+   * @throws CodeException if brandCodeMapVersion is less than 1 or no brand code map is defined for
+   *     the specified version.
    */
   private Integer verifyBrandCodeMapVersion(int brandCodeMapVersion) throws CodeException {
     if (brandCodeMapVersion > 0) {
@@ -360,40 +356,36 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
   }
 
   /**
-   * The singleton <code>PSBrandCodeMap</code> instance, initialized in the
-   * <code>newInstance</code> method.
+   * The singleton <code>PSBrandCodeMap</code> instance, initialized in the <code>newInstance</code>
+   * method.
    */
   private static PSBrandCodeMap ms_instance = null;
 
-  /**
-   * The brand code map version to use, set in the
-   * <code>setBrandCodeMapVersion</code> method.
-   */
+  /** The brand code map version to use, set in the <code>setBrandCodeMapVersion</code> method. */
   // private int m_brandCodeMapVersion = 0;
 
   /**
-   * Stores the current version of the component map for different Rhythmyx
-   * versions, initialized in the <code>fromXml</code> method,
-   * never <code>null</code> after initialization.
+   * Stores the current version of the component map for different Rhythmyx versions, initialized in
+   * the <code>fromXml</code> method, never <code>null</code> after initialization.
    */
   private PSBrandCodeElementList m_currentVersionsList = null;
 
   /**
-   * List of components, initialized in the <code>fromXml</code> method,
-   * never <code>null</code> after initialization.
+   * List of components, initialized in the <code>fromXml</code> method, never <code>null</code>
+   * after initialization.
    */
   private PSBrandCodeElementList m_componentList = null;
 
   /**
-   * List of properties, initialized in the <code>fromXml</code> method,
-   * never <code>null</code> after initialization.
+   * List of properties, initialized in the <code>fromXml</code> method, never <code>null</code>
+   * after initialization.
    */
   private PSBrandCodeElementList m_propertiesList = null;
 
   /**
-   * Map containg the brand code map versions. The version number is used
-   * as key and <code>PSBrandCodeMapVersion</code> object as value,
-   * never <code>null</code>, populated in the <code>fromXml</code> method.
+   * Map containg the brand code map versions. The version number is used as key and <code>
+   * PSBrandCodeMapVersion</code> object as value, never <code>null</code>, populated in the <code>
+   * fromXml</code> method.
    */
   private Map<Integer, PSBrandCodeMapVersion> m_brandCodeMapVersions =
       new LinkedHashMap<Integer, PSBrandCodeMapVersion>();

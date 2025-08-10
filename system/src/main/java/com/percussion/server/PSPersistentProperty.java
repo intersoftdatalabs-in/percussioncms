@@ -31,9 +31,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Property to be persisted.  Always has a meta entry corresponding to it.
- */
+/** Property to be persisted. Always has a meta entry corresponding to it. */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSPersistentProperty")
 @Table(name = "PSX_PERSISTEDPROPERTYVALUES")
@@ -53,18 +51,17 @@ public class PSPersistentProperty {
   // a little more work.  As it is, only the value and "action"
   // (currently named "extraParam") fields are settable.
 
-  /**
-   * Default constructor, which is needed by hibernate
-   */
+  /** Default constructor, which is needed by hibernate */
   private PSPersistentProperty() {}
 
   /**
    * Represents property's meta data.
+   *
    * @param userName user name associated with the property/session.
-   * @param propertyName  Name name of the property.Cannot be <code>null</code>.
+   * @param propertyName Name name of the property.Cannot be <code>null</code>.
    * @param category type of the property.Can be <code>null</code>.
-   * @param context  Can be <code>null</code>.
-   * @param propertyValue  Cannot be <code>null</code>.
+   * @param context Can be <code>null</code>.
+   * @param propertyValue Cannot be <code>null</code>.
    */
   public PSPersistentProperty(
       String userName, String propertyName, String category, String context, String propertyValue) {
@@ -77,11 +74,10 @@ public class PSPersistentProperty {
 
   /**
    * Pseudo-copy constructor
+   *
    * @param propObj Cannot be <code>null</code>.
-   * @param userName if non-<code>null</code>, overrides the user name in the
-   * <code>propObj</code>
-   * @param action  Initial value for the <code>extraParam</code> (aka
-   * "action") field
+   * @param userName if non-<code>null</code>, overrides the user name in the <code>propObj</code>
+   * @param action Initial value for the <code>extraParam</code> (aka "action") field
    */
   public PSPersistentProperty(PSPersistentProperty propObj, String userName, String action) {
     this(
@@ -103,40 +99,38 @@ public class PSPersistentProperty {
 
   /**
    * Sets the context value.
-   * @param context May be <code>null</code>, in which case an empty
-   * string is set.
+   *
+   * @param context May be <code>null</code>, in which case an empty string is set.
    */
   private void setContext(String context) {
     m_context = (context == null ? "" : context);
   }
 
   /**
-   * Sets the user name.  The name cannot be "**psxsystem". May be
-   * <code>null</code>, in which case an empty string is set.
-   * @param userName May be <code>null</code>, in which case an empty
-   * string is set.
+   * Sets the user name. The name cannot be "**psxsystem". May be <code>null</code>, in which case
+   * an empty string is set.
+   *
+   * @param userName May be <code>null</code>, in which case an empty string is set.
    */
   private void setUserName(String userName) {
     m_userName = (userName == null ? "" : userName);
   }
 
   /**
-   * Sets the case-sensitive name of the property to be persisted or
-   * overridden.
-   * @param propertyName May be <code>null</code>, in which case an empty
-   * string is set.
+   * Sets the case-sensitive name of the property to be persisted or overridden.
+   *
+   * @param propertyName May be <code>null</code>, in which case an empty string is set.
    */
   private void setName(String propertyName) {
     m_propertyName = (propertyName == null ? "" : propertyName);
   }
 
   /**
-   * Sets the category type which is an arbitrary string used to group related
-   * properties together. All categories beginning with sys_ are reserved by
-   * the system. The category for session variables is sys_session.
+   * Sets the category type which is an arbitrary string used to group related properties together.
+   * All categories beginning with sys_ are reserved by the system. The category for session
+   * variables is sys_session.
    *
-   * @param category May be <code>null</code>, in which case an empty
-   * string is set.
+   * @param category May be <code>null</code>, in which case an empty string is set.
    */
   private void setCategory(String category) {
     m_category = (category == null ? "" : category);
@@ -145,8 +139,7 @@ public class PSPersistentProperty {
   /**
    * Sets the value of this property.
    *
-   * @param propertyValue May be <code>null</code>, in which case an empty
-   * string is set.
+   * @param propertyValue May be <code>null</code>, in which case an empty string is set.
    */
   // dbreslau: synchronized this to avoid toXML() being invoked concurrently
   public void setValue(String propertyValue) {
@@ -155,6 +148,7 @@ public class PSPersistentProperty {
 
   /**
    * Gets the name of the user to whom this property belongs.
+   *
    * @return user name. Never <code>null</code>; may be an empty string.
    */
   public String getUserName() {
@@ -163,6 +157,7 @@ public class PSPersistentProperty {
 
   /**
    * Gets the name of this property.
+   *
    * @return property name. Never <code>null</code>; may be empty string.
    */
   public String getName() {
@@ -170,9 +165,10 @@ public class PSPersistentProperty {
   }
 
   /**
-   * Gets the category type, which is an arbitrary string used to group related
-   * properties together. All categories beginning with sys_ are reserved by
-   * the system. The category for session variables is sys_session.
+   * Gets the category type, which is an arbitrary string used to group related properties together.
+   * All categories beginning with sys_ are reserved by the system. The category for session
+   * variables is sys_session.
+   *
    * @return category type. Never <code>null</code>; may be an empty string.
    */
   public String getCategory() {
@@ -182,7 +178,7 @@ public class PSPersistentProperty {
   /**
    * Gets the current property value.
    *
-   * @return property value.  Never <code>null</code>; may be an empty string.
+   * @return property value. Never <code>null</code>; may be an empty string.
    */
   public String getValue() {
     return m_propertyValue;
@@ -191,8 +187,7 @@ public class PSPersistentProperty {
   /**
    * Gets the context to which the property belongs.
    *
-   * @return context to which the property belongs.  Never <code>null</code>;
-   * may be an empty string.
+   * @return context to which the property belongs. Never <code>null</code>; may be an empty string.
    */
   public String getContext() {
     return m_context;
@@ -201,9 +196,7 @@ public class PSPersistentProperty {
   /**
    * Sets the action to be performed on the property: delete, update or insert
    *
-   * @param action May be <code>null</code>, in which case an empty
-   * string is set.
-   *
+   * @param action May be <code>null</code>, in which case an empty string is set.
    * @todo rename setExtraParam to setActionType() ?
    */
   // dbreslau: synchronized this to avoid toXML() being invoked concurrently
@@ -215,7 +208,6 @@ public class PSPersistentProperty {
    * Gets the action type
    *
    * @return Never <code>null</code>; may be an empty string.
-   *
    * @todo rename getExtraParam to getActionType() ?
    */
   public synchronized String getExtraParam() {
@@ -224,6 +216,7 @@ public class PSPersistentProperty {
 
   /**
    * Constructs the property from an XML Element
+   *
    * @param elem Cannot be <code>null</code>.
    */
   private void fromXML(Element elem) {
@@ -237,8 +230,8 @@ public class PSPersistentProperty {
 
   /**
    * Persists the property to an element in an XML document
-   * @param doc XML Document in which the element is stored; must not be
-   * <code>null</code>
+   *
+   * @param doc XML Document in which the element is stored; must not be <code>null</code>
    * @return XML representation of the object.
    */
   synchronized Element toXML(Document doc) {
@@ -273,68 +266,56 @@ public class PSPersistentProperty {
   }
 
   /**
-   * Interrelated usages in which a property might be used e.g whether it's
-   * designer or a system property.
+   * Interrelated usages in which a property might be used e.g whether it's designer or a system
+   * property.
    */
   @Id
   @Column(name = "CONTEXT", nullable = false)
   private String m_context = "";
 
-  /**
-   * The fully qualified name of the principal associated with the property.
-   */
+  /** The fully qualified name of the principal associated with the property. */
   @Id
   @Column(name = "USERNAME", nullable = false)
   private String m_userName = "";
 
-  /**
-   * The case-sensitive name of the property to be persisted or overridden.
-   */
+  /** The case-sensitive name of the property to be persisted or overridden. */
   @Id
   @Column(name = "PROPERTYNAME", nullable = false)
   private String m_propertyName = "";
 
   /**
-   * An arbitrary string used to group related properties together.
-   * All categories beginning with sys_ are reserved by the system.
+   * An arbitrary string used to group related properties together. All categories beginning with
+   * sys_ are reserved by the system.
    */
   @Id
   @Column(name = "CATEGORY", nullable = false)
   private String m_category = "";
 
-  /**
-   * The current value of the property.  May be changed during the
-   * property's lifetime.
-   */
+  /** The current value of the property. May be changed during the property's lifetime. */
   @Basic
   @Column(name = "PROPERTYVALUE")
   private String m_propertyValue = "";
 
   /**
-   * Action to be taken on the property e.g update, insert, delete.
-   * May be changed during the property's
+   * Action to be taken on the property e.g update, insert, delete. May be changed during the
+   * property's
    */
   @Transient private String m_action = "";
 
-  /**
-   * Name of the XML Element for the property
-   */
+  /** Name of the XML Element for the property */
   public static final String PROPERTYVALUE_ELEM = "PROPERTYVALUE";
 
-  /**
-   * Name of the table in which the properties are persisted
-   */
+  /** Name of the table in which the properties are persisted */
   public static final String PERSISTEDPROPERTYVALUES_ELEM = "PERSISTEDPROPERTYVALUES";
 
-  /**
-   * Name of the XML Element that stores the context value
-   */
+  /** Name of the XML Element that stores the context value */
   public static final String CONTEXT_ELEM = "CONTEXT";
 
   public static final String DBACTION = "DBActionType";
 
   /**
    * Not currently used (?)
+   *
    * @todo remove ROOTVALUE_ELEM
    */
   public static final String ROOTVALUE_ELEM = "PERSISTEDPROPERTYVALUESSET";

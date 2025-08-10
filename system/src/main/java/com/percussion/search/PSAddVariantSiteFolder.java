@@ -62,58 +62,55 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This extension acts on all search result rows that have one or more of the
- * following columns:
+ * This extension acts on all search result rows that have one or more of the following columns:
+ *
  * <ol>
- * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTTYPEID}</li>
- * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}</li>
- * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}</li>
- * <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID}</li>
+ *   <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTENTTYPEID}
+ *   <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}
+ *   <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
+ *   <li>{@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID}
  * </ol>
- * subject to the the conditions below (the processing has multiple steps and
- * intermediate results may differ from final results):
+ *
+ * subject to the the conditions below (the processing has multiple steps and intermediate results
+ * may differ from final results):
+ *
  * <ul>
- * <li>Replaces the default display value (configured in the content editor
- * system definition) for all the above fields with their names. For
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column the display
- * value will be the full folder path.</li>
- * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}
- * column, the row will be expanded in that it will be cloned for every folder
- * the item in the row exists. If it is not the child of any folder, no action
- * is taken.</li>
- * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} as
- * well as {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} then the
- * site column display value will be set to the site name the folder path
- * corresponds to. If the folder path does not correspond to a registered site,
- * the display value and internal value for site column will be set to empty.</li>
- * <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
- * column but not {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID}
- * column, the row will be expanded to contain one row per site the item exists
- * in. For example, if the item in the row exists in "Internet" and "Internet
- * Mirror", that row becomes two rows with every column unchanged except for
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column. If an item
- * does not exist in a site, no action is taken.</li>
- * <li>If the search results are in the context of a slot (RC Search) and the
- * rows contain {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and/or
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} columns and any of
- * the column values is empty the rows are filtered out.</li>
- * <li>If the search results are in the context of a slot (RC Search) and the
- * rows contain {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and
- * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID} columns, the rows
- * are validated to make sure the variant is of type page and is configured for
- * the site. If validation fails the row will be filtered out from the search
- * results.
+ *   <li>Replaces the default display value (configured in the content editor system definition) for
+ *       all the above fields with their names. For {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column the display value will
+ *       be the full folder path.
+ *   <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column, the
+ *       row will be expanded in that it will be cloned for every folder the item in the row exists.
+ *       If it is not the child of any folder, no action is taken.
+ *   <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} as well as
+ *       {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} then the site column
+ *       display value will be set to the site name the folder path corresponds to. If the folder
+ *       path does not correspond to a registered site, the display value and internal value for
+ *       site column will be set to empty.
+ *   <li>If a row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column but
+ *       not {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column, the row will
+ *       be expanded to contain one row per site the item exists in. For example, if the item in the
+ *       row exists in "Internet" and "Internet Mirror", that row becomes two rows with every column
+ *       unchanged except for {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
+ *       column. If an item does not exist in a site, no action is taken.
+ *   <li>If the search results are in the context of a slot (RC Search) and the rows contain {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and/or {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} columns and any of the column
+ *       values is empty the rows are filtered out.
+ *   <li>If the search results are in the context of a slot (RC Search) and the rows contain {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} and {@link
+ *       com.percussion.system.utils.IPSHtmlParameters#SYS_VARIANTID} columns, the rows are
+ *       validated to make sure the variant is of type page and is configured for the site. If
+ *       validation fails the row will be filtered out from the search results.
  * </ul>
- * <p>
- * Implementation note: The only significant time user in this class is
- * {@link #expandByVariant(IPSRequestContext, List)}, which needs to get all
- * node definitions. This is not cached at this time, it is not a major cost.
+ *
+ * <p>Implementation note: The only significant time user in this class is {@link
+ * #expandByVariant(IPSRequestContext, List)}, which needs to get all node definitions. This is not
+ * cached at this time, it is not a major cost.
  */
 public class PSAddVariantSiteFolder extends PSDefaultExtension
     implements IPSSearchResultsProcessor {
-  /**
-   * Commons logger
-   */
+  /** Commons logger */
   private static final Logger ms_log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 
   /*
@@ -136,28 +133,27 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
 
   /**
    * Remove any row from the list if:
+   *
    * <ol>
-   * <li>The row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}
-   * column and the variant is configured as not allowed on that site.</li>
-   * <li>If the search results are for a specified parent folder and the row
-   * has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column
-   * value that does not inherit from the parent folder. </l>
-   * <li>If the search results are for a specified parent folder and the row
-   * has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column value
-   * that does not inherit from the parent folder. </l>
+   *   <li>The row has {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column and
+   *       the variant is configured as not allowed on that site.
+   *   <li>If the search results are for a specified parent folder and the row has {@link
+   *       com.percussion.system.utils.IPSHtmlParameters#SYS_FOLDERID} column value that does not
+   *       inherit from the parent folder. </l>
+   *   <li>If the search results are for a specified parent folder and the row has {@link
+   *       com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID} column value that does not
+   *       inherit from the parent folder. </l>
    * </ol>
-   * <p>
-   * In the last two cases above, the parent folder path is taken from the
-   * request context parameter named
-   * {@link IPSHtmlParameters#SYS_PARENTFOLDERPATH}.
+   *
+   * <p>In the last two cases above, the parent folder path is taken from the request context
+   * parameter named {@link IPSHtmlParameters#SYS_PARENTFOLDERPATH}.
    *
    * @param request request context, assumed not <code>null</code>.
-   * @param rows the rows to filter, assumed not <code>null</code> and each
-   *           entry in the list to be {@link IPSSearchResultRow} object. May
-   *           be empty.
+   * @param rows the rows to filter, assumed not <code>null</code> and each entry in the list to be
+   *     {@link IPSSearchResultRow} object. May be empty.
    * @return filtered row list, never <code>null</code>, may be empty.
-   * @throws PSExtensionProcessingException if it fails to build
-   *            variant-allowed sites map for any reason.
+   * @throws PSExtensionProcessingException if it fails to build variant-allowed sites map for any
+   *     reason.
    */
   private List<Object> filterRows(IPSRequestContext request, List<Object> rows)
       throws PSExtensionProcessingException {
@@ -255,8 +251,8 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   /**
    * Helper routine to assure the supplied path ends with a "/".
    *
-   * @param path path to modify to a trailing "/" if does not already end with
-   *           "/", assumed not <code>null</code>, may be empty.
+   * @param path path to modify to a trailing "/" if does not already end with "/", assumed not
+   *     <code>null</code>, may be empty.
    * @return path that ends with trailing "/". Never <code>null</code>.
    */
   private String ensurePathEndsWithSlash(String path) {
@@ -265,13 +261,11 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Helper routine to build a site folder map in which the key is the siteid
-   * as string and the value is the {@link SiteFolder} object for that site.
+   * Helper routine to build a site folder map in which the key is the siteid as string and the
+   * value is the {@link SiteFolder} object for that site.
    *
-   * @param siteMap the site folder map as returned by
-   *           {@link #getSiteMap()}.
-   * @return site folder map as explained above. Never <code>null</code>,
-   *         may be empty.
+   * @param siteMap the site folder map as returned by {@link #getSiteMap()}.
+   * @return site folder map as explained above. Never <code>null</code>, may be empty.
    */
   private Map<String, Set<SiteFolder>> buildSiteFolderMapBySiteId(
       Map<String, Set<SiteFolder>> siteMap) {
@@ -285,18 +279,16 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * This method expands each row by cloning to contain as many rows as the
-   * number of folders the item in the row exists in. The internal and display
-   * values for {@link IPSHtmlParameters#SYS_FOLDERID} are set appropriately.
-   * See class description for more details.
+   * This method expands each row by cloning to contain as many rows as the number of folders the
+   * item in the row exists in. The internal and display values for {@link
+   * IPSHtmlParameters#SYS_FOLDERID} are set appropriately. See class description for more details.
    *
    * @param request request context, assumed not <code>null</code>
-   * @param rows search result rows to expand by folder path, assumed not
-   *           <code>null</code>. May be empty.
-   * @return resulting rows after expansion, never <code>null</code>, may be
-   *         empty.
-   * @throws PSExtensionProcessingException if it fails to build required
-   *            contentid-sitemap by making internal request.
+   * @param rows search result rows to expand by folder path, assumed not <code>null</code>. May be
+   *     empty.
+   * @return resulting rows after expansion, never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if it fails to build required contentid-sitemap by
+   *     making internal request.
    */
   private List<Object> expandBySiteFolders(IPSRequestContext request, List<Object> rows)
       throws PSExtensionProcessingException {
@@ -362,18 +354,15 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * This method expands each row by cloning to contain as many rows as the
-   * number of sites the item in the row exists in. The internal and display
-   * values for {@link IPSHtmlParameters#SYS_SITEID} are set appropriately. See
-   * class description for more details
+   * This method expands each row by cloning to contain as many rows as the number of sites the item
+   * in the row exists in. The internal and display values for {@link IPSHtmlParameters#SYS_SITEID}
+   * are set appropriately. See class description for more details
    *
    * @param request request context, assumed not <code>null</code>
-   * @param rows search result rows to expand by sites, assumed not
-   *           <code>null</code>. May be empty.
-   * @return resulting rows after expansion, never <code>null</code>, may be
-   *         empty.
-   * @throws PSExtensionProcessingException if it fails to build required
-   *            contentid-sitemap by making internal request.
+   * @param rows search result rows to expand by sites, assumed not <code>null</code>. May be empty.
+   * @return resulting rows after expansion, never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if it fails to build required contentid-sitemap by
+   *     making internal request.
    */
   private List<Object> expandBySites(IPSRequestContext request, List<Object> rows)
       throws PSExtensionProcessingException {
@@ -454,17 +443,14 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Helper method to walkthrough and find site folder set for a given folder
-   * path.
+   * Helper method to walkthrough and find site folder set for a given folder path.
    *
-   * @param siteMap site map object as returned by
-   *           {@link #getSiteMap()}. If <code>null</code>
-   *           or empty, the return value will be <code>null</code>.
-   * @param path the folder path to look up in the site map, if
-   *           <code>null</code> or empty, the return value will be
-   *           <code>null</code>.
-   * @return set of site folders ({@link SiteFolder} objects) that the folder
-   *         with given path is part of, may be <code>null</code> or empty.
+   * @param siteMap site map object as returned by {@link #getSiteMap()}. If <code>null</code> or
+   *     empty, the return value will be <code>null</code>.
+   * @param path the folder path to look up in the site map, if <code>null</code> or empty, the
+   *     return value will be <code>null</code>.
+   * @return set of site folders ({@link SiteFolder} objects) that the folder with given path is
+   *     part of, may be <code>null</code> or empty.
    */
   private Set<SiteFolder> getSiteFolderSetForPath(
       Map<String, Set<SiteFolder>> siteMap, String path) {
@@ -476,18 +462,16 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * This method expands each row by cloning to contain as many rows as the
-   * number of variants that are allowed for the slot in the context. The
-   * internal and display values for sys_siteid and sys_folderid are set
-   * appropriately.
+   * This method expands each row by cloning to contain as many rows as the number of variants that
+   * are allowed for the slot in the context. The internal and display values for sys_siteid and
+   * sys_folderid are set appropriately.
    *
    * @param request request context, assumed not <code>null</code>.
-   * @param rows search result rows to expand by variants, assumed not
-   *           <code>null</code>. May be empty.
-   * @return resulting rows after expansion, never <code>null</code>, may be
-   *         empty.
-   * @throws PSExtensionProcessingException if it fails to build required
-   *            contenttype-allowed variant map by making internal request.
+   * @param rows search result rows to expand by variants, assumed not <code>null</code>. May be
+   *     empty.
+   * @return resulting rows after expansion, never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if it fails to build required contenttype-allowed
+   *     variant map by making internal request.
    */
   private List<Object> expandByVariant(IPSRequestContext request, List<Object> rows)
       throws PSExtensionProcessingException {
@@ -576,18 +560,15 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Builds a map of content type id and allowed variants for the slot with
-   * supplied slotid.
-   * @param slotId The slot id, assumed not <code>null</code> may be empty in
-   *           which case all content type varaints with slots registered will
-   *           be returned.
+   * Builds a map of content type id and allowed variants for the slot with supplied slotid.
    *
-   * @return The map, where the key is the content type id as a
-   *         <code>String</code>, and the value is a <code>Map</code>
-   *         containing variant id (<code>String</code> )as key and variant
-   *         name as value. Never <code>null</code>.
-   * @throws PSExtensionProcessingException if any errors occur during internal
-   *            request to get the allowed content type varaints for the alot.
+   * @param slotId The slot id, assumed not <code>null</code> may be empty in which case all content
+   *     type varaints with slots registered will be returned.
+   * @return The map, where the key is the content type id as a <code>String</code>, and the value
+   *     is a <code>Map</code> containing variant id (<code>String</code> )as key and variant name
+   *     as value. Never <code>null</code>.
+   * @throws PSExtensionProcessingException if any errors occur during internal request to get the
+   *     allowed content type varaints for the alot.
    */
   private Map<String, Map<String, String>> getVariantMap(String slotId)
       throws PSExtensionProcessingException {
@@ -637,18 +618,15 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Filter the supplied collection of node defintions based on the specified
-   * template and the slot associations.
+   * Filter the supplied collection of node defintions based on the specified template and the slot
+   * associations.
    *
-   * @param slotAssocColl The collection of slot associations returned by
-   *           {@link IPSTemplateSlot#getSlotAssociations()} to use to filter
-   *           the node defs, may be <code>null</code> in which case the
-   *           supplied list is simply returned.
-   * @param template assumed not <code>null</code>, only node definitions
-   *           that are associated to the slot with this template are returned.
-   * @param defs The list of node definitions to filter, assumed not
-   *           <code>null</code>.
-   *
+   * @param slotAssocColl The collection of slot associations returned by {@link
+   *     IPSTemplateSlot#getSlotAssociations()} to use to filter the node defs, may be <code>null
+   *     </code> in which case the supplied list is simply returned.
+   * @param template assumed not <code>null</code>, only node definitions that are associated to the
+   *     slot with this template are returned.
+   * @param defs The list of node definitions to filter, assumed not <code>null</code>.
    * @return The filtered list, never <code>null</code>, may be empty.
    */
   private List<IPSNodeDefinition> filterNodeDefs(
@@ -671,18 +649,14 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Filter supplied collection of templates by removing the templates that are
-   * not needed. Filtering is done by keeping only the templates that exist in
-   * the slot association collection supplied. Existence is checked by
-   * comparing the template guids.
+   * Filter supplied collection of templates by removing the templates that are not needed.
+   * Filtering is done by keeping only the templates that exist in the slot association collection
+   * supplied. Existence is checked by comparing the template guids.
    *
-   * @param coll it is the collection of slot associateions returned by
-   *           {@link IPSTemplateSlot#getSlotAssociations()}, assumed not
-   *           <code>null</code>.
+   * @param coll it is the collection of slot associateions returned by {@link
+   *     IPSTemplateSlot#getSlotAssociations()}, assumed not <code>null</code>.
    * @param templates set of templates to filter, assumed not <code>null</code>.
-   *
-   * @return collection as explained above, never <code>null</code>, may be
-   *         empty.
+   * @return collection as explained above, never <code>null</code>, may be empty.
    */
   private Collection<IPSAssemblyTemplate> filterTemplates(
       Collection<PSPair<IPSGuid, IPSGuid>> coll, Collection<IPSAssemblyTemplate> templates) {
@@ -700,13 +674,12 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
    * Builds a map of content id and list of sites the item exists in.
    *
    * @param request request context object, assumed not <code>null</code>.
-   * @param cids <code>String</code> array of all content ids to build the
-   *           map for, asssumed not <code>null</code> or empty.
-   * @return Map of content id and the site folders the item exists in. The key
-   *         in the map will be the content id as <code>String</code> and the
-   *         value will be a <code>Set</code> of {@link SiteFolder} objects.
-   * @throws PSExtensionProcessingException if errors occur during building the
-   *            map.
+   * @param cids <code>String</code> array of all content ids to build the map for, asssumed not
+   *     <code>null</code> or empty.
+   * @return Map of content id and the site folders the item exists in. The key in the map will be
+   *     the content id as <code>String</code> and the value will be a <code>Set</code> of {@link
+   *     SiteFolder} objects.
+   * @throws PSExtensionProcessingException if errors occur during building the map.
    */
   private Map<String, Set<PSSiteRef>> buildContentIdSiteMap(
       IPSRequestContext request, String[] cids) throws PSExtensionProcessingException {
@@ -742,11 +715,11 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Build a map of siteid and {@link SiteFolder} object by making an interanl
-   * request to a rhythmyx resource for site lookup.
+   * Build a map of siteid and {@link SiteFolder} object by making an interanl request to a rhythmyx
+   * resource for site lookup.
    *
-   * @return Map of siteid as <code>String</code> and {@link SiteFolder}
-   *         objects. Never <code>null</code> may be empty.
+   * @return Map of siteid as <code>String</code> and {@link SiteFolder} objects. Never <code>null
+   *     </code> may be empty.
    */
   private Map<String, Set<SiteFolder>> getSiteMap() {
     IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
@@ -770,20 +743,17 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Build a map of contentid and parent folder paths for each of the supplied
-   * content ids using relationship API.
+   * Build a map of contentid and parent folder paths for each of the supplied content ids using
+   * relationship API.
    *
    * @param request request context, assumed not <code>null</code>
-   *
-   * @param cids array of contentid's as <code>String</code> objects for
-   *           which the parent folder paths are being requested. assumed not
-   *           <code>null</code> or empty.
-   * @return a map of contentid and parent folder paths. The key is the
-   *         contentid as <code>String</code> and the value is a string array
-   *         folder paths, which will never be <code>null</code> but may be
-   *         empty. Never <code>null</code>, may be empty.
-   * @throws PSExtensionProcessingException if the parent folder paths could
-   *            not be obtained from server for any reason.
+   * @param cids array of contentid's as <code>String</code> objects for which the parent folder
+   *     paths are being requested. assumed not <code>null</code> or empty.
+   * @return a map of contentid and parent folder paths. The key is the contentid as <code>String
+   *     </code> and the value is a string array folder paths, which will never be <code>null</code>
+   *     but may be empty. Never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if the parent folder paths could not be obtained from
+   *     server for any reason.
    */
   private Map<String, String[]> getParentFolderPaths(IPSRequestContext request, String[] cids)
       throws PSExtensionProcessingException {
@@ -813,12 +783,10 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
    *
    * @param request request context, assumed not <code>null</code>.
    * @param path full folder path, assumed not <code>null</code> or empty.
-   * @param folderIdMap ids we look up are cached in this map, assumed never
-   *         <code>null</code>
-   * @return content id of the folder specified by the path as
-   *         <code>String</code>, never <code>null</code> or empty.
-   * @throws PSExtensionProcessingException if it fails to get the id from the
-   *            path for any reason.
+   * @param folderIdMap ids we look up are cached in this map, assumed never <code>null</code>
+   * @return content id of the folder specified by the path as <code>String</code>, never <code>null
+   *     </code> or empty.
+   * @throws PSExtensionProcessingException if it fails to get the id from the path for any reason.
    */
   private String getFolderIdByPath(
       IPSRequestContext request, String path, Map<String, Integer> folderIdMap)
@@ -843,36 +811,26 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
   }
 
   /**
-   * Inner class to hold data for a site folder. Used mainly in
-   * {@link PSAddVariantSiteFolder#expandBySiteFolders(IPSRequestContext,
-   * List)} and {@link PSAddVariantSiteFolder#expandBySites(IPSRequestContext,
-   * List)}
+   * Inner class to hold data for a site folder. Used mainly in {@link
+   * PSAddVariantSiteFolder#expandBySiteFolders(IPSRequestContext, List)} and {@link
+   * PSAddVariantSiteFolder#expandBySites(IPSRequestContext, List)}
    */
   private class SiteFolder {
-    /**
-     * Site id of the site folder
-     */
+    /** Site id of the site folder */
     private String m_siteId = null;
 
-    /**
-     * Site name of the site folder
-     */
+    /** Site name of the site folder */
     private String m_siteName = null;
 
-    /**
-     * Folder root of the site folder
-     */
+    /** Folder root of the site folder */
     private String m_folderRoot = null;
 
     /**
      * Ctor taking the site details
      *
-     * @param siteid site id as string, assumed not <code>null</code> or
-     *           empty.
-     * @param siteName name of the site, assumed not <code>null</code> or
-     *           empty.
-     * @param folderRoot folder root path for the site, assumed not
-     *           <code>null</code> or empty.
+     * @param siteid site id as string, assumed not <code>null</code> or empty.
+     * @param siteName name of the site, assumed not <code>null</code> or empty.
+     * @param folderRoot folder root path for the site, assumed not <code>null</code> or empty.
      */
     SiteFolder(String siteid, String siteName, String folderRoot) {
       m_siteId = siteid;
@@ -902,26 +860,19 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     }
   }
 
-  /**
-   * Object to represent a site reference
-   */
+  /** Object to represent a site reference */
   private class PSSiteRef {
-    /**
-     * The site id, never <code>null</code> or empty.
-     */
+    /** The site id, never <code>null</code> or empty. */
     private String mi_siteId;
 
-    /**
-     * The site name, never <code>null</code> or empty.
-     */
+    /** The site name, never <code>null</code> or empty. */
     private String mi_siteName;
 
     /**
      * Construct a ref.
      *
      * @param siteId The site id, assumed not <code>null</code> or empty.
-     * @param siteName The site name, assumed not <code>null</code> or
-     *           empty.
+     * @param siteName The site name, assumed not <code>null</code> or empty.
      */
     PSSiteRef(String siteId, String siteName) {
       mi_siteId = siteId;

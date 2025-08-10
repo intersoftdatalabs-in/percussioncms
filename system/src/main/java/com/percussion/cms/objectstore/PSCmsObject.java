@@ -30,18 +30,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * An object representation of a row in the PSX_OBJECTS table. This object
- * is immutable.
- */
+/** An object representation of a row in the PSX_OBJECTS table. This object is immutable. */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCmsObject")
 @Table(name = "PSX_OBJECTS")
 public class PSCmsObject implements IPSCmsComponent {
 
-  /**
-   * Default constructor, which is needed for Hibernate.
-   */
+  /** Default constructor, which is needed for Hibernate. */
   public PSCmsObject() {}
 
   /**
@@ -79,8 +74,7 @@ public class PSCmsObject implements IPSCmsComponent {
   /**
    * Get the factory class name of this object.
    *
-   * @return The full path of a class name, may be empty, but never
-   *    <code>null</code>.
+   * @return The full path of a class name, may be empty, but never <code>null</code>.
    */
   public String getFactory() {
     return m_factory;
@@ -98,8 +92,8 @@ public class PSCmsObject implements IPSCmsComponent {
   /**
    * Determines if the object is permitted to perform the workflow process
    *
-   * @return The <code>true</code> if it is workflowable; <code>false</code>
-   *    if it is not permitted to perform workflow operation.
+   * @return The <code>true</code> if it is workflowable; <code>false</code> if it is not permitted
+   *     to perform workflow operation.
    */
   public boolean isWorkflowable() {
     return m_isWorkflowable == 1;
@@ -108,8 +102,7 @@ public class PSCmsObject implements IPSCmsComponent {
   /**
    * Determines if the object can have different revisions.
    *
-   * @return The <code>true</code> if it is permitted to perform revision
-   *    operation.
+   * @return The <code>true</code> if it is permitted to perform revision operation.
    */
   public boolean isRevisionable() {
     return m_isRevisionable == 1;
@@ -148,8 +141,9 @@ public class PSCmsObject implements IPSCmsComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * &lt;!ELEMENT PSXCmsObject (Description, Factory)>
    * &lt;!ATTLIST PSXCmsObject
@@ -163,7 +157,6 @@ public class PSCmsObject implements IPSCmsComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -182,9 +175,7 @@ public class PSCmsObject implements IPSCmsComponent {
     return root;
   }
 
-  /**
-   * See {@link IPSCmsComponent#fromXml(Element)}
-   */
+  /** See {@link IPSCmsComponent#fromXml(Element)} */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     PSXMLDomUtil.checkNode(sourceNode, XML_NODE_NAME);
 
@@ -232,80 +223,69 @@ public class PSCmsObject implements IPSCmsComponent {
    * Checks whether the supplied type is one of the TYPE_xxx values.
    *
    * @param type Any value.
-   *
-   * @return <code>true</code> if the supplied type is one of the
-   *    TYPE_xxx values, <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied type is one of the TYPE_xxx values, <code>false
+   *     </code> otherwise.
    */
   public static boolean isValidType(int type) {
     return type >= TYPE_ITEM && type <= TYPE_META;
   }
 
   /**
-   * The object type for items, as one of the values in the OBJECTTYPE
-   * column of the object table
+   * The object type for items, as one of the values in the OBJECTTYPE column of the object table
    */
   public static final int TYPE_ITEM = 1;
 
   /**
-   * The object type for folders, as one of the values in the OBJECTTYPE
-   * column of the object table
+   * The object type for folders, as one of the values in the OBJECTTYPE column of the object table
    */
   public static final int TYPE_FOLDER = 2;
 
-  /**
-   * The object type for meta data items, such as template and widget items.
-   */
+  /** The object type for meta data items, such as template and widget items. */
   public static final int TYPE_META = 3;
 
   /**
-   * The name of the object. Initialized by the constructor.
-   * Never <code>null</code> or empty after that.
+   * The name of the object. Initialized by the constructor. Never <code>null</code> or empty after
+   * that.
    */
   @Basic
   @Column(name = "OBJECTNAME")
   private String m_name;
 
   /**
-   * The object type id that is the primary key of the object table
-   * Initialized by constructor, never modified after that.
+   * The object type id that is the primary key of the object table Initialized by constructor,
+   * never modified after that.
    */
   @Id
   @Column(name = "OBJECTTYPE")
   private int m_typeId;
 
   /**
-   * The description of the object. Initialized by constructor, never
-   * <code>null</code>, but may be empty, after that.
+   * The description of the object. Initialized by constructor, never <code>null</code>, but may be
+   * empty, after that.
    */
   @Basic
   @Column(name = "DESCRIPTION")
   private String m_description;
 
   /**
-   * The factory class name of the object. Initialized by constructor,
-   * never <code>null</code>, but may be empty, after that.
+   * The factory class name of the object. Initialized by constructor, never <code>null</code>, but
+   * may be empty, after that.
    */
   @Basic
   @Column(name = "FACTORY")
   private String m_factory;
 
-  /**
-   * See {@link #isWorkflowable()} for description
-   */
+  /** See {@link #isWorkflowable()} for description */
   @Basic
   @Column(name = "ISWORKFLOWABLE")
   private int m_isWorkflowable;
 
-  /**
-   * See {@link #isRevisionable()} for description
-   */
+  /** See {@link #isRevisionable()} for description */
   @Basic
   @Column(name = "ISREVISIONABLE")
   private int m_isRevisionable;
 
-  /**
-   * The XML node name of this object
-   */
+  /** The XML node name of this object */
   public static final String XML_NODE_NAME = "PSXCmsObject";
 
   // Private constants for XML attribute and element name

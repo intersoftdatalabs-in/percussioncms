@@ -23,23 +23,18 @@ import java.util.Map;
 
 public class PSCmsObjectNameLookupUtils {
 
-  /**
-   * Constant for key used to store the cache in the request.
-   */
+  /** Constant for key used to store the cache in the request. */
   private static final String CACHE_KEY = "sys_cmsObjectNameLookupCache";
 
   /**
-   * Initializes the cache in the current request. If this extension is invoked
-   * more than once per overall request, but via more than one internal
-   * requests, since the cache is initialized in a clone of the request it's
-   * lifetime is then tied to each internal request and not the overall
-   * request. In this case this method should be called with the top level
-   * request object before the internal requests are made so that each cloned
-   * request used by the internal request has the same instance of the cache
-   * in it's private objects.
+   * Initializes the cache in the current request. If this extension is invoked more than once per
+   * overall request, but via more than one internal requests, since the cache is initialized in a
+   * clone of the request it's lifetime is then tied to each internal request and not the overall
+   * request. In this case this method should be called with the top level request object before the
+   * internal requests are made so that each cloned request used by the internal request has the
+   * same instance of the cache in it's private objects.
    *
    * @param request The current request, may not be <code>null</code>.
-   *
    * @return The map used as the cache, never <code>null</code>.
    */
   @SuppressWarnings("unchecked")

@@ -31,24 +31,18 @@ import oracle.sql.ArrayDescriptor;
 
 public class OracleTools {
   /**
-   * Set the data for the specified collection for "oracle:thin" driver
-   * using the <code>OraclePreparedStatement.setARRAY</code> method. This
-   * method throws <code>IllegalArgumentException</code> for drivers other
-   * than Oracle or if any object in the collection is not a number.
+   * Set the data for the specified collection for "oracle:thin" driver using the <code>
+   * OraclePreparedStatement.setARRAY</code> method. This method throws <code>
+   * IllegalArgumentException</code> for drivers other than Oracle or if any object in the
+   * collection is not a number.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
-   * @param bindStart The index of the parameter to bind, should be greater
-   * than <code>0</code>
-   * @param coll The colelction containing the values to bind.  May not be
-   * <code>null</code>.
-   * @param dataType The jdbc datatype, must be
-   * <code>java.sql.Types.Array</code>
-   *
-   * @throws IllegalArgumentException if any parameter is invalid or if the
-   * driver is not "oracle:thin", or if the collection contains object which
-   * are not instances of <code>java.lang.Number</code> or whose
-   * <code>toString()</code> does not return a number.
-   *
+   * @param bindStart The index of the parameter to bind, should be greater than <code>0</code>
+   * @param coll The colelction containing the values to bind. May not be <code>null</code>.
+   * @param dataType The jdbc datatype, must be <code>java.sql.Types.Array</code>
+   * @throws IllegalArgumentException if any parameter is invalid or if the driver is not
+   *     "oracle:thin", or if the collection contains object which are not instances of <code>
+   *     java.lang.Number</code> or whose <code>toString()</code> does not return a number.
    * @throws SQLException if database error occurs.
    */
   public static void setDataFromCollection(

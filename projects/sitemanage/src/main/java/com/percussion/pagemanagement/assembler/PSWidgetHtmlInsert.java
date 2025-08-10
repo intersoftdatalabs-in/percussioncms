@@ -21,44 +21,45 @@ import java.util.List;
 
 /**
  * HTML that gets inserted into the page as requested by widgets.
+ *
  * @author adamgent
  */
 public class PSWidgetHtmlInsert {
 
-    private List<String> top;
-    private List<String> bottom;
-    private List<String> before;
-    private List<String> after;
+  private List<String> top;
+  private List<String> bottom;
+  private List<String> before;
+  private List<String> after;
 
-    public List<String> getTop() {
-        return top;
-    }
+  public List<String> getTop() {
+    return top;
+  }
 
-    public void setTop(List<String> top) {
-        this.top = top;
-    }
+  public void setTop(List<String> top) {
+    this.top = top;
+  }
 
-    public List<String> getBottom() {
-        return bottom;
-    }
+  public List<String> getBottom() {
+    return bottom;
+  }
 
-    public void setBottom(List<String> bottom) {
-        this.bottom = bottom;
-    }
+  public void setBottom(List<String> bottom) {
+    this.bottom = bottom;
+  }
 
-    public List<String> getBefore() {
-        return before;
-    }
+  public List<String> getBefore() {
+    return before;
+  }
 
-    public void setBefore(List<String> before) {
-        this.before = before;
-    }
+  public void setBefore(List<String> before) {
+    this.before = before;
+  }
 
-    public List<String> getAfter() {
-        return after;
-    }
+  public List<String> getAfter() {
+    return after;
+  }
 
-    public void setAfter(List<String> after) {
-        this.after = after;
-    }
+  public void setAfter(List<String> after) {
+    this.after = after;
+  }
 }

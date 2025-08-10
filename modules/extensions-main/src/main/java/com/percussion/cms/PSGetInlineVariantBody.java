@@ -30,8 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit will add the inline variant body to the result document if
- * this is of type "rxvariant"
+ * This exit will add the inline variant body to the result document if this is of type "rxvariant"
  */
 public class PSGetInlineVariantBody extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -85,23 +84,15 @@ public class PSGetInlineVariantBody extends PSDefaultExtension
     return resultDoc;
   }
 
-  /**
-   * Constant that represents the script end tag
-   */
+  /** Constant that represents the script end tag */
   private static final String SCRIPT_END = "</script";
 
-  /**
-   * Constant that represents the script start tag
-   */
+  /** Constant that represents the script start tag */
   private static final String SCRIPT_START = "<script";
 
-  /**
-   * Constant that represents the script end tag token
-   */
+  /** Constant that represents the script end tag token */
   private static final String SCRIPT_END_TOKEN = "@RX_SCRIPT_END@";
 
-  /**
-   * Constant that represents the script start tag token
-   */
+  /** Constant that represents the script start tag token */
   private static final String SCRIPT_START_TOKEN = "@RX_SCRIPT_START@";
 }

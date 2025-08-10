@@ -59,22 +59,18 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Handles the caching of query resource pages.  Will only cache pages returned
- * by query resource with caching enabled.  Manages the automatic flushing of
- * stale or dirty pages in the cache by monitoring all update resources
- * for insert, update and delete requests matching tables used by the query
- * resource or any query resources it lists as depedencies, recursively.
+ * Handles the caching of query resource pages. Will only cache pages returned by query resource
+ * with caching enabled. Manages the automatic flushing of stale or dirty pages in the cache by
+ * monitoring all update resources for insert, update and delete requests matching tables used by
+ * the query resource or any query resources it lists as depedencies, recursively.
  */
 public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableChangeListener {
 
   /**
    * Constructs an instance of this handler.
    *
-   * @param cacheSettings The server cache settings.  May not be
-   * <code>null</code>.
-   *
-   * @throws IllegalStateException if the <code>PSCacheManager</code> has not
-   * been initialized.
+   * @param cacheSettings The server cache settings. May not be <code>null</code>.
+   * @throws IllegalStateException if the <code>PSCacheManager</code> has not been initialized.
    */
   public PSResourceCacheHandler(PSServerCacheSettings cacheSettings) {
     super(KEY_SIZE, cacheSettings);
@@ -111,28 +107,24 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * See interface {@link IPSCacheHandler#getKeyNames} and {@link #flush(Map)}
-   * for more information.
+   * See interface {@link IPSCacheHandler#getKeyNames} and {@link #flush(Map)} for more information.
    */
   public String[] getKeyNames() {
     return KEY_ENUM;
   }
 
   /**
-   * Validates that the supplied keys represent all keys required by this
-   * handler to flush cached items. See {@link #flush(Map) flush} for
-   * description of keys.
-   * <br>
+   * Validates that the supplied keys represent all keys required by this handler to flush cached
+   * items. See {@link #flush(Map) flush} for description of keys. <br>
    * This method validates the following cases.
+   *
    * <ol>
-   * <li>The number of keys supplied is at least the size of {@link #KEY_ENUM}.
-   * </li>
-   * <li>Should have entries for all the keys required for this handler.</li>
+   *   <li>The number of keys supplied is at least the size of {@link #KEY_ENUM}.
+   *   <li>Should have entries for all the keys required for this handler.
    * </ol>
    *
    * @param keys A map of key names and their values. May not be <code>null
    * </code> or empty.
-   *
    * @throws PSSystemValidationException if the validation fails.
    */
   public void validateKeys(Map keys) throws PSSystemValidationException {
@@ -156,16 +148,13 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * Determines if the request in the supplied cache context may be cached.
-   * Only requests that identify query resources with caching enabled may be
-   * cached.
-   * <p>
-   * It always returns <code>false</code> if the HTML parameter,
-   * {@link IPSHtmlParameters#SYS_IS_RESOURCE_CACHE_OFF} equals
-   * {@link IPSConstants#BOOLEAN_TRUE}.
+   * Determines if the request in the supplied cache context may be cached. Only requests that
+   * identify query resources with caching enabled may be cached.
    *
-   * See base class for more info.
+   * <p>It always returns <code>false</code> if the HTML parameter, {@link
+   * IPSHtmlParameters#SYS_IS_RESOURCE_CACHE_OFF} equals {@link IPSConstants#BOOLEAN_TRUE}.
    *
+   * <p>See base class for more info.
    */
   public boolean isRequestCacheable(PSCacheContext context) {
     if (context == null) throw new IllegalArgumentException("context may not be null");
@@ -185,14 +174,13 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * Used to register for the appropriate change events so that dirty cache
-   * items may be detected and automatically flushed.  Will register with any
-   * <code>PSUpdateHandler</code> to be informed of all update events.  Builds
-   * list of query resources to cache, and a tree of parent-child query
-   * resource dependencies relationships for automatic flushing of parent pages
-   * when child data is updated.
+   * Used to register for the appropriate change events so that dirty cache items may be detected
+   * and automatically flushed. Will register with any <code>PSUpdateHandler</code> to be informed
+   * of all update events. Builds list of query resources to cache, and a tree of parent-child query
+   * resource dependencies relationships for automatic flushing of parent pages when child data is
+   * updated.
    *
-   * See base class for more info.
+   * <p>See base class for more info.
    */
   void initHandler(IPSRequestHandler requestHandler) {
     if (requestHandler == null)
@@ -220,9 +208,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
   }
 
-  /**
-   * Flushes all cached responses.
-   */
+  /** Flushes all cached responses. */
   @Override
   void flush() {
     logFlushMessage(null);
@@ -230,11 +216,10 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * Flushes cache items based on the supplied keys.  The keys supplied may
-   * identify one or more cached items.  Any items identified by the supplied
-   * keys are flushed.  The keys supplied to this handler must include each of
-   * the following keys or else the request is ignored and the method simply
-   * returns.
+   * Flushes cache items based on the supplied keys. The keys supplied may identify one or more
+   * cached items. Any items identified by the supplied keys are flushed. The keys supplied to this
+   * handler must include each of the following keys or else the request is ignored and the method
+   * simply returns.
    *
    * <table>
    * <tr>
@@ -250,10 +235,10 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
    * </tr>
    * </table>
    *
-   * To omit a key, use <code>null</code> or an empty <code>String</code> for
-   * the value of the entry.
+   * To omit a key, use <code>null</code> or an empty <code>String</code> for the value of the
+   * entry.
    *
-   * See base class for more info.
+   * <p>See base class for more info.
    */
   void flush(Map keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
@@ -299,10 +284,9 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * Returns a non-<code>null</code> empty iterator so all table changes
-   * will trigger a notification, but will not cause the update handler to
-   * generate column values. See {@link IPSTableChangeListener} for more
-   * information.
+   * Returns a non-<code>null</code> empty iterator so all table changes will trigger a
+   * notification, but will not cause the update handler to generate column values. See {@link
+   * IPSTableChangeListener} for more information.
    */
   public Iterator getColumns(
       @SuppressWarnings("unused") String tableName, @SuppressWarnings("unused") int actionType) {
@@ -315,24 +299,22 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
   }
 
   /**
-   * Extracts the required keyset from the provided context.  Key values
-   * returned are as follows. For case-insensitive entries, they are lowercased
-   * before they are added:
+   * Extracts the required keyset from the provided context. Key values returned are as follows. For
+   * case-insensitive entries, they are lowercased before they are added:
+   *
    * <ol>
-   * <li>App name (case-sensitivity determined by server setting)</li>
-   * <li>Dataset name </li>
-   * <li>The following values concatenated together, delimited by a "/":
-   * <ol>
-   * <li>Protocol  (case-insensitive)
-   * <li>Server/port (case-insensitive) - if port is 80, will not be added</li>
-   * <li>Rhythmyx root (case-sensitivity determined by server's setting)</li>
-   * <li>Page extension (case-insensitive)</li>
-   * <li>all HTML params (case-sensitive), sorted by name in form name=value
-   * <li>Any additional keys specified by the resource's cache settings.
-   * </li>
+   *   <li>App name (case-sensitivity determined by server setting)
+   *   <li>Dataset name
+   *   <li>The following values concatenated together, delimited by a "/":
+   *       <ol>
+   *         <li>Protocol (case-insensitive)
+   *         <li>Server/port (case-insensitive) - if port is 80, will not be added
+   *         <li>Rhythmyx root (case-sensitivity determined by server's setting)
+   *         <li>Page extension (case-insensitive)
+   *         <li>all HTML params (case-sensitive), sorted by name in form name=value
+   *         <li>Any additional keys specified by the resource's cache settings.
+   *       </ol>
    * </ol>
-   * </li>
-   *</ol>
    *
    * See base class for more info.
    */
@@ -429,8 +411,8 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
    * Flushes all items specified by the provided list of dataset keys.
    *
    * @param cache The cache to flush, assumed not <code>null</code>.
-   * @param dsKeys A list of <code>PSDataSetKey</code> objects.  Assumed not
-   * <code>null</code>, may be empty.
+   * @param dsKeys A list of <code>PSDataSetKey</code> objects. Assumed not <code>null</code>, may
+   *     be empty.
    */
   private void flushDependencies(PSMultiLevelCache cache, Iterator dsKeys) {
     Object keys[] = new Object[KEY_SIZE];
@@ -444,73 +426,61 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
   }
 
-  /**
-   * Type of request this handler will cache.  See {@link #getType()} for more
-   * information.
-   */
+  /** Type of request this handler will cache. See {@link #getType()} for more information. */
   public static final String HANDLER_TYPE = "Resource";
 
   /**
-   * Static array of key names, each at the position in the array of its
-   * corresponding index in a valid keyset.  Never <code>null</code>.
+   * Static array of key names, each at the position in the array of its corresponding index in a
+   * valid keyset. Never <code>null</code>.
    */
   public static final String[] KEY_ENUM = {"appname", "datasetname"};
 
   /**
-   * Constant for the key size this handler's cache will use.  Value is
-   * currently <code>6</code>.   All <code>KEY_XXX_INDEX</code> values must be
-   * between <code>0</code> and <code>KEY_SIZE - 1</code>, inclusive.
+   * Constant for the key size this handler's cache will use. Value is currently <code>6</code>. All
+   * <code>KEY_XXX_INDEX</code> values must be between <code>0</code> and <code>KEY_SIZE - 1</code>,
+   * inclusive.
    */
   private static final int KEY_SIZE = 3;
 
-  /**
-   * Index into the keyset array for the application name.
-   */
+  /** Index into the keyset array for the application name. */
   private static final int KEY_APP_INDEX = 0;
 
-  /**
-   * Index into the keyset array for the dataset name
-   */
+  /** Index into the keyset array for the dataset name */
   private static final int KEY_DATASET_INDEX = 1;
 
   /**
-   * Index into the keyset array for the composite key value. This is all other
-   * key values concatenated together.
+   * Index into the keyset array for the composite key value. This is all other key values
+   * concatenated together.
    */
   private static final int KEY_COMPOSITE_INDEX = 2;
 
-  /**
-   * Constant for the separator used when building the composite key value.
-   */
+  /** Constant for the separator used when building the composite key value. */
   private static final String KEY_SEP = "/";
 
   /**
-   * Constant for the separator used between parameter names and values when
-   * building the composite key value.
+   * Constant for the separator used between parameter names and values when building the composite
+   * key value.
    */
   private static final String PARAM_SEP = "=";
 
-  /**
-   * Constant for the separator used when building the composite names.
-   */
+  /** Constant for the separator used when building the composite names. */
   private static final String NAME_SEP = "/";
 
   /**
-   * Represents all runtime data for query resources that will be cached.
-   * Never <code>null</code>, modified by calls to <code>initHandler()</code>
-   * and <code>tableChangeShutdown()</code>
+   * Represents all runtime data for query resources that will be cached. Never <code>null</code>,
+   * modified by calls to <code>initHandler()</code> and <code>tableChangeShutdown()</code>
    */
   private PSResourceDependencyTree m_depTree = new PSResourceDependencyTree();
 
   /**
-   * Map of view name to list of table names used by the view, never
-   * <code>null</code> or modified after construction.
+   * Map of view name to list of table names used by the view, never <code>null</code> or modified
+   * after construction.
    */
   private static Map<String, Collection<String>> ms_viewMap = new ConcurrentHashMap<>();
 
   /**
-   * Map of object type to associated table name to flush if an object of that
-   * type is evicted from the hibernate cache
+   * Map of object type to associated table name to flush if an object of that type is evicted from
+   * the hibernate cache
    */
   private static Map<PSTypeEnum, String> ms_tableTypeMap = new ConcurrentHashMap<>();
 
@@ -549,10 +519,7 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     ms_viewMap.put("RXWORKFLOWCOMMUNITY", communityViewTableNames);
   }
 
-  /**
-   * Class to encapsulate the unique key for a dataset, its app name and
-   * dataset name.
-   */
+  /** Class to encapsulate the unique key for a dataset, its app name and dataset name. */
   private class PSDataSetKey {
     /**
      * Construct a key.
@@ -593,9 +560,8 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * Determines if the supplied object is equal to this one.
      *
      * @param obj An object, may be <code>null</code>.
-     *
-     * @return <code>true</code> if the supplied object is an instance of
-     * <code>PSDataSetKey</code> with the same member values.
+     * @return <code>true</code> if the supplied object is an instance of <code>PSDataSetKey</code>
+     *     with the same member values.
      */
     public boolean equals(Object obj) {
       boolean isEqual = true;
@@ -610,8 +576,8 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Returns a hash code value for the object. See
-     * {@link java.lang.Object#hashCode() Object.hashCode()} for more info.
+     * Returns a hash code value for the object. See {@link java.lang.Object#hashCode()
+     * Object.hashCode()} for more info.
      */
     public int hashCode() {
       return m_appName.hashCode() + m_dsName.hashCode();
@@ -620,37 +586,35 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     /**
      * Get the string representation of this object.
      *
-     * @return A string in the format <appName>/<dsName>, never
-     * <code>null</code> or empty.
+     * @return A string in the format <appName>/<dsName>, never <code>null</code> or empty.
      */
     public String toString() {
       return m_appName + "/" + m_dsName;
     }
 
     /**
-     * The name of the application containing this dataset, initialized by the
-     * ctor, never <code>null</code> or empty or modified after that.
+     * The name of the application containing this dataset, initialized by the ctor, never <code>
+     * null</code> or empty or modified after that.
      */
     private String m_appName;
 
     /**
-     * The name of the dataset, initialized by the ctor, never
-     * <code>null</code> or empty or modified after that.
+     * The name of the dataset, initialized by the ctor, never <code>null</code> or empty or
+     * modified after that.
      */
     private String m_dsName;
   }
 
   /**
-   * Class to encapsulate runtime information about cached resources, and
-   * dependencies between query resources and their child resource and table
-   * dependencies.
+   * Class to encapsulate runtime information about cached resources, and dependencies between query
+   * resources and their child resource and table dependencies.
    */
   private class PSResourceDependencyTree {
     /**
      * Add a resource to this tree.
      *
-     * @param appName The name of the app containing the dataset, may not be
-     * <code>null</code> or empty
+     * @param appName The name of the app containing the dataset, may not be <code>null</code> or
+     *     empty
      * @param ds The dataset to add, may not be <code>null</code>.
      */
     public void addResource(String appName, PSDataSet ds) {
@@ -706,15 +670,12 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * If the supplied table name represents a view, returns a list of tables
-     * used by the view, otherwise returns a list with only the supplied
-     * table name.
+     * If the supplied table name represents a view, returns a list of tables used by the view,
+     * otherwise returns a list with only the supplied table name.
      *
-     * @param tableName The name of the table or view to check, assumed not
-     * <code>null</code> or empty, match is case insensitive.
-     *
-     * @return The resulting list of table names, never <code>null</code> or
-     * empty.
+     * @param tableName The name of the table or view to check, assumed not <code>null</code> or
+     *     empty, match is case insensitive.
+     * @return The resulting list of table names, never <code>null</code> or empty.
      */
     private Collection<String> expandViews(String tableName) {
       Collection<String> result = new ArrayList<>();
@@ -728,10 +689,9 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     /**
      * Remove all stored information for a dataset.
      *
-     * @param appName The name of the app containing the dataset.  May not be
-     * <code>null</code> or empty.
-     * @param datasetName The name of the datatset, may not be
-     * <code>null</code> or empty.
+     * @param appName The name of the app containing the dataset. May not be <code>null</code> or
+     *     empty.
+     * @param datasetName The name of the datatset, may not be <code>null</code> or empty.
      */
     public void removeResource(String appName, String datasetName) {
       if (datasetName == null || datasetName.trim().length() == 0)
@@ -754,14 +714,12 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Get keys for all datasets affected by updates to the specified
-     * table.  Also includes keys for parent datasets of child resources
-     * that are affected by the updates, recursively.
+     * Get keys for all datasets affected by updates to the specified table. Also includes keys for
+     * parent datasets of child resources that are affected by the updates, recursively.
      *
      * @param tableName The name of the table that was updated.
-     *
-     * @return An interator over zero or more <code>PSDataSetKey</code>
-     * objects, never <code>null</code>.
+     * @return An interator over zero or more <code>PSDataSetKey</code> objects, never <code>null
+     *     </code>.
      */
     public Iterator getDatasetKeys(String tableName) {
       List<PSDataSetKey> result = new ArrayList<>();
@@ -790,13 +748,10 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     /**
      * Get cache settings for the specified dataset.
      *
-     * @param appName The name of the app containing the dataset, may not be
-     * <code>null</code> or empty.
-     * @param dsName The name of the dataset, may not be <code>null</code> or
-     * empty.
-     *
-     * @return The settings, or <code>null</code> if caching not enabled for
-     * the specified dataset.
+     * @param appName The name of the app containing the dataset, may not be <code>null</code> or
+     *     empty.
+     * @param dsName The name of the dataset, may not be <code>null</code> or empty.
+     * @return The settings, or <code>null</code> if caching not enabled for the specified dataset.
      */
     public PSResourceCacheSettings getSettings(String appName, String dsName) {
       if (appName == null || appName.trim().length() == 0)
@@ -809,16 +764,13 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Get all extractors used to provide additional key values for the
-     * specified resource.
+     * Get all extractors used to provide additional key values for the specified resource.
      *
-     * @param appName The name of the app containing the dataset, may not be
-     * <code>null</code> or empty.
-     * @param dsName The name of the dataset, may not be <code>null</code> or
-     * empty.
-     *
-     * @return An iterator over zero or more <code>IPSDataExtractor</code>
-     * objects, never <code>null</code>.
+     * @param appName The name of the app containing the dataset, may not be <code>null</code> or
+     *     empty.
+     * @param dsName The name of the dataset, may not be <code>null</code> or empty.
+     * @return An iterator over zero or more <code>IPSDataExtractor</code> objects, never <code>null
+     *     </code>.
      */
     public Iterator getExtractors(String appName, String dsName) {
       if (appName == null || appName.trim().length() == 0)
@@ -840,12 +792,10 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
      * Recursively get parent datasets for the suplied dataset key.
      *
      * @param dsKey The key, assumed not <code>null</code>.
-     * @param processed List of <code>PSDataSetKey</code> objects for datasets
-     * whose parents have already been retrieved, to avoid infinite loops.
-     * Assumed not <code>null</code>.
-     *
-     * @return List of parent <code>PSDataSetKey</code> objects, only those
-     * that have caching enabled. Never <code>null</code>, may be empty.
+     * @param processed List of <code>PSDataSetKey</code> objects for datasets whose parents have
+     *     already been retrieved, to avoid infinite loops. Assumed not <code>null</code>.
+     * @return List of parent <code>PSDataSetKey</code> objects, only those that have caching
+     *     enabled. Never <code>null</code>, may be empty.
      */
     private List<PSDataSetKey> getParents(PSDataSetKey dsKey, List<PSDataSetKey> processed) {
       List<PSDataSetKey> result = new ArrayList<>();
@@ -877,16 +827,13 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Removes the specified object from any map entry that contains it in its
-     * value list.  If the map entry's value list is then empty, the entry is
-     * removed from the map.
+     * Removes the specified object from any map entry that contains it in its value list. If the
+     * map entry's value list is then empty, the entry is removed from the map.
      *
-     * @param map The map to process, where the key is a <code>String</code>
-     * object, and the value is a <code>List</code> of objects, assumed not
-     * <code>null</code>.
-     * @param value The object to remove from the list contained by the value
-     * of each entry in the supplied <code>map</code>.  May be
-     * <code>null</code>.
+     * @param map The map to process, where the key is a <code>String</code> object, and the value
+     *     is a <code>List</code> of objects, assumed not <code>null</code>.
+     * @param value The object to remove from the list contained by the value of each entry in the
+     *     supplied <code>map</code>. May be <code>null</code>.
      */
     @SuppressWarnings("unchecked")
     private void removeFromMapEntryList(Map map, Object value) {
@@ -902,13 +849,13 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Initializes extractors for any additional keys specified by the
-     * supplied cache settings so they are available at runtime.
+     * Initializes extractors for any additional keys specified by the supplied cache settings so
+     * they are available at runtime.
      *
-     * @param settings The settings which may specify additional keys,
-     * assumed not <code>null</code>.
-     * @param dsKey The key to use to store and retrive the extractors,
-     * assumed not <code>null</code>.
+     * @param settings The settings which may specify additional keys, assumed not <code>null</code>
+     *     .
+     * @param dsKey The key to use to store and retrive the extractors, assumed not <code>null
+     *     </code>.
      */
     private void initExtractors(PSResourceCacheSettings settings, PSDataSetKey dsKey) {
       List<IPSDataExtractor> extractors = new ArrayList<>();
@@ -927,14 +874,12 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Get a full resource name (app and resource) to use as a key when
-     * storing this value in a collection.
+     * Get a full resource name (app and resource) to use as a key when storing this value in a
+     * collection.
      *
-     * @param appName The name of the app containing the resource, assumed not
-     * <code>null</code> or empty.
-     * @param resourceName The name of the resource, assumed not
-     * <code>null</code> or empty.
-     *
+     * @param appName The name of the app containing the resource, assumed not <code>null</code> or
+     *     empty.
+     * @param resourceName The name of the resource, assumed not <code>null</code> or empty.
      * @return The full resource name, never <code>null</code> or empty.
      */
     private String getResourceName(String appName, String resourceName) {
@@ -942,51 +887,45 @@ public class PSResourceCacheHandler extends PSCacheHandler implements IPSTableCh
     }
 
     /**
-     * Map of cache settings for each dataset that has caching enabled, where
-     * key is a <code>PSDataSetKey</code> object, and the value is the
-     * <code>PSResourceCacheSettings</code>.  Never <code>null</code>,
-     * modified by calls to <code>addResource()</code> and
-     * <code>removeResource()</code>.
+     * Map of cache settings for each dataset that has caching enabled, where key is a <code>
+     * PSDataSetKey</code> object, and the value is the <code>PSResourceCacheSettings</code>. Never
+     * <code>null</code>, modified by calls to <code>addResource()</code> and <code>removeResource()
+     * </code>.
      */
     private Map<PSDataSetKey, PSResourceCacheSettings> m_settingsMap = new ConcurrentHashMap<>();
 
     /**
-     * Map of table names to list of dataset keys, never <code>null</code>,
-     * modified by calls to <code>addResource()</code> and
-     * <code>removeResource()</code>.  Key is the table name as a
-     * <code>String</code>, value is a <code>List</code> of
-     * <code>PSDataSetKey</code> objects.  Since this object contains lists,
-     * access to this object must be synchronized to be thread safe and avoid
-     * concurrent modification exceptions.
+     * Map of table names to list of dataset keys, never <code>null</code>, modified by calls to
+     * <code>addResource()</code> and <code>removeResource()</code>. Key is the table name as a
+     * <code>String</code>, value is a <code>List</code> of <code>PSDataSetKey</code> objects. Since
+     * this object contains lists, access to this object must be synchronized to be thread safe and
+     * avoid concurrent modification exceptions.
      */
     private Map<String, List<PSDataSetKey>> m_tableMap = new ConcurrentHashMap<>();
 
     /**
-     * Map of dataset to resource (page) names.  Key is the
-     * <code>PSDataSetKey</code> object, value is corresponding page name from
-     * its requestor as <code>String</code> objects.  Never <code>null</code>,
-     * modified by calls to <code>addResource()</code> and
-     * <code>removeResource()</code>.
+     * Map of dataset to resource (page) names. Key is the <code>PSDataSetKey</code> object, value
+     * is corresponding page name from its requestor as <code>String</code> objects. Never <code>
+     * null</code>, modified by calls to <code>addResource()</code> and <code>removeResource()
+     * </code>.
      */
     private Map<PSDataSetKey, String> m_resourceMap = new ConcurrentHashMap<>();
 
     /**
-     * Map of child resource (page) names to list of parent datasets, where
-     * key is the child resource name as a <code>String</code> object, and
-     * value is a <code>List</code> of <code>PSDataSetKey</code> objects.
-     * Never <code>null</code>, modified by calls to
-     * <code>addResource()</code> and <code>removeResource()</code>.  Since
-     * this object contains lists, access to this object must be synchronized
-     * to be thread safe and avoid concurrent modification exceptions.
+     * Map of child resource (page) names to list of parent datasets, where key is the child
+     * resource name as a <code>String</code> object, and value is a <code>List</code> of <code>
+     * PSDataSetKey</code> objects. Never <code>null</code>, modified by calls to <code>
+     * addResource()</code> and <code>removeResource()</code>. Since this object contains lists,
+     * access to this object must be synchronized to be thread safe and avoid concurrent
+     * modification exceptions.
      */
     private Map<String, List<PSDataSetKey>> m_parentMap = new ConcurrentHashMap<>();
 
     /**
-     * Map of additional key extractor for each cached resource.  Key is a
-     * <code>PSDataSetKey</code> object, value is a <code>List</code> of
-     * <code>IPSDataExtractor</code> objects. Never <code>null</code>,
-     * modified by calls to <code>addResource()</code> and
-     * <code>removeResource()</code>.
+     * Map of additional key extractor for each cached resource. Key is a <code>PSDataSetKey</code>
+     * object, value is a <code>List</code> of <code>IPSDataExtractor</code> objects. Never <code>
+     * null</code>, modified by calls to <code>addResource()</code> and <code>removeResource()
+     * </code>.
      */
     private Map<PSDataSetKey, List<IPSDataExtractor>> m_keyExtractors = new ConcurrentHashMap<>();
   }

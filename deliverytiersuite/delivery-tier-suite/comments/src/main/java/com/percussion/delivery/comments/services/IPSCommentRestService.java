@@ -41,14 +41,16 @@ import org.glassfish.jersey.server.ContainerRequest;
 
 /**
  * REST API for comment operations.
+ *
  * @author natechadwick
  */
 public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Returns all comments based on the passed in comments criteria.
-   * @param criteria a comments criteria object. See {@link PSCommentCriteria} for
-   * a description of each allowed criteria field. Cannot be null.
+   *
+   * @param criteria a comments criteria object. See {@link PSCommentCriteria} for a description of
+   *     each allowed criteria field. Cannot be null.
    * @return comments object, never null, may be empty.
    */
   @POST
@@ -56,8 +58,9 @@ public interface IPSCommentRestService extends IPSRestService {
   PSComments getComments(PSCommentCriteria criteria);
 
   /**
-   * Returns all comments based on the passed in comments criteria. Comments
-   * are viewed as moderator. They will be marked as viewed.
+   * Returns all comments based on the passed in comments criteria. Comments are viewed as
+   * moderator. They will be marked as viewed.
+   *
    * @param criteria cannot be null.
    * @return comments object, never null, may be empty.
    */
@@ -68,11 +71,12 @@ public interface IPSCommentRestService extends IPSRestService {
   PSComments getCommentsAsModerator(PSCommentCriteria criteria);
 
   /**
-   * Calls {@link #getComments(PSCommentCriteria)} and wraps for a jsonp call
-   * for cross-domain access to JavaScript.
+   * Calls {@link #getComments(PSCommentCriteria)} and wraps for a jsonp call for cross-domain
+   * access to JavaScript.
+   *
    * @param criteria comment criteria.
-   * @return wrapped comments object, never null or empty. But the wrapper object
-   * may contain no comment data.
+   * @return wrapped comments object, never null or empty. But the wrapper object may contain no
+   *     comment data.
    */
   @POST
   @Path("/jsonp")
@@ -82,6 +86,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Retrieves list of page summaries for the specified site.
+   *
    * @param site the sitename of the site to find pages with comments for.
    * @param criteria comment criteria for paging.
    * @return list of page summaries, never null, may be empty.
@@ -92,8 +97,9 @@ public interface IPSCommentRestService extends IPSRestService {
   PSPageSummaries getPagesWithComments(@PathParam("site") String site, PSCommentCriteria criteria);
 
   /**
-   * Processes a comments entry form and adds a new comment to the comment
-   * service. Upon comment addition the form redirects back to the referer.
+   * Processes a comments entry form and adds a new comment to the comment service. Upon comment
+   * addition the form redirects back to the referer.
+   *
    * @param containerRequest request context.
    * @param action form action.
    * @param headers request headers.
@@ -108,6 +114,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Deletes the specified list of comments.
+   *
    * @param commentIds list of comment IDs to be deleted.
    */
   @PUT
@@ -117,6 +124,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Approves the specified list of comments.
+   *
    * @param commentIds list of comment IDs to be approved.
    */
   @PUT
@@ -126,6 +134,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Rejects the specified list of comments.
+   *
    * @param commentIds list of comment IDs to be rejected.
    */
   @PUT
@@ -135,6 +144,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Sets the default moderation state for a site.
+   *
    * @param data map containing site and state.
    */
   @PUT
@@ -144,6 +154,7 @@ public interface IPSCommentRestService extends IPSRestService {
 
   /**
    * Gets the default moderation state for a site.
+   *
    * @param site site name.
    * @return moderation state.
    */

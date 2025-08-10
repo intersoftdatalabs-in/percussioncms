@@ -33,18 +33,16 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This exit is used to clone communities. If the HTML parameter
- * <code>sourcecloneid</code> is supplied, this exit gets all Content Types,
- * Workflows, Components, Variants, Sites that are related to the source
- * community and adds them to the new community clone. If that parameter is not
- * found, this exit does nothing. This exit also needs the newly created
- * community id in the form of HTML parameter named "communityid" if it is
- * missing, the exit skips the copying community relations. If roleid HTML
- * parameter exists then it adds that role to the new community, if rolename
- * exists instead of roleid then it creates a new role with that name and newly
- * created roleid will be added to the community. If there are any errors while
- * creating the role it writes to the trace and user has to create the role in
- * Admin client and then add that role to the new community manually.
+ * This exit is used to clone communities. If the HTML parameter <code>sourcecloneid</code> is
+ * supplied, this exit gets all Content Types, Workflows, Components, Variants, Sites that are
+ * related to the source community and adds them to the new community clone. If that parameter is
+ * not found, this exit does nothing. This exit also needs the newly created community id in the
+ * form of HTML parameter named "communityid" if it is missing, the exit skips the copying community
+ * relations. If roleid HTML parameter exists then it adds that role to the new community, if
+ * rolename exists instead of roleid then it creates a new role with that name and newly created
+ * roleid will be added to the community. If there are any errors while creating the role it writes
+ * to the trace and user has to create the role in Admin client and then add that role to the new
+ * community manually.
  */
 public class PSCloneCommunityExit extends PSCloneBase {
 
@@ -115,10 +113,8 @@ public class PSCloneCommunityExit extends PSCloneBase {
    * Utility method to create a Role with the supplied name.
    *
    * @param request IPSRequestContext object assumed not <code>null</code>.
-   * @param roleName The name of the role to create, assumed not
-   *           <code>null</code> or empty.
+   * @param roleName The name of the role to create, assumed not <code>null</code> or empty.
    * @return The role, never <code>null</code>.
-   *
    * @throws PSExtensionProcessingException if the role cannot be created.
    */
   private PSRole createRole(IPSRequestContext request, String roleName)
@@ -158,11 +154,8 @@ public class PSCloneCommunityExit extends PSCloneBase {
    * Get the specified role from the supplied role cfg.
    *
    * @param roleCfg The role cfg, assumed not <code>null</code>.
-   * @param roleName The name of the role to get, assumed not <code>null</code>
-   *           or empty.
-   *
-   * @return The role, may be <code>null</code> if not found in the supplied
-   *         cfg.
+   * @param roleName The name of the role to get, assumed not <code>null</code> or empty.
+   * @return The role, may be <code>null</code> if not found in the supplied cfg.
    */
   private PSRole getRole(PSRoleConfiguration roleCfg, String roleName) {
     PSRole role = null;
@@ -175,9 +168,7 @@ public class PSCloneCommunityExit extends PSCloneBase {
     return role;
   }
 
-  /**
-   * Array of query resource names of community relations.
-   */
+  /** Array of query resource names of community relations. */
   private static final String[] ms_queryResources = {
     "sys_commCloning/QueryWorkflowCommunity",
     "sys_commCloning/QueryContentTypeCommunity",
@@ -186,9 +177,7 @@ public class PSCloneCommunityExit extends PSCloneBase {
     "sys_commCloning/QuerySiteCommunity"
   };
 
-  /**
-   * Array of update resource names of community relations.
-   */
+  /** Array of update resource names of community relations. */
   private static final String[] ms_updateResources = {
     "sys_commCloning/UpdateWorkflowCommunity",
     "sys_commCloning/UpdateContentTypeCommunity",
@@ -197,8 +186,6 @@ public class PSCloneCommunityExit extends PSCloneBase {
     "sys_commCloning/UpdateSiteCommunity"
   };
 
-  /**
-   * Role community relationship update resource name.
-   */
+  /** Role community relationship update resource name. */
   private static final String UPDATE_ROLE_COMMUNITY_RES = "sys_commSupport/updaterolerelation";
 }

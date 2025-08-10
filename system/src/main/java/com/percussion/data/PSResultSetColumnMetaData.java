@@ -20,22 +20,20 @@ package com.percussion.data;
 import java.sql.ResultSetMetaData;
 
 /**
- * The PSResultSetColunMetaData is used to defined a column's meta data
- * for use in a PSResultSetMetaData object.
+ * The PSResultSetColunMetaData is used to defined a column's meta data for use in a
+ * PSResultSetMetaData object.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultSetColumnMetaData {
   /**
    * Construct a column meta data object with some basic info.
    *
-   * @param   name      the name of the column
-   *
-   * @param   type      the java.sql.Type data type of the column
-   *
-   * @param   size      the max column size
+   * @param name the name of the column
+   * @param type the java.sql.Type data type of the column
+   * @param size the max column size
    */
   public PSResultSetColumnMetaData(String name, int type, int size) {
     super();
@@ -58,7 +56,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column automatically numbered, thus read-only?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isAutoIncrement() {
     return (m_flags & COL_AUTO_INCREMENT) == COL_AUTO_INCREMENT;
@@ -67,7 +65,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Does a column's case matter?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isCaseSensitive() {
     return (m_flags & COL_CASE_SENSITIVE) == COL_CASE_SENSITIVE;
@@ -76,7 +74,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Can the column be used in a where clause?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isSearchable() {
     return (m_flags & COL_SEARCHABLE) == COL_SEARCHABLE;
@@ -85,7 +83,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column a cash value?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isCurrency() {
     return (m_flags & COL_CURRENCY) == COL_CURRENCY;
@@ -94,8 +92,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Can you put a NULL in this column?
    *
-   * @return                    columnNoNulls, columnNullable or
-   *                            columnNullableUnknown
+   * @return columnNoNulls, columnNullable or columnNullableUnknown
    */
   public int isNullable() {
     if ((m_flags & COL_NO_NULL) == COL_NO_NULL) return ResultSetMetaData.columnNoNulls;
@@ -107,7 +104,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column a signed number?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isSigned() {
     return (m_flags & COL_SIGNED) == COL_SIGNED;
@@ -116,7 +113,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's the column's normal max width in chars?
    *
-   * @return                    max width
+   * @return max width
    */
   public int getColumnDisplaySize() {
     return m_displaySize;
@@ -125,7 +122,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's the suggested column title for use in printouts and displays?
    *
-   * @return                    suggested column title
+   * @return suggested column title
    */
   public String getColumnLabel() {
     return m_label;
@@ -134,7 +131,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's name?
    *
-   * @return                    column name
+   * @return column name
    */
   public String getColumnName() {
     return m_name;
@@ -143,7 +140,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table's schema?
    *
-   * @return                    schema name or "" if not applicable
+   * @return schema name or "" if not applicable
    */
   public String getSchemaName() {
     return m_schemaName;
@@ -152,7 +149,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's number of decimal digits?
    *
-   * @return                    precision
+   * @return precision
    */
   public int getPrecision() {
     return m_precision;
@@ -161,7 +158,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's number of digits to right of the decimal point?
    *
-   * @return                    scale
+   * @return scale
    */
   public int getScale() {
     return m_scale;
@@ -170,7 +167,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table name?
    *
-   * @return                    table name or "" if not applicable
+   * @return table name or "" if not applicable
    */
   public String getTableName() {
     return m_tableName;
@@ -179,7 +176,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table's catalog name?
    *
-   * @return                    column name or "" if not applicable.
+   * @return column name or "" if not applicable.
    */
   public String getCatalogName() {
     return m_catalogName;
@@ -188,7 +185,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's SQL type? See java.sql.Types for possible types.
    *
-   * @return                    SQL type
+   * @return SQL type
    */
   public int getColumnType() {
     return m_type;
@@ -197,7 +194,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's data source specific type name?
    *
-   * @return                    type name
+   * @return type name
    */
   public String getColumnTypeName() {
     return m_typeName;
@@ -206,7 +203,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is a column definitely not writable?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isReadOnly() {
     return (m_flags & COL_READ_ONLY) == COL_READ_ONLY;
@@ -215,7 +212,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is it possible for a write on the column to succeed?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isWritable() {
     return (m_flags & COL_WRITE_POSSIBLE) == COL_WRITE_POSSIBLE;
@@ -224,7 +221,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Will a write on the column definitely succeed?
    *
-   * @return                    <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean isDefinitelyWritable() {
     return (m_flags & COL_WRITE_DEFINITE) == COL_WRITE_DEFINITE;
@@ -232,18 +229,14 @@ public class PSResultSetColumnMetaData {
 
   /**
    * JDBC 2.0
-   * <p>
-   * Returns the fully-qualified name of the Java class whose instances
-   * are manufactured if the method ResultSet.getObject is called to
-   * retrieve a value from the column. ResultSet.getObject may return a
-   * subclass of the class returned by this method.
    *
-   * @return                    the fully-qualified name of the class in
-   *                            the Java programming language that would
-   *                            be used by the method ResultSet.getObject
-   *                            to retrieve the value in the specified
-   *                            column. This is the class name used for
-   *                            custom mapping.
+   * <p>Returns the fully-qualified name of the Java class whose instances are manufactured if the
+   * method ResultSet.getObject is called to retrieve a value from the column. ResultSet.getObject
+   * may return a subclass of the class returned by this method.
+   *
+   * @return the fully-qualified name of the class in the Java programming language that would be
+   *     used by the method ResultSet.getObject to retrieve the value in the specified column. This
+   *     is the class name used for custom mapping.
    */
   public String getColumnClassName() {
     return m_className;
@@ -252,7 +245,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column automatically numbered, thus read-only?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setAutoIncrement(boolean enable) {
     if (enable) m_flags |= COL_AUTO_INCREMENT;
@@ -262,7 +255,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Does a column's case matter?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setCaseSensitive(boolean enable) {
     if (enable) m_flags |= COL_CASE_SENSITIVE;
@@ -272,7 +265,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Can the column be used in a where clause?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setSearchable(boolean enable) {
     if (enable) m_flags |= COL_SEARCHABLE;
@@ -282,7 +275,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column a cash value?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setCurrency(boolean enable) {
     if (enable) m_flags |= COL_CURRENCY;
@@ -292,8 +285,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Can you put a NULL in this column?
    *
-   * @param flag                columnNoNulls, columnNullable or
-   *                            columnNullableUnknown
+   * @param flag columnNoNulls, columnNullable or columnNullableUnknown
    */
   public void setNullable(int flag) {
     m_flags &= ~(COL_NO_NULL | COL_NULLABLE | COL_NULL_UNKNOWN);
@@ -305,7 +297,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is the column a signed number?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setSigned(boolean enable) {
     if (enable) m_flags |= COL_SIGNED;
@@ -315,7 +307,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's the column's normal max width in chars?
    *
-   * @param size                max width
+   * @param size max width
    */
   public void setColumnDisplaySize(int size) {
     m_displaySize = size;
@@ -324,7 +316,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's the suggested column title for use in printouts and displays?
    *
-   * @param label               suggested column title
+   * @param label suggested column title
    */
   public void setColumnLabel(String label) {
     m_label = label;
@@ -333,7 +325,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's name?
    *
-   * @param name                column name
+   * @param name column name
    */
   public void setColumnName(String name) {
     m_name = name;
@@ -342,7 +334,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table's schema?
    *
-   * @param schema              schema name or "" if not applicable
+   * @param schema schema name or "" if not applicable
    */
   public void setSchemaName(String schema) {
     m_schemaName = schema;
@@ -351,7 +343,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's number of decimal digits?
    *
-   * @param precision           precision
+   * @param precision precision
    */
   public void setPrecision(int precision) {
     m_precision = precision;
@@ -360,7 +352,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's number of digits to right of the decimal point?
    *
-   * @param scale               scale
+   * @param scale scale
    */
   public void setScale(int scale) {
     m_scale = scale;
@@ -369,7 +361,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table name?
    *
-   * @return                    table name or "" if not applicable
+   * @return table name or "" if not applicable
    */
   public void setTableName(String table) {
     m_tableName = table;
@@ -378,7 +370,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's table's catalog name?
    *
-   * @param catalog             catalog name or "" if not applicable.
+   * @param catalog catalog name or "" if not applicable.
    */
   public void setCatalogName(String catalog) {
     m_catalogName = catalog;
@@ -387,7 +379,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's SQL type? See java.sql.Types for possible types.
    *
-   * @param type                SQL type
+   * @param type SQL type
    */
   public void setColumnType(int type) {
     m_type = type;
@@ -396,7 +388,7 @@ public class PSResultSetColumnMetaData {
   /**
    * What's a column's data source specific type name?
    *
-   * @param typeName            type name
+   * @param typeName type name
    */
   public void setColumnTypeName(String typeName) {
     m_typeName = typeName;
@@ -405,7 +397,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is a column definitely not writable?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setReadOnly(boolean enable) {
     if (enable) m_flags |= COL_READ_ONLY;
@@ -415,7 +407,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Is it possible for a write on the column to succeed?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setWritable(boolean enable) {
     if (enable) m_flags |= COL_WRITE_POSSIBLE;
@@ -425,7 +417,7 @@ public class PSResultSetColumnMetaData {
   /**
    * Will a write on the column definitely succeed?
    *
-   * @param enable              <code>true</code> if so
+   * @param enable <code>true</code> if so
    */
   public void setDefinitelyWritable(boolean enable) {
     if (enable) m_flags |= COL_WRITE_DEFINITE;
@@ -434,18 +426,14 @@ public class PSResultSetColumnMetaData {
 
   /**
    * JDBC 2.0
-   * <p>
-   * Returns the fully-qualified name of the Java class whose instances
-   * are manufactured if the method ResultSet.getObject is called to
-   * retrieve a value from the column. ResultSet.getObject may return a
-   * subclass of the class returned by this method.
    *
-   * @return                    the fully-qualified name of the class in
-   *                            the Java programming language that would
-   *                            be used by the method ResultSet.getObject
-   *                            to retrieve the value in the specified
-   *                            column. This is the class name used for
-   *                            custom mapping.
+   * <p>Returns the fully-qualified name of the Java class whose instances are manufactured if the
+   * method ResultSet.getObject is called to retrieve a value from the column. ResultSet.getObject
+   * may return a subclass of the class returned by this method.
+   *
+   * @return the fully-qualified name of the class in the Java programming language that would be
+   *     used by the method ResultSet.getObject to retrieve the value in the specified column. This
+   *     is the class name used for custom mapping.
    */
   public void setColumnClassName(String className) {
     m_className = className;

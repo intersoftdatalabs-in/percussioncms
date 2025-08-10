@@ -521,12 +521,11 @@ public abstract class StartWrapper {
   }
 
   /**
-   * Prints the status of the services on the machine.  Called via the --status
-   * flag in the command-line arguments.
-   * <br/><br/>
-   * Note: The order of the following output is used by the percussion-dts.sh file.
-   * Changing the order of the output would require a change of the 'grep' and 'sed'
-   * commands in that file.
+   * Prints the status of the services on the machine. Called via the --status flag in the
+   * command-line arguments. <br>
+   * <br>
+   * Note: The order of the following output is used by the percussion-dts.sh file. Changing the
+   * order of the output would require a change of the 'grep' and 'sed' commands in that file.
    */
   public void printStateString() {
     if (state == ProcState.NOT_INSTALLED) {

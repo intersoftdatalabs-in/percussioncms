@@ -29,30 +29,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is a container for a list of PSJdbcTableData objects, enabling
- * them to be serialized as a collection to and from Xml.
+ * This class is a container for a list of PSJdbcTableData objects, enabling them to be serialized
+ * as a collection to and from Xml.
  */
 public class PSJdbcTableDataCollection extends PSCollection {
   private static final Logger log = LogManager.getLogger(LOG_CATEGORY);
 
-  /**
-   * Constructs an empty PSJdbcTableDataCollection
-   */
+  /** Constructs an empty PSJdbcTableDataCollection */
   public PSJdbcTableDataCollection() {
     super(PSJdbcTableData.class);
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element) fromXml} for
+   * more information.
    *
-   * @param doc The document from which this object is to be constructed.
-   *    Root element must conform to the definition for the tables element in
-   *    the tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param doc The document from which this object is to be constructed. Root element must conform
+   *     to the definition for the tables element in the tabledata.dtd. May not be <code>null</code>
+   *     .
    * @throws IllegalArgumentException if doc is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or
-   * if there are any other errors.
+   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or if there are any other
+   *     errors.
    */
   public PSJdbcTableDataCollection(Document doc) throws PSJdbcTableFactoryException {
     this();
@@ -65,10 +62,9 @@ public class PSJdbcTableDataCollection extends PSCollection {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the component
-   *    element in the tabledata.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the component element in the tabledata.dtd. May not be <code>null</code>
+   *     .
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -104,12 +100,10 @@ public class PSJdbcTableDataCollection extends PSCollection {
   /**
    * Serializes this object's state to Xml conforming with the tabledata.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -128,12 +122,9 @@ public class PSJdbcTableDataCollection extends PSCollection {
   /**
    * Returns the table data object with the specified name.
    *
-   * @param name The name of the table data to locate.  May not be <code>null
+   * @param name The name of the table data to locate. May not be <code>null
    * </code> or empty.
-   *
-   * @return The matching data object, or <code>null</code> if it is not
-   * found.
-   *
+   * @return The matching data object, or <code>null</code> if it is not found.
    * @throws IllegalArgumentException if name is <code>null</code> or emtpy.
    */
   public PSJdbcTableData getTableData(String name) {
@@ -175,8 +166,6 @@ public class PSJdbcTableDataCollection extends PSCollection {
     }
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static final String NODE_NAME = "tables";
 }

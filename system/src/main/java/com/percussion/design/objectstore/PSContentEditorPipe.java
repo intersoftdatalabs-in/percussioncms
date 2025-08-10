@@ -28,16 +28,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implements the PSXContentEditorPipe DTD defined in
- * ContentEditorLocalDef.dtd.
- */
+/** Implements the PSXContentEditorPipe DTD defined in ContentEditorLocalDef.dtd. */
 public class PSContentEditorPipe extends PSPipe {
   /**
    * Create a new content editor pipe.
    *
-   * @param name the content editor pipe name, not <code>null</code> or
-   *    empty.
+   * @param name the content editor pipe name, not <code>null</code> or empty.
    * @param locator the container locater, not <code>null</code>.
    * @param mapper the content editor mapper, not <code>null</code>.
    */
@@ -55,23 +51,17 @@ public class PSContentEditorPipe extends PSPipe {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditorPipe(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSContentEditorPipe() {}
 
   /**
@@ -97,8 +87,7 @@ public class PSContentEditorPipe extends PSPipe {
   /**
    * Get the content editor mapper.
    *
-   * @return the content editor mapper, never
-   *    <code>null</code>.
+   * @return the content editor mapper, never <code>null</code>.
    */
   public PSContentEditorMapper getMapper() {
     return m_mapper;
@@ -116,8 +105,7 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   * Get the control dependency map, used to manage extensions from control
-   * dependencies.
+   * Get the control dependency map, used to manage extensions from control dependencies.
    *
    * @return The map, never <code>null</code>.
    */
@@ -135,8 +123,8 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   * Same as {@link PSPipe#getInputDataExtensions()} but the results do not
-   * contain control dependency extensions.
+   * Same as {@link PSPipe#getInputDataExtensions()} but the results do not contain control
+   * dependency extensions.
    *
    * @return The extensions, never <code>null</code>, may be empty.
    */
@@ -145,12 +133,10 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   * For content editors input data extensions include control dependencies also.
-   * But the control dependencies are added to the input data extensions during
-   * toXml. Inorder to avoid confusion, this method has been overwritten to
-   * throw UnsupportedOperationException exception.
-   * Use {@link #setContentEditorInputDataExtensions(PSExtensionCallSet)} to set the input data
-   * extensions.
+   * For content editors input data extensions include control dependencies also. But the control
+   * dependencies are added to the input data extensions during toXml. Inorder to avoid confusion,
+   * this method has been overwritten to throw UnsupportedOperationException exception. Use {@link
+   * #setContentEditorInputDataExtensions(PSExtensionCallSet)} to set the input data extensions.
    */
   @Override
   public void setInputDataExtensions(PSExtensionCallSet extensions) {
@@ -158,18 +144,17 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   * Same as {@link PSPipe#setInputDataExtensions(PSExtensionCallSet)} to set just input
-   * data extesnions. The control dependency extensions will be added to
-   * input data extensions during the toXML() of this object.
+   * Same as {@link PSPipe#setInputDataExtensions(PSExtensionCallSet)} to set just input data
+   * extesnions. The control dependency extensions will be added to input data extensions during the
+   * toXML() of this object.
    */
   public void setContentEditorInputDataExtensions(PSExtensionCallSet extensions) {
     super.setInputDataExtensions(extensions);
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSContentEditorPipe, not <code>null</code>.
    */
@@ -189,8 +174,7 @@ public class PSContentEditorPipe extends PSPipe {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSContentEditorPipe)) return false;
@@ -206,21 +190,18 @@ public class PSContentEditorPipe extends PSPipe {
     return equal;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return super.hashCode() + m_controlDepMap.hashCode();
   }
 
   /**
-   * Returns a backend datatank that contains a fully defined PSBackEndTable
-   * for each table in this pipe's PSContainerLocator.  This tank is for
-   * in-memory use only - it is not included when this object is serialized
-   * to and from XML.
+   * Returns a backend datatank that contains a fully defined PSBackEndTable for each table in this
+   * pipe's PSContainerLocator. This tank is for in-memory use only - it is not included when this
+   * object is serialized to and from XML.
    *
-   * @return   the back-end data tank
+   * @return the back-end data tank
    */
   public PSBackEndDataTank getBackEndDataTank() {
     try {
@@ -241,7 +222,6 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -352,7 +332,6 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -406,13 +385,11 @@ public class PSContentEditorPipe extends PSPipe {
   }
 
   /**
-   * Load user properties from the supplied node.  Package access for unit test
-   * purposes.
+   * Load user properties from the supplied node. Package access for unit test purposes.
    *
    * @param node The parent node, may not be <code>null</code>.
-   *
-   * @return The map of properties where the key is the name and the value is
-   * the property value, never <code>null</code>, might be empty.
+   * @return The map of properties where the key is the name and the value is the property value,
+   *     never <code>null</code>, might be empty.
    */
   static Map<String, String> loadUserProps(Element node) {
     if (node == null) throw new IllegalArgumentException("node may not be null");
@@ -468,9 +445,8 @@ public class PSContentEditorPipe extends PSPipe {
   private PSContentEditorMapper m_mapper = null;
 
   /**
-   * Manages the controls dependencies based on the pipe's user properties,
-   * never <code>null</code>, modified by
-   * {@link #fromXml(Element, IPSDocument, List)}.
+   * Manages the controls dependencies based on the pipe's user properties, never <code>null</code>,
+   * modified by {@link #fromXml(Element, IPSDocument, List)}.
    */
   private PSControlDependencyMap m_controlDepMap = new PSControlDependencyMap();
 }

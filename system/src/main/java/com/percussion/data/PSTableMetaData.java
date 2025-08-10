@@ -44,29 +44,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSTableMetaData class offers a more tractable interface to
- * table meta data than does java.sql.DatabaseMetaData. Results
- * are cached and put into a readily usable form.
+ * The PSTableMetaData class offers a more tractable interface to table meta data than does
+ * java.sql.DatabaseMetaData. Results are cached and put into a readily usable form.
  *
- * A PSDatabaseMetaData object may use JDBC resources during construction
- * or method invocation, but it does not keep any JDBC resources open
- * after the method returns, and caches meta data wherever possible.
+ * <p>A PSDatabaseMetaData object may use JDBC resources during construction or method invocation,
+ * but it does not keep any JDBC resources open after the method returns, and caches meta data
+ * wherever possible.
  */
 public class PSTableMetaData implements IPSConnectionInfo {
   /**
    * Construct a new table meta data object from the given database meta data.
-   * @param login The login to use to obtain connection details, may be
-   * <code>null</code> if using the default connection.
-   * @param schema The schema in which the table resides, may be
-   * <code>null</code> or empty.
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   * @param dmd The database meta data for the supplied login, may not be
-   * <code>null</code>.
    *
+   * @param login The login to use to obtain connection details, may be <code>null</code> if using
+   *     the default connection.
+   * @param schema The schema in which the table resides, may be <code>null</code> or empty.
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
+   * @param dmd The database meta data for the supplied login, may not be <code>null</code>.
    * @throws SQLException If there is an error obtaining connection details.
-   * @throws NamingException If there is an error resolving the login to a
-   * datasource.
+   * @throws NamingException If there is an error resolving the login to a datasource.
    */
   public PSTableMetaData(
       PSBackEndLogin login, String schema, String tableName, DatabaseMetaData dmd)
@@ -93,13 +88,9 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Converts this object to a PSBackEndTable
-   *
-   * @return   PSBackEndTable
-   *
+   *     <p>Converts this object to a PSBackEndTable
+   * @return PSBackEndTable
    * @since 1.1 1999/4/30
-   *
    */
   PSBackEndTable toBackEndTable() throws SQLException {
     PSBackEndTable ret = null;
@@ -116,14 +107,10 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Returns A list of the names of all columns defined in this table, sorted in
-   * ascending column name order.
-   *
+   *     <p>Returns A list of the names of all columns defined in this table, sorted in ascending
+   *     column name order.
    * @return String[] A list of column names
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public String[] getColumns() {
     return getColumns("%");
@@ -131,16 +118,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets a list of the names of all columns defined in this table whose name
-   * matches the given pattern, sorted in ascending column name order.
-   *
+   *     <p>Gets a list of the names of all columns defined in this table whose name matches the
+   *     given pattern, sorted in ascending column name order.
    * @param columnNamePattern The pattern to match
-   *
    * @return String[] A list of column names
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public String[] getColumns(String columnNamePattern) {
     List cols = new ArrayList(m_columns.size());
@@ -158,14 +140,10 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets a list of all the primary key columns for this table's primary key,
-   * in column order.
-   *
+   *     <p>Gets a list of all the primary key columns for this table's primary key, in column
+   *     order.
    * @return String[]
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public String[] getPrimaryKeyColumns() {
     String[] ret = new String[m_primaryKeyColumns.size()];
@@ -174,10 +152,10 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * Gets a list of all the foreign key columns for this table. Foreign
-   * keys refer to another table's column(s) (often the primary key).
+   * Gets a list of all the foreign key columns for this table. Foreign keys refer to another
+   * table's column(s) (often the primary key).
    *
-   * @return      the array of table.column names
+   * @return the array of table.column names
    */
   public String[] getForeignKeyColumns() {
     String[] ret = new String[m_foreignKeyColumns.size()];
@@ -186,9 +164,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * Gets a list of all the columns which are automatically inserted or
-   * updated by the database server. These columns should not be included
-   * in insert or update statements.
+   * Gets a list of all the columns which are automatically inserted or updated by the database
+   * server. These columns should not be included in insert or update statements.
    *
    * @return the array of column names, never <code>null</code>, may be empty.
    */
@@ -249,13 +226,9 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets the name of the primary key. May be null.
-   *
+   *     <p>Gets the name of the primary key. May be null.
    * @return String The name of the primary key for this table.
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public String primaryKeyName() {
     return m_primaryKeyName;
@@ -263,16 +236,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Tells whether the given column allows null values or not
-   *
-   * @param   columnName   The column whose nullability is to be checked
-   *
-   * @return boolean true if this column allows nulls (or if we can't tell),
-   * false if this column does not allow nulls.
-   *
+   *     <p>Tells whether the given column allows null values or not
+   * @param columnName The column whose nullability is to be checked
+   * @return boolean true if this column allows nulls (or if we can't tell), false if this column
+   *     does not allow nulls.
    * @since 1.1 1999/4/30
-   *
    */
   public boolean isNullable(String columnName) throws SQLException {
     int colIdx = Collections.binarySearch(m_columns, columnName);
@@ -285,16 +253,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets the ordinal position (1-based) of the column with the given name, or -1
-   * if this table has no column with that name.
-   *
-   * @param   columnName   The name of the column to return
-   *
+   *     <p>Gets the ordinal position (1-based) of the column with the given name, or -1 if this
+   *     table has no column with that name.
+   * @param columnName The name of the column to return
    * @return int The ordinal position of the column, or -1.
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public int columnIndex(String columnName) throws SQLException {
     int colIdx = Collections.binarySearch(m_columns, columnName);
@@ -304,22 +267,18 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * Gets the java.sql data type of the column with the given name. However,
-   * it goes further than just returning what the driver reports. For example,
-   * if the driver reported type <code>OTHER</code> (as Oracle does for LOB),
-   * we would look in our local map and try to determine it's underlying type
-   * (in the case of clob, return <code>CLOB</code> instead of <code>OTHER
+   * Gets the java.sql data type of the column with the given name. However, it goes further than
+   * just returning what the driver reports. For example, if the driver reported type <code>OTHER
+   * </code> (as Oracle does for LOB), we would look in our local map and try to determine it's
+   * underlying type (in the case of clob, return <code>CLOB</code> instead of <code>OTHER
    * </code>.
    *
-   * @param columnName The database column name for which you want the data
-   *    type. The columnName search is done case-insensitive. Throws exception
-   *    if <code>null</code> or empty or doesn't match any existing column.
-   *
+   * @param columnName The database column name for which you want the data type. The columnName
+   *     search is done case-insensitive. Throws exception if <code>null</code> or empty or doesn't
+   *     match any existing column.
    * @return The best JDBC type that we can determine.
-   *
-   * @throws SQLException If columnName is <code>null</code>, empty, or the
-   *    name doesn't match any of the columns of this table.
-   *
+   * @throws SQLException If columnName is <code>null</code>, empty, or the name doesn't match any
+   *     of the columns of this table.
    * @since 1.1 1999/4/30
    */
   public short getColumnType(String columnName) throws SQLException {
@@ -331,14 +290,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * The meaning of size depends on the data type. For numeric types, it is
-   * the precision. For character and date types, it is the max number of
-   * chars that can be stored in the column.
+   * The meaning of size depends on the data type. For numeric types, it is the precision. For
+   * character and date types, it is the max number of chars that can be stored in the column.
    *
    * @return A non-negative value.
-   *
-   * @throws SQLException If this table does not have a column by the supplied
-   *    name.
+   * @throws SQLException If this table does not have a column by the supplied name.
    */
   public int getSize(String columnName) throws SQLException {
     int colIdx = Collections.binarySearch(m_columns, columnName);
@@ -348,14 +304,11 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * This property is only defined for numeric types. It is the number of
-   * digits to the right of the decimal point.
+   * This property is only defined for numeric types. It is the number of digits to the right of the
+   * decimal point.
    *
-   * @return For numeric types, a non-negative value. Undefined for other
-   *    types.
-   *
-   * @throws SQLException If this table does not have a column by the supplied
-   *    name.
+   * @return For numeric types, a non-negative value. Undefined for other types.
+   * @throws SQLException If this table does not have a column by the supplied name.
    */
   public int getScale(String columnName) throws SQLException {
     int colIdx = Collections.binarySearch(m_columns, columnName);
@@ -368,9 +321,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * The database dependent type name for this column.
    *
    * @return Never <code>null</code>, may be empty.
-   *
-   * @throws SQLException If this table does not have a column by the supplied
-   *    name.
+   * @throws SQLException If this table does not have a column by the supplied name.
    */
   public String getTypeName(String columnName) throws SQLException {
     int colIdx = Collections.binarySearch(m_columns, columnName);
@@ -381,13 +332,9 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets the table statistics for this table.
-   *
+   *     <p>Gets the table statistics for this table.
    * @return PSTableStatistics The table statistics.
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public PSTableStatistics getStatistics() throws SQLException {
     return m_tableStats;
@@ -395,14 +342,10 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Gets a list of index statistics for this table, one PSIndexStatistics
-   * object for each index defined.
-   *
+   *     <p>Gets a list of index statistics for this table, one PSIndexStatistics object for each
+   *     index defined.
    * @return PSIndexStatistics[]
-   *
    * @since 1.1 1999/4/30
-   *
    */
   public PSIndexStatistics[] getIndexStatistics() throws SQLException {
     return m_indexStats;
@@ -412,11 +355,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * Create a map of the data types for each column in this table.
    *
    * @param alias The table alias to use in the map.
-   *
-   * @return the hash map in which both alias.column and column are
-   * used as the key and its java.sql.Types.xxx data type is stored as
-   * the value.
-   *
+   * @return the hash map in which both alias.column and column are used as the key and its
+   *     java.sql.Types.xxx data type is stored as the value.
    * @throws SQLException if there are any database errors.
    */
   public Map loadDataTypes(String alias) throws SQLException {
@@ -495,7 +435,6 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * Get a connection
    *
    * @return a connection, never <code>null</code>.
-   *
    * @throws SQLException if there are any errors.
    */
   private Connection getConnection() throws SQLException {
@@ -514,9 +453,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
    * Determines if the specified type is a known JDBC datatype.
    *
    * @param type The type to check.
-   *
-   * @return <code>true</code> if it is a JDBC datatype, <code>false</code>
-   * if not.
+   * @return <code>true</code> if it is a JDBC datatype, <code>false</code> if not.
    */
   public static boolean isJdbcDataType(int type) {
     switch (type) {
@@ -558,9 +495,8 @@ public class PSTableMetaData implements IPSConnectionInfo {
   /**
    * Sets the estimate statistics.
    *
-   * @param estimateStats a set of estimated (table) statistics. It maps table
-   *    name (map key) to its estimated number of rows (map value).
-   *    Never <code>null</code>, but may be empty.
+   * @param estimateStats a set of estimated (table) statistics. It maps table name (map key) to its
+   *     estimated number of rows (map value). Never <code>null</code>, but may be empty.
    */
   public static void setEstimateStatistics(Map<String, Integer> estimateStats) {
     if (estimateStats == null) throw new IllegalArgumentException("estimateStats may not be null.");
@@ -569,21 +505,16 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * This contains a set of estimated (table) statistics. It maps table name
-   * (map key) to its estimated number of rows (map value). Defaults to an
-   * empty map.
+   * This contains a set of estimated (table) statistics. It maps table name (map key) to its
+   * estimated number of rows (map value). Defaults to an empty map.
    */
   private static Map<String, Integer> ms_estimateStatistics = new HashMap<String, Integer>();
 
   /**
    * @author chadloder
-   *
-   * Private utility method to load the key information for this table
-   *
-   * @param   md   The meta data to use
-   *
+   *     <p>Private utility method to load the key information for this table
+   * @param md The meta data to use
    * @since 1.1 1999/4/30
-   *
    */
   private void loadKeyInformation(DatabaseMetaData md) throws SQLException {
     /* bug id Rx-99-11-0029 has been fixed by wrappering the
@@ -661,15 +592,12 @@ public class PSTableMetaData implements IPSConnectionInfo {
   }
 
   /**
-   * Private utility method to load the index information for this table.
-   * An estimated statistics will be created instead of load the index and
-   * statistics from the repository if this table exists in the collection
-   * of the estimate statistics.
+   * Private utility method to load the index information for this table. An estimated statistics
+   * will be created instead of load the index and statistics from the repository if this table
+   * exists in the collection of the estimate statistics.
    *
    * @param md The meta data to use; assumed not <code>null</code>.
-   *
    * @since 1.1 1999/4/30
-   *
    */
   private static final Logger ms_logger = LogManager.getLogger(PSTableMetaData.class);
 
@@ -711,14 +639,9 @@ public class PSTableMetaData implements IPSConnectionInfo {
 
   /**
    * @author chadloder
-   *
-   * Private utility method to load the column information for this table
-   *
-   * @param md
-   *            The meta data to use
-   *
+   *     <p>Private utility method to load the column information for this table
+   * @param md The meta data to use
    * @since 1.1 1999/4/30
-   *
    */
   private void loadColumnInformation(DatabaseMetaData md) throws SQLException {
     /* Note, this method no longer makes decisions about what columns
@@ -765,10 +688,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
     }
   }
 
-  /**
-   * Private class to keep track of column information
-   *
-   */
+  /** Private class to keep track of column information */
   private class ColumnInfo implements Comparable {
     public ColumnInfo(
         String name,
@@ -867,7 +787,7 @@ public class PSTableMetaData implements IPSConnectionInfo {
   private List m_foreignKeyColumns;
 
   /**
-   * a list of the columns which are automatically inserted/updated.  <code>
+   * a list of the columns which are automatically inserted/updated. <code>
    * null</code> until a call to {@link #getAutoUpdateColumns()} or {@link
    * #loadColumnInformation(DatabaseMetaData)} is made.
    */
@@ -886,16 +806,15 @@ public class PSTableMetaData implements IPSConnectionInfo {
   private PSPatternMatcher m_patMat;
 
   /**
-   * Map of datatypes with column name as the key and the JDBC datatype as the
-   * value.  Initialized by the first call to {@link #loadDataTypes(String)},
-   * never <code>null</code> or modified after that.
+   * Map of datatypes with column name as the key and the JDBC datatype as the value. Initialized by
+   * the first call to {@link #loadDataTypes(String)}, never <code>null</code> or modified after
+   * that.
    */
   private Map m_dataTypes = null;
 
   /**
-   * Map of datatype maps based on table alias as the key and the datatype
-   * map as the value.  Never <code>null</code>, entries are added by calls to
-   * {@link #loadDataTypes(String)}.
+   * Map of datatype maps based on table alias as the key and the datatype map as the value. Never
+   * <code>null</code>, entries are added by calls to {@link #loadDataTypes(String)}.
    */
   private Map m_dataTypeMap = new HashMap();
 
@@ -906,9 +825,6 @@ public class PSTableMetaData implements IPSConnectionInfo {
     return m_dataSource;
   }
 
-  /**
-   * Connection detail for this table's datasource, never <code>null</code>
-   * after construction.
-   */
+  /** Connection detail for this table's datasource, never <code>null</code> after construction. */
   private PSConnectionDetail m_connDetail;
 }

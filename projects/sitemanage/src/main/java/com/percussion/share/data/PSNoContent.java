@@ -19,64 +19,60 @@ package com.percussion.share.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
- * Used for REST operations that do not return content.
- * Prevents HTTP 204 (No Content) which may cause JavaScript errors in clients.
- * Sunny Sal says: "No content? No problem!"
+ * Used for REST operations that do not return content. Prevents HTTP 204 (No Content) which may
+ * cause JavaScript errors in clients. Sunny Sal says: "No content? No problem!"
  */
 @JsonRootName(value = "NoContent")
 public class PSNoContent {
 
-    private String operation;
-    private String result;
+  private String operation;
+  private String result;
 
-    /**
-     * Default constructor for serialization.
-     */
-    public PSNoContent() {
-    }
+  /** Default constructor for serialization. */
+  public PSNoContent() {}
 
-    /**
-     * Create an object with the specified operation.
-     *
-     * @param operation the successfully completed operation
-     */
-    public PSNoContent(String operation) {
-        this.operation = operation;
-    }
+  /**
+   * Create an object with the specified operation.
+   *
+   * @param operation the successfully completed operation
+   */
+  public PSNoContent(String operation) {
+    this.operation = operation;
+  }
 
-    /**
-     * Gets the name of the operation.
-     *
-     * @return the operation name, should not be blank for a valid operation.
-     */
-    public String getOperation() {
-        return operation;
-    }
+  /**
+   * Gets the name of the operation.
+   *
+   * @return the operation name, should not be blank for a valid operation.
+   */
+  public String getOperation() {
+    return operation;
+  }
 
-    /**
-     * Sets the operation.
-     *
-     * @param operation the new operation, should not be blank for a valid response.
-     */
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
+  /**
+   * Sets the operation.
+   *
+   * @param operation the new operation, should not be blank for a valid response.
+   */
+  public void setOperation(String operation) {
+    this.operation = operation;
+  }
 
-    /**
-     * Gets the result of the operation.
-     *
-     * @return the result, should not be blank for a valid operation.
-     */
-    public String getResult() {
-        return result;
-    }
+  /**
+   * Gets the result of the operation.
+   *
+   * @return the result, should not be blank for a valid operation.
+   */
+  public String getResult() {
+    return result;
+  }
 
-    /**
-     * Sets the result.
-     *
-     * @param result the result of the operation.
-     */
-    public void setResult(String result) {
-        this.result = result;
-    }
+  /**
+   * Sets the result.
+   *
+   * @param result the result of the operation.
+   */
+  public void setResult(String result) {
+    this.result = result;
+  }
 }

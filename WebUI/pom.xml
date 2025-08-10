@@ -221,7 +221,6 @@
             <artifactId>oauth</artifactId>
             <version>20090531</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.myfaces.trinidad/trinidad-api -->
         <dependency>
             <groupId>org.apache.myfaces.trinidad</groupId>
             <artifactId>trinidad-api</artifactId>
@@ -230,7 +229,6 @@
             <groupId>org.apache.myfaces.trinidad</groupId>
             <artifactId>trinidad-impl</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.myfaces.tomahawk/tomahawk -->
         <dependency>
             <groupId>org.apache.myfaces.tomahawk</groupId>
             <artifactId>tomahawk</artifactId>
@@ -269,7 +267,6 @@
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
@@ -278,7 +275,6 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -314,7 +310,6 @@
         <dependency>
             <groupId>org.apache.xbean</groupId>
             <artifactId>xbean-spring</artifactId>
-            <version>4.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
@@ -419,10 +414,6 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-ext-jdk18on</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
             <artifactId>bctls-jdk18on</artifactId>
         </dependency>
         <dependency>
@@ -440,33 +431,6 @@
             <artifactId>nekohtml</artifactId>
         </dependency>
         <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
-            <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>ant</groupId>
-                    <artifactId>ant</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>cargo</groupId>
-                    <artifactId>cargo</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.aspectj</groupId>
-                    <artifactId>aspectjrt</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jtidy</groupId>
-                    <artifactId>jtidy</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xmlParserAPIs</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-system</artifactId>
             <version>${project.parent.version}</version>
@@ -481,12 +445,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-server-ui-content</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
-            <artifactId>perc-system-cactus-tests</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>

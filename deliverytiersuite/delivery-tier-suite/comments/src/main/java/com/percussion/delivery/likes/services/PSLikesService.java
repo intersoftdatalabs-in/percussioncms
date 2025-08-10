@@ -38,9 +38,7 @@ public class PSLikesService implements IPSLikesService {
   private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
   private final String[] PERC_LIKES_SERVICES = {"perc-likes-services"};
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   public static final Logger log = LogManager.getLogger(PSCommentsService.class);
 
   @Autowired
@@ -143,7 +141,6 @@ public class PSLikesService implements IPSLikesService {
   }
 
   /**
-   *
    * @param listener
    */
   public void addServicedataChangeListener(IPSServiceDataChangeListener listener) {
@@ -159,9 +156,7 @@ public class PSLikesService implements IPSLikesService {
     if (listeners.contains(listener)) listeners.remove(listener);
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   private void fireDataChangedEvent(Set<String> sites) {
     if (sites == null || sites.size() == 0) {
       return;
@@ -172,9 +167,7 @@ public class PSLikesService implements IPSLikesService {
     }
   }
 
-  /**
-   * Fire a data change event for all registered listeners.
-   */
+  /** Fire a data change event for all registered listeners. */
   private void fireDataChangeRequestedEvent(Set<String> sites) {
     if (sites == null || sites.size() == 0) {
       return;

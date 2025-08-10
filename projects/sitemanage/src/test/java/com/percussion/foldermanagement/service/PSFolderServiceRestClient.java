@@ -26,50 +26,54 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * REST client for folder management service.
- * Sunny Sal says: "Folders, workflows, and REST - the holy trinity of CMS!"
+ * REST client for folder management service. Sunny Sal says: "Folders, workflows, and REST - the
+ * holy trinity of CMS!"
  */
 public class PSFolderServiceRestClient extends PSDataServiceRestClient<PSFolderItem> {
 
-    public PSFolderServiceRestClient(String url) {
-        super(PSFolderItem.class, url, "/Rhythmyx/services/foldermanagement/folders");
-        setPostContentType(MediaType.APPLICATION_XML);
-    }
+  public PSFolderServiceRestClient(String url) {
+    super(PSFolderItem.class, url, "/Rhythmyx/services/foldermanagement/folders");
+    setPostContentType(MediaType.APPLICATION_XML);
+  }
 
-    public List<PSFolderItem> getAssociatedFolders(String workflowName, String path, Boolean includeFoldersWithDifferentWorkflow) {
-        getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
-        var wfName = StringUtils.isNotEmpty(workflowName) ? workflowName : "/";
-        var normalizedPath = path.startsWith("//") ? path.substring(1) : path;
-        var fullPath = concatPath(
-                getPath(),
-                "/" + wfName,
-                "/",
-                normalizedPath,
-                "?includeFoldersWithDifferentWorkflow=" + includeFoldersWithDifferentWorkflow
-        );
-        return getObjectsFromPath(fullPath, PSFolderItem.class);
-    }
+  public List<PSFolderItem> getAssociatedFolders(
+      String workflowName, String path, Boolean includeFoldersWithDifferentWorkflow) {
+    getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
+    var wfName = StringUtils.isNotEmpty(workflowName) ? workflowName : "/";
+    var normalizedPath = path.startsWith("//") ? path.substring(1) : path;
+    var fullPath =
+        concatPath(
+            getPath(),
+            "/" + wfName,
+            "/",
+            normalizedPath,
+            "?includeFoldersWithDifferentWorkflow=" + includeFoldersWithDifferentWorkflow);
+    return getObjectsFromPath(fullPath, PSFolderItem.class);
+  }
 
-    public void save(PSWorkflowAssignment workflowAssignment) {
-        postObjectToPath(concatPath(getPath(), "workflowassignment"), workflowAssignment);
-    }
+  public void save(PSWorkflowAssignment workflowAssignment) {
+    postObjectToPath(concatPath(getPath(), "workflowassignment"), workflowAssignment);
+  }
 
-    public String startGetAssociatedFoldersJob(String workflowName, String path, Boolean includeFoldersWithDifferentWorkflow) {
-        getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
-        var wfName = StringUtils.isNotEmpty(workflowName) ? workflowName : "/";
-        var normalizedPath = path.startsWith("//") ? path.substring(1) : path;
-        var fullPath = concatPath(
-                getPath(),
-                "/GetAssociatedFoldersJob/start/" + wfName,
-                "/",
-                normalizedPath,
-                "?includeFoldersWithDifferentWorkflow=" + includeFoldersWithDifferentWorkflow
-        );
-        return GET(fullPath);
-    }
+  public String startGetAssociatedFoldersJob(
+      String workflowName, String path, Boolean includeFoldersWithDifferentWorkflow) {
+    getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
+    var wfName = StringUtils.isNotEmpty(workflowName) ? workflowName : "/";
+    var normalizedPath = path.startsWith("//") ? path.substring(1) : path;
+    var fullPath =
+        concatPath(
+            getPath(),
+            "/GetAssociatedFoldersJob/start/" + wfName,
+            "/",
+            normalizedPath,
+            "?includeFoldersWithDifferentWorkflow=" + includeFoldersWithDifferentWorkflow);
+    return GET(fullPath);
+  }
 
-    public PSGetAssignedFoldersJobStatus getAssociatedFoldersJobResults(String jobId) {
-        getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
-        return getObjectFromPath(concatPath(getPath(), "GetAssociatedFoldersJob/status", jobId), PSGetAssignedFoldersJobStatus.class);
-    }
+  public PSGetAssignedFoldersJobStatus getAssociatedFoldersJobResults(String jobId) {
+    getRequestHeaders().put("Accept", MediaType.APPLICATION_XML);
+    return getObjectFromPath(
+        concatPath(getPath(), "GetAssociatedFoldersJob/status", jobId),
+        PSGetAssignedFoldersJobStatus.class);
+  }
 }

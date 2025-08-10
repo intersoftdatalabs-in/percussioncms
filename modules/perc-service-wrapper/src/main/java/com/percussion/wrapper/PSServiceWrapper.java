@@ -41,13 +41,11 @@ public class PSServiceWrapper {
   private static File rxDir = null;
 
   /**
-   * Entry point for Service/Daemon.  Will start the following in this order:
-   * <p>
-   * 1. Derby Database
-   * 2. Tomcat
-   * 3. Server
-   * <p>
-   * If Derby doesn't start it will fail.
+   * Entry point for Service/Daemon. Will start the following in this order:
+   *
+   * <p>1. Derby Database 2. Tomcat 3. Server
+   *
+   * <p>If Derby doesn't start it will fail.
    */
   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
   public static void main(String[] args) {

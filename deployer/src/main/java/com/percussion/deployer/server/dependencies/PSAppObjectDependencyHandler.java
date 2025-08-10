@@ -66,19 +66,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Base class for handlers that deploy application objects.
- */
+/** Base class for handlers that deploy application objects. */
 public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAppObjectDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -88,14 +83,10 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Get the app object for the specified name.
    *
-   * @param tok The security token to use to get the app, assumed not
-   * <code>null</code>.
+   * @param tok The security token to use to get the app, assumed not <code>null</code>.
    * @param appName The name, assumed not <code>null</code> or empty.
-   *
    * @return The app, may not be <code>null</code>
-   *
-   * @throws PSDeployException If there are any errors or if the app is not
-   * found.
+   * @throws PSDeployException If there are any errors or if the app is not found.
    */
   public static PSApplication getApplication(PSSecurityToken tok, String appName)
       throws PSDeployException {
@@ -115,18 +106,13 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Adds dependencies for all extensions, support files, and child
-   * applications to the supplied set.  Locates support files and apps that are
-   * referenced by any text literal or url request.
+   * Adds dependencies for all extensions, support files, and child applications to the supplied
+   * set. Locates support files and apps that are referenced by any text literal or url request.
    *
-   * @param tok The security token to use for creating dependencies, may not be
-   * <code>null</code>.
-   * @param childDeps The set to add the dependencies, may not be
-   * <code>null</code>.
+   * @param tok The security token to use for creating dependencies, may not be <code>null</code>.
+   * @param childDeps The set to add the dependencies, may not be <code>null</code>.
    * @param srcNode The element to search, may not be <code>null</code>.
-   *
-   * @throws PSDeployException if there are any errors creating the
-   * dependencies.
+   * @throws PSDeployException if there are any errors creating the dependencies.
    */
   protected void addApplicationDependencies(PSSecurityToken tok, Set childDeps, Element srcNode)
       throws PSDeployException, com.percussion.services.error.PSNotFoundException {
@@ -146,10 +132,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param srcNode The element to search, may not be <code>null</code>.
-   *
-   * @return A List of zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>.
-   *
+   * @return A List of zero or more <code>PSDependency</code> objects, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -212,10 +195,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param srcNode The element to search, may not be <code>null</code>.
-   *
-   * @return An List of zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>.
-   *
+   * @return An List of zero or more <code>PSDependency</code> objects, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -258,10 +238,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param srcNode The element to search, may not be <code>null</code>.
-   *
-   * @return An List of zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>.
-   *
+   * @return An List of zero or more <code>PSDependency</code> objects, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -304,12 +281,9 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * Get all dependencies from the supplied stylesheet.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param doc The stylesheet parsed as an XML document, may not be
-   * <code>null</code>.
-   *
-   * @return An iterator over zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>.
-   *
+   * @param doc The stylesheet parsed as an XML document, may not be <code>null</code>.
+   * @return An iterator over zero or more <code>PSDependency</code> objects, never <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -382,10 +356,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param path The path to check, may not be <code>null</code> or empty.
-   *
-   * @return The dependency, may be <code>null</code> if the supplied path
-   * does not represent one.
-   *
+   * @return The dependency, may be <code>null</code> if the supplied path does not represent one.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -434,12 +405,9 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * Gets the file from the app specified by the supplied path if it exists.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param path The path to check, may not be  <code>null</code> or
-   * empty.
-   *
-   * @return A <code>File</code> file with a path relative to the application
-   * root, may be <code>null</code> if the specified file does not exist.
-   *
+   * @param path The path to check, may not be <code>null</code> or empty.
+   * @return A <code>File</code> file with a path relative to the application root, may be <code>
+   *     null</code> if the specified file does not exist.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the app does not exists or any errors occur.
    */
@@ -472,10 +440,8 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * @param archive The archive handler to use, may not be <code>null</code>.
    * @param dep The dependency being installed, may not be <code>null</code>.
    * @param ctx The import context to use, may not be <code>null</code>.
-   * @param depFile The dependency file for the app file, may not be
-   * <code>null</code> and must be of the type
-   * {@link PSDependencyFile#TYPE_SUPPORT_FILE}.
-   *
+   * @param depFile The dependency file for the app file, may not be <code>null</code> and must be
+   *     of the type {@link PSDependencyFile#TYPE_SUPPORT_FILE}.
    * @throws PSDeployException if any errors occur.
    */
   protected void saveAppFile(
@@ -560,17 +526,13 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the list of files from the specified application.  Does not include
-   * files dynamically created and used by active assembly.
+   * Gets the list of files from the specified application. Does not include files dynamically
+   * created and used by active assembly.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param appName The name of the app, may not be  <code>null</code> or
-   * empty.
-   *
-   * @return An iterator over zero or more <code>File</code> objects, each
-   * specifying a path relative to the application root, never
-   * <code>null</code>.
-   *
+   * @param appName The name of the app, may not be <code>null</code> or empty.
+   * @return An iterator over zero or more <code>File</code> objects, each specifying a path
+   *     relative to the application root, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -598,17 +560,13 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the specified xml file from the specified application as a
-   * <code>Document</code>.
+   * Gets the specified xml file from the specified application as a <code>Document</code>.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param appName The name of the app, may not be  <code>null</code> or
-   * empty.
-   * @param appFile The xml file to get, relative to the approot directory,
-   * may not be <code>null</code>.
-   *
+   * @param appName The name of the app, may not be <code>null</code> or empty.
+   * @param appFile The xml file to get, relative to the approot directory, may not be <code>null
+   *     </code>.
    * @return The document, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -631,17 +589,13 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Gets the specified file from the specified application as a
-   * <code>File</code>.
+   * Gets the specified file from the specified application as a <code>File</code>.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param appName The name of the app, may not be  <code>null</code> or
-   * empty.
-   * @param appFile The file to get, relative to the approot directory,
-   * may not be <code>null</code>.
-   *
+   * @param appName The name of the app, may not be <code>null</code> or empty.
+   * @param appFile The file to get, relative to the approot directory, may not be <code>null</code>
+   *     .
    * @return The File, never <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   protected File getFileFromApp(PSSecurityToken tok, String appName, File appFile)
@@ -667,13 +621,11 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   /**
    * Gets a list of file paths using variables from the supplied stylesheet.
    *
-   * @param doc The stylesheet parsed as an XML document, assumed not
-   * <code>null</code>.
-   * @param varMap The map for variables used in the supplied stylesheet,
-   * assumed not <code>null</code>.
-   *
-   * @return An iterator over zero or more filepaths as <code>String</code>
-   * objects, never <code>null</code>.
+   * @param doc The stylesheet parsed as an XML document, assumed not <code>null</code>.
+   * @param varMap The map for variables used in the supplied stylesheet, assumed not <code>null
+   *     </code>.
+   * @return An iterator over zero or more filepaths as <code>String</code> objects, never <code>
+   *     null</code>.
    */
   private Iterator getVarPaths(Document doc, Map varMap) {
     Set pathSet = new HashSet();
@@ -719,15 +671,14 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Trims the leading and trailing strings from the supplied string, only if
-   * the supplied string starts with the leading string and also ends with the
-   * trailing string.
-   * @param string The string to trim, assumed not <code>null</code> or empty.
-   * @param leading The leading string to trim from the <code>string</code>,
-   * assumed not <code>null</code> or empty.
-   * @param trailing The trailing string to trim from the <code>string</code>,
-   * assumed not <code>null</code> or empty.
+   * Trims the leading and trailing strings from the supplied string, only if the supplied string
+   * starts with the leading string and also ends with the trailing string.
    *
+   * @param string The string to trim, assumed not <code>null</code> or empty.
+   * @param leading The leading string to trim from the <code>string</code>, assumed not <code>null
+   *     </code> or empty.
+   * @param trailing The trailing string to trim from the <code>string</code>, assumed not <code>
+   *     null</code> or empty.
    * @return The trimmed string, or the original string.
    */
   private String trim(String string, String leading, String trailing) {
@@ -740,7 +691,6 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * Gets the variable table schema, caching after first call
    *
    * @return The schema, never <code>null</code>.
-   *
    * @throws PSDeployException if it cannot be loaded.
    */
   private PSJdbcTableSchema getVarSchema() throws PSDeployException {
@@ -788,12 +738,10 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Normalizes the path separator of the supplied file to that of the current
-   * system.  Assumes that neither {@link #WIN_SEP_CHAR} nor
-   * {@link #UNIX_SEP_CHAR} are used in file or directory names.
+   * Normalizes the path separator of the supplied file to that of the current system. Assumes that
+   * neither {@link #WIN_SEP_CHAR} nor {@link #UNIX_SEP_CHAR} are used in file or directory names.
    *
    * @param file The file to normalize, may not be <code>null</code>.
-   *
    * @return The normalized file., never <code>null</code>.
    */
   protected File normalizePathSep(File file) {
@@ -805,12 +753,10 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Normalizes the path separator of the supplied path to that of the current
-   * system.  Assumes that neither {@link #WIN_SEP_CHAR} nor
-   * {@link #UNIX_SEP_CHAR} are used in file or directory names.
+   * Normalizes the path separator of the supplied path to that of the current system. Assumes that
+   * neither {@link #WIN_SEP_CHAR} nor {@link #UNIX_SEP_CHAR} are used in file or directory names.
    *
    * @param path The path to normalize, may not be <code>null</code> or empty.
-   *
    * @return The normalized path, never <code>null</code>.
    */
   protected String normalizePathSep(String path) {
@@ -828,9 +774,8 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    * Get the name of the root directory of the supplied file's path.
    *
    * @param file The file to check, may not be <code>null</code>.
-   *
-   * @return The root name, or <code>null</code> if the file's path does not
-   * specify any parent directories.  Never empty.
+   * @return The root name, or <code>null</code> if the file's path does not specify any parent
+   *     directories. Never empty.
    */
   protected String getRootDir(File file) {
     if (file == null) throw new IllegalArgumentException("file may not be null");
@@ -851,9 +796,8 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
    *
    * @param path1 The first path to compare, assumed not <code>null</code>.
    * @param path2 The second path to compare, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if they are equal without regard to path
-   * separator, case-sensitive, <code>false</code> otherwise.
+   * @return <code>true</code> if they are equal without regard to path separator, case-sensitive,
+   *     <code>false</code> otherwise.
    */
   private boolean compareFiles(String path1, String path2) {
     // tranform forward slashes to backslashes
@@ -864,15 +808,12 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * Determine if the supplied file is one that should be considered.  Files
-   * in the "edit" subdirectories created by active assembly are not valid.
+   * Determine if the supplied file is one that should be considered. Files in the "edit"
+   * subdirectories created by active assembly are not valid.
    *
    * @param file The file to check, assumed not <code>null</code> or empty.
-   * @param appName The name of the app, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if it is valid, <code>false</code> if it should
-   * be ignored.
+   * @param appName The name of the app, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if it is valid, <code>false</code> if it should be ignored.
    */
   private boolean isValidAppFile(File file, String appName) {
     boolean isValid = false;
@@ -900,94 +841,70 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
   }
 
   /**
-   * The context variable table schema, <code>null</code> until first call to
-   * {@link #getVarSchema()}, never <code>null</code> or modified after that.
+   * The context variable table schema, <code>null</code> until first call to {@link
+   * #getVarSchema()}, never <code>null</code> or modified after that.
    */
   private PSJdbcTableSchema m_varSchema = null;
 
   /**
-   * The app dependency handler, <code>null</code> until first call to
-   * {@link #getAppDepHandler()}, never <code>null</code> or modified after
-   * that.
+   * The app dependency handler, <code>null</code> until first call to {@link #getAppDepHandler()},
+   * never <code>null</code> or modified after that.
    */
   private PSDependencyHandler m_appHandler = null;
 
   /**
-   * The stylesheet dependency handler, <code>null</code> until first call to
-   * {@link #getSheetDepHandler()}, never <code>null</code> or modified after
-   * that.
+   * The stylesheet dependency handler, <code>null</code> until first call to {@link
+   * #getSheetDepHandler()}, never <code>null</code> or modified after that.
    */
   private PSDependencyHandler m_sheetHandler = null;
 
   /**
-   * The support handler, <code>null</code> until first call to
-   * {@link #getFileDepHandler()}, never <code>null</code> or modified after
-   * that.
+   * The support handler, <code>null</code> until first call to {@link #getFileDepHandler()}, never
+   * <code>null</code> or modified after that.
    */
   private PSDependencyHandler m_fileHandler = null;
 
-  /**
-   * Constant for start of concat function pattern.
-   */
+  /** Constant for start of concat function pattern. */
   private static final String CONCAT_START = "concat($";
 
-  /**
-   * Constant for end of concat function pattern.
-   */
+  /** Constant for end of concat function pattern. */
   private static final String CONCAT_END = ")";
 
-  /**
-   * Constant for the comma separator of concat function pattern.
-   */
+  /** Constant for the comma separator of concat function pattern. */
   private static final String CONCAT_SEP = ",";
 
-  /**
-   * Constant for the single character pattern match.
-   */
+  /** Constant for the single character pattern match. */
   private static final char MATCH_ONE = '?';
 
-  /**
-   * Constant for the multiple character pattern match.
-   */
+  /** Constant for the multiple character pattern match. */
   private static final char MATCH_ALL = '*';
 
-  /**
-   * Constant for a quote character used in the concat function pattern.
-   */
+  /** Constant for a quote character used in the concat function pattern. */
   private static final String QUOTE_STRING = "\'";
 
-  /**
-   * Constant for concat function pattern <code>concat($*,*)</code>.
-   */
+  /** Constant for concat function pattern <code>concat($*,*)</code>. */
   private static final String CONCAT_PAT =
       CONCAT_START + MATCH_ALL + CONCAT_SEP + MATCH_ALL + CONCAT_END;
 
   /**
-   * Pattern matcher for concat() function in sytlesheets, never
-   * <code>null</code> or modified after construction.
+   * Pattern matcher for concat() function in sytlesheets, never <code>null</code> or modified after
+   * construction.
    */
   private static PSPatternMatcher ms_concatPatMatch =
       new PSPatternMatcher(MATCH_ONE, MATCH_ALL, CONCAT_PAT);
 
-  /**
-   * Separator used in file paths on windows.
-   */
+  /** Separator used in file paths on windows. */
   private static final char WIN_SEP_CHAR = '\\';
 
-  /**
-   * Separator used in file paths on unix.
-   */
+  /** Separator used in file paths on unix. */
   private static final char UNIX_SEP_CHAR = '/';
 
-  /**
-   * Name of the temp directory created by active assembly below the app root.
-   */
+  /** Name of the temp directory created by active assembly below the app root. */
   private static final String AA_DIR = "edit";
 
   /**
-   * Array of directory names constituting the path to the temp subdirectory
-   * created by active assembly under the sys_resources application.  Names
-   * are in order from bottom most directory up.
+   * Array of directory names constituting the path to the temp subdirectory created by active
+   * assembly under the sys_resources application. Names are in order from bottom most directory up.
    */
   private static final String[] RESOURCE_AA_PATH = {AA_DIR, "assemblers", "stylesheets"};
 

@@ -24,26 +24,24 @@ import java.util.List;
 
 /**
  * Validates a widget builder definition using general and field-specific rules.
- * <p>
- * Sunny Sal says: "Validation is like a Mumbai traffic cop—strict, but for your own good!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Validation is like a Mumbai traffic cop—strict, but for your own good!"
  */
 public class PSWidgetBuilderDefinitionValidator {
 
-    /**
-     * Validates a widget builder definition.
-     *
-     * @param definition The definition to validate, not null.
-     * @param existing   List of existing definitions for uniqueness checks.
-     * @return List of validation results, never null.
-     */
-    public static List<PSWidgetBuilderValidationResult> validate(
-            PSWidgetBuilderDefinitionData definition,
-            List<PSWidgetBuilderDefinitionData> existing) {
+  /**
+   * Validates a widget builder definition.
+   *
+   * @param definition The definition to validate, not null.
+   * @param existing List of existing definitions for uniqueness checks.
+   * @return List of validation results, never null.
+   */
+  public static List<PSWidgetBuilderValidationResult> validate(
+      PSWidgetBuilderDefinitionData definition, List<PSWidgetBuilderDefinitionData> existing) {
 
-        var results = new ArrayList<PSWidgetBuilderValidationResult>();
-        results.addAll(PSWidgetBuilderGeneralValidator.validate(definition, existing));
-        results.addAll(PSWidgetBuilderFieldsValidator.validate(definition.getFieldsList()));
-        return results;
-    }
+    var results = new ArrayList<PSWidgetBuilderValidationResult>();
+    results.addAll(PSWidgetBuilderGeneralValidator.validate(definition, existing));
+    results.addAll(PSWidgetBuilderFieldsValidator.validate(definition.getFieldsList()));
+    return results;
+  }
 }

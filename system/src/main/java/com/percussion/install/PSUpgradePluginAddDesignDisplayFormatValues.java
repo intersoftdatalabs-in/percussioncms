@@ -28,8 +28,8 @@ import org.w3c.dom.Element;
 
 /**
  * Adds the desing Display Format columns to be used by List View services (under design node)
- * @author federicoromanelli
  *
+ * @author federicoromanelli
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePlugin {
@@ -37,9 +37,9 @@ public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePl
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -75,9 +75,9 @@ public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePl
   }
 
   /**
-   * Checks if the default display format is already in the database.
-   * If it is, it set the displayFormatId with the current value.
-   * If it's not, it inserts the corresponding row in table PSX_DISPLAYFORMATS
+   * Checks if the default display format is already in the database. If it is, it set the
+   * displayFormatId with the current value. If it's not, it inserts the corresponding row in table
+   * PSX_DISPLAYFORMATS
    *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
@@ -192,9 +192,9 @@ public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePl
   }
 
   /**
-   * Checks if the default display format is already in the database.
-   * If it is, it set the displayFormatId with the current value.
-   * If it's not, it inserts the corresponding row in table PSX_DISPLAYFORMATS
+   * Checks if the default display format is already in the database. If it is, it set the
+   * displayFormatId with the current value. If it's not, it inserts the corresponding row in table
+   * PSX_DISPLAYFORMATS
    *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
@@ -230,8 +230,8 @@ public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePl
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */

@@ -53,20 +53,17 @@ import java.util.StringTokenizer;
 import org.w3c.dom.Element;
 
 /**
- * Base class for all dependency handlers dealing with <code>PSFolder</code>
- * objects.  Provides common functionality required by these handlers.
+ * Base class for all dependency handlers dealing with <code>PSFolder</code> objects. Provides
+ * common functionality required by these handlers.
  */
 public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -156,10 +153,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param folderId The folder id, may not be <code>null</code> or empty.
-   *
-   * @return The path, or <code>null</code> if the id does not locate a folder,
-   * never empty.
-   *
+   * @return The path, or <code>null</code> if the id does not locate a folder, never empty.
    * @throws PSDeployException if there are any errors.
    */
   public String getFolderPathFromId(PSSecurityToken tok, String folderId) throws PSDeployException {
@@ -198,10 +192,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param path The folder path, may not be <code>null</code> or empty.
-   *
-   * @return The id, or <code>null</code> if the path does not locate a folder,
-   * never empty.
-   *
+   * @return The id, or <code>null</code> if the path does not locate a folder, never empty.
    * @throws PSDeployException if there are any errors.
    */
   public String getFolderIdFromPath(PSSecurityToken tok, String path) throws PSDeployException {
@@ -223,19 +214,16 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Gets all child dependencies.  Gets all child folders and creates
-   * dependencies using the specified <code>folderDepType</code>.  Also gets
-   * the community and display formats of the folder as shared and local
-   * dependencies respectively.
+   * Gets all child dependencies. Gets all child folders and creates dependencies using the
+   * specified <code>folderDepType</code>. Also gets the community and display formats of the folder
+   * as shared and local dependencies respectively.
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param path The path the folder, may not be <code>null</code> or empty.
-   * @param folderDepType The type of child folder dependencies to create, one
-   * of the <code>PSDependency.TYPE_xxx</code> values.
-   *
-   * @return A list of zero or more <code>PSDependency</code> objects,
-   * never <code>null</code>, may be empty.
-   *
+   * @param folderDepType The type of child folder dependencies to create, one of the <code>
+   *     PSDependency.TYPE_xxx</code> values.
+   * @return A list of zero or more <code>PSDependency</code> objects, never <code>null</code>, may
+   *     be empty.
    * @throws IllegalArgumentException if dep is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -325,12 +313,9 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param relProcessor relProcessor The processor to use, may not be <code>null</code>.
    * @param compProcessor server compontent processor proxy, never <code>null</code>.
-   * @param path The path to the folder, starting from the name of the root
-   * folder, delimited using forward slashes (e.g. "Sites/MyFolders/Folder1").
-   *
-   * @return The folder, or <code>null</code> if the folder cannot be
-   * located.
-   *
+   * @param path The path to the folder, starting from the name of the root folder, delimited using
+   *     forward slashes (e.g. "Sites/MyFolders/Folder1").
+   * @return The folder, or <code>null</code> if the folder cannot be located.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -353,12 +338,9 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * Gets the folder summary specified by the supplied path.
    *
    * @param processor relProcessor The processor to use, may not be <code>null</code>.
-   * @param path The path to the folder, starting from the name of the root
-   * folder, delimited using forward slashes (e.g. "Sites/MyFolders/Folder1").
-   *
-   * @return The summary, or <code>null</code> if the summary cannot be
-   * located.
-   *
+   * @param path The path to the folder, starting from the name of the root folder, delimited using
+   *     forward slashes (e.g. "Sites/MyFolders/Folder1").
+   * @return The summary, or <code>null</code> if the summary cannot be located.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -372,20 +354,14 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Returns the path of the folder specified by the supplied
-   * <code>folder</code>.
+   * Returns the path of the folder specified by the supplied <code>folder</code>.
    *
-   * @param proc relationship processor proxy, used for obtaining summaries
-   * of translated folders, may not be <code>null</code>.
-   *
-   * @param folder summary of the folder whose path is to be obtained,
-   * may not be <code>null</code>.
-   *
-   * @return the path of the folder specified by <code>folder</code>,
-   * never <code>null</code> or empty.
-   *
-   * @throws PSDeployException if any error occurs getting the summary of
-   * parent folders.
+   * @param proc relationship processor proxy, used for obtaining summaries of translated folders,
+   *     may not be <code>null</code>.
+   * @param folder summary of the folder whose path is to be obtained, may not be <code>null</code>.
+   * @return the path of the folder specified by <code>folder</code>, never <code>null</code> or
+   *     empty.
+   * @throws PSDeployException if any error occurs getting the summary of parent folders.
    */
   protected String getFolderPath(PSRelationshipProcessor proc, PSComponentSummary folder)
       throws PSDeployException {
@@ -424,13 +400,11 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * Get child folders of the folder specified by the supplied path.
    *
    * @param processor The processor to use, may not be <code>null</code>.
-   * @param path The path of the parent folder, may be null to get all top
-   * level folders, may not be empty.
-   *
-   * @return An iterator over zero or more folder paths, <code>null</code> if
-   * <code>path</code> is not <code>null</code> and the folder it specifies
-   * does not exist, may be empty if the specified folder has no children.
-   *
+   * @param path The path of the parent folder, may be null to get all top level folders, may not be
+   *     empty.
+   * @return An iterator over zero or more folder paths, <code>null</code> if <code>path</code> is
+   *     not <code>null</code> and the folder it specifies does not exist, may be empty if the
+   *     specified folder has no children.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -450,16 +424,12 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Load the component summaries representing the child folders of this
-   * folder.
+   * Load the component summaries representing the child folders of this folder.
    *
    * @param processor The processor to use, may not be <code>null</code>.
-   * @param locator The locator of the parent folder, may not be
-   * <code>null</code>.
-   *
-   * @return An iterator of <code>PSComponentSummary</code> objects, never
-   * <code>null</code>, may be empty.
-   *
+   * @param locator The locator of the parent folder, may not be <code>null</code>.
+   * @return An iterator of <code>PSComponentSummary</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -482,16 +452,12 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Load the component summaries representing the child content items of this
-   * folder.
+   * Load the component summaries representing the child content items of this folder.
    *
    * @param processor The processor to use, may not be <code>null</code>.
-   * @param locator The locator of the parent folder, may not be
-   * <code>null</code>.
-   *
-   * @return An iterator of <code>PSComponentSummary</code> objects, never
-   * <code>null</code>, may be empty.
-   *
+   * @param locator The locator of the parent folder, may not be <code>null</code>.
+   * @return An iterator of <code>PSComponentSummary</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -518,9 +484,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param processor The processor to use, may not be <code>null</code>.
    * @param locator The locator of the folder, may not be <code>null</code>.
-   *
    * @return The folder, or <code>null</code> if the folder cannot be located.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -541,19 +505,14 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Get the summary of the parent of the folder represented by the supplied
-   * path.  This method does not validate that folder represented by the
-   * supplied path exists, it only checks for the existence of its specified
-   * parent folder.
+   * Get the summary of the parent of the folder represented by the supplied path. This method does
+   * not validate that folder represented by the supplied path exists, it only checks for the
+   * existence of its specified parent folder.
    *
    * @param processor The processor to use, may not be <code>null</code>.
-   * @param path The path of the child folder, may not be <code>null</code> or
-   * empty.
-   *
-   * @return The summary, or <code>null</code> if the parent folder cannot be
-   * located or if <code>path</code> specifies a top level folder and thus has
-   * no real parent.
-   *
+   * @param path The path of the child folder, may not be <code>null</code> or empty.
+   * @return The summary, or <code>null</code> if the parent folder cannot be located or if <code>
+   *     path</code> specifies a top level folder and thus has no real parent.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -581,18 +540,15 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   /**
    * Get all folder objects specified by the supplied path.
    *
-   * @param relProcessor  The processor to use, may not be <code>null</code>.
+   * @param relProcessor The processor to use, may not be <code>null</code>.
    * @param compProcessor server compontent processor proxy, never <code>null</code>.
-   * @param path The path whose folders should be returned, starting from the
-   * name of the root folder, delimited using forward slashes (e.g.
-   * "Sites/MyFolders/Folder1").  May not be <code>null</code> or empty.
-   *
-   * @return An array containing each folder, ordered sequentially starting
-   * from the root folder.  The size of the array will always equal the number
-   * of folder names specified by the supplied path.  If any folder specified
-   * by the path cannot be located, that entry in the array and those that
-   * follow will be <code>null</code>.
-   *
+   * @param path The path whose folders should be returned, starting from the name of the root
+   *     folder, delimited using forward slashes (e.g. "Sites/MyFolders/Folder1"). May not be <code>
+   *     null</code> or empty.
+   * @return An array containing each folder, ordered sequentially starting from the root folder.
+   *     The size of the array will always equal the number of folder names specified by the
+   *     supplied path. If any folder specified by the path cannot be located, that entry in the
+   *     array and those that follow will be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -626,12 +582,9 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param proc The processor to use, may not be <code>null</code>.
-   * @param formatId The id of the display format object, may not be
-   * <code>null</code> or empty.
-   *
-   * @return The dependency, or <code>null</code> if it is not found.  Will be
-   * set as a local dependency.
-   *
+   * @param formatId The id of the display format object, may not be <code>null</code> or empty.
+   * @return The dependency, or <code>null</code> if it is not found. Will be set as a local
+   *     dependency.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -670,10 +623,8 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param proc The processor to use, may not be <code>null</code>
    * @param dep The dependency being installed, may not be <code>null</code>.
-   * @param ctx The context to use to get id mappings, may not be
-   * <code>null</code>.
+   * @param ctx The context to use to get id mappings, may not be <code>null</code>.
    * @param folder The folder to transform, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors
    */
@@ -739,27 +690,22 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * Determine if the supplied path specifies a folder that has a parent.
    *
    * @param path The path to check, may not be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the path specifies a parent,
-   * <code>false</code> if it specifies a top level folder.
+   * @return <code>true</code> if the path specifies a parent, <code>false</code> if it specifies a
+   *     top level folder.
    */
   protected boolean pathSpecifiesParent(String path) {
     return (path.indexOf(PATH_SEP) != -1);
   }
 
   /**
-   * Get the immediate child folder with the matching name from the parent
-   * folder specified by the supplied locator.
+   * Get the immediate child folder with the matching name from the parent folder specified by the
+   * supplied locator.
    *
    * @param processor The processor to use, assumed not <code>null</code>.
-   * @param locator The locator of parent folder, assumed not
-   * <code>null</code>.
-   * @param name The name of child folder, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return The child folder summary, or <code>null</code> if a child folder
-   * with the specified name is not found.
-   *
+   * @param locator The locator of parent folder, assumed not <code>null</code>.
+   * @param name The name of child folder, assumed not <code>null</code> or empty.
+   * @return The child folder summary, or <code>null</code> if a child folder with the specified
+   *     name is not found.
    * @throws PSDeployException if there are any errors.
    */
   private PSComponentSummary getChildFolderSummary(
@@ -775,24 +721,19 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Gets the specified folder summary, recursively walking the
-   * <code>names</code> array, starting from the specified index using the
-   * supplied locator.
+   * Gets the specified folder summary, recursively walking the <code>names</code> array, starting
+   * from the specified index using the supplied locator.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   * @param names The folder path from the root folder, tokenized into an
-   * array, assumed not <code>null</code> or empty.  See
-   * {@link #parseFolderPath(String)} for more info.
-   * @param index The index into the <code>names</code> array specifying the
-   * a child of the folder represented by the supplied <code>locator</code>.
-   * Assumed to be greater than or equal to zero and less than
-   * <code>names.length</code>.
-   * @param loc The locator of the parent of the folder specified by
-   * <code>index</code>, assumed not <code>null</code>.
-   *
-   * @return The component summary of the last folder in the array, or
-   * <code>null</code> if it cannot be located.
-   *
+   * @param names The folder path from the root folder, tokenized into an array, assumed not <code>
+   *     null</code> or empty. See {@link #parseFolderPath(String)} for more info.
+   * @param index The index into the <code>names</code> array specifying the a child of the folder
+   *     represented by the supplied <code>locator</code>. Assumed to be greater than or equal to
+   *     zero and less than <code>names.length</code>.
+   * @param loc The locator of the parent of the folder specified by <code>index</code>, assumed not
+   *     <code>null</code>.
+   * @return The component summary of the last folder in the array, or <code>null</code> if it
+   *     cannot be located.
    * @throws PSDeployException if there are any errors.
    */
   private PSComponentSummary getChildFolderSummary(
@@ -813,7 +754,6 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * Parses the supplied folder path using forward slashes (/) as a delimeter.
    *
    * @param path The path to parse, assumed not <code>null</code> or empty.
-   *
    * @return An array of folder names, never <code>null</code> or empty.
    */
   private String[] parseFolderPath(String path) {
@@ -825,20 +765,15 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
     return (String[]) names.toArray(new String[names.size()]);
   }
 
-  /**
-   * Separator used for folder paths, a forward slash ("/").
-   */
+  /** Separator used for folder paths, a forward slash ("/"). */
   protected static final String PATH_SEP = "/";
 
-  /**
-   * Component type string to pass to process calls, never <code>null</code>,
-   * empty or modified.
-   */
+  /** Component type string to pass to process calls, never <code>null</code>, empty or modified. */
   protected static final String FOLDER_TYPE = "FolderContent";
 
   /**
-   * Locator to reference the virtual root folder, which is the
-   * parent of all top level folders. Never <code>null</code> or modified.
+   * Locator to reference the virtual root folder, which is the parent of all top level folders.
+   * Never <code>null</code> or modified.
    */
   private PSLocator m_rootLocator = new PSLocator(PSFolder.ROOT_ID, 1);
 }

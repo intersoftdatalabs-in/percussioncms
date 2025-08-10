@@ -20,53 +20,50 @@ package com.percussion.utils.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.percussion.security.PSEncryptor;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
+import com.percussion.security.PSEncryptor;
 import com.percussion.utils.service.impl.PSUtilityService;
-
 import java.io.File;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Tests for PSUtilityService encryption/decryption.
- */
+/** Tests for PSUtilityService encryption/decryption. */
 public class PSUtilityserviceTest {
 
-    @TempDir
-    File temporaryFolder;
+  @TempDir File temporaryFolder;
 
-    private String rxdeploydir;
+  private String rxdeploydir;
 
-    @BeforeEach
-    public void setup() {
-        rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  @BeforeEach
+  public void setup() {
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
+
+  @AfterEach
+  public void teardown() {
+    // Reset the deploy dir property if it was set prior to test
+    if (rxdeploydir != null) {
+      System.setProperty("rxdeploydir", rxdeploydir);
     }
+  }
 
-    @AfterEach
-    public void teardown() {
-        // Reset the deploy dir property if it was set prior to test
-        if (rxdeploydir != null) {
-            System.setProperty("rxdeploydir", rxdeploydir);
-        }
-    }
+  @Test
+  public void encryptDecryptStringTest() {
+    var defaultKey =
+        PSLegacyEncrypter.getInstance(
+                temporaryFolder.getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
+            .DEFAULT_KEY();
 
-    @Test
-    public void encryptDecryptStringTest() {
-        var defaultKey = PSLegacyEncrypter.getInstance(
-                temporaryFolder.getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
-        ).DEFAULT_KEY();
+    var stringToBeEncrypted = "http://www.yahoo.com";
 
-        var stringToBeEncrypted = "http://www.yahoo.com";
+    var service = new PSUtilityService();
 
-        var service = new PSUtilityService();
+    var encryptedString = service.encryptString(stringToBeEncrypted, defaultKey);
 
-        var encryptedString = service.encryptString(stringToBeEncrypted, defaultKey);
-
-        var decryptedString = service.decryptString(encryptedString, defaultKey);
-        assertEquals(stringToBeEncrypted, decryptedString);
-    }
+    var decryptedString = service.decryptString(encryptedString, defaultKey);
+    assertEquals(stringToBeEncrypted, decryptedString);
+  }
 }

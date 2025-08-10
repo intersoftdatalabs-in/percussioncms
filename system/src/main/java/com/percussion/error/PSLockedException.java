@@ -20,33 +20,27 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Exception indicating failure in acquiring the lock.
- */
+/** Exception indicating failure in acquiring the lock. */
 // REFACTORED: CP-JAVA11
 public class PSLockedException extends PSDeployException {
   /**
    * Construct an exception for messages taking only a single argument.
    *
    * @param msgCode The code of the error string to load.
-   *
-   * @param singleArg The argument to use as the sole argument in
-   *    the error message, may be <code>null</code>.
+   * @param singleArg The argument to use as the sole argument in the error message, may be <code>
+   *     null</code>.
    */
   public PSLockedException(int msgCode, Object singleArg) {
     this(msgCode, new Object[] {singleArg});
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param msgCode The code of the error string to load.
-   *
-   * @param arrayArgs The array of arguments to use as the arguments
-   *    in the error message.  May be <code>null</code>, and may contain
-   *    <code>null</code> elements.
+   * @param arrayArgs The array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, and may contain <code>null</code> elements.
    */
   public PSLockedException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
@@ -62,9 +56,8 @@ public class PSLockedException extends PSDeployException {
   }
 
   /**
-   * This constructor is not supported by this exception class.  Use the
-   * {@link PSDeployException#PSDeployException(PSException) ctor} from the
-   * base class.
+   * This constructor is not supported by this exception class. Use the {@link
+   * PSDeployException#PSDeployException(PSException) ctor} from the base class.
    *
    * @throws UnsupportedOperationException always
    */
@@ -76,25 +69,21 @@ public class PSLockedException extends PSDeployException {
   /**
    * Construct an exception from its XML representation.
    *
-   * @param source The root element of this object's XML representation.
-   * Format expected is defined by the base class's
-   * {@link PSDeployException#toXml(Document) toXml} method documentation.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param source The root element of this object's XML representation. Format expected is defined
+   *     by the base class's {@link PSDeployException#toXml(Document) toXml} method documentation.
+   *     May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSLockedException(Element source) throws PSUnknownNodeTypeException {
     super(source);
   }
 
   /**
-   * Sets the original exception class to this class so that when restored from
-   * XML as a <code>PSDeployException</code>, it can be converted back to this
-   * type of exception.  See {@link PSDeployException#toXml(Document)
-   * super.toXml()} for more info.
+   * Sets the original exception class to this class so that when restored from XML as a <code>
+   * PSDeployException</code>, it can be converted back to this type of exception. See {@link
+   * PSDeployException#toXml(Document) super.toXml()} for more info.
    */
   public Element toXml(Document doc) {
     m_originalExceptionClass = getClass().getName();

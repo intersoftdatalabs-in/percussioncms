@@ -19,19 +19,15 @@ package com.percussion.cms;
 
 import com.percussion.design.objectstore.PSRelationshipSet;
 
-/**
- * Encapsulates the information about an action performed by the relationship
- * handler.
- */
+/** Encapsulates the information about an action performed by the relationship handler. */
 public class PSRelationshipChangeEvent {
   /**
    * Construct a new relationship event object.
    *
-   * @param action the action performed by the relationship handler, one of
-   *    the <code>ACTION_xxx</code> constants.
-   *
-   * @param relationships all relationships that were added, removed or
-   *    modified, never <code>null</code>.
+   * @param action the action performed by the relationship handler, one of the <code>ACTION_xxx
+   *     </code> constants.
+   * @param relationships all relationships that were added, removed or modified, never <code>null
+   *     </code>.
    */
   public PSRelationshipChangeEvent(int action, PSRelationshipSet relationships) {
     if (action != ACTION_ADD && action != ACTION_REMOVE && action != ACTION_MODIFY)
@@ -61,35 +57,24 @@ public class PSRelationshipChangeEvent {
     return m_relationships;
   }
 
-  /**
-   * A constant indicating an undefined action.
-   */
+  /** A constant indicating an undefined action. */
   public static final int ACTION_UNDEFINED = -1;
 
-  /**
-   * A constant indicating add relationship events.
-   */
+  /** A constant indicating add relationship events. */
   public static final int ACTION_ADD = 0;
 
-  /**
-   * A constant indicating remove relationship events.
-   */
+  /** A constant indicating remove relationship events. */
   public static final int ACTION_REMOVE = 1;
 
-  /**
-   * A constant indicating modify relationship events.
-   */
+  /** A constant indicating modify relationship events. */
   public static final int ACTION_MODIFY = 2;
 
-  /**
-   * The action which produced this event. Initialized in ctor, never changed
-   * after that.
-   */
+  /** The action which produced this event. Initialized in ctor, never changed after that. */
   private int m_action = ACTION_UNDEFINED;
 
   /**
-   * Holds the relationships for this event. Initialized in ctor, never
-   * <code>null</code> or changed after that.
+   * Holds the relationships for this event. Initialized in ctor, never <code>null</code> or changed
+   * after that.
    */
   private PSRelationshipSet m_relationships = null;
 }

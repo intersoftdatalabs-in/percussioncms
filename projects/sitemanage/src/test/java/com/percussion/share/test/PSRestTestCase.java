@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,55 +14,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
+import com.percussion.utils.testing.IntegrationTest;
 import java.io.InputStream;
 import java.util.Properties;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.experimental.categories.Category;
 
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
-
-@Tag("IntegrationTest")
+@Category(IntegrationTest.class)
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
-    public static String baseUrl;
-    protected REST_CLIENT restClient;
+  public static String baseUrl;
+  protected REST_CLIENT restClient;
 
-    @BeforeEach All
-    public static void loadProperties() throws Exception {
-        if (baseUrl == null) {
-            var cactusProps = new Properties();
-            try (InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties")) {
-                if (stream == null)
-                    throw new RuntimeException("Cannot find cactus.properties");
-                cactusProps.load(stream);
-                baseUrl = cactusProps.getProperty("cactus.contextURL");
-            }
-        }
+  @BeforeClass
+  public static void loadProperties() throws Exception {
+    if (baseUrl == null) {
+      Properties cactusProps = new Properties();
+      InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties");
+      if (stream == null) throw new RuntimeException("Cannot find cactus.properties");
+      cactusProps.load(stream);
+      baseUrl = cactusProps.getProperty("cactus.contextURL");
     }
+  }
 
-    protected abstract REST_CLIENT getRestClient(String baseUrl);
+  protected abstract REST_CLIENT getRestClient(String baseUrl);
 
-    @BeforeEach
-    public void setupClient() throws Exception {
-        restClient = getRestClient(baseUrl);
-        setupClient(restClient);
-    }
+  @Before
+  public void setupClient() throws Exception {
+    restClient = getRestClient(baseUrl);
+    setupClient(restClient);
+  }
 
-    public static void setupClient(PSObjectRestClient restClient) throws Exception {
-        setupClient(restClient, "admin1", EI_ADMIN_COMMUNITYID);
-    }
+  public static void setupClient(PSObjectRestClient restClient) throws Exception {
+    setupClient(restClient, "admin1", EI_ADMIN_COMMUNITYID);
+  }
 
-    public static void setupClient(PSObjectRestClient restClient, String userName, int communityId) throws Exception {
-        loadProperties();
-        restClient.setUrl(baseUrl);
-        restClient.getRequestHeaders().put("Accept", "text/xml");
-        restClient.login(userName, "demo");
-        restClient.switchCommunity(communityId);
-    }
+  public static void setupClient(PSObjectRestClient restClient, String userName, int communityId)
+      throws Exception {
+    loadProperties();
+    restClient.setUrl(baseUrl);
+    restClient.getRequestHeaders().put("Accept", "text/xml");
+    restClient.login(userName, "demo");
+    restClient.switchCommunity(communityId);
+  }
 
-    public static int EI_ADMIN_COMMUNITYID = 1001;
-    public static int EI_COMMUNITYID = 1002;
+  public static int EI_ADMIN_COMMUNITYID = 1001;
+  public static int EI_COMMUNITYID = 1002;
 }

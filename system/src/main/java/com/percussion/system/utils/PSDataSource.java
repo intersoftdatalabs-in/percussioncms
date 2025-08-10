@@ -29,8 +29,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Datasource which creates a database connection using a driver
- * loaded from an external file.
+ * Datasource which creates a database connection using a driver loaded from an external file.
  *
  * @author peterfrontiero
  */
@@ -51,13 +50,13 @@ public class PSDataSource implements DataSource {
   /**
    * Creates a datasource object.
    *
-   * @param url for the jdbc connection.  Never blank.
+   * @param url for the jdbc connection. Never blank.
    * @param database never blank.
    * @param username never blank.
    * @param password never blank.
    * @param driverClass never blank.
-   * @param driverLocation the absolute path to the file in which
-   * the driver is contained.  Never blank.
+   * @param driverLocation the absolute path to the file in which the driver is contained. Never
+   *     blank.
    */
   public PSDataSource(
       String url,
@@ -130,16 +129,12 @@ public class PSDataSource implements DataSource {
   }
 
   /**
-   * Creates a connection based on the current properties of
-   * this datasource, overriding the username and password
-   * properties.
+   * Creates a connection based on the current properties of this datasource, overriding the
+   * username and password properties.
    *
-   * @param user The username override.  May be <code>null</code>
-   * to use the configured username.
-   * @param pwd The password override.  May be <code>null</code>
-   * to user the configured password.
+   * @param user The username override. May be <code>null</code> to use the configured username.
+   * @param pwd The password override. May be <code>null</code> to user the configured password.
    * @return a connection object, never <code>null</code>.
-   *
    * @throws SQLException if an error occurs.
    */
   private Connection createConnection(String user, String pwd) throws SQLException {

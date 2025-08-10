@@ -37,14 +37,11 @@ import java.sql.SQLException;
 import java.util.Iterator;
 
 /**
- * Abstract base class for all clone handlers to maintain generic code
- * possibliy useful for all clone handlers.
+ * Abstract base class for all clone handlers to maintain generic code possibliy useful for all
+ * clone handlers.
  */
 public abstract class PSCloneHandler implements IPSCloneHandler {
-  /**
-   * Convenience constructor see {#link PSCLoneHandler(IPSCopyHandler, String)}
-   * for description.
-   */
+  /** Convenience constructor see {#link PSCLoneHandler(IPSCopyHandler, String)} for description. */
   public PSCloneHandler(IPSCopyHandler copyHandler)
       throws PSServerConfigException, PSUnknownNodeTypeException {
     this(copyHandler, null);
@@ -54,14 +51,12 @@ public abstract class PSCloneHandler implements IPSCloneHandler {
    * Constructs a new clone handler for the supplied copy handler.
    *
    * @param copyHandler the copy handler to use, not <code>null</code>.
-   * @param config the clone handler configuration to use, uses the
-   *    default ("standard") if <code>null</code> or empty.
-   * @throws PSServerConfigException if the clone handler configuration
-   *    could not be loaded successfully.
-   * @throws PSUnknownNodeTypeException if the requested clone handler
-   *    configuration is invalid.
-   * @throws IllegalArgumentException if the supplied copy handler is
-   *    <code>null</code>.
+   * @param config the clone handler configuration to use, uses the default ("standard") if <code>
+   *     null</code> or empty.
+   * @throws PSServerConfigException if the clone handler configuration could not be loaded
+   *     successfully.
+   * @throws PSUnknownNodeTypeException if the requested clone handler configuration is invalid.
+   * @throws IllegalArgumentException if the supplied copy handler is <code>null</code>.
    */
   public PSCloneHandler(IPSCopyHandler copyHandler, String config)
       throws PSServerConfigException, PSUnknownNodeTypeException {
@@ -92,20 +87,14 @@ public abstract class PSCloneHandler implements IPSCloneHandler {
   }
 
   /**
-   * This process check tests whether or not cloning is allowed for the
-   * current object.
-   * This defaults to <code>true</code> if no "clone" process check is defined
-   * for context "object".
+   * This process check tests whether or not cloning is allowed for the current object. This
+   * defaults to <code>true</code> if no "clone" process check is defined for context "object".
    *
    * @param data the execution data to operatoe on, not <code>null</code>.
-   * @return <code>true</code> if the object can be cloned, <code>false</code>
-   *    otherwise.
-   * @throws PSNotFoundException if an extension used as part of the process
-   *    check cannot be found.
-   * @throws PSExtensionException if an extension executed as part of the
-   *    process check failed.
-   * @throws IllegalArgumentException if the supplied execution data is
-   *    <code>null</code>.
+   * @return <code>true</code> if the object can be cloned, <code>false</code> otherwise.
+   * @throws PSNotFoundException if an extension used as part of the process check cannot be found.
+   * @throws PSExtensionException if an extension executed as part of the process check failed.
+   * @throws IllegalArgumentException if the supplied execution data is <code>null</code>.
    */
   public boolean canClone(PSExecutionData data) throws PSNotFoundException, PSExtensionException {
     PSProcessCheck check = m_config.getProcessCheck(OBJ_CLONE, "object");
@@ -113,21 +102,18 @@ public abstract class PSCloneHandler implements IPSCloneHandler {
   }
 
   /**
-   * Executes the supplied process check using the provided execution data.
-   * If the supplied process check is <code>null</code>, the provided default
-   * value is returned.
+   * Executes the supplied process check using the provided execution data. If the supplied process
+   * check is <code>null</code>, the provided default value is returned.
    *
-   * @param check the process check to evaluate, may be <code>null</code> in
-   *    which case the default value is returned.
+   * @param check the process check to evaluate, may be <code>null</code> in which case the default
+   *     value is returned.
    * @param data the execution data to operate on, not <code>null</code>.
-   * @param defaultValue the default value to be returned if the supplied
-   *    process check is <code>null</code>.
-   * @return the result of the process check or the supplied default value
-   *    if <code>null</code> was supplied for the process check.
-   * @throws PSNotFoundException if an extension used as part of the process
-   *    check cannot be found.
-   * @throws PSExtensionException if an extension executed as part of the
-   *    process check failed.
+   * @param defaultValue the default value to be returned if the supplied process check is <code>
+   *     null</code>.
+   * @return the result of the process check or the supplied default value if <code>null</code> was
+   *     supplied for the process check.
+   * @throws PSNotFoundException if an extension used as part of the process check cannot be found.
+   * @throws PSExtensionException if an extension executed as part of the process check failed.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public static boolean doProcessCheck(
@@ -143,39 +129,38 @@ public abstract class PSCloneHandler implements IPSCloneHandler {
   }
 
   /**
-   * The process check name used in the context of objects that
-   * specifies whether or not objects can be cloned.
+   * The process check name used in the context of objects that specifies whether or not objects can
+   * be cloned.
    */
   public static String OBJ_CLONE = "obj_clone";
 
   /**
-   * The process check name used in the context of relationships that
-   * specifies whether or not relationships are cloned shallow.
+   * The process check name used in the context of relationships that specifies whether or not
+   * relationships are cloned shallow.
    */
   public static String RS_CLONESHALLOW = "rs_cloneshallow";
 
   /**
-   * The process check name used in the context of relationships that
-   * specifies whether or not relationships are cloned deep.
+   * The process check name used in the context of relationships that specifies whether or not
+   * relationships are cloned deep.
    */
   public static String RS_CLONEDEEP = "rs_clonedeep";
 
   /**
-   * The copy handler used to clone objects, initialized in ctor, never
-   * <code>null</code> or changed after that.
+   * The copy handler used to clone objects, initialized in ctor, never <code>null</code> or changed
+   * after that.
    */
   protected IPSCopyHandler m_copyHandler = null;
 
   /**
-   * The clone handler configuration to use for this cloen handler.
-   * Initialized in ctor, never <code>null</code> or changed after that.
+   * The clone handler configuration to use for this cloen handler. Initialized in ctor, never
+   * <code>null</code> or changed after that.
    */
   protected PSCloneHandlerConfig m_config = null;
 
   /**
-   * The data extractor used to get the current revision from the current
-   * execution context, initialized in ctor, never <code>null</code> or
-   * changed after that.
+   * The data extractor used to get the current revision from the current execution context,
+   * initialized in ctor, never <code>null</code> or changed after that.
    */
   protected PSContentItemStatusExtractor m_currentRevisionExtractor =
       new PSContentItemStatusExtractor(new PSContentItemStatus("CONTENTSTATUS", "CURRENTREVISION"));

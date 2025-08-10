@@ -27,13 +27,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class stores the data for generating the brand code.
- */
+/** This class stores the data for generating the brand code. */
 @SuppressWarnings("unchecked")
 public class PSBrandCodeData {
   /**
    * Constructor
+   *
    * @throws CodeException if any error occurs getting the brand code map
    */
   public PSBrandCodeData() throws CodeException {
@@ -41,20 +40,18 @@ public class PSBrandCodeData {
   }
 
   /**
-   * Gets the version number of the brand code map to use for generating the
-   * brand code.
-   * @return the the version number of the brand code map to use for generating
-   * the brand code.
+   * Gets the version number of the brand code map to use for generating the brand code.
+   *
+   * @return the the version number of the brand code map to use for generating the brand code.
    */
   public int getBrandCodeMapVersion() {
     return m_brandCodeMapVersion;
   }
 
   /**
-   * Sets the version number of the brand code map to use for generating the
-   * brand code.
-   * @param version the version number of the brand code map, should be
-   * greater than 0.
+   * Sets the version number of the brand code map to use for generating the brand code.
+   *
+   * @param version the version number of the brand code map, should be greater than 0.
    * @throws IllegalArgumentException if version is not greater than 0.
    */
   public void setBrandCodeMapVersion(int version) {
@@ -104,6 +101,7 @@ public class PSBrandCodeData {
 
   /**
    * Returns the date on which the brand code expires.
+   *
    * @return the date on which the brand code expires, never <code>null</code>
    */
   public Date getCodeExpires() {
@@ -112,8 +110,8 @@ public class PSBrandCodeData {
 
   /**
    * Sets the date on which the brand code expires.
-   * @param expire the date on which the brand code expires, may not be
-   * <code>null</code>
+   *
+   * @param expire the date on which the brand code expires, may not be <code>null</code>
    * @throws IllegalArgumentException if expire is <code>null</code>
    */
   public void setCodeExpires(Date expire) {
@@ -123,6 +121,7 @@ public class PSBrandCodeData {
 
   /**
    * Gets the value of the license id.
+   *
    * @return the value of the license id, always non-negative.
    */
   public int getLicenseId() {
@@ -131,6 +130,7 @@ public class PSBrandCodeData {
 
   /**
    * Returns the name of the license.
+   *
    * @return the name of the license, never <code>null</code> or empty
    */
   public String getLicenseName() {
@@ -143,6 +143,7 @@ public class PSBrandCodeData {
 
   /**
    * Sets the value of the license id.
+   *
    * @param licenseId the value of the license id, should be non-negative.
    * @throws IllegalArgumentException if license id is less than 0.
    */
@@ -153,8 +154,8 @@ public class PSBrandCodeData {
 
   /**
    * Returns the list containing the names of selected parts.
-   * @return the list containing the names of selected parts, never
-   * <code>null</code>
+   *
+   * @return the list containing the names of selected parts, never <code>null</code>
    */
   public List getPartsName() {
     List partsName = new ArrayList();
@@ -174,6 +175,7 @@ public class PSBrandCodeData {
 
   /**
    * Returns the list containing the part ids for selected parts.
+   *
    * @return the list containing the part ids for selected parts.
    */
   public List getPartsId() {
@@ -182,8 +184,9 @@ public class PSBrandCodeData {
 
   /**
    * Sets the list containing the part ids for selected parts.
-   * @param partsId the the list containing the part ids for selected parts, may
-   * not be <code>null</code>
+   *
+   * @param partsId the the list containing the part ids for selected parts, may not be <code>null
+   *     </code>
    * @throws IllegalArgumentException if parts is <code>null</code>
    */
   public void setPartsId(List partsId) {
@@ -193,6 +196,7 @@ public class PSBrandCodeData {
 
   /**
    * Returns the map containing the property id and quantity of each property.
+   *
    * @return the map containing the property id and quantity of each property.
    */
   public Map getProperties() {
@@ -201,8 +205,8 @@ public class PSBrandCodeData {
 
   /**
    * Sets the map containing the property id and quantity of each property.
-   * @param properties the map containing the property id and quantity of
-   * each property.
+   *
+   * @param properties the map containing the property id and quantity of each property.
    * @throws IllegalArgumentException if properties is <code>null</code>
    */
   public void setProperties(Map properties) {
@@ -211,16 +215,15 @@ public class PSBrandCodeData {
   }
 
   /**
-   * Returns <code>true</code> if the component corresponding to the input
-   * componentId parameter is licensed, <code>false</code> otherwise.
-   * @param componentId the id of the component, should be one of the constant
-   * values from <code>com.percussion.util.IPSBrandCodeConstants</code>
-   * interface, should be greater than 0.
-   * @return <code>true</code> if the component corresponding to the input
-   * componentId parameter is licensed, <code>false</code> otherwise.
+   * Returns <code>true</code> if the component corresponding to the input componentId parameter is
+   * licensed, <code>false</code> otherwise.
+   *
+   * @param componentId the id of the component, should be one of the constant values from <code>
+   *     com.percussion.util.IPSBrandCodeConstants</code> interface, should be greater than 0.
+   * @return <code>true</code> if the component corresponding to the input componentId parameter is
+   *     licensed, <code>false</code> otherwise.
    * @throws IllegalArgumentException if componentId is less than 1
-   * @throws CodeException if any error occurs retrieving the list of
-   * licensed components
+   * @throws CodeException if any error occurs retrieving the list of licensed components
    */
   public boolean isComponentLicensed(int componentId) throws CodeException {
     if (componentId < 1) throw new IllegalArgumentException("Invalid component id");
@@ -230,26 +233,22 @@ public class PSBrandCodeData {
   }
 
   /**
-   * Returns a map containing the licensed component's id as key and component
-   * name as value.
-   * @return map containing the licensed component's id as key and component
-   * name as value
-   * @throws CodeException if any error occurs retrieving the list of
-   * licensed components
+   * Returns a map containing the licensed component's id as key and component name as value.
+   *
+   * @return map containing the licensed component's id as key and component name as value
+   * @throws CodeException if any error occurs retrieving the list of licensed components
    */
   public Map getLicensedComponents() throws CodeException {
     return m_brandCodeMap.getComponents(m_brandCodeMapVersion, m_partsId);
   }
 
   /**
-   * Returns the value of the property corresponding to the input
-   * propertyId parameter.
-   * @param propertyId the id of the property whose value is required,
-   * should be one of the constant values from
-   * <code>com.percussion.util.IPSBrandCodeConstants</code> interface,
-   * should be non-negative.
-   * @return the value of the property corresponding to the input
-   * propertyId parameter.
+   * Returns the value of the property corresponding to the input propertyId parameter.
+   *
+   * @param propertyId the id of the property whose value is required, should be one of the constant
+   *     values from <code>com.percussion.util.IPSBrandCodeConstants</code> interface, should be
+   *     non-negative.
+   * @return the value of the property corresponding to the input propertyId parameter.
    * @throws IllegalArgumentException if componentId is less than 0
    */
   public int getPropertyValue(int propertyId) {
@@ -262,8 +261,8 @@ public class PSBrandCodeData {
 
   /**
    * Determine whether the brand code has expired or not.
-   * @return <code>true</code> if the brand code has expired,
-   * <code>false</code> otherwise.
+   *
+   * @return <code>true</code> if the brand code has expired, <code>false</code> otherwise.
    */
   public boolean hasExpired() {
     GregorianCalendar now = new GregorianCalendar();
@@ -283,45 +282,33 @@ public class PSBrandCodeData {
     return (false);
   }
 
-  /**
-   * The version of the brand code map to use for generating the brand code.
-   */
+  /** The version of the brand code map to use for generating the brand code. */
   private int m_brandCodeMapVersion = 1;
 
-  /**
-   * type of server
-   */
+  /** type of server */
   private ServerTypes m_serverType = ServerTypes.PRODUCTION;
 
-  /**
-   * product expiry period
-   */
+  /** product expiry period */
   private EvalTypes m_productExpires = EvalTypes.NOT_EVAL;
 
-  /**
-   * Date on which the brand code expires.
-   */
+  /** Date on which the brand code expires. */
   private Date m_codeExpires = null;
 
-  /**
-   * license id.
-   */
+  /** license id. */
   private int m_licenseId = 0;
 
-  /**
-   * list for storing the part ids for selected parts.
-   */
+  /** list for storing the part ids for selected parts. */
   private List m_partsId = null;
 
   /**
-   * map for storing the property id and quantity of each property. For example,
-   * the property id of "Number of Processors" (0) and its quantity.
+   * map for storing the property id and quantity of each property. For example, the property id of
+   * "Number of Processors" (0) and its quantity.
    */
   private Map m_propertiesMap = null;
 
   /**
-   * In memory representation of the Component Map Xml, initialized in the
-   * constructor, never <code>null</code> after initialization.
+   * In memory representation of the Component Map Xml, initialized in the constructor, never <code>
+   * null</code> after initialization.
    */
   private IPSBrandCodeMap m_brandCodeMap = null;
 }

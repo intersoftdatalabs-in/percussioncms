@@ -29,17 +29,14 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * While upgrading the community views related data from RXSYSCOMPONENTRELATIONS
- * will be added through general tables plugin except for the relation between
- * content administrator left nav and community content component.
- * If communities are enabled on the system this plugin adds the relation if
- * the relation does not exist already.
+ * While upgrading the community views related data from RXSYSCOMPONENTRELATIONS will be added
+ * through general tables plugin except for the relation between content administrator left nav and
+ * community content component. If communities are enabled on the system this plugin adds the
+ * relation if the relation does not exist already.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginCommunityViewRelation implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginCommunityViewRelation() {}
 
   /**

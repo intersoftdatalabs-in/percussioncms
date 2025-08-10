@@ -25,20 +25,17 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSOracleUpdateInsertBuilder.java class is used to build SQL UPDATE and
- * INSERT statements. It first attempts to process the UPDATE. If this
- * processes no rows, an INSERT is then attempted.
+ * The PSOracleUpdateInsertBuilder.java class is used to build SQL UPDATE and INSERT statements. It
+ * first attempts to process the UPDATE. If this processes no rows, an INSERT is then attempted.
  *
- * @see         PSUpdateOptimizer
+ * @see PSUpdateOptimizer
  */
 public class PSOracleUpdateInsertBuilder extends PSOracleUpdateBuilder {
   /**
    * Construct a SQL builder to build an UPDATE statement.
    *
-   * @param   table      the table to build the UPDATE for
-   *
-   * @throws PSIllegalArgumentException  when the superclass throws this
-   *    exception
+   * @param table the table to build the UPDATE for
+   * @throws PSIllegalArgumentException when the superclass throws this exception
    */
   PSOracleUpdateInsertBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super(table);
@@ -47,16 +44,12 @@ public class PSOracleUpdateInsertBuilder extends PSOracleUpdateBuilder {
   /**
    * Generate the statement using the specified connection keys.
    *
-   * @param   logins        The list of logins.
-   *
-   * @param   connKeys      The hash table containing the driver:server
-   *                        as the key and the conn number as the value.
-   *
-   * @return  The PSUpdate-derived statement to process this update
-   *          and insert combination.
-   *
-   * @throws PSIllegalArgumentException If there are multiple tables
-   * or a PSDataExtractionException occurs.
+   * @param logins The list of logins.
+   * @param connKeys The hash table containing the driver:server as the key and the conn number as
+   *     the value.
+   * @return The PSUpdate-derived statement to process this update and insert combination.
+   * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
+   *     occurs.
    */
   PSUpdateStatement generate(List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {

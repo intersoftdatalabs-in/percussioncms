@@ -23,11 +23,9 @@ import com.percussion.install.PSLogger;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSEvalCondition will resolve to <code>true</code> if an eval is installed
+ * PSEvalCondition will resolve to <code>true</code> if an eval is installed <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -47,7 +45,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSEvalCondition extends PSAction implements Condition {
   /* (non-Javadoc)

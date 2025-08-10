@@ -42,15 +42,12 @@ import org.w3c.dom.Document;
 /**
  * PSTableAction is a task which installs table definitions and data.
  *
- * The tables name property is used to point to the xml documents that store
- * the table and data definitions.  [TableName]Def.xml defines the table
- * definition and [TableName]Data.xml defines the data.  These files must be
- * in the resources via an RxISCustomFiles object.
+ * <p>The tables name property is used to point to the xml documents that store the table and data
+ * definitions. [TableName]Def.xml defines the table definition and [TableName]Data.xml defines the
+ * data. These files must be in the resources via an RxISCustomFiles object. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -71,7 +68,6 @@ import org.w3c.dom.Document;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSTableAction extends PSAction {
   // see base class
@@ -188,24 +184,21 @@ public class PSTableAction extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /**
-   * Accessor for the repository location
-   */
+  /** Accessor for the repository location */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
 
-  /**
-   * Mutator for the repository location.
-   */
+  /** Mutator for the repository location. */
   public void setRepositoryLocation(String strRepositoryLocation) {
     m_strRepositoryLocation = strRepositoryLocation;
   }
 
   /**
    * returns the tablefactory log file path relative to the install directory
-   * @return the tablefactory log file path relative to the install directory,
-   * never <code>null</code> or empty
+   *
+   * @return the tablefactory log file path relative to the install directory, never <code>null
+   *     </code> or empty
    */
   public String getTableFactoryLogFile() {
     return m_tableFactoryLogFile;
@@ -213,31 +206,31 @@ public class PSTableAction extends PSAction {
 
   /**
    * Sets the tablefactory log file path relative to the install directory
-   * @param tableFactoryLogFile the tablefactory log file path relative to
-   * the install directory, may be <code>null</code> or empty in which the
-   * default is used.
+   *
+   * @param tableFactoryLogFile the tablefactory log file path relative to the install directory,
+   *     may be <code>null</code> or empty in which the default is used.
    */
   public void setTableFactoryLogFile(String tableFactoryLogFile) {
     m_tableFactoryLogFile = tableFactoryLogFile;
   }
 
   /**
-   * Returns <code>true</code> if any error occurs during repository creation,
-   * <code>false</code> otherwise.
-   * @return <code>true</code> if any error occurs during repository creation,
-   * <code>false</code> otherwise.
+   * Returns <code>true</code> if any error occurs during repository creation, <code>false</code>
+   * otherwise.
+   *
+   * @return <code>true</code> if any error occurs during repository creation, <code>false</code>
+   *     otherwise.
    */
   public boolean getIsRepositoryError() {
     return isRepositoryError;
   }
 
   /**
-   * Returns the detailed error message if any error occurred during
-   * repository creation. Returns empty string if repository creation
-   * was successful.
-   * @return the detailed error message if any error occurred during
-   * repository creation. Returns empty string if repository creation
-   * was successful.
+   * Returns the detailed error message if any error occurred during repository creation. Returns
+   * empty string if repository creation was successful.
+   *
+   * @return the detailed error message if any error occurred during repository creation. Returns
+   *     empty string if repository creation was successful.
    */
   public String getRepositoryErrorMsg() {
     if (isRepositoryError) return repositoryErrorMsg;
@@ -284,25 +277,17 @@ public class PSTableAction extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   *  The Tables name for the table definitions.
-   */
+  /** The Tables name for the table definitions. */
   private String[] m_strTableDef = {"$P(absoluteInstallLocation)/rxconfig"};
 
-  /**
-   *  The Types name for the table definitions.
-   */
+  /** The Types name for the table definitions. */
   private String[] m_strTableData = {"$P(absoluteInstallLocation)/rxconfig"};
 
-  /**
-   * The repository location.
-   */
+  /** The repository location. */
   private String m_strRepositoryLocation =
       getRootDir() + File.separator + "rxconfig/Installer/rxrepository.properties";
 
-  /**
-   * log for the tablefactory processing
-   */
+  /** log for the tablefactory processing */
   private String m_tableFactoryLogFile =
       getRootDir()
           + File.separator
@@ -313,13 +298,10 @@ public class PSTableAction extends PSAction {
           + "tableFactory.log";
 
   /**
-   * initially <code>false</code>, <code>true</code> if any error occurs
-   * during repository creation
+   * initially <code>false</code>, <code>true</code> if any error occurs during repository creation
    */
   private boolean isRepositoryError = false;
 
-  /**
-   * detailed error message about the error occuring during repository creation
-   */
+  /** detailed error message about the error occuring during repository creation */
   private String repositoryErrorMsg = "";
 }

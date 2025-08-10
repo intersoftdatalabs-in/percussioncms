@@ -25,29 +25,25 @@ import java.util.Properties;
 import javax.servlet.ServletRequest;
 
 /**
- * The PSHostAddressProvider class is used to access the
- * CGI variables <code>REMOTE_HOST</code> and <code>REMOTE_ADDR</code>
- * to authenticate the user. These variables are used to store the IP
- * address and/or DNS name of the user issuing the request. E2 allows
- * IP address and domain names to be used as an authentication mechanism
- * by checking the remote user's info with the specified info. Wild card
- * characters are permitted in the IP address and domain name, where the
- * wild card can be used at the end of the IP address or the beginning
- * of the domain name, as follows:
- * <ul>
- *   <li>*.percussion.com - all users in the percussion.com domain</li>
- *   <li>38.164.160.* - all users in the specified address range</li>
- *   </ul>
+ * The PSHostAddressProvider class is used to access the CGI variables <code>REMOTE_HOST</code> and
+ * <code>REMOTE_ADDR</code> to authenticate the user. These variables are used to store the IP
+ * address and/or DNS name of the user issuing the request. E2 allows IP address and domain names to
+ * be used as an authentication mechanism by checking the remote user's info with the specified
+ * info. Wild card characters are permitted in the IP address and domain name, where the wild card
+ * can be used at the end of the IP address or the beginning of the domain name, as follows:
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <ul>
+ *   <li>*.percussion.com - all users in the percussion.com domain
+ *   <li>38.164.160.* - all users in the specified address range
+ * </ul>
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHostAddressProvider extends Object {
 
-  /**
-   * Construct an instance of this provider.
-   */
+  /** Construct an instance of this provider. */
   public PSHostAddressProvider(Properties props, String providerInstance) {
     if (providerInstance == null)
       throw new IllegalArgumentException("providerInstance cannot be null");
@@ -62,11 +58,9 @@ public class PSHostAddressProvider extends Object {
   /**
    * Get the authenticated user(s) associated with the specified request.
    *
-   * @param      req           the request context
-   *
-   * @return                  an array of user entries, or <code>null</code>
-   *                           if this security provider was not used to
-   *                           authenticate the user
+   * @param req the request context
+   * @return an array of user entries, or <code>null</code> if this security provider was not used
+   *     to authenticate the user
    */
   public PSUserEntry[] getAuthenticatedUserEntries(PSRequest req) {
     List entries = new ArrayList();
@@ -128,7 +122,7 @@ public class PSHostAddressProvider extends Object {
   /**
    * Get the meta data associated with this instance.
    *
-   * @return         the instance meta data
+   * @return the instance meta data
    */
   public PSHostAddressProviderMetaData getMetaData() {
     return new PSHostAddressProviderMetaData(this);
@@ -137,11 +131,9 @@ public class PSHostAddressProvider extends Object {
   /**
    * See if the specified user entries already exists in the user session.
    *
-   * @param      req         the request context
-   *
-   * @param      entry       the entry to check
-   *
-   * @return                 <code>true</code> if it does
+   * @param req the request context
+   * @param entry the entry to check
+   * @return <code>true</code> if it does
    */
   protected boolean isUserEntryDefined(PSRequest req, PSUserEntry entry) {
     if (req == null) return false;
@@ -160,19 +152,15 @@ public class PSHostAddressProvider extends Object {
     return false;
   }
 
-  /**
-   * The name of this security provider.
-   */
+  /** The name of this security provider. */
   public static final String SP_NAME = "HostAddress";
 
-  /**
-   * The class name of this security provider.
-   */
+  /** The class name of this security provider. */
   public static final String SP_CLASSNAME = PSHostAddressProvider.class.getName();
 
   /**
-   * The provider instance string. Initialized in constructor. Never
-   * changed after that, never <code>null</code> or empty.
+   * The provider instance string. Initialized in constructor. Never changed after that, never
+   * <code>null</code> or empty.
    */
   protected String m_spInstance = null;
 }

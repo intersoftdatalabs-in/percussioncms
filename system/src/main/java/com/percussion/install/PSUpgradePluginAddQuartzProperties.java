@@ -29,39 +29,37 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Updates the spring configuration file
- * {@link PSJBossUtils#SPRING_CONFIG_FILE} by adding a
- * property to the 'sys_beanConfiguration' bean which
- * contains quartz-specific properties which will
+ * Updates the spring configuration file {@link PSJBossUtils#SPRING_CONFIG_FILE} by adding a
+ * property to the 'sys_beanConfiguration' bean which contains quartz-specific properties which will
  * override the default values specified in beans.xml.
- * <p>
- * For System Master:
- * <p>
- * &ltproperty name="quartzProperties"&gt
- * <p>
- *      &ltprops&gt
- * <p>
- *           &ltprop key="org.quartz.jobStore.isClustered"&gtfalse&lt/prop&gt
- * <p>
- *           &ltprop key="org.quartz.scheduler.instanceName"&gtSystemMaster&lt/prop&gt
- * <p>
- *      &lt/props&gt
- * <p>
- * &lt/property&gt
- * <p>
- * For Pub Hub:
- * <p>
- * &ltproperty name="quartzProperties"&gt
- * <p>
- *      &ltprops&gt
- * <p>
- *           &ltprop key="org.quartz.jobStore.isClustered"&gttrue&lt/prop&gt
- * <p>
- *           &ltprop key="org.quartz.scheduler.instanceName"&gtPublishingHub&lt/prop&gt
- * <p>
- *      &lt/props&gt
- * <p>
- * &lt/property&gt
+ *
+ * <p>For System Master:
+ *
+ * <p>&ltproperty name="quartzProperties"&gt
+ *
+ * <p>&ltprops&gt
+ *
+ * <p>&ltprop key="org.quartz.jobStore.isClustered"&gtfalse&lt/prop&gt
+ *
+ * <p>&ltprop key="org.quartz.scheduler.instanceName"&gtSystemMaster&lt/prop&gt
+ *
+ * <p>&lt/props&gt
+ *
+ * <p>&lt/property&gt
+ *
+ * <p>For Pub Hub:
+ *
+ * <p>&ltproperty name="quartzProperties"&gt
+ *
+ * <p>&ltprops&gt
+ *
+ * <p>&ltprop key="org.quartz.jobStore.isClustered"&gttrue&lt/prop&gt
+ *
+ * <p>&ltprop key="org.quartz.scheduler.instanceName"&gtPublishingHub&lt/prop&gt
+ *
+ * <p>&lt/props&gt
+ *
+ * <p>&lt/property&gt
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin {
@@ -139,9 +137,7 @@ public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin {
     return new PSPluginResponse(PSPluginResponse.SUCCESS, "Success");
   }
 
-  /**
-   * Xml constants.
-   */
+  /** Xml constants. */
   private static final String XML_PROPERTY_ELEM = "property";
 
   private static final String XML_PROPS_ELEM = "props";

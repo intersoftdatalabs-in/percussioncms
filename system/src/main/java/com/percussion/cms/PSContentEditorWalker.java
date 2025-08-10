@@ -24,20 +24,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * Utility to perform operations on documents conforming with the
- * sys_ContentEditor.dtd.
- */
+/** Utility to perform operations on documents conforming with the sys_ContentEditor.dtd. */
 public class PSContentEditorWalker {
   /**
    * Get the first 'Control' element for the provided name.
    *
    * @param doc the document to search for the value, not <code>null</code>.
-   * @param name the field name of the DisplayField element we want the
-   *    value for, not <code>null</code> or empty.
+   * @param name the field name of the DisplayField element we want the value for, not <code>null
+   *     </code> or empty.
    * @return the DisplayElement or <code>null</code> if not found.
-   * @throws IllegalArgumentException if the provided document or name is
-   *    <code>null</code> or if the name is empty.
+   * @throws IllegalArgumentException if the provided document or name is <code>null</code> or if
+   *     the name is empty.
    */
   public static Element getControlElement(Document doc, String name) {
     if (doc == null || name == null || name.trim().length() == 0)
@@ -56,18 +53,16 @@ public class PSContentEditorWalker {
   }
 
   /**
-   * Get the value of the first 'DisplayField' matching the provided name.
-   * The value means here all 'Value' elements text data found either as
-   * String or as list of Sting objects.
+   * Get the value of the first 'DisplayField' matching the provided name. The value means here all
+   * 'Value' elements text data found either as String or as list of Sting objects.
    *
    * @param doc the document to search for the value, not <code>null</code>.
-   * @param name the field name of the 'DisplayField' element we want the
-   *    value for, not <code>null</code> or empty.
-   * @return the value found, a String object for single values, a
-   *    'DisplayChoices' element for multiple values,
-   *    <code>null</code> if not found.
-   * @throws IllegalArgumentException if the provided document or name is
-   *    <code>null</code> or the name is empty.
+   * @param name the field name of the 'DisplayField' element we want the value for, not <code>null
+   *     </code> or empty.
+   * @return the value found, a String object for single values, a 'DisplayChoices' element for
+   *     multiple values, <code>null</code> if not found.
+   * @throws IllegalArgumentException if the provided document or name is <code>null</code> or the
+   *     name is empty.
    */
   public static Object getDisplayFieldValue(Document doc, String name) {
     if (doc == null || name == null || name.trim().length() == 0)
@@ -104,10 +99,8 @@ public class PSContentEditorWalker {
   /**
    * Get the text data of all 'Value' elements found in the provided element.
    *
-   * @elem the element to get the 'Value' element data from, not
-   *    <code>null</code>.
-   * @return a list of String objects, might be empty but not
-   *    <code>null</code>.
+   * @elem the element to get the 'Value' element data from, not <code>null</code>.
+   * @return a list of String objects, might be empty but not <code>null</code>.
    */
   public static List getValues(Element elem) {
     if (elem == null) throw new IllegalArgumentException("elem cannot be null");
@@ -124,17 +117,14 @@ public class PSContentEditorWalker {
   }
 
   /**
-   * Replaces or adds the Value element(s) in the document provided, for
-   * the supplied container element with the supplied value. If no 'Value'
-   * element is found this will add a new one.
+   * Replaces or adds the Value element(s) in the document provided, for the supplied container
+   * element with the supplied value. If no 'Value' element is found this will add a new one.
    *
    * @param doc the document used, not <code>null</code>.
-   * @param container the container to replace the Value elements in, not
-   *    <code>null</code>.
-   * @param value the new value, the toString method will be used to create
-   *    the Sting value, not <code>null</code>.
-   * @throws IllegalArgumentException if any provided argument is
-   *    <code>null</code>.
+   * @param container the container to replace the Value elements in, not <code>null</code>.
+   * @param value the new value, the toString method will be used to create the Sting value, not
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if any provided argument is <code>null</code>.
    */
   public static void replaceOrAddValue(Document doc, Element container, Object value) {
     if (doc == null || container == null || value == null)
@@ -150,11 +140,9 @@ public class PSContentEditorWalker {
   }
 
   /**
-   * Creates a new Value element in the provided document with the supplied
-   * content.
+   * Creates a new Value element in the provided document with the supplied content.
    *
-   * @param doc the document to create the Value element in, assumed not
-   *    <code>null</code>.
+   * @param doc the document to create the Value element in, assumed not <code>null</code>.
    * @param content the Value element content, assumed not <code>null</code>.
    * @return the new Value element, never <code>null</code>.
    */

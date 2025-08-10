@@ -96,32 +96,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This takes the ObjectId (JSON string) and the action name string and
- * returns a Json object string that contains a URL for the action.
- * The action names are hard coded like:
+ * This takes the ObjectId (JSON string) and the action name string and returns a Json object string
+ * that contains a URL for the action. The action names are hard coded like:
  *
- * CE_EDIT
- * CE_VIEW_CONTENT
- * CE_VIEW_PROPERTIES
- * CE_FIELDEDIT
- * CE_VIEW_REVISIONS
- * CE_VIEW_AUDIT_TRAIL
- * CE_LINK
- * PREVIEW_PAGE
- * PREVIEW_MYPAGE
- * RC_SEARCH
- * TOOL_SHOW_AA_RELATIONSHIPS
- * TOOL_LINK_TO_PAGE
- * TOOL_PUBLISH_NOW
- * ACTION_xxx
+ * <p>CE_EDIT CE_VIEW_CONTENT CE_VIEW_PROPERTIES CE_FIELDEDIT CE_VIEW_REVISIONS CE_VIEW_AUDIT_TRAIL
+ * CE_LINK PREVIEW_PAGE PREVIEW_MYPAGE RC_SEARCH TOOL_SHOW_AA_RELATIONSHIPS TOOL_LINK_TO_PAGE
+ * TOOL_PUBLISH_NOW ACTION_xxx
  *
- * The returned json object contains the following parameters:
+ * <p>The returned json object contains the following parameters:
+ *
  * <pre>
  * url = the requested url
  * dlg_height = the dialog height (Only exists for the field edit url)
  * dlg_width = the dialog height (Only exists for the field edit url)
  * </pre>
- *
  */
 public class PSGetUrlAction extends PSAAActionBase {
   /*
@@ -164,15 +152,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the contenteditor edit url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the contenteditor edit url. This method is only public because it is called via
+   * reflection. The method should not be called externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -187,15 +172,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the contenteditor view content url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the contenteditor view content url. This method is only public because it is called
+   * via reflection. The method should not be called externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -209,15 +191,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the contenteditor view properties url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the contenteditor view properties url. This method is only public because it is
+   * called via reflection. The method should not be called externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused")
@@ -231,14 +210,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * This method is only public because it is called via reflection. The method should not be called
+   * externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    */
   @SuppressWarnings("unused") // dynamically called
   private String doCE_FIELDEDIT(String queryurl, PSAAObjectId objectId) throws Exception {
@@ -295,8 +272,8 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to retrieve a control parameter
-   * value from the control meta map.
+   * Helper method to retrieve a control parameter value from the control meta map.
+   *
    * @param mapping assumed not <code>null</code>.
    * @param paramname the name of the parameter to be found.
    * @return the parameter value which may be empty.
@@ -319,15 +296,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the contenteditor veiw revisions url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the contenteditor veiw revisions url. This method is only public because it is called
+   * via reflection. The method should not be called externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -341,15 +315,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the contenteditor view audit trail url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param queryurl the query url from the node def. Cannot
-   * be <code>null</code> or empty.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the contenteditor view audit trail url. This method is only public because it is
+   * called via reflection. The method should not be called externally.
+   *
+   * @param queryurl the query url from the node def. Cannot be <code>null</code> or empty.
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -364,14 +335,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the preview page url. The revision used for this is always the
-   * current revision.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the preview page url. The revision used for this is always the current revision. This
+   * method is only public because it is called via reflection. The method should not be called
+   * externally.
+   *
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the JSON object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -388,13 +357,11 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the preview may page url. THe revision gets set to -1.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the preview may page url. THe revision gets set to -1. This method is only public
+   * because it is called via reflection. The method should not be called externally.
+   *
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throw if an error occurs creating the json object.
    */
   @SuppressWarnings("unused") // dynamically called
@@ -411,13 +378,11 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Assembles the related content search url.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
-   * @param objectId the object id object, cannot be <code>null</code> or
-   * empty.
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * Assembles the related content search url. This method is only public because it is called via
+   * reflection. The method should not be called externally.
+   *
+   * @param objectId the object id object, cannot be <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throws PSAAClientActionException
    * @throw if an error occurs creating the json object.
    */
@@ -439,13 +404,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Creates the url needed for inline images and links.
-   * This method is only public because it is called via reflection.
-   * The method should not be called externally.
+   * Creates the url needed for inline images and links. This method is only public because it is
+   * called via reflection. The method should not be called externally.
+   *
    * @param queryurl
    * @param objectId
-   * @return the json object string that contains the url never
-   * <code>null</code> or empty.
+   * @return the json object string that contains the url never <code>null</code> or empty.
    * @throws JSONException
    * @throws PSAAClientActionException
    */
@@ -478,15 +442,12 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Builds a URL that can be used to make a request to the server to launch
-   * the Impact analyzer on the item identified by the supplied id. A special
-   * property is added that changes the default behavior of the analyzer to
-   * only show AA category relationships.
+   * Builds a URL that can be used to make a request to the server to launch the Impact analyzer on
+   * the item identified by the supplied id. A special property is added that changes the default
+   * behavior of the analyzer to only show AA category relationships.
    *
    * @param objectId Assumed not <code>null</code>.
-   *
    * @return A valid, fully qualified URL. Never <code>null</code> or empty.
-   *
    * @throws JSONException
    * @throws PSAAClientActionException
    */
@@ -500,15 +461,14 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Attempt to get the requested item into a public state (if it is not already
-   * there,) then build the url that will launch the proper edition.
+   * Attempt to get the requested item into a public state (if it is not already there,) then build
+   * the url that will launch the proper edition.
    *
    * @param objectId Assumed not <code>null</code>;
    * @return A valid, fully qualified URL. Never <code>null</code> or empty.
-   *
    * @throws JSONException If the result cannot be created.
-   * @throws PSAAClientActionException If the item is not public, or exactly
-   * 1 transition to a non-adhoc state cannot be found or the transition fails.
+   * @throws PSAAClientActionException If the item is not public, or exactly 1 transition to a
+   *     non-adhoc state cannot be found or the transition fails.
    */
   @SuppressWarnings("unused") // dynamically called
   private String doTOOL_PUBLISH_NOW(PSAAObjectId objectId)
@@ -591,16 +551,13 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Builds a URL that can be used to make a request to the server to launch
-   * the AA editor on the item identified by the supplied id. The template in
-   * the supplied id is used if allowed for the ctype, otherwise, the first
-   * page template in numeric ascending order is used. If there are no page
-   * templates, the first snippet is used by the same algorithm.
+   * Builds a URL that can be used to make a request to the server to launch the AA editor on the
+   * item identified by the supplied id. The template in the supplied id is used if allowed for the
+   * ctype, otherwise, the first page template in numeric ascending order is used. If there are no
+   * page templates, the first snippet is used by the same algorithm.
    *
    * @param objectId Assumed not <code>null</code>.
-   *
    * @return A valid, fully qualified URL. Never <code>null</code> or empty.
-   *
    * @throws JSONException
    * @throws PSAAClientActionException
    */
@@ -642,9 +599,7 @@ public class PSGetUrlAction extends PSAAActionBase {
         Collections.sort(
             associations,
             new Comparator<PSContentTemplateDesc>() {
-              /**
-               * Sorts in ascending numeric UUID order.
-               */
+              /** Sorts in ascending numeric UUID order. */
               public int compare(PSContentTemplateDesc o1, PSContentTemplateDesc o2) {
                 int uuid1 = o1.getTemplateId().getUUID();
                 int uuid2 = o2.getTemplateId().getUUID();
@@ -687,6 +642,7 @@ public class PSGetUrlAction extends PSAAActionBase {
 
   /**
    * Builds a url to the mananage navaigation edit page.
+   *
    * @param objectId assumed not <code>null</code>.
    * @return url, never <code>null</code> or empty.
    * @throws JSONException
@@ -719,8 +675,7 @@ public class PSGetUrlAction extends PSAAActionBase {
    * @param objectId Assumed not <code>null</code>.
    * @return A url that can be used to perform the action.
    * @throws JSONException
-   * @throws PSAAClientActionException If an action by the supplied name cannot
-   * be found.
+   * @throws PSAAClientActionException If an action by the supplied name cannot be found.
    */
   private String doGenericAction(String actionName, PSAAObjectId objectId)
       throws JSONException, PSAAClientActionException {
@@ -730,6 +685,7 @@ public class PSGetUrlAction extends PSAAActionBase {
 
   /**
    * Creates a simple url and Adds common parameters.
+   *
    * @param url assumed not <code>null</code>.
    * @return a
    */
@@ -746,6 +702,7 @@ public class PSGetUrlAction extends PSAAActionBase {
 
   /**
    * The log mechanism for this class.
+   *
    * @return Never <code>null</code>.
    */
   private Log getLogger() {
@@ -753,28 +710,22 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Loads an action by the specified name, takes it's command and params and
-   * processes them into the returned object, performing substitutions (a
-   * subset of those supported by the CX) as required. If a parameter has a
-   * variable value whose name is not recognized, it is skipped and a message
-   * is noted in the log.
-   * <p>
-   * Special handling is done for sys_folderid. If one is not available in the
-   * supplied <code>id</code> and one is needed, then all folders for the item
-   * are found and sorted. If sys_siteid is present, they are also filtered by
-   * that specific site, otherwise, they are filtered by removing folders not
-   * in the //Sites hierarchy. The first one in the list is returned. If none
-   * is found, the processing continues with no folderid.
+   * Loads an action by the specified name, takes it's command and params and processes them into
+   * the returned object, performing substitutions (a subset of those supported by the CX) as
+   * required. If a parameter has a variable value whose name is not recognized, it is skipped and a
+   * message is noted in the log.
    *
-   * @param actionName The name of the <code>PSAction</code> that will be
-   * used to build the URL. Assumed not blank. If an action can't be found or
-   * loaded, an exception is thrown.
+   * <p>Special handling is done for sys_folderid. If one is not available in the supplied <code>id
+   * </code> and one is needed, then all folders for the item are found and sorted. If sys_siteid is
+   * present, they are also filtered by that specific site, otherwise, they are filtered by removing
+   * folders not in the //Sites hierarchy. The first one in the list is returned. If none is found,
+   * the processing continues with no folderid.
    *
+   * @param actionName The name of the <code>PSAction</code> that will be used to build the URL.
+   *     Assumed not blank. If an action can't be found or loaded, an exception is thrown.
    * @param id The identifer for the item for which the URL will be generated.
    * @return Never <code>null</code>.
-   *
-   * @throws PSAAClientActionException If the supplied action can't be found or
-   * can't be loaded.
+   * @throws PSAAClientActionException If the supplied action can't be found or can't be loaded.
    */
   @SuppressWarnings("unchecked")
   private SimpleURL createUrlFromAction(String actionName, PSAAObjectId id)
@@ -879,12 +830,11 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to create the jason object return string that is expected by
-   * the client.
+   * Helper method to create the jason object return string that is expected by the client.
    *
    * @param url assumed to be not <code>null</code>.
-   * @param params Map of key value pairs that needs to be added to the
-   *           returning JSON object may be <code>null</code> or empty.
+   * @param params Map of key value pairs that needs to be added to the returning JSON object may be
+   *     <code>null</code> or empty.
    * @return the json object string, never <code>null</code> or empty.
    * @throws JSONException if an error occurs while creating the JSON object.
    */
@@ -909,11 +859,10 @@ public class PSGetUrlAction extends PSAAActionBase {
   }
 
   /**
-   * Retrieves the control meta from the server or the local
-   * cached copy of the meta if it exists.
+   * Retrieves the control meta from the server or the local cached copy of the meta if it exists.
+   *
    * @return control meta, never <code>null</code>.
-   * @throws Exception if an error occurs during the request
-   * or parsing of the response document.
+   * @throws Exception if an error occurs during the request or parsing of the response document.
    */
   private Map<String, PSControlMeta> getControls() throws Exception {
     if (m_controls == null) {
@@ -952,12 +901,9 @@ public class PSGetUrlAction extends PSAAActionBase {
     return m_controls;
   }
 
-  /**
-   * Simple class used to assemble a url
-   */
+  /** Simple class used to assemble a url */
   class SimpleURL {
     /**
-     *
      * @param urlbase contains the path and optional query part.
      */
     public SimpleURL(String urlbase) {
@@ -971,9 +917,9 @@ public class PSGetUrlAction extends PSAAActionBase {
 
     /**
      * Add a parameter to the url.
+     *
      * @param name assumed not <code>null</code>.
-     * @param value may be <code>null</code>. URL encoded when the URL is
-     * assembled.
+     * @param value may be <code>null</code>. URL encoded when the URL is assembled.
      */
     public void addParam(String name, String value) {
       mi_params.put(name, value);
@@ -981,6 +927,7 @@ public class PSGetUrlAction extends PSAAActionBase {
 
     /**
      * Returns the url string.
+     *
      * @return never <code>null</code> or empty.
      */
     @Override
@@ -1011,15 +958,10 @@ public class PSGetUrlAction extends PSAAActionBase {
         (Map<String, String>) MapUtils.orderedMap(new HashMap<String, String>());
   }
 
-  /**
-   * Cached control meta for all controls in the system. Initialized
-   * by {@link #getControls()}.
-   */
+  /** Cached control meta for all controls in the system. Initialized by {@link #getControls()}. */
   private Map<String, PSControlMeta> m_controls;
 
-  /**
-   * Assembly url constant.
-   */
+  /** Assembly url constant. */
   private static final String ASSEMBLY_URL = "/Rhythmyx/assembler/render";
 
   //   /**
@@ -1056,30 +998,19 @@ public class PSGetUrlAction extends PSAAActionBase {
   //   private static final String CREATE_TRANSLATION_URL =
   //      "/sys_actionTranslate/translate.html";
 
-  /**
-   * Related content search form url constant.
-   */
+  /** Related content search form url constant. */
   private static final String RC_SEARCH_URL = "/sys_searchSupport/getQuery.html";
 
-  /**
-   * Constant for sys_userview parameter for content editor revision and
-   * audi trail URLs
-   */
+  /** Constant for sys_userview parameter for content editor revision and audi trail URLs */
   private static final String SYS_USERVIEW = "sys_userview";
 
-  /**
-   * Constant for dialog height parameter
-   */
+  /** Constant for dialog height parameter */
   private static final String DLG_HEIGHT = "dlg_height";
 
-  /**
-   * Constant for dialog height parameter
-   */
+  /** Constant for dialog height parameter */
   private static final String AA_RENDERER = "aarenderer";
 
-  /**
-   * Constant for dialog width parameter
-   */
+  /** Constant for dialog width parameter */
   private static final String DLG_WIDTH = "dlg_width";
 
   // Url types that can be returned

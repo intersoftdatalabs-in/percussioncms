@@ -23,13 +23,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A data object that represents validation errors.
- * <p>
- * The object some what mirrors the Spring validation framework.
- * <p>
- * The object is safe serialize with JAXB.
+ *
+ * <p>The object some what mirrors the Spring validation framework.
+ *
+ * <p>The object is safe serialize with JAXB.
  *
  * @author adamgent
- *
  */
 @XmlRootElement(name = "ValidationErrors")
 public class PSValidationErrors extends PSErrors {

@@ -42,10 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- *
- *
  * @author DavidBenua
- *
  */
 public class GenericLinkbackControllerTest {
 
@@ -72,9 +69,9 @@ public class GenericLinkbackControllerTest {
   }
 
   /**
-   * Test method for
-   * {@link com.percussion.soln.linkback.servlet.GenericLinkbackController#handleRequestInternal(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
-   * .
+   * Test method for {@link
+   * com.percussion.soln.linkback.servlet.GenericLinkbackController#handleRequestInternal(javax.servlet.http.HttpServletRequest,
+   * javax.servlet.http.HttpServletResponse)} .
    */
   @Test
   public final void testHandleRequestPositive() {

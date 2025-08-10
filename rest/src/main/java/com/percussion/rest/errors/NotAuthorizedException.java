@@ -21,13 +21,10 @@ package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-/**
- * Exception for unauthorized access.
- * Sunny Sal: "Permission denied! Access nahi milega!"
- */
+/** Exception for unauthorized access. Sunny Sal: "Permission denied! Access nahi milega!" */
 public class NotAuthorizedException extends RestExceptionBase {
 
-    public NotAuthorizedException() {
-        super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
-    }
+  public NotAuthorizedException() {
+    super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
+  }
 }

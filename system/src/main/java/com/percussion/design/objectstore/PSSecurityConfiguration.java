@@ -25,25 +25,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSSecurityConfiguration class defines an entry in the user-security-conf.xml
- * file under the rxapp.war/WEB-INF/config/user/security directory.
- * This entry defines which paths allow anonymous access or basic authorization,
- * as well as if secure login is required.
+ * The PSSecurityConfiguration class defines an entry in the user-security-conf.xml file under the
+ * rxapp.war/WEB-INF/config/user/security directory. This entry defines which paths allow anonymous
+ * access or basic authorization, as well as if secure login is required.
  */
 public class PSSecurityConfiguration implements IPSDocument {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from
-   *
-   * @exception   PSUnknownDocTypeException if the XML document is not
-   *                                      of type PSSecurityConfiguration
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @exception PSUnknownDocTypeException if the XML document is not of type PSSecurityConfiguration
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSSecurityConfiguration(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -51,10 +44,7 @@ public class PSSecurityConfiguration implements IPSDocument {
     fromXml(sourceDoc);
   }
 
-  /**
-   * Empty constructor for creating from serialization, fromXml() etc
-   *
-   */
+  /** Empty constructor for creating from serialization, fromXml() etc */
   PSSecurityConfiguration() {
     super();
     m_isForceSecureLogin = XML_FLAG_TYPE_NO;
@@ -62,12 +52,11 @@ public class PSSecurityConfiguration implements IPSDocument {
   }
 
   /**
-   * Creates a security configuration entry with the specified secure login
-   * status and path elements.
+   * Creates a security configuration entry with the specified secure login status and path
+   * elements.
    *
-   * @param   isForceSecureLogin  the secure login status of this entry
-   *
-   * @param   paths  the path elements included in this security configuration
+   * @param isForceSecureLogin the secure login status of this entry
+   * @param paths the path elements included in this security configuration
    */
   public PSSecurityConfiguration(String isForceSecureLogin, ArrayList paths) {
     super();
@@ -78,7 +67,7 @@ public class PSSecurityConfiguration implements IPSDocument {
   /**
    * Get the secure login status associated with this entry.
    *
-   * @return   the secure login status associated with this entry
+   * @return the secure login status associated with this entry
    */
   public String getIsForceSecureLogin() {
     return m_isForceSecureLogin;
@@ -87,8 +76,7 @@ public class PSSecurityConfiguration implements IPSDocument {
   /**
    * Set the secure login status associated with this entry.
    *
-   * @param   isForceSecureLogin the secure login status to associate
-   *                  with this entry.
+   * @param isForceSecureLogin the secure login status to associate with this entry.
    */
   public void setIsForceSecureLogin(String isForceSecureLogin) {
     m_isForceSecureLogin = isForceSecureLogin;
@@ -150,12 +138,11 @@ public class PSSecurityConfiguration implements IPSDocument {
   }
 
   /**
-   * This method is called to populate a PSSecurityConfiguration Java object
-   * from a PSSecurityConfiguration XML document. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSSecurityConfiguration Java object from a
+   * PSSecurityConfiguration XML document. See the {@link #toXml(Document) toXml} method for a
+   * description of the XML object.
    *
-   * @exception   PSUnknownDocTypeException if the XML document is not
-   *                                      of type PSSecurityConfiguration
+   * @exception PSUnknownDocTypeException if the XML document is not of type PSSecurityConfiguration
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -236,19 +223,13 @@ public class PSSecurityConfiguration implements IPSDocument {
   private static final String XML_FLAG_TYPE_YES = "yes";
   private static final String XML_FLAG_TYPE_NO = "no";
 
-  /**
-   * The form authentication type constant
-   */
+  /** The form authentication type constant */
   public static final String FORM_AUTH_TYPE = "form";
 
-  /**
-   * The basic authentication type constant
-   */
+  /** The basic authentication type constant */
   public static final String BASIC_AUTH_TYPE = "basic";
 
-  /**
-   * The anonymous authentication type constant
-   */
+  /** The anonymous authentication type constant */
   public static final String ANONYMOUS_AUTH_TYPE = "anonymous";
 
   // package access on this so they may reference each other in fromXml
@@ -258,53 +239,39 @@ public class PSSecurityConfiguration implements IPSDocument {
    * This class represents a path element in the PSSecurityConfiguration object.
    *
    * @author peterfrontiero
-   *
    */
   private class PSPath {
     /**
      * Creates a path entry with the specified authentication type and path.
      *
-     * @param   authType  the authentication type to be used with this entry
-     *
-     * @param   path      the path to authenticate
+     * @param authType the authentication type to be used with this entry
+     * @param path the path to authenticate
      */
     public PSPath(String authType, String path) {
       m_authType = authType;
       m_path = path;
     }
 
-    /**
-     * AuthType getter method
-     */
+    /** AuthType getter method */
     public String getAuthType() {
       return m_authType;
     }
 
-    /**
-     * Path getter method
-     */
+    /** Path getter method */
     public String getPath() {
       return m_path;
     }
 
-    /**
-     * The authentication type
-     */
+    /** The authentication type */
     private String m_authType = "";
 
-    /**
-     * The path
-     */
+    /** The path */
     private String m_path = "";
 
-    /**
-     * The path xml node name
-     */
+    /** The path xml node name */
     public static final String XML_NODE_NAME = "path";
 
-    /**
-     * The authType xml attribute name
-     */
+    /** The authType xml attribute name */
     public static final String XML_ATTR_NAME = "authType";
   }
 }

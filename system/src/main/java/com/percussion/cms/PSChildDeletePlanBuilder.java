@@ -27,9 +27,7 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- * Plan builder for performing inserts of complex child content items.
- */
+/** Plan builder for performing inserts of complex child content items. */
 public class PSChildDeletePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSChildDeletePlanBuilder(
@@ -38,16 +36,13 @@ public class PSChildDeletePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform a delete of the complex child item
-   * specified by the supplied mapper.   See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
+   * Creates a plan that will perform a delete of the complex child item specified by the supplied
+   * mapper. See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
    * super.createModifyPlan()} for additional details.
    *
    * @return The plan, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if fieldSet type is not
-   * {@link PSFieldSet#TYPE_COMPLEX_CHILD} or if either param is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_COMPLEX_CHILD}
+   *     or if either param is <code>null</code>.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException {

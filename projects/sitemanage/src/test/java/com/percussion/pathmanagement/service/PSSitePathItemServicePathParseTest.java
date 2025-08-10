@@ -18,66 +18,67 @@ package com.percussion.pathmanagement.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.impl.PSSitePathItemService;
 import com.percussion.pathmanagement.service.impl.PSSitePathItemService.SiteIdAndFolderPath;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class PSSitePathItemServicePathParseTest {
 
-    TestSitePathItemService ps;
-    String siteFolderPath = "//Sites/Site1";
+  TestSitePathItemService ps;
+  String siteFolderPath = "//Sites/Site1";
 
-    @BeforeEach
-    public void setup() {
-        ps = new TestSitePathItemService();
+  @BeforeEach
+  public void setup() {
+    ps = new TestSitePathItemService();
+  }
+
+  @Test
+  public void shouldExtractSiteIdAndPath() throws Exception {
+    assertExtraction("/site1/b/c/", "site1", "//Sites/Site1/b/c/");
+    assertExtraction("/site1/b/", "site1", "//Sites/Site1/b/");
+    assertExtraction("/site1/", "site1", "//Sites/Site1/");
+  }
+
+  @Test
+  public void shouldSayIfItHasOnlyTheSiteId() throws Exception {
+    var sfp = ps.getSiteIdAndFolderPath("/site3/");
+    assertTrue(sfp.isOnlySiteId());
+  }
+
+  @Test
+  public void shouldSayIfItHasTheFolderPathWithTheSiteId() throws Exception {
+    var sfp = ps.getSiteIdAndFolderPath("/site3/b/");
+    assertFalse(sfp.isOnlySiteId());
+  }
+
+  @Test
+  public void shouldFailOnRootPathAsThatIsHandledElseWhere() {
+    assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("/"));
+  }
+
+  @Test
+  public void shouldFailOnNoMatch() {
+    assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("/asdfasd"));
+  }
+
+  public void assertExtraction(String path, String expectedSiteId, String expectedFolderPath)
+      throws PSPathNotFoundServiceException {
+    var sfp = ps.getSiteIdAndFolderPath(path);
+    assertEquals(expectedSiteId, sfp.getSiteId(), "Site Id");
+    assertEquals(expectedFolderPath, sfp.getFullFolderPath(siteFolderPath), "Folder path");
+  }
+
+  public static class TestSitePathItemService extends PSSitePathItemService {
+    public TestSitePathItemService() {
+      super(null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
-    @Test
-    public void shouldExtractSiteIdAndPath() throws Exception {
-        assertExtraction("/site1/b/c/", "site1", "//Sites/Site1/b/c/");
-        assertExtraction("/site1/b/", "site1", "//Sites/Site1/b/");
-        assertExtraction("/site1/", "site1", "//Sites/Site1/");
+    @Override
+    public SiteIdAndFolderPath getSiteIdAndFolderPath(String path)
+        throws PSPathNotFoundServiceException {
+      return super.getSiteIdAndFolderPath(path);
     }
-
-    @Test
-    public void shouldSayIfItHasOnlyTheSiteId() throws Exception {
-        var sfp = ps.getSiteIdAndFolderPath("/site3/");
-        assertTrue(sfp.isOnlySiteId());
-    }
-
-    @Test
-    public void shouldSayIfItHasTheFolderPathWithTheSiteId() throws Exception {
-        var sfp = ps.getSiteIdAndFolderPath("/site3/b/");
-        assertFalse(sfp.isOnlySiteId());
-    }
-
-    @Test
-    public void shouldFailOnRootPathAsThatIsHandledElseWhere() {
-        assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("/"));
-    }
-
-    @Test
-    public void shouldFailOnNoMatch() {
-        assertThrows(PSPathNotFoundServiceException.class, () -> ps.getSiteIdAndFolderPath("/asdfasd"));
-    }
-
-    public void assertExtraction(String path, String expectedSiteId, String expectedFolderPath) throws PSPathNotFoundServiceException {
-        var sfp = ps.getSiteIdAndFolderPath(path);
-        assertEquals(expectedSiteId, sfp.getSiteId(), "Site Id");
-        assertEquals(expectedFolderPath, sfp.getFullFolderPath(siteFolderPath), "Folder path");
-    }
-
-    public static class TestSitePathItemService extends PSSitePathItemService {
-        public TestSitePathItemService() {
-            super(null, null, null, null, null, null, null, null, null, null, null, null);
-        }
-
-        @Override
-        public SiteIdAndFolderPath getSiteIdAndFolderPath(String path) throws PSPathNotFoundServiceException {
-            return super.getSiteIdAndFolderPath(path);
-        }
-    }
+  }
 }

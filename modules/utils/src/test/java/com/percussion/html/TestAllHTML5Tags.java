@@ -35,10 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Test to validate the HTML cleaner / parser against
- * a document with  all html 5 tags.
- */
+/** Test to validate the HTML cleaner / parser against a document with all html 5 tags. */
 public class TestAllHTML5Tags {
 
   @TempDir public Path temporaryFolder;

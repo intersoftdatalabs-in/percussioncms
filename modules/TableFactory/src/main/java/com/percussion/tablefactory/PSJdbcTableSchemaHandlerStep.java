@@ -24,47 +24,41 @@ import java.sql.SQLException;
 import java.util.Iterator;
 
 /**
- * Step for processing the data handlers encapsulated by the specified
- * schema handler <code>schemaHandler</code> passes as parameter to the
- * constructor.
+ * Step for processing the data handlers encapsulated by the specified schema handler <code>
+ * schemaHandler</code> passes as parameter to the constructor.
  */
 public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
   /**
-   * Constructs a step for processing a schema handler. The value of
-   * <code>srcTableSchema</code> and <code>destTableSchema</code> depend upon
-   * the type of schema handler specified by <code>schemaHandler</code>.
+   * Constructs a step for processing a schema handler. The value of <code>srcTableSchema</code> and
+   * <code>destTableSchema</code> depend upon the type of schema handler specified by <code>
+   * schemaHandler</code>.
    *
-   * If <code>schemaHandler</code> is a schema handler of type
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code> then
-   * <code>srcTableSchema</code> is the schema of the table being created
-   * and <code>destTableSchema</code> is <code>null</code>.
+   * <p>If <code>schemaHandler</code> is a schema handler of type <code>
+   * PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code> then <code>srcTableSchema</code> is the
+   * schema of the table being created and <code>destTableSchema</code> is <code>null</code>.
    *
-   * If <code>schemaHandler</code> is a schema handler of one of the following
-   * types:
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_NO_ALTER_TABLE_STMT</code> or
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_TO_BACKUP</code> or
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_FROM_BACKUP</code>
-   * then <code>srcTableSchema</code> is the schema of the source table from
-   * which the data is being obtained and <code>destTableSchema</code> is
-   * the schema of the destination table into which data is being updated.
+   * <p>If <code>schemaHandler</code> is a schema handler of one of the following types: <code>
+   * PSJdbcTableSchemaHandler.TYPE_INT_NO_ALTER_TABLE_STMT</code> or <code>
+   * PSJdbcTableSchemaHandler.TYPE_INT_TO_BACKUP</code> or <code>
+   * PSJdbcTableSchemaHandler.TYPE_INT_FROM_BACKUP</code> then <code>srcTableSchema</code> is the
+   * schema of the source table from which the data is being obtained and <code>destTableSchema
+   * </code> is the schema of the destination table into which data is being updated.
    *
-   * @param dbmsDef provides the database/schema information for the table,
-   * may not be <code>null</code>.
-   * @param srcTableSchema schema of the table being created or schema of the
-   * source table from which data is being obtained, may not be <code>null</code>
-   * @param destTableSchema schema of the destination table into which data
-   * is being updated, may be <code>null</code> if the enclosing schema
-   * handler is of type <code>PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code>,
-   * otherwise it may not be <code>null</code>
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param srcTableSchema schema of the table being created or schema of the source table from
+   *     which data is being obtained, may not be <code>null</code>
+   * @param destTableSchema schema of the destination table into which data is being updated, may be
+   *     <code>null</code> if the enclosing schema handler is of type <code>
+   *     PSJdbcTableSchemaHandler.TYPE_INT_ON_CREATE</code>, otherwise it may not be <code>null
+   *     </code>
    * @param schemaHandler table schema handler, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>schemaHandler</code> or <code>srcTableSchema</code> is
-   * <code>null</code>, or <code>destTableSchema</code> is <code>null</code>
-   * <code>schemaHandler</code> is a schema handler is one of the following types:
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_NO_ALTER_TABLE_STMT</code> or
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_TO_BACKUP</code> or
-   * <code>PSJdbcTableSchemaHandler.TYPE_INT_FROM_BACKUP</code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>schemaHandler</code> or
+   *     <code>srcTableSchema</code> is <code>null</code>, or <code>destTableSchema</code> is <code>
+   *     null</code> <code>schemaHandler</code> is a schema handler is one of the following types:
+   *     <code>PSJdbcTableSchemaHandler.TYPE_INT_NO_ALTER_TABLE_STMT</code> or <code>
+   *     PSJdbcTableSchemaHandler.TYPE_INT_TO_BACKUP</code> or <code>
+   *     PSJdbcTableSchemaHandler.TYPE_INT_FROM_BACKUP</code>
    */
   public PSJdbcTableSchemaHandlerStep(
       PSJdbcDbmsDef dbmsDef,
@@ -150,14 +144,11 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
   }
 
   /**
-   * Copies data from the source table to the destination table. Returns the
-   * number of rows copied.
+   * Copies data from the source table to the destination table. Returns the number of rows copied.
    *
    * @param conn the database connection to use, assumed not <code>null</code>
-   *
-   * @return the number of rows copied from the source table to the
-   * destination table, always non-negative.
-   *
+   * @return the number of rows copied from the source table to the destination table, always
+   *     non-negative.
    * @throws SQLException if any error occurs updating source or table data
    * @throws IOException if any error occurs reading or writing LOB data
    */
@@ -194,14 +185,11 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
   }
 
   /**
-   * Removes the columns that are in the source table but not in the
-   * destination table. Adds columns that have default value
-   * defined and which do not exist in the source table but exist in the
+   * Removes the columns that are in the source table but not in the destination table. Adds columns
+   * that have default value defined and which do not exist in the source table but exist in the
    * destination table.
    *
-   * @param srcRow row of data from the source table, assumed not
-   * <code>null</code>
-   *
+   * @param srcRow row of data from the source table, assumed not <code>null</code>
    * @return modified row data, never <code>null</code>
    */
   private PSJdbcRowData processRow(PSJdbcRowData srcRow) {
@@ -232,26 +220,23 @@ public class PSJdbcTableSchemaHandlerStep extends PSJdbcExecutionStep {
   }
 
   /**
-   * provides the database/schema information for the table, initialized in the
-   * constructor, never <code>null</code> after initialization
+   * provides the database/schema information for the table, initialized in the constructor, never
+   * <code>null</code> after initialization
    */
   private PSJdbcDbmsDef m_dbmsDef = null;
 
   /**
-   * schema of the source table from which data needs to be copied, initialized
-   * in the constructor, never <code>null</code> after initialization
+   * schema of the source table from which data needs to be copied, initialized in the constructor,
+   * never <code>null</code> after initialization
    */
   private PSJdbcTableSchema m_srcTableSchema = null;
 
   /**
-   * schema of the destination table into which data will be copied, initialized
-   * in the constructor, may be <code>null</code>
+   * schema of the destination table into which data will be copied, initialized in the constructor,
+   * may be <code>null</code>
    */
   private PSJdbcTableSchema m_destTableSchema = null;
 
-  /**
-   * schema handler, initialized in the constructor,
-   * may not be <code>null</code>
-   */
+  /** schema handler, initialized in the constructor, may not be <code>null</code> */
   private PSJdbcTableSchemaHandler m_schemaHandler = null;
 }

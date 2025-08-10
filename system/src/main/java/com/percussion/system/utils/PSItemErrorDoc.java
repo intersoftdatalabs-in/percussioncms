@@ -24,33 +24,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * Utility class to produce the error documents to be created by item level
- * validation exits.
+ * Utility class to produce the error documents to be created by item level validation exits.
  * Conforms to the sys_ItemValidation.dtd.
  */
 public class PSItemErrorDoc {
   private static final Logger log = LogManager.getLogger(PSItemErrorDoc.class);
 
   /**
-   * Adds a new error entry to the provided document. If the root element
-   * is already there it will be used, if not a new root element will be
-   * created and added.
+   * Adds a new error entry to the provided document. If the root element is already there it will
+   * be used, if not a new root element will be created and added.
    *
    * @param doc the document to add the new error to, not <code>null</code>.
-   * @param submitName the field submit name for which to add a new error
-   *    message, not <code>null</code> or empty.
-   * @param displayName the field display name for which to add a new error
-   *    message, not <code>null</code> or empty.
-   * @param pattern the message string pattern, which will be formatted
-   *    together with the provided arguments, not <code>null</code> or
-   *    empty.
-   * @param args an array of String objects, containing all arguments which
-   *    need to be formatted to the string pattern supplied, might be
-   *    <code>null</code> or empty.
-   * @throws IllegalArgumentException if doc, submitName, displayName or
-   *    pattern are <code>null</code> or if submitName, displayName or
-   *    pattern are empty. Also if the provided document contains an
-   *    unknown root element.
+   * @param submitName the field submit name for which to add a new error message, not <code>null
+   *     </code> or empty.
+   * @param displayName the field display name for which to add a new error message, not <code>null
+   *     </code> or empty.
+   * @param pattern the message string pattern, which will be formatted together with the provided
+   *     arguments, not <code>null</code> or empty.
+   * @param args an array of String objects, containing all arguments which need to be formatted to
+   *     the string pattern supplied, might be <code>null</code> or empty.
+   * @throws IllegalArgumentException if doc, submitName, displayName or pattern are <code>null
+   *     </code> or if submitName, displayName or pattern are empty. Also if the provided document
+   *     contains an unknown root element.
    */
   public static void addError(
       Document doc, String submitName, String displayName, String pattern, Object[] args) {
@@ -65,26 +60,22 @@ public class PSItemErrorDoc {
   }
 
   /**
-   * Adds a new error entry to the provided document. If the root element
-   * is already there it will be used, if not a new root element will be
-   * created and added.
+   * Adds a new error entry to the provided document. If the root element is already there it will
+   * be used, if not a new root element will be created and added.
    *
    * @param doc the document to add the new error to, not <code>null</code>.
-   * @param submitNames an array of field submit names for which to add a
-   *    new error message, not <code>null</code> or empty.
-   * @param displayNames an arry of field display names for which to add a
-   *    new error message, not <code>null</code> or empty.
-   * @param pattern the message string pattern, which will be formatted
-   *    together with the provided arguments, not <code>null</code> or
-   *    empty.
-   * @param args an array of String objects, containing all arguments which
-   *    need to be formatted to the string pattern supplied, might be
-   *    <code>null</code> or empty.
-   * @throws IllegalArgumentException if doc, submitNames, displayNames or
-   *    pattern are <code>null</code> or if submitNames, displayNames or
-   *    pattern are empty. If submitNames and displayNames do not have the
-   *    the same length or if the provided document contains an
-   *    unknown root element.
+   * @param submitNames an array of field submit names for which to add a new error message, not
+   *     <code>null</code> or empty.
+   * @param displayNames an arry of field display names for which to add a new error message, not
+   *     <code>null</code> or empty.
+   * @param pattern the message string pattern, which will be formatted together with the provided
+   *     arguments, not <code>null</code> or empty.
+   * @param args an array of String objects, containing all arguments which need to be formatted to
+   *     the string pattern supplied, might be <code>null</code> or empty.
+   * @throws IllegalArgumentException if doc, submitNames, displayNames or pattern are <code>null
+   *     </code> or if submitNames, displayNames or pattern are empty. If submitNames and
+   *     displayNames do not have the the same length or if the provided document contains an
+   *     unknown root element.
    */
   public static void addError(
       Document doc, String[] submitNames, String[] displayNames, String pattern, Object[] args) {
@@ -133,11 +124,10 @@ public class PSItemErrorDoc {
   /**
    * Gets or creates the root from the provided document and validates it.
    *
-   * @param doc the document we need the root element from,
-   *    not <code>null</code>.
+   * @param doc the document we need the root element from, not <code>null</code>.
    * @return the root element, never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code> or the contains an unknown root.
+   * @throws IllegalArgumentException if the provided document is <code>null</code> or the contains
+   *     an unknown root.
    */
   private static Element getRoot(Document doc) {
     if (doc == null) throw new IllegalArgumentException("document cannot be null");
@@ -171,50 +161,30 @@ public class PSItemErrorDoc {
     log.info("...error document:\n {} ", PSXmlDocumentBuilder.toString(doc));
   }
 
-  /**
-   * The error set element name as specified in sys_ItemValidation.dtd.
-   */
+  /** The error set element name as specified in sys_ItemValidation.dtd. */
   public static final String VALIDATION_ERROR_SET_ELEM = "ValidationErrorSet";
 
-  /**
-   * The error element name as specified in sys_ItemValidation.dtd.
-   */
+  /** The error element name as specified in sys_ItemValidation.dtd. */
   public static final String VALIDATION_ERROR_ELEM = "ValidationError";
 
-  /**
-   * The error field set element name as specified in sys_ItemValidation.dtd.
-   */
+  /** The error field set element name as specified in sys_ItemValidation.dtd. */
   public static final String ERROR_FIELD_SET_ELEM = "ErrorFieldSet";
 
-  /**
-   * The error field element name as specified in sys_ItemValidation.dtd.
-   */
+  /** The error field element name as specified in sys_ItemValidation.dtd. */
   public static final String ERROR_FIELD_ELEM = "ErrorField";
 
-  /**
-   * The error message element name as specified in sys_ItemValidation.dtd.
-   */
+  /** The error message element name as specified in sys_ItemValidation.dtd. */
   public static final String ERROR_MESSAGE_ELEM = "ErrorMessage";
 
-  /**
-   * The error message pattern element name as specified in
-   * sys_ItemValidation.dtd.
-   */
+  /** The error message pattern element name as specified in sys_ItemValidation.dtd. */
   public static final String PATTERN_ELEM = "Pattern";
 
-  /**
-   * The error message argument element name as specified in
-   * sys_ItemValidation.dtd.
-   */
+  /** The error message argument element name as specified in sys_ItemValidation.dtd. */
   public static final String ARGUMENT_ELEM = "Argument";
 
-  /**
-   * The submit name attribute name as specified in sys_ItemValidation.dtd.
-   */
+  /** The submit name attribute name as specified in sys_ItemValidation.dtd. */
   public static final String SUBMIT_NAME_ATTR = "submitName";
 
-  /**
-   * The display name attribute name as specified in sys_ItemValidation.dtd.
-   */
+  /** The display name attribute name as specified in sys_ItemValidation.dtd. */
   public static final String DISPLAY_NAME_ATTR = "displayName";
 }

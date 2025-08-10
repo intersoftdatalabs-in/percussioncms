@@ -24,52 +24,44 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSDtdNode interface is extended by classes defining
- * a node in an internal DTD tree.
+ * The PSDtdNode interface is extended by classes defining a node in an internal DTD tree.
  *
- * @see        PSDtdElementEntry
- * @see        PSDtdNodeList
- * @see        PSDtdDataElement
- * @see         PSDtdElement
- * @see         PSDtdTree
- *
- * @author     David Gennaco
- * @version    1.0
- * @since      1.0
+ * @see PSDtdElementEntry
+ * @see PSDtdNodeList
+ * @see PSDtdDataElement
+ * @see PSDtdElement
+ * @see PSDtdTree
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDtdNode implements Serializable {
 
   private static final Logger log = LogManager.getLogger(PSDtdNode.class);
 
-  /**
-   *   Default Constructor.
-   *
-   */
+  /** Default Constructor. */
   PSDtdNode() {
     m_occurrenceType = OCCURS_ONCE;
   }
 
-  /**
-   *   Construct with occurrences.
-   *
-   */
+  /** Construct with occurrences. */
   PSDtdNode(int occurrence) {
     m_occurrenceType = occurrence;
   }
 
   /**
-   *   Return the parent.
+   * Return the parent.
    *
-   *   @return            The parent node, null if this is the root
+   * @return The parent node, null if this is the root
    */
   public PSDtdNode getParentNode() {
     return m_parent;
   }
 
   /**
-   *   Return the parent element.
+   * Return the parent element.
    *
-   *   @return            The closest parent element up the tree
+   * @return The closest parent element up the tree
    */
   public PSDtdElementEntry getParentElement() {
     PSDtdNode node = m_parent;
@@ -82,25 +74,22 @@ public class PSDtdNode implements Serializable {
   }
 
   /**
-   *   Return the occurences setting for this node.
+   * Return the occurences setting for this node.
    *
-   *   @return   <code>OCCURS_ONCE</code> if the node is required;
-   *               <code>OCCURS_OPTIONAL</code> if the node is optional;
-   *               <code>OCCURS_ANY</code> if the node can occur 0 or more times;
-   *               <code>OCCURS_ATLEASTONCE</code> if the node can occur 1 or more times;
+   * @return <code>OCCURS_ONCE</code> if the node is required; <code>OCCURS_OPTIONAL</code> if the
+   *     node is optional; <code>OCCURS_ANY</code> if the node can occur 0 or more times; <code>
+   *     OCCURS_ATLEASTONCE</code> if the node can occur 1 or more times;
    */
   public int getOccurrenceType() {
     return m_occurrenceType;
   }
 
   /**
-   *   Set the occurrence setting for this node.
+   * Set the occurrence setting for this node.
    *
-   *   @param     occurrence_type
-   *               <code>OCCURS_ONCE</code> if the node is required;
-   *               <code>OCCURS_OPTIONAL</code> if the node is optional;
-   *               <code>OCCURS_ANY</code> if the node can occur 0 or more times;
-   *               <code>OCCURS_ATLEASTONCE</code> if the node can occur 1 or more times;
+   * @param occurrence_type <code>OCCURS_ONCE</code> if the node is required; <code>OCCURS_OPTIONAL
+   *     </code> if the node is optional; <code>OCCURS_ANY</code> if the node can occur 0 or more
+   *     times; <code>OCCURS_ATLEASTONCE</code> if the node can occur 1 or more times;
    */
   public void setOccurrences(int occurrence_type) {
     if ((occurrence_type < MIN_OCCURRENCE) || (occurrence_type > MAX_OCCURRENCE))
@@ -110,19 +99,18 @@ public class PSDtdNode implements Serializable {
   }
 
   /**
-   *   Is this node the root node?
+   * Is this node the root node?
    *
-   *      @return                <code>true</code>
-   *                              <code>false</code>
+   * @return <code>true</code> <code>false</code>
    */
   public boolean isRoot() {
     return (m_parent == null);
   }
 
   /**
-   *  Get the DTD character associated with this occurrence setting
+   * Get the DTD character associated with this occurrence setting
    *
-   *      @return   The character used in the DTD, 'U' for unknown, ' ' for once
+   * @return The character used in the DTD, 'U' for unknown, ' ' for once
    */
   public static char getOccurrenceCharacter(int occurrenceType) {
     switch (occurrenceType) {
@@ -140,17 +128,17 @@ public class PSDtdNode implements Serializable {
   }
 
   /**
-   *   Set the parent
+   * Set the parent
    *
-   *      @param      node      The parent node
+   * @param node The parent node
    */
   public void setParent(PSDtdNode node) {
     m_parent = node;
   }
 
   /**
-   *   print is defined for internal debugging, and should be
-   *      overridden by classes extending this class
+   * print is defined for internal debugging, and should be overridden by classes extending this
+   * class
    */
   public void print(String tab) {
     log.info(tab + "Undefined node");
@@ -159,18 +147,13 @@ public class PSDtdNode implements Serializable {
   /**
    * Add this node to the catalog list.
    *
-   * This function should be overridden for all extended classes.
+   * <p>This function should be overridden for all extended classes.
    *
-   *   @param   stack         the recursion detection stack
-   *
-   *   @param   catalogList   the catalog list being built
-   *
-   *   @param   cur         the current name to expand on
-   *
-   *   @param   sep         the element separator string
-   *
-   *   @param   attribId      the string used to identify an attribute entry
-   *
+   * @param stack the recursion detection stack
+   * @param catalogList the catalog list being built
+   * @param cur the current name to expand on
+   * @param sep the element separator string
+   * @param attribId the string used to identify an attribute entry
    */
   public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
     return;
@@ -187,9 +170,8 @@ public class PSDtdNode implements Serializable {
   }
 
   /**
-   *
-   *   Get the maximum merged occurrence setting for the two
-   *      supplied occurrence types, as defined by the following tables.
+   * Get the maximum merged occurrence setting for the two supplied occurrence types, as defined by
+   * the following tables.
    *
    * <TABLE BORDER="1">
    * <TR><TH></TH><TH COLSPAN="5" ALIGN="CENTER">Sequence List</TH></TR>
@@ -200,7 +182,9 @@ public class PSDtdNode implements Serializable {
    * <TR><TH>ANY </TH><TH>ANY</TH><TH>ANY</TH><TH>ANY</TH><TH>ANY</TH></TR>
    * <TR><TH>1+  </TH><TH>ANY</TH><TH>1+ </TH><TH>ANY</TH><TH>1+ </TH></TR>
    * </TABLE>
-   * <P>
+   *
+   * <p>
+   *
    * <TABLE BORDER="1">
    * <TR><TH></TH><TH COLSPAN="5" ALIGN="CENTER">Option List</TH></TR>
    * <TR><TH ROWSPAN="5" VALIGN="CENTER">Node</TH>

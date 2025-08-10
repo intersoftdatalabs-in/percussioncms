@@ -21,17 +21,15 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author DavidBenua
- *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ *     <p>To change the template for this generated type comment go to Window>Preferences>Java>Code
+ *     Generation>Code and Comments
  */
 public class PSNavonType {
   /**
    * Ctor that takes the navon type string.
    *
-   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
-   *           outside of these, the default type {@link #TYPENAME_OTHER}is
-   *           assumed.
+   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be outside of these, the
+   *     default type {@link #TYPENAME_OTHER}is assumed.
    */
   public PSNavonType(String typeName) {
     if (typeName == null || typeName.length() < 1) {
@@ -42,18 +40,15 @@ public class PSNavonType {
 
   /**
    * Ctor that takes the navon type constant.
-   * @param typeValue must be one of the TYPE_XXXs. If it happens to be
-   *           outside of these, the default type {@link #TYPE_OTHER}is
-   *           assumed.
+   *
+   * @param typeValue must be one of the TYPE_XXXs. If it happens to be outside of these, the
+   *     default type {@link #TYPE_OTHER}is assumed.
    */
   public PSNavonType(int typeValue) {
     setType(typeValue);
   }
 
-  /**
-   * Default ctor.
-   *
-   */
+  /** Default ctor. */
   public PSNavonType() {}
 
   /**
@@ -65,9 +60,9 @@ public class PSNavonType {
 
   /**
    * Set Navon type.
-   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be
-   *           outside of these, the default type {@link #TYPENAME_OTHER}is
-   *           assumed.
+   *
+   * @param typeName must be one of the TYPENAME_XXXs. If it happens to be outside of these, the
+   *     default type {@link #TYPENAME_OTHER}is assumed.
    */
   public void setType(String typeName) {
     String compareName;
@@ -84,9 +79,9 @@ public class PSNavonType {
 
   /**
    * Set Navon type.
-   * @param typeValue must be one of the TYPE_XXXs. If it happens to be
-   *           outside of these, the default type {@link #TYPE_OTHER}is
-   *           assumed.
+   *
+   * @param typeValue must be one of the TYPE_XXXs. If it happens to be outside of these, the
+   *     default type {@link #TYPE_OTHER}is assumed.
    */
   public void setType(int typeValue) {
     m_type = typeValue;
@@ -133,92 +128,58 @@ public class PSNavonType {
   }
 
   /**
-   * Navon type relative to the current Navon item. Valid values are one of the
-   * TYPE_XXXs defined in this class. Initialized in the ctors and settable via
-   * {@link #setType(int)}or {@link #setType(String)}. Default is
-   * {@link #TYPE_OTHER}.
+   * Navon type relative to the current Navon item. Valid values are one of the TYPE_XXXs defined in
+   * this class. Initialized in the ctors and settable via {@link #setType(int)}or {@link
+   * #setType(String)}. Default is {@link #TYPE_OTHER}.
    */
   private int m_type = TYPE_OTHER;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSNavonType.class);
 
-  /**
-   * Navon type string to indicate the root of the navigation tree.
-   */
+  /** Navon type string to indicate the root of the navigation tree. */
   public static final String TYPENAME_ROOT = "root";
 
-  /**
-   * Navon type to indicate the ancestor to the current Navon item.
-   */
+  /** Navon type to indicate the ancestor to the current Navon item. */
   public static final String TYPENAME_ANCESTOR = "ancestor";
 
-  /**
-   * Navon type string to indicate the ancestor sibling to the current Navon
-   * item.
-   */
+  /** Navon type string to indicate the ancestor sibling to the current Navon item. */
   public static final String TYPENAME_ANCESTOR_SIBLING = "ancestor-sibling";
 
-  /**
-   * Navon type string to indicate a sibling to the current Navon item.
-   */
+  /** Navon type string to indicate a sibling to the current Navon item. */
   public static final String TYPENAME_SIBLING = "sibling";
 
-  /**
-   * Navon type string to indicate as self to the current Navon item.
-   */
+  /** Navon type string to indicate as self to the current Navon item. */
   public static final String TYPENAME_SELF = "self";
 
-  /**
-   * Navon type string to indicate the descendent to the current Navon item.
-   */
+  /** Navon type string to indicate the descendent to the current Navon item. */
   public static final String TYPENAME_DESCENDENT = "descendent";
 
-  /**
-   * Navon type string to indicate as unrelated to the current Navon item.
-   */
+  /** Navon type string to indicate as unrelated to the current Navon item. */
   public static final String TYPENAME_OTHER = "other";
 
-  /**
-   * Navon type to indicate the root of the navigation tree.
-   */
+  /** Navon type to indicate the root of the navigation tree. */
   public static final int TYPE_ROOT = 0;
 
-  /**
-   * Navon type to indicate the ancestor to the current Navon item.
-   */
+  /** Navon type to indicate the ancestor to the current Navon item. */
   public static final int TYPE_ANCESTOR = 1;
 
-  /**
-   * Navon type to indicate the ancestor sibling to the current Navon item.
-   */
+  /** Navon type to indicate the ancestor sibling to the current Navon item. */
   public static final int TYPE_ANCESTOR_SIBLING = 2;
 
-  /**
-   * Navon type to indicate a sibling to the current Navon item.
-   */
+  /** Navon type to indicate a sibling to the current Navon item. */
   public static final int TYPE_SIBLING = 3;
 
-  /**
-   * Navon type to indicate as self to the current Navon item.
-   */
+  /** Navon type to indicate as self to the current Navon item. */
   public static final int TYPE_SELF = 4;
 
-  /**
-   * Navon type to indicate the descendent to the current Navon item.
-   */
+  /** Navon type to indicate the descendent to the current Navon item. */
   public static final int TYPE_DESCENDENT = 5;
 
-  /**
-   * Navon type to indicate as unrelated to the current Navon item.
-   */
+  /** Navon type to indicate as unrelated to the current Navon item. */
   public static final int TYPE_OTHER = 6;
 
-  /**
-   * String array of all navon types relative to the current one.
-   */
+  /** String array of all navon types relative to the current one. */
   private static final String[] typeArray = {
     TYPENAME_ROOT,
     TYPENAME_ANCESTOR,

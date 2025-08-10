@@ -29,31 +29,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is a container for a list of PSJdbcTableSchema objects, enabling
- * them to be serialized as a collection to and from Xml.
+ * This class is a container for a list of PSJdbcTableSchema objects, enabling them to be serialized
+ * as a collection to and from Xml.
  */
 public class PSJdbcTableSchemaCollection extends PSCollection {
-  /**
-   * Constructs an empty PSJdbcTableSchemaCollection
-   */
+  /** Constructs an empty PSJdbcTableSchemaCollection */
   public PSJdbcTableSchemaCollection() {
     super(PSJdbcTableSchema.class);
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element, PSJdbcDataTypeMap) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element,
+   * PSJdbcDataTypeMap) fromXml} for more information.
    *
-   * @param doc The document from which this object is to be constructed.
-   *    Root element must conform to the definition for the tables element in
-   *    the tabledef.dtd.  May not be <code>null</code>.
-   * @param dataTypeMap The dataType map to use for the table's in this
-   *    collection. May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if doc or dataTypeMap is
-   * <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or
-   * if there are any other errors.
+   * @param doc The document from which this object is to be constructed. Root element must conform
+   *     to the definition for the tables element in the tabledef.dtd. May not be <code>null</code>.
+   * @param dataTypeMap The dataType map to use for the table's in this collection. May not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if doc or dataTypeMap is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or if there are any other
+   *     errors.
    */
   public PSJdbcTableSchemaCollection(Document doc, PSJdbcDataTypeMap dataTypeMap)
       throws PSJdbcTableFactoryException {
@@ -69,12 +64,10 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the component
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   * @param dataTypeMap The dataType map to use for this table's columns.
-   * May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the component element in the tabledef.dtd. May not be <code>null</code>.
+   * @param dataTypeMap The dataType map to use for this table's columns. May not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -111,12 +104,10 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -134,20 +125,18 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   }
 
   /**
-   * For each table schema in this collection, locates the first table
-   * data in the supplied collection with the same name and sets that table
-   * data object on the table schema. Skips table schema objects for which
-   * {@link PSJdbcTableSchema#isAlter()} returns <code>true</code>, and a
+   * For each table schema in this collection, locates the first table data in the supplied
+   * collection with the same name and sets that table data object on the table schema. Skips table
+   * schema objects for which {@link PSJdbcTableSchema#isAlter()} returns <code>true</code>, and a
    * message is logged to that effect.
    *
-   * @param tableDataCollection The table data collection.  Never <code>null
+   * @param tableDataCollection The table data collection. Never <code>null
    * </code>.
-   *
    * @throws IllegalArgumentException if tableDataCollection is <code>null
    * </code> or empty.
-   * @throws PSJdbcTableFactoryException if a table in the data collection
-   * cannot be found in this schema collection, or if a table data object
-   * defines a column not found in the corresponding table schema object.
+   * @throws PSJdbcTableFactoryException if a table in the data collection cannot be found in this
+   *     schema collection, or if a table data object defines a column not found in the
+   *     corresponding table schema object.
    */
   public void setTableData(PSJdbcTableDataCollection tableDataCollection)
       throws PSJdbcTableFactoryException {
@@ -186,12 +175,9 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   /**
    * Returns the table schema object with the specified name.
    *
-   * @param name The name of the table schema to locate, match is case
-   * insensitive.  May not be <code>null </code> or empty.
-   *
-   * @return The matching schema object, or <code>null</code> if it is not
-   * found.
-   *
+   * @param name The name of the table schema to locate, match is case insensitive. May not be
+   *     <code>null </code> or empty.
+   * @return The matching schema object, or <code>null</code> if it is not found.
    * @throws IllegalArgumentException if name is <code>null</code> or emtpy.
    */
   public PSJdbcTableSchema getTableSchema(String name) {
@@ -212,14 +198,12 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
   }
 
   /**
-   * This function fixes the parent child relation between the table schema
-   * objects contained in this collection. If a child table has a parent table
-   * then it makes sure that the parent table also has the child table as its
-   * child.
-   * We need this function because the table schema defintion Xml may contain
-   * the schema definition of the child table before the schema definition of
-   * the parent table. In such cases the child table knows about the parent
-   * table but the parent table does not know about the child table.
+   * This function fixes the parent child relation between the table schema objects contained in
+   * this collection. If a child table has a parent table then it makes sure that the parent table
+   * also has the child table as its child. We need this function because the table schema defintion
+   * Xml may contain the schema definition of the child table before the schema definition of the
+   * parent table. In such cases the child table knows about the parent table but the parent table
+   * does not know about the child table.
    */
   protected void fixParentChildRelationship() {
     Iterator<String> it;
@@ -268,9 +252,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     return super.iterator();
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "tables";
 
   // Xml elements

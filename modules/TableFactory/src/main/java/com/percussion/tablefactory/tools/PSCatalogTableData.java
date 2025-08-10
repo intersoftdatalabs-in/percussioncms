@@ -51,28 +51,25 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Uses the table factory to export a given database table's definition (schema)
- * and data (content) as XML files.
+ * Uses the table factory to export a given database table's definition (schema) and data (content)
+ * as XML files.
  */
 public class PSCatalogTableData {
 
   private static final Logger log = LogManager.getLogger(PSCatalogTableData.class);
 
   /**
-   * Creates a <code>PSJdbcDbmsDef</code> by loading the specified properties
-   * file.  Assumes that the password in the properties file is encrypted.
+   * Creates a <code>PSJdbcDbmsDef</code> by loading the specified properties file. Assumes that the
+   * password in the properties file is encrypted.
    *
-   * @param propsName name of a properties file that provides database
-   * connection information, not <code>null</code>.
-   * See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)}
-   * for a list of the required properties.
-   *
-   * @throws IllegalArgumentException if the properties file is missing
-   * required properties.
-   * @throws IOException if the file referenced by <code>propsName</code> does
-   * not exist, or if errors occur reading the file
-   * @throws PSJdbcTableFactoryException if an error occurs while decrypting
-   * the database password specified in the properties file.
+   * @param propsName name of a properties file that provides database connection information, not
+   *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
+   *     required properties.
+   * @throws IllegalArgumentException if the properties file is missing required properties.
+   * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
+   *     errors occur reading the file
+   * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
+   *     specified in the properties file.
    */
   public static PSJdbcDbmsDef loadProps(String propsName)
       throws PSJdbcTableFactoryException, IOException {
@@ -102,23 +99,17 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Gets the schema and data for the specified table by connecting to the
-   * specified database using the table factory.
+   * Gets the schema and data for the specified table by connecting to the specified database using
+   * the table factory.
    *
-   * @param def configuration for the table factory; specifies the database
-   * to connect to; not <code>null</code>
-   * @param tableName the name of the table to be cataloged, not
-   * <code>null</code> or empty.
-   *
-   * @return the definition and data for the specified table.  Will be
-   * <code>null</code> if the specified table does not exist.
-   *
-   * @throws IOException propagated if the default data type map cannot be
-   * loaded
-   * @throws SAXException propagated if an error occurs parsing the default
-   * data type map
-   * @throws SQLException propagated if a connection could not be established
-   * to the database
+   * @param def configuration for the table factory; specifies the database to connect to; not
+   *     <code>null</code>
+   * @param tableName the name of the table to be cataloged, not <code>null</code> or empty.
+   * @return the definition and data for the specified table. Will be <code>null</code> if the
+   *     specified table does not exist.
+   * @throws IOException propagated if the default data type map cannot be loaded
+   * @throws SAXException propagated if an error occurs parsing the default data type map
+   * @throws SQLException propagated if a connection could not be established to the database
    * @throws PSJdbcTableFactoryException if the table could not be cataloged
    */
   public static PSJdbcTableSchema catalogTable(PSJdbcDbmsDef def, String tableName)
@@ -135,21 +126,18 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Gets the name of the JDBC driver defined in the DB_DRIVER_NAME property
-   * within the specified properties file.
+   * Gets the name of the JDBC driver defined in the DB_DRIVER_NAME property within the specified
+   * properties file.
    *
-   * @param propsName name of a properties file that provides database
-   * connection information, not <code>null</code>.
-   * See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)}
-   * for a list of the required properties.
-   *
-   * @return the name of the JDBC driver defined in the properties file,
-   * never <code>null</code> or empty.
-   *
-   * @throws IOException if the file referenced by <code>propsName</code> does
-   * not exist, or if errors occur reading the file
-   * @throws PSJdbcTableFactoryException if an error occurs while decrypting
-   * the database password specified in the properties file.
+   * @param propsName name of a properties file that provides database connection information, not
+   *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
+   *     required properties.
+   * @return the name of the JDBC driver defined in the properties file, never <code>null</code> or
+   *     empty.
+   * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
+   *     errors occur reading the file
+   * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
+   *     specified in the properties file.
    */
   public static String getDriver(String propsName) throws IOException, PSJdbcTableFactoryException {
     if (propsName == null || propsName.trim().length() == 0)
@@ -160,21 +148,18 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Gets the name of the database defined in the DB_NAME property
-   * within the specified properties file.
+   * Gets the name of the database defined in the DB_NAME property within the specified properties
+   * file.
    *
-   * @param propsName name of a properties file that provides database
-   * connection information, not <code>null</code>.
-   * See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)}
-   * for a list of the required properties.
-   *
-   * @return the name of the database defined in the properties file,
-   * may be <code>null</code> or empty.
-   *
-   * @throws IOException if the file referenced by <code>propsName</code> does
-   * not exist, or if errors occur reading the file
-   * @throws PSJdbcTableFactoryException if an error occurs while decrypting
-   * the database password specified in the properties file.
+   * @param propsName name of a properties file that provides database connection information, not
+   *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
+   *     required properties.
+   * @return the name of the database defined in the properties file, may be <code>null</code> or
+   *     empty.
+   * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
+   *     errors occur reading the file
+   * @throws PSJdbcTableFactoryException if an error occurs while decrypting the database password
+   *     specified in the properties file.
    */
   public static String getDataBase(String propsName)
       throws IOException, PSJdbcTableFactoryException {
@@ -186,9 +171,9 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Command line interface for this tool.
-   * For parameters see {@link PSCatalogTableData#usage()}
-   * for a list of the required properties.
+   * Command line interface for this tool. For parameters see {@link PSCatalogTableData#usage()} for
+   * a list of the required properties.
+   *
    * @param args
    */
   public static void main(String[] args) {
@@ -359,8 +344,9 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Helper method that sets the limitSizeForIndex attribute value to true to handle MySql column index sizes.
-   * This is based on the settings.
+   * Helper method that sets the limitSizeForIndex attribute value to true to handle MySql column
+   * index sizes. This is based on the settings.
+   *
    * @param schema assumed not <code>null</code>
    * @param tableName assumed not <code>null</code>
    */
@@ -439,8 +425,8 @@ public class PSCatalogTableData {
   }
 
   /**
-   * Prints the parameters required by the <code>main</code> method to stdout,
-   * and terminates with a nonzero status code.
+   * Prints the parameters required by the <code>main</code> method to stdout, and terminates with a
+   * nonzero status code.
    */
   private static void usage() {
     System.out.println("Usage:");

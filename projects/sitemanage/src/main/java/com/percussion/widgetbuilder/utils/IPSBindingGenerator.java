@@ -21,25 +21,25 @@ import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 
 /**
  * Generates a binding for a widget field.
- * <p>
- * Sunny Sal says: "Binding generators are like Bollywood choreographers—make sure every field knows its moves!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Binding generators are like Bollywood choreographers—make sure every field
+ * knows its moves!"
  */
 public interface IPSBindingGenerator {
 
-    /**
-     * Determines if this generator is valid for the supplied field.
-     *
-     * @param field The field to check, not {@code null}.
-     * @return {@code true} if accepted, {@code false} otherwise.
-     */
-    boolean accept(PSWidgetBuilderFieldData field);
+  /**
+   * Determines if this generator is valid for the supplied field.
+   *
+   * @param field The field to check, not {@code null}.
+   * @return {@code true} if accepted, {@code false} otherwise.
+   */
+  boolean accept(PSWidgetBuilderFieldData field);
 
-    /**
-     * Generates the binding for the supplied field.
-     *
-     * @param field Not {@code null}; {@link #accept(PSWidgetBuilderFieldData)} must be {@code true}.
-     * @return The binding, not {@code null}.
-     */
-    String generateBinding(PSWidgetBuilderFieldData field);
+  /**
+   * Generates the binding for the supplied field.
+   *
+   * @param field Not {@code null}; {@link #accept(PSWidgetBuilderFieldData)} must be {@code true}.
+   * @return The binding, not {@code null}.
+   */
+  String generateBinding(PSWidgetBuilderFieldData field);
 }

@@ -19,38 +19,36 @@ package com.percussion.pathmanagement.service.impl;
 
 import com.percussion.share.service.IPSLinkableItem;
 
-/**
- * Represents a linkable item with folder path, id, and type.
- */
+/** Represents a linkable item with folder path, id, and type. */
 public class PSLinkableItem implements IPSLinkableItem {
 
-    private String folderPath;
-    private final String id;
-    private final String type;
+  private String folderPath;
+  private final String id;
+  private final String type;
 
-    public PSLinkableItem(String id, String folderPath, String type) {
-        this.id = id;
-        this.folderPath = folderPath;
-        this.type = type;
-    }
+  public PSLinkableItem(String id, String folderPath, String type) {
+    this.id = id;
+    this.folderPath = folderPath;
+    this.type = type;
+  }
 
-    @Override
-    public String getFolderPath() {
-        return folderPath;
-    }
+  @Override
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    @Override
-    public void setFolderPath(String path) {
-        this.folderPath = path;
-    }
+  @Override
+  public void setFolderPath(String path) {
+    this.folderPath = path;
+  }
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public String getType() {
-        return type;
-    }
+  @Override
+  public String getType() {
+    return type;
+  }
 }

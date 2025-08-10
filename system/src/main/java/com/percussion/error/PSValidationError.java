@@ -25,52 +25,40 @@ import java.util.Locale;
 import org.w3c.dom.Element;
 
 /**
- * The PSValidationError class is used to report a calidation
- * error. Validation errors usually occur when an a user submits data
- * which does not meet the validation requirements defined in the
+ * The PSValidationError class is used to report a calidation error. Validation errors usually occur
+ * when an a user submits data which does not meet the validation requirements defined in the
  * application's data set.
+ *
  * <p>
- * <p>
- * An error message containing the user's session id and the text of the
- * message is logged when this error is encountered. If
- * detailed user activity logging is also enabled, the request can be
+ *
+ * <p>An error message containing the user's session id and the text of the message is logged when
+ * this error is encountered. If detailed user activity logging is also enabled, the request can be
  * tracked back to see all the data associated with the request.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSValidationError extends PSLogError {
 
   /**
    * Report an application validation error.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      source         the XML representation of the object
-   *                              in error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param source the XML representation of the object in error
    */
   public PSValidationError(
       int applId, java.lang.String sessionId, int errorCode, Object[] errorParams, Element source) {
@@ -86,10 +74,7 @@ public class PSValidationError extends PSLogError {
     else m_source = PSXmlDocumentBuilder.toString(source);
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     int msgCount = (m_source.length() > 0) ? 3 : 2;
     PSLogSubMessage[] msgs = new PSLogSubMessage[msgCount];

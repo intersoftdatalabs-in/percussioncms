@@ -37,8 +37,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This servlet is used to retrieve a listing of gadgets from the gadget repository.  For each gadget, the following
- * information returned will be returned: name, description, url, icon url.
+ * This servlet is used to retrieve a listing of gadgets from the gadget repository. For each
+ * gadget, the following information returned will be returned: name, description, url, icon url.
  */
 public class GadgetRepositoryListingServlet extends HttpServlet {
   private static final Logger log = LogManager.getLogger(GadgetRepositoryListingServlet.class);
@@ -89,17 +89,12 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
    * Loads a gadget from the specified configuration file.
    *
    * @param config the gadget configuration file, assumed not <code>null</code>.
-   *
-   * @return the gadget as a <code>JSONObject</code> object.  May be <code>null</code> if the gadget could not be
-   * loaded.
-   *
-   * <p>
-   * The format of the returned object is as follows:
-   * <p>
-   * {"name":"The gadget name",
-   *  "description":"The gadget description.",
-   *  "url":"/cm/gadgets/repository/MyGadget/MyGadget.xml",
-   *  "iconUrl":"/cm/gadgets/repository/MyGadget/images/MyGadgetIcon.png"}
+   * @return the gadget as a <code>JSONObject</code> object. May be <code>null</code> if the gadget
+   *     could not be loaded.
+   *     <p>The format of the returned object is as follows:
+   *     <p>{"name":"The gadget name", "description":"The gadget description.",
+   *     "url":"/cm/gadgets/repository/MyGadget/MyGadget.xml",
+   *     "iconUrl":"/cm/gadgets/repository/MyGadget/images/MyGadgetIcon.png"}
    */
   @SuppressWarnings("unchecked")
   private JSONObject loadGadget(File config) {
@@ -136,8 +131,8 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
   }
 
   /**
-   * Used for sorting json representations of gadgets.  Gadgets will be sorted alphabetically by name, case-sensitive.
-   * It is assumed that each json respresentation will have a name field.
+   * Used for sorting json representations of gadgets. Gadgets will be sorted alphabetically by
+   * name, case-sensitive. It is assumed that each json respresentation will have a name field.
    */
   public static class GadgetComparator implements Comparator<JSONObject> {
     @Override
@@ -147,15 +142,14 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
   }
 
   /**
-   * Helper method to get the gadget type for the supplied gadget name. If the
-   * gadgetTypeMap is <code>null</code>, then initializes it by loading
-   * GadgetRegistry.xml. If the supplied gadget is not a registered gadget
-   * then returns the type as "Custom".
+   * Helper method to get the gadget type for the supplied gadget name. If the gadgetTypeMap is
+   * <code>null</code>, then initializes it by loading GadgetRegistry.xml. If the supplied gadget is
+   * not a registered gadget then returns the type as "Custom".
    *
-   * @param gadgetName The name of the gadget for which the type needs to be
-   *            found, assumed not blank.
-   * @return The gadget type, never <code>null</code>, will be "Custom" if the
-   *         gadget is not found in the registry.
+   * @param gadgetName The name of the gadget for which the type needs to be found, assumed not
+   *     blank.
+   * @return The gadget type, never <code>null</code>, will be "Custom" if the gadget is not found
+   *     in the registry.
    */
   private String getGadgetType(String gadgetName) {
     if (gadgetTypeMap == null) gadgetTypeMap = loadGadgetTypeMap();
@@ -167,6 +161,7 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
   /**
    * Helper method that loads the GadgetRegistry.xml and creates a map of gadget name as key and
    * gadget type as value.
+   *
    * @return Map of gadget name and type, never <code>null</code> may be empty.
    */
   protected Map<String, String> loadGadgetTypeMap() {
@@ -200,19 +195,13 @@ public class GadgetRepositoryListingServlet extends HttpServlet {
     return gadTypeMap;
   }
 
-  /**
-   * The base url for all gadgets.
-   */
+  /** The base url for all gadgets. */
   private static final String GADGETS_BASE_URL = "/cm/gadgets/repository/";
 
-  /**
-   * Used for sorting gadgets.
-   */
+  /** Used for sorting gadgets. */
   private final GadgetComparator gComp = new GadgetComparator();
 
-  /**
-   * The root directory of all gadgets (i.e., the gadget repository).  Never <code>null</code>.
-   */
+  /** The root directory of all gadgets (i.e., the gadget repository). Never <code>null</code>. */
   private final File gadgetsRoot = new File(PSServer.getRxDir() + "/cm/gadgets/repository");
 
   // Private data variable initialized in getGadgetType method.

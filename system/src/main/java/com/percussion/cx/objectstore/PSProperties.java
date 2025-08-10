@@ -27,22 +27,16 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- * The class that is used to represent properties as defined by
- * 'sys_Props.dtd'.
- */
+/** The class that is used to represent properties as defined by 'sys_Props.dtd'. */
 public class PSProperties implements IPSComponent {
-  /**
-   * The default constructor to create properties with empty list.
-   */
+  /** The default constructor to create properties with empty list. */
   public PSProperties() {}
 
   /**
-   * Constructs this object from the supplied element. See {@link
-   * #toXml(Document) } for the expected form of xml.
+   * Constructs this object from the supplied element. See {@link #toXml(Document) } for the
+   * expected form of xml.
    *
    * @param element the element to load from, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if element is <code>null</code>
    * @throws PSUnknownNodeTypeException if element is invalid.
    */
@@ -103,11 +97,11 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Implements the IPSComponent interface method to produce XML representation
-   * of this object. See the interface for description of the method and
-   * parameters.
-   * <p>
-   * The xml format is:
+   * Implements the IPSComponent interface method to produce XML representation of this object. See
+   * the interface for description of the method and parameters.
+   *
+   * <p>The xml format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT Props (Prop+)>
    * &lt;!ELEMENT Prop (#PCDATA)>
@@ -141,13 +135,10 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Gets the value of the specified property. Uses case-sensitive comparison
-   * to get the property.
+   * Gets the value of the specified property. Uses case-sensitive comparison to get the property.
    *
    * @param name name of the property, may not be <code>null</code> or empty.
-   *
-   * @return the property value, may be <code>null</code> if the specified
-   * property does not exist.
+   * @return the property value, may be <code>null</code> if the specified property does not exist.
    */
   public String getProperty(String name) {
     if (name == null || name.trim().length() == 0)
@@ -157,18 +148,14 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Gets the value of the specified property. Uses case-sensitive comparison
-   * to get the property. Returns the supplied default value if the requested
-   * named property does not exist.
+   * Gets the value of the specified property. Uses case-sensitive comparison to get the property.
+   * Returns the supplied default value if the requested named property does not exist.
    *
    * @param name name of the property, may not be <code>null</code> or empty.
-   *
-   * @param defaultValue default value of the property to be returned in case
-   * the property does not exist in the list, may be <code>null</code> or empty.
-   *
-   * @return the property value, may be <code>null</code> or <code>empty</code>
-   * depending on whether the named property exists and the default value
-   * supplied.
+   * @param defaultValue default value of the property to be returned in case the property does not
+   *     exist in the list, may be <code>null</code> or empty.
+   * @return the property value, may be <code>null</code> or <code>empty</code> depending on whether
+   *     the named property exists and the default value supplied.
    */
   public String getProperty(String name, String defaultValue) {
     if (name == null || name.trim().length() == 0)
@@ -179,14 +166,12 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Gets the object of the specified property. Uses case-sensitive comparison
-   * to get the object. Returns <code>null</code> if the requested named
-   * property does not exist.
+   * Gets the object of the specified property. Uses case-sensitive comparison to get the object.
+   * Returns <code>null</code> if the requested named property does not exist.
    *
    * @param name name of the property, may not be <code>null</code> or empty.
-   *
-   * @return the object value, may be <code>null</code> depending on whether
-   * the named property exists.
+   * @return the object value, may be <code>null</code> depending on whether the named property
+   *     exists.
    */
   public Object getPropertyObj(String name) {
     if (name == null || name.trim().length() == 0)
@@ -196,9 +181,8 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Sets the specified property with supplied value. If the property with
-   * that name exists it will be replaced. The property name and values are
-   * case-sensitive.
+   * Sets the specified property with supplied value. If the property with that name exists it will
+   * be replaced. The property name and values are case-sensitive.
    *
    * @param name name of the property, may not be <code>null</code> or empty.
    * @param value value of the property, may be <code>null</code> or empty.
@@ -211,9 +195,8 @@ public class PSProperties implements IPSComponent {
   }
 
   /**
-   * Sets the specified property with supplied object. If the property with
-   * that name exists it will be replaced. The property name is
-   * case-sensitive.
+   * Sets the specified property with supplied object. If the property with that name exists it will
+   * be replaced. The property name is case-sensitive.
    *
    * @param name name of the property, may not be <code>null</code> or empty.
    * @param obj object data of the property, may be <code>null</code>.
@@ -268,9 +251,7 @@ public class PSProperties implements IPSComponent {
    */
   private Map<String, Object> m_props = new HashMap<>();
 
-  /**
-   * The constant to indicate root node name.
-   */
+  /** The constant to indicate root node name. */
   public static final String XML_NODE_NAME = "Props";
 
   // xml constants

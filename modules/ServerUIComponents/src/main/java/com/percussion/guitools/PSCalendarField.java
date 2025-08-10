@@ -30,22 +30,20 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 /**
- * Calendar field appears as a text field with a button
- * ({@link PSCalendarButton}) that when hit brings up a calendar dialog that the
- * user can point and click to select a date. Can then return a formatted date
- * string.
- * Formats are based on the date format rules for
- * <code>java.text.SimpleDateFormat</code>.
+ * Calendar field appears as a text field with a button ({@link PSCalendarButton}) that when hit
+ * brings up a calendar dialog that the user can point and click to select a date. Can then return a
+ * formatted date string. Formats are based on the date format rules for <code>
+ * java.text.SimpleDateFormat</code>.
  */
 public class PSCalendarField extends JPanel implements ActionListener {
   /**
    * Constructs a new <code>PSCalendarField</code>
-   * @param date the date to set the field to, based on the inputFormat. Can be
-   * <code>null</code>.
-   * @param inputFormat the date's initial input format string
-   * (i.e MM/dd/yyyy). If <code>null</code> then defaults to MM/dd/yyyy.
-   * @param outputFormat the date's format string (i.e MM/dd/yyyy). If
-   * <code>null</code> then defaults to MM/dd/yyyy.
+   *
+   * @param date the date to set the field to, based on the inputFormat. Can be <code>null</code>.
+   * @param inputFormat the date's initial input format string (i.e MM/dd/yyyy). If <code>null
+   *     </code> then defaults to MM/dd/yyyy.
+   * @param outputFormat the date's format string (i.e MM/dd/yyyy). If <code>null</code> then
+   *     defaults to MM/dd/yyyy.
    */
   public PSCalendarField(String date, String inputFormat, String outputFormat) {
     setOutputFormat(outputFormat);
@@ -54,25 +52,22 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Constructs a new <code>PSCalendarField</code>
+   *
    * @param date the date to set the field to Can be <code>null</code>.
-   * @param outputFormat the date's format string (i.e MM/dd/yyyy). If
-   * <code>null</code> then defaults to MM/dd/yyyy.
+   * @param outputFormat the date's format string (i.e MM/dd/yyyy). If <code>null</code> then
+   *     defaults to MM/dd/yyyy.
    */
   public PSCalendarField(Date date, String outputFormat) {
     setOutputFormat(outputFormat);
     init(date);
   }
 
-  /**
-   * Constructs a new empty PSCalendarField
-   */
+  /** Constructs a new empty PSCalendarField */
   public PSCalendarField() {
     this(null, null);
   }
 
-  /**
-   * Initializes the gui
-   */
+  /** Initializes the gui */
   private void init(Date initialDate) {
     m_dateTextField = new JTextField(toString(initialDate), DEFAULT_TEXTFIELD_SIZE);
     m_dateTextField
@@ -100,15 +95,14 @@ public class PSCalendarField extends JPanel implements ActionListener {
     add(m_calendarButton);
   }
 
-  /**
-   * Creates calendar button.
-   */
+  /** Creates calendar button. */
   protected PSCalendarButton createCalendarButton(final Frame frame, final Date date) {
     return new PSCalendarButton(frame, date);
   }
 
   /**
    * Set size of date text field. The default size is 12 characters.
+   *
    * @param size size of text field
    */
   public void setDateTextFieldSize(int size) {
@@ -117,6 +111,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Return the date for this CalendarField object.
+   *
    * @return the date, May be <code>null</code>.
    */
   public Date getDate() {
@@ -131,9 +126,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
     m_fixedHeight = fixed;
   }
 
-  /**
-   * Overridden to return the preferred size for the control.
-   */
+  /** Overridden to return the preferred size for the control. */
   public Dimension getPreferredSize() {
     if (m_fixedHeight) {
       return new Dimension(super.getPreferredSize().width, FIXED_HEIGHT);
@@ -143,11 +136,10 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * If setHeightFixed is <code>true</code>then override to return the
-   * min size of the control, as defined by
-   * IUTConstants.MIN_CONTROL_SIZE. When used with the Box layout mgr, this
-   * provides the behavior of the control not shrinking beyond a default
-   * width, while maintaining a nice height as the container is resized.
+   * If setHeightFixed is <code>true</code>then override to return the min size of the control, as
+   * defined by IUTConstants.MIN_CONTROL_SIZE. When used with the Box layout mgr, this provides the
+   * behavior of the control not shrinking beyond a default width, while maintaining a nice height
+   * as the container is resized.
    */
   public Dimension getMinimumSize() {
     if (m_fixedHeight) {
@@ -158,11 +150,9 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * If setHeightFixed is <code>true</code>then override to
-   * return the max size of the control, as defined by
-   * IUTConstants.MAX_CONTROL_SIZE. When used with the Box layout mgr, this
-   * provides the behavior of taking up all the width, but maintaining a nice
-   * height as the container is resized.
+   * If setHeightFixed is <code>true</code>then override to return the max size of the control, as
+   * defined by IUTConstants.MAX_CONTROL_SIZE. When used with the Box layout mgr, this provides the
+   * behavior of taking up all the width, but maintaining a nice height as the container is resized.
    */
   public Dimension getMaximumSize() {
     if (m_fixedHeight) {
@@ -173,8 +163,8 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Return the date for this CalendarField object as
-   * a formatted string based on the outputFormat
+   * Return the date for this CalendarField object as a formatted string based on the outputFormat
+   *
    * @return formatted date string, Never <code>null</code>. May be empty.
    */
   public String toString() {
@@ -182,8 +172,8 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Return the date passed in as
-   * a formatted string based on the outputFormat
+   * Return the date passed in as a formatted string based on the outputFormat
+   *
    * @return formatted date string, Never <code>null</code>. May be empty.
    */
   public String toString(Date date) {
@@ -193,6 +183,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Sets the date for this CalendarField Object.
+   *
    * @param date the date to be set. Can be <code>null</code>.
    */
   public void setDate(Date date) {
@@ -211,20 +202,21 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Sets the date for this CalendarField Object.
+   *
    * @param date the date string to be set. Can be <code>null</code>.
-   * @param inputFormat the date's format string (i.e MM/dd/yyyy). If
-   * <code>null</code> then defaults to MM/dd/yyyy.
+   * @param inputFormat the date's format string (i.e MM/dd/yyyy). If <code>null</code> then
+   *     defaults to MM/dd/yyyy.
    */
   public void setDate(String date, String inputFormat) {
     setDate(transformDate(date, inputFormat));
   }
 
   /**
-   * Transforms the string date using the specified input
-   * format.
+   * Transforms the string date using the specified input format.
+   *
    * @param date the date string to be set. Can be <code>null</code>.
-   * @param inputFormat the date's format string (i.e MM/dd/yyyy). If
-   * <code>null</code> then defaults to MM/dd/yyyy.
+   * @param inputFormat the date's format string (i.e MM/dd/yyyy). If <code>null</code> then
+   *     defaults to MM/dd/yyyy.
    * @return transformed date
    */
   private Date transformDate(String date, String inputFormat) {
@@ -235,12 +227,10 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * If set to <code>true</code> the user can enter the
-   * date via the textfield. If set to <code>false</code>
-   * then the user can only enter the date via the popup
-   * calendar dialog.
-   * @param canEdit boolean indicating that the date field can
-   * be edited.
+   * If set to <code>true</code> the user can enter the date via the textfield. If set to <code>
+   * false</code> then the user can only enter the date via the popup calendar dialog.
+   *
+   * @param canEdit boolean indicating that the date field can be edited.
    */
   public void setEditable(boolean canEdit) {
     m_dateTextField.setEditable(canEdit);
@@ -248,8 +238,8 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Sets the output format string
-   * @param format the date format string (i.e MM/dd/yyyy).
-   * Can be <code>null</code>.
+   *
+   * @param format the date format string (i.e MM/dd/yyyy). Can be <code>null</code>.
    */
   public void setOutputFormat(String format) {
     if (null == format || format.length() == 0) format = DEFAULT_DATE_FORMAT;
@@ -257,27 +247,22 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Attempts to parse the string date in <code>m_dateTextField</code>
-   * for a valid date and if so sets the date to that date. Sets the date to
-   * <code>null</code> if the text field is empty or we can't parse
-   * a valid date.
+   * Attempts to parse the string date in <code>m_dateTextField</code> for a valid date and if so
+   * sets the date to that date. Sets the date to <code>null</code> if the text field is empty or we
+   * can't parse a valid date.
    */
   private Date fieldToDate() {
     return convertStringToDate(m_dateTextField.getText().trim());
   }
 
   /**
-   * Converts the supplied string date to <code>Date</code>. The date format
-   * of the string is expected to be one of the values in
-   * {@link #ms_datePatternArray}.
+   * Converts the supplied string date to <code>Date</code>. The date format of the string is
+   * expected to be one of the values in {@link #ms_datePatternArray}.
    *
-   * @param textDate The to be converted string. It may be <code>null</code>
-   *    or empty.
-   *
-   * @return The converted date. <code>null</code> if
-   *    <code>textDate</code> is <code>null</code> or empty. It may also be
-   *    <code>null</code> if failed to parse all the patterns in
-   *    {@link #ms_datePatternArray}.
+   * @param textDate The to be converted string. It may be <code>null</code> or empty.
+   * @return The converted date. <code>null</code> if <code>textDate</code> is <code>null</code> or
+   *     empty. It may also be <code>null</code> if failed to parse all the patterns in {@link
+   *     #ms_datePatternArray}.
    */
   public static Date convertStringToDate(String textDate) {
     Date date = null;
@@ -296,8 +281,8 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Handles setting the intial date when the calendar button is hit, and
-   * retrieving the selected date once the pop-up is closed.
+   * Handles setting the intial date when the calendar button is hit, and retrieving the selected
+   * date once the pop-up is closed.
    *
    * @param event the <code>ActionEvent</code> caught. Never <code>null</code>.
    */
@@ -313,10 +298,9 @@ public class PSCalendarField extends JPanel implements ActionListener {
   }
 
   /**
-   * Attempts to find the closest parent frame by
-   * looping back through parents
-   * @return the owner frame or <code>null</code>
-   * if the frame could not be found.
+   * Attempts to find the closest parent frame by looping back through parents
+   *
+   * @return the owner frame or <code>null</code> if the frame could not be found.
    */
   private Frame getOwnerFrame(Component comp) {
     if (null == comp) return null;
@@ -326,6 +310,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Adds a value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void addValueChangedListener(IPSValueChangedListener listener) {
@@ -337,6 +322,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
 
   /**
    * Removes the specified value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void removeValueChangedListener(IPSValueChangedListener listener) {
@@ -346,10 +332,7 @@ public class PSCalendarField extends JPanel implements ActionListener {
     }
   }
 
-  /**
-   * Handles notification for all registered listeners of a value
-   * changed event.
-   */
+  /** Handles notification for all registered listeners of a value changed event. */
   private void fireValueChangedEvent() {
     PSValueChangedEvent event = new PSValueChangedEvent(this, Event.ACTION_EVENT);
     Iterator it = m_valueChangedListeners.iterator();
@@ -368,41 +351,28 @@ public class PSCalendarField extends JPanel implements ActionListener {
     frame.setVisible(true);
   }
 
-  /**
-   * The output format string. Set in ctor, never <code>null</code> after
-   * that.
-   */
+  /** The output format string. Set in ctor, never <code>null</code> after that. */
   private String m_outputFormat;
 
   /**
-   * The button to invoke the calendar dialog. Initialized in {@link #init()}
-   * Never <code>null</code> after that.
+   * The button to invoke the calendar dialog. Initialized in {@link #init()} Never <code>null
+   * </code> after that.
    */
   private PSCalendarButton m_calendarButton;
 
-  /**
-   * The date text field. Initialized in {@link #init()}
-   * Never <code>null</code> after that.
-   */
+  /** The date text field. Initialized in {@link #init()} Never <code>null</code> after that. */
   private JTextField m_dateTextField;
 
-  /**
-   * Flag indicating that the height should remain fixed.
-   */
+  /** Flag indicating that the height should remain fixed. */
   private boolean m_fixedHeight;
 
-  /**
-   * List of all registered value changed listeners
-   */
+  /** List of all registered value changed listeners */
   private final List<IPSValueChangedListener> m_valueChangedListeners =
       new ArrayList<IPSValueChangedListener>();
 
   // private static List ms_formats = new ArrayList();
 
-  /**
-   * The supported date pattern, mostly from
-   * {@link com.percussion.util.PSDataTypeConverter}.
-   */
+  /** The supported date pattern, mostly from {@link com.percussion.util.PSDataTypeConverter}. */
   private static String[] ms_datePatternArray = {
     // Accurate ones should be listed first
     "yyyy-MMMM-dd 'at' hh:mm:ss aaa",
@@ -435,18 +405,12 @@ public class PSCalendarField extends JPanel implements ActionListener {
     "HH:mm"
   };
 
-  /**
-   * The default date format string
-   */
+  /** The default date format string */
   private static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
-  /**
-   * The default date text field column size
-   */
+  /** The default date text field column size */
   private static final int DEFAULT_TEXTFIELD_SIZE = 12;
 
-  /**
-   * The fixed height for the this component
-   */
+  /** The fixed height for the this component */
   private static final int FIXED_HEIGHT = 28;
 }

@@ -28,19 +28,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Custom dependency handler implementation.
- */
+/** Custom dependency handler implementation. */
 public class PSCustomDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSCustomDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -48,19 +43,19 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>TableSchema</li>
-   * <li>Exit</li>
-   * <li>SharedGroup</li>
-   * <li>SystemDefElement</li>
+   *   <li>Application
+   *   <li>TableSchema
+   *   <li>Exit
+   *   <li>SharedGroup
+   *   <li>SystemDefElement
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
@@ -68,6 +63,7 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
 
   /**
    * The same as {@link #getChildTypes()}, except this returns a list.
+   *
    * @return the list of child types, never <code>null</code> or empty.
    */
   public static List<String> getChildTypeList() {
@@ -75,10 +71,9 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Gets a custom deployable element for each instance of each supported child
-   * type, with the id and name of the element set to the child depedency's
-   * key and display name, and the child dependency set as a local child
-   * dependency. See {@link PSDependencyHandler} for more info.
+   * Gets a custom deployable element for each instance of each supported child type, with the id
+   * and name of the element set to the child depedency's key and display name, and the child
+   * dependency set as a local child dependency. See {@link PSDependencyHandler} for more info.
    */
   public Iterator getDependencies(PSSecurityToken tok)
       throws PSDeployException, PSNotFoundException {
@@ -112,14 +107,12 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Gets a custom deployable element for the specified id.  The id must be the
-   * dependency key of the child, with the type of the key being a supported
-   * child type. The returned element will have the child's key as its id, and
-   * the child's display name as its display name, and the specified child
-   * will be added as a local child dependency.  For a User Dependency,
-   * just the type is specified as the id and name, and an element with no
-   * children is returned.  See
-   * {@link PSDependencyHandler} for more info.
+   * Gets a custom deployable element for the specified id. The id must be the dependency key of the
+   * child, with the type of the key being a supported child type. The returned element will have
+   * the child's key as its id, and the child's display name as its display name, and the specified
+   * child will be added as a local child dependency. For a User Dependency, just the type is
+   * specified as the id and name, and an element with no children is returned. See {@link
+   * PSDependencyHandler} for more info.
    */
   public PSDependency getDependency(PSSecurityToken tok, String id)
       throws PSDeployException, PSNotFoundException {
@@ -153,9 +146,8 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Returns the provided dependency with all children of the specified type
-   * as its children.  The id of the provided <code>dep</code> must be the
-   * type of the children that will be returned.  See
+   * Returns the provided dependency with all children of the specified type as its children. The id
+   * of the provided <code>dep</code> must be the type of the children that will be returned. See
    * {@link PSDependencyHandler} for more info.
    */
   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
@@ -182,15 +174,10 @@ public class PSCustomDependencyHandler extends PSDependencyHandler {
     return childList.iterator();
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Custom";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(
           PSApplicationDependencyHandler.DEPENDENCY_TYPE,

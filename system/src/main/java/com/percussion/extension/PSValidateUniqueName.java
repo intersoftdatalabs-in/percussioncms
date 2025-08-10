@@ -31,29 +31,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * System extension used to validate the sys_title field for a Content
- * Editor only. It determines that the value of the <code>sys_title</code>
- * field will be unique if within a folder.
+ * System extension used to validate the sys_title field for a Content Editor only. It determines
+ * that the value of the <code>sys_title</code> field will be unique if within a folder.
  */
 public class PSValidateUniqueName implements IPSFieldValidator {
 
   /**
    * Executes the UDF with the specified parameters and request context.
    *
-   * @param params The parameter values of the exit, it is not used. It may be
-   *    <code>null</code> or empty.
-   *
-   * @param request The current request context. It may not be
-   *    <code>null</code>.
-   *
+   * @param params The parameter values of the exit, it is not used. It may be <code>null</code> or
+   *     empty.
+   * @param request The current request context. It may not be <code>null</code>.
    * @return it returns <code>true</code> in the following conditions:
-   *    <ul>
-   *       <li>the item will not be updated or inserted.</li>
-   *       <li>the item will not be in a folder.</li>
-   *       <li>the value of sys_title field will be unique within a folder.</li>
+   *     <ul>
+   *       <li>the item will not be updated or inserted.
+   *       <li>the item will not be in a folder.
+   *       <li>the value of sys_title field will be unique within a folder.
    *       <li>the item of content type is unique within the system.
-   *    </ul>
-   * otherwise return <code>false</code>.
+   *     </ul>
+   *     otherwise return <code>false</code>.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {
@@ -80,15 +76,13 @@ public class PSValidateUniqueName implements IPSFieldValidator {
   }
 
   /**
-   * Checks to see if  an item of its content type is unique (case insensitively) within the
-   * system. If not then returns false.
+   * Checks to see if an item of its content type is unique (case insensitively) within the system.
+   * If not then returns false.
    *
-   * @param params The parameter values of the exit, it is not used. It may be
-   *            <code>null</code> or empty.
-   * @param request The current request context. It may not be
-   *            <code>null</code>.
-   * @return returns true if there is no duplicate item of its
-   *         content type in the system.
+   * @param params The parameter values of the exit, it is not used. It may be <code>null</code> or
+   *     empty.
+   * @param request The current request context. It may not be <code>null</code>.
+   * @return returns true if there is no duplicate item of its content type in the system.
    * @throws PSConversionException
    */
   private boolean isValidScope(Object[] params, IPSRequestContext request)
@@ -136,8 +130,6 @@ public class PSValidateUniqueName implements IPSFieldValidator {
     // no-op
   }
 
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSValidateUniqueName.class);
 }

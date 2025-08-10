@@ -47,22 +47,19 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 /**
- * Uses the SAXON transformer to evaluate XPath expressions against a given
- * XML source.  TODO: Update to use plain JAXP.
+ * Uses the SAXON transformer to evaluate XPath expressions against a given XML source. TODO: Update
+ * to use plain JAXP.
  */
 public class PSXPathEvaluator {
   /**
-   * Constructs a <code>PSXPathEvaluator</code> to apply XPath expressions
-   * to an {@link InputStream}.
+   * Constructs a <code>PSXPathEvaluator</code> to apply XPath expressions to an {@link
+   * InputStream}.
    *
-   * @param source Target of XPath expressions, not <code>null</code>.
-   * The contents of the stream must be parsable into XML.  The source is
-   * copied into an internal representation, therefore modifications to the
-   * source object after this constructor has run will not visible to this
-   * evaluator.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
+   * @param source Target of XPath expressions, not <code>null</code>. The contents of the stream
+   *     must be parsable into XML. The source is copied into an internal representation, therefore
+   *     modifications to the source object after this constructor has run will not visible to this
+   *     evaluator.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
    * @throws TransformerException if <code>source</code> could not be parsed.
    */
   public PSXPathEvaluator(InputStream source)
@@ -86,18 +83,15 @@ public class PSXPathEvaluator {
   }
 
   /**
-   * Constructs a <code>PSXPathEvaluator</code> to apply XPath expressions
-   * to a {@link org.w3c.dom.Document Document}.
+   * Constructs a <code>PSXPathEvaluator</code> to apply XPath expressions to a {@link
+   * org.w3c.dom.Document Document}.
    *
-   * @param source Target of XPath expressions, not <code>null</code>, may be
-   * empty.  The source is copied into an internal representation, therefore
-   * modifications to the source object after this constructor has run will
-   * not visible to this evaluator.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws TransformerException if an identify transformer could not be
-   * constructed or if an error occurs while copying <code>source</code>.
+   * @param source Target of XPath expressions, not <code>null</code>, may be empty. The source is
+   *     copied into an internal representation, therefore modifications to the source object after
+   *     this constructor has run will not visible to this evaluator.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws TransformerException if an identify transformer could not be constructed or if an error
+   *     occurs while copying <code>source</code>.
    */
   public PSXPathEvaluator(Document source) throws TransformerException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -123,18 +117,16 @@ public class PSXPathEvaluator {
 
   /**
    * One that takes a set of props with OutputKeys.
-   * @param source Target of XPath expressions, not <code>null</code>, may be
-   * empty.  The source is copied into an internal representation, therefore
-   * modifications to the source object after this constructor has run will
-   * not visible to this evaluator.
    *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code>.
-   * @throws TransformerException if an identify transformer could not be
-   * constructed or if an error occurs while copying <code>source</code>.
+   * @param source Target of XPath expressions, not <code>null</code>, may be empty. The source is
+   *     copied into an internal representation, therefore modifications to the source object after
+   *     this constructor has run will not visible to this evaluator.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code>.
+   * @throws TransformerException if an identify transformer could not be constructed or if an error
+   *     occurs while copying <code>source</code>.
    * @param props set of props with OutputKeys, never <code>null</code>.
-   * @throws TransformerException if an identify transformer could not be
-   * constructed or if an error occurs while copying <code>source</code>.
+   * @throws TransformerException if an identify transformer could not be constructed or if an error
+   *     occurs while copying <code>source</code>.
    */
   public PSXPathEvaluator(Document source, Properties props) throws TransformerException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -168,19 +160,16 @@ public class PSXPathEvaluator {
   }
 
   /**
-   * Constructor for evaluating XPath expressions against a particular node.
-   * The <code>node</code> param passed to this constructor should be an
-   * instance of <code>com.icl.saxon.om.AbstractNode</code>. Typically, this
-   * will be obtained by calling the <code>enumerate()</code> method on a
+   * Constructor for evaluating XPath expressions against a particular node. The <code>node</code>
+   * param passed to this constructor should be an instance of <code>com.icl.saxon.om.AbstractNode
+   * </code>. Typically, this will be obtained by calling the <code>enumerate()</code> method on a
    * <code>PSXPathEvaluator</code> constructed from a document object.
    *
-   * @param node node to be used for evaluating XPath expressions, may not
-   * be <code>null</code>, must be an instance of
-   * <code>com.icl.saxon.om.AbstractNode</code>
-   *
+   * @param node node to be used for evaluating XPath expressions, may not be <code>null</code>,
+   *     must be an instance of <code>com.icl.saxon.om.AbstractNode</code>
    * @throws TransformerException if any error occurs
-   * @throws IllegalArgumentException if <code>node</code> is <code>null</code>
-   * or not an instance of <code>com.icl.saxon.om.AbstractNode</code>
+   * @throws IllegalArgumentException if <code>node</code> is <code>null</code> or not an instance
+   *     of <code>com.icl.saxon.om.AbstractNode</code>
    */
   public PSXPathEvaluator(Node node) throws TransformerException {
     if (!(node instanceof AbstractNode))
@@ -191,8 +180,7 @@ public class PSXPathEvaluator {
   /**
    * Initialize the member variables.
    *
-   * @param node Create a new context with a given node, assumed not
-   * <code>null</code>
+   * @param node Create a new context with a given node, assumed not <code>null</code>
    */
   private void init(NodeInfo node) {
     m_ctl = new Controller();
@@ -201,14 +189,12 @@ public class PSXPathEvaluator {
   }
 
   /**
-   * Gets the string value of an XPath expression applied to the XML object
-   * that was provided when this <code>PSXPathEvaluator</code> was constructed.
+   * Gets the string value of an XPath expression applied to the XML object that was provided when
+   * this <code>PSXPathEvaluator</code> was constructed.
    *
-   * @param xpath XPath expression to evaluate, may not be <code>null</code> or
-   * empty
-   *
-   * @return the string value of the specified xpath, will be empty if the
-   * expression does not evaluate to any node. Never <code>null</code>.
+   * @param xpath XPath expression to evaluate, may not be <code>null</code> or empty
+   * @return the string value of the specified xpath, will be empty if the expression does not
+   *     evaluate to any node. Never <code>null</code>.
    */
   public String evaluate(String xpath) throws XPathException {
     if (xpath == null || xpath.trim().length() == 0)
@@ -219,23 +205,17 @@ public class PSXPathEvaluator {
   }
 
   /**
-   * Return an iterator over a list of
-   * <code>com.icl.saxon.om.AbstractNode</code> objects.
-   * <code>AbstractNode</code> implements the interfaces
-   * <code>org.w3c.dom.Node</code> and <code>com.icl.saxon.om.NodeInfo</code>
-   * and so can be used as a bridge between Xerces and Saxon. While Xerces
-   * uses <code>Node</code> interface, Saxon uses <code>NodeInfo</code>
-   * interface.
+   * Return an iterator over a list of <code>com.icl.saxon.om.AbstractNode</code> objects. <code>
+   * AbstractNode</code> implements the interfaces <code>org.w3c.dom.Node</code> and <code>
+   * com.icl.saxon.om.NodeInfo</code> and so can be used as a bridge between Xerces and Saxon. While
+   * Xerces uses <code>Node</code> interface, Saxon uses <code>NodeInfo</code> interface.
    *
-   * @param xpath the XPath expression to be evaluated, this should
-   * evaluate to a nodeset, may not be <code>null</code> or empty
-   *
-   * @param sorted Indicates whether the nodes are required in document order.
-   * If this is <code>false</code>, they may come in any order, but there will
-   * be no duplicates.
-   *
-   * @return an iterator of nodes in the nodeset obtained by evaluating the
-   * XPath expression, never <code>null</code>, may be empty
+   * @param xpath the XPath expression to be evaluated, this should evaluate to a nodeset, may not
+   *     be <code>null</code> or empty
+   * @param sorted Indicates whether the nodes are required in document order. If this is <code>
+   *     false</code>, they may come in any order, but there will be no duplicates.
+   * @return an iterator of nodes in the nodeset obtained by evaluating the XPath expression, never
+   *     <code>null</code>, may be empty
    */
   public Iterator enumerate(String xpath, boolean sorted) throws XPathException {
     if (xpath == null || xpath.trim().length() == 0)
@@ -259,23 +239,20 @@ public class PSXPathEvaluator {
   }
 
   /**
-   * Saxon's processing is controlled by this class. Initialized in the
-   * <code>init()</code> method,  never <code>null</code> or modified
-   * after initialization.
+   * Saxon's processing is controlled by this class. Initialized in the <code>init()</code> method,
+   * never <code>null</code> or modified after initialization.
    */
   private Controller m_ctl;
 
   /**
-   * The root node of the XML object that is searched by this class.
-   * Initialized in the <code>init()</code> method,  never <code>null</code>
-   * or modified after initialization.
+   * The root node of the XML object that is searched by this class. Initialized in the <code>init()
+   * </code> method, never <code>null</code> or modified after initialization.
    */
   private Context m_nodeContext;
 
   /**
-   * Static information about namespaces and such. Initialized in the
-   * <code>init()</code> method,  never <code>null</code> or modified
-   * after initialization.
+   * Static information about namespaces and such. Initialized in the <code>init()</code> method,
+   * never <code>null</code> or modified after initialization.
    */
   private StandaloneContext m_standAloneContext;
 }

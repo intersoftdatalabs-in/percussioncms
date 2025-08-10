@@ -21,29 +21,24 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * The PSSimpleJavaUdf_concat class concatenates two strings and returns the
- * result.
+ * The PSSimpleJavaUdf_concat class concatenates two strings and returns the result.
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSSimpleJavaUdf_concat extends PSSimpleJavaUdfExtension {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Converts params[0] and params[1] to strings and appends params[1] to
-   * params[0]. If either (or both) is <code>null</code>, the empty string is
-   * substituted for the <code>null</code> parameter(s).
+   * Converts params[0] and params[1] to strings and appends params[1] to params[0]. If either (or
+   * both) is <code>null</code>, the empty string is substituted for the <code>null</code>
+   * parameter(s).
    *
-   * @param      params         2 objects, which will be converted to strings
-   *
-   * @param      request         the current request context
-   *
-   * @return                     The concatenated string.
-   *
-   * @exception  PSConversionException
-   *                            if params are not appropriately set
+   * @param params 2 objects, which will be converted to strings
+   * @param request the current request context
+   * @return The concatenated string.
+   * @exception PSConversionException if params are not appropriately set
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

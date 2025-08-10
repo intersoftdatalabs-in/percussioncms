@@ -77,13 +77,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * This pluguin is used to migrate relationships data from 5.x to Rhino (6.x?)
- */
+/** This pluguin is used to migrate relationships data from 5.x to Rhino (6.x?) */
 public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginRelationship() {}
 
   /**
@@ -98,25 +94,21 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This is essentially the same as {@link PSRelationshipConfig}, except it
-   * allows whitespace characters for the name of the relationship.
+   * This is essentially the same as {@link PSRelationshipConfig}, except it allows whitespace
+   * characters for the name of the relationship.
    */
   public static class RelationshipConfig extends PSRelationshipConfig {
-    /**
-     * Generated number
-     */
+    /** Generated number */
     private static final long serialVersionUID = -7879716053741162922L;
 
     /**
      * Construct an object from its XML representation.
      *
-     * @param src the XML representation of the to be constructed object, may
-     *           not be <code>null</code>.
-     * @param parentDoc the Java object which is the parent of this object, it
-     *           may be <code>null</code>.
-     * @param parentComponents the parent objects of this object, it may be
-     *           <code>null</code>.
-     *
+     * @param src the XML representation of the to be constructed object, may not be <code>null
+     *     </code>.
+     * @param parentDoc the Java object which is the parent of this object, it may be <code>null
+     *     </code>.
+     * @param parentComponents the parent objects of this object, it may be <code>null</code>.
      * @throws PSUnknownNodeTypeException if malformed XML in 'src'.
      */
     RelationshipConfig(Element src, IPSDocument parentDoc, List parentComponents)
@@ -125,12 +117,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     }
 
     /**
-     * Override {@link PSRelationshipConfig#setName(String)} to allow the name
-     * contains whitespace characters
+     * Override {@link PSRelationshipConfig#setName(String)} to allow the name contains whitespace
+     * characters
      *
-     * @param name the name of the relationship configuration. It may not be
-     *           <code>null</code> or empty, but it may contain whitespace
-     *           characters.
+     * @param name the name of the relationship configuration. It may not be <code>null</code> or
+     *     empty, but it may contain whitespace characters.
      */
     public void setName(String name) {
       m_name = name;
@@ -138,21 +129,18 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This is essentaily the same as {@link PSRelationshipConfigSet}, except
-   * its child class is {@link RelationshipConfig}.
+   * This is essentaily the same as {@link PSRelationshipConfigSet}, except its child class is
+   * {@link RelationshipConfig}.
    */
   public static class RelationshipConfigSet extends PSRelationshipConfigSet {
-    /**
-     * Generated number
-     */
+    /** Generated number */
     private static final long serialVersionUID = -4374436883055871148L;
 
     /**
      * Construct an object from its XML representation.
      *
-     * @param src the XML representation of the to be constructed object, may
-     *           not be <code>null</code>.
-     *
+     * @param src the XML representation of the to be constructed object, may not be <code>null
+     *     </code>.
      * @throws PSUnknownNodeTypeException if malformed XML in 'src'.
      */
     public RelationshipConfigSet(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -171,11 +159,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Gets all relationship configurations from its XML representation.
    *
-   * @param doc the XML representation of the relationship configs, never
-   *   <code>null</code>.
-   *
+   * @param doc the XML representation of the relationship configs, never <code>null</code>.
    * @return all relationship configurations, never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException if the XML is not welformed.
    */
   public PSRelationshipConfigSet getConfigSet(Document doc) throws PSUnknownNodeTypeException {
@@ -243,13 +228,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Upgrade the relationship configuration and other related tables
-   * for Version 4 or 5, but not 6.0, build 200609R01
+   * Upgrade the relationship configuration and other related tables for Version 4 or 5, but not
+   * 6.0, build 200609R01
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the connection object; assumed not <code>null</code>.
-   *
    * @throws Exception if any error occurs.
    */
   private void upgradeBeforeVersion60(PrintStream logger, Connection conn) throws Exception {
@@ -286,13 +269,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Traverse the process checks looking for conditionals. The conditionals may
-   * contain literals that reference the names of relationships.
+   * Traverse the process checks looking for conditionals. The conditionals may contain literals
+   * that reference the names of relationships.
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param configSet the configurations, assumed never <code>null</code>
-   * @param configNames the map of new to old configuration names, assumed
-   *           never <code>null</code>
+   * @param configNames the map of new to old configuration names, assumed never <code>null</code>
    */
   private void fixProcessChecks(
       PrintStream logger, PSRelationshipConfigSet configSet, Map configNames) {
@@ -310,13 +292,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Traverse the process checks looking for conditionals. The conditionals may
-   * contain literals that reference the names of relationships.
+   * Traverse the process checks looking for conditionals. The conditionals may contain literals
+   * that reference the names of relationships.
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param config the configuration, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed
-   *           never <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
   private void fixProcessChecks(PrintStream logger, PSRelationshipConfig config, Map oldToNew) {
     Iterator iter = config.getProcessChecks();
@@ -326,13 +307,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Fix the process check's conditionals that contain literals that reference
-   * names of old relationships.
+   * Fix the process check's conditionals that contain literals that reference names of old
+   * relationships.
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param check the process check, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed
-   *           never <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
   private void fixProcessCheck(PrintStream logger, PSProcessCheck check, Map oldToNew) {
     Iterator ruleiter = check.getConditions();
@@ -346,8 +326,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param rule the rule, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed
-   *           never <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
   private void fixRule(PrintStream logger, PSRule rule, Map oldToNew) {
     PSExtensionCallSet callSet = rule.getExtensionRules();
@@ -368,8 +347,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param conditional the conditional, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed never
-   *           <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
   private void fixConditional(PrintStream logger, PSConditional conditional, Map oldToNew) {
     fixReplacementValue(logger, oldToNew, conditional.getValue());
@@ -381,8 +359,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    *
    * @param logger the logging stream, assumed never <code>null</code>
    * @param call the call, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed
-   *           never <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
    */
   private void fixCall(PrintStream logger, PSExtensionCall call, Map oldToNew) {
     PSExtensionParamValue values[] = call.getParamValues();
@@ -393,11 +370,11 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
   /**
    * Fix the replacement value, if appropriate
+   *
    * @param logger the logging stream, assumed never <code>null</code>
-   * @param oldToNew the map of old to new configuration names, assumed
-   *           never <code>null</code>
-   * @param value the value that may reference an old relationship name,
-   *   assumed never <code>null</code>
+   * @param oldToNew the map of old to new configuration names, assumed never <code>null</code>
+   * @param value the value that may reference an old relationship name, assumed never <code>null
+   *     </code>
    */
   private void fixReplacementValue(PrintStream logger, Map oldToNew, IPSReplacementValue value) {
     if (value instanceof PSTextLiteral) {
@@ -418,10 +395,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Upgrade the relationship configuration for Version 6.0, build 200609R01
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the connection object; assumed not <code>null</code>.
-   *
    * @throws Exception if any error occurs.
    */
   private void upgradeForVersion60(PrintStream logger, Connection conn) throws Exception {
@@ -434,15 +409,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Updates the Content Editor System Definition, replace the relationship
-   * names with the new names. The relationship names are specified in the
-   * conditions for the relationship command handler.
+   * Updates the Content Editor System Definition, replace the relationship names with the new
+   * names. The relationship names are specified in the conditions for the relationship command
+   * handler.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param nameMap it maps the new relationship name to its old one,
-   *    assumed not <code>null</code>.
-   *
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void upgradeSystemDef(PrintStream logger, Map nameMap) throws Exception {
@@ -554,11 +526,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * Gets the new relationship name from the supplied old name.
    *
    * @param oldName the old relationship name, assumed not <code>null</code>.
-   * @param nameMap it maps new relationship name to its old name, assumed
-   *    not <code>null</code>
-   *
-   * @return the new relationship name, it may be <code>null</code> if cannot
-   *    find the related new name.
+   * @param nameMap it maps new relationship name to its old name, assumed not <code>null</code>
+   * @return the new relationship name, it may be <code>null</code> if cannot find the related new
+   *     name.
    */
   private String getNewRelName(String oldName, Map nameMap) {
     Iterator entries = nameMap.entrySet().iterator();
@@ -573,12 +543,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Updates the relationship names in the slot table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param nameMap it maps the new relationship name to its old one,
-   *    assumed not <code>null</code>.
-   *
+   * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void updateSlotTable(PrintStream logger, Connection conn, Map configNames)
@@ -607,12 +574,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Updates the relationship names in the URL column of RXMENUACTION table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param nameMap it maps the new relationship name to its old one,
-   *    assumed not <code>null</code>.
-   *
+   * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void updateMenuActionTable(PrintStream logger, Connection conn, Map configNames)
@@ -654,32 +618,25 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         "Successfully updated '" + MENUACTION_TABLE + "' table with the new relationship names.\n");
   }
 
-  /**
-   * the name of the menu action table
-   */
+  /** the name of the menu action table */
   private static final String MENUACTION_TABLE = "RXMENUACTION";
 
-  /**
-   * the name of the menu action param table
-   */
+  /** the name of the menu action param table */
   private static final String MENUACTIONPARAM_TABLE = "RXMENUACTIONPARAM";
 
-  /**
-   * the name of the object relationship table
-   */
+  /** the name of the object relationship table */
   private static final String OBJECTRELATIONSHIP_TABLE = "PSX_OBJECTRELATIONSHIP";
 
   /**
-   * Gets the updated row from the supplied source row if it contains
-   * old relationship name which needs to be updated.
+   * Gets the updated row from the supplied source row if it contains old relationship name which
+   * needs to be updated.
    *
    * @param srcRow the source row, assumed not <code>null</code>.
-   * @param configNames the new config name maps to the old config name,
-   *    assumed not <code>null</code>.
+   * @param configNames the new config name maps to the old config name, assumed not <code>null
+   *     </code>.
    * @param table the table name, assumed not <code>null</code> or empty.
-   *
-   * @return the updated row. It may be <code>null</code> if the source row
-   *    does not need to be updated.
+   * @return the updated row. It may be <code>null</code> if the source row does not need to be
+   *     updated.
    */
   private PSJdbcRowData getUpdatedRow(PSJdbcRowData srcRow, Map configNames, String table) {
     PSJdbcColumnData col = srcRow.getColumn("URL");
@@ -716,17 +673,13 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   private static final String SYS_RELATIONSHIP_TYPE_EQ = SYS_RELATIONSHIP_TYPE + "=";
 
   /**
-   * Creates relationship views for backwards compatable.
-   * Note, the views will translate the relationship name from new to old.
+   * Creates relationship views for backwards compatable. Note, the views will translate the
+   * relationship name from new to old.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param configs the relationship configurations. Assumned not
-   *           <code>null</code>.
-   * @param nameMap it maps the new relationship name to its old one,
-   *    assumed not <code>null</code>.
-   *
+   * @param configs the relationship configurations. Assumned not <code>null</code>.
+   * @param nameMap it maps the new relationship name to its old one, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void createRelationshipViews(
@@ -801,11 +754,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * Create partial SELECT clause for the relationship config name.
    *
    * @param configSet the relationship configurations, never <code>null</code>.
-   * @param nameMap it maps new relationship name to old once,
-   *    never <code>null</code>.
-   *
-   * @return the created partial SELECT clause, never <code>null</code> or
-   *    empty.
+   * @param nameMap it maps new relationship name to old once, never <code>null</code>.
+   * @return the created partial SELECT clause, never <code>null</code> or empty.
    */
   private String getSelectConfigName(PSRelationshipConfigSet configSet, Map nameMap) {
     StringBuilder caseBuf = new StringBuilder();
@@ -831,10 +781,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Removes old relationship tables.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void dropRelationshipTables(PrintStream logger, Connection conn) throws Exception {
@@ -852,12 +800,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Retrieves all relationship configurations from the repository.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param configs the relationship configurations. Assumned not
-   *           <code>null</code>.
-   *
+   * @param configs the relationship configurations. Assumned not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void populateRelationshipData(
@@ -930,15 +875,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Update a pre-defined user property from the old property table to
-   * the new relationship main table.
+   * Update a pre-defined user property from the old property table to the new relationship main
+   * table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param configSet the relationship configurations, assumed not
-   *           <code>null</code>.
-   *
+   * @param configSet the relationship configurations, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   private void updateCustomProperties(
@@ -969,23 +911,18 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Update a pre-defined user property from the old property table to
-   * the new relationship main table.  If the property is a numeric
-   * property, all rows containing non-numeric property values for the
-   * property will be removed from the old table.
+   * Update a pre-defined user property from the old property table to the new relationship main
+   * table. If the property is a numeric property, all rows containing non-numeric property values
+   * for the property will be removed from the old table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param column the column of the new relationship name table.
-   *           May be <code>null</code>.
-   * @param columnName the column name of the new relationship name table.
-   *           Assumed not <code>null</code>.
-   * @param propName the property name of the updated property.
-   *           Assumed not <code>null</code>.
-   * @param isDB2 <code>true</code> if the driver is DB2 and differing types
-   *           must be cast, <code>false</code> otherwise.
-   *
+   * @param column the column of the new relationship name table. May be <code>null</code>.
+   * @param columnName the column name of the new relationship name table. Assumed not <code>null
+   *     </code>.
+   * @param propName the property name of the updated property. Assumed not <code>null</code>.
+   * @param isDB2 <code>true</code> if the driver is DB2 and differing types must be cast, <code>
+   *     false</code> otherwise.
    * @throws Exception if an error occurs.
    */
   private void updatePduProperty(
@@ -1097,8 +1034,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */
@@ -1113,13 +1050,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Retrieves all relationship configurations from the repository.
    *
-   * @param logger the logger used to log messages, may not be
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, may not be <code>null</code>.
    * @param conn the JDBC connection, may not be <code>null</code>.
-   *
-   * @return the document with contains all relationship configurations, never
-   *         <code>null</code>.
-   *
+   * @return the document with contains all relationship configurations, never <code>null</code>.
    * @throws Exception if an error occurs.
    */
   public Document getRelationshipConfigs(PrintStream logger, Connection conn) throws Exception {
@@ -1139,20 +1072,14 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Retrieves and updates the relationship configurations from the
-   * configuration table.
+   * Retrieves and updates the relationship configurations from the configuration table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param newConfigXml the new (or to be updated) relationship
-   *    configurations. It is <code>null</code> if retrieving the
-   *    relationship configs only; otherwise this will be persisted
-   *    into the configuration table.
-   *
-   * @return the relationship configs that is either retrieved or
-   *    updated from the repository.
-   *
+   * @param newConfigXml the new (or to be updated) relationship configurations. It is <code>null
+   *     </code> if retrieving the relationship configs only; otherwise this will be persisted into
+   *     the configuration table.
+   * @return the relationship configs that is either retrieved or updated from the repository.
    * @throws Exception if any error occurs.
    */
   public String processRelationshipConfigs(PrintStream logger, Connection conn, String newConfigXml)
@@ -1208,9 +1135,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
    * @param conn database connection, assumed not <code>null</code>.
    * @param dbmsDef the database definition, assumed not <code>null</code>.
    * @param table the table name, assumed not <code>null</code> or empty.
-   *
    * @return the cataloged table schema, never <code>null</code>.
-   *
    * @throws Exception if any error occurs.
    */
   private PSJdbcTableSchema getTableSchema(Connection conn, PSJdbcDbmsDef dbmsDef, String table)
@@ -1226,68 +1151,44 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     return tableSchema;
   }
 
-  /**
-   * The key column name of the configuration table.
-   */
+  /** The key column name of the configuration table. */
   private static final String REL_KEY_COL_NAME = "NAME";
 
-  /**
-   * The value of the key column of the config table for relationship configs
-   */
+  /** The value of the key column of the config table for relationship configs */
   private static final String REL_KEY_COL_VALUE = "relationships";
 
-  /**
-   * The column name of the config table for relationship configs.
-   */
+  /** The column name of the config table for relationship configs. */
   private static final String REL_XML_COL_NAME = "CONFIGURATION";
 
-  /**
-   * The name of the configuration table.
-   */
+  /** The name of the configuration table. */
   private static final String CONFIG_TABLE = "PSX_RXCONFIGURATIONS";
 
-  /**
-   * The column name of the slot id for relationship configs.
-   */
+  /** The column name of the slot id for relationship configs. */
   private static final String SLOT_ID = "SLOT_ID";
 
-  /**
-   * The column name of the sort rank for relationship configs.
-   */
+  /** The column name of the sort rank for relationship configs. */
   private static final String SORT_RANK = "SORT_RANK";
 
-  /**
-   * The column name of the variant id for relationship configs.
-   */
+  /** The column name of the variant id for relationship configs. */
   private static final String VARIANT_ID = "VARIANT_ID";
 
-  /**
-   * The column name of the folder id for relationship configs.
-   */
+  /** The column name of the folder id for relationship configs. */
   private static final String FOLDER_ID = "FOLDER_ID";
 
-  /**
-   * The column name of the site id for relationship configs.
-   */
+  /** The column name of the site id for relationship configs. */
   private static final String SITE_ID = "SITE_ID";
 
-  /**
-   * The column name of the inline relationship for relationship configs.
-   */
+  /** The column name of the inline relationship for relationship configs. */
   private static final String INLINE_RELATIONSHIP = "INLINE_RELATIONSHIP";
 
   /**
-   * Sends a specified query to the database and expecting the result set is
-   * a list of strings.
+   * Sends a specified query to the database and expecting the result set is a list of strings.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
    * @param sqlStmt the query string, assumed not <code>null</code>.
-   *
-   * @return a list of strings from the result set of the query, never
-   *   <code>null</code>, but may be empty.
-   *
+   * @return a list of strings from the result set of the query, never <code>null</code>, but may be
+   *     empty.
    * @throws Exception if error occurs.
    */
   List queryStringList(PrintStream logger, Connection conn, String sqlStmt) throws Exception {
@@ -1336,12 +1237,9 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Saves all relationship configurations to the repository.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param configSet the to be saved relationship configurations, assumed not
-   *           <code>null</code>.
-   *
+   * @param configSet the to be saved relationship configurations, assumed not <code>null</code>.
    * @throws Exception if an error occurs.
    */
   protected void saveRelationshipConfigs(
@@ -1357,19 +1255,14 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Saves all relationship configurations to the repository.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param sqlStmt the SQL statement for the updates, assumed not
-   *           <code>null</code>.
-   * @param bindValue the bind values for the above SQL statement. It may be
-   *           <code>null</code> if there is no bind value. The type of the
-   *           bind values must be either {@link Integer} or {@link String}.
-   *
-   * @return either (1) the row count for <code>INSERT</code>,
-   *         <code>UPDATE</code>, or <code>DELETE</code> statements or (2)
-   *         0 for SQL statements that return nothing
-   *
+   * @param sqlStmt the SQL statement for the updates, assumed not <code>null</code>.
+   * @param bindValue the bind values for the above SQL statement. It may be <code>null</code> if
+   *     there is no bind value. The type of the bind values must be either {@link Integer} or
+   *     {@link String}.
+   * @return either (1) the row count for <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE
+   *     </code> statements or (2) 0 for SQL statements that return nothing
    * @throws Exception if an error occurs.
    */
   private int executeUpdate(PrintStream logger, Connection conn, String sqlStmt, Object[] bindValue)
@@ -1406,29 +1299,20 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * Counter for tracking the number of SQL statement as part of logging info.
-   */
+  /** Counter for tracking the number of SQL statement as part of logging info. */
   private int ms_sqlCount = 0;
 
   /**
-   * Updates the config name in the old relationship main table for later use.
-   * It also saves the user defined relationship names to the relationship
-   * config name table.
-   * <p>
-   * Note, assumed the system relationship names have already installed by
-   * the installer.
+   * Updates the config name in the old relationship main table for later use. It also saves the
+   * user defined relationship names to the relationship config name table.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * <p>Note, assumed the system relationship names have already installed by the installer.
+   *
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param configSet the to be saved relationship configurations, assumed not
-   *           <code>null</code>.
-   * @param configNames it maps the new config name to old name. Assumned not
-   *           <code>null</code>.
-   * @param startId the starting id number for the CONFIG_ID column of the
-   *   relationship name table.
-   *
+   * @param configSet the to be saved relationship configurations, assumed not <code>null</code>.
+   * @param configNames it maps the new config name to old name. Assumned not <code>null</code>.
+   * @param startId the starting id number for the CONFIG_ID column of the relationship name table.
    * @throws Exception if an error occurs.
    */
   private void saveRelationshipConfigNameIds(
@@ -1483,10 +1367,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   /**
    * Adds a list execution contexts to a set of known effects
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param configSet all relationship configurations, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   private void addKnownExecutionContexts(PrintStream logger, PSRelationshipConfigSet configSet) {
     Iterator configs = configSet.iterator();
@@ -1513,16 +1395,13 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Fix up the relationship config name, remove the spaces from the
-   * relationship config name if exist.
+   * Fix up the relationship config name, remove the spaces from the relationship config name if
+   * exist.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param configSet all relationship configurations, assumed not
-   *           <code>null</code>.
-   *
-   * @return a mapper that maps new relationship name to its original (old)
-   *   name, never <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param configSet all relationship configurations, assumed not <code>null</code>.
+   * @return a mapper that maps new relationship name to its original (old) name, never <code>null
+   *     </code>.
    */
   private Map fixupRelationshipConfigNameIds(
       PrintStream logger, PSRelationshipConfigSet configSet, int startId) {
@@ -1548,6 +1427,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
 
   /**
    * Sets the id for a given system config.
+   *
    * @param config the system config, assumed not <code>null</code>.
    */
   private boolean setPreDefinedSysConfigId(PSRelationshipConfig config) {
@@ -1582,13 +1462,10 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Removes the 'rs_expirationtime' system property from all relationship
-   * configs.
+   * Removes the 'rs_expirationtime' system property from all relationship configs.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param configSet all relationship configurations, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   private void removeExpirationProperty(PrintStream logger, PSRelationshipConfigSet configSet) {
     Iterator configs = configSet.iterator();
@@ -1603,9 +1480,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * Populate {@link #ms_knownExeCtx}
-   */
+  /** Populate {@link #ms_knownExeCtx} */
   private static void initKnownExeCtx() {
     ms_knownExeCtx = new HashMap();
 
@@ -1653,14 +1528,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Updates the clone override field of sys_communityid in the NewCopy
-   * relationship configuration with the new definition. It does nothing
-   * if there are more than one clone override field of sys_communityid.
+   * Updates the clone override field of sys_communityid in the NewCopy relationship configuration
+   * with the new definition. It does nothing if there are more than one clone override field of
+   * sys_communityid.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param configSet all relationship configurations, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   private void updateOverrideFieldForCommunityId(
       PrintStream logger, PSRelationshipConfigSet configSet) {
@@ -1697,8 +1570,8 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * Creates an override field to override sys_communityid with
-   * the sys_communityid_override HTML parameter.
+   * Creates an override field to override sys_communityid with the sys_communityid_override HTML
+   * parameter.
    *
    * @return the override field described above, never <code>null</code>.
    */
@@ -1724,15 +1597,12 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This method will go through all relationship configs with Active Assembly
-   * category, and add the required user defined properties should any of them
-   * are missing in the configs. The required user defined properties are from
-   * {@link PSRelationshipConfig#getPreDefinedUserPropertyNames()}.
+   * This method will go through all relationship configs with Active Assembly category, and add the
+   * required user defined properties should any of them are missing in the configs. The required
+   * user defined properties are from {@link PSRelationshipConfig#getPreDefinedUserPropertyNames()}.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param configSet all relationship configurations, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param configSet all relationship configurations, assumed not <code>null</code>.
    */
   protected void updateActiveAssemblyProperties(
       PrintStream logger, PSRelationshipConfigSet configSet) {
@@ -1775,18 +1645,14 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This method will go through all property values for the specified property
-   * name in the old relationship properties table {@link #getOldRelPropTable()}
-   * and remove any rows in which the value is non-numeric, may be
-   * <code>null</code>.
+   * This method will go through all property values for the specified property name in the old
+   * relationship properties table {@link #getOldRelPropTable()} and remove any rows in which the
+   * value is non-numeric, may be <code>null</code>.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param conn the database connection object, assumed not
-   *           <code>null</code>.
-   * @param property the name of the property for which to remove invalid
-   *           values, assumed not <code>null</code>.
-   *
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param conn the database connection object, assumed not <code>null</code>.
+   * @param property the name of the property for which to remove invalid values, assumed not <code>
+   *     null</code>.
    * @throws Exception if an error occurs.
    */
   private void removeNonNumericPropertyValues(PrintStream logger, Connection conn, String property)
@@ -1866,17 +1732,13 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * This method will look for all relationship type parameter names in the
-   * RXMENUACTIONPARAM table.  For each of these parameters, any whitespace
-   * found in the parameter value will be removed.
+   * This method will look for all relationship type parameter names in the RXMENUACTIONPARAM table.
+   * For each of these parameters, any whitespace found in the parameter value will be removed.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
-   * @param conn the database connection object, assumed not
-   *           <code>null</code>.
-   * @param configNames the new config name maps to the old config name,
-   *    assumed not <code>null</code>.
-   *
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
+   * @param conn the database connection object, assumed not <code>null</code>.
+   * @param configNames the new config name maps to the old config name, assumed not <code>null
+   *     </code>.
    * @throws Exception if an error occurs.
    */
   private void updateMenuActionParamTable(PrintStream logger, Connection conn, Map configNames)
@@ -1954,15 +1816,14 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
   }
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   protected Properties m_dbProps = null;
 
   /**
-   * It maps the effect (full) name to its known execution contexts. Init when
-   * the class is loaded.
+   * It maps the effect (full) name to its known execution contexts. Init when the class is loaded.
    */
   private static Map ms_knownExeCtx;
 

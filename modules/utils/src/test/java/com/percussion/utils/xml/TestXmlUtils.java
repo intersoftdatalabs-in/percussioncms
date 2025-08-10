@@ -23,9 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the xml utils class
- */
+/** Unit tests for the xml utils class */
 public class TestXmlUtils {
 
   @Test

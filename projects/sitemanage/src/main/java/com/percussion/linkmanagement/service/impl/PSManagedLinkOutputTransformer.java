@@ -23,46 +23,48 @@ import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
+import java.io.File;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.File;
-
 /**
- * Field output transformer to update managed links on edit.
- * Calls the managed link service to do the actual work.
+ * Field output transformer to update managed links on edit. Calls the managed link service to do
+ * the actual work.
+ *
  * @author BJoginipally
  */
-public class PSManagedLinkOutputTransformer extends PSDefaultExtension implements IPSFieldOutputTransformer {
+public class PSManagedLinkOutputTransformer extends PSDefaultExtension
+    implements IPSFieldOutputTransformer {
 
-    private IPSManagedLinkService service;
+  private IPSManagedLinkService service;
 
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException {
-        var ep = new PSExtensionParams(params);
-        var value = ep.getStringParam(0, null, true);
-        if (StringUtils.isBlank(value)) {
-            return value;
-        }
-        var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
-            return value;
-        }
-        value = service.renderLinks(null, value, Integer.parseInt(cid));
-        return value;
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    var ep = new PSExtensionParams(params);
+    var value = ep.getStringParam(0, null, true);
+    if (StringUtils.isBlank(value)) {
+      return value;
     }
-
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-        super.init(def, codeRoot);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+    var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
+      return value;
     }
+    value = service.renderLinks(null, value, Integer.parseInt(cid));
+    return value;
+  }
 
-    /**
-     * Setter for dependency injection.
-     *
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service) {
-        this.service = service;
-    }
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  /**
+   * Setter for dependency injection.
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

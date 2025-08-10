@@ -34,42 +34,41 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Prepares and executes a simple SQL Query using the standard Rhythmyx
- * repository database. Queries can be provided in two ways:
+ * Prepares and executes a simple SQL Query using the standard Rhythmyx repository database. Queries
+ * can be provided in two ways:
+ *
  * <ol>
- * <li>Using a SQL Statement, that may contain parameter placeholders (usually
- * "?"). In this case, an array of parameter objects must be supplied. If no
- * parameters are needed, the list must be <code>empty</code></li>
- * <li>Using an Internal Request. In this case, the request must have already
- * been created. All parameters are passed as part of the create.</li>
+ *   <li>Using a SQL Statement, that may contain parameter placeholders (usually "?"). In this case,
+ *       an array of parameter objects must be supplied. If no parameters are needed, the list must
+ *       be <code>empty</code>
+ *   <li>Using an Internal Request. In this case, the request must have already been created. All
+ *       parameters are passed as part of the create.
  * </ol>
- * <p>
- * The Objects returned from these queries are mapped using the default JDBC
- * type mapping, which differs based on database driver implementation. For
- * example, SQL Server may return an <code>Integer</code> object for a numeric
- * column where Oracle returns a <code>BigDecimal</code>. Since both of these
- * classes are subclasses of <code>Number</code>, callers should assume that
- * numeric values are <code>Number</code> objects unless they wish to perform
- * other special handling, using reflection or similar methods.
- * <p>
- * This class makes no attempt to handle complex datatypes. Longs, CLOBs, Blobs,
- * etc. are not handled.
+ *
+ * <p>The Objects returned from these queries are mapped using the default JDBC type mapping, which
+ * differs based on database driver implementation. For example, SQL Server may return an <code>
+ * Integer</code> object for a numeric column where Oracle returns a <code>BigDecimal</code>. Since
+ * both of these classes are subclasses of <code>Number</code>, callers should assume that numeric
+ * values are <code>Number</code> objects unless they wish to perform other special handling, using
+ * reflection or similar methods.
+ *
+ * <p>This class makes no attempt to handle complex datatypes. Longs, CLOBs, Blobs, etc. are not
+ * handled.
+ *
  * <p>
  *
  * @author DavidBenua
  */
 public class PSSimpleSqlQuery {
-  /**
-   * static methods only, never constructed.
-   */
+  /** static methods only, never constructed. */
   private PSSimpleSqlQuery() {}
 
   /**
    * Perform a query with multiple rows.
    *
    * @param query the SQL statement.
-   * @param params a list of Objects that represent the placeholders in the
-   *           SQL. Never <code>null</code>. May be <code>empty</code>.
+   * @param params a list of Objects that represent the placeholders in the SQL. Never <code>null
+   *     </code>. May be <code>empty</code>.
    * @return a List of Object[] representing the rows of the result set.
    * @throws SQLException
    */
@@ -100,8 +99,8 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * Perform a query based on an Internal Request. The query associated with
-   * the request is processed and returned as a list of Object[];
+   * Perform a query based on an Internal Request. The query associated with the request is
+   * processed and returned as a list of Object[];
    *
    * @param ir the internal request.
    * @return a List of Object[] representing the rows of the result set.
@@ -134,13 +133,13 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * Perform a query that returns only one row. If the query provided returns
-   * only one row, only the first row will be examined.
+   * Perform a query that returns only one row. If the query provided returns only one row, only the
+   * first row will be examined.
    *
    * @param query the SQL query.
    * @param params a List of Objects that represent the parameters.
-   * @return an Object[] that represents the first row returned from the query.
-   *         May be <code>null</code>.
+   * @return an Object[] that represents the first row returned from the query. May be <code>null
+   *     </code>.
    * @throws SQLException
    */
   public static Object[] doSingleRowQuery(String query, List params) throws SQLException {
@@ -167,12 +166,11 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * Perform an Internal Request query that returns only one row. If the query
-   * provided returns only one row, only the first row will be examined.
+   * Perform an Internal Request query that returns only one row. If the query provided returns only
+   * one row, only the first row will be examined.
    *
    * @param ir the Internal Request.
-   * @return an Object[] representing the columns returned by the query. May be
-   *         <code>null</code>
+   * @return an Object[] representing the columns returned by the query. May be <code>null</code>
    * @throws SQLException
    * @throws PSInternalRequestCallException
    */
@@ -199,9 +197,9 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * Clean up after a query. Closes the result sete, statement and connection,
-   * handles any errors and releases the connection back to the pool. Intended
-   * to be called in the <code>finally</code> clause.
+   * Clean up after a query. Closes the result sete, statement and connection, handles any errors
+   * and releases the connection back to the pool. Intended to be called in the <code>finally</code>
+   * clause.
    *
    * @param rs the result set. May be <code>null</code>
    * @param stmt the statement. May be <code>null</code>
@@ -231,13 +229,13 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * Set the parameter list on a prepared statement. The mapping is done using
-   * the default JDBC Type/Object mapping. Note that no checking is done to
-   * assure that the required number of parameters are supplied.
+   * Set the parameter list on a prepared statement. The mapping is done using the default JDBC
+   * Type/Object mapping. Note that no checking is done to assure that the required number of
+   * parameters are supplied.
    *
    * @param stmt the prepared statement. Must not be <code>null</code>
-   * @param params a List of Object suitable for the parameters. Must not be
-   *           <code>null</code> but may be <code>empty</code>
+   * @param params a List of Object suitable for the parameters. Must not be <code>null</code> but
+   *     may be <code>empty</code>
    * @throws SQLException
    */
   private static void setInternalParams(PreparedStatement stmt, List params) throws SQLException {
@@ -250,13 +248,11 @@ public class PSSimpleSqlQuery {
   }
 
   /**
-   * build a result row as an Object[]. The size of the row is determined from
-   * the result set metadata. The object types are determined by the default
-   * JDBC type / object mapping.
+   * build a result row as an Object[]. The size of the row is determined from the result set
+   * metadata. The object types are determined by the default JDBC type / object mapping.
    *
    * @param rs the result set. Must not be <code>null</code>
-   * @return the array of objects representing the current row of the result
-   *         set.
+   * @return the array of objects representing the current row of the result set.
    * @throws SQLException
    */
   private static Object[] buildRowResult(ResultSet rs) throws SQLException {
@@ -285,13 +281,9 @@ public class PSSimpleSqlQuery {
 
   private static final String LOG_MSG_ROW = "Column {0} named {1} typename {2} classname {3}";
 
-  /**
-   * Database pool from Rhythmyx Server
-   */
+  /** Database pool from Rhythmyx Server */
   static PSDatabasePool ms_pool = PSDatabasePool.getDatabasePool();
 
-  /**
-   * Logger for diagnostic messages.
-   */
+  /** Logger for diagnostic messages. */
   private static final Logger ms_log = LogManager.getLogger(PSSimpleSqlQuery.class);
 }

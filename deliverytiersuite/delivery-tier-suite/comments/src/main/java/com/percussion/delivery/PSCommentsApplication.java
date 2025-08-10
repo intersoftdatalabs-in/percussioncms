@@ -34,8 +34,9 @@ import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 /**
- * Jersey application configuration for Percussion CMS REST services.
- * Registers REST resources, filters, and providers.
+ * Jersey application configuration for Percussion CMS REST services. Registers REST resources,
+ * filters, and providers.
+ *
  * @author Sunny Sal
  */
 @ApplicationPath("/")

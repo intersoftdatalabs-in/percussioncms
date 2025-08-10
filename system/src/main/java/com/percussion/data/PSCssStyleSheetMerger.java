@@ -26,47 +26,35 @@ import java.io.OutputStreamWriter;
 import org.w3c.dom.Document;
 
 /**
- * The PSCssStyleSheetMerger class implements CSS support for the
- * IPSStyleSheetMerger interface. This processor does not actually generate
- * HTML output by merging the style sheet. Rather, it depends upon the
- * user agent's support of CSS. It creates an HTML document which
- * contains a reference to the style sheet and the actual XML data.
+ * The PSCssStyleSheetMerger class implements CSS support for the IPSStyleSheetMerger interface.
+ * This processor does not actually generate HTML output by merging the style sheet. Rather, it
+ * depends upon the user agent's support of CSS. It creates an HTML document which contains a
+ * reference to the style sheet and the actual XML data.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCssStyleSheetMerger extends PSStyleSheetMerger {
-  /**
-   * Create an XML + CSS merger.
-   */
+  /** Create an XML + CSS merger. */
   public PSCssStyleSheetMerger() {
     super();
   }
 
   /**
-   * Merge the CSS style sheet defined in the XML document to generate
-   * HTML output. The <code>stylesheet</code> processing instruction
-   * must exist in the XML document and refer to a CSS style sheet.
+   * Merge the CSS style sheet defined in the XML document to generate HTML output. The <code>
+   * stylesheet</code> processing instruction must exist in the XML document and refer to a CSS
+   * style sheet.
    *
-   * @param   req         the request object (may be <code>null</code>)
-   *
-   * @param   doc         the XML document to be processed
-   *
-   * @param   out         the output stream to which the results will be
-   *                      written
-   *
-   * @param   styleFile   the style sheet to use
-   *
-   * @param encoding character encoding to be used in XSL stylesheet output
-   * element. Can be <code>null</code> or empty. (Not used for CSS)
-   *
-   * @throws   PSConversionException
-   *                        if the conversion fails
-   *
-   * @throws  PSUnsupportedConversionException
-   *                      if the style sheet defined in the XML document
-   *                      is of an unsupported type
+   * @param req the request object (may be <code>null</code>)
+   * @param doc the XML document to be processed
+   * @param out the output stream to which the results will be written
+   * @param styleFile the style sheet to use
+   * @param encoding character encoding to be used in XSL stylesheet output element. Can be <code>
+   *     null</code> or empty. (Not used for CSS)
+   * @throws PSConversionException if the conversion fails
+   * @throws PSUnsupportedConversionException if the style sheet defined in the XML document is of
+   *     an unsupported type
    */
   public void merge(
       PSRequest req, Document doc, OutputStream out, java.net.URL styleFile, String encoding)

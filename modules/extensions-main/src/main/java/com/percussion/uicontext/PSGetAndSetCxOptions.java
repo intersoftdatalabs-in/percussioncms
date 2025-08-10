@@ -44,27 +44,25 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class works directly with ContentExplorer PSOptionManager, this
- * loads and persists Option information to the session object.  The option
- * information object will be a <code>Document</code> but will be stored as
- * a <code>String</code> in the session.  This way if there are any parsing
- * problems they will be caught before adding it to the session, so on the
- * way out there won't be any problems and we won't be storing bad data.
+ * This class works directly with ContentExplorer PSOptionManager, this loads and persists Option
+ * information to the session object. The option information object will be a <code>Document</code>
+ * but will be stored as a <code>String</code> in the session. This way if there are any parsing
+ * problems they will be caught before adding it to the session, so on the way out there won't be
+ * any problems and we won't be storing bad data.
  */
 public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
-  /** @see IPSResultDocumentProcessor **/
+  /**
+   * @see IPSResultDocumentProcessor *
+   */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
    * This will store the {@link PSOptionManagerConstants#SESSIONOBJECT_CXOPTIONS
-   * PSOptionManager.SESSIONOBJECT_CXOPTIONS} as the
-   * value in the user session if the
-   * {@link PSOptionManager#LOAD_SAVE_COMMAND_KEY
-   * PSOptionManager.LOAD_SAVE_COMMAND_KEY}
-   * has as its value: {@link PSOptionManagerConstants#SAVE_COMMAND
-   * PSOptionManager.SAVE_COMMAND}.
+   * PSOptionManager.SESSIONOBJECT_CXOPTIONS} as the value in the user session if the {@link
+   * PSOptionManager#LOAD_SAVE_COMMAND_KEY PSOptionManager.LOAD_SAVE_COMMAND_KEY} has as its value:
+   * {@link PSOptionManagerConstants#SAVE_COMMAND PSOptionManager.SAVE_COMMAND}.
    *
    * @see IPSRequestPreProcessor.preProcessRequest(Object, IPSRequestContext)
    */
@@ -83,13 +81,12 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * Creates a Document from a string representation.  This is called when
-   * setting the session value to a doc.
+   * Creates a Document from a string representation. This is called when setting the session value
+   * to a doc.
    *
    * @param theDocString assumed not <code>null</code>.
    * @return Document
-   * @throws PSExtensionProcessingException is there is a problem
-   * parsing the document
+   * @throws PSExtensionProcessingException is there is a problem parsing the document
    */
   private Document createDocFromString(String theDocString) throws PSExtensionProcessingException {
     Document doc = null;
@@ -107,12 +104,10 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * This will return the options document from the session if the
-   * {@link PSOptionManager#LOAD_SAVE_COMMAND_KEY
-   * PSOptionManager.LOAD_SAVE_COMMAND_KEY}
-   * has as its value: {@link PSOptionManagerConstants#LOAD_COMMAND
-   * PSOptionManager.LOAD_COMMAND} if there is one otherwise if those same
-   * conditions are matched this will return the default options document
+   * This will return the options document from the session if the {@link
+   * PSOptionManager#LOAD_SAVE_COMMAND_KEY PSOptionManager.LOAD_SAVE_COMMAND_KEY} has as its value:
+   * {@link PSOptionManagerConstants#LOAD_COMMAND PSOptionManager.LOAD_COMMAND} if there is one
+   * otherwise if those same conditions are matched this will return the default options document
    * from the system.
    *
    * @return will not be <code>null</code>.
@@ -151,6 +146,7 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
 
   /**
    * Initializes the default options document path.
+   *
    * @see IPSResultDocumentProcessor
    */
   public void init(IPSExtensionDef parm1, File parm2) throws PSExtensionException {
@@ -168,10 +164,8 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
    * Gets the proper option doc based on the locale specified in the request.
    *
    * @param request a valid requesta assumed not <code>null</code>.
-   * @return the loaded option doc, may be <code>null</code> if the doc can't
-   * be found.
-   * @throws PSExtensionException will be thrown if there is a problem
-   * loading the doc.
+   * @return the loaded option doc, may be <code>null</code> if the doc can't be found.
+   * @throws PSExtensionException will be thrown if there is a problem loading the doc.
    */
   private Document getOptionDoc(IPSRequestContext request)
       throws PSExtensionProcessingException, PSParameterMismatchException {
@@ -197,9 +191,8 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * This creates the key that corresponds to the option doc in the
-   * session object.  The locale is used in the key so that the user may have
-   * locale based option settings.
+   * This creates the key that corresponds to the option doc in the session object. The locale is
+   * used in the key so that the user may have locale based option settings.
    *
    * @param request assumed not <code>null</code>
    * @return the key whose value will be the option doc.
@@ -212,8 +205,8 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * Initializes the default options document.  This method
-   * caches the loaded doc as value for the supplied locale as key.
+   * Initializes the default options document. This method caches the loaded doc as value for the
+   * supplied locale as key.
    */
   private Document loadOptionDoc(String localeKey) throws PSExtensionProcessingException {
 
@@ -269,26 +262,22 @@ public class PSGetAndSetCxOptions implements IPSResultDocumentProcessor, IPSRequ
   }
 
   /**
-   * This <code>Map</code> contains all of the <code>Locale</code> specific
-   * option documents that have been requested.  This is initialized in the
-   * <code>init()</code> and documents are added as the value with the string
-   * representation of the <code>Locale</code> as the key the first time a
-   * request occurs for a <code>Locale</code> and that <code>Locale</code>
-   * is not in this <code>Map</code>.  Once added, the <code>Locale</code>
-   * and document are then held for the lifetime of this object.
+   * This <code>Map</code> contains all of the <code>Locale</code> specific option documents that
+   * have been requested. This is initialized in the <code>init()</code> and documents are added as
+   * the value with the string representation of the <code>Locale</code> as the key the first time a
+   * request occurs for a <code>Locale</code> and that <code>Locale</code> is not in this <code>Map
+   * </code>. Once added, the <code>Locale</code> and document are then held for the lifetime of
+   * this object.
    */
   private Map m_defaultLocalOptionMap = null;
 
   /**
-   * This is base path to the default option file starting below the
-   * PSServer.RequestRoot() and going until the local directory example:
-   * <code>/Rhythmyx/rx_resources/css</code>.  This is initialized in the
-   * <code>init()</code>, is never <code>null</code> and invariant.
+   * This is base path to the default option file starting below the PSServer.RequestRoot() and
+   * going until the local directory example: <code>/Rhythmyx/rx_resources/css</code>. This is
+   * initialized in the <code>init()</code>, is never <code>null</code> and invariant.
    */
   private String m_defaultOptionPathBase = "";
 
-  /**
-   * The filename that all of the user options must have.
-   */
+  /** The filename that all of the user options must have. */
   private static final String USER_OPTION_FILE_NAME = "UserOptions.xml";
 }

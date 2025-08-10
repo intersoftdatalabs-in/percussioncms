@@ -61,18 +61,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Class to handle packaging and deploying a Filter definition.
+ *
  * @author vamsinukala
  */
 public class PSFilterDefDependencyHandler extends PSDependencyHandler implements IPSIdTypeHandler {
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSFilterDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -80,9 +78,8 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   /**
-   * Helper method to
-   * 1. locate all the filters
-   * 2. generate a map m_namedFiltersMap and m_guidFiltersMap
+   * Helper method to 1. locate all the filters 2. generate a map m_namedFiltersMap and
+   * m_guidFiltersMap
    */
   private void init() {
     if (m_filterSvc == null) {
@@ -184,6 +181,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * From the contentList map, return all the contentList names
+   *
    * @return iterator on a set of names
    */
   public Iterator getFilterNames() {
@@ -220,9 +218,9 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param f the actual filter never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -264,6 +262,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * TROLL thru the object and restore the versions of child-lings ;).
+   *
    * @param f the actual filter never <code>null</code>
    * @param ver the version of filter
    * @throws PSDeployException
@@ -283,9 +282,9 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   /**
-   * See {@link PSDependencyHandler#shouldDeferInstallation()} for more info.
-   * PSItemFilterRuleDef that has an extensionRef needs the extension
-   * in the system else it CHOKES
+   * See {@link PSDependencyHandler#shouldDeferInstallation()} for more info. PSItemFilterRuleDef
+   * that has an extensionRef needs the extension in the system else it CHOKES
+   *
    * @return <code>true</code>, since child items must be installed first.
    */
   @Override
@@ -295,12 +294,13 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * Deserialize the filter and alter its properties so as to be unique.
+   *
    * @param tok
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   * archive, may not be <code>null</code>
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
    * @param dep
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   * may not be <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
    * @param ctx
    * @param filter if any, pre-loaded
    * @return the deserialized filter
@@ -337,16 +337,15 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected Iterator getFilterDependecyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
@@ -380,6 +379,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * Utility method to find the slot by a given guid(as a STRINGGGGGG)
+   *
    * @param depId the guid
    * @return <code>null</code> if slot is not found else get DA SLOT
    * @throws PSDeployException
@@ -454,6 +454,7 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
 
   /**
    * Transform any IdTypes and ids in Bindings .
+   *
    * @param filter the actual filter, never <code>null</code>
    * @param dep the dependency
    * @param ctx import context never <code>null</code>
@@ -470,8 +471,8 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   /**
-   * Recurse thru all the rules and their params and see if they are idmapped,
-   * if so, transform them
+   * Recurse thru all the rules and their params and see if they are idmapped, if so, transform them
+   *
    * @param filter the actual filter, never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @return the filter with transforms performed
@@ -566,34 +567,23 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
     return (c != null) ? true : false;
   }
 
-  /**
-   * A util header for filters for handling serialization
-   */
+  /** A util header for filters for handling serialization */
   private static final String XML_HDR_STR = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "FilterDef";
 
-  /**
-   * Filter Svc
-   */
+  /** Filter Svc */
   private static IPSFilterService m_filterSvc = PSFilterServiceLocator.getFilterService();
 
   private HashMap<String, IPSItemFilter> m_namedFiltersMap = new HashMap<>();
 
   private HashMap<IPSGuid, IPSItemFilter> m_guidFiltersMap = new HashMap<>();
 
-  /**
-   * the rule def params name
-   */
+  /** the rule def params name */
   public static String RULEDEF_ARGS = "RuleDefParams";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

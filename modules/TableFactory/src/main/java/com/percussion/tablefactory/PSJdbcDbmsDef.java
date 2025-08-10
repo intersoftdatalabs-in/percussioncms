@@ -58,17 +58,17 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Defines all information required to connect to a dbms and process a
- * PSJdbcTableSchema object against it.
+ * Defines all information required to connect to a dbms and process a PSJdbcTableSchema object
+ * against it.
  */
 public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
 
   /**
    * Creates an instance of this class using the supplied properties.
    *
-   * @param serverProps A set of properties that provides connection and basic
-   * table information.  May not be <code>null</code>.  Properties expected:
-   * <table>
+   * @param serverProps A set of properties that provides connection and basic table information.
+   *     May not be <code>null</code>. Properties expected:
+   *     <table>
    * <tr>
    * <th>Name</th>
    * <th>Description</th>
@@ -144,8 +144,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * </tr>
    * </table>
    *
-   * @throws IllegalArgumentException if serverProps is <code>null</code> or if
-   * a required property is missing.
+   * @throws IllegalArgumentException if serverProps is <code>null</code> or if a required property
+   *     is missing.
    * @throws PSJdbcTableFactoryException if any other error occurs.
    */
   public PSJdbcDbmsDef(Properties serverProps) throws PSJdbcTableFactoryException {
@@ -191,21 +191,15 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Creates an instance of this class using the database name (dbName) and
-   * driver type. Performs a JNDI lookup for "jdbc/dbName" or "dbName" if the
-   * first name fails
+   * Creates an instance of this class using the database name (dbName) and driver type. Performs a
+   * JNDI lookup for "jdbc/dbName" or "dbName" if the first name fails
    *
-   * @param dbName name of the database to connect to, may not be
-   *    <code>null</code> or empty
-   * @param driverType type of the backend database, one of the constants
-   *    specified in <code>PSSqlHelper</code> (e.g. oracle:thin, inetdae7,
-   *    etc.), may be <code>null</code> or empty to derive it from a
-   *    connection.
-   *
-   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName" both
-   * fail.
-   * @throws IllegalArgumentException if dbName or driverType is
-   *    <code>null</code> or empty.
+   * @param dbName name of the database to connect to, may not be <code>null</code> or empty
+   * @param driverType type of the backend database, one of the constants specified in <code>
+   *     PSSqlHelper</code> (e.g. oracle:thin, inetdae7, etc.), may be <code>null</code> or empty to
+   *     derive it from a connection.
+   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName" both fail.
+   * @throws IllegalArgumentException if dbName or driverType is <code>null</code> or empty.
    */
   public PSJdbcDbmsDef(String dbName, String driverType) throws NamingException {
     this(dbName, driverType, null);
@@ -214,27 +208,20 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   public PSJdbcDbmsDef() {}
 
   /**
-   * Loads the required repository properties from values found in the
-   * following files:
+   * Loads the required repository properties from values found in the following files:
    *
-   * {@link PSJbossProperties#SPRING_CONFIG_FILE},
-   * {@link PSJbossProperties#LOGIN_CONFIG_FILE}
+   * <p>{@link PSJbossProperties#SPRING_CONFIG_FILE}, {@link PSJbossProperties#LOGIN_CONFIG_FILE}
    *
    * @param rxRoot the Rhythmyx root, may not be <code>null</code> or empty.
-   *
-   * @return repository properties, which includes driver, driver class,
-   * server, uid, encrypted password, password, database name, schema.  Never
-   * <code>null</code>, may be empty.
-   *
+   * @return repository properties, which includes driver, driver class, server, uid, encrypted
+   *     password, password, database name, schema. Never <code>null</code>, may be empty.
    * @throws RuntimeException if an error occurs loading the properties.
    * @throws IllegalArgumentException if rxRoot is <code>null</code> or empty.
    * @throws FileNotFoundException if one of the files cannot be found.
-   * @throws PSInvalidXmlException if an error occurs loading datasource
-   * resolver.
+   * @throws PSInvalidXmlException if an error occurs loading datasource resolver.
    * @throws SAXException if an error occurs loading secure credentials.
    * @throws IOException if an error occurs loading properties.
-   * @throws PSMissingApplicationPolicyException if an error occurs loading
-   * jndi datasources
+   * @throws PSMissingApplicationPolicyException if an error occurs loading jndi datasources
    */
   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
   public static Properties loadRxRepositoryProperties(String rxRoot)
@@ -355,24 +342,17 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Creates an instance of this class using the database name (dbName) and
-   * driver type. Performs a JNDI lookup for "jdbc/dbName" or "dbName" if the
-   * first name fails.
+   * Creates an instance of this class using the database name (dbName) and driver type. Performs a
+   * JNDI lookup for "jdbc/dbName" or "dbName" if the first name fails.
    *
-   * @param dbName name of the database to connect to, may not be
-   *    <code>null</code> or empty
-   * @param driverType type of the backend database, one of the constants
-   *    specified in <code>PSSqlHelper</code> (e.g. oracle:thin, inetdae7,
-   *    etc.), may be <code>null</code> or empty to derive it from a
-   *    connection.
-   * @param environment the JNDI environment to use to lookup data sources,
-   *    might be <code>null</code>. Uses the defaults for Tomcat 4.0 if
-   *    nothing is provided.
-   *
-   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName"
-   * both fail.
-   * @throws IllegalArgumentException if dbName or driverType is
-   *    <code>null</code> or empty.
+   * @param dbName name of the database to connect to, may not be <code>null</code> or empty
+   * @param driverType type of the backend database, one of the constants specified in <code>
+   *     PSSqlHelper</code> (e.g. oracle:thin, inetdae7, etc.), may be <code>null</code> or empty to
+   *     derive it from a connection.
+   * @param environment the JNDI environment to use to lookup data sources, might be <code>null
+   *     </code>. Uses the defaults for Tomcat 4.0 if nothing is provided.
+   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName" both fail.
+   * @throws IllegalArgumentException if dbName or driverType is <code>null</code> or empty.
    */
   public PSJdbcDbmsDef(String dbName, String driverType, Properties environment)
       throws NamingException {
@@ -380,29 +360,23 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Creates an instance of this class using the database name (dbName) and
-   * driver type. Performs a JNDI lookup for "jdbc/dbName" or "dbName" if the
-   * first lookup fails. Must supply either dbName or resourceName.
+   * Creates an instance of this class using the database name (dbName) and driver type. Performs a
+   * JNDI lookup for "jdbc/dbName" or "dbName" if the first lookup fails. Must supply either dbName
+   * or resourceName.
    *
-   * @param dbName name of the database to connect to, may be
-   *    <code>null</code> or empty if resourceName is not null and non-empty.
-   * @param resourceName name of the datasource resource to be used, may be
-   *    <code>null</code> or empty if dbName is not null and non-empty.
-   * @param driverType type of the backend database, one of the constants
-   *    specified in <code>PSSqlHelper</code> (e.g. oracle:thin, inetdae7,
-   *    etc.), may be <code>null</code> or empty to derive it from a
-   *    connection.
-   * @param origin the origin or schema name to qualify tables. May be
-   *    <code>null</code> or empty except when driverType = "Oracle" and
-   *    resourceName is not null and non-empty.
-   * @param environment the JNDI environment to use to lookup data sources,
-   *    might be <code>null</code>. Uses the defaults for Tomcat 4.0 if
-   *    nothing is provided.
-   *
-   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName"
-   * both fail.
-   * @throws IllegalArgumentException if dbName or driverType is
-   *    <code>null</code> or empty.
+   * @param dbName name of the database to connect to, may be <code>null</code> or empty if
+   *     resourceName is not null and non-empty.
+   * @param resourceName name of the datasource resource to be used, may be <code>null</code> or
+   *     empty if dbName is not null and non-empty.
+   * @param driverType type of the backend database, one of the constants specified in <code>
+   *     PSSqlHelper</code> (e.g. oracle:thin, inetdae7, etc.), may be <code>null</code> or empty to
+   *     derive it from a connection.
+   * @param origin the origin or schema name to qualify tables. May be <code>null</code> or empty
+   *     except when driverType = "Oracle" and resourceName is not null and non-empty.
+   * @param environment the JNDI environment to use to lookup data sources, might be <code>null
+   *     </code>. Uses the defaults for Tomcat 4.0 if nothing is provided.
+   * @throws NamingException if JNDI lookup for "jdbc/dbName" and "dbName" both fail.
+   * @throws IllegalArgumentException if dbName or driverType is <code>null</code> or empty.
    */
   public PSJdbcDbmsDef(
       String dbName, String resourceName, String driverType, String origin, Properties environment)
@@ -429,13 +403,10 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * Initialize this object from a datasource.
    *
    * @param dataSource The datasource to use, assumed not <code>null</code>.
-   * @param driverType The JDBC driver name, may be <code>null</code> or empty
-   * to derive it from the data source.
-   * @param origin The origin or schema to use, may be <code>null</code> or
-   * empty.
-   *
-   * @throws NamingException If there is an error attempting to derive the
-   * JDBC driver name.
+   * @param driverType The JDBC driver name, may be <code>null</code> or empty to derive it from the
+   *     data source.
+   * @param origin The origin or schema to use, may be <code>null</code> or empty.
+   * @throws NamingException If there is an error attempting to derive the JDBC driver name.
    */
   protected void init(DataSource dataSource, String driverType, String origin)
       throws NamingException {
@@ -485,10 +456,9 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   /**
    * Obtains a connection to the database.
    *
-   * @throws SQLException if database connection using the parameters
-   * specified in the property file fails.
-   * @throws PSJdbcTableFactoryException if database connection using the
-   * datasource object fails.
+   * @throws SQLException if database connection using the parameters specified in the property file
+   *     fails.
+   * @throws PSJdbcTableFactoryException if database connection using the datasource object fails.
    */
   public Connection getConnection() throws SQLException, PSJdbcTableFactoryException {
     Connection conn = null;
@@ -546,6 +516,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
 
   /**
    * Lookup and return the correct type map for this database definition
+   *
    * @return a new data type map based on this database definition
    */
   public PSJdbcDataTypeMap getTypemap()
@@ -554,8 +525,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Returns the alias of the Back End database type, used to select the
-   * appropriate datatype mappings.
+   * Returns the alias of the Back End database type, used to select the appropriate datatype
+   * mappings.
    *
    * @return The alias, may be <code>null</code>, never empty.
    */
@@ -584,8 +555,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   /**
    * Returns the name of the server to connect to.
    *
-   * @return The server name, might be <code>null</code> or empty if this was
-   *    created through the JNDI lookup ctor.
+   * @return The server name, might be <code>null</code> or empty if this was created through the
+   *     JNDI lookup ctor.
    */
   public String getServer() {
     return m_server;
@@ -632,11 +603,9 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    *
    * @param props The properties object, assumed not <code>null</code>.
    * @param name The property to get, assumed not <code>null</code> or empty.
-   *
    * @return The property value, never <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException with the appropriate message if the
-   * property value is <code>null</code> or empty.
+   * @throws IllegalArgumentException with the appropriate message if the property value is <code>
+   *     null</code> or empty.
    */
   private String getRequiredProperty(Properties props, String name) {
     String value = props.getProperty(name);
@@ -651,9 +620,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcDbmsDef with
-   *    identical values. Comparison is case sensitive.  Otherwise returns
-   *    <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcDbmsDef with identical values. Comparison is
+   *     case sensitive. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -681,9 +649,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Overridden to fulfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fulfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -701,27 +668,21 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Performs a JNDI name lookup based on the database name
-   * to obtain DataSource object which will be used to
-   * obtain database connections.
+   * Performs a JNDI name lookup based on the database name to obtain DataSource object which will
+   * be used to obtain database connections.
    *
-   * Returns a <code> javax.sql.DataSource </code> object.
+   * <p>Returns a <code> javax.sql.DataSource </code> object.
    *
-   * @param dataSourceName name of the context for which the
-   * JNDI name lookup will be done in the web servers properties file
-   * (like server.xml for tomcat). The context name should be of
-   * the type "jdbc/dataSourceName". This param may not be
-   * <code>null</code> or empty.
-   * @param environment the context environment properties to use to make the
-   *    lookup, might be <code>null</code>. Uses the defaults (for Tomcat 4.0)
-   *    if nothing is provided.
-   * @return DataSource the requested JNDI data source, never
-   *    <code>null</code>.
-   * @throws NamingException if it fails to obtain the
-   * initial context for performing the JNDI name lookup.
-   * @throws MissingResourceException if it fails to
-   * obtain the datasource after performing the JNDI
-   * name lookup.
+   * @param dataSourceName name of the context for which the JNDI name lookup will be done in the
+   *     web servers properties file (like server.xml for tomcat). The context name should be of the
+   *     type "jdbc/dataSourceName". This param may not be <code>null</code> or empty.
+   * @param environment the context environment properties to use to make the lookup, might be
+   *     <code>null</code>. Uses the defaults (for Tomcat 4.0) if nothing is provided.
+   * @return DataSource the requested JNDI data source, never <code>null</code>.
+   * @throws NamingException if it fails to obtain the initial context for performing the JNDI name
+   *     lookup.
+   * @throws MissingResourceException if it fails to obtain the datasource after performing the JNDI
+   *     name lookup.
    */
   private DataSource getDataSource(String dataSourceName, Properties environment)
       throws MissingResourceException, NamingException {
@@ -758,18 +719,14 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Lookup datasource using jndi. Always start by looking it up prepending
-   * the string "jdbc/". If this fails, then try looking it up without
-   * the prepended string. This is done to maintain backward compatibility
-   * for applications.
+   * Lookup datasource using jndi. Always start by looking it up prepending the string "jdbc/". If
+   * this fails, then try looking it up without the prepended string. This is done to maintain
+   * backward compatibility for applications.
    *
-   * @param envCtx the JNDI naming context to be used for the lookup,
-   * assumed non-<code>null</code>
-   * @param dataSourceName the datasource name being looked up, assumed
-   * non-<code>null</code>
+   * @param envCtx the JNDI naming context to be used for the lookup, assumed non-<code>null</code>
+   * @param dataSourceName the datasource name being looked up, assumed non-<code>null</code>
    * @return the datasource, will never be <code>null</code>
-   * @throws NamingException if the given datasource is not present or
-   * is not accessible
+   * @throws NamingException if the given datasource is not present or is not accessible
    */
   private DataSource lookupDatasource(Context envCtx, String dataSourceName)
       throws NamingException {
@@ -786,8 +743,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   /**
    * Encrypts the supplied String using the rot13 algorithm on each character.
    *
-   * @param val The value to encrypt.  Assumed not <code>null</code> or empty.
-   *
+   * @param val The value to encrypt. Assumed not <code>null</code> or empty.
    * @return The encrypted string, never <code>null</code> or empty.
    */
   @Deprecated
@@ -802,6 +758,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
 
   /**
    * Encrypts the supplied char using the rot13 algorithm
+   *
    * @param ch The char to encrypt.
    * @return The encrypted char.
    */
@@ -824,8 +781,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * Returns the key value to use as part one with the Rhythmyx encryption
-   * algorithm.
+   * Returns the key value to use as part one with the Rhythmyx encryption algorithm.
    *
    * @return The key, never <code>null</code> or empty.
    */
@@ -836,8 +792,8 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
   }
 
   /**
-   * The constant for the partone key for the Rx encryption algorithm.  The
-   * constant is encrypted by the {@link #rot13(char)} method.
+   * The constant for the partone key for the Rx encryption algorithm. The constant is encrypted by
+   * the {@link #rot13(char)} method.
    */
   @Deprecated
   private static final String PART_ONE =
@@ -846,67 +802,63 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
           .PART_ONE();
 
   /**
-   * The alias for the backend database type.  Initialized in the ctor, may be
-   * <code>null</code>, never empty or modified after that.
+   * The alias for the backend database type. Initialized in the ctor, may be <code>null</code>,
+   * never empty or modified after that.
    */
   private String m_backendDb;
 
   /**
-   * The name of the Jdbc driver.  Initialized in the ctor, never <code>null
+   * The name of the Jdbc driver. Initialized in the ctor, never <code>null
    * </code>, empty, or modified after that.
    */
   private String m_driver;
 
   /**
-   * The Jdbc driver class name.  Initialized in the ctor, never <code>null
+   * The Jdbc driver class name. Initialized in the ctor, never <code>null
    * </code>, empty, or modified after that.
    */
   private String m_class;
 
   /**
-   * The name of the server. Initialized in the ctor. Is <code>null</code> if
-   * constructed using JNDI. Never empty or modified after construction.
+   * The name of the server. Initialized in the ctor. Is <code>null</code> if constructed using
+   * JNDI. Never empty or modified after construction.
    */
   private String m_server;
 
   /**
-   * The name of the database.  Initialized in the ctor, may be <code>null
+   * The name of the database. Initialized in the ctor, may be <code>null
    * </code> or empty, never modified after that.
    */
   private String m_database;
 
   /**
-   * The name of the schema or origin.  Initialized in the ctor, may be <code>
+   * The name of the schema or origin. Initialized in the ctor, may be <code>
    * null</code> or empty, never modified after that.
    */
   private String m_schema;
 
   /**
-   * The user id to login with.  Initialized in the ctor, may be <code>null
+   * The user id to login with. Initialized in the ctor, may be <code>null
    * </code> or empty, never modified after that.
    */
   private String m_uid;
 
   /**
-   * The password to login with, unencrypted.  Initialized in the ctor, may be
-   * <code>null</code> or empty, never modified after that.
+   * The password to login with, unencrypted. Initialized in the ctor, may be <code>null</code> or
+   * empty, never modified after that.
    */
   private String m_pw;
 
-  /**
-   * The DataSource object for JNDI connection to the database.  Initialized
-   * in the ctor.
-   */
+  /** The DataSource object for JNDI connection to the database. Initialized in the ctor. */
   private DataSource m_dataSource = null;
 
-  /**
-   * Default string for initial JNDI context lookup.
-   */
+  /** Default string for initial JNDI context lookup. */
   private static String DEFAULT_ENV = "java:comp/env";
 
   /**
-   * Binary storage location file, if not <code>null</code> the BLOB content is stored under this folder
-   * with a name generated from md5hash of content and same hash is saved part of table data xml.
+   * Binary storage location file, if not <code>null</code> the BLOB content is stored under this
+   * folder with a name generated from md5hash of content and same hash is saved part of table data
+   * xml.
    */
   private File m_binaryStorageLocation = null;
 

@@ -20,24 +20,23 @@ import com.percussion.util.PSPreparedStatement;
 import java.sql.SQLException;
 
 /**
- * This abstract class provides methods and members and a framework for
- * implementing workflow contexts that retrieve multiple data sets.<BR>
- * Creating a read-only workflow context minimally requires implementing
- * {@link #AccumulateCurrentDataSet} {@link #MoveAccumulatedDataSet} in
- * addition to the methods required by {@link PSAbstractWorkflowContext}, which
- * this class extends. Those methods are: a constructor,
- * {@link PSAbstractWorkflowContext#getQueryString},
- * {@link PSAbstractWorkflowContext#setQueryParameters},
- * {@link PSAbstractWorkflowContext#setQueryParameters} and any get methods
- * required by the corresponding workflow interface.<BR>
+ * This abstract class provides methods and members and a framework for implementing workflow
+ * contexts that retrieve multiple data sets.<br>
+ * Creating a read-only workflow context minimally requires implementing {@link
+ * #AccumulateCurrentDataSet} {@link #MoveAccumulatedDataSet} in addition to the methods required by
+ * {@link PSAbstractWorkflowContext}, which this class extends. Those methods are: a constructor,
+ * {@link PSAbstractWorkflowContext#getQueryString}, {@link
+ * PSAbstractWorkflowContext#setQueryParameters}, {@link
+ * PSAbstractWorkflowContext#setQueryParameters} and any get methods required by the corresponding
+ * workflow interface.<br>
  */
 public abstract class PSAbstractMultipleRecordWorkflowContext extends PSAbstractWorkflowContext {
   /**
-   * Moves the next data set into the context data variables, so they can be
-   * obtained via the context "get" methods.
+   * Moves the next data set into the context data variables, so they can be obtained via the
+   * context "get" methods.
    *
-   * @return <CODE>true</CODE> if data has been moved into the context data
-   * variables , else <CODE>false</CODE> if there are no more data sets.
+   * @return <CODE>true</CODE> if data has been moved into the context data variables , else <CODE>
+   *     false</CODE> if there are no more data sets.
    */
   public boolean moveNext() {
     currentContextDataIndex++;
@@ -73,8 +72,7 @@ public abstract class PSAbstractMultipleRecordWorkflowContext extends PSAbstract
   }
 
   /**
-   * Add data from the current result set to array lists or other
-   * structures.  <BR>
+   * Add data from the current result set to array lists or other structures. <br>
    * Works in concert with {@link #MoveAccumulatedDataSet}
    */
   // see PSTransitionNotificationsContext for a sample implementation

@@ -52,8 +52,7 @@ public class NamespacedInternalResourceViewResolver extends InternalResourceView
   }
 
   /**
-   * @param namespace
-   *            the namespace to set
+   * @param namespace the namespace to set
    */
   public void setNamespace(String namespace) {
     m_namespace = namespace;

@@ -33,38 +33,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Intercepts requests and extracts the tenant id. Authorizes the tenant id. Sets the tenant id
- * on the tenant context.
+ * Intercepts requests and extracts the tenant id. Authorizes the tenant id. Sets the tenant id on
+ * the tenant context.
  *
- * Caches authorizations to insure request performance.
+ * <p>Caches authorizations to insure request performance.
  *
  * @author erikserating
- *
  */
 @Deprecated
 public class PSTenantSecurityFilter implements Filter {
 
-  /**
-   * Log for this class.
-   */
+  /** Log for this class. */
   private static final Logger log = LogManager.getLogger(PSTenantSecurityFilter.class);
 
-  /**
-   * Tenant authorization provider.
-   */
+  /** Tenant authorization provider. */
   private IPSTenantAuthorization tenantAuth = null;
 
   private IPSTenantCache cache = null;
 
-  /**
-   * The header and query string parameter name for the tenant id.
-   */
+  /** The header and query string parameter name for the tenant id. */
   public static final String TENANTID_PARAM_NAME = "perc-tid";
 
   public static final String DEFAULT_COMPANY = "Percussion Software";
 
   /**
    * Create a new security filter.
+   *
    * @param tenantAuth cannot be <code>null</code>.
    */
   public PSTenantSecurityFilter(IPSTenantAuthorization tenantAuth, IPSTenantCache tenantCache) {
@@ -90,7 +84,8 @@ public class PSTenantSecurityFilter implements Filter {
   }
 
   /**
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
+   *     javax.servlet.FilterChain)
    */
   public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
       throws IOException, ServletException {
@@ -191,9 +186,9 @@ public class PSTenantSecurityFilter implements Filter {
   }
 
   /**
-   * Helper method to extract the tenant id from the request. The tenant id
-   * can be found on the header or in the query string parameter. The header
-   * takes precedence.
+   * Helper method to extract the tenant id from the request. The tenant id can be found on the
+   * header or in the query string parameter. The header takes precedence.
+   *
    * @param req assumed not <code>null</code>.
    * @return the tenant id if found or <code>null</code> if not found.
    */
@@ -253,8 +248,8 @@ public class PSTenantSecurityFilter implements Filter {
   }
 
   /**
-   * Returns the authorization cache used by the filter to cache authorization of
-   * tenants per request.
+   * Returns the authorization cache used by the filter to cache authorization of tenants per
+   * request.
    *
    * @return the cache
    */

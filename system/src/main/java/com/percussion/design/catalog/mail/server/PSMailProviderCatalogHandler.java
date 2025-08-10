@@ -26,18 +26,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSMailProviderCatalogHandler class implements cataloging of
- * mail providers. This request type is used to locate the mail providers
- * available to the E2 server for sending e-mail messages.
- * <p>
- * Mail provider catalog requests are sent to the server using the
- * PSXMailProviderCatalog XML document. Its definition is as follows:
+ * The PSMailProviderCatalogHandler class implements cataloging of mail providers. This request type
+ * is used to locate the mail providers available to the E2 server for sending e-mail messages.
+ *
+ * <p>Mail provider catalog requests are sent to the server using the PSXMailProviderCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXMailProviderCatalog EMPTY&gt;
  * </pre>
  *
- * The PSXMailProviderCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXMailProviderCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXMailProviderCatalogResults (Provider*)&gt;
  *
@@ -77,16 +78,14 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT description    (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSMailProviderCatalogHandler
     extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSMailProviderCatalogHandler() {
     super();
   }
@@ -94,10 +93,9 @@ public class PSMailProviderCatalogHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_requestDTD};
@@ -106,12 +104,10 @@ public class PSMailProviderCatalogHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -165,9 +161,7 @@ public class PSMailProviderCatalogHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

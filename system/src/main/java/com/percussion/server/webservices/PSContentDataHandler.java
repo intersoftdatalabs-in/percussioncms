@@ -43,24 +43,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle all content data related operations for
- * webservices. These operations are specified in the "ContentData" port in the
- * <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSContentData}.
+ * This class is used to handle all content data related operations for webservices. These
+ * operations are specified in the "ContentData" port in the <code>WebServices.wsdl</code>. @See
+ * {@link com.percussion.hooks.webservices.PSWSContentData}.
  */
 @Transactional
 @PSBaseBean("sys_contentDataHandler")
 public class PSContentDataHandler extends PSSearchHandler implements IPSContentDataHandler {
   /**
-   * This operation is used to retrieve a content item in standard item format.
-   * see sys_StandardItem.xsd for more info.
+   * This operation is used to retrieve a content item in standard item format. see
+   * sys_StandardItem.xsd for more info.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void openItemAction(PSRequest request, Document parent) throws PSException {
@@ -92,14 +88,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to retrieve a child table of a specific
-   * content id in standard item format.
+   * This operation is used to retrieve a child table of a specific content id in standard item
+   * format.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void openChildAction(PSRequest request, Document parent) throws PSException {
@@ -134,14 +128,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to retrieve all related content of a specific
-   * content id in standard item format.
+   * This operation is used to retrieve all related content of a specific content id in standard
+   * item format.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void openRelatedAction(PSRequest request, Document parent) throws PSException {
@@ -163,14 +155,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to retrieve a specific field of a specific
-   * content id in standard item format.
+   * This operation is used to retrieve a specific field of a specific content id in standard item
+   * format.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void openFieldAction(PSRequest request, Document parent) throws PSException {
@@ -204,15 +194,9 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   /**
    * Private helper function to return a loaded PSServerItem object.
    *
-   * @param request the original request sent to the handler,
-   *    assumed not <code>null</code>
-   *
-   * @param includeBinary flag indicating that binary data types should be
-   *    loaded
-   *
-   * @return PSServerItem completely loaded if the item exists,
-   *    never <code>null</code>
-   *
+   * @param request the original request sent to the handler, assumed not <code>null</code>
+   * @param includeBinary flag indicating that binary data types should be loaded
+   * @return PSServerItem completely loaded if the item exists, never <code>null</code>
    * @throws PSException
    */
   private PSServerItem openItem(PSRequest request, boolean includeBinary) throws PSException {
@@ -239,14 +223,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to retrieve a blank copy of a new
-   * content item, specified by the content type id.
+   * This operation is used to retrieve a blank copy of a new content item, specified by the content
+   * type id.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void newItemAction(PSRequest request, Document parent) throws PSException {
@@ -274,10 +256,8 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
    * This operation is used to make a clone of the specified content item.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void newCopyAction(PSRequest request, Document parent) throws PSException {
@@ -297,20 +277,17 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * Create a 'New Copy' for a specified item. This calls the relationship
-   * handler to create a 'New Copy' relationship according to the 'New Copy'
-   * relationship definition.
-   * <p>Note: This was made public for testing purposes. It should not be
-   * accessed by production code (previously it was package).
+   * Create a 'New Copy' for a specified item. This calls the relationship handler to create a 'New
+   * Copy' relationship according to the 'New Copy' relationship definition.
    *
-   * @param request The request object. It may not be <code>null</code>.
-   *    Its parameters contain the locator of the item for which to create a
-   *    'New Copy', <code>IPSHtmlParameters.SYS_CONTENTID</code> and
-   *    <code>IPSHtmlParameters.SYS_REVISION</code>.
+   * <p>Note: This was made public for testing purposes. It should not be accessed by production
+   * code (previously it was package).
    *
-   * @return the original request which contains the locator of the
-   *    'New Copy' item, never <code>null</code>.
-   *
+   * @param request The request object. It may not be <code>null</code>. Its parameters contain the
+   *     locator of the item for which to create a 'New Copy', <code>IPSHtmlParameters.SYS_CONTENTID
+   *     </code> and <code>IPSHtmlParameters.SYS_REVISION</code>.
+   * @return the original request which contains the locator of the 'New Copy' item, never <code>
+   *     null</code>.
    * @throws PSException
    */
   @Override
@@ -338,10 +315,9 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   /**
    * This operation is used purge one or more content items.
    *
-   * @param request the request object through which the contentid of all
-   *    items to be purged are supplied, not <code>null</code>.
-   * @param parent the parent document to add the response element to,
-   *    not <code>null</code>.
+   * @param request the request object through which the contentid of all items to be purged are
+   *     supplied, not <code>null</code>.
+   * @param parent the parent document to add the response element to, not <code>null</code>.
    * @throws PSException if any error occurs.
    */
   public void purgeItemsAction(PSRequest request, Document parent)
@@ -360,12 +336,10 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   /**
    * Purge all content items for the supplied request.
    *
-   * @param request the request to be executed, not <code>null</code>. The
-   *    request must supply the <code>IPSHtmlParameters.SYS_CONTENTID</code>
-   *    parameter either as single value or list with all content id's for
-   *    which to purge the items. If the parameter
-   *    <code>IPSHtmlParameters.SYS_CONTENTID</code> is not supplied the
-   *    request does nothing.
+   * @param request the request to be executed, not <code>null</code>. The request must supply the
+   *     <code>IPSHtmlParameters.SYS_CONTENTID</code> parameter either as single value or list with
+   *     all content id's for which to purge the items. If the parameter <code>
+   *     IPSHtmlParameters.SYS_CONTENTID</code> is not supplied the request does nothing.
    * @throws PSException if anything goes wrong making the request.
    */
   public static void purgeItems(PSRequest request) throws PSException, PSValidationException {
@@ -386,10 +360,9 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   /**
    * Purge the specified content items.
    *
-   * @param request the request used for the purge operation,
-   *                not <code>null</code>.
-   * @param itemIds the to be purged item ids, not <code>null</code>, may
-   *                be empty. Do nothing if it is empty.
+   * @param request the request used for the purge operation, not <code>null</code>.
+   * @param itemIds the to be purged item ids, not <code>null</code>, may be empty. Do nothing if it
+   *     is empty.
    * @throws PSException if anything goes wrong making the request.
    */
   public static void purgeItems(PSRequest request, List<String> itemIds)
@@ -409,13 +382,11 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * Creates an <code>ContentKey</code> element for the specified item locator.
-   * The created element have the standard-item namespace.
+   * Creates an <code>ContentKey</code> element for the specified item locator. The created element
+   * have the standard-item namespace.
    *
-   * @param doc The document used to create the element, assume not
-   *    <code>null</code>.
+   * @param doc The document used to create the element, assume not <code>null</code>.
    * @param loc The item locator, assume not <code>null</code>.
-   *
    * @return The created element, never <code>null</code>.
    */
   private Element makeContentKeyElement(Document doc, PSLocator loc) {
@@ -428,14 +399,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to update the contents of a specific content item.
-   * If there is not content key defined, then an insert is called.
+   * This operation is used to update the contents of a specific content item. If there is not
+   * content key defined, then an insert is called.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void updateItemAction(PSRequest request, Document parent) throws PSException {
@@ -488,17 +457,12 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   /**
    * A helper method to update a specified item into the database.
    *
-   * @param request The current request object, it may not be
-   *    <code>null</code>.
-   * @param item The to be updated item in XML. It may not be
-   *    <code>null</code>.
-   * @param loc The locator of the to be updated item. It may not be
-   *    <code>null</code>.
-   * @param typeId The content type id of the to be updated item. It must be
-   *    greater than <code>0</code>.
-   *
+   * @param request The current request object, it may not be <code>null</code>.
+   * @param item The to be updated item in XML. It may not be <code>null</code>.
+   * @param loc The locator of the to be updated item. It may not be <code>null</code>.
+   * @param typeId The content type id of the to be updated item. It must be greater than <code>0
+   *     </code>.
    * @return The updated item, never <code>null</code>.
-   *
    * @throws PSException if an error occurs.
    */
   @Override
@@ -525,14 +489,11 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to insert a new content item, based on the
-   * specified content type.
+   * This operation is used to insert a new content item, based on the specified content type.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   private void processInsertItemAction(PSRequest request, Document parent) throws PSException {
@@ -565,11 +526,9 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
    * Package protected operation to insert a new content item into the system.
    *
    * @param request The orignal request object, assumed not <code>null</code>.
-   * @param contentType The specific content type to create the new item with,
-   *    this is used to create a new <code>PSServerItem</code> object, must not
-   *    be <code>null</code>.
-   * @param item The xml representation of the item to be inserted, must not be
-   *    <code>null</code>.
+   * @param contentType The specific content type to create the new item with, this is used to
+   *     create a new <code>PSServerItem</code> object, must not be <code>null</code>.
+   * @param item The xml representation of the item to be inserted, must not be <code>null</code>.
    */
   @Override
   public void processInsertItem(PSRequest request, String contentType, Element item)
@@ -598,16 +557,13 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * This operation is used to promote the specific content item to a new
-   * revision. This is effectively done by checking out a specific revision
-   * and then checking it back in, making sure that the checkout updates the
-   * revision id.
+   * This operation is used to promote the specific content item to a new revision. This is
+   * effectively done by checking out a specific revision and then checking it back in, making sure
+   * that the checkout updates the revision id.
    *
    * @param request The request object. It may not be <code>null</code>.
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException if any error occurs.
    */
   void promoteRevisionAction(PSRequest request, Document parent) throws PSException {
@@ -633,8 +589,7 @@ public class PSContentDataHandler extends PSSearchHandler implements IPSContentD
   }
 
   /**
-   * Constants for XML elements/attributes defined in the
-   * schema <code>sys_ContentData.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_ContentData.xsd</code>
    */
   private static final String EL_INCLUDECHILDREN = "IncludeChildren";
 

@@ -60,28 +60,27 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Creates the builders used to compose new documents of a specific type.
- * These builders are then used by the base class when it is processing a
- * request. No internal requests are used by this handler.
- * <p>Each new handler is composed of 1 or more builders. There is always a
- * builder for the parent row editor. Then there will be a builder for each
- * complex child. Summary editors for complex children are always handled by
- * the edit handler, not this handler.
+ * Creates the builders used to compose new documents of a specific type. These builders are then
+ * used by the base class when it is processing a request. No internal requests are used by this
+ * handler.
+ *
+ * <p>Each new handler is composed of 1 or more builders. There is always a builder for the parent
+ * row editor. Then there will be a builder for each complex child. Summary editors for complex
+ * children are always handled by the edit handler, not this handler.
  */
 public class PSEditCommandHandler extends PSQueryCommandHandler {
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "edit";
 
   /**
-   * Creates a handler to process requests for modifying existing content
-   * items.
-   * <p>See {@link PSQueryCommandHandler#PSQueryCommandHandler(
-   * PSApplicationHandler, PSContentEditorHandler, PSContentEditor,
-   * PSApplication, String) base} class for a description of the params and
-   * exception.
+   * Creates a handler to process requests for modifying existing content items.
+   *
+   * <p>See {@link PSQueryCommandHandler#PSQueryCommandHandler( PSApplicationHandler,
+   * PSContentEditorHandler, PSContentEditor, PSApplication, String) base} class for a description
+   * of the params and exception.
    */
   public PSEditCommandHandler(
       PSApplicationHandler ah, PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app)
@@ -149,19 +148,15 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * This method will set up the parameters for the
-   * authenticateUser exit. This is called by the base classes
-   * processRequest method before it does its work.
+   * This method will set up the parameters for the authenticateUser exit. This is called by the
+   * base classes processRequest method before it does its work.
    *
-   * @param req the request needed to make an internal request
-   *  to get workflow communities. Assumed not <code>null</code>.
-   * @throws PSInternalRequestCallException if the request to get
-   *  the list of workflows for a community fails while processing.
-   * @throws PSAuthorizationException if the user is not authorized to
-   *  execute the query.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   *  authenticated.
-   *
+   * @param req the request needed to make an internal request to get workflow communities. Assumed
+   *     not <code>null</code>.
+   * @throws PSInternalRequestCallException if the request to get the list of workflows for a
+   *     community fails while processing.
+   * @throws PSAuthorizationException if the user is not authorized to execute the query.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
    */
   @Override
   public void preProcessRequest(PSRequest req)
@@ -185,14 +180,13 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Returns the map of PSPageInfo objects keyed to the page id. This should
-   * be treated as a read-only object by the caller as it is the actual map
-   * used by this handler. Any changes to the object would affect the handler.
-   * The value of the key of the primary page is always {@link
+   * Returns the map of PSPageInfo objects keyed to the page id. This should be treated as a
+   * read-only object by the caller as it is the actual map used by this handler. Any changes to the
+   * object would affect the handler. The value of the key of the primary page is always {@link
    * PSQueryCommandHandler#ROOT_PARENT_PAGE_ID}.
    *
-   * @return A map containing PSPageInfo objects with their corresponding
-   *    pageId as the key (as an Integer). Never empty.
+   * @return A map containing PSPageInfo objects with their corresponding pageId as the key (as an
+   *     Integer). Never empty.
    */
   public Map getPageMap() {
     return m_pageInfo;
@@ -233,21 +227,16 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Creates all of the keys and their replacement values needed to query
-   * the data for some child table. The root editor is associated with the
-   * top level table. SDMP children have a table depth equal to the parent
-   * table while all other child tables have a tableDepth 1 greater than
-   * their parent.
+   * Creates all of the keys and their replacement values needed to query the data for some child
+   * table. The root editor is associated with the top level table. SDMP children have a table depth
+   * equal to the parent table while all other child tables have a tableDepth 1 greater than their
+   * parent.
    *
-   * @param tableDepth Where in the hierarchy of tables is the table for
-   *    which you want the key(s). The top table is 0. Must be greater
-   *    than or equal to zero.
-   *
-   * @return A set where each element in the set is a Map.Entry, whose key is
-   *    the backend column name and whose value is the HTML parameter name
-   *    from which the key will be obtained. Never <code>null</code> or
-   *    empty.
-   *
+   * @param tableDepth Where in the hierarchy of tables is the table for which you want the key(s).
+   *     The top table is 0. Must be greater than or equal to zero.
+   * @return A set where each element in the set is a Map.Entry, whose key is the backend column
+   *     name and whose value is the HTML parameter name from which the key will be obtained. Never
+   *     <code>null</code> or empty.
    * @throws IllegalArgumentException if tableDepth is < 0.
    */
   private Set getQueryKeys(int tableDepth) {
@@ -275,17 +264,14 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Creates a new mapper for each SDMP fieldset referenced by a mapping in
-   * the supplied mapper. Each mapper contains all of the mappings for the
-   * associated fieldset in the same order they appear in the supplied
-   * mapper.
+   * Creates a new mapper for each SDMP fieldset referenced by a mapping in the supplied mapper.
+   * Each mapper contains all of the mappings for the associated fieldset in the same order they
+   * appear in the supplied mapper.
    *
    * @param fields A valid fieldset. Assumed not <code>null</code>.
-   *
    * @param dispMapper A valid mapper. Assumed not <code>null</code>.
-   *
-   * @return A valid list containing 0 or more entries. Each entry is a
-   *    PSDisplayMapper with 1 or more mappings.
+   * @return A valid list containing 0 or more entries. Each entry is a PSDisplayMapper with 1 or
+   *     more mappings.
    */
   private static List buildSdmpChildMappers(PSFieldSet fields, PSDisplayMapper dispMapper) {
     // This list contains 1 PSMapPair entry for each sdmp child
@@ -322,17 +308,13 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Walks the list of objects, looking at the key of each one until
-   * it finds key or there are no more entries in the list. It compares the
-   * objects using the <code>equals</code> method.
+   * Walks the list of objects, looking at the key of each one until it finds key or there are no
+   * more entries in the list. It compares the objects using the <code>equals</code> method.
    *
-   * @param pairs A valid list of 0 or more entries. Each entry is a PSMapPair.
-   *    Assumed not <code>null</code>.
-   *
+   * @param pairs A valid list of 0 or more entries. Each entry is a PSMapPair. Assumed not <code>
+   *     null</code>.
    * @param key A valid ref. Assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the list contains an entry whose key
-   *    matches the supplied key.
+   * @return <code>true</code> if the list contains an entry whose key matches the supplied key.
    */
   private static boolean contains(List pairs, Object key) {
     boolean found = false;
@@ -345,18 +327,14 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Walks the list of objects, looking at the key of each one until
-   * it finds key or there are no more entries in the list. It compares the
-   * objects using the <code>equals</code> method. The matching entry is
-   * returned.
+   * Walks the list of objects, looking at the key of each one until it finds key or there are no
+   * more entries in the list. It compares the objects using the <code>equals</code> method. The
+   * matching entry is returned.
    *
-   * @param pairs A valid list of 0 or more entries. Each entry is a PSMapPair.
-   *    Assumed not <code>null</code>.
-   *
+   * @param pairs A valid list of 0 or more entries. Each entry is a PSMapPair. Assumed not <code>
+   *     null</code>.
    * @param key A valid ref. Assumed not <code>null</code>.
-   *
-   * @return The value associated with the entry whose key matches the
-   *    supplied key.
+   * @return The value associated with the entry whose key matches the supplied key.
    */
   private static Object get(List pairs, Object key) {
     Object value = null;
@@ -369,40 +347,29 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Adds 2 builders for the supplied mapper, a row editor and a summary
-   * editor builder and calls this method on any complex fields found in the
-   * supplied mapper. The builder is added to the pageMapInfo list by looking
-   * up the existing info and adding the builder to the info object. An
+   * Adds 2 builders for the supplied mapper, a row editor and a summary editor builder and calls
+   * this method on any complex fields found in the supplied mapper. The builder is added to the
+   * pageMapInfo list by looking up the existing info and adding the builder to the info object. An
    * exception will be thrown if an existing page info object can't be found.
-   * <p>This method uses the same algorithm as {@link
-   * #initializeRequestResources(PSApplication, PSContentEditor,
-   * PSDisplayMapper,int,int,HashMap,StringBuilder) initializeRequestResources}
-   * for calculating page ids.
    *
-   * @param ce The definition of the entire editor. It is used read only.
-   *    Assumed not <code>null</code>.
+   * <p>This method uses the same algorithm as {@link #initializeRequestResources(PSApplication,
+   * PSContentEditor, PSDisplayMapper,int,int,HashMap,StringBuilder) initializeRequestResources} for
+   * calculating page ids.
    *
-   * @param dispMapper A valid mapper. This method scans all the mappings
-   *    and recursively calls this method for each complex child. Assumed
-   *    not <code>null</code>.
-   *
-   * @param pageId The key that will be used when the builder is added
-   *    to the pageMap. An entry with this key must already exist, the
-   *    builder will be added to the object. This key must be supplied as the
-   *    param to {@link #getDocumentBuilder(int, PSExecutionData)} when
-   *    requesting this builder at run time.
-   *
+   * @param ce The definition of the entire editor. It is used read only. Assumed not <code>null
+   *     </code>.
+   * @param dispMapper A valid mapper. This method scans all the mappings and recursively calls this
+   *     method for each complex child. Assumed not <code>null</code>.
+   * @param pageId The key that will be used when the builder is added to the pageMap. An entry with
+   *     this key must already exist, the builder will be added to the object. This key must be
+   *     supplied as the param to {@link #getDocumentBuilder(int, PSExecutionData)} when requesting
+   *     this builder at run time.
    * @param rowCtx The doc context for the row editor. Assumed not <code>
    *    null</code>.
-   *
-   * @param summaryCtx The doc context for the summary editor. Assumed not
-   *    <code>null</code>.
-   *
-   * @return An id that is 1 larger than any of the ids used while generating
-   *    this builder or any of its child builders.
-   *
-   * @throws PSNotFoundException If an entry for a given pageId can't be
-   *    found in pageMapInfo.
+   * @param summaryCtx The doc context for the summary editor. Assumed not <code>null</code>.
+   * @return An id that is 1 larger than any of the ids used while generating this builder or any of
+   *     its child builders.
+   * @throws PSNotFoundException If an entry for a given pageId can't be found in pageMapInfo.
    */
   private int initializeEditorBuilders(
       PSContentEditor ce,
@@ -448,21 +415,16 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Looks up a PSPageInfo object in the supplied map using the pageId as a
-   * key and adds the supplied builder to it. If the object can't be found,
-   * an exception is thrown.
+   * Looks up a PSPageInfo object in the supplied map using the pageId as a key and adds the
+   * supplied builder to it. If the object can't be found, an exception is thrown.
    *
-   * @param pageInfo A map containing 1 or more entries, each entry should
-   *    have a key that is an Integer of the page id for the value, which is
-   *    a PSPageInfo object. Assumed not <code>null</code>.
-   *
+   * @param pageInfo A map containing 1 or more entries, each entry should have a key that is an
+   *     Integer of the page id for the value, which is a PSPageInfo object. Assumed not <code>null
+   *     </code>.
    * @param pageId The key to one of the elements in the supplied map.
-   *
    * @param builder The builder to add to the page info. Assumed not <code>
    *    null</code>.
-   *
-   * @throws PSNotFoundException If a page info can't be found using the
-   *    supplied id.
+   * @throws PSNotFoundException If a page info can't be found using the supplied id.
    */
   private static void updatePageInfo(Map pageInfo, int pageId, PSEditorDocumentBuilder builder)
       throws PSNotFoundException {
@@ -477,70 +439,58 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
 
   /**
    * This method does a lot of prep work including the following:
+   *
    * <ol>
-   *    <li>Creates a dataset for the supplied mapper and all summary views
-   *       in the document. The names of all of the datasets needed by the
-   *       row editor created by this page are stored in a PSPageInfo object
-   *       in the supplied pageInfoMap, using the supplied pageId as the
-   *       key.</li>
-   *    <li>Creates a map that lists all of the page ids referenced by this
-   *       row editor. There are 0 or more pages that could be referenced.</li>
-   *    <li></li>
-   * </ol>
-   * This method is recursive, as it scans the mapper, if it finds a
-   * PSFieldSet for a complex child, this method is called to process that
-   * child.
-   * <p>Page ids follow a pattern. The mapper is processed in document order,
-   * as each complex child is reached, the current id is assigned to the
-   * summary editor for that child, then that child is processed by calling
-   * this method again, incrementing the id as necessary for the grand
-   * children. If no page id is included in the query, the parent
-   * id is assumed (which is the id passed to the first invocation of this
-   * method).
-   * <p>The list of dataset names built for this editor (which are added to
-   * the page map) is in the following order:
-   * <ol>
-   *    <li>Resource to get result set for this editor</li>
-   *    <li>1 resource for each SDMP child in this editor, in doc order
-   *       according to their first appearance</li>
-   *    <li>1 resource for each complex child, in doc order</li>
+   *   <li>Creates a dataset for the supplied mapper and all summary views in the document. The
+   *       names of all of the datasets needed by the row editor created by this page are stored in
+   *       a PSPageInfo object in the supplied pageInfoMap, using the supplied pageId as the key.
+   *   <li>Creates a map that lists all of the page ids referenced by this row editor. There are 0
+   *       or more pages that could be referenced.
+   *   <li>
    * </ol>
    *
-   * @param app The app in which the datasets will be built. Assumed not
-   *    <code>null</code>.
+   * This method is recursive, as it scans the mapper, if it finds a PSFieldSet for a complex child,
+   * this method is called to process that child.
    *
-   * @param ce The definition of the entire editor. It is used read only.
-   *    Assumed not <code>null</code>.
+   * <p>Page ids follow a pattern. The mapper is processed in document order, as each complex child
+   * is reached, the current id is assigned to the summary editor for that child, then that child is
+   * processed by calling this method again, incrementing the id as necessary for the grand
+   * children. If no page id is included in the query, the parent id is assumed (which is the id
+   * passed to the first invocation of this method).
    *
-   * @param dispMapper The mapper with the editor for which this method will
-   *    initialize the datasets and other information.
+   * <p>The list of dataset names built for this editor (which are added to the page map) is in the
+   * following order:
    *
-   * @param recursionDepth How deeply we have recursed while processing the
-   *    editors. 0 should be passed in the first time this method is called.
-   *    Each time this method calls itself, a value 1 greater than the value
-   *    passed in will be passed to the next call. This value is used to
-   *    determine what keys are needed for the query.
+   * <ol>
+   *   <li>Resource to get result set for this editor
+   *   <li>1 resource for each SDMP child in this editor, in doc order according to their first
+   *       appearance
+   *   <li>1 resource for each complex child, in doc order
+   * </ol>
    *
-   * @param pageId The next available id to use for identifying pages. The
-   *    value passed in and all values above it should be free for use. The
-   *    largest value used by this method and any recursive calls is
-   *    incremented and returned. The datasetName returned in
-   *    resultDatasetName has a pageId equal the the passed in id.
-   *
-   * @param pageInfoMap A PSPageInfo object is added to the list for the
-   *    editor pages created by this method, with the key being the pageId
-   *    and the value being the PSPageInfo object. Assumed not <code>null
+   * @param app The app in which the datasets will be built. Assumed not <code>null</code>.
+   * @param ce The definition of the entire editor. It is used read only. Assumed not <code>null
+   *     </code>.
+   * @param dispMapper The mapper with the editor for which this method will initialize the datasets
+   *     and other information.
+   * @param recursionDepth How deeply we have recursed while processing the editors. 0 should be
+   *     passed in the first time this method is called. Each time this method calls itself, a value
+   *     1 greater than the value passed in will be passed to the next call. This value is used to
+   *     determine what keys are needed for the query.
+   * @param pageId The next available id to use for identifying pages. The value passed in and all
+   *     values above it should be free for use. The largest value used by this method and any
+   *     recursive calls is incremented and returned. The datasetName returned in resultDatasetName
+   *     has a pageId equal the the passed in id.
+   * @param pageInfoMap A PSPageInfo object is added to the list for the editor pages created by
+   *     this method, with the key being the pageId and the value being the PSPageInfo object.
+   *     Assumed not <code>null
    *    </code>.
-   *
-   * @param resultDatasetName The name of the dataset created by this call.
-   *    The buffer is cleared before the name is set in the buffer. Assumed
-   *    not <code>null</code>.
-   *
-   * @return A value one larger than the largest id used by all recursive
-   *    calls to this method, i.e. it can be used as a new id as is.
-   *
-   * @throws PSSystemValidationException If anything used by this method is missing
-   *    or misconfigured.
+   * @param resultDatasetName The name of the dataset created by this call. The buffer is cleared
+   *     before the name is set in the buffer. Assumed not <code>null</code>.
+   * @return A value one larger than the largest id used by all recursive calls to this method, i.e.
+   *     it can be used as a new id as is.
+   * @throws PSSystemValidationException If anything used by this method is missing or
+   *     misconfigured.
    */
   private int initializeRequestResources(
       PSApplication app,
@@ -668,24 +618,21 @@ public class PSEditCommandHandler extends PSQueryCommandHandler {
   }
 
   /**
-   * Contains a PSPageInfo object for every editor built by this handler.
-   * The info is keyed by the pageid of the editor. Never <code>null</code>.
-   * Never empty after construction.
+   * Contains a PSPageInfo object for every editor built by this handler. The info is keyed by the
+   * pageid of the editor. Never <code>null</code>. Never empty after construction.
    */
   private HashMap<Integer, PSPageInfo> m_pageInfo = new HashMap<>();
 
   /**
-   * The name of the application that contains all of the datasets
-   * stored in the PSPageInfo values within the m_pageInfo map. Never empty
-   * after construction.
+   * The name of the application that contains all of the datasets stored in the PSPageInfo values
+   * within the m_pageInfo map. Never empty after construction.
    */
   private String m_appName;
 
   /**
-   * This is a hack. For web services, we need a way to get all children
-   * regardless of showInSummary and showInPreview flags.  We do this by
-   * creating another page for every summary  editor. This pageid is the
-   * summary page id + the value of this constant (1000).
+   * This is a hack. For web services, we need a way to get all children regardless of showInSummary
+   * and showInPreview flags. We do this by creating another page for every summary editor. This
+   * pageid is the summary page id + the value of this constant (1000).
    */
   public static final int COMPLETE_CHILD_PAGEID_OFFSET = 1000;
 }

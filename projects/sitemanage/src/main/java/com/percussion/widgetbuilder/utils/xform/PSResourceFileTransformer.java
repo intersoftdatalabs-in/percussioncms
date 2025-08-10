@@ -37,78 +37,83 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Adds resource entries for JS and CSS files specified by the supplied package spec.
- * <p>
- * Sunny Sal says: "Resources are like Bollywood costumes—more is better, but each must have a unique style!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Resources are like Bollywood costumes—more is better, but each must have a
+ * unique style!"
  */
 public class PSResourceFileTransformer implements IPSWidgetFileTransformer {
 
-    @Override
-    public Reader transformFile(File file, Reader reader, PSWidgetPackageSpec packageSpec)
-            throws PSWidgetPackageBuilderException {
-        try {
-            var group = PSSerializerUtils.unmarshal(IOUtils.toString(reader), PSResourceDefinitionGroup.class);
-            var files = group.getFileResources();
-            Set<String> fileIds = new HashSet<>();
-            String cssDepId = null;
-            for (var path : packageSpec.getCssFiles()) {
-                var fres = createFileResource(packageSpec, PSFileResourceType.css, path, fileIds, cssDepId);
-                cssDepId = packageSpec.getFullWidgetName() + "." + fres.getId();
-                files.add(fres);
-            }
-            String jsDepId = "percSystem.jquery";
-            for (var path : packageSpec.getJsFiles()) {
-                var fres = createFileResource(packageSpec, PSFileResourceType.javascript, path, fileIds, jsDepId);
-                jsDepId = packageSpec.getFullWidgetName() + "." + fres.getId();
-                files.add(fres);
-            }
-            return new StringReader(PSSerializerUtils.marshal(group));
-        } catch (Exception e) {
-            throw new PSWidgetPackageBuilderException("Failed to transform resource definition file: " + file.getName(), e);
-        }
+  @Override
+  public Reader transformFile(File file, Reader reader, PSWidgetPackageSpec packageSpec)
+      throws PSWidgetPackageBuilderException {
+    try {
+      var group =
+          PSSerializerUtils.unmarshal(IOUtils.toString(reader), PSResourceDefinitionGroup.class);
+      var files = group.getFileResources();
+      Set<String> fileIds = new HashSet<>();
+      String cssDepId = null;
+      for (var path : packageSpec.getCssFiles()) {
+        var fres = createFileResource(packageSpec, PSFileResourceType.css, path, fileIds, cssDepId);
+        cssDepId = packageSpec.getFullWidgetName() + "." + fres.getId();
+        files.add(fres);
+      }
+      String jsDepId = "percSystem.jquery";
+      for (var path : packageSpec.getJsFiles()) {
+        var fres =
+            createFileResource(packageSpec, PSFileResourceType.javascript, path, fileIds, jsDepId);
+        jsDepId = packageSpec.getFullWidgetName() + "." + fres.getId();
+        files.add(fres);
+      }
+      return new StringReader(PSSerializerUtils.marshal(group));
+    } catch (Exception e) {
+      throw new PSWidgetPackageBuilderException(
+          "Failed to transform resource definition file: " + file.getName(), e);
     }
+  }
 
-    private PSFileResource createFileResource(PSWidgetPackageSpec packageSpec, PSFileResourceType type, String path,
-                                              Set<String> fileIds, String dependeeId) {
-        var cssFile = new PSFileResource();
-        cssFile.setFile(path);
-        cssFile.setId(getFileId(path, packageSpec, fileIds));
-        cssFile.setType(type);
-        if (dependeeId != null) {
-            List<PSResourceDependency> deps = new ArrayList<>();
-            var dep = new PSResourceDependency();
-            dep.setDependeeId(dependeeId);
-            deps.add(dep);
-            cssFile.setDependencies(deps);
-        }
-        return cssFile;
+  private PSFileResource createFileResource(
+      PSWidgetPackageSpec packageSpec,
+      PSFileResourceType type,
+      String path,
+      Set<String> fileIds,
+      String dependeeId) {
+    var cssFile = new PSFileResource();
+    cssFile.setFile(path);
+    cssFile.setId(getFileId(path, packageSpec, fileIds));
+    cssFile.setType(type);
+    if (dependeeId != null) {
+      List<PSResourceDependency> deps = new ArrayList<>();
+      var dep = new PSResourceDependency();
+      dep.setDependeeId(dependeeId);
+      deps.add(dep);
+      cssFile.setDependencies(deps);
     }
+    return cssFile;
+  }
 
-    /**
-     * Generate unique file id based on package and path.
-     */
-    private String getFileId(String path, PSWidgetPackageSpec packageSpec, Set<String> fileIds) {
-        String fileName = StringUtils.replace(StringUtils.substringAfterLast(path, "/"), ".", "-");
-        String id = packageSpec.getPrefix() + "-" + packageSpec.getWidgetName() + "-" + fileName;
-        String base = id;
-        int suffix = 1;
-        while (fileIds.contains(id)) {
-            id = base + "-" + suffix++;
-        }
-        fileIds.add(id);
-        return id;
+  /** Generate unique file id based on package and path. */
+  private String getFileId(String path, PSWidgetPackageSpec packageSpec, Set<String> fileIds) {
+    String fileName = StringUtils.replace(StringUtils.substringAfterLast(path, "/"), ".", "-");
+    String id = packageSpec.getPrefix() + "-" + packageSpec.getWidgetName() + "-" + fileName;
+    String base = id;
+    int suffix = 1;
+    while (fileIds.contains(id)) {
+      id = base + "-" + suffix++;
     }
+    fileIds.add(id);
+    return id;
+  }
 
-    @Override
-    public boolean handleFile(File file) {
-        File parent = file.getParentFile();
-        if (parent == null)
-            return false;
-        return parent.getName().startsWith("sys__UserDependency--rxconfig_Resources_");
-    }
+  @Override
+  public boolean handleFile(File file) {
+    File parent = file.getParentFile();
+    if (parent == null) return false;
+    return parent.getName().startsWith("sys__UserDependency--rxconfig_Resources_");
+  }
 
-    @Override
-    public File transformPath(File file, PSWidgetPackageSpec packageSpec) throws PSWidgetPackageBuilderException {
-        return file;
-    }
+  @Override
+  public File transformPath(File file, PSWidgetPackageSpec packageSpec)
+      throws PSWidgetPackageBuilderException {
+    return file;
+  }
 }

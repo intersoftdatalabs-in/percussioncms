@@ -31,15 +31,13 @@ import java.util.regex.Pattern;
 import javax.sql.rowset.serial.SerialClob;
 import org.w3c.dom.Element;
 
-/**
- * Adds the License Monitor gadget to the Dashboard of each Admin user
- */
+/** Adds the License Monitor gadget to the Dashboard of each Admin user */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePlugin {
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -91,8 +89,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
   }
 
   /**
-   * Updates the corresponding rows that have the metadata information of the
-   * Dashboards.
+   * Updates the corresponding rows that have the metadata information of the Dashboards.
    *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
@@ -163,8 +160,9 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
   }
 
   /**
-   * Takes a JSON representing the layout of a dashborard and add the License
-   * Monitor gadget at the top of it.
+   * Takes a JSON representing the layout of a dashborard and add the License Monitor gadget at the
+   * top of it.
+   *
    * @param dashboardMetadata assumed not <code>null</code>
    * @return String JSON representation of the Dashboard metadata with the gadget added
    */
@@ -186,6 +184,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
 
   /**
    * Returns a list o subject with the Admin role.
+   *
    * @param conn assumed not <code>null</code>
    * @throws Exception
    * @return ArrayList<String> with the admin usernames (subjects)
@@ -210,6 +209,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
 
   /**
    * Moves down one row each gadget in the right column.
+   *
    * @param dashboardMetadata String with the dashboard representation
    * @return the dashboardMetadata with the gadgets in their corresponding position
    */
@@ -229,6 +229,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
 
   /**
    * Get the instanceId that the next gadget will have in the dashboard.
+   *
    * @param dashboardMetadata String with the dashboard representation
    * @return int The next instanceId that the new gadget will have
    */
@@ -252,6 +253,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
 
   /**
    * Checks if the Dashboard does not have any gadget.
+   *
    * @param dashboardMetadata String with the dashboard representation
    * @return int The count of instanceIds that the JSON dashboard representation has
    */
@@ -263,6 +265,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
 
   /**
    * Creates the JSON string of the new gadget.
+   *
    * @param instanceId the instanceId that the new gadget will have
    * @return String JSON representation of the new gadget
    */

@@ -22,19 +22,17 @@ import com.percussion.design.objectstore.IPSDocumentMapping;
 import com.percussion.design.objectstore.PSBackEndTable;
 
 /**
- * This class contains the data required to create a PSDataMapping when using
- * the PSApplicationBuilder to create a dataset.
+ * This class contains the data required to create a PSDataMapping when using the
+ * PSApplicationBuilder to create a dataset.
  */
 public class PSSystemMapping {
   /**
    * Constructor for this class.
    *
-   * @param table The backend table to use to create the backend column when
-   * creating this mapping.
-   * @param columnName The column name to use to create the backend column when
-   * creating this mapping.
+   * @param table The backend table to use to create the backend column when creating this mapping.
+   * @param columnName The column name to use to create the backend column when creating this
+   *     mapping.
    * @param docMapping The replacement value to use when creating this mapping.
-   *
    * @throws IllegalArgumentException if any param is <code>null</code>.
    */
   public PSSystemMapping(PSBackEndTable table, String columnName, IPSDocumentMapping docMapping) {
@@ -50,8 +48,7 @@ public class PSSystemMapping {
   }
 
   /**
-   * Returns the table name to use to create the backend column when creating
-   * this mapping.
+   * Returns the table name to use to create the backend column when creating this mapping.
    *
    * @return The table name, never <code>null</code>.
    */
@@ -60,8 +57,7 @@ public class PSSystemMapping {
   }
 
   /**
-   * Returns the column name to use to create the backend column when creating
-   * this mapping.
+   * Returns the column name to use to create the backend column when creating this mapping.
    *
    * @return The column name, never <code>null</code>.
    */
@@ -70,8 +66,7 @@ public class PSSystemMapping {
   }
 
   /**
-   * Returns the document mapping (replacement value) to use when creating
-   * this mapping.
+   * Returns the document mapping (replacement value) to use when creating this mapping.
    *
    * @return The document mapping, never <code>null</code>.
    */
@@ -80,8 +75,7 @@ public class PSSystemMapping {
   }
 
   /**
-   * Returns the table to use to create the backend column when creating
-   * this mapping.
+   * Returns the table to use to create the backend column when creating this mapping.
    *
    * @return The table, never <code>null</code>.
    */
@@ -90,20 +84,20 @@ public class PSSystemMapping {
   }
 
   /**
-   * The table used by the backend column in this mapping.  Initialized in the
-   * constructor, never <code>null</code> after that.
+   * The table used by the backend column in this mapping. Initialized in the constructor, never
+   * <code>null</code> after that.
    */
   private PSBackEndTable m_table;
 
   /**
-   * The name of the backend column in this mapping.  Initialized in the
-   * constructor, never <code>null</code> after that.
+   * The name of the backend column in this mapping. Initialized in the constructor, never <code>
+   * null</code> after that.
    */
   private String m_columnName;
 
   /**
-   * The documentMapping to use in this mapping.  Initialized in the
-   * constructor, never <code>null</code> after that.
+   * The documentMapping to use in this mapping. Initialized in the constructor, never <code>null
+   * </code> after that.
    */
   private IPSDocumentMapping m_docMappping;
 }

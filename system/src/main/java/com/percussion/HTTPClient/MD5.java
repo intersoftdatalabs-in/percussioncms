@@ -24,9 +24,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Some utility methods for digesting info using MD5.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3-3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3-3
  */
 @Deprecated
 class MD5 {
@@ -36,11 +36,10 @@ class MD5 {
   };
 
   /**
-   * Turns array of bytes into string representing each byte as
-   * unsigned hex number.
+   * Turns array of bytes into string representing each byte as unsigned hex number.
    *
-   * @param hash	array of bytes to convert to hex-string
-   * @return	generated hex string
+   * @param hash array of bytes to convert to hex-string
+   * @return generated hex string
    */
   public static final String toHex(byte hash[]) {
     StringBuilder buf = new StringBuilder(hash.length * 2);

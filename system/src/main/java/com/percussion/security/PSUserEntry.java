@@ -28,18 +28,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUserEntry class defines the implementation of a user entry
- * within E2.
+ * The PSUserEntry class defines the implementation of a user entry within E2.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserEntry extends PSEntry {
   /**
-   * Convenience ctor that calls
-   * {@link #PSUserEntry(String, int, PSGroupEntry[], PSUserAttributes, String)
-   * this(name, accessLevel, groups, null, attributes, signature)}
+   * Convenience ctor that calls {@link #PSUserEntry(String, int, PSGroupEntry[], PSUserAttributes,
+   * String) this(name, accessLevel, groups, null, attributes, signature)}
    */
   public PSUserEntry(
       String name,
@@ -53,19 +51,13 @@ public class PSUserEntry extends PSEntry {
   /**
    * Construct a user entry object for the named entry.
    *
-   * @param   name               the name of the entry
-   *
-   * @param   accessLevel         the access level to assign this entry
-   *
-   * @param   groups            the groups this user is a member of
-   *
-   * @param roles The roles this user is a member of, may be <code>null</code>
-   * if none are to be supplied.
-   *
-   * @param   attributes         the security provider specific attributes
-   *                              associated with this user
-   *
-   * @param   signature         the signature to associate with this entry
+   * @param name the name of the entry
+   * @param accessLevel the access level to assign this entry
+   * @param groups the groups this user is a member of
+   * @param roles The roles this user is a member of, may be <code>null</code> if none are to be
+   *     supplied.
+   * @param attributes the security provider specific attributes associated with this user
+   * @param signature the signature to associate with this entry
    */
   public PSUserEntry(
       String name,
@@ -99,29 +91,26 @@ public class PSUserEntry extends PSEntry {
   /**
    * Get the groups this user is a member of.
    *
-   * @return the groups, or <code>null</code>. The order of the group entries
-   * is undefined.
+   * @return the groups, or <code>null</code>. The order of the group entries is undefined.
    */
   public PSGroupEntry[] getGroups() {
     return m_groups;
   }
 
   /**
-   * Get the roles this user is a member of, only populated during
-   * authentication if a provider determines roles, not used after that.
+   * Get the roles this user is a member of, only populated during authentication if a provider
+   * determines roles, not used after that.
    *
-   * @return The roles, may be <code>null</code>.  The order of the role
-   * entries is undefined.
+   * @return The roles, may be <code>null</code>. The order of the role entries is undefined.
    */
   public PSRoleEntry[] getRoles() {
     return m_roles;
   }
 
   /**
-   * Get the security provider specific attributes associated with this
-   * user.
+   * Get the security provider specific attributes associated with this user.
    *
-   * @return               the attributes, or <code>null</code>
+   * @return the attributes, or <code>null</code>
    */
   public PSUserAttributes getAttributes() {
     return m_attributes;
@@ -130,14 +119,12 @@ public class PSUserEntry extends PSEntry {
   /* ********************** PSEntry Implementation ********************** */
 
   /**
-   * Does the specified entry match this one? The entry must be of the
-   * same provider type. If one of the entries is a filter, it will use
-   * the information defined in the other entry to test for equality.
+   * Does the specified entry match this one? The entry must be of the same provider type. If one of
+   * the entries is a filter, it will use the information defined in the other entry to test for
+   * equality.
    *
-   *   @param      entry         the entry to check
-   *
-   * @return                  <code>true</code> if the entry matches;
-   *                           <code>false</code> otherwise
+   * @param entry the entry to check
+   * @return <code>true</code> if the entry matches; <code>false</code> otherwise
    */
   public boolean isMatch(PSEntry entry) {
     /* we can only check our own type, or if it's a filter, ask it
@@ -150,11 +137,10 @@ public class PSUserEntry extends PSEntry {
   }
 
   /**
-   * Is this class a filter? Filters can be used to perform checks against
-   * other entries based upon attributes, etc.
+   * Is this class a filter? Filters can be used to perform checks against other entries based upon
+   * attributes, etc.
    *
-   * @return                  <code>false</code> is always returned for the
-   *                           PSUserEntry class
+   * @return <code>false</code> is always returned for the PSUserEntry class
    */
   public boolean isFilter() {
     return false;
@@ -202,10 +188,8 @@ public class PSUserEntry extends PSEntry {
   /**
    * Does the signature of the specified entry match this one?
    *
-   *   @param      entry         the entry to check
-   *
-   * @return                  <code>true</code> if the signatures match;
-   *                           <code>false</code> otherwise
+   * @param entry the entry to check
+   * @return <code>true</code> if the signatures match; <code>false</code> otherwise
    */
   public boolean isSignatureMatch(PSEntry entry) {
     /* we can only check our own type */
@@ -220,10 +204,7 @@ public class PSUserEntry extends PSEntry {
     return false;
   }
 
-  /**
-   * Create the signature to associate with a user entry from the
-   * specified text.
-   */
+  /** Create the signature to associate with a user entry from the specified text. */
   public static String createSignature(String userId, String pw) {
     try {
       // we always sign UTF-8
@@ -259,12 +240,9 @@ public class PSUserEntry extends PSEntry {
   /**
    * Get the user entry status.
    *
-   * @param doc the document for which to create the status element, not
-   *    <code>null</code>.
-   * @return the element containing all user entry status information,
-   *    never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param doc the document for which to create the status element, not <code>null</code>.
+   * @return the element containing all user entry status information, never <code>null</code>.
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public Element getUserEntryStatus(Document doc) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
@@ -304,23 +282,15 @@ public class PSUserEntry extends PSEntry {
     return entry;
   }
 
-  /**
-   * the groups this user is a member of
-   */
+  /** the groups this user is a member of */
   private PSGroupEntry[] m_groups;
 
-  /**
-   * The roles this user is a member of, may be <code>null</code> or empty.
-   */
+  /** The roles this user is a member of, may be <code>null</code> or empty. */
   private PSRoleEntry[] m_roles;
 
-  /**
-   * the security provider specific attributes associated with this user
-   */
+  /** the security provider specific attributes associated with this user */
   private PSUserAttributes m_attributes;
 
-  /**
-   * the signature associated with this entry
-   */
+  /** the signature associated with this entry */
   private String m_signature;
 }

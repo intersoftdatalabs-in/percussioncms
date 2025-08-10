@@ -21,8 +21,9 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.*;
 
-/** The default password field used by E2.  It displays 14 *'s at construction.
- * Then when selected and changed, it behaves like JPasswordField.
+/**
+ * The default password field used by E2. It displays 14 *'s at construction. Then when selected and
+ * changed, it behaves like JPasswordField.
  */
 public class PSPasswordField extends JPasswordField implements FocusListener {
   public PSPasswordField() {
@@ -45,8 +46,9 @@ public class PSPasswordField extends JPasswordField implements FocusListener {
     init(text);
   }
 
-  /** Overridden to prevent 14 *'s being passed back when it should be empty.
-   * Otherwise, this method behaves just like its parent's.
+  /**
+   * Overridden to prevent 14 *'s being passed back when it should be empty. Otherwise, this method
+   * behaves just like its parent's.
    */
   public char[] getPassword() {
     String text = new String(super.getPassword());
@@ -56,7 +58,8 @@ public class PSPasswordField extends JPasswordField implements FocusListener {
     } else return super.getPassword();
   }
 
-  /** A reset method for reinitializing the passwordField without calling a new one.
+  /**
+   * A reset method for reinitializing the passwordField without calling a new one.
    *
    * @param newText could be null, it would then be an empty String.
    */
@@ -68,24 +71,22 @@ public class PSPasswordField extends JPasswordField implements FocusListener {
     m_isTyped = false;
   }
 
-  /** A reset method for reinitializing the passwordField clean, without text in
-   * the field.
-   */
+  /** A reset method for reinitializing the passwordField clean, without text in the field. */
   public void resetPasswordField() {
     setText("");
     m_input = "";
     m_isTyped = false;
   }
 
-  /** If this field gained the focus, select all the text.
-   */
+  /** If this field gained the focus, select all the text. */
   public void focusGained(FocusEvent e) {
     this.selectAll();
   }
 
   public void focusLost(FocusEvent e) {}
 
-  /** Default initialization.
+  /**
+   * Default initialization.
    *
    * @param pw The password passed in. Can be null.
    */

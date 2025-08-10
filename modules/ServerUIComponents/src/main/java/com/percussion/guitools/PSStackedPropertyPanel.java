@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
+/** */
 package com.percussion.guitools;
 
 import java.awt.*;
@@ -25,15 +23,12 @@ import java.util.List;
 import javax.swing.*;
 
 /**
- * The utility class to create a panel with controls to set properties.
- * This panel will layout the each row with horizontally withe the label
- * stacked above its corresponding control.
+ * The utility class to create a panel with controls to set properties. This panel will layout the
+ * each row with horizontally withe the label stacked above its corresponding control.
  */
 public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
 
-  /**
-   *
-   */
+  /** */
   public PSStackedPropertyPanel() {
     super();
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -187,13 +182,11 @@ public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
   }
 
   /**
-   * Gets List of components of the first row found with a <code>JLabel</code>
-   * that has text matching the supplied <code>label</code>.
+   * Gets List of components of the first row found with a <code>JLabel</code> that has text
+   * matching the supplied <code>label</code>.
    *
    * @param label The text to match, assumed not <code>null</code> or empty.
-   *
-   * @return The component list of the matching row, or <code>null</code>
-   * if no match is found.
+   * @return The component list of the matching row, or <code>null</code> if no match is found.
    */
   public List getMatchingRowByLabel(String label) {
     int idx = m_controlLabels.indexOf(label);
@@ -203,12 +196,10 @@ public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
   }
 
   /**
-   * Sets the maximum, preferred, and minimum sizes of the component. Tries to
-   * keep constant value in height for text components and standard size for
-   * buttons.
+   * Sets the maximum, preferred, and minimum sizes of the component. Tries to keep constant value
+   * in height for text components and standard size for buttons.
    *
-   * @param component the component to be set with sizes, assumed not to be
-   * <code>null</code>
+   * @param component the component to be set with sizes, assumed not to be <code>null</code>
    */
   private void setPreferredSizes(JComponent component) {
     if (component instanceof JTextField
@@ -249,62 +240,39 @@ public class PSStackedPropertyPanel extends JPanel implements IPSPropertyPanel {
   private List m_controlLabels = new ArrayList();
   private List m_controlLists = new ArrayList();
 
-  /**
-   * The constant to indicate fixed field height.
-   */
+  /** The constant to indicate fixed field height. */
   public static final int FIXED_FIELD_HEIGHT = 20;
 
-  /**
-   * The constant to indicate fixed area height.
-   */
+  /** The constant to indicate fixed area height. */
   public static final int FIXED_AREA_HEIGHT = 100;
 
-  /**
-   * The constant to indicate preferred width of a field or area.
-   */
+  /** The constant to indicate preferred width of a field or area. */
   public static final int PREF_WIDTH = 200;
 
-  /**
-   * The constant to indicate minimum width of a field or area.
-   */
+  /** The constant to indicate minimum width of a field or area. */
   public static final int MIN_WIDTH = 40;
 
   /**
-   * The maximum dimension for a control which takes up an area,
-   * height and width are the maximum it can have.
+   * The maximum dimension for a control which takes up an area, height and width are the maximum it
+   * can have.
    */
   public static final Dimension MAX_AREA_SIZE = new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-  /**
-   * The preferred dimension for a control which takes up an area,
-   * height is fixed.
-   */
+  /** The preferred dimension for a control which takes up an area, height is fixed. */
   public static final Dimension PREF_AREA_SIZE = new Dimension(PREF_WIDTH, FIXED_AREA_HEIGHT);
 
-  /**
-   * The minimum dimension for a control which takes up an area,
-   * height is fixed.
-   */
+  /** The minimum dimension for a control which takes up an area, height is fixed. */
   public static final Dimension MIN_AREA_SIZE = new Dimension(MIN_WIDTH, FIXED_AREA_HEIGHT);
 
-  /**
-   * The maximum dimension for a field control, height is fixed, width is
-   * maximum it can have.
-   */
+  /** The maximum dimension for a field control, height is fixed, width is maximum it can have. */
   public static final Dimension MAX_SIZE = new Dimension(Integer.MAX_VALUE, FIXED_FIELD_HEIGHT);
 
-  /**
-   * The preferred dimension for a control.
-   */
+  /** The preferred dimension for a control. */
   public static final Dimension PREF_SIZE = new Dimension(PREF_WIDTH, FIXED_FIELD_HEIGHT);
 
-  /**
-   * The minimum dimension for a control.
-   */
+  /** The minimum dimension for a control. */
   public static final Dimension MIN_SIZE = new Dimension(MIN_WIDTH, FIXED_FIELD_HEIGHT);
 
-  /**
-   * The standard button size for all buttons.
-   */
+  /** The standard button size for all buttons. */
   public static final Dimension STANDARD_BUTTON_SIZE = new Dimension(80, 24);
 }

@@ -22,11 +22,10 @@ import java.net.ProtocolException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This module handles the redirection status codes 301, 302, 303, 305, 306
- * and 307.
+ * This module handles the redirection status codes 301, 302, 303, 305, 306 and 307.
  *
- * @version	0.3-3E  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3E 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public class RedirectionModule implements HTTPClientModule {
@@ -50,9 +49,7 @@ public class RedirectionModule implements HTTPClientModule {
 
   // Constructors
 
-  /**
-   * Start with level 0.
-   */
+  /** Start with level 0. */
   RedirectionModule() {
     level = 0;
     lastURI = null;
@@ -61,9 +58,7 @@ public class RedirectionModule implements HTTPClientModule {
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) {
     HTTPConnection con = req.getConnection();
     URI new_loc, cur_loc;
@@ -142,9 +137,7 @@ public class RedirectionModule implements HTTPClientModule {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) throws IOException {
     int sts = resp.getStatusCode();
     if (sts < 301 || sts > 307 || sts == 304) {
@@ -153,9 +146,7 @@ public class RedirectionModule implements HTTPClientModule {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) throws IOException {
     /* handle various response status codes until satisfied */
 
@@ -385,14 +376,10 @@ public class RedirectionModule implements HTTPClientModule {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 
   /**
@@ -418,15 +405,13 @@ public class RedirectionModule implements HTTPClientModule {
   }
 
   /**
-   * The Location header field must be an absolute URI, but too many broken
-   * servers use relative URIs. So, we always resolve relative to the
-   * full request URI.
+   * The Location header field must be an absolute URI, but too many broken servers use relative
+   * URIs. So, we always resolve relative to the full request URI.
    *
-   * @param  loc the Location header field
-   * @param  req the Request to resolve relative URI's relative to
+   * @param loc the Location header field
+   * @param req the Request to resolve relative URI's relative to
    * @return an absolute URI corresponding to the Location header field
-   * @exception ProtocolException if the Location header field is completely
-   *                            unparseable
+   * @exception ProtocolException if the Location header field is completely unparseable
    */
   private URI resLocHdr(String loc, RoRequest req) throws ProtocolException {
     try {

@@ -36,36 +36,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSServerConfiguration class is used to manipulate an E2 server's
- * configuration. Use the PSObjectStore class to load a PSServerConfiguration
- * object from an E2 server (getServerConfiguration). The returned object
- * can be read and/or written (assuming you have the apporpriate access).
- * Once you're ready to send the local changes back to the server, call the
- * PSObjectStore's saveServerConfiguration method. See the PSObjectStore
- * class for more details.
+ * The PSServerConfiguration class is used to manipulate an E2 server's configuration. Use the
+ * PSObjectStore class to load a PSServerConfiguration object from an E2 server
+ * (getServerConfiguration). The returned object can be read and/or written (assuming you have the
+ * apporpriate access). Once you're ready to send the local changes back to the server, call the
+ * PSObjectStore's saveServerConfiguration method. See the PSObjectStore class for more details.
  *
- * @see         PSObjectStore
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSObjectStore
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSServerConfiguration implements IPSDocument {
   public static final int DEFAULT_SESSION_TIMEOUT = 1800;
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for
+   * a description of the XML object.
    *
-   * @param      sourceDoc      the XML document to construct this
-   * object from
-   *
-   * @throws   PSUnknownDocTypeException if the XML document is not of the
-   * appropriate type
-   *
-   * @throws   PSUnknownNodeTypeException if an XML element node is not of the
-   * appropriate type
+   * @param sourceDoc the XML document to construct this object from
+   * @throws PSUnknownDocTypeException if the XML document is not of the appropriate type
+   * @throws PSUnknownNodeTypeException if an XML element node is not of the appropriate type
    */
   public PSServerConfiguration(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -73,9 +65,7 @@ public class PSServerConfiguration implements IPSDocument {
     fromXml(sourceDoc);
   }
 
-  /**
-   * Construct an empty server configuration object.
-   */
+  /** Construct an empty server configuration object. */
   public PSServerConfiguration() {
     m_securityProviders = new PSCollection(PSSecurityProviderInstance.class);
     m_serverCacheSettings = new PSServerCacheSettings();
@@ -90,7 +80,7 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the number of days the log has been running.
    *
-   * @return      the number of days
+   * @return the number of days
    */
   public int getRunningLogDays() {
     return m_runningLogDays;
@@ -99,7 +89,7 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Set the number of days the log has been running.
    *
-   * @param days The number of days.  Any value < 0 is treated as 0.
+   * @param days The number of days. Any value < 0 is treated as 0.
    */
   public void setRunningLogDays(int days) {
     if (days <= 0) days = 0;
@@ -111,7 +101,7 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the id assigned to this server configuration.
    *
-   * @return        the server configuration id
+   * @return the server configuration id
    */
   public int getId() {
     return m_id;
@@ -127,19 +117,17 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * The Rx server attempts to authenticate a user against all security provider
-   * instances until one is successful or all fail. Normally, only info about
-   * the last attempted provider is returned. If this flag is <code>true</code>,
-   * then info about all attempted providers is returned. Because this would
-   * provide more info for a hacker, this flag is present to allow an admin to
-   * limit the return of this information.<p/>
-   * The default value for this flag is <code>true</code>.
+   * The Rx server attempts to authenticate a user against all security provider instances until one
+   * is successful or all fail. Normally, only info about the last attempted provider is returned.
+   * If this flag is <code>true</code>, then info about all attempted providers is returned. Because
+   * this would provide more info for a hacker, this flag is present to allow an admin to limit the
+   * return of this information.
    *
-   * @return <code>true</code> if error messages from all security providers
-   * can be returned to the user, <code>false</code> means only a generic
-   * 'authentication failed' msg is returned.
+   * <p>The default value for this flag is <code>true</code>.
    *
-   * Note: We may want to disallow any provider info if this flag is <code>
+   * @return <code>true</code> if error messages from all security providers can be returned to the
+   *     user, <code>false</code> means only a generic 'authentication failed' msg is returned.
+   *     <p>Note: We may want to disallow any provider info if this flag is <code>
    * false</code>.
    */
   public boolean allowDetailedAuthenticationMessages() {
@@ -147,48 +135,40 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * See {@link #allowDetailedAuthenticationMessages()
-   * allowDetailedAuthenticationMessages()} for details.
+   * See {@link #allowDetailedAuthenticationMessages() allowDetailedAuthenticationMessages()} for
+   * details.
    *
-   * @param allow <code>true</code> allows info about all failed providers to
-   * be returned, <code>false</code> limits the info to a generic authentication
-   * failed msg.
+   * @param allow <code>true</code> allows info about all failed providers to be returned, <code>
+   *     false</code> limits the info to a generic authentication failed msg.
    */
   public void setAllowDetailedAuthenticationMessages(boolean allow) {
     m_allowAuthDetails = allow;
   }
 
   /**
-   * Get the server's request root. This is combined with the application's
-   * request root to determine if an incoming request should be serviced.
-   * For instance, if the server root is <code>/E2</code> and the
-   * application root is <code>/MyApp</code>, only URLs whose path begins
-   * with <code>/E2/MyApp</code> will be considered for processing. This
-   * helps alleviate strain from the web server as E2 can more quickly
-   * determine what is an E2 request rather than a standard web server
-   * request.
+   * Get the server's request root. This is combined with the application's request root to
+   * determine if an incoming request should be serviced. For instance, if the server root is <code>
+   * /E2</code> and the application root is <code>/MyApp</code>, only URLs whose path begins with
+   * <code>/E2/MyApp</code> will be considered for processing. This helps alleviate strain from the
+   * web server as E2 can more quickly determine what is an E2 request rather than a standard web
+   * server request.
    *
-   * @return      the server's request root
+   * @return the server's request root
    */
   public String getRequestRoot() {
     return m_requestRoot;
   }
 
   /**
-   * Set the server's request root. This is combined with the application's
-   * request root to determine if an incoming request should be serviced.
-   * For instance, if the server root is <code>/E2</code> and the
-   * application root is <code>/MyApp</code>, only URLs whose path begins
-   * with <code>/E2/MyApp</code> will be considered for processing. This
-   * helps alleviate strain from the web server as E2 can more quickly
-   * determine what is an E2 request rather than a standard web server
-   * request.
+   * Set the server's request root. This is combined with the application's request root to
+   * determine if an incoming request should be serviced. For instance, if the server root is <code>
+   * /E2</code> and the application root is <code>/MyApp</code>, only URLs whose path begins with
+   * <code>/E2/MyApp</code> will be considered for processing. This helps alleviate strain from the
+   * web server as E2 can more quickly determine what is an E2 request rather than a standard web
+   * server request.
    *
-   * @param   requestRoot         the new server configuration request root.
-   *                                                                                                                    This is limited to 50 characters.
-   *
-   * @throws   PSIllegalArgumentException      if requestRoot exceeds the
-   *                                                                                                                                   specified size limit
+   * @param requestRoot the new server configuration request root. This is limited to 50 characters.
+   * @throws PSIllegalArgumentException if requestRoot exceeds the specified size limit
    */
   public void setRequestRoot(String requestRoot) throws PSIllegalArgumentException {
     requestRoot = requestRoot.trim();
@@ -203,32 +183,27 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the server's access control list (ACL). This contains the
-   * names of users, groups and roles and the type of access they have for
-   * this server.
+   * Get the server's access control list (ACL). This contains the names of users, groups and roles
+   * and the type of access they have for this server.
    *
-   * @return      the server's ACL
+   * @return the server's ACL
    */
   public PSAcl getAcl() {
     return m_acl;
   }
 
   /**
-   * Overwrite the server's ACL with the specified ACL. If you only
-   * want to modify a limited number of entries, add an entry, etc. use
-   * getAcl to get the existing ACL and modify the returned object directly.
-   * <p>
-   * The PSAcl object supplied to this method will be stored with the
-   * PSServerConfiguration object. Any subsequent changes made to the object by
-   * the caller will also effect the server.
+   * Overwrite the server's ACL with the specified ACL. If you only want to modify a limited number
+   * of entries, add an entry, etc. use getAcl to get the existing ACL and modify the returned
+   * object directly.
    *
-   * @param      acl                        the new ACL for the server
+   * <p>The PSAcl object supplied to this method will be stored with the PSServerConfiguration
+   * object. Any subsequent changes made to the object by the caller will also effect the server.
    *
-   * @throws   PSIllegalArgumentException   if acl is invalid. This occurs
-   * when the ACL is null, empty or contains no entries with admin access to
-   * the server.
-   *
-   * @see         PSAcl
+   * @param acl the new ACL for the server
+   * @throws PSIllegalArgumentException if acl is invalid. This occurs when the ACL is null, empty
+   *     or contains no entries with admin access to the server.
+   * @see PSAcl
    */
   public void setAcl(PSAcl acl) throws PSIllegalArgumentException {
     if (null == acl) throw new PSIllegalArgumentException(IPSObjectStoreErrors.SRV_ACL_NULL);
@@ -294,6 +269,7 @@ public class PSServerConfiguration implements IPSDocument {
 
   /**
    * Set a new search engine configuration object
+   *
    * @param config
    */
   public void setSearchConfig(PSSearchConfig config) {
@@ -303,26 +279,22 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Is user session management permitted on this server?
    *
-   * @return         <code>true</code> if sessions are permitted,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if sessions are permitted, <code>false</code> otherwise
    */
   public boolean isUserSessionEnabled() {
     return m_userSessions;
   }
 
   /**
-   * Enable or disable user session management on the server. When a
-   * user makes a connection to the E2 server, a session can be established
-   * to maintain state information across requests.
-   * <p>
-   * If this is disabled, applications cannot enable user session
-   * management. They can, however, disable for applications if it is
-   * enabled by default for the server.
+   * Enable or disable user session management on the server. When a user makes a connection to the
+   * E2 server, a session can be established to maintain state information across requests.
    *
-   * @param   enable   <code>true</code> to enable user session management,
-   * <code>false</code> to disable it
+   * <p>If this is disabled, applications cannot enable user session management. They can, however,
+   * disable for applications if it is enabled by default for the server.
    *
-   * @see               PSApplication#setUserSessionEnabled
+   * @param enable <code>true</code> to enable user session management, <code>false</code> to
+   *     disable it
+   * @see PSApplication#setUserSessionEnabled
    */
   public void setUserSessionEnabled(boolean enable) {
     m_userSessions = enable;
@@ -330,18 +302,15 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the default timeout interval for user sessions. When a user
-   * makes a connection to the E2 server, a session can be established
-   * to maintain state information across requests. When sessions are
-   * maintained, they must be terminated after a period of inactivity.
-   * This setting determines how long to wait before removing the
-   * inactive session.
-   * <p>
-   * Applications can override this setting.
+   * Get the default timeout interval for user sessions. When a user makes a connection to the E2
+   * server, a session can be established to maintain state information across requests. When
+   * sessions are maintained, they must be terminated after a period of inactivity. This setting
+   * determines how long to wait before removing the inactive session.
    *
-   * @return         the timeout interval for user sessions, in seconds
+   * <p>Applications can override this setting.
    *
-   * @see            PSApplication#getUserSessionTimeout
+   * @return the timeout interval for user sessions, in seconds
+   * @see PSApplication#getUserSessionTimeout
    */
   public int getUserSessionTimeout() {
     return m_sessionTimeout;
@@ -350,29 +319,24 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the default timeout warning interval for user sessions.
    *
-   * This is initially only used by the web client.
+   * <p>This is initially only used by the web client.
    *
+   * <p>Applications can override this setting.
    *
-   * <p>
-   * Applications can override this setting.
-   *
-   * @return         the time in seconds before timeout to warn,
-   *
+   * @return the time in seconds before timeout to warn,
    */
   public int getUserSessionWarning() {
     return m_sessionWarning;
   }
 
   /**
-   * Set the default timeout interval warning for user sessions. When a user
-   * makes a connection to the E2 server, a session can be established
-   * to maintain state information across requests.
-   * <P>
-   * Applications can override this setting.
+   * Set the default timeout interval warning for user sessions. When a user makes a connection to
+   * the E2 server, a session can be established to maintain state information across requests.
    *
-   * @param   timeout      the timeout interval for user sessions, in seconds
+   * <p>Applications can override this setting.
    *
-   * @see      PSApplication#setUserSessionTimeout
+   * @param timeout the timeout interval for user sessions, in seconds
+   * @see PSApplication#setUserSessionTimeout
    */
   public void setUserSessionTimeout(int timeout) {
     m_sessionTimeout = timeout;
@@ -380,15 +344,13 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Set the default timeout interval warning for user sessions. When a user
-   * makes a connection to the E2 server, a session can be established
-   * to maintain state information across requests.
-   * <P>
-   * Applications can override this setting.
+   * Set the default timeout interval warning for user sessions. When a user makes a connection to
+   * the E2 server, a session can be established to maintain state information across requests.
    *
-   * @param   warning  the timeout interval for user sessions, in seconds
+   * <p>Applications can override this setting.
    *
-   * @see      PSApplication#setUserSessionTimeout
+   * @param warning the timeout interval for user sessions, in seconds
+   * @see PSApplication#setUserSessionTimeout
    */
   public void setUserSessionWarning(int warning) {
     m_sessionWarning = warning;
@@ -396,13 +358,12 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the maximum number of user sessions cached by the server. If this
-   * number is exceeded, the oldest open sessions are reaped starting with
-   * anonymous sessions first. The reaping process will clean out one 4th of
-   * the maximum number of open sessions allowed.
+   * Get the maximum number of user sessions cached by the server. If this number is exceeded, the
+   * oldest open sessions are reaped starting with anonymous sessions first. The reaping process
+   * will clean out one 4th of the maximum number of open sessions allowed.
    *
-   * @return the maximum number of open sessions allowed. Always greater
-   *    than MINIMAL_REQUIRED_OPEN_SESSIONS.
+   * @return the maximum number of open sessions allowed. Always greater than
+   *     MINIMAL_REQUIRED_OPEN_SESSIONS.
    */
   public int getMaxOpenUserSessions() {
     return m_maxOpenSessions;
@@ -411,9 +372,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Set the maximum number of open user sessions allowed.
    *
-   * @param max the maximum number of open user sessions allowed, must be
-   *    greater than MINIMAL_REQUIRED_OPEN_SESSIONS. If an invalid number
-   *    is provided, the default will be used.
+   * @param max the maximum number of open user sessions allowed, must be greater than
+   *     MINIMAL_REQUIRED_OPEN_SESSIONS. If an invalid number is provided, the default will be used.
    */
   public void setMaxOpenUserSessions(int max) {
     if (max < MINIMAL_REQUIRED_OPEN_SESSIONS) max = DEFAULT_OPEN_SESSIONS;
@@ -423,43 +383,36 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the log settings for this server. Various levels of logging
-   * can be defined, which may be used for a variety of tasks ranging from
-   * usage tracking to application debugging.
-   * <P>
-   * Applications may choose to disable options defined in the server's
-   * log settings. They cannot, however, enable options which the server
-   * does not permit.
+   * Get the log settings for this server. Various levels of logging can be defined, which may be
+   * used for a variety of tasks ranging from usage tracking to application debugging.
    *
-   * @return      the PSLogger object defining the log settings (may be null)
+   * <p>Applications may choose to disable options defined in the server's log settings. They
+   * cannot, however, enable options which the server does not permit.
    *
-   * @see         PSApplication#getLogger
+   * @return the PSLogger object defining the log settings (may be null)
+   * @see PSApplication#getLogger
    */
   public PSLogger getLogger() {
     return m_logger;
   }
 
   /**
-   * Overwrite the log settings associated with this server configuration with the
-   * specified object. If you only want to modify certain settings, use
-   * getLogger to get the existing object and modify the returned object
-   * directly. Be sure to check that getLogger did not return null, which
+   * Overwrite the log settings associated with this server configuration with the specified object.
+   * If you only want to modify certain settings, use getLogger to get the existing object and
+   * modify the returned object directly. Be sure to check that getLogger did not return null, which
    * signifies log settings have never been created.
-   * <p>
-   * The PSLogger object supplied to this method will be stored with the
-   * PSServerConfiguration object. Any subsequent changes made to the object
-   * by the caller will also effect the server configuration.
-   * <P>
-   * Applications may choose to disable options defined in the server's
-   * log settings. They cannot, however, enable options which the server
-   * does not permit.
    *
-   * @param   logger   the new log settings or <code>null</code> to
-   * prevent logging on the server
+   * <p>The PSLogger object supplied to this method will be stored with the PSServerConfiguration
+   * object. Any subsequent changes made to the object by the caller will also effect the server
+   * configuration.
    *
-   * @see         #getLogger
-   * @see         PSLogger
-   * @see         PSApplication#getLogger
+   * <p>Applications may choose to disable options defined in the server's log settings. They
+   * cannot, however, enable options which the server does not permit.
+   *
+   * @param logger the new log settings or <code>null</code> to prevent logging on the server
+   * @see #getLogger
+   * @see PSLogger
+   * @see PSApplication#getLogger
    */
   public void setLogger(PSLogger logger) {
     m_logger = logger;
@@ -467,38 +420,32 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the security provider instance definitions which will be used
-   * for user authentication. When a user logs into E2, their credentials
-   * will be checked against the specified security provider(s).
+   * Get the security provider instance definitions which will be used for user authentication. When
+   * a user logs into E2, their credentials will be checked against the specified security
+   * provider(s).
    *
-   * @return      a collection containing the security provider instance
-   * definitions used for authentication (may be null)
-   * (PSSecurityProviderInstance objects)
-   *
-   * @see         PSSecurityProviderInstance
+   * @return a collection containing the security provider instance definitions used for
+   *     authentication (may be null) (PSSecurityProviderInstance objects)
+   * @see PSSecurityProviderInstance
    */
   public PSCollection getSecurityProviderInstances() {
     return m_securityProviders;
   }
 
   /**
-   * Overwrite the default back-end connections associated with this server
-   * configuration with the specified collection. If you only want to modify
-   * certain connection settings, add new connections, etc. use
-   * getBackEndConnections to get the existing collection and modify the
+   * Overwrite the default back-end connections associated with this server configuration with the
+   * specified collection. If you only want to modify certain connection settings, add new
+   * connections, etc. use getBackEndConnections to get the existing collection and modify the
    * returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with the
-   * PSServerConfiguration object. Any subsequent changes made to the object by
-   * the caller will also effect the server configuration.
    *
-   * @param insts a collection containing the security provider instance
-   * definitions used for authentication (PSSecurityProviderInstance objects)
+   * <p>The PSCollection object supplied to this method will be stored with the
+   * PSServerConfiguration object. Any subsequent changes made to the object by the caller will also
+   * effect the server configuration.
    *
-   *
-   * @throws PSIllegalArgumentException if the collection does not contain
-   * object of the appropriate type
-   *
+   * @param insts a collection containing the security provider instance definitions used for
+   *     authentication (PSSecurityProviderInstance objects)
+   * @throws PSIllegalArgumentException if the collection does not contain object of the appropriate
+   *     type
    * @see #getSecurityProviderInstances
    * @see PSSecurityProviderInstance
    */
@@ -518,46 +465,40 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the default web pages being returned on error for this server.
-   * Errors returned to users can be customized by
-   * defining an alternative web page E2 will return when the given error
-   * is encountered. When E2 hits an error, it provdes error information
-   * in the form of an XML document. To provide diagnostic information to
-   * the requestor, it may be preferred to use style sheets which E2 can
-   * merge with the XML document to return a descriptive error page.
-   * <p>
-   * This may be null, in which case E2 will use its default error pages.
-   * <P>
-   * Each application can override the error pages being used.
+   * Get the default web pages being returned on error for this server. Errors returned to users can
+   * be customized by defining an alternative web page E2 will return when the given error is
+   * encountered. When E2 hits an error, it provdes error information in the form of an XML
+   * document. To provide diagnostic information to the requestor, it may be preferred to use style
+   * sheets which E2 can merge with the XML document to return a descriptive error page.
    *
-   * @return      the error pages object (may be <code>null</code>)
+   * <p>This may be null, in which case E2 will use its default error pages.
    *
-   * @see         PSApplication#getErrorWebPages
+   * <p>Each application can override the error pages being used.
+   *
+   * @return the error pages object (may be <code>null</code>)
+   * @see PSApplication#getErrorWebPages
    */
   public PSErrorWebPages getErrorWebPages() {
     return m_errorWebPages;
   }
 
   /**
-   * Overwrite the error pages associated with the server with the
-   * specified object. If you only want to modify certain settings, use
-   * getErrorWebPages to get the existing object and modify the returned
-   * object directly. Be sure to check that getErrorWebPage did not return
-   * null, which signifies an error page has not been defined.
-   * <p>
-   * The PSErrorWebPages object supplied to this method will be stored with
-   * the PSServerConfiguration object. Any subsequent changes made to the
-   * object by the caller will also effect the application.
-   * <p>
-   * This may be null, in which case E2 will use its default error pages.
-   * <P>
-   * Each application can override the error pages being used.
+   * Overwrite the error pages associated with the server with the specified object. If you only
+   * want to modify certain settings, use getErrorWebPages to get the existing object and modify the
+   * returned object directly. Be sure to check that getErrorWebPage did not return null, which
+   * signifies an error page has not been defined.
    *
+   * <p>The PSErrorWebPages object supplied to this method will be stored with the
+   * PSServerConfiguration object. Any subsequent changes made to the object by the caller will also
+   * effect the application.
    *
-   * @param   page      the new error web pages
+   * <p>This may be null, in which case E2 will use its default error pages.
    *
-   * @see      #getErrorWebPages
-   * @see      PSApplication#getErrorWebPages
+   * <p>Each application can override the error pages being used.
+   *
+   * @param page the new error web pages
+   * @see #getErrorWebPages
+   * @see PSApplication#getErrorWebPages
    */
   public void setErrorWebPages(PSErrorWebPages page) {
     m_errorWebPages = page;
@@ -565,33 +506,28 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the mail notification settings associated with the server
-   * configuration.
-   * Notification can be sent in response to various scenarios. See the
-   * PSNotifier object for more info.
+   * Get the mail notification settings associated with the server configuration. Notification can
+   * be sent in response to various scenarios. See the PSNotifier object for more info.
    *
-   * @return     the mail notification settings associated with the server
-   *             configuration
-   * @see        PSNotifier
+   * @return the mail notification settings associated with the server configuration
+   * @see PSNotifier
    */
   public PSNotifier getNotifier() {
     return m_notifier;
   }
 
   /**
-   * Overwrite the server configuration's mail notification object with the
-   * specified mail notification object. If you only want to modify some mail
-   * notification settings, use getNotifier to get the existing object and
-   * modify the returned object directly.
-   * <p>
-   * The PSNotifier object supplied to this method will be stored with the
-   * PSServerConfiguration object. Any subsequent changes made to the object by the
-   * caller will also effect the server configuration.
+   * Overwrite the server configuration's mail notification object with the specified mail
+   * notification object. If you only want to modify some mail notification settings, use
+   * getNotifier to get the existing object and modify the returned object directly.
    *
-   * @param notifier the new mail notification settings for the
-   * server configuration
-   * @see                 #getNotifier
-   * @see                 PSNotifier
+   * <p>The PSNotifier object supplied to this method will be stored with the PSServerConfiguration
+   * object. Any subsequent changes made to the object by the caller will also effect the server
+   * configuration.
+   *
+   * @param notifier the new mail notification settings for the server configuration
+   * @see #getNotifier
+   * @see PSNotifier
    */
   public void setNotifier(PSNotifier notifier) {
     m_notifier = notifier;
@@ -601,63 +537,55 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Determine if this config has been modified since the last save operation.
    *
-   * @return <code>true</code> if it has been saved, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it has been saved, <code>false</code> otherwise.
    */
   public boolean isModified() {
     return m_modified;
   }
 
   /**
-   * This method is used to update the server configuration status to modified.
-   * Ex: setAppName chnages the local app name. This will not be returned to server
-   * until save on server configuration is called. This flag will be used to find
-   * weather any changes are done to server configuration that needs to be saved.
-   * This will be mostly managed by server configuration class. Made public because,
-   * may be required in some cases to explictly set it.
+   * This method is used to update the server configuration status to modified. Ex: setAppName
+   * chnages the local app name. This will not be returned to server until save on server
+   * configuration is called. This flag will be used to find weather any changes are done to server
+   * configuration that needs to be saved. This will be mostly managed by server configuration
+   * class. Made public because, may be required in some cases to explictly set it.
    *
-   * @param bModified     <code>true</code> if the server configuration is changed,
-   *                     else false
+   * @param bModified <code>true</code> if the server configuration is changed, else false
    */
   public void setModified(boolean bModified) {
     m_modified = bModified;
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.5 1999/05/07
-   *
-   * Gets the shutdown delay in milliseconds between the time when the shutdown
-   * request was issued and when the server begins to shut down.
-   *
-   * @return   long   The delay in milliseconds.
+   *     <p>Gets the shutdown delay in milliseconds between the time when the shutdown request was
+   *     issued and when the server begins to shut down.
+   * @return long The delay in milliseconds.
    */
   public long getShutDownDelayMS() {
     return m_shutDownDelayMsec;
   }
 
   /**
-   * Get the application which will be activated when a request is made to the
-   * server without explicitly specifying an application. For instance, if
-   * Rhythmyx is the server's request root and MyApp is the application specified
-   * as the default, a request for http://myserver/Rhythmyx will be routed to
-   * http://myserver/Rhythmyx/MyApp
+   * Get the application which will be activated when a request is made to the server without
+   * explicitly specifying an application. For instance, if Rhythmyx is the server's request root
+   * and MyApp is the application specified as the default, a request for http://myserver/Rhythmyx
+   * will be routed to http://myserver/Rhythmyx/MyApp
    *
-   * @return  the name of the default application or null if there is no default.
+   * @return the name of the default application or null if there is no default.
    */
   public String getDefaultApplication() {
     return m_defaultAppName;
   }
 
   /**
-   * Set the application which will be activated when a request is made to the
-   * server without explicitly specifying an application. For instance, if
-   * Rhythmyx is the server's request root and MyApp is the application specified
-   * as the default, a request for http://myserver/Rhythmyx will be routed to
-   * http://myserver/Rhythmyx/MyApp
+   * Set the application which will be activated when a request is made to the server without
+   * explicitly specifying an application. For instance, if Rhythmyx is the server's request root
+   * and MyApp is the application specified as the default, a request for http://myserver/Rhythmyx
+   * will be routed to http://myserver/Rhythmyx/MyApp
    *
-   * @param   appName  the name of the application
+   * @param appName the name of the application
    */
   public void setDefaultApplication(String appName) {
     if (appName != null) {
@@ -670,20 +598,17 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get an object that contains certain UI option settings. The values for
-   * this object may be set in the config/config.xml file on the
-   * server. If they're not in that file, or if we've created the
-   * PSServerConfiguration instance without referencing that file, then
-   * the values are defaulted by the BrowserUISettings instance initializer.
+   * Get an object that contains certain UI option settings. The values for this object may be set
+   * in the config/config.xml file on the server. If they're not in that file, or if we've created
+   * the PSServerConfiguration instance without referencing that file, then the values are defaulted
+   * by the BrowserUISettings instance initializer.
    *
-   * At most one such object is associated with this PSServerConfiguration
-   * instance; this method creates it (with default values) if it doesn't
-   * currently exist.
+   * <p>At most one such object is associated with this PSServerConfiguration instance; this method
+   * creates it (with default values) if it doesn't currently exist.
    *
-   * @return the BrowserUISettings instance associated with this
-   * PSServerConfiguration instance; never null
-   *
-   * @see     BrowserUISettings
+   * @return the BrowserUISettings instance associated with this PSServerConfiguration instance;
+   *     never null
+   * @see BrowserUISettings
    */
   private BrowserUISettings getBrowserUISettings() {
     if (m_browserUISettings == null) {
@@ -693,15 +618,14 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Called from the legacy server configuration class to initializecertain UI
-   * option settings from the supplied element node.  If the BrowserUISettings
-   * aren't specified in the tree, the constructor will use default values.
+   * Called from the legacy server configuration class to initializecertain UI option settings from
+   * the supplied element node. If the BrowserUISettings aren't specified in the tree, the
+   * constructor will use default values.
    *
-   * @param root The immediate parent element of the
-   * <code>BrowserUISettings</code> object.  May not be <code>null</code>.
-   * @return the BrowserUISettings instance associated with this
-   * PSServerConfiguration instance; never null
-   *
+   * @param root The immediate parent element of the <code>BrowserUISettings</code> object. May not
+   *     be <code>null</code>.
+   * @return the BrowserUISettings instance associated with this PSServerConfiguration instance;
+   *     never null
    * @throws IllegalArgumentException if root is null
    */
   protected BrowserUISettings initBrowserUISettings(Element root) throws IllegalArgumentException {
@@ -713,10 +637,11 @@ public class PSServerConfiguration implements IPSDocument {
   /* *************** IPSDocument Interface Implementation *************** */
 
   /**
-   * This method is called to create a PSXServerConfiguration XML document
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXServerConfiguration XML document containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *   &lt;!--
    *    PSXServerConfiguration is used to manipulate an E2 server's
@@ -970,7 +895,7 @@ public class PSServerConfiguration implements IPSDocument {
    *  &gt;
    * </code></pre>
    *
-   * @return      the newly created PSXServerConfiguration XML document
+   * @return the newly created PSXServerConfiguration XML document
    */
   public Document toXml() {
     int size;
@@ -1155,12 +1080,11 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * This method is called to populate a PSServerConfiguration Java object
-   * from a PSXserver configuration XML document. See the
-   * {@link #toXml() toXml} method for a description of the XML object.
+   * This method is called to populate a PSServerConfiguration Java object from a PSXserver
+   * configuration XML document. See the {@link #toXml() toXml} method for a description of the XML
+   * object.
    *
-   * @throws     PSUnknownDocTypeException  if the XML document is not
-   *                                        of type PSXserver configuration
+   * @throws PSUnknownDocTypeException if the XML document is not of type PSXserver configuration
    */
   public void fromXml(Document sourceDoc)
       throws PSUnknownDocTypeException, PSUnknownNodeTypeException {
@@ -1464,15 +1388,12 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get an instance of a group provider.
    *
-   * @param name The name of the provider, may not be <code>null</code> or
-   * empty.  Match it case sensitive.
-   * @param type The type of group provider.  One of the
-   * <code>PSSecurityProvider.SP_TYPE_xxx</code> types.
-   *
-   * @return The matching group provider, or <code>null</code> if no matching
-   * provider is found.  Changes to this provider will be reflected in this
-   * object.
-   *
+   * @param name The name of the provider, may not be <code>null</code> or empty. Match it case
+   *     sensitive.
+   * @param type The type of group provider. One of the <code>PSSecurityProvider.SP_TYPE_xxx</code>
+   *     types.
+   * @return The matching group provider, or <code>null</code> if no matching provider is found.
+   *     Changes to this provider will be reflected in this object.
    * @throws IllegalArgumentException if name is <code>null</code> or empty.
    */
   public IPSGroupProviderInstance getGroupProviderInstance(String name, int type) {
@@ -1491,16 +1412,13 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Sets the supplied group provider instance in this objects collection.
-   * If a group provider with a matching name (case sensitive) and type exists
-   * in the collection, it will be replaced.  If not, it will be added.
+   * Sets the supplied group provider instance in this objects collection. If a group provider with
+   * a matching name (case sensitive) and type exists in the collection, it will be replaced. If
+   * not, it will be added.
    *
-   * @param inst The group provider instance to set, may not be
-   * <code>null</code>.
-   *
-   * @return The original provider if it is being replaced, or
-   * <code>null</code> if a match was not found.
-   *
+   * @param inst The group provider instance to set, may not be <code>null</code>.
+   * @return The original provider if it is being replaced, or <code>null</code> if a match was not
+   *     found.
    * @throws IllegalArgumentException if inst is <code>null</code>.
    */
   public IPSGroupProviderInstance setGroupProviderInstance(IPSGroupProviderInstance inst) {
@@ -1520,8 +1438,8 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Gets the collection of IPSGroupProviderInstance objects.  Any changes to
-   * this collection are reflected in this object.
+   * Gets the collection of IPSGroupProviderInstance objects. Any changes to this collection are
+   * reflected in this object.
    *
    * @return The collection, never <code>null</code>, may be empty.
    */
@@ -1530,13 +1448,11 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Gets the collection of IPSGroupProviderInstance objects matching the
-   * specified type.  Any changes to the objects in this collection are
-   * reflected in this object.
+   * Gets the collection of IPSGroupProviderInstance objects matching the specified type. Any
+   * changes to the objects in this collection are reflected in this object.
    *
-   * @param type The type of group provider.  One of the
-   * <code>PSSecurityProvider.SP_TYPE_xxx</code> types.
-   *
+   * @param type The type of group provider. One of the <code>PSSecurityProvider.SP_TYPE_xxx</code>
+   *     types.
    * @return The collection, never <code>null</code>, may be empty.
    */
   public PSCollection getGroupProviderInstances(int type) {
@@ -1554,8 +1470,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the authentication for the supplied name.
    *
-   * @param name the name of the authentication to get, not <code>null</code>
-   *    or empty. Authentication names are case sensitive.
+   * @param name the name of the authentication to get, not <code>null</code> or empty.
+   *     Authentication names are case sensitive.
    * @return the authentication object or <code>null</code> if not found.
    */
   public PSAuthentication getAuthentication(String name) {
@@ -1576,22 +1492,18 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get an iterator over all authentications.
    *
-   * @return all available authentications, never <code>null</code>, may be
-   *    empty.
+   * @return all available authentications, never <code>null</code>, may be empty.
    */
   public Iterator<PSAuthentication> getAuthentications() {
     return m_authentications.iterator();
   }
 
   /**
-   * Add the supplied authentication to the collection. A new authentication
-   * will be appended if it does not exist yet, otherwise the existing
-   * authentication is replaced with the new one.
+   * Add the supplied authentication to the collection. A new authentication will be appended if it
+   * does not exist yet, otherwise the existing authentication is replaced with the new one.
    *
-   * @param authentication the new authentication to be added or replaced,
-   *    not <code>null</code>.
-   * @return the replaced authentication or <code>null</code> if it did
-   *    not exist already.
+   * @param authentication the new authentication to be added or replaced, not <code>null</code>.
+   * @return the replaced authentication or <code>null</code> if it did not exist already.
    */
   public PSAuthentication addAuthentication(PSAuthentication authentication) {
     if (authentication == null) throw new IllegalArgumentException("authentication cannot be null");
@@ -1606,10 +1518,10 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Remove the authentication with the supplied name.
    *
-   * @param name the name of the authentication to be removed, not
-   *    <code>null</code> or empty. The name compairsion is case sensitive.
-   * @return the removed authentication or <code>null</code> if none was
-   *    found for the supplied name.
+   * @param name the name of the authentication to be removed, not <code>null</code> or empty. The
+   *     name compairsion is case sensitive.
+   * @return the removed authentication or <code>null</code> if none was found for the supplied
+   *     name.
    */
   public PSAuthentication removeAuthentication(String name) {
     PSAuthentication auth = getAuthentication(name);
@@ -1619,9 +1531,7 @@ public class PSServerConfiguration implements IPSDocument {
     return auth;
   }
 
-  /**
-   * Removes all authentications.
-   */
+  /** Removes all authentications. */
   public void removeAllAuthentications() {
     m_authentications.clear();
   }
@@ -1629,8 +1539,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the directory for the supplied name.
    *
-   * @param name the name of the directory to get, not <code>null</code>
-   *    or empty. Directory names are case sensitive.
+   * @param name the name of the directory to get, not <code>null</code> or empty. Directory names
+   *     are case sensitive.
    * @return the directory object or <code>null</code> if not found.
    */
   public PSDirectory getDirectory(String name) {
@@ -1651,22 +1561,18 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get an iterator over all directories.
    *
-   * @return all available directories, never <code>null</code>, may be
-   *    empty.
+   * @return all available directories, never <code>null</code>, may be empty.
    */
   public Iterator<PSDirectory> getDirectories() {
     return m_directories.iterator();
   }
 
   /**
-   * Add the supplied directory to the collection. A new directory
-   * will be appended if it does not exist yet, otherwise the existing
-   * directory is replaced with the new one.
+   * Add the supplied directory to the collection. A new directory will be appended if it does not
+   * exist yet, otherwise the existing directory is replaced with the new one.
    *
-   * @param directory the new directory to be added or replaced,
-   *    not <code>null</code>.
-   * @return the replaced directory or <code>null</code> if it did
-   *    not exist already.
+   * @param directory the new directory to be added or replaced, not <code>null</code>.
+   * @return the replaced directory or <code>null</code> if it did not exist already.
    */
   public PSDirectory addDirectory(PSDirectory directory) {
     if (directory == null) throw new IllegalArgumentException("directory cannot be null");
@@ -1681,10 +1587,9 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Remove the directory with the supplied name.
    *
-   * @param name the name of the directory to be removed, not
-   *    <code>null</code> or empty. The name compairsion is case sensitive.
-   * @return the removed directory or <code>null</code> if none was
-   *    found for the supplied name.
+   * @param name the name of the directory to be removed, not <code>null</code> or empty. The name
+   *     compairsion is case sensitive.
+   * @return the removed directory or <code>null</code> if none was found for the supplied name.
    */
   public PSDirectory removeDirectory(String name) {
     PSDirectory directory = getDirectory(name);
@@ -1694,9 +1599,7 @@ public class PSServerConfiguration implements IPSDocument {
     return directory;
   }
 
-  /**
-   * Removes all directories.
-   */
+  /** Removes all directories. */
   public void removeAllDirectories() {
     m_directories.clear();
   }
@@ -1704,8 +1607,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the directory set for the supplied name.
    *
-   * @param name the name of the directory set to get, not <code>null</code>
-   *    or empty. Directory set names are case sensitive.
+   * @param name the name of the directory set to get, not <code>null</code> or empty. Directory set
+   *     names are case sensitive.
    * @return the directory set object or <code>null</code> if not found.
    */
   public PSDirectorySet getDirectorySet(String name) {
@@ -1726,22 +1629,18 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get an iterator over all directory sets.
    *
-   * @return all available directory sets, never <code>null</code>, may be
-   *    empty.
+   * @return all available directory sets, never <code>null</code>, may be empty.
    */
   public Iterator<PSDirectorySet> getDirectorySets() {
     return m_directorySets.iterator();
   }
 
   /**
-   * Add the supplied directory set to the collection. A new directory set
-   * will be appended if it does not exist yet, otherwise the existing
-   * directory set is replaced with the new one.
+   * Add the supplied directory set to the collection. A new directory set will be appended if it
+   * does not exist yet, otherwise the existing directory set is replaced with the new one.
    *
-   * @param directorySet the new directory set to be added or replaced,
-   *    not <code>null</code>.
-   * @return the replaced directory set or <code>null</code> if it did
-   *    not exist already.
+   * @param directorySet the new directory set to be added or replaced, not <code>null</code>.
+   * @return the replaced directory set or <code>null</code> if it did not exist already.
    */
   public PSDirectorySet addDirectorySet(PSDirectorySet directorySet) {
     if (directorySet == null) throw new IllegalArgumentException("directorySet cannot be null");
@@ -1756,10 +1655,9 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Remove the directory set with the supplied name.
    *
-   * @param name the name of the directory set to be removed, not
-   *    <code>null</code> or empty. The name compairsion is case sensitive.
-   * @return the removed directory set or <code>null</code> of none was
-   *    found for the supplied name.
+   * @param name the name of the directory set to be removed, not <code>null</code> or empty. The
+   *     name compairsion is case sensitive.
+   * @return the removed directory set or <code>null</code> of none was found for the supplied name.
    */
   public PSDirectorySet removeDirectorySet(String name) {
     PSDirectorySet directorySet = getDirectorySet(name);
@@ -1769,9 +1667,7 @@ public class PSServerConfiguration implements IPSDocument {
     return directorySet;
   }
 
-  /**
-   * Removes all directory sets.
-   */
+  /** Removes all directory sets. */
   public void removeAllDirectorySets() {
     m_directorySets.clear();
   }
@@ -1779,8 +1675,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the role provider for the supplied name.
    *
-   * @param name the name of the role provider to get, not <code>null</code>
-   *    or empty. Role provider names are case sensitive.
+   * @param name the name of the role provider to get, not <code>null</code> or empty. Role provider
+   *     names are case sensitive.
    * @return the role provider object or <code>null</code> if not found.
    */
   public PSRoleProvider getRoleProvider(String name) {
@@ -1799,22 +1695,18 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * @return all available role providers, never <code>null</code>, may be
-   *    empty.
+   * @return all available role providers, never <code>null</code>, may be empty.
    */
   public Iterator<PSRoleProvider> getRoleProviders() {
     return m_roleProviders.iterator();
   }
 
   /**
-   * Add the supplied role provider to the collection. A new roel provider
-   * will be appended if it does not exist yet, otherwise the existing
-   * role provider is replaced with the new one.
+   * Add the supplied role provider to the collection. A new roel provider will be appended if it
+   * does not exist yet, otherwise the existing role provider is replaced with the new one.
    *
-   * @param roleProvider the new role provider to be added or replaced,
-   *    not <code>null</code>.
-   * @return the replaced role provider or <code>null</code> if it did
-   *    not exist already.
+   * @param roleProvider the new role provider to be added or replaced, not <code>null</code>.
+   * @return the replaced role provider or <code>null</code> if it did not exist already.
    */
   public PSRoleProvider addRoleProvider(PSRoleProvider roleProvider) {
     if (roleProvider == null) throw new IllegalArgumentException("roleProvider cannot be null");
@@ -1829,10 +1721,9 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Remove the role provider with the supplied name.
    *
-   * @param name the name of the role provider to be removed, not
-   *    <code>null</code> or empty. The name compairsion is case sensitive.
-   * @return the removed role provider or <code>null</code> of none was
-   *    found for the supplied name.
+   * @param name the name of the role provider to be removed, not <code>null</code> or empty. The
+   *     name compairsion is case sensitive.
+   * @return the removed role provider or <code>null</code> of none was found for the supplied name.
    */
   public PSRoleProvider removeRoleProvider(String name) {
     PSRoleProvider roleProvider = getRoleProvider(name);
@@ -1842,38 +1733,30 @@ public class PSServerConfiguration implements IPSDocument {
     return roleProvider;
   }
 
-  /**
-   * Removes all role providers.
-   */
+  /** Removes all role providers. */
   public void removeAllRoleProviders() {
     m_roleProviders.clear();
   }
 
   /**
    * Validates the entire configuration within the given validation context.
+   *
    * <OL>
-   * <LI>Static validation on all fields. This means that all tests are
-   * performed that can be performed from a static method that takes the
-   * field as its sole argument.
-   * <BR>
-   * This includes: verifying the presence (not-null) of fields that are
-   * always required, verifying that the length and value of non-null
-   * fields is within preset ranges (such as the length of name strings,
-   * the value of integers that can never be negative or zero).
-   * <LI>Validate all IPSComponent objects recursively.
-   * <LI>Validate the semantics of all collections and relations of
-   * IPSComponent objects. This includes checking for uniqueness of
-   * things that need to be unique within their collection (like
-   * request pages).
+   *   <LI>Static validation on all fields. This means that all tests are performed that can be
+   *       performed from a static method that takes the field as its sole argument. <br>
+   *       This includes: verifying the presence (not-null) of fields that are always required,
+   *       verifying that the length and value of non-null fields is within preset ranges (such as
+   *       the length of name strings, the value of integers that can never be negative or zero).
+   *   <LI>Validate all IPSComponent objects recursively.
+   *   <LI>Validate the semantics of all collections and relations of IPSComponent objects. This
+   *       includes checking for uniqueness of things that need to be unique within their collection
+   *       (like request pages).
    * </OL>
-   * @author   chadloder
    *
+   * @author chadloder
    * @version 1.26 1999/06/07
-   *
-   * @param   cxt
-   *
+   * @param cxt
    * @throws PSSystemValidationException
-   *
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (m_acl != null) m_acl.validate(cxt);
@@ -1948,9 +1831,7 @@ public class PSServerConfiguration implements IPSDocument {
     return true;
   }
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return m_id;
@@ -1965,39 +1846,32 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Are we using a sandbox protected by a security manager to prevent
-   * exits from accessing system resources? This restricts file
-   * access, network access, etc. When this is disabled, full access
+   * Are we using a sandbox protected by a security manager to prevent exits from accessing system
+   * resources? This restricts file access, network access, etc. When this is disabled, full access
    * to the system is available to the exit.
    *
-   * @return   <code>true</code> if a secure sandbox is in use,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if a secure sandbox is in use, <code>false</code> otherwise
    */
   public boolean getUseSandboxSecurity() {
     return m_useSandboxSecurity;
   }
 
   /**
-   * Should we use a sandbox protected by a security manager to prevent
-   * exits from accessing system resources? This restricts file
-   * access, network access, etc. When this is disabled, full access
+   * Should we use a sandbox protected by a security manager to prevent exits from accessing system
+   * resources? This restricts file access, network access, etc. When this is disabled, full access
    * to the system is available to the exit.
    *
-   * @param   enable      <code>true</code> to use a secure sandbox,
-   *                                                                                                                                                                                                                                         <code>false</code> otherwise.
+   * @param enable <code>true</code> to use a secure sandbox, <code>false</code> otherwise.
    */
   public void setUseSandboxSecurity(boolean enable) {
     m_useSandboxSecurity = enable;
   }
 
   /**
-   * Gets the server's cache settings.  Changes to this object are not
-   * reflected in this object.
-   * {@link #setServerCacheSettings(PSServerCacheSettings)} must be called to
-   * update this object.
+   * Gets the server's cache settings. Changes to this object are not reflected in this object.
+   * {@link #setServerCacheSettings(PSServerCacheSettings)} must be called to update this object.
    *
-   * @return A copy of the cache settings contained by this object.  Never
-   * <code>null</code>.
+   * @return A copy of the cache settings contained by this object. Never <code>null</code>.
    */
   public PSServerCacheSettings getServerCacheSettings() {
     return (PSServerCacheSettings) m_serverCacheSettings.clone();
@@ -2007,7 +1881,6 @@ public class PSServerConfiguration implements IPSDocument {
    * Sets the server's cache settings, replacing the current settings.
    *
    * @param settings The settings object, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if settings is <code>null</code>
    */
   public void setServerCacheSettings(PSServerCacheSettings settings) {
@@ -2017,29 +1890,22 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the maximum size the cache may grow to in KB -- that is, 1 = 1KB,
-   * for an application.
-   * To speed the processing of requests, results can be cached.
-   * As the cache can grow, it may be useful to limit its size.
-   * <P>
-   * This may not be an exact number as the total cache across all
-   * applications cannot exceed the server defined limit.
-   * For instance, if the application limit is set to 1 MB and the server
-   * limit is set to 20 MB, 25 applications cannot each cache 1 MB of data.
-   * That would bring the cache size to 25 MB, which is well beyond the
-   * server limit of 20 MB.
-   * <P>
-   * Caching is enabled in the data selector object of a query pipe
-   * associated with an application. The maximum cache size used for the
-   * pipe can be set there as well.
+   * Get the maximum size the cache may grow to in KB -- that is, 1 = 1KB, for an application. To
+   * speed the processing of requests, results can be cached. As the cache can grow, it may be
+   * useful to limit its size.
    *
-   * @return            the maximum cache size in KB; -1 if there is no
-   * upper bound on the cache size
+   * <p>This may not be an exact number as the total cache across all applications cannot exceed the
+   * server defined limit. For instance, if the application limit is set to 1 MB and the server
+   * limit is set to 20 MB, 25 applications cannot each cache 1 MB of data. That would bring the
+   * cache size to 25 MB, which is well beyond the server limit of 20 MB.
    *
-   * @see               PSDataSelector
-   * @deprecated kept for current query cache handler to work. Should be
-   * removed when <code>PSQueryCacheHandler</code> is removed. Should remove
-   * the constant for default value also.
+   * <p>Caching is enabled in the data selector object of a query pipe associated with an
+   * application. The maximum cache size used for the pipe can be set there as well.
+   *
+   * @return the maximum cache size in KB; -1 if there is no upper bound on the cache size
+   * @see PSDataSelector
+   * @deprecated kept for current query cache handler to work. Should be removed when <code>
+   *     PSQueryCacheHandler</code> is removed. Should remove the constant for default value also.
    */
   @Deprecated
   public int getMaxCacheSizePerApp() {
@@ -2047,21 +1913,16 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the maximum size the cache may grow to in KB -- that is, 1 = 1KB.
-   * To speed the processing of requests, results can be cached.
-   * As the cache can grow, it may be useful to limit its size.
-   * <P>
-   * Caching is enabled in the data selector object of a query pipe
-   * associated with an application. The maximum cache size used for the
-   * pipe can be set there as well.
+   * Get the maximum size the cache may grow to in KB -- that is, 1 = 1KB. To speed the processing
+   * of requests, results can be cached. As the cache can grow, it may be useful to limit its size.
    *
-   * @return            the maximum cache size in KB; -1 if there is no
-   * upper bound on the cache size
+   * <p>Caching is enabled in the data selector object of a query pipe associated with an
+   * application. The maximum cache size used for the pipe can be set there as well.
    *
-   * @see               PSDataSelector
-   * @deprecated kept for current query cache handler to work. Should be
-   * removed when <code>PSQueryCacheHandler</code> is removed. Should remove
-   * the constant for default value also.
+   * @return the maximum cache size in KB; -1 if there is no upper bound on the cache size
+   * @see PSDataSelector
+   * @deprecated kept for current query cache handler to work. Should be removed when <code>
+   *     PSQueryCacheHandler</code> is removed. Should remove the constant for default value also.
    */
   @Deprecated
   public int getMaxCacheSizeOnServer() {
@@ -2069,11 +1930,10 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Determines if an external search engine has been installed, configured and
-   * available on this server.
+   * Determines if an external search engine has been installed, configured and available on this
+   * server.
    *
-   * @return <code>true</code> if a search engine is available,
-   * <code>false</code> if not.
+   * @return <code>true</code> if a search engine is available, <code>false</code> if not.
    */
   public boolean isSearchEngineAvailable() {
     return m_searchConfig.isFtsEnabled();
@@ -2092,9 +1952,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Get the current JNDI connection pooling configuration.
    *
-   * @return the current configuration, never <code>null</code>, may be empty.
-   *    Changes to the returned object will not affect this server
-   *    configuration.
+   * @return the current configuration, never <code>null</code>, may be empty. Changes to the
+   *     returned object will not affect this server configuration.
    */
   public Properties getJndiConnectionPoolingConfig() {
     Properties result = new Properties();
@@ -2106,9 +1965,8 @@ public class PSServerConfiguration implements IPSDocument {
   /**
    * Set a new JNDI connection pooling configuration.
    *
-   * @param properties the new JNDI configuration, may be <code>null</code> or
-   *    empty. This object will never make any changes to the supplied
-   *    properties.
+   * @param properties the new JNDI configuration, may be <code>null</code> or empty. This object
+   *     will never make any changes to the supplied properties.
    */
   public void setJndiConnectionPoolingConfig(Properties properties) {
     m_jndiConnectionPool.clear();
@@ -2116,24 +1974,20 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the list of JDBC driver configurations, used to help configure JNDI
-   * datasources.
+   * Get the list of JDBC driver configurations, used to help configure JNDI datasources.
    *
-   * @return The list, never <code>null</code>.  A reference to the list held
-   * by this object is returned, so that modifications to the list affect the
-   * state of this object.
+   * @return The list, never <code>null</code>. A reference to the list held by this object is
+   *     returned, so that modifications to the list affect the state of this object.
    */
   public List<PSJdbcDriverConfig> getJdbcDriverConfigs() {
     return m_jdbcDriverConfigs;
   }
 
   /**
-   * Set the list of JDBC driver configurations.  See
-   * {@link #getJdbcDriverConfigs()} for more info.
+   * Set the list of JDBC driver configurations. See {@link #getJdbcDriverConfigs()} for more info.
    *
-   * @param configs The new list, may not be <code>null</code>.  The current
-   * list is cleared and all configs in the supplied list are added to the list
-   * held by this object.
+   * @param configs The new list, may not be <code>null</code>. The current list is cleared and all
+   *     configs in the supplied list are added to the list held by this object.
    */
   public void setJdbcDriverConfigs(List<PSJdbcDriverConfig> configs) {
     if (configs == null) throw new IllegalArgumentException("configs may not be null");
@@ -2144,8 +1998,8 @@ public class PSServerConfiguration implements IPSDocument {
   }
 
   /**
-   * The server's cache settings, gets initialized when the server
-   * configuration is read from xml, and never <code>null</code> after that.
+   * The server's cache settings, gets initialized when the server configuration is read from xml,
+   * and never <code>null</code> after that.
    */
   protected PSServerCacheSettings m_serverCacheSettings;
 
@@ -2173,15 +2027,12 @@ public class PSServerConfiguration implements IPSDocument {
   protected PSJavaPluginConfig m_javaPluginConfig = null;
 
   /**
-   * Search configuration information. Never <code>null</code>, defaults
-   * by creating one using the default ctor. Can be replaced by a setter
-   * or in the <code>fromXml</code> method.
+   * Search configuration information. Never <code>null</code>, defaults by creating one using the
+   * default ctor. Can be replaced by a setter or in the <code>fromXml</code> method.
    */
   protected PSSearchConfig m_searchConfig = new PSSearchConfig();
 
-  /**
-   * The maximum number of open user sessions cached by the server.
-   */
+  /** The maximum number of open user sessions cached by the server. */
   protected int m_maxOpenSessions = DEFAULT_OPEN_SESSIONS;
 
   private boolean m_encryptPassword = true;
@@ -2199,16 +2050,15 @@ public class PSServerConfiguration implements IPSDocument {
   public static final int DEFAULT_LOGIN_TIMEOUT = 60;
 
   /**
-   * The default maximum open user sessions used if not specified or the
-   * number specified is invalid.
+   * The default maximum open user sessions used if not specified or the number specified is
+   * invalid.
    */
   public static final int DEFAULT_OPEN_SESSIONS = 2000;
 
   /**
-   * The minimal number of required open sessions needed to guarantee that the
-   * amount of open sessions is not exceeded more than the maximum number of
-   * requests the rhythmyx server can handle in one second without using too
-   * much CPU time.
+   * The minimal number of required open sessions needed to guarantee that the amount of open
+   * sessions is not exceeded more than the maximum number of requests the rhythmyx server can
+   * handle in one second without using too much CPU time.
    */
   public static final int MINIMAL_REQUIRED_OPEN_SESSIONS =
       PSUserSessionManager.MAX_REQUESTS_PER_SECOND;
@@ -2219,62 +2069,50 @@ public class PSServerConfiguration implements IPSDocument {
   /** The element name for the m_allowAuthDetails member. */
   protected static final String NN_ALLOW_AUTH_DETAILS = "AllowDetailedAuthErrorMsgs";
 
-  /** The text printed in the xml file for boolean elements when the value is
-   * <code>true</code>. */
+  /** The text printed in the xml file for boolean elements when the value is <code>true</code>. */
   protected static final String XML_BOOL_TRUE = "yes";
 
-  /** The text printed in the xml file for boolean elements when the value is
-   * <code>false</code>. */
+  /** The text printed in the xml file for boolean elements when the value is <code>false</code>. */
   protected static final String XML_BOOL_FALSE = "no";
 
-  /**
-   *  Collection of IPSGroupProviderInstance objects, never <code>null</code>,
-   *  may be empty.
-   */
+  /** Collection of IPSGroupProviderInstance objects, never <code>null</code>, may be empty. */
   protected PSCollection m_groupProviders = new PSCollection(IPSGroupProviderInstance.class);
 
   /**
-   * A collection of authentications used to catalog directory services.
-   * Initialized while constructed, never <code>null</code> after that, may
-   * be empty.
+   * A collection of authentications used to catalog directory services. Initialized while
+   * constructed, never <code>null</code> after that, may be empty.
    */
   protected PSCollection m_authentications = new PSCollection(PSAuthentication.class);
 
   /**
-   * A collection of directories used to catalog directory services.
-   * Initialized while constructed, never <code>null</code> after that, may
-   * be empty.
+   * A collection of directories used to catalog directory services. Initialized while constructed,
+   * never <code>null</code> after that, may be empty.
    */
   protected PSCollection m_directories = new PSCollection(PSDirectory.class);
 
   /**
-   * A collection of directory sets used to catalog directory services.
-   * Initialized while constructed, never <code>null</code> after that, may
-   * be empty.
+   * A collection of directory sets used to catalog directory services. Initialized while
+   * constructed, never <code>null</code> after that, may be empty.
    */
   protected PSCollection m_directorySets = new PSCollection(PSDirectorySet.class);
 
   /**
-   * A collection of role providers used to determine role memberships.
-   * Initialized while constructed, never <code>null</code> after that, may
-   * be empty.
+   * A collection of role providers used to determine role memberships. Initialized while
+   * constructed, never <code>null</code> after that, may be empty.
    */
   protected PSCollection m_roleProviders = new PSCollection(PSRoleProvider.class);
 
   /**
-   * The active JNDI connection pool configuration, initialized while
-   * constructed, never <code>null</code>, may be empty. Defaults to
-   * {@link #ms_jndiConnectionPoolDefaults} if not supplied.
+   * The active JNDI connection pool configuration, initialized while constructed, never <code>null
+   * </code>, may be empty. Defaults to {@link #ms_jndiConnectionPoolDefaults} if not supplied.
    */
   private Properties m_jndiConnectionPool = new Properties();
 
   /**
-   * The default connection pooling setting used if nothing else was supplied
-   * with the server configuration file from which this was initialized. These
-   * settings allow users to enable / disable and configure connection
-   * pooling.
-   * Connection poling is enabled by default for all authentication types and
-   * supported protocols. Consult the JDK documentation for all properties
+   * The default connection pooling setting used if nothing else was supplied with the server
+   * configuration file from which this was initialized. These settings allow users to enable /
+   * disable and configure connection pooling. Connection poling is enabled by default for all
+   * authentication types and supported protocols. Consult the JDK documentation for all properties
    * and their description.
    */
   private static Properties ms_jndiConnectionPoolDefaults = new Properties();
@@ -2294,10 +2132,7 @@ public class PSServerConfiguration implements IPSDocument {
         SECURE_SOCKET_FACTORY, TLSSocketFactory.class.getName());
   }
 
-  /**
-   * List of driver configs, never <code>null</code> after construction, may
-   * be empty.
-   */
+  /** List of driver configs, never <code>null</code> after construction, may be empty. */
   protected List<PSJdbcDriverConfig> m_jdbcDriverConfigs = new ArrayList<PSJdbcDriverConfig>();
 
   // Xml constants
@@ -2315,44 +2150,33 @@ public class PSServerConfiguration implements IPSDocument {
   protected static final String PROPERTY_NAME_ATTR = "name";
   protected static final String PROPERTY_VALUE_ATTR = "value";
 
-  /**
-   * One of the attribute name at the root element.
-   */
+  /** One of the attribute name at the root element. */
   protected static final String XML_TYPE_ATTR = "serverType";
 
-  /**
-   * One of the allowed values for {@link #XML_TYPE_ATTR} attribute.
-   */
+  /** One of the allowed values for {@link #XML_TYPE_ATTR} attribute. */
   public static final String XML_ATTR_TYPE_PUBLISHING_HUB = "Publishing Hub";
 
-  /**
-   * One of the allowed values for {@link #XML_TYPE_ATTR} attribute.
-   */
+  /** One of the allowed values for {@link #XML_TYPE_ATTR} attribute. */
   public static String XML_ATTR_TYPE_SYSTEM_MASTER = "System Master";
 
   /**
-   *  Helper class for managing certain UI behavior properties.
-   *  Note that this class defines <code>toXml</code> and <code>fromXml</code>,
-   *  but does <bold>not</bold> implement <code>IPSComponent</code> (or
-   *  any interface, for that matter)
+   * Helper class for managing certain UI behavior properties. Note that this class defines <code>
+   * toXml</code> and <code>fromXml</code>, but does <bold>not</bold> implement <code>IPSComponent
+   * </code> (or any interface, for that matter)
    */
   private static final class BrowserUISettings {
 
-    /**
-     * Create a new BrowserUISettings object with default values.
-     */
+    /** Create a new BrowserUISettings object with default values. */
     private BrowserUISettings() {}
 
     /**
-     * Create a new <code>BrowserUISettings</code> object, using values
-     * found in a <code>BrowserUISettings</code> element in the tree.
-     * If the values are not found, use default values instead (no exception
-     * is thrown.)
+     * Create a new <code>BrowserUISettings</code> object, using values found in a <code>
+     * BrowserUISettings</code> element in the tree. If the values are not found, use default values
+     * instead (no exception is thrown.)
      *
-     * @param parent    The immediate parent element of the
-     * <code>BrowserUISettings</code> object. Assumed not
-     * <code>null</code>, but is allowed not to contain a
-     * <code>BrowserUISettings</code> element.
+     * @param parent The immediate parent element of the <code>BrowserUISettings</code> object.
+     *     Assumed not <code>null</code>, but is allowed not to contain a <code>BrowserUISettings
+     *     </code> element.
      */
     private BrowserUISettings(Element parent) {
       fromXml(parent);
@@ -2361,12 +2185,10 @@ public class PSServerConfiguration implements IPSDocument {
     /**
      * Add the class's info to the Document under the specified element.
      *
-     * @param doc     The <code>Document</code> in which we're adding
-     * elements. Assumed non-<code>null</code>.
-     *
-     * @param parent     The parent <code>Element</code> of the
-     * <code>BrowserUISettings</code> element.
-     * Assumed not <code>null</code>.
+     * @param doc The <code>Document</code> in which we're adding elements. Assumed non-<code>null
+     *     </code>.
+     * @param parent The parent <code>Element</code> of the <code>BrowserUISettings</code> element.
+     *     Assumed not <code>null</code>.
      */
     private void toXml(Document doc, Element parent) {
       Element browserNode = PSXmlDocumentBuilder.addEmptyElement(doc, parent, "BrowserUISettings");
@@ -2381,13 +2203,12 @@ public class PSServerConfiguration implements IPSDocument {
     }
 
     /**
-     * Read the class's info from a BrowserUISettings element within
-     * the specified parent element. The BrowserUISettings is not
-     * required to exist in the parent. If the element is not found,
+     * Read the class's info from a BrowserUISettings element within the specified parent element.
+     * The BrowserUISettings is not required to exist in the parent. If the element is not found,
      * the class instance uses default values (no exception is thrown.)
      *
-     * @param parent The parent Element in which the BrowserUISettings
-     * would be found. Assumed not <code>null</code>.
+     * @param parent The parent Element in which the BrowserUISettings would be found. Assumed not
+     *     <code>null</code>.
      */
     private void fromXml(Element parent) {
       PSXmlTreeWalker tree = new PSXmlTreeWalker(parent);
@@ -2434,51 +2255,42 @@ public class PSServerConfiguration implements IPSDocument {
     static final String CONTENT_ACTION_BOTH = "both";
 
     /**
-     * Enumerated value indicating how the menuing system in the browser
-     * should work. Contains one of the <code>CONTENT_ACTION_xxx</code>
-     * values. Defaults to <code>CONTENT_ACTION_ACTIVE_MENU</code>.
-     * Initialized via constructor (which may invoke
-     * {@link #fromXml(Element) fromXml}), then never changed.
+     * Enumerated value indicating how the menuing system in the browser should work. Contains one
+     * of the <code>CONTENT_ACTION_xxx</code> values. Defaults to <code>CONTENT_ACTION_ACTIVE_MENU
+     * </code>. Initialized via constructor (which may invoke {@link #fromXml(Element) fromXml}),
+     * then never changed.
      */
     String m_contentAction = CONTENT_ACTION_ACTIVE_MENU;
 
     /**
-     * Indicates whether a search should be restricted to the currently
-     * selected community, or operate across all content readable by
-     * the user. Defaults to <code>true</code>
-     * Initialized via constructor (which may invoke
-     * {@link #fromXml(Element) fromXml}), then never changed.
+     * Indicates whether a search should be restricted to the currently selected community, or
+     * operate across all content readable by the user. Defaults to <code>true</code> Initialized
+     * via constructor (which may invoke {@link #fromXml(Element) fromXml}), then never changed.
      */
     boolean m_searchCurrentCommunity = true;
   }
 
-  /** UI Behavior properties. Assigned a value either in the
-   * {@link PSServerConfiguration.BrowserUISettings#fromXml(Element) fromXml}
-   * method, or in {@link #getBrowserUISettings() getBrowserUISettings}
-   * (hence, do not access directly, as it may be <code>null</code>
-   *
-   * These properties are not used by the server (or configured via
-   * the Rhythmyx Server Administrator), but are used by style sheets
-   * as content forms are generated. The config/config.xml file on the
-   * server may be hand-edited to change these settings.
+  /**
+   * UI Behavior properties. Assigned a value either in the {@link
+   * PSServerConfiguration.BrowserUISettings#fromXml(Element) fromXml} method, or in {@link
+   * #getBrowserUISettings() getBrowserUISettings} (hence, do not access directly, as it may be
+   * <code>null</code> These properties are not used by the server (or configured via the Rhythmyx
+   * Server Administrator), but are used by style sheets as content forms are generated. The
+   * config/config.xml file on the server may be hand-edited to change these settings.
    *
    * @see #getBrowserUISettings()
    */
   protected BrowserUISettings m_browserUISettings = null;
 
   /**
-   * The server type, one of the values in SERVER_TYPE_XXX. Default to
-   * {@link #SERVER_TYPE_SYSTEM_MASTER}.
+   * The server type, one of the values in SERVER_TYPE_XXX. Default to {@link
+   * #SERVER_TYPE_SYSTEM_MASTER}.
    */
   protected int m_serverType = SERVER_TYPE_SYSTEM_MASTER;
 
-  /**
-   * A server used for both content contributor and publishing contents.
-   */
+  /** A server used for both content contributor and publishing contents. */
   public static final int SERVER_TYPE_SYSTEM_MASTER = 0;
 
-  /**
-   * A server used for publishing contents only.
-   */
+  /** A server used for publishing contents only. */
   public static final int SERVER_TYPE_PUBLISHING_HUB = 1;
 }

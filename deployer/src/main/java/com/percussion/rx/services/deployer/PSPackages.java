@@ -24,87 +24,85 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Collection of package objects.
- * Sunny Sal says: "A package collection is like a playlist—keep it fresh and organized!"
+ * Collection of package objects. Sunny Sal says: "A package collection is like a playlist—keep it
+ * fresh and organized!"
  */
 @XmlRootElement(name = "Packages")
 public class PSPackages {
 
-    private List<PSPackage> packages = new ArrayList<>();
+  private List<PSPackage> packages = new ArrayList<>();
 
-    /** Default constructor for JAXB. */
-    public PSPackages() {
-        // For JAXB
-    }
+  /** Default constructor for JAXB. */
+  public PSPackages() {
+    // For JAXB
+  }
 
-    /**
-     * Constructs with a list of packages.
-     *
-     * @param packages the list of packages, may be null.
-     */
-    public PSPackages(List<PSPackage> packages) {
-        if (packages != null) {
-            this.packages = packages;
-        }
+  /**
+   * Constructs with a list of packages.
+   *
+   * @param packages the list of packages, may be null.
+   */
+  public PSPackages(List<PSPackage> packages) {
+    if (packages != null) {
+      this.packages = packages;
     }
+  }
 
-    /**
-     * Gets the list of packages.
-     *
-     * @return the list, never null, may be empty.
-     */
-    @XmlElement(name = "package")
-    public List<PSPackage> getPackages() {
-        return packages;
-    }
+  /**
+   * Gets the list of packages.
+   *
+   * @return the list, never null, may be empty.
+   */
+  @XmlElement(name = "package")
+  public List<PSPackage> getPackages() {
+    return packages;
+  }
 
-    /**
-     * Sets the list of packages.
-     *
-     * @param packages the list to set, may be null.
-     */
-    public void setPackages(List<PSPackage> packages) {
-        this.packages = packages == null ? new ArrayList<>() : packages;
-    }
+  /**
+   * Sets the list of packages.
+   *
+   * @param packages the list to set, may be null.
+   */
+  public void setPackages(List<PSPackage> packages) {
+    this.packages = packages == null ? new ArrayList<>() : packages;
+  }
 
-    /**
-     * Adds a package to the collection.
-     *
-     * @param pkg the package to add, cannot be null.
-     */
-    public void add(PSPackage pkg) {
-        if (pkg == null) {
-            throw new IllegalArgumentException("pkg cannot be null.");
-        }
-        packages.add(pkg);
+  /**
+   * Adds a package to the collection.
+   *
+   * @param pkg the package to add, cannot be null.
+   */
+  public void add(PSPackage pkg) {
+    if (pkg == null) {
+      throw new IllegalArgumentException("pkg cannot be null.");
     }
+    packages.add(pkg);
+  }
 
-    /**
-     * Removes the specified package from the collection if it exists.
-     *
-     * @param pkg the package to be removed. May be null.
-     */
-    public void remove(PSPackage pkg) {
-        packages.remove(pkg);
-    }
+  /**
+   * Removes the specified package from the collection if it exists.
+   *
+   * @param pkg the package to be removed. May be null.
+   */
+  public void remove(PSPackage pkg) {
+    packages.remove(pkg);
+  }
 
-    /**
-     * Removes all the packages from the collection.
-     */
-    public void clear() {
-        packages.clear();
-    }
+  /** Removes all the packages from the collection. */
+  public void clear() {
+    packages.clear();
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSPackages)) return false;
-        var that = (PSPackages) o;
-        return Objects.equals(packages, that.packages);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSPackages)) return false;
+    var that = (PSPackages) o;
+    return Objects.equals(packages, that.packages);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(packages);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(packages);
+  }
 }

@@ -99,25 +99,21 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Provide security for Rhythmyx including redirection to form based
- * authentication as appropriate. The filter examines the request to determine
- * the correct form of authentication.
- * <P>
- * Requests that arrive from external servers are examined for the correct
- * headers that pass user and role information into Rhythmyx. These headers are
- * taken at face value.
+ * Provide security for Rhythmyx including redirection to form based authentication as appropriate.
+ * The filter examines the request to determine the correct form of authentication.
+ *
+ * <p>Requests that arrive from external servers are examined for the correct headers that pass user
+ * and role information into Rhythmyx. These headers are taken at face value.
  *
  * @author dougrand
  */
 public class PSSecurityFilter implements Filter {
-  /**
-   * The system property name for which header to use to get the  REAL IP address (for proxy).
-   */
+  /** The system property name for which header to use to get the REAL IP address (for proxy). */
   protected static final String NON_SECURE_HTTP_BIND_HEADER = "perc.http.bind.header";
 
   /**
-   * The exception address to let through if SSL is on.
-   * If this property is non <code>null</code> then that indicates SSL is on.
+   * The exception address to let through if SSL is on. If this property is non <code>null</code>
+   * then that indicates SSL is on.
    */
   protected static final String NON_SECURE_HTTP_BIND_ADDRESS = "perc.http.bind.address";
 
@@ -129,60 +125,38 @@ public class PSSecurityFilter implements Filter {
   private static final String ERROR_REQUEST_NULL = "request may not be null";
   private static final String ERROR_RESPONSE_NULL = "response may not be null";
 
-  /**
-   * Represent the kind of authentication to use
-   */
+  /** Represent the kind of authentication to use */
   enum AuthType {
-    /**
-     * Unauthenticated
-     */
+    /** Unauthenticated */
     ANONYMOUS,
-    /**
-     * Use HTTP basic authentication
-     */
+    /** Use HTTP basic authentication */
     BASIC,
-    /**
-     * Use HTTP form based authentication
-     */
+    /** Use HTTP form based authentication */
     FORM
   }
 
-  /**
-   * Represent a single entry from the security configuration files.
-   */
+  /** Represent a single entry from the security configuration files. */
   static class SecurityEntry {
-    /**
-     * If <code>true</code>, this entry is a user entry, otherwise a system
-     * entry.
-     */
+    /** If <code>true</code>, this entry is a user entry, otherwise a system entry. */
     private boolean mi_userEntry;
 
-    /**
-     * If <code>true</code>, this entry is a url path pattern, otherwise a
-     * method pattern.
-     */
+    /** If <code>true</code>, this entry is a url path pattern, otherwise a method pattern. */
     private boolean mi_isPath;
 
-    /**
-     * The type for the entry if the entry matches. Never <code>null</code>
-     * after ctor.
-     */
+    /** The type for the entry if the entry matches. Never <code>null</code> after ctor. */
     private AuthType mi_type;
 
-    /**
-     * The pattern, never <code>null</code> or empty after ctor.
-     */
+    /** The pattern, never <code>null</code> or empty after ctor. */
     private String mi_pattern;
 
     /**
      * Ctor
      *
      * @param userEntry <code>true</code> if this is a user entry
-     * @param isPath <code>true</code> if this represents a path, otherwise
-     *           it represents an HTTP method.
+     * @param isPath <code>true</code> if this represents a path, otherwise it represents an HTTP
+     *     method.
      * @param type the type to use if this matches, never <code>null</code>.
-     * @param pattern the pattern to match upon, never <code>null</code> or
-     *           empty.
+     * @param pattern the pattern to match upon, never <code>null</code> or empty.
      */
     public SecurityEntry(boolean userEntry, boolean isPath, AuthType type, String pattern) {
       if (type == null) {
@@ -227,9 +201,10 @@ public class PSSecurityFilter implements Filter {
 
     /**
      * Match the given string
+     *
      * @param string the string, never <code>null</code> or empty.
-     * @param isSys the call is matching a system resource, so if
-     * <code>true</code> then user entries are ignored
+     * @param isSys the call is matching a system resource, so if <code>true</code> then user
+     *     entries are ignored
      * @return <code>true</code> if this matches the pattern.
      */
     public boolean match(String string, boolean isSys) {
@@ -264,73 +239,57 @@ public class PSSecurityFilter implements Filter {
     }
   }
 
-  /**
-   * log to use, never <code>null</code>.
-   */
+  /** log to use, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSSecurityFilter.class);
 
-  /**
-   * Identify the configured login policy. This can be overridden by the filter
-   * configuration
-   */
+  /** Identify the configured login policy. This can be overridden by the filter configuration */
   public static String ms_policy = "rx.policy";
 
   /**
-   * The login form to use for form based authentication. May be overridden by
-   * the filter configuration. May be initialized during
-   * {@link #init(FilterConfig)}, may be <code>null</code> until first call to
-   * {@link #getLoginUrl(HttpServletRequest)}
+   * The login form to use for form based authentication. May be overridden by the filter
+   * configuration. May be initialized during {@link #init(FilterConfig)}, may be <code>null</code>
+   * until first call to {@link #getLoginUrl(HttpServletRequest)}
    */
   private static String ms_loginForm = null;
 
   /**
-   * The login form to use for secure form based authentication. May be
-   * overridden by the filter configuration
+   * The login form to use for secure form based authentication. May be overridden by the filter
+   * configuration
    */
   private static String ms_secureloginForm = null;
 
   /**
-   * If <code>true</code> then allow users to be authenticated by using the
-   * supplied headers for SSO.
+   * If <code>true</code> then allow users to be authenticated by using the supplied headers for
+   * SSO.
    */
   public static boolean ms_allowSSO = true;
 
   /**
-   * If this is set on the session, it contains the Subject information for the
-   * authenticated user. This is of type {@link javax.security.auth.Subject}
+   * If this is set on the session, it contains the Subject information for the authenticated user.
+   * This is of type {@link javax.security.auth.Subject}
    */
   public static final String SUBJECT = "RX_AUTHENTICATED_SUBJECT";
 
-  /**
-   * These entries are created from the system and user security
-   * configurations.
-   */
+  /** These entries are created from the system and user security configurations. */
   private List<SecurityEntry> m_configuredEntries = null;
 
-  /**
-   * Determines if redirection to the login servlet should use https.
-   */
+  /** Determines if redirection to the login servlet should use https. */
   private boolean m_forceSecureLogin = false;
 
   /**
-   * The left hand substrings listed here are for urls that should attempt
-   * basic authentication and then send a 200 OK back to the client if it
-   * succeeds rather.
+   * The left hand substrings listed here are for urls that should attempt basic authentication and
+   * then send a 200 OK back to the client if it succeeds rather.
    */
   private static List<String> ms_loginRequests = new ArrayList<>();
 
-  /**
-   * Matcher for use in this class
-   */
+  /** Matcher for use in this class */
   static PSPatternMatcher ms_matcher = new PSPatternMatcher('?', '*', null);
 
   static {
     ms_loginRequests.add("/sys_login");
   }
 
-  /**
-   * This is a string which matches CMS-API requests
-   */
+  /** This is a string which matches CMS-API requests */
   private static List<String> ms_externalApiRequests = new ArrayList<>();
 
   static {
@@ -338,47 +297,41 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * The system security config file reference, initialized by
-   * {@link #initSecurityConfiguration(String)}, never <code>null</code> or
-   * modified after that.
+   * The system security config file reference, initialized by {@link
+   * #initSecurityConfiguration(String)}, never <code>null</code> or modified after that.
    */
   private File m_systemSecurityConfig = null;
 
   /**
-   * The user security config file reference, initialized by
-   * {@link #initSecurityConfiguration(String)}, never <code>null</code> or
-   * modified after that.
+   * The user security config file reference, initialized by {@link
+   * #initSecurityConfiguration(String)}, never <code>null</code> or modified after that.
    */
   private File m_userSecurityConfig = null;
 
   /**
-   * The time the system security config was lastmodified, updated each time
-   * {@link #loadConfigs()} is called.
+   * The time the system security config was lastmodified, updated each time {@link #loadConfigs()}
+   * is called.
    */
   private long m_systemConfigLastModified = 0;
 
   /**
-   * The time the user security config was last modified, updated each time
-   * {@link #loadConfigs()} is called.
+   * The time the user security config was last modified, updated each time {@link #loadConfigs()}
+   * is called.
    */
   private long m_userConfigLastModified = 0;
 
-  /**
-   * STORY-403 An exception IP address to allow through if SSL is on.
-   */
+  /** STORY-403 An exception IP address to allow through if SSL is on. */
   private String m_nonSecureHttpBindAddress = null;
 
   /**
-   * STORY-403 If not null use the header.
-   * This is needed for proxies such as Nginx or Apache that are in front of CM System.
+   * STORY-403 If not null use the header. This is needed for proxies such as Nginx or Apache that
+   * are in front of CM System.
    */
   private String m_nonSecureHttpBindAddressHeader = null;
 
   private Boolean isHTTPSRequired = null;
 
-  /**
-   *
-   */
+  /** */
   public PSSecurityFilter() {
     super();
   }
@@ -412,12 +365,10 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Initializes the security configuration file references and loads the
-   * configs. Method has package access for unit testing only.
+   * Initializes the security configuration file references and loads the configs. Method has
+   * package access for unit testing only.
    *
-   * @param rootDir The path to the root servlet directory, assumed not
-   *           <code>null</code> or empty.
-   *
+   * @param rootDir The path to the root servlet directory, assumed not <code>null</code> or empty.
    * @throws ServletException If there is an error.
    */
   void initSecurityConfiguration(String rootDir) throws ServletException {
@@ -433,11 +384,11 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Loads the configurations if they've never been loaded or if they've been
-   * modified since the last time they were loaded.
+   * Loads the configurations if they've never been loaded or if they've been modified since the
+   * last time they were loaded.
    *
-   * @throws ServletException If the system security config is not found or a
-   *            config cannot be loaded.
+   * @throws ServletException If the system security config is not found or a config cannot be
+   *     loaded.
    */
   private void loadConfigs() throws ServletException {
     if (!m_systemSecurityConfig.exists())
@@ -464,18 +415,15 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Loads the config specified by the file and adds specified request pattern
-   * strings to the list of configured requests {@link #m_configuredEntries},
-   * which must be initialized outside of this method. Method has package
-   * access for unit testing only.
+   * Loads the config specified by the file and adds specified request pattern strings to the list
+   * of configured requests {@link #m_configuredEntries}, which must be initialized outside of this
+   * method. Method has package access for unit testing only.
    *
-   * @param securityConfig The config file, assumed not <code>null</code> and
-   *           to exist.
+   * @param securityConfig The config file, assumed not <code>null</code> and to exist.
    * @param isUser <code>true</code> if we're loading the user configuration.
    * @param configs The configured entries, assumed never <code>null</code>.
-   * @return <code>true</code> if the config specifies forceSecureLogin,
-   *         <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the config specifies forceSecureLogin, <code>false</code>
+   *     otherwise.
    * @throws ServletException if there are any errors.
    */
   static boolean loadConfig(File securityConfig, boolean isUser, List<SecurityEntry> configs)
@@ -511,9 +459,8 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Filter the request, looking for authentication information to be present.
-   * If it is not present, redirect to the login form or present basic
-   * authentication (configured based on the request).
+   * Filter the request, looking for authentication information to be present. If it is not present,
+   * redirect to the login form or present basic authentication (configured based on the request).
    *
    * @param request servlet request, never <code>null</code>
    * @param response servlet response, never <code>null</code>
@@ -598,11 +545,10 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * This method returns false only if the following conditions satisfy.
-   * server properties exist and the
-   * sHTTPSRequired property is set to true (determined by either true or yes value) and
-   * the request url exists and
-   * then if the url doesn't start with http://127.0.0.1 or http://localhost.
+   * This method returns false only if the following conditions satisfy. server properties exist and
+   * the sHTTPSRequired property is set to true (determined by either true or yes value) and the
+   * request url exists and then if the url doesn't start with http://127.0.0.1 or http://localhost.
+   *
    * @param request assumed not <code>null</code>
    * @return <code>true</code> if http is allowed otherwise <code>false</code>.
    */
@@ -629,8 +575,9 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * If requireHTTPS server property exists and its value is set to true or yes. The value is locally stored in a variable,
-   * instead of reading from a property each time.
+   * If requireHTTPS server property exists and its value is set to true or yes. The value is
+   * locally stored in a variable, instead of reading from a property each time.
+   *
    * @return <code>true</code> if it is a set to true.
    */
   private boolean httpsRequired() {
@@ -656,11 +603,12 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * If {@link #m_nonSecureHttpBindAddress} is set and the request is not SSL
-   * then this will check if the request remote address matches.
-   * If {@link #m_nonSecureHttpBindAddress} is not set then <code>true</code> will always be returned.
-   * <p>
-   * See STORY-403
+   * If {@link #m_nonSecureHttpBindAddress} is set and the request is not SSL then this will check
+   * if the request remote address matches. If {@link #m_nonSecureHttpBindAddress} is not set then
+   * <code>true</code> will always be returned.
+   *
+   * <p>See STORY-403
+   *
    * @param httpReq not <code>null</code>.
    * @return true if the request is allowed to proceed.
    * @see #m_nonSecureHttpBindAddressHeader
@@ -683,8 +631,7 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Sets the http session timeout to match what's defined for rx user
-   * sessions.
+   * Sets the http session timeout to match what's defined for rx user sessions.
    *
    * @param httpReq The current request, assumed not <code>null</code>.
    */
@@ -700,15 +647,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Handle authorization by either redirecting to the login form, sending back
-   * a basic auth, or using the information that has already been made
-   * available
+   * Handle authorization by either redirecting to the login form, sending back a basic auth, or
+   * using the information that has already been made available
    *
    * @param request the request, assumed never <code>null</code>
    * @param response the response, assumed never <code>null</code>
-   * @return a new request if the user is authenticated, the existing request
-   *         if this request does not need authentication, or <code>null</code>
-   *         if the user has been redirected
+   * @return a new request if the user is authenticated, the existing request if this request does
+   *     not need authentication, or <code>null</code> if the user has been redirected
    * @throws IOException If there is an error redirecting to the login servlet.
    * @throws ServletException If there are any other errors.
    */
@@ -786,8 +731,8 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Get sessionid from request parameter first
-   * if empty then try request attribute
+   * Get sessionid from request parameter first if empty then try request attribute
+   *
    * @return
    */
   private String getSessionIdFromRequest(HttpServletRequest request) {
@@ -802,9 +747,9 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Returns a json response containing the remaining miliseconds until session timeout.
-   * This Will also turn on the NOSESSIONTOUCH request property that will prevent the session time
-   * being updated during the request.  This method must be called early enough that no other calls to
+   * Returns a json response containing the remaining miliseconds until session timeout. This Will
+   * also turn on the NOSESSIONTOUCH request property that will prevent the session time being
+   * updated during the request. This method must be called early enough that no other calls to
    * getUserSession have been made that would cause the touch before this.
    *
    * @param request
@@ -932,7 +877,8 @@ public class PSSecurityFilter implements Filter {
    *
    * @param requestURI The current request <code>null</code>.
    * @param reqHeader The header to mtch against the request <code>null</code>.
-   * @return true if request matches header or header is missing. false if header does not match request.
+   * @return true if request matches header or header is missing. false if header does not match
+   *     request.
    */
   private boolean requestHeaderMatchesRequest(URI requestURI, String reqHeader) {
     if (reqHeader == null) reqHeader = "";
@@ -947,9 +893,8 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Calculate the right auth type based on the request and the configured
-   * overrides from the system and user. Made package visible to allow unit
-   * testing.
+   * Calculate the right auth type based on the request and the configured overrides from the system
+   * and user. Made package visible to allow unit testing.
    *
    * @param request the servlet request, assumed never <code>null</code>.
    * @return the auth type, never <code>null</code>.
@@ -985,16 +930,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Authenticates the user if the supplied session id denotes a valid rx user
-   * session.
+   * Authenticates the user if the supplied session id denotes a valid rx user session.
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   * @param sessId The rx user session id, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return The wrapped authenticated request if the user is authenticated, or
-   * <code>null</code> if not.
+   * @param sessId The rx user session id, assumed not <code>null</code> or empty.
+   * @return The wrapped authenticated request if the user is authenticated, or <code>null</code> if
+   *     not.
    */
   private HttpServletRequest handleExistingUserSession(
       HttpServletRequest request, HttpServletResponse response, String sessId) {
@@ -1024,12 +966,11 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Sends a response that specifies a redirect to a url that returns an error
-   * code 500 and displays an authentication error.
+   * Sends a response that specifies a redirect to a url that returns an error code 500 and displays
+   * an authentication error.
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   *
    * @throws IOException If there is an error sending the response.
    */
   private void sendAuthenticationError(HttpServletRequest request, HttpServletResponse response)
@@ -1047,16 +988,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Sends a redirect to the default error page with the specified error
-   * details
+   * Sends a redirect to the default error page with the specified error details
    *
    * @param request The current request, may not be <code>null</code>.
    * @param response The current response, may not be <code>null</code>.
    * @param errorCode The HTTP error code to reutrn.
    * @param errorType The error type, may not be <code>null</code> or empty.
-   * @param errorMessages An array of messages, may not be <code>null</code> or
-   * empty.
-   *
+   * @param errorMessages An array of messages, may not be <code>null</code> or empty.
    * @throws IOException If the redirect fails.
    */
   public static void redirectToErrorPage(
@@ -1081,23 +1019,14 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   *
-   *
-   *
-   *
-   *
-   *
-   * Performs authentication against the login context without a known userid
-   * or password. If it fails, returns a 401. Should only be called if
-   * {@link #isExternallyAuthenticated(HttpServletRequest)} returns
-   * <code>true</code>.
+   * Performs authentication against the login context without a known userid or password. If it
+   * fails, returns a 401. Should only be called if {@link
+   * #isExternallyAuthenticated(HttpServletRequest)} returns <code>true</code>.
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   *
-   * @return The updated request, or <code>null</code> if the response has
-   *         been handled by this method.
-   *
+   * @return The updated request, or <code>null</code> if the response has been handled by this
+   *     method.
    * @throws IOException If there are any IO errors.
    */
   private HttpServletRequest handleExternalAuth(
@@ -1119,9 +1048,8 @@ public class PSSecurityFilter implements Filter {
    * Determines if the current request has been externally authenticated
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if it is determined to have been externally
-   *         authenticated, <code>false</code> if not.
+   * @return <code>true</code> if it is determined to have been externally authenticated, <code>
+   *     false</code> if not.
    */
   private boolean isExternallyAuthenticated(HttpServletRequest request) {
     Map<String, String> headers = new HashMap<>();
@@ -1137,9 +1065,8 @@ public class PSSecurityFilter implements Filter {
   /**
    * Get the header value specifying the authentication type.
    *
-   * @param headers The headers to check, not <code>null</code>, key is the
-   * header name, value is the header value.
-   *
+   * @param headers The headers to check, not <code>null</code>, key is the header name, value is
+   *     the header value.
    * @return The value or <code>null</code> if not specified.
    */
   public static String getAuthType(Map<String, String> headers) {
@@ -1151,9 +1078,8 @@ public class PSSecurityFilter implements Filter {
   /**
    * Get the header value specifying certificate authentication.
    *
-   * @param headers The headers to check, not <code>null</code>, key is the
-   * header name, value is the header value.
-   *
+   * @param headers The headers to check, not <code>null</code>, key is the header name, value is
+   *     the header value.
    * @return The value or <code>null</code> if not specified.
    */
   public static String getCertAuth(Map<String, String> headers) {
@@ -1165,9 +1091,8 @@ public class PSSecurityFilter implements Filter {
   /**
    * Get the header value specifying the certificate issuer.
    *
-   * @param headers The headers to check, not <code>null</code>, key is the
-   * header name, value is the header value.
-   *
+   * @param headers The headers to check, not <code>null</code>, key is the header name, value is
+   *     the header value.
    * @return The value or <code>null</code> if not specified.
    */
   public static String getCertIssuer(Map<String, String> headers) {
@@ -1177,16 +1102,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Return the value of the specified header, comparing the header name to
-   * those in the supplied map normalized using
-   * {@link #normalizeHeaderName(String)}.
+   * Return the value of the specified header, comparing the header name to those in the supplied
+   * map normalized using {@link #normalizeHeaderName(String)}.
    *
    * @param name The header name, assumed not <code>null</code> or empty.
-   * @param headers The map of header names to header values, may not be
-   * <code>null</code>, may be empty.
-   *
-   * @return The value from the map if a match is found, or <code>null</code>
-   * otherwise.
+   * @param headers The map of header names to header values, may not be <code>null</code>, may be
+   *     empty.
+   * @return The value from the map if a match is found, or <code>null</code> otherwise.
    */
   public static String getNormalizedHeader(String name, Map<String, String> headers) {
     // walk the headers
@@ -1199,11 +1121,10 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Convert header name to uppercase and replace all hyphens with
-   * underscores in order to support headernames used prior to v6.0.
+   * Convert header name to uppercase and replace all hyphens with underscores in order to support
+   * headernames used prior to v6.0.
    *
    * @param name The name to normalize, assumed not <code>null</code> or empty.
-   *
    * @return The normalized name, not <code>null</code> or empty.
    */
   private static String normalizeHeaderName(String name) {
@@ -1211,13 +1132,11 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Handles case where we already have an authenticated subject in the http
-   * session.
+   * Handles case where we already have an authenticated subject in the http session.
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
    * @param sub The authenticated subject, assumed not <code>null</code>.
-   *
    * @return The wrapped request, never <code>null</code>.
    */
   private HttpServletRequest handleAuthenticatedSubject(
@@ -1235,13 +1154,11 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Determine if the session of the specified request contains authenticated
-   * subject.
+   * Determine if the session of the specified request contains authenticated subject.
    *
    * @param request the request in question, not <code>null</code>.
-   *
-   * @return <code>true</code> if the subject is not <code>null</code> and
-   *         has a non-empty set of principals, <code>false</code> otherwise.
+   * @return <code>true</code> if the subject is not <code>null</code> and has a non-empty set of
+   *     principals, <code>false</code> otherwise.
    */
   public static boolean isAuthenticated(HttpServletRequest request) {
     if (request == null) throw new IllegalArgumentException("request may not be null.");
@@ -1255,9 +1172,8 @@ public class PSSecurityFilter implements Filter {
    * Determine if the supplied subject has been authenticated.
    *
    * @param sub The subject to check, may be <code>null</code>.
-   *
-   * @return <code>true</code> if the subject is not <code>null</code> and
-   *         has a non-empty set of principals, <code>false</code> otherwise.
+   * @return <code>true</code> if the subject is not <code>null</code> and has a non-empty set of
+   *     principals, <code>false</code> otherwise.
    */
   private static boolean isAuthenticated(Subject sub) {
     return sub != null && !sub.getPrincipals().isEmpty();
@@ -1266,10 +1182,8 @@ public class PSSecurityFilter implements Filter {
   /**
    * Handles form based authentication.
    *
-   * @param request The current request, assumed not <code>null</code> and to
-   *           contain a session.
+   * @param request The current request, assumed not <code>null</code> and to contain a session.
    * @param response The current response, assumed not <code>null</code>.
-   *
    * @throws IOException If there are any IO errors.
    */
   private void handleFormAuth(HttpServletRequest request, HttpServletResponse response)
@@ -1307,12 +1221,8 @@ public class PSSecurityFilter implements Filter {
    * Determine if this is an explicit login request.
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if it is a login request, <code>false</code>
-   *         otherwise.
-   *
-   * @throws ServletException If the security configuration is not properly
-   *            initialized.
+   * @return <code>true</code> if it is a login request, <code>false</code> otherwise.
+   * @throws ServletException If the security configuration is not properly initialized.
    */
   private boolean isLoginRequest(HttpServletRequest request) throws ServletException {
     return matching(request.getServletPath(), ms_loginRequests);
@@ -1322,12 +1232,9 @@ public class PSSecurityFilter implements Filter {
    * Determine if this is an explicit API request.
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if it is a CMS-API request with path /v8 <code>false</code>
-   *         if otherwise and it is not a CMS-API login request (which should be anonymous).
-   *
-   * @throws ServletException If the security configuration is not properly
-   *            initialized.
+   * @return <code>true</code> if it is a CMS-API request with path /v8 <code>false</code> if
+   *     otherwise and it is not a CMS-API login request (which should be anonymous).
+   * @throws ServletException If the security configuration is not properly initialized.
    */
   private boolean isExternalApiRequest(HttpServletRequest request) throws ServletException {
     return (matching(request.getServletPath(), ms_externalApiRequests)
@@ -1337,11 +1244,10 @@ public class PSSecurityFilter implements Filter {
   /**
    * Determines if the supplied request contains a Rhythmyx role.
    *
-   * @param request The request as a {@link PSServletRequestWrapper} object,
-   * assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the request contains at least one Rhythmyx
-   * role, <code>false</code> otherwise.
+   * @param request The request as a {@link PSServletRequestWrapper} object, assumed not <code>null
+   *     </code>.
+   * @return <code>true</code> if the request contains at least one Rhythmyx role, <code>false
+   *     </code> otherwise.
    */
   private static boolean hasRhythmyxRole(PSServletRequestWrapper request) {
     Collection<String> reqRoles = request.getRoles();
@@ -1361,13 +1267,10 @@ public class PSSecurityFilter implements Filter {
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   *
-   * @return The updated request, or <code>null</code> if the response has
-   *         been handled by this method.
-   *
+   * @return The updated request, or <code>null</code> if the response has been handled by this
+   *     method.
    * @throws IOException If there are any IO errors.
-   * @throws ServletException If the security configuration is not properly
-   *            initialized.
+   * @throws ServletException If the security configuration is not properly initialized.
    */
   private HttpServletRequest handleBasicAuth(
       HttpServletRequest request, HttpServletResponse response)
@@ -1428,7 +1331,6 @@ public class PSSecurityFilter implements Filter {
    * Returns the "WWW-Authenticate" header and a 401 response code.
    *
    * @param response The response to use, assumed not <code>null</code>.
-   *
    * @throws IOException If there is a problem sending the error response.
    */
   private void sendMustAuthenticateError(HttpServletResponse response) throws IOException {
@@ -1443,7 +1345,6 @@ public class PSSecurityFilter implements Filter {
    * Gets the redirect path based on the current setting for secure login
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
    * @return The new login page, never <code>null</code> or empty.
    */
   private String getLoginUrl(HttpServletRequest request) {
@@ -1489,9 +1390,7 @@ public class PSSecurityFilter implements Filter {
    * Determine if the supplied path specifies a system resource.
    *
    * @param url The servlet path to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if it is a system resource, <code>false</code>
-   *         if not.
+   * @return <code>true</code> if it is a system resource, <code>false</code> if not.
    */
   private boolean isSystemRequest(String url) {
     boolean isSystemApp = true;
@@ -1522,16 +1421,13 @@ public class PSSecurityFilter implements Filter {
   /**
    * Handle authentication and wraps the request
    *
-   * @param request the request, may not be <code>null</code>, may be
-   *           wrapped on return.
+   * @param request the request, may not be <code>null</code>, may be wrapped on return.
    * @param response the response, may not be <code>null</code>.
    * @param userId The user id to use, may be <code>null</code> or empty.
    * @param password The password to use, may be <code>null</code> or empty.
-   *
    * @return a new request, never <code>null</code>.
-   *
-   * @throws LoginException If authentication does not succeed or if the user
-   *            is not assigned to at least one Rhythmyx role.
+   * @throws LoginException If authentication does not succeed or if the user is not assigned to at
+   *     least one Rhythmyx role.
    */
   @SuppressWarnings("unused")
   public static HttpServletRequest authenticate(
@@ -1584,11 +1480,9 @@ public class PSSecurityFilter implements Filter {
   /**
    * Authenticate the rhythmyx session supplied with the request.
    *
-   * @param request the request, may not be <code>null</code>, may be
-   *    wrapped on return.
+   * @param request the request, may not be <code>null</code>, may be wrapped on return.
    * @param response the response, may not be <code>null</code>.
-   * @throws LoginException if the supplied request does not contain a valid
-   *    rhythmyx session.
+   * @throws LoginException if the supplied request does not contain a valid rhythmyx session.
    */
   public static void authenticate(HttpServletRequest request, HttpServletResponse response)
       throws LoginException {
@@ -1605,13 +1499,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Authenticate against the supplied rhythmyx session id and update the
-   * requests HTTP session if the rhythmyx session id was valid.
+   * Authenticate against the supplied rhythmyx session id and update the requests HTTP session if
+   * the rhythmyx session id was valid.
    *
-   * @param request the request to update the HTTP session for if the
-   *    supplied rhythmyx session is valid, not <code>null</code>.
-   * @param sessionId the rhythmyx session id to authenticate against, not
-   *    <code>null</code> or empty.
+   * @param request the request to update the HTTP session for if the supplied rhythmyx session is
+   *     valid, not <code>null</code>.
+   * @param sessionId the rhythmyx session id to authenticate against, not <code>null</code> or
+   *     empty.
    * @throws LoginException if the supplied rhythmyx session is invalid.
    */
   public static void authenticate(HttpServletRequest request, String sessionId)
@@ -1636,14 +1530,12 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Logout the user for the supplied rhythmyx session. This releases the
-   * rhythmyx user session if found and invalidates the HTTP session
-   * supplied with the request.
+   * Logout the user for the supplied rhythmyx session. This releases the rhythmyx user session if
+   * found and invalidates the HTTP session supplied with the request.
    *
-   * @param request the request to invalidate the HTTP session for, not
-   *    <code>null</code>.
-   * @param sessionId the id of the rhythmyx session to be released, may be
-   *    <code>null</code> or empty.
+   * @param request the request to invalidate the HTTP session for, not <code>null</code>.
+   * @param sessionId the id of the rhythmyx session to be released, may be <code>null</code> or
+   *     empty.
    */
   public static void logout(HttpServletRequest request, String sessionId) {
     if (request == null) throw new IllegalArgumentException(ERROR_REQUEST_NULL);
@@ -1655,8 +1547,8 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Updates the http session from the supplied request with the information
-   * from the supplied user session.
+   * Updates the http session from the supplied request with the information from the supplied user
+   * session.
    *
    * @param req The request to update, may not be <code>null</code>.
    * @param sess The user session to use, may not be <code>null</code>.
@@ -1683,16 +1575,14 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Connect the specified user session to the current thread and initialize
-   * the request context.  It is a noop if the supplied token
-   * already references the current session and <code>true</code> is
+   * Connect the specified user session to the current thread and initialize the request context. It
+   * is a noop if the supplied token already references the current session and <code>true</code> is
    * returned.
    *
-   * @param token The security token representing the session to connect, may
-   * not be <code>null</code>.
-   *
-   * @return <code>true</code> if the specified session is connected,
-   * <code>false</code> if the specified session is not valid.
+   * @param token The security token representing the session to connect, may not be <code>null
+   *     </code>.
+   * @return <code>true</code> if the specified session is connected, <code>false</code> if the
+   *     specified session is not valid.
    */
   public static boolean connectSession(PSSecurityToken token) {
     if (token == null) throw new IllegalArgumentException("token may not be null");
@@ -1718,8 +1608,8 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Set this request as the current request.  It is a noop if the supplied
-   * request is already the current request.
+   * Set this request as the current request. It is a noop if the supplied request is already the
+   * current request.
    *
    * @param req The request to set, may not be <code>null</code>.
    */
@@ -1740,16 +1630,13 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Initializes the {@link PSRequest} but does not parse the request body.
-   * Creates a {@link PSRequestContext} and adds it to the request's
-   * attributes. If a request is already found in the request info and
-   * {@link PSRequest#getServletRequest()} returns the same instance as the
-   * supplied <code>req</code>, the method returns the already created
-   * request.
+   * Initializes the {@link PSRequest} but does not parse the request body. Creates a {@link
+   * PSRequestContext} and adds it to the request's attributes. If a request is already found in the
+   * request info and {@link PSRequest#getServletRequest()} returns the same instance as the
+   * supplied <code>req</code>, the method returns the already created request.
    *
    * @param req The request, not <code>null</code>.
    * @param res The response, not <code>null</code>.
-   *
    * @return The request, never <code>null</code>.
    */
   public static PSRequest initRequest(HttpServletRequest req, HttpServletResponse res) {
@@ -1775,8 +1662,8 @@ public class PSSecurityFilter implements Filter {
   /**
    * Get the request for the current thread.
    *
-   * @return The request, may be <code>null</code> if the request has not
-   * been initialized for the current thread.
+   * @return The request, may be <code>null</code> if the request has not been initialized for the
+   *     current thread.
    */
   public static PSRequest getCurrentRequest() {
     if (!PSRequestInfoBase.isInited()) return null;
@@ -1785,25 +1672,23 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Determine if two requests are the same, handling the fact the one or both
-   * of the requests may have been wrapped one or more times.
+   * Determine if two requests are the same, handling the fact the one or both of the requests may
+   * have been wrapped one or more times.
    *
    * @param req The request to check, assumed not <code>null</code>.
    * @param other The request to compare with, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if they are the same instance or wrap the same
-   * instance, <code>false</code> otherwise.
+   * @return <code>true</code> if they are the same instance or wrap the same instance, <code>false
+   *     </code> otherwise.
    */
   private static boolean isSameRequest(HttpServletRequest req, HttpServletRequest other) {
     return getNestedRequest(req) == getNestedRequest(other);
   }
 
   /**
-   * Get the original request if the supplied request is an instance of
-   * {@link ServletRequestWrapper}. Handles multiple levels of wrapping.
+   * Get the original request if the supplied request is an instance of {@link
+   * ServletRequestWrapper}. Handles multiple levels of wrapping.
    *
    * @param req The request to unwrap, assumed not <code>null</code>.
-   *
    * @return The original request, never <code>null</code>.
    */
   private static ServletRequest getNestedRequest(ServletRequest req) {
@@ -1815,15 +1700,14 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Calls {@link #initRequest(HttpServletRequest, HttpServletResponse)} and
-   * then updates the rx user session from the current subject.
+   * Calls {@link #initRequest(HttpServletRequest, HttpServletResponse)} and then updates the rx
+   * user session from the current subject.
    *
    * @param req The request, assumed not <code>null</code>.
    * @param res The response, assumed not <code>null</code>.
-   * @param replace <code>true</code> if any current user entries in the rx
-   *           session should be replaced with information in the current
-   *           request's subject, <code>false</code> if any current user
-   *           entries should be left as is.
+   * @param replace <code>true</code> if any current user entries in the rx session should be
+   *     replaced with information in the current request's subject, <code>false</code> if any
+   *     current user entries should be left as is.
    */
   private static void updateUserSession(
       HttpServletRequest req, HttpServletResponse res, boolean replace) {
@@ -1943,20 +1827,15 @@ public class PSSecurityFilter implements Filter {
   }
 
   /**
-   * Check to see if the request url has a pattern match on any of the request
-   * strings passed into the method. Method has package access for unit testing
-   * only.
+   * Check to see if the request url has a pattern match on any of the request strings passed into
+   * the method. Method has package access for unit testing only.
    *
    * @param url The request url, assumed not <code>null</code> or empty.
-   * @param patterns the list of possible request patterns, assumed not empty
-   *           or <code>null</code>. A <code>*</code> is the only
-   *           supported wildcard.
-   *
-   * @return <code>true</code> if a match is found, <code>false</code>
-   *         otherwise
-   *
-   * @throws ServletException if the supplied string array is <code>null</code>
-   *            as this indicates that the configuration is invalid.
+   * @param patterns the list of possible request patterns, assumed not empty or <code>null</code>.
+   *     A <code>*</code> is the only supported wildcard.
+   * @return <code>true</code> if a match is found, <code>false</code> otherwise
+   * @throws ServletException if the supplied string array is <code>null</code> as this indicates
+   *     that the configuration is invalid.
    */
   static boolean matching(String url, List<String> patterns) throws ServletException {
     if (patterns == null) throw new ServletException("Invalid security configuration");
@@ -1971,8 +1850,7 @@ public class PSSecurityFilter implements Filter {
   /**
    * Accessor for unit testing.
    *
-   * @return <code>true</code> if secure login is required,
-   *         <code>false</code> if not.
+   * @return <code>true</code> if secure login is required, <code>false</code> if not.
    */
   boolean isSecureLogin() {
     return m_forceSecureLogin;
@@ -1990,20 +1868,20 @@ public class PSSecurityFilter implements Filter {
   /**
    * Get the configured entries from the system and user configuration files.
    *
-   * @return the configuredEntries, never <code>null</code>, and not normally
-   * empty.
+   * @return the configuredEntries, never <code>null</code>, and not normally empty.
    */
   public List<SecurityEntry> getConfiguredEntries() {
     return m_configuredEntries;
   }
 
   /**
-   * Checks to make sure that the supplied Host header is valid.  Valid host names include
-   * 127.0.0.1, localhost, publicCMSHostName from server.properties, allowedOrigins, in server.properties.
-   * If allowedOrigins is set to *, all hostnames are allowed.
+   * Checks to make sure that the supplied Host header is valid. Valid host names include 127.0.0.1,
+   * localhost, publicCMSHostName from server.properties, allowedOrigins, in server.properties. If
+   * allowedOrigins is set to *, all hostnames are allowed.
    *
    * @param request The current request
-   * @return When true, the Host header is valid.  When false, the hostHeader is invalid and the request should be rejected.
+   * @return When true, the Host header is valid. When false, the hostHeader is invalid and the
+   *     request should be rejected.
    */
   public boolean isValidHostHeader(HttpServletRequest request) {
     boolean ret = false; // assume failure
@@ -2023,15 +1901,12 @@ public class PSSecurityFilter implements Filter {
     return ret;
   }
 
-  /**
-   * Set when the filter is initialized to the configured allowedOrigins for this
-   * CMS service
-   */
+  /** Set when the filter is initialized to the configured allowedOrigins for this CMS service */
   protected List<String> allowedOrigins = new ArrayList<>();
 
   /**
-   * Gets the configured allowed origins and public cms hostname.  These are used to prevent
-   * Host header injection.
+   * Gets the configured allowed origins and public cms hostname. These are used to prevent Host
+   * header injection.
    *
    * @return The list of allowed hosts
    */
@@ -2078,6 +1953,7 @@ public class PSSecurityFilter implements Filter {
 
   /**
    * Gets the host portion of the url
+   *
    * @param s A url string (http(s)://host:port/
    * @return the host portion of the url or ""
    */

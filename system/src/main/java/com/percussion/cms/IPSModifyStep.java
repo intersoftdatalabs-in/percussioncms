@@ -26,21 +26,17 @@ import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 
 /**
- * Interface for executing modify steps as part of a {@link PSModifyPlan}.
- * Steps are executed by making requests to an internal request handler.
+ * Interface for executing modify steps as part of a {@link PSModifyPlan}. Steps are executed by
+ * making requests to an internal request handler.
  */
 public interface IPSModifyStep {
   /**
    * Executes the request against an internal resource handler.
    *
-   * @param data The execution data.  May not be <code>null</code>.
-   *
-   * @throws PSAuthorizationException if the user is not authorized to
-   * perform the step.
-   * @throws PSAuthenticationFailedException if the user cannot be
-   * authenticated.
-   * @throws PSSystemValidationException if the step does any validation and the
-   * validation fails.
+   * @param data The execution data. May not be <code>null</code>.
+   * @throws PSAuthorizationException if the user is not authorized to perform the step.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated.
+   * @throws PSSystemValidationException if the step does any validation and the validation fails.
    * @throws PSInternalRequestCallException if there are any other errors.
    * @throws IllegalArgumentException if data is <code>null</code>.
    * @throws IllegalStateException if a handler has not been set.
@@ -54,11 +50,10 @@ public interface IPSModifyStep {
   /**
    * Sets the handler on this step.
    *
-   * @param handler The resource handler for this type.  May not be <code>
+   * @param handler The resource handler for this type. May not be <code>
    * null</code>.
-   *
-   * @throws IllegalArgumentException if handler is <code>null</code>, or if a
-   * handler has already been set on this step.
+   * @throws IllegalArgumentException if handler is <code>null</code>, or if a handler has already
+   *     been set on this step.
    */
   public void setHandler(IPSInternalRequestHandler handler);
 
@@ -72,8 +67,8 @@ public interface IPSModifyStep {
   /**
    * Returns the request name used to retrieve the handler.
    *
-   * @return The request name associated with the handler used by this step.
-   * Never <code>null</code>.
+   * @return The request name associated with the handler used by this step. Never <code>null</code>
+   *     .
    */
   public String getName();
 }

@@ -26,44 +26,36 @@ import java.util.Objects;
 import org.w3c.dom.Element;
 
 /**
- * The PSApplicationDesignError class is used to report a design error
- * in the application. When E2 encounters a design error at run-time,
- * this may be caused by files having been deleted or renamed, or the
- * application may have been saved with validation disabled.
- * <p>
- * The following information is logged:
+ * The PSApplicationDesignError class is used to report a design error in the application. When E2
+ * encounters a design error at run-time, this may be caused by files having been deleted or
+ * renamed, or the application may have been saved with validation disabled.
+ *
+ * <p>The following information is logged:
+ *
  * <ul>
- * <li>the text of the error</li>
- * <li>the XML element node(s) in error</li>
+ *   <li>the text of the error
+ *   <li>the XML element node(s) in error
  * </ul>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public final class PSApplicationDesignError extends PSLogError {
 
   /**
    * Report an application design error.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      errorCode      the error code describing the type of error
-   *
-   * @param      errorParams    if the error string associated with the
-   *                            error code specifies parameters, this is
-   *                            an array of values to use to fill the string
-   *                            appropriately. Be sure to include the
-   *                            correct arguments in their correct
-   *                            positions!
-   *
-   * @param      source         the XML sub-tree containing the element(s)
-   *                            causing the error
+   * @param applId the id of the application that generated the error
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param source the XML sub-tree containing the element(s) causing the error
    */
   public PSApplicationDesignError(int applId, int errorCode, Object[] errorParams, Element source) {
     super(applId);
@@ -73,10 +65,7 @@ public final class PSApplicationDesignError extends PSLogError {
     m_source = Objects.isNull(source) ? "" : PSXmlDocumentBuilder.toString(source);
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale
-   */
+  /** Subclasses must override this to build the messages in the specified locale */
   @Override
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     Objects.requireNonNull(loc, "locale cannot be null");

@@ -25,13 +25,9 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The PSRelationshipInfoSet contains a list of PSRelationshipInfo objects
- */
+/** The PSRelationshipInfoSet contains a list of PSRelationshipInfo objects */
 public class PSRelationshipInfoSet implements IPSCmsComponent {
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSRelationshipInfoSet() {}
 
   /**
@@ -62,8 +58,7 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
   /**
    * Get the relationship info objects
    *
-   * @return An iterator over <code>0</code> or more
-   *    <code>PSRelationshipInfo</code> objects.
+   * @return An iterator over <code>0</code> or more <code>PSRelationshipInfo</code> objects.
    */
   public Iterator getComponents() {
     return m_compList.iterator();
@@ -78,9 +73,7 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
     return m_compList.size();
   }
 
-  /**
-   * See {@link IPSCmsComponent#equals(Object)}
-   */
+  /** See {@link IPSCmsComponent#equals(Object)} */
   public boolean equals(Object o) {
     if (!(o instanceof PSComponentSummaries)) return false;
 
@@ -89,22 +82,20 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
     return m_compList.equals(obj2.m_compList);
   }
 
-  /**
-   * See {@link IPSCmsComponent#hashCode()}
-   */
+  /** See {@link IPSCmsComponent#hashCode()} */
   public int hashCode() {
     return m_compList.hashCode();
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <!ELEMENT PSXRelationshipInfoSet (PSXRelationshipInfo*)>
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -121,9 +112,7 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
     return root;
   }
 
-  /**
-   * See {@link IPSCmsComponent#fromXml(Element)}
-   */
+  /** See {@link IPSCmsComponent#fromXml(Element)} */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode must be supplied");
 
@@ -138,9 +127,7 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
     }
   }
 
-  /**
-   * See {@link IPSCmsComponent#clone()}
-   */
+  /** See {@link IPSCmsComponent#clone()} */
   public Object clone() {
     PSRelationshipInfoSet infoSet = new PSRelationshipInfoSet();
     infoSet.m_compList.addAll(m_compList);
@@ -148,16 +135,12 @@ public class PSRelationshipInfoSet implements IPSCmsComponent {
     return infoSet;
   }
 
-  /**
-   * See {@link IPSCmsComponent#getNodeName()}
-   */
+  /** See {@link IPSCmsComponent#getNodeName()} */
   public String getNodeName() {
     return XML_NODE_NAME;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXRelationshipInfoSet";
 
   /**

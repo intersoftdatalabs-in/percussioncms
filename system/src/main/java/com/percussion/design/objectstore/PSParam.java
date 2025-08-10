@@ -21,9 +21,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXParam DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXParam DTD in BasicObjects.dtd. */
 public class PSParam extends PSComponent implements IPSParameter {
   /**
    * Constructs a new parameter for the provided name.
@@ -39,23 +37,17 @@ public class PSParam extends PSComponent implements IPSParameter {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSParam(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSParam() {}
 
   // see interface for description
@@ -101,8 +93,7 @@ public class PSParam extends PSComponent implements IPSParameter {
   /**
    * Get the parameter value.
    *
-   * @return the current parameter value, never
-   *    <code>null</code>.
+   * @return the current parameter value, never <code>null</code>.
    */
   public IPSReplacementValue getValue() {
     return m_value;
@@ -111,8 +102,7 @@ public class PSParam extends PSComponent implements IPSParameter {
   /**
    * Set the source type. See {#link getSourceType()} for allowed types.
    *
-   * @param sourceType the new source type to set, may be <code>null</code>
-   *    but not empty.
+   * @param sourceType the new source type to set, may be <code>null</code> but not empty.
    */
   public void setSourceType(String sourceType) {
     PSContentEditorMapper.validateSourceType(sourceType);
@@ -120,10 +110,8 @@ public class PSParam extends PSComponent implements IPSParameter {
   }
 
   /**
-   * Get the source type, one of
-   * <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> or
-   * <code>PSContentEditorMapper.LOCAL</code>, defaults to
+   * Get the source type, one of <code>PSContentEditorMapper.SYSTEM</code>, <code>
+   * PSContentEditorMapper.SHARED</code> or <code>PSContentEditorMapper.LOCAL</code>, defaults to
    * <code>PSContentEditorMapper.SYSTEM</code>.
    *
    * @return the source type. Can be <code>null</code> but not empty.
@@ -135,8 +123,7 @@ public class PSParam extends PSComponent implements IPSParameter {
   /**
    * Get the parameter value as string.
    *
-   * @return the current parameter string value, might be
-   *    <code>null</code>.
+   * @return the current parameter string value, might be <code>null</code>.
    */
   public String toString() {
     return m_value.getValueText();
@@ -154,9 +141,8 @@ public class PSParam extends PSComponent implements IPSParameter {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSParam, not <code>null</code>.
    */
@@ -176,8 +162,7 @@ public class PSParam extends PSComponent implements IPSParameter {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSParam)) return false;
@@ -211,7 +196,6 @@ public class PSParam extends PSComponent implements IPSParameter {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -264,7 +248,6 @@ public class PSParam extends PSComponent implements IPSParameter {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -303,18 +286,16 @@ public class PSParam extends PSComponent implements IPSParameter {
   /** The paramter name, never <code>null</code> or empty after construction */
   private String m_name = null;
 
-  /** The parameter value, never <code>null</code> after construction  */
+  /** The parameter value, never <code>null</code> after construction */
   private IPSReplacementValue m_value = null;
 
   /**
-   * Indicates where the definition of this parameter was located. If a
-   * parameter is originally defined in the system def, then overridden in the
-   * local def, this value will be <code>PSContentEditorMapper.LOCAL</code>.
-   * Allowed values are <code>PSContentEditorMapper.SYSTEM</code>,
-   * <code>PSContentEditorMapper.SHARED</code> and
-   * <code>PSContentEditorMapper.LOCAL</code>. This attribute will not be
-   * persisted, and is therefore excluded from to/from XML methods. It will
-   * be included in all other operations like cloning, comparing, etc.
+   * Indicates where the definition of this parameter was located. If a parameter is originally
+   * defined in the system def, then overridden in the local def, this value will be <code>
+   * PSContentEditorMapper.LOCAL</code>. Allowed values are <code>PSContentEditorMapper.SYSTEM
+   * </code>, <code>PSContentEditorMapper.SHARED</code> and <code>PSContentEditorMapper.LOCAL</code>
+   * . This attribute will not be persisted, and is therefore excluded from to/from XML methods. It
+   * will be included in all other operations like cloning, comparing, etc.
    */
   private String m_sourceType = null;
 

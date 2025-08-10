@@ -41,20 +41,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit can be used for cascading delete operation, ie. deleting rows
- * from child tables when a row from parent table is deleted.
- * This method does not delete the child rows, instead it queries the
- * specified resource to obtain the rows from the child tables corresponding
- * to the parent table row which is being deleted. Then adds these rows to
- * the document which is processed by the update resource. The update
- * resource must include the mappings for these child table rows so that
- * these rows are deleted from the database. This ensures that all the rows
- * from the parent and child tables are deleted in a single transaction.
- * <p>
- * All the child elements of the root node of the XML document returned by
- * the query resource is appended to the root node of the XML document
- * obtained from the request context (ie, the document which is processed
- * by the update resource).
+ * This exit can be used for cascading delete operation, ie. deleting rows from child tables when a
+ * row from parent table is deleted. This method does not delete the child rows, instead it queries
+ * the specified resource to obtain the rows from the child tables corresponding to the parent table
+ * row which is being deleted. Then adds these rows to the document which is processed by the update
+ * resource. The update resource must include the mappings for these child table rows so that these
+ * rows are deleted from the database. This ensures that all the rows from the parent and child
+ * tables are deleted in a single transaction.
+ *
+ * <p>All the child elements of the root node of the XML document returned by the query resource is
+ * appended to the root node of the XML document obtained from the request context (ie, the document
+ * which is processed by the update resource).
  */
 public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPreProcessor {
   /*
@@ -227,8 +224,8 @@ public class PSCascadeDelete extends PSDefaultExtension implements IPSRequestPre
   }
 
   /**
-   * The fully qualified name of this extension, set in the <code>init()</code>
-   * method. Never <code>null</code> or modified after that.
+   * The fully qualified name of this extension, set in the <code>init()</code> method. Never <code>
+   * null</code> or modified after that.
    */
   private static String ms_fullExtensionName = "";
 }

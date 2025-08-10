@@ -21,76 +21,82 @@ package com.percussion.rest.assets;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "BinaryFile")
 @JsonInclude(Include.NON_NULL)
 @Schema(description = "Represents a binary file.")
 public class BinaryFile {
 
-    private String filename;
-    private String extension;
-    private long size;
-    private String type;
+  private String filename;
+  private String extension;
+  private long size;
+  private String type;
 
-    public Optional<String> getFilename() {
-        return Optional.ofNullable(filename);
-    }
+  public Optional<String> getFilename() {
+    return Optional.ofNullable(filename);
+  }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
 
-    public Optional<String> getExtension() {
-        return Optional.ofNullable(extension);
-    }
+  public Optional<String> getExtension() {
+    return Optional.ofNullable(extension);
+  }
 
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
+  public void setExtension(String extension) {
+    this.extension = extension;
+  }
 
-    public long getSize() {
-        return size;
-    }
+  public long getSize() {
+    return size;
+  }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
+  public void setSize(long size) {
+    this.size = size;
+  }
 
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BinaryFile)) return false;
-        var that = (BinaryFile) o;
-        return size == that.size
-                && Objects.equals(filename, that.filename)
-                && Objects.equals(extension, that.extension)
-                && Objects.equals(type, that.type);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof BinaryFile)) return false;
+    var that = (BinaryFile) o;
+    return size == that.size
+        && Objects.equals(filename, that.filename)
+        && Objects.equals(extension, that.extension)
+        && Objects.equals(type, that.type);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(filename, extension, size, type);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(filename, extension, size, type);
+  }
 
-    @Override
-    public String toString() {
-        return "BinaryFile{" +
-                "filename='" + filename + '\'' +
-                ", extension='" + extension + '\'' +
-                ", size=" + size +
-                ", type='" + type + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "BinaryFile{"
+        + "filename='"
+        + filename
+        + '\''
+        + ", extension='"
+        + extension
+        + '\''
+        + ", size="
+        + size
+        + ", type='"
+        + type
+        + '\''
+        + '}';
+  }
 }

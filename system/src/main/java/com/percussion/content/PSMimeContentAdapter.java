@@ -20,31 +20,22 @@ import com.percussion.util.PSCharSets;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * A very simple implementation of IPSMimeContent
- *
- */
+/** A very simple implementation of IPSMimeContent */
 // REFACTORED: CP-JAVA11
 public class PSMimeContentAdapter implements IPSMimeContent {
 
   /**
    * Construct a new PSMimeContentAdapter.
    *
-   * @param   in The input stream. Cannot be <CODE>null</CODE>.
-   *
-   * @param   mimeType The MIME type. If this is <CODE>null</CODE> or
-   * empty, will default to "application/octet-stream".
-   *
-   * @param   transferEncoding The transfer encoding. If <CODE>null</CODE>,
-   * it means there is no transfer encoding.
-   *
-   * @param   charEncoding The character encoding. Can be <CODE>null</CODE>
-   * if <CODE>in</CODE> is not a character stream. Can be either a standard
-   * name from IANA or a Java name.
-   *
-   * @param   contentLength The approximate content length, or -1 if not
-   * known. This is just a hint -- the true length can be longer or shorter.
-   *
+   * @param in The input stream. Cannot be <CODE>null</CODE>.
+   * @param mimeType The MIME type. If this is <CODE>null</CODE> or empty, will default to
+   *     "application/octet-stream".
+   * @param transferEncoding The transfer encoding. If <CODE>null</CODE>, it means there is no
+   *     transfer encoding.
+   * @param charEncoding The character encoding. Can be <CODE>null</CODE> if <CODE>in</CODE> is not
+   *     a character stream. Can be either a standard name from IANA or a Java name.
+   * @param contentLength The approximate content length, or -1 if not known. This is just a hint --
+   *     the true length can be longer or shorter.
    */
   public PSMimeContentAdapter(
       InputStream in,
@@ -69,23 +60,20 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Returns the byte stream for this content. Transfers responsibility
-   * for closing/cleaning up the stream to the caller. It is up to
-   * the particular implementation to decide whether it is valid to
-   * call this method more than once (getting more than one input stream),
-   * and implementations should document accordingly.
-   * <P>
-   * Any transfer decoding that needs to be done should be done to the
-   * bytes returned from this stream.
+   * Returns the byte stream for this content. Transfers responsibility for closing/cleaning up the
+   * stream to the caller. It is up to the particular implementation to decide whether it is valid
+   * to call this method more than once (getting more than one input stream), and implementations
+   * should document accordingly.
    *
-   * This method must never return null. If the object is not properly
-   * initialized, it must throw an IllegalStateException.
+   * <p>Any transfer decoding that needs to be done should be done to the bytes returned from this
+   * stream.
    *
-   * @author   chad loder
+   * <p>This method must never return null. If the object is not properly initialized, it must throw
+   * an IllegalStateException.
    *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   InputStream
+   * @return InputStream
    */
   public InputStream getContent() throws IllegalStateException {
     if (m_in == null) throw new IllegalStateException();
@@ -95,8 +83,7 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Sets the byte stream for this content. If an existing stream
-   * is set, it will not be closed.
+   * Sets the byte stream for this content. If an existing stream is set, it will not be closed.
    *
    * @param in An InputStream. Cannot be null.
    */
@@ -107,20 +94,15 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Returns the approximate length of this content in bytes,
-   * or -1 if not known.
+   * Returns the approximate length of this content in bytes, or -1 if not known.
    *
-   * Note that this return value is merely a hint for performance
-   * optimization reasons, and it is <B>not</B> an error to read
-   * more bytes from the stream than this length, if the bytes are
+   * <p>Note that this return value is merely a hint for performance optimization reasons, and it is
+   * <B>not</B> an error to read more bytes from the stream than this length, if the bytes are
    * available.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   long The approximate content length if known, or -1
-   * if not known.
+   * @return long The approximate content length if known, or -1 if not known.
    */
   public long getContentLength() {
     return m_cntLen;
@@ -144,18 +126,16 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Returns the name of the standard MIME type for this content (e.g., text/xml).
-   * See http://www.isi.edu/in-notes/iana/assignments/media-types/media-types
-   * for an official list of MIME types.
+   * Returns the name of the standard MIME type for this content (e.g., text/xml). See
+   * http://www.isi.edu/in-notes/iana/assignments/media-types/media-types for an official list of
+   * MIME types.
    *
-   * This method must never return null. If the MIME type is not known,
-   * it should return "application/octet-stream".
+   * <p>This method must never return null. If the MIME type is not known, it should return
+   * "application/octet-stream".
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   String
+   * @return String
    */
   public String getMimeType() {
     return m_mimeType;
@@ -164,9 +144,7 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   /**
    * Sets the MIME type for this content.
    *
-   * @param   mimeType The MIME type name. Cannot be <CODE>null</CODE>
-   * or empty.
-   *
+   * @param mimeType The MIME type name. Cannot be <CODE>null</CODE> or empty.
    */
   public void setMimeType(String mimeType) {
     if (mimeType == null || mimeType.length() == 0)
@@ -175,15 +153,12 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Returns the name of the transfer encoding applied to the content stream.
-   * If the stream represents raw bytes (where any octet-sequence may occur),
-   * the encoding will be "binary". If the stream represents base64 encoded
-   * bytes, the encoding will be "base64" and so on. This may return
-   * <CODE>null</CODE> if no encoding is defined.
+   * Returns the name of the transfer encoding applied to the content stream. If the stream
+   * represents raw bytes (where any octet-sequence may occur), the encoding will be "binary". If
+   * the stream represents base64 encoded bytes, the encoding will be "base64" and so on. This may
+   * return <CODE>null</CODE> if no encoding is defined.
    *
-   * See IPSMimeContentTypes for some of the predefined encodings that
-   * we support.
-   *
+   * <p>See IPSMimeContentTypes for some of the predefined encodings that we support.
    */
   public String getTransferEncoding() {
     return m_xferEnc;
@@ -192,23 +167,19 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   /**
    * Sets the name of the transfer encoding of the content stream.
    *
-   * @param   transferEncoding
-   *
+   * @param transferEncoding
    */
   public void setTransferEncoding(String transferEncoding) {
     m_xferEnc = transferEncoding;
   }
 
   /**
-   * Gets the standard IANA name for the character encoding of this character
-   * data, or <CODE>null</CODE> if the character encoding is not applicable
-   * (e.g., for binary content).
+   * Gets the standard IANA name for the character encoding of this character data, or <CODE>null
+   * </CODE> if the character encoding is not applicable (e.g., for binary content).
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/8
-   *
-   * @return   String
+   * @return String
    */
   public String getCharEncoding() {
     return m_charEnc;
@@ -217,18 +188,14 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   /**
    * Sets the character encoding for the content stream.
    *
-   * @param   charEncoding The standard IANA name for the character
-   * encoding, or <CODE>null</CODE> if the character encoding is not
-   * applicable.
-   *
+   * @param charEncoding The standard IANA name for the character encoding, or <CODE>null</CODE> if
+   *     the character encoding is not applicable.
    */
   public void setCharEncoding(String charEncoding) {
     m_charEnc = charEncoding;
   }
 
-  /**
-   * Convenience method.
-   */
+  /** Convenience method. */
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(50);
@@ -260,12 +227,10 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   }
 
   /**
-   * Returns the name of this content, or <CODE>null</CODE> if the
-   * content has no name.
-   * <p>
-   * Note that the interpretation of the name depends on the context
-   * in which this content was created. It may be a file name, or
-   * it may simply be an unstructured descriptive name (such as
+   * Returns the name of this content, or <CODE>null</CODE> if the content has no name.
+   *
+   * <p>Note that the interpretation of the name depends on the context in which this content was
+   * created. It may be a file name, or it may simply be an unstructured descriptive name (such as
    * "My Blob").
    *
    * @return The name of the content. May be <CODE>null</CODE>.
@@ -277,8 +242,7 @@ public class PSMimeContentAdapter implements IPSMimeContent {
   /**
    * Sets the name of this content.
    *
-   * @param name The content name, or <CODE>null</CODE> if the content
-   * is to have no name.
+   * @param name The content name, or <CODE>null</CODE> if the content is to have no name.
    */
   public void setName(String name) {
     m_name = name;

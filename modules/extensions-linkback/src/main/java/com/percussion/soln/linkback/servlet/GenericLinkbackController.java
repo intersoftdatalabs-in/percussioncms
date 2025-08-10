@@ -37,16 +37,15 @@ import org.springframework.web.servlet.view.RedirectView;
 /**
  * Generic Linkback Controller. Expects a linkback token as request parameter.
  *
- * Though mainly used as base class for specific controllers, it can be
- * configured as a bean by itself. The default behavior is to redirect to
- * <code>redirectPath</code> with parameters decoded from the linkback codec.
- * The following property can be configured in the bean xml file:
+ * <p>Though mainly used as base class for specific controllers, it can be configured as a bean by
+ * itself. The default behavior is to redirect to <code>redirectPath</code> with parameters decoded
+ * from the linkback codec. The following property can be configured in the bean xml file:
+ *
  * <ul>
- * <li>redirectPath - mandatory if this class is used to configure a bean;
- * optional if subclasses are used, in which case, it depends on the subclass
- * implementation</li>
- * <li>helpViewName (optional) - help view name</li>
- * <li>linkbackCodec (optional) - implementation of {@link LinkbackTokenCodec}</li>
+ *   <li>redirectPath - mandatory if this class is used to configure a bean; optional if subclasses
+ *       are used, in which case, it depends on the subclass implementation
+ *   <li>helpViewName (optional) - help view name
+ *   <li>linkbackCodec (optional) - implementation of {@link LinkbackTokenCodec}
  * </ul>
  */
 public class GenericLinkbackController extends AbstractController {
@@ -70,9 +69,8 @@ public class GenericLinkbackController extends AbstractController {
   private Map<String, String> additionalParameters = new HashMap<>();
 
   /**
-   * If linkback token is not blank, this method calls
-   * handleLinkBackRedirect() to create a ModelAndView object; otherwise,
-   * return the helpview if exists.
+   * If linkback token is not blank, this method calls handleLinkBackRedirect() to create a
+   * ModelAndView object; otherwise, return the helpview if exists.
    */
   @Override
   protected ModelAndView handleRequestInternal(
@@ -96,9 +94,8 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * Return a ModelAndView object, using a RedirectView and the map as the
-   * model. Subclasses override this method to determine how the linkback
-   * should be handled.
+   * Return a ModelAndView object, using a RedirectView and the map as the model. Subclasses
+   * override this method to determine how the linkback should be handled.
    *
    * @param tokenParams map of parameter values
    * @return ModelAndView
@@ -119,13 +116,11 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * Check that required parameters exist and copy them to the output map. The
-   * parameters must not be blank and must be numeric.
+   * Check that required parameters exist and copy them to the output map. The parameters must not
+   * be blank and must be numeric.
    *
-   * @param inParams
-   *            the input parameter map.
-   * @param outParams
-   *            the map to copy parameters to.
+   * @param inParams the input parameter map.
+   * @param outParams the map to copy parameters to.
    * @return true if the required parameters exist.
    */
   protected boolean checkAndCopyRequiredParams(
@@ -143,10 +138,8 @@ public class GenericLinkbackController extends AbstractController {
   /**
    * Copy the optional parameters.
    *
-   * @param inParams
-   *            the incoming parameters
-   * @param outParams
-   *            the parameter map to copy to.
+   * @param inParams the incoming parameters
+   * @param outParams the parameter map to copy to.
    */
   protected void copyOptionalParameters(
       Map<String, String> inParams, Map<String, String> outParams) {
@@ -159,19 +152,16 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * Modify the parameter map. This is intended for subclasses that need
-   * special parameters.
+   * Modify the parameter map. This is intended for subclasses that need special parameters.
    *
-   * @param params
-   *            the parameter map.
+   * @param params the parameter map.
    */
   protected void modifyParameterMap(Map<String, String> params) {
     // do nothing for now.
   }
 
   /**
-   * Create a help view if {@link #helpViewName} is defined in the bean config;
-   * otherwise, null;
+   * Create a help view if {@link #helpViewName} is defined in the bean config; otherwise, null;
    *
    * @return ModelAndView
    */
@@ -183,11 +173,9 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * Create a error view if {@link #errorViewName} is defined in the bean config;
-   * otherwise, null;
+   * Create a error view if {@link #errorViewName} is defined in the bean config; otherwise, null;
    *
-   * @param message
-   *            custom message
+   * @param message custom message
    * @return ModelAndView
    */
   protected ModelAndView createErrorView(String message) {
@@ -236,8 +224,7 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * @param linkbackParameterName
-   *            the linkbackParameterName to set
+   * @param linkbackParameterName the linkbackParameterName to set
    */
   public void setLinkbackParameterName(String linkbackParameterName) {
     this.linkbackParameterName = linkbackParameterName;
@@ -251,8 +238,7 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * @param requiredParameterNames
-   *            the requiredParameterNames to set
+   * @param requiredParameterNames the requiredParameterNames to set
    */
   public void setRequiredParameterNames(List<String> requiredParameterNames) {
     this.requiredParameterNames = requiredParameterNames;
@@ -266,8 +252,7 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * @param optionalParameterNames
-   *            the optionalParameterNames to set
+   * @param optionalParameterNames the optionalParameterNames to set
    */
   public void setOptionalParameterNames(List<String> optionalParameterNames) {
     this.optionalParameterNames = optionalParameterNames;
@@ -281,8 +266,7 @@ public class GenericLinkbackController extends AbstractController {
   }
 
   /**
-   * @param additionalParameters
-   *            the additionalParameters to set
+   * @param additionalParameters the additionalParameters to set
    */
   public void setAdditionalParameters(Map<String, String> additionalParameters) {
     this.additionalParameters = additionalParameters;

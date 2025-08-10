@@ -24,24 +24,19 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
-/**
- * Encapsulates the results from converting content using the
- * {@link PSContentConverter}
- */
+/** Encapsulates the results from converting content using the {@link PSContentConverter} */
 // REFACTORED: CP-JAVA11
 public class PSConversionResults {
   /**
    * Construct this class from its member data
    *
-   * @param resultFile The temp file containing the results, may not be
-   * <code>null</code> and must reference a valid file.  Will be deleted after
-   * the reader returned by {@link #getContent()} is closed.
-   * @param fileType The type of file that was converted, never
-   * <code>null</code> or empty. This is the description of the file type
-   * returned by the conversion implementation.
-   * @param encoding The encoding used to write the file, never
-   * <code>null</code> or empty.  Either the IANA or Java encoding name
-   * may be supplied.
+   * @param resultFile The temp file containing the results, may not be <code>null</code> and must
+   *     reference a valid file. Will be deleted after the reader returned by {@link #getContent()}
+   *     is closed.
+   * @param fileType The type of file that was converted, never <code>null</code> or empty. This is
+   *     the description of the file type returned by the conversion implementation.
+   * @param encoding The encoding used to write the file, never <code>null</code> or empty. Either
+   *     the IANA or Java encoding name may be supplied.
    */
   public PSConversionResults(PSPurgableTempFile resultFile, String fileType, String encoding) {
     if (resultFile == null || !resultFile.exists())
@@ -61,13 +56,12 @@ public class PSConversionResults {
   /**
    * Get a reader to the content of the conversion results.
    *
-   * @return The reader, never <code>null</code>.  Caller assumes ownership of
-   *  the reader and is responsible for closing it.
-   *
-   * @throws FileNotFoundException if the file supplied during construction
-   * does not exist or cannot be opened.
-   * @throws UnsupportedEncodingException if the encoding supplied during
-   * construction is not supported.
+   * @return The reader, never <code>null</code>. Caller assumes ownership of the reader and is
+   *     responsible for closing it.
+   * @throws FileNotFoundException if the file supplied during construction does not exist or cannot
+   *     be opened.
+   * @throws UnsupportedEncodingException if the encoding supplied during construction is not
+   *     supported.
    */
   public Reader getContent() throws UnsupportedEncodingException, FileNotFoundException {
     return new InputStreamReader(new PSPurgableFileInputStream(m_resultFile), m_encoding);
@@ -76,8 +70,7 @@ public class PSConversionResults {
   /**
    * Get the type of file that was converted.
    *
-   * @return The file type supplied during construction, never
-   * <code>null</code> or empty.
+   * @return The file type supplied during construction, never <code>null</code> or empty.
    */
   public String getFileType() {
     return m_fileType;
@@ -86,28 +79,26 @@ public class PSConversionResults {
   /**
    * Get the encoding used to write the results.
    *
-   * @return The encoding supplied during construction, never
-   * <code>null</code> or empty.
+   * @return The encoding supplied during construction, never <code>null</code> or empty.
    */
   public String getEncoding() {
     return m_encoding;
   }
 
   /**
-   * The temp file containing the conversion results, supplied during ctor, never
-   * <code>null</code> or modified after that.
+   * The temp file containing the conversion results, supplied during ctor, never <code>null</code>
+   * or modified after that.
    */
   private PSPurgableTempFile m_resultFile;
 
   /**
-   * The type of file that was converted, never <code>null</code> or empty or
-   * modified after ctor.
+   * The type of file that was converted, never <code>null</code> or empty or modified after ctor.
    */
   private String m_fileType;
 
   /**
-   * The Java name of the encoding of file that was converted, never
-   * <code>null</code> or empty or modified after ctor.
+   * The Java name of the encoding of file that was converted, never <code>null</code> or empty or
+   * modified after ctor.
    */
   private String m_encoding;
 }

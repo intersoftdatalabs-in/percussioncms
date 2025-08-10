@@ -30,10 +30,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit adds sys_defaultcommunityid,sys_defaultcommunityname and
- * sys_defaulthomepageurl attributes to the root element of result document.
- * These are the attributes of the user roles and are obtained from the user
- * context. If any of the above parameters <code>null</code> then these
+ * This exit adds sys_defaultcommunityid,sys_defaultcommunityname and sys_defaulthomepageurl
+ * attributes to the root element of result document. These are the attributes of the user roles and
+ * are obtained from the user context. If any of the above parameters <code>null</code> then these
  * attributes will get empty values.
  */
 public class PSAddDefaultCommunity implements IPSResultDocumentProcessor {
@@ -84,28 +83,18 @@ public class PSAddDefaultCommunity implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * default community id attribute.
-   */
+  /** default community id attribute. */
   private static final String ATTR_DEFAULT_COMMUNITY_ID = "sys_defaultcommunityid";
 
-  /**
-   * default community name attribute.
-   */
+  /** default community name attribute. */
   private static final String ATTR_DEFAULT_COMMUNITY_NAME = "sys_defaultcommunityname";
 
-  /**
-   * default homepage URL attribute.
-   */
+  /** default homepage URL attribute. */
   private static final String ATTR_DEFAULT_HOMEPAGE_URL = "sys_defaulthomepageurl";
 
-  /**
-   * Name of user default homepage URL property for the role.
-   */
+  /** Name of user default homepage URL property for the role. */
   public static final String SYS_DEFAULT_HOMEPAGEURL = "sys_defaultHomepageURL";
 }

@@ -26,25 +26,18 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates a list of <code>PSTransactionSummary</code> objects
- */
+/** Encapsulates a list of <code>PSTransactionSummary</code> objects */
 public class PSTransactionLogSummary implements IPSDeployComponent {
 
-  /**
-   * Constructing a default object.
-   */
+  /** Constructing a default object. */
   public PSTransactionLogSummary() {}
 
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSTransactionLogSummary(Element source) throws PSUnknownNodeTypeException {
@@ -56,8 +49,8 @@ public class PSTransactionLogSummary implements IPSDeployComponent {
   /**
    * Gets the list of transaction objects.
    *
-   * @return an iterator over zero or more <code>PSTransactionSummary</code>
-   * objects, it will never be <code>null</code>, but may be empty.
+   * @return an iterator over zero or more <code>PSTransactionSummary</code> objects, it will never
+   *     be <code>null</code>, but may be empty.
    */
   public Iterator<PSTransactionSummary> getTransactions() {
     return m_transax.iterator();
@@ -67,9 +60,7 @@ public class PSTransactionLogSummary implements IPSDeployComponent {
    * Adds a transaction to this object.
    *
    * @param tranx The transaction to be added, it may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException If <code>tranx</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException If <code>tranx</code> is <code>null</code>.
    */
   public void addTransaction(PSTransactionSummary tranx) {
     if (tranx == null) throw new IllegalArgumentException("tranx may not be null");
@@ -78,7 +69,8 @@ public class PSTransactionLogSummary implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXTransactionLogSummary PSXTransactionSummary*>
    * </code></pre>
@@ -96,9 +88,8 @@ public class PSTransactionLogSummary implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -149,26 +140,20 @@ public class PSTransactionLogSummary implements IPSDeployComponent {
     return isEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXTransactionLogSummary";
 
   /**
-   * A list of <code>PSTransactionSummary</code> objects. It will never to
-   * <code>null</code>, but may be empty.
+   * A list of <code>PSTransactionSummary</code> objects. It will never to <code>null</code>, but
+   * may be empty.
    */
   private List<PSTransactionSummary> m_transax = new ArrayList<>();
 
-  /**
-   * flags to walk to a child node of a XML tree
-   */
+  /** flags to walk to a child node of a XML tree */
   private static final int FIRST_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * flags to walk to a sibling node of a XML tree
-   */
+  /** flags to walk to a sibling node of a XML tree */
   private static final int NEXT_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 }

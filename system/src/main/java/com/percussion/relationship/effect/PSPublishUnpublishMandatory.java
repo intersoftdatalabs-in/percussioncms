@@ -47,29 +47,27 @@ import org.w3c.dom.NodeList;
 
 /**
  * This effect is to get the following behavior:
- * <p>
- * The current item cannot be transitioned to an unpublish (ContentValid != y
- * or i) state from a public state unless the other end of this relationship is
- * already unpublished. If the forceTransition parameter is yes, and a
- * transition by the supplied name is found or a default transition to an
- * unpublished state is present, the item will be transitioned with this item.
- * If the other item cannot be put into an unpublished state, an exception is
- * thrown and the item being processed is not allowed to transition. The effect
- * will return immediately for any context except RS_PRE_WORKFLOW.
+ *
+ * <p>The current item cannot be transitioned to an unpublish (ContentValid != y or i) state from a
+ * public state unless the other end of this relationship is already unpublished. If the
+ * forceTransition parameter is yes, and a transition by the supplied name is found or a default
+ * transition to an unpublished state is present, the item will be transitioned with this item. If
+ * the other item cannot be put into an unpublished state, an exception is thrown and the item being
+ * processed is not allowed to transition. The effect will return immediately for any context except
+ * RS_PRE_WORKFLOW.
+ *
  * <p>This effect takes three parameters as described below:
- * <p>
- * params[0] is a boolean flag (either "yes" or "no" value) that controls
- * whether the item at the other end of the relationship is forced to
- * transition if it is possible. If "no" and the item is already in a public
- * state, the operation will fail.
- * <p>
- * params[1] is the internal name of the transition to use if the owner needs
- * to be transitioned. If not supplied, the first transition with the "default"
- * property (in alpha order) is used.
- * <p>
- * params[2] is the internal name of the transition to use if the dependent
- * needs to be transitioned. If not supplied, the first transition with the
- * "default" property (in alpha order) is used.
+ *
+ * <p>params[0] is a boolean flag (either "yes" or "no" value) that controls whether the item at the
+ * other end of the relationship is forced to transition if it is possible. If "no" and the item is
+ * already in a public state, the operation will fail.
+ *
+ * <p>params[1] is the internal name of the transition to use if the owner needs to be transitioned.
+ * If not supplied, the first transition with the "default" property (in alpha order) is used.
+ *
+ * <p>params[2] is the internal name of the transition to use if the dependent needs to be
+ * transitioned. If not supplied, the first transition with the "default" property (in alpha order)
+ * is used.
  *
  * @author Ram
  * @version 1.0
@@ -77,40 +75,34 @@ import org.w3c.dom.NodeList;
 public abstract class PSPublishUnpublishMandatory extends PSEffect {
   /**
    * Abstract method that retuns a mode name.
-   * @return the name of the effect mode: "publish" or "unpublish",
-   * never <code>null</code>.
+   *
+   * @return the name of the effect mode: "publish" or "unpublish", never <code>null</code>.
    */
   protected abstract String getModeName();
 
   /**
-   * Derived class determines is the given WF state is a desired
-   * state or not.
+   * Derived class determines is the given WF state is a desired state or not.
+   *
    * @param elem element with a WF state, may be <code>null</code>.
-   * @return <code>true</code> if the item is in desired WF state
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the item is in desired WF state <code>false</code> otherwise.
    */
   protected abstract boolean isItemInDesiredWFState(Element elem);
 
   /**
-   * This method is used to determine whether the item is
-   * transitioning into a WF state which should trigger
-   * the relationship engine to execute attempt on this
-   * effect. It is up to the derived class to decide if so.
+   * This method is used to determine whether the item is transitioning into a WF state which should
+   * trigger the relationship engine to execute attempt on this effect. It is up to the derived
+   * class to decide if so.
    *
    * @param request request context mainly for I18n of the message.
-   * @param isCurrentlyPublic <code>true</code> indicates
-   * that the item is in the public state, <code>false</code>
-   * otherwise.
-   * @param isToPublic <code>true</code> indicates that this
-   * item is transitioning into a public state from a non
-   * public state, <code>false</code> otherwise.
-   * @param isToOutOfPublic <code>true</code> indicates that
-   * this item is transitioning out of a public state from
-   * a public state, <code>false</code> otherwise.
+   * @param isCurrentlyPublic <code>true</code> indicates that the item is in the public state,
+   *     <code>false</code> otherwise.
+   * @param isToPublic <code>true</code> indicates that this item is transitioning into a public
+   *     state from a non public state, <code>false</code> otherwise.
+   * @param isToOutOfPublic <code>true</code> indicates that this item is transitioning out of a
+   *     public state from a public state, <code>false</code> otherwise.
    * @param result result to set, never <code>null</code>.
-   *
-   * @return <code>true</code> indicates that the trigger
-   * condition has been met, <code>false</code> otherwise.
+   * @return <code>true</code> indicates that the trigger condition has been met, <code>false</code>
+   *     otherwise.
    */
   protected abstract boolean isTransitioningIntoTriggerState(
       IPSRequestContext request,
@@ -121,9 +113,10 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
 
   /**
    * Helper method to validate the parameters supplied to this effect.
+   *
    * @param request request context, assumed not <code>null</code>.
-   * @param params Must not be null and must have at least two parameters
-   * [0]. the required transition value must be "yes" or "no".
+   * @param params Must not be null and must have at least two parameters [0]. the required
+   *     transition value must be "yes" or "no".
    */
   private void validateParams(IPSRequestContext request, Object[] params)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -142,9 +135,9 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   }
 
   /**
-   * Override the method in the base class. This effect is meant to be run
-   * pre-workflow context and hence will return <code>false</code> for all
-   * other contexts.
+   * Override the method in the base class. This effect is meant to be run pre-workflow context and
+   * hence will return <code>false</code> for all other contexts.
+   *
    * <p>
    */
   public void test(
@@ -288,22 +281,17 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   }
 
   /**
-   * Queries the derived class by calling
-   * {@link #isTransitioningIntoTriggerState(IPSRequestContext, boolean,
-   * boolean, boolean, PSEffectResult)} to determine if the target state of the
-   * current transition is appropriate for the derived class.
+   * Queries the derived class by calling {@link #isTransitioningIntoTriggerState(IPSRequestContext,
+   * boolean, boolean, boolean, PSEffectResult)} to determine if the target state of the current
+   * transition is appropriate for the derived class.
    *
-   * @param request The ctx supplied to the main methods. Assumed not
-   * <code>null</code>.
-   * @param result Passed on to the aforementioned method. Assumed not
-   * <code>null</code>.
-   * @return <code>true</code> if the current effect should continue with its
-   * processing, given the supplied state, <code>false</code> means the
-   * current effect does not care.
-   *
+   * @param request The ctx supplied to the main methods. Assumed not <code>null</code>.
+   * @param result Passed on to the aforementioned method. Assumed not <code>null</code>.
+   * @return <code>true</code> if the current effect should continue with its processing, given the
+   *     supplied state, <code>false</code> means the current effect does not care.
    * @throws PSNotFoundException If required resources (apps) cannot be found.
-   * @throws PSInternalRequestCallException If any failures while making
-   * requests to obtain needed meta data.
+   * @throws PSInternalRequestCallException If any failures while making requests to obtain needed
+   *     meta data.
    */
   private boolean isCorrectStateContext(IPSRequestContext request, PSEffectResult result)
       throws PSNotFoundException, PSInternalRequestCallException {
@@ -320,11 +308,11 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
 
   /**
    * Helper method to get the non-active end point locator for the relationship.
-   * @param relationship relationship for which the non-active locator is to be
-   * extracted, assumed not <code>null</code>.
+   *
+   * @param relationship relationship for which the non-active locator is to be extracted, assumed
+   *     not <code>null</code>.
    * @param context execution context, assumed not <code>unll</code>.
-   * @return locator for the non-active end point of the relationship,
-   * never <code>null</code>.
+   * @return locator for the non-active end point of the relationship, never <code>null</code>.
    */
   private PSLocator getOtherEnd(PSRelationship relationship, IPSExecutionContext context) {
     if (context.getActivationEndPoint() == IPSExecutionContext.RS_ENDPOINT_OWNER)
@@ -333,18 +321,14 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   }
 
   /**
-   * Checks if the end point has a valid revision, meaning its revision is
-   * the last public revision of this content item.
-   * If in "unpublish" mode and the direction of the effect is down
-   * (which means this end point is the owner and not the active end point of
-   * this relationship)
-   * then we need to check the end point to be sure that it matches the last
-   * public revision for this its contentid. If it does not then the owner
-   * is not considered valid.
+   * Checks if the end point has a valid revision, meaning its revision is the last public revision
+   * of this content item. If in "unpublish" mode and the direction of the effect is down (which
+   * means this end point is the owner and not the active end point of this relationship) then we
+   * need to check the end point to be sure that it matches the last public revision for this its
+   * contentid. If it does not then the owner is not considered valid.
    *
    * @param endpoint the locator for the end point, assumed not <code>null</code>
-   * @param isEndpointActive flag indicating if the end point is the active end
-   * of the relationship
+   * @param isEndpointActive flag indicating if the end point is the active end of the relationship
    * @return <code>true</code> if this is a valid end point
    */
   private boolean isEndpointValidRevision(PSLocator endpoint, boolean isEndpointActive) {
@@ -360,11 +344,11 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   }
 
   /**
-   * Attempts to move dependent or owner item to the desired WF state, which
-   * depending on the derived class could be publish or unpublish.
+   * Attempts to move dependent or owner item to the desired WF state, which depending on the
+   * derived class could be publish or unpublish.
    *
-   * @see PSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext,
-   *      PSEffectResult) for more information.
+   * @see PSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult) for
+   *     more information.
    */
   @SuppressWarnings("unused")
   public void attempt(
@@ -450,6 +434,7 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
 
   /**
    * Not implemented.
+   *
    * @see PSEffect for more information.
    */
   @SuppressWarnings("unused") // cover all params and ext
@@ -460,17 +445,20 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
       PSExtensionProcessingException e,
       PSEffectResult result)
       throws PSExtensionProcessingException {
-    /**@todo: Implement this com.percussion.relationship.IPSEffect method*/
+    /**
+     * @todo: Implement this com.percussion.relationship.IPSEffect method
+     */
     // no-op
   }
 
   /**
    * Attempts a forced transition using a given transitionName.
+   *
    * @param request current request context, assumed not <code>null</code>.
    * @param wfStatusDoc WF status document, assumed not <code>null</code>.
    * @param transitionName named transition, assumed not <code>null</code>.
-   * @return the transition to be used for the force action, <code>null</code>
-   * if no default transition or named transition is found.
+   * @return the transition to be used for the force action, <code>null</code> if no default
+   *     transition or named transition is found.
    */
   private String getNamedTransition(
       IPSRequestContext request, Document wfStatusDoc, String transitionName)
@@ -490,17 +478,14 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   /**
    * Performs the supplied workflow transition.
    *
-   * @param result The effect result, assumed not <code>null</code>, used to
-   * set the status based on the result sof the transition.
+   * @param result The effect result, assumed not <code>null</code>, used to set the status based on
+   *     the result sof the transition.
    * @param request the request to operate with, assumed not <code>null</code>.
-   * @param item the item that needs to be transitioned, assumed not
-   *    <code>null</code>.
-   * @param resource the content editor resource, assumed not <code>null</code>
-   *    or empty.
-   * @param transition the transition trigger, assumed not <code>null</code>
-   *    or empty.
-   * @param forceDependent <code>true</code> if this is a transition that
-   *    forces a dependent to public, <code>false</code> otherwise.
+   * @param item the item that needs to be transitioned, assumed not <code>null</code>.
+   * @param resource the content editor resource, assumed not <code>null</code> or empty.
+   * @param transition the transition trigger, assumed not <code>null</code> or empty.
+   * @param forceDependent <code>true</code> if this is a transition that forces a dependent to
+   *     public, <code>false</code> otherwise.
    * @throws PSCmsException if anything goes wrong.
    */
   private void transit(
@@ -544,20 +529,18 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
   }
 
   /**
-   * Tests whether or not the state of the supplied workflow has a 'Default'
-   * transition with the same name as the provided workflow action.
+   * Tests whether or not the state of the supplied workflow has a 'Default' transition with the
+   * same name as the provided workflow action.
    *
    * @param request the request to operate on, assumed not <code>null</code>.
-   * @param stateId the state id of the state to test, assumed not
-   *    <code>null</code>.
-   * @param workflowId the workflow id for teh workflow in which to do the
-   *    test, assuemd not <code>null</code>.
-   * @param wfAction the workflow action name to do the test for, assumed
-   *    not <code>null</code>.
-   * @return the transition to be used for the force action, <code>null</code>
-   *    if no default transition or named transition is found.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @param stateId the state id of the state to test, assumed not <code>null</code>.
+   * @param workflowId the workflow id for teh workflow in which to do the test, assuemd not <code>
+   *     null</code>.
+   * @param wfAction the workflow action name to do the test for, assumed not <code>null</code>.
+   * @return the transition to be used for the force action, <code>null</code> if no default
+   *     transition or named transition is found.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   private String getForceTransition(
@@ -597,42 +580,24 @@ public abstract class PSPublishUnpublishMandatory extends PSEffect {
     return null;
   }
 
-  /**
-   * The name of the application used to query or update relationships in
-   * the repository.
-   */
+  /** The name of the application used to query or update relationships in the repository. */
   protected static final String SYS_PSXRELATIONSHIPSUPPORT = "sys_psxRelationshipSupport";
 
-  /**
-   * The name of the translations query resource.
-   */
+  /** The name of the translations query resource. */
   protected static final String GET_TRANSLATIONS = "getTranslations";
 
-  /**
-   * The name of the query resource to get the workflow status of the current
-   * item.
-   */
+  /** The name of the query resource to get the workflow status of the current item. */
   protected static final String GET_WORKFLOWSTATUS = "getWorkflowStatus";
 
-  /**
-   * The name of the query resource to get all transitions leaving the
-   * current state.
-   */
+  /** The name of the query resource to get all transitions leaving the current state. */
   protected static final String GET_TRANSITIONS = "getTransitions";
 
-  /**
-   * The name of the query resource to get the current workflow state of an
-   * item.
-   */
+  /** The name of the query resource to get the current workflow state of an item. */
   protected static final String GET_CURRENTSTATE = "getCurrentState";
 
-  /**
-   * Publish mode for this effect
-   */
+  /** Publish mode for this effect */
   protected static final String MODE_PUBLISH = "publish";
 
-  /**
-   * Unpublish mode for this effect
-   */
+  /** Unpublish mode for this effect */
   protected static final String MODE_UNPUBLISH = "unpublish";
 }

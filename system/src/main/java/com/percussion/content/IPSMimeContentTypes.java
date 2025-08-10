@@ -17,71 +17,49 @@
 package com.percussion.content;
 
 /**
- * The IPSMimeContentTypes interface is provided as a convenient mechanism
- * for storing the various MIME type names.
+ * The IPSMimeContentTypes interface is provided as a convenient mechanism for storing the various
+ * MIME type names.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public interface IPSMimeContentTypes {
-  /**
-   * Content transfer encodings.
-   */
+  /** Content transfer encodings. */
   String MIME_ENC_BINARY = "binary";
 
   String MIME_ENC_BASE64 = "base64";
 
   String MIME_ENC_QUOPRINT = "quoted-printable";
 
-  /**
-   * HTML FORMs use this type (same as GET request query string format).
-   */
+  /** HTML FORMs use this type (same as GET request query string format). */
   String MIME_TYPE_URLENCODED_FORM = "application/x-www-form-urlencoded";
 
-  /**
-   * HTML FORMs use this type when they have file attachments.
-   */
+  /** HTML FORMs use this type when they have file attachments. */
   String MIME_TYPE_MULTIPART_FORM = "multipart/form-data";
 
-  /**
-   * XML data sent as being application specific.
-   */
+  /** XML data sent as being application specific. */
   String MIME_TYPE_APPLICATION_XML = "application/xml";
 
-  /**
-   * XML data sent as raw text.
-   */
+  /** XML data sent as raw text. */
   String MIME_TYPE_TEXT_XML = "text/xml";
 
-  /**
-   * XSL data.
-   */
+  /** XSL data. */
   String MIME_TYPE_APPLICATION_XSL = "application/xsl-xml";
 
-  /**
-   * DTD data.
-   */
+  /** DTD data. */
   String MIME_TYPE_APPLICATION_DTD = "application/xml-dtd";
 
-  /**
-   * HTML data sent as raw text.
-   */
+  /** HTML data sent as raw text. */
   String MIME_TYPE_TEXT_HTML = "text/html";
 
-  /**
-   * Raw text data.
-   */
+  /** Raw text data. */
   String MIME_TYPE_TEXT_PLAIN = "text/plain";
 
-  /**
-   * An octet stream for unknown MIME types.
-   */
+  /** An octet stream for unknown MIME types. */
   String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
 
-  /**
-   * JSON MIME type.
-   */
+  /** JSON MIME type. */
   String MIME_TYPE_JSON = "application/json";
 }

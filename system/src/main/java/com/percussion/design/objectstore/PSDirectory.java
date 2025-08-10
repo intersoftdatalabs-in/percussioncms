@@ -31,27 +31,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A component that holds one directory definition used to catalog information
- * from directory servers.
+ * A component that holds one directory definition used to catalog information from directory
+ * servers.
  */
 public class PSDirectory extends PSComponent {
 
-  /**
-   * The default timeout in milliseconds for the ldap connection
-   */
+  /** The default timeout in milliseconds for the ldap connection */
   public static final long TIMEOUT_DEFAULT = 59000;
 
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDirectory(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -62,17 +56,15 @@ public class PSDirectory extends PSComponent {
    * Contructs a new object for the supplied parameters.
    *
    * @param name the directory name, not <code>null</code> or empty.
-   * @param catalogOption the cataloging option, not <code>null</code> or
-   *    empty, must be one of <code>CATALOG_ENUM</code>.
-   * @param factory the fully qualified factory class name used to construct
-   *    a JNDI context, not <code>null</code> or empty.
-   * @param authenticationRef a reference to the authentication object used
-   *    to authenticate against the directory server, not <code>null</code>
-   *    or empty.
-   * @param providerUrl the url used to connect to the directory, not
-   *    <code>null</code> or empty.
-   * @param attributes a list of attributes that will be returned with
-   *    directory requests, may be <code>null</code> but not empty.
+   * @param catalogOption the cataloging option, not <code>null</code> or empty, must be one of
+   *     <code>CATALOG_ENUM</code>.
+   * @param factory the fully qualified factory class name used to construct a JNDI context, not
+   *     <code>null</code> or empty.
+   * @param authenticationRef a reference to the authentication object used to authenticate against
+   *     the directory server, not <code>null</code> or empty.
+   * @param providerUrl the url used to connect to the directory, not <code>null</code> or empty.
+   * @param attributes a list of attributes that will be returned with directory requests, may be
+   *     <code>null</code> but not empty.
    */
   public PSDirectory(
       String name,
@@ -90,8 +82,8 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return the directory name, never <code>null</code> or empty. This name
-   *    may be used to reference this directory from other contexts.
+   * @return the directory name, never <code>null</code> or empty. This name may be used to
+   *     reference this directory from other contexts.
    */
   public String getName() {
     return m_name;
@@ -100,8 +92,7 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new directory name.
    *
-   * @param name the new name for this directory, not <code>null</code> or
-   *    empty.
+   * @param name the new name for this directory, not <code>null</code> or empty.
    */
   public void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -113,27 +104,26 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return <code>true</code> if the selected catalog option is
-   *    <code>CATALOG_SHALLOW</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if the selected catalog option is <code>CATALOG_SHALLOW</code>,
+   *     <code>false</code> otherwise.
    */
   public boolean isShallowCatalogOption() {
     return m_catalogOption.equals(CATALOG_SHALLOW);
   }
 
   /**
-   * @return <code>true</code> if the selected catalog option is
-   *    <code>CATALOG_DEEP</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if the selected catalog option is <code>CATALOG_DEEP</code>, <code>
+   *     false</code> otherwise.
    */
   public boolean isDeepCatalogOption() {
     return m_catalogOption.equals(CATALOG_DEEP);
   }
 
   /**
-   * Set a new catalog option. Catalog options are case insensitive and
-   * stored in lower case.
+   * Set a new catalog option. Catalog options are case insensitive and stored in lower case.
    *
-   * @param catalogOption the new catalog option, not <code>null</code> or
-   *    empty. Must be one of <code>CATALOG_ENUM</code>.
+   * @param catalogOption the new catalog option, not <code>null</code> or empty. Must be one of
+   *     <code>CATALOG_ENUM</code>.
    */
   public void setCatalogOption(String catalogOption) {
     if (catalogOption == null) throw new IllegalArgumentException("catalogOption cannot be null");
@@ -155,20 +145,17 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return <code>true</code> if debug output is enabled, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if debug output is enabled, <code>false</code> otherwise.
    */
   public boolean isDebug() {
     return m_debug;
   }
 
   /**
-   * Enable or disable directory service debug output to the system output
-   * stream.
+   * Enable or disable directory service debug output to the system output stream.
    *
-   * @param enable string that specifies debug output as enabled if it is set to
-   *    'yes' (case insensitive), may be <code>null</code> or empty in which
-   *    case debug output is disabled.
+   * @param enable string that specifies debug output as enabled if it is set to 'yes' (case
+   *     insensitive), may be <code>null</code> or empty in which case debug output is disabled.
    */
   public void setDebug(String enable) {
     if (enable != null) {
@@ -178,8 +165,8 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return the fully qualified directory service context factory class name,
-   *    never <code>null</code> or empty.
+   * @return the fully qualified directory service context factory class name, never <code>null
+   *     </code> or empty.
    */
   public String getFactory() {
     return m_factory;
@@ -188,8 +175,7 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new directory service context factory class name.
    *
-   * @param factory the new context factory class name, not <code>null</code>
-   *    or empty.
+   * @param factory the new context factory class name, not <code>null</code> or empty.
    */
   public void setFactory(String factory) {
     if (factory == null) throw new IllegalArgumentException("factory cannot be null");
@@ -201,10 +187,9 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return a reference to an authentication spec. used to connect to the
-   *    directory server, never <code>null</code>. The caller takes
-   *    ownershop of the returned object. He cannot change this with the
-   *    returned object.
+   * @return a reference to an authentication spec. used to connect to the directory server, never
+   *     <code>null</code>. The caller takes ownershop of the returned object. He cannot change this
+   *     with the returned object.
    */
   public PSReference getAuthenticationRef() {
     return new PSReference(m_authenticationRef);
@@ -213,9 +198,8 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new authentication reference.
    *
-   * @param authenticationRef the new authentication reference, not
-   *    <code>null</code>, must be a reference of type
-   *    <code>PSAuthentication</code>.
+   * @param authenticationRef the new authentication reference, not <code>null</code>, must be a
+   *     reference of type <code>PSAuthentication</code>.
    */
   public void setAuthenticationRef(PSReference authenticationRef) {
     if (authenticationRef == null)
@@ -230,8 +214,8 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new authentication reference.
    *
-   * @param authenticationRef the name of the new authentication reference, not
-   *    <code>null</code> or empty.
+   * @param authenticationRef the name of the new authentication reference, not <code>null</code> or
+   *     empty.
    */
   public void setAuthenticationRef(String authenticationRef) {
     if (authenticationRef == null)
@@ -247,9 +231,8 @@ public class PSDirectory extends PSComponent {
   /**
    * Get the directory service provider url.
    *
-   * @return the directory service provider url as <code>String</code>, never
-   *    <code>null</code> or empty.  This url is not encoded to handle spaces
-   *    or other special characters.
+   * @return the directory service provider url as <code>String</code>, never <code>null</code> or
+   *     empty. This url is not encoded to handle spaces or other special characters.
    */
   public String getProviderUrl() {
     return m_providerUrl;
@@ -258,8 +241,7 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new directory service provider url.
    *
-   * @param providerUrl the new provider url, never <code>null</code> or
-   *    empty.
+   * @param providerUrl the new provider url, never <code>null</code> or empty.
    */
   public void setProviderUrl(String providerUrl) {
     if (providerUrl == null) throw new IllegalArgumentException("providerUrl cannot be null");
@@ -274,9 +256,9 @@ public class PSDirectory extends PSComponent {
   /**
    * Attempt to determine the base context from the provider url.
    *
-   * @return the base context if there is one specified by the provider url,
-   *    or an empty string if there is none specified, or <code>null</code>
-   *    if the provider url is <code>null</code> or malformed.
+   * @return the base context if there is one specified by the provider url, or an empty string if
+   *     there is none specified, or <code>null</code> if the provider url is <code>null</code> or
+   *     malformed.
    */
   public String getBaseContext() {
     String baseCtx = null;
@@ -296,10 +278,9 @@ public class PSDirectory extends PSComponent {
   }
 
   /**
-   * @return a collection of attribute names that will be returned with
-   *    requests to this directory service, may be <code>null</code> but not
-   *    empty. The caller takes ownership of the returned collection. This
-   *    object cannot be modified through the returned collection.
+   * @return a collection of attribute names that will be returned with requests to this directory
+   *     service, may be <code>null</code> but not empty. The caller takes ownership of the returned
+   *     collection. This object cannot be modified through the returned collection.
    */
   public PSCollection getAttributes() {
     if (m_attributes == null) return null;
@@ -310,9 +291,9 @@ public class PSDirectory extends PSComponent {
   /**
    * Set a new attribute set to be returned with this directory service.
    *
-   * @param attributes the new attribute collection. Must be a collection of
-   *    <code>String</code> objects. May be <code>null</code> but not empty.
-   *    Set this to <code>null</code> to return all known attributes.
+   * @param attributes the new attribute collection. Must be a collection of <code>String</code>
+   *     objects. May be <code>null</code> but not empty. Set this to <code>null</code> to return
+   *     all known attributes.
    */
   public void setAttributes(PSCollection attributes) {
     if (attributes == null) m_attributes = null;
@@ -329,21 +310,19 @@ public class PSDirectory extends PSComponent {
   /**
    * Gets the list of group providers this security provider uses.
    *
-   * @return The an Iterator over zero or more group provider names as Strings,
-   * never <code>null</code>, may be emtpy.
+   * @return The an Iterator over zero or more group provider names as Strings, never <code>null
+   *     </code>, may be emtpy.
    */
   public Iterator<String> getGroupProviderNames() {
     return m_groupProviderNames.iterator();
   }
 
   /**
-   * Sets the list of group providers this security provider will use.  This
-   * will replace the existing list of provider names.  See
-   * {@link #getGroupProviderNames()} for more info.
+   * Sets the list of group providers this security provider will use. This will replace the
+   * existing list of provider names. See {@link #getGroupProviderNames()} for more info.
    *
-   * @param providers An iterator over zero or more group Provider names as
-   * Strings.  May not be <code>null</code>, may be empty.
-   *
+   * @param providers An iterator over zero or more group Provider names as Strings. May not be
+   *     <code>null</code>, may be empty.
    * @throws IllegalArgumentException if providers is invalid.
    */
   public void setGroupProviderNames(Iterator<String> providers) {
@@ -359,7 +338,9 @@ public class PSDirectory extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -442,7 +423,9 @@ public class PSDirectory extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(XML_ATTR_NAME, getName());
@@ -483,13 +466,17 @@ public class PSDirectory extends PSComponent {
     return root;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public Object clone() {
     return super.clone();
   }
 
-  /** @see PSComponent */
+  /**
+   * @see PSComponent
+   */
   @Override
   public void copyFrom(PSComponent c) {
     super.copyFrom(c);
@@ -543,102 +530,83 @@ public class PSDirectory extends PSComponent {
   public static final String XML_NODE_NAME = "PSXDirectory";
 
   /**
-   * Constant to specify the cataloging option as shallow, meaning only the
-   * addressed object is cataloged.
+   * Constant to specify the cataloging option as shallow, meaning only the addressed object is
+   * cataloged.
    */
   public static final String CATALOG_SHALLOW = "shallow";
 
   /**
-   * Constant to specify the cataloging option as deep, meaning that the
-   * addressed object and all its children are cataloged.
+   * Constant to specify the cataloging option as deep, meaning that the addressed object and all
+   * its children are cataloged.
    */
   public static final String CATALOG_DEEP = "deep";
 
-  /**
-   * An array with all validd cataloging options.
-   */
+  /** An array with all validd cataloging options. */
   public static final String[] CATALOG_ENUM = {CATALOG_SHALLOW, CATALOG_DEEP};
 
-  /**
-   * The LDAP context factory class.
-   */
+  /** The LDAP context factory class. */
   public static final String FACTORY_LDAP = "com.sun.jndi.ldap.LdapCtxFactory";
 
-  /**
-   * The NIS context factory.
-   */
+  /** The NIS context factory. */
   public static final String FACTORY_NIS = "com.sun.jndi.nis.NISCtxFactory";
 
-  /**
-   * An enumeration with all known context factory classes.
-   */
+  /** An enumeration with all known context factory classes. */
   public static final String[] FACTORY_ENUM = {FACTORY_LDAP, FACTORY_NIS};
 
-  /**
-   * The string constant representing directory service debug output as
-   * enabled.
-   */
+  /** The string constant representing directory service debug output as enabled. */
   public static final String DEBUG_YES = "yes";
 
   public static final String DEBUG_NO = "no";
 
   /**
-   * Holds the directory name. This name must be unique across all defined
-   * directories because its used to reference it from other contexts.
-   * Initialized during construction, never <code>null</code> or empty after
-   * that.
+   * Holds the directory name. This name must be unique across all defined directories because its
+   * used to reference it from other contexts. Initialized during construction, never <code>null
+   * </code> or empty after that.
    */
   private String m_name;
 
   /**
-   * Holds the selected cataloging option. Initialized during construction,
-   * never <code>null</code> or empty after that. Must be one of
-   * <code>CATALOG_ENUM</code>.
+   * Holds the selected cataloging option. Initialized during construction, never <code>null</code>
+   * or empty after that. Must be one of <code>CATALOG_ENUM</code>.
    */
   private String m_catalogOption = CATALOG_SHALLOW;
 
   /**
-   * Holds the fully qualified factory class name used to create the
-   * context. Initialized during cconstruction, never <code>null</code> or
-   * empty after that.
+   * Holds the fully qualified factory class name used to create the context. Initialized during
+   * cconstruction, never <code>null</code> or empty after that.
    */
   private String m_factory;
 
   /**
-   * Holds a reference to the authentication spec. needed to make catalog
-   * requests to the directory specified with this class. Initialized
-   * during construction, never <code>null</code> after that.
+   * Holds a reference to the authentication spec. needed to make catalog requests to the directory
+   * specified with this class. Initialized during construction, never <code>null</code> after that.
    */
   private PSReference m_authenticationRef;
 
   /**
-   * Holds the complete provider url used to catalog information from this
-   * directory service. Initialized during cconstrucction, never
-   * <code>null</code> or empty after that.
+   * Holds the complete provider url used to catalog information from this directory service.
+   * Initialized during cconstrucction, never <code>null</code> or empty after that.
    */
   private String m_providerUrl;
 
   /**
-   * A <code>String</code> collection of attribute names. This specifies
-   * what attributes will be returned with requests to this directory service.
-   * May be <code>null</code> in which case all known attributes will be
-   * returned but not empty.
-   * We use a <code>PSCollection</code> to enforce that all entries are
-   * <code>String</code> objects.
+   * A <code>String</code> collection of attribute names. This specifies what attributes will be
+   * returned with requests to this directory service. May be <code>null</code> in which case all
+   * known attributes will be returned but not empty. We use a <code>PSCollection</code> to enforce
+   * that all entries are <code>String</code> objects.
    */
   private PSCollection m_attributes;
 
   /**
-   * List of names of the group providers instances used by this provider,
-   * stored as Strings.  Never <code>null</code>, may be empty.
+   * List of names of the group providers instances used by this provider, stored as Strings. Never
+   * <code>null</code>, may be empty.
    */
   private List<String> m_groupProviderNames = new ArrayList<>();
 
   /**
-   * A flag that indicates whether or not to output directory service debug
-   * information to the system output stream. Initialized in
-   * {@link #fromXml(Element, IPSDocument, List)}, never changed after
-   * that.
+   * A flag that indicates whether or not to output directory service debug information to the
+   * system output stream. Initialized in {@link #fromXml(Element, IPSDocument, List)}, never
+   * changed after that.
    */
   private boolean m_debug = false;
 

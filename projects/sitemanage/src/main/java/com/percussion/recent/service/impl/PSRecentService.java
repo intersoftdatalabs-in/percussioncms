@@ -21,7 +21,6 @@ package com.percussion.recent.service.impl;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.cms.IPSConstants;
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.data.PSWidgetContentType;
@@ -31,6 +30,7 @@ import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.recent.data.PSRecent.RecentType;
 import com.percussion.recent.service.IPSRecentServiceBase;
 import com.percussion.recent.service.rest.IPSRecentService;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.PSItemProperties;
@@ -38,6 +38,9 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 import com.percussion.webservices.PSWebserviceUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,324 +51,306 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Service implementation for managing recent items, templates, folders, and asset types.
- * Provides methods to add, find, and clean up recent user actions.
+ * Service implementation for managing recent items, templates, folders, and asset types. Provides
+ * methods to add, find, and clean up recent user actions.
  */
 @Transactional(propagation = Propagation.REQUIRED)
 @Component("recentService")
 @Lazy
 public class PSRecentService implements IPSRecentService {
-    @Autowired
-    private @Qualifier("recentServiceBase") IPSRecentServiceBase recentService;
+  @Autowired
+  private @Qualifier("recentServiceBase") IPSRecentServiceBase recentService;
 
-    @Autowired
-    private @Qualifier("pathService") IPSPathService pathService;
+  @Autowired
+  private @Qualifier("pathService") IPSPathService pathService;
 
-    @Autowired
-    private IPSIdMapper idMapper;
+  @Autowired private IPSIdMapper idMapper;
 
-    @Autowired
-    private @Qualifier("folderHelper") IPSFolderHelper folderHelper;
+  @Autowired
+  private @Qualifier("folderHelper") IPSFolderHelper folderHelper;
 
-    @Autowired
-    private IPSAssetService assetService;
+  @Autowired private IPSAssetService assetService;
 
-    @Autowired
-    private IPSSiteTemplateService siteTemplateService;
+  @Autowired private IPSSiteTemplateService siteTemplateService;
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+  private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 
-    /**
-     * Finds recent items for the current user, optionally ignoring archived items.
-     */
-    @Override
-    public List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems) {
-        var user = PSWebserviceUtils.getUserName();
-        var recentEntries = recentService.findRecent(user, null, RecentType.ITEM);
-        var items = new ArrayList<PSItemProperties>();
-        var toDelete = new ArrayList<String>();
-        for (var entry : recentEntries) {
-            PSItemProperties itemProps = null;
-            try {
-                itemProps = folderHelper.findItemPropertiesById(entry);
-                if (itemProps != null) {
-                    // Don't return archived items and items with no path on home page.
-                    if (ignoreArchivedItems && (PSWorkflowHelper.WF_STATE_ARCHIVE.equals(itemProps.getStatus()) || itemProps.getPath() == null)) {
-                        continue;
-                    }
-                    items.add(itemProps);
-                } else {
-                    log.debug("Removing recent item find returned null : {}", entry);
-                }
-            } catch (Exception e) {
-                log.debug("Removing error entry from recent item list {}, Error: {}", entry, PSExceptionUtils.getMessageForLog(e));
-            }
-            if (itemProps == null) {
-                toDelete.add(entry);
-            }
-        }
-        if (!toDelete.isEmpty()) {
-            recentService.deleteRecent(user, null, RecentType.ITEM, toDelete);
-        }
-        return items;
-    }
-
-    /**
-     * Finds recent templates for the current user and site.
-     */
-    @Override
-    public List<PSTemplateSummary> findRecentTemplate(String siteName) {
-        var user = PSWebserviceUtils.getUserName();
-        var recentEntries = recentService.findRecent(user, siteName, RecentType.TEMPLATE);
-        var templates = new ArrayList<PSTemplateSummary>();
-        var toDelete = new ArrayList<String>();
-
-        var siteTemplateMap = new HashMap<String, PSTemplateSummary>();
-        // If we do not find site we will remove all entries for site that no longer exist
-        var siteTemplates = siteTemplateService.findTemplatesBySite(siteName);
-        for (var siteTemplate : siteTemplates) {
-            siteTemplateMap.put(siteTemplate.getId(), siteTemplate);
-        }
-
-        for (var entry : recentEntries) {
-            var template = siteTemplateMap.get(entry);
-            // Cleanup old or invalid entries
-            if (template == null) {
-                log.debug("Removing recent template not a current site template :{}", entry);
-                toDelete.add(entry);
-            } else {
-                templates.add(template);
-            }
-        }
-
-        if (!toDelete.isEmpty()) {
-            recentService.deleteRecent(user, siteName, RecentType.TEMPLATE, toDelete);
-        }
-        return templates;
-    }
-
-    /**
-     * Finds recent site folders for the current user and site.
-     */
-    @Override
-    public List<PSPathItem> findRecentSiteFolder(String siteName) {
-        var user = PSWebserviceUtils.getUserName();
-        var recentEntries = recentService.findRecent(user, siteName, RecentType.SITE_FOLDER);
-        var pathItems = new ArrayList<PSPathItem>();
-        var toDelete = new ArrayList<String>();
-
-        for (var entry : recentEntries) {
-            PSPathItem pathItem = null;
-            try {
-                pathItem = pathService.find(entry);
-                if (pathItem != null) {
-                    pathItems.add(pathItem);
-                } else {
-                    log.debug("Removing recent siteFolder entry find returned null : {}", entry);
-                }
-            } catch (Exception e) {
-                log.debug("Removing error entry from recent siteFolder list {}, Error: {}", entry, PSExceptionUtils.getMessageForLog(e));
-            }
-            if (pathItem == null) {
-                toDelete.add(entry);
-            }
-        }
-        if (!toDelete.isEmpty()) {
-            recentService.deleteRecent(user, siteName, RecentType.SITE_FOLDER, toDelete);
-        }
-        return pathItems;
-    }
-
-    /**
-     * Finds recent asset folders for the current user.
-     */
-    @Override
-    public List<PSPathItem> findRecentAssetFolder() {
-        var user = PSWebserviceUtils.getUserName();
-        var recentEntries = recentService.findRecent(user, null, RecentType.ASSET_FOLDER);
-        var pathItems = new ArrayList<PSPathItem>();
-        var toDelete = new ArrayList<String>();
-
-        for (var entry : recentEntries) {
-            PSPathItem pathItem = null;
-            try {
-                pathItem = pathService.find(entry);
-                if (pathItem != null) {
-                    pathItems.add(pathItem);
-                } else {
-                    log.debug("Removing recent assetFolder entry find returned null :{}", entry);
-                }
-            } catch (Exception e) {
-                log.debug("Removing error entry from recent assetFolder list {}, Error: {}", entry, PSExceptionUtils.getMessageForLog(e));
-            }
-            if (pathItem == null) {
-                toDelete.add(entry);
-            }
-        }
-        if (!toDelete.isEmpty()) {
-            recentService.deleteRecent(user, null, RecentType.ASSET_FOLDER, toDelete);
-        }
-        return pathItems;
-    }
-
-    /**
-     * Adds a recent item for the current user.
-     */
-    @Override
-    public void addRecentItem(String value) {
-        var user = PSWebserviceUtils.getUserName();
-        if (PSTypeEnum.LEGACY_CONTENT.getOrdinal() != idMapper.getGuid(value).getType()) {
-            throw new IllegalArgumentException("Value must be an item guid");
-        }
-        // Store guid as a revisionless guid.
-        var locator = new PSLocator(idMapper.getContentId(value));
-        locator.setRevision(-1);
-        value = idMapper.getString(locator);
-        recentService.addRecent(user, null, RecentType.ITEM, value);
-    }
-
-    /**
-     * Adds a recent template for the current user and site.
-     */
-    @Override
-    public void addRecentTemplate(String siteName, String value) {
-        var user = PSWebserviceUtils.getUserName();
-        if (PSTypeEnum.LEGACY_CONTENT.getOrdinal() != idMapper.getGuid(value).getType()) {
-            throw new IllegalArgumentException("Value must be a template guid");
-        }
-        // Not actually checking template exists for performance, check and filter done on find.
-        recentService.addRecent(user, siteName, RecentType.TEMPLATE, value);
-    }
-
-    /**
-     * Adds a recent site folder for the current user.
-     */
-    @Override
-    public void addRecentSiteFolder(String value) {
-        var user = PSWebserviceUtils.getUserName();
-        if (StringUtils.isBlank(value) || !(StringUtils.startsWith(value, "//") || StringUtils.startsWith(value, "/"))) {
-            return;
-        }
-        var folderPath = StringUtils.startsWith(value, "//") ? value.substring(1) : value;
-        var siteName = PSPathUtils.getSiteFromPath(folderPath);
-        if (siteName == null) {
-            return;
-        }
-        // Not checking database for folder to improve performance, check done on way out.
-        recentService.addRecent(user, siteName, RecentType.SITE_FOLDER, folderPath);
-    }
-
-    /**
-     * Adds a recent asset folder for the current user.
-     */
-    @Override
-    public void addRecentAssetFolder(String value) {
-        var user = PSWebserviceUtils.getUserName();
-        var pos = value.indexOf("Assets");
-        if (pos >= 0 && pos <= 2) {
-            value = "/" + value.substring(pos);
+  /** Finds recent items for the current user, optionally ignoring archived items. */
+  @Override
+  public List<PSItemProperties> findRecentItem(boolean ignoreArchivedItems) {
+    var user = PSWebserviceUtils.getUserName();
+    var recentEntries = recentService.findRecent(user, null, RecentType.ITEM);
+    var items = new ArrayList<PSItemProperties>();
+    var toDelete = new ArrayList<String>();
+    for (var entry : recentEntries) {
+      PSItemProperties itemProps = null;
+      try {
+        itemProps = folderHelper.findItemPropertiesById(entry);
+        if (itemProps != null) {
+          // Don't return archived items and items with no path on home page.
+          if (ignoreArchivedItems
+              && (PSWorkflowHelper.WF_STATE_ARCHIVE.equals(itemProps.getStatus())
+                  || itemProps.getPath() == null)) {
+            continue;
+          }
+          items.add(itemProps);
         } else {
-            return;
+          log.debug("Removing recent item find returned null : {}", entry);
         }
-        // Not checking database for folder to improve performance, check done on way out.
-        recentService.addRecent(user, null, RecentType.ASSET_FOLDER, value);
+      } catch (Exception e) {
+        log.debug(
+            "Removing error entry from recent item list {}, Error: {}",
+            entry,
+            PSExceptionUtils.getMessageForLog(e));
+      }
+      if (itemProps == null) {
+        toDelete.add(entry);
+      }
+    }
+    if (!toDelete.isEmpty()) {
+      recentService.deleteRecent(user, null, RecentType.ITEM, toDelete);
+    }
+    return items;
+  }
+
+  /** Finds recent templates for the current user and site. */
+  @Override
+  public List<PSTemplateSummary> findRecentTemplate(String siteName) {
+    var user = PSWebserviceUtils.getUserName();
+    var recentEntries = recentService.findRecent(user, siteName, RecentType.TEMPLATE);
+    var templates = new ArrayList<PSTemplateSummary>();
+    var toDelete = new ArrayList<String>();
+
+    var siteTemplateMap = new HashMap<String, PSTemplateSummary>();
+    // If we do not find site we will remove all entries for site that no longer exist
+    var siteTemplates = siteTemplateService.findTemplatesBySite(siteName);
+    for (var siteTemplate : siteTemplates) {
+      siteTemplateMap.put(siteTemplate.getId(), siteTemplate);
     }
 
-    /**
-     * Adds a recent asset type for the current user.
-     */
-    @Override
-    public void addRecentAssetType(String value) {
-        var user = PSWebserviceUtils.getUserName();
-        recentService.addRecent(user, null, RecentType.ASSET_TYPE, value);
+    for (var entry : recentEntries) {
+      var template = siteTemplateMap.get(entry);
+      // Cleanup old or invalid entries
+      if (template == null) {
+        log.debug("Removing recent template not a current site template :{}", entry);
+        toDelete.add(entry);
+      } else {
+        templates.add(template);
+      }
     }
 
-    /**
-     * Finds recent asset types for the current user.
-     */
-    @Override
-    public List<PSWidgetContentType> findRecentAssetType() throws PSDataServiceException {
-        var resultList = new ArrayList<PSWidgetContentType>();
-        var user = PSWebserviceUtils.getUserName();
-        var recentEntries = recentService.findRecent(user, null, RecentType.ASSET_TYPE);
-        var toDelete = new ArrayList<String>();
-        var widgetTypeMap = new HashMap<String, PSWidgetContentType>();
-        var widgetTypes = assetService.getAssetTypes("yes");
-        for (var wt : widgetTypes) {
-            widgetTypeMap.put(wt.getWidgetId(), wt);
+    if (!toDelete.isEmpty()) {
+      recentService.deleteRecent(user, siteName, RecentType.TEMPLATE, toDelete);
+    }
+    return templates;
+  }
+
+  /** Finds recent site folders for the current user and site. */
+  @Override
+  public List<PSPathItem> findRecentSiteFolder(String siteName) {
+    var user = PSWebserviceUtils.getUserName();
+    var recentEntries = recentService.findRecent(user, siteName, RecentType.SITE_FOLDER);
+    var pathItems = new ArrayList<PSPathItem>();
+    var toDelete = new ArrayList<String>();
+
+    for (var entry : recentEntries) {
+      PSPathItem pathItem = null;
+      try {
+        pathItem = pathService.find(entry);
+        if (pathItem != null) {
+          pathItems.add(pathItem);
+        } else {
+          log.debug("Removing recent siteFolder entry find returned null : {}", entry);
         }
-        for (var entry : recentEntries) {
-            var wtype = widgetTypeMap.get(entry);
-            // Cleanup old or invalid entries
-            if (wtype == null) {
-                log.debug("Removing recent asset type not a current widget type : {}", entry);
-                toDelete.add(entry);
-            } else {
-                resultList.add(wtype);
-            }
+      } catch (Exception e) {
+        log.debug(
+            "Removing error entry from recent siteFolder list {}, Error: {}",
+            entry,
+            PSExceptionUtils.getMessageForLog(e));
+      }
+      if (pathItem == null) {
+        toDelete.add(entry);
+      }
+    }
+    if (!toDelete.isEmpty()) {
+      recentService.deleteRecent(user, siteName, RecentType.SITE_FOLDER, toDelete);
+    }
+    return pathItems;
+  }
+
+  /** Finds recent asset folders for the current user. */
+  @Override
+  public List<PSPathItem> findRecentAssetFolder() {
+    var user = PSWebserviceUtils.getUserName();
+    var recentEntries = recentService.findRecent(user, null, RecentType.ASSET_FOLDER);
+    var pathItems = new ArrayList<PSPathItem>();
+    var toDelete = new ArrayList<String>();
+
+    for (var entry : recentEntries) {
+      PSPathItem pathItem = null;
+      try {
+        pathItem = pathService.find(entry);
+        if (pathItem != null) {
+          pathItems.add(pathItem);
+        } else {
+          log.debug("Removing recent assetFolder entry find returned null :{}", entry);
         }
-        if (!toDelete.isEmpty()) {
-            recentService.deleteRecent(user, null, RecentType.ASSET_TYPE, toDelete);
-        }
-        return resultList;
+      } catch (Exception e) {
+        log.debug(
+            "Removing error entry from recent assetFolder list {}, Error: {}",
+            entry,
+            PSExceptionUtils.getMessageForLog(e));
+      }
+      if (pathItem == null) {
+        toDelete.add(entry);
+      }
     }
+    if (!toDelete.isEmpty()) {
+      recentService.deleteRecent(user, null, RecentType.ASSET_FOLDER, toDelete);
+    }
+    return pathItems;
+  }
 
-    /**
-     * Deletes all recent items for the given user.
-     */
-    @Override
-    public void deleteUserRecent(String user) {
-        recentService.deleteRecent(user, null, null);
+  /** Adds a recent item for the current user. */
+  @Override
+  public void addRecentItem(String value) {
+    var user = PSWebserviceUtils.getUserName();
+    if (PSTypeEnum.LEGACY_CONTENT.getOrdinal() != idMapper.getGuid(value).getType()) {
+      throw new IllegalArgumentException("Value must be an item guid");
     }
+    // Store guid as a revisionless guid.
+    var locator = new PSLocator(idMapper.getContentId(value));
+    locator.setRevision(-1);
+    value = idMapper.getString(locator);
+    recentService.addRecent(user, null, RecentType.ITEM, value);
+  }
 
-    /**
-     * Deletes all recent items for the given site.
-     */
-    @Override
-    public void deleteSiteRecent(String siteName) {
-        recentService.deleteRecent(null, siteName, null);
+  /** Adds a recent template for the current user and site. */
+  @Override
+  public void addRecentTemplate(String siteName, String value) {
+    var user = PSWebserviceUtils.getUserName();
+    if (PSTypeEnum.LEGACY_CONTENT.getOrdinal() != idMapper.getGuid(value).getType()) {
+      throw new IllegalArgumentException("Value must be a template guid");
     }
+    // Not actually checking template exists for performance, check and filter done on find.
+    recentService.addRecent(user, siteName, RecentType.TEMPLATE, value);
+  }
 
-    /**
-     * Updates all recent items to use the new site name.
-     */
-    @Override
-    public void updateSiteNameRecent(String oldSiteName, String newSiteName) {
-        try {
-            recentService.renameSiteRecent(oldSiteName, newSiteName);
-        } catch (Exception e) {
-            log.debug("Error updating PSX_RECENT table to rename site from:{}, to {}, Error: {} ", oldSiteName, newSiteName, PSExceptionUtils.getMessageForLog(e));
-        }
+  /** Adds a recent site folder for the current user. */
+  @Override
+  public void addRecentSiteFolder(String value) {
+    var user = PSWebserviceUtils.getUserName();
+    if (StringUtils.isBlank(value)
+        || !(StringUtils.startsWith(value, "//") || StringUtils.startsWith(value, "/"))) {
+      return;
     }
+    var folderPath = StringUtils.startsWith(value, "//") ? value.substring(1) : value;
+    var siteName = PSPathUtils.getSiteFromPath(folderPath);
+    if (siteName == null) {
+      return;
+    }
+    // Not checking database for folder to improve performance, check done on way out.
+    recentService.addRecent(user, siteName, RecentType.SITE_FOLDER, folderPath);
+  }
 
-    @Override
-    public void addRecentItemByUser(String userName, String value) {
-        recentService.addRecent(userName, null, RecentType.ITEM, value);
+  /** Adds a recent asset folder for the current user. */
+  @Override
+  public void addRecentAssetFolder(String value) {
+    var user = PSWebserviceUtils.getUserName();
+    var pos = value.indexOf("Assets");
+    if (pos >= 0 && pos <= 2) {
+      value = "/" + value.substring(pos);
+    } else {
+      return;
     }
+    // Not checking database for folder to improve performance, check done on way out.
+    recentService.addRecent(user, null, RecentType.ASSET_FOLDER, value);
+  }
 
-    @Override
-    public void addRecentTemplateByUser(String userName, String siteName, String value) {
-        recentService.addRecent(userName, null, RecentType.TEMPLATE, value);
-    }
+  /** Adds a recent asset type for the current user. */
+  @Override
+  public void addRecentAssetType(String value) {
+    var user = PSWebserviceUtils.getUserName();
+    recentService.addRecent(user, null, RecentType.ASSET_TYPE, value);
+  }
 
-    @Override
-    public void addRecentSiteFolderByUser(String userName, String value) {
-        recentService.addRecent(userName, null, RecentType.SITE_FOLDER, value);
+  /** Finds recent asset types for the current user. */
+  @Override
+  public List<PSWidgetContentType> findRecentAssetType() throws PSDataServiceException {
+    var resultList = new ArrayList<PSWidgetContentType>();
+    var user = PSWebserviceUtils.getUserName();
+    var recentEntries = recentService.findRecent(user, null, RecentType.ASSET_TYPE);
+    var toDelete = new ArrayList<String>();
+    var widgetTypeMap = new HashMap<String, PSWidgetContentType>();
+    var widgetTypes = assetService.getAssetTypes("yes");
+    for (var wt : widgetTypes) {
+      widgetTypeMap.put(wt.getWidgetId(), wt);
     }
+    for (var entry : recentEntries) {
+      var wtype = widgetTypeMap.get(entry);
+      // Cleanup old or invalid entries
+      if (wtype == null) {
+        log.debug("Removing recent asset type not a current widget type : {}", entry);
+        toDelete.add(entry);
+      } else {
+        resultList.add(wtype);
+      }
+    }
+    if (!toDelete.isEmpty()) {
+      recentService.deleteRecent(user, null, RecentType.ASSET_TYPE, toDelete);
+    }
+    return resultList;
+  }
 
-    @Override
-    public void addRecentAssetFolderByUser(String userName, String value) {
-        recentService.addRecent(userName, null, RecentType.ASSET_FOLDER, value);
-    }
+  /** Deletes all recent items for the given user. */
+  @Override
+  public void deleteUserRecent(String user) {
+    recentService.deleteRecent(user, null, null);
+  }
 
-    @Override
-    public void addRecentAssetTypeByUser(String userName, String value) {
-        recentService.addRecent(userName, null, RecentType.ASSET_TYPE, value);
+  /** Deletes all recent items for the given site. */
+  @Override
+  public void deleteSiteRecent(String siteName) {
+    recentService.deleteRecent(null, siteName, null);
+  }
+
+  /** Updates all recent items to use the new site name. */
+  @Override
+  public void updateSiteNameRecent(String oldSiteName, String newSiteName) {
+    try {
+      recentService.renameSiteRecent(oldSiteName, newSiteName);
+    } catch (Exception e) {
+      log.debug(
+          "Error updating PSX_RECENT table to rename site from:{}, to {}, Error: {} ",
+          oldSiteName,
+          newSiteName,
+          PSExceptionUtils.getMessageForLog(e));
     }
+  }
+
+  @Override
+  public void addRecentItemByUser(String userName, String value) {
+    recentService.addRecent(userName, null, RecentType.ITEM, value);
+  }
+
+  @Override
+  public void addRecentTemplateByUser(String userName, String siteName, String value) {
+    recentService.addRecent(userName, null, RecentType.TEMPLATE, value);
+  }
+
+  @Override
+  public void addRecentSiteFolderByUser(String userName, String value) {
+    recentService.addRecent(userName, null, RecentType.SITE_FOLDER, value);
+  }
+
+  @Override
+  public void addRecentAssetFolderByUser(String userName, String value) {
+    recentService.addRecent(userName, null, RecentType.ASSET_FOLDER, value);
+  }
+
+  @Override
+  public void addRecentAssetTypeByUser(String userName, String value) {
+    recentService.addRecent(userName, null, RecentType.ASSET_TYPE, value);
+  }
 }

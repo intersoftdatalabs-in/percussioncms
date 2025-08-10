@@ -47,9 +47,7 @@ import org.apache.lucene.index.IndexWriter;
 
 public class PSSearchAdminImpl extends PSSearchAdmin {
 
-  /**
-   * Create a configuration manager for the search engine.
-   */
+  /** Create a configuration manager for the search engine. */
   PSSearchAdminImpl() {
     PSServerConfiguration config = PSServer.getServerConfiguration();
     PSSearchConfig searchConfig = config.getSearchConfig();
@@ -75,9 +73,7 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
     }
   }
 
-  /**
-   * This method deletes the folders related to the supplied type id.
-   */
+  /** This method deletes the folders related to the supplied type id. */
   @Override
   protected void doDelete(PSKey key) throws PSSearchException {
     if (key == null) throw new IllegalArgumentException("key may not be null");
@@ -120,6 +116,7 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
 
   /**
    * Closes an IndexWriter that is associated with the supplied content type.
+   *
    * @param key Content type key whose index writer needs to be closed.
    */
   private void closeIndexWriter(PSKey key) throws IOException {
@@ -133,9 +130,8 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
   }
 
   /**
-   * Deletes all files and subdirectories under dir. Returns true if all
-   * deletions were successful. If a deletion fails, the method stops
-   * attempting to delete and returns false.
+   * Deletes all files and subdirectories under dir. Returns true if all deletions were successful.
+   * If a deletion fails, the method stops attempting to delete and returns false.
    *
    * @param dir The directory that needs to be deleted.
    * @return <code>true</code> if deletion succeeds.
@@ -209,8 +205,8 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
   }
 
   /**
-   * Checks that the supplied array is non-<code>null</code>, has at least
-   * 1 entry and that no entries are <code>null</code>.
+   * Checks that the supplied array is non-<code>null</code>, has at least 1 entry and that no
+   * entries are <code>null</code>.
    *
    * @param types Anything allowed.
    */
@@ -224,17 +220,13 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
     }
   }
 
-  /**
-   * This is not used for Lucene
-   */
+  /** This is not used for Lucene */
   @Override
   public void save() throws IOException, PSSearchException {
     // This method does nothing as there is nothing to save in case of lucene.
   }
 
-  /**
-   * This is not used for Lucene
-   */
+  /** This is not used for Lucene */
   @Override
   protected boolean update(PSItemDefinition def, boolean notify) throws PSSearchException {
     // This method does nothing as there is nothing to update in case of lucene.
@@ -243,12 +235,11 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
   }
 
   /**
-   * The scheme for creating the lucene indexes is to create a folder with
-   * content type id under indexes folder. The folder indexes is created under
-   * search config directory if it does not exist. This method walks through
-   * all the folders under indexes folder and checks whether a
-   * content type with the id exists or not if not it logs that folder other
-   * wise it creates the folder.
+   * The scheme for creating the lucene indexes is to create a folder with content type id under
+   * indexes folder. The folder indexes is created under search config directory if it does not
+   * exist. This method walks through all the folders under indexes folder and checks whether a
+   * content type with the id exists or not if not it logs that folder other wise it creates the
+   * folder.
    */
   @Override
   public void verify(Set<Long> knownContentTypes) throws PSSearchException {
@@ -299,9 +290,7 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
     }
   }
 
-  /**
-   * Call this method during server startup only.
-   */
+  /** Call this method during server startup only. */
   @Override
   public void clearIndexLocks() {
     File rootDir = new File(PSSearchEngineImpl.getLuceneIndexRootPath());
@@ -331,8 +320,6 @@ public class PSSearchAdminImpl extends PSSearchAdmin {
     }
   }
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 }

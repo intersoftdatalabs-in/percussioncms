@@ -19,60 +19,57 @@ package com.percussion.pagemanagement.data;
 
 import com.percussion.pagemanagement.data.PSSEOStatistics.SEO_SEVERITY;
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotNull;
 
 /**
- * Request to find non-SEO pages by path, workflow, and workflow state.
- * Optionally filter by keyword and severity.
+ * Request to find non-SEO pages by path, workflow, and workflow state. Optionally filter by keyword
+ * and severity.
+ *
  * @author peterfrontiero
  */
 @XmlRootElement(name = "NonSEOPagesRequest")
 public class PSNonSEOPagesRequest extends PSItemByWfStateRequest {
 
-    /**
-     * The severity for which all pages will be requested, never {@code null}.
-     */
-    @NotNull
-    private SEO_SEVERITY severity;
+  /** The severity for which all pages will be requested, never {@code null}. */
+  @NotNull private SEO_SEVERITY severity;
 
-    /**
-     * The keyword to search for as part of the request.
-     * May be {@code null} or empty.
-     */
-    private String keyword;
+  /** The keyword to search for as part of the request. May be {@code null} or empty. */
+  private String keyword;
 
-    /**
-     * Gets the severity for which all pages will be requested.
-     * @return the severity, never {@code null}
-     */
-    public SEO_SEVERITY getSeverity() {
-        return severity;
-    }
+  /**
+   * Gets the severity for which all pages will be requested.
+   *
+   * @return the severity, never {@code null}
+   */
+  public SEO_SEVERITY getSeverity() {
+    return severity;
+  }
 
-    /**
-     * Sets the severity for which all pages will be requested.
-     * @param severity the severity
-     */
-    public void setSeverity(SEO_SEVERITY severity) {
-        this.severity = severity;
-    }
+  /**
+   * Sets the severity for which all pages will be requested.
+   *
+   * @param severity the severity
+   */
+  public void setSeverity(SEO_SEVERITY severity) {
+    this.severity = severity;
+  }
 
-    /**
-     * Gets the keyword to search for as part of the request.
-     * May be {@code null} or empty.
-     * @return the keyword
-     */
-    public String getKeyword() {
-        return keyword;
-    }
+  /**
+   * Gets the keyword to search for as part of the request. May be {@code null} or empty.
+   *
+   * @return the keyword
+   */
+  public String getKeyword() {
+    return keyword;
+  }
 
-    /**
-     * Sets the keyword to search for as part of the request.
-     * @param keyword the keyword
-     */
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
+  /**
+   * Sets the keyword to search for as part of the request.
+   *
+   * @param keyword the keyword
+   */
+  public void setKeyword(String keyword) {
+    this.keyword = keyword;
+  }
 }

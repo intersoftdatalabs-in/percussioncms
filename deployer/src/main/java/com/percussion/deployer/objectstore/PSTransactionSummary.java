@@ -22,25 +22,19 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates a transaction for installing a package (or element).
- */
+/** Encapsulates a transaction for installing a package (or element). */
 public class PSTransactionSummary implements IPSDeployComponent {
 
   /**
    * Constructing the object from the given parameters.
    *
-   * @param logId The id of a log summary this transaction is a part of. It
-   * may not be less than 0.
-   * @param depDesc The description of the installed dependency, it may not
-   * be <code>null</code> or empty.
-   * @param elementName  The name of the installed element. It may not be
-   * <code>null</code> or empty.
-   * @param elementType  The type of the installed element. It must be
-   * one of the <code>TYPE_XXX</code> values.
-   * @param action The action taken. Should be one of the
-   * <code>ACTION_XXX</code> values.
-   *
+   * @param logId The id of a log summary this transaction is a part of. It may not be less than 0.
+   * @param depDesc The description of the installed dependency, it may not be <code>null</code> or
+   *     empty.
+   * @param elementName The name of the installed element. It may not be <code>null</code> or empty.
+   * @param elementType The type of the installed element. It must be one of the <code>TYPE_XXX
+   *     </code> values.
+   * @param action The action taken. Should be one of the <code>ACTION_XXX</code> values.
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   public PSTransactionSummary(
@@ -67,12 +61,9 @@ public class PSTransactionSummary implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSTransactionSummary(Element source) throws PSUnknownNodeTypeException {
@@ -84,8 +75,8 @@ public class PSTransactionSummary implements IPSDeployComponent {
   /**
    * Get the description of the dependency in the log.
    *
-   * @return The description of the dependency in the log. It will never be
-   * <code>null</code> or empty.
+   * @return The description of the dependency in the log. It will never be <code>null</code> or
+   *     empty.
    */
   public String getDepDescription() {
     return m_depDesc;
@@ -94,8 +85,7 @@ public class PSTransactionSummary implements IPSDeployComponent {
   /**
    * Get the name of the element in the log.
    *
-   * @return The name of the element in the log. It will never be
-   * <code>null</code> or empty.
+   * @return The name of the element in the log. It will never be <code>null</code> or empty.
    */
   public String getElement() {
     return m_elementName;
@@ -104,8 +94,7 @@ public class PSTransactionSummary implements IPSDeployComponent {
   /**
    * The type of the element in the log.
    *
-   * @return The type of the element in the log. It will be one of the
-   * <code>TYPE_XXX</code> values.
+   * @return The type of the element in the log. It will be one of the <code>TYPE_XXX</code> values.
    */
   public String getType() {
     return m_elementType;
@@ -114,15 +103,16 @@ public class PSTransactionSummary implements IPSDeployComponent {
   /**
    * The action taken when installing the element/package.
    *
-   * @return The action taken when installing the element/package. It will
-   * be one of the <code>ACTION_XXX</code> values.
+   * @return The action taken when installing the element/package. It will be one of the <code>
+   *     ACTION_XXX</code> values.
    */
   public int getAction() {
     return m_action;
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXTransactionSummary EMPTY>
    * &lt;!ATTLIST PSXTransactionSummary
@@ -152,9 +142,8 @@ public class PSTransactionSummary implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -246,9 +235,8 @@ public class PSTransactionSummary implements IPSDeployComponent {
    * Determine if a given action is one of the <code>ACTION_XXX</code> values.
    *
    * @param action the to be checked action value.
-   *
-   * @return <code>true</code> if it is one of the <code>ACTION_XXX</code>
-   * values; <code>false</code> otherwise.
+   * @return <code>true</code> if it is one of the <code>ACTION_XXX</code> values; <code>false
+   *     </code> otherwise.
    */
   public static boolean isActionValid(int action) {
     return (action == ACTION_CREATED
@@ -259,71 +247,49 @@ public class PSTransactionSummary implements IPSDeployComponent {
         || action == ACTION_FAILED_TO_INSTALL);
   }
 
-  /**
-   * The constant for file element type
-   */
+  /** The constant for file element type */
   public static final String TYPE_FILE = "file";
 
-  /**
-   * The constant for data element type
-   */
+  /** The constant for data element type */
   public static final String TYPE_DATA = "data";
 
-  /**
-   * The constant for schema element type
-   */
+  /** The constant for schema element type */
   public static final String TYPE_SCHEMA = "schema";
 
-  /**
-   * The constant for skipped element type, value is "N/A".
-   */
+  /** The constant for skipped element type, value is "N/A". */
   public static final String TYPE_SKIPPED = "N/A";
 
-  /**
-   * The constant for extension element type
-   */
+  /** The constant for extension element type */
   public static final String TYPE_EXTENSION = "extension";
 
-  /**
-   * The constant for cms object element type
-   */
+  /** The constant for cms object element type */
   public static final String TYPE_CMS_OBJECT = "object";
 
-  /**
-   * The constant for the created action of a transaction
-   */
+  /** The constant for the created action of a transaction */
   public static final int ACTION_CREATED = 0;
 
-  /**
-   * The constant for the modified action of a transaction
-   */
+  /** The constant for the modified action of a transaction */
   public static final int ACTION_MODIFIED = 1;
 
-  /**
-   * The constant for the deleted action of a transaction
-   */
+  /** The constant for the deleted action of a transaction */
   public static final int ACTION_DELETED = 2;
 
   /**
-   * The constant for the skipped action of a transaction due to a no
-   * overwrite policy for the specific dependency
+   * The constant for the skipped action of a transaction due to a no overwrite policy for the
+   * specific dependency
    */
   public static final int ACTION_SKIPPED_NO_OVERWRITE = 3;
 
   /**
-   * The constant for the skipped action of a transaction due to the previous
-   * installation of the dependency within the same archive.
+   * The constant for the skipped action of a transaction due to the previous installation of the
+   * dependency within the same archive.
    */
   public static final int ACTION_SKIPPED_ALREADY_INSTALLED = 4;
 
-  /**
-   * The constant for the failed action.
-   */
+  /** The constant for the failed action. */
   public static final int ACTION_FAILED_TO_INSTALL = 5;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXTransactionSummary";
 
   // Private strings for various XML attributes
@@ -334,33 +300,32 @@ public class PSTransactionSummary implements IPSDeployComponent {
   private static final String XML_ATTR_DEPDESC = "depDesc";
 
   /**
-   * The identifier of a log summary this transaction is a part of.
-   * Initialized by constructor, it will not be less than 0 after that.
+   * The identifier of a log summary this transaction is a part of. Initialized by constructor, it
+   * will not be less than 0 after that.
    */
   private int m_logId;
 
   /**
-   * The description of the installed dependency. Initialized by constructor,
-   * will never by <code>null</code> or empty after that.
+   * The description of the installed dependency. Initialized by constructor, will never by <code>
+   * null</code> or empty after that.
    */
   private String m_depDesc;
 
   /**
-   * The identifier of the dependency for which the element is installed.
-   * Initialized by constructor, it will never be <code>null</code>
-   * or empty after that.
+   * The identifier of the dependency for which the element is installed. Initialized by
+   * constructor, it will never be <code>null</code> or empty after that.
    */
   private String m_elementName;
 
   /**
-   * The type of the installed element. Initialized by constructor, it will
-   * be one of the <code>TYPE_XXX</code> values after that.
+   * The type of the installed element. Initialized by constructor, it will be one of the <code>
+   * TYPE_XXX</code> values after that.
    */
   private String m_elementType;
 
   /**
-   * Action taken. Initialized by constructor, it will be one of the
-   * <code>ACTION_XXX</code> values after that.
+   * Action taken. Initialized by constructor, it will be one of the <code>ACTION_XXX</code> values
+   * after that.
    */
   private int m_action;
 }

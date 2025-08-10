@@ -35,12 +35,10 @@ import java.sql.Types;
  */
 public class PSRowDataBuffer {
   /**
-   * Construct a data buffer for storing the current rows data from a
-   * result set.
+   * Construct a data buffer for storing the current rows data from a result set.
    *
-   * @param      rs               the result set to read from
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param rs the result set to read from
+   * @exception SQLException if a SQL error occurs
    */
   public PSRowDataBuffer(ResultSet rs) throws java.sql.SQLException {
     super();
@@ -57,20 +55,18 @@ public class PSRowDataBuffer {
     for (int i = 0; i < m_columnCount; i++) m_columnTypes[i] = meta.getColumnType(i + 1);
   }
 
-  /**
-   * get the number of columns in the combined result set.
-   */
+  /** get the number of columns in the combined result set. */
   public int getColumnCount() {
     return m_columnCount;
   }
 
   /**
-   * Gets the row data that was read by the last call to {@link #readRow()}.
-   * Note, the returned row may not be the "current" row if the
-   * {@link #skipRow()} is called right before calling this method.
+   * Gets the row data that was read by the last call to {@link #readRow()}. Note, the returned row
+   * may not be the "current" row if the {@link #skipRow()} is called right before calling this
+   * method.
    *
-   * @return the row data, which contains appropriately sized data area to use
-   *    as the row's data buffer.
+   * @return the row data, which contains appropriately sized data area to use as the row's data
+   *     buffer.
    */
   public Object[] getCurrentRow() {
     return m_curRow;
@@ -79,9 +75,8 @@ public class PSRowDataBuffer {
   /**
    * Skips the next row in the buffer if there are any unread data.
    *
-   * @return <code>true</code> if successfully skipped the next row;
-   *    <code>false</code> if there is no unread data in the buffer.
-   *
+   * @return <code>true</code> if successfully skipped the next row; <code>false</code> if there is
+   *     no unread data in the buffer.
    * @throws SQLException if a SQL error occurs
    */
   public boolean skipRow() throws java.sql.SQLException {
@@ -96,7 +91,7 @@ public class PSRowDataBuffer {
   /**
    * read the next row from the result set.
    *
-   * @exception   SQLException   if a SQL error occurs
+   * @exception SQLException if a SQL error occurs
    */
   public boolean readRow() throws java.sql.SQLException {
     if (!m_hasData) return false;
@@ -161,19 +156,14 @@ public class PSRowDataBuffer {
         /**
          * *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE *** NOTE ***
          *
-         * This rather ugly piece of code is required for various
-         * kludgy reasons.
+         * <p>This rather ugly piece of code is required for various kludgy reasons.
          *
-         *  1. jdbc clears the stream after a call to next or getXXX
-         *  2. rs.getBytes does character translation?! which breaks
-         *  binary data
-         *  3.   the length of the stream is not guaranteed -- that is,
-         *  a call to available is not necessarily the amount of
-         *  data pending!
+         * <p>1. jdbc clears the stream after a call to next or getXXX 2. rs.getBytes does character
+         * translation?! which breaks binary data 3. the length of the stream is not guaranteed --
+         * that is, a call to available is not necessarily the amount of data pending!
          *
-         * So instead, I'm reading the data a chunk at a time into
-         * an output stream. The last chunk of data read will be less
-         * than our stream size, which is our end condition. We can
+         * <p>So instead, I'm reading the data a chunk at a time into an output stream. The last
+         * chunk of data read will be less than our stream size, which is our end condition. We can
          * then use the byte[] to create a byte array input stream.
          */
         byte[] aData = new byte[2048];
@@ -320,22 +310,17 @@ public class PSRowDataBuffer {
   }
 
   /**
-   * This is a hack to fix a odbc bridge bug. See the description inside
-   * the getResultColumn method. Basically, it interprets a string of digits,
-   * in which each group of 4 digits represents a UTF-16 character. The
-   * digits are all converted and the characters they represent are returned
+   * This is a hack to fix a odbc bridge bug. See the description inside the getResultColumn method.
+   * Basically, it interprets a string of digits, in which each group of 4 digits represents a
+   * UTF-16 character. The digits are all converted and the characters they represent are returned
    * as a String.
    *
-   * @param data The string to convert. If <code>null</code>, empty or not
-   *    a multiple of 4 long, it is returned w/o conversion. Otherwise a
-   *    conversion is attempted.
-   *
-   * @return The possibly converted string. May be <code>null</code> or empty
-   *    if that's what was passed in.
-   *
-   * @throws SQLException If the 'UTF-16' character encoding is not supported
-   *    by Java or IO exceptions occur in the local byte stream. Neither of
-   *    these should ever happen.
+   * @param data The string to convert. If <code>null</code>, empty or not a multiple of 4 long, it
+   *     is returned w/o conversion. Otherwise a conversion is attempted.
+   * @return The possibly converted string. May be <code>null</code> or empty if that's what was
+   *     passed in.
+   * @throws SQLException If the 'UTF-16' character encoding is not supported by Java or IO
+   *     exceptions occur in the local byte stream. Neither of these should ever happen.
    */
   // Removed unused private static method 'fixupUtf16SqlServerBug' (Java 11 refactor)
 
@@ -343,9 +328,7 @@ public class PSRowDataBuffer {
 
   private ResultSet m_resultSet;
 
-  /**
-   * Initialized by ctor; @see #hasData() for detail
-   */
+  /** Initialized by ctor; @see #hasData() for detail */
   private boolean m_hasData;
 
   private int m_columnCount;

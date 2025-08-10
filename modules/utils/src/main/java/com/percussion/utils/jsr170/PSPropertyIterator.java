@@ -29,6 +29,7 @@ import javax.jcr.PropertyIterator;
 public class PSPropertyIterator extends PSItemIterator<Property> implements PropertyIterator {
   /**
    * Ctor
+   *
    * @param things the map of properties, never <code>null</code>
    * @param filterpattern the filter pattern, may be <code>null</code>
    */

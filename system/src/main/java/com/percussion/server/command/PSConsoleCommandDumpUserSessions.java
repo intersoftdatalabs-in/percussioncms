@@ -23,26 +23,23 @@ import java.util.Locale;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class dumps the currently used server resources to the server console.
- */
+/** This class dumps the currently used server resources to the server console. */
 public class PSConsoleCommandDumpUserSessions extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param cmdArgs the argument string to use when executing this command,
-   *    may be <code>null</code>.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     .
    */
   public PSConsoleCommandDumpUserSessions(String cmdArgs) {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
    *
    * @see IPSConsolCommand
    */
@@ -60,9 +57,6 @@ public class PSConsoleCommandDumpUserSessions extends PSConsoleCommand {
     return doc;
   }
 
-  /**
-   * The command entered in the server console to get the information produced
-   * in this class.
-   */
+  /** The command entered in the server console to get the information produced in this class. */
   static final String ms_cmdName = "dump usersessions";
 }

@@ -29,26 +29,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension adds the server configuration parameters to the result
- * document. All parameters are added as last child elements of the specified
- * element by name via first parameter. Element name is optional and if not
- * specified the root element of the result document is considered.
- * <p>
- * Note: Only user session timeout is being added now. This class needs to be
- * modified if more parameters are required.
- * </p>
+ * This extension adds the server configuration parameters to the result document. All parameters
+ * are added as last child elements of the specified element by name via first parameter. Element
+ * name is optional and if not specified the root element of the result document is considered.
+ *
+ * <p>Note: Only user session timeout is being added now. This class needs to be modified if more
+ * parameters are required.
  */
 public final class PSAddServerConfigParams implements IPSResultDocumentProcessor {
   /**
-   * Name of the element for the user session timeout in seconds. This will
-   * be the last child element of the element whose name is specified via first
-   * parameter (optional) to the extension. If not specified, the element is
-   * added as last child of the root element of the document.
+   * Name of the element for the user session timeout in seconds. This will be the last child
+   * element of the element whose name is specified via first parameter (optional) to the extension.
+   * If not specified, the element is added as last child of the root element of the document.
    */
   public static final String ELEM_SESSIONTIMEOUT = PSUserInfo.XML_ELEM_SESSIONTIMEOUT;
 
   /**
    * Required by the interface. This exit never modifies the stylesheet.
+   *
    * @see IPSResultDocumentProcessor#canModifyStyleSheet()
    */
   @Override

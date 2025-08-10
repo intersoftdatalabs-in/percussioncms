@@ -29,17 +29,17 @@ import java.util.ResourceBundle;
 import javax.swing.*;
 
 /**
- * The UTStandardCommandPanel provides the standard command panel containing
- * the buttons OK, Cancel and Help.
+ * The UTStandardCommandPanel provides the standard command panel containing the buttons OK, Cancel
+ * and Help.
  */
 ////////////////////////////////////////////////////////////////////////////////
 public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Create the standard command panel containing an OK, Cancel and Help button.
    *
-   * @param   dialog   the dialog containing this instance
+   * @param dialog the dialog containing this instance
    * @param helpURL the help page URL
-   * @param axis    the layout axis
+   * @param axis the layout axis
    */
   //////////////////////////////////////////////////////////////////////////////
   public UTStandardCommandPanel(PSDialog dialog, String helpURL, int axis) {
@@ -78,8 +78,8 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Initialize this as vertical command panel.
    *
-   * @param showHelpButton If <code>true</code>, the help button is created
-   * and the local m_helpButton member is initialized with the new button.
+   * @param showHelpButton If <code>true</code>, the help button is created and the local
+   *     m_helpButton member is initialized with the new button.
    */
   //////////////////////////////////////////////////////////////////////////////
   private void initButtons(boolean showHelpButton) {
@@ -154,8 +154,8 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Initialize this as vertical command panel.
    *
-   * @param showHelpButton If <code>true</code>, the help button is added to
-   * the panel in the standard location.
+   * @param showHelpButton If <code>true</code>, the help button is added to the panel in the
+   *     standard location.
    */
   private void initVerticalPanel(boolean showHelpButton) {
     showHelpButton = (showHelpButton && !inEclipseRxWorkbench());
@@ -180,8 +180,9 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   }
 
   /**
-   * Determine if we are in an eclipse Rx Workbench environment to determine
-   * if the help button should show.
+   * Determine if we are in an eclipse Rx Workbench environment to determine if the help button
+   * should show.
+   *
    * @return <code>true</code> if in the Rx workbench
    */
   private boolean inEclipseRxWorkbench() {
@@ -200,8 +201,8 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Initialize this as horizontal command panel.
    *
-   * @param showHelpButton If <code>true</code>, the help button is added to
-   * the panel in the standard location.
+   * @param showHelpButton If <code>true</code>, the help button is added to the panel in the
+   *     standard location.
    */
   private void initHorizontalPanel(boolean showHelpButton) {
     showHelpButton = (showHelpButton && !inEclipseRxWorkbench());
@@ -228,7 +229,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Create the dialogs command panel (OK, Cancel and Help).
    *
-   * @return  JPanel, a grid panel containing the dialogs command panel
+   * @return JPanel, a grid panel containing the dialogs command panel
    */
   //////////////////////////////////////////////////////////////////////////////
   public void actionPerformed(ActionEvent e) {
@@ -249,7 +250,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Get the OK button.
    *
-   * @return     JButton     the OK button
+   * @return JButton the OK button
    */
   //////////////////////////////////////////////////////////////////////////////
   public JButton getOkButton() {
@@ -259,7 +260,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Get the Cancel button.
    *
-   * @return     JButton     the Cancel button
+   * @return JButton the Cancel button
    */
   //////////////////////////////////////////////////////////////////////////////
   public JButton getCancelButton() {
@@ -269,7 +270,7 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   /**
    * Get the Help button.
    *
-   * @return     JButton     the Help button, which may be null
+   * @return JButton the Help button, which may be null
    */
   //////////////////////////////////////////////////////////////////////////////
   public JButton getHelpButton() {
@@ -277,31 +278,26 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
   }
 
   /**
-   * The default action closes and disposes the dialog. Override this if special
-   * functionality is nessecary.
+   * The default action closes and disposes the dialog. Override this if special functionality is
+   * nessecary.
    */
   public void onCancel() {
     m_dialog.onCancel();
   }
 
-  /**
-   * The default implementation for 'OK' in the dialog.
-   */
+  /** The default implementation for 'OK' in the dialog. */
   public void onOk() {
     m_dialog.onOk();
   }
 
-  /**
-   * The default implementation for 'Apply' in the dialog.
-   */
+  /** The default implementation for 'Apply' in the dialog. */
   public void onApply() {
     m_dialog.onApply();
   }
 
   /**
-   * The default action opens the help URL. Override this only if no help
-   * functionality is nessecary.
-   *
+   * The default action opens the help URL. Override this only if no help functionality is
+   * nessecary.
    */
   public void onHelp() {
     m_dialog.onHelp();
@@ -313,37 +309,30 @@ public class UTStandardCommandPanel extends JPanel implements ActionListener {
    */
   private static ResourceBundle m_res = null;
 
-  /**
-   * the OK button
-   */
+  /** the OK button */
   JButton m_okButton = null;
 
-  /**
-   * the Cancel button
-   */
+  /** the Cancel button */
   private JButton m_cancelButton = null;
 
   /**
-   * the help button. May be null if panel is created with the help button
-   * flag set to <code>false</code>.
+   * the help button. May be null if panel is created with the help button flag set to <code>false
+   * </code>.
    */
   private JButton m_helpButton = null;
 
-  /**
-   * the dialog which contains this
-   */
+  /** the dialog which contains this */
   private PSDialog m_dialog = null;
 
   /**
-   * Initialized in the ctor, specifies if the <code>m_applyButton</code> is to
-   * be shown in the panel or not.
+   * Initialized in the ctor, specifies if the <code>m_applyButton</code> is to be shown in the
+   * panel or not.
    */
   private boolean m_showApplyButton;
 
   /**
-   * the apply button, if <code>m_showApplyButton</code> is <code>true</code>
-   * it is initialized in {@link#initButtons(boolean)}, never <code>null</code>
-   * or modified after that.
+   * the apply button, if <code>m_showApplyButton</code> is <code>true</code> it is initialized in
+   * {@link#initButtons(boolean)}, never <code>null</code> or modified after that.
    */
   private JButton m_applyButton;
 }

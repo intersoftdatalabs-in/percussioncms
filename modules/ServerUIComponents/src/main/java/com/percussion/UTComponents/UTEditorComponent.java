@@ -20,8 +20,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 /**
- * The abstract class for all the editor components which should work with
- * {@link UTCellEditor } which can be used as table cell editor.
+ * The abstract class for all the editor components which should work with {@link UTCellEditor }
+ * which can be used as table cell editor.
  */
 public abstract class UTEditorComponent extends JPanel implements IEditorComponent {
 

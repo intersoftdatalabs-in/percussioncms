@@ -22,13 +22,11 @@ package com.percussion.apibridge;
 import com.percussion.rest.velocity.IVelocityAdaptor;
 import com.percussion.system.utils.PSSiteManageBean;
 
-/**
- * Adaptor for Velocity-related operations in Percussion CMS.
- */
+/** Adaptor for Velocity-related operations in Percussion CMS. */
 @PSSiteManageBean
 public class VelocityAdaptor implements IVelocityAdaptor {
 
-    public VelocityAdaptor() {
-        // No-op constructor for dependency injection.
-    }
+  public VelocityAdaptor() {
+    // No-op constructor for dependency injection.
+  }
 }

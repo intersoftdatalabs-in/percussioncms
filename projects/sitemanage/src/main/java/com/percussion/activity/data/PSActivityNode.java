@@ -20,9 +20,7 @@ package com.percussion.activity.data;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Name/path container for activity which also includes the content types of the active items.
- */
+/** Name/path container for activity which also includes the content types of the active items. */
 public class PSActivityNode {
 
   private String siteName;

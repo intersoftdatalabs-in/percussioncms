@@ -31,12 +31,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Navigation slot definition. Nav Slots are inserted in page variants in the
- * implemenation contnet types. This class is a wrapper for
- * <code>PSXlotType</code>
+ * Navigation slot definition. Nav Slots are inserted in page variants in the implemenation contnet
+ * types. This class is a wrapper for <code>PSXlotType</code>
  *
  * @author DavidBenua
- *
  */
 public class PSNavSlot {
   /**
@@ -74,10 +72,9 @@ public class PSNavSlot {
   }
 
   /**
-   * returns an iterator of PSContentTypeVariant objects that represent the
-   * Navon variants that are allowed in this slot. May be <code>EMPTY</code>
-   * but never <code>null</code>. This iterator must never be used to modify
-   * the child variants.
+   * returns an iterator of PSContentTypeVariant objects that represent the Navon variants that are
+   * allowed in this slot. May be <code>EMPTY</code> but never <code>null</code>. This iterator must
+   * never be used to modify the child variants.
    *
    * @return the allowed variants in this slot.
    */
@@ -103,19 +100,12 @@ public class PSNavSlot {
     return m_slotDef.getSlotName();
   }
 
-  /**
-   * The underlying slot
-   */
+  /** The underlying slot */
   private PSSlotType m_slotDef;
 
-  /**
-   * Set of all navslot variants. Initialized in the ctor, never
-   * <code>null</code>.
-   */
+  /** Set of all navslot variants. Initialized in the ctor, never <code>null</code>. */
   private Set<PSContentTypeTemplate> m_slotVariantSet = new HashSet<>();
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(IPSConstants.NAVIGATION_LOG);
 }

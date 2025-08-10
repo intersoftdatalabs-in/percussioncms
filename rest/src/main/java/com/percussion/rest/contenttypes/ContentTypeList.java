@@ -19,33 +19,32 @@ package com.percussion.rest.contenttypes;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "ContentType")
 @ArraySchema(schema = @Schema(implementation = ContentType.class))
 public class ContentTypeList extends ArrayList<ContentType> {
-    public ContentTypeList(Collection<? extends ContentType> c) {
-        super(c);
-    }
-    public ContentTypeList() {}
+  public ContentTypeList(Collection<? extends ContentType> c) {
+    super(c);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ContentTypeList && super.equals(o);
-    }
+  public ContentTypeList() {}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof ContentTypeList && super.equals(o);
+  }
 
-    @Override
-    public String toString() {
-        return "ContentTypeList" + super.toString();
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
+
+  @Override
+  public String toString() {
+    return "ContentTypeList" + super.toString();
+  }
 }

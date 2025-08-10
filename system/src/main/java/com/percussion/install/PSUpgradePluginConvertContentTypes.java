@@ -59,62 +59,36 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to convert pre-6.0 content type applications to
- * the new 6.0 format.  Conversion will involve the following steps:
+ * This plugin has been written to convert pre-6.0 content type applications to the new 6.0 format.
+ * Conversion will involve the following steps:
+ * <li>1. Back-up original application. private static Set<String> m_contentNames = new HashSet<>();
+ * <li>2. Find and extract all content editor resources, placing each in a new application named
+ *     psx_ce[typename], where typename is the name of the content type. Runtime access will be
+ *     maintained in the application acl, however, design access will be turned off for all entries
+ *     other than the default user. It will be ensured that a default user exists with design
+ *     access.
+ * <li>3. If the original application does not have any resources other than the purge resource,
+ *     remove it.
+ * <li>4. If the original application does contain resources other than the purge resource, remove
+ *     the purge resource and leave the application.
+ * <li>5. Create and persist a new acl with the appropriate permissions to the database.
+ * <li>6. For each content editor resource, add a mapping entry to the
+ *     rxconfig/Server/resourceMap.properties file which describes the request mappings for old ->
+ *     new content editors. The format of the entry is as follows:
  *
- * <li>
- * 1. Back-up original application.
- * private static Set<String> m_contentNames = new HashSet<>();
- * <li>
- * 2. Find and extract all content editor resources, placing each in a new
- *    application named psx_ce[typename], where typename is the name of the
- *    content type.  Runtime access will be maintained in the application acl,
- *    however, design access will be turned off for all entries other than the
- *    default user.  It will be ensured that a default user exists with design
- *    access.
- * </li>
- * <li>
- * 3. If the original application does not have any resources other than the
- *    purge resource, remove it.
- * </li>
- * <li>
- * 4. If the original application does contain resources other than the purge
- *    resource, remove the purge resource and leave the application.
- * </li>
- * <li>
- * 5. Create and persist a new acl with the appropriate permissions to the
- *    database.
- * </li>
- * <li>
- * 6. For each content editor resource, add a mapping entry to the
- *    rxconfig/Server/resourceMap.properties file which describes the request
- *    mappings for old -> new content editors.  The format of the entry is as
- *    follows:
- *
- *    appname1/resource1=appname2/resource2
- * // IOTools.copyToDir(origFiles[i], newAppDir);
- * <li>
- * 7. Invalid url characters non-alphanumeric or "_"
- *    which are found in a content type name will be converted to underscore.
- * </li>
- * <li>
- * 8. If the previous application had a corresponding directory under Rhythmyx,
- *    create a directory for the newly created content editor application and
- *    copy all files from the original folder to the new folder.
- * </li>
+ *     <p>appname1/resource1=appname2/resource2 // IOTools.copyToDir(origFiles[i], newAppDir);
+ * <li>7. Invalid url characters non-alphanumeric or "_" which are found in a content type name will
+ *     be converted to underscore.
+ * <li>8. If the previous application had a corresponding directory under Rhythmyx, create a
+ *     directory for the newly created content editor application and copy all files from the
+ *     original folder to the new folder.
  */
 public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBase {
   /**
-   * PSAclImpl aclImpl = null; // (PSAclImpl) aclService.loadAclForObjectModifiable(aclGuid);
-   * public PSUpgradePluginConvertContentTypes()
-   * {
-   * super();
-   * // REFACTORED: CP-JAVA11
-   * }
+   * PSAclImpl aclImpl = null; // (PSAclImpl) aclService.loadAclForObjectModifiable(aclGuid); public
+   * PSUpgradePluginConvertContentTypes() { super(); // REFACTORED: CP-JAVA11 }
    *
-   * /**
-   * Implements the process function of IPSUpgradePlugin.  Performs the tasks
-   * described above.
+   * <p>/** Implements the process function of IPSUpgradePlugin. Performs the tasks described above.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -183,8 +157,7 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   /**
    * Helper function that converts an application to the 6.0 format.
    *
-   * @param appFile - pre-6.0 application file to convert, can not be
-   * <code>null</code>.
+   * @param appFile - pre-6.0 application file to convert, can not be <code>null</code>.
    */
   public static void convert(File appFile) throws Exception {
     FileInputStream oldIn = null;
@@ -374,12 +347,10 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to create a new 6.0 application.  This method will write
-   * the new application to disk.  This method also checks to see if the
-   * original application has a corresponding folder under the Rhythmyx root
-   * for various text files.  If so, a new folder will be created for the new
-   * application and the contents of the original folder will be copied to the
-   * new location.
+   * Helper function to create a new 6.0 application. This method will write the new application to
+   * disk. This method also checks to see if the original application has a corresponding folder
+   * under the Rhythmyx root for various text files. If so, a new folder will be created for the new
+   * application and the contents of the original folder will be copied to the new location.
    *
    * @param appFile the original pre-6.0 application file, assumed not <code>null</code>.
    * @param appDoc the original pre-6.0 application document, assumed not <code>null</code>.
@@ -431,8 +402,7 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
    * Helper function to locate content type name for a given content type id
    *
    * @param contentTypeId the content type id, assumed not <code>null</code>
-   * @return the name which corresponds to this content type id or empty if one
-   * could not be found
+   * @return the name which corresponds to this content type id or empty if one could not be found
    */
   private static String findContentTypeName(int contentTypeId) throws Exception {
     Connection conn = RxUpgrade.getJdbcConnection();
@@ -463,14 +433,14 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to ensure a unique content type name that is valid for
-   * urls and will result in a unique application name.  The name will also be
-   * added to the set of unique, valid content type names.
+   * Helper function to ensure a unique content type name that is valid for urls and will result in
+   * a unique application name. The name will also be added to the set of unique, valid content type
+   * names.
    *
    * @param contentTypeName the content type name, assumed not <code>null</code>
    * @param appFile the original pre-6.0 application file, assumed not <code>null</code>
-   * @return a unique content type name which is valid for urls and results in
-   * a unique application name
+   * @return a unique content type name which is valid for urls and results in a unique application
+   *     name
    */
   private static String getValidContentTypeName(String contentTypeName, File appFile)
       throws Exception {
@@ -502,11 +472,11 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to ensure a unique content type name.  Once a unique name
-   * is found, it will be added to the set of content type names.
+   * Helper function to ensure a unique content type name. Once a unique name is found, it will be
+   * added to the set of content type names.
    *
-   * @param contentTypeName the content type name with all whitespace removed,
-   * assumed not <code>null</code>
+   * @param contentTypeName the content type name with all whitespace removed, assumed not <code>
+   *     null</code>
    * @return a unique name will be created by appending '_' to the name
    */
   private static String getUniqueContentTypeName(String contentTypeName) throws Exception {
@@ -518,9 +488,9 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to update new and query request columns for a given content
-   * type id with the new application name.  This function also updates the label
-   * column with the content type name.  The name column is updated as well.
+   * Helper function to update new and query request columns for a given content type id with the
+   * new application name. This function also updates the label column with the content type name.
+   * The name column is updated as well.
    *
    * @param contentTypeId the content type id, assumed not <code>null</code>
    * @param contentTypeLabel the label of the content type, assumed not <code>null</code>
@@ -572,8 +542,8 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to create an acl for the node definition represented by the
-   * given content type id.  Uses hibernate services to accomplish this.
+   * Helper function to create an acl for the node definition represented by the given content type
+   * id. Uses hibernate services to accomplish this.
    *
    * @param contentTypeId the content type id, assumed not <code>null</code>
    * @param aclEntries the acl entries for this new acl, assumed not <code>null</code>
@@ -660,15 +630,12 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Helper function to add a resource mapping entry to the resource map
-   * properties.  The entry will be in the form
-   *  appname1/resource1=appname2/resource2.
+   * Helper function to add a resource mapping entry to the resource map properties. The entry will
+   * be in the form appname1/resource1=appname2/resource2.
    *
    * @param reqRoot the original application request root
-   * @param name the content type name of the new application, assumed not
-   * <code>null</code>
-   * @param requestPage the request page of the original application,
-   * assumed not <code>null</code>
+   * @param name the content type name of the new application, assumed not <code>null</code>
+   * @param requestPage the request page of the original application, assumed not <code>null</code>
    */
   private static void addResourceMapping(String reqRoot, String name, String requestPage)
       throws Exception {
@@ -708,8 +675,7 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -725,21 +691,14 @@ public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBas
     }
   }
 
-  /**
-   * Relative location of resource mapping file,
-   * rxconfig/Server/resourceMap.properties
-   */
+  /** Relative location of resource mapping file, rxconfig/Server/resourceMap.properties */
   private static final String RESOURCE_MAP =
       "rxconfig" + File.separator + "Server" + File.separator + "resourceMap.properties";
 
-  /**
-   * Resource mapping properties storage.
-   */
+  /** Resource mapping properties storage. */
   private static Properties m_resourceMapProps = new Properties();
 
-  /**
-   * Content type name storage.
-   */
+  /** Content type name storage. */
   private static Set m_contentNames = new HashSet();
 
   private static IPSUpgradeModule m_config;

@@ -25,32 +25,28 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class holds the value as binary.  Once the value is set via constructor
- * or setData, the arguments are immediately converted to a <code>byte[]</code>.
+ * This class holds the value as binary. Once the value is set via constructor or setData, the
+ * arguments are immediately converted to a <code>byte[]</code>.
  */
 public class PSBinaryValue extends PSFieldValue {
-  /**
-   * No-arg constructor used by derived classes.
-   */
+  /** No-arg constructor used by derived classes. */
   protected PSBinaryValue() {}
 
   /**
    * Creates an instance with the binary <code>content</code> as its value.
    *
-   * @param content - the bytes to be the value.  This class takes ownership
-   * of the array.  If <code>null</code>, a new empty array will be created.
+   * @param content - the bytes to be the value. This class takes ownership of the array. If <code>
+   *     null</code>, a new empty array will be created.
    */
   public PSBinaryValue(byte[] content) {
     setData(content);
   }
 
   /**
-   * Creates an instance with the <code>InputStream</code> <code>content</code>
-   * as its value.
+   * Creates an instance with the <code>InputStream</code> <code>content</code> as its value.
    *
-   * @param content - the InputStream to be used as the value.  Must not be
-   * <code>null</code>.  This method assumes ownership of the stream and is
-   * responsible for closing it.
+   * @param content - the InputStream to be used as the value. Must not be <code>null</code>. This
+   *     method assumes ownership of the stream and is responsible for closing it.
    * @throws IOException if there is a problem with the stream.
    */
   public PSBinaryValue(InputStream content) throws IOException {
@@ -58,8 +54,8 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Creates an instance that will use the supplied binary locator to retrieve
-   * the data only if required.
+   * Creates an instance that will use the supplied binary locator to retrieve the data only if
+   * required.
    *
    * @param locator The locator to use, may not be <code>null</code>.
    */
@@ -70,7 +66,7 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Clones this object.  Makes a deep copy.
+   * Clones this object. Makes a deep copy.
    *
    * @return deep copy of this object.
    */
@@ -89,9 +85,8 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * See {@link IPSFieldValue#equals(Object)} for details.  Two binary values
-   * with the same locator will not be considered equal if one has had its
-   * data loaded and the other has not.
+   * See {@link IPSFieldValue#equals(Object)} for details. Two binary values with the same locator
+   * will not be considered equal if one has had its data loaded and the other has not.
    */
   public boolean equals(Object obj) {
     boolean isEqual = true;
@@ -106,7 +101,9 @@ public class PSBinaryValue extends PSFieldValue {
     return isEqual;
   }
 
-  /** @see IPSFieldValue */
+  /**
+   * @see IPSFieldValue
+   */
   public int hashCode() {
     int hash = 0;
 
@@ -119,11 +116,11 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Sets the data for this value using the provided <code>byte[]</code>.  This
-   * class will take ownership of the array.
+   * Sets the data for this value using the provided <code>byte[]</code>. This class will take
+   * ownership of the array.
    *
-   * @param content - The data to set, may be <code>null</code> to clear the
-   * value and create a new empty array.
+   * @param content - The data to set, may be <code>null</code> to clear the value and create a new
+   *     empty array.
    */
   public void setData(byte[] content) {
     if (content == null) m_data = new byte[0];
@@ -133,12 +130,11 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Sets the data for this value using the provided <code>InputStream</code>.
-   * This will close the stream, after reading its bytes into the data array.
+   * Sets the data for this value using the provided <code>InputStream</code>. This will close the
+   * stream, after reading its bytes into the data array.
    *
-   * @param content - the InputStream to be used as the value.  Must not be
-   * <code>null</code>.  This method assumes ownership of the stream and is
-   * responsible for closing it.
+   * @param content - the InputStream to be used as the value. Must not be <code>null</code>. This
+   *     method assumes ownership of the stream and is responsible for closing it.
    */
   public void setData(InputStream content) throws IOException {
     if (content == null) throw new IllegalArgumentException("content must not be null");
@@ -155,9 +151,8 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * This base 64 encodes the value and returns the value as a
-   * <code>String</code>.  If the value is empty an empty <code>String</code>
-   *  will be returned.
+   * This base 64 encodes the value and returns the value as a <code>String</code>. If the value is
+   * empty an empty <code>String</code> will be returned.
    */
   public String getBase64Encode() {
     byte[] data = getData();
@@ -204,9 +199,8 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Returns the value as a byte[] of the value.  This is the actual
-   * storage array and modifications to the returned array affect this
-   * instance.
+   * Returns the value as a byte[] of the value. This is the actual storage array and modifications
+   * to the returned array affect this instance.
    *
    * @return byte[] - may be empty, never <code>null</code>.
    */
@@ -217,8 +211,8 @@ public class PSBinaryValue extends PSFieldValue {
   /**
    * Get the temporary file holding the binary value.
    *
-   * @return the temporary file holding the binary value, may be
-   *    <code>null</code> if no value is assigned yet.
+   * @return the temporary file holding the binary value, may be <code>null</code> if no value is
+   *     assigned yet.
    */
   public PSPurgableTempFile getValueFile() {
     if (m_locator != null) {
@@ -234,7 +228,7 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Convenience method for use with <code>toXml</code>'s.  Calls <code>
+   * Convenience method for use with <code>toXml</code>'s. Calls <code>
    * getBase64Encode()</code>.
    *
    * @return never <code>null</code>, may be empty.
@@ -244,9 +238,8 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Determines if this value has data loaded. Since data may be loaded upon
-   * request, it may never have been loaded.  If data is supplied to the ctor,
-   * then it is considered to be loaded.
+   * Determines if this value has data loaded. Since data may be loaded upon request, it may never
+   * have been loaded. If data is supplied to the ctor, then it is considered to be loaded.
    *
    * @return <code>true</code> if data is loaded, <code>false</code> otherwise.
    */
@@ -255,11 +248,10 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * Gets the data represented by this value.  If not already loaded, then the
-   * binary locator is used to retrieve the data at this time.
+   * Gets the data represented by this value. If not already loaded, then the binary locator is used
+   * to retrieve the data at this time.
    *
-   * @return The data, may be <code>null</code> if the data is
-   * <code>null</code>.
+   * @return The data, may be <code>null</code> if the data is <code>null</code>.
    */
   protected byte[] getData() {
     if (!m_isDataLoaded) {
@@ -276,21 +268,21 @@ public class PSBinaryValue extends PSFieldValue {
   }
 
   /**
-   * The content of this value, modified by <code>setData()</code> and possibly
-   * <code>getData()</code>, may be empty or <code>null</code>.
+   * The content of this value, modified by <code>setData()</code> and possibly <code>getData()
+   * </code>, may be empty or <code>null</code>.
    */
   private byte[] m_data;
 
   /**
-   * The locator to use to retrieve this value's data, initialized during
-   * construction then never changed, may be <code>null</code>.
+   * The locator to use to retrieve this value's data, initialized during construction then never
+   * changed, may be <code>null</code>.
    */
   private IPSBinaryLocator m_locator;
 
   /**
-   * Determines if data has been supplied.  If a binary locator is supplied
-   * at construction, this value is <code>false</code> until a call is made
-   * to the <code>setData</code> or {@link #getData()} methods.
+   * Determines if data has been supplied. If a binary locator is supplied at construction, this
+   * value is <code>false</code> until a call is made to the <code>setData</code> or {@link
+   * #getData()} methods.
    */
   private boolean m_isDataLoaded = false;
 }

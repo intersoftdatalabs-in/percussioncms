@@ -21,26 +21,19 @@ import java.sql.Driver;
 /**
  * A common abstract base class for all of our drivers.
  *
- * Adds some functionality for driver identification, but leaves
- * most of the responsibility for implementing the driver up to
- * the derived classes.
+ * <p>Adds some functionality for driver identification, but leaves most of the responsibility for
+ * implementing the driver up to the derived classes.
  */
 public abstract class PSJdbcDriver implements Driver {
 
   /**
-   * @author   chadloder
-   *
-   * Constructor, available to subclasses only.
-   *
-   * @param   driverDisplayName The human-readable name of the driver,
-   * will be the value returned from getName.
-   *
-   * @param   majorVer The more significant version number.
-   *
-   * @param   minorVer The less significant version number.
-   *
+   * @author chadloder
+   *     <p>Constructor, available to subclasses only.
+   * @param driverDisplayName The human-readable name of the driver, will be the value returned from
+   *     getName.
+   * @param majorVer The more significant version number.
+   * @param minorVer The less significant version number.
    * @since 1.1 1999/5/7
-   *
    */
   protected PSJdbcDriver(String driverDisplayName, int majorVer, int minorVer) {
     m_driverDisplayName = driverDisplayName;
@@ -51,7 +44,7 @@ public abstract class PSJdbcDriver implements Driver {
   /**
    * The driver's major version number.
    *
-   * @return      the driver's major version number
+   * @return the driver's major version number
    */
   public int getMajorVersion() {
     return m_majorVersion;
@@ -60,7 +53,7 @@ public abstract class PSJdbcDriver implements Driver {
   /**
    * The driver's minor version number.
    *
-   * @return     the driver's minor version number
+   * @return the driver's minor version number
    */
   public int getMinorVersion() {
     return m_minorVersion;
@@ -69,7 +62,7 @@ public abstract class PSJdbcDriver implements Driver {
   /**
    * Get the descriptive name of this driver.
    *
-   * @return     the descriptive name of this driver
+   * @return the descriptive name of this driver
    */
   public String getName() {
     return m_driverDisplayName;

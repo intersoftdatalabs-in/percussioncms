@@ -23,16 +23,14 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Service facade for the demand publisher.  This service
- * allows demand publishing of a specific single item.
+ * Service facade for the demand publisher. This service allows demand publishing of a specific
+ * single item.
  *
- * The edition used for this publication <b>MUST</b> have
- * at least one content list that uses the "Selected Items"
- * content list generator.  Failure to observe this rule
- * will result in a publisher timeout, rather than an error.
+ * <p>The edition used for this publication <b>MUST</b> have at least one content list that uses the
+ * "Selected Items" content list generator. Failure to observe this rule will result in a publisher
+ * timeout, rather than an error.
  *
  * @author davidbenua
- *
  */
 public interface DemandPublisherService {
   /**
@@ -49,17 +47,20 @@ public interface DemandPublisherService {
 
   /**
    * Queue an item of demand work without waiting for completion.
+   *
    * @param edition the edition to use
    * @param content the content item to publish
    * @param folder the folder where the content item resides.
    * @return the Request ID
-   * @throws TimeoutException when the publisher fails to start (or queue) the edition within the time limit.
+   * @throws TimeoutException when the publisher fails to start (or queue) the edition within the
+   *     time limit.
    */
   public long queueDemandWork(IPSEdition edition, IPSGuid content, IPSGuid folder)
       throws TimeoutException;
 
   /**
    * Wait for a demand work request to complete.
+   *
    * @param requestId the request Id returned from the <code>queueDemandWork()</code> method.
    * @return the final state of the publishing job.
    * @throws TimeoutException when the publisher fails to complete within the time limit.

@@ -18,7 +18,8 @@
 package com.percussion.taxonomy.domain;
 
 /**
- * Taxonomy Related_node class to represent information about how taxons are related to one another in a given taxonomy.
+ * Taxonomy Related_node class to represent information about how taxons are related to one another
+ * in a given taxonomy.
  */
 public class Related_node {
 
@@ -29,6 +30,7 @@ public class Related_node {
 
   /**
    * Return unique id of related node
+   *
    * @return id - unique int related node id
    */
   public int getId() {
@@ -37,6 +39,7 @@ public class Related_node {
 
   /**
    * Set unique id of related node
+   *
    * @param id - unique int value
    */
   public void setId(int id) {
@@ -45,6 +48,7 @@ public class Related_node {
 
   /**
    * Returns node object
+   *
    * @return node
    */
   public Node getNode() {
@@ -53,6 +57,7 @@ public class Related_node {
 
   /**
    * Set node object
+   *
    * @param node
    */
   public void setNode(Node node) {
@@ -61,6 +66,7 @@ public class Related_node {
 
   /**
    * Returns related node object
+   *
    * @return node
    */
   public Node getRelated_node() {
@@ -69,6 +75,7 @@ public class Related_node {
 
   /**
    * Set related node object
+   *
    * @param node
    */
   public void setRelated_node(Node related_node) {
@@ -77,6 +84,7 @@ public class Related_node {
 
   /**
    * Returns relation type of related node
+   *
    * @return relationship
    */
   public Relationship_type getRelationship() {
@@ -85,6 +93,7 @@ public class Related_node {
 
   /**
    * Set relationship type of related node
+   *
    * @param relationship
    */
   public void setRelationship(Relationship_type relationship) {

@@ -23,12 +23,13 @@ import org.w3c.dom.Element;
 
 /**
  * This upgrade plugin moves ldapserver.xml and delivery-servers.xml files to new locations
- * config\delivery-servers.xml  ---> rxconfig\DeliveryServer\delivery-servers.xml
- * config\LDAP\ldapserver.xml   ---> rxconfig\LDAP\ldapserver.xml
+ * config\delivery-servers.xml ---> rxconfig\DeliveryServer\delivery-servers.xml
+ * config\LDAP\ldapserver.xml ---> rxconfig\LDAP\ldapserver.xml
  */
 public class PSUpgradePluginMoveConfigFiles implements IPSUpgradePlugin {
   /**
    * Implements the process function of IPSUpgardePlugin.
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
@@ -76,6 +77,7 @@ public class PSUpgradePluginMoveConfigFiles implements IPSUpgradePlugin {
 
   /**
    * Move the provided configFile from srcDir to destinationDir
+   *
    * @param srcDir
    * @param destinationDir
    * @param configFileName
@@ -100,8 +102,8 @@ public class PSUpgradePluginMoveConfigFiles implements IPSUpgradePlugin {
   private static final String deliveryConfigFileName = "delivery-servers.xml";
 
   /**
-   * Used for logging output to the plugin log file, initialized in
-   * {@link #process(IPSUpgradeModule, Element)}.
+   * Used for logging output to the plugin log file, initialized in {@link
+   * #process(IPSUpgradeModule, Element)}.
    */
   private static PrintStream logger;
 }

@@ -18,65 +18,65 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.integrations.ems.rest;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Model object to hold query parameters for the backend Bookings service.
- * Duplicated in delivery tier due to current DTS limitations in Editor and Preview.
- * Sunny Sal says: "BookingsQuery, now Java 11 and Google-styled!"
+ * Model object to hold query parameters for the backend Bookings service. Duplicated in delivery
+ * tier due to current DTS limitations in Editor and Preview. Sunny Sal says: "BookingsQuery, now
+ * Java 11 and Google-styled!"
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSBookingsQuery {
 
-    private List<Integer> buildingIds = new ArrayList<>();
-    private List<Integer> eventTypes = new ArrayList<>();
-    private List<Integer> groupTypes = new ArrayList<>();
-    private String startDate;
-    private String endDate;
+  private List<Integer> buildingIds = new ArrayList<>();
+  private List<Integer> eventTypes = new ArrayList<>();
+  private List<Integer> groupTypes = new ArrayList<>();
+  private String startDate;
+  private String endDate;
 
-    public List<Integer> getBuildingIds() {
-        return Optional.ofNullable(buildingIds).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getBuildingIds() {
+    return Optional.ofNullable(buildingIds).orElseGet(ArrayList::new);
+  }
 
-    public void setBuildingIds(List<Integer> buildingIds) {
-        this.buildingIds = Optional.ofNullable(buildingIds).orElseGet(ArrayList::new);
-    }
+  public void setBuildingIds(List<Integer> buildingIds) {
+    this.buildingIds = Optional.ofNullable(buildingIds).orElseGet(ArrayList::new);
+  }
 
-    public List<Integer> getEventTypes() {
-        return Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getEventTypes() {
+    return Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
+  }
 
-    public void setEventTypes(List<Integer> eventTypes) {
-        this.eventTypes = Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
-    }
+  public void setEventTypes(List<Integer> eventTypes) {
+    this.eventTypes = Optional.ofNullable(eventTypes).orElseGet(ArrayList::new);
+  }
 
-    public List<Integer> getGroupTypes() {
-        return Optional.ofNullable(groupTypes).orElseGet(ArrayList::new);
-    }
+  public List<Integer> getGroupTypes() {
+    return Optional.ofNullable(groupTypes).orElseGet(ArrayList::new);
+  }
 
-    public void setGroupTypes(List<Integer> groupTypes) {
-        this.groupTypes = Optional.ofNullable(groupTypes).orElseGet(ArrayList::new);
-    }
+  public void setGroupTypes(List<Integer> groupTypes) {
+    this.groupTypes = Optional.ofNullable(groupTypes).orElseGet(ArrayList::new);
+  }
 
-    public String getStartDate() {
-        return startDate;
-    }
+  public String getStartDate() {
+    return startDate;
+  }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
 
-    public String getEndDate() {
-        return endDate;
-    }
+  public String getEndDate() {
+    return endDate;
+  }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
-    }
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
+  }
 }

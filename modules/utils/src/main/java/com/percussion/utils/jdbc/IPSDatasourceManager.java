@@ -23,23 +23,18 @@ import java.util.List;
 import java.util.Properties;
 import javax.naming.NamingException;
 
-/**
- * Manager interface for obtaining connections and connection detail objects.
- */
+/** Manager interface for obtaining connections and connection detail objects. */
 public interface IPSDatasourceManager {
   /**
    * Get the connection detail for a datasource configuration.
    *
-   * @param info Specifies the datasource configuration to use, may be
-   * <code>null</code> to use the repository connection.
-   *
+   * @param info Specifies the datasource configuration to use, may be <code>null</code> to use the
+   *     repository connection.
    * @return The detail, never <code>null</code>.
-   *
-   * @throws SQLException If there is an error getting the detail from the
-   * connection.
+   * @throws SQLException If there is an error getting the detail from the connection.
    * @throws NamingException If there is an error looking up the datasource.
-   * @throws PSMissingDatasourceConfigException if the info cannot be resolved
-   * to a datasource configuration.
+   * @throws PSMissingDatasourceConfigException if the info cannot be resolved to a datasource
+   *     configuration.
    */
   public PSConnectionDetail getConnectionDetail(IPSConnectionInfo info)
       throws NamingException, SQLException;
@@ -47,15 +42,12 @@ public interface IPSDatasourceManager {
   /**
    * Grab a connection from the datasource referenced
    *
-   * @param info the connection info, may be <code>null</code> to use the
-   * repository connection.
-   *
+   * @param info the connection info, may be <code>null</code> to use the repository connection.
    * @return the connection, never <code>null</code>
-   *
    * @throws NamingException if the datasource is not found
    * @throws SQLException on other database errors
-   * @throws PSMissingDatasourceConfigException if the info cannot be resolved
-   * to a datasource configuration.
+   * @throws PSMissingDatasourceConfigException if the info cannot be resolved to a datasource
+   *     configuration.
    */
   public Connection getDbConnection(IPSConnectionInfo info) throws NamingException, SQLException;
 
@@ -69,31 +61,30 @@ public interface IPSDatasourceManager {
   /**
    * Gets the name of the repository connection.
    *
-   * @return The name of the repository connection datasource,
-   * never <code>null</code> or empty.
+   * @return The name of the repository connection datasource, never <code>null</code> or empty.
    */
   public String getRepositoryDatasource();
 
   /**
    * Get the hibernate properties for the supplied info object, which includes:
+   *
    * <ul>
-   * <li>hibernate.connection.datasource</li>
-   * <li>hibernate.default_catalog</li>
-   * <li>hibernate.default_schema</li>
-   * <li>hibernate.dialect</li>
+   *   <li>hibernate.connection.datasource
+   *   <li>hibernate.default_catalog
+   *   <li>hibernate.default_schema
+   *   <li>hibernate.dialect
    * </ul>
+   *
    * as well as any other properties specified in the server's configuration.
    *
-   * @param info Specifies the datasource configuration to use, may be
-   * <code>null</code> to use the repository connection.
-   *
-   * @return The properties, never <code>null</code>, will contain the
-   * datasource specific properties derived from the supplied connection info
-   * as well as any other properties specified by the server's configuration.
-   *
+   * @param info Specifies the datasource configuration to use, may be <code>null</code> to use the
+   *     repository connection.
+   * @return The properties, never <code>null</code>, will contain the datasource specific
+   *     properties derived from the supplied connection info as well as any other properties
+   *     specified by the server's configuration.
    * @throws NamingException If there is an error looking up the datasource.
-   * @throws SQLException If there is an error obtaining the connection details
-   * for the specified datasource.
+   * @throws SQLException If there is an error obtaining the connection details for the specified
+   *     datasource.
    */
   public Properties getHibernateProperties(IPSConnectionInfo info)
       throws NamingException, SQLException;

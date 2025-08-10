@@ -34,8 +34,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Provides the def for each loadable request handler.  Utilizes a configuration
- * file with the following format:
+ * Provides the def for each loadable request handler. Utilizes a configuration file with the
+ * following format:
  *
  * <pre><code>
  *  &lt;!--
@@ -128,7 +128,6 @@ import org.w3c.dom.Element;
  *
  *  --&gt;
  * </code></pre>
- *
  */
 public class PSRequestHandlerConfiguration {
   /**
@@ -272,16 +271,14 @@ public class PSRequestHandlerConfiguration {
     }
   }
 
-  /**
-   * Returns an iterator over zero or more PSRequestHandlerDef objects.
-   */
+  /** Returns an iterator over zero or more PSRequestHandlerDef objects. */
   public Iterator getHandlerDefs() {
     return m_handlerDefs.iterator();
   }
 
   /**
-   * Returns the Document object that contains the loadable request handler
-   * definitions.
+   * Returns the Document object that contains the loadable request handler definitions.
+   *
    * @return The document, may be <code>null</code> if there is no config file.
    * @throws PSServerException if there are any errors.
    */
@@ -307,29 +304,23 @@ public class PSRequestHandlerConfiguration {
   }
 
   /**
-   * List of request handler definitions.  Initialized in constructor,
-   * never <code>null</code> after that.
+   * List of request handler definitions. Initialized in constructor, never <code>null</code> after
+   * that.
    */
   private ArrayList m_handlerDefs = null;
 
-  /**
-   * Directory off the Rhythmyx root where the config file is located.
-   */
+  /** Directory off the Rhythmyx root where the config file is located. */
   private static final String CONFIG_DIR = "rxconfig/Server";
 
-  /**
-   * Name of the handler config file
-   */
+  /** Name of the handler config file */
   private static final String CONFIG_FILE_NAME = "RequestHandlers.xml";
 
   /**
-   * Name of the subdirectory of the config directory where the config files
-   * for each request handler are located.
+   * Name of the subdirectory of the config directory where the config files for each request
+   * handler are located.
    */
   private static final String HANDLER_CONFIG_DIR = "requestHandlers";
 
-  /**
-   * Constant for the request handler config doc root element.
-   */
+  /** Constant for the request handler config doc root element. */
   private static final String CONFIG_ROOT = "RequestHandlerDefs";
 }

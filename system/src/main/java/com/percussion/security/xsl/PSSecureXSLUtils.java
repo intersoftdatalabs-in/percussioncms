@@ -23,10 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.owasp.csrfguard.CsrfGuard;
 import org.owasp.csrfguard.session.LogicalSession;
 
-/**
- * An XSL extension class.  Provides security functions for
- * use in XSL style sheets.
- */
+/** An XSL extension class. Provides security functions for use in XSL style sheets. */
 public class PSSecureXSLUtils {
 
   /**
@@ -39,9 +36,8 @@ public class PSSecureXSLUtils {
   }
 
   /**
-   * Utility function to return the CSRF token value for the
-   * current session.  Intended for use from an active application server
-   * session not for use outside of a servlet context.
+   * Utility function to return the CSRF token value for the current session. Intended for use from
+   * an active application server session not for use outside of a servlet context.
    *
    * @return The session's csrf token value or an empty string, never null.
    */

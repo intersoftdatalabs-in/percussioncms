@@ -19,18 +19,13 @@ package com.percussion.server.cache;
 import com.percussion.design.objectstore.PSLocator;
 import java.util.Objects;
 
-/**
- * This is a container class, contains a pair values, a value and a related
- * objects.
- */
+/** This is a container class, contains a pair values, a value and a related objects. */
 class PSGraphEntry implements Comparable<PSGraphEntry> {
   /**
    * Constructs an instance from thesupplied parameters.
    *
-   * @param value
-   *           the value object, never <code>null</code>.
-   * @param relationshipId
-   *           the related object, never <code>null</code>.
+   * @param value the value object, never <code>null</code>.
+   * @param relationshipId the related object, never <code>null</code>.
    * @param sortRank
    */
   public PSGraphEntry(PSLocator value, Integer relationshipId) {
@@ -42,10 +37,8 @@ class PSGraphEntry implements Comparable<PSGraphEntry> {
   /**
    * Constructs an instance from thesupplied parameters.
    *
-   * @param value
-   *           the value object, never <code>null</code>.
-   * @param relationshipId
-   *           the related object, never <code>null</code>.
+   * @param value the value object, never <code>null</code>.
+   * @param relationshipId the related object, never <code>null</code>.
    * @param sortRank
    */
   public PSGraphEntry(PSLocator value, Integer relationshipId, int sortRank) {
@@ -99,23 +92,15 @@ class PSGraphEntry implements Comparable<PSGraphEntry> {
     return m_value;
   }
 
-  /**
-   * Override {@link Object#toString()}
-   */
+  /** Override {@link Object#toString()} */
   public String toString() {
     return "value=" + m_value.toString() + ", relationshipId=" + m_relationshipId.toString();
   }
 
-  /**
-   * The related object, init by ctor, never <code>null</code> or modified
-   * after that.
-   */
+  /** The related object, init by ctor, never <code>null</code> or modified after that. */
   private Integer m_relationshipId;
 
-  /**
-   * The value object, init by ctor, never <code>null</code> or modified
-   * after that.
-   */
+  /** The value object, init by ctor, never <code>null</code> or modified after that. */
   private PSLocator m_value;
 
   private Integer m_sortRank = -1;

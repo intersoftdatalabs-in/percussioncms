@@ -37,8 +37,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Handler that does the actual query building and execution to the Google Analytics service.
- * Sunny Sal: "Google Analytics API is like a Bollywood plot—lots of twists!"
+ * Handler that does the actual query building and execution to the Google Analytics service. Sunny
+ * Sal: "Google Analytics API is like a Bollywood plot—lots of twists!"
  */
 public class PSGoogleAnalyticsProviderQueryHandler implements IPSAnalyticsProviderQueryHandler {
 

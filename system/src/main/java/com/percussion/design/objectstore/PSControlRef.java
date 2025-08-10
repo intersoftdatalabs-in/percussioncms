@@ -24,13 +24,11 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXControlRef DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXControlRef DTD in BasicObjects.dtd. */
 public class PSControlRef extends PSComponent {
   /**
-   * Constructs a new <code>PSControlRef</code> as a (shallow) copy of
-   * <code>source</code>.
+   * Constructs a new <code>PSControlRef</code> as a (shallow) copy of <code>source</code>.
+   *
    * @param source provides the initial state for this object, not <code>null
    * </code>.
    */
@@ -42,8 +40,7 @@ public class PSControlRef extends PSComponent {
   /**
    * Create a new control reference for the provided name.
    *
-   * @param name the control reference name, not <code>null</code> and not
-   *    empty
+   * @param name the control reference name, not <code>null</code> and not empty
    */
   public PSControlRef(String name) {
     if (name == null || name.trim().length() == 0)
@@ -53,13 +50,11 @@ public class PSControlRef extends PSComponent {
   }
 
   /**
-   * Creates a new control reference with the provided parameters.  This
-   * constructor is made available as a convenience to test classes.
+   * Creates a new control reference with the provided parameters. This constructor is made
+   * available as a convenience to test classes.
    *
-   * @param name the name of this control reference, never <code>null</code>
-   *    or empty.
-   * @param parameters a collection of PSParam objects, not <code>null</code>
-   *    may be empty.
+   * @param name the name of this control reference, never <code>null</code> or empty.
+   * @param parameters a collection of PSParam objects, not <code>null</code> may be empty.
    */
   PSControlRef(String name, PSCollection parameters) {
     this(name);
@@ -69,14 +64,10 @@ public class PSControlRef extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSControlRef(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -108,8 +99,7 @@ public class PSControlRef extends PSComponent {
   /**
    * Get the list of parameters.
    *
-   * @return the current collection (PSParam objects), never
-   *    <code>null</code>, may be empty.
+   * @return the current collection (PSParam objects), never <code>null</code>, may be empty.
    */
   public Iterator getParameters() {
     return m_parameters.iterator();
@@ -118,8 +108,7 @@ public class PSControlRef extends PSComponent {
   /**
    * Set the a new collection of parameters.
    *
-   * @param parameters a collection of PSParam objects, never
-   *    <code>null</code>, may be empty.
+   * @param parameters a collection of PSParam objects, never <code>null</code>, may be empty.
    */
   public void setParameters(PSCollection parameters) {
     if (parameters == null) throw new IllegalArgumentException("the parameters cannot be null");
@@ -132,8 +121,7 @@ public class PSControlRef extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data from the supplied component to this
-   * component.
+   * Performs a shallow copy of the data from the supplied component to this component.
    *
    * @param c <code>PSControlRef</code> to be copied, not <code>null</code>.
    */
@@ -245,15 +233,14 @@ public class PSControlRef extends PSComponent {
   public static final String XML_NODE_NAME = "PSXControlRef";
 
   /**
-   * This name can be used to find the control in the referenced location.
-   * Typically, this will be the mode of an XSL template.  Never empty or
-   * <code>null</code>.  Cannot be mutated after construction.
+   * This name can be used to find the control in the referenced location. Typically, this will be
+   * the mode of an XSL template. Never empty or <code>null</code>. Cannot be mutated after
+   * construction.
    */
   private String m_name;
 
   /**
-   * A collection of PSParam objects, never <code>null</code> after
-   * construction, might be empty.
+   * A collection of PSParam objects, never <code>null</code> after construction, might be empty.
    */
   private PSCollection m_parameters = new PSCollection(PSParam.class);
 

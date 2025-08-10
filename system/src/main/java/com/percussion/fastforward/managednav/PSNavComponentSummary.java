@@ -30,19 +30,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A shortcut to the component summary via JDBC.  Loading the
- * PSComponentSummary has proven too slow in repetitive operations.
- * This component summary class has all of the fields used in the
- * Managed Nav package, but without the overhead of the Component
- * Proxy.
+ * A shortcut to the component summary via JDBC. Loading the PSComponentSummary has proven too slow
+ * in repetitive operations. This component summary class has all of the fields used in the Managed
+ * Nav package, but without the overhead of the Component Proxy.
  *
  * @author DavidBenua
- *
  */
 public class PSNavComponentSummary {
   /**
-   * Construct a Component Summary from a locator.
-   * Convenience method for PSNavComponentSummary(int).
+   * Construct a Component Summary from a locator. Convenience method for
+   * PSNavComponentSummary(int).
+   *
    * @param loc
    * @throws PSNavException
    */
@@ -51,8 +49,9 @@ public class PSNavComponentSummary {
   }
 
   /**
-   * Copy constructor from PSComponentSummary. This method copies the
-   * relevant values from the existing Component Summary.
+   * Copy constructor from PSComponentSummary. This method copies the relevant values from the
+   * existing Component Summary.
+   *
    * @param sum1 the Component Summary.
    */
   public PSNavComponentSummary(PSComponentSummary sum1) {
@@ -63,8 +62,9 @@ public class PSNavComponentSummary {
   }
 
   /**
-   * Construct a Component Summary from a content id. This method reads the
-   * information directly from the repository database
+   * Construct a Component Summary from a content id. This method reads the information directly
+   * from the repository database
+   *
    * @param id the Content Id.
    * @throws PSNavException
    */
@@ -102,6 +102,7 @@ public class PSNavComponentSummary {
 
   /**
    * Gets the current locator.
+   *
    * @return Returns the currentLocator.
    */
   public PSLocator getCurrentLocator() {
@@ -110,6 +111,7 @@ public class PSNavComponentSummary {
 
   /**
    * Gets the name.
+   *
    * @return Returns the name.
    */
   public String getName() {
@@ -118,6 +120,7 @@ public class PSNavComponentSummary {
 
   /**
    * Gets the content type id.
+   *
    * @return Returns the typeid.
    */
   public long getContentTypeId() {
@@ -135,19 +138,13 @@ public class PSNavComponentSummary {
     return SQL_STATEMENT_START + table + SQL_STATEMENT_END;
   }
 
-  /**
-   * Logger for debugging purposes.
-   */
+  /** Logger for debugging purposes. */
   private static final Logger log = LogManager.getLogger(IPSConstants.NAVIGATION_LOG);
 
-  /**
-   * Name of this component
-   */
+  /** Name of this component */
   private String m_name = "";
 
-  /**
-   * Content Type id
-   */
+  /** Content Type id */
   private long m_typeid = 0;
 
   public IPSGuid getContentTypeGuid() {
@@ -158,31 +155,21 @@ public class PSNavComponentSummary {
     this.contentTypeGuid = contentTypeGuid;
   }
 
-  /**
-   * Content Type GUID
-   */
+  /** Content Type GUID */
   private IPSGuid contentTypeGuid = null;
 
-  /**
-   * Current contentid and revision.
-   */
+  /** Current contentid and revision. */
   private PSLocator m_currentLoc = null;
 
   /**
-   * Starting portion of the summary sql query to execute, up to but not
-   * including the table name.
+   * Starting portion of the summary sql query to execute, up to but not including the table name.
    */
   private static final String SQL_STATEMENT_START =
       "SELECT TITLE, " + "CURRENTREVISION, CONTENTTYPEID FROM ";
 
-  /**
-   * Table name to use in the summary sql query.
-   */
+  /** Table name to use in the summary sql query. */
   private static final String SQL_STATEMENT_TABLE = "CONTENTSTATUS";
 
-  /**
-   * End portion of the summary sql query, starting from but not including
-   * the table name.
-   */
+  /** End portion of the summary sql query, starting from but not including the table name. */
   private static final String SQL_STATEMENT_END = " WHERE CONTENTID = ?";
 }

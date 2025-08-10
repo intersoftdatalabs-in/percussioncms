@@ -25,18 +25,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates a log summary information.
- */
+/** Encapsulates a log summary information. */
 public class PSLogSummary implements IPSDeployComponent {
 
   /**
    * Constructing an object from the given parameters.
    *
-   * @param    pkg The package object, which may not be <code>null</code>.
-   * @param    archSummary The archive summary object, which may not be
-   * <code>null</code>.
-   *
+   * @param pkg The package object, which may not be <code>null</code>.
+   * @param archSummary The archive summary object, which may not be <code>null</code>.
    * @throws IllegalArgumentException If any parameter is invalid.
    */
   public PSLogSummary(PSDeployableElement pkg, PSArchiveSummary archSummary) {
@@ -51,11 +47,9 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSLogSummary(Element source) throws PSUnknownNodeTypeException, PSDeployException {
@@ -67,8 +61,7 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Gets this summary's Id.
    *
-   * @return the id, may be <code>-1</code> if this summary has not been saved
-   * to the database.
+   * @return the id, may be <code>-1</code> if this summary has not been saved to the database.
    */
   public int getId() {
     return m_id;
@@ -86,8 +79,7 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Gets the log detail.
    *
-   * @return The log detail object, may be <code>null</code> if it has not
-   * been set.
+   * @return The log detail object, may be <code>null</code> if it has not been set.
    */
   public PSLogDetail getLogDetail() {
     return m_detail;
@@ -96,11 +88,8 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Sets the log detail from a given <code>PSLogDetail</code> object.
    *
-   * @param    detail The to be seted <code>PSLogDetail</code> object. It may
-   * not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>detail</code> is
-   * <code>null</code>
+   * @param detail The to be seted <code>PSLogDetail</code> object. It may not be <code>null</code>.
+   * @throws IllegalArgumentException If <code>detail</code> is <code>null</code>
    */
   public void setLogDetail(PSLogDetail detail) {
     if (detail == null) throw new IllegalArgumentException("detail may not be null");
@@ -111,7 +100,7 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Sets the summary id.
    *
-   * @param    id The summary id, which may not be less than 0.
+   * @param id The summary id, which may not be less than 0.
    */
   public void setId(int id) {
     if (id < 0) throw new IllegalArgumentException("id may not be less than 0");
@@ -131,8 +120,7 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Determines if archive file has been deleted
    *
-   * @return <code>true</code> if archive file has been deleted;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if archive file has been deleted; <code>false</code> otherwise.
    */
   public boolean doesArchiveExist() {
     return m_archiveExist;
@@ -141,15 +129,15 @@ public class PSLogSummary implements IPSDeployComponent {
   /**
    * Sets the archive existents.
    *
-   * @param    exists <code>true</code> if archive file has been deleted;
-   * <code>false</code> otherwise.
+   * @param exists <code>true</code> if archive file has been deleted; <code>false</code> otherwise.
    */
   public void setDoesArchiveExist(boolean exists) {
     m_archiveExist = exists;
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXLogSummary (PSXDeployableElement, PSXArchiveSummary,
    *    PSXLogDetail?)>
@@ -258,9 +246,7 @@ public class PSLogSummary implements IPSDeployComponent {
     return bEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXLogSummary";
 
   // Private XML attribute names and values
@@ -270,30 +256,23 @@ public class PSLogSummary implements IPSDeployComponent {
   private static final String XML_VALUE_FALSE = "No";
 
   /**
-   * The deployment element (or package). Initialized by constructor, it will
-   * never be <code>null</code> after that.
+   * The deployment element (or package). Initialized by constructor, it will never be <code>null
+   * </code> after that.
    */
   private PSDeployableElement m_pkg;
 
-  /**
-   * This summary's Id, default to -1.
-   */
+  /** This summary's Id, default to -1. */
   private int m_id = -1;
 
-  /**
-   * <code>true</code> if archive file has been deleted; <code>false</code>
-   * otherwise.
-   */
+  /** <code>true</code> if archive file has been deleted; <code>false</code> otherwise. */
   private boolean m_archiveExist = false;
 
-  /**
-   * The log detail object. Default to be <code>null</code>.
-   */
+  /** The log detail object. Default to be <code>null</code>. */
   private PSLogDetail m_detail = null;
 
   /**
-   * The archive summary object. Initialized by constructor, it will never be
-   * <code>null</code> after that.
+   * The archive summary object. Initialized by constructor, it will never be <code>null</code>
+   * after that.
    */
   private PSArchiveSummary m_archiveSummary = null;
 }

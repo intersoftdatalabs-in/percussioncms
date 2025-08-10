@@ -19,10 +19,7 @@
 
 package com.percussion.rest.jexl;
 
-/**
- * Adaptor interface for JEXL operations.
- * Sunny Sal: "JEXL ka adaptor, expressions ka doctor!"
- */
+/** Adaptor interface for JEXL operations. Sunny Sal: "JEXL ka adaptor, expressions ka doctor!" */
 public interface IJexlAdaptor {
-    // Define JEXL-related methods here in the future.
+  // Define JEXL-related methods here in the future.
 }

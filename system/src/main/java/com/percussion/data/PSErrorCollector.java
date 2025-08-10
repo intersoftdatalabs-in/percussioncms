@@ -43,18 +43,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * A container to collect item and/or field validation errors.
- */
+/** A container to collect item and/or field validation errors. */
 public class PSErrorCollector {
   /**
-   * Create a new error collector with the maximal allowed errors before the
-   * process should stop.
+   * Create a new error collector with the maximal allowed errors before the process should stop.
    *
-   * @param type the validation type this error collector should be created
-   *    for, one of TYPE_xxx.
-   * @param maxErrorsToStop the maximal allowed errors alowed before the
-   *   process should stop.
+   * @param type the validation type this error collector should be created for, one of TYPE_xxx.
+   * @param maxErrorsToStop the maximal allowed errors alowed before the process should stop.
    * @throws IllegalArgumentException if the provided type is unknown.
    */
   public PSErrorCollector(int type, int maxErrorsToStop) {
@@ -68,8 +63,8 @@ public class PSErrorCollector {
   /**
    * The status if errors had occurred.
    *
-   * @return <code>true</code> if errors have occurred since the creation
-   *   of this object, <code>false</code> otherwise.
+   * @return <code>true</code> if errors have occurred since the creation of this object, <code>
+   *     false</code> otherwise.
    */
   public boolean hasErrors() {
     return (m_errorCount > 0);
@@ -78,8 +73,8 @@ public class PSErrorCollector {
   /**
    * Is the maximal allowed number of errors exceeded?
    *
-   * @param <code>true</code> if the maximal number of errors is exceeded,
-   *   <code>false</code> otherwise.
+   * @param <code>true</code> if the maximal number of errors is exceeded, <code>false</code>
+   *     otherwise.
    */
   public boolean maxErrorsExceeded() {
     return (m_errorCount >= m_maxErrorsToStop);
@@ -95,13 +90,11 @@ public class PSErrorCollector {
   }
 
   /**
-   * Set the generic error message. Will overwrite the existing error
-   * message. Will be the first message in the produced error document.
+   * Set the generic error message. Will overwrite the existing error message. Will be the first
+   * message in the produced error document.
    *
-   * @param message a new error message, not <code>null</code>, might be
-   *    empty.
-   * @throws IllegalArgumentException if the provided message is
-   *    <code>null</code>.
+   * @param message a new error message, not <code>null</code>, might be empty.
+   * @throws IllegalArgumentException if the provided message is <code>null</code>.
    */
   public void set(String message) {
     if (message == null) throw new IllegalArgumentException("message cannot be null");
@@ -113,8 +106,7 @@ public class PSErrorCollector {
    * Add a new field validation error for the provided pageid and field.
    *
    * @param pageId the id of the page where the error occurred.
-   * @param eval the evaluator for which the validation failed, not
-   *    <code>null</code>.
+   * @param eval the evaluator for which the validation failed, not <code>null</code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */
   public void add(Integer pageId, PSFieldValidationRulesEvaluator eval) {
@@ -134,13 +126,12 @@ public class PSErrorCollector {
    * Add a new page specific error message.
    *
    * @param pageId the pageid, not <code>null</code>.
-   * @param submitNames the field submit names causing the validation error.
-   *    Not <code>null</code>.
-   * @param displayNames the field display names causing the validation error.
-   *    Not <code>null</code>.
+   * @param submitNames the field submit names causing the validation error. Not <code>null</code>.
+   * @param displayNames the field display names causing the validation error. Not <code>null</code>
+   *     .
    * @param message the error message, not <code>null</code>.
-   * @param args the arguments matching the pattern provided in the message,
-   *    might be <code>null</code>.
+   * @param args the arguments matching the pattern provided in the message, might be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */
   public void add(Integer pageId, List submitNames, List displayNames, String message, List args) {
@@ -167,10 +158,9 @@ public class PSErrorCollector {
    * Add a new error page url for the provided pageId.
    *
    * @param pageId the pageid, not <code>null</code>.
-   * @param url the url string, the complete url leading to the error page,
-   *    not <code>null</code> or empty.
-   * @throws IllegalArgumentException if any parameter is <code>null</code>
-   *    or the url is empty.
+   * @param url the url string, the complete url leading to the error page, not <code>null</code> or
+   *     empty.
+   * @throws IllegalArgumentException if any parameter is <code>null</code> or the url is empty.
    */
   public void add(Integer pageId, String url) {
     if (pageId == null) throw new IllegalArgumentException("pageId cannot be null");
@@ -185,10 +175,9 @@ public class PSErrorCollector {
   /**
    * Add a new item validation error document.
    *
-   * @param an item validation error document conforming to the
-   *    sys_ItemValidation.dtd, not <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param an item validation error document conforming to the sys_ItemValidation.dtd, not <code>
+   *     null</code>.
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public void add(Document doc) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
@@ -199,13 +188,12 @@ public class PSErrorCollector {
   }
 
   /**
-   * Walks the list of all item error documents collected and creates the
-   * appropriate item error message.
+   * Walks the list of all item error documents collected and creates the appropriate item error
+   * message.
    *
-   * @param pageMap a map of all item pages. This is used to match the error
-   *    document info to the appropriate page.
-   * @throws IllegalArgumentException if the provided pageMap is
-   *    <code>null</code>.
+   * @param pageMap a map of all item pages. This is used to match the error document info to the
+   *     appropriate page.
+   * @throws IllegalArgumentException if the provided pageMap is <code>null</code>.
    */
   public void createItemErrors(Map pageMap) {
     if (pageMap == null) throw new IllegalArgumentException("the page map cannot be null");
@@ -234,11 +222,9 @@ public class PSErrorCollector {
   /**
    * Get the error document with all errors created during item validation.
    *
-   * @param request the request to create the error document for, not
-   *    <code>null</code>.
-   * @param pageMap a map of all pages in this item. The map key is the
-   *    pageid as Integer, the value is the page Document. Not
-   *    <code>null</code>.
+   * @param request the request to create the error document for, not <code>null</code>.
+   * @param pageMap a map of all pages in this item. The map key is the pageid as Integer, the value
+   *     is the page Document. Not <code>null</code>.
    * @return the error document, might be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is <code>null</code>.
    */
@@ -310,10 +296,8 @@ public class PSErrorCollector {
   /**
    * This method finds the pageid for the provided submit name.
    *
-   * @param submitName the submit name we want the pageId for,
-   *    assumed not <code>null</code>.
-   * @param pageMap a map of all pages contained in this item, assumed not
-   *    <code>null</code>.
+   * @param submitName the submit name we want the pageId for, assumed not <code>null</code>.
+   * @param pageMap a map of all pages contained in this item, assumed not <code>null</code>.
    * @return the first pageid found, never <code>null</code>.
    */
   private Integer getPageId(String submitName, Map pageMap) {
@@ -338,15 +322,13 @@ public class PSErrorCollector {
   }
 
   /**
-   * Get all attribute values for the provided list of fields and
-   * attribute name.
+   * Get all attribute values for the provided list of fields and attribute name.
    *
-   * @param fields a list of all fields we want the attribute values for,
-   *    assumed not <code>null</code>.
-   * @param attrName the name of the attribute we want the values for,
-   *    assumed not <code>null</code>.
-   * @return a list of attribute values found in the provided field list,
-   *    never <code>null</code>.
+   * @param fields a list of all fields we want the attribute values for, assumed not <code>null
+   *     </code>.
+   * @param attrName the name of the attribute we want the values for, assumed not <code>null</code>
+   *     .
+   * @return a list of attribute values found in the provided field list, never <code>null</code>.
    */
   private List getNames(NodeList fields, String attrName) {
     ArrayList attrs = new ArrayList();
@@ -361,10 +343,8 @@ public class PSErrorCollector {
   /**
    * Get the pattern string and a list of all parameters.
    *
-   * @param messages the list of messages, assumed not <code>null</code> and
-   *    not empty.
-   * @param args the list to be filled with all arguments, aeeumed not
-   *    <code>null</code>.
+   * @param messages the list of messages, assumed not <code>null</code> and not empty.
+   * @param args the list to be filled with all arguments, aeeumed not <code>null</code>.
    * @return the pattern string, never <code>null</code> .
    */
   private String getPatternAndArgs(NodeList messages, List args) {
@@ -386,13 +366,11 @@ public class PSErrorCollector {
   /**
    * Merge all collected errors into the provided document.
    *
-   * @param pageId the page for which to merge the errors into the
-   *    provided document, not <code>null</code>.
-   * @param doc the document into which we want to merge all collected
-   *    errors for the supplied page. A document conforming to the
-   *    sys_ContentEditor.dtd is expected. Not <code>null</code>.
-   * @throws IllegalArgumentException if any of the provided parameters is
-   *    <code>null</code>.
+   * @param pageId the page for which to merge the errors into the provided document, not <code>null
+   *     </code>.
+   * @param doc the document into which we want to merge all collected errors for the supplied page.
+   *     A document conforming to the sys_ContentEditor.dtd is expected. Not <code>null</code>.
+   * @throws IllegalArgumentException if any of the provided parameters is <code>null</code>.
    */
   public void mergeErrors(Integer pageId, Document doc) {
     if (pageId == null || doc == null)
@@ -412,8 +390,7 @@ public class PSErrorCollector {
   /**
    * Create the DisplayError element for the provided document.
    *
-   * @param doc the document to create the element for, assumed not
-   *    <code>null</code>.
+   * @param doc the document to create the element for, assumed not <code>null</code>.
    * @return the new DisplayElement created, never <code>null</code>.
    */
   private Element createDisplayError(Document doc) {
@@ -430,13 +407,10 @@ public class PSErrorCollector {
   }
 
   /**
-   * Merge all collected field errors into the provided document for the
-   * pageid supplied.
+   * Merge all collected field errors into the provided document for the pageid supplied.
    *
-   * @param pageId the id of the page to merge field error for, assumed
-   *    not <code>null</code>.
-   * @param doc the document to merge the errors to, assumed not
-   *    <code>null</code>.
+   * @param pageId the id of the page to merge field error for, assumed not <code>null</code>.
+   * @param doc the document to merge the errors to, assumed not <code>null</code>.
    */
   private void mergeFieldErrors(Integer pageId, Document doc) {
     // create the element that contains all error messages
@@ -528,11 +502,9 @@ public class PSErrorCollector {
   }
 
   /**
-   * Merge all collected item errors into the provided document for all
-   * pages that had errors.
+   * Merge all collected item errors into the provided document for all pages that had errors.
    *
-   * @param doc the document to merge the errors to, assumed not
-   *    <code>null</code>.
+   * @param doc the document to merge the errors to, assumed not <code>null</code>.
    */
   private void mergeItemErrors(Document doc) {
     // create the element that contains all error messages
@@ -616,68 +588,59 @@ public class PSErrorCollector {
   /** XML document attribute name. */
   public static final String SCREEN_URL_ATTR = "screenUrl";
 
-  /**
-   * Specifies that this error collector is used for item level validation.
-   */
+  /** Specifies that this error collector is used for item level validation. */
   public static final int TYPE_ITEM = 0;
 
-  /**
-   * Specifies that this error collector is used for field level validation.
-   */
+  /** Specifies that this error collector is used for field level validation. */
   public static final int TYPE_FIELD = 1;
 
   /**
-   * The validation type this error collector was constructed for.
-   * Initialized during construction, never changed after that.
+   * The validation type this error collector was constructed for. Initialized during construction,
+   * never changed after that.
    */
   private int m_type = -1;
 
   /**
-   * The maximum number of errors allowed before the process should be
-   * stopped. Set during construction.
+   * The maximum number of errors allowed before the process should be stopped. Set during
+   * construction.
    */
   private int m_maxErrorsToStop = 0;
 
   /**
-   * Counter for all errors occurred. Will be incremented by one for all
-   * errors added, no matter of what type.
+   * Counter for all errors occurred. Will be incremented by one for all errors added, no matter of
+   * what type.
    */
   private int m_errorCount = 0;
 
   /**
-   * A generic error message added to the top of the error page during the
-   * merge process. Never <code>null</code>, might be empty.
+   * A generic error message added to the top of the error page during the merge process. Never
+   * <code>null</code>, might be empty.
    */
   private String m_genericError = "";
 
   /**
-   * A map of item specific error messages. The map key is the pageid while
-   * the value is an array list. Element 0 is an array of String objects
-   * for the field submit names, element 1 is an array of String objects
-   * for the field display names and element 2 is the error message.
+   * A map of item specific error messages. The map key is the pageid while the value is an array
+   * list. Element 0 is an array of String objects for the field submit names, element 1 is an array
+   * of String objects for the field display names and element 2 is the error message.
    */
   private Map m_itemErrors = new HashMap();
 
   /**
-   * A list of item error documents collected during item validation. The
-   * documents conform to the sys_ItemValidation.dtd. Never
-   * <code>null</code> after construction, might be empty.
+   * A list of item error documents collected during item validation. The documents conform to the
+   * sys_ItemValidation.dtd. Never <code>null</code> after construction, might be empty.
    */
   private List m_itemErrorDocuments = new ArrayList();
 
   /**
-   * A map of lists of field errors. The map key is the pageid where the
-   * error occurred while the value is a list of
-   * PSFieldValidationRulesEvaluator objects for all fields that had
-   * validation errors on the appropriate page. Never <code>null</code>,
-   * might be empty.
+   * A map of lists of field errors. The map key is the pageid where the error occurred while the
+   * value is a list of PSFieldValidationRulesEvaluator objects for all fields that had validation
+   * errors on the appropriate page. Never <code>null</code>, might be empty.
    */
   private Map m_fieldErrors = new HashMap();
 
   /**
-   * A map of error page urls. The key is the pageid, while the value is a
-   * String containing the complete url (including all paramaeters) to the
-   * error page.
+   * A map of error page urls. The key is the pageid, while the value is a String containing the
+   * complete url (including all paramaeters) to the error page.
    */
   private Map m_errorPages = new HashMap();
 }

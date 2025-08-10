@@ -23,13 +23,14 @@ import org.apache.commons.lang.StringUtils;
 
 public class PSDeployJexlUtils {
   /**
-   * Create an ID visitor that takes the binding string and parses the
-   * expression/script to a tree. Then the visitor will collect all the nodes
-   * that can have an integer or a String representation of an integer
-   * @param val the expression/script that need to be parsed for ids. May not
-   *        be <code>null</code> or empty
-   * @return list of ids from the binding that need to be mapped, never
-   *         <code>null</code>, may be empty
+   * Create an ID visitor that takes the binding string and parses the expression/script to a tree.
+   * Then the visitor will collect all the nodes that can have an integer or a String representation
+   * of an integer
+   *
+   * @param val the expression/script that need to be parsed for ids. May not be <code>null</code>
+   *     or empty
+   * @return list of ids from the binding that need to be mapped, never <code>null</code>, may be
+   *     empty
    * @throws PSDeployException
    */
   public static List<String> getIdsFromBinding(String val) throws PSDeployException {

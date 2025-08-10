@@ -21,14 +21,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * A cache to hold Tmx key/value pairs for multiple languages.
- * Used for the tmx tag libs.
- */
+/** A cache to hold Tmx key/value pairs for multiple languages. Used for the tmx tag libs. */
 public class TmxCache {
-  /**
-   * Private ctor to prevent instantiation.
-   */
+  /** Private ctor to prevent instantiation. */
   private TmxCache() {}
 
   /**
@@ -46,9 +41,8 @@ public class TmxCache {
   /**
    * Sets the lang/prefixes that have been indexed.
    *
-   * @param lang     cannot be <code>null</code> or empty.
-   * @param prefixes cannot be <code>null</code> but may be
-   *                 empty.
+   * @param lang cannot be <code>null</code> or empty.
+   * @param prefixes cannot be <code>null</code> but may be empty.
    */
   public void setIndexed(String lang, String prefixes) {
     if (lang == null || lang.isEmpty()) {
@@ -65,8 +59,8 @@ public class TmxCache {
    * Add a new entry to the cache.
    *
    * @param lang cannot be <code>null</code> or empty.
-   * @param key  cannot be <code>null</code> or empty.
-   * @param val  may be <code>null</code> or empty.
+   * @param key cannot be <code>null</code> or empty.
+   * @param val may be <code>null</code> or empty.
    */
   public void addEntry(String lang, String key, String val) {
     if (lang == null || lang.isEmpty()) {
@@ -83,8 +77,7 @@ public class TmxCache {
    * Retrieve a set of all keys for a specified language.
    *
    * @param lang cannot be <code>null</code> or empty.
-   * @return set of keys, never <code>null</code>, may
-   * be empty.
+   * @return set of keys, never <code>null</code>, may be empty.
    */
   public Set<String> getKeys(String lang) {
     if (lang == null || lang.isEmpty()) {
@@ -97,7 +90,7 @@ public class TmxCache {
    * Retrieve the value based on the lang/key.
    *
    * @param lang cannot be <code>null</code> or empty.
-   * @param key  cannot be <code>null</code> or empty.
+   * @param key cannot be <code>null</code> or empty.
    * @return the value or <code>null</code> if no found.
    */
   public String getValue(String lang, String key) {
@@ -116,11 +109,9 @@ public class TmxCache {
   }
 
   /**
-   * Clear cache per lang or if no lang specified then
-   * clear all.
+   * Clear cache per lang or if no lang specified then clear all.
    *
-   * @param lang may be <code>null</code> in which case everything
-   *             will be cleared.
+   * @param lang may be <code>null</code> in which case everything will be cleared.
    */
   public void clear(String lang) {
     if (lang != null) {
@@ -132,19 +123,12 @@ public class TmxCache {
     }
   }
 
-  /**
-   * The singleton instance of the tmx cache.
-   */
+  /** The singleton instance of the tmx cache. */
   private static TmxCache msInstance;
 
-  /**
-   * The cached index used to keep track of which lang/prefixes have
-   * been cached.
-   */
+  /** The cached index used to keep track of which lang/prefixes have been cached. */
   private final Map<String, Set<String>> miCachedIndex = new HashMap<>();
 
-  /**
-   * The cache holding the key/values for each lang indexed.
-   */
+  /** The cache holding the key/values for each lang indexed. */
   private final Map<String, Map<String, String>> miCache = new HashMap<>();
 }

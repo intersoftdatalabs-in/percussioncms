@@ -53,14 +53,13 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This servlet is now misnamed. A better name would be PSLinkDispatchServlet.
- * However, that would require creating an upgrade plugin to fixup web.xml.
- * <p>
- * Initially, dispatches to 1 or 2 pages, the action panel or active assembly,
- * based on a 'flag' in server.properties. In order to reach the AA page, a
- * site, folder and template must be obtained. If a site is not specified, a
- * chooser page is returned listing all instances of the item in a folder. A
- * hard-coded algorithm attempts to determine a template to use for AA.
+ * This servlet is now misnamed. A better name would be PSLinkDispatchServlet. However, that would
+ * require creating an upgrade plugin to fixup web.xml.
+ *
+ * <p>Initially, dispatches to 1 or 2 pages, the action panel or active assembly, based on a 'flag'
+ * in server.properties. In order to reach the AA page, a site, folder and template must be
+ * obtained. If a site is not specified, a chooser page is returned listing all instances of the
+ * item in a folder. A hard-coded algorithm attempts to determine a template to use for AA.
  *
  * @author dougrand
  */
@@ -71,7 +70,7 @@ public class PSActionPanelServlet extends HttpServlet {
    * (non-Javadoc)
    *
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest,
-   *      javax.servlet.http.HttpServletResponse)
+   *     javax.servlet.http.HttpServletResponse)
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -202,18 +201,15 @@ public class PSActionPanelServlet extends HttpServlet {
   }
 
   /**
-   * Filters the templates associated with the site and then looks for a
-   * template whose <code>PublishWhen</code> is <code>Default</code>. If
-   * there isn't one, take the first <code>Always</code> template in
-   * ascending alpha order by name. If there isn't one, take the first
-   * <code>Page</code> in ascending alpha order by name. If there isn't one,
-   * take the first <code>Snippet</code> in ascending alpha order by name.
+   * Filters the templates associated with the site and then looks for a template whose <code>
+   * PublishWhen</code> is <code>Default</code>. If there isn't one, take the first <code>Always
+   * </code> template in ascending alpha order by name. If there isn't one, take the first <code>
+   * Page</code> in ascending alpha order by name. If there isn't one, take the first <code>Snippet
+   * </code> in ascending alpha order by name.
    *
    * @param ctypeId Assumed to be a valid content type UUID.
    * @param siteId Assumed to be a valid site id.
-   *
-   * @return The id of the template to use, or <code>null</code> if a
-   * template cannot be found.
+   * @return The id of the template to use, or <code>null</code> if a template cannot be found.
    */
   private IPSGuid calculateDefaultTemplate(long ctypeId, long siteId) {
     IPSAssemblyWs mgr = PSAssemblyWsLocator.getAssemblyWebservice();
@@ -278,16 +274,14 @@ public class PSActionPanelServlet extends HttpServlet {
   }
 
   /**
-   * For each template, calls the {@link Filter#accept(IPSAssemblyTemplate) accept}
-   * method and for all those that match, put them in a list. When done, sort
-   * the list and return the first entry in the list.
+   * For each template, calls the {@link Filter#accept(IPSAssemblyTemplate) accept} method and for
+   * all those that match, put them in a list. When done, sort the list and return the first entry
+   * in the list.
    *
    * @param templates Assumed not <code>null</code>.
-   *
    * @param filter Assumed not <code>null</code>.
-   *
-   * @return The guid from one of the supplied templates, or <code>null</code>
-   * if none of them match the supplied filter.
+   * @return The guid from one of the supplied templates, or <code>null</code> if none of them match
+   *     the supplied filter.
    */
   private IPSGuid findTemplate(List<PSAssemblyTemplateWs> templates, Filter filter) {
     List<IPSAssemblyTemplate> possibilities = new ArrayList<>();
@@ -324,16 +318,14 @@ public class PSActionPanelServlet extends HttpServlet {
   }
 
   /**
-   * Builds the target URL based on the supplied type. This is determined by
-   * reading a server property.
+   * Builds the target URL based on the supplied type. This is determined by reading a server
+   * property.
    *
    * @param targetType Assumed not <code>null</code>.
-   *
-   * @param contentid Used as the value of the sys_contentid param in the
-   * generated url. Assumed not <code>null</code>.
-   *
+   * @param contentid Used as the value of the sys_contentid param in the generated url. Assumed not
+   *     <code>null</code>.
    * @return A fully qualified string of the form
-   * <pre>
+   *     <pre>
    *   /Rhythmyx/path?[optional params&amp;]sys_contentid=<code>contentid</code>
    * </pre>
    */
@@ -354,9 +346,9 @@ public class PSActionPanelServlet extends HttpServlet {
   }
 
   /**
-   * Looks up a certain property in server.properties and converts it to the
-   * proper enum. If not found, or the value is not recognized, the default
-   * type is returned as specified by {@link TargetType#getDefault()}.
+   * Looks up a certain property in server.properties and converts it to the proper enum. If not
+   * found, or the value is not recognized, the default type is returned as specified by {@link
+   * TargetType#getDefault()}.
    *
    * @return Never <code>null</code>.
    */
@@ -369,23 +361,19 @@ public class PSActionPanelServlet extends HttpServlet {
   }
 
   /**
-   * The types of pages that this dispatcher can process. It is expected that
-   * the server properties file will contain a constant known to the containing
-   * class with one of the text values below.
+   * The types of pages that this dispatcher can process. It is expected that the server properties
+   * file will contain a constant known to the containing class with one of the text values below.
    *
    * @author paulhoward
    */
   private enum TargetType {
     /**
-     * Launch what is known as the Action Panel - a page that has the menu
-     * actions available for a specified item.
+     * Launch what is known as the Action Panel - a page that has the menu actions available for a
+     * specified item.
      */
     ACTION_PANEL("actionPanel"),
 
-    /**
-     * If a default template can be found, redirect to the AA page for that
-     * template.
-     */
+    /** If a default template can be found, redirect to the AA page for that template. */
     ACTIVE_ASSEMBLY("activeAssembly");
 
     /**
@@ -408,13 +396,11 @@ public class PSActionPanelServlet extends HttpServlet {
     }
 
     /**
-     * Compare the supplied string against the keys of all known
-     * <code>TargetType</code>s.
+     * Compare the supplied string against the keys of all known <code>TargetType</code>s.
      *
      * @param key May be <code>null</code> or empty. Case-insensitive.
-     *
-     * @return <code>null</code> if <code>key</code> is blank or doesn't
-     * match any of the keys of the enums.
+     * @return <code>null</code> if <code>key</code> is blank or doesn't match any of the keys of
+     *     the enums.
      */
     public static TargetType findMatch(String key) {
       TargetType result = null;
@@ -437,9 +423,7 @@ public class PSActionPanelServlet extends HttpServlet {
       return ACTION_PANEL;
     }
 
-    /**
-     * Set in ctor, then never blank or modified.
-     */
+    /** Set in ctor, then never blank or modified. */
     private String mi_key;
   }
 }

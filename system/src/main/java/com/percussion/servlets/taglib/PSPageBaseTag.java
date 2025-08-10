@@ -40,7 +40,6 @@ import javax.servlet.jsp.tagext.Tag;
  * This base tag implements behavior used by the header and sidenav tags
  *
  * @author dougrand
- *
  */
 public abstract class PSPageBaseTag implements Tag {
   protected PSComponentUrls m_urls = null;
@@ -63,14 +62,11 @@ public abstract class PSPageBaseTag implements Tag {
   }
 
   /**
-   * Get the contents for the given component name. This method makes an
-   * internal request to get the document associated with the component name,
-   * and then serializes that document to text.
+   * Get the contents for the given component name. This method makes an internal request to get the
+   * document associated with the component name, and then serializes that document to text.
    *
-   * @param componentname the name of the component, never <code>null</code>
-   *           or empty
-   * @param extra extra parameters to add to the request, may be
-   *           <code>null</code>
+   * @param componentname the name of the component, never <code>null</code> or empty
+   * @param extra extra parameters to add to the request, may be <code>null</code>
    * @return the component as text, never <code>null</code> or empty
    * @throws PSInternalRequestCallException
    */

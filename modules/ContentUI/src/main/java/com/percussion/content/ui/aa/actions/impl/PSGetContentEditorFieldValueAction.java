@@ -33,10 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Action to get the content editor field value. Loads the item using
- * webservices and gets the value of the filed with the name mentioned in object
- * id.
- *
+ * Action to get the content editor field value. Loads the item using webservices and gets the value
+ * of the filed with the name mentioned in object id.
  */
 public class PSGetContentEditorFieldValueAction extends PSAAActionBase {
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {

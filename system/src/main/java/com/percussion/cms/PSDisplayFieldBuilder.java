@@ -43,33 +43,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is the base class for all builders that create the DisplayField
- * element in the result document generated for a query request. Based on
- * the field definition, an executable format is created that is efficient to
- * process at run time.
- * <p>The display field is optionally created, and all appropriate child
- * elements and attributes are set according to the ContentEditor dtd.
- * <p>Derived classes have control over some of the content by overriding the
- * various add... methods.
+ * This is the base class for all builders that create the DisplayField element in the result
+ * document generated for a query request. Based on the field definition, an executable format is
+ * created that is efficient to process at run time.
+ *
+ * <p>The display field is optionally created, and all appropriate child elements and attributes are
+ * set according to the ContentEditor dtd.
+ *
+ * <p>Derived classes have control over some of the content by overriding the various add...
+ * methods.
  */
 public class PSDisplayFieldBuilder implements IPSBuildStep {
   /**
-   * Creates the basic display node with no data, using the supplied
-   * properties to set attributes and elements. Anything containing an
-   * IPSReplacementValue will be processed at run time (when execute is
-   * called). See the ContentEditor.dtd file for a def of the DisplayField
-   * element. See {@link #initField(PSField, PSUISet, String,
-   * PSEditorDocumentBuilder) initField} for a description of the declared
-   * exceptions.
+   * Creates the basic display node with no data, using the supplied properties to set attributes
+   * and elements. Anything containing an IPSReplacementValue will be processed at run time (when
+   * execute is called). See the ContentEditor.dtd file for a def of the DisplayField element. See
+   * {@link #initField(PSField, PSUISet, String, PSEditorDocumentBuilder) initField} for a
+   * description of the declared exceptions.
    *
-   * @param field The def for the field used as the basis for this element.
-   *    Never </code>null</code>.
-   *
+   * @param field The def for the field used as the basis for this element. Never </code>null</code>
+   *     .
    * @param ui The interface definition for this row. Never </code>null</code>.
-   *
-   * @param parentBuilder This builder is always a single row in a larger
-   *    document. The larger document is managed by this parentBuilder.
-   *    Never <code>null</code>.
+   * @param parentBuilder This builder is always a single row in a larger document. The larger
+   *     document is managed by this parentBuilder. Never <code>null</code>.
    */
   public PSDisplayFieldBuilder(PSField field, PSUISet ui, PSEditorDocumentBuilder parentBuilder)
       throws PSExtensionException, PSNotFoundException, PSSystemValidationException {
@@ -80,22 +76,17 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Creates the basic display node with no data, using the supplied
-   * properties to set attributes and elements. Anything containing an
-   * IPSReplacementValue will be processed at run time (when execute is
-   * called). See the ContentEditor.dtd file for a def of the DisplayField
-   * element. See {@link #initField(PSField, PSUISet, String,
-   * PSEditorDocumentBuilder) initField} for a description of the declared
-   * exceptions.
+   * Creates the basic display node with no data, using the supplied properties to set attributes
+   * and elements. Anything containing an IPSReplacementValue will be processed at run time (when
+   * execute is called). See the ContentEditor.dtd file for a def of the DisplayField element. See
+   * {@link #initField(PSField, PSUISet, String, PSEditorDocumentBuilder) initField} for a
+   * description of the declared exceptions.
    *
-   * @param fieldSet The def for the fieldset used as the basis for this
-   *    element. Never </code>null</code>.
-   *
+   * @param fieldSet The def for the fieldset used as the basis for this element. Never </code>null
+   *     </code>.
    * @param ui The interface definition for this row. Never </code>null</code>.
-   *
-   * @param parentBuilder This builder is always a single row in a larger
-   *    document. The larger document is managed by this parentBuilder.
-   *    Never <code>null</code>.
+   * @param parentBuilder This builder is always a single row in a larger document. The larger
+   *     document is managed by this parentBuilder. Never <code>null</code>.
    */
   public PSDisplayFieldBuilder(
       PSFieldSet fieldSet, PSUISet ui, PSEditorDocumentBuilder parentBuilder)
@@ -155,30 +146,20 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Creates the basic display node with no data, using the supplied
-   * properties to set attributes and elements. Anything containing an
-   * IPSReplacementValue will be processed at run time (when execute is
-   * called). See the ContentEditor.dtd file for a def of the DisplayField
-   * element.
+   * Creates the basic display node with no data, using the supplied properties to set attributes
+   * and elements. Anything containing an IPSReplacementValue will be processed at run time (when
+   * execute is called). See the ContentEditor.dtd file for a def of the DisplayField element.
    *
-   * @param field The def for the field used as the basis for this element.
-   *    Assumed not </code>null</code>.
-   *
+   * @param field The def for the field used as the basis for this element. Assumed not </code>null
+   *     </code>.
    * @param ui The interface definition. Assumed not </code>null</code>.
-   *
-   * @param dataDimension An indicator of the type of data that will be
-   *    added for the value. Must be one of the DIMENSION_... constants.
-   *
-   * @param parentBuilder This builder is always a single row in a larger
-   *    document. The larger document is managed by this parentBuilder.
-   *    Assumed not <code>null</code>.
-   *
+   * @param dataDimension An indicator of the type of data that will be added for the value. Must be
+   *     one of the DIMENSION_... constants.
+   * @param parentBuilder This builder is always a single row in a larger document. The larger
+   *     document is managed by this parentBuilder. Assumed not <code>null</code>.
    * @throws PSExtensionException If UDFs are used but they can't be loaded.
-   *
    * @throws PSNotFoundException If a UDF can't be found.
-   *
-   * @throws PSSystemValidationException If there are any inconsistencies in the
-   *    definitions.
+   * @throws PSSystemValidationException If there are any inconsistencies in the definitions.
    */
   private void initField(
       PSField field, PSUISet ui, String dataDimension, PSEditorDocumentBuilder parentBuilder)
@@ -229,20 +210,15 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * A convenience constructor for creating hidden fields. The supplied
-   * control name must be able to handle a hidden field. No label will be
-   * supplied.
+   * A convenience constructor for creating hidden fields. The supplied control name must be able to
+   * handle a hidden field. No label will be supplied.
    *
-   * @param controlName The name of a control that can be found in the
-   *    XSL control library. Never <code>null</code> or empty.
-   *
-   * @param submitName The name of the variable to use when submitting a
-   *    value for this field to the server. Typically, the HTML parameter
-   *    name. Never <code>null</code> or empty.
-   *
-   * @param parentBuilder This builder is always a single row in a larger
-   *    document. The larger document is managed by this parentBuilder.
-   *    Never <code>null</code>.
+   * @param controlName The name of a control that can be found in the XSL control library. Never
+   *     <code>null</code> or empty.
+   * @param submitName The name of the variable to use when submitting a value for this field to the
+   *     server. Typically, the HTML parameter name. Never <code>null</code> or empty.
+   * @param parentBuilder This builder is always a single row in a larger document. The larger
+   *     document is managed by this parentBuilder. Never <code>null</code>.
    */
   public PSDisplayFieldBuilder(
       String controlName, String submitName, PSEditorDocumentBuilder parentBuilder) {
@@ -265,29 +241,21 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * If the field has any associated data, this method should be overridden
-   * by derived classes to set the correct value element, according to the
-   * dtd. This is a no-op in this class.
+   * If the field has any associated data, this method should be overridden by derived classes to
+   * set the correct value element, according to the dtd. This is a no-op in this class.
    *
-   * @param doc The document to use to create the node. It will not be
-   *    modified. Never <code>null</code>.
-   *
-   * @param parent The node to which the data element will be added if one
-   *    is created. Never <code>null</code>.
-   *
-   * @param data The data that is used to evaluate all run-time operations.
-   *    If <code>null</code>, nothing is done.
-   *
-   * @param isNewDoc A flag to indicate whether the request is to modify
-   *    existing content or create new content. Affects the behavior of
-   *    default values.
-   *
-   * @return <code>true</code> if an element is added, <code>false</code>
-   *    otherwise. <code>false</code> is returned unless overridden by a
-   *    sub class..
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param doc The document to use to create the node. It will not be modified. Never <code>null
+   *     </code>.
+   * @param parent The node to which the data element will be added if one is created. Never <code>
+   *     null</code>.
+   * @param data The data that is used to evaluate all run-time operations. If <code>null</code>,
+   *     nothing is done.
+   * @param isNewDoc A flag to indicate whether the request is to modify existing content or create
+   *     new content. Affects the behavior of default values.
+   * @return <code>true</code> if an element is added, <code>false</code> otherwise. <code>false
+   *     </code> is returned unless overridden by a sub class..
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   protected boolean addDataElement(
       Document doc, Element parent, PSExecutionData data, boolean isNewDoc)
@@ -320,14 +288,10 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Infers the type of a field set by looking at the type of fields it
-   * contains.
+   * Infers the type of a field set by looking at the type of fields it contains.
    *
-   * @param fs The fieldset for which you wish to infer its type. Assumed
-   *    not <code>null</code>.
-   *
-   * @return The display version of the type, if it can be determined, the
-   *    empty string otherwise.
+   * @param fs The fieldset for which you wish to infer its type. Assumed not <code>null</code>.
+   * @return The display version of the type, if it can be determined, the empty string otherwise.
    */
   private String getDataType(PSFieldSet fs) {
     Iterator fieldNames = fs.getNames();
@@ -341,6 +305,7 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
 
   /**
    * Retrieves the name of the control associated with this field.
+   *
    * @return the control name, never <code>null</code> or empty.
    */
   protected String getControlName() {
@@ -348,29 +313,23 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Does the work of creating the node, with no data element. If the
-   * visibility rules are false and the type is omit, then no element is
-   * generated and <code>null</code> is returned.  Visibility rule checking is
-   * subject to the value of the
-   * {@link IPSConstants#SKIP_FIELD_VISIBILITY_RULES} request private object.
+   * Does the work of creating the node, with no data element. If the visibility rules are false and
+   * the type is omit, then no element is generated and <code>null</code> is returned. Visibility
+   * rule checking is subject to the value of the {@link IPSConstants#SKIP_FIELD_VISIBILITY_RULES}
+   * request private object.
    *
-   * @param doc A valid document used to create the nodes. This should be
-   *    the doc that the nodes will eventually be added to. Never <code>
+   * @param doc A valid document used to create the nodes. This should be the doc that the nodes
+   *     will eventually be added to. Never <code>
    *    null</code>.
-   *
-   * @param data The data that is used to evaluate all run-time operations.
-   *    Must not be <code>null</code>.
-   *
-   * @param isError A flag to indicate whether to build a standard document
-   *    or a document returned after a validation error. The main difference
-   *    is a possible label difference and an attribute indicating the type
-   *    of node.
-   *
-   * @return A valid element if the visibilty rules indicate that it should
-   *    should be created, otherwise, <code>null</code>.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param data The data that is used to evaluate all run-time operations. Must not be <code>null
+   *     </code>.
+   * @param isError A flag to indicate whether to build a standard document or a document returned
+   *     after a validation error. The main difference is a possible label difference and an
+   *     attribute indicating the type of node.
+   * @return A valid element if the visibilty rules indicate that it should should be created,
+   *     otherwise, <code>null</code>.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   private Element createNode(
       Document doc, PSExecutionData data, boolean isNewDoc, boolean isErrorDoc)
@@ -412,26 +371,20 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Does the work of creating the Control node as defined in the
-   * sys_ContentEditor.dtd.
+   * Does the work of creating the Control node as defined in the sys_ContentEditor.dtd.
    *
-   * @param doc A valid document used to create the nodes. This should be
-   *    the doc that the nodes will eventually be added to. Never <code>null
+   * @param doc A valid document used to create the nodes. This should be the doc that the nodes
+   *     will eventually be added to. Never <code>null
    *    </code>.
-   *
-   * @param data The data that is used to evaluate all run-time operations.
-   *    Must not be <code>null</code>.
-   *
-   * @param isNewDoc A flag to indicate whether any info can be found in the
-   *    execution data. See {@link #addDataElement(Document, Element,
-   *    PSExecutionData, boolean) addDataElement} for more details on this
-   *    parameter (it is passed through to this method).
-   *
-   * @return A valid element containing the data child, if an existing doc,
-   *    or no data child if a new doc.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param data The data that is used to evaluate all run-time operations. Must not be <code>null
+   *     </code>.
+   * @param isNewDoc A flag to indicate whether any info can be found in the execution data. See
+   *     {@link #addDataElement(Document, Element, PSExecutionData, boolean) addDataElement} for
+   *     more details on this parameter (it is passed through to this method).
+   * @return A valid element containing the data child, if an existing doc, or no data child if a
+   *     new doc.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   public Element createControlNode(Document doc, PSExecutionData data, boolean isNewDoc)
       throws PSDataExtractionException {
@@ -459,40 +412,33 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Override the read only property of this builder as determined when it
-   * was constructed. If set to <code>true</code>, any existing read-only
-   * rules are ignored.
+   * Override the read only property of this builder as determined when it was constructed. If set
+   * to <code>true</code>, any existing read-only rules are ignored.
    *
    * @param readOnly A flag to indicate the read-only property. If <code>
-   *    true</code>, the generated field will be marked as read-only
-   *    regardless of how it was created.
+   *    true</code>, the generated field will be marked as read-only regardless of how it was
+   *     created.
    */
   public void setReadOnly(boolean readOnly) {
     m_isReadOnly = readOnly;
   }
 
   /**
-   * If the field has any associated data, this method should be overridden
-   * by derived classes to set the correct value element, according to the
-   * dtd.
+   * If the field has any associated data, this method should be overridden by derived classes to
+   * set the correct value element, according to the dtd.
    *
-   * @param doc The document to use to create the node. It will not be
-   *    modified. Never <code>null</code>.
-   *
-   * @param parent The node to which the new element will be added if it
-   *    is created. Never <code>null</code>.
-   *
-   * @param params A list of IPSDataExtractor objects. Never <code>null</code>.
-   *    If empty, no element will be added.
-   *
-   * @param data The data that is used to evaluate all run-time operations.
-   *    Must not be <code>null</code>.
-   *
-   * @return <code>true</code> if an element is added, <code>false</code>
-   *    otherwise. Always <code>false</code> for this class.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param doc The document to use to create the node. It will not be modified. Never <code>null
+   *     </code>.
+   * @param parent The node to which the new element will be added if it is created. Never <code>
+   *     null</code>.
+   * @param params A list of IPSDataExtractor objects. Never <code>null</code>. If empty, no element
+   *     will be added.
+   * @param data The data that is used to evaluate all run-time operations. Must not be <code>null
+   *     </code>.
+   * @return <code>true</code> if an element is added, <code>false</code> otherwise. Always <code>
+   *     false</code> for this class.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   protected boolean addParamElement(
       Document doc, Element parent, Iterator params, PSExecutionData data)
@@ -523,31 +469,23 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * A field can be a user entered value or a set of options the user
-   * can choose from. This method adds the set of choices, or a link for the
-   * stylesheet to use to get the set of choices.  Is called immediately
-   * following {@link #addDataElement}.
+   * A field can be a user entered value or a set of options the user can choose from. This method
+   * adds the set of choices, or a link for the stylesheet to use to get the set of choices. Is
+   * called immediately following {@link #addDataElement}.
    *
-   * @param doc The document to use to create the node. It will not be
-   *    modified. Never <code>null</code>.
-   *
-   * @param parent The node to which the data element will be added if one
-   *    is created. Never <code>null</code>.
-   *
-   * @param choices The choice set definition which defines where to get the
-   *    choices and how to order them. Never <code>null</code>.
-   *
-   * @param data The data that is used to evaluate all run-time operations.
-   *    Must not be <code>null</code>.
-   *
-   * @param isNewDoc <code>true</code> if this is for a new document,
-   *    <code>false</code> otherwise.
-   *
-   * @return <code>true</code> if an element is added, <code>false</code>
-   *    otherwise. Returns <code>false</code> by default.
-   *
-   * @throws PSDataExtractionException If any problems occur trying to get
-   *    the values from the execution data.
+   * @param doc The document to use to create the node. It will not be modified. Never <code>null
+   *     </code>.
+   * @param parent The node to which the data element will be added if one is created. Never <code>
+   *     null</code>.
+   * @param choices The choice set definition which defines where to get the choices and how to
+   *     order them. Never <code>null</code>.
+   * @param data The data that is used to evaluate all run-time operations. Must not be <code>null
+   *     </code>.
+   * @param isNewDoc <code>true</code> if this is for a new document, <code>false</code> otherwise.
+   * @return <code>true</code> if an element is added, <code>false</code> otherwise. Returns <code>
+   *     false</code> by default.
+   * @throws PSDataExtractionException If any problems occur trying to get the values from the
+   *     execution data.
    */
   public boolean addChoiceElement(
       Document doc, Element parent, PSChoices choices, PSExecutionData data, boolean isNewDoc)
@@ -559,16 +497,13 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Determines if this field should be displayed at runtime.  This method
-   * will always return <code>true</code>, but can be overriden by derrived
-   * classes to appropriate hide themselves.  Any class that is hiding itself
-   * must handle popping any resultsets off the stack in the execution data
+   * Determines if this field should be displayed at runtime. This method will always return <code>
+   * true</code>, but can be overriden by derrived classes to appropriate hide themselves. Any class
+   * that is hiding itself must handle popping any resultsets off the stack in the execution data
    * that would normally not be left after a call to {@link #addDataElement}.
    *
    * @param data The execution data, may not be <code>null</code>.
-   *
-   * @throws PSDataExtractionException if there is an error popping the
-   * resultset from the stack.
+   * @throws PSDataExtractionException if there is an error popping the resultset from the stack.
    */
   protected boolean showField(PSExecutionData data) throws PSDataExtractionException {
     if (data == null) throw new IllegalArgumentException("data may not be null");
@@ -577,9 +512,8 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Gets this builder's view evaluator, used by derived classes to determine
-   * if fields should be visible, and to get the name to use for the view
-   * parameter when creating action links.
+   * Gets this builder's view evaluator, used by derived classes to determine if fields should be
+   * visible, and to get the name to use for the view parameter when creating action links.
    *
    * @return The view evaluator, never <code>null</code>.
    */
@@ -590,12 +524,9 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   /**
    * Builds a list of extractors for the supplied parameter set.
    *
-   * @param paramSet The set of params, assumed not <code>null</code>, may be
-   *    empty.
-   *
-   * @return A List containing 0 or more PSMapPair objects. Each pair
-   *    contains the parameter name as the key and an IPSDataExtractor as the
-   *    value. Never <code>null</code>.
+   * @param paramSet The set of params, assumed not <code>null</code>, may be empty.
+   * @return A List containing 0 or more PSMapPair objects. Each pair contains the parameter name as
+   *     the key and an IPSDataExtractor as the value. Never <code>null</code>.
    */
   private List prepareCustomParams(Iterator paramSet) {
     List paramExtractors = new ArrayList();
@@ -621,15 +552,13 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Determines the text value to use for the displayType attribute, based on
-   * the 2 flags. There are 3 allowed values as defined by the dtd.
+   * Determines the text value to use for the displayType attribute, based on the 2 flags. There are
+   * 3 allowed values as defined by the dtd.
    *
-   * @param isHidden A flag indicating whether this node is hidden or not.
-   *    Hidden nodes are not visible to the end user.
-   *
-   * @param isError A flag indicating whether this node had a validation
-   *    error. If a node is hidden, the error flag is ignored.
-   *
+   * @param isHidden A flag indicating whether this node is hidden or not. Hidden nodes are not
+   *     visible to the end user.
+   * @param isError A flag indicating whether this node had a validation error. If a node is hidden,
+   *     the error flag is ignored.
    * @return The text to use for the displayType attribute.
    */
   private String getDisplayTypeText(boolean isHidden, boolean isError) {
@@ -641,14 +570,12 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Translates a type code into a string suitable for writing to the output
-   * document as the value of the dataType attribute of this node. If the
-   * type can't be found, "UNKNOWN" is returned.
+   * Translates a type code into a string suitable for writing to the output document as the value
+   * of the dataType attribute of this node. If the type can't be found, "UNKNOWN" is returned.
    *
    * @param dataType One of the DATATYPE_... types in this method.
-   *
-   * @return The string to use as the attribute value. Never empty. If the
-   *    type is not recognized {@link #UNKNOWN_TYPE_TEXT } is returned.
+   * @return The string to use as the attribute value. Never empty. If the type is not recognized
+   *     {@link #UNKNOWN_TYPE_TEXT } is returned.
    */
   private String getDataTypeText(int dataType) {
     String value;
@@ -673,15 +600,14 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   }
 
   /**
-   * Determines whether this field should be read only for this request
-   * by evaluating the read-only handler. If there is no handler, <code>
+   * Determines whether this field should be read only for this request by evaluating the read-only
+   * handler. If there is no handler, <code>
    * false</code> is returned.
    *
-   * @param data The data context to use while checking the conditions.
-   *    Assumed not to be <code>null</code>.
-   *
-   * @return <code>true</code> if the field should be marked read-only,
-   *    <code>false</code> otherwise.
+   * @param data The data context to use while checking the conditions. Assumed not to be <code>null
+   *     </code>.
+   * @return <code>true</code> if the field should be marked read-only, <code>false</code>
+   *     otherwise.
    */
   private boolean isReadOnly(PSExecutionData data) {
     if (m_isReadOnly) return true;
@@ -696,67 +622,60 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
   private String m_controlName;
 
   /**
-   * The name to be used when a value for this field is submitted to the
-   * server. Typically, the Html parameter name. Never empty after it is
-   * assigned at construction.
+   * The name to be used when a value for this field is submitted to the server. Typically, the Html
+   * parameter name. Never empty after it is assigned at construction.
    */
   private String m_submitName;
 
   /**
-   * The value for the data type attribute (system, shared or user). Never
-   * empty after construction.
+   * The value for the data type attribute (system, shared or user). Never empty after construction.
    */
   private String m_dataType;
 
   /**
-   * The value for the field value type attribute (unknown,content,meta).
-   * Never empty after construction.
+   * The value for the field value type attribute (unknown,content,meta). Never empty after
+   * construction.
    */
   private String m_fieldValueTypeText =
       PSField.FIELD_VALUE_TYPE_ENUM[PSField.FIELD_VALUE_TYPE_UNKNOWN];
 
   /**
-   * One of the DIMENSION_xxx values which defines this particular builder.
-   * Always valid after construction.
+   * One of the DIMENSION_xxx values which defines this particular builder. Always valid after
+   * construction.
    */
   private String m_dimension;
 
   /**
-   * This flag indicates whether this field is required to have a value. It
-   * has no effect on the behavior of this object, it is just passed thru to
-   * the output doc.
+   * This flag indicates whether this field is required to have a value. It has no effect on the
+   * behavior of this object, it is just passed thru to the output doc.
    */
   private boolean m_isRequired;
 
   /**
-   * This flag indicates what the default visibility is. If the field has
-   * visibility rules, they will override this value.
+   * This flag indicates what the default visibility is. If the field has visibility rules, they
+   * will override this value.
    */
   private boolean m_isVisible;
 
   /**
-   * If a field type supports choices, they are saved here. Choices are an
-   * ordered set of possible values for a field. Set during construction,
-   * then immutable.
+   * If a field type supports choices, they are saved here. Choices are an ordered set of possible
+   * values for a field. Set during construction, then immutable.
    */
   private PSChoices m_choices;
 
   /**
-   * These are custom properties for the associated control. They are not
-   * used by the engine, they are just passed through to the output doc.
-   * Never <code>null</code>, may be empty. Immutable after construction.
-   * The list contains <code>PSMapPair</code> objects, the key is the
-   * parameter name as <code>java.lang.String</code> and the value an object
-   * array where element 0 is the extractor
-   * (<code>com.percussion.data.IPSDataExtractor</code>) and element 1 the
-   * source type as <code>java.lang.String</code>.
+   * These are custom properties for the associated control. They are not used by the engine, they
+   * are just passed through to the output doc. Never <code>null</code>, may be empty. Immutable
+   * after construction. The list contains <code>PSMapPair</code> objects, the key is the parameter
+   * name as <code>java.lang.String</code> and the value an object array where element 0 is the
+   * extractor (<code>com.percussion.data.IPSDataExtractor</code>) and element 1 the source type as
+   * <code>java.lang.String</code>.
    */
   private List m_paramExtractors = new ArrayList();
 
   /**
-   * The label to use for normal display. Either <code>null</code> or non-
-   * empty (after construction). It should only be <code>null</code> if the
-   * control is hidden.
+   * The label to use for normal display. Either <code>null</code> or non- empty (after
+   * construction). It should only be <code>null</code> if the control is hidden.
    */
   private String m_label;
 
@@ -767,57 +686,49 @@ public class PSDisplayFieldBuilder implements IPSBuildStep {
    */
   private String m_errLabel;
 
-  /**
-   * If <code>false</code>, then the m_readOnlyHandler is used to determine
-   * the read-only state.
-   */
+  /** If <code>false</code>, then the m_readOnlyHandler is used to determine the read-only state. */
   private boolean m_isReadOnly = false;
 
-  /**
-   * Access key character for the control.
-   */
+  /** Access key character for the control. */
   private String m_accessKey;
 
   /**
-   * Contains the executable version of the read only rule set. If there are
-   * no rules, it is <code>null</code>. You can easily make a field read-only
-   * by creating the evaluator with a <code>null</code> argument (which always
-   * evaluates to <code>true</code>.
+   * Contains the executable version of the read only rule set. If there are no rules, it is <code>
+   * null</code>. You can easily make a field read-only by creating the evaluator with a <code>null
+   * </code> argument (which always evaluates to <code>true</code>.
    */
   private PSRuleListEvaluator m_readOnlyHandler;
 
   /**
    * A flag indicating what to do if the visibility rules evaluate to <code>
-   * false</code>. If this flag is <code>true</code>, then this field is
-   * not included in the output document.
+   * false</code>. If this flag is <code>true</code>, then this field is not included in the output
+   * document.
    */
   private boolean m_omit;
 
   /**
-   * If not <code>null</code>, this object is evaluated when this step is
-   * executed to determine if this field should be shown.
+   * If not <code>null</code>, this object is evaluated when this step is executed to determine if
+   * this field should be shown.
    */
   private PSRuleListEvaluator m_visibilityHandler;
 
   /**
-   * The parameter name that will be used to inidicate if a binary field is to
-   * be cleared during update.  May be set during construction, may be <code>
+   * The parameter name that will be used to inidicate if a binary field is to be cleared during
+   * update. May be set during construction, may be <code>
    * null</code> or empty.
    */
   private String m_clearBinaryParam = null;
 
   /**
-   * Indicates the overriding label source type.
-   * It's initialized in the <code>PSDisplayFieldBuilder</code> constructor.
-   * Might be <code>null</code> if no label is defined.
+   * Indicates the overriding label source type. It's initialized in the <code>PSDisplayFieldBuilder
+   * </code> constructor. Might be <code>null</code> if no label is defined.
    */
   private String m_labelSrcType = null;
 
   /**
-   * Used to determine if fields should be visible at runtime, and to determine
-   * the name to use for the view parameters when constructing actionlinks.
-   * Initialized during construction, never <code>null</code> or modified after
-   * that.
+   * Used to determine if fields should be visible at runtime, and to determine the name to use for
+   * the view parameters when constructing actionlinks. Initialized during construction, never
+   * <code>null</code> or modified after that.
    */
   private PSViewEvaluator m_viewEvaluator;
 

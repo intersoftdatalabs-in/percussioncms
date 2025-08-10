@@ -71,8 +71,7 @@ public class AttributeService implements AttributeServiceInf {
   }
 
   /**
-   * Removes the specified attribute from the nodes that have values for that
-   * attribute.
+   * Removes the specified attribute from the nodes that have values for that attribute.
    *
    * @param attribute the attribute in question, not <code>null</code>.
    */
@@ -93,9 +92,7 @@ public class AttributeService implements AttributeServiceInf {
     attributeDAO.saveAttribute(attribute);
   }
 
-  /**
-   * Return all Attribute names and IDs
-   */
+  /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id) {
     return attributeDAO.getAttributeNames(taxonomy_id, language_id);
   }

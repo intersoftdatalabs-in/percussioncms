@@ -43,9 +43,7 @@ public class PSCatalogResolver extends CatalogResolver {
     this.internalRequestURIResolver = internalRequestURIResolver;
   }
 
-  /**
-   * Constructor
-   */
+  /** Constructor */
   public PSCatalogResolver() {
     super();
   }
@@ -68,30 +66,23 @@ public class PSCatalogResolver extends CatalogResolver {
     super(manager);
   }
 
-  /**
-   * Return the underlying catalog
-   */
+  /** Return the underlying catalog */
   @Override
   public Catalog getCatalog() {
     return super.getCatalog();
   }
 
   /**
-   * Implements the guts of the <code>resolveEntity</code> method
-   * for the SAX interface.
+   * Implements the guts of the <code>resolveEntity</code> method for the SAX interface.
    *
-   * <p>Presented with an optional public identifier and a system
-   * identifier, this function attempts to locate a mapping in the
-   * catalogs.</p>
+   * <p>Presented with an optional public identifier and a system identifier, this function attempts
+   * to locate a mapping in the catalogs.
    *
-   * <p>If such a mapping is found, it is returned.  If no mapping is
-   * found, null is returned.</p>
+   * <p>If such a mapping is found, it is returned. If no mapping is found, null is returned.
    *
-   * @param publicId The public identifier for the entity in question.
-   *                 This may be null.
-   * @param systemId The system identifier for the entity in question.
-   *                 XML requires a system identifier on all external entities, so this
-   *                 value is always specified.
+   * @param publicId The public identifier for the entity in question. This may be null.
+   * @param systemId The system identifier for the entity in question. XML requires a system
+   *     identifier on all external entities, so this value is always specified.
    * @return The resolved identifier (a URI reference).
    */
   @Override
@@ -104,28 +95,22 @@ public class PSCatalogResolver extends CatalogResolver {
   }
 
   /**
-   * Implements the <code>resolveEntity</code> method
-   * for the SAX interface.
+   * Implements the <code>resolveEntity</code> method for the SAX interface.
    *
-   * <p>Presented with an optional public identifier and a system
-   * identifier, this function attempts to locate a mapping in the
-   * catalogs.</p>
+   * <p>Presented with an optional public identifier and a system identifier, this function attempts
+   * to locate a mapping in the catalogs.
    *
-   * <p>If such a mapping is found, the resolver attempts to open
-   * the mapped value as an InputSource and return it. Exceptions are
-   * ignored and null is returned if the mapped value cannot be opened
-   * as an input source.</p>
+   * <p>If such a mapping is found, the resolver attempts to open the mapped value as an InputSource
+   * and return it. Exceptions are ignored and null is returned if the mapped value cannot be opened
+   * as an input source.
    *
-   * <p>If no mapping is found (or an error occurs attempting to open
-   * the mapped value as an input source), null is returned and the system
-   * will use the specified system identifier as if no entityResolver
-   * was specified.</p>
+   * <p>If no mapping is found (or an error occurs attempting to open the mapped value as an input
+   * source), null is returned and the system will use the specified system identifier as if no
+   * entityResolver was specified.
    *
-   * @param publicId The public identifier for the entity in question.
-   *                 This may be null.
-   * @param systemId The system identifier for the entity in question.
-   *                 XML requires a system identifier on all external entities, so this
-   *                 value is always specified.
+   * @param publicId The public identifier for the entity in question. This may be null.
+   * @param systemId The system identifier for the entity in question. XML requires a system
+   *     identifier on all external entities, so this value is always specified.
    * @return An InputSource for the mapped identifier, or null.
    */
   @Override

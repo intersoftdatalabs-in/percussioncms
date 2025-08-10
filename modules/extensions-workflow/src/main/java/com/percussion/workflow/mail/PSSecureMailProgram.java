@@ -29,35 +29,32 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Can be used to send secure mail via workflow transitions. Follows the Mail
- * Program interface: <code>IPSMailProgram</code>. Properties for configuring
- * the secure mail class are found rxconfig/Workflow/rxworkflow.properties.
+ * Can be used to send secure mail via workflow transitions. Follows the Mail Program interface:
+ * <code>IPSMailProgram</code>. Properties for configuring the secure mail class are found
+ * rxconfig/Workflow/rxworkflow.properties.
  *
- * Can be configured with the following fields in the properties file:
+ * <p>Can be configured with the following fields in the properties file:
  *
  * <ul>
- * <li>SMTP_HOST</li>
- * <li>SMTP_USERNAME</li>
- * <li>SMTP_PASSWORD</li>
- * <li>SMTP_PORT</li>
- * <li>SMTP_TLSENABLED</li>
- * <li>SMTP_SSLPORT</li>
+ *   <li>SMTP_HOST
+ *   <li>SMTP_USERNAME
+ *   <li>SMTP_PASSWORD
+ *   <li>SMTP_PORT
+ *   <li>SMTP_TLSENABLED
+ *   <li>SMTP_SSLPORT
  * </ul>
  *
- * If username, password, sslport, and tlsenabled are not set, they are ignored.
- * If sslport is not set ssl defaults to false.
+ * If username, password, sslport, and tlsenabled are not set, they are ignored. If sslport is not
+ * set ssl defaults to false.
  *
  * @see IPSMailProgram
  * @author chriswright
- *
  */
 public class PSSecureMailProgram implements IPSMailProgram {
 
   private static final Logger log = LogManager.getLogger(PSSecureMailProgram.class.getName());
 
-  /**
-   * Default ctor.
-   */
+  /** Default ctor. */
   public PSSecureMailProgram() {
     super();
   }
@@ -87,11 +84,10 @@ public class PSSecureMailProgram implements IPSMailProgram {
   }
 
   /**
-   * Validates that the required field(s) are present in the
-   * <code>messageContext</code>. Required field(s) are SMTP_HOST.
+   * Validates that the required field(s) are present in the <code>messageContext</code>. Required
+   * field(s) are SMTP_HOST.
    *
-   * @param messageContext
-   *            the context which contains the fields to validate.
+   * @param messageContext the context which contains the fields to validate.
    * @throws PSMailException
    */
   private void validateMessageContext(IPSMailMessageContext messageContext) throws PSMailException {
@@ -103,15 +99,12 @@ public class PSSecureMailProgram implements IPSMailProgram {
   }
 
   /**
-   * Creates a <code>MultiPartEmail</code> from the
-   * <code>messageContext</code> which can be used to send the workflow
-   * notification.
+   * Creates a <code>MultiPartEmail</code> from the <code>messageContext</code> which can be used to
+   * send the workflow notification.
    *
-   * @param messageContext
-   *            the <code>messageContext</code> with fields to add to the
-   *            <code>MultiPartEmail</code>.
-   * @return the <code>MultiPartEmail</code> used to send the workflow
-   *         notification.
+   * @param messageContext the <code>messageContext</code> with fields to add to the <code>
+   *     MultiPartEmail</code>.
+   * @return the <code>MultiPartEmail</code> used to send the workflow notification.
    * @throws EmailException
    */
   private MultiPartEmail createMultiPartEmail(IPSMailMessageContext messageContext)
@@ -195,15 +188,12 @@ public class PSSecureMailProgram implements IPSMailProgram {
   }
 
   /**
-   * Helper routine that constructs an email address from a
-   * user or role, appending the mail domain name to
-   * any address that does not contain a "@".  This is used
-   * if the user or role does not have the sys_email member
-   * property set.
+   * Helper routine that constructs an email address from a user or role, appending the mail domain
+   * name to any address that does not contain a "@". This is used if the user or role does not have
+   * the sys_email member property set.
    *
-   * @param user  comma-separated list of users.
-   * @param mailDomain name of the mail domain. May optionally contain a
-   *                   leading "@".
+   * @param user comma-separated list of users.
+   * @param mailDomain name of the mail domain. May optionally contain a leading "@".
    * @return a String with the appropriate e-mail address and domain name.
    */
   private String makeAddress(String user, String mailDomain) {

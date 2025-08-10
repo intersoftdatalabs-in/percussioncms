@@ -26,30 +26,26 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 
 /**
- * Forces the named request parameters' values to <code>null</code>, when their
- * current value is equal to a specified value.  Useful for clearing the
- * "-- Choose --" value of posted HTML &lt;select> tags.
+ * Forces the named request parameters' values to <code>null</code>, when their current value is
+ * equal to a specified value. Useful for clearing the "-- Choose --" value of posted HTML
+ * &lt;select> tags.
  */
 public class PSNullIf extends PSDefaultExtension implements IPSRequestPreProcessor {
 
   /**
-   * Compares the request parameters' values whose names are supplied to the
-   * supplied value, and if they match, sets the request parameter's value to
-   * <code>null</code>. Comparison is case-sensitive.
+   * Compares the request parameters' values whose names are supplied to the supplied value, and if
+   * they match, sets the request parameter's value to <code>null</code>. Comparison is
+   * case-sensitive.
    *
-   * @param params the parameters for this execution of the extension.  Any
-   * number of parameters may be provided.  If <code>null</code>, exit takes
-   * no action.<br>
-   * <code>params[0]</code> - the value that will be converted to
-   * <code>null</code>, if <code>null</code> or empty, exit takes no
-   * action.<br>
-   * <code>params[1] .. [n]</code> - the name of a request parameter whose
-   * value will be set to <code>null</code> if equal to <code>params[0]</code>.
-   * Skipped if <code>null</code> or empty.
-   *
-   * @param request the request context object, used to obtain the parameter
-   * values.  If <code>null</code>, exit takes no action.
-   *
+   * @param params the parameters for this execution of the extension. Any number of parameters may
+   *     be provided. If <code>null</code>, exit takes no action.<br>
+   *     <code>params[0]</code> - the value that will be converted to <code>null</code>, if <code>
+   *     null</code> or empty, exit takes no action.<br>
+   *     <code>params[1] .. [n]</code> - the name of a request parameter whose value will be set to
+   *     <code>null</code> if equal to <code>params[0]</code>. Skipped if <code>null</code> or
+   *     empty.
+   * @param request the request context object, used to obtain the parameter values. If <code>null
+   *     </code>, exit takes no action.
    * @throws PSParameterMismatchException never
    * @throws PSExtensionProcessingException never
    * @throws PSAuthorizationException never

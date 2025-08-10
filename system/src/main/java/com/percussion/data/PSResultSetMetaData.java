@@ -25,20 +25,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The PSResultSetMetaData class extends the JDBC ResultSetMetaData class,
- * providing meta data support for the PSResultSet class.
+ * The PSResultSetMetaData class extends the JDBC ResultSetMetaData class, providing meta data
+ * support for the PSResultSet class.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
-   * Construct an empty result set meta data object. Be sure to add
-   * columns to theis object with addResultSetMetaData or addColumnMetaData.
+   * Construct an empty result set meta data object. Be sure to add columns to theis object with
+   * addResultSetMetaData or addColumnMetaData.
    *
-   * @see         #addResultSetMetaData
-   * @see         #addColumnMetaData
+   * @see #addResultSetMetaData
+   * @see #addColumnMetaData
    */
   public PSResultSetMetaData() {
     super();
@@ -49,9 +49,8 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Construct a result set meta data from the specified meta data.
    *
-   * @param      meta            the ResultSetMetaData object to copy
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param meta the ResultSetMetaData object to copy
+   * @exception SQLException if a SQL error occurs
    */
   public PSResultSetMetaData(ResultSetMetaData meta) throws SQLException {
     this();
@@ -61,9 +60,8 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Copy the result set's meta data definitions into this object.
    *
-   * @param      meta            the ResultSetMetaData object to copy
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param meta the ResultSetMetaData object to copy
+   * @exception SQLException if a SQL error occurs
    */
   public void addResultSetMetaData(ResultSetMetaData meta) throws SQLException {
     /* Only JDBC 2.0+ drivers support getColumnClassName so we must see
@@ -169,8 +167,7 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Add the column meta data definition to this object.
    *
-   * @param      col            the PSResultSetColumnMetaData object to add
-   *                                          (not copied)
+   * @param col the PSResultSetColumnMetaData object to add (not copied)
    */
   public void addColumnMetaData(PSResultSetColumnMetaData col) {
     m_columns.add(col);
@@ -190,9 +187,8 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's the number of columns in the ResultSet?
    *
-   * @return                    the number
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @return the number
+   * @exception SQLException if a database-access error occurs.
    */
   public int getColumnCount() throws SQLException {
     return m_columnCount;
@@ -201,11 +197,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Is the column automatically numbered, thus read-only?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isAutoIncrement(int column) throws SQLException {
     if (column > m_columnCount)
@@ -218,11 +212,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Does a column's case matter?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isCaseSensitive(int column) throws SQLException {
     if (column > m_columnCount)
@@ -235,11 +227,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Can the column be used in a where clause?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isSearchable(int column) throws SQLException {
     if (column > m_columnCount)
@@ -252,11 +242,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Is the column a cash value?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isCurrency(int column) throws SQLException {
     if (column > m_columnCount)
@@ -269,12 +257,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Can you put a NULL in this column?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    columnNoNulls, columnNullable or
-   *                            columnNullableUnknown
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return columnNoNulls, columnNullable or columnNullableUnknown
+   * @exception SQLException if a database-access error occurs.
    */
   public int isNullable(int column) throws SQLException {
     if (column > m_columnCount)
@@ -287,11 +272,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Is the column a signed number?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isSigned(int column) throws SQLException {
     if (column > m_columnCount)
@@ -304,11 +287,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's the column's normal max width in chars?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    max width
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return max width
+   * @exception SQLException if a database-access error occurs.
    */
   public int getColumnDisplaySize(int column) throws SQLException {
     if (column > m_columnCount)
@@ -321,11 +302,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's the suggested column title for use in printouts and displays?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    suggested column title
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return suggested column title
+   * @exception SQLException if a database-access error occurs.
    */
   public String getColumnLabel(int column) throws SQLException {
     if (column > m_columnCount)
@@ -338,11 +317,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's name?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    column name
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return column name
+   * @exception SQLException if a database-access error occurs.
    */
   public String getColumnName(int column) throws SQLException {
     if (column > m_columnCount)
@@ -355,11 +332,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's table's schema?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    schema name or "" if not applicable
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return schema name or "" if not applicable
+   * @exception SQLException if a database-access error occurs.
    */
   public String getSchemaName(int column) throws SQLException {
     if (column > m_columnCount)
@@ -372,11 +347,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's number of decimal digits?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    precision
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return precision
+   * @exception SQLException if a database-access error occurs.
    */
   public int getPrecision(int column) throws SQLException {
     if (column > m_columnCount)
@@ -389,11 +362,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's number of digits to right of the decimal point?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    scale
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return scale
+   * @exception SQLException if a database-access error occurs.
    */
   public int getScale(int column) throws SQLException {
     if (column > m_columnCount)
@@ -406,11 +377,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's table name?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    table name or "" if not applicable
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return table name or "" if not applicable
+   * @exception SQLException if a database-access error occurs.
    */
   public String getTableName(int column) throws SQLException {
     if (column > m_columnCount)
@@ -423,11 +392,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's table's catalog name?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    column name or "" if not applicable.
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return column name or "" if not applicable.
+   * @exception SQLException if a database-access error occurs.
    */
   public String getCatalogName(int column) throws SQLException {
     if (column > m_columnCount)
@@ -440,11 +407,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's SQL type? See java.sql.Types for possible types.
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    SQL type
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return SQL type
+   * @exception SQLException if a database-access error occurs.
    */
   public int getColumnType(int column) throws SQLException {
     if (column > m_columnCount)
@@ -457,11 +422,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * What's a column's data source specific type name?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    type name
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return type name
+   * @exception SQLException if a database-access error occurs.
    */
   public String getColumnTypeName(int column) throws SQLException {
     if (column > m_columnCount)
@@ -474,11 +437,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Is a column definitely not writable?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isReadOnly(int column) throws SQLException {
     if (column > m_columnCount)
@@ -491,11 +452,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Is it possible for a write on the column to succeed?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isWritable(int column) throws SQLException {
     if (column > m_columnCount)
@@ -508,11 +467,9 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
   /**
    * Will a write on the column definitely succeed?
    *
-   * @param   column            the first column is 1, the second is 2, ...
-   *
-   * @return                    <code>true</code> if so
-   *
-   * @exception SQLException    if a database-access error occurs.
+   * @param column the first column is 1, the second is 2, ...
+   * @return <code>true</code> if so
+   * @exception SQLException if a database-access error occurs.
    */
   public boolean isDefinitelyWritable(int column) throws SQLException {
     if (column > m_columnCount)
@@ -524,20 +481,15 @@ public class PSResultSetMetaData implements java.sql.ResultSetMetaData {
 
   /**
    * JDBC 2.0
-   * <p>
-   * Returns the fully-qualified name of the Java class whose instances
-   * are manufactured if the method ResultSet.getObject is called to
-   * retrieve a value from the column. ResultSet.getObject may return a
-   * subclass of the class returned by this method.
    *
-   * @return                    the fully-qualified name of the class in
-   *                            the Java programming language that would
-   *                            be used by the method ResultSet.getObject
-   *                            to retrieve the value in the specified
-   *                            column. This is the class name used for
-   *                            custom mapping.
+   * <p>Returns the fully-qualified name of the Java class whose instances are manufactured if the
+   * method ResultSet.getObject is called to retrieve a value from the column. ResultSet.getObject
+   * may return a subclass of the class returned by this method.
    *
-   * @exception SQLException    if a database-access error occurs.
+   * @return the fully-qualified name of the class in the Java programming language that would be
+   *     used by the method ResultSet.getObject to retrieve the value in the specified column. This
+   *     is the class name used for custom mapping.
+   * @exception SQLException if a database-access error occurs.
    */
   public String getColumnClassName(int column) throws SQLException {
     if (column > m_columnCount)

@@ -30,14 +30,12 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * This upgrade plug-in will populate the VARIANTID column of the
- * RXPUBDOCS table with the sys_variantid value found in the CONTENTURL column.
- * It will also write to the log file showing any table rows that were modified.
+ * This upgrade plug-in will populate the VARIANTID column of the RXPUBDOCS table with the
+ * sys_variantid value found in the CONTENTURL column. It will also write to the log file showing
+ * any table rows that were modified.
  */
 public class PSUpgradePluginRxPubDocs implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     log("Executing PSUpgradePluginRxPubDocs...");
@@ -98,8 +96,8 @@ public class PSUpgradePluginRxPubDocs implements IPSUpgradePlugin {
   }
 
   /**
-   * Populates the VARIANTID column with the sys_variantid value found in the
-   * CONTENTURL column, if it exists, otherwise, it is unchanged.
+   * Populates the VARIANTID column with the sys_variantid value found in the CONTENTURL column, if
+   * it exists, otherwise, it is unchanged.
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    * @param connUpdate the database connection object for
@@ -193,8 +191,7 @@ public class PSUpgradePluginRxPubDocs implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

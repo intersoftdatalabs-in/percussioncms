@@ -30,15 +30,13 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * This Exit is used to take in a Collection and format the value portion of an
- * "IN" clause, adding the resulting string to the reqeust as a specified HTML
- * parameter.
- * <p>
- * An optional "default" value may be provided to use in case the Collection is
- * empty.
- * By default all the objects in the collection is enclosed in single quotes.
- * However optional parameter "encloseInQuotes" can be specified as
- * <code>0</code> if the objects should not be enclosed in quotes.
+ * This Exit is used to take in a Collection and format the value portion of an "IN" clause, adding
+ * the resulting string to the reqeust as a specified HTML parameter.
+ *
+ * <p>An optional "default" value may be provided to use in case the Collection is empty. By default
+ * all the objects in the collection is enclosed in single quotes. However optional parameter
+ * "encloseInQuotes" can be specified as <code>0</code> if the objects should not be enclosed in
+ * quotes.
  */
 public class PSPrepareInClause implements IPSRequestPreProcessor {
 
@@ -48,40 +46,32 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
   }
 
   /**
-   * Formats the value list portion on an "IN" clause from a Collection and
-   * stores the result in an HTML parameter.  Does not include the parenthesis.
+   * Formats the value list portion on an "IN" clause from a Collection and stores the result in an
+   * HTML parameter. Does not include the parenthesis.
    *
-   * @param params An array of Objects to use as input parameters.  The
-   * parameters expected are:
-   * <ol>
-   * <li>The base parameter name, as a String.  This value is used as the name
-   * of the parameter created, whose value is set as the resulting "IN" clause.
-   * May not be <code>null</code> or empty.</li>
-   * <li>The Collection to use as the values of the "IN" clause.  May not be
-   * <code>null</code>, but may be empty. May also be a String. If so, the
-   * value is set as the value of the base parameter.</li>
-   * <li>An optional default value to use if the collection is <code>null
-   * </code> or emtpy.  If this default value is not <code>null</code>, it will
-   * be used only if the collection does not contain at least one value that
-   * resolve to a non-empty string when <code>toString()</code> is called on
-   * it.</li>
-   * <li>An optional parameter (specified as "encloseInQuotes" in the
-   * Workbench) to determine if the objects in the collection should be
-   * enclosed in single quotes or not. Defaults to <code>1</code> (which
-   * implies enclose in single qoutes).
-   * </li>
-   * </ol>
+   * @param params An array of Objects to use as input parameters. The parameters expected are:
+   *     <ol>
+   *       <li>The base parameter name, as a String. This value is used as the name of the parameter
+   *           created, whose value is set as the resulting "IN" clause. May not be <code>null
+   *           </code> or empty.
+   *       <li>The Collection to use as the values of the "IN" clause. May not be <code>null</code>,
+   *           but may be empty. May also be a String. If so, the value is set as the value of the
+   *           base parameter.
+   *       <li>An optional default value to use if the collection is <code>null
+   * </code> or emtpy. If this default value is not <code>null</code>, it will be used only if the
+   *           collection does not contain at least one value that resolve to a non-empty string
+   *           when <code>toString()</code> is called on it.
+   *       <li>An optional parameter (specified as "encloseInQuotes" in the Workbench) to determine
+   *           if the objects in the collection should be enclosed in single quotes or not. Defaults
+   *           to <code>1</code> (which implies enclose in single qoutes).
+   *     </ol>
    *
    * @param request The request context, never <code>null</code>.
-   *
    * @throws PSRequestValidationException If the request is <code>null</code>.
-   *
-   * @throws PSParameterMismatchException If params is <code>null</code>, or if
-   * the paramters do not match the above specifications.
-   *
-   * @throws PSExtensionProcessorException If any other exception occurs which
-   * prevents the proper handling of this request
-   *
+   * @throws PSParameterMismatchException If params is <code>null</code>, or if the paramters do not
+   *     match the above specifications.
+   * @throws PSExtensionProcessorException If any other exception occurs which prevents the proper
+   *     handling of this request
    * @see IPSRequestPreProcessor#preProcessRequest(Object[], IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
@@ -146,8 +136,6 @@ public class PSPrepareInClause implements IPSRequestPreProcessor {
     request.setParameter(baseName, inString);
   }
 
-  /**
-   * The number of expected parameters.
-   */
+  /** The number of expected parameters. */
   private static final int EXPECTED_NUMBER_OF_PARAMS = 1;
 }

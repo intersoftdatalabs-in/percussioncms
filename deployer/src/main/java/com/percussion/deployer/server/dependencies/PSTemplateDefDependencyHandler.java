@@ -66,18 +66,16 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Class to handle packaging and deploying a template definition.
+ *
  * @author vamsinukala
  */
 public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSTemplateDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -88,19 +86,17 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     return b.getId();
   }
 
-  /**
-   * Helper method to init PSAssemblyServerHelper
-   */
+  /** Helper method to init PSAssemblyServerHelper */
   private void init() {
     if (m_assemblyHelper == null) m_assemblyHelper = new PSAssemblyServiceHelper();
   }
 
   /**
    * Utility method to find the Template by a given guid(as a STRINGGGGGG)
+   *
    * @param depId the guid
-   * @param loadSlots to load or not to load slots. For template catalogging,
-   * we don't need to loadSlots, but for catalogging childDeps, we need to load
-   * Slots
+   * @param loadSlots to load or not to load slots. For template catalogging, we don't need to
+   *     loadSlots, but for catalogging childDeps, we need to load Slots
    * @return <code>null</code> if Variant is not found
    */
   protected static PSAssemblyTemplate findTemplateByDependencyID(String depId, boolean loadSlots) {
@@ -119,9 +115,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Given the template id as a guid string, load it
+   *
    * @param depId the string representation of the GUID
    * @return the template
-   *
    * @throws PSDeployException
    */
   private PSAssemblyTemplate loadTemplateByGuid(String depId) throws PSDeployException {
@@ -179,6 +175,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Given the variant id, figure out the slot deps
+   *
    * @param tok may not be <code>null</code>
    * @param tmp may not be <code>null</code>
    * @return List of Dependencies of SLOT type
@@ -293,8 +290,8 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Given a JEXL expression, get all the extension dependencies from the
-   * expression.
+   * Given a JEXL expression, get all the extension dependencies from the expression.
+   *
    * @param tok The security Token may not be <code>null</code>
    * @param exp the JEXL expression may not be <code>null</code>
    * @param exitHandler may mot be <code>null</code>
@@ -340,6 +337,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Utility method to remove the bindings, then remove the template
+   *
    * @param t the template that needs to be deleted from the system
    * @throws PSDeployException
    */
@@ -367,12 +365,12 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Top level call to generate any extension dependencies for this template
-   * that has JEXL Bindings with extension references
-   * For each binding, get the expression and parse for extensions
+   * Top level call to generate any extension dependencies for this template that has JEXL Bindings
+   * with extension references For each binding, get the expression and parse for extensions
+   *
    * @param tok the security token may not be <code>null</code>
-   * @param t the template that needs to be evaluated for jexl expression,
-   * may not be <code>null</code>
+   * @param t the template that needs to be evaluated for jexl expression, may not be <code>null
+   *     </code>
    * @return List of PSDependency objects
    * @throws PSDeployException
    * @throws PSExtensionException
@@ -431,6 +429,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param tmp the template never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
@@ -520,7 +519,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * TROLL thru the object and restore the versions of child-lings ;).
    *
    * @param t
-   * @param ver  the version of template
+   * @param ver the version of template
    * @param bVer the versions list of bindings that need be restored.
    * @throws PSDeployException
    */
@@ -547,19 +546,17 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Extract the template definition file from the archive.
-   * Read the xml string representation of the template and transform the
-   * slot ids to the target server's ids and
-   * <br>
+   * Extract the template definition file from the archive. Read the xml string representation of
+   * the template and transform the slot ids to the target server's ids and <br>
    * <b>NOTE:</b><br>
    * <u>This is also used by PSVariantDefDependencyHandler</u>
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   *           archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   *           may not be <code>null</code>
-   * @param template if not <code>null</code>, use it for deserialization
-   *           else ask service to create a new template
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
+   * @param template if not <code>null</code>, use it for deserialization else ask service to create
+   *     a new template
    * @param ctx the import context never <code>null</code>
    * @return the actual template
    * @throws PSDeployException
@@ -617,16 +614,15 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected static Iterator getTemplateDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
@@ -666,6 +662,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * From the templates map, return all the template names
+   *
    * @return iterator on a set of names
    * @throws PSDeployException
    */
@@ -685,6 +682,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Transform any IdTypes and ids in Bindings .
+   *
    * @param t the template never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @param dep the dependency never <code>null</code>
@@ -713,8 +711,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * util method to update the binding on the acutal template. Some bindings
-   * donot have the "key", so carry the original binding
+   * util method to update the binding on the acutal template. Some bindings donot have the "key",
+   * so carry the original binding
+   *
    * @param t the template never <code>null</code>
    * @param orig_b the original binding never <code>null</code>
    * @param new_b the transformed binding never <code>null</code>
@@ -754,8 +753,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Transform any JEXL bindings in this template that have IDMappable elements
-   * @param t template that needs to be evaluated for its bindings, this has
-   * not yet been saved on a hibernate session.
+   *
+   * @param t template that needs to be evaluated for its bindings, this has not yet been saved on a
+   *     hibernate session.
    * @param ctx the import context never <code>null</code>
    * @return the template never <code>null</code>
    */
@@ -833,6 +833,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Util method to generate bindings
+   *
    * @param t the template may be <code>null</code>
    * @return the bindings map may be <code>null</code>
    */
@@ -875,42 +876,31 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * A util header for templates. IPSAssemblyTemplate upon serialization will
-   * not have this header. Just prepend it.
+   * A util header for templates. IPSAssemblyTemplate upon serialization will not have this header.
+   * Just prepend it.
    */
   private static final String XML_HDR_STR = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "TemplateDef";
 
-  /**
-   * Da assembly Service
-   */
+  /** Da assembly Service */
   private static IPSAssemblyService m_assemblySvc = PSAssemblyServiceLocator.getAssemblyService();
 
-  /**
-   * Da assembly Service Helper
-   */
+  /** Da assembly Service Helper */
   private PSAssemblyServiceHelper m_assemblyHelper = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   /**
-   * Assembly Templates have a "different" way of storing the extension names
-   * i.e: just the extensionname, no Context, no Handler name HOW NICE :-)
-   * So repair to suit the current MSM scheme of extension references
+   * Assembly Templates have a "different" way of storing the extension names i.e: just the
+   * extensionname, no Context, no Handler name HOW NICE :-) So repair to suit the current MSM
+   * scheme of extension references
    */
   private static final String ASSEMBLY_PLUGIN_PREFIX = "Java/global/percussion/assembly/";
 
-  /**
-   * All template assemblers are suffixed with Assembler DOH!
-   */
+  /** All template assemblers are suffixed with Assembler DOH! */
   private static final String ASSEMBLY_PLUGIN_SUFFIX = "Assembler";
 
   /**

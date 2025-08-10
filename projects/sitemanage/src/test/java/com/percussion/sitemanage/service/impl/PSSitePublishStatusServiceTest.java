@@ -33,58 +33,55 @@ import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
-import com.percussion.sitemanage.data.PSSitePublishItem;
-import com.percussion.sitemanage.data.PSSitePublishJob;
 import com.percussion.utils.guid.IPSGuid;
-
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import org.junit.jupiter.api.Test;
 
 // REFACTORED: CP-JAVA11
 @Tag("IntegrationTest")
 class PSSitePublishStatusServiceTest {
 
-    private static final Logger log = LogManager.getLogger(PSSitePublishStatusServiceTest.class);
+  private static final Logger log = LogManager.getLogger(PSSitePublishStatusServiceTest.class);
 
-    Mockery context;
+  Mockery context;
 
-    PSSitePublishStatusService cut;
+  PSSitePublishStatusService cut;
 
-    IPSGuidManager guidMgr;
-    IPSSiteManager siteMgr;
-    IPSPublisherService pubSvc;
-    IPSRxPublisherServiceInternal rxPubSvc;
-    IPSPubServerDao pubServerDao;
+  IPSGuidManager guidMgr;
+  IPSSiteManager siteMgr;
+  IPSPublisherService pubSvc;
+  IPSRxPublisherServiceInternal rxPubSvc;
+  IPSPubServerDao pubServerDao;
 
-    @BeforeEach
-    void setup() {
-        context = new Mockery();
-        guidMgr = context.mock(IPSGuidManager.class);
-        siteMgr = context.mock(IPSSiteManager.class);
-        pubSvc = context.mock(IPSPublisherService.class);
-        rxPubSvc = context.mock(IPSRxPublisherServiceInternal.class);
-        pubServerDao = context.mock(IPSPubServerDao.class);
+  @BeforeEach
+  void setup() {
+    context = new Mockery();
+    guidMgr = context.mock(IPSGuidManager.class);
+    siteMgr = context.mock(IPSSiteManager.class);
+    pubSvc = context.mock(IPSPublisherService.class);
+    rxPubSvc = context.mock(IPSRxPublisherServiceInternal.class);
+    pubServerDao = context.mock(IPSPubServerDao.class);
 
-        cut = new PSSitePublishStatusService(rxPubSvc, pubSvc, siteMgr, guidMgr, pubServerDao);
-    }
+    cut = new PSSitePublishStatusService(rxPubSvc, pubSvc, siteMgr, guidMgr, pubServerDao);
+  }
 
-    @Test
-    void testBuildCurrentJobs() throws PSNotFoundException {
-        var status = context.mock(IPSPublisherJobStatus.class);
-        var editionId = context.mock(IPSGuid.class, "editionId");
+  @Test
+  void testBuildCurrentJobs() throws PSNotFoundException {
+    var status = context.mock(IPSPublisherJobStatus.class);
+    var editionId = context.mock(IPSGuid.class, "editionId");
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(rxPubSvc).getActiveJobIds();
             will(returnValue(Collections.singletonList(42L)));
             one(rxPubSvc).getPublishingJobStatus(42L);
@@ -105,29 +102,32 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(editionId));
             one(status).getState();
             will(returnValue(IPSPublisherJobStatus.State.WORKING));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildCurrentJobs(null);
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(42L, job.getJobId());
-        assertEquals("Running", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildCurrentJobs(null);
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(42L, job.getJobId());
+    assertEquals("Running", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testBuildCurrentJobsByServerId() throws PSNotFoundException {
-        var status = context.mock(IPSPublisherJobStatus.class);
-        var editionId = context.mock(IPSGuid.class, "editionId");
-        var siteId = context.mock(IPSGuid.class, "1");
+  @Test
+  void testBuildCurrentJobsByServerId() throws PSNotFoundException {
+    var status = context.mock(IPSPublisherJobStatus.class);
+    var editionId = context.mock(IPSGuid.class, "editionId");
+    var siteId = context.mock(IPSGuid.class, "1");
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(rxPubSvc).getActiveJobIds(siteId);
             will(returnValue(Collections.singletonList(42L)));
             allowing(guidMgr).makeGuid("1", PSTypeEnum.SITE);
@@ -150,28 +150,31 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(editionId));
             one(status).getState();
             will(returnValue(IPSPublisherJobStatus.State.WORKING));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildCurrentJobs("1");
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(42L, job.getJobId());
-        assertEquals("Running", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildCurrentJobs("1");
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(42L, job.getJobId());
+    assertEquals("Running", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    protected void siteExpectations(final IPSGuid editionId) throws PSNotFoundException {
-        var edition = context.mock(IPSEdition.class);
-        var siteId = context.mock(IPSGuid.class, "siteId");
-        var site = context.mock(IPSSite.class);
-        var pubServerId = context.mock(IPSGuid.class, "pubServerId");
-        context.checking(new Expectations() {{
+  protected void siteExpectations(final IPSGuid editionId) throws PSNotFoundException {
+    var edition = context.mock(IPSEdition.class);
+    var siteId = context.mock(IPSGuid.class, "siteId");
+    var site = context.mock(IPSSite.class);
+    var pubServerId = context.mock(IPSGuid.class, "pubServerId");
+    context.checking(
+        new Expectations() {
+          {
             exactly(2).of(pubSvc).loadEdition(editionId);
             will(returnValue(edition));
             one(edition).getSiteId();
@@ -184,16 +187,19 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(pubServerId));
             one(pubServerId).longValue();
             will(returnValue(1L));
-        }});
-    }
+          }
+        });
+  }
 
-    @Disabled
-    void testBuildLogs() throws PSNotFoundException {
-        var pubStatus = context.mock(IPSPubStatus.class);
-        var editionId = context.mock(IPSGuid.class, "editionId");
-        var startDate = new Date();
+  @Disabled
+  void testBuildLogs() throws PSNotFoundException {
+    var pubStatus = context.mock(IPSPubStatus.class);
+    var editionId = context.mock(IPSGuid.class, "editionId");
+    var startDate = new Date();
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findAllPubStatus();
             will(returnValue(Collections.singletonList(pubStatus)));
             atLeast(1).of(pubStatus).getStartDate();
@@ -214,30 +220,33 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(IPSPubStatus.EndingState.COMPLETED));
             one(guidMgr).makeGuid(302L, PSTypeEnum.EDITION);
             will(returnValue(editionId));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildLogs(null, "Server1", 10, 100);
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(47L, job.getJobId());
-        assertEquals("Completed", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildLogs(null, "Server1", 10, 100);
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(47L, job.getJobId());
+    assertEquals("Completed", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Disabled
-    void testBuildLogsByServerId() throws PSNotFoundException {
-        var pubStatus = context.mock(IPSPubStatus.class);
-        var editionId = context.mock(IPSGuid.class, "editionId");
-        var startDate = new Date();
-        var siteId = context.mock(IPSGuid.class, "1");
+  @Disabled
+  void testBuildLogsByServerId() throws PSNotFoundException {
+    var pubStatus = context.mock(IPSPubStatus.class);
+    var editionId = context.mock(IPSGuid.class, "editionId");
+    var startDate = new Date();
+    var siteId = context.mock(IPSGuid.class, "1");
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findPubStatusBySite(siteId);
             will(returnValue(Collections.singletonList(pubStatus)));
             allowing(guidMgr).makeGuid("1", PSTypeEnum.SITE);
@@ -260,31 +269,34 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(IPSPubStatus.EndingState.COMPLETED));
             one(guidMgr).makeGuid(302L, PSTypeEnum.EDITION);
             will(returnValue(editionId));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildLogs("1", null, 10, 100);
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(47L, job.getJobId());
-        assertEquals("Completed", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildLogs("1", null, 10, 100);
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(47L, job.getJobId());
+    assertEquals("Completed", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Disabled
-    void testBuildLogsFailuresOnly() throws PSNotFoundException {
-        var pubStatusGood = context.mock(IPSPubStatus.class, "pubStatusGood");
-        var pubStatusBad = context.mock(IPSPubStatus.class, "pubStatusBad");
-        var editionId = context.mock(IPSGuid.class, "editionId");
-        var startDate = new Date();
-        var pubStatusList = List.of(pubStatusGood, pubStatusBad);
+  @Disabled
+  void testBuildLogsFailuresOnly() throws PSNotFoundException {
+    var pubStatusGood = context.mock(IPSPubStatus.class, "pubStatusGood");
+    var pubStatusBad = context.mock(IPSPubStatus.class, "pubStatusBad");
+    var editionId = context.mock(IPSGuid.class, "editionId");
+    var startDate = new Date();
+    var pubStatusList = List.of(pubStatusGood, pubStatusBad);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findAllPubStatus();
             will(returnValue(pubStatusList));
 
@@ -312,31 +324,34 @@ class PSSitePublishStatusServiceTest {
 
             one(guidMgr).makeGuid(302L, PSTypeEnum.EDITION);
             will(returnValue(editionId));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildLogs(null, "Server1", 10, 100, 0, false);
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(48L, job.getJobId());
-        assertEquals("Completed with failures", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildLogs(null, "Server1", 10, 100, 0, false);
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(48L, job.getJobId());
+    assertEquals("Completed with failures", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Disabled
-    void testBuildLogsSkip() throws PSNotFoundException {
-        var pubStatusGood = context.mock(IPSPubStatus.class, "pubStatusGood");
-        var pubStatusBad = context.mock(IPSPubStatus.class, "pubStatusBad");
-        var editionId = context.mock(IPSGuid.class, "editionId");
-        var startDate = new Date();
-        var pubStatusList = List.of(pubStatusGood, pubStatusBad);
+  @Disabled
+  void testBuildLogsSkip() throws PSNotFoundException {
+    var pubStatusGood = context.mock(IPSPubStatus.class, "pubStatusGood");
+    var pubStatusBad = context.mock(IPSPubStatus.class, "pubStatusBad");
+    var editionId = context.mock(IPSGuid.class, "editionId");
+    var startDate = new Date();
+    var pubStatusList = List.of(pubStatusGood, pubStatusBad);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findAllPubStatus();
             will(returnValue(pubStatusList));
 
@@ -359,27 +374,30 @@ class PSSitePublishStatusServiceTest {
 
             one(guidMgr).makeGuid(302L, PSTypeEnum.EDITION);
             will(returnValue(editionId));
-        }});
+          }
+        });
 
-        siteExpectations(editionId);
+    siteExpectations(editionId);
 
-        var jobs = cut.buildLogs(null, "Server1", 10, 100, 1, true);
-        assertNotNull(jobs);
-        assertEquals(1, jobs.size());
-        var job = jobs.get(0);
-        assertNotNull(job);
-        assertEquals(48L, job.getJobId());
-        assertEquals("Completed with failures", job.getStatus());
-        assertEquals("Site1", job.getSiteName());
+    var jobs = cut.buildLogs(null, "Server1", 10, 100, 1, true);
+    assertNotNull(jobs);
+    assertEquals(1, jobs.size());
+    var job = jobs.get(0);
+    assertNotNull(job);
+    assertEquals(48L, job.getJobId());
+    assertEquals("Completed with failures", job.getStatus());
+    assertEquals("Site1", job.getSiteName());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testBuildItemDetails() {
-        var status = context.mock(IPSPubItemStatus.class);
+  @Test
+  void testBuildItemDetails() {
+    var status = context.mock(IPSPubItemStatus.class);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findPubItemStatusForJob(57L);
             will(returnValue(Collections.singletonList(status)));
             one(status).getStatusId();
@@ -394,22 +412,25 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(IPSSiteItem.Operation.PUBLISH));
             one(status).getStatus();
             will(returnValue(IPSSiteItem.Status.SUCCESS));
-        }});
+          }
+        });
 
-        var details = cut.buildItemDetails(57L);
-        assertNotNull(details);
-        assertEquals(1, details.size());
+    var details = cut.buildItemDetails(57L);
+    assertNotNull(details);
+    assertEquals(1, details.size());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testBuildItemDetailsFail() {
-        var statusGood = context.mock(IPSPubItemStatus.class, "statusGood");
-        var statusBad = context.mock(IPSPubItemStatus.class, "statusBad");
-        var statusList = List.of(statusGood, statusBad);
+  @Test
+  void testBuildItemDetailsFail() {
+    var statusGood = context.mock(IPSPubItemStatus.class, "statusGood");
+    var statusBad = context.mock(IPSPubItemStatus.class, "statusBad");
+    var statusList = List.of(statusGood, statusBad);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findPubItemStatusForJob(57L);
             will(returnValue(statusList));
 
@@ -429,24 +450,27 @@ class PSSitePublishStatusServiceTest {
             atLeast(1).of(statusBad).getStatus();
             will(returnValue(IPSSiteItem.Status.FAILURE));
             one(statusBad).getMessage();
-        }});
+          }
+        });
 
-        var details = cut.buildItemDetails(57L, 0, true);
-        assertNotNull(details);
-        assertEquals(1, details.size());
-        var detail = details.get(0);
-        assertEquals("Failed", detail.getStatus());
+    var details = cut.buildItemDetails(57L, 0, true);
+    assertNotNull(details);
+    assertEquals(1, details.size());
+    var detail = details.get(0);
+    assertEquals("Failed", detail.getStatus());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testBuildItemDetailsSkip() {
-        var statusGood = context.mock(IPSPubItemStatus.class, "statusGood");
-        var statusBad = context.mock(IPSPubItemStatus.class, "statusBad");
-        var statusList = List.of(statusGood, statusBad);
+  @Test
+  void testBuildItemDetailsSkip() {
+    var statusGood = context.mock(IPSPubItemStatus.class, "statusGood");
+    var statusBad = context.mock(IPSPubItemStatus.class, "statusBad");
+    var statusList = List.of(statusGood, statusBad);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(pubSvc).findPubItemStatusForJob(57L);
             will(returnValue(statusList));
 
@@ -463,87 +487,96 @@ class PSSitePublishStatusServiceTest {
             atLeast(1).of(statusBad).getStatus();
             will(returnValue(IPSSiteItem.Status.FAILURE));
             one(statusBad).getMessage();
-        }});
+          }
+        });
 
-        var details = cut.buildItemDetails(57L, 1, false);
-        assertNotNull(details);
-        assertEquals(1, details.size());
-        var detail = details.get(0);
-        assertEquals("Failed", detail.getStatus());
+    var details = cut.buildItemDetails(57L, 1, false);
+    assertNotNull(details);
+    assertEquals(1, details.size());
+    var detail = details.get(0);
+    assertEquals("Failed", detail.getStatus());
 
-        context.assertIsSatisfied();
-    }
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testIsJobActiveWorking() {
-        var jobStatus = context.mock(IPSPublisherJobStatus.class);
-        context.checking(new Expectations() {{
+  @Test
+  void testIsJobActiveWorking() {
+    var jobStatus = context.mock(IPSPublisherJobStatus.class);
+    context.checking(
+        new Expectations() {
+          {
             one(jobStatus).getState();
             will(returnValue(IPSPublisherJobStatus.State.WORKING));
-        }});
-        boolean result = cut.isJobActive(jobStatus);
-        assertTrue(result);
-        context.assertIsSatisfied();
-    }
+          }
+        });
+    boolean result = cut.isJobActive(jobStatus);
+    assertTrue(result);
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testIsJobActiveFailed() {
-        var jobStatus = context.mock(IPSPublisherJobStatus.class);
-        context.checking(new Expectations() {{
+  @Test
+  void testIsJobActiveFailed() {
+    var jobStatus = context.mock(IPSPublisherJobStatus.class);
+    context.checking(
+        new Expectations() {
+          {
             one(jobStatus).getState();
             will(returnValue(IPSPublisherJobStatus.State.COMPLETED_W_FAILURE));
-        }});
-        boolean result = cut.isJobActive(jobStatus);
-        assertFalse(result);
-        context.assertIsSatisfied();
-    }
+          }
+        });
+    boolean result = cut.isJobActive(jobStatus);
+    assertFalse(result);
+    context.assertIsSatisfied();
+  }
 
-    @Test
-    void testGetStateDescriptionState() {
-        String result = cut.getStateDescription(IPSPublisherJobStatus.State.ABORTED);
-        assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
-        result = cut.getStateDescription(IPSPublisherJobStatus.State.COMPLETED);
-        assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
-        result = cut.getStateDescription(IPSPublisherJobStatus.State.COMPLETED_W_FAILURE);
-        assertEquals(PSSitePublishStatusService.STATE_COMPLETE_W_FAILURES, result);
-        result = cut.getStateDescription(IPSPublisherJobStatus.State.WORKING);
-        assertEquals(PSSitePublishStatusService.STATE_RUNNING, result);
-        result = cut.getStateDescription(IPSPublisherJobStatus.State.CANCELLED);
-        assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
-        result = cut.getStateDescription(IPSPublisherJobStatus.State.QUEUEING);
-        assertEquals(PSSitePublishStatusService.STATE_PENDING, result);
-    }
+  @Test
+  void testGetStateDescriptionState() {
+    String result = cut.getStateDescription(IPSPublisherJobStatus.State.ABORTED);
+    assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
+    result = cut.getStateDescription(IPSPublisherJobStatus.State.COMPLETED);
+    assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
+    result = cut.getStateDescription(IPSPublisherJobStatus.State.COMPLETED_W_FAILURE);
+    assertEquals(PSSitePublishStatusService.STATE_COMPLETE_W_FAILURES, result);
+    result = cut.getStateDescription(IPSPublisherJobStatus.State.WORKING);
+    assertEquals(PSSitePublishStatusService.STATE_RUNNING, result);
+    result = cut.getStateDescription(IPSPublisherJobStatus.State.CANCELLED);
+    assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
+    result = cut.getStateDescription(IPSPublisherJobStatus.State.QUEUEING);
+    assertEquals(PSSitePublishStatusService.STATE_PENDING, result);
+  }
 
-    @Test
-    void testGetStateDescriptionEndingState() {
-        String result = cut.getStateDescription(IPSPubStatus.EndingState.ABORTED);
-        assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
-        result = cut.getStateDescription(IPSPubStatus.EndingState.COMPLETED);
-        assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
-        result = cut.getStateDescription(IPSPubStatus.EndingState.COMPLETED_W_FAILURE);
-        assertEquals(PSSitePublishStatusService.STATE_COMPLETE_W_FAILURES, result);
-        result = cut.getStateDescription(IPSPubStatus.EndingState.CANCELED_BY_USER);
-        assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
-    }
+  @Test
+  void testGetStateDescriptionEndingState() {
+    String result = cut.getStateDescription(IPSPubStatus.EndingState.ABORTED);
+    assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
+    result = cut.getStateDescription(IPSPubStatus.EndingState.COMPLETED);
+    assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
+    result = cut.getStateDescription(IPSPubStatus.EndingState.COMPLETED_W_FAILURE);
+    assertEquals(PSSitePublishStatusService.STATE_COMPLETE_W_FAILURES, result);
+    result = cut.getStateDescription(IPSPubStatus.EndingState.CANCELED_BY_USER);
+    assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
+  }
 
-    @Test
-    void testGetStateDescriptionStatus() {
-        String result = cut.getStateDescription(IPSSiteItem.Status.FAILURE);
-        assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
-        result = cut.getStateDescription(IPSSiteItem.Status.SUCCESS);
-        assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
-        result = cut.getStateDescription(IPSSiteItem.Status.CANCELLED);
-        assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
-    }
+  @Test
+  void testGetStateDescriptionStatus() {
+    String result = cut.getStateDescription(IPSSiteItem.Status.FAILURE);
+    assertEquals(PSSitePublishStatusService.STATE_FAILED, result);
+    result = cut.getStateDescription(IPSSiteItem.Status.SUCCESS);
+    assertEquals(PSSitePublishStatusService.STATE_COMPLETE, result);
+    result = cut.getStateDescription(IPSSiteItem.Status.CANCELLED);
+    assertEquals(PSSitePublishStatusService.STATE_CANCELLED, result);
+  }
 
-    @Test
-    void testGetSiteNameLong() throws PSNotFoundException {
-        var editionGuid = new PSGuid(PSTypeEnum.EDITION, 42L);
-        var edition = context.mock(IPSEdition.class);
-        var siteGuid = new PSGuid(PSTypeEnum.SITE, 301L);
-        var site = context.mock(IPSSite.class);
+  @Test
+  void testGetSiteNameLong() throws PSNotFoundException {
+    var editionGuid = new PSGuid(PSTypeEnum.EDITION, 42L);
+    var edition = context.mock(IPSEdition.class);
+    var siteGuid = new PSGuid(PSTypeEnum.SITE, 301L);
+    var site = context.mock(IPSSite.class);
 
-        context.checking(new Expectations() {{
+    context.checking(
+        new Expectations() {
+          {
             one(guidMgr).makeGuid(42L, PSTypeEnum.EDITION);
             will(returnValue(editionGuid));
             one(pubSvc).loadEdition(editionGuid);
@@ -554,11 +587,12 @@ class PSSitePublishStatusServiceTest {
             will(returnValue(site));
             one(site).getName();
             will(returnValue("site1"));
-        }});
+          }
+        });
 
-        String name = cut.getSiteName(42L);
-        assertNotNull(name);
-        assertEquals("site1", name);
-        context.assertIsSatisfied();
-    }
+    String name = cut.getSiteName(42L);
+    assertNotNull(name);
+    assertEquals("site1", name);
+    context.assertIsSatisfied();
+  }
 }

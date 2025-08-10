@@ -27,17 +27,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class contains the various DB components required for role
- * administration and management.  It implements IPSDocument so that it
- * can be sent to and retrieved from the administrator (and administration
- * applications i.e. PSRoleSynchronizer) by the server.
+ * This class contains the various DB components required for role administration and management. It
+ * implements IPSDocument so that it can be sent to and retrieved from the administrator (and
+ * administration applications i.e. PSRoleSynchronizer) by the server.
  */
 public class PSRoleConfiguration implements IPSDocument {
   private static final Logger log = LogManager.getLogger(PSRoleConfiguration.class);
 
-  /**
-   * Empty ctor (for fromXml(), fromDb())
-   */
+  /** Empty ctor (for fromXml(), fromDb()) */
   public PSRoleConfiguration() {
     PSGlobalSubject subj = new PSGlobalSubject();
     m_subjects =
@@ -49,23 +46,21 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Instantiates the role configuration from the specified xml
-   * document.
+   * Instantiates the role configuration from the specified xml document.
    *
-   * The format of the role configuration object is as follows:<p>
+   * <p>The format of the role configuration object is as follows:
+   *
+   * <p>
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXRoleConfiguration(PSXDatabaseComponentCollection*,
    *  PSXDatabaseComponentCollection*)&gt;
    * </pre></code>
    *
-   * @param xmlDef The document containing the RoleConfiguration
-   * definition.  May not be <code>null</code>.
-   *
+   * @param xmlDef The document containing the RoleConfiguration definition. May not be <code>null
+   *     </code>.
    * @throws PSUnknownDocTypeException if the document type is invalid.
-   *
-   * @throws PSUnknownNodeTypeException if any component in the document
-   * is invalid.
-   *
+   * @throws PSUnknownNodeTypeException if any component in the document is invalid.
    * @throws IllegalArgumentException if xmlDef is <code>null</code>.
    */
   public PSRoleConfiguration(Document xmlDef)
@@ -76,19 +71,13 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Instantiates the role configuration from the specified database
-   * component loader.
+   * Instantiates the role configuration from the specified database component loader.
    *
-   * @param loader The loader to retrieve the RoleConfiguration
-   * components from.  May not be <code>null</code>.
-   *
+   * @param loader The loader to retrieve the RoleConfiguration components from. May not be <code>
+   *     null</code>.
    * @throws IllegalArgumentException if loader is <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if any component retrieved from
-   * the loader is invalid.
-   *
-   * @throws PSDatabaseComponentException if any database component errors
-   * occur.
+   * @throws PSUnknownNodeTypeException if any component retrieved from the loader is invalid.
+   * @throws PSDatabaseComponentException if any database component errors occur.
    */
   public PSRoleConfiguration(PSDatabaseComponentLoader loader)
       throws PSDatabaseComponentException, PSUnknownNodeTypeException {
@@ -100,14 +89,9 @@ public class PSRoleConfiguration implements IPSDocument {
   /**
    * Initialize this role configuration using the component loader.
    *
-   * @param loader The component loader.  May not be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if any component retrieved from
-   * the loader is invalid.
-   *
-   * @throws PSDatabaseComponentException if any database component errors
-   * occur.
-   *
+   * @param loader The component loader. May not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if any component retrieved from the loader is invalid.
+   * @throws PSDatabaseComponentException if any database component errors occur.
    * @throws IllegalArgumentException If loader is <code>null</code>.
    */
   public void fromDb(PSDatabaseComponentLoader loader)
@@ -177,15 +161,12 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Creates an XML document which contains database XML insert, update,
-   * and delete requests for any modified components.  This method should only
-   * be called from the server (not a client) as it may need access to the
-   * server database to generate id numbers.
+   * Creates an XML document which contains database XML insert, update, and delete requests for any
+   * modified components. This method should only be called from the server (not a client) as it may
+   * need access to the server database to generate id numbers.
    *
    * @return The document, never <code>null</code>.
-   *
-   * @throws PSDatabaseComponentException if any database component errors
-   * occur.
+   * @throws PSDatabaseComponentException if any database component errors occur.
    */
   public Document toDbXml() throws PSDatabaseComponentException {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -209,9 +190,8 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Clean up any global subjects that don't have corresponding role subjects
-   * and add global subjects for related subjects which have no corresponding
-   * global subjects.
+   * Clean up any global subjects that don't have corresponding role subjects and add global
+   * subjects for related subjects which have no corresponding global subjects.
    */
   private void updateGlobalSubjects() {
     // Delete any unneeded global subjects
@@ -247,9 +227,7 @@ public class PSRoleConfiguration implements IPSDocument {
    * Get the global subject which matches the supplied relative subject.
    *
    * @param the relative subject, assumed not <code>null</code>
-   *
    * @return the global subject, never <code>null</code>
-   *
    * @see PSSubject#isMatch(PSSubject)
    */
   private PSGlobalSubject getCorrespondingGlobalSubject(PSRelativeSubject sub) {
@@ -269,11 +247,10 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Add the database component Ids to the subjects in the specified role,
-   * based on their corresponding global subject's id.
+   * Add the database component Ids to the subjects in the specified role, based on their
+   * corresponding global subject's id.
    *
    * @param the role to traverse, assumed not <code>null</code>
-   *
    * @see #getCorrespondingGlobalSubject(PSRelativeSubject)
    */
   private void addRoleSubjectDbIds(PSRole role) {
@@ -288,8 +265,8 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Add database component Id's to the relative subjects, they need this
-   * information to correctly to update their subcomponents.
+   * Add database component Id's to the relative subjects, they need this information to correctly
+   * to update their subcomponents.
    *
    * @see #addRoleSubjectDbIds(PSRole)
    */
@@ -305,38 +282,31 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Gets the global subjects. It is not possible to add or remove global
-   * subjects through the returned iterator, as clients should not manipulate
-   * global subjects directly.
+   * Gets the global subjects. It is not possible to add or remove global subjects through the
+   * returned iterator, as clients should not manipulate global subjects directly.
    *
-   * If you are looking for a subject you've just added to a role so you
-   * can add global attributes to it, use {@link
-   * #getGlobalSubject(PSRelativeSubject,boolean)
+   * <p>If you are looking for a subject you've just added to a role so you can add global
+   * attributes to it, use {@link #getGlobalSubject(PSRelativeSubject,boolean)
    * getGlobalSubject(newSubject, true)} instead.
    *
-   * @return a protected iterator (no remove) containing the global subjects
-   * (<code>PSGlobalSubject</code> objects), never <code>null</code>.
+   * @return a protected iterator (no remove) containing the global subjects (<code>PSGlobalSubject
+   *     </code> objects), never <code>null</code>.
    */
   public Iterator getSubjects() {
     return m_subjects.iterator();
   }
 
   /**
-   * Convenience method for accessing a single subject of the server.
-   * Any modifications made to the returned subject will affect the server's
-   * subject.
+   * Convenience method for accessing a single subject of the server. Any modifications made to the
+   * returned subject will affect the server's subject.
    *
-   * @param roleSubj The role member subject to lookup the server
-   *                   entry with.  Can't be <code>null</code>.
-   *
-   * @param createsubject If <code>true</code> a new subject will be
-   *    created with no attributes and returned if no corresponding
-   *    subject is found in the server collection.
-   *
-   * @return The server subject meeting the specified criteria, or
-   *    <code>null</code> if a corresponding subject does not exist
-   *    on the server and <code>createsubject</code> is <code>false</code>.
-   *
+   * @param roleSubj The role member subject to lookup the server entry with. Can't be <code>null
+   *     </code>.
+   * @param createsubject If <code>true</code> a new subject will be created with no attributes and
+   *     returned if no corresponding subject is found in the server collection.
+   * @return The server subject meeting the specified criteria, or <code>null</code> if a
+   *     corresponding subject does not exist on the server and <code>createsubject</code> is <code>
+   *     false</code>.
    * @throws IllegalArgumentException if any argument is invalid.
    */
   public synchronized PSGlobalSubject getGlobalSubject(
@@ -364,31 +334,25 @@ public class PSRoleConfiguration implements IPSDocument {
   }
 
   /**
-   * Get the  roles defined for use by this role configuration.
+   * Get the roles defined for use by this role configuration.
    *
-   * @return a database component collection containing the roles defined for
-   *    this role configuration (PSRole objects), never <code>null</code>
+   * @return a database component collection containing the roles defined for this role
+   *     configuration (PSRole objects), never <code>null</code>
    */
   public PSDatabaseComponentCollection getRoles() {
     return m_roles;
   }
 
-  /**
-   * The roles of this role configuration.  Never <code>null</code>
-   * after construction.
-   */
+  /** The roles of this role configuration. Never <code>null</code> after construction. */
   private PSDatabaseComponentCollection m_roles = null;
 
-  /**
-   * The global subjects of this role configuration.  Never <code>null</code>
-   * after construction.
-   */
+  /** The global subjects of this role configuration. Never <code>null</code> after construction. */
   private PSDatabaseComponentCollection m_subjects = null;
 
   /* package access on this so they may reference each other in fromXml */
   static final String ms_NodeType = "PSXRoleConfiguration";
 
-  /** -- Test Scenario -- **/
+  /** -- Test Scenario -- * */
   public static void main(String[] args) {
     java.io.Writer w = null;
     java.io.Reader r = null;

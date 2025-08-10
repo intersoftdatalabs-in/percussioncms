@@ -20,19 +20,17 @@ import com.percussion.delivery.email.data.IPSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
 import org.apache.commons.mail.EmailException;
 
-/**
- * A common helper class to send emails.
- */
+/** A common helper class to send emails. */
 public interface IPSEmailHelper {
   /**
    * Sends an email with the details provided in {@link IPSEmailRequest}
    *
-   * @param emailRequest The request object that has the details of the email,
-   *            must not be <code>null</code>.
+   * @param emailRequest The request object that has the details of the email, must not be <code>
+   *     null</code>.
    * @return The message id of the email sent.
    * @throws EmailException
-   * @throws PSEmailServiceNotInitializedException When there is an error
-   *             while initializing the email client.
+   * @throws PSEmailServiceNotInitializedException When there is an error while initializing the
+   *     email client.
    */
   public String sendMail(IPSEmailRequest emailRequest)
       throws PSEmailServiceNotInitializedException, PSEmailException;

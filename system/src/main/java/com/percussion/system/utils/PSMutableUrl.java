@@ -22,17 +22,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * A URL that can be modified. Methods for changing the root as well as as the
- * HTML Parmaeter exist. This does not validate the URL string to conform to URL
- * spec. The part before the first occurence of the
- * {@link QUERY_SEP query separator character} is taken as base of the URL and
- * the rest is treated as a {@link PARAM_SEP parameter separator character} to
- * parsing the parameters.
+ * A URL that can be modified. Methods for changing the root as well as as the HTML Parmaeter exist.
+ * This does not validate the URL string to conform to URL spec. The part before the first occurence
+ * of the {@link QUERY_SEP query separator character} is taken as base of the URL and the rest is
+ * treated as a {@link PARAM_SEP parameter separator character} to parsing the parameters.
  */
 public class PSMutableUrl {
   /**
-   * Ctor taking URL string. Parses the URL base and parameters int
-   * approrpiate fields for future use.
+   * Ctor taking URL string. Parses the URL base and parameters int approrpiate fields for future
+   * use.
+   *
    * @param Url URL string, must not be <code>null</code> or empty.
    */
   public PSMutableUrl(String Url) throws PSRequestParsingException {
@@ -73,8 +72,7 @@ public class PSMutableUrl {
   /**
    * Add or modify the named parameter to the parameter list.
    *
-   * @param pName name of the parameter to add or modify, must not be
-   *           <code>null</code>.
+   * @param pName name of the parameter to add or modify, must not be <code>null</code>.
    * @param pValue value of the parameter to set, may be <code>null</code>
    */
   public void setParam(String pName, String pValue) {
@@ -87,8 +85,7 @@ public class PSMutableUrl {
   /**
    * Append the supplied parameter list to the param list.
    *
-   * @param newParams Map of the parameters to append, must notbe
-   *           <code>null</code>.
+   * @param newParams Map of the parameters to append, must notbe <code>null</code>.
    */
   public void setParamList(Map newParams) {
     if (newParams == null) {
@@ -100,8 +97,7 @@ public class PSMutableUrl {
   /**
    * Get the value of the specified parameter.
    *
-   * @param pName name of the parameter, must not be <code>null</code> or
-   *           empty.
+   * @param pName name of the parameter, must not be <code>null</code> or empty.
    * @return
    */
   public String getParam(String pName) {
@@ -119,8 +115,7 @@ public class PSMutableUrl {
   /**
    * Remove a named parameter from the list of parameters, if exists.
    *
-   * @param pName name of the param to be removed, must not be
-   *           <code>null</code> or empty.
+   * @param pName name of the param to be removed, must not be <code>null</code> or empty.
    */
   public void dropParam(String pName) {
     if (pName == null || pName.length() < 1) {
@@ -137,9 +132,9 @@ public class PSMutableUrl {
   }
 
   /**
-   * Create the URL string from the base, and the parameter map in the syntax
-   * of <base>? <paramName1=paramValue1>& <paramName2=paramValue2>... where ?
-   * is the query separator and & is the parameter separator.
+   * Create the URL string from the base, and the parameter map in the syntax of <base>?
+   * <paramName1=paramValue1>& <paramName2=paramValue2>... where ? is the query separator and & is
+   * the parameter separator.
    *
    * @return new URL string described above.
    */
@@ -161,25 +156,20 @@ public class PSMutableUrl {
   }
 
   /**
-   * The part before the first occurence of the
-   * {@link QUERY_SEP query separator character}. Initialized in the ctor. May
-   * be <code>null</code>
+   * The part before the first occurence of the {@link QUERY_SEP query separator character}.
+   * Initialized in the ctor. May be <code>null</code>
    */
   private String m_base = null;
 
   /**
-   * Map of parameters parsed from the URL query string in the ctor, Never
-   * <code>null</code> may be empty.
+   * Map of parameters parsed from the URL query string in the ctor, Never <code>null</code> may be
+   * empty.
    */
   private Map m_param = new HashMap();
 
-  /**
-   * Query separator character.
-   */
+  /** Query separator character. */
   private static final char QUERY_SEP = '?';
 
-  /**
-   * Parameter separator character.
-   */
+  /** Parameter separator character. */
   private static final char PARAM_SEP = '&';
 }

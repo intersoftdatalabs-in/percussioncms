@@ -30,16 +30,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 /**
- * Creates all required search field filters and provides a map of field names
- * to filters.  Derived classes need only implement
- * {@link #getDocumentFromServer(String)}.
+ * Creates all required search field filters and provides a map of field names to filters. Derived
+ * classes need only implement {@link #getDocumentFromServer(String)}.
  */
 public abstract class PSSearchFieldFilterMap {
   /**
    * Construct a filter map using the supplied slot id
    *
-   * @param slotId The slot id used to create the filter, may not be
-   * <code>null</code> or empty.
+   * @param slotId The slot id used to create the filter, may not be <code>null</code> or empty.
    */
   public PSSearchFieldFilterMap(String slotId) {
     if (slotId == null || slotId.trim().length() == 0)
@@ -49,15 +47,13 @@ public abstract class PSSearchFieldFilterMap {
   }
 
   /**
-   * Creates a keywords <code>List</code> of Content Types allowed for the
-   * slot as <code>PSEntry</code> objects.
+   * Creates a keywords <code>List</code> of Content Types allowed for the slot as <code>PSEntry
+   * </code> objects.
    *
-   * @param slotid for which allowed content types list is needed, assumed not
-   * <code>null</code> or empty.
-   *
-   * @return List Each entry in the list is a <code>PSEntry</code> object
-   * defining the value and its corresponding display text.
-   *
+   * @param slotid for which allowed content types list is needed, assumed not <code>null</code> or
+   *     empty.
+   * @return List Each entry in the list is a <code>PSEntry</code> object defining the value and its
+   *     corresponding display text.
    * @throws IOException if there are any errors.
    */
   private List getSlotContentTypes(String slotid) throws IOException {
@@ -86,10 +82,8 @@ public abstract class PSSearchFieldFilterMap {
   /**
    * Get a readonly copy of the filter map.
    *
-   * @return The filter map, where key is the field name as a
-   * <code>String</code> and the value is a <code>PSSearchFieldFilter</code>,
-   * never <code>null</code>, may be empty.
-   *
+   * @return The filter map, where key is the field name as a <code>String</code> and the value is a
+   *     <code>PSSearchFieldFilter</code>, never <code>null</code>, may be empty.
    * @throws IOException if there are any errors.
    */
   public Map getFilterMap() throws IOException {
@@ -107,37 +101,31 @@ public abstract class PSSearchFieldFilterMap {
   }
 
   /**
-   * Gets the xml document from the server using the supplied url.  Derived
-   * classes must implement this method to handle the request appropriately.
+   * Gets the xml document from the server using the supplied url. Derived classes must implement
+   * this method to handle the request appropriately.
    *
-   * @param url The url to use, not <code>null</code> or empty, and in the
-   * form appName/resource.xml?params (relative to the rhythmyx server root).
-   *
+   * @param url The url to use, not <code>null</code> or empty, and in the form
+   *     appName/resource.xml?params (relative to the rhythmyx server root).
    * @return The document, never <code>null</code>.
-   *
    * @throws IOException if there are any errors.
    */
   protected abstract Document getDocumentFromServer(String url) throws IOException;
 
-  /**
-   * Url to retrieve slot content types
-   */
+  /** Url to retrieve slot content types */
   private static final String SLOT_CTYPE_URL =
       "sys_psxContentEditorCataloger/ContentTypeLookup.xml";
 
   /**
-   * Map of field names as <code>String</code> objects to their corresponding
-   * filters as <code>PSSearchFieldFilter</code> objects, initially
-   * <code>null</code>, lazily instantiated and populated by first call to
-   * {@link #getFilterMap()}, never <code>null</code> or modified after that,
-   * may be empty.
+   * Map of field names as <code>String</code> objects to their corresponding filters as <code>
+   * PSSearchFieldFilter</code> objects, initially <code>null</code>, lazily instantiated and
+   * populated by first call to {@link #getFilterMap()}, never <code>null</code> or modified after
+   * that, may be empty.
    */
   private Map m_filterMap = null;
 
   /**
-   * The slot id supplied during construction used to build the filter for
-   * sys_contenttypeid.  Never <code>null</code> or empty or modified after
-   * construction.
+   * The slot id supplied during construction used to build the filter for sys_contenttypeid. Never
+   * <code>null</code> or empty or modified after construction.
    */
   private String m_slotId;
 }

@@ -42,14 +42,12 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 /**
- * This Java class can run on command line in main method
- * and take an httpsurl as an argument and a warningDays
- * argument where warningDays is the number of days before an SSL
- * certificate expires.   This class also accepts a urlFile argument that
- * can be a list of urls to check.  If there are certificates expiring
- * this class post to a configurable slack account and channel.
+ * This Java class can run on command line in main method and take an httpsurl as an argument and a
+ * warningDays argument where warningDays is the number of days before an SSL certificate expires.
+ * This class also accepts a urlFile argument that can be a list of urls to check. If there are
+ * certificates expiring this class post to a configurable slack account and channel.
  *
- * Slack account configurations can be added to slack.properties in the resources directory.
+ * <p>Slack account configurations can be added to slack.properties in the resources directory.
  */
 public class SSLCertificateChecker {
 
@@ -166,8 +164,8 @@ public class SSLCertificateChecker {
   }
 
   /**
-   * This API loads slack post properties required from slack.properties file
-   * in the current directory resources folder
+   * This API loads slack post properties required from slack.properties file in the current
+   * directory resources folder
    */
   private void initSlackProperties() {
 
@@ -191,8 +189,8 @@ public class SSLCertificateChecker {
   }
 
   /**
-   * This API keeps collecting the messages in messageBuffer
-   * and puts the message on console as well.
+   * This API keeps collecting the messages in messageBuffer and puts the message on console as
+   * well.
    */
   private void sendSlackMessage(String message) {
 
@@ -212,8 +210,8 @@ public class SSLCertificateChecker {
   }
 
   /**
-   * This API actually posts an http Request to Slack Url
-   * In case Slack properties are not set, then just system out will happen on console.
+   * This API actually posts an http Request to Slack Url In case Slack properties are not set, then
+   * just system out will happen on console.
    */
   private void postSlackMessage() {
 

@@ -18,62 +18,53 @@
 package com.percussion.user.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import net.sf.oval.constraint.NotBlank;
 
 /**
  * Represents a user login entity.
+ *
  * @author DavidBenua
  */
 @Entity
 @Table(name = "USERLOGIN")
 public class PSUserLogin extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    @NotBlank
-    @Column(name = "USERID")
-    private String userid;
+  @Id
+  @NotBlank
+  @Column(name = "USERID")
+  private String userid;
 
-    @Basic
-    @Column(name = "PASSWORD")
-    private String password;
+  @Basic
+  @Column(name = "PASSWORD")
+  private String password;
 
-    public PSUserLogin() {
-        // Default constructor
-    }
+  public PSUserLogin() {
+    // Default constructor
+  }
 
-    /**
-     * Gets the user ID.
-     */
-    public String getUserid() {
-        return userid;
-    }
+  /** Gets the user ID. */
+  public String getUserid() {
+    return userid;
+  }
 
-    /**
-     * Sets the user ID.
-     */
-    public void setUserid(String userid) {
-        this.userid = userid;
-    }
+  /** Sets the user ID. */
+  public void setUserid(String userid) {
+    this.userid = userid;
+  }
 
-    /**
-     * Gets the password.
-     */
-    public String getPassword() {
-        return password;
-    }
+  /** Gets the password. */
+  public String getPassword() {
+    return password;
+  }
 
-    /**
-     * Sets the password.
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  /** Sets the password. */
+  public void setPassword(String password) {
+    this.password = password;
+  }
 }

@@ -17,62 +17,59 @@
  */
 package com.percussion.membership.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.StringUtils;
-import java.util.Optional;
 
-/**
- * Represents a user and their group assignments.
- * Sunny Sal says: "Group hug for your users!"
- */
+/** Represents a user and their group assignments. Sunny Sal says: "Group hug for your users!" */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "UserGroup")
 public class PSUserGroup {
 
-    private String email;
-    private String groups;
+  private String email;
+  private String groups;
 
-    /** Default constructor required by JAXB. */
-    public PSUserGroup() {}
+  /** Default constructor required by JAXB. */
+  public PSUserGroup() {}
 
-    /**
-     * Sets the user's email.
-     *
-     * @param email the email, never empty or null
-     */
-    public void setEmail(String email) {
-        if (StringUtils.isBlank(email)) {
-            throw new IllegalArgumentException("Email must not be empty");
-        }
-        this.email = email;
+  /**
+   * Sets the user's email.
+   *
+   * @param email the email, never empty or null
+   */
+  public void setEmail(String email) {
+    if (StringUtils.isBlank(email)) {
+      throw new IllegalArgumentException("Email must not be empty");
     }
+    this.email = email;
+  }
 
-    /**
-     * Gets the user's email.
-     *
-     * @return the email, never empty or null
-     */
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email);
-    }
+  /**
+   * Gets the user's email.
+   *
+   * @return the email, never empty or null
+   */
+  public Optional<String> getEmail() {
+    return Optional.ofNullable(email);
+  }
 
-    /**
-     * Sets the groups for the user.
-     *
-     * @param groups the groups, may be empty or null
-     */
-    public void setGroups(String groups) {
-        this.groups = groups;
-    }
+  /**
+   * Sets the groups for the user.
+   *
+   * @param groups the groups, may be empty or null
+   */
+  public void setGroups(String groups) {
+    this.groups = groups;
+  }
 
-    /**
-     * Gets the groups for the user.
-     *
-     * @return the groups, may be empty or null
-     */
-    public Optional<String> getGroups() {
-        return Optional.ofNullable(groups);
-    }
+  /**
+   * Gets the groups for the user.
+   *
+   * @return the groups, may be empty or null
+   */
+  public Optional<String> getGroups() {
+    return Optional.ofNullable(groups);
+  }
 }

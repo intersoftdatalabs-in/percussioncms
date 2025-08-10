@@ -22,32 +22,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Interface to allow classes that are implemented as Spring beans to be loaded
- * from and saved to a Spring beans config file.  See the
- * {@link PSSpringConfiguration} for more information.
+ * Interface to allow classes that are implemented as Spring beans to be loaded from and saved to a
+ * Spring beans config file. See the {@link PSSpringConfiguration} for more information.
  */
 public interface IPSBeanConfig {
-  /**
-   * Constant for the root element name for a spring bean.
-   */
+  /** Constant for the root element name for a spring bean. */
   public static final String BEAN_NODE_NAME = "bean";
 
   /**
-   * Serializes the bean to its XML format.  Result must conform to the
-   * "spring-beans.dtd" DTD.
+   * Serializes the bean to its XML format. Result must conform to the "spring-beans.dtd" DTD.
    *
    * @param doc The document to use, never <code>null</code>.
-   *
    * @return The "bean" root element, never <code>null</code>.
    */
   public Element toXml(Document doc);
 
   /**
-   * Serializes the bean from its XML format.  See {@link #toXml(Document)}
-   * for more info.
+   * Serializes the bean from its XML format. See {@link #toXml(Document)} for more info.
    *
    * @param source The source "bean" XML root element, never <code>null</code>.
-   *
    * @throws PSInvalidXmlException If the xml format is invalid for the bean.
    */
   public void fromXml(Element source) throws PSInvalidXmlException;

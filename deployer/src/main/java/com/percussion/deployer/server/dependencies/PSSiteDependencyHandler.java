@@ -20,20 +20,15 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import java.util.Iterator;
 
-/**
- * Class to handle packaging and deploying a site deployable element.
- */
+/** Class to handle packaging and deploying a site deployable element. */
 public class PSSiteDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSiteDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -41,15 +36,15 @@ public class PSSiteDependencyHandler extends PSElementDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>SiteDef</li>
+   *   <li>SiteDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -69,14 +64,12 @@ public class PSSiteDependencyHandler extends PSElementDependencyHandler {
     return m_sdHandler;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Site";
 
   /**
-   * The site definition handler, initialized by <code>getChildHandler()</code>
-   *  if it is <code>null</code>, will never be <code>null</code> after that.
+   * The site definition handler, initialized by <code>getChildHandler()</code> if it is <code>null
+   * </code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_sdHandler = null;
 }

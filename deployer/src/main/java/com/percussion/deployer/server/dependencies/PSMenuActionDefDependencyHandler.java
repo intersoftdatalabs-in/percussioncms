@@ -46,20 +46,17 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
- * Class to handle packaging and deploying a menu action definition.  This
- * includes menu items and dynamic menus.
+ * Class to handle packaging and deploying a menu action definition. This includes menu items and
+ * dynamic menus.
  */
 public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -96,13 +93,12 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
   }
 
   /**
-   * Recurse all child depedendencies and create and add a dependency file
-   * for each child of type MenuActionCategory.
+   * Recurse all child depedendencies and create and add a dependency file for each child of type
+   * MenuActionCategory.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
    * @param dep The dependency to recurse, assumed not <code>null</code>.
    * @param files The list of files to add to, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void getChildDepFiles(
@@ -126,13 +122,10 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
    * Create a dependency file for the supplied action id.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   * @param dep The dependency representing the action to save, assumed not
-   * <code>null</code>.
-   * @param isLeaf <code>true</code> if the id specifies a MenuActionDef,
-   * <code>false</code> if it specifies a MenuActionCategory.
-   *
+   * @param dep The dependency representing the action to save, assumed not <code>null</code>.
+   * @param isLeaf <code>true</code> if the id specifies a MenuActionDef, <code>false</code> if it
+   *     specifies a MenuActionCategory.
    * @return The file, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private PSDependencyFile getActionDepFile(
@@ -207,28 +200,23 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
   }
 
   /**
-   * Installs all actions specified by the supplied dependency tree.
-   * Installs the supplied dependency and recurses its child actions and
-   * installs them.  The save is done in two steps.  Deleted actions are
-   * processed first, followed by actions which need to be inserted.
+   * Installs all actions specified by the supplied dependency tree. Installs the supplied
+   * dependency and recurses its child actions and installs them. The save is done in two steps.
+   * Deleted actions are processed first, followed by actions which need to be inserted.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
    * @param ctx The import ctx, assumed not <code>null</code>.
    * @param dep The dependency to install, assumed not <code>null</code>.
-   * @param txnList The list to use to collect transaction entries as
-   * components are added to the <code>compList</code>.  Each entry is an
-   * <code>Object[]</code> containing the <code>PSAction</code>,
-   * <code>PSDependency</code>, and
-   * <code>PSTransactionSummary.ACTION_xxx</code> value.  Assumed not
-   * <code>null</code>.
-   * @param actionMap A map of all source action objects from the archive,
-   * where the key is the id as a <code>String</code> and the value is a clone
-   * of the source <code>PSAction</code> object.
-   * @param tgtChild The action to set as the child of the action represented
-   * by the supplied dependency, may be <code>null</code> if the dependency
-   * does not have any children.  This action's id represents the action on the
-   * target system.
-   *
+   * @param txnList The list to use to collect transaction entries as components are added to the
+   *     <code>compList</code>. Each entry is an <code>Object[]</code> containing the <code>PSAction
+   *     </code>, <code>PSDependency</code>, and <code>PSTransactionSummary.ACTION_xxx</code> value.
+   *     Assumed not <code>null</code>.
+   * @param actionMap A map of all source action objects from the archive, where the key is the id
+   *     as a <code>String</code> and the value is a clone of the source <code>PSAction</code>
+   *     object.
+   * @param tgtChild The action to set as the child of the action represented by the supplied
+   *     dependency, may be <code>null</code> if the dependency does not have any children. This
+   *     action's id represents the action on the target system.
    * @throws PSCmsException if errors occur during the save.
    * @throws PSDeployException if there are any other errors.
    */
@@ -324,15 +312,13 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
   }
 
   /**
-   * Transforms referenced ids in the supplied action to match the target
-   * system.  Assumed child action ids do not need to be transformed.
+   * Transforms referenced ids in the supplied action to match the target system. Assumed child
+   * action ids do not need to be transformed.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   * @param dep The dependency representing the action to transform, assumed
-   * not <code>null</code>.
+   * @param dep The dependency representing the action to transform, assumed not <code>null</code>.
    * @param ctx The import ctx, assumed not <code>null</code>.
    * @param action The action to transform, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void transformIds(
@@ -367,8 +353,6 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
     return true;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "MenuActionDef";
 }

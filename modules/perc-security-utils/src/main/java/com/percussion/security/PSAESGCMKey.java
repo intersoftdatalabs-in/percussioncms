@@ -24,9 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * AES-GCM key implementation for IPSSecretKey.
- */
+/** AES-GCM key implementation for IPSSecretKey. */
 public class PSAESGCMKey implements IPSSecretKey {
 
   private static final Logger log = LogManager.getLogger(PSAESGCMKey.class);

@@ -21,43 +21,40 @@ import static com.percussion.pagemanagement.assembler.PSWidgetContentFinderUtils
 import static com.percussion.pagemanagement.assembler.PSWidgetContentFinderUtils.getLocalSharedAssetRelationships;
 import static com.percussion.pagemanagement.assembler.PSWidgetContentFinderUtils.getSharedAssetRelationships;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
-
+import java.util.Collection;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-
 /**
- * Tests for widget content finder utilities.
- * Sunny Sal says: "Relationships found, Bollywood style!"
+ * Tests for widget content finder utilities. Sunny Sal says: "Relationships found, Bollywood
+ * style!"
  */
 @Tag("IntegrationTest")
 public class PSWidgetContentFinderUtilsTest {
 
-    @Test
-    public void testAll() {
-        IPSGuid ownerId = new PSLegacyGuid(319, 1);
-        Collection<PSRelationship> allRels = getLocalSharedAssetRelationships(ownerId.toString());
-        Collection<PSRelationship> sharedRels = getSharedAssetRelationships(ownerId.toString());
-        Collection<PSRelationship> localRels = getLocalAssetRelationships(ownerId.toString());
+  @Test
+  public void testAll() {
+    IPSGuid ownerId = new PSLegacyGuid(319, 1);
+    Collection<PSRelationship> allRels = getLocalSharedAssetRelationships(ownerId.toString());
+    Collection<PSRelationship> sharedRels = getSharedAssetRelationships(ownerId.toString());
+    Collection<PSRelationship> localRels = getLocalAssetRelationships(ownerId.toString());
 
-        assertEquals(sharedRels.size(), allRels.size());
-        assertEquals(0, localRels.size());
+    assertEquals(sharedRels.size(), allRels.size());
+    assertEquals(0, localRels.size());
 
-        // Uncomment and adapt if sort rank and relationship ID validation is needed.
-        // String[] sortRank = new String[]{"0", "0", "1", "1", "2", "3"};
-        // for (int i = 0; i < sortRank.length; i++) {
-        //     PSRelationship rel = allRels.get(i);
-        //     String rank = rel.getProperty(PSRelationshipConfig.PDU_SORTRANK);
-        //     assertTrue(sortRank[i].equals(rank));
-        // }
-        // assertTrue(allRels.get(0).getId() < allRels.get(1).getId());
-        // assertTrue(allRels.get(2).getId() < allRels.get(3).getId());
-        // assertTrue(allRels.get(0).getId() > allRels.get(2).getId());
-    }
+    // Uncomment and adapt if sort rank and relationship ID validation is needed.
+    // String[] sortRank = new String[]{"0", "0", "1", "1", "2", "3"};
+    // for (int i = 0; i < sortRank.length; i++) {
+    //     PSRelationship rel = allRels.get(i);
+    //     String rank = rel.getProperty(PSRelationshipConfig.PDU_SORTRANK);
+    //     assertTrue(sortRank[i].equals(rank));
+    // }
+    // assertTrue(allRels.get(0).getId() < allRels.get(1).getId());
+    // assertTrue(allRels.get(2).getId() < allRels.get(3).getId());
+    // assertTrue(allRels.get(0).getId() > allRels.get(2).getId());
+  }
 }

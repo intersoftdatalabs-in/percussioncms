@@ -44,7 +44,6 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author adamgent
- *
  */
 public class PSDefaultTemplateLookup extends PSJexlUtilBase {
 
@@ -84,19 +83,17 @@ public class PSDefaultTemplateLookup extends PSJexlUtilBase {
   }
 
   /**
-   * We would want to find the templates that are associated with the given
-   * content type and site and publish when default.
+   * We would want to find the templates that are associated with the given content type and site
+   * and publish when default.
    *
-   * To do this we take the intersection of the set templates associated with a
-   * content type and the set of template associated with a site and then
-   * filter out the ones that are not publish when default.
+   * <p>To do this we take the intersection of the set templates associated with a content type and
+   * the set of template associated with a site and then filter out the ones that are not publish
+   * when default.
    *
-   * This may turn into a performance issue in which case Hibernate will have
-   * to be used.
+   * <p>This may turn into a performance issue in which case Hibernate will have to be used.
    *
    * @param item work item, never <code>null</code>
-   * @return a list of assembly templates, may be empty, but never
-   * <code>null</code>
+   * @return a list of assembly templates, may be empty, but never <code>null</code>
    */
   public List<IPSAssemblyTemplate> lookupDefaults(IPSAssemblyItem item) {
     if (item == null) {

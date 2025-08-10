@@ -15,13 +15,8 @@
  * limitations under the License.
  */
 
-/**
- *
- */
+/** */
 package com.percussion.extension;
 
-/**
- * The IPSItemValidator interface must be implemented by
- * extensions which are item validators.
- */
+/** The IPSItemValidator interface must be implemented by extensions which are item validators. */
 public interface IPSItemValidator extends IPSResultDocumentProcessor {}

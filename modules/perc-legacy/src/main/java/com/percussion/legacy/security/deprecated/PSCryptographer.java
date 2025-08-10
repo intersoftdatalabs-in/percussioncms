@@ -28,27 +28,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
-/**
- * This class is used to encrypt and decrypt using percussion encryption
- * algorithms.
- */
+/** This class is used to encrypt and decrypt using percussion encryption algorithms. */
 @Deprecated
 public class PSCryptographer {
   /**
-   * Decrypts the specified string using the "lasagna" method.  Requires the
-   * two keys that were used to encrypt the string originally.
+   * Decrypts the specified string using the "lasagna" method. Requires the two keys that were used
+   * to encrypt the string originally.
    *
-   * @param key1 The first key used when encrypting the string.  May not be
-   * <code>null</code> or empty.
-   * @param key2 The second key used when encrypting the string.  May not be
-   * <code>null</code> or empty.
-   * @param str The string to decrypt.  If <code>null</code> or empty, an
-   * empty string is returned.
-   *
+   * @param key1 The first key used when encrypting the string. May not be <code>null</code> or
+   *     empty.
+   * @param key2 The second key used when encrypting the string. May not be <code>null</code> or
+   *     empty.
+   * @param str The string to decrypt. If <code>null</code> or empty, an empty string is returned.
    * @return The decrypted string, never <code>null</code>, may be empty.
-   *
-   * @throws IllegalArgumentException if <code>key1</code> or <code>key2</code>
-   * is <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>key1</code> or <code>key2</code> is <code>null</code>
+   *     or empty.
    */
   @Deprecated
   public static String decryptWithAlgo(String key1, String key2, String str, IPSKey key) {
@@ -116,20 +110,15 @@ public class PSCryptographer {
   }
 
   /**
-   * Encrypts the specified string using the "lasagna" method.  Requires two
-   * keys that will be used to decrypt the string later.
+   * Encrypts the specified string using the "lasagna" method. Requires two keys that will be used
+   * to decrypt the string later.
    *
-   * @param key1 The first key used to encrypt the string.  May not be
-   * <code>null</code> or empty.
-   * @param key2 The second key used to encrypt the string.  May not be
-   * <code>null</code> or empty.
-   * @param str The string to encrypt.  If <code>null</code> or empty, an
-   * empty string is returned.
-   *
+   * @param key1 The first key used to encrypt the string. May not be <code>null</code> or empty.
+   * @param key2 The second key used to encrypt the string. May not be <code>null</code> or empty.
+   * @param str The string to encrypt. If <code>null</code> or empty, an empty string is returned.
    * @return The encrypted string, never <code>null</code>, may be empty.
-   *
-   * @throws IllegalArgumentException if <code>key1</code> or <code>key2</code>
-   * is <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>key1</code> or <code>key2</code> is <code>null</code>
+   *     or empty.
    */
   @Deprecated
   public static String encrypt(String key1, String key2, String str) {

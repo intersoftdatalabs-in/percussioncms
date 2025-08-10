@@ -28,26 +28,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndColumn class is used to define a mapping to a back-end
- * column.
+ * The PSBackEndColumn class is used to define a mapping to a back-end column.
  *
  * @see IPSBackEndMapping
  * @see PSDataMapping#getBackEndMapping
- *
- * @author       Tas Giakouminakis
- * @version  1.0
- * @since       1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, IPSReplacementValue {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
    * @param sourceNode the XML element node to construct this object from
    * @param parentDoc the Java object which is the parent of this object
    * @param parentComponents the parent objects of this object
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *   appropriate type
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndColumn(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -58,10 +55,9 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Constructs a back-end column mapping.
    *
-   * @param table the back-end table containing the column; may not be
-   * <code>null</code>
-   * @param column the name of the back-end column; may not be empty or
-   * <code>null</code> or greater than 128 characters.
+   * @param table the back-end table containing the column; may not be <code>null</code>
+   * @param column the name of the back-end column; may not be empty or <code>null</code> or greater
+   *     than 128 characters.
    */
   public PSBackEndColumn(PSBackEndTable table, String column) {
     setTable(table);
@@ -69,14 +65,14 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Empty constructor for derived classes that want to initialize their state
-   * before initializing their parent's state.
+   * Empty constructor for derived classes that want to initialize their state before initializing
+   * their parent's state.
    */
   protected PSBackEndColumn() {}
 
   /**
-   * Constructs a new <code>PSBackEndColumn</code> as a (shallow) copy of
-   * <code>source</code>.
+   * Constructs a new <code>PSBackEndColumn</code> as a (shallow) copy of <code>source</code>.
+   *
    * @param source provides the initial state for this object, not <code>null
    * </code>.
    */
@@ -95,7 +91,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Get the back-end table containing the column.
    *
-   * @return       the back-end table containing the column
+   * @return the back-end table containing the column
    */
   public PSBackEndTable getTable() {
     return m_table;
@@ -104,7 +100,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Set the back-end table containing the column.
    *
-   * @param    table       the back-end table containing the column
+   * @param table the back-end table containing the column
    */
   public void setTable(PSBackEndTable table) {
     IllegalArgumentException ex = validateTable(table);
@@ -122,7 +118,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Get the name of the back-end column.
    *
-   * @return       the name of the name of the back-end column
+   * @return the name of the name of the back-end column
    */
   public java.lang.String getColumn() {
     return m_column;
@@ -131,7 +127,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Set the name of the back-end column.
    *
-   * @param    name          the name of the name of the back-end column
+   * @param name the name of the name of the back-end column
    */
   public void setColumn(String name) {
     IllegalArgumentException ex = validateColumn(name);
@@ -141,15 +137,12 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Private utility method to validate a column name. Returns 0 if
-   * the column name is valid, otherwise the return value is the
-   * error code.
+   * Private utility method to validate a column name. Returns 0 if the column name is valid,
+   * otherwise the return value is the error code.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.18 1999/06/18
-   *
-   * @param   name The column name
+   * @param name The column name
    */
   private static IllegalArgumentException validateColumn(String name) {
     if ((null == name) || (name.length() == 0)) {
@@ -165,7 +158,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Get the alias associated with the back-end column.
    *
-   * @return            the back-end column alias
+   * @return the back-end column alias
    */
   public java.lang.String getAlias() {
     return m_alias;
@@ -174,8 +167,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   /**
    * Set the alias associated with the back-end column.
    *
-   * @param   alias      the back-end column alias; use null to use no
-   *                     alias
+   * @param alias the back-end column alias; use null to use no alias
    */
   public void setAlias(String alias) {
     IllegalArgumentException ex = validateAlias(alias);
@@ -184,11 +176,10 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Private utility method to validate a column alias. Returns 0 if
-   * the column alias is valid, otherwise the return value is the
-   * error code.
+   * Private utility method to validate a column alias. Returns 0 if the column alias is valid,
+   * otherwise the return value is the error code.
    *
-   * @param   name The column alias name
+   * @param name The column alias name
    */
   private static IllegalArgumentException validateAlias(String name) {
     if ((null != name) && (name.length() > MAX_COL_NAME_LEN)) {
@@ -200,15 +191,11 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Tests this object for equality with another object of the
-   * same type.
+   * Tests this object for equality with another object of the same type.
    *
-   * @param   o   The other PSBackEndColumn object
-   *
+   * @param o The other PSBackEndColumn object
    * @return boolean true if the objects are equal, false otherwise
-   *
    * @since 1.14 1999/5/5
-   *
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSBackEndColumn)) return false;
@@ -222,15 +209,13 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Checks if the specified object is the same backend column as this object.
-   * The backend table and column name is compared, but column alias is
-   * ignored.
+   * Checks if the specified object is the same backend column as this object. The backend table and
+   * column name is compared, but column alias is ignored.
    *
-   * @param o the object need to be compared with this object,
-   * may be <code>null</code> in which case <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the backend table is the same and the
-   * column name matches in case-sensitive manner, otherwise <code>false</code>
+   * @param o the object need to be compared with this object, may be <code>null</code> in which
+   *     case <code>false</code> is returned.
+   * @return <code>true</code> if the backend table is the same and the column name matches in
+   *     case-sensitive manner, otherwise <code>false</code>
    */
   public boolean isSameColumn(Object o) {
     if (!(o instanceof PSBackEndColumn)) return false;
@@ -245,21 +230,20 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Checks that the provided object matches this object. Differs from {@link
-   * #equals(Object)} by checking only the table alias name instead of the
-   * <code>PSBackEndTable</code> details. It checks the following. The check is
-   * case sensitive.
+   * Checks that the provided object matches this object. Differs from {@link #equals(Object)} by
+   * checking only the table alias name instead of the <code>PSBackEndTable</code> details. It
+   * checks the following. The check is case sensitive.
+   *
    * <ol>
-   * <li>column names must match</li>
-   * <li>table aliases must match</li>
-   * <li>column aliases must match if both have them or should match the
-   * column name if either one has</li>
+   *   <li>column names must match
+   *   <li>table aliases must match
+   *   <li>column aliases must match if both have them or should match the column name if either one
+   *       has
    * </ol>
    *
    * @param o the object need to be checked, may be <code>null</code>
-   *
-   * @return <code>true</code> if the above specified conditions matches,
-   * otherwise <code>false</code>
+   * @return <code>true</code> if the above specified conditions matches, otherwise <code>false
+   *     </code>
    */
   public boolean doesMatch(Object o) {
     if (!(o instanceof PSBackEndColumn)) return false;
@@ -287,25 +271,21 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
 
   // *********** IPSReplacementValue Interface Implementation ***********
 
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
-  /**
-   * Get the text which can be displayed to represent this value.
-   */
+  /** Get the text which can be displayed to represent this value. */
   public String getValueDisplayText() {
     return getValueText();
   }
 
   /**
-   * Return a string formatted as if with getValueDisplayText for use
-   * in translating a dragged path value into a proper display value.
+   * Return a string formatted as if with getValueDisplayText for use in translating a dragged path
+   * value into a proper display value.
    *
-   * Modify this static method if getValueDisplayText changes
+   * <p>Modify this static method if getValueDisplayText changes
    *
    * @param pathtext may be <code>null</code> or empty
    * @return a string in the format of getValueDisplayText
@@ -315,10 +295,9 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Parse the display representation of a back-end column into an
-   * array of two items. The first item in the array is the table
-   * name, which will never be empty, and the second is the column, which
-   * may be <code>null</code>.
+   * Parse the display representation of a back-end column into an array of two items. The first
+   * item in the array is the table name, which will never be empty, and the second is the column,
+   * which may be <code>null</code>.
    *
    * @param display
    * @return An array of exactly two <code>String</code> elements
@@ -342,12 +321,12 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Static method to lookup a back end column using an input string that
-   * came from the {@link #getValueDisplayText()} method above.
-   * @param display Must be a string in the format used by
-   * {@link #getValueDisplayText()} and must not be <code>null</code>
-   * @param tables Must be a collection of <code>PSBackEndTable</code>
-   * objects to search for a match
+   * Static method to lookup a back end column using an input string that came from the {@link
+   * #getValueDisplayText()} method above.
+   *
+   * @param display Must be a string in the format used by {@link #getValueDisplayText()} and must
+   *     not be <code>null</code>
+   * @param tables Must be a collection of <code>PSBackEndTable</code> objects to search for a match
    * @return the <code>PSBackEndColumn</code> from the matching table
    */
   public static PSBackEndColumn findColumnFromDisplay(String display, PSCollection tables) {
@@ -379,9 +358,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
     return new PSBackEndColumn(beTable, strColumn);
   }
 
-  /**
-   * Get the implementation specific text which for this value.
-   */
+  /** Get the implementation specific text which for this value. */
   public String getValueText() {
     String tableName = m_table.getAlias();
     if ((tableName == null) || (tableName.length() == 0)) {
@@ -396,15 +373,12 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   // ************ IPSBackEndMapping Interface Implementation ************
 
   /**
-   * Get the columns which must be selected from the back-end(s) in
-   * order to use this mapping. The column name syntax is
-   * <code>back-end-table-alias.column-name</code>.
-   * <p>
-   * This is retrieved by calling
-   * <code>getTable.getAlias() + "." + getColumn()</code>
+   * Get the columns which must be selected from the back-end(s) in order to use this mapping. The
+   * column name syntax is <code>back-end-table-alias.column-name</code>.
    *
-   * @return       the columns which must be selected from the back-end(s)
-   *             in order to use this mapping
+   * <p>This is retrieved by calling <code>getTable.getAlias() + "." + getColumn()</code>
+   *
+   * @return the columns which must be selected from the back-end(s) in order to use this mapping
    */
   public String[] getColumnsForSelect() {
     return new String[] {getValueText()};
@@ -413,10 +387,11 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   // **************  IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXBackEndColumn XML element node
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndColumn XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXBackEndColumn is used to define a mapping to a back-end column.
@@ -436,7 +411,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
    *    &lt;!ELEMENT column          (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXBackEndColumn XML element node
+   * @return the newly created PSXBackEndColumn XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -455,12 +430,11 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * This method is called to populate a PSBackEndColumn Java object from a
-   * PSXBackEndColumn XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndColumn Java object from a PSXBackEndColumn XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception    PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXBackEndColumn
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndColumn
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -557,18 +531,15 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -595,17 +566,15 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
   }
 
   /**
-   * Returns the display text. This is implemented to assist with
-   * storing objects in the GUI controls. The control automatically
-   * does a toString() on the object to display the object.
+   * Returns the display text. This is implemented to assist with storing objects in the GUI
+   * controls. The control automatically does a toString() on the object to display the object.
    */
   public String toString() {
     return getValueDisplayText();
   }
 
   /**
-   * @param c a valid <code>PSBackEndColumn</code>, may not be
-   * <code>null</code>.
+   * @param c a valid <code>PSBackEndColumn</code>, may not be <code>null</code>.
    */
   public void copyFrom(PSComponent c) {
     if (c instanceof PSBackEndColumn) {
@@ -620,9 +589,7 @@ public class PSBackEndColumn extends PSComponent implements IPSBackEndMapping, I
     } else throw new IllegalArgumentException("INVALID_OBJECT_FOR_COPY");
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "BackEndColumn";
 
   private String m_alias; // back end column alias

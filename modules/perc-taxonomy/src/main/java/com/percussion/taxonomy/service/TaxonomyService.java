@@ -100,8 +100,7 @@ public class TaxonomyService implements TaxonomyServiceInf {
   /**
    * Removes all nodes associated to the given taxonomy.
    *
-   * @param taxonomy {@link Taxonomy} to get the nodes from. Must not be
-   *           <code>null</code>.
+   * @param taxonomy {@link Taxonomy} to get the nodes from. Must not be <code>null</code>.
    */
   private void removeTaxonomyNodes(Taxonomy taxonomy) {
     for (Node node : getNodesInDeletionOrder(taxonomy)) {
@@ -110,13 +109,11 @@ public class TaxonomyService implements TaxonomyServiceInf {
   }
 
   /**
-   * Iterates over the node list and gets the nodes ordered from root parent to
-   * the leaf level nodes. First node is the root, then all its childrens, and
-   * so on.
+   * Iterates over the node list and gets the nodes ordered from root parent to the leaf level
+   * nodes. First node is the root, then all its childrens, and so on.
    *
    * @param taxonomy the {@link Taxonomy} object, must not be <code>null</code>
-   * @return {@link List}<{@link Node}> never <code>null</code> but may be
-   *         empty.
+   * @return {@link List}<{@link Node}> never <code>null</code> but may be empty.
    */
   public List<Node> getNodesInDeletionOrder(Taxonomy taxonomy) {
     notNull(taxonomy);
@@ -130,7 +127,9 @@ public class TaxonomyService implements TaxonomyServiceInf {
   }
 
   /**
-   * Builds a map where the key is the level of a node, and the value is a list of nodes that are in that level.
+   * Builds a map where the key is the level of a node, and the value is a list of nodes that are in
+   * that level.
+   *
    * @param taxonomy {@link Taxonomy} object to get the nodes from. Must not be <code>null</code>.
    * @return {@link Map}<{@link Integer}, {@link List}<{@link Node}>>
    */
@@ -196,23 +195,15 @@ public class TaxonomyService implements TaxonomyServiceInf {
     return rootNodes;
   }
 
-  /**
-   * Taxonomy DAO service, initialized by constructor, auto wired by spring framework
-   */
+  /** Taxonomy DAO service, initialized by constructor, auto wired by spring framework */
   private TaxonomyDAO taxonomyDAO;
 
-  /**
-   * Visibility service, initialized by constructor, auto wired by spring framework
-   */
+  /** Visibility service, initialized by constructor, auto wired by spring framework */
   private VisibilityServiceInf visibilityService;
 
-  /**
-   * Node service, initialized by constructor, auto wired by spring framework
-   */
+  /** Node service, initialized by constructor, auto wired by spring framework */
   private NodeServiceInf nodeService;
 
-  /**
-   * Attribute service, initialized by constructor, auto wired by spring framework
-   */
+  /** Attribute service, initialized by constructor, auto wired by spring framework */
   private AttributeServiceInf attributeService;
 }

@@ -17,53 +17,56 @@
  */
 package com.percussion.pagemanagement.assembler;
 
-/**
- * Represents a month in a blog year, with a count of entries.
- */
+/** Represents a month in a blog year, with a count of entries. */
 public class PSBlogMonth {
 
-    private String month;
-    private Integer count;
+  private String month;
+  private Integer count;
 
-    /**
-     * Constructs a blog month with the specified name and count.
-     * @param month the month name
-     * @param count the entry count
-     */
-    public PSBlogMonth(String month, Integer count) {
-        this.month = month;
-        this.count = count;
-    }
+  /**
+   * Constructs a blog month with the specified name and count.
+   *
+   * @param month the month name
+   * @param count the entry count
+   */
+  public PSBlogMonth(String month, Integer count) {
+    this.month = month;
+    this.count = count;
+  }
 
-    /**
-     * Gets the month name.
-     * @return the month name
-     */
-    public String getMonth() {
-        return month;
-    }
+  /**
+   * Gets the month name.
+   *
+   * @return the month name
+   */
+  public String getMonth() {
+    return month;
+  }
 
-    /**
-     * Sets the month name.
-     * @param month the month to set
-     */
-    public void setMonth(String month) {
-        this.month = month;
-    }
+  /**
+   * Sets the month name.
+   *
+   * @param month the month to set
+   */
+  public void setMonth(String month) {
+    this.month = month;
+  }
 
-    /**
-     * Gets the entry count for the month.
-     * @return the count
-     */
-    public Integer getCount() {
-        return count;
-    }
+  /**
+   * Gets the entry count for the month.
+   *
+   * @return the count
+   */
+  public Integer getCount() {
+    return count;
+  }
 
-    /**
-     * Sets the entry count for the month.
-     * @param count the number of entries to set
-     */
-    public void setCount(Integer count) {
-        this.count = count;
-    }
+  /**
+   * Sets the entry count for the month.
+   *
+   * @param count the number of entries to set
+   */
+  public void setCount(Integer count) {
+    this.count = count;
+  }
 }

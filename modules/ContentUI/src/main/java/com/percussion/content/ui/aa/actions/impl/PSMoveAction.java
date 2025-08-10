@@ -26,11 +26,11 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * An action that will move a slot item up or down by one position or move
- * the item to a specified position.
- * <p>
- * Expects the following parameters:
- * </p>
+ * An action that will move a slot item up or down by one position or move the item to a specified
+ * position.
+ *
+ * <p>Expects the following parameters:
+ *
  * <table border="1" cellspacing="0" cellpadding="5">
  * <thead>
  * <th>Name</th><th>Allowed Values</th><th>Details</th>

@@ -36,17 +36,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This singleton class wraps the authtype configuration read off of
- * {@link com.percussion.cms.IPSConstants#AUTHTYPE_PROP_FILE}. For each entry
- * in this Java properties file, the key is assumed to have the format
- * 'authtype.N', where N is the numeric authtype identifier as registered w/ the
- * system and the value is the rhythmyx resource name (appName/resourceName,
- * case sensitive)implementing this authtype.
+ * This singleton class wraps the authtype configuration read off of {@link
+ * com.percussion.cms.IPSConstants#AUTHTYPE_PROP_FILE}. For each entry in this Java properties file,
+ * the key is assumed to have the format 'authtype.N', where N is the numeric authtype identifier as
+ * registered w/ the system and the value is the rhythmyx resource name (appName/resourceName, case
+ * sensitive)implementing this authtype.
  */
 public class PSAuthTypes implements Observer {
-  /**
-   * Make ctor private since this is a singleton class.
-   */
+  /** Make ctor private since this is a singleton class. */
   private PSAuthTypes() {
     try {
       loadProperties(ms_configFile);
@@ -69,11 +66,10 @@ public class PSAuthTypes implements Observer {
   /**
    * Get the Rhythmyx resource name implementing the supplied authtype.
    *
-   * @param authType Auth type value as string, must not be <code>null</code>
-   *           or empty.
-   * @return Rhythmyx resource implementing the authtype as configured in the
-   *         {@link IPSConstants#AUTHTYPE_PROP_FILE} file. Will be
-   *         <code>null</code> if the supplied authtype is not configured.
+   * @param authType Auth type value as string, must not be <code>null</code> or empty.
+   * @return Rhythmyx resource implementing the authtype as configured in the {@link
+   *     IPSConstants#AUTHTYPE_PROP_FILE} file. Will be <code>null</code> if the supplied authtype
+   *     is not configured.
    */
   public String getResourceForAuthtype(String authType) {
     if (authType == null || authType.length() == 0) {
@@ -84,8 +80,8 @@ public class PSAuthTypes implements Observer {
 
   /**
    * Returns all registered types.
-   * @return Never <code>null</code>, may be empty. The returned set is
-   * unmodifiable.
+   *
+   * @return Never <code>null</code>, may be empty. The returned set is unmodifiable.
    */
   public Set<String> getAuthtypes() {
     if (m_authTypeMap.isEmpty()) return Collections.emptySet();
@@ -93,8 +89,8 @@ public class PSAuthTypes implements Observer {
   }
 
   /**
-   * Get the file object for the authtype configuration file
-   * {@link IPSConstants#AUTHTYPE_PROP_FILE}.
+   * Get the file object for the authtype configuration file {@link
+   * IPSConstants#AUTHTYPE_PROP_FILE}.
    *
    * @return as described above, never <code>null</code>.
    */
@@ -103,11 +99,10 @@ public class PSAuthTypes implements Observer {
   }
 
   /**
-   * Load the properties from the config file and build the authtype-resource
-   * name map.
+   * Load the properties from the config file and build the authtype-resource name map.
    *
-   * @param configFile the observable file from which the properties are
-   *           loaded, assumed not <code>null</code>
+   * @param configFile the observable file from which the properties are loaded, assumed not <code>
+   *     null</code>
    * @throws IOException if loading the file fails.
    */
   private synchronized void loadProperties(PSObservableFile configFile) throws IOException {
@@ -154,11 +149,11 @@ public class PSAuthTypes implements Observer {
   }
 
   /**
-   * Helper method to handle exception during loading of config file. Prints a
-   * detailed message to log file/server console.
+   * Helper method to handle exception during loading of config file. Prints a detailed message to
+   * log file/server console.
    *
-   * @param e Exception thrown by the system while trying to load the config
-   *           file, assumed not <code>null</code>
+   * @param e Exception thrown by the system while trying to load the config file, assumed not
+   *     <code>null</code>
    */
   private void handleException(IOException e) {
     m_log.error(
@@ -170,15 +165,14 @@ public class PSAuthTypes implements Observer {
   }
 
   /**
-   * Reference to instance of this class. Created only once in
-   * {@link #getInstance()} method. Never <code>null</code> after that.
+   * Reference to instance of this class. Created only once in {@link #getInstance()} method. Never
+   * <code>null</code> after that.
    */
   private static PSAuthTypes ms_this = null;
 
   /**
-   * The observable config file from which the properties are loaded initially
-   * and whenever the file is modified. Never <code>null</code> and never
-   * modified.
+   * The observable config file from which the properties are loaded initially and whenever the file
+   * is modified. Never <code>null</code> and never modified.
    */
   private static final PSObservableFile ms_configFile =
       new PSObservableFile(
@@ -189,15 +183,12 @@ public class PSAuthTypes implements Observer {
               + IPSConstants.AUTHTYPE_PROP_FILE);
 
   /**
-   * Map of all authtype-resource names implementing the authtypes. The key in
-   * the map is the value of the authtype (String) and the value is the name of
-   * the resource in the syntax of <RxApp>/<resource>. Never <code>null</code>
-   * and rebuilt everytime the config file is modified.
+   * Map of all authtype-resource names implementing the authtypes. The key in the map is the value
+   * of the authtype (String) and the value is the name of the resource in the syntax of
+   * <RxApp>/<resource>. Never <code>null</code> and rebuilt everytime the config file is modified.
    */
   private Map<String, String> m_authTypeMap = new HashMap<>();
 
-  /**
-   * Logger to write the error log.
-   */
+  /** Logger to write the error log. */
   private static final Logger m_log = LogManager.getLogger(PSAuthTypes.class);
 }

@@ -68,18 +68,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Singleton class to support the content browser web interface. All the results
- * returned are JSON strings that are meant to be parsed to JavaScript to
- * objects.
+ * Singleton class to support the content browser web interface. All the results returned are JSON
+ * strings that are meant to be parsed to JavaScript to objects.
  */
 public class PSContentBrowser {
   /**
-   * Get all registered sites from the system that are visible to the user
-   * based on folder security.
+   * Get all registered sites from the system that are visible to the user based on folder security.
    *
-   * @return site objects as JSON string that resolves to a JSON array. Never
-   * <code>null</code> or empty. May return a string that resolves to empty
-   * JSON array.
+   * @return site objects as JSON string that resolves to a JSON array. Never <code>null</code> or
+   *     empty. May return a string that resolves to empty JSON array.
    * @throws PSSiteManagerException
    * @throws JSONException
    * @throws PSErrorException
@@ -124,6 +121,7 @@ public class PSContentBrowser {
 
   /**
    * Finds and filters item summaries based on security.
+   *
    * @param path not null
    * @return not null maybe empty.
    * @throws PSErrorException
@@ -140,11 +138,10 @@ public class PSContentBrowser {
   /**
    * Get all root folders (Children of //Folders in the CX) from the system.
    *
-   * @param request request context to instantiate the server folder processor,
-   * must not be <code>null</code>.
-   * @return root folder objects as JSON string that resolves to a JSON array.
-   * Never <code>null</code> or empty. May return a string that resolves to
-   * empty JSON array.
+   * @param request request context to instantiate the server folder processor, must not be <code>
+   *     null</code>.
+   * @return root folder objects as JSON string that resolves to a JSON array. Never <code>null
+   *     </code> or empty. May return a string that resolves to empty JSON array.
    * @throws PSErrorException
    * @throws JSONException
    */
@@ -163,22 +160,20 @@ public class PSContentBrowser {
   }
 
   /**
-   * Get the children of the supplied absolute site folder path filtered for
-   * the supplied content type and slotid.
+   * Get the children of the supplied absolute site folder path filtered for the supplied content
+   * type and slotid.
    *
-   * @param request request context to instantiate the server folder processor,
-   * must not be <code>null</code>.
-   * @param absSiteFolderPath site folder path which is resolved to an absolute
-   * folder path as described in
-   * {@link #computeAbsoluteFolderPath(String, StringBuffer)}.
-   * @param contentTypeId content typeid to filter the items by,
-   * <code>null</code> if no filtering is needed.
-   * @param slotId id of the slot for which the children are being asked, must
-   * not be <code>null</code> or empty and must be a valid slot in the
-   * system.
-   * @return child folders and items of the supplied site folder as JSON string
-   * that resolves to a JSON array. Never <code>null</code> or empty. May
-   * return a string that resolves to empty JSON array.
+   * @param request request context to instantiate the server folder processor, must not be <code>
+   *     null</code>.
+   * @param absSiteFolderPath site folder path which is resolved to an absolute folder path as
+   *     described in {@link #computeAbsoluteFolderPath(String, StringBuffer)}.
+   * @param contentTypeId content typeid to filter the items by, <code>null</code> if no filtering
+   *     is needed.
+   * @param slotId id of the slot for which the children are being asked, must not be <code>null
+   *     </code> or empty and must be a valid slot in the system.
+   * @return child folders and items of the supplied site folder as JSON string that resolves to a
+   *     JSON array. Never <code>null</code> or empty. May return a string that resolves to empty
+   *     JSON array.
    * @throws PSSiteManagerException if site in the provided path does not exist.
    * @throws PSErrorException
    * @throws JSONException
@@ -244,19 +239,15 @@ public class PSContentBrowser {
   }
 
   /**
-   * Helper method to get the map of content ids and icon paths for the
-   * supplied summaries. The returned map may or may not contain all the
-   * content ids of the supplied summaries, the icon path may be
-   * <code>null</code> or empty. See
-   * {@link PSItemDefManager#getContentTypeIconPaths(List)} for details on how
-   * the icon paths are obtained.
+   * Helper method to get the map of content ids and icon paths for the supplied summaries. The
+   * returned map may or may not contain all the content ids of the supplied summaries, the icon
+   * path may be <code>null</code> or empty. See {@link
+   * PSItemDefManager#getContentTypeIconPaths(List)} for details on how the icon paths are obtained.
    *
    * @param summaries, item summaries for which icon paths are required.
-   * @param user the current user, if same as check out user of the item then
-   *           tip revision is used to detrmine the path otherwise current
-   *           revision is used.
-   * @return map of content ids and icon paths, may be empty but never
-   *         <code>null</code>.
+   * @param user the current user, if same as check out user of the item then tip revision is used
+   *     to detrmine the path otherwise current revision is used.
+   * @return map of content ids and icon paths, may be empty but never <code>null</code>.
    */
   private static Map<String, String> getIconPathMap(List<PSItemSummary> summaries, String user) {
     Map<String, String> icmap = new HashMap<String, String>();
@@ -282,20 +273,18 @@ public class PSContentBrowser {
   }
 
   /**
-   * Get the children of the supplied folder path filtered for the supplied
-   * content type.
+   * Get the children of the supplied folder path filtered for the supplied content type.
    *
-   * @param request request context to instantiate the server folder processor,
-   * must not be <code>null</code>.
-   * @param folderPath folder path, if starts with "//Sites" or "//Folders" it
-   * is unmodified. Otherwise, it will be prefixed with "//Folders" to make it
-   * an absolute path like "//Folders/<folderPath>". Must not be
-   * <code>null</code> or empty.
-   * @param contentTypeId content typeid to filter the items by,
-   * <code>null</code> if no filtering is needed.
-   * @return child folders and items of the supplied folder as JSON string that
-   * resolves to a JSON array. Never <code>null</code> or empty. May return a
-   * string that resolves to empty JSON array.
+   * @param request request context to instantiate the server folder processor, must not be <code>
+   *     null</code>.
+   * @param folderPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
+   *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
+   *     "//Folders/<folderPath>". Must not be <code>null</code> or empty.
+   * @param contentTypeId content typeid to filter the items by, <code>null</code> if no filtering
+   *     is needed.
+   * @return child folders and items of the supplied folder as JSON string that resolves to a JSON
+   *     array. Never <code>null</code> or empty. May return a string that resolves to empty JSON
+   *     array.
    * @throws PSErrorException
    * @throws JSONException
    */
@@ -329,19 +318,18 @@ public class PSContentBrowser {
   }
 
   /**
-   * Helper method to validate and correct the folder path following the
-   * following rules.
+   * Helper method to validate and correct the folder path following the following rules.
+   *
    * <p>
+   *
    * <ul>
-   * <li>Throws {@link IllegalArgumentException} if th supplied path is
-   * <code>null</code> or empty</li>
-   * <li>if the supplied path starts with "//Sites" or "//Folders" it is
-   * unmodified. Otherwise, it will be prefixed with "//Folders" to make it an
-   * absolute path like "//Folders/<folderPath>"</li>
+   *   <li>Throws {@link IllegalArgumentException} if th supplied path is <code>null</code> or empty
+   *   <li>if the supplied path starts with "//Sites" or "//Folders" it is unmodified. Otherwise, it
+   *       will be prefixed with "//Folders" to make it an absolute path like
+   *       "//Folders/<folderPath>"
    * </ul>
    *
    * @param folderPath folder path, Must not be <code>null</code> or empty.
-   *
    * @return path modified as above, never <code>null</code> or empty.
    */
   private static String validateFolderPath(String folderPath) throws IllegalArgumentException {
@@ -357,23 +345,23 @@ public class PSContentBrowser {
   }
 
   /**
-   * Create a folder with supplied name under the parent folder supplied (by
-   * path). The security/permissions and other properties og the new folder
-   * will be inherited from the parent folder.
+   * Create a folder with supplied name under the parent folder supplied (by path). The
+   * security/permissions and other properties og the new folder will be inherited from the parent
+   * folder.
    *
-   * @param request request context to instantiate the server folder processor,
-   * must not be <code>null</code>.
-   * @param parentSiteFolderPath parent folder path, must not be
-   * <code>null</code> or empty and should meet the following:
-   * <ul>
-   * <li>Must start with '/'</li>
-   * <li>The part between first '/' and the next '/' (or end) must be a site
-   * name registered in the system</li>
-   * </ul>
-   * @param folderName name of the new folder to create, must not be
-   * <code>null</code> or empty.
-   * @return JSON string that resolves to a JSON object representing the newly
-   * created folder, never <code>null</code> or empty.
+   * @param request request context to instantiate the server folder processor, must not be <code>
+   *     null</code>.
+   * @param parentSiteFolderPath parent folder path, must not be <code>null</code> or empty and
+   *     should meet the following:
+   *     <ul>
+   *       <li>Must start with '/'
+   *       <li>The part between first '/' and the next '/' (or end) must be a site name registered
+   *           in the system
+   *     </ul>
+   *
+   * @param folderName name of the new folder to create, must not be <code>null</code> or empty.
+   * @return JSON string that resolves to a JSON object representing the newly created folder, never
+   *     <code>null</code> or empty.
    * @throws PSSiteManagerException
    * @throws PSErrorException
    * @throws JSONException
@@ -394,20 +382,17 @@ public class PSContentBrowser {
   }
 
   /**
-   * Create a folder with supplied name under the parent folder supplied (by
-   * path). The security/permissions and other properties og the new folder
-   * will be inherited from the parent folder.
+   * Create a folder with supplied name under the parent folder supplied (by path). The
+   * security/permissions and other properties og the new folder will be inherited from the parent
+   * folder.
    *
-   * @param request request context to get the user name, must not be
-   * <code>null</code>.
-   * @param parentFolderPath folder path, if starts with "//Sites" or
-   * "//Folders" it is unmodified. Otherwise, it will be prefixed with
-   * "//Folders" to make it an absolute path like "//Folders/<folderPath>".
-   * Must not be <code>null</code> or empty.
-   * @param folderName name of the new folder to create, must not be
-   * <code>null</code> or empty.
-   * @return JSON string that resolves to a JSON object representing the newly
-   * created folder, never <code>null</code> or empty.
+   * @param request request context to get the user name, must not be <code>null</code>.
+   * @param parentFolderPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
+   *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
+   *     "//Folders/<folderPath>". Must not be <code>null</code> or empty.
+   * @param folderName name of the new folder to create, must not be <code>null</code> or empty.
+   * @return JSON string that resolves to a JSON object representing the newly created folder, never
+   *     <code>null</code> or empty.
    * @throws PSErrorException
    * @throws JSONException
    */
@@ -428,15 +413,11 @@ public class PSContentBrowser {
   }
 
   /**
-   * Evaluate if a folder can be created as child folder to the supplied folder
-   * id string.
+   * Evaluate if a folder can be created as child folder to the supplied folder id string.
    *
-   * @param request request context to load the folder permissions, must not be
-   * <code>null</code>.
-   * @param folderId contentid of the folder, must not be <code>null</code>
-   * or empty.
-   * @return <code>true</code> if user can create, <code>false</code>
-   * otherwise.
+   * @param request request context to load the folder permissions, must not be <code>null</code>.
+   * @param folderId contentid of the folder, must not be <code>null</code> or empty.
+   * @return <code>true</code> if user can create, <code>false</code> otherwise.
    * @throws PSCmsException
    */
   public static boolean canCreateFolder(IPSRequestContext request, String folderId)
@@ -451,17 +432,13 @@ public class PSContentBrowser {
   }
 
   /**
-   * Evaluate if a an item of given content type can be created as child to the
-   * supplied folder path.
+   * Evaluate if a an item of given content type can be created as child to the supplied folder
+   * path.
    *
-   * @param request request context to load the folder permissions, must not be
-   * <code>null</code>.
-   * @param parentFolderId contentid of the parent folder, must not be
-   * <code>null</code> or empty.
-   * @param contentType content type id string, must correspond to a type known
-   * to the system.
-   * @return <code>true</code> if user can create, <code>false</code>
-   * otherwise.
+   * @param request request context to load the folder permissions, must not be <code>null</code>.
+   * @param parentFolderId contentid of the parent folder, must not be <code>null</code> or empty.
+   * @param contentType content type id string, must correspond to a type known to the system.
+   * @return <code>true</code> if user can create, <code>false</code> otherwise.
    * @throws PSCmsException
    */
   public static boolean canCreateItem(
@@ -484,21 +461,19 @@ public class PSContentBrowser {
   /**
    * Helper method a site folder path to an absolute folder path.
    *
-   * @param absSiteFolderPath site folder path which is resolved as described
-   * below:
-   * <ul>
-   * <li> Must start with '/'. The string between first '/' and the next '/' is
-   * treated as the site name. If there is no second '/', everything after the
-   * first '/' is treated as the site name. </li>
-   * <li> Everything after the second '/' is assumed to be the folder path. If
-   * second '/' is not present then the folder path is an empty string. </li>
-   * <li>The absolute folder path is computed by appenidng the path in the
-   * second step and the folder root of the site object.</li>
-   * @param absFolderPath String buffer to store the parsed absolute folder
-   * path, must not be <code>null</code> and must be empty. Emptied if not
-   * empty.
-   * @return {@link IPSSite site} object corresponding to the site name parsed,
-   * never <code>null</code>.
+   * @param absSiteFolderPath site folder path which is resolved as described below:
+   *     <ul>
+   *       <li>Must start with '/'. The string between first '/' and the next '/' is treated as the
+   *           site name. If there is no second '/', everything after the first '/' is treated as
+   *           the site name.
+   *       <li>Everything after the second '/' is assumed to be the folder path. If second '/' is
+   *           not present then the folder path is an empty string.
+   *       <li>The absolute folder path is computed by appenidng the path in the second step and the
+   *           folder root of the site object.
+   * @param absFolderPath String buffer to store the parsed absolute folder path, must not be <code>
+   *     null</code> and must be empty. Emptied if not empty.
+   * @return {@link IPSSite site} object corresponding to the site name parsed, never <code>null
+   *     </code>.
    */
   public static IPSSite computeAbsoluteFolderPath(
       String absSiteFolderPath, StringBuffer absFolderPath) throws PSNotFoundException {
@@ -534,11 +509,11 @@ public class PSContentBrowser {
   /**
    * Get summaries of the children of supplied folder path.
    *
-   * @param request request context to instantiate the server folder processor,
-   * must not be <code>null</code>.
+   * @param request request context to instantiate the server folder processor, must not be <code>
+   *     null</code>.
    * @param absFolderPath absolute folder path must start with '//'.
-   * @return summaries of the child folders and items of the supplied folder.
-   * Never <code>null</code> may be empty.
+   * @return summaries of the child folders and items of the supplied folder. Never <code>null
+   *     </code> may be empty.
    * @throws PSErrorException
    */
   private static List<PSItemSummary> getFolderChildrenSummaries(
@@ -557,6 +532,7 @@ public class PSContentBrowser {
 
   /**
    * Filters Items Summaries that have no allowed operations.
+   *
    * @param items never null maybe empty.
    * @return never null maybe empty.
    */
@@ -573,6 +549,7 @@ public class PSContentBrowser {
 
   /**
    * Gets the content type label from its ID.
+   *
    * @param contentTypeId the ID of the content type.
    * @return the label (or name if label is empty) of the content type, not blank.
    */
@@ -599,12 +576,11 @@ public class PSContentBrowser {
   }
 
   /**
-   * Helper to convert the item summary object to a JSON object suitable to be
-   * a row in the content browser table.
+   * Helper to convert the item summary object to a JSON object suitable to be a row in the content
+   * browser table.
    *
    * @param summary item summary object assumed not <code>null</code>.
-   * @param iconMap map of content ids and icon paths, assumed not
-   *           <code>null</code>.
+   * @param iconMap map of content ids and icon paths, assumed not <code>null</code>.
    * @return corresponding JSON object, nevr <code>null</code>.
    * @throws JSONException
    */
@@ -623,8 +599,8 @@ public class PSContentBrowser {
   /**
    * Helper to get the id of the folder by path.
    *
-   * @param folderPath folder path in the form of "//Sites/foo/bar to return
-   * the id of the folder "bar", must not be <code>null</code> or empty.
+   * @param folderPath folder path in the form of "//Sites/foo/bar to return the id of the folder
+   *     "bar", must not be <code>null</code> or empty.
    * @return the contentid for the folder.
    * @throws PSErrorException
    */
@@ -638,17 +614,14 @@ public class PSContentBrowser {
   }
 
   /**
-   * Get the create item url for the given content type and parent site folder
-   * path.
+   * Get the create item url for the given content type and parent site folder path.
    *
-   * @param parentPath site folder path to craete the item under, must follow
-   * the syntax expected by
-   * {@link #computeAbsoluteFolderPath(String, StringBuffer)}.
-   * @param ctypeid content typeid string, must not be <code>null</code> or
-   * empty and must be a know content typeid.
-   * @return New item url as registered with the system for the given content
-   * type. All the required parameters are added including the parent folderid.
-   * Never <code>null</code> or empty.
+   * @param parentPath site folder path to craete the item under, must follow the syntax expected by
+   *     {@link #computeAbsoluteFolderPath(String, StringBuffer)}.
+   * @param ctypeid content typeid string, must not be <code>null</code> or empty and must be a know
+   *     content typeid.
+   * @return New item url as registered with the system for the given content type. All the required
+   *     parameters are added including the parent folderid. Never <code>null</code> or empty.
    * @throws PSSiteManagerException
    * @throws PSErrorException
    */
@@ -662,15 +635,13 @@ public class PSContentBrowser {
   /**
    * Get the create item url for the given content type and parent folder path.
    *
-   * @param parentPath folder path, if starts with "//Sites" or
-   * "//Folders" it is unmodified. Otherwise, it will be prefixed with
-   * "//Folders" to make it an absolute path like "//Folders/<parentPath>".
-   * Must not be <code>null</code> or empty.
-   * @param ctypeid content typeid string, must not be <code>null</code> or
-   * empty and must be a know content typeid.
-   * @return New item url as registered with the system for the given content
-   * type. All the required parameters are added including the parent folderid.
-   * Never <code>null</code> or empty.
+   * @param parentPath folder path, if starts with "//Sites" or "//Folders" it is unmodified.
+   *     Otherwise, it will be prefixed with "//Folders" to make it an absolute path like
+   *     "//Folders/<parentPath>". Must not be <code>null</code> or empty.
+   * @param ctypeid content typeid string, must not be <code>null</code> or empty and must be a know
+   *     content typeid.
+   * @return New item url as registered with the system for the given content type. All the required
+   *     parameters are added including the parent folderid. Never <code>null</code> or empty.
    * @throws PSErrorException
    */
   public static String getNewItemUrlByFolderPath(String parentPath, String ctypeid)
@@ -692,34 +663,24 @@ public class PSContentBrowser {
   }
 
   /**
-   * Name of the first column which is hidden and is unique for each row. Will
-   * be used by the client while sorting by columns.
+   * Name of the first column which is hidden and is unique for each row. Will be used by the client
+   * while sorting by columns.
    */
   public static final String COLUMN_ID = "Id";
 
-  /**
-   * Second column name.
-   */
+  /** Second column name. */
   public static final String COLUMN_NAME = "Name";
 
-  /**
-   * Third column name.
-   */
+  /** Third column name. */
   public static final String COLUMN_DESCRIPTION = "Description";
 
-  /**
-   * Data indicating type of id, where Item is 1, Folder is 2, Site is 9.
-   */
+  /** Data indicating type of id, where Item is 1, Folder is 2, Site is 9. */
   public static final String COLUMN_TYPE = "Type";
 
-  /**
-   * Path of the content type icon for an item.
-   */
+  /** Path of the content type icon for an item. */
   public static final String COLUMN_ICON_PATH = "IconPath";
 
-  /**
-   * Constant to indicate a site record type in {@link #COLUMN_TYPE}.
-   */
+  /** Constant to indicate a site record type in {@link #COLUMN_TYPE}. */
   public static final int SITE_TYPE = 9;
 
   private static Logger ms_logger = Logger.getLogger(PSContentBrowser.class);

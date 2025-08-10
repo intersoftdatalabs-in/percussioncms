@@ -19,21 +19,16 @@ package com.percussion.servlets.taglib;
 import javax.faces.component.UIComponent;
 
 /**
- * The span id tag allows the creation of elements in a JSF tree that have
- * calculate ids, which is useful for updating said elements using Ajax
+ * The span id tag allows the creation of elements in a JSF tree that have calculate ids, which is
+ * useful for updating said elements using Ajax
  *
  * @author dougrand
- *
  */
 public class PSSpanIdTag extends PSJSFBaseTag {
-  /**
-   * The id
-   */
+  /** The id */
   String m_definedid;
 
-  /**
-   * A CSS style to be applied
-   */
+  /** A CSS style to be applied */
   String m_inlineStyle;
 
   @Override

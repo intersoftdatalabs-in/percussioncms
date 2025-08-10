@@ -27,44 +27,32 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * The PSUpdateStatement class is the super-class for all data
- * modification statement (updates, inserts or deletes) handlers. The
- * statement is built from the PSUpdatePipe definitions. When a
- * request is received, the statement can be handed the request data and
- * executed.
+ * The PSUpdateStatement class is the super-class for all data modification statement (updates,
+ * inserts or deletes) handlers. The statement is built from the PSUpdatePipe definitions. When a
+ * request is received, the statement can be handed the request data and executed.
  *
- * @see        com.percussion.design.objectstore.PSUpdatePipe
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.design.objectstore.PSUpdatePipe
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUpdateStatement extends PSStatement {
-  /**
-   * This is an INSERT statement.
-   */
+  /** This is an INSERT statement. */
   public static final int TYPE_INSERT = 0x01;
 
-  /**
-   * This is an UPDATE statement.
-   */
+  /** This is an UPDATE statement. */
   public static final int TYPE_UPDATE = 0x02;
 
-  /**
-   * This is an DELETE statement.
-   */
+  /** This is an DELETE statement. */
   public static final int TYPE_DELETE = 0x04;
 
   /**
-   * Construct an update statement which can be executed as part of the
-   * update execution plan. The query may contain place holders, which
-   * must be filled prior to execution.
+   * Construct an update statement which can be executed as part of the update execution plan. The
+   * query may contain place holders, which must be filled prior to execution.
    *
-   * @param   connKey      the connection key to use to get the db conn
-   *
-   * @param   blocks      the statement blocks comprising this statement
-   *
-   * @param   type         the TYPE_xxx statement type
+   * @param connKey the connection key to use to get the db conn
+   * @param blocks the statement blocks comprising this statement
+   * @param type the TYPE_xxx statement type
    */
   public PSUpdateStatement(int connKey, IPSStatementBlock[] blocks, int type)
       throws com.percussion.data.PSDataExtractionException {
@@ -72,18 +60,13 @@ public class PSUpdateStatement extends PSStatement {
   }
 
   /**
-   * Construct an update statement which can be executed as part of the
-   * update execution plan. The query may contain place holders, which
-   * must be filled prior to execution.
+   * Construct an update statement which can be executed as part of the update execution plan. The
+   * query may contain place holders, which must be filled prior to execution.
    *
-   * @param   connKey      the connection key to use to get the db conn
-   *
-   * @param   blocks      the statement blocks comprising this statement
-   *
-   *   @param   buildSql      <code>true</code> to build the internal SQL
-   *                        string immediately
-   *
-   * @param   type         the TYPE_xxx statement type
+   * @param connKey the connection key to use to get the db conn
+   * @param blocks the statement blocks comprising this statement
+   * @param buildSql <code>true</code> to build the internal SQL string immediately
+   * @param type the TYPE_xxx statement type
    */
   public PSUpdateStatement(int connKey, IPSStatementBlock[] blocks, boolean buildSql, int type)
       throws com.percussion.data.PSDataExtractionException {
@@ -94,15 +77,12 @@ public class PSUpdateStatement extends PSStatement {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statement as a step in the execution
-   * plan. A result set will be generated containing the number of rows
-   * effected by the execution of this statement. The result set will be
-   * added to the execution data.
+   * Execute the data modification statement as a step in the execution plan. A result set will be
+   * generated containing the number of rows effected by the execution of this statement. The result
+   * set will be added to the execution data.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @exception   SQLException
-   *                     if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @exception SQLException if a SQL error occurs
    */
   public void execute(PSExecutionData data)
       throws java.sql.SQLException,
@@ -183,13 +163,11 @@ public class PSUpdateStatement extends PSStatement {
   }
 
   /**
-   * Trace the rowcount and request type for this data modification
-   * statement.
+   * Trace the rowcount and request type for this data modification statement.
    *
-   * @param   request  the PSRequest from which to obtain the LogHandler
-   * @param   type     the type of action that was performed
-   * @param   count    the number of rows affected by the action
-   *
+   * @param request the PSRequest from which to obtain the LogHandler
+   * @param type the type of action that was performed
+   * @param count the number of rows affected by the action
    */
   protected void traceRowAction(PSRequest request, String type, int count) {
     PSDebugLogHandler dh = (PSDebugLogHandler) request.getLogHandler();
@@ -200,14 +178,11 @@ public class PSUpdateStatement extends PSStatement {
   }
 
   /**
-   * Initializes the action in the supplied <code>PSTableChangeData</code>
-   * based on this statement's type.
+   * Initializes the action in the supplied <code>PSTableChangeData</code> based on this statement's
+   * type.
    *
-   * @param tableChangeData The table change data, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>tableChangeData</code> is
-   * <code>null</code>.
+   * @param tableChangeData The table change data, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>tableChangeData</code> is <code>null</code>.
    */
   protected void initTableChangeAction(PSTableChangeData tableChangeData) {
     if (tableChangeData == null)

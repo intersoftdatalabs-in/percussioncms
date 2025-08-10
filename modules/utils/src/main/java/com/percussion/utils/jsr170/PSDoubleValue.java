@@ -30,6 +30,7 @@ import javax.jcr.ValueFormatException;
 public class PSDoubleValue extends PSBaseValue<Double> {
   /**
    * Ctor
+   *
    * @param number any number, never <code>null</code>
    */
   public PSDoubleValue(Number number) {
@@ -41,6 +42,7 @@ public class PSDoubleValue extends PSBaseValue<Double> {
 
   /**
    * Ctor
+   *
    * @param value must be valid number
    * @throws ValueFormatException if invalid numeric format
    */

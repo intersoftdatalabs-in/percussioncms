@@ -22,31 +22,31 @@ import com.percussion.pagemanagement.data.PSPage;
 
 /**
  * The REST layer for page service.
- *   
+ *
  * @author YuBingChen
  */
 public interface IPSPageRestService {
 
-    /**
-     * Creates a page.
-     *
-     * @param page The new page info, not <code>null</code>.
-     * @return The created page ID, not blank.
-     */
-    String create(PSPage page);
+  /**
+   * Creates a page.
+   *
+   * @param page The new page info, not <code>null</code>.
+   * @return The created page ID, not blank.
+   */
+  String create(PSPage page);
 
-    /**
-     * Loads the specified page.
-     *
-     * @param id The ID of the page, not blank.
-     * @return The loaded page, not <code>null</code>.
-     */
-    PSPage load(String id);
+  /**
+   * Loads the specified page.
+   *
+   * @param id The ID of the page, not blank.
+   * @return The loaded page, not <code>null</code>.
+   */
+  PSPage load(String id);
 
-    /**
-     * Deletes the specified page.
-     *
-     * @param id The ID of the page, not blank.
-     */
-    void delete(String id);
+  /**
+   * Deletes the specified page.
+   *
+   * @param id The ID of the page, not blank.
+   */
+  void delete(String id);
 }

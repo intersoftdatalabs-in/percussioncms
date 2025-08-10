@@ -28,27 +28,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Simple utility class that gets and releases a JDBC connection from the
- * server's Database pool.
+ * Simple utility class that gets and releases a JDBC connection from the server's Database pool.
  */
 @Deprecated() // Use spring and hibernate instead
 public class PSConnectionMgr {
   /**
-   * Standard constructor used to create a <CODE>PSConnectionMgr</CODE> that
-   * can be used to get a server database pool connect for workflow use via
-   * {@link #getConnection()}
+   * Standard constructor used to create a <CODE>PSConnectionMgr</CODE> that can be used to get a
+   * server database pool connect for workflow use via {@link #getConnection()}
    */
   public PSConnectionMgr() throws SQLException {}
 
   /**
-   * Returns the JDBC connection object created by the server database pool
-   * which is a private member of the <CODE>PSConnectionMgr</CODE>; subsequent
-   * calls will return the same connection. When the user is done with the
-   * connection, it should be freed via a call to{@link #releaseConnection()}
-   * @return  the JDBC connection object from  server database pool associated
-   * with this connection manager.
-   * @throws  SQLException if an SQL error occurs
-   * @throws  NamingException if the datasource cannot be resolved
+   * Returns the JDBC connection object created by the server database pool which is a private
+   * member of the <CODE>PSConnectionMgr</CODE>; subsequent calls will return the same connection.
+   * When the user is done with the connection, it should be freed via a call to{@link
+   * #releaseConnection()}
+   *
+   * @return the JDBC connection object from server database pool associated with this connection
+   *     manager.
+   * @throws SQLException if an SQL error occurs
+   * @throws NamingException if the datasource cannot be resolved
    */
   public synchronized Connection getConnection() throws SQLException, NamingException {
     return getWithOptionsConnection();
@@ -72,19 +71,17 @@ public class PSConnectionMgr {
   }
 
   /**
-   * Returns a new JDBC connection object created by the DriverManager for
-   * which the maximum transaction isolation level has already been set.
-   * The connection is obtained using the driver, database and user
-   * information contained in the workflow properties file, which are the same
-   * as those used to create the standard workflow database connection via
-   * {@link #getConnection()}
-   * This method is intended for debugging and test use only, not as part
-   * of production workflow software. The connection created by this method
-   * should be freed by a call to {@link #releaseDebugConnection(Connection)}
+   * Returns a new JDBC connection object created by the DriverManager for which the maximum
+   * transaction isolation level has already been set. The connection is obtained using the driver,
+   * database and user information contained in the workflow properties file, which are the same as
+   * those used to create the standard workflow database connection via {@link #getConnection()}
+   * This method is intended for debugging and test use only, not as part of production workflow
+   * software. The connection created by this method should be freed by a call to {@link
+   * #releaseDebugConnection(Connection)}
    *
-   * @return  a JDBC connection object for debug use.
-   * @throws  SQLException if an SQL error occurs
-   * @throws  NamingException if the datasource cannot be resolved
+   * @return a JDBC connection object for debug use.
+   * @throws SQLException if an SQL error occurs
+   * @throws NamingException if the datasource cannot be resolved
    */
   public static Connection getDebugConnection() throws SQLException, NamingException {
     Connection connection = null;
@@ -98,11 +95,11 @@ public class PSConnectionMgr {
   }
 
   /**
-   * Releases a debug JDBC connection object.
-   * This is needed for because {@link #releaseConnection(Connection)}
-   * is not static.
-   * @param connection  connection to be released (closed)
-   * @throws            SQLException if an SQL error occurs
+   * Releases a debug JDBC connection object. This is needed for because {@link
+   * #releaseConnection(Connection)} is not static.
+   *
+   * @param connection connection to be released (closed)
+   * @throws SQLException if an SQL error occurs
    */
   public static void releaseDebugConnection(Connection connection) throws SQLException {
     if (connection != null) {
@@ -111,13 +108,13 @@ public class PSConnectionMgr {
   }
 
   /**
-   * Returns a new JDBC connection object created by the server database pool;
-   * Since the PSConnectionMgr does not keep track of this connection, the
-   * user is responsible for freeing it via a call to
-   * {@link #releaseConnection(Connection)}
-   * @return  a JDBC connection object from  server database pool.
-   * @throws  SQLException if an SQL error occurs
-   * @throws  NamingException if the datasource cannot be resolved
+   * Returns a new JDBC connection object created by the server database pool; Since the
+   * PSConnectionMgr does not keep track of this connection, the user is responsible for freeing it
+   * via a call to {@link #releaseConnection(Connection)}
+   *
+   * @return a JDBC connection object from server database pool.
+   * @throws SQLException if an SQL error occurs
+   * @throws NamingException if the datasource cannot be resolved
    */
   public static Connection getNewConnection() throws SQLException, NamingException {
     Connection connection = null;
@@ -135,7 +132,6 @@ public class PSConnectionMgr {
    * Releases a specific JDBC connection object from server pool
    *
    * @param connection The connection to release, ignored if <code>null</code>.
-   *
    * @throws SQLException If there are any errors.
    */
   @SuppressWarnings("deprecation")
@@ -146,22 +142,16 @@ public class PSConnectionMgr {
   }
 
   /**
-   * General constructor specifying characteristics of the desired connection:
-   * new/single connection, server/standalone connection, set/don't
-   * transaction isolation level. Private, for use only by other constructors,
-   * e.g.  {@link #getDebugConnection},  {@link #getNewConnection}
+   * General constructor specifying characteristics of the desired connection: new/single
+   * connection, server/standalone connection, set/don't transaction isolation level. Private, for
+   * use only by other constructors, e.g. {@link #getDebugConnection}, {@link #getNewConnection}
    *
-   * @param getNewConnection         <CODE>true</CODE> if connection request
-   *                                 will always produce new connections that
-   *                                 must be managed by the user,
-   *                                 <CODE>false</CODE> if a connection
-   *                                 should be created only if the
-   *                                 <CODE>PSConnectionMgr</CODE> has not yet
-   *                                 created and stored a connection.
-   * @param useDatabasePool          <CODE>true</CODE> if the connection
-   *                                 should come from the e2 server db pool
-   *                                 <CODE>false</CODE> to get a connection
-   *                                 via DriverManager.getConnection.
+   * @param getNewConnection <CODE>true</CODE> if connection request will always produce new
+   *     connections that must be managed by the user, <CODE>false</CODE> if a connection should be
+   *     created only if the <CODE>PSConnectionMgr</CODE> has not yet created and stored a
+   *     connection.
+   * @param useDatabasePool <CODE>true</CODE> if the connection should come from the e2 server db
+   *     pool <CODE>false</CODE> to get a connection via DriverManager.getConnection.
    * @throws SQLException if an error occurs
    */
   @SuppressWarnings("unused")
@@ -175,14 +165,14 @@ public class PSConnectionMgr {
   }
 
   /**
-   * Returns a JDBC connection object which that may be created by the
-   * database pool or by the DriverManager, and may be new or stored, and may
-   * have its transaction isolation level set to maximum, depending on options
-   * specified by the constructor {@link #PSConnectionMgr(boolean, boolean)}.
+   * Returns a JDBC connection object which that may be created by the database pool or by the
+   * DriverManager, and may be new or stored, and may have its transaction isolation level set to
+   * maximum, depending on options specified by the constructor {@link #PSConnectionMgr(boolean,
+   * boolean)}.
    *
-   * @return  a JDBC connection object with the desired characteristics
-   * @throws  SQLException if an SQL error occurs
-   * @throws  NamingException if the datasource cannot be found
+   * @return a JDBC connection object with the desired characteristics
+   * @throws SQLException if an SQL error occurs
+   * @throws NamingException if the datasource cannot be found
    */
   private synchronized Connection getWithOptionsConnection() throws SQLException, NamingException {
     Connection theConnection = null;
@@ -216,13 +206,11 @@ public class PSConnectionMgr {
   }
 
   /**
-   * This method takes care of the case issues in the select statements. We
-   * use this for table names only.
+   * This method takes care of the case issues in the select statements. We use this for table names
+   * only.
    *
    * @param identifier (Table name)
-   *
    * @return casef ixed identifier
-   *
    */
   private static String fixIdentifierCase(String identifier) {
     if (identifier == null) return null;
@@ -234,14 +222,11 @@ public class PSConnectionMgr {
   }
 
   /**
-   * This method qualifies the identifier with DBMS supproted way. for
-   * Example, the DBMS may or may not suport schemas, databases etc. We use
-   * this for table names only.
+   * This method qualifies the identifier with DBMS supproted way. for Example, the DBMS may or may
+   * not suport schemas, databases etc. We use this for table names only.
    *
    * @param sIdentifier (Table name)
-   *
    * @return fully qualified identifier (Table name).
-   *
    */
   public static String getQualifiedIdentifier(String sIdentifier) {
     PSConnectionDetail detail = null;
@@ -296,46 +281,40 @@ public class PSConnectionMgr {
   }
 
   /**
-   * Name of the database.  Initialized by first call to
-   * {@link #getQualifiedIdentifier(String)}, may be <code>null</code> or
-   * empty.
+   * Name of the database. Initialized by first call to {@link #getQualifiedIdentifier(String)}, may
+   * be <code>null</code> or empty.
    */
   private static String ms_database;
 
   /**
-   * Name of the schema/origin.  Initialized by first call to
-   * {@link #getQualifiedIdentifier(String)}, may be <code>null</code> or
-   * empty.
+   * Name of the schema/origin. Initialized by first call to {@link
+   * #getQualifiedIdentifier(String)}, may be <code>null</code> or empty.
    */
   private static String ms_schema;
 
   /**
-   * Indicates if connection info used by
-   * {@link #getQualifiedIdentifier(String)} has been initialized yet.
+   * Indicates if connection info used by {@link #getQualifiedIdentifier(String)} has been
+   * initialized yet.
    */
   private static boolean ms_initConnInfo = false;
 
-  /**
-   * <CODE>true</CODE> if a new connection should be returned, else
-   * <CODE>false</CODE>.
-   */
+  /** <CODE>true</CODE> if a new connection should be returned, else <CODE>false</CODE>. */
   public static boolean m_bGetNewConnection = false;
 
   /**
-   * <CODE>true</CODE> if the e2 server db pool should be used, else
-   * <CODE>false</CODE> to get a connection via DriverManager.getConnection.
+   * <CODE>true</CODE> if the e2 server db pool should be used, else <CODE>false</CODE> to get a
+   * connection via DriverManager.getConnection.
    */
   public static boolean m_bUseDatabasePool = true;
 
   /**
-   * Connection string for <CODE>DriverManager.getConnection</CODE> if
-   * e2 server db pool is not being used, else "".
+   * Connection string for <CODE>DriverManager.getConnection</CODE> if e2 server db pool is not
+   * being used, else "".
    */
   public static String m_sConnStr = "";
 
   /**
-   * Indicates if dbmd info used by
-   * {@link #getWithOptionsConnection()} has been initialized yet.
+   * Indicates if dbmd info used by {@link #getWithOptionsConnection()} has been initialized yet.
    */
   private static boolean ms_initDBMDInfo = false;
 
@@ -357,8 +336,6 @@ public class PSConnectionMgr {
   public static String m_sCatalogSeparator = ".";
   public static boolean m_bSupportsSchemasInDataManipulation = false;
 
-  /**
-   * Logger
-   */
+  /** Logger */
   private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 }

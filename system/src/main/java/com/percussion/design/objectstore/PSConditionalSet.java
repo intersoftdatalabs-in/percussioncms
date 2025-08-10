@@ -21,16 +21,14 @@ import com.percussion.util.PSCollection;
 import java.util.Iterator;
 
 /**
- * This class is a wrapper for a PSCollection of conditionals
- * so we can define a specific <code>toString()</code> method to print out
- * the collection of conditionals.
+ * This class is a wrapper for a PSCollection of conditionals so we can define a specific <code>
+ * toString()</code> method to print out the collection of conditionals.
  */
 public class PSConditionalSet extends PSCollection {
   /**
-   * Construct PSConditionalSet from a PSCollection of
-   * PSConditional objects
-   * @param coll PSCollection of PSConditional objects. Must not
-   * be <code>null</code>.
+   * Construct PSConditionalSet from a PSCollection of PSConditional objects
+   *
+   * @param coll PSCollection of PSConditional objects. Must not be <code>null</code>.
    */
   public PSConditionalSet(PSCollection coll) {
     this();
@@ -38,9 +36,7 @@ public class PSConditionalSet extends PSCollection {
     addAll(coll);
   }
 
-  /**
-   * Constructs an empty PSConditionalSet
-   */
+  /** Constructs an empty PSConditionalSet */
   public PSConditionalSet() {
     super(PSConditional.class);
   }
@@ -56,16 +52,11 @@ public class PSConditionalSet extends PSCollection {
   }
 
   /**
-   * Takes the collection of PSConditional objects and merges them
-   * together as a string for display adding parens if needed. The
-   * string will be truncated to m_maxLength which defaults to 42.
+   * Takes the collection of PSConditional objects and merges them together as a string for display
+   * adding parens if needed. The string will be truncated to m_maxLength which defaults to 42.
    *
-   * @param coll the PSCollection of PSConditional objects. Can be
-   * <code>null</code>.    *
-   *
-   * @return a String representing the collection of conditionals
-   * for display. May be empty.
-   *
+   * @param coll the PSCollection of PSConditional objects. Can be <code>null</code>. *
+   * @return a String representing the collection of conditionals for display. May be empty.
    */
   public String toString() {
     if (this.isEmpty()) return "";
@@ -98,9 +89,6 @@ public class PSConditionalSet extends PSCollection {
     return sb.toString().substring(0, m_maxLength - (sb.length() >= 3 ? 3 : sb.length())) + "...";
   }
 
-  /**
-   * toString max display length. Defaults to 42. Modified
-   * in {@link #setMaxDisplayLength(int)}.
-   */
+  /** toString max display length. Defaults to 42. Modified in {@link #setMaxDisplayLength(int)}. */
   private int m_maxLength = 42;
 }

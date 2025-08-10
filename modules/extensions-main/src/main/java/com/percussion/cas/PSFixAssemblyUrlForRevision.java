@@ -37,28 +37,27 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This exit is intended to corrrect the related link URLs in assembly XML
- * document for last public revision and typically goes onto a authtype
- * implementation resource, for example, sys_casSupport/casSupport_1 or any
- * custom authtype resource that needs corrections for tha last public revision.
- * It takes two optional parameters:
+ * This exit is intended to corrrect the related link URLs in assembly XML document for last public
+ * revision and typically goes onto a authtype implementation resource, for example,
+ * sys_casSupport/casSupport_1 or any custom authtype resource that needs corrections for tha last
+ * public revision. It takes two optional parameters:
+ *
  * <p>
+ *
  * <ol>
- * <li>Name of the element in the result XML document whose value represents of
- * the link URL to be corrected for last public revision. If the name specifed
- * starts with "@", then the link URL is taken from any element that has an
- * attribute with that name. Default is {@link #RELATEDLINKURL linkurl}</li>
- * <li>A flag ("yes" or "no" or "true" or "false") to instruct that the link
- * element has to be removed from the document if the related item never went to
- * public.</li>
- * <li>Content Valid flag string which is a comma separated list of content
- * valid flags, (e.g. i,x) for revision correction. If the current state of the
- * item has a content valid flag matching one of these then the revision is
- * corrected otherwise the URL is not modifed.</li>
+ *   <li>Name of the element in the result XML document whose value represents of the link URL to be
+ *       corrected for last public revision. If the name specifed starts with "@", then the link URL
+ *       is taken from any element that has an attribute with that name. Default is {@link
+ *       #RELATEDLINKURL linkurl}
+ *   <li>A flag ("yes" or "no" or "true" or "false") to instruct that the link element has to be
+ *       removed from the document if the related item never went to public.
+ *   <li>Content Valid flag string which is a comma separated list of content valid flags, (e.g.
+ *       i,x) for revision correction. If the current state of the item has a content valid flag
+ *       matching one of these then the revision is corrected otherwise the URL is not modifed.
  * </ol>
- * <p>
- * No exception is thrown in case of any processing error, instead the message
- * is logged to server log as well as application trace.
+ *
+ * <p>No exception is thrown in case of any processing error, instead the message is logged to
+ * server log as well as application trace.
  */
 public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -72,13 +71,12 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
   }
 
   /**
-   * Implementation of the interface method. See class description and
-   * {@link #fixRelatedContentUrl(IPSRequestContext, String, boolean)} for more
-   * details.
+   * Implementation of the interface method. See class description and {@link
+   * #fixRelatedContentUrl(IPSRequestContext, String, boolean)} for more details.
    *
    * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *      processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   *     processResultDocument(java.lang.Object[], com.percussion.server.IPSRequestContext,
+   *     org.w3c.dom.Document)
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -171,42 +169,36 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
   }
 
   /**
-   * Fix the revision parameter in the supplied related content URL for public
-   * revision. The contentid of the related item is parsed from the supplied
-   * URL. The following scheme is used to corerct teh URL:
+   * Fix the revision parameter in the supplied related content URL for public revision. The
+   * contentid of the related item is parsed from the supplied URL. The following scheme is used to
+   * corerct teh URL:
+   *
    * <p>
+   *
    * <ul>
-   * <li>If the URL does not have a
-   * {@link IPSHtmlParameters#SYS_CONTENTID contentid}parameter, then the URL
-   * is returned as it is.</li>
-   * <li>Existence of revision {@link IPSHtmlParameters#SYS_REVISION revision}
-   * parameter in the URL is checked and if it does not have revision parameter
-   * at all then the the URL is returned unmodified.</li>
-   * <li>If the item was ever gone public then the revision parameter in the
-   * URL will be replaced with tha last public revision.</li>
-   * <li>If the item was never gone public and the the nullIfNeverPublic
-   * option is (third argument to this method) <code>true</code>, then the
-   * return value will be <code>null</code></li>
-   * <li>If the item was never gone public and the the nullIfNeverPublic
-   * option is (third argument to this method) <code>false</code>, then URL
-   * will be returned unmodified.</li>
+   *   <li>If the URL does not have a {@link IPSHtmlParameters#SYS_CONTENTID contentid}parameter,
+   *       then the URL is returned as it is.
+   *   <li>Existence of revision {@link IPSHtmlParameters#SYS_REVISION revision} parameter in the
+   *       URL is checked and if it does not have revision parameter at all then the the URL is
+   *       returned unmodified.
+   *   <li>If the item was ever gone public then the revision parameter in the URL will be replaced
+   *       with tha last public revision.
+   *   <li>If the item was never gone public and the the nullIfNeverPublic option is (third argument
+   *       to this method) <code>true</code>, then the return value will be <code>null</code>
+   *   <li>If the item was never gone public and the the nullIfNeverPublic option is (third argument
+   *       to this method) <code>false</code>, then URL will be returned unmodified.
    * </ul>
    *
-   * @param request the request used to make internal lookups, must not be
-   *           <code>null</code>.
-   * @param relatedContentUrl the related content url string that will be
-   *           fixed, must not be <code>null</code>.
-   * @param nullIfNeverPublic flag to indicate to return <code>null</code> if
-   *           the item was never gone public.
-   * @param contentValidString string which is a comma separated list of
-   *           content valid flags, (e.g. i,x) for revision correction. Must
-   *           not be <code>null</code> or empty.
-   * @return the fixed related content url, <code>null</code> if this url
-   *         should be skipped.
-   * @throws PSInternalRequestCallException for errors caused doing internal
-   *            lookups.
-   * @throws PSNotFoundException if a required resource is not found while
-   *            making lookup requests.
+   * @param request the request used to make internal lookups, must not be <code>null</code>.
+   * @param relatedContentUrl the related content url string that will be fixed, must not be <code>
+   *     null</code>.
+   * @param nullIfNeverPublic flag to indicate to return <code>null</code> if the item was never
+   *     gone public.
+   * @param contentValidString string which is a comma separated list of content valid flags, (e.g.
+   *     i,x) for revision correction. Must not be <code>null</code> or empty.
+   * @return the fixed related content url, <code>null</code> if this url should be skipped.
+   * @throws PSInternalRequestCallException for errors caused doing internal lookups.
+   * @throws PSNotFoundException if a required resource is not found while making lookup requests.
    * @throws PSRequestParsingException
    */
   public static String fixRelatedContentUrl(
@@ -281,14 +273,9 @@ public class PSFixAssemblyUrlForRevision extends PSDefaultExtension
     return fixedUrl;
   }
 
-  /**
-   * The element name returned from the rx_casSupport application for
-   * related link URL's.
-   */
+  /** The element name returned from the rx_casSupport application for related link URL's. */
   private static final String RELATEDLINKURL = "linkurl";
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger ms_log = LogManager.getLogger(PSFixAssemblyUrlForRevision.class);
 }

@@ -23,7 +23,6 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +34,7 @@ import java.util.Map;
  */
 public interface IPSConfigHandler {
 
-  /**
-   * The state of a design object.
-   */
+  /** The state of a design object. */
   enum ObjectState {
     /** The design object is defined in current configuration only. */
     CURRENT,
@@ -50,8 +47,10 @@ public interface IPSConfigHandler {
   /**
    * Processes the properties for the design object.
    *
-   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not provided.
-   * @param state the state of the specified design object, may be {@code null} if obj is {@code null}.
+   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not
+   *     provided.
+   * @param state the state of the specified design object, may be {@code null} if obj is {@code
+   *     null}.
    * @param associationSets list of association sets, may be {@code null}.
    * @return {@code true} if the design object has been modified.
    */
@@ -60,7 +59,8 @@ public interface IPSConfigHandler {
   /**
    * De-configures the properties previously applied. Called during uninstall.
    *
-   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not provided.
+   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not
+   *     provided.
    * @param associationSets list of association sets, may be {@code null}.
    * @return {@code true} if the design object has been modified.
    */
@@ -102,14 +102,15 @@ public interface IPSConfigHandler {
   void setName(String name);
 
   /**
-   * Gets the Design Objects loaded, created, or found from the cache.
-   * Must maintain the cache for loaded/created objects.
+   * Gets the Design Objects loaded, created, or found from the cache. Must maintain the cache for
+   * loaded/created objects.
    *
    * @param cachedObjs the cached Design Objects, maps name to object.
    * @return the Design Objects (with their state), never {@code null}, may be empty.
    * @throws PSNotFoundException if a referenced object is not found.
    */
-  List<PSPair<Object, ObjectState>> getDesignObjects(Map<String, Object> cachedObjs) throws PSNotFoundException;
+  List<PSPair<Object, ObjectState>> getDesignObjects(Map<String, Object> cachedObjs)
+      throws PSNotFoundException;
 
   /**
    * Gets the Design Object names along with their related state.
@@ -158,12 +159,14 @@ public interface IPSConfigHandler {
    *
    * @param model the model of the design object, never {@code null}.
    * @param obj the design object processed, never {@code null}.
-   * @param state the state of the specified design object, may be {@code null} if obj is {@code null}.
+   * @param state the state of the specified design object, may be {@code null} if obj is {@code
+   *     null}.
    * @param assocList the associations processed, may be {@code null} or empty.
    * @return the guid of the updated object.
    * @throws PSNotFoundException if a referenced object is not found.
    */
-  IPSGuid saveResult(IPSDesignModel model, Object obj, ObjectState state, List<IPSAssociationSet> assocList)
+  IPSGuid saveResult(
+      IPSDesignModel model, Object obj, ObjectState state, List<IPSAssociationSet> assocList)
       throws PSNotFoundException;
 
   /**
@@ -177,8 +180,10 @@ public interface IPSConfigHandler {
   /**
    * Returns the property defs of all the setters the handler consists of.
    *
-   * @param obj the design object from which the values of properties are obtained, may be {@code null}.
-   * @return a map of replacement name of the property and the value, never {@code null}, may be empty.
+   * @param obj the design object from which the values of properties are obtained, may be {@code
+   *     null}.
+   * @return a map of replacement name of the property and the value, never {@code null}, may be
+   *     empty.
    * @throws PSNotFoundException if a referenced object is not found.
    */
   Map<String, Object> getPropertyDefs(Object obj) throws PSNotFoundException;

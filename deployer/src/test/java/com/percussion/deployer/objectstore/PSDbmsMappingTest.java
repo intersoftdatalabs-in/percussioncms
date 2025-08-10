@@ -15,165 +15,136 @@
  * limitations under the License.
  */
 
-
 package com.percussion.deployer.objectstore;
-
-import com.percussion.xml.PSXmlDocumentBuilder;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit test class for the <code>PSDbmsMapping</code> class.
- */
-public class PSDbmsMappingTest
-{
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.IOException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-   @Rule
-   public Path temporaryFolder;
-   private String rxdeploydir;
+/** Unit test class for the <code>PSDbmsMapping</code> class. */
+public class PSDbmsMappingTest {
 
-   @BeforeEach 
-   public void setup() throws IOException {
+  @Rule public Path temporaryFolder;
+  private String rxdeploydir;
 
-      rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
-   }
+  @BeforeEach
+  public void setup() throws IOException {
 
-   @AfterEach
-   public void teardown(){
-      if(rxdeploydir != null)
-         System.setProperty("rxdeploydir",rxdeploydir);
-   }
+    rxdeploydir = System.getProperty("rxdeploydir");
+    System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
+  }
 
-   /**
-    * Construct this unit test
-    *
-    */
-    public PSDbmsMappingTest()
-   {
-      super();
-   }
+  @AfterEach
+  public void teardown() {
+    if (rxdeploydir != null) System.setProperty("rxdeploydir", rxdeploydir);
+  }
 
-   /**
-    * Test constructing this object using parameters
-    *
-    * @throws Exception If there are any errors.
-    */
-   @Test
-   public void testConstructor() throws Exception
-   {
-      PSDbmsInfo src = new PSDbmsInfo("rx-ds", "driver", "server", "db",
-            "orig", "uid", "pwd", false);
-      PSDbmsInfo tgt = new PSDbmsInfo("rx-dsTgt", "driverTgt", "serverTgt",
-            "dbTgt", "origTgt", "uidTgt", "pwdTgt", false);
+  /** Construct this unit test */
+  public PSDbmsMappingTest() {
+    super();
+  }
 
-      // these should work fine
-      assertTrue(testCtorValid(src, null));
-      assertTrue(testCtorValid(src, tgt));
+  /**
+   * Test constructing this object using parameters
+   *
+   * @throws Exception If there are any errors.
+   */
+  @Test
+  public void testConstructor() throws Exception {
+    PSDbmsInfo src = new PSDbmsInfo("rx-ds", "driver", "server", "db", "orig", "uid", "pwd", false);
+    PSDbmsInfo tgt =
+        new PSDbmsInfo(
+            "rx-dsTgt", "driverTgt", "serverTgt", "dbTgt", "origTgt", "uidTgt", "pwdTgt", false);
 
-      // should be a problem
-      assertTrue(!testCtorValid(null, src));
-   }
+    // these should work fine
+    assertTrue(testCtorValid(src, null));
+    assertTrue(testCtorValid(src, tgt));
 
-   /**
-    * Tests the equals methods
-    *
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testEquals() throws Exception
-   {
-      PSDbmsInfo src1 = new PSDbmsInfo("rx-ds", "driver", "server", "db",
-            "orig", "uid", "pwd", false);
-      PSDbmsInfo src2 = new PSDbmsInfo("rx-ds", "driver", "server", "db",
-            "orig", "uid", "pwd", false);
+    // should be a problem
+    assertTrue(!testCtorValid(null, src));
+  }
 
-      PSDbmsMapping mapping1 = new PSDbmsMapping(new PSDatasourceMap(src1
-            .getDatasource(), ""));
-      PSDbmsMapping mapping2 = new PSDbmsMapping(new PSDatasourceMap(src2
-            .getDatasource(), ""));
+  /**
+   * Tests the equals methods
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testEquals() throws Exception {
+    PSDbmsInfo src1 =
+        new PSDbmsInfo("rx-ds", "driver", "server", "db", "orig", "uid", "pwd", false);
+    PSDbmsInfo src2 =
+        new PSDbmsInfo("rx-ds", "driver", "server", "db", "orig", "uid", "pwd", false);
 
-      assertTrue(mapping1.equals(mapping2));
+    PSDbmsMapping mapping1 = new PSDbmsMapping(new PSDatasourceMap(src1.getDatasource(), ""));
+    PSDbmsMapping mapping2 = new PSDbmsMapping(new PSDatasourceMap(src2.getDatasource(), ""));
 
-      PSDbmsInfo mapping3 = new PSDbmsInfo("rx-ds", "driver3", "server", "db",
-            "orig", "uid", "pwd", false);
-      assertTrue(!mapping1.equals(mapping3));
+    assertTrue(mapping1.equals(mapping2));
 
-      mapping1.setTargetInfo(src2.getDatasource());
-      assertTrue(!mapping1.equals(mapping2));
+    PSDbmsInfo mapping3 =
+        new PSDbmsInfo("rx-ds", "driver3", "server", "db", "orig", "uid", "pwd", false);
+    assertTrue(!mapping1.equals(mapping3));
 
-      // test copy
-      assertEquals(mapping1, new PSDbmsMapping(mapping1));
-      assertEquals(mapping2, new PSDbmsMapping(mapping2));
-   }
+    mapping1.setTargetInfo(src2.getDatasource());
+    assertTrue(!mapping1.equals(mapping2));
 
-   /**
-    * Tests all Xml functions, and uses equals as well.
-    *
-    * @throws Exception if there are any errors.
-    */
-   @Test
-   public void testXml() throws Exception
-   {
-      // check object contains source only
-      PSDbmsInfo src1 = new PSDbmsInfo("rx-ds", "driver", "server", "db",
-            "orig", "uid", "pwd", false);
-      PSDbmsMapping mapping1 = new PSDbmsMapping(new PSDatasourceMap(src1
-            .getDatasource(), ""));
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element mapEl = mapping1.toXml(doc);
+    // test copy
+    assertEquals(mapping1, new PSDbmsMapping(mapping1));
+    assertEquals(mapping2, new PSDbmsMapping(mapping2));
+  }
 
-      PSDbmsMapping mapping2 = new PSDbmsMapping(mapEl);
+  /**
+   * Tests all Xml functions, and uses equals as well.
+   *
+   * @throws Exception if there are any errors.
+   */
+  @Test
+  public void testXml() throws Exception {
+    // check object contains source only
+    PSDbmsInfo src1 =
+        new PSDbmsInfo("rx-ds", "driver", "server", "db", "orig", "uid", "pwd", false);
+    PSDbmsMapping mapping1 = new PSDbmsMapping(new PSDatasourceMap(src1.getDatasource(), ""));
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element mapEl = mapping1.toXml(doc);
 
-      assertTrue(mapping1.equals(mapping2));
+    PSDbmsMapping mapping2 = new PSDbmsMapping(mapEl);
 
-      // check object contains source and target
-      PSDbmsInfo tgt1 = new PSDbmsInfo("rx-dsTgt", "driverTgt", "serverTgt",
-            "dbTgt", "origTgt", "uidTgt", "pwdTgt", false);
-      mapping1.setTargetInfo(tgt1.getDatasource());
-      doc = PSXmlDocumentBuilder.createXmlDocument();
-      mapEl = mapping1.toXml(doc);
+    assertTrue(mapping1.equals(mapping2));
 
-      mapping2 = new PSDbmsMapping(mapEl);
+    // check object contains source and target
+    PSDbmsInfo tgt1 =
+        new PSDbmsInfo(
+            "rx-dsTgt", "driverTgt", "serverTgt", "dbTgt", "origTgt", "uidTgt", "pwdTgt", false);
+    mapping1.setTargetInfo(tgt1.getDatasource());
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    mapEl = mapping1.toXml(doc);
 
-      assertTrue(mapping1.equals(mapping2));
-   }
+    mapping2 = new PSDbmsMapping(mapEl);
 
-   /**
-    * Constructs a <code>PSDbmsMapping</code> object using the
-    * supplied params and catches any exception.  For params,
-    * see {@link PSDbmsMapping} ctor.
-    *
-    * @return <code>true</code> if no exceptions were caught, <code>false</code>
-    * otherwise.
-    */
-   private boolean testCtorValid(PSDbmsInfo src, PSDbmsInfo tgt)
-   {
-      try
-      {
-         PSDbmsMapping mapping = new PSDbmsMapping(
-               new PSDatasourceMap(src.getDatasource(), ""));
-         if ( tgt != null )
-            mapping.setTargetInfo(tgt.getDatasource());
-      }
-      catch (Exception ex)
-      {
-         return false;
-      }
+    assertTrue(mapping1.equals(mapping2));
+  }
 
-      return true;
-   }
+  /**
+   * Constructs a <code>PSDbmsMapping</code> object using the supplied params and catches any
+   * exception. For params, see {@link PSDbmsMapping} ctor.
+   *
+   * @return <code>true</code> if no exceptions were caught, <code>false</code> otherwise.
+   */
+  private boolean testCtorValid(PSDbmsInfo src, PSDbmsInfo tgt) {
+    try {
+      PSDbmsMapping mapping = new PSDbmsMapping(new PSDatasourceMap(src.getDatasource(), ""));
+      if (tgt != null) mapping.setTargetInfo(tgt.getDatasource());
+    } catch (Exception ex) {
+      return false;
+    }
 
-
+    return true;
+  }
 }

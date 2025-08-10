@@ -22,17 +22,14 @@ import com.percussion.design.objectstore.IPSValidationContext;
 import com.percussion.design.objectstore.PSSystemValidationException;
 
 /**
- * Implements some of the methods in the IPSComponent interface that don't
- * vary across all or many of the components that will be implemented in the
- * CMS layer.
- * <p>Derived classes must save and restore the id in their to/fromXml methods.
- * They may need to override clone() to fulfill the deep-copy contract of
- * IPSComponent.
+ * Implements some of the methods in the IPSComponent interface that don't vary across all or many
+ * of the components that will be implemented in the CMS layer.
+ *
+ * <p>Derived classes must save and restore the id in their to/fromXml methods. They may need to
+ * override clone() to fulfill the deep-copy contract of IPSComponent.
  */
 public abstract class PSCmsComponent implements IPSComponent {
-  /**
-   * Creates an instance. Designed only for use as a base class.
-   */
+  /** Creates an instance. Designed only for use as a base class. */
   protected PSCmsComponent() {}
 
   // see interface for description
@@ -63,8 +60,8 @@ public abstract class PSCmsComponent implements IPSComponent {
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {}
 
   /**
-   * A storage slot for users of components. Derived classes must re/store this
-   * value in their to/from Xml methods. Defaults to 0.
+   * A storage slot for users of components. Derived classes must re/store this value in their
+   * to/from Xml methods. Defaults to 0.
    */
   private int m_id = 0;
 }

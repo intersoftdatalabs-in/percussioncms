@@ -33,8 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * PSContentAdhocUsersContext class is a wrapper class providing access to the
- * records and fields of the backend table 'CONTENTADHOCUSERS'.
+ * PSContentAdhocUsersContext class is a wrapper class providing access to the records and fields of
+ * the backend table 'CONTENTADHOCUSERS'.
  */
 @Deprecated
 public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
@@ -42,10 +42,10 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   private static final Logger log = LogManager.getLogger(PSContentAdhocUsersContext.class);
 
   /**
-   * Constructor specifying content ID, used to create a context with no
-   * content adhoc user information in its local variables.
+   * Constructor specifying content ID, used to create a context with no content adhoc user
+   * information in its local variables.
    *
-   * @param contentID   content ID of the item/document
+   * @param contentID content ID of the item/document
    */
   public PSContentAdhocUsersContext(int contentID) {
     m_nContentID = contentID;
@@ -61,13 +61,11 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   }
 
   /**
-   * Constructor specifying content ID and database connection, retrieves
-   * information from the database.
+   * Constructor specifying content ID and database connection, retrieves information from the
+   * database.
    *
-   * @param contentID   content ID of the current item/document
-   *
-   * @param connection  database connection - must not be <CODE>null</CODE>
-   *
+   * @param contentID content ID of the current item/document
+   * @param connection database connection - must not be <CODE>null</CODE>
    * @throws SQLException if an SQL error occurs
    * @throws IllegalArgumentException if the connection is <CODE>null</CODE>
    */
@@ -131,14 +129,10 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   }
 
   /**
-   * Moves the cursor to next record in the resultset and updates the current
-   * column values.
+   * Moves the cursor to next record in the resultset and updates the current column values.
    *
-   * @return <CODE>true</CODE> if another record is read else
-   *  <CODE>false</CODE>
-   *
+   * @return <CODE>true</CODE> if another record is read else <CODE>false</CODE>
    * @throws SQLException A SQL error
-   *
    */
   private boolean moveNext() throws SQLException {
     boolean bSuccess = m_Rs.next();
@@ -152,9 +146,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
     return bSuccess;
   }
 
-  /**
-   * Closes the result set and statement if necessary
-   */
+  /** Closes the result set and statement if necessary */
   private void close() {
     // release resources
     try {
@@ -173,13 +165,13 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
   }
 
   /**
-   * Deletes database entries for all adhoc assignees for this content item,
-   * optionally clearing context variables containing this information.
+   * Deletes database entries for all adhoc assignees for this content item, optionally clearing
+   * context variables containing this information.
    *
-   * @param clearStateVariables  <CODE>true</CODE>  if context variables
-   *                             should be cleared, else <CODE>false</CODE>.
-   * @return                     number of entries deleted
-   * @throws                     SQLException if an SQL error occurs
+   * @param clearStateVariables <CODE>true</CODE> if context variables should be cleared, else
+   *     <CODE>false</CODE>.
+   * @return number of entries deleted
+   * @throws SQLException if an SQL error occurs
    */
   private int emptyAdhocUserEntries(boolean clearStateVariables) throws SQLException {
     int numEntriesDeleted;
@@ -493,120 +485,76 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
     return buf.toString();
   }
 
-  /**
-   * Reusable prepared statement object.
-   */
+  /** Reusable prepared statement object. */
   private PreparedStatement m_Statement = null;
 
-  /**
-   * Local variable referencing the opened connection.
-   */
+  /** Local variable referencing the opened connection. */
   private Connection m_connection = null;
 
-  /**
-   * Reusable ResultSet object.
-   */
+  /** Reusable ResultSet object. */
   private ResultSet m_Rs = null;
 
-  /**
-   * Number of adhoc user records found.
-   */
+  /** Number of adhoc user records found. */
   private int m_nCount = 0;
 
-  /**
-   * Content ID for which adhoc users are valid
-   *
-   */
+  /** Content ID for which adhoc users are valid */
   private int m_nContentID;
 
-  /**
-   * Username at the current cursor position - updated every time moveNext().
-   * is called
-   */
+  /** Username at the current cursor position - updated every time moveNext(). is called */
   private String m_sUserName = "";
 
   /**
-   * Adhoc type at the current cursor position - updated every time
-   * moveNext() is called, valid values in the database are
-   * <CODE>PSWorkFlowUtils.ADHOC_ENABLED</CODE> and
-   * <CODE>PSWorkFlowUtils.ADHOC_ANONYMOUS</CODE>
+   * Adhoc type at the current cursor position - updated every time moveNext() is called, valid
+   * values in the database are <CODE>PSWorkFlowUtils.ADHOC_ENABLED</CODE> and <CODE>
+   * PSWorkFlowUtils.ADHOC_ANONYMOUS</CODE>
    */
   private int m_nAdhocType = PSWorkFlowUtils.ADHOC_DISABLED;
 
-  /**
-   * RoleID at the current cursor position - updated every time
-   * moveNext().  is called.
-   */
+  /** RoleID at the current cursor position - updated every time moveNext(). is called. */
   private int m_nRoleID = 0;
 
-  /**
-   * Map of role IDs for adhoc normal assignees with trimmed lowercase
-   * username as key
-   */
+  /** Map of role IDs for adhoc normal assignees with trimmed lowercase username as key */
   private Map<String, List<Integer>> m_userNameToAdhocNormalRoleIDMap = new HashMap<>();
 
-  /**
-   * Map from adhoc role IDs to adhoc type
-   */
+  /** Map from adhoc role IDs to adhoc type */
   private Map<Integer, Integer> m_adhocRoleIDtoAdhocTypeMap = new HashMap<>();
 
-  /**
-   * Map of usernames for adhoc anonymous assignees with trimmed lowercase
-   * username as key
-   */
+  /** Map of usernames for adhoc anonymous assignees with trimmed lowercase username as key */
   private Map<String, String> m_lowerCaseUserNameToUserNameMap = new HashMap<>();
 
-  /**
-   * List of usernames of adhoc normal assignees
-   */
+  /** List of usernames of adhoc normal assignees */
   private List<String> m_adhocNormalUserNames = new ArrayList<>();
 
-  /**
-   * List of usernames of adhoc anonymous assignees
-   */
+  /** List of usernames of adhoc anonymous assignees */
   private List<String> m_adhocAnonymousUserNames = new ArrayList<>();
 
-  /**
-   * List of role IDs for adhoc anonymous assignees
-   */
+  /** List of role IDs for adhoc anonymous assignees */
   private List<Integer> m_adhocAnonymousRoleIDs = new ArrayList<>();
 
   /**
-   * Flag to indicate if the in memory data is out of sync with the repository
-   * after calling a method to save state to the database.  This may happen
-   * if {@link #emptyAdhocUserEntries(Connection, boolean)} is called passing
-   * <code>false</code> for the <code>clearState</code> param.
+   * Flag to indicate if the in memory data is out of sync with the repository after calling a
+   * method to save state to the database. This may happen if {@link
+   * #emptyAdhocUserEntries(Connection, boolean)} is called passing <code>false</code> for the
+   * <code>clearState</code> param.
    */
   private boolean m_dataOutOfSync = false;
 
-  /**
-   * static constant string that represents the column name in the table
-   */
+  /** static constant string that represents the column name in the table */
   private static final String USERNAME = "USERNAME";
 
-  /**
-   * static constant string that represents the column name in the table
-   */
+  /** static constant string that represents the column name in the table */
   private static final String ADHOCTYPE = "ADHOCTYPE";
 
-  /**
-   * static constant string that represents the column name in the table
-   */
+  /** static constant string that represents the column name in the table */
   private static final String ROLEID = "ROLEID";
 
-  /**
-   * static constant string that represents the unqualified table name.
-   */
+  /** static constant string that represents the unqualified table name. */
   private static final String CONTENTADHOCUSERS = "CONTENTADHOCUSERS";
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static final String TABLE_CAU = PSConnectionMgr.getQualifiedIdentifier(CONTENTADHOCUSERS);
 
-  /**
-   * SQL query string is constructed based on fully qualified table name(s).
-   */
+  /** SQL query string is constructed based on fully qualified table name(s). */
   private static final String QRYSTRING =
       "SELECT "
           + TABLE_CAU
@@ -621,9 +569,7 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
           + TABLE_CAU
           + ".CONTENTID=?)";
 
-  /**
-   * SQL string to insert a data base record for a new approval.
-   */
+  /** SQL string to insert a data base record for a new approval. */
   private static final String INSERTSTRING =
       "INSERT INTO "
           + TABLE_CAU
@@ -639,8 +585,8 @@ public class PSContentAdhocUsersContext implements IPSContentAdhocUsersContext {
           + "VALUES(?,?,?,?)";
 
   /**
-   * SQL string to delete all data base record for approvals for given content
-   * item with a given initial state.
+   * SQL string to delete all data base record for approvals for given content item with a given
+   * initial state.
    */
   private static final String DELETESTRING =
       "DELETE FROM " + TABLE_CAU + " WHERE ( " + TABLE_CAU + ".CONTENTID=?)";

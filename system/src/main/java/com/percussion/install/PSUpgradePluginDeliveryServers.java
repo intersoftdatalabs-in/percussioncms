@@ -24,8 +24,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Upgrades the delivery servers file.  This includes updating the user/password values as well as adding available
- * services.
+ * Upgrades the delivery servers file. This includes updating the user/password values as well as
+ * adding available services.
  */
 public class PSUpgradePluginDeliveryServers extends PSUpgradePluginDeliveryServersBase {
   protected void upgradeDeliveryServer(Document doc, Element deliveryServer) {

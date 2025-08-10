@@ -17,23 +17,21 @@
 
 package com.percussion.rest.roles;
 
-import com.percussion.rest.MainTest;
-
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.percussion.rest.MainTest;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 @Tag("IntegrationTest")
 public class RolesTest extends MainTest {
 
-    @Test
-    public void testNeverNull() {
-        var r = new Role();
-        assertNotNull(r.getDescription(), "Should never be null");
-        assertNotNull(r.getName(), "Should never be null");
-        assertNotNull(r.getDescription(), "Should never be null");
-        assertNotNull(r.getUsers(), "Should never be null");
-    }
+  @Test
+  public void testNeverNull() {
+    var r = new Role();
+    assertNotNull(r.getDescription(), "Should never be null");
+    assertNotNull(r.getName(), "Should never be null");
+    assertNotNull(r.getDescription(), "Should never be null");
+    assertNotNull(r.getUsers(), "Should never be null");
+  }
 }

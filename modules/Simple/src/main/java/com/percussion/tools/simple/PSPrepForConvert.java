@@ -43,17 +43,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * This class prepares for the running of the backend converter program
- * by creating a locator document from the specified install's server
- * properties file. The converter uses this file to set the database credentials
- * and connection info in the objectstore files
+ * This class prepares for the running of the backend converter program by creating a locator
+ * document from the specified install's server properties file. The converter uses this file to set
+ * the database credentials and connection info in the objectstore files
  */
 public class PSPrepForConvert {
 
   /**
    * Creates a new instance of PrepForConvert
-   * @param serverBase the base directory path for the server to be converted
-   * Never <code>null</code>.
+   *
+   * @param serverBase the base directory path for the server to be converted Never <code>null
+   *     </code>.
    */
   public PSPrepForConvert(String serverBase) {
     if (null == serverBase) throw new IllegalArgumentException("Server base cannot be null.");
@@ -73,9 +73,7 @@ public class PSPrepForConvert {
     }
   }
 
-  /**
-   * Creates a new locator xml file based on the install's server properties
-   */
+  /** Creates a new locator xml file based on the install's server properties */
   public void execute() {
 
     File dir = new File(m_serverBase.getPath() + INSTALL_UPDATE_DIR_PATH);
@@ -117,8 +115,8 @@ public class PSPrepForConvert {
   }
 
   /**
-   * Modifies the rxrepository.properties file to reflect the db settings
-   * in the passed in server properties.
+   * Modifies the rxrepository.properties file to reflect the db settings in the passed in server
+   * properties.
    *
    * @param props the server properties, cannot be <code>null</code>.
    */
@@ -184,19 +182,12 @@ public class PSPrepForConvert {
   }
 
   /**
-   * Adds a child element to the node passed in using the name and
-   * value specified. If no value is specified then an empty element is
-   * created.
+   * Adds a child element to the node passed in using the name and value specified. If no value is
+   * specified then an empty element is created.
    *
-   * @param parent the parent node to add this element to, cannot be
-   * <code>null</code>.
-   *
-   * @param name the name of the element to be added, cannot be
-   * <code>null</code> or empty.
-   *
-   * @param value the value of this element, may be <code>null</code> or
-   * empty.
-   *
+   * @param parent the parent node to add this element to, cannot be <code>null</code>.
+   * @param name the name of the element to be added, cannot be <code>null</code> or empty.
+   * @param value the value of this element, may be <code>null</code> or empty.
    * @return the newly created element, never <code>null</code>.
    */
   private Element addChildElement(Node parent, String name, String value) {
@@ -214,14 +205,11 @@ public class PSPrepForConvert {
   }
 
   /**
-   * Retrieves the server properties file as a Properties
-   * object
+   * Retrieves the server properties file as a Properties object
    *
-   * @param path the path to the property file, cannot be
-   * <code>null</code> or empty.
-   * @return Properties object that representsthe server
-   * properties file. Returns <code>null</code> if the properties
-   * file does not exist.
+   * @param path the path to the property file, cannot be <code>null</code> or empty.
+   * @return Properties object that representsthe server properties file. Returns <code>null</code>
+   *     if the properties file does not exist.
    */
   private Properties getProperties(String path) {
     if (null == path || path.trim().length() == 0)
@@ -243,6 +231,7 @@ public class PSPrepForConvert {
 
   /**
    * Saves the xml document back to a file
+   *
    * @param doc the xml document node to save. May not be <code>null</code>.
    * @param file the file to save. May not be <code>null</code>.
    */
@@ -270,142 +259,86 @@ public class PSPrepForConvert {
     }
   }
 
-  /**
-   * The server base directory path. Set in ctor never <code>null</code>
-   * after that.
-   */
+  /** The server base directory path. Set in ctor never <code>null</code> after that. */
   private File m_serverBase;
 
-  /**
-   * DocumentBuilder instance. Set in ctor never <code>null</code>
-   * after that.
-   */
+  /** DocumentBuilder instance. Set in ctor never <code>null</code> after that. */
   private DocumentBuilder m_docBuilder;
 
-  /**
-   * The relative server property file path
-   */
+  /** The relative server property file path */
   private static final String PROPERTY_FILE_PATH = "/rxconfig/Server/server.properties";
 
-  /**
-   * The relative rxInstallUpdate directory path
-   */
+  /** The relative rxInstallUpdate directory path */
   private static final String INSTALL_UPDATE_DIR_PATH = "/rxInstallUpdate";
 
-  /**
-   * The relative server property file path
-   */
+  /** The relative server property file path */
   private static final String LOCATOR_FILE_PATH =
       INSTALL_UPDATE_DIR_PATH + "/rxInstallUpdateLocator.xml";
 
-  /**
-   * The relative rxrepository property file path
-   */
+  /** The relative rxrepository property file path */
   private static final String REPOSITORY_PROPERTY_FILE_PATH =
       INSTALL_UPDATE_DIR_PATH + "/rxrepository.properties";
 
-  /**
-   * The property file key for the driver property
-   */
+  /** The property file key for the driver property */
   private static final String DRIVER_PROP_KEY = "driverType";
 
-  /**
-   * The property file key for the server property
-   */
+  /** The property file key for the server property */
   private static final String SERVER_PROP_KEY = "serverName";
 
-  /**
-   * The property file key for the database property
-   */
+  /** The property file key for the database property */
   private static final String DATABASE_PROP_KEY = "databaseName";
 
-  /**
-   * The property file key for the origin property
-   */
+  /** The property file key for the origin property */
   private static final String ORIGIN_PROP_KEY = "schemaName";
 
-  /**
-   * The property file key for the login password property
-   */
+  /** The property file key for the login password property */
   private static final String PASSWORD_PROP_KEY = "loginPw";
 
-  /**
-   * The property file key for the login user id property
-   */
+  /** The property file key for the login user id property */
   private static final String USERID_PROP_KEY = "loginId";
 
-  /**
-   * The backend table xml element node
-   */
+  /** The backend table xml element node */
   private static final String ELEM_BACKENDTABLE = "PSXBackEndTable";
 
-  /**
-   * The back end converter xml element node
-   */
+  /** The back end converter xml element node */
   private static final String ELEM_BACKEND_CONVERTER = "BackEndConverter";
 
-  /**
-   * The table locator xml element node
-   */
+  /** The table locator xml element node */
   private static final String ELEM_TABLE_LOCATOR = "PSXTableLocator";
 
-  /**
-   * The back end credential xml element node
-   */
+  /** The back end credential xml element node */
   private static final String ELEM_BACKEND_CREDENTIAL = "PSXBackEndCredential";
 
-  /**
-   * The driver xml element node
-   */
+  /** The driver xml element node */
   private static final String ELEM_DRIVER = "driver";
 
-  /**
-   * The server xml element node
-   */
+  /** The server xml element node */
   private static final String ELEM_SERVER = "server";
 
-  /**
-   * The database xml element node
-   */
+  /** The database xml element node */
   private static final String ELEM_DATABASE = "Database";
 
-  /**
-   * The origin xml element node
-   */
+  /** The origin xml element node */
   private static final String ELEM_ORIGIN = "Origin";
 
-  /**
-   * The password xml element node
-   */
+  /** The password xml element node */
   private static final String ELEM_PASSWORD = "password";
 
-  /**
-   * The alias xml element node
-   */
+  /** The alias xml element node */
   private static final String ELEM_ALIAS = "alias";
 
-  /**
-   * The userID xml element node
-   */
+  /** The userID xml element node */
   private static final String ELEM_USERID = "userId";
 
-  /**
-   * The comment xml element node
-   */
+  /** The comment xml element node */
   private static final String ELEM_COMMENT = "comment";
 
-  /**
-   * The encrypted xml attribute node
-   */
+  /** The encrypted xml attribute node */
   private static final String ATTR_ENCRYPT = "encrypted";
 
-  /**
-   * The alias xml attribute node
-   */
+  /** The alias xml attribute node */
   private static final String ATTR_ALIAS = "alias";
 
-  /**
-   * The id xml attribute node
-   */
+  /** The id xml attribute node */
   private static final String ATTR_ID = "id";
 }

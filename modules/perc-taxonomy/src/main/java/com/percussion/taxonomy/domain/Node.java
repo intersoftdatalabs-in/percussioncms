@@ -22,10 +22,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Taxonomy Node class to represent information about its taxons.
- *
- */
+/** Taxonomy Node class to represent information about its taxons. */
 public class Node implements Comparable<Node> {
 
   ///////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +68,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns true or false to determine whether node is in use or not
+   *
    * @return in_use - true or false to determine whether node is in use or not
    */
   public boolean getIn_use() {
@@ -79,6 +77,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set true or false to identify whether node is in use or not
+   *
    * @param inUse - boolean true or false to identify whether node is in use or not
    */
   public void setIn_use(boolean inUse) {
@@ -89,6 +88,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns collection of Value objects
+   *
    * @return
    */
   public Collection<Value> getValues() {
@@ -97,6 +97,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set Value objects
+   *
    * @param values - Values collection
    */
   public void setValues(Collection<Value> values) {
@@ -105,6 +106,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Add value to values collection
+   *
    * @param value - Value object
    */
   public void addValue(Value value) {
@@ -118,6 +120,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns unique id of Node
+   *
    * @return id - unique node id
    */
   public int getId() {
@@ -126,6 +129,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set unique node id
+   *
    * @param id - int value to set unique node id
    */
   public void setId(int id) {
@@ -135,7 +139,8 @@ public class Node implements Comparable<Node> {
   ///////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * Returns status of the  node
+   * Returns status of the node
+   *
    * @return node_status
    */
   public Node_status getNode_status() {
@@ -144,6 +149,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set node status
+   *
    * @param node_status
    */
   public void setNode_status(Node_status node_status) {
@@ -154,6 +160,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns Taxonomy object
+   *
    * @return taxonomy - object of Taxonomy
    */
   public Taxonomy getTaxonomy() {
@@ -162,6 +169,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set Taxonomy object
+   *
    * @param taxonomy
    */
   public void setTaxonomy(Taxonomy taxonomy) {
@@ -172,6 +180,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns parent node object of this node
+   *
    * @return parent - parent node of this node
    */
   public Node getParent() {
@@ -180,6 +189,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set parent node of this node
+   *
    * @param parent - this node's parent
    */
   public void setParent(Node parent) {
@@ -190,6 +200,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns search String
+   *
    * @return search - String to be searched
    */
   public String getSearch() {
@@ -198,6 +209,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set search String
+   *
    * @param search
    */
   public void setSearch(String search) {
@@ -208,6 +220,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns default community id with which this node belongs
+   *
    * @return default_community_id
    */
   public int getDefault_community_id() {
@@ -216,6 +229,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set default community_id of this node
+   *
    * @param default_community_id - default community id of a node
    */
   public void setDefault_community_id(int default_community_id) {
@@ -226,6 +240,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns boolean true or false to determine whether given node is a leaf or not
+   *
    * @return not_leaf - ture or false to identify a leaf node
    */
   public boolean getNot_leaf() {
@@ -234,6 +249,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set true or false to identify whether a node is leaf or not
+   *
    * @param not_leaf
    */
   public void setNot_leaf(boolean not_leaf) {
@@ -244,6 +260,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Method returns flag indicating whether the node is selectable in the content editor
+   *
    * @return boolean
    */
   public boolean getIsNodeSelectable() {
@@ -252,6 +269,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Method sets a flag indicating whether the node is selectable in content editor
+   *
    * @param isNodeSelectable
    */
   public void setIsNodeSelectable(boolean isNodeSelectable) {
@@ -262,6 +280,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns node created by id
+   *
    * @return created_by_id -
    */
   public String getCreated_by_id() {
@@ -270,6 +289,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set node created by id
+   *
    * @param created_by_id
    */
   public void setCreated_by_id(String created_by_id) {
@@ -280,6 +300,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns created date and time
+   *
    * @return created_at - date and time of created
    */
   public Timestamp getCreated_at() {
@@ -288,6 +309,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set created date and time
+   *
    * @param created_at - Created date and time
    */
   public void setCreated_at(Timestamp created_at) {
@@ -298,6 +320,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns node modified by id
+   *
    * @return modified_by_id - node modified by id
    */
   public String getModified_by_id() {
@@ -306,6 +329,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set node modified by id
+   *
    * @param modified_by_id - node modified by id
    */
   public void setModified_by_id(String modified_by_id) {
@@ -316,6 +340,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns node modified date and time
+   *
    * @return modified_at - node modified at date and time
    */
   public Timestamp getModified_at() {
@@ -324,6 +349,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set node modified at date and time
+   *
    * @param modified_at - Node modified date and time
    */
   public void setModified_at(Timestamp modified_at) {
@@ -334,6 +360,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Returns collection of related nodes of a node
+   *
    * @return relatedNodesForNodeId - collection of related nodes
    */
   public Collection<Related_node> getRelatedNodesForNodeId() {
@@ -344,6 +371,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set related nodes collection of a node
+   *
    * @param relatedNodesForNodeId
    */
   public void setRelatedNodesForNodeId(Collection<Related_node> relatedNodesForNodeId) {
@@ -354,6 +382,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Return collection of node editors
+   *
    * @return nodeEditors - editors of the node
    */
   public Collection<Node_editor> getNodeEditors() {
@@ -362,6 +391,7 @@ public class Node implements Comparable<Node> {
 
   /**
    * Set collectin of node editors
+   *
    * @param nodeEditors
    */
   public void setNodeEditors(Collection<Node_editor> nodeEditors) {
@@ -370,9 +400,7 @@ public class Node implements Comparable<Node> {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Compare node to sort them by node id
-   */
+  /** Compare node to sort them by node id */
   public int compareTo(Node node) {
     if (node.getId() > id) {
       return -1;
@@ -385,8 +413,9 @@ public class Node implements Comparable<Node> {
   /**
    * Returns a string representation of the object.
    *
-   * YOU CANT REFERENCE THE OTHER LAZY-LOADED OBJECT ---- THE DOMAIN MODEL IS COMPLETELY JACKED
-   * AND YOU WILL GET HIBERNATE EXCEPTIONS IF YOU TRY TO PULL THE TAXONOMY AND OTHER DOMAIN OBJECTS HERE
+   * <p>YOU CANT REFERENCE THE OTHER LAZY-LOADED OBJECT ---- THE DOMAIN MODEL IS COMPLETELY JACKED
+   * AND YOU WILL GET HIBERNATE EXCEPTIONS IF YOU TRY TO PULL THE TAXONOMY AND OTHER DOMAIN OBJECTS
+   * HERE
    */
   public String toString() {
     return "ID: "

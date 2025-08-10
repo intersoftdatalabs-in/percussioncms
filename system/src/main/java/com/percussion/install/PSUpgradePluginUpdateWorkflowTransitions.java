@@ -27,25 +27,22 @@ import java.util.Properties;
 import org.w3c.dom.Element;
 
 /**
- * Update the transitions names and flows for the default workflow.
- * Approved Step:
- *    · Change the transition name from Take Down to Archive. Change the trigger value as well from Take Down to Archive
- * Archive Step:
- *    · Change the transition name from Submit to Resubmit. Change the trigger value as well from Submit to Resubmit.
- *    · Change the “to state” of that transition to Draft.
+ * Update the transitions names and flows for the default workflow. Approved Step: · Change the
+ * transition name from Take Down to Archive. Change the trigger value as well from Take Down to
+ * Archive Archive Step: · Change the transition name from Submit to Resubmit. Change the trigger
+ * value as well from Submit to Resubmit. · Change the “to state” of that transition to Draft.
  *
  * @author leonardohildt
  * @author rafaelsalis
- *
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateWorkflowTransitions implements IPSUpgradePlugin {
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -117,8 +114,8 @@ public class PSUpgradePluginUpdateWorkflowTransitions implements IPSUpgradePlugi
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid.
    * @return the table

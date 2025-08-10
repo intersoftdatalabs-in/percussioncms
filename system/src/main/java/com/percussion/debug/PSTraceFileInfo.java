@@ -30,7 +30,9 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * Used to generate trace messages for the File Information trace messages type (0x0004) if a post includes one or more files.  Includes the name, mime type and length for each, and if each is treated as XML or a single value.
+ * Used to generate trace messages for the File Information trace messages type (0x0004) if a post
+ * includes one or more files. Includes the name, mime type and length for each, and if each is
+ * treated as XML or a single value.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceFileInfo extends PSTraceMessage {
@@ -51,13 +53,14 @@ public class PSTraceFileInfo extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.  For all files included in a POST, prints out
-   * the Name, Mime type, and length of each file, or, if the file is treated as XML.
-   * @param source a PSRequest object containing the information required for the
-   * trace message.  Call getParameters on it and check for a parameter with a value
-   * that is an instance of a File.  Also, if getInputDocument does not return a
-   * <code>null</code>, then its a file treated as XML.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object. For all files included in a POST, prints out the Name, Mime type, and length of
+   * each file, or, if the file is treated as XML.
+   *
+   * @param source a PSRequest object containing the information required for the trace message.
+   *     Call getParameters on it and check for a parameter with a value that is an instance of a
+   *     File. Also, if getInputDocument does not return a <code>null</code>, then its a file
+   *     treated as XML.
    * @return the message body
    * @roseuid 39FEE2F2030D
    */

@@ -22,8 +22,8 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 /**
- * A simple wrapper around PSDbComponentList that simplifies use by providing
- * the class name of the class is stored in the list.
+ * A simple wrapper around PSDbComponentList that simplifies use by providing the class name of the
+ * class is stored in the list.
  */
 public class PSSFields extends PSDbComponentList {
   /*
@@ -52,13 +52,10 @@ public class PSSFields extends PSDbComponentList {
   }
 
   /**
-   * Sees if this collection has a field object
-   * with a matching key.
+   * Sees if this collection has a field object with a matching key.
    *
    * @param field field to check, it may not be <code>null</code>.
-   *
-   * @return object that has the same key or <code>null</code>
-   *    if one does not exist.
+   * @return object that has the same key or <code>null</code> if one does not exist.
    */
   public PSSearchField haveThisFieldKey(PSSearchField field) {
     if (field == null) throw new IllegalArgumentException("field must not be null");
@@ -76,16 +73,13 @@ public class PSSFields extends PSDbComponentList {
   }
 
   /**
-   * Makes the supplied set of fields the only fields in this list. If any
-   * field is already present and unchanged at its equivalent ordinal
-   * position, it will not be replaced.
+   * Makes the supplied set of fields the only fields in this list. If any field is already present
+   * and unchanged at its equivalent ordinal position, it will not be replaced.
    *
-   * @param fields the specified field set. If it is <code>null</code> or empty,
-   *    all fields are cleared. If the iterator contains any entries, they must
-   *    be {@link com.percussion.cms.objectstore.PSSearchField} objects.
-   *
-   * @throws ClassCastException if the objects returned by the iterator are
-   *    not PSSearchFields.
+   * @param fields the specified field set. If it is <code>null</code> or empty, all fields are
+   *     cleared. If the iterator contains any entries, they must be {@link
+   *     com.percussion.cms.objectstore.PSSearchField} objects.
+   * @throws ClassCastException if the objects returned by the iterator are not PSSearchFields.
    */
   public void setFields(Iterator fields) {
     if (fields == null || !fields.hasNext()) {
@@ -103,19 +97,15 @@ public class PSSFields extends PSDbComponentList {
   /**
    * Removes the supplied set of fields.
    *
-   * @param fields the to be removed fields. If it is <code>null</code> or
-   *    empty no field will be removed
-   *
-   * @throws ClassCastException if the objects returned by the iterator are
-   *    not PSSearchFields.
+   * @param fields the to be removed fields. If it is <code>null</code> or empty no field will be
+   *     removed
+   * @throws ClassCastException if the objects returned by the iterator are not PSSearchFields.
    */
   public void removeFields(Iterator fields) {
     if (fields == null) return;
     while (fields.hasNext()) remove((IPSDbComponent) fields.next());
   }
 
-  /**
-   * The XML node name for this class.
-   */
+  /** The XML node name for this class. */
   public static final String XML_NODE_NAME = "PSX_FIELDS";
 }

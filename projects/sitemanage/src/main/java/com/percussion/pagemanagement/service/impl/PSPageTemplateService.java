@@ -22,56 +22,55 @@ import static org.apache.commons.lang.Validate.isTrue;
 
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSTemplateDao;
-import com.percussion.pagemanagement.data.PSPage;
-import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSPageTemplateService;
-
-import java.util.List;
-
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
  * @author JaySeletz
- *
  */
 @Component("pageTemplateService")
 @Lazy
 public class PSPageTemplateService implements IPSPageTemplateService {
-    private IPSPageDao pageDao;
-    private IPSTemplateDao templateDao;
+  private IPSPageDao pageDao;
+  private IPSTemplateDao templateDao;
 
-    @Autowired
-    public PSPageTemplateService(IPSPageDao pageDao, IPSTemplateDao templateDao) {
-        this.pageDao = pageDao;
-        this.templateDao = templateDao;
+  @Autowired
+  public PSPageTemplateService(IPSPageDao pageDao, IPSTemplateDao templateDao) {
+    this.pageDao = pageDao;
+    this.templateDao = templateDao;
+  }
+
+  @Override
+  public void changeTemplate(String pageId, String templateId) throws PSDataServiceException {
+    isTrue(isNotBlank(pageId), "pageId may not be blank");
+    isTrue(isNotBlank(templateId), "templateId may not be blank");
+
+    var page = pageDao.find(pageId);
+    var template = templateDao.find(templateId);
+
+    if (page == null) {
+      throw new PSDataServiceException(
+          "The page you have selected doesn't exist in the system. Please refresh and try again.");
     }
 
-    @Override
-    public void changeTemplate(String pageId, String templateId) throws PSDataServiceException {
-        isTrue(isNotBlank(pageId), "pageId may not be blank");
-        isTrue(isNotBlank(templateId), "templateId may not be blank");
-
-        var page = pageDao.find(pageId);
-        var template = templateDao.find(templateId);
-
-        if (page == null) {
-            throw new PSDataServiceException("The page you have selected doesn't exist in the system. Please refresh and try again.");
-        }
-
-        if (template == null) {
-            throw new PSDataServiceException("The template you have selected doesn't exist in the system. Please refresh and try again.");
-        }
-        page.setTemplateId(templateId);
-        page.setTemplateContentMigrationVersion(template.getContentMigrationVersion());
-        pageDao.save(page);
+    if (template == null) {
+      throw new PSDataServiceException(
+          "The template you have selected doesn't exist in the system. Please refresh and try"
+              + " again.");
     }
+    page.setTemplateId(templateId);
+    page.setTemplateContentMigrationVersion(template.getContentMigrationVersion());
+    pageDao.save(page);
+  }
 
-    @Override
-    public List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException {
-        return pageDao.getPageIdsByFieldNameAndValue(FIELD_NAME_TEMPLATE_ID, templateId);
-    }
+  @Override
+  public List<Integer> findPageIdsByTemplate(String templateId)
+      throws IPSPageService.PSPageException {
+    return pageDao.getPageIdsByFieldNameAndValue(FIELD_NAME_TEMPLATE_ID, templateId);
+  }
 }

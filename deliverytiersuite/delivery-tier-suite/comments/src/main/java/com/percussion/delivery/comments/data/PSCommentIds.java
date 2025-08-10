@@ -25,7 +25,6 @@ import java.util.Collection;
  * Simple class to wrap a list of comment IDs.
  *
  * @author miltonpividori
- *
  */
 public class PSCommentIds {
 

@@ -40,8 +40,8 @@ public class PSJexlEvaluatorTest {
   public PSJexlEvaluatorTest() {}
 
   /**
-   * Test variable binder implementation. The binder creates lists and maps as
-   * it encounters the array and dot notation.
+   * Test variable binder implementation. The binder creates lists and maps as it encounters the
+   * array and dot notation.
    *
    * @throws Exception
    */
@@ -155,6 +155,7 @@ public class PSJexlEvaluatorTest {
 
   /**
    * Test backward compatibility from script to expression
+   *
    * @throws Exception
    */
   @Test
@@ -190,8 +191,8 @@ public class PSJexlEvaluatorTest {
   }
 
   /**
-   * Do an exception test by evaluating the expression and asserting if an
-   * exception is not thrown
+   * Do an exception test by evaluating the expression and asserting if an exception is not thrown
+   *
    * @param eval evaluator
    * @param expression
    * @throws Exception

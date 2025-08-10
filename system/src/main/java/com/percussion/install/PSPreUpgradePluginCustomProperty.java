@@ -29,20 +29,17 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to check for custom property use in views, searches,
- * display formats, and actions.  If this is found, the install will not be
- * allowed to proceed.
+ * This plugin has been written to check for custom property use in views, searches, display
+ * formats, and actions. If this is found, the install will not be allowed to proceed.
  */
 public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSPreUpgradePluginCustomProperty() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin. Checks views, searches,
-   * display formats, and actions for custom property use.  If any is found,
-   * a message is returned informing the user to modify these server objects.
+   * Implements the process function of IPSUpgradePlugin. Checks views, searches, display formats,
+   * and actions for custom property use. If any is found, a message is returned informing the user
+   * to modify these server objects.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -150,19 +147,17 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
   }
 
   /**
-   * Helper function that checks for custom property use.  It first finds any
-   * custom properties used, then looks up the corresponding object using the
-   * id.
+   * Helper function that checks for custom property use. It first finds any custom properties used,
+   * then looks up the corresponding object using the id.
    *
-   *@param propTable the property table to check, assumed not <code>null</code>
-   *@param propColumn the property column to check, assumed not <code>null</code>
-   *@param propIdColumn the property id column, assumed not <code>null</code>
-   *@param table the corresponding object table, assumed not <code>null</code>
-   *@param nameColumn the object name column, assumed not <code>null</code>
-   *@param idColumn, the object id column, assumed not <code>null</code>
-   *
-   * @return set containing names of any objects which use custom
-   * properties, empty if none are found.
+   * @param propTable the property table to check, assumed not <code>null</code>
+   * @param propColumn the property column to check, assumed not <code>null</code>
+   * @param propIdColumn the property id column, assumed not <code>null</code>
+   * @param table the corresponding object table, assumed not <code>null</code>
+   * @param nameColumn the object name column, assumed not <code>null</code>
+   * @param idColumn, the object id column, assumed not <code>null</code>
+   * @return set containing names of any objects which use custom properties, empty if none are
+   *     found.
    */
   private Set checkCustomProps(
       String propTable,
@@ -244,15 +239,11 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
 
   private IPSUpgradeModule m_config;
 
-  /**
-   * Non-custom display format properties
-   */
+  /** Non-custom display format properties */
   private String[] m_displayFormatProps =
       new String[] {"sortColumn", "sortDirection", "sys_community"};
 
-  /**
-   * Non-custom action properties
-   */
+  /** Non-custom action properties */
   private String[] m_actionProps =
       new String[] {
         "AcceleratorKey",
@@ -267,9 +258,7 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
         "targetStyle"
       };
 
-  /**
-   * Non-custom view/search properties
-   */
+  /** Non-custom view/search properties */
   private String[] m_viewSearchProps =
       new String[] {
         "aadNewSearch",
@@ -288,8 +277,6 @@ public class PSPreUpgradePluginCustomProperty implements IPSUpgradePlugin {
         "userCustomizable",
       };
 
-  /**
-   * Set of all non-custom properties
-   */
+  /** Set of all non-custom properties */
   private Set m_nonCustomProps = new HashSet();
 }

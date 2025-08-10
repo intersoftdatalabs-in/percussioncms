@@ -29,15 +29,10 @@ import org.apache.commons.betwixt.strategy.DefaultObjectStringConverter;
  * @author dougrand
  */
 public class PSBetwixtObjectConverter extends DefaultObjectStringConverter {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Default date pattern saves all information for the date in standard
-   * format.
-   */
+  /** Default date pattern saves all information for the date in standard format. */
   public static final PSDateFormatISO8601 ms_iso8601date = new PSDateFormatISO8601();
 
   /*

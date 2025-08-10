@@ -31,12 +31,10 @@ import org.apache.logging.log4j.Logger;
  * a collection of PSNavSlot objects.
  *
  * @author DavidBenua
- *
  */
 public class PSNavSlotSet {
   /**
-   * Constructor that takes the request context object. Just loads all slots to
-   * a local cache.
+   * Constructor that takes the request context object. Just loads all slots to a local cache.
    *
    * @param req request context object, must not be <code>null</code>.
    * @throws PSNavException if it cannot load all slots to cache.
@@ -46,11 +44,10 @@ public class PSNavSlotSet {
   }
 
   /**
-   * Add the slot to slot set by name. Slot object is looked up in all slots by
-   * name and then added to the nav slot set.
+   * Add the slot to slot set by name. Slot object is looked up in all slots by name and then added
+   * to the nav slot set.
    *
-   * @param slotName name of the slot to add, must not be <code>null</code>
-   *           or empty.
+   * @param slotName name of the slot to add, must not be <code>null</code> or empty.
    * @throws PSNavException
    */
   public void addSlotByName(String slotName) throws PSNavException {
@@ -125,24 +122,18 @@ public class PSNavSlotSet {
     return null;
   }
 
-  /**
-   * Set of navslots, never <code>null</code>
-   */
+  /** Set of navslots, never <code>null</code> */
   Set m_slotSet = new HashSet();
 
-  /**
-   * Reference to nav config singleton object.
-   */
+  /** Reference to nav config singleton object. */
   private PSNavConfig m_config = PSNavConfig.getInstance();
 
   /**
-   * Set of all slots registered used as cache mechanism. nitialized in the
-   * ctor, never <code>null</code> after that.
+   * Set of all slots registered used as cache mechanism. nitialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSSlotTypeSet m_allSlots = null;
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger m_log = LogManager.getLogger(PSNavSlotSet.class);
 }

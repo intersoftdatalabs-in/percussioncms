@@ -60,9 +60,8 @@ import org.w3c.dom.Element;
  */
 public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
   /**
-   * Format the catalog request based upon the specified
-   * request information. The request information for this
-   * request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
    *
    * <table border="1">
    * <tr>
@@ -89,12 +88,10 @@ public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
    * </tr>
    * </table>
    *
-   * @param req contains request information, may not be <code>null</code>,
-   * should contain the value of the following keys:
-   * "RequestCategory", "RequestType" and "Datasource"
-   *
-   * @return an XML document containing the appropriate the database functions
-   * serialized in XML format, never <code>null</code>
+   * @param req contains request information, may not be <code>null</code>, should contain the value
+   *     of the following keys: "RequestCategory", "RequestType" and "Datasource"
+   * @return an XML document containing the appropriate the database functions serialized in XML
+   *     format, never <code>null</code>
    */
   public Document formatRequest(Properties req) {
     String sTemp = (String) req.get(REQ_CATEGORY_KEY);
@@ -118,29 +115,22 @@ public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Returns the database functions installed on the server.
-   * This is a convenience method which makes a call to the
-   * <code>catalog</code> of the specified cataloger (<code>cataloger</code>)
+   * Returns the database functions installed on the server. This is a convenience method which
+   * makes a call to the <code>catalog</code> of the specified cataloger (<code>cataloger</code>)
    * using the appropriate properties for this request type.
    *
-   * @param cataloger a cataloger containing a connection to the Rhythmyx
-   * server which will be used for catalogging database functions, may not be
-   * <code>null</code>
-   *
-   * @param datasource the datasource from which the database functions are to
-   * be obtained. Database functions are database/driver specific. May be
-   * be <code>null</code> or empty to use the repository.
-   *
-   * @return the database functions installed on the server,
-   * never <code>null</code>, may be empty
-   *
+   * @param cataloger a cataloger containing a connection to the Rhythmyx server which will be used
+   *     for catalogging database functions, may not be <code>null</code>
+   * @param datasource the datasource from which the database functions are to be obtained. Database
+   *     functions are database/driver specific. May be be <code>null</code> or empty to use the
+   *     repository.
+   * @return the database functions installed on the server, never <code>null</code>, may be empty
    * @throws PSServerException if the server is not responding.
-   * @throws PSAuthenticationFailedException if the credentials specified
-   *         for the server connection are invalid.
-   * @throws PSAuthorizationException if the user does not have designer or
-   *         administrator access to the server.
-   * @throws IOException if a communication error occurs while processing
-   *         the request
+   * @throws PSAuthenticationFailedException if the credentials specified for the server connection
+   *     are invalid.
+   * @throws PSAuthorizationException if the user does not have designer or administrator access to
+   *     the server.
+   * @throws IOException if a communication error occurs while processing the request
    */
   public static PSDatabaseFunctionDef[] getDatabaseFunctions(
       PSCataloger cataloger, String datasource)
@@ -211,32 +201,32 @@ public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
   }
 
   /**
-   * Constant for the "RequestCategory" key for the properties object
-   * specified in the <code>formatRequest()</code> method
+   * Constant for the "RequestCategory" key for the properties object specified in the <code>
+   * formatRequest()</code> method
    */
   public static final String REQ_CATEGORY_KEY = "RequestCategory";
 
   /**
-   * Constant for the value of the "RequestCategory" key for the properties
-   * object specified in the <code>formatRequest()</code> method
+   * Constant for the value of the "RequestCategory" key for the properties object specified in the
+   * <code>formatRequest()</code> method
    */
   public static final String REQ_CATEGORY_VALUE = "function";
 
   /**
-   * Constant for the "RequestType" key for the properties object
-   * specified in the <code>formatRequest()</code> method
+   * Constant for the "RequestType" key for the properties object specified in the <code>
+   * formatRequest()</code> method
    */
   public static final String REQ_TYPE_KEY = "RequestType";
 
   /**
-   * Constant for the value of the "RequestType" key for the properties
-   * object specified in the <code>formatRequest()</code> method
+   * Constant for the value of the "RequestType" key for the properties object specified in the
+   * <code>formatRequest()</code> method
    */
   public static final String REQ_TYPE_VALUE = "DatabaseFunction";
 
   /**
-   * Constant for the "driver" key for the properties object
-   * specified in the <code>formatRequest()</code> method
+   * Constant for the "driver" key for the properties object specified in the <code>formatRequest()
+   * </code> method
    */
   public static final String DATASOURCE_KEY = "datasource";
 

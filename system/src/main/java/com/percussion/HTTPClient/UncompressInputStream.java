@@ -24,13 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class decompresses an input stream containing data compressed with
- * the unix "compress" utility (LZC, a LZW variant). This code is based
- * heavily on the <var>unlzw.c</var> code in <var>gzip-1.2.4</var> (written
- * by Peter Jannesen) and the original compress code.
+ * This class decompresses an input stream containing data compressed with the unix "compress"
+ * utility (LZC, a LZW variant). This code is based heavily on the <var>unlzw.c</var> code in
+ * <var>gzip-1.2.4</var> (written by Peter Jannesen) and the original compress code.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class UncompressInputStream extends FilterInputStream {
@@ -257,10 +256,7 @@ class UncompressInputStream extends FilterInputStream {
     return off - start;
   }
 
-  /**
-   * Moves the unread data in the buffer to the beginning and resets
-   * the pointers.
-   */
+  /** Moves the unread data in the buffer to the beginning and resets the pointers. */
   private final int resetbuf(int bit_pos) {
     int pos = bit_pos >> 3;
     System.arraycopy(data, pos, data, 0, end - pos);

@@ -25,22 +25,18 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to represent the cache settings for a resource.
- */
+/** Class to represent the cache settings for a resource. */
 public class PSResourceCacheSettings extends PSComponent {
   /**
-   * Construct the cache settings with default values.  This will be caching
-   * disabled, and no additional keys or dependencies.
+   * Construct the cache settings with default values. This will be caching disabled, and no
+   * additional keys or dependencies.
    */
   public PSResourceCacheSettings() {}
 
   /**
-   * Copy constructor, creates a shallow copy of the supplied
-   * <code>settings</code>.
+   * Copy constructor, creates a shallow copy of the supplied <code>settings</code>.
    *
-   * @param settings The settings from which to make a shallow copy, may not
-   * be <code>null</code>.
+   * @param settings The settings from which to make a shallow copy, may not be <code>null</code>.
    */
   public PSResourceCacheSettings(PSResourceCacheSettings settings) {
     copyFrom(settings);
@@ -50,10 +46,8 @@ public class PSResourceCacheSettings extends PSComponent {
    * Construct this object from its XML representation.
    *
    * @param source The XML element node to populate from, not <code>null
-   * </code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @throws PSUnknownNodeTypeException if <code>source</code> is not in
-   * the expected format.
+   * </code>. See {@link #toXml(Document)} for the format expected.
+   * @throws PSUnknownNodeTypeException if <code>source</code> is not in the expected format.
    */
   public PSResourceCacheSettings(Element source) throws PSUnknownNodeTypeException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -73,21 +67,20 @@ public class PSResourceCacheSettings extends PSComponent {
   /**
    * Sets resource caching to be enabled or disabled.
    *
-   * @param isEnabled <code>true</code> to enable resource caching,
-   * <code>false</code> to disable it.
+   * @param isEnabled <code>true</code> to enable resource caching, <code>false</code> to disable
+   *     it.
    */
   public void setIsCachingEnabled(boolean isEnabled) {
     m_isEnabled = isEnabled;
   }
 
   /**
-   * Gets a list of resources to be dependent upon.  If the data used by those
-   * resources is modified, this resource's data should be considered modified
-   * as well.
+   * Gets a list of resources to be dependent upon. If the data used by those resources is modified,
+   * this resource's data should be considered modified as well.
    *
-   * @return an Iterator over zero or more page names as <code>String</code>
-   * objects in the format appName/resourceName.  Never <code>null</code>.
-   * Each page name is never <code>null</code> or empty.
+   * @return an Iterator over zero or more page names as <code>String</code> objects in the format
+   *     appName/resourceName. Never <code>null</code>. Each page name is never <code>null</code> or
+   *     empty.
    */
   public Iterator getDependencies() {
     return m_dependencies.iterator();
@@ -96,20 +89,19 @@ public class PSResourceCacheSettings extends PSComponent {
   /**
    * Gets a list of additional keys to use when caching this resource's data.
    *
-   * @return An iterator over zero or more <code>PSNamedReplacementValue</code>
-   * objects, never <code>null</code>.
+   * @return An iterator over zero or more <code>PSNamedReplacementValue</code> objects, never
+   *     <code>null</code>.
    */
   public Iterator getAdditionalKeys() {
     return m_extraKeys.iterator();
   }
 
   /**
-   * Sets the list of dependent resources.  See {@link #getDependencies()} for
-   * more info.
+   * Sets the list of dependent resources. See {@link #getDependencies()} for more info.
    *
-   * @param dependencies A list of page names as <code>String</code> objects
-   * in the format appName/resourceName.  Never <code>null</code>.
-   * Each page name may not be <code>null</code> or empty.
+   * @param dependencies A list of page names as <code>String</code> objects in the format
+   *     appName/resourceName. Never <code>null</code>. Each page name may not be <code>null</code>
+   *     or empty.
    */
   public void setDependencies(Iterator dependencies) {
     if (dependencies == null) throw new IllegalArgumentException("dependencies may not be null");
@@ -130,12 +122,10 @@ public class PSResourceCacheSettings extends PSComponent {
   }
 
   /**
-   * Sets the list of additional keys.  See {@link #getAdditionalKeys()} for
-   * more info.
+   * Sets the list of additional keys. See {@link #getAdditionalKeys()} for more info.
    *
-   * @param keys An iterator over zero or more
-   * <code>PSNamedReplacementValue</code> objects, may not be
-   * <code>null</code>.
+   * @param keys An iterator over zero or more <code>PSNamedReplacementValue</code> objects, may not
+   *     be <code>null</code>.
    */
   public void setAdditionalKeys(Iterator keys) {
     if (keys == null) throw new IllegalArgumentException("keys may not be null");
@@ -154,8 +144,9 @@ public class PSResourceCacheSettings extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. The format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. The format is:
+   *
    * <pre><code>
    *  &lt;!ELEMENT PSXResourceCacheSettings (Keys, Dependencies)>
    *  &lt;!ATTLIST PSXResourceCacheSettings
@@ -170,7 +161,6 @@ public class PSResourceCacheSettings extends PSComponent {
    *
    * @param doc the document used to create element, may not be <code>null
    * </code>
-   *
    * @return The newly created XML element node, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -201,16 +191,12 @@ public class PSResourceCacheSettings extends PSComponent {
   /**
    * This method is called to populate this object from its XML representation.
    *
-   * @param sourceNode   The XML element node to populate from, not <code>null
-   * </code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @param parentDoc The parent document that contains the element, may be
-   * <code>null</code>.
-   * @param parentComponents a collection of all the components created in
-   * the process of creating this component.  May be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in
-   * the expected format.
+   * @param sourceNode The XML element node to populate from, not <code>null
+   * </code>. See {@link #toXml(Document)} for the format expected.
+   * @param parentDoc The parent document that contains the element, may be <code>null</code>.
+   * @param parentComponents a collection of all the components created in the process of creating
+   *     this component. May be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in the expected format.
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -299,11 +285,10 @@ public class PSResourceCacheSettings extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied
-   * <code>PSServerCacheSettings</code> to this object.
+   * Performs a shallow copy of the data in the supplied <code>PSServerCacheSettings</code> to this
+   * object.
    *
-   * @param c A valid <code>PSServerCacheSettings</code> object. Cannot be
-   * <code>null</code>.
+   * @param c A valid <code>PSServerCacheSettings</code> object. Cannot be <code>null</code>.
    */
   public void copyFrom(PSResourceCacheSettings c) {
     try {
@@ -323,9 +308,8 @@ public class PSResourceCacheSettings extends PSComponent {
    * Determines if the supplied object is equal to this one.
    *
    * @param obj An object, may be <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied object is an instance of
-   * <code>PSResourceCacheSettings</code> with the same member values.
+   * @return <code>true</code> if the supplied object is an instance of <code>
+   *     PSResourceCacheSettings</code> with the same member values.
    */
   public boolean equals(Object obj) {
     boolean isEqual = true;
@@ -342,37 +326,33 @@ public class PSResourceCacheSettings extends PSComponent {
   }
 
   /**
-   * Returns a hash code value for the object. See
-   * {@link java.lang.Object#hashCode() Object.hashCode()} for more info.
+   * Returns a hash code value for the object. See {@link java.lang.Object#hashCode()
+   * Object.hashCode()} for more info.
    */
   public int hashCode() {
     return (m_isEnabled ? 1 : 0) + m_extraKeys.hashCode() + m_dependencies.hashCode();
   }
 
-  /**
-   * The xml node to represent this object.
-   */
+  /** The xml node to represent this object. */
   public static final String XML_NODE_NAME = "PSXResourceCacheSettings";
 
   /**
-   * List of <code>PSNamedReplacementValue</code> objects that are used as
-   * additional keys when caching data for this resource.  Never
-   * <code>null</code>, may be empty.  Modified by calls to
+   * List of <code>PSNamedReplacementValue</code> objects that are used as additional keys when
+   * caching data for this resource. Never <code>null</code>, may be empty. Modified by calls to
    * <code>fromXml()</code> and <code>setAdditionalKeys()</code>
    */
   private List m_extraKeys = new ArrayList();
 
   /**
-   * List of <code>String</code> objects that identify resources whose data this
-   * resource is dependent upon (see {@link #getDependencies()} for more info).
-   * Never <code>null</code>, may be empty.  Modified by calls to
-   * <code>fromXml()</code> and <code>setDependencies()</code>
+   * List of <code>String</code> objects that identify resources whose data this resource is
+   * dependent upon (see {@link #getDependencies()} for more info). Never <code>null</code>, may be
+   * empty. Modified by calls to <code>fromXml()</code> and <code>setDependencies()</code>
    */
   private List m_dependencies = new ArrayList();
 
   /**
-   * The flag to determine whether the caching is enabled/disabled, gets
-   * initialized to <code>false</code> when the instance is created.
+   * The flag to determine whether the caching is enabled/disabled, gets initialized to <code>false
+   * </code> when the instance is created.
    */
   private boolean m_isEnabled = false;
 

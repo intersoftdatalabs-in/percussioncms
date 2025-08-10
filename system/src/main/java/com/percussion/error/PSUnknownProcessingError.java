@@ -23,33 +23,24 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSUnknownProcessingError class is used to report unexpected errors.
- * This usually occurs when an exception is thrown which the code did not
- * anticipate.
+ * The PSUnknownProcessingError class is used to report unexpected errors. This usually occurs when
+ * an exception is thrown which the code did not anticipate.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUnknownProcessingError extends PSLogError {
   /**
-   * Report an unknown processing error.
-   * The error code and parameters should
-   * clearly define where the error occurred for easy debugging.
+   * Report an unknown processing error. The error code and parameters should clearly define where
+   * the error occurred for easy debugging.
    *
-   * @param      applId      the id of the application in error
-   *                           (0 for server)
-   *
-   * @param      sessId      the session id of the requestor
-   *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param applId the id of the application in error (0 for server)
+   * @param sessId the session id of the requestor
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   public PSUnknownProcessingError(int applId, String sessId, int errorCode, Object[] errorParams) {
     super(applId);
@@ -59,29 +50,19 @@ public class PSUnknownProcessingError extends PSLogError {
   }
 
   /**
-   * Report am unknown processing error.
-   * The error code and parameters should
-   * clearly define where the error occurred for easy debugging.
+   * Report am unknown processing error. The error code and parameters should clearly define where
+   * the error occurred for easy debugging.
    *
-   * @param      applId      the id of the application in error
-   *                           (0 for server)
-   *
-   * @param      sessId      the session id of the requestor
-   *
-   * @param      errorCode   the error code describing the type of error
-   *
-   *
-   * @param      singleArg   the argument to use as the sole argument in
-   *                           the error message
+   * @param applId the id of the application in error (0 for server)
+   * @param sessId the session id of the requestor
+   * @param errorCode the error code describing the type of error
+   * @param singleArg the argument to use as the sole argument in the error message
    */
   public PSUnknownProcessingError(int applId, String sessId, int errorCode, Object singleArg) {
     this(applId, sessId, errorCode, new Object[] {singleArg});
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

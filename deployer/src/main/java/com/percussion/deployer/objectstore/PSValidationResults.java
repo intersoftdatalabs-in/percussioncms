@@ -27,23 +27,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Encapsulates a list of <code>PSValidationResult</code> objects, and a list
- * of absent ancestors (as <code>PSDependency</code>) objects.
+ * Encapsulates a list of <code>PSValidationResult</code> objects, and a list of absent ancestors
+ * (as <code>PSDependency</code>) objects.
  */
 public class PSValidationResults implements IPSDeployComponent {
-  /**
-   * Constructing the default object.
-   */
+  /** Constructing the default object. */
   public PSValidationResults() {}
 
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSValidationResults(Element source) throws PSUnknownNodeTypeException {
@@ -55,8 +51,8 @@ public class PSValidationResults implements IPSDeployComponent {
   /**
    * Get a list of <code>PSValidationResult</code> objects.
    *
-   * @return A list of <code>PSValidationResult</code> objects. It will never
-   * be <code>null</code>, but may be empty.
+   * @return A list of <code>PSValidationResult</code> objects. It will never be <code>null</code>,
+   *     but may be empty.
    */
   public Iterator<PSValidationResult> getResults() {
     return m_validateResults.iterator();
@@ -65,12 +61,9 @@ public class PSValidationResults implements IPSDeployComponent {
   /**
    * Get a result for the specified dependency.
    *
-   * @param dep The dependency for which a result is to be returned, may not
-   * be <code>null</code>.
-   *
-   * @return The result, or <code>null</code> if no result has been added for
-   * the specified dependency.
-   *
+   * @param dep The dependency for which a result is to be returned, may not be <code>null</code>.
+   * @return The result, or <code>null</code> if no result has been added for the specified
+   *     dependency.
    * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    */
   public PSValidationResult getResult(PSDependency dep) {
@@ -89,10 +82,8 @@ public class PSValidationResults implements IPSDeployComponent {
   /**
    * Adds a <code>PSValidationResult</code> to this object.
    *
-   * @param    result The object to be added, it may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>result</code> is
-   * <code>null</code>.
+   * @param result The object to be added, it may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>result</code> is <code>null</code>.
    */
   public void addResult(PSValidationResult result) {
     if (result == null) throw new IllegalArgumentException("result may not be null");
@@ -103,8 +94,7 @@ public class PSValidationResults implements IPSDeployComponent {
   /**
    * Determines if any result object is an error.
    *
-   * @return <code>true</code> if any result object is an error;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if any result object is an error; <code>false</code> otherwise.
    */
   public boolean hasErrors() {
     return m_validateResults.stream().anyMatch(PSValidationResult::isError);
@@ -113,20 +103,17 @@ public class PSValidationResults implements IPSDeployComponent {
   /**
    * Get a list of dependency objects.
    *
-   * @return List of zero or more <code>PSDependency</code> objects. It will
-   * never be <code>null</code>, but may be empty.
+   * @return List of zero or more <code>PSDependency</code> objects. It will never be <code>null
+   *     </code>, but may be empty.
    */
   public Iterator getAbsentAncestors() {
     return m_absentAncestors.iterator();
   }
 
   /**
-   * Adds an dependency into the absent ancestor list if the dependency has
-   * not already been added.
+   * Adds an dependency into the absent ancestor list if the dependency has not already been added.
    *
-   * @param    dep The dependency object to be added. It may not be
-   * <code>null</code>
-   *
+   * @param dep The dependency object to be added. It may not be <code>null</code>
    * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    */
   public void addAbsentAncestor(PSDependency dep) {
@@ -136,7 +123,8 @@ public class PSValidationResults implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXValidationResults
    *    (PSXValidationResult*)
@@ -159,13 +147,11 @@ public class PSValidationResults implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * malformed XML.
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is malformed XML.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -238,32 +224,26 @@ public class PSValidationResults implements IPSDeployComponent {
     return isEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXValidationResults";
 
   /**
-   * A list of Absent Ancestors (as <code>PSDependency</code> object).
-   * It will never be <code>null</code>, but may be empty.
+   * A list of Absent Ancestors (as <code>PSDependency</code> object). It will never be <code>null
+   * </code>, but may be empty.
    */
   private List m_absentAncestors = new ArrayList();
 
   /**
-   * A list of <code>PSValidationResult</code> objects. It will never be
-   * <code>null</code>, but may be empty.
+   * A list of <code>PSValidationResult</code> objects. It will never be <code>null</code>, but may
+   * be empty.
    */
   private List<PSValidationResult> m_validateResults = new ArrayList<>();
 
-  /**
-   * flags to walk to a child node of a XML tree
-   */
+  /** flags to walk to a child node of a XML tree */
   private static final int FIRST_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * flags to walk to a sibling node of a XML tree
-   */
+  /** flags to walk to a sibling node of a XML tree */
   private static final int NEXT_FLAGS =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 }

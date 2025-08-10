@@ -24,61 +24,62 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Container for status and message from calls to Netsuite.
- * Will be serialized to JSON.
- * Sunny Sal says: "Netsuite responses: because even APIs need to talk back!"
+ * Container for status and message from calls to Netsuite. Will be serialized to JSON. Sunny Sal
+ * says: "Netsuite responses: because even APIs need to talk back!"
  */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder = {"status", "message"})
+@XmlType(
+    name = "",
+    propOrder = {"status", "message"})
 @XmlRootElement(name = "netsuiteResponse")
 public class PSNetsuiteResponse {
 
-    private String status;
-    private String message;
+  private String status;
+  private String message;
 
-    public PSNetsuiteResponse(String status, String message) {
-        this.status = status;
-        this.message = message;
-    }
+  public PSNetsuiteResponse(String status, String message) {
+    this.status = status;
+    this.message = message;
+  }
 
-    public PSNetsuiteResponse() {
-        this.status = "";
-        this.message = "";
-    }
+  public PSNetsuiteResponse() {
+    this.status = "";
+    this.message = "";
+  }
 
-    /**
-     * Gets the status.
-     *
-     * @return the status, never null
-     */
-    public Optional<String> getStatus() {
-        return Optional.ofNullable(status);
-    }
+  /**
+   * Gets the status.
+   *
+   * @return the status, never null
+   */
+  public Optional<String> getStatus() {
+    return Optional.ofNullable(status);
+  }
 
-    /**
-     * Sets the status.
-     *
-     * @param status the status to set
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  /**
+   * Sets the status.
+   *
+   * @param status the status to set
+   */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    /**
-     * Gets the message.
-     *
-     * @return the message, never null
-     */
-    public Optional<String> getMessage() {
-        return Optional.ofNullable(message);
-    }
+  /**
+   * Gets the message.
+   *
+   * @return the message, never null
+   */
+  public Optional<String> getMessage() {
+    return Optional.ofNullable(message);
+  }
 
-    /**
-     * Sets the message.
-     *
-     * @param message the message to set
-     */
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  /**
+   * Sets the message.
+   *
+   * @param message the message to set
+   */
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

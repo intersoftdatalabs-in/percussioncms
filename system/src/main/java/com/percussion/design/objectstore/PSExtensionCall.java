@@ -30,65 +30,50 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSExtensionCall class defines the framework for calling an
- * extension handler. The user needs to set the extension definition correctly.
+ * The PSExtensionCall class defines the framework for calling an extension handler. The user needs
+ * to set the extension definition correctly.
  *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSExtensionCall extends PSComponent
     implements IPSBackEndMapping, IPSDocumentMapping, IPSDependentObject {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from
-   *
-   * @param   parentDoc      the Java object which is the parent of this
-   *                             object
-   *
-   * @param   parentComponents  the parent objects of this object
-   *
-   * @throws   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSExtensionCall(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSExtensionCall() {}
 
   /**
    * Construct a Java extension call definition.
-   * <p>
-   * The specified extension will be called with the specified parameters.
-   * The parameter string may refer to literals or variables.
-   * Variables must be in the correct context. For example, when
-   * using the extension as a back-end column mapping, only back-end columns
-   * are supported as variables.
-   * <P>
-   * Note: It is the caller's responsibility to make sure that the param
-   * bindings are appropriate for the extension. Before constructing the
-   * PSExtensionCall, the caller should obtain the IPSExtensionDef of
-   * the called extension and use the runtime parameter defs therein to
-   * ensure the param bindings will be accepted by the extension at
-   * invocation time.
    *
-   * @param ext The name of the extension to be called. Must not be
-   * <CODE>null</CODE>.
+   * <p>The specified extension will be called with the specified parameters. The parameter string
+   * may refer to literals or variables. Variables must be in the correct context. For example, when
+   * using the extension as a back-end column mapping, only back-end columns are supported as
+   * variables.
    *
-   * @param params The array of parameter values that will be bound to
-   * the extension params at runtime.
+   * <p>Note: It is the caller's responsibility to make sure that the param bindings are appropriate
+   * for the extension. Before constructing the PSExtensionCall, the caller should obtain the
+   * IPSExtensionDef of the called extension and use the runtime parameter defs therein to ensure
+   * the param bindings will be accepted by the extension at invocation time.
    *
-   * @see   #setParamValues
-   * @see   #setExtensionRef(PSExtensionRef)
+   * @param ext The name of the extension to be called. Must not be <CODE>null</CODE>.
+   * @param params The array of parameter values that will be bound to the extension params at
+   *     runtime.
+   * @see #setParamValues
+   * @see #setExtensionRef(PSExtensionRef)
    */
   public PSExtensionCall(PSExtensionRef ext, PSExtensionParamValue[] params) {
     setExtensionRef(ext);
@@ -113,10 +98,10 @@ public class PSExtensionCall extends PSComponent
   }
 
   /**
-   * Converts this object into a String suitable for displaying in a table
-   * cell.
-   * @return the string representation of the extension reference used by
-   * this extension call in the format: <i>name(param, param)</i>.
+   * Converts this object into a String suitable for displaying in a table cell.
+   *
+   * @return the string representation of the extension reference used by this extension call in the
+   *     format: <i>name(param, param)</i>.
    */
   public String toString() {
     StringBuilder function = new StringBuilder();
@@ -156,10 +141,8 @@ public class PSExtensionCall extends PSComponent
   /**
    * Validates the provided extension reference.
    *
-   * @param ext the extension reference to be validated, might be
-   *    <code>null</code>.
-   * @return a IllegalArgumentException if the validation failed,
-   *    <code>null</code> otherwise.
+   * @param ext the extension reference to be validated, might be <code>null</code>.
+   * @return a IllegalArgumentException if the validation failed, <code>null</code> otherwise.
    */
   private static IllegalArgumentException validateExtension(PSExtensionRef ext) {
     if (null == ext) {
@@ -171,9 +154,9 @@ public class PSExtensionCall extends PSComponent
 
   /**
    * Get the parameter values associated with the extension call.
-   * <p>
-   * A PSExtensionParamValue object is in the array for each parameter
-   * defined in the IPSExtensionDef associated with this object.
+   *
+   * <p>A PSExtensionParamValue object is in the array for each parameter defined in the
+   * IPSExtensionDef associated with this object.
    *
    * @return an array of PSExtensionParamValue objects, never <code>null
    * </code>.
@@ -185,11 +168,10 @@ public class PSExtensionCall extends PSComponent
   }
 
   /**
-   * Set the parameters associated with the exit call.
-   * The object uses the input array. No further use of the array should
-   * be made as it will affect this object as well.
+   * Set the parameters associated with the exit call. The object uses the input array. No further
+   * use of the array should be made as it will affect this object as well.
    *
-   * @param   params      an array of PSExtensionParamValue objects
+   * @param params an array of PSExtensionParamValue objects
    */
   public void setParamValues(PSExtensionParamValue[] params) {
     setParamValues(PSIteratorUtils.iterator(params));
@@ -198,8 +180,8 @@ public class PSExtensionCall extends PSComponent
   /**
    * Set the parameters associated with the exit call.
    *
-   * @param params An Iterator over 0 or more PSExtensionParamValue
-   * objects. Can be <CODE>null</CODE>.
+   * @param params An Iterator over 0 or more PSExtensionParamValue objects. Can be <CODE>null
+   *     </CODE>.
    */
   public void setParamValues(Iterator params) {
     m_params = new LinkedList();
@@ -225,10 +207,9 @@ public class PSExtensionCall extends PSComponent
   /**
    * Get the list of handler this exit should be applied to.
    *
-   * @return a list of handler names this should be applied to, never
-   *    <code>null</code>, might be empty. If the returned list is empty,
-   *    this should be applied to all handlers, otherwise only to the listed
-   *    ones.
+   * @return a list of handler names this should be applied to, never <code>null</code>, might be
+   *     empty. If the returned list is empty, this should be applied to all handlers, otherwise
+   *     only to the listed ones.
    */
   public Iterator getApplyTo() {
     if (m_applyTo == null) return PSIteratorUtils.emptyIterator();
@@ -239,8 +220,8 @@ public class PSExtensionCall extends PSComponent
   /**
    * Set a new applyTo list.
    *
-   * @param applyTo a list of handler names this exit should be applied to.
-   *    Set it to <code>null</code> or empty to apply it to all handlers.
+   * @param applyTo a list of handler names this exit should be applied to. Set it to <code>null
+   *     </code> or empty to apply it to all handlers.
    */
   public void setApplyTo(List applyTo) {
     m_applyTo = applyTo;
@@ -249,12 +230,10 @@ public class PSExtensionCall extends PSComponent
   // ************ IPSBackEndMapping Interface Implementation ************
 
   /**
-   * Get the columns which must be selected from the back-end(s) in
-   * order to use this mapping. The column name syntax is
-   * <code>back-end-table-alias.column-name</code>.
+   * Get the columns which must be selected from the back-end(s) in order to use this mapping. The
+   * column name syntax is <code>back-end-table-alias.column-name</code>.
    *
-   * @return   the columns which must be selected from the back-end(s)
-   *           in order to use this mapping
+   * @return the columns which must be selected from the back-end(s) in order to use this mapping
    */
   public String[] getColumnsForSelect() {
     return m_columns;
@@ -270,8 +249,7 @@ public class PSExtensionCall extends PSComponent
   }
 
   /**
-   * @return this extension's parameter values wrapped in a list, never
-   * <code>null</code>.
+   * @return this extension's parameter values wrapped in a list, never <code>null</code>.
    * @see #getParamValues()
    */
   public Collection getParameters() {
@@ -300,23 +278,17 @@ public class PSExtensionCall extends PSComponent
 
   // *********** IPSReplacementValue Interface Implementation ***********
 
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
-  /**
-   * Get the text which can be displayed to represent this value.
-   */
+  /** Get the text which can be displayed to represent this value. */
   public String getValueDisplayText() {
     return getValueText();
   }
 
-  /**
-   * Get the implementation specific text which for this value.
-   */
+  /** Get the implementation specific text which for this value. */
   public String getValueText() {
     return (m_ext == null) ? "" : m_ext.toString();
   }
@@ -324,10 +296,11 @@ public class PSExtensionCall extends PSComponent
   // **************  IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXExtensionCall XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXExtensionCall XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *  &lt;!--
    *     PSXExtensionCall is used to define a call to a Java exit.
@@ -345,7 +318,7 @@ public class PSExtensionCall extends PSComponent
    *  &lt;!ELEMENT name          (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return   the newly created PSXExtensionCall XML element node
+   * @return the newly created PSXExtensionCall XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -369,12 +342,11 @@ public class PSExtensionCall extends PSComponent
   }
 
   /**
-   * This method is called to populate a PSExtensionCall Java object
-   * from a PSXExtensionCall XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSExtensionCall Java object from a PSXExtensionCall XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                      of type PSXExtensionCall
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXExtensionCall
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -436,18 +408,15 @@ public class PSExtensionCall extends PSComponent
   }
 
   /**
-   * Validate this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw exceptions. Instead, it
-   * should register any errors with the validation context to
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validate this object within the given validation context. The method signature declares that it
+   * throws PSSystemValidationException, but the implementation must not directly throw exceptions.
+   * Instead, it should register any errors with the validation context to decide whether to throw
+   * the exception (in which case the implementation of <CODE>validate</CODE> should not catch it
+   * unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -480,36 +449,29 @@ public class PSExtensionCall extends PSComponent
     return true;
   }
 
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "ExtensionCall";
 
-  /**
-   * The name of the extension to be called. Never <CODE>null</CODE>
-   * after successful init.
-   */
+  /** The name of the extension to be called. Never <CODE>null</CODE> after successful init. */
   protected PSExtensionRef m_ext;
 
   /**
-   * A Collection of zero or more non-<CODE>null</CODE>
-   * PSExtensionParamValue objects. Never <CODE>null</CODE>.
+   * A Collection of zero or more non-<CODE>null</CODE> PSExtensionParamValue objects. Never <CODE>
+   * null</CODE>.
    */
   protected Collection m_params;
 
   /**
-   * An array of zero or more columns which need to be mapped in order for the
-   * param values to be bound successfully. There is NOT a 1:1 correspondence
-   * between columns and params. Never <CODE>null</CODE> after a successful
-   * init.
+   * An array of zero or more columns which need to be mapped in order for the param values to be
+   * bound successfully. There is NOT a 1:1 correspondence between columns and params. Never <CODE>
+   * null</CODE> after a successful init.
    */
   protected String[] m_columns;
 
   /**
-   * A list of command handler names this exit should be applied to, might
-   * be <code>null</code> or empty. If the list is empty or
-   * <code>null</code>, this exit will be applied to all handlers, otherwise
-   * it will only be applied to the handlers in this list.
+   * A list of command handler names this exit should be applied to, might be <code>null</code> or
+   * empty. If the list is empty or <code>null</code>, this exit will be applied to all handlers,
+   * otherwise it will only be applied to the handlers in this list.
    */
   private List m_applyTo = null;
 

@@ -28,19 +28,14 @@ import com.percussion.server.PSRequestHandlerConfiguration;
 import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.Iterator;
 
-/**
- * Class to handle loadable handler dependencies
- */
+/** Class to handle loadable handler dependencies */
 public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSLoadableHandlerDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -87,8 +82,8 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * There are no child types supported by this handler.
+   * Provides the list of child dependency types this class can discover. There are no child types
+   * supported by this handler.
    *
    * @return An empty iterator, never <code>null</code>.
    */
@@ -112,11 +107,9 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Gets the request handler config, loading from config file if not already
-   * loaded.
+   * Gets the request handler config, loading from config file if not already loaded.
    *
    * @return The config, never <code>null</code>.
-   *
    * @throws PSDeployException if the config cannot be loaded.
    */
   private PSRequestHandlerConfiguration getReqHandlerCfg() throws PSDeployException {
@@ -129,15 +122,12 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "LoadableHandler";
 
   /**
-   * Loadable handler configuration, initialized by first call to
-   * {@link #getReqHandlerCfg()}, never <code>null</code> or modified
-   * after that.
+   * Loadable handler configuration, initialized by first call to {@link #getReqHandlerCfg()}, never
+   * <code>null</code> or modified after that.
    */
   private PSRequestHandlerConfiguration m_reqHandlerCfg;
 }

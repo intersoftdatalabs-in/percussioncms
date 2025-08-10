@@ -24,9 +24,7 @@ package com.percussion.delivery.likes.data;
  */
 public class PSLikesSummary {
 
-  /**
-   * Total number of likes.
-   */
+  /** Total number of likes. */
   private int total;
 
   private String likeId;

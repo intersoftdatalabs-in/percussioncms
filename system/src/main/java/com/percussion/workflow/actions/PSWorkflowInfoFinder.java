@@ -35,14 +35,10 @@ import org.apache.commons.logging.LogFactory;
 /**
  * This is the implementation of {@link IPSWorkflowInfoFinder }
  *
- *
  * @author DavidBenua
- *
  */
 public class PSWorkflowInfoFinder implements IPSWorkflowInfoFinder {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Log log = LogFactory.getLog(PSWorkflowInfoFinder.class);
 
   private IPSSystemWs m_sws = null;
@@ -51,17 +47,12 @@ public class PSWorkflowInfoFinder implements IPSWorkflowInfoFinder {
 
   private List<PSWorkflow> m_workflows = null;
 
-  /**
-   * Creates a new finder.
-   */
+  /** Creates a new finder. */
   public PSWorkflowInfoFinder() {
     super();
   }
 
-  /**
-   * Initializes system services.
-   *
-   */
+  /** Initializes system services. */
   private void initServices() {
     if (m_sws == null) {
       m_sws = PSSystemWsLocator.getSystemWebservice();

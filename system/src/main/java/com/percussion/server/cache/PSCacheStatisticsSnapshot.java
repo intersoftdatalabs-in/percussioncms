@@ -25,34 +25,33 @@ import org.w3c.dom.Element;
 
 /**
  * Provides the following statistics based on cache usage:
+ *
  * <ul>
- * <li>Hit rate (hits/total requests) * 100</li>
- * <li>Total hits (since caching last enabled)</li>
- * <li>Total memory used</li>
- * <li>Total disk space used</li>
- * <li>Average size of an item</li>
- * <li>Total number of items in cache</li>
- * <li>Disk hit rate (# of hits retrieved from disk/ total # of hits)</li>
+ *   <li>Hit rate (hits/total requests) * 100
+ *   <li>Total hits (since caching last enabled)
+ *   <li>Total memory used
+ *   <li>Total disk space used
+ *   <li>Average size of an item
+ *   <li>Total number of items in cache
+ *   <li>Disk hit rate (# of hits retrieved from disk/ total # of hits)
  * </ul>
  */
 public class PSCacheStatisticsSnapshot {
   /**
    * Creates a snapshot of the usage statistics.
    *
-   * @param diskHits the number of times an item is retrieved from disk, may
-   * not be less than <code>0</code>.
+   * @param diskHits the number of times an item is retrieved from disk, may not be less than <code>
+   *     0</code>.
    * @param diskItems the number of items in disk, may not be less than <code>0
    * </code>.
-   * @param diskUage the amount of disk space used in bytes, may not be less
-   * than <code>0</code>.
+   * @param diskUage the amount of disk space used in bytes, may not be less than <code>0</code>.
    * @param memItems the number of items in memory, may not be less than <code>
    * 0</code>.
-   * @param memUsage the amount of memory used in bytes, may not be less than
-   * <code>0</code>.
-   * @param misses the number of attempts failed to retrieve an item from cache,
-   * may not be less than <code>0</code>
-   * @param totalHits the total number of times an item is retrieved either
-   * from memory or disk, may not be less than <code>0</code>.
+   * @param memUsage the amount of memory used in bytes, may not be less than <code>0</code>.
+   * @param misses the number of attempts failed to retrieve an item from cache, may not be less
+   *     than <code>0</code>
+   * @param totalHits the total number of times an item is retrieved either from memory or disk, may
+   *     not be less than <code>0</code>.
    */
   public PSCacheStatisticsSnapshot(
       long diskHits,
@@ -93,8 +92,9 @@ public class PSCacheStatisticsSnapshot {
 
   /**
    * Get the name of the cache statistics.
-   * @return the name of the statistics, never <code>null</code>, may be empty
-   *    if the name has not been set.
+   *
+   * @return the name of the statistics, never <code>null</code>, may be empty if the name has not
+   *     been set.
    */
   public String getName() {
     return m_name;
@@ -102,6 +102,7 @@ public class PSCacheStatisticsSnapshot {
 
   /**
    * Set a supplied name for the cache statistics.
+   *
    * @param name the new name, never <code>null</code> or empty.
    */
   public void setName(String name) {
@@ -112,11 +113,10 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the number of hits divided by the total number of attempts
-   * <code>(hits / hits + misses) * 100</code>.
+   * Gets the number of hits divided by the total number of attempts <code>
+   * (hits / hits + misses) * 100</code>.
    *
-   * @return The hit rate as a percentage of total attempts, never less than
-   * <code>0</code>.
+   * @return The hit rate as a percentage of total attempts, never less than <code>0</code>.
    */
   public int getHitRate() {
     return m_hitRate;
@@ -132,8 +132,7 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the number of total attempts/requests to retrieve an item from the
-   * cache.
+   * Gets the number of total attempts/requests to retrieve an item from the cache.
    *
    * @return The total attempts count, never less than <code>0</code>.
    */
@@ -142,9 +141,8 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the amount of memory (in bytes) the items in the cache are using.
-   * Does not include the overhead involved in maintaing the metadata regarding
-   * the storage of the item.
+   * Gets the amount of memory (in bytes) the items in the cache are using. Does not include the
+   * overhead involved in maintaing the metadata regarding the storage of the item.
    *
    * @return The amount of memory in bytes, never less than <code>0</code>.
    */
@@ -153,8 +151,7 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the amount of space (in bytes) the items in the cache are using on
-   * disk.
+   * Gets the amount of space (in bytes) the items in the cache are using on disk.
    *
    * @return The amount of disk space in bytes, never less than <code>0</code>.
    */
@@ -163,9 +160,9 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the average size (in bytes) of all of the objects in the cache. This
-   * is the sum of the size of each object in the cache (in memory or on disk)
-   * divided by the number of items in the cache.
+   * Gets the average size (in bytes) of all of the objects in the cache. This is the sum of the
+   * size of each object in the cache (in memory or on disk) divided by the number of items in the
+   * cache.
    *
    * @return The average item size, never less than <code>0</code>.
    */
@@ -192,8 +189,8 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets the XML representation of this object. The structure of the element
-   * is as follows:
+   * Gets the XML representation of this object. The structure of the element is as follows:
+   *
    * <PRE><CODE>
    *    &lt;--
    *       The cache statistics element with each attribute referring to
@@ -240,10 +237,7 @@ public class PSCacheStatisticsSnapshot {
    *
    * @param doc the document to use to create the element, may not be <code>
    * null</code>
-   *
-   * @return the xml element representing cache statistics, never
-   * <code>null</code>
-   *
+   * @return the xml element representing cache statistics, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public Element toXml(Document doc) {
@@ -305,11 +299,10 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * Gets rounded value up to a single digit after decimal point rounded to its
-   * nearest neighbor or up in case of both neighbors are equidistant.
+   * Gets rounded value up to a single digit after decimal point rounded to its nearest neighbor or
+   * up in case of both neighbors are equidistant.
    *
    * @param size the value to be rounded
-   *
    * @return the rounded value as a <code>String</code>, never <code>null
    * </code> or empty.
    */
@@ -318,73 +311,66 @@ public class PSCacheStatisticsSnapshot {
   }
 
   /**
-   * The average number of times each item has been accessed from the
-   * cache. Initialized in ctor and never modified after that.
+   * The average number of times each item has been accessed from the cache. Initialized in ctor and
+   * never modified after that.
    */
   private long m_avgItemHits;
 
   /**
-   * The average size (in bytes) of all of the items in the cache. Initialized
-   * in ctor and never modified after that.
+   * The average size (in bytes) of all of the items in the cache. Initialized in ctor and never
+   * modified after that.
    */
   private long m_avgItemSize;
 
   /**
-   * The disk hit rate as a percentage of total hits to retrieve an item from
-   * cache. Initialized in ctor and never modified after that.
+   * The disk hit rate as a percentage of total hits to retrieve an item from cache. Initialized in
+   * ctor and never modified after that.
    */
   private int m_diskHitRate;
 
   /**
-   * The amount of space (in bytes) the items in the cache are using on disk.
-   * Initialized in ctor and never modified after that.
+   * The amount of space (in bytes) the items in the cache are using on disk. Initialized in ctor
+   * and never modified after that.
    */
   private long m_diskUsage;
 
   /**
-   * The successful hit rate as a percentage of total attempts. Initialized in
-   * ctor and never modified after that.
+   * The successful hit rate as a percentage of total attempts. Initialized in ctor and never
+   * modified after that.
    */
   private int m_hitRate;
 
   /**
-   * The amount of memory (in bytes) the items in the cache are using. Does not
-   * include the overhead involved in maintaing the metadata regarding the
-   * storage of the item. Initialized in ctor and never modified after that.
+   * The amount of memory (in bytes) the items in the cache are using. Does not include the overhead
+   * involved in maintaing the metadata regarding the storage of the item. Initialized in ctor and
+   * never modified after that.
    */
   private long m_memUsage;
 
   /**
-   * The number of successful attempts to retrieve an item from the cache.
-   * Initialized in ctor and never modified after that.
+   * The number of successful attempts to retrieve an item from the cache. Initialized in ctor and
+   * never modified after that.
    */
   private long m_totalHits;
 
   /**
-   * The number of attempts/requests to retrieve an item from the cache.
-   * Initialized in ctor and never modified after that.
+   * The number of attempts/requests to retrieve an item from the cache. Initialized in ctor and
+   * never modified after that.
    */
   private long m_totalRequests;
 
-  /**
-   * The total number of items in the cache. Initialized in ctor and never
-   * modified after that.
-   */
+  /** The total number of items in the cache. Initialized in ctor and never modified after that. */
   private long m_totalItems;
 
-  /**
-   * The constant used to convert bytes to mega bytes or viceversa.
-   */
+  /** The constant used to convert bytes to mega bytes or viceversa. */
   private static final double MEG_TO_BYTE = 1024 * 1024;
 
-  /**
-   * The constant used to convert bytes to kilo bytes or viceversa.
-   */
+  /** The constant used to convert bytes to kilo bytes or viceversa. */
   private static final double KILO_TO_BYTE = 1024;
 
   /**
-   * The name of the cache. It may be the region name for EhCache. It defaults
-   * to empty, never <code>null</code>.
+   * The name of the cache. It may be the region name for EhCache. It defaults to empty, never
+   * <code>null</code>.
    */
   private String m_name = "";
 }

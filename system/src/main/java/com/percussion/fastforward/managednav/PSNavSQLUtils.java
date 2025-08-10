@@ -30,17 +30,14 @@ import org.apache.logging.log4j.Logger;
  * Utility class for SQL database access.
  *
  * @author DavidBenua
- *
  */
 public class PSNavSQLUtils {
-  /**
-   * Static Methods only.
-   */
+  /** Static Methods only. */
   private PSNavSQLUtils() {}
 
   /**
-   * Connects to the backend database. The server's storage pool is used, and
-   * the default credentials are supplied.
+   * Connects to the backend database. The server's storage pool is used, and the default
+   * credentials are supplied.
    *
    * @return the SQL connection.
    * @throws PSNavException
@@ -74,8 +71,7 @@ public class PSNavSQLUtils {
   }
 
   /**
-   * Close the connection and handle any errors recognized as part of the
-   * closing process.
+   * Close the connection and handle any errors recognized as part of the closing process.
    *
    * @param conn the connection to close
    * @param stmt the statement. May be <code>null</code>.
@@ -107,9 +103,7 @@ public class PSNavSQLUtils {
   /**
    * Qualifies the supplied table name using the default connection info.
    *
-   * @param tableName The name to qualify, may not be <code>null</code> or
-   *           empty.
-   *
+   * @param tableName The name to qualify, may not be <code>null</code> or empty.
    * @return The qualified name, never <code>null</code> or empty.
    */
   public static String qualifyTableName(String tableName) {
@@ -127,8 +121,6 @@ public class PSNavSQLUtils {
     return table;
   }
 
-  /**
-   * Writes the log.
-   */
+  /** Writes the log. */
   private static final Logger log = LogManager.getLogger(PSNavSQLUtils.class);
 }

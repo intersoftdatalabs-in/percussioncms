@@ -20,11 +20,11 @@ package com.percussion.HTTPClient;
 import java.util.Objects;
 
 /**
- * This class holds a Name/Value pair of strings. It's used for headers,
- * form-data, attribute-lists, etc. This class is immutable.
+ * This class holds a Name/Value pair of strings. It's used for headers, form-data, attribute-lists,
+ * etc. This class is immutable.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public final class NVPair {
@@ -37,10 +37,9 @@ public final class NVPair {
   // Constructors
 
   /**
-   * Creates a new name/value pair and initializes it to the
-   * specified name and value.
+   * Creates a new name/value pair and initializes it to the specified name and value.
    *
-   * @param name  the name, may be {@code null}
+   * @param name the name, may be {@code null}
    * @param value the value, may be {@code null}
    */
   public NVPair(String name, String value) {
@@ -82,7 +81,6 @@ public final class NVPair {
    * Compares this object with another for equality.
    *
    * @param obj The object to compare with.
-   *
    * @return {@code true} if the objects are equal, {@code false} otherwise.
    */
   @Override

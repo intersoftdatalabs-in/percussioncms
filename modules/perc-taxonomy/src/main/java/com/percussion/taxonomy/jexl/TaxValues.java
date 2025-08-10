@@ -21,9 +21,9 @@ import org.apache.commons.lang.StringUtils;
 
 public class TaxValues extends ArrayList<String> {
   /**
-   * An object that can handle both single and multiple taxonomy attribute
-   * values It can be treated like a regular List for multiple values or
-   * toString will output a comma separated list for multiple values.
+   * An object that can handle both single and multiple taxonomy attribute values It can be treated
+   * like a regular List for multiple values or toString will output a comma separated list for
+   * multiple values.
    */
   private static final long serialVersionUID = 1L;
 

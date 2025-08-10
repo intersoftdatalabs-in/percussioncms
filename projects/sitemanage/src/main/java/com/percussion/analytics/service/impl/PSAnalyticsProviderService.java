@@ -43,8 +43,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implementation of the analytics provider service.
- * Sunny Sal: "Analytics config—now with extra Java 11 vitamins!"
+ * Implementation of the analytics provider service. Sunny Sal: "Analytics config—now with extra
+ * Java 11 vitamins!"
  */
 @PSSiteManageBean("analyticsProviderService")
 public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
@@ -233,9 +233,9 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
   /**
    * Gets the specified profile property for the specified site.
    *
-   * @param sitename      the name of the site, assumed not blank.
-   * @param propertyIndex the index of the property. Assume it is 0, 1 or 2,
-   *                      which is 'profile id', 'web property ID' or 'API key'.
+   * @param sitename the name of the site, assumed not blank.
+   * @param propertyIndex the index of the property. Assume it is 0, 1 or 2, which is 'profile id',
+   *     'web property ID' or 'API key'.
    * @return the profile property. It is null if it is not configured for the site.
    */
   private String getProfileProperty(String sitename, int propertyIndex)
@@ -257,8 +257,9 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
   }
 
   /**
-   * Gets the profile for the specified site. The profile contains <profile-id>|<web-property-id>|<api-key>.
-   * The API key is optional. If the profile is configured correctly, it should contain profile-id and tracking-code.
+   * Gets the profile for the specified site. The profile contains
+   * <profile-id>|<web-property-id>|<api-key>. The API key is optional. If the profile is configured
+   * correctly, it should contain profile-id and tracking-code.
    *
    * @param sitename the name of the site, assumed not blank.
    * @return the profile of the site. It may be null if it is not configured for the site.
@@ -282,8 +283,6 @@ public class PSAnalyticsProviderService implements IPSAnalyticsProviderService {
     return messageHandler;
   }
 
-  /**
-   * The metadata key to store the config.
-   */
+  /** The metadata key to store the config. */
   public static final String METADATA_KEY = "perc.analytics.provider.config";
 }

@@ -29,8 +29,7 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Creates a new instance of a {@link DocumentBuilder}
-   * using the currently configured parameters.
+   * Creates a new instance of a {@link DocumentBuilder} using the currently configured parameters.
    */
   @Override
   public DocumentBuilder newDocumentBuilder() throws ParserConfigurationException {
@@ -38,10 +37,9 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Allows the user to set specific attributes on the underlying
-   * implementation.
+   * Allows the user to set specific attributes on the underlying implementation.
    *
-   * @param name  name of attribute
+   * @param name name of attribute
    * @param value null means to remove attribute
    */
   @Override
@@ -50,8 +48,7 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Allows the user to retrieve specific attributes on the underlying
-   * implementation.
+   * Allows the user to retrieve specific attributes on the underlying implementation.
    *
    * @param name
    */
@@ -91,12 +88,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Specifies that the parser produced by this code will
-   * provide support for XML namespaces. By default the value of this is set
-   * to <code>false</code>
+   * Specifies that the parser produced by this code will provide support for XML namespaces. By
+   * default the value of this is set to <code>false</code>
    *
-   * @param awareness true if the parser produced will provide support
-   *                  for XML namespaces; false otherwise.
+   * @param awareness true if the parser produced will provide support for XML namespaces; false
+   *     otherwise.
    */
   @Override
   public void setNamespaceAware(boolean awareness) {
@@ -104,28 +100,20 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Specifies that the parser produced by this code will
-   * validate documents as they are parsed. By default the value of this
-   * is set to <code>false</code>.
+   * Specifies that the parser produced by this code will validate documents as they are parsed. By
+   * default the value of this is set to <code>false</code>.
    *
-   * <p>
-   * Note that "the validation" here means
-   * <a href="http://www.w3.org/TR/REC-xml#proc-types">a validating
-   * parser</a> as defined in the XML recommendation.
-   * In other words, it essentially just controls the DTD validation.
-   * (except the legacy two properties defined in JAXP 1.2.)
-   * </p>
+   * <p>Note that "the validation" here means <a href="http://www.w3.org/TR/REC-xml#proc-types">a
+   * validating parser</a> as defined in the XML recommendation. In other words, it essentially just
+   * controls the DTD validation. (except the legacy two properties defined in JAXP 1.2.)
    *
-   * <p>
-   * To use modern schema languages such as W3C XML Schema or
-   * RELAX NG instead of DTD, you can configure your parser to be
-   * a non-validating parser by leaving the {@link #setValidating(boolean)}
-   * method <code>false</code>, then use the {@link #setSchema(Schema)}
+   * <p>To use modern schema languages such as W3C XML Schema or RELAX NG instead of DTD, you can
+   * configure your parser to be a non-validating parser by leaving the {@link
+   * #setValidating(boolean)} method <code>false</code>, then use the {@link #setSchema(Schema)}
    * method to associate a schema to a parser.
-   * </p>
    *
-   * @param validating true if the parser produced will validate documents
-   *                   as they are parsed; false otherwise.
+   * @param validating true if the parser produced will validate documents as they are parsed; false
+   *     otherwise.
    */
   @Override
   public void setValidating(boolean validating) {
@@ -133,18 +121,15 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Specifies that the parsers created by this  factory must eliminate
-   * whitespace in element content (sometimes known loosely as
-   * 'ignorable whitespace') when parsing XML documents (see XML Rec
-   * 2.10). Note that only whitespace which is directly contained within
-   * element content that has an element only content model (see XML
-   * Rec 3.2.1) will be eliminated. Due to reliance on the content model
-   * this setting requires the parser to be in validating mode. By default
-   * the value of this is set to <code>false</code>.
+   * Specifies that the parsers created by this factory must eliminate whitespace in element content
+   * (sometimes known loosely as 'ignorable whitespace') when parsing XML documents (see XML Rec
+   * 2.10). Note that only whitespace which is directly contained within element content that has an
+   * element only content model (see XML Rec 3.2.1) will be eliminated. Due to reliance on the
+   * content model this setting requires the parser to be in validating mode. By default the value
+   * of this is set to <code>false</code>.
    *
-   * @param whitespace true if the parser created must eliminate whitespace
-   *                   in the element content when parsing XML documents;
-   *                   false otherwise.
+   * @param whitespace true if the parser created must eliminate whitespace in the element content
+   *     when parsing XML documents; false otherwise.
    */
   @Override
   public void setIgnoringElementContentWhitespace(boolean whitespace) {
@@ -152,12 +137,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Specifies that the parser produced by this code will
-   * expand entity reference nodes. By default the value of this is set to
-   * <code>true</code>
+   * Specifies that the parser produced by this code will expand entity reference nodes. By default
+   * the value of this is set to <code>true</code>
    *
-   * @param expandEntityRef true if the parser produced will expand entity
-   *                        reference nodes; false otherwise.
+   * @param expandEntityRef true if the parser produced will expand entity reference nodes; false
+   *     otherwise.
    */
   @Override
   public void setExpandEntityReferences(boolean expandEntityRef) {
@@ -165,9 +149,9 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * <p>Specifies that the parser produced by this code will
-   * ignore comments. By default the value of this is set to <code>false
-   * </code>.</p>
+   * Specifies that the parser produced by this code will ignore comments. By default the value of
+   * this is set to <code>false
+   * </code>.
    *
    * @param ignoreComments <code>boolean</code> value to ignore comments during processing
    */
@@ -177,14 +161,12 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Specifies that the parser produced by this code will
-   * convert CDATA nodes to Text nodes and append it to the
-   * adjacent (if any) text node. By default the value of this is set to
-   * <code>false</code>
+   * Specifies that the parser produced by this code will convert CDATA nodes to Text nodes and
+   * append it to the adjacent (if any) text node. By default the value of this is set to <code>
+   * false</code>
    *
-   * @param coalescing true if the parser produced will convert CDATA nodes
-   *                   to Text nodes and append it to the adjacent (if any)
-   *                   text node; false otherwise.
+   * @param coalescing true if the parser produced will convert CDATA nodes to Text nodes and append
+   *     it to the adjacent (if any) text node; false otherwise.
    */
   @Override
   public void setCoalescing(boolean coalescing) {
@@ -192,11 +174,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which are namespace aware.
+   * Indicates whether or not the factory is configured to produce parsers which are namespace
+   * aware.
    *
-   * @return true if the factory is configured to produce parsers which
-   * are namespace aware; false otherwise.
+   * @return true if the factory is configured to produce parsers which are namespace aware; false
+   *     otherwise.
    */
   @Override
   public boolean isNamespaceAware() {
@@ -204,11 +186,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which validate the XML content during parse.
+   * Indicates whether or not the factory is configured to produce parsers which validate the XML
+   * content during parse.
    *
-   * @return true if the factory is configured to produce parsers
-   * which validate the XML content during parse; false otherwise.
+   * @return true if the factory is configured to produce parsers which validate the XML content
+   *     during parse; false otherwise.
    */
   @Override
   public boolean isValidating() {
@@ -216,12 +198,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which ignore ignorable whitespace in element content.
+   * Indicates whether or not the factory is configured to produce parsers which ignore ignorable
+   * whitespace in element content.
    *
-   * @return true if the factory is configured to produce parsers
-   * which ignore ignorable whitespace in element content;
-   * false otherwise.
+   * @return true if the factory is configured to produce parsers which ignore ignorable whitespace
+   *     in element content; false otherwise.
    */
   @Override
   public boolean isIgnoringElementContentWhitespace() {
@@ -229,11 +210,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which expand entity reference nodes.
+   * Indicates whether or not the factory is configured to produce parsers which expand entity
+   * reference nodes.
    *
-   * @return true if the factory is configured to produce parsers
-   * which expand entity reference nodes; false otherwise.
+   * @return true if the factory is configured to produce parsers which expand entity reference
+   *     nodes; false otherwise.
    */
   @Override
   public boolean isExpandEntityReferences() {
@@ -241,11 +222,10 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which ignores comments.
+   * Indicates whether or not the factory is configured to produce parsers which ignores comments.
    *
-   * @return true if the factory is configured to produce parsers
-   * which ignores comments; false otherwise.
+   * @return true if the factory is configured to produce parsers which ignores comments; false
+   *     otherwise.
    */
   @Override
   public boolean isIgnoringComments() {
@@ -253,13 +233,11 @@ public class PSDocumentBuilderFactoryImpl
   }
 
   /**
-   * Indicates whether or not the factory is configured to produce
-   * parsers which converts CDATA nodes to Text nodes and appends it to
-   * the adjacent (if any) Text node.
+   * Indicates whether or not the factory is configured to produce parsers which converts CDATA
+   * nodes to Text nodes and appends it to the adjacent (if any) Text node.
    *
-   * @return true if the factory is configured to produce parsers
-   * which converts CDATA nodes to Text nodes and appends it to
-   * the adjacent (if any) Text node; false otherwise.
+   * @return true if the factory is configured to produce parsers which converts CDATA nodes to Text
+   *     nodes and appends it to the adjacent (if any) Text node; false otherwise.
    */
   @Override
   public boolean isCoalescing() {

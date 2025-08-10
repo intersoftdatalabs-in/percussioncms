@@ -39,15 +39,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit is used to enforce workflow security when we are in active
- * assembly. This exit determines if the user has the authority to
- * edit the current active item and its parent item. Two flags will be
- * added to the activeitem element "editauthorized" and
- * "parenteditauthorized". The "editauthorized" flag, if set to "yes" means
- * the user can edit the activeitem. The "parenteditauthorized" flag, if set to
- * "yes" means the user can edit the parent item.
- * This exit is only meant to be used on the "sys_rcSupport/activeitem.xml"
- * resource.
+ * This exit is used to enforce workflow security when we are in active assembly. This exit
+ * determines if the user has the authority to edit the current active item and its parent item. Two
+ * flags will be added to the activeitem element "editauthorized" and "parenteditauthorized". The
+ * "editauthorized" flag, if set to "yes" means the user can edit the activeitem. The
+ * "parenteditauthorized" flag, if set to "yes" means the user can edit the parent item. This exit
+ * is only meant to be used on the "sys_rcSupport/activeitem.xml" resource.
  */
 public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
 
@@ -172,14 +169,13 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method verifies if the current user is allowed to
-   * edit the specified content item. It uses the same authorization
-   * checks used in PSExitAuthenticateUser.
+   * This method verifies if the current user is allowed to edit the specified content item. It uses
+   * the same authorization checks used in PSExitAuthenticateUser.
+   *
    * @param connection JDBC connection passed in
-   * @param localParams object containing parameters that will
-   * be used to authorize the user.
-   * @return <code>true</code> if the user is allowed to edit this content
-   * item, else <code>false</code>.
+   * @param localParams object containing parameters that will be used to authorize the user.
+   * @return <code>true</code> if the user is allowed to edit this content item, else <code>false
+   *     </code>.
    * @throws SQLException if there is an error with the SQL query.
    * @throws PSRoleException role not found
    * @throws Exception catches all other exceptions
@@ -274,10 +270,9 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This is an inner class to encapsulate the parameters. We cannot keep
-   * these as class variables due to threading issues. We instantiate this
-   * object in the main processrequest method (called by server) and pass
-   * around the methods. This is meant for convenience only.
+   * This is an inner class to encapsulate the parameters. We cannot keep these as class variables
+   * due to threading issues. We instantiate this object in the main processrequest method (called
+   * by server) and pass around the methods. This is meant for convenience only.
    */
   private static class AuthParams {
     /** The content id of the active item */
@@ -302,33 +297,21 @@ public class PSExitAddEditAuthFlag implements IPSResultDocumentProcessor {
     public IPSRequestContext m_request = null;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * The content id XML attribute.
-   */
+  /** The content id XML attribute. */
   private static final String XML_ATTRIB_CONTENTID = "contentid";
 
-  /**
-   * The revision id XML attribute.
-   */
+  /** The revision id XML attribute. */
   private static final String XML_ATTRIB_REVISION = "revision";
 
-  /**
-   * The parent content id XML attribute.
-   */
+  /** The parent content id XML attribute. */
   private static final String XML_ATTRIB_PARENTCONTENTID = "parentcontentid";
 
-  /**
-   * The edit authorization XML attribute.
-   */
+  /** The edit authorization XML attribute. */
   private static final String XML_ATTRIB_EDIT_AUTH = "editauthorized";
 
-  /**
-   * The edit authorization XML attribute.
-   */
+  /** The edit authorization XML attribute. */
   private static final String XML_ATTRIB_PARENT_EDIT_AUTH = "parenteditauthorized";
 }

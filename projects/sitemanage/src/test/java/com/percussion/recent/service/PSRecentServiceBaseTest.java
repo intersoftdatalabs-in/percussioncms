@@ -18,68 +18,66 @@
 
 package com.percussion.recent.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.recent.data.PSRecent.RecentType;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Integration test for {@link PSRecentServiceBase}.
- * Sunny Sal: "Recent items, recent code, recent Java 11!"
+ * Integration test for {@link PSRecentServiceBase}. Sunny Sal: "Recent items, recent code, recent
+ * Java 11!"
  */
 @Tag("IntegrationTest")
 class PSRecentServiceBaseTest extends PSServletTestCase {
 
-    private static final String TEST_USER_1 = "testuser1";
-    private static final String TEST_USER_2 = "testuser2";
-    private static final String TEST_SITE_1 = "testsite1";
-    private static final int MAX_TEST_ADD = 100;
-    private static final int MAX_ITEMS_SIZE = 40;
+  private static final String TEST_USER_1 = "testuser1";
+  private static final String TEST_USER_2 = "testuser2";
+  private static final String TEST_SITE_1 = "testsite1";
+  private static final int MAX_TEST_ADD = 100;
+  private static final int MAX_ITEMS_SIZE = 40;
 
-    private IPSRecentServiceBase recentService;
+  private IPSRecentServiceBase recentService;
 
-    @Override
-    protected void setUp() throws Exception {
-        // Dependency injection for test context
-        var bean = (IPSRecentServiceBase) PSSpringWebApplicationContextUtils
-                .getWebApplicationContext()
+  @Override
+  protected void setUp() throws Exception {
+    // Dependency injection for test context
+    var bean =
+        (IPSRecentServiceBase)
+            PSSpringWebApplicationContextUtils.getWebApplicationContext()
                 .getBean("pSRecentServiceBase", IPSRecentServiceBase.class);
-        setRecentService(bean);
-        super.setUp();
-    }
+    setRecentService(bean);
+    super.setUp();
+  }
 
-    @Override
-    protected void tearDown() throws Exception {
-        // ...existing code...
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    // ...existing code...
+  }
 
-    @Test
-    void testUpdateRecentItems() {
-        for (int i = 1; i <= MAX_TEST_ADD; i++) {
-            recentService.addRecent(TEST_USER_1, TEST_SITE_1, RecentType.ITEM, String.valueOf(i));
-        }
-        var returnList = recentService.findRecent(TEST_USER_1, TEST_SITE_1, RecentType.ITEM);
-        assertNotNull(returnList);
-        assertEquals(RecentType.ITEM.MaxSize(), returnList.size());
-        for (int i = 0; i < returnList.size(); i++) {
-            var value = returnList.get(i);
-            // Value should count down from last added value
-            int orderValue = MAX_TEST_ADD - i;
-            assertEquals(String.valueOf(orderValue), value);
-        }
+  @Test
+  void testUpdateRecentItems() {
+    for (int i = 1; i <= MAX_TEST_ADD; i++) {
+      recentService.addRecent(TEST_USER_1, TEST_SITE_1, RecentType.ITEM, String.valueOf(i));
     }
+    var returnList = recentService.findRecent(TEST_USER_1, TEST_SITE_1, RecentType.ITEM);
+    assertNotNull(returnList);
+    assertEquals(RecentType.ITEM.MaxSize(), returnList.size());
+    for (int i = 0; i < returnList.size(); i++) {
+      var value = returnList.get(i);
+      // Value should count down from last added value
+      int orderValue = MAX_TEST_ADD - i;
+      assertEquals(String.valueOf(orderValue), value);
+    }
+  }
 
-    public IPSRecentServiceBase getRecentService() {
-        return recentService;
-    }
+  public IPSRecentServiceBase getRecentService() {
+    return recentService;
+  }
 
-    public void setRecentService(IPSRecentServiceBase recentService) {
-        this.recentService = recentService;
-    }
+  public void setRecentService(IPSRecentServiceBase recentService) {
+    this.recentService = recentService;
+  }
 }

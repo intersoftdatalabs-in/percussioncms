@@ -44,21 +44,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Class to handle packaging and deploying a context definition.
- */
+/** Class to handle packaging and deploying a context definition. */
 public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSServiceDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContextDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -105,15 +100,15 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>LocationSchemeDef</li>
+   *   <li>LocationSchemeDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator getChildTypes() {
@@ -166,14 +161,11 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * Using the idMap in <code>ctx</code> to transfer the ids from the source
-   * to target for a given context.
+   * Using the idMap in <code>ctx</code> to transfer the ids from the source to target for a given
+   * context.
    *
-   * @param context The publishing context to be modified, assumed not
-   * <code>null</code>.
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   *
+   * @param context The publishing context to be modified, assumed not <code>null</code>.
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if any error occur.
    */
   private void transferIdsInContext(
@@ -229,9 +221,8 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
   }
 
   /**
-   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles(
-   * PSSecurityToken, PSArchiveHandler, PSDependency, PSImportCtx)} for
-   * details.
+   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
+   * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
   public void doInstallDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
@@ -286,11 +277,11 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
 
   /**
    * Package the location scheme dependencies
+   *
    * @param tok the security token, assumed not <code>null</code>
-   * @param dep the dependency for which child dependencies are returned,
-   * assumed not <code>null</code>
-   * @return the location scheme child dependencies, never <code>null</code>
-   * may be empty
+   * @param dep the dependency for which child dependencies are returned, assumed not <code>null
+   *     </code>
+   * @return the location scheme child dependencies, never <code>null</code> may be empty
    * @throws PSDeployException
    */
   private List<PSDependency> getLocationSchemeDependencies(PSSecurityToken tok, PSDependency dep)
@@ -314,9 +305,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
    * Creates a dependency file from a given dependency data object.
    *
    * @param context the publishing context, assumed not <code>null</code>.
-   *
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -338,8 +327,7 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
    * Retrieves a publishing context for the given id.
    *
    * @param id the publishing context id, assumed not <code>null</code>.
-   * @return publishing context corresponding to the id, <code>null</code> if a
-   * match was not found.
+   * @return publishing context corresponding to the id, <code>null</code> if a match was not found.
    */
   private IPSPublishingContext findPublishingContext(String id) throws PSNotFoundException {
     IPSPublishingContext context = null;
@@ -355,20 +343,13 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     return context;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ContextDef";
 
-  /**
-   * Get the site manager.
-   */
+  /** Get the site manager. */
   private static IPSSiteManager m_siteMgr = PSSiteManagerLocator.getSiteManager();
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

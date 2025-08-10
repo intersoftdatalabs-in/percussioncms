@@ -17,23 +17,23 @@
  */
 package com.percussion.share.service;
 
-import java.io.Serializable;
 import com.percussion.share.service.exception.PSDataServiceException;
+import java.io.Serializable;
 
 /**
  * Read-only data service for loading objects by id.
  *
  * @param <FULL> the full object type
- * @param <PK>   the primary key type
+ * @param <PK> the primary key type
  */
 public interface IPSReadOnlyDataService<FULL, PK extends Serializable> {
 
-    /**
-     * Loads an object by id.
-     *
-     * @param id the primary key
-     * @return the loaded object
-     * @throws PSDataServiceException if the object cannot be loaded
-     */
-    FULL load(PK id) throws PSDataServiceException;
+  /**
+   * Loads an object by id.
+   *
+   * @param id the primary key
+   * @return the loaded object
+   * @throws PSDataServiceException if the object cannot be loaded
+   */
+  FULL load(PK id) throws PSDataServiceException;
 }

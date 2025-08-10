@@ -40,9 +40,8 @@ import org.w3c.dom.Element;
 
 public class PSSearchEngineImpl extends PSSearchEngine {
   /**
-   * ctor for search engine implementation. Validates the indexroot property
-   * and then creates the search admin and read only search admin objects and
-   * then sets the status code as initialized.
+   * ctor for search engine implementation. Validates the indexroot property and then creates the
+   * search admin and read only search admin objects and then sets the status code as initialized.
    *
    * @throws PSSearchException
    */
@@ -60,8 +59,8 @@ public class PSSearchEngineImpl extends PSSearchEngine {
   }
 
   /**
-   * Validates the index root property and sets it. If it is is not valid then
-   * throws expection and the engine will not be initialized.
+   * Validates the index root property and sets it. If it is is not valid then throws expection and
+   * the engine will not be initialized.
    *
    * @throws PSSearchException
    */
@@ -149,8 +148,7 @@ public class PSSearchEngineImpl extends PSSearchEngine {
   }
 
   /**
-   * Closes all Index Writers this should be called before shutdown of the
-   * server.
+   * Closes all Index Writers this should be called before shutdown of the server.
    *
    * @throws PSSearchException
    */
@@ -206,30 +204,23 @@ public class PSSearchEngineImpl extends PSSearchEngine {
 
   /**
    * Convenient method to provide the root folder of lucene indexes.
+   *
    * @return Root folder of lucene index folder.
    */
   public static String getLuceneIndexRootPath() {
     return m_indexRootPath;
   }
 
-  /**
-   * Constant for the folder that holds the lucene indexes.
-   */
+  /** Constant for the folder that holds the lucene indexes. */
   public static final String INDEXES_DIR = "indexes";
 
-  /**
-   * Created in ctor, then never changed.
-   */
+  /** Created in ctor, then never changed. */
   private PSSearchAdminImpl m_searchAdmin;
 
-  /**
-   * Created in ctor, then never changed.
-   */
+  /** Created in ctor, then never changed. */
   private PSSearchAdminReadOnly m_searchAdminReadOnly;
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger ms_log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 
   /**
@@ -239,13 +230,11 @@ public class PSSearchEngineImpl extends PSSearchEngine {
   private int m_stateCode;
 
   /**
-   * The root path of the lucene indexes. Initialized in Ctor never
-   * <code>null</code> or empty after that.
+   * The root path of the lucene indexes. Initialized in Ctor never <code>null</code> or empty after
+   * that.
    */
   private static String m_indexRootPath = null;
 
-  /**
-   * Search Indexer singleton
-   */
+  /** Search Indexer singleton */
   private PSSearchIndexer m_searchIndexer = null;
 }

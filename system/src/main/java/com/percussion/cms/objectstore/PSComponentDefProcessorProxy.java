@@ -26,28 +26,21 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 /**
- * This class is similar to {@link PSComponentProcessorProxy} in the way it
- * functions, however it deals with the CMS design objects such as Content
- * Type, Slot, Variant, Workflow definitions etc.
- *
+ * This class is similar to {@link PSComponentProcessorProxy} in the way it functions, however it
+ * deals with the CMS design objects such as Content Type, Slot, Variant, Workflow definitions etc.
  */
 public class PSComponentDefProcessorProxy extends PSProcessorProxy {
 
   private static final Logger log = LogManager.getLogger(PSComponentDefProcessorProxy.class);
 
   /**
-   * Creates a proxy for a specific type of processor. Simply delegates to the
-   * base  class.
+   * Creates a proxy for a specific type of processor. Simply delegates to the base class.
    *
-   * @param processorType  The type of processor for which this class is
-   *    acting as a proxy. See {@link PSProcessorProxy version of the
-   *    constructor} for more details
-   *
-   * @param ctx A context object appropriate for the processor type,
-   * may be <code>null</code> if the processor does not require one.
-   *
-   * @throws PSCmsException If the xml document is not well-formed and
-   *    conformant to its schema.
+   * @param processorType The type of processor for which this class is acting as a proxy. See
+   *     {@link PSProcessorProxy version of the constructor} for more details
+   * @param ctx A context object appropriate for the processor type, may be <code>null</code> if the
+   *     processor does not require one.
+   * @throws PSCmsException If the xml document is not well-formed and conformant to its schema.
    */
   public PSComponentDefProcessorProxy(String processorType, Object ctx) throws PSCmsException {
     super(processorType, ctx);
@@ -56,17 +49,12 @@ public class PSComponentDefProcessorProxy extends PSProcessorProxy {
   /**
    * Loads the specified components.
    *
-   * @param componentType the type of the loaded components. Never empty or
-   *    <code>null</code>.
-   * @param locators the locators of the loaded components.
-   *    If <code>null</code>, all objects of the requested type are returned.
-   *    If any entry is <code>null</code>, an exception is thrown.
-   *
-   * @return the specified components, never <code>null</code>, but may be
-   *    empty.
-   *
+   * @param componentType the type of the loaded components. Never empty or <code>null</code>.
+   * @param locators the locators of the loaded components. If <code>null</code>, all objects of the
+   *     requested type are returned. If any entry is <code>null</code>, an exception is thrown.
+   * @return the specified components, never <code>null</code>, but may be empty.
    * @see IPSComponentProcessor#load(String, PSKey[])
-   * @throws PSCmsException  if an error occurs.
+   * @throws PSCmsException if an error occurs.
    */
   public Element[] load(String componentType, PSKey[] locators) throws PSCmsException {
     IPSComponentProcessor proc =

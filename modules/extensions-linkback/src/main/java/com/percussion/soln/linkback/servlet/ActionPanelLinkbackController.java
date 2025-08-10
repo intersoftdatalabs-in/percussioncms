@@ -23,10 +23,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Linkback controller to redirect to Rhythmyx Action Panel. The redirect path
- * is internal (hard coded), so there is no need to specify
- * <code>redirectPath</code> in bean configuration. Recommend to set
- * <code>helpViewName</code>.
+ * Linkback controller to redirect to Rhythmyx Action Panel. The redirect path is internal (hard
+ * coded), so there is no need to specify <code>redirectPath</code> in bean configuration. Recommend
+ * to set <code>helpViewName</code>.
  */
 public class ActionPanelLinkbackController extends GenericLinkbackController {
 

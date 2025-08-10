@@ -20,18 +20,17 @@ package com.percussion.assetmanagement.service;
 import com.percussion.assetmanagement.data.PSContentEditCriteria;
 import com.percussion.share.data.PSDataObjectTestCase;
 
-/**
- * Test for PSContentEditCriteria data object.
- */
+/** Test for PSContentEditCriteria data object. */
 public class PSAssetDataObjectTests {
 
-    public static class PSContentEditCriteriaTest extends PSDataObjectTestCase<PSContentEditCriteria> {
+  public static class PSContentEditCriteriaTest
+      extends PSDataObjectTestCase<PSContentEditCriteria> {
 
-        @Override
-        public PSContentEditCriteria getObject() {
-            var ce = new PSContentEditCriteria();
-            ce.setPreferredEditorHeight(100);
-            return ce;
-        }
+    @Override
+    public PSContentEditCriteria getObject() {
+      var ce = new PSContentEditCriteria();
+      ce.setPreferredEditorHeight(100);
+      return ce;
     }
+  }
 }

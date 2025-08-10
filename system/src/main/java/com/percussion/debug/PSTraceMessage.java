@@ -28,14 +28,12 @@ import java.util.Date;
 import java.util.ResourceBundle;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-/**
- * Base class for all objects that output trace messages.
- */
+/** Base class for all objects that output trace messages. */
 // REFACTORED: CP-JAVA11
 public abstract class PSTraceMessage implements IPSTraceMessage {
 
   /**
-   * Constructor for this class.  Sets the type of trace flag for this object
+   * Constructor for this class. Sets the type of trace flag for this object
    *
    * @param typeFlag the type of trace message this object will generate
    * @roseuid 39FECDCC034B
@@ -45,12 +43,12 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
   }
 
   /**
-   * Formats the message body into a String.  The constructor of this body will add
-   * newline characters where required, but the column width specified by the trace
-   * options may cause lines to be wrapped when sent to the output stream.
+   * Formats the message body into a String. The constructor of this body will add newline
+   * characters where required, but the column width specified by the trace options may cause lines
+   * to be wrapped when sent to the output stream.
    *
-   * @param source the source of the information to be used in generating the trace
-   * message.   May not be <code>null</code>.
+   * @param source the source of the information to be used in generating the trace message. May not
+   *     be <code>null</code>.
    * @return the message body as a String
    * @roseuid 39F5AB4A03B9
    */
@@ -65,15 +63,14 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
   protected abstract String getMessageHeader();
 
   /**
-   * Retreives the necessary information from the object it was instantiated with,
-   * and then formats the output of its message and sends it to the supplied output
-   * stream.  Calls abstract methods getMessageHeader and getMessageBody to
-   * construct the output, and these calls are overriden by the specific message
-   * object subclass.
-   * @param traceInfo The trace options set by the application.  May not be
-   * <code>null</code>.
-   * @param source the source of the information to be used in generating the trace
-   * message.   May not be <code>null</code>.
+   * Retreives the necessary information from the object it was instantiated with, and then formats
+   * the output of its message and sends it to the supplied output stream. Calls abstract methods
+   * getMessageHeader and getMessageBody to construct the output, and these calls are overriden by
+   * the specific message object subclass.
+   *
+   * @param traceInfo The trace options set by the application. May not be <code>null</code>.
+   * @param source the source of the information to be used in generating the trace message. May not
+   *     be <code>null</code>.
    * @throws IOException if there is a problem writing to the output stream
    */
   public void printTrace(PSTraceInfo traceInfo, Object source, PSTraceWriter target)
@@ -144,13 +141,10 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
   }
 
   /**
-   * Utility method to retreieve a message string and subsitute the
-   * arguments using MessageFormat
+   * Utility method to retreieve a message string and subsitute the arguments using MessageFormat
    *
-   * @param args an Object array with the last item a String
-   * naming the message format string:
-   * Object[] = {[arg1[, ...argN]], MessageFormat}
-   *
+   * @param args an Object array with the last item a String naming the message format string:
+   *     Object[] = {[arg1[, ...argN]], MessageFormat}
    * @return the fully constructed message body
    */
   protected static String getMessageFromArgs(Object[] args) {
@@ -161,30 +155,19 @@ public abstract class PSTraceMessage implements IPSTraceMessage {
     return MessageFormat.format(ms_bundle.getString((String) args[msgIndex]), args);
   }
 
-  /**
-   * newline separator for this system
-   */
+  /** newline separator for this system */
   protected static final String NEW_LINE = System.getProperty("line.separator");
 
-  /**
-   * resource bundle for use by all derived classes from which to
-   * retrieve their message formats
-   */
+  /** resource bundle for use by all derived classes from which to retrieve their message formats */
   protected static ResourceBundle ms_bundle =
       ResourceBundle.getBundle("com.percussion.server.PSStringResources");
 
-  /**
-   * Indicates this message's type
-   */
+  /** Indicates this message's type */
   protected int m_typeFlag;
 
-  /**
-   * format for the header timestamp
-   */
+  /** format for the header timestamp */
   private static final String TS_FORMAT = "MM/dd hh:mm:ss.SSS";
 
-  /**
-   * Formatter for dates
-   */
+  /** Formatter for dates */
   private FastDateFormat m_formatter = null;
 }

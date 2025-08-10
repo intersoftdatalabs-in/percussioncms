@@ -22,26 +22,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * The PSUserAttributes class is a hashMap of user attributes, as
- * defined by the security provider using the attributes.
+ * The PSUserAttributes class is a hashMap of user attributes, as defined by the security provider
+ * using the attributes.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserAttributes extends HashMap {
-  /**
-   * Construct an empty set of attributes.
-   */
+  /** Construct an empty set of attributes. */
   public PSUserAttributes() {}
 
   /**
-   * Constructs a new user attributes hash map from the supplied attribute
-   * list.
+   * Constructs a new user attributes hash map from the supplied attribute list.
    *
-   * @param attributes the attribute list to construct this map from, may
-   *    be <code>null</code>. Attributes that have multiple values will be
-   *    stored as coma separated <code>String</code> objects.
+   * @param attributes the attribute list to construct this map from, may be <code>null</code>.
+   *     Attributes that have multiple values will be stored as coma separated <code>String</code>
+   *     objects.
    */
   public PSUserAttributes(PSAttributeList attributes) {
     if (attributes != null) {
@@ -65,10 +62,8 @@ public class PSUserAttributes extends HashMap {
   /**
    * Get an attribute as a String (avoid type casting get results).
    *
-   * @param      key      the attribute to get (from the hash)
-   *
-   * @return               the attribute value, or <code>null</code> if
-   *                        the attribute does not exist
+   * @param key the attribute to get (from the hash)
+   * @return the attribute value, or <code>null</code> if the attribute does not exist
    */
   public String getString(String key) {
     return (String) super.get((Object) key);

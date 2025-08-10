@@ -32,15 +32,13 @@ import java.util.List;
  * Helper class to find fields in the content types.
  *
  * @author stephenbolton
- *
  */
 public class PSFieldFinderUtil {
 
   /**
-   * Finds fields in a {@link PSDisplayMapper} based upon the existence of a specific
-   * property name and value in the control properties. This does not test
-   * against the dynamic generated value but the display value of the
-   * configuration as seen in the properties dialog of workbench
+   * Finds fields in a {@link PSDisplayMapper} based upon the existence of a specific property name
+   * and value in the control properties. This does not test against the dynamic generated value but
+   * the display value of the configuration as seen in the properties dialog of workbench
    *
    * @param mapper the {@link PSDisplayMapper}
    * @param propertyName not <code>null</code>
@@ -75,10 +73,9 @@ public class PSFieldFinderUtil {
   }
 
   /**
-   * Finds fields in a {@link PSItemDefinition} based upon the existence of a specific
-   * property name and value in the control properties. This does not test
-   * against the dynamic generated value but the display value of the
-   * configuration as seen in the properties dialog of workbench
+   * Finds fields in a {@link PSItemDefinition} based upon the existence of a specific property name
+   * and value in the control properties. This does not test against the dynamic generated value but
+   * the display value of the configuration as seen in the properties dialog of workbench
    *
    * @param def the {@link PSItemDefinition}
    * @param propertyName not <code>null</code>

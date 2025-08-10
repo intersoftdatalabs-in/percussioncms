@@ -18,203 +18,200 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.Collection;
 import net.sf.oval.constraint.NotEmpty;
 
-import java.util.Collection;
-
 /**
- * This class contains a set of known properties of an item.
- * Sunny Sal says: "Properties—because every item deserves a good story!"
+ * This class contains a set of known properties of an item. Sunny Sal says: "Properties—because
+ * every item deserves a good story!"
  */
 @JsonRootName(value = "ItemProperties")
 public class PSItemProperties extends PSAbstractPersistantObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
-    private String name;
-    private String status;
-    private String workflow;
-    private String lastModifier;
-    private String lastModifiedDate;
-    private String lastPublishedDate;
-    private String type;
-    @NotEmpty
-    private String path;
-    @NotEmpty
-    private String summary;
-    private String author;
-    private Collection<String> tags;
-    private int commentsCount;
-    private int newCommentsCount;
-    private String size;
-    private String postDate;
-    private String scheduledPublishDate;
-    private String scheduledUnpublishDate;
-    private String thumbnailPath;
-    private String contentPostDateTz;
+  private String id;
+  private String name;
+  private String status;
+  private String workflow;
+  private String lastModifier;
+  private String lastModifiedDate;
+  private String lastPublishedDate;
+  private String type;
+  @NotEmpty private String path;
+  @NotEmpty private String summary;
+  private String author;
+  private Collection<String> tags;
+  private int commentsCount;
+  private int newCommentsCount;
+  private String size;
+  private String postDate;
+  private String scheduledPublishDate;
+  private String scheduledUnpublishDate;
+  private String thumbnailPath;
+  private String contentPostDateTz;
 
-    @Override
-    public String getId() {
-        return id;
-    }
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public void setStatus(String stateName) {
-        this.status = stateName;
-    }
+  public void setStatus(String stateName) {
+    this.status = stateName;
+  }
 
-    public String getWorkflow() {
-        return workflow;
-    }
+  public String getWorkflow() {
+    return workflow;
+  }
 
-    public void setWorkflow(String workflowName) {
-        this.workflow = workflowName;
-    }
+  public void setWorkflow(String workflowName) {
+    this.workflow = workflowName;
+  }
 
-    public String getLastModifier() {
-        return lastModifier;
-    }
+  public String getLastModifier() {
+    return lastModifier;
+  }
 
-    public void setLastModifier(String user) {
-        this.lastModifier = user;
-    }
+  public void setLastModifier(String user) {
+    this.lastModifier = user;
+  }
 
-    public String getLastModifiedDate() {
-        return lastModifiedDate;
-    }
+  public String getLastModifiedDate() {
+    return lastModifiedDate;
+  }
 
-    public void setLastModifiedDate(String date) {
-        this.lastModifiedDate = date;
-    }
+  public void setLastModifiedDate(String date) {
+    this.lastModifiedDate = date;
+  }
 
-    public String getLastPublishedDate() {
-        return lastPublishedDate;
-    }
+  public String getLastPublishedDate() {
+    return lastPublishedDate;
+  }
 
-    public void setLastPublishedDate(String date) {
-        lastPublishedDate = date;
-    }
+  public void setLastPublishedDate(String date) {
+    lastPublishedDate = date;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-    public String getSummary() {
-        return summary;
-    }
+  public String getSummary() {
+    return summary;
+  }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
+  public void setSummary(String summary) {
+    this.summary = summary;
+  }
 
-    public String getAuthor() {
-        return author;
-    }
+  public String getAuthor() {
+    return author;
+  }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-    public Collection<String> getTags() {
-        return tags;
-    }
+  public Collection<String> getTags() {
+    return tags;
+  }
 
-    public void setTags(Collection<String> tags) {
-        this.tags = tags;
-    }
+  public void setTags(Collection<String> tags) {
+    this.tags = tags;
+  }
 
-    public int getCommentsCount() {
-        return commentsCount;
-    }
+  public int getCommentsCount() {
+    return commentsCount;
+  }
 
-    public void setCommentsCount(int commentsCount) {
-        this.commentsCount = commentsCount;
-    }
+  public void setCommentsCount(int commentsCount) {
+    this.commentsCount = commentsCount;
+  }
 
-    public int getNewCommentsCount() {
-        return newCommentsCount;
-    }
+  public int getNewCommentsCount() {
+    return newCommentsCount;
+  }
 
-    public void setNewCommentsCount(int newCommentsCount) {
-        this.newCommentsCount = newCommentsCount;
-    }
+  public void setNewCommentsCount(int newCommentsCount) {
+    this.newCommentsCount = newCommentsCount;
+  }
 
-    public String getSize() {
-        return size;
-    }
+  public String getSize() {
+    return size;
+  }
 
-    public void setSize(String size) {
-        this.size = size;
-    }
+  public void setSize(String size) {
+    this.size = size;
+  }
 
-    public String getPostDate() {
-        return postDate;
-    }
+  public String getPostDate() {
+    return postDate;
+  }
 
-    public void setPostDate(String postDate) {
-        this.postDate = postDate;
-    }
+  public void setPostDate(String postDate) {
+    this.postDate = postDate;
+  }
 
-    public String getScheduledPublishDate() {
-        return scheduledPublishDate;
-    }
+  public String getScheduledPublishDate() {
+    return scheduledPublishDate;
+  }
 
-    public void setScheduledPublishDate(String scheduledPublishDate) {
-        this.scheduledPublishDate = scheduledPublishDate;
-    }
+  public void setScheduledPublishDate(String scheduledPublishDate) {
+    this.scheduledPublishDate = scheduledPublishDate;
+  }
 
-    public String getScheduledUnpublishDate() {
-        return scheduledUnpublishDate;
-    }
+  public String getScheduledUnpublishDate() {
+    return scheduledUnpublishDate;
+  }
 
-    public void setScheduledUnpublishDate(String scheduledUnpublishDate) {
-        this.scheduledUnpublishDate = scheduledUnpublishDate;
-    }
+  public void setScheduledUnpublishDate(String scheduledUnpublishDate) {
+    this.scheduledUnpublishDate = scheduledUnpublishDate;
+  }
 
-    public String getThumbnailPath() {
-        return thumbnailPath;
-    }
+  public String getThumbnailPath() {
+    return thumbnailPath;
+  }
 
-    public void setThumbnailPath(String thumbnailPath) {
-        this.thumbnailPath = thumbnailPath;
-    }
+  public void setThumbnailPath(String thumbnailPath) {
+    this.thumbnailPath = thumbnailPath;
+  }
 
-    public static final String SYSTEM_USER = "System";
+  public static final String SYSTEM_USER = "System";
 
-    public String getContentPostDateTz() {
-        return contentPostDateTz;
-    }
+  public String getContentPostDateTz() {
+    return contentPostDateTz;
+  }
 
-    public void setContentPostDateTz(String contentPostDateTz) {
-        this.contentPostDateTz = contentPostDateTz;
-    }
+  public void setContentPostDateTz(String contentPostDateTz) {
+    this.contentPostDateTz = contentPostDateTz;
+  }
 }

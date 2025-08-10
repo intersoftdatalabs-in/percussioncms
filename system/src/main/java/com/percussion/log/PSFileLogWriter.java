@@ -31,10 +31,10 @@ import org.w3c.dom.Node;
 
 /**
  * The PSFileLogWriter class implements logging to a file.
- * <p>
- * The log will be stored    on the E2    server's file    system. Log entries will
- * be    stored using an XML file format. The DTD for the log file    is as
- * follows:
+ *
+ * <p>The log will be stored on the E2 server's file system. Log entries will be stored using an XML
+ * file format. The DTD for the log file is as follows:
+ *
  * <pre>
  *
  *       &lt;!DOCTYPE PSXLog [
@@ -54,19 +54,18 @@ import org.w3c.dom.Node;
  *
  * </pre>
  *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileLogWriter implements IPSLogWriter {
   /**
-   *    Construct a file log writer. This is given package access with the
-   *    intent that only the PSLogManager object will instantiate it.
+   * Construct a file log writer. This is given package access with the intent that only the
+   * PSLogManager object will instantiate it.
    *
-   * @param   file       the file to write the log entries to
-   *
-   * @exception   IOException if file contains an invalid path or the
-   *    file cannot be opened for both reading and writing
+   * @param file the file to write the log entries to
+   * @exception IOException if file contains an invalid path or the file cannot be opened for both
+   *     reading and writing
    */
   PSFileLogWriter(RandomAccessFile file) throws IOException {
     super();
@@ -84,8 +83,7 @@ public class PSFileLogWriter implements IPSLogWriter {
   }
 
   /**
-   * Initializes a file log writer and sets up the writer in the right
-   * position
+   * Initializes a file log writer and sets up the writer in the right position
    *
    * @throws IOException if file is empty
    */
@@ -131,9 +129,8 @@ public class PSFileLogWriter implements IPSLogWriter {
   //   **************   IPSLogWriter Interface Implementation   **************
 
   /**
-   *    Close the log writer. This should only be called when it is no longer
-   *    needed. Any subsequent attempt to write through this object will throw
-   *    an exception.
+   * Close the log writer. This should only be called when it is no longer needed. Any subsequent
+   * attempt to write through this object will throw an exception.
    */
   public synchronized void close() {
     m_isOpen = false;
@@ -142,11 +139,10 @@ public class PSFileLogWriter implements IPSLogWriter {
   }
 
   /**
-   *    Write the log message.
+   * Write the log message.
    *
-   * @param   msg the log message to be written
-   * @exception   IllegalStateException if close has already been called
-   *    on this reader
+   * @param msg the log message to be written
+   * @exception IllegalStateException if close has already been called on this reader
    */
   public synchronized void write(PSLogInformation msg) throws java.lang.IllegalStateException {
     // assert (m_appendPos >= 0)
@@ -170,10 +166,9 @@ public class PSFileLogWriter implements IPSLogWriter {
   }
 
   /**
-   *    Use to query whether the writer is open or not.
+   * Use to query whether the writer is open or not.
    *
-   * @return   true if the log writer is open, false if the log writer is not
-   *    open.
+   * @return true if the log writer is open, false if the log writer is not open.
    */
   public synchronized boolean isOpen() {
     if (m_isOpen) {
@@ -193,19 +188,18 @@ public class PSFileLogWriter implements IPSLogWriter {
 
   /**
    * Attemps to reopen the writer if it is closed.
-   * @return   true if the log writer was already open or if it was
-   * succesfully reopend, false otherwise.
+   *
+   * @return true if the log writer was already open or if it was succesfully reopend, false
+   *     otherwise.
    */
   public synchronized boolean open() {
     return false;
   }
 
   /**
-   * Remove all entries in the log created on or before the given date
-   * and time.
+   * Remove all entries in the log created on or before the given date and time.
    *
-   * @param   allBefore    all entries with a time up to and including this
-   * date will be truncated.
+   * @param allBefore all entries with a time up to and including this date will be truncated.
    */
   public synchronized void truncateLog(java.util.Date allBefore) {
     if (allBefore == null) return; // do not truncate
@@ -375,34 +369,31 @@ public class PSFileLogWriter implements IPSLogWriter {
   }
 
   /**
-   *    Member variable is true if and only if the writer is open.
+   * Member variable is true if and only if the writer is open.
    *
-   * @see   #close
-   * @see   #isOpen
+   * @see #close
+   * @see #isOpen
    */
   private boolean m_isOpen = false;
 
   /**
-   *    The file we write to. It remains open for reading and writing while the
-   *    log file writer is open.
+   * The file we write to. It remains open for reading and writing while the log file writer is
+   * open.
    */
   private RandomAccessFile m_file;
 
   private PSRandomAccessInputStream m_fileIn;
 
   /**
-   *    The string that begins the XML log file
-   *    Annex F of ISO 10646-1:1993 and § 2.4 of Unicode 2.0 recommend that UTF-16
-   *    texts start with the no-op character U+FEFF ZERO WIDTH NO-BREAK SPACE as
-   *    byte-order mark (BOM) to recognize byte-swapped UTF-16 text from haphazard
-   *    programs on little-endian Intel or DEC machines from its =FF=FE signature
-   *    (U+FFFE , or \uFEFF is guaranteed to be no Unicode character).
+   * The string that begins the XML log file Annex F of ISO 10646-1:1993 and § 2.4 of Unicode 2.0
+   * recommend that UTF-16 texts start with the no-op character U+FEFF ZERO WIDTH NO-BREAK SPACE as
+   * byte-order mark (BOM) to recognize byte-swapped UTF-16 text from haphazard programs on
+   * little-endian Intel or DEC machines from its =FF=FE signature (U+FFFE , or \uFEFF is guaranteed
+   * to be no Unicode character).
    */
   private static final String BEGINLOGTAG = "<PSXLog>\n";
 
-  /**
-   *    The XML DTD (document type definition) for the logfile
-   */
+  /** The XML DTD (document type definition) for the logfile */
   private static final String LOGFILEDTD =
       "<?xml version=\"1.0\" encoding=\""
           + PSCharSets.rxStdEnc()
@@ -417,20 +408,13 @@ public class PSFileLogWriter implements IPSLogWriter {
           + "\t<!ATTLIST data type CDATA #IMPLIED>\n"
           + "]>";
 
-  /**
-   *    The string that ends the XML log file
-   */
+  /** The string that ends the XML log file */
   private static final String ENDFILETAG = "</PSXLog>";
 
-  /**
-   *    We keep track of the append position and update it each time we
-   *    write a message.
-   */
+  /** We keep track of the append position and update it each time we write a message. */
   private long m_appendPos = 0;
 
-  /**
-   * Total minutes in a single day.
-   */
+  /** Total minutes in a single day. */
   private static final int ms_minutesInOneDay = 1440; // 24 * 60
 
   private static final long MILLIS_IN_MINUTE = 60000L; // 1000 * 60

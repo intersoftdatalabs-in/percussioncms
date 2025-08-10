@@ -17,49 +17,48 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-/**
- * Context for resource location resolution.
- */
+/** Context for resource location resolution. */
 public class PSResourceLocationContext {
 
-    private String siteId;
-    private String folderPath;
-    private Number legacyFileContext;
-    private Mode mode;
+  private String siteId;
+  private String folderPath;
+  private Number legacyFileContext;
+  private Mode mode;
 
-    public enum Mode {
-        PUBLISH, PREVIEW
-    }
+  public enum Mode {
+    PUBLISH,
+    PREVIEW
+  }
 
-    public String getSiteId() {
-        return siteId;
-    }
+  public String getSiteId() {
+    return siteId;
+  }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
+  public void setSiteId(String siteId) {
+    this.siteId = siteId;
+  }
 
-    public String getFolderPath() {
-        return folderPath;
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    public Number getLegacyFileContext() {
-        return legacyFileContext;
-    }
+  public Number getLegacyFileContext() {
+    return legacyFileContext;
+  }
 
-    public void setLegacyFileContext(Number legacyFileContext) {
-        this.legacyFileContext = legacyFileContext;
-    }
+  public void setLegacyFileContext(Number legacyFileContext) {
+    this.legacyFileContext = legacyFileContext;
+  }
 
-    public Mode getMode() {
-        return mode;
-    }
+  public Mode getMode() {
+    return mode;
+  }
 
-    public void setMode(Mode mode) {
-        this.mode = mode;
-    }
+  public void setMode(Mode mode) {
+    this.mode = mode;
+  }
 }

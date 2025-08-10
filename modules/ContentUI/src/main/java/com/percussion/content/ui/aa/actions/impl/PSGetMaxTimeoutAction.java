@@ -21,10 +21,7 @@ import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
 import java.util.Map;
 
-/**
- * Retrieves the server's max timeout setting in seconds.
- * Takes no params. Used for keep alive.
- */
+/** Retrieves the server's max timeout setting in seconds. Takes no params. Used for keep alive. */
 public class PSGetMaxTimeoutAction extends PSAAActionBase {
 
   // see interface for details

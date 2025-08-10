@@ -22,13 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Creates a stream that allows the user to read data from a block of shared
- * memory. Marking and resetting are supported.
- **/
+ * Creates a stream that allows the user to read data from a block of shared memory. Marking and
+ * resetting are supported.
+ */
 public class PSSharedMemoryInputStream extends InputStream {
-  /**
-   * Creates a stream to read data from a shared memory block.
-   **/
+  /** Creates a stream to read data from a shared memory block. */
   public PSSharedMemoryInputStream(PSSharedMemory shMem) {
     m_shMem = shMem;
     m_sharedMemView = mapSharedMemoryView(shMem.getMemoryId());

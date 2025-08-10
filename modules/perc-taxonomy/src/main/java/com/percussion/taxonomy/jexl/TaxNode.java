@@ -28,7 +28,6 @@ import java.util.HashMap;
  * Read only Class for use in Jexl that represents a Taxonomy Taxon.
  *
  * @author stephenbolton
- *
  */
 public class TaxNode {
   private int id;
@@ -45,6 +44,7 @@ public class TaxNode {
 
   /**
    * Create a Taxon Node from the underlying Hibernate object
+   *
    * @param node
    */
   public TaxNode(Node node) {
@@ -87,7 +87,9 @@ public class TaxNode {
     }
   }
 
-  /**  Get The node id
+  /**
+   * Get The node id
+   *
    * @return the id
    */
   public int getId() {
@@ -96,6 +98,7 @@ public class TaxNode {
 
   /**
    * Get the Node Name
+   *
    * @return
    */
   public String getName() {
@@ -104,6 +107,7 @@ public class TaxNode {
 
   /**
    * Get the heirarchy path for the Taxonomy node
+   *
    * @return The path
    */
   public String getPath() {
@@ -115,6 +119,7 @@ public class TaxNode {
 
   /**
    * Get the parent Taxonomy node.
+   *
    * @return the parent TaxNode
    */
   public TaxNode getParent() {
@@ -123,6 +128,7 @@ public class TaxNode {
 
   /**
    * A HashMap containing the attributes keyed by their name
+   *
    * @return
    */
   public HashMap<String, TaxValues> getAttributes() {
@@ -131,15 +137,14 @@ public class TaxNode {
 
   /**
    * Does this node have any child nodes
+   *
    * @return
    */
   public boolean isLeaf() {
     return isLeaf;
   }
 
-  /**
-   * Generate the Taxonomy hierarchy path for the node based upon the parent structure.
-   */
+  /** Generate the Taxonomy hierarchy path for the node based upon the parent structure. */
   private void calculatePath() {
     ArrayList<String> pathElements = new ArrayList<String>();
     TaxNode testNode = this.parent;

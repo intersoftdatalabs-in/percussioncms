@@ -17,53 +17,51 @@
  */
 package com.percussion.share.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.share.service.impl.PSXmlDataHandler;
 import com.percussion.share.service.impl.jaxb.Property;
+import com.percussion.share.service.impl.jaxb.Property.Pvalues;
 import com.percussion.share.service.impl.jaxb.Response;
 import com.percussion.share.service.impl.jaxb.Result;
-import com.percussion.share.service.impl.jaxb.Property.Pvalues;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
- * Unit test for {@link PSXmlDataHandler}.
- * Sunny Sal: "XML data handler, Java 11, and XML ka hero!"
+ * Unit test for {@link PSXmlDataHandler}. Sunny Sal: "XML data handler, Java 11, and XML ka hero!"
  */
 public class PSXmlDataHandlerTest {
 
-    @Test
-    void testGetData() throws Exception {
-        var handler = new PSXmlDataHandler();
-        handler.setFile("src/test/resources/share/test.xml");
+  @Test
+  void testGetData() throws Exception {
+    var handler = new PSXmlDataHandler();
+    handler.setFile("src/test/resources/share/test.xml");
 
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("property1", "value1");
-        List<String> pvalues = new ArrayList<>();
-        pvalues.add("pvalue1");
-        pvalues.add("pvalue2");
-        properties.put("propertyWithPvalues", pvalues);
+    Map<String, Object> properties = new HashMap<>();
+    properties.put("property1", "value1");
+    List<String> pvalues = new ArrayList<>();
+    pvalues.add("pvalue1");
+    pvalues.add("pvalue2");
+    properties.put("propertyWithPvalues", pvalues);
 
-        Response response = handler.getData(properties);
-        List<Result> results = response.getResult();
-        assertEquals(1, results.size());
-        Result result = results.get(0);
-        List<Property> props = result.getProperty();
-        assertEquals(2, props.size());
-        assertNull(props.get(0).getPvalues());
-        Pvalues pvals = props.get(1).getPvalues();
-        assertEquals(3, pvals.getPvalue().size());
+    Response response = handler.getData(properties);
+    List<Result> results = response.getResult();
+    assertEquals(1, results.size());
+    Result result = results.get(0);
+    List<Property> props = result.getProperty();
+    assertEquals(2, props.size());
+    assertNull(props.get(0).getPvalues());
+    Pvalues pvals = props.get(1).getPvalues();
+    assertEquals(3, pvals.getPvalue().size());
 
-        properties.put("property1", "value2");
-        assertNull(handler.getData(properties));
+    properties.put("property1", "value2");
+    assertNull(handler.getData(properties));
 
-        handler.setFile("foo.xml");
-        properties.put("property1", "value1");
-        assertNull(handler.getData(properties));
-    }
+    handler.setFile("foo.xml");
+    properties.put("property1", "value1");
+    assertNull(handler.getData(properties));
+  }
 }

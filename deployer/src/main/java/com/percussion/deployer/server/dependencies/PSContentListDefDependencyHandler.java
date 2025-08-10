@@ -61,6 +61,7 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Class to handle packaging and deploying a ContentList definition.
+ *
  * @author vamsinukala
  */
 public class PSContentListDefDependencyHandler extends PSDependencyHandler
@@ -68,12 +69,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentListDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -81,9 +79,8 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   /**
-   * Helper method to
-   * 1. find and load all the contentlists
-   * 2. generate a map of named contentlists, contentlistbyguid
+   * Helper method to 1. find and load all the contentlists 2. generate a map of named contentlists,
+   * contentlistbyguid
    */
   private void init() {
     if (m_publisherHelper == null) {
@@ -92,9 +89,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   /**
-   * Util method to figure out if the ContentList is a legacy one, in which
-   * case, there is no generator.  See the other way of accessing the same
-   * info:
+   * Util method to figure out if the ContentList is a legacy one, in which case, there is no
+   * generator. See the other way of accessing the same info:
+   *
    * @param e the actual ContentList itself
    * @return true if legacy
    */
@@ -121,8 +118,8 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   /**
-   * For a legacy content list that has an application on its baggage, pack
-   * it's deps
+   * For a legacy content list that has an application on its baggage, pack it's deps
+   *
    * @param tok
    * @param dep the contentlist dependency
    * @param cList the actual contentlist
@@ -180,18 +177,14 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     //    Dont forget the stupid idTypes...
     childDeps.addAll(PSIdTypeDependencyHandler.getIdTypeDependencies(tok, dep, this));
 
-    /**
-     * STOP HERE, if a legacy content list
-     */
+    /** STOP HERE, if a legacy content list */
     if (isLegacyContentList(cList)) {
       List<PSDependency> appList = getAppDependenciesForLegacyContentList(tok, dep, cList);
       childDeps.addAll(appList);
       return childDeps.iterator();
     }
 
-    /**
-     * package a New Content List deps
-     */
+    /** package a New Content List deps */
     // Add Expander Exit
     handler = getDependencyHandler(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
     PSExtensionRef eRef = m_publisherHelper.getExpanderExtensionRef(cList.getExpander());
@@ -265,6 +258,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * From the contentList map, return a list of all the contentList names
+   *
    * @return iterator on a set of names
    * @throws PSDeployException
    */
@@ -315,9 +309,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param cList the content list never <code>null</code>
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -338,6 +332,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * TROLL thru the object and restore the versions of child-lings ;).
+   *
    * @param cList the actual content list never <code>null</code>
    * @param ver the version of content list
    * @throws PSDeployException
@@ -409,13 +404,12 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   /**
    * Deserialize the contentlist from the dependency file
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   * archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   * may not be <code>null</code>
-   * @param cList the actual content list may be <code>null</code>, if null,
-   * create a new content list and deserialize on it, else use the given
-   * contentlist from persistence
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
+   * @param cList the actual content list may be <code>null</code>, if null, create a new content
+   *     list and deserialize on it, else use the given contentlist from persistence
    * @return the content list
    * @throws PSDeployException
    */
@@ -435,16 +429,15 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   @SuppressWarnings("unchecked")
   protected Iterator getContentListDependecyFilesFromArchive(
@@ -481,9 +474,9 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * Utility method to find the content list by a given dependency id
+   *
    * @param depId the id
-   * @return <code>null</code> if content list is not found else get the
-   * content list
+   * @return <code>null</code> if content list is not found else get the content list
    */
   private IPSContentList findContentListByDependencyID(String depId) throws PSNotFoundException {
     if (depId == null || depId.trim().length() == 0)
@@ -497,6 +490,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * get ID Types for the legacy content list
+   *
    * @param tok the security token never <code>null</code>
    * @param dep the content list dependency never <code>null</code>
    * @param cList the actual ContentList may not be <code>null</code>
@@ -744,13 +738,12 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   /**
-   * Perform the transforms on the contentlist and its expander params and
-   * generator params
+   * Perform the transforms on the contentlist and its expander params and generator params
+   *
    * @param dep the dependency never <code>null</code>
    * @param ctx import context never <code>null</code>
    * @param cList the contentlist never <code>null</code>
-   * @param isNew if <code>true</code> the element does not yet exist on the
-   * target system
+   * @param isNew if <code>true</code> the element does not yet exist on the target system
    * @throws PSDeployException
    */
   private void doTransforms(PSDependency dep, PSImportCtx ctx, IPSContentList cList, boolean isNew)
@@ -781,12 +774,12 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   }
 
   /**
-   * Transform any ids in GeneratorParams or ExpanderParams. Performs
-   * transformations on either generator ARGS or EXPANDER_ARGS
+   * Transform any ids in GeneratorParams or ExpanderParams. Performs transformations on either
+   * generator ARGS or EXPANDER_ARGS
+   *
    * @param cList the actual content list, never <code>null</code>
    * @param ctx import context never <code>null</code>
-   * @param type must be valid type from
-   *    {ARGS_TYPE_EXPANDER,ARGS_TYPE_GENERATOR}
+   * @param type must be valid type from {ARGS_TYPE_EXPANDER,ARGS_TYPE_GENERATOR}
    * @return the contentlist with transformed ids
    * @throws PSDeployException
    */
@@ -834,7 +827,6 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
    *
    * @param cList The content list, assumed not <code>null</code>.
    * @param ctx The import context, assumed not <code>null</code>.
-   *
    * @return The content list with modified url.
    * @throws PSDeployException if an error occurs during id transformation.
    */
@@ -860,6 +852,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
 
   /**
    * Content list name has to be unique
+   *
    * @param type
    * @param currentName
    * @return a unique content list name
@@ -879,19 +872,13 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
     return uniqueName;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ContentListDef";
 
-  /**
-   * The publisher Service
-   */
+  /** The publisher Service */
   private IPSPublisherService m_publisherSvc = PSPublisherServiceLocator.getPublisherService();
 
-  /**
-   * The Publisher Service Helper
-   */
+  /** The Publisher Service Helper */
   private PSPublisherServiceHelper m_publisherHelper = null;
 
   private static final String EXPANDER_ARGS = "ExpanderParams";
@@ -900,10 +887,7 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler
   private static final int ARGS_TYPE_EXPANDER = 1;
   private static final int ARGS_TYPE_GENERATOR = 2;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

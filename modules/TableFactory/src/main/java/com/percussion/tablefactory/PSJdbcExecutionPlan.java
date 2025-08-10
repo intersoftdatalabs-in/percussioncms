@@ -23,15 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-/**
- * A set of steps that may be executed in sequence.
- */
+/** A set of steps that may be executed in sequence. */
 public class PSJdbcExecutionPlan {
   /**
    * Adds the step to this plan.
    *
    * @param step The step to execute, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if step is <code>null</code>.
    */
   public void addStep(PSJdbcExecutionStep step) {
@@ -44,7 +41,6 @@ public class PSJdbcExecutionPlan {
    * Adds all the steps of a plan to this plan.
    *
    * @param plan The plan whose steps are added to this plan.
-   *
    * @throws IllegalArgumentException if plan is <code>null</code>.
    */
   public void addPlan(PSJdbcExecutionPlan plan) {
@@ -57,7 +53,6 @@ public class PSJdbcExecutionPlan {
    * Executes each step in the plan sequentially in reverse order.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   *
    * @throws SQLException if any errors occur.
    */
   public void reverseExecute(Connection conn) throws SQLException {
@@ -68,7 +63,6 @@ public class PSJdbcExecutionPlan {
    * Executes each step in the plan sequentially in forward order.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   *
    * @throws SQLException if any errors occur.
    */
   public void execute(Connection conn) throws SQLException {
@@ -79,12 +73,10 @@ public class PSJdbcExecutionPlan {
    * Executes each step in the plan sequentially in forward or reverse order.
    *
    * @param conn A valid connection to use, may not be <code>null</code>.
-   * @param forward executes the steps in forward order if <code>true</code>
-   * else in reverse order.
-   *
+   * @param forward executes the steps in forward order if <code>true</code> else in reverse order.
    * @throws IllegalArgumentException if conn is <code>null</code>.
-   * @throws SQLException if any errors occur and {@link
-   * PSJdbcExecutionStep#stopOnError() is <code>true</code>}.
+   * @throws SQLException if any errors occur and {@link PSJdbcExecutionStep#stopOnError() is
+   *     <code>true</code>}.
    */
   public void execute(Connection conn, boolean forward) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -134,23 +126,19 @@ public class PSJdbcExecutionPlan {
   }
 
   /**
-   * Returns the <code>PSJdbcExecutionPlanLog</code> object which stores
-   * the result of the execution of this plan.
+   * Returns the <code>PSJdbcExecutionPlanLog</code> object which stores the result of the execution
+   * of this plan.
    *
-   * @return the <code>PSJdbcExecutionStepLog</code> object which stores
-   * the result of the execution of this plan, never <code>null</code>
+   * @return the <code>PSJdbcExecutionStepLog</code> object which stores the result of the execution
+   *     of this plan, never <code>null</code>
    */
   public PSJdbcExecutionPlanLog getPlanLogData() {
     return m_planLogData;
   }
 
-  /**
-   * List of steps, never <code>null</code>, may be empty.
-   */
+  /** List of steps, never <code>null</code>, may be empty. */
   private List<PSJdbcExecutionStep> m_steps = new ArrayList<>();
 
-  /**
-   * Stores the log of execution of this plan, never <code>null</code>
-   */
+  /** Stores the log of execution of this plan, never <code>null</code> */
   private PSJdbcExecutionPlanLog m_planLogData = new PSJdbcExecutionPlanLog();
 }

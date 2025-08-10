@@ -24,8 +24,8 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * Do nothing as a place holder in case the registered Exits still have an
- * entry references this class.
+ * Do nothing as a place holder in case the registered Exits still have an entry references this
+ * class.
  */
 public class PSValidateFolder extends PSEffect {
   // Implementation of the interface method
@@ -62,11 +62,10 @@ public class PSValidateFolder extends PSEffect {
   }
 
   /**
-   * Thread local storage of the processed relationship. This is just to
-   * avoid unnecessary processing of the same relationship for each current
-   * relationship. We need to validate the originating folder relationship
-   * only once not while processing each relationship around the original
-   * owner item.
+   * Thread local storage of the processed relationship. This is just to avoid unnecessary
+   * processing of the same relationship for each current relationship. We need to validate the
+   * originating folder relationship only once not while processing each relationship around the
+   * original owner item.
    */
   private static ThreadLocal m_tlRelationshipsProcessed = new ThreadLocal();
 }

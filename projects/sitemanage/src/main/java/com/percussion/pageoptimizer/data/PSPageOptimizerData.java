@@ -19,53 +19,51 @@
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServicePageData;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Data object for Page Optimizer.
- * Sunny Sal says: "Data so optimized, even your JVM will smile!"
+ * Data object for Page Optimizer. Sunny Sal says: "Data so optimized, even your JVM will smile!"
  */
 @XmlRootElement(name = "PageOptimizerData")
 public class PSPageOptimizerData extends PSCloudServicePageData {
 
-    private String pageOptimizerUrl;
+  private String pageOptimizerUrl;
 
-    public String getPageOptimizerUrl() {
-        return pageOptimizerUrl;
-    }
+  public String getPageOptimizerUrl() {
+    return pageOptimizerUrl;
+  }
 
-    public void setPageOptimizerUrl(String pageOptimizerUrl) {
-        this.pageOptimizerUrl = pageOptimizerUrl;
-        this.uiProviderUrl = pageOptimizerUrl;
-    }
+  public void setPageOptimizerUrl(String pageOptimizerUrl) {
+    this.pageOptimizerUrl = pageOptimizerUrl;
+    this.uiProviderUrl = pageOptimizerUrl;
+  }
 
-    @Override
-    public void setUiProviderUrl(String uiProviderUrl) {
-        this.pageOptimizerUrl = uiProviderUrl;
-        this.uiProviderUrl = uiProviderUrl;
-    }
+  @Override
+  public void setUiProviderUrl(String uiProviderUrl) {
+    this.pageOptimizerUrl = uiProviderUrl;
+    this.uiProviderUrl = uiProviderUrl;
+  }
 
-    /**
-     * Creates a PSPageOptimizerData from a PSCloudServicePageData.
-     *
-     * @param cloudData the cloud service page data, not null
-     * @return a new PSPageOptimizerData instance
-     */
-    public static PSPageOptimizerData fromPSCloudServicePageData(PSCloudServicePageData cloudData) {
-        var data = new PSPageOptimizerData();
-        data.setId(cloudData.getId());
-        data.setPath(cloudData.getPath());
-        data.setPageName(cloudData.getPageName());
-        data.setPageTitle(cloudData.getPageTitle());
-        data.setStatus(cloudData.getStatus());
-        data.setWorkflow(cloudData.getWorkflow());
-        data.setLastPublished(cloudData.getLastPublished());
-        data.setLastEdited(cloudData.getLastEdited());
-        data.setThumbUrl(cloudData.getThumbUrl());
-        data.setClientIdentity(cloudData.getClientIdentity());
-        data.setPageHtml(cloudData.getPageHtml());
-        data.setUiProviderUrl(cloudData.getUiProviderUrl());
-        return data;
-    }
+  /**
+   * Creates a PSPageOptimizerData from a PSCloudServicePageData.
+   *
+   * @param cloudData the cloud service page data, not null
+   * @return a new PSPageOptimizerData instance
+   */
+  public static PSPageOptimizerData fromPSCloudServicePageData(PSCloudServicePageData cloudData) {
+    var data = new PSPageOptimizerData();
+    data.setId(cloudData.getId());
+    data.setPath(cloudData.getPath());
+    data.setPageName(cloudData.getPageName());
+    data.setPageTitle(cloudData.getPageTitle());
+    data.setStatus(cloudData.getStatus());
+    data.setWorkflow(cloudData.getWorkflow());
+    data.setLastPublished(cloudData.getLastPublished());
+    data.setLastEdited(cloudData.getLastEdited());
+    data.setThumbUrl(cloudData.getThumbUrl());
+    data.setClientIdentity(cloudData.getClientIdentity());
+    data.setPageHtml(cloudData.getPageHtml());
+    data.setUiProviderUrl(cloudData.getUiProviderUrl());
+    return data;
+  }
 }

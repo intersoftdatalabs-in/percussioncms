@@ -35,6 +35,7 @@ public class SecureHeaderCheckResponse {
 
   /**
    * When true at least one check failed.
+   *
    * @return
    */
   public boolean isFailedCheck() {

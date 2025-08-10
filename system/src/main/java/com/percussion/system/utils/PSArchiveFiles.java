@@ -39,24 +39,19 @@ import java.util.zip.ZipOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Utility class for working with archives.
- */
+/** Utility class for working with archives. */
 public class PSArchiveFiles {
   private static final Logger log = LogManager.getLogger(IPSConstants.PACKAGING_LOG);
 
   /**
-   * Opens the specified archive file. The classes calling this method are
-   * responsible for closing this file.
+   * Opens the specified archive file. The classes calling this method are responsible for closing
+   * this file.
    *
-   * @param archiveName The name of the archive.  This should include the path
-   * also, must not be <code>null</code>.
-   * @param type The type of the archive. If it is <code>null</code> or not
-   * equal to {@link #JAR_FILE_TYPE}, assumes archive is of type
-   * <code>ZipFile</code>.
-   *
+   * @param archiveName The name of the archive. This should include the path also, must not be
+   *     <code>null</code>.
+   * @param type The type of the archive. If it is <code>null</code> or not equal to {@link
+   *     #JAR_FILE_TYPE}, assumes archive is of type <code>ZipFile</code>.
    * @return archive file, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if archiveName is <code>null</code>.
    * @throws IOException if an error occurs opening the archive.
    */
@@ -76,16 +71,13 @@ public class PSArchiveFiles {
   /**
    * Locates the specified file in the archive and returns it as an InputStream.
    *
-   * @param archiveFile The archive file in which the file entry to be read.
-   * May not be <code>null</code> and must not be closed.
-   * @param name The name of the file to retrieve.  Must have the path same as
-   * the path specified in archive for this entry.
-   *
-   * @return the inputstream.  Never <code>null</code>. Caller must close when
-   * finished with it.
-   *
-   * @throws IOException if an error occurs reading from the archive or if
-   * file is not found in archive.
+   * @param archiveFile The archive file in which the file entry to be read. May not be <code>null
+   *     </code> and must not be closed.
+   * @param name The name of the file to retrieve. Must have the path same as the path specified in
+   *     archive for this entry.
+   * @return the inputstream. Never <code>null</code>. Caller must close when finished with it.
+   * @throws IOException if an error occurs reading from the archive or if file is not found in
+   *     archive.
    * @throws ZipException if a ZIP format error has occurred.
    * @throws IllegalStateException if archiveFile has been closed.
    */
@@ -114,15 +106,13 @@ public class PSArchiveFiles {
   /**
    * Locates the specified file in the archive and returns its size
    *
-   * @param archiveFile The archive file in which the file entry to be read.
-   * May not be <code>null</code> and must not be closed.
-   * @param name The name of the file to retrieve.  Must have the path same as
-   * the path specified in archive for this entry.
-   *
+   * @param archiveFile The archive file in which the file entry to be read. May not be <code>null
+   *     </code> and must not be closed.
+   * @param name The name of the file to retrieve. Must have the path same as the path specified in
+   *     archive for this entry.
    * @return the file size. Never negative.
-   *
-   * @throws IOException if an error occurs reading from the archive or if
-   * file is not found in archive.
+   * @throws IOException if an error occurs reading from the archive or if file is not found in
+   *     archive.
    * @throws ZipException if a ZIP format error has occurred.
    * @throws IllegalStateException if archiveFile has been closed.
    */
@@ -142,20 +132,16 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Creates the specified archive file and opens output stream to it.
-   * The classes calling this method are responsible for closing the stream.
+   * Creates the specified archive file and opens output stream to it. The classes calling this
+   * method are responsible for closing the stream.
    *
-   * @param archive The file to create. May not be <code>null</code>. If it
-   * exists it will be replaced.
-   * @param type The type of the archive. If it is <code>null</code> or not
-   * equal to {@link #JAR_FILE_TYPE}, assumes archive is of type
-   * {@link #ZIP_FILE_TYPE}.
-   * @param manifest the manifest which can be set to output stream if it is
-   * not <code>null</code> and archive is of type {@link #JAR_FILE_TYPE},
-   * otherwise it is ignored.
-   *
+   * @param archive The file to create. May not be <code>null</code>. If it exists it will be
+   *     replaced.
+   * @param type The type of the archive. If it is <code>null</code> or not equal to {@link
+   *     #JAR_FILE_TYPE}, assumes archive is of type {@link #ZIP_FILE_TYPE}.
+   * @param manifest the manifest which can be set to output stream if it is not <code>null</code>
+   *     and archive is of type {@link #JAR_FILE_TYPE}, otherwise it is ignored.
    * @return the archive output stream, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if archive is <code>null</code>.
    * @throws IOException if error occurs creating the archive.
    */
@@ -174,29 +160,26 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Adds passed in file or directory and files under the directory(if the
-   * passed in file object is directory) to archive. If the <code>file</code>
-   * is directory, <code>filter</code> can be passed to get list of files to
-   * add.
+   * Adds passed in file or directory and files under the directory(if the passed in file object is
+   * directory) to archive. If the <code>file</code> is directory, <code>filter</code> can be passed
+   * to get list of files to add.
    *
-   * @param archiveOutputStream The archive stream to which files should be
-   * added, may not be <code>null</code>.
+   * @param archiveOutputStream The archive stream to which files should be added, may not be <code>
+   *     null</code>.
    * @param file The file to add to archive, may not be <code>null</code>.
-   * @param rootPath the path to which the file being added to archive should
-   * be relative. If this is <code>null</code> or the file is not under one of
-   * the directories of the <code>rootPath</code>, the passed in file's
-   * canonical path is added as path to the entry in the archive.
-   * @param filter the filter used to get list of files to add if the passed in
-   * file is a directory. If this is <code>null</code> all files and
-   * subdirectories under the passed in directory will be added.
-   * @param out The names of files being added to archive are written to this
-   * stream. Useful for debugging. If it is <code>null</code>, ignored logging.
-   *
-   * @throws IllegalArgumentException if <code>archiveOutputStream</code> or
-   * <code>file</code> is <code>null</code>.
+   * @param rootPath the path to which the file being added to archive should be relative. If this
+   *     is <code>null</code> or the file is not under one of the directories of the <code>rootPath
+   *     </code>, the passed in file's canonical path is added as path to the entry in the archive.
+   * @param filter the filter used to get list of files to add if the passed in file is a directory.
+   *     If this is <code>null</code> all files and subdirectories under the passed in directory
+   *     will be added.
+   * @param out The names of files being added to archive are written to this stream. Useful for
+   *     debugging. If it is <code>null</code>, ignored logging.
+   * @throws IllegalArgumentException if <code>archiveOutputStream</code> or <code>file</code> is
+   *     <code>null</code>.
    * @throws IOException if file can not be added to archive.
    * @throws ZipException if a ZIP format error has occurred.
-   **/
+   */
   public static void addFilesToArchive(
       ZipOutputStream archiveOutputStream,
       File file,
@@ -242,15 +225,14 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Creates the specified file or directory entry in the archive and copies
-   * the contents to archive if it is a file.
+   * Creates the specified file or directory entry in the archive and copies the contents to archive
+   * if it is a file.
    *
-   * Version of {@link #archiveFile(ZipOutputStream, String, File)}
-   * with an additional <code>extra</code> parameter described below.
+   * <p>Version of {@link #archiveFile(ZipOutputStream, String, File)} with an additional <code>
+   * extra</code> parameter described below.
    *
-   * @param extra the value to be set in the optional extra field data for
-   * the entry corresponding to the specified file entry, may be
-   * <code>null</code>
+   * @param extra the value to be set in the optional extra field data for the entry corresponding
+   *     to the specified file entry, may be <code>null</code>
    */
   public static void archiveFile(
       ZipOutputStream archiveOutputStream, String fileEntryPath, File sourceFile, byte[] extra)
@@ -292,22 +274,19 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Creates the specified file or directory entry in the archive and copies
-   * the contents to archive if it is a file.
+   * Creates the specified file or directory entry in the archive and copies the contents to archive
+   * if it is a file.
    *
-   * @param archiveOutputStream The archive stream to which file should be
-   * added, may not be <code>null</code>.
-   * @param fileEntryPath The path with filename for the file entry that will
-   * be created in the archive. Generally path should be a path relative to the
-   * directory to which this archive need to be extracted, may not be
-   * <code>null</code>.
+   * @param archiveOutputStream The archive stream to which file should be added, may not be <code>
+   *     null</code>.
+   * @param fileEntryPath The path with filename for the file entry that will be created in the
+   *     archive. Generally path should be a path relative to the directory to which this archive
+   *     need to be extracted, may not be <code>null</code>.
    * @param sourceFile The file to add, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is <code>null</code>.
-   * @throws IOException if the source file is not found or if there is an
-   * error writing to the archive.
+   * @throws IOException if the source file is not found or if there is an error writing to the
+   *     archive.
    * @throws ZipException if a ZIP format error has occurred.
-   *
    * @see #createArchive for creating archive output stream.
    */
   public static void archiveFile(
@@ -317,26 +296,21 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Extracts all files in the archive to the specified directory. If an
-   * exception happens in the process of extraction, it logs the message for
-   * that entry and continues with the next entry.
+   * Extracts all files in the archive to the specified directory. If an exception happens in the
+   * process of extraction, it logs the message for that entry and continues with the next entry.
    *
-   * @param archiveFile The archive file from which files to be extracted, may
-   * not be <code>null</code>.
-   * @param extractDir The directory to which files to be extracted, may not be
-   * <code>null</code> and should be a valid directory.
-   * @param log The names of files being extracted from archive are logged to
-   * this stream. Useful for debugging. If it is <code>null</code>, ignored
-   * logging.
-   *
-   * @return error message log if any in the process of extracting files,
-   * never <code>null</code>, may be empty.
-   *
+   * @param archiveFile The archive file from which files to be extracted, may not be <code>null
+   *     </code>.
+   * @param extractDir The directory to which files to be extracted, may not be <code>null</code>
+   *     and should be a valid directory.
+   * @param log The names of files being extracted from archive are logged to this stream. Useful
+   *     for debugging. If it is <code>null</code>, ignored logging.
+   * @return error message log if any in the process of extracting files, never <code>null</code>,
+   *     may be empty.
    * @throws IllegalArgumentException if any param is <code>null</code>.
-   * @throws IOException if error happens in the process of extracting entries
-   * of archive.
+   * @throws IOException if error happens in the process of extracting entries of archive.
    * @throws ZipException if a ZIP format error has occurred.
-   **/
+   */
   public static String extractFilesFromArchive(
       ZipFile archiveFile, String extractDir, OutputStream log) throws IOException, ZipException {
     if (archiveFile == null)
@@ -433,22 +407,18 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Returns the extra field data for the entry corresponding to the supplied
-   * file ref, or <code>null</code> if an enry for the supplied file ref
-   * does not exist in the archive or the entry does not have extra field data.
-   *
-   * @param archiveFile The archive file from which extra field data is to be
-   * retrieved.  May not be <code>null</code>.
-   * @param archiveEntryPath The path of the file in the archive whose entry
-   * stores extra field data.  May not be <code>null</code> or empty.
-   *
-   * @return the extra field data for the entry, or <code>null</code> if an
-   * enry for the supplied file ref does not exist in the archive or the entry
+   * Returns the extra field data for the entry corresponding to the supplied file ref, or <code>
+   * null</code> if an enry for the supplied file ref does not exist in the archive or the entry
    * does not have extra field data.
    *
-   * @throws IllegalArgumentException if <code>archiveFile</code> is
-   * <code>null</code> or <code>archiveEntryPath</code> is <code>null</code>
-   * or empty
+   * @param archiveFile The archive file from which extra field data is to be retrieved. May not be
+   *     <code>null</code>.
+   * @param archiveEntryPath The path of the file in the archive whose entry stores extra field
+   *     data. May not be <code>null</code> or empty.
+   * @return the extra field data for the entry, or <code>null</code> if an enry for the supplied
+   *     file ref does not exist in the archive or the entry does not have extra field data.
+   * @throws IllegalArgumentException if <code>archiveFile</code> is <code>null</code> or <code>
+   *     archiveEntryPath</code> is <code>null</code> or empty
    */
   public static byte[] getExtra(ZipFile archiveFile, String archiveEntryPath) {
     if (archiveFile == null) throw new IllegalArgumentException("Archive file may not be null.");
@@ -462,21 +432,18 @@ public class PSArchiveFiles {
   }
 
   /**
-   * Sets the optional extra field data for the entry corresponding to the
-   * supplied file ref.
+   * Sets the optional extra field data for the entry corresponding to the supplied file ref.
    *
-   * @param archiveFile The archive file in which extra field data is to be
-   * set. May not be <code>null</code>.
-   * @param archiveEntryPath The path of the file in the archive whose entry
-   * will store the extra field data.  May not be <code>null</code> or empty.
-   * @param extra the extra field data bytes to store in the archive, may
-   * not be <code>null</code> and its length should not exceed 0xFFFFF bytes
-   *
-   * @throws IllegalArgumentException if <code>archiveFile</code> is
-   * <code>null</code> or <code>archiveEntryPath</code> is <code>null</code>
-   * or empty or if <code>extra</code> is <code>null</code> or if its
-   * length is greater than 0xFFFFF bytes or if no entry is found in the
-   * archive file corresponding to supplied file ref
+   * @param archiveFile The archive file in which extra field data is to be set. May not be <code>
+   *     null</code>.
+   * @param archiveEntryPath The path of the file in the archive whose entry will store the extra
+   *     field data. May not be <code>null</code> or empty.
+   * @param extra the extra field data bytes to store in the archive, may not be <code>null</code>
+   *     and its length should not exceed 0xFFFFF bytes
+   * @throws IllegalArgumentException if <code>archiveFile</code> is <code>null</code> or <code>
+   *     archiveEntryPath</code> is <code>null</code> or empty or if <code>extra</code> is <code>
+   *     null</code> or if its length is greater than 0xFFFFF bytes or if no entry is found in the
+   *     archive file corresponding to supplied file ref
    */
   public static void setExtra(ZipFile archiveFile, String archiveEntryPath, byte[] extra) {
     if (archiveFile == null) throw new IllegalArgumentException("Archive file may not be null.");
@@ -490,9 +457,9 @@ public class PSArchiveFiles {
     if (entry != null) entry.setExtra(extra);
   }
 
-  /** Constant to indicate 'zip' file type of archive file. **/
+  /** Constant to indicate 'zip' file type of archive file. * */
   public static final String ZIP_FILE_TYPE = "zip";
 
-  /** Constant to indicate 'jar' file type of archive file. **/
+  /** Constant to indicate 'jar' file type of archive file. * */
   public static final String JAR_FILE_TYPE = "jar";
 }

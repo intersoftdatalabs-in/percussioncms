@@ -39,9 +39,7 @@ public class PSUpgradeRelationshipConfig extends PSAction {
 
   Logger logger = LogManager.getLogger(PSUpgradeSiteConfig.class);
 
-  /**
-   * The name of the configuration table.
-   */
+  /** The name of the configuration table. */
   private static final String CONFIG_TABLE = "PSX_RXCONFIGURATIONS";
 
   // see base class

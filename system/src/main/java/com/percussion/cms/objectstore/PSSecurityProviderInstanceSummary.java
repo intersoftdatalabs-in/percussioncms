@@ -29,23 +29,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * Security provider instance summary returned by the SecurityProvider cataloger.
- */
+/** Security provider instance summary returned by the SecurityProvider cataloger. */
 public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   private static final Logger log = LogManager.getLogger(PSSecurityProviderInstanceSummary.class);
 
   /**
-   * Constructs a new <code>PSSecurityProvider</code> object.
-   * Used only by this classes clone method.
+   * Constructs a new <code>PSSecurityProvider</code> object. Used only by this classes clone
+   * method.
    */
   private PSSecurityProviderInstanceSummary() {}
 
   /**
    * Constructs a new <code>PSSecurityProvider</code> object.
-   * @param src the provider element node to create this
-   * object from. May not be <code>null</code>.
+   *
+   * @param src the provider element node to create this object from. May not be <code>null</code>.
    */
   public PSSecurityProviderInstanceSummary(PSSecurityProviderInstance instance) {
     m_type = instance.getType();
@@ -55,8 +53,8 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Constructs a new <code>PSSecurityProvider</code> object.
-   * @param src the provider element node to create this
-   * object from. May not be <code>null</code>.
+   *
+   * @param src the provider element node to create this object from. May not be <code>null</code>.
    */
   public PSSecurityProviderInstanceSummary(Element src) {
     try {
@@ -68,8 +66,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   }
 
   /**
-   * Returns this object as xml
-   * <code><pre>
+   * Returns this object as xml <code><pre>
    *
    *   &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
    *   &lt;!ATTLIST
@@ -96,9 +93,8 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Sets this objects values from xml
-   * @param src xml element node
-   * from the following DTD.
-   * <code><pre>
+   *
+   * @param src xml element node from the following DTD. <code><pre>
    *
    *   &lt;!ELEMENT PSXSecurityProviderInstanceSummary (name)&gt;
    *   &lt;!ATTLIST
@@ -127,6 +123,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Returns the root node name for this object
+   *
    * @return the root node name. Never <code>null</code>.
    */
   public String getNodeName() {
@@ -135,6 +132,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Returns a deep copy of this object
+   *
    * @return copy of this object. Never <code>null</code>.
    */
   public Object clone() {
@@ -149,9 +147,9 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   }
 
   /**
-   * An object is equal if it is an instance of
-   * <code>PSSecurityProviderInstanceSummary</code>
-   * and the type id's match
+   * An object is equal if it is an instance of <code>PSSecurityProviderInstanceSummary</code> and
+   * the type id's match
+   *
    * @param obj object to test equality on
    * @return <code>true</code> if equals, elese <code>false</code>.
    */
@@ -163,6 +161,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Returns the the security provider type id
+   *
    * @return type id
    */
   public int getTypeId() {
@@ -171,6 +170,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Returns the the security provider type name
+   *
    * @return type name. May be <code>null</code>.
    */
   public String getTypeName() {
@@ -179,6 +179,7 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
 
   /**
    * Returns name of instance for this provider
+   *
    * @return name of instance. May be <code>null</code>or empty.
    */
   public String getInstanceName() {
@@ -186,8 +187,8 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   }
 
   /**
-   * Returns the providers instance name as the string
-   * representation of this object
+   * Returns the providers instance name as the string representation of this object
+   *
    * @return the name string.
    */
   public String toString() {
@@ -195,47 +196,32 @@ public class PSSecurityProviderInstanceSummary implements IPSCmsComponent {
   }
 
   /**
-   * Returns unique hashcode for this object
-   * instance.
+   * Returns unique hashcode for this object instance.
+   *
    * @return unique hashcode.
    */
   public int hashCode() {
     return m_instance.hashCode() + m_type;
   }
 
-  /**
-   * The security provider type id. Initialized in ctor.
-   */
+  /** The security provider type id. Initialized in ctor. */
   private int m_type;
 
-  /**
-   * The the name of the security provider. Initialized in ctor.
-   * May be <code>null</code>.
-   */
+  /** The the name of the security provider. Initialized in ctor. May be <code>null</code>. */
   private String m_name;
 
-  /**
-   * Instance name. May be <code>null</code>.
-   */
+  /** Instance name. May be <code>null</code>. */
   private String m_instance;
 
-  /**
-   * Security provider xml root element node name
-   */
+  /** Security provider xml root element node name */
   public static final String XML_ELEMENT_ROOT = "PSXSecurityProviderInstanceSummary";
 
-  /**
-   * Security provider xml name element node name
-   */
+  /** Security provider xml name element node name */
   public static final String XML_ELEMENT_NAME = "name";
 
-  /**
-   * Security provider xml type id attribute
-   */
+  /** Security provider xml type id attribute */
   public static final String XML_ATTRIB_TYPEID = "typeId";
 
-  /**
-   * Security provider xml type name attribute
-   */
+  /** Security provider xml type name attribute */
   public static final String XML_ATTRIB_TYPENAME = "typeName";
 }

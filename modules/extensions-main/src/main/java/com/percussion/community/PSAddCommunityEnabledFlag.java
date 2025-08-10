@@ -30,9 +30,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit adds an communityenabled attribute to the root element of
- * result document. The value of this attribute is yes if communities
- * are enabled or no if communities are disabled.
+ * This exit adds an communityenabled attribute to the root element of result document. The value of
+ * this attribute is yes if communities are enabled or no if communities are disabled.
  */
 public class PSAddCommunityEnabledFlag implements IPSResultDocumentProcessor {
   /*
@@ -69,13 +68,9 @@ public class PSAddCommunityEnabledFlag implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * communities enalbed attribute name.
-   */
+  /** communities enalbed attribute name. */
   private static final String ATTR_COMMUNITIES_ENABLED = "communities_enabled";
 }

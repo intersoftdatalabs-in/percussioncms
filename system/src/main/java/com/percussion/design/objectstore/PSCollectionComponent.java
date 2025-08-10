@@ -24,24 +24,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSCollectionComponent class implements some of the IPSComponent
- * interface as a convenience to objects extending this class which are
- * also extensions of the collection class.
+ * The PSCollectionComponent class implements some of the IPSComponent interface as a convenience to
+ * objects extending this class which are also extensions of the collection class.
  *
- * @author       Tas Giakouminakis
- * @version     1.0
- * @since    1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSCollectionComponent extends com.percussion.util.PSCollection
     implements IPSComponent {
   /**
    * Simplified method for converted a collection to XML.
    *
-   * @param   doc         the XML document
-   *
-   * @param   root         the element to add the XML objects to
-   *
-   * @param   coll         a collection containing IPSComponent objects
+   * @param doc the XML document
+   * @param root the element to add the XML objects to
+   * @param coll a collection containing IPSComponent objects
    */
   public static void appendCollectionToXml(Document doc, Element root, PSCollection coll) {
     if (coll != null) {
@@ -55,37 +52,30 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   }
 
   /**
-   * Construct a collection component to store objects of the specified
-   * type.
+   * Construct a collection component to store objects of the specified type.
    *
-   * @param      className   the name of the class which this collection's
-   *                         members must be or extend
-   *
-   * @exception   ClassNotFoundException   if the specified class cannot be
-   *                                     found
+   * @param className the name of the class which this collection's members must be or extend
+   * @exception ClassNotFoundException if the specified class cannot be found
    */
   protected PSCollectionComponent(java.lang.String className) throws ClassNotFoundException {
     super(className);
   }
 
   /**
-   * Construct a collection component to store objects of the specified
-   * type with the specified initial capacity and with its capacity increment
-   * equal to zero.
+   * Construct a collection component to store objects of the specified type with the specified
+   * initial capacity and with its capacity increment equal to zero.
    *
    * @param cl the class which this collection's members must be or extend
-   * @param initialCapacity   the initial capacity of the collection.
+   * @param initialCapacity the initial capacity of the collection.
    */
   public PSCollectionComponent(Class cl, int initialCapacity) {
     super(cl, initialCapacity);
   }
 
   /**
-   * Construct a collection component to store objects of the specified
-   * class.
+   * Construct a collection component to store objects of the specified class.
    *
-   * @param      cl           the class which this collection's
-   *                         members must be or extend
+   * @param cl the class which this collection's members must be or extend
    */
   protected PSCollectionComponent(Class cl) {
     super(cl);
@@ -94,7 +84,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   /**
    * Get the id assigned to this component.
    *
-   * @return                the id assigned to this component
+   * @return the id assigned to this component
    */
   public int getId() {
     return m_id;
@@ -103,16 +93,15 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   /**
    * Get the id assigned to this component.
    *
-   * @param    id       the to assign the component
+   * @param id the to assign the component
    */
   public void setId(int id) {
     m_id = id;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSComponent.
    */
@@ -128,41 +117,35 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
-   * @return     the newly created XML element node
+   * @return the newly created XML element node
    */
   public abstract Element toXml(Document doc);
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node.
    *
-   * @exception PSUnknownNodeTypeException   if the XML element node does not
-   *                                         represent a type supported
-   *                                         by the class.
+   * @exception PSUnknownNodeTypeException if the XML element node does not represent a type
+   *     supported by the class.
    */
   public abstract void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException;
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     for (int i = 0; i < size(); i++) {
@@ -176,14 +159,12 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
 
   /**
    * Add this to the list of parent objects in the array list.
-   * <P>
-   * After a call to this method, the caller should keep get the size
-   * of the arraylist so that a call to resetParentList can
-   * be made (with size - 1) to allow for proper reset.
    *
-   * @param      parentComponents      the parent list
+   * <p>After a call to this method, the caller should keep get the size of the arraylist so that a
+   * call to resetParentList can be made (with size - 1) to allow for proper reset.
    *
-   * @return      the new parent list (in case parentComponents was null)
+   * @param parentComponents the parent list
+   * @return the new parent list (in case parentComponents was null)
    */
   protected List updateParentList(List parentComponents) {
     if (parentComponents == null) parentComponents = new ArrayList<>();
@@ -194,12 +175,10 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
   }
 
   /**
-   * Reset the list of parent objects in the array list to the specified
-   * size.
+   * Reset the list of parent objects in the array list to the specified size.
    *
-   * @param      parentComponents      the parent list
-   *
-   * @param      size                  the size to set the list to
+   * @param parentComponents the parent list
+   * @param size the size to set the list to
    */
   protected void resetParentList(List parentComponents, int size) {
     if (parentComponents == null) return;
@@ -213,8 +192,6 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
     }
   }
 
-  /**
-   * The id assigned to this component.
-   */
+  /** The id assigned to this component. */
   protected int m_id = 0;
 }

@@ -18,8 +18,8 @@
 package com.percussion.analytics.error;
 
 /**
- * Provides business messages for analytics exceptions.
- * Sunny Sal says: "Error messages are like onions, they have layers!"
+ * Provides business messages for analytics exceptions. Sunny Sal says: "Error messages are like
+ * onions, they have layers!"
  */
 public interface IPSAnalyticsErrorMessageHandler {
 

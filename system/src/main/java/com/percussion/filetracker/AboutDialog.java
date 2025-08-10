@@ -22,15 +22,14 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 
 /**
- * Taken from XSpLit and modified slightly.<p/>
- * About dialog displays the Percussion Logo, version info and has a
- * clickable link to the percussion website.
+ * Taken from XSpLit and modified slightly.
+ *
+ * <p>About dialog displays the Percussion Logo, version info and has a clickable link to the
+ * percussion website.
  */
 public class AboutDialog extends JDialog {
 
-  /**
-   * constructor that takes the parent frame.
-   */
+  /** constructor that takes the parent frame. */
   AboutDialog(JFrame parent, String title) {
     super(parent);
     this.setTitle(title);
@@ -46,9 +45,7 @@ public class AboutDialog extends JDialog {
     setLocation((screenSize.width - size.width) / 2, (screenSize.height - size.height) / 2);
   }
 
-  /**
-   * internal for creating the controls and initializing the dialog.
-   */
+  /** internal for creating the controls and initializing the dialog. */
   private void initDialog() {
     JLabel labelVersion =
         new JLabel(
@@ -104,8 +101,8 @@ public class AboutDialog extends JDialog {
   }
 
   /**
-   * Handler for mouse exiting the URL label for percussion. Sets the color to
-   * darker shade of blue and mouse cursor to default cursor.
+   * Handler for mouse exiting the URL label for percussion. Sets the color to darker shade of blue
+   * and mouse cursor to default cursor.
    */
   private void onMouseExit() {
     m_labelUrl.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -113,8 +110,8 @@ public class AboutDialog extends JDialog {
   }
 
   /**
-   * Handler for when mouse is over the URL label for percussion. Sets the
-   * color to blue and mouse cursor to hand cursor.
+   * Handler for when mouse is over the URL label for percussion. Sets the color to blue and mouse
+   * cursor to hand cursor.
    */
   private void onMouseEnter() {
     m_labelUrl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -122,8 +119,8 @@ public class AboutDialog extends JDialog {
   }
 
   /**
-   * Handler for mouse click on the URL. Starts up the default browser and
-   * displays the percussion web page.
+   * Handler for mouse click on the URL. Starts up the default browser and displays the percussion
+   * web page.
    */
   private void onMouseClick(Point p) {
     Rectangle rect = m_labelUrl.getBounds();
@@ -134,9 +131,7 @@ public class AboutDialog extends JDialog {
     }
   }
 
-  /**
-   * For testing the dialog.
-   */
+  /** For testing the dialog. */
   /*
      public static void main(String[] args)
      {
@@ -169,9 +164,7 @@ public class AboutDialog extends JDialog {
          }
      }
   */
-  /**
-   * the label for URL of Percussion website.
-   */
+  /** the label for URL of Percussion website. */
   JLabel m_labelUrl = null;
 
   public static final String PERCUSSION_URL = "https://www.percussion.com";

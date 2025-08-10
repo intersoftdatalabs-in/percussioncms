@@ -19,21 +19,19 @@
 
 package com.percussion.assetmanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for PSAssetSummary objects.
- */
+/** List wrapper for PSAssetSummary objects. */
 @XmlRootElement(name = "AssetSummary")
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
 
-    public PSAssetSummaryList() {
-        super();
-    }
+  public PSAssetSummaryList() {
+    super();
+  }
 
-    public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
-        super(c);
-    }
+  public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
+    super(c);
+  }
 }

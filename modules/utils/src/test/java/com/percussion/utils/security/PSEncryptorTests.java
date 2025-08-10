@@ -32,9 +32,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/**
- * Test class for PSEncryptor
- */
+/** Test class for PSEncryptor */
 // @todo: Fix it...
 @Disabled
 public class PSEncryptorTests {

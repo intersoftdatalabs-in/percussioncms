@@ -25,35 +25,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDataSynchronizer class defines what data is being updated
- * through a particular update pipe (PSUpdatePipe). The columns used to
- * locate matching records as well as the columns which may be updated
- * must be defined.
+ * The PSDataSynchronizer class defines what data is being updated through a particular update pipe
+ * (PSUpdatePipe). The columns used to locate matching records as well as the columns which may be
+ * updated must be defined.
  *
  * @see PSUpdatePipe#getDataSynchronizer
  * @see PSUpdatePipe
  * @see PSUpdateColumn
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDataSynchronizer extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSDataSynchronizer(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -63,8 +54,8 @@ public class PSDataSynchronizer extends PSComponent {
   }
 
   /**
-   * Construct an empty data synchronizer object. Inserts, updates
-   * and deletes are enabled by default.
+   * Construct an empty data synchronizer object. Inserts, updates and deletes are enabled by
+   * default.
    */
   public PSDataSynchronizer() {
     super();
@@ -74,8 +65,7 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Is inserting data allowed?
    *
-   * @return      <code>true</code> if inserts are allowed,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if inserts are allowed, <code>false</code> otherwise
    */
   public boolean isInsertingAllowed() {
     return m_insert;
@@ -84,8 +74,7 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Enable or disable allowing data to be inserted.
    *
-   * @param enable   <code>true</code> to allow inserting,
-   *                <code>false</code> to disable it
+   * @param enable <code>true</code> to allow inserting, <code>false</code> to disable it
    */
   public void setInsertingAllowed(boolean enable) {
     m_insert = enable;
@@ -94,8 +83,7 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Is updating data allowed?
    *
-   * @return      <code>true</code> if updates are allowed,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if updates are allowed, <code>false</code> otherwise
    */
   public boolean isUpdatingAllowed() {
     return m_update;
@@ -104,8 +92,7 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Enable or disable allowing data to be updated.
    *
-   * @param enable   <code>true</code> to allow updating,
-   *                <code>false</code> to disable it
+   * @param enable <code>true</code> to allow updating, <code>false</code> to disable it
    */
   public void setUpdatingAllowed(boolean enable) {
     m_update = enable;
@@ -114,8 +101,7 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Is deleting data allowed?
    *
-   * @return      <code>true</code> if deletes are allowed,
-   *             <code>false</code> otherwise
+   * @return <code>true</code> if deletes are allowed, <code>false</code> otherwise
    */
   public boolean isDeletingAllowed() {
     return m_delete;
@@ -124,39 +110,34 @@ public class PSDataSynchronizer extends PSComponent {
   /**
    * Enable or disable allowing data to be deleted.
    *
-   * @param enable   <code>true</code> to allow deleting,
-   *                <code>false</code> to disable it
+   * @param enable <code>true</code> to allow deleting, <code>false</code> to disable it
    */
   public void setDeletingAllowed(boolean enable) {
     m_delete = enable;
   }
 
   /**
-   * Get the columns associated with this synchronizer. The collection
-   * includes columns used to locate matching records as well as
-   * columns which are editable.
+   * Get the columns associated with this synchronizer. The collection includes columns used to
+   * locate matching records as well as columns which are editable.
    *
-   * @return         a collection containing the update columns
-   *                (PSUpdateColumn objects) (may be null)
+   * @return a collection containing the update columns (PSUpdateColumn objects) (may be null)
    */
   public com.percussion.util.PSCollection getUpdateColumns() {
     return m_columns;
   }
 
   /**
-   * Overwrite the update columns associated with this synchronizer with the
-   * specified collection. If you only want to modify certain columns,
-   * add a new column, etc. use getUpdateColumns to get the existing
-   * collection and modify the returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSDataSynchronizer object. Any subsequent changes made to the
-   * object by the caller will also effect the synchronizer.
+   * Overwrite the update columns associated with this synchronizer with the specified collection.
+   * If you only want to modify certain columns, add a new column, etc. use getUpdateColumns to get
+   * the existing collection and modify the returned collection directly.
    *
-   * @param       cols      the new update columns
+   * <p>The PSCollection object supplied to this method will be stored with the PSDataSynchronizer
+   * object. Any subsequent changes made to the object by the caller will also effect the
+   * synchronizer.
    *
-   * @see               #getUpdateColumns
-   * @see               PSUpdateColumn
+   * @param cols the new update columns
+   * @see #getUpdateColumns
+   * @see PSUpdateColumn
    */
   public void setUpdateColumns(com.percussion.util.PSCollection cols) {
     IllegalArgumentException ex = validateUpdateColumns(cols);
@@ -178,11 +159,10 @@ public class PSDataSynchronizer extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param  sync a valid PSDataSynchronizer.
+   * @param sync a valid PSDataSynchronizer.
    */
   public void copyFrom(PSDataSynchronizer sync) {
     copyFrom((PSComponent) sync);
@@ -196,10 +176,11 @@ public class PSDataSynchronizer extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXDataSynchronizer XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXDataSynchronizer XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXDataSynchronizer defines what data is being updated through
@@ -222,7 +203,7 @@ public class PSDataSynchronizer extends PSComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXDataSynchronizer XML element node
+   * @return the newly created PSXDataSynchronizer XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement("PSXDataSynchronizer");
@@ -249,12 +230,12 @@ public class PSDataSynchronizer extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSDataSynchronizer Java object
-   * from a PSXDataSynchronizer XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSDataSynchronizer Java object from a PSXDataSynchronizer
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXDataSynchronizer
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type
+   *     PSXDataSynchronizer
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -314,18 +295,15 @@ public class PSDataSynchronizer extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

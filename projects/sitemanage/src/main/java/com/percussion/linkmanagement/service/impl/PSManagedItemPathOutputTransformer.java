@@ -24,53 +24,57 @@ import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 
 /**
- * Field output transformer to update managed item paths on edit.
- * Calls the managed link service to do the actual work.
+ * Field output transformer to update managed item paths on edit. Calls the managed link service to
+ * do the actual work.
+ *
  * @author JaySeletz
  */
-public class PSManagedItemPathOutputTransformer extends PSDefaultExtension implements IPSFieldOutputTransformer {
+public class PSManagedItemPathOutputTransformer extends PSDefaultExtension
+    implements IPSFieldOutputTransformer {
 
-    private IPSManagedLinkService service;
+  private IPSManagedLinkService service;
 
-    @Override
-    public Object processUdf(Object[] params, IPSRequestContext request) throws PSConversionException {
-        var ep = new PSExtensionParams(params);
-        var path = ep.getStringParam(0, null, true);
-        var linkIdField = ep.getStringParam(1, null, false);
+  @Override
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
+    var ep = new PSExtensionParams(params);
+    var path = ep.getStringParam(0, null, true);
+    var linkIdField = ep.getStringParam(1, null, false);
 
-        if (StringUtils.isBlank(linkIdField)) {
-            return path;
-        }
-        var linkId = (String) PSContentEditorWalker.getDisplayFieldValue(request.getInputDocument(), linkIdField);
-        if (StringUtils.isBlank(linkId)) {
-            return path;
-        }
-
-        var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
-            return path;
-        }
-        return Optional.ofNullable(service.renderItemPath(null, linkId)).orElse(path);
+    if (StringUtils.isBlank(linkIdField)) {
+      return path;
+    }
+    var linkId =
+        (String)
+            PSContentEditorWalker.getDisplayFieldValue(request.getInputDocument(), linkIdField);
+    if (StringUtils.isBlank(linkId)) {
+      return path;
     }
 
-    @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
-        super.init(def, codeRoot);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
+    var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+    if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
+      return path;
     }
+    return Optional.ofNullable(service.renderItemPath(null, linkId)).orElse(path);
+  }
 
-    /**
-     * Setter for dependency injection.
-     *
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service) {
-        this.service = service;
-    }
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
+
+  /**
+   * Setter for dependency injection.
+   *
+   * @param service the service to set
+   */
+  public void setService(IPSManagedLinkService service) {
+    this.service = service;
+  }
 }

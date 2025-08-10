@@ -19,39 +19,42 @@ package com.percussion.share.service;
 
 import com.percussion.dashboardmanagement.service.IPSGadgetService;
 import com.percussion.share.service.exception.PSDataServiceException;
-
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * Represents the READ portion of a data service.
  *
- * @param <T>  object type
+ * @param <T> object type
  * @param <PK> object key
  * @author adamgent
  */
 public interface IPSCatalogService<T, PK extends Serializable> {
 
-    /**
-     * Gets all objects of a particular type.
-     *
-     * @return list of populated objects
-     * @throws PSDataServiceException
-     * @throws IPSGadgetService.PSGadgetNotFoundException
-     * @throws IPSGadgetService.PSGadgetServiceException
-     */
-    List<T> findAll()
-            throws PSDataServiceException, IPSGadgetService.PSGadgetNotFoundException, IPSGadgetService.PSGadgetServiceException;
+  /**
+   * Gets all objects of a particular type.
+   *
+   * @return list of populated objects
+   * @throws PSDataServiceException
+   * @throws IPSGadgetService.PSGadgetNotFoundException
+   * @throws IPSGadgetService.PSGadgetServiceException
+   */
+  List<T> findAll()
+      throws PSDataServiceException,
+          IPSGadgetService.PSGadgetNotFoundException,
+          IPSGadgetService.PSGadgetServiceException;
 
-    /**
-     * Gets an object by class and identifier.
-     *
-     * @param id the identifier (primary key) of the object to get
-     * @return a populated object
-     * @throws PSDataServiceException
-     * @throws IPSGadgetService.PSGadgetNotFoundException
-     * @throws IPSGadgetService.PSGadgetServiceException
-     */
-    T find(PK id)
-            throws PSDataServiceException, IPSGadgetService.PSGadgetNotFoundException, IPSGadgetService.PSGadgetServiceException;
+  /**
+   * Gets an object by class and identifier.
+   *
+   * @param id the identifier (primary key) of the object to get
+   * @return a populated object
+   * @throws PSDataServiceException
+   * @throws IPSGadgetService.PSGadgetNotFoundException
+   * @throws IPSGadgetService.PSGadgetServiceException
+   */
+  T find(PK id)
+      throws PSDataServiceException,
+          IPSGadgetService.PSGadgetNotFoundException,
+          IPSGadgetService.PSGadgetServiceException;
 }

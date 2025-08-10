@@ -46,29 +46,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommandReloadI18nResources class implements processing of the
- * "reload i18nresources" console command.
+ * The PSConsoleCommandReloadI18nResources class implements processing of the "reload i18nresources"
+ * console command.
  *
  * @see PSRemoteConsoleHandler
  */
 public class PSConsoleCommandReloadI18nResources extends PSConsoleCommand {
   /**
-   * The constructor for this class. The command arguments are ignored for this
-   * command.
+   * The constructor for this class. The command arguments are ignored for this command.
    *
-   * @param cmdArgs   the argument string to use when executing   this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   public PSConsoleCommandReloadI18nResources(String cmdArgs) {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
    *      &lt;--
@@ -123,8 +122,6 @@ public class PSConsoleCommandReloadI18nResources extends PSConsoleCommand {
     return respDoc;
   }
 
-  /**
-   * The command executed by this class.
-   */
+  /** The command executed by this class. */
   static final String ms_cmdName = "reload i18nresources";
 }

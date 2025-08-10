@@ -17,46 +17,45 @@
 
 package com.percussion.rest.assets;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.junit.jupiter.api.Test;
-
 import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 public class AssetSerialDeserialTests {
 
-    private Asset getTestAsset() {
-        var a = new Asset();
-        a.setName("testName");
-        a.setFolderPath("/Assets/uploads/testPath");
-        a.setCreatedDate(new Date());
-        a.setId("testId");
-        a.setLastModifiedDate(new Date());
-        a.setType("percTest");
-        a.setRemove(false);
-        a.setFields(new AssetFieldList());
-        a.getFields().add(new AssetField("testProp", "testValue"));
-        return a;
-    }
+  private Asset getTestAsset() {
+    var a = new Asset();
+    a.setName("testName");
+    a.setFolderPath("/Assets/uploads/testPath");
+    a.setCreatedDate(new Date());
+    a.setId("testId");
+    a.setLastModifiedDate(new Date());
+    a.setType("percTest");
+    a.setRemove(false);
+    a.setFields(new AssetFieldList());
+    a.getFields().add(new AssetField("testProp", "testValue"));
+    return a;
+  }
 
-    @Test
-    public void testSerialize() throws JsonProcessingException {
-        var mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-        var a = getTestAsset();
-        assertTrue(mapper.canSerialize(Asset.class));
-        var assetString = mapper.writeValueAsString(a);
+  @Test
+  public void testSerialize() throws JsonProcessingException {
+    var mapper = new ObjectMapper();
+    mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+    mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+    var a = getTestAsset();
+    assertTrue(mapper.canSerialize(Asset.class));
+    var assetString = mapper.writeValueAsString(a);
 
-        assertNotNull(assetString);
+    assertNotNull(assetString);
 
-        var n = mapper.readValue(assetString, Asset.class);
+    var n = mapper.readValue(assetString, Asset.class);
 
-        assertFalse(n.getFields().isEmpty());
-        assertEquals(a, n);
-    }
+    assertFalse(n.getFields().isEmpty());
+    assertEquals(a, n);
+  }
 }

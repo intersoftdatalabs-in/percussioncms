@@ -16,6 +16,8 @@
  */
 package com.percussion.sitemanage.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
@@ -26,17 +28,14 @@ import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.pagemanagement.service.impl.PSPageService;
 import com.percussion.pubserver.IPSPubServerService;
-import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.publisher.IPSPubItemStatus;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.share.IPSSitemanageConstants;
 import com.percussion.share.dao.IPSGenericDao.DeleteException;
 import com.percussion.share.service.IPSIdMapper;
@@ -47,437 +46,448 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSitePublishResponse;
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import com.percussion.utils.guid.IPSGuid;
-
 import com.percussion.webservices.content.IPSContentWs;
-import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Test the publishing service.
- * // REFACTORED: CP-JAVA11
+ * Test the publishing service. // REFACTORED: CP-JAVA11
+ *
  * @author Percussion (modernized by Sunny Sal)
  */
 @Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSSitePublishServiceTest {
 
-    private IPSiteDao siteDao;
-    private IPSSitePublishService sitePublishService;
-    private IPSTemplateService templateService;
-    private IPSPageService pageService;
-    private IPSIdMapper idMapper;
-    private IPSContentWs contentWs;
-    private IPSSystemWs systemWs;
-    private IPSWorkflowHelper workflowHelper;
-    private IPSItemWorkflowService itemWorkflowService;
-    private IPSPubServerService pubServerService;
-    private IPSSitePublishStatusService pubStatusService;
-    private IPSRxPublisherService rxPubService;
-    private PSLicenseService licenseService;
+  private IPSiteDao siteDao;
+  private IPSSitePublishService sitePublishService;
+  private IPSTemplateService templateService;
+  private IPSPageService pageService;
+  private IPSIdMapper idMapper;
+  private IPSContentWs contentWs;
+  private IPSSystemWs systemWs;
+  private IPSWorkflowHelper workflowHelper;
+  private IPSItemWorkflowService itemWorkflowService;
+  private IPSPubServerService pubServerService;
+  private IPSSitePublishStatusService pubStatusService;
+  private IPSRxPublisherService rxPubService;
+  private PSLicenseService licenseService;
 
-    private static final Logger log = LogManager.getLogger(PSSitePublishServiceTest.class);
+  private static final Logger log = LogManager.getLogger(PSSitePublishServiceTest.class);
 
-    private final String siteName = "TestSite";
-    private final String testTemplateName = "TestSitePageTemplate";
+  private final String siteName = "TestSite";
+  private final String testTemplateName = "TestSitePageTemplate";
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  @BeforeEach
+  public void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    @Test
-    public void testDummy() {
-        // Added a dummy test as all other tests in this file are ignored.
-        assertTrue(true, "Sunny Sal says: This test is just a placeholder. Picture abhi baaki hai mere dost!");
-    }
+  @Test
+  public void testDummy() {
+    // Added a dummy test as all other tests in this file are ignored.
+    assertTrue(
+        true, "Sunny Sal says: This test is just a placeholder. Picture abhi baaki hai mere dost!");
+  }
 
-    /**
-     * Test the publish action.
-     */
-    @Disabled("Failing on indiana but could not reproduce it on dev build.")
-    @Test
-    public void testPublish() throws Exception {
-        try {
-            var testSite = new PSSite();
-            testSite.setName(siteName);
-            testSite.setHomePageTitle("Test Site");
-            testSite.setNavigationTitle("TestSite");
-            testSite.setDescription("This is a TestSite");
-            testSite.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
-            testSite.setTemplateName(testTemplateName);
+  /** Test the publish action. */
+  @Disabled("Failing on indiana but could not reproduce it on dev build.")
+  @Test
+  public void testPublish() throws Exception {
+    try {
+      var testSite = new PSSite();
+      testSite.setName(siteName);
+      testSite.setHomePageTitle("Test Site");
+      testSite.setNavigationTitle("TestSite");
+      testSite.setDescription("This is a TestSite");
+      testSite.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
+      testSite.setTemplateName(testTemplateName);
 
-            var secWs = PSSecurityWsLocator.getSecurityWebservice();
-            secWs.login(request, response, "admin1", "demo", null, "Enterprise_Investments_Admin", null);
+      var secWs = PSSecurityWsLocator.getSecurityWebservice();
+      secWs.login(request, response, "admin1", "demo", null, "Enterprise_Investments_Admin", null);
 
-            // Save the test site
-            testSite = siteDao.save(testSite);
-            long siteId = testSite.getSiteId();
+      // Save the test site
+      testSite = siteDao.save(testSite);
+      long siteId = testSite.getSiteId();
 
-            var folderPath = testSite.getFolderPath();
-            assertNotNull(folderPath);
+      var folderPath = testSite.getFolderPath();
+      assertNotNull(folderPath);
 
-            PSTemplateSummary tempSum = null;
-            var summaries = templateService.findAllUserTemplates();
-            for (var summary : summaries) {
-                if (summary.getName().equalsIgnoreCase(testSite.getTemplateName())) {
-                    tempSum = summary;
-                    break;
-                }
-            }
-            var page = new PSPage();
-            page.setName("TestPage");
-            page.setTitle("Test Page");
-            page.setAfterBodyStartContent("Test Page Header");
-            page.setBeforeBodyCloseContent("Test Page Footer");
-            page.setAdditionalHeadContent("keywords");
-            page.setTemplateId(tempSum.getId());
-            page.setFolderPath(folderPath);
-            page.setLinkTitle("dummy");
-            // Create a test page under the site folder
-            pageService.save(page);
-
-            var ids = new ArrayList<IPSGuid>();
-            var items = contentWs.findFolderChildren(folderPath, false);
-            for (var item : items) {
-                if (item.getContentTypeName().equals(PSPageService.PAGE_CONTENT_TYPE)) {
-                    ids.add(item.getGUID());
-                }
-            }
-
-            // Transition the items to Approve
-            for (var guid : ids) {
-                itemWorkflowService.performApproveTransition(guid.toString(), false, null);
-            }
-
-            var pubServer = pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
-            assertNotNull(pubServer);
-            assertFalse(pubServer.hasFullPublished());
-
-            // Test incremental publish - should be invalid until full publish
-            var pubResponse = sitePublishService.publish(siteName, PubType.INCREMENTAL, null, false, pubServer.getName());
-            assertEquals(State.INVALID.toString(), pubResponse.getStatus());
-
-            pubServer = pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
-            assertFalse(pubServer.hasFullPublished());
-
-            // Test full publish
-            pubResponse = sitePublishService.publish(siteName, PubType.FULL, null, false, pubServer.getName());
-            validatePubJob(pubResponse, siteId, ids.size());
-
-            // Publish is async. If we try incremental too quick, we cannot yet incremental
-            Thread.sleep(5000);
-            // Now incremental should work
-            pubResponse = sitePublishService.publish(siteName, PubType.INCREMENTAL, null, false, pubServer.getName());
-            validatePubJob(pubResponse, siteId, ids.size());
-            pubServer = pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
-            assertTrue(pubServer.hasFullPublished());
-
-            // Test publish now
-            pubResponse = sitePublishService.publish(null, PubType.PUBLISH_NOW, idMapper.getString(ids.get(0)), false, pubServer.getName());
-
-            Thread.sleep(10000);
-            // Wait to publish otherwise site is deleted when job still running
-            // validatePubJob(pubResponse, siteId, 1);
-
-        } finally {
-            try {
-                siteDao.delete(siteName);
-            } catch (Exception e) {
-                log.error("Failed to delete test site: " + siteName);
-            }
+      PSTemplateSummary tempSum = null;
+      var summaries = templateService.findAllUserTemplates();
+      for (var summary : summaries) {
+        if (summary.getName().equalsIgnoreCase(testSite.getTemplateName())) {
+          tempSum = summary;
+          break;
         }
-    }
+      }
+      var page = new PSPage();
+      page.setName("TestPage");
+      page.setTitle("Test Page");
+      page.setAfterBodyStartContent("Test Page Header");
+      page.setBeforeBodyCloseContent("Test Page Footer");
+      page.setAdditionalHeadContent("keywords");
+      page.setTemplateId(tempSum.getId());
+      page.setFolderPath(folderPath);
+      page.setLinkTitle("dummy");
+      // Create a test page under the site folder
+      pageService.save(page);
 
-    @Disabled("Failing on Null Errors")
-    @Test
-    public void ignoreGetPublishingActions() throws Exception {
-        PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
-                "Enterprise_Investments_Admin", null);
-
-        PSSite testSite1 = null;
-        try {
-            testSite1 = new PSSite();
-            testSite1.setName("testingSiteAction");
-            testSite1.setHomePageTitle("testingSiteAction");
-            testSite1.setNavigationTitle("testingSiteAction");
-            testSite1.setDescription("This is a TestActionSite");
-            testSite1.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
-            testSite1.setTemplateName("TestSitePageTemplate");
-
-            // Save the test site
-            testSite1 = siteDao.save(testSite1);
-
-            var folderPath = testSite1.getFolderPath();
-            var ids = new ArrayList<IPSGuid>();
-            var items = contentWs.findFolderChildren(folderPath, false);
-            for (var item : items) {
-                if (item.getContentTypeName().equals(PSPageService.PAGE_CONTENT_TYPE)) {
-                    ids.add(item.getGUID());
-                }
-            }
-            var pageId = idMapper.getString(ids.get(0));
-            var actions = sitePublishService.getPublishingActions(pageId);
-            var actionNames = List.of(
-                    PSPublishingAction.PUBLISHING_ACTION_PUBLISH,
-                    PSPublishingAction.PUBLISHING_ACTION_SCHEDULE,
-                    PSPublishingAction.PUBLISHING_ACTION_TAKEDOWN
-            );
-            var enabledVals = new ArrayList<>(List.of(true, true, false));
-            validatePubActions(actions, actionNames, enabledVals);
-
-            // Login as Editor to check available actions
-            PSSecurityWsLocator.getSecurityWebservice().login(request, response, "Editor", "demo", null,
-                    "Enterprise_Investments_Admin", null);
-
-            actions = sitePublishService.getPublishingActions(pageId);
-            validatePubActions(actions, actionNames, enabledVals);
-
-            // Login as Contributor to check available actions
-            PSSecurityWsLocator.getSecurityWebservice().login(request, response, "Contributor", "demo", null,
-                    "Enterprise_Investments_Admin", null);
-
-            actions = sitePublishService.getPublishingActions(pageId);
-            assertEquals(0, actions.size());
-
-            // Login as Admin
-            PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
-                    "Enterprise_Investments_Admin", null);
-
-            // Publish the page
-            sitePublishService.publish("testingSiteAction", PubType.PUBLISH_NOW, pageId, false, null);
-            itemWorkflowService.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_LIVE);
-
-            // Wait for the page to go Live
-            for (int i = 0; i <= 10; i++) {
-                Thread.sleep(1000);
-
-                if (workflowHelper.isLive(pageId)) {
-                    break;
-                }
-
-                if (i == 10) {
-                    fail("Published page was not transitioned to Live");
-                }
-            }
-
-            // Check out the page to put it in Quick Edit
-            itemWorkflowService.checkOut(pageId);
-
-            actions = sitePublishService.getPublishingActions(pageId);
-            int index = actionNames.indexOf(PSPublishingAction.PUBLISHING_ACTION_TAKEDOWN);
-            enabledVals.set(index, false);
-            validatePubActions(actions, actionNames, enabledVals);
-
-            // Check the page in
-            itemWorkflowService.checkIn(pageId);
-
-            // Login as Editor
-            PSSecurityWsLocator.getSecurityWebservice().login(request, response, "Editor", "demo", null,
-                    "Enterprise_Investments_Admin", null);
-
-            // Check out the page to put it in Quick Edit
-            itemWorkflowService.checkOut(pageId);
-
-            actions = sitePublishService.getPublishingActions(pageId);
-            validatePubActions(actions, actionNames, enabledVals);
-
-            // Check the page in
-            itemWorkflowService.checkIn(pageId);
-
-            // Login as Contributor
-            PSSecurityWsLocator.getSecurityWebservice().login(request, response, "Contributor", "demo", null,
-                    "Enterprise_Investments_Admin", null);
-
-            // Check out the page to put it in Quick Edit
-            itemWorkflowService.checkOut(pageId);
-
-            actions = sitePublishService.getPublishingActions(pageId);
-            assertEquals(0, actions.size());
-
-            // Check the page in
-            itemWorkflowService.checkIn(pageId);
-        } finally {
-            try {
-                siteDao.delete(testSite1.getName());
-            } catch (DeleteException e) {
-                // Ignore
-            }
+      var ids = new ArrayList<IPSGuid>();
+      var items = contentWs.findFolderChildren(folderPath, false);
+      for (var item : items) {
+        if (item.getContentTypeName().equals(PSPageService.PAGE_CONTENT_TYPE)) {
+          ids.add(item.getGUID());
         }
+      }
+
+      // Transition the items to Approve
+      for (var guid : ids) {
+        itemWorkflowService.performApproveTransition(guid.toString(), false, null);
+      }
+
+      var pubServer =
+          pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
+      assertNotNull(pubServer);
+      assertFalse(pubServer.hasFullPublished());
+
+      // Test incremental publish - should be invalid until full publish
+      var pubResponse =
+          sitePublishService.publish(
+              siteName, PubType.INCREMENTAL, null, false, pubServer.getName());
+      assertEquals(State.INVALID.toString(), pubResponse.getStatus());
+
+      pubServer =
+          pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
+      assertFalse(pubServer.hasFullPublished());
+
+      // Test full publish
+      pubResponse =
+          sitePublishService.publish(siteName, PubType.FULL, null, false, pubServer.getName());
+      validatePubJob(pubResponse, siteId, ids.size());
+
+      // Publish is async. If we try incremental too quick, we cannot yet incremental
+      Thread.sleep(5000);
+      // Now incremental should work
+      pubResponse =
+          sitePublishService.publish(
+              siteName, PubType.INCREMENTAL, null, false, pubServer.getName());
+      validatePubJob(pubResponse, siteId, ids.size());
+      pubServer =
+          pubServerService.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
+      assertTrue(pubServer.hasFullPublished());
+
+      // Test publish now
+      pubResponse =
+          sitePublishService.publish(
+              null,
+              PubType.PUBLISH_NOW,
+              idMapper.getString(ids.get(0)),
+              false,
+              pubServer.getName());
+
+      Thread.sleep(10000);
+      // Wait to publish otherwise site is deleted when job still running
+      // validatePubJob(pubResponse, siteId, 1);
+
+    } finally {
+      try {
+        siteDao.delete(siteName);
+      } catch (Exception e) {
+        log.error("Failed to delete test site: " + siteName);
+      }
     }
+  }
 
-    @AfterEach
-    public void tearDown() throws Exception {
-        PSSiteDataServletTestCaseFixture.templateCleanUp(testTemplateName, request, response);
-    }
+  @Disabled("Failing on Null Errors")
+  @Test
+  public void ignoreGetPublishingActions() throws Exception {
+    PSSecurityWsLocator.getSecurityWebservice()
+        .login(request, response, "admin1", "demo", null, "Enterprise_Investments_Admin", null);
 
-    /**
-     * Validates that the status of the publishing job completed without error.
-     *
-     * @param pubResponse the publishing job response, assumed not null.
-     * @param siteId      the site id.
-     * @param delivered   the number of items expected to have been delivered.
-     */
-    private void validatePubJob(PSSitePublishResponse pubResponse, long siteId, int delivered) {
-        assertFalse(pubResponse.getStatus().equals(State.ABORTED.toString()));
-        assertFalse(pubResponse.getStatus().equals(State.INVALID.toString()));
-        assertFalse(pubResponse.getStatus().equals(State.FORBIDDEN.toString()));
-        assertFalse(pubResponse.getStatus().equals(State.BADCONFIG.toString()));
-        assertFalse(pubResponse.getStatus().equals(State.BADCONFIGMULTIPLESITES.toString()));
+    PSSite testSite1 = null;
+    try {
+      testSite1 = new PSSite();
+      testSite1.setName("testingSiteAction");
+      testSite1.setHomePageTitle("testingSiteAction");
+      testSite1.setNavigationTitle("testingSiteAction");
+      testSite1.setDescription("This is a TestActionSite");
+      testSite1.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
+      testSite1.setTemplateName("TestSitePageTemplate");
 
-        long jobId = pubResponse.getJobid();
+      // Save the test site
+      testSite1 = siteDao.save(testSite1);
 
-        if (jobId == 0)
-            return;
-
-        var jobStatus = rxPubService.getPublishingJobStatus(jobId);
-        int count = 0;
-        try {
-            while (!isCompleted(jobStatus.getState())) {
-                Thread.sleep(1000);
-                jobStatus = rxPubService.getPublishingJobStatus(jobId);
-                if (count++ > 1200) {
-                    log.error("Timed out waiting for publishing status for jobId " + jobId);
-                    fail();
-                }
-            }
-        } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for pub status", e);
-            fail();
-            Thread.currentThread().interrupt();
+      var folderPath = testSite1.getFolderPath();
+      var ids = new ArrayList<IPSGuid>();
+      var items = contentWs.findFolderChildren(folderPath, false);
+      for (var item : items) {
+        if (item.getContentTypeName().equals(PSPageService.PAGE_CONTENT_TYPE)) {
+          ids.add(item.getGUID());
         }
-        if (jobStatus.getState() == State.COMPLETED_W_FAILURE) {
-            log.error("Error in validatePubJob");
-            IPSPublisherService psPubService = PSPublisherServiceLocator.getPublisherService();
-            Iterator<IPSPubItemStatus> it = psPubService.findPubItemStatusForJobIterable(jobId).iterator();
-            while (it.hasNext()) {
-                var status = it.next();
-                if (status.getStatus() != IPSSiteItem.Status.SUCCESS) {
-                    log.error("Error publishing " + status.getContentId() + " message=" + status.getMessage());
-                }
-            }
+      }
+      var pageId = idMapper.getString(ids.get(0));
+      var actions = sitePublishService.getPublishingActions(pageId);
+      var actionNames =
+          List.of(
+              PSPublishingAction.PUBLISHING_ACTION_PUBLISH,
+              PSPublishingAction.PUBLISHING_ACTION_SCHEDULE,
+              PSPublishingAction.PUBLISHING_ACTION_TAKEDOWN);
+      var enabledVals = new ArrayList<>(List.of(true, true, false));
+      validatePubActions(actions, actionNames, enabledVals);
+
+      // Login as Editor to check available actions
+      PSSecurityWsLocator.getSecurityWebservice()
+          .login(request, response, "Editor", "demo", null, "Enterprise_Investments_Admin", null);
+
+      actions = sitePublishService.getPublishingActions(pageId);
+      validatePubActions(actions, actionNames, enabledVals);
+
+      // Login as Contributor to check available actions
+      PSSecurityWsLocator.getSecurityWebservice()
+          .login(
+              request, response, "Contributor", "demo", null, "Enterprise_Investments_Admin", null);
+
+      actions = sitePublishService.getPublishingActions(pageId);
+      assertEquals(0, actions.size());
+
+      // Login as Admin
+      PSSecurityWsLocator.getSecurityWebservice()
+          .login(request, response, "admin1", "demo", null, "Enterprise_Investments_Admin", null);
+
+      // Publish the page
+      sitePublishService.publish("testingSiteAction", PubType.PUBLISH_NOW, pageId, false, null);
+      itemWorkflowService.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_LIVE);
+
+      // Wait for the page to go Live
+      for (int i = 0; i <= 10; i++) {
+        Thread.sleep(1000);
+
+        if (workflowHelper.isLive(pageId)) {
+          break;
         }
-        assertEquals(State.COMPLETED, jobStatus.getState());
-        assertEquals(0, jobStatus.countFailedItems());
-    }
 
-    private boolean isCompleted(State jobState) {
-        return jobState == State.COMPLETED ||
-                jobState == State.COMPLETED_W_FAILURE ||
-                jobState == State.ABORTED;
-    }
-
-    /**
-     * Validates the enabled status of the specified publishing actions.
-     *
-     * @param actions     the actions to validate.
-     * @param actionNames order must match the enabled values.
-     * @param enabledVals order must match the action names.
-     */
-    private void validatePubActions(List<PSPublishingAction> actions, List<String> actionNames,
-                                    List<Boolean> enabledVals) {
-        for (var action : actions) {
-            Boolean isEnabled = enabledVals.get(actionNames.indexOf(action.getName()));
-            assertEquals(isEnabled, action.isEnabled());
+        if (i == 10) {
+          fail("Published page was not transitioned to Live");
         }
-    }
+      }
 
-    // Dependency injection setters
-    public IPSSitePublishService getSitePublishService() {
-        return sitePublishService;
-    }
+      // Check out the page to put it in Quick Edit
+      itemWorkflowService.checkOut(pageId);
 
-    public void setSitePublishService(IPSSitePublishService sitePublishService) {
-        this.sitePublishService = sitePublishService;
-    }
+      actions = sitePublishService.getPublishingActions(pageId);
+      int index = actionNames.indexOf(PSPublishingAction.PUBLISHING_ACTION_TAKEDOWN);
+      enabledVals.set(index, false);
+      validatePubActions(actions, actionNames, enabledVals);
 
-    public IPSiteDao getSiteDao() {
-        return siteDao;
-    }
+      // Check the page in
+      itemWorkflowService.checkIn(pageId);
 
-    public void setSiteDao(IPSiteDao siteDao) {
-        this.siteDao = siteDao;
-    }
+      // Login as Editor
+      PSSecurityWsLocator.getSecurityWebservice()
+          .login(request, response, "Editor", "demo", null, "Enterprise_Investments_Admin", null);
 
-    public IPSTemplateService getTemplateService() {
-        return templateService;
-    }
+      // Check out the page to put it in Quick Edit
+      itemWorkflowService.checkOut(pageId);
 
-    public void setTemplateService(IPSTemplateService templateService) {
-        this.templateService = templateService;
-    }
+      actions = sitePublishService.getPublishingActions(pageId);
+      validatePubActions(actions, actionNames, enabledVals);
 
-    public IPSPageService getPageService() {
-        return pageService;
-    }
+      // Check the page in
+      itemWorkflowService.checkIn(pageId);
 
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
+      // Login as Contributor
+      PSSecurityWsLocator.getSecurityWebservice()
+          .login(
+              request, response, "Contributor", "demo", null, "Enterprise_Investments_Admin", null);
 
-    public IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+      // Check out the page to put it in Quick Edit
+      itemWorkflowService.checkOut(pageId);
 
-    public void setIdMapper(IPSIdMapper idMapper) {
-        this.idMapper = idMapper;
-    }
+      actions = sitePublishService.getPublishingActions(pageId);
+      assertEquals(0, actions.size());
 
-    public IPSContentWs getContentWs() {
-        return contentWs;
+      // Check the page in
+      itemWorkflowService.checkIn(pageId);
+    } finally {
+      try {
+        siteDao.delete(testSite1.getName());
+      } catch (DeleteException e) {
+        // Ignore
+      }
     }
+  }
 
-    public void setContentWs(IPSContentWs contentWs) {
-        this.contentWs = contentWs;
-    }
+  @AfterEach
+  public void tearDown() throws Exception {
+    PSSiteDataServletTestCaseFixture.templateCleanUp(testTemplateName, request, response);
+  }
 
-    public IPSSystemWs getSystemWs() {
-        return systemWs;
-    }
+  /**
+   * Validates that the status of the publishing job completed without error.
+   *
+   * @param pubResponse the publishing job response, assumed not null.
+   * @param siteId the site id.
+   * @param delivered the number of items expected to have been delivered.
+   */
+  private void validatePubJob(PSSitePublishResponse pubResponse, long siteId, int delivered) {
+    assertFalse(pubResponse.getStatus().equals(State.ABORTED.toString()));
+    assertFalse(pubResponse.getStatus().equals(State.INVALID.toString()));
+    assertFalse(pubResponse.getStatus().equals(State.FORBIDDEN.toString()));
+    assertFalse(pubResponse.getStatus().equals(State.BADCONFIG.toString()));
+    assertFalse(pubResponse.getStatus().equals(State.BADCONFIGMULTIPLESITES.toString()));
 
-    public void setSystemWs(IPSSystemWs systemWs) {
-        this.systemWs = systemWs;
-    }
+    long jobId = pubResponse.getJobid();
 
-    public IPSWorkflowHelper getWorkflowHelper() {
-        return workflowHelper;
-    }
+    if (jobId == 0) return;
 
-    public void setWorkflowHelper(IPSWorkflowHelper workflowHelper) {
-        this.workflowHelper = workflowHelper;
+    var jobStatus = rxPubService.getPublishingJobStatus(jobId);
+    int count = 0;
+    try {
+      while (!isCompleted(jobStatus.getState())) {
+        Thread.sleep(1000);
+        jobStatus = rxPubService.getPublishingJobStatus(jobId);
+        if (count++ > 1200) {
+          log.error("Timed out waiting for publishing status for jobId " + jobId);
+          fail();
+        }
+      }
+    } catch (InterruptedException e) {
+      log.error("Interrupted while waiting for pub status", e);
+      fail();
+      Thread.currentThread().interrupt();
     }
+    if (jobStatus.getState() == State.COMPLETED_W_FAILURE) {
+      log.error("Error in validatePubJob");
+      IPSPublisherService psPubService = PSPublisherServiceLocator.getPublisherService();
+      Iterator<IPSPubItemStatus> it =
+          psPubService.findPubItemStatusForJobIterable(jobId).iterator();
+      while (it.hasNext()) {
+        var status = it.next();
+        if (status.getStatus() != IPSSiteItem.Status.SUCCESS) {
+          log.error(
+              "Error publishing " + status.getContentId() + " message=" + status.getMessage());
+        }
+      }
+    }
+    assertEquals(State.COMPLETED, jobStatus.getState());
+    assertEquals(0, jobStatus.countFailedItems());
+  }
 
-    public IPSItemWorkflowService getItemWorkflowService() {
-        return itemWorkflowService;
-    }
+  private boolean isCompleted(State jobState) {
+    return jobState == State.COMPLETED
+        || jobState == State.COMPLETED_W_FAILURE
+        || jobState == State.ABORTED;
+  }
 
-    public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
-        this.itemWorkflowService = itemWorkflowService;
+  /**
+   * Validates the enabled status of the specified publishing actions.
+   *
+   * @param actions the actions to validate.
+   * @param actionNames order must match the enabled values.
+   * @param enabledVals order must match the action names.
+   */
+  private void validatePubActions(
+      List<PSPublishingAction> actions, List<String> actionNames, List<Boolean> enabledVals) {
+    for (var action : actions) {
+      Boolean isEnabled = enabledVals.get(actionNames.indexOf(action.getName()));
+      assertEquals(isEnabled, action.isEnabled());
     }
+  }
 
-    public void setPubServerService(IPSPubServerService pubServerService) {
-        this.pubServerService = pubServerService;
-    }
+  // Dependency injection setters
+  public IPSSitePublishService getSitePublishService() {
+    return sitePublishService;
+  }
 
-    public void setPubStatusService(IPSSitePublishStatusService pubStatusService) {
-        this.pubStatusService = pubStatusService;
-    }
+  public void setSitePublishService(IPSSitePublishService sitePublishService) {
+    this.sitePublishService = sitePublishService;
+  }
 
-    public void setRxPubService(IPSRxPublisherService rxPubService) {
-        this.rxPubService = rxPubService;
-    }
+  public IPSiteDao getSiteDao() {
+    return siteDao;
+  }
 
-    public void setLicenseService(PSLicenseService licenseService) {
-        this.licenseService = licenseService;
-    }
+  public void setSiteDao(IPSiteDao siteDao) {
+    this.siteDao = siteDao;
+  }
+
+  public IPSTemplateService getTemplateService() {
+    return templateService;
+  }
+
+  public void setTemplateService(IPSTemplateService templateService) {
+    this.templateService = templateService;
+  }
+
+  public IPSPageService getPageService() {
+    return pageService;
+  }
+
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
+
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
+
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
+
+  public IPSContentWs getContentWs() {
+    return contentWs;
+  }
+
+  public void setContentWs(IPSContentWs contentWs) {
+    this.contentWs = contentWs;
+  }
+
+  public IPSSystemWs getSystemWs() {
+    return systemWs;
+  }
+
+  public void setSystemWs(IPSSystemWs systemWs) {
+    this.systemWs = systemWs;
+  }
+
+  public IPSWorkflowHelper getWorkflowHelper() {
+    return workflowHelper;
+  }
+
+  public void setWorkflowHelper(IPSWorkflowHelper workflowHelper) {
+    this.workflowHelper = workflowHelper;
+  }
+
+  public IPSItemWorkflowService getItemWorkflowService() {
+    return itemWorkflowService;
+  }
+
+  public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
+    this.itemWorkflowService = itemWorkflowService;
+  }
+
+  public void setPubServerService(IPSPubServerService pubServerService) {
+    this.pubServerService = pubServerService;
+  }
+
+  public void setPubStatusService(IPSSitePublishStatusService pubStatusService) {
+    this.pubStatusService = pubStatusService;
+  }
+
+  public void setRxPubService(IPSRxPublisherService rxPubService) {
+    this.rxPubService = rxPubService;
+  }
+
+  public void setLicenseService(PSLicenseService licenseService) {
+    this.licenseService = licenseService;
+  }
 }

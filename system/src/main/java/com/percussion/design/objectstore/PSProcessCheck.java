@@ -25,21 +25,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implements the PSXProcessCheck element defined in sys_CloneHandlerConfig.dtd.
- */
+/** Implements the PSXProcessCheck element defined in sys_CloneHandlerConfig.dtd. */
 public class PSProcessCheck extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSProcessCheck(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -67,7 +61,7 @@ public class PSProcessCheck extends PSComponent {
   /**
    * Gets the process check description.
    *
-   * @return the description,  may be <code>null</code> or empty.
+   * @return the description, may be <code>null</code> or empty.
    */
   public String getDescription() {
     return m_description;
@@ -83,11 +77,9 @@ public class PSProcessCheck extends PSComponent {
   }
 
   /**
-   * Get the current collection of conditions (a collection of {@link PSRule}
-   * objects).
+   * Get the current collection of conditions (a collection of {@link PSRule} objects).
    *
-   * @return the collection of conditions {@link PSRule}, never
-   *    <code>null</code>, may be empty.
+   * @return the collection of conditions {@link PSRule}, never <code>null</code>, may be empty.
    */
   public Iterator getConditions() {
     return m_conditions.iterator();
@@ -96,9 +88,7 @@ public class PSProcessCheck extends PSComponent {
   /**
    * Sets the conditions to be satisfied to execute this process check.
    *
-   * @param conds list of conditions, may not be <code>null</code>, can be
-   * empty.
-   *
+   * @param conds list of conditions, may not be <code>null</code>, can be empty.
    * @throws IllegalArgumentException if conds is <code>null</code>.
    */
   public void setConditions(Iterator conds) {
@@ -109,8 +99,7 @@ public class PSProcessCheck extends PSComponent {
   }
 
   /**
-   * Gets the name of the process check as the String representation of this
-   * object.
+   * Gets the name of the process check as the String representation of this object.
    *
    * @return the name, never <code>null</code> or empty.
    */
@@ -118,7 +107,9 @@ public class PSProcessCheck extends PSComponent {
     return m_name;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -194,7 +185,9 @@ public class PSProcessCheck extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(NAME_ATTR, m_name);
@@ -237,33 +230,30 @@ public class PSProcessCheck extends PSComponent {
   public static final String XML_NODE_NAME = "PSXProcessCheck";
 
   /**
-   * The name of this process check. Configuration-wide unique. Initialized
-   * in ctor, never <code>null</code> or empty after that.
+   * The name of this process check. Configuration-wide unique. Initialized in ctor, never <code>
+   * null</code> or empty after that.
    */
   private String m_name = null;
 
   /**
-   * The context in which this process check is used. Initialized in ctor,
-   * never <code>null</code> or empty after that.
+   * The context in which this process check is used. Initialized in ctor, never <code>null</code>
+   * or empty after that.
    */
   private String m_context = null;
 
-  /**
-   * The processing sequence of this check. Initialized in ctor, never changed
-   * after that.
-   */
+  /** The processing sequence of this check. Initialized in ctor, never changed after that. */
   private int m_sequence = -1;
 
   /**
-   * The description of this check. Initialized in ctor, never changed
-   * after that. May be <code>null</code> or empty.
+   * The description of this check. Initialized in ctor, never changed after that. May be <code>null
+   * </code> or empty.
    */
   private String m_description = null;
 
   /**
-   * A collection of conditions ({@link PSRule} objects) that specify if the
-   * effect is beeing executed or not. Initialized in the ctor, never changed
-   * after that. Never <code>null</code>, might be empty.
+   * A collection of conditions ({@link PSRule} objects) that specify if the effect is beeing
+   * executed or not. Initialized in the ctor, never changed after that. Never <code>null</code>,
+   * might be empty.
    */
   private PSCollection m_conditions = new PSCollection(PSRule.class);
 

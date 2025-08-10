@@ -31,9 +31,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
-/**
- * Utility class for securing XML parses.
- */
+/** Utility class for securing XML parses. */
 public class PSSecureXMLUtils {
 
   private PSSecureXMLUtils() {
@@ -156,13 +154,13 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Will return a Document DocumentBuilderFactory initialized with security features enabled.
-   * The default settings follow OWASP guidelines for protecting against
-   * XML eXternal Entity injection (XXE) vulnerabilities.:
+   * Will return a Document DocumentBuilderFactory initialized with security features enabled. The
+   * default settings follow OWASP guidelines for protecting against XML eXternal Entity injection
+   * (XXE) vulnerabilities.:
    *
-   * https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
+   * <p>https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
    *
-   * As an XML application server / middleware that relies heavily on DTD's. the disable all DTD
+   * <p>As an XML application server / middleware that relies heavily on DTD's. the disable all DTD
    * feature is optional.
    *
    * @param options The security options to enable for this parser factory.
@@ -175,8 +173,8 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Secures XMLInputFactory instances.  External entities are disabled and DTD's are turned on
-   * or off based on the caller.
+   * Secures XMLInputFactory instances. External entities are disabled and DTD's are turned on or
+   * off based on the caller.
    *
    * @param options Options for secure processing
    * @return
@@ -444,7 +442,7 @@ public class PSSecureXMLUtils {
   /**
    * Used to effectively block calls to external entities by the underlying parser.
    *
-   * Should be called if local catalog resolution fails to return a result.
+   * <p>Should be called if local catalog resolution fails to return a result.
    *
    * @return A new InputSource based on an empty string reader
    */
@@ -453,7 +451,7 @@ public class PSSecureXMLUtils {
   }
 
   /**
-   * Initialize JAXP properties to use specific parsers / transformers.  Generally used by unit tests
+   * Initialize JAXP properties to use specific parsers / transformers. Generally used by unit tests
    * that do not have access to the jvm.ini settings when running.
    */
   public static void setupJAXPDefaults() {

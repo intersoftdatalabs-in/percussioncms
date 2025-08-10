@@ -40,41 +40,33 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
-/**
- * A resuable panel containing a two column table.
- */
+/** A resuable panel containing a two column table. */
 public class PropertyTablePanel extends JPanel implements KeyListener, FocusListener {
-  /**
-   * The index of the column within the table that contains the property name
-   * data.
-   */
+  /** The index of the column within the table that contains the property name data. */
   public static final int NAME_COLUMN = 0;
 
-  /**
-   * The index of the column within the table that contains the property value
-   * data.
-   */
+  /** The index of the column within the table that contains the property value data. */
   public static final int VALUE_COLUMN = 1;
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int,
-   * boolean) PropertTablePanel(colNames, rows, <code>false</code>)}.
+   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertTablePanel(colNames, rows, <code>false</code>)}.
    */
   public PropertyTablePanel(String[] colNames, int rows) {
     this(colNames, rows, false);
   }
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int,
-   * boolean) PropertyTablePanel(DEFAULT_HEADERS, 1, <code>true</code>)}.
+   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertyTablePanel(DEFAULT_HEADERS, 1, <code>true</code>)}.
    */
   public PropertyTablePanel() {
     this(DEFAULT_HEADERS, 1, true);
   }
 
   /**
-   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int,
-   * boolean) PropertyTablePanel(DEFAULT_HEADERS, rows, <code>true</code>)}.
+   * Convenience ctor that calls {@link #PropertyTablePanel(String[], int, boolean)
+   * PropertyTablePanel(DEFAULT_HEADERS, rows, <code>true</code>)}.
    */
   public PropertyTablePanel(int rows) {
     this(DEFAULT_HEADERS, rows, true);
@@ -84,15 +76,12 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
    * Constructs a panel containing a 2 column table wrapped in a scroll pane.
    *
    * @param colNames, a string array of column names, may not be <code>null
-   * </code> or empty and should have only two entries spcifying the two
-   * column names. Each header must be a non-<code>null</code>, non-empty
-   * string.
-   *
+   * </code> or empty and should have only two entries spcifying the two column names. Each header
+   *     must be a non-<code>null</code>, non-empty string.
    * @param rows, number of rows in the table to start, if < 1, 1 is used
-   *
-   * @param isEditable flag to indicate whether the end-user should be allowed to
-   * change the properties. Note that this does not affect the {@link
-   * #getData()} or {@link #setData(Map)} methods.
+   * @param isEditable flag to indicate whether the end-user should be allowed to change the
+   *     properties. Note that this does not affect the {@link #getData()} or {@link #setData(Map)}
+   *     methods.
    */
   public PropertyTablePanel(String[] colNames, int rows, boolean isEditable) {
     // this(colNames, rows);
@@ -131,9 +120,8 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
           }
 
           /**
-           * See comment in <code>prepareEditor</code> for the reason this was
-           * overridden. Sets the focus in the editor component when it is
-           * first activated.
+           * See comment in <code>prepareEditor</code> for the reason this was overridden. Sets the
+           * focus in the editor component when it is first activated.
            */
           protected boolean processKeyBinding(
               KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
@@ -175,9 +163,9 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
           }
 
           /**
-           * Latch to record that we have set the focus listener. We need this
-           * because there is no way to ask a component if a particular listener
-           * has already been set. It is set the first time a cell is edited.
+           * Latch to record that we have set the focus listener. We need this because there is no
+           * way to ask a component if a particular listener has already been set. It is set the
+           * first time a cell is edited.
            */
           private boolean m_listenerSet = false;
         };
@@ -204,11 +192,10 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
     AbstractAction stopEditing =
         new AbstractAction() {
           /**
-           * This action does 2 things. First, it stops any cell editing when
-           * the Enter key is pressed. Secondly, it prevents the enter key
-           * press from activating the default button of the main dialog, which
-           * is extremely annoying when in a cell editor and enter dismisses
-           * the whole dialog rather than just stopping editing.
+           * This action does 2 things. First, it stops any cell editing when the Enter key is
+           * pressed. Secondly, it prevents the enter key press from activating the default button
+           * of the main dialog, which is extremely annoying when in a cell editor and enter
+           * dismisses the whole dialog rather than just stopping editing.
            *
            * @param e unused
            */
@@ -227,25 +214,21 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
     // noop
   }
 
-  /**
-   * Implements the mouse adapter interface for bringing up the popup menu on
-   * right click.
-   */
+  /** Implements the mouse adapter interface for bringing up the popup menu on right click. */
   private class PopupListener extends MouseAdapter {
     /**
      * MouseAdapter interface implementation.
      *
-     * @param e, never <code>null</code>, supplied by Swing event handling
-     * mechanism for mouse.
+     * @param e, never <code>null</code>, supplied by Swing event handling mechanism for mouse.
      */
     public void mousePressed(MouseEvent e) {}
 
     /**
-     * MouseAdapter interface implementation. Calls {@link#maybeShowPopup(
-     * MouseEvent)}, which brings up the popup menu.
+     * MouseAdapter interface implementation. Calls {@link#maybeShowPopup( MouseEvent)}, which
+     * brings up the popup menu.
      *
-     * @param e, never <code>null</code>, supplied by Swing event handling
-     * mechanism for mouse events.
+     * @param e, never <code>null</code>, supplied by Swing event handling mechanism for mouse
+     *     events.
      */
     public void mouseReleased(MouseEvent e) {
       maybeShowPopup(e);
@@ -262,8 +245,8 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * Adds popup menu to the panel. Menu gets displayed on right click of the
-   * mouse. The menu provides actions appropriate for rows.
+   * Adds popup menu to the panel. Menu gets displayed on right click of the mouse. The menu
+   * provides actions appropriate for rows.
    */
   private void addPopupMenu() {
     m_popup = new JPopupMenu();
@@ -283,8 +266,8 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * If someone clicks outside the cell with the mouse, this will catch it
-   * and stop editing for the cell.
+   * If someone clicks outside the cell with the mouse, this will catch it and stop editing for the
+   * cell.
    *
    * @param e unused
    */
@@ -293,29 +276,21 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * Gets the model underlying this table. In general, the {@link #getData()}
-   * and {@link #setData(Map)} methods should be used. The model should only
-   * be accessed directly if these 2 methods are insufficient for your
-   * purposes.
+   * Gets the model underlying this table. In general, the {@link #getData()} and {@link
+   * #setData(Map)} methods should be used. The model should only be accessed directly if these 2
+   * methods are insufficient for your purposes.
    *
-   * @return The model of this table. This table retains ownership of the
-   * model; any changes affect this object. Never <code>null</code>.
+   * @return The model of this table. This table retains ownership of the model; any changes affect
+   *     this object. Never <code>null</code>.
    */
   public TableModel getTableModel() {
     return m_table.getModel();
   }
 
   /**
-   * @param model
-   * public void setTableModel(TableModel model)
-   * {
-   * if (model != null)
-   * {
-   * m_table.setModel(model);
-   * if (model instanceof DefaultTableModel)
-   * ((DefaultTableModel) model).fireTableDataChanged();
-   * }
-   * }
+   * @param model public void setTableModel(TableModel model) { if (model != null) {
+   *     m_table.setModel(model); if (model instanceof DefaultTableModel) ((DefaultTableModel)
+   *     model).fireTableDataChanged(); } }
    */
 
   /**
@@ -344,11 +319,11 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * Set the new table data. Clears all existing table data and then adds
-   * the data supplied to the map.
+   * Set the new table data. Clears all existing table data and then adds the data supplied to the
+   * map.
    *
-   * @param props The data to set the table with, may be <code>null</code>
-   *    or empty to clear all existing rows.
+   * @param props The data to set the table with, may be <code>null</code> or empty to clear all
+   *     existing rows.
    */
   public void setData(Map props) {
     clearAllRows();
@@ -385,20 +360,18 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   /**
    * Return reference to the table used in this panel.
    *
-   * @return reference to the table. Never <code>null</code>. Any changes to
-   * the returned object will affect this panel.
+   * @return reference to the table. Never <code>null</code>. Any changes to the returned object
+   *     will affect this panel.
    */
   public JTable getTable() {
     return m_table;
   }
 
   /**
-   * If the cell is editable, activates the editor for the cell located at
-   * the specified location and requests the focus for it. If the editor is
-   * a JTextField, all text in the cell is selected.
+   * If the cell is editable, activates the editor for the cell located at the specified location
+   * and requests the focus for it. If the editor is a JTextField, all text in the cell is selected.
    *
    * @param row Must be between 0 and the row count -1, inclusive.
-   *
    * @param col Must be between 0 and the column count -1, inclusive.
    */
   public void editCellAt(int row, int col) {
@@ -418,8 +391,7 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   /**
    * Implementation for the accelerator keys for popup menu items.
    *
-   * @param e, never <code>null</code>, provided by Swing event handling
-   * model.
+   * @param e, never <code>null</code>, provided by Swing event handling model.
    */
   public void keyPressed(KeyEvent e) {
     int code = e.getKeyCode();
@@ -429,9 +401,7 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
     }
   }
 
-  /**
-   * Deletes all selected rows from the table and model.
-   */
+  /** Deletes all selected rows from the table and model. */
   public void removeRows() {
     DefaultTableModel dtm = ((DefaultTableModel) m_table.getModel());
     ListSelectionModel lsm = m_table.getSelectionModel();
@@ -454,26 +424,26 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * Removes all rows from this table. Any properties currently present in
-   * this table are removed.
+   * Removes all rows from this table. Any properties currently present in this table are removed.
    */
   public void clearAllRows() {
     ((DefaultTableModel) m_table.getModel()).setNumRows(0);
   }
 
-  /**
-   * Appends a blank row to the table.
-   */
+  /** Appends a blank row to the table. */
   public void addRow() {
     int cols = m_table.getModel().getColumnCount();
     ((DefaultTableModel) m_table.getModel()).addRow(new Object[cols]);
   }
 
   /**
-   * If any cell is currently being edited, the data in the editor will be
-   * accepted and a couple additional steps will be performed.
+   * If any cell is currently being edited, the data in the editor will be accepted and a couple
+   * additional steps will be performed.
+   *
    * <p>If a name is cleared, the associated value will be cleared as well.
+   *
    * <p>If there isn't at least 1 empty row, an empty row will be appended.
+   *
    * <p>If no cell is being edited, nothing is done.
    */
   protected void stopExtTableEditing() {
@@ -498,10 +468,10 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * Is the data that is in the model valid?  Property name must be unique,
-   * contain no spaces and have a value.
+   * Is the data that is in the model valid? Property name must be unique, contain no spaces and
+   * have a value.
    *
-   * @return  <code>true</code> if it is, otherwise <code>false</code>.
+   * @return <code>true</code> if it is, otherwise <code>false</code>.
    */
   public boolean validateData() {
     stopExtTableEditing();
@@ -564,19 +534,18 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   public void keyReleased(KeyEvent e) {}
 
   /**
-   * Set whether property names are allowed to contain spaces.  By default they
-   * are not allowed.
+   * Set whether property names are allowed to contain spaces. By default they are not allowed.
    *
-   * @param isAllowed <code>true</code> to allow spaces, <code>false</code>
-   * if not.  Setting is enforced by {@link #validateData()}.
+   * @param isAllowed <code>true</code> to allow spaces, <code>false</code> if not. Setting is
+   *     enforced by {@link #validateData()}.
    */
   public void setAllowSpaceInPropName(boolean isAllowed) {
     m_allowSpaceInPropName = isAllowed;
   }
 
   /**
-   * Determine whether property names are allowed to contain spaces.  See
-   * {@link #setAllowSpaceInPropName(boolean)} for more info.
+   * Determine whether property names are allowed to contain spaces. See {@link
+   * #setAllowSpaceInPropName(boolean)} for more info.
    *
    * @return <code>true</code> if allowed, <code>false</code> if not.
    */
@@ -585,60 +554,50 @@ public class PropertyTablePanel extends JPanel implements KeyListener, FocusList
   }
 
   /**
-   * The table is placed in a scroll pane that is invisible until the number
-   * of rows exceeds the size of the panel, then it 'activates' and displays
-   * a scroll bar on the right side of the table. Set in {@link #init(int)}.
+   * The table is placed in a scroll pane that is invisible until the number of rows exceeds the
+   * size of the panel, then it 'activates' and displays a scroll bar on the right side of the
+   * table. Set in {@link #init(int)}.
    */
   private JScrollPane m_jsp;
 
-  /**
-   * The UI component that represents the data to be viewed/modified. Set in
-   * {@link #init(int)}.
-   */
+  /** The UI component that represents the data to be viewed/modified. Set in {@link #init(int)}. */
   private JTable m_table;
 
-  /**
-   * A flag set in the ctor to indicate whether the data in a row can be
-   * edited.
-   */
+  /** A flag set in the ctor to indicate whether the data in a row can be edited. */
   protected boolean m_isEditable;
 
   /**
-   * Specifies the name of the first column. Initialized in the ctor, never
-   * <code>null</code> or empty after that.
+   * Specifies the name of the first column. Initialized in the ctor, never <code>null</code> or
+   * empty after that.
    */
   private String m_firstCol;
 
   /**
-   * Specifies the name of the second column. Initialized in the ctor, never
-   * <code>null</code> or empty after that.
+   * Specifies the name of the second column. Initialized in the ctor, never <code>null</code> or
+   * empty after that.
    */
   private String m_secondCol;
 
   /**
-   * Pop up menu containing 'Delete' as the menu item, initialized in
-   * {@link#addPopupMenu() addPopupMenu()}, never <code>null</code> or
-   * modified after that.
+   * Pop up menu containing 'Delete' as the menu item, initialized in {@link#addPopupMenu()
+   * addPopupMenu()}, never <code>null</code> or modified after that.
    */
   private JPopupMenu m_popup;
 
   /**
-   * Determines if spaces are allowed in property names.  Intially
-   * <code>false</code>.  See {@link #setAllowSpaceInPropName(boolean)} for
-   * more info.
+   * Determines if spaces are allowed in property names. Intially <code>false</code>. See {@link
+   * #setAllowSpaceInPropName(boolean)} for more info.
    */
   private boolean m_allowSpaceInPropName = false;
 
   /**
-   * Resource bundle for this class. Initialised on class load.
-   * It's not modified after that. May be <code>null</code> if it could not
-   * load the resource properties file.
+   * Resource bundle for this class. Initialised on class load. It's not modified after that. May be
+   * <code>null</code> if it could not load the resource properties file.
    */
   private static ResourceBundle ms_res = null;
 
   /**
-   * Contains the names of the columns used by the default ctor. Initialized
-   * in static initializer.
+   * Contains the names of the columns used by the default ctor. Initialized in static initializer.
    */
   private static final String[] DEFAULT_HEADERS;
 

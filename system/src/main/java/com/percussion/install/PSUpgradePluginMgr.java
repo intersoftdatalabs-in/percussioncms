@@ -54,9 +54,9 @@ public class PSUpgradePluginMgr {
   }
 
   /**
-   * Calls the process method of appropriate plugin.  Checks the value returned.
-   * If it is null, then it functions as today, otherwise, the value is added
-   * to the RxISCompScanPanel's response object store.
+   * Calls the process method of appropriate plugin. Checks the value returned. If it is null, then
+   * it functions as today, otherwise, the value is added to the RxISCompScanPanel's response object
+   * store.
    */
   public void execute() {
     try {
@@ -77,23 +77,15 @@ public class PSUpgradePluginMgr {
     }
   }
 
-  /**
-   * Name of the plugin assigned in constructor from config file.
-   */
+  /** Name of the plugin assigned in constructor from config file. */
   String m_name = "";
 
-  /**
-   * Class Name of the plugin assigned in constructor from config file.
-   */
+  /** Class Name of the plugin assigned in constructor from config file. */
   String m_class = "";
 
-  /**
-   * plugin element assigned in constructor from config file.
-   */
+  /** plugin element assigned in constructor from config file. */
   Element m_elemData = null;
 
-  /**
-   * Instance of upgrade module.
-   */
+  /** Instance of upgrade module. */
   IPSUpgradeModule m_config = null;
 }

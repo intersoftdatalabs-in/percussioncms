@@ -26,26 +26,22 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 
 /**
- * The PSStatement class defines a statement (query or update) which can
- * be executed as part of a request handler's execution plan.
+ * The PSStatement class defines a statement (query or update) which can be executed as part of a
+ * request handler's execution plan.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSStatement implements IPSExecutionStep {
 
   /**
-   * Construct a statement which can be executed as part of an
-   * execution plan. The statement may contain place holders, which
-   * must be filled prior to execution.
+   * Construct a statement which can be executed as part of an execution plan. The statement may
+   * contain place holders, which must be filled prior to execution.
    *
-   * @param   connKey      the connection key to use to get the db conn
-   *
-   * @param   blocks      the statement blocks comprising this statement
-   *
-   *   @param   buildSql      <code>true</code> to build the internal SQL
-   *                        string immediately
+   * @param connKey the connection key to use to get the db conn
+   * @param blocks the statement blocks comprising this statement
+   * @param buildSql <code>true</code> to build the internal SQL string immediately
    */
   protected PSStatement(int connKey, IPSStatementBlock[] blocks, boolean buildSql)
       throws com.percussion.data.PSDataExtractionException {
@@ -58,14 +54,12 @@ public abstract class PSStatement implements IPSExecutionStep {
   }
 
   /**
-   * Construct a statement which can be executed as part of an
-   * execution plan. The statement may contain place holders, which
-   * must be filled prior to execution. The SQL statement will be
-   * built immediately using this method.
+   * Construct a statement which can be executed as part of an execution plan. The statement may
+   * contain place holders, which must be filled prior to execution. The SQL statement will be built
+   * immediately using this method.
    *
-   * @param   connKey      the connection key to use to get the db conn
-   *
-   * @param   blocks      the statement blocks comprising this statement
+   * @param connKey the connection key to use to get the db conn
+   * @param blocks the statement blocks comprising this statement
    */
   protected PSStatement(int connKey, IPSStatementBlock[] blocks)
       throws com.percussion.data.PSDataExtractionException {
@@ -73,15 +67,13 @@ public abstract class PSStatement implements IPSExecutionStep {
   }
 
   /**
-   * Set the name of the node which we will iterate over executing this
-   * statement.
-   * As long as a node of the specified name exists, this statement should
-   * be executed. This object does not actually make use of this
-   * information. It will only execute once in the context specified to
-   * the execute call. This is primarily used as the storage are so that
-   * the PSTransactionSet object calling this knows what to iterate on.
+   * Set the name of the node which we will iterate over executing this statement. As long as a node
+   * of the specified name exists, this statement should be executed. This object does not actually
+   * make use of this information. It will only execute once in the context specified to the execute
+   * call. This is primarily used as the storage are so that the PSTransactionSet object calling
+   * this knows what to iterate on.
    *
-   * @param   nodeName      the name of the node to iterate on
+   * @param nodeName the name of the node to iterate on
    */
   public void setIteratorNode(String nodeName) {
     // if we're iterating to the current node, use null which means don't
@@ -92,15 +84,13 @@ public abstract class PSStatement implements IPSExecutionStep {
   }
 
   /**
-   * Get the name of the node which we will iterate over executing this
-   * statement.
-   * As long as a node of the specified name exists, this statement should
-   * be executed. This object does not actually make use of this
-   * information. It will only execute once in the context specified to
-   * the execute call. This is primarily used as the storage are so that
-   * the PSTransactionSet object calling this knows what to iterate on.
+   * Get the name of the node which we will iterate over executing this statement. As long as a node
+   * of the specified name exists, this statement should be executed. This object does not actually
+   * make use of this information. It will only execute once in the context specified to the execute
+   * call. This is primarily used as the storage are so that the PSTransactionSet object calling
+   * this knows what to iterate on.
    *
-   * @return               the name of the node to iterate on
+   * @return the name of the node to iterate on
    */
   public String getIteratorNode() {
     return m_iteratorNode;
@@ -109,10 +99,8 @@ public abstract class PSStatement implements IPSExecutionStep {
   /**
    * Build the query string using the specified data for context info.
    *
-   * @param   data      the execution context
-   *
-   * @return            the SQL string which can be used in a jdbc
-   *                     PreparedStatement object
+   * @param data the execution context
+   * @return the SQL string which can be used in a jdbc PreparedStatement object
    */
   public java.lang.String buildSqlString(PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
@@ -122,14 +110,10 @@ public abstract class PSStatement implements IPSExecutionStep {
   /**
    * Build the query string using the specified data for context info.
    *
-   * @param   data            the execution context
-   *
-   * @param   forceRebuild   <code>true</code> to rebuild the SQL
-   *                           statement, even if one has already been
-   *                           stored
-   *
-   * @return                  the SQL string which can be used in a jdbc
-   *                           PreparedStatement object
+   * @param data the execution context
+   * @param forceRebuild <code>true</code> to rebuild the SQL statement, even if one has already
+   *     been stored
+   * @return the SQL string which can be used in a jdbc PreparedStatement object
    */
   public java.lang.String buildSqlString(PSExecutionData data, boolean forceRebuild)
       throws com.percussion.data.PSDataExtractionException {
@@ -157,10 +141,10 @@ public abstract class PSStatement implements IPSExecutionStep {
   }
 
   /**
-   * Get the data extractors used to get the replacement values which will
-   * be used to execute the statement.
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
    *
-   * @return            the list of replacement values
+   * @return the list of replacement values
    */
   public java.util.List getReplacementValueExtractors() {
     java.util.ArrayList retList = new java.util.ArrayList();
@@ -232,10 +216,8 @@ public abstract class PSStatement implements IPSExecutionStep {
   /**
    * Execute the statement as a step in the execution plan.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @exception   SQLException
-   *                     if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @exception SQLException if a SQL error occurs
    */
   public abstract void execute(PSExecutionData data)
       throws java.sql.SQLException,

@@ -20,9 +20,8 @@ package com.percussion.search;
 import com.percussion.error.PSException;
 
 /**
- * This is the basic exception used by most classes in this package. Because it
- * is generic, the no parameter ctor and the ctor taking just a message are
- * not available.
+ * This is the basic exception used by most classes in this package. Because it is generic, the no
+ * parameter ctor and the ctor taking just a message are not available.
  *
  * @author paulhoward
  */

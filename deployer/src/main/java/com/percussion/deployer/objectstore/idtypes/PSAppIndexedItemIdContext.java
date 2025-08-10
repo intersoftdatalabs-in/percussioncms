@@ -28,18 +28,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * ID Context to represent an item whose context is determined only by its
- * ordinal position in its parent context.
+ * ID Context to represent an item whose context is determined only by its ordinal position in its
+ * parent context.
  */
 public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
   /**
-   * Construct this context specifying its ordinal position in its parent
-   * context.
+   * Construct this context specifying its ordinal position in its parent context.
    *
    * @param type One of the <code>TYPE_xxx</code> values.
-   * @param index The index into the parent rule list this rule is from.  May
-   * not be less than 0.
-   *
+   * @param index The index into the parent rule list this rule is from. May not be less than 0.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAppIndexedItemIdContext(int type, int index) {
@@ -54,12 +51,9 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppIndexedItemIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -98,12 +92,13 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppIndexedItemIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppIndexedItemIdContext
@@ -127,9 +122,8 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -214,7 +208,6 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
    * Check the supplied index to see if it is valid (>=0)
    *
    * @param index The index to check.
-   *
    * @return <code>true</code> if it is valid, <code>false</code> otherwise.
    */
   private boolean validateIndex(int index) {
@@ -225,79 +218,55 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext {
    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
    *
    * @param type The value to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean validateType(int type) {
     return type >= 0 && type < TYPE_ENUM.length;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppIndexedItemIdContext";
 
   /**
-   * Index of this rule in its parent's list.  Intialized
-   * during ctor, modfied only by calls to <code>copyFrom()</code>.
+   * Index of this rule in its parent's list. Intialized during ctor, modfied only by calls to
+   * <code>copyFrom()</code>.
    */
   private int m_index;
 
   /**
-   * Indicates which part of an application this object represents, one
-   * of the <code>TYPE_XXX</code> values.  Initialized during construction,
-   * only modified by a call to <code>copyFrom()</code>.
+   * Indicates which part of an application this object represents, one of the <code>TYPE_XXX</code>
+   * values. Initialized during construction, only modified by a call to <code>copyFrom()</code>.
    */
   private int m_type;
 
-  /**
-   * Constant to indicate this context represents a conditional request
-   */
+  /** Constant to indicate this context represents a conditional request */
   public static final int TYPE_CONDITIONAL_REQUEST = 0;
 
-  /**
-   * Constant to indicate this context represents an rule object
-   */
+  /** Constant to indicate this context represents an rule object */
   public static final int TYPE_RULE = 1;
 
-  /**
-   * Constant to indicate this context represents a conditional exit
-   */
+  /** Constant to indicate this context represents a conditional exit */
   public static final int TYPE_CUSTOM_ACTION_GROUP = 2;
 
-  /**
-   * Constant to indicate this context represents a custom action group
-   */
+  /** Constant to indicate this context represents a custom action group */
   public static final int TYPE_CONDITIONAL_EXIT = 3;
 
-  /**
-   * Constant to indicate this context represents an conditional stylesheet
-   * object.
-   */
+  /** Constant to indicate this context represents an conditional stylesheet object. */
   public static final int TYPE_CONDITIONAL_STYLESHEET = 4;
 
-  /**
-   * Constant to indicate this context represents an conditional effect
-   * object.
-   */
+  /** Constant to indicate this context represents an conditional effect object. */
   public static final int TYPE_CONDITIONAL_EFFECT = 5;
 
-  /**
-   * Constant to indicate this context represents an conditional extension
-   * object.
-   */
+  /** Constant to indicate this context represents an conditional extension object. */
   public static final int TYPE_CONDITIONAL_EXTENSION = 6;
 
-  /**
-   * Constant to indicate this context represents a clone field override.
-   */
+  /** Constant to indicate this context represents a clone field override. */
   public static final int TYPE_CLONE_FIELD_OVERRIDE = 7;
 
   /**
-   * Enumeration of string constants representing each of the
-   * <code>TYPE_XXX</code> values, for Xml serialization.  Index of each value
-   * must match its corresponding <code>TYPE_xxx</code> constant value.
+   * Enumeration of string constants representing each of the <code>TYPE_XXX</code> values, for Xml
+   * serialization. Index of each value must match its corresponding <code>TYPE_xxx</code> constant
+   * value.
    */
   private static final String[] TYPE_ENUM = {
     "ConditionalRequest",

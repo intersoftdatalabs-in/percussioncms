@@ -28,8 +28,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Java 11 implementation of IPSAnalyticsQueryResult.
- * Sunny Sal: "Analytics never lies, but it sure can confuse!"
+ * Java 11 implementation of IPSAnalyticsQueryResult. Sunny Sal: "Analytics never lies, but it sure
+ * can confuse!"
  */
 public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
 
@@ -136,6 +136,7 @@ public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
 
   /**
    * Put all items in the passed-in map into the query result.
+   *
    * @param vals map of key-value pairs, cannot be null, may be empty.
    */
   public void putAll(Map<String, Object> vals) {
@@ -145,7 +146,9 @@ public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
 
   /**
    * Put an item in the result set.
-   * @param key the field key that specifies the data to be returned, cannot be null or empty. The key is case-insensitive.
+   *
+   * @param key the field key that specifies the data to be returned, cannot be null or empty. The
+   *     key is case-insensitive.
    * @param value the value to store, cannot be null.
    */
   public void put(String key, Object value) {

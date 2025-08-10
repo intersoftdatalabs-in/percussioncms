@@ -1,6 +1,5 @@
-// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,475 +18,533 @@
 package com.percussion.searchmanagement;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
-import com.percussion.share.data.PSPagedItemList;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.pathmanagement.web.service.PSPathServiceRestClient;
 import com.percussion.searchmanagement.data.PSSearchCriteria;
+import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.test.PSObjectRestClient.DataRestClientException;
 import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
 import com.percussion.ui.service.IPSListViewHelper;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClient> {
-    // REFACTORED: CP-JAVA11
+@Ignore
+public class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClient> {
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSSearchServiceTest.class);
 
-    private static final Logger log = LogManager.getLogger(PSSearchServiceTest.class);
+  private static final String ASSET_ROOT = PSPathUtils.ASSETS_FINDER_ROOT.substring(1) + '/';
 
-    private static final String ASSET_ROOT = PSPathUtils.ASSETS_FINDER_ROOT.substring(1) + '/';
+  private static final DecimalFormat decimalFormat = new DecimalFormat("000");
 
-    private static final DecimalFormat decimalFormat = new DecimalFormat("000");
+  private static PSSearchServiceRestClient searchServiceClient;
 
-    private static PSSearchServiceRestClient searchServiceClient;
+  private static PSPathServiceRestClient pathServiceRestClient;
 
-    private static PSPathServiceRestClient pathServiceRestClient;
+  private static List<String> assetNamesCreationOrder;
 
-    private static List<String> assetNamesCreationOrder;
+  private PSSearchCriteria searchCriteria;
 
-    private PSSearchCriteria searchCriteria;
-
-    static PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<>() {
+  static PSTestDataCleaner<String> assetCleaner =
+      new PSTestDataCleaner<String>() {
         @Override
         protected void clean(String id) throws Exception {
-            getAssetClient().delete(id);
+          getAssetClient().delete(id);
         }
-    };
+      };
 
-    static PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<>() {
+  static PSTestDataCleaner<String> folderCleaner =
+      new PSTestDataCleaner<String>() {
         @Override
         protected void clean(String id) throws Exception {
-            var criteria = new PSDeleteFolderCriteria();
-            criteria.setPath(id);
-            pathServiceRestClient.deleteFolder(criteria);
+          PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
+          criteria.setPath(id);
+          pathServiceRestClient.deleteFolder(criteria);
         }
-    };
+      };
 
-    @Override
-    protected PSSearchServiceRestClient getRestClient(String baseUrl) {
-        return searchServiceClient;
+  @Override
+  protected PSSearchServiceRestClient getRestClient(String baseUrl) {
+    return searchServiceClient;
+  }
+
+  @BeforeClass
+  public static void setupSuite() throws Exception {
+    pathServiceRestClient = new PSPathServiceRestClient(baseUrl);
+    setupClient(pathServiceRestClient);
+
+    searchServiceClient = new PSSearchServiceRestClient(baseUrl);
+    setupClient(searchServiceClient);
+
+    String folderName = "folder" + System.currentTimeMillis();
+    PSPathItem folderItem = pathServiceRestClient.addFolder(ASSET_ROOT + folderName);
+    folderCleaner.add(folderItem.getPath());
+
+    log.info("Creating assets");
+    assetNamesCreationOrder = createNumberedAssets(folderItem, 10, true, 2);
+
+    // Wait the server to finish up indexing stuff
+    while (!testDataSuccessfullyAdded()) {
+      log.info("Assets not indexed yet");
+      Thread.sleep(3000);
+    }
+  }
+
+  private static boolean testDataSuccessfullyAdded() {
+    PSSearchCriteria searchCriteria = new PSSearchCriteria();
+    searchCriteria.setQuery("sys_title:asset0??");
+    searchCriteria.setFormatId(9);
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(null);
+    searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
+    searchCriteria.setSortOrder("asc");
+
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+
+    if (pathItems == null
+        || pathItems.getChildrenInPage() == null
+        || pathItems.getChildrenInPage().size() < 10
+        || pathItems.getChildrenCount() < 10) return false;
+
+    PSPathItem pathItem;
+    for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
+      if (i >= assetNamesCreationOrder.size()) return false;
+
+      pathItem = pathItems.getChildrenInPage().get(i);
+
+      if (!StringUtils.equals(assetNamesCreationOrder.get(i), pathItem.getName())) return false;
     }
 
-    @BeforeEach All
-    static void setupSuite() throws Exception {
-        pathServiceRestClient = new PSPathServiceRestClient(baseUrl);
-        setupClient(pathServiceRestClient);
+    return true;
+  }
 
-        searchServiceClient = new PSSearchServiceRestClient(baseUrl);
-        setupClient(searchServiceClient);
+  @Before
+  public void setup() {
+    searchCriteria = new PSSearchCriteria();
+    searchCriteria.setQuery("sys_title:asset???");
+    searchCriteria.setFormatId(9);
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(10);
+  }
 
-        var folderName = "folder" + System.currentTimeMillis();
-        var folderItem = pathServiceRestClient.addFolder(ASSET_ROOT + folderName);
-        folderCleaner.add(folderItem.getPath());
+  @AfterClass
+  public static void tearDown() throws Exception {
+    assetCleaner.clean();
+    folderCleaner.clean();
+  }
 
-        log.info("Creating assets");
-        assetNamesCreationOrder = createNumberedAssets(folderItem, 10, true, 2);
+  private static PSAssetServiceRestClient getAssetClient() throws Exception {
+    PSAssetServiceRestClient client = new PSAssetServiceRestClient(baseUrl);
+    setupClient(client);
+    return client;
+  }
 
-        // Wait for the server to finish up indexing stuff
-        while (!testDataSuccessfullyAdded()) {
-            log.info("Assets not indexed yet");
-            Thread.sleep(3000);
-        }
+  private static List<String> createNumberedAssets(
+      PSPathItem folderItem, int count, boolean shuffle, int secondsBetweenSaves) throws Exception {
+    List<PSAsset> assets = new ArrayList<PSAsset>();
+    List<String> assetNamesCreationOrder = new ArrayList<String>();
+
+    for (int i = 1; i <= count; i++) {
+      assets.add(createNumberedAsset(folderItem, i));
     }
 
-    private static boolean testDataSuccessfullyAdded() {
-        var searchCriteria = new PSSearchCriteria();
-        searchCriteria.setQuery("sys_title:asset0??");
-        searchCriteria.setFormatId(9);
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(null);
-        searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
-        searchCriteria.setSortOrder("asc");
+    if (shuffle) Collections.shuffle(assets);
 
-        var pathItems = searchServiceClient.search(searchCriteria);
+    for (PSAsset asset : assets) {
+      PSAsset savedAsset;
+      try {
+        savedAsset = getAssetClient().save(asset);
+        assetNamesCreationOrder.add(savedAsset.getName());
+      } catch (Exception e) {
+        continue;
+      }
 
-        if (pathItems == null || pathItems.getChildrenInPage() == null ||
-                pathItems.getChildrenInPage().size() < 10 || pathItems.getChildrenCount() < 10)
-            return false;
+      assetCleaner.add(savedAsset.getId());
 
-        for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
-            if (i >= assetNamesCreationOrder.size())
-                return false;
-
-            var pathItem = pathItems.getChildrenInPage().get(i);
-
-            if (!StringUtils.equals(assetNamesCreationOrder.get(i), pathItem.getName()))
-                return false;
-        }
-
-        return true;
+      if (secondsBetweenSaves > 0) Thread.sleep(1000 * secondsBetweenSaves);
     }
 
-    @BeforeEach
-    void setup() {
-        searchCriteria = new PSSearchCriteria();
-        searchCriteria.setQuery("sys_title:asset???");
-        searchCriteria.setFormatId(9);
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(10);
+    return assetNamesCreationOrder;
+  }
+
+  private static PSAsset createNumberedAsset(PSPathItem folderPath, int assetNumber)
+      throws Exception {
+    PSAsset asset = new PSAsset();
+    asset.getFields().put("sys_title", "asset" + decimalFormat.format(assetNumber));
+    asset.setType("percRawHtmlAsset");
+    asset.getFields().put("html", "TestHTML");
+    if (folderPath != null) {
+      asset.setFolderPaths(asList(folderPath.getFolderPath()));
+    }
+    return asset;
+  }
+
+  private static void validateExtendedPathItem(
+      PSPagedItemList pathItems,
+      int itemsCountInPage,
+      Integer totalItemsCount,
+      Integer startIndex) {
+    assertNotNull("pathItems not null", pathItems);
+    assertNotNull("pathItems items not null", pathItems.getChildrenInPage());
+    assertNotNull("pathItems items count not null", pathItems.getChildrenCount());
+
+    assertEquals(
+        "pathItems items count in page", itemsCountInPage, pathItems.getChildrenInPage().size());
+    assertEquals("pathItems children count", totalItemsCount, pathItems.getChildrenCount());
+    assertEquals("pathItems start index", startIndex, pathItems.getStartIndex());
+  }
+
+  private static void validateAssets(PSPagedItemList pathItems, Integer expectedStartIndex) {
+    PSPathItem pathItem;
+    for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
+      pathItem = pathItems.getChildrenInPage().get(i);
+
+      assertEquals(
+          "asset name " + i,
+          assetNamesCreationOrder.get(expectedStartIndex - 1 + i),
+          pathItem.getName());
+    }
+  }
+
+  private void validateAssetIndexes(PSPagedItemList pathItems, Integer... expectedStartIndexes) {
+    PSPathItem pathItem;
+
+    for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
+      pathItem = pathItems.getChildrenInPage().get(i);
+
+      assertEquals(
+          "asset name " + i,
+          "asset" + decimalFormat.format(expectedStartIndexes[i]),
+          pathItem.getName());
+    }
+  }
+
+  private void validatePathItemIndexes(
+      PSPagedItemList pathItems, int startIndex, String... expectedPathItemNames) {
+    PSPathItem pathItem;
+
+    for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
+      pathItem = pathItems.getChildrenInPage().get(i);
+
+      assertEquals(
+          "path item name " + i, expectedPathItemNames[startIndex - 1 + i], pathItem.getName());
+    }
+  }
+
+  @Test
+  public void testNotNullSearch() throws Exception {
+    // create asset html item
+    PSAsset assetHtml = new PSAsset();
+    String assetTitle = "testAssetHtmlSearch" + System.currentTimeMillis();
+    assetHtml.getFields().put("sys_title", assetTitle);
+    assetHtml.setType("percRawHtmlAsset");
+    assetHtml.getFields().put("html", "TestHTML");
+    assetHtml.setFolderPaths(asList("//Folders"));
+    assetHtml = getAssetClient().save(assetHtml);
+
+    // delete the created asset
+    assetCleaner.add(assetHtml.getId());
+
+    // call the service
+    PSSearchCriteria searchCriteria = new PSSearchCriteria();
+    searchCriteria.setQuery(assetTitle);
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setFormatId(9);
+    PSPagedItemList extendedPathItems = searchServiceClient.search(searchCriteria);
+    assertNotNull(extendedPathItems);
+    List<PSPathItem> queryResults = extendedPathItems.getChildrenInPage();
+    assertNotNull(queryResults);
+    log.info("FTS result: " + queryResults.toString());
+  }
+
+  @Test
+  public void testNoResultFound() throws Exception {
+    PSSearchCriteria searchCriteria = new PSSearchCriteria();
+    searchCriteria.setQuery("sys_contentcreatedby:administrator");
+    searchCriteria.setFormatId(9);
+    searchCriteria.setStartIndex(1);
+    List<PSPathItem> queryResults = searchServiceClient.search(searchCriteria).getChildrenInPage();
+    assertTrue(queryResults.size() == 0);
+  }
+
+  @Test
+  public void testInvalidQuery() throws Exception {
+    try {
+      PSSearchCriteria searchCriteria = new PSSearchCriteria();
+      searchCriteria.setQuery("*{}");
+      searchCriteria.setFormatId(9);
+      searchServiceClient.search(searchCriteria);
+
+      fail("Should have thrown an exception");
+    } catch (RestClientException e) {
+      log.info("Exception thrown because of an invalid Lucene query " + e);
+    }
+  }
+
+  @Test
+  public void testPaging_StartIndex_IsInvalid() throws Exception {
+    // startIndex < 1
+    searchCriteria.setStartIndex(-1);
+    searchCriteria.setMaxResults(5);
+
+    try {
+      searchServiceClient.search(searchCriteria);
+      fail("Should have thrown an exception");
+    } catch (DataRestClientException e) {
+      assertEquals("error code", 500, e.getStatus());
+      // FIXME the response body should have the exception below
+      //            assertTrue("error details",
+      // e.getResponseBody().contains("java.lang.IllegalArgumentException"));
     }
 
-    @AfterAll
-    static void tearDown() throws Exception {
-        assetCleaner.clean();
-        folderCleaner.clean();
+    // startIndex == 0
+    searchCriteria.setStartIndex(0);
+
+    try {
+      searchServiceClient.search(searchCriteria);
+      fail("Should have thrown an exception");
+    } catch (DataRestClientException e) {
+      assertEquals("error code", 500, e.getStatus());
+      // FIXME the response body should have the exception below
+      //            assertTrue("error details",
+      // e.getResponseBody().contains("java.lang.IllegalArgumentException"));
     }
+  }
 
-    private static PSAssetServiceRestClient getAssetClient() throws Exception {
-        var client = new PSAssetServiceRestClient(baseUrl);
-        setupClient(client);
-        return client;
+  @Test
+  public void testPaging_MaxResults_IsInvalid() throws Exception {
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(-1);
+
+    try {
+      searchServiceClient.search(searchCriteria);
+      fail("Should have thrown an exception");
+    } catch (DataRestClientException e) {
+      assertEquals("error code", 500, e.getStatus());
+      // FIXME the response body should have the exception below
+      //            assertTrue("error details",
+      // e.getResponseBody().contains("java.lang.IllegalArgumentException"));
     }
+  }
 
-    private static List<String> createNumberedAssets(PSPathItem folderItem, int count, boolean shuffle, int secondsBetweenSaves) throws Exception {
-        var assets = new ArrayList<PSAsset>();
-        var assetNamesCreationOrder = new ArrayList<String>();
+  @Test
+  public void testPaging_MaxResults_NotSpecified() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(null);
 
-        for (int i = 1; i <= count; i++) {
-            assets.add(createNumberedAsset(folderItem, i));
-        }
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validateAssets(pathItems, 3);
+  }
 
-        if (shuffle)
-            Collections.shuffle(assets);
+  @Test
+  public void testPaging_StartIndex_GreaterThanItemsCount() throws Exception {
+    int expectedStartIndex = 6;
 
-        for (var asset : assets) {
-            PSAsset savedAsset;
-            try {
-                savedAsset = getAssetClient().save(asset);
-                assetNamesCreationOrder.add(savedAsset.getName());
-            } catch (Exception e) {
-                continue;
-            }
+    searchCriteria.setStartIndex(11);
+    searchCriteria.setMaxResults(5);
 
-            assetCleaner.add(savedAsset.getId());
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 5, 10, expectedStartIndex);
+    validateAssets(pathItems, expectedStartIndex);
+  }
 
-            if (secondsBetweenSaves > 0)
-                Thread.sleep(1000L * secondsBetweenSaves);
-        }
+  @Test
+  public void testPaging_StartIndex_GetLastItem() throws Exception {
+    int expectedStartIndex = 10;
 
-        return assetNamesCreationOrder;
-    }
+    searchCriteria.setStartIndex(10);
+    searchCriteria.setMaxResults(1);
 
-    private static PSAsset createNumberedAsset(PSPathItem folderPath, int assetNumber) throws Exception {
-        var asset = new PSAsset();
-        asset.getFields().put("sys_title", "asset" + decimalFormat.format(assetNumber));
-        asset.setType("percRawHtmlAsset");
-        asset.getFields().put("html", "TestHTML");
-        if (folderPath != null) {
-            asset.setFolderPaths(asList(folderPath.getFolderPath()));
-        }
-        return asset;
-    }
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, expectedStartIndex);
+    validateAssets(pathItems, expectedStartIndex);
+  }
 
-    private static void validateExtendedPathItem(PSPagedItemList pathItems, int itemsCountInPage,
-                                                Integer totalItemsCount, Integer startIndex) {
-        assertNotNull(pathItems, "pathItems not null");
-        assertNotNull(pathItems.getChildrenInPage(), "pathItems items not null");
-        assertNotNull(pathItems.getChildrenCount(), "pathItems items count not null");
+  @Test
+  public void testPaging_StartIndex_GetFromBeginning() throws Exception {
+    int expectedStartIndex = 1;
 
-        assertEquals(itemsCountInPage, pathItems.getChildrenInPage().size(), "pathItems items count in page");
-        assertEquals(totalItemsCount, pathItems.getChildrenCount(), "pathItems children count");
-        assertEquals(startIndex, pathItems.getStartIndex(), "pathItems start index");
-    }
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(10);
 
-    private static void validateAssets(PSPagedItemList pathItems, Integer expectedStartIndex) {
-        for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
-            var pathItem = pathItems.getChildrenInPage().get(i);
-            assertEquals(assetNamesCreationOrder.get(expectedStartIndex - 1 + i), pathItem.getName(), "asset name " + i);
-        }
-    }
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 10, 10, expectedStartIndex);
+    validateAssets(pathItems, expectedStartIndex);
+  }
 
-    private void validateAssetIndexes(PSPagedItemList pathItems, Integer... expectedStartIndexes) {
-        for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
-            var pathItem = pathItems.getChildrenInPage().get(i);
-            assertEquals("asset" + decimalFormat.format(expectedStartIndexes[i]), pathItem.getName(), "asset name " + i);
-        }
-    }
+  @Test
+  public void testPaging_MaxResults_EqualsToOne() throws Exception {
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(1);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 1);
+    validateAssets(pathItems, 1);
 
-    private void validatePathItemIndexes(PSPagedItemList pathItems, int startIndex, String... expectedPathItemNames) {
-        for (int i = 0; i < pathItems.getChildrenInPage().size(); i++) {
-            var pathItem = pathItems.getChildrenInPage().get(i);
-            assertEquals(expectedPathItemNames[startIndex - 1 + i], pathItem.getName(), "path item name " + i);
-        }
-    }
+    searchCriteria.setStartIndex(2);
+    searchCriteria.setMaxResults(1);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 2);
+    validateAssets(pathItems, 2);
 
-    @Test
-    void testNotNullSearch() throws Exception {
-        var assetHtml = new PSAsset();
-        var assetTitle = "testAssetHtmlSearch" + System.currentTimeMillis();
-        assetHtml.getFields().put("sys_title", assetTitle);
-        assetHtml.setType("percRawHtmlAsset");
-        assetHtml.getFields().put("html", "TestHTML");
-        assetHtml.setFolderPaths(asList("//Folders"));
-        assetHtml = getAssetClient().save(assetHtml);
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(1);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 3);
+    validateAssets(pathItems, 3);
 
-        assetCleaner.add(assetHtml.getId());
+    searchCriteria.setStartIndex(8);
+    searchCriteria.setMaxResults(1);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 8);
+    validateAssets(pathItems, 8);
 
-        var searchCriteria = new PSSearchCriteria();
-        searchCriteria.setQuery(assetTitle);
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setFormatId(9);
-        var extendedPathItems = searchServiceClient.search(searchCriteria);
-        assertNotNull(extendedPathItems);
-        var queryResults = extendedPathItems.getChildrenInPage();
-        assertNotNull(queryResults);
-        log.info("FTS result: {}", queryResults);
-    }
+    searchCriteria.setStartIndex(9);
+    searchCriteria.setMaxResults(1);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 9);
+    validateAssets(pathItems, 9);
 
-    @Test
-    void testNoResultFound() throws Exception {
-        var searchCriteria = new PSSearchCriteria();
-        searchCriteria.setQuery("sys_contentcreatedby:administrator");
-        searchCriteria.setFormatId(9);
-        searchCriteria.setStartIndex(1);
-        var queryResults = searchServiceClient.search(searchCriteria).getChildrenInPage();
-        assertEquals(0, queryResults.size());
-    }
+    searchCriteria.setStartIndex(10);
+    searchCriteria.setMaxResults(1);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 1, 10, 10);
+    validateAssets(pathItems, 10);
+  }
 
-    @Test
-    void testInvalidQuery() {
-        assertThrows(RestClientException.class, () -> {
-            var searchCriteria = new PSSearchCriteria();
-            searchCriteria.setQuery("*{}");
-            searchCriteria.setFormatId(9);
-            searchServiceClient.search(searchCriteria);
-        });
-    }
+  @Test
+  public void testPaging_MaxResults_GreaterThanItemsCount() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
 
-    @Test
-    void testPaging_StartIndex_IsInvalid() {
-        // startIndex < 1
-        searchCriteria.setStartIndex(-1);
-        searchCriteria.setMaxResults(5);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validateAssets(pathItems, 3);
+  }
 
-        assertThrows(DataRestClientException.class, () -> searchServiceClient.search(searchCriteria));
+  @Test
+  public void testSorting_SortColumn_IsNull() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
+    searchCriteria.setSortColumn(null);
+    searchCriteria.setSortOrder("asc");
 
-        // startIndex == 0
-        searchCriteria.setStartIndex(0);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validateAssets(pathItems, 3);
+  }
 
-        assertThrows(DataRestClientException.class, () -> searchServiceClient.search(searchCriteria));
-    }
+  @Test
+  public void testSorting_SortOrder_IsNull() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
+    searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
+    searchCriteria.setSortOrder(null);
 
-    @Test
-    void testPaging_MaxResults_IsInvalid() {
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(-1);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validateAssets(pathItems, 3);
+  }
 
-        assertThrows(DataRestClientException.class, () -> searchServiceClient.search(searchCriteria));
-    }
+  @Test
+  public void testSorting_SortColumn_And_SortOrder_AreBoth_Null() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
+    searchCriteria.setSortColumn(null);
+    searchCriteria.setSortOrder(null);
 
-    @Test
-    void testPaging_MaxResults_NotSpecified() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(null);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validateAssets(pathItems, 3);
+  }
 
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validateAssets(pathItems, 3);
-    }
+  @Test
+  public void testSorting_SortBy_Name() throws Exception {
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(null);
+    searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
+    searchCriteria.setSortOrder("asc");
 
-    @Test
-    void testPaging_StartIndex_GreaterThanItemsCount() {
-        int expectedStartIndex = 6;
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 10, 10, 1);
+    validateAssetIndexes(pathItems, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
-        searchCriteria.setStartIndex(11);
-        searchCriteria.setMaxResults(5);
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(null);
+    searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
+    searchCriteria.setSortOrder("desc");
 
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 5, 10, expectedStartIndex);
-        validateAssets(pathItems, expectedStartIndex);
-    }
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 10, 10, 1);
+    validateAssetIndexes(pathItems, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
+  }
 
-    @Test
-    void testPaging_StartIndex_GetLastItem() {
-        int expectedStartIndex = 10;
+  @Test
+  public void testSorting_SortBy_CreatedDate() throws Exception {
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(null);
+    searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
+    searchCriteria.setSortOrder("asc");
 
-        searchCriteria.setStartIndex(10);
-        searchCriteria.setMaxResults(1);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 10, 10, 1);
+    validatePathItemIndexes(pathItems, 1, assetNamesCreationOrder.toArray(new String[0]));
 
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, expectedStartIndex);
-        validateAssets(pathItems, expectedStartIndex);
-    }
+    searchCriteria.setStartIndex(1);
+    searchCriteria.setMaxResults(null);
+    searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
+    searchCriteria.setSortOrder("desc");
 
-    @Test
-    void testPaging_StartIndex_GetFromBeginning() {
-        int expectedStartIndex = 1;
+    List<String> reversedAssetNamesCreationOrder = new ArrayList<String>(assetNamesCreationOrder);
+    Collections.reverse(reversedAssetNamesCreationOrder);
 
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(10);
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 10, 10, 1);
+    validatePathItemIndexes(pathItems, 1, reversedAssetNamesCreationOrder.toArray(new String[0]));
+  }
 
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 10, 10, expectedStartIndex);
-        validateAssets(pathItems, expectedStartIndex);
-    }
+  @Test
+  public void testSorting_Plus_Paging() throws Exception {
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
+    searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
+    searchCriteria.setSortOrder("asc");
 
-    @Test
-    void testPaging_MaxResults_EqualsToOne() {
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(1);
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 1);
-        validateAssets(pathItems, 1);
+    PSPagedItemList pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validatePathItemIndexes(pathItems, 3, assetNamesCreationOrder.toArray(new String[0]));
 
-        searchCriteria.setStartIndex(2);
-        searchCriteria.setMaxResults(1);
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 2);
-        validateAssets(pathItems, 2);
+    searchCriteria.setStartIndex(3);
+    searchCriteria.setMaxResults(10);
+    searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
+    searchCriteria.setSortOrder("desc");
 
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(1);
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 3);
-        validateAssets(pathItems, 3);
+    List<String> reversedAssetNamesCreationOrder = new ArrayList<String>(assetNamesCreationOrder);
+    Collections.reverse(reversedAssetNamesCreationOrder);
 
-        searchCriteria.setStartIndex(8);
-        searchCriteria.setMaxResults(1);
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 8);
-        validateAssets(pathItems, 8);
-
-        searchCriteria.setStartIndex(9);
-        searchCriteria.setMaxResults(1);
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 9);
-        validateAssets(pathItems, 9);
-
-        searchCriteria.setStartIndex(10);
-        searchCriteria.setMaxResults(1);
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 1, 10, 10);
-        validateAssets(pathItems, 10);
-    }
-
-    @Test
-    void testPaging_MaxResults_GreaterThanItemsCount() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validateAssets(pathItems, 3);
-    }
-
-    @Test
-    void testSorting_SortColumn_IsNull() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-        searchCriteria.setSortColumn(null);
-        searchCriteria.setSortOrder("asc");
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validateAssets(pathItems, 3);
-    }
-
-    @Test
-    void testSorting_SortOrder_IsNull() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-        searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
-        searchCriteria.setSortOrder(null);
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validateAssets(pathItems, 3);
-    }
-
-    @Test
-    void testSorting_SortColumn_And_SortOrder_AreBoth_Null() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-        searchCriteria.setSortColumn(null);
-        searchCriteria.setSortOrder(null);
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validateAssets(pathItems, 3);
-    }
-
-    @Test
-    void testSorting_SortBy_Name() {
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(null);
-        searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
-        searchCriteria.setSortOrder("asc");
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 10, 10, 1);
-        validateAssetIndexes(pathItems, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(null);
-        searchCriteria.setSortColumn(IPSListViewHelper.TITLE_NAME);
-        searchCriteria.setSortOrder("desc");
-
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 10, 10, 1);
-        validateAssetIndexes(pathItems, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1);
-    }
-
-    @Test
-    void testSorting_SortBy_CreatedDate() {
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(null);
-        searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
-        searchCriteria.setSortOrder("asc");
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 10, 10, 1);
-        validatePathItemIndexes(pathItems, 1, assetNamesCreationOrder.toArray(new String[0]));
-
-        searchCriteria.setStartIndex(1);
-        searchCriteria.setMaxResults(null);
-        searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
-        searchCriteria.setSortOrder("desc");
-
-        var reversedAssetNamesCreationOrder = new ArrayList<>(assetNamesCreationOrder);
-        Collections.reverse(reversedAssetNamesCreationOrder);
-
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 10, 10, 1);
-        validatePathItemIndexes(pathItems, 1, reversedAssetNamesCreationOrder.toArray(new String[0]));
-    }
-
-    @Test
-    void testSorting_Plus_Paging() {
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-        searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
-        searchCriteria.setSortOrder("asc");
-
-        var pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validatePathItemIndexes(pathItems, 3, assetNamesCreationOrder.toArray(new String[0]));
-
-        searchCriteria.setStartIndex(3);
-        searchCriteria.setMaxResults(10);
-        searchCriteria.setSortColumn(IPSListViewHelper.CONTENT_CREATEDDATE_NAME);
-        searchCriteria.setSortOrder("desc");
-
-        var reversedAssetNamesCreationOrder = new ArrayList<>(assetNamesCreationOrder);
-        Collections.reverse(reversedAssetNamesCreationOrder);
-
-        pathItems = searchServiceClient.search(searchCriteria);
-        validateExtendedPathItem(pathItems, 8, 10, 3);
-        validatePathItemIndexes(pathItems, 3, reversedAssetNamesCreationOrder.toArray(new String[0]));
-    }
+    pathItems = searchServiceClient.search(searchCriteria);
+    validateExtendedPathItem(pathItems, 8, 10, 3);
+    validatePathItemIndexes(pathItems, 3, reversedAssetNamesCreationOrder.toArray(new String[0]));
+  }
 }

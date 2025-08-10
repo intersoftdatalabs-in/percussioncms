@@ -20,29 +20,29 @@ import java.io.IOException;
 import org.jsoup.nodes.Document;
 
 /**
- * Wraps JSoup connectivity for retrieving HTML documents.
- * Provides methods to get the document, HTTP status code, and response URL.
+ * Wraps JSoup connectivity for retrieving HTML documents. Provides methods to get the document,
+ * HTTP status code, and response URL.
  */
 public interface IPSConnectivity {
-    /**
-     * Retrieves a JSoup Document.
-     *
-     * @return a JSoup Document, never null.
-     * @throws IOException if binary content is encountered and ignoreContent is false.
-     */
-    Document get() throws IOException;
+  /**
+   * Retrieves a JSoup Document.
+   *
+   * @return a JSoup Document, never null.
+   * @throws IOException if binary content is encountered and ignoreContent is false.
+   */
+  Document get() throws IOException;
 
-    /**
-     * Gets the HTTP response status code.
-     *
-     * @return a valid HTTP response code.
-     */
-    int getResponseStatusCode();
+  /**
+   * Gets the HTTP response status code.
+   *
+   * @return a valid HTTP response code.
+   */
+  int getResponseStatusCode();
 
-    /**
-     * Gets the response URL as a String.
-     *
-     * @return the response URL, never null.
-     */
-    String getResponseUrl();
+  /**
+   * Gets the response URL as a String.
+   *
+   * @return the response URL, never null.
+   */
+  String getResponseUrl();
 }

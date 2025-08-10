@@ -22,69 +22,68 @@ import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.share.test.PSDataObjectTestUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Unit tests for path management data objects.
- * Sunny Sal says: "Testing data objects is like checking your pizza dough—get it right, and the rest is easy!"
+ * Unit tests for path management data objects. Sunny Sal says: "Testing data objects is like
+ * checking your pizza dough—get it right, and the rest is easy!"
  */
 public class PSPathDataObjectsTests {
 
-    public static class PSPathItemTest extends PSDataObjectTestCase<PSPathItem> {
-        @Override
-        public PSPathItem getObject() {
-            var pathItem = new PSPathItem();
-            PSDataObjectTestUtils.fillObject(pathItem);
-            pathItem.setCategory(IPSItemSummary.Category.PAGE);
-            pathItem.setFolderPaths(asList("blah", "stuff"));
-            return pathItem;
-        }
+  public static class PSPathItemTest extends PSDataObjectTestCase<PSPathItem> {
+    @Override
+    public PSPathItem getObject() {
+      var pathItem = new PSPathItem();
+      PSDataObjectTestUtils.fillObject(pathItem);
+      pathItem.setCategory(IPSItemSummary.Category.PAGE);
+      pathItem.setFolderPaths(asList("blah", "stuff"));
+      return pathItem;
+    }
+  }
+
+  public static class PSItemSummaryTest extends PSDataObjectTestCase<PSDataItemSummary> {
+    @Override
+    public PSDataItemSummary getObject() {
+      var sum = new PSDataItemSummary();
+      sum.setIcon("/Rx/image/icon.gif");
+      sum.setFolderPaths(asList("//Sites/aaa"));
+      sum.setCategory(IPSItemSummary.Category.PAGE);
+      sum.setId("Adam-ID");
+      sum.setName("percPage");
+      sum.setType("percPage");
+      return sum;
+    }
+  }
+
+  public static class PSPathItemEmptyListTest extends PSDataObjectTestCase<PSPathItem> {
+    @Override
+    public PSPathItem getObject() {
+      var pathItem = new PSPathItem();
+      PSDataObjectTestUtils.fillObject(pathItem);
+      pathItem.setFolderPaths(new ArrayList<>());
+      return pathItem;
+    }
+  }
+
+  public static class PSFolderPropertiesTest extends PSDataObjectTestCase<PSFolderProperties> {
+    @Override
+    public PSFolderProperties getObject() {
+      var props = new PSFolderProperties();
+      props.setId("01-03-02");
+      props.setName("Folder name");
+      props.setPermission(createFolderPermission());
+      return props;
     }
 
-    public static class PSItemSummaryTest extends PSDataObjectTestCase<PSDataItemSummary> {
-        @Override
-        public PSDataItemSummary getObject() {
-            var sum = new PSDataItemSummary();
-            sum.setIcon("/Rx/image/icon.gif");
-            sum.setFolderPaths(asList("//Sites/aaa"));
-            sum.setCategory(IPSItemSummary.Category.PAGE);
-            sum.setId("Adam-ID");
-            sum.setName("percPage");
-            sum.setType("percPage");
-            return sum;
-        }
+    private PSFolderPermission createFolderPermission() {
+      var permission = new PSFolderPermission();
+      permission.setAccessLevel(PSFolderPermission.Access.WRITE);
+      var adminSub = new PSFolderPermission.Principal();
+      adminSub.setName("editor1");
+      adminSub.setType(PSFolderPermission.PrincipalType.USER);
+      permission.setAdminPrincipals(Collections.singletonList(adminSub));
+      return permission;
     }
-
-    public static class PSPathItemEmptyListTest extends PSDataObjectTestCase<PSPathItem> {
-        @Override
-        public PSPathItem getObject() {
-            var pathItem = new PSPathItem();
-            PSDataObjectTestUtils.fillObject(pathItem);
-            pathItem.setFolderPaths(new ArrayList<>());
-            return pathItem;
-        }
-    }
-
-    public static class PSFolderPropertiesTest extends PSDataObjectTestCase<PSFolderProperties> {
-        @Override
-        public PSFolderProperties getObject() {
-            var props = new PSFolderProperties();
-            props.setId("01-03-02");
-            props.setName("Folder name");
-            props.setPermission(createFolderPermission());
-            return props;
-        }
-
-        private PSFolderPermission createFolderPermission() {
-            var permission = new PSFolderPermission();
-            permission.setAccessLevel(PSFolderPermission.Access.WRITE);
-            var adminSub = new PSFolderPermission.Principal();
-            adminSub.setName("editor1");
-            adminSub.setType(PSFolderPermission.PrincipalType.USER);
-            permission.setAdminPrincipals(Collections.singletonList(adminSub));
-            return permission;
-        }
-    }
+  }
 }

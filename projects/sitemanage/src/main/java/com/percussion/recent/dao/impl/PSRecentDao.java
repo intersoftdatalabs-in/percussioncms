@@ -22,96 +22,79 @@ import com.percussion.recent.dao.IPSRecentDao;
 import com.percussion.recent.data.PSRecent;
 import com.percussion.recent.data.PSRecent.RecentType;
 import com.percussion.share.dao.IPSGenericDao.SaveException;
+import java.util.LinkedList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.Predicate;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * Hibernate implementation of {@link IPSRecentDao}.
- */
+/** Hibernate implementation of {@link IPSRecentDao}. */
 @Repository("recentDao")
 @Transactional
 public class PSRecentDao implements IPSRecentDao {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    private Session getSession() {
-        return entityManager.unwrap(Session.class);
+  private Session getSession() {
+    return entityManager.unwrap(Session.class);
+  }
+
+  public PSRecentDao() {
+    // Default constructor
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public List<PSRecent> find(String user, String siteName, RecentType type) {
+    var session = getSession();
+    var builder = session.getCriteriaBuilder();
+    var criteria = builder.createQuery(PSRecent.class);
+    var recent = criteria.from(PSRecent.class);
+    var predList = new LinkedList<Predicate>();
+
+    if (user != null) {
+      predList.add(builder.equal(recent.get("user"), user));
     }
-
-    public PSRecentDao() {
-        // Default constructor
+    if (siteName != null) {
+      predList.add(builder.equal(recent.get("siteName"), siteName));
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<PSRecent> find(String user, String siteName, RecentType type) {
-        var session = getSession();
-        var builder = session.getCriteriaBuilder();
-        var criteria = builder.createQuery(PSRecent.class);
-        var recent = criteria.from(PSRecent.class);
-        var predList = new LinkedList<Predicate>();
-
-        if (user != null) {
-            predList.add(builder.equal(recent.get("user"), user));
-        }
-        if (siteName != null) {
-            predList.add(builder.equal(recent.get("siteName"), siteName));
-        }
-        if (type != null) {
-            predList.add(builder.equal(recent.get("type"), type));
-        }
-        var preds = predList.toArray(new Predicate[0]);
-        criteria.where(preds);
-        criteria.orderBy(builder.asc(recent.get("order")));
-        return entityManager.createQuery(criteria).getResultList();
+    if (type != null) {
+      predList.add(builder.equal(recent.get("type"), type));
     }
+    var preds = predList.toArray(new Predicate[0]);
+    criteria.where(preds);
+    criteria.orderBy(builder.asc(recent.get("order")));
+    return entityManager.createQuery(criteria).getResultList();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void saveAll(List<PSRecent> recentList) {
-        for (var recent : recentList) {
-            getSession().saveOrUpdate(recent);
-        }
+  /** {@inheritDoc} */
+  @Override
+  public void saveAll(List<PSRecent> recentList) {
+    for (var recent : recentList) {
+      getSession().saveOrUpdate(recent);
     }
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void delete(PSRecent recent) {
-        getSession().delete(recent);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public void delete(PSRecent recent) {
+    getSession().delete(recent);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteAll(List<PSRecent> recentList) {
-        for (var recent : recentList) {
-            getSession().delete(recent);
-        }
+  /** {@inheritDoc} */
+  @Override
+  public void deleteAll(List<PSRecent> recentList) {
+    for (var recent : recentList) {
+      getSession().delete(recent);
     }
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void save(PSRecent recent) throws SaveException {
-        getSession().saveOrUpdate(recent);
-    }
+  /** {@inheritDoc} */
+  @Override
+  public void save(PSRecent recent) throws SaveException {
+    getSession().saveOrUpdate(recent);
+  }
 }

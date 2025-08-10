@@ -29,20 +29,17 @@ import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The PSDESEncryptor class is used to encrypt data using the specified
- * DES key. DES uses a 64-bit key, which is encoded into a 56-bit value used
- * in the algorithm for encryption/decryption.
- * <P>
- * DES is described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>.
- * The DES modes of operation are described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS 81</A>.
+ * The PSDESEncryptor class is used to encrypt data using the specified DES key. DES uses a 64-bit
+ * key, which is encoded into a 56-bit value used in the algorithm for encryption/decryption.
  *
- * @see         PSDESKey
+ * <p>DES is described in <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>. The
+ * DES modes of operation are described in <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS
+ * 81</A>.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSDESKey
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  * @deprecated
  */
 @Deprecated
@@ -50,8 +47,7 @@ public class PSDESEncryptor implements IPSEncryptor {
   /**
    * Construct a DES encryptor using the specified DES key.
    *
-   * @param      key      the DES key to use for encryption
-   *
+   * @param key the DES key to use for encryption
    * @throws IllegalArgumentException if <code>key</code> is <code>null</code>
    */
   public PSDESEncryptor(PSDESKey key) {
@@ -61,9 +57,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     m_key = key;
   }
 
-  /**
-   * The initial permutation (IP) bit position setting array.
-   */
+  /** The initial permutation (IP) bit position setting array. */
   public static final int[] InitialPermutation = { // 64 elements
     58, 50, 42, 34, 26, 18, 10, 2,
     60, 52, 44, 36, 28, 20, 12, 4,
@@ -75,9 +69,7 @@ public class PSDESEncryptor implements IPSEncryptor {
     63, 55, 47, 39, 31, 23, 15, 7
   }; // position index starts from 1, not 0
 
-  /**
-   * The final permutation (IP inverse) bit position setting array.
-   */
+  /** The final permutation (IP inverse) bit position setting array. */
   public static final int[] inverseIPArray = { // 64 elements
     40, 8, 48, 16, 56, 24, 64, 32,
     39, 7, 47, 15, 55, 23, 63, 31,
@@ -89,17 +81,13 @@ public class PSDESEncryptor implements IPSEncryptor {
     33, 1, 41, 9, 49, 17, 57, 25
   }; // position index starts from 1, not 0
 
-  /**
-   * The Expansion (E) bit position setting array.
-   */
+  /** The Expansion (E) bit position setting array. */
   public static final int[] EArray = { // 48 elements
     32, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 12, 13, 14, 15, 16, 17, 16, 17, 18,
     19, 20, 21, 20, 21, 22, 23, 24, 25, 24, 25, 26, 27, 28, 29, 28, 29, 30, 31, 32, 1
   }; // position index starts from 1, not 0
 
-  /**
-   * The Permutation (P) bit position setting array.
-   */
+  /** The Permutation (P) bit position setting array. */
   public static final int[] PArray = { // 32 elements
     16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10, 2, 8, 24, 14, 32, 27, 3, 9, 19, 13,
     30, 6, 22, 11, 4, 25
@@ -168,12 +156,9 @@ public class PSDESEncryptor implements IPSEncryptor {
   /**
    * Encrypt the data in the specified input stream.
    *
-   * @param      in            the stream containing the plain text
-   *                           representation of the data
-   *
-   * @param      out         the stream to store the encrypted data
-   *
-   * @exception   IOException   if an I/O exception occurs
+   * @param in the stream containing the plain text representation of the data
+   * @param out the stream to store the encrypted data
+   * @exception IOException if an I/O exception occurs
    */
   public void encrypt(InputStream in, OutputStream out) throws PSEncryptionException {
     int byteAsInt;
@@ -220,12 +205,9 @@ public class PSDESEncryptor implements IPSEncryptor {
   /**
    * A convenience method to encrypt a String.
    *
-   * @param      in            the string containing the plain text
-   *                           representation of the data
-   *
-   * @param      out         the stream to store the encrypted data into
-   *
-   * @exception   IOException   if an I/O exception occurs
+   * @param in the string containing the plain text representation of the data
+   * @param out the stream to store the encrypted data into
+   * @exception IOException if an I/O exception occurs
    */
   public void encrypt(String in, OutputStream out) throws PSEncryptionException {
     if (StringUtils.isEmpty(in)) {
@@ -244,15 +226,10 @@ public class PSDESEncryptor implements IPSEncryptor {
   }
 
   /**
-   * A convenience method to encrypt a String and retrieve the
-   * resulting byte array.
+   * A convenience method to encrypt a String and retrieve the resulting byte array.
    *
-   * @param      in            the string containing the plain text
-   *                           representation of the data
-   *
-   * @return                  an array of bytes containing the encrypted data
-   *
-   *
+   * @param in the string containing the plain text representation of the data
+   * @return an array of bytes containing the encrypted data
    */
   public byte[] encrypt(String in) throws PSEncryptionException {
     if (StringUtils.isEmpty(in)) {
@@ -283,7 +260,8 @@ public class PSDESEncryptor implements IPSEncryptor {
 
   /**
    * Add paddings into the end of data block.
-   * @param   needs      number to pad
+   *
+   * @param needs number to pad
    */
   private void addPaddings(int needs) {
     for (int i = 0; i < needs; i++) m_dataList.add(new Integer(0)); // pad zeros
@@ -291,7 +269,8 @@ public class PSDESEncryptor implements IPSEncryptor {
 
   /**
    * Encrypt one data block based on its input index.
-   * @param   blockIndex      the data block index
+   *
+   * @param blockIndex the data block index
    */
   private void encryptOneDataBlock(int blockIndex) {
     // take out the stored data
@@ -339,8 +318,9 @@ public class PSDESEncryptor implements IPSEncryptor {
 
   /**
    * Apply all 16 subkeys (kArray) to the data block.
-   * @param   LArray   L[0] bit array
-   * @param   RArray   R[0] bit array
+   *
+   * @param LArray L[0] bit array
+   * @param RArray R[0] bit array
    */
   private void applySubKeys(int[] LArray, int[] RArray) {
     int[] encryptedBlock = new int[initialPermLen];
@@ -527,12 +507,12 @@ public class PSDESEncryptor implements IPSEncryptor {
   }
 
   /**
-   * Fill in 4 bits into the B array based on the Substitution Box index
-   * and the value obtained from that box. After the 8th filling in, this B
-   * array becomes a ready-to-use 32-bit-array.
-   * @param   boxGives      the number obtained from the Substitution Box
-   * @param   boxIndex      the Substitution Box being used
-   * @param   bOneToEight   the 32-bit-array to be filled in
+   * Fill in 4 bits into the B array based on the Substitution Box index and the value obtained from
+   * that box. After the 8th filling in, this B array becomes a ready-to-use 32-bit-array.
+   *
+   * @param boxGives the number obtained from the Substitution Box
+   * @param boxIndex the Substitution Box being used
+   * @param bOneToEight the 32-bit-array to be filled in
    * @throws IllegalArgumentException if any parameter is out of bounds
    */
   private void fillInB(int boxGives, int boxIndex, int[] bOneToEight)

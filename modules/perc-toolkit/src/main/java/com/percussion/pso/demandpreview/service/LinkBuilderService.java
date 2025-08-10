@@ -24,9 +24,7 @@ import com.percussion.utils.guid.IPSGuid;
 /**
  * Service to build links to a content item.
  *
- *
  * @author davidbenua
- *
  */
 public interface LinkBuilderService {
 

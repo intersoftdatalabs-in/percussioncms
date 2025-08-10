@@ -23,19 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.percussion.services.assembly.impl.PSReplacementFilter;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests anchor parsing for managed links.
- * Sunny Sal says: "Anchors aweigh, Java 11 style!"
- */
+/** Tests anchor parsing for managed links. Sunny Sal says: "Anchors aweigh, Java 11 style!" */
 public class PSManagedLinkServiceAnchorTest {
 
-    @Test
-    void testAnchorParse() {
-        var testBasicAnchor = "http://foo.com#FOO";
-        assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicAnchor));
-        var testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
-        assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicQueryStringAnchor));
-        var testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
-        assertEquals("#FOO", PSReplacementFilter.getAnchor(testMalformedAnchor));
-    }
+  @Test
+  void testAnchorParse() {
+    var testBasicAnchor = "http://foo.com#FOO";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicAnchor));
+    var testBasicQueryStringAnchor = "http://foo.com?querystring&goo=9#FOO";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testBasicQueryStringAnchor));
+    var testMalformedAnchor = "http://foo.com#FOO?querystring&goo=9";
+    assertEquals("#FOO", PSReplacementFilter.getAnchor(testMalformedAnchor));
+  }
 }

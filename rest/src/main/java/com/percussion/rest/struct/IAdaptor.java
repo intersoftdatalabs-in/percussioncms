@@ -19,9 +19,9 @@
 package com.percussion.rest.struct;
 
 /**
- * Marker interface for REST adaptors in Percussion CMS.
- * Sunny Sal: "IAdaptor ka interface, extensibility ka interface!"
+ * Marker interface for REST adaptors in Percussion CMS. Sunny Sal: "IAdaptor ka interface,
+ * extensibility ka interface!"
  */
 public interface IAdaptor {
-    // Marker for REST adaptor implementations.
+  // Marker for REST adaptor implementations.
 }

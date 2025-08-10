@@ -21,12 +21,8 @@ package com.percussion.rx.config.impl;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.PSConfigException;
 import com.percussion.rx.design.IPSAssociationSet;
-import com.percussion.rx.design.impl.PSLocationSchemeModel;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSPublishingContext;
-import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -37,53 +33,65 @@ import java.util.Objects;
  */
 public class PSContextSetter extends PSSimplePropertySetter {
 
-    @Override
-    protected boolean applyProperty(Object obj, ObjectState state,
-                                    List<IPSAssociationSet> aSets, String propName, Object propValue)
-            throws Exception {
-        Objects.requireNonNull(obj, "obj must not be null");
-        if (!(obj instanceof IPSPublishingContext)) {
-            throw new PSConfigException("obj must be an instance of IPSPublishingContext.");
-        }
-        var context = (IPSPublishingContext) obj;
-        if (DEFAULT_SCHEME.equals(propName)) {
-            setDefaultScheme(context, propName, propValue);
-        } else {
-            super.applyProperty(context, state, aSets, propName, propValue);
-        }
-        return true;
+  @Override
+  protected boolean applyProperty(
+      Object obj,
+      ObjectState state,
+      List<IPSAssociationSet> aSets,
+      String propName,
+      Object propValue)
+      throws Exception {
+    Objects.requireNonNull(obj, "obj must not be null");
+    if (!(obj instanceof IPSPublishingContext)) {
+      throw new PSConfigException("obj must be an instance of IPSPublishingContext.");
     }
-
-    @Override
-    protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
-        if (DEFAULT_SCHEME.equals(propName)) {
-            var context = (IPSPublishingContext) obj;
-            if (context.getDefaultSchemeId() == null)
-                return null;
-            var model = PSConfigUtils.getSchemeModel();
-            model.setContextId(context.getGUID());
-            return model.guidToName(context.getDefaultSchemeId());
-        }
-        return super.getPropertyValue(obj, propName);
+    var context = (IPSPublishingContext) obj;
+    if (DEFAULT_SCHEME.equals(propName)) {
+      setDefaultScheme(context, propName, propValue);
+    } else {
+      super.applyProperty(context, state, aSets, propName, propValue);
     }
+    return true;
+  }
 
-    private void setDefaultScheme(IPSPublishingContext context, String propName, Object propValue) throws Exception {
-        if (propValue == null || org.apache.commons.lang.StringUtils.isBlank((String) propValue)) {
-            context.setDefaultSchemeId(null);
-            return;
-        }
-        if (!(propValue instanceof String)) {
-            throw new PSConfigException("The name of the default Location Scheme must be a string. It cannot be type of \"" + propValue.getClass().getName() + "\".");
-        }
-        var model = PSConfigUtils.getSchemeModel();
-        model.setContextId(context.getGUID());
-        var schemeName = (String) propValue;
-        var schemeId = model.nameToGuid(schemeName);
-        if (schemeId == null) {
-            throw new PSConfigException("Failed to set the default Location Scheme for Context \"" + context.getName() + "\". This is because the Location Scheme name, \"" + schemeName + "\" does not exist within the Context.");
-        }
-        context.setDefaultSchemeId(schemeId);
+  @Override
+  protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
+    if (DEFAULT_SCHEME.equals(propName)) {
+      var context = (IPSPublishingContext) obj;
+      if (context.getDefaultSchemeId() == null) return null;
+      var model = PSConfigUtils.getSchemeModel();
+      model.setContextId(context.getGUID());
+      return model.guidToName(context.getDefaultSchemeId());
     }
+    return super.getPropertyValue(obj, propName);
+  }
 
-    public static final String DEFAULT_SCHEME = "defaultLocationScheme";
+  private void setDefaultScheme(IPSPublishingContext context, String propName, Object propValue)
+      throws Exception {
+    if (propValue == null || org.apache.commons.lang.StringUtils.isBlank((String) propValue)) {
+      context.setDefaultSchemeId(null);
+      return;
+    }
+    if (!(propValue instanceof String)) {
+      throw new PSConfigException(
+          "The name of the default Location Scheme must be a string. It cannot be type of \""
+              + propValue.getClass().getName()
+              + "\".");
+    }
+    var model = PSConfigUtils.getSchemeModel();
+    model.setContextId(context.getGUID());
+    var schemeName = (String) propValue;
+    var schemeId = model.nameToGuid(schemeName);
+    if (schemeId == null) {
+      throw new PSConfigException(
+          "Failed to set the default Location Scheme for Context \""
+              + context.getName()
+              + "\". This is because the Location Scheme name, \""
+              + schemeName
+              + "\" does not exist within the Context.");
+    }
+    context.setDefaultSchemeId(schemeId);
+  }
+
+  public static final String DEFAULT_SCHEME = "defaultLocationScheme";
 }

@@ -20,80 +20,79 @@ package com.percussion.rx.services.deployer;
 import java.util.Objects;
 
 /**
- * Represents the packages and associated communities.
- * Sunny Sal says: "A package without a community is like code without comments!"
+ * Represents the packages and associated communities. Sunny Sal says: "A package without a
+ * community is like code without comments!"
  */
 public class PSPackageCommunity {
 
-    private String communities = "";
-    private String pkg;
+  private String communities = "";
+  private String pkg;
 
-    /** Default constructor for JAXB. */
-    public PSPackageCommunity() {
-        // For JAXB
-    }
+  /** Default constructor for JAXB. */
+  public PSPackageCommunity() {
+    // For JAXB
+  }
 
-    /**
-     * Constructs a package-community association.
-     *
-     * @param pkg must not be blank.
-     * @param communities comma-separated list, may be null or empty.
-     */
-    public PSPackageCommunity(String pkg, String communities) {
-        setPackage(pkg);
-        setCommunities(communities);
-    }
+  /**
+   * Constructs a package-community association.
+   *
+   * @param pkg must not be blank.
+   * @param communities comma-separated list, may be null or empty.
+   */
+  public PSPackageCommunity(String pkg, String communities) {
+    setPackage(pkg);
+    setCommunities(communities);
+  }
 
-    /**
-     * Gets the communities for a package.
-     *
-     * @return communities, never null, may be empty.
-     */
-    public String getCommunities() {
-        return communities;
-    }
+  /**
+   * Gets the communities for a package.
+   *
+   * @return communities, never null, may be empty.
+   */
+  public String getCommunities() {
+    return communities;
+  }
 
-    /**
-     * Sets the communities string.
-     *
-     * @param communities may be null or empty. If null, sets to empty string.
-     */
-    public void setCommunities(String communities) {
-        this.communities = communities == null ? "" : communities;
-    }
+  /**
+   * Sets the communities string.
+   *
+   * @param communities may be null or empty. If null, sets to empty string.
+   */
+  public void setCommunities(String communities) {
+    this.communities = communities == null ? "" : communities;
+  }
 
-    /**
-     * Gets the name of the package.
-     *
-     * @return the package name, never null or empty.
-     */
-    public String getPackage() {
-        return pkg;
-    }
+  /**
+   * Gets the name of the package.
+   *
+   * @return the package name, never null or empty.
+   */
+  public String getPackage() {
+    return pkg;
+  }
 
-    /**
-     * Sets the package name.
-     *
-     * @param pkg must not be blank.
-     */
-    public void setPackage(String pkg) {
-        if (pkg == null || pkg.trim().isEmpty()) {
-            throw new IllegalArgumentException("pkg must not be blank");
-        }
-        this.pkg = pkg;
+  /**
+   * Sets the package name.
+   *
+   * @param pkg must not be blank.
+   */
+  public void setPackage(String pkg) {
+    if (pkg == null || pkg.trim().isEmpty()) {
+      throw new IllegalArgumentException("pkg must not be blank");
     }
+    this.pkg = pkg;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSPackageCommunity)) return false;
-        var that = (PSPackageCommunity) o;
-        return Objects.equals(communities, that.communities) &&
-               Objects.equals(pkg, that.pkg);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSPackageCommunity)) return false;
+    var that = (PSPackageCommunity) o;
+    return Objects.equals(communities, that.communities) && Objects.equals(pkg, that.pkg);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(communities, pkg);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(communities, pkg);
+  }
 }

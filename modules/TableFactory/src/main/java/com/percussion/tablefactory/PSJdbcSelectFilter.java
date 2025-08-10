@@ -20,24 +20,20 @@ package com.percussion.tablefactory;
 import java.sql.Types;
 
 /**
- * This class encapsulates each condition of the WHERE clause of the
- * SELECT statement.
- * For usage, see the main method of this class.
+ * This class encapsulates each condition of the WHERE clause of the SELECT statement. For usage,
+ * see the main method of this class.
  */
 public class PSJdbcSelectFilter {
   /**
-   * protected constructor to be used by derived classes such as
-   * <code>PSJdbcFilterContainer</code>
+   * protected constructor to be used by derived classes such as <code>PSJdbcFilterContainer</code>
    */
   protected PSJdbcSelectFilter() {}
 
   /**
    * Constructor
    *
-   * @param filterString the conditional clause encapsulated by this object,
-   * may not be <code>null</code> or empty, should not contain the
-   * "WHERE" keyword.
-   *
+   * @param filterString the conditional clause encapsulated by this object, may not be <code>null
+   *     </code> or empty, should not contain the "WHERE" keyword.
    * @throws IllegalArgumentException if <code>filterString</code> is invalid
    */
   public PSJdbcSelectFilter(String filterString) {
@@ -48,17 +44,14 @@ public class PSJdbcSelectFilter {
 
   /**
    * Constructor
-   * @param colName the name of the column, may not be <code>null</code> or
-   * empty
-   * @param op the conditional operator, should be a valid conditional
-   * operator. use the static constants defined in this class for this
-   * parameter
-   * @param colValue the value of the column, may not be <code>null</code>,
-   * may be empty
-   * @param colDataType the jdbc data type of the column
    *
-   * @throws IllegalArgumentException if colName or colValue is <code>null</code>
-   * or colName is empty or op is an invalid conditional operator
+   * @param colName the name of the column, may not be <code>null</code> or empty
+   * @param op the conditional operator, should be a valid conditional operator. use the static
+   *     constants defined in this class for this parameter
+   * @param colValue the value of the column, may not be <code>null</code>, may be empty
+   * @param colDataType the jdbc data type of the column
+   * @throws IllegalArgumentException if colName or colValue is <code>null</code> or colName is
+   *     empty or op is an invalid conditional operator
    */
   public PSJdbcSelectFilter(String colName, int op, String colValue, int colDataType) {
     if ((colName == null) || (colName.trim().length() == 0))
@@ -93,9 +86,9 @@ public class PSJdbcSelectFilter {
   }
 
   /**
-   * Returns the conditional clause encapsulated by this object, never
-   * <code>null</code> or empty. the returned string does not contain the
-   * "WHERE" keyword.
+   * Returns the conditional clause encapsulated by this object, never <code>null</code> or empty.
+   * the returned string does not contain the "WHERE" keyword.
+   *
    * @return A string
    */
   public String toString() {
@@ -103,11 +96,12 @@ public class PSJdbcSelectFilter {
   }
 
   /**
-   * Returns <code>true</code> if op is a valid conditional operator, else
-   * returns <code>false</code>
+   * Returns <code>true</code> if op is a valid conditional operator, else returns <code>false
+   * </code>
+   *
    * @param op the conditional operator
-   * @return <code>true</code> if op is a valid conditional operator, else
-   * returns <code>false</code>
+   * @return <code>true</code> if op is a valid conditional operator, else returns <code>false
+   *     </code>
    */
   protected boolean isValidOp(int op) {
     switch (op) {
@@ -134,10 +128,10 @@ public class PSJdbcSelectFilter {
 
   /**
    * Returns the conditional operator specified by parameter op in string form
+   *
    * @param op a valid conditional operator
-   * @return the string form of the conditional operator specified by
-   * parameter op, may return <code>null</code> if op is an invalid
-   * conditional operator
+   * @return the string form of the conditional operator specified by parameter op, may return
+   *     <code>null</code> if op is an invalid conditional operator
    */
   protected String getStringOp(int op) {
     switch (op) {
@@ -189,105 +183,101 @@ public class PSJdbcSelectFilter {
   }
 
   /**
-   * stores the string representation of condition encapsulated
-   * by this object, never <code>null</code>, may be empty
+   * stores the string representation of condition encapsulated by this object, never <code>null
+   * </code>, may be empty
    */
   protected String m_filter = "";
 
   /**
-   * Constant for adding the WHERE string to the select filter.
-   * This class does not add the WHERE string to the filter implicitly. User
-   * of this class has to concat the WHERE string.
+   * Constant for adding the WHERE string to the select filter. This class does not add the WHERE
+   * string to the filter implicitly. User of this class has to concat the WHERE string.
    */
   public static final String WHERE = " WHERE ";
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value equals a specified value.
+   * Constant for use in the public constructor for creating a filter where column value equals a
+   * specified value.
    */
   public static final int EQUALS = 0;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value does not equal a specified value.
+   * Constant for use in the public constructor for creating a filter where column value does not
+   * equal a specified value.
    */
   public static final int NOT_EQUALS = 1;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is less than a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is less
+   * than a specified value.
    */
   public static final int LESS_THAN = 2;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is less than or equal to a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is less
+   * than or equal to a specified value.
    */
   public static final int LESS_THAN_OR_EQUALS = 3;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is greater than a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is greater
+   * than a specified value.
    */
   public static final int GREATER_THAN = 4;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is greater than or equal to a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is greater
+   * than or equal to a specified value.
    */
   public static final int GREATER_THAN_OR_EQUALS = 5;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value IS NULL.
+   * Constant for use in the public constructor for creating a filter where column value IS NULL.
    */
   public static final int IS_NULL = 6;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value IS NOT NULL.
+   * Constant for use in the public constructor for creating a filter where column value IS NOT
+   * NULL.
    */
   public static final int IS_NOT_NULL = 7;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value lies between 2 other specified values.
+   * Constant for use in the public constructor for creating a filter where column value lies
+   * between 2 other specified values.
    */
   public static final int BETWEEN = 8;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value does not lie between 2 other specified values.
+   * Constant for use in the public constructor for creating a filter where column value does not
+   * lie between 2 other specified values.
    */
   public static final int NOT_BETWEEN = 9;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value matches one of the specified values.
+   * Constant for use in the public constructor for creating a filter where column value matches one
+   * of the specified values.
    */
   public static final int IN = 10;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value does not match any of the specified values.
+   * Constant for use in the public constructor for creating a filter where column value does not
+   * match any of the specified values.
    */
   public static final int NOT_IN = 11;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is similar to a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is similar
+   * to a specified value.
    */
   public static final int LIKE = 12;
 
   /**
-   * Constant for use in the public constructor for creating a filter where
-   * column value is not similar to a specified value.
+   * Constant for use in the public constructor for creating a filter where column value is not
+   * similar to a specified value.
    */
   public static final int NOT_LIKE = 13;
 
-  /**
-   * String equivalents of the constants defined above
-   */
+  /** String equivalents of the constants defined above */
   protected static final String STR_EQUALS = " = ";
 
   protected static final String STR_NOT_EQUALS = " != ";
@@ -310,13 +300,11 @@ public class PSJdbcSelectFilter {
 
   /**
    * Main method.
-   * @param args the arguments for testing this class, not used currently.
-   * Running this class will produce the following output.
    *
-   * Where clause :
-   *  WHERE Name NOT LIKE 'a%'
-   * Where clause :
-   *  WHERE ((ID > 10) AND (Name LIKE 'a%')) OR ((AGE < 50) AND (Name IS NOT NULL ))
+   * @param args the arguments for testing this class, not used currently. Running this class will
+   *     produce the following output.
+   *     <p>Where clause : WHERE Name NOT LIKE 'a%' Where clause : WHERE ((ID > 10) AND (Name LIKE
+   *     'a%')) OR ((AGE < 50) AND (Name IS NOT NULL ))
    */
   public static void main(String[] args) {
     PSJdbcSelectFilter filter =

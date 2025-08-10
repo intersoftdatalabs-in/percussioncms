@@ -21,13 +21,10 @@ package com.percussion.cms;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.share.service.exception.PSValidationException;
 
-/**
- * Interface to allow classes to listen for changes to content items.
- */
+/** Interface to allow classes to listen for changes to content items. */
 public interface IPSEditorChangeListener {
   /**
-   * Called to notify listeners when a content item has changed by the
-   * content editor.
+   * Called to notify listeners when a content item has changed by the content editor.
    *
    * @param e The change event object, never <code>null</code>.
    */

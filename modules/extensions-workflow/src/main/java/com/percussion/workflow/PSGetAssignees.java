@@ -33,14 +33,12 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This class implements the UDF processor interface so it can be used as a
- * Rhythmyx function. See {@link #processUdf(Object[], IPSRequestContext)
- * processUdf} for a description. This UDF is sepcifically designed for Content
- * Explorer, though it can be theoretically used elsewhere.
- * <p>
- * This UDF evaluates the assigned roles to a semi-colon separated list given
- * the contentid of the item. The UDF takes the content id as the only first
- * parameter.
+ * This class implements the UDF processor interface so it can be used as a Rhythmyx function. See
+ * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description. This UDF is
+ * sepcifically designed for Content Explorer, though it can be theoretically used elsewhere.
+ *
+ * <p>This UDF evaluates the assigned roles to a semi-colon separated list given the contentid of
+ * the item. The UDF takes the content id as the only first parameter.
  */
 public class PSGetAssignees extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {
 

@@ -23,12 +23,9 @@ import com.percussion.util.IPSBrandCodeConstants;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSSprintaCondition will resolve to <code>true</code> if sprinta is
- * allowed to be installed.
+ * PSSprintaCondition will resolve to <code>true</code> if sprinta is allowed to be installed. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -48,7 +45,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSSprintaCondition extends PSAction implements Condition {
   /* (non-Javadoc)

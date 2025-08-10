@@ -37,14 +37,14 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 
 /**
- * The base class for AA Client Actions. Contains some common helper methods
- * that most actions will need.
+ * The base class for AA Client Actions. Contains some common helper methods that most actions will
+ * need.
  */
 public abstract class PSAAActionBase implements IPSAAClientAction {
 
   /**
-   * Creates a new <code>IPSRequestContext</code> from the
-   * request stored in thread local.
+   * Creates a new <code>IPSRequestContext</code> from the request stored in thread local.
+   *
    * @return the request context, never <code>null</code>.
    */
   protected IPSRequestContext getRequestContext() {
@@ -53,12 +53,11 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * Helper method to retrieve and parse the objectid array string
-   * from the passed in parameter map.
+   * Helper method to retrieve and parse the objectid array string from the passed in parameter map.
+   *
    * @param params parameter map passed into the actions execute method.
    * @return the object id object, never <code>null</code>.
-   * @throws PSAAClientActionException if no object id string is found or
-   * a parsing error occurs.
+   * @throws PSAAClientActionException if no object id string is found or a parsing error occurs.
    */
   protected PSAAObjectId getObjectId(Map<String, Object> params) throws PSAAClientActionException {
     String objectId = (String) getParameter(params, OBJECT_ID_PARAM);
@@ -74,15 +73,13 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * Helper method to retrieve and validate an integer type
-   * parameter from passed in parameter map.
+   * Helper method to retrieve and validate an integer type parameter from passed in parameter map.
+   *
    * @param params cannot be <code>null</code>.
-   * @param paramname the name of the parameter. Cannot be
-   * <code>null</code> or empty.
+   * @param paramname the name of the parameter. Cannot be <code>null</code> or empty.
    * @param required flag indicating that this object is required.
    * @return the integeror -1 if not required and no value was found.
-   * @throws PSAAClientActionException if no value and required or if
-   * an invalid integer.
+   * @throws PSAAClientActionException if no value and required or if an invalid integer.
    */
   protected int getValidatedInt(Map<String, Object> params, String paramname, boolean required)
       throws PSAAClientActionException {
@@ -103,13 +100,13 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * Helper method to help get the one string from a single value
-   * string array returned from the request.
+   * Helper method to help get the one string from a single value string array returned from the
+   * request.
+   *
    * @param params the map of params, cannot be <code>null</code>.
-   * @param key the param name key cannot be <code>null</code> or
-   * empty.
-   * @return A single string if the param type is a string array with
-   * a single value else just return the object.
+   * @param key the param name key cannot be <code>null</code> or empty.
+   * @return A single string if the param type is a string array with a single value else just
+   *     return the object.
    */
   protected Object getParameter(Map<String, Object> params, String key) {
     if (params == null) throw new IllegalArgumentException("params cannot be null.");
@@ -124,13 +121,13 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * Helper method to attempt to retrieve a value from the supplied map and
-   * parse it into an integer.
+   * Helper method to attempt to retrieve a value from the supplied map and parse it into an
+   * integer.
+   *
    * @param params the map of params, cannot be <code>null</code>.
-   * @param key the param name key cannot be <code>null</code> or
-   * empty.
-   * @param defaultVal If the param is not found or is not a number, this value
-   * will be returned instead.
+   * @param key the param name key cannot be <code>null</code> or empty.
+   * @param defaultVal If the param is not found or is not a number, this value will be returned
+   *     instead.
    * @return The requested value or the default value if it can't be found.
    */
   protected int getIntParameter(Map<String, Object> params, String key, int defaultVal) {
@@ -148,9 +145,8 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * This is the same as {@link #getParameter(Map, String)}
-   * except it throws IllegalArgumentException if the specified parameter
-   * does not exist.
+   * This is the same as {@link #getParameter(Map, String)} except it throws
+   * IllegalArgumentException if the specified parameter does not exist.
    */
   protected Object getParameterRqd(Map<String, Object> params, String key) {
     Object value = getParameter(params, key);
@@ -164,9 +160,7 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
    * Creates an {@link IPSGuid} for a specified content id.
    *
    * @param contentId the specified content id. It must not be less than 0.
-   *
-   * @return the created {@link IPSGuid} object, with revision equals
-   *    <code>-1</code>.
+   * @return the created {@link IPSGuid} object, with revision equals <code>-1</code>.
    */
   protected IPSGuid getItemGuid(int contentId) {
     if (contentId < 0) throw new IllegalArgumentException("contentId must be >= 0");
@@ -176,8 +170,8 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   }
 
   /**
-   * Returns the latest AA viewable revision for the specified
-   * content item.
+   * Returns the latest AA viewable revision for the specified content item.
+   *
    * @param objectId the object id in question, never not <code>null</code>.
    * @return the revision, never <code>null</code>.
    */
@@ -191,6 +185,7 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
 
   /**
    * Returns the current revision for the specified content item.
+   *
    * @param objectId the object id in question, never not <code>null</code>.
    * @return the curent revision, never <code>null</code>.
    */
@@ -203,6 +198,7 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
 
   /**
    * Gets the current Rx user for this request.
+   *
    * @return never <code>null</code> or empty.
    */
   protected String getCurrentUser() {
@@ -213,8 +209,7 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
   /**
    * Looks up the community of the user making the request.
    *
-   * @return A valid community UUID or -1 if the current user is not operating
-   * in a community.
+   * @return A valid community UUID or -1 if the current user is not operating in a community.
    */
   protected int getCurrentCommunityUuid() {
     int commId = -1;
@@ -230,7 +225,6 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
    * Creates an exception from the specified ws exception and object id.
    *
    * @param e the specified ws exception, assumed not <code>null</code>.
-   *
    * @return the created exception, never <code>null</code>.
    */
   protected PSAAClientActionException createException(PSErrorException e) {
@@ -244,7 +238,6 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
    * Creates an exception from the specified ws exception.
    *
    * @param e the specified ws exception, assumed not <code>null</code>.
-   *
    * @return the created exception, never <code>null</code>.
    */
   protected PSAAClientActionException createException(PSErrorsException e) {
@@ -263,8 +256,8 @@ public abstract class PSAAActionBase implements IPSAAClientAction {
 
   /**
    * Calculate root url
-   * @return the root url, never <code>null</code> or empty
    *
+   * @return the root url, never <code>null</code> or empty
    */
   protected String getRoot() {
     IPSRequestContext requestCtx = getRequestContext();

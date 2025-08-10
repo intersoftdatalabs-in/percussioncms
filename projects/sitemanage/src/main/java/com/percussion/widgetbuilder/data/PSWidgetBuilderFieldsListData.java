@@ -20,70 +20,66 @@ package com.percussion.widgetbuilder.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractDataObject;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Container object for the list of widget fields.
- */
+/** Container object for the list of widget fields. */
 @XmlRootElement(name = "WidgetBuilderFieldsListData")
 @JsonRootName("WidgetBuilderFieldsListData")
 public class PSWidgetBuilderFieldsListData extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private List<PSWidgetBuilderFieldData> fields = new ArrayList<>();
+  private List<PSWidgetBuilderFieldData> fields = new ArrayList<>();
 
-    public PSWidgetBuilderFieldsListData() {
-        // Default constructor
-    }
+  public PSWidgetBuilderFieldsListData() {
+    // Default constructor
+  }
 
-    public static PSWidgetBuilderFieldsListData fromXml(String fieldXml) {
-        return PSSerializerUtils.unmarshal(fieldXml, PSWidgetBuilderFieldsListData.class);
-    }
+  public static PSWidgetBuilderFieldsListData fromXml(String fieldXml) {
+    return PSSerializerUtils.unmarshal(fieldXml, PSWidgetBuilderFieldsListData.class);
+  }
 
-    public String toXml() {
-        return PSSerializerUtils.marshal(this);
-    }
+  public String toXml() {
+    return PSSerializerUtils.marshal(this);
+  }
 
-    /**
-     * Get the list of fields.
-     *
-     * @return The list of fields, never {@code null}, may be empty.
-     */
-    public List<PSWidgetBuilderFieldData> getFields() {
-        return fields;
-    }
+  /**
+   * Get the list of fields.
+   *
+   * @return The list of fields, never {@code null}, may be empty.
+   */
+  public List<PSWidgetBuilderFieldData> getFields() {
+    return fields;
+  }
 
-    /**
-     * Replace the list of fields.
-     *
-     * @param fields The fields, not {@code null}, may be empty.
-     */
-    public void setFields(List<PSWidgetBuilderFieldData> fields) {
-        Objects.requireNonNull(fields, "fields must not be null");
-        this.fields = fields;
-    }
+  /**
+   * Replace the list of fields.
+   *
+   * @param fields The fields, not {@code null}, may be empty.
+   */
+  public void setFields(List<PSWidgetBuilderFieldData> fields) {
+    Objects.requireNonNull(fields, "fields must not be null");
+    this.fields = fields;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSWidgetBuilderFieldsListData)) return false;
-        var that = (PSWidgetBuilderFieldsListData) o;
-        return Objects.equals(getFields(), that.getFields());
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PSWidgetBuilderFieldsListData)) return false;
+    var that = (PSWidgetBuilderFieldsListData) o;
+    return Objects.equals(getFields(), that.getFields());
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getFields());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(getFields());
+  }
 
-    @Override
-    public String toString() {
-        return "PSWidgetBuilderFieldsListData{" +
-                "fields=" + fields +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "PSWidgetBuilderFieldsListData{" + "fields=" + fields + '}';
+  }
 }

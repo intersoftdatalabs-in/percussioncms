@@ -32,8 +32,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This abstract server extension supplies cloning functionality which is of
- * interest for all cloning extensions.
+ * This abstract server extension supplies cloning functionality which is of interest for all
+ * cloning extensions.
  */
 public abstract class PSCloneBase extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /*
@@ -48,11 +48,10 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
   /**
    * Get the clone source id HTML parameter as <code>int</code>.
    *
-   * @param request the request from which to get the parameter, not
-   *           <code>null</code>.
+   * @param request the request from which to get the parameter, not <code>null</code>.
    * @return the clone source id as <code>int</code> or -1 if not found.
-   * @throws PSParameterMismatchException if the clone source id parameter
-   *            exists but cannot be parsed into an <code>int</code>.
+   * @throws PSParameterMismatchException if the clone source id parameter exists but cannot be
+   *     parsed into an <code>int</code>.
    */
   protected int getCloneSourceId(IPSRequestContext request) throws PSParameterMismatchException {
     if (request == null) throw new IllegalArgumentException("request cannot be null");
@@ -71,32 +70,27 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Utility method to clone the children of an object. Makes an internal
-   * request to the queryresource and gets the result document, updates the
-   * document's keyelementvalue and then makes an internal request to update
-   * resource to create the child object. Each query resource should have a
-   * corresponding update resource and same dtd should be used for these two
+   * Utility method to clone the children of an object. Makes an internal request to the
+   * queryresource and gets the result document, updates the document's keyelementvalue and then
+   * makes an internal request to update resource to create the child object. Each query resource
+   * should have a corresponding update resource and same dtd should be used for these two
    * resources.
    *
    * @param request IPSRequestContext object must not be <code>null</code>.
-   * @param keyElementName If either of the keyElementName or keyElementValue
-   *           <code>null</code> then unmodified result document of the query
-   *           resource will be supplied to update resource.
-   * @param keyElementValue If either of the keyElementName or keyElementValue
-   *           <code>null</code> then unmodified result document of the query
-   *           resource will be supplied to update resource.
-   * @param queryResources String array of query resources AppName/ResName. The
-   *           length of this array should match with the length of
-   *           updateResources array.
-   * @param updateResources String array of update resources AppName/ResName.
-   *           The length of this array should match with the length of
-   *           updateResources array.
-   * @param queryParams Map of name and value pair of paramesters that will be
-   *           used while making an internal request to query resources.
-   * @param updateParams Map of name and value pair of paramesters that will be
-   *           used while making an internal request to update resources.
-   * @throws PSExtensionProcessingException when there is an error while making
-   *            an internal request to query resources or update resources.
+   * @param keyElementName If either of the keyElementName or keyElementValue <code>null</code> then
+   *     unmodified result document of the query resource will be supplied to update resource.
+   * @param keyElementValue If either of the keyElementName or keyElementValue <code>null</code>
+   *     then unmodified result document of the query resource will be supplied to update resource.
+   * @param queryResources String array of query resources AppName/ResName. The length of this array
+   *     should match with the length of updateResources array.
+   * @param updateResources String array of update resources AppName/ResName. The length of this
+   *     array should match with the length of updateResources array.
+   * @param queryParams Map of name and value pair of paramesters that will be used while making an
+   *     internal request to query resources.
+   * @param updateParams Map of name and value pair of paramesters that will be used while making an
+   *     internal request to update resources.
+   * @throws PSExtensionProcessingException when there is an error while making an internal request
+   *     to query resources or update resources.
    */
   protected void cloneChildObjects(
       IPSRequestContext request,
@@ -157,16 +151,15 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
   }
 
   /**
-   * Utility method to make an internal request to supplied update resource
-   * with the supplied parameters.
+   * Utility method to make an internal request to supplied update resource with the supplied
+   * parameters.
    *
    * @param request IPSRequestContext object must not be <code>null</code>.
-   * @param updateResourceName Name of the update resource must not be
-   *           <code>null</code> or empty
-   * @param updateParams Map of name and value pair of paramesters that will be
-   *           used while making an internal request to update resources.
-   * @throws PSExtensionProcessingException when there is an error while making
-   *            an internal request to query resources or update resources.
+   * @param updateResourceName Name of the update resource must not be <code>null</code> or empty
+   * @param updateParams Map of name and value pair of paramesters that will be used while making an
+   *     internal request to update resources.
+   * @throws PSExtensionProcessingException when there is an error while making an internal request
+   *     to query resources or update resources.
    */
   protected void updateContent(
       IPSRequestContext request, String updateResourceName, Map updateParams)
@@ -194,9 +187,6 @@ public abstract class PSCloneBase extends PSDefaultExtension implements IPSResul
     }
   }
 
-  /**
-   * The HTML parameter name which will ccontain the id of the object being
-   * cloned.
-   */
+  /** The HTML parameter name which will ccontain the id of the object being cloned. */
   public static String CLONESOURCEID = "clonesourceid";
 }

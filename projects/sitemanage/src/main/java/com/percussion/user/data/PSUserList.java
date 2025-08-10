@@ -19,41 +19,35 @@ package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents a list of users.
- * <p>
- * Some tools have problems serializing a list of strings,
- * hence this wrapping object.
- * </p>
+ *
+ * <p>Some tools have problems serializing a list of strings, hence this wrapping object.
+ *
  * @author adamgent
  * @author DavidBenua
  */
 @XmlRootElement(name = "UserList")
 @JsonRootName("UserList")
 public class PSUserList extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
-    private List<String> users;
+  private static final long serialVersionUID = 1L;
+  private List<String> users;
 
-    public PSUserList() {
-        users = new ArrayList<>();
-    }
+  public PSUserList() {
+    users = new ArrayList<>();
+  }
 
-    /**
-     * Gets the users.
-     */
-    public List<String> getUsers() {
-        return users;
-    }
+  /** Gets the users. */
+  public List<String> getUsers() {
+    return users;
+  }
 
-    /**
-     * Sets the users.
-     */
-    public void setUsers(List<String> users) {
-        this.users = users;
-    }
+  /** Sets the users. */
+  public void setUsers(List<String> users) {
+    this.users = users;
+  }
 }

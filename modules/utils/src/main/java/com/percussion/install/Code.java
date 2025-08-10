@@ -44,10 +44,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The Code class handles Rhythmyx Installer's brand code issue. This class
- * should not use any com.percussion classes in order to avoid circular
- * dependencies. This is the first class to be build during the build
- * procedure.
+ * The Code class handles Rhythmyx Installer's brand code issue. This class should not use any
+ * com.percussion classes in order to avoid circular dependencies. This is the first class to be
+ * build during the build procedure.
  */
 @SuppressWarnings("unchecked")
 public class Code {
@@ -55,15 +54,13 @@ public class Code {
   private static final Logger log = LogManager.getLogger(Code.class);
 
   /**
-   * Construct a Code object. This constructor should only be used by the
-   * code generator tool (com.percussion.CodeGenerator.CodeGenerator class).
-   * No other class should ever use this constructor.
+   * Construct a Code object. This constructor should only be used by the code generator tool
+   * (com.percussion.CodeGenerator.CodeGenerator class). No other class should ever use this
+   * constructor.
    *
-   * @param brandCodeData contains data for generating the brand code,
-   * never <code>null</code>
+   * @param brandCodeData contains data for generating the brand code, never <code>null</code>
    * @throws IllegalArgumentException if brandCodeData is <code>null</code>
-   * @throws CodeException if any error occurs parsing the Component Mapping
-   * Xml file
+   * @throws CodeException if any error occurs parsing the Component Mapping Xml file
    */
   public Code(PSBrandCodeData brandCodeData) throws CodeException {
     if (brandCodeData == null) throw new IllegalArgumentException("brandCodeData may not be null");
@@ -73,10 +70,9 @@ public class Code {
 
   /**
    * Parses the input string and constructs a Code object.
-   * @param strCode the brand code in string format, may not be
-   * <code>null</code> or empty
-   * @throws CodeException if any error occurs parsing the Component Mapping
-   * Xml file
+   *
+   * @param strCode the brand code in string format, may not be <code>null</code> or empty
+   * @throws CodeException if any error occurs parsing the Component Mapping Xml file
    */
   public Code(String strCode) throws CodeException {
     if ((strCode == null) || (strCode.trim().length() < 1))
@@ -87,14 +83,13 @@ public class Code {
 
   /**
    * Get the code out of the product.
-   * @param rhythmyxRootDir the Rhythmyx root directory, may not be
-   * <code>null</code>, this directory should exist and should be a valid
-   * Rhythmyx directory
-   * @throws IllegalArgumentException if rhythmyxRootDir is <code>null</code>
-   * or this directory does not exist and is not a valid Rhythmyx root
-   * directory or if the brand file does not exist.
-   * @throws CodeException if any error occurs getting the brand code from
-   * the brand file, or parsing the Component Mapping Xml file
+   *
+   * @param rhythmyxRootDir the Rhythmyx root directory, may not be <code>null</code>, this
+   *     directory should exist and should be a valid Rhythmyx directory
+   * @throws IllegalArgumentException if rhythmyxRootDir is <code>null</code> or this directory does
+   *     not exist and is not a valid Rhythmyx root directory or if the brand file does not exist.
+   * @throws CodeException if any error occurs getting the brand code from the brand file, or
+   *     parsing the Component Mapping Xml file
    */
   public Code(File rhythmyxRootDir) throws CodeException {
     if (rhythmyxRootDir == null)
@@ -125,24 +120,23 @@ public class Code {
 
   /**
    * Obtains an instance of brand code map.
-   * @throws CodeException if any error occurs parsing the Component mapping
-   * Xml file.
+   *
+   * @throws CodeException if any error occurs parsing the Component mapping Xml file.
    */
   private void init() throws CodeException {
     m_brandCodeMap = PSBrandCodeMap.newInstance();
   }
 
   /**
-   * Returns <code>true</code> if the component corresponding to the input
-   * componentId parameter is licensed, <code>false</code> otherwise.
-   * @param componentId the id of the component, should be one of the constant
-   * values from <code>com.percussion.util.IPSBrandCodeConstants</code>
-   * interface, should be greater than 0.
-   * @return <code>true</code> if the component corresponding to the input
-   * componentId parameter is licensed, <code>false</code> otherwise.
+   * Returns <code>true</code> if the component corresponding to the input componentId parameter is
+   * licensed, <code>false</code> otherwise.
+   *
+   * @param componentId the id of the component, should be one of the constant values from <code>
+   *     com.percussion.util.IPSBrandCodeConstants</code> interface, should be greater than 0.
+   * @return <code>true</code> if the component corresponding to the input componentId parameter is
+   *     licensed, <code>false</code> otherwise.
    * @throws IllegalArgumentException if componentId is less than 1
-   * @throws RuntimeException if any error occurs retrieving the list of
-   * licensed components
+   * @throws RuntimeException if any error occurs retrieving the list of licensed components
    */
   public boolean isComponentLicensed(int componentId) {
     try {
@@ -153,14 +147,12 @@ public class Code {
   }
 
   /**
-   * Returns the value of the property corresponding to the input
-   * propertyId parameter.
-   * @param propertyId the id of the property whose value is required,
-   * should be one of the constant values from
-   * <code>com.percussion.util.IPSBrandCodeConstants</code> interface,
-   * should be non-negative.
-   * @return the value of the property corresponding to the input
-   * propertyId parameter.
+   * Returns the value of the property corresponding to the input propertyId parameter.
+   *
+   * @param propertyId the id of the property whose value is required, should be one of the constant
+   *     values from <code>com.percussion.util.IPSBrandCodeConstants</code> interface, should be
+   *     non-negative.
+   * @return the value of the property corresponding to the input propertyId parameter.
    * @throws IllegalArgumentException if componentId is less than 0
    */
   public int getPropertyValue(int propertyId) {
@@ -170,8 +162,7 @@ public class Code {
   /**
    * Determine if this code is an evaluation code.
    *
-   * @return <code>true</code> if this code is an evaluation code,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this code is an evaluation code, <code>false</code> otherwise.
    */
   public boolean isAnEval() {
     return !m_brandCodeData.getProductExpires().equals(EvalTypes.NOT_EVAL);
@@ -179,6 +170,7 @@ public class Code {
 
   /**
    * Returns the brand code data object.
+   *
    * @return the brand code data object,never <code>null</code>
    */
   public PSBrandCodeData getBrandCodeData() {
@@ -187,8 +179,8 @@ public class Code {
 
   /**
    * Converts the brand code represented by this object into string format.
-   * @return the brand code in string format, never <code>null</code> and
-   * never empty.
+   *
+   * @return the brand code in string format, never <code>null</code> and never empty.
    */
   @Override
   public String toString() {
@@ -283,8 +275,8 @@ public class Code {
 
   /**
    * Parses the input string nto a brand code.
-   * @param strCode the brand code in string format, assumed not
-   * <code>null</code> and non-empty
+   *
+   * @param strCode the brand code in string format, assumed not <code>null</code> and non-empty
    * @throws CodeException if the brand code is invalid
    */
   private void fromString(String strCode) throws CodeException {
@@ -379,10 +371,9 @@ public class Code {
 
   /**
    * Serializes this object's state to Xml.
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>
-   * @return the element containing this object's state,
-   * never <code>null</code>
+   *
+   * @param doc The document to use when creating elements, may not be <code>null</code>
+   * @return the element containing this object's state, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -473,8 +464,8 @@ public class Code {
 
   /**
    * Converts the string to long value.
-   * @param str the string to convert, assumed not <code>null</code> and
-   * non-empty
+   *
+   * @param str the string to convert, assumed not <code>null</code> and non-empty
    * @return the long value
    */
   private long convertToLong(String str) {
@@ -490,6 +481,7 @@ public class Code {
 
   /**
    * Returns the value of an integer composed of the last n bits of l.
+   *
    * @param l the value whose last n bits will be used to get an integer value
    * @param n the number of bits to use for obtaining the integer value
    * @return the value of an integer composed of the last n bits of l.
@@ -506,10 +498,9 @@ public class Code {
    * Returns a map containing property id as key and quantity as value
    *
    * @param lProps the value containing the quantity of each property
-   * @param propIds A list of property ids as Strings to get values for,
-   * assumed not <code>null</code>.
-   * @return the map containing property id as key and quantity as value, never
-   * <code>null</code>
+   * @param propIds A list of property ids as Strings to get values for, assumed not <code>null
+   *     </code>.
+   * @return the map containing property id as key and quantity as value, never <code>null</code>
    */
   private Map getPropertiesMap(long lProps, List propIds) {
     Map propsMap = new HashMap();
@@ -537,8 +528,8 @@ public class Code {
 
   /**
    * Returns a list containing the id of parts.
-   * @param lParts the value containing the id of parts supported by this
-   * brand code
+   *
+   * @param lParts the value containing the id of parts supported by this brand code
    * @return a list containing the id of parts, never <code>null</code>
    */
   private List getPartsList(long lParts) {
@@ -553,8 +544,8 @@ public class Code {
 
   /**
    * Determine whether the brand code has expired or not.
-   * @return <code>true</code> if the brand code has expired,
-   * <code>false</code> otherwise.
+   *
+   * @return <code>true</code> if the brand code has expired, <code>false</code> otherwise.
    */
   public boolean hasExpired() {
     return m_brandCodeData.hasExpired();
@@ -562,11 +553,11 @@ public class Code {
 
   /**
    * Brand the product.
-   * @param rxDirPath Rhythmyx root directory, may not be <code>null</code>,
-   * should be a valid Rhythmyx root directory
-   * @throws IllegalArgumentException if directory is <code>null</code>
-   * or empty or this directory does not exist and is not a valid Rhythmyx root
-   * directory.
+   *
+   * @param rxDirPath Rhythmyx root directory, may not be <code>null</code>, should be a valid
+   *     Rhythmyx root directory
+   * @throws IllegalArgumentException if directory is <code>null</code> or empty or this directory
+   *     does not exist and is not a valid Rhythmyx root directory.
    * @throws CodeException
    */
   public void brand(String rxDirPath) throws CodeException {
@@ -623,6 +614,7 @@ public class Code {
 
   /**
    * Returns the resource bundle.
+   *
    * @return the resource bundle, never <code>null</code>.
    */
   private static ResourceBundle getResources() {
@@ -639,8 +631,8 @@ public class Code {
 
   /**
    * Returns the path to the branding file.
-   * @param rxRootDir the Rhythmyx root directory, may not be
-   * <code>null</code> or empty
+   *
+   * @param rxRootDir the Rhythmyx root directory, may not be <code>null</code> or empty
    * @return the path to the branding file, never <code>null</code> or empty.
    * @throws IllegalArgumentException if rxRootDir is <code>null</code> or empty
    */
@@ -650,9 +642,7 @@ public class Code {
     return (rxRootDir + LIBDIR + BRAND_FILE);
   }
 
-  /**
-   * Constants used while serializing this object's state to Xml.
-   */
+  /** Constants used while serializing this object's state to Xml. */
   public static final String EL_BRAND_CODE = "brandCode";
 
   public static final String EL_SERVER_TYPE = "serverType";
@@ -661,14 +651,10 @@ public class Code {
   public static final String LIBDIR =
       "/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/lib/";
 
-  /**
-   * base yr used for calculating the yr in which the brand code should expire
-   */
+  /** base yr used for calculating the yr in which the brand code should expire */
   public static final int BRAND_CODE_EXPIRE_BASE_YR = 2003;
 
-  /**
-   * Constants for the bits sizes.
-   */
+  /** Constants for the bits sizes. */
   private static final int BITS_BRAND_CODE_MAP_VERSION = 6;
 
   private static final int BITS_SERVER_TYPE = 2;
@@ -678,37 +664,31 @@ public class Code {
   private static final int BITS_LICENSE_ID = 6;
   private static final int BITS_PROPERTIES_ID = 6;
 
-  /**
-   * jar entry used for storing the brand code in the extra part
-   */
+  /** jar entry used for storing the brand code in the extra part */
   private static final String JAR_ENTRY =
       "com/percussion/install/RxDesignerOnlyPostInstaller.class";
 
-  /**
-   * installer jar file, required for creating the <code>BRAND_FILE</code>
-   */
+  /** installer jar file, required for creating the <code>BRAND_FILE</code> */
   private static final String JAR_FILE = "rxinstall.jar";
 
-  /**
-   * name of the brand file. the brand code is stored in this file.
-   */
+  /** name of the brand file. the brand code is stored in this file. */
   private static final String BRAND_FILE = "psinstaller.exe";
 
   /**
-   * Stores the resource bundle, initialized in the <code>getResources</code>
-   * method, never <code>null</code> after initialization.
+   * Stores the resource bundle, initialized in the <code>getResources</code> method, never <code>
+   * null</code> after initialization.
    */
   private static ResourceBundle ms_res = null;
 
   /**
-   * Stores the data for generating the brand code, initialized in the
-   * constructor, never <code>null</code> after initialization.
+   * Stores the data for generating the brand code, initialized in the constructor, never <code>null
+   * </code> after initialization.
    */
   private PSBrandCodeData m_brandCodeData = null;
 
   /**
-   * In memory representation of the Component Map Xml, initialized in the
-   * constructor, never <code>null</code> after initialization.
+   * In memory representation of the Component Map Xml, initialized in the constructor, never <code>
+   * null</code> after initialization.
    */
   private IPSBrandCodeMap m_brandCodeMap = null;
 }

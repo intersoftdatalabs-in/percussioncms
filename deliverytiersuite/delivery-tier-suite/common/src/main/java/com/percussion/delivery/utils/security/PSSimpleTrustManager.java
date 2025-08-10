@@ -31,7 +31,6 @@ import org.apache.logging.log4j.Logger;
  * A very simple trust manager for allowing an ssl connection.
  *
  * @author erikserating
- *
  */
 public class PSSimpleTrustManager implements X509TrustManager {
   private X509TrustManager standardTrustManager = null;
@@ -39,9 +38,7 @@ public class PSSimpleTrustManager implements X509TrustManager {
   /** Log object for this class. */
   private static final Logger LOG = LogManager.getLogger(PSSimpleTrustManager.class);
 
-  /**
-   * Constructor for EasyX509TrustManager.
-   */
+  /** Constructor for EasyX509TrustManager. */
   public PSSimpleTrustManager(KeyStore keystore)
       throws NoSuchAlgorithmException, KeyStoreException {
     TrustManagerFactory factory =
@@ -55,8 +52,7 @@ public class PSSimpleTrustManager implements X509TrustManager {
   }
 
   /**
-   * @see javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[],
-   *      String authType)
+   * @see javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[], String authType)
    */
   @Override
   public void checkClientTrusted(X509Certificate[] certificates, String authType)
@@ -65,8 +61,7 @@ public class PSSimpleTrustManager implements X509TrustManager {
   }
 
   /**
-   * @see javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[],
-   *      String authType)
+   * @see javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[], String authType)
    */
   @Override
   public void checkServerTrusted(X509Certificate[] certificates, String authType)

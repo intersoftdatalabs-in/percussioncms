@@ -28,8 +28,8 @@ import org.w3c.dom.Element;
 
 /**
  * Adds the default Display Format workflow column to be used by List View services
- * @author federicoromanelli
  *
+ * @author federicoromanelli
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddWorkflowColumnDefaultDisplayFormat implements IPSUpgradePlugin {
@@ -37,9 +37,9 @@ public class PSUpgradePluginAddWorkflowColumnDefaultDisplayFormat implements IPS
   private PrintStream logger;
 
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -72,8 +72,8 @@ public class PSUpgradePluginAddWorkflowColumnDefaultDisplayFormat implements IPS
   }
 
   /**
-   * Checks if the workflow columns has been added to the default display format.
-   * If it's not, it inserts the corresponding row in table PSX_DISPLAYFORMATCOLUMNS
+   * Checks if the workflow columns has been added to the default display format. If it's not, it
+   * inserts the corresponding row in table PSX_DISPLAYFORMATCOLUMNS
    *
    * @param conn assumed not <code>null</code>
    * @throws SQLException if any error occurs during DB access.
@@ -146,8 +146,8 @@ public class PSUpgradePluginAddWorkflowColumnDefaultDisplayFormat implements IPS
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid
    */

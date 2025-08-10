@@ -27,47 +27,44 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSDsnReader class will be used as an interface to the
- *    odbc data source names (DSNs) listed under unix platforms.
- *    The DSNs are not available through standard ODBC api calls as
- *    they are under Microsoft Windows, so we have to use a different
- *    mechanism.  Under unix we will use a standard Java file parser
- *    to parse through the ODBC.INI.<P>
+ * The PSDsnReader class will be used as an interface to the odbc data source names (DSNs) listed
+ * under unix platforms. The DSNs are not available through standard ODBC api calls as they are
+ * under Microsoft Windows, so we have to use a different mechanism. Under unix we will use a
+ * standard Java file parser to parse through the ODBC.INI.
  *
- * The ODBC.INI file has the following format:
+ * <p>The ODBC.INI file has the following format:
+ *
  * <DL>
- * <LI>[ODBC Data Sources]</LI>
- * <LI>DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME1</LI>
- * <LI>DATA_SOURCE_NAME2=DATA_SOURCE_DRIVER_NAME2</LI>
- * <LI></LI>
- * <LI>[DATA_SOURCE_NAME1]</LI>
- * <LI>Driver=DATA_SOURCE_DRIVER_LOCATION</LI>
- * <LI>OPTION1=</LI>
- * <LI>OPTION2=</LI>
- * <LI>...</LI>
- * <LI></LI>
- * <LI>[DATA_SOURCE_NAME2]</LI>
- * <LI>Driver=DATA_SOURCE_DRIVER_LOCATION</LI>
- * <LI>OPTION1=</LI>
- * <LI>OPTION2=</LI>
- * <LI>...</LI>
- * <LI></LI>
- * <LI>[ODBC System Data Sources]</LI>
- * <LI>SYSTEM_DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME3</LI>
- * <LI></LI>
- * <LI>[SYSTEM_DATA_SOURCE_NAME1]</LI>
- * <LI>Driver=DATA_SOURCE_DRIVER_LOCATION</LI>
- * <LI>OPTION1=</LI>
- * <LI>OPTION2=</LI>
- * <LI>...</LI>
+ *   <LI>[ODBC Data Sources]
+ *   <LI>DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME1
+ *   <LI>DATA_SOURCE_NAME2=DATA_SOURCE_DRIVER_NAME2
+ *   <LI>
+ *   <LI>[DATA_SOURCE_NAME1]
+ *   <LI>Driver=DATA_SOURCE_DRIVER_LOCATION
+ *   <LI>OPTION1=
+ *   <LI>OPTION2=
+ *   <LI>...
+ *   <LI>
+ *   <LI>[DATA_SOURCE_NAME2]
+ *   <LI>Driver=DATA_SOURCE_DRIVER_LOCATION
+ *   <LI>OPTION1=
+ *   <LI>OPTION2=
+ *   <LI>...
+ *   <LI>
+ *   <LI>[ODBC System Data Sources]
+ *   <LI>SYSTEM_DATA_SOURCE_NAME1=DATA_SOURCE_DRIVER_NAME3
+ *   <LI>
+ *   <LI>[SYSTEM_DATA_SOURCE_NAME1]
+ *   <LI>Driver=DATA_SOURCE_DRIVER_LOCATION
+ *   <LI>OPTION1=
+ *   <LI>OPTION2=
+ *   <LI>...
  * </DL>
  */
 public class PSDsnReader {
   private static final Logger log = LogManager.getLogger(PSDsnReader.class);
 
-  /**
-   * Debugging/Testing main method.
-   */
+  /** Debugging/Testing main method. */
   public static void main(String[] args) {
     if (args.length != 1) {
       log.info("Usage: java com.percussion.data.jdbc.PSDsnReader <odbciniFileName>");
@@ -79,11 +76,9 @@ public class PSDsnReader {
   }
 
   /**
-   * Construct a PSDsnReader, and
-   *    retrieve the ODBC ini location from the server.
+   * Construct a PSDsnReader, and retrieve the ODBC ini location from the server.
    *
-   * @param   iniFile  The fully qualified pathname to the odbc ini
-   *                   file.  Can be <code>null</code>.
+   * @param iniFile The fully qualified pathname to the odbc ini file. Can be <code>null</code>.
    */
   public PSDsnReader(String iniFile) {
     m_odbcIni = iniFile;
@@ -92,9 +87,8 @@ public class PSDsnReader {
   /**
    * Get the list of DSNs from the ODBC ini file
    *
-   * @return The list of DSNs or <code>null</code> if they cannot
-   *          be determined or none are defined.  An empty array
-   *          will never be returned.
+   * @return The list of DSNs or <code>null</code> if they cannot be determined or none are defined.
+   *     An empty array will never be returned.
    */
   public String[] getDsnList() {
     if ((m_odbcIni == null) || (m_odbcIni.length() < 1)) return null;
@@ -159,19 +153,12 @@ public class PSDsnReader {
     return null;
   }
 
-  /** The path and filename that locate the odbc ini file
-   *    can be <code>null</code>.
-   */
+  /** The path and filename that locate the odbc ini file can be <code>null</code>. */
   private String m_odbcIni = null;
 
-  /**
-   *    The tag we expect for odbc data sources in the DSN file.
-   */
+  /** The tag we expect for odbc data sources in the DSN file. */
   private static final String DSN_BEGIN = "[ODBC Data Sources]";
 
-  /**
-   *  Another possible tag for odbc data sources (system)
-   *    in the DSN file.
-   */
+  /** Another possible tag for odbc data sources (system) in the DSN file. */
   private static final String SYSDSN_BEGIN = "[ODBC System Data Sources]";
 }

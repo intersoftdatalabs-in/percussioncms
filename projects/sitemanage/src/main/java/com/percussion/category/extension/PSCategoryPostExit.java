@@ -19,72 +19,72 @@
 
 package com.percussion.category.extension;
 
-import com.percussion.category.data.PSCategory;
 import com.percussion.error.PSException;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.IOException;
+import java.io.StringReader;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.io.StringReader;
-
 public class PSCategoryPostExit implements IPSResultDocumentProcessor {
 
-    public static final Logger log = LogManager.getLogger(PSCategoryPostExit.class);
+  public static final Logger log = LogManager.getLogger(PSCategoryPostExit.class);
 
-    @Override
-    public void init(IPSExtensionDef def, java.io.File codeRoot) {
-        // No initialization required
+  @Override
+  public void init(IPSExtensionDef def, java.io.File codeRoot) {
+    // No initialization required
+  }
+
+  @Override
+  public boolean canModifyStyleSheet() {
+    return false;
+  }
+
+  @Override
+  public Document processResultDocument(
+      Object[] params, IPSRequestContext request, Document resultDoc)
+      throws PSParameterMismatchException, PSExtensionProcessingException {
+
+    Document doc = null;
+    // Get data from XML, filter based on selectable and deleted attributes,
+    // filter by toplevelcategory set as the control property, and return as Document.
+
+    var siteName = request.getParameter("sitename");
+    var parentCategory = request.getParameter("parentCategory");
+
+    if (StringUtils.isBlank(parentCategory) || "root".equalsIgnoreCase(parentCategory))
+      parentCategory = null;
+
+    if ("null".equals(siteName)) siteName = null;
+
+    try {
+      var categoriesToReturn =
+          PSCategoryControlUtils.getCategories(siteName, parentCategory, false, true);
+
+      if (categoriesToReturn == null)
+        throw new PSExtensionProcessingException(
+            "Either none of the categories is selectable or the category XML is empty!"
+                + " PSCategoryPostExit.processResultDocument()",
+            new PSException());
+
+      var returnString = PSCategoryControlUtils.getCategoryXmlInString(categoriesToReturn);
+      doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(returnString.trim()), false);
+    } catch (PSDataServiceException | IOException | SAXException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSExtensionProcessingException("Error converting categories to XML", e);
     }
 
-    @Override
-    public boolean canModifyStyleSheet() {
-        return false;
-    }
-
-    @Override
-    public Document processResultDocument(Object[] params, IPSRequestContext request, Document resultDoc)
-            throws PSParameterMismatchException, PSExtensionProcessingException {
-
-        Document doc = null;
-        // Get data from XML, filter based on selectable and deleted attributes,
-        // filter by toplevelcategory set as the control property, and return as Document.
-
-        var siteName = request.getParameter("sitename");
-        var parentCategory = request.getParameter("parentCategory");
-
-        if (StringUtils.isBlank(parentCategory) || "root".equalsIgnoreCase(parentCategory))
-            parentCategory = null;
-
-        if ("null".equals(siteName))
-            siteName = null;
-
-        try {
-            var categoriesToReturn = PSCategoryControlUtils.getCategories(siteName, parentCategory, false, true);
-
-            if (categoriesToReturn == null)
-                throw new PSExtensionProcessingException(
-                        "Either none of the categories is selectable or the category XML is empty! PSCategoryPostExit.processResultDocument()",
-                        new PSException());
-
-            var returnString = PSCategoryControlUtils.getCategoryXmlInString(categoriesToReturn);
-            doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(returnString.trim()), false);
-        } catch (PSDataServiceException | IOException | SAXException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new PSExtensionProcessingException("Error converting categories to XML", e);
-        }
-
-        return doc;
-    }
+    return doc;
+  }
 }

@@ -30,17 +30,13 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
 
-/**
- * Extracts the content item data associated with the current execution
- * context.
- */
+/** Extracts the content item data associated with the current execution context. */
 public class PSContentItemDataExtractor extends PSDataExtractor {
   /**
-   * Creates a new <code>IPSReplacementValue</code> extractor for the supplied
-   * content item data.
+   * Creates a new <code>IPSReplacementValue</code> extractor for the supplied content item data.
    *
-   * @param source the content item data to construct the
-   *    IPSReplacementValue for, may be <code>null</code>.
+   * @param source the content item data to construct the IPSReplacementValue for, may be <code>null
+   *     </code>.
    */
   public PSContentItemDataExtractor(PSContentItemData source) {
     super(source);
@@ -49,10 +45,8 @@ public class PSContentItemDataExtractor extends PSDataExtractor {
   /**
    * Extract the content item data from the supplied execution data.
    *
-   * @param data the execution data to extract the data from, may be
-   *    <code>null</code>.
-   * @return the extracted content item status as <code>String</code>, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the data from, may be <code>null</code>.
+   * @return the extracted content item status as <code>String</code>, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
@@ -61,13 +55,12 @@ public class PSContentItemDataExtractor extends PSDataExtractor {
   /**
    * Extract the content item data from the supplied execution data.
    *
-   * @param data the execution data to extract the status from, may be
-   *    <code>null</code> in which case the default value is returned.
-   * @param defaultVal the default value to be returned if the source
-   *    could not be extracted, may be <code>null</code>.
-   * @return the extracted content item data as <code>String</code> or the
-   *    supplied default value if the data cannot be found, may
-   *    be <code>null</code>.
+   * @param data the execution data to extract the status from, may be <code>null</code> in which
+   *     case the default value is returned.
+   * @param defaultVal the default value to be returned if the source could not be extracted, may be
+   *     <code>null</code>.
+   * @return the extracted content item data as <code>String</code> or the supplied default value if
+   *     the data cannot be found, may be <code>null</code>.
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     if (data == null) return defValue;

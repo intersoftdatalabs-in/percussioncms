@@ -36,27 +36,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is used to generate sql statements from PSJdbcTableComponent
- * objects.  It contains only static methods, and may not be instantiated.
+ * This class is used to generate sql statements from PSJdbcTableComponent objects. It contains only
+ * static methods, and may not be instantiated.
  */
 public class PSJdbcStatementFactory {
 
   private static final Logger log = LogManager.getLogger(PSJdbcStatementFactory.class);
 
-  /**
-   * Private ctor to disallow instantiation.
-   */
+  /** Private ctor to disallow instantiation. */
   private PSJdbcStatementFactory() {}
 
   /**
    * Returns an execution step that will create the specified table.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema The table to create.  May not be <code>null</code>.
-   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to create. May not be <code>null</code>.
    * @return The statement, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is <code>null</code>.
    */
   public static PSJdbcExecutionStep getCreateTableStatement(
@@ -109,14 +105,14 @@ public class PSJdbcStatementFactory {
 
   /**
    * Returns an execution step that will drop FK constraint.
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema Provides the table components that require changes,
-   * but may contain columns with action set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-   * keys.  May not be <code>null</code>.
-   * @return complete ALTER table SQL statement, returns <code>null</code>
-   * if there is no FK in this table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
    */
   public static String getDropFKIndex(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
@@ -145,14 +141,14 @@ public class PSJdbcStatementFactory {
 
   /**
    * Returns an execution step that will drop FK constraint.
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema Provides the table components that require changes,
-   * but may contain columns with action set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-   * keys.  May not be <code>null</code>.
-   * @return complete ALTER table SQL statement, returns <code>null</code>
-   * if there is no FK in this table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
    */
   public static String getDropFKContraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
@@ -175,14 +171,14 @@ public class PSJdbcStatementFactory {
 
   /**
    * Returns an execution step that will drop Primary Key constraint.
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema Provides the table components that require changes,
-   * but may contain columns with action set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-   * keys.  May not be <code>null</code>.
-   * @return complete ALTER table SQL statement, returns <code>null</code>
-   * if there is no FK in this table.
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
+   *     table.
    */
   public static String getDropPrimaryContraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcPrimaryKey pk) {
@@ -204,22 +200,18 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution step that will alter the specified table.  Can only
-   * process components that are being added.
+   * Returns an execution step that will alter the specified table. Can only process components that
+   * are being added.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema Provides the table components that require changes,
-   * but may contain columns with action set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}, which are used in primary or foreign
-   * keys.  May not be <code>null</code>.
-   *
-   * @return The statement, never <code>null</code>. Is actually a block of
-   * alter table statements.
-   *
-   * @throws IllegalArgumentException if tableSchema contains any components
-   * with an action set to {@link PSJdbcTableComponent#ACTION_DELETE} or {@link
-   * PSJdbcTableComponent#ACTION_REPLACE} or any param is <code>null</code>.
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema Provides the table components that require changes, but may contain columns
+   *     with action set to {@link PSJdbcTableComponent#ACTION_NONE}, which are used in primary or
+   *     foreign keys. May not be <code>null</code>.
+   * @return The statement, never <code>null</code>. Is actually a block of alter table statements.
+   * @throws IllegalArgumentException if tableSchema contains any components with an action set to
+   *     {@link PSJdbcTableComponent#ACTION_DELETE} or {@link PSJdbcTableComponent#ACTION_REPLACE}
+   *     or any param is <code>null</code>.
    */
   public static PSJdbcExecutionStep getAlterTableStatement(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
@@ -347,13 +339,11 @@ public class PSJdbcStatementFactory {
   /**
    * Returns an execution step that will drop the specified table.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableName The table to drop.  May not be <code>null
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableName The table to drop. May not be <code>null
    * </code> or empty.
-   *
    * @return The statement, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static PSJdbcExecutionStep getDropTableStatement(PSJdbcDbmsDef dbmsDef, String tableName) {
@@ -370,16 +360,14 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Copies data from the source table to the target table, excluding source
-   * columns that do not exist in the target.  If target columns are missing
-   * from the source, then a default value must be provided in the column if
-   * it does not allow nulls.
+   * Copies data from the source table to the target table, excluding source columns that do not
+   * exist in the target. If target columns are missing from the source, then a default value must
+   * be provided in the column if it does not allow nulls.
    *
-   * @param dbmsDef Provides the database/schema information for the tables.
-   * May not be <code>null</code>.
-   * @param sourceTableSchema The source table.  May not be <code>null</code>.
-   * @param targetTableSchema The target table.  May not be <code>null</code>.
-   *
+   * @param dbmsDef Provides the database/schema information for the tables. May not be <code>null
+   *     </code>.
+   * @param sourceTableSchema The source table. May not be <code>null</code>.
+   * @param targetTableSchema The target table. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static PSJdbcExecutionStep getCopyTableDataStatement(
@@ -463,35 +451,27 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns a step which queries the table specified by <code>tableSchema</code>
-   * in its <code>execute</code> method. Then the result set can be iterated
-   * by using the <code>next()</code> method of
-   * <code>PSJdbcResultSetIteratorStep</code>.
+   * Returns a step which queries the table specified by <code>tableSchema</code> in its <code>
+   * execute</code> method. Then the result set can be iterated by using the <code>next()</code>
+   * method of <code>PSJdbcResultSetIteratorStep</code>.
    *
-   * @param dbmsDef Provides the database/schema information for the tables,
-   * may not be <code>null</code>.
+   * @param dbmsDef Provides the database/schema information for the tables, may not be <code>null
+   *     </code>.
    * @param tableSchema The table to query, may not be <code>null</code>.
-   * @param columns an array of column names, may be <code>null</code>
-   * or empty array in which case all the columns are used in the select query.
-   * The columns specified must belong to the table specified by the
-   * <code>tableSchema</code> parameter.
-   * @param filter encapsulates the where clause of the select query,
-   * may be <code>null</code> in which case the select query does not have a
-   * where clause.
-   * @param rowAction the action to be set for the rows cataloged, should be
-   * one of the following values:
-   * <code>PSJdbcRowData.ACTION_INSERT</code> or
-   * <code>PSJdbcRowData.ACTION_UPDATE</code> or
-   * <code>PSJdbcRowData.ACTION_REPLACE</code> or
-   * <code>PSJdbcRowData.ACTION_DELETE</code> or
-   * <code>PSJdbcRowData.ACTION_INSERT_IF_NOT_EXIST</code>
-   *
-   * @return the step which queries the table specified by <code>tableSchema</code>
-   * in its <code>execute</code> method, never <code>null</code>
-   *
+   * @param columns an array of column names, may be <code>null</code> or empty array in which case
+   *     all the columns are used in the select query. The columns specified must belong to the
+   *     table specified by the <code>tableSchema</code> parameter.
+   * @param filter encapsulates the where clause of the select query, may be <code>null</code> in
+   *     which case the select query does not have a where clause.
+   * @param rowAction the action to be set for the rows cataloged, should be one of the following
+   *     values: <code>PSJdbcRowData.ACTION_INSERT</code> or <code>PSJdbcRowData.ACTION_UPDATE
+   *     </code> or <code>PSJdbcRowData.ACTION_REPLACE</code> or <code>PSJdbcRowData.ACTION_DELETE
+   *     </code> or <code>PSJdbcRowData.ACTION_INSERT_IF_NOT_EXIST</code>
+   * @return the step which queries the table specified by <code>tableSchema</code> in its <code>
+   *     execute</code> method, never <code>null</code>
    * @throws PSJdbcTableFactoryException if any error occurs.
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>tableSchema</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code>
    */
   public static PSJdbcResultSetIteratorStep getResultSetIteratorStatement(
       PSJdbcDbmsDef dbmsDef,
@@ -552,12 +532,10 @@ public class PSJdbcStatementFactory {
   /**
    * Returns an execution step that will delete all rows from the table.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema The table to clear.  May not be <code>null</code>.
-   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to clear. May not be <code>null</code>.
    * @return The statement, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
    * </code>.
    */
@@ -575,19 +553,18 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns the string to be used in INSERT INTO...SELECT... statement
-   * for child tables whose foreign key references the parent tables
-   * identity/sequence column.
+   * Returns the string to be used in INSERT INTO...SELECT... statement for child tables whose
+   * foreign key references the parent tables identity/sequence column.
    *
-   * @param dbmsDef Provides the database/schema information for the table,
-   * assumed not <code>null</code>.
+   * @param dbmsDef Provides the database/schema information for the table, assumed not <code>null
+   *     </code>.
    * @param tableSchema The table to insert into. Assumed not <code>null</code>
    * @param row The row to insert. Assumed not <code>null</code>.
-   * @param valueBuf the string containing the value of columns of the child
-   * table, assumed not <code>null</code>
-   * @return the string to be used in INSERT INTO...SELECT... statement
-   * for child tables whose foreign key references the parent tables
-   * identity/sequence column, never <code>null</code> or empty.
+   * @param valueBuf the string containing the value of columns of the child table, assumed not
+   *     <code>null</code>
+   * @return the string to be used in INSERT INTO...SELECT... statement for child tables whose
+   *     foreign key references the parent tables identity/sequence column, never <code>null</code>
+   *     or empty.
    */
   private static String getInsertSelectString(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row, String valueBuf) {
@@ -680,16 +657,13 @@ public class PSJdbcStatementFactory {
   /**
    * Returns an execution step that will insert the specified row in the table.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema The table to insert into.  May not be <code>null
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to insert into. May not be <code>null
    * </code>.
-   * @param row The row to insert.  May not be <code>null</code>.
-   *
+   * @param row The row to insert. May not be <code>null</code>.
    * @return The statement, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if dbmsDef, tableSchema, or row is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if dbmsDef, tableSchema, or row is <code>null</code>.
    */
   public static PSJdbcPreparedSqlStatement getInsertStatement(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row) {
@@ -826,6 +800,7 @@ public class PSJdbcStatementFactory {
 
   /**
    * Gets the binary value by loading the file using the hash.
+   *
    * @param dbmsDef assumed not <code>null</code>
    * @param hash assumed not <code>null</code>
    * @return String binary data.
@@ -864,19 +839,16 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution step that will update the specified row in the table.
-   * If the table being updated has update keys defined, they will be used,
-   * otherwise the primary key will be used (one or the other must have been
-   * provided).
+   * Returns an execution step that will update the specified row in the table. If the table being
+   * updated has update keys defined, they will be used, otherwise the primary key will be used (one
+   * or the other must have been provided).
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema The table to insert into.  May not be <code>null
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to insert into. May not be <code>null
    * </code>.
-   * @param row The row to insert.  May not be <code>null</code>.
-   *
+   * @param row The row to insert. May not be <code>null</code>.
    * @return The statement, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if dbmsDef or tableSchema is <code>null
    * </code>, or if no keys have been provided.
    */
@@ -1009,10 +981,10 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Helper method for figuring if the db is oracle. This code segment is
-   * used in multiple locations
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
+   * Helper method for figuring if the db is oracle. This code segment is used in multiple locations
+   *
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
    * @return <code>true</code> if the driver is an oracle driver
    */
   private static boolean isDBOracle(PSJdbcDbmsDef dbmsDef) {
@@ -1021,21 +993,18 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution step that will delete the specified row from the
-   * table.  If the table being updated has update keys defined, they will be
-   * used, otherwise the primary key will be used (one of the two must be
-   * provided).
+   * Returns an execution step that will delete the specified row from the table. If the table being
+   * updated has update keys defined, they will be used, otherwise the primary key will be used (one
+   * of the two must be provided).
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   * @param tableSchema The table to delete from.  May not be <code>null
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
+   * @param tableSchema The table to delete from. May not be <code>null
    * </code>.
-   * @param row The row to delete.  May not be <code>null</code>.
-   *
+   * @param row The row to delete. May not be <code>null</code>.
    * @return The statement, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if dbmsDef, tableSchema or row is
-   * <code>null</code>, or if no keys have been provided..
+   * @throws IllegalArgumentException if dbmsDef, tableSchema or row is <code>null</code>, or if no
+   *     keys have been provided..
    */
   public static PSJdbcExecutionStep getDeleteStatement(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcRowData row) {
@@ -1085,17 +1054,11 @@ public class PSJdbcStatementFactory {
   /**
    * Returns a step which executes the specified query.
    *
-   * @param dbmsDef Provides the database/schema information,
-   * may not be <code>null</code>.
-   *
-   * @param sqlQuery The sql query encapsulated by the returned step, this
-   * query will be executed when the returned step is executed,
-   * may not be <code>null</code> or empty
-   *
+   * @param dbmsDef Provides the database/schema information, may not be <code>null</code>.
+   * @param sqlQuery The sql query encapsulated by the returned step, this query will be executed
+   *     when the returned step is executed, may not be <code>null</code> or empty
    * @return the step which executes the specified query, never <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>sqlQuery</code> is invalid.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>sqlQuery</code> is invalid.
    */
   public static PSJdbcResultSetIteratorStep getQueryStatement(
       PSJdbcDbmsDef dbmsDef, String sqlQuery) {
@@ -1108,20 +1071,15 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Creates SQL definition for primary key constraint.  The constraint will
-   * be named using the primary key name (if assigned) or "pk_"+table name, if
-   * the name does not exceed the maximum length for a constraint identifier.
-   * If the constraint name is too long, the database will assign a unique
-   * identifier.
+   * Creates SQL definition for primary key constraint. The constraint will be named using the
+   * primary key name (if assigned) or "pk_"+table name, if the name does not exceed the maximum
+   * length for a constraint identifier. If the constraint name is too long, the database will
+   * assign a unique identifier.
    *
-   * @param dbmsDef Used to qualify the primary key name, may not be
-   *  <code>null</code>.
-   * @param tableSchema The table possibly containing the primary key.
-   * May not be <code>null</code>.
-   *
-   * @return The primary key constraint definition, or <code>null</code> if the
-   * tableSchema does not contain one.
-   *
+   * @param dbmsDef Used to qualify the primary key name, may not be <code>null</code>.
+   * @param tableSchema The table possibly containing the primary key. May not be <code>null</code>.
+   * @return The primary key constraint definition, or <code>null</code> if the tableSchema does not
+   *     contain one.
    * @throws IllegalArgumentException if dbmsDef, tableSchema is <code>null
    * </code>.
    */
@@ -1161,18 +1119,13 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Creates sql definition for all external tables in a foreign key
-   * definition.
+   * Creates sql definition for all external tables in a foreign key definition.
    *
-   * @param dbmsDef The database server info for the tables.
-   * Assumed not <code>null</code>.
-   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
    * @param schema
-   * @param schema The table possibly containing the foreign key.
-   * Assumed not <code>null</code>.
-   *
-   * @return The foreign key definition, or <code>null</code> if the
-   * tableSchema does not contain any.
+   * @param schema The table possibly containing the foreign key. Assumed not <code>null</code>.
+   * @return The foreign key definition, or <code>null</code> if the tableSchema does not contain
+   *     any.
    */
   public static String getForeignKeyConstraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema, PSJdbcTableSchema newSchema) {
@@ -1223,14 +1176,10 @@ public class PSJdbcStatementFactory {
   /**
    * Creates foreign key constraint sql definition for a single external table.
    *
-   * @param dbmsDef The database server info for the tables.
-   * Assumed not <code>null</code>.
-   * @param fkName The qualified foreign key constraint name, assumed not
-   * <code>null</code>.
-   * @param cols Iterator over a list of foreign key columns for a single
-   * external table.  See {@link PSJdbcForeignKey#getColumns(String)} for more
-   * info.
-   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param fkName The qualified foreign key constraint name, assumed not <code>null</code>.
+   * @param cols Iterator over a list of foreign key columns for a single external table. See {@link
+   *     PSJdbcForeignKey#getColumns(String)} for more info.
    * @return The foreign key constraint, never <code>null</code>.
    */
   private static String getForeignKeyConstraintInt(
@@ -1278,17 +1227,12 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Creates unique constraint sql definitions for all unique indexes defined
-   * in a table
+   * Creates unique constraint sql definitions for all unique indexes defined in a table
    *
-   * @param dbmsDef The database server info for the tables.
-   * Assumed not <code>null</code>.
-   *
-   * @param tableSchema The table possibly containing the index definitions.
-   * Assumed not <code>null</code>.
-   *
-   * @return The index definitions, or <code>null</code> if the
-   * tableSchema does not contain any.
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param tableSchema The table possibly containing the index definitions. Assumed not <code>null
+   *     </code>.
+   * @return The index definitions, or <code>null</code> if the tableSchema does not contain any.
    */
   private static String getUniqueConstraints(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
 
@@ -1308,13 +1252,9 @@ public class PSJdbcStatementFactory {
   /**
    * Creates unique constraint sql definition for a set of columns.
    *
-   * @param dbmsDef The database server info for the tables.
-   * Assumed not <code>null</code>.
-   * @param tableSchema The table containing the index definition.
-   * Assumed not <code>null</code>.
-   * @param index The index to create the constraint from, assumed not
-   * <code>null</code>.
-   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param tableSchema The table containing the index definition. Assumed not <code>null</code>.
+   * @param index The index to create the constraint from, assumed not <code>null</code>.
    * @return The unique constaint definition, never <code>null</code>.
    */
   private static String getUniqueConstraint(
@@ -1343,13 +1283,10 @@ public class PSJdbcStatementFactory {
   /**
    * Returns a constraint name for this primary key.
    *
-   * @param tableName The name of the table, assumed not <code>null</code>
-   * or empty.
-   * @param pkName The name of the primary key, may be <code>null</code>
-   * or empty, in which case a name is created by prepending "pk_" to the
-   * tableName.
+   * @param tableName The name of the table, assumed not <code>null</code> or empty.
+   * @param pkName The name of the primary key, may be <code>null</code> or empty, in which case a
+   *     name is created by prepending "pk_" to the tableName.
    * @param dbmsDef Used to qualify the name, assumed not <code>null</code>.
-   *
    * @return The name, never <code>null</code> or empty.
    */
   private static String getQualifiedPkName(String tableName, String pkName, PSJdbcDbmsDef dbmsDef) {
@@ -1362,12 +1299,9 @@ public class PSJdbcStatementFactory {
   /**
    * Returns a constraint name for this foreign key.
    *
-   * @param tableName The name of the table, assumed not <code>null</code>
-   * or empty.
-   * @param fkName The name of the foreign key, may be <code>null</code>
-   * or empty, in which case a name is created by prepending "fk_" to the
-   * tableName.
-   *
+   * @param tableName The name of the table, assumed not <code>null</code> or empty.
+   * @param fkName The name of the foreign key, may be <code>null</code> or empty, in which case a
+   *     name is created by prepending "fk_" to the tableName.
    * @return The name, never <code>null</code> or empty.
    */
   private static String getQualifiedFkName(String tableName, String fkName) {
@@ -1377,22 +1311,17 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns a name for the index. The maximum length of returned index name
-   * is 17 since DB2 only allows index name upto 18 characters.
+   * Returns a name for the index. The maximum length of returned index name is 17 since DB2 only
+   * allows index name upto 18 characters.
    *
-   * If <code>indexName</code> is not
-   * <code>null</code> and non-empty, then it is returned else an index name
-   * is generated by concatenating :
-   * "IX_" + tableName[0, 4] + "_" + 2 digit random number +
-   * "_" + 2 digit random number + "_" + 2 digit random number
+   * <p>If <code>indexName</code> is not <code>null</code> and non-empty, then it is returned else
+   * an index name is generated by concatenating : "IX_" + tableName[0, 4] + "_" + 2 digit random
+   * number + "_" + 2 digit random number + "_" + 2 digit random number
    *
-   * @param tableName the name of the table, assumed not <code>null</code>
-   * or empty.
-   * @param indexName The name of the index, may be <code>null</code>
-   * or empty
-   * @param dbmsDef Provides the database/schema information for the table.
-   * May not be <code>null</code>.
-   *
+   * @param tableName the name of the table, assumed not <code>null</code> or empty.
+   * @param indexName The name of the index, may be <code>null</code> or empty
+   * @param dbmsDef Provides the database/schema information for the table. May not be <code>null
+   *     </code>.
    * @return the index name , never <code>null</code> or empty.
    */
   private static String getQualifiedIndexName(
@@ -1428,11 +1357,9 @@ public class PSJdbcStatementFactory {
   /**
    * Generates an alter table statement to add the specified component.
    *
-   * @param tableName The fully qualified table name.  Assumed not <code>null
+   * @param tableName The fully qualified table name. Assumed not <code>null
    * </code>.
-   * @param componentDef The SQL string defining the component. Assumed not
-   * <code>null </code>.
-   *
+   * @param componentDef The SQL string defining the component. Assumed not <code>null </code>.
    * @return The add column statement, never <code>null</code>.
    */
   private static PSJdbcSqlStatement getAddComponentStatement(
@@ -1496,7 +1423,7 @@ public class PSJdbcStatementFactory {
    * Generates an alter column statement to alter column defination as defined.
    *
    * @param dbmsDef Table Defination
-   * @param tableName The fully qualified table name.  Assumed not <code>null
+   * @param tableName The fully qualified table name. Assumed not <code>null
    * </code>.
    * @param column Column that needs to be modified
    * @return The add column statement, never <code>null</code>.
@@ -1536,11 +1463,9 @@ public class PSJdbcStatementFactory {
   /**
    * Generates an alter table statement to drop the specified component.
    *
-   * @param tableName The fully qualified table name.  Assumed not <code>null
+   * @param tableName The fully qualified table name. Assumed not <code>null
    * </code>.
-   * @param columnName The column to drop. Assumed not
-   * <code>null </code>.
-   *
+   * @param columnName The column to drop. Assumed not <code>null </code>.
    * @return The add column statement, never <code>null</code>.
    */
   private static PSJdbcSqlStatement getDropComponentStatement(String tableName, String columnName) {
@@ -1556,23 +1481,19 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution block that contains one or more steps for dropping
-   * non-unique indexes for the specified table. This block contains one
-   * step for each non-unique index to be deleted. If no index is to be
-   * deleted, then the execution block does not contain any step.
+   * Returns an execution block that contains one or more steps for dropping non-unique indexes for
+   * the specified table. This block contains one step for each non-unique index to be deleted. If
+   * no index is to be deleted, then the execution block does not contain any step.
    *
-   * @param dbmsDef provides the database/schema information for the table,
-   * may not be <code>null</code>.
-   *
-   * @param tableSchema schema of the table for which non-unique indexes are
-   * to be deleted, may not be <code>null</code>.
-   *
-   * @return the execution block containing a step for each non-unique
-   * index to be deleted, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>tableSchema</code> is <code>null</code> or if any index which is
-   * to be deleted does not have a non-<code>null</code> and non-empty name
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be deleted, may not
+   *     be <code>null</code>.
+   * @return the execution block containing a step for each non-unique index to be deleted, never
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code> or if any index which is to be deleted does not have a non-<code>null</code>
+   *     and non-empty name
    */
   public static PSJdbcExecutionStep getDropIndexStatements(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
@@ -1606,22 +1527,18 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution block that contains one or more steps for creating
-   * non-unique indexes for the specified table. This block contains one
-   * step for each non-unique index to be created. If no index is to be
-   * created, then the execution block does not contain any step.
+   * Returns an execution block that contains one or more steps for creating non-unique indexes for
+   * the specified table. This block contains one step for each non-unique index to be created. If
+   * no index is to be created, then the execution block does not contain any step.
    *
-   * @param dbmsDef provides the database/schema information for the table,
-   * may not be <code>null</code>.
-   *
-   * @param tableSchema schema of the table for which non-unique indexes are
-   * to be created, may not be <code>null</code>.
-   *
-   * @return the execution block containing a step for each non-unique
-   * index to be created, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>tableSchema</code> is <code>null</code>
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be created, may not
+   *     be <code>null</code>.
+   * @return the execution block containing a step for each non-unique index to be created, never
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> is <code>
+   *     null</code>
    */
   public static PSJdbcExecutionStep getCreateIndexStatements(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema) {
@@ -1643,28 +1560,21 @@ public class PSJdbcStatementFactory {
   }
 
   /**
-   * Returns an execution step for creating a non-unique index for the
-   * specified table.
+   * Returns an execution step for creating a non-unique index for the specified table.
    *
-   * @param dbmsDef provides the database/schema information for the table,
-   * may not be <code>null</code>.
-   *
-   * @param tableSchema schema of the table for which non-unique indexes are
-   * to be created, may not be <code>null</code>.
-   *
-   * @param index the non-unique index to be created, may not be
-   * <code>null</code>, should be of type
-   * <code>PSJdbcIndex.TYPE_NON_UNIQUE</code> and its action should be
-   * <code>PSJdbcTableComponent.ACTION_CREATE</code>
-   *
-   * @return the execution step for creating the specified non-unique
-   * index, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dbmsDef</code> or
-   * <code>tableSchema</code> or <code>index</code> is <code>null</code>
-   * or <code>index</code> is not of type
-   * <code>PSJdbcIndex.TYPE_NON_UNIQUE)</code> or its action is not equal
-   * <code>PSJdbcTableComponent.ACTION_CREATE</code>
+   * @param dbmsDef provides the database/schema information for the table, may not be <code>null
+   *     </code>.
+   * @param tableSchema schema of the table for which non-unique indexes are to be created, may not
+   *     be <code>null</code>.
+   * @param index the non-unique index to be created, may not be <code>null</code>, should be of
+   *     type <code>PSJdbcIndex.TYPE_NON_UNIQUE</code> and its action should be <code>
+   *     PSJdbcTableComponent.ACTION_CREATE</code>
+   * @return the execution step for creating the specified non-unique index, never <code>null</code>
+   *     .
+   * @throws IllegalArgumentException if <code>dbmsDef</code> or <code>tableSchema</code> or <code>
+   *     index</code> is <code>null</code> or <code>index</code> is not of type <code>
+   *     PSJdbcIndex.TYPE_NON_UNIQUE)</code> or its action is not equal <code>
+   *     PSJdbcTableComponent.ACTION_CREATE</code>
    */
   public static PSJdbcExecutionStep getCreateIndexStatement(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcIndex index) {

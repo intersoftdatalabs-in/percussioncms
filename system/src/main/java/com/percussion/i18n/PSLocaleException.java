@@ -19,9 +19,7 @@ package com.percussion.i18n;
 
 import com.percussion.error.PSException;
 
-/**
- * Generic exception class to be used for locale errors.
- */
+/** Generic exception class to be used for locale errors. */
 public class PSLocaleException extends PSException {
   /**
    * Pass-through constructor to super class.

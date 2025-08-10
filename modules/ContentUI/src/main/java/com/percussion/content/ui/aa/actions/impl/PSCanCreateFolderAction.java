@@ -24,16 +24,13 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Implementation of the "canCreateFolder" action.
- */
+/** Implementation of the "canCreateFolder" action. */
 public class PSCanCreateFolderAction extends PSAAActionBase {
   /**
-   * @param params the parameter expected in the map is a valid
-   * {@link IPSHtmlParameters#SYS_FOLDERID parentFolderId}
-   * @return String equivalent of boolean value <code>true</code> if user can
-   * create a folder in the folder with given folderid, <code>false</code>
-   * otherwise.
+   * @param params the parameter expected in the map is a valid {@link
+   *     IPSHtmlParameters#SYS_FOLDERID parentFolderId}
+   * @return String equivalent of boolean value <code>true</code> if user can create a folder in the
+   *     folder with given folderid, <code>false</code> otherwise.
    */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, IPSHtmlParameters.SYS_FOLDERID);

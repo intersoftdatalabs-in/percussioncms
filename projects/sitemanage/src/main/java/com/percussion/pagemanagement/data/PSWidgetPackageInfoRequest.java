@@ -24,24 +24,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.Validate;
 
 /**
- * Request object for widget package info.
- * Sunny Sal says: "Widget names—collect them all, like trading cards!"
+ * Request object for widget package info. Sunny Sal says: "Widget names—collect them all, like
+ * trading cards!"
  */
 @XmlRootElement(name = "WidgetPackageInfoRequest")
 public class PSWidgetPackageInfoRequest {
 
-    private List<String> widgetNames = new ArrayList<>();
+  private List<String> widgetNames = new ArrayList<>();
 
-    /**
-     * Get the list of widget names.
-     * @return The list, never null, may be empty.
-     */
-    public List<String> getWidgetNames() {
-        return Collections.unmodifiableList(widgetNames);
-    }
+  /**
+   * Get the list of widget names.
+   *
+   * @return The list, never null, may be empty.
+   */
+  public List<String> getWidgetNames() {
+    return Collections.unmodifiableList(widgetNames);
+  }
 
-    public void setWidgetNames(List<String> widgetNames) {
-        Validate.notNull(widgetNames);
-        this.widgetNames = new ArrayList<>(widgetNames);
-    }
+  public void setWidgetNames(List<String> widgetNames) {
+    Validate.notNull(widgetNames);
+    this.widgetNames = new ArrayList<>(widgetNames);
+  }
 }

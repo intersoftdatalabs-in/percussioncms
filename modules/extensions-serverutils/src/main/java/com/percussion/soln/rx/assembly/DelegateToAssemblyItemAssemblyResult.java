@@ -32,9 +32,7 @@ import javax.jcr.Node;
 
 public abstract class DelegateToAssemblyItemAssemblyResult implements IPSAssemblyResult {
 
-  /**
-   * Safe to serialize
-   */
+  /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
   private IPSAssemblyItem assemblyItem;

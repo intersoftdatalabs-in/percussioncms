@@ -42,11 +42,10 @@ import org.apache.tools.ant.ProjectHelper;
 import org.apache.tools.ant.helper.ProjectHelperImpl;
 
 /**
- * Class that excepts and validates options for the rx build then builds a temp
- * batch file with the appropriate ant command line args. For patch builds, four
- * simple ant build files will be generated to handle the copying of patch
- * files, backup, install, and uninstall of the patch files. A configuration
- * file will also be generated for the patch describing the details of the
+ * Class that excepts and validates options for the rx build then builds a temp batch file with the
+ * appropriate ant command line args. For patch builds, four simple ant build files will be
+ * generated to handle the copying of patch files, backup, install, and uninstall of the patch
+ * files. A configuration file will also be generated for the patch describing the details of the
  * patch.
  */
 public class PSRxBuildInput {
@@ -56,20 +55,19 @@ public class PSRxBuildInput {
   /**
    * Contructs a new Ui
    *
-   * @param batchfile the temporary batch file which will be used to launch the
-   *           build, may not be <code>null</code> or empty.
-   * @param libPath the library path specified by the Ant -lib command line
-   *           parameter, may not be <code>null</code> or empty.
-   * @param buildfile the build file which will include instructions for
-   *           copying source files to the patch files build directory.
-   * @param backupfile the build file which will include instructions for
-   *           backing up original Rhythmyx files to be patched.
-   * @param installfile the build file which will include instructions for
-   *           installing the patch files.
-   * @param uninstallfile the build file which will include instructions for
-   *           uninstalling the patch files and restoring the originals.
-   * @param rootDir the source root directory, may not be <code>null</code> or
-   *           empty.
+   * @param batchfile the temporary batch file which will be used to launch the build, may not be
+   *     <code>null</code> or empty.
+   * @param libPath the library path specified by the Ant -lib command line parameter, may not be
+   *     <code>null</code> or empty.
+   * @param buildfile the build file which will include instructions for copying source files to the
+   *     patch files build directory.
+   * @param backupfile the build file which will include instructions for backing up original
+   *     Rhythmyx files to be patched.
+   * @param installfile the build file which will include instructions for installing the patch
+   *     files.
+   * @param uninstallfile the build file which will include instructions for uninstalling the patch
+   *     files and restoring the originals.
+   * @param rootDir the source root directory, may not be <code>null</code> or empty.
    * @param configfile the full path to the .cfg file should not be <code>null</code>
    */
   public PSRxBuildInput(
@@ -164,8 +162,7 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Removes previous build of this patch if one exists.
-   * Creates or re-creates necesary folders
+   * Removes previous build of this patch if one exists. Creates or re-creates necesary folders
    * Copies over readme from patchresources
    */
   private void init() {
@@ -193,9 +190,7 @@ public class PSRxBuildInput {
     }
   }
 
-  /**
-   * Sets the build properties and then executes the target
-   */
+  /** Sets the build properties and then executes the target */
   private void executeTarget() {
     if (!validate()) return;
 
@@ -260,11 +255,10 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Writes the ant build file used to copy the additional non-obfuscated jars
-   * to the temporary patch directory in order to build the patch zipfile. Also
-   * writes the ant files used to install and remove files as part of the
-   * patch. Generates a .cfg file with this information to reload when building
-   * cumulative patches.
+   * Writes the ant build file used to copy the additional non-obfuscated jars to the temporary
+   * patch directory in order to build the patch zipfile. Also writes the ant files used to install
+   * and remove files as part of the patch. Generates a .cfg file with this information to reload
+   * when building cumulative patches.
    *
    * @throws IOException if an error occurs accessing a zip file.
    */
@@ -436,10 +430,8 @@ public class PSRxBuildInput {
    * null</code> or empty.
    *
    * @param buff the StringBuilder to use, cannot be <code>null</code>.
-   * @param var the name of the property, cannot be <code>null</code> or
-   *           empty.
+   * @param var the name of the property, cannot be <code>null</code> or empty.
    * @param value the value to assign, can be <code>null</code> or empty.
-   *
    */
   private void setEnviromentVar(StringBuilder buff, String var, String value) {
     if (buff == null) throw new IllegalArgumentException("Project cannot be null.");
@@ -453,11 +445,8 @@ public class PSRxBuildInput {
    * Set a enviroment's variable if the value passed in is <code>true</code>.
    *
    * @param buff the StringBuilder to use, cannot be <code>null</code>.
-   * @param var the name of the property, cannot be <code>null</code> or
-   *           empty.
-   * @param value the boolean value, the property will only be set if this is
-   *           <code>true</code>
-   *
+   * @param var the name of the property, cannot be <code>null</code> or empty.
+   * @param value the boolean value, the property will only be set if this is <code>true</code>
    */
   private void setEnviromentVar(StringBuilder buff, String var, boolean value) {
     if (value) setEnviromentVar(buff, var, "true");
@@ -468,10 +457,8 @@ public class PSRxBuildInput {
    * null</code> or empty.
    *
    * @param buff the StringBuilder to use, cannot be <code>null</code>.
-   * @param prop the name of the property, cannot be <code>null</code> or
-   *           empty.
+   * @param prop the name of the property, cannot be <code>null</code> or empty.
    * @param value the value to assign, can be <code>null</code> or empty.
-   *
    */
   private void setProperty(StringBuilder buff, String prop, String value) {
     if (buff == null) throw new IllegalArgumentException("Project cannot be null.");
@@ -485,11 +472,8 @@ public class PSRxBuildInput {
    * Set a project's property if the value passed in is <code>true</code>.
    *
    * @param buff the StringBuilder to use, cannot be <code>null</code>.
-   * @param prop the name of the property, cannot be <code>null</code> or
-   *           empty.
-   * @param value the boolean value, the property will only be set if this is
-   *           <code>true</code>
-   *
+   * @param prop the name of the property, cannot be <code>null</code> or empty.
+   * @param value the boolean value, the property will only be set if this is <code>true</code>
    */
   private void setProperty(StringBuilder buff, String prop, boolean value) {
     if (value) setProperty(buff, prop, "true");
@@ -530,8 +514,8 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Modifies the patch id, replacing spaces with underscores and truncating
-   * string to a 20 char maximum.
+   * Modifies the patch id, replacing spaces with underscores and truncating string to a 20 char
+   * maximum.
    *
    * @param s the patch id string, can be <code>null</code>.
    * @return a string, never <code>null</code>.
@@ -543,11 +527,9 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Modifies the given string by removing beginning and ending file separators
-   * if they exist.
+   * Modifies the given string by removing beginning and ending file separators if they exist.
    *
    * @param s the string to modify.
-   *
    * @return the string with beginning and ending file separators removed.
    */
   private String removeFileSeparators(String s) {
@@ -597,19 +579,15 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates a single Ant copy task statement with file and todir attributes.
-   * This copy task will run in verbose mode and existing files will always be
-   * overwritten. The failonerror argument will control whether this task fails
-   * on error or continues with a warning.
+   * Creates a single Ant copy task statement with file and todir attributes. This copy task will
+   * run in verbose mode and existing files will always be overwritten. The failonerror argument
+   * will control whether this task fails on error or continues with a warning.
    *
    * @param src the source file location.
    * @param dest the destination directory.
-   * @param failonerror if <code>true</code> the task will be configured to
-   *           fail if an error occurs, otherwise a warning will be issued on
-   *           failure.
-   *
-   * @return an Ant copy task for the specified arguments followed by a
-   *         newline.
+   * @param failonerror if <code>true</code> the task will be configured to fail if an error occurs,
+   *     otherwise a warning will be issued on failure.
+   * @return an Ant copy task for the specified arguments followed by a newline.
    */
   private String createCopyTask(String src, String dest, boolean failonerror) {
     String foe;
@@ -632,21 +610,16 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Surrounds a single Ant copy task created using
-   * {@link #createCopyTask(String, String, boolean)} with an if available
-   * statement. The copy task will run only if the source file exists in the
-   * installation directory in verbose mode and existing files will always be
-   * overwritten. The failonerror argument will control whether this task fails
-   * on error or continues with a warning.
+   * Surrounds a single Ant copy task created using {@link #createCopyTask(String, String, boolean)}
+   * with an if available statement. The copy task will run only if the source file exists in the
+   * installation directory in verbose mode and existing files will always be overwritten. The
+   * failonerror argument will control whether this task fails on error or continues with a warning.
    *
    * @param src the source file location.
    * @param dest the destination directory.
-   * @param failonerror if <code>true</code> the task will be configured to
-   *           fail if an error occurs, otherwise a warning will be issued on
-   *           failure.
-   *
-   * @return an Ant copy task for the specified arguments followed by a
-   *         newline.
+   * @param failonerror if <code>true</code> the task will be configured to fail if an error occurs,
+   *     otherwise a warning will be issued on failure.
+   * @return an Ant copy task for the specified arguments followed by a newline.
    */
   private String createCopyIfAvailableTask(String src, String dest, boolean failonerror) {
     File srcFile = new File(src);
@@ -669,15 +642,12 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates a single Ant move task statement with file and todir attributes.
-   * This move task will run in verbose mode and will print out a warning, but
-   * will not fail, on error.
+   * Creates a single Ant move task statement with file and todir attributes. This move task will
+   * run in verbose mode and will print out a warning, but will not fail, on error.
    *
    * @param src the source file location.
    * @param dest the destination directory.
-   *
-   * @return an Ant move task for the specified arguments followed by a
-   *         newline.
+   * @return an Ant move task for the specified arguments followed by a newline.
    */
   private String createMoveTask(String src, String dest) {
     String destination = removeFileSeparators(dest);
@@ -693,16 +663,13 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates a single Ant delete task statement with appropriate attributes.
-   * This delete task will run in verbose mode and will print out a warning,
-   * but will not fail, on error.
+   * Creates a single Ant delete task statement with appropriate attributes. This delete task will
+   * run in verbose mode and will print out a warning, but will not fail, on error.
    *
    * @param src the source file/dir location.
-   * @param isDir set to <code>true</code> in order to delete a directory,
-   *           otherwise a file will be deleted.
-   *
-   * @return an Ant delete task for the specified argument followed by a
-   *         newline.
+   * @param isDir set to <code>true</code> in order to delete a directory, otherwise a file will be
+   *     deleted.
+   * @return an Ant delete task for the specified argument followed by a newline.
    */
   private String createDeleteTask(String src, boolean isDir) {
     String type = "file";
@@ -715,15 +682,12 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which attempts to copy the given Rhythmyx
-   * file to the patch backup directory only if the file exists.
+   * Creates an Ant task statement which attempts to copy the given Rhythmyx file to the patch
+   * backup directory only if the file exists.
    *
    * @param name the name of the file to be preserved.
-   * @param dir the directory relative to the Rhythmyx root which contains the
-   *           file.
-   *
-   * @return an Ant task which backs up the specified file to the patch
-   *         directory.
+   * @param dir the directory relative to the Rhythmyx root which contains the file.
+   * @return an Ant task which backs up the specified file to the patch directory.
    */
   private String createBackupTask(String name, String dir) {
     String n = removeFileSeparators(name);
@@ -747,18 +711,13 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which handles the backup of the contents of
-   * a zip file. This attempts to copy the original Rhythmyx files and
-   * directories which match those contained in the zip file to the patch
-   * backup directory only if they exist.
+   * Creates an Ant task statement which handles the backup of the contents of a zip file. This
+   * attempts to copy the original Rhythmyx files and directories which match those contained in the
+   * zip file to the patch backup directory only if they exist.
    *
-   * @param src the location of the source file whose contents are to be
-   *           preserved.
-   * @param dir the directory relative to the Rhythmyx root to which the file
-   *           is unzipped.
-   *
-   * @return an Ant task which backs up the contents of the specified file to
-   *         the patch directory.
+   * @param src the location of the source file whose contents are to be preserved.
+   * @param dir the directory relative to the Rhythmyx root to which the file is unzipped.
+   * @return an Ant task which backs up the contents of the specified file to the patch directory.
    * @throws IOException if an error occurs accessing the zip file.
    */
   private String createZipBackupTask(String src, String dir) throws IOException {
@@ -793,7 +752,6 @@ public class PSRxBuildInput {
    * Creates an Ant task statement for creating a directory.
    *
    * @param dir the directory to create.
-   *
    * @return Ant task which creates a directory.
    */
   private String createMkdirTask(String dir) {
@@ -801,12 +759,11 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which handles backup of a directory. If the
-   * directory exists relative to the Rhythmmyx root, then a new directory of
-   * the same name will be created under the patch backup directory.
+   * Creates an Ant task statement which handles backup of a directory. If the directory exists
+   * relative to the Rhythmmyx root, then a new directory of the same name will be created under the
+   * patch backup directory.
    *
    * @param dir the directory to be backed up.
-   *
    * @return Ant task statement to back up a directory.
    */
   private String createBackupDirTask(String dir) {
@@ -828,18 +785,13 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which handles the uninstall of the contents
-   * of a zip file. This attempts to copy the original Rhythmyx files and
-   * directories which match those contained in the zip file from the patch
-   * backup directory back to their original locations.
+   * Creates an Ant task statement which handles the uninstall of the contents of a zip file. This
+   * attempts to copy the original Rhythmyx files and directories which match those contained in the
+   * zip file from the patch backup directory back to their original locations.
    *
-   * @param src the location of the source file whose contents are to be
-   *           uninstalled.
-   * @param dir the directory relative to the Rhythmyx root to which the file
-   *           is unzipped.
-   *
+   * @param src the location of the source file whose contents are to be uninstalled.
+   * @param dir the directory relative to the Rhythmyx root to which the file is unzipped.
    * @return an Ant task which uninstalls the contents of the specified file.
-   *
    * @throws IOException if an error occurs accessing the zip file.
    */
   private String createZipUninstallTask(String src, String dir) throws IOException {
@@ -871,22 +823,18 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which copies the given patch file to the
-   * Rhythmyx directory. Zip files will be extracted to a Rhythmyx directory.
+   * Creates an Ant task statement which copies the given patch file to the Rhythmyx directory. Zip
+   * files will be extracted to a Rhythmyx directory.
    *
    * @param name the name of the file to be installed.
-   * @param dir the directory relative to the Rhythmyx root in which the file
-   *           should be installed.
-   * @param onlyIfAvailable set to <code>true</code> in order to check for
-   *           availability of file before copying, <code>false</code> to copy
-   *           without checking availability. This flag does not apply to zip
-   *           files. The installing of these files is controlled by
-   *           {@link #createUnzipTask(String, String)}.
-   * @param usePath set to <code>true</code> in order to use the relative path
-   *           of the file under the patch files directory.
-   *
-   * @return an Ant task which installs the specified file to the Rhythmyx
-   *         installation.
+   * @param dir the directory relative to the Rhythmyx root in which the file should be installed.
+   * @param onlyIfAvailable set to <code>true</code> in order to check for availability of file
+   *     before copying, <code>false</code> to copy without checking availability. This flag does
+   *     not apply to zip files. The installing of these files is controlled by {@link
+   *     #createUnzipTask(String, String)}.
+   * @param usePath set to <code>true</code> in order to use the relative path of the file under the
+   *     patch files directory.
+   * @return an Ant task which installs the specified file to the Rhythmyx installation.
    */
   private String createInstallTask(
       String name, String dir, boolean onlyIfAvailable, boolean usePath) {
@@ -911,20 +859,17 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which uninstalls the given patch file from
-   * the Rhythmyx directory. If an original is found in the patch backup
-   * directory then it is restored. If a backup of the file is not found and
-   * the file exists in the patch files directory then the file is a new file
-   * and it is deleted from the Rhythmyx directory.
+   * Creates an Ant task statement which uninstalls the given patch file from the Rhythmyx
+   * directory. If an original is found in the patch backup directory then it is restored. If a
+   * backup of the file is not found and the file exists in the patch files directory then the file
+   * is a new file and it is deleted from the Rhythmyx directory.
    *
    * @param name the name of the file to be uninstalled.
-   * @param dir the directory relative to the Rhythmyx root from which the file
-   *           should be uninstalled.
-   * @param usePath set to <code>true</code> in order to use the relative path
-   *           of the file under the patch files directory.
-   *
-   * @return an Ant task which uninstalls the specified file from the Rhythmyx
-   *         installation.
+   * @param dir the directory relative to the Rhythmyx root from which the file should be
+   *     uninstalled.
+   * @param usePath set to <code>true</code> in order to use the relative path of the file under the
+   *     patch files directory.
+   * @return an Ant task which uninstalls the specified file from the Rhythmyx installation.
    */
   private String createUninstallTask(String name, String dir, boolean usePath) {
     String n = removeFileSeparators(name);
@@ -962,17 +907,15 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which uninstalls the given zip file entry
-   * file from the Rhythmyx directory. If an original is found in the patch
-   * backup directory then it is restored. If a backup of the file is not found
-   * then the file is a new file and it is deleted from the Rhythmyx directory.
+   * Creates an Ant task statement which uninstalls the given zip file entry file from the Rhythmyx
+   * directory. If an original is found in the patch backup directory then it is restored. If a
+   * backup of the file is not found then the file is a new file and it is deleted from the Rhythmyx
+   * directory.
    *
    * @param name the name of the entry to be uninstalled.
-   * @param dir the directory relative to the Rhythmyx root from which the file
-   *           should be uninstalled.
-   *
-   * @return an Ant task which uninstalls the specified file from the Rhythmyx
-   *         installation.
+   * @param dir the directory relative to the Rhythmyx root from which the file should be
+   *     uninstalled.
+   * @return an Ant task which uninstalls the specified file from the Rhythmyx installation.
    */
   private String createZipEntryUninstallTask(String name, String dir) {
     String n = removeFileSeparators(name);
@@ -1008,15 +951,12 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which uninstalls the given zip entry
-   * directory from the Rhythmyx directory. If an original is not found in the
-   * patch backup directory but the directory exists in the Rhythmyx directory,
-   * then the directory is deleted.
+   * Creates an Ant task statement which uninstalls the given zip entry directory from the Rhythmyx
+   * directory. If an original is not found in the patch backup directory but the directory exists
+   * in the Rhythmyx directory, then the directory is deleted.
    *
    * @param name the directory to be uninstalled.
-   *
-   * @return an Ant task which uninstalls the specified directory from the
-   *         Rhythmyx installation.
+   * @return an Ant task which uninstalls the specified directory from the Rhythmyx installation.
    */
   private String createZipDirUninstallTask(String name) {
     String n = removeFileSeparators(name);
@@ -1047,18 +987,17 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which uninstalls the given patch file from
-   * the Rhythmyx directory only if it exists in the Rhythmyx directory. See
-   * {@link #createUninstallTask(String, String)} for the uninstall logic.
+   * Creates an Ant task statement which uninstalls the given patch file from the Rhythmyx directory
+   * only if it exists in the Rhythmyx directory. See {@link #createUninstallTask(String, String)}
+   * for the uninstall logic.
    *
    * @param name the name of the file to be uninstalled.
-   * @param dir the directory relative to the Rhythmyx root from which the file
-   *           should be uninstalled.
-   * @param usePath set to <code>true</code> in order to use the relative path
-   *           of the file under the patch files directory.
-   *
-   * @return an Ant task which uninstalls the specified file from the Rhythmyx
-   *         installation only if it is currently available.
+   * @param dir the directory relative to the Rhythmyx root from which the file should be
+   *     uninstalled.
+   * @param usePath set to <code>true</code> in order to use the relative path of the file under the
+   *     patch files directory.
+   * @return an Ant task which uninstalls the specified file from the Rhythmyx installation only if
+   *     it is currently available.
    */
   private String createUninstallIfAvailableTask(String name, String dir, boolean usePath) {
     String originalLoc = normalizeDir(removeFileSeparators(dir));
@@ -1083,11 +1022,8 @@ public class PSRxBuildInput {
    * Creates an Ant task statement which unzips a file.
    *
    * @param file the location of the file to be unzipped.
-   * @param dir the directory relative to the Rhythmyx root to which the file
-   *           should be unzipped.
-   *
-   * @return an Ant task which unzips the specified file to the specified
-   *         location.
+   * @param dir the directory relative to the Rhythmyx root to which the file should be unzipped.
+   * @return an Ant task which unzips the specified file to the specified location.
    */
   private String createUnzipTask(String file, String dir) {
     return "<if>\n"
@@ -1108,15 +1044,13 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Creates an Ant task statement which copies the given file to the patch
-   * files build directory. Files are copied to the patch files directory in a
-   * folder structure based on their locations relative to the Rhythmyx root.
+   * Creates an Ant task statement which copies the given file to the patch files build directory.
+   * Files are copied to the patch files directory in a folder structure based on their locations
+   * relative to the Rhythmyx root.
    *
    * @param src the absolute path of the file to be copied.
    * @param loc the path of the file relative to the Rhythmyx root.
-   *
-   * @return an Ant task which copies the specified file to the patch files
-   *         build directory.
+   * @return an Ant task which copies the specified file to the patch files build directory.
    */
   private String createBuildTask(String src, String loc) {
     String dir = PATCHDIR_FILES;
@@ -1130,7 +1064,6 @@ public class PSRxBuildInput {
    *
    * @param name the name of the target.
    * @param contents the instructions to be included in the target.
-   *
    * @return an Ant target statement with specified name and instructions.
    */
   private String createTarget(String name, String contents) {
@@ -1142,9 +1075,7 @@ public class PSRxBuildInput {
    *
    * @param name the name of the project.
    * @param targetName the name of the default target.
-   * @param targetContents the instructions to be included in the default
-   *           target.
-   *
+   * @param targetContents the instructions to be included in the default target.
    * @return an Ant project statement with one default target.
    */
   private String createProject(String name, String targetName, String targetContents) {
@@ -1161,14 +1092,10 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Normalizes the given directory so that it is relative to the Rhythmyx
-   * root.
+   * Normalizes the given directory so that it is relative to the Rhythmyx root.
    *
-   * @param dir the directory path, assumed not <code>null</code>, may be
-   *           empty.
-   *
-   * @return a directory path which has been made relative to the Rhythmyx
-   *         root.
+   * @param dir the directory path, assumed not <code>null</code>, may be empty.
+   * @return a directory path which has been made relative to the Rhythmyx root.
    */
   private String normalizeDir(String dir) {
     if (dir.startsWith(RHYTHMYX_HOME)) return dir;
@@ -1181,11 +1108,10 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Adds an xml header to a given Ant project definition and then writes it to
-   * the specified file.
+   * Adds an xml header to a given Ant project definition and then writes it to the specified file.
    *
-   * @param file the absolute path of the file to be written, assumed not
-   *           <code>null</code> or empty.
+   * @param file the absolute path of the file to be written, assumed not <code>null</code> or
+   *     empty.
    * @param project the Ant project definition
    */
   private void writeBuildFile(String file, String project) {
@@ -1212,8 +1138,8 @@ public class PSRxBuildInput {
   }
 
   /**
-   * Loads the patch configuration information, including build date and count,
-   * additional jars and files, and files to be removed.
+   * Loads the patch configuration information, including build date and count, additional jars and
+   * files, and files to be removed.
    */
   private void loadConfigFile() {
     File cfgFile = new File(m_configfile);
@@ -1318,8 +1244,8 @@ public class PSRxBuildInput {
   /**
    * Creates a new Ant project from the specified xml build file.
    *
-   * @param buildFile the path to the build file to be invoked. May not be
-   *           <code>null</code> or empty.
+   * @param buildFile the path to the build file to be invoked. May not be <code>null</code> or
+   *     empty.
    * @return the project that represents the specified build file.
    */
   public static Project getProject(String buildFile) {

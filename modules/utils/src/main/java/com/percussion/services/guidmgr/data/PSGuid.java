@@ -22,19 +22,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * This class encapsulates guids and converts them to and from user readable and
- * machine formats. Guids are represented internally as 64 bit long values
- * that contain several fields.
- * <p>
- * GUIDs are intended as globally unique ids. They are kept global by
- * incorporating a host id, which varies per installation, and a unique id,
- * which is simply an allocated number that is managed as part of the
- * installation. The type allows components that receive a GUID to determine if
- * the GUID is valid and what the GUID references. For example, the content
- * manager can use the type and other information to decide what repository
- * contains the item referenced by the GUID.
- * <p>
- * The data in the 64 bit value is laid out as described in this table: <table>
+ * This class encapsulates guids and converts them to and from user readable and machine formats.
+ * Guids are represented internally as 64 bit long values that contain several fields.
+ *
+ * <p>GUIDs are intended as globally unique ids. They are kept global by incorporating a host id,
+ * which varies per installation, and a unique id, which is simply an allocated number that is
+ * managed as part of the installation. The type allows components that receive a GUID to determine
+ * if the GUID is valid and what the GUID references. For example, the content manager can use the
+ * type and other information to decide what repository contains the item referenced by the GUID.
+ *
+ * <p>The data in the 64 bit value is laid out as described in this table:
+ *
+ * <table>
  * <tr>
  * <th>Bits</th>
  * <th>Description</th>
@@ -52,28 +51,22 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * <td>Host ID</td>
  * </tr>
  * </table>
- * <p>
- * Set methods are included here for XML serialization. Guid values should not
- * be modified after creation. Calling the set methods if the given field is not
- * zeroed will result in an exception.
- * <p>
- * Although this object is derived from the abstract class {@link Number} and
- * implements the methods, only {@link #longValue()} should be used for
- * operations that rely on the full data contained. The other methods may
- * only return part of the original value, especially on true GUID values that
- * use all 64 bits of the long.
+ *
+ * <p>Set methods are included here for XML serialization. Guid values should not be modified after
+ * creation. Calling the set methods if the given field is not zeroed will result in an exception.
+ *
+ * <p>Although this object is derived from the abstract class {@link Number} and implements the
+ * methods, only {@link #longValue()} should be used for operations that rely on the full data
+ * contained. The other methods may only return part of the original value, especially on true GUID
+ * values that use all 64 bits of the long.
  *
  * @author dougrand
  */
 public class PSGuid extends Number implements IPSGuid {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 3134898757562243271L;
 
-  /**
-   * Guid value
-   */
+  /** Guid value */
   protected long m_guid;
 
   static final long BIT8 = 0xFFL;
@@ -91,12 +84,10 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * General constructor for a guid.
    *
-   * @param hostid the host id, defined from the system configuration and
-   *    issued by tech support. Host ids below 1000 are reserved for internal
-   *    use.
+   * @param hostid the host id, defined from the system configuration and issued by tech support.
+   *     Host ids below 1000 are reserved for internal use.
    * @param type the type of the GUID being created, not <code>null</code>.
-   * @param uuid the unique id of the object. Unique ids may be repeated
-   *    across different types.
+   * @param uuid the unique id of the object. Unique ids may be repeated across different types.
    */
   public PSGuid(long hostid, PSTypeEnum type, long uuid) {
     assemble(hostid, type, uuid);
@@ -106,11 +97,12 @@ public class PSGuid extends Number implements IPSGuid {
    * Constructor for a guid from string form without a type.
    *
    * @param type a type value, not <code>null</code>.
-   * @param representation the string, must be in the following format, where
-   * parts in [] are optional:
-   * <pre>
+   * @param representation the string, must be in the following format, where parts in [] are
+   *     optional:
+   *     <pre>
    *    [hostid-[typeid-]]uuid
-   * </pre>.
+   * </pre>
+   *     .
    */
   public PSGuid(PSTypeEnum type, String representation) {
     assemble(representation, type, false);
@@ -120,32 +112,31 @@ public class PSGuid extends Number implements IPSGuid {
    * Constructor for a guid from string form without a type.
    *
    * @param type a type value, not <code>null</code>.
-   * @param representation the string, must be in the following format, where
-   * parts in [] are optional:
-   * <pre>
+   * @param representation the string, must be in the following format, where parts in [] are
+   *     optional:
+   *     <pre>
    *    [hostid-[typeid-]]uuid
-   * </pre>.
+   * </pre>
+   *     .
    */
   public PSGuid(PSTypeEnum type, String representation, boolean forceType) {
     assemble(representation, type, forceType);
   }
 
   /**
-   * Public ctor, use in very specific cases for serialization, i.e. fromXML
-   * method and such. Not for general use.
+   * Public ctor, use in very specific cases for serialization, i.e. fromXML method and such. Not
+   * for general use.
    */
   public PSGuid() {
     this(PSTypeEnum.INTERNAL, 0);
   }
 
   /**
-   * Allows creation of a guid from a numeric representation. The type must be
-   * a type present in the {@link PSTypeEnum} class. The hostid is not
-   * validated.
+   * Allows creation of a guid from a numeric representation. The type must be a type present in the
+   * {@link PSTypeEnum} class. The hostid is not validated.
    *
-   * @param guid The value returned from the {@link #longValue()} method. If
-   * the type is not found in the enumeration class, an
-   * <code>IllegalArgumentException</code> is thrown
+   * @param guid The value returned from the {@link #longValue()} method. If the type is not found
+   *     in the enumeration class, an <code>IllegalArgumentException</code> is thrown
    */
   public PSGuid(long guid) {
     long uuid = doGetUUID(guid);
@@ -162,8 +153,8 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Constructor for a guid from string form.
    *
-   * @param representation the string, must be in the same format that
-   *    {@link #toString()}uses to format a GUID.
+   * @param representation the string, must be in the same format that {@link #toString()}uses to
+   *     format a GUID.
    */
   public PSGuid(String representation) {
     assemble(representation, null, false);
@@ -172,9 +163,8 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Constructor for a guid from a direct value, e.g. the database.
    *
-   * @param type the type of the guid to be constructed, never
-   *    <code>null</code> and must match the type if the type is present in
-   *    the value passed in.
+   * @param type the type of the guid to be constructed, never <code>null</code> and must match the
+   *     type if the type is present in the value passed in.
    * @param value the guid value.
    */
   public PSGuid(PSTypeEnum type, long value) {
@@ -189,9 +179,8 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Constructor for a guid from a direct value, e.g. the database.
    *
-   * @param type the type of the guid to be constructed, never
-   *    <code>null</code> and must match the type if the type is present in
-   *    the value passed in.
+   * @param type the type of the guid to be constructed, never <code>null</code> and must match the
+   *     type if the type is present in the value passed in.
    * @param value the guid value.
    */
   public PSGuid(PSTypeEnum type, long value, boolean forceType) {
@@ -207,12 +196,11 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Assemble a GUID from the component information.
    *
-   * @param hostid the host id, defined from the system configuration and
-   *    issued by tech support. Host ids below 1000 are reserved for internal
-   *    use.
+   * @param hostid the host id, defined from the system configuration and issued by tech support.
+   *     Host ids below 1000 are reserved for internal use.
    * @param type the type of the GUID being created, not <code>null</code>.
-   * @param uuid the unique id of the object. Unique ids may be repeated
-   *    across different types. Only the lower 32 bits are used.
+   * @param uuid the unique id of the object. Unique ids may be repeated across different types.
+   *     Only the lower 32 bits are used.
    */
   protected void assemble(long hostid, PSTypeEnum type, long uuid) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
@@ -224,19 +212,17 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Assemble a GUID from a string representation. Uses
-   * {@link #assemble(long, PSTypeEnum, long)} to actually do the work after
-   * tokenizing the string. There may be one, two or three components. If there
-   * is one component, then the conversion to a guid must be consistent, either
-   * with a simple number or with a consistent type in the type passed as
-   * compared with the "middle" number in the string representation. The passed
-   * string may also be a 64-bit number, in which case the type must match the
-   * type that is specified in the number.
+   * Assemble a GUID from a string representation. Uses {@link #assemble(long, PSTypeEnum, long)} to
+   * actually do the work after tokenizing the string. There may be one, two or three components. If
+   * there is one component, then the conversion to a guid must be consistent, either with a simple
+   * number or with a consistent type in the type passed as compared with the "middle" number in the
+   * string representation. The passed string may also be a 64-bit number, in which case the type
+   * must match the type that is specified in the number.
    *
-   * @param guid the string, may have one, two or three components, separated
-   *    by hyphens, never <code>null</code> or empty.
-   * @param type the type of the GUID being created, may be <code>null</code>,
-   *    in which case there must be three components.
+   * @param guid the string, may have one, two or three components, separated by hyphens, never
+   *     <code>null</code> or empty.
+   * @param type the type of the GUID being created, may be <code>null</code>, in which case there
+   *     must be three components.
    */
   protected void assemble(String guid, PSTypeEnum type, boolean forceType) {
     if (StringUtils.isBlank(guid))
@@ -339,8 +325,7 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Set a new host id value. The current host id must be empty.
    *
-   * @param hostid a new host id value, must fit in 24 bits and be a positive
-   *    number.
+   * @param hostid a new host id value, must fit in 24 bits and be a positive number.
    */
   public void setHostId(long hostid) {
     if (hostid > BIT24 || hostid < 0)
@@ -387,8 +372,7 @@ public class PSGuid extends Number implements IPSGuid {
   /**
    * Set a new uuid value. The uuid must be unset when this method is called.
    *
-   * @param uuid the new uuid value, must fit in 32 bits and be a positive
-   *    number.
+   * @param uuid the new uuid value, must fit in 32 bits and be a positive number.
    */
   public void setUUID(int uuid) {
     if (uuid < 0) throw new IllegalArgumentException("UUID must be a non-negative number");
@@ -409,7 +393,9 @@ public class PSGuid extends Number implements IPSGuid {
     else return m_guid;
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see java.lang.Number#intValue()
    */
   @Override
@@ -417,7 +403,9 @@ public class PSGuid extends Number implements IPSGuid {
     return (int) longValue();
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see java.lang.Number#floatValue()
    */
   @Override
@@ -425,7 +413,9 @@ public class PSGuid extends Number implements IPSGuid {
     return longValue();
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see java.lang.Number#doubleValue()
    */
   @Override
@@ -458,11 +448,9 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Extracts the bits that correspond to the host id and shifts them to the
-   * low bit position.
+   * Extracts the bits that correspond to the host id and shifts them to the low bit position.
    *
    * @param guid A fully built guid.
-   *
    * @return The extracted value.
    */
   private long doGetHostId(long guid) {
@@ -470,11 +458,9 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Extracts the bits that correspond to the object id and shifts them to the
-   * low bit position.
+   * Extracts the bits that correspond to the object id and shifts them to the low bit position.
    *
    * @param guid A fully built guid.
-   *
    * @return The extracted value.
    */
   private int doGetUUID(long guid) {
@@ -482,11 +468,9 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Extracts the bits that correspond to the type id and shifts them to the
-   * low bit position.
+   * Extracts the bits that correspond to the type id and shifts them to the low bit position.
    *
    * @param guid A fully built guid.
-   *
    * @return The extracted value.
    */
   private static short doGetType(long guid) {
@@ -495,8 +479,9 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Returns if the corresponding bits in the value do indeed correspond
-   * to a type. If those bits have 0 value, it is also valid
+   * Returns if the corresponding bits in the value do indeed correspond to a type. If those bits
+   * have 0 value, it is also valid
+   *
    * @param type the type of the guid to be checked, never <code>null</code>
    * @param value the guid value.
    */
@@ -509,8 +494,9 @@ public class PSGuid extends Number implements IPSGuid {
   }
 
   /**
-   * Returns if the corresponding bits in the value do indeed correspond
-   * to a type. If those bits have 0 value, it is also valid
+   * Returns if the corresponding bits in the value do indeed correspond to a type. If those bits
+   * have 0 value, it is also valid
+   *
    * @param type the type of the guid to be checked, never <code>null</code>
    * @param value the guid value as a string
    */

@@ -34,20 +34,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class wraps the system def xml document and provides access to the
- * objectstore objects defined within it.
+ * This class wraps the system def xml document and provides access to the objectstore objects
+ * defined within it.
  */
 public class PSContentEditorSystemDef implements IPSDocument {
   /**
    * Constructor for this class that takes a source document.
    *
-   * @param sourceDoc The Xml document containing the Content Editor system
-   * def.
-   *
-   * @throws PSUnknownDocTypeException if the XML document is not of the
-   * appropriate type.
-   * @throws PSUnknownNodeTypeException if an XML element node is not of the
-   * appropriate type.
+   * @param sourceDoc The Xml document containing the Content Editor system def.
+   * @throws PSUnknownDocTypeException if the XML document is not of the appropriate type.
+   * @throws PSUnknownNodeTypeException if an XML element node is not of the appropriate type.
    * @see #fromXml(Document)
    */
   public PSContentEditorSystemDef(Document sourceDoc)
@@ -67,8 +63,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns the minimum period of time to wait (in minutes) before any
-   * document in the local error cache is discarded.
+   * Returns the minimum period of time to wait (in minutes) before any document in the local error
+   * cache is discarded.
+   *
    * @return The timeout in minutes.
    */
   public int getCacheTimeout() {
@@ -76,26 +73,22 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Get the command names for which there are input data exits specified.
-   * Names may be passed to {@link #getInputDataExits(String)} to retrieve
-   * input data exits.
+   * Get the command names for which there are input data exits specified. Names may be passed to
+   * {@link #getInputDataExits(String)} to retrieve input data exits.
    *
-   * @return An iterator over zero or more command names as <code>String</code>
-   * objects.
+   * @return An iterator over zero or more command names as <code>String</code> objects.
    */
   public Iterator getInputDataExitCommands() {
     return m_inputDataExits.keySet().iterator();
   }
 
   /**
-   * Returns an iterator over <code>zero</code> or more PSExtensionCall objects
-   * used for input processing for the specified command name.
+   * Returns an iterator over <code>zero</code> or more PSExtensionCall objects used for input
+   * processing for the specified command name.
    *
-   * @param commandName The command name for which the exits are to be
-   * returned.  May not be <code>null</code>.
-   *
-   * @return The iterator, may be empty if none were supplied for the specified
-   * command.
+   * @param commandName The command name for which the exits are to be returned. May not be <code>
+   *     null</code>.
+   * @return The iterator, may be empty if none were supplied for the specified command.
    */
   public Iterator getInputDataExits(String commandName) {
     if (commandName == null) throw new IllegalArgumentException("commandName may not be null");
@@ -115,26 +108,22 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Get the command names for which there are result data exits specified.
-   * Names may be passed to {@link #getResultDataExits(String)} to retrieve
-   * result data exits.
+   * Get the command names for which there are result data exits specified. Names may be passed to
+   * {@link #getResultDataExits(String)} to retrieve result data exits.
    *
-   * @return An iterator over zero or more command names as <code>String</code>
-   * objects.
+   * @return An iterator over zero or more command names as <code>String</code> objects.
    */
   public Iterator getResultDataExitCommands() {
     return m_resultDataExits.keySet().iterator();
   }
 
   /**
-   * Returns an iterator over <code>zero</code> or more PSExtensionCall objects
-   * used for result data processing for the specified command name.
+   * Returns an iterator over <code>zero</code> or more PSExtensionCall objects used for result data
+   * processing for the specified command name.
    *
-   * @param commandName The command name for which the exits are to be
-   * returned.  May not be <code>null</code>.
-   *
-   * @return The iterator, may be empty if none were supplied for the specified
-   * command.
+   * @param commandName The command name for which the exits are to be returned. May not be <code>
+   *     null</code>.
+   * @return The iterator, may be empty if none were supplied for the specified command.
    */
   public Iterator getResultDataExits(String commandName) {
     if (commandName == null) throw new IllegalArgumentException("commandName may not be null");
@@ -153,8 +142,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns a map of param names, with the internal name as the key and the
-   * html parameter name as the value.
+   * Returns a map of param names, with the internal name as the key and the html parameter name as
+   * the value.
+   *
    * @return The map of names, never <code>null</code>, possibly empty.
    */
   public Map getParamNames() {
@@ -162,8 +152,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns the map of initparams, with the cmd name as the key and an
-   * ArrayList of PSParam objects as the value.
+   * Returns the map of initparams, with the cmd name as the key and an ArrayList of PSParam objects
+   * as the value.
+   *
    * @return The map, never <code>null</code>, possibly empty.
    */
   public Map getInitParams() {
@@ -172,6 +163,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Returns the default system application flow.
+   *
    * @return The application flow object, never <code>null</code>.
    */
   public PSApplicationFlow getApplicationFlow() {
@@ -180,6 +172,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Returns the stylesheets for converting queried data for output.
+   *
    * @return The set of PSCommandHandlerStyleSheets, never <code>null</code>.
    */
   public PSCommandHandlerStylesheets getStyleSheetSet() {
@@ -187,8 +180,8 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns the system locator for retrieving global items such as lookups
-   * or system ids.
+   * Returns the system locator for retrieving global items such as lookups or system ids.
+   *
    * @return The locator object, never <code>null</code>.
    */
   public PSContainerLocator getSystemLocator() {
@@ -197,6 +190,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Returns the container locator for retrieving system fields.
+   *
    * @return The locator object, may be <code>null</code>.
    */
   public PSContainerLocator getContainerLocator() {
@@ -205,6 +199,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Returns the field set defining all system fields.
+   *
    * @return The field set, may be <code>null</code>.
    */
   public PSFieldSet getFieldSet() {
@@ -213,6 +208,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
 
   /**
    * Returns the UI definition used to display all system fields.
+   *
    * @return The UI def, may be <code>null</code>.
    */
   public PSUIDefinition getUIDefinition() {
@@ -220,8 +216,8 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns an iterator over zero or more PSConditionalExits used
-   * to validate all system fields.
+   * Returns an iterator over zero or more PSConditionalExits used to validate all system fields.
+   *
    * @return The iterator, never <code>null</code>, may be empty.
    */
   public Iterator getValidationRules() {
@@ -237,8 +233,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns an iterator over <code>zero</code> or more PSConditionalExits
-   * used to do input translations on all system fields.
+   * Returns an iterator over <code>zero</code> or more PSConditionalExits used to do input
+   * translations on all system fields.
+   *
    * @return The iterator, never <code>null</code>, may be empty.
    */
   public Iterator getInputTranslations() {
@@ -254,8 +251,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Returns an iterator over <code>zero</code> or more PSConditionalExits
-   * used to do output translations on all system fields.
+   * Returns an iterator over <code>zero</code> or more PSConditionalExits used to do output
+   * translations on all system fields.
+   *
    * @return The iterator, never <code>null</code>, may be empty.
    */
   public Iterator getOutputTranslations() {
@@ -271,11 +269,8 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Produces an XML representation of this object that conforms to the DTD
-   * defined by "E2/design/dtd/sys_ContentEditorSystemDef.dtd", which is
-   * excerpted here:
-   *
-   * <code><pre>
+   * Produces an XML representation of this object that conforms to the DTD defined by
+   * "E2/design/dtd/sys_ContentEditorSystemDef.dtd", which is excerpted here: <code><pre>
    * &lt;!ELEMENT ContentEditorSystemDef (SystemLocator,
    * PSXCommandHandlerStylesheets, PSXApplicationFlow, SectionLinkList?,
    * CommandHandlerExits*, SystemParamNames?, InitParams*,
@@ -295,9 +290,9 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * &lt;!ELEMENT SystemParamNames (PSXParam+)>
    * &lt;!ELEMENT InitParams (CommandName+, PSXParam+)>
    * </pre></code>
+   *
    * @return the newly created XML document (never <code>null</code> or empty)
-   * @throws IllegalStateException if the internal state of this object
-   * violates the DTD
+   * @throws IllegalStateException if the internal state of this object violates the DTD
    */
   public Document toXml() {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -418,14 +413,13 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * This method is called to populate a PSContentEditorSystemDef Java object
-   * from a document containing a ContentEditorSystemDef XML root element node.
-   * The format is specified by E2/design/dtd/sys_ContentEditorSystemDef.dtd
+   * This method is called to populate a PSContentEditorSystemDef Java object from a document
+   * containing a ContentEditorSystemDef XML root element node. The format is specified by
+   * E2/design/dtd/sys_ContentEditorSystemDef.dtd
    *
-   * @param doc the PSXContentEditorSharedDef document. May not be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if an XML element node is missing or
-   *    is not of the appropriate type.
+   * @param doc the PSXContentEditorSharedDef document. May not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if an XML element node is missing or is not of the
+   *     appropriate type.
    */
   public void fromXml(Document doc) throws PSUnknownNodeTypeException, PSUnknownDocTypeException {
     if (null == doc)
@@ -543,18 +537,16 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Given the table ref alias of a table in the system locator, returns
-   * a PSBackEndCredential and a PSBackEndTable.  This method assumes that
-   * any aliased Credentials in the tableSets have already been resolved to
-   * include the full credential information.
+   * Given the table ref alias of a table in the system locator, returns a PSBackEndCredential and a
+   * PSBackEndTable. This method assumes that any aliased Credentials in the tableSets have already
+   * been resolved to include the full credential information.
    *
-   * @param tableRef The alias of the table to return.  May not be <code>null
+   * @param tableRef The alias of the table to return. May not be <code>null
    * </code>.
-   * @param cred A PSBackEndCredential object, will be fully populated after
-   * the method returns.  May not be <code>null</code>.  Any state this object
-   * has will be overwritten by this method.
-   * @param table Must be a PSBackEndTable object with alias defined, will be
-   * fully populated after the method returns.  May not be <code>null</code>.
+   * @param cred A PSBackEndCredential object, will be fully populated after the method returns. May
+   *     not be <code>null</code>. Any state this object has will be overwritten by this method.
+   * @param table Must be a PSBackEndTable object with alias defined, will be fully populated after
+   *     the method returns. May not be <code>null</code>.
    */
   public void populateSystemTableInfo(
       String tableRef, PSBackEndCredential cred, PSBackEndTable table) {
@@ -597,8 +589,8 @@ public class PSContentEditorSystemDef implements IPSDocument {
   /**
    * Get the section link list.
    *
-   * @return the section link list, never <code>null</code>, might
-   *    be empty. An iterator of PSUrlRequest objects.
+   * @return the section link list, never <code>null</code>, might be empty. An iterator of
+   *     PSUrlRequest objects.
    */
   public Iterator getSectionLinkList() {
     return m_sectionLinkList.iterator();
@@ -607,11 +599,10 @@ public class PSContentEditorSystemDef implements IPSDocument {
   /**
    * Loads the PSUrlRequest objects from the supplied element and stores them.
    *
-   * @param sectionLinkList The element containing the PSUrlRequest xml
-   * elements.  May not be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the sectionLinkList node does not
-   * contain nodes of the appropriate type.
+   * @param sectionLinkList The element containing the PSUrlRequest xml elements. May not be <code>
+   *     null</code>.
+   * @throws PSUnknownNodeTypeException if the sectionLinkList node does not contain nodes of the
+   *     appropriate type.
    */
   private void loadSectionLinkList(Element sectionLinkList) throws PSUnknownNodeTypeException {
 
@@ -637,11 +628,11 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Loads the input and result data extension call sets from the supplied
-   * element and stores them by command name.
+   * Loads the input and result data extension call sets from the supplied element and stores them
+   * by command name.
+   *
    * @param exits The element containing the extension call sets
-   * @throws PSUnknownNodeTypeException if the exits node is not of the
-   * appropriate type.
+   * @throws PSUnknownNodeTypeException if the exits node is not of the appropriate type.
    */
   @SuppressWarnings("unchecked")
   private void loadExits(Element exits) throws PSUnknownNodeTypeException {
@@ -693,9 +684,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * Loads the system param names from the supplied elemement.
    *
    * @param paramNames The XML element containing the param names.
-   *
-   * @throws PSUnknownNodeTypeException if the paramNames node is not of the
-   * appropriate type.
+   * @throws PSUnknownNodeTypeException if the paramNames node is not of the appropriate type.
    */
   @SuppressWarnings("unchecked")
   private void loadParamNames(Element paramNames) throws PSUnknownNodeTypeException {
@@ -734,14 +723,11 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Loads a set of InitParams from the specified element.  Contains one or
-   * more command names followed by one or more name-value pairs.
+   * Loads a set of InitParams from the specified element. Contains one or more command names
+   * followed by one or more name-value pairs.
    *
-   * @param initParams The XML element containing the InitParams.  May not be
-   * <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the initParam node is not of the
-   * appropriate type.
+   * @param initParams The XML element containing the InitParams. May not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the initParam node is not of the appropriate type.
    */
   @SuppressWarnings({"unchecked"})
   private void loadInitParams(Element initParams) throws PSUnknownNodeTypeException {
@@ -802,17 +788,14 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Loads the container locator, fieldset, and uidef if present.  Either all
-   * three or none of the three must be present.
+   * Loads the container locator, fieldset, and uidef if present. Either all three or none of the
+   * three must be present.
    *
-   * @param sibling The element node to start searching from looking for
-   * siblings only.
-   *
-   * @return The last sibling element found - either the uidef element or the
-   * sibling element supplied to this method.
-   *
-   * @throws PSUnknownNodeTypeException if only one or two of the three elements
-   * are present or if any of the three nodes are present but invalid.
+   * @param sibling The element node to start searching from looking for siblings only.
+   * @return The last sibling element found - either the uidef element or the sibling element
+   *     supplied to this method.
+   * @throws PSUnknownNodeTypeException if only one or two of the three elements are present or if
+   *     any of the three nodes are present but invalid.
    */
   private Element loadFieldSet(Element sibling) throws PSUnknownNodeTypeException {
     if (sibling == null) throw new IllegalArgumentException("sibling may not be null");
@@ -859,9 +842,7 @@ public class PSContentEditorSystemDef implements IPSDocument {
    * Loads the container locator contained in the system locator element
    *
    * @param systemLocator The XML element containing the container locator.
-   *
-   * @throws PSUnknownNodeTypeException if the systemLocator node is not of the
-   * appropriate type.
+   * @throws PSUnknownNodeTypeException if the systemLocator node is not of the appropriate type.
    */
   private void loadSystemLocator(Element systemLocator) throws PSUnknownNodeTypeException {
     if (systemLocator == null) throw new IllegalArgumentException("systemLocator may not be null");
@@ -882,16 +863,14 @@ public class PSContentEditorSystemDef implements IPSDocument {
   }
 
   /**
-   * Tests if the supplied field is a system field or not. If the fields
-   * submit name is found in a field contained by the system def and is not in
-   * the list of supplied field excludes, then this is considered as a system
-   * field, otherwise not. The check is case sensitive.
+   * Tests if the supplied field is a system field or not. If the fields submit name is found in a
+   * field contained by the system def and is not in the list of supplied field excludes, then this
+   * is considered as a system field, otherwise not. The check is case sensitive.
    *
    * @param field the field to test, may not be <code>null</code>.
    * @param fieldExcludes list of field excludes, may not be <code>null</code>
-   *
-   * @return <code>true</code> if the provided field is a system field,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if the provided field is a system field, <code>false</code>
+   *     otherwise.
    */
   public boolean isSystemField(PSField field, List fieldExcludes) {
     if (field == null) throw new IllegalArgumentException("field may not be null.");
@@ -949,195 +928,166 @@ public class PSContentEditorSystemDef implements IPSDocument {
     return PSXmlDocumentBuilder.toString(toXml());
   }
 
-  /**
-   * Constant for the alias of the system table locator in the system
-   * definition.
-   */
+  /** Constant for the alias of the system table locator in the system definition. */
   public static final String SYSTEM_TABLE_ALIAS = "sysTable";
 
-  /**
-   * Constant for the alias of the system lookup table in the
-   * system locator.
-   */
+  /** Constant for the alias of the system lookup table in the system locator. */
   public static final String LOOKUP_TABLE_ALIAS = "RXLOOKUP";
 
-  /**
-   * Constant for the alias of the system table used to generate ids in the
-   * system locator.
-   */
+  /** Constant for the alias of the system table used to generate ids in the system locator. */
   public static final String NEXT_ID_TABLE_ALIAS = "NEXTNUMBER";
 
-  /**
-   * Constant for the alias of the system table used to store content status
-   * information
-   */
+  /** Constant for the alias of the system table used to store content status information */
   public static final String CONTENT_STATUS_TABLE_ALIAS = "CONTENTSTATUS";
 
   /**
-   * The content editor system id used for locking through web services.
-   * See {@link PSContentEditorSharedDef#SHARED_DEF_ID} to make sure its
-   * unique.
+   * The content editor system id used for locking through web services. See {@link
+   * PSContentEditorSharedDef#SHARED_DEF_ID} to make sure its unique.
    */
   public static final long SYSTEM_DEF_ID = 1000;
 
-  /**
-   * Constant for the root element name of the source Xml document for this
-   * object.
-   */
+  /** Constant for the root element name of the source Xml document for this object. */
   public static final String XML_NODE_NAME = "ContentEditorSystemDef";
 
-  /**
-   * Constant for the cache timeout attribute
-   */
+  /** Constant for the cache timeout attribute */
   private static final String ATTR_CACHE_TIMEOUT = "cacheTimeout";
 
   /**
-   * Constant for the element name in the source Xml document for this
-   * object that contains the input and result data exit sets.
+   * Constant for the element name in the source Xml document for this object that contains the
+   * input and result data exit sets.
    */
   private static final String ELEMENT_COMMAND_HANDLER_EXITS = "CommandHandlerExits";
 
   /**
-   * Constant for the name of the attribute used to identify which command type
-   * an exit set should be used with.
+   * Constant for the name of the attribute used to identify which command type an exit set should
+   * be used with.
    */
   private static final String ATTR_COMMAND_NAME = "commandName";
 
   /**
-   * Constant for the exit set element name in the source Xml document for
-   * this object for exits used against the input data.
+   * Constant for the exit set element name in the source Xml document for this object for exits
+   * used against the input data.
    */
   private static final String ELEMENT_INPUT_DATA_EXITS = "InputDataExits";
 
   /**
-   * Constant for the exit set element name in the source Xml document for
-   * this object for exits used against the input data.
+   * Constant for the exit set element name in the source Xml document for this object for exits
+   * used against the input data.
    */
   private static final String ELEMENT_RESULT_DATA_EXITS = "ResultDataExits";
 
   /**
-   * Constant for the element name in the source Xml document for this object
-   * for the command param names node.
+   * Constant for the element name in the source Xml document for this object for the command param
+   * names node.
    */
   private static final String ELEMENT_SYSTEM_PARAM_NAMES = "SystemParamNames";
 
   /**
-   * Constant for the element name in the source Xml document for this object
-   * for the system locator node.
+   * Constant for the element name in the source Xml document for this object for the system locator
+   * node.
    */
   private static final String ELEMENT_SYSTEM_LOCATOR = "SystemLocator";
 
   /**
-   * Constant for the element name in the source Xml document for this object
-   * for the init params node.
+   * Constant for the element name in the source Xml document for this object for the init params
+   * node.
    */
   private static final String ELEMENT_INIT_PARAMS = "InitParams";
 
   /**
-   * Constant for the name of the element used to identify which command type
-   * a set of initparams should be available to.
+   * Constant for the name of the element used to identify which command type a set of initparams
+   * should be available to.
    */
   private static final String ELEMENT_COMMAND_NAME = "CommandName";
 
-  /**
-   * Constant for the name of the element used to identify the list of section
-   * links
-   */
+  /** Constant for the name of the element used to identify the list of section links */
   private static final String ELEMENT_SECTION_LINK_LIST = "SectionLinkList";
 
   /**
-   * The minimum period of time to wait (in minutes) before any document in
-   * the local error cache is discarded.  Default value is <code>15</code>.
+   * The minimum period of time to wait (in minutes) before any document in the local error cache is
+   * discarded. Default value is <code>15</code>.
    */
   private int m_cacheTimeout = 15;
 
   /**
-   * Map of extension calls to be run against input data, with commandName as
-   * the key and the PSExtensionCallSet as the value.
+   * Map of extension calls to be run against input data, with commandName as the key and the
+   * PSExtensionCallSet as the value.
    */
   private Map m_inputDataExits = new HashMap();
 
   /**
-   * Map of extension calls to be run against result doc, with commandName as
-   * the key and the PSExtensionCallSet as the value.
+   * Map of extension calls to be run against result doc, with commandName as the key and the
+   * PSExtensionCallSet as the value.
    */
   private Map m_resultDataExits = new HashMap();
 
-  /**
-   * Map of param names and their values.  Filled in by the constructor.
-   */
+  /** Map of param names and their values. Filled in by the constructor. */
   private Map m_paramNames = new HashMap();
 
   /**
-   * Specifies the tables used by fields defined in the fieldSet.  Must be
-   * <code>null</code> if {@link #m_fieldSet} is <code>null</code>.  If
-   * {@link #m_fieldSet} is NOT <code>null</code>, then this must not be
-   * <code>null</code>. Initialzed in the constructor if it is to be defined.
+   * Specifies the tables used by fields defined in the fieldSet. Must be <code>null</code> if
+   * {@link #m_fieldSet} is <code>null</code>. If {@link #m_fieldSet} is NOT <code>null</code>, then
+   * this must not be <code>null</code>. Initialzed in the constructor if it is to be defined.
    */
   private PSContainerLocator m_containerLocator = null;
 
   /**
-   * Specifies any system fields supplied to the user.  If not
-   * <code>null</code>, then {@link #m_containerLocator} and {@link #m_uiDef}
-   * must not be <code>null</code>.  If <code>null</code>, they must also be
-   * <code>null</code>.  Initialzed in the constructor if it is to be defined.
+   * Specifies any system fields supplied to the user. If not <code>null</code>, then {@link
+   * #m_containerLocator} and {@link #m_uiDef} must not be <code>null</code>. If <code>null</code>,
+   * they must also be <code>null</code>. Initialzed in the constructor if it is to be defined.
    */
   private PSFieldSet m_fieldSet = null;
 
   /**
-   * Specifies the controls used to display each field defined in the fieldSet.
-   * Will be <code>null</code> if {@link #m_fieldSet} is <code>null</code>.  If
-   * {@link #m_fieldSet} is NOT <code>null</code>, then this must not be
-   * <code>null</code>.  Initialzed in the constructor if it is to be defined.
+   * Specifies the controls used to display each field defined in the fieldSet. Will be <code>null
+   * </code> if {@link #m_fieldSet} is <code>null</code>. If {@link #m_fieldSet} is NOT <code>null
+   * </code>, then this must not be <code>null</code>. Initialzed in the constructor if it is to be
+   * defined.
    */
   private PSUIDefinition m_uiDef = null;
 
   /**
-   * Specifies the tables used by the system.  Initialzed in the constructor,
-   * never <code>null</code> after that.
+   * Specifies the tables used by the system. Initialzed in the constructor, never <code>null</code>
+   * after that.
    */
   private PSContainerLocator m_systemLocator = null;
 
   /**
-   * Specifies where to redirect once non-query type command processing is
-   * completed.
-   * Initialized in the constructor, never <code>null</code> after that.
+   * Specifies where to redirect once non-query type command processing is completed. Initialized in
+   * the constructor, never <code>null</code> after that.
    */
   private PSApplicationFlow m_appFlow = null;
 
   /**
-   * Specifies the stylesheets used for converting any query type results.
-   * Initialized in the constructor, never <code>null</code> after that.
+   * Specifies the stylesheets used for converting any query type results. Initialized in the
+   * constructor, never <code>null</code> after that.
    */
   private PSCommandHandlerStylesheets m_styleSheets = null;
 
   /**
-   * Contains the input translation conditional exits.
-   * Initialized in the constructor, may be <code>null</code>.
+   * Contains the input translation conditional exits. Initialized in the constructor, may be <code>
+   * null</code>.
    */
   private PSInputTranslations m_inputTranslations = null;
 
   /**
-   * Contains the output translation conditional exits.
-   * Initialized in the constructor, may be <code>null</code>.
+   * Contains the output translation conditional exits. Initialized in the constructor, may be
+   * <code>null</code>.
    */
   private PSOutputTranslations m_outputTranslations = null;
 
   /**
-   * Contains the field validation conditional exits.
-   * Initialized in the constructor, may be <code>null</code>.
+   * Contains the field validation conditional exits. Initialized in the constructor, may be <code>
+   * null</code>.
    */
   private PSValidationRules m_groupValidations = null;
 
   /**
-   * Map of init params used by the command handlers.  Key is the command name,
-   * value is a List of PSParams.  Never <code>null</code>.
+   * Map of init params used by the command handlers. Key is the command name, value is a List of
+   * PSParams. Never <code>null</code>.
    */
   private Map m_initParams = new HashMap();
 
-  /**
-   * A collection of PSUrlRequest objects, never <code>null</code> after
-   * construction.
-   */
+  /** A collection of PSUrlRequest objects, never <code>null</code> after construction. */
   private PSCollection m_sectionLinkList = new PSCollection(PSUrlRequest.class);
 }

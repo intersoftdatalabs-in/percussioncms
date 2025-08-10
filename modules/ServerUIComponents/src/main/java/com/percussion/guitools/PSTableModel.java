@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Default implementation for <code>IPSTableModel</code>.
- */
+/** Default implementation for <code>IPSTableModel</code>. */
 public abstract class PSTableModel extends DefaultTableModel implements IPSTableModel {
   // implements interface method to return false always.
   public boolean allowChangeDescription() {
@@ -107,9 +105,8 @@ public abstract class PSTableModel extends DefaultTableModel implements IPSTable
   /**
    * Checks that the supplied row exists in this model.
    *
-   * @param row the row index to check, must be >= 0 and less than
-   * {@link #getRowCount() rowcount} of this model.
-   *
+   * @param row the row index to check, must be >= 0 and less than {@link #getRowCount() rowcount}
+   *     of this model.
    * @throws IndexOutOfBoundsException if row index is invalid.
    */
   protected void checkRow(int row) {
@@ -121,9 +118,8 @@ public abstract class PSTableModel extends DefaultTableModel implements IPSTable
   /**
    * Checks that the supplied column exists in this model.
    *
-   * @param col the column index to check, must be >= 0 and less than
-   * {@link #getColumnCount() colcount} of this model.
-   *
+   * @param col the column index to check, must be >= 0 and less than {@link #getColumnCount()
+   *     colcount} of this model.
    * @throws IndexOutOfBoundsException if column index is invalid.
    */
   protected void checkColumn(int col) {

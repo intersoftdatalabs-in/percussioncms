@@ -26,22 +26,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is the object representation of the dtd defined in
- * sys_PSXProcessRequest.dtd. It is immutable.
+ * This class is the object representation of the dtd defined in sys_PSXProcessRequest.dtd. It is
+ * immutable.
  *
  * @author paulhoward
  */
 public class PSProcessRequest {
   /**
-   * Creates an object whose <code>toXml</code> can be used to generate a
-   * request document for the remote process daemon.
+   * Creates an object whose <code>toXml</code> can be used to generate a request document for the
+   * remote process daemon.
    *
    * @param name See {@link #setName(String)} for details.
-   *
    * @param wait See {@link #setWait()} for details.
-   *
    * @param terminate See {@link #setTerminate()} for details.
-   *
    * @param processEnv See {@link #setParams(Map)} for details.
    */
   public PSProcessRequest(String name, int wait, boolean terminate, Map processEnv) {
@@ -57,9 +54,10 @@ public class PSProcessRequest {
 
   /**
    * See {@link #PSProcessRequest(String, int,Map) other ctor} for description.
+   *
    * @param src Never <code>null</code>.
-   * @throws Exception If the supplied element doesn't conform the the dtd
-   * found in PSXProcessRequest.dtd.
+   * @throws Exception If the supplied element doesn't conform the the dtd found in
+   *     PSXProcessRequest.dtd.
    */
   public PSProcessRequest(Element src) throws Exception {
     if (null == src) {
@@ -88,6 +86,7 @@ public class PSProcessRequest {
 
   /**
    * The name of the process definition to execute.
+   *
    * @return The name supplied in the ctor. Never <code>null</code> or empty.
    */
   public String getName() {
@@ -95,19 +94,19 @@ public class PSProcessRequest {
   }
 
   /**
-   * Maximum time to wait (in milliseconds) for the process to complete
-   * (and thus return). If not finished after this period has elapsed, what
-   * to do w/ the process is determined by the {@link #isTerminate()} flag.
+   * Maximum time to wait (in milliseconds) for the process to complete (and thus return). If not
+   * finished after this period has elapsed, what to do w/ the process is determined by the {@link
+   * #isTerminate()} flag.
    */
   public int getWait() {
     return m_wait;
   }
 
   /**
-   * Before returning, if the process has not finished, should it be
-   * forcefully ended or left running?.
-   * @return <code>true</code> means end the process, <code>false</code> means
-   * leave it running.
+   * Before returning, if the process has not finished, should it be forcefully ended or left
+   * running?.
+   *
+   * @return <code>true</code> means end the process, <code>false</code> means leave it running.
    */
   public boolean isTerminate() {
     return m_terminate;
@@ -116,33 +115,30 @@ public class PSProcessRequest {
   /**
    * See {@link #isTerminate()} for description.
    *
-   * @param terminate <code>true</code> means end the process before
-   * returning, <code>false</code> means leave it running.
+   * @param terminate <code>true</code> means end the process before returning, <code>false</code>
+   *     means leave it running.
    */
   private void setTerminate(boolean terminate) {
     m_terminate = terminate;
   }
 
   /**
-   * The set of parameters for the process manager. If parameters supplied
-   * here and those supplied in the daemon config file have the same name,
-   * the value supplied here will be used.
+   * The set of parameters for the process manager. If parameters supplied here and those supplied
+   * in the daemon config file have the same name, the value supplied here will be used.
    *
-   * @return Each entry has a key as <code>String</code> and a value as
-   * <code>String</code>. Never <code>null</code>, may be empty. No
-   * <code>null</code> or empty keys or values.
+   * @return Each entry has a key as <code>String</code> and a value as <code>String</code>. Never
+   *     <code>null</code>, may be empty. No <code>null</code> or empty keys or values.
    */
   public Map getParams() {
     return m_params;
   }
 
   /**
-   * Builds the xml representation of this object according to the
-   * dtd defined in PSXProcessRequest.dtd.
+   * Builds the xml representation of this object according to the dtd defined in
+   * PSXProcessRequest.dtd.
    *
    * @param doc The context in which the element is created. Never <code>
    * null</code>.
-   *
    * @return Never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -183,14 +179,13 @@ public class PSProcessRequest {
   }
 
   /**
-   * Name/value pairs that will be passed to the process
-   * invocation engine to be used to resolve macros within the definition.
-   * Validates the supplied params and copies them to the map owned
-   * by this object.
+   * Name/value pairs that will be passed to the process invocation engine to be used to resolve
+   * macros within the definition. Validates the supplied params and copies them to the map owned by
+   * this object.
    *
-   * @param params  May be <code>null</code> or empty. Does a <code>toString
-   * </code> on each key and value and validates that they are not empty.
-   * <code>null</code> keys and values are skipped.
+   * @param params May be <code>null</code> or empty. Does a <code>toString
+   * </code> on each key and value and validates that they are not empty. <code>null</code> keys and
+   *     values are skipped.
    */
   private void setParams(Map params) {
     if (null == params || params.size() == 0) return;
@@ -207,26 +202,21 @@ public class PSProcessRequest {
     }
   }
 
-  /**
-   * See {@link #getName()} for description. Set in ctor, then never changed.
-   */
+  /** See {@link #getName()} for description. Set in ctor, then never changed. */
   private String m_name;
 
-  /**
-   * See {@link #getWait()} for description. Set in ctor, then never changed.
-   */
+  /** See {@link #getWait()} for description. Set in ctor, then never changed. */
   private int m_wait;
 
   /**
-   * See {@link #isTerminate()} for description. Set in ctor,
-   * then never changed. Defaults to <code>false</code>.
+   * See {@link #isTerminate()} for description. Set in ctor, then never changed. Defaults to <code>
+   * false</code>.
    */
   private boolean m_terminate = false;
 
   /**
-   * Container for parameter defs. Each entry is a non-<code>null</code>, non-
-   * empty <code>String</code>, <code>String</code>. Entries added in ctor
-   * then never modified.
+   * Container for parameter defs. Each entry is a non-<code>null</code>, non- empty <code>String
+   * </code>, <code>String</code>. Entries added in ctor then never modified.
    */
   private Map m_params = new HashMap();
 

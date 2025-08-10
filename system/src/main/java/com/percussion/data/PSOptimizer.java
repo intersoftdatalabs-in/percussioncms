@@ -32,20 +32,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSOptimizer abstract class providers support routines for
- * classes extending it (PSQueryOptimizer and PSUpdateOptimizer).
+ * The PSOptimizer abstract class providers support routines for classes extending it
+ * (PSQueryOptimizer and PSUpdateOptimizer).
  */
 public abstract class PSOptimizer {
   private static final Logger log = LogManager.getLogger(PSOptimizer.class);
 
   /**
-   * Get a database meta data object, which may retrieve a cached entry or
-   * create a new meta data object.
+   * Get a database meta data object, which may retrieve a cached entry or create a new meta data
+   * object.
    *
-   * @param   login      the login object defining the database
-   *
-   * @return            the meta data object for the specified database or
-   * <code>null</code> if none is cached
+   * @param login the login object defining the database
+   * @return the meta data object for the specified database or <code>null</code> if none is cached
    */
   public static PSDatabaseMetaData getCachedDatabaseMetaData(PSBackEndLogin login)
       throws SQLException {
@@ -53,8 +51,8 @@ public abstract class PSOptimizer {
   }
 
   /**
-   * Get a database meta data object, which may retrieve a cached entry or
-   * create a new meta data object.
+   * Get a database meta data object, which may retrieve a cached entry or create a new meta data
+   * object.
    *
    * @param dataSource the datasource, never <code>null</code>
    * @return the meta data object for the specified datasource
@@ -66,9 +64,8 @@ public abstract class PSOptimizer {
   /**
    * Get the metadata based on the information in the backend table.
    *
-   * @param table the backend table, never <code>null</code>.  After this
-   * method call the table will have connection detail set on it.
-   *
+   * @param table the backend table, never <code>null</code>. After this method call the table will
+   *     have connection detail set on it.
    * @return the metadata, may be <code>null</code>.
    * @throws SQLException if the connection detail cannot be obtained.
    */
@@ -85,13 +82,10 @@ public abstract class PSOptimizer {
   }
 
   /**
-   * Determine if an index exists for efficient querying of the specified
-   * columns.
+   * Determine if an index exists for efficient querying of the specified columns.
    *
-   * @param   builder   the builder object containing the WHERE clauses
-   *                   to check
-   *
-   * @param   meta      the database meta data to use for the check
+   * @param builder the builder object containing the WHERE clauses to check
+   * @param meta the database meta data to use for the check
    */
   public static boolean isQueryIndexAvailable(java.util.ArrayList colList, PSTableMetaData meta)
       throws java.sql.SQLException {
@@ -133,9 +127,7 @@ public abstract class PSOptimizer {
     return hasIndex;
   }
 
-  /**
-   * Print the execution plan.
-   */
+  /** Print the execution plan. */
   protected static void logExecutionPlan(
       PSApplicationHandler ah, PSDataSet ds, IPSExecutionStep[] steps) {
     for (int i = 0; i < steps.length; i++) {
@@ -156,23 +148,20 @@ public abstract class PSOptimizer {
   }
 
   /**
-   * Evaluates the passed tables to create a login plan. There are a number
-   * of steps involved, which include determining if the tables belong to
-   * a single database, or a number of separate databases. If the tables are
-   * in different databases, then only the work that is local to a particular
-   * database can make use of joins in the SQL statements.
+   * Evaluates the passed tables to create a login plan. There are a number of steps involved, which
+   * include determining if the tables belong to a single database, or a number of separate
+   * databases. If the tables are in different databases, then only the work that is local to a
+   * particular database can make use of joins in the SQL statements.
    *
-   * Each separate database found while traversing the list of tables will
-   * necessitate a separate login step.
+   * <p>Each separate database found while traversing the list of tables will necessitate a separate
+   * login step.
    *
    * @param ah The application handler, must never be <code>null</code>
    * @param beTables The list of tables, must never be <code>null</code>
-   * @param logins A list of logins. The list must not be <code>null</code>
-   * and may contain logins from an earlier call. New logins will be added
-   * to the list.
-   * @param connKeys A {@link java.util.ConcurrentHashMap} of connection keys, which
-   * must not be <code>null</code> and which will be filled with the server
-   * keys and identifying integers.
+   * @param logins A list of logins. The list must not be <code>null</code> and may contain logins
+   *     from an earlier call. New logins will be added to the list.
+   * @param connKeys A {@link java.util.ConcurrentHashMap} of connection keys, which must not be
+   *     <code>null</code> and which will be filled with the server keys and identifying integers.
    * @param joins A collection of joins, may be <code>null</code>
    * @return the count of login elements
    * @throws java.sql.SQLException
@@ -260,10 +249,7 @@ public abstract class PSOptimizer {
     return loginCount;
   }
 
-  /**
-   * Join the login and execution plans (logins appear first) to get
-   * a unified execution plan.
-   */
+  /** Join the login and execution plans (logins appear first) to get a unified execution plan. */
   protected static IPSExecutionStep[] joinLoginAndExecutionPlans(
       java.util.List loginPlans, java.util.List execPlans) {
     IPSExecutionStep[] ret = new IPSExecutionStep[loginPlans.size() + execPlans.size()];
@@ -276,9 +262,7 @@ public abstract class PSOptimizer {
     return ret;
   }
 
-  /**
-   * Print the index statistics gathered for a back-end table.
-   */
+  /** Print the index statistics gathered for a back-end table. */
   protected static void printIndexStatistics(PSBackEndTable table, PSIndexStatistics[] stats) {
     if ((stats != null) && (stats.length > 0)) {
       log.info("Index Statistics for {}", table.getTable());

@@ -24,16 +24,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class encapsulates the mapping of source and target datasources,
- * <code>PSXDatasourceMap</code>, from a source to a target.
+ * This class encapsulates the mapping of source and target datasources, <code>PSXDatasourceMap
+ * </code>, from a source to a target.
  */
 public class PSDbmsMapping implements IPSDeployComponent {
 
   /**
    * Construct the object from a source database information.
    *
-   * @param datasrcMap The datasource mapping information, it may not be
-   * <code>null</code>
+   * @param datasrcMap The datasource mapping information, it may not be <code>null</code>
    */
   public PSDbmsMapping(PSDatasourceMap datasrcMap) {
     if (datasrcMap == null) throw new IllegalArgumentException("datasource map may not be null");
@@ -44,11 +43,9 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSDbmsMapping(Element source) throws PSUnknownNodeTypeException {
@@ -60,8 +57,8 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Copy ctor.
    *
-   * @param source The mapping from which a shallow copy is constructed, may
-   * not be <code>null</code>.
+   * @param source The mapping from which a shallow copy is constructed, may not be <code>null
+   *     </code>.
    */
   public PSDbmsMapping(PSDbmsMapping source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -72,8 +69,7 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Get the database information of the source.
    *
-   * @return The source <code>PSDatasourceMap</code> object, it can never be
-   * <code>null</code>.
+   * @return The source <code>PSDatasourceMap</code> object, it can never be <code>null</code>.
    */
   public PSDatasourceMap getDataSourceMap() {
     return m_datasrcMap;
@@ -82,8 +78,7 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Get the database information of the source.
    *
-   * @return The source datasource as a string, it can never be
-   * <code>null</code>.
+   * @return The source datasource as a string, it can never be <code>null</code>.
    */
   public String getSourceInfo() {
     return m_datasrcMap.getSrc();
@@ -92,8 +87,7 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Set the source database information.
    *
-   * @param srcDataSource The new source datasource information, it may not be
-   * <code>null</code>.
+   * @param srcDataSource The new source datasource information, it may not be <code>null</code>.
    */
   public void setSourceInfo(String srcDataSource) {
     if (srcDataSource == null) throw new IllegalArgumentException("srcDataSource may not be null");
@@ -113,8 +107,8 @@ public class PSDbmsMapping implements IPSDeployComponent {
   /**
    * Set the target database info.
    *
-   * @param tgtDatasrc The target datasource info, it may be <code>null</code>
-   * to clear the target info.
+   * @param tgtDatasrc The target datasource info, it may be <code>null</code> to clear the target
+   *     info.
    */
   public void setTargetInfo(String tgtDatasrc) {
     m_datasrcMap.setTarget(tgtDatasrc);
@@ -142,9 +136,8 @@ public class PSDbmsMapping implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    *
    * @throws PSUnknownNodeTypeException <code>sourceNode</code> is malformed.
@@ -197,13 +190,9 @@ public class PSDbmsMapping implements IPSDeployComponent {
     return m_datasrcMap.equals(other.m_datasrcMap);
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDbmsMapping";
 
-  /**
-   * The datasource mapping : sourceDataSource <==> targetDataSource
-   */
+  /** The datasource mapping : sourceDataSource <==> targetDataSource */
   private PSDatasourceMap m_datasrcMap;
 }

@@ -22,112 +22,100 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A sample bean used to demonstrate how to use the custom XML bean to retrieve
- * data from meta-data service. An example is defined in 
- * <code>user-beans.xml</code>. 
+ * A sample bean used to demonstrate how to use the custom XML bean to retrieve data from meta-data
+ * service. An example is defined in <code>user-beans.xml</code>.
  *
  * @author YuBingChen
  */
 public class PSBeanPropertiesSample {
-    /**
-     * Returns the string property, which may be set by
-     * {@link #setStringValue(String)}.
-     *
-     * @return the string. It may be {@code null} or empty.
-     */
-    public String getStringValue() {
-        return m_stringValue;
-    }
+  /**
+   * Returns the string property, which may be set by {@link #setStringValue(String)}.
+   *
+   * @return the string. It may be {@code null} or empty.
+   */
+  public String getStringValue() {
+    return m_stringValue;
+  }
 
-    /**
-     * Sets string property.
-     *
-     * @param stringValue the new string, it may be {@code null} or empty.
-     */
-    public void setStringValue(String stringValue) {
-        ms_log.info("setStringValue(): {}", stringValue == null ? "null" : stringValue);
-        m_stringValue = stringValue;
-    }
+  /**
+   * Sets string property.
+   *
+   * @param stringValue the new string, it may be {@code null} or empty.
+   */
+  public void setStringValue(String stringValue) {
+    ms_log.info("setStringValue(): {}", stringValue == null ? "null" : stringValue);
+    m_stringValue = stringValue;
+  }
 
-    /**
-     * Gets the integer property.
-     *
-     * @return the integer.
-     */
-    public int getIntValue() {
-        return m_intValue;
-    }
+  /**
+   * Gets the integer property.
+   *
+   * @return the integer.
+   */
+  public int getIntValue() {
+    return m_intValue;
+  }
 
-    /**
-     * Sets the integer property.
-     *
-     * @param intValue the new integer.
-     */
-    public void setIntValue(int intValue) {
-        ms_log.info("setIntValue(): {}", intValue);
-        m_intValue = intValue;
-    }
+  /**
+   * Sets the integer property.
+   *
+   * @param intValue the new integer.
+   */
+  public void setIntValue(int intValue) {
+    ms_log.info("setIntValue(): {}", intValue);
+    m_intValue = intValue;
+  }
 
-    /**
-     * Gets the list property.
-     *
-     * @return the list, it may be {@code null} or empty.
-     */
-    public List<Object> getListValue() {
-        return m_listValue;
-    }
+  /**
+   * Gets the list property.
+   *
+   * @return the list, it may be {@code null} or empty.
+   */
+  public List<Object> getListValue() {
+    return m_listValue;
+  }
 
-    /**
-     * Sets the list property.
-     *
-     * @param listValue the new list property, it may be {@code null} or empty.
-     */
-    public void setListValue(List<Object> listValue) {
-        ms_log.info("setListValue(): {}", listValue == null ? "null" : listValue);
-        m_listValue = listValue;
-    }
+  /**
+   * Sets the list property.
+   *
+   * @param listValue the new list property, it may be {@code null} or empty.
+   */
+  public void setListValue(List<Object> listValue) {
+    ms_log.info("setListValue(): {}", listValue == null ? "null" : listValue);
+    m_listValue = listValue;
+  }
 
-    /**
-     * Gets the map property.
-     *
-     * @return the map, may be {@code null} or empty.
-     */
-    public Map<String, Object> getMapValue() {
-        return m_mapValue;
-    }
+  /**
+   * Gets the map property.
+   *
+   * @return the map, may be {@code null} or empty.
+   */
+  public Map<String, Object> getMapValue() {
+    return m_mapValue;
+  }
 
-    /**
-     * Sets the map property.
-     *
-     * @param mapValue the new map property, it may be {@code null} or empty.
-     */
-    public void setMapValue(Map<String, Object> mapValue) {
-        ms_log.info("setMapValue(): {}", mapValue == null ? "null" : mapValue);
-        m_mapValue = mapValue;
-    }
+  /**
+   * Sets the map property.
+   *
+   * @param mapValue the new map property, it may be {@code null} or empty.
+   */
+  public void setMapValue(Map<String, Object> mapValue) {
+    ms_log.info("setMapValue(): {}", mapValue == null ? "null" : mapValue);
+    m_mapValue = mapValue;
+  }
 
-    /**
-     * The integer property.
-     */
-    private int m_intValue;
+  /** The integer property. */
+  private int m_intValue;
 
-    /**
-     * The string property. It may be {@code null} or empty.
-     */
-    private String m_stringValue;
+  /** The string property. It may be {@code null} or empty. */
+  private String m_stringValue;
 
-    /**
-     * The list property. It may be {@code null} or empty.
-     */
-    private List<Object> m_listValue;
+  /** The list property. It may be {@code null} or empty. */
+  private List<Object> m_listValue;
 
-    /**
-     * The map property. It may be {@code null} or empty.
-     */
-    private Map<String, Object> m_mapValue;
+  /** The map property. It may be {@code null} or empty. */
+  private Map<String, Object> m_mapValue;
 
-    /**
-     * Logger for this class.
-     */
-    private static final Logger ms_log = LogManager.getLogger("PSPropertyValueBeanSample");
+  /** Logger for this class. */
+  private static final Logger ms_log = LogManager.getLogger("PSPropertyValueBeanSample");
 }

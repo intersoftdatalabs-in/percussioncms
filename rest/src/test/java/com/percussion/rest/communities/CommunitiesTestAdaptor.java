@@ -20,49 +20,48 @@ package com.percussion.rest.communities;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
 import com.percussion.webservices.PSErrorResultsException;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import java.rmi.RemoteException;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 @Component
 @Lazy
 public class CommunitiesTestAdaptor implements ICommunityAdaptor {
-    @Override
-    public CommunityList createCommunities(List<String> names) {
-        return null;
-    }
+  @Override
+  public CommunityList createCommunities(List<String> names) {
+    return null;
+  }
 
-    @Override
-    public CommunityList findCommunities(String name) {
-        return null;
-    }
+  @Override
+  public CommunityList findCommunities(String name) {
+    return null;
+  }
 
-    @Override
-    public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
-            throws PSErrorResultsException {
-        return null;
-    }
+  @Override
+  public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
+      throws PSErrorResultsException {
+    return null;
+  }
 
-    @Override
-    public void saveCommunities(CommunityList communities, boolean release) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void saveCommunities(CommunityList communities, boolean release) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public void deleteCommunities(GuidList ids, boolean ignoreDependencies) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void deleteCommunities(GuidList ids, boolean ignoreDependencies) {
+    // No-op for test adaptor
+  }
 
-    @Override
-    public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type)
-            throws PSErrorResultsException, RemoteException {
-        return null;
-    }
+  @Override
+  public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type)
+      throws PSErrorResultsException, RemoteException {
+    return null;
+  }
 
-    @Override
-    public void switchCommunity(String name) {
-        // No-op for test adaptor
-    }
+  @Override
+  public void switchCommunity(String name) {
+    // No-op for test adaptor
+  }
 }

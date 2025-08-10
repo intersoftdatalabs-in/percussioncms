@@ -28,10 +28,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A Rhythmyx post exit that copies an XML DOM tree from a temporary
- * private object into the result document.
+ * A Rhythmyx post exit that copies an XML DOM tree from a temporary private object into the result
+ * document.
  *
  * <p>The parameters for this exit are:
+ *
  * <table border="1">
  *   <tr><th>Param #</th><th>Description</th><th>Required?</th>
  *   <th>default value</th><tr>
@@ -55,36 +56,24 @@ import org.w3c.dom.Node;
  *   </tr>
  * </table>
  *
- * <p>The source and destination nodes may be omitted.  If the
- * source node is omitted or is "." (the period or dot character), the
- * source is the entire XML document contained in the object.</p>
- * <p> If the destination node is omitted, the source node will added
- * as a direct child of the document element (sometimes called root element)
- * of the XML result document.
- * </p>
+ * <p>The source and destination nodes may be omitted. If the source node is omitted or is "." (the
+ * period or dot character), the source is the entire XML document contained in the object.
  *
+ * <p>If the destination node is omitted, the source node will added as a direct child of the
+ * document element (sometimes called root element) of the XML result document.
  */
 public class PSXdCopyDom extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
    * Copy a subtree of the source XML document into the result document.
    *
-   * @param params an array of parameters to the post exit.
-   * See {@link PSXdCopyDom } for parameter details.
-   *
-   * @param request the com.percussion.server.IPSRequestContext object
-   * for this particular request.
-   *
-   * @param resultDoc the org.w3c.dom.Document that results from the resource
-   *  execution.
-   *
+   * @param params an array of parameters to the post exit. See {@link PSXdCopyDom } for parameter
+   *     details.
+   * @param request the com.percussion.server.IPSRequestContext object for this particular request.
+   * @param resultDoc the org.w3c.dom.Document that results from the resource execution.
    * @return the XML document to pass on to server for further processing.
-   *
-   * @throws PSExtensionProcessorException When an unexpected error condition
-   *    occurs.
-   * @throws PSParameterMismatchException This class will never throw this
-   * exception.
-   *
-   **/
+   * @throws PSExtensionProcessorException When an unexpected error condition occurs.
+   * @throws PSParameterMismatchException This class will never throw this exception.
+   */
   public org.w3c.dom.Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -123,10 +112,7 @@ public class PSXdCopyDom extends PSDefaultExtension implements IPSResultDocument
     return resultDoc;
   }
 
-  /**
-   * This exit will never modify the style sheet. This method is required by the
-   * interface.
-   */
+  /** This exit will never modify the style sheet. This method is required by the interface. */
   public boolean canModifyStyleSheet() {
     return false;
   }

@@ -28,18 +28,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSProviderCatalogHandler class implements cataloging of security
- * providers. This request type is used to locate the security providers
- * available for authentication and ACL membership on the E2 server.
- * <p>
- * Security provider catalog requests are sent to the server using the
- * PSXSecurityProviderCatalog XML document. Its definition is as follows:
+ * The PSProviderCatalogHandler class implements cataloging of security providers. This request type
+ * is used to locate the security providers available for authentication and ACL membership on the
+ * E2 server.
+ *
+ * <p>Security provider catalog requests are sent to the server using the PSXSecurityProviderCatalog
+ * XML document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityProviderCatalog    EMPTY&gt;
  * </pre>
  *
- * The PSXSecurityProviderCatalogResults XML document is sent as the
- * response. Its definition is as follows:
+ * The PSXSecurityProviderCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityProviderCatalogResults (Provider*)&gt;
  *
@@ -78,15 +80,13 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT description                (#PCDATA)&gt;
  * </pre>
  *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements com.percussion.design.catalog.IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSProviderCatalogHandler() {
     super();
   }
@@ -94,10 +94,9 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
   // ********  IPSCatalogRequestHandler Interface Implementation ********
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return   the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_RequestDTD};
@@ -106,12 +105,10 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
   // ************ IPSRequestHandler Interface Implementation ************
 
   /**
-   * Processes the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Processes the catalog request. This uses the XML document sent as the input data. The results
+   * are written to the specified output stream using the appropriate XML document format.
    *
-   * @param request The request object containing all context
-   * data associated with the request.
+   * @param request The request object containing all context data associated with the request.
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -195,35 +192,22 @@ public class PSProviderCatalogHandler extends com.percussion.design.catalog.PSCa
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     // nothing to do here
   }
 
   /**
-   * Adds a provider definition to the XML document. Private utility
-   * method.
+   * Adds a provider definition to the XML document. Private utility method.
    *
-   * @param doc The document to which we add the definition. Must not
-   * be <CODE>null</CODE>.
-   *
-   * @param root The element under which we add the definition. Must
-   * not be <CODE>null</CODE>.
-   *
+   * @param doc The document to which we add the definition. Must not be <CODE>null</CODE>.
+   * @param root The element under which we add the definition. Must not be <CODE>null</CODE>.
    * @param name The name of the provider. Must not be <CODE>null</CODE>.
-   *
    * @param type The integer representation of the type of provider.
-   *
-   * @param fullName The full (descriptive) name of the provider. Must
-   * not be <CODE>null</CODE>.
-   *
-   * @param description The description of the provider. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @param connProps The connection properties. Each property will
-   * be added. Must not be <CODE>null</CODE>.
+   * @param fullName The full (descriptive) name of the provider. Must not be <CODE>null</CODE>.
+   * @param description The description of the provider. Must not be <CODE>null</CODE>.
+   * @param connProps The connection properties. Each property will be added. Must not be <CODE>null
+   *     </CODE>.
    */
   private void addProviderDefinition(
       Document doc,

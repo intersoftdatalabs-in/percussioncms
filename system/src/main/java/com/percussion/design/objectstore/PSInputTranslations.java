@@ -22,14 +22,9 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXInputTranslations DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXInputTranslations DTD in BasicObjects.dtd. */
 public class PSInputTranslations extends PSCollectionComponent {
-  /**
-   * Creates a new, empty input translation collection of PSConditionalExit
-   * objects.
-   */
+  /** Creates a new, empty input translation collection of PSConditionalExit objects. */
   public PSInputTranslations() {
     super((new PSConditionalExit()).getClass());
   }
@@ -37,14 +32,10 @@ public class PSInputTranslations extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSInputTranslations(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -53,9 +44,8 @@ public class PSInputTranslations extends PSCollectionComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSDisplayMapper, not <code>null</code>.
    */
@@ -71,8 +61,7 @@ public class PSInputTranslations extends PSCollectionComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSInputTranslations)) return false;
@@ -103,7 +92,6 @@ public class PSInputTranslations extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -140,7 +128,6 @@ public class PSInputTranslations extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {

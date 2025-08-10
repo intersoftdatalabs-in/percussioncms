@@ -36,37 +36,34 @@ import javax.help.HelpSetException;
 import javax.swing.*;
 
 /**
- * This is a helper class to launch regular and context sensitive help using
- * JavaHelp viewer. This is a singleton object. To prevent the class from being
- * unloaded, a single reference should be kept by a class that is always loaded.
- * This will prevent the help mapping file and the helpset file for JavaHelp
- * from being loaded more than once.
- * <p/>
- * The mapping file used is helptopicmapping.properties which has the mappings
- * for help id(The id identified by the application) to the help topic id(target
- * which is mapped to the html file) in helpset map file. Entries of the
- * following form are expected:
- * <p/>
- * <DEFAULT_HELP_KEY>=<default help topic to display if no help id is supplied>
- * <p/>
- * <helpID>=<The topic id in the help set file to display for a specific id><p/>
- * Typically, there will be a <helpID> for every dialog and tab and the help ids
- * used for the dialogs are class name of that dialog.
+ * This is a helper class to launch regular and context sensitive help using JavaHelp viewer. This
+ * is a singleton object. To prevent the class from being unloaded, a single reference should be
+ * kept by a class that is always loaded. This will prevent the help mapping file and the helpset
+ * file for JavaHelp from being loaded more than once.
  *
- * @todo The 'helptopicmapping.properties' is required because it is not allowed
- * to change the help topic id in the helpset map file with the current
- * help authoring tool. Once we find the way to change the topic id, then the
- * help id identified by the application should be used as topic id in helpset
- * map file and the code to load and read helptopicmapping.properties file
- * should be removed.
+ * <p>The mapping file used is helptopicmapping.properties which has the mappings for help id(The id
+ * identified by the application) to the help topic id(target which is mapped to the html file) in
+ * helpset map file. Entries of the following form are expected:
+ *
+ * <p><DEFAULT_HELP_KEY>=<default help topic to display if no help id is supplied>
+ *
+ * <p><helpID>=<The topic id in the help set file to display for a specific id>
+ *
+ * <p>Typically, there will be a <helpID> for every dialog and tab and the help ids used for the
+ * dialogs are class name of that dialog.
+ *
+ * @todo The 'helptopicmapping.properties' is required because it is not allowed to change the help
+ *     topic id in the helpset map file with the current help authoring tool. Once we find the way
+ *     to change the topic id, then the help id identified by the application should be used as
+ *     topic id in helpset map file and the code to load and read helptopicmapping.properties file
+ *     should be removed.
  */
 public class PSJavaHelp {
   /**
    * Gets the singleton instance of this class.
    *
-   * @return The one and only instance for this object. If it doesn't exist, it
-   * will be created.
-   **/
+   * @return The one and only instance for this object. If it doesn't exist, it will be created.
+   */
   public static synchronized PSJavaHelp getInstance() {
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();
 
@@ -74,19 +71,16 @@ public class PSJavaHelp {
   }
 
   /**
-   * Sets the helpset to use with this instance. Displays an error message to
-   * the user if the supplied helpset url is not found or unable to parse the
-   * url content.
+   * Sets the helpset to use with this instance. Displays an error message to the user if the
+   * supplied helpset url is not found or unable to parse the url content.
    *
    * @param helpSetURL the url of the helpset file, may not be <code>null
    * </code> or empty.
-   * @param helpMappingResourceFile the help topic mapping resource file name,
-   * will be loaded through resource bundle, supply <code>null</code> if the
-   * requested help ids to the {@link #launchHelp(String) #launchHelp(helpID)}
-   * is going to be topic ids.
-   *
-   * @throws IllegalArgumentException if helpSetUrl is <code>null</code> or
-   * empty or helpMappingResourceFile is empty.
+   * @param helpMappingResourceFile the help topic mapping resource file name, will be loaded
+   *     through resource bundle, supply <code>null</code> if the requested help ids to the {@link
+   *     #launchHelp(String) #launchHelp(helpID)} is going to be topic ids.
+   * @throws IllegalArgumentException if helpSetUrl is <code>null</code> or empty or
+   *     helpMappingResourceFile is empty.
    */
   public void setHelpSet(String helpSetURL, String helpMappingResourceFile) {
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();
@@ -104,29 +98,25 @@ public class PSJavaHelp {
   }
 
   /**
-   * Convenience method to call {@link #setHelpSet(String, String)
-   * setHelpSet(helpSetURL, null)}.
+   * Convenience method to call {@link #setHelpSet(String, String) setHelpSet(helpSetURL, null)}.
    */
   public void setHelpSet(String helpSetURL) {
     setHelpSet(helpSetURL, null);
   }
 
   /**
-   * Gets helpset url for the specified helpset file prefixed with the proper
-   * protocol by looking its location (located in jar file or outside). If
-   * the url is required for an applet, uses applet's codebase as the path will
-   * be relative to the applet location.
+   * Gets helpset url for the specified helpset file prefixed with the proper protocol by looking
+   * its location (located in jar file or outside). If the url is required for an applet, uses
+   * applet's codebase as the path will be relative to the applet location.
    *
    * @param hsFilePath the helpset file for which to get url, if <code>null
    * </code> or empty, <code>null</code> or empty will be returned.
-   * @param isApplet if <code>true</code> assumes the caller is an applet and
-   * prefixes supplied codebase to file url, otherwise not
-   * @param codeBase the base url of the applet, may not be <code>null</code>
-   * or empty, if <code>isApplet</code> is <code>true</code>
-   *
-   * @return the url string, may be <code>null</code> or empty if supplied
-   * helpset file path is <code>null</code> or empty.
-   *
+   * @param isApplet if <code>true</code> assumes the caller is an applet and prefixes supplied
+   *     codebase to file url, otherwise not
+   * @param codeBase the base url of the applet, may not be <code>null</code> or empty, if <code>
+   *     isApplet</code> is <code>true</code>
+   * @return the url string, may be <code>null</code> or empty if supplied helpset file path is
+   *     <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>isApplet</code> is <code>true
    * </code> and <code>codeBase</code> is <code>null</code> or empty.
    */
@@ -163,46 +153,40 @@ public class PSJavaHelp {
   }
 
   /**
-   * Convenience method for {@link #getHelpSetURL(String, boolean, String)
-   * getHelpSetURL(hsFilePath, false, null)}. Please see the link for
-   * description of the method and its parameter.
+   * Convenience method for {@link #getHelpSetURL(String, boolean, String) getHelpSetURL(hsFilePath,
+   * false, null)}. Please see the link for description of the method and its parameter.
    */
   public static String getHelpSetURL(String hsFilePath) {
     return getHelpSetURL(hsFilePath, false, null);
   }
 
   /**
-   * Convenience method for {@link #launchHelp(String, boolean, Window)}
-   * launchHelp(helpID, false, null) }. Assumes the help frame is not parented
-   * by any dialog.
+   * Convenience method for {@link #launchHelp(String, boolean, Window)} launchHelp(helpID, false,
+   * null) }. Assumes the help frame is not parented by any dialog.
    */
   public static void launchHelp(String helpID) {
     launchHelp(helpID, false, null);
   }
 
   /**
-   * Launches the JavaHelp viewer to display the HTML help file associated with
-   * the supplied id.
+   * Launches the JavaHelp viewer to display the HTML help file associated with the supplied id.
    * <br>
    * If the helptopicmapping.properties file is not available or <code>
-   * isTopicID</code> is <code>true</code>, then it treats the supplied help id
-   * as the help topic id, otherwise gets the topic id from the map file. If
-   * there is no mapping for the supplied Id, the main help topic will be
-   * displayed.
-   * <br>
-   * Logs the error messages if the helpset file is not available. Displays an
-   * error message if help topic is not found for the specified help id.
+   * isTopicID</code> is <code>true</code>, then it treats the supplied help id as the help topic
+   * id, otherwise gets the topic id from the map file. If there is no mapping for the supplied Id,
+   * the main help topic will be displayed. <br>
+   * Logs the error messages if the helpset file is not available. Displays an error message if help
+   * topic is not found for the specified help id.
    *
-   * @param helpID A key that is used to retrieve the HTML help file. If empty
-   * or null, or the key is not present in the mapping file, or the help topic
-   * id is not found for the id, the main help is shown.
-   * @param isTopicID if <code>true</code> supplied id is considered as topic
-   * id, otherwise finds the topic id from map file.
-   * @param window the window which is invoking the help dialog, may be
-   * <code>null</code>. This should not be <code>null</code> if this is called
-   * from a modal dialog because if the dialog is not set as parent to the help
-   * viewer window, it won't be accessible.
-   **/
+   * @param helpID A key that is used to retrieve the HTML help file. If empty or null, or the key
+   *     is not present in the mapping file, or the help topic id is not found for the id, the main
+   *     help is shown.
+   * @param isTopicID if <code>true</code> supplied id is considered as topic id, otherwise finds
+   *     the topic id from map file.
+   * @param window the window which is invoking the help dialog, may be <code>null</code>. This
+   *     should not be <code>null</code> if this is called from a modal dialog because if the dialog
+   *     is not set as parent to the help viewer window, it won't be accessible.
+   */
   public static void launchHelp(String helpID, boolean isTopicID, Window window) {
     PSJavaHelp helpInst = getInstance();
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();
@@ -275,18 +259,14 @@ public class PSJavaHelp {
   }
 
   /**
-   * Sets the parent window to the help viewer window. Makes the help viewer
-   * visible only if <code>show</code> is </code>true</code>, otherwise makes
-   * it invisible. This method is useful to call while activating/deactivating
-   * the modal dialogs to prevent blocking the helpviewer access and closing
-   * the help viewer. Call <code>setParent(null, true)</code> to prevent the
-   * help viewer getting closed when the modal dialog which is parent of this
-   * viewer gets closed.
+   * Sets the parent window to the help viewer window. Makes the help viewer visible only if <code>
+   * show</code> is </code>true</code>, otherwise makes it invisible. This method is useful to call
+   * while activating/deactivating the modal dialogs to prevent blocking the helpviewer access and
+   * closing the help viewer. Call <code>setParent(null, true)</code> to prevent the help viewer
+   * getting closed when the modal dialog which is parent of this viewer gets closed.
    *
-   * @param modal the dialog to be set as parent to help viewer, may be
-   * <code>null</code>. This
-   * @param show if </code>true</code>, makes the help viewer visible otherwise
-   * invisible.
+   * @param modal the dialog to be set as parent to help viewer, may be <code>null</code>. This
+   * @param show if </code>true</code>, makes the help viewer visible otherwise invisible.
    */
   public void setParent(JDialog modal, boolean show) {
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();
@@ -300,29 +280,29 @@ public class PSJavaHelp {
   }
 
   /**
-   * Clear the help broker so that a new one gets instantiated
-   * the next time we try to get the help broker.
+   * Clear the help broker so that a new one gets instantiated the next time we try to get the help
+   * broker.
    */
   public void clearBroker() {
     m_hbroker = null;
   }
 
   /**
-   * Private constructor to implement Singleton pattern. Use getInstance()
-   * to get the single instance. <p/>
-   * Attempts to load the resource that contains the help id mappings. If it
-   * fails, a message is displayed to the user via a dialog.
-   **/
+   * Private constructor to implement Singleton pattern. Use getInstance() to get the single
+   * instance.
+   *
+   * <p>Attempts to load the resource that contains the help id mappings. If it fails, a message is
+   * displayed to the user via a dialog.
+   */
   private PSJavaHelp() {}
 
   /**
-   * Loads the supplied help mapping file using the specified properties file.
-   * Displays an error message if it is unable to load the file.
-   * ".properties" extension is added to <code>helpMappingResourceFile</code>
-   * for backwards compatibility.
+   * Loads the supplied help mapping file using the specified properties file. Displays an error
+   * message if it is unable to load the file. ".properties" extension is added to <code>
+   * helpMappingResourceFile</code> for backwards compatibility.
    *
-   * @param helpMappingResourceFile the help topic mapping properties file name,
-   * assumed not to be <code>null</code> or empty.
+   * @param helpMappingResourceFile the help topic mapping properties file name, assumed not to be
+   *     <code>null</code> or empty.
    */
   private void loadHelpTopicMappings(String helpMappingResourceFile) {
     if (null == ms_theInstance) ms_theInstance = new PSJavaHelp();
@@ -352,8 +332,8 @@ public class PSJavaHelp {
   }
 
   /**
-   * Create the help broker on demand, but do nothing if there's no
-   * help set url.
+   * Create the help broker on demand, but do nothing if there's no help set url.
+   *
    * @return the help broker, should never be <code>null</code>
    */
   private HelpBroker getHelpBroker() {
@@ -370,9 +350,9 @@ public class PSJavaHelp {
   }
 
   /**
-   * Creates the JavaHelp Object broker and caches to launch the help later.
-   * Displays an error message to the user if the supplied helpset url to this
-   * instance is not found or unable to load/parse the url content.
+   * Creates the JavaHelp Object broker and caches to launch the help later. Displays an error
+   * message to the user if the supplied helpset url to this instance is not found or unable to
+   * load/parse the url content.
    */
   private void createHelpSet() {
     ClassLoader loader = this.getClass().getClassLoader();
@@ -405,11 +385,9 @@ public class PSJavaHelp {
   }
 
   /**
-   * Gets resource bundle for the error messages while loading the helpset or
-   * displaying the help.
+   * Gets resource bundle for the error messages while loading the helpset or displaying the help.
    *
-   * @return the resource bundle, may be <code>null</code> if it can not find
-   * the resource file.
+   * @return the resource bundle, may be <code>null</code> if it can not find the resource file.
    */
   private static ResourceBundle getResources() {
     try {
@@ -425,15 +403,13 @@ public class PSJavaHelp {
   }
 
   /**
-   * Gets the resource string identified by the specified key.  If the
-   * resource cannot be found, the key itself is returned.
+   * Gets the resource string identified by the specified key. If the resource cannot be found, the
+   * key itself is returned.
    *
    * @param key identifies the resource to be fetched; may not be <code>null
    * </code> or empty.
-   *
-   * @return String value of the resource identified by <code>key</code>, or
-   * <code>key</code> itself.
-   *
+   * @return String value of the resource identified by <code>key</code>, or <code>key</code>
+   *     itself.
    * @throws IllegalArgumentException if key is <code>null</code> or empty.
    */
   private static String getResourceString(String key) {
@@ -453,10 +429,8 @@ public class PSJavaHelp {
   /**
    * Displays error message in a text area.
    *
-   * @param errorBody error message to show, may be <code>null</code> or
-   * empty.
-   * @param errorTitle title for the dialog, may be <code>null</code> or
-   * empty.
+   * @param errorBody error message to show, may be <code>null</code> or empty.
+   * @param errorTitle title for the dialog, may be <code>null</code> or empty.
    * @param type The type of message, must be one of the <code>JOptionPane
    * </code> message types.
    */
@@ -470,49 +444,42 @@ public class PSJavaHelp {
     JOptionPane.showMessageDialog(getPermanetFocusOwner(), pane, errorTitle, type);
   }
 
-  /**
-   * Component currently keeping focus.
-   */
+  /** Component currently keeping focus. */
   private static Component getPermanetFocusOwner() {
     return KeyboardFocusManager.getCurrentKeyboardFocusManager().getPermanentFocusOwner();
   }
 
   /**
    * The resource bundle for error messages. Gets initialized when <code>
-   * getResources()</code> is called and may be <code>null</code> if it could
-   * not find the bundle, but never modified after it is initialized.
+   * getResources()</code> is called and may be <code>null</code> if it could not find the bundle,
+   * but never modified after it is initialized.
    */
   private static ResourceBundle m_res = null;
 
   /**
-   * The properties file with mappings of help id used by application to the
-   * help topic id used in the helpset map file for the html documents.
-   * May be <code>null </code> if the file can not be loaded while this
-   * instance is created.
-   **/
+   * The properties file with mappings of help id used by application to the help topic id used in
+   * the helpset map file for the html documents. May be <code>null </code> if the file can not be
+   * loaded while this instance is created.
+   */
   private Properties m_helpIDToFileMap = null;
 
   /**
-   * The help broker object which represents the helpset of this instance. Used
-   * to display the help for the suppplied help id. Gets initialized in <code>
-   * createHelpSet()</code>, may be <code>null</code> if there is an exception
-   * accessing or parsing the helpset file.
+   * The help broker object which represents the helpset of this instance. Used to display the help
+   * for the suppplied help id. Gets initialized in <code>
+   * createHelpSet()</code>, may be <code>null</code> if there is an exception accessing or parsing
+   * the helpset file.
    */
   private HelpBroker m_hbroker = null;
 
   /**
-   * The URL of the helpset file, gets initialized in <code>setHelpSet</code>
-   * and never <code>null</code> or modified after that.
+   * The URL of the helpset file, gets initialized in <code>setHelpSet</code> and never <code>null
+   * </code> or modified after that.
    */
   private String m_helpSetURL = null;
 
-  /**
-   * The single instance of this class. Use getInstance() to obtain it.
-   **/
+  /** The single instance of this class. Use getInstance() to obtain it. */
   private static PSJavaHelp ms_theInstance = null;
 
-  /**
-   * The id that will bring up the primary HTML help file for the workbench.
-   **/
+  /** The id that will bring up the primary HTML help file for the workbench. */
   public static final String MAIN_HELP_ID = "default";
 }

@@ -39,21 +39,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a role definition.
- */
+/** Class to handle packaging and deploying a role definition. */
 public class PSRoleDefDependencyHandler
     extends com.percussion.deployer.server.dependencies.PSDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSRoleDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -185,7 +180,6 @@ public class PSRoleDefDependencyHandler
    * Create a dependency from the supplied role name.
    *
    * @param name The name of the role, assumed not <code>null</code> or empty.
-   *
    * @return A role dep, never <code>null</code>.
    */
   private PSDependency getRoleDep(String name) {
@@ -193,14 +187,14 @@ public class PSRoleDefDependencyHandler
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -211,19 +205,15 @@ public class PSRoleDefDependencyHandler
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "RoleDef";
 
   /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code>, but may be empty.
+   * List of child types supported by this handler, it will never be <code>null</code>, but may be
+   * empty.
    */
   private static List ms_childTypes = new ArrayList();
 
-  /**
-   * Get the role manager.
-   */
+  /** Get the role manager. */
   private static IPSBackEndRoleMgr ms_roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
 }

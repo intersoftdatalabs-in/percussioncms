@@ -17,6 +17,9 @@
  */
 package com.percussion.workflow.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.maintenance.service.IPSMaintenanceManager;
 import com.percussion.maintenance.service.IPSMaintenanceProcess;
@@ -32,230 +35,217 @@ import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.utils.guid.IPSGuid;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-/**
- * Tests for PSWorkflowCacheBuilder.
- */
+/** Tests for PSWorkflowCacheBuilder. */
 public class PSWorkflowCacheBuilderTest {
 
-    @Test
-    public void testBuildWorkflowCache() {
-        var maintMgr = new MockMaintMgr();
-        var wfsvc = new MockWorkflowService();
-        var cacheBuilder = new PSWorkflowCacheBuilder(wfsvc, maintMgr);
+  @Test
+  public void testBuildWorkflowCache() {
+    var maintMgr = new MockMaintMgr();
+    var wfsvc = new MockWorkflowService();
+    var cacheBuilder = new PSWorkflowCacheBuilder(wfsvc, maintMgr);
 
-        cacheBuilder.buildWorkflowCache();
+    cacheBuilder.buildWorkflowCache();
 
-        int tries = 0;
-        while (!wfsvc.didLoadWorkflows) {
-            tries++;
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                fail("Threadus Interruptus");
-            }
+    int tries = 0;
+    while (!wfsvc.didLoadWorkflows) {
+      tries++;
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        fail("Threadus Interruptus");
+      }
 
-            if (tries > 1000) {
-                fail("Did not build workflow cache in allotted time");
-            }
-        }
-
-        assertTrue(maintMgr.didStartWork, "Maint proc not started");
-        assertTrue(maintMgr.didStopWork, "Maint proc not stopped");
+      if (tries > 1000) {
+        fail("Did not build workflow cache in allotted time");
+      }
     }
 
-    private static class MockMaintMgr implements IPSMaintenanceManager {
+    assertTrue(maintMgr.didStartWork, "Maint proc not started");
+    assertTrue(maintMgr.didStopWork, "Maint proc not stopped");
+  }
 
-        boolean didStartWork = false;
-        String procId = null;
-        boolean didStopWork = false;
-        boolean hasFailures = false;
+  private static class MockMaintMgr implements IPSMaintenanceManager {
 
-        @Override
-        public void startingWork(IPSMaintenanceProcess process) {
-            procId = process.getProcessId();
-            didStartWork = true;
-        }
+    boolean didStartWork = false;
+    String procId = null;
+    boolean didStopWork = false;
+    boolean hasFailures = false;
 
-        @Override
-        public boolean isWorkInProgress() {
-            return didStartWork && !didStopWork;
-        }
-
-        @Override
-        public void workCompleted(IPSMaintenanceProcess process) {
-            if (process.getProcessId().equals(procId))
-                didStopWork = true;
-        }
-
-        @Override
-        public boolean hasFailures() {
-            return hasFailures;
-        }
-
-        @Override
-        public void workFailed(IPSMaintenanceProcess process) {
-            hasFailures = true;
-        }
-
-        @Override
-        public boolean clearFailures() {
-            boolean hadFailures = hasFailures;
-            hasFailures = false;
-            return hadFailures;
-        }
+    @Override
+    public void startingWork(IPSMaintenanceProcess process) {
+      procId = process.getProcessId();
+      didStartWork = true;
     }
 
-    private static class MockWorkflowService implements IPSWorkflowService {
-        private boolean didLoadWorkflows = false;
-
-        @Override
-        public List<PSWorkflow> findWorkflowsByName(String name) {
-            didLoadWorkflows = true;
-            return null;
-        }
-
-        @Override
-        public List<PSObjectSummary> findWorkflowSummariesByName(String name) {
-            return null;
-        }
-
-        @Override
-        public PSWorkflow loadWorkflow(IPSGuid id) {
-            return null;
-        }
-
-        @Override
-        public PSWorkflow loadWorkflowDb(IPSGuid id) {
-            return null;
-        }
-
-        @Override
-        public void saveWorkflow(PSWorkflow workflow) {
-        }
-
-        @Override
-        public void deleteWorkflow(IPSGuid wfid) throws Exception {
-        }
-
-        @Override
-        public PSState loadWorkflowState(IPSGuid stateId, IPSGuid workflowId) {
-            return null;
-        }
-
-        @Override
-        public PSState loadWorkflowStateByName(String stateName, IPSGuid workflowId) {
-            return null;
-        }
-
-        @Override
-        public PSState createState(IPSGuid workflowId) {
-            return null;
-        }
-
-        @Override
-        public PSTransition createTransition(IPSGuid wfId, IPSGuid stateId) {
-            return null;
-        }
-
-        @Override
-        public PSNotification createNotification(IPSGuid wfId, IPSGuid transitionId) {
-            return null;
-        }
-
-        @Override
-        public boolean isPublic(IPSGuid stateid, IPSGuid workflowId) throws PSWorkflowException {
-            return false;
-        }
-
-        @Override
-        public List<PSContentAdhocUser> findAdhocInfoByUser(String username) {
-            return null;
-        }
-
-        @Override
-        public List<PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId) {
-            return null;
-        }
-
-        @Override
-        public void saveContentAdhocUser(PSContentAdhocUser adhoc) {
-        }
-
-        @Override
-        public void deleteContentAdhocUser(PSContentAdhocUser adhoc) {
-        }
-
-        @Override
-        public List<PSContentWorkflowState> getWorkflowStateForContent(List<IPSGuid> contentids) {
-            return null;
-        }
-
-        @Override
-        public List<PSContentApproval> findApprovalsByUser(String username) {
-            return null;
-        }
-
-        @Override
-        public List<PSContentApproval> findApprovalsByItem(IPSGuid contentid) {
-            return null;
-        }
-
-        @Override
-        public void saveContentApproval(PSContentApproval approval) {
-        }
-
-        @Override
-        public void deleteContentApprovals(IPSGuid contentid) {
-        }
-
-        @Override
-        public List<PSMenuAction> getAllWorkflowActions(List<IPSGuid> contentids,
-                                                        List<PSAssignmentTypeEnum> assignmentTypes, String userName, List<String> userRoles, String locale)
-                throws PSWorkflowException {
-            return null;
-        }
-
-        @Override
-        public void updateWorkflowVersion(IPSGuid id) {
-        }
-
-        @Override
-        public void addWorkflowRole(IPSGuid wfId, String roleName) {
-        }
-
-        @Override
-        public void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf) {
-        }
-
-        @Override
-        public boolean removeWorkflowRole(IPSGuid wfId, String roleName) {
-            return false;
-        }
-
-        @Override
-        public PSWorkflow getDefaultWorkflow() {
-            return null;
-        }
-
-        @Override
-        public String getDefaultWorkflowName() {
-            return null;
-        }
-
-        @Override
-        public IPSGuid getDefaultWorkflowId() {
-            return null;
-        }
-
-        @Override
-        public void copyWorkflowToRole(String fromRole, String toRole) {
-        }
+    @Override
+    public boolean isWorkInProgress() {
+      return didStartWork && !didStopWork;
     }
+
+    @Override
+    public void workCompleted(IPSMaintenanceProcess process) {
+      if (process.getProcessId().equals(procId)) didStopWork = true;
+    }
+
+    @Override
+    public boolean hasFailures() {
+      return hasFailures;
+    }
+
+    @Override
+    public void workFailed(IPSMaintenanceProcess process) {
+      hasFailures = true;
+    }
+
+    @Override
+    public boolean clearFailures() {
+      boolean hadFailures = hasFailures;
+      hasFailures = false;
+      return hadFailures;
+    }
+  }
+
+  private static class MockWorkflowService implements IPSWorkflowService {
+    private boolean didLoadWorkflows = false;
+
+    @Override
+    public List<PSWorkflow> findWorkflowsByName(String name) {
+      didLoadWorkflows = true;
+      return null;
+    }
+
+    @Override
+    public List<PSObjectSummary> findWorkflowSummariesByName(String name) {
+      return null;
+    }
+
+    @Override
+    public PSWorkflow loadWorkflow(IPSGuid id) {
+      return null;
+    }
+
+    @Override
+    public PSWorkflow loadWorkflowDb(IPSGuid id) {
+      return null;
+    }
+
+    @Override
+    public void saveWorkflow(PSWorkflow workflow) {}
+
+    @Override
+    public void deleteWorkflow(IPSGuid wfid) throws Exception {}
+
+    @Override
+    public PSState loadWorkflowState(IPSGuid stateId, IPSGuid workflowId) {
+      return null;
+    }
+
+    @Override
+    public PSState loadWorkflowStateByName(String stateName, IPSGuid workflowId) {
+      return null;
+    }
+
+    @Override
+    public PSState createState(IPSGuid workflowId) {
+      return null;
+    }
+
+    @Override
+    public PSTransition createTransition(IPSGuid wfId, IPSGuid stateId) {
+      return null;
+    }
+
+    @Override
+    public PSNotification createNotification(IPSGuid wfId, IPSGuid transitionId) {
+      return null;
+    }
+
+    @Override
+    public boolean isPublic(IPSGuid stateid, IPSGuid workflowId) throws PSWorkflowException {
+      return false;
+    }
+
+    @Override
+    public List<PSContentAdhocUser> findAdhocInfoByUser(String username) {
+      return null;
+    }
+
+    @Override
+    public List<PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId) {
+      return null;
+    }
+
+    @Override
+    public void saveContentAdhocUser(PSContentAdhocUser adhoc) {}
+
+    @Override
+    public void deleteContentAdhocUser(PSContentAdhocUser adhoc) {}
+
+    @Override
+    public List<PSContentWorkflowState> getWorkflowStateForContent(List<IPSGuid> contentids) {
+      return null;
+    }
+
+    @Override
+    public List<PSContentApproval> findApprovalsByUser(String username) {
+      return null;
+    }
+
+    @Override
+    public List<PSContentApproval> findApprovalsByItem(IPSGuid contentid) {
+      return null;
+    }
+
+    @Override
+    public void saveContentApproval(PSContentApproval approval) {}
+
+    @Override
+    public void deleteContentApprovals(IPSGuid contentid) {}
+
+    @Override
+    public List<PSMenuAction> getAllWorkflowActions(
+        List<IPSGuid> contentids,
+        List<PSAssignmentTypeEnum> assignmentTypes,
+        String userName,
+        List<String> userRoles,
+        String locale)
+        throws PSWorkflowException {
+      return null;
+    }
+
+    @Override
+    public void updateWorkflowVersion(IPSGuid id) {}
+
+    @Override
+    public void addWorkflowRole(IPSGuid wfId, String roleName) {}
+
+    @Override
+    public void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf) {}
+
+    @Override
+    public boolean removeWorkflowRole(IPSGuid wfId, String roleName) {
+      return false;
+    }
+
+    @Override
+    public PSWorkflow getDefaultWorkflow() {
+      return null;
+    }
+
+    @Override
+    public String getDefaultWorkflowName() {
+      return null;
+    }
+
+    @Override
+    public IPSGuid getDefaultWorkflowId() {
+      return null;
+    }
+
+    @Override
+    public void copyWorkflowToRole(String fromRole, String toRole) {}
+  }
 }

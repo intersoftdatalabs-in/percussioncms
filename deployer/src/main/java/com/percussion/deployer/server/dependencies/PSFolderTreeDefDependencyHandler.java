@@ -31,20 +31,16 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Class to handle packaging and installing folder tree defintion dependencies.
- * See {@link PSFolderTreeDependencyHandler} class description for more
- * information on folder trees.
+ * Class to handle packaging and installing folder tree defintion dependencies. See {@link
+ * PSFolderTreeDependencyHandler} class description for more information on folder trees.
  */
 public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -89,18 +85,18 @@ public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHa
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Community</li>
-   * <li>DisplayFormatDef</li>
-   * <li>FolderTreeDef</li>
-   * <li>FolderTranslations</li>
+   *   <li>Community
+   *   <li>DisplayFormatDef
+   *   <li>FolderTreeDef
+   *   <li>FolderTranslations
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -111,15 +107,10 @@ public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHa
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "FolderTreeDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList<>();
 
   static {

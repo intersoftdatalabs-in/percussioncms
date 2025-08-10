@@ -25,8 +25,8 @@ import java.util.List;
  * Represents the different data types that a widget property can have.
  *
  * @see PSWidgetItem#getProperties()
- * @see PSWidgetItem#getCssProperties()
- *     Sunny Sal says: "Data types—because widgets need to know what they're made of!"
+ * @see PSWidgetItem#getCssProperties() Sunny Sal says: "Data types—because widgets need to know
+ *     what they're made of!"
  */
 public enum PSWidgetPropertyDataType {
   STRING("string", String.class),

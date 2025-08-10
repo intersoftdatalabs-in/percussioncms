@@ -29,15 +29,13 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This class knows how to determine if a given user should be allowed to see a
- * given {@link com.percussion.cms.objectstore.PSAction action} for a given
- * object in some state. It performs its work in different environments by
- * abstracting the state data into a class that can be implemented appropriate
- * to each environment.
- * <p>
- * An instance is created for a specific action by providing the action or the
- * visibility contexts to the ctor. The object state(s) are provided when the
- * check is performed.
+ * This class knows how to determine if a given user should be allowed to see a given {@link
+ * com.percussion.cms.objectstore.PSAction action} for a given object in some state. It performs its
+ * work in different environments by abstracting the state data into a class that can be implemented
+ * appropriate to each environment.
+ *
+ * <p>An instance is created for a specific action by providing the action or the visibility
+ * contexts to the ctor. The object state(s) are provided when the check is performed.
  *
  * @author paulhoward
  * @see PSActionVisibilityObjectState
@@ -47,18 +45,14 @@ public class PSActionVisibilityChecker {
   /**
    * Create a checker based on the visibility contexts of some action.
    *
-   * @param actionUuid The id of the action that owns the supplied contexts. No
-   * checking is done on this value. It is not used by this class, but may be
-   * retrieved by the caller via the {@link #getActionUuid()} method.
-   *
-   * @param supportsMultipleObjects <code>true</code> if the associated
-   * action can be applied to multiple objects in a single request,
-   * <code>false</code> otherwise.
-   *
-   * @param ctx May be <code>null</code>, in which case the
-   * <code>isVisible</code> methods will always return <code>true</code>.
-   * The reference to the supplied param is kept as a member of this class, so
-   * changes to this collection will affect the behavior of this class.
+   * @param actionUuid The id of the action that owns the supplied contexts. No checking is done on
+   *     this value. It is not used by this class, but may be retrieved by the caller via the {@link
+   *     #getActionUuid()} method.
+   * @param supportsMultipleObjects <code>true</code> if the associated action can be applied to
+   *     multiple objects in a single request, <code>false</code> otherwise.
+   * @param ctx May be <code>null</code>, in which case the <code>isVisible</code> methods will
+   *     always return <code>true</code>. The reference to the supplied param is kept as a member of
+   *     this class, so changes to this collection will affect the behavior of this class.
    */
   public PSActionVisibilityChecker(
       int actionUuid, boolean supportsMultipleObjects, PSActionVisibilityContexts ctx) {
@@ -68,11 +62,9 @@ public class PSActionVisibilityChecker {
   }
 
   /**
-   * Convenience method that gets the contexts from the supplied action and
-   * calls the other ctor.
+   * Convenience method that gets the contexts from the supplied action and calls the other ctor.
    *
    * @param action Never <code>null</code>.
-   *
    * @throws NullPointerException If action is <code>null</code>.
    */
   public PSActionVisibilityChecker(PSAction action) {
@@ -87,26 +79,21 @@ public class PSActionVisibilityChecker {
   }
 
   /**
-   * Perform the calculation to determine if the user operating in the supplied
-   * environment(s) should be allowed to see the action supplied in the ctor.
-   * This check includes a check as to whether the action supports multiple
-   * objects. If you want to skip this as part of the check (because you want
-   * to disable rather than hide the menu,) then submit each instance
-   * seperately. You can determine the multiple object support by calling
-   * {@link #supportsMultipleObjects()}.
+   * Perform the calculation to determine if the user operating in the supplied environment(s)
+   * should be allowed to see the action supplied in the ctor. This check includes a check as to
+   * whether the action supports multiple objects. If you want to skip this as part of the check
+   * (because you want to disable rather than hide the menu,) then submit each instance seperately.
+   * You can determine the multiple object support by calling {@link #supportsMultipleObjects()}.
    *
-   * @param globalState May be <code>null</code> or empty. If not supplied,
-   * all global factors are skipped in the visibility calculation.
-   *
-   * @param objStates May be <code>null</code> or empty. <code>null</code>
-   * entries in the collection will be skipped.
-   *
-   * @return <code>true</code> if the supplied param is <code>null</code>
-   * or empty. <code>true</code> if all instances evaluate to having
-   * visibility according to the contexts supplied in the ctor. Note that the
-   * actual calculation is to determine if the action is hidden in a given
-   * environment, therefore, if any one of the supplied environments would hide
-   * the action, <code>false</code> is returned.
+   * @param globalState May be <code>null</code> or empty. If not supplied, all global factors are
+   *     skipped in the visibility calculation.
+   * @param objStates May be <code>null</code> or empty. <code>null</code> entries in the collection
+   *     will be skipped.
+   * @return <code>true</code> if the supplied param is <code>null</code> or empty. <code>true
+   *     </code> if all instances evaluate to having visibility according to the contexts supplied
+   *     in the ctor. Note that the actual calculation is to determine if the action is hidden in a
+   *     given environment, therefore, if any one of the supplied environments would hide the
+   *     action, <code>false</code> is returned.
    */
   public boolean isVisible(
       PSActionVisibilityGlobalState globalState,
@@ -174,12 +161,9 @@ public class PSActionVisibilityChecker {
    * Change a string to its integer representation.
    *
    * @param num Either blank or an integer.
-   *
-   * @return -1 if <code>num</code> is blank, otherwise the number that was
-   * represented by the supplied string.
-   *
-   * @throws NumberFormatException if <code>num</code> is not blank and is not
-   * an integer.
+   * @return -1 if <code>num</code> is blank, otherwise the number that was represented by the
+   *     supplied string.
+   * @throws NumberFormatException if <code>num</code> is not blank and is not an integer.
    */
   private int convert(String num) {
     int ctxValue = -1;
@@ -188,10 +172,9 @@ public class PSActionVisibilityChecker {
   }
 
   /**
-   * Checks the values in the supplied state against those in the local
-   * contexts. If a match is found (meaning the action should be hidden,) then
-   * <code>false</code> is returned. Assumes that {@link #m_contexts} is not
-   * <code>null</code>.
+   * Checks the values in the supplied state against those in the local contexts. If a match is
+   * found (meaning the action should be hidden,) then <code>false</code> is returned. Assumes that
+   * {@link #m_contexts} is not <code>null</code>.
    *
    * @param globalState Assumed not <code>null</code>.
    */
@@ -244,9 +227,8 @@ public class PSActionVisibilityChecker {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isVisible(PSActionVisibilityGlobalState, Collection)} after wrapping
-   * the supplied instance.
+   * Convenience method that calls {@link #isVisible(PSActionVisibilityGlobalState, Collection)}
+   * after wrapping the supplied instance.
    *
    * @param ctxInstance May be <code>null</code> or empty.
    */
@@ -263,21 +245,17 @@ public class PSActionVisibilityChecker {
   }
 
   /**
-   * A flag that indicates whether the associated action can accept multiple
-   * objects in a single request for processing. <code>true</code> means it
-   * can.
+   * A flag that indicates whether the associated action can accept multiple objects in a single
+   * request for processing. <code>true</code> means it can.
    */
   private boolean m_supportsMulti;
 
   /**
-   * This is kept for the user's convenience. It is never directly used by this
-   * class. Set in the ctor, then never modified.
+   * This is kept for the user's convenience. It is never directly used by this class. Set in the
+   * ctor, then never modified.
    */
   private int m_actionUuid;
 
-  /**
-   * Set in ctor, then never modified. May be <code>null</code>, but never
-   * empty.
-   */
+  /** Set in ctor, then never modified. May be <code>null</code>, but never empty. */
   private PSActionVisibilityContexts m_contexts;
 }

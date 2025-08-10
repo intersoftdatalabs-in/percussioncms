@@ -26,13 +26,13 @@ import com.percussion.share.async.PSAsyncJobStatus;
  */
 public interface IPSAsyncJobStatusRestService {
 
-    /**
-     * Gets the status for the given job using the async job service.
-     *
-     * @param jobId the id of the job provided by IPSAsyncJobService.startJob(String, Object).
-     *              Never {@code null}.
-     * @return The corresponding status for the given job. Never {@code null}.
-     * Returns an empty PSAsyncJobStatus object if no status was found with the provided jobId.
-     */
-    PSAsyncJobStatus getStatus(Long jobId);
+  /**
+   * Gets the status for the given job using the async job service.
+   *
+   * @param jobId the id of the job provided by IPSAsyncJobService.startJob(String, Object). Never
+   *     {@code null}.
+   * @return The corresponding status for the given job. Never {@code null}. Returns an empty
+   *     PSAsyncJobStatus object if no status was found with the provided jobId.
+   */
+  PSAsyncJobStatus getStatus(Long jobId);
 }

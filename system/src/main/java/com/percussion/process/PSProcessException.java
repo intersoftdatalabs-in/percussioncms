@@ -18,15 +18,12 @@ package com.percussion.process;
 
 import java.util.Objects;
 
-/**
- * Base exception for exceptions thrown from the process package.
- */
+/** Base exception for exceptions thrown from the process package. */
 public class PSProcessException extends Exception {
   /**
    * Constructs the exception from the specified message
    *
-   * @param msg the message to wrap in the exception, may not be
-   * {@code null}
+   * @param msg the message to wrap in the exception, may not be {@code null}
    * @throws IllegalArgumentException if msg is {@code null}
    */
   public PSProcessException(String msg) {
@@ -36,8 +33,7 @@ public class PSProcessException extends Exception {
   /**
    * Constructs the exception from the specified message and cause
    *
-   * @param msg the message to wrap in the exception, may not be
-   * {@code null}
+   * @param msg the message to wrap in the exception, may not be {@code null}
    * @param cause the underlying cause of this exception, may be {@code null}
    * @throws IllegalArgumentException if msg is {@code null}
    */

@@ -33,9 +33,9 @@ import java.util.logging.Logger;
 /**
  * The PSFileSystemDriver class implements the File System driver.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileSystemDriver extends PSJdbcDriver {
   public PSFileSystemDriver() {
@@ -48,18 +48,18 @@ public class PSFileSystemDriver extends PSJdbcDriver {
 
   /**
    * Connect to the file or directory specified by the url.
-   * <p>
-   * The URL syntax supported by this driver is:
+   *
+   * <p>The URL syntax supported by this driver is:
+   *
    * <pre><code>
    *      jdbc:psfilesystem:
    * </code></pre>
    *
-   * @param      url      the URL of the file or directory to open
-   * @param      info     has a catalog property set to the directory
-   * and a sessionId property for session-related security.
-   * @exception  SQLException   if this is an appropriate URL for this
-   *                            driver, but the file or directory cannot
-   *                            be accessed
+   * @param url the URL of the file or directory to open
+   * @param info has a catalog property set to the directory and a sessionId property for
+   *     session-related security.
+   * @exception SQLException if this is an appropriate URL for this driver, but the file or
+   *     directory cannot be accessed
    */
   public java.sql.Connection connect(java.lang.String url, java.util.Properties info)
       throws SQLException {
@@ -80,16 +80,16 @@ public class PSFileSystemDriver extends PSJdbcDriver {
 
   /**
    * Does the URL match the syntax supported by this driver?
-   * <p>
-   * The URL syntax supported by this driver is:
+   *
+   * <p>The URL syntax supported by this driver is:
+   *
    * <pre><code>
    *      jdbc:psfilesystem:directory-path
    * </code></pre>
    *
-   * @param      url            the URL to validate
-   * @return                    <code>true</code> if the URL is supported,
-   *                            <code>false</code> otherwise
-   * @exception  SQLException   if an error occurs
+   * @param url the URL to validate
+   * @return <code>true</code> if the URL is supported, <code>false</code> otherwise
+   * @exception SQLException if an error occurs
    */
   public boolean acceptsURL(java.lang.String url) throws SQLException {
     return url.toLowerCase().startsWith("jdbc:psfilesystem");
@@ -98,10 +98,10 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   /**
    * This is not currently supported and always returns an empty array.
    *
-   * @param      url      the URL being used
-   * @param      info     the info constructed so far
-   * @return     always returns an empty array
-   * @exception  SQLException   if an error occurs
+   * @param url the URL being used
+   * @param info the info constructed so far
+   * @return always returns an empty array
+   * @exception SQLException if an error occurs
    */
   public java.sql.DriverPropertyInfo[] getPropertyInfo(
       java.lang.String url, java.util.Properties info) throws SQLException {
@@ -111,8 +111,8 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   /**
    * Is this driver a fully JDBC COMPLIANT (tm) driver?
    *
-   * @return     always returns <code>false</code> as this driver does not
-   *             currently support all JDBC features
+   * @return always returns <code>false</code> as this driver does not currently support all JDBC
+   *     features
    */
   public boolean jdbcCompliant() {
     return false;
@@ -121,11 +121,8 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   /**
    * Adds a virtual directory entry.
    *
-   * @author   chadloder
-   *
-   *
-   * @param   vdir
-   *
+   * @author chadloder
+   * @param vdir
    */
   public static void addVirtualDirectory(IPSVirtualDirectory vdir) {
     printMsg(
@@ -142,11 +139,10 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   /**
    * Removes the virtual directory entry that answers for <CODE>vdir</CODE>.
    *
-   * @param vdir The directory to remove, may be <code>null</code> or empty
-   * in which case <code>null</code> is returned.
-   *
-   * @return The removed directory, or <code>null</code> if no matching
-   * directory was located for removal.
+   * @param vdir The directory to remove, may be <code>null</code> or empty in which case <code>null
+   *     </code> is returned.
+   * @return The removed directory, or <code>null</code> if no matching directory was located for
+   *     removal.
    */
   public static IPSVirtualDirectory removeVirtualDirectory(String vdir) {
     printMsg("Removing virtual directory: " + vdir);
@@ -154,17 +150,13 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   }
 
   /**
-   * Atomically deletes the virtual directory that answers for
-   * <CODE>oldName</CODE> and adds the new virtual directory.
+   * Atomically deletes the virtual directory that answers for <CODE>oldName</CODE> and adds the new
+   * virtual directory.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @since 1.5 1999/07/13
-   *
-   *
-   * @param   oldVdir
-   * @param   newVdir
-   *
+   * @param oldVdir
+   * @param newVdir
    */
   public static void renameVirtualDirectory(String oldVdir, IPSVirtualDirectory newVdir) {
     synchronized (m_vdirs) {
@@ -174,23 +166,16 @@ public class PSFileSystemDriver extends PSJdbcDriver {
   }
 
   /**
-   * For use by the different compononents of the XML / file system driver.
-   * Given a catalog, gives the physical path corresponding to that
-   * catalog. Every bit in the requiredAccess field must be a right
-   * granted to the given session, or else a PSAuthorizationException is
-   * thrown.
+   * For use by the different compononents of the XML / file system driver. Given a catalog, gives
+   * the physical path corresponding to that catalog. Every bit in the requiredAccess field must be
+   * a right granted to the given session, or else a PSAuthorizationException is thrown.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @since 1.5 1999/07/13
-   *
-   * @param   catalog
-   *
-   * @param   session
-   *
-   * @param   requiredAccess
-   *
-   * @return   File
+   * @param catalog
+   * @param session
+   * @param requiredAccess
+   * @return File
    */
   static File getPhysicalPath(String catalog, PSUserSession session, int requiredAccess)
       throws PSAuthorizationException {

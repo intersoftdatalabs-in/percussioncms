@@ -30,13 +30,11 @@ import java.util.Properties;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * PSTableViewExistsWizCondition is a condition which will return
- * <code>true</code> when <code>eval</code> is invoked if the specified table or
- * view already exists in the database, else returns <code>false</code>.
+ * PSTableViewExistsWizCondition is a condition which will return <code>true</code> when <code>eval
+ * </code> is invoked if the specified table or view already exists in the database, else returns
+ * <code>false</code>. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -56,7 +54,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSTableViewExistsWizCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -71,12 +68,11 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
    **************************************************************************/
 
   /**
-   * Checks if the database object specified by <code>objectName</code>
-   * already exists in the database.
+   * Checks if the database object specified by <code>objectName</code> already exists in the
+   * database.
    *
-   * @return <code>true</code> if the database object specified by
-   * <code>objectName</code> already exists in the database,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the database object specified by <code>objectName</code> already
+   *     exists in the database, <code>false</code> otherwise.
    */
   private boolean checkExists() {
 
@@ -145,22 +141,19 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
   /**
    * Name of the table or view whose existence in the database is to be verified.
    *
-   * @return the name of the database object whose existence is to be verified,
-   * never <code>null</code> or empty
+   * @return the name of the database object whose existence is to be verified, never <code>null
+   *     </code> or empty
    */
   public String getObjectName() {
     return objectName;
   }
 
   /**
-   * Sets the name of the table or view whose existence in the database is to
-   * be verified.
+   * Sets the name of the table or view whose existence in the database is to be verified.
    *
-   * @param aObjectName the name of the database object whose existence is to
-   * be verified, may not be <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if <code>aObjectName</code> is
-   * <code>null</code> or empty
+   * @param aObjectName the name of the database object whose existence is to be verified, may not
+   *     be <code>null</code> or empty
+   * @throws IllegalArgumentException if <code>aObjectName</code> is <code>null</code> or empty
    */
   public void setObjectName(String aObjectName) {
     if ((aObjectName == null) || (aObjectName.trim().length() < 1))
@@ -169,22 +162,20 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
   }
 
   /**
-   * Returns whether the database object whose existence is to be verified is
-   * a view.
+   * Returns whether the database object whose existence is to be verified is a view.
    *
-   * @return <code>true</code> if the object specified by <code>objectName</code>
-   * is a view, <code>false</code> otherwise
+   * @return <code>true</code> if the object specified by <code>objectName</code> is a view, <code>
+   *     false</code> otherwise
    */
   public boolean getIsView() {
     return isView;
   }
 
   /**
-   * Sets whether the database object whose existence is to be verified is
-   * a view.
+   * Sets whether the database object whose existence is to be verified is a view.
    *
-   * @param aIsView <code>true</code> if the object specified by
-   * <code>objectName</code> is a view, <code>false</code> otherwise
+   * @param aIsView <code>true</code> if the object specified by <code>objectName</code> is a view,
+   *     <code>false</code> otherwise
    */
   public void setIsView(boolean aIsView) {
     isView = aIsView;
@@ -195,14 +186,14 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
    **************************************************************************/
 
   /**
-   * Name of the table or view whose existence in the database is to be verified,
-   * may not be <code>null</code> or empty
+   * Name of the table or view whose existence in the database is to be verified, may not be <code>
+   * null</code> or empty
    */
   private String objectName = "RXRELATEDCONTENT";
 
   /**
-   * <code>true</code> if the object specified by <code>objectName</code> is
-   * a view, <code>false</code> otherwise
+   * <code>true</code> if the object specified by <code>objectName</code> is a view, <code>false
+   * </code> otherwise
    */
   private boolean isView = false;
 }

@@ -41,16 +41,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Plugin class to check if any "TABLE"  suffers primary key constraint
- * violations. This plugin checks  duplicate "COLUMN" keys that were acceptable
- * pre 55. <code>true</code> <code>null</code> <code>false</code> <code>true</code>
+ * Plugin class to check if any "TABLE" suffers primary key constraint violations. This plugin
+ * checks duplicate "COLUMN" keys that were acceptable pre 55. <code>true</code> <code>null</code>
+ * <code>false</code> <code>true</code>
  */
 
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     NodeList nl = elemData.getElementsByTagName("table");
@@ -124,12 +122,12 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
   }
 
   /**
-   * Looks for non-unique entries in the "TABLE", If primary key violations
-   * occur, it stops the installation.
-   * @param cvSchema the table schema object for the "TABLE",
-   * cannot be <code>null</code>.
-   * @return <code>true</code> if no primary key violations occur in the table
-   * else throw an error and stop
+   * Looks for non-unique entries in the "TABLE", If primary key violations occur, it stops the
+   * installation.
+   *
+   * @param cvSchema the table schema object for the "TABLE", cannot be <code>null</code>.
+   * @return <code>true</code> if no primary key violations occur in the table else throw an error
+   *     and stop
    */
   private boolean checkForDups(
       final Connection conn, final PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema cvSchema) {
@@ -158,8 +156,9 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
     return true;
   }
 
-  /** helper method to display an error msg to the user and also set
-   * an error flag on the plugin
+  /**
+   * helper method to display an error msg to the user and also set an error flag on the plugin
+   *
    * @param set, list of duplicate keys found in the table
    */
   private void displayErrorMessage(Set dupKeys) {
@@ -195,8 +194,7 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -214,6 +212,7 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
 
   /**
    * Accessor
+   *
    * @return the table name
    */
   public String getTableName() {
@@ -222,6 +221,7 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
 
   /**
    * Set table name
+   *
    * @param name column name, cannot be <code>null</code>
    */
   public void setTableName(String name) {
@@ -230,6 +230,7 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
 
   /**
    * Accessor
+   *
    * @return the table column name
    */
   public String getTableColumn() {
@@ -266,7 +267,6 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
   }
 
   /**
-   *
    * @param name column name, cannot be <code>null</code>
    */
   public void setTableColumn(String name) {
@@ -275,23 +275,15 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
 
   private String m_upgradeChecksErrorMsg;
 
-  /**
-   * Current table that needs to be checked
-   */
+  /** Current table that needs to be checked */
   private String m_tableName;
 
-  /**
-   * Vurrent column of the above table that needs to be checked
-   */
+  /** Vurrent column of the above table that needs to be checked */
   private String m_tableColumn;
 
-  /**
-   * Upgrade plugin context
-   */
+  /** Upgrade plugin context */
   private IPSUpgradeModule m_config;
 
-  /**
-   * Upgrade Error Flag
-   */
+  /** Upgrade Error Flag */
   public static boolean m_upgradeErrorFlag = false;
 }

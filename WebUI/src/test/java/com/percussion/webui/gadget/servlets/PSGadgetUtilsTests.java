@@ -21,10 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for the PSGadgetUtils class.
- * Sunny Sal says: "Utils ka test, file path ka best!"
- */
+/** Unit tests for the PSGadgetUtils class. Sunny Sal says: "Utils ka test, file path ka best!" */
 public class PSGadgetUtilsTests {
 
   @Test

@@ -25,45 +25,37 @@ import com.percussion.security.PSThreadRequestUtils;
 import java.util.Iterator;
 
 /**
- * This class contains all the logic for determining the level of access
- * a user has on a specified object. The level of access can be determined
- * by using either of the following:
- * <p><br>
- * 1> Credentials of the user making the request and the security specified on
- * the securable object being accessed. This will typically be used on the
- * server, which will then create an access mask and associate it with the
- * securable object.
- * <p><br>
- * 2> Using the access mask set on the securable object. This will typically
- * be used on the client side. The client will use the access mask set on the
- * securable object by the server.
- * <p><br>
- * This class basically encapsulates an access mask. This access mask
- * determines all the permissions a particular user has on a specified
- * securable object. The encapsulated access mask cannot be modified once set
- * (in the constructor).
+ * This class contains all the logic for determining the level of access a user has on a specified
+ * object. The level of access can be determined by using either of the following:
  *
- * This class has been made abstract. The derived classes need to override the
- * abstract methods <code>processAcl()</code> and <code>processAclEntry()</code>
- * Typically a new derived class will be created for a specific type of
- * securable object. For example, <code>PSFolderPermissions</code> class
- * represents permissions on folder objects.
+ * <p><br>
+ * 1> Credentials of the user making the request and the security specified on the securable object
+ * being accessed. This will typically be used on the server, which will then create an access mask
+ * and associate it with the securable object.
+ *
+ * <p><br>
+ * 2> Using the access mask set on the securable object. This will typically be used on the client
+ * side. The client will use the access mask set on the securable object by the server.
+ *
+ * <p><br>
+ * This class basically encapsulates an access mask. This access mask determines all the permissions
+ * a particular user has on a specified securable object. The encapsulated access mask cannot be
+ * modified once set (in the constructor).
+ *
+ * <p>This class has been made abstract. The derived classes need to override the abstract methods
+ * <code>processAcl()</code> and <code>processAclEntry()</code> Typically a new derived class will
+ * be created for a specific type of securable object. For example, <code>PSFolderPermissions</code>
+ * class represents permissions on folder objects.
  */
 public abstract class PSObjectPermissions {
 
   /**
-   * This constructor will typically be used on the server side. This sets the
-   * user's server access level based on the credentials in the request object.
+   * This constructor will typically be used on the server side. This sets the user's server access
+   * level based on the credentials in the request object.
    *
-   *
-   * @throws IllegalArgumentException if <code>request</code> is
-   * <code>null</code>
-   *
-   * @throws PSCmsException if request to server to get the user info fails
-   * for any reason
-   *
-   * @throws PSAuthorizationException if any error occurs getting the user's
-   * server access level
+   * @throws IllegalArgumentException if <code>request</code> is <code>null</code>
+   * @throws PSCmsException if request to server to get the user info fails for any reason
+   * @throws PSAuthorizationException if any error occurs getting the user's server access level
    */
   protected PSObjectPermissions() throws PSAuthorizationException, PSCmsException {
     m_accessLevel = PSThreadRequestUtils.getUserAccessLevel();
@@ -71,21 +63,17 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * This method does the actual work of determining the user's permissions
-   * on the object using the specified ACL and the user's information.
-   * This creates the encapsulated access mask using the user credentials
-   * contained in the request context object (passed as an argument to the
-   * ctor) and permissions set on the securable object using the
-   * specified <code>objectAcl</code>
+   * This method does the actual work of determining the user's permissions on the object using the
+   * specified ACL and the user's information. This creates the encapsulated access mask using the
+   * user credentials contained in the request context object (passed as an argument to the ctor)
+   * and permissions set on the securable object using the specified <code>objectAcl</code>
    *
-   * @param objectAcl contains the set of permissions specified on the
-   * securable object (such as Folders), may not be <code>null</code>
+   * @param objectAcl contains the set of permissions specified on the securable object (such as
+   *     Folders), may not be <code>null</code>
    * @throws PSAuthorizationException
    * @throws PSAuthenticationRequiredException
    * @throws PSCmsException
-   *
-   * @throws IllegalArgumentException if <code>objectAcl</code> is
-   * <code>null</code>
+   * @throws IllegalArgumentException if <code>objectAcl</code> is <code>null</code>
    */
   protected void init(PSObjectAcl objectAcl)
       throws PSAuthenticationRequiredException, PSAuthorizationException, PSCmsException {
@@ -107,13 +95,11 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Abstract method to be overwritten by derived classes.
-   * This method is called before the ACL entries are processed. This method
-   * will always be called even if the ACL contains no ACL entry.
+   * Abstract method to be overwritten by derived classes. This method is called before the ACL
+   * entries are processed. This method will always be called even if the ACL contains no ACL entry.
    *
-   * @return <code>true</code> to process the ACL entries, <code>false</code>
-   * otherwise. If <code>false</code> is returned then
-   * <code>processAclEntry</code> will never be called.
+   * @return <code>true</code> to process the ACL entries, <code>false</code> otherwise. If <code>
+   *     false</code> is returned then <code>processAclEntry</code> will never be called.
    * @throws PSAuthorizationException
    * @throws PSAuthenticationRequiredException
    * @throws PSCmsException
@@ -122,21 +108,17 @@ public abstract class PSObjectPermissions {
       throws PSAuthenticationRequiredException, PSAuthorizationException, PSCmsException;
 
   /**
-   * Abstract method to be overwritten by derived classes. This method is
-   * guaranteed to be called at least once if <code>processAcl()</code>
-   * returns <code>true</code>, otherwise this is never called.
+   * Abstract method to be overwritten by derived classes. This method is guaranteed to be called at
+   * least once if <code>processAcl()</code> returns <code>true</code>, otherwise this is never
+   * called.
    *
-   * If <code>process()</code> method returns <code>true</code> then
-   * this method is called once for each ACL entry in the ACL. After all the
-   * ACL entries have been processed it is called once with <code>null</code>
-   * value for <code>aclEntry</code>.
-   * If the ACL does not contain any ACL entry then this is called only once
-   * with <code>null</code> value for <code>aclEntry</code>.
+   * <p>If <code>process()</code> method returns <code>true</code> then this method is called once
+   * for each ACL entry in the ACL. After all the ACL entries have been processed it is called once
+   * with <code>null</code> value for <code>aclEntry</code>. If the ACL does not contain any ACL
+   * entry then this is called only once with <code>null</code> value for <code>aclEntry</code>.
    *
-   * @param aclEntry the ACL entry currently being processed, is
-   * <code>null</code> for the last call made to this method while processing
-   * the ACLs, otherwise never <code>null</code>
-   *
+   * @param aclEntry the ACL entry currently being processed, is <code>null</code> for the last call
+   *     made to this method while processing the ACLs, otherwise never <code>null</code>
    * @return <code>true</code> if the ACL entry processing should continue
    * @throws PSAuthorizationException
    * @throws PSAuthenticationRequiredException
@@ -145,12 +127,10 @@ public abstract class PSObjectPermissions {
       throws PSCmsException, PSAuthenticationRequiredException, PSAuthorizationException;
 
   /**
-   * This constructor will typically be used on the client side (generally
-   * using the access mask set on the securable object by the server). This
-   * just stores the specified access mask.
+   * This constructor will typically be used on the client side (generally using the access mask set
+   * on the securable object by the server). This just stores the specified access mask.
    *
    * @param permissions the access mask to encapsulate, should be non-negative
-   *
    * @throws IllegalArgumentException if <code>permissions</code> is invalid
    */
   protected PSObjectPermissions(int permissions) {
@@ -160,18 +140,13 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Compares the specified object with this object. Returns <code>true</code>
-   * if the reference to this object itself is specified. Returns
-   * <code>false</code> if the specified object is not an instance of this
-   * class.
+   * Compares the specified object with this object. Returns <code>true</code> if the reference to
+   * this object itself is specified. Returns <code>false</code> if the specified object is not an
+   * instance of this class.
    *
-   * @param obj the object with which this object should be compared,
-   * may not be <code>null</code>
-   *
-   * @return <code>true</code> if the specified object is an instance of this
-   * class and represents the same permissions on the securable object.
-   * Returns <code>false</code> otherwise.
-   *
+   * @param obj the object with which this object should be compared, may not be <code>null</code>
+   * @return <code>true</code> if the specified object is an instance of this class and represents
+   *     the same permissions on the securable object. Returns <code>false</code> otherwise.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>
    */
   public boolean equals(Object obj) {
@@ -189,8 +164,8 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Returns the hashcode of this object. This simply returns the permissions
-   * set on the securable object.
+   * Returns the hashcode of this object. This simply returns the permissions set on the securable
+   * object.
    *
    * @return the hashcode of this object, always non-negative
    */
@@ -199,35 +174,28 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Returns the encapsulated access mask which indicates all the permissions
-   * a particular user has on a specified securable object.
-   * This access mask can then be used in the
-   * {@link #hasAccess(int) hasAccess(int)} method to determine if a
-   * particular type of access is allowed or not.
+   * Returns the encapsulated access mask which indicates all the permissions a particular user has
+   * on a specified securable object. This access mask can then be used in the {@link
+   * #hasAccess(int) hasAccess(int)} method to determine if a particular type of access is allowed
+   * or not.
    *
-   * @return an access mask which has the corresponding bit set if a particular
-   * permission is granted, and the bit turned off if the permission is denied
+   * @return an access mask which has the corresponding bit set if a particular permission is
+   *     granted, and the bit turned off if the permission is denied
    */
   public int getPermissions() {
     return m_permissions;
   }
 
   /**
-   * Returns <code>true</code> if the encapsulated access mask allows the
-   * desired level of access, <code>false</code> otherwise.
-   *
-   * @param accessLevel the desired level of access, must be one of the
-   * following:
-   * <code>PSObjectPermissions.ACCESS_DENY</code>
-   * <code>PSObjectPermissions.ACCESS_READ</code>
-   * <code>PSObjectPermissions.ACCESS_WRITE</code>
-   * <code>PSObjectPermissions.ACCESS_ADMIN</code>
-   * <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
-   *
-   * @return <code>true</code> if the encapsulated accessMask has the bit set
-   * corresponding to the permission specified by <code>desiredAccess</code>,
+   * Returns <code>true</code> if the encapsulated access mask allows the desired level of access,
    * <code>false</code> otherwise.
    *
+   * @param accessLevel the desired level of access, must be one of the following: <code>
+   *     PSObjectPermissions.ACCESS_DENY</code> <code>PSObjectPermissions.ACCESS_READ</code> <code>
+   *     PSObjectPermissions.ACCESS_WRITE</code> <code>PSObjectPermissions.ACCESS_ADMIN</code>
+   *     <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
+   * @return <code>true</code> if the encapsulated accessMask has the bit set corresponding to the
+   *     permission specified by <code>desiredAccess</code>, <code>false</code> otherwise.
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
    */
   public boolean hasAccess(int accessLevel) {
@@ -236,20 +204,14 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Returns <code>true</code> if the given access level
-   * has access even if the mask is set to lower value.
+   * Returns <code>true</code> if the given access level has access even if the mask is set to lower
+   * value.
    *
-   * @param accessLevel the desired level of access, must be one of the
-   * following:
-   * <code>PSObjectPermissions.ACCESS_DENY</code>
-   * <code>PSObjectPermissions.ACCESS_READ</code>
-   * <code>PSObjectPermissions.ACCESS_WRITE</code>
-   * <code>PSObjectPermissions.ACCESS_ADMIN</code>
-   * <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
-   *
-   * @return <code>true</code> is the given access level is greater than
-   * or equal what is required.
-   *
+   * @param accessLevel the desired level of access, must be one of the following: <code>
+   *     PSObjectPermissions.ACCESS_DENY</code> <code>PSObjectPermissions.ACCESS_READ</code> <code>
+   *     PSObjectPermissions.ACCESS_WRITE</code> <code>PSObjectPermissions.ACCESS_ADMIN</code>
+   *     <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
+   * @return <code>true</code> is the given access level is greater than or equal what is required.
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
    */
   public boolean hasAccessOrHigher(int accessLevel) {
@@ -260,16 +222,11 @@ public abstract class PSObjectPermissions {
   /**
    * Translates integer based access level to the string based access level.
    *
-   * @param accessLevel must be one of the following predefined levels of
-   * access
-   * <code>PSObjectPermissions.ACCESS_DENY</code>
-   * <code>PSObjectPermissions.ACCESS_READ</code>
-   * <code>PSObjectPermissions.ACCESS_WRITE</code>
-   * <code>PSObjectPermissions.ACCESS_ADMIN</code>
-   * <code>PSObjectPermissions.ACCESS_SERVER_ADMIN</code>
-   *
+   * @param accessLevel must be one of the following predefined levels of access <code>
+   *     PSObjectPermissions.ACCESS_DENY</code> <code>PSObjectPermissions.ACCESS_READ</code> <code>
+   *     PSObjectPermissions.ACCESS_WRITE</code> <code>PSObjectPermissions.ACCESS_ADMIN</code>
+   *     <code>PSObjectPermissions.ACCESS_SERVER_ADMIN</code>
    * @return string based access level, never <code>null</code> or empty
-   *
    */
   public static String translateAccess(int accessLevel) {
     validateAccessLevel(accessLevel);
@@ -301,18 +258,12 @@ public abstract class PSObjectPermissions {
   /**
    * Translates string based access level to the integer based access level.
    *
-   * @param accessLevel must be one of the following predefined levels of
-   * access
-   * <code>PSObjectPermissions.ACCESS_DENY_STR</code>
-   * <code>PSObjectPermissions.ACCESS_READ_STR</code>
-   * <code>PSObjectPermissions.ACCESS_WRITE_STR</code>
-   * <code>PSObjectPermissions.ACCESS_ADMIN_STR</code>
-   * <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
-   *
-   * May not be <code>null</code> or empty
-   *
+   * @param accessLevel must be one of the following predefined levels of access <code>
+   *     PSObjectPermissions.ACCESS_DENY_STR</code> <code>PSObjectPermissions.ACCESS_READ_STR</code>
+   *     <code>PSObjectPermissions.ACCESS_WRITE_STR</code> <code>
+   *     PSObjectPermissions.ACCESS_ADMIN_STR</code> <code>
+   *     PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code> May not be <code>null</code> or empty
    * @return integer based access level
-   *
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
    */
   public static int translateAccess(String accessLevel) {
@@ -331,29 +282,17 @@ public abstract class PSObjectPermissions {
   }
 
   /**
-   * Gets the next higher level of access than the specified access level.
-   * For example, if
+   * Gets the next higher level of access than the specified access level. For example, if <code>
+   * accessLevel</code> equals <code>ACCESS_DENY</code> then <code>ACCESS_READ</code> is returned,
+   * <code>accessLevel</code> equals <code>ACCESS_READ</code> then <code>ACCESS_WRITE</code> is
+   * returned, <code>accessLevel</code> equals <code>ACCESS_WRITE</code> then <code>ACCESS_ADMIN
+   * </code> is returned, <code>accessLevel</code> equals <code>ACCESS_ADMIN</code> then <code>
+   * ACCESS_SERVER_ADMIN</code> is returned, <code>accessLevel</code> equals <code>
+   * ACCESS_SERVER_ADMIN</code> then <code>ACCESS_SERVER_ADMIN</code> itself is returned,
    *
-   * <code>accessLevel</code> equals <code>ACCESS_DENY</code> then
-   * <code>ACCESS_READ</code> is returned,
-   *
-   * <code>accessLevel</code> equals <code>ACCESS_READ</code> then
-   * <code>ACCESS_WRITE</code> is returned,
-   *
-   * <code>accessLevel</code> equals <code>ACCESS_WRITE</code> then
-   * <code>ACCESS_ADMIN</code> is returned,
-   *
-   * <code>accessLevel</code> equals <code>ACCESS_ADMIN</code> then
-   * <code>ACCESS_SERVER_ADMIN</code> is returned,
-   *
-   * <code>accessLevel</code> equals <code>ACCESS_SERVER_ADMIN</code> then
-   * <code>ACCESS_SERVER_ADMIN</code> itself is returned,
-   *
-   * @param accessLevel the access level whose next higher access level is to
-   * be returned, must be valid access level
-   *
+   * @param accessLevel the access level whose next higher access level is to be returned, must be
+   *     valid access level
    * @return the next higher level of access as described above.
-   *
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
    */
   public static int getHigherAccessLevel(int accessLevel) {
@@ -380,57 +319,39 @@ public abstract class PSObjectPermissions {
     return iAccess;
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #hasAccess(int) hasAccess(ACCESS_DENY)}
-   */
+  /** Convenience method that calls {@link #hasAccess(int) hasAccess(ACCESS_DENY)} */
   public boolean hasNoAccess() {
     return hasAccess(ACCESS_DENY);
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #hasAccess(int) hasAccess(ACCESS_READ)}
-   */
+  /** Convenience method that calls {@link #hasAccess(int) hasAccess(ACCESS_READ)} */
   public boolean hasReadAccess() {
     return hasAccess(ACCESS_READ) || hasWriteAccess();
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #hasAccess(int) hasAccess(ACCESS_WRITE)}
-   */
+  /** Convenience method that calls {@link #hasAccess(int) hasAccess(ACCESS_WRITE)} */
   public boolean hasWriteAccess() {
     return hasAccess(ACCESS_WRITE) || hasAdminAccess();
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #hasAccess(int) hasAccess(ACCESS_ADMIN)}
-   */
+  /** Convenience method that calls {@link #hasAccess(int) hasAccess(ACCESS_ADMIN)} */
   public boolean hasAdminAccess() {
     return hasAccess(ACCESS_ADMIN) || hasServerAdminAccess();
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #hasAccess(int) hasAccess(ACCESS_SERVER_ADMIN)}
-   */
+  /** Convenience method that calls {@link #hasAccess(int) hasAccess(ACCESS_SERVER_ADMIN)} */
   public boolean hasServerAdminAccess() {
     return hasAccess(ACCESS_SERVER_ADMIN);
   }
 
   /**
-   * Validates that the access level is one of the following:
-   * <code>PSObjectPermissions.ACCESS_DENY</code>
-   * <code>PSObjectPermissions.ACCESS_READ</code>
-   * <code>PSObjectPermissions.ACCESS_WRITE</code>
-   * <code>PSObjectPermissions.ACCESS_ADMIN</code>
-   * <code>PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
+   * Validates that the access level is one of the following: <code>PSObjectPermissions.ACCESS_DENY
+   * </code> <code>PSObjectPermissions.ACCESS_READ</code> <code>PSObjectPermissions.ACCESS_WRITE
+   * </code> <code>PSObjectPermissions.ACCESS_ADMIN</code> <code>
+   * PSObjectPermissions.ACCESS_SERVER_ADMIN_STR</code>
    *
-   * @param accessLevel specifies the level of access, should be non-negative
-   * and a valid access level.
-   *
+   * @param accessLevel specifies the level of access, should be non-negative and a valid access
+   *     level.
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
    */
   protected static void validateAccessLevel(int accessLevel) {
@@ -449,89 +370,66 @@ public abstract class PSObjectPermissions {
 
   private static PSAclHandler systemAclHandler = null;
 
-  /**
-   * This is an access mask for allowing no access to the securable object.
-   */
+  /** This is an access mask for allowing no access to the securable object. */
   public static final int ACCESS_DENY = 0;
 
-  /**
-   * This is a string based ACCESS_DENY
-   */
+  /** This is a string based ACCESS_DENY */
   public static final String ACCESS_DENY_STR = "deny";
 
-  /**
-   * This is an access mask for allowing read access to the securable object.
-   */
+  /** This is an access mask for allowing read access to the securable object. */
   public static final int ACCESS_READ = 1;
 
-  /**
-   * This is a string based ACCESS_READ
-   */
+  /** This is a string based ACCESS_READ */
   public static final String ACCESS_READ_STR = "read";
 
-  /**
-   * This is an access mask for allowing to write access to the securable object.
-   */
+  /** This is an access mask for allowing to write access to the securable object. */
   public static final int ACCESS_WRITE = 2;
 
-  /**
-   * This is a string based ACCESS_WRITE
-   */
+  /** This is a string based ACCESS_WRITE */
   public static final String ACCESS_WRITE_STR = "write";
 
-  /**
-   * This is an access mask for allowing admin access to the securable object.
-   */
+  /** This is an access mask for allowing admin access to the securable object. */
   public static final int ACCESS_ADMIN = 4;
 
-  /**
-   * This is a string based ACCESS_ADMIN
-   */
+  /** This is a string based ACCESS_ADMIN */
   public static final String ACCESS_ADMIN_STR = "admin";
 
-  /**
-   * This is an access mask for allowing server admin access to the
-   * securable object.
-   */
+  /** This is an access mask for allowing server admin access to the securable object. */
   public static final int ACCESS_SERVER_ADMIN = Integer.MAX_VALUE;
 
-  /**
-   * This is a string based ACCESS_SERVER_ADMIN
-   */
+  /** This is a string based ACCESS_SERVER_ADMIN */
   public static final String ACCESS_SERVER_ADMIN_STR = "serverAdmin";
 
   /**
-   * This is an access mask for allowing all permissions on the securable object.
-   * This does not add the server admin access.
+   * This is an access mask for allowing all permissions on the securable object. This does not add
+   * the server admin access.
    */
   public static final int ACCESS_ALL = ACCESS_ADMIN | ACCESS_WRITE | ACCESS_READ;
 
   /**
-   * Access mask for storing all the permissions a particular user has on a
-   * securable object, initialized in the constructor, never modified after
-   * initialization. Defaults to deny access to everyone.
+   * Access mask for storing all the permissions a particular user has on a securable object,
+   * initialized in the constructor, never modified after initialization. Defaults to deny access to
+   * everyone.
    */
   protected int m_permissions = ACCESS_DENY;
 
   /**
-   * Contains the set of permissions specified on the securable object
-   * (such as Folders), may be <code>null</code> if single arg constructor is
-   * used, otherwise initialized in the constructor, never modified after
-   * initialization.
+   * Contains the set of permissions specified on the securable object (such as Folders), may be
+   * <code>null</code> if single arg constructor is used, otherwise initialized in the constructor,
+   * never modified after initialization.
    */
   protected PSObjectAcl m_objectAcl = null;
 
   /**
-   * Contains the credentials of the user accessing the securable object,
-   * may be <code>null</code> if single arg constructor is used, otherwise
-   * initialized in the constructor, never modified after initialization.
+   * Contains the credentials of the user accessing the securable object, may be <code>null</code>
+   * if single arg constructor is used, otherwise initialized in the constructor, never modified
+   * after initialization.
    */
   protected PSUserInfo m_userInfo = null;
 
   /**
-   * server access level for the user, initialized to
-   * <code></code> which implies no access to the server, set in the two arg
-   * constructor
+   * server access level for the user, initialized to <code></code> which implies no access to the
+   * server, set in the two arg constructor
    */
   protected int m_accessLevel = PSAclEntry.SACE_NO_ACCESS;
 

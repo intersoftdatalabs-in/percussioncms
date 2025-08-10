@@ -25,51 +25,72 @@ import com.percussion.deployer.server.dependencies.PSDependencyHandler;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.assembly.data.PSAssemblyTemplate;
 import com.percussion.services.sitemgr.IPSSite;
-
 import java.util.HashMap;
 
-/**
- * Service interface for deployment operations.
- */
+/** Service interface for deployment operations. */
 public interface IPSDeployService {
 
-    // A specific method for installing site files
-    void deserializeAndSaveSite(PSSecurityToken tok,
-                                PSArchiveHandler archive, PSDependency dep, PSDependencyFile depFile,
-                                PSImportCtx ctx, PSDependencyHandler depHandler, IPSSite s, Integer ver)
-            throws PSDeployServiceException;
+  // A specific method for installing site files
+  void deserializeAndSaveSite(
+      PSSecurityToken tok,
+      PSArchiveHandler archive,
+      PSDependency dep,
+      PSDependencyFile depFile,
+      PSImportCtx ctx,
+      PSDependencyHandler depHandler,
+      IPSSite s,
+      Integer ver)
+      throws PSDeployServiceException;
 
-    // A specific method for installing Templates files
-    void deserializeAndSaveTemplate(PSSecurityToken tok,
-                                    PSArchiveHandler archive, PSDependency dep, PSDependencyFile depFile,
-                                    PSImportCtx ctx, PSDependencyHandler depHandler,
-                                    PSAssemblyTemplate t, Integer ver, HashMap<Long, Integer> bVer)
-            throws PSDeployServiceException;
+  // A specific method for installing Templates files
+  void deserializeAndSaveTemplate(
+      PSSecurityToken tok,
+      PSArchiveHandler archive,
+      PSDependency dep,
+      PSDependencyFile depFile,
+      PSImportCtx ctx,
+      PSDependencyHandler depHandler,
+      PSAssemblyTemplate t,
+      Integer ver,
+      HashMap<Long, Integer> bVer)
+      throws PSDeployServiceException;
 
-    // A custom method for installing filters
-    void deserializeAndSaveFilter(PSSecurityToken tok,
-                                  PSArchiveHandler archive, PSDependency dep, PSDependencyFile depFile,
-                                  PSImportCtx ctx, PSDependencyHandler depHandler)
-            throws PSDeployServiceException;
+  // A custom method for installing filters
+  void deserializeAndSaveFilter(
+      PSSecurityToken tok,
+      PSArchiveHandler archive,
+      PSDependency dep,
+      PSDependencyFile depFile,
+      PSImportCtx ctx,
+      PSDependencyHandler depHandler)
+      throws PSDeployServiceException;
 
-    // A specific method for installing Templates files
-    void deserializeAndSaveVariant(PSSecurityToken tok,
-                                   PSArchiveHandler archive, PSDependency dep, PSDependencyFile depFile,
-                                   PSImportCtx ctx, PSDependencyHandler depHandler,
-                                   PSAssemblyTemplate t, Integer ver)
-            throws PSDeployServiceException;
+  // A specific method for installing Templates files
+  void deserializeAndSaveVariant(
+      PSSecurityToken tok,
+      PSArchiveHandler archive,
+      PSDependency dep,
+      PSDependencyFile depFile,
+      PSImportCtx ctx,
+      PSDependencyHandler depHandler,
+      PSAssemblyTemplate t,
+      Integer ver)
+      throws PSDeployServiceException;
 
-    /**
-     * Performs the task of installing dependency files.
-     * See {@link PSDependencyHandler#installDependencyFiles(PSSecurityToken,
-     * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
-     *
-     * @param svcDepHandler The service dependency handler which will be invoked
-     *                      to install the files. May not be {@code null}.
-     * @throws PSDeployServiceException if there are any errors.
-     */
-    void installDependencyFiles(PSSecurityToken tok,
-                               PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx,
-                               IPSServiceDependencyHandler svcDepHandler)
-            throws PSDeployServiceException;
+  /**
+   * Performs the task of installing dependency files. See {@link
+   * PSDependencyHandler#installDependencyFiles(PSSecurityToken, PSArchiveHandler, PSDependency,
+   * PSImportCtx)} for details.
+   *
+   * @param svcDepHandler The service dependency handler which will be invoked to install the files.
+   *     May not be {@code null}.
+   * @throws PSDeployServiceException if there are any errors.
+   */
+  void installDependencyFiles(
+      PSSecurityToken tok,
+      PSArchiveHandler archive,
+      PSDependency dep,
+      PSImportCtx ctx,
+      IPSServiceDependencyHandler svcDepHandler)
+      throws PSDeployServiceException;
 }

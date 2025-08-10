@@ -25,36 +25,37 @@ import com.percussion.services.pkginfo.data.PSPkgElement;
 import com.percussion.services.pkginfo.data.PSPkgElementDependency;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.List;
 
 /**
  * Primary interface for the Package Information Service.
- * <p>
- * A Package is a collection of design objects that make up an installable, configurable
+ *
+ * <p>A Package is a collection of design objects that make up an installable, configurable
  * "solution" such as a site, blog, RSS feed, etc.
- * <p>
- * This service supports three objects:
+ *
+ * <p>This service supports three objects:
+ *
  * <ul>
- *   <li>Package Information ({@link PSPkgInfo})</li>
- *   <li>Package Element ({@link PSPkgElement})</li>
- *   <li>Package Element Dependency ({@link PSPkgElementDependency})</li>
+ *   <li>Package Information ({@link PSPkgInfo})
+ *   <li>Package Element ({@link PSPkgElement})
+ *   <li>Package Element Dependency ({@link PSPkgElementDependency})
  * </ul>
- * <p>
- * Methods exist for each object, following the pattern:
+ *
+ * <p>Methods exist for each object, following the pattern:
+ *
  * <ul>
- *   <li>{@code createXXX}</li>
- *   <li>{@code copyXXX}</li>
- *   <li>{@code saveXXX}</li>
- *   <li>{@code deleteXXX}</li>
- *   <li>{@code findXXX}</li>
- *   <li>{@code loadXXX}</li>
- *   <li>{@code loadXXXModifiable}</li>
+ *   <li>{@code createXXX}
+ *   <li>{@code copyXXX}
+ *   <li>{@code saveXXX}
+ *   <li>{@code deleteXXX}
+ *   <li>{@code findXXX}
+ *   <li>{@code loadXXX}
+ *   <li>{@code loadXXXModifiable}
  * </ul>
- * <p>
- * All {@code loadXXX} and {@code findXXX} methods work with cached objects.
- * Cached objects are shared and must not be modified by the caller.
- * If an object needs to be modified, use {@code loadXXXModifiable}.
+ *
+ * <p>All {@code loadXXX} and {@code findXXX} methods work with cached objects. Cached objects are
+ * shared and must not be modified by the caller. If an object needs to be modified, use {@code
+ * loadXXXModifiable}.
  */
 public interface IPSPkgInfoService {
 
@@ -71,7 +72,8 @@ public interface IPSPkgInfoService {
   PSPkgInfo createPkgInfo(String name);
 
   /**
-   * Creates a new instance of {@link PSPkgInfo} and copies the content from the last entry if it exists.
+   * Creates a new instance of {@link PSPkgInfo} and copies the content from the last entry if it
+   * exists.
    *
    * @param name The internal name of the newly created object; must not be null or empty.
    * @return The newly created object with the data from the last entry if it exists; never null.
@@ -88,8 +90,8 @@ public interface IPSPkgInfoService {
   void savePkgInfo(PSPkgInfo obj);
 
   /**
-   * Permanently removes the given package's elements and dependency entries from persistent storage (and caches).
-   * If the object does not exist, this call has no effect.
+   * Permanently removes the given package's elements and dependency entries from persistent storage
+   * (and caches). If the object does not exist, this call has no effect.
    *
    * @param id The ID of the package info to be deleted; never null.
    */
@@ -98,13 +100,14 @@ public interface IPSPkgInfoService {
   /**
    * Deletes package elements and dependencies by name.
    *
-   * @param name The name of the object to permanently remove from persistent storage, case-insensitive; never null or empty.
+   * @param name The name of the object to permanently remove from persistent storage,
+   *     case-insensitive; never null or empty.
    */
   void deletePkgInfoChildren(String name);
 
   /**
-   * Permanently removes the given package info from persistent storage (and caches).
-   * If the object does not exist, this call has no effect.
+   * Permanently removes the given package info from persistent storage (and caches). If the object
+   * does not exist, this call has no effect.
    *
    * @param id The ID of the package info to be deleted; never null.
    */
@@ -113,7 +116,8 @@ public interface IPSPkgInfoService {
   /**
    * Deletes a package info by name.
    *
-   * @param name The name of the object to permanently remove from persistent storage, case-insensitive; never null or empty.
+   * @param name The name of the object to permanently remove from persistent storage,
+   *     case-insensitive; never null or empty.
    */
   void deletePkgInfo(String name);
 
@@ -172,15 +176,16 @@ public interface IPSPkgInfoService {
   void savePkgElement(PSPkgElement obj);
 
   /**
-   * Permanently removes the designated object from persistent storage (and caches).
-   * If the object does not exist, this call has no effect.
+   * Permanently removes the designated object from persistent storage (and caches). If the object
+   * does not exist, this call has no effect.
    *
    * @param id The unique identifier; never null.
    */
   void deletePkgElement(IPSGuid id);
 
   /**
-   * Returns the list of GUIDs of {@link PSPkgElement} objects that correspond to the given {@link PSPkgInfo} object.
+   * Returns the list of GUIDs of {@link PSPkgElement} objects that correspond to the given {@link
+   * PSPkgInfo} object.
    *
    * @param parentPkgInfo The GUID of the parent {@link PSPkgInfo} object; never null.
    * @return A list of GUIDs for the {@link PSPkgElement} objects; never null, may be empty.
@@ -214,14 +219,16 @@ public interface IPSPkgInfoService {
   /**
    * Loads all {@link PSPkgElement} objects whose GUIDs are supplied.
    *
-   * @param ids The list of {@link PSPkgElement} GUIDs to match; never null, no null entries allowed.
+   * @param ids The list of {@link PSPkgElement} GUIDs to match; never null, no null entries
+   *     allowed.
    * @return All objects whose GUID matches the list; never null, never empty.
    * @throws PSNotFoundException If a matching object is not found.
    */
   List<PSPkgElement> loadPkgElements(List<IPSGuid> ids) throws PSNotFoundException;
 
   /**
-   * Convenience method that puts the supplied id in a list and calls {@link #loadPkgElements(List)}.
+   * Convenience method that puts the supplied id in a list and calls {@link
+   * #loadPkgElements(List)}.
    *
    * @param id The unique identifier; must not be null.
    * @return The object matching the requested id, or null if not found.
@@ -264,7 +271,8 @@ public interface IPSPkgInfoService {
   List<PSPkgDependency> loadPkgDependencies(IPSGuid guid, boolean depType);
 
   /**
-   * Loads the modifiable package dependency objects for the supplied guid of type {@link PSTypeEnum#PACKAGE_INFO}.
+   * Loads the modifiable package dependency objects for the supplied guid of type {@link
+   * PSTypeEnum#PACKAGE_INFO}.
    *
    * @param guid The guid of type {@link PSTypeEnum#PACKAGE_INFO}; must not be null.
    * @param depType If true, considers the supplied guid as owner; otherwise as dependent.
@@ -276,7 +284,8 @@ public interface IPSPkgInfoService {
    * Finds and returns the owner package info GUIDs of the supplied package info guid.
    *
    * @param guid GUID of the {@link PSPkgInfo} object; must not be null.
-   * @return List of {@link PSPkgInfo} object GUIDs that are owners of the supplied guid; may be empty, never null.
+   * @return List of {@link PSPkgInfo} object GUIDs that are owners of the supplied guid; may be
+   *     empty, never null.
    */
   List<IPSGuid> findOwnerPkgGuids(IPSGuid guid);
 
@@ -284,13 +293,14 @@ public interface IPSPkgInfoService {
    * Finds and returns the dependent package info GUIDs of the supplied package info guid.
    *
    * @param guid GUID of the {@link PSPkgInfo} object; must not be null.
-   * @return List of {@link PSPkgInfo} object GUIDs that are dependents of the supplied guid; may be empty, never null.
+   * @return List of {@link PSPkgInfo} object GUIDs that are dependents of the supplied guid; may be
+   *     empty, never null.
    */
   List<IPSGuid> findDependentPkgGuids(IPSGuid guid);
 
   /**
-   * Permanently removes the {@link PSPkgDependency} object corresponding to the supplied id from persistent storage.
-   * If the object does not exist, this call has no effect.
+   * Permanently removes the {@link PSPkgDependency} object corresponding to the supplied id from
+   * persistent storage. If the object does not exist, this call has no effect.
    *
    * @param pkgDepId The id of the {@link PSPkgDependency} object to be deleted.
    */

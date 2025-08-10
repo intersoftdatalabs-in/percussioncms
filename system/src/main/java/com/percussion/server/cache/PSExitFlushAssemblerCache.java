@@ -25,21 +25,17 @@ import com.percussion.server.IPSRequestContext;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Exit to expose flush assembler capablilities to application resources.
- */
+/** Exit to expose flush assembler capablilities to application resources. */
 public class PSExitFlushAssemblerCache extends PSDefaultExtension
     implements IPSRequestPreProcessor {
   /**
-   * Flushes assembler items from the cache using the provided key values. The
-   * keys may be omitted by setting <code>null</code> or an empty
-   * <code>String</code> as a value for that key.  Omitting all keys will flush
-   * all assembler pages from the cache.
+   * Flushes assembler items from the cache using the provided key values. The keys may be omitted
+   * by setting <code>null</code> or an empty <code>String</code> as a value for that key. Omitting
+   * all keys will flush all assembler pages from the cache.
    *
-   * @param params An array of parameters expected by this exit. May not be
-   * <code>null</code>.  The parameters required for flushing the assembler
-   * cache are as follows:
-   * <table border="1">
+   * @param params An array of parameters expected by this exit. May not be <code>null</code>. The
+   *     parameters required for flushing the assembler cache are as follows:
+   *     <table border="1">
    *   <tr><th>Key</th><th>Value</th><th>Required?</th><tr>
    *   <tr>
    *     <td>appname</td>
@@ -72,12 +68,10 @@ public class PSExitFlushAssemblerCache extends PSDefaultExtension
    * </table>
    *
    * @param request The request context, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if params is <code>null</code> or empty
-   * or request is <code>null</code>
-   *
-   * @throws PSParameterMismatchException if <code>params</code> length is less
-   * than 4, or if a parameter specifies an invalid value.
+   * @throws IllegalArgumentException if params is <code>null</code> or empty or request is <code>
+   *     null</code>
+   * @throws PSParameterMismatchException if <code>params</code> length is less than 4, or if a
+   *     parameter specifies an invalid value.
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request)
       throws PSParameterMismatchException {

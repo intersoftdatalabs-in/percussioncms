@@ -27,21 +27,15 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A container class to encapsulate a schema and a table data for a
- * dependency object.
- */
+/** A container class to encapsulate a schema and a table data for a dependency object. */
 public class PSDependencyData implements IPSDeployComponent {
 
   /**
    * Constructing the object with the given parameters.
    *
-   * @param    sourceId The source ID, may not be <code>null</code> or empty.
-   * @param    sourceName The name of the source, may not be <code>null</code>
-   * or empty.
-   * @param    objectType The type of the object, may not be <code>null</code>
-   * or empty.
-   *
+   * @param sourceId The source ID, may not be <code>null</code> or empty.
+   * @param sourceName The name of the source, may not be <code>null</code> or empty.
+   * @param objectType The type of the object, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
 
@@ -50,7 +44,6 @@ public class PSDependencyData implements IPSDeployComponent {
    *
    * @param schema The schema object, may not be <code>null</code>.
    * @param data The table data object, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   public PSDependencyData(PSJdbcTableSchema schema, PSJdbcTableData data) {
@@ -64,13 +57,10 @@ public class PSDependencyData implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
    * @param typeMap The data type mapping object, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSDependencyData(Element source, PSJdbcDataTypeMap typeMap)
@@ -183,20 +173,12 @@ public class PSDependencyData implements IPSDeployComponent {
     return result;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDependencyData";
 
-  /**
-   * The scehma object, initialized by constructor, never be
-   * <code>null</code> after that.
-   */
+  /** The scehma object, initialized by constructor, never be <code>null</code> after that. */
   private PSJdbcTableSchema m_schema;
 
-  /**
-   * The table data, initialized by constructor never be
-   * <code>null</code>.
-   */
+  /** The table data, initialized by constructor never be <code>null</code>. */
   private PSJdbcTableData m_data;
 }

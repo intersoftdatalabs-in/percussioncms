@@ -21,22 +21,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- *
- * This class supports bunch of file operations for upgrades: currently supports
- * delete ( a file / directory )
- * A code snippet looks like this:
- *   <plugin name="SomePluginName">
- *        <class>com.percussion.install.PSUpgradePluginFileOperations</class>
- *        <data>
- *           <file path="sys_resources/ewebeditpro/Ektron-all-product-cms.pdf" action="delete"/>
- *        </data>
- *    </plugin>
+ * This class supports bunch of file operations for upgrades: currently supports delete ( a file /
+ * directory ) A code snippet looks like this: <plugin name="SomePluginName">
+ * <class>com.percussion.install.PSUpgradePluginFileOperations</class> <data> <file
+ * path="sys_resources/ewebeditpro/Ektron-all-product-cms.pdf" action="delete"/> </data> </plugin>
  */
 public class PSUpgradePluginFileOperations implements IPSUpgradePlugin {
   /**
-   * Implements the process function of IPSUpgardePlugin.
-   * Performs file/directory operations delete. This can be expanded to perform
-   * the following actions: copy, rename, move
+   * Implements the process function of IPSUpgardePlugin. Performs file/directory operations delete.
+   * This can be expanded to perform the following actions: copy, rename, move
+   *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
@@ -61,8 +55,9 @@ public class PSUpgradePluginFileOperations implements IPSUpgradePlugin {
   }
 
   /**
-   * This will recursively delete all the files under a directory
-   * If it encounters an error it stops deletion and reports a failure.
+   * This will recursively delete all the files under a directory If it encounters an error it stops
+   * deletion and reports a failure.
+   *
    * @param dir the directory and its contents that need to be deleted
    * @return success or failure
    */

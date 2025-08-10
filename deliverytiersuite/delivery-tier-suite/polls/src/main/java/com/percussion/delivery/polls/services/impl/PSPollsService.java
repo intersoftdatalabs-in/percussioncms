@@ -62,8 +62,8 @@ public class PSPollsService implements IPSPollsService {
   }
 
   /**
-   * Updates poll answers in the database poll answers set.
-   * Adds new answers or increments count for existing answers.
+   * Updates poll answers in the database poll answers set. Adds new answers or increments count for
+   * existing answers.
    *
    * @param dbPollAnswers Set of poll answers from DB
    * @param pollAnswers Map of answer text to boolean (true if selected)

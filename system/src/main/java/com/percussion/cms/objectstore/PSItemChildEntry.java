@@ -28,15 +28,13 @@ import java.util.TreeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * An object representation of the sys_StandardItem.xsd ChildEntry element.
- */
+/** An object representation of the sys_StandardItem.xsd ChildEntry element. */
 public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor {
   /**
    * Construct a new instance from definitions.
    *
-   * @param fieldSet must not be <code>null</code> must be of type
-   *    <code>PSFieldSet.TYPE_COMPLEX_CHILD</code>
+   * @param fieldSet must not be <code>null</code> must be of type <code>
+   *     PSFieldSet.TYPE_COMPLEX_CHILD</code>
    */
   public PSItemChildEntry(PSFieldSet fieldSet) {
     if (fieldSet == null || fieldSet.getType() != PSFieldSet.TYPE_COMPLEX_CHILD)
@@ -47,16 +45,14 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
     init();
   }
 
-  /**
-   * Initializes object members. Called by ctors and clone.
-   */
+  /** Initializes object members. Called by ctors and clone. */
   private void init() {
     m_fieldNameFieldMap = new TreeMap<>();
   }
 
   /**
-   * Every <code>PSItemChildEntry</code> may have 0 or more fields.  This
-   * returns a field specified by its name.
+   * Every <code>PSItemChildEntry</code> may have 0 or more fields. This returns a field specified
+   * by its name.
    *
    * @param fieldName Must not be <code>null</code> or empty.
    * @return May be <code>null</code> if the field doesn't exist.
@@ -69,11 +65,11 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Every <code>PSItemChildEntry</code> may have a field or a collection
-   * of fields.  This returns the entire collection.
+   * Every <code>PSItemChildEntry</code> may have a field or a collection of fields. This returns
+   * the entire collection.
    *
-   * @return unmodifiable <code>Iterator</code> of <code>PSItemField</code>
-   * objects. May be empty but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of <code>PSItemField</code> objects. May be empty
+   *     but not <code>null</code>.
    */
   public Iterator<PSItemField> getAllFields() {
     return Collections.unmodifiableCollection(m_fieldNameFieldMap.values()).iterator();
@@ -94,13 +90,12 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Every <code>PSItemChildEntry</code> may have a field or a
-   * collection of fields.  This returns all of the <code>PSItemField
+   * Every <code>PSItemChildEntry</code> may have a field or a collection of fields. This returns
+   * all of the <code>PSItemField
    * </code> names as <code>Strings</code>
    *
-   * @return unmodifiable <code>Iterator</code> of the
-   * <code>PSItemField</code> names as <code>Strings</code>.
-   * May be empty but not <code>null</code>.
+   * @return unmodifiable <code>Iterator</code> of the <code>PSItemField</code> names as <code>
+   *     Strings</code>. May be empty but not <code>null</code>.
    */
   public Iterator<String> getAllFieldNames() {
     return Collections.unmodifiableSet(m_fieldNameFieldMap.keySet()).iterator();
@@ -128,11 +123,9 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Gets an action to be taken on the child entry.  Only one action per item
-   * entry.
+   * Gets an action to be taken on the child entry. Only one action per item entry.
    *
    * @return The action, never <code>null</code> or empty
-   *
    * @see #setAction(String)
    */
   public String getAction() {
@@ -140,19 +133,15 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Sets an action to be taken on the child entry by the system.  Only one
-   * action per item entry.
+   * Sets an action to be taken on the child entry by the system. Only one action per item entry.
    *
    * <ul>
-   * <li>{@link PSItemChildEntry#CHILD_ACTION_IGNORE } - default
-   * </li>
-   * <li>{@link PSItemChildEntry#CHILD_ACTION_UPDATE }
-   * </li>
-   * <li>{@link PSItemChildEntry#CHILD_ACTION_DELETE }
-   * </li>
-   * <li>{@link PSItemChildEntry#CHILD_ACTION_INSERT }
-   * </li>
+   *   <li>{@link PSItemChildEntry#CHILD_ACTION_IGNORE } - default
+   *   <li>{@link PSItemChildEntry#CHILD_ACTION_UPDATE }
+   *   <li>{@link PSItemChildEntry#CHILD_ACTION_DELETE }
+   *   <li>{@link PSItemChildEntry#CHILD_ACTION_INSERT }
    * </ul>
+   *
    * @param childAction - must be one of the value listed above.
    */
   public void setAction(String childAction) {
@@ -169,19 +158,17 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Returns the child row id if there is one.  This is the internal id of
-   * this childEntry.  This id is set upon first insertion in the system.
+   * Returns the child row id if there is one. This is the internal id of this childEntry. This id
+   * is set upon first insertion in the system.
    *
-   * @return if the child row id has not been set -1 will be returned,
-   * otherwise > 0,
+   * @return if the child row id has not been set -1 will be returned, otherwise > 0,
    */
   public int getChildRowId() {
     return m_childRowId;
   }
 
   /**
-   * Set the child row id to the specified value. This is the internal id of
-   * this childEntry object.
+   * Set the child row id to the specified value. This is the internal id of this childEntry object.
    *
    * @param childRowId the child row id of this childEntry
    */
@@ -267,16 +254,16 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * This method is called to populate an object from its XML representation.
-   * It assumes that the object may already have a complete data structure,
-   * therefore method only overlays the data onto the existing object.
-   * An element node may contain a hierarchical structure, including child
+   * This method is called to populate an object from its XML representation. It assumes that the
+   * object may already have a complete data structure, therefore method only overlays the data onto
+   * the existing object. An element node may contain a hierarchical structure, including child
    * objects. The element node can also be a child of another element node.
+   *
    * <p>
-   * @param sourceNode   the XML element node from which to populate.  Must not
-   * be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by this class.
+   *
+   * @param sourceNode the XML element node from which to populate. Must not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by this class.
    */
   public void loadXmlData(Element sourceNode) throws PSUnknownNodeTypeException {
     loadXmlData(sourceNode, false);
@@ -287,7 +274,6 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
    *
    * @param sourceNode The source node to use, may not be <code>null</code>.
    * @param clearValues Ignored
-   *
    * @throws PSUnknownNodeTypeException If the source node is malformed.
    */
   void loadXmlData(Element sourceNode, boolean clearValues) throws PSUnknownNodeTypeException {
@@ -340,9 +326,7 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
    *
    * @param el the element to retrieve the action from, must not be <code>
    * null</code>
-   *
-   * @return the action of this child entry, never <code>null</code>, may be
-   * empty
+   * @return the action of this child entry, never <code>null</code>, may be empty
    */
   static String getAction(Element el) throws PSUnknownNodeTypeException {
     return PSXMLDomUtil.checkAttribute(el, ATTR_ACTION, false);
@@ -353,17 +337,15 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
    *
    * @param el the element to retrieve the row id from, must not be <code>
    * null</code>
-   *
-   * @return the row id of this child entry, if not found returns -1, otherwise
-   * returns > 0
+   * @return the row id of this child entry, if not found returns -1, otherwise returns > 0
    */
   static int getRowId(Element el) throws PSUnknownNodeTypeException {
     return PSXMLDomUtil.checkAttributeInt(el, ATTR_CHILD_ROW_ID, false);
   }
 
   /**
-   * Get this entries full guid, which also contains the content type id and
-   * child id.  See {@link #setGUID(PSLegacyGuid)} for more info.
+   * Get this entries full guid, which also contains the content type id and child id. See {@link
+   * #setGUID(PSLegacyGuid)} for more info.
    *
    * @return The guid, may be <code>null</code> if not set.
    */
@@ -372,10 +354,9 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   }
 
   /**
-   * Set this entries full guid, which also contains the content type id and
-   * child id, used for web services conversion, value is transient and not
-   * considered by {@link #equals(Object)} or {@link #hashCode()} and is not
-   * serialized as part of this object's XML representation.
+   * Set this entries full guid, which also contains the content type id and child id, used for web
+   * services conversion, value is transient and not considered by {@link #equals(Object)} or {@link
+   * #hashCode()} and is not serialized as part of this object's XML representation.
    *
    * @param guid The guid, may be <code>null</code> to clear it.
    */
@@ -383,27 +364,21 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
     m_guid = guid;
   }
 
-  /**
-   * Definition of this child entry, set by ctor, never <code>null</code>
-   * never changes.
-   */
+  /** Definition of this child entry, set by ctor, never <code>null</code> never changes. */
   private PSFieldSet m_fieldSetDef;
 
-  /**
-   * The action this child may take. @see #setAction(String)
-   */
+  /** The action this child may take. @see #setAction(String) */
   private String m_action = CHILD_ACTION_IGNORE;
 
   /**
-   * This is a map of with the fieldName as the key and PSItemField as
-   * its value, initialized by <code>init()</code>,
+   * This is a map of with the fieldName as the key and PSItemField as its value, initialized by
+   * <code>init()</code>,
+   *
    * @see #getFieldByName(String)
    */
   private Map<String, PSItemField> m_fieldNameFieldMap;
 
-  /**
-   * Guid set on this object used only for conversion purposes.
-   */
+  /** Guid set on this object used only for conversion purposes. */
   private transient PSLegacyGuid m_guid = null;
 
   /** child action choices, @see #setAction(String) */
@@ -413,10 +388,7 @@ public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor
   public static final String CHILD_ACTION_DELETE = "delete";
   public static final String CHILD_ACTION_INSERT = "insert";
 
-  /**
-   * The identifier for this object, default is -1, set when this object is
-   * created.
-   */
+  /** The identifier for this object, default is -1, set when this object is created. */
   private int m_childRowId = -1;
 
   /** Name of the root element in this class' XML representation */

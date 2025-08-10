@@ -29,38 +29,41 @@ import com.percussion.pagemanagement.data.PSRegionCode;
  */
 public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
 
+  /**
+   * Parses the provided text into a region tree.
+   *
+   * @param text the HTML or template text, never null or empty.
+   * @return the parsed region tree.
+   */
+  PSParsedRegionTree<REGION, CODE> parse(String text);
+
+  /**
+   * Factory for creating region and code objects for the parser.
+   *
+   * @param <R> Region type.
+   * @param <C> Code type.
+   */
+  interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode> {
     /**
-     * Parses the provided text into a region tree.
+     * Creates a new code object.
      *
-     * @param text the HTML or template text, never null or empty.
-     * @return the parsed region tree.
+     * @return never null.
      */
-    PSParsedRegionTree<REGION, CODE> parse(String text);
+    C createRegionCode();
 
     /**
-     * Factory for creating region and code objects for the parser.
+     * Creates a new region with the given region id.
      *
-     * @param <R> Region type.
-     * @param <C> Code type.
+     * @param regionId the region id, never null.
+     * @return never null.
      */
-    interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode> {
-        /**
-         * Creates a new code object.
-         * @return never null.
-         */
-        C createRegionCode();
+    R createRegion(String regionId);
 
-        /**
-         * Creates a new region with the given region id.
-         * @param regionId the region id, never null.
-         * @return never null.
-         */
-        R createRegion(String regionId);
-
-        /**
-         * Creates the root region.
-         * @return never null.
-         */
-        R createRootRegion();
-    }
+    /**
+     * Creates the root region.
+     *
+     * @return never null.
+     */
+    R createRootRegion();
+  }
 }

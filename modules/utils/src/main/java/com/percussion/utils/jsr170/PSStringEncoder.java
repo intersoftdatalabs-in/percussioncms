@@ -17,34 +17,34 @@
 package com.percussion.utils.jsr170;
 
 /**
- * The value encoder has methods to convert values to and from encoded form. In
- * encoding strings, special characters are encoded by the sequence '_xhhhh_',
- * which denotes a specific unicode value for the given character. If the
- * sequence appears without the terminating '_' then the value is not encoded.
+ * The value encoder has methods to convert values to and from encoded form. In encoding strings,
+ * special characters are encoded by the sequence '_xhhhh_', which denotes a specific unicode value
+ * for the given character. If the sequence appears without the terminating '_' then the value is
+ * not encoded.
  *
  * @author dougrand
- *
  */
 public class PSStringEncoder {
 
   /**
    * Encode the string. The following characters are escaped:
+   *
    * <ul>
-   * <li>&lt;
-   * <li>&gt;
-   * <li>&quot;
-   * <li>&amp;
-   * <li>'
-   * <li>Whitespace
-   * <li>_
+   *   <li>&lt;
+   *   <li>&gt;
+   *   <li>&quot;
+   *   <li>&amp;
+   *   <li>'
+   *   <li>Whitespace
+   *   <li>_
    * </ul>
-   * The xml entities are escaped as &amp;xyz;, but whitespace and underscore
-   * are escaped in the form _xHHHH_ where HHHH is the hex encoding of the
-   * character as a UTF-16 character.
+   *
+   * The xml entities are escaped as &amp;xyz;, but whitespace and underscore are escaped in the
+   * form _xHHHH_ where HHHH is the hex encoding of the character as a UTF-16 character.
    *
    * @param input the string to be encoded, never <code>null</code>
-   * @return the encoded output string, never <code>null</code> or empty, may
-   *         be identical to the input string.
+   * @return the encoded output string, never <code>null</code> or empty, may be identical to the
+   *     input string.
    */
   public static String encode(String input) {
     if (input == null) {
@@ -91,26 +91,26 @@ public class PSStringEncoder {
 
   /**
    * Decode the string. The following characters are escaped:
+   *
    * <ul>
-   * <li>&lt;
-   * <li>&gt;
-   * <li>&quot;
-   * <li>&amp;
-   * <li>'
-   * <li>Whitespace
-   * <li>_
+   *   <li>&lt;
+   *   <li>&gt;
+   *   <li>&quot;
+   *   <li>&amp;
+   *   <li>'
+   *   <li>Whitespace
+   *   <li>_
    * </ul>
-   * The xml entities are escaped as &amp;xyz;, but whitespace and underscore
-   * are escaped in the form _xHHHH_ where HHHH is the hex encoding of the
-   * character as a UTF-16 character. An introductory underscore does not
-   * escape anything if it is not followed by 'x', four hex digits and a
-   * completing underscore.
-   * <p>
-   * Note that any unicode character specified as _xHHHH_ will be unescaped.
+   *
+   * The xml entities are escaped as &amp;xyz;, but whitespace and underscore are escaped in the
+   * form _xHHHH_ where HHHH is the hex encoding of the character as a UTF-16 character. An
+   * introductory underscore does not escape anything if it is not followed by 'x', four hex digits
+   * and a completing underscore.
+   *
+   * <p>Note that any unicode character specified as _xHHHH_ will be unescaped.
    *
    * @param input the string to be decoded, never <code>null</code>
-   * @return the decoded string, never <code>null</code> or empty, may match
-   *         the input string.
+   * @return the decoded string, never <code>null</code> or empty, may match the input string.
    */
   public static String decode(String input) {
     if (input == null) {

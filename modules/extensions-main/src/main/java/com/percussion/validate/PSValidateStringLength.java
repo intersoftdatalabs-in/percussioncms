@@ -24,9 +24,9 @@ import com.percussion.server.IPSRequestContext;
 import java.io.File;
 
 /**
- * Validate a string's content. This exit can check that a string is of the
- * right length range, and matches the passed pattern. Note that the range check
- * is an inclusive test.
+ * Validate a string's content. This exit can check that a string is of the right length range, and
+ * matches the passed pattern. Note that the range check is an inclusive test.
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -51,7 +51,6 @@ import java.io.File;
  * </table>
  *
  * @author dougrand
- *
  */
 public class PSValidateStringLength extends PSRangeValidator {
 

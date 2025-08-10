@@ -25,23 +25,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class provides methods for accessing, adding and removing users
- * that have approved content transitions, and is a wrapper for the backend
- * table 'CONTENTAPPROVALS'. <BR>
- * A content item may not undergo a transition until the required number of
- * users have approved.  Once a transition is performed, all user approvals
- * which share its "from state" must be cleared.
+ * This class provides methods for accessing, adding and removing users that have approved content
+ * transitions, and is a wrapper for the backend table 'CONTENTAPPROVALS'. <br>
+ * A content item may not undergo a transition until the required number of users have approved.
+ * Once a transition is performed, all user approvals which share its "from state" must be cleared.
  */
 public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   /**
-   * Constructor specifying the workflowID, contentID and transition
-   * information that define a collection of approvals.
+   * Constructor specifying the workflowID, contentID and transition information that define a
+   * collection of approvals.
    *
-   * @param workflowID    ID of the workflow for this approval
-   * @param connection    data base connection
-   * @param contentID     ID of the content item for this approval
-   * @param transContext  transition context for this approval
-   * @throws              SQLException if an SQL error occurs
+   * @param workflowID ID of the workflow for this approval
+   * @param connection data base connection
+   * @param contentID ID of the content item for this approval
+   * @param transContext transition context for this approval
+   * @throws SQLException if an SQL error occurs
    */
   public PSContentApprovalsContext(
       int workflowID, Connection connection, int contentID, PSTransitionsContext transContext)
@@ -99,8 +97,7 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   }
 
   /**
-   * Returns a List of all the roleids in this context.  These
-   * role ids are <code>Integer</code>
+   * Returns a List of all the roleids in this context. These role ids are <code>Integer</code>
    *
    * @return never <code>null</code>
    */
@@ -140,14 +137,11 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
   }
 
   /**
-   * Return string representation of context, listing only approver with the
-   * given index.
+   * Return string representation of context, listing only approver with the given index.
    *
-   * @param i  index of approver
-   * @return   string representation of context, listing only approver with
-   *           the given index
-   * @throws   IllegalArgumentException if the index exceeds the number of
-   *           approvers.
+   * @param i index of approver
+   * @return string representation of context, listing only approver with the given index
+   * @throws IllegalArgumentException if the index exceeds the number of approvers.
    */
   public String toString(int i) {
     // The number of approvers must exceed the index
@@ -215,9 +209,7 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
     }
   }
 
-  /**
-   * Closes the result set and statement if necessary
-   */
+  /** Closes the result set and statement if necessary */
   private void close() {
     // release resources
     try {
@@ -347,74 +339,47 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
 
   /******** Database Related Members ********/
 
-  /**
-   * Connection to the database
-   */
+  /** Connection to the database */
   private Connection m_Connection = null;
 
-  /**
-   * JDBC version of SQL statement to be executed.
-   */
+  /** JDBC version of SQL statement to be executed. */
   private PreparedStatement m_Statement = null;
 
-  /**
-   * Result of database query
-   */
+  /** Result of database query */
   private ResultSet m_Rs = null;
 
-  /**
-   * User name at the current cursor position - updated every time moveNext().
-   * is called
-   */
+  /** User name at the current cursor position - updated every time moveNext(). is called */
   private String m_sUserName = "";
 
   /******** Context Defining Members ********/
 
-  /**
-   * ID of the workflow for this approval.
-   */
+  /** ID of the workflow for this approval. */
   private int m_nWorkflowID = 0;
 
-  /**
-   * ID of the content item for this approval.
-   */
+  /** ID of the content item for this approval. */
   private int m_nContentID = 0;
 
-  /**
-   * ID of the transition for this approval.
-   */
+  /** ID of the transition for this approval. */
   private int m_nTransitionID = 0;
 
-  /**
-   * ID of the inital content state for this approval.
-   */
+  /** ID of the inital content state for this approval. */
   private int m_nStateID = 0;
 
   /******** Context Data Members ********/
 
-  /**
-   * Number of approving users.
-   */
+  /** Number of approving users. */
   private int m_nCount = 0;
 
-  /**
-   * List of users that have approved the content transition.
-   */
+  /** List of users that have approved the content transition. */
   private ArrayList m_UserList = new ArrayList();
 
-  /**
-   * List of roles ids that have approved the content transition.
-   */
+  /** List of roles ids that have approved the content transition. */
   private ArrayList m_roleIdList = new ArrayList();
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_CAC = PSConnectionMgr.getQualifiedIdentifier("CONTENTAPPROVALS");
 
-  /**
-   * SQL query string to get data base records for the approvals.
-   */
+  /** SQL query string to get data base records for the approvals. */
   private static String QRYSTRING =
       "SELECT "
           + TABLE_CAC
@@ -432,8 +397,8 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
           + ".TRANSITIONID=? )";
 
   /**
-   * SQL query string to get all the role ids that have taken action for
-   * this transition and this workflow.
+   * SQL query string to get all the role ids that have taken action for this transition and this
+   * workflow.
    */
   private static String ROLEID_QRYSTRING =
       "SELECT COUNT(*) FROM "
@@ -449,8 +414,8 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
           + ".ROLEID=?)";
 
   /**
-   * SQL query string to get count of transition approvals on this content
-   * item by this user from this state.
+   * SQL query string to get count of transition approvals on this content item by this user from
+   * this state.
    */
   private static String USER_QUERYSTRING =
       "SELECT COUNT(*) FROM "
@@ -465,9 +430,7 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
           + TABLE_CAC
           + ".USERNAME=?)";
 
-  /**
-   * SQL string to insert a data base record for a new approval.
-   */
+  /** SQL string to insert a data base record for a new approval. */
   private static String INSERTSTRING =
       "INSERT INTO "
           + TABLE_CAC
@@ -487,8 +450,8 @@ public class PSContentApprovalsContext implements IPSContentApprovalsContext {
           + "VALUES(?,?,?,?,?,?)";
 
   /**
-   * SQL string to delete all data base record for approvals for given content
-   * item with a given initial state.
+   * SQL string to delete all data base record for approvals for given content item with a given
+   * initial state.
    */
   private static String DELETESTRING =
       "DELETE FROM " + TABLE_CAC + " WHERE (" + TABLE_CAC + ".CONTENTID=?)";

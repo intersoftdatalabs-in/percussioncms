@@ -39,19 +39,14 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
-/**
- * Command to clear the inmemory and repository events that are queued for
- * indexing.
- *
- */
+/** Command to clear the inmemory and repository events that are queued for indexing. */
 public class PSConsoleCommandSearchQueueClear extends PSConsoleCommand {
 
   /**
-   * The constructor for this class. The command arguments are ignored for this
-   * command.
+   * The constructor for this class. The command arguments are ignored for this command.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   public PSConsoleCommandSearchQueueClear(String cmdArgs) {
     super(cmdArgs);
@@ -74,8 +69,6 @@ public class PSConsoleCommandSearchQueueClear extends PSConsoleCommand {
     return COMMAND_NAME;
   }
 
-  /**
-   * The full command that launched this handler.
-   */
+  /** The full command that launched this handler. */
   private static final String COMMAND_NAME = "search queue clear";
 }

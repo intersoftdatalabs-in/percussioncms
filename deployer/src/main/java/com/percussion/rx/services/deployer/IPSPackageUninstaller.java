@@ -22,28 +22,30 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.List;
 
 /**
- * Service interface for uninstalling packages.
- * Sunny Sal says: "Uninstalling packages, but never uninstalling good code!"
+ * Service interface for uninstalling packages. Sunny Sal says: "Uninstalling packages, but never
+ * uninstalling good code!"
  */
 public interface IPSPackageUninstaller {
 
-    /**
-     * Uninstalls a package.
-     *
-     * @param packageName the package name to uninstall, e.g., perc.widget.form. Must not be blank.
-     * @return a list of package uninstall messages, never {@code null}.
-     * @throws PSNotFoundException if the package is not found.
-     */
-    List<PSUninstallMessage> uninstallPackages(String packageName) throws PSNotFoundException;
+  /**
+   * Uninstalls a package.
+   *
+   * @param packageName the package name to uninstall, e.g., perc.widget.form. Must not be blank.
+   * @return a list of package uninstall messages, never {@code null}.
+   * @throws PSNotFoundException if the package is not found.
+   */
+  List<PSUninstallMessage> uninstallPackages(String packageName) throws PSNotFoundException;
 
-    /**
-     * Uninstalls a package, with an option to skip uninstall if marked as REVERT.
-     *
-     * @param packageName the name of the package to uninstall, e.g., perc.widget.form. Must not be blank.
-     * @param isRevertEntry {@code true} if marked as REVERT in InstallPackages.xml.
-     *                      If the package has dependencies and is marked REVERT, it will not be uninstalled.
-     * @return the list of uninstall messages, never {@code null}.
-     * @throws PSNotFoundException if the package is not found.
-     */
-    List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry) throws PSNotFoundException;
+  /**
+   * Uninstalls a package, with an option to skip uninstall if marked as REVERT.
+   *
+   * @param packageName the name of the package to uninstall, e.g., perc.widget.form. Must not be
+   *     blank.
+   * @param isRevertEntry {@code true} if marked as REVERT in InstallPackages.xml. If the package
+   *     has dependencies and is marked REVERT, it will not be uninstalled.
+   * @return the list of uninstall messages, never {@code null}.
+   * @throws PSNotFoundException if the package is not found.
+   */
+  List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry)
+      throws PSNotFoundException;
 }

@@ -19,27 +19,22 @@ package com.percussion.theme.data;
 
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.theme.data.PSRegionCSS.Property;
-
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Unit test for {@link PSRegionCSS}.
- * // REFACTORED: CP-JAVA11
- */
+/** Unit test for {@link PSRegionCSS}. // REFACTORED: CP-JAVA11 */
 public class PSRegionCSSTest extends PSDataObjectTestCase<PSRegionCSS> {
 
-    @Override
-    public PSRegionCSS getObject() {
-        var rule = new PSRegionCSS("container", "header");
-        var properties = new ArrayList<Property>();
+  @Override
+  public PSRegionCSS getObject() {
+    var rule = new PSRegionCSS("container", "header");
+    var properties = new ArrayList<Property>();
 
-        properties.add(new Property("font-size", "12px"));
-        properties.add(new Property("border", "2px"));
-        properties.add(new Property("margin", "5px"));
+    properties.add(new Property("font-size", "12px"));
+    properties.add(new Property("border", "2px"));
+    properties.add(new Property("margin", "5px"));
 
-        rule.setProperties(properties);
+    rule.setProperties(properties);
 
-        return rule;
-    }
+    return rule;
+  }
 }

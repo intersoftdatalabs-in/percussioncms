@@ -16,134 +16,132 @@
  */
 package com.percussion.searchmanagement.data;
 
-import org.apache.commons.lang.StringUtils;
-
+import java.util.Collections;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import org.apache.commons.lang.StringUtils;
 
-/**
- * Encapsulates search criteria for content search operations.
- */
+/** Encapsulates search criteria for content search operations. */
 @XmlRootElement(name = "SearchCriteria")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSSearchCriteria {
 
-    private String query;
-    private String searchType;
-    private Integer startIndex;
-    private Integer maxResults;
-    private String sortColumn;
-    private String sortOrder;
-    private Integer formatId;
-    private Map<String, String> searchFields;
-    private String folderPath;
+  private String query;
+  private String searchType;
+  private Integer startIndex;
+  private Integer maxResults;
+  private String sortColumn;
+  private String sortOrder;
+  private Integer formatId;
+  private Map<String, String> searchFields;
+  private String folderPath;
 
-    public String getFolderPath() {
-        return folderPath;
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    /**
-     * Gets the fields to search on. Key is the field name, value is the search value.
-     *
-     * @return Unmodifiable map of fields, never null.
-     */
-    public Map<String, String> getSearchFields() {
-        return searchFields == null ? Collections.emptyMap() : Collections.unmodifiableMap(searchFields);
-    }
+  /**
+   * Gets the fields to search on. Key is the field name, value is the search value.
+   *
+   * @return Unmodifiable map of fields, never null.
+   */
+  public Map<String, String> getSearchFields() {
+    return searchFields == null
+        ? Collections.emptyMap()
+        : Collections.unmodifiableMap(searchFields);
+  }
 
-    public void setSearchFields(Map<String, String> searchFields) {
-        this.searchFields = searchFields;
-    }
+  public void setSearchFields(Map<String, String> searchFields) {
+    this.searchFields = searchFields;
+  }
 
-    public String getQuery() {
-        return query;
-    }
+  public String getQuery() {
+    return query;
+  }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
+  public void setQuery(String query) {
+    this.query = query;
+  }
 
-    public Integer getStartIndex() {
-        return startIndex;
-    }
+  public Integer getStartIndex() {
+    return startIndex;
+  }
 
-    public void setStartIndex(Integer startIndex) {
-        this.startIndex = startIndex;
-    }
+  public void setStartIndex(Integer startIndex) {
+    this.startIndex = startIndex;
+  }
 
-    public Integer getMaxResults() {
-        return maxResults;
-    }
+  public Integer getMaxResults() {
+    return maxResults;
+  }
 
-    public void setMaxResults(Integer maxResults) {
-        this.maxResults = maxResults;
-    }
+  public void setMaxResults(Integer maxResults) {
+    this.maxResults = maxResults;
+  }
 
-    public String getSortColumn() {
-        return sortColumn;
-    }
+  public String getSortColumn() {
+    return sortColumn;
+  }
 
-    public void setSortColumn(String sortColumn) {
-        this.sortColumn = sortColumn;
-    }
+  public void setSortColumn(String sortColumn) {
+    this.sortColumn = sortColumn;
+  }
 
-    public String getSortOrder() {
-        return sortOrder;
-    }
+  public String getSortOrder() {
+    return sortOrder;
+  }
 
-    /**
-     * Sets the sort order. Accepts only "asc" or "desc" (case-insensitive). Defaults to "asc".
-     *
-     * @param sortOrder the sort order string
-     */
-    public void setSortOrder(String sortOrder) {
-        if (StringUtils.isBlank(sortOrder)) {
-            this.sortOrder = "asc";
-        } else {
-            var trimmed = sortOrder.trim().toLowerCase();
-            this.sortOrder = (trimmed.equals("asc") || trimmed.equals("desc")) ? trimmed : "asc";
-        }
+  /**
+   * Sets the sort order. Accepts only "asc" or "desc" (case-insensitive). Defaults to "asc".
+   *
+   * @param sortOrder the sort order string
+   */
+  public void setSortOrder(String sortOrder) {
+    if (StringUtils.isBlank(sortOrder)) {
+      this.sortOrder = "asc";
+    } else {
+      var trimmed = sortOrder.trim().toLowerCase();
+      this.sortOrder = (trimmed.equals("asc") || trimmed.equals("desc")) ? trimmed : "asc";
     }
+  }
 
-    public Integer getFormatId() {
-        return formatId;
-    }
+  public Integer getFormatId() {
+    return formatId;
+  }
 
-    public void setFormatId(Integer formatId) {
-        this.formatId = formatId;
-    }
+  public void setFormatId(Integer formatId) {
+    this.formatId = formatId;
+  }
 
-    public String getSearchType() {
-        return searchType;
-    }
+  public String getSearchType() {
+    return searchType;
+  }
 
-    public void setSearchType(String searchType) {
-        this.searchType = searchType;
-    }
+  public void setSearchType(String searchType) {
+    this.searchType = searchType;
+  }
 
-    /**
-     * Determines if this criteria object has no meaningful criteria set.
-     *
-     * @return true if empty, false otherwise
-     */
-    public boolean isEmpty() {
-        if (StringUtils.isNotBlank(query)) {
-            return false;
-        }
-        if (StringUtils.isNotBlank(folderPath) && !folderPath.equalsIgnoreCase("//Sites/")) {
-            return false;
-        }
-        if (StringUtils.isNotBlank(searchType)) {
-            return false;
-        }
-        return true;
+  /**
+   * Determines if this criteria object has no meaningful criteria set.
+   *
+   * @return true if empty, false otherwise
+   */
+  public boolean isEmpty() {
+    if (StringUtils.isNotBlank(query)) {
+      return false;
     }
+    if (StringUtils.isNotBlank(folderPath) && !folderPath.equalsIgnoreCase("//Sites/")) {
+      return false;
+    }
+    if (StringUtils.isNotBlank(searchType)) {
+      return false;
+    }
+    return true;
+  }
 }

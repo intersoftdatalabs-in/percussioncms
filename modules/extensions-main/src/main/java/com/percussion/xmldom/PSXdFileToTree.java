@@ -30,9 +30,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A Rhythmyx post-exit to load an XML document from the file system and add
- * it to the result document
+ * A Rhythmyx post-exit to load an XML document from the file system and add it to the result
+ * document
+ *
  * <p>
+ *
  * <table border="1">
  *   <tr><th>Param #</th><th>Name</th><th>Description</th><th>Default</th><tr>
  *   <tr>
@@ -53,16 +55,13 @@ import org.w3c.dom.Node;
  */
 public class PSXdFileToTree extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
-   * This method handles the post-exit request by loading the specified file,
-   * parsing it into a Document, and appending it to the parentNode in the
-   * result document.
+   * This method handles the post-exit request by loading the specified file, parsing it into a
+   * Document, and appending it to the parentNode in the result document.
    *
-   * @param params an array of objects representing the parameters. See the
-   * description under {@link PSXdFileToTree} for parameter details.
+   * @param params an array of objects representing the parameters. See the description under {@link
+   *     PSXdFileToTree} for parameter details.
    * @param request the request context for this request
-   * @param resultDoc the XML document resulting from the Rhythmyx server
-   * operation.
-   *
+   * @param resultDoc the XML document resulting from the Rhythmyx server operation.
    * @throws PSParameterMismatchException if fileName is not supplied
    * @throws PSExtensionProcessingException when a run time error is detected.
    */
@@ -104,6 +103,7 @@ public class PSXdFileToTree extends PSDefaultExtension implements IPSResultDocum
 
   /**
    * This exit will never modify the stylesheet
+   *
    * @return <code>false</code>
    */
   public boolean canModifyStyleSheet() {

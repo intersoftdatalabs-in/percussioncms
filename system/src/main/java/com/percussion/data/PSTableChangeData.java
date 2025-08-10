@@ -24,20 +24,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class encapsulates the data used to notify each
- * {@link IPSTableChangeListener} during an update event.  This class also
- * handles notifying each listener as well.
+ * This class encapsulates the data used to notify each {@link IPSTableChangeListener} during an
+ * update event. This class also handles notifying each listener as well.
  */
 public class PSTableChangeData {
   /**
    * Constructs this object, supplying the listeners to notify.
    *
-   * @param listeners An iterator over <code>1</code> or more
-   * {@link IPSTableChangeListener} objects, may not be <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalArgumentException if <code>listeners</code> is
-   * <code>null</code> or empty.
+   * @param listeners An iterator over <code>1</code> or more {@link IPSTableChangeListener}
+   *     objects, may not be <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>listeners</code> is <code>null</code> or empty.
    */
   public PSTableChangeData(Iterator listeners) {
     if (listeners == null || !listeners.hasNext())
@@ -47,13 +43,11 @@ public class PSTableChangeData {
   }
 
   /**
-   * Set the action type that should be used to create table change events to
-   * notify the listeners. Must be called before {@link #expectsColumn} or {
+   * Set the action type that should be used to create table change events to notify the listeners.
+   * Must be called before {@link #expectsColumn} or {
+   *
    * @link #addColumnValue} methods are called to set column data.
-   *
-   * @param actionType One of the <code>PSTableChangeEvent.ACTION_xxx</code>
-   * types.
-   *
+   * @param actionType One of the <code>PSTableChangeEvent.ACTION_xxx</code> types.
    * @throws IllegalArgumentException if actionType is not valid.
    */
   public void setActionType(int actionType) {
@@ -64,18 +58,15 @@ public class PSTableChangeData {
   }
 
   /**
-   * Determine if a value for the specified column is expected by any of the
-   * listeners.  May be called before <code>addColumnValue</code> to avoid
-   * having to unnecessarily convert the value to a <code>String</code>.
+   * Determine if a value for the specified column is expected by any of the listeners. May be
+   * called before <code>addColumnValue</code> to avoid having to unnecessarily convert the value to
+   * a <code>String</code>.
    *
-   * @param tableName The name of the table containing the column.  May not be
-   * <code>null</code> or empty.
-   * @param colName The name of the column, may not be <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if one of the listeners is expecting a value for
-   * this column, <code>false</code> otherwise.
-   *
+   * @param tableName The name of the table containing the column. May not be <code>null</code> or
+   *     empty.
+   * @param colName The name of the column, may not be <code>null</code> or empty.
+   * @return <code>true</code> if one of the listeners is expecting a value for this column, <code>
+   *     false</code> otherwise.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IllegalStateException if action type is not yet set.
    */
@@ -102,9 +93,7 @@ public class PSTableChangeData {
   /**
    * Adds the name of the table being processed.
    *
-   * @param tableName The name of the table being updated, may not be
-   * <code>null</code> or empty.
-   *
+   * @param tableName The name of the table being updated, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws IllegalStateException if action type is not yet set.
    */
@@ -123,20 +112,17 @@ public class PSTableChangeData {
   }
 
   /**
-   * Adds the value of the specified column so that it will be supplied in the
-   * PSTableChangeEvent when the listeners are notified.  The specified table
-   * must already have been added by a call to {@link #addTable(String)}.
+   * Adds the value of the specified column so that it will be supplied in the PSTableChangeEvent
+   * when the listeners are notified. The specified table must already have been added by a call to
+   * {@link #addTable(String)}.
    *
-   * @param tableName The name of the table containing the column.  May not be
-   * <code>null</code> or empty.
-   * @param colName The name of the column, may not be <code>null</code> or
-   * empty.
-   * @param value The value of the column, converted to a <code>String</code>.
-   * May be <code>null</code> or emtpy.
-   *
+   * @param tableName The name of the table containing the column. May not be <code>null</code> or
+   *     empty.
+   * @param colName The name of the column, may not be <code>null</code> or empty.
+   * @param value The value of the column, converted to a <code>String</code>. May be <code>null
+   *     </code> or emtpy.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws IllegalStateException if action type is not yet set or if the
-   * table has not been added.
+   * @throws IllegalStateException if action type is not yet set or if the table has not been added.
    */
   public void addColumnValue(String tableName, String colName, String value) {
     if (tableName == null || tableName.trim().length() == 0)
@@ -156,8 +142,8 @@ public class PSTableChangeData {
   }
 
   /**
-   * Notifies all listeners supplied during construction using the collected
-   * change events created for the entire update request.
+   * Notifies all listeners supplied during construction using the collected change events created
+   * for the entire update request.
    */
   public void notifyListeners() {
     Iterator events = m_tableChangeEvents.iterator();
@@ -176,11 +162,10 @@ public class PSTableChangeData {
   }
 
   /**
-   * Creates and collects the table change event for the currently executed
-   * update statement if at least one row was changed.
+   * Creates and collects the table change event for the currently executed update statement if at
+   * least one row was changed.
    *
-   * @param rowCount the number of rows changed while executing the current
-   *    update statement.
+   * @param rowCount the number of rows changed while executing the current update statement.
    */
   public void collectTableChangeEvent(int rowCount) {
     if (rowCount > 0) {
@@ -198,8 +183,8 @@ public class PSTableChangeData {
   }
 
   /**
-   * Clears all column data so that a new row of data may be processed.  Does
-   * not affect the list of listeners that will be notified.
+   * Clears all column data so that a new row of data may be processed. Does not affect the list of
+   * listeners that will be notified.
    */
   public void clearData() {
     m_tableColumns.clear();
@@ -207,19 +192,15 @@ public class PSTableChangeData {
   }
 
   /**
-   * Determine if a value for the specified column is expected by the supplied
-   * listener. Checks the cached map <code>m_listenerInterestedChanges</code>
-   * before getting from the listener.
+   * Determine if a value for the specified column is expected by the supplied listener. Checks the
+   * cached map <code>m_listenerInterestedChanges</code> before getting from the listener.
    *
-   * @param listener The listener to check with, assumed not to be
-   * <code>null</code>
-   * @param tableName The name of the table containing the column, assumed not
-   * to be <code>null</code> or empty.
+   * @param listener The listener to check with, assumed not to be <code>null</code>
+   * @param tableName The name of the table containing the column, assumed not to be <code>null
+   *     </code> or empty.
    * @param colName The name of the column to check, assumed not be <code>null
    * </code> or empty.
-   *
-   * @return <code>true</code> if the listener is interested in, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if the listener is interested in, otherwise <code>false</code>
    */
   private boolean expectsColumn(IPSTableChangeListener listener, String tableName, String colName) {
     List intColumns = getInterestedColumns(listener, tableName);
@@ -231,20 +212,16 @@ public class PSTableChangeData {
   }
 
   /**
-   * Gets the list of interested columns of the supplied listener either from
-   * cache or from listener for the specified table name and current action
-   * type set with the instance.
+   * Gets the list of interested columns of the supplied listener either from cache or from listener
+   * for the specified table name and current action type set with the instance.
    *
-   * @param listener The listener to check with, assumed not to be
-   * <code>null</code>
-   * @param tableName The name of the table containing the columns, assumed not
-   * to be <code>null</code> or empty.
-   *
-   * @return the list of columns, may be <code>null</code> if the listener is
-   * not interested to be notified for the specified table and current action
-   * type set with this instance. May be empty if it is interested in table
-   * changed event for the current action, but not interested in any of the
-   * columns.
+   * @param listener The listener to check with, assumed not to be <code>null</code>
+   * @param tableName The name of the table containing the columns, assumed not to be <code>null
+   *     </code> or empty.
+   * @return the list of columns, may be <code>null</code> if the listener is not interested to be
+   *     notified for the specified table and current action type set with this instance. May be
+   *     empty if it is interested in table changed event for the current action, but not interested
+   *     in any of the columns.
    */
   private List getInterestedColumns(IPSTableChangeListener listener, String tableName) {
     List intColumns = null;
@@ -286,19 +263,16 @@ public class PSTableChangeData {
   }
 
   /**
-   * Gets the list of interested columns of the supplied listener for the
-   * specified table name and current action type.
+   * Gets the list of interested columns of the supplied listener for the specified table name and
+   * current action type.
    *
-   * @param listener The listener to check with, assumed not to be
-   * <code>null</code>
-   * @param tableName The name of the table containing the columns, assumed not
-   * to be <code>null</code> or empty.
-   *
-   * @return the list of columns, may be <code>null</code> if the listener is
-   * not interested to be notified for the specified table and current action
-   * type set with this instance. May be empty if it is interested in table
-   * changed event for the current action, but not interested in any of the
-   * columns.
+   * @param listener The listener to check with, assumed not to be <code>null</code>
+   * @param tableName The name of the table containing the columns, assumed not to be <code>null
+   *     </code> or empty.
+   * @return the list of columns, may be <code>null</code> if the listener is not interested to be
+   *     notified for the specified table and current action type set with this instance. May be
+   *     empty if it is interested in table changed event for the current action, but not interested
+   *     in any of the columns.
    */
   private List getColumnsFromListener(IPSTableChangeListener listener, String tableName) {
     List intColumns = null;
@@ -312,13 +286,12 @@ public class PSTableChangeData {
   }
 
   /**
-   * Checks whether the supplied listener is interested in the specified table
-   * for the current action type set with the instance.
+   * Checks whether the supplied listener is interested in the specified table for the current
+   * action type set with the instance.
    *
    * @param listener listener to check, assumed not be <code>null</code>.
    * @param tableName name of the table changed, assumed not be <code>null
    * </code> or empty.
-   *
    * @return <code>true</code> if it is interested in, otherwise <code>false
    * </code>
    */
@@ -328,65 +301,59 @@ public class PSTableChangeData {
   }
 
   /**
-   * The list of listeners (instances of {{@link IPSTableChangeListener}) that
-   * are to be notified when a table change event occurs. The listeners are
-   * notified only if there is a change in a table for a specific action that
-   * is in interest of listeners. Initialized in ctor and never <code>null
+   * The list of listeners (instances of {{@link IPSTableChangeListener}) that are to be notified
+   * when a table change event occurs. The listeners are notified only if there is a change in a
+   * table for a specific action that is in interest of listeners. Initialized in ctor and never
+   * <code>null
    * </code> or modified after that.
    */
   private List m_listeners;
 
   /**
-   * The map of listener interested column changes with {@link
-   * IPSTableChangeListener} as key and list of {@link
-   * ListenerInterestedChanges} with an entry for each table and action
-   * the listener is interested in. Initially empty and gets filled up as and
-   * when the <code>expectsColumn(String, String)</code> is called by querying
-   * the listeners. Never <code>null</code>
+   * The map of listener interested column changes with {@link IPSTableChangeListener} as key and
+   * list of {@link ListenerInterestedChanges} with an entry for each table and action the listener
+   * is interested in. Initially empty and gets filled up as and when the <code>
+   * expectsColumn(String, String)</code> is called by querying the listeners. Never <code>null
+   * </code>
    */
   private Map m_listenerInterestedChanges = new HashMap();
 
   /**
-   * Represents the data modified by the update event, where the key is the
-   * table name as a <code>String</code> and value is a <code>Map</code> of the
-   * column values of the table that are updated, with column name (<code>
-   * String</code>) as key and the value is the object that was used to set the
-   * column's value converted to a <code>String</code>. Initialized to an empty
-   * map, never <code>null</code> after that.
+   * Represents the data modified by the update event, where the key is the table name as a <code>
+   * String</code> and value is a <code>Map</code> of the column values of the table that are
+   * updated, with column name (<code>
+   * String</code>) as key and the value is the object that was used to set the column's value
+   * converted to a <code>String</code>. Initialized to an empty map, never <code>null</code> after
+   * that.
    */
   private Map m_tableColumns = new HashMap();
 
   /**
-   * The current action type that this instance is dealing with, set in
-   * <code>setActionType(int)</code>. Initially set to
-   * <code>PSTableChangeEvent.ACTION_UNDEFINED</code>, and returned to this
-   * value each time <code>clearData()</code> is called.
+   * The current action type that this instance is dealing with, set in <code>setActionType(int)
+   * </code>. Initially set to <code>PSTableChangeEvent.ACTION_UNDEFINED</code>, and returned to
+   * this value each time <code>clearData()</code> is called.
    */
   private int m_actionType = PSTableChangeEvent.ACTION_UNDEFINED;
 
   /**
-   * A list of table change events collected for each update statement executed
-   * which had at least one row changed. The list may be empty or contains
-   * objects of type <code>PSTableChangeEvent</code>.
+   * A list of table change events collected for each update statement executed which had at least
+   * one row changed. The list may be empty or contains objects of type <code>PSTableChangeEvent
+   * </code>.
    */
   private List m_tableChangeEvents = new ArrayList();
 
   /**
-   * Utility class to represent the interested column changes of a listener for
-   * a table and action.
+   * Utility class to represent the interested column changes of a listener for a table and action.
    */
   private class ListenerInterestedChanges {
     /**
-     * Creates a new instance which represents the listener interested columns
-     * for specifed table name and action.
+     * Creates a new instance which represents the listener interested columns for specifed table
+     * name and action.
      *
-     * @param actionType One of the <code>PSTableChangeEvent.ACTION_xxx</code>
-     * types.
-     * @param tableName The name of the table, may not be <code>null</code>
-     * or empty.
-     * @param columns The list of column names listener interested in, may
-     * be <code>null</code> or empty.
-     *
+     * @param actionType One of the <code>PSTableChangeEvent.ACTION_xxx</code> types.
+     * @param tableName The name of the table, may not be <code>null</code> or empty.
+     * @param columns The list of column names listener interested in, may be <code>null</code> or
+     *     empty.
      * @throws IllegalArgumentException if any param is invalid.
      */
     public ListenerInterestedChanges(int actionType, String tableName, List columns) {
@@ -422,35 +389,32 @@ public class PSTableChangeData {
     }
 
     /**
-     * Gets the list of column names that the listener interested in for the
-     * specified action type and table name.
+     * Gets the list of column names that the listener interested in for the specified action type
+     * and table name.
      *
-     * @return the list of columns, may be <code>null</code> if the listener
-     * is not interested in getting notified. May be empty if the listener is
-     * interested in getting notified, but not interested in any of the
-     * columns.
+     * @return the list of columns, may be <code>null</code> if the listener is not interested in
+     *     getting notified. May be empty if the listener is interested in getting notified, but not
+     *     interested in any of the columns.
      */
     public List getColumns() {
       return m_columns;
     }
 
     /**
-     * The action type that the listener is interested in, must be one of the
-     * <code>PSTableChangeEvent.ACTION_xxx</code> types. Set in ctor and never
-     * modified after that.
+     * The action type that the listener is interested in, must be one of the <code>
+     * PSTableChangeEvent.ACTION_xxx</code> types. Set in ctor and never modified after that.
      */
     private int m_actType;
 
     /**
-     * The name of the table that the listener is interested in, initialized
-     * in ctor and never <code>null</code> or modified after that.
+     * The name of the table that the listener is interested in, initialized in ctor and never
+     * <code>null</code> or modified after that.
      */
     private String m_tableName;
 
     /**
-     * The list of column names that the listener is interested in for the
-     * specifed table and action type, initialized in ctor and never modified
-     * after that.
+     * The list of column names that the listener is interested in for the specifed table and action
+     * type, initialized in ctor and never modified after that.
      */
     private List m_columns;
   }

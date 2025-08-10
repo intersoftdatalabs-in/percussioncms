@@ -24,17 +24,13 @@ import java.util.Map;
 import javax.swing.*;
 
 /**
- * Model that may be used for a combo box with
- * the data representing all existing display formats.
+ * Model that may be used for a combo box with the data representing all existing display formats.
  */
 public class ApplicationDataComboModel extends DefaultComboBoxModel {
   /**
-   * Static call to populate the model with data and
-   * return the model
+   * Static call to populate the model with data and return the model
    *
-   * @param map Map of id and names. If <code>null</code>
-   * an empty map will be created.
-   *
+   * @param map Map of id and names. If <code>null</code> an empty map will be created.
    * @return ApplicationDataComboModel object.
    */
   public static ApplicationDataComboModel createApplicationDataComboModel(Map map) {
@@ -60,6 +56,7 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
 
   /**
    * Access method to get the selected id from the combo box.
+   *
    * @return String the id of the selected item. Returns <code>null
    *    </code> if the nothing is selected.
    */
@@ -77,11 +74,10 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
   }
 
   /**
-   * Sets the display name of the supplied id as selected item in the
-   * combo box.
+   * Sets the display name of the supplied id as selected item in the combo box.
    *
-   * @param strId the id of the item that need to be set. If
-   * <code>null</code> or empty then nothing is set.
+   * @param strId the id of the item that need to be set. If <code>null</code> or empty then nothing
+   *     is set.
    */
   public void setSelectedId(String strId) {
     if (strId == null || strId.trim().length() < 1) return;
@@ -100,9 +96,7 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
    * Re-orders the supplied list into dictionary order.
    *
    * @param values May be <code>null</code>. Assumes entries are Strings.
-   *
-   * @return The supplied object, or <code>null</code> if <code>null</code>
-   *    supplied.
+   * @return The supplied object, or <code>null</code> if <code>null</code> supplied.
    */
   private static Object[] sort(Object[] values) {
     if (values == null) return null;
@@ -128,8 +122,6 @@ public class ApplicationDataComboModel extends DefaultComboBoxModel {
     return values;
   }
 
-  /**
-   * Initialized in ctor. Never <code>null</code>, may be empty.
-   */
+  /** Initialized in ctor. Never <code>null</code>, may be empty. */
   private Map m_map = null;
 }

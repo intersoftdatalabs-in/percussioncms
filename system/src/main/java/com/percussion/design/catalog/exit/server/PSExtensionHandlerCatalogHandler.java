@@ -60,12 +60,10 @@ import org.w3c.dom.Element;
 public class PSExtensionHandlerCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
   /**
-   * Constructs an instance of this handler. This is used primarily
-   * by the cataloger.
+   * Constructs an instance of this handler. This is used primarily by the cataloger.
    *
-   * @param mgr An initialized extension manager used to perform cataloging.
-   * Must not be <code>null</code>;
-   *
+   * @param mgr An initialized extension manager used to perform cataloging. Must not be <code>null
+   *     </code>;
    * @throws IllegalArgumentException if mgr is <code>null</code>.
    */
   public PSExtensionHandlerCatalogHandler(IPSExtensionManager mgr) {
@@ -78,10 +76,9 @@ public class PSExtensionHandlerCatalogHandler extends PSCatalogRequestHandler
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_requestDTD};
@@ -90,12 +87,10 @@ public class PSExtensionHandlerCatalogHandler extends PSCatalogRequestHandler
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -141,15 +136,13 @@ public class PSExtensionHandlerCatalogHandler extends PSCatalogRequestHandler
     sendXmlData(request, retDoc);
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() { // nothing to do
   }
 
   /**
-   * A valid extension mgr used for cataloging. Initialized during construction.
-   * Never <code>null</code> after inited.
+   * A valid extension mgr used for cataloging. Initialized during construction. Never <code>null
+   * </code> after inited.
    */
   private IPSExtensionManager m_extensionMgr;
 

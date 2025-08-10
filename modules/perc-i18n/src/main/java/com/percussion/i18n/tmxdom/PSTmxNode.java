@@ -20,8 +20,8 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Element;
 
 /**
- * This abstract class provides default implementations for some generic methods
- * in the implementing interface.
+ * This abstract class provides default implementations for some generic methods in the implementing
+ * interface.
  */
 public abstract class PSTmxNode implements IPSTmxNode {
   /*
@@ -60,23 +60,20 @@ public abstract class PSTmxNode implements IPSTmxNode {
   }
 
   /**
-   * The TMX document this node associated with. Every node must be associated
-   * with a TMX document. Never <code>null</code> after the implementing class
-   * object is  constructed.
+   * The TMX document this node associated with. Every node must be associated with a TMX document.
+   * Never <code>null</code> after the implementing class object is constructed.
    */
   protected IPSTmxDocument m_PSTmxDocument = null;
 
   /**
-   * The XML DOM element this TMX node is associated with. Every TMX node wraps
-   * the DOM counterpart. Never <code>null</code> after the implementing class
-   * object is  constructed.
+   * The XML DOM element this TMX node is associated with. Every TMX node wraps the DOM counterpart.
+   * Never <code>null</code> after the implementing class object is constructed.
    */
   protected Element m_DOMElement = null;
 
   /**
-   * The parent TMX node of this node. Not <code>null</code> after the
-   * implementing class object is  constructed except if the node is the root
-   * one.
+   * The parent TMX node of this node. Not <code>null</code> after the implementing class object is
+   * constructed except if the node is the root one.
    */
   protected IPSTmxNode m_Parent = null;
 }

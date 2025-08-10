@@ -24,7 +24,8 @@ import org.w3c.dom.Document;
 /**
  * Used to generate trace message for Post Exit XML Trace message type (0x1000).
  *
- * Prints out the entire XML document sent to the first exit and returned from each successive exit.
+ * <p>Prints out the entire XML document sent to the first exit and returned from each successive
+ * exit.
  */
 // REFACTORED: CP-JAVA11
 public class PSTracePostExitXml extends PSTraceMessage {
@@ -45,16 +46,12 @@ public class PSTracePostExitXml extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an object containing the information required for the trace
-   * message.  Two cases are handled:
-   * initial doc:
-   * - Document the doc
-   * after each exit:
-   * - Document the doc
-   * - String Exitname
+   * @param source an object containing the information required for the trace message. Two cases
+   *     are handled: initial doc: - Document the doc after each exit: - Document the doc - String
+   *     Exitname
    * @return the message body
    * @roseuid 39FEE2F40232
    */

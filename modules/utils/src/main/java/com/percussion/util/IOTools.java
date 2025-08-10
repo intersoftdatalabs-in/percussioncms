@@ -30,48 +30,40 @@ import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.zip.CRC32;
 
-/**
- * The IOTools class contains IO helper utilities.
- */
+/** The IOTools class contains IO helper utilities. */
 @Deprecated // Use commons io
 public class IOTools {
   /**
    * Private constructor.
    *
-   * This class doesn't need to ever be constructed.
-   * It contains only static methods.
+   * <p>This class doesn't need to ever be constructed. It contains only static methods.
    */
   private IOTools() {}
 
   /**
-   * Convenience method.
-   * Copies all of the bytes from the InputStream to the
-   * OutputStream using a default buffer size of 8k.
+   * Convenience method. Copies all of the bytes from the InputStream to the OutputStream using a
+   * default buffer size of 8k.
    *
-   * @see  #copyStream(InputStream, OutputStream, int)
+   * @see #copyStream(InputStream, OutputStream, int)
    */
   public static long copyStream(InputStream in, OutputStream out) throws IOException {
     return copyStream(in, out, 8192);
   }
 
   /**
-   * Convenience method.
-   * Copies all of the bytes from the InputStream to the
-   * OutputStream using a default buffer size of 8k.
+   * Convenience method. Copies all of the bytes from the InputStream to the OutputStream using a
+   * default buffer size of 8k.
    *
-   * @see  #copyStream(InputStream, OutputStream, int)
+   * @see #copyStream(InputStream, OutputStream, int)
    */
   public static long copyStream(InputStream in, OutputStream out, int bufSize) throws IOException {
     return copyStream(in, out, bufSize, -1L);
   }
 
   /**
-   * Convenience method.
-   * Copies all of the bytes from the InputStream to the
-   * out file.
+   * Convenience method. Copies all of the bytes from the InputStream to the out file.
    *
-   * @param in Never <code>null</code> caller is responsible to
-   *           close.
+   * @param in Never <code>null</code> caller is responsible to close.
    * @param outFile Never <code>null</code>.
    * @return The number of bytes copied.
    * @throws IOException
@@ -90,28 +82,17 @@ public class IOTools {
   }
 
   /**
-   * Copies all of the bytes from the InputStream to the
-   * OutputStream.  The output buffer will be flushed, but
-   * neither stream will be closed by this method.  It is
-   * the responsibility of the caller to close both streams.
+   * Copies all of the bytes from the InputStream to the OutputStream. The output buffer will be
+   * flushed, but neither stream will be closed by this method. It is the responsibility of the
+   * caller to close both streams.
    *
-   * @param   in  The input stream to get bytes from.
-   *             Never <code>null</code>.
-   *
-   * @param   out The output stream to send bytes to.
-   *             Never <code>null</code>.
-   *
-   * @param   bufSize The number of bytes to transfer
-   *             at a time.
-   *
-   * @param   limit the number of bytes copied, if  -1 then no limit.
-   *
-   * @return  The number of bytes transferred.
-   *
-   * @throws  IOException  If an I/O exception occurs during stream
-   *          processing.
-   *
-   * @throws  IllegalArgumentException If any argument is invalid.
+   * @param in The input stream to get bytes from. Never <code>null</code>.
+   * @param out The output stream to send bytes to. Never <code>null</code>.
+   * @param bufSize The number of bytes to transfer at a time.
+   * @param limit the number of bytes copied, if -1 then no limit.
+   * @return The number of bytes transferred.
+   * @throws IOException If an I/O exception occurs during stream processing.
+   * @throws IllegalArgumentException If any argument is invalid.
    */
   public static long copyStream(InputStream in, OutputStream out, int bufSize, long limit)
       throws IOException {
@@ -145,9 +126,7 @@ public class IOTools {
   }
 
   /**
-   * Convenience method.
-   * Copies all of the bytes from the InputStream to a
-   * Writer with an 8k buffer.
+   * Convenience method. Copies all of the bytes from the InputStream to a Writer with an 8k buffer.
    *
    * @see #writeStream(Reader, Writer, int)
    */
@@ -156,27 +135,17 @@ public class IOTools {
   }
 
   /**
-   * Copies all of the characters from the supplied Reader
-   * to a Writer.  The output buffer will be flushed, but
-   * neither stream will be closed by this method.  It is
-   * the responsibility of the caller to close both streams.
+   * Copies all of the characters from the supplied Reader to a Writer. The output buffer will be
+   * flushed, but neither stream will be closed by this method. It is the responsibility of the
+   * caller to close both streams.
    *
-   * @param   in  The input reader to get characters from.
-   *             Never <code>null</code>.
-   *
-   * @param   out The output writer to send characters to.
-   *             Never <code>null</code>.
-   *
-   * @param   bufSize The number of characters to transfer
-   *          at a time.  If the value specified is zero or
-   *          negative, the default size (8k) will be used.
-   *
-   * @return  The number of characters transferred.
-   *
-   * @throws  IOException  If an I/O exception occurs during stream
-   *          processing.
-   *
-   * @throws  IllegalArgumentException If any argument is invalid.
+   * @param in The input reader to get characters from. Never <code>null</code>.
+   * @param out The output writer to send characters to. Never <code>null</code>.
+   * @param bufSize The number of characters to transfer at a time. If the value specified is zero
+   *     or negative, the default size (8k) will be used.
+   * @return The number of characters transferred.
+   * @throws IOException If an I/O exception occurs during stream processing.
+   * @throws IllegalArgumentException If any argument is invalid.
    */
   public static long writeStream(Reader in, Writer out, int bufSize) throws IOException {
     if (bufSize <= 0) bufSize = 8192; // Default to 8k.
@@ -208,10 +177,8 @@ public class IOTools {
    *
    * @param alpha compared to <code>bravo</code>, not <code>null</code>.
    * @param bravo compared to <code>alpha</code>, not <code>null</code>.
-   *
-   * @return <code>true</code> if the two streams are the same size and
-   * identical; <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the two streams are the same size and identical; <code>false
+   *     </code> otherwise.
    * @throws IllegalArgumentException if either parameter is <code>null</code>.
    * @throws IOException if a problem occurs reading from the streams.
    */
@@ -251,10 +218,8 @@ public class IOTools {
    *
    * @param alpha compared to <code>bravo</code>, not <code>null</code>.
    * @param bravo compared to <code>alpha</code>, not <code>null</code>.
-   *
-   * @return <code>true</code> if the two readers are the same size and have
-   * identical characters; <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the two readers are the same size and have identical characters;
+   *     <code>false</code> otherwise.
    * @throws IllegalArgumentException if either parameter is <code>null</code>.
    * @throws IOException if an error occurs while reading.
    */
@@ -291,8 +256,8 @@ public class IOTools {
   }
 
   /**
-   * Copy file helper.  Note that the underlying method of copying may result
-   * in a lock on the files for a few seconds following the copy.
+   * Copy file helper. Note that the underlying method of copying may result in a lock on the files
+   * for a few seconds following the copy.
    *
    * @param source never <code>null</code>.
    * @param dest never <code>null</code>.
@@ -323,7 +288,8 @@ public class IOTools {
   }
 
   /**
-   * Copy file helper.  Uses streams instead of channels.
+   * Copy file helper. Uses streams instead of channels.
+   *
    * @param source never <code>null</code>.
    * @param dest never <code>null</code>.
    * @throws IOException on any file error.
@@ -350,9 +316,8 @@ public class IOTools {
   }
 
   /**
-   * Copies the provided file to the provided directory.
-   * If the provided file is a directory copies it recursively.
-   * If any of the copied files already exist they are overwritten.
+   * Copies the provided file to the provided directory. If the provided file is a directory copies
+   * it recursively. If any of the copied files already exist they are overwritten.
    *
    * @param file file to copy, never <code>null</code>.
    * @param targetDir directory to create copies in, never <code>null</code>.
@@ -377,8 +342,7 @@ public class IOTools {
    * Copies the contents of the directory to the provided directories.
    *
    * @param dir directory to copy, never <code>null</code>.
-   * @param targetDirs list of directories to create copies in, never
-   * <code>null</code>.
+   * @param targetDirs list of directories to create copies in, never <code>null</code>.
    */
   public static void copyToDirs(File dir, List targetDirs) throws IOException {
     if (dir == null) throw new IllegalArgumentException("dir may not be null");
@@ -396,6 +360,7 @@ public class IOTools {
 
   /**
    * Deletes file or directory. If directory is not empty recursively deletes it.
+   *
    * @param file file to delete.
    */
   public static void deleteFile(File file) {
@@ -434,8 +399,8 @@ public class IOTools {
   }
 
   /**
-   * Get the stream content as string (utf-8 encoded). It is
-   * the responsibility of the caller to close the stream.
+   * Get the stream content as string (utf-8 encoded). It is the responsibility of the caller to
+   * close the stream.
    *
    * @param stream stream to read content from, may not be <code>null</code>.
    * @return content as string, never <code>null</code>, may be empty.
@@ -464,7 +429,6 @@ public class IOTools {
    * Creates a copy of the given file in the default temporary directory
    *
    * @param file the file to copy, may not be <code>null</code>
-   *
    * @return the temporary file
    * @throws IOException
    */
@@ -489,11 +453,10 @@ public class IOTools {
   }
 
   /**
-   * Creates a backup of the given file by appending .000, .001,
-   * etc. to its name.
+   * Creates a backup of the given file by appending .000, .001, etc. to its name.
    *
-   * @param file the resulting backup file will be file.000,...,etc., may not
-   * be <code>null</code> and must exist.
+   * @param file the resulting backup file will be file.000,...,etc., may not be <code>null</code>
+   *     and must exist.
    * @return a file reference to the newly created backup.
    * @throws IOException
    */

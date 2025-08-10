@@ -23,15 +23,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSForeignKeyCatalogHandler class implements cataloging of
- * foreign keys. This request type is used to locate the columns which
- * are related to other tables. Foreign key columns usually refer to the
- * primary key of another table. This allows a unique relationship to be
- * defined between the two tables. When a foreign key is defined, values
- * cannot be inserted which do not exist in the table being referenced.
- * <p>
- * Driver catalog requests are sent to the server using the DriverCatalog
- * XML document. Its definition is as follows:
+ * The PSForeignKeyCatalogHandler class implements cataloging of foreign keys. This request type is
+ * used to locate the columns which are related to other tables. Foreign key columns usually refer
+ * to the primary key of another table. This allows a unique relationship to be defined between the
+ * two tables. When a foreign key is defined, values cannot be inserted which do not exist in the
+ * table being referenced.
+ *
+ * <p>Driver catalog requests are sent to the server using the DriverCatalog XML document. Its
+ * definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXForeignKeyCatalog (datasource?, tableName)&gt;
  *
@@ -44,8 +44,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName            (#PCDATA)&gt;
  * </pre>
  *
- * The PSXForeignKeyCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXForeignKeyCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXForeignKeyCatalogResults (datasource, tableName,
  *       ForeignKey*)&gt;
@@ -72,21 +73,20 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT columnName                  (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSForeignKeyCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSForeignKeyCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -107,11 +107,8 @@ public class PSForeignKeyCatalogHandler implements IPSCatalogHandler {
    *       <td>yes</td></tr>
    * </table>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

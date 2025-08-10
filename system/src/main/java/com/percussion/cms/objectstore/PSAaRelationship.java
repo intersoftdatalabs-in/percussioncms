@@ -32,37 +32,32 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This class adds a few methods that are specific to Active Assembly category
- * of relationships to make it more convenient and easy to manipulate active
- * assembly relationships. All the relationship properties that are specific to
- * active assembly are exposed in this class. Note these can also be manipulated
- * from the map returned by {@link PSRelationship#getProperties()} object
- * however, it must be avoided and may result in expected behavior. For example,
- * if one sets the sort order using the property map, it will most probably be
- * overridden by the active assembly processor.
+ * This class adds a few methods that are specific to Active Assembly category of relationships to
+ * make it more convenient and easy to manipulate active assembly relationships. All the
+ * relationship properties that are specific to active assembly are exposed in this class. Note
+ * these can also be manipulated from the map returned by {@link PSRelationship#getProperties()}
+ * object however, it must be avoided and may result in expected behavior. For example, if one sets
+ * the sort order using the property map, it will most probably be overridden by the active assembly
+ * processor.
  *
  * @author RammohanVangapalli
  */
 public class PSAaRelationship extends PSRelationship {
   /**
-   * Construct a new active assembly relaionship knowing the owner locator,
-   * contentid of the dependent, id of the slot the dependent belongs and the
-   * variantid of the dependent.
+   * Construct a new active assembly relaionship knowing the owner locator, contentid of the
+   * dependent, id of the slot the dependent belongs and the variantid of the dependent.
    *
-   * @param owner locator of the parent or owner item of the relationship, must
-   *           not be <code>null</code>.
-   * @param dependent locator of the dependent item of the relationship, must
-   *           not be <code>null</code>.
-   * @param slot slot in the parent item's variant to which the dependent
-   *           belongs to. Must not be <code>null</code>.
-   * @param variant variant of the dependent item related to the owner item via
-   *           this relationship. Must not be <code>null</code>.
-   * @param config relationship config object that the slot accepts, must not
-   *           be <code>null</code>.
-   *
-   * @deprecated use
-   *             {@link #PSAaRelationship(PSLocator, PSLocator, IPSTemplateSlot, IPSAssemblyTemplate)}
-   *             instead.
+   * @param owner locator of the parent or owner item of the relationship, must not be <code>null
+   *     </code>.
+   * @param dependent locator of the dependent item of the relationship, must not be <code>null
+   *     </code>.
+   * @param slot slot in the parent item's variant to which the dependent belongs to. Must not be
+   *     <code>null</code>.
+   * @param variant variant of the dependent item related to the owner item via this relationship.
+   *     Must not be <code>null</code>.
+   * @param config relationship config object that the slot accepts, must not be <code>null</code>.
+   * @deprecated use {@link #PSAaRelationship(PSLocator, PSLocator, IPSTemplateSlot,
+   *     IPSAssemblyTemplate)} instead.
    */
   @Deprecated
   public PSAaRelationship(
@@ -77,19 +72,16 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Constructs an active assembly relationship given the relationship, slot
-   * and the variant objects this relationship is associated with. The slotid
-   * and variantid properties from the source relationship (if present) are
-   * ignored. Exception is thrown if the relationship config name of the
-   * supplied relationship does not match with that for the supplied slot.
-   * @param relationship source relationship object must not be
-   * <code>null</code>.
+   * Constructs an active assembly relationship given the relationship, slot and the variant objects
+   * this relationship is associated with. The slotid and variantid properties from the source
+   * relationship (if present) are ignored. Exception is thrown if the relationship config name of
+   * the supplied relationship does not match with that for the supplied slot.
+   *
+   * @param relationship source relationship object must not be <code>null</code>.
    * @param slot must not be <code>null</code>.
    * @param variant must not be <code>null</code>.
-   *
-   * @deprecated use
-   *             {@link #PSAaRelationship(PSRelationship, IPSTemplateSlot, IPSAssemblyTemplate)}
-   *             instead.
+   * @deprecated use {@link #PSAaRelationship(PSRelationship, IPSTemplateSlot, IPSAssemblyTemplate)}
+   *     instead.
    */
   @Deprecated
   public PSAaRelationship(
@@ -100,24 +92,19 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Constructs an active assembly relationship given the relationship, slot
-   * and the template objects this relationship is associated with. The slot id
-   * and template id properties from the source relationship (if present) are
-   * ignored.
+   * Constructs an active assembly relationship given the relationship, slot and the template
+   * objects this relationship is associated with. The slot id and template id properties from the
+   * source relationship (if present) are ignored.
    *
-   * @param relationship source relationship object must not be
-   * <code>null</code>.
-   * @param slot the slot object, must not be <code>null</code>. This is a
-   *    transient object and will not be persisted with the relationship when
-   *    the relationship instance is saved in the repository.
-   * @param template the template object, must not be <code>null</code>. This
-   *    is a transient object and will not be persisted with the relationship
-   *    when the relationship instance is saved in the repository.
-   *
-   * @throws IllegalArgumentException if the relationship config of the
-   *    supplied relationship does not contain user properties for slot id and
-   *    template id.
-   *
+   * @param relationship source relationship object must not be <code>null</code>.
+   * @param slot the slot object, must not be <code>null</code>. This is a transient object and will
+   *     not be persisted with the relationship when the relationship instance is saved in the
+   *     repository.
+   * @param template the template object, must not be <code>null</code>. This is a transient object
+   *     and will not be persisted with the relationship when the relationship instance is saved in
+   *     the repository.
+   * @throws IllegalArgumentException if the relationship config of the supplied relationship does
+   *     not contain user properties for slot id and template id.
    * @since 6.0
    */
   @SuppressWarnings("deprecation")
@@ -127,20 +114,17 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Constructs an active assembly relationship between the specified owner
-   * and dependent, assigning the specified slot and template as properties
-   * of the relationship.  The relationship configuration is determined by
-   * the slot.
+   * Constructs an active assembly relationship between the specified owner and dependent, assigning
+   * the specified slot and template as properties of the relationship. The relationship
+   * configuration is determined by the slot.
    *
-   * @param owner locator of the parent or owner item of the relationship, must
-   * not be <code>null</code>.
-   * @param dependent locator of the dependent item of the relationship,
-   * must not be <code>null</code>.
-   * @param slot the slot that will be assigned to the relationship, not
-   * <code>null</code>.
-   * @param template the template of the dependent item that will be assigned to
-   * the relationship. Must not be <code>null</code>.
-   *
+   * @param owner locator of the parent or owner item of the relationship, must not be <code>null
+   *     </code>.
+   * @param dependent locator of the dependent item of the relationship, must not be <code>null
+   *     </code>.
+   * @param slot the slot that will be assigned to the relationship, not <code>null</code>.
+   * @param template the template of the dependent item that will be assigned to the relationship.
+   *     Must not be <code>null</code>.
    * @since 6.0
    */
   @SuppressWarnings("deprecation")
@@ -161,16 +145,13 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Constructs an instance from the specified relationship object.
-   * <p>
-   * Note, it is caller's responsibility to set the slot and variant objects
-   * for this instance.
    *
-   * @param source the source object, may not be <code>null</code> and
-   *    its category must be
-   *    {@link PSRelationshipConfig#CATEGORY_ACTIVE_ASSEMBLY}. The properties
-   *    of both {@link IPSHtmlParameters#SYS_SLOTID} and
-   *    {@link IPSHtmlParameters#SYS_VARIANTID} must not be <code>null</code>
-   *    or empty.
+   * <p>Note, it is caller's responsibility to set the slot and variant objects for this instance.
+   *
+   * @param source the source object, may not be <code>null</code> and its category must be {@link
+   *     PSRelationshipConfig#CATEGORY_ACTIVE_ASSEMBLY}. The properties of both {@link
+   *     IPSHtmlParameters#SYS_SLOTID} and {@link IPSHtmlParameters#SYS_VARIANTID} must not be
+   *     <code>null</code> or empty.
    */
   public PSAaRelationship(PSRelationship source) {
     super(source);
@@ -193,11 +174,11 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Set the slot for the dependent itens of the the relationship.
-   * @param slot slot in the parent item's variant to which the dependent
-   * belongs to, must not be <code>null</code>.
-   * @param config relationship config object that the slot accepts, must not
-   * be <code>null</code>. This is not used.
    *
+   * @param slot slot in the parent item's variant to which the dependent belongs to, must not be
+   *     <code>null</code>.
+   * @param config relationship config object that the slot accepts, must not be <code>null</code>.
+   *     This is not used.
    * @deprecated use {@link #setSlot(PSSlotType)} instead.
    */
   @Deprecated
@@ -211,18 +192,15 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Set the slot for the dependent item of the the relationship.
-   * <p>
-   * Note, the specified slot is a transient object. The association of the
-   * specified slot and the relationship will be persisted when the
-   * relationship is saved in the repository, but not the slot instance itself.
    *
-   * @param slot slot in the parent item's template to which the dependent
-   *    belongs to, must not be <code>null</code>.
+   * <p>Note, the specified slot is a transient object. The association of the specified slot and
+   * the relationship will be persisted when the relationship is saved in the repository, but not
+   * the slot instance itself.
    *
-   * @throws IllegalArgumentException if the
-   *    {@link IPSHtmlParameters#SYS_SLOTID} is not one of the registered
-   *    user properties.
-   *
+   * @param slot slot in the parent item's template to which the dependent belongs to, must not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if the {@link IPSHtmlParameters#SYS_SLOTID} is not one of the
+   *     registered user properties.
    * @deprecated use {@link #setSlot(IPSTemplateSlot)} instead.
    */
   @Deprecated
@@ -235,17 +213,15 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Set the slot for the dependent item of the the relationship.
-   * <p>
-   * Note, the specified slot is a transient object. The association of the
-   * specified slot and the relationship will be persisted when the
-   * relationship is saved in the repository, but not the slot instance itself.
    *
-   * @param slot slot in the parent item's template to which the dependent
-   *    belongs to, must not be <code>null</code>.
+   * <p>Note, the specified slot is a transient object. The association of the specified slot and
+   * the relationship will be persisted when the relationship is saved in the repository, but not
+   * the slot instance itself.
    *
-   * @throws IllegalArgumentException if the
-   *    {@link IPSHtmlParameters#SYS_SLOTID} is not one of the registered
-   *    user properties.
+   * @param slot slot in the parent item's template to which the dependent belongs to, must not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if the {@link IPSHtmlParameters#SYS_SLOTID} is not one of the
+   *     registered user properties.
    */
   public void setSlot(IPSTemplateSlot slot) {
     if (slot == null) throw new IllegalArgumentException("slot must not be null");
@@ -255,18 +231,15 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Set the variant for the dependent items in the relationships.
-   * <p>
-   * Note, the specified variant is a transient object. The association of the
-   * specified variant and the relationship will be persisted when the
-   * relationship is saved in the repository, but not the variant instance
-   * itself.
    *
-   * @param variant the variant to set for the dependent item in the
-   *    relationship, must not be <code>null</code>.
+   * <p>Note, the specified variant is a transient object. The association of the specified variant
+   * and the relationship will be persisted when the relationship is saved in the repository, but
+   * not the variant instance itself.
    *
-   * @throws IllegalArgumentException if the
-   *    {@link IPSHtmlParameters#SYS_VARIANTID} is not one of the registered
-   *    user properties.
+   * @param variant the variant to set for the dependent item in the relationship, must not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if the {@link IPSHtmlParameters#SYS_VARIANTID} is not one of
+   *     the registered user properties.
    */
   @SuppressWarnings("deprecation")
   public void setVariant(PSContentTypeTemplate variant) {
@@ -278,18 +251,15 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Set the template for the dependent items in the relationships.
-   * <p>
-   * Note, the specified template is a transient object. The association of the
-   * specified template and the relationship will be persisted when the
-   * relationship is saved in the repository, but not the template instance
-   * itself.
    *
-   * @param template the template to set for the dependent item in the
-   *    relationship, must not be <code>null</code>.
+   * <p>Note, the specified template is a transient object. The association of the specified
+   * template and the relationship will be persisted when the relationship is saved in the
+   * repository, but not the template instance itself.
    *
-   * @throws IllegalArgumentException if the
-   *    {@link IPSHtmlParameters#SYS_VARIANTID} is not one of the registered
-   *    user properties.
+   * @param template the template to set for the dependent item in the relationship, must not be
+   *     <code>null</code>.
+   * @throws IllegalArgumentException if the {@link IPSHtmlParameters#SYS_VARIANTID} is not one of
+   *     the registered user properties.
    */
   @SuppressWarnings("deprecation")
   public void setTemplate(IPSAssemblyTemplate template) {
@@ -300,14 +270,12 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Access method for the slot of the dependent item in the relationship.
-   * <p>
-   * Note, the returned slot is a transient object. The association of the
-   * slot and the relationship will be persisted when the relationship is
-   * saved in the repository, but not the slot instance itself.
    *
-   * @return slot object for the dependent item in the relationship.
-   *    Never <code>null</code>.
+   * <p>Note, the returned slot is a transient object. The association of the slot and the
+   * relationship will be persisted when the relationship is saved in the repository, but not the
+   * slot instance itself.
    *
+   * @return slot object for the dependent item in the relationship. Never <code>null</code>.
    * @throws IllegalStateException if the slot object has not been set yet.
    */
   public PSSlotType getSlot() {
@@ -317,24 +285,21 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Gets the name of the slot, where the id of the slot is a property of this
-   * relationship. However, the name of the slot a transient data, and will
-   * not be persisted with this object.
+   * Gets the name of the slot, where the id of the slot is a property of this relationship.
+   * However, the name of the slot a transient data, and will not be persisted with this object.
    *
-   * @return slot name, may be <code>null</code> if the slot object has not
-   *   been set.
+   * @return slot name, may be <code>null</code> if the slot object has not been set.
    */
   public String getSlotName() {
     return (m_slot == null) ? null : m_slot.getSlotName();
   }
 
   /**
-   * Gets the name of the template, where the id of the template is a property
-   * of this relationship. However, the name of the template is a transient
-   * data, and will not be persisted with this object.
+   * Gets the name of the template, where the id of the template is a property of this relationship.
+   * However, the name of the template is a transient data, and will not be persisted with this
+   * object.
    *
-   * @return the template name, may be <code>null</code> if the tempate object
-   *   has not been set.
+   * @return the template name, may be <code>null</code> if the tempate object has not been set.
    */
   @SuppressWarnings("deprecation")
   public String getTemplateName() {
@@ -363,14 +328,12 @@ public class PSAaRelationship extends PSRelationship {
 
   /**
    * Access method for the variant of the dependent item in the relationship.
-   * <p>
-   * Note, the returned variant is a transient object. The association of the
-   * variant and the relationship will be persisted when the relationship is
-   * saved in the repository, but not the variant instance itself.
    *
-   * @return variant object for the dependent item in the relationship.
-   *    Never <code>null</code>.
+   * <p>Note, the returned variant is a transient object. The association of the variant and the
+   * relationship will be persisted when the relationship is saved in the repository, but not the
+   * variant instance itself.
    *
+   * @return variant object for the dependent item in the relationship. Never <code>null</code>.
    * @throws IllegalStateException if the variant object has not been set yet.
    */
   @SuppressWarnings("deprecation")
@@ -382,8 +345,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Sets the sort rank property of the relationship. The sort rank is the
-   * position of the dependent item in the slot of its parent item.
+   * Sets the sort rank property of the relationship. The sort rank is the position of the dependent
+   * item in the slot of its parent item.
    *
    * @param sortRank zero based number.
    */
@@ -392,8 +355,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Gets the sort rank property of the relationship. The sort rank is the
-   * position of the dependent item in the slot of its parent item.
+   * Gets the sort rank property of the relationship. The sort rank is the position of the dependent
+   * item in the slot of its parent item.
    *
    * @return zero based number. Default to <code>0</code>.
    */
@@ -415,8 +378,8 @@ public class PSAaRelationship extends PSRelationship {
   /**
    * Gets the site id property of the relationship.
    *
-   * @return the value of the site id property. It may be <code>null</code>
-   *    if the site id property does not exist in this relationship.
+   * @return the value of the site id property. It may be <code>null</code> if the site id property
+   *     does not exist in this relationship.
    */
   public IPSGuid getSiteId() {
     String siteId = getProperty(IPSHtmlParameters.SYS_SITEID);
@@ -432,8 +395,8 @@ public class PSAaRelationship extends PSRelationship {
   /**
    * Sets the folder id property of the relationship.
    *
-   * @param folderId the new folder id. The value of the folder id property
-   *    will be removed if it is <code>-1</code>.
+   * @param folderId the new folder id. The value of the folder id property will be removed if it is
+   *     <code>-1</code>.
    */
   public void setFolderId(int folderId) {
     if (folderId != -1) {
@@ -446,8 +409,8 @@ public class PSAaRelationship extends PSRelationship {
   /**
    * Gets the folder id property of the relationship.
    *
-   * @return the value of the folder id property. It may be <code>-1</code>
-   *    if the folder id property does not exist in this relationship.
+   * @return the value of the folder id property. It may be <code>-1</code> if the folder id
+   *     property does not exist in this relationship.
    */
   public int getFolderId() {
     String folderId = getProperty(IPSHtmlParameters.SYS_FOLDERID);
@@ -460,8 +423,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Sets the site name of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Sets the site name of the relationship. It is a transient property, which will not be persisted
+   * in the repository.
    *
    * @param siteName the site name, may be <code>null</code> or empty.
    */
@@ -470,8 +433,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Gets the site name of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Gets the site name of the relationship. It is a transient property, which will not be persisted
+   * in the repository.
    *
    * @return site name, may be <code>null</code> or empty.
    */
@@ -480,8 +443,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Sets the folder name of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Sets the folder name of the relationship. It is a transient property, which will not be
+   * persisted in the repository.
    *
    * @param folderName the site name, may be <code>null</code> or empty.
    */
@@ -490,8 +453,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Gets the folder name of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Gets the folder name of the relationship. It is a transient property, which will not be
+   * persisted in the repository.
    *
    * @return folder name, may be <code>null</code> or empty.
    */
@@ -500,8 +463,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Sets the folder path of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Sets the folder path of the relationship. It is a transient property, which will not be
+   * persisted in the repository.
    *
    * @param folderPath the folder path, may be <code>null</code> or empty.
    */
@@ -510,8 +473,8 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Gets the folder path of the relationship. It is a transient property,
-   * which will not be persisted in the repository.
+   * Gets the folder path of the relationship. It is a transient property, which will not be
+   * persisted in the repository.
    *
    * @return folder path, may be <code>null</code> or empty.
    */
@@ -519,31 +482,25 @@ public class PSAaRelationship extends PSRelationship {
     return m_folderPath;
   }
 
-  /**
-   * The site name, see {@link #getSiteName()} for description.
-   * Default to <code>null</code>.
-   */
+  /** The site name, see {@link #getSiteName()} for description. Default to <code>null</code>. */
   private String m_siteName = null;
 
   /**
-   * The folder name, see {@link #getFolderName()} for description.
-   * Default to <code>null</code>.
+   * The folder name, see {@link #getFolderName()} for description. Default to <code>null</code>.
    */
   private String m_folderName = null;
 
   /**
-   * The folder path, see {@link #getFolderPath()} for description.
-   * Default to <code>null</code>.
+   * The folder path, see {@link #getFolderPath()} for description. Default to <code>null</code>.
    */
   private String m_folderPath = null;
 
   /**
-   * Just like {@link PSRelationship#getAllUserProperties()}, except it
-   * excludes Active Assembly specific user properties.
+   * Just like {@link PSRelationship#getAllUserProperties()}, except it excludes Active Assembly
+   * specific user properties.
    *
-   * @return the user properties without Active Assembly specific properties,
-   *   never <code>null</code>.
-   *
+   * @return the user properties without Active Assembly specific properties, never <code>null
+   *     </code>.
    * @see com.percussion.design.objectstore.PSRelationship#getAllUserProperties()
    */
   public List<PSRelationshipPropertyData> getAllAaUserProperties() {
@@ -555,14 +512,12 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * Determines if the specified name is one of the predefined (known)
-   * user property of the Active Assembly relationship.
+   * Determines if the specified name is one of the predefined (known) user property of the Active
+   * Assembly relationship.
    *
-   * @param pname the property name in question, may be <code>null</code>
-   *  or empty.
-   *
-   * @return <code>true</code> if the specified name is one of the predefined
-   *  user properties; <code>false</code> otherwise.
+   * @param pname the property name in question, may be <code>null</code> or empty.
+   * @return <code>true</code> if the specified name is one of the predefined user properties;
+   *     <code>false</code> otherwise.
    */
   private boolean isKnownProperty(String pname) {
     for (String name : ms_knownUserProps) {
@@ -573,10 +528,9 @@ public class PSAaRelationship extends PSRelationship {
   }
 
   /**
-   * List of relationship poperties that are specific to Active Assembly
-   * category of relationships. These are are exposed to the implementer by
-   * names and user never should need to manipulate as relationship propertes
-   * from the base class.
+   * List of relationship poperties that are specific to Active Assembly category of relationships.
+   * These are are exposed to the implementer by names and user never should need to manipulate as
+   * relationship propertes from the base class.
    */
   private static String[] ms_knownUserProps =
       new String[] {
@@ -588,37 +542,35 @@ public class PSAaRelationship extends PSRelationship {
       };
 
   /**
-   * Reference to the slot object corresponding to the slotid this active
-   * assembly relationship is associated with. Set in the constructor or
-   * whenever the slis set.
-   * <p>
-   * Note, the slot is a transient object. The association of the
-   * slot and the relationship will be persisted when the relationship is
-   * saved in the repository, but not the slot instance itself.
+   * Reference to the slot object corresponding to the slotid this active assembly relationship is
+   * associated with. Set in the constructor or whenever the slis set.
    *
-   * @see #PSAaRelationship(PSLocator, PSLocator, PSSlotType, PSContentTypeTemplate, PSRelationshipConfig)
+   * <p>Note, the slot is a transient object. The association of the slot and the relationship will
+   * be persisted when the relationship is saved in the repository, but not the slot instance
+   * itself.
+   *
+   * @see #PSAaRelationship(PSLocator, PSLocator, PSSlotType, PSContentTypeTemplate,
+   *     PSRelationshipConfig)
    * @see PSAaRelationship#setSlot(PSSlotType, PSRelationshipConfig)
    */
   @SuppressWarnings("deprecation")
   private PSSlotType m_slot = null;
 
   /**
-   * Reference to the variant object corresponding to the variantid this active
-   * assembly relationship is associated with. Set in the constructor or
-   * whenever the avariantid is set.
-   * <p>
-   * Note, the variant is a transient object. The association of the
-   * variant and the relationship will be persisted when the relationship is
-   * saved in the repository, but not the variant instance itself.
+   * Reference to the variant object corresponding to the variantid this active assembly
+   * relationship is associated with. Set in the constructor or whenever the avariantid is set.
    *
-   * @see #PSAaRelationship(PSLocator, PSLocator, PSSlotType, PSContentTypeTemplate, PSRelationshipConfig)
+   * <p>Note, the variant is a transient object. The association of the variant and the relationship
+   * will be persisted when the relationship is saved in the repository, but not the variant
+   * instance itself.
+   *
+   * @see #PSAaRelationship(PSLocator, PSLocator, PSSlotType, PSContentTypeTemplate,
+   *     PSRelationshipConfig)
    * @see #setVariant(PSContentTypeTemplate)
    */
   @SuppressWarnings("deprecation")
   private PSContentTypeTemplate m_variant = null;
 
-  /**
-   * Generated serial #
-   */
+  /** Generated serial # */
   private static final long serialVersionUID = -2373447152305534692L;
 }

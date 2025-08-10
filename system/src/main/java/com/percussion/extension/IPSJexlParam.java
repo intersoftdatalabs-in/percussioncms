@@ -23,8 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Describe a single parameter. Parameter descriptions are in the order that
- * the annotated method uses them.
+ * Describe a single parameter. Parameter descriptions are in the order that the annotated method
+ * uses them.
  *
  * @author dougrand
  */

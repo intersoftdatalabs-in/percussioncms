@@ -37,38 +37,29 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * The base class for handling all extensions.
- */
+/** The base class for handling all extensions. */
 public abstract class PSExtensionHandler implements IPSExtensionHandler {
   /**
-   * Initializes this extension handler. The extension manager will
-   * call this method after construction and before calling any
-   * other methods.
-   * <p>
-   * Note that the extension handler will have permission to read
-   * and write any files or directiors under <CODE>codeRoot</CODE>
-   * (recursively). The handler will not have permissions for
+   * Initializes this extension handler. The extension manager will call this method after
+   * construction and before calling any other methods.
+   *
+   * <p>Note that the extension handler will have permission to read and write any files or
+   * directiors under <CODE>codeRoot</CODE> (recursively). The handler will not have permissions for
    * any other files or directories.
    *
-   * @param def The extension definition containing initialization
-   * parameters and other config info. The required init params are:
-   * <UL>
-   * <LI><B>configFile</B> - The configuration filename, relative to
-   * <CODE>codeRoot</CODE>.
-   * </UL>
+   * @param def The extension definition containing initialization parameters and other config info.
+   *     The required init params are:
+   *     <UL>
+   *       <LI><B>configFile</B> - The configuration filename, relative to <CODE>codeRoot</CODE>.
+   *     </UL>
    *
-   * @param codeRoot The root directory where this extension handler
-   * should install and look for any files relating to itself or
-   * its extensions. The subdirectory structure under codeRoot is
-   * left up to the handler implementation. Must not be <CODE>null</CODE>.
-   *
-   * @throws PSExtensionException If the codeRoot does not exist,
-   * is not accessible, or specifies a protocol that this extension handler
-   * cannot handle. Also thrown for any other initialization errors that
-   * will prohibit this handler from doing its job correctly, such
-   * as invalid or missing properties.
-   *
+   * @param codeRoot The root directory where this extension handler should install and look for any
+   *     files relating to itself or its extensions. The subdirectory structure under codeRoot is
+   *     left up to the handler implementation. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If the codeRoot does not exist, is not accessible, or specifies a
+   *     protocol that this extension handler cannot handle. Also thrown for any other
+   *     initialization errors that will prohibit this handler from doing its job correctly, such as
+   *     invalid or missing properties.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public synchronized void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
@@ -129,12 +120,11 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Shuts down this extension handler. The extension manager will
-   * call this method to indicate that this extension handler will
-   * no longer be used (e.g., server shut down, etc.)
+   * Shuts down this extension handler. The extension manager will call this method to indicate that
+   * this extension handler will no longer be used (e.g., server shut down, etc.)
    *
-   * @throws PSExtensionException If an error occurred which prohibited
-   * this extension handler from cleanly shutting down.
+   * @throws PSExtensionException If an error occurred which prohibited this extension handler from
+   *     cleanly shutting down.
    */
   public synchronized void shutdown() throws PSExtensionException {
     if (!m_isInited) return;
@@ -149,11 +139,9 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Gets the names of all extensions installed with this
-   * extension handler.
+   * Gets the names of all extensions installed with this extension handler.
    *
-   * @return A non-<CODE>null</CODE> Iterator over 0 or more
-   * non-<CODE>null</CODE> PSExtensionRefs.
+   * @return A non-<CODE>null</CODE> Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRefs.
    */
   public Iterator getExtensionNames() {
     checkState();
@@ -161,15 +149,11 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Gets the names of all extensions installed within the given
-   * context in this extension handler.
+   * Gets the names of all extensions installed within the given context in this extension handler.
    *
    * @param context the context in which to search, not <code>null</code>.
-   *
-   * @return An Iterator over 0 or more non-<CODE>null</CODE>
-   * PSExtensionRefs. Will return <CODE>null</CODE> if the
-   * given context does not exist in this handler.
-   *
+   * @return An Iterator over 0 or more non-<CODE>null</CODE> PSExtensionRefs. Will return <CODE>
+   *     null</CODE> if the given context does not exist in this handler.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public Iterator getExtensionNames(String context) {
@@ -178,12 +162,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Returns <CODE>true</CODE> if and only if the given extension ref refers
-   * to an installed extension.
+   * Returns <CODE>true</CODE> if and only if the given extension ref refers to an installed
+   * extension.
    *
-   * @param ref The fully qualified extension name. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param ref The fully qualified extension name. Must not be <CODE>null</CODE>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public boolean exists(PSExtensionRef ref) {
@@ -196,15 +178,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Returns the extension definition for the extension with the
-   * given name.
+   * Returns the extension definition for the extension with the given name.
    *
-   * @param ref The name of an installed extension. Must not
-   * be <CODE>null</CODE>.
-   *
-   * @throws PSNotFoundException If the extension does not
-   * exist.
-   *
+   * @param ref The name of an installed extension. Must not be <CODE>null</CODE>.
+   * @throws PSNotFoundException If the extension does not exist.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public IPSExtensionDef getExtensionDef(PSExtensionRef ref) throws PSNotFoundException {
@@ -249,14 +226,9 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   /**
    * Prepares and returns the installed extension.
    *
-   * @param ref The name of an installed extension. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @throws PSNotFoundException If the extension does not
-   * exist.
-   *
+   * @param ref The name of an installed extension. Must not be <CODE>null</CODE>.
+   * @throws PSNotFoundException If the extension does not exist.
    * @throws PSExtensionException If the extension is invalid.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   public IPSExtension prepare(PSExtensionRef ref) throws PSNotFoundException, PSExtensionException {
@@ -303,20 +275,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   /**
    * Installs the given extension.
    *
-   * @param def The extension definition. Must not be <CODE>null</CODE>.
-   * Must be an instance of PSExtensionDef. After this method successfully
-   * completes, the extension version init param will be one greater
-   * than it was upon entry (or it will be set to "1" if it wasn't set
-   * upon entry).
-   *
-   * @param resources An Iterator over 0 or more non-<CODE>null</CODE>
-   * named IPSMimeContent objects specifying any resources that should be
-   * saved along with the extension. The resources may or may not
-   * correspond to the URLs returned from
-   * <CODE>ext.getResourceLocations()</CODE>.
-   *
+   * @param def The extension definition. Must not be <CODE>null</CODE>. Must be an instance of
+   *     PSExtensionDef. After this method successfully completes, the extension version init param
+   *     will be one greater than it was upon entry (or it will be set to "1" if it wasn't set upon
+   *     entry).
+   * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
+   *     specifying any resources that should be saved along with the extension. The resources may
+   *     or may not correspond to the URLs returned from <CODE>ext.getResourceLocations()</CODE>.
    * @throws PSExtensionException If the extension is invalid.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   public synchronized void install(IPSExtensionDef def, Iterator resources)
@@ -368,27 +334,19 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Atomically removes and re-installs the given extension. Currently
-   * this method is not guaranteed to be transactional, that is, the remove
-   * may succeed but the install may fail.
+   * Atomically removes and re-installs the given extension. Currently this method is not guaranteed
+   * to be transactional, that is, the remove may succeed but the install may fail.
    *
    * @param def The extension definition. Must not be <CODE>null</CODE>.
-   *
-   * @param resources An Iterator over 0 or more non-<CODE>null</CODE>
-   * named IPSMimeContent objects specifying any resources that should be
-   * saved along with the extension. The resources may or may not
-   * correspond to the URLs returned from the def's
-   * <CODE>getResourceLocations()</CODE> method. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @throws PSNotFoundException If the appropriate extension
-   * does not exist. The defined extension will not be installed.
-   *
-   * @throws PSExtensionException If the extension definition fails
-   * the handler's validation rules or if the extension could not be
-   * loaded (some implementations may defer loading until prepareExtension
-   * is called).
-   *
+   * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
+   *     specifying any resources that should be saved along with the extension. The resources may
+   *     or may not correspond to the URLs returned from the def's <CODE>getResourceLocations()
+   *     </CODE> method. Must not be <CODE>null</CODE>.
+   * @throws PSNotFoundException If the appropriate extension does not exist. The defined extension
+   *     will not be installed.
+   * @throws PSExtensionException If the extension definition fails the handler's validation rules
+   *     or if the extension could not be loaded (some implementations may defer loading until
+   *     prepareExtension is called).
    * @see #remove
    * @see #install
    */
@@ -422,20 +380,13 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Permanently disables and removes the installed extension. Any
-   * Java classes that were defined and loaded as part of this
-   * extension must be unloaded. Any native libraries that were
-   * loaded as part of this extension must be unloaded.
+   * Permanently disables and removes the installed extension. Any Java classes that were defined
+   * and loaded as part of this extension must be unloaded. Any native libraries that were loaded as
+   * part of this extension must be unloaded.
    *
-   * @param ref The name of an installed extension. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @throws PSExtensionException If an error occurred while removing
-   * extension.
-   *
-   * @throws PSNotFoundException If the extension does not
-   * exist.
-   *
+   * @param ref The name of an installed extension. Must not be <CODE>null</CODE>.
+   * @throws PSExtensionException If an error occurred while removing extension.
+   * @throws PSNotFoundException If the extension does not exist.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public synchronized void remove(PSExtensionRef ref)
@@ -473,11 +424,12 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Returns a list of files that the extension requires by cataloging the
-   * files in the resource directory.
-   * @param def The extension def.  May not be <code>null</code>.
-   * @return An Iterator over <code>0</code> or more URL objects.  Path is
-   * relative to the code root of the extension.  Never <code>null</code>.
+   * Returns a list of files that the extension requires by cataloging the files in the resource
+   * directory.
+   *
+   * @param def The extension def. May not be <code>null</code>.
+   * @return An Iterator over <code>0</code> or more URL objects. Path is relative to the code root
+   *     of the extension. Never <code>null</code>.
    * @throws IllegalArgumentException if def is <code>null</code>.
    * @throws PSExtensionException if the files cannot be located.
    */
@@ -515,15 +467,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Recursively catalogs the files in the specified resource directory and
-   * returns them as an ArrayList of <code>0</code> or more URL objects.
+   * Recursively catalogs the files in the specified resource directory and returns them as an
+   * ArrayList of <code>0</code> or more URL objects.
    *
-   * @param location The location to search.  Must be a directory on the local
-   * file system.
+   * @param location The location to search. Must be a directory on the local file system.
    * @param codeRoot The code base of the def.
    * @return The ArrayList. Never <code>null</code>.
-   * @throws IllegalArgumentException if location is <code>null</code> or is
-   * not a directory, or if codeRoot is <code>null</code>.
+   * @throws IllegalArgumentException if location is <code>null</code> or is not a directory, or if
+   *     codeRoot is <code>null</code>.
    * @throws MalformedURLException if the result from the catalog is invalid.
    */
   @SuppressWarnings("unchecked")
@@ -561,14 +512,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Gets the live instance of the extension with the given
-   * name.
+   * Gets the live instance of the extension with the given name.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
-   * @return The live instance, or <CODE>null</CODE> if no live
-   * instance was found.
-   *
+   * @return The live instance, or <CODE>null</CODE> if no live instance was found.
    * @see #getLiveExtension
    */
   protected IPSExtension getLiveExtension(PSExtensionRef ref) {
@@ -576,12 +523,11 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Adds the live extension with the given name, overwriting any other
-   * live extension with the same name.
+   * Adds the live extension with the given name, overwriting any other live extension with the same
+   * name.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
    * @param ext The live instance. Must not be <CODE>null</CODE>.
-   *
    * @see #putLiveExtension
    */
   @SuppressWarnings("unchecked")
@@ -590,30 +536,24 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Loads the extension with the given name and returns it. It is
-   * the caller's responsibility to add the returned extension to the
-   * live extension map, if he so chooses.
+   * Loads the extension with the given name and returns it. It is the caller's responsibility to
+   * add the returned extension to the live extension map, if he so chooses.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
-   *
    * @return The extension. Never <CODE>null</CODE>.
-   *
    * @throws PSExtensionException If the extension could not be loaded.
-   *
    * @throws PSNotFoundException If no such extension exists.
-   *
    * @throws IllegalArgumentException If any param is invalid.
    */
   protected abstract IPSExtension loadExtension(PSExtensionRef ref)
       throws PSExtensionException, PSNotFoundException;
 
   /**
-   * Creates an initialization Properties object for an extension,
-   * given an extension definition containing init params. The returned
-   * Properties object will be suitable for calling IPSExtension.init.
+   * Creates an initialization Properties object for an extension, given an extension definition
+   * containing init params. The returned Properties object will be suitable for calling
+   * IPSExtension.init.
    *
    * @param def The extension def. Must not be <CODE>null</CODE>.
-   *
    * @return An initialization Properties object. Never <CODE>null</CODE>.
    */
   protected Properties createInitProps(IPSExtensionDef def) {
@@ -627,17 +567,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Returns the directory in which the given extension and all
-   * of its resources would be stored.
-   * <p>
-   * Note that this method does not consider whether such an extension
-   * actually exists or not. It just returns where the code would be
-   * stored if the extension were installed.
+   * Returns the directory in which the given extension and all of its resources would be stored.
+   *
+   * <p>Note that this method does not consider whether such an extension actually exists or not. It
+   * just returns where the code would be stored if the extension were installed.
    *
    * @param def The extension definition. Must not be <CODE>null</CODE>.
-   *
-   * @return The directory in which the given extension and all
-   * of its resources would be stored. Never <CODE>null</CODE>.
+   * @return The directory in which the given extension and all of its resources would be stored.
+   *     Never <CODE>null</CODE>.
    */
   public File getCodeBase(IPSExtensionDef def) {
     PSExtensionRef ref = def.getRef();
@@ -647,14 +584,12 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Gets the value of the named initialization parameter of
-   * the named extension.
+   * Gets the value of the named initialization parameter of the named extension.
    *
    * @param ref The extension name. Must not be <CODE>null</CODE>.
    * @param propertyName The property name. Must not be <CODE>null</CODE>.
-   *
-   * @return The initialization parameter value of the extension,
-   * or <CODE>null</CODE> if the extension or param does not exist.
+   * @return The initialization parameter value of the extension, or <CODE>null</CODE> if the
+   *     extension or param does not exist.
    */
   protected String getExtensionParam(PSExtensionRef ref, String propertyName) {
     String val = null;
@@ -667,9 +602,8 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * If this object has not been initialized (or has been
-   * shutdown without being reinitialized), throws an
-   * IllegalStateException.
+   * If this object has not been initialized (or has been shutdown without being reinitialized),
+   * throws an IllegalStateException.
    */
   protected void checkState() {
     if (!m_isInited) {
@@ -680,19 +614,14 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   /**
    * Save all of the given resources under the given directory.
    *
-   * @param def The definition for the extension whose resources are
-   * given. Must not be <CODE>null</CODE>.
-   *
-   * @param resources An Iterator over 0 or more non-<CODE>null</CODE>
-   * named IPSMimeContent objects specifying any resources that should be
-   * saved along with the extension. The resources may or may not
-   * correspond to the URLs returned from
-   * <CODE>ext.getResourceLocations()</CODE>.
-   *
+   * @param def The definition for the extension whose resources are given. Must not be <CODE>null
+   *     </CODE>.
+   * @param resources An Iterator over 0 or more non-<CODE>null</CODE> named IPSMimeContent objects
+   *     specifying any resources that should be saved along with the extension. The resources may
+   *     or may not correspond to the URLs returned from <CODE>ext.getResourceLocations()</CODE>.
    * @throws IOException If an IO error occurred while saving.
-   *
-   * @throws PSExtensionException If the code base could not be obtained
-   * or if another error occurred with the resources.
+   * @throws PSExtensionException If the code base could not be obtained or if another error
+   *     occurred with the resources.
    */
   private void saveResources(IPSExtensionDef def, Iterator resources)
       throws IOException, PSExtensionException {
@@ -768,12 +697,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Processes all pending removals by deleting the files or directories
-   * if possible. Removes all successfully deleted files or directories from
-   * the pending-removal list. For each removal, once deleted, if the current
-   * directory is empty, moves up one directory and deletes that directory.
-   * Repeats until reaching a non-empty directory or the root dir for this
-   * extension handler.
+   * Processes all pending removals by deleting the files or directories if possible. Removes all
+   * successfully deleted files or directories from the pending-removal list. For each removal, once
+   * deleted, if the current directory is empty, moves up one directory and deletes that directory.
+   * Repeats until reaching a non-empty directory or the root dir for this extension handler.
    *
    * @throws IOException If an I/O occurred during processing.
    * @throws PSExtensionException If an error occurred during processing.
@@ -796,13 +723,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Processes the given pending removal by deleting the file or directory
-   * if possible. If the file or directory was successfully deleted,
-   * removes it from the pending-removal list.
+   * Processes the given pending removal by deleting the file or directory if possible. If the file
+   * or directory was successfully deleted, removes it from the pending-removal list.
    *
-   * @param f The file or directory pending removal. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param f The file or directory pending removal. Must not be <CODE>null</CODE>.
    * @throws IOException If an I/O error occurred during processing.
    */
   private void processPendingRemoval(File f) throws IOException {
@@ -829,12 +753,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * If the current directory is empty, moves up one directory and deletes
-   * that directory. Repeats until reaching a non-empty directory or
-   * the root dir for this extension handler.
+   * If the current directory is empty, moves up one directory and deletes that directory. Repeats
+   * until reaching a non-empty directory or the root dir for this extension handler.
    *
-   * @param f The directory for removal.  If null, nothing is removed.
-   *
+   * @param f The directory for removal. If null, nothing is removed.
    * @throws IOException If an I/O error occurred during processing.
    */
   private void removeExtensionDirectory(File f) throws IOException {
@@ -853,13 +775,10 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Returns <CODE>true</CODE> if and only if the given file is within the
-   * handler's root directory.
+   * Returns <CODE>true</CODE> if and only if the given file is within the handler's root directory.
    *
    * @param f The file to check. Must not be <CODE>null</CODE>.
-   *
    * @return <CODE>true</CODE> iff f is within (or equal to) m_rootDir
-   *
    * @throws IOException If the canonical file could not be determined.
    */
   private boolean isWithinRoot(File f) throws IOException {
@@ -873,8 +792,7 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Stores the configuration information into the configuration
-   * file.
+   * Stores the configuration information into the configuration file.
    *
    * @throws PSExtensionException If an error occurred.
    */
@@ -893,17 +811,12 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Initializes the configuration object from the given file. Subclasses
-   * should override this if they want to instantiate a more derived type
-   * of extension handler config.
+   * Initializes the configuration object from the given file. Subclasses should override this if
+   * they want to instantiate a more derived type of extension handler config.
    *
-   * @param configFile The configuration file. Must not be
-   * <CODE>null</CODE>. Must exist and be a readable file containing
-   * valid configuration information.
-   *
-   * @throws PSExtensionException If the configuration object could not
-   * be initialized.
-   *
+   * @param configFile The configuration file. Must not be <CODE>null</CODE>. Must exist and be a
+   *     readable file containing valid configuration information.
+   * @throws PSExtensionException If the configuration object could not be initialized.
    * @see #m_config
    */
   protected void initializeConfig(File configFile) throws PSExtensionException {
@@ -921,14 +834,12 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * Logs the given message to the server logging mechanism (if available)
-   * or stdout.
+   * Logs the given message to the server logging mechanism (if available) or stdout.
    *
-   * @param errorCode The error code. An error code recognized by the
-   * server error handling system or 0.
-   *
-   * @param args The error arguments corresponding to
-   * <CODE>errorCode</CODE>. Must not be <CODE>null</CODE>.
+   * @param errorCode The error code. An error code recognized by the server error handling system
+   *     or 0.
+   * @param args The error arguments corresponding to <CODE>errorCode</CODE>. Must not be <CODE>null
+   *     </CODE>.
    */
   protected void logMessage(int errorCode, Object[] args) {
     PSLogServerWarning warning = new PSLogServerWarning(errorCode, args, false, "ExtensionHandler");
@@ -941,45 +852,35 @@ public abstract class PSExtensionHandler implements IPSExtensionHandler {
   }
 
   /**
-   * The version of the extension, as a positive integer. This is an internal
-   * version # to allow us to do dynamic loading.
+   * The version of the extension, as a positive integer. This is an internal version # to allow us
+   * to do dynamic loading.
    */
   private static final String INIT_PARAM_VERSION = "com.percussion.extension.version";
 
-  /**
-   * The extension handler configuration, including all extension
-   * definitions.
-   */
+  /** The extension handler configuration, including all extension definitions. */
   protected PSExtensionHandlerConfiguration m_config;
 
   /**
-   * A map from extension names to live extension instances.
-   * Unused extensions will not have an entry in this map,
-   * but all instantiated extensions will have an entry.
+   * A map from extension names to live extension instances. Unused extensions will not have an
+   * entry in this map, but all instantiated extensions will have an entry.
    */
   private volatile Map m_liveExtensions = new ConcurrentHashMap(8, 0.9f, 1);
 
-  /**
-   * The config file.
-   */
+  /** The config file. */
   private File m_configFile;
 
   /**
-   * The directory under which all extensions are stored and
-   * retrieved. Never <CODE>null</CODE>.
-   * <p>
-   * This is guaranteed to be canonical.
+   * The directory under which all extensions are stored and retrieved. Never <CODE>null</CODE>.
+   *
+   * <p>This is guaranteed to be canonical.
+   *
    * @see java.io.File#getCanonicalFile
    */
   private File m_rootDir;
 
-  /**
-   * Used to see if this handler has been initialized or not.
-   */
+  /** Used to see if this handler has been initialized or not. */
   private boolean m_isInited;
 
-  /**
-   * Used to write messages to the server log.
-   */
+  /** Used to write messages to the server log. */
   private PSLogHandler m_logHandler = PSServer.getLogHandler();
 }

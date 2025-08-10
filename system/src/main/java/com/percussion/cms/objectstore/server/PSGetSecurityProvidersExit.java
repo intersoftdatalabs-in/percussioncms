@@ -31,9 +31,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a system exit which obtains the security provider information from
- * the server configuration object.
- * See the description of <code>processResultDocument()</code> for details of
+ * This is a system exit which obtains the security provider information from the server
+ * configuration object. See the description of <code>processResultDocument()</code> for details of
  * its functioning.
  */
 public class PSGetSecurityProvidersExit extends PSDefaultExtension
@@ -48,15 +47,11 @@ public class PSGetSecurityProvidersExit extends PSDefaultExtension
   }
 
   /**
-   * Creates an element ("SecurityProviders") and adds it to the root element
-   * of the document. If no root element exists, then makes it the root
-   * element.
-   * Obtains the security providers from the server configuration object.
-   * Then for each security provider creates an element
-   * ("PSXSecurityProviderInstanceSummary"). Adds the provider type as attribute and
-   * instance name as child element of this element.
-   * The returned Xml document is based on the following DTD:
-   *
+   * Creates an element ("SecurityProviders") and adds it to the root element of the document. If no
+   * root element exists, then makes it the root element. Obtains the security providers from the
+   * server configuration object. Then for each security provider creates an element
+   * ("PSXSecurityProviderInstanceSummary"). Adds the provider type as attribute and instance name
+   * as child element of this element. The returned Xml document is based on the following DTD:
    * <code><pre>
    *
    *  &lt;!ELEMENT SecurityProviders (PSXSecurityProviderInstanceSummary*)&gt;
@@ -73,13 +68,9 @@ public class PSGetSecurityProvidersExit extends PSDefaultExtension
    * <p>This exit expects no html parameter.
    *
    * @param params unused, may be <code>null</code> or empty
-   * @param request request context. Guaranteed not <code>null</code> by the
-   * interface.
-   * @param resultDoc The supplied document. Guaranteed not <code>null</code>
-   * by the interface.
-   *
+   * @param request request context. Guaranteed not <code>null</code> by the interface.
+   * @param resultDoc The supplied document. Guaranteed not <code>null</code> by the interface.
    * @return The modified Xml doc, never <code>null</code>
-   *
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

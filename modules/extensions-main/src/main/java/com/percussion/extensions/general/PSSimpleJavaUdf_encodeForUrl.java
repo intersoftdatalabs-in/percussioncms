@@ -31,11 +31,9 @@ public class PSSimpleJavaUdf_encodeForUrl extends PSSimpleJavaUdfExtension {
   /**
    * See class description.
    *
-   * @param params Expect 1 param. Will do a <code>toString</code> on it and
-   * then encode it for URL use. If <code>null</code> or empty, the empty
-   * string is returned.
-   *
-   *  @param request Not used.
+   * @param params Expect 1 param. Will do a <code>toString</code> on it and then encode it for URL
+   *     use. If <code>null</code> or empty, the empty string is returned.
+   * @param request Not used.
    */
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request) {
     try {

@@ -20,8 +20,8 @@ import com.percussion.error.PSException;
 import java.util.Objects;
 
 /**
- * Exception class for exceptional error conditions relating to
- * extensions, extension handlers, and extension managers.
+ * Exception class for exceptional error conditions relating to extensions, extension handlers, and
+ * extension managers.
  */
 public final class PSExtensionException extends PSException {
   private static final long serialVersionUID = 1L;
@@ -49,8 +49,8 @@ public final class PSExtensionException extends PSException {
   /**
    * Create a chained exception with a specific message.
    *
-   * @param message message to use in exception. If {@code null} then use the
-   *                localized message from the original exception
+   * @param message message to use in exception. If {@code null} then use the localized message from
+   *     the original exception
    * @param cause the original exception, may not be {@code null}
    * @throws IllegalArgumentException if cause is {@code null}
    */
@@ -71,8 +71,8 @@ public final class PSExtensionException extends PSException {
   /**
    * Construct an exception for messages taking only a single argument.
    *
-   * @param language language string to use while looking up for the
-   *                 message text in the resource bundle
+   * @param language language string to use while looking up for the message text in the resource
+   *     bundle
    * @param code the error string to load
    * @param arg the argument to use as the sole argument in the error message
    */
@@ -81,9 +81,8 @@ public final class PSExtensionException extends PSException {
   }
 
   /**
-   * Construct an exception for messages taking an array of arguments.
-   * Be sure to store the arguments in the correct order in the array,
-   * where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
    * @param code the error string to load
    * @param args the array of arguments to use as the arguments in the error message
@@ -93,12 +92,11 @@ public final class PSExtensionException extends PSException {
   }
 
   /**
-   * Construct an exception for messages taking an array of arguments.
-   * Be sure to store the arguments in the correct order in the array,
-   * where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param language language string to use while looking up for the
-   *                 message text in the resource bundle
+   * @param language language string to use while looking up for the message text in the resource
+   *     bundle
    * @param code the error string to load
    * @param args the array of arguments to use as the arguments in the error message
    */
@@ -121,8 +119,8 @@ public final class PSExtensionException extends PSException {
   /**
    * Construct an exception for extension-specific errors with language.
    *
-   * @param language language string to use while looking up for the
-   *                 message text in the resource bundle
+   * @param language language string to use while looking up for the message text in the resource
+   *     bundle
    * @param ext the extension reference, may not be {@code null}
    * @param errorText the error text, may not be {@code null}
    * @throws IllegalArgumentException if ext or errorText is {@code null}
@@ -147,8 +145,8 @@ public final class PSExtensionException extends PSException {
   /**
    * Construct an exception for handler-specific errors with language.
    *
-   * @param language language string to use while looking up for the
-   *                 message text in the resource bundle
+   * @param language language string to use while looking up for the message text in the resource
+   *     bundle
    * @param handlerName the handler name, may not be {@code null}
    * @param errorText the error text, may not be {@code null}
    * @throws IllegalArgumentException if handlerName or errorText is {@code null}

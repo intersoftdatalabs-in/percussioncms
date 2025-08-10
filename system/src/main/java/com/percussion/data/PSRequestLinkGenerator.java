@@ -49,29 +49,23 @@ import java.util.ArrayList;
 import javax.servlet.ServletRequest;
 
 /**
- * The PSRequestLinkGenerator class takes the current request context, adds
- * any additional data, then fires the chained request. This is most
- * commonly used by the update handler to return an update query result set
- * upon successful updating.
+ * The PSRequestLinkGenerator class takes the current request context, adds any additional data,
+ * then fires the chained request. This is most commonly used by the update handler to return an
+ * update query result set upon successful updating.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
-   * Construct a request link generator. This creates URL links in the
-   * XML document being processed based upon the expected target data set
-   * and the current data.
+   * Construct a request link generator. This creates URL links in the XML document being processed
+   * based upon the expected target data set and the current data.
    *
-   * @param      app         the application containing the data set we
-   *                           will be linking to
-   *
-   * @param      sourceDS      the source data set definition
-   *
-   * @param      link         the link definition
-   *
-   * @exception   PSNotFoundException   if the target data set does not exist
+   * @param app the application containing the data set we will be linking to
+   * @param sourceDS the source data set definition
+   * @param link the link definition
+   * @exception PSNotFoundException if the target data set does not exist
    */
   public PSRequestLinkGenerator(PSApplicationHandler app, PSDataSet sourceDS, PSRequestLink link)
       throws PSNotFoundException {
@@ -84,23 +78,15 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   }
 
   /**
-   * Construct a request link generator. This creates URL links in the
-   * XML document being processed based upon the expected target data set
-   * and the current data.
+   * Construct a request link generator. This creates URL links in the XML document being processed
+   * based upon the expected target data set and the current data.
    *
-   * @param      app         the application containing the data set we
-   *                           will be linking to
-   *
-   * @param      sourceDS      the source data set definition
-   *
-   * @param      targetDS      the target data set definition
-   *
-   * @param      xmlField      the name of the corresponding XML field
-   *
-   * @param      type         the type of request
-   *                           (update, insert, delete, query)
-   *
-   * @exception   PSNotFoundException   if the target data set does not exist
+   * @param app the application containing the data set we will be linking to
+   * @param sourceDS the source data set definition
+   * @param targetDS the target data set definition
+   * @param xmlField the name of the corresponding XML field
+   * @param type the type of request (update, insert, delete, query)
+   * @exception PSNotFoundException if the target data set does not exist
    */
   protected PSRequestLinkGenerator(
       PSApplicationHandler app, PSDataSet sourceDS, PSDataSet targetDS, String xmlField, int type)
@@ -198,29 +184,27 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Get the name of the XML field to store the link in.
    *
-   * @return         the name of the XML field
+   * @return the name of the XML field
    */
   public String getXmlFieldName() {
     return m_xmlField;
   }
 
   /**
-   * Get the index previously set for XML field. This is used internally
-   * by the PSResultSetXmlConverter to quickly access the index
-   * into the XML node array.
+   * Get the index previously set for XML field. This is used internally by the
+   * PSResultSetXmlConverter to quickly access the index into the XML node array.
    *
-   * @return         the XML field's index
+   * @return the XML field's index
    */
   public int getXmlFieldIndex() {
     return m_xmlFieldIndex;
   }
 
   /**
-   * Set the index for the XML field. This is used internally
-   * by the PSResultSetXmlConverter to quickly access the index
-   * into the XML node array.
+   * Set the index for the XML field. This is used internally by the PSResultSetXmlConverter to
+   * quickly access the index into the XML node array.
    *
-   * @param   index   the XML field's index
+   * @param index the XML field's index
    */
   public void setXmlFieldIndex(int index) {
     m_xmlFieldIndex = index;
@@ -252,11 +236,9 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @return               the associated value; <code>null</code> if a
-   *                        value is not found
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @return the associated value; <code>null</code> if a value is not found
    */
   public Object extract(PSExecutionData data) throws com.percussion.data.PSDataExtractionException {
     return extract(data, null);
@@ -265,13 +247,10 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   defValue      the default value to use if a value is not found
-   *
-   * @return               the associated value; <code>defValue</code> if a
-   *                        value is not found
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @param defValue the default value to use if a value is not found
+   * @return the associated value; <code>defValue</code> if a value is not found
    */
   public Object extract(PSExecutionData data, Object defValue)
       throws com.percussion.data.PSDataExtractionException {
@@ -285,14 +264,11 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * Extract a data value using the run-time data.
    *
-   * @param   execData    the execution data associated with this request.
-   *                      This includes all context data, result sets, etc.
-   *
-   * @param   moreParams   additional Html Parameters to be added. These
-   * must URL encoded if necessary. May be <CODE>null</CODE> if no
-   * params are required.
-   *
-   * @return               the associated value (URL string);
+   * @param execData the execution data associated with this request. This includes all context
+   *     data, result sets, etc.
+   * @param moreParams additional Html Parameters to be added. These must URL encoded if necessary.
+   *     May be <CODE>null</CODE> if no params are required.
+   * @return the associated value (URL string);
    */
   protected String generateURL(PSExecutionData data, String moreParams)
       throws com.percussion.data.PSDataExtractionException {
@@ -677,12 +653,12 @@ public class PSRequestLinkGenerator extends PSDataExtractor {
   /**
    * This call is used to find the back-end column we're looking for.
    *
-   * If the back-end column is found, we will return the input param col.
+   * <p>If the back-end column is found, we will return the input param col.
    *
-   * If not, but we found a possible match (column name is the same,
-   * table is different), then we'll return that.
+   * <p>If not, but we found a possible match (column name is the same, table is different), then
+   * we'll return that.
    *
-   * If we found nothing, we'll return null.
+   * <p>If we found nothing, we'll return null.
    */
   private static PSBackEndColumn getMatchingColumn(IPSBackEndMapping beMap, PSBackEndColumn col) {
     // if we see a column with the same name but from a different table

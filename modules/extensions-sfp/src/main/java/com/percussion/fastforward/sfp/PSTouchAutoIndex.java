@@ -44,16 +44,13 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * A Rhythmyx extension that touches the last modify date and last modifier for
- * all AutoIndex variants registered in the system. Add this extension to a
- * content list generator resource. Items will be touched regardless of their
- * state.
+ * A Rhythmyx extension that touches the last modify date and last modifier for all AutoIndex
+ * variants registered in the system. Add this extension to a content list generator resource. Items
+ * will be touched regardless of their state.
  */
 public class PSTouchAutoIndex extends PSDefaultExtension
     implements IPSResultDocumentProcessor, IPSRequestPreProcessor {
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSTouchAutoIndex() {
     super();
   }
@@ -68,15 +65,15 @@ public class PSTouchAutoIndex extends PSDefaultExtension
   }
 
   /**
-   * Process the result document. This method is called when this extension is
-   * a post-exit. See the class header for details.
+   * Process the result document. This method is called when this extension is a post-exit. See the
+   * class header for details.
    *
    * @param params see the parameter table in the class header.
    * @param req the parent request context.
    * @param resultDoc the xml result document for the resource.
    * @see com.percussion.extension.IPSResultDocumentProcessor#
-   *      processResultDocument(java.lang.Object[], com.percussion.server.
-   *      IPSRequestContext, org.w3c.dom.Document)
+   *     processResultDocument(java.lang.Object[], com.percussion.server. IPSRequestContext,
+   *     org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -85,20 +82,16 @@ public class PSTouchAutoIndex extends PSDefaultExtension
   }
 
   /**
-   * Process the request. This method is call when this extension is a
-   * pre-exit.
-   * <p>
-   * If the parent request contains the <code>psfirst</code> HTML parameter
-   * then this method will return without performing any actions. This allows
-   * this exit to be used on content list generators whioh contain the Result
-   * Pager.
-   * </p>
+   * Process the request. This method is call when this extension is a pre-exit.
+   *
+   * <p>If the parent request contains the <code>psfirst</code> HTML parameter then this method will
+   * return without performing any actions. This allows this exit to be used on content list
+   * generators whioh contain the Result Pager.
    *
    * @param params see the parameter table in the class header.
    * @param req the parent request context.
-   * @see com.percussion.extension.IPSRequestPreProcessor#
-   *      preProcessRequest(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext)
+   * @see com.percussion.extension.IPSRequestPreProcessor# preProcessRequest(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext)
    */
   public void preProcessRequest(Object[] params, IPSRequestContext req)
       throws PSAuthorizationException,
@@ -109,14 +102,12 @@ public class PSTouchAutoIndex extends PSDefaultExtension
   }
 
   /**
-   * Touches all autoindex pages and their parents. This is the common routine
-   * used for both pre and post exit processing.
-   * <p>
-   * If the parent request contains the <code>psfirst</code> HTML parameter
-   * then this method will return without performing any actions. This allows
-   * this exit to be used on content list generators whioh contain the Result
-   * Pager.
-   * </p>
+   * Touches all autoindex pages and their parents. This is the common routine used for both pre and
+   * post exit processing.
+   *
+   * <p>If the parent request contains the <code>psfirst</code> HTML parameter then this method will
+   * return without performing any actions. This allows this exit to be used on content list
+   * generators whioh contain the Result Pager.
    *
    * @param req the parent request
    * @throws PSExtensionProcessingException
@@ -146,9 +137,8 @@ public class PSTouchAutoIndex extends PSDefaultExtension
   }
 
   /**
-   * Builds a set of content types. All content types that have at least one
-   * automated index variant will be included. The content types are
-   * <code>Integer</code> objects.
+   * Builds a set of content types. All content types that have at least one automated index variant
+   * will be included. The content types are <code>Integer</code> objects.
    *
    * @param req the parent request.
    * @return a list of content types.
@@ -176,8 +166,6 @@ public class PSTouchAutoIndex extends PSDefaultExtension
     return ctSet;
   }
 
-  /**
-   * Handles log messages.
-   */
+  /** Handles log messages. */
   private static final Logger m_log = LogManager.getLogger(PSTouchAutoIndex.class);
 }

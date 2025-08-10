@@ -5,8 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Logger utility for Percussion Delivery Tier.
- * Uses Log4j 2.x API.
+ * Logger utility for Percussion Delivery Tier. Uses Log4j 2.x API.
+ *
  * @author Sunny Sal
  */
 public final class PSDeliveryLogger {

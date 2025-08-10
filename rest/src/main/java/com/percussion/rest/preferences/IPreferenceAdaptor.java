@@ -20,46 +20,46 @@
 package com.percussion.rest.preferences;
 
 /**
- * Adaptor interface for user preference operations.
- * Sunny Sal: "Preferences ka adaptor, user ka comfort factor!"
+ * Adaptor interface for user preference operations. Sunny Sal: "Preferences ka adaptor, user ka
+ * comfort factor!"
  */
 public interface IPreferenceAdaptor {
 
-    /**
-     * Gets all user preferences for the current user.
-     *
-     * @return list of user preferences
-     */
-    UserPreferenceList getAllUserPreferences();
+  /**
+   * Gets all user preferences for the current user.
+   *
+   * @return list of user preferences
+   */
+  UserPreferenceList getAllUserPreferences();
 
-    /**
-     * Saves all user preferences for the current user.
-     *
-     * @param prefs preferences to save
-     * @return updated list of user preferences
-     */
-    UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs);
+  /**
+   * Saves all user preferences for the current user.
+   *
+   * @param prefs preferences to save
+   * @return updated list of user preferences
+   */
+  UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs);
 
-    /**
-     * Loads a specific user preference by name.
-     *
-     * @param preference the preference name
-     * @return the user preference
-     */
-    UserPreference loadPreference(String preference);
+  /**
+   * Loads a specific user preference by name.
+   *
+   * @param preference the preference name
+   * @return the user preference
+   */
+  UserPreference loadPreference(String preference);
 
-    /**
-     * Saves a specific user preference.
-     *
-     * @param pref the preference to save
-     * @return the saved preference
-     */
-    UserPreference savePreference(UserPreference pref);
+  /**
+   * Saves a specific user preference.
+   *
+   * @param pref the preference to save
+   * @return the saved preference
+   */
+  UserPreference savePreference(UserPreference pref);
 
-    /**
-     * Deletes a specific user preference.
-     *
-     * @param pref the preference to delete
-     */
-    void deletePreference(UserPreference pref);
+  /**
+   * Deletes a specific user preference.
+   *
+   * @param pref the preference to delete
+   */
+  void deletePreference(UserPreference pref);
 }

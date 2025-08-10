@@ -25,9 +25,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a package included in an import descriptor.  Can contain the
- * validation results for the package, as well as any other extra package
- * information related to installing a deployable element and its dependencies.
+ * Represents a package included in an import descriptor. Can contain the validation results for the
+ * package, as well as any other extra package information related to installing a deployable
+ * element and its dependencies.
  */
 public class PSImportPackage implements IPSDeployComponent {
 
@@ -35,7 +35,6 @@ public class PSImportPackage implements IPSDeployComponent {
    * Construct an import package with a deployable element.
    *
    * @param pkg The deployable element, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>pkg</code> is <code>null</code>.
    */
   public PSImportPackage(PSDeployableElement pkg) {
@@ -47,9 +46,8 @@ public class PSImportPackage implements IPSDeployComponent {
   /**
    * Construct this object from its Xml representation.
    *
-   * @param src The element containing the Xml format of this object.  See
-   * {@link #toXml(Document)} for more info.  May not be <code>null</code>.
-   *
+   * @param src The element containing the Xml format of this object. See {@link #toXml(Document)}
+   *     for more info. May not be <code>null</code>.
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -81,9 +79,7 @@ public class PSImportPackage implements IPSDeployComponent {
    * Set the validation results for this package.
    *
    * @param results The validation results, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>results</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>results</code> is <code>null</code>.
    */
   public void setValidationResults(PSValidationResults results) {
     if (results == null) throw new IllegalArgumentException("results may not be null");
@@ -92,7 +88,8 @@ public class PSImportPackage implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXImportPackge (PSXDeployableElement, PSXValidationResults)>
    * </code></pre>
@@ -113,9 +110,8 @@ public class PSImportPackage implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   @Override
@@ -182,20 +178,15 @@ public class PSImportPackage implements IPSDeployComponent {
     return isEqual;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXImportPackage";
 
-  /**
-   * The deployable element to be packaged, never <code>null</code> or
-   * modified after ctor.
-   */
+  /** The deployable element to be packaged, never <code>null</code> or modified after ctor. */
   PSDeployableElement m_pkg;
 
   /**
-   * Validation results for the package set when validated by the server,
-   * may be <code>null</code> if this has not been done.
+   * Validation results for the package set when validated by the server, may be <code>null</code>
+   * if this has not been done.
    */
   PSValidationResults m_validationResults = null;
 }

@@ -35,33 +35,28 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.xml.sax.SAXParseException;
 
-/**
- * Caches stylesheets as PSCachedStylesheet in a Map keyed by URL
- **/
+/** Caches stylesheets as PSCachedStylesheet in a Map keyed by URL */
 public class PSStylesheetCacheManager {
 
-  /**
-   * This class contains only static methods, and is never constructed
-   **/
+  /** This class contains only static methods, and is never constructed */
   private PSStylesheetCacheManager() {
     // don't construct this
   }
 
   /**
-   * the Stylesheet cache is a keyed table that contains
-   * javax.xml.transform.Templates objects.  ConcurrentHashMap is used
-   * rather than HashMap because it is synchronized.
-   **/
+   * the Stylesheet cache is a keyed table that contains javax.xml.transform.Templates objects.
+   * ConcurrentHashMap is used rather than HashMap because it is synchronized.
+   */
   static Map ms_cache = new ConcurrentHashMap();
 
   /**
-   * get a stylesheet from the cache by URL.  If the stylesheet does not
-   * exist in the cache, it will be added
+   * get a stylesheet from the cache by URL. If the stylesheet does not exist in the cache, it will
+   * be added
+   *
    * @param styleFile the URL of the stylesheet to cache.
    * @return the cached stylesheet object
-   * @throws PSExtensionProcessingException if the file does not exist or
-   *  cannot be processed.
-   **/
+   * @throws PSExtensionProcessingException if the file does not exist or cannot be processed.
+   */
   public static PSCachedStylesheet getStyleSheetFromCache(URL styleFile)
       throws PSExtensionProcessingException {
 
@@ -105,12 +100,11 @@ public class PSStylesheetCacheManager {
   }
 
   /**
-   * Traverses an Iterator, printing each object to a StringBuilder.  If the
-   * object is a TransformerException, print additional information.
+   * Traverses an Iterator, printing each object to a StringBuilder. If the object is a
+   * TransformerException, print additional information.
    *
-   * @param   buf    where to append the strings; modified by this method;
-   *    cannot be <code>null</code>
-   * @param   iter   where to find the objects; cannot be <code>null</code>
+   * @param buf where to append the strings; modified by this method; cannot be <code>null</code>
+   * @param iter where to find the objects; cannot be <code>null</code>
    */
   private static void appendFromIterator(StringBuilder buf, Iterator iter) {
     while (iter.hasNext()) {
@@ -134,13 +128,11 @@ public class PSStylesheetCacheManager {
   }
 
   /**
-   * Extract errors from an PSTransformErrorListener and append them to a
-   * StringBuilder, then clear the errors from the listener.
+   * Extract errors from an PSTransformErrorListener and append them to a StringBuilder, then clear
+   * the errors from the listener.
    *
-   * @param   buf      where to append the strings; modified by this method;
-   *    if null, return quietly.
-   * @param   errors   where to find the errors; if null or not our
-   *    implementation, return quietly.
+   * @param buf where to append the strings; modified by this method; if null, return quietly.
+   * @param errors where to find the errors; if null or not our implementation, return quietly.
    */
   public static void appendErrorMessages(StringBuilder buf, ErrorListener errors) {
     if (null == buf || null == errors) return;
@@ -160,17 +152,14 @@ public class PSStylesheetCacheManager {
   }
 
   /**
-   * Returns the range of data of source in which the exception occurred.
-   * Returns empty string if source of the exception can not be found or the
-   * error line number is less than 0.
+   * Returns the range of data of source in which the exception occurred. Returns empty string if
+   * source of the exception can not be found or the error line number is less than 0.
    *
-   * This method was copied from com.percussion.data.PSXslStyleSheetMerger
+   * <p>This method was copied from com.percussion.data.PSXslStyleSheetMerger
    *
-   * @param   e       the exception, assumed not <code>null</code>.
-   *
-   * @return   a string containing any contextual text which can be found,
-   * never <code>null</code>, may be empty.
-   *
+   * @param e the exception, assumed not <code>null</code>.
+   * @return a string containing any contextual text which can be found, never <code>null</code>,
+   *     may be empty.
    * @throws IOException reading source file in which exception occurred.
    */
   private static String getExceptionContextData(Exception e) throws IOException {
@@ -200,19 +189,15 @@ public class PSStylesheetCacheManager {
   }
 
   /**
-   * Returns an error message containing the data in the specified range
-   * for the exception.
-   * Returns an empty string if the found error line number is less than 0.
+   * Returns an error message containing the data in the specified range for the exception. Returns
+   * an empty string if the found error line number is less than 0.
    *
-   * This method was copied from com.percussion.data.PSXslStyleSheetMerger
+   * <p>This method was copied from com.percussion.data.PSXslStyleSheetMerger
    *
-   * @param   e       the exception, assumed not <code>null</code>.
-   * @param   url    the source stream in which error happened, assumed not
-   * <code>null</code>.
-   *
-   * @return   a string containing any contextual text which can be found,
-   * never <code>null</code>, may be empty.
-   *
+   * @param e the exception, assumed not <code>null</code>.
+   * @param url the source stream in which error happened, assumed not <code>null</code>.
+   * @return a string containing any contextual text which can be found, never <code>null</code>,
+   *     may be empty.
    * @throws IOException reading source file in which exception occurred.
    */
   private static String getExceptionContextData(Exception e, URL url) throws IOException {
@@ -240,15 +225,12 @@ public class PSStylesheetCacheManager {
   }
 
   /**
-   * Create an error message containing the data in the specified range
-   * for the exception.
-   * This method was copied from com.percussion.data.PSXslStyleSheetMerger.
+   * Create an error message containing the data in the specified range for the exception. This
+   * method was copied from com.percussion.data.PSXslStyleSheetMerger.
    *
-   * @param   buf    a buffer to store the output into, assumed not
-   * <code>null</code>.
-   * @param   source a reader with the source(XSL data), assumed not
-   * <code>null</code>.
-   * @param   errorLine the error line number
+   * @param buf a buffer to store the output into, assumed not <code>null</code>.
+   * @param source a reader with the source(XSL data), assumed not <code>null</code>.
+   * @param errorLine the error line number
    */
   private static void getExceptionContextData(
       StringBuilder buf, BufferedReader source, int errorLine) {

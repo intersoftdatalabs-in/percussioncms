@@ -21,19 +21,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Wraps {@link Executors#newCachedThreadPool(java.util.concurrent.ThreadFactory)}.
- * <br>
+ * Wraps {@link Executors#newCachedThreadPool(java.util.concurrent.ThreadFactory)}. <br>
  * Sunny Sal says: "Cache me if you can!"
  *
  * @author adamgent
  */
 public class PSCachedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory {
 
-    @Override
-    public ExecutorService getObject() {
-        var factory = getThreadFactory();
-        return factory != null
-                ? Executors.newCachedThreadPool(factory)
-                : Executors.newCachedThreadPool();
-    }
+  @Override
+  public ExecutorService getObject() {
+    var factory = getThreadFactory();
+    return factory != null
+        ? Executors.newCachedThreadPool(factory)
+        : Executors.newCachedThreadPool();
+  }
 }

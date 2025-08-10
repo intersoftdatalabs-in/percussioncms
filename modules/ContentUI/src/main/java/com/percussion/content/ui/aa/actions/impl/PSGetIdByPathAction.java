@@ -31,15 +31,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Returns a JSONObject consisting of id and type for the given path. If the
- * object corresponds to the path is folder then returns type as "folder", if it
- * corresponds to item returns "item".
+ * Returns a JSONObject consisting of id and type for the given path. If the object corresponds to
+ * the path is folder then returns type as "folder", if it corresponds to item returns "item".
  *
  * <pre>
  *   id: &lt;content id/folderid&gt;
  *   type:&lt;item:folder&gt;
  * </pre>
- *
  */
 public class PSGetIdByPathAction extends PSAAActionBase {
 

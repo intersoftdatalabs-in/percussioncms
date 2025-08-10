@@ -30,24 +30,21 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Monitors disk and memory usage by cached items and causes the least recently
- * used items to be written to disk when memory use reaches a predefined
- * threshold, and the oldest disk items to be flushed as disk usage reaches its
- * limit. The cache manager ensures there is one instance of this class used
- * by all cache instances. Memory is managed for the entire server across all
- * cache instances. Set this as a listener on each cache so it can keep track
- * of all items and whether they are in memory or on disk.
+ * Monitors disk and memory usage by cached items and causes the least recently used items to be
+ * written to disk when memory use reaches a predefined threshold, and the oldest disk items to be
+ * flushed as disk usage reaches its limit. The cache manager ensures there is one instance of this
+ * class used by all cache instances. Memory is managed for the entire server across all cache
+ * instances. Set this as a listener on each cache so it can keep track of all items and whether
+ * they are in memory or on disk.
  */
 class PSCacheMemoryManager extends Thread
     implements IPSCacheAccessedListener, IPSCacheModifiedListener {
   /**
-   * Creates a thread to monitor cache memory and disk usage. If caching is
-   * not enabled, will do nothing.
+   * Creates a thread to monitor cache memory and disk usage. If caching is not enabled, will do
+   * nothing.
    *
-   * @param cacheSettings The cache settings that are used to determine if
-   * caching is enabled, and to provide memory and disk usage values.  May not
-   * be <code>null</code>.
-   *
+   * @param cacheSettings The cache settings that are used to determine if caching is enabled, and
+   *     to provide memory and disk usage values. May not be <code>null</code>.
    * @throws IllegalArgumentException if <code>cacheSettings</code> is null.
    */
   public PSCacheMemoryManager(PSServerCacheSettings cacheSettings) {
@@ -57,8 +54,8 @@ class PSCacheMemoryManager extends Thread
     setDaemon(true);
 
     /**
-     * Cache settings are initialized once, since the cache manager recreates
-     * a new memory manager each time the cache settings are changed.
+     * Cache settings are initialized once, since the cache manager recreates a new memory manager
+     * each time the cache settings are changed.
      */
     m_isEnabled = cacheSettings.isEnabled();
     m_maxMemoryUsage = cacheSettings.getMaxMemoryUsage();
@@ -71,13 +68,11 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Starts a thread to monitor memory and disk usage.  Will process events
-   * when items added to the cache and when items are retrieved from disk.  As
-   * necessary, the least recently used items in memory will be moved to disk,
-   * and the least recently used disk items will be flushed.  As events are
-   * received through the {@link IPSCacheAccessedListener} and
-   * {@link IPSCacheModifiedListener} interfaces, they are queued and processed
-   * asynchronously by this thread.
+   * Starts a thread to monitor memory and disk usage. Will process events when items added to the
+   * cache and when items are retrieved from disk. As necessary, the least recently used items in
+   * memory will be moved to disk, and the least recently used disk items will be flushed. As events
+   * are received through the {@link IPSCacheAccessedListener} and {@link IPSCacheModifiedListener}
+   * interfaces, they are queued and processed asynchronously by this thread.
    */
   public void run() {
     while (!m_shutdown) {
@@ -131,8 +126,8 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Shuts down the memory manager thread and releases any resources.  It is
-   * safe to call this method if the thread is not currently running.
+   * Shuts down the memory manager thread and releases any resources. It is safe to call this method
+   * if the thread is not currently running.
    */
   public void shutdown() {
     synchronized (m_monitor) {
@@ -170,11 +165,9 @@ class PSCacheMemoryManager extends Thread
       m_caches.put(new Integer(cache.getCacheId()), cache);
 
       /**
-       * The cache handler already signed us up for modified events, so don't
-       * register again.
+       * The cache handler already signed us up for modified events, so don't register again.
        *
-       * We don't subscribe accessed events since we are not interested in
-       * cache missed events.
+       * <p>We don't subscribe accessed events since we are not interested in cache missed events.
        */
     }
 
@@ -205,8 +198,7 @@ class PSCacheMemoryManager extends Thread
    * Convenience method to log debug messages.
    *
    * @param msg the message to log, not <code>null</code>.
-   * @throws IllegalArgumentException if the supplied message is
-   *    <code>null</code>.
+   * @throws IllegalArgumentException if the supplied message is <code>null</code>.
    */
   private void log(String msg) {
     if (msg == null) throw new IllegalArgumentException("log message cannot be null");
@@ -219,8 +211,8 @@ class PSCacheMemoryManager extends Thread
    *
    * @param memUsage the current memory usage in bytes.
    * @param diskUsage the current disk usage in bytes.
-   * @return the usage String like
-   *    "Memory: 124000 bytes(1000000 bytes) Disk: 5230000 bytes(-1 bytes)".
+   * @return the usage String like "Memory: 124000 bytes(1000000 bytes) Disk: 5230000 bytes(-1
+   *     bytes)".
    */
   private String formatUsage(long memUsage, long diskUsage) {
     return "Memory: "
@@ -236,15 +228,11 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Calculates if the limit has been reached based on the supplied maximum
-   * size and current usage.
+   * Calculates if the limit has been reached based on the supplied maximum size and current usage.
    *
-   * @param max the maximum size allowed in bytes, -1 if unlimited, 0 or
-   *    greater otherwise.
-   * @param current the current size used in bytes, always greater or equal
-   *    to 0.
-   * @return the amount of space to be freed in bytes, always greater or equal
-   *    to 0.
+   * @param max the maximum size allowed in bytes, -1 if unlimited, 0 or greater otherwise.
+   * @param current the current size used in bytes, always greater or equal to 0.
+   * @return the amount of space to be freed in bytes, always greater or equal to 0.
    * @throws IllegalArgumentException for any illegal parameter passed.
    */
   private long reachedLimit(long max, long current) {
@@ -261,8 +249,8 @@ class PSCacheMemoryManager extends Thread
     if (current < (max - threshold)) return 0;
 
     /**
-     * We free memory/disk in chunks of 10% of the maximum size including
-     * everything above the maximum size.
+     * We free memory/disk in chunks of 10% of the maximum size including everything above the
+     * maximum size.
      */
     long releaseAmount = threshold * 2;
     if (current > max) releaseAmount += (current - max);
@@ -271,14 +259,11 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Frees the specified amount of memory by moving items to disk or flushing
-   * the least recent used items from memory. This method handles both,
-   * the memory and disk updates needed.
-   * The <code>CACHE_ITEM_STORED_TO_DISK</code> action resulting from this
-   * method must be ignored.
+   * Frees the specified amount of memory by moving items to disk or flushing the least recent used
+   * items from memory. This method handles both, the memory and disk updates needed. The <code>
+   * CACHE_ITEM_STORED_TO_DISK</code> action resulting from this method must be ignored.
    *
-   * @param amount the amount of memory to free up in bytes, assumed greater
-   *    then 0.
+   * @param amount the amount of memory to free up in bytes, assumed greater then 0.
    */
   private void freeMemory(long amount) {
     long marker = m_usedMemorySpace - amount;
@@ -331,11 +316,9 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Frees the specified amount of space on disk by flushing the least
-   * recent used item(s).
+   * Frees the specified amount of space on disk by flushing the least recent used item(s).
    *
-   * @param amount the amount of disk space to free in bytes, assumed greater
-   *    then 0.
+   * @param amount the amount of disk space to free in bytes, assumed greater then 0.
    */
   private void freeDisk(long amount) {
     long marker = m_usedDiskSpace - amount;
@@ -365,10 +348,9 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Handles the supplied event for all cases. This method does only update
-   * the size counters and item lists. Besides that it also makes sure that
-   * items are not too big to fit into memory and/or disk. If we would allow
-   * this, one really big item could flush the entire cache.
+   * Handles the supplied event for all cases. This method does only update the size counters and
+   * item lists. Besides that it also makes sure that items are not too big to fit into memory
+   * and/or disk. If we would allow this, one really big item could flush the entire cache.
    *
    * @param event the event to be handled, assumed not <code>null</code>.
    */
@@ -381,8 +363,7 @@ class PSCacheMemoryManager extends Thread
     switch (event.getAction()) {
       case PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_DISK:
         /**
-         * If the object was accessed from disk, its been moved into
-         * memory and released from disk.
+         * If the object was accessed from disk, its been moved into memory and released from disk.
          * If we did not find the item in the on disk list, we skip it.
          */
         if (m_itemsOnDisk.remove(item)) {
@@ -402,8 +383,8 @@ class PSCacheMemoryManager extends Thread
 
       case PSCacheEvent.CACHE_ITEM_STORED_TO_DISK:
         /**
-         * The object was moved to disk, so it was released from memory.
-         * If we cannot find the item in the in memory list, we skip it.
+         * The object was moved to disk, so it was released from memory. If we cannot find the item
+         * in the in memory list, we skip it.
          */
         if (m_itemsInMemory.remove(item)) {
           m_usedMemorySpace -= item.getSize();
@@ -422,9 +403,8 @@ class PSCacheMemoryManager extends Thread
 
       case PSCacheEvent.CACHE_ITEM_ADDED:
         /**
-         * A new item was added to the cache. Update the memory/disk size
-         * counters and item lists. If the item is too big to fit into
-         * the available space, move it to disk or even flush it.
+         * A new item was added to the cache. Update the memory/disk size counters and item lists.
+         * If the item is too big to fit into the available space, move it to disk or even flush it.
          */
         addCacheItem(item, m_maxMemoryUsage, m_maxDiskUsage);
         break;
@@ -458,9 +438,8 @@ class PSCacheMemoryManager extends Thread
 
       case PSCacheEvent.CACHE_ITEM_ACCESSED_FROM_MEMORY:
         /**
-         * The item was accesed from memory. Move it to the end of the in
-         * memory list to keep the list in order based on last accessed
-         * time.
+         * The item was accesed from memory. Move it to the end of the in memory list to keep the
+         * list in order based on last accessed time.
          */
         if (m_itemsInMemory.remove(item)) {
           m_itemsInMemory.add(item);
@@ -474,14 +453,14 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Add the provided item to the cache. Either it will be added to memory,
-   * disk or if it does not fit it will be flushed.
+   * Add the provided item to the cache. Either it will be added to memory, disk or if it does not
+   * fit it will be flushed.
    *
    * @param item the item added, assumed not <code>null</code>.
-   * @param maxMemoryUsage the maximum memory available, -1 if unlimited,
-   *    greater or equals 0 otherwise.
-   * @param maxDiskUsage the maximum disk space available, -1 if unlimited,
-   *    greater or equals 0 otherwise.
+   * @param maxMemoryUsage the maximum memory available, -1 if unlimited, greater or equals 0
+   *     otherwise.
+   * @param maxDiskUsage the maximum disk space available, -1 if unlimited, greater or equals 0
+   *     otherwise.
    */
   private void addCacheItem(PSCacheItem item, long maxMemoryUsage, long maxDiskUsage) {
     if (item.isInMemory()) {
@@ -528,14 +507,14 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Tries to add the supplied item to disk. Flushes the item if it does not
-   * fit into the maximum disk space allowed.
+   * Tries to add the supplied item to disk. Flushes the item if it does not fit into the maximum
+   * disk space allowed.
    *
    * @param item the item to be added to disk, assumed not <code>null</code>.
-   * @param maxMemoryUsage the maximum memory available in bytes, -1 if
-   *    unlimited, greater or equal to 0 otherwise.
-   * @param maxDiskUsage the maximum disk space available in bytes, -1 if
-   *    unlimited, greater or equal to 0 otherwise.
+   * @param maxMemoryUsage the maximum memory available in bytes, -1 if unlimited, greater or equal
+   *     to 0 otherwise.
+   * @param maxDiskUsage the maximum disk space available in bytes, -1 if unlimited, greater or
+   *     equal to 0 otherwise.
    */
   private void addCacheItemToDisk(PSCacheItem item, long maxMemoryUsage, long maxDiskUsage) {
     if (itemFits(item, maxDiskUsage)) {
@@ -563,14 +542,12 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * Tests if the supplied item fits into the provided maximum space. To avoid
-   * moving / flushing too many other cached items if a really big item was
-   * added, we consider only items that have a size less then the maximum
-   * devided by 2 to fit.
+   * Tests if the supplied item fits into the provided maximum space. To avoid moving / flushing too
+   * many other cached items if a really big item was added, we consider only items that have a size
+   * less then the maximum devided by 2 to fit.
    *
    * @param item the item to test, assumed not <code>null</code>.
-   * @param max the maximal size available, -1 if unlimited, 0 or greater
-   *    otherwise.
+   * @param max the maximal size available, -1 if unlimited, 0 or greater otherwise.
    * @return <code>true</code> if it fits, <code>false</code> otherwise.
    */
   private boolean itemFits(PSCacheItem item, long max) {
@@ -592,8 +569,8 @@ class PSCacheMemoryManager extends Thread
 
   /**
    * Cleans up disk cache folder in the event the server crashes.
-   * @return <code>true</code> if it successfully deletes,
-   * <code>false</code> otherwise.
+   *
+   * @return <code>true</code> if it successfully deletes, <code>false</code> otherwise.
    */
   static boolean cleanDiskCache() {
     File dir = new File(PSServer.getRxDir(), CACHE_DIR);
@@ -601,13 +578,11 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * If the supplied File is a directory, it deletes
-   * it and all its children, recursively.
-   * Deletes a folder recursively.
-   * @param dir - folder to be removed.If <code>null</code>
-   * it returns true  <code>true</code>.
-   * @return <code>true</code> if there are no errors,
-   * <code>false</code> otherwise.
+   * If the supplied File is a directory, it deletes it and all its children, recursively. Deletes a
+   * folder recursively.
+   *
+   * @param dir - folder to be removed.If <code>null</code> it returns true <code>true</code>.
+   * @return <code>true</code> if there are no errors, <code>false</code> otherwise.
    */
   static boolean delete(File dir) {
     if (null == dir) return true;
@@ -619,78 +594,68 @@ class PSCacheMemoryManager extends Thread
   }
 
   /**
-   * The directory used to store cached files to disk, relative from the
-   * Rhythmyx installation root. Never <code>null</code> or changed.
+   * The directory used to store cached files to disk, relative from the Rhythmyx installation root.
+   * Never <code>null</code> or changed.
    */
   private static final String CACHE_DIR = "cache";
 
-  /**
-   * The amount of memory space used by the current cache in bytes.
-   */
+  /** The amount of memory space used by the current cache in bytes. */
   private long m_usedMemorySpace = 0;
 
-  /**
-   * The amount of disk space used by the current cache in bytes.
-   */
+  /** The amount of disk space used by the current cache in bytes. */
   private long m_usedDiskSpace = 0;
 
   /**
-   * All events are queued in this list and then processed later. A list of
-   * <code>PSCacheEvent</code> objects, never <code>null</code>, may be empty.
+   * All events are queued in this list and then processed later. A list of <code>PSCacheEvent
+   * </code> objects, never <code>null</code>, may be empty.
    */
   private LinkedList m_eventQueue = new LinkedList();
 
   /**
-   * A flag to indicate that caching is enabled or disabled. Initialized in
-   * the contructor, never changed after that.
+   * A flag to indicate that caching is enabled or disabled. Initialized in the contructor, never
+   * changed after that.
    */
   private boolean m_isEnabled = false;
 
   /**
-   * The maximum amount of memory to be used for caching in bytes. Initialized
-   * in the constructor, never changed after that. -1 if unlimited, greater
-   * or equal to 0 otherwise.
+   * The maximum amount of memory to be used for caching in bytes. Initialized in the constructor,
+   * never changed after that. -1 if unlimited, greater or equal to 0 otherwise.
    */
   private long m_maxMemoryUsage = -1;
 
   /**
-   * The maximum amount of disk space to be used for caching in bytes.
-   * Initialized in the constructor, never changed after that. -1 if
-   * unlimited, greater or equal to 0 otherwise.
+   * The maximum amount of disk space to be used for caching in bytes. Initialized in the
+   * constructor, never changed after that. -1 if unlimited, greater or equal to 0 otherwise.
    */
   private long m_maxDiskUsage = -1;
 
   /**
-   * Flag to indicate it the memory manager is shutting down.  If
-   * <code>true</code>, the memory manager has begun shutdown, otherwise
-   * <code>false</code>.
+   * Flag to indicate it the memory manager is shutting down. If <code>true</code>, the memory
+   * manager has begun shutdown, otherwise <code>false</code>.
    */
   private boolean m_shutdown = false;
 
   /**
-   * A map of caches for which this is manageing the memory. Set through calls
-   * to {@link #setCache()}. The keys are Integers of the cache id and the
-   * values are <code>PSMultiLevelCache</code> objects. Never
-   * <code>null</code>, might be empty.
+   * A map of caches for which this is manageing the memory. Set through calls to {@link
+   * #setCache()}. The keys are Integers of the cache id and the values are <code>PSMultiLevelCache
+   * </code> objects. Never <code>null</code>, might be empty.
    */
   private Map m_caches = new HashMap();
 
   /**
-   * A list of all cached items (<code>PSCacheItem</code>) that are currently
-   * in memory. The list is always ordered by accessed time, the oldest item
-   * being first. Never <code>null</code>, may be empty.
+   * A list of all cached items (<code>PSCacheItem</code>) that are currently in memory. The list is
+   * always ordered by accessed time, the oldest item being first. Never <code>null</code>, may be
+   * empty.
    */
   private LinkedList m_itemsInMemory = new LinkedList();
 
   /**
-   * A list of all cached items (<code>PSCacheItem</code>) that are currently
-   * on disk. The list is always ordered by accessed time, the oldest item
-   * beeing first. Never <code>null</code>, may be empty.
+   * A list of all cached items (<code>PSCacheItem</code>) that are currently on disk. The list is
+   * always ordered by accessed time, the oldest item beeing first. Never <code>null</code>, may be
+   * empty.
    */
   private LinkedList m_itemsOnDisk = new LinkedList();
 
-  /**
-   * Object used to synchronize on the memory manager, never <code>null</code>.
-   */
+  /** Object used to synchronize on the memory manager, never <code>null</code>. */
   private Object m_monitor = new Object();
 }

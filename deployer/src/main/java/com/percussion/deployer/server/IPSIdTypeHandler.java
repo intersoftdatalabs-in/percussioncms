@@ -26,20 +26,19 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
 
 /**
- * Interface for classes that can discover and transform literal identifiers in
- * objects represented by dependencies that support ID types.
+ * Interface for classes that can discover and transform literal identifiers in objects represented
+ * by dependencies that support ID types.
  */
 public interface IPSIdTypeHandler {
 
   /**
-   * Discovers all literal IDs within the object represented by the supplied
-   * dependency.
+   * Discovers all literal IDs within the object represented by the supplied dependency.
    *
    * @param tok The security token to use, may not be {@code null}.
-   * @param dep The dependency representing the object to introspect for literal
-   * IDs. Must be of the type expected by the derived handler, may not be {@code null}.
-   * @return The ID types discovered, all mappings created with their type
-   * set as undefined, never {@code null}.
+   * @param dep The dependency representing the object to introspect for literal IDs. Must be of the
+   *     type expected by the derived handler, may not be {@code null}.
+   * @return The ID types discovered, all mappings created with their type set as undefined, never
+   *     {@code null}.
    * @throws IllegalArgumentException if {@code dep} is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -47,18 +46,17 @@ public interface IPSIdTypeHandler {
       throws PSDeployException, PSNotFoundException;
 
   /**
-   * Transforms literal IDs in the supplied object as specified by the supplied
-   * ID Types and ID Map. Also transforms the ID in the corresponding ID type
-   * mapping so it will reflect the object on the local system, so the
-   * {@code idTypes} should be saved after calling this method.
+   * Transforms literal IDs in the supplied object as specified by the supplied ID Types and ID Map.
+   * Also transforms the ID in the corresponding ID type mapping so it will reflect the object on
+   * the local system, so the {@code idTypes} should be saved after calling this method.
    *
-   * @param object The object to transform, may not be {@code null} and
-   * must be of the type expected by the derived class.
-   * @param idTypes The ID types map containing all defined ID type mappings,
-   * may not be {@code null}. Will be modified; the literal IDs
-   * within the mappings will be transformed using the supplied ID map.
-   * @param idMap The ID map containing ID mappings for all literal IDs
-   * defined in the supplied {@code idTypes}, never {@code null}.
+   * @param object The object to transform, may not be {@code null} and must be of the type expected
+   *     by the derived class.
+   * @param idTypes The ID types map containing all defined ID type mappings, may not be {@code
+   *     null}. Will be modified; the literal IDs within the mappings will be transformed using the
+   *     supplied ID map.
+   * @param idMap The ID map containing ID mappings for all literal IDs defined in the supplied
+   *     {@code idTypes}, never {@code null}.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */

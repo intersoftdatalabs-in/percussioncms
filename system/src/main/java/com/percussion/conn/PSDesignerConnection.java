@@ -56,142 +56,118 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSDesignerConnection class provides designer connectivity to the
- * E2 server.
- * Methods for connecting to the server, receiving data from
- * the server and sending data to the server are provided.
- * <P>
- * Here is a list of all available request types usable by PSDesignerConnection:
+ * The PSDesignerConnection class provides designer connectivity to the E2 server. Methods for
+ * connecting to the server, receiving data from the server and sending data to the server are
+ * provided.
+ *
+ * <p>Here is a list of all available request types usable by PSDesignerConnection:
+ *
  * <UL>
- * <LI><CODE>admin</CODE>: use by remote console to issue commands to the
- * server.
- * <LI><CODE>design-open</CODE>: request to open a designer connection.
- * <LI><CODE>design-close</CODE>: request to close a designer connection.
- * <LI><CODE>design-catalog-?</CODE>: catalog for a specific type of data
- * designated by ?. The ? is a requestCategory that is best defined by
- * <CODE>{@link com.percussion.design.catalog.PSCataloger}</CODE>
- * <LI><CODE>design-objectstore-app-lock</CODE>: request a lock on an
- * application.
- * <LI><CODE>design-objectstore-app-load</CODE>: request for the loading of
- * an application.
- * <LI><CODE>design-objectstore-app-list</CODE>: requests for a list of
- * applications for which the caller (user) has designer access.
- * <LI><CODE>design-objectstore-app-remove</CODE>: request for the removal
- * of an application.
- * <LI><CODE>design-objectstore-app-rename</CODE>: a application renaming
- * request.
- * <LI><CODE>design-objectstore-app-save</CODE>: request to save an
- * application.
- * <LI><CODE>design-objectstore-userconfig-load</CODE>: request to load an
- * userconfig.
- * <LI><CODE>design-objectstore-userconfig-remove</CODE>: request to remove
- * a userconfig.
- * <LI><CODE>design-objectstore-userconfig-save</CODE>: request to save a
- * userconfig.
- * <LI><CODE>design-objectstore-serverconfig-load</CODE>: request to load the
- * server config.
- * <LI><CODE>design-objectstore-serverconfig-save</CODE>: request to save the
- * server config.
- * <LI><CODE>design-objectstore-serverconfig-lock</CODE>: request for the
- * the lock of the server config.
- * <LI><CODE>design-objectstore-app-file-save</CODE>: request an application
- * file to be saved.
- * <LI><CODE>design-objectstore-app-file-load</CODE>: request an application
- * file to be loaded.
- * <LI><CODE>design-objectstore-app-file-remove</CODE>: request an
- * application to be removed from server.
- * <LI><CODE>design-objectstore-characterset-map-load</CODE>: request the
- * characterset map to be loaded.
- * <LI><CODE>design-objectstore-extensionhandler-install</CODE>: request an
- * extension handler to be installed to the server.
- * <LI><CODE>design-objectstore-extensionhandler-update</CODE>: request an
- * extension handler to be updated on the server.
- * <LI><CODE>design-objectstore-extensionhandler-remove</CODE>: request an
- * extension handler to be removed from the server.
- * <LI><CODE>design-objectstore-extension-install</CODE>: request an
- * extension (belonging to a handler) to be installed to the server.
- * <LI><CODE>design-objectstore-extension-update</CODE>: request an extension
- * (belonging to a handler) to be updated on the server.
- * <LI><CODE>design-objectstore-extension-remove</CODE>: request an extension
- * (belonging to a handler) to tbe removed from the server.
+ *   <LI><CODE>admin</CODE>: use by remote console to issue commands to the server.
+ *   <LI><CODE>design-open</CODE>: request to open a designer connection.
+ *   <LI><CODE>design-close</CODE>: request to close a designer connection.
+ *   <LI><CODE>design-catalog-?</CODE>: catalog for a specific type of data designated by ?. The ?
+ *       is a requestCategory that is best defined by <CODE>
+ *       {@link com.percussion.design.catalog.PSCataloger}</CODE>
+ *   <LI><CODE>design-objectstore-app-lock</CODE>: request a lock on an application.
+ *   <LI><CODE>design-objectstore-app-load</CODE>: request for the loading of an application.
+ *   <LI><CODE>design-objectstore-app-list</CODE>: requests for a list of applications for which the
+ *       caller (user) has designer access.
+ *   <LI><CODE>design-objectstore-app-remove</CODE>: request for the removal of an application.
+ *   <LI><CODE>design-objectstore-app-rename</CODE>: a application renaming request.
+ *   <LI><CODE>design-objectstore-app-save</CODE>: request to save an application.
+ *   <LI><CODE>design-objectstore-userconfig-load</CODE>: request to load an userconfig.
+ *   <LI><CODE>design-objectstore-userconfig-remove</CODE>: request to remove a userconfig.
+ *   <LI><CODE>design-objectstore-userconfig-save</CODE>: request to save a userconfig.
+ *   <LI><CODE>design-objectstore-serverconfig-load</CODE>: request to load the server config.
+ *   <LI><CODE>design-objectstore-serverconfig-save</CODE>: request to save the server config.
+ *   <LI><CODE>design-objectstore-serverconfig-lock</CODE>: request for the the lock of the server
+ *       config.
+ *   <LI><CODE>design-objectstore-app-file-save</CODE>: request an application file to be saved.
+ *   <LI><CODE>design-objectstore-app-file-load</CODE>: request an application file to be loaded.
+ *   <LI><CODE>design-objectstore-app-file-remove</CODE>: request an application to be removed from
+ *       server.
+ *   <LI><CODE>design-objectstore-characterset-map-load</CODE>: request the characterset map to be
+ *       loaded.
+ *   <LI><CODE>design-objectstore-extensionhandler-install</CODE>: request an extension handler to
+ *       be installed to the server.
+ *   <LI><CODE>design-objectstore-extensionhandler-update</CODE>: request an extension handler to be
+ *       updated on the server.
+ *   <LI><CODE>design-objectstore-extensionhandler-remove</CODE>: request an extension handler to be
+ *       removed from the server.
+ *   <LI><CODE>design-objectstore-extension-install</CODE>: request an extension (belonging to a
+ *       handler) to be installed to the server.
+ *   <LI><CODE>design-objectstore-extension-update</CODE>: request an extension (belonging to a
+ *       handler) to be updated on the server.
+ *   <LI><CODE>design-objectstore-extension-remove</CODE>: request an extension (belonging to a
+ *       handler) to tbe removed from the server.
  * </UL>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDesignerConnection {
-  /**
-   * The login id property name.
-   */
+  /** The login id property name. */
   public static final String PROPERTY_LOGIN_ID = "loginId";
 
-  /**
-   * The login password property name.
-   */
+  /** The login password property name. */
   public static final String PROPERTY_LOGIN_PW = "loginPw";
 
   /**
-   * The E2 server's port property name. This is the TCP/IP port the
-   * E2 server is listening on, which defaults to 9991.
+   * The E2 server's port property name. This is the TCP/IP port the E2 server is listening on,
+   * which defaults to 9991.
    */
   public static final String PROPERTY_PORT = "port";
 
   private static final Logger logger = LogManager.getLogger(PSDesignerConnection.class);
 
   /**
-   * The E2 server's protocol property name.
-   * The value <code>https</code> indicates that the SSL connection is requested,
-   * if missing or any other value, assumed <code>http</code> and a regular
+   * The E2 server's protocol property name. The value <code>https</code> indicates that the SSL
+   * connection is requested, if missing or any other value, assumed <code>http</code> and a regular
    * non SSL connection is established.
    */
   public static final String PROPERTY_PROTOCOL = "protocol";
 
-  /**
-   * The locale that we want to use for this connection.
-   */
+  /** The locale that we want to use for this connection. */
   public static final String PROPERTY_LOCALE = "locale";
 
   /**
-   * The E2 server's host name/address property name.  This is a TCP/IP
-   * name or address which can be resolved to locate the E2 server.
+   * The E2 server's host name/address property name. This is a TCP/IP name or address which can be
+   * resolved to locate the E2 server.
    */
   public static final String PROPERTY_HOST = "hostName";
 
   /**
-   * The E2 server's default port number. This can be overriden by
-   * the server setup, so use with caution.
+   * The E2 server's default port number. This can be overriden by the server setup, so use with
+   * caution.
    */
   public static final int DEFAULT_PORT = 9992;
 
   /**
-   * The E2 server's default SSL port number. This can be overriden by
-   * the server setup, so use with caution.
+   * The E2 server's default SSL port number. This can be overriden by the server setup, so use with
+   * caution.
    */
   public static final int DEFAULT_SSL_PORT = 9443;
 
   /**
-   * A TCP socket connection is made to the E2 server by default. To
-   * override this and use Java's URL class instead, set this property
-   * with USE_JAVA_URL_ENABLED.
+   * A TCP socket connection is made to the E2 server by default. To override this and use Java's
+   * URL class instead, set this property with USE_JAVA_URL_ENABLED.
    */
   public static final String PROPERTY_USE_JAVA_URL = "useJavaURL";
 
   /**
-   * A TCP socket connection is made to the E2 server by default. To
-   * override this and use Java's URL class instead, set the
-   * PROPERTY_USE_JAVA_URL property with this flag.
+   * A TCP socket connection is made to the E2 server by default. To override this and use Java's
+   * URL class instead, set the PROPERTY_USE_JAVA_URL property with this flag.
    */
   public static final String USE_JAVA_URL_ENABLED = "enabled";
 
-  /**
-   * Property to indicate the current jsessionid.
-   */
+  /** Property to indicate the current jsessionid. */
   public static final String PROPERTY_JSESSION_ID = "jSessionId";
 
   /**
-   * Construct a connection to an E2 server with the specified properties.
-   * Supported properties are:
+   * Construct a connection to an E2 server with the specified properties. Supported properties are:
+   *
    * <table border="1">
    * <tr><th>Key</th><th>Value</th></tr>
    * <tr><td>protocol</td>
@@ -214,17 +190,10 @@ public class PSDesignerConnection {
    * </tr>
    * </table>
    *
-   * @param      connInfo                   the server connectivity info
-   *
-   * @exception  PSServerException          if the server is not responding
-   *
-   * @exception  PSAuthorizationException   if access to the server is
-   *                                        denied
-   *
-   * @exception  PSAuthenticationFailedException
-   *                                        if userid or password submitted
-   *                                        is invalid
-   *
+   * @param connInfo the server connectivity info
+   * @exception PSServerException if the server is not responding
+   * @exception PSAuthorizationException if access to the server is denied
+   * @exception PSAuthenticationFailedException if userid or password submitted is invalid
    */
   public PSDesignerConnection(java.util.Properties connInfo)
       throws PSServerException, PSAuthorizationException, PSAuthenticationFailedException {
@@ -317,34 +286,26 @@ public class PSDesignerConnection {
     }
   }
 
-  /**
-   * Constructor for using in unit tests.
-   */
+  /** Constructor for using in unit tests. */
   public PSDesignerConnection() {}
 
   /**
    * Has a connection been established?
    *
-   * @return  <code>true</code> if it has; <code>false</code> otherwise
+   * @return <code>true</code> if it has; <code>false</code> otherwise
    */
   public boolean isConnected() {
     return (m_sessId != null);
   }
 
   /**
-   * Attempt to connect to the server. This should only be called if
-   * {@link #isConnected isConnected} returns <code>false</code>.
+   * Attempt to connect to the server. This should only be called if {@link #isConnected
+   * isConnected} returns <code>false</code>.
    *
-   * @throws  PSServerException          if the server is not responding
-   *
-   * @throws  PSAuthorizationException   if access to the server is
-   *                                        denied
-   *
-   * @throws  PSAuthenticationFailedException
-   *                                        if userid or password submitted
-   *                                        is invalid
-   *
-   * @throws  IOException                if an i/o error occurs
+   * @throws PSServerException if the server is not responding
+   * @throws PSAuthorizationException if access to the server is denied
+   * @throws PSAuthenticationFailedException if userid or password submitted is invalid
+   * @throws IOException if an i/o error occurs
    */
   public void connect()
       throws PSServerException,
@@ -390,7 +351,7 @@ public class PSDesignerConnection {
   /**
    * Close the connection.
    *
-   * @exception  java.io.IOException     if an i/o error occurs
+   * @exception java.io.IOException if an i/o error occurs
    */
   public void close() throws java.io.IOException {
     if (!isConnected()) return;
@@ -420,7 +381,7 @@ public class PSDesignerConnection {
   /**
    * Get the session id assocaited with this connection.
    *
-   * @return  the session id
+   * @return the session id
    */
   public java.lang.String getSessionId() {
     return m_sessId;
@@ -429,7 +390,7 @@ public class PSDesignerConnection {
   /**
    * Get the jsession id assocaited with this connection.
    *
-   * @return  the jsession id, may be <code>null</code>.
+   * @return the jsession id, may be <code>null</code>.
    */
   public java.lang.String getJSessionId() {
     return m_jsessId;
@@ -438,7 +399,7 @@ public class PSDesignerConnection {
   /**
    * Get the logged in user name assocaited with this connection.
    *
-   * @return  the user name
+   * @return the user name
    */
   public java.lang.String getUserName() {
     return m_userName;
@@ -448,83 +409,66 @@ public class PSDesignerConnection {
    * Set the request type (PS-Request-Type). All available request types:
    *
    * <UL>
-   * <LI><CODE>admin</CODE>: use by remote console to issue commands to the
-   * server.
-   * <LI><CODE>design-open</CODE>: request to open a designer connection.
-   * <LI><CODE>design-close</CODE>: request to close a designer connection.
-   * <LI><CODE>design-catalog-?</CODE>: catalog for a specific type of data
-   * designated by ?. The ? is a requestCategory that is best defined by
-   * <CODE>{@link com.percussion.design.catalog.PSCataloger}</CODE>
-   * <LI><CODE>design-objectstore-app-lock</CODE>: request a lock on an
-   * application.
-   * <LI><CODE>design-objectstore-app-load</CODE>: request for the loading of
-   * an application.
-   * <LI><CODE>design-objectstore-app-list</CODE>: requests for a list of
-   * applications for which the caller (user) has designer access.
-   * <LI><CODE>design-objectstore-app-remove</CODE>: request for the removal
-   * of an application.
-   * <LI><CODE>design-objectstore-app-rename</CODE>: a application renaming
-   * request.
-   * <LI><CODE>design-objectstore-app-save</CODE>: request to save an
-   * application.
-   * <LI><CODE>design-objectstore-userconfig-load</CODE>: request to load an
-   * userconfig.
-   * <LI><CODE>design-objectstore-userconfig-remove</CODE>: request to remove
-   * a userconfig.
-   * <LI><CODE>design-objectstore-userconfig-save</CODE>: request to save a
-   * userconfig.
-   * <LI><CODE>design-objectstore-serverconfig-load</CODE>: request to load the
-   * server config.
-   * <LI><CODE>design-objectstore-serverconfig-save</CODE>: request to save the
-   * server config.
-   * <LI><CODE>design-objectstore-serverconfig-lock</CODE>: request for the
-   * the lock of the server config.
-   * <LI><CODE>design-objectstore-app-file-save</CODE>: request an application
-   * file to be saved.
-   * <LI><CODE>design-objectstore-app-file-load</CODE>: request an application
-   * file to be loaded.
-   * <LI><CODE>design-objectstore-app-file-remove</CODE>: request an
-   * application to be removed from server.
-   * <LI><CODE>design-objectstore-characterset-map-load</CODE>: request the
-   * characterset map to be loaded.
-   * <LI><CODE>design-objectstore-extensionhandler-install</CODE>: request an
-   * extension handler to be installed to the server.
-   * <LI><CODE>design-objectstore-extensionhandler-update</CODE>: request an
-   * extension handler to be updated on the server.
-   * <LI><CODE>design-objectstore-extensionhandler-remove</CODE>: request an
-   * extension handler to be removed from the server.
-   * <LI><CODE>design-objectstore-extension-install</CODE>: request an
-   * extension (belonging to a handler) to be installed to the server.
-   * <LI><CODE>design-objectstore-extension-update</CODE>: request an extension
-   * (belonging to a handler) to be updated on the server.
-   * <LI><CODE>design-objectstore-extension-remove</CODE>: request an extension
-   * (belonging to a handler) to tbe removed from the server.
+   *   <LI><CODE>admin</CODE>: use by remote console to issue commands to the server.
+   *   <LI><CODE>design-open</CODE>: request to open a designer connection.
+   *   <LI><CODE>design-close</CODE>: request to close a designer connection.
+   *   <LI><CODE>design-catalog-?</CODE>: catalog for a specific type of data designated by ?. The ?
+   *       is a requestCategory that is best defined by <CODE>
+   *       {@link com.percussion.design.catalog.PSCataloger}</CODE>
+   *   <LI><CODE>design-objectstore-app-lock</CODE>: request a lock on an application.
+   *   <LI><CODE>design-objectstore-app-load</CODE>: request for the loading of an application.
+   *   <LI><CODE>design-objectstore-app-list</CODE>: requests for a list of applications for which
+   *       the caller (user) has designer access.
+   *   <LI><CODE>design-objectstore-app-remove</CODE>: request for the removal of an application.
+   *   <LI><CODE>design-objectstore-app-rename</CODE>: a application renaming request.
+   *   <LI><CODE>design-objectstore-app-save</CODE>: request to save an application.
+   *   <LI><CODE>design-objectstore-userconfig-load</CODE>: request to load an userconfig.
+   *   <LI><CODE>design-objectstore-userconfig-remove</CODE>: request to remove a userconfig.
+   *   <LI><CODE>design-objectstore-userconfig-save</CODE>: request to save a userconfig.
+   *   <LI><CODE>design-objectstore-serverconfig-load</CODE>: request to load the server config.
+   *   <LI><CODE>design-objectstore-serverconfig-save</CODE>: request to save the server config.
+   *   <LI><CODE>design-objectstore-serverconfig-lock</CODE>: request for the the lock of the server
+   *       config.
+   *   <LI><CODE>design-objectstore-app-file-save</CODE>: request an application file to be saved.
+   *   <LI><CODE>design-objectstore-app-file-load</CODE>: request an application file to be loaded.
+   *   <LI><CODE>design-objectstore-app-file-remove</CODE>: request an application to be removed
+   *       from server.
+   *   <LI><CODE>design-objectstore-characterset-map-load</CODE>: request the characterset map to be
+   *       loaded.
+   *   <LI><CODE>design-objectstore-extensionhandler-install</CODE>: request an extension handler to
+   *       be installed to the server.
+   *   <LI><CODE>design-objectstore-extensionhandler-update</CODE>: request an extension handler to
+   *       be updated on the server.
+   *   <LI><CODE>design-objectstore-extensionhandler-remove</CODE>: request an extension handler to
+   *       be removed from the server.
+   *   <LI><CODE>design-objectstore-extension-install</CODE>: request an extension (belonging to a
+   *       handler) to be installed to the server.
+   *   <LI><CODE>design-objectstore-extension-update</CODE>: request an extension (belonging to a
+   *       handler) to be updated on the server.
+   *   <LI><CODE>design-objectstore-extension-remove</CODE>: request an extension (belonging to a
+   *       handler) to tbe removed from the server.
    * </UL>
    *
-   * @param   type    the type of request
+   * @param type the type of request
    */
   public void setRequestType(java.lang.String type) {
     m_reqType = type;
   }
 
-  /**
-   * Get the local server name (which is also the host name).
-   */
+  /** Get the local server name (which is also the host name). */
   public String getServer() {
     return (m_host);
   }
 
   /**
-   * Returns the protocol name used to connect to the server, possible values
-   * are "http" or "https", never <code>null</code> or <code>empty</code>.
+   * Returns the protocol name used to connect to the server, possible values are "http" or "https",
+   * never <code>null</code> or <code>empty</code>.
    */
   public String getProtocol() {
     return m_protocol;
   }
 
-  /**
-   * Gets the port used to connect to the server
-   */
+  /** Gets the port used to connect to the server */
   public int getPort() {
     return m_port;
   }
@@ -532,9 +476,8 @@ public class PSDesignerConnection {
   /**
    * Set the supported E2 version (PS-Request-Version).
    *
-   * @param   major  the major version of the E2 API
-   *
-   * @param   minor  the minor version of the E2 API
+   * @param major the major version of the E2 API
+   * @param minor the minor version of the E2 API
    */
   public void setRequestVersion(int major, int minor) {
     m_reqVersion = String.valueOf(major) + "." + String.valueOf(minor);
@@ -543,7 +486,7 @@ public class PSDesignerConnection {
   /**
    * Set the application this request is for (PS-Application).
    *
-   * @param   app      the name of the application
+   * @param app the name of the application
    */
   public void setRequestApplication(java.lang.String app) {
     m_reqApplication = app;
@@ -552,26 +495,21 @@ public class PSDesignerConnection {
   /**
    * Set the data set this request is for (PS-DataSet).
    *
-   * @param   ds     the name of the data set
+   * @param ds the name of the data set
    */
   public void setRequestDataSet(java.lang.String ds) {
     m_reqDataSet = ds;
   }
 
   /**
-   * Execute a request against the E2 server. This will send the specified
-   * XML document to the E2 server and receive the appropriate XML
-   * response document.
+   * Execute a request against the E2 server. This will send the specified XML document to the E2
+   * server and receive the appropriate XML response document.
    *
-   * @param   req      the XML document
-   *
-   * @return           the XML response document
-   *
-   * @exception PSServerException        if the server is not responding
-   *
+   * @param req the XML document
+   * @return the XML response document
+   * @exception PSServerException if the server is not responding
    * @exception PSAuthorizationException if access to the server is denied
-   *
-   * @exception IOException              if an i/o error occurs
+   * @exception IOException if an i/o error occurs
    */
   public Document execute(Document req)
       throws PSServerException,
@@ -598,9 +536,7 @@ public class PSDesignerConnection {
     return respDoc;
   }
 
-  /**
-   * Reconnect with the current settings.
-   */
+  /** Reconnect with the current settings. */
   private void reconnect()
       throws IOException,
           PSServerException,
@@ -615,8 +551,7 @@ public class PSDesignerConnection {
   }
 
   /**
-   * If m_useJavaUrl==<code>true</code> calls
-   * {@link #makeUrlRequest(Document)}, otherwise calls
+   * If m_useJavaUrl==<code>true</code> calls {@link #makeUrlRequest(Document)}, otherwise calls
    * {@link #makeSocketRequest(Document)}.
    *
    * @param req request doc, assumed never <code>null</code>.
@@ -637,15 +572,16 @@ public class PSDesignerConnection {
   }
 
   /**
-   * Creates a socket and connects it to the specified remote host at the
-   * specified remote port, over 'http' or 'https' protocols.
+   * Creates a socket and connects it to the specified remote host at the specified remote port,
+   * over 'http' or 'https' protocols.
+   *
    * @param host - the server host, never <code>null</code>.
    * @param port - the server port
-   * @param useSSL <code>true</code> indicates that the SSL connection is
-   * requested, <code>false</code> otherwise.
-   * @return an instance of a newly created and connected client socket,
-   * depending on the useSSL flag the connection is either established over
-   * regular 'http' or over 'https', never <code>null</code>.
+   * @param useSSL <code>true</code> indicates that the SSL connection is requested, <code>false
+   *     </code> otherwise.
+   * @return an instance of a newly created and connected client socket, depending on the useSSL
+   *     flag the connection is either established over regular 'http' or over 'https', never <code>
+   *     null</code>.
    * @throws IOException on any socket failure
    */
   private Socket createSocket(String host, int port, boolean useSSL) throws IOException {
@@ -663,9 +599,7 @@ public class PSDesignerConnection {
     return socket;
   }
 
-  /**
-   * this method uses the Java Socket class for communication.
-   */
+  /** this method uses the Java Socket class for communication. */
   @SuppressWarnings("unchecked")
   private Document makeSocketRequest(Document req)
       throws PSServerException,
@@ -968,9 +902,7 @@ public class PSDesignerConnection {
     }
   }
 
-  /**
-   * this method uses the Java URL class for communication.
-   */
+  /** this method uses the Java URL class for communication. */
   private Document makeUrlRequest(Document req)
       throws PSServerException,
           PSAuthorizationException,
@@ -1065,12 +997,10 @@ public class PSDesignerConnection {
   }
 
   /**
-   * Create a throwable exception from an XML stream. The structure for
-   * errors is defined in the
+   * Create a throwable exception from an XML stream. The structure for errors is defined in the
    *
-   * @param   root     the root node for the error (should be PSXError)
-   *
-   * @return           the exception
+   * @param root the root node for the error (should be PSXError)
+   * @return the exception
    */
   public static PSException createExceptionFromXml(Element root) {
     if (root == null) return null;
@@ -1130,11 +1060,10 @@ public class PSDesignerConnection {
   }
 
   /**
-   *    Get the server version info from the server we are connected to.  May
-   *    return <code>null</code> if version info is unavailable
+   * Get the server version info from the server we are connected to. May return <code>null</code>
+   * if version info is unavailable
    *
-   *    @return  an object that contains all version info: major, minor,
-   *             build number and build date
+   * @return an object that contains all version info: major, minor, build number and build date
    */
   public PSFormatVersion getServerVersion() {
     return m_serverVersion;
@@ -1196,22 +1125,16 @@ public class PSDesignerConnection {
   }
 
   /**
-   * Compares the client and server versions to determine if they are
-   * compatible.  Currently the rules are that the Client will be compatible
-   * with any server that is major version 6 or greater and has an
-   * InterfaceVersion that is <= to the client's.  This allows for backward
-   * compatibility with older servers (this is controlled by the client
-   * using the major version), but will allow the server to control if older
-   * clients are able to connect to newer servers using the interface version.
+   * Compares the client and server versions to determine if they are compatible. Currently the
+   * rules are that the Client will be compatible with any server that is major version 6 or greater
+   * and has an InterfaceVersion that is <= to the client's. This allows for backward compatibility
+   * with older servers (this is controlled by the client using the major version), but will allow
+   * the server to control if older clients are able to connect to newer servers using the interface
+   * version.
    *
-   * @param client the client's PSFormatVersion object, may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if the versions are compatible,
-   * <code>false</code> if not.
-   *
-   * @throws IllegalStateException if {@link #getServerVersion()}
-   * would return <code>null</code>.
+   * @param client the client's PSFormatVersion object, may not be <code>null</code>.
+   * @return <code>true</code> if the versions are compatible, <code>false</code> if not.
+   * @throws IllegalStateException if {@link #getServerVersion()} would return <code>null</code>.
    */
   public boolean checkVersionCompatibility(PSFormatVersion client) {
     if (m_serverVersion == null) throw new IllegalStateException("not connected");
@@ -1223,95 +1146,60 @@ public class PSDesignerConnection {
   }
 
   /**
-   * Initially set to <code>false</code>, if SSL is requested
-   * then ctor would set it to <code>true</code>.
+   * Initially set to <code>false</code>, if SSL is requested then ctor would set it to <code>true
+   * </code>.
    */
   private boolean m_useSSL = false;
 
-  /**
-   * Initially set to 'http', if SSL is requested
-   * then ctor would set it to 'https'.
-   */
+  /** Initially set to 'http', if SSL is requested then ctor would set it to 'https'. */
   private String m_protocol = "http";
 
-  /**
-   * Server host name, initialized in the ctor.
-   */
+  /** Server host name, initialized in the ctor. */
   private String m_host = null;
 
-  /**
-   * Server port name, initialized in the ctor.
-   */
+  /** Server port name, initialized in the ctor. */
   private int m_port = 0;
 
-  /**
-   * Session id, set after connection is setup.
-   */
+  /** Session id, set after connection is setup. */
   private String m_sessId = null;
 
-  /**
-   * JSession id, set after connection is setup.
-   */
+  /** JSession id, set after connection is setup. */
   private String m_jsessId = null;
 
-  /**
-   * User Id, initialized in the ctor.
-   */
+  /** User Id, initialized in the ctor. */
   private String m_loginId = null;
 
-  /**
-   * User password, initialized in the ctor.
-   */
+  /** User password, initialized in the ctor. */
   private String m_loginPw = null;
 
-  /**
-   * PS-Request-Type, set by {@link #setRequestType(String)}.
-   */
+  /** PS-Request-Type, set by {@link #setRequestType(String)}. */
   private String m_reqType = null;
 
-  /**
-   * PS-Request-Version, set by {@link #setRequestVersion(int,int)}.
-   */
+  /** PS-Request-Version, set by {@link #setRequestVersion(int,int)}. */
   private String m_reqVersion = null;
 
-  /**
-   * PS-Application name, set by {@link #setRequestApplication(String)}.
-   */
+  /** PS-Application name, set by {@link #setRequestApplication(String)}. */
   private String m_reqApplication = null;
 
-  /**
-   * Data set name for this request, set by {@link #setRequestDataSet(String)}.
-   */
+  /** Data set name for this request, set by {@link #setRequestDataSet(String)}. */
   private String m_reqDataSet = null;
 
-  /**
-   * User Id, initialized in the ctor.
-   */
+  /** User Id, initialized in the ctor. */
   private String m_userName = "";
 
-  /**
-   * Request line, set in ctor as "POST" + " " + Url.
-   */
+  /** Request line, set in ctor as "POST" + " " + Url. */
   private String m_requestLine = null;
 
-  /**
-   * Value of PROPERTY_USE_JAVA_URL property, set in ctor.
-   */
+  /** Value of PROPERTY_USE_JAVA_URL property, set in ctor. */
   private boolean m_useJavaUrl = false;
 
-  /**
-   * The locale to use for this connection. May be <code>null</code>.
-   */
+  /** The locale to use for this connection. May be <code>null</code>. */
   private String m_locale;
 
-  /**
-   * The name of the HTTP header used to provide credentials to the server.
-   */
+  /** The name of the HTTP header used to provide credentials to the server. */
   public static final String HTTP_AUTHORIZATION_HEADER = "Authorization";
 
-  /**
-   * The name of the HTTP header used to send the JSessionId to the server.
-   */
+  /** The name of the HTTP header used to send the JSessionId to the server. */
   public static final String JSESSION_COOKIE = "JSESSIONID";
 
   /**
@@ -1331,6 +1219,6 @@ public class PSDesignerConnection {
   /** Object providing all current server version info */
   private PSFormatVersion m_serverVersion = null;
 
-  /** Flag to inicate whether or not the login password (m_loginPw) is encrypted*/
+  /** Flag to inicate whether or not the login password (m_loginPw) is encrypted */
   private boolean m_loginPwIsEncrypted = false;
 }

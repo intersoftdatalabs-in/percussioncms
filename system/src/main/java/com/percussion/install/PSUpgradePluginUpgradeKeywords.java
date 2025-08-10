@@ -28,8 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Converts keyword names to the form required by Rhythmyx 6.0 - unique,
- * no whitespaces.
+ * Converts keyword names to the form required by Rhythmyx 6.0 - unique, no whitespaces.
  *
  * @author Andriy Palamarchuk
  */
@@ -55,9 +54,7 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
     return new PSPluginResponse(PSPluginResponse.SUCCESS, "");
   }
 
-  /**
-   * Selects keywords from the list which need their names to be fixed.
-   */
+  /** Selects keywords from the list which need their names to be fixed. */
   private List findKeywordsToFixNames(final List keywords) {
     final List keywordsToFixNames = new ArrayList();
     for (Iterator i = keywords.iterator(); i.hasNext(); ) {
@@ -70,9 +67,7 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
     return keywordsToFixNames;
   }
 
-  /**
-   * Set of keyword names extracted from the provided keywords.
-   */
+  /** Set of keyword names extracted from the provided keywords. */
   private Set getKeywordNames(final List keywords) {
     final Set names = new HashSet();
     for (Iterator i = keywords.iterator(); i.hasNext(); ) {
@@ -82,16 +77,13 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
     return names;
   }
 
-  /**
-   * Convenience method to access content service.
-   */
+  /** Convenience method to access content service. */
   private IPSContentService getContentService() {
     return PSContentServiceLocator.getContentService();
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -107,8 +99,6 @@ public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
     }
   }
 
-  /**
-   * Used for logging, initialized in {@link #process(IPSUpgradeModule, Element)}
-   */
+  /** Used for logging, initialized in {@link #process(IPSUpgradeModule, Element)} */
   private IPSUpgradeModule m_config;
 }

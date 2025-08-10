@@ -22,28 +22,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class provides a mapping between specific database tables and fields in
- * ehcache.xml. The {@link PSConsoleCommandAutotuneCache} class is to update the
- * maxElementsInMemory in ehcache.xml based on the count(*) result from the
- * referenced database tables.
- *
- * <br/>
+ * This class provides a mapping between specific database tables and fields in ehcache.xml. The
+ * {@link PSConsoleCommandAutotuneCache} class is to update the maxElementsInMemory in ehcache.xml
+ * based on the count(*) result from the referenced database tables. <br>
  *
  * @author chriswright
  */
 public class PSAutotuneCacheRelationships {
-  /**
-   * default constructor
-   */
+  /** default constructor */
   private PSAutotuneCacheRelationships() {
     super();
   }
 
   public static final Map<String, String> DBTABLES_AND_CACHEFIELDS =
       new HashMap<String, String>() {
-        /**
-         *
-         */
+        /** */
         private static final long serialVersionUID = 3272532891197809345L;
 
         {
@@ -121,30 +114,24 @@ public class PSAutotuneCacheRelationships {
       };
 
   /**
-   * Maintains the list of large table names which
-   * must be traversed in order as they are presented.
-   * Contentstatus should be cached first, then statushistory,
-   * pssiteitem, and pubstatus.  First the smaller tables are
-   * allocated in cache and then these larger tables. Remaining memory
-   * is then allocated for the larger tables after the small ones as
-   * they can grow infinitely big.
+   * Maintains the list of large table names which must be traversed in order as they are presented.
+   * Contentstatus should be cached first, then statushistory, pssiteitem, and pubstatus. First the
+   * smaller tables are allocated in cache and then these larger tables. Remaining memory is then
+   * allocated for the larger tables after the small ones as they can grow infinitely big.
    */
   public static final String[] LARGE_TABLE_NAMES = {
     "PSComponentSummary", "PSContentStatusHistory", "PSRelationshipData", "PSSiteItem", "pubstatus"
   };
 
   /**
-   * Maintains the mapping of large tables to their equivalent
-   * ehcache average item size.  There is no easy decision as to
-   * check for the average cache sizes dynamically using the
-   * {@link PSCacheStatisticsSnapshot} class because if the cache
-   * was recently flushed it may not be accurate.
+   * Maintains the mapping of large tables to their equivalent ehcache average item size. There is
+   * no easy decision as to check for the average cache sizes dynamically using the {@link
+   * PSCacheStatisticsSnapshot} class because if the cache was recently flushed it may not be
+   * accurate.
    */
   public static final Map<String, Double> LARGE_TABLES =
       new HashMap<String, Double>() {
-        /**
-         *
-         */
+        /** */
         private static final long serialVersionUID = 2554253050884012589L;
 
         {
@@ -157,17 +144,14 @@ public class PSAutotuneCacheRelationships {
       };
 
   /**
-   * Maintains the mapping of small tables to their equivalent
-   * ehcache average item size.  There is no easy decision as to
-   * check for the average cache sizes dynamically using the
-   * {@link PSCacheStatisticsSnapshot} class because if the cache
-   * was recently flushed it may not be accurate.
+   * Maintains the mapping of small tables to their equivalent ehcache average item size. There is
+   * no easy decision as to check for the average cache sizes dynamically using the {@link
+   * PSCacheStatisticsSnapshot} class because if the cache was recently flushed it may not be
+   * accurate.
    */
   public static final Map<String, Double> SMALL_TABLES =
       new HashMap<String, Double>() {
-        /**
-         *
-         */
+        /** */
         private static final long serialVersionUID = 4626103100667474371L;
 
         {

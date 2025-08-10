@@ -19,6 +19,9 @@ package com.percussion.user.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractNamedObject;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.configuration.annotation.IsInvariant;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.constraint.NotBlank;
@@ -26,12 +29,9 @@ import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 import net.sf.oval.constraint.ValidateWithMethod;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Represents a user in the system and their associated roles.
+ *
  * @author DavidBenua
  * @author adamgent
  */
@@ -40,123 +40,109 @@ import java.util.List;
 @JsonRootName("User")
 public class PSUser extends PSAbstractNamedObject {
 
-    private static final long serialVersionUID = 1L;
-    private static final String INVALID_CHAR_ERROR_MSG =
-        "The username should be 4-20 characters long. OR " +
-        "The user name contains an invalid character. " +
-        "The valid characters of a user name are 'a' to 'z', 'A' to 'Z' and '0' to '9'.";
-    private static final String NAME_LENGTH_ERROR_MSG =
-        "The maximum length of a user name is 50 characters.";
+  private static final long serialVersionUID = 1L;
+  private static final String INVALID_CHAR_ERROR_MSG =
+      "The username should be 4-20 characters long. OR "
+          + "The user name contains an invalid character. "
+          + "The valid characters of a user name are 'a' to 'z', 'A' to 'Z' and '0' to '9'.";
+  private static final String NAME_LENGTH_ERROR_MSG =
+      "The maximum length of a user name is 50 characters.";
 
-    private String password;
-    private String email = "";
-    private PSUserProviderType providerType = PSUserProviderType.INTERNAL;
-    private boolean isCreateUser;
+  private String password;
+  private String email = "";
+  private PSUserProviderType providerType = PSUserProviderType.INTERNAL;
+  private boolean isCreateUser;
 
-    /**
-     * A user has to be in at least one role.
-     */
-    @NotEmpty
-    @NotNull
-    private List<String> roles;
+  /** A user has to be in at least one role. */
+  @NotEmpty @NotNull private List<String> roles;
 
-    public PSUser() {
-        roles = new ArrayList<>();
+  public PSUser() {
+    roles = new ArrayList<>();
+  }
+
+  public boolean isCreateUser() {
+    return isCreateUser;
+  }
+
+  public void setCreateUser(boolean createUser) {
+    isCreateUser = createUser;
+  }
+
+  @Override
+  @IsInvariant
+  @NotNull
+  @NotBlank
+  @Length(max = 50, message = NAME_LENGTH_ERROR_MSG)
+  @ValidateWithMethod(
+      methodName = "isValidName",
+      parameterType = String.class,
+      message = INVALID_CHAR_ERROR_MSG)
+  public String getName() {
+    return super.getName();
+  }
+
+  @Override
+  protected boolean isValidName(String name) {
+    if (getProviderType() != PSUserProviderType.INTERNAL) return true;
+    if (isCreateUser()) {
+      return name.matches("^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){2,18}[a-zA-Z0-9]$")
+          && super.isValidName(name);
+    } else {
+      return super.isValidName(name);
     }
+  }
 
-    public boolean isCreateUser() {
-        return isCreateUser;
-    }
+  /** Gets the password. */
+  public String getPassword() {
+    return password;
+  }
 
-    public void setCreateUser(boolean createUser) {
-        isCreateUser = createUser;
-    }
+  /** Sets the password. */
+  public void setPassword(String password) {
+    this.password = password;
+  }
 
-    @Override
-    @IsInvariant
-    @NotNull
-    @NotBlank
-    @Length(max = 50, message = NAME_LENGTH_ERROR_MSG)
-    @ValidateWithMethod(methodName = "isValidName", parameterType = String.class,
-            message = INVALID_CHAR_ERROR_MSG)
-    public String getName() {
-        return super.getName();
-    }
+  /** Gets the email. Never {@code null}, might be empty. */
+  @NotNull
+  public String getEmail() {
+    return email;
+  }
 
-    @Override
-    protected boolean isValidName(String name) {
-        if (getProviderType() != PSUserProviderType.INTERNAL)
-            return true;
-        if (isCreateUser()) {
-            return name.matches("^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){2,18}[a-zA-Z0-9]$")
-                    && super.isValidName(name);
-        } else {
-            return super.isValidName(name);
-        }
-    }
+  /** Sets the email. */
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    /**
-     * Gets the password.
-     */
-    public String getPassword() {
-        return password;
-    }
+  /** Gets the roles. */
+  public List<String> getRoles() {
+    return roles;
+  }
 
-    /**
-     * Sets the password.
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
+  /** Sets the roles. */
+  public void setRoles(List<String> roles) {
+    this.roles = roles;
+  }
 
-    /**
-     * Gets the email. Never {@code null}, might be empty.
-     */
-    @NotNull
-    public String getEmail() {
-        return email;
-    }
+  /**
+   * Where the authentication is done for this user. If not set, the default {@link
+   * PSUserProviderType#INTERNAL} will be returned.
+   *
+   * @return never {@code null}.
+   */
+  public PSUserProviderType getProviderType() {
+    return providerType;
+  }
 
-    /**
-     * Sets the email.
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setProviderType(PSUserProviderType providerType) {
+    this.providerType = providerType;
+  }
 
-    /**
-     * Gets the roles.
-     */
-    public List<String> getRoles() {
-        return roles;
+  @Override
+  public PSUser clone() throws CloneNotSupportedException {
+    var user = (PSUser) super.clone();
+    if (this.getRoles() != null) {
+      user.setRoles(new ArrayList<>(this.getRoles()));
     }
-
-    /**
-     * Sets the roles.
-     */
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
-    /**
-     * Where the authentication is done for this user.
-     * If not set, the default {@link PSUserProviderType#INTERNAL} will be returned.
-     * @return never {@code null}.
-     */
-    public PSUserProviderType getProviderType() {
-        return providerType;
-    }
-
-    public void setProviderType(PSUserProviderType providerType) {
-        this.providerType = providerType;
-    }
-
-    @Override
-    public PSUser clone() throws CloneNotSupportedException {
-        var user = (PSUser) super.clone();
-        if (this.getRoles() != null) {
-            user.setRoles(new ArrayList<>(this.getRoles()));
-        }
-        return user;
-    }
+    return user;
+  }
 }

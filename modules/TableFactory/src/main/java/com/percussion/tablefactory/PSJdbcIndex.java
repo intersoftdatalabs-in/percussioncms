@@ -24,19 +24,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to represent both a unique index and a unique constraint
- * in a table schema, and the action to perform when that table schema is used
- * to create or modify a table.  Unique indexes and unique constraints are
- * considered to be interchangeable, and in most dbms systems, unique
- * constraints are implemented using unique indexes.  When
- * a table is cataloged, all unique index columns are queried to construct this
- * object.  If this object is being created in the database as a result of
- * processing a table schema,  it is created as a unique constraint.
+ * This class is used to represent both a unique index and a unique constraint in a table schema,
+ * and the action to perform when that table schema is used to create or modify a table. Unique
+ * indexes and unique constraints are considered to be interchangeable, and in most dbms systems,
+ * unique constraints are implemented using unique indexes. When a table is cataloged, all unique
+ * index columns are queried to construct this object. If this object is being created in the
+ * database as a result of processing a table schema, it is created as a unique constraint.
  */
 public class PSJdbcIndex extends PSJdbcKey {
   /**
-   * Convenience ctor that calls the four arg ctor
-   * {@link #PSJdbcIndex(String, Iterator, int, int)}
+   * Convenience ctor that calls the four arg ctor {@link #PSJdbcIndex(String, Iterator, int, int)}
    * with <code>type</code> set to <code>PSJdbcIndex.TYPE_UNIQUE</code>
    */
   public PSJdbcIndex(String name, Iterator<String> colNames, int action)
@@ -48,23 +45,15 @@ public class PSJdbcIndex extends PSJdbcKey {
    * Basic constructor for this class.
    *
    * @param name The name of the index. May not be <code>null</code> or empty.
-   * @param colNames An iterator over one or more column names to include
-   *    in the index.  May not be <code>null</code>.  May not contain
-   *    <code>null</code>, empty or duplicate names.
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   *    constants.
-   *
-   * @param type indicates the type of index, should be one of
-   * <code>TYPE_XXX</code> value.
-   *
-   * @throws IllegalArgumentException if <code>name</code> or
-   * <code>colNames</code> is <code>null</code> or <code>colNames</code> does
-   * not contain at least one element or if <code>action</code> or
-   * <code>type</code> is not valid
-   *
-   * @throws PSJdbcTableFactoryException if <code>colNames</code> contains
-   * any <code>null</code>, empty or duplicate column names, or if there are
-   * any other errors.
+   * @param colNames An iterator over one or more column names to include in the index. May not be
+   *     <code>null</code>. May not contain <code>null</code>, empty or duplicate names.
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
+   * @param type indicates the type of index, should be one of <code>TYPE_XXX</code> value.
+   * @throws IllegalArgumentException if <code>name</code> or <code>colNames</code> is <code>null
+   *     </code> or <code>colNames</code> does not contain at least one element or if <code>action
+   *     </code> or <code>type</code> is not valid
+   * @throws PSJdbcTableFactoryException if <code>colNames</code> contains any <code>null</code>,
+   *     empty or duplicate column names, or if there are any other errors.
    */
   public PSJdbcIndex(String name, Iterator<String> colNames, int action, int type)
       throws PSJdbcTableFactoryException {
@@ -73,16 +62,14 @@ public class PSJdbcIndex extends PSJdbcKey {
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element) fromXml} for
+   * more information.
    *
-   * @param sourceNode The element from which this object is to be constructed.
-   *    Element must conform to the definition for the index element in
-   *    the tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which this object is to be constructed. Element must conform
+   *     to the definition for the index element in the tabledef.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition contains
-   *    any empty or duplicate column names, or if there are any other errors.
+   * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
+   *     column names, or if there are any other errors.
    */
   public PSJdbcIndex(Element sourceNode) throws PSJdbcTableFactoryException {
     super(sourceNode, NODE_NAME, CONTAINER_NAME);
@@ -91,13 +78,11 @@ public class PSJdbcIndex extends PSJdbcKey {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the index
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the index element in the tabledef.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition contains
-   *    any empty or duplicate column names, or if there are any other errors.
+   * @throws PSJdbcTableFactoryException if the Xml definition contains any empty or duplicate
+   *     column names, or if there are any other errors.
    */
   public void fromXml(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -108,12 +93,10 @@ public class PSJdbcIndex extends PSJdbcKey {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -124,9 +107,7 @@ public class PSJdbcIndex extends PSJdbcKey {
     return root;
   }
 
-  /**
-   * See {@link PSJdbcTableComponent#getComponentState(Element)} for details.
-   */
+  /** See {@link PSJdbcTableComponent#getComponentState(Element)} for details. */
   protected void getComponentState(Element sourceNode) throws PSJdbcTableFactoryException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
 
@@ -143,11 +124,10 @@ public class PSJdbcIndex extends PSJdbcKey {
   /**
    * Determine whether this index is of the specified type
    *
-   * @param type should be one of <code>TYPE_XXX</code> or multiple
-   * <code>TYPE_XXX</code> values OR'ed together.
-   *
-   * @return <code>true</code> if this index is of the specified type,
-   * "<code>false</code> otherwise.
+   * @param type should be one of <code>TYPE_XXX</code> or multiple <code>TYPE_XXX</code> values
+   *     OR'ed together.
+   * @return <code>true</code> if this index is of the specified type, "<code>false</code>
+   *     otherwise.
    */
   public boolean isOfType(int type) {
     if (m_type != TYPE_NON_UNIQUE) m_type = TYPE_UNIQUE;
@@ -166,9 +146,7 @@ public class PSJdbcIndex extends PSJdbcKey {
   /**
    * Sets the type of index - unique or non-unique.
    *
-   * @param type indicates the type of index, should be one of
-   * <code>TYPE_XXX</code> value.
-   *
+   * @param type indicates the type of index, should be one of <code>TYPE_XXX</code> value.
    * @throws IllegalArgumentException if <code>type</code> is invalid
    */
   public void setType(int type) {
@@ -177,9 +155,7 @@ public class PSJdbcIndex extends PSJdbcKey {
     m_type = type;
   }
 
-  /**
-   * See {@link PSJdbcTableComponent#canAlter()} for details.
-   */
+  /** See {@link PSJdbcTableComponent#canAlter()} for details. */
   public boolean canAlter() {
     boolean canAlter = false;
 
@@ -204,11 +180,9 @@ public class PSJdbcIndex extends PSJdbcKey {
    * Compares this index to another object.
    *
    * @param obj the object to compare, may be <code>null</code>
-   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed
-   * together
-   *
-   * @return a code indicating the type of match/mismatch between this object
-   * and the specified object <code>obj</code>
+   * @param flags one or more <code>COMPARE_XXX</code> values OR'ed together
+   * @return a code indicating the type of match/mismatch between this object and the specified
+   *     object <code>obj</code>
    */
   public int compare(Object obj, int flags) {
     int match;
@@ -254,22 +228,18 @@ public class PSJdbcIndex extends PSJdbcKey {
     return true;
   }
 
-  /**
-   * Takes into account the order of the columns.
-   * {@inheritDoc}
-   */
+  /** Takes into account the order of the columns. {@inheritDoc} */
   @Override
   protected int compareColumns(List<String> cols1, List<String> cols2) {
     return super.compareColumns(numberColumns(cols1), numberColumns(cols2));
   }
 
   /**
-   * Returns the list of the column names, which is exactly the same as
-   * provided list, but with the string "X " prepended to each column name,
-   * where "X" is the index of the column in the list.
-   * Is used for comparison of two lists of columns, to make sure that
-   * columns with the same name, but on different positions are treated
-   * as different.
+   * Returns the list of the column names, which is exactly the same as provided list, but with the
+   * string "X " prepended to each column name, where "X" is the index of the column in the list. Is
+   * used for comparison of two lists of columns, to make sure that columns with the same name, but
+   * on different positions are treated as different.
+   *
    * @param columns the columns to process. Assumed not <code>null</code>.
    * @return the new list.
    */
@@ -297,8 +267,8 @@ public class PSJdbcIndex extends PSJdbcKey {
   }
 
   /**
-   * Returns the hash code for this index. Adds the type of index to the
-   * hashcode obtained from the base class.
+   * Returns the hash code for this index. Adds the type of index to the hashcode obtained from the
+   * base class.
    *
    * @return the hash code for this index
    */
@@ -306,29 +276,19 @@ public class PSJdbcIndex extends PSJdbcKey {
     return super.hashCode() + m_type;
   }
 
-  /**
-   * Constant to indicate a unique index.
-   */
+  /** Constant to indicate a unique index. */
   public static final int TYPE_UNIQUE = 1;
 
-  /**
-   * Constant to indicate a non-unique index.
-   */
+  /** Constant to indicate a non-unique index. */
   public static final int TYPE_NON_UNIQUE = 2;
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "index";
 
-  /**
-   * name of this container for error messages.
-   */
+  /** name of this container for error messages. */
   public static String CONTAINER_NAME = "index";
 
-  /**
-   * Constant for "isUnique" attribute of the root element of the index.
-   */
+  /** Constant for "isUnique" attribute of the root element of the index. */
   private static final String ATTR_IS_UNIQUE = "isUnique";
 
   // Constants for XML true and false
@@ -336,16 +296,14 @@ public class PSJdbcIndex extends PSJdbcKey {
   private static final String XML_FALSE = "n";
 
   /**
-   * The type of index - unique or not. Defaults to
-   * <code>TYPE_UNIQUE</code>, modified using the <code>setType()</code>
-   * method.
+   * The type of index - unique or not. Defaults to <code>TYPE_UNIQUE</code>, modified using the
+   * <code>setType()</code> method.
    */
   private int m_type;
 
   /**
-   * Constants returned by <code>compare()</code> method. Implies that the
-   * type of index is different. For example, one may be unique and other
-   * non-unique.
+   * Constants returned by <code>compare()</code> method. Implies that the type of index is
+   * different. For example, one may be unique and other non-unique.
    */
   public static final int IS_TYPE_MISMATCH = -3;
 }

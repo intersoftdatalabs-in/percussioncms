@@ -18,7 +18,6 @@ package com.percussion.delivery.feeds.services;
 
 /**
  * @author erikserating
- *
  */
 public interface IPSConnectionInfo {
 

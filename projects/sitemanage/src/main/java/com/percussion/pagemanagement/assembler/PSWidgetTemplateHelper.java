@@ -19,11 +19,11 @@
 package com.percussion.pagemanagement.assembler;
 
 /**
- * Helper class to get a widget template for a given widget item id.
- * (Stub for future implementation.)
+ * Helper class to get a widget template for a given widget item id. (Stub for future
+ * implementation.)
  *
  * @author bjoginipally
  */
 public class PSWidgetTemplateHelper {
-    // No implementation yet.
+  // No implementation yet.
 }

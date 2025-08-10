@@ -23,19 +23,15 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents a content type from the content management system.
- */
+/** Represents a content type from the content management system. */
 public class PSContentType extends PSComponent {
   /**
-   * Initializes a newly created <code>PSContentType</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSContentType</code> object, from an XML representation. See
+   * {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSContentType(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null");
@@ -43,12 +39,12 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * Initializes a newly created <code>PSContentType</code> object with the
-   * specified name.  The id will be designated {@link #NOT_ASSIGNED}. The
-   * object type defaults to <code>PSCmsObject.TYPE_ITEM</code>.
+   * Initializes a newly created <code>PSContentType</code> object with the specified name. The id
+   * will be designated {@link #NOT_ASSIGNED}. The object type defaults to <code>
+   * PSCmsObject.TYPE_ITEM</code>.
    *
-   * @param name this string will be assigned as the content type name; should
-   * be unique across all content types in the system; cannot be <code>null
+   * @param name this string will be assigned as the content type name; should be unique across all
+   *     content types in the system; cannot be <code>null
    * </code> or empty.
    */
   public PSContentType(String name) {
@@ -60,16 +56,14 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -106,13 +100,13 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
-   * <p>
-   * The format is defined by <code>getContentTypes.dtd</code> of the <code>
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
+   *
+   * <p>The format is defined by <code>getContentTypes.dtd</code> of the <code>
    * sys_psxContentEditorCataloger</code> Rhythmyx application:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXContentType (id, name, description, newurl, queryurl)&gt;
    * &lt;!ATTLIST PSXContentType
@@ -126,8 +120,8 @@ public class PSContentType extends PSComponent {
    * &lt;!ELEMENT queryurl (#PCDATA)&gt;
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   *    elements.  Cannot be <code>null</code>.
+   * @param doc The XML document being constructed, needed to create new elements. Cannot be <code>
+   *     null</code>.
    * @return the newly created XML element node
    */
   public Element toXml(Document doc) {
@@ -146,8 +140,7 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
    * @param c a valid PSContentType. Cannot be <code>null</code>.
    */
@@ -175,17 +168,16 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * @return unique database identifier (primary key) for this content type,
-   * or {@link #NOT_ASSIGNED}
+   * @return unique database identifier (primary key) for this content type, or {@link
+   *     #NOT_ASSIGNED}
    */
   public int getDbId() {
     return m_dbId;
   }
 
   /**
-   * Sets the unique database identifier (primary key) for this content type.
-   * This method is protected because it is expected that the database will
-   * assign this id.
+   * Sets the unique database identifier (primary key) for this content type. This method is
+   * protected because it is expected that the database will assign this id.
    *
    * @param dbId identifier to use
    */
@@ -194,16 +186,14 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * @return the description assigned to this content type.
-   *         May be <code>null</code>.
+   * @return the description assigned to this content type. May be <code>null</code>.
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
-   * @return the name assigned to this content type.  Never <code>null</code>
-   *         or empty.
+   * @return the name assigned to this content type. Never <code>null</code> or empty.
    */
   public String getName() {
     return m_name;
@@ -219,8 +209,7 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * Sets the name of this content type.  This name should be unique across
-   * all content types.
+   * Sets the name of this content type. This name should be unique across all content types.
    *
    * @param name a unique string to assign
    */
@@ -231,44 +220,44 @@ public class PSContentType extends PSComponent {
   }
 
   /**
-   * Sets the relative URL to the Rhythmyx resource (usually a content editor)
-   * that will be used to query content items registered as this content type.
+   * Sets the relative URL to the Rhythmyx resource (usually a content editor) that will be used to
+   * query content items registered as this content type.
    *
-   * @param queryURL relative URL of a Rhythmyx resource that can query items
-   * of this type; may be <code>null</code> or empty.
+   * @param queryURL relative URL of a Rhythmyx resource that can query items of this type; may be
+   *     <code>null</code> or empty.
    */
   public void setQueryURL(String queryURL) {
     m_queryURL = queryURL;
   }
 
   /**
-   * Gets the relative URL of the Rhythmyx resource (usually a content editor)
-   * used to query content items registered as this content type.
+   * Gets the relative URL of the Rhythmyx resource (usually a content editor) used to query content
+   * items registered as this content type.
    *
-   * @return relative URL of a Rhythmyx resource that can query items
-   * of this type; may be <code>null</code> or empty.
+   * @return relative URL of a Rhythmyx resource that can query items of this type; may be <code>
+   *     null</code> or empty.
    */
   public String getQueryURL() {
     return m_queryURL;
   }
 
   /**
-   * Sets the relative URL to the Rhythmyx resource (usually a content editor)
-   * that will be used to create content items for this content type.
+   * Sets the relative URL to the Rhythmyx resource (usually a content editor) that will be used to
+   * create content items for this content type.
    *
-   * @param newURL relative URL of a Rhythmyx resource that can create items
-   * of this type; may be <code>null</code> or empty.
+   * @param newURL relative URL of a Rhythmyx resource that can create items of this type; may be
+   *     <code>null</code> or empty.
    */
   public void setNewURL(String newURL) {
     m_newURL = newURL;
   }
 
   /**
-   * Gets the relative URL of the Rhythmyx resource (usually a content editor)
-   * used to create content items for this content type.
+   * Gets the relative URL of the Rhythmyx resource (usually a content editor) used to create
+   * content items for this content type.
    *
-   * @return relative URL of a Rhythmyx resource that can create items
-   * of this type; may be <code>null</code> or empty.
+   * @return relative URL of a Rhythmyx resource that can create items of this type; may be <code>
+   *     null</code> or empty.
    */
   public String getNewURL() {
     return m_newURL;
@@ -286,8 +275,7 @@ public class PSContentType extends PSComponent {
   /**
    * Set the object type.
    *
-   * @param type the new object type, must be one of the
-   *    <code>PSCmsObject.TYPE_xxx</code> values.
+   * @param type the new object type, must be one of the <code>PSCmsObject.TYPE_xxx</code> values.
    */
   public void setObjectType(int type) {
     if (!PSCmsObject.isValidType(type))
@@ -305,57 +293,45 @@ public class PSContentType extends PSComponent {
     return m_hideFromMenu;
   }
 
-  /**
-   * Name of parent XML element
-   */
+  /** Name of parent XML element */
   public static final String XML_NODE_NAME = "PSXContentType";
 
-  /**
-   * Indicates that this content type has not been assigned an ID.
-   */
+  /** Indicates that this content type has not been assigned an ID. */
   public static final int NOT_ASSIGNED = -1;
 
-  /**
-   * Description of this content type (optional).
-   */
+  /** Description of this content type (optional). */
   private String m_description = null;
 
   /**
-   * Unique name of this content type.  Set in the constructor and never
-   * <code>null</code> or empty after that.
+   * Unique name of this content type. Set in the constructor and never <code>null</code> or empty
+   * after that.
    */
   private String m_name;
 
   /**
-   * Relative URL to Rhythmyx application that can query and edit content
-   * items of this content type.  Format is
-   * "../&lt;<i>application_name</i>>/&lt;<i>resource_name</i>>.html"
+   * Relative URL to Rhythmyx application that can query and edit content items of this content
+   * type. Format is "../&lt;<i>application_name</i>>/&lt;<i>resource_name</i>>.html"
    */
   private String m_queryURL = null;
 
   /**
-   * Relative URL to Rhythmyx application that can create content items of
-   * this content type.  Format is
-   * "../&lt;<i>application_name</i>>/&lt;<i>resource_name</i>>.html"
+   * Relative URL to Rhythmyx application that can create content items of this content type. Format
+   * is "../&lt;<i>application_name</i>>/&lt;<i>resource_name</i>>.html"
    */
   private String m_newURL = null;
 
-  /**
-   * Unique database identifier for this content type.
-   */
+  /** Unique database identifier for this content type. */
   private int m_dbId;
 
   /**
-   * The object type of this content type, initialized during construction,
-   * never changed after that. Must be one of the
-   * <code>PSCmsObject.TYPE_xxx</code> values.
+   * The object type of this content type, initialized during construction, never changed after
+   * that. Must be one of the <code>PSCmsObject.TYPE_xxx</code> values.
    */
   private int m_objectType = -1;
 
   /**
-   * A flag that indicates if this content type is hidden or not from menues.
-   * Initialized during construction, defaults to <code>false</code> if not
-   * supplied.
+   * A flag that indicates if this content type is hidden or not from menues. Initialized during
+   * construction, defaults to <code>false</code> if not supplied.
    */
   private boolean m_hideFromMenu = false;
 

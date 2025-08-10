@@ -17,9 +17,8 @@
 package com.percussion.cx.error;
 
 /**
- * This inteface is provided as a convenient mechanism for accessing the
- * various ContentExplorer system related error codes. The error
- * code messages are defined in the
+ * This inteface is provided as a convenient mechanism for accessing the various ContentExplorer
+ * system related error codes. The error code messages are defined in the
  * PSContentExplorerErrorStringBundle.properties file.
  *
  * <TABLE BORDER="1">
@@ -29,10 +28,11 @@ package com.percussion.cx.error;
  */
 public interface IPSContentExplorerErrors {
   /**
-   * An general error code with single argument alone to replace with complete
-   * error message from the exception.
-   * <p>
-   * The arguments passed in for this message are:
+   * An general error code with single argument alone to replace with complete error message from
+   * the exception.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -41,10 +41,11 @@ public interface IPSContentExplorerErrors {
   public static final int GENERAL_ERROR = 20001;
 
   /**
-   * While performing a fromXml an error occurred while trying to instantiate a
-   * PS class from a PSX node.
-   * <p>
-   * The arguments passed in for this message are:
+   * While performing a fromXml an error occurred while trying to instantiate a PS class from a PSX
+   * node.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The name of the PS class.</TD></TR>
@@ -55,8 +56,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * A general exception occurred while processing Options.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught,</TD></TR>
@@ -66,8 +68,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * An error occurred while trying to load Options.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -77,8 +80,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * An error occurred while trying to save Options.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -89,8 +93,8 @@ public interface IPSContentExplorerErrors {
   /**
    * An error getting the sub-actions of an action.
    *
-   * <p>
-   * The arguments passed in for this message are:
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -100,8 +104,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * An error occurred while using search web service.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -111,8 +116,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * An error occurred while executing a catalog request.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The message from the exception caught, if any.</TD></TR>
@@ -122,8 +128,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * A validation error for wizard pages.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>A string with all validation error details.</TD></TR>
@@ -132,10 +139,11 @@ public interface IPSContentExplorerErrors {
   public static final int WIZARD_VALIDATION_ERROR = 20009;
 
   /**
-   * A valid path could not be made from the 2 supplied paths. The number of
-   * ../ in rel path were more than the path parts in root path.
-   * <p>
-   * The arguments passed in for this message are:
+   * A valid path could not be made from the 2 supplied paths. The number of ../ in rel path were
+   * more than the path parts in root path.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The root path.</TD></TR>
@@ -146,8 +154,9 @@ public interface IPSContentExplorerErrors {
 
   /**
    * One or more exceptions occurred while updating 1 or more site definitions.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The exception text for all failures.</TD></TR>

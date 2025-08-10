@@ -47,23 +47,19 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit can modify the result document by adding search results for the
- * following cases:
- * 1. Given the HTML parameter sys_command=GetRoles, it produces the list of
- * server roles with the DTD
- * &lt;root&gt;&lt;role&gt;role1&lt;/role&gt;&lt;role&gt;role2&lt;/role&gt;&lt;/root&gt;.
- * 1.1. If the document element has an attribute "fromRoles", the roles added
- * shall be the intersection of the this list and the server roles. "fromRoles"
- * attribute must be a ';' separated list of roles.
- * 1.2. If the "fromRoles" attribute is empty or <code>null</code>, no filtering
- * is done, i.e. all the server roles are added to the result document.
+ * This exit can modify the result document by adding search results for the following cases: 1.
+ * Given the HTML parameter sys_command=GetRoles, it produces the list of server roles with the DTD
+ * &lt;root&gt;&lt;role&gt;role1&lt;/role&gt;&lt;role&gt;role2&lt;/role&gt;&lt;/root&gt;. 1.1. If
+ * the document element has an attribute "fromRoles", the roles added shall be the intersection of
+ * the this list and the server roles. "fromRoles" attribute must be a ';' separated list of roles.
+ * 1.2. If the "fromRoles" attribute is empty or <code>null</code>, no filtering is done, i.e. all
+ * the server roles are added to the result document.
  *
- * 2. Given the HTML parameters sys_command=GetUsers and sys_role=roleName, it
- * produces the list of users that are members of the role roleName with
- * the DTD
+ * <p>2. Given the HTML parameters sys_command=GetUsers and sys_role=roleName, it produces the list
+ * of users that are members of the role roleName with the DTD
  * &lt;root&gt;&lt;role&gt;roleName&lt;user&gt;user1&lt;/user&gt;&lt;user&gt;role2&lt;/user&gt;&lt;/role&gt;&lt;/root&gt;.
  *
- * The element root indicates any Document Element of the result document.
+ * <p>The element root indicates any Document Element of the result document.
  */
 public class PSServerUserSearch implements IPSResultDocumentProcessor {
   /*
@@ -184,12 +180,9 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
   /**
    * This takes the from roles param out and adds them to the lists.
    *
-   * @param fromRoles - the fromRoles param, assumed not <code>null</code> or
-   * empty.
-   * @param fromRoleList - the roles in the fromRoles param, assumed not
-   * <code>null</code>
-   * @param adHocTypeList - the ad hoc types in the fromRoles param, assumed
-   * not <code>null</code>
+   * @param fromRoles - the fromRoles param, assumed not <code>null</code> or empty.
+   * @param fromRoleList - the roles in the fromRoles param, assumed not <code>null</code>
+   * @param adHocTypeList - the ad hoc types in the fromRoles param, assumed not <code>null</code>
    */
   private void extractFromRolesParam(
       String fromRoles, ArrayList fromRoleList, ArrayList adHocTypeList) {
@@ -210,8 +203,7 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method gets the communityid of the item that has as its contentid
-   * <code>contentid</code>
+   * This method gets the communityid of the item that has as its contentid <code>contentid</code>
    *
    * @param contentid
    * @return the community id of the item, if -1 item cannot be found.
@@ -235,9 +227,8 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Method takes the community and the request context to make a request to
-   * the  COMMUNITY_ROLE_LOOKUP_URL app, it gets the document back then
-   * returns the list of roles.
+   * Method takes the community and the request context to make a request to the
+   * COMMUNITY_ROLE_LOOKUP_URL app, it gets the document back then returns the list of roles.
    *
    * @param contentid
    * @return
@@ -255,15 +246,11 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
   }
 
   /**
-   * @todo: this should be replaced once the CMS objects for community are in
-   * place.
-   *
-   * Given a document conforming to the dtd returned by a request to the
-   * COMMUNITY_ROLE_LOOKUP_URL app.
-   *
-   * @param doc assumed not <code>null</code> and that it is properly
-   * constrained.
-   * @return a list of role ids.  Never <code>null</code> may be empty.
+   * @todo: this should be replaced once the CMS objects for community are in place.
+   *     <p>Given a document conforming to the dtd returned by a request to the
+   *     COMMUNITY_ROLE_LOOKUP_URL app.
+   * @param doc assumed not <code>null</code> and that it is properly constrained.
+   * @return a list of role ids. Never <code>null</code> may be empty.
    */
   private List extractRoleListFromDoc(Document doc) {
     NodeList nl = doc.getElementsByTagName("name");
@@ -280,9 +267,9 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
   /**
    * Called throughout this class to make internal requests.
    *
-   * @param path   assumed not <code>null</code>
-   * @param request   assumed not <code>null</code>
-   * @param params   assumed not <code>null</code>
+   * @param path assumed not <code>null</code>
+   * @param request assumed not <code>null</code>
+   * @param params assumed not <code>null</code>
    * @param inherit
    * @return Document the result document, never <code>null</code>
    */
@@ -316,64 +303,39 @@ public class PSServerUserSearch implements IPSResultDocumentProcessor {
     return false;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * Name of the html parameter for sys_command
-   */
+  /** Name of the html parameter for sys_command */
   private static String HTMLPARAM_COMMAND_NAME = "sys_command";
 
-  /**
-   * Name of the html parameter for sys_command=GetRoles
-   */
+  /** Name of the html parameter for sys_command=GetRoles */
   private static String HTMLPARAM_COMMAND_GETROLES = "GetRoles";
 
-  /**
-   * Name of the html parameter for sys_command=GetUsers
-   */
+  /** Name of the html parameter for sys_command=GetUsers */
   private static String HTMLPARAM_COMMAND_GETUSERS = "GetUsers";
 
-  /**
-   * Name of the html parameter specifying the role to get members of
-   */
+  /** Name of the html parameter specifying the role to get members of */
   private static String HTMLPARAM_COMMAND_ROLE = "sys_role";
 
-  /**
-   * Name of the html parameter specifying the name filter to get the users
-   */
+  /** Name of the html parameter specifying the name filter to get the users */
   private static String HTMLPARAM_NAMEFILTER = "namefilter";
 
-  /**
-   * String constnt for the element 'role'
-   */
+  /** String constnt for the element 'role' */
   private static String ELEM_ROLE = "role";
 
-  /**
-   * String constnt for the element 'user'
-   */
+  /** String constnt for the element 'user' */
   private static String ELEM_USER = "user";
 
-  /**
-   * String constnt for the attribute 'name'
-   */
+  /** String constnt for the attribute 'name' */
   private static String ATTR_NAME = "name";
 
-  /**
-   * String constnt for the attribute 'fromRoles'
-   */
+  /** String constnt for the attribute 'fromRoles' */
   private static String ATTR_FROM_ROLES = "fromRoles";
 
-  /**
-   * This is the url that is used in the request to return a doc with roles
-   * for each community.
-   */
+  /** This is the url that is used in the request to return a doc with roles for each community. */
   private static String COMMUNITY_ROLE_LOOKUP_URL = "sys_commSupport/rolelookup.xml";
 
-  /**
-   * Name of the content type id lookup resource.
-   */
+  /** Name of the content type id lookup resource. */
   private static final String CMS_LOOKUP_CONTENTSTATUS = "sys_psxCms/contentStatus.xml";
 }

@@ -22,9 +22,7 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXTableRef DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXTableRef DTD in BasicObjects.dtd. */
 public class PSTableRef extends PSComponent {
   /**
    * Create a new table refernece.
@@ -49,23 +47,17 @@ public class PSTableRef extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSTableRef(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSTableRef() {}
 
   /**
@@ -99,8 +91,8 @@ public class PSTableRef extends PSComponent {
   }
 
   /**
-   * Set a new table alias. If <code>null</code> or empty is passed the
-   * alias will be set to the name.
+   * Set a new table alias. If <code>null</code> or empty is passed the alias will be set to the
+   * name.
    *
    * @param alias the new table alias, might be <code>null</code> or empty.
    */
@@ -111,9 +103,8 @@ public class PSTableRef extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSTableRef, not <code>null</code>.
    */
@@ -130,8 +121,8 @@ public class PSTableRef extends PSComponent {
 
   /**
    * Output a human readable form of this object with the following format:
-   * <p>
-   * name (alias)
+   *
+   * <p>name (alias)
    */
   @Override
   public String toString() {
@@ -153,7 +144,6 @@ public class PSTableRef extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -187,7 +177,6 @@ public class PSTableRef extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {

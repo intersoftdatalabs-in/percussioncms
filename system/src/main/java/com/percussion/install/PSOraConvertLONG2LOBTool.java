@@ -41,17 +41,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is the Oracle8+ specific converter that converts all given oracle
- * tables that have LONG or LONG RAW columns into appropriate LOB columns.
- * All the existing data is first backed up and only then conversion is attempted.
- * Backup tables (if the length permits - ORA limit 30 chars) are named using the
- * following schema: "PSL2L_" + ORIGINAL_TABLE_NAME +"_BK"; if however the name
- * is too long, then a timestamp based synthetic table name is generated instead,
- * ie: "PSL2L_" + curTime +"_BK", if such name was genegated for a backup table
- * and something goes wrong (ie: SQLException) one would then have to look at
- * the log file in order to find an appriate backup table to restore the
- * original table data from. Considering that this operation could be thought of
- * as relatively risky, a full Oracle database backup shall be strongly advised.
+ * This class is the Oracle8+ specific converter that converts all given oracle tables that have
+ * LONG or LONG RAW columns into appropriate LOB columns. All the existing data is first backed up
+ * and only then conversion is attempted. Backup tables (if the length permits - ORA limit 30 chars)
+ * are named using the following schema: "PSL2L_" + ORIGINAL_TABLE_NAME +"_BK"; if however the name
+ * is too long, then a timestamp based synthetic table name is generated instead, ie: "PSL2L_" +
+ * curTime +"_BK", if such name was genegated for a backup table and something goes wrong (ie:
+ * SQLException) one would then have to look at the log file in order to find an appriate backup
+ * table to restore the original table data from. Considering that this operation could be thought
+ * of as relatively risky, a full Oracle database backup shall be strongly advised.
  */
 public class PSOraConvertLONG2LOBTool {
 
@@ -99,16 +97,15 @@ public class PSOraConvertLONG2LOBTool {
   }
 
   /**
-   * This method is a filter, which if given a list of table names returns a
-   * subset of those table names, which use ORA LONG or LONG RAW column types.
-   * @param tableNamesToCheck an array of table names to check and filter for
-   * a presense of the ORA LONG or LONG RAW column types.
-   * Must not be <code>null</code>
-   * @return an array of table names that represent a subset of the
-   * tableNamesToCheck array that use ORA LONG or LONG RAW column type.
-   * The <code>null</code> could be returned, which indicates that either there
-   * are no tables in a given tableNamesToCheck array that use LONG columns or
-   * in case if the {@link #isOracle()} method returns false.
+   * This method is a filter, which if given a list of table names returns a subset of those table
+   * names, which use ORA LONG or LONG RAW column types.
+   *
+   * @param tableNamesToCheck an array of table names to check and filter for a presense of the ORA
+   *     LONG or LONG RAW column types. Must not be <code>null</code>
+   * @return an array of table names that represent a subset of the tableNamesToCheck array that use
+   *     ORA LONG or LONG RAW column type. The <code>null</code> could be returned, which indicates
+   *     that either there are no tables in a given tableNamesToCheck array that use LONG columns or
+   *     in case if the {@link #isOracle()} method returns false.
    * @throws SQLException
    * @throws PSJdbcTableFactoryException
    */
@@ -153,10 +150,10 @@ public class PSOraConvertLONG2LOBTool {
   }
 
   /**
-   * Creates a temporary table with a LONG column, then inserts data into it
-   * and makes an attempt to convert it. Any SQL exception from here indicates
-   * that (depending on the ORA error) connection most likely desn't have enough
-   * priveleges to do the conversion job.
+   * Creates a temporary table with a LONG column, then inserts data into it and makes an attempt to
+   * convert it. Any SQL exception from here indicates that (depending on the ORA error) connection
+   * most likely desn't have enough priveleges to do the conversion job.
+   *
    * @return <code>true</code> on success
    * @throws SQLException
    */
@@ -241,10 +238,11 @@ public class PSOraConvertLONG2LOBTool {
   }
 
   /**
-   * Performs a LONG to LOB conversion only of those tables that are filtered
-   * out by the {@link #filterTablesToConvert(String[])} method.
-   * @param tableNames an array of ORA tables names passed in for conversion
-   * must never be <code>null</code>.
+   * Performs a LONG to LOB conversion only of those tables that are filtered out by the {@link
+   * #filterTablesToConvert(String[])} method.
+   *
+   * @param tableNames an array of ORA tables names passed in for conversion must never be <code>
+   *     null</code>.
    * @return <code>true</code> on success
    * @throws SQLException on any ORA error
    * @throws PSJdbcTableFactoryException
@@ -266,11 +264,12 @@ public class PSOraConvertLONG2LOBTool {
   }
 
   /**
-   * Performs a LONG to LOB conversion of all given tables. It is assumed that
-   * this method is only given a list of tables that indeed use LOONG columns
-   * and so no additional filtering is perfomed to insure that.
-   * @param collLongTableNames a collection of ORA tables names that use LONGs
-   * never <code>null</code>
+   * Performs a LONG to LOB conversion of all given tables. It is assumed that this method is only
+   * given a list of tables that indeed use LOONG columns and so no additional filtering is perfomed
+   * to insure that.
+   *
+   * @param collLongTableNames a collection of ORA tables names that use LONGs never <code>null
+   *     </code>
    * @return <code>true</code> on success
    * @throws SQLException on any ORA error
    * @throws PSJdbcTableFactoryException
@@ -523,9 +522,7 @@ public class PSOraConvertLONG2LOBTool {
     }
   }
 
-  /**
-   * This class is a simplified abstraction of the Oracle table
-   */
+  /** This class is a simplified abstraction of the Oracle table */
   private class OraTable {
     /** ORA table name length limit */
     private static final int TABLE_NAME_LIMIT = 30;
@@ -843,6 +840,7 @@ public class PSOraConvertLONG2LOBTool {
 
     /**
      * performs a number of steps in order to convert this table
+     *
      * @return <code>true</code> on success
      * @throws SQLException
      */
@@ -914,10 +912,11 @@ public class PSOraConvertLONG2LOBTool {
 
     /**
      * formats a "Create Like" SQL that would be used to create a backup table
+     *
      * @param owner ORA schema name, never <code>null</code>
      * @param new_table_name backup table name, never <code>null</code>
-     * @param convertLong2Lob <code>true</code> makes it to substitute LONG
-     * type by an approriate LOB type.
+     * @param convertLong2Lob <code>true</code> makes it to substitute LONG type by an approriate
+     *     LOB type.
      * @return
      */
     String formatForCreate(String owner, String new_table_name, boolean convertLong2Lob) {
@@ -947,8 +946,9 @@ public class PSOraConvertLONG2LOBTool {
     }
 
     /**
-     * queries all the information about this table's columns, which is needed
-     * to later create a backup table and copy the data.
+     * queries all the information about this table's columns, which is needed to later create a
+     * backup table and copy the data.
+     *
      * @throws SQLException
      */
     private void queryColumnInfo() throws SQLException {
@@ -981,9 +981,7 @@ public class PSOraConvertLONG2LOBTool {
     }
   }
 
-  /**
-   *  This class is a simplified abstraction of the Oracle column
-   */
+  /** This class is a simplified abstraction of the Oracle column */
   private class OraColumn {
     private Connection m_conn;
     private String m_owner;
@@ -1053,6 +1051,7 @@ public class PSOraConvertLONG2LOBTool {
 
     /**
      * formats an update SQL that is used to create a backup table
+     *
      * @param convertLongsToLobs - if <code>true</code> replaces LONGs with LOBs
      * @return result update SQL, never <code>null</code>
      */
@@ -1131,8 +1130,8 @@ public class PSOraConvertLONG2LOBTool {
     }
 
     /**
-     * @param convertLongsToLobs if <code>true</code> then wraps a LONG column
-     * into the TO_LOB ORA statement that does the conversion on the insert
+     * @param convertLongsToLobs if <code>true</code> then wraps a LONG column into the TO_LOB ORA
+     *     statement that does the conversion on the insert
      * @return
      */
     String formatForInsertIntoBackup(boolean convertLongsToLobs) {
@@ -1158,6 +1157,7 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * performs database udate and does logging
+   *
    * @param sql SQL to pass to the DBMS, never <code>null</code>
    * @return
    * @throws SQLException
@@ -1189,6 +1189,7 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * performs database query and does logging
+   *
    * @param sql SQL to pass to the DBMS, never <code>null</code>
    * @return
    * @throws SQLException
@@ -1299,9 +1300,10 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * debug log helper
+   *
    * @param msg message to log
-   * @param wordWrap <code>true</code> derects it to do a word wrap,
-   * <code>false</code> logs it as is.
+   * @param wordWrap <code>true</code> derects it to do a word wrap, <code>false</code> logs it as
+   *     is.
    */
   private static void logIt(String msg, boolean wordWrap) {
     if (msg == null) msg = "null";
@@ -1324,6 +1326,7 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * debug log helper
+   *
    * @param msg message to log
    */
   private static void logIt(String msg) {
@@ -1347,15 +1350,16 @@ public class PSOraConvertLONG2LOBTool {
 
   /**
    * Wraps a debug log message using a word wrap algorythm
+   *
    * @param message message to word wrap, never <code>null</code>
    * @param wrapColumn column or char index to wrap at
-   * @param thresholdColumns a positive or negative threshold in columns, which
-   * allows to wrap niceley at the next or prior space in a given threshold range.
-   * must never be <code>0</code>.
-   * @param isBidirectional <code>true</code> indicates that the wrapping shall
-   * be attempted using a positive and negative thresholds with a given wrap
-   * threshold derection attempted first following by an alternate direction.
-   * <code>false</code> - only goes in a direction given by the thresholdColumns.
+   * @param thresholdColumns a positive or negative threshold in columns, which allows to wrap
+   *     niceley at the next or prior space in a given threshold range. must never be <code>0</code>
+   *     .
+   * @param isBidirectional <code>true</code> indicates that the wrapping shall be attempted using a
+   *     positive and negative thresholds with a given wrap threshold derection attempted first
+   *     following by an alternate direction. <code>false</code> - only goes in a direction given by
+   *     the thresholdColumns.
    * @return result log message with new lines already inserted
    */
   private static String bidirectionalWordWrap(

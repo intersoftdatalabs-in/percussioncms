@@ -17,81 +17,77 @@
 package com.percussion.dashboardmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
 import org.apache.commons.io.FilenameUtils;
 
 @XmlRootElement(name = "gadget")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSGadget extends PSAbstractDataObject {
-    private Integer instanceId;
-    private String url;
-    private Integer col, row;
+  private Integer instanceId;
+  private String url;
+  private Integer col, row;
 
-    @XmlTransient
-    private boolean expanded = true;
+  @XmlTransient private boolean expanded = true;
 
-    private Map<String, String> settings = new HashMap<>();
+  private Map<String, String> settings = new HashMap<>();
 
-    public Integer getInstanceId() {
-        return instanceId;
-    }
+  public Integer getInstanceId() {
+    return instanceId;
+  }
 
-    public void setInstanceId(Integer instanceId) {
-        this.instanceId = instanceId;
-    }
+  public void setInstanceId(Integer instanceId) {
+    this.instanceId = instanceId;
+  }
 
-    public String getUrl() {
-        return url;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public Integer getCol() {
-        return col;
-    }
+  public Integer getCol() {
+    return col;
+  }
 
-    public void setCol(Integer col) {
-        this.col = col;
-    }
+  public void setCol(Integer col) {
+    this.col = col;
+  }
 
-    public Integer getRow() {
-        return row;
-    }
+  public Integer getRow() {
+    return row;
+  }
 
-    public void setRow(Integer row) {
-        this.row = row;
-    }
+  public void setRow(Integer row) {
+    this.row = row;
+  }
 
-    public boolean isExpanded() {
-        return expanded;
-    }
+  public boolean isExpanded() {
+    return expanded;
+  }
 
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
-    }
+  public void setExpanded(boolean expanded) {
+    this.expanded = expanded;
+  }
 
-    public Map<String, String> getSettings() {
-        return settings;
-    }
+  public Map<String, String> getSettings() {
+    return settings;
+  }
 
-    public void setSettings(Map<String, String> settings) {
-        this.settings = settings;
-    }
+  public void setSettings(Map<String, String> settings) {
+    this.settings = settings;
+  }
 
-    @Override
-    public String toString() {
-        var fileName = url != null ? FilenameUtils.getName(url) : "N/A";
-        return String.format("File: %s - Column: %s - Row: %s - Settings: %s",
-                fileName, col, row, settings);
-    }
+  @Override
+  public String toString() {
+    var fileName = url != null ? FilenameUtils.getName(url) : "N/A";
+    return String.format(
+        "File: %s - Column: %s - Row: %s - Settings: %s", fileName, col, row, settings);
+  }
 }

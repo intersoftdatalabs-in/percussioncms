@@ -17,98 +17,88 @@
  */
 package com.percussion.pagemanagement.dao.impl;
 
-import com.percussion.cms.IPSConstants;
-import com.percussion.pagemanagement.dao.IPSWidgetItemIdGenerator;
-import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
-import com.percussion.pagemanagement.data.PSRegionWidgets;
-import com.percussion.pagemanagement.data.PSWidgetItem;
-import com.percussion.system.utils.PSSiteManageBean;
-import com.percussion.utils.security.PSSecurityUtility;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.percussion.cms.IPSConstants;
+import com.percussion.pagemanagement.dao.IPSWidgetItemIdGenerator;
+import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
+import com.percussion.pagemanagement.data.PSWidgetItem;
+import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.security.PSSecurityUtility;
+import java.util.HashSet;
+import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 @PSSiteManageBean("widgetItemIdGenerator")
 public class PSWidgetItemIdGenerator implements IPSWidgetItemIdGenerator {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item) {
-        var id = PSSecurityUtility.getSecureRandom().nextLong();
-        log.debug("Generated widget item id: {} for widget: {}", id, item);
-        return id;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item) {
+    var id = PSSecurityUtility.getSecureRandom().nextLong();
+    log.debug("Generated widget item id: {} for widget: {}", id, item);
+    return id;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void generateIds(PSRegionWidgetAssociations widgets) {
-        var ids = getWidgetIds(widgets);
-        var regionWidgets = widgets.getRegionWidgetAssociations();
-        for (var ws : regionWidgets) {
-            for (var wi : ws.getWidgetItems()) {
-                if (isBlank(wi.getId())) {
-                    var id = generateId(widgets, wi);
-                    // Ensure the generated ID is unique
-                    while (ids.contains(id.toString())) {
-                        id = generateId(widgets, wi);
-                    }
-                    notNull(id);
-                    wi.setId(id.toString());
-                    ids.add(id.toString());
-                }
-            }
+  /** {@inheritDoc} */
+  @Override
+  public void generateIds(PSRegionWidgetAssociations widgets) {
+    var ids = getWidgetIds(widgets);
+    var regionWidgets = widgets.getRegionWidgetAssociations();
+    for (var ws : regionWidgets) {
+      for (var wi : ws.getWidgetItems()) {
+        if (isBlank(wi.getId())) {
+          var id = generateId(widgets, wi);
+          // Ensure the generated ID is unique
+          while (ids.contains(id.toString())) {
+            id = generateId(widgets, wi);
+          }
+          notNull(id);
+          wi.setId(id.toString());
+          ids.add(id.toString());
         }
+      }
     }
+  }
 
-    /**
-     * Gets all non-blank widget IDs for the given widgets.
-     * This will also validate the uniqueness of the IDs, log error for non-unique IDs.
-     *
-     * @param widgets the widgets in question, assumed not <code>null</code>.
-     * @return the widget IDs, never <code>null</code>, may be empty.
-     */
-    private Set<String> getWidgetIds(PSRegionWidgetAssociations widgets) {
-        var ids = new HashSet<String>();
-        var regionWidgets = widgets.getRegionWidgetAssociations();
-        for (var ws : regionWidgets) {
-            for (var wi : ws.getWidgetItems()) {
-                if (isNotBlank(wi.getId())) {
-                    var id = wi.getId();
-                    if (ids.contains(id)) {
-                        log.error("Widget ID ({}) is not unique. The widget is: {}", id, wi);
-                    }
-                    ids.add(id);
-                }
-            }
+  /**
+   * Gets all non-blank widget IDs for the given widgets. This will also validate the uniqueness of
+   * the IDs, log error for non-unique IDs.
+   *
+   * @param widgets the widgets in question, assumed not <code>null</code>.
+   * @return the widget IDs, never <code>null</code>, may be empty.
+   */
+  private Set<String> getWidgetIds(PSRegionWidgetAssociations widgets) {
+    var ids = new HashSet<String>();
+    var regionWidgets = widgets.getRegionWidgetAssociations();
+    for (var ws : regionWidgets) {
+      for (var wi : ws.getWidgetItems()) {
+        if (isNotBlank(wi.getId())) {
+          var id = wi.getId();
+          if (ids.contains(id)) {
+            log.error("Widget ID ({}) is not unique. The widget is: {}", id, wi);
+          }
+          ids.add(id);
         }
-        return ids;
+      }
     }
+    return ids;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deleteIds(PSRegionWidgetAssociations widgets) {
-        var regionWidgets = widgets.getRegionWidgetAssociations();
-        for (var ws : regionWidgets) {
-            for (var wi : ws.getWidgetItems()) {
-                wi.setId(null);
-            }
-        }
+  /** {@inheritDoc} */
+  @Override
+  public void deleteIds(PSRegionWidgetAssociations widgets) {
+    var regionWidgets = widgets.getRegionWidgetAssociations();
+    for (var ws : regionWidgets) {
+      for (var wi : ws.getWidgetItems()) {
+        wi.setId(null);
+      }
     }
+  }
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 }

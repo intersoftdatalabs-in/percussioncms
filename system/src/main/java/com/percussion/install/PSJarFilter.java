@@ -33,36 +33,27 @@ import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 
 /**
- * This class allows the installer to accept a jar file that has component
- * text files that need to be localized for the installation.
+ * This class allows the installer to accept a jar file that has component text files that need to
+ * be localized for the installation.
  */
 // REFACTORED: CP-JAVA11
 public class PSJarFilter {
   /**
-   * Read entries from the input jar. For each entry, compare it against the
-   * list of files that should be filtered using the passed environment. For
-   * files that are filtered, run the file, assumed to be text, through the
-   * filtering code. For all files, place the result, changed or unchanged, in
-   * the output jar.
+   * Read entries from the input jar. For each entry, compare it against the list of files that
+   * should be filtered using the passed environment. For files that are filtered, run the file,
+   * assumed to be text, through the filtering code. For all files, place the result, changed or
+   * unchanged, in the output jar.
    *
-   * Variables in the input files that should be replaced should be delimited
-   * with ${ and }.
+   * <p>Variables in the input files that should be replaced should be delimited with ${ and }.
    *
-   * @param inputJar
-   *           A file to open as a jar file. Must not be <code>null</code>
-   *           and must exist.
-   * @param outputJar
-   *           A file to create to hold the files and modified files from the
-   *           input file. Must not be <code>null</code>. If it exists it
-   *           will be overwritten.
-   * @param filesToFilter
-   *           A list of files that should be filtered. May not be <code>null</code>,
-   *           but may be empty.
-   * @param environment
-   *           A map of variable names to values. The keys in the map must be
-   *           {@link java.lang.String}, but the values may be of any type.
-   *           The value used will be the result of the
-   *           {@link Object#toString()}method. May not be <code>null</code>.
+   * @param inputJar A file to open as a jar file. Must not be <code>null</code> and must exist.
+   * @param outputJar A file to create to hold the files and modified files from the input file.
+   *     Must not be <code>null</code>. If it exists it will be overwritten.
+   * @param filesToFilter A list of files that should be filtered. May not be <code>null</code>, but
+   *     may be empty.
+   * @param environment A map of variable names to values. The keys in the map must be {@link
+   *     java.lang.String}, but the values may be of any type. The value used will be the result of
+   *     the {@link Object#toString()}method. May not be <code>null</code>.
    */
   public static void filter(
       File inputJar, File outputJar, List<String> filesToFilter, Map<String, String> environment)
@@ -104,17 +95,13 @@ public class PSJarFilter {
   }
 
   /**
-   * Copy bytes from the input entry to the output stream. In doing this look
-   * for variables, and substitute values from the environment.
+   * Copy bytes from the input entry to the output stream. In doing this look for variables, and
+   * substitute values from the environment.
    *
-   * @param entry
-   *           The entry to copy, assumed to be not <code>null</code>
-   * @param inputStream
-   *           The input stream from the entry, assumed to be not <code>null</code>
-   * @param outputJarStream
-   *           The output stream, assumed to be not <code>null</code>
-   * @param environment
-   *           The environment, assumed to be not <code>null</code>
+   * @param entry The entry to copy, assumed to be not <code>null</code>
+   * @param inputStream The input stream from the entry, assumed to be not <code>null</code>
+   * @param outputJarStream The output stream, assumed to be not <code>null</code>
+   * @param environment The environment, assumed to be not <code>null</code>
    */
   private static void copyFilterBytes(
       JarEntry entry,
@@ -153,10 +140,8 @@ public class PSJarFilter {
   /**
    * Expand variable references
    *
-   * @param line
-   *           input line, assumed never <code>null</code>
-   * @param environment
-   *           contains values for expansion, assumed not <code>null</code>
+   * @param line input line, assumed never <code>null</code>
+   * @param environment contains values for expansion, assumed not <code>null</code>
    * @return expanded string
    */
   private static String expand(String line, Map<String, String> environment) throws IOException {
@@ -189,12 +174,9 @@ public class PSJarFilter {
   /**
    * Copy bytes from the input entry to the output stream.
    *
-   * @param entry
-   *           The entry to copy, assumed to be not <code>null</code>
-   * @param inputStream
-   *           The input stream from the entry, assumed to be not <code>null</code>
-   * @param outputJarStream
-   *           The output stream, assumed to be not <code>null</code>
+   * @param entry The entry to copy, assumed to be not <code>null</code>
+   * @param inputStream The input stream from the entry, assumed to be not <code>null</code>
+   * @param outputJarStream The output stream, assumed to be not <code>null</code>
    */
   private static void copyBytes(
       JarEntry entry, InputStream inputStream, JarOutputStream outputJarStream) throws IOException {

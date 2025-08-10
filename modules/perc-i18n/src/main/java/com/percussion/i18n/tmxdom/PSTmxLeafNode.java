@@ -20,14 +20,9 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-/**
- * Implementation of the interface {@link IPSTmxLeafNode}
- */
+/** Implementation of the interface {@link IPSTmxLeafNode} */
 public abstract class PSTmxLeafNode extends PSTmxNode implements IPSTmxLeafNode {
-  /**
-   * Value associated with this node. A leaf node will normally have a value
-   * which is a string.
-   */
+  /** Value associated with this node. A leaf node will normally have a value which is a string. */
   protected String m_Value = null;
 
   /*

@@ -24,12 +24,10 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Zip;
 
 /**
- * Extends the zip task to accept an additional attribute which specifies
- * the location of a comment file.  The contents of this file will be added as a
- * comment to the newly created zip file.
- * <br>
- * Example Usage:
- * <br>
+ * Extends the zip task to accept an additional attribute which specifies the location of a comment
+ * file. The contents of this file will be added as a comment to the newly created zip file. <br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -51,16 +49,15 @@ public class PSZip extends Zip {
   /**
    * Sets the file to be used as a comment.
    *
-   * @param commentFile the path to the comment file.  May be <code>null</code>
-   * or empty.
+   * @param commentFile the path to the comment file. May be <code>null</code> or empty.
    */
   public void setCommentFile(File commentFile) {
     m_commentFile = commentFile;
   }
 
   /**
-   * Reads the contents of {@link #m_commentFile}, sets as zip file comment,
-   * then calls {@link Zip#execute()} to build the zip file.
+   * Reads the contents of {@link #m_commentFile}, sets as zip file comment, then calls {@link
+   * Zip#execute()} to build the zip file.
    */
   public void execute() throws BuildException {
     BufferedReader b = null;
@@ -94,8 +91,6 @@ public class PSZip extends Zip {
     }
   }
 
-  /**
-   * The contents of this file will be added as a zip file comment.
-   */
+  /** The contents of this file will be added as a zip file comment. */
   private File m_commentFile;
 }

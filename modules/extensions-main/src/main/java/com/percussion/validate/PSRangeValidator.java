@@ -20,19 +20,20 @@ import com.percussion.extension.IPSFieldValidator;
 
 /**
  * Abstract base class used to write range validators
+ *
  * @author dougrand
  */
 public abstract class PSRangeValidator implements IPSFieldValidator {
 
   /**
    * Check the value against the range.
+   *
    * @param min minimum value for range
    * @param value value to test
    * @param max maximum value for range
    * @param includemin include the minimum in the range
    * @param includemax include the maximum in the range
-   * @return <code>true</code> if the value is in range, <code>false</code>
-   * otherwise
+   * @return <code>true</code> if the value is in range, <code>false</code> otherwise
    */
   public boolean checkRange(
       Double min, Double value, Double max, boolean includemin, boolean includemax) {
@@ -58,9 +59,9 @@ public abstract class PSRangeValidator implements IPSFieldValidator {
 
   /**
    * Convert argument to double
+   *
    * @param value the value, may be <code>null</code>
-   * @return <code>null</code> if the value is <code>null</code>, otherwise
-   * returns the double value
+   * @return <code>null</code> if the value is <code>null</code>, otherwise returns the double value
    */
   protected Double toDouble(Number value) {
     if (value == null) return null;

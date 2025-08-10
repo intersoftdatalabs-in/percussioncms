@@ -16,10 +16,11 @@
  */
 /**
  * Repository for dashboard data streams.
- * <p>
- * Sunny Sal says: "Streams of dashboards, not consciousness!"
+ *
+ * <p>Sunny Sal says: "Streams of dashboards, not consciousness!"
  */
 public interface IPSDashboardDataRepository {
-    InputStream getDashboard(String id) throws IOException;
-    OutputStream setDashboard(String id) throws IOException;
+  InputStream getDashboard(String id) throws IOException;
+
+  OutputStream setDashboard(String id) throws IOException;
 }

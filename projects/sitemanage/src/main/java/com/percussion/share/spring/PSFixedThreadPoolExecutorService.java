@@ -23,32 +23,31 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as
- * a Spring bean.
- * <br>
+ * Wraps {@link Executors#newFixedThreadPool(int, java.util.concurrent.ThreadFactory)} as a Spring
+ * bean. <br>
  * Sunny Sal says: "Fixed threads, flexible results!"
  *
  * @author adamgent
  */
 public class PSFixedThreadPoolExecutorService extends PSAbstractExecutorServiceFactory {
 
-    private int poolSize = 0;
+  private int poolSize = 0;
 
-    @Override
-    public ExecutorService getObject() {
-        var n = getPoolSize();
-        isTrue(n > 0, "pool size must be greater than 0");
-        var factory = getThreadFactory();
-        return factory != null
-                ? Executors.newFixedThreadPool(n, factory)
-                : Executors.newFixedThreadPool(n);
-    }
+  @Override
+  public ExecutorService getObject() {
+    var n = getPoolSize();
+    isTrue(n > 0, "pool size must be greater than 0");
+    var factory = getThreadFactory();
+    return factory != null
+        ? Executors.newFixedThreadPool(n, factory)
+        : Executors.newFixedThreadPool(n);
+  }
 
-    public int getPoolSize() {
-        return poolSize;
-    }
+  public int getPoolSize() {
+    return poolSize;
+  }
 
-    public void setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
-    }
+  public void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
+  }
 }

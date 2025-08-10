@@ -32,24 +32,19 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 
 /**
- * A utility class with static methods for Active Assembly operations.
- * This class is exposed to Velocity macros and provides object identification
- * functionality for pages, slots, and snippets.
+ * A utility class with static methods for Active Assembly operations. This class is exposed to
+ * Velocity macros and provides object identification functionality for pages, slots, and snippets.
  *
- * <p>This class follows Java 11 best practices with proper logging,
- * parameter validation, and exception handling.</p>
+ * <p>This class follows Java 11 best practices with proper logging, parameter validation, and
+ * exception handling.
  *
  * @since 8.1.6-SNAPSHOT
  */
 public final class PSAAUtils {
-  /**
-   * Logger for this class using log4j2
-   */
+  /** Logger for this class using log4j2 */
   private static final Logger logger = LogManager.getLogger(PSAAUtils.class);
 
-  /**
-   * Private constructor to prevent instantiation of utility class
-   */
+  /** Private constructor to prevent instantiation of utility class */
   private PSAAUtils() {
     // Utility class - prevent instantiation
   }

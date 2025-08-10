@@ -27,23 +27,17 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- *
- * This is a simple utility class that installs a Rhythmyx application from a
- * specified JAR file.
- *
+ * This is a simple utility class that installs a Rhythmyx application from a specified JAR file.
  */
 public class InstallRxApp {
 
   /**
-   * Constructor that takes the JAR file that has all the application files. The
-   * file name paths MUST be relative to the Rhythmyx root directory.
+   * Constructor that takes the JAR file that has all the application files. The file name paths
+   * MUST be relative to the Rhythmyx root directory.
    *
    * @param JAR file (full path)
-   *
    * @throws FileNotFoundException when the JAR file is not found.
-   *
    * @throws IOException when the file could not be accessed.
-   *
    */
   public InstallRxApp(String sJarFilePath) throws FileNotFoundException, IOException {
     File file = new File(sJarFilePath);
@@ -52,16 +46,12 @@ public class InstallRxApp {
   }
 
   /**
-   * This method actually installs the applications. In the first part it copies
-   * the application file 'ObjectStore/<appName.xml> to target directory. In the
-   * later part, It copies all the application files (folder <appName>) to the
-   * target directory.
+   * This method actually installs the applications. In the first part it copies the application
+   * file 'ObjectStore/<appName.xml> to target directory. In the later part, It copies all the
+   * application files (folder <appName>) to the target directory.
    *
    * @param target Rhythmyx root directory as String. e.g. c:/Rhythmyx.
-   *
-   * @param application name as String. e.g. WFEditor in
-   * (ObjectStore/WFEditor.xml)
-   *
+   * @param application name as String. e.g. WFEditor in (ObjectStore/WFEditor.xml)
    */
   public void install(String sTargetRoot, String sAppName) {
     String sAppFilePath = "ObjectStore/" + sAppName + ".xml";
@@ -112,13 +102,9 @@ public class InstallRxApp {
    * This method copies the InputStream to the specified directory and file name.
    *
    * @param is - the InputStream to be written to the specified file.
-   *
    * @param tgtRoot - the target root diectory
-   *
    * @param fileName - the fileName to which the stream is to be written
-   *
    * @throws - IOExceptione when the target file cannot be created or written.
-   *
    */
   private void copyInputStreamToFile(InputStream is, String tgtRoot, String fileName)
       throws IOException {
@@ -138,16 +124,13 @@ public class InstallRxApp {
     fos.close();
   }
 
-  /**
-   * Instanec of the jar file that has all Rx application files.
-   */
+  /** Instanec of the jar file that has all Rx application files. */
   protected JarFile m_JF = null;
 
   /**
-   * The main method that takes three command line parameters. The first one is
-   * JAR file full path, second one is the Rhythmyx root directory name and the
-   * last one is the name of application to be installed.
-   *
+   * The main method that takes three command line parameters. The first one is JAR file full path,
+   * second one is the Rhythmyx root directory name and the last one is the name of application to
+   * be installed.
    */
   public static void main(String[] args) {
     if (args.length < 3) {

@@ -34,14 +34,15 @@ import org.apache.commons.lang.Validate;
 import org.w3c.dom.Element;
 
 /**
- * Fix WF notification by 1. Add missing "to state" notifications to all transitions so that any transition may cause a notification
- * for the roles with "notify" in that "to state", and 2. Fix the "Approved" step notification settings: if notify is found on roles
- * in all 3 Approved states, this means it was set from the UI, so remove it from the corresponding roles in the Live and Quick Edit
- * steps to match the new/correct setting for the Approved step.  If of the 3 states a role has notify set only in Quick Edit,
- * remove it (it was copied when WF was created and is not set intentionally).
+ * Fix WF notification by 1. Add missing "to state" notifications to all transitions so that any
+ * transition may cause a notification for the roles with "notify" in that "to state", and 2. Fix
+ * the "Approved" step notification settings: if notify is found on roles in all 3 Approved states,
+ * this means it was set from the UI, so remove it from the corresponding roles in the Live and
+ * Quick Edit steps to match the new/correct setting for the Approved step. If of the 3 states a
+ * role has notify set only in Quick Edit, remove it (it was copied when WF was created and is not
+ * set intentionally).
  *
  * @author JaySeletz
- *
  */
 public class PSUpgradePluginFixWFNotification extends PSSpringUpgradePluginBase {
   private IPSWorkflowService wfService;
@@ -73,9 +74,7 @@ public class PSUpgradePluginFixWFNotification extends PSSpringUpgradePluginBase 
     return new PSPluginResponse(PSPluginResponse.SUCCESS, "");
   }
 
-  /**
-   * Find all workflows, and apply the fixes to each
-   */
+  /** Find all workflows, and apply the fixes to each */
   private void fixAllWorkflows() {
     List<PSWorkflow> allWorkflows = wfService.findWorkflowsByName(null);
     for (PSWorkflow workflow : allWorkflows) {
@@ -167,7 +166,6 @@ public class PSUpgradePluginFixWFNotification extends PSSpringUpgradePluginBase 
    *
    * @param role The role to match
    * @param state The state to check
-   *
    * @return The role, <code>null</code> if no match is found.
    */
   private PSAssignedRole getMatchingRole(PSAssignedRole role, PSState state) {
@@ -208,11 +206,10 @@ public class PSUpgradePluginFixWFNotification extends PSSpringUpgradePluginBase 
 
   /**
    * Helper method to get the transition object from a state given the transition name
-   * @param currentState the state that contains the transitions assumed not
-   *            <code>null</code>.
-   * @param transitionName the transition name to find assumed not <code>null</code>.
-   * * @return the notification Id, -1 if the there is no transition
-   *         definitions for the workflow.
+   *
+   * @param currentState the state that contains the transitions assumed not <code>null</code>.
+   * @param transitionName the transition name to find assumed not <code>null</code>. * @return the
+   *     notification Id, -1 if the there is no transition definitions for the workflow.
    */
   private long getNotificationId(PSWorkflow workflow) {
     long notificationId = -1;
@@ -223,8 +220,11 @@ public class PSUpgradePluginFixWFNotification extends PSSpringUpgradePluginBase 
 
   /**
    * Creates a notification object with supplied name and workflow and transition guids.
-   * @param transitionGuid used as the transition id of the transition, assumed not <code>null</code>
-   * @param workflowGuid The new transition is created with this workflow id, assumed not <code>null</code>
+   *
+   * @param transitionGuid used as the transition id of the transition, assumed not <code>null
+   *     </code>
+   * @param workflowGuid The new transition is created with this workflow id, assumed not <code>null
+   *     </code>
    */
   private PSNotification createNotification(
       IPSGuid transitionGuid, IPSGuid workflowGuid, long notificationId) {

@@ -90,13 +90,11 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * Base class for all command handlers, provides common functionality that
- * some or all command handlers will use.
+ * Base class for all command handlers, provides common functionality that some or all command
+ * handlers will use.
  */
 public abstract class PSCommandHandler extends PSDataHandler {
-  /**
-   * The error log.
-   */
+  /** The error log. */
   private static final Logger log = LogManager.getLogger(PSCommandHandler.class);
 
   public static String fixProxiedUrl(String url, String serverName, int serverPort)
@@ -128,24 +126,19 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Constructor for this class.  Delegates preparation of dataset exits to
-   * its base class, does not prepare data in any other way.  It is up to
-   * the derived classes to call the methods to prepare any data that they
-   * will need at runtime.
+   * Constructor for this class. Delegates preparation of dataset exits to its base class, does not
+   * prepare data in any other way. It is up to the derived classes to call the methods to prepare
+   * any data that they will need at runtime.
    *
-   * @param appHandler The application handler for this app.  May not be
-   * <code>null</code>.
-   * @param ceh The content editor handler for this dataset.  May not be
-   * <code>null</code>.
-   * @param ce The Content Editor this command handler will process commands
-   * for.  May not be <code>null</code>.
-   * @param app The application created by the PSContentEditor for each
-   * command handler to add datasets to.  The app is started and stopped by the
-   * ContentEditorHandler. May not be <code>null</code>.
-   *
+   * @param appHandler The application handler for this app. May not be <code>null</code>.
+   * @param ceh The content editor handler for this dataset. May not be <code>null</code>.
+   * @param ce The Content Editor this command handler will process commands for. May not be <code>
+   *     null</code>.
+   * @param app The application created by the PSContentEditor for each command handler to add
+   *     datasets to. The app is started and stopped by the ContentEditorHandler. May not be <code>
+   *     null</code>.
    * @throws PSNotFoundException If an exit cannot be found.
-   * @throws PSExtensionException If any problems occur during extension
-   * initialization.
+   * @throws PSExtensionException If any problems occur during extension initialization.
    */
   public PSCommandHandler(
       PSApplicationHandler appHandler,
@@ -176,8 +169,8 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Convenience method for retreiving a single id, delegates to {@link
-   * #getNextIdBlock(String, int) getNextIdBlock}, passing 1 for blockSize.
+   * Convenience method for retreiving a single id, delegates to {@link #getNextIdBlock(String, int)
+   * getNextIdBlock}, passing 1 for blockSize.
    */
   public int getNextId(String key) throws SQLException {
     int[] result = getNextIdBlock(key, 1);
@@ -185,17 +178,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Returns the next id to use when inserting data.  Reserves a block of id's
-   * based on the supplied blockSize.
+   * Returns the next id to use when inserting data. Reserves a block of id's based on the supplied
+   * blockSize.
    *
-   * @param key The key value identifying the type of id to get.  May not be
-   * <code>null</code> or empty.
-   *
-   * @param blockSize The number of id's to reserve.  Must be greater than
-   * zero.
-   *
+   * @param key The key value identifying the type of id to get. May not be <code>null</code> or
+   *     empty.
+   * @param blockSize The number of id's to reserve. Must be greater than zero.
    * @return An array of id's, whose length is equal to the blocksize.
-   *
    * @throws SQLException if there is an error retrieving the id.
    */
   public int[] getNextIdBlock(String key, int blockSize) throws SQLException {
@@ -210,15 +199,14 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Creates a relative request string that can be used to obtain the result
-   * handler from the server.
+   * Creates a relative request string that can be used to obtain the result handler from the
+   * server.
    *
    * @param appName The name of the application, may not be <code>null
    *    </code> or empty.
-   * @param reqPage The name of the dataset for which you want to obtain a
-   *    handler. May not be <code>null</code> or empty.
-   * @return The fully qualified request name. Never <code>null</code> or
-   *    empty.
+   * @param reqPage The name of the dataset for which you want to obtain a handler. May not be
+   *     <code>null</code> or empty.
+   * @return The fully qualified request name. Never <code>null</code> or empty.
    */
   public static String createRequestName(String appName, String reqPage) {
     if (appName == null || appName.trim().length() == 0)
@@ -231,22 +219,19 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * This method is used to set the workflow access level. When a user tries
-   * to do anything with a content editor, the authenticateUser exit is
-   * executed first. This exit verifies that the user has at least a minimum
-   * level of access, as specified by one of the exit's parameters. For some
-   * handlers, all actions have the same access level, so it can be specified
-   * in the system def. However, for others, they may have to set the access
-   * level dynamically.
-   * <p>If a handler needs to do this, it should call this method before the
-   * pre-exits are processed.
+   * This method is used to set the workflow access level. When a user tries to do anything with a
+   * content editor, the authenticateUser exit is executed first. This exit verifies that the user
+   * has at least a minimum level of access, as specified by one of the exit's parameters. For some
+   * handlers, all actions have the same access level, so it can be specified in the system def.
+   * However, for others, they may have to set the access level dynamically.
+   *
+   * <p>If a handler needs to do this, it should call this method before the pre-exits are
+   * processed.
    *
    * @param req The request that is currently being processed. Never <code>
    *    null</code>.
-   *
    * @param level One of the ASSIGNMENT_TYPE_xxx values defined in
-   *    com.percussion.workflow.PSWorkFlowUtils. This method does not
-   *    validate the supplied type.
+   *     com.percussion.workflow.PSWorkFlowUtils. This method does not validate the supplied type.
    */
   public static void setMinAccessLevel(PSRequest req, int level) {
     if (null == req) throw new IllegalArgumentException("request can't be null");
@@ -255,20 +240,18 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * This method is used to set the workflow access level. When a user tries
-   * to do anything with a content editor, the authenticateUser exit is
-   * executed first. If this value has been set, and it is a new item, then
-   * the exit will validate that the user is a member of one of the roles
-   * necessary to edit and checkin the item after it has entered the initial
-   * state of the workflow.
-   * <p>If a handler needs to do this, it should call this method before the
-   * pre-exits are processed.
+   * This method is used to set the workflow access level. When a user tries to do anything with a
+   * content editor, the authenticateUser exit is executed first. If this value has been set, and it
+   * is a new item, then the exit will validate that the user is a member of one of the roles
+   * necessary to edit and checkin the item after it has entered the initial state of the workflow.
+   *
+   * <p>If a handler needs to do this, it should call this method before the pre-exits are
+   * processed.
    *
    * @param req The request that is currently being processed. Never <code>
    *    null</code>.
-   *
-   * @param workflowAppId The id of the workflow this content editor uses.
-   * Usually retrieved by a call to {@link PSContentEditor#getWorkflowId()}.
+   * @param workflowAppId The id of the workflow this content editor uses. Usually retrieved by a
+   *     call to {@link PSContentEditor#getWorkflowId()}.
    */
   public static void setWorkflowAppId(PSRequest req, int workflowAppId) {
     if (null == req) throw new IllegalArgumentException("request can't be null");
@@ -277,21 +260,18 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * This method is used as part of the authentication process. When a user
-   * tries to do anything with a content editor, the authenticateUser exit is
-   * executed first. This exit checks the minimum access level and the state
-   * of the doc as to whether it is checked in, checked out. For some handlers,
-   * this is the same regardless of how the handler is called. In this case,
-   * the value is set as a constant in the system def. If the value needs to
-   * change depending on what the user is actually trying to do, this method
-   * must be called before the pre-exits are executed.
+   * This method is used as part of the authentication process. When a user tries to do anything
+   * with a content editor, the authenticateUser exit is executed first. This exit checks the
+   * minimum access level and the state of the doc as to whether it is checked in, checked out. For
+   * some handlers, this is the same regardless of how the handler is called. In this case, the
+   * value is set as a constant in the system def. If the value needs to change depending on what
+   * the user is actually trying to do, this method must be called before the pre-exits are
+   * executed.
    *
    * @param req The request that is currently being processed. Never <code>
    *    null</code>.
-   *
    * @param condition One of the CHECKINOUT_CONDITION_xxx types defined in
-   *    com.percussion.workflow.PSWorkFlowUtils. This method does not
-   *    validate the supplied type.
+   *     com.percussion.workflow.PSWorkFlowUtils. This method does not validate the supplied type.
    */
   public static void setCheckInOutCondition(PSRequest req, String condition) {
     if (null == req || null == condition || condition.trim().length() == 0) {
@@ -302,17 +282,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Retrieves and prepares the conditional redirects for the specified
-   * handler.
+   * Retrieves and prepares the conditional redirects for the specified handler.
    *
-   * @param commandName The name of the handler to prepare redirects for.  May
-   * not be <code>null</code> or empty.
-   *
+   * @param commandName The name of the handler to prepare redirects for. May not be <code>null
+   *     </code> or empty.
    * @throws PSNotFoundException if an udf specified in a rule does not exist.
-   * @throws PSExtensionException if there is an error preparing an extension
-   * or a rule.
-   * @throws PSSystemValidationException if no redirects are found for the specified
-   * commandName.
+   * @throws PSExtensionException if there is an error preparing an extension or a rule.
+   * @throws PSSystemValidationException if no redirects are found for the specified commandName.
    */
   protected void prepareRedirects(String commandName)
       throws PSNotFoundException, PSExtensionException, PSSystemValidationException {
@@ -338,12 +314,10 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Determines the correct redirect to make, updates the response, and
-   * sends it.  {@link #prepareRedirects(String) prepareRedirects()} must have
-   * been called prior to this method.
+   * Determines the correct redirect to make, updates the response, and sends it. {@link
+   * #prepareRedirects(String) prepareRedirects()} must have been called prior to this method.
    *
-   * @param data The execution data.  May not be <code>null</code>.
-   *
+   * @param data The execution data. May not be <code>null</code>.
    * @throws IOException if there is an error sending the response.
    * @throws IllegalStateException if redirects have not been prepared.
    * @throws PSDataExtractionException for any other errors.
@@ -360,14 +334,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Processes all html parameters marked as replacement values. Currently we
-   * only support single html parameters. The markup expected for that is
-   * <code>:PSXSingleHtmlParamter/parameterName</code>. The extractor
-   * identifier <code>:PSXSingleHtmlParamter</code> is not case sensitive.
+   * Processes all html parameters marked as replacement values. Currently we only support single
+   * html parameters. The markup expected for that is <code>:PSXSingleHtmlParamter/parameterName
+   * </code>. The extractor identifier <code>:PSXSingleHtmlParamter</code> is not case sensitive.
    *
    * @param url the url to be processed, not <code>null</code>, may be empty.
-   * @param data the execution data from which to extract the replacement
-   *    values, not <code>null</code>.
+   * @param data the execution data from which to extract the replacement values, not <code>null
+   *     </code>.
    * @throws PSDataExtractionException if the data extraction fails.
    */
   protected String processUrlReplacementParameters(String url, PSExecutionData data)
@@ -426,14 +399,12 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * This will get the response out of the provided execution data and set it
-   * up to redirect the client to the provided URL. Then it sends the
-   * redirected response back to the client.
+   * This will get the response out of the provided execution data and set it up to redirect the
+   * client to the provided URL. Then it sends the redirected response back to the client.
    *
-   * @param data the execution data containing the response, not
-   *    <code>null</code>.
-   * @param url the fully qualified URL, including all parameters, anchors,
-   *    etc. Not <code>null</code> or empty.
+   * @param data the execution data containing the response, not <code>null</code>.
+   * @param url the fully qualified URL, including all parameters, anchors, etc. Not <code>null
+   *     </code> or empty.
    */
   protected void sendRedirect(PSExecutionData data, String url) throws IOException {
     if (data == null) throw new IllegalArgumentException("data cannot be null");
@@ -473,12 +444,10 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Gets and prepares all extensions used by this handler.
    *
-   * @param commandName The name of the handler to prepare redirects for.  May
-   * not be <code>null</code> or empty.
-   *
+   * @param commandName The name of the handler to prepare redirects for. May not be <code>null
+   *     </code> or empty.
    * @throws PSNotFoundException if an udf specified in a rule does not exist.
-   * @throws PSExtensionException if there is an error preparing an extension
-   * or a rule.
+   * @throws PSExtensionException if there is an error preparing an extension or a rule.
    */
   protected void prepareExtensions(String commandName)
       throws PSExtensionException, PSNotFoundException {
@@ -508,8 +477,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    * Gets and prepares all item input translation exits.
    *
    * @throws PSNotFoundException if a udf specified in a rule does not exist.
-   * @throws PSExtensionException if there is an error preparing an extension
-   * or a rule.
+   * @throws PSExtensionException if there is an error preparing an extension or a rule.
    */
   protected void prepareInputTranslations() throws PSExtensionException, PSNotFoundException {
     Iterator i = m_ce.getInputTranslations();
@@ -524,8 +492,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    * Gets and prepares all item output translation exits.
    *
    * @throws PSNotFoundException if a udf specified in a rule does not exist.
-   * @throws PSExtensionException if there is an error preparing an extension
-   * or a rule.
+   * @throws PSExtensionException if there is an error preparing an extension or a rule.
    */
   protected void prepareOutputTranslations() throws PSExtensionException, PSNotFoundException {
     Iterator i = m_ce.getOutputTranslations();
@@ -538,14 +505,12 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Determines the list of input translation exits that should be run and
-   * then executes them.
+   * Determines the list of input translation exits that should be run and then executes them.
    *
-   * @param data The executution data used to evaluate the exit's conditional
-   * rules and to apply the exits to.  May not be <code>null</code>.
-   *
-   * @throws PSErrorException If any exception occurs which prevents the proper
-   * handling of this request
+   * @param data The executution data used to evaluate the exit's conditional rules and to apply the
+   *     exits to. May not be <code>null</code>.
+   * @throws PSErrorException If any exception occurs which prevents the proper handling of this
+   *     request
    */
   protected void runInputTranslations(PSExecutionData data) throws PSErrorException {
 
@@ -555,24 +520,17 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Determines the list of output translation exits that should be run and
-   * then executes them.
+   * Determines the list of output translation exits that should be run and then executes them.
    *
-   * @param data The executution data used to evaluate the exit's conditional
-   * rules and to apply the exits to.  May not be <code>null</code>.
+   * @param data The executution data used to evaluate the exit's conditional rules and to apply the
+   *     exits to. May not be <code>null</code>.
    * @param doc The result XML document, can be <code>null</code>
-   *
-   * @return The result doc with any modifications applied from the exits.  May
-   * be <code>null</code>.
-   *
-   * @throws PSParameterMismatchException If the runtime parameters specified
-   * in a call are incorrect for the usage of that extension.
-   *
-   * @throws PSDataExtractionException if there is an error extracting any
-   * parameters.
-   *
-   * @throws PSExtensionProcessingException If any other exception occurs which
-   * prevents the proper handling of this request
+   * @return The result doc with any modifications applied from the exits. May be <code>null</code>.
+   * @throws PSParameterMismatchException If the runtime parameters specified in a call are
+   *     incorrect for the usage of that extension.
+   * @throws PSDataExtractionException if there is an error extracting any parameters.
+   * @throws PSExtensionProcessingException If any other exception occurs which prevents the proper
+   *     handling of this request
    */
   protected Document runOutputTranslations(PSExecutionData data, Document doc)
       throws PSExtensionProcessingException,
@@ -585,15 +543,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Creates the input field translations for all mappings in the provided
-   * mapper for the supplied field set.
+   * Creates the input field translations for all mappings in the provided mapper for the supplied
+   * field set.
    *
-   * @param childId the childid for which this will produce the input field
-   *    translations.
-   * @param mapper the display mapper to walk all mappings, not
-   *    <code>null</code>.
-   * @param fieldSet the fieldSet, containing all fields to prepare the
-   *    translations for, not <code>null</code>.
+   * @param childId the childid for which this will produce the input field translations.
+   * @param mapper the display mapper to walk all mappings, not <code>null</code>.
+   * @param fieldSet the fieldSet, containing all fields to prepare the translations for, not <code>
+   *     null</code>.
    * @throws PSNotFoundException if a udf or extension cannot be located.
    */
   @SuppressWarnings("unchecked")
@@ -628,13 +584,12 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Prepare the input translations for a simple child. The prepared
-   * runners will be put to the provided map.
+   * Prepare the input translations for a simple child. The prepared runners will be put to the
+   * provided map.
    *
-   * @param mapper the mapper to walk for all fields, assumed not
-   *    <code>null</code>.
-   * @param runnerMap the map to which all created runner will be added,
-   *    assumed not <code>null</code>.
+   * @param mapper the mapper to walk for all fields, assumed not <code>null</code>.
+   * @param runnerMap the map to which all created runner will be added, assumed not <code>null
+   *     </code>.
    * @throws PSNotFoundException if a udf or extension cannot be located.
    */
   @SuppressWarnings("unchecked")
@@ -663,13 +618,11 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Gets and prepares all field translation exits used by this handler.
    *
-   * @param ce the content editor to create the translations for, not
-   *    <code>null</code>.
+   * @param ce the content editor to create the translations for, not <code>null</code>.
    * @throws PSNotFoundException if an udf specified in a rule does not exist.
-   * @throws PSExtensionException if there is an error preparing an extension
-   *    or a rule.
-   * @throws PSSystemValidationException if there are any mismatches between the
-   *    fieldset list and the display mappings
+   * @throws PSExtensionException if there is an error preparing an extension or a rule.
+   * @throws PSSystemValidationException if there are any mismatches between the fieldset list and
+   *     the display mappings
    */
   protected void prepareOutputFieldTranslations(PSContentEditor ce)
       throws PSExtensionException, PSNotFoundException, PSSystemValidationException {
@@ -682,14 +635,14 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Prepares all 'output' field translations. This is called recursively
-   * so all field translations for all item pages will be prepared.
+   * Prepares all 'output' field translations. This is called recursively so all field translations
+   * for all item pages will be prepared.
    *
    * @param ce the content editor, assumed not <code>null</code>.
    * @param dispMapper the display mapper, assumed not <code>null</code>.
    * @throws PSNotFoundException if a udf or extension cannot be located.
-   * @throws PSSystemValidationException if there are any mismatches between the
-   *    fieldset list and the display mappings
+   * @throws PSSystemValidationException if there are any mismatches between the fieldset list and
+   *     the display mappings
    */
   private void prepareOutputFieldTranslations(PSContentEditor ce, PSDisplayMapper dispMapper)
       throws PSNotFoundException, PSExtensionException, PSSystemValidationException {
@@ -732,15 +685,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Prepares all translation exits and returns them. It adds the implicit
-   * parameter for the fields submit name. The actual data will be filled
-   * in when the exit import run.
+   * Prepares all translation exits and returns them. It adds the implicit parameter for the fields
+   * submit name. The actual data will be filled in when the exit import run.
    *
-   * @param translations the field translations to prepare the exits for,
-   *    might be <code>null</code>.
-   * @return The transform runner containing a list of prepared exits,
-   * <code>null</code> if there are no field translations.
-   *
+   * @param translations the field translations to prepare the exits for, might be <code>null</code>
+   *     .
+   * @return The transform runner containing a list of prepared exits, <code>null</code> if there
+   *     are no field translations.
    * @throws PSNotFoundException if a udf or extension cannot be located.
    * @throws PSExtensionException If there is an error preparing an extension.
    */
@@ -766,15 +717,12 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Walks List of PSConditionalExitEvaluators and for each entry, checks for a
-   * match. If <code>true</code>, add its prepared extensions to a list it
-   * will then return an iterator over.
+   * Walks List of PSConditionalExitEvaluators and for each entry, checks for a match. If <code>true
+   * </code>, add its prepared extensions to a list it will then return an iterator over.
    *
-   * @param data The execution data to use to evaluate the rules.  May not be
-   * <code>null</code>.
-   * @param extList List of PSConditionalExitEvaluator object.  May not be
-   * <code>null</code>, may be empty.
-   *
+   * @param data The execution data to use to evaluate the rules. May not be <code>null</code>.
+   * @param extList List of PSConditionalExitEvaluator object. May not be <code>null</code>, may be
+   *     empty.
    * @return An Iterator over <code>zero</code> or more prepared extensions.
    */
   @SuppressWarnings("unchecked")
@@ -793,16 +741,12 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Gets the proper redirect URL.  Checks for the {@link
-   * IPSHtmlParameters#DYNAMIC_REDIRECT_URL} parameter.  If found, returns its
-   * value.  If not, evaluates all conditional requests and uses the matching
-   * reqeust to construct the redirect url.
+   * Gets the proper redirect URL. Checks for the {@link IPSHtmlParameters#DYNAMIC_REDIRECT_URL}
+   * parameter. If found, returns its value. If not, evaluates all conditional requests and uses the
+   * matching reqeust to construct the redirect url.
    *
    * @param data The execution data. Assumed not <code>null</code>.
-   *
-   * @return The full URL for the selected request, might be
-   *    <code>null</code>.
-   *
+   * @return The full URL for the selected request, might be <code>null</code>.
    * @throws IllegalStateException if redirects have not been prepared.
    */
   private String getRedirectURL(PSExecutionData data) throws PSDataExtractionException {
@@ -835,15 +779,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Get the pageid from the supplied map of PSPageInfo objects for the
-   * provided childid.
+   * Get the pageid from the supplied map of PSPageInfo objects for the provided childid.
    *
-   * @param pages a map of PSPageInfo objects with all known pages for the
-   *    current content editor, not <code>null</code>.
+   * @param pages a map of PSPageInfo objects with all known pages for the current content editor,
+   *     not <code>null</code>.
    * @param childId the childid we want the pageid for.
    * @return the pageid found, always a valid id.
-   * @throws RuntimeException if no pageid could be found for the provided
-   *    childid.
+   * @throws RuntimeException if no pageid could be found for the provided childid.
    */
   public Integer getPageId(Map pages, int childId) {
     if (pages == null) throw new IllegalArgumentException("page map cannot be null");
@@ -862,10 +804,8 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Prepares the validation for the entire content editor provided.
    *
-   * @param ce the content editor to prepare validation for, not
-   *   <code>null</code>.
-   * @throws PSNotFoundException if a validation extension could not be
-   *    found.
+   * @param ce the content editor to prepare validation for, not <code>null</code>.
+   * @throws PSNotFoundException if a validation extension could not be found.
    * @throws PSExtensionException if the extension preparation fails.
    */
   protected void prepareValidation(PSContentEditor ce)
@@ -884,10 +824,9 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Prepare the field evaluators for all fields in the provided content
-   * editor. This is called recursively for each display mapper. For each
-   * item screen a map entry for m_fieldEvaluatorMap is created and stored
-   * to be used while processing the request.
+   * Prepare the field evaluators for all fields in the provided content editor. This is called
+   * recursively for each display mapper. For each item screen a map entry for m_fieldEvaluatorMap
+   * is created and stored to be used while processing the request.
    *
    * @param ce the content editor, assumed not <code>null</code>.
    * @param dispMapper the display mapper, assumed not <code>null</code>.
@@ -959,8 +898,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
    * Prepare validation for a simple child.
    *
    * @param ce the content editor, assumed not <code>null</code>.
-   * @param fieldEvaluators the map of evaluators.  We will add any we
-   *    create here.
+   * @param fieldEvaluators the map of evaluators. We will add any we create here.
    * @param dispMapper the display mapper, assumed not <code>null</code>.
    */
   @SuppressWarnings("unchecked")
@@ -985,19 +923,14 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Process field validations for the current contentid, revision and the
-   * provided pageid. Error information will be collected into the provided
-   * collector.
+   * Process field validations for the current contentid, revision and the provided pageid. Error
+   * information will be collected into the provided collector.
    *
-   * @param pageId the pageid which we are validating, assumed not
-   *    <code>null</code>.
-   * @param errorCollector the container into which we fill all error
-   *    information collected during validation, assumed not
-   *    <code>null</code>.
-   * @param data the execution data for the page to be validated, assumed not
-   *    <code>null</code>.
-   * @return <code>true</code> if no field errors found, <code>false</code>
-   *    otherwise.
+   * @param pageId the pageid which we are validating, assumed not <code>null</code>.
+   * @param errorCollector the container into which we fill all error information collected during
+   *     validation, assumed not <code>null</code>.
+   * @param data the execution data for the page to be validated, assumed not <code>null</code>.
+   * @return <code>true</code> if no field errors found, <code>false</code> otherwise.
    */
   protected boolean processFieldValidation(
       Integer pageId, PSErrorCollector errorCollector, PSExecutionData data) {
@@ -1038,15 +971,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Process the item validation and fill in the error(s) found to the
-   * supplied error collector.
+   * Process the item validation and fill in the error(s) found to the supplied error collector.
    *
-   * @param errorCollector the container into which we fill all error
-   *    information collected during validation.
-   * @param data the item document containing all fields and their data.
-   *    This document will be passed to the item validation extension.
-   * @return <code>true</code> if no field error's found, <code>false</code>
-   *    otherwise.
+   * @param errorCollector the container into which we fill all error information collected during
+   *     validation.
+   * @param data the item document containing all fields and their data. This document will be
+   *     passed to the item validation extension.
+   * @return <code>true</code> if no field error's found, <code>false</code> otherwise.
    */
   protected boolean processItemValidation(PSErrorCollector errorCollector, PSExecutionData data) {
     // avoid eclipse warnings
@@ -1059,14 +990,13 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Get the maximum number of errors allowed before stopping the validation
-   * process. This will walk all field evaluators and return the smallest
-   * specified maxErrorsToStop.
+   * Get the maximum number of errors allowed before stopping the validation process. This will walk
+   * all field evaluators and return the smallest specified maxErrorsToStop.
    *
-   * @param pageId the pageid we want the maximal allowed errors before stop
-   *    for, not <code>null</code>.
-   * @return the smallest specified maxErrorsToStop found in all evaluators
-   *    for the supplied pageid, or the default (10) if not found.
+   * @param pageId the pageid we want the maximal allowed errors before stop for, not <code>null
+   *     </code>.
+   * @return the smallest specified maxErrorsToStop found in all evaluators for the supplied pageid,
+   *     or the default (10) if not found.
    */
   public int getMaxErrorsToStop(Integer pageId) {
     if (pageId == null) throw new IllegalArgumentException("pageId cannot be null");
@@ -1089,10 +1019,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
       }
     }
 
-    /**
-     * If non of the fields specified a lower maximum error to stop, we use
-     * the default.
-     */
+    /** If non of the fields specified a lower maximum error to stop, we use the default. */
     if (maxErrorsToStop == Integer.MAX_VALUE) maxErrorsToStop = 10;
 
     return maxErrorsToStop;
@@ -1101,8 +1028,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Get the pageid for the supplied execution data.
    *
-   * @param data the execution data to extract the pageid from, might be
-   *    <code>null</code>.
+   * @param data the execution data to extract the pageid from, might be <code>null</code>.
    * @return the pageid, never <code>null</code>.
    */
   public Integer getPageId(PSExecutionData data) {
@@ -1122,8 +1048,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Get the cacheid for the supplied execution data.
    *
-   * @param data the execution data to extract the cacheid from, might be
-   *    <code>null</code>.
+   * @param data the execution data to extract the cacheid from, might be <code>null</code>.
    * @return the cacheid, might be <code>null</code>.
    */
   public static Integer getCacheId(PSExecutionData data) {
@@ -1142,8 +1067,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Get the transitionid for the supplied execution data.
    *
-   * @param data the execution data to extract the transitionid from, might
-   *    be <code>null</code>.
+   * @param data the execution data to extract the transitionid from, might be <code>null</code>.
    */
   public static Integer getTransitionId(PSExecutionData data) {
     PSSingleHtmlParameterExtractor extractor =
@@ -1161,46 +1085,39 @@ public abstract class PSCommandHandler extends PSDataHandler {
   /**
    * Get the complete list of all pageid's available for this content editor.
    *
-   * @return the list of all pageid's (a list of Integer objects), never
-   *    <code>null</code> or empty.
+   * @return the list of all pageid's (a list of Integer objects), never <code>null</code> or empty.
    */
   public Iterator getPageIdList() {
     return m_fieldEvaluatorMap.keySet().iterator();
   }
 
   /**
-   * Returns <code>IPSInternalRequest.REQUEST_TYPE_CONTENT_EDITOR</code>
-   *
-   * see {@link com.percussion.data.IPSInternalRequestHandler#getRequestType()}
-   * for details.
+   * Returns <code>IPSInternalRequest.REQUEST_TYPE_CONTENT_EDITOR</code> see {@link
+   * com.percussion.data.IPSInternalRequestHandler#getRequestType()} for details.
    */
   public int getRequestType() {
     return IPSInternalRequest.REQUEST_TYPE_CONTENT_EDITOR;
   }
 
   /**
-   * Does this handler process update requests?  This method will return
-   * <code>false</code>.  Derived classes that perform updates should override
-   * this method and return <code>true</code>.
+   * Does this handler process update requests? This method will return <code>false</code>. Derived
+   * classes that perform updates should override this method and return <code>true</code>.
    *
-   * @return <code>true</code> if this handler processes requests that update
-   * data and require a redirect to return a response, <code>false</code> if
-   * it handles query requests which do not require a redirect.
+   * @return <code>true</code> if this handler processes requests that update data and require a
+   *     redirect to return a response, <code>false</code> if it handles query requests which do not
+   *     require a redirect.
    */
   public boolean isUpdate() {
     return false;
   }
 
   /**
-   * Extracts the workflow id from the supplied execution data for the
-   * current processed item.
+   * Extracts the workflow id from the supplied execution data for the current processed item.
    *
-   * @param data the execution data from which to extract the workflowid,
-   *    not <code>null</code>.
-   * @return the workflowid, may be <code>null</code> if the processed item
-   *    does not exist in the repository yet.
-   * @throws PSDataExtractionException if anything goes wrong extracting the
-   *    requested data.
+   * @param data the execution data from which to extract the workflowid, not <code>null</code>.
+   * @return the workflowid, may be <code>null</code> if the processed item does not exist in the
+   *     repository yet.
+   * @throws PSDataExtractionException if anything goes wrong extracting the requested data.
    */
   public String extractWorkflowId(PSExecutionData data) throws PSDataExtractionException {
     Object obj = m_workflowidExtractor.extract(data);
@@ -1210,14 +1127,11 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Extracts the community from the supplied execution data for the
-   * current processed item.
+   * Extracts the community from the supplied execution data for the current processed item.
    *
-   * @param data the execution data from which to extract the community,
-   *    not <code>null</code>.
+   * @param data the execution data from which to extract the community, not <code>null</code>.
    * @return the community, may be <code>null</code>.
-   * @throws PSDataExtractionException if anything goes wrong extracting the
-   *    requested data.
+   * @throws PSDataExtractionException if anything goes wrong extracting the requested data.
    */
   public String extractCommunity(PSExecutionData data) throws PSDataExtractionException {
     Object obj = m_communityExtractor.extract(data);
@@ -1227,14 +1141,11 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Extracts the locale from the supplied execution data for the
-   * current processed item.
+   * Extracts the locale from the supplied execution data for the current processed item.
    *
-   * @param data the execution data from which to extract the locale,
-   *    not <code>null</code>.
+   * @param data the execution data from which to extract the locale, not <code>null</code>.
    * @return the locale, may be <code>null</code>.
-   * @throws PSDataExtractionException if anything goes wrong extracting the
-   *    requested data.
+   * @throws PSDataExtractionException if anything goes wrong extracting the requested data.
    */
   public String extractLocale(PSExecutionData data) throws PSDataExtractionException {
     Object obj = m_localeExtractor.extract(data);
@@ -1244,8 +1155,8 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Registers the supplied listener for editor change events.  Listener will
-   * be notified of any requests that modify the content or state of the item.
+   * Registers the supplied listener for editor change events. Listener will be notified of any
+   * requests that modify the content or state of the item.
    *
    * @param listener The listener to notify, may not be <code>null</code>.
    */
@@ -1257,9 +1168,8 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Convenience method that calls {@link #notifyEditorChangeListeners(
-   * PSExecutionData, int, PSChangeEventProcessor)
-   * notifyEditorChangeListeners(data, action, null)}.
+   * Convenience method that calls {@link #notifyEditorChangeListeners( PSExecutionData, int,
+   * PSChangeEventProcessor) notifyEditorChangeListeners(data, action, null)}.
    */
   protected void notifyEditorChangeListeners(PSExecutionData data, int action)
       throws PSSystemValidationException {
@@ -1267,15 +1177,14 @@ public abstract class PSCommandHandler extends PSDataHandler {
   }
 
   /**
-   * Notifies all registered change listeners with the supplied event.  If a
-   * revision id is not specified in the <code>data</code>, the current
-   * revision is used.
+   * Notifies all registered change listeners with the supplied event. If a revision id is not
+   * specified in the <code>data</code>, the current revision is used.
    *
    * @param data The execution data, may not be <code>null</code>.
-   * @param action The action to set on the event.  Must be one of the
-   * <code>PSEditorChangeEvent.ACTION_xxx</code> types.
-   * @param proc If supplied, will be called to process the event just before
-   * listeners are notified with it.  May be <code>null</code>.
+   * @param action The action to set on the event. Must be one of the <code>
+   *     PSEditorChangeEvent.ACTION_xxx</code> types.
+   * @param proc If supplied, will be called to process the event just before listeners are notified
+   *     with it. May be <code>null</code>.
    */
   protected void notifyEditorChangeListeners(
       PSExecutionData data, int action, PSChangeEventProcessor proc)
@@ -1375,12 +1284,8 @@ public abstract class PSCommandHandler extends PSDataHandler {
    *
    * @param req The request to use, may not be <code>null</code>.
    * @param contentId The content id of the item.
-   *
-   * @return The current revision, or -1 if the <code>contentId</code> is not
-   * valid.
-   *
+   * @return The current revision, or -1 if the <code>contentId</code> is not valid.
    * @throws PSCmsException if there are any errors.
-   *
    */
   @SuppressWarnings("unused")
   public static int getCurrentRevision(PSRequest req, int contentId) throws PSCmsException {
@@ -1401,33 +1306,24 @@ public abstract class PSCommandHandler extends PSDataHandler {
     return revision;
   }
 
-  /**
-   * Class to handle processing or modifying an editor change event before
-   * it is dispatched.
-   */
+  /** Class to handle processing or modifying an editor change event before it is dispatched. */
   protected abstract class PSChangeEventProcessor {
     /**
-     * This method is called before listeners are notified with the supplied
-     * event.
+     * This method is called before listeners are notified with the supplied event.
      *
      * @param e The event that will be dispatched, never <code>null</code>.
-     *
      * @return The event to dispatch, never <code>null</code>.
      */
     public abstract PSEditorChangeEvent processEvent(PSEditorChangeEvent e);
   }
 
-  /**
-   * Class to encapsulate a list of field transformations and an error message.
-   */
+  /** Class to encapsulate a list of field transformations and an error message. */
   protected class PSTransformRunner {
     /**
      * ctor
      *
-     * @param transforms The list of transforms, not <code>null</code> or
-     * empty.
-     * @param errMsg The error message to use, may be <code>null</code> or
-     * empty.
+     * @param transforms The list of transforms, not <code>null</code> or empty.
+     * @param errMsg The error message to use, may be <code>null</code> or empty.
      */
     public PSTransformRunner(List<PSExtensionRunner> transforms, String errMsg) {
       if (transforms == null || transforms.isEmpty())
@@ -1440,6 +1336,7 @@ public abstract class PSCommandHandler extends PSDataHandler {
 
     /**
      * Get the error message to use.
+     *
      * @return The message, never <code>null</code>, may be empty.
      */
     public String getErrorMsg() {
@@ -1455,21 +1352,14 @@ public abstract class PSCommandHandler extends PSDataHandler {
       return m_transforms;
     }
 
-    /**
-     * List of transforms provided to ctor, immutable
-     */
+    /** List of transforms provided to ctor, immutable */
     private List<PSExtensionRunner> m_transforms;
 
-    /**
-     * Error msg provided to ctor, immutable
-     */
+    /** Error msg provided to ctor, immutable */
     private String m_errMsg;
   }
 
-  /**
-   * The application handler used. Never <code>null</code>, never changes
-   * once set in ctor.
-   */
+  /** The application handler used. Never <code>null</code>, never changes once set in ctor. */
   protected PSApplicationHandler m_appHandler = null;
 
   /**
@@ -1479,140 +1369,119 @@ public abstract class PSCommandHandler extends PSDataHandler {
   protected PSContentEditorHandler m_ceHandler = null;
 
   /**
-   * The content editor dataset this handler is processing commands
-   * for, saved as a PSContentEditor reference for convenience. Never
-   * <code>null</code> after construction.
+   * The content editor dataset this handler is processing commands for, saved as a PSContentEditor
+   * reference for convenience. Never <code>null</code> after construction.
    */
   protected PSContentEditor m_ce = null;
 
   /**
-   * The application used to internally perform queries and updates.
-   * Obtained in the constructor, never <code>null</code> after that.
+   * The application used to internally perform queries and updates. Obtained in the constructor,
+   * never <code>null</code> after that.
    */
   protected PSApplication m_internalApp = null;
 
   /**
-   * List of conditional requests prepared as PSConditionalUrlEvaluators.
-   * The order of this list is important, and it should be evaluated top
-   * to bottom at run time. Initialized by call to {@link #prepareRedirects(String)},
-   * never <code>null</code> after that.
+   * List of conditional requests prepared as PSConditionalUrlEvaluators. The order of this list is
+   * important, and it should be evaluated top to bottom at run time. Initialized by call to {@link
+   * #prepareRedirects(String)}, never <code>null</code> after that.
    */
   protected PSConditionalUrlEvaluator[] m_redirects = null;
 
   /**
-   * List of PSConditionalExitEvaluator objects to use for item input
-   * translations. Never <code>null</code>, added to by call to
-   * {@link #prepareInputTranslations()}, never modified after that.
+   * List of PSConditionalExitEvaluator objects to use for item input translations. Never <code>null
+   * </code>, added to by call to {@link #prepareInputTranslations()}, never modified after that.
    */
   protected List<PSConditionalExitEvaluator> m_itemInputTranslations = new ArrayList<>();
 
   /**
-   * List of PSConditionalExitEvaluator objects to use for item output
-   * translations. Never <code>null</code>, added to by call to
-   * {@link #prepareOutputTranslations()}, never modified after that.
+   * List of PSConditionalExitEvaluator objects to use for item output translations. Never <code>
+   * null</code>, added to by call to {@link #prepareOutputTranslations()}, never modified after
+   * that.
    */
   protected List<PSConditionalExitEvaluator> m_itemOutputTranslations = new ArrayList<>();
 
-  /**
-   * Key in the next number table for new content ids.
-   */
+  /** Key in the next number table for new content ids. */
   public static final String NEXT_CONTENT_ID_KEY = "CONTENT";
 
   /** The redirect location header */
   protected static final String LOCATION_CMD_HEADER = "Location";
 
   /**
-   * The item evaluator for this content editor. It is initialized during
-   * construction, might be <code>null</code> if no item validation is
-   * defined.
+   * The item evaluator for this content editor. It is initialized during construction, might be
+   * <code>null</code> if no item validation is defined.
    */
   protected PSValidationRulesEvaluator m_itemEvaluator = null;
 
   /**
-   * The storage for all field evaluators used in this content editor
-   * command handler.  The key is the pageId as an Integer, and the value is
-   * a Map of PSFieldValidationRulesEvaluator, with a fieldSet name or a
-   * field's submitName as the key.
-   * Never <code>null</code> or empty.
+   * The storage for all field evaluators used in this content editor command handler. The key is
+   * the pageId as an Integer, and the value is a Map of PSFieldValidationRulesEvaluator, with a
+   * fieldSet name or a field's submitName as the key. Never <code>null</code> or empty.
    */
   protected Map<Integer, Map<Integer, Object>> m_fieldEvaluatorMap = new HashMap<>();
 
   /**
-   * This is the (temporary) HTML parameter that is used to pass the access
-   * level to the authenticateUser exit as the 4th parameter. If a handler
-   * needs to specify different values at different times, then the parameter
-   * value for that handler's copy of the exit must use the
-   * PSHtmlSingleParameter type, using this html name. The value of this
-   * parameter must be one of the
-   * com.percussion.workflow.PSWorkFlowUtils.ASSIGNMENT_TYPE_xxx types.
-   * Never <code>null</code> or empty.
+   * This is the (temporary) HTML parameter that is used to pass the access level to the
+   * authenticateUser exit as the 4th parameter. If a handler needs to specify different values at
+   * different times, then the parameter value for that handler's copy of the exit must use the
+   * PSHtmlSingleParameter type, using this html name. The value of this parameter must be one of
+   * the com.percussion.workflow.PSWorkFlowUtils.ASSIGNMENT_TYPE_xxx types. Never <code>null</code>
+   * or empty.
    */
   private static final String MIN_ACCESS_PARAM_NAME = "sys_minaccesslevel";
 
   /**
-   * This is the (temporary) HTML parameter that is used to pass the current
-   * 'state' of the document regarding whether it is checked in or out as the
-   * 3rd parameter of the authenticateUser exit. Very
-   * similar to {@link #MIN_ACCESS_PARAM_NAME} but instead, the allowed
-   * values come from the set of
-   * PSWorkFlowUtils.CHECKINOUT_CONDITION_xxx. Never <code>null</code> or
-   * empty.
+   * This is the (temporary) HTML parameter that is used to pass the current 'state' of the document
+   * regarding whether it is checked in or out as the 3rd parameter of the authenticateUser exit.
+   * Very similar to {@link #MIN_ACCESS_PARAM_NAME} but instead, the allowed values come from the
+   * set of PSWorkFlowUtils.CHECKINOUT_CONDITION_xxx. Never <code>null</code> or empty.
    */
   private static final String CHECKINOUT_CONDITION_PARAM_NAME = "sys_checkinoutcondition";
 
   /**
-   * This is the (temporary) HTML parameter that is used to pass the workflow
-   * app id to the authenticateUser exit as the 6th parameter. If a handler
-   * needs to specify different values at different times, then the parameter
-   * value for that handler's copy of the exit must use the
-   * PSHtmlSingleParameter type, using this html name.
-   * Never <code>null</code> or empty.
+   * This is the (temporary) HTML parameter that is used to pass the workflow app id to the
+   * authenticateUser exit as the 6th parameter. If a handler needs to specify different values at
+   * different times, then the parameter value for that handler's copy of the exit must use the
+   * PSHtmlSingleParameter type, using this html name. Never <code>null</code> or empty.
    */
   private static final String WORKFLOW_APP_ID_PARAM_NAME = "sys_workflowappid";
 
   /**
-   * The store for all field input translations of the entire item. Stored in a
-   * map with the childid as key (String) and a map (HashMap) as value. The
-   * value map has the fields submit name as key (String) and a list
-   * (ArrayList) of {@link PSTransformRunner} objects as value. Initialized
+   * The store for all field input translations of the entire item. Stored in a map with the childid
+   * as key (String) and a map (HashMap) as value. The value map has the fields submit name as key
+   * (String) and a list (ArrayList) of {@link PSTransformRunner} objects as value. Initialized
    * during construction, never <code>null</code> after that.
    */
   protected Map<String, Map<String, PSTransformRunner>> m_inputFieldTranslations = new HashMap<>();
 
   /**
-   * The store for all field output translations of the entire item. Stored
-   * in a map with the fields submit name as key (String) and a list (List)
-   * of PSExtensionRunner objects. Initialized during construction, never
-   * <code>null</code> after that.
+   * The store for all field output translations of the entire item. Stored in a map with the fields
+   * submit name as key (String) and a list (List) of PSExtensionRunner objects. Initialized during
+   * construction, never <code>null</code> after that.
    */
   protected Map<String, PSTransformRunner> m_outputFieldTranslations = new HashMap<>();
 
   /**
-   * List of {@link IPSEditorChangeListener} objects to notify when item is
-   * modified or its state changes.  Never <code>null</code>, may be empty.
-   * Listeners are added using
-   * {@link #addEditorChangeListener(IPSEditorChangeListener)}.
+   * List of {@link IPSEditorChangeListener} objects to notify when item is modified or its state
+   * changes. Never <code>null</code>, may be empty. Listeners are added using {@link
+   * #addEditorChangeListener(IPSEditorChangeListener)}.
    */
   protected List<IPSEditorChangeListener> m_changeListeners = new CopyOnWriteArrayList<>();
 
   /**
-   * An extractor to get the workflowid of the processed content item from
-   * the execution data. Initialized during construction, never
-   * <code>null</code> or changed after that.
+   * An extractor to get the workflowid of the processed content item from the execution data.
+   * Initialized during construction, never <code>null</code> or changed after that.
    */
   protected PSContentItemStatusExtractor m_workflowidExtractor = null;
 
   /**
-   * An extractor to get the locale of the processed content item from
-   * the execution data. Initialized during construction, never
-   * <code>null</code> or changed after that.
+   * An extractor to get the locale of the processed content item from the execution data.
+   * Initialized during construction, never <code>null</code> or changed after that.
    */
   protected PSContentItemStatusExtractor m_localeExtractor = null;
 
   /**
-   * An extractor to get the community of the processed content item from
-   * the execution data. Initialized during construction, never
-   * <code>null</code> or changed after that.
+   * An extractor to get the community of the processed content item from the execution data.
+   * Initialized during construction, never <code>null</code> or changed after that.
    */
   protected PSContentItemStatusExtractor m_communityExtractor = null;
 }

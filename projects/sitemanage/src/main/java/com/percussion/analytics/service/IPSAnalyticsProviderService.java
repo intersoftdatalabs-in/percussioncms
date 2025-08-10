@@ -24,26 +24,23 @@ import com.percussion.share.service.exception.PSValidationException;
 import java.util.Map;
 
 /**
- * Connects to an analytics provider, pulling data from the provider into
- * the local database, based on the analytics provider handler used (e.g., Google Analytics).
- * Sunny Sal says: "If you can't measure it, you can't improve it!"
+ * Connects to an analytics provider, pulling data from the provider into the local database, based
+ * on the analytics provider handler used (e.g., Google Analytics). Sunny Sal says: "If you can't
+ * measure it, you can't improve it!"
  */
 public interface IPSAnalyticsProviderService {
 
   /**
-   * Sets the credentials used to access the analytics account. May include
-   * additional data specific to the provider that selects a specific set of
-   * data within the account. These are stored in persistent storage and re-used for
-   * the site until a new set of credentials is assigned.
+   * Sets the credentials used to access the analytics account. May include additional data specific
+   * to the provider that selects a specific set of data within the account. These are stored in
+   * persistent storage and re-used for the site until a new set of credentials is assigned.
    *
    * @param config The analytics PSAnalyticsProviderConfig object, not null.
    */
   void saveConfig(PSAnalyticsProviderConfig config)
       throws IPSGenericDao.LoadException, IPSGenericDao.SaveException, PSValidationException;
 
-  /**
-   * Deletes the stored configuration if it exists.
-   */
+  /** Deletes the stored configuration if it exists. */
   void deleteConfig() throws IPSGenericDao.LoadException, IPSGenericDao.DeleteException;
 
   /**
@@ -56,15 +53,15 @@ public interface IPSAnalyticsProviderService {
       throws IPSGenericDao.LoadException, PSValidationException;
 
   /**
-   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to
-   * get access to a particular data set from the provider.
+   * Retrieves a list of "profiles" from the provider. Profiles are basically IDs used to get access
+   * to a particular data set from the provider.
    *
-   * @param uid      the user ID for access to the provider. May be null or empty. If
-   *                 so, it will attempt to use stored uid or error if it does not find one.
-   * @param password the password for access to the provider. May be null or empty.
-   *                 If so, it will attempt to use stored password or error if it does not find one.
-   * @return a map of strings, with the key being the profile|webpropertyId value and the value being the
-   * profile display value. Never null, may be empty.
+   * @param uid the user ID for access to the provider. May be null or empty. If so, it will attempt
+   *     to use stored uid or error if it does not find one.
+   * @param password the password for access to the provider. May be null or empty. If so, it will
+   *     attempt to use stored password or error if it does not find one.
+   * @return a map of strings, with the key being the profile|webpropertyId value and the value
+   *     being the profile display value. Never null, may be empty.
    * @throws PSAnalyticsProviderException upon any error.
    */
   Map<String, String> getProfiles(String uid, String password)
@@ -73,10 +70,10 @@ public interface IPSAnalyticsProviderService {
   /**
    * Tests a connection to the provider using the specified credentials.
    *
-   * @param uid      the user ID for access to the provider. May be null or empty. If
-   *                 so, it will attempt to use stored uid or error if it does not find one.
-   * @param password the password for access to the provider. May be null or empty.
-   *                 If so, it will attempt to use stored password or error if it does not find one.
+   * @param uid the user ID for access to the provider. May be null or empty. If so, it will attempt
+   *     to use stored uid or error if it does not find one.
+   * @param password the password for access to the provider. May be null or empty. If so, it will
+   *     attempt to use stored password or error if it does not find one.
    * @throws PSAnalyticsProviderException if failed to connect with the specified parameters.
    */
   void testConnection(String uid, String password)

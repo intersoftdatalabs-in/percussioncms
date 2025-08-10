@@ -23,16 +23,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-/**
- * Class which provides the installer with the appropriate repository information.
- */
+/** Class which provides the installer with the appropriate repository information. */
 public class PSInstRepositoryInfo implements IPSRepositoryInfo {
   /**
    * Construct the repository information
    *
    * @param rxRoot the rhythmyx root installation directory, never <code>null</code>
-   * @throws IOException, FileNotFoundException if an error occurs loading
-   *  properties
+   * @throws IOException, FileNotFoundException if an error occurs loading properties
    */
   public PSInstRepositoryInfo(String rxRoot) throws IOException, FileNotFoundException {
     if (rxRoot == null) throw new IllegalArgumentException("rxRoot may not be null");
@@ -73,28 +70,18 @@ public class PSInstRepositoryInfo implements IPSRepositoryInfo {
     return m_origin;
   }
 
-  /**
-   * The relative path to the repository properties file
-   */
+  /** The relative path to the repository properties file */
   private String m_repositoryProps = "rxconfig/Installer/rxrepository.properties";
 
-  /**
-   * The database driver
-   */
+  /** The database driver */
   private String m_driver;
 
-  /**
-   * The database server
-   */
+  /** The database server */
   private String m_server;
 
-  /**
-   * The database name
-   */
+  /** The database name */
   private String m_database;
 
-  /**
-   * The database origin
-   */
+  /** The database origin */
   private String m_origin;
 }

@@ -36,14 +36,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Cataloger used on the client side by the clients which cannot use designer
- * connection e.g cataloging client calls from the applet.
+ * Cataloger used on the client side by the clients which cannot use designer connection e.g
+ * cataloging client calls from the applet.
  */
 public class PSRemoteCataloger implements IPSCataloger {
   private static final Logger log = LogManager.getLogger(PSRemoteCataloger.class);
 
   /**
    * Ctor.
+   *
    * @param requester never <code>null</code>.
    */
   public PSRemoteCataloger(IPSRemoteRequester requester) {
@@ -101,9 +102,7 @@ public class PSRemoteCataloger implements IPSCataloger {
     }
   }
 
-  /**
-   * See {@link IPSCataloger#getRelationshipInfoSet() interface}
-   */
+  /** See {@link IPSCataloger#getRelationshipInfoSet() interface} */
   public PSRelationshipInfoSet getRelationshipInfoSet() throws PSCmsException {
     Document doc = getCatalogDocument(GET_RELATE_INFO_SET, null);
     Element resultEl = doc.getDocumentElement();
@@ -124,6 +123,7 @@ public class PSRemoteCataloger implements IPSCataloger {
 
   /**
    * Returns a reference to the IPSRemoteRequester.
+   *
    * @return reference to IPSRemoteRequester, never <code>null</code>.
    */
   public IPSRemoteRequester getRemoteRequester() {
@@ -133,15 +133,10 @@ public class PSRemoteCataloger implements IPSCataloger {
   /**
    * Get the catalogged document from the specified path/
    *
-   * @param path The path that is used to get the catalogged document, assume
-   *    not <code>null</code>.
-   *
-   * @param params Any html parameters that need to be included with the
-   *    request. May be <code>null</code> or empty.
-   *
-   * @return The document that is received from the server, never
-   *    <code>null</code>.
-   *
+   * @param path The path that is used to get the catalogged document, assume not <code>null</code>.
+   * @param params Any html parameters that need to be included with the request. May be <code>null
+   *     </code> or empty.
+   * @return The document that is received from the server, never <code>null</code>.
    * @throws PSCmsException if an error occurs.
    */
   private Document getCatalogDocument(String path, Map params) throws PSCmsException {
@@ -160,8 +155,8 @@ public class PSRemoteCataloger implements IPSCataloger {
   }
 
   /**
-   * The object which knows to communicate with the remote server. Initialized
-   * by the ctor, never <code>null</code> after that.
+   * The object which knows to communicate with the remote server. Initialized by the ctor, never
+   * <code>null</code> after that.
    */
   private IPSRemoteRequester m_requester = null;
 

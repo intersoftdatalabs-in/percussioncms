@@ -44,47 +44,38 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The cleanup program is used to reset, log and optionally remove the incorrect
- * or unnecessary sys_siteid and sys_folderid properties for all Active Assembly
- * relationships for a specified site. It will put all log data into the trace
- * file of the current application. The cleanup Exit can only be invoked one at
- * a time for each Rhythmyx server.
- * <p>
- * The parameters are:
+ * The cleanup program is used to reset, log and optionally remove the incorrect or unnecessary
+ * sys_siteid and sys_folderid properties for all Active Assembly relationships for a specified
+ * site. It will put all log data into the trace file of the current application. The cleanup Exit
+ * can only be invoked one at a time for each Rhythmyx server.
+ *
+ * <p>The parameters are:
+ *
  * <ol>
- * <li><b>Target Site Id</b>: The id of the site which will be "cleaned up" by
- * the Exit. It must be an valid site id </li>
- * <li><b>Relationship Category</b>: The category of the relationship, which
- * is used to identify a parent folders under the target site when an item
- * exists in more than one folders under the target site. It is assumed that the
- * owner id of the relationship(s) is a folder under the original site and the
- * dependent id is a folder under the target site.
- * <p>
- * Default to <code>Translation</code> category if not specified. </li>
- * <li><b>Remove Site Id</b>: Determines whether to remove the sys_siteid
- * property of the Active Assembly Relationship for all none cross site links,
- * where the sys_siteid is the current site id. The sys_siteid property of the
- * none cross site links will be removed if it is <code>true</code>;
- * otherwise do nothing.
- * <p>
- * Defaults to <code>true</code> if not specified. </li>
- * <li><b>Remove Folder Id</b>: Determines whether to remove the "unnecessary"
- * sys_folderid property of the Active Assembly Relationship for all links,
- * where the dependent item (of a AA relationship) only exists in one folder
- * under the "specified" site. The "unnecessary" sys_folderid property will be
- * removed if this flag is <code>true</code>; otherwise do nothing.
- * <p>
- * Note, the user may need to manually add the sys_folderid into the existing
- * links afterwards if decided to put a dependent item in more than one folders
- * under the same site.
- * <p>
- * Defaults to <code>false</code> if not specified. </li>
- * <li><b>Preview mode</b>: Determines whether the execution of the Exit makes
- * any changes in the database. It is <code>true</code> if no actual changes in
- * the database; <code>false</code> if the execution of the Exit will make
- * changes in the database.
- * <p>
- * Defaults to <code>false</code> seconds. </li>
+ *   <li><b>Target Site Id</b>: The id of the site which will be "cleaned up" by the Exit. It must
+ *       be an valid site id
+ *   <li><b>Relationship Category</b>: The category of the relationship, which is used to identify a
+ *       parent folders under the target site when an item exists in more than one folders under the
+ *       target site. It is assumed that the owner id of the relationship(s) is a folder under the
+ *       original site and the dependent id is a folder under the target site.
+ *       <p>Default to <code>Translation</code> category if not specified.
+ *   <li><b>Remove Site Id</b>: Determines whether to remove the sys_siteid property of the Active
+ *       Assembly Relationship for all none cross site links, where the sys_siteid is the current
+ *       site id. The sys_siteid property of the none cross site links will be removed if it is
+ *       <code>true</code>; otherwise do nothing.
+ *       <p>Defaults to <code>true</code> if not specified.
+ *   <li><b>Remove Folder Id</b>: Determines whether to remove the "unnecessary" sys_folderid
+ *       property of the Active Assembly Relationship for all links, where the dependent item (of a
+ *       AA relationship) only exists in one folder under the "specified" site. The "unnecessary"
+ *       sys_folderid property will be removed if this flag is <code>true</code>; otherwise do
+ *       nothing.
+ *       <p>Note, the user may need to manually add the sys_folderid into the existing links
+ *       afterwards if decided to put a dependent item in more than one folders under the same site.
+ *       <p>Defaults to <code>false</code> if not specified.
+ *   <li><b>Preview mode</b>: Determines whether the execution of the Exit makes any changes in the
+ *       database. It is <code>true</code> if no actual changes in the database; <code>false</code>
+ *       if the execution of the Exit will make changes in the database.
+ *       <p>Defaults to <code>false</code> seconds.
  * </ol>
  */
 public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
@@ -129,12 +120,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Recursively process all decendent items of the specified folder.
    *
-   * @param folder
-   *           the to be processed folder locator; assumed not
-   *           <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if failed to get child summaries for a folder.
+   * @param folder the to be processed folder locator; assumed not <code>null</code>.
+   * @throws PSCmsException if failed to get child summaries for a folder.
    */
   private void processFolder(PSLocator folder) throws PSCmsException {
     m_processedFolder++;
@@ -151,14 +138,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Process all AA relationships for the specified item, where the item is the
-   * owner of the relationship.
+   * Process all AA relationships for the specified item, where the item is the owner of the
+   * relationship.
    *
-   * @param item
-   *           the to be processed item; assumed not <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param item the to be processed item; assumed not <code>null</code>.
+   * @throws PSCmsException if error occurs.
    */
   private void processItem(PSComponentSummary item) throws PSCmsException {
     m_processedItem++;
@@ -191,14 +175,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Check the specified link, "fix" the "incorrect" sys_siteid and/or
-   * sys_folderid properties of the link if needed.
+   * Check the specified link, "fix" the "incorrect" sys_siteid and/or sys_folderid properties of
+   * the link if needed.
    *
-   * @param rel
-   *           the link in question; assumed not <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param rel the link in question; assumed not <code>null</code>.
+   * @throws PSCmsException if error occurs.
    */
   private void processAALink(PSRelationship rel) throws PSCmsException {
     if (!isEmptyProperty(rel, IPSHtmlParameters.SYS_SITEID)
@@ -214,11 +195,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Process the link with both sys_siteid and sys_folderid
    *
-   * @param rel
-   *           the link in question; assumed not <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if an error occurs.
+   * @param rel the link in question; assumed not <code>null</code>.
+   * @throws PSCmsException if an error occurs.
    */
   private void handleSiteAndFolderId(PSRelationship rel) throws PSCmsException {
     int origSiteId = getPropertyInt(rel, IPSHtmlParameters.SYS_SITEID);
@@ -242,10 +220,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Process the link which has only sys_siteid without sys_folderid property.
    *
-   * @param rel
-   *           the link in question; assumed not <code>null</code>.
-   * @throws PSCmsException
-   *            if an error occurs.
+   * @param rel the link in question; assumed not <code>null</code>.
+   * @throws PSCmsException if an error occurs.
    */
   private void handleSiteId(PSRelationship rel) throws PSCmsException {
     int origSiteId = getPropertyInt(rel, IPSHtmlParameters.SYS_SITEID);
@@ -327,10 +303,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Process a link with non-empty folder id.
    *
-   * @param rel
-   *           the link in question; assumed not <code>null</code>.
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param rel the link in question; assumed not <code>null</code>.
+   * @throws PSCmsException if error occurs.
    */
   private void handleFolderId(PSRelationship rel) throws PSCmsException {
     PSLocator itemLoc = rel.getDependent();
@@ -346,19 +320,13 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Determines whether the given item is the immediate child of the given
-   * folder.
+   * Determines whether the given item is the immediate child of the given folder.
    *
-   * @param folderLoc
-   *           the locator of the folder; assumed not <code>null</code>.
-   * @param itemLoc
-   *           the locator of the item; assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the item is the immediate child of the
-   *         folder; <code>false</code> otherwise.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param folderLoc the locator of the folder; assumed not <code>null</code>.
+   * @param itemLoc the locator of the item; assumed not <code>null</code>.
+   * @return <code>true</code> if the item is the immediate child of the folder; <code>false</code>
+   *     otherwise.
+   * @throws PSCmsException if error occurs.
    */
   private boolean isChildItem(PSLocator folderLoc, PSLocator itemLoc) throws PSCmsException {
     List children = getFolderChildren(folderLoc);
@@ -376,13 +344,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Fixes the sys_folder property of the specified relationship.
    *
-   * @param rel
-   *           the relationship that contains the "incorrect" sys_folder
-   *           property; assumed not <code>null</code>.
-   * @param parents
-   *           the parent locators of the given dependent; assumed not
-   *           <code>null</code>, but may be empty.
-   *
+   * @param rel the relationship that contains the "incorrect" sys_folder property; assumed not
+   *     <code>null</code>.
+   * @param parents the parent locators of the given dependent; assumed not <code>null</code>, but
+   *     may be empty.
    * @throws PSCmsException
    */
   private void fixFolderId(PSRelationship rel, List<PSLocator> parents) throws PSCmsException {
@@ -399,51 +364,36 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Gets the folder parents of the specified child item regardless community
-   * or folder permission.
+   * Gets the folder parents of the specified child item regardless community or folder permission.
    *
-   * @param child
-   *           the child item; assumed not <code>null</code>.
-   *
-   * @return a list of {@link PSLocator}; it may not empty, but never
-   *         <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if failed to get the parent.
+   * @param child the child item; assumed not <code>null</code>.
+   * @return a list of {@link PSLocator}; it may not empty, but never <code>null</code>.
+   * @throws PSCmsException if failed to get the parent.
    */
   private List<PSLocator> getFolderParents(PSLocator child) throws PSCmsException {
     return getFolderRelationships(child, false);
   }
 
   /**
-   * Gets the folder children for the specified folder regardless community or
-   * folder permission.
+   * Gets the folder children for the specified folder regardless community or folder permission.
    *
-   * @param parent
-   *           the parent folder; assumed not <code>null</code>.
-   *
-   * @return a list of {@link PSLocator}; it may not empty, but never
-   *         <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if failed to get the children.
+   * @param parent the parent folder; assumed not <code>null</code>.
+   * @return a list of {@link PSLocator}; it may not empty, but never <code>null</code>.
+   * @throws PSCmsException if failed to get the children.
    */
   private List getFolderChildren(PSLocator parent) throws PSCmsException {
     return getFolderRelationships(parent, true);
   }
 
   /**
-   * Gets a list of owner or dependent locators for the specified item/folder
-   * in folder relationships.
+   * Gets a list of owner or dependent locators for the specified item/folder in folder
+   * relationships.
    *
    * @param locator the specified item or folder; assumed not <code>null</code>.
-   * @param isOwner it is <code>true</code> if wanting a list of folder
-   *    children, where the above locator is a folder; otherwise, return
-   *    a list of folder parents of the specified item/folder.
-   *
-   * @return a list of {@link PSLocator}, never <code>null</code>, but may be
-   *    empty.
-   *
+   * @param isOwner it is <code>true</code> if wanting a list of folder children, where the above
+   *     locator is a folder; otherwise, return a list of folder parents of the specified
+   *     item/folder.
+   * @return a list of {@link PSLocator}, never <code>null</code>, but may be empty.
    * @throws PSCmsException if failed to query the folder relationships.
    */
   private List<PSLocator> getFolderRelationships(PSLocator locator, boolean isOwner)
@@ -467,14 +417,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Fix the specified link where the dependent exists in more than one
-   * folders.
+   * Fix the specified link where the dependent exists in more than one folders.
    *
-   * @param rel
-   *           the to be fixed link; assumed not <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param rel the to be fixed link; assumed not <code>null</code>.
+   * @throws PSCmsException if error occurs.
    */
   private void handleLinkWithMoreFolders(PSRelationship rel) throws PSCmsException {
     int origFolderId = getPropertyInt(rel, IPSHtmlParameters.SYS_FOLDERID);
@@ -504,18 +450,13 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Gets the target folder from the specified link, where the target folder is
-   * under the target site and it is also a child of the sys_folderid (of the
-   * specified link) with the (translation) relationship category.
+   * Gets the target folder from the specified link, where the target folder is under the target
+   * site and it is also a child of the sys_folderid (of the specified link) with the (translation)
+   * relationship category.
    *
-   * @param rel
-   *           the link contains the original folder id; assumed not
-   *           <code>null</code>.
-   *
-   * @return the target folder described above; it may be <code>null</code>
-   *         if cannot find one.
-   * @throws PSCmsException
-   *            if an error occurs.
+   * @param rel the link contains the original folder id; assumed not <code>null</code>.
+   * @return the target folder described above; it may be <code>null</code> if cannot find one.
+   * @throws PSCmsException if an error occurs.
    */
   private PSLocator getTargetFolder(PSRelationship rel) throws PSCmsException {
     int origFolderId = getPropertyInt(rel, IPSHtmlParameters.SYS_FOLDERID);
@@ -558,14 +499,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Gets the integer of the specified property.
    *
-   * @param rel
-   *           the relationship that contains the property; assumed not
-   *           <code>null</code>. Assumed the value of the property is not
-   *           <code>null</code> or empty
-   * @param propname
-   *           the name of the property; assumed not <code>null</code> or
-   *           empty.
-   *
+   * @param rel the relationship that contains the property; assumed not <code>null</code>. Assumed
+   *     the value of the property is not <code>null</code> or empty
+   * @param propname the name of the property; assumed not <code>null</code> or empty.
    * @return the integer value; never <code>null</code>.
    */
   private int getPropertyInt(PSRelationship rel, String propname) {
@@ -579,11 +515,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Process the specified link where the dependent does not exist in any
-   * folder.
+   * Process the specified link where the dependent does not exist in any folder.
    *
-   * @param rel
-   *           the to be processed link; assumed not <code>null</code>.
+   * @param rel the to be processed link; assumed not <code>null</code>.
    */
   private void handleLinkWithoutFolder(PSRelationship rel) {
     String origFolderId = rel.getProperty(IPSHtmlParameters.SYS_FOLDERID);
@@ -601,14 +535,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Fix the specified link where the dependent exists in only one folder.
    *
-   * @param rel
-   *           the to be fixed link; assumed not <code>null</code>.
-   * @param folderLoc
-   *           the folder that is the parent of the dependent item; assumed not
-   *           <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param rel the to be fixed link; assumed not <code>null</code>.
+   * @param folderLoc the folder that is the parent of the dependent item; assumed not <code>null
+   *     </code>.
+   * @throws PSCmsException if error occurs.
    */
   private void handleLinkWithOneFolder(PSRelationship rel, PSLocator folderLoc)
       throws PSCmsException {
@@ -653,11 +583,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Save the specified relationship. Do nothing if is in preview mode.
    *
-   * @param rel
-   *           the to be saved relationship; assumed not <code>null</code>.
-   *
-   * @throws PSCmsException
-   *            if failed to save the relationship.
+   * @param rel the to be saved relationship; assumed not <code>null</code>.
+   * @throws PSCmsException if failed to save the relationship.
    */
   private void saveRelationship(PSRelationship rel) throws PSCmsException {
     if (m_isPreview) return;
@@ -670,15 +597,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Determines whether the supplied folder/item is under the target site.
    *
-   * @param locator
-   *           the locator of the folder in question; assumed not
-   *           <code>null</code>.
-   *
-   * @return <code>true</code> if the folder is under the target site;
-   *         <code>false</code> otherwise.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param locator the locator of the folder in question; assumed not <code>null</code>.
+   * @return <code>true</code> if the folder is under the target site; <code>false</code> otherwise.
+   * @throws PSCmsException if error occurs.
    */
   private boolean isUnderTargetSite(PSLocator locator) throws PSCmsException {
     return isFolderDescendent(m_tgtSiteLoc, locator);
@@ -687,15 +608,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Determines if a folder descends from a specified root folder.
    *
-   * @param root
-   *           Locator of the root folder to check, it may be <code>null</code>.
-   * @param folder
-   *           Locator of the descendent folder to check, it may be
-   *           <code>null</code>.
-   * @return <code>true</code> if the folder descends from the specified
-   *         root, <code>false</code> otherwise.
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param root Locator of the root folder to check, it may be <code>null</code>.
+   * @param folder Locator of the descendent folder to check, it may be <code>null</code>.
+   * @return <code>true</code> if the folder descends from the specified root, <code>false</code>
+   *     otherwise.
+   * @throws PSCmsException if error occurs.
    */
   private boolean isFolderDescendent(PSLocator root, PSLocator folder) throws PSCmsException {
     if (root == null || folder == null) return false;
@@ -715,16 +632,15 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Log the specified msg.
    *
-   * @param msg
-   *           the to be logged message; assumed not <code>null</code>.
+   * @param msg the to be logged message; assumed not <code>null</code>.
    */
   private void logMessage(String msg) {
     m_request.printTraceMessage(msg);
   }
 
   /**
-   * Convenience method, simply call
-   * {@link #logErrorMessage(String, Exception) logErrorMessage(String, null)}
+   * Convenience method, simply call {@link #logErrorMessage(String, Exception)
+   * logErrorMessage(String, null)}
    */
   private void logErrorMessage(String msg) {
     logErrorMessage(msg, null);
@@ -733,10 +649,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Log the error message with the specified exception.
    *
-   * @param msg
-   *           the error message; assumed not <code>null</code> or empty.
-   * @param e
-   *           the exception; assumed not <code>null</code>.
+   * @param msg the error message; assumed not <code>null</code> or empty.
+   * @param e the exception; assumed not <code>null</code>.
    */
   private void logErrorMessage(String msg, Exception e) {
     if (e != null) {
@@ -749,26 +663,19 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Logs a warning message.
    *
-   * @param msg the to be logged warning message; assumed not
-   *    <code>null</code> or empty.
+   * @param msg the to be logged warning message; assumed not <code>null</code> or empty.
    */
   private void logWarningMessage(String msg) {
     m_request.printTraceMessage("WARNING: " + msg);
   }
 
   /**
-   * Determines whether the specified relationship contains an empty property
-   * or not.
+   * Determines whether the specified relationship contains an empty property or not.
    *
-   * @param rel
-   *           the specified relationship; assumed not <code>null</code>.
-   * @param propname
-   *           the property name in question; assumed not <code>null</code>
-   *           or empty.
-   *
-   * @return <code>true</code> if the relationship does not have or contains
-   *         a blank value of the specified property; otherwise return
-   *         <code>false</code>.
+   * @param rel the specified relationship; assumed not <code>null</code>.
+   * @param propname the property name in question; assumed not <code>null</code> or empty.
+   * @return <code>true</code> if the relationship does not have or contains a blank value of the
+   *     specified property; otherwise return <code>false</code>.
    */
   private boolean isEmptyProperty(PSRelationship rel, String propname) {
     String propValue = rel.getProperty(propname);
@@ -776,11 +683,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Validates the current state and throws {@link IllegalStateException} if
-   * the state violate the contract described in the class description.
+   * Validates the current state and throws {@link IllegalStateException} if the state violate the
+   * contract described in the class description.
    *
-   * @param request
-   *           the current request; assumed not <code>null</code>.
+   * @param request the current request; assumed not <code>null</code>.
    */
   private void validateCurrentState(IPSRequestContext request) {
     if (ms_isRunning) {
@@ -795,9 +701,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Initialize from the given parameters.
    *
-   * @param params
-   *           the parameters of the Exit; it may not be <code>null</code> or
-   *           empty.
+   * @param params the parameters of the Exit; it may not be <code>null</code> or empty.
    * @param request
    * @throws PSCmsException
    */
@@ -837,15 +741,11 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Gets the boolean value of the specified parameter.
    *
-   * @param param
-   *           the parameter that contains the boolean value; it may be
-   *           <code>null</code> or empty.
-   * @param defaultValue
-   *           the default boolean value if the above is <code>null</code> or
-   *           empty.
-   *
-   * @return the boolean value of the specified parameter. It may be the
-   *         default value if the parameter if <code>null</code> or empty.
+   * @param param the parameter that contains the boolean value; it may be <code>null</code> or
+   *     empty.
+   * @param defaultValue the default boolean value if the above is <code>null</code> or empty.
+   * @return the boolean value of the specified parameter. It may be the default value if the
+   *     parameter if <code>null</code> or empty.
    */
   private boolean getBooleanParameter(Object param, boolean defaultValue) {
     if (param == null || param.toString().trim().length() == 0) return defaultValue;
@@ -854,20 +754,14 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * Validates the supplied site id, which is contained in the given parameter
-   * array.
+   * Validates the supplied site id, which is contained in the given parameter array.
    *
-   * @param params
-   *           the array that contains the specified site id; assumed not
-   *           <code>null</code> or empty.
-   * @param index
-   *           the index of the above array that has the site site.
-   * @param isRequired
-   *           <code>true</code> if the site id is required.
-   *
-   * @return the specified site definition, which is not <code>null</code> if
-   *         the <code>isRequired</code> is <code>true</code>; otherwise
-   *         it may by <code>null</code>.
+   * @param params the array that contains the specified site id; assumed not <code>null</code> or
+   *     empty.
+   * @param index the index of the above array that has the site site.
+   * @param isRequired <code>true</code> if the site id is required.
+   * @return the specified site definition, which is not <code>null</code> if the <code>isRequired
+   *     </code> is <code>true</code>; otherwise it may by <code>null</code>.
    */
   private PSSite getSite(Object[] params, int index, boolean isRequired) {
     // make sure the site id parameter is not blank
@@ -893,11 +787,8 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Gets the site def from the specified site id.
    *
-   * @param sSiteId
-   *           the site id; assumed not <code>null</code> or empty.
-   *
-   * @return the site def; it may be <code>null</code> if cannot find a site
-   *         with the specified id.
+   * @param sSiteId the site id; assumed not <code>null</code> or empty.
+   * @return the site def; it may be <code>null</code> if cannot find a site with the specified id.
    */
   private PSSite getSite(String sSiteId) {
     Integer siteid = new Integer(sSiteId.trim());
@@ -907,11 +798,9 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Gets the locator of the specified site root.
    *
-   * @param siteid
-   *           the site id.
-   *
-   * @return the root locator; it may be <code>null</code> if cannot find one
-   *         or the site does not exist.
+   * @param siteid the site id.
+   * @return the root locator; it may be <code>null</code> if cannot find one or the site does not
+   *     exist.
    */
   private PSLocator getSiteRoot(int siteid) {
     return m_siteRootMap.get(new Integer(siteid));
@@ -920,8 +809,7 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Get and cache all site definitions and locators of the site roots.
    *
-   * @throws PSCmsException
-   *            if failed to get the site definitions.
+   * @throws PSCmsException if failed to get the site definitions.
    */
   private void populateSites() throws PSCmsException {
     m_request.removeParameter(IPSHtmlParameters.SYS_SITEID);
@@ -942,14 +830,10 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   /**
    * Gets the locator of the site root.
    *
-   * @param site
-   *           the site def; assumed not <code>null</code>.
-   *
-   * @return the locator of the root folder; it may be <code>null</code>
-   *    if cannot find the site root.
-   *
-   * @throws PSCmsException
-   *            if error occurs.
+   * @param site the site def; assumed not <code>null</code>.
+   * @return the locator of the root folder; it may be <code>null</code> if cannot find the site
+   *     root.
+   * @throws PSCmsException if error occurs.
    */
   private PSLocator getRootLocator(PSSite site) throws PSCmsException {
     int id =
@@ -972,99 +856,87 @@ public class PSCleanupCrossSiteLiniks extends PSDefaultExtension
   }
 
   /**
-   * It determines whether an instance of this class is running or not.
-   * <code>true</code> if there is one running; otherwise <code>false</code>.
-   * Defaults to <code>false</code>.
+   * It determines whether an instance of this class is running or not. <code>true</code> if there
+   * is one running; otherwise <code>false</code>. Defaults to <code>false</code>.
    */
   private static boolean ms_isRunning = false;
 
   /**
-   * Current request, Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never <code>null</code> after that.
+   * Current request, Init by {@link #readParameters(Object[], IPSRequestContext)}, never <code>null
+   * </code> after that.
    */
   private IPSRequestContext m_request;
 
   /**
-   * The target site definition. Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never modified after that. See the description of the
-   * class for more info.
+   * The target site definition. Init by {@link #readParameters(Object[], IPSRequestContext)}, never
+   * modified after that. See the description of the class for more info.
    */
   private PSSite m_tgtSite;
 
   /**
-   * The locator of the target site. Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never modified after that. See the description of the
-   * class for more info.
+   * The locator of the target site. Init by {@link #readParameters(Object[], IPSRequestContext)},
+   * never modified after that. See the description of the class for more info.
    */
   private PSLocator m_tgtSiteLoc;
 
   /**
-   * The original site definition. Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never modified after that. It may be
-   * <code>null</code> if not specified. See the description of the class for
-   * more info.
+   * The original site definition. Init by {@link #readParameters(Object[], IPSRequestContext)},
+   * never modified after that. It may be <code>null</code> if not specified. See the description of
+   * the class for more info.
    */
   // private PSSite m_origSite;
-  /**
-   * The relationship category, see the description of the class for more info.
-   */
+  /** The relationship category, see the description of the class for more info. */
   private String m_relationshipCategory = PSRelationshipConfig.CATEGORY_TRANSLATION;
 
   /**
-   * Determines whether to remove unnecessary sys_siteid property. See the
-   * description of the class for more info.
+   * Determines whether to remove unnecessary sys_siteid property. See the description of the class
+   * for more info.
    */
   private boolean m_isRemoveSiteId = true;
 
   /**
-   * Determines whether to remove unnecessary sys_folderid property. See the
-   * description of the class for more info.
+   * Determines whether to remove unnecessary sys_folderid property. See the description of the
+   * class for more info.
    */
   private boolean m_isRemoveFolderId = false;
 
   /**
-   * Determines whether to preview the action without doing any actual changes
-   * in the database. <code>true</code> if is in preview mode; otherwise the
-   * database changes will take effect. Defaults to <code>false</code>.
+   * Determines whether to preview the action without doing any actual changes in the database.
+   * <code>true</code> if is in preview mode; otherwise the database changes will take effect.
+   * Defaults to <code>false</code>.
    */
   private boolean m_isPreview = false;
 
-  /**
-   * The number of processed folder.
-   */
+  /** The number of processed folder. */
   private int m_processedFolder = 0;
 
-  /**
-   * The number of processed Item.
-   */
+  /** The number of processed Item. */
   private int m_processedItem = 0;
 
   /**
-   * The folder processor. Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never <code>null</code> after that.
+   * The folder processor. Init by {@link #readParameters(Object[], IPSRequestContext)}, never
+   * <code>null</code> after that.
    */
   private IPSFolderProcessor m_folderProcessor;
 
   /**
-   * The relationship processor. Init by {@link #readParameters(Object[],
-   * IPSRequestContext)}, never <code>null</code> after that.
+   * The relationship processor. Init by {@link #readParameters(Object[], IPSRequestContext)}, never
+   * <code>null</code> after that.
    */
   private PSRelationshipProcessor m_relProcessor;
 
   /**
-   * It maps the site id (as {@link Integer}) to the site def (as
-   * {@link PSSite}). Set by {@link #populateSites()}.
+   * It maps the site id (as {@link Integer}) to the site def (as {@link PSSite}). Set by {@link
+   * #populateSites()}.
    */
   private Map<Integer, PSSite> m_siteDefMap = new HashMap<>();
 
   /**
-   * It maps the site id (as {@link Integer}) to the locator of the site root
-   * (as {@link PSLocator}). Set by {@link #populateSites()}.
+   * It maps the site id (as {@link Integer}) to the locator of the site root (as {@link
+   * PSLocator}). Set by {@link #populateSites()}.
    */
   private Map<Integer, PSLocator> m_siteRootMap = new HashMap<>();
 
-  /**
-   * The logger instance for this class, never <code>null</code>.
-   */
+  /** The logger instance for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSCleanupCrossSiteLiniks.class);
 }

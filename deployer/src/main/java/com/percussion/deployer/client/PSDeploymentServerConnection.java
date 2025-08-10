@@ -64,24 +64,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a connection to the Rx server and a session theirin.  Is used
- * to execute requests to the deployment and job handlers on the server.
+ * Represents a connection to the Rx server and a session theirin. Is used to execute requests to
+ * the deployment and job handlers on the server.
  */
 public class PSDeploymentServerConnection {
   /**
    * Constructs a connection using the http protocol. Calls
    *
-   *
    * @param info contains the connection details, assumed not <code>null</code>
-   * @param overrideLock If <code>true</code>, then the lock is acquired by
-   *           the user no matter what, if <code>false</code> then sessionid
-   *           has to match for lock acquisition.
-   *
+   * @param overrideLock If <code>true</code>, then the lock is acquired by the user no matter what,
+   *     if <code>false</code> then sessionid has to match for lock acquisition.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   *            the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   *            server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
    * @throws PSDeployException For any other errors.
    */
   public PSDeploymentServerConnection(
@@ -105,7 +101,6 @@ public class PSDeploymentServerConnection {
 
   /**
    * Construct a connection using the http protocol. Calls
-   *
    *
    * @param server
    * @param port
@@ -134,36 +129,28 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Creates a connection to the server.  Use {@link #disconnect()} to
-   * disconnect from the server.  This connection may not be used again after
-   * it has been disconnected. A daemon locker thread is started which renews
-   * the lock 2 minutes before the lock expiration {@link IPSDeployConstants#
-   * LOCK_EXPIRATION_DURATION}. If the lock cannot be extended locker thread
-   * dies.
+   * Creates a connection to the server. Use {@link #disconnect()} to disconnect from the server.
+   * This connection may not be used again after it has been disconnected. A daemon locker thread is
+   * started which renews the lock 2 minutes before the lock expiration {@link IPSDeployConstants#
+   * LOCK_EXPIRATION_DURATION}. If the lock cannot be extended locker thread dies.
    *
-   * @param protocol The protocol to use, may not be <code>null</code> or
-   * empty. Currently only 'http' and 'https' are supported.
-   * @param server The name of the server to connect to, may not be
-   * <code>null</code> or empty.
-   * @param port The port on the server.  Must be greater than 0.
-   * @param userid The user id to connect using, may not be <code>null</code>
-   * or empty.
-   * @param password The password, may be <code>null</code> or empty.  If
-   * <code>null</code>, and empty <code>String</code> is stored.
-   * @param isPwdEncrypted If <code>true</code>, the password will be
-   * treated as  encrypted.  Otherwise, it is assumed to be clear text and will
-   * be encryted for storage or serialization to the server.
-   * @param overrideLock If <code>true</code>, then the lock is acquired by the
-   * user no matter what, if <code>false</code> then sessionid has to match for
-   * lock acquisition.
-   *
+   * @param protocol The protocol to use, may not be <code>null</code> or empty. Currently only
+   *     'http' and 'https' are supported.
+   * @param server The name of the server to connect to, may not be <code>null</code> or empty.
+   * @param port The port on the server. Must be greater than 0.
+   * @param userid The user id to connect using, may not be <code>null</code> or empty.
+   * @param password The password, may be <code>null</code> or empty. If <code>null</code>, and
+   *     empty <code>String</code> is stored.
+   * @param isPwdEncrypted If <code>true</code>, the password will be treated as encrypted.
+   *     Otherwise, it is assumed to be clear text and will be encryted for storage or serialization
+   *     to the server.
+   * @param overrideLock If <code>true</code>, then the lock is acquired by the user no matter what,
+   *     if <code>false</code> then sessionid has to match for lock acquisition.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with
-   * the server.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
    * @throws PSDeployException For any other errors.
    */
   public PSDeploymentServerConnection(
@@ -305,12 +292,11 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Flags this connection as disconnected and it is no longer usable.  Any
-   * session information is discarded. Kills the locker thread started in the
-   * ctor.
+   * Flags this connection as disconnected and it is no longer usable. Any session information is
+   * discarded. Kills the locker thread started in the ctor.
    *
-   * @throws PSDeployException if errors occur executing the request or if
-   * disconnection is being made when the connection has already been lost.
+   * @throws PSDeployException if errors occur executing the request or if disconnection is being
+   *     made when the connection has already been lost.
    */
   public void disconnect() throws PSDeployException {
     try {
@@ -326,8 +312,7 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Sends a disconnect request to the server so the user's lock may be
-   * released if currently held.
+   * Sends a disconnect request to the server so the user's lock may be released if currently held.
    *
    * @throws PSDeployException If there are any errors.
    */
@@ -368,9 +353,8 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the specified request against the server.
-   * Convenience version that calls
-   * {@link #execute(String, Document, Map) execute(type, req, null)}
+   * Executes the specified request against the server. Convenience version that calls {@link
+   * #execute(String, Document, Map) execute(type, req, null)}
    */
   public Document execute(String type, Document req)
       throws PSAuthenticationFailedException,
@@ -392,33 +376,24 @@ public class PSDeploymentServerConnection {
   /**
    * Executes the specified request against the server.
    *
-   * @param type Specifies the request type. Must be a type expected by the
-   * handler specified by the type prefix. May not be <code>null</code> or
-   * empty and must begin with one of the supported handler prefixes. Currently
-   * supported handler prefixes are <code>"deploy-"</code> and
-   * <code>"job-"</code>.
-   *
-   * @param req The body of the request, the format of which is defined by the
-   * handler and request type. May not be <code>null</code>.
-   *
-   * @param params Map of http params to include in the request. Key is the
-   * param name as a <code>String</code>, value is the param value as a
-   * <code>String</code>. May be <code>null</code> or empty, may not
-   * contain an entry with a <code>null</code> key.
-   *
+   * @param type Specifies the request type. Must be a type expected by the handler specified by the
+   *     type prefix. May not be <code>null</code> or empty and must begin with one of the supported
+   *     handler prefixes. Currently supported handler prefixes are <code>"deploy-"</code> and
+   *     <code>"job-"</code>.
+   * @param req The body of the request, the format of which is defined by the handler and request
+   *     type. May not be <code>null</code>.
+   * @param params Map of http params to include in the request. Key is the param name as a <code>
+   *     String</code>, value is the param value as a <code>String</code>. May be <code>null</code>
+   *     or empty, may not contain an entry with a <code>null</code> key.
    * @return The response document from the request, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   * server.
-   * @throws PSServerLockException if a required server lock cannot be
-   * obtained.
-   * @throws PSDeployException if the connection is not valid or any other
-   * errors occur executing the request.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
+   * @throws PSServerLockException if a required server lock cannot be obtained.
+   * @throws PSDeployException if the connection is not valid or any other errors occur executing
+   *     the request.
    */
   public Document execute(String type, Document req, Map params)
       throws PSAuthenticationFailedException,
@@ -438,14 +413,13 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the specified request against the server.  Private version of
-   * {@link #execute(String, Document, Map)} with an additional
-   * <code>reconnect</code> parameter described below.
+   * Executes the specified request against the server. Private version of {@link #execute(String,
+   * Document, Map)} with an additional <code>reconnect</code> parameter described below.
    *
-   * @param reconnect If <code>true</code>, an attempt is made to reconnect and
-   * re-execute the request if an exception is returned by the server that
-   * could indicate that the user's session has timed out.  If
-   * <code>false</code>, no attempt to reconnect and re-execute is made.
+   * @param reconnect If <code>true</code>, an attempt is made to reconnect and re-execute the
+   *     request if an exception is returned by the server that could indicate that the user's
+   *     session has timed out. If <code>false</code>, no attempt to reconnect and re-execute is
+   *     made.
    */
   private Document execute(String type, Document req, Map params, boolean reconnect)
       throws PSAuthenticationFailedException,
@@ -552,37 +526,29 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the request, gets the body from the supplied input stream, not
-   * the request.
+   * Executes the request, gets the body from the supplied input stream, not the request.
    *
-   * @param type Specifies the request type. Must be a type expected by the
-   * handler specified by the type prefix. May not be <code>null</code> or
-   * empty and must begin with one of the supported handler prefixes. Currently
-   * supported handler prefixes are <code>"deploy-"</code> and
-   * <code>"job-"</code>.
-   * @param params Map of http params to include in the request. Key is the
-   * param name as a <code>String</code>, value is the param value as a
-   * <code>String</code>. May be <code>null</code>, may not contain an
-   * entry with a <code>null</code> key.
-   * @param body The file to post. May not be <code>null</code> and must
-   * reference an existing file. Data will be sent to the server as an
-   * attachment using the file name minus the extension as the parameter name.
-   * @param controller The file job controller to set the input stream on
-   * before copying the file. May not be <code>null</code>.
-   *
+   * @param type Specifies the request type. Must be a type expected by the handler specified by the
+   *     type prefix. May not be <code>null</code> or empty and must begin with one of the supported
+   *     handler prefixes. Currently supported handler prefixes are <code>"deploy-"</code> and
+   *     <code>"job-"</code>.
+   * @param params Map of http params to include in the request. Key is the param name as a <code>
+   *     String</code>, value is the param value as a <code>String</code>. May be <code>null</code>,
+   *     may not contain an entry with a <code>null</code> key.
+   * @param body The file to post. May not be <code>null</code> and must reference an existing file.
+   *     Data will be sent to the server as an attachment using the file name minus the extension as
+   *     the parameter name.
+   * @param controller The file job controller to set the input stream on before copying the file.
+   *     May not be <code>null</code>.
    * @return The response document from the request, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   * server.
-   * @throws PSServerLockException if a required server lock cannot be
-   * obtained.
-   * @throws PSDeployException if the connection is not valid or any other
-   * errors occur executing the request.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
+   * @throws PSServerLockException if a required server lock cannot be obtained.
+   * @throws PSDeployException if the connection is not valid or any other errors occur executing
+   *     the request.
    */
   public Document execute(String type, Map params, File body, PSDeployFileJobControl controller)
       throws PSAuthenticationFailedException,
@@ -606,17 +572,17 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the specified request against the server.  Private version of
-   * {@link #execute(String, Document, OutputStream, PSDeployFileJobControl)}
-   * with an additional <code>reconnect</code> parameter described below.
+   * Executes the specified request against the server. Private version of {@link #execute(String,
+   * Document, OutputStream, PSDeployFileJobControl)} with an additional <code>reconnect</code>
+   * parameter described below.
    *
-   * @param reconnect If <code>true</code>, an attempt is made to reconnect and
-   * re-execute the request if an exception is returned by the server that
-   * could indicate that the user's session has timed out.  If
-   * <code>false</code>, no attempt to reconnect and re-execute is made.
-   * @param repost If <code>true</code>, an attempt is made to re-execute the
-   * request if an IO exception is returned by the server.  If
-   * <code>false</code>, no attempt to re-execute is made.
+   * @param reconnect If <code>true</code>, an attempt is made to reconnect and re-execute the
+   *     request if an exception is returned by the server that could indicate that the user's
+   *     session has timed out. If <code>false</code>, no attempt to reconnect and re-execute is
+   *     made.
+   * @param repost If <code>true</code>, an attempt is made to re-execute the request if an IO
+   *     exception is returned by the server. If <code>false</code>, no attempt to re-execute is
+   *     made.
    */
   private Document execute(
       String type,
@@ -724,34 +690,28 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the request, writing the results to the supplied output stream
-   * rather than returning a document.
+   * Executes the request, writing the results to the supplied output stream rather than returning a
+   * document.
    *
-   * @param type Specifies the request type. Must be a type expected by the
-   * handler specified by the type prefix. May not be <code>null</code> or
-   * empty and must begin with one of the supported handler prefixes. Currently
-   * supported handler prefixes are <code>"deploy-"</code> and
-   * <code>"job-"</code>. The request handler on the server must return a
-   * non-200 result if the resulting content contains an exception document
-   * rather than the expected content.
-   * @param req The body of the request, the format of which is defined by the
-   * handler and request type. May not be <code>null</code>.
-   * @param out The stream to which the body of the response is written, may
-   * not be <code>null</code> or closed. Will be closed by this method.
-   * @param controller The file job controller to set the output stream on
-   * before copying the file. May not be <code>null</code>.
-   *
+   * @param type Specifies the request type. Must be a type expected by the handler specified by the
+   *     type prefix. May not be <code>null</code> or empty and must begin with one of the supported
+   *     handler prefixes. Currently supported handler prefixes are <code>"deploy-"</code> and
+   *     <code>"job-"</code>. The request handler on the server must return a non-200 result if the
+   *     resulting content contains an exception document rather than the expected content.
+   * @param req The body of the request, the format of which is defined by the handler and request
+   *     type. May not be <code>null</code>.
+   * @param out The stream to which the body of the response is written, may not be <code>null
+   *     </code> or closed. Will be closed by this method.
+   * @param controller The file job controller to set the output stream on before copying the file.
+   *     May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   * server.
-   * @throws PSServerLockException if a required server lock cannot be
-   * obtained.
-   * @throws PSDeployException if the connection is not valid or any other
-   * errors occur executing the request.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
+   * @throws PSServerLockException if a required server lock cannot be obtained.
+   * @throws PSDeployException if the connection is not valid or any other errors occur executing
+   *     the request.
    */
   public void execute(
       String type, Document req, OutputStream out, PSDeployFileJobControl controller)
@@ -772,14 +732,14 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Executes the specified request against the server.  Private version of
-   * {@link #execute(String, Document, OutputStream, PSDeployFileJobControl)}
-   * with an additional <code>reconnect</code> parameter described below.
+   * Executes the specified request against the server. Private version of {@link #execute(String,
+   * Document, OutputStream, PSDeployFileJobControl)} with an additional <code>reconnect</code>
+   * parameter described below.
    *
-   * @param reconnect If <code>true</code>, an attempt is made to reconnect and
-   * re-execute the request if an exception is returned by the server that
-   * could indicate that the user's session has timed out.  If
-   * <code>false</code>, no attempt to reconnect and re-execute is made.
+   * @param reconnect If <code>true</code>, an attempt is made to reconnect and re-execute the
+   *     request if an exception is returned by the server that could indicate that the user's
+   *     session has timed out. If <code>false</code>, no attempt to reconnect and re-execute is
+   *     made.
    */
   private void execute(
       String type,
@@ -871,15 +831,12 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Disconnects, clears the sessionid, and calls
-   * {@link #connect(boolean) connect(false)}.
+   * Disconnects, clears the sessionid, and calls {@link #connect(boolean) connect(false)}.
    *
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   * server.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
    * @throws PSDeployException for any other errors.
    */
   private void reconnect()
@@ -895,8 +852,7 @@ public class PSDeploymentServerConnection {
   /**
    * Determine if this connection is still valid for use.
    *
-   * @return <code>true</code> if the connection is valid for use,
-   * <code>false</code> if it is not.
+   * @return <code>true</code> if the connection is valid for use, <code>false</code> if it is not.
    */
   public boolean isConnected() {
     return m_isConnected;
@@ -905,8 +861,7 @@ public class PSDeploymentServerConnection {
   /**
    * Get the server version
    *
-   * @return The server version, may be <code>null</code> if not connected,
-   * never empty.
+   * @return The server version, may be <code>null</code> if not connected, never empty.
    */
   public String getServerVersion() {
     return m_isConnected ? m_version.getVersionString() : null;
@@ -915,8 +870,7 @@ public class PSDeploymentServerConnection {
   /**
    * Gets the server build number.
    *
-   * @return The number, may be <code>null</code> if not connected,
-   * never empty.
+   * @return The number, may be <code>null</code> if not connected, never empty.
    */
   public String getServerBuildNumber() {
     return m_isConnected ? m_version.getBuildNumber() : null;
@@ -934,12 +888,10 @@ public class PSDeploymentServerConnection {
   /**
    * Gets the password used to connect to the server.
    *
-   * @param encrypted If <code>true</code>, the password will be returned in
-   * its encrypted form.  Otherwise, the clear text version of the password is
-   * returned.
-   *
-   * @return The password supplied by the ctor, possibly encrypted, never
-   * <code>null</code>, may be empty.
+   * @param encrypted If <code>true</code>, the password will be returned in its encrypted form.
+   *     Otherwise, the clear text version of the password is returned.
+   * @return The password supplied by the ctor, possibly encrypted, never <code>null</code>, may be
+   *     empty.
    */
   public String getPassword(boolean encrypted) {
     return encrypted ? m_password : decryptPwd(m_uid, m_password);
@@ -948,35 +900,31 @@ public class PSDeploymentServerConnection {
   /**
    * Get the dbms info for the server's cms repository.
    *
-   * @return The dbms info.  UserId and Password will be empty to
-   * allow comparisons without regard to credentials.  May be <code>null</code>
-   *  if not connected.
+   * @return The dbms info. UserId and Password will be empty to allow comparisons without regard to
+   *     credentials. May be <code>null</code> if not connected.
    */
   public PSDbmsInfo getRepositoryInfo() {
     return m_isConnected ? m_serverRepositoryInfo : null;
   }
 
   /**
-   * Returns a boolean indicating whether the Rx server to which this object
-   * represents a connection is licensed for Enterprise Manager.
+   * Returns a boolean indicating whether the Rx server to which this object represents a connection
+   * is licensed for Enterprise Manager.
    *
-   * @return <code>true</code> if the Rx server to which this object represents
-   * a connection is licensed for Enterprise Manager, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the Rx server to which this object represents a connection is
+   *     licensed for Enterprise Manager, <code>false</code> otherwise.
    */
   public boolean isServerLicensed() {
     return m_bLicensed;
   }
 
   /**
-   * Encrypts the supplied password if it is non-<code>null</code> and not
-   * empty.
+   * Encrypts the supplied password if it is non-<code>null</code> and not empty.
    *
    * @param uid The user id, may be <code>null</code> or empty.
    * @param pwd The password to encrypt, may be <code>null</code> or empty.
-   *
-   * @return The encrypted password, or an empty string if the supplied
-   * password is <code>null</code> or empty.
+   * @return The encrypted password, or an empty string if the supplied password is <code>null
+   *     </code> or empty.
    */
   public static String encryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
@@ -1000,14 +948,12 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Decrypts the supplied password if it is non-<code>null</code> and not
-   * empty.
+   * Decrypts the supplied password if it is non-<code>null</code> and not empty.
    *
    * @param uid The user id, may be <code>null</code> or empty.
    * @param pwd The password to decrypt, may be <code>null</code> or empty.
-   *
-   * @return The decrypted password, or an empty string if the supplied
-   * password is <code>null</code> or empty.
+   * @return The decrypted password, or an empty string if the supplied password is <code>null
+   *     </code> or empty.
    */
   public static String decryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
@@ -1033,21 +979,16 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Makes connection request, stores the returned session id, and returns the
-   * resulting response document.
+   * Makes connection request, stores the returned session id, and returns the resulting response
+   * document.
    *
-   * @param overrideLock If <code>true</code>, then the lock is acquired by
-   * the user no matter what, if <code>false</code> then sessionid has to
-   * match for lock acquisition.
-   *
+   * @param overrideLock If <code>true</code>, then the lock is acquired by the user no matter what,
+   *     if <code>false</code> then sessionid has to match for lock acquisition.
    * @return The response doc, never <code>null</code>.
-   *
-   * @throws PSAuthenticationFailedException If the user cannot be
-   * authenticated by the server.
-   * @throws PSAuthorizationException If the user is not authorized to access
-   * the server for deployment operations.
-   * @throws PSServerException if there are any errors communicating with the
-   * server.
+   * @throws PSAuthenticationFailedException If the user cannot be authenticated by the server.
+   * @throws PSAuthorizationException If the user is not authorized to access the server for
+   *     deployment operations.
+   * @throws PSServerException if there are any errors communicating with the server.
    * @throws PSDeployException For any other errors.
    */
   private Document connect(boolean overrideLock)
@@ -1078,11 +1019,8 @@ public class PSDeploymentServerConnection {
   /**
    * Writes doc out to a temp file to be used as an attachment on a request.
    *
-   * @param doc The document to store in the file.  Assumed not
-   * <code>null</code>.
-   *
+   * @param doc The document to store in the file. Assumed not <code>null</code>.
    * @return The file, never <code>null</code>.
-   *
    * @throws IOException If there are any errors.
    */
   private PSPurgableTempFile createAttachmentFile(Document doc) throws Exception {
@@ -1095,48 +1033,37 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Constant to indicate the deployment version.  Used to determine
-   * compatibility between the client and server.  If the server is modified
-   * such that it is no longer compatible with older clients, this
-   * value should be incremented.
+   * Constant to indicate the deployment version. Used to determine compatibility between the client
+   * and server. If the server is modified such that it is no longer compatible with older clients,
+   * this value should be incremented.
    */
   public static final int DEPLOYMENT_INTERFACE_VERSION = 8;
 
-  /**
-   * Constant for prefix when making deployment handler requests.
-   */
+  /** Constant for prefix when making deployment handler requests. */
   public static final String DEPLOY_REQUEST = "deploy-";
 
-  /**
-   * Constant for prefix when making job handler requests.
-   */
+  /** Constant for prefix when making job handler requests. */
   public static final String JOB_REQUEST = "job-";
 
   /**
-   * Attempts to parse the response returned by the server. Checks the supplied
-   * <code>status</code> and <code>response</code> to see if the server has
-   * returned any errors and if so throws the appropriate exception. If no
-   * errors are found, the result document is returned.
+   * Attempts to parse the response returned by the server. Checks the supplied <code>status</code>
+   * and <code>response</code> to see if the server has returned any errors and if so throws the
+   * appropriate exception. If no errors are found, the result document is returned.
    *
    * @param type The request type, assumed not <code>null</code> or empty.
    * @param status The status returned by the request.
    * @param response The response to check, may be <code>null</code>.
-   *
    * @return The result document, never <code>null</code>.
-   *
-   * @throws PSAuthenticationFailedException If the response is an Xml doc
-   * containing a PSXDeployException element with this exception nested within
-   * it.
-   * @throws PSAuthorizationException If the response is an Xml doc containing
-   * a PSXDeployException element with this exception nested within it.
-   * @throws PSAuthorizationException If the response is an Xml doc containing
-   * a PSXDeployException element with this exception nested within it.
-   * @throws PSServerLockException if a required server lock cannot be
-   * obtained.
-   * @throws PSDeployException If the the <code>respDoc</code> is
-   * <code>null</code>, the status is not <code>200</code>, or the data
-   * contains a PSXDeployException element with none of the other exceptions
-   * nested within it.
+   * @throws PSAuthenticationFailedException If the response is an Xml doc containing a
+   *     PSXDeployException element with this exception nested within it.
+   * @throws PSAuthorizationException If the response is an Xml doc containing a PSXDeployException
+   *     element with this exception nested within it.
+   * @throws PSAuthorizationException If the response is an Xml doc containing a PSXDeployException
+   *     element with this exception nested within it.
+   * @throws PSServerLockException if a required server lock cannot be obtained.
+   * @throws PSDeployException If the the <code>respDoc</code> is <code>null</code>, the status is
+   *     not <code>200</code>, or the data contains a PSXDeployException element with none of the
+   *     other exceptions nested within it.
    */
   private Document parseServerResponse(String type, int status, byte[] response)
       throws PSAuthenticationFailedException,
@@ -1252,14 +1179,13 @@ public class PSDeploymentServerConnection {
   }
 
   /**
-   * Copies the supplied input stream to the output stream, using the
-   * controller to detect cancellation and to mark copy as completed.
+   * Copies the supplied input stream to the output stream, using the controller to detect
+   * cancellation and to mark copy as completed.
    *
    * @param in The input stream, assumed not <code>null</code>.
    * @param out The output stream, assumed not <code>null</code>.
-   * @param controller The job controller, with the appropriate stream already
-   * set on it, assumed not <code>null</code>.
-   *
+   * @param controller The job controller, with the appropriate stream already set on it, assumed
+   *     not <code>null</code>.
    * @throws IOException If any errors occur.
    */
   private void copyStream(InputStream in, OutputStream out, PSDeployFileJobControl controller)
@@ -1279,11 +1205,8 @@ public class PSDeploymentServerConnection {
   /**
    * Gets the appropriate request page for the given request type.
    *
-   * @param requestType The type, may not be <code>null</code> or empty, and
-   * must be a known type.
-   *
+   * @param requestType The type, may not be <code>null</code> or empty, and must be a known type.
    * @return The page, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>requestType</code> is invalid.
    */
   private String getRequestPage(String requestType) {
@@ -1313,12 +1236,10 @@ public class PSDeploymentServerConnection {
   /**
    * Converts params to an <code>NVPair[]</code> array.
    *
-   * @param params Map of params, where param name is key as
-   * <code>String</code> and value is the param value.  May be
-   * <code>null</code>, may not contain a <code>null</code> key.
-   *
-   * @return The array, will be <code>null</code> if <code>params</code> is
-   * <code>null</code> or emtpy.
+   * @param params Map of params, where param name is key as <code>String</code> and value is the
+   *     param value. May be <code>null</code>, may not contain a <code>null</code> key.
+   * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
+   *     emtpy.
    */
   private NVPair[] getParams(Map params) {
     // add the params
@@ -1344,111 +1265,91 @@ public class PSDeploymentServerConnection {
     return opts;
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   private static final Logger log = LogManager.getLogger(PSDeploymentServerConnection.class);
 
-  /**
-   * Constant for the page to use when executing deployment requests against
-   * the server.
-   */
+  /** Constant for the page to use when executing deployment requests against the server. */
   private static final String DEPLOY_REQUEST_PAGE = "/sys_deployerHandler";
 
   private static final String MSM_DEPLOY_REQUEST_PAGE = "/sys_deploymentHandler";
 
-  /**
-   * Constant for the page to use when executing job requests against
-   * the server.
-   */
+  /** Constant for the page to use when executing job requests against the server. */
   private static final String JOB_REQUEST_PAGE = "/sys_jobHandler";
 
   /**
-   * Determines if this object can be used to execute requests against the
-   * server.  Intialized during the ctor, may be modified by calls to
-   * {@link #reconnect()} and {@link #disconnect()}.
+   * Determines if this object can be used to execute requests against the server. Intialized during
+   * the ctor, may be modified by calls to {@link #reconnect()} and {@link #disconnect()}.
    */
   private volatile boolean m_isConnected;
 
   /**
-   * The name of the server to connect to, set during ctor, never
-   * <code>null</code>, empty or modified after that.
+   * The name of the server to connect to, set during ctor, never <code>null</code>, empty or
+   * modified after that.
    */
   private String m_server;
 
-  /**
-   * The port on the server to connect to, set during ctor, never modified
-   * after that.
-   */
+  /** The port on the server to connect to, set during ctor, never modified after that. */
   private int m_port;
 
   /**
-   * The server version info.  Obtained during connection attempt from ctor,
-   * may be <code>null</code> if connection request fails, may be reset on a
-   * subsequent attempt to reconnect.
+   * The server version info. Obtained during connection attempt from ctor, may be <code>null</code>
+   * if connection request fails, may be reset on a subsequent attempt to reconnect.
    */
   private PSFormatVersion m_version;
 
   /**
-   * The session id obtained from the intial connection.  May be modified if
-   * the user's session on the server times out and we must reconnect.
+   * The session id obtained from the intial connection. May be modified if the user's session on
+   * the server times out and we must reconnect.
    */
   private String m_sessionId = "";
 
   /**
-   * The server's repository information.  Obtained during connection attempt
-   * from ctor, may be <code>null</code> if connection request fails, may be
-   * reset on a subsequent attempt to reconnect.
+   * The server's repository information. Obtained during connection attempt from ctor, may be
+   * <code>null</code> if connection request fails, may be reset on a subsequent attempt to
+   * reconnect.
    */
   private PSDbmsInfo m_serverRepositoryInfo;
 
-  /**
-   * The user's id.  Set during ctor, never <code>null</code> or empty or
-   * modified after that.
-   */
+  /** The user's id. Set during ctor, never <code>null</code> or empty or modified after that. */
   private String m_uid;
 
   /**
-   * The user's password.  Set during ctor, may be empty, never
-   * <code>null</code> or modified after that.
+   * The user's password. Set during ctor, may be empty, never <code>null</code> or modified after
+   * that.
    */
   private String m_password;
 
   /**
-   * The http connection object constructed on first attempt to connect to the
-   * server.  Never modified or <code>null</code> after that.
+   * The http connection object constructed on first attempt to connect to the server. Never
+   * modified or <code>null</code> after that.
    */
   private HTTPConnection m_conn;
 
   /**
-   * Mutex preventing concurrent access to a critical section by having threads
-   * synchronize on it. Here it's preventing concurrent access to <code>m_conn
+   * Mutex preventing concurrent access to a critical section by having threads synchronize on it.
+   * Here it's preventing concurrent access to <code>m_conn
    * </code>. Never modified.
    */
   private Object m_mutexObject = new Object();
 
   /**
-   * Runs as a daemon thread. Lock is granted for 30 mins. Locker thread
-   * extends the lock after 28 mins. Initialised in the ctor, never <code>null
-   * </code> or modified.
-   * Thread dies whenever <code>m_isConnected</code> is <code>false</code>.
+   * Runs as a daemon thread. Lock is granted for 30 mins. Locker thread extends the lock after 28
+   * mins. Initialised in the ctor, never <code>null
+   * </code> or modified. Thread dies whenever <code>m_isConnected</code> is <code>false</code>.
    */
   private Thread m_lockerThread;
 
   /**
-   * Rhythmyx server request root, initialzied by first call to
-   * {@link #getRequestPage(String)}, never <code>null</code>, empty, or
-   * modified after that.
-   *
+   * Rhythmyx server request root, initialzied by first call to {@link #getRequestPage(String)},
+   * never <code>null</code>, empty, or modified after that.
    */
   private String m_reqRoot = null;
 
   /**
-   * <code>true</code> if the Rx server to which this object represents a
-   * connection is licensed for Enterprise Manager, <code>false</code>
-   * otherwise. Initialized to <code>true</code>, then set in the constructor
-   * based on the response document obtained from the Rx Server in the
-   * <code>connect()</code> method, never modified after that.
+   * <code>true</code> if the Rx server to which this object represents a connection is licensed for
+   * Enterprise Manager, <code>false</code> otherwise. Initialized to <code>true</code>, then set in
+   * the constructor based on the response document obtained from the Rx Server in the <code>
+   * connect()</code> method, never modified after that.
    */
   private boolean m_bLicensed = true;
 

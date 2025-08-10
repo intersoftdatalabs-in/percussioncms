@@ -28,14 +28,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class contains the workflow information retrieved from the
- * <code>sys_psxWorkflowCataloger/workflowinfo</code> resource.
- * It is used query states and transitions of a specified workflow.
+ * This class contains the workflow information retrieved from the <code>
+ * sys_psxWorkflowCataloger/workflowinfo</code> resource. It is used query states and transitions of
+ * a specified workflow.
  */
 public class PSWorkflowInfo {
   /**
-   * Constructs the object from its XML representation. Its DTD is in the
-   * following format:
+   * Constructs the object from its XML representation. Its DTD is in the following format:
+   *
    * <pre>
    * &lt;?xml version='1.0' encoding='UTF-8'?&gt;
    * &lt;!ELEMENT transitioninfo (#PCDATA)&gt;
@@ -58,25 +58,20 @@ public class PSWorkflowInfo {
    * &lt;!ELEMENT StatesTrans (States, Transitions)&gt;
    * </pre>
    *
-   * @param doc the document with format described above. It is typically
-   *    created by <code>sys_psxWorkflowCataloger/workflowinfo</code>.
-   *    Never <code>null</code>.
+   * @param doc the document with format described above. It is typically created by <code>
+   *     sys_psxWorkflowCataloger/workflowinfo</code>. Never <code>null</code>.
    */
   public PSWorkflowInfo(Document doc) {
     fromXML(doc.getDocumentElement());
   }
 
   /**
-   * Determines if the supplied workflow id and state id matches one of the
-   * given valid token.
+   * Determines if the supplied workflow id and state id matches one of the given valid token.
    *
    * @param workflowId the workflow id.
    * @param stateId the state id in the above workflow.
-   * @param validTokens a list of comma delimited valid token.
-   *    Never <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the state matches the valid token;
-   *    <code>false</code> otherwise.
+   * @param validTokens a list of comma delimited valid token. Never <code>null</code> or empty.
+   * @return <code>true</code> if the state matches the valid token; <code>false</code> otherwise.
    */
   public boolean isValidState(int workflowId, int stateId, String validTokens) {
     if (validTokens == null) throw new IllegalArgumentException("validTokens may not be null");
@@ -85,28 +80,23 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * Returns a transition id in the supplied workflow id. The from-state of
-   * the transition matches the supplied state id. The valid-token of the
-   * to-state of the transition matches one of the supplied valid-tokens.
-   * If there are more than one matched transitions, then the to-state
-   * of the returned transition has the least Sort Order value. This state is
-   * the leftmost of the to-states in the preview window of the
-   * workflow. If the desired transition does not exist and the
-   * <code>useDefaults</code> is <code>true</code>, then return one of the
-   * default transitions whose from-state is the supplied state id. Again, if
-   * there are more than one default transitions, the to-state of the returned
-   * default transition has the least Sort Order value.
+   * Returns a transition id in the supplied workflow id. The from-state of the transition matches
+   * the supplied state id. The valid-token of the to-state of the transition matches one of the
+   * supplied valid-tokens. If there are more than one matched transitions, then the to-state of the
+   * returned transition has the least Sort Order value. This state is the leftmost of the to-states
+   * in the preview window of the workflow. If the desired transition does not exist and the <code>
+   * useDefaults</code> is <code>true</code>, then return one of the default transitions whose
+   * from-state is the supplied state id. Again, if there are more than one default transitions, the
+   * to-state of the returned default transition has the least Sort Order value.
    *
    * @param workflowId the workflow id.
    * @param fromStateId the from state id of the returned trainsition.
-   * @param toValidTokens a list of comma delimited valid tokens. The valid
-   *    token of the to-state of the returned transition.
-   *    Never <code>null</code> or empty.
-   * @param useDefaults <code>true</code> if it returns a default transition
-   *    when the desired transition not exist.
-   *
-   * @return the transition described above. Returns <code>null</code> if
-   *    there is no such transition exist in the specified workflow.
+   * @param toValidTokens a list of comma delimited valid tokens. The valid token of the to-state of
+   *     the returned transition. Never <code>null</code> or empty.
+   * @param useDefaults <code>true</code> if it returns a default transition when the desired
+   *     transition not exist.
+   * @return the transition described above. Returns <code>null</code> if there is no such
+   *     transition exist in the specified workflow.
    */
   public String getTransitionId(
       int workflowId, int fromStateId, String toValidTokens, boolean useDefaults) {
@@ -123,10 +113,9 @@ public class PSWorkflowInfo {
   /**
    * Returns all states for the supplied workflow id.
    *
-   * @param workflowID  workflow id, assume not <code>null</code>
-   *
-   * @return List of {@link StateInfo} objects in the supplied workflow
-   *     may be <code>null</code> or empty if the workflow does not exist.
+   * @param workflowID workflow id, assume not <code>null</code>
+   * @return List of {@link StateInfo} objects in the supplied workflow may be <code>null</code> or
+   *     empty if the workflow does not exist.
    */
   private List<StateInfo> getStates(String workflowID) {
     return m_states.get(workflowID);
@@ -136,27 +125,23 @@ public class PSWorkflowInfo {
    * Returns all transitions for the supplied workflow id.
    *
    * @param workflowID workflow id, assume not <code>null</code>.
-   *
-   * @return List of PSTransitionInfo objects in the supplied workflow.
-   *     may be <code>null</code> or empty if the workflow does not exist.
+   * @return List of PSTransitionInfo objects in the supplied workflow. may be <code>null</code> or
+   *     empty if the workflow does not exist.
    */
   private List<TransitionInfo> getTransitions(String workflowID) {
     return m_transitions.get(workflowID);
   }
 
   /**
-   * Checks whether the supplied workflow/stateid has matches one of the
-   * supplied char values in the token list.
+   * Checks whether the supplied workflow/stateid has matches one of the supplied char values in the
+   * token list.
    *
-   * @param workflow
-   *           String value workflowid, assume not <code>null</code>.
-   * @param stateId
-   *           String value stateid, assume not <code>null</code>.
-   * @param tokens
-   *           comma separated list of char values representing ContentValid
-   *           assume not <code>null</code>.
-   * @return true if the item's content state char representation is in the
-   *         supplied token list. false otherwise.
+   * @param workflow String value workflowid, assume not <code>null</code>.
+   * @param stateId String value stateid, assume not <code>null</code>.
+   * @param tokens comma separated list of char values representing ContentValid assume not <code>
+   *     null</code>.
+   * @return true if the item's content state char representation is in the supplied token list.
+   *     false otherwise.
    */
   private boolean isValidState(String workflow, String stateId, String tokens) {
     List<StateInfo> stateList = m_states.get(workflow);
@@ -171,14 +156,10 @@ public class PSWorkflowInfo {
   /**
    * Performs the char compare
    *
-   * @param publishable
-   *           char value from ContetValid in states table.
-   * @param validTokens
-   *           comma separated list of char values representing ContentValid,
-   *           assume not <code>null</code>.
-   *
-   * @return <code>true</code> if publishable is in the validTokens.
-   *         <code>false</code> otherwise.
+   * @param publishable char value from ContetValid in states table.
+   * @param validTokens comma separated list of char values representing ContentValid, assume not
+   *     <code>null</code>.
+   * @return <code>true</code> if publishable is in the validTokens. <code>false</code> otherwise.
    */
   private boolean checkValidFlag(char publishable, String validTokens) {
     StringTokenizer tokens = new StringTokenizer(validTokens, ",");
@@ -190,14 +171,12 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * Find all of the transitions out of the current state in the current
-   * workflow
+   * Find all of the transitions out of the current state in the current workflow
    *
    * @param stateId String value if state id, assume not <code>null</code>.
    * @param workflowId String value workflow id, assume not <code>null</code>
-   *
-   * @return <code>PSStateInfo</code> object with the supplied state id.
-   *          It may be <code>null</code> if cannot find the specified state.
+   * @return <code>PSStateInfo</code> object with the supplied state id. It may be <code>null</code>
+   *     if cannot find the specified state.
    */
   private StateInfo getState(String stateId, String workflowId) {
     List<StateInfo> states = getStates(workflowId);
@@ -210,15 +189,11 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * Finds the PSAutoTransition object from within the list with the lowest
-   * sortOrder.
+   * Finds the PSAutoTransition object from within the list with the lowest sortOrder.
    *
-   * @param list
-   *           PSAutoTransition objects. Assume not empty.
-   *
-   * @return PSAutoTransition object with the lowest sortOrder form the
-   *         supplied list of PSAutoTransition objects.
-   *         may not be <code>null</code>
+   * @param list PSAutoTransition objects. Assume not empty.
+   * @return PSAutoTransition object with the lowest sortOrder form the supplied list of
+   *     PSAutoTransition objects. may not be <code>null</code>
    */
   private SortOrderTransition findLeast(List<SortOrderTransition> list) {
     if (list == null) {
@@ -234,11 +209,11 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * Builds the state and transtion information used for ContentValid checks,
-   * autoTransition information.
+   * Builds the state and transtion information used for ContentValid checks, autoTransition
+   * information.
    *
-   * @param el the XML representation of the object, never <code>null</code>.
-   *    see {@link #PSWorkflowInfo(Document)} for its DTD.
+   * @param el the XML representation of the object, never <code>null</code>. see {@link
+   *     #PSWorkflowInfo(Document)} for its DTD.
    */
   private void fromXML(Element el) {
     List<StateInfo> allStates = new ArrayList<>();
@@ -294,11 +269,8 @@ public class PSWorkflowInfo {
   /**
    * Builds cache: Map of state info keyed by workflow
    *
-   * @param list
-   *           of PSWorkflowInfo assume not <code>null</code>
-   * @param map
-   *           HashMap to fill - either state or transition not
-   *           <code>null</code>
+   * @param list of PSWorkflowInfo assume not <code>null</code>
+   * @param map HashMap to fill - either state or transition not <code>null</code>
    */
   private <T extends IPSWorkflowId> void buildCache(List<T> list, HashMap<String, List<T>> map) {
     for (T info : list) {
@@ -315,23 +287,16 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * Finds the list of Transition from the current state into a state
-   * represented in tokens. If no such state transition is found, the lowest
-   * sortOrder default transition is returned.
+   * Finds the list of Transition from the current state into a state represented in tokens. If no
+   * such state transition is found, the lowest sortOrder default transition is returned.
    *
-   * @param workflowId the workflow id of the returned transitions.
-   *           assume not <code>null</code>.
-   * @param stateId the state id of the returned transitions.
-   *           assume not <code>null</code>.
-   * @param tokens
-   *           String List of char tokens for the state not be
-   *           <code>null</code>.
-   * @param bUseDefaults
-   *           if <code>true</code> will return the List of default
-   *           transitions when the desired transition list is empty.
-   *
-   * @return List PSAutoTransition of the transitions matching the token
-   *         criteria may be emtpy but never <code>null</code>
+   * @param workflowId the workflow id of the returned transitions. assume not <code>null</code>.
+   * @param stateId the state id of the returned transitions. assume not <code>null</code>.
+   * @param tokens String List of char tokens for the state not be <code>null</code>.
+   * @param bUseDefaults if <code>true</code> will return the List of default transitions when the
+   *     desired transition list is empty.
+   * @return List PSAutoTransition of the transitions matching the token criteria may be emtpy but
+   *     never <code>null</code>
    */
   private List<SortOrderTransition> getAutoTransitionId(
       int workflowId, int stateId, String tokens, boolean bUseDefaults) {
@@ -366,36 +331,26 @@ public class PSWorkflowInfo {
     }
   }
 
-  /**
-   * This object contains a transition and its sort order.
-   */
+  /** This object contains a transition and its sort order. */
   private class SortOrderTransition {
-    /**
-     * sortOrder for this state
-     */
+    /** sortOrder for this state */
     private int m_sortOrder = 10;
 
-    /**
-     * ContentValid column for this state
-     */
+    /** ContentValid column for this state */
     private char m_validFlag = 'n';
 
-    /**
-     * transitionId column.
-     */
+    /** transitionId column. */
     private String m_transitionID = "0";
 
-    /**
-     * set to true if this is a default transition
-     */
+    /** set to true if this is a default transition */
     private boolean m_isDefault = false;
 
     /**
      * This method called from PSLockMethod/PSUnLockMethod
      *
-     * @param state the state info, assume not <code>null</code>. The sort
-     *    order of it may not be <code>null</code>.
-     *           sets the values of sortOrder and validFlag may not be <code>null</code>
+     * @param state the state info, assume not <code>null</code>. The sort order of it may not be
+     *     <code>null</code>. sets the values of sortOrder and validFlag may not be <code>null
+     *     </code>
      * @param transition the transition object, assume not <code>null</code>.
      */
     private SortOrderTransition(StateInfo state, TransitionInfo transition) {
@@ -410,7 +365,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return sortOrder of this state
      */
     public int getSortOrder() {
@@ -418,7 +372,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return transistionID for the transition
      */
     public String getTransitionId() {
@@ -436,6 +389,7 @@ public class PSWorkflowInfo {
 
     /**
      * Gets the char representing the state
+     *
      * @return char indicating state
      */
     public char getFlag() {
@@ -445,8 +399,7 @@ public class PSWorkflowInfo {
     /**
      * returns the lower of the PSAutoTransitions in sortOrder
      *
-     * @param dat
-     *           can be <code>null</code>
+     * @param dat can be <code>null</code>
      * @return PSAutoTransition with the lower sortOrder never <code>null</code>
      */
     public SortOrderTransition leastSortOrder(SortOrderTransition dat) {
@@ -457,12 +410,11 @@ public class PSWorkflowInfo {
     }
 
     /**
-     * Given a list of PSAutoTransitions finds the one with the lowest sortOrder.
-     * List must have at least one entry.
+     * Given a list of PSAutoTransitions finds the one with the lowest sortOrder. List must have at
+     * least one entry.
      *
      * @param list of PSAutoTransition objects may not be <code>null</code>
-     * @return PSAutoTransistion with the lowest sortOrder in the list
-     *          <code>null</code>
+     * @return PSAutoTransistion with the lowest sortOrder in the list <code>null</code>
      */
     public SortOrderTransition findLeast(List list) {
       Iterator it = list.iterator();
@@ -475,62 +427,43 @@ public class PSWorkflowInfo {
     }
   }
 
-  /**
-   * Interface for used to build the caches in the PSWorkflowInfo
-   */
+  /** Interface for used to build the caches in the PSWorkflowInfo */
   private interface IPSWorkflowId {
     /**
-     *
      * @return StateID as a String never <code>null</code>
      */
     public abstract String getID();
 
     /**
-     *
      * @return workflowID as a String never <code>null</code>
      */
     public abstract String getWorkflow();
   }
 
   /**
-   * StateInfo used to encapsulate the information in the States Table. The
-   * PSWorkflowInfo keeps a cache of this information. Retrieved from
-   * sys_psxWorkflowCataloger/workflowInfo
+   * StateInfo used to encapsulate the information in the States Table. The PSWorkflowInfo keeps a
+   * cache of this information. Retrieved from sys_psxWorkflowCataloger/workflowInfo
    */
   private class StateInfo implements IPSWorkflowId {
-    /**
-     * States Table contentValid column char
-     */
+    /** States Table contentValid column char */
     private char m_validFlag;
 
-    /**
-     * States Table id column never <code>null</code>
-     */
+    /** States Table id column never <code>null</code> */
     private String m_stateId;
 
-    /**
-     * States Table sortOrder column never <code>null</code>
-     */
+    /** States Table sortOrder column never <code>null</code> */
     private String m_sortOrder;
 
-    /**
-     * States Table workflow column never <code>null</code>
-     */
+    /** States Table workflow column never <code>null</code> */
     private String m_workflowId;
 
     /**
      * Construct a PSStateInfo with the supplied parameters
      *
-     * @param flag
-     *           <code>null</code> or empty char containing value in
-     *           contentValid column
-     * @param state
-     *           <code>null</code> or empty String representation of the
-     *           stateID
-     * @param order
-     *           <code>null</code> or empty String valued sortOrder
-     * @param workflow
-     *           <code>null</code> or empty String valued workflowID
+     * @param flag <code>null</code> or empty char containing value in contentValid column
+     * @param state <code>null</code> or empty String representation of the stateID
+     * @param order <code>null</code> or empty String valued sortOrder
+     * @param workflow <code>null</code> or empty String valued workflowID
      */
     public StateInfo(char flag, String state, String order, String workflow) {
       if ((state == null) || (order == null) && (workflow == null)) {
@@ -543,7 +476,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return StateID as a String never <code>null</code>
      */
     public String getID() {
@@ -551,7 +483,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return the SortOrder as a String never <code>null</code>
      */
     public String getSortOrder() {
@@ -559,7 +490,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return workflowID as a String never <code>null</code>
      */
     public String getWorkflow() {
@@ -567,7 +497,6 @@ public class PSWorkflowInfo {
     }
 
     /**
-     *
      * @return char value of the contentValid flag
      */
     public char getValid() {
@@ -576,50 +505,34 @@ public class PSWorkflowInfo {
   }
 
   /**
-   * TransitionInfo used to encapsulate the information in the Transition
-   * Table. The PSWorkflowInfo keeps a cache of this information. Retrieved
-   * from sys_psxWorkflowCataloger/workflowInfo
+   * TransitionInfo used to encapsulate the information in the Transition Table. The PSWorkflowInfo
+   * keeps a cache of this information. Retrieved from sys_psxWorkflowCataloger/workflowInfo
    */
   private class TransitionInfo implements IPSWorkflowId {
 
-    /**
-     * Transition Table default column
-     */
+    /** Transition Table default column */
     private char m_default;
 
-    /**
-     * Transition Table id column never <code>null</code>
-     */
+    /** Transition Table id column never <code>null</code> */
     private String m_transitionId;
 
-    /**
-     * Transition Table TransitionToState column  never <code>null</code>
-     */
+    /** Transition Table TransitionToState column never <code>null</code> */
     private String m_transitionTo;
 
-    /**
-     * Transition TransitionFromState column never <code>null</code>
-     */
+    /** Transition TransitionFromState column never <code>null</code> */
     private String m_transitionFrom;
 
-    /**
-     * Transition Table workflow column never <code>null</code>
-     */
+    /** Transition Table workflow column never <code>null</code> */
     private String m_workflowId;
 
     /**
      * Creates a transitionInfo object
      *
-     * @param defaultTrans
-     *           'y' if default transition.
-     * @param transitionId
-     *           may not be <code>null</code>.
-     * @param transitionTo
-     *           may not be <code>null</code>.
-     * @param transitionFrom
-     *           may not be <code>null</code>.
-     * @param workflowId
-     *           may not be <code>null</code>.
+     * @param defaultTrans 'y' if default transition.
+     * @param transitionId may not be <code>null</code>.
+     * @param transitionTo may not be <code>null</code>.
+     * @param transitionFrom may not be <code>null</code>.
+     * @param workflowId may not be <code>null</code>.
      */
     public TransitionInfo(
         char defaultTrans,
@@ -642,8 +555,7 @@ public class PSWorkflowInfo {
     /**
      * Get stateid of To state
      *
-     * @return String stateID of the state to transition to
-     * never <code>null</code>
+     * @return String stateID of the state to transition to never <code>null</code>
      */
     public String getTransitionTo() {
       return m_transitionTo;
@@ -704,26 +616,16 @@ public class PSWorkflowInfo {
     }
   }
 
-  /**
-   * Map containing PSStateInfo list indexed by String workflowID
-   * never <code>null</code>.
-   */
+  /** Map containing PSStateInfo list indexed by String workflowID never <code>null</code>. */
   private HashMap<String, List<StateInfo>> m_states = new HashMap<>();
 
-  /**
-   * Map containing PSTransitionInfo list indexed by String workflowID
-   * never <code>null</code>.
-   */
+  /** Map containing PSTransitionInfo list indexed by String workflowID never <code>null</code>. */
   private HashMap<String, List<TransitionInfo>> m_transitions = new HashMap<>();
 
-  /**
-   * Logger for use with log4j
-   */
+  /** Logger for use with log4j */
   private Logger m_logger = LogManager.getLogger(getClass());
 
-  /**
-   * Constants for XML ELEMENTS
-   */
+  /** Constants for XML ELEMENTS */
   private static final String ELEM_STATEINFO = "stateinfo";
 
   private static final String ELEM_TRANSITIONINFO = "transitioninfo";
@@ -732,9 +634,7 @@ public class PSWorkflowInfo {
 
   private static final String EL_COMMENT = "Comment";
 
-  /**
-   *  Constants for XML ATTRIBUTES
-   */
+  /** Constants for XML ATTRIBUTES */
   private static final String ATTR_SORT_ORDER = "sortorder";
 
   private static final String ATTR_VALID_FLAG = "contentvalid";

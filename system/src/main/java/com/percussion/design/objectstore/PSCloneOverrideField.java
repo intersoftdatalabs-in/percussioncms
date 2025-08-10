@@ -28,26 +28,23 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class represents a field that is overridden by clone handler during
- * creation of a clone of a CMS object and has the following properties:
- * <p>
- * It has a name which corresponds to one of the content editor fields. The
- * value of this field will be an object implementing
- * {@link IPSReplacementValue replacement value} interface. Consists of a list
- * of {@link PSRule conditionals} to facilitate conditional override of
- * the field for the clone.
+ * This class represents a field that is overridden by clone handler during creation of a clone of a
+ * CMS object and has the following properties:
+ *
+ * <p>It has a name which corresponds to one of the content editor fields. The value of this field
+ * will be an object implementing {@link IPSReplacementValue replacement value} interface. Consists
+ * of a list of {@link PSRule conditionals} to facilitate conditional override of the field for the
+ * clone.
  *
  * @author RammohanVangapalli
- *
  */
 public class PSCloneOverrideField extends PSComponent {
   /**
    * Constructs a clone field from supplied name and the replacement value.
    *
-   * @param name the name of the content ediotor field to override in a
-   *    newly created clone, must not be <code>null</code> or empty.
-   * @param replacememtValue the dynamic value for the field, must not be
-   *    <code>null</code>.
+   * @param name the name of the content ediotor field to override in a newly created clone, must
+   *     not be <code>null</code> or empty.
+   * @param replacememtValue the dynamic value for the field, must not be <code>null</code>.
    */
   public PSCloneOverrideField(String name, IPSReplacementValue replacememtValue) {
     setName(name);
@@ -55,14 +52,13 @@ public class PSCloneOverrideField extends PSComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
    * @param sourceNode the XML element node to construct this object from.
    * @param parentDoc the Java object which is the parent of this object.
    * @param parentComponents the parent objects of this object.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *    appropriate type.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
   public PSCloneOverrideField(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -70,9 +66,8 @@ public class PSCloneOverrideField extends PSComponent {
   }
 
   /**
-   * Produces an XML element which conforms to the
-   * <code>PSXCloneOverrideField </code> element defined in the
-   * sys_RelationshipConfig.dtd.
+   * Produces an XML element which conforms to the <code>PSXCloneOverrideField </code> element
+   * defined in the sys_RelationshipConfig.dtd.
    *
    * @see IPSComponent#toXml(Document)
    */
@@ -165,11 +160,10 @@ public class PSCloneOverrideField extends PSComponent {
   }
 
   /**
-   * Get the list of rules for overriding this field. The collection
-   * can be modifed by the caller.
+   * Get the list of rules for overriding this field. The collection can be modifed by the caller.
    *
-   * @return list of rules. Each entry in the collection is a
-   *    {@link PSRule rule object}, never <code>null</code>, may be empty.
+   * @return list of rules. Each entry in the collection is a {@link PSRule rule object}, never
+   *     <code>null</code>, may be empty.
    */
   public PSCollection getRules() {
     return m_rules;
@@ -178,8 +172,8 @@ public class PSCloneOverrideField extends PSComponent {
   /**
    * Sets a list of rules.
    *
-   * @param rules list of rules. Each entry in the collection must be of type
-   *    {@link PSRule rule object}, not <code>null</code>, may be empty.
+   * @param rules list of rules. Each entry in the collection must be of type {@link PSRule rule
+   *     object}, not <code>null</code>, may be empty.
    */
   public void setRules(PSCollection rules) {
     if (rules == null) throw new IllegalArgumentException("rules cannot be null");
@@ -193,8 +187,8 @@ public class PSCloneOverrideField extends PSComponent {
   /**
    * Get the replacement or dynamic value for the field.
    *
-   * @return replacement value, never <code>null</code>, guaranteed of type
-   *    <code>PSExtensionCall</code>.
+   * @return replacement value, never <code>null</code>, guaranteed of type <code>PSExtensionCall
+   *     </code>.
    */
   public IPSReplacementValue getReplacementValue() {
     return m_replacementValue;
@@ -203,8 +197,8 @@ public class PSCloneOverrideField extends PSComponent {
   /**
    * Set the replacement or dynamic value for the field to be overridden.
    *
-   * @param value replacement value, not <code>null</code>, must be of type
-   *    <code>PSExtensionCall</code>.
+   * @param value replacement value, not <code>null</code>, must be of type <code>PSExtensionCall
+   *     </code>.
    */
   public void setReplacementValue(IPSReplacementValue value) {
     if (!(value instanceof PSExtensionCall))
@@ -217,8 +211,8 @@ public class PSCloneOverrideField extends PSComponent {
   /**
    * Returns m_replacementValue.getValueDisplayText().
    *
-   * @return m_replacementValue.getValueDisplayText(),
-   * or empty string if m_replacementValue is not set.
+   * @return m_replacementValue.getValueDisplayText(), or empty string if m_replacementValue is not
+   *     set.
    */
   public String toString() {
     return m_replacementValue == null ? "" : m_replacementValue.getValueDisplayText();
@@ -261,27 +255,25 @@ public class PSCloneOverrideField extends PSComponent {
   }
 
   /**
-   * Name of the field whose value needs to be overridden. Initialized via
-   * one of the constructors or in {@link #fromXml(Element, IPSDocument,
-   * List)} or using {@link PSCloneOverrideField#setName(String)} methods.
-   * Never <code>null</code> or empty after initialization.
+   * Name of the field whose value needs to be overridden. Initialized via one of the constructors
+   * or in {@link #fromXml(Element, IPSDocument, List)} or using {@link
+   * PSCloneOverrideField#setName(String)} methods. Never <code>null</code> or empty after
+   * initialization.
    */
   private String m_name = null;
 
   /**
-   * Dynamic value for the field. Never <code>null</code>, guaranteed of
-   * type <code>PSExtensionCall</code>.
+   * Dynamic value for the field. Never <code>null</code>, guaranteed of type <code>PSExtensionCall
+   * </code>.
    */
   private IPSReplacementValue m_replacementValue = null;
 
   /**
-   * List of rules that can be evaluated whether to override this
-   * field or not. Never <code>null</code> but may be empty.
+   * List of rules that can be evaluated whether to override this field or not. Never <code>null
+   * </code> but may be empty.
    */
   private PSCollection m_rules = new PSCollection(PSRule.class);
 
-  /**
-   * Name of the root element in the XML representation of this object.
-   */
+  /** Name of the root element in the XML representation of this object. */
   public static final String XML_NODE_NAME = "PSXCloneOverrideField";
 }

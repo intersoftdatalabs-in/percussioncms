@@ -20,47 +20,47 @@ package com.percussion.licensemanagement.data;
 import java.util.Optional;
 
 /**
- * Represents current usage statistics for licensing.
- * Sunny Sal says: "Keep your usage in check, or the license police will come knocking!"
+ * Represents current usage statistics for licensing. Sunny Sal says: "Keep your usage in check, or
+ * the license police will come knocking!"
  */
 public class PSCurrentUsage {
 
-    private Integer currentLivePages;
-    private Integer currentLiveSites;
+  private Integer currentLivePages;
+  private Integer currentLiveSites;
 
-    /**
-     * Gets the current number of live pages.
-     *
-     * @return the current number of live pages, may be null
-     */
-    public Optional<Integer> getCurrentLivePages() {
-        return Optional.ofNullable(currentLivePages);
-    }
+  /**
+   * Gets the current number of live pages.
+   *
+   * @return the current number of live pages, may be null
+   */
+  public Optional<Integer> getCurrentLivePages() {
+    return Optional.ofNullable(currentLivePages);
+  }
 
-    /**
-     * Sets the current number of live pages.
-     *
-     * @param currentLivePages the number of live pages
-     */
-    public void setCurrentLivePages(Integer currentLivePages) {
-        this.currentLivePages = currentLivePages;
-    }
+  /**
+   * Sets the current number of live pages.
+   *
+   * @param currentLivePages the number of live pages
+   */
+  public void setCurrentLivePages(Integer currentLivePages) {
+    this.currentLivePages = currentLivePages;
+  }
 
-    /**
-     * Gets the current number of live sites.
-     *
-     * @return the current number of live sites, may be null
-     */
-    public Optional<Integer> getCurrentLiveSites() {
-        return Optional.ofNullable(currentLiveSites);
-    }
+  /**
+   * Gets the current number of live sites.
+   *
+   * @return the current number of live sites, may be null
+   */
+  public Optional<Integer> getCurrentLiveSites() {
+    return Optional.ofNullable(currentLiveSites);
+  }
 
-    /**
-     * Sets the current number of live sites.
-     *
-     * @param currentLiveSites the number of live sites
-     */
-    public void setCurrentLiveSites(Integer currentLiveSites) {
-        this.currentLiveSites = currentLiveSites;
-    }
+  /**
+   * Sets the current number of live sites.
+   *
+   * @param currentLiveSites the number of live sites
+   */
+  public void setCurrentLiveSites(Integer currentLiveSites) {
+    this.currentLiveSites = currentLiveSites;
+  }
 }

@@ -30,11 +30,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This exit will remove all control characters from all fields in
- * a content editor. These characters are illegal in XML and will
- * cause an exception if they are left in. This exit is added to the
- * modify command handler in the ContentEditorSystemDef as an input data
- * exit.
+ * This exit will remove all control characters from all fields in a content editor. These
+ * characters are illegal in XML and will cause an exception if they are left in. This exit is added
+ * to the modify command handler in the ContentEditorSystemDef as an input data exit.
  */
 public class PSRemoveControlChars implements IPSRequestPreProcessor {
 
@@ -67,10 +65,8 @@ public class PSRemoveControlChars implements IPSRequestPreProcessor {
   /**
    * Removes control characters from the specified string
    *
-   * @param s the string to be filtered, may be <code>null</code>
-   * or empty.
-   * @return the string with all control characters removed. May be
-   * <code>null</code> or empty.
+   * @param s the string to be filtered, may be <code>null</code> or empty.
+   * @return the string with all control characters removed. May be <code>null</code> or empty.
    */
   private String removeControlChars(String s) {
     boolean isModified = false;

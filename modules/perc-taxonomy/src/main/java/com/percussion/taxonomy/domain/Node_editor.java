@@ -17,10 +17,7 @@
 
 package com.percussion.taxonomy.domain;
 
-/**
- * Taxonomy Node_editor class to represent information of taxon editors.
- *
- */
+/** Taxonomy Node_editor class to represent information of taxon editors. */
 public class Node_editor {
 
   private int id;
@@ -29,6 +26,7 @@ public class Node_editor {
 
   /**
    * Returns unique id of node editor
+   *
    * @return id - unique int node editor id
    */
   public int getId() {
@@ -37,6 +35,7 @@ public class Node_editor {
 
   /**
    * Set id of node ediot
+   *
    * @param id - int unique id of node editor
    */
   public void setId(int id) {
@@ -45,6 +44,7 @@ public class Node_editor {
 
   /**
    * Returns node object
+   *
    * @return node - Node object
    */
   public Node getNode() {
@@ -53,6 +53,7 @@ public class Node_editor {
 
   /**
    * Set node
+   *
    * @param node
    */
   public void setNode(Node node) {
@@ -61,6 +62,7 @@ public class Node_editor {
 
   /**
    * Returns role of node editor
+   *
    * @return - String role of node editor
    */
   public String getRole() {
@@ -69,6 +71,7 @@ public class Node_editor {
 
   /**
    * Set node editor's role
+   *
    * @param role - String role of node editor
    */
   public void setRole(String role) {

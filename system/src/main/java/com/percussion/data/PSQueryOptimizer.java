@@ -57,93 +57,80 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSQueryOptimizer class is used internally by the E2 server to
- * determine the best execution plan for a query. This is critical when
- * dealing with queries extracting data from heterogenous data stores.
- * When this is the case, significant improvements in performance can be
- * realized by choosing a good execution plan.
- * <p>
- * In addition to query generation, the optimizer defines how the data will
- * be joined. This is then used by the Query Joiner (PSQueryJoiner).
- * <p>
- * The optimizer also uses any row filters defined for the query pipe(s).
- * Row filters can often be built into the query, which can improve
- * performance for the query.
- * <p>
- * The final step is to add any data set exits to the execution plan. Data
- * set exits are always fired last, after all data from the queries has been
- * merged into a single result set.
+ * The PSQueryOptimizer class is used internally by the E2 server to determine the best execution
+ * plan for a query. This is critical when dealing with queries extracting data from heterogenous
+ * data stores. When this is the case, significant improvements in performance can be realized by
+ * choosing a good execution plan.
  *
- * @see       PSQueryJoiner
+ * <p>In addition to query generation, the optimizer defines how the data will be joined. This is
+ * then used by the Query Joiner (PSQueryJoiner).
  *
- * @author      Tas Giakouminakis
- * @version        1.0
- * @since      1.0
+ * <p>The optimizer also uses any row filters defined for the query pipe(s). Row filters can often
+ * be built into the query, which can improve performance for the query.
+ *
+ * <p>The final step is to add any data set exits to the execution plan. Data set exits are always
+ * fired last, after all data from the queries has been merged into a single result set.
+ *
+ * @see PSQueryJoiner
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSQueryOptimizer extends PSOptimizer {
 
   /**
-   * Generate an execution plan for the given data set. This determines
-   * what queries must be executed, exits fired and data joined to
-   * produce the desired results.
-   * <p>
-   * The following steps are performed to create the execution plan:
+   * Generate an execution plan for the given data set. This determines what queries must be
+   * executed, exits fired and data joined to produce the desired results.
+   *
+   * <p>The following steps are performed to create the execution plan:
+   *
    * <ol>
-   * <li>for each pipe defined in the data set:
-   *    <ol>
-   *    <li>if the pipe is not a PSQueryPipe instance, skip it</li>
-   *    <li>for Phase I, error if more than one query pipe was defined</li>
-   *    <li>get the PSDataSelector for the pipe</li>
-   *    <li>if a native statement is being used:
+   *   <li>for each pipe defined in the data set:
    *       <ol>
-   *       <li>parse it for placeholders (:fieldname)</li>
-   *       <li>build the PSQueryStatement object for this statement</li>
-   *       </ol></li>
-   *    <li>else (builder is being used):
-   *       <ol>
-   *       <li>single table being used:
-   *          <ol>
-   *          <li>build the SELECT list from the PSDataMapper column
-   *          list</li>
-   *          <li>build the FROM using this table name</li>
-   *          <li>build the WHERE clause from the PSWhereClause objects</li>
-   *          <li>if rowFilter exits are defined on this table which can
-   *          be used in the WHERE clause, add them to it</li>
-   *          <li>build the PSQueryStatement object for this statement</li>
-   *          </ol></li>
-   *       <li>multiple tables being used:
-   *          <ol>
-   *          <li>verify PSBackEndJoin objects are defined joining all
-   *          tables</li>
-   *          <li>for all tables defined in the same database, check if
-   *          joins are supported by the DBMS</li>
-   *          <li>if homogeneous joins are supported, create a joined
-   *          statement to issue against the back-end</li>
-   *          <li>if not, create statements for each table and
-   *          PSQueryJoiner objects to have E2 perform the joins</li>
-   *          </ol></li>
-   *       </ol></li>
-   *    </ol></li>
-   * <li>add any exits which were not incorporated into statements to the
-   *     execution plan</li>
+   *         <li>if the pipe is not a PSQueryPipe instance, skip it
+   *         <li>for Phase I, error if more than one query pipe was defined
+   *         <li>get the PSDataSelector for the pipe
+   *         <li>if a native statement is being used:
+   *             <ol>
+   *               <li>parse it for placeholders (:fieldname)
+   *               <li>build the PSQueryStatement object for this statement
+   *             </ol>
+   *         <li>else (builder is being used):
+   *             <ol>
+   *               <li>single table being used:
+   *                   <ol>
+   *                     <li>build the SELECT list from the PSDataMapper column list
+   *                     <li>build the FROM using this table name
+   *                     <li>build the WHERE clause from the PSWhereClause objects
+   *                     <li>if rowFilter exits are defined on this table which can be used in the
+   *                         WHERE clause, add them to it
+   *                     <li>build the PSQueryStatement object for this statement
+   *                   </ol>
+   *               <li>multiple tables being used:
+   *                   <ol>
+   *                     <li>verify PSBackEndJoin objects are defined joining all tables
+   *                     <li>for all tables defined in the same database, check if joins are
+   *                         supported by the DBMS
+   *                     <li>if homogeneous joins are supported, create a joined statement to issue
+   *                         against the back-end
+   *                     <li>if not, create statements for each table and PSQueryJoiner objects to
+   *                         have E2 perform the joins
+   *                   </ol>
+   *             </ol>
+   *       </ol>
+   *   <li>add any exits which were not incorporated into statements to the execution plan
    * </ol>
    *
-   * <p>
-   * <EM>Implementation Note:</EM> For Phase I, only a single query pipe
-   * referring to a single table will be supported. To perform more
-   * complex actions, a native statement must be used. It is also worth
-   * noting that optimizations, such as index analysis, will not be done
-   * in initial versions.
+   * <p><EM>Implementation Note:</EM> For Phase I, only a single query pipe referring to a single
+   * table will be supported. To perform more complex actions, a native statement must be used. It
+   * is also worth noting that optimizations, such as index analysis, will not be done in initial
+   * versions.
    *
-   * @param       ah     the application handler for this request
-   *
-   * @param    ds    the data set for which to generate an execution plan
-   *
-   * @return IPSExecutionStep[]  the array of execution steps in the execution plan
-   *
-   * @exception    SQLException
-   *                      if a SQL error occurs
+   * @param ah the application handler for this request
+   * @param ds the data set for which to generate an execution plan
+   * @return IPSExecutionStep[] the array of execution steps in the execution plan
+   * @exception SQLException if a SQL error occurs
    */
   public static IPSExecutionStep[] createExecutionPlan(PSApplicationHandler ah, PSDataSet ds)
       throws java.sql.SQLException, PSNotFoundException, PSExtensionException {
@@ -176,10 +163,7 @@ public class PSQueryOptimizer extends PSOptimizer {
     return buildExecutionPlan(ah, ds, (PSQueryPipe) pipe);
   }
 
-  /**
-   * Private utility method to analyze the pipe and build
-   * an execution plan appropriate to them.
-   */
+  /** Private utility method to analyze the pipe and build an execution plan appropriate to them. */
   private static IPSExecutionStep[] buildExecutionPlan(
       PSApplicationHandler ah, PSDataSet ds, PSQueryPipe pipe)
       throws java.sql.SQLException, PSNotFoundException, PSExtensionException {
@@ -250,37 +234,22 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * Create the SQL SELECT statements from the specified components.
-   * This includes single table, homogeneous joins
-   * and heterogeneous joins.
+   * Create the SQL SELECT statements from the specified components. This includes single table,
+   * homogeneous joins and heterogeneous joins.
    *
-   * @param ah the application handler this statement is being built for,
-   * assumed not <code>null</code>
-   *
-   * @param ds the data set this statement is being built for,
-   * assumed not <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap containing the connection key to use
-   * where the key is opaque and the value is the connection key,
-   * assumed never be <code>null</code>
-   *
-   * @param logins a list of logins, the indices into which can be
-   * derived from the connKeys hash, assumed never <code>null</code>
-   *
-   * @param backEnds the back end(s) to get data from,
-   * assumed not <code>null</code>
-   *
-   * @param cols the back-end columns to retrieve,
-   * assumed not <code>null</code>
-   *
-   * @param sel the data selector to use,
-   * assumed not <code>null</code>
-   *
-   * @return {@link IPSExecutionStep}[] the prepared statement or statements,
-   * never <code>null</code>
-   *
-   * @exception SQLException if the SQL statement is not grammatically
-   * correct
+   * @param ah the application handler this statement is being built for, assumed not <code>null
+   *     </code>
+   * @param ds the data set this statement is being built for, assumed not <code>null</code>
+   * @param connKeys a ConcurrentHashMap containing the connection key to use where the key is
+   *     opaque and the value is the connection key, assumed never be <code>null</code>
+   * @param logins a list of logins, the indices into which can be derived from the connKeys hash,
+   *     assumed never <code>null</code>
+   * @param backEnds the back end(s) to get data from, assumed not <code>null</code>
+   * @param cols the back-end columns to retrieve, assumed not <code>null</code>
+   * @param sel the data selector to use, assumed not <code>null</code>
+   * @return {@link IPSExecutionStep}[] the prepared statement or statements, never <code>null
+   *     </code>
+   * @exception SQLException if the SQL statement is not grammatically correct
    */
   private static IPSExecutionStep[] createStatements(
       PSApplicationHandler ah,
@@ -412,13 +381,11 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * If the specified parameters contain replacement values for backend
-   * columns, then adds the columns to the select statement using the query
-   * builder.
+   * If the specified parameters contain replacement values for backend columns, then adds the
+   * columns to the select statement using the query builder.
    *
-   * @param params parameters containing replacement values, assumed not
-   * <code>null</code>, may be empty
-   *
+   * @param params parameters containing replacement values, assumed not <code>null</code>, may be
+   *     empty
    * @param builder query builder, assumed not <code>null</code>
    */
   private static void addParamValuesColumns(
@@ -431,42 +398,23 @@ public class PSQueryOptimizer extends PSOptimizer {
 
   /**
    * @author chadloder
-   *
-   * Create a select plan for a join. This may be homogenous
-   * (across multiple tables in back-ends on the same DBMS) or
-   * heterogenous (across multiple tables in back-ends on the different
-   * DBMSs).
-   * <P>
-   * The select plan will consist of an optimized list of execution steps
-   * that will complete the join.
-   *
-   * @param    ah  The application handler,
-   * assumed not <code>null</code>
-   *
-   * @param   logins   A list of PSBackEndLogins, the indices into
-   * which can be derived from <CODE>connKeys</CODE>,
-   * assumed not <code>null</code>
-   *
-   * @param   connKeys   A hash from opaque keys to Integer objects,
-   * the values of which are the indices into <CODE>logins</CODE>
-   * for that driver and server, assumed not <code>null</code>
-   *
-   * @param    backEnds    The back ends involved in the join,
-   * assumed not <code>null</code>
-   *
-   * @param    beTables    The tables involved in the join,
-   * assumed not <code>null</code>
-   *
-   * @param    cols    The columns we're interested in (the projected
-   * columns, not necessarily the same columns we use in the selects),
-   * assumed not <code>null</code>
-   *
-   * @param    sel The data selector containing the selection
-   * criteria for the columns,
-   * assumed not <code>null</code>
-   *
-   * @return an array of {@link IPSExecutionStep} that is never
-   * <code>null</code>
+   *     <p>Create a select plan for a join. This may be homogenous (across multiple tables in
+   *     back-ends on the same DBMS) or heterogenous (across multiple tables in back-ends on the
+   *     different DBMSs).
+   *     <p>The select plan will consist of an optimized list of execution steps that will complete
+   *     the join.
+   * @param ah The application handler, assumed not <code>null</code>
+   * @param logins A list of PSBackEndLogins, the indices into which can be derived from <CODE>
+   *     connKeys</CODE>, assumed not <code>null</code>
+   * @param connKeys A hash from opaque keys to Integer objects, the values of which are the indices
+   *     into <CODE>logins</CODE> for that driver and server, assumed not <code>null</code>
+   * @param backEnds The back ends involved in the join, assumed not <code>null</code>
+   * @param beTables The tables involved in the join, assumed not <code>null</code>
+   * @param cols The columns we're interested in (the projected columns, not necessarily the same
+   *     columns we use in the selects), assumed not <code>null</code>
+   * @param sel The data selector containing the selection criteria for the columns, assumed not
+   *     <code>null</code>
+   * @return an array of {@link IPSExecutionStep} that is never <code>null</code>
    */
   private static IPSExecutionStep[] createJoinPlan(
       PSApplicationHandler ah,
@@ -841,15 +789,11 @@ public class PSQueryOptimizer extends PSOptimizer {
   /**
    * Adds the specified backend column to the SELECT column list.
    *
-   * @param curCol the backend column to add to the SELECT column list,
-   * assumed not <code>null</code>
-   *
-   * @param taken a map from column name/alias to table, assumed not
-   * <code>null</code>
-   *
-   * @param builderMaps map containing the back end table
-   * (<code>PSBackEndTable</code>) as key and sql query builder
-   * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
+   * @param curCol the backend column to add to the SELECT column list, assumed not <code>null
+   *     </code>
+   * @param taken a map from column name/alias to table, assumed not <code>null</code>
+   * @param builderMaps map containing the back end table (<code>PSBackEndTable</code>) as key and
+   *     sql query builder (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
    */
   private static void addSelectColumn(
       PSBackEndColumn curCol,
@@ -868,19 +812,14 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * Adds all the backend column specified as a parameter of the specified
-   * function call <code>fnCall</code> to the SELECT column list.
+   * Adds all the backend column specified as a parameter of the specified function call <code>
+   * fnCall</code> to the SELECT column list.
    *
-   * @param fnCall the function call which contains backend columns as its
-   * parameter which should be added to the SELECT column list,
-   * assumed not <code>null</code>
-   *
-   * @param taken a map from column name/alias to table, assumed not
-   * <code>null</code>
-   *
-   * @param builderMaps map containing the back end table
-   * (<code>PSBackEndTable</code>) as key and sql query builder
-   * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
+   * @param fnCall the function call which contains backend columns as its parameter which should be
+   *     added to the SELECT column list, assumed not <code>null</code>
+   * @param taken a map from column name/alias to table, assumed not <code>null</code>
+   * @param builderMaps map containing the back end table (<code>PSBackEndTable</code>) as key and
+   *     sql query builder (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
    */
   private static void addSelectColumn(
       PSFunctionCall fnCall,
@@ -897,19 +836,14 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * Adds all the backend column specified as a parameter of the specified
-   * extension call <code>extCall</code> to the SELECT column list.
+   * Adds all the backend column specified as a parameter of the specified extension call <code>
+   * extCall</code> to the SELECT column list.
    *
-   * @param extCall the extension call which contains backend columns as its
-   * parameter which should be added to the SELECT column list,
-   * assumed not <code>null</code>
-   *
-   * @param taken a map from column name/alias to table, assumed not
-   * <code>null</code>
-   *
-   * @param builderMaps map containing the back end table
-   * (<code>PSBackEndTable</code>) as key and sql query builder
-   * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
+   * @param extCall the extension call which contains backend columns as its parameter which should
+   *     be added to the SELECT column list, assumed not <code>null</code>
+   * @param taken a map from column name/alias to table, assumed not <code>null</code>
+   * @param builderMaps map containing the back end table (<code>PSBackEndTable</code>) as key and
+   *     sql query builder (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
    */
   private static void addSelectColumn(
       PSExtensionCall extCall,
@@ -925,15 +859,13 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * Finds a unique alias for the column among the other aliases
-   * contained in the map, and sets the column's alias to the
-   * unique value. The first alias tried will always be the column's
-   * set alias (if defined) or the column's name itself.
+   * Finds a unique alias for the column among the other aliases contained in the map, and sets the
+   * column's alias to the unique value. The first alias tried will always be the column's set alias
+   * (if defined) or the column's name itself.
    *
    * @version 1.34 1999/09/03
-   *
-   * @param   col
-   * @param   taken
+   * @param col
+   * @param taken
    */
   private static void uniquifyAlias(PSBackEndColumn col, HashMap<String, PSBackEndTable> taken) {
     if (col.getAlias() == null || col.getAlias().length() == 0) {
@@ -1025,60 +957,46 @@ public class PSQueryOptimizer extends PSOptimizer {
   /**
    * Decides whether an index lookup would be optimal for this join.
    *
-   * An indexed lookup works like this:
-   * For each outer row, the join selects values and forms a key to search
-   * in the inner join.
+   * <p>An indexed lookup works like this: For each outer row, the join selects values and forms a
+   * key to search in the inner join.
    *
-   * STRATEGY:
-   *  1) If the query will return all of the data from the
-   *  right relation, then even a simple table scan would be better than using
-   *  indexed lookup. Therefore, return false. This rule eliminates
-   *  full outer joins and right outer joins.
+   * <p>STRATEGY: 1) If the query will return all of the data from the right relation, then even a
+   * simple table scan would be better than using indexed lookup. Therefore, return false. This rule
+   * eliminates full outer joins and right outer joins.
    *
-   *  2) If the right side does not have an index, then doing an index lookup
-   *  would be impossible.
+   * <p>2) If the right side does not have an index, then doing an index lookup would be impossible.
    *
-   *  3) If the join operator is not bounded, then an index would not help
-   *  lookup. Only bounded operators (such as =, <, >, <=, and >=) allow the
-   *  back end to make use of indices.
+   * <p>3) If the join operator is not bounded, then an index would not help lookup. Only bounded
+   * operators (such as =, <, >, <=, and >=) allow the back end to make use of indices.
    *
-   *  Since we are only supporting equi-joins for now, this condition will
-   *  always be satisfied. This is because almost all index structures (like
-   *  B-trees) can facilitate retrieving ranges of information, but can't
-   *  help with LIKE, most negated conditions (including !=), any conditions
-   *  involving a transformed indexed column (e.g., where upper(name)='JOHN';
-   *  this includes converting from one SQL type to another), and any
-   *  conditions using a IS NULL or IS NOT NULL on the indexed column.
+   * <p>Since we are only supporting equi-joins for now, this condition will always be satisfied.
+   * This is because almost all index structures (like B-trees) can facilitate retrieving ranges of
+   * information, but can't help with LIKE, most negated conditions (including !=), any conditions
+   * involving a transformed indexed column (e.g., where upper(name)='JOHN'; this includes
+   * converting from one SQL type to another), and any conditions using a IS NULL or IS NOT NULL on
+   * the indexed column.
    *
-   *  4) As an extension to Rule 2: If the lookups are likely to retrieve a
-   *  "significant" fraction of the rows in the right relation (such that
-   *  the overhead of multiple queries plus the cost of accessing the
-   *  right relation indirectly via the index outweighs the cost of
-   *  retrieving the entire right relation and weeding it out), then return
-   *  false. This depends on the costs of network traffic (the cost of
-   *  sending many queries, the cost of sending unneeded data from the
-   *  right relation { can we estimate the percent of wasted data ? },
-   *  and the resources it takes the E2 server to do the joining. To do
-   *  this better, we might want to dynamically tweak the relative costs of
-   *  all these resources.
+   * <p>4) As an extension to Rule 2: If the lookups are likely to retrieve a "significant" fraction
+   * of the rows in the right relation (such that the overhead of multiple queries plus the cost of
+   * accessing the right relation indirectly via the index outweighs the cost of retrieving the
+   * entire right relation and weeding it out), then return false. This depends on the costs of
+   * network traffic (the cost of sending many queries, the cost of sending unneeded data from the
+   * right relation { can we estimate the percent of wasted data ? }, and the resources it takes the
+   * E2 server to do the joining. To do this better, we might want to dynamically tweak the relative
+   * costs of all these resources.
    *
-   *  5) If there are no indices on the right column by itself, but
-   *  there is a concatenated index of which the right column is a
-   *  member, then we can only use that index if we can supply values
-   *  from the left relation (or somewhere else) for all of the columns of
-   *  the concatenated index leading up to the right column. Since here we
-   *  are looking only at one column from each table, this test collapses into
-   *  testing that if we have a concatenated index of which the right
-   *  column is a member, the right column has to be the leading (i.e.,
-   *  most significant) member of that index for that index to be useable.
+   * <p>5) If there are no indices on the right column by itself, but there is a concatenated index
+   * of which the right column is a member, then we can only use that index if we can supply values
+   * from the left relation (or somewhere else) for all of the columns of the concatenated index
+   * leading up to the right column. Since here we are looking only at one column from each table,
+   * this test collapses into testing that if we have a concatenated index of which the right column
+   * is a member, the right column has to be the leading (i.e., most significant) member of that
+   * index for that index to be useable.
    *
-   * @return true if an indexed lookup from the left table into the right
-   * table would be optimal.
-   *
-   * TODO: For inner joins, allow swapping of the left and right relations
-   * to yield an equivalent join with the smaller relation on the left,
-   * (providing the right column is still indexed). Then re-evaluate the
-   * optimality (with a recursive call?).
+   * @return true if an indexed lookup from the left table into the right table would be optimal.
+   *     <p>TODO: For inner joins, allow swapping of the left and right relations to yield an
+   *     equivalent join with the smaller relation on the left, (providing the right column is still
+   *     indexed). Then re-evaluate the optimality (with a recursive call?).
    */
   private static boolean isIndexedLookupOptimal(
       PSApplicationHandler ah,
@@ -1297,23 +1215,15 @@ public class PSQueryOptimizer extends PSOptimizer {
 
   /**
    * @author chadloder
-   *
-   * Estimates the cardinality of a join, given the table statistics for
-   * the left and right tables of that join. The estimation heuristics
-   * are derived from "Database System Concepts", Korth et al., 2nd ed.,
-   * Chapter 9.3.
-   *
-   * @param   join   The join whose cardinality is to be estimated
-   *
-   * @param   leftStats   The statistics for the left
-   *
-   * @param   rightStats   The statistics for the right table
-   *
-   * @return int The estimated cardinality (number of rows) of the join, or
-   * -1 if the cardinality could not be estimated.
-   *
+   *     <p>Estimates the cardinality of a join, given the table statistics for the left and right
+   *     tables of that join. The estimation heuristics are derived from "Database System Concepts",
+   *     Korth et al., 2nd ed., Chapter 9.3.
+   * @param join The join whose cardinality is to be estimated
+   * @param leftStats The statistics for the left
+   * @param rightStats The statistics for the right table
+   * @return int The estimated cardinality (number of rows) of the join, or -1 if the cardinality
+   *     could not be estimated.
    * @since 1.10 1999/4/29
-   *
    */
   private static int estimateJoinCardinality(
       PSApplicationHandler ah,
@@ -1421,27 +1331,16 @@ public class PSQueryOptimizer extends PSOptimizer {
 
   /**
    * @author chadloder
-   *
-   * Estimates the selectivity for the given table under the given select
-   * statements. The selectivity is defined as the fraction of rows from
-   * a relation that will be selected under the where conditions which
-   * affect this column. Multiply a selectivity by a cardinality to get
-   * the number of rows that will be selected from the relation under
-   * the selection.
-   *
-   * @param   tab   The table whose selectivity is to be evaluated under
-   * the where clauses.
-   *
-   * @param   whereClauses   The where clauses. All where clauses not
-   * related to columns in this table will be ignored.
-   *
-   * @param   stats   The table statistics for the given table.
-   *
-   * @return double The estimated selectivity, or -1.0 if the
-   * selectivity could not be determined.
-   *
+   *     <p>Estimates the selectivity for the given table under the given select statements. The
+   *     selectivity is defined as the fraction of rows from a relation that will be selected under
+   *     the where conditions which affect this column. Multiply a selectivity by a cardinality to
+   *     get the number of rows that will be selected from the relation under the selection.
+   * @param tab The table whose selectivity is to be evaluated under the where clauses.
+   * @param whereClauses The where clauses. All where clauses not related to columns in this table
+   *     will be ignored.
+   * @param stats The table statistics for the given table.
+   * @return double The estimated selectivity, or -1.0 if the selectivity could not be determined.
    * @since 1.10 1999/4/29
-   *
    */
   private static double estimateJoinedSelectivity(
       PSApplicationHandler ah,
@@ -1544,17 +1443,13 @@ public class PSQueryOptimizer extends PSOptimizer {
   }
 
   /**
-   * Get the collapsable columns associated with this DTD. Collapsable
-   * columns are defined as columns which do not repeat. This is used
-   * primarily to determine if columns must be sorted.
+   * Get the collapsable columns associated with this DTD. Collapsable columns are defined as
+   * columns which do not repeat. This is used primarily to determine if columns must be sorted.
    *
-   * @param   ah      the application handler containing the DTD definition,
-   * never <code>null</code>
-   *
-   * @param   ds      the data set containing the DTD definition and
-   *                  data mappings to check, never <code>null</code>
-   *
-   * @return   an array of back-end column objects to collapse on
+   * @param ah the application handler containing the DTD definition, never <code>null</code>
+   * @param ds the data set containing the DTD definition and data mappings to check, never <code>
+   *     null</code>
+   * @return an array of back-end column objects to collapse on
    */
   public static PSCollection getSortColumnsForXmlCollapsing(PSApplicationHandler ah, PSDataSet ds) {
     if (ah == null) {
@@ -1661,10 +1556,9 @@ public class PSQueryOptimizer extends PSOptimizer {
   /**
    * Verify the joins are properly defined.
    *
-   *  - make sure a join exists for each table
-   *  - make sure all tables are joined through those joins
-   *      eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we
-   *            need table a or b to join with table c or d
+   * <p>- make sure a join exists for each table - make sure all tables are joined through those
+   * joins eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we need table a or b to join with table
+   * c or d
    */
   static PSJoinTree validateJoins(PSCollection tables, PSCollection joins) {
     // convert the collections so we call just one method
@@ -1678,10 +1572,9 @@ public class PSQueryOptimizer extends PSOptimizer {
   /**
    * Verify the joins are properly defined.
    *
-   *  - make sure a join exists for each table
-   *  - make sure all tables are joined through those joins
-   *      eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we
-   *            need table a or b to join with table c or d
+   * <p>- make sure a join exists for each table - make sure all tables are joined through those
+   * joins eg: a.c1 = b.c1 AND c.c1 = d.c1 is not enough as we need table a or b to join with table
+   * c or d
    */
   static PSJoinTree validateJoins(java.util.List tables, java.util.List joins) {
     // if there's 0 or 1 tables, we clearly have no join issues

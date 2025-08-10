@@ -36,6 +36,7 @@ public class PSStopwatchStackTest {
 
   /**
    * Single level test to see that things are working correctly
+   *
    * @throws Exception
    */
   @Test
@@ -62,6 +63,7 @@ public class PSStopwatchStackTest {
 
   /**
    * Check that the timings are working
+   *
    * @throws Exception
    */
   @Test
@@ -83,8 +85,7 @@ public class PSStopwatchStackTest {
   }
 
   /**
-   * Use a predictable sequence to obtain overhead information for running the
-   * stopwatch stack
+   * Use a predictable sequence to obtain overhead information for running the stopwatch stack
    *
    * @throws Exception
    */
@@ -148,6 +149,7 @@ public class PSStopwatchStackTest {
 
   /**
    * Fails a test if the time numbers are close enough.
+   *
    * @param timing the expected data.
    * @param testdata the data to compare to the expected data.
    */

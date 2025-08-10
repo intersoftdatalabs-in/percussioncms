@@ -23,20 +23,15 @@ import com.percussion.error.PSException;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
 
-/**
- * Macro extractor to get the last public revision for the item of the
- * current request.
- */
+/** Macro extractor to get the last public revision for the item of the current request. */
 public class PSLastPublicRevisionExtractor implements IPSMacroExtractor {
   /**
-   * This macro extractor extracts the last public revision or the current
-   * item supplied with the execution data as HTML parameter or backend column.
-   * The last public revision is determined through the item history and
-   * returned as a <code>String</code>. -1 will be returned if no public
-   * revision was found.
+   * This macro extractor extracts the last public revision or the current item supplied with the
+   * execution data as HTML parameter or backend column. The last public revision is determined
+   * through the item history and returned as a <code>String</code>. -1 will be returned if no
+   * public revision was found.
    *
-   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter
-   *    details.
+   * @see {@link IPSMacroExtractor.extract(PSExecutionData)} for parameter details.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     try {

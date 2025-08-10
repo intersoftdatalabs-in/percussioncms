@@ -28,24 +28,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The PSStateRolesContext class is a wrapper class providing
- * access to the records and fields of the backend tables
- * 'STATEROLES' and the state name from the 'ROLES' table.
+ * The PSStateRolesContext class is a wrapper class providing access to the records and fields of
+ * the backend tables 'STATEROLES' and the state name from the 'ROLES' table.
  */
 @Deprecated // TODO: This entire class needs refactored to use hibernate / spring
 public class PSStateRolesContext implements IPSStateRolesContext {
   /**
-   * Constructor specifying connection, state ID, workflow ID and minimum
-   * assignment type.
+   * Constructor specifying connection, state ID, workflow ID and minimum assignment type.
    *
-   * @param workFlowID      ID of the workflow
-   * @param connection      database connection
-   * @param stateID         ID of the state
-   * @param assignmentType  minimum assignment type
-   * @throws                SQLException if an SQL error occurs
-   * @throws                PSRoleException if an error occurs
-   * @throws                PSEntryNotFoundException if no records
-   *                        were returned corresponding to this set of data.
+   * @param workFlowID ID of the workflow
+   * @param connection database connection
+   * @param stateID ID of the state
+   * @param assignmentType minimum assignment type
+   * @throws SQLException if an SQL error occurs
+   * @throws PSRoleException if an error occurs
+   * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
    */
   public PSStateRolesContext(int workFlowID, Connection connection, int stateID, int assignmentType)
       throws SQLException, PSRoleException, PSEntryNotFoundException {
@@ -97,14 +94,10 @@ public class PSStateRolesContext implements IPSStateRolesContext {
   }
 
   /**
-   * Moves the cursor to next record in the result set and updates the current
-   * column values.
+   * Moves the cursor to next record in the result set and updates the current column values.
    *
-   * @return <CODE>true</CODE> if another record is read else
-   *  <CODE>false</CODE>
-   *
+   * @return <CODE>true</CODE> if another record is read else <CODE>false</CODE>
    * @throws SQLException On SQL error
-   *
    */
   private boolean moveNext() throws SQLException {
     boolean bSuccess = rs.next();
@@ -121,9 +114,7 @@ public class PSStateRolesContext implements IPSStateRolesContext {
     return bSuccess;
   }
 
-  /**
-   * Closes the result set and statement if necessary
-   */
+  /** Closes the result set and statement if necessary */
   @Deprecated
   private void close() {
     // release resources
@@ -279,111 +270,85 @@ public class PSStateRolesContext implements IPSStateRolesContext {
   int m_nCount = 0;
 
   /**
-   * Assignment type at the current cursor position - updated every time
-   * moveNext() is called, valid values are
+   * Assignment type at the current cursor position - updated every time moveNext() is called, valid
+   * values are
+   *
    * <ul>
-   * <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE</CODE></li>
-   * <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_READER</CODE></li>
-   * <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE</CODE></li>
-   * <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN</CODE></li>
+   *   <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE</CODE>
+   *   <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_READER</CODE>
+   *   <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_ASSIGNEE</CODE>
+   *   <li><CODE>PSWorkFlowUtils.ASSIGNMENT_TYPE_ADMIN</CODE>
    * </ul>
    */
   int m_nAssignmentType = 0;
 
   /**
-   * Adhoc type at the current cursor position - updated every time
-   * moveNext() is called, valid values are
+   * Adhoc type at the current cursor position - updated every time moveNext() is called, valid
+   * values are
+   *
    * <ul>
-   * <CODE>PSWorkFlowUtils.ADHOC_ENABLED</CODE>,
-   * <CODE>PSWorkFlowUtils.ADHOC_ANONYMOUS</CODE> and
-   * <CODE>PSWorkFlowUtils.ADHOC_DISABLED</CODE>
+   *   <CODE>PSWorkFlowUtils.ADHOC_ENABLED</CODE>, <CODE>PSWorkFlowUtils.ADHOC_ANONYMOUS</CODE> and
+   *   <CODE>PSWorkFlowUtils.ADHOC_DISABLED</CODE>
    */
   int m_nAdhocType = 0;
 
-  /**
-   * RoleID at the current cursor position - updated every time
-   * moveNext().  is called.
-   */
+  /** RoleID at the current cursor position - updated every time moveNext(). is called. */
   int m_nStateRoleID = 0;
 
-  /**
-   * Name of role at the current cursor position - updated every time
-   * moveNext().  is called.
-   */
+  /** Name of role at the current cursor position - updated every time moveNext(). is called. */
   String m_sStateRoleName = "";
 
   /**
-   * <CODE>true</CODE> if notification is on, for the role at the current
-   * cursor position else <CODE>false</CODE>. Updated every time
-   * moveNext()  is called.
+   * <CODE>true</CODE> if notification is on, for the role at the current cursor position else
+   * <CODE>false</CODE>. Updated every time moveNext() is called.
    */
   boolean m_bNotifyOn = false;
 
-  /**
-   * List of all state role IDs
-   */
+  /** List of all state role IDs */
   private List<Integer> m_StateRoleIDs = new ArrayList<>();
 
-  /**
-   * List of all state role Names
-   */
+  /** List of all state role Names */
   private List<String> m_StateRoleNames = new ArrayList<>();
 
-  /**
-   * List of non adhoc state role IDs
-   */
+  /** List of non adhoc state role IDs */
   private List<Integer> m_nonAdhocStateRoleIDs = new ArrayList<>();
 
-  /**
-   * List of adhoc normal state role IDs
-   */
+  /** List of adhoc normal state role IDs */
   private List<Integer> m_adhocNormalStateRoleIDs = new ArrayList<>();
 
-  /**
-   * List of adhoc anonymous state role IDs
-   */
+  /** List of adhoc anonymous state role IDs */
   private List<Integer> m_adhocAnonymousStateRoleIDs = new ArrayList<>();
 
   /**
-   * Map with role ID as key and value = assignment type, which can take
-   * values defined in  {@link PSWorkFlowUtils}
+   * Map with role ID as key and value = assignment type, which can take values defined in {@link
+   * PSWorkFlowUtils}
+   *
    * <ul>
-   * <li><CODE>ASSIGNMENT_TYPE_NOT_IN_WORKFLOW</CODE></li>
-   * <li><CODE>ASSIGNMENT_TYPE_NONE</CODE></li>
-   * <li><CODE>ASSIGNMENT_TYPE_READER</CODE></li>
-   * <li><CODE>ASSIGNMENT_TYPE_ASSIGNEE</CODE></li>
-   * <li><CODE>ASSIGNMENT_TYPE_ADMIN</CODE></li>
+   *   <li><CODE>ASSIGNMENT_TYPE_NOT_IN_WORKFLOW</CODE>
+   *   <li><CODE>ASSIGNMENT_TYPE_NONE</CODE>
+   *   <li><CODE>ASSIGNMENT_TYPE_READER</CODE>
+   *   <li><CODE>ASSIGNMENT_TYPE_ASSIGNEE</CODE>
+   *   <li><CODE>ASSIGNMENT_TYPE_ADMIN</CODE>
    * </ul>
    */
   private Map<Integer, Integer> m_stateRoleAssignmentTypeMap = new HashMap<>();
 
-  /**
-   * Map with role ID as key and value = role name
-   */
+  /** Map with role ID as key and value = role name */
   private Map<Integer, String> m_stateRoleNameMap = new HashMap<>();
 
   /**
-   * Map with role ID as key and value <CODE>true</CODE> if notification
-   * for the role is on, else <CODE>false</CODE>
+   * Map with role ID as key and value <CODE>true</CODE> if notification for the role is on, else
+   * <CODE>false</CODE>
    */
   private Map<Integer, Boolean> m_isNotificationOnMap = new HashMap<>();
 
-  /**
-   * Map of role IDs for nonadhoc roles with trimmed lower case role
-   * names as key
-   */
+  /** Map of role IDs for nonadhoc roles with trimmed lower case role names as key */
   private Map<String, Integer> m_nonAdhocStateRoleNameToRoleIDMap = new HashMap<>();
 
-  /**
-   * Map of role IDs for adhoc normal roles with trimmed lower case role
-   * names as key
-   */
+  /** Map of role IDs for adhoc normal roles with trimmed lower case role names as key */
   private Map<String, Integer> m_adhocNormalStateRoleNameToRoleIDMap = new HashMap<>();
 
-  /**
-   * Map of role IDs for all state roles with trimmed lower case role
-   * names as key
-   */
+  /** Map of role IDs for all state roles with trimmed lower case role names as key */
   private Map<String, Integer> m_lowerCaseRoleNameToIDMap = new HashMap<>();
 
   /* String for data base read query */

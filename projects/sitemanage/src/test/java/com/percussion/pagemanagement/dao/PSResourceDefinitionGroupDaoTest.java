@@ -21,83 +21,82 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.dao.impl.PSResourceDefinitionGroupDao;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup;
-import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.share.IPSSitemanageConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 /**
- * Tests for resource definition group DAO.
- * Sunny Sal says: "Resources defined, Bollywood style!"
+ * Tests for resource definition group DAO. Sunny Sal says: "Resources defined, Bollywood style!"
  */
 public class PSResourceDefinitionGroupDaoTest {
 
-    private PSResourceDefinitionGroupDao dao;
+  private PSResourceDefinitionGroupDao dao;
 
-    @BeforeEach
-    public void setup() {
-        dao = new PSResourceDefinitionGroupDao();
-        dao.setRepositoryDirectory("src/test/resources/resourceDefinitions");
-    }
+  @BeforeEach
+  public void setup() {
+    dao = new PSResourceDefinitionGroupDao();
+    dao.setRepositoryDirectory("src/test/resources/resourceDefinitions");
+  }
 
-    @Test
-    public void shouldFindGroup() {
-        var widget = dao.find("percSystem");
-        assertResourceGroup(widget);
-    }
+  @Test
+  public void shouldFindGroup() {
+    var widget = dao.find("percSystem");
+    assertResourceGroup(widget);
+  }
 
-    @Test
-    public void shouldFindResource() {
-        var resource = dao.findResource("percSystem.page");
-        assertNotNull(resource);
+  @Test
+  public void shouldFindResource() {
+    var resource = dao.findResource("percSystem.page");
+    assertNotNull(resource);
 
-        var resourceXml = dao.findResource("percSystem.pageXml");
-        assertNotNull(resourceXml);
-    }
+    var resourceXml = dao.findResource("percSystem.pageXml");
+    assertNotNull(resourceXml);
+  }
 
-    @Test
-    public void shouldFindAllResources() {
-        var resources = dao.findAllResources();
-        assertEquals(7, resources.size());
-    }
+  @Test
+  public void shouldFindAllResources() {
+    var resources = dao.findAllResources();
+    assertEquals(7, resources.size());
+  }
 
-    @Test
-    public void shouldFindDeps() {
-        var resource = dao.findResource("percSystem.blah_css");
-        assertTrue(resource.getDependencies().size() > 0);
-    }
+  @Test
+  public void shouldFindDeps() {
+    var resource = dao.findResource("percSystem.blah_css");
+    assertTrue(resource.getDependencies().size() > 0);
+  }
 
-    @Test
-    public void shouldFindAssetResourceForContentType() {
-        assertNotNull(dao.findAssetResourceForType("percPage"));
-    }
+  @Test
+  public void shouldFindAssetResourceForContentType() {
+    assertNotNull(dao.findAssetResourceForType("percPage"));
+  }
 
-    @Test
-    public void shouldFindAllGroups() {
-        var widgets = dao.findAll();
-        assertEquals(1, widgets.size());
-    }
+  @Test
+  public void shouldFindAllGroups() {
+    var widgets = dao.findAll();
+    assertEquals(1, widgets.size());
+  }
 
-    @Test
-    public void shouldPoll() {
-        dao.poll();
-        dao.poll();
-    }
+  @Test
+  public void shouldPoll() {
+    dao.poll();
+    dao.poll();
+  }
 
-    @Test
-    public void shouldNotSupportDelete() {
-        assertThrows(UnsupportedOperationException.class, () -> dao.delete("fail"));
-    }
+  @Test
+  public void shouldNotSupportDelete() {
+    assertThrows(UnsupportedOperationException.class, () -> dao.delete("fail"));
+  }
 
-    @Test
-    public void shouldNotSupportSave() {
-        assertThrows(UnsupportedOperationException.class, () -> dao.save(new PSResourceDefinitionGroup()));
-    }
+  @Test
+  public void shouldNotSupportSave() {
+    assertThrows(
+        UnsupportedOperationException.class, () -> dao.save(new PSResourceDefinitionGroup()));
+  }
 
-    private void assertResourceGroup(PSResourceDefinitionGroup rdg) {
-        assertEquals(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME, rdg.getAssetResources().get(0).getLegacyTemplate());
-        assertEquals("percPage", rdg.getAssetResources().get(0).getContentType());
-    }
+  private void assertResourceGroup(PSResourceDefinitionGroup rdg) {
+    assertEquals(
+        IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME,
+        rdg.getAssetResources().get(0).getLegacyTemplate());
+    assertEquals("percPage", rdg.getAssetResources().get(0).getContentType());
+  }
 }

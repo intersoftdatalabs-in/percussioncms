@@ -82,6 +82,7 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
 
   /**
    * Parse and load plugins configuration from the supplied doc.
+   *
    * @param configDoc, never <code>null</code>.
    * @throws IOException
    * @throws SAXException
@@ -403,8 +404,9 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
 
   /**
    * Evaluates all given properties match conditions.
-   * @param nlpm list of 'propertyMatch' elements, may be <code>null</code>
-   * may be <code>empty</code>.
+   *
+   * @param nlpm list of 'propertyMatch' elements, may be <code>null</code> may be <code>empty
+   *     </code>.
    * @return <code>true</code> if either all match or the list is null or empty.
    */
   private boolean isPropertiesMatch(NodeList nlpm) {
@@ -424,8 +426,9 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   }
 
   /**
-   * First tries to find and load previousVersion.properties, then
-   * Version.properties if none are found returns <code>null</code>.
+   * First tries to find and load previousVersion.properties, then Version.properties if none are
+   * found returns <code>null</code>.
+   *
    * @return loaded props or <code>null</code> is not found.
    * @throws FileNotFoundException if file is missing.
    * @throws IOException IO problems.
@@ -463,8 +466,8 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
 
   /**
    * Evaluates all given XPathMatch match conditions.
-   * @param nlxpe list of 'XPathMatch' elements, may be <code>null</code>
-   * may be <code>empty</code>.
+   *
+   * @param nlxpe list of 'XPathMatch' elements, may be <code>null</code> may be <code>empty</code>.
    * @return <code>true</code> if either all match or the list is null or empty.
    */
   private boolean isXPathsMatch(NodeList nlxpe) {
@@ -485,11 +488,11 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
 
   /**
    * Evaluates upgrade plugin property condition.
-   * @param el 'propertyMatch' elem, may be <code>null</code>.
-   * @return <code>true</code> if element doesn't exist or property matches,
-   * otherwise returns false.
    *
-   * <pre>
+   * @param el 'propertyMatch' elem, may be <code>null</code>.
+   * @return <code>true</code> if element doesn't exist or property matches, otherwise returns
+   *     false.
+   *     <pre>
    * Example property conditions:
    * 1. Test if a given file exists (note: path is relative to the Rx root).
    * &lt;ppropertyMatch filePath="upgrade/my.properties"/&gt;
@@ -617,11 +620,11 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
 
   /**
    * Evaluates a single XPathMatchMatch condition.
+   *
    * @param el XPathMatchMatch element, may be <code>null</code>.
-   * @return <code>true</code> if element doesn't exist or xpath evaluates to
-   * something and/or matches a given compareTo value,
-   * otherwise returns false.
-   * <pre>
+   * @return <code>true</code> if element doesn't exist or xpath evaluates to something and/or
+   *     matches a given compareTo value, otherwise returns false.
+   *     <pre>
    * 1. Test if file doesn't exist or Xpath returned value doesn't evaluate
    *  to 'yes'.
    *
@@ -798,10 +801,9 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   }
 
   /**
-   * Loads and returns server version props.
-   * First it looks for the PreviousVersion.properties file, if one exists
-   * it loads it and sets PreviousVersionExists=yes, otherwise it loads
-   * version props from the rxclient.jar file and sets PreviousVersionExists=no.
+   * Loads and returns server version props. First it looks for the PreviousVersion.properties file,
+   * if one exists it loads it and sets PreviousVersionExists=yes, otherwise it loads version props
+   * from the rxclient.jar file and sets PreviousVersionExists=no.
    *
    * @returns server version props, may be <code>null</code>.
    */
@@ -852,9 +854,9 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   }
 
   /**
-   * Converts the m_modules arraylist to Iterator and returns.
-   * One can iterate through the returned iterator to get the modules that
-   * are needed run.
+   * Converts the m_modules arraylist to Iterator and returns. One can iterate through the returned
+   * iterator to get the modules that are needed run.
+   *
    * @return module iterator
    */
   public Iterator getModuleList() {
@@ -862,26 +864,20 @@ public class PSUpgradeConfig implements IPSUpgradeConfig {
   }
 
   /**
-   * Arraylist intended to hold the valid modules. When initialized must be
-   * empty but never be <code>null</code>.
+   * Arraylist intended to hold the valid modules. When initialized must be empty but never be
+   * <code>null</code>.
    */
   private ArrayList m_modules = new ArrayList();
 
   private static boolean ms_isUpgrade;
 
-  /**
-   * Server version properties. Initialized by getVersionProps() method.
-   */
+  /** Server version properties. Initialized by getVersionProps() method. */
   private static Properties ms_versionProps = null;
 
-  /**
-   * Constant for PreviousVersionExists property name.
-   */
+  /** Constant for PreviousVersionExists property name. */
   private static final String Previous_Version_Exists_Prop = "PreviousVersionExists";
 
-  /**
-   * Plugin Attribute name.
-   */
+  /** Plugin Attribute name. */
   private static final String runOnUpgradeOnly_Attr = "runOnUpgradeOnly";
 
   private static Properties ms_xpathTransformerOutputProps = new Properties();

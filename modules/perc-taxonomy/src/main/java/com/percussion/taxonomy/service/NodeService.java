@@ -55,8 +55,8 @@ import org.hibernate.HibernateException;
 
 /**
  * General Service for performing CRUD operations on NODE objects
- * @author rxengineer
  *
+ * @author rxengineer
  */
 public class NodeService implements NodeServiceInf {
 
@@ -100,10 +100,7 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /**
-   * Return nodeID, parentID, and name of all nodes for a given taxonomy and
-   * search string
-   */
+  /** Return nodeID, parentID, and name of all nodes for a given taxonomy and search string */
   public Collection<Node> getNodesFromSearch(
       int taxID, int langID, String search_string, boolean exclude_disabled) {
     Collection<Node> nodes = null;
@@ -117,9 +114,7 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /**
-   * Return all child nodes of the given node
-   */
+  /** Return all child nodes of the given node */
   public Collection<Node> getChildNodes(int nodeID) {
     Collection<Node> children = null;
     try {
@@ -162,9 +157,7 @@ public class NodeService implements NodeServiceInf {
 
   /////////////////////////////////////////////////////////
 
-  /**
-   * Return nodeID, parentID, and name of all nodes for a given taxonomy
-   */
+  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
   public Collection<Object[]> getAllNodeNames(int taxonomyID, int langID) {
     Collection<Object[]> names = null;
     try {
@@ -175,9 +168,7 @@ public class NodeService implements NodeServiceInf {
     return names;
   }
 
-  /**
-   * Return nodeID, parentID, and name of all nodes for a given taxonomy
-   */
+  /** Return nodeID, parentID, and name of all nodes for a given taxonomy */
   public Collection<Object[]> getSomeNodeNames(Collection<Integer> ids, int langID) {
     Collection<Object[]> names = null;
     try {
@@ -188,9 +179,7 @@ public class NodeService implements NodeServiceInf {
     return names;
   }
 
-  /**
-   * Return a nodeName for the given node
-   */
+  /** Return a nodeName for the given node */
   public Collection<String> getNodeName(int nodeID, int langID) {
     Collection<String> names = null;
     try {
@@ -203,9 +192,7 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Return all values associated with a given node
-   */
+  /** Return all values associated with a given node */
   public Collection<Value> getValuesForNode(int nodeID, int langID) {
     Collection<Value> values = null;
     try {
@@ -216,9 +203,7 @@ public class NodeService implements NodeServiceInf {
     return values;
   }
 
-  /**
-   * Return all values associated with a given node and attribute combo
-   */
+  /** Return all values associated with a given node and attribute combo */
   public Collection<Value> getSpecificValuesForNode(int nodeID, int attrID, int langID) {
     Collection<Value> values = null;
     try {
@@ -231,9 +216,7 @@ public class NodeService implements NodeServiceInf {
 
   //////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Return all nodes 'related to' the given node
-   */
+  /** Return all nodes 'related to' the given node */
   public Collection<Related_node> getRelatedNodes(int nodeID) {
     Collection<Related_node> nodes = null;
     try {
@@ -244,9 +227,7 @@ public class NodeService implements NodeServiceInf {
     return nodes;
   }
 
-  /**
-   * Return all related nodes 'that reference' the given node
-   */
+  /** Return all related nodes 'that reference' the given node */
   public Collection<Related_node> getRelatedNodeReferences(int nodeID) {
     Collection<Related_node> relatedNodes = null;
     try {
@@ -257,9 +238,7 @@ public class NodeService implements NodeServiceInf {
     return relatedNodes;
   }
 
-  /**
-   * Return all nodes 'similar to' the given node
-   */
+  /** Return all nodes 'similar to' the given node */
   public Collection<Related_node> getSimilarNodes(int nodeID) {
     Collection<Related_node> relatedNodes = null;
     try {
@@ -272,9 +251,7 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Return all NodeEditors for the given node
-   */
+  /** Return all NodeEditors for the given node */
   public Collection<Node_editor> getNodeEditors(int nodeID) {
     Collection<Node_editor> editors = null;
     try {
@@ -287,9 +264,7 @@ public class NodeService implements NodeServiceInf {
 
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  /**
-   * Change the parent of a node
-   */
+  /** Change the parent of a node */
   public void changeParent(int nodeID, int newParentID) {
     try {
       this.nodeDAO.changeParent(nodeID, newParentID);
@@ -298,9 +273,7 @@ public class NodeService implements NodeServiceInf {
     }
   }
 
-  /**
-   * Return all titles for all nodes
-   */
+  /** Return all titles for all nodes */
   public Collection<Object[]> getTitlesForNodes(int taxonomyID, int languageID) {
     Collection<Object[]> titles = null;
     try {
@@ -443,8 +416,8 @@ public class NodeService implements NodeServiceInf {
 
           Object o = fieldSet.get(fieldName);
           /**
-           * If the field reference is not found in this fieldset, then check
-           * whether it is multiproperty simple child field
+           * If the field reference is not found in this fieldset, then check whether it is
+           * multiproperty simple child field
            */
           if (o == null) {
             o = fieldSet.getChildField(fieldName, PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD);

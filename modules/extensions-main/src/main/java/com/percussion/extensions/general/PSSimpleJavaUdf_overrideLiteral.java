@@ -22,24 +22,23 @@ import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
 /**
- * This UDF converts the supplied parameter to a <code>String</code> and
- * returns that or the override value supplied through the request parameters.
- * The override value is removed from the request once it was consumed.
+ * This UDF converts the supplied parameter to a <code>String</code> and returns that or the
+ * override value supplied through the request parameters. The override value is removed from the
+ * request once it was consumed.
  */
 public class PSSimpleJavaUdf_overrideLiteral extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
   /**
-   * Returns the supplied literal (<code>params[0]</code>) as
-   * <code>String</code> or the override value if an override parameter (<code>params[1]</code>)
-   * is specified and was found on the supplied request. If found, the override
-   * parameter is removed from the request.
+   * Returns the supplied literal (<code>params[0]</code>) as <code>String</code> or the override
+   * value if an override parameter (<code>params[1]</code>) is specified and was found on the
+   * supplied request. If found, the override parameter is removed from the request.
    *
-   * @params[0] the object which will be returned as <code>String</code>,
-   * required, may be <code>null</code> or empty.
-   * @params[1] the request parameter name used to allow overrides through the
-   * HTML request, optional, may be <code>null</code> or empty.
-   * @see com.percussion.extension.IPSUdfProcessor#processUdf(Object[],
-   * IPSRequestContext) for additional documentation.
+   * @params[0] the object which will be returned as <code>String</code>, required, may be <code>
+   *     null</code> or empty.
+   * @params[1] the request parameter name used to allow overrides through the HTML request,
+   *     optional, may be <code>null</code> or empty.
+   * @see com.percussion.extension.IPSUdfProcessor#processUdf(Object[], IPSRequestContext) for
+   *     additional documentation.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

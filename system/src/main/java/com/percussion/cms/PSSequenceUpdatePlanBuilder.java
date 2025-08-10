@@ -27,10 +27,7 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- * Plan builder for performing sequence reordering of complex child content
- * items.
- */
+/** Plan builder for performing sequence reordering of complex child content items. */
 public class PSSequenceUpdatePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSSequenceUpdatePlanBuilder(
@@ -39,12 +36,12 @@ public class PSSequenceUpdatePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform a resequencing of rows in a child content
-   * table.   See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper,
-   * PSFieldSet) super.createModifyPlan()} for additional details.
+   * Creates a plan that will perform a resequencing of rows in a child content table. See {@link
+   * PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet) super.createModifyPlan()} for
+   * additional details.
    *
-   * @throws IllegalArgumentException if fieldSet type is not
-   * {@link PSFieldSet#TYPE_COMPLEX_CHILD} or if sequencing is not supported.
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_COMPLEX_CHILD}
+   *     or if sequencing is not supported.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException {

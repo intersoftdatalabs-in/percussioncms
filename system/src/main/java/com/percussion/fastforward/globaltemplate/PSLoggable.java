@@ -19,17 +19,17 @@ package com.percussion.fastforward.globaltemplate;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Base class for the classes that need basic {@link Logger logging}
- * functionality of Apache log4j. Has easy methods to log info,
- * warnings and errors.
+ * Base class for the classes that need basic {@link Logger logging} functionality of Apache log4j.
+ * Has easy methods to log info, warnings and errors.
  *
  * @author RammohanVangapalli
  */
 public abstract class PSLoggable {
   /**
    * Constructor that takes an existing instance of the logger object.
-   * @param logger if <code>null</code> an instance will be created for the
-   * category name with this class name.
+   *
+   * @param logger if <code>null</code> an instance will be created for the category name with this
+   *     class name.
    */
   PSLoggable(Logger logger) {
     m_Logger = logger;
@@ -38,6 +38,7 @@ public abstract class PSLoggable {
   /**
    * Log the supplied message as an error. Delegates to {@link org.apache
    * .log4j.Logger#error(Object)}
+   *
    * @see org.apache.log4j.Logger#error(Object)
    * @param obj
    */
@@ -48,6 +49,7 @@ public abstract class PSLoggable {
   /**
    * Log the supplied message as a warning. Delegates to {@link org.apache
    * .log4j.Logger#warn(Object)}
+   *
    * @see org.apache.log4j.Logger#warn(Object)
    * @param obj
    */
@@ -58,6 +60,7 @@ public abstract class PSLoggable {
   /**
    * Log the supplied message as information. Delegates to {@link org.apache
    * .log4j.Logger#info(Object)}
+   *
    * @see org.apache.log4j.Logger#info(Object)
    * @param obj
    */
@@ -66,8 +69,8 @@ public abstract class PSLoggable {
   }
 
   /**
-   * Logger object to log the information, initialized in the ctor and may
-   * be <code>null</code> in which case the info will not be logged.
+   * Logger object to log the information, initialized in the ctor and may be <code>null</code> in
+   * which case the info will not be logged.
    */
   protected Logger m_Logger = null;
 }

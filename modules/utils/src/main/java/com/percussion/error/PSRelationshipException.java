@@ -17,8 +17,8 @@
 package com.percussion.error;
 
 /**
- * Generic exception class to be used for relationship errors. More specific
- * relationship errors should be derived from this class.
+ * Generic exception class to be used for relationship errors. More specific relationship errors
+ * should be derived from this class.
  */
 public class PSRelationshipException extends PSException {
   /**

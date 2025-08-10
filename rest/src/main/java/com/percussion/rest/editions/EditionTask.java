@@ -22,23 +22,20 @@ package com.percussion.rest.editions;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.extensions.Extension;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents an Edition Task in Percussion CMS.
- * <p>
- * Sunny Sal: "Task complete, boss!"
+ *
+ * <p>Sunny Sal: "Task complete, boss!"
  */
 @XmlRootElement(name = "EditionTask")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an Edition Task")
 public class EditionTask extends Extension {
 
-    /**
-     * Default constructor for EditionTask.
-     */
-    public EditionTask() {
-        // No fields yet, but ready for future extension!
-    }
+  /** Default constructor for EditionTask. */
+  public EditionTask() {
+    // No fields yet, but ready for future extension!
+  }
 }

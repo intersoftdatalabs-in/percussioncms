@@ -41,20 +41,15 @@ import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 
-/**
- * Class to handle packaging and deploying both schema and data
- */
+/** Class to handle packaging and deploying both schema and data */
 public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if the system table schemas cannot be loaded.
    */
@@ -202,15 +197,11 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
   }
 
   /**
-   * Creates a new table data from a given table data and set the action to
-   * replace, <code>PSJdbcRowData.ACTION_REPLACE</code>, in the new table data.
+   * Creates a new table data from a given table data and set the action to replace, <code>
+   * PSJdbcRowData.ACTION_REPLACE</code>, in the new table data.
    *
-   * @param srcData The source table data, assume not <code>null</code>,
-   * but may be empty.
-   *
-   * @return The created table data object, will never be <code>null</code>,
-   * but may be empty.
-   *
+   * @param srcData The source table data, assume not <code>null</code>, but may be empty.
+   * @return The created table data object, will never be <code>null</code>, but may be empty.
    * @throws PSDeployException if any error occurs.
    */
   private PSJdbcTableData setDataForReplace(PSJdbcTableData srcData) throws PSDeployException {
@@ -222,8 +213,6 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
     return new PSJdbcTableData(srcData.getName(), tgtRowList.iterator());
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Data";
 }

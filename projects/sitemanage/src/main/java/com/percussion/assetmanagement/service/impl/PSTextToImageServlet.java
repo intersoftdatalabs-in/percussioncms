@@ -19,8 +19,6 @@ package com.percussion.assetmanagement.service.impl;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -34,51 +32,49 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Servlet responsible for converting supplied text to an image and serving it as an image.
- */
+/** Servlet responsible for converting supplied text to an image and serving it as an image. */
 public class PSTextToImageServlet extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        var imageText = Optional.ofNullable(request.getParameter("imageText"))
-                .filter(StringUtils::isNotBlank)
-                .map(String::trim)
-                .orElse(DEFAULT_IMAGE_TEXT);
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    var imageText =
+        Optional.ofNullable(request.getParameter("imageText"))
+            .filter(StringUtils::isNotBlank)
+            .map(String::trim)
+            .orElse(DEFAULT_IMAGE_TEXT);
 
-        // Use a temporary image to get FontMetrics
-        var font = new Font("Verdana", Font.PLAIN, 11);
-        var tempImg = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-        var tempGraphics = tempImg.createGraphics();
-        tempGraphics.setFont(font);
-        var metrics = tempGraphics.getFontMetrics();
-        Rectangle2D bounds = metrics.getStringBounds(imageText, tempGraphics);
-        int widthInPixels = (int) Math.ceil(bounds.getWidth()) + 2;
-        int heightInPixels = (int) Math.ceil(bounds.getHeight());
-        tempGraphics.dispose();
+    // Use a temporary image to get FontMetrics
+    var font = new Font("Verdana", Font.PLAIN, 11);
+    var tempImg = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    var tempGraphics = tempImg.createGraphics();
+    tempGraphics.setFont(font);
+    var metrics = tempGraphics.getFontMetrics();
+    Rectangle2D bounds = metrics.getStringBounds(imageText, tempGraphics);
+    int widthInPixels = (int) Math.ceil(bounds.getWidth()) + 2;
+    int heightInPixels = (int) Math.ceil(bounds.getHeight());
+    tempGraphics.dispose();
 
-        // Create the actual image
-        var buffer = new BufferedImage(widthInPixels, heightInPixels, BufferedImage.TYPE_INT_ARGB);
-        var graphics = buffer.createGraphics();
-        graphics.setFont(font);
-        graphics.setColor(new Color(255, 102, 0));
-        graphics.drawString(imageText, 1, metrics.getAscent());
-        graphics.dispose();
+    // Create the actual image
+    var buffer = new BufferedImage(widthInPixels, heightInPixels, BufferedImage.TYPE_INT_ARGB);
+    var graphics = buffer.createGraphics();
+    graphics.setFont(font);
+    graphics.setColor(new Color(255, 102, 0));
+    graphics.drawString(imageText, 1, metrics.getAscent());
+    graphics.dispose();
 
-        // Write the image to response
-        response.setContentType("image/png");
-        try (OutputStream os = response.getOutputStream()) {
-            ImageIO.setUseCache(false);
-            ImageIO.write(buffer, "png", os);
-        }
+    // Write the image to response
+    response.setContentType("image/png");
+    try (OutputStream os = response.getOutputStream()) {
+      ImageIO.setUseCache(false);
+      ImageIO.write(buffer, "png", os);
     }
+  }
 
-    /**
-     * The logger.
-     */
-    private static final Logger ms_logger = LogManager.getLogger(PSTextToImageServlet.class);
+  /** The logger. */
+  private static final Logger ms_logger = LogManager.getLogger(PSTextToImageServlet.class);
 
-    private static final String DEFAULT_IMAGE_TEXT = "";
+  private static final String DEFAULT_IMAGE_TEXT = "";
 }

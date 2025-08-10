@@ -23,31 +23,25 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class represents a mapping within a {@link PSIdMap}.
- */
+/** This class represents a mapping within a {@link PSIdMap}. */
 public class PSIdMapping implements IPSDeployComponent {
   /**
-   * Constructing the object with the given source ID, source name, type and
-   * parent id and type.
-   * The constructed object will default to not a new object.
+   * Constructing the object with the given source ID, source name, type and parent id and type. The
+   * constructed object will default to not a new object.
    *
-   * @param    sourceId The source ID, may not be <code>null</code> or empty.
-   * @param    sourceName The name of the source, may not be <code>null</code>
-   * or empty.
-   * @param    objectType The type of the object, may not be <code>null</code>
-   * or empty.
-   * @param parentType The type of the source object's parent.  May be
-   * <code>null</code> if the source does not specify a parent, never emtpy.
-   * @param parentId The id of the source parent, may be <code>null</code>,
-   * never empty.  May not be <code>null</code> if <code>parentType</code> is
-   * not <code>null</code>, must be <code>null</code> otherwise.
-   * @param parentName The name of the source parent, may be <code>null</code>,
-   * never empty.  May not be <code>null</code> if <code>parentType</code> is
-   * not <code>null</code>, must be <code>null</code> otherwise.
-   * @param    isNewMapping <code>true</code> if it is a new mapping object,
-   * <code>false</code> otherwise.
-   *
+   * @param sourceId The source ID, may not be <code>null</code> or empty.
+   * @param sourceName The name of the source, may not be <code>null</code> or empty.
+   * @param objectType The type of the object, may not be <code>null</code> or empty.
+   * @param parentType The type of the source object's parent. May be <code>null</code> if the
+   *     source does not specify a parent, never emtpy.
+   * @param parentId The id of the source parent, may be <code>null</code>, never empty. May not be
+   *     <code>null</code> if <code>parentType</code> is not <code>null</code>, must be <code>null
+   *     </code> otherwise.
+   * @param parentName The name of the source parent, may be <code>null</code>, never empty. May not
+   *     be <code>null</code> if <code>parentType</code> is not <code>null</code>, must be <code>
+   *     null</code> otherwise.
+   * @param isNewMapping <code>true</code> if it is a new mapping object, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public PSIdMapping(
@@ -94,18 +88,16 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Convenience ctor calls {@link #PSIdMapping(String, String, String,
-   * String, String, boolean) PSIdMapping(sourceId, sourceName, objectType,
-   * null, null, null, false)}
+   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, boolean)
+   * PSIdMapping(sourceId, sourceName, objectType, null, null, null, false)}
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType) {
     this(sourceId, sourceName, objectType, null, null, null, false);
   }
 
   /**
-   * Convenience ctor calls {@link #PSIdMapping(String, String, String,
-   * String, String, boolean) PSIdMapping(sourceId, sourceName, objectType,
-   * null, null, null, isNewMapping)}
+   * Convenience ctor calls {@link #PSIdMapping(String, String, String, String, String, boolean)
+   * PSIdMapping(sourceId, sourceName, objectType, null, null, null, isNewMapping)}
    */
   public PSIdMapping(String sourceId, String sourceName, String objectType, boolean isNewMapping) {
     this(sourceId, sourceName, objectType, null, null, null, isNewMapping);
@@ -114,12 +106,9 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSIdMapping(Element source) throws PSUnknownNodeTypeException {
@@ -131,8 +120,8 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Copy constructor.
    *
-   * @param source The source mapping, may not be <code>null</code>.  A shallow
-   * copy of the source is constructed.
+   * @param source The source mapping, may not be <code>null</code>. A shallow copy of the source is
+   *     constructed.
    */
   public PSIdMapping(PSIdMapping source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -141,22 +130,20 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Determines if this is an existing mapping, or if this is defining a new
-   * mapping.
+   * Determines if this is an existing mapping, or if this is defining a new mapping.
    *
-   * @return <code>true</code> if the object is a new mapping,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the object is a new mapping, <code>false</code> otherwise.
    */
   public boolean isNewMapping() {
     return m_isNewMapping;
   }
 
   /**
-   * Sets the state of the new object. Clears the target information if the
-   * new object state is set to <code>true</code>
+   * Sets the state of the new object. Clears the target information if the new object state is set
+   * to <code>true</code>
    *
-   * @param isNewObject <code>true</code> if wants to set new object state,
-   * <code>false</code> otherwise.
+   * @param isNewObject <code>true</code> if wants to set new object state, <code>false</code>
+   *     otherwise.
    */
   public void setIsNewObject(boolean isNewObject) {
     m_isNewObject = isNewObject;
@@ -182,8 +169,8 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Convenience method calls {@link #setTarget(String, String, String, String)
-   * setTarget(targetId, targetName, null, null)}
+   * Convenience method calls {@link #setTarget(String, String, String, String) setTarget(targetId,
+   * targetName, null, null)}
    */
   public void setTarget(String targetId, String targetName) {
     setTarget(targetId, targetName, null, null);
@@ -192,17 +179,14 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Sets target ID, target name, and optionally parent id.
    *
-   * @param targetId The ID of the target, may not be <code>null</code> or
-   * empty
-   * @param targetName The name of the target, may not be <code>null</code>
-   * or empty
-   * @param targetParentId The id of the target's parent, may not be
-   * <code>null</code> if the source parent has been set, must be
-   * <code>null</code> if the source's parent has not been set.  Never empty.
-   * @param targetParentName The name of the target's parent, may not be
-   * <code>null</code> if the source parent has been set, must be
-   * <code>null</code> if the source's parent has not been set.  Never empty.
-   *
+   * @param targetId The ID of the target, may not be <code>null</code> or empty
+   * @param targetName The name of the target, may not be <code>null</code> or empty
+   * @param targetParentId The id of the target's parent, may not be <code>null</code> if the source
+   *     parent has been set, must be <code>null</code> if the source's parent has not been set.
+   *     Never empty.
+   * @param targetParentName The name of the target's parent, may not be <code>null</code> if the
+   *     source parent has been set, must be <code>null</code> if the source's parent has not been
+   *     set. Never empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public void setTarget(
@@ -301,8 +285,7 @@ public class PSIdMapping implements IPSDeployComponent {
   /**
    * Get the target parent id.
    *
-   * @return the target parent id, it may be <code>null</code>, but never be
-   * empty.
+   * @return the target parent id, it may be <code>null</code>, but never be empty.
    */
   public String getTargetParentId() {
     return m_targetParentId;
@@ -318,11 +301,10 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Determines if this object maps to an existing object on the server, or if
-   * it will be inserted as a new object.
+   * Determines if this object maps to an existing object on the server, or if it will be inserted
+   * as a new object.
    *
-   * @return <code>true</code> if it is a new object, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it is a new object, <code>false</code> otherwise.
    */
   public boolean isNewObject() {
     return m_isNewObject;
@@ -382,14 +364,12 @@ public class PSIdMapping implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.
-   * In the restored object, its {@link #isNewMapping()} state is always
-   * <code>false</code>, its <code>PSXIdMappingTarget</code> element will be
-   * ignored if <code>isNewObject</code> attribute is <code>true</code>.
+   * Restores this object's state from its XML representation. In the restored object, its {@link
+   * #isNewMapping()} state is always <code>false</code>, its <code>PSXIdMappingTarget</code>
+   * element will be ignored if <code>isNewObject</code> attribute is <code>true</code>.
    *
-   * See {@link #toXml(Document)} for format of XML.
-   * See {@link #IPSDeployComponent#fromXml(Element)} for more info on method
-   * signature.
+   * <p>See {@link #toXml(Document)} for format of XML. See {@link
+   * #IPSDeployComponent#fromXml(Element)} for more info on method signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
@@ -523,9 +503,7 @@ public class PSIdMapping implements IPSDeployComponent {
     return result;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXIdMapping";
 
   // Private XML attribute constants
@@ -538,9 +516,7 @@ public class PSIdMapping implements IPSDeployComponent {
   private static final String XML_ATTR_SRC_PARENT_NAME = "sourceParentName";
   private static final String XML_ATTR_PARENT_TYPE = "parentType";
 
-  /**
-   * The name of target XML Node/Element
-   */
+  /** The name of target XML Node/Element */
   private static final String XML_NODE_TARGET = "PSXIdMappingTarget";
 
   private static final String XML_ATTR_TGT_NAME = "targetName";
@@ -549,92 +525,84 @@ public class PSIdMapping implements IPSDeployComponent {
   private static final String XML_ATTR_TGT_PARENT_NAME = "targetParentName";
 
   /**
-   * The source ID, initialized by constructor, only modified by
-   *  {@link #copyFrom(Element)}, never be <code>null</code> or empty.
+   * The source ID, initialized by constructor, only modified by {@link #copyFrom(Element)}, never
+   * be <code>null</code> or empty.
    */
   private String m_sourceId;
 
   /**
-   * The source name, initialized by constructor, only modified by
-   *  {@link #copyFrom(Element)}, never be <code>null</code> or empty.
+   * The source name, initialized by constructor, only modified by {@link #copyFrom(Element)}, never
+   * be <code>null</code> or empty.
    */
   private String m_sourceName;
 
   /**
-   * The target ID, initialized by constructor, modified by
-   *  {@link #copyFrom(Element)} and {@link #setTarget(String, String)}.
-   *  It can be <code>null</code>, but never by empty.
-   *  <P>
-   *  NOTE: <code>m_targetId</code> and <code>m_targetName</code> can
-   *  either both be <code>null</code> or both be none empty
-   *  <code>String</code>.
+   * The target ID, initialized by constructor, modified by {@link #copyFrom(Element)} and {@link
+   * #setTarget(String, String)}. It can be <code>null</code>, but never by empty.
+   *
+   * <p>NOTE: <code>m_targetId</code> and <code>m_targetName</code> can either both be <code>null
+   * </code> or both be none empty <code>String</code>.
    */
   private String m_targetId;
 
   /**
-   * The target name, initialized by constructor, modified by
-   *  {@link #copyFrom(Element)} and {@link #setTarget(String, String)}.
-   *  It can be <code>null</code>, but never be empty.
-   *  <P>
-   *  See {link #m_targetId} for a side note.
+   * The target name, initialized by constructor, modified by {@link #copyFrom(Element)} and {@link
+   * #setTarget(String, String)}. It can be <code>null</code>, but never be empty.
+   *
+   * <p>See {link #m_targetId} for a side note.
    */
   private String m_targetName;
 
   /**
-   * The object type, initialized by constructor, only modified by
-   *  {@link #copyFrom(Element)}. It never be <code>null</code> or empty.
+   * The object type, initialized by constructor, only modified by {@link #copyFrom(Element)}. It
+   * never be <code>null</code> or empty.
    */
   private String m_objectType;
 
   /**
-   * Determining if the object is new, initialized to false, modified
-   * by {@link SetIsNewObject(boolean)} and {@link #copyFrom(Element)}.
-   * If it is <code>true</code>, the {@link #toXml(Document)} and
-   * {@link #fromXml(Element)} method will ignore both
-   * <code>m_targetId</code> and <code>m_targetName</code>
-   * while constructing or retrieving the XML Element.
+   * Determining if the object is new, initialized to false, modified by {@link
+   * SetIsNewObject(boolean)} and {@link #copyFrom(Element)}. If it is <code>true</code>, the {@link
+   * #toXml(Document)} and {@link #fromXml(Element)} method will ignore both <code>m_targetId</code>
+   * and <code>m_targetName</code> while constructing or retrieving the XML Element.
    */
   private boolean m_isNewObject = false;
 
   /**
-   * Determining if this is a new mapping object, initialized by construtor.
-   * Only modified by {@link #copyFrom(Element)}. This is used by GUI only,
-   * so it will not by part of XML. It is always <code>false</code> in the
-   * restored object, see {@link #fromXml(Element)}.
+   * Determining if this is a new mapping object, initialized by construtor. Only modified by {@link
+   * #copyFrom(Element)}. This is used by GUI only, so it will not by part of XML. It is always
+   * <code>false</code> in the restored object, see {@link #fromXml(Element)}.
    */
   private boolean m_isNewMapping;
 
   /**
-   * The source dependency's parent id, if it supports specifying one.
-   * Initialized during construction, may be <code>null</code>, never empty.
+   * The source dependency's parent id, if it supports specifying one. Initialized during
+   * construction, may be <code>null</code>, never empty.
    */
   private String m_sourceParentId = null;
 
   /**
-   * The source dependency's parent name, if it supports specifying one.
-   * Initialized during construction, may be <code>null</code>, never empty.
+   * The source dependency's parent name, if it supports specifying one. Initialized during
+   * construction, may be <code>null</code>, never empty.
    */
   private String m_sourceParentName = null;
 
   /**
-   * The source dependency's parent type, if it supports specifying one.
-   * Initialized during construction, may be <code>null</code>, never empty.
+   * The source dependency's parent type, if it supports specifying one. Initialized during
+   * construction, may be <code>null</code>, never empty.
    */
   private String m_parentType = null;
 
   /**
-   * The target dependency's parent id, if it supports specifying one.
-   * Modified by calls to {@link #setTarget(String, String, String, String)
-   * setTarget(targetId, targetName, targetParentId, targetParentName)}, may be
-   * <code>null</code>, never empty.
+   * The target dependency's parent id, if it supports specifying one. Modified by calls to {@link
+   * #setTarget(String, String, String, String) setTarget(targetId, targetName, targetParentId,
+   * targetParentName)}, may be <code>null</code>, never empty.
    */
   private String m_targetParentId = null;
 
   /**
-   * The target dependency's parent name, if it supports specifying one.
-   * Modified by calls to {@link #setTarget(String, String, String, String)
-   * setTarget(targetId, targetName, targetParentId, targetParentName)}, may be
-   * <code>null</code>, never empty.
+   * The target dependency's parent name, if it supports specifying one. Modified by calls to {@link
+   * #setTarget(String, String, String, String) setTarget(targetId, targetName, targetParentId,
+   * targetParentName)}, may be <code>null</code>, never empty.
    */
   private String m_targetParentName = null;
 }

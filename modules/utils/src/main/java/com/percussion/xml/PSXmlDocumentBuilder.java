@@ -66,8 +66,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * The PSXmlDocumentBuilder class is used to simplify the creation of an XML
- * document.
+ * The PSXmlDocumentBuilder class is used to simplify the creation of an XML document.
  *
  * @author Tas Giakouminakis
  * @version 1.0
@@ -75,68 +74,62 @@ import org.xml.sax.SAXParseException;
  */
 public class PSXmlDocumentBuilder {
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSXmlDocumentBuilder.class);
 
   /**
-   * New line's in XML are always <code>&lt;CR&gt;&lt;LF&gt;</code>, even on
-   * platforms where &lt;LF&gt; is normally used.
+   * New line's in XML are always <code>&lt;CR&gt;&lt;LF&gt;</code>, even on platforms where
+   * &lt;LF&gt; is normally used.
    */
   private static final String NEWLINE = "\r\n";
 
   private static final String DOC_NOT_NULL = "doc may not be null";
 
   /**
-   * List of cached validating document builders, modified by calls to
-   * {@link #getDocumentBuilder(boolean)} and
-   * {@link #returnDocumentBuilder(DocumentBuilder)}, never <code>null</code>,
-   * may be empty.
+   * List of cached validating document builders, modified by calls to {@link
+   * #getDocumentBuilder(boolean)} and {@link #returnDocumentBuilder(DocumentBuilder)}, never <code>
+   * null</code>, may be empty.
    */
   private static List<DocumentBuilder> ms_validatingBuilders = new ArrayList<DocumentBuilder>();
 
   /**
-   * List of cached non-validating document builders, modified by calls to
-   * {@link #getDocumentBuilder(boolean)} and
-   * {@link #returnDocumentBuilder(DocumentBuilder)}, never <code>null</code>,
-   * may be empty.
+   * List of cached non-validating document builders, modified by calls to {@link
+   * #getDocumentBuilder(boolean)} and {@link #returnDocumentBuilder(DocumentBuilder)}, never <code>
+   * null</code>, may be empty.
    */
   private static List<DocumentBuilder> ms_nonValidatingBuilders = new ArrayList<DocumentBuilder>();
 
   /**
-   * List of cached document builder factories, modified by calls to
-   * {@link #getDocumentBuilderFactory(boolean)} and
-   * {@link #returnDocumentBuilderFactory(DocumentBuilderFactory)}, never
-   * <code>null</code>, may be empty.
+   * List of cached document builder factories, modified by calls to {@link
+   * #getDocumentBuilderFactory(boolean)} and {@link
+   * #returnDocumentBuilderFactory(DocumentBuilderFactory)}, never <code>null</code>, may be empty.
    */
   private static List<DocumentBuilderFactory> ms_factories =
       new ArrayList<DocumentBuilderFactory>();
 
   /**
-   * Flag for allowing <code>null</code> nodes when obtaining its string
-   * representation. If this flag is included and the node to convert to string
-   * is <code>null</code>, then an empty string is returned. If this flag is
-   * not specified and node is <code>null</code>, then
-   * <code>IllegalArgumentException</code> is thrown.
+   * Flag for allowing <code>null</code> nodes when obtaining its string representation. If this
+   * flag is included and the node to convert to string is <code>null</code>, then an empty string
+   * is returned. If this flag is not specified and node is <code>null</code>, then <code>
+   * IllegalArgumentException</code> is thrown.
    */
   public static final int FLAG_ALLOW_NULL = 1;
 
   /**
-   * Flag for controlling the indentation. If this flag is included, the Xml
-   * Document will not have indentations.
+   * Flag for controlling the indentation. If this flag is included, the Xml Document will not have
+   * indentations.
    */
   public static final int FLAG_NO_INDENT = 2;
 
   /**
-   * Flag for controlling the Xml declaration. If this flag is included, the
-   * Xml Document will have Xml declaration.
+   * Flag for controlling the Xml declaration. If this flag is included, the Xml Document will have
+   * Xml declaration.
    */
   public static final int FLAG_OMIT_XML_DECL = 4;
 
   /**
-   * Flag for controlling the DocType declaration. If this flag is included,
-   * the Xml Document will have DocType declaration.
+   * Flag for controlling the DocType declaration. If this flag is included, the Xml Document will
+   * have DocType declaration.
    */
   public static final int FLAG_OMIT_DOC_TYPE = 8;
 
@@ -165,16 +158,13 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create a new, empty XML document with a specified DTD reference, or no
-   * reference if both the dtd and publicid are <code>null</code>.
+   * Create a new, empty XML document with a specified DTD reference, or no reference if both the
+   * dtd and publicid are <code>null</code>.
    *
-   * @param name A qualified name for the document type, also used for the root
-   *           element name, must never be <code>null</code>.
-   * @param dtd A url that references a dtd for this document's system id, may
-   *           be <code>null</code>.
-   * @param publicid A string, may be <code>null</code> that specifies this
-   *           document's public id.
-   *
+   * @param name A qualified name for the document type, also used for the root element name, must
+   *     never be <code>null</code>.
+   * @param dtd A url that references a dtd for this document's system id, may be <code>null</code>.
+   * @param publicid A string, may be <code>null</code> that specifies this document's public id.
    * @return the new XML document, never <code>null</code>
    */
   public static Document createXmlDocument(String name, URL dtd, String publicid) {
@@ -193,25 +183,20 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Creates a <code>DocumentBuilderFactory</code> object and sets the
-   * validation feature off.
+   * Creates a <code>DocumentBuilderFactory</code> object and sets the validation feature off.
    *
-   * @return <code>DocumentBuilderFactory</code> object. Never
-   *         <code>null</code>
+   * @return <code>DocumentBuilderFactory</code> object. Never <code>null</code>
    */
   public static DocumentBuilderFactory getDocumentBuilderFactory() {
     return getDocumentBuilderFactory(false);
   }
 
   /**
-   * Creates a <code>DocumentBuilderFactory</code> object and sets the
-   * validation feature off or on based on the validating parameter.
+   * Creates a <code>DocumentBuilderFactory</code> object and sets the validation feature off or on
+   * based on the validating parameter.
    *
-   * @param validating if <code>true</code> sets the validation feature on
-   *    else sets it to off.
-   *
-   * @return <code>DocumentBuilderFactory</code> object. Never
-   *         <code>null</code>
+   * @param validating if <code>true</code> sets the validation feature on else sets it to off.
+   * @return <code>DocumentBuilderFactory</code> object. Never <code>null</code>
    */
   public static DocumentBuilderFactory getDocumentBuilderFactory(boolean validating) {
     DocumentBuilderFactory dbf = null;
@@ -258,12 +243,10 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Removes the last object from the supplied list while synchronizing on that
-   * list, and returns that object.
+   * Removes the last object from the supplied list while synchronizing on that list, and returns
+   * that object.
    *
-   * @param cache The list to get the object from, assumed not
-   *           <code>null</code>, may be empty.
-   *
+   * @param cache The list to get the object from, assumed not <code>null</code>, may be empty.
    * @return The object, or <code>null</code> if the list was emtpy.
    */
   private static Object popFromCache(List cache) {
@@ -281,13 +264,11 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Returns a <code>DocumentBuilder</code> which is used for parsing XML
-   * documents.
+   * Returns a <code>DocumentBuilder</code> which is used for parsing XML documents.
    *
-   * @param validating if <code>true</code> sets the validation feature on
-   *           else sets it off.
-   * @return a <code>DocumentBuilder</code> which is used for parsing XML
-   *         documents. Never <code>null</code>.
+   * @param validating if <code>true</code> sets the validation feature on else sets it off.
+   * @return a <code>DocumentBuilder</code> which is used for parsing XML documents. Never <code>
+   *     null</code>.
    */
   public static DocumentBuilder getDocumentBuilder(boolean validating) {
     try {
@@ -331,8 +312,8 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Returns the supplied builder to the cache so it is available for use. Sets
-   * the builder's error handler to <code>null</code>.
+   * Returns the supplied builder to the cache so it is available for use. Sets the builder's error
+   * handler to <code>null</code>.
    *
    * @param builder The builder to return, assumed not <code>null</code>.
    */
@@ -351,13 +332,12 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document by parsing the specified input stream. Delegates to
-   * {@link #createXmlDocument(InputSource, boolean)}.
+   * Create an XML document by parsing the specified input stream. Delegates to {@link
+   * #createXmlDocument(InputSource, boolean)}.
    *
    * @param in the byte input stream to read from, not <code>null</code>
    * @param validate <code>true</code> to validate the document
    * @return the parsed document, never <code>null</code> but may be empty.
-   *
    * @throws IllegalArgumentException if <code>in</code> is <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
@@ -375,13 +355,12 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document by parsing the specified reader. Delegates to
-   * {@link #createXmlDocument(InputSource, boolean)}.
+   * Create an XML document by parsing the specified reader. Delegates to {@link
+   * #createXmlDocument(InputSource, boolean)}.
    *
    * @param in the character reader to read from, not <code>null</code>
    * @param validate <code>true</code> to validate the document
    * @return the parsed document, never <code>null</code> but may be empty.
-   *
    * @throws IllegalArgumentException if <code>in</code> is <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
@@ -398,13 +377,12 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document by parsing the specified input source. Delegates to
-   * {@link #createXmlDocument(InputSource, boolean, PSSaxErrorHandler)}.
+   * Create an XML document by parsing the specified input source. Delegates to {@link
+   * #createXmlDocument(InputSource, boolean, PSSaxErrorHandler)}.
    *
    * @param in the source to read from, not <code>null</code>
    * @param validate <code>true</code> to validate the document
    * @return the parsed document, never <code>null</code> but may be empty.
-   *
    * @throws IllegalArgumentException if <code>in</code> is <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
@@ -422,17 +400,13 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document constructed from the specified input source, and
-   * print any resulting errors or warnings to the log.
+   * Create an XML document constructed from the specified input source, and print any resulting
+   * errors or warnings to the log.
    *
    * @param in the input source to use
-   *
    * @param validate <code>true</code> to validate the document
-   *
    * @param errorLog where errors are written.
-   *
    * @throws IOException if an I/O error occurs
-   *
    * @throws SAXException if a parsing error occurs
    */
   public static Document createXmlDocument(InputSource in, boolean validate, PrintWriter errorLog)
@@ -444,19 +418,14 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document constructed from the specified input source, with
-   * custom error handling.
+   * Create an XML document constructed from the specified input source, with custom error handling.
    *
    * @param in the input source to use. May not be <code>null</code>.
-   *
    * @param validate <code>true</code> to validate the document
-   *
-   * @param errHandler The SAX error handler for this document. This form of
-   *           the method should be used when the error handler need
-   *           non-standard behavior, or must throw exceptions immediately on
-   *           error. Note that the PSXSaxErrorHandler is obfuscated, and
-   *           cannot be used by Extensions. May not be <code>null</code>.
-   *
+   * @param errHandler The SAX error handler for this document. This form of the method should be
+   *     used when the error handler need non-standard behavior, or must throw exceptions
+   *     immediately on error. Note that the PSXSaxErrorHandler is obfuscated, and cannot be used by
+   *     Extensions. May not be <code>null</code>.
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
    * @throws IllegalArgumentException if in or errHandler is <code>null</code>
@@ -503,30 +472,23 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an XML document for the supplied source <code>String</code>. If
-   * valid properties are supplied, the source will be tidied. If the the XML
-   * header and the document entities element are not present, they will be
-   * added.
+   * Create an XML document for the supplied source <code>String</code>. If valid properties are
+   * supplied, the source will be tidied. If the the XML header and the document entities element
+   * are not present, they will be added.
    *
-   * @param source the source to create the document from, may be
-   *           <code>null</code> or empty, in which case an empty document is
-   *           returned.
-   * @param serverRoot the server root for which to add the default entities
-   *           including server, port and root (e.g. localhost:9992/Rhythmyx),
-   *           not <code>null</code> or empty.
-   * @param properties the tidy properties, if <code>null</code> the source
-   *           will not be tidied. Otherwise the source will be tidied with the
-   *           supplied tidy properties, may be empty.
-   * @param serverPageTags the configuration used to process the server page
-   *           tags, may be <code>null</code> in which case server page tags
-   *           are not processed. This is only used if tidy is enabled.
-   * @param encoding the encoding to use for the tidy process, UTF8 is used if
-   *           <code>null</code> or an empty <code>String</code> is
-   *           provided. The format is expecetd in Java format.
-   * @param validate <code>true</code> to use a validating poarser,
-   *           <code>false</code> otherwise.
-   * @return the XML document created from the supplied source, never
-   *         <code>null</code>.
+   * @param source the source to create the document from, may be <code>null</code> or empty, in
+   *     which case an empty document is returned.
+   * @param serverRoot the server root for which to add the default entities including server, port
+   *     and root (e.g. localhost:9992/Rhythmyx), not <code>null</code> or empty.
+   * @param properties the tidy properties, if <code>null</code> the source will not be tidied.
+   *     Otherwise the source will be tidied with the supplied tidy properties, may be empty.
+   * @param serverPageTags the configuration used to process the server page tags, may be <code>null
+   *     </code> in which case server page tags are not processed. This is only used if tidy is
+   *     enabled.
+   * @param encoding the encoding to use for the tidy process, UTF8 is used if <code>null</code> or
+   *     an empty <code>String</code> is provided. The format is expecetd in Java format.
+   * @param validate <code>true</code> to use a validating poarser, <code>false</code> otherwise.
+   * @return the XML document created from the supplied source, never <code>null</code>.
    * @throws IOException for any I/O error.
    * @throws UnsupportedEncodingException if the requested encoding is invalid.
    */
@@ -562,18 +524,14 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Add the entity references required by the parser. Since we are always
-   * running on the server, the current directory is the server root, and the
-   * DTD directory resides immediately below it.
+   * Add the entity references required by the parser. Since we are always running on the server,
+   * the current directory is the server root, and the DTD directory resides immediately below it.
    *
-   * @param serverRoot the server root including protocol, server, port and
-   *           root (e.g. http://localhost:9992/Rhythmyx). This will be used as
-   *           the suffix on the entity file paths which are of the form
-   *           '/DTD/basename.ent'. So the end result will be a filename of the
-   *           form 'root/DTD/basename.ent'. If null or empty is supplied, "."
-   *           is used.
-   * @return all default entities for the supplied server root, never
-   *         <code>null</code> or empty.
+   * @param serverRoot the server root including protocol, server, port and root (e.g.
+   *     http://localhost:9992/Rhythmyx). This will be used as the suffix on the entity file paths
+   *     which are of the form '/DTD/basename.ent'. So the end result will be a filename of the form
+   *     'root/DTD/basename.ent'. If null or empty is supplied, "." is used.
+   * @return all default entities for the supplied server root, never <code>null</code> or empty.
    */
   public static String getDefaultEntities(String serverRoot) {
     if ((serverRoot == null) || (serverRoot.trim().length() == 0)) {
@@ -601,36 +559,31 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Tidy the source, based on the settings in the supplied tidy properties.
-   * Tidy cleans up not well formed HTML to make it parsable to the XML parser.
-   * If the supplied source has an XML header, we assume its well formed XML
-   * and skip the tidy process.
+   * Tidy the source, based on the settings in the supplied tidy properties. Tidy cleans up not well
+   * formed HTML to make it parsable to the XML parser. If the supplied source has an XML header, we
+   * assume its well formed XML and skip the tidy process.
    *
-   * @param source the source HTML as <code>String</code> that needs to be
-   *           tidied, not <code>null</code> or empty.
-   * @param properties the properties that configure tidy, not
-   *           <code>null</code>, may be empty, in which case the default
-   *           settings are used.
-   * @param serverPageTags the configuration used to process the server page
-   *           tags, may be <code>null</code> in which case server page tags
-   *           are not processed. Server page tags define elements such as ASP
-   *           or JSP tags that are not handled correc with tidy. All elements
-   *           specified as server page tags will be replaced with a valid HTML
-   *           comment before tidy is processed and then placed back with the
-   *           original element after the tidy process.
-   * @param encoding the input encoding to use for the tidy process, UTF8 is
-   *           used if <code>null</code> or an empty <code>String</code> is
-   *           provided. The Java format is expected. The output string is
-   *           always UTF8 encoded.
-   * @param serverRoot the server root for which to add the default entities
-   *           including server, port and root (e.g. localhost:9992/Rhythmyx),
-   *           not <code>null</code> or empty.
-   * @return the tidied <code>String</code> for the supplied source, tidied
-   *         with the settings supplied in properties, never <code>null</code>.
+   * @param source the source HTML as <code>String</code> that needs to be tidied, not <code>null
+   *     </code> or empty.
+   * @param properties the properties that configure tidy, not <code>null</code>, may be empty, in
+   *     which case the default settings are used.
+   * @param serverPageTags the configuration used to process the server page tags, may be <code>null
+   *     </code> in which case server page tags are not processed. Server page tags define elements
+   *     such as ASP or JSP tags that are not handled correc with tidy. All elements specified as
+   *     server page tags will be replaced with a valid HTML comment before tidy is processed and
+   *     then placed back with the original element after the tidy process.
+   * @param encoding the input encoding to use for the tidy process, UTF8 is used if <code>null
+   *     </code> or an empty <code>String</code> is provided. The Java format is expected. The
+   *     output string is always UTF8 encoded.
+   * @param serverRoot the server root for which to add the default entities including server, port
+   *     and root (e.g. localhost:9992/Rhythmyx), not <code>null</code> or empty.
+   * @return the tidied <code>String</code> for the supplied source, tidied with the settings
+   *     supplied in properties, never <code>null</code>.
    * @throws UnsupportedEncodingException if the requested encoding is invalid.
    * @throws IOException for any I/O error.
-   *
-   * @deprecated this does not work, use com.percussion.xml.PSXmlDomUtils#tidyInput(com.percussion.xmldom.PSXmlDomContext, String) instead.
+   * @deprecated this does not work, use
+   *     com.percussion.xml.PSXmlDomUtils#tidyInput(com.percussion.xmldom.PSXmlDomContext, String)
+   *     instead.
    */
   @Deprecated
   public static String tidy(
@@ -652,10 +605,7 @@ public class PSXmlDocumentBuilder {
       throw new IllegalArgumentException("serverRoot cannot be null or empty");
     }
 
-    /**
-     * If the supplied source claims it's XML, we do not tidy and return what
-     * we received.
-     */
+    /** If the supplied source claims it's XML, we do not tidy and return what we received. */
     int piStart = source.indexOf("<?xml");
 
     if (piStart == 0) {
@@ -687,10 +637,7 @@ public class PSXmlDocumentBuilder {
           throw new RuntimeException(tidyErrors.toString());
         }
 
-        /**
-         * Return the tidied source with the XML header and the default
-         * entitied added.
-         */
+        /** Return the tidied source with the XML header and the default entitied added. */
         return os.toString("UTF8")
             + "<?xml version='1.0' encoding=\"UTF-8\"?>"
             + NEWLINE
@@ -704,8 +651,7 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Create an error response document using the PSXError format. The
-   * definition for this is:
+   * Create an error response document using the PSXError format. The definition for this is:
    *
    * <PRE><CODE> &lt;ELEMENT PSXError (message, exceptionClass)&gt; &lt;ELEMENT
    * message (#PCDATA)&gt; &lt;ELEMENT exceptionClass (#PCDATA)&gt;
@@ -729,43 +675,34 @@ public class PSXmlDocumentBuilder {
     return respDoc;
   }
 
-  /**
-   * Calls {@link #createRoot(Document, String, String)  createRoot(doc, null,
-   * rootName)}
-   */
+  /** Calls {@link #createRoot(Document, String, String) createRoot(doc, null, rootName)} */
   public static Element createRoot(Document doc, String rootName) {
     return createRoot(doc, null, rootName);
   }
 
   /**
-   * Calls {@link #createRoot(Document, String, String, String)
-   * createRoot(doc, namespace, null, rootName)}
+   * Calls {@link #createRoot(Document, String, String, String) createRoot(doc, namespace, null,
+   * rootName)}
    */
   public static Element createRoot(Document doc, String namespace, String rootName) {
     return createRoot(doc, namespace, null, rootName);
   }
 
   /**
-   * Create the root node for an XML document. There can be only one root node
-   * for an XML document.
-   * <p>
-   * NOTE: 06/07/2004 If the namespace is required, then it is a good idea to
-   * have an non-empty alias; otherwise some of the XML serializer may not be
-   * able to handle the default namespace, such as the transformer of saxon.
-   * This method always adds an namespace equivalent attribute as a workaround
-   * for some of the faulty XML serializer.
+   * Create the root node for an XML document. There can be only one root node for an XML document.
    *
-   * @param doc the XML document to add the element to, may not be
-   *           <code>null</code>.
-   * @param namespace The namespace to use, may be <code>null</code> or empty
-   *           to specify no namespace.
-   * @param alias The alias to use for the namespace. This is appended onto the
-   *           element name when creating the element e.g.
-   *           <code>alias:rootName</code>. Ignored if <code>null</code>
-   *           or empty.
-   * @param rootName the tag name for the root node, may not be
-   *           <code>null</code> or empty.
+   * <p>NOTE: 06/07/2004 If the namespace is required, then it is a good idea to have an non-empty
+   * alias; otherwise some of the XML serializer may not be able to handle the default namespace,
+   * such as the transformer of saxon. This method always adds an namespace equivalent attribute as
+   * a workaround for some of the faulty XML serializer.
    *
+   * @param doc the XML document to add the element to, may not be <code>null</code>.
+   * @param namespace The namespace to use, may be <code>null</code> or empty to specify no
+   *     namespace.
+   * @param alias The alias to use for the namespace. This is appended onto the element name when
+   *     creating the element e.g. <code>alias:rootName</code>. Ignored if <code>null</code> or
+   *     empty.
+   * @param rootName the tag name for the root node, may not be <code>null</code> or empty.
    * @return the root node, never <code>null</code>.
    */
   public static Element createRoot(Document doc, String namespace, String alias, String rootName) {
@@ -798,15 +735,14 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Prepends the supplied namespace alias to the supplied tagname if not
-   * <code>null</code> or empty.
+   * Prepends the supplied namespace alias to the supplied tagname if not <code>null</code> or
+   * empty.
    *
    * @param alias The namespace alias, may be <code>null</code> or empty.
-   * @param tagName The tag name to which the alias is prepended, assumed not
-   *           <code>null</code> or empty.
-   *
-   * @return <code>alias:tagName</code> if the alias is not <code>null</code>
-   *         or empty, else just the supplied <code>tagName</code>.
+   * @param tagName The tag name to which the alias is prepended, assumed not <code>null</code> or
+   *     empty.
+   * @return <code>alias:tagName</code> if the alias is not <code>null</code> or empty, else just
+   *     the supplied <code>tagName</code>.
    */
   private static String aliasTagName(String alias, String tagName) {
     String elName =
@@ -818,8 +754,7 @@ public class PSXmlDocumentBuilder {
   /**
    * Replace the root node in this tree with another node.
    *
-   * @param doc the XML document to add the element to. May not be
-   *           <code>null</code>.
+   * @param doc the XML document to add the element to. May not be <code>null</code>.
    * @param newRoot the new root node. May not be <code>null</code>.
    * @return the original root node. May be <code>null</code>.
    * @throws IllegalArgumentException if doc or newRoot is <code>null</code>
@@ -850,11 +785,10 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Replace the root node in this tree with another node and make the root
-   * node and all its descendants a child of the new root node.
+   * Replace the root node in this tree with another node and make the root node and all its
+   * descendants a child of the new root node.
    *
-   * @param doc the XML document to add the element to. May not be
-   *           <code>null</code>.
+   * @param doc the XML document to add the element to. May not be <code>null</code>.
    * @param newRoot the new root node. May not be <code>null</code>.
    * @return the original root node. May be <code>null</code>.
    * @throws IllegalArgumentException if doc or newRoot is <code>null</code>
@@ -882,8 +816,7 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #addElement(Document, Element, String, String, String)
+   * Convenience method that calls {@link #addElement(Document, Element, String, String, String)
    * addElement(doc, parent, null, name, value)}
    */
   public static Element addElement(Document doc, Element parent, String name, String value) {
@@ -891,9 +824,8 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #addElement(Document, Element, String, String, String, String)
-   * addElement(doc, parent, namespace, null, name, value)}
+   * Convenience method that calls {@link #addElement(Document, Element, String, String, String,
+   * String) addElement(doc, parent, namespace, null, name, value)}
    */
   public static Element addElement(
       Document doc, Element parent, String namespace, String name, String value) {
@@ -903,24 +835,17 @@ public class PSXmlDocumentBuilder {
   /**
    * Add an element with the specified value as a child of the specified node.
    *
-   * @param doc the XML document to add the element to May not be
-   *           <code>null</code>
-   * @param parent the node which will be used as the parent of the May not be
-   *           <code>null</code> new element
-   * @param namespace The namespace to use, may be <code>null</code> or empty
-   *           to specify no namespace.
-   * @param alias The alias to use for the namespace. This is appended onto the
-   *           element name when creating the element e.g.
-   *           <code>alias:name</code>. Ignored if <code>null</code> or
-   *           empty.
-   * @param name the new element's tag name. May not be <code>null</code> or
-   *           empty.
+   * @param doc the XML document to add the element to May not be <code>null</code>
+   * @param parent the node which will be used as the parent of the May not be <code>null</code> new
+   *     element
+   * @param namespace The namespace to use, may be <code>null</code> or empty to specify no
+   *     namespace.
+   * @param alias The alias to use for the namespace. This is appended onto the element name when
+   *     creating the element e.g. <code>alias:name</code>. Ignored if <code>null</code> or empty.
+   * @param name the new element's tag name. May not be <code>null</code> or empty.
    * @param value the new element's value. May be <code>null</code> or empty
-   *
    * @return Never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if doc or parent or name is
-   *            <code>null</code> or name is empty
+   * @throws IllegalArgumentException if doc or parent or name is <code>null</code> or name is empty
    */
   public static Element addElement(
       Document doc, Element parent, String namespace, String alias, String name, String value) {
@@ -959,8 +884,7 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #addEmptyElement(Document, Element, String, String)
+   * Convenience method that calls {@link #addEmptyElement(Document, Element, String, String)
    * addEmptyElement(doc, parent, null, name)}
    */
   public static Element addEmptyElement(Document doc, Element parent, String name) {
@@ -968,9 +892,8 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #addEmptyElement(Document, Element, String, String, String)
-   * addEmptyElement(doc, parent, namespace, null, name)}
+   * Convenience method that calls {@link #addEmptyElement(Document, Element, String, String,
+   * String) addEmptyElement(doc, parent, namespace, null, name)}
    */
   public static Element addEmptyElement(
       Document doc, Element parent, String namespace, String name) {
@@ -980,23 +903,16 @@ public class PSXmlDocumentBuilder {
   /**
    * Add an empty element as a child of the specified node.
    *
-   * @param doc the XML document to add the element to. May not be
-   *           <code>null</code>.
-   * @param parent the node which will be used as the parent of the new
-   *           element. May not be <code>null</code>.
-   * @param namespace The namespace to use, may be <code>null</code> or empty
-   *           to specify no namespace.
-   * @param alias The alias to use for the namespace. This is appended onto the
-   *           element name when creating the element e.g.
-   *           <code>alias:name</code>. Ignored if <code>null</code> or
-   *           empty.
-   * @param name the new element's tag name. May not be <code>null</code> or
-   *           empty.
-   *
+   * @param doc the XML document to add the element to. May not be <code>null</code>.
+   * @param parent the node which will be used as the parent of the new element. May not be <code>
+   *     null</code>.
+   * @param namespace The namespace to use, may be <code>null</code> or empty to specify no
+   *     namespace.
+   * @param alias The alias to use for the namespace. This is appended onto the element name when
+   *     creating the element e.g. <code>alias:name</code>. Ignored if <code>null</code> or empty.
+   * @param name the new element's tag name. May not be <code>null</code> or empty.
    * @return The new element, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if doc or parent or name is
-   *            <code>null</code> or name is empty
+   * @throws IllegalArgumentException if doc or parent or name is <code>null</code> or name is empty
    */
   public static Element addEmptyElement(
       Document doc, Element parent, String namespace, String alias, String name) {
@@ -1026,40 +942,33 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Copy a tree, rooted at the specified node as a child of the specified tree
-   * and node.
+   * Copy a tree, rooted at the specified node as a child of the specified tree and node.
    *
-   * @param doc the XML document to add the node(s) to May not be
-   *           <code>null</code>
-   * @param parent the node which will be used as the parent of the new
-   *           node(s). May not be <code>null</code>
-   * @param tree the node (along with its children) which will be copied into
-   *           the specified doc, if <code>null</code> then this method
-   *           returns immediately
-   * @throws IllegalArgumentException if doc or parent or tree is
-   *            <code>null</code>
+   * @param doc the XML document to add the node(s) to May not be <code>null</code>
+   * @param parent the node which will be used as the parent of the new node(s). May not be <code>
+   *     null</code>
+   * @param tree the node (along with its children) which will be copied into the specified doc, if
+   *     <code>null</code> then this method returns immediately
+   * @throws IllegalArgumentException if doc or parent or tree is <code>null</code>
    */
   public static void copyTree(Document doc, Node parent, Node tree) {
     copyTree(doc, parent, tree, true);
   }
 
   /**
-   * Copy a tree, rooted at the specified node as a child of the specified tree
-   * and node.
+   * Copy a tree, rooted at the specified node as a child of the specified tree and node.
    *
-   * @param doc the XML document to add the node(s) to. May not be
-   *           <code>null</code>
-   * @param parent the node which will be used as the parent of the new node
-   *           May not be <code>null</code>
-   * @param tree the node (along with its children) which will be copied into
-   *           the specified doc, if <code>null</code> then this method
-   *           returns <code>null</code> immediately without modification
-   * @param bClone if the node should be cloned before adding to the document
-   *           if <code>true</code> the node is cloned, otherwise not cloned.
-   * @return the reference to the node added to the tree, returns
-   *         <code>null</code> if the tree to be added is <code>null</code>
-   * @throws IllegalArgumentException if doc or parent or tree is
-   *            <code>null</code>
+   * @param doc the XML document to add the node(s) to. May not be <code>null</code>
+   * @param parent the node which will be used as the parent of the new node May not be <code>null
+   *     </code>
+   * @param tree the node (along with its children) which will be copied into the specified doc, if
+   *     <code>null</code> then this method returns <code>null</code> immediately without
+   *     modification
+   * @param bClone if the node should be cloned before adding to the document if <code>true</code>
+   *     the node is cloned, otherwise not cloned.
+   * @return the reference to the node added to the tree, returns <code>null</code> if the tree to
+   *     be added is <code>null</code>
+   * @throws IllegalArgumentException if doc or parent or tree is <code>null</code>
    */
   public static Node copyTree(Document doc, Node parent, Node tree, boolean bClone) {
     if (tree == null) {
@@ -1110,24 +1019,19 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Write the XML document to the specified output stream. If the document
-   * does not have document type, it writes the document type with specified
-   * dtd.
+   * Write the XML document to the specified output stream. If the document does not have document
+   * type, it writes the document type with specified dtd.
    *
    * @param doc the XML document to be written, may not be <code>null</code>
-   * @param out the output stream to write to, may not be <code>null</code>.
-   *           Caller is responsible to close the stream.
-   * @param dtd the url of dtd, may not be <code>null</code>. If the
-   *           document does not have 'DOCTYPE' element, this dtd is used for
-   *           adding this element.
-   *
+   * @param out the output stream to write to, may not be <code>null</code>. Caller is responsible
+   *     to close the stream.
+   * @param dtd the url of dtd, may not be <code>null</code>. If the document does not have
+   *     'DOCTYPE' element, this dtd is used for adding this element.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs while writting the document.
-   *
-   * @deprecated Call
-   * {@link #createXmlDocument(String, URL, String)} to create a document with
-   *        a specific DTD instead. Then call the regular write methods, which
-   *        will include the DOCTYPE reference.
+   * @deprecated Call {@link #createXmlDocument(String, URL, String)} to create a document with a
+   *     specific DTD instead. Then call the regular write methods, which will include the DOCTYPE
+   *     reference.
    */
   @Deprecated
   public static void write(Document doc, OutputStream out, URL dtd) throws IOException {
@@ -1139,24 +1043,19 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Write the XML document to the specified output stream. If the document
-   * does not have document type, it writes the document type with specified
-   * dtd. Uses rhythmyx standard encoding.
+   * Write the XML document to the specified output stream. If the document does not have document
+   * type, it writes the document type with specified dtd. Uses rhythmyx standard encoding.
    *
    * @param doc the XML document to be written, may not be <code>null</code>.
-   * @param out the output stream to write to, may not be <code>null</code>.
-   *           Caller is responsible to close the stream.
-   * @param dtdPath the path of dtd file, may not be <code>null</code> or
-   *           empty. If the document does not have 'DOCTYPE' element, this
-   *           path is used for adding this element.
-   *
+   * @param out the output stream to write to, may not be <code>null</code>. Caller is responsible
+   *     to close the stream.
+   * @param dtdPath the path of dtd file, may not be <code>null</code> or empty. If the document
+   *     does not have 'DOCTYPE' element, this path is used for adding this element.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs while writting the document.
-   *
-   * @deprecated Call
-   * {@link #createXmlDocument(String, URL, String)} to create a document with
-   *        a specific DTD instead. Then call the regular write methods, which
-   *        will include the DOCTYPE reference.
+   * @deprecated Call {@link #createXmlDocument(String, URL, String)} to create a document with a
+   *     specific DTD instead. Then call the regular write methods, which will include the DOCTYPE
+   *     reference.
    */
   @Deprecated
   public static void write(Document doc, OutputStream out, String dtdPath) throws IOException {
@@ -1194,14 +1093,13 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Writes out the xml header with the XML version and the character encoding
-   * reported by the Java VM.
+   * Writes out the xml header with the XML version and the character encoding reported by the Java
+   * VM.
    *
    * @param doc the XML document to be written Assumed not <code>null</code>.
    * @param w the output writer to use Assumed not <code>null</code>.
-   * @param encoding the character encoding used by the writer. May be
-   *           <code>null</code> or empty. If <code>null</code> or empty,
-   *           will not write an encoding parameter
+   * @param encoding the character encoding used by the writer. May be <code>null</code> or empty.
+   *     If <code>null</code> or empty, will not write an encoding parameter
    */
   private static void writeXmlHeader(Document doc, Writer w, String encoding) throws IOException {
     String standalone = doc.getXmlStandalone() ? "yes" : "no";
@@ -1244,9 +1142,8 @@ public class PSXmlDocumentBuilder {
    *
    * @param doc the XML document to be written May not be <code>null</code>.
    * @param out the output writer to use May not be <code>null</code>.
-   * @param encoding the character encoding used by the writer. May be
-   *           <code>null</code> or empty. If <code>null</code> or empty,
-   *           no XML header will be written.
+   * @param encoding the character encoding used by the writer. May be <code>null</code> or empty.
+   *     If <code>null</code> or empty, no XML header will be written.
    * @throws IllegalArgumentException if doc or out is <code>null</code>
    */
   public static void write(Document doc, Writer out, String encoding) throws IOException {
@@ -1259,7 +1156,6 @@ public class PSXmlDocumentBuilder {
    * Write the XML document to the specified output stream.
    *
    * @param node the XML document to be written
-   *
    * @param out the output stream to write to
    */
   public static void write(Element node, OutputStream out) throws java.io.IOException {
@@ -1272,7 +1168,6 @@ public class PSXmlDocumentBuilder {
    * Write the XML document to the specified output writer.
    *
    * @param node the XML document to be written
-   *
    * @param out the output writer to use
    */
   public static void write(Element node, Writer out) throws java.io.IOException {
@@ -1281,33 +1176,27 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Returns a string representation of the specified node. The returned string
-   * is based on the node type:
-   * <p>
-   * Attribute - value of attribute CDATASection - content of the CDATA Section
-   * Comment - content of the comment Document - the document tree Element -
-   * the Element tree ProcessingInstruction - entire content excluding the
-   * target Text - content of the text node
-   * <p>
-   * The following node types are currently not supported:
-   * <p>
-   * DocumentFragment DocumentType Entity EntityReference Notation
+   * Returns a string representation of the specified node. The returned string is based on the node
+   * type:
+   *
+   * <p>Attribute - value of attribute CDATASection - content of the CDATA Section Comment - content
+   * of the comment Document - the document tree Element - the Element tree ProcessingInstruction -
+   * entire content excluding the target Text - content of the text node
+   *
+   * <p>The following node types are currently not supported:
+   *
+   * <p>DocumentFragment DocumentType Entity EntityReference Notation
+   *
    * <p>
    *
-   * @param node the XML node whose string representation is to be obtained,
-   *           may be <code>null</code> if <code>FLAG_ALLOW_NULL</code> is
-   *           included in the specified flag. If this flag is not specified
-   *           and node is <code>null</code>, then
-   *           <code>IllegalArgumentException</code> is thrown.
-   *
-   * @param flags optional flags for controlling the string representation of
-   *           the node, one or more <code>FLAG_XXX</code> values OR'ed
-   *           together.
-   *
-   * @return string representation of the specified node, never
-   *         <code>null</code>, may be empty if <code>node</code> is
-   *         <code>null</code> and <code>FLAG_ALLOW_NULL</code> is
-   *         specified.
+   * @param node the XML node whose string representation is to be obtained, may be <code>null
+   *     </code> if <code>FLAG_ALLOW_NULL</code> is included in the specified flag. If this flag is
+   *     not specified and node is <code>null</code>, then <code>IllegalArgumentException</code> is
+   *     thrown.
+   * @param flags optional flags for controlling the string representation of the node, one or more
+   *     <code>FLAG_XXX</code> values OR'ed together.
+   * @return string representation of the specified node, never <code>null</code>, may be empty if
+   *     <code>node</code> is <code>null</code> and <code>FLAG_ALLOW_NULL</code> is specified.
    */
   public static String toString(Node node, int flags) {
     boolean allowNull = ((flags & FLAG_ALLOW_NULL) == FLAG_ALLOW_NULL);
@@ -1356,7 +1245,6 @@ public class PSXmlDocumentBuilder {
    * Get a string representation of the document.
    *
    * @param doc the document
-   *
    * @return the string representation
    */
   public static String toString(Document doc) {
@@ -1379,7 +1267,6 @@ public class PSXmlDocumentBuilder {
    * Get a string representation of the element and its children.
    *
    * @param node the element node
-   *
    * @return the string representation
    */
   public static String toString(Element node) {
@@ -1400,12 +1287,10 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Normalizes the given string by converting crlf or cr to lf (\r\n to \n and
-   * \r to \n)
+   * Normalizes the given string by converting crlf or cr to lf (\r\n to \n and \r to \n)
    *
    * @param inStr The string to normalize, may be <code>null</code>.
-   * @return The normalized string, or <code>null</code> if that is passed
-   *         in.
+   * @return The normalized string, or <code>null</code> if that is passed in.
    */
   public static String normalize(String inStr) {
     if (inStr == null) {
@@ -1447,19 +1332,14 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Replace all of the TEXT nodes underneath a given element with a single new
-   * text node. If the node has markup, it may not be preserved Comments, CDATA
-   * sections, and other children of the node are not changed.
+   * Replace all of the TEXT nodes underneath a given element with a single new text node. If the
+   * node has markup, it may not be preserved Comments, CDATA sections, and other children of the
+   * node are not changed.
    *
-   * @param parentDoc the document that the element belongs to. It may not be
-   *           <code>null</code>.
-   *
-   * @param elementNode the element to be replaced. It may not be
-   *           <code>null</code>.
-   *
-   * @param newValue the string which contains the new value. It may be
-   *           <code>null</code>, then it has no effect or the value will
-   *           not be changed.
+   * @param parentDoc the document that the element belongs to. It may not be <code>null</code>.
+   * @param elementNode the element to be replaced. It may not be <code>null</code>.
+   * @param newValue the string which contains the new value. It may be <code>null</code>, then it
+   *     has no effect or the value will not be changed.
    */
   public static Element replaceText(Document parentDoc, Element elementNode, String newValue) {
     if (parentDoc == null) {
@@ -1517,11 +1397,9 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Remove an element from the document. This will also remove all children of
-   * the element.
+   * Remove an element from the document. This will also remove all children of the element.
    *
    * @param elementNode the element to remove. It may not be <code>null</code>.
-   *
    */
   public static void removeElement(Element elementNode) {
     if (elementNode == null) {
@@ -1536,23 +1414,15 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Print the structure of the tree, recursively. Note this routine does not
-   * print the contents, only the structure. This is mostly useful for
-   * debugging document processors, but may have other uses as well. Normally,
-   * the printing will be done on a subset of a document, starting with a
+   * Print the structure of the tree, recursively. Note this routine does not print the contents,
+   * only the structure. This is mostly useful for debugging document processors, but may have other
+   * uses as well. Normally, the printing will be done on a subset of a document, starting with a
    * specified Node. This Node and any children will be printed.
    *
-   *
-   * @param currentNode The node to start the print with. It may not be
-   *           <code>null</code>.
-   *
-   * @param stream The printstream that will recieve the output. It may not be
-   *           <code>null</code>.
-   *
-   * @param parentIndent The string representing the input header. It may be
-   *           <code>null</code> or empty, then it will be default to 3
-   *           spaces.
-   *
+   * @param currentNode The node to start the print with. It may not be <code>null</code>.
+   * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
+   * @param parentIndent The string representing the input header. It may be <code>null</code> or
+   *     empty, then it will be default to 3 spaces.
    * @throws java.io.IOException
    */
   public static void printXmlTree(Node currentNode, PrintStream stream, String parentIndent)
@@ -1652,18 +1522,13 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * Print the structure of the tree, recursively. Note this routine does not
-   * print the contents, only the structure. This is mostly useful for
-   * debugging document processors, but may have other uses as well. Normally,
-   * the printing will be done on a subset of a document, starting with a
+   * Print the structure of the tree, recursively. Note this routine does not print the contents,
+   * only the structure. This is mostly useful for debugging document processors, but may have other
+   * uses as well. Normally, the printing will be done on a subset of a document, starting with a
    * specified Node. This Node and any children will be printed.
    *
-   * @param currentNode The node to start the print with. It may not be
-   *           <code>null</code>.
-   *
-   * @param stream The printstream that will recieve the output. It may not be
-   *           <code>null</code>.
-   *
+   * @param currentNode The node to start the print with. It may not be <code>null</code>.
+   * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
    * @throws java.io.IOException
    */
   public static void printXmlTree(Node currentNode, PrintStream stream) throws java.io.IOException {
@@ -1671,29 +1536,22 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
-   * This routine prints the structure of an entire document (including the
-   * document root) to the specified stream. The contents of the elements are
-   * not printed, only the structure.
+   * This routine prints the structure of an entire document (including the document root) to the
+   * specified stream. The contents of the elements are not printed, only the structure.
    *
-   * @param doc The node to start the print with. It may not be
-   *           <code>null</code>.
-   *
-   * @param stream The printstream that will recieve the output. It may not be
-   *           <code>null</code>.
-   *
+   * @param doc The node to start the print with. It may not be <code>null</code>.
+   * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
    * @throws java.io.IOException
-   *
    */
   public static void printXmlTree(Document doc, PrintStream stream) throws java.io.IOException {
     printXmlTree(doc, stream, "");
   }
 
   /**
-   * Main method, for debugging and showing sample code. Usage is : -i
-   * (INPUT_XML_FILE_PATH) -o (OUTPUT_XML_FILE_PATH)
+   * Main method, for debugging and showing sample code. Usage is : -i (INPUT_XML_FILE_PATH) -o
+   * (OUTPUT_XML_FILE_PATH)
    *
-   * @param argv required, format is: -i (INPUT_XML_FILE_PATH) -o
-   *           (OUTPUT_XML_FILE_PATH)
+   * @param argv required, format is: -i (INPUT_XML_FILE_PATH) -o (OUTPUT_XML_FILE_PATH)
    */
   public static void main(String[] argv) {
     if (argv.length != 4) {
@@ -1749,9 +1607,7 @@ public class PSXmlDocumentBuilder {
     }
   }
 
-  /**
-   * Prints the usage of this class.
-   */
+  /** Prints the usage of this class. */
   public static void printUsage() {
     System.out.println("Usage is : ");
     System.out.println("-i [INPUT_XML_FILE_PATH] -o [OUTPUT_XML_FILE_PATH]");

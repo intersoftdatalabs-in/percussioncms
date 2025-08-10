@@ -25,19 +25,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * Base implementation class for JCR values
  *
  * @author dougrand
- * @param <Type> the value type encapsulated by the subclass of this abstract
- * class.
- *
+ * @param <Type> the value type encapsulated by the subclass of this abstract class.
  */
 public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
-  /**
-   * Holds value, never <code>null</code> after ctor
-   */
+  /** Holds value, never <code>null</code> after ctor */
   protected Type m_value;
 
-  /**
-   * Hold string value once loaded
-   */
+  /** Hold string value once loaded */
   protected String m_strValue = null;
 
   /*

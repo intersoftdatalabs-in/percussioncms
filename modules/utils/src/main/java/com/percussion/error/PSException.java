@@ -21,75 +21,64 @@ import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The PSException class is the base class for all internal exceptions.
- * It contains the basic constructors for building a language
- * independent error message from an error code and its expected parameters.
- * All error messages are stored using the format defined in
- * the java.text.MessageFormat class. The message string contains curly
- * braces around parameters, which are 0 based. The error manager provides
- * two utility methods which take advantage of the MessageFormat.format
- * method.
- * <p>
- * Let's assume we have a message with code 100. It's defined in the
- * error string properties file as:
+ * The PSException class is the base class for all internal exceptions. It contains the basic
+ * constructors for building a language independent error message from an error code and its
+ * expected parameters. All error messages are stored using the format defined in the
+ * java.text.MessageFormat class. The message string contains curly braces around parameters, which
+ * are 0 based. The error manager provides two utility methods which take advantage of the
+ * MessageFormat.format method.
+ *
+ * <p>Let's assume we have a message with code 100. It's defined in the error string properties file
+ * as:
+ *
  * <PRE><CODE>
  *    100=param 1={0}, param 2 date={1,date}, param 2 time={1,time}
  * </CODE></PRE>
  *
- * To populate the message with an integer as the first parameter and the
- * current date as the second parameter, we need to build the following
- * Object array:
+ * To populate the message with an integer as the first parameter and the current date as the second
+ * parameter, we need to build the following Object array:
+ *
  * <PRE><CODE>
  *    Object[] args = { new Integer(1), new Date() };
  * </CODE></PRE>
  *
  * When the message is retrieved from the exception, it will look as follows:
+ *
  * <PRE><CODE>
  *    param1=1, param 2 date=Jan 6, 1999, param 2 time=4:50 PM
  * </CODE></PRE>
  *
- * This model is excellent for internationalization as the position of the
- * parameters may change based upon the target language. The exception
- * class also allows the message from a single exception to be retrieved
- * with different locales. This is essential for logging to the server
- * in one locale and displaying the text for a client using a different
- * locale.
- * <P>
- * To perform customized error message generation, the only method
- * that needs to be overriden is
+ * This model is excellent for internationalization as the position of the parameters may change
+ * based upon the target language. The exception class also allows the message from a single
+ * exception to be retrieved with different locales. This is essential for logging to the server in
+ * one locale and displaying the text for a client using a different locale.
+ *
+ * <p>To perform customized error message generation, the only method that needs to be overriden is
  * {@link #getLocalizedMessage(java.util.Locale) getLocalizedMessage}.
- * <p>
  *
- * Note:As part of of partial i18n, three new constructors are added in which
- * the first parameter is a language string in the syntax
- * [language]-[country]-[variant]
- * In this language, country and variant have the same meaning as in Java, the
- * only difference is that it should all be in lower case. If the exception is
- * instantiated with any of these three constructors, the message string text is
- * looked up from a TMX resource bundle not the java resource bundle.
+ * <p>Note:As part of of partial i18n, three new constructors are added in which the first parameter
+ * is a language string in the syntax [language]-[country]-[variant] In this language, country and
+ * variant have the same meaning as in Java, the only difference is that it should all be in lower
+ * case. If the exception is instantiated with any of these three constructors, the message string
+ * text is looked up from a TMX resource bundle not the java resource bundle.
  *
- * Note for derived classes: the final message is not actually created until a
- * call to one of the get... methods has been made. This allows passing in an
- * Object[] that has not been fully defined in the beginning of the ctor.
+ * <p>Note for derived classes: the final message is not actually created until a call to one of the
+ * get... methods has been made. This allows passing in an Object[] that has not been fully defined
+ * in the beginning of the ctor.
  *
  * @see com.percussion.error.IPSErrorManager
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSException extends java.lang.Exception implements IPSException {
 
   private static transient IPSErrorManager errorManager = new PSErrorManagerDefaultImpl();
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSException() {
     super();
   }
@@ -107,6 +96,7 @@ public class PSException extends java.lang.Exception implements IPSException {
 
   /**
    * Constructor that takes the error message
+   *
    * @param msg should not be <code>null</code>
    */
   public PSException(String msg) {
@@ -116,14 +106,12 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Construct an exception for messages taking only a single argument.
    *
-   * @param   msgCode         the error string to load
-   *
-   * @param   singleArg      the argument to use as the sole argument in
-   *   the error message. Passing <code>null</code> is equivalent to calling
-   * {@link #PSException(int, Object[]) PSException(msgCode, null)}. If
-   * <code>singleArg</code> is an instance of <code>Throwable</code>,
-   * then the argument is converted to message with the following format:
-   * <p>[exception Name]: exception text
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message. Passing <code>
+   *     null</code> is equivalent to calling {@link #PSException(int, Object[])
+   *     PSException(msgCode, null)}. If <code>singleArg</code> is an instance of <code>Throwable
+   *     </code>, then the argument is converted to message with the following format:
+   *     <p>[exception Name]: exception text
    */
   public PSException(int msgCode, Object singleArg) {
     this(msgCode, null == singleArg ? null : new Object[] {singleArg});
@@ -136,39 +124,33 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Convenience ctor that calls {@link #PSException(String,int,Object[])
-   * PSException(language, msgCode, null == singleArg ? null :
-   * new Object[] { singleArg })}.
+   * Convenience ctor that calls {@link #PSException(String,int,Object[]) PSException(language,
+   * msgCode, null == singleArg ? null : new Object[] { singleArg })}.
    */
   public PSException(String language, int msgCode, Object singleArg) {
     this(language, msgCode, null == singleArg ? null : new Object[] {singleArg});
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode         the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *   in the error message. May be <code>null</code>. <code>null</code> entries
-   * are treated as "".
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>. <code>null</code> entries are treated as "".
    */
   public PSException(int msgCode, Object[] arrayArgs) {
     this(msgCode, arrayArgs, null);
   }
 
   /**
-   * Same as {@link #PSException(int, Object[])}, but allows to specify the
-   * cause of the exception.
+   * Same as {@link #PSException(int, Object[])}, but allows to specify the cause of the exception.
    *
    * @param msgCode the error string to load.
-   * @param arrayArgs the array of arguments to use as the arguments in the
-   *           error message. May be <code>null</code>. <code>null</code>
-   *           entries are treated as "".
-   * @param cause The cause of the exception. May be <code>null</code>, in
-   * that case it means the cause is unknown.
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>. <code>null</code> entries are treated as "".
+   * @param cause The cause of the exception. May be <code>null</code>, in that case it means the
+   *     cause is unknown.
    */
   public PSException(int msgCode, Object[] arrayArgs, Throwable cause) {
     super(cause);
@@ -178,36 +160,28 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   language         language string, e.g. 'en-us', may be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param   msgCode         the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   * in the error message. May be <code>null</code>. <code>null</code> entries
-   * are treated as "".
-   *
+   * @param language language string, e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>. <code>null</code> entries are treated as "".
    */
   public PSException(String language, int msgCode, Object[] arrayArgs) {
     this(language, msgCode, arrayArgs, null);
   }
 
   /**
-   * Same as {@link #PSException(String, int, Object[])} but allows to specify
-   * the cause of the exception.
+   * Same as {@link #PSException(String, int, Object[])} but allows to specify the cause of the
+   * exception.
    *
-   * @param language language string, e.g. 'en-us', may be <code>null</code> or
-   *           <code>empty</code>.
+   * @param language language string, e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
    * @param msgCode the error string to load.
-   * @param arrayArgs the array of arguments to use as the arguments in the
-   *           error message. May be <code>null</code>. <code>null</code>
-   *           entries are treated as "".
-   * @param cause The cause of the exception. May be <code>null</code>, in that
-   *           case it means the cause is unknown.
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>. <code>null</code> entries are treated as "".
+   * @param cause The cause of the exception. May be <code>null</code>, in that case it means the
+   *     cause is unknown.
    */
   public PSException(String language, int msgCode, Object[] arrayArgs, Throwable cause) {
     super(cause);
@@ -220,7 +194,7 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Construct an exception for messages taking no arguments.
    *
-   * @param   msgCode         the error string to load
+   * @param msgCode the error string to load
    */
   public PSException(int msgCode) {
     this(msgCode, (Object) null);
@@ -229,10 +203,8 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Construct an exception for messages taking no arguments.
    *
-   * @param   language         language string, e.g. 'en-us', may be
-   * <code>null</code> or <code>empty</code>.
-   *
-   * @param   msgCode         the error string to load
+   * @param language language string, e.g. 'en-us', may be <code>null</code> or <code>empty</code>.
+   * @param msgCode the error string to load
    */
   public PSException(String language, int msgCode) {
     this(language, msgCode, null);
@@ -240,9 +212,9 @@ public class PSException extends java.lang.Exception implements IPSException {
 
   /**
    * Create a chained exception with a specific message
-   * @param message message to use in exception. If
-   * <code>null</code> then use the localized message from the original
-   * exception
+   *
+   * @param message message to use in exception. If <code>null</code> then use the localized message
+   *     from the original exception
    * @param e the original exception, never <code>null</code>
    */
   public PSException(String message, Throwable e) {
@@ -254,15 +226,13 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Construct an exception for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Construct an exception for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode         the error string to load
-   * @param   cause           the causal exception
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *   in the error message. May be <code>null</code>. <code>null</code> entries
-   * are treated as "".
+   * @param msgCode the error string to load
+   * @param cause the causal exception
+   * @param arrayArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>. <code>null</code> entries are treated as "".
    */
   public PSException(int msgCode, Throwable cause, Object... arrayArgs) {
     super(cause);
@@ -293,9 +263,8 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Returns the localized detail message of this exception.
    *
-   * @param   locale      the locale to generate the message in
-   *
-   * @return               the localized detail message
+   * @param locale the locale to generate the message in
+   * @return the localized detail message
    */
   public java.lang.String getLocalizedMessage(java.util.Locale locale) {
     if (m_overridingMessage != null) {
@@ -307,9 +276,8 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Returns the localized detail message of this exception.
    *
-   * @param   language      the locale to generate the message in
-   *
-   * @return               the localized detail message
+   * @param language the locale to generate the message in
+   * @return the localized detail message
    */
   public java.lang.String getLocalizedMessage(String language) {
     if (m_overridingMessage != null) {
@@ -319,10 +287,9 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Returns the localized detail message of this exception in the
-   * default locale for this system.
+   * Returns the localized detail message of this exception in the default locale for this system.
    *
-   * @return               the localized detail message
+   * @return the localized detail message
    */
   @Override
   public java.lang.String getLocalizedMessage() {
@@ -335,7 +302,7 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Returns the detail message of this exception.
    *
-   * @return               the detail message
+   * @return the detail message
    */
   @Override
   public java.lang.String getMessage() {
@@ -348,19 +315,16 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Returns a description of this exception. The format used is
-   * "ExceptionClass: ExceptionMessage"
+   * Returns a description of this exception. The format used is "ExceptionClass: ExceptionMessage"
    *
-   * @return               the description
+   * @return the description
    */
   @Override
   public java.lang.String toString() {
     return this.getClass().getName() + ": " + getLocalizedMessage();
   }
 
-  /**
-   * Set the parsing error code associated with this exception.
-   */
+  /** Set the parsing error code associated with this exception. */
   public void setErrorCode(int code) {
     m_code = code;
   }
@@ -368,7 +332,7 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Get the parsing error code associated with this exception.
    *
-   * @return   the error code
+   * @return the error code
    */
   public int getErrorCode() {
     return m_code;
@@ -377,15 +341,15 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Get the parsing error arguments associated with this exception.
    *
-   * @return   May be <code>null</code>, but no entry is <code>null</code>.
+   * @return May be <code>null</code>, but no entry is <code>null</code>.
    */
   public Object[] getErrorArguments() {
     return m_args;
   }
 
   /**
-   * Convenience method that calls {@link #setArgs(int, Object[])
-   * setArgs(msgCode, null == errorArg ? null : new Object[] { errorArg })}.
+   * Convenience method that calls {@link #setArgs(int, Object[]) setArgs(msgCode, null == errorArg
+   * ? null : new Object[] { errorArg })}.
    */
   public void setArgs(int msgCode, Object errorArg) {
     setArgs(msgCode, null == errorArg ? null : new Object[] {errorArg});
@@ -394,11 +358,9 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Set the arguments for this exception.
    *
-   * @param   msgCode         the error string to load
-   *
-   * @param   errorArgs      the array of arguments to use as the arguments
-   *   in the error message. May be <code>null</code>, but no entry may be
-   * <code>null</code>.
+   * @param msgCode the error string to load
+   * @param errorArgs the array of arguments to use as the arguments in the error message. May be
+   *     <code>null</code>, but no entry may be <code>null</code>.
    */
   public void setArgs(int msgCode, Object[] errorArgs) {
     m_code = msgCode;
@@ -408,8 +370,8 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Set the language string for this exception.
    *
-   * @param   language language string used to locate the language message text,
-   * may be <code>null</code> or <code>empty</code>.
+   * @param language language string used to locate the language message text, may be <code>null
+   *     </code> or <code>empty</code>.
    */
   public void setLanguageString(String language) {
     m_lang = language;
@@ -418,7 +380,7 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Get the language string for this exception.
    *
-   * @return   language string may be <code>null</code> or <code>empty</code>.
+   * @return language string may be <code>null</code> or <code>empty</code>.
    */
   public String getLanguageString() {
     return m_lang;
@@ -427,7 +389,7 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Get the stack trace for the specified exception as a string.
    *
-   * @param   t         the throwable (usually an exception)
+   * @param t the throwable (usually an exception)
    */
   public static String getStackTraceAsString(java.lang.Throwable t) {
     // for unknown exceptions, it's useful to log the stack trace
@@ -441,9 +403,9 @@ public class PSException extends java.lang.Exception implements IPSException {
 
   /**
    * Validates the supplied arg and sets the local variable if valid.
-   * @param args May be <code>null</code>. Any <code>null</code> entry will
-   * be replaced with "".
-   * </code>.
+   *
+   * @param args May be <code>null</code>. Any <code>null</code> entry will be replaced with "".
+   *     </code>.
    */
   private void setArgs(Object[] args) {
     if (null != args) {
@@ -458,18 +420,15 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Specifies the string overriding message returned by the exception.
-   * This method should only be used when normal approach to composing message
-   * does not work. Such situation can exist, for example, in distributed
-   * system if a node receives an exception with error message
-   * from other node and does not have access to the message
-   * resources to reconstruct the error message.
-   * Make sure that locale of overriding message corresponds to the locale
-   * normally used to construct the message.
+   * Specifies the string overriding message returned by the exception. This method should only be
+   * used when normal approach to composing message does not work. Such situation can exist, for
+   * example, in distributed system if a node receives an exception with error message from other
+   * node and does not have access to the message resources to reconstruct the error message. Make
+   * sure that locale of overriding message corresponds to the locale normally used to construct the
+   * message.
    *
-   * @param overridingMessage if not-blank this value will be returned
-   * as exception message overriding default message composing behavior.
-   * Can be <code>null</code>.
+   * @param overridingMessage if not-blank this value will be returned as exception message
+   *     overriding default message composing behavior. Can be <code>null</code>.
    */
   public void setOverridingMessage(String overridingMessage) {
     m_overridingMessage = StringUtils.isBlank(overridingMessage) ? null : overridingMessage;

@@ -19,20 +19,14 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-/**
- * Class to handle discovery, packaging, and installing of image files (.gif,
- * .jpg, etc.).
- */
+/** Class to handle discovery, packaging, and installing of image files (.gif, .jpg, etc.). */
 public class PSImageFileDependencyHandler extends PSFileDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSImageFileDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -45,8 +39,6 @@ public class PSImageFileDependencyHandler extends PSFileDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ImageFile";
 }

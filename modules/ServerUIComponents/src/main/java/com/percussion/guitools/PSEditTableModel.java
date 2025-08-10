@@ -26,23 +26,21 @@ import javax.swing.table.TableModel;
 
 /**
  * @author DougRand
- *
- * This abstract table model class forms the base for all models that
- * use a PSCollection at their heart. It implements the basic functionality, but
- * you must subclass it to implement the column oriented methods that will extract
- * and update information from an object's fields.
+ *     <p>This abstract table model class forms the base for all models that use a PSCollection at
+ *     their heart. It implements the basic functionality, but you must subclass it to implement the
+ *     column oriented methods that will extract and update information from an object's fields.
  */
 public abstract class PSEditTableModel implements TableModel {
   /**
-   * The maintained list of listeners for table modification events. These
-   * listeners are all of the specific TableModelListener class. Each is called
-   * in turn in notifyListeners using the given event.
+   * The maintained list of listeners for table modification events. These listeners are all of the
+   * specific TableModelListener class. Each is called in turn in notifyListeners using the given
+   * event.
    */
   private Collection m_tableModelListeners = new ArrayList();
 
   /**
-   * The base model storage. The PSCollection may be of any concrete type since
-   * this class is itself only an abstract class that may not be instantiated.
+   * The base model storage. The PSCollection may be of any concrete type since this class is itself
+   * only an abstract class that may not be instantiated.
    */
   protected PSCollection m_rows = null;
 
@@ -89,10 +87,10 @@ public abstract class PSEditTableModel implements TableModel {
   /**
    * Move a row from the initial index to a new index and notify all listeners
    *
-   * @param initialIndex the valid range is greater than or equal to
-   * zero and less than the number of rows in the model
-   * @param newIndex the valid range is greater than or equal to
-   * zero and less than the number of rows in the model
+   * @param initialIndex the valid range is greater than or equal to zero and less than the number
+   *     of rows in the model
+   * @param newIndex the valid range is greater than or equal to zero and less than the number of
+   *     rows in the model
    */
   public void moveRow(int initialIndex, int newIndex) {
     checkRange(initialIndex);
@@ -117,8 +115,9 @@ public abstract class PSEditTableModel implements TableModel {
 
   /**
    * This method checks the value passed against the actual bounds of the model
-   * @param index the valid range is greater than or equal to
-   * zero and less than the number of rows in the model
+   *
+   * @param index the valid range is greater than or equal to zero and less than the number of rows
+   *     in the model
    */
   private void checkRange(int index) {
     if (index < 0) {
@@ -133,8 +132,8 @@ public abstract class PSEditTableModel implements TableModel {
   /**
    * Remove a row from the model and notify all listeners
    *
-   * @param index the valid range is greater than or equal to
-   * zero and less than the number of rows in the model
+   * @param index the valid range is greater than or equal to zero and less than the number of rows
+   *     in the model
    */
   public void removeRow(int index) {
     checkRange(index);
@@ -149,8 +148,8 @@ public abstract class PSEditTableModel implements TableModel {
   /**
    * Add a row to the model and notify all listeners.
    *
-   * @param newRow must be of an appropriate type for the PSCollection
-   * or an exception will be thrown
+   * @param newRow must be of an appropriate type for the PSCollection or an exception will be
+   *     thrown
    */
   public void appendRow(Object newRow) {
     m_rows.add(newRow);
@@ -166,6 +165,7 @@ public abstract class PSEditTableModel implements TableModel {
 
   /**
    * Notify all listeners of the change to the table
+   *
    * @param event that indicates the kind of change
    */
   protected void notifyListeners(TableModelEvent event) {

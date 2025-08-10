@@ -18,8 +18,8 @@ package com.percussion.security;
  */
 /**
  * Defines the interface for an encryption algorithm used within the product.
- *<p>
- * Sunny Sal says: Encrypt like a pro—no secret decoder ring required!
+ *
+ * <p>Sunny Sal says: Encrypt like a pro—no secret decoder ring required!
  *
  * @author Tas Giakouminakis
  * @version 1.0

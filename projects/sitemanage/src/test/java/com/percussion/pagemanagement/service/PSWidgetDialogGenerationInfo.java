@@ -20,49 +20,47 @@ package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 
-/**
- * Holds dialog generation info for a widget.
- */
+/** Holds dialog generation info for a widget. */
 public class PSWidgetDialogGenerationInfo {
 
-    private PSWidgetDefinition widgetDefinition;
-    private boolean layoutDialogGenerated;
-    private boolean contentDialogGenerated;
-    private boolean styleDialogGenerated;
+  private PSWidgetDefinition widgetDefinition;
+  private boolean layoutDialogGenerated;
+  private boolean contentDialogGenerated;
+  private boolean styleDialogGenerated;
 
-    public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition) {
-        this.widgetDefinition = widgetDefinition;
-    }
+  public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition) {
+    this.widgetDefinition = widgetDefinition;
+  }
 
-    public PSWidgetDefinition getWidgetDefinition() {
-        return widgetDefinition;
-    }
+  public PSWidgetDefinition getWidgetDefinition() {
+    return widgetDefinition;
+  }
 
-    public void setWidgetDefinition(PSWidgetDefinition widgetDefinition) {
-        this.widgetDefinition = widgetDefinition;
-    }
+  public void setWidgetDefinition(PSWidgetDefinition widgetDefinition) {
+    this.widgetDefinition = widgetDefinition;
+  }
 
-    public boolean isLayoutDialogGenerated() {
-        return layoutDialogGenerated;
-    }
+  public boolean isLayoutDialogGenerated() {
+    return layoutDialogGenerated;
+  }
 
-    public void setLayoutDialogGenerated(boolean layoutDialogGenerated) {
-        this.layoutDialogGenerated = layoutDialogGenerated;
-    }
+  public void setLayoutDialogGenerated(boolean layoutDialogGenerated) {
+    this.layoutDialogGenerated = layoutDialogGenerated;
+  }
 
-    public boolean isContentDialogGenerated() {
-        return contentDialogGenerated;
-    }
+  public boolean isContentDialogGenerated() {
+    return contentDialogGenerated;
+  }
 
-    public void setContentDialogGenerated(boolean contentDialogGenerated) {
-        this.contentDialogGenerated = contentDialogGenerated;
-    }
+  public void setContentDialogGenerated(boolean contentDialogGenerated) {
+    this.contentDialogGenerated = contentDialogGenerated;
+  }
 
-    public boolean isStyleDialogGenerated() {
-        return styleDialogGenerated;
-    }
+  public boolean isStyleDialogGenerated() {
+    return styleDialogGenerated;
+  }
 
-    public void setStyleDialogGenerated(boolean styleDialogGenerated) {
-        this.styleDialogGenerated = styleDialogGenerated;
-    }
+  public void setStyleDialogGenerated(boolean styleDialogGenerated) {
+    this.styleDialogGenerated = styleDialogGenerated;
+  }
 }

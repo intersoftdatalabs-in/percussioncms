@@ -26,35 +26,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSExtensionParamDef class defines a basic parameter definition which can
- * be used with most exit handlers. Exits use the parameter definitions
- * to determine how the function will be called, including any data type
- * conversions.
+ * The PSExtensionParamDef class defines a basic parameter definition which can be used with most
+ * exit handlers. Exits use the parameter definitions to determine how the function will be called,
+ * including any data type conversions.
  *
- * @see         com.percussion.extension.IPSExtensionDef
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.extension.IPSExtensionDef
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSExtensionParamDef extends PSComponent implements IPSExtensionParamDef {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -4878254025413256106L;
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
    * @param sourceNode the XML element node to construct this object from
-   *
    * @param parentDoc the Java object which is the parent of this object
-   *
    * @param parentComponents the parent objects of this object
-   *
-   * @exception PSUnknownNodeTypeException if the XML element node is not of
-   * the appropriate type
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSExtensionParamDef(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -63,9 +55,7 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSExtensionParamDef() {
     super();
   }
@@ -73,10 +63,9 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   /**
    * Construct a parameter definition for use in an exit handler.
    *
-   * @param   name      the name of the parameter
-   * @param   dataType the data type of the parameter
-   *
-   * @see         #setName
+   * @param name the name of the parameter
+   * @param dataType the data type of the parameter
+   * @see #setName
    */
   public PSExtensionParamDef(java.lang.String name, java.lang.String dataType) {
     super();
@@ -87,18 +76,17 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   /**
    * Get the name of the parameter.
    *
-   * @return            the name of the parameter
+   * @return the name of the parameter
    */
   public java.lang.String getName() {
     return m_name;
   }
 
   /**
-   * Set the name of the parameter. Be sure to follow the appropriate
-   * naming convention for the exit handler this parameter will be used by.
-   * This is limited to 128 characters.
+   * Set the name of the parameter. Be sure to follow the appropriate naming convention for the exit
+   * handler this parameter will be used by. This is limited to 128 characters.
    *
-   * @param   name      the name of the parameter
+   * @param name the name of the parameter
    */
   public void setName(java.lang.String name) {
     IllegalArgumentException ex = validateName(name);
@@ -122,21 +110,18 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   /**
    * Get the data type of the parameter.
    *
-   * @return the datatype of the parameter, never <code>null</code>, might be
-   *    empty.
+   * @return the datatype of the parameter, never <code>null</code>, might be empty.
    */
   public String getDataType() {
     return m_dataType;
   }
 
   /**
-   * Set the data type of the parameter. Be sure to use a valid data type
-   * for the exit handler this parameter will be used by. If this is not
-   * specified, a string based type will be used by default.
-   * This is limited to 128 characters.
+   * Set the data type of the parameter. Be sure to use a valid data type for the exit handler this
+   * parameter will be used by. If this is not specified, a string based type will be used by
+   * default. This is limited to 128 characters.
    *
-   * @param dataType the data type of the parameter, may be <code>null</code>
-   *    or empty.
+   * @param dataType the data type of the parameter, may be <code>null</code> or empty.
    */
   public void setDataType(String dataType) {
     IllegalArgumentException ex = validateDataType(dataType);
@@ -159,20 +144,18 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   /**
    * Get the description of the parameter.
    *
-   * @return the description of the parameter, never <code>null</code>, might
-   *    be empty.
+   * @return the description of the parameter, never <code>null</code>, might be empty.
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
-   * Set the description of the parameter. Descriptions are commonly used
-   * to provide details about the use of the parameter.
+   * Set the description of the parameter. Descriptions are commonly used to provide details about
+   * the use of the parameter.
    *
-   * @param desc the description of the parameter, may be <code>null</code>
-   *    or empty. If <code>null</code> is provided it will be set to an empty
-   *    String.
+   * @param desc the description of the parameter, may be <code>null</code> or empty. If <code>null
+   *     </code> is provided it will be set to an empty String.
    */
   public void setDescription(String desc) {
     if (desc == null) m_description = "";
@@ -182,10 +165,11 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXExtensionParamDef XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXExtensionParamDef XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *     &lt;!--
    *           PSXExtensionParamDef defines a basic parameter definition which can be
@@ -215,7 +199,7 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
    *     &lt;!ELEMENT description   (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXExtensionParamDef XML element node
+   * @return the newly created PSXExtensionParamDef XML element node
    */
   public Element toXml(Element root) {
     Document doc = root.getOwnerDocument();
@@ -244,12 +228,12 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   }
 
   /**
-   * This method is called to populate a PSExtensionParamDef Java object
-   * from a PSXExtensionParamDef XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSExtensionParamDef Java object from a PSXExtensionParamDef
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                                                                                                     of type PSXExtensionParamDef
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type
+   *     PSXExtensionParamDef
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -287,18 +271,15 @@ public class PSExtensionParamDef extends PSComponent implements IPSExtensionPara
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

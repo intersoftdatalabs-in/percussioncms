@@ -27,9 +27,9 @@ import java.io.File;
 import java.text.ParseException;
 
 /**
- * Takes a date string and transforms it to a new string using a supplied
- * format. See {@link java.text.SimpleDateFormat} for the supported format
- * patterns.
+ * Takes a date string and transforms it to a new string using a supplied format. See {@link
+ * java.text.SimpleDateFormat} for the supported format patterns.
+ *
  * <table>
  * <tr>
  * <th>Param</th>
@@ -49,7 +49,6 @@ import java.text.ParseException;
  * </table>
  *
  * @author dougrand
- *
  */
 public class PSFormatDate implements IPSFieldOutputTransformer {
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request)

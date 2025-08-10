@@ -277,19 +277,16 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   /**
-   * Gets the IndexWriter for the supplied contenttype. This is a synchronized
-   * method as we can't create more than one Indexwriter for the given
-   * contenttype. We have three cases here. We get a matching IndexWriter for
-   * the given contenttype and lang. In this case we simply return that index
-   * writer. We find a IndexWriter for the given contenttype but the lang does
-   * not match then we need to close this writer and Create another writer and
-   * add it to the map and return. We do not find a index writer for the given
-   * contenttype.
+   * Gets the IndexWriter for the supplied contenttype. This is a synchronized method as we can't
+   * create more than one Indexwriter for the given contenttype. We have three cases here. We get a
+   * matching IndexWriter for the given contenttype and lang. In this case we simply return that
+   * index writer. We find a IndexWriter for the given contenttype but the lang does not match then
+   * we need to close this writer and Create another writer and add it to the map and return. We do
+   * not find a index writer for the given contenttype.
    *
-   * @param ctypeid The content typeid for which the index writer is needed.
-   * assumed not <code>null</code>.
-   * @return The IndexWriter associated with the content type. Never
-   * <code>null</code>.
+   * @param ctypeid The content typeid for which the index writer is needed. assumed not <code>null
+   *     </code>.
+   * @return The IndexWriter associated with the content type. Never <code>null</code>.
    * @throws IOException
    * @throws LockObtainFailedException
    * @throws CorruptIndexException
@@ -502,24 +499,21 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   /**
-   * Extracts the data from body field. If the supplied data is instance of
-   * InputStream returns as is. If it is byte array then converts into
-   * ByteArrayInputStream and returns. If it is PSFieldRetriever gets the field
-   * content as byte array and then converts into ByteArrayInputStream and
-   * returns.
+   * Extracts the data from body field. If the supplied data is instance of InputStream returns as
+   * is. If it is byte array then converts into ByteArrayInputStream and returns. If it is
+   * PSFieldRetriever gets the field content as byte array and then converts into
+   * ByteArrayInputStream and returns.
    *
    * @param unitId to obtain the Content Type id. Assumed not <code>null</code>.
-   * @param data The data that needs to be converted to InputStream. If
-   * <code>null</code> returns <code>null</code>.
-   * @param fieldName The name of the field for which the data needs to be
-   * extracted. Assumed a valid field.
+   * @param data The data that needs to be converted to InputStream. If <code>null</code> returns
+   *     <code>null</code>.
+   * @param fieldName The name of the field for which the data needs to be extracted. Assumed a
+   *     valid field.
    * @return data in the form of InputStream or <code>null</code>.
-   * @throws PSCmsException see
-   * {@link PSFieldRetriever#getFieldContent(PSRequest,
-   *    com.percussion.design.objectstore.PSLocator, String, int)}
-   * @throws PSInvalidContentTypeException see
-   * {@link PSFieldRetriever#getFieldContent(PSRequest,
-   *    com.percussion.design.objectstore.PSLocator, String, int)}
+   * @throws PSCmsException see {@link PSFieldRetriever#getFieldContent(PSRequest,
+   *     com.percussion.design.objectstore.PSLocator, String, int)}
+   * @throws PSInvalidContentTypeException see {@link PSFieldRetriever#getFieldContent(PSRequest,
+   *     com.percussion.design.objectstore.PSLocator, String, int)}
    */
   private InputStream getBodyFieldDataAsStream(PSSearchKey unitId, Object data, String fieldName)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -549,17 +543,15 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   /**
-   * Gets the text from the supplied data, if the mimetype is plain text then
-   * simply returns the supplied data. Otherwise creates a ByteArrayInputStream
-   * and gets the text by calling getText(InputStream, String) method.
+   * Gets the text from the supplied data, if the mimetype is plain text then simply returns the
+   * supplied data. Otherwise creates a ByteArrayInputStream and gets the text by calling
+   * getText(InputStream, String) method.
    *
-   * @param data The data object from which the text needs to be extracted. If
-   * <code>null</code> or empty returns empty string.
+   * @param data The data object from which the text needs to be extracted. If <code>null</code> or
+   *     empty returns empty string.
    * @param mimetype Mimetype that needs to be used to extract the text.
-   * @param unitId used for logging if there is any error. Assumed not
-   * <code>null</code>.
-   * @param fieldName used for logging if there is any error. Assumed not
-   * <code>null</code>.
+   * @param unitId used for logging if there is any error. Assumed not <code>null</code>.
+   * @param fieldName used for logging if there is any error. Assumed not <code>null</code>.
    * @return Extracted text. May be empty, but never <code>null</code>.
    * @throws PSExtensionProcessingException
    */
@@ -621,25 +613,18 @@ public class PSSearchIndexerImpl extends PSSearchIndexer {
   }
 
   /**
-   * @return the map of content type ids and index writers. Never
-   * <code>null</code> may be empty.
+   * @return the map of content type ids and index writers. Never <code>null</code> may be empty.
    */
   protected static Map<Long, IndexWriter> getLuceneIndexWriters() {
     return ms_indexWriters;
   }
 
-  /**
-   * Static list of Lucene IndexWriter objects one for contenttype.
-   */
+  /** Static list of Lucene IndexWriter objects one for contenttype. */
   private static Map<Long, IndexWriter> ms_indexWriters = new HashMap<Long, IndexWriter>();
 
-  /**
-   * Reference to log for this class
-   */
+  /** Reference to log for this class */
   private static final Logger ms_log = LogManager.getLogger(IPSConstants.SEARCH_LOG);
 
-  /**
-   * Map of content type ids and index writers that need to be optimized
-   */
+  /** Map of content type ids and index writers that need to be optimized */
   private Map<Long, IndexWriter> m_indexesNotCommitted = new HashMap<>();
 }

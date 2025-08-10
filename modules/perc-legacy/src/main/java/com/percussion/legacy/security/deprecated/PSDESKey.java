@@ -22,26 +22,24 @@ import com.percussion.security.IPSSecretKey;
 import javax.crypto.SecretKey;
 
 /**
- * The PSDESKey class is used to store the specified key as a DES key.
- * DES uses a 64-bit key, which is encoded into a 56-bit value used
- * in the algorithm for encryption/decryption. For security, the original
- * (non-encoded) version is not stored with this class.
- * <P>
- * DES is described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>.
- * The DES modes of operation are described in
- * <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS 81</A>.
+ * The PSDESKey class is used to store the specified key as a DES key. DES uses a 64-bit key, which
+ * is encoded into a 56-bit value used in the algorithm for encryption/decryption. For security, the
+ * original (non-encoded) version is not stored with this class.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * <p>DES is described in <A HREF="http://www.itl.nist.gov/fipspubs/fip46-2.htm">FIPS 46-2</A>. The
+ * DES modes of operation are described in <A HREF="http://www.itl.nist.gov/fipspubs/fip81.htm">FIPS
+ * 81</A>.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  * @deprecated
  */
 @Deprecated
 public class PSDESKey implements IPSSecretKey {
   /**
-   * Construct a DES key with no associated secret. Be sure to call
-   * setSecret when using this constructor.
+   * Construct a DES key with no associated secret. Be sure to call setSecret when using this
+   * constructor.
    */
   public PSDESKey() {
     super();
@@ -50,11 +48,9 @@ public class PSDESKey implements IPSSecretKey {
   /**
    * Construct a DES key with the specified secret value.
    *
-   * @param      secret   a 64-bit (8 byte) value to generate the key
-   *
-   * @exception   IllegalArgumentException
-   *                        if <code>secret</code> is <code>null</code> or not
-   *                        a 64-bit value.
+   * @param secret a 64-bit (8 byte) value to generate the key
+   * @exception IllegalArgumentException if <code>secret</code> is <code>null</code> or not a 64-bit
+   *     value.
    */
   public PSDESKey(byte[] secret) throws IllegalArgumentException {
     super();
@@ -66,21 +62,18 @@ public class PSDESKey implements IPSSecretKey {
   /**
    * Get the number of bits required for this secret key.
    *
-   * @return               the number of bits to use in setSecret
+   * @return the number of bits to use in setSecret
    */
   public int getSecretSizeInBits() {
     return 64; // 64 bit secret
   }
 
   /**
-   * Set the secret to the specified byte array. It must have the
-   * appropriate number of bytes to match the bit count returned by
-   * getSecretSizeInBits.
+   * Set the secret to the specified byte array. It must have the appropriate number of bytes to
+   * match the bit count returned by getSecretSizeInBits.
    *
-   * @param      secret   the secret to use to generate the key
-   *
-   * @exception   IllegalArgumentException
-   *                        if the secret is invalid for this object
+   * @param secret the secret to use to generate the key
+   * @exception IllegalArgumentException if the secret is invalid for this object
    */
   public void setSecret(byte[] secret) throws IllegalArgumentException {
     if ((secret == null) || (secret.length != 8))
@@ -153,7 +146,7 @@ public class PSDESKey implements IPSSecretKey {
   /**
    * Generate an IPSEncryptor object which can make use of this key.
    *
-   * @return            the associated encryptor
+   * @return the associated encryptor
    */
   public IPSEncryptor getEncryptor() {
     try {
@@ -167,7 +160,7 @@ public class PSDESKey implements IPSSecretKey {
   /**
    * Generate an IPSDecryptor object which can make use of this key.
    *
-   * @return            the associated decryptor
+   * @return the associated decryptor
    */
   public IPSDecryptor getDecryptor() {
     try {
@@ -188,43 +181,32 @@ public class PSDESKey implements IPSSecretKey {
     return new byte[0];
   }
 
-  /**
-   * Permuted Choice 1 (PC-1) bit position setting array.
-   */
+  /** Permuted Choice 1 (PC-1) bit position setting array. */
   static final int[] permutedChoiceOneSetting = { // 56 elements
     57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60,
     52, 44, 36, 63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29,
     21, 13, 5, 28, 20, 12, 4
   }; // position starts from 1, not 0
 
-  /**
-   * Permuted Choice 2 (PC-2) bit position setting array.
-   */
+  /** Permuted Choice 2 (PC-2) bit position setting array. */
   static final int[] permutedChoiceTwoSetting = { // 48 elements
     14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2, 41, 52,
     31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32
   }; // position starts from 1, not 0
 
-  /**
-   * The length of the Permuted Choice 1 (PC-1) array.
-   */
+  /** The length of the Permuted Choice 1 (PC-1) array. */
   static final int permutedChoiceOneLen = permutedChoiceOneSetting.length;
 
-  /**
-   * The length of the Permuted Choice 2 (PC-2) array.
-   */
+  /** The length of the Permuted Choice 2 (PC-2) array. */
   static final int permutedChoiceTwoLen = permutedChoiceTwoSetting.length;
 
-  /**
-   * The required iteration number.
-   */
+  /** The required iteration number. */
   static final int IterationSetting = 16;
 
   /**
-   * Get the encoded key value -- that is, the 56-bit version used by this
-   * algorithm.
+   * Get the encoded key value -- that is, the 56-bit version used by this algorithm.
    *
-   * @return      the encoded key
+   * @return the encoded key
    */
   public byte[] getEncodedKey() {
     return m_encodedKey;
@@ -233,21 +215,19 @@ public class PSDESKey implements IPSSecretKey {
   /**
    * Get the array storing each bit of the 56-bit encoded key
    *
-   * @return      the array storing the bits
+   * @return the array storing the bits
    */
   public int[] getEncodedKeyBitArray() {
     return m_permutedChoiceOne;
   }
 
   /**
-   * Get the K array based on the iteration index. The index starts from 1
-   * and ends at the limit of IterationSetting
+   * Get the K array based on the iteration index. The index starts from 1 and ends at the limit of
+   * IterationSetting
    *
-   * @param   index      the iteration index
-   *
-   * @return            the array K
-   *
-   * @exception         IllegalArgumentException
+   * @param index the iteration index
+   * @return the array K
+   * @exception IllegalArgumentException
    */
   int[] getKArray(int index) throws IllegalArgumentException {
     if ((index < 1) || (index > IterationSetting))
@@ -291,9 +271,7 @@ public class PSDESKey implements IPSSecretKey {
     return m_K1; // won't happen here
   }
 
-  /**
-   * Store all the C[0] and D[0] elements.
-   */
+  /** Store all the C[0] and D[0] elements. */
   private void arrangeCDArrayElements() {
     int len = permutedChoiceOneLen / 2; // 28 elements
     for (int i = 0; i < len; i++) {

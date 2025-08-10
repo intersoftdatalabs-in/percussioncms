@@ -44,7 +44,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * Provides authentication for Active Directory users and CM1 registered members using Spring Security.
+ * Provides authentication for Active Directory users and CM1 registered members using Spring
+ * Security.
  *
  * @author Jay Seletz
  */
@@ -213,9 +214,7 @@ public class PSMembershipAuthProvider extends AbstractUserDetailsAuthenticationP
     return new JSONObject(jsonString);
   }
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSMembershipAuthProvider() {
     super();
   }

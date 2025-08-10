@@ -21,35 +21,32 @@ package com.percussion.utils.web.service;
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSObjectRestClient;
 
-/**
- * REST client for utility service.
- * Refactored for Java 11 and Google Java Style.
- */
+/** REST client for utility service. Refactored for Java 11 and Google Java Style. */
 public class PSUtilityRestClient extends PSObjectRestClient {
 
-    private final String path = "/Rhythmyx/services/utils/utility/";
+  private final String path = "/Rhythmyx/services/utils/utility/";
 
-    public PSUtilityRestClient(String baseUrl) {
-        super(baseUrl);
-    }
+  public PSUtilityRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    /**
-     * Encrypts a string using the utility REST service.
-     *
-     * @param mapWrapper the map wrapper containing the string and key
-     * @return the encrypted string in a map wrapper
-     */
-    public PSMapWrapper encryptString(PSMapWrapper mapWrapper) {
-        return postObjectToPath(concatPath(path, "encryptstring"), mapWrapper, PSMapWrapper.class);
-    }
+  /**
+   * Encrypts a string using the utility REST service.
+   *
+   * @param mapWrapper the map wrapper containing the string and key
+   * @return the encrypted string in a map wrapper
+   */
+  public PSMapWrapper encryptString(PSMapWrapper mapWrapper) {
+    return postObjectToPath(concatPath(path, "encryptstring"), mapWrapper, PSMapWrapper.class);
+  }
 
-    /**
-     * Decrypts a string using the utility REST service.
-     *
-     * @param mapWrapper the map wrapper containing the encrypted string and key
-     * @return the decrypted string in a map wrapper
-     */
-    public PSMapWrapper decryptString(PSMapWrapper mapWrapper) {
-        return postObjectToPath(concatPath(path, "decryptstring"), mapWrapper, PSMapWrapper.class);
-    }
+  /**
+   * Decrypts a string using the utility REST service.
+   *
+   * @param mapWrapper the map wrapper containing the encrypted string and key
+   * @return the decrypted string in a map wrapper
+   */
+  public PSMapWrapper decryptString(PSMapWrapper mapWrapper) {
+    return postObjectToPath(concatPath(path, "decryptstring"), mapWrapper, PSMapWrapper.class);
+  }
 }

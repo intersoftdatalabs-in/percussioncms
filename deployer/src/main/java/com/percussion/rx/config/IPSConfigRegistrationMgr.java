@@ -18,16 +18,16 @@
 package com.percussion.rx.config;
 
 /**
- * Config registration manager for registering and unregistering configurations.
- * Monitors local config files for changes and applies updates as needed.
+ * Config registration manager for registering and unregistering configurations. Monitors local
+ * config files for changes and applies updates as needed.
  *
  * @author bjoginipally
  */
 public interface IPSConfigRegistrationMgr {
 
   /**
-   * Registers the configuration, monitors its local config file for changes,
-   * and applies updates as needed.
+   * Registers the configuration, monitors its local config file for changes, and applies updates as
+   * needed.
    *
    * @param configName name of the configuration to register, must not be {@code null} or empty.
    */

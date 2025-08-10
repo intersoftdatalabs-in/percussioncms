@@ -29,34 +29,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class generates a single TMX document out of the TMX documents for all
- * slected sections using appropriate merge configurations. The following logic
- * is used to merge various TMX documents:
+ * This class generates a single TMX document out of the TMX documents for all slected sections
+ * using appropriate merge configurations. The following logic is used to merge various TMX
+ * documents:
+ *
  * <ol>
- * <li>Create an empty TMX document</li>
- * <li>Set merge config file {@link #SECTION_MERGE_CONFIG_FILE} to this document</li>
- * <li>Generate TMX documents for every selected section and merge with that in
- * step 1</li>
- * <li>Add all supported languages and correspond stubs to each translational
- * unit</li>
- * <li>Set a new merge configuration to the TMX document depending on user's
- * choice to keep only missing keys or to keep all. This is required as we need
- * to merge the TMX document of the Rhythmyx server to preserve the existing
- * translations.</li>
- * </li>Load the TMX Document from server and merge with the above</li>
- * <li>Save the TMX document (merge result) to the file specified by the user.
+ *   <li>Create an empty TMX document
+ *   <li>Set merge config file {@link #SECTION_MERGE_CONFIG_FILE} to this document
+ *   <li>Generate TMX documents for every selected section and merge with that in step 1
+ *   <li>Add all supported languages and correspond stubs to each translational unit
+ *   <li>Set a new merge configuration to the TMX document depending on user's choice to keep only
+ *       missing keys or to keep all. This is required as we need to merge the TMX document of the
+ *       Rhythmyx server to preserve the existing translations. Load the TMX Document from server
+ *       and merge with the above
+ *   <li>Save the TMX document (merge result) to the file specified by the user.
  * </ol>
- * <p>
- * This file is what goes to the translation service to translate the missing
- * pieces. The translated copy then finally merged with the server TMX document
- * using the action {@link IPSActionHandler#ACTIONID_MERGE_MASTER}.
- * </p>
- * <p>
- * <em>Note that whenever we generate TMX document from the Rhythmyx Content
- * Manager, we merge the server TMX document. This is important to get all the
- * existing translations preserved.
- * </em>
- * </p>
+ *
+ * <p>This file is what goes to the translation service to translate the missing pieces. The
+ * translated copy then finally merged with the server TMX document using the action {@link
+ * IPSActionHandler#ACTIONID_MERGE_MASTER}.
+ *
+ * <p><em>Note that whenever we generate TMX document from the Rhythmyx Content Manager, we merge
+ * the server TMX document. This is important to get all the existing translations preserved. </em>
  */
 public class PSGenerateTMXResourcesActionHandler implements IPSActionHandler {
   /*
@@ -168,11 +162,11 @@ public class PSGenerateTMXResourcesActionHandler implements IPSActionHandler {
 
   /**
    * Helper method to process a given section
-   * @param section DOM element storing the config options for the section to
-   * be processed. Must not be <code>null</code>.
+   *
+   * @param section DOM element storing the config options for the section to be processed. Must not
+   *     be <code>null</code>.
    * @return TMX document object for this section, never <code>null</code>
-   * @throws PSSectionProcessingException if any error occurs during
-   * processing of the section.
+   * @throws PSSectionProcessingException if any error occurs during processing of the section.
    */
   private IPSTmxDocument processSection(Element section) throws PSSectionProcessingException {
     String temp = section.getAttribute("sectionid");
@@ -198,25 +192,21 @@ public class PSGenerateTMXResourcesActionHandler implements IPSActionHandler {
     return handler.process(section);
   }
 
-  /**
-   * Name of the merge configuration file used to generate the TMX file by
-   * merging all sections.
-   */
+  /** Name of the merge configuration file used to generate the TMX file by merging all sections. */
   static final String SECTION_MERGE_CONFIG_FILE = "configmergesections.xml";
 
   /**
-   * Name of the merge configuration file used to generate the keys when user
-   * chooses the option not to generate missingonly keys.
+   * Name of the merge configuration file used to generate the keys when user chooses the option not
+   * to generate missingonly keys.
    */
   static final String MASTER_MERGE_CONFIG_FILE = "configmergemaster.xml";
 
   /**
-   * Name of the merge configuration file used to generate the keys that are
-   * present in the local TMX document but not in the server TMX resource
-   * bundle. This config file is used only if user chooses to generate only
-   * missing keys in the UI. This option is useful to generate the keys that
-   * are added to Rhythmyx Content manager by adding/modifying  new workflow
-   * element, variant etc.
+   * Name of the merge configuration file used to generate the keys that are present in the local
+   * TMX document but not in the server TMX resource bundle. This config file is used only if user
+   * chooses to generate only missing keys in the UI. This option is useful to generate the keys
+   * that are added to Rhythmyx Content manager by adding/modifying new workflow element, variant
+   * etc.
    */
   static final String MASTER_MERGE_CONFIG_FILE_MISSING_ONLY = "configmergemastermissingonly.xml";
 }

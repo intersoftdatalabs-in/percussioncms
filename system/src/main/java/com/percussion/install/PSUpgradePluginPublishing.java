@@ -38,14 +38,10 @@ import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
 
-/**
- * This plugin is used to migrate publishing data from 6.x to Mako (6.6).
- */
+/** This plugin is used to migrate publishing data from 6.x to Mako (6.6). */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginPublishing() {}
 
   /**
@@ -147,20 +143,15 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
   /**
    * Database update utility method.
    *
-   * @param logger the logger used to log messages.  If <code>null</code>,
-   *           messages will not be logged.
+   * @param logger the logger used to log messages. If <code>null</code>, messages will not be
+   *     logged.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param sqlStmt the SQL statement for the updates, assumed not
-   *           <code>null</code>.
-   * @param bindValue the bind values for the above SQL statement. It may be
-   *           <code>null</code> if there is no bind value. The type of the
-   *           bind values must be either {@link Integer}, {@link Long},
-   *           {@link String}, or {@link Timestamp}.
-   *
-   * @return either (1) the row count for <code>INSERT</code>,
-   *         <code>UPDATE</code>, or <code>DELETE</code> statements or (2)
-   *         0 for SQL statements that return nothing
-   *
+   * @param sqlStmt the SQL statement for the updates, assumed not <code>null</code>.
+   * @param bindValue the bind values for the above SQL statement. It may be <code>null</code> if
+   *     there is no bind value. The type of the bind values must be either {@link Integer}, {@link
+   *     Long}, {@link String}, or {@link Timestamp}.
+   * @return either (1) the row count for <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE
+   *     </code> statements or (2) 0 for SQL statements that return nothing
    * @throws Exception if an error occurs.
    */
   private int executeUpdate(PrintStream logger, Connection conn, String sqlStmt, Object[] bindValue)
@@ -210,22 +201,16 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
   }
 
   /**
-   * Database update utility method.  Calls
-   * {@link #executeUpdate(PrintStream, Connection, String, Object[])} passing
-   * the given {@link List} of bind values as an array.
+   * Database update utility method. Calls {@link #executeUpdate(PrintStream, Connection, String,
+   * Object[])} passing the given {@link List} of bind values as an array.
    *
-   * @param logger the logger used to log messages.  If <code>null</code>,
-   *           messages will not be logged.
+   * @param logger the logger used to log messages. If <code>null</code>, messages will not be
+   *     logged.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   * @param bindValue the bind values for the above SQL statement, assumed
-   *           not <code>null</code>.
-   * @param sqlStmt the SQL statement for the updates, assumed not
-   *           <code>null</code>.
-   *
-   * @return either (1) the row count for <code>INSERT</code>,
-   *         <code>UPDATE</code>, or <code>DELETE</code> statements or (2)
-   *         0 for SQL statements that return nothing
-   *
+   * @param bindValue the bind values for the above SQL statement, assumed not <code>null</code>.
+   * @param sqlStmt the SQL statement for the updates, assumed not <code>null</code>.
+   * @return either (1) the row count for <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE
+   *     </code> statements or (2) 0 for SQL statements that return nothing
    * @throws Exception if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -234,39 +219,28 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
     return executeUpdate(logger, conn, sqlStmt, bindValue.toArray());
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #executeUpdate(null, Connection, List, String)}.
-   */
+  /** Convenience method that calls {@link #executeUpdate(null, Connection, List, String)}. */
   @SuppressWarnings("unchecked")
   private int executeUpdate(Connection conn, String sqlStmt, List bindValue) throws Exception {
     return executeUpdate(null, conn, bindValue, sqlStmt);
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #executeUpdate(null, Connection, String, Object[])}
-   */
+  /** Convenience method that calls {@link #executeUpdate(null, Connection, String, Object[])} */
   private int executeUpdate(Connection conn, String sqlStmt, Object[] bindValue) throws Exception {
     return executeUpdate(null, conn, sqlStmt, bindValue);
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #executeUpdate(null, Connection, String, null)}.
-   */
+  /** Convenience method that calls {@link #executeUpdate(null, Connection, String, null)}. */
   private int executeUpdate(Connection conn, String sqlStmt) throws Exception {
     return executeUpdate(null, conn, sqlStmt, null);
   }
 
   /**
-   * Migrates all publishing status data from the old table
-   * {@link #RXPUBSTATUS_TABLE} to the new one {@link #PSX_PUBSTATUS_TABLE}.
+   * Migrates all publishing status data from the old table {@link #RXPUBSTATUS_TABLE} to the new
+   * one {@link #PSX_PUBSTATUS_TABLE}.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void migratePubStatus(PrintStream logger, Connection conn) throws Exception {
@@ -368,13 +342,11 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
   }
 
   /**
-   * Migrates all publishing docs data from the old table
-   * {@link #RXPUBDOCS_TABLE} to the new one {@link #PSX_PUBDOCS_TABLE}.
+   * Migrates all publishing docs data from the old table {@link #RXPUBDOCS_TABLE} to the new one
+   * {@link #PSX_PUBDOCS_TABLE}.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -503,13 +475,11 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
   }
 
   /**
-   * Migrates all assembly context data from {@link #RXCONTENTLIST_TABLE} to
-   * {@link #RXEDITIONCLIST_TABLE}.
+   * Migrates all assembly context data from {@link #RXCONTENTLIST_TABLE} to {@link
+   * #RXEDITIONCLIST_TABLE}.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void migrateAssemblyContext(PrintStream logger, Connection conn) throws Exception {
@@ -610,8 +580,7 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
   }
 
   /**
-   * Encapsulates data from the
-   * {@link PSUpgradePluginPublishing#RXPUBSTATUS_TABLE} table, including
+   * Encapsulates data from the {@link PSUpgradePluginPublishing#RXPUBSTATUS_TABLE} table, including
    * publication id and site id.
    */
   class PubStatusValue {
@@ -644,59 +613,37 @@ public class PSUpgradePluginPublishing implements IPSUpgradePlugin {
       return m_siteid;
     }
 
-    /**
-     * See {@link #getPublicationId()}
-     */
+    /** See {@link #getPublicationId()} */
     private int m_publicationid;
 
-    /**
-     * See {@link #getSiteId()}.
-     */
+    /** See {@link #getSiteId()}. */
     private int m_siteid;
   }
 
-  /**
-   * Counter for tracking the number of SQL statement as part of logging info.
-   */
+  /** Counter for tracking the number of SQL statement as part of logging info. */
   private int ms_sqlCount = 0;
 
-  /**
-   * The name of the old publication status table.
-   */
+  /** The name of the old publication status table. */
   private static final String RXPUBSTATUS_TABLE = "RXPUBSTATUS";
 
-  /**
-   * The name of the new publication status table.
-   */
+  /** The name of the new publication status table. */
   private static final String PSX_PUBSTATUS_TABLE = "PSX_PUBLICATION_STATUS";
 
-  /**
-   * The name of the old publication docs table.
-   */
+  /** The name of the old publication docs table. */
   private static final String RXPUBDOCS_TABLE = "RXPUBDOCS";
 
-  /**
-   * The name of the new publication docs table.
-   */
+  /** The name of the new publication docs table. */
   private static final String PSX_PUBDOCS_TABLE = "PSX_PUBLICATION_DOC";
 
-  /**
-   * The name of the content list table.
-   */
+  /** The name of the content list table. */
   private static final String RXCONTENTLIST_TABLE = "RXCONTENTLIST";
 
-  /**
-   * The name of the content list association table.
-   */
+  /** The name of the content list association table. */
   private static final String RXEDITIONCLIST_TABLE = "RXEDITIONCLIST";
 
-  /**
-   * Constant for the success status value.
-   */
+  /** Constant for the success status value. */
   private static final String STATUS_SUCCESS = "SUCCESS";
 
-  /**
-   * Constant for the publish status value.
-   */
+  /** Constant for the publish status value. */
   private static final String STATUS_PUBLISH = "PUBLISH";
 }

@@ -29,9 +29,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class parses an eclipse external tools ant build file used for the ant
- * installer, reading in the classpath entries.  The required jar files are
- * copied to a specified target directory.
+ * This class parses an eclipse external tools ant build file used for the ant installer, reading in
+ * the classpath entries. The required jar files are copied to a specified target directory.
  */
 public class PSCopyAntInstallerClasspath {
 
@@ -40,13 +39,11 @@ public class PSCopyAntInstallerClasspath {
   /**
    * Copies jars which appear on the classpath to a specified directory.
    *
-   * @param srcFile The source config file, may not be <code>null</code> and
-   * must exist.
-   * @param rootDirectory The root directory of the source tree, may not be
-   * <code>null</code> and must exist.
-   * @param tgtDirectory The target manifest file directory, may not be
-   * <code>null</code> and must exist.
-   *
+   * @param srcFile The source config file, may not be <code>null</code> and must exist.
+   * @param rootDirectory The root directory of the source tree, may not be <code>null</code> and
+   *     must exist.
+   * @param tgtDirectory The target manifest file directory, may not be <code>null</code> and must
+   *     exist.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs.
    * @throws FileNotFoundException if any file cannot be located.
@@ -105,9 +102,9 @@ public class PSCopyAntInstallerClasspath {
   }
 
   /**
-   * Throws {@link IllegalArgumentException} if any of the parameters
-   * does not confirm to {@link #copyJars(File, File, File)} contract.
-   * See that method for the parameter description.
+   * Throws {@link IllegalArgumentException} if any of the parameters does not confirm to {@link
+   * #copyJars(File, File, File)} contract. See that method for the parameter description.
+   *
    * @see #copyJars(File, File, File)
    */
   private void validateCopyJarsParameters(File srcFile, File rootDirectory, File tgtDirectory) {
@@ -127,18 +124,12 @@ public class PSCopyAntInstallerClasspath {
   /**
    * This class may be used from the command line.
    *
-   * Arguments expected are:
+   * <p>Arguments expected are:
    *
    * <ol>
-   * <li>sourceFile: The source build file.  Must point to an existing file.
-   * </li>
-   *
-   * <li>rootDir: The root directory.  Must point to an existing directory.
-   * </li>
-   *
-   * <li>targetDir: The target directory.  Must point to an existing directory.
-   * </li>
-   *
+   *   <li>sourceFile: The source build file. Must point to an existing file.
+   *   <li>rootDir: The root directory. Must point to an existing directory.
+   *   <li>targetDir: The target directory. Must point to an existing directory.
    * </ol>
    *
    * Any errors are written to System.out
@@ -164,28 +155,20 @@ public class PSCopyAntInstallerClasspath {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSCopyManifest ");
     System.out.println("<source file> <root dir> <target dir>");
   }
 
-  /**
-   * Marks beginning of the section for classpath
-   */
+  /** Marks beginning of the section for classpath */
   private static final String CLASSPATH_START =
       "<listAttribute key=\"org.eclipse.jdt.launching.CLASSPATH\">";
 
-  /**
-   * Marks end of the section for classpath
-   */
+  /** Marks end of the section for classpath */
   private static final String CLASSPATH_END = "</listAttribute>";
 
-  /**
-   * Name of the jar file path attribute of the classpath entry
-   */
+  /** Name of the jar file path attribute of the classpath entry */
   private static final String ARCHIVE_ATTR = "internalArchive";
 }

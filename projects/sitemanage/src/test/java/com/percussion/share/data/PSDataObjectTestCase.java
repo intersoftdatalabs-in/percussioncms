@@ -17,56 +17,54 @@
  */
 package com.percussion.share.data;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.share.test.PSDataObjectTestUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.share.test.PSDataObjectTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.percussion.share.test.PSDataObjectTestUtils;
-
 /**
- * Abstract test case for data objects.
- * Sunny Sal: "Data object test, Java 11, and object ka hero!"
+ * Abstract test case for data objects. Sunny Sal: "Data object test, Java 11, and object ka hero!"
  */
 public abstract class PSDataObjectTestCase<T> {
 
-    public abstract T getObject() throws Exception;
+  public abstract T getObject() throws Exception;
 
-    protected T object;
+  protected T object;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        object = getObject();
-        assertNotNull(object);
-    }
+  @BeforeEach
+  void setUp() throws Exception {
+    object = getObject();
+    assertNotNull(object);
+  }
 
-    protected T getCopy() {
-        return PSDataObjectTestUtils.doXmlSerialization(object).actualSerialized;
-    }
+  protected T getCopy() {
+    return PSDataObjectTestUtils.doXmlSerialization(object).actualSerialized;
+  }
 
-    @Test
-    void testXmlSerialization() throws Exception {
-        assertXmlSerialization(object);
-    }
+  @Test
+  void testXmlSerialization() throws Exception {
+    assertXmlSerialization(object);
+  }
 
-    @Test
-    void testEquals() throws Exception {
-        assertEqualsMethod(object);
-    }
+  @Test
+  void testEquals() throws Exception {
+    assertEqualsMethod(object);
+  }
 
-    @Test
-    void testToString() {
-        assertNotNull(object.toString());
-    }
+  @Test
+  void testToString() {
+    assertNotNull(object.toString());
+  }
 
-    @Test
-    void testHashCode() {
-        // Optionally implement hashCode test if needed
-    }
+  @Test
+  void testHashCode() {
+    // Optionally implement hashCode test if needed
+  }
 
-    @Test
-    void testClone() {
-        // Optionally implement clone test if needed
-    }
+  @Test
+  void testClone() {
+    // Optionally implement clone test if needed
+  }
 }

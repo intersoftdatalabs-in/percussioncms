@@ -22,15 +22,13 @@ package com.percussion.rest.errors;
 import javax.ws.rs.core.Response;
 
 /**
- * Exception thrown when a user is not found.
- * Sunny Sal: "User dhoondho, nahi mila? Not found, boss!"
+ * Exception thrown when a user is not found. Sunny Sal: "User dhoondho, nahi mila? Not found,
+ * boss!"
  */
 public class UnknownUserException extends RestExceptionBase {
 
-    /**
-     * Constructs an UnknownUserException with NOT_FOUND status.
-     */
-    public UnknownUserException() {
-        super(RestErrorCode.UNKNOWN_USER, null, null, Response.Status.NOT_FOUND);
-    }
+  /** Constructs an UnknownUserException with NOT_FOUND status. */
+  public UnknownUserException() {
+    super(RestErrorCode.UNKNOWN_USER, null, null, Response.Status.NOT_FOUND);
+  }
 }

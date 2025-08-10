@@ -54,16 +54,18 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to execute a small set of commands on a remote server.
- * The following commands are currently supported:
+ * This class is used to execute a small set of commands on a remote server. The following commands
+ * are currently supported:
+ *
  * <ol>
- *    <li>get</li>
- *    <li>put</li>
- *    <li>mkdir</li>
- *    <li>rmdir</li>
- *    <li>execprocess</li>
- *    <li>waitforprocess</li>
+ *   <li>get
+ *   <li>put
+ *   <li>mkdir
+ *   <li>rmdir
+ *   <li>execprocess
+ *   <li>waitforprocess
  * </ol>
+ *
  * <pre>The format of the protocol is very simple. Command requests are sent
  * as follows:
  *
@@ -96,10 +98,11 @@ import org.xml.sax.SAXException;
  * Integers should and will be written using Java's {@link
  * DataOutputStream#writeInt(int)} method.
  * </pre>
- * If using the {@link #sendCommand(String, int, String, List, StringBuilder)
- * sendCommand} method, the parameters for all commands should be
- * <code>String</code>, except <code>CMD_SAVE_BINARY_FILE</code>, which should
- * be an <code>InputStream</code> for the data.
+ *
+ * If using the {@link #sendCommand(String, int, String, List, StringBuilder) sendCommand} method,
+ * the parameters for all commands should be <code>String</code>, except <code>CMD_SAVE_BINARY_FILE
+ * </code>, which should be an <code>InputStream</code> for the data.
+ *
  * <table>
  *    <tr>
  *       <th>Command name</th>
@@ -198,85 +201,60 @@ import org.xml.sax.SAXException;
  *
  * </table>
  *
- * <p>If an unrecognized command is supplied, an error code of -1 is returned
- * with an appropriate message.
+ * <p>If an unrecognized command is supplied, an error code of -1 is returned with an appropriate
+ * message.
  *
- * <p><em>Path Limitations:</em> All paths are interpreted as virtual paths
- * relative to the path root specified in the daemon's config file. ../ is
- * not allowed. Forward or back slashes are allowed as path seperators
- * regardless of OS. The encoding of the path must be UTF-8.
+ * <p><em>Path Limitations:</em> All paths are interpreted as virtual paths relative to the path
+ * root specified in the daemon's config file. ../ is not allowed. Forward or back slashes are
+ * allowed as path seperators regardless of OS. The encoding of the path must be UTF-8.
  *
- * <p>The daemon is designed to be run as a standalone application. It requires
- * a number of parameters that can be supplied in a properties file.
+ * <p>The daemon is designed to be run as a standalone application. It requires a number of
+ * parameters that can be supplied in a properties file.
+ *
  * <p>
+ *
  * @author paulhoward
  */
 public class PSProcessDaemon extends Thread {
   private static org.apache.logging.log4j.Logger log = LogManager.getLogger(PSProcessDaemon.class);
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_EXEC_PROCESS = "execprocess";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_WAIT_FOR_PROCESS = "waitforprocess";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_REMOVE_FS_OBJ = "rm";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_MAKE_DIRS = "mkdir";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_SAVE_FILE = "put";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_SAVE_BINARY_FILE = "putbinary";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_GET_FILE = "get";
 
-  /**
-   * One of the commands supported by this daemon. See class description for
-   * details.
-   */
+  /** One of the commands supported by this daemon. See class description for details. */
   public static final String CMD_FS_OBJ_EXISTS = "exists";
 
   /**
-   * The 'namespace' for variables in the properties file used to process
-   * the process definitions.
+   * The 'namespace' for variables in the properties file used to process the process definitions.
    */
   public static final String PROC_ENV_PREFIX = "procenv.";
 
   /**
    * Loads the properties file then starts the daemon.
    *
-   * @param args Expects 1 optional arg, which is the filename of the props
-   * file. If not supplied, "procdaemon.properties" is used.
-   *
-   * @throws Throwable Anything that causes the daemon to end prematurely is
-   * passed on. The reason this is here is because it is caught and re-thrown
-   * so the reason for the termination can be logged.
+   * @param args Expects 1 optional arg, which is the filename of the props file. If not supplied,
+   *     "procdaemon.properties" is used.
+   * @throws Throwable Anything that causes the daemon to end prematurely is passed on. The reason
+   *     this is here is because it is caught and re-thrown so the reason for the termination can be
+   *     logged.
    */
   public static void main(String[] args) throws Throwable {
     // used for logging
@@ -425,36 +403,26 @@ public class PSProcessDaemon extends Thread {
   }
 
   /**
-   * This method is for use by users of this class. It encapsulates the
-   * communication protocol.
-   * <p>Opens a socket on <code>server</code> using <code>port</code>.
-   * It formats and sends a command to the process daemon, using the proper
-   * protocol and returns the results thru a returned error code and a
-   * returned string.
+   * This method is for use by users of this class. It encapsulates the communication protocol.
    *
-   * @param server The name of the server to which the command will be sent.
-   * Never <code>null</code> or empty.
+   * <p>Opens a socket on <code>server</code> using <code>port</code>. It formats and sends a
+   * command to the process daemon, using the proper protocol and returns the results thru a
+   * returned error code and a returned string.
    *
+   * @param server The name of the server to which the command will be sent. Never <code>null</code>
+   *     or empty.
    * @param port The port over which the command will be sent.
-   *
-   * @param cmdName Never <code>null</code> or empty. One of the CMD_xxx
-   * commands supported by the daemon. If not, an error code will be
-   * returned.
-   *
-   * @param params Never <code>null</code>. If an entry is of type
-   * <code>InputStream</code>, the data is read from it, otherwise, a
-   * <code>toString</code> is performed on the entry. 0 or more entries as
-   * appropriate for the specified command.
-   *
-   * @param result The text returned from the daemon is set on this object.
-   * It is not cleared before appending. The interpretation of the data is
-   * dependentant upon the command. Never <code>null</code>.
-   *
-   * @return A value of 0 indicates success, a value &lt; 0 indicates a bad
-   * command or other framework problem. A value &gt; 0 indicates the
-   * associated command handler failed. If a non-zero value is returned,
-   * <code>result</code> will contain the error text.
-   *
+   * @param cmdName Never <code>null</code> or empty. One of the CMD_xxx commands supported by the
+   *     daemon. If not, an error code will be returned.
+   * @param params Never <code>null</code>. If an entry is of type <code>InputStream</code>, the
+   *     data is read from it, otherwise, a <code>toString</code> is performed on the entry. 0 or
+   *     more entries as appropriate for the specified command.
+   * @param result The text returned from the daemon is set on this object. It is not cleared before
+   *     appending. The interpretation of the data is dependentant upon the command. Never <code>
+   *     null</code>.
+   * @return A value of 0 indicates success, a value &lt; 0 indicates a bad command or other
+   *     framework problem. A value &gt; 0 indicates the associated command handler failed. If a
+   *     non-zero value is returned, <code>result</code> will contain the error text.
    * @throws Exception If any problems during communication.
    */
   public static int sendCommand(
@@ -527,17 +495,13 @@ public class PSProcessDaemon extends Thread {
   }
 
   /**
-   * Verifies that the supplied string conforms to a valid IPv4 or IPv6 form.
-   * IPv4 form is n.n.n.n, where each n is a number from 0 to 255 (e.g.
-   * 255.128.64.3). IPv6 has
-   * the form n:n:n:n:n:n:n:n, where each n is a 4 digit hex number (e.g.
-   * 1080:0:0:0:8:800:200C:417A).
+   * Verifies that the supplied string conforms to a valid IPv4 or IPv6 form. IPv4 form is n.n.n.n,
+   * where each n is a number from 0 to 255 (e.g. 255.128.64.3). IPv6 has the form n:n:n:n:n:n:n:n,
+   * where each n is a 4 digit hex number (e.g. 1080:0:0:0:8:800:200C:417A).
    *
    * @param address The IP address to validate. Any value is allowed.
-   *
-   * @return If <code>address</code> is <code>null</code> or empty,
-   * <code>false</code> is returned. <code>true</code> is returned if the
-   * supplied address matches a form described above.
+   * @return If <code>address</code> is <code>null</code> or empty, <code>false</code> is returned.
+   *     <code>true</code> is returned if the supplied address matches a form described above.
    */
   private boolean validateInetAddressForm(String address) {
     // 7 is the absolute shortest address
@@ -611,19 +575,18 @@ public class PSProcessDaemon extends Thread {
   }
 
   /**
-   * Does the work of looking up the process def, launching it and returning
-   * the results in its own thread.
+   * Does the work of looking up the process def, launching it and returning the results in its own
+   * thread.
    *
    * @author paulhoward
    */
   private class RequestHandler extends Thread {
     /**
-     * Saves the supplied socket until the thread starts, at which time
-     * it reads the data from the sock, processes the request and writes
-     * the results back to the socket before closing it.
+     * Saves the supplied socket until the thread starts, at which time it reads the data from the
+     * sock, processes the request and writes the results back to the socket before closing it.
      *
-     * @param sock The source of the request. Never <code>null</code>. It is
-     * closed after this thread has finished with it.
+     * @param sock The source of the request. Never <code>null</code>. It is closed after this
+     *     thread has finished with it.
      */
     public RequestHandler(Socket sock) {
       if (null == sock) {
@@ -712,16 +675,10 @@ public class PSProcessDaemon extends Thread {
     /**
      * Formats and writes the supplied data onto the supplied stream.
      *
-     * @param out Assumed not <code>null</code>. Takes ownership and closes
-     * when finished.
-     *
+     * @param out Assumed not <code>null</code>. Takes ownership and closes when finished.
      * @param resultCode Written to the stream as the error code.
-     *
-     * @param text Assumed not <code>null</code>. Written to the stream as
-     * the result text.
-     *
-     * @throws IOException If any errors while writing to the supplied
-     * stream.
+     * @param text Assumed not <code>null</code>. Written to the stream as the result text.
+     * @throws IOException If any errors while writing to the supplied stream.
      */
     private void send(OutputStream out, int resultCode, String text) throws IOException {
       DataOutputStream dos = null;
@@ -742,15 +699,13 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'execprocess' command. See class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
-     * @return A serialized xml document conforming to the format as
-     * defined in the dtd found in PSXProcessRequestResult.dtd.
-     *
-     * @throws SAXException If the byte[] supplied as the first param
-     * cannot be parsed as a UTF8 encoded xml document.
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
+     * @return A serialized xml document conforming to the format as defined in the dtd found in
+     *     PSXProcessRequestResult.dtd.
+     * @throws SAXException If the byte[] supplied as the first param cannot be parsed as a UTF8
+     *     encoded xml document.
      */
     private String handleExecProcess(List params) throws SAXException {
       if (params.isEmpty()) {
@@ -782,18 +737,14 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Processes the 'waitforprocess' command. See class description for
-     * details.
+     * Processes the 'waitforprocess' command. See class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
-     * @return A serialized xml document conforming to the format as
-     * defined in the dtd found in PSXProcessRequestResult.dtd.
-     *
-     * @throws Exception If the byte[] supplied as the params
-     * cannot be parsed as integers.
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
+     * @return A serialized xml document conforming to the format as defined in the dtd found in
+     *     PSXProcessRequestResult.dtd.
+     * @throws Exception If the byte[] supplied as the params cannot be parsed as integers.
      */
     private String handleWaitForProcess(List params) throws Exception {
       if (params.size() != 2) {
@@ -823,14 +774,12 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'rm' command. See class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
      * @return always an empty string
-     *
-     * @throws Exception if the supplied path is not valid or all specified
-     * directories cannot be created.
+     * @throws Exception if the supplied path is not valid or all specified directories cannot be
+     *     created.
      */
     private String handleRm(List params) throws Exception {
       StringBuilder validateResult = new StringBuilder(1000);
@@ -842,13 +791,11 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'exists' command. See class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
-     * @return a single digit that has either a value of "1" to
-     * indicate the object does exist in the file system or "0" otherwise.
-     *
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
+     * @return a single digit that has either a value of "1" to indicate the object does exist in
+     *     the file system or "0" otherwise.
      * @throws Exception if the supplied path is not valid.
      */
     private String handleCheckFSObject(List params) throws Exception {
@@ -860,14 +807,12 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'mkdir' command. See class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
      * @return always an empty string
-     *
-     * @throws Exception if the supplied path is not valid or all specified
-     * directories cannot be created.
+     * @throws Exception if the supplied path is not valid or all specified directories cannot be
+     *     created.
      */
     private String handleMkdir(List params) throws Exception {
       StringBuilder validateResult = new StringBuilder(1000);
@@ -877,17 +822,13 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Verifies the rules defined in the daemon class description are
-     * followed and creates a full path by concatenating the daemon's root
-     * and the supplied path.
+     * Verifies the rules defined in the daemon class description are followed and creates a full
+     * path by concatenating the daemon's root and the supplied path.
      *
-     * @param source The path to validate and normalize. Assumed in UTF-8
-     * encoding.
-     *
+     * @param source The path to validate and normalize. Assumed in UTF-8 encoding.
      * @return A fully qualified <code>File</code>.
-     *
-     * @throws Exception if UTF8 not supported by Java, if any path rules are
-     * violated or if the virtual root no longer exists.
+     * @throws Exception if UTF8 not supported by Java, if any path rules are violated or if the
+     *     virtual root no longer exists.
      */
     private File validatePath(byte[] source) throws Exception {
       String sourcePath;
@@ -917,14 +858,12 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'put' command. See daemon class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
      * @return Always an empty string.
-     *
-     * @throws Exception if the supplied path is not valid or the file
-     * cannot be written for any reason.
+     * @throws Exception if the supplied path is not valid or the file cannot be written for any
+     *     reason.
      */
     private String handlePut(List params) throws Exception {
       File path = validatePath((byte[]) params.get(0));
@@ -934,17 +873,14 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Processes the 'putbinary' command. See daemon class description for
-     * details.
+     * Processes the 'putbinary' command. See daemon class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
      * @return Always an empty string.
-     *
-     * @throws Exception if the supplied path is not valid or the file
-     * cannot be written for any reason.
+     * @throws Exception if the supplied path is not valid or the file cannot be written for any
+     *     reason.
      */
     private String handlePutBinary(List params) throws Exception {
       File path = validatePath((byte[]) params.get(0));
@@ -956,15 +892,12 @@ public class PSProcessDaemon extends Thread {
     /**
      * Processes the 'get' command. See daemon class description for details.
      *
-     * @param params See daemon class description for details. If the
-     * expected params are not found, an error condition results. Assumed
-     * not <code>null</code> and that all entries are <code>byte[]</code>.
-     *
-     * @return The content of the requested file. Never <code>null</code>,
-     * may be empty.
-     *
-     * @throws Exception if the supplied path is not valid or the file cannot
-     * be read for any reason.
+     * @param params See daemon class description for details. If the expected params are not found,
+     *     an error condition results. Assumed not <code>null</code> and that all entries are <code>
+     *     byte[]</code>.
+     * @return The content of the requested file. Never <code>null</code>, may be empty.
+     * @throws Exception if the supplied path is not valid or the file cannot be read for any
+     *     reason.
      */
     private String handleGet(List params) throws Exception {
       File path = validatePath((byte[]) params.get(0));
@@ -972,15 +905,13 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Parses the input doc into an object, and executes the requested
-     * process. The return code and console output are built into a
-     * result document and returned.
+     * Parses the input doc into an object, and executes the requested process. The return code and
+     * console output are built into a result document and returned.
      *
-     * @param inputDoc Assumed not <code>null</code>. Must conform to the
-     * format as defined in the dtd found in PSXProcessRequest.dtd.
-     *
-     * @return Never <code>null</code>. Will conform to the format as
-     * defined in the dtd found in PSXProcessRequestResult.dtd.
+     * @param inputDoc Assumed not <code>null</code>. Must conform to the format as defined in the
+     *     dtd found in PSXProcessRequest.dtd.
+     * @return Never <code>null</code>. Will conform to the format as defined in the dtd found in
+     *     PSXProcessRequestResult.dtd.
      */
     private Document processRequest(Document inputDoc) {
       String resultText = "";
@@ -1028,11 +959,10 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Creates a text message from the supplied exception. If the exception
-     * has no text, the class name is used.
+     * Creates a text message from the supplied exception. If the exception has no text, the class
+     * name is used.
      *
      * @param e Assumed not <code>null</code>.
-     *
      * @return Never <code>null</code> or empty.
      */
     private String getErrorText(Throwable e) {
@@ -1044,8 +974,8 @@ public class PSProcessDaemon extends Thread {
     }
 
     /**
-     * Set in <code>ctor</code>, set to <code>null</code> when the {@link
-     * #run()} method has finished.
+     * Set in <code>ctor</code>, set to <code>null</code> when the {@link #run()} method has
+     * finished.
      */
     private Socket m_sock;
   }
@@ -1053,64 +983,51 @@ public class PSProcessDaemon extends Thread {
   /**
    * Schedule a shut down of the daemon.
    *
-   * @param   downWhen    the amount of time, in milliseconds, to wait
-   * before shutting down the server. note: Ignored in this release.
+   * @param downWhen the amount of time, in milliseconds, to wait before shutting down the server.
+   *     note: Ignored in this release.
    */
   public static void scheduleShutdown(long downWhen) {
     ms_shutdownFlag = true;
   }
 
-  /**
-   * The port to listen on. Set in ctor, then never changed.
-   */
+  /** The port to listen on. Set in ctor, then never changed. */
   private int m_port;
 
   /**
-   * This map holds the parameters used when processing the process
-   * defininitions. Each entry has a key and value as <code>String</code>.
-   * Never <code>null</code>, may be empty.
+   * This map holds the parameters used when processing the process defininitions. Each entry has a
+   * key and value as <code>String</code>. Never <code>null</code>, may be empty.
    */
   private Map m_procEnv = new HashMap();
 
-  /**
-   * Contains the process definitions. Set in ctor, then never
-   * <code>null</code> or modified.
-   */
+  /** Contains the process definitions. Set in ctor, then never <code>null</code> or modified. */
   private PSProcessManager m_procMgr;
 
   /**
-   * Contains the virtual root where command paths originate. Defined in the
-   * daemon's configuration file. Set in ctor, then never changed or modified
-   * after that. Guaranteed to exist when initialized.
+   * Contains the virtual root where command paths originate. Defined in the daemon's configuration
+   * file. Set in ctor, then never changed or modified after that. Guaranteed to exist when
+   * initialized.
    */
   private File m_pathRoot;
 
   /**
-   * Is either empty, or contains the allowed remote IP addresses. Each entry
-   * is a <code>String</code> in the dot notation of an IP address, e.g.
-   * 144.122.111.1. If empty, all remote addresses are allowed.
+   * Is either empty, or contains the allowed remote IP addresses. Each entry is a <code>String
+   * </code> in the dot notation of an IP address, e.g. 144.122.111.1. If empty, all remote
+   * addresses are allowed.
    */
   private Set m_remoteIpFilters = new HashSet();
 
   /**
-   * The log4j logger for this class. Initialized in <code>main</code>, then
-   * never <code>null</code>.
+   * The log4j logger for this class. Initialized in <code>main</code>, then never <code>null</code>
+   * .
    */
   private static final Logger ms_logger = LogManager.getLogger(PSProcessDaemon.class);
 
-  /**
-   * This is used to signal a shutdown request has been scheduled.
-   */
+  /** This is used to signal a shutdown request has been scheduled. */
   private static boolean ms_shutdownFlag = false;
 
-  /**
-   * inner class to help shutdown of this daemon: shared by PSServer also
-   *
-   */
+  /** inner class to help shutdown of this daemon: shared by PSServer also */
   class PSDaemonShutdown extends PSServerShutdownHelper implements IPSShutdownListener {
-    /**
-     * See IPSShutdownListener interface for details.
-     */
+    /** See IPSShutdownListener interface for details. */
     public void psShutdown() {
       PSProcessDaemon.scheduleShutdown(1);
     }

@@ -24,19 +24,19 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * A simple abstract class that has a default implementation for the
- * IPSExtension interface methods. By default they do nothing.
+ * A simple abstract class that has a default implementation for the IPSExtension interface methods.
+ * By default they do nothing.
  *
- * @author     Jian Huang
- * @version    2.0
- * @since      1.1
+ * @author Jian Huang
+ * @version 2.0
+ * @since 1.1
  */
 public abstract class PSDefaultExtension implements IPSExtension {
   /**
-   * This is a default implementation that does nothing except save the input
-   * values in protected local storage for use by derived classes.
-   * <p>
-   * See {@link IPSExtension#init(IPSExtensionDef, File) init} for details.
+   * This is a default implementation that does nothing except save the input values in protected
+   * local storage for use by derived classes.
+   *
+   * <p>See {@link IPSExtension#init(IPSExtensionDef, File) init} for details.
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
     m_def = def;
@@ -46,11 +46,10 @@ public abstract class PSDefaultExtension implements IPSExtension {
   /**
    * Get the parameter map.
    *
-   * @param params an array with all supplied extension parameter values,
-   *    may be <code>null</code> or empty.
-   * @return a map with the parameter name as key and the parameter value
-   *    as <code>String</code> object, never <code>null</code>, may be empty.
-   *    Parameter values may be <code>null</code>.
+   * @param params an array with all supplied extension parameter values, may be <code>null</code>
+   *     or empty.
+   * @return a map with the parameter name as key and the parameter value as <code>String</code>
+   *     object, never <code>null</code>, may be empty. Parameter values may be <code>null</code>.
    */
   protected Map<String, String> getParameters(Object[] params) {
     Map<String, String> parameters = new HashMap<>();
@@ -73,17 +72,16 @@ public abstract class PSDefaultExtension implements IPSExtension {
   }
 
   /**
-   * This is the definition for this extension. You may want to use it for
-   * validation purposes in the <code>process</code> method.
+   * This is the definition for this extension. You may want to use it for validation purposes in
+   * the <code>process</code> method.
    */
   protected IPSExtensionDef m_def;
 
   /**
-   * This value contains the 'root' directory for this extension. When
-   * installed, all files are installed relative to this location. Files can
-   * be loaded from anywhere under this directory and no where else (by
-   * default, the actual security policy may vary). This object could be used
-   * to load a property file when executing the UDF.
+   * This value contains the 'root' directory for this extension. When installed, all files are
+   * installed relative to this location. Files can be loaded from anywhere under this directory and
+   * no where else (by default, the actual security policy may vary). This object could be used to
+   * load a property file when executing the UDF.
    */
   protected File m_codeRoot;
 }

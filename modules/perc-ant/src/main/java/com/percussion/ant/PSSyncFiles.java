@@ -30,9 +30,7 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-/**
- *
- */
+/** */
 public class PSSyncFiles extends Task {
   public void setFromdir(File fromDir) {
     m_fromDir = fromDir;
@@ -108,8 +106,8 @@ public class PSSyncFiles extends Task {
   }
 
   /**
-   * Sets the lists of files and directories that are eligible for
-   * copying.
+   * Sets the lists of files and directories that are eligible for copying.
+   *
    * @param dir
    */
   private void setCopies(File dir) {
@@ -133,8 +131,8 @@ public class PSSyncFiles extends Task {
   }
 
   /**
-   * Sets the lists of files and directories that are eligible for
-   * deletion.
+   * Sets the lists of files and directories that are eligible for deletion.
+   *
    * @param dir the top level directory, assumed not <code>null</code>
    */
   private void setDeletes(File dir) {
@@ -157,8 +155,8 @@ public class PSSyncFiles extends Task {
   }
 
   /**
-   * Deletes a directory or file recursing to remove children
-   * if this is a directory.
+   * Deletes a directory or file recursing to remove children if this is a directory.
+   *
    * @param file
    */
   private void deleteFile(File file) {
@@ -173,11 +171,11 @@ public class PSSyncFiles extends Task {
   }
 
   /**
-   * Checks for the exsistance of the file in the to or from directory
-   * based on the direction specified.
+   * Checks for the exsistance of the file in the to or from directory based on the direction
+   * specified.
+   *
    * @param file the file to check, assumed not <code>null</code>
-   * @param direction the direction which to check for existence
-   * either DELETES or COPIES
+   * @param direction the direction which to check for existence either DELETES or COPIES
    * @return <code>true</code> if the file exists
    */
   private boolean exists(File file, int direction) {
@@ -197,9 +195,9 @@ public class PSSyncFiles extends Task {
   }
 
   /**
-   * Determines whether the specied file is eligible to be copied.
-   * A file is considered eligible if it does not exist in the destination
-   * or the source files last modified date
+   * Determines whether the specied file is eligible to be copied. A file is considered eligible if
+   * it does not exist in the destination or the source files last modified date
+   *
    * @param file the file to check, assumed not <code>null</code>
    * @return <code>true</code> if the file is eligible to be copied
    */
@@ -213,6 +211,7 @@ public class PSSyncFiles extends Task {
 
   /**
    * Creates a destination file for the specified "from" file
+   *
    * @param file
    */
   private File getDestinationFile(File file) {
@@ -225,6 +224,7 @@ public class PSSyncFiles extends Task {
 
   /**
    * Copies a file from one path to another
+   *
    * @param sourceFile
    * @param destFile
    * @throws IOException

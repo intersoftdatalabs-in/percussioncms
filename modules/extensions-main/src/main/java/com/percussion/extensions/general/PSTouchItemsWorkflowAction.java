@@ -34,12 +34,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Touches Active Assembly parent items and Managed Navigation items (navons)
- * after workflow transition.
+ * Touches Active Assembly parent items and Managed Navigation items (navons) after workflow
+ * transition.
  *
  * @author adamgent
  * @author yubingchen
- *
  */
 public class PSTouchItemsWorkflowAction extends PSDefaultExtension implements IPSWorkflowAction {
 
@@ -48,8 +47,8 @@ public class PSTouchItemsWorkflowAction extends PSDefaultExtension implements IP
   /**
    * perform the workflow action.
    *
-   * @param context the workflow context holds basic information about the
-   *    the content item and its workflow state.
+   * @param context the workflow context holds basic information about the the content item and its
+   *     workflow state.
    * @param request the request context for the exit
    * @throws PSExtensionProcessingException if any processing errors occur
    */
@@ -62,16 +61,15 @@ public class PSTouchItemsWorkflowAction extends PSDefaultExtension implements IP
   }
 
   /**
-   * Touches all "active assembly parent" items of the
-   * current item. These items are found by searching the related content table
-   * for parent items, and then searching for the parents of those items, etc.
-   * The relationships are in the 'active assembly' category only.
-   * <p>
-   * The content items which are found are then updated so that the LastModifyDate
-   * column contains the current date & time.
+   * Touches all "active assembly parent" items of the current item. These items are found by
+   * searching the related content table for parent items, and then searching for the parents of
+   * those items, etc. The relationships are in the 'active assembly' category only.
    *
-   * @param context the workflow context holds basic information about the
-   *    the content item and its workflow state.
+   * <p>The content items which are found are then updated so that the LastModifyDate column
+   * contains the current date & time.
+   *
+   * @param context the workflow context holds basic information about the the content item and its
+   *     workflow state.
    * @param request the request context for the exit
    * @throws PSExtensionProcessingException if any processing errors occur
    */
@@ -92,10 +90,10 @@ public class PSTouchItemsWorkflowAction extends PSDefaultExtension implements IP
   }
 
   /**
-   * A private diagnostic message method, used primarily to hide the
-   * details of tracing. Output can be to the trace file or console
+   * A private diagnostic message method, used primarily to hide the details of tracing. Output can
+   * be to the trace file or console
    *
-   * @param request the request context.  Must not be <code>null</code>.
+   * @param request the request context. Must not be <code>null</code>.
    * @param msg the diagnostic message to output.
    */
   private void diagMessage(IPSRequestContext request, String msg) {

@@ -20,28 +20,24 @@ package com.percussion.security;
 import com.percussion.data.PSResultSet;
 
 /**
- * The PSWebServerProviderMetaData class implements cataloging for
- * the Web Server security provider.
+ * The PSWebServerProviderMetaData class implements cataloging for the Web Server security provider.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   /**
-   * Construct a web server meta data object for the specified provider
-   * instance.
+   * Construct a web server meta data object for the specified provider instance.
    *
-   * @param      inst            the provider instance
+   * @param inst the provider instance
    */
   PSWebServerProviderMetaData(PSWebServerProvider inst) {
     super();
     m_instance = inst;
   }
 
-  /**
-   * Default constructor to find connection properties, etc.
-   */
+  /** Default constructor to find connection properties, etc. */
   public PSWebServerProviderMetaData() {
     this(null);
   }
@@ -49,7 +45,7 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the name of this security provider.
    *
-   * @return      the provider's name
+   * @return the provider's name
    */
   public String getName() {
     return PSWebServerProvider.SP_NAME;
@@ -58,7 +54,7 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the full name of this security provider.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return "Web Server Security Provider";
@@ -67,7 +63,7 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the descritpion of this security provider.
    *
-   * @return      the provider's description
+   * @return the provider's description
    */
   public String getDescription() {
     return "Authentication through the Web Server's native mechanisms.";
@@ -76,7 +72,7 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Get the connection properties required for logging into this provider.
    *
-   * @return      the connection properties (may be null)
+   * @return the connection properties (may be null)
    */
   public java.util.Properties getConnectionProperties() {
     return null;
@@ -84,19 +80,19 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
 
   /**
    * Get the attributes associated with objects of the specified type.
-   * <p>
-   * The result set contains:
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the type of object</LI>
-   * <LI><B>ATTRIBUTE_NAME</B> String => the attribute name</LI>
-   * <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute
-   *      (may be <code>null</code>)</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the type of object
+   *   <LI><B>ATTRIBUTE_NAME</B> String => the attribute name
+   *   <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute (may be <code>null
+   *       </code>)
    * </OL>
    *
-   * @param      objectTypes      the type(s) of objects to retrieve or
-   *                              <code>null</code> to retrieve all objects
-   *
-   * @return     a result set containing one object description per row
+   * @param objectTypes the type(s) of objects to retrieve or <code>null</code> to retrieve all
+   *     objects
+   * @return a result set containing one object description per row
    */
   public java.sql.ResultSet getAttributes(java.lang.String[] objectTypes) {
     // the list of supported attributes is:
@@ -142,10 +138,9 @@ public class PSWebServerProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getAttributes <code>getAttributes</code>}
-   * supported?
+   * Are calls to {@link #getAttributes <code>getAttributes</code>} supported?
    *
-   * @return                  <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetAttributes() {
     return true; // this is supported

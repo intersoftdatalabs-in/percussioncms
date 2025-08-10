@@ -24,37 +24,28 @@ import com.percussion.server.IPSRequestContext;
 /**
  * Rhythmyx pre-exit to set a session object from a request parameter.
  *
- * See {@link PSSetSessionVariable#preProcessRequest preProcessRequest} for a
- * description.
+ * <p>See {@link PSSetSessionVariable#preProcessRequest preProcessRequest} for a description.
  */
 public class PSSetSessionVariable extends PSDefaultExtension implements IPSRequestPreProcessor {
   /**
    * Sets a session variable with the value of a request parameter.
    *
-   * @param params An array providing the input paramters to this exit. If
-   * <code>null</code> or empty, no processing is done and the method simple
-   * returns.  Only the first element in the array will be processed, and must
-   * be the name of the request parameter containing the value to store in the
-   * session.  This name is also used as the key under which the object is
-   * stored in the session. The request parameter's value is stored in the
-   * session as a String by calling <code>toString</code> on it.  If the value
-   * of the specified request parameter is <code>null</code> or <code>toString
+   * @param params An array providing the input paramters to this exit. If <code>null</code> or
+   *     empty, no processing is done and the method simple returns. Only the first element in the
+   *     array will be processed, and must be the name of the request parameter containing the value
+   *     to store in the session. This name is also used as the key under which the object is stored
+   *     in the session. The request parameter's value is stored in the session as a String by
+   *     calling <code>toString</code> on it. If the value of the specified request parameter is
+   *     <code>null</code> or <code>toString
    * </code> returns an empty String, the session variable is not set.
-   *
    * @param request The current request context. May not be <code>null</code>.
-   *
-   * @throws PSAuthorizationException - If the user is not authorized
-   * to perform this request.
-   *
-   * @throws PSRequestValidationException - If the request does not meet
-   * the required validation rules.
-   *
-   * @throws PSParameterMismatchException - If a call to setParamValues was
-   * never made, or the runtime parameters specified in that call are
-   * incorrect for the usage of this extension.
-   *
-   * @throws PSExitProcessorException - If any other exception occurs which
-   * prevents the proper handling of this request
+   * @throws PSAuthorizationException - If the user is not authorized to perform this request.
+   * @throws PSRequestValidationException - If the request does not meet the required validation
+   *     rules.
+   * @throws PSParameterMismatchException - If a call to setParamValues was never made, or the
+   *     runtime parameters specified in that call are incorrect for the usage of this extension.
+   * @throws PSExitProcessorException - If any other exception occurs which prevents the proper
+   *     handling of this request
    */
   public void preProcessRequest(Object[] params, IPSRequestContext request) {
     if (null == request) throw new IllegalArgumentException("request context must not be null");

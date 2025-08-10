@@ -23,19 +23,17 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
- * This module handles the Content-Encoding response header. It currently
- * handles the "gzip", "deflate", "compress" and "identity" tokens.
+ * This module handles the Content-Encoding response header. It currently handles the "gzip",
+ * "deflate", "compress" and "identity" tokens.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class ContentEncodingModule implements HTTPClientModule {
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) throws ModuleException {
     // parse Accept-Encoding header
 
@@ -96,21 +94,15 @@ class ContentEncodingModule implements HTTPClientModule {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) {
     return RSP_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req)
       throws IOException, ModuleException {
     String ce = resp.getHeader("Content-Encoding");
@@ -155,8 +147,6 @@ class ContentEncodingModule implements HTTPClientModule {
     else resp.deleteHeader("Content-Encoding");
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 }

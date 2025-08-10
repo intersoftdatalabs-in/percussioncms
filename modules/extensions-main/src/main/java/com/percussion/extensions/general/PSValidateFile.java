@@ -23,12 +23,13 @@ import com.percussion.util.PSPurgableTempFile;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Validates that either no source file was supplied, <code>null</code> or
- * empty, or that the content of the supplied file is not empty.
+ * Validates that either no source file was supplied, <code>null</code> or empty, or that the
+ * content of the supplied file is not empty.
  */
 public class PSValidateFile extends PSSimpleJavaUdfExtension {
   /**
    * See {@link #processUdf(Object[], IPSRequestContext)}.
+   *
    * @param params the file to validate, may be <code>null</code>.
    */
   public Object processUdf(Object[] params, @SuppressWarnings("unused") IPSRequestContext request) {

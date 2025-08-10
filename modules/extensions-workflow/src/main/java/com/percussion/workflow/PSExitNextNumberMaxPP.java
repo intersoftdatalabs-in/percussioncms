@@ -28,8 +28,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This extension returns the value of a counter obtained using
- * max(primarykeycolumn) + 1 with matching workflowid
+ * This extension returns the value of a counter obtained using max(primarykeycolumn) + 1 with
+ * matching workflowid
+ *
  * @deprecated Use PSExitNextNumber
  */
 @Deprecated

@@ -29,30 +29,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The slot is basically a container for other items with particular formatting
- * (variants). It only allows a specified set of content type/variants to be
- * attached with certain types of relationships. These attached items are known
- * as related content.
- * <p>This class doesn't override the clone method because the clone provided
- * by the Object base class is satisfactory.
+ * The slot is basically a container for other items with particular formatting (variants). It only
+ * allows a specified set of content type/variants to be attached with certain types of
+ * relationships. These attached items are known as related content.
+ *
+ * <p>This class doesn't override the clone method because the clone provided by the Object base
+ * class is satisfactory.
  */
 public class PSSlot extends PSCmsComponent {
   /**
-   * Creates an instance. Related content can be added after creation using
-   * the <code>addRelatedItem</code> method.
+   * Creates an instance. Related content can be added after creation using the <code>addRelatedItem
+   * </code> method.
    *
-   * @param name The name for the associated slot. Never
-   *    <code>null</code> or empty. Names are treated in a case-insensitive
-   *    manner.
-   *
+   * @param name The name for the associated slot. Never <code>null</code> or empty. Names are
+   *     treated in a case-insensitive manner.
    * @param id The unique numeric identifier for the slot.
-   *
-   * @param description An optional message that describes what the
-   *    slot is used for. May be <code>null</code> or empty.
-   *
-   * @param allowedVariants For each entry, the key is an Integer wrapping the
-   *    content type id while the value is an array of int. Each int is the
-   *    variant id allowed for that associated content type.
+   * @param description An optional message that describes what the slot is used for. May be <code>
+   *     null</code> or empty.
+   * @param allowedVariants For each entry, the key is an Integer wrapping the content type id while
+   *     the value is an array of int. Each int is the variant id allowed for that associated
+   *     content type.
    */
   public PSSlot(String name, int id, String description, Map allowedVariants) {
     m_name = name;
@@ -68,24 +64,21 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * Convenience method. Equivalent to calling {@link #addRelatedItem(
-   * PSLocator,int) addRelatedItem(item, Integer.MAX_VALUE)}.
+   * Convenience method. Equivalent to calling {@link #addRelatedItem( PSLocator,int)
+   * addRelatedItem(item, Integer.MAX_VALUE)}.
    */
   public void addRelatedItem(PSLocator item) {
     m_relatedItems.add(item);
   }
 
   /**
-   * Inserts the supplied item at the specified position within the list of
-   * related items.
+   * Inserts the supplied item at the specified position within the list of related items.
    *
-   * @param item A reference to an existing item. At this time, no
-   *    validation is performed that this is an existing item or that it is
-   *    an allowed type. This will be done when the item is saved.
-   *
-   * @param pos The order within the existing set to add this item. If pos
-   *    is less than 0, 0 is used and if it is greater than the length of the
-   *    list, the item is appended.
+   * @param item A reference to an existing item. At this time, no validation is performed that this
+   *     is an existing item or that it is an allowed type. This will be done when the item is
+   *     saved.
+   * @param pos The order within the existing set to add this item. If pos is less than 0, 0 is used
+   *     and if it is greater than the length of the list, the item is appended.
    */
   public void addRelatedItem(PSLocator item, int pos) {
     if (null == item) throw new IllegalArgumentException("item locator must be supplied");
@@ -110,8 +103,7 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * This is the name of the root element in the serialized version of this
-   * object.
+   * This is the name of the root element in the serialized version of this object.
    *
    * @return The root name, never <code>null</code> or empty.
    */
@@ -122,8 +114,8 @@ public class PSSlot extends PSCmsComponent {
   /**
    * A numeric value that uniquely identifies this slot.
    *
-   * @return The id that was passed into the ctor or found in the serialized
-   *    instance, if created from an Element.
+   * @return The id that was passed into the ctor or found in the serialized instance, if created
+   *     from an Element.
    */
   public int getSlotId() {
     return m_slotId;
@@ -141,21 +133,20 @@ public class PSSlot extends PSCmsComponent {
   /**
    * A short message that describes what this slot is for.
    *
-   * @return The description passed in the ctor, or empty if <code>null</code>
-   *    was passed. Never <code>null</code>.
+   * @return The description passed in the ctor, or empty if <code>null</code> was passed. Never
+   *     <code>null</code>.
    */
   public String getDescription() {
     return m_description;
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. All
-   * members except the name and allowed variants are compared for exact
-   * matches. The name is compared case insensitive and the allowed variants
-   * are compared order insensitive.
+   * Overrides the base class to compare each of the member properties. All members except the name
+   * and allowed variants are compared for exact matches. The name is compared case insensitive and
+   * the allowed variants are compared order insensitive.
    *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSSlot)) return false;
@@ -171,13 +162,11 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * Must be overridden to fulfill contract of this method as described in
-   * Object.
+   * Must be overridden to fulfill contract of this method as described in Object.
    *
-   * @return A value computed by concatenating all of the properties except
-   *    the related content and allowed variants into one string, taking the
-   *    hashCode of that and adding the hashcode of the list and map. The
-   *    name is lowercased before it is concatenated.
+   * @return A value computed by concatenating all of the properties except the related content and
+   *     allowed variants into one string, taking the hashCode of that and adding the hashcode of
+   *     the list and map. The name is lowercased before it is concatenated.
    */
   public int hashCode() {
     return (m_name.toLowerCase() + m_description + m_slotId).hashCode()
@@ -186,8 +175,9 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <ELEMENT PSXItemSlot (Description, AllowedVariants?)>
    * <ATTLIST PSXItemSlot
@@ -204,7 +194,6 @@ public class PSSlot extends PSCmsComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -214,14 +203,12 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * Replaces the data in this instance with that in a previously serialized
-   * version. If any data is invalid, an exception is thrown.
+   * Replaces the data in this instance with that in a previously serialized version. If any data is
+   * invalid, an exception is thrown.
    *
-   * @param sourceNode An xml fragment conforming to the dtd described in
-   *    {@link #toXml(Document) toXml}. Never <code>null</code>.
-   *
+   * @param sourceNode An xml fragment conforming to the dtd described in {@link #toXml(Document)
+   *     toXml}. Never <code>null</code>.
    * @param parentDoc Unused.
-   *
    * @param parentComponents Unused.
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -230,31 +217,26 @@ public class PSSlot extends PSCmsComponent {
   }
 
   /**
-   * See {@link #PSSlot(String, int, String, Map)}
-   * ctor} for description. Set in ctor or <code>toXml</code> method.
-   * Never <code>null</code> or empty after construction.
+   * See {@link #PSSlot(String, int, String, Map)} ctor} for description. Set in ctor or <code>toXml
+   * </code> method. Never <code>null</code> or empty after construction.
    */
   private String m_name;
 
-  /**
-   * See {@link #PSSlot(String,int,String,Map) ctor} for description.
-   */
+  /** See {@link #PSSlot(String,int,String,Map) ctor} for description. */
   private int m_slotId;
 
   /**
-   * See {@link #PSSlot(String,int,String,Map) ctor} for description.
-   * Never <code>null</code> (may be empty).
+   * See {@link #PSSlot(String,int,String,Map) ctor} for description. Never <code>null</code> (may
+   * be empty).
    */
   private String m_description = "";
 
-  /**
-   * See ctor for description. Never <code>null</code>, may be empty.
-   */
+  /** See ctor for description. Never <code>null</code>, may be empty. */
   private Map m_allowedVariants = new HashMap();
 
   /**
-   * Contains the actual related items. Each member of the list is a PSLocator.
-   * Never <code>null</code>, may be empty.
+   * Contains the actual related items. Each member of the list is a PSLocator. Never <code>null
+   * </code>, may be empty.
    */
   private List m_relatedItems = new ArrayList();
 }

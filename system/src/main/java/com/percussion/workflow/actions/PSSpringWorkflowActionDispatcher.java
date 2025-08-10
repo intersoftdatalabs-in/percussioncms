@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 /**
  * A workflow action based on the PSWFActionService bean.
  *
- *
  * @author DavidBenua
  * @see IPSWFActionService
  */
@@ -40,9 +39,7 @@ public class PSSpringWorkflowActionDispatcher extends PSDefaultExtension
   private static final Log m_log = LogFactory.getLog(PSSpringWorkflowActionDispatcher.class);
   IPSWFActionService m_asvc = null;
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSSpringWorkflowActionDispatcher() {}
 
   /*

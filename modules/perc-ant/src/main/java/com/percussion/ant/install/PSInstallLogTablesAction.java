@@ -27,13 +27,10 @@ import java.io.IOException;
 /**
  * PSInstallLogTablesAction will install the log tables
  *
- * This class will be used temporarily until the table installation
- * structure is in place.
+ * <p>This class will be used temporarily until the table installation structure is in place. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -50,7 +47,6 @@ import java.io.IOException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSInstallLogTablesAction extends PSAction {
   // see base class

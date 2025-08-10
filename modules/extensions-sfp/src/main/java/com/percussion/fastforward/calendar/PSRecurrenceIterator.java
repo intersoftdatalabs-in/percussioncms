@@ -19,13 +19,14 @@ package com.percussion.fastforward.calendar;
 import java.util.Iterator;
 
 /**
- * Extension of {@link java.util.Iterator iterator} to specify the enent object
- * and recurrence value.
+ * Extension of {@link java.util.Iterator iterator} to specify the enent object and recurrence
+ * value.
  */
 public class PSRecurrenceIterator implements Iterator {
 
   /**
    * Constructor. Takes the recusrring even object.
+   *
    * @param event ebent may be <code>null</code>.
    */
   public PSRecurrenceIterator(PSRecurringEvent event) {
@@ -54,14 +55,9 @@ public class PSRecurrenceIterator implements Iterator {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Recurring even object, initialized in the ctor, may be <code>null</code>.
-   */
+  /** Recurring even object, initialized in the ctor, may be <code>null</code>. */
   private PSRecurringEvent m_event;
 
-  /**
-   * Recurrence of the event, initialized to 1 in the ctor and does not change
-   * currently.
-   */
+  /** Recurrence of the event, initialized to 1 in the ctor and does not change currently. */
   private int m_recurrence;
 }

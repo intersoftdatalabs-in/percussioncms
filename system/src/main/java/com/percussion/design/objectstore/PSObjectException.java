@@ -19,10 +19,9 @@ package com.percussion.design.objectstore;
 import com.percussion.error.PSException;
 
 /**
- * Generic exception class to be used for object errors. Currently we know
- * only one object type, the item. In the future we will have others like
- * folder, project, etc. More specific object errors should be derived from
- * this class.
+ * Generic exception class to be used for object errors. Currently we know only one object type, the
+ * item. In the future we will have others like folder, project, etc. More specific object errors
+ * should be derived from this class.
  */
 public class PSObjectException extends PSException {
   /**

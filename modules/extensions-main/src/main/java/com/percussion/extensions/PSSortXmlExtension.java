@@ -39,16 +39,15 @@ import org.dom4j.io.DOMWriter;
 import org.w3c.dom.Document;
 
 /**
- * Sorts based on the Locale ({@link Collator}) on the XML Elements under the root node.
- * The text used for sorting is a child element of the elements being sorted (ie the
- * root nodes grand children and the node being sorted is the parent).
+ * Sorts based on the Locale ({@link Collator}) on the XML Elements under the root node. The text
+ * used for sorting is a child element of the elements being sorted (ie the root nodes grand
+ * children and the node being sorted is the parent).
  *
- * If there is no node for sorting text than an empty string will be used.
+ * <p>If there is no node for sorting text than an empty string will be used.
  *
- * The first parameter is the name of the element to base sorting on.
+ * <p>The first parameter is the name of the element to base sorting on.
  *
  * @author adamgent
- *
  */
 public class PSSortXmlExtension implements IPSResultDocumentProcessor {
 

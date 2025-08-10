@@ -49,18 +49,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A collection of static routines for converting various CMS objects into other
- * objects. Do not put any application specific processing in this class.
+ * A collection of static routines for converting various CMS objects into other objects. Do not put
+ * any application specific processing in this class.
  *
  * @author DavidBenua
- *
  */
 public class PSNavUtil {
 
-  /**
-   * Static methods only. Never constructed
-   *
-   */
+  /** Static methods only. Never constructed */
   private PSNavUtil() {}
 
   /**
@@ -98,10 +94,9 @@ public class PSNavUtil {
    * Check of the supplied item is a Navon or Navtree type.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param summary component summary of the item to be checked, must not be
-   *    <code>null</code>.
-   * @return <code>true</code> if the component summary belongs to an item of
-   *    Navon or Navtree content type, <code>false</code> otherwise.
+   * @param summary component summary of the item to be checked, must not be <code>null</code>.
+   * @return <code>true</code> if the component summary belongs to an item of Navon or Navtree
+   *     content type, <code>false</code> otherwise.
    * @throws PSNavException if check could not be performed for any reason.
    */
   public static boolean isNavType(IPSRequestContext req, PSComponentSummary summary)
@@ -114,16 +109,14 @@ public class PSNavUtil {
   }
 
   /**
-   * Convenience method that builds the component summary given the item
-   * locator and calls
-   * {@link #isNavType(IPSRequestContext, PSComponentSummary)} to check if the
-   * item is of type Navon or Navtree.
+   * Convenience method that builds the component summary given the item locator and calls {@link
+   * #isNavType(IPSRequestContext, PSComponentSummary)} to check if the item is of type Navon or
+   * Navtree.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @param loc Locator of the item to be checked, must not be
-   *    <code>null</code>.
-   * @return <code>true</code> if the component summary belongs to an item of
-   *    Navon or Navtree content type, <code>false</code> otherwise.
+   * @param loc Locator of the item to be checked, must not be <code>null</code>.
+   * @return <code>true</code> if the component summary belongs to an item of Navon or Navtree
+   *     content type, <code>false</code> otherwise.
    * @throws PSNavException if check could not be performed for any reason.
    */
   public static boolean isNavType(IPSRequestContext req, PSLocator loc) throws PSNavException {
@@ -138,12 +131,10 @@ public class PSNavUtil {
   /**
    * Is the item for the supplied locator of contenttype <code>Navon</code>?
    *
-   * @param request the request used to execute the test, not
-   *    <code>null</code>.
-   * @param locator the locator of the item to be tested, not
-   *    <code>null</code>.
-   * @return <code>true</code> if the item of the supplied locator has
-   *    contenttype <code>Navon</code>, false otherwise.
+   * @param request the request used to execute the test, not <code>null</code>.
+   * @param locator the locator of the item to be tested, not <code>null</code>.
+   * @return <code>true</code> if the item of the supplied locator has contenttype <code>Navon
+   *     </code>, false otherwise.
    * @throws PSNavException for eny error executing the test.
    */
   public static boolean isNavonItem(IPSRequestContext request, PSLocator locator)
@@ -159,12 +150,10 @@ public class PSNavUtil {
   /**
    * Is the item for the supplied summary of contenttype <code>Navon</code>?
    *
-   * @param request the request used to execute the test, not
-   *    <code>null</code>.
-   * @param summary the summary of the item to be tested, not
-   *    <code>null</code>.
-   * @return <code>true</code> if the item of the supplied summary has
-   *    contenttype <code>Navon</code>, false otherwise.
+   * @param request the request used to execute the test, not <code>null</code>.
+   * @param summary the summary of the item to be tested, not <code>null</code>.
+   * @return <code>true</code> if the item of the supplied summary has contenttype <code>Navon
+   *     </code>, false otherwise.
    */
   public static boolean isNavonItem(IPSRequestContext request, PSComponentSummary summary)
       throws PSNavException {
@@ -178,15 +167,12 @@ public class PSNavUtil {
   }
 
   /**
-   * Is the item for the supplied locator of contenttype
-   * <code>NavonTree</code>?
+   * Is the item for the supplied locator of contenttype <code>NavonTree</code>?
    *
-   * @param request the request used to execute the test, not
-   *    <code>null</code>.
-   * @param locator the locator of the item to be tested, not
-   *    <code>null</code>.
-   * @return <code>true</code> if the item of the supplied locator has
-   *    contenttype <code>NavonTree</code>, false otherwise.
+   * @param request the request used to execute the test, not <code>null</code>.
+   * @param locator the locator of the item to be tested, not <code>null</code>.
+   * @return <code>true</code> if the item of the supplied locator has contenttype <code>NavonTree
+   *     </code>, false otherwise.
    */
   public static boolean isNavonTreeItem(IPSRequestContext request, PSLocator locator)
       throws PSNavException {
@@ -199,15 +185,12 @@ public class PSNavUtil {
   }
 
   /**
-   * Is the item for the supplied summary of contenttype
-   * <code>NavonTree</code>?
+   * Is the item for the supplied summary of contenttype <code>NavonTree</code>?
    *
-   * @param request the request used to execute the test, not
-   *    <code>null</code>.
-   * @param summary the summary of the item to be tested, not
-   *    <code>null</code>.
-   * @return <code>true</code> if the item of the supplied summary has
-   *    contenttype <code>NavonTree</code>, false otherwise.
+   * @param request the request used to execute the test, not <code>null</code>.
+   * @param summary the summary of the item to be tested, not <code>null</code>.
+   * @return <code>true</code> if the item of the supplied summary has contenttype <code>NavonTree
+   *     </code>, false otherwise.
    */
   public static boolean isNavonTreeItem(IPSRequestContext request, PSComponentSummary summary)
       throws PSNavException {
@@ -220,9 +203,8 @@ public class PSNavUtil {
   }
 
   /**
-   * returns a single string value from an item by field. The value will be
-   * <code>Empty</code> if the field exists but has no values, and
-   * <code>null</code> if the field does not exist.
+   * returns a single string value from an item by field. The value will be <code>Empty</code> if
+   * the field exists but has no values, and <code>null</code> if the field does not exist.
    *
    * @param item the item to examine.
    * @param fieldName the field name
@@ -257,12 +239,10 @@ public class PSNavUtil {
    *
    * @param req request context object, must not be <code>null</code>.
    * @param contentTypeId a valid content type id.
-   * @param variantName name of the variant for the content type specified,
-   *           must not be <code>null</code> or empty.
-   * @return content type variant object if one found, <code>null</code>
-   *         otherwise.
-   * @throws PSNavException if information could not be obtained from the
-   *            system for any reason.
+   * @param variantName name of the variant for the content type specified, must not be <code>null
+   *     </code> or empty.
+   * @return content type variant object if one found, <code>null</code> otherwise.
+   * @throws PSNavException if information could not be obtained from the system for any reason.
    */
   public static PSContentTypeTemplate loadVariantInfo(
       IPSRequestContext req, long contentTypeId, String variantName) throws PSNavException {
@@ -294,12 +274,9 @@ public class PSNavUtil {
    *
    * @param req request context object, must not be <code>null</code>.
    * @param contentTypeId a valid content type id.
-   * @param variantId a valid variantid of the variant for the content type
-   *           specified.
-   * @return content type variant object if one found, <code>null</code>
-   *         otherwise.
-   * @throws PSNavException if information could not be obtained from the
-   *            system for any reason.
+   * @param variantId a valid variantid of the variant for the content type specified.
+   * @return content type variant object if one found, <code>null</code> otherwise.
+   * @throws PSNavException if information could not be obtained from the system for any reason.
    */
   public static PSContentTypeTemplate loadVariantInfo(
       IPSRequestContext req, long contentTypeId, int variantId) throws PSNavException {
@@ -325,12 +302,10 @@ public class PSNavUtil {
   }
 
   /**
-   * Method to load and return all content type variants registered in the
-   * system.
+   * Method to load and return all content type variants registered in the system.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @return content type variant set containing all variants registered with
-   *         the system.
+   * @return content type variant set containing all variants registered with the system.
    * @throws PSNavException if loading of variants fails for any reason.
    */
   public static PSContentTypeVariantSet loadVariantSet(IPSRequestContext req)
@@ -347,8 +322,7 @@ public class PSNavUtil {
    *
    * @param req request cntext object, must not be <code>null</code>.
    * @param parent Locator for the parent item, not used.
-   * @param slotName name of the slot to lookup by, must not be
-   *           <code>null</code> or empty.
+   * @param slotName name of the slot to lookup by, must not be <code>null</code> or empty.
    * @return slot object if found, <code>null</code> otherwise.
    * @throws PSNavException if lookup fails for any reason.
    */
@@ -405,13 +379,12 @@ public class PSNavUtil {
   }
 
   /**
-   * Helper method to build a map of all standard assembly parameters off of
-   * the request context. Any parameter that has a value of <code>null</code>
-   * will be excluded.
+   * Helper method to build a map of all standard assembly parameters off of the request context.
+   * Any parameter that has a value of <code>null</code> will be excluded.
    *
    * @param req request context object, must not be <code>null</code>.
-   * @return Map of the standard parameters as described above, never
-   *         <code>null</code>, may be empty.
+   * @return Map of the standard parameters as described above, never <code>null</code>, may be
+   *     empty.
    */
   public static Map buildStandardParams(IPSRequestContext req) {
     if (req == null) {
@@ -432,15 +405,14 @@ public class PSNavUtil {
   }
 
   /**
-   * Helper method to copy a specified parameter from the request context to
-   * the supplied parameter map. If the value of the parameter in the request
-   * is null it will not be added to the target map.
+   * Helper method to copy a specified parameter from the request context to the supplied parameter
+   * map. If the value of the parameter in the request is null it will not be added to the target
+   * map.
    *
    * @param req requst context object, must not be <code>null</code>.
-   * @param target Parameter map to which the new parameter from request
-   *           context is to be copied, must not be <code>null</code>
-   * @param paramName name of the parameter to copy, must not be
-   *           <code>null</code> or empty.
+   * @param target Parameter map to which the new parameter from request context is to be copied,
+   *     must not be <code>null</code>
+   * @param paramName name of the parameter to copy, must not be <code>null</code> or empty.
    */
   public static void copyParam(IPSRequestContext req, Map target, String paramName) {
     if (req == null) {
@@ -463,12 +435,11 @@ public class PSNavUtil {
   }
 
   /**
-   * Sets appropriate sys_command parameter and relatediteid parameter in the
-   * target parameter map if these are present in the request context.
+   * Sets appropriate sys_command parameter and relatediteid parameter in the target parameter map
+   * if these are present in the request context.
    *
    * @param req request context object, must not be <code>null</code>
-   * @param target target parameter map, must not be <code>null</code>, may
-   *           be empty.
+   * @param target target parameter map, must not be <code>null</code>, may be empty.
    */
   public static void checkActiveAssembly(IPSRequestContext req, Map target) {
     if (req == null) {
@@ -489,8 +460,7 @@ public class PSNavUtil {
    * Get the Navon XML document given the navon's component summary.
    *
    * @param req request context object, must not be <code>null</code>
-   * @param navon component summary of the navon item, must not be
-   *           <code>null</code>
+   * @param navon component summary of the navon item, must not be <code>null</code>
    * @return Navon XML document, never <code>null</code>.
    * @throws PSNavException if process fails for any reason.
    */
@@ -510,8 +480,7 @@ public class PSNavUtil {
    * Get the Navon XML document given the navon's component summary.
    *
    * @param req request context object, must not be <code>null</code>
-   * @param navon Nav component summary of the navon item, must not be
-   *           <code>null</code>
+   * @param navon Nav component summary of the navon item, must not be <code>null</code>
    * @return Navon XML document, never <code>null</code>.
    * @throws PSNavException if process fails for any reason.
    */
@@ -587,12 +556,10 @@ public class PSNavUtil {
   }
 
   /**
-   * Walk through the XML document to locate the field specified by name and
-   * return the field vale.
+   * Walk through the XML document to locate the field specified by name and return the field vale.
    *
    * @param doc XML document that has the field, must not be <code>null</code>.
-   * @param fieldName name of the field to get the value, must not be
-   *           <code>null</code> or empty.
+   * @param fieldName name of the field to get the value, must not be <code>null</code> or empty.
    * @return field value, may be <code>null</code> or empty.
    */
   public static String getFieldValueFromXML(Document doc, String fieldName) {
@@ -617,6 +584,7 @@ public class PSNavUtil {
 
   /**
    * Get AA relationships for the parent item via the specified slot by name.
+   *
    * @param req request context object, must not be <code>null</code>.
    * @param parentLoc Locator ofthe parent item, must not be <code>null</code>.
    * @param slotName name of the slot, must not be <code>null</code> or empty
@@ -646,6 +614,7 @@ public class PSNavUtil {
 
   /**
    * Get AA relationships for the parent item via the specified slot by name.
+   *
    * @param req request context object, must not be <code>null</code>.
    * @param parentLoc Locator ofthe parent item, must not be <code>null</code>.
    * @param slot slot object, must not be <code>null</code>.
@@ -672,18 +641,16 @@ public class PSNavUtil {
   }
 
   /**
-   * Old method kept for backward compatability which is similar to the new
-   * counterpart
-   * {@link #getSlotContents(IPSRequestContext, PSLocator, PSSlotType)}. The
-   * new one does loads from cache wheras this one loads using the AA API.
+   * Old method kept for backward compatability which is similar to the new counterpart {@link
+   * #getSlotContents(IPSRequestContext, PSLocator, PSSlotType)}. The new one does loads from cache
+   * wheras this one loads using the AA API.
    *
    * @param req request context object, must not be <code>null</code>.
    * @param parentLoc Locator ofthe parent item, must not be <code>null</code>.
    * @param slot slot object, must not be <code>null</code>.
    * @return List of relationships, never <code>null</code> may be empty.
    * @throws PSNavException
-   * @deprecated in favor of
-   *        {@link #getSlotContents(IPSRequestContext, PSLocator, PSSlotType)}
+   * @deprecated in favor of {@link #getSlotContents(IPSRequestContext, PSLocator, PSSlotType)}
    */
   public static PSAaRelationshipList getSlotContentsOld(
       IPSRequestContext req, PSLocator parentLoc, PSSlotType slot) throws PSNavException {
@@ -710,8 +677,8 @@ public class PSNavUtil {
   }
 
   /**
-   * get the authtype parameter of the current request, or 0 if the authtype is
-   * not specified (or invalid).
+   * get the authtype parameter of the current request, or 0 if the authtype is not specified (or
+   * invalid).
    *
    * @param req the callers request context
    * @return the authtype parameter, or 0 if not found.
@@ -743,8 +710,8 @@ public class PSNavUtil {
   }
 
   /**
-   * sets the community id of the current session. A convenience method for use
-   * when the community id is available only as an integer.
+   * sets the community id of the current session. A convenience method for use when the community
+   * id is available only as an integer.
    *
    * @param req the parents request context
    * @param commId the community id to set.
@@ -794,19 +761,12 @@ public class PSNavUtil {
     myLog.debug(sw.toString());
   }
 
-  /**
-   * String constant for the fully qualified name of this extensions class
-   * </code>
-   */
+  /** String constant for the fully qualified name of this extensions class </code> */
   private static final String MYNAME = "com.percussion.nav.PSNavUtil";
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   static Logger log = LogManager.getLogger(PSNavUtil.class);
 
-  /**
-   * Constant for preview authtype
-   */
+  /** Constant for preview authtype */
   public static final String PREVIEW_AUTHTYPE = "0";
 }

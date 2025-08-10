@@ -36,16 +36,15 @@ import java.sql.SQLXML;
 import java.util.Calendar;
 
 /**
- * Just like {@link PSSQLStatement}, This is a proxy (or wrapper) class to a
- * <code>PreparedStatement</code> object. It delegates all methods to the
- * <code>PreparedStatement</code> object and logs the SQL statement and elapse
- * time for each SQL execution (query or update).
- * <P>
- * This class can only take effect after the log4j is properly configured
- * and the debug mode is enabled for {@link PSSQLStatement}.
- * <P>
- * Must use {@link #getPreparedStatement(Connection, String)} to create a
- * <code>PreparedStatement</code> object.
+ * Just like {@link PSSQLStatement}, This is a proxy (or wrapper) class to a <code>PreparedStatement
+ * </code> object. It delegates all methods to the <code>PreparedStatement</code> object and logs
+ * the SQL statement and elapse time for each SQL execution (query or update).
+ *
+ * <p>This class can only take effect after the log4j is properly configured and the debug mode is
+ * enabled for {@link PSSQLStatement}.
+ *
+ * <p>Must use {@link #getPreparedStatement(Connection, String)} to create a <code>PreparedStatement
+ * </code> object.
  */
 public class PSPreparedStatement extends PSSQLStatement implements PreparedStatement {
   /**
@@ -74,12 +73,11 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
   }
 
   /**
-   * Just like {@link #getPreparedStatement(Connection, String)}, but
-   * with additional parameters, result set type and concurrency type.
+   * Just like {@link #getPreparedStatement(Connection, String)}, but with additional parameters,
+   * result set type and concurrency type.
    *
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
    * @param resultSetConcurrency a concurrency type; see ResultSet.CONCUR_XXX
-   *
    * @see Connection.prepareStatement(String,int,int)
    */
   public static PreparedStatement getPreparedStatement(
@@ -393,7 +391,6 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
    * Logs a parameter value.
    *
    * @param parameterIndex the index of the parameter.
-   *
    * @param x the value of the parameter, assume not <code>null</code>.
    */
   private void logBindingValue(int parameterIndex, Object x) {
@@ -405,9 +402,7 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
    * Just like {@link #logBindingValue(int, Object)} with additional value
    *
    * @param parameterIndex the index of the parameter.
-   *
    * @param x the 1st value of the parameter, assume not <code>null</code>.
-   *
    * @param y the 2nd value of the parameter, assume not <code>null</code>.
    */
   private void logBindingValue(int parameterIndex, Object x, Object y) {
@@ -418,8 +413,8 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
   }
 
   /**
-   * All methods will be delegated to this object. Initialized by ctor,
-   * never <code>null</code> after that.
+   * All methods will be delegated to this object. Initialized by ctor, never <code>null</code>
+   * after that.
    */
   private PreparedStatement m_stmt;
 

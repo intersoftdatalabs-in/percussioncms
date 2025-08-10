@@ -23,7 +23,6 @@ package com.percussion.workflow;
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  * @deprecated
  */
 import java.sql.SQLException;
@@ -33,72 +32,54 @@ public interface IPSContentTypesContext {
   /**
    * Gets Query Request for the current entry in the context.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   quesry request
-   *
+   * @param quesry request
    */
   public String getContentTypeQueryRequest() throws SQLException;
 
   /**
    * Gets Update Request for the current entry in the context.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   update request
-   *
+   * @param update request
    */
   public String getContentTypeUpdateRequest() throws SQLException;
 
   /**
    * Gets New Request for the current entry in the context.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   new request
-   *
+   * @param new request
    */
   public String getContentTypeNewRequest() throws SQLException;
 
   /**
    * Gets content type name for the current entry in the context.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   content type name
-   *
+   * @param content type name
    */
   public String getContentTypeName() throws SQLException;
 
   /**
    * Gets content type description for the current entry in the context.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   content type description
-   *
+   * @param content type description
    */
   public String getContentTypeDescription() throws SQLException;
 
   /**
    * Closes the context freeing all JDBC resources.
    *
-   * @author   Ram
-   *
+   * @author Ram
    * @version 1.0
-   *
-   * @param   none
-   *
+   * @param none
    */
   public void close();
 }

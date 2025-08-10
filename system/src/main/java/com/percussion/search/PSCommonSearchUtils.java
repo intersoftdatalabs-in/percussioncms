@@ -24,31 +24,21 @@ import java.text.MessageFormat;
 
 public class PSCommonSearchUtils {
 
-  /** Advanced Search **/
+  /** Advanced Search * */
 
-  /**
-   * This is the property name used to transfer the 'Expand query with
-   * synonyms' checkbox value.
-   */
+  /** This is the property name used to transfer the 'Expand query with synonyms' checkbox value. */
   public static final String PROP_SYNONYM_EXPANSION = "synonym_expansion";
 
-  /**
-   * Constant for the "yes" boolean value.
-   */
+  /** Constant for the "yes" boolean value. */
   public static final String BOOL_YES = "yes";
 
-  /**
-   * Constant for the "no" boolean value.
-   */
+  /** Constant for the "no" boolean value. */
   public static final String BOOL_NO = "no";
 
-  /** Field Editor **/
+  /** Field Editor * */
   public static final String EDITOR_I18N_PREFIX = "com.percussion.search.ui.PSSearchFieldEditor;";
 
-  /**
-   * Constant for the one external operator we currently support, not exposed
-   * to the end user.
-   */
+  /** Constant for the one external operator we currently support, not exposed to the end user. */
   public static final String EXT_OP = "CONCEPT";
 
   // non-text
@@ -85,9 +75,7 @@ public class PSCommonSearchUtils {
   public static String OP_EXACT =
       PSI18NTranslationKeyValues.getInstance().getTranslationValue(EDITOR_I18N_PREFIX + "@Exact");
 
-  /**
-   * Search Simple
-   */
+  /** Search Simple */
   public static final String SEARCH_SIMPLE_I18N_PREFIX =
       "com.percussion.search.ui.PSSearchSimplePanel";
 
@@ -95,15 +83,14 @@ public class PSCommonSearchUtils {
    * Validates that the value supplied for the full text query.
    *
    * @param query The query, may be <code>null</code> or emtpy.
-   * @param translator the translator used to internationalize the error
-   * message, if <code>null</code> is supplied, <code>PSI18nUtils</code>
-   * will be used as translator along with the specified locale.
-   * @param locale the locale for which to internationalize the error message,
-   * may be <code>null</code> or empty in which case the default locale is
-   * used. Ignored if the <code>translator</code> is not <code>null</code>.
-   *
-   * @return <code>null</code> if the query is valid, otherwise a non-
-   * <code>null</code> internationalized error message.
+   * @param translator the translator used to internationalize the error message, if <code>null
+   *     </code> is supplied, <code>PSI18nUtils</code> will be used as translator along with the
+   *     specified locale.
+   * @param locale the locale for which to internationalize the error message, may be <code>null
+   *     </code> or empty in which case the default locale is used. Ignored if the <code>translator
+   *     </code> is not <code>null</code>.
+   * @return <code>null</code> if the query is valid, otherwise a non- <code>null</code>
+   *     internationalized error message.
    */
   public static String validateFTSSearchQuery(
       String query, PSI18NTranslationKeyValues translator, String locale) {

@@ -38,18 +38,15 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class encapsulates the application's snapshot DOM document as a whole.
- * All the element and attribute names in the content list XML document are
- * defined as static final constants. This class also includes methods for
- * loading, refreshing and saving the application as a snapshot document.
- *
+ * This class encapsulates the application's snapshot DOM document as a whole. All the element and
+ * attribute names in the content list XML document are defined as static final constants. This
+ * class also includes methods for loading, refreshing and saving the application as a snapshot
+ * document.
  */
 public class PSFUDApplication {
   private static final Logger log = LogManager.getLogger(IPSConstants.ASSEMBLY_LOG);
 
-  /**
-   * Constructor. Loads the snapshot document on construction.
-   */
+  /** Constructor. Loads the snapshot document on construction. */
   public PSFUDApplication() {
     loadSnapshot();
   }
@@ -58,21 +55,17 @@ public class PSFUDApplication {
    * return DOM element encapsulated by this node
    *
    * @return DOM Element, never <code>null</code>
-   *
    */
   public Element getElement() {
     return m_Element;
   }
 
   /**
-   * Sets status code in the status child DOM element of the current DOM
-   * element. If the code is not parseable as String a default status code
-   * is set.
+   * Sets status code in the status child DOM element of the current DOM element. If the code is not
+   * parseable as String a default status code is set.
    *
    * @param code as int.
-   *
    * @see IPSFUDNode for status constants
-   *
    */
   private void setStatusCode(int code) {
     if (null == m_ElementStatus)
@@ -92,19 +85,15 @@ public class PSFUDApplication {
     m_ElementStatus.setAttribute(IPSFUDNode.ATTRIB_CODE, tmp);
   }
 
-  /**
-   * Returns true if server was not unreachable in the last attempt.
-   *
-   */
+  /** Returns true if server was not unreachable in the last attempt. */
   public boolean isOffline() {
     return m_bOffline;
   }
 
   /**
-   * Loads the snapshot document. Snapshot document is the local copy of the
-   * content list metadata XML document obtained from the server with
-   * additional XML fields to indicate current state of each element. If load
-   * fails snapshot, document shall be null.
+   * Loads the snapshot document. Snapshot document is the local copy of the content list metadata
+   * XML document obtained from the server with additional XML fields to indicate current state of
+   * each element. If load fails snapshot, document shall be null.
    */
   private void loadSnapshot() {
     m_snapshotDoc = null;
@@ -124,16 +113,12 @@ public class PSFUDApplication {
   }
 
   /**
-   * loads the content list document from the remote sever using the URL in
-   * the configuration file.
+   * loads the content list document from the remote sever using the URL in the configuration file.
    *
-   * @throws  PSFUDAuthenticationFailureException when HTTP authentication
-   * fails while loading content item list metadata document with
-   * current userid and password.
-   *
-   * @throws  PSFUDServerException when HTTP request returns any other
-   *          (than authentication) status code.
-   *
+   * @throws PSFUDAuthenticationFailureException when HTTP authentication fails while loading
+   *     content item list metadata document with current userid and password.
+   * @throws PSFUDServerException when HTTP request returns any other (than authentication) status
+   *     code.
    */
   public Document loadRemote() throws PSFUDAuthenticationFailureException, PSFUDServerException {
     URL urlQuery = null;
@@ -211,14 +196,12 @@ public class PSFUDApplication {
   }
 
   /**
-   * Called by refresh method to merge the remote document just load with the
-   * snapshot document. Simply delegates the process to PSFUDDocMerger object.
+   * Called by refresh method to merge the remote document just load with the snapshot document.
+   * Simply delegates the process to PSFUDDocMerger object.
    *
-   * @param doc document as DOM Document can be <code>null</code>, however
-   *        doc meger will throw exception in that case.
-   *
+   * @param doc document as DOM Document can be <code>null</code>, however doc meger will throw
+   *     exception in that case.
    * @see PSFUDDocMerger
-   *
    */
   private void merge(Document doc)
       throws PSFUDNullDocumentsException, PSFUDMergeDocumentsException {
@@ -227,13 +210,10 @@ public class PSFUDApplication {
   }
 
   /**
-   * Merges the remote content item list metdata XML document with the
-   * snapshot. If snapshot document is null then remote XML doc becomes
-   * the snapshot;
+   * Merges the remote content item list metdata XML document with the snapshot. If snapshot
+   * document is null then remote XML doc becomes the snapshot;
    *
-   * @param   remoteDoc content item list metadata as DOM Document, can be
-   *          <code>null</code>.
-   *
+   * @param remoteDoc content item list metadata as DOM Document, can be <code>null</code>.
    */
   public void refresh(Document remoteDoc)
       throws PSFUDNullDocumentsException, PSFUDMergeDocumentsException {
@@ -267,12 +247,11 @@ public class PSFUDApplication {
   }
 
   /**
-   * Saves the snapshot XML Document locally to SNAPSHOTFILE. The path is
-   * calculated as $current/serveralias/userid/SNAPSHOTFILE, where $current is
-   * the current workign directory for the application.
+   * Saves the snapshot XML Document locally to SNAPSHOTFILE. The path is calculated as
+   * $current/serveralias/userid/SNAPSHOTFILE, where $current is the current workign directory for
+   * the application.
    *
    * @throws IOException if save fails
-   *
    */
   public void save() throws IOException {
     File file = new File(MainFrame.getConfig().getUserPath(), SNAPSHOTFILE);
@@ -286,18 +265,15 @@ public class PSFUDApplication {
   }
 
   /**
-   * Snapshot DOM document. A snapshot document is an DOM document holding all
-   * the information from the remote application document (which is another
-   * DOM Document provided by Rx server) plus the state information for all
-   * the DOM elements that are encapsulated by the IPSFUDNodes.
-   *<p>
-   * Shall never be null once user closes the connect dialog box.
+   * Snapshot DOM document. A snapshot document is an DOM document holding all the information from
+   * the remote application document (which is another DOM Document provided by Rx server) plus the
+   * state information for all the DOM elements that are encapsulated by the IPSFUDNodes.
+   *
+   * <p>Shall never be null once user closes the connect dialog box.
    */
   private Document m_snapshotDoc = null;
 
-  /**
-   * Application node element encapsulated by this class.
-   */
+  /** Application node element encapsulated by this class. */
   private Element m_Element = null;
 
   /*
@@ -305,28 +281,20 @@ public class PSFUDApplication {
    */
   private Element m_ElementStatus = null;
 
-  /**
-   * Flag to set offline status, set to <code>true</code> when remote load
-   * fails.
-   */
+  /** Flag to set offline status, set to <code>true</code> when remote load fails. */
   private boolean m_bOffline = false;
 
-  /**
-   * Snapshot file name
-   */
+  /** Snapshot file name */
   public static final String SNAPSHOTFILE = "snapshot.xml";
 
   /**
-   * HTTP header string for user agent. This will always be the application
-   * title appended with version string.
+   * HTTP header string for user agent. This will always be the application title appended with
+   * version string.
    */
   public static final String HTTP_USERAGENT =
       MainFrame.APPTITLE + "; " + MainFrame.getVersionString();
 
-  /**
-   * The element and attribute names in the content list document based on the
-   * DTD
-   */
+  /** The element and attribute names in the content list document based on the DTD */
   public static final String ELEM_APPLICATION = "psrxfudapplication";
 
   public static final String ELEM_CATEGORY = "category";

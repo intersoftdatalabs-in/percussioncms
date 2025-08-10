@@ -1,6 +1,5 @@
-// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,78 +21,96 @@ import com.percussion.category.data.PSCategory;
 import com.percussion.category.marshaller.PSCategoryMarshaller;
 import com.percussion.category.marshaller.PSCategoryUnMarshaller;
 import com.percussion.share.service.exception.PSDataServiceException;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-
+import com.percussion.utils.testing.IntegrationTest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import junit.framework.TestCase;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-import static org.junit.jupiter.api.Assertions.*;
+@Category(IntegrationTest.class)
+public class PSJerseyRestClientTest extends TestCase {
 
-/**
- * Integration tests for PSJerseyRestClient and PSCategoryServiceRestClient.
- */
-@Tag("IntegrationTest")
-public class PSJerseyRestClientTest {
+  // FB: ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD NC 1-16-16
+  private PSCategoryServiceRestClient client;
 
-    private static PSCategoryServiceRestClient client;
+  @BeforeClass
+  public void setUp() throws Exception {
 
-    @BeforeEach All
-    public static void setUp() {
-        client = new PSCategoryServiceRestClient();
+    client = new PSCategoryServiceRestClient();
+  }
+
+  @Test
+  public void testGetCategries() throws PSDataServiceException {
+    PSCategory result = client.getCategoryList("xyz");
+
+    assertNotNull(result);
+    validateData(PSCategoryMarshaller.marshalToJson(result));
+  }
+
+  @Test
+  public void testUpdateCategries() throws PSDataServiceException {
+    PSCategory resultcat = client.getCategoryList("xyz");
+    String result = PSCategoryMarshaller.marshalToJson(resultcat);
+    assertNotNull(result);
+    result = result.replace("Children", "topLevelNodes");
+    result = result.replace("Child", "childNodes");
+
+    if (result.contains("\"topLevelNodes\":{")) {
+      result = result.replace("\"topLevelNodes\":{", "\"topLevelNodes\":[{");
     }
 
-    @Test
-    public void testGetCategories() throws PSDataServiceException {
-        var result = client.getCategoryList("xyz");
-        assertNotNull(result);
-        validateData(PSCategoryMarshaller.marshalToJson(result));
+    result = result.replace("\"childNodes\":{", "\"childNodes\":[{");
+    Pattern pattern = Pattern.compile("\\}\\}");
+    Matcher m = pattern.matcher(result);
+    while (m.find()) {
+      result = result.replace("}}", "}]}");
+
+      m = pattern.matcher(result);
+    }
+    PSCategory category = PSCategoryUnMarshaller.unMarshalFromString(result);
+    PSCategory updatedResult = client.updateCategories(category, "xyz");
+    validateData(PSCategoryMarshaller.marshalToJson(updatedResult));
+  }
+
+  private void validateData(String result) {
+    result = result.replace("Children", "topLevelNodes");
+    result = result.replace("Child", "childNodes");
+
+    if (result.contains("\"topLevelNodes\":{")) {
+      result = result.replace("\"topLevelNodes\":{", "\"topLevelNodes\":[{");
     }
 
-    @Test
-    public void testUpdateCategories() throws PSDataServiceException {
-        var resultCat = client.getCategoryList("xyz");
-        var result = PSCategoryMarshaller.marshalToJson(resultCat);
-        assertNotNull(result);
-        result = result.replace("Children", "topLevelNodes");
-        result = result.replace("Child", "childNodes");
+    result = result.replace("\"childNodes\":{", "\"childNodes\":[{");
+    Pattern pattern = Pattern.compile("\\}\\}");
+    Matcher m = pattern.matcher(result);
+    while (m.find()) {
+      result = result.replace("}}", "}]}");
 
-        if (result.contains("\"topLevelNodes\":{")) {
-            result = result.replace("\"topLevelNodes\":{", "\"topLevelNodes\":[{");
-        }
-
-        result = result.replace("\"childNodes\":{", "\"childNodes\":[{");
-        Pattern pattern = Pattern.compile("\\}\\}");
-        Matcher m = pattern.matcher(result);
-        while (m.find()) {
-            result = result.replace("}}", "}]}");
-            m = pattern.matcher(result);
-        }
-        var category = PSCategoryUnMarshaller.unMarshalFromString(result);
-        var updatedResult = client.updateCategories(category, "xyz");
-        validateData(PSCategoryMarshaller.marshalToJson(updatedResult));
+      m = pattern.matcher(result);
     }
+    // System.out.println(result);
 
-    private void validateData(String result) {
-        result = result.replace("Children", "topLevelNodes");
-        result = result.replace("Child", "childNodes");
+    PSCategory category = PSCategoryUnMarshaller.unMarshalFromString(result);
 
-        if (result.contains("\"topLevelNodes\":{")) {
-            result = result.replace("\"topLevelNodes\":{", "\"topLevelNodes\":[{");
-        }
+    assertNotNull("categories cannnot be null", category);
+    /*
+    assertEquals(2, category.getTopLevelNodes().size());
 
-        result = result.replace("\"childNodes\":{", "\"childNodes\":[{");
-        Pattern pattern = Pattern.compile("\\}\\}");
-        Matcher m = pattern.matcher(result);
-        while (m.find()) {
-            result = result.replace("}}", "}]}");
-            m = pattern.matcher(result);
-        }
+    for(PSCategoryNode node : category.getTopLevelNodes()) {
 
-        var category = PSCategoryUnMarshaller.unMarshalFromString(result);
-        assertNotNull(category, "categories cannot be null");
-        // Additional assertions can be added here for deeper validation.
-    }
+    	if(node.getTitle().equals("Sample Category 1")) {
+    		assertEquals(5, node.getChildNodes().size());
+
+    		for(PSCategoryNode childNode : node.getChildNodes()) {
+    			if(childNode.getTitle().equals("Sample Category 1 1")) {
+    				assertEquals(1, childNode.getChildNodes().size());
+    			}
+    		}
+    	}
+    	else if(node.getTitle().equals("Sample Category 2"))
+    		assertEquals(5, node.getChildNodes().size());
+    } */
+  }
 }

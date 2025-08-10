@@ -31,31 +31,27 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- *
- * This exit convertes the an array of specified HTML parameters to an XML
- * format and useful when a request comes with an array of HTML params. Each
- * set of the specified parameters will be added as children of the element
- * name specified by the first parameter. These elements in turn will be the
+ * This exit convertes the an array of specified HTML parameters to an XML format and useful when a
+ * request comes with an array of HTML params. Each set of the specified parameters will be added as
+ * children of the element name specified by the first parameter. These elements in turn will be the
  * children of the root element of the document For example:
- * <p>
- * If the reqest has an array of sys_content and sys_revision parameters with
- * a size of 2, the parameters to the exit will be
+ *
+ * <p>If the reqest has an array of sys_content and sys_revision parameters with a size of 2, the
+ * parameters to the exit will be
+ *
  * <ol>
- * <li>contentitem</li>
- * <li>sys_contentid</li>
- * <li>sys_revision</li>
+ *   <li>contentitem
+ *   <li>sys_contentid
+ *   <li>sys_revision
  * </ol>
- * and the result document generated after the exit will be:
- * &lt;rootElem&gt;  &lt;contentitem&gt;
- * &lt;sys_contentid&gt;301&lt;/sys_contentid&gt;
- * &lt;sys_revision&gt;1&lt;/sys_revision&gt;
- * &lt;/contentitem&gt;  &lt;contentitem&gt;
- * &lt;sys_contentid&gt;309&lt;/sys_contentid&gt;
- * &lt;sys_revision&gt;2&lt;/sys_revision&gt;
- * &lt;/contentitem&gt; &lt;/rootElem&gt;
- * <p>
- * The exit itself is generic in that it takes any number parameters though it
- * is specified as 3 now.
+ *
+ * and the result document generated after the exit will be: &lt;rootElem&gt; &lt;contentitem&gt;
+ * &lt;sys_contentid&gt;301&lt;/sys_contentid&gt; &lt;sys_revision&gt;1&lt;/sys_revision&gt;
+ * &lt;/contentitem&gt; &lt;contentitem&gt; &lt;sys_contentid&gt;309&lt;/sys_contentid&gt;
+ * &lt;sys_revision&gt;2&lt;/sys_revision&gt; &lt;/contentitem&gt; &lt;/rootElem&gt;
+ *
+ * <p>The exit itself is generic in that it takes any number parameters though it is specified as 3
+ * now.
  */
 public class PSParamsToXml extends PSDefaultExtension implements IPSResultDocumentProcessor {
 

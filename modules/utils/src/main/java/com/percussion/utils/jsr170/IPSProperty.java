@@ -19,15 +19,15 @@ package com.percussion.utils.jsr170;
 import javax.jcr.Property;
 
 /**
- * Extend the jcr property interface with useful information for our
- * implementation.
+ * Extend the jcr property interface with useful information for our implementation.
  *
  * @author dougrand
  */
 public interface IPSProperty extends Property {
   /**
-   * If this property object wraps a <code>null</code> value then this
-   * method returns <code>true</code>.
+   * If this property object wraps a <code>null</code> value then this method returns <code>true
+   * </code>.
+   *
    * @return <code>true</code> for <code>null</code> values.
    */
   boolean isNull();

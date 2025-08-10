@@ -23,32 +23,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSDtdElementEntry class is used as a placeholder for elements
- * referenced in a DTD tree, these will contain occurrence information
- * and a reference to the element and its content.
+ * The PSDtdElementEntry class is used as a placeholder for elements referenced in a DTD tree, these
+ * will contain occurrence information and a reference to the element and its content.
  *
- * @see   PSDtdNode
- * @see   PSDtdNodeList
- * @see   PSDtdElement
- * @see   PSDtdTree
- *
- * @author   David Gennaco
- * @version   1.0
- * @since   1.0
+ * @see PSDtdNode
+ * @see PSDtdNodeList
+ * @see PSDtdElement
+ * @see PSDtdTree
+ * @author David Gennaco
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDtdElementEntry extends PSDtdNode {
   private static final Logger log = LogManager.getLogger(PSDtdElementEntry.class);
 
   /**
-   * Construct a Dtd Element Entry to reference an
-   *   element declaration
+   * Construct a Dtd Element Entry to reference an element declaration
    *
-   * @param   PSDtdElement         reference to actual element
-   *
-   * @param   parent               parent node
-   *
-   * @param   occurrences   the occurrence setting
-   *
+   * @param PSDtdElement reference to actual element
+   * @param parent parent node
+   * @param occurrences the occurrence setting
    */
   PSDtdElementEntry(PSDtdElement element, PSDtdNode parent, int occurrences) {
     super(occurrences);
@@ -79,21 +73,15 @@ public class PSDtdElementEntry extends PSDtdNode {
   }
 
   /**
-   * Add this entry to the catalog list, checking recursion and for
-   *   content model
+   * Add this entry to the catalog list, checking recursion and for content model
    *
-   * This function should be overridden for all extended classes.
+   * <p>This function should be overridden for all extended classes.
    *
-   * @param   stack   the recursion detection stack
-   *
-   * @param   catalogList the catalog list being built
-   *
-   * @param   cur            the current name to expand on
-   *
-   * @param   sep            the element separator string
-   *
-   * @param   attribId  the string used to identify an attribute entry
-   *
+   * @param stack the recursion detection stack
+   * @param catalogList the catalog list being built
+   * @param cur the current name to expand on
+   * @param sep the element separator string
+   * @param attribId the string used to identify an attribute entry
    */
   public void catalog(HashMap stack, List catalogList, String cur, String sep, String attribId) {
     if (catalogList.size() >= PSDtdTree.MAX_CATALOG_SIZE) {
@@ -131,27 +119,25 @@ public class PSDtdElementEntry extends PSDtdNode {
   }
 
   /**
-   *      Return the maximum occurrence setting for this node, based
-   *         on the context of this node under its parent element.
+   * Return the maximum occurrence setting for this node, based on the context of this node under
+   * its parent element.
    *
-   *   @return      occurrence type (max)
+   * @return occurrence type (max)
    */
   public int getMaxMergedOccurrenceSetting() {
     return getMaxMergedOccurrenceSetting(m_occurrenceType);
   }
 
   /**
-   *   Return the element associated with this entry
+   * Return the element associated with this entry
    *
-   * @return   the element for this element entry node
+   * @return the element for this element entry node
    */
   public PSDtdElement getElement() {
     return m_element;
   }
 
-  /**
-   *
-   */
+  /** */
   void setElement(PSDtdElement element) {
     m_element = element;
   }

@@ -20,22 +20,19 @@ import com.percussion.data.PSExecutionData;
 import com.percussion.security.PSThreadRequestUtils;
 
 /**
- * This class extends {@link com.percussion.data.PSExecutionData
- * PSExecutionData} from com.percussion.data package and has a ctor that can
- * be instantiated with {@link  com.percussion.server.IPSRequestContext}.
- * This is light in the sense that it is not a full fledged execution data and
- * does not have anything outside of {@link com.percussion.server.PSRequest}.
- * Note that the ctor calls the super ctor with <code>null</code> for both
- * application handler and request handler (the first and second parameters).
- * This class be used with care and intended (based on the current
- * requirements) to execute conditionals that do not depend any data outside
- * of the {@link com.percussion.server.PSRequest} object.
+ * This class extends {@link com.percussion.data.PSExecutionData PSExecutionData} from
+ * com.percussion.data package and has a ctor that can be instantiated with {@link
+ * com.percussion.server.IPSRequestContext}. This is light in the sense that it is not a full
+ * fledged execution data and does not have anything outside of {@link
+ * com.percussion.server.PSRequest}. Note that the ctor calls the super ctor with <code>null</code>
+ * for both application handler and request handler (the first and second parameters). This class be
+ * used with care and intended (based on the current requirements) to execute conditionals that do
+ * not depend any data outside of the {@link com.percussion.server.PSRequest} object.
+ *
  * @author RammohanVangapalli
  */
 public class PSExecutionDataLight extends PSExecutionData {
-  /**
-   * Ctor that takes a {@link IPSRequestContext request context} object.
-   */
+  /** Ctor that takes a {@link IPSRequestContext request context} object. */
   public PSExecutionDataLight() {
     super(null, null, PSThreadRequestUtils.getPSRequest());
   }

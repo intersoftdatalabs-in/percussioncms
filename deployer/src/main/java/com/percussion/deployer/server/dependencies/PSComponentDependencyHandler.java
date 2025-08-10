@@ -22,20 +22,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a component deployable element.
- */
+/** Class to handle packaging and deploying a component deployable element. */
 public class PSComponentDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSComponentDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -43,15 +38,15 @@ public class PSComponentDependencyHandler extends PSElementDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ComponentDef</li>
+   *   <li>ComponentDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -73,22 +68,16 @@ public class PSComponentDependencyHandler extends PSElementDependencyHandler {
     return m_cdHandler;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "Component";
 
   /**
-   * The component definition handler, initialized by
-   * <code>getChildHandler()</code> if it is <code>null</code>, will never
-   * be <code>null</code> after that.
+   * The component definition handler, initialized by <code>getChildHandler()</code> if it is <code>
+   * null</code>, will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_cdHandler = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

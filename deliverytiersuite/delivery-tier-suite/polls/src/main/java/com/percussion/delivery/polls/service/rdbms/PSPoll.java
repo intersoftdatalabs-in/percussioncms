@@ -98,16 +98,12 @@ public class PSPoll implements IPSPoll, Serializable {
     this.pollAnswers = pollAnswers;
   }
 
-  /**
-   * Returns the version.
-   */
+  /** Returns the version. */
   public Integer getVersion() {
     return version;
   }
 
-  /**
-   * Sets the version. Can only be set once.
-   */
+  /** Sets the version. Can only be set once. */
   public void setVersion(Integer version) {
     if (this.version != null && version != null) {
       throw new IllegalStateException("Version can only be set once");

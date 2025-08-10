@@ -19,11 +19,9 @@ package com.percussion.delivery.multitenant;
 import java.util.Date;
 
 /**
- * Contains information about the tenant, including
- * license and usage counts.
+ * Contains information about the tenant, including license and usage counts.
  *
  * @author natechadwick
- *
  */
 public interface IPSTenantInfo {
 

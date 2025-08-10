@@ -18,21 +18,18 @@
 package com.percussion.server.job;
 
 /**
- * Class for creating classes implementing PSJobRunner based on the type and
- * category of job.  Types are paired with class names in the
- * {@link PSJobHandlerConfiguration}.  Any class that will be created by this
- * factory must not be obfuscated and must be added to the config file used to
+ * Class for creating classes implementing PSJobRunner based on the type and category of job. Types
+ * are paired with class names in the {@link PSJobHandlerConfiguration}. Any class that will be
+ * created by this factory must not be obfuscated and must be added to the config file used to
  * initialize the {@link PSJobHandlerConfiguration} supplied during construction.
  */
 public class PSJobRunnerFactory {
   /**
    * Construct the factory, providing the config.
    *
-   * @param config The config providing all information required to initialize
-   * each type of job.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>config</code> is
-   * <code>null</code>.
+   * @param config The config providing all information required to initialize each type of job. May
+   *     not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>config</code> is <code>null</code>.
    */
   public PSJobRunnerFactory(PSJobHandlerConfiguration config) {
     if (config == null) throw new IllegalArgumentException("config may not be null");
@@ -43,15 +40,11 @@ public class PSJobRunnerFactory {
   /**
    * Returns an instance of PSJobRunner based on the job type.
    *
-   * @param category The category of this job.  May not be <code>null</code> or
-   * empty, and must be an existing category.
-   * @param jobType A string which identifies a single job type within a
-   * category.  May not be <code>null</code> or empty, and must be am
-   * existing job type within the specified category.
-   *
-   * @return an instance of the correct class derived from PSJobRunner, never
-   * <code>null</code>.
-   *
+   * @param category The category of this job. May not be <code>null</code> or empty, and must be an
+   *     existing category.
+   * @param jobType A string which identifies a single job type within a category. May not be <code>
+   *     null</code> or empty, and must be am existing job type within the specified category.
+   * @return an instance of the correct class derived from PSJobRunner, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSJobException if there is an error instantiating the JobRunner.
    */
@@ -92,9 +85,8 @@ public class PSJobRunnerFactory {
   }
 
   /**
-   * Provides InitParams for all jobs and for the handler and maps job types
-   * to their respective classes.  Initialized during ctor, never
-   * <code>null</code> or modified after that.
+   * Provides InitParams for all jobs and for the handler and maps job types to their respective
+   * classes. Initialized during ctor, never <code>null</code> or modified after that.
    */
   private static PSJobHandlerConfiguration m_config = null;
 }

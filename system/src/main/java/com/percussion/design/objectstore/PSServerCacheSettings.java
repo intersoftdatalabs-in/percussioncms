@@ -22,51 +22,46 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Contains the configuration settings for the cache used by the server.
- */
+/** Contains the configuration settings for the cache used by the server. */
 public class PSServerCacheSettings extends PSComponent {
 
   /**
-   * Intializes the default storage and aging settings for the manager. Caching
-   * is disabled by default. The defaults storage and aging settings when
-   * caching is enabled are:
-   * <br>
-   * <ol>
-   * <li>Memory Usage - 100 MB</li>
-   * <li>Disk Usage - 1 GB</li>
-   * <li>Page Size - 100 KB</li>
-   * <li>Aging Time - Unlimited, never expires(-1)</li>
-   * </ol>
-   * @see #toXml for more description of the settings.
+   * Intializes the default storage and aging settings for the manager. Caching is disabled by
+   * default. The defaults storage and aging settings when caching is enabled are: <br>
    *
+   * <ol>
+   *   <li>Memory Usage - 100 MB
+   *   <li>Disk Usage - 1 GB
+   *   <li>Page Size - 100 KB
+   *   <li>Aging Time - Unlimited, never expires(-1)
+   * </ol>
+   *
+   * @see #toXml for more description of the settings.
    */
   public PSServerCacheSettings() {}
 
   /**
-   * Intializes the storage and aging settings for the manager.  Must be called
-   * before the instance of the class is used.
+   * Intializes the storage and aging settings for the manager. Must be called before the instance
+   * of the class is used.
    *
-   * @param enabled Is caching enabled for the server?  Provide
-   * <code>true</code> if it is to be enabled, <code>false</code> if not.
-   * @param folderCacheEnabled Is folder caching enabled for the server?
-   * Provide <code>true</code> if it is to be enabled, <code>false</code> if not.
-   * @param memUsage The max amount of memory (in bytes) to use before items are
-   * moved to disk or flushed if no space is available.   Objects will be moved
-   * or flushed based on a least recently used algorithm.  Supply
-   * <code>-1</code> to allow unlimited memory usage.  Must not be less than
-   * <code>-1</code>.
-   * @param diskUsage The max amount of space (in bytes) to use on disk before
-   * forcing the least recently used items to be flushed.  Provide
-   * <code>-1</code> to allow unlimited disk usage.  Must not be less than
-   * <code>-1</code>.
-   * @param pageSize The maximum page size the server should use to allow
-   * caching of an item/page that is less than or equal to this. Provide <code>
-   * -1</code> to allow item/page of any size to cache, or else a number greater
-   * than <code>0</code>.
-   * @param agingTime The amount of time (in mins) to allow an object to be idle
-   * in the cache before it is flushed. Provide <code>-1</code> to allow
-   * unlimited time (never expires), or else a number greater than <code>0
+   * @param enabled Is caching enabled for the server? Provide <code>true</code> if it is to be
+   *     enabled, <code>false</code> if not.
+   * @param folderCacheEnabled Is folder caching enabled for the server? Provide <code>true</code>
+   *     if it is to be enabled, <code>false</code> if not.
+   * @param memUsage The max amount of memory (in bytes) to use before items are moved to disk or
+   *     flushed if no space is available. Objects will be moved or flushed based on a least
+   *     recently used algorithm. Supply <code>-1</code> to allow unlimited memory usage. Must not
+   *     be less than <code>-1</code>.
+   * @param diskUsage The max amount of space (in bytes) to use on disk before forcing the least
+   *     recently used items to be flushed. Provide <code>-1</code> to allow unlimited disk usage.
+   *     Must not be less than <code>-1</code>.
+   * @param pageSize The maximum page size the server should use to allow caching of an item/page
+   *     that is less than or equal to this. Provide <code>
+   * -1</code> to allow item/page of any size to cache, or else a number greater than <code>0</code>
+   *     .
+   * @param agingTime The amount of time (in mins) to allow an object to be idle in the cache before
+   *     it is flushed. Provide <code>-1</code> to allow unlimited time (never expires), or else a
+   *     number greater than <code>0
    * </code>.
    */
   public PSServerCacheSettings(
@@ -87,14 +82,12 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Construct this object from its XML representation.
    *
-   * @param source The element to use, may not <code>null</code>.  See
-   * {@link #toXml(Document)} for the expected format.
-   * @param parentDoc the Java object which is the parent of this object,
-   * may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be <code>
+   * @param source The element to use, may not <code>null</code>. See {@link #toXml(Document)} for
+   *     the expected format.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>
    * null</code>.
-   * @throws PSUnknownNodeTypeException if <code>source</code> is not in
-   * the expected format.
+   * @throws PSUnknownNodeTypeException if <code>source</code> is not in the expected format.
    */
   public PSServerCacheSettings(Element source, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -104,8 +97,9 @@ public class PSServerCacheSettings extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. The format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. The format is:
+   *
    * <pre><code>
    * &lt;!--
    *    The settings to use for the cache used by the server.
@@ -142,7 +136,6 @@ public class PSServerCacheSettings extends PSComponent {
    *
    * @param doc the document used to create element, may not be <code>null
    * </code>
-   *
    * @return The newly created XML element node, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -167,8 +160,7 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Indicates whether folder cache is enabled or disabled.
    *
-   * @return <code>true</code> if folder cache is enabled; otherwise return
-   *    <code>false</code>.
+   * @return <code>true</code> if folder cache is enabled; otherwise return <code>false</code>.
    */
   public boolean isFolderCacheEnabled() {
     return m_isFolderCacheEnabled;
@@ -177,16 +169,12 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * This method is called to populate this object from its XML representation.
    *
-   * @param sourceNode   The XML element node to populate from, not <code>null
-   * </code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @param parentDoc The parent document that contains the element, may be
-   * <code>null</code>.
-   * @param parentComponents a collection of all the components created in
-   * the process of creating this component.  May be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in
-   * the expected format.
+   * @param sourceNode The XML element node to populate from, not <code>null
+   * </code>. See {@link #toXml(Document)} for the format expected.
+   * @param parentDoc The parent document that contains the element, may be <code>null</code>.
+   * @param parentComponents a collection of all the components created in the process of creating
+   *     this component. May be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is not in the expected format.
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -268,8 +256,7 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Sets the caching property enable/disabled.
    *
-   * @param enabled if <code>true</code> sets caching enabled, otherwise
-   * disabled.
+   * @param enabled if <code>true</code> sets caching enabled, otherwise disabled.
    */
   private void setEnabled(boolean enabled) {
     m_isEnabled = enabled;
@@ -330,11 +317,10 @@ public class PSServerCacheSettings extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied
-   * <code>PSServerCacheSettings</code> to this object.
+   * Performs a shallow copy of the data in the supplied <code>PSServerCacheSettings</code> to this
+   * object.
    *
-   * @param c A valid <code>PSServerCacheSettings</code> object. Cannot be
-   * <code>null</code>.
+   * @param c A valid <code>PSServerCacheSettings</code> object. Cannot be <code>null</code>.
    */
   public void copyFrom(PSServerCacheSettings c) {
     try {
@@ -387,8 +373,8 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Gets the maximum amount of memory the sever should use for caching items.
    *
-   * @return The amount in bytes, <code>-1</code> to indicate unlimited use,
-   * or else a number greater than or equal to <code>0</code>.
+   * @return The amount in bytes, <code>-1</code> to indicate unlimited use, or else a number
+   *     greater than or equal to <code>0</code>.
    */
   public long getMaxMemoryUsage() {
     return m_maxMemoryUsage;
@@ -397,19 +383,19 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Gets the maximum amount of disk space sever should use for caching items.
    *
-   * @return The amount in bytes, <code>-1</code> to indicate unlimited space,
-   * or else a number greater than or equal to <code>0</code>.
+   * @return The amount in bytes, <code>-1</code> to indicate unlimited space, or else a number
+   *     greater than or equal to <code>0</code>.
    */
   public long getMaxDiskUsage() {
     return m_maxDiskUsage;
   }
 
   /**
-   * Gets the maximum page size that the sever should use for caching an item.
-   * If the item/page size exceeds this size that will not be cached.
+   * Gets the maximum page size that the sever should use for caching an item. If the item/page size
+   * exceeds this size that will not be cached.
    *
-   * @return The amount in bytes, <code>-1</code> to indicate unlimited size,
-   * or else a number greater than or equal to <code>0</code>.
+   * @return The amount in bytes, <code>-1</code> to indicate unlimited size, or else a number
+   *     greater than or equal to <code>0</code>.
    */
   public long getMaxPageSize() {
     return m_maxPageSize;
@@ -418,77 +404,65 @@ public class PSServerCacheSettings extends PSComponent {
   /**
    * Gets the time after which items cached by the server should expire.
    *
-   * @return The time in minutes, <code>-1</code> to indicate that it never
-   * expires, or else a number greater than <code>0</code>.
+   * @return The time in minutes, <code>-1</code> to indicate that it never expires, or else a
+   *     number greater than <code>0</code>.
    */
   public long getAgingTime() {
     return m_agingTime;
   }
 
   /**
-   * The flag to determine whether the caching is enabled/disabled, gets
-   * initialized when the instance is created.
+   * The flag to determine whether the caching is enabled/disabled, gets initialized when the
+   * instance is created.
    */
   private boolean m_isEnabled = false;
 
   /**
-   * Indicates whether the folder cache is enabled or disabled. The folder
-   * cache is enabled by default.
+   * Indicates whether the folder cache is enabled or disabled. The folder cache is enabled by
+   * default.
    */
   private boolean m_isFolderCacheEnabled = true;
 
   /**
-   * The maximum amount of memory (in bytes), the sever should use for caching
-   * items, gets initialized when the instance is created.
+   * The maximum amount of memory (in bytes), the sever should use for caching items, gets
+   * initialized when the instance is created.
    */
   private long m_maxMemoryUsage = DEFAULT_MEM_USAGE;
 
   /**
-   * The maximum amount of disk space (in bytes) the sever should use for
-   * caching items, gets initialized when the instance is created.
+   * The maximum amount of disk space (in bytes) the sever should use for caching items, gets
+   * initialized when the instance is created.
    */
   private long m_maxDiskUsage = DEFAULT_DISK_USAGE;
 
   /**
-   * The maximum page size (in bytes) the server should use for caching an
-   * item, gets initialized when the instance is created.
+   * The maximum page size (in bytes) the server should use for caching an item, gets initialized
+   * when the instance is created.
    */
   private long m_maxPageSize = DEFAULT_PAGE_SIZE;
 
   /**
-   * The time (in mins) after which items cached by the server should expire,
-   * gets initialized when the instance is created.
+   * The time (in mins) after which items cached by the server should expire, gets initialized when
+   * the instance is created.
    */
   private long m_agingTime = -1;
 
-  /**
-   * Default setting for unlimited aging time (for cache not to expire).
-   */
+  /** Default setting for unlimited aging time (for cache not to expire). */
   public static final long DEFAULT_AGING_TIME = 60;
 
-  /**
-   * Default setting for maximum disk usage in bytes. (1 GB)
-   */
+  /** Default setting for maximum disk usage in bytes. (1 GB) */
   public static final long DEFAULT_DISK_USAGE = 1073741824;
 
-  /**
-   * Default setting for maximum memory usage in bytes. (100 MB)
-   */
+  /** Default setting for maximum memory usage in bytes. (100 MB) */
   public static final long DEFAULT_MEM_USAGE = 104857600;
 
-  /**
-   * Default setting for maximum page size in bytes that can be cached(100 KB).
-   */
+  /** Default setting for maximum page size in bytes that can be cached(100 KB). */
   public static final long DEFAULT_PAGE_SIZE = 102400;
 
-  /**
-   * The xml node to represent this object.
-   */
+  /** The xml node to represent this object. */
   public static final String XML_NODE_NAME = "PSXServerCacheSettings";
 
-  /**
-   * The xml attribute names of the node representing this object.
-   */
+  /** The xml attribute names of the node representing this object. */
   public static final String ENABLED_ATTR = "enabled";
 
   public static final String FOLDER_CACHE_ENABLED_ATTR = "folderCacheEnabled";

@@ -23,8 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation interface that allows the extension manager to obtain a per
- * method description and parameter descriptions via reflection.
+ * Annotation interface that allows the extension manager to obtain a per method description and
+ * parameter descriptions via reflection.
  *
  * @author dougrand
  */

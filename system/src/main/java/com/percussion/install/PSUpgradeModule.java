@@ -25,16 +25,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to load the module element from the configuration file
- * and give some utility methods.
+ * This class is used to load the module element from the configuration file and give some utility
+ * methods.
  */
 public class PSUpgradeModule implements IPSUpgradeModule {
   /**
-   * Constructor constructs this class object from the module element of
-   * configuration file.
-   * @param module element from configuration file.
-   * must not be <code>null</code>.
+   * Constructor constructs this class object from the module element of configuration file.
    *
+   * @param module element from configuration file. must not be <code>null</code>.
    */
   public PSUpgradeModule(Element module) throws FileNotFoundException, IOException, SAXException {
     if (module == null || !module.getNodeName().equals(ELEM_MODULE_NAME)) {
@@ -56,46 +54,37 @@ public class PSUpgradeModule implements IPSUpgradeModule {
     }
   }
 
-  /**
-   * Gives the name of the module.
-   */
+  /** Gives the name of the module. */
   public String getModuleName() {
     return m_module.getAttribute(ATTR_NAME).trim();
   }
 
-  /**
-   * Gives the name of the log file.
-   */
+  /** Gives the name of the log file. */
   public String getLogFile() {
     return m_module.getAttribute(ATTR_LOGFILE).trim();
   }
 
-  /**
-   * Gives PrintStream object m_ps.
-   */
+  /** Gives PrintStream object m_ps. */
   public PrintStream getLogStream() {
     return m_ps;
   }
 
   /**
-   * Gives an element from module if we give the element name.
-   * returns null if element name is empty.
+   * Gives an element from module if we give the element name. returns null if element name is
+   * empty.
+   *
    * @param elemName Name of the element.
    */
   public Element getElement(String elemName) {
     return InstallUtil.getElement(m_module, elemName);
   }
 
-  /**
-   * Gives the module element.
-   */
+  /** Gives the module element. */
   public Element getModuleElement() {
     return m_module;
   }
 
-  /**
-   * Closes the PrintStream object.
-   */
+  /** Closes the PrintStream object. */
   public void close() {
     if (m_ps != null) {
       try {
@@ -106,13 +95,9 @@ public class PSUpgradeModule implements IPSUpgradeModule {
     }
   }
 
-  /**
-   * Module element
-   */
+  /** Module element */
   private Element m_module = null;
 
-  /**
-   * PrintStream object m_ps.
-   */
+  /** PrintStream object m_ps. */
   private PrintStream m_ps = null;
 }

@@ -21,23 +21,20 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for PSSEOStatistics.
- */
+/** List wrapper for PSSEOStatistics. */
 @XmlRootElement(name = "SEOStatistics")
 @ArraySchema(schema = @Schema(implementation = PSSEOStatistics.class))
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PSSEOStatisticsList extends ArrayList<PSSEOStatistics> {
-    public PSSEOStatisticsList() {
-        super();
-    }
+  public PSSEOStatisticsList() {
+    super();
+  }
 
-    public PSSEOStatisticsList(Collection<? extends PSSEOStatistics> c) {
-        super(c);
-    }
+  public PSSEOStatisticsList(Collection<? extends PSSEOStatistics> c) {
+    super(c);
+  }
 }

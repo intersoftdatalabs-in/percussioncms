@@ -26,18 +26,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSRemoteConsoleHandler class is used to process remote console
- * commands issued against the E2 server. The PSRemoteConsole class is
- * used by an administrator to issue the console commands.
+ * The PSRemoteConsoleHandler class is used to process remote console commands issued against the E2
+ * server. The PSRemoteConsole class is used by an administrator to issue the console commands.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSession {
-  /**
-   * Creates a remote console handler for this server.
-   */
+  /** Creates a remote console handler for this server. */
   public PSRemoteConsoleHandler() {
     super();
   }
@@ -45,12 +42,10 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a remote console request. The ACL is first checked for admin
-   * access. If the requestor has the appropriate access, the
-   * command will be executed.
+   * Process a remote console request. The ACL is first checked for admin access. If the requestor
+   * has the appropriate access, the command will be executed.
    *
-   * @param   request      the request object containing all context
-   *                        data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     String commandString = null;
@@ -120,9 +115,7 @@ public class PSRemoteConsoleHandler implements IPSRequestHandler, IPSValidateSes
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {}
 
   void sendErrorResponse(PSRequest request, PSResponse resp, String command, Throwable t) {

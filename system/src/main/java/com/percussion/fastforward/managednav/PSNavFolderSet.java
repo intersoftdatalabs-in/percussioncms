@@ -24,12 +24,9 @@ import java.util.Set;
  * A set of parent Nav folders for a given page content item.
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolderSet {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSNavFolderSet() {}
 
   /**
@@ -42,9 +39,8 @@ public class PSNavFolderSet {
   }
 
   /**
-   * Gets in iterator for this set. The iterator will return all Folders which
-   * have been added to the set. This interator should not be used for
-   * operations which may modify the set.
+   * Gets in iterator for this set. The iterator will return all Folders which have been added to
+   * the set. This interator should not be used for operations which may modify the set.
    *
    * @return the iterator
    */
@@ -62,12 +58,11 @@ public class PSNavFolderSet {
   }
 
   /**
-   * Finds the first Nav Folder in the set alphabetically. This method cannot
-   * use Comparators here because of the contract with the equals() method.
-   * Because the set is expected to be small, a simple linear search is used.
+   * Finds the first Nav Folder in the set alphabetically. This method cannot use Comparators here
+   * because of the contract with the equals() method. Because the set is expected to be small, a
+   * simple linear search is used.
    *
-   * @return the first Nav Folder alphabetically, or <code>null</code> if the
-   *         set is EMPTY.
+   * @return the first Nav Folder alphabetically, or <code>null</code> if the set is EMPTY.
    */
   public PSNavFolder getFirst() {
     PSNavFolder first = null;
@@ -102,8 +97,6 @@ public class PSNavFolderSet {
     return m_folderSet.isEmpty();
   }
 
-  /**
-   * The set of PSNavFolder objects.
-   */
+  /** The set of PSNavFolder objects. */
   private Set m_folderSet = new HashSet();
 }

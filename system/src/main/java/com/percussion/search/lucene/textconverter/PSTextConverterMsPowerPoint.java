@@ -28,9 +28,8 @@ import org.apache.poi.sl.extractor.SlideShowExtractor;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 
 /**
- * Extracts the text from input stream corresponding to Microsoft Power Point file
- * using POI api. Gets the plain text from the slides and notes.
- *
+ * Extracts the text from input stream corresponding to Microsoft Power Point file using POI api.
+ * Gets the plain text from the slides and notes.
  */
 public class PSTextConverterMsPowerPoint implements IPSLuceneTextConverter {
 
@@ -75,8 +74,6 @@ public class PSTextConverterMsPowerPoint implements IPSLuceneTextConverter {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

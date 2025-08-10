@@ -16,17 +16,13 @@
  */
 package com.percussion.cx;
 
-/**
- * The class to represent a view with its mode in UI.
- */
+/** The class to represent a view with its mode in UI. */
 public class PSUiMode {
   /**
    * Constructs the view mode of UI based on the supplied parameters.
    *
    * @param view the current view, must be one of the TYPE_VIEW_xx values.
-   * @param mode the mode of the current view, must be one of the TYPE_MODE_xx
-   * values.
-   *
+   * @param mode the mode of the current view, must be one of the TYPE_MODE_xx values.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSUiMode(String view, String mode) {
@@ -54,8 +50,7 @@ public class PSUiMode {
   /**
    * Gets the view of this object.
    *
-   * @return the mode, never <code>null</code> or empty and will be one of the
-   * TYPE_xxx values.
+   * @return the mode, never <code>null</code> or empty and will be one of the TYPE_xxx values.
    */
   public String getView() {
     return m_view;
@@ -64,8 +59,7 @@ public class PSUiMode {
   /**
    * Gets the view mode of this object.
    *
-   * @return the mode, never <code>null</code> or empty and will be one of the
-   * TYPE_xxx values.
+   * @return the mode, never <code>null</code> or empty and will be one of the TYPE_xxx values.
    */
   public String getViewMode() {
     return m_view + m_mode;
@@ -75,9 +69,7 @@ public class PSUiMode {
    * Finds whether the view is one of the allowed views or not.
    *
    * @param view the view to check, may be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if one of the TYPE_VIEW_xxx values, otherwise
-   * <code>false</code>
+   * @return <code>true</code> if one of the TYPE_VIEW_xxx values, otherwise <code>false</code>
    */
   public static boolean isValidView(String view) {
     if (TYPE_VIEW_CX.equals(view)
@@ -97,74 +89,47 @@ public class PSUiMode {
   private String m_view;
 
   /**
-   * The represented mode of UI, initialized in the constructor and never
-   * <code>null</code>, empty or modified after that.
+   * The represented mode of UI, initialized in the constructor and never <code>null</code>, empty
+   * or modified after that.
    */
   private String m_mode;
 
-  /**
-   * The constant to indicate 'Content Explorer' view.
-   */
+  /** The constant to indicate 'Content Explorer' view. */
   public static final String TYPE_VIEW_CX = "CX";
 
-  /**
-   * The constant to indicate 'Item Assembly' view.
-   */
+  /** The constant to indicate 'Item Assembly' view. */
   public static final String TYPE_VIEW_IA = "IA";
 
-  /**
-   * The constant to indicate 'Dependency Tree' view.
-   */
+  /** The constant to indicate 'Dependency Tree' view. */
   public static final String TYPE_VIEW_DT = "DT";
 
-  /**
-   * The constant to indicate 'Related Content Search' view.
-   */
+  /** The constant to indicate 'Related Content Search' view. */
   public static final String TYPE_VIEW_RC = "RC";
 
-  /**
-   * The constant to indicate 'Navigational' mode.
-   */
+  /** The constant to indicate 'Navigational' mode. */
   public static final String TYPE_MODE_NAV = "NAV";
 
-  /**
-   * The constant to indicate 'Main Display' mode.
-   */
+  /** The constant to indicate 'Main Display' mode. */
   public static final String TYPE_MODE_MAIN = "MAIN";
 
-  /**
-   * The constant to indicate 'Navigation' mode in 'Content Explorer' view.
-   */
+  /** The constant to indicate 'Navigation' mode in 'Content Explorer' view. */
   public static final String TYPE_CXNAV = TYPE_VIEW_CX + TYPE_MODE_NAV;
 
-  /**
-   * The constant to indicate 'Main Display' mode in 'Content Explorer' view.
-   */
+  /** The constant to indicate 'Main Display' mode in 'Content Explorer' view. */
   public static final String TYPE_CXMAN = TYPE_VIEW_CX + TYPE_MODE_MAIN;
 
-  /**
-   * The constant to indicate 'Navigation' mode in 'Item Assembly' view.
-   */
+  /** The constant to indicate 'Navigation' mode in 'Item Assembly' view. */
   public static final String TYPE_IANAV = TYPE_VIEW_IA + TYPE_MODE_NAV;
 
-  /**
-   * The constant to indicate 'Main Display' mode in 'Item Assembly' view.
-   */
+  /** The constant to indicate 'Main Display' mode in 'Item Assembly' view. */
   public static final String TYPE_IAMAIN = TYPE_VIEW_IA + TYPE_MODE_MAIN;
 
-  /**
-   * The constant to indicate 'Navigation' mode in 'Dependency Tree' view.
-   */
+  /** The constant to indicate 'Navigation' mode in 'Dependency Tree' view. */
   public static final String TYPE_DTREE = TYPE_VIEW_DT + TYPE_MODE_NAV;
 
-  /**
-   * The constant to indicate 'Navigation' mode in 'Related Content Search' view.
-   */
+  /** The constant to indicate 'Navigation' mode in 'Related Content Search' view. */
   public static final String TYPE_RCNAV = TYPE_VIEW_RC + TYPE_MODE_NAV;
 
-  /**
-   * The constant to indicate 'Main Display' mode in 'Related Content Search'
-   * view.
-   */
+  /** The constant to indicate 'Main Display' mode in 'Related Content Search' view. */
   public static final String TYPE_RCMAIN = TYPE_VIEW_RC + TYPE_MODE_MAIN;
 }

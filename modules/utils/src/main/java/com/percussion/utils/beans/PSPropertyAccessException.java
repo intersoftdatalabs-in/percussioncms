@@ -19,27 +19,23 @@ package com.percussion.utils.beans;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * This exception represents an error with a property access. As it is not
- * an expected error, it derives from runtime so it will not be treated as
- * a checked exception.
+ * This exception represents an error with a property access. As it is not an expected error, it
+ * derives from runtime so it will not be treated as a checked exception.
  *
  * @author dougrand
  */
 public class PSPropertyAccessException extends RuntimeException {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = -6270051152589740818L;
 
-  /**
-   * No-args ctor
-   */
+  /** No-args ctor */
   public PSPropertyAccessException() {
     super();
   }
 
   /**
    * Ctor
+   *
    * @param message message string, never <code>null</code> or empty
    * @param cause the cause, may be <code>null</code>
    */
@@ -52,6 +48,7 @@ public class PSPropertyAccessException extends RuntimeException {
 
   /**
    * Ctor
+   *
    * @param message message string, never <code>null</code> or empty
    */
   public PSPropertyAccessException(String message) {
@@ -63,6 +60,7 @@ public class PSPropertyAccessException extends RuntimeException {
 
   /**
    * Ctor
+   *
    * @param cause the cause, may be <code>null</code>
    */
   public PSPropertyAccessException(Throwable cause) {

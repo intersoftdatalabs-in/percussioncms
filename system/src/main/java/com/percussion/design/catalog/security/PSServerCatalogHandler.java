@@ -23,13 +23,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSServerCatalogHandler class implements cataloging of
- * servers. This request type is used to locate the servers available
- * through a back-end driver. Not all drivers are capable of locating
+ * The PSServerCatalogHandler class implements cataloging of servers. This request type is used to
+ * locate the servers available through a back-end driver. Not all drivers are capable of locating
  * servers.
- * <p>
- * Server catalog requests are sent to the server using the
- * PSXSecurityServerCatalog XML document. Its definition is as follows:
+ *
+ * <p>Server catalog requests are sent to the server using the PSXSecurityServerCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalog      (providverName)&gt;
  *
@@ -38,8 +38,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT providerName         (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityServerCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXSecurityServerCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalogResults (providerName, Server*)&gt;
  *
@@ -54,21 +55,20 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name                        (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSServerCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSServerCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -84,11 +84,8 @@ public class PSServerCatalogHandler implements IPSCatalogHandler {
    *       <td>yes</td></tr>
    * </table>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

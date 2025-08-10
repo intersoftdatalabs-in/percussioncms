@@ -32,7 +32,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * @author davidpardini
- *
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLikes1")
@@ -63,8 +62,7 @@ public class PSLikes implements IPSLikes, Serializable {
   public PSLikes() {}
 
   /**
-   * Creates a new likes with the same values as the given one, except for the
-   * id.
+   * Creates a new likes with the same values as the given one, except for the id.
    *
    * @param likes A Likes to create a copy from.
    */

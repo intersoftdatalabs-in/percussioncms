@@ -90,42 +90,38 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class maintains a registry of all active content types. A content type
- * is a collection of the various design elements that compose a content item.
- * The goal is to collect all of the pieces that are distributed in various
- * places including the file system and multiple tables in the repository. These
- * elements include:
+ * This class maintains a registry of all active content types. A content type is a collection of
+ * the various design elements that compose a content item. The goal is to collect all of the pieces
+ * that are distributed in various places including the file system and multiple tables in the
+ * repository. These elements include:
+ *
  * <ul>
- * <li>Content editor definition (stored in an Rx application)</li>
- * <li>Content type definition (stored in the CONTENTTYPES table)</li>
- * <li>Slots assigned to this content type, (which include variants assigned to
- * that slot)</li>
+ *   <li>Content editor definition (stored in an Rx application)
+ *   <li>Content type definition (stored in the CONTENTTYPES table)
+ *   <li>Slots assigned to this content type, (which include variants assigned to that slot)
  * </ul>
- * <p>
- * This registry provides acccess only to content types that have a running
- * application, and thus can be used to create and access content.
- * <p>
- * This class provides access to 2 types of objects, what is known as a summary
- * and the complete definition for a content type. The summary provides a name
- * and description and is typically useful for generating UIs.
- * <p>
- * Each list can be filtered based on the community. When trying to get a
- * definition, the type they are trying to get must be visible to the community
- * to which the requestor is logged in or they will not see those.
+ *
+ * <p>This registry provides acccess only to content types that have a running application, and thus
+ * can be used to create and access content.
+ *
+ * <p>This class provides access to 2 types of objects, what is known as a summary and the complete
+ * definition for a content type. The summary provides a name and description and is typically
+ * useful for generating UIs.
+ *
+ * <p>Each list can be filtered based on the community. When trying to get a definition, the type
+ * they are trying to get must be visible to the community to which the requestor is logged in or
+ * they will not see those.
  */
 public class PSItemDefManager {
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSItemDefManager.class);
 
   /**
-   * This class implements the singleton pattern. The single instance of this
-   * class is available using this method. A long lived object should call this
-   * method and save the returned reference for the duration of the program to
-   * prevent garbage collection of it.
-   * <p>
-   * The instance is created the first time this method is called.
+   * This class implements the singleton pattern. The single instance of this class is available
+   * using this method. A long lived object should call this method and save the returned reference
+   * for the duration of the program to prevent garbage collection of it.
+   *
+   * <p>The instance is created the first time this method is called.
    *
    * @return The only instance of this class, never <code>null</code>.
    */
@@ -135,23 +131,18 @@ public class PSItemDefManager {
 
   /**
    * Searches every registered content type identified by <code>ctypeIds
-   * </code>
-   * for a field whose name matches <code>fieldName</code>. This is done by
-   * calling {@link PSItemDefinition#getFieldByName(String)
-   * PSItemDefinition.getFieldByName(fieldName)} on each registered content
-   * editor.
+   * </code> for a field whose name matches <code>fieldName</code>. This is done by calling {@link
+   * PSItemDefinition#getFieldByName(String) PSItemDefinition.getFieldByName(fieldName)} on each
+   * registered content editor.
    *
-   * @param ctypeIds An array of 0 or more content type identifiers within
-   *           which to search. If <code>null</code> or empty, all registered
-   *           types are searched. If a supplied id is not registered, it is
-   *           skipped. No community filtering is done.
-   *
-   * @param fieldName The name of fields to retrieve. A case-insensitive
-   *           compare is performed. Never <code>null</code> or empty.
-   *
-   * @return A collection of <code>PSField</code> objects, each of which has
-   *         a name equal to <code>fieldName</code> (case insensitive). Never
-   *         <code>null</code>, may be empty if no matches are found.
+   * @param ctypeIds An array of 0 or more content type identifiers within which to search. If
+   *     <code>null</code> or empty, all registered types are searched. If a supplied id is not
+   *     registered, it is skipped. No community filtering is done.
+   * @param fieldName The name of fields to retrieve. A case-insensitive compare is performed. Never
+   *     <code>null</code> or empty.
+   * @return A collection of <code>PSField</code> objects, each of which has a name equal to <code>
+   *     fieldName</code> (case insensitive). Never <code>null</code>, may be empty if no matches
+   *     are found.
    */
   public Collection<PSField> getFieldsByName(long[] ctypeIds, String fieldName) {
     if (null == fieldName || fieldName.trim().length() == 0) {
@@ -176,11 +167,11 @@ public class PSItemDefManager {
   }
 
   /**
-   * Returns the display label for a the specified field name of
-   * a particualr content type.
+   * Returns the display label for a the specified field name of a particualr content type.
+   *
    * @param ctypeId must be a valid content type id.
-   * @param fieldName the field name whose label needs
-   * to be returned. Cannot be <code>null</code> or empty.
+   * @param fieldName the field name whose label needs to be returned. Cannot be <code>null</code>
+   *     or empty.
    * @return the field's display label or <code>null</code>.
    */
   public String getFieldLabel(long ctypeId, String fieldName) {
@@ -199,13 +190,12 @@ public class PSItemDefManager {
   }
 
   /**
-   * Returns the display mapping for a the specified field name of
-   * a particular content type.
+   * Returns the display mapping for a the specified field name of a particular content type.
+   *
    * @param ctypeId must be a valid content type id.
-   * @param fieldName the field name whose display mapping needs
-   * to be returned. Cannot be <code>null</code> or empty.
-   * @return the display mapping corresponding to the supplied fiel dname
-   * or <code>null</code>.
+   * @param fieldName the field name whose display mapping needs to be returned. Cannot be <code>
+   *     null</code> or empty.
+   * @return the display mapping corresponding to the supplied fiel dname or <code>null</code>.
    */
   public PSDisplayMapping getDisplayMapping(long ctypeId, String fieldName) {
     if (null == fieldName || fieldName.trim().length() == 0) {
@@ -252,29 +242,25 @@ public class PSItemDefManager {
   /**
    * Gets the ids of all running content editors visible to the requestor.
    *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
-   * @return An array of 0 or more numeric identifiers, one for each running
-   *         content editor visible to the requestor. These can be used to
-   *         obtain definitions or summaries of the associated content type.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
+   * @return An array of 0 or more numeric identifiers, one for each running content editor visible
+   *     to the requestor. These can be used to obtain definitions or summaries of the associated
+   *     content type.
    */
   public long[] getContentTypeIds(PSSecurityToken securityToken) {
     return getContentTypeIds(securityToken.getCommunityId());
   }
 
   /**
-   * Gets the ids of all running content editors which are visible to the
-   * supplied community via community id.
+   * Gets the ids of all running content editors which are visible to the supplied community via
+   * community id.
    *
-   * @param communityId community id to filter the content types by.
-   *           {@link #COMMUNITY_ANY} to not to filter by community.
-   *
-   * @return An array of 0 or more numeric identifiers, one for each running
-   *         content editor visible to the community supplied. If no content
-   *         types are found for the community with especified communityid , an
-   *         empty array is returned.
+   * @param communityId community id to filter the content types by. {@link #COMMUNITY_ANY} to not
+   *     to filter by community.
+   * @return An array of 0 or more numeric identifiers, one for each running content editor visible
+   *     to the community supplied. If no content types are found for the community with especified
+   *     communityid , an empty array is returned.
    */
   public long[] getContentTypeIds(int communityId) {
     return getVisibleContentTypes(communityId, true, false);
@@ -285,31 +271,27 @@ public class PSItemDefManager {
   }
 
   /**
-   * Gets the ids of all running content editors (both visible and not visible)
-   * to the supplied community via community id.
+   * Gets the ids of all running content editors (both visible and not visible) to the supplied
+   * community via community id.
    *
-   * @param communityId community id to filter the content types by.
-   *           {@link #COMMUNITY_ANY} to not to filter by community.
-   *
-   * @return An array of 0 or more numeric identifiers, one for each running
-   *         content editor visible to the community supplied. If no content
-   *         types are found for the community with especified communityid , an
-   *         empty array is returned.
+   * @param communityId community id to filter the content types by. {@link #COMMUNITY_ANY} to not
+   *     to filter by community.
+   * @return An array of 0 or more numeric identifiers, one for each running content editor visible
+   *     to the community supplied. If no content types are found for the community with especified
+   *     communityid , an empty array is returned.
    */
   public long[] getAllContentTypeIds(int communityId) {
     return getVisibleContentTypes(communityId, false, false);
   }
 
   /**
-   * Same as {@link #getContentTypeIds(PSSecurityToken)}, except it returns
-   * the names rather than the numeric id. Content type names are unique across
-   * the system (case insensitive).
+   * Same as {@link #getContentTypeIds(PSSecurityToken)}, except it returns the names rather than
+   * the numeric id. Content type names are unique across the system (case insensitive).
    *
    * @param securityToken See {@link #getContentTypeIds(PSSecurityToken)}.
-   *
-   * @return An array of 0 or more non-empty String identifiers, one for each
-   *         running content editor visible to the requestor. These can be used
-   *         to obtain definitions of the associated content type.
+   * @return An array of 0 or more non-empty String identifiers, one for each running content editor
+   *     visible to the requestor. These can be used to obtain definitions of the associated content
+   *     type.
    */
   public String[] getContentTypeNames(PSSecurityToken securityToken) {
     if (null == securityToken) throw new IllegalArgumentException("Missing security token");
@@ -321,16 +303,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getContentTypeIds(int)}, except it returns the names
-   * rather than the numeric id. Content type names are unique across the
-   * system (case insensitive).
+   * Same as {@link #getContentTypeIds(int)}, except it returns the names rather than the numeric
+   * id. Content type names are unique across the system (case insensitive).
    *
-   * @param communityId community id to filter the content types by.
-   *           {@link #COMMUNITY_ANY} to not to filter by community.
-   *
-   * @return An array of 0 or more non-empty String identifiers, one for each
-   *         running content editor visible to the supplied community. These
-   *         can be used to obtain definitions of the associated content type.
+   * @param communityId community id to filter the content types by. {@link #COMMUNITY_ANY} to not
+   *     to filter by community.
+   * @return An array of 0 or more non-empty String identifiers, one for each running content editor
+   *     visible to the supplied community. These can be used to obtain definitions of the
+   *     associated content type.
    */
   public String[] getContentTypeNames(int communityId) {
     long[] ids = getContentTypeIds(communityId);
@@ -340,16 +320,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Content types can be uniquely identified by their name or numeric id. Maps
-   * the supplied identifier to the name of the content type associated with
-   * that id. No visibility restrictions are applied.
+   * Content types can be uniquely identified by their name or numeric id. Maps the supplied
+   * identifier to the name of the content type associated with that id. No visibility restrictions
+   * are applied.
    *
-   * @param contentTypeId The id of the desired type. A valid id matches one of
-   *           the ids of the running content type handlers.
-   *
-   * @return If the supplied id is valid, a non-empty name is returned.
-   *         Otherwise, an exception is thrown.
-   *
+   * @param contentTypeId The id of the desired type. A valid id matches one of the ids of the
+   *     running content type handlers.
+   * @return If the supplied id is valid, a non-empty name is returned. Otherwise, an exception is
+   *     thrown.
    * @throws PSInvalidContentTypeException If the supplied id is not valid.
    */
   public String contentTypeIdToName(long contentTypeId) throws PSInvalidContentTypeException {
@@ -363,11 +341,11 @@ public class PSItemDefManager {
   }
 
   /**
-   * Returns a list of all content type id names that use a specified shared
-   * field group.
+   * Returns a list of all content type id names that use a specified shared field group.
+   *
    * @param sharedGroupName cannot be <code>null</code> or empty.
-   * @return array of all content type names using the specified shared field group.
-   * Never <code>null</code>, may be empty.
+   * @return array of all content type names using the specified shared field group. Never <code>
+   *     null</code>, may be empty.
    */
   public String[] getContentTypesUsingSharedFieldGroup(String sharedGroupName)
       throws PSInvalidContentTypeException {
@@ -392,15 +370,12 @@ public class PSItemDefManager {
   }
 
   /**
-   * Maps the supplied identifier with a display label for the given content
-   * type.
+   * Maps the supplied identifier with a display label for the given content type.
    *
-   * @param contentTypeId The id of the desired type. A valid id matches one of
-   *           the ids of the running content type handlers.
-   *
-   * @return If the supplied id is valid, a non-empty name is returned.
-   *         Otherwise, an exception is thrown.
-   *
+   * @param contentTypeId The id of the desired type. A valid id matches one of the ids of the
+   *     running content type handlers.
+   * @return If the supplied id is valid, a non-empty name is returned. Otherwise, an exception is
+   *     thrown.
    * @throws PSInvalidContentTypeException If the supplied id is not valid.
    */
   public String contentTypeIdToLabel(long contentTypeId) throws PSInvalidContentTypeException {
@@ -414,18 +389,15 @@ public class PSItemDefManager {
   }
 
   /**
-   * Just like {@link #contentTypeIdToName(long)}, except
-   * the name rather than the id is supplied.
+   * Just like {@link #contentTypeIdToName(long)}, except the name rather than the id is supplied.
    *
-   * @param contentTypeName A non-empty identifier for a content type. A valid
-   *           name matches of of the names of the running content type
-   *           handlers. The comparison is performed case insensitive.
-   *
-   * @return If the supplied name is valid, the identifier of the type using
-   *         the supplied name, otherwise an exception is thrown.
-   *
-   * @throws PSInvalidContentTypeException If the supplied name does not match
-   *            any running content type.
+   * @param contentTypeName A non-empty identifier for a content type. A valid name matches of of
+   *     the names of the running content type handlers. The comparison is performed case
+   *     insensitive.
+   * @return If the supplied name is valid, the identifier of the type using the supplied name,
+   *     otherwise an exception is thrown.
+   * @throws PSInvalidContentTypeException If the supplied name does not match any running content
+   *     type.
    */
   public long contentTypeNameToId(String contentTypeName) throws PSInvalidContentTypeException {
     /*
@@ -448,25 +420,18 @@ public class PSItemDefManager {
   }
 
   /**
-   * A summary provides a couple of pieces of information about an item
-   * definition. They are typically used to provide a list and description to a
-   * user when creating a user interface. Normally, the {@link
-   * #getSummaries(PSSecurityToken) getSummaries} method is used to get all
+   * A summary provides a couple of pieces of information about an item definition. They are
+   * typically used to provide a list and description to a user when creating a user interface.
+   * Normally, the {@link #getSummaries(PSSecurityToken) getSummaries} method is used to get all
    * available summaries.
    *
-   * @param contentTypeId The id of the desired content type. A valid id
-   *           matches one of the ids of the running content editors visible to
-   *           the requestor.
-   *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
-   * @return If a valid id is supplied, the summary for the corresponding
-   *         content type is returned, otherwise an exception is thrown.
-   *
+   * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
+   *     the running content editors visible to the requestor.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
+   * @return If a valid id is supplied, the summary for the corresponding content type is returned,
+   *     otherwise an exception is thrown.
    * @throws PSInvalidContentTypeException If the supplied id is not valid.
-   *
    * @see #getSummaries(PSSecurityToken)
    */
   public PSItemDefSummary getSummary(long contentTypeId, PSSecurityToken securityToken)
@@ -484,24 +449,17 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getSummary(long,PSSecurityToken)}, except it restricts the
-   * content type by the supplied community id instead of that from
-   * {@link PSSecurityToken}.
+   * Same as {@link #getSummary(long,PSSecurityToken)}, except it restricts the content type by the
+   * supplied community id instead of that from {@link PSSecurityToken}.
    *
-   * @param contentTypeId The id of the desired content type. A valid id
-   *           matches one of the ids of the running content editors visible to
-   *           the requestor.
-   *
-   * @param communityId community id to filter the content types by.
-   *           {@link #COMMUNITY_ANY} to not to filter by community.
-   *
-   * @return This method returns summary for the content type. Will be
-   *         <code>null</code> if the content type requested is not visible
-   *         to the community supplied.
-   *
-   * @throws PSInvalidContentTypeException If the supplied id is not valid. For
-   *            a content type id to be valid, the content editor for that type
-   *            must be running on ther server.
+   * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
+   *     the running content editors visible to the requestor.
+   * @param communityId community id to filter the content types by. {@link #COMMUNITY_ANY} to not
+   *     to filter by community.
+   * @return This method returns summary for the content type. Will be <code>null</code> if the
+   *     content type requested is not visible to the community supplied.
+   * @throws PSInvalidContentTypeException If the supplied id is not valid. For a content type id to
+   *     be valid, the content editor for that type must be running on ther server.
    */
   public PSItemDefSummary getSummary(long contentTypeId, int communityId)
       throws PSInvalidContentTypeException {
@@ -509,21 +467,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getSummary(long,PSSecurityToken)}, except based on the
-   * name.
+   * Same as {@link #getSummary(long,PSSecurityToken)}, except based on the name.
    *
-   * @param contentTypeName The name of the desired content type. A valid name
-   *           matches one of the names of the running editors. The comparison
-   *           is done case insensitive.
-   *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
-   * @return If a valid name is supplied, the summary for the corresponding
-   *         content type is returned, otherwise, <code>null</code> is
-   *         returned.
-   *
+   * @param contentTypeName The name of the desired content type. A valid name matches one of the
+   *     names of the running editors. The comparison is done case insensitive.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
+   * @return If a valid name is supplied, the summary for the corresponding content type is
+   *     returned, otherwise, <code>null</code> is returned.
    * @throws PSInvalidContentTypeException If the supplied name is not valid.
    */
   public PSItemDefSummary getSummary(String contentTypeName, PSSecurityToken securityToken)
@@ -534,17 +485,12 @@ public class PSItemDefManager {
   /**
    * Same as {@link #getSummary(long, int)}, except based on the name.
    *
-   * @param contentTypeName The name of the desired content type. A valid name
-   *           matches one of the names of the running editors. The comparison
-   *           is done case insensitive.
-   *
-   * @param communityId community id to filter the content types by.
-   *           {@link #COMMUNITY_ANY} to not to restrict by community.
-   *
-   * @return If a valid name is supplied, the summary for the corresponding
-   *         content type is returned, otherwise, <code>null</code> is
-   *         returned.
-   *
+   * @param contentTypeName The name of the desired content type. A valid name matches one of the
+   *     names of the running editors. The comparison is done case insensitive.
+   * @param communityId community id to filter the content types by. {@link #COMMUNITY_ANY} to not
+   *     to restrict by community.
+   * @return If a valid name is supplied, the summary for the corresponding content type is
+   *     returned, otherwise, <code>null</code> is returned.
    * @throws PSInvalidContentTypeException If the supplied name is not valid.
    */
   public PSItemDefSummary getSummary(String contentTypeName, int communityId)
@@ -553,18 +499,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Get a collection of summaries for all content types visible to the
-   * requestor's community. See {@link #getSummary(long,PSSecurityToken)
-   * getSummary} for details.
+   * Get a collection of summaries for all content types visible to the requestor's community. See
+   * {@link #getSummary(long,PSSecurityToken) getSummary} for details.
    *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           filtering is controlled. Never <code>null</code>.
-   *
-   * @return A summary for every content type visible to the requestor. Each
-   *         element in the returned collection is a PSItemDefSummary. The
-   *         requestor takes ownership of the returned collection - changes to
-   *         it do not affect this class.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how filtering is controlled. Never <code>null</code>.
+   * @return A summary for every content type visible to the requestor. Each element in the returned
+   *     collection is a PSItemDefSummary. The requestor takes ownership of the returned collection
+   *     - changes to it do not affect this class.
    */
   public Collection<PSItemDefSummary> getSummaries(PSSecurityToken securityToken) {
     if (null == securityToken) throw new IllegalArgumentException("Missing security token");
@@ -578,17 +520,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getSummaries(PSSecurityToken)} except that the content
-   * types are filtered by supplied community id instead of requestor's
-   * commuity.
+   * Same as {@link #getSummaries(PSSecurityToken)} except that the content types are filtered by
+   * supplied community id instead of requestor's commuity.
    *
-   * @param communityId community id to filter the content types by. -1 to not
-   *           to restrict by community.
-   *
-   * @return A summary for every content type visible to the supplied
-   *         community. Each element in the returned collection is a
-   *         PSItemDefSummary. The requestor takes ownership of the returned
-   *         collection - changes to it do not affect this class.
+   * @param communityId community id to filter the content types by. -1 to not to restrict by
+   *     community.
+   * @return A summary for every content type visible to the supplied community. Each element in the
+   *     returned collection is a PSItemDefSummary. The requestor takes ownership of the returned
+   *     collection - changes to it do not affect this class.
    */
   public Collection<PSItemDefSummary> getSummaries(int communityId) {
     Collection<PSItemDefSummary> summaries = new ArrayList<>();
@@ -600,25 +539,18 @@ public class PSItemDefManager {
   }
 
   /**
-   * Get the item defintion for the specified content type id. An item
-   * definition is the object representation of a content type. A content type
-   * is a collection of design data that defines how to create and modify a
-   * particular type of content item.
+   * Get the item defintion for the specified content type id. An item definition is the object
+   * representation of a content type. A content type is a collection of design data that defines
+   * how to create and modify a particular type of content item.
    *
-   * @param contentTypeId The id of the desired content type. A valid id
-   *           matches one of the ids of the running content editors visible to
-   *           the request.
-   *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
-   * @return A valid def if an editor matching the supplied type id is running
-   *         and the requestor has the required access rights. If requestor
-   *         cannot see the content type, a runtime exception is thrown. Never
-   *         <code>null</code>. The returned item should be treated as
-   *         read-only as it is the original object.
-   *
+   * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
+   *     the running content editors visible to the request.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
+   * @return A valid def if an editor matching the supplied type id is running and the requestor has
+   *     the required access rights. If requestor cannot see the content type, a runtime exception
+   *     is thrown. Never <code>null</code>. The returned item should be treated as read-only as it
+   *     is the original object.
    * @throws PSInvalidContentTypeException If the supplied id is not valid.
    */
   public PSItemDefinition getItemDef(long contentTypeId, PSSecurityToken securityToken)
@@ -638,23 +570,17 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getItemDef(long, PSSecurityToken)} but filtered by the
-   * supplied community instead of requestor's community.
+   * Same as {@link #getItemDef(long, PSSecurityToken)} but filtered by the supplied community
+   * instead of requestor's community.
    *
-   * @param contentTypeId The id of the desired content type. A valid id
-   *           matches one of the ids of the running content editors visible to
-   *           the request.
-   *
-   * @param communityId community id to filter the content types by. -1 to not
-   *           to restrict by community.
-   *
-   * @return A valid def if an editor matching the supplied type id is running
-   *         and the def is visible to the supplied community. May be
-   *         <code>null</code>. The returned item should be treated as
-   *         read-only as it is the original object.
-   *
-   * @throws PSInvalidContentTypeException If the supplied content type id is
-   *            not valid.
+   * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
+   *     the running content editors visible to the request.
+   * @param communityId community id to filter the content types by. -1 to not to restrict by
+   *     community.
+   * @return A valid def if an editor matching the supplied type id is running and the def is
+   *     visible to the supplied community. May be <code>null</code>. The returned item should be
+   *     treated as read-only as it is the original object.
+   * @throws PSInvalidContentTypeException If the supplied content type id is not valid.
    */
   public PSItemDefinition getItemDef(long contentTypeId, int communityId)
       throws PSInvalidContentTypeException {
@@ -667,17 +593,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getItemDef(long,PSSecurityToken)}, except based on the
-   * name of the content type.
+   * Same as {@link #getItemDef(long,PSSecurityToken)}, except based on the name of the content
+   * type.
    *
-   * @param contentTypeName The name of the desired content type. A valid name
-   *           matches one of the names of the running editors. The comparison
-   *           is done case insensitive. Never <code>null</code>.
-   *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
+   * @param contentTypeName The name of the desired content type. A valid name matches one of the
+   *     names of the running editors. The comparison is done case insensitive. Never <code>null
+   *     </code>.
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
    * @throws PSInvalidContentTypeException If the supplied name is not valid.
    */
   public PSItemDefinition getItemDef(String contentTypeName, PSSecurityToken securityToken)
@@ -695,15 +618,11 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getItemDef(long,PSSecurityToken)}, except based on an
-   * item.
+   * Same as {@link #getItemDef(long,PSSecurityToken)}, except based on an item.
    *
    * @param itemId the item locator. May not be <code>null</code>.
-   *
-   * @param securityToken A security identifier that contains the requestor's
-   *           security info. See the class description for details on how
-   *           access is controlled. Never <code>null</code>.
-   *
+   * @param securityToken A security identifier that contains the requestor's security info. See the
+   *     class description for details on how access is controlled. Never <code>null</code>.
    * @throws PSInvalidContentTypeException If the supplied item is not valid.
    */
   public PSItemDefinition getItemDef(PSLocator itemId, PSSecurityToken securityToken)
@@ -712,15 +631,12 @@ public class PSItemDefManager {
   }
 
   /**
-   * Same as {@link #getItemDef(PSLocator, PSSecurityToken)}, except that the
-   * filtering is based on the supplied community id instead of requestor's
-   * community.
+   * Same as {@link #getItemDef(PSLocator, PSSecurityToken)}, except that the filtering is based on
+   * the supplied community id instead of requestor's community.
    *
    * @param itemId the item locator. May not be <code>null</code>.
-   *
-   * @param communityId community id to filter the content types by. -1 to not
-   *           to restrict by community.
-   *
+   * @param communityId community id to filter the content types by. -1 to not to restrict by
+   *     community.
    * @throws PSInvalidContentTypeException If the supplied item is not valid.
    */
   public PSItemDefinition getItemDef(PSLocator itemId, int communityId)
@@ -729,11 +645,9 @@ public class PSItemDefManager {
   }
 
   /**
-   * Makes an internal request to determine the content type id of the
-   * specified content item.
+   * Makes an internal request to determine the content type id of the specified content item.
    *
    * @param itemId the item locator. May not be <code>null</code>.
-   *
    * @return the content type id, -1 if no matching content type is found.
    */
   public long getItemContentType(PSLocator itemId) {
@@ -773,9 +687,8 @@ public class PSItemDefManager {
   /**
    * Retrieves the cached cms object from a content type id.
    *
-   * @param contentTypeId The content type id of the type of interest. If the
-   * content type does not exist, <code>null</code> is returned.
-   *
+   * @param contentTypeId The content type id of the type of interest. If the content type does not
+   *     exist, <code>null</code> is returned.
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   public PSCmsObject getCmsObject(long contentTypeId) {
@@ -785,26 +698,19 @@ public class PSItemDefManager {
   }
 
   /**
-   * During a content editor handler's initialization, it must call this method
-   * to register its definition. During its shutdown sequence, it must call
-   * {@link #unRegisterDef(PSContentEditor) unRegisterDef}. If the same def is
-   * registered more than once, the successive registrations replace the
-   * earlier ones.
+   * During a content editor handler's initialization, it must call this method to register its
+   * definition. During its shutdown sequence, it must call {@link #unRegisterDef(PSContentEditor)
+   * unRegisterDef}. If the same def is registered more than once, the successive registrations
+   * replace the earlier ones.
    *
-   * @param editorDef The complete definition for the content editor, never
-   *           <code>null</code>.
-   *
-   * @param appName The name of the application that contains the supplied def.
-   *           Never <code>null</code> or empty.
-   *
+   * @param editorDef The complete definition for the content editor, never <code>null</code>.
+   * @param appName The name of the application that contains the supplied def. Never <code>null
+   *     </code> or empty.
    * @return The content type id of the def that was registered.
-   *
-   * @throws PSInvalidContentTypeException If a matching definition in the
-   *            repository cannot be found. In this case, the handler should
-   *            not start.
-   *
-   * @throws RuntimeException If a listener throws an exception. The handler
-   *            should not start in this case either.
+   * @throws PSInvalidContentTypeException If a matching definition in the repository cannot be
+   *     found. In this case, the handler should not start.
+   * @throws RuntimeException If a listener throws an exception. The handler should not start in
+   *     this case either.
    */
   public long registerDef(String appName, PSContentEditor editorDef)
       throws PSInvalidContentTypeException {
@@ -909,8 +815,8 @@ public class PSItemDefManager {
   /**
    * Registers an item definition for the supplied paremeters.
    *
-   * @param def the item definition to register, not <code>null</code>, must
-   *           contain a valid description and content editor object.
+   * @param def the item definition to register, not <code>null</code>, must contain a valid
+   *     description and content editor object.
    * @param cmsObject the cms object to register, not <code>null</code>.
    */
   public void registerDef(PSItemDefinition def, PSCmsObject cmsObject) {
@@ -928,9 +834,8 @@ public class PSItemDefManager {
   }
 
   /**
-   * Call the item def listeners on the given definition, or store the
-   * definition for later use based on the {@link #m_deferredNotifications}
-   * boolean.
+   * Call the item def listeners on the given definition, or store the definition for later use
+   * based on the {@link #m_deferredNotifications} boolean.
    *
    * @param def the definition, assumed non-<code>null</code>
    */
@@ -946,8 +851,7 @@ public class PSItemDefManager {
    * Call the item def listeners on the given definition
    *
    * @param def the definition, assumed non-<code>null</code>
-   * @param notify the value is passed to the listener's
-   *           <code>registered</code> method
+   * @param notify the value is passed to the listener's <code>registered</code> method
    */
   private void callItemDefListenersInternal(PSItemDefinition def, boolean notify) {
     synchronized (m_itemDefListeners) {
@@ -965,8 +869,8 @@ public class PSItemDefManager {
    * Gets the content editor url based on a content type passed as an id.
    *
    * @param contentTypeId a number representing the content type
-   * @return the url where the content type editor is located as
-   *         <code>String</code>, never <code>null</code> or empty.
+   * @return the url where the content type editor is located as <code>String</code>, never <code>
+   *     null</code> or empty.
    * @throws PSException if the content type does not exist.
    */
   public String getTypeEditorUrl(long contentTypeId) throws PSException {
@@ -982,8 +886,7 @@ public class PSItemDefManager {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getAssemblerUrl(IPSRequestContext, int)
+   * Convenience method that calls {@link #getAssemblerUrl(IPSRequestContext, int)
    * getAssemblerUrl(new PSRequestContext(request, variantId)}.
    */
   public String getAssemblerUrl(PSRequest request, int variantId)
@@ -996,9 +899,8 @@ public class PSItemDefManager {
    *
    * @param request the request to do the url lookup, not <code>null</code>.
    * @param variantId the variant id for which to lookup the assembler url.
-   * @return the assembler url in a form like
-   *         <code>../casArticle/casArticle.html</code>, may be
-   *         <code>null</code> if no variant was found ffor the supplied id.
+   * @return the assembler url in a form like <code>../casArticle/casArticle.html</code>, may be
+   *     <code>null</code> if no variant was found ffor the supplied id.
    * @throws PSInternalRequestCallException for any errors making the lookup.
    */
   public String getAssemblerUrl(IPSRequestContext request, int variantId)
@@ -1017,19 +919,15 @@ public class PSItemDefManager {
   }
 
   /**
-   * Reads the content type information from the repository and creates a
-   * representative object. A resource called "contentTypes" is expected to
-   * exist in the default app that optionally accepts a parameter called
-   * sys_contenttype to filter the results.
+   * Reads the content type information from the repository and creates a representative object. A
+   * resource called "contentTypes" is expected to exist in the default app that optionally accepts
+   * a parameter called sys_contenttype to filter the results.
    *
-   * See {@link PSContentType} for details on the PSXContentType element.
+   * <p>See {@link PSContentType} for details on the PSXContentType element.
    *
    * @param token The security token to use, assumed not <code>null</code>.
-   * @param contentTypeId The id of the desired content type. Assumed to be a
-   *           valid id.
-   *
-   * @return The summary for the supplied id, if valid. Otherwise,
-   *         <code>null</code> is returned.
+   * @param contentTypeId The id of the desired content type. Assumed to be a valid id.
+   * @return The summary for the supplied id, if valid. Otherwise, <code>null</code> is returned.
    */
   private PSContentType getContentTypeDef(PSSecurityToken token, long contentTypeId) {
     if (contentTypeId == 0) throw new IllegalArgumentException("contentTypeId may not be = 0");
@@ -1090,9 +988,8 @@ public class PSItemDefManager {
   /**
    * Retrieves the cached reference and returns it.
    *
-   * @param contentTypeId The id of the type of interest. If the associated
-   *           editor is not running, <code>null</code> is returned.
-   *
+   * @param contentTypeId The id of the type of interest. If the associated editor is not running,
+   *     <code>null</code> is returned.
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   private PSItemDefSummary getItemDefSummary(long contentTypeId) {
@@ -1102,9 +999,8 @@ public class PSItemDefManager {
   /**
    * Retrieves the cached reference and returns it.
    *
-   * @param contentTypeId The id of the type of interest. If the associated
-   * editor is not running, <code>null</code> is returned.
-   *
+   * @param contentTypeId The id of the type of interest. If the associated editor is not running,
+   *     <code>null</code> is returned.
    * @return If there isn't a cached instance, <code>null</code> is returned.
    */
   public PSContentEditor getContentEditorDef(long contentTypeId) {
@@ -1115,32 +1011,24 @@ public class PSItemDefManager {
 
   /**
    * This method performs the following checks in order.
+   *
    * <ol>
-   * <li>Makes sure the supplied content type (via content type id) is part of
-   * the available content types.</li>
-   * <li>Checks to see if the object type is content item. Returns
-   * <code>true</code> if it is not an item assuming the other object types
-   * need no filtering by community.</li>
-   * </li>
-   * Check succeeds if the supplied community is {@link #COMMUNITY_ANY}, which
-   * means no filtering is required</li>
-   * </li>
-   * Finally it makes sure the community id supplied is configurd to be visible
-   * to the supplied community by making an internal request to a Rhythmyx
-   * resource</li>
+   *   <li>Makes sure the supplied content type (via content type id) is part of the available
+   *       content types.
+   *   <li>Checks to see if the object type is content item. Returns <code>true</code> if it is not
+   *       an item assuming the other object types need no filtering by community. Check succeeds if
+   *       the supplied community is {@link #COMMUNITY_ANY}, which means no filtering is required
+   *       Finally it makes sure the community id supplied is configurd to be visible to the
+   *       supplied community by making an internal request to a Rhythmyx resource
    *
-   * @param contentTypeId The id of the desired content type. A valid id
-   *           matches one of the ids of the running content editors.
-   *
-   * @param communityId community id to filter the content types by. -1 to not
-   *           to filter by community.
-   *
-   * @return <code>true</code> if the content type asked is available and
-   *         visible to the supplied community based on the checks described in
-   *         the method description.
-   *
-   * @throws PSInvalidContentTypeException If the content type id supplied is
-   *            not listed in the avaialble content types.
+   * @param contentTypeId The id of the desired content type. A valid id matches one of the ids of
+   *     the running content editors.
+   * @param communityId community id to filter the content types by. -1 to not to filter by
+   *     community.
+   * @return <code>true</code> if the content type asked is available and visible to the supplied
+   *     community based on the checks described in the method description.
+   * @throws PSInvalidContentTypeException If the content type id supplied is not listed in the
+   *     avaialble content types.
    */
   public boolean isVisibleToCommunity(long contentTypeId, int communityId)
       throws PSInvalidContentTypeException {
@@ -1176,14 +1064,12 @@ public class PSItemDefManager {
   }
 
   /**
-   * Performs a check that determines whether a content editor whose object
-   * type is {@link PSCmsObject#TYPE_ITEM} and whose identifier matches the
-   * supplied id is currently registered.
+   * Performs a check that determines whether a content editor whose object type is {@link
+   * PSCmsObject#TYPE_ITEM} and whose identifier matches the supplied id is currently registered.
    *
    * @param contentTypeId Any value is allowed.
-   *
-   * @return <code>true</code> if the supplied id identifies a registered
-   *         content type, <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied id identifies a registered content type, <code>false
+   *     </code> otherwise.
    */
   private boolean isRegisteredItemType(long contentTypeId) {
 
@@ -1202,20 +1088,16 @@ public class PSItemDefManager {
   }
 
   /**
-   * Looks for all valid content types that are visible to the requestor and
-   * returns their ids as Integer so they can be used to directly access the
-   * related info. Depending on the given set of controlFlags that are defined
-   * in the {@link IPSCataloger} it may widen or narrow the visibility. Also
-   * skips the Folder contenttype.
+   * Looks for all valid content types that are visible to the requestor and returns their ids as
+   * Integer so they can be used to directly access the related info. Depending on the given set of
+   * controlFlags that are defined in the {@link IPSCataloger} it may widen or narrow the
+   * visibility. Also skips the Folder contenttype.
    *
-   * @param communityId The community id to filter the content types by.  Use
-   *           -1 to not filter by community.
-   * @param isUIVisible <code>true</code> if get the UI visible content types
-   *           only, which does not include the content types that are HIDE
-   *           FROM MENU or UI, such as folder content type.
-   *
-   * @return A valid array with 0 or more entries. Each entry is visible to the
-   *         requestor.
+   * @param communityId The community id to filter the content types by. Use -1 to not filter by
+   *     community.
+   * @param isUIVisible <code>true</code> if get the UI visible content types only, which does not
+   *     include the content types that are HIDE FROM MENU or UI, such as folder content type.
+   * @return A valid array with 0 or more entries. Each entry is visible to the requestor.
    */
   private long[] getVisibleContentTypes(
       int communityId, boolean isUIVisible, boolean forContentExplorer) {
@@ -1263,15 +1145,14 @@ public class PSItemDefManager {
   }
 
   /**
-   * Finds fields mapped to any content type content types based upon the
-   * existence of a specific property name and value in the control properties.
-   * This does not test against the dynamic generated value but the display
-   * value of the configuration as seen in the properties dialog of workbench
+   * Finds fields mapped to any content type content types based upon the existence of a specific
+   * property name and value in the control properties. This does not test against the dynamic
+   * generated value but the display value of the configuration as seen in the properties dialog of
+   * workbench
    *
    * @param propertyName propertyName
    * @param propertyValue propertyValue
    * @return A List of field names keyed of the content type name, never <code>null</code>.
-   *
    * @throws PSInvalidContentTypeException PSInvalidContentTypeException
    */
   public Map<String, List<String>> getFieldsWithControlProp(
@@ -1310,8 +1191,8 @@ public class PSItemDefManager {
   }
 
   /**
-   * Add the specified listener to the list of listeners to call on
-   * registration and unregistration of content editors.
+   * Add the specified listener to the list of listeners to call on registration and unregistration
+   * of content editors.
    *
    * @param listener the listener to add, must never be <code>null</code>
    */
@@ -1325,8 +1206,8 @@ public class PSItemDefManager {
   }
 
   /**
-   * Removes the specified listener from the list of listeners to call on
-   * registration and unregistration of content editors.
+   * Removes the specified listener from the list of listeners to call on registration and
+   * unregistration of content editors.
    *
    * @param listener the listener to remove, must never be <code>null</code>
    */
@@ -1339,10 +1220,7 @@ public class PSItemDefManager {
     }
   }
 
-  /**
-   * Unregister all listeners currently listenering for changes to item def
-   * registration.
-   */
+  /** Unregister all listeners currently listenering for changes to item def registration. */
   public void clearListeners() {
     synchronized (m_itemDefListeners) {
       m_itemDefListeners.clear();
@@ -1350,16 +1228,16 @@ public class PSItemDefManager {
   }
 
   /**
-   * Set the deferring notifications flag. If this flag is set, then calls that
-   * ordinarily will make the search system restart will be deferred.
+   * Set the deferring notifications flag. If this flag is set, then calls that ordinarily will make
+   * the search system restart will be deferred.
    */
   public synchronized void deferUpdateNotifications() {
     m_deferringNotifications = true;
   }
 
   /**
-   * Causes any deferred work to be passed to the item def listeners. Right now
-   * this is only item registrations.
+   * Causes any deferred work to be passed to the item def listeners. Right now this is only item
+   * registrations.
    */
   public synchronized void commitUpdateNotifications() {
     if (m_deferringNotifications && m_deferredNotifications.size() > 0) {
@@ -1375,9 +1253,9 @@ public class PSItemDefManager {
   }
 
   /**
-   * The ctor is private to implement the singleton pattern. A long lived
-   * object should get a reference to this object and keep it for the duration
-   * of the program so that the class is not garbage collected.
+   * The ctor is private to implement the singleton pattern. A long lived object should get a
+   * reference to this object and keep it for the duration of the program so that the class is not
+   * garbage collected.
    */
   private PSItemDefManager() {}
 
@@ -1385,7 +1263,6 @@ public class PSItemDefManager {
    * Returns Server side Component def processor proxy.
    *
    * @param token The security token to use, may not be <code>null</code>.
-   *
    * @return The proxy, never <code>null</code>.
    */
   private PSComponentDefProcessorProxy getProxy(PSSecurityToken token) {
@@ -1402,13 +1279,10 @@ public class PSItemDefManager {
   /**
    * Gets the content type icon mode and value for the given content type id.
    *
-   * @param ctypeId, id of the contenttype, throws
-   *           <code>PSInvalidContentTypeException</code>, if it is not a
-   *           valid contenttype id.
-   * @return a map of icon source and value. See
-   *         {@link PSContentEditor#getIconSource()} for details of source and
-   *         See {@link PSContentEditor#getIconValue()} for the details of
-   *         value.
+   * @param ctypeId, id of the contenttype, throws <code>PSInvalidContentTypeException</code>, if it
+   *     is not a valid contenttype id.
+   * @return a map of icon source and value. See {@link PSContentEditor#getIconSource()} for details
+   *     of source and See {@link PSContentEditor#getIconValue()} for the details of value.
    * @throws PSInvalidContentTypeException See {@link #getItemDef(long, int)}.
    */
   public Map<String, String> getContentTypeIcon(int ctypeId) throws PSInvalidContentTypeException {
@@ -1420,20 +1294,17 @@ public class PSItemDefManager {
   }
 
   /**
-   * Gets the contenttype icon paths for the supplied list of locators. The
-   * path may be empty or <code>null</code> if the content type of the item
-   * is not specified with an icon or failed to determine the icon. If the
-   * item's contenttype iconSource is
-   * <code>PSContentEditor.ICON_SOURCE_NONE</code> then the path for that
-   * item is set to null. If it is
-   * <code>PSContentEditor.ICON_SOURCE_SPECIFIED</code> then the iconValue is
-   * prefixed with "/rx_resources/images/ContentTypeIcons/" and set as item's
-   * icon path. If it is <code>PSContentEditor.ICON_SOURCE_FROMFILEEXT</code>
-   * then the icon path is determined by FileIcons.properties.
+   * Gets the contenttype icon paths for the supplied list of locators. The path may be empty or
+   * <code>null</code> if the content type of the item is not specified with an icon or failed to
+   * determine the icon. If the item's contenttype iconSource is <code>
+   * PSContentEditor.ICON_SOURCE_NONE</code> then the path for that item is set to null. If it is
+   * <code>PSContentEditor.ICON_SOURCE_SPECIFIED</code> then the iconValue is prefixed with
+   * "/rx_resources/images/ContentTypeIcons/" and set as item's icon path. If it is <code>
+   * PSContentEditor.ICON_SOURCE_FROMFILEEXT</code> then the icon path is determined by
+   * FileIcons.properties.
    *
    * @param itemLoc List of item locators must not be <code>null</code>.
-   * @return Map of locators and icon paths. Never <code>null</code> may be
-   *         empty.
+   * @return Map of locators and icon paths. Never <code>null</code> may be empty.
    */
   public Map<PSLocator, String> getContentTypeIconPaths(List<PSLocator> itemLoc) {
     if (itemLoc == null) throw new IllegalArgumentException("itemLoc must not be null");
@@ -1480,15 +1351,13 @@ public class PSItemDefManager {
   }
 
   /**
-   * Helper method to get the icon paths for the supplied map of locator and
-   * extension field name. If an image file exists for the extension in
-   * FileIcons.properties file, it will be set as icon path. If not checks for
-   * a property with contenttype name and if exists sets that as icon path.
+   * Helper method to get the icon paths for the supplied map of locator and extension field name.
+   * If an image file exists for the extension in FileIcons.properties file, it will be set as icon
+   * path. If not checks for a property with contenttype name and if exists sets that as icon path.
    *
-   * @param fileItems map of locators with fieldnames assumed not
-   *           <code>null</code>
-   * @return Map of locators and icon paths. The icon path set to
-   *         <code>null</code>, if failed to determine.
+   * @param fileItems map of locators with fieldnames assumed not <code>null</code>
+   * @return Map of locators and icon paths. The icon path set to <code>null</code>, if failed to
+   *     determine.
    */
   private Map<PSLocator, String> getFileIconPaths(Map<PSLocator, String> fileItems) {
     IPSContentMgr cmgr = PSContentMgrLocator.getContentMgr();
@@ -1569,8 +1438,7 @@ public class PSItemDefManager {
    * Helper method to return the full path of the icon file.
    *
    * @param iconFn if blank returns blank otherwise adds the full path.
-   * @param isSys if <code>true</code> builds the system path otherwise
-   *           builds the rx path.
+   * @param isSys if <code>true</code> builds the system path otherwise builds the rx path.
    * @return Full path of the iconfile, may be <code>null</code> or empty.
    */
   public String getFullIconPath(String iconFn, boolean isSys) {
@@ -1587,11 +1455,10 @@ public class PSItemDefManager {
   }
 
   /**
-   * Gets the rx properties consisting of file extension and corresponding icon
-   * file name. The properties file is loaded if it is modifed after last load.
+   * Gets the rx properties consisting of file extension and corresponding icon file name. The
+   * properties file is loaded if it is modifed after last load.
    *
-   * @return Properties of file extensions and icon paths, never
-   *         <code>null</code> may be empty.
+   * @return Properties of file extensions and icon paths, never <code>null</code> may be empty.
    */
   public synchronized Properties getRxFileIconProperties() {
     Properties rxProps = new Properties();
@@ -1629,11 +1496,10 @@ public class PSItemDefManager {
   }
 
   /**
-   * Gets the sys properties consisting of file extension and corresponding icon
-   * file name. The properties file is loaded only once.
+   * Gets the sys properties consisting of file extension and corresponding icon file name. The
+   * properties file is loaded only once.
    *
-   * @return Properties of file extensions and icon paths, never
-   *         <code>null</code> may be empty.
+   * @return Properties of file extensions and icon paths, never <code>null</code> may be empty.
    */
   public synchronized Properties getSysFileIconProperties() {
     // Load the system props if it is null
@@ -1656,92 +1522,79 @@ public class PSItemDefManager {
   }
 
   /**
-   * Content type icon properties, consisting of file extensions and icon path
-   * for each extension. Initialized in {@see #getFileIconProperties()}.
+   * Content type icon properties, consisting of file extensions and icon path for each extension.
+   * Initialized in {@see #getFileIconProperties()}.
    */
   private static Map<Long, Properties> ms_rxFileIconProperties = null;
 
-  /**
-   * Constant for the relative path of system content type icons folder.
-   */
+  /** Constant for the relative path of system content type icons folder. */
   public static final String RX_ICON_FOLDER = "rx_resources/images/ContentTypeIcons/";
 
   /**
-   * Content type icon properties, consisting of file extensions and icon path
-   * for each extension. Initialized in {@see #getFileIconProperties()}.
+   * Content type icon properties, consisting of file extensions and icon path for each extension.
+   * Initialized in {@see #getFileIconProperties()}.
    */
   private static Properties ms_sysFileIconProperties = null;
 
-  /**
-   * Constant for the relative path of system content type icons folder.
-   */
+  /** Constant for the relative path of system content type icons folder. */
   private static final String SYS_ICON_FOLDER = "sys_resources/images/ContentTypeIcons/";
 
-  /**
-   * Constant for file icons folder name.
-   */
+  /** Constant for file icons folder name. */
   private static final String FILE_ICONS_FOLDER = "FileIcons";
 
-  /**
-   * Constant for file icons properties file name.
-   */
+  /** Constant for file icons properties file name. */
   private static final String FILE_ICONS_PROPERTIES = "FileIcons.properties";
 
   /**
-   * The only instance of this class. Constructed during class init, never
-   * <code>null</code> after that.
+   * The only instance of this class. Constructed during class init, never <code>null</code> after
+   * that.
    */
   private static PSItemDefManager ms_instance = new PSItemDefManager();
 
   /**
-   * Used to maintain the registry of running content editor defs. The key is a
-   * Long whose value is the content type id. The value is a List that contains
-   * 4 entries. The first is a PSItemDefinition, the 2nd is a
-   * PSItemDefSummary,the 3rd is the original PSContentEditor and the 4th is
-   * the PSCmsObject. Should be accessed for reading by using the getItemDef,
+   * Used to maintain the registry of running content editor defs. The key is a Long whose value is
+   * the content type id. The value is a List that contains 4 entries. The first is a
+   * PSItemDefinition, the 2nd is a PSItemDefSummary,the 3rd is the original PSContentEditor and the
+   * 4th is the PSCmsObject. Should be accessed for reading by using the getItemDef,
    * getItemDefSummary, getContentEditorDef and getCmsObject methods.
-   * <p>
-   * Only modified by the registerDef and unRegisterDef methods. A hash table
-   * is used rather than synchronizing all of the methods that access it.
-   * Constructed in class init, then never <code>null</code>.
+   *
+   * <p>Only modified by the registerDef and unRegisterDef methods. A hash table is used rather than
+   * synchronizing all of the methods that access it. Constructed in class init, then never <code>
+   * null</code>.
    */
   private Map<Long, List<Object>> m_itemDefMap = new ConcurrentHashMap<>();
 
   /**
-   * Used to store a list of {@link IPSItemDefChangeListener} objects. The list
-   * is initialized during construction, and never <code>null</code>, but
-   * may be empty thereafter. The list is modified in the methods
-   * {@link #addListener} and {@link #removeListener}.
+   * Used to store a list of {@link IPSItemDefChangeListener} objects. The list is initialized
+   * during construction, and never <code>null</code>, but may be empty thereafter. The list is
+   * modified in the methods {@link #addListener} and {@link #removeListener}.
    */
   private Collection<IPSItemDefChangeListener> m_itemDefListeners = new ArrayList<>();
 
   /**
-   * Used to store the current type id being registered to avoid returning
-   * content types that are not yet "available" to external users. Set and
-   * reset in {@link #registerDef(String, PSContentEditor)} and checked in
-   * {@link #getVisibleContentTypes(int, boolean,boolean)}
+   * Used to store the current type id being registered to avoid returning content types that are
+   * not yet "available" to external users. Set and reset in {@link #registerDef(String,
+   * PSContentEditor)} and checked in {@link #getVisibleContentTypes(int, boolean,boolean)}
    */
   private long m_currentRegisteredId = -1;
 
   /**
-   * Constant indicating all or any community. This can be used to specify not
-   * to filter content type defiitions by community.
+   * Constant indicating all or any community. This can be used to specify not to filter content
+   * type defiitions by community.
    */
   public static final int COMMUNITY_ANY = -1;
 
   /**
-   * This is set to true in {@link #deferUpdateNotifications()} and checked in
-   * {@link #commitUpdateNotifications()}. This serves the purpose of keeping
-   * the item def manager from telling the search subsystem to notify on
-   * update. This is done to prevent the search server from restarting after
-   * every change registered by MSM.
+   * This is set to true in {@link #deferUpdateNotifications()} and checked in {@link
+   * #commitUpdateNotifications()}. This serves the purpose of keeping the item def manager from
+   * telling the search subsystem to notify on update. This is done to prevent the search server
+   * from restarting after every change registered by MSM.
    */
   private boolean m_deferringNotifications = false;
 
   /**
-   * Tracks whether an update event has occurred that would have required
-   * notifications. Reset in {@link #commitUpdateNotifications()}. Contains
-   * items of class {@link PSItemDefinition}.
+   * Tracks whether an update event has occurred that would have required notifications. Reset in
+   * {@link #commitUpdateNotifications()}. Contains items of class {@link PSItemDefinition}.
    */
   private Collection<PSItemDefinition> m_deferredNotifications = new ArrayList<>();
 }

@@ -37,21 +37,17 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Class to handle discovery of state dependencies.
- * The <code>PSWorkflowDefDependencyHandler</code> class handles the packaging
- * and installation of a state.
+ * Class to handle discovery of state dependencies. The <code>PSWorkflowDefDependencyHandler</code>
+ * class handles the packaging and installation of a state.
  */
 public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSStateDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -91,15 +87,11 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Get a list of ids of child transition dependencies for a given state
-   * deployable object.
+   * Get a list of ids of child transition dependencies for a given state deployable object.
    *
    * @param dep The state deployable object, assume not <code>null</code>.
-   *
-   * @return An iterator over zero or more ids of child dependencies as
-   * <code>String</code>. It will never be <code>null</code>, but may be
-   * empty.
-   *
+   * @return An iterator over zero or more ids of child dependencies as <code>String</code>. It will
+   *     never be <code>null</code>, but may be empty.
    * @throws PSDeployException if any error occurs.
    */
   private Iterator<String> getChildIdsForStateDep(PSDependency dep) throws PSDeployException {
@@ -241,15 +233,15 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>TransitionDef</li>
+   *   <li>TransitionDef
    * </ol>
    *
-   * @return An iterator over one or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over one or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -279,8 +271,8 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   /**
-   * Override the method from super class, but this is to get the next id
-   * specifically for <code>STATE_ID</code> in <code>STATES_TABLE</code>.
+   * Override the method from super class, but this is to get the next id specifically for <code>
+   * STATE_ID</code> in <code>STATES_TABLE</code>.
    */
   protected String getNextId(String table, PSDependency dep, String tgtParentId)
       throws PSDeployException {
@@ -334,9 +326,7 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
     // nothing to install, assume it has been handled for workflow handler
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "StateDef";
 
   // private table and column names
@@ -349,10 +339,7 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   private static final String TRANSITION_ID = "TRANSITIONID";
   private static final String WORKFLOW_ID = "WORKFLOWAPPID";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static final List<String> ms_childTypes =
       List.of(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
 }

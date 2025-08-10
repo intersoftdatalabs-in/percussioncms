@@ -27,19 +27,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates ID and Type mapping information.
- */
+/** Encapsulates ID and Type mapping information. */
 public class PSApplicationIDTypeMapping implements IPSDeployComponent {
 
   /**
    * Construct initial ID-Type mapping object.
    *
-   * @param ctx The context of the id this mapping represents. May not be
-   * <code>null</code>.
-   * @param value The value of the literal. It may not be <code>null</code> or
-   * empty.
-   *
+   * @param ctx The context of the id this mapping represents. May not be <code>null</code>.
+   * @param value The value of the literal. It may not be <code>null</code> or empty.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public PSApplicationIDTypeMapping(PSApplicationIdContext ctx, String value) {
@@ -56,12 +51,9 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSApplicationIDTypeMapping(Element source) throws PSUnknownNodeTypeException {
@@ -100,10 +92,9 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   /**
    * Get the type of the object.
    *
-   * @return The deployable object type, <code>TYPE_NONE</code> to indicate it
-   * does not specify a deployable object, or <code>TYPE_UNDEFINED</code> if
-   * the type has not been set (i.e. it is incomplete). It can never be
-   * <code>null</code> or empty.
+   * @return The deployable object type, <code>TYPE_NONE</code> to indicate it does not specify a
+   *     deployable object, or <code>TYPE_UNDEFINED</code> if the type has not been set (i.e. it is
+   *     incomplete). It can never be <code>null</code> or empty.
    */
   public String getType() {
     return m_type;
@@ -112,8 +103,7 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   /**
    * Set the type for the object.
    *
-   * @param    type    A valid object type id. It may not empty or
-   * <code>null</code>
+   * @param type A valid object type id. It may not empty or <code>null</code>
    */
   public void setType(String type) {
     if (type == null || type.trim().length() == 0)
@@ -126,7 +116,6 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
    * Set the value of this type mapping.
    *
    * @param value The new value, may not be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>value</code> is invalid.
    */
   public void setValue(String value) {
@@ -140,27 +129,25 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   /**
    * Determines if this mapping's type has been set.
    *
-   * @return <code>true</code> if the type has been defined, <code>false</code>
-   * if not.
+   * @return <code>true</code> if the type has been defined, <code>false</code> if not.
    */
   public boolean isComplete() {
     return !m_type.equals(TYPE_UNDEFINED);
   }
 
   /**
-   * Determines if this mapping's type has been set to {@link #TYPE_NONE},
-   * indicating it's value does not specifiy an id.
+   * Determines if this mapping's type has been set to {@link #TYPE_NONE}, indicating it's value
+   * does not specifiy an id.
    *
-   * @return <code>true</code> if this mapping specifies an id type,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this mapping specifies an id type, <code>false</code> otherwise.
    */
   public boolean isIdType() {
     return !m_type.equals(TYPE_NONE);
   }
 
   /**
-   * Gets the parent dependency id of the dependency if one has been set.  Set
-   * {@link #setParent(String, String)} for more info.
+   * Gets the parent dependency id of the dependency if one has been set. Set {@link
+   * #setParent(String, String)} for more info.
    *
    * @return The parent id, may be <code>null</code>, never empty.
    */
@@ -169,26 +156,24 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   }
 
   /**
-   * Gets the parent dependency type of the dependency if one has been set.
-   * Set {@link #setParent(String, String)} for more info.
+   * Gets the parent dependency type of the dependency if one has been set. Set {@link
+   * #setParent(String, String)} for more info.
    *
-   * @return The parent type, may be <code>null</code>, never empty.  Will only
-   * be <code>null</code> if {@link #getParentId()} returns <code>null</code>.
+   * @return The parent type, may be <code>null</code>, never empty. Will only be <code>null</code>
+   *     if {@link #getParentId()} returns <code>null</code>.
    */
   public String getParentType() {
     return m_parentType;
   }
 
   /**
-   * Sets id and type of the parent dependency id of the dependency specified
-   * by {@link #getValue()} and {@link #getType()} if it supports parent ids
-   * (see {@link PSDependency#supportsParentId()}).
+   * Sets id and type of the parent dependency id of the dependency specified by {@link #getValue()}
+   * and {@link #getType()} if it supports parent ids (see {@link PSDependency#supportsParentId()}).
    *
    * @param parentId The parent id, may be <code>null</code>, never empty.
-   * @param parentType The parent type, may be <code>null</code>, never empty.
-   * May not be <code>null</code> if <code>parentId</code> is not
-   * <code>null</code>.  Ignored if <code>parentId</code> is <code>null</code>.
-   *
+   * @param parentType The parent type, may be <code>null</code>, never empty. May not be <code>null
+   *     </code> if <code>parentId</code> is not <code>null</code>. Ignored if <code>parentId</code>
+   *     is <code>null</code>.
    * @throws IllegalArgumentException If any param is invalid.
    */
   public void setParent(String parentId, String parentType) {
@@ -205,7 +190,8 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
@@ -241,9 +227,8 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -332,38 +317,30 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   /**
    * Determines if the object contains a defined to a type
    *
-   * @return <code>true</code> if the type is not
-   * <code>PSApplicationIDTypeMapping.TYPE_UNDEFINED</code>;
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the type is not <code>PSApplicationIDTypeMapping.TYPE_UNDEFINED
+   *     </code>; <code>false</code> otherwise.
    */
   public boolean hasDefinedType() {
     return !m_type.equals(TYPE_UNDEFINED);
   }
 
   /**
-   * Determines a new value has been set on this mapping since it was
-   * instantiated (see {@link #setValue(String)}.
+   * Determines a new value has been set on this mapping since it was instantiated (see {@link
+   * #setValue(String)}.
    *
-   * @return <code>true</code> if a new value has been set, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if a new value has been set, <code>false</code> otherwise.
    */
   public boolean hasNewValue() {
     return m_hasNewValue;
   }
 
-  /**
-   * Type to indicate the literal value does not specify an id
-   */
+  /** Type to indicate the literal value does not specify an id */
   public static final String TYPE_NONE = "sys_none";
 
-  /**
-   * Indicates the type has not yet been set (i.e. incomplete).
-   */
+  /** Indicates the type has not yet been set (i.e. incomplete). */
   public static final String TYPE_UNDEFINED = "sys_undefined";
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXApplicationIDTypeMapping";
 
   // Private XML attribute constants
@@ -373,50 +350,45 @@ public class PSApplicationIDTypeMapping implements IPSDeployComponent {
   private static final String XML_ATTR_PARENT_TYPE = "parentType";
 
   /**
-   * The context of this mapping.  Initialized during construction, never
-   * <code>null</code>after that, only modified by a call to
-   * <code>copyFrom()</code>.
+   * The context of this mapping. Initialized during construction, never <code>null</code>after
+   * that, only modified by a call to <code>copyFrom()</code>.
    */
   private PSApplicationIdContext m_ctx;
 
   /**
-   * The value of the identifier. Initialized during construction, never
-   * <code>null</code> or empty, after that, modified by
-   * calls to <code>setValue()</code> and <code>copyFrom()</code>.
+   * The value of the identifier. Initialized during construction, never <code>null</code> or empty,
+   * after that, modified by calls to <code>setValue()</code> and <code>copyFrom()</code>.
    */
   private String m_value;
 
   /**
-   * The mapping type of the identifier and value. Initialized during
-   * construction, never <code>null</code> or empty, after that, only modified
-   * by a call to <code>copyFrom()</code> and <code>setType()</code>.
+   * The mapping type of the identifier and value. Initialized during construction, never <code>null
+   * </code> or empty, after that, only modified by a call to <code>copyFrom()</code> and <code>
+   * setType()</code>.
    */
   private String m_type;
 
   /**
-   * The parent dependency id of the dependency specified by {@link #m_value}
-   * if {@link #m_type} specifies a type that supports parent ids (see
-   * {@link PSDependency#supportsParentId()}).  <code>null</code> unless it has
-   * been set by a call to {@link #setParent(String, String)}, never empty.
+   * The parent dependency id of the dependency specified by {@link #m_value} if {@link #m_type}
+   * specifies a type that supports parent ids (see {@link PSDependency#supportsParentId()}). <code>
+   * null</code> unless it has been set by a call to {@link #setParent(String, String)}, never
+   * empty.
    */
   private String m_parentId;
 
   /**
-   * The parent dependency type of the dependency specified by {@link #m_value}
-   * if {@link #m_type} specifies a type that supports parent ids (see
-   * {@link PSDependency#supportsParentId()}).  <code>null</code> unless it has
-   * been set by a call to {@link #setParent(String, String)}, never empty.
-   * Will not be <code>null</code> if <code>m_parentId</code> is not
-   * <code>null</code>.
+   * The parent dependency type of the dependency specified by {@link #m_value} if {@link #m_type}
+   * specifies a type that supports parent ids (see {@link PSDependency#supportsParentId()}). <code>
+   * null</code> unless it has been set by a call to {@link #setParent(String, String)}, never
+   * empty. Will not be <code>null</code> if <code>m_parentId</code> is not <code>null</code>.
    */
   private String m_parentType;
 
   /**
-   * Determines if this mapping has ever been updated with a new value.
-   * <code>true</code> if it has, <code>false</code> if not.  Used during
-   * installation of dependencies that support id types.  This is a transient
-   * runtime value and does not require persistance.  Modified by calls to
-   * {@link #setValue(String)}.
+   * Determines if this mapping has ever been updated with a new value. <code>true</code> if it has,
+   * <code>false</code> if not. Used during installation of dependencies that support id types. This
+   * is a transient runtime value and does not require persistance. Modified by calls to {@link
+   * #setValue(String)}.
    */
   private boolean m_hasNewValue = false;
 }

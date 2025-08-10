@@ -31,21 +31,21 @@ import java.util.Collection;
  */
 public interface IPSRegionsAssembler {
 
-    /**
-     * Assembles a collection of regions using the given {@link IPSRegionAssembler},
-     * and stores the {@link PSRegionResult} results in the {@link PSPageAssemblyContext#getRegions()} map.
-     *
-     * @param regionAssembler never {@code null}
-     * @param assemblyItem never {@code null}
-     * @param context never {@code null}; results are stored here
-     * @param mergedRegions never {@code null}
-     * @throws IPSTemplateService.PSTemplateException if template expansion fails
-     * @throws PSAssemblyException if assembly fails
-     */
-    void assembleRegions(
-            IPSRegionAssembler regionAssembler,
-            IPSAssemblyItem assemblyItem,
-            PSPageAssemblyContext context,
-            Collection<PSMergedRegion> mergedRegions
-    ) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
+  /**
+   * Assembles a collection of regions using the given {@link IPSRegionAssembler}, and stores the
+   * {@link PSRegionResult} results in the {@link PSPageAssemblyContext#getRegions()} map.
+   *
+   * @param regionAssembler never {@code null}
+   * @param assemblyItem never {@code null}
+   * @param context never {@code null}; results are stored here
+   * @param mergedRegions never {@code null}
+   * @throws IPSTemplateService.PSTemplateException if template expansion fails
+   * @throws PSAssemblyException if assembly fails
+   */
+  void assembleRegions(
+      IPSRegionAssembler regionAssembler,
+      IPSAssemblyItem assemblyItem,
+      PSPageAssemblyContext context,
+      Collection<PSMergedRegion> mergedRegions)
+      throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }

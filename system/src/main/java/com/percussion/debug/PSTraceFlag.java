@@ -20,7 +20,10 @@ package com.percussion.debug;
 import java.util.Arrays;
 
 /**
- * Wrapper object for doing bitwise operations on a set of 120 possible flags.  Contains a list of 4 groups of flags.  Each flag is an int used to specify a trace option.  The highest two bits of each flag are reserved as an indicator of 4 possible groups (00-11).  Thus there is support for 30 flags in each of 4 groups.
+ * Wrapper object for doing bitwise operations on a set of 120 possible flags. Contains a list of 4
+ * groups of flags. Each flag is an int used to specify a trace option. The highest two bits of each
+ * flag are reserved as an indicator of 4 possible groups (00-11). Thus there is support for 30
+ * flags in each of 4 groups.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceFlag {
@@ -63,8 +66,10 @@ public class PSTraceFlag {
 
   /**
    * Compares the provided flag with the internal flag for the specified group
+   *
    * @param flag a flag providing the option and group bits to be checked
-   * @return <code>true</code> if the all of the bits of the incoming flag are also on in the internal flag for that group
+   * @return <code>true</code> if the all of the bits of the incoming flag are also on in the
+   *     internal flag for that group
    * @roseuid 39F6CF910177
    */
   public boolean checkBit(int flag) {
@@ -77,7 +82,9 @@ public class PSTraceFlag {
   }
 
   /**
-   * Sets bit on the internal flag using the option and group bits in the provided flag.  Will only turn on bits, will not clear any bits.
+   * Sets bit on the internal flag using the option and group bits in the provided flag. Will only
+   * turn on bits, will not clear any bits.
+   *
    * @param flag a flag providing the bit to be set
    * @roseuid 39F6D60F02FD
    */
@@ -91,8 +98,8 @@ public class PSTraceFlag {
   }
 
   /**
-   * Returns a string reprepresentation of this object.  Masks the group bit
-   * before returning the string.
+   * Returns a string reprepresentation of this object. Masks the group bit before returning the
+   * string.
    *
    * @param group Indicates which group this flag belongs to
    * @return a string representation of this object
@@ -109,7 +116,8 @@ public class PSTraceFlag {
   }
 
   /**
-   * Constructor with no arguments.  Initializes all groups to <code>zero</code>.
+   * Constructor with no arguments. Initializes all groups to <code>zero</code>.
+   *
    * @roseuid 39F701CB03A9
    */
   public PSTraceFlag() {
@@ -117,8 +125,8 @@ public class PSTraceFlag {
   }
 
   /**
-   * Constructor with 1 argument.  Initializes the first groups flag, and all other
-   * groups to <code>zero</code>.
+   * Constructor with 1 argument. Initializes the first groups flag, and all other groups to <code>
+   * zero</code>.
    *
    * @param flag1 The flag for the first group.
    * @roseuid 39F702130232
@@ -128,8 +136,8 @@ public class PSTraceFlag {
   }
 
   /**
-   * Constructor with 2 arguments.  Initializes the first 2 group's flags, and the
-   * last two groups to <code>zero</code>.
+   * Constructor with 2 arguments. Initializes the first 2 group's flags, and the last two groups to
+   * <code>zero</code>.
    *
    * @param flag1 The flag for the first group.
    * @param flag2 The flag for the second group.
@@ -140,8 +148,9 @@ public class PSTraceFlag {
   }
 
   /**
-   * Constructor with 3 arguments.  Initializes the first 3 group's flags, and the
-   * last group to <code>zero</code>.
+   * Constructor with 3 arguments. Initializes the first 3 group's flags, and the last group to
+   * <code>zero</code>.
+   *
    * @param flag1 The flag for the first group.
    * @param flag2 The flag for the second group.
    * @param flag3 The flag for the third group.
@@ -152,7 +161,8 @@ public class PSTraceFlag {
   }
 
   /**
-   * Constructor with 4 arguments.  Initializes the all 4 group flags.
+   * Constructor with 4 arguments. Initializes the all 4 group flags.
+   *
    * @param flag1 The flag for the first group.
    * @param flag2 The flag for the second group.
    * @param flag3 The flag for the third group.
@@ -213,11 +223,9 @@ public class PSTraceFlag {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
-   * @param flag a valid PSTraceFlag. If null, a IllegalArgumentException is
-   * thrown.
+   * @param flag a valid PSTraceFlag. If null, a IllegalArgumentException is thrown.
    */
   public void copyFrom(PSTraceFlag flag) {
     if (null == flag) throw new IllegalArgumentException("Invalid object for copy");
@@ -227,33 +235,21 @@ public class PSTraceFlag {
     }
   }
 
-  /**
-   * A list of 4 groups of flags.
-   */
+  /** A list of 4 groups of flags. */
   private int[] m_traceFlags = {0, 0, 0, 0};
 
-  /**
-   * Flag with only the group bits set to specify this group.
-   */
+  /** Flag with only the group bits set to specify this group. */
   public static final int GROUP1 = 0x0;
 
-  /**
-   * Flag with only the group bits set to specify this group.
-   */
+  /** Flag with only the group bits set to specify this group. */
   public static final int GROUP2 = 0x40000000;
 
-  /**
-   * Flag with only the group bits set to specify this group.
-   */
+  /** Flag with only the group bits set to specify this group. */
   public static final int GROUP3 = 0x80000000;
 
-  /**
-   * Flag with only the group bits set to specify this group.
-   */
+  /** Flag with only the group bits set to specify this group. */
   public static final int GROUP4 = 0xC0000000;
 
-  /**
-   * used to mask the the group specified by a flag
-   */
+  /** used to mask the the group specified by a flag */
   private static final int GROUP_MASK = 0x3FFFFFFF;
 }

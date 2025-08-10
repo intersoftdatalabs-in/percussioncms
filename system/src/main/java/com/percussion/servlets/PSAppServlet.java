@@ -44,23 +44,18 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author dougrand
- *
- * Handle application requests
+ *     <p>Handle application requests
  */
 public class PSAppServlet extends HttpServlet {
-  /**
-   * serial version id
-   */
+  /** serial version id */
   private static final long serialVersionUID = 3760848952157025078L;
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger ms_log = LogManager.getLogger(PSAppServlet.class);
 
   /**
-   * These parameters are placed in the per-thread log4j MDC context. This is
-   * primarily for debugging purposes.
+   * These parameters are placed in the per-thread log4j MDC context. This is primarily for
+   * debugging purposes.
    */
   static String[] ms_parameters = {
     IPSHtmlParameters.SYS_CONTENTID,
@@ -252,9 +247,7 @@ public class PSAppServlet extends HttpServlet {
     PSServer.shutdown();
   }
 
-  /**
-   *  See {@link HttpServlet#HttpServlet()}
-   */
+  /** See {@link HttpServlet#HttpServlet()} */
   public PSAppServlet() {
     super();
   }

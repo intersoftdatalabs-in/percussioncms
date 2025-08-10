@@ -22,9 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * Sunny Sal says: "Repository listing ka test, registry ka best!"
- */
+/** Sunny Sal says: "Repository listing ka test, registry ka best!" */
 public class PSGadgetRepositoryListingTests {
 
   @Test

@@ -37,19 +37,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Base class for handlers that deploy content editor objects.
- */
+/** Base class for handlers that deploy content editor objects. */
 public abstract class PSContentEditorObjectDependencyHandler extends PSAppObjectDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    */
   public PSContentEditorObjectDependencyHandler(
       PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -61,9 +57,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param uiDef The ui def to check, may not be <code>null</code>.
-   *
    * @return list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   @SuppressWarnings("unchecked")
@@ -89,9 +83,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param mapper The mapper to check, may not be <code>null</code>.
-   *
    * @return list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   @SuppressWarnings("unchecked")
@@ -121,9 +113,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param uiSet The ui set to check, may not be <code>null</code>.
-   *
    * @return list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   protected List<PSDependency> checkUiSet(PSSecurityToken tok, PSUISet uiSet)
@@ -180,21 +170,18 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
   }
 
   /**
-   * Checks the given dependency for child dependencies that are of Server
-   * dependency type. (PSDependency.TYPE_SERVER)
+   * Checks the given dependency for child dependencies that are of Server dependency type.
+   * (PSDependency.TYPE_SERVER)
    *
-   * These controls are no longer allowed to be packaged because they should
-   * already be on the target system and any changes to target versions would
-   * be lost.)
+   * <p>These controls are no longer allowed to be packaged because they should already be on the
+   * target system and any changes to target versions would be lost.)
    *
-   * This method should be called during the deploy phase (as opposed to
-   * building phase of package installation) to ensure that all potential
-   * control files have been accounted for.
+   * <p>This method should be called during the deploy phase (as opposed to building phase of
+   * package installation) to ensure that all potential control files have been accounted for.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param dep The dependency whose child dependencies are checked for being
-   * a Server Dependency, may not be <code>null</code>.
-   *
+   * @param dep The dependency whose child dependencies are checked for being a Server Dependency,
+   *     may not be <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   protected void checkServerControls(PSSecurityToken tok, PSDependency dep)
@@ -221,7 +208,6 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param idMap The id map to use, may not be <code>null</code>.
    * @param uiDef The ui Definition to transform, may not be <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   @SuppressWarnings("unchecked")
@@ -241,7 +227,6 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param idMap The id map to use, may not be <code>null</code>.
    * @param mapper The mapper to transform, may not be <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   @SuppressWarnings("unchecked")
@@ -267,7 +252,6 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param idMap The id map to use, may not be <code>null</code>.
    * @param uiSet The uiSet to transform, may not be <code>null</code>.
-   *
    * @throws PSDeployException if any errors occur.
    */
   protected void transformUiSet(PSIdMap idMap, PSUISet uiSet) throws PSDeployException {
@@ -290,7 +274,6 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * Get the shared def.
    *
    * @return The def, never <code>null</code>.
-   *
    * @throws PSDeployException if the def cannot be loaded.
    */
   protected PSContentEditorSharedDef getSharedDef() throws PSDeployException {
@@ -308,9 +291,8 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    * Get all tables from the supplied container locator
    *
    * @param locator The locator to check, may not be <code>null</code>.
-   *
-   * @return Iterator over zero or more table names as <code>String</code>
-   * objects, never <code>null</code>, may be empty.
+   * @return Iterator over zero or more table names as <code>String</code> objects, never <code>null
+   *     </code>, may be empty.
    */
   public static Iterator<String> getLocatorTables(PSContainerLocator locator) {
     if (locator == null) throw new IllegalArgumentException("locator may not be null");
@@ -330,9 +312,7 @@ public abstract class PSContentEditorObjectDependencyHandler extends PSAppObject
    *
    * @param tok The security token to use, may not be <code>null</code>.
    * @param locator The locator to check, may not be <code>null</code>.
-   *
    * @return list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   protected List<PSDependency> checkLocatorTables(PSSecurityToken tok, PSContainerLocator locator)

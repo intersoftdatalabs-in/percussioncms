@@ -26,23 +26,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Parses the name=value components of a URL's query string into a Map.
- * Based on (obfuscated) com.percussion.server.content.PSFormContentParser.
+ * Parses the name=value components of a URL's query string into a Map. Based on (obfuscated)
+ * com.percussion.server.content.PSFormContentParser.
  */
 public class PSParseUrlQueryString {
   private static final Logger log = LogManager.getLogger(PSParseUrlQueryString.class);
 
   /**
-   * Add the request parameters defined in the specified parameter string
-   * to the specified hash map.
+   * Add the request parameters defined in the specified parameter string to the specified hash map.
    *
-   * @param paramString the URL query string, may not be <code>null</code>,
-   * can be empty.
-   *
+   * @param paramString the URL query string, may not be <code>null</code>, can be empty.
    * @throws IllegalArgumentException if paramString is <code>null</code>
-   *
-   * @throws PSRequestParsingException if an error occurs parsing the
-   * parameters.
+   * @throws PSRequestParsingException if an error occurs parsing the parameters.
    */
   public static Map parseParameters(String paramString) throws PSRequestParsingException {
     if (paramString == null) throw new IllegalArgumentException("paramString can not be null");
@@ -53,16 +48,14 @@ public class PSParseUrlQueryString {
     Map params =
         new HashMap() {
           /**
-           * Maps the specified value to the specified key.  If a mapping
-           * already exists, an <code>ArrayList</code> of all values for the key
-           * is mapped.
+           * Maps the specified value to the specified key. If a mapping already exists, an <code>
+           * ArrayList</code> of all values for the key is mapped.
            *
            * @param key key with which the specified value is to be associated.
            * @param value value to be associated with the specified key.
-           * @return previous value associated with specified key, or
-           * <code>null</code> if there was no mapping for key.  A
-           * <code>null</code> return can also indicate that the HashMap
-           * previously associated <code>null</code> with the specified key.
+           * @return previous value associated with specified key, or <code>null</code> if there was
+           *     no mapping for key. A <code>null</code> return can also indicate that the HashMap
+           *     previously associated <code>null</code> with the specified key.
            */
           public Object put(Object key, Object value) {
             Object oldValue = super.put(key, value);
@@ -142,16 +135,15 @@ public class PSParseUrlQueryString {
   private static final int FORM_PARSER_BAD_HEX_CHAR = 1307;
 
   /**
-   * Replaces all occurrences of entity refs allowed in URL query strings
-   * with their corresponding character. Currently, this is just &amp;
-   * <p>In XHTML, the ampersand used to separate params in the query string
-   * must be escaped because it is an xml document.
+   * Replaces all occurrences of entity refs allowed in URL query strings with their corresponding
+   * character. Currently, this is just &amp;
    *
-   * @param query The query string from a URL. If <code>null</code> or empty,
-   * it is returned unmodified.
+   * <p>In XHTML, the ampersand used to separate params in the query string must be escaped because
+   * it is an xml document.
    *
-   * @return The supplied query with all entity refs replaced with their
-   * corresponding character.
+   * @param query The query string from a URL. If <code>null</code> or empty, it is returned
+   *     unmodified.
+   * @return The supplied query with all entity refs replaced with their corresponding character.
    */
   private static String convertEntities(String query) {
     if (null == query) return null;
@@ -180,12 +172,12 @@ public class PSParseUrlQueryString {
   /**
    * Helper function to replace a named parameter value with the supplied one.
    *
-   * @param url URL to modify, if <code>null</code> or empty it will be
-   *           returned as it is. Assumes a plane string, i.e. not URL encoded.
-   * @param paramName name of the parameter to replace the value for, assumed
-   *           not <code>null</code> or empty.
-   * @param paramValue value of the parameter to replace, assumed not
-   *           <code>null</code>, may be empty.
+   * @param url URL to modify, if <code>null</code> or empty it will be returned as it is. Assumes a
+   *     plane string, i.e. not URL encoded.
+   * @param paramName name of the parameter to replace the value for, assumed not <code>null</code>
+   *     or empty.
+   * @param paramValue value of the parameter to replace, assumed not <code>null</code>, may be
+   *     empty.
    * @return modified URL string, may be <code>null</code> or empty.
    */
   public static String replaceParam(String url, String paramName, String paramValue) {

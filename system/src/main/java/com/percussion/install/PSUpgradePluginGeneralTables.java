@@ -38,13 +38,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * This is a general plugin class implements IPSUpgradePlugin.
- */
+/** This is a general plugin class implements IPSUpgradePlugin. */
 public class PSUpgradePluginGeneralTables implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginGeneralTables() {}
 
   /**
@@ -139,10 +135,10 @@ public class PSUpgradePluginGeneralTables implements IPSUpgradePlugin {
 
   /**
    * Helper function to extract the schemaDoc and dataDoc from the database.
+   *
    * @param config module from configuration file.
    * @param conn a valid database connection.
-   * @param dbmsDef Used to connect to the database and provides correct
-   * schema/origin.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin.
    * @param dataTypeMap The dataType map to use for this table's columns.
    * @param tableList array of table names
    * @param schemaDoc table schema document
@@ -187,9 +183,9 @@ public class PSUpgradePluginGeneralTables implements IPSUpgradePlugin {
 
   /**
    * Helper function prepares the dataDoc and returns.
+   *
    * @param conn a valid database connection.
-   * @param dbmsDef Used to connect to the database and provides correct
-   * schema/origin.
+   * @param dbmsDef Used to connect to the database and provides correct schema/origin.
    * @param dataTypeMap The dataType map to use for this table's columns.
    * @param tableName name of the table for which the data is required.
    */

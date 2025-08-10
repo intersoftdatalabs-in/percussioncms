@@ -29,11 +29,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This exit adds <code>isManagedNavUsed=yes</code> attribute to the root
- * element of the result document if the managed navigation is configured
- * (or the managed navigation properties file exists) for this server.
- * <p>
- * The supplied parameters will be ignored.
+ * This exit adds <code>isManagedNavUsed=yes</code> attribute to the root element of the result
+ * document if the managed navigation is configured (or the managed navigation properties file
+ * exists) for this server.
+ *
+ * <p>The supplied parameters will be ignored.
  */
 public class PSAddIsManagedNavUsed implements IPSResultDocumentProcessor {
   // Implementation of the method required by the interface IPSExtension.
@@ -63,8 +63,6 @@ public class PSAddIsManagedNavUsed implements IPSResultDocumentProcessor {
     return resDoc;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 }

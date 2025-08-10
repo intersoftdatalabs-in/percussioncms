@@ -20,13 +20,11 @@ import com.percussion.data.PSDataExtractionException;
 import com.percussion.data.PSExecutionData;
 import com.percussion.extension.services.PSDatabasePool;
 
-/**
- * Macro extractor to get the database defaut driver name.
- */
+/** Macro extractor to get the database defaut driver name. */
 public class PSBackendDefaultDriverExtractor implements IPSMacroExtractor {
   /**
-   * This macro extractor extracts the driver name of the default backend
-   * database. The name returned is always uppercased.
+   * This macro extractor extracts the driver name of the default backend database. The name
+   * returned is always uppercased.
    */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     PSDatabasePool dbPool = PSDatabasePool.getDatabasePool();

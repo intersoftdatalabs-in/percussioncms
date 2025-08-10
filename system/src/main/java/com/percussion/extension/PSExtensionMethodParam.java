@@ -22,34 +22,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A representation of an extension method parameter.
- */
+/** A representation of an extension method parameter. */
 public final class PSExtensionMethodParam implements Serializable {
-  /**
-   * Compiler generated serial version ID used for serialization.
-   */
+  /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = 4417119994571577998L;
 
-  /**
-   * The parameter name, never {@code null} or empty after construction.
-   */
+  /** The parameter name, never {@code null} or empty after construction. */
   private String m_name;
 
-  /**
-   * The parameter type, never {@code null} or empty after construction.
-   */
+  /** The parameter type, never {@code null} or empty after construction. */
   private String m_type;
 
-  /**
-   * The parameter description, never {@code null} after construction,
-   * may be empty.
-   */
+  /** The parameter description, never {@code null} after construction, may be empty. */
   private String m_description;
 
   /**
-   * Convenience constructor that calls {@link #PSExtensionMethodParam(String,
-   * String, String) PSExtensionMethodParam(name, type, null)}.
+   * Convenience constructor that calls {@link #PSExtensionMethodParam(String, String, String)
+   * PSExtensionMethodParam(name, type, null)}.
    *
    * @param name the parameter name, not {@code null} or empty
    * @param type the parameter type, not {@code null} or empty
@@ -74,10 +63,8 @@ public final class PSExtensionMethodParam implements Serializable {
   /**
    * Construct an extension method parameter from its xml representation.
    *
-   * @param source the source element from which to construct this, not
-   *    {@code null}
-   * @throws PSExtensionException for any error deserializing the supplied
-   *    element
+   * @param source the source element from which to construct this, not {@code null}
+   * @throws PSExtensionException for any error deserializing the supplied element
    */
   public PSExtensionMethodParam(Element source) throws PSExtensionException {
     Objects.requireNonNull(source, "source element cannot be null");
@@ -180,10 +167,8 @@ public final class PSExtensionMethodParam implements Serializable {
   /**
    * Deserialize this parameter from its XML representation.
    *
-   * @param source the XML element from which to deserialize this parameter,
-   *    not {@code null}
-   * @throws PSExtensionException for any error deserializing the supplied
-   *    source
+   * @param source the XML element from which to deserialize this parameter, not {@code null}
+   * @throws PSExtensionException for any error deserializing the supplied source
    */
   public void fromXML(Element source) throws PSExtensionException {
     Objects.requireNonNull(source, "source element cannot be null");
@@ -215,8 +200,6 @@ public final class PSExtensionMethodParam implements Serializable {
     return element;
   }
 
-  /**
-   * The XML element name for this class.
-   */
+  /** The XML element name for this class. */
   public static final String XML_NAME = "PSExtensionMethodParam";
 }

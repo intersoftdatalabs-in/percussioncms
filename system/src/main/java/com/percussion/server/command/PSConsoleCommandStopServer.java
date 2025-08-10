@@ -47,22 +47,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSConsoleCommandStopServer class implements processing of the
- * "stop server" console command.
+ * The PSConsoleCommandStopServer class implements processing of the "stop server" console command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConsoleCommandStopServer extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
-   *
+   * @param cmdArgs the argument string to use when executing this command
    */
   public PSConsoleCommandStopServer(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -75,14 +71,12 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
   }
 
   /**
-   * Execute the command specified by this object. The results are returned
-   * as an XML document of the appropriate structure for the command.
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
    *
-   * @param      request                     the requestor object
-   *   <P>
-   * The execution of this command results in the following XML document
-   * structure:
-   * <PRE><CODE>
+   * @param request the requestor object
+   *     <p>The execution of this command results in the following XML document structure:
+   *     <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command, resultCode, resultText)&gt;
    *
    *      &lt;--
@@ -101,10 +95,8 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
    *      &lt;ELEMENT resultText                  (#PCDATA)&gt;
    * </CODE></PRE>
    *
-   * @return                                 the result document
-   *
-   * @exception   PSConsoleCommandException   if an error occurs during
-   *                                          execution
+   * @return the result document
+   * @exception PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
     long stopTime = 0;
@@ -142,8 +134,6 @@ public class PSConsoleCommandStopServer extends PSConsoleCommand {
     return respDoc;
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "stop server";
 }

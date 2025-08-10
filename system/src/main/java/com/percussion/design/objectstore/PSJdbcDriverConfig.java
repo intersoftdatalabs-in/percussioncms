@@ -26,19 +26,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Object representation of a JDBC driver configuration.  Provides default
- * values to supply to a JNDI Datasource configuration based on a selected
- * driver name.
+ * Object representation of a JDBC driver configuration. Provides default values to supply to a JNDI
+ * Datasource configuration based on a selected driver name.
  */
 public class PSJdbcDriverConfig extends PSComponent {
-  /**
-   * Constant of root element name to use for XML serialization.
-   */
+  /** Constant of root element name to use for XML serialization. */
   public static final String XML_NODE_NAME = "PSXJdbcDriverConfig";
 
   /**
-   * Construct this object from it's XML representation.  See
-   * {@link #toXml(Document)} for the expected format.
+   * Construct this object from it's XML representation. See {@link #toXml(Document)} for the
+   * expected format.
    *
    * @param src The source element, may not be <code>null</code>.
    * @throws PSUnknownNodeTypeException
@@ -51,12 +48,11 @@ public class PSJdbcDriverConfig extends PSComponent {
   /**
    * Construct this object from its properties.
    *
-   * @param driverName The name of the JDBC driver to configure, may not be
-   * <code>null</code> or empty.
-   * @param className The name of the class to use, may not be
-   * <code>null</code> or empty.
-   * @param containerTypeMapping The default JBoss container type mapping to
-   * use for this driver. See {@link #getContainerTypeMapping()} for more info.
+   * @param driverName The name of the JDBC driver to configure, may not be <code>null</code> or
+   *     empty.
+   * @param className The name of the class to use, may not be <code>null</code> or empty.
+   * @param containerTypeMapping The default JBoss container type mapping to use for this driver.
+   *     See {@link #getContainerTypeMapping()} for more info.
    */
   public PSJdbcDriverConfig(String driverName, String className, String containerTypeMapping) {
     if (StringUtils.isBlank(driverName))
@@ -83,12 +79,11 @@ public class PSJdbcDriverConfig extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param obj a valid PSComponent. Cannot be <code>null</code> and must be
-   * an instance of <code>PSJdbcDriverConfig</code>
+   * @param obj a valid PSComponent. Cannot be <code>null</code> and must be an instance of <code>
+   *     PSJdbcDriverConfig</code>
    */
   @Override
   public void copyFrom(PSComponent obj) {
@@ -103,9 +98,7 @@ public class PSJdbcDriverConfig extends PSComponent {
     m_containerTypeMapping = other.m_containerTypeMapping;
   }
 
-  /**
-   * see interface for description
-   */
+  /** see interface for description */
   @Override
   public Object clone() {
     return super.clone();
@@ -114,13 +107,11 @@ public class PSJdbcDriverConfig extends PSComponent {
   /**
    * Restores this object from it's XML configuration.
    *
-   * @param sourceNode The source XML node, may not be <code>null</code>.  See
-   * {@link #toXml(Document)} for the expected format.
+   * @param sourceNode The source XML node, may not be <code>null</code>. See {@link
+   *     #toXml(Document)} for the expected format.
    * @param parentDoc Ignored.
    * @param parentComponents Ignored.
-   *
-   * @throws PSUnknownNodeTypeException If the supplied element is not in the
-   * expected format.
+   * @throws PSUnknownNodeTypeException If the supplied element is not in the expected format.
    */
   public void fromXml(
       Element sourceNode,
@@ -159,6 +150,7 @@ public class PSJdbcDriverConfig extends PSComponent {
 
   /**
    * Set the name of the class to use for this driver.
+   *
    * @param className The classname, may not be <code>null</code> or empty.
    */
   public void setClassName(String className) {
@@ -169,7 +161,7 @@ public class PSJdbcDriverConfig extends PSComponent {
   }
 
   /**
-   * Get the default container type mapping for this driver.  See {@link
+   * Get the default container type mapping for this driver. See {@link
    * PSJndiGroupProviderInstance#PSJndiGroupProviderInstance(String, int)}
    * PSJndiDatasource.getContainerTypeMapping()} for more info.
    *
@@ -180,8 +172,8 @@ public class PSJdbcDriverConfig extends PSComponent {
   }
 
   /**
-   * Set the default container type mapping for this driver.  See
-   * {@link #getContainerTypeMapping()} for details.
+   * Set the default container type mapping for this driver. See {@link #getContainerTypeMapping()}
+   * for details.
    *
    * @param typeMapping The type mapping, never <code>null</code> or empty.
    */
@@ -194,10 +186,9 @@ public class PSJdbcDriverConfig extends PSComponent {
 
   /**
    * Serializes this class from its XML representation.
-   * @param doc The source element, never <code>null</code>.  The expected
-   * format is:
    *
-   * <pre>
+   * @param doc The source element, never <code>null</code>. The expected format is:
+   *     <pre>
    * <code>
    * &lt;!ELEMENT PSXJdbcDriverConfig (EMPTY)>
    * &lt;!ATTRLIST PSXJdbcDriverConfig
@@ -253,22 +244,16 @@ public class PSJdbcDriverConfig extends PSComponent {
     return m_driverName;
   }
 
-  /**
-   * The name of the class never <code>null</code> or empty.
-   * See {@link #getClassName()}.
-   */
+  /** The name of the class never <code>null</code> or empty. See {@link #getClassName()}. */
   private String m_className;
 
   /**
-   * The container type mapping, never <code>null</code> or empty. See
-   * {@link #getContainerTypeMapping()}.
+   * The container type mapping, never <code>null</code> or empty. See {@link
+   * #getContainerTypeMapping()}.
    */
   private String m_containerTypeMapping;
 
-  /**
-   * The driver name, never <code>null</code> or empty.  See
-   * {@link #getDriverName()}.
-   */
+  /** The driver name, never <code>null</code> or empty. See {@link #getDriverName()}. */
   private String m_driverName;
 
   // private XML constants

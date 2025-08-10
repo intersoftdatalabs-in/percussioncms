@@ -20,19 +20,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is a wrapper on the configuration parameter name-value pairs. Wraps the
- * hash map with additional checking.
+ * This is a wrapper on the configuration parameter name-value pairs. Wraps the hash map with
+ * additional checking.
  */
 public class PSTmxConfigParams {
-  /**
-   * Hash map of parameter name-value pairs.
-   */
+  /** Hash map of parameter name-value pairs. */
   protected Map m_ConfigParamMap = new HashMap();
 
   /**
    * Method to add new parameter to the map.
-   * @param    name  must not be <code>null</code> or <code>empty</code>.
-   * @param    value  may be <code>null</code> or <code>empty</code>.
+   *
+   * @param name must not be <code>null</code> or <code>empty</code>.
+   * @param value may be <code>null</code> or <code>empty</code>.
    */
   public void addParam(String name, String value) {
     if (name == null || name.length() < 1)
@@ -43,11 +42,12 @@ public class PSTmxConfigParams {
 
   /**
    * Method to get the parameter value given the name.
-   * @param    name should not be <code>null</code> or <code>empty</code>
-   * @return value of the parameter for the given key, never <code>null</code>,
-   * may be <code>empty</code>
-   * @throws IllegalArgumentException if the parameter is name supplied is
-   * <code>null</code> or <code>empty</code>
+   *
+   * @param name should not be <code>null</code> or <code>empty</code>
+   * @return value of the parameter for the given key, never <code>null</code>, may be <code>empty
+   *     </code>
+   * @throws IllegalArgumentException if the parameter is name supplied is <code>null</code> or
+   *     <code>empty</code>
    */
   public String getParam(String name) {
     if (name == null || name.trim().length() < 1)

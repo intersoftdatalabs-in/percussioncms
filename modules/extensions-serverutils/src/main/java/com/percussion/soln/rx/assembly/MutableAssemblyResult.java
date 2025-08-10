@@ -37,9 +37,7 @@ import org.apache.logging.log4j.Logger;
 public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult {
   private static final Logger log = LogManager.getLogger();
 
-  /**
-   * Safe to serialize
-   */
+  /** Safe to serialize */
   private static final long serialVersionUID = 1L;
 
   private Status status = Status.SUCCESS;
@@ -81,8 +79,8 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
   }
 
   /**
-   * Metadata to be delivered to the metadata service for item.  This
-   * is extracted from the "$perc.metadata" binding
+   * Metadata to be delivered to the metadata service for item. This is extracted from the
+   * "$perc.metadata" binding
    *
    * @return null if there is no metadata defined
    */
@@ -167,8 +165,8 @@ public class MutableAssemblyResult extends DelegateToAssemblyItemAssemblyResult 
   /**
    * Set the publishing server id to use with the delivery item.
    *
-   * @param pubserverid the ID of the publishing server.
-   *                    It may be <code>null</code> if the publish-server is unknown.
+   * @param pubserverid the ID of the publishing server. It may be <code>null</code> if the
+   *     publish-server is unknown.
    */
   @Override
   public void setPubServerId(Long pubserverid) {}

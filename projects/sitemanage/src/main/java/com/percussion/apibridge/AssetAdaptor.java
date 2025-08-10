@@ -106,9 +106,7 @@ import org.springframework.context.annotation.Lazy;
 @Lazy
 public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor {
 
-  /**
-   * Logger for this service.
-   */
+  /** Logger for this service. */
   public static final Logger log = LogManager.getLogger(AssetAdaptor.class);
 
   @Autowired private final IPSAssetDao assetDao;
@@ -520,9 +518,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     return out;
   }
 
-  /**
-   * Returns the field name for the given asset type.
-   */
+  /** Returns the field name for the given asset type. */
   private String getFileFieldByType(String assetType) {
     if (assetType.equals("percFileAsset") || assetType.equals("percFlashAsset")) {
       return "item_file_attachment";
@@ -632,9 +628,7 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     return to;
   }
 
-  /**
-   * Retrieves the workflow info object for a given PSAsset.
-   */
+  /** Retrieves the workflow info object for a given PSAsset. */
   private WorkflowInfo getWorkflowInfo(PSAsset from) throws PSValidationException {
     var summ = this.workflowHelper.getComponentSummary(from.getId());
     var wf =

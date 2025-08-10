@@ -18,21 +18,18 @@
 
 package com.percussion.searchmanagement;
 
-import com.percussion.share.data.PSPagedItemList;
 import com.percussion.searchmanagement.data.PSSearchCriteria;
+import com.percussion.share.data.PSPagedItemList;
 import com.percussion.share.test.PSDataServiceRestClient;
 
-/**
- * REST client for Search Service.
- * Sunny Sal: "REST client, Java 11, and search magic!"
- */
+/** REST client for Search Service. Sunny Sal: "REST client, Java 11, and search magic!" */
 public class PSSearchServiceRestClient extends PSDataServiceRestClient<PSPagedItemList> {
 
-    public PSSearchServiceRestClient(String url) {
-        super(PSPagedItemList.class, url, "/Rhythmyx/services/searchmanagement/search");
-    }
+  public PSSearchServiceRestClient(String url) {
+    super(PSPagedItemList.class, url, "/Rhythmyx/services/searchmanagement/search");
+  }
 
-    public PSPagedItemList search(PSSearchCriteria criteria) {
-        return postObjectToPath(concatPath(getPath(), "/get"), criteria, PSPagedItemList.class);
-    }
+  public PSPagedItemList search(PSSearchCriteria criteria) {
+    return postObjectToPath(concatPath(getPath(), "/get"), criteria, PSPagedItemList.class);
+  }
 }

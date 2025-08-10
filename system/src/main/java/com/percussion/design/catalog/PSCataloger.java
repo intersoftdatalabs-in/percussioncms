@@ -31,25 +31,22 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The PSCataloger class is used for the submission of catalog requests
- * against an E2 server.
- * <p>
- * To use the cataloger, a connection to the E2 server must first be
- * established. Requests can then be made through this object. This is
- * done by passing a set of properties to the <code>catalog</code>
- * method. This method analyzes the request and calls the appropriate
- * PSCatalogHandler extension. See the IPSCatalogHandler interface and
- * the classes implementing it for a list of the supported properties.
- * The catalog handler takes the input properties and creates a request
- * for the E2 server using the appropriate XML format. The server processes
- * the request, and returns the appropriate response in XML format. The
- * catalog handler takes the response and returns a Document object.
- * <p>
- * The mechanism for issuing catalog requests is described in the
- * {@link com.percussion.design.catalog com.percussion.catalog} package
- * description. By using the cataloger, building the requests is not
- * necessary. The following sample shows how to access back-end columns
- * for a particular table.
+ * The PSCataloger class is used for the submission of catalog requests against an E2 server.
+ *
+ * <p>To use the cataloger, a connection to the E2 server must first be established. Requests can
+ * then be made through this object. This is done by passing a set of properties to the <code>
+ * catalog</code> method. This method analyzes the request and calls the appropriate
+ * PSCatalogHandler extension. See the IPSCatalogHandler interface and the classes implementing it
+ * for a list of the supported properties. The catalog handler takes the input properties and
+ * creates a request for the E2 server using the appropriate XML format. The server processes the
+ * request, and returns the appropriate response in XML format. The catalog handler takes the
+ * response and returns a Document object.
+ *
+ * <p>The mechanism for issuing catalog requests is described in the {@link
+ * com.percussion.design.catalog com.percussion.catalog} package description. By using the
+ * cataloger, building the requests is not necessary. The following sample shows how to access
+ * back-end columns for a particular table.
+ *
  * <pre><code>
  *      try {
  *         Properties connProps = new Properties();
@@ -87,7 +84,9 @@ import org.w3c.dom.Document;
  *      }
  *
  * </code></pre>
+ *
  * Which results in the following output:
+ *
  * <pre><code>
  *    Table: mytab
  *    Column
@@ -97,15 +96,13 @@ import org.w3c.dom.Document;
  *    mycol3
  * </code></pre>
  *
- * <P>
- * Sample code for a cataloger implementation can be found
- * <A HREF="../../../../../Testing/Catalog/E2CatalogRequestor.java">here</A>
+ * <p>Sample code for a cataloger implementation can be found <A
+ * HREF="../../../../../Testing/Catalog/E2CatalogRequestor.java">here</A>
  *
- * @see         IPSCatalogHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see IPSCatalogHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCataloger {
   private static final Logger logger = LogManager.getLogger(PSCataloger.class);
@@ -113,8 +110,7 @@ public class PSCataloger {
   /**
    * Creates a cataloger connected to the specified E2 server.
    *
-   * @param      conn                        the connection object for the
-   *                                          desired E2 server
+   * @param conn the connection object for the desired E2 server
    */
   public PSCataloger(PSDesignerConnection conn) {
     super();
@@ -126,10 +122,10 @@ public class PSCataloger {
 
   /**
    * Perform a catalog request against the connected E2 server.
-   * <p>
-   * The request properties must contain two properties which the
-   * cataloger uses to determine which handler must be loaded. These
-   * properties are:
+   *
+   * <p>The request properties must contain two properties which the cataloger uses to determine
+   * which handler must be loaded. These properties are:
+   *
    * <table border="2">
    * <tr><th>Key</th><th>Description</th></tr>
    * <tr><td>RequestCategory</td>
@@ -137,10 +133,12 @@ public class PSCataloger {
    * <tr><td>RequestType</td>
    *      <td>the catalog request type within the category</td></tr>
    * </table>
+   *
    * <em>NOTE:</em> property keys and values are case sensitive
-   * <p>
-   * The <code>{@link com.percussion.design.catalog.data data}</code>
-   * RequestCategory supports the following RequestType values:
+   *
+   * <p>The <code>{@link com.percussion.design.catalog.data data}</code> RequestCategory supports
+   * the following RequestType values:
+   *
    * <table border="2">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>Driver</td>
@@ -188,13 +186,13 @@ public class PSCataloger {
    *         values.
    *      </td></tr>
    * </table>
-   * <p>
-   * The <code>{@link com.percussion.design.catalog.security security}</code>
-   * RequestCategory supports the following RequestType values:
-   *      ???
-   * <p>
-   * The <code>{@link com.percussion.design.catalog.exit exit}</code>
-   * RequestCategory supports the following RequestType values:
+   *
+   * <p>The <code>{@link com.percussion.design.catalog.security security}</code> RequestCategory
+   * supports the following RequestType values: ???
+   *
+   * <p>The <code>{@link com.percussion.design.catalog.exit exit}</code> RequestCategory supports
+   * the following RequestType values:
+   *
    * <table border="2">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>ServerExit</td>
@@ -206,9 +204,10 @@ public class PSCataloger {
    *      global use on the server.
    *      </td></tr>
    * </table>
-   * <p>
-   * The <code>{@link com.percussion.design.catalog.mail mail}</code>
-   * RequestCategory supports the following RequestType values:
+   *
+   * <p>The <code>{@link com.percussion.design.catalog.mail mail}</code> RequestCategory supports
+   * the following RequestType values:
+   *
    * <table border="2">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>MailProvider</td>
@@ -216,9 +215,10 @@ public class PSCataloger {
    *         e-mail messages.
    *      </td></tr>
    * </table>
-   * <p>
-   * The <code>{@link com.percussion.design.catalog.xml xml}</code>
-   * RequestCategory supports the following RequestType values:
+   *
+   * <p>The <code>{@link com.percussion.design.catalog.xml xml}</code> RequestCategory supports the
+   * following RequestType values:
+   *
    * <table border="2">
    * <tr><th>Value</th><th>Description</th></tr>
    * <tr><td>DocType</td>
@@ -228,20 +228,13 @@ public class PSCataloger {
    *      </td></tr>
    * </table>
    *
-   * <p>
-   * If this object is not connected, an attempt will be made to
-   * connect to the server.
+   * <p>If this object is not connected, an attempt will be made to connect to the server.
    *
-   * @param      req                        the request information
-   *
-   * @exception   PSServerException            if the server is not responding
-   *
-   * @exception   PSAuthorizationException    if design access to the server is
-   *                                          denied
-   *
-   * @exception   java.io.IOException         if an I/O error occurs
-   *
-   * @see         IPSCatalogHandler
+   * @param req the request information
+   * @exception PSServerException if the server is not responding
+   * @exception PSAuthorizationException if design access to the server is denied
+   * @exception java.io.IOException if an I/O error occurs
+   * @see IPSCatalogHandler
    */
   public Document catalog(java.util.Properties req)
       throws PSServerException,

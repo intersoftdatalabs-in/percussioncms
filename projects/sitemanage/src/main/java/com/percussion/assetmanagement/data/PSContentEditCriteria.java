@@ -21,11 +21,10 @@ package com.percussion.assetmanagement.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Provides the content creating/editing criteria part of the page or template.
- * When content is created as part of a page or template, it becomes local
- * to the page or template and is treated as local content. If the content type
- * associated to the widget produces a resource (like images, files, etc.),
- * then the content becomes shared automatically. The name of the content is
+ * Provides the content creating/editing criteria part of the page or template. When content is
+ * created as part of a page or template, it becomes local to the page or template and is treated as
+ * local content. If the content type associated to the widget produces a resource (like images,
+ * files, etc.), then the content becomes shared automatically. The name of the content is
  * auto-generated for local content and for shared content it is provided by the user.
  *
  * @author bjoginipally
@@ -34,110 +33,110 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ContentEditCriteria")
 public class PSContentEditCriteria extends PSAssetEditor {
 
-    private boolean producesResource = false;
-    private String contentName = "";
-    /**
-     * The parent folder path that the asset is located. This path does not include the name of the asset itself.
-     */
-    private String folderPath = "";
-    private Boolean createSharedAsset;
-    private Integer preferredEditorHeight = DEFAULT_PREFERRED_EDITOR_HEIGHT;
-    private Integer preferredEditorWidth = DEFAULT_PREFERRED_EDITOR_WIDTH;
+  private boolean producesResource = false;
+  private String contentName = "";
 
-    /**
-     * Gets the folder path that the asset is located. This path does not include the name of the asset itself.
-     *
-     * @return the folder path. It can never be {@code null}, but may be empty for a local asset.
-     */
-    public String getFolderPath() {
-        return folderPath;
-    }
+  /**
+   * The parent folder path that the asset is located. This path does not include the name of the
+   * asset itself.
+   */
+  private String folderPath = "";
 
-    /**
-     * Sets the folder path that the asset is located.
-     *
-     * @param folderPath the folder path, {@code null} value treated as empty.
-     */
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath == null ? "" : folderPath;
-    }
+  private Boolean createSharedAsset;
+  private Integer preferredEditorHeight = DEFAULT_PREFERRED_EDITOR_HEIGHT;
+  private Integer preferredEditorWidth = DEFAULT_PREFERRED_EDITOR_WIDTH;
 
-    /**
-     * The type of the content produced by the editor. The value should be filled
-     * from the content editor's producesResource attribute.
-     *
-     * @return {@code true} if it does.
-     */
-    public boolean getProducesResource() {
-        return producesResource;
-    }
+  /**
+   * Gets the folder path that the asset is located. This path does not include the name of the
+   * asset itself.
+   *
+   * @return the folder path. It can never be {@code null}, but may be empty for a local asset.
+   */
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public void setProducesResource(boolean producesResource) {
-        this.producesResource = producesResource;
-    }
+  /**
+   * Sets the folder path that the asset is located.
+   *
+   * @param folderPath the folder path, {@code null} value treated as empty.
+   */
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath == null ? "" : folderPath;
+  }
 
-    /**
-     * The name of the content that gets created. Should be set to a unique name,
-     * if it is local content otherwise blank.
-     *
-     * @return never {@code null}, maybe blank.
-     */
-    public String getContentName() {
-        return contentName;
-    }
+  /**
+   * The type of the content produced by the editor. The value should be filled from the content
+   * editor's producesResource attribute.
+   *
+   * @return {@code true} if it does.
+   */
+  public boolean getProducesResource() {
+    return producesResource;
+  }
 
-    public void setContentName(String name) {
-        this.contentName = name;
-    }
+  public void setProducesResource(boolean producesResource) {
+    this.producesResource = producesResource;
+  }
 
-    /**
-     * Preferred editor height, this value needs to be set to the widget
-     * definition's preferred height value.
-     *
-     * @return never {@code null}.
-     */
-    public Integer getPreferredEditorHeight() {
-        return preferredEditorHeight;
-    }
+  /**
+   * The name of the content that gets created. Should be set to a unique name, if it is local
+   * content otherwise blank.
+   *
+   * @return never {@code null}, maybe blank.
+   */
+  public String getContentName() {
+    return contentName;
+  }
 
-    public void setPreferredEditorHeight(Integer preferredEditorHeight) {
-        this.preferredEditorHeight = preferredEditorHeight;
-    }
+  public void setContentName(String name) {
+    this.contentName = name;
+  }
 
-    /**
-     * Preferred editor width, this value needs to be set to the widget
-     * definition's preferred width value.
-     *
-     * @return never {@code null}.
-     */
-    public Integer getPreferredEditorWidth() {
-        return preferredEditorWidth;
-    }
+  /**
+   * Preferred editor height, this value needs to be set to the widget definition's preferred height
+   * value.
+   *
+   * @return never {@code null}.
+   */
+  public Integer getPreferredEditorHeight() {
+    return preferredEditorHeight;
+  }
 
-    public void setPreferredEditorWidth(Integer preferredEditorWidth) {
-        this.preferredEditorWidth = preferredEditorWidth;
-    }
+  public void setPreferredEditorHeight(Integer preferredEditorHeight) {
+    this.preferredEditorHeight = preferredEditorHeight;
+  }
 
-    /**
-     * Creates shared asset flag, this value needs to be set in the widget definition.
-     *
-     * @return boolean.
-     */
-    public Boolean getCreateSharedAsset() {
-        return createSharedAsset;
-    }
+  /**
+   * Preferred editor width, this value needs to be set to the widget definition's preferred width
+   * value.
+   *
+   * @return never {@code null}.
+   */
+  public Integer getPreferredEditorWidth() {
+    return preferredEditorWidth;
+  }
 
-    public void setCreateSharedAsset(Boolean createSharedAsset) {
-        this.createSharedAsset = createSharedAsset;
-    }
+  public void setPreferredEditorWidth(Integer preferredEditorWidth) {
+    this.preferredEditorWidth = preferredEditorWidth;
+  }
 
-    /**
-     * Constant for default preferred height for the editor.
-     */
-    public static final int DEFAULT_PREFERRED_EDITOR_HEIGHT = 750;
+  /**
+   * Creates shared asset flag, this value needs to be set in the widget definition.
+   *
+   * @return boolean.
+   */
+  public Boolean getCreateSharedAsset() {
+    return createSharedAsset;
+  }
 
-    /**
-     * Constant for default preferred width for the editor.
-     */
-    public static final int DEFAULT_PREFERRED_EDITOR_WIDTH = 800;
+  public void setCreateSharedAsset(Boolean createSharedAsset) {
+    this.createSharedAsset = createSharedAsset;
+  }
+
+  /** Constant for default preferred height for the editor. */
+  public static final int DEFAULT_PREFERRED_EDITOR_HEIGHT = 750;
+
+  /** Constant for default preferred width for the editor. */
+  public static final int DEFAULT_PREFERRED_EDITOR_WIDTH = 800;
 }

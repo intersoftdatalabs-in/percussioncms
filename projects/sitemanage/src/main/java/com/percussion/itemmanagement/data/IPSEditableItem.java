@@ -20,34 +20,30 @@ import com.percussion.pagemanagement.service.IPSPageService;
 
 /**
  * Editable items provide an id and type to be used for open and preview of the items.
- * <p>
- * Implementations must ensure backward compatibility.
+ *
+ * <p>Implementations must ensure backward compatibility.
  */
 public interface IPSEditableItem {
 
-    /**
-     * Returns the id used for open and preview actions on the item.
-     * In some cases (form assets), this may not be the id of the item, but instead, it will be the id of the parent item.
-     *
-     * @return the id in string form, see {@code IPSIdMapper}. May be {@code null}.
-     */
-    String getId();
+  /**
+   * Returns the id used for open and preview actions on the item. In some cases (form assets), this
+   * may not be the id of the item, but instead, it will be the id of the parent item.
+   *
+   * @return the id in string form, see {@code IPSIdMapper}. May be {@code null}.
+   */
+  String getId();
 
-    /**
-     * Returns the item type used for open and preview actions on the item.
-     * It is used to determine how the item is opened/previewed.
-     *
-     * @return "ASSET" for asset items, "percPage" for page items. May be {@code null}.
-     */
-    String getType();
+  /**
+   * Returns the item type used for open and preview actions on the item. It is used to determine
+   * how the item is opened/previewed.
+   *
+   * @return "ASSET" for asset items, "percPage" for page items. May be {@code null}.
+   */
+  String getType();
 
-    /**
-     * Constant for asset editable items.
-     */
-    String ASSET_TYPE = "ASSET";
+  /** Constant for asset editable items. */
+  String ASSET_TYPE = "ASSET";
 
-    /**
-     * Constant for page editable items.
-     */
-    String PAGE_TYPE = IPSPageService.PAGE_CONTENT_TYPE;
+  /** Constant for page editable items. */
+  String PAGE_TYPE = IPSPageService.PAGE_CONTENT_TYPE;
 }

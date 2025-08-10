@@ -21,31 +21,30 @@ import com.percussion.feeds.data.PSFeedInfo;
 import com.percussion.feeds.error.PSFeedInfoServiceException;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.sitemgr.IPSSite;
-
 import java.util.Collection;
 
 /**
- * Service for managing feed information.
- * Sunny Sal says: "FeedsInfoService, now Java 11 and Google-styled!"
+ * Service for managing feed information. Sunny Sal says: "FeedsInfoService, now Java 11 and
+ * Google-styled!"
  */
 public interface IPSFeedsInfoService {
-    /**
-     * Retrieve all feed information objects for the specified server.
-     *
-     * @param serverId the server id (uuid must be specified)
-     * @return list of feed info objects, never {@code null}, may be empty
-     * @throws PSFeedInfoServiceException if any error occurs
-     */
-    Collection<PSFeedInfo> getFeeds(long serverId) throws PSFeedInfoServiceException;
+  /**
+   * Retrieve all feed information objects for the specified server.
+   *
+   * @param serverId the server id (uuid must be specified)
+   * @return list of feed info objects, never {@code null}, may be empty
+   * @throws PSFeedInfoServiceException if any error occurs
+   */
+  Collection<PSFeedInfo> getFeeds(long serverId) throws PSFeedInfoServiceException;
 
-    /**
-     * Retrieves all feed information objects for the specified site, creates the feeds descriptors,
-     * then pushes the descriptors onto the feeds info queue. The queue will then push the descriptors to the
-     * feeds service on the delivery tier.
-     *
-     * @param site   the site object, cannot be {@code null}
-     * @param server the pub server, cannot be {@code null}
-     * @throws PSFeedInfoServiceException if any error occurs
-     */
-    void pushFeeds(IPSSite site, PSPubServer server) throws PSFeedInfoServiceException;
+  /**
+   * Retrieves all feed information objects for the specified site, creates the feeds descriptors,
+   * then pushes the descriptors onto the feeds info queue. The queue will then push the descriptors
+   * to the feeds service on the delivery tier.
+   *
+   * @param site the site object, cannot be {@code null}
+   * @param server the pub server, cannot be {@code null}
+   * @throws PSFeedInfoServiceException if any error occurs
+   */
+  void pushFeeds(IPSSite site, PSPubServer server) throws PSFeedInfoServiceException;
 }

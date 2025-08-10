@@ -16,14 +16,13 @@
  */
 package com.percussion.tools;
 
-/**
- * Timing statistics for an HTTP request.
- */
+/** Timing statistics for an HTTP request. */
 public class PSHttpRequestTimings implements Cloneable {
   public PSHttpRequestTimings() {}
 
   /**
    * Returns the time before the socket is opened.
+   *
    * @return time in milliseconds since epoch
    */
   public long beforeConnect() {
@@ -32,6 +31,7 @@ public class PSHttpRequestTimings implements Cloneable {
 
   /**
    * Sets the time before the socket is opened.
+   *
    * @param time time in milliseconds since epoch
    */
   public void beforeConnect(long time) {
@@ -41,28 +41,22 @@ public class PSHttpRequestTimings implements Cloneable {
   /**
    * Gets the after connect time.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/10/25
-   *
-   * @return	long The after connect time, in milliseconds elapsed since
-   * midnight, January 1, 1970 UTC.
+   * @return long The after connect time, in milliseconds elapsed since midnight, January 1, 1970
+   *     UTC.
    */
   public long afterConnect() {
     return afterConnectTime;
   }
 
   /**
-   * Sets the after connect time. The after connect time
-   * is the time after the socket has been opened but before any
-   * data has been sent or received.
+   * Sets the after connect time. The after connect time is the time after the socket has been
+   * opened but before any data has been sent or received.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/10/25
-   *
-   * @param	time The after connect time in milliseconds elapsed since
-   * midnight, January 1, 1970 UTC.
+   * @param time The after connect time in milliseconds elapsed since midnight, January 1, 1970 UTC.
    */
   public void afterConnect(long time) {
     afterConnectTime = time;
@@ -121,7 +115,9 @@ public class PSHttpRequestTimings implements Cloneable {
   /** Set after the request has been sent, before any data has been received. */
   private long afterRequestTime = 0L;
 
-  /** Set after all the response headers have been received, before any body data has been received. */
+  /**
+   * Set after all the response headers have been received, before any body data has been received.
+   */
   private long afterHeadersTime = 0L;
 
   /** Set after all of the response content has been read. */

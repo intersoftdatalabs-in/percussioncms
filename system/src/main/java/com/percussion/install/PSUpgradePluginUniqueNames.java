@@ -25,24 +25,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The main purpose of this plugin is to ensure unique string values in the
- * given column of the given table.  It does this by finding duplicate values
- * and modifying all duplicates in the following way:
+ * The main purpose of this plugin is to ensure unique string values in the given column of the
+ * given table. It does this by finding duplicate values and modifying all duplicates in the
+ * following way:
  *
- * Extranet
- * Extranet -> Extranet1
- * Extranet -> Extranet2
+ * <p>Extranet Extranet -> Extranet1 Extranet -> Extranet2
  */
 public class PSUpgradePluginUniqueNames extends PSUpgradePluginModifyColumnBase {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginUniqueNames() {}
 
   /**
    * // REFACTORED: CP-JAVA11
    *
-   * See base class for additional details.
+   * <p>See base class for additional details.
    */
   public boolean modifyColumnValues(
       final Connection conn,

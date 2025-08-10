@@ -19,10 +19,7 @@ package com.percussion.taxonomy.domain;
 
 import java.sql.Timestamp;
 
-/**
- * Value model for taxonomy Value table
- *
- */
+/** Value model for taxonomy Value table */
 public class Value {
 
   private int id;
@@ -36,6 +33,7 @@ public class Value {
 
   /**
    * Returns unique id of Value
+   *
    * @return id - unique int value as id
    */
   public int getId() {
@@ -44,6 +42,7 @@ public class Value {
 
   /**
    * Set unique id of Value
+   *
    * @param id - unique int value as id
    */
   public void setId(int id) {
@@ -52,6 +51,7 @@ public class Value {
 
   /**
    * Returns name of Value
+   *
    * @return name - String name value
    */
   public String getName() {
@@ -60,6 +60,7 @@ public class Value {
 
   /**
    * Set name of Value
+   *
    * @param name - String name of Value
    */
   public void setName(String name) {
@@ -68,6 +69,7 @@ public class Value {
 
   /**
    * Returns node as Node object
+   *
    * @return
    */
   public Node getNode() {
@@ -76,6 +78,7 @@ public class Value {
 
   /**
    * Set node as Node Object
+   *
    * @param node
    */
   public void setNode(Node node) {
@@ -84,6 +87,7 @@ public class Value {
 
   /**
    * Returns attribute of the node
+   *
    * @return attribute - attribute of a node
    */
   public Attribute getAttribute() {
@@ -92,6 +96,7 @@ public class Value {
 
   /**
    * Set attribute of a node
+   *
    * @param attribute -
    */
   public void setAttribute(Attribute attribute) {
@@ -100,6 +105,7 @@ public class Value {
 
   /**
    * Returns Language object
+   *
    * @return lang - Language object
    */
   public Language getLang() {
@@ -108,6 +114,7 @@ public class Value {
 
   /**
    * Set Language object
+   *
    * @param lang
    */
   public void setLang(Language lang) {
@@ -116,6 +123,7 @@ public class Value {
 
   /**
    * Returns created by id
+   *
    * @return created_by_id
    */
   public String getCreated_by_id() {
@@ -124,6 +132,7 @@ public class Value {
 
   /**
    * Set created by id
+   *
    * @param created_by_id - String creted by id
    */
   public void setCreated_by_id(String created_by_id) {
@@ -132,6 +141,7 @@ public class Value {
 
   /**
    * Returns created date and time
+   *
    * @return created_at - created date and time
    */
   public Timestamp getCreated_at() {
@@ -140,6 +150,7 @@ public class Value {
 
   /**
    * Set created date and time
+   *
    * @param created_at - created data and time
    */
   public void setCreated_at(Timestamp created_at) {
@@ -148,6 +159,7 @@ public class Value {
 
   /**
    * Returns percussion item id
+   *
    * @return - int percussion item id
    */
   public int getPercussion_item_id() {
@@ -156,6 +168,7 @@ public class Value {
 
   /**
    * Set percussion item id
+   *
    * @param percussion_item_id - int percussion item id
    */
   public void setPercussion_item_id(int percussion_item_id) {

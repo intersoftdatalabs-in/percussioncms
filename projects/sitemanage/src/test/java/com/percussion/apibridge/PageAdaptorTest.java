@@ -26,189 +26,188 @@ import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pagemanagement.service.IPSWidgetService;
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.rest.errors.BackendException;
-import com.percussion.rest.pages.Page;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
-
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
+import java.net.URI;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-import java.net.URI;
-
 @Tag("IntegrationTest")
 class PageAdaptorTest extends PSServletTestCase {
-    private static final String tempPrefix = "TemplateTest";
-    private static final String FIXTURE_SITE_NAME = "PSSiteDataServletTestCaseFixtureSite";
-    private static final String API_BASE_URL = "http://localhost:9992/Rhythmyx/rest";
-    private URI baseUri;
-    private PSSiteDataServletTestCaseFixture fixture;
+  private static final String tempPrefix = "TemplateTest";
+  private static final String FIXTURE_SITE_NAME = "PSSiteDataServletTestCaseFixtureSite";
+  private static final String API_BASE_URL = "http://localhost:9992/Rhythmyx/rest";
+  private URI baseUri;
+  private PSSiteDataServletTestCaseFixture fixture;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        baseUri = new URI(API_BASE_URL);
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        fixture = new PSSiteDataServletTestCaseFixture(request, response);
-        fixture.setUp("Admin", "demo", "Default");
-        fixture.pageCleaner.add("/" + FIXTURE_SITE_NAME + "/index.html");
-        super.setUp();
-    }
+  @BeforeEach
+  void setUp() throws Exception {
+    baseUri = new URI(API_BASE_URL);
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    fixture = new PSSiteDataServletTestCaseFixture(request, response);
+    fixture.setUp("Admin", "demo", "Default");
+    fixture.pageCleaner.add("/" + FIXTURE_SITE_NAME + "/index.html");
+    super.setUp();
+  }
 
-    @AfterEach
-    void tearDown() throws Exception {
-        fixture.tearDown();
-        fixture.templateCleanUp(tempPrefix);
-    }
+  @AfterEach
+  void tearDown() throws Exception {
+    fixture.tearDown();
+    fixture.templateCleanUp(tempPrefix);
+  }
 
-    @Test
-    void testGetPage() throws Exception {
-        var page = pageAdaptor.getPage(baseUri, FIXTURE_SITE_NAME, "", "index.html");
-        assertNotNull(page.getId());
-    }
+  @Test
+  void testGetPage() throws Exception {
+    var page = pageAdaptor.getPage(baseUri, FIXTURE_SITE_NAME, "", "index.html");
+    assertNotNull(page.getId());
+  }
 
-    @Test
-    void testRenamePage() throws PSDataServiceException, BackendException {
-        var p = pageAdaptor.renamePage(baseUri, FIXTURE_SITE_NAME, "", "index.html", "renamed-index.html");
-        assertEquals("renamed-index.html", p.getName(), "Page should have been renamed.");
-        fixture.pageCleaner.add("/" + FIXTURE_SITE_NAME + "/renamed-index.html");
-    }
+  @Test
+  void testRenamePage() throws PSDataServiceException, BackendException {
+    var p =
+        pageAdaptor.renamePage(baseUri, FIXTURE_SITE_NAME, "", "index.html", "renamed-index.html");
+    assertEquals("renamed-index.html", p.getName(), "Page should have been renamed.");
+    fixture.pageCleaner.add("/" + FIXTURE_SITE_NAME + "/renamed-index.html");
+  }
 
-    public IPSPageService getPageService() {
-        return pageService;
-    }
+  public IPSPageService getPageService() {
+    return pageService;
+  }
 
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-    public IPSTemplateService getTemplateService() {
-        return templateService;
-    }
+  public IPSTemplateService getTemplateService() {
+    return templateService;
+  }
 
-    public void setTemplateService(IPSTemplateService templateService) {
-        this.templateService = templateService;
-    }
+  public void setTemplateService(IPSTemplateService templateService) {
+    this.templateService = templateService;
+  }
 
-    public IPSAssetService getAssetService() {
-        return assetService;
-    }
+  public IPSAssetService getAssetService() {
+    return assetService;
+  }
 
-    public void setAssetService(IPSAssetService assetService) {
-        this.assetService = assetService;
-    }
+  public void setAssetService(IPSAssetService assetService) {
+    this.assetService = assetService;
+  }
 
-    public IPSIdMapper getIdMapper() {
-        return idMapper;
-    }
+  public IPSIdMapper getIdMapper() {
+    return idMapper;
+  }
 
-    public void setIdMapper(IPSIdMapper idMapper) {
-        this.idMapper = idMapper;
-    }
+  public void setIdMapper(IPSIdMapper idMapper) {
+    this.idMapper = idMapper;
+  }
 
-    public IPSSecurityWs getSecurityWs() {
-        return securityWs;
-    }
+  public IPSSecurityWs getSecurityWs() {
+    return securityWs;
+  }
 
-    public void setSecurityWs(IPSSecurityWs securityWs) {
-        this.securityWs = securityWs;
-    }
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
 
-    public IPSSystemWs getSystemWs() {
-        return systemWs;
-    }
+  public IPSSystemWs getSystemWs() {
+    return systemWs;
+  }
 
-    public void setSystemWs(IPSSystemWs systemWs) {
-        this.systemWs = systemWs;
-    }
+  public void setSystemWs(IPSSystemWs systemWs) {
+    this.systemWs = systemWs;
+  }
 
-    public IPSWidgetService getWidgetService() {
-        return widgetService;
-    }
+  public IPSWidgetService getWidgetService() {
+    return widgetService;
+  }
 
-    public void setWidgetService(IPSWidgetService widgetService) {
-        this.widgetService = widgetService;
-    }
+  public void setWidgetService(IPSWidgetService widgetService) {
+    this.widgetService = widgetService;
+  }
 
-    public IPSContentWs getContentWs() {
-        return contentWs;
-    }
+  public IPSContentWs getContentWs() {
+    return contentWs;
+  }
 
-    public void setContentWs(IPSContentWs contentWs) {
-        this.contentWs = contentWs;
-    }
+  public void setContentWs(IPSContentWs contentWs) {
+    this.contentWs = contentWs;
+  }
 
-    public IPSAssetDao getAssetDao() {
-        return assetDao;
-    }
+  public IPSAssetDao getAssetDao() {
+    return assetDao;
+  }
 
-    public void setAssetDao(IPSAssetDao assetDao) {
-        this.assetDao = assetDao;
-    }
+  public void setAssetDao(IPSAssetDao assetDao) {
+    this.assetDao = assetDao;
+  }
 
-    public IPSWidgetAssetRelationshipService getWidgetAssetRelationshipService() {
-        return widgetAssetRelationshipService;
-    }
+  public IPSWidgetAssetRelationshipService getWidgetAssetRelationshipService() {
+    return widgetAssetRelationshipService;
+  }
 
-    public void setWidgetAssetRelationshipServiceao(IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
-        this.widgetAssetRelationshipService = widgetAssetRelationshipService;
-    }
+  public void setWidgetAssetRelationshipServiceao(
+      IPSWidgetAssetRelationshipService widgetAssetRelationshipService) {
+    this.widgetAssetRelationshipService = widgetAssetRelationshipService;
+  }
 
-    public IPSContentDesignWs getContentDesignWs() {
-        return contentDesignWs;
-    }
+  public IPSContentDesignWs getContentDesignWs() {
+    return contentDesignWs;
+  }
 
-    public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
-        this.contentDesignWs = contentDesignWs;
-    }
+  public void setContentDesignWs(IPSContentDesignWs contentDesignWs) {
+    this.contentDesignWs = contentDesignWs;
+  }
 
-    public IPSItemWorkflowService getItemWorkflowService() {
-        return itemWorkflowService;
-    }
+  public IPSItemWorkflowService getItemWorkflowService() {
+    return itemWorkflowService;
+  }
 
-    public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
-        this.itemWorkflowService = itemWorkflowService;
-    }
+  public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService) {
+    this.itemWorkflowService = itemWorkflowService;
+  }
 
-    public IPSCmsObjectMgr getCmsObjectMgr() {
-        return cmsObjectMgr;
-    }
+  public IPSCmsObjectMgr getCmsObjectMgr() {
+    return cmsObjectMgr;
+  }
 
-    public void setCmsObjectMgr(IPSCmsObjectMgr cmsObjectMgr) {
-        this.cmsObjectMgr = cmsObjectMgr;
-    }
+  public void setCmsObjectMgr(IPSCmsObjectMgr cmsObjectMgr) {
+    this.cmsObjectMgr = cmsObjectMgr;
+  }
 
-    public void setFolderHelper(IPSFolderHelper folderHelper) {
-        this.folderHelper = folderHelper;
-    }
+  public void setFolderHelper(IPSFolderHelper folderHelper) {
+    this.folderHelper = folderHelper;
+  }
 
-    public PageAdaptor getPageAdaptor() {
-        return pageAdaptor;
-    }
+  public PageAdaptor getPageAdaptor() {
+    return pageAdaptor;
+  }
 
-    public void setPageAdaptor(PageAdaptor pageAdaptor) {
-        this.pageAdaptor = pageAdaptor;
-    }
+  public void setPageAdaptor(PageAdaptor pageAdaptor) {
+    this.pageAdaptor = pageAdaptor;
+  }
 
-    private IPSPageService pageService;
-    private IPSTemplateService templateService;
-    private IPSAssetService assetService;
-    private IPSIdMapper idMapper;
-    private IPSSecurityWs securityWs;
-    private IPSSystemWs systemWs;
-    private IPSWidgetService widgetService;
-    private IPSContentWs contentWs;
-    private IPSAssetDao assetDao;
-    private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
-    private IPSContentDesignWs contentDesignWs;
-    private IPSItemWorkflowService itemWorkflowService;
-    private IPSCmsObjectMgr cmsObjectMgr;
-    private IPSFolderHelper folderHelper;
-    private PageAdaptor pageAdaptor;
+  private IPSPageService pageService;
+  private IPSTemplateService templateService;
+  private IPSAssetService assetService;
+  private IPSIdMapper idMapper;
+  private IPSSecurityWs securityWs;
+  private IPSSystemWs systemWs;
+  private IPSWidgetService widgetService;
+  private IPSContentWs contentWs;
+  private IPSAssetDao assetDao;
+  private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+  private IPSContentDesignWs contentDesignWs;
+  private IPSItemWorkflowService itemWorkflowService;
+  private IPSCmsObjectMgr cmsObjectMgr;
+  private IPSFolderHelper folderHelper;
+  private PageAdaptor pageAdaptor;
 }

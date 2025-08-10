@@ -28,19 +28,18 @@ import org.w3c.dom.Element;
 
 /**
  * Represents which workflows a content editor's items are allowed to enter.
+ *
  * @see PSContentEditor
  */
 public class PSWorkflowInfo extends PSComponent {
 
   /**
-   * Initializes a newly created <code>PSWorkflowInfo</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSWorkflowInfo</code> object, from an XML representation. See
+   * {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSWorkflowInfo(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null");
@@ -48,12 +47,11 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Initializes a newly created <code>PSWorkflowInfo</code> object of the
-   * specified type and with the specified workflow ids.
+   * Initializes a newly created <code>PSWorkflowInfo</code> object of the specified type and with
+   * the specified workflow ids.
    *
    * @param type either {@link #TYPE_EXCLUSIONARY} or {@link #TYPE_INCLUSIONARY}
-   * @param values List of workflow ids that will be allowed or disallowed
-   * (depending on the type).
+   * @param values List of workflow ids that will be allowed or disallowed (depending on the type).
    */
   public PSWorkflowInfo(String type, List values) {
     setType(type);
@@ -61,16 +59,14 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -86,10 +82,9 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object. An element node may contain a
-   * hierarchical structure, including child objects. The element node can
-   * also be a child of another element node.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object. An element node may contain a hierarchical structure, including child objects. The
+   * element node can also be a child of another element node.
    *
    * <pre><code>
    * &lt;!ELEMENT PSXWorkflowInfo EMPTY>
@@ -99,9 +94,9 @@ public class PSWorkflowInfo extends PSComponent {
    * >
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   *    elements.  Cannot be <code>null</code>.
-   * @return    the newly created XML element node
+   * @param doc The XML document being constructed, needed to create new elements. Cannot be <code>
+   *     null</code>.
+   * @return the newly created XML element node
    */
   public Element toXml(Document doc) {
     if (null == doc) throw new IllegalArgumentException("Must provide a valid Document");
@@ -114,9 +109,8 @@ public class PSWorkflowInfo extends PSComponent {
   /**
    * Converts the values field from a List to a comma-delimited String.
    *
-   * @return String containing each workflow id from the values field,
-   * separated by commas.  Never <code>null</code>, but empty if values is
-   * empty.
+   * @return String containing each workflow id from the values field, separated by commas. Never
+   *     <code>null</code>, but empty if values is empty.
    */
   private String getValuesAsCSV() {
     StringBuilder values = new StringBuilder();
@@ -129,13 +123,11 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Converts a comma-delimited String of workflow ids to a List and sets it
-   * to the values field.
+   * Converts a comma-delimited String of workflow ids to a List and sets it to the values field.
    *
-   * @param valuesString comma-delimited integers, each representing a
-   * workflow id.
-   * @throws NumberFormatException if <code>valuesString</code> contains
-   * a token that is not a parseable Integer.
+   * @param valuesString comma-delimited integers, each representing a workflow id.
+   * @throws NumberFormatException if <code>valuesString</code> contains a token that is not a
+   *     parseable Integer.
    */
   private void setValuesAsCSV(String valuesString) {
     if (null == valuesString) throw new IllegalArgumentException("values cannot be null");
@@ -149,8 +141,7 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
    * @param c a valid PSWorkflowInfo. Cannot be <code>null</code>.
    */
@@ -190,11 +181,10 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Convenience method to determine whether this workflow is exclusionary or
-   * inclusionary.
+   * Convenience method to determine whether this workflow is exclusionary or inclusionary.
    *
-   * @return <code>true</code> if this is of type exclusionary,
-   *    <code>false</code> if it is inclusionary.
+   * @return <code>true</code> if this is of type exclusionary, <code>false</code> if it is
+   *     inclusionary.
    */
   public boolean isExclusionary() {
     if (m_valueAccessor != null) return m_valueAccessor.isExclusionary();
@@ -212,9 +202,8 @@ public class PSWorkflowInfo extends PSComponent {
   /**
    * Get the workflow ids as a list
    *
-   * @return a {@link List} of workflow ids as {@link Integer}s. Ownership of
-   * the list remains with this class. Therefore, any changes made to the list
-   * will affect this class.
+   * @return a {@link List} of workflow ids as {@link Integer}s. Ownership of the list remains with
+   *     this class. Therefore, any changes made to the list will affect this class.
    */
   public List getWorkflowIds() {
     return getValueList();
@@ -232,16 +221,14 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Sets the workflow ids that are permitted or disallowed (based on the type)
-   * for content items created by the content editor which owns this workflow
-   * info.
+   * Sets the workflow ids that are permitted or disallowed (based on the type) for content items
+   * created by the content editor which owns this workflow info.
    *
-   * @param values a (possibly empty) List of Integers that represent valid
-   * workflow ids or a List of PSWorkflows.  PSWorkflow objects will be
-   * converted to Integers based on their database id.
-   * <p>
-   * The specified List is copied before assignment, so changes to the List
-   * will not affect this Object.
+   * @param values a (possibly empty) List of Integers that represent valid workflow ids or a List
+   *     of PSWorkflows. PSWorkflow objects will be converted to Integers based on their database
+   *     id.
+   *     <p>The specified List is copied before assignment, so changes to the List will not affect
+   *     this Object.
    */
   public void setValues(List values) {
     if (null == values) throw new IllegalArgumentException("values cannot be null");
@@ -273,8 +260,8 @@ public class PSWorkflowInfo extends PSComponent {
   /**
    * Sets the type of this workflow info.
    *
-   * @param type either {@link #TYPE_EXCLUSIONARY} or {@link #TYPE_INCLUSIONARY},
-   * never <code>null</code>.
+   * @param type either {@link #TYPE_EXCLUSIONARY} or {@link #TYPE_INCLUSIONARY}, never <code>null
+   *     </code>.
    */
   public void setType(String type) {
     if (null == type) throw new IllegalArgumentException("type cannot be null");
@@ -286,8 +273,8 @@ public class PSWorkflowInfo extends PSComponent {
   }
 
   /**
-   * Set a value accessor to use to obtain workflow IDs dynamically instead of
-   * using data stored in this object.
+   * Set a value accessor to use to obtain workflow IDs dynamically instead of using data stored in
+   * this object.
    *
    * @param valueAccessor The accessor to use, may not be <code>null</code>.
    */
@@ -296,49 +283,40 @@ public class PSWorkflowInfo extends PSComponent {
     m_valueAccessor = valueAccessor;
   }
 
-  /**
-   * Name of root XML element
-   */
+  /** Name of root XML element */
   public static final String XML_NODE_NAME = "PSXWorkflowInfo";
 
   // names of child XML elements
   private static final String XML_TYPE = "type";
   private static final String XML_VALUES = "values";
 
-  /**
-   * Indicates a workflow info describes a list of permitted workflows
-   */
+  /** Indicates a workflow info describes a list of permitted workflows */
   public static final String TYPE_INCLUSIONARY = "inclusionary";
 
-  /**
-   * Indicates a workflow info describes a list of forbidden workflows
-   */
+  /** Indicates a workflow info describes a list of forbidden workflows */
   public static final String TYPE_EXCLUSIONARY = "exclusionary";
 
   /**
-   * The type of workflow info controls whether the workflows
-   * listed as values of this workflow info should be considered an inclusive
-   * list (content produced by this content editor must enter one of these
-   * workflows) or any exclusive list (content can enter any workflow except
-   * these)
-   * <p>
-   * Set in the constructor and always one of {@link #TYPE_EXCLUSIONARY} or
-   * {@link #TYPE_INCLUSIONARY}
+   * The type of workflow info controls whether the workflows listed as values of this workflow info
+   * should be considered an inclusive list (content produced by this content editor must enter one
+   * of these workflows) or any exclusive list (content can enter any workflow except these)
+   *
+   * <p>Set in the constructor and always one of {@link #TYPE_EXCLUSIONARY} or {@link
+   * #TYPE_INCLUSIONARY}
    */
   private String m_type;
 
   /**
-   * Contains the workflow ids (as Integers) that will be allowed or
-   * disallowed (based on the setting of type).
-   * <p>
-   * Set in the constructor and never <code>null</code>.
+   * Contains the workflow ids (as Integers) that will be allowed or disallowed (based on the
+   * setting of type).
+   *
+   * <p>Set in the constructor and never <code>null</code>.
    */
   private List<Integer> m_values;
 
   /**
-   * Used to obtain workflow IDs dynamically instead of using data stored in
-   * this object, may be <code>null</code> if one has not been set, in which
-   * case stored values are used.
+   * Used to obtain workflow IDs dynamically instead of using data stored in this object, may be
+   * <code>null</code> if one has not been set, in which case stored values are used.
    */
   private IPSWorkflowInfoValueAccessor m_valueAccessor;
 

@@ -37,8 +37,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Java post-exit used to expand recurring events into a format consumable by
- * auto indexes and Mitre's Rhythmyx calendaring system.
+ * Java post-exit used to expand recurring events into a format consumable by auto indexes and
+ * Mitre's Rhythmyx calendaring system.
  *
  * @author James Schultz
  */
@@ -57,13 +57,11 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
   }
 
   /**
-   * Parses the required parameters. Expects the parameter object (array) to
-   * contain two memebrs. The first one is treated as the calendar start date
-   * string and the second one as the calendar end date string. Both will be
-   * parsed as Date objects and return as a new object array.
+   * Parses the required parameters. Expects the parameter object (array) to contain two memebrs.
+   * The first one is treated as the calendar start date string and the second one as the calendar
+   * end date string. Both will be parsed as Date objects and return as a new object array.
    *
-   * @param params parameter array as explained above, must not be
-   *           <code>null</code> or empty.
+   * @param params parameter array as explained above, must not be <code>null</code> or empty.
    * @return @throws PSParameterMismatchException
    * @throws PSParameterMismatchException
    * @throws PSExtensionProcessingException
@@ -115,20 +113,21 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
 
   /**
    * Implementation of the interface method.
+   *
    * @param params parameters for the exit, consisting of:
-   *           <ol>
-   *           <li><b>calendarStart </b>: The start datetime of the calendar
-   *           being generated. No recurring event instances before this
-   *           datetime will be returned. This parameter is required.
-   *           <li><b>calendarEnd </b>: The end datetime of the calendar being
-   *           generated. No recurring event instances on or after this
-   *           datetime will be returned. This parameter is required.
-   *           </ol>
+   *     <ol>
+   *       <li><b>calendarStart </b>: The start datetime of the calendar being generated. No
+   *           recurring event instances before this datetime will be returned. This parameter is
+   *           required.
+   *       <li><b>calendarEnd </b>: The end datetime of the calendar being generated. No recurring
+   *           event instances on or after this datetime will be returned. This parameter is
+   *           required.
+   *     </ol>
+   *
    * @param request the current request context, never <code>null</code>.
    * @param resultDoc
-   * @return @throws com.percussion.extension.PSParameterMismatchException if
-   *         either required parameter is not supplied, or cannot be parsed as
-   *         a Date.
+   * @return @throws com.percussion.extension.PSParameterMismatchException if either required
+   *     parameter is not supplied, or cannot be parsed as a Date.
    * @throws PSParameterMismatchException
    * @throws com.percussion.extension.PSExtensionProcessingException
    */
@@ -233,32 +232,24 @@ public class PSExpandRecurringEvents extends PSDefaultExtension
   }
 
   /**
-   * Loads the collection of calendar holidays. Recurring events should never
-   * occur on a holiday.
-   * <p>
-   * This method is protected so it can be overridden by the test framework, to
-   * allow testing the rest of the class without a running Rhythmyx server.
+   * Loads the collection of calendar holidays. Recurring events should never occur on a holiday.
+   *
+   * <p>This method is protected so it can be overridden by the test framework, to allow testing the
+   * rest of the class without a running Rhythmyx server.
    *
    * @param request
-   * @return a newly constructed <code>Holidays</code> object, never
-   *         <code>null</code>
+   * @return a newly constructed <code>Holidays</code> object, never <code>null</code>
    */
   protected PSHolidays loadHolidays(IPSRequestContext request) {
     return new PSHolidays(request);
   }
 
-  /**
-   * String constant for the attribute "year".
-   */
+  /** String constant for the attribute "year". */
   private static final String YEAR_ATTR = "year";
 
-  /**
-   * String constant for the attribute "month".
-   */
+  /** String constant for the attribute "month". */
   private static final String MONTH_ATTR = "month";
 
-  /**
-   * String constant for the attribute "day".
-   */
+  /** String constant for the attribute "day". */
   private static final String DAY_ATTR = "day";
 }

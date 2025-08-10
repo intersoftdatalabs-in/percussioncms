@@ -32,13 +32,10 @@ import org.xml.sax.SAXException;
 
 /**
  * @author JaySeletz
- *
  */
 public abstract class PSBaseControlManager {
 
-  /**
-   *
-   */
+  /** */
   public PSBaseControlManager() {
     super();
   }
@@ -48,9 +45,8 @@ public abstract class PSBaseControlManager {
    *
    * @param ctrlFile The control file, assumed not <code>null</code>.
    * @param name The control name, assumed not <code>null</code>.
-   *
-   * @return The specified control as a {@link PSControlMeta} object.  Returns
-   * <code>null</code> if the control was not found.
+   * @return The specified control as a {@link PSControlMeta} object. Returns <code>null</code> if
+   *     the control was not found.
    */
   protected PSControlMeta getControl(File ctrlFile, String name) {
     PSControlMeta ctrl = null;
@@ -70,9 +66,8 @@ public abstract class PSBaseControlManager {
    * Gets controls from the specified file.
    *
    * @param ctrlFile The control file, assumed not <code>null</code>.
-   *
-   * @return List of controls as {@link PSControlMeta} objects.  Never
-   * <code>null</code>, may be empty.
+   * @return List of controls as {@link PSControlMeta} objects. Never <code>null</code>, may be
+   *     empty.
    */
   protected List<PSControlMeta> getControls(File ctrlFile) {
     List<PSControlMeta> ctrls = new ArrayList<>();
@@ -95,6 +90,7 @@ public abstract class PSBaseControlManager {
 
   /**
    * Get the subsystem to use for logging errors.
+   *
    * @return
    */
   protected abstract String getSubSystem();
@@ -102,8 +98,7 @@ public abstract class PSBaseControlManager {
   /**
    * Gets the set of current control files.
    *
-   * @return The set of current  control files as a list.  Never
-   * <code>null</code>, may be empty.
+   * @return The set of current control files as a list. Never <code>null</code>, may be empty.
    */
   public abstract List<File> getControlFiles();
 
@@ -111,9 +106,8 @@ public abstract class PSBaseControlManager {
    * Gets the custom control object corresponding to the specified name.
    *
    * @param name The control name, may not be blank.
-   *
-   * @return The {@link PSControlMeta} object with the specified name or
-   * <code>null</code> if the control does not exist.
+   * @return The {@link PSControlMeta} object with the specified name or <code>null</code> if the
+   *     control does not exist.
    */
   public PSControlMeta getControl(String name) {
     if (StringUtils.isBlank(name)) {
@@ -136,8 +130,7 @@ public abstract class PSBaseControlManager {
   /**
    * Gets all custom controls.
    *
-   * @return List of all custom controls.  Never <code>null</code>, may be
-   * empty.
+   * @return List of all custom controls. Never <code>null</code>, may be empty.
    */
   public List<PSControlMeta> getAllControls() {
     List<PSControlMeta> controls = new ArrayList<>();

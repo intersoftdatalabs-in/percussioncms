@@ -20,371 +20,356 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.service.exception.PSDataServiceException;
-
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import javax.xml.bind.annotation.*;
 
 /**
- * A {@link PSResourceDefinitionGroup} is a grouping of {@link PSResourceDefinition}s.
- * The grouping is stored in an XML file where {@link #getId()} is the name of the XML file minus the extension.
+ * A {@link PSResourceDefinitionGroup} is a grouping of {@link PSResourceDefinition}s. The grouping
+ * is stored in an XML file where {@link #getId()} is the name of the XML file minus the extension.
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "Resources")
 @JsonRootName("Resources")
 public class PSResourceDefinitionGroup extends PSAbstractPersistantObject {
 
+  private String id;
+  private List<PSFileResource> fileResources;
+  private List<PSFolderResource> folderResources;
+  private List<PSAssetResource> assetResources;
+
+  @XmlElement(name = "folder")
+  public List<PSFolderResource> getFolderResources() {
+    return folderResources;
+  }
+
+  public void setFolderResources(List<PSFolderResource> folderResources) {
+    this.folderResources = folderResources;
+  }
+
+  @XmlElement(name = "asset")
+  public List<PSAssetResource> getAssetResources() {
+    return assetResources;
+  }
+
+  public void setAssetResources(List<PSAssetResource> assetResources) {
+    this.assetResources = assetResources;
+  }
+
+  @XmlElement(name = "file")
+  public List<PSFileResource> getFileResources() {
+    return fileResources;
+  }
+
+  public void setFileResources(List<PSFileResource> fileResources) {
+    this.fileResources = fileResources;
+  }
+
+  @Override
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public static class PSResourceDependency {
+
+    private String dependeeId;
+
+    @XmlAttribute(name = "refid")
+    public String getDependeeId() {
+      return dependeeId;
+    }
+
+    public void setDependeeId(String dependeeId) {
+      this.dependeeId = dependeeId;
+    }
+
+    @Override
+    public String toString() {
+      return "PSResourceDependency{" + "dependeeId='" + dependeeId + '\'' + '}';
+    }
+  }
+
+  /**
+   * Base class for resource definitions. {@link #getUniqueId()} is the combination of the
+   * resource's local {@link #getId()} and the {@link PSResourceDefinitionGroup} group id.
+   */
+  public abstract static class PSResourceDefinition {
+
     private String id;
-    private List<PSFileResource> fileResources;
-    private List<PSFolderResource> folderResources;
-    private List<PSAssetResource> assetResources;
+    private String groupId;
+    private String uniqueId;
+    private List<PSResourceDependency> dependencies = new ArrayList<>();
 
-    @XmlElement(name = "folder")
-    public List<PSFolderResource> getFolderResources() {
-        return folderResources;
+    @XmlElement(name = "dependency")
+    public List<PSResourceDependency> getDependencies() {
+      return dependencies;
     }
 
-    public void setFolderResources(List<PSFolderResource> folderResources) {
-        this.folderResources = folderResources;
+    public void setDependencies(List<PSResourceDependency> dependencies) {
+      this.dependencies = dependencies;
     }
 
-    @XmlElement(name = "asset")
-    public List<PSAssetResource> getAssetResources() {
-        return assetResources;
+    @XmlTransient
+    public abstract PSResourceDefinitionType getResourceType();
+
+    @XmlTransient
+    public String getGroupId() {
+      return groupId;
     }
 
-    public void setAssetResources(List<PSAssetResource> assetResources) {
-        this.assetResources = assetResources;
+    public void setGroupId(String groupId) {
+      this.groupId = groupId;
     }
 
-    @XmlElement(name = "file")
-    public List<PSFileResource> getFileResources() {
-        return fileResources;
+    @XmlTransient
+    public String getUniqueId() {
+      return uniqueId;
     }
 
-    public void setFileResources(List<PSFileResource> fileResources) {
-        this.fileResources = fileResources;
+    public void setUniqueId(String uniqueId) {
+      this.uniqueId = uniqueId;
     }
 
-    @Override
+    @XmlAttribute(name = "id", required = true)
     public String getId() {
-        return id;
+      return id;
+    }
+
+    public void setId(String id) {
+      this.id = id;
+    }
+
+    /**
+     * Visitor pattern
+     *
+     * @param visitor never {@code null}.
+     */
+    public abstract void accept(IPSResourceDefinitionVisitor visitor) throws PSDataServiceException;
+  }
+
+  public enum PSResourceDefinitionType {
+    ASSET,
+    FILE,
+    FOLDER,
+    CSS,
+    JAVASCRIPT,
+    THEME
+  }
+
+  /** A file resource is a file that needs to be copied to the site. */
+  public static class PSFileResource extends PSResourceDefinition {
+
+    private String file;
+    private PSFileResourceType type;
+    private PSFileResourceContext context;
+    private PSFileResourcePlacement placement;
+
+    @Override
+    public PSResourceDefinitionType getResourceType() {
+      return PSResourceDefinitionType.FILE;
+    }
+
+    @XmlAttribute(name = "path", required = true)
+    public String getFile() {
+      return file;
+    }
+
+    public void setFile(String file) {
+      this.file = file;
+    }
+
+    @XmlAttribute(required = false)
+    public PSFileResourceType getType() {
+      return type;
+    }
+
+    public void setType(PSFileResourceType type) {
+      this.type = type;
+    }
+
+    @XmlAttribute(required = false)
+    public PSFileResourceContext getContext() {
+      return context;
+    }
+
+    @XmlAttribute(required = false)
+    public PSFileResourcePlacement getPlacement() {
+      return placement;
+    }
+
+    public void setPlacement(PSFileResourcePlacement placement) {
+      this.placement = placement;
+    }
+
+    public void setContext(PSFileResourceContext context) {
+      this.context = context;
+    }
+
+    public enum PSFileResourceType {
+      css,
+      javascript
+    }
+
+    public enum PSFileResourceContext {
+      PUBLISH,
+      PREVIEW
+    }
+
+    public enum PSFileResourcePlacement {
+      head,
+      body_begin,
+      body_end
     }
 
     @Override
-    public void setId(String id) {
-        this.id = id;
+    public void accept(IPSResourceDefinitionVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
+
+  /** A folder resource is a static folder that needs to be copied onto the published site. */
+  public static class PSFolderResource extends PSResourceDefinition {
+
+    private String path;
+
+    @Override
+    public PSResourceDefinitionType getResourceType() {
+      return PSResourceDefinitionType.FOLDER;
     }
 
-    public static class PSResourceDependency {
-
-        private String dependeeId;
-
-        @XmlAttribute(name = "refid")
-        public String getDependeeId() {
-            return dependeeId;
-        }
-
-        public void setDependeeId(String dependeeId) {
-            this.dependeeId = dependeeId;
-        }
-
-        @Override
-        public String toString() {
-            return "PSResourceDependency{" +
-                    "dependeeId='" + dependeeId + '\'' +
-                    '}';
-        }
+    @XmlAttribute(required = true)
+    public String getPath() {
+      return path;
     }
 
-    /**
-     * Base class for resource definitions.
-     * {@link #getUniqueId()} is the combination of the resource's local {@link #getId()} and the {@link PSResourceDefinitionGroup} group id.
-     */
-    public static abstract class PSResourceDefinition {
-
-        private String id;
-        private String groupId;
-        private String uniqueId;
-        private List<PSResourceDependency> dependencies = new ArrayList<>();
-
-        @XmlElement(name = "dependency")
-        public List<PSResourceDependency> getDependencies() {
-            return dependencies;
-        }
-
-        public void setDependencies(List<PSResourceDependency> dependencies) {
-            this.dependencies = dependencies;
-        }
-
-        @XmlTransient
-        public abstract PSResourceDefinitionType getResourceType();
-
-        @XmlTransient
-        public String getGroupId() {
-            return groupId;
-        }
-
-        public void setGroupId(String groupId) {
-            this.groupId = groupId;
-        }
-
-        @XmlTransient
-        public String getUniqueId() {
-            return uniqueId;
-        }
-
-        public void setUniqueId(String uniqueId) {
-            this.uniqueId = uniqueId;
-        }
-
-        @XmlAttribute(name = "id", required = true)
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        /**
-         * Visitor pattern
-         * @param visitor never {@code null}.
-         */
-        public abstract void accept(IPSResourceDefinitionVisitor visitor) throws PSDataServiceException;
+    public void setPath(String path) {
+      this.path = path;
     }
 
-    public enum PSResourceDefinitionType {
-        ASSET,
-        FILE,
-        FOLDER,
-        CSS,
-        JAVASCRIPT,
-        THEME
+    @Override
+    public void accept(IPSResourceDefinitionVisitor visitor) {
+      visitor.visit(this);
+    }
+  }
+
+  /** An asset resource definition defines how the asset should be published. */
+  @XmlAccessorType(XmlAccessType.PROPERTY)
+  @XmlType(
+      name = "",
+      propOrder = {"linkAndLocationsScript", "modelScript", "viewScript"})
+  public static class PSAssetResource extends PSResourceDefinition {
+
+    private String contentType;
+    private String legacyTemplate;
+    private boolean primary = false;
+    private PSLinkAndLocationsScript linkAndLocationsScript;
+    private PSModelScript modelScript;
+    private PSViewScriptBlock viewScript;
+
+    @Override
+    public PSResourceDefinitionType getResourceType() {
+      return PSResourceDefinitionType.ASSET;
     }
 
-    /**
-     * A file resource is a file that needs to be copied to the site.
-     */
-    public static class PSFileResource extends PSResourceDefinition {
-
-        private String file;
-        private PSFileResourceType type;
-        private PSFileResourceContext context;
-        private PSFileResourcePlacement placement;
-
-        @Override
-        public PSResourceDefinitionType getResourceType() {
-            return PSResourceDefinitionType.FILE;
-        }
-
-        @XmlAttribute(name = "path", required = true)
-        public String getFile() {
-            return file;
-        }
-
-        public void setFile(String file) {
-            this.file = file;
-        }
-
-        @XmlAttribute(required = false)
-        public PSFileResourceType getType() {
-            return type;
-        }
-
-        public void setType(PSFileResourceType type) {
-            this.type = type;
-        }
-
-        @XmlAttribute(required = false)
-        public PSFileResourceContext getContext() {
-            return context;
-        }
-
-        @XmlAttribute(required = false)
-        public PSFileResourcePlacement getPlacement() {
-            return placement;
-        }
-
-        public void setPlacement(PSFileResourcePlacement placement) {
-            this.placement = placement;
-        }
-
-        public void setContext(PSFileResourceContext context) {
-            this.context = context;
-        }
-
-        public enum PSFileResourceType {
-            css, javascript
-        }
-
-        public enum PSFileResourceContext {
-            PUBLISH, PREVIEW
-        }
-
-        public enum PSFileResourcePlacement {
-            head, body_begin, body_end
-        }
-
-        @Override
-        public void accept(IPSResourceDefinitionVisitor visitor) {
-            visitor.visit(this);
-        }
+    @XmlAttribute(required = true)
+    public String getContentType() {
+      return contentType;
     }
 
-    /**
-     * A folder resource is a static folder that needs to be copied onto the published site.
-     */
-    public static class PSFolderResource extends PSResourceDefinition {
-
-        private String path;
-
-        @Override
-        public PSResourceDefinitionType getResourceType() {
-            return PSResourceDefinitionType.FOLDER;
-        }
-
-        @XmlAttribute(required = true)
-        public String getPath() {
-            return path;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        @Override
-        public void accept(IPSResourceDefinitionVisitor visitor) {
-            visitor.visit(this);
-        }
+    public void setContentType(String contentType) {
+      this.contentType = contentType;
     }
 
-    /**
-     * An asset resource definition defines how the asset should be published.
-     */
-    @XmlAccessorType(XmlAccessType.PROPERTY)
-    @XmlType(name = "", propOrder = {
-            "linkAndLocationsScript",
-            "modelScript",
-            "viewScript"
-    })
-    public static class PSAssetResource extends PSResourceDefinition {
-
-        private String contentType;
-        private String legacyTemplate;
-        private boolean primary = false;
-        private PSLinkAndLocationsScript linkAndLocationsScript;
-        private PSModelScript modelScript;
-        private PSViewScriptBlock viewScript;
-
-        @Override
-        public PSResourceDefinitionType getResourceType() {
-            return PSResourceDefinitionType.ASSET;
-        }
-
-        @XmlAttribute(required = true)
-        public String getContentType() {
-            return contentType;
-        }
-
-        public void setContentType(String contentType) {
-            this.contentType = contentType;
-        }
-
-        @XmlAttribute
-        public boolean isPrimary() {
-            return primary;
-        }
-
-        public void setPrimary(boolean primary) {
-            this.primary = primary;
-        }
-
-        @XmlAttribute
-        public String getLegacyTemplate() {
-            return legacyTemplate;
-        }
-
-        public void setLegacyTemplate(String legacyTemplate) {
-            this.legacyTemplate = legacyTemplate;
-        }
-
-        @XmlElement(name = "linkAndLocations")
-        public PSLinkAndLocationsScript getLinkAndLocationsScript() {
-            return linkAndLocationsScript;
-        }
-
-        public void setLinkAndLocationsScript(PSLinkAndLocationsScript linkAndLocations) {
-            this.linkAndLocationsScript = linkAndLocations;
-        }
-
-        @XmlElement(name = "model")
-        public PSModelScript getModelScript() {
-            return modelScript;
-        }
-
-        public void setModelScript(PSModelScript code) {
-            this.modelScript = code;
-        }
-
-        @XmlElement(name = "view")
-        public PSViewScriptBlock getViewScript() {
-            return viewScript;
-        }
-
-        public void setViewScript(PSViewScriptBlock content) {
-            this.viewScript = content;
-        }
-
-        @Override
-        public void accept(IPSResourceDefinitionVisitor visitor) throws PSDataServiceException {
-            visitor.visit(this);
-        }
+    @XmlAttribute
+    public boolean isPrimary() {
+      return primary;
     }
 
-    /**
-     * A code block, usually JEXL. This is executed before the template code.
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "PSAbstractScript", propOrder = {
-            "value"
-    })
-    public static abstract class PSAbstractScript {
-        @XmlValue
-        protected String value;
-
-        @XmlAttribute
-        protected String type;
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
+    public void setPrimary(boolean primary) {
+      this.primary = primary;
     }
 
-    public static class PSModelScript extends PSAbstractScript {
+    @XmlAttribute
+    public String getLegacyTemplate() {
+      return legacyTemplate;
     }
 
-    public static class PSLinkAndLocationsScript extends PSAbstractScript {
+    public void setLegacyTemplate(String legacyTemplate) {
+      this.legacyTemplate = legacyTemplate;
     }
 
-    /**
-     * A template code block, usually Velocity.
-     */
-    public static class PSViewScriptBlock extends PSAbstractScript {
+    @XmlElement(name = "linkAndLocations")
+    public PSLinkAndLocationsScript getLinkAndLocationsScript() {
+      return linkAndLocationsScript;
     }
 
-    private static final long serialVersionUID = 3594335939747382278L;
+    public void setLinkAndLocationsScript(PSLinkAndLocationsScript linkAndLocations) {
+      this.linkAndLocationsScript = linkAndLocations;
+    }
+
+    @XmlElement(name = "model")
+    public PSModelScript getModelScript() {
+      return modelScript;
+    }
+
+    public void setModelScript(PSModelScript code) {
+      this.modelScript = code;
+    }
+
+    @XmlElement(name = "view")
+    public PSViewScriptBlock getViewScript() {
+      return viewScript;
+    }
+
+    public void setViewScript(PSViewScriptBlock content) {
+      this.viewScript = content;
+    }
+
+    @Override
+    public void accept(IPSResourceDefinitionVisitor visitor) throws PSDataServiceException {
+      visitor.visit(this);
+    }
+  }
+
+  /** A code block, usually JEXL. This is executed before the template code. */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(
+      name = "PSAbstractScript",
+      propOrder = {"value"})
+  public abstract static class PSAbstractScript {
+    @XmlValue protected String value;
+
+    @XmlAttribute protected String type;
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    public void setType(String type) {
+      this.type = type;
+    }
+  }
+
+  public static class PSModelScript extends PSAbstractScript {}
+
+  public static class PSLinkAndLocationsScript extends PSAbstractScript {}
+
+  /** A template code block, usually Velocity. */
+  public static class PSViewScriptBlock extends PSAbstractScript {}
+
+  private static final long serialVersionUID = 3594335939747382278L;
 }

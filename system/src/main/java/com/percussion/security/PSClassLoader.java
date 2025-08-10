@@ -18,17 +18,15 @@
 package com.percussion.security;
 
 /**
- * The PSClassLoader class lets the sandbox allow class loading for data transformation
- * through the creation and calling of user defined functions (UDFs).
+ * The PSClassLoader class lets the sandbox allow class loading for data transformation through the
+ * creation and calling of user defined functions (UDFs).
  *
- * @author      Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSClassLoader extends ClassLoader {
-  /**
-   * Construct a PSClassLoader object.
-   */
+  /** Construct a PSClassLoader object. */
   PSClassLoader() {
     super();
   }

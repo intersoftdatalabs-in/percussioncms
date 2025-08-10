@@ -23,20 +23,16 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSSqlDeleteBuilder class is used to build SQL SELECT statements.
- * It can be used to generate single table SELECTs or homogeneous
- * (same DBMS) joined SELECTs. The query optimizer is capable of building
- * heterogeneous (cross DBMS) SELECTs. It calls this class to build
- * each statement and also makes use of the PSQueryJoiner class to join
- * the returned data.
+ * The PSSqlDeleteBuilder class is used to build SQL SELECT statements. It can be used to generate
+ * single table SELECTs or homogeneous (same DBMS) joined SELECTs. The query optimizer is capable of
+ * building heterogeneous (cross DBMS) SELECTs. It calls this class to build each statement and also
+ * makes use of the PSQueryJoiner class to join the returned data.
  *
- * @see         PSQueryOptimizer
- * @see         PSQueryJoiner
+ * @see PSQueryOptimizer
+ * @see PSQueryJoiner
  */
 public class PSSqlDeleteBuilder extends PSSqlUpdateBuilder {
-  /**
-   * Construct a SQL builder to build a DELETE statement.
-   */
+  /** Construct a SQL builder to build a DELETE statement. */
   PSSqlDeleteBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super(table);
   }
@@ -44,15 +40,13 @@ public class PSSqlDeleteBuilder extends PSSqlUpdateBuilder {
   /**
    * Generate the statement using the specified connection keys.
    *
-   * @param logins a list of logins, one per connection index in the values
-   * contained within <code>connKeys</code>, must never be <code>null</code>
-   *
-   * @param connKeys a ConcurrentHashMap that associates opaque keys representing
-   * a specific database and server, and indecies into the <code>logins</code>
-   * list passed to this method, must never be <code>null</code>
-   *
-   * @return an update statement that deletes the table specified in
-   * the ctor for this object, this will never return <code>null</code>
+   * @param logins a list of logins, one per connection index in the values contained within <code>
+   *     connKeys</code>, must never be <code>null</code>
+   * @param connKeys a ConcurrentHashMap that associates opaque keys representing a specific
+   *     database and server, and indecies into the <code>logins</code> list passed to this method,
+   *     must never be <code>null</code>
+   * @return an update statement that deletes the table specified in the ctor for this object, this
+   *     will never return <code>null</code>
    */
   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {

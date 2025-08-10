@@ -21,13 +21,9 @@ import com.percussion.content.ui.aa.actions.PSActionResponse;
 import com.percussion.content.ui.browse.PSContentBrowser;
 import java.util.Map;
 
-/**
- * Implementation of the create folder action.
- */
+/** Implementation of the create folder action. */
 public class PSCreateFolderAction extends PSAAActionBase {
-  /**
-   * todo document the required and optional parameters in the map.
-   */
+  /** todo document the required and optional parameters in the map. */
   public PSActionResponse execute(Map<String, Object> params) throws PSAAClientActionException {
     Object obj = getParameter(params, PARAM_NAME_PARENT_FOLDER_PATH);
     if (obj == null || obj.toString().trim().length() == 0) {

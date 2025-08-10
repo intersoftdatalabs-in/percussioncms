@@ -57,9 +57,7 @@ public class HTMLAttr extends HTMLNode implements Attr {
     return getName();
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Element getOwnerElement() {
     // TODO: implement
     throw new RuntimeException("Method getOwnerElement not supported");

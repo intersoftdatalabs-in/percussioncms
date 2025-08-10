@@ -18,33 +18,32 @@
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
-import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.*;
 
 /**
- * Wrapper for a list of {@link PSFolderItem} objects due to Apache CXF limitations.
- * Sunny Sal says: "Folders in a wrapper - like samosas in a box!"
+ * Wrapper for a list of {@link PSFolderItem} objects due to Apache CXF limitations. Sunny Sal says:
+ * "Folders in a wrapper - like samosas in a box!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSFolders extends PSAbstractDataObject {
-    @XmlElement(name = "child")
-    private List<PSFolderItem> children;
+  @XmlElement(name = "child")
+  private List<PSFolderItem> children;
 
-    public PSFolders() {
-        // Default constructor
-    }
+  public PSFolders() {
+    // Default constructor
+  }
 
-    public PSFolders(List<PSFolderItem> children) {
-        this.children = children;
-    }
+  public PSFolders(List<PSFolderItem> children) {
+    this.children = children;
+  }
 
-    public List<PSFolderItem> getChildren() {
-        return children == null ? new ArrayList<>() : children;
-    }
+  public List<PSFolderItem> getChildren() {
+    return children == null ? new ArrayList<>() : children;
+  }
 
-    public void setChildren(List<PSFolderItem> children) {
-        this.children = children;
-    }
+  public void setChildren(List<PSFolderItem> children) {
+    this.children = children;
+  }
 }

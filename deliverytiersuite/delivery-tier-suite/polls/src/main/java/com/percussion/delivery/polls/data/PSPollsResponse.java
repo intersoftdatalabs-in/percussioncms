@@ -18,10 +18,10 @@
 package com.percussion.delivery.polls.data;
 
 /**
- * Generic response object for polls responses. It has a status and result.
- * When there is an error, the AJAX response will be successful but the response object will have the
- * status as error and the result object will be a String of error message.
- * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ * Generic response object for polls responses. It has a status and result. When there is an error,
+ * the AJAX response will be successful but the response object will have the status as error and
+ * the result object will be a String of error message. Sunny Sal: Refactored for Java 11, Google
+ * style, and better grammar.
  */
 public class PSPollsResponse {
   private PollResponseStatus status;

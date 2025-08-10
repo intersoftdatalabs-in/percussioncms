@@ -23,9 +23,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * A request object used for getting the content traffic data from the rest service.
- */
+/** A request object used for getting the content traffic data from the rest service. */
 @JsonRootName(value = "ContentTrafficRequest")
 public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements Serializable {
 
@@ -36,6 +34,7 @@ public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements 
 
   /**
    * Get granularity of date list.
+   *
    * @return Option returned is DAYS,WEEKS,MONTHS,or YEARS.
    */
   public Optional<String> getGranularity() {
@@ -43,15 +42,16 @@ public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements 
   }
 
   /**
-   * @return trafficRequested list of types of date that is getting requested.
-   * Options are: livePages,pageUpdates,newPages,takeDowns,visits
+   * @return trafficRequested list of types of date that is getting requested. Options are:
+   *     livePages,pageUpdates,newPages,takeDowns,visits
    */
   public Optional<List<String>> getTrafficRequested() {
     return Optional.ofNullable(trafficRequested);
   }
 
   /**
-   * Sets granularity of date list returned.  Options are DAYS,WEEKS,MONTHS,YEARS.
+   * Sets granularity of date list returned. Options are DAYS,WEEKS,MONTHS,YEARS.
+   *
    * @param granularity
    */
   public void setGranularity(String granularity) {
@@ -59,8 +59,9 @@ public class PSContentTrafficRequest extends PSTrafficDetailsRequest implements 
   }
 
   /**
-   * List of traffic data types that is getting requested.
-   * Options are: livePages,pageUpdates,newPages,takeDowns,visits
+   * List of traffic data types that is getting requested. Options are:
+   * livePages,pageUpdates,newPages,takeDowns,visits
+   *
    * @param trafficRequested
    */
   public void setTrafficRequested(List<String> trafficRequested) {

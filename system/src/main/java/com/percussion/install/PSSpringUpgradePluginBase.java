@@ -35,8 +35,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This base class takes care of the details of initializing the spring
- * configuration for upgrade plugins.
+ * This base class takes care of the details of initializing the spring configuration for upgrade
+ * plugins.
  *
  * @author dougrand
  */
@@ -44,23 +44,18 @@ public abstract class PSSpringUpgradePluginBase implements IPSUpgradePlugin {
 
   private static final Logger log = LogManager.getLogger(PSSpringUpgradePluginBase.class);
 
-  /**
-   * String constant for spring directory path relative to Rhythmyx root
-   */
+  /** String constant for spring directory path relative to Rhythmyx root */
   private static final String SPRING_DIRECTORY = PSServletUtils.getSpringConfigPath();
 
-  /**
-   * Ctor, make sure your ctor calls super()
-   */
+  /** Ctor, make sure your ctor calls super() */
   protected PSSpringUpgradePluginBase() {
     initializeSpringConfiguration();
   }
 
   /**
-   * Initialize the configuration by telling the base service locator to
-   * load the configuration from the given spring directory. Note that once
-   * done, this method will simply return. This can be used by unit tests
-   * to their advantage. The unit test can cause the locator to be initialized,
+   * Initialize the configuration by telling the base service locator to load the configuration from
+   * the given spring directory. Note that once done, this method will simply return. This can be
+   * used by unit tests to their advantage. The unit test can cause the locator to be initialized,
    * which will prevent this code from running.
    */
   protected void initializeSpringConfiguration() {
@@ -88,12 +83,10 @@ public abstract class PSSpringUpgradePluginBase implements IPSUpgradePlugin {
   }
 
   /**
-   * Initialize the 'install-beans.xml' spring configuration file used by the
-   * installer during upgrade.  Modifies the file accordingly to use current
-   * installation's repository information.
+   * Initialize the 'install-beans.xml' spring configuration file used by the installer during
+   * upgrade. Modifies the file accordingly to use current installation's repository information.
    *
-   * @param installBeansXml the spring configuration file, assumed not
-   * <code>null</code>
+   * @param installBeansXml the spring configuration file, assumed not <code>null</code>
    */
   private void initializeInstallBeans(File installBeansXml) {
     FileInputStream in = null;
@@ -184,9 +177,7 @@ public abstract class PSSpringUpgradePluginBase implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * Xml tag, attribute, value constants
-   */
+  /** Xml tag, attribute, value constants */
   private static final String BEAN_TAGNAME = "bean";
 
   private static final String CLASS_ATTR = "class";

@@ -31,9 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Profanity filter to find if text contains profanity.
- */
+/** Profanity filter to find if text contains profanity. */
 public class PSProfanityFilter {
   private static final Logger log = LogManager.getLogger(PSProfanityFilter.class);
 
@@ -72,11 +70,10 @@ public class PSProfanityFilter {
   }
 
   /**
-   * Check to see if any of the words in the profanity list exist in given text.
-   * Once a match result returns true. If a match is never found returns false.
+   * Check to see if any of the words in the profanity list exist in given text. Once a match result
+   * returns true. If a match is never found returns false.
    *
    * @param text - test to check for profanity.
-   *
    * @return true if profanity is found else false
    */
   public boolean containsProfanity(String text) {
@@ -91,9 +88,7 @@ public class PSProfanityFilter {
     return false;
   }
 
-  /**
-   * Read in profanityFile and create array list of profanity.
-   */
+  /** Read in profanityFile and create array list of profanity. */
   private synchronized void setProfanity() {
     var profanityWords = "";
     try {

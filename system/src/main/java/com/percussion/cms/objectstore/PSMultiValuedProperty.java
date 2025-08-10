@@ -25,31 +25,31 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is designed to support properties that have multiple values,
- * each value stored as a row in the same table in the database.
+ * This class is designed to support properties that have multiple values, each value stored as a
+ * row in the same table in the database.
+ *
  * <p>Since it is effectively a collection, it maintains a delete list.
+ *
  * <p>No order is maintained for the values that make up the property.
+ *
  * <p>The values within such a property must be unique, case-insensitive.
- * <p>The description for the property is stored in exactly 1 of the rows
- * that make up this multi-valued entity.
+ *
+ * <p>The description for the property is stored in exactly 1 of the rows that make up this
+ * multi-valued entity.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public abstract class PSMultiValuedProperty extends PSCmsProperty {
-  /**
-   * no-args constructor
-   */
+  /** no-args constructor */
   public PSMultiValuedProperty() {}
 
   /**
    * Creates a component with the supplied name and no values.
    *
-   * @param member  The class for the types of properties to be stored
-   *    in this object. Never <code>null</code>.
-   *
-   * @param name The property name, never empty or <code>null</code>. Once
-   *    set, it is immutable.
+   * @param member The class for the types of properties to be stored in this object. Never <code>
+   *     null</code>.
+   * @param name The property name, never empty or <code>null</code>. Once set, it is immutable.
    */
   protected PSMultiValuedProperty(Class member, String name) {
     super(getKeyDef(), name);
@@ -60,7 +60,6 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    * Create a property from a previously persisted one.
    *
    * @param src Never <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException See {@link #fromXml(Element)}.
    */
   protected PSMultiValuedProperty(Element src) throws PSUnknownNodeTypeException {
@@ -69,8 +68,7 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * This class isn't a real component, so it just creates a fake key which
-   * is never used.
+   * This class isn't a real component, so it just creates a fake key which is never used.
    *
    * @return A PSSimpleKey with a key def of "unused".
    */
@@ -79,9 +77,8 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * See {@link IPSCmsComponent#toXml(Document) interface} for details.
-   * The DTD for this class is as follows:
-   * todo: add dtd
+   * See {@link IPSCmsComponent#toXml(Document) interface} for details. The DTD for this class is as
+   * follows: todo: add dtd
    */
   public Element toXml(Document doc) {
     // Threshold
@@ -106,12 +103,11 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * See {@link PSCmsProperty#toDbXml(Document, Element, IPSKeyGenerator,
-   * PSKey)} for details. Although it appears to be a single property with many
-   * values, it is stored as 3 seperate properties that happen to have the
-   * same name.
+   * See {@link PSCmsProperty#toDbXml(Document, Element, IPSKeyGenerator, PSKey)} for details.
+   * Although it appears to be a single property with many values, it is stored as 3 seperate
+   * properties that happen to have the same name.
    *
-   * @param parent  Required.
+   * @param parent Required.
    */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
       throws PSCmsException {
@@ -121,16 +117,12 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
     if (m_props.getState() != DBSTATE_UNMODIFIED) m_props.toDbXml(doc, root, keyGen, parent);
   }
 
-  /**
-   * We must proxy the call to our collection. See base class for more details.
-   */
+  /** We must proxy the call to our collection. See base class for more details. */
   public int getState() {
     return m_props.getState();
   }
 
-  /**
-   * We must proxy the call to our collection. See base class for more details.
-   */
+  /** We must proxy the call to our collection. See base class for more details. */
   public void setState(int state) {
     // If we're cloning, and we have contained properties
     // that are persisted this will throw an exception because
@@ -144,16 +136,16 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * Must be overridden because this is not a real db component, it must be
-   * proxied to the collection.
+   * Must be overridden because this is not a real db component, it must be proxied to the
+   * collection.
    */
   public void setPersisted() throws PSCmsException {
     m_props.setPersisted();
   }
 
   /**
-   * Must be overridden because this is not a real db component, it must be
-   * proxied to the collection.
+   * Must be overridden because this is not a real db component, it must be proxied to the
+   * collection.
    */
   public void markForDeletion() {
     // Base class handling even
@@ -169,12 +161,11 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * Adds the supplied value to the set of values for this property. The set
-   * of all values must be unique (case-sensitive) and none of them can be
-   * null (although one empty is allowed).
+   * Adds the supplied value to the set of values for this property. The set of all values must be
+   * unique (case-sensitive) and none of them can be null (although one empty is allowed).
    *
-   * @param value Never <code>null</code>, may be empty. If there is already
-   *    an entry with the same value, this is a noop.
+   * @param value Never <code>null</code>, may be empty. If there is already an entry with the same
+   *     value, this is a noop.
    */
   public void add(String value) {
     if (null == value) throw new IllegalArgumentException("Value cannot be null.");
@@ -183,13 +174,11 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * Adds the supplied value to the set of values for this property. The set
-   * of all values must be unique (case-sensitive) and none of them can be
-   * null (although one empty is allowed).
+   * Adds the supplied value to the set of values for this property. The set of all values must be
+   * unique (case-sensitive) and none of them can be null (although one empty is allowed).
    *
-   * @param values Never <code>null</code>, may be empty. If there is already
-   *    an entry for any supplied value, it is skipped. If any entry is
-   *    <code>null</code>, it is skipped.
+   * @param values Never <code>null</code>, may be empty. If there is already an entry for any
+   *     supplied value, it is skipped. If any entry is <code>null</code>, it is skipped.
    */
   public void add(String[] values) {
     if (null == values) throw new IllegalArgumentException("Values array cannot be null.");
@@ -204,30 +193,27 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
    * Creates a new property of a type derived from PSCmsProperty.
    *
    * @param name Never <code>null</code> or empty.
-   *
    * @param value Maybe <code>null</code> or empty.
-   *
    * @return Never <code>null</code>.
    */
   protected abstract PSCmsProperty createProperty(String name, String value);
 
   /**
-   * Removes all entries in this list. For each removed component, if the
-   * component state is DBSTATE_[UN]MODIFIED, it is added to the delete list.
+   * Removes all entries in this list. For each removed component, if the component state is
+   * DBSTATE_[UN]MODIFIED, it is added to the delete list.
    */
   public void clear() {
     m_props.clear();
   }
 
   /**
-   * Scans the entire list looking for an entry that matches the supplied
-   * value. For any entry, e, if e.equalsIgnoreCase(value) is <code>true
+   * Scans the entire list looking for an entry that matches the supplied value. For any entry, e,
+   * if e.equalsIgnoreCase(value) is <code>true
    * </code>, <code>true</code> is returned.
    *
    * @param value Never <code>null</code>, may be empty.
-   *
-   * @return <code>true</code> if value matches any entry in this case-
-   *    insensitive, <code>false</code> otherwise.
+   * @return <code>true</code> if value matches any entry in this case- insensitive, <code>false
+   *     </code> otherwise.
    */
   public boolean contains(String value) {
     // Check the properties
@@ -245,8 +231,7 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   /**
    * Check whether this property has at least 1 value.
    *
-   * @return <code>true</code> if size() > 0, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if size() > 0, <code>false</code> otherwise.
    */
   public boolean hasValues() {
     return (!m_props.isEmpty());
@@ -255,8 +240,7 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   /**
    * Gets an immutable iterator over all the values in this property.
    *
-   * @return An iterator over 0 or more entries, each of which is a
-   *    String. Never <code>null</code>.
+   * @return An iterator over 0 or more entries, each of which is a String. Never <code>null</code>.
    */
   public Iterator iterator() {
     Collection c = new ArrayList();
@@ -266,15 +250,12 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   }
 
   /**
-   * Removes the occurrence of the specified value from this property. If
-   * the component state is DBSTATE_[UN]MODIFIED, it is added to
-   * the delete list.
+   * Removes the occurrence of the specified value from this property. If the component state is
+   * DBSTATE_[UN]MODIFIED, it is added to the delete list.
    *
-   * @param value Never <code>null</code>. The comparison is performed
-   *    case-insensitive.
-   *
-   * @return <code>true</code> if a matching component was found and removed,
-   *    <code>false</code> otherwise.
+   * @param value Never <code>null</code>. The comparison is performed case-insensitive.
+   * @return <code>true</code> if a matching component was found and removed, <code>false</code>
+   *     otherwise.
    */
   public boolean remove(String value) {
     // Check the properties
@@ -354,16 +335,16 @@ public abstract class PSMultiValuedProperty extends PSCmsProperty {
   private static final String XML_ATTR_PROPNAME = "propName";
 
   /**
-   * This list contains 1 or more PSCmsProperty objects. All members of
-   * this set have the same property name.
+   * This list contains 1 or more PSCmsProperty objects. All members of this set have the same
+   * property name.
    */
   private PSDbComponentCollection m_props;
 
   /**
-   * If cloning a persisted component list, the isPersisted() method of this
-   * class will effect super.clone(), may throw exception in super.setState().
-   * The workaround is to change isPersisted() behavior to always return
-   * <code>false</code> during clone, set the behavior back afterwards.
+   * If cloning a persisted component list, the isPersisted() method of this class will effect
+   * super.clone(), may throw exception in super.setState(). The workaround is to change
+   * isPersisted() behavior to always return <code>false</code> during clone, set the behavior back
+   * afterwards.
    */
   private boolean m_isCloning = false;
 }

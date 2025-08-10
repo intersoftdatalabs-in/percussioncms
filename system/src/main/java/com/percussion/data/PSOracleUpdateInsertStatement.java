@@ -26,43 +26,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The PSOracleUpdateInsertStatement class is used to execute UPDATE and
- * optionally INSERT statements. It first attempts to process the UPDATE.
- * If this processes no rows, an INSERT is then attempted.
- * This class is expressly for use with Oracle LOB containing update
- * with insert statement execution.
+ * The PSOracleUpdateInsertStatement class is used to execute UPDATE and optionally INSERT
+ * statements. It first attempts to process the UPDATE. If this processes no rows, an INSERT is then
+ * attempted. This class is expressly for use with Oracle LOB containing update with insert
+ * statement execution.
  *
- * @see        com.percussion.design.objectstore.PSUpdatePipe
- * @see        PSOracleUpdateStatement
+ * @see com.percussion.design.objectstore.PSUpdatePipe
+ * @see PSOracleUpdateStatement
  */
 public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
   /**
-   * Construct an update statement with an optional insert statement
-   * which can be executed as part of the update execution plan.  Should
-   * the update fail to affect any rows, the insert will be executed.
+   * Construct an update statement with an optional insert statement which can be executed as part
+   * of the update execution plan. Should the update fail to affect any rows, the insert will be
+   * executed.
    *
-   * @param   connKey           The connection key to use to get the db conn.
-   *
-   * @param   updateBlocks      The statement blocks for the initial update
-   *                            for the update statement.
-   *                            Never <code>null</code>.
-   *
-   * @param   insertBlocks      The statement blocks for the initial insert
-   *                            for the insert statement.
-   *                            Never <code>null</code>.
-   *
-   * @param   lobUpdateBlocks   The statement blocks for LOB updates based on
-   *                            oracle rowid used for both the update and
-   *                            insert statements.  Never <code>null</code>.
-   *
-   * @param   rowIdQueryBlocks  The statement blocks for rowid retrieval
-   *                            used for the update statement.  Never
-   *                            <code>null</code>.
-   *
-   * @throws  PSDataExtractionException if a data extraction exception
-   *          occurs creating the update or insert statements.
-   *
-   * @throws  IllegalArgumentException if any argument is invalid.
+   * @param connKey The connection key to use to get the db conn.
+   * @param updateBlocks The statement blocks for the initial update for the update statement. Never
+   *     <code>null</code>.
+   * @param insertBlocks The statement blocks for the initial insert for the insert statement. Never
+   *     <code>null</code>.
+   * @param lobUpdateBlocks The statement blocks for LOB updates based on oracle rowid used for both
+   *     the update and insert statements. Never <code>null</code>.
+   * @param rowIdQueryBlocks The statement blocks for rowid retrieval used for the update statement.
+   *     Never <code>null</code>.
+   * @throws PSDataExtractionException if a data extraction exception occurs creating the update or
+   *     insert statements.
+   * @throws IllegalArgumentException if any argument is invalid.
    */
   public PSOracleUpdateInsertStatement(
       int connKey,
@@ -79,15 +68,13 @@ public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
   }
 
   /**
-   * Set the name of the node which we will iterate over executing this
-   * statement.
-   * As long as a node of the specified name exists, this statement should
-   * be executed. This object does not actually make use of this
-   * information. It will only execute once in the context specified to
-   * the execute call. This is primarily used as the storage are so that
-   * the PSTransactionSet object calling this knows what to iterate on.
+   * Set the name of the node which we will iterate over executing this statement. As long as a node
+   * of the specified name exists, this statement should be executed. This object does not actually
+   * make use of this information. It will only execute once in the context specified to the execute
+   * call. This is primarily used as the storage are so that the PSTransactionSet object calling
+   * this knows what to iterate on.
    *
-   * @param   nodeName      the name of the node to iterate on
+   * @param nodeName the name of the node to iterate on
    */
   public void setIteratorNode(String nodeName) {
     super.setIteratorNode(nodeName);
@@ -95,10 +82,10 @@ public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
   }
 
   /**
-   * Get the data extractors used to get the replacement values which will
-   * be used to execute the statement.
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
    *
-   * @return            the list of replacement values
+   * @return the list of replacement values
    */
   public List getReplacementValueExtractors() {
     ArrayList retList = new ArrayList();
@@ -112,20 +99,13 @@ public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statement as a step in the execution
-   * plan. Attempt an update, if the update does not affect any rows in
-   * the table, then proceed with an insert.
+   * Execute the data modification statement as a step in the execution plan. Attempt an update, if
+   * the update does not affect any rows in the table, then proceed with an insert.
    *
-   * @param   data     the execution data associated with this plan
-   *
-   * @throws   SQLException
-   *                     if a SQL error occurs
-   *
-   * @throws   PSDataExtractionException
-   *                     if a data extraction error occurs
-   *
-   * @throws   PSErrorException
-   *                     if an error exception occurs
+   * @param data the execution data associated with this plan
+   * @throws SQLException if a SQL error occurs
+   * @throws PSDataExtractionException if a data extraction error occurs
+   * @throws PSErrorException if an error exception occurs
    */
   public void execute(PSExecutionData data)
       throws SQLException, PSDataExtractionException, PSErrorException {
@@ -147,10 +127,9 @@ public class PSOracleUpdateInsertStatement extends PSOracleUpdateStatement {
   }
 
   /**
-   * The insert statement associated with this update/insert
-   * statement.  This statement will be created at construction
-   * time and will be used when an update statement fails to affect
-   * any rows in the database.
+   * The insert statement associated with this update/insert statement. This statement will be
+   * created at construction time and will be used when an update statement fails to affect any rows
+   * in the database.
    */
   protected PSOracleUpdateStatement m_insertStatement;
 }

@@ -21,17 +21,14 @@ import com.percussion.design.objectstore.PSDisplayFieldRef;
 import org.w3c.dom.Document;
 
 /**
- * A data extractor for DisplayField reference elements as specified in the
- * sys_ContentEditor.dtd.
+ * A data extractor for DisplayField reference elements as specified in the sys_ContentEditor.dtd.
  */
 public class PSDisplayFieldRefExtractor extends PSDataExtractor {
   /**
    * Construct a data extractor for the provided source.
    *
-   * @param source the DisplayField  reference to create this extractor for,
-   *    not <code>null</code>.
-   * @throws IllegalArgumentException if the provided source is
-   *    <code>null</code>.
+   * @param source the DisplayField reference to create this extractor for, not <code>null</code>.
+   * @throws IllegalArgumentException if the provided source is <code>null</code>.
    */
   public PSDisplayFieldRefExtractor(PSDisplayFieldRef source) {
     super(source);
@@ -47,13 +44,11 @@ public class PSDisplayFieldRefExtractor extends PSDataExtractor {
   }
 
   /**
-   * Gets the input document from the execution data and extracts the
-   * 'Value' from the 'Control' which matches the field reference
-   * created in the constructor.
+   * Gets the input document from the execution data and extracts the 'Value' from the 'Control'
+   * which matches the field reference created in the constructor.
    *
-   * @return the 'Value' of the matching 'Control' as String or a
-   *    'DisplayChoice' element for arrays, depending on the type of the
-   *    'Control', never <code>null</code>.
+   * @return the 'Value' of the matching 'Control' as String or a 'DisplayChoice' element for
+   *     arrays, depending on the type of the 'Control', never <code>null</code>.
    * @see IPSDataExtractor
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
@@ -66,8 +61,8 @@ public class PSDisplayFieldRefExtractor extends PSDataExtractor {
   }
 
   /**
-   * The DisplayField name to be extracted, initialized in ctor, nerver
-   * <code>null</code> or empty after that.
+   * The DisplayField name to be extracted, initialized in ctor, nerver <code>null</code> or empty
+   * after that.
    */
   private String m_fieldRef = null;
 }

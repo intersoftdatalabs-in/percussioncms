@@ -37,26 +37,21 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.security.cert.X509Certificate;
 
 /**
- * This class implements http protocol requests; it contains most of HTTP/1.1
- * and ought to be unconditionally compliant.
- * Redirections are automatically handled, and authorizations requests are
- * recognized and dealt with via an authorization handler.
- * Only full HTTP/1.0 and HTTP/1.1 requests are generated. HTTP/1.1, HTTP/1.0
- * and HTTP/0.9 responses are recognized.
+ * This class implements http protocol requests; it contains most of HTTP/1.1 and ought to be
+ * unconditionally compliant. Redirections are automatically handled, and authorizations requests
+ * are recognized and dealt with via an authorization handler. Only full HTTP/1.0 and HTTP/1.1
+ * requests are generated. HTTP/1.1, HTTP/1.0 and HTTP/0.9 responses are recognized.
  *
- * <P>Using the HTTPClient should be quite simple. First add the import
- * statement '<code>import HTTPClient.*;</code>' to your file(s). Request
- * can then be sent using one of the methods <var>Head()</var>,
- * <var>Get()</var>, <var>Post()</var>, etc in <var>HTTPConnection</var>.
- * These methods all return an instance of <var>HTTPResponse</var> which
- * has methods for accessing the response headers (<var>getHeader()</var>,
- * <var>getHeaderAsInt()</var>, etc), various response info
- * (<var>getStatusCode()</var>, <var>getReasonLine()</var>, etc) and the
- * reponse data (<var>getData()</var>, <var>getText()</var>, and
- * <var>getInputStream()</var>). Following are some examples.
+ * <p>Using the HTTPClient should be quite simple. First add the import statement '<code>
+ * import HTTPClient.*;</code>' to your file(s). Request can then be sent using one of the methods
+ * <var>Head()</var>, <var>Get()</var>, <var>Post()</var>, etc in <var>HTTPConnection</var>. These
+ * methods all return an instance of <var>HTTPResponse</var> which has methods for accessing the
+ * response headers (<var>getHeader()</var>, <var>getHeaderAsInt()</var>, etc), various response
+ * info (<var>getStatusCode()</var>, <var>getReasonLine()</var>, etc) and the reponse data
+ * (<var>getData()</var>, <var>getText()</var>, and <var>getInputStream()</var>). Following are some
+ * examples.
  *
- * <P>If this is in an applet you can retrieve files from your server
- * as follows:
+ * <p>If this is in an applet you can retrieve files from your server as follows:
  *
  * <PRE>
  *     try
@@ -90,18 +85,17 @@ import javax.security.cert.X509Certificate;
  *     }
  * </PRE>
  *
- * This will get the files "/my_file" and "/another_file" and put their
- * contents into byte[]'s accessible via <code>getData()</code>. Note that
- * you need to only create a new <var>HTTPConnection</var> when sending a
- * request to a new server (different host or port); although you may create
- * a new <var>HTTPConnection</var> for every request to the same server this
- * <strong>not</strong> recommended, as various information about the server
- * is cached after the first request (to optimize subsequent requests) and
- * persistent connections are used whenever possible.
+ * This will get the files "/my_file" and "/another_file" and put their contents into byte[]'s
+ * accessible via <code>getData()</code>. Note that you need to only create a new
+ * <var>HTTPConnection</var> when sending a request to a new server (different host or port);
+ * although you may create a new <var>HTTPConnection</var> for every request to the same server this
+ * <strong>not</strong> recommended, as various information about the server is cached after the
+ * first request (to optimize subsequent requests) and persistent connections are used whenever
+ * possible.
  *
- * <P>To POST form data you would use something like this (assuming you
- * have two fields called <var>name</var> and <var>e-mail</var>, whose
- * contents are stored in the variables <var>name</var> and <var>email</var>):
+ * <p>To POST form data you would use something like this (assuming you have two fields called
+ * <var>name</var> and <var>e-mail</var>, whose contents are stored in the variables <var>name</var>
+ * and <var>email</var>):
  *
  * <PRE>
  *     try
@@ -130,11 +124,11 @@ import javax.security.cert.X509Certificate;
  *     }
  * </PRE>
  *
- * Here the response data is read at leasure via an <var>InputStream</var>
- * instead of all at once into a <var>byte[]</var>.
+ * Here the response data is read at leasure via an <var>InputStream</var> instead of all at once
+ * into a <var>byte[]</var>.
  *
- * <P>As another example, if you have a URL you're trying to send a request
- * to you would do something like the following:
+ * <p>As another example, if you have a URL you're trying to send a request to you would do
+ * something like the following:
  *
  * <PRE>
  *     try
@@ -160,26 +154,27 @@ import javax.security.cert.X509Certificate;
  *     }
  * </PRE>
  *
- * <P>There are a whole number of methods for each request type; however the
- * general forms are ([...] means that the enclosed is optional):
+ * <p>There are a whole number of methods for each request type; however the general forms are
+ * ([...] means that the enclosed is optional):
+ *
  * <ul>
- * <li> Head ( file [, form-data [, headers ] ] )
- * <li> Head ( file [, query [, headers ] ] )
- * <li> Get ( file [, form-data [, headers ] ] )
- * <li> Get ( file [, query [, headers ] ] )
- * <li> Post ( file [, form-data [, headers ] ] )
- * <li> Post ( file [, data [, headers ] ] )
- * <li> Post ( file [, stream [, headers ] ] )
- * <li> Put ( file , data [, headers ] )
- * <li> Put ( file , stream [, headers ] )
- * <li> Delete ( file [, headers ] )
- * <li> Options ( file [, headers [, data] ] )
- * <li> Options ( file [, headers [, stream] ] )
- * <li> Trace ( file [, headers ] )
+ *   <li>Head ( file [, form-data [, headers ] ] )
+ *   <li>Head ( file [, query [, headers ] ] )
+ *   <li>Get ( file [, form-data [, headers ] ] )
+ *   <li>Get ( file [, query [, headers ] ] )
+ *   <li>Post ( file [, form-data [, headers ] ] )
+ *   <li>Post ( file [, data [, headers ] ] )
+ *   <li>Post ( file [, stream [, headers ] ] )
+ *   <li>Put ( file , data [, headers ] )
+ *   <li>Put ( file , stream [, headers ] )
+ *   <li>Delete ( file [, headers ] )
+ *   <li>Options ( file [, headers [, data] ] )
+ *   <li>Options ( file [, headers [, stream] ] )
+ *   <li>Trace ( file [, headers ] )
  * </ul>
  *
- * @version	0.3-3E  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3E 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstants {
@@ -204,8 +199,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /** Have we gotten the server's protocol version yet? */
   boolean ServProtVersKnown;
 
-  /** The protocol version we send in a request; this is always HTTP/1.1
-   * unless we're talking to a broken server in which case it's HTTP/1.0 */
+  /**
+   * The protocol version we send in a request; this is always HTTP/1.1 unless we're talking to a
+   * broken server in which case it's HTTP/1.0
+   */
   private String RequestProtocolVersion;
 
   /** The remote host this connection is associated with */
@@ -281,8 +278,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /** hack to work around M$ bug */
   private static boolean haveMSLargeWritesBug = false;
 
-  /** hack to only enable defered handling of streamed requests when
-   * configured to do so. */
+  /** hack to only enable defered handling of streamed requests when configured to do so. */
   static boolean deferStreamed = false;
 
   /** the default timeout to use for new connections */
@@ -474,8 +470,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   // Constructors
 
   /**
-   * Constructs a connection to the host from where the applet was loaded.
-   * Note that current security policies only let applets connect home.
+   * Constructs a connection to the host from where the applet was loaded. Note that current
+   * security policies only let applets connect home.
    *
    * @param applet the current applet
    */
@@ -506,8 +502,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Constructs a connection to the specified host on the specified port,
-   * using the specified protocol (currently only "http" is supported).
+   * Constructs a connection to the specified host on the specified port, using the specified
+   * protocol (currently only "http" is supported).
    *
    * @param prot the protocol
    * @param host the host
@@ -519,13 +515,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Constructs a connection to the specified host on the specified port,
-   * using the specified protocol (currently only "http" is supported),
-   * local address, and local port.
+   * Constructs a connection to the specified host on the specified port, using the specified
+   * protocol (currently only "http" is supported), local address, and local port.
    *
-   * @param prot      the protocol
-   * @param host      the host
-   * @param port      the port, or -1 for the default port
+   * @param prot the protocol
+   * @param host the host
+   * @param port the port, or -1 for the default port
    * @param localAddr the local address to bind to
    * @param lcoalPort the local port to bind to
    * @exception ProtocolNotSuppException if the protocol is not HTTP
@@ -546,7 +541,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Constructs a connection to the host (port) as given in the url.
    *
-   * @param     url the url
+   * @param url the url
    * @exception ProtocolNotSuppException if the protocol is not HTTP
    */
   public HTTPConnection(URL url) throws ProtocolNotSuppException {
@@ -556,7 +551,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Constructs a connection to the host (port) as given in the uri.
    *
-   * @param     uri the uri
+   * @param uri the uri
    * @exception ProtocolNotSuppException if the protocol is not HTTP
    */
   public HTTPConnection(URI uri) throws ProtocolNotSuppException {
@@ -566,9 +561,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Sets the class variables. Must not be public.
    *
-   * @param prot      the protocol
-   * @param host      the host
-   * @param port      the port
+   * @param prot the protocol
+   * @param host the host
+   * @param port the port
    * @param localAddr the local address to bind to; if null, it's ignored
    * @param localPort the local port to bind to
    */
@@ -643,14 +638,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   // Methods
 
   /**
-   * Sends the HEAD request. This request is just like the corresponding
-   * GET except that it only returns the headers and no data.
+   * Sends the HEAD request. This request is just like the corresponding GET except that it only
+   * returns the headers and no data.
    *
    * @see #Get(java.lang.String)
-   * @param     file the absolute path of the file
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Head(String file) throws IOException, ModuleException {
@@ -658,15 +652,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sends the HEAD request. This request is just like the corresponding
-   * GET except that it only returns the headers and no data.
+   * Sends the HEAD request. This request is just like the corresponding GET except that it only
+   * returns the headers and no data.
    *
    * @see #Get(java.lang.String, HTTPClient.NVPair[])
-   * @param     file      the absolute path of the file
-   * @param     form_data an array of Name/Value pairs
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Head(String file, NVPair form_data[]) throws IOException, ModuleException {
@@ -674,16 +667,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sends the HEAD request. This request is just like the corresponding
-   * GET except that it only returns the headers and no data.
+   * Sends the HEAD request. This request is just like the corresponding GET except that it only
+   * returns the headers and no data.
    *
    * @see #Get(java.lang.String, HTTPClient.NVPair[], HTTPClient.NVPair[])
-   * @param     file      the absolute path of the file
-   * @param     form_data an array of Name/Value pairs
-   * @param     headers   additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Head(String file, NVPair[] form_data, NVPair[] headers)
@@ -695,15 +687,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sends the HEAD request. This request is just like the corresponding
-   * GET except that it only returns the headers and no data.
+   * Sends the HEAD request. This request is just like the corresponding GET except that it only
+   * returns the headers and no data.
    *
    * @see #Get(java.lang.String, java.lang.String)
-   * @param     file   the absolute path of the file
-   * @param     query   the query string; it will be urlencoded
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param query the query string; it will be urlencoded
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Head(String file, String query) throws IOException, ModuleException {
@@ -711,16 +702,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sends the HEAD request. This request is just like the corresponding
-   * GET except that it only returns the headers and no data.
+   * Sends the HEAD request. This request is just like the corresponding GET except that it only
+   * returns the headers and no data.
    *
    * @see #Get(java.lang.String, java.lang.String, HTTPClient.NVPair[])
-   * @param     file    the absolute path of the file
-   * @param     query   the query string; it will be urlencoded
-   * @param     headers additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param query the query string; it will be urlencoded
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Head(String file, String query, NVPair[] headers)
@@ -734,10 +724,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * GETs the file.
    *
-   * @param     file the absolute path of the file
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Get(String file) throws IOException, ModuleException {
@@ -745,15 +734,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * GETs the file with a query consisting of the specified form-data.
-   * The data is urlencoded, turned into a string of the form
-   * "name1=value1&name2=value2" and then sent as a query string.
+   * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
+   * turned into a string of the form "name1=value1&name2=value2" and then sent as a query string.
    *
-   * @param     file       the absolute path of the file
-   * @param     form_data  an array of Name/Value pairs
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Get(String file, NVPair form_data[]) throws IOException, ModuleException {
@@ -761,16 +748,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * GETs the file with a query consisting of the specified form-data.
-   * The data is urlencoded, turned into a string of the form
-   * "name1=value1&name2=value2" and then sent as a query string.
+   * GETs the file with a query consisting of the specified form-data. The data is urlencoded,
+   * turned into a string of the form "name1=value1&name2=value2" and then sent as a query string.
    *
-   * @param     file       the absolute path of the file
-   * @param     form_data  an array of Name/Value pairs
-   * @param     headers    additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Get(String file, NVPair[] form_data, NVPair[] headers)
@@ -782,14 +767,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * GETs the file using the specified query string. The query string
-   * is first urlencoded.
+   * GETs the file using the specified query string. The query string is first urlencoded.
    *
-   * @param     file  the absolute path of the file
-   * @param     query the query
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param query the query
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Get(String file, String query) throws IOException, ModuleException {
@@ -797,15 +780,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * GETs the file using the specified query string. The query string
-   * is first urlencoded.
+   * GETs the file using the specified query string. The query string is first urlencoded.
    *
-   * @param     file     the absolute path of the file
-   * @param     query    the query string
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param query the query string
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Get(String file, String query, NVPair[] headers)
@@ -819,10 +800,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * POSTs to the specified file. No data is sent.
    *
-   * @param     file the absolute path of the file
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file) throws IOException, ModuleException {
@@ -830,16 +810,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POSTs form-data to the specified file. The data is first urlencoded
-   * and then turned into a string of the form "name1=value1&name2=value2".
-   * A <var>Content-type</var> header with the value
+   * POSTs form-data to the specified file. The data is first urlencoded and then turned into a
+   * string of the form "name1=value1&name2=value2". A <var>Content-type</var> header with the value
    * <var>application/x-www-form-urlencoded</var> is added.
    *
-   * @param     file      the absolute path of the file
-   * @param     form_data an array of Name/Value pairs
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, NVPair form_data[]) throws IOException, ModuleException {
@@ -849,18 +827,16 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POST's form-data to the specified file using the specified headers.
-   * The data is first urlencoded and then turned into a string of the
-   * form "name1=value1&name2=value2". If no <var>Content-type</var> header
-   * is given then one is added with a value of
+   * POST's form-data to the specified file using the specified headers. The data is first
+   * urlencoded and then turned into a string of the form "name1=value1&name2=value2". If no
+   * <var>Content-type</var> header is given then one is added with a value of
    * <var>application/x-www-form-urlencoded</var>.
    *
-   * @param     file      the absolute path of the file
-   * @param     form_data an array of Name/Value pairs
-   * @param     headers   additional headers
-   * @return    a HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param form_data an array of Name/Value pairs
+   * @param headers additional headers
+   * @return a HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, NVPair form_data[], NVPair headers[])
@@ -877,15 +853,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POSTs the data to the specified file. The data is converted to an
-   * array of bytes using the default character converter.
-   * The request is sent using the content-type "application/octet-stream".
+   * POSTs the data to the specified file. The data is converted to an array of bytes using the
+   * default character converter. The request is sent using the content-type
+   * "application/octet-stream".
    *
-   * @param     file the absolute path of the file
-   * @param     data the data
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    * @see java.lang.String#getBytes()
    */
@@ -896,12 +871,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * POSTs the data to the specified file using the specified headers.
    *
-   * @param     file     the absolute path of the file
-   * @param     data     the data
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    * @see java.lang.String#getBytes()
    */
@@ -915,14 +889,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POSTs the raw data to the specified file.
-   * The request is sent using the content-type "application/octet-stream"
+   * POSTs the raw data to the specified file. The request is sent using the content-type
+   * "application/octet-stream"
    *
-   * @param     file the absolute path of the file
-   * @param     data the data
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, byte data[]) throws IOException, ModuleException {
@@ -932,12 +905,11 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * POSTs the raw data to the specified file using the specified headers.
    *
-   * @param     file     the absolute path of the file
-   * @param     data     the data
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, byte data[], NVPair[] headers)
@@ -947,14 +919,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POSTs the data written to the output stream to the specified file.
-   * The request is sent using the content-type "application/octet-stream"
+   * POSTs the data written to the output stream to the specified file. The request is sent using
+   * the content-type "application/octet-stream"
    *
-   * @param     file   the absolute path of the file
-   * @param     stream the output stream on which the data is written
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param stream the output stream on which the data is written
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, HttpOutputStream stream)
@@ -963,15 +934,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * POSTs the data written to the output stream to the specified file
-   * using the specified headers.
+   * POSTs the data written to the output stream to the specified file using the specified headers.
    *
-   * @param     file     the absolute path of the file
-   * @param     stream   the output stream on which the data is written
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param stream the output stream on which the data is written
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Post(String file, HttpOutputStream stream, NVPair[] headers)
@@ -980,15 +949,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the data into the specified file. The data is converted to an
-   * array of bytes using the default character converter.
-   * The request ist sent using the content-type "application/octet-stream".
+   * PUTs the data into the specified file. The data is converted to an array of bytes using the
+   * default character converter. The request ist sent using the content-type
+   * "application/octet-stream".
    *
-   * @param     file the absolute path of the file
-   * @param     data the data
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    * @see java.lang.String#getBytes()
    */
@@ -997,15 +965,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the data into the specified file using the additional headers
-   * for the request.
+   * PUTs the data into the specified file using the additional headers for the request.
    *
-   * @param     file     the absolute path of the file
-   * @param     data     the data
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    * @see java.lang.String#getBytes()
    */
@@ -1019,14 +985,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the raw data into the specified file.
-   * The request is sent using the content-type "application/octet-stream".
+   * PUTs the raw data into the specified file. The request is sent using the content-type
+   * "application/octet-stream".
    *
-   * @param     file     the absolute path of the file
-   * @param     data     the data
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Put(String file, byte data[]) throws IOException, ModuleException {
@@ -1034,15 +999,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the raw data into the specified file using the additional
-   * headers.
+   * PUTs the raw data into the specified file using the additional headers.
    *
-   * @param     file     the absolute path of the file
-   * @param     data     the data
-   * @param     headers  any additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param data the data
+   * @param headers any additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Put(String file, byte data[], NVPair[] headers)
@@ -1052,14 +1015,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the data written to the output stream into the specified file.
-   * The request is sent using the content-type "application/octet-stream".
+   * PUTs the data written to the output stream into the specified file. The request is sent using
+   * the content-type "application/octet-stream".
    *
-   * @param     file     the absolute path of the file
-   * @param     stream   the output stream on which the data is written
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param stream the output stream on which the data is written
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Put(String file, HttpOutputStream stream)
@@ -1068,15 +1030,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * PUTs the data written to the output stream into the specified file
-   * using the additional headers.
+   * PUTs the data written to the output stream into the specified file using the additional
+   * headers.
    *
-   * @param     file     the absolute path of the file
-   * @param     stream   the output stream on which the data is written
-   * @param     headers  any additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the file
+   * @param stream the output stream on which the data is written
+   * @param headers any additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Put(String file, HttpOutputStream stream, NVPair[] headers)
@@ -1085,14 +1046,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Request OPTIONS from the server. If <var>file</var> is "*" then
-   * the request applies to the server as a whole; otherwise it applies
-   * only to that resource.
+   * Request OPTIONS from the server. If <var>file</var> is "*" then the request applies to the
+   * server as a whole; otherwise it applies only to that resource.
    *
-   * @param     file     the absolute path of the resource, or "*"
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource, or "*"
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Options(String file) throws IOException, ModuleException {
@@ -1100,15 +1059,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Request OPTIONS from the server. If <var>file</var> is "*" then
-   * the request applies to the server as a whole; otherwise it applies
-   * only to that resource.
+   * Request OPTIONS from the server. If <var>file</var> is "*" then the request applies to the
+   * server as a whole; otherwise it applies only to that resource.
    *
-   * @param     file     the absolute path of the resource, or "*"
-   * @param     headers  the headers containing optional info.
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource, or "*"
+   * @param headers the headers containing optional info.
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Options(String file, NVPair[] headers) throws IOException, ModuleException {
@@ -1116,16 +1073,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Request OPTIONS from the server. If <var>file</var> is "*" then
-   * the request applies to the server as a whole; otherwise it applies
-   * only to that resource.
+   * Request OPTIONS from the server. If <var>file</var> is "*" then the request applies to the
+   * server as a whole; otherwise it applies only to that resource.
    *
-   * @param     file     the absolute path of the resource, or "*"
-   * @param     headers  the headers containing optional info.
-   * @param     data     any data to be sent in the optional body
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource, or "*"
+   * @param headers the headers containing optional info.
+   * @param data any data to be sent in the optional body
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Options(String file, NVPair[] headers, byte[] data)
@@ -1134,16 +1089,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Request OPTIONS from the server. If <var>file</var> is "*" then
-   * the request applies to the server as a whole; otherwise it applies
-   * only to that resource.
+   * Request OPTIONS from the server. If <var>file</var> is "*" then the request applies to the
+   * server as a whole; otherwise it applies only to that resource.
    *
-   * @param     file     the absolute path of the resource, or "*"
-   * @param     headers  the headers containing optional info.
-   * @param     stream   an output stream for sending the optional body
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource, or "*"
+   * @param headers the headers containing optional info.
+   * @param stream an output stream for sending the optional body
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Options(String file, NVPair[] headers, HttpOutputStream stream)
@@ -1154,10 +1107,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Requests that <var>file</var> be DELETEd from the server.
    *
-   * @param     file     the absolute path of the resource
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Delete(String file) throws IOException, ModuleException {
@@ -1167,11 +1119,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Requests that <var>file</var> be DELETEd from the server.
    *
-   * @param     file     the absolute path of the resource
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Delete(String file, NVPair[] headers) throws IOException, ModuleException {
@@ -1179,14 +1130,12 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Requests a TRACE. Headers of particular interest here are "Via"
-   * and "Max-Forwards".
+   * Requests a TRACE. Headers of particular interest here are "Via" and "Max-Forwards".
    *
-   * @param     file     the absolute path of the resource
-   * @param     headers  additional headers
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource
+   * @param headers additional headers
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Trace(String file, NVPair[] headers) throws IOException, ModuleException {
@@ -1196,10 +1145,9 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * Requests a TRACE.
    *
-   * @param     file     the absolute path of the resource
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param file the absolute path of the resource
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse Trace(String file) throws IOException, ModuleException {
@@ -1207,16 +1155,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * This is here to allow an arbitrary, non-standard request to be sent.
-   * I'm assuming you know what you are doing...
+   * This is here to allow an arbitrary, non-standard request to be sent. I'm assuming you know what
+   * you are doing...
    *
-   * @param     method   the extension method
-   * @param     file     the absolute path of the resource, or null
-   * @param     data     optional data, or null
-   * @param     headers  optional headers, or null
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param method the extension method
+   * @param file the absolute path of the resource, or null
+   * @param data optional data, or null
+   * @param headers optional headers, or null
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse ExtensionMethod(String method, String file, byte[] data, NVPair[] headers)
@@ -1225,16 +1172,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * This is here to allow an arbitrary, non-standard request to be sent.
-   * I'm assuming you know what you are doing...
+   * This is here to allow an arbitrary, non-standard request to be sent. I'm assuming you know what
+   * you are doing...
    *
-   * @param     method   the extension method
-   * @param     file     the absolute path of the resource, or null
-   * @param     stream   optional output stream, or null
-   * @param     headers  optional headers, or null
-   * @return    an HTTPResponse structure containing the response
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @param method the extension method
+   * @param file the absolute path of the resource, or null
+   * @param stream optional output stream, or null
+   * @param headers optional headers, or null
+   * @return an HTTPResponse structure containing the response
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   public HTTPResponse ExtensionMethod(
@@ -1244,15 +1190,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Aborts all the requests currently in progress on this connection and
-   * closes all associated sockets. You usually do <em>not</em> need to
-   * invoke this - it only meant for when you need to abruptly stop things,
-   * such as for example the stop button in a browser.
+   * Aborts all the requests currently in progress on this connection and closes all associated
+   * sockets. You usually do <em>not</em> need to invoke this - it only meant for when you need to
+   * abruptly stop things, such as for example the stop button in a browser.
    *
-   * <P>Note: there is a small window where a request method such as
-   * <code>Get()</code> may have been invoked but the request has not
-   * been built and added to the list. Any request in this window will
-   * not be aborted.
+   * <p>Note: there is a small window where a request method such as <code>Get()</code> may have
+   * been invoked but the request has not been built and added to the list. Any request in this
+   * window will not be aborted.
    *
    * @since V0.2-3
    */
@@ -1267,8 +1211,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Set the SSL socket factory for this connection. If not set, uses the
-   * default factory.
+   * Set the SSL socket factory for this connection. If not set, uses the default factory.
    *
    * @param sslFactory the SSL socket factory
    */
@@ -1286,8 +1229,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Set the SSL socket factory for this connection. If not set, uses the
-   * default factory.
+   * Set the SSL socket factory for this connection. If not set, uses the default factory.
    *
    * @param sslFactory the SSL socket factory
    */
@@ -1305,25 +1247,21 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the default http headers to be sent with each request. The
-   * actual headers sent are determined as follows: for each header
-   * specified in multiple places a value given as part of the request
-   * takes priority over any default values set by this method, which
-   * in turn takes priority over any built-in default values. A different
-   * way of looking at it is that we start off with a list of all headers
-   * specified with the request, then add any default headers set by this
-   * method which aren't already in our list, and finally add any built-in
-   * headers which aren't yet in the list. There is one exception to this
-   * rule: the "Content-length" header is always ignored; and when posting
-   * form-data any default "Content-type" is ignored in favor of the built-in
-   * "application/x-www-form-urlencoded" (however it will be overriden by any
-   * content-type header specified as part of the request).
+   * Sets the default http headers to be sent with each request. The actual headers sent are
+   * determined as follows: for each header specified in multiple places a value given as part of
+   * the request takes priority over any default values set by this method, which in turn takes
+   * priority over any built-in default values. A different way of looking at it is that we start
+   * off with a list of all headers specified with the request, then add any default headers set by
+   * this method which aren't already in our list, and finally add any built-in headers which aren't
+   * yet in the list. There is one exception to this rule: the "Content-length" header is always
+   * ignored; and when posting form-data any default "Content-type" is ignored in favor of the
+   * built-in "application/x-www-form-urlencoded" (however it will be overriden by any content-type
+   * header specified as part of the request).
    *
-   * <P>Typical headers you might want to set here are "Accept" and its
-   * "Accept-*" relatives, "Connection", "From", "User-Agent", etc.
+   * <p>Typical headers you might want to set here are "Accept" and its "Accept-*" relatives,
+   * "Connection", "From", "User-Agent", etc.
    *
-   * @param headers an array of header-name/value pairs (do not give the
-   *                separating ':').
+   * @param headers an array of header-name/value pairs (do not give the separating ':').
    */
   public void setDefaultHeaders(NVPair[] headers) {
     int length = (headers == null ? 0 : headers.length);
@@ -1389,8 +1327,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Returns the port this connection connects to. This is always the
-   * actual port number, never -1.
+   * Returns the port this connection connects to. This is always the actual port number, never -1.
    *
    * @return the port number
    */
@@ -1417,11 +1354,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * See if the given uri is compatible with this connection. Compatible
-   * means that the given uri can be retrieved using this connection
-   * object.
+   * See if the given uri is compatible with this connection. Compatible means that the given uri
+   * can be retrieved using this connection object.
    *
-   * @param uri  the URI to check
+   * @param uri the URI to check
    * @return true if they're compatible, false otherwise
    * @since V0.3-2
    */
@@ -1435,17 +1371,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets/Resets raw mode. In raw mode all modules are bypassed, meaning
-   * the automatic handling of authorization requests, redirections,
-   * cookies, etc. is turned off.
+   * Sets/Resets raw mode. In raw mode all modules are bypassed, meaning the automatic handling of
+   * authorization requests, redirections, cookies, etc. is turned off.
    *
-   * <P>The default is false.
+   * <p>The default is false.
    *
-   * @deprecated This is not really needed anymore; in V0.2 request were
-   *             synchronous and therefore to do pipelining you needed
-   *             to disable the processing of responses.
+   * @deprecated This is not really needed anymore; in V0.2 request were synchronous and therefore
+   *     to do pipelining you needed to disable the processing of responses.
    * @see #removeModule(java.lang.Class)
-   *
    * @param raw if true removes all modules (except for the retry module)
    */
   public void setRawMode(boolean raw) {
@@ -1470,8 +1403,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the default timeout value to be used for each new HTTPConnection.
-   * The default is 0.
+   * Sets the default timeout value to be used for each new HTTPConnection. The default is 0.
    *
    * @param time the timeout in milliseconds.
    * @see #setTimeout(int)
@@ -1491,34 +1423,26 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the timeout to be used for creating connections and reading
-   * responses. When a timeout expires the operation will throw an
-   * InterruptedIOException. The operation may be restarted again
-   * afterwards. If the operation is not restarted and it is a read
-   * operation (i.e HTTPResponse.xxxx()) then
-   * <code>resp.getInputStream().close()</code> <strong>should</strong> be
+   * Sets the timeout to be used for creating connections and reading responses. When a timeout
+   * expires the operation will throw an InterruptedIOException. The operation may be restarted
+   * again afterwards. If the operation is not restarted and it is a read operation (i.e
+   * HTTPResponse.xxxx()) then <code>resp.getInputStream().close()</code> <strong>should</strong> be
    * invoked.
    *
-   * <P>When creating new sockets the timeout will limit the time spent
-   * doing the host name translation and establishing the connection with
-   * the server.
+   * <p>When creating new sockets the timeout will limit the time spent doing the host name
+   * translation and establishing the connection with the server.
    *
-   * <P>The timeout also influences the reading of the response headers.
-   * However, it does not specify a how long, for example, getStatusCode()
-   * may take, as might be assumed. Instead it specifies how long a read
-   * on the socket may take. If the response dribbles in slowly with
-   * packets arriving quicker than the timeout then the method will
-   * complete normally. I.e. the exception is only thrown if nothing
-   * arrives on the socket for the specified time. Furthermore, the
-   * timeout only influences the reading of the headers, not the reading
-   * of the body.
+   * <p>The timeout also influences the reading of the response headers. However, it does not
+   * specify a how long, for example, getStatusCode() may take, as might be assumed. Instead it
+   * specifies how long a read on the socket may take. If the response dribbles in slowly with
+   * packets arriving quicker than the timeout then the method will complete normally. I.e. the
+   * exception is only thrown if nothing arrives on the socket for the specified time. Furthermore,
+   * the timeout only influences the reading of the headers, not the reading of the body.
    *
-   * <P>Read Timeouts are associated with responses, so that you may change
-   * this value before each request and it won't affect the reading of
-   * responses to previous requests.
+   * <p>Read Timeouts are associated with responses, so that you may change this value before each
+   * request and it won't affect the reading of responses to previous requests.
    *
-   * @param time the time in milliseconds. A time of 0 means wait
-   *             indefinitely.
+   * @param time the time in milliseconds. A time of 0 means wait indefinitely.
    * @see #stop()
    */
   public void setTimeout(int time) {
@@ -1536,8 +1460,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Controls whether modules are allowed to prompt the user or pop up
-   * dialogs if neccessary.
+   * Controls whether modules are allowed to prompt the user or pop up dialogs if neccessary.
    *
    * @param allow if true allows modules to interact with user.
    */
@@ -1546,8 +1469,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * returns whether modules are allowed to prompt or popup dialogs
-   * if neccessary.
+   * returns whether modules are allowed to prompt or popup dialogs if neccessary.
    *
    * @return true if modules are allowed to interact with user.
    */
@@ -1583,53 +1505,49 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Adds a module to the default list. It must implement the
-   * <var>HTTPClientModule</var> interface. If the module is already in
-   * the list then this method does nothing. This method only affects
-   * instances of HTTPConnection created after this method has been
-   * invoked; it does not affect existing instances.
+   * Adds a module to the default list. It must implement the <var>HTTPClientModule</var> interface.
+   * If the module is already in the list then this method does nothing. This method only affects
+   * instances of HTTPConnection created after this method has been invoked; it does not affect
+   * existing instances.
    *
-   * <P>Example:
+   * <p>Example:
+   *
    * <PRE>
    * HTTPConnection.addDefaultModule(Class.forName("com.percussion.HTTPClient.CookieModule"), 1);
    * </PRE>
+   *
    * adds the cookie module as the second module in the list.
    *
-   * <P>The default list is created at class initialization time from the
-   * property <var>HTTPClient.Modules</var>. This must contain a "|"
-   * separated list of classes in the order they're to be invoked. If this
-   * property is not set it defaults to:
+   * <p>The default list is created at class initialization time from the property
+   * <var>HTTPClient.Modules</var>. This must contain a "|" separated list of classes in the order
+   * they're to be invoked. If this property is not set it defaults to:
    *
-   * "com.percussion.HTTPClient.RetryModule | HTTPClient.CookieModule |
-   *  HTTPClient.RedirectionModule | HTTPClient.AuthorizationModule |
-   *  HTTPClient.DefaultModule | HTTPClient.TransferEncodingModule |
-   *  HTTPClient.ContentMD5Module | HTTPClient.ContentEncodingModule"
+   * <p>"com.percussion.HTTPClient.RetryModule | HTTPClient.CookieModule |
+   * HTTPClient.RedirectionModule | HTTPClient.AuthorizationModule | HTTPClient.DefaultModule |
+   * HTTPClient.TransferEncodingModule | HTTPClient.ContentMD5Module |
+   * HTTPClient.ContentEncodingModule"
    *
    * @see HTTPClientModule
    * @param module the module's Class object
-   * @param pos    the position of this module in the list; if <var>pos</var>
-   *               >= 0 then this is the absolute position in the list (0 is
-   *               the first position); if <var>pos</var> < 0 then this is
-   *               the position relative to the end of the list (-1 means
-   *               the last element, -2 the second to last element, etc).
-   * @return       true if module was successfully added; false if the
-   *               module is already in the list.
-   * @exception    ArrayIndexOutOfBoundsException if <var>pos</var> >
-   *               list-size or if <var>pos</var> < -(list-size).
-   * @exception    ClassCastException if <var>module</var> does not
-   *               implement the <var>HTTPClientModule</var> interface.
-   * @exception    RuntimeException if <var>module</var> cannot be
-   *               instantiated.
+   * @param pos the position of this module in the list; if <var>pos</var> >= 0 then this is the
+   *     absolute position in the list (0 is the first position); if <var>pos</var> < 0 then this is
+   *     the position relative to the end of the list (-1 means the last element, -2 the second to
+   *     last element, etc).
+   * @return true if module was successfully added; false if the module is already in the list.
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> > list-size or if <var>pos</var> <
+   *     -(list-size).
+   * @exception ClassCastException if <var>module</var> does not implement the
+   *     <var>HTTPClientModule</var> interface.
+   * @exception RuntimeException if <var>module</var> cannot be instantiated.
    */
   public static boolean addDefaultModule(Class module, int pos) {
     return addModule(DefaultModuleList, module, pos);
   }
 
   /**
-   * Removes a module from the default list. If the module is not in the
-   * list it does nothing. This method only affects instances of
-   * HTTPConnection created after this method has been invoked; it does not
-   * affect existing instances.
+   * Removes a module from the default list. If the module is not in the list it does nothing. This
+   * method only affects instances of HTTPConnection created after this method has been invoked; it
+   * does not affect existing instances.
    *
    * @param module the module's Class object
    * @return true if module was successfully removed; false otherwise
@@ -1648,33 +1566,28 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Adds a module to the current list. It must implement the
-   * <var>HTTPClientModule</var> interface. If the module is already in
-   * the list then this method does nothing.
+   * Adds a module to the current list. It must implement the <var>HTTPClientModule</var> interface.
+   * If the module is already in the list then this method does nothing.
    *
    * @see HTTPClientModule
    * @param module the module's Class object
-   * @param pos    the position of this module in the list; if <var>pos</var>
-   *               >= 0 then this is the absolute position in the list (0 is
-   *               the first position); if <var>pos</var> < 0 then this is
-   *               the position relative to the end of the list (-1 means
-   *               the last element, -2 the second to last element, etc).
-   * @return       true if module was successfully added; false if the
-   *               module is already in the list.
-   * @exception    ArrayIndexOutOfBoundsException if <var>pos</var> >
-   *               list-size or if <var>pos</var> < -(list-size).
-   * @exception    ClassCastException if <var>module</var> does not
-   *               implement the <var>HTTPClientModule</var> interface.
-   * @exception    RuntimeException if <var>module</var> cannot be
-   *               instantiated.
+   * @param pos the position of this module in the list; if <var>pos</var> >= 0 then this is the
+   *     absolute position in the list (0 is the first position); if <var>pos</var> < 0 then this is
+   *     the position relative to the end of the list (-1 means the last element, -2 the second to
+   *     last element, etc).
+   * @return true if module was successfully added; false if the module is already in the list.
+   * @exception ArrayIndexOutOfBoundsException if <var>pos</var> > list-size or if <var>pos</var> <
+   *     -(list-size).
+   * @exception ClassCastException if <var>module</var> does not implement the
+   *     <var>HTTPClientModule</var> interface.
+   * @exception RuntimeException if <var>module</var> cannot be instantiated.
    */
   public boolean addModule(Class module, int pos) {
     return addModule(ModuleList, module, pos);
   }
 
   /**
-   * Removes a module from the current list. If the module is not in the
-   * list it does nothing.
+   * Removes a module from the current list. If the module is not in the list it does nothing.
    *
    * @param module the module's Class object
    * @return true if module was successfully removed; false otherwise
@@ -1740,26 +1653,22 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the current context. The context is used by modules such as
-   * the AuthorizationModule and the CookieModule which keep lists of
-   * info that is normally shared between all instances of HTTPConnection.
-   * This is usually the desired behaviour. However, in some cases one
-   * would like to simulate multiple independent clients within the
-   * same application and hence the sharing of such info should be
-   * restricted. This is where the context comes in. Modules will only
-   * share their info between requests using the same context (i.e. they
-   * keep multiple lists, one for each context).
+   * Sets the current context. The context is used by modules such as the AuthorizationModule and
+   * the CookieModule which keep lists of info that is normally shared between all instances of
+   * HTTPConnection. This is usually the desired behaviour. However, in some cases one would like to
+   * simulate multiple independent clients within the same application and hence the sharing of such
+   * info should be restricted. This is where the context comes in. Modules will only share their
+   * info between requests using the same context (i.e. they keep multiple lists, one for each
+   * context).
    *
-   * <P>The context may be any object. Contexts are considered equal
-   * if <code>equals()</code> returns true. Examples of useful context
-   * objects are threads (e.g. if you are running multiple clients, one
-   * per thread) and sockets (e.g. if you are implementing a gateway).
+   * <p>The context may be any object. Contexts are considered equal if <code>equals()</code>
+   * returns true. Examples of useful context objects are threads (e.g. if you are running multiple
+   * clients, one per thread) and sockets (e.g. if you are implementing a gateway).
    *
-   * <P>When a new HTTPConnection is created it is initialized with a
-   * default context which is the same for all instances. This method
-   * must be invoked immediately after a new HTTPConnection is created
-   * and before any request method is invoked. Furthermore, this method
-   * may only be called once (i.e. the context is "sticky").
+   * <p>When a new HTTPConnection is created it is initialized with a default context which is the
+   * same for all instances. This method must be invoked immediately after a new HTTPConnection is
+   * created and before any request method is invoked. Furthermore, this method may only be called
+   * once (i.e. the context is "sticky").
    *
    * @param context the new context; must be non-null
    * @exception IllegalArgumentException if <var>context</var> is null
@@ -1776,8 +1685,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * Returns the current context.
    *
    * @see #setContext(java.lang.Object)
-   * @return the current context, or the default context if
-   *         <code>setContext()</code> hasn't been invoked
+   * @return the current context, or the default context if <code>setContext()</code> hasn't been
+   *     invoked
    */
   public Object getContext() {
     if (Context != null) return Context;
@@ -1795,63 +1704,57 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Adds an authorization entry for the "digest" authorization scheme to
-   * the list. If an entry already exists for the "digest" scheme and the
-   * specified realm then it is overwritten.
+   * Adds an authorization entry for the "digest" authorization scheme to the list. If an entry
+   * already exists for the "digest" scheme and the specified realm then it is overwritten.
    *
-   * <P>This is a convenience method and just invokes the corresponding
-   * method in AuthorizationInfo.
+   * <p>This is a convenience method and just invokes the corresponding method in AuthorizationInfo.
    *
    * @param realm the realm
-   * @param user  the username
+   * @param user the username
    * @param passw the password
-   * @see AuthorizationInfo#addDigestAuthorization(java.lang.String, int, java.lang.String, java.lang.String, java.lang.String)
+   * @see AuthorizationInfo#addDigestAuthorization(java.lang.String, int, java.lang.String,
+   *     java.lang.String, java.lang.String)
    */
   public void addDigestAuthorization(String realm, String user, String passwd) {
     AuthorizationInfo.addDigestAuthorization(Host, Port, realm, user, passwd, getContext());
   }
 
   /**
-   * Adds an authorization entry for the "basic" authorization scheme to
-   * the list. If an entry already exists for the "basic" scheme and the
-   * specified realm then it is overwritten.
+   * Adds an authorization entry for the "basic" authorization scheme to the list. If an entry
+   * already exists for the "basic" scheme and the specified realm then it is overwritten.
    *
-   * <P>This is a convenience method and just invokes the corresponding
-   * method in AuthorizationInfo.
+   * <p>This is a convenience method and just invokes the corresponding method in AuthorizationInfo.
    *
    * @param realm the realm
-   * @param user  the username
+   * @param user the username
    * @param passw the password
-   * @see AuthorizationInfo#addBasicAuthorization(java.lang.String, int, java.lang.String, java.lang.String, java.lang.String)
+   * @see AuthorizationInfo#addBasicAuthorization(java.lang.String, int, java.lang.String,
+   *     java.lang.String, java.lang.String)
    */
   public void addBasicAuthorization(String realm, String user, String passwd) {
     AuthorizationInfo.addBasicAuthorization(Host, Port, realm, user, passwd, getContext());
   }
 
   /**
-   * Sets the default proxy server to use. The proxy will only be used
-   * for new <var>HTTPConnection</var>s created after this call and will
-   * not affect currrent instances of <var>HTTPConnection</var>. A null
-   * or empty string <var>host</var> parameter disables the proxy.
+   * Sets the default proxy server to use. The proxy will only be used for new
+   * <var>HTTPConnection</var>s created after this call and will not affect currrent instances of
+   * <var>HTTPConnection</var>. A null or empty string <var>host</var> parameter disables the proxy.
    *
-   * <P>In an application or using the Appletviewer an alternative to
-   * this method is to set the following properties (either in the
-   * properties file or on the command line):
-   * <var>http.proxyHost</var> and <var>http.proxyPort</var>. Whether
-   * <var>http.proxyHost</var> is set or not determines whether a proxy
-   * server is used.
+   * <p>In an application or using the Appletviewer an alternative to this method is to set the
+   * following properties (either in the properties file or on the command line):
+   * <var>http.proxyHost</var> and <var>http.proxyPort</var>. Whether <var>http.proxyHost</var> is
+   * set or not determines whether a proxy server is used.
    *
-   * <P>If the proxy server requires authorization and you wish to set
-   * this authorization information in the code, then you may use any
-   * of the <var>AuthorizationInfo.addXXXAuthorization()</var> methods to
-   * do so. Specify the same <var>host</var> and <var>port</var> as in
-   * this method. If you have not given any authorization info and the
-   * proxy server requires authorization then you will be prompted for
-   * the necessary info via a popup the first time you do a request.
+   * <p>If the proxy server requires authorization and you wish to set this authorization
+   * information in the code, then you may use any of the
+   * <var>AuthorizationInfo.addXXXAuthorization()</var> methods to do so. Specify the same
+   * <var>host</var> and <var>port</var> as in this method. If you have not given any authorization
+   * info and the proxy server requires authorization then you will be prompted for the necessary
+   * info via a popup the first time you do a request.
    *
    * @see #setCurrentProxy(java.lang.String, int)
-   * @param  host    the host on which the proxy server resides.
-   * @param  port    the port the proxy server is listening on.
+   * @param host the host on which the proxy server resides.
+   * @param port the port the proxy server is listening on.
    */
   public static void setProxyServer(String host, int port) {
     if (host == null || host.trim().length() == 0) Default_Proxy_Host = null;
@@ -1862,15 +1765,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the proxy used by this instance. This can be used to override
-   * the proxy setting inherited from the default proxy setting. A null
-   * or empty string <var>host</var> parameter disables the proxy.
+   * Sets the proxy used by this instance. This can be used to override the proxy setting inherited
+   * from the default proxy setting. A null or empty string <var>host</var> parameter disables the
+   * proxy.
    *
-   * <P>Note that if you set a proxy for the connection using this
-   * method, and a request made over this connection is redirected
-   * to a different server, then the connection used for new server
-   * will <em>not</em> pick this proxy setting, but instead will use
-   * the default proxy settings.
+   * <p>Note that if you set a proxy for the connection using this method, and a request made over
+   * this connection is redirected to a different server, then the connection used for new server
+   * will <em>not</em> pick this proxy setting, but instead will use the default proxy settings.
    *
    * @see #setProxyServer(java.lang.String, int)
    * @param host the host the proxy runs on
@@ -1922,32 +1823,29 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Add <var>host</var> to the list of hosts which should be accessed
-   * directly, not via any proxy set by <code>setProxyServer()</code>.
+   * Add <var>host</var> to the list of hosts which should be accessed directly, not via any proxy
+   * set by <code>setProxyServer()</code>.
    *
-   * <P>The <var>host</var> may be any of:
+   * <p>The <var>host</var> may be any of:
+   *
    * <UL>
-   * <LI>a complete host name (e.g. "www.disney.com")
-   * <LI>a domain name; domain names must begin with a dot (e.g.
-   *     ".disney.com")
-   * <LI>an IP-address (e.g. "12.34.56.78")
-   * <LI>an IP-subnet, specified as an IP-address and a netmask separated
-   *     by a "/" (e.g. "34.56.78/255.255.255.192"); a 0 bit in the netmask
-   *     means that that bit won't be used in the comparison (i.e. the
-   *     addresses are AND'ed with the netmask before comparison).
+   *   <LI>a complete host name (e.g. "www.disney.com")
+   *   <LI>a domain name; domain names must begin with a dot (e.g. ".disney.com")
+   *   <LI>an IP-address (e.g. "12.34.56.78")
+   *   <LI>an IP-subnet, specified as an IP-address and a netmask separated by a "/" (e.g.
+   *       "34.56.78/255.255.255.192"); a 0 bit in the netmask means that that bit won't be used in
+   *       the comparison (i.e. the addresses are AND'ed with the netmask before comparison).
    * </UL>
    *
-   * <P>The two properties <var>HTTPClient.nonProxyHosts</var> and
-   * <var>http.nonProxyHosts</var> are used when this class is loaded to
-   * initialize the list of non-proxy hosts. The second property is only
-   * read if the first one is not set; the second property is also used
-   * the JDK's URLConnection. These properties must contain a "|"
-   * separated list of entries which conform to the above rules for the
-   * <var>host</var> parameter (e.g. "11.22.33.44|.disney.com").
+   * <p>The two properties <var>HTTPClient.nonProxyHosts</var> and <var>http.nonProxyHosts</var> are
+   * used when this class is loaded to initialize the list of non-proxy hosts. The second property
+   * is only read if the first one is not set; the second property is also used the JDK's
+   * URLConnection. These properties must contain a "|" separated list of entries which conform to
+   * the above rules for the <var>host</var> parameter (e.g. "11.22.33.44|.disney.com").
    *
    * @param host a host name, domain name, IP-address or IP-subnet.
-   * @exception ParseException if the length of the netmask does not match
-   *                           the length of the IP-address
+   * @exception ParseException if the length of the netmask does not match the length of the
+   *     IP-address
    */
   public static void dontProxyFor(String host) throws ParseException {
     host = host.trim().toLowerCase();
@@ -2012,8 +1910,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Convenience method to add a number of hosts at once. If any one
-   * host is null or cannot be parsed it is ignored.
+   * Convenience method to add a number of hosts at once. If any one host is null or cannot be
+   * parsed it is ignored.
    *
    * @param hosts The list of hosts to set
    * @see #dontProxyFor(java.lang.String)
@@ -2032,16 +1930,15 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Remove <var>host</var> from the list of hosts for which the proxy
-   * should not be used. This modifies the same list that
-   * <code>dontProxyFor()</code> uses, i.e. this is used to undo a
-   * <code>dontProxyFor()</code> setting. The syntax for <var>host</var> is
-   * specified in <code>dontProxyFor()</code>.
+   * Remove <var>host</var> from the list of hosts for which the proxy should not be used. This
+   * modifies the same list that <code>dontProxyFor()</code> uses, i.e. this is used to undo a
+   * <code>dontProxyFor()</code> setting. The syntax for <var>host</var> is specified in <code>
+   * dontProxyFor()</code>.
    *
    * @param host a host name, domain name, IP-address or IP-subnet.
    * @return true if the remove was sucessful, false otherwise
-   * @exception ParseException if the length of the netmask does not match
-   *                           the length of the IP-address
+   * @exception ParseException if the length of the netmask does not match the length of the
+   *     IP-address
    * @see #dontProxyFor(java.lang.String)
    */
   public static boolean doProxyFor(String host) throws ParseException {
@@ -2100,8 +1997,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Turn an IP-address string into an array (e.g. "12.34.56.78" into
-   * { 12, 34, 56, 78 }).
+   * Turn an IP-address string into an array (e.g. "12.34.56.78" into { 12, 34, 56, 78 }).
    *
    * @param ip IP-address
    * @return IP-address in network byte order
@@ -2129,34 +2025,31 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the SOCKS server to use. The server will only be used
-   * for new HTTPConnections created after this call and will not affect
-   * currrent instances of HTTPConnection. A null or empty string host
-   * parameter disables SOCKS.
-   * <P>The code will try to determine the SOCKS version to use at
-   * connection time. This might fail for a number of reasons, however,
-   * in which case you must specify the version explicitly.
+   * Sets the SOCKS server to use. The server will only be used for new HTTPConnections created
+   * after this call and will not affect currrent instances of HTTPConnection. A null or empty
+   * string host parameter disables SOCKS.
+   *
+   * <p>The code will try to determine the SOCKS version to use at connection time. This might fail
+   * for a number of reasons, however, in which case you must specify the version explicitly.
    *
    * @see #setSocksServer(java.lang.String, int, int)
-   * @param  host    the host on which the proxy server resides. The port
-   *                 used is the default port 1080.
+   * @param host the host on which the proxy server resides. The port used is the default port 1080.
    */
   public static void setSocksServer(String host) {
     setSocksServer(host, 1080);
   }
 
   /**
-   * Sets the SOCKS server to use. The server will only be used
-   * for new HTTPConnections created after this call and will not affect
-   * currrent instances of HTTPConnection. A null or empty string host
-   * parameter disables SOCKS.
-   * <P>The code will try to determine the SOCKS version to use at
-   * connection time. This might fail for a number of reasons, however,
-   * in which case you must specify the version explicitly.
+   * Sets the SOCKS server to use. The server will only be used for new HTTPConnections created
+   * after this call and will not affect currrent instances of HTTPConnection. A null or empty
+   * string host parameter disables SOCKS.
+   *
+   * <p>The code will try to determine the SOCKS version to use at connection time. This might fail
+   * for a number of reasons, however, in which case you must specify the version explicitly.
    *
    * @see #setSocksServer(java.lang.String, int, int)
-   * @param  host    the host on which the proxy server resides.
-   * @param  port    the port the proxy server is listening on.
+   * @param host the host on which the proxy server resides.
+   * @param port the port the proxy server is listening on.
    */
   public static void setSocksServer(String host, int port) {
     if (port <= 0) port = 1080;
@@ -2166,49 +2059,42 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Sets the SOCKS server to use. The server will only be used
-   * for new HTTPConnections created after this call and will not affect
-   * currrent instances of HTTPConnection. A null or empty string host
-   * parameter disables SOCKS.
+   * Sets the SOCKS server to use. The server will only be used for new HTTPConnections created
+   * after this call and will not affect currrent instances of HTTPConnection. A null or empty
+   * string host parameter disables SOCKS.
    *
-   * <P>In an application or using the Appletviewer an alternative to
-   * this method is to set the following properties (either in the
-   * properties file or on the command line):
-   * <var>HTTPClient.socksHost</var>, <var>HTTPClient.socksPort</var>
-   * and <var>HTTPClient.socksVersion</var>. Whether
-   * <var>HTTPClient.socksHost</var> is set or not determines whether a
-   * SOCKS server is used; if <var>HTTPClient.socksPort</var> is not set
-   * it defaults to 1080; if <var>HTTPClient.socksVersion</var> is not
-   * set an attempt will be made to automatically determine the version
-   * used by the server.
+   * <p>In an application or using the Appletviewer an alternative to this method is to set the
+   * following properties (either in the properties file or on the command line):
+   * <var>HTTPClient.socksHost</var>, <var>HTTPClient.socksPort</var> and
+   * <var>HTTPClient.socksVersion</var>. Whether <var>HTTPClient.socksHost</var> is set or not
+   * determines whether a SOCKS server is used; if <var>HTTPClient.socksPort</var> is not set it
+   * defaults to 1080; if <var>HTTPClient.socksVersion</var> is not set an attempt will be made to
+   * automatically determine the version used by the server.
    *
-   * <P>Note: If you have also set a proxy server then a connection
-   * will be made to the SOCKS server, which in turn then makes a
-   * connection to the proxy server (possibly via other SOCKS servers),
-   * which in turn makes the final connection.
+   * <p>Note: If you have also set a proxy server then a connection will be made to the SOCKS
+   * server, which in turn then makes a connection to the proxy server (possibly via other SOCKS
+   * servers), which in turn makes the final connection.
    *
-   * <P>If the proxy server is running SOCKS version 5 and requires
-   * username/password authorization, and you wish to set
-   * this authorization information in the code, then you may use the
-   * <var>AuthorizationInfo.addAuthorization()</var> method to do so.
-   * Specify the same <var>host</var> and <var>port</var> as in this
-   * method, give the <var>scheme</var> "SOCKS5" and the <var>realm</var>
-   * "USER/PASS", set the <var>cookie</var> to null and the
-   * <var>params</var> to an array containing a single <var>NVPair</var>
-   * in turn containing the username and password. Example:
+   * <p>If the proxy server is running SOCKS version 5 and requires username/password authorization,
+   * and you wish to set this authorization information in the code, then you may use the
+   * <var>AuthorizationInfo.addAuthorization()</var> method to do so. Specify the same
+   * <var>host</var> and <var>port</var> as in this method, give the <var>scheme</var> "SOCKS5" and
+   * the <var>realm</var> "USER/PASS", set the <var>cookie</var> to null and the <var>params</var>
+   * to an array containing a single <var>NVPair</var> in turn containing the username and password.
+   * Example:
+   *
    * <PRE>
    *     NVPair[] up = { new NVPair(username, password) };
    *     AuthorizationInfo.addAuthorization(host, port, "SOCKS5", "USER/PASS",
    *                                        null, up);
    * </PRE>
-   * If you have not given any authorization info and the proxy server
-   * requires authorization then you will be prompted for the necessary
-   * info via a popup the first time you do a request.
    *
-   * @param  host    the host on which the proxy server resides.
-   * @param  port    the port the proxy server is listening on.
-   * @param  version the SOCKS version the server is running. Currently
-   *                 this must be '4' or '5'.
+   * If you have not given any authorization info and the proxy server requires authorization then
+   * you will be prompted for the necessary info via a popup the first time you do a request.
+   *
+   * @param host the host on which the proxy server resides.
+   * @param port the port the proxy server is listening on.
+   * @param version the SOCKS version the server is running. Currently this must be '4' or '5'.
    * @exception SocksException If <var>version</var> is not '4' or '5'.
    */
   public static void setSocksServer(String host, int port, int version) throws SocksException {
@@ -2219,8 +2105,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Removes the #... part. Returns the stripped name, or "" if either
-   * the <var>file</var> is null or is the empty string (after stripping).
+   * Removes the #... part. Returns the stripped name, or "" if either the <var>file</var> is null
+   * or is the empty string (after stripping).
    *
    * @param file the name to strip
    * @return the stripped name
@@ -2237,19 +2123,17 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   // private helper methods
 
   /**
-   * Sets up the request, creating the list of headers to send and
-   * creating instances of the modules. This may be invoked by subclasses
-   * which add further methods (such as those from DAV and IPP).
+   * Sets up the request, creating the list of headers to send and creating instances of the
+   * modules. This may be invoked by subclasses which add further methods (such as those from DAV
+   * and IPP).
    *
-   * @param  method   GET, POST, etc.
-   * @param  resource the resource
-   * @param  headers  an array of headers to be used
-   * @param  entity   the entity (or null)
-   * @param  stream   the output stream (or null) - only one of stream and
-   *                  entity may be non-null
+   * @param method GET, POST, etc.
+   * @param resource the resource
+   * @param headers an array of headers to be used
+   * @param entity the entity (or null)
+   * @param stream the output stream (or null) - only one of stream and entity may be non-null
    * @return the response.
-   * @exception java.io.IOException when an exception is returned from
-   *                                the socket.
+   * @exception java.io.IOException when an exception is returned from the socket.
    * @exception ModuleException if an exception is encountered in any module.
    */
   protected final HTTPResponse setupRequest(
@@ -2269,13 +2153,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * This merges built-in default headers, user-specified default headers,
-   * and method-specified headers. Method-specified take precedence over
-   * user defaults, which take precedence over built-in defaults.
+   * This merges built-in default headers, user-specified default headers, and method-specified
+   * headers. Method-specified take precedence over user defaults, which take precedence over
+   * built-in defaults.
    *
-   * The following headers are removed if found: "Content-length".
+   * <p>The following headers are removed if found: "Content-length".
    *
-   * @param  spec   the headers specified in the call to the method
+   * @param spec the headers specified in the call to the method
    * @return an array consisting of merged headers.
    */
   private NVPair[] mergedHeaders(NVPair[] spec) {
@@ -2312,9 +2196,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     return merged;
   }
 
-  /**
-   * Generate an array of instances of the current modules.
-   */
+  /** Generate an array of instances of the current modules. */
   private HTTPClientModule[] gen_mod_insts() {
     synchronized (ModuleList) {
       HTTPClientModule[] mod_insts = new HTTPClientModule[ModuleList.size()];
@@ -2338,14 +2220,13 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * handles the Request. First the request handler for each module is
-   * is invoked, and then if no response was generated the request is
-   * sent.
+   * handles the Request. First the request handler for each module is is invoked, and then if no
+   * response was generated the request is sent.
    *
-   * @param  req        the Request
-   * @param  http_resp  the HTTPResponse
-   * @param  resp       the Response
-   * @param  usemodules if false then skip module loop
+   * @param req the Request
+   * @param http_resp the HTTPResponse
+   * @param resp the Response
+   * @param usemodules if false then skip module loop
    * @exception IOException if any module or sendRequest throws it
    * @exception ModuleException if any module throws it
    */
@@ -2453,16 +2334,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   /**
    * sends the request over the line.
    *
-   * @param  req         the request
-   * @param  con_timeout the timeout to use when establishing a socket
-   *                     connection; an InterruptedIOException is thrown
-   *                     if the procedure times out.
-   * @param  http_resp   the HTTPResponse to add the new response to
-   * @exception IOException     if thrown by the socket
-   * @exception InterruptedIOException if the connection is not established
-   *                                   within the specified timeout
-   * @exception ModuleException if any module throws it during the SSL-
-   *                            tunneling handshake
+   * @param req the request
+   * @param con_timeout the timeout to use when establishing a socket connection; an
+   *     InterruptedIOException is thrown if the procedure times out.
+   * @param http_resp the HTTPResponse to add the new response to
+   * @exception IOException if thrown by the socket
+   * @exception InterruptedIOException if the connection is not established within the specified
+   *     timeout
+   * @exception ModuleException if any module throws it during the SSL- tunneling handshake
    */
   Response sendRequest(Request req, int con_timeout) throws IOException, ModuleException {
     ByteArrayOutputStream hdr_buf = new ByteArrayOutputStream(600);
@@ -2739,12 +2618,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * Gets a socket. Creates a socket to the proxy if set, or else to the
-   * actual destination.
+   * Gets a socket. Creates a socket to the proxy if set, or else to the actual destination.
    *
-   * @param con_timeout if not 0 then start a new thread to establish the
-   *                    the connection and join(con_timeout) it. If the
-   *                    join() times out an InteruptedIOException is thrown.
+   * @param con_timeout if not 0 then start a new thread to establish the the connection and
+   *     join(con_timeout) it. If the join() times out an InteruptedIOException is thrown.
    */
   private Socket getSocket(int con_timeout) throws IOException {
     Socket sock = null;
@@ -2802,11 +2679,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
    * Enable SSL Tunneling if we're talking to a proxy. See ietf draft
    * draft-luotonen-ssl-tunneling-03 for more info.
    *
-   * @param sock    the socket
-   * @param req     the request initiating this connection
+   * @param sock the socket
+   * @param req the request initiating this connection
    * @param timeout the timeout
-   * @return the proxy's last response if unsuccessful, or null if
-   *         tunnel successfuly established
+   * @return the proxy's last response if unsuccessful, or null if tunnel successfuly established
    * @exception IOException
    * @exception ModuleException
    */
@@ -2874,10 +2750,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     }
   }
 
-  /**
-   * Check whether the name in the certificate matches the host
-   * we're talking to.
-   */
+  /** Check whether the name in the certificate matches the host we're talking to. */
   private static void checkCert(X509Certificate cert, String host) throws IOException {
     //	String name;
     //	try
@@ -2897,48 +2770,39 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * This writes out the headers on the <var>hdr_buf</var>. It takes
-   * special precautions for the following headers:
+   * This writes out the headers on the <var>hdr_buf</var>. It takes special precautions for the
+   * following headers:
+   *
    * <DL>
-   * <DT>Content-type<DI>This is only written if the request has an entity.
-   *                     If the request has an entity and no content-type
-   *                     header was given for the request it defaults to
-   *                     "application/octet-stream"
-   * <DT>Content-length<DI>This header is generated if the request has an
-   *                     entity and the entity isn't being sent with the
-   *                     Transfer-Encoding "chunked".
-   * <DT>User-Agent  <DI>If not present it will be generated with the current
-   *                     HTTPClient version strings. Otherwise the version
-   *                     string is appended to the given User-Agent string.
-   * <DT>Connection  <DI>This header is only written if no proxy is used.
-   *                     If no connection header is specified and the server
-   *                     is not known to understand HTTP/1.1 or later then
-   *                     a "Connection: keep-alive" header is generated.
-   * <DT>Proxy-Connection<DI>This header is only written if a proxy is used.
-   *                     If no connection header is specified and the proxy
-   *                     is not known to understand HTTP/1.1 or later then
-   *                     a "Proxy-Connection: keep-alive" header is generated.
-   * <DT>Keep-Alive  <DI>This header is only written if the Connection or
-   *                     Proxy-Connection header contains the Keep-Alive
-   *                     token.
-   * <DT>Expect      <DI>If there is no entity and this header contains the
-   *                     "100-continue" token then this token is removed.
-   *                     before writing the header.
-   * <DT>TE          <DI>If this header does not exist, it is created; else
-   *                     if the "trailers" token is not specified this token
-   *                     is added; else the header is not touched.
+   *   <DT>Content-type<DI>This is only written if the request has an entity. If the request has an
+   *       entity and no content-type header was given for the request it defaults to
+   *       "application/octet-stream"
+   *   <DT>Content-length<DI>This header is generated if the request has an entity and the entity
+   *       isn't being sent with the Transfer-Encoding "chunked".
+   *   <DT>User-Agent <DI>If not present it will be generated with the current HTTPClient version
+   *       strings. Otherwise the version string is appended to the given User-Agent string.
+   *   <DT>Connection <DI>This header is only written if no proxy is used. If no connection header
+   *       is specified and the server is not known to understand HTTP/1.1 or later then a
+   *       "Connection: keep-alive" header is generated.
+   *   <DT>Proxy-Connection<DI>This header is only written if a proxy is used. If no connection
+   *       header is specified and the proxy is not known to understand HTTP/1.1 or later then a
+   *       "Proxy-Connection: keep-alive" header is generated.
+   *   <DT>Keep-Alive <DI>This header is only written if the Connection or Proxy-Connection header
+   *       contains the Keep-Alive token.
+   *   <DT>Expect <DI>If there is no entity and this header contains the "100-continue" token then
+   *       this token is removed. before writing the header.
+   *   <DT>TE <DI>If this header does not exist, it is created; else if the "trailers" token is not
+   *       specified this token is added; else the header is not touched.
    * </DL>
    *
    * Furthermore, it escapes various characters in request-URI.
    *
-   * @param req     the Request
+   * @param req the Request
    * @param hdr_buf the buffer onto which to write the headers
-   * @return        an array of headers; the first element contains the
-   *                the value of the Connection or Proxy-Connectin header,
-   *                the second element the value of the Expect header.
-   * @exception IOException if writing on <var>hdr_buf</var> generates an
-   *                        an IOException, or if an error occurs during
-   *                        parsing of a header
+   * @return an array of headers; the first element contains the the value of the Connection or
+   *     Proxy-Connectin header, the second element the value of the Expect header.
+   * @exception IOException if writing on <var>hdr_buf</var> generates an an IOException, or if an
+   *     error occurs during parsing of a header
    */
   private String[] assembleHeaders(Request req, ByteArrayOutputStream hdr_buf) throws IOException {
     DataOutputStream dataout = new DataOutputStream(hdr_buf);
@@ -3138,8 +3002,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * The very first request is special in that we use it to figure out the
-   * protocol version the server (or proxy) is compliant with.
+   * The very first request is special in that we use it to figure out the protocol version the
+   * server (or proxy) is compliant with.
    *
    * @return true if all went fine, false if the request needs to be resent
    * @exception IOException if any exception is thrown by the response
@@ -3328,9 +3192,8 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
   }
 
   /**
-   * M$ has yet another bug in their WinSock: if you try to write too much
-   * data at once it'll hang itself. This filter therefore splits big writes
-   * up into multiple writes of at most 20K.
+   * M$ has yet another bug in their WinSock: if you try to write too much data at once it'll hang
+   * itself. This filter therefore splits big writes up into multiple writes of at most 20K.
    */
   private class MSLargeWritesBugStream extends FilterOutputStream {
     private final int CHUNK_SIZE = 20000;

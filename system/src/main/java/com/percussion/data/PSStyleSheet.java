@@ -24,19 +24,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * The PSStyleSheet class is used to provider simpler access to
- * the style sheet associated with an XML document.
+ * The PSStyleSheet class is used to provider simpler access to the style sheet associated with an
+ * XML document.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSStyleSheet {
   /**
    * Create a style sheet reference.
    *
-   * @param   doc      the XML document to get the style sheet from
-   *
+   * @param doc the XML document to get the style sheet from
    * @exception MalformedURLException
    */
   public PSStyleSheet(Document doc) throws java.net.MalformedURLException {
@@ -63,9 +62,8 @@ public class PSStyleSheet {
   /**
    * Get the URL of the style sheet associated with this XML document.
    *
-   * @return            the style sheet's URL or <code>null</code> if
-   *                     a <code>stylesheet</code> processing instruction
-   *                     does not exist in the doc
+   * @return the style sheet's URL or <code>null</code> if a <code>stylesheet</code> processing
+   *     instruction does not exist in the doc
    */
   public java.net.URL getURL() {
     return m_URL;
@@ -74,9 +72,8 @@ public class PSStyleSheet {
   /**
    * Get the type of the style sheet associated with this XML document.
    *
-   * @return            the style sheet's type or <code>null</code> if
-   *                     a <code>stylesheet</code> processing instruction
-   *                     does not exist in the doc
+   * @return the style sheet's type or <code>null</code> if a <code>stylesheet</code> processing
+   *     instruction does not exist in the doc
    */
   public java.lang.String getType() {
     return m_type;
@@ -85,23 +82,19 @@ public class PSStyleSheet {
   /**
    * Get the PI node containing the style sheet definition.
    *
-   * @return            the PI node or <code>null</code> if
-   *                     a <code>stylesheet</code> processing instruction
-   *                     does not exist in the doc
+   * @return the PI node or <code>null</code> if a <code>stylesheet</code> processing instruction
+   *     does not exist in the doc
    */
   public ProcessingInstruction getPINode() {
     return m_PINode;
   }
 
   /**
-   * Get the PI node containing the style sheet definition for the
-   * specified document.
+   * Get the PI node containing the style sheet definition for the specified document.
    *
-   * @param   doc      the XML document to get the stylesheet PI node from
-   *
-   * @return            the PI node or <code>null</code> if
-   *                     a <code>stylesheet</code> processing instruction
-   *                     does not exist in the doc
+   * @param doc the XML document to get the stylesheet PI node from
+   * @return the PI node or <code>null</code> if a <code>stylesheet</code> processing instruction
+   *     does not exist in the doc
    */
   public static ProcessingInstruction getPINode(Document doc) {
     ProcessingInstruction pi = null;

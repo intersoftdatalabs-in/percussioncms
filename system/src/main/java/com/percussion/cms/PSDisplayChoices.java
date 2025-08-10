@@ -33,8 +33,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class represents a set of choices and an optional choice filter.
- * Handles serializing this data to and from its XML representation.
+ * This class represents a set of choices and an optional choice filter. Handles serializing this
+ * data to and from its XML representation.
  *
  * @todo Refactor the PSChoiceBuilder to use this class if possible.
  */
@@ -42,11 +42,10 @@ public class PSDisplayChoices implements Cloneable {
   /**
    * Construct this object from its member data.
    *
-   * @param choices An iterator over zero or more <code>PSEntry</code> objects
-   * defining the value and label of the choices, may be <code>null</code> if
-   * the choices are to be supplied later.
-   * @param filter An optional filter to use to limit the choices based on
-   * another field value, may be <code>null</code>.
+   * @param choices An iterator over zero or more <code>PSEntry</code> objects defining the value
+   *     and label of the choices, may be <code>null</code> if the choices are to be supplied later.
+   * @param filter An optional filter to use to limit the choices based on another field value, may
+   *     be <code>null</code>.
    */
   public PSDisplayChoices(Iterator<PSEntry> choices, PSChoiceFilter filter) {
     if (choices != null) {
@@ -61,15 +60,12 @@ public class PSDisplayChoices implements Cloneable {
   }
 
   /**
-   * Construct this object from its xml representation.  See
-   * {@link #toXml(Document)} for the expected xml format for the
-   * <code>src</code> element.
+   * Construct this object from its xml representation. See {@link #toXml(Document)} for the
+   * expected xml format for the <code>src</code> element.
    *
    * @param src The src element, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSUnknownNodeTypeException if <code>src</code> does not have the
-   * expected format.
+   * @throws PSUnknownNodeTypeException if <code>src</code> does not have the expected format.
    */
   public PSDisplayChoices(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -124,9 +120,8 @@ public class PSDisplayChoices implements Cloneable {
   /**
    * Determine if choices were supplied during construction.
    *
-   * @return <code>true</code> if they were supplied, <code>false</code> if
-   * not.  Note that {@link #getChoices()} may return an empty iterator in
-   * either case.
+   * @return <code>true</code> if they were supplied, <code>false</code> if not. Note that {@link
+   *     #getChoices()} may return an empty iterator in either case.
    */
   public boolean areChoicesLoaded() {
     return m_choices != null;
@@ -136,20 +131,12 @@ public class PSDisplayChoices implements Cloneable {
    * Serialize this object to its XML representation.
    *
    * @param doc The document to use, may not be <code>null</code>.
-   *
-   * @return The element, never <code>null</code>.  The format returned is:
-   *
-   *  &lt;!ELEMENT DisplayChoices (DisplayEntry*, PSXChoiceFilter?)>
-   *  &lt;!ATTLIST DisplayChoices
-   *     areChoicesLoaded (yes | no ) "yes"
-   *  >
-   *  &lt;!ELEMENT DisplayEntry (Value, DisplayLabel)>
-   *  &lt;!ELEMENT Value (#PCDATA)>
-   *  &lt;!ELEMENT DisplayLabel (#PCDATA)>
-   *
-   * @todo Bring this into compliance with the DisplayChoice element in the
-   * sys_ContentEditor.dtd if the <code>PSChoiceBuilder</code> is refactored
-   * to use this class.
+   * @return The element, never <code>null</code>. The format returned is:
+   *     <p>&lt;!ELEMENT DisplayChoices (DisplayEntry*, PSXChoiceFilter?)> &lt;!ATTLIST
+   *     DisplayChoices areChoicesLoaded (yes | no ) "yes" > &lt;!ELEMENT DisplayEntry (Value,
+   *     DisplayLabel)> &lt;!ELEMENT Value (#PCDATA)> &lt;!ELEMENT DisplayLabel (#PCDATA)>
+   * @todo Bring this into compliance with the DisplayChoice element in the sys_ContentEditor.dtd if
+   *     the <code>PSChoiceBuilder</code> is refactored to use this class.
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -176,11 +163,9 @@ public class PSDisplayChoices implements Cloneable {
   /**
    * Get the list of choices.
    *
-   * @return An iterator over zero or more <code>PSEntry</code> objects, never
-   * <code>null</code>, may be empty if there are no choices available, or if
-   * they were not supplied during construction.
-   * Use {@link #areChoicesLoaded()} to determine the meaning of an empty
-   * result.
+   * @return An iterator over zero or more <code>PSEntry</code> objects, never <code>null</code>,
+   *     may be empty if there are no choices available, or if they were not supplied during
+   *     construction. Use {@link #areChoicesLoaded()} to determine the meaning of an empty result.
    */
   public Iterator<PSEntry> getChoices() {
     if (m_choices == null) return PSIteratorUtils.emptyIterator();
@@ -189,8 +174,8 @@ public class PSDisplayChoices implements Cloneable {
   }
 
   /**
-   * Get the choice filter. This may be used to filter the set of choices,
-   * possibly based on other values.
+   * Get the choice filter. This may be used to filter the set of choices, possibly based on other
+   * values.
    *
    * @return The choice filter, may be <code>null</code> if none supplied.
    */
@@ -236,13 +221,9 @@ public class PSDisplayChoices implements Cloneable {
   /**
    * Creates a new DisplayEntry node.
    *
-   * @param doc the document in which to create the new element, assumed
-   *    not <code>null</code>.
-   * @param value the value string of the DisplayEntry to create, assumed
-   *    not <code>null</code>.
-   * @param label the label string of the DisplayEntry to create, assumed
-   *    not <code>null</code>.
-   *
+   * @param doc the document in which to create the new element, assumed not <code>null</code>.
+   * @param value the value string of the DisplayEntry to create, assumed not <code>null</code>.
+   * @param label the label string of the DisplayEntry to create, assumed not <code>null</code>.
    * @return the newly created DisplayElement, never <code>null</code>.
    */
   private static Element createDisplayEntry(Document doc, String value, String label) {
@@ -262,15 +243,14 @@ public class PSDisplayChoices implements Cloneable {
   public static final String XML_NODE_NAME = "DisplayChoices";
 
   /**
-   * A list of <code>PSEntry</code> objects, <code>null</code> if choices
-   * are not supplied, may be empty.  Intialized during the ctor if choices are
-   * supplied, never modified after that.
+   * A list of <code>PSEntry</code> objects, <code>null</code> if choices are not supplied, may be
+   * empty. Intialized during the ctor if choices are supplied, never modified after that.
    */
   private List<PSEntry> m_choices = null;
 
   /**
-   * Optional filter supplied during construction, may be <code>null</code>,
-   * never modified after that.
+   * Optional filter supplied during construction, may be <code>null</code>, never modified after
+   * that.
    */
   private PSChoiceFilter m_filter = null;
 

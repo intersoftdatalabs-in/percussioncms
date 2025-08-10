@@ -26,11 +26,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
-/**
- * Extracts the text from input stream corresponding to RTF file using
- * RTFEditorKit.
- *
- */
+/** Extracts the text from input stream corresponding to RTF file using RTFEditorKit. */
 public class PSTextConverterRtf implements IPSLuceneTextConverter {
 
   /*
@@ -63,8 +59,6 @@ public class PSTextConverterRtf implements IPSLuceneTextConverter {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

@@ -79,16 +79,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-/**
- * Singleton class to provide common database read/write functionality.
- */
+/** Singleton class to provide common database read/write functionality. */
 public class PSDbmsHelper {
 
   private static final Logger log = LogManager.getLogger(PSDbmsHelper.class);
 
-  /**
-   * Private ctor to enforce singleton pattern.
-   */
+  /** Private ctor to enforce singleton pattern. */
   private PSDbmsHelper() {
     // Private constructor to enforce singleton pattern
   }
@@ -106,23 +102,18 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Gets all entries from the specified table, returning the id and name
-   * values for each row found.
+   * Gets all entries from the specified table, returning the id and name values for each row found.
    *
-   * @param table The name of the table to return data for. May not be
-   * <code>null</code> or empty.
-   * @param idCol The name of the column to get the registration entry's id
-   * from, may not be <code>null</code> or empty.
-   * @param nameCol The name of the column to get the registration entry's name
-   * from, may not be <code>null</code> or empty.
+   * @param table The name of the table to return data for. May not be <code>null</code> or empty.
+   * @param idCol The name of the column to get the registration entry's id from, may not be <code>
+   *     null</code> or empty.
+   * @param nameCol The name of the column to get the registration entry's name from, may not be
+   *     <code>null</code> or empty.
    * @param filter Optional filter to apply, may be <code>null</code>.
-   *
-   * @return A list of <code>Map.entry</code> objects, one for each row, each
-   * containing the id value as the key, and the name as the value, both as
-   * non-<code>null</code> <code>String</code> objects.  Never
-   * <code>null</code>, may be empty, will not contain <code>null</code>
-   * entries.
-   *
+   * @return A list of <code>Map.entry</code> objects, one for each row, each containing the id
+   *     value as the key, and the name as the value, both as non-<code>null</code> <code>String
+   *     </code> objects. Never <code>null</code>, may be empty, will not contain <code>null</code>
+   *     entries.
    * @throws IllegalArgumentException If any param is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -171,7 +162,6 @@ public class PSDbmsHelper {
    * Gets the server's repository information
    *
    * @return The info, never <code>null</code>.
-   *
    * @throws PSDeployException if the info cannot be obtained.
    */
   public PSDbmsInfo getServerRepositoryInfo() throws PSDeployException {
@@ -201,6 +191,7 @@ public class PSDbmsHelper {
 
   /**
    * Util method to retrieve the datasource name
+   *
    * @return the datasource name
    */
   public String findADataSource() throws PSDeployException {
@@ -209,6 +200,7 @@ public class PSDbmsHelper {
 
   /**
    * A convenience routine to fetch the datasource
+   *
    * @return the datasource cannot be <code>null</code>
    */
   private DataSourceInfo getDataSourceInfo() {
@@ -238,9 +230,9 @@ public class PSDbmsHelper {
 
   /**
    * Private convenience method to fetch jndi data sources
+   *
    * @return the jndi datasource object
    * @throws PSDeployException, if there are any problems
-   *
    */
   private List<IPSJndiDatasource> getJndiDataSourceList() throws PSDeployException {
     PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
@@ -263,6 +255,7 @@ public class PSDbmsHelper {
 
   /**
    * A convenience method to fetch datasource resolver.
+   *
    * @return the datasource resolver
    * @throws PSDeployException, if any exceptions occur
    */
@@ -284,9 +277,8 @@ public class PSDbmsHelper {
   /**
    * Gets a connection to the Rhythmyx repository.
    *
-   * @return The connection, never <code>null</code>.  Caller is responsible
-   * for calling <code>release()</code> on the connection when finished.
-   *
+   * @return The connection, never <code>null</code>. Caller is responsible for calling <code>
+   *     release()</code> on the connection when finished.
    * @throws PSDeployException if there are any errors.
    */
   public Connection getRepositoryConnection() throws PSDeployException {
@@ -301,13 +293,10 @@ public class PSDbmsHelper {
   /**
    * Catalogs the specified table from the Rhythmyx server repository.
    *
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   * @param includeData If <code>true</code>, data will be included in the
-   * catalog, otherwise only the schema will be cataloged.
-   *
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
+   * @param includeData If <code>true</code>, data will be included in the catalog, otherwise only
+   *     the schema will be cataloged.
    * @return The table schema object, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -328,20 +317,16 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Catalogs all rows from the specified table in the rx repository, applying
-   * the optional filter if supplied.
+   * Catalogs all rows from the specified table in the rx repository, applying the optional filter
+   * if supplied.
    *
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   * @param columns an array of column names, may be <code>null</code>
-   * or empty in which case all the columns are used in the select query.
-   * The columns specified must belong to the specified <code>tableName</code>.
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
+   * @param columns an array of column names, may be <code>null</code> or empty in which case all
+   *     the columns are used in the select query. The columns specified must belong to the
+   *     specified <code>tableName</code>.
    * @param filter Optional filter to apply, may be <code>null</code>.
-   *
-   * @return The data, or <code>null</code> if no rows are returned by the
-   * query.  All rows returned have their row action set to
-   * {@link PSJdbcRowData#ACTION_INSERT}.
-   *
+   * @return The data, or <code>null</code> if no rows are returned by the query. All rows returned
+   *     have their row action set to {@link PSJdbcRowData#ACTION_INSERT}.
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -354,22 +339,17 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Catalogs all rows from the table, specified by either
-   * <code>PSJdbcTableSchema</code> or table-name (as <code>String</code>).
+   * Catalogs all rows from the table, specified by either <code>PSJdbcTableSchema</code> or
+   * table-name (as <code>String</code>). <code>schema</code> is not <code>null</code>.
    *
-   * <code>schema</code> is not <code>null</code>.
-   * @param schema The schema for a database table. It may be
-   * <code>null</code>. However, if it is <code>null</code>, then assume
-   * <code>tableName</code> is not <code>null</code> or empty.
-   * @param columns an array of column names, may be <code>null</code>
-   * or empty in which case all the columns are used in the select query.
-   * The columns specified must belong to the specified <code>tableName</code>.
+   * @param schema The schema for a database table. It may be <code>null</code>. However, if it is
+   *     <code>null</code>, then assume <code>tableName</code> is not <code>null</code> or empty.
+   * @param columns an array of column names, may be <code>null</code> or empty in which case all
+   *     the columns are used in the select query. The columns specified must belong to the
+   *     specified <code>tableName</code>.
    * @param filter Optional filter to apply, may be <code>null</code>.
-   *
-   * @return The data, or <code>null</code> if no rows are returned by the
-   * query.  All rows returned have their row action set to
-   * {@link PSJdbcRowData#ACTION_INSERT}.
-   *
+   * @return The data, or <code>null</code> if no rows are returned by the query. All rows returned
+   *     have their row action set to {@link PSJdbcRowData#ACTION_INSERT}.
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -382,24 +362,20 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Catalogs all rows from the table, specified by either
-   * <code>PSJdbcTableSchema</code> or table-name (as <code>String</code>).
+   * Catalogs all rows from the table, specified by either <code>PSJdbcTableSchema</code> or
+   * table-name (as <code>String</code>).
    *
-   * @param tableName The name of the table. It is may be <code>null</code>,
-   * but assume never be empty. If it is <code>null</code>, then assume the
-   * <code>schema</code> is not <code>null</code>.
-   * @param schema The schema for a database table. It may be
-   * <code>null</code>. However, if it is <code>null</code>, then assume
-   * <code>tableName</code> is not <code>null</code> or empty.
-   * @param columns an array of column names, may be <code>null</code>
-   * or empty in which case all the columns are used in the select query.
-   * The columns specified must belong to the specified <code>tableName</code>.
+   * @param tableName The name of the table. It is may be <code>null</code>, but assume never be
+   *     empty. If it is <code>null</code>, then assume the <code>schema</code> is not <code>null
+   *     </code>.
+   * @param schema The schema for a database table. It may be <code>null</code>. However, if it is
+   *     <code>null</code>, then assume <code>tableName</code> is not <code>null</code> or empty.
+   * @param columns an array of column names, may be <code>null</code> or empty in which case all
+   *     the columns are used in the select query. The columns specified must belong to the
+   *     specified <code>tableName</code>.
    * @param filter Optional filter to apply, may be <code>null</code>.
-   *
-   * @return The data, or <code>null</code> if no rows are returned by the
-   * query.  All rows returned have their row action set to
-   * {@link PSJdbcRowData#ACTION_INSERT}.
-   *
+   * @return The data, or <code>null</code> if no rows are returned by the query. All rows returned
+   *     have their row action set to {@link PSJdbcRowData#ACTION_INSERT}.
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -419,12 +395,9 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Processing a database table according to the given
-   * <code>PSJdbcTableSchema</code> object.
+   * Processing a database table according to the given <code>PSJdbcTableSchema</code> object.
    *
-   * @param schema The schema object to be processed, may not be
-   * <code>null</code>
-   *
+   * @param schema The schema object to be processed, may not be <code>null</code>
    * @throws PSDeployException if there is an error.
    */
   public void processTable(PSJdbcTableSchema schema) throws PSDeployException {
@@ -441,11 +414,8 @@ public class PSDbmsHelper {
   /**
    * Pricessing a database table according to the given schema and table data.
    *
-   * @param schema The scehma object to be processed, may not be
-   * <code>null</code>.
-   * @param tableData The table data to be processed, may not be
-   * <code>null</code>.
-   *
+   * @param schema The scehma object to be processed, may not be <code>null</code>.
+   * @param tableData The table data to be processed, may not be <code>null</code>.
    * @throws PSDeployException if there is an error.
    */
   public void processTable(PSJdbcTableSchema schema, PSJdbcTableData tableData)
@@ -464,7 +434,6 @@ public class PSDbmsHelper {
    * @param schema The schema object, may not <code>null</code>.
    * @param tableName The table name, may not <code>null</code> or empty.
    * @param rowData The row data, may not <code>null</code>.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public void processTable(PSJdbcTableSchema schema, String tableName, PSJdbcRowData rowData)
@@ -481,7 +450,6 @@ public class PSDbmsHelper {
    * Gets a table factory dbms def object for the Rhythmyx server repository.
    *
    * @return The dbms def object, never <code>null</code>.
-   *
    * @throws PSDeployException If any errors occur.
    */
   public PSJdbcDbmsDef getDbmsDef() throws PSDeployException {
@@ -506,7 +474,6 @@ public class PSDbmsHelper {
    * Gets a tablefactory datatype map for the Rx server repository's driver.
    *
    * @return The dbms def, never <code>null</code>.
-   *
    * @throws PSDeployException If any errors occur.
    */
   public PSJdbcDataTypeMap getDataTypeMap() throws PSDeployException {
@@ -531,11 +498,9 @@ public class PSDbmsHelper {
   /**
    * Reserves a new id for the specified table name
    *
-   * @param tableName The name used as a key in the NEXTNUMBER table, may not
-   * be <code>null</code> or empty.
-   *
+   * @param tableName The name used as a key in the NEXTNUMBER table, may not be <code>null</code>
+   *     or empty.
    * @return The id.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -554,12 +519,10 @@ public class PSDbmsHelper {
   /**
    * Reserves a block of new ids for the specified table name
    *
-   * @param tableName The name used as a key in the NEXTNUMBER table, may not
-   * be <code>null</code> or empty.
+   * @param tableName The name used as a key in the NEXTNUMBER table, may not be <code>null</code>
+   *     or empty.
    * @param blockSize The number of ids need to be reserved.
-   *
    * @return The id blocks in <code>int[]</code>.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    * @throws PSDeployException If there are any errors.
    */
@@ -580,12 +543,8 @@ public class PSDbmsHelper {
    *
    * @param table The table name, may not <code>null</code> or empty.
    * @param column The column name, may not <code>null</code> or empty.
-   * @param row The row data, which contains the value, may not
-   * <code>null</code>.
-   *
-   * @return The value as <code>String</code>, never <code>null</code>, may
-   * be empty.
-   *
+   * @param row The row data, which contains the value, may not <code>null</code>.
+   * @return The value as <code>String</code>, never <code>null</code>, may be empty.
    * @throws PSDeployException if any error occurs.
    */
   public String getColumnString(String table, String column, PSJdbcRowData row)
@@ -611,11 +570,8 @@ public class PSDbmsHelper {
    *
    * @param table The table name, may not <code>null</code> or empty.
    * @param column The column name, may not <code>null</code> or empty.
-   * @param row The row data, which contains the value, may not
-   * <code>null</code>.
-   *
+   * @param row The row data, which contains the value, may not <code>null</code>.
    * @return The value as <code>int</code>, never <code>null</code>.
-   *
    * @throws PSDeployException if any error occurs.
    */
   public Date getColumnDate(String table, String column, PSJdbcRowData row)
@@ -642,11 +598,8 @@ public class PSDbmsHelper {
    *
    * @param table The table name, may not <code>null</code> or empty.
    * @param column The column name, may not <code>null</code> or empty.
-   * @param row The row data, which contains the value, may not
-   * <code>null</code>.
-   *
+   * @param row The row data, which contains the value, may not <code>null</code>.
    * @return The value as <code>int</code>.
-   *
    * @throws PSDeployException if any error occurs.
    */
   public int getColumnInt(String table, String column, PSJdbcRowData row) throws PSDeployException {
@@ -668,21 +621,16 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Get a application name from a given row, column of a table. The value of
-   * the column must contain a URL string.
+   * Get a application name from a given row, column of a table. The value of the column must
+   * contain a URL string.
    *
    * @param table The table name, may not <code>null</code> or empty.
    * @param column The column name, may not <code>null</code> or empty.
-   * @param row The row data, which contains the value, may not
-   * <code>null</code>.
-   *
-   * @return The retrieved application name, it will never be <code>null</code>
-   * or empty.
-   *
+   * @param row The row data, which contains the value, may not <code>null</code>.
+   * @return The retrieved application name, it will never be <code>null</code> or empty.
    * @throws IllegalArgumentException if a parameter is invalid.
-   * @throws PSDeployException If unable to retrieve an application name from
-   * the specified <code>column</code> and <code>row</code>, or any other
-   * error occurs.
+   * @throws PSDeployException If unable to retrieve an application name from the specified <code>
+   *     column</code> and <code>row</code>, or any other error occurs.
    */
   public String getColumnAppName(String table, String column, PSJdbcRowData row)
       throws PSDeployException {
@@ -710,7 +658,6 @@ public class PSDbmsHelper {
    *
    * @param colName The column name, may not be <code>null</code> or empty.
    * @param schema The schema object, may not be <code>null</code>.
-   *
    * @throws PSDeployException if an error occurs.
    */
   public void setUpdateKeyForSchema(String colName, PSJdbcTableSchema schema)
@@ -727,10 +674,9 @@ public class PSDbmsHelper {
   /**
    * Sets the update key from a given columns and schema.
    *
-   * @param columns A list of column names in <coce>String</code>, it may not
-   * be <code>null</code> or empty.
+   * @param columns A list of column names in <coce>String</code>, it may not be <code>null</code>
+   *     or empty.
    * @param schema The schema object, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if a parameter is invalid.
    * @throws PSDeployException if an error occurs.
    */
@@ -749,16 +695,13 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Creates a <code>PSJdbcRowData</code> for one column (name and value),
-   * and an action.
+   * Creates a <code>PSJdbcRowData</code> for one column (name and value), and an action.
    *
    * @param colName The column name, may not be <code>null</code> or empty.
    * @param colValue The column value, may not be <code>null</code> or empty.
-   * @param action The action taken, assume is one of the
-   * <code>PSJdbcRowData.ACTION_XXX</code> values.
-   *
-   * @return The created <code>PSJdbcRowData</code> object, never
-   * <code>null</code>.
+   * @param action The action taken, assume is one of the <code>PSJdbcRowData.ACTION_XXX</code>
+   *     values.
+   * @return The created <code>PSJdbcRowData</code> object, never <code>null</code>.
    */
   public PSJdbcRowData getRowDataForOneColumn(String colName, String colValue, int action) {
     if (colName == null || colName.trim().length() == 0)
@@ -776,16 +719,13 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Get an IN filter (in the format of: IN (XYZ, ABC, ...) from a list of ids
-   * for a specified column.
+   * Get an IN filter (in the format of: IN (XYZ, ABC, ...) from a list of ids for a specified
+   * column.
    *
-   * @param ids The id list over one or more <code>String</code> items. It
-   * may not be <code>null</code> or empty.
-   * @param idCol The column name for the filter, it may not be
-   * <code>null</code> or empty.
-   *
+   * @param ids The id list over one or more <code>String</code> items. It may not be <code>null
+   *     </code> or empty.
+   * @param idCol The column name for the filter, it may not be <code>null</code> or empty.
    * @return Generated IN filter, will never be <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if any parameter is invalid
    */
   public PSJdbcSelectFilter getFilterInFromIds(Iterator ids, String idCol) {
@@ -813,16 +753,13 @@ public class PSDbmsHelper {
   /**
    * Get a next id for a specified column and table from the database.
    *
-   * @param table The table name for the id, may not be <code>null</code> or
-   * empty.
-   * @param idCol The column name that the id is going to be used for, it may
-   * not be <code>null</code> or empty.
-   * @param filterCol The column name that may be filtered on when generating
-   * the next id, it may be <code>null</code> if no desire to use the filter.
+   * @param table The table name for the id, may not be <code>null</code> or empty.
+   * @param idCol The column name that the id is going to be used for, it may not be <code>null
+   *     </code> or empty.
+   * @param filterCol The column name that may be filtered on when generating the next id, it may be
+   *     <code>null</code> if no desire to use the filter.
    * @param filterColValue The value of the <code>filterCol</code>.
-   *
    * @return A next id for the column and table.
-   *
    * @throws IllegalArgumentException if a parameter is invalid.
    * @throws PSDeployException if an error occurs.
    */
@@ -883,26 +820,21 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Get a next id for a specified column and table from the next number
-   * repository in memory. It manages the next number repository in the way
-   * that it always get its base number from the database (by calling
-   * {@link #getNextNumberFromDB(String, String, String, int)}, then
-   * generating the subsequent number in memory until the repository is
-   * cleared by a call to {@link #clearNextIdInMemory()}. It will start the
-   * same above process again afterwords.
+   * Get a next id for a specified column and table from the next number repository in memory. It
+   * manages the next number repository in the way that it always get its base number from the
+   * database (by calling {@link #getNextNumberFromDB(String, String, String, int)}, then generating
+   * the subsequent number in memory until the repository is cleared by a call to {@link
+   * #clearNextIdInMemory()}. It will start the same above process again afterwords.
    *
-   * @param table The table name for the id, may not be <code>null</code> or
-   * empty.
-   * @param idCol The column name that the id is going to be used for, it may
-   * not be <code>null</code> or empty.
-   * @param filterCol The column name that may be filtered on when generating
-   * the next id, it may be <code>null</code> if no desire to use the filter.
-   * @param filterColValue The value of the <code>filterCol</code>. It may not
-   * be <code>null</code> or empty if <code>filterCol</code> is not
-   * <code>null</code> or empty. It must be an integer string.
-   *
+   * @param table The table name for the id, may not be <code>null</code> or empty.
+   * @param idCol The column name that the id is going to be used for, it may not be <code>null
+   *     </code> or empty.
+   * @param filterCol The column name that may be filtered on when generating the next id, it may be
+   *     <code>null</code> if no desire to use the filter.
+   * @param filterColValue The value of the <code>filterCol</code>. It may not be <code>null</code>
+   *     or empty if <code>filterCol</code> is not <code>null</code> or empty. It must be an integer
+   *     string.
    * @return A next id for the column and table.
-   *
    * @throws IllegalArgumentException if a parameter is invalid.
    * @throws PSDeployException if an error occurs.
    */
@@ -946,24 +878,18 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Get a list of next ids in a specified block from the next number
-   * repository in memory.
+   * Get a list of next ids in a specified block from the next number repository in memory.
    *
-   * @param table The table name for the ids, may not be <code>null</code> or
-   * empty.
-   * @param idCol The column name that the ids is going to be used for, it may
-   * not be <code>null</code> or empty.
-   * @param filterCol The column name that may be filtered on when generating
-   * the next ids, it may be <code>null</code> if no desire to use the filter.
-   * @param filterColValue The value of the <code>filterCol</code>. It may not
-   * be <code>null</code> or empty if <code>filterCol</code> is not
-   * <code>null</code> or empty.
-   * @param blockSize The number of ids need to be generated, must be greater
-   * than <code>0</code>.
-   *
-   * @return Array of ids with length of <code>blockSize</code>. It will
-   * never be <code>null</code> or any other length.
-   *
+   * @param table The table name for the ids, may not be <code>null</code> or empty.
+   * @param idCol The column name that the ids is going to be used for, it may not be <code>null
+   *     </code> or empty.
+   * @param filterCol The column name that may be filtered on when generating the next ids, it may
+   *     be <code>null</code> if no desire to use the filter.
+   * @param filterColValue The value of the <code>filterCol</code>. It may not be <code>null</code>
+   *     or empty if <code>filterCol</code> is not <code>null</code> or empty.
+   * @param blockSize The number of ids need to be generated, must be greater than <code>0</code>.
+   * @return Array of ids with length of <code>blockSize</code>. It will never be <code>null</code>
+   *     or any other length.
    * @throws IllegalArgumentException if a parameter is invalid.
    * @throws PSDeployException if an error occurs.
    */
@@ -989,9 +915,7 @@ public class PSDbmsHelper {
     return ids;
   }
 
-  /**
-   * Clear the next number repository in memory.
-   */
+  /** Clear the next number repository in memory. */
   public void clearNextIdInMemory() {
     nextNumberMap.clear();
   }
@@ -999,12 +923,8 @@ public class PSDbmsHelper {
   /**
    * Determines if the given table name is a table used in of the shared group.
    *
-   * @param tableName the table name in question, assumed not <code>null</code>
-   * or empty.
-   *
-   * @return <code>true</code> if it is a shared table; otherwise
-   * <code>false</code>.
-   *
+   * @param tableName the table name in question, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if it is a shared table; otherwise <code>false</code>.
    * @throws PSDeployException if an error occurs.
    */
   private boolean isSharedTable(String tableName) throws PSDeployException {
@@ -1015,17 +935,12 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Gets the dependency type for the specified table.  First checks to see if
-   * the table's type was defined in the resource bundle, otherwise checks
-   * {@link #isSystemTable(String)}.
+   * Gets the dependency type for the specified table. First checks to see if the table's type was
+   * defined in the resource bundle, otherwise checks {@link #isSystemTable(String)}.
    *
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   *
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
    * @return The type, one of the <code>PSDependency.TYPE_XXX</code> values.
-   *
-   * @throws IllegalArgumentException if <code>tablename</code> is
-   * <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>tablename</code> is <code>null</code> or empty.
    * @throws PSDeployException if any errors occur.
    */
   public int getDependencyType(String tableName) throws PSDeployException {
@@ -1048,19 +963,18 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Enables the table schema cache for non-system tables.  System table
-   * schemas are always cached.  Calling this method when the schema cache is
-   * already enabled does not result in an error, but will clear the cache.
+   * Enables the table schema cache for non-system tables. System table schemas are always cached.
+   * Calling this method when the schema cache is already enabled does not result in an error, but
+   * will clear the cache.
    */
   void enableSchemaCache() {
     m_appSchemaMap = new HashMap<>();
   }
 
   /**
-   * Clears and diables the table schema cache for non-system tables.  Should
-   * be called at some point after enabling the schema cache with a call to
-   * <code>enableSchemaCache()</code>.  Calling this method when the schema
-   * cache is not enabled does not result in an error.
+   * Clears and diables the table schema cache for non-system tables. Should be called at some point
+   * after enabling the schema cache with a call to <code>enableSchemaCache()</code>. Calling this
+   * method when the schema cache is not enabled does not result in an error.
    */
   void disableSchemaCache() {
     m_appSchemaMap = null;
@@ -1094,8 +1008,7 @@ public class PSDbmsHelper {
   }
 
   /**
-   * Loads the table types specified in the resource bundle if they have not
-   * yet been loaded.
+   * Loads the table types specified in the resource bundle if they have not yet been loaded.
    *
    * @throws PSDeployException if there are any errors.
    */
@@ -1118,12 +1031,8 @@ public class PSDbmsHelper {
   /**
    * Determines if the specified table is a system table.
    *
-   * @param tableName The name of the table, assumed not <code>null</code> or
-   * empty.
-   *
-   * @return <code>true</code> if it is a system table, <code>false</code>
-   * otherwise.
-   *
+   * @param tableName The name of the table, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if it is a system table, <code>false</code> otherwise.
    * @throws PSDeployException if any errors occur.
    */
   private boolean isSystemTable(String tableName) throws PSDeployException {
@@ -1135,7 +1044,6 @@ public class PSDbmsHelper {
    * This method is used to get the resource bundle.
    *
    * @return the bundle, never <code>null</code>.
-   *
    * @throws MissingResourceException if the bundle cannot be loaded.
    */
   private ResourceBundle getBundle() {
@@ -1151,11 +1059,9 @@ public class PSDbmsHelper {
    * Create an XML document from the contents of the supplied file.
    *
    * @param file The file, may not be <code>null</code>.
-   *
    * @return The document, never <code>null</code>.
-   *
-   * @throws PSDeployException if the file does not exist, or if a valid XML
-   * document cannot be created from its contents.
+   * @throws PSDeployException if the file does not exist, or if a valid XML document cannot be
+   *     created from its contents.
    */
   private Document getXmlDocumentFromFile(File file) throws PSDeployException {
     if (file == null) {
@@ -1171,11 +1077,8 @@ public class PSDbmsHelper {
   /**
    * Gets the specified table's schema.
    *
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   *
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
    * @return The table schema object, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -1194,12 +1097,8 @@ public class PSDbmsHelper {
   /**
    * Finds the specified table's schema.
    *
-   * @param tableName The name of the table, may not be <code>null</code> or
-   * empty.
-   *
-   * @return The table schema object, it may be <code>null</code> if the
-   * table does not exist.
-   *
+   * @param tableName The name of the table, may not be <code>null</code> or empty.
+   * @return The table schema object, it may be <code>null</code> if the table does not exist.
    * @throws IllegalArgumentException if <code>tableName</code> is invalid.
    * @throws PSDeployException if any errors occur.
    */
@@ -1248,7 +1147,9 @@ public class PSDbmsHelper {
     IPSJndiDatasource m_dataSource;
     IPSDatasourceConfig m_dsConfig;
 
-    /** CTOR
+    /**
+     * CTOR
+     *
      * @param ds the jndi datasource never <code>null</code>
      * @param cfg the datasource config never <code>null</code>
      */
@@ -1262,6 +1163,7 @@ public class PSDbmsHelper {
 
     /**
      * getter for jndi datasource
+     *
      * @return the jndi datasource
      */
     public IPSJndiDatasource getDataSource() {
@@ -1270,6 +1172,7 @@ public class PSDbmsHelper {
 
     /**
      * getter for datasource config
+     *
      * @return datasource config
      */
     public IPSDatasourceConfig getDataSourceConfig() {
@@ -1278,89 +1181,77 @@ public class PSDbmsHelper {
   }
 
   /**
-   * To manage next number in memory for the ids that do not managed by the
-   * NEXTNUMBER table, such as WORKFLOWAPPS and those workflow related tables.
-   * It will never to <code>null</code>, but may be empty. It uses table
-   * and/or combination of table and filter (in <code>String</code> as key)
-   * map to its corresponding next number (in <code>Integer</code> as value of
-   * the map).
+   * To manage next number in memory for the ids that do not managed by the NEXTNUMBER table, such
+   * as WORKFLOWAPPS and those workflow related tables. It will never to <code>null</code>, but may
+   * be empty. It uses table and/or combination of table and filter (in <code>String</code> as key)
+   * map to its corresponding next number (in <code>Integer</code> as value of the map).
    *
-   * It is modified by <code>getNextIdInMemory()</code>, but be cleared by
-   * <code>clearNextIdInMemory()</code>
+   * <p>It is modified by <code>getNextIdInMemory()</code>, but be cleared by <code>
+   * clearNextIdInMemory()</code>
    */
   private Map<String, Integer> nextNumberMap = new HashMap<>();
 
   /**
-   * Singleton instance of this class, set by first call to
-   * {@link #getInstance()}, never <code>null</code> or modified after that.
+   * Singleton instance of this class, set by first call to {@link #getInstance()}, never <code>null
+   * </code> or modified after that.
    */
   private static PSDbmsHelper m_instance = null;
 
   /**
-   * The dbms def for the rx server repository.  <code>null</code> until the
-   * first call to <code>getDbmsDef()</code>, never <code>null</code> or
-   * modified after that.
+   * The dbms def for the rx server repository. <code>null</code> until the first call to <code>
+   * getDbmsDef()</code>, never <code>null</code> or modified after that.
    */
   private PSJdbcDbmsDef m_dbmsDef;
 
   /**
-   * The data type map for the driver used to access the rx server repository.
-   * <code>null</code> until the first call to <code>getDataTypeMap()</code>,
-   * never <code>null</code> or modified after that.
+   * The data type map for the driver used to access the rx server repository. <code>null</code>
+   * until the first call to <code>getDataTypeMap()</code>, never <code>null</code> or modified
+   * after that.
    */
   private PSJdbcDataTypeMap m_dataTypeMap;
 
-  /**
-   * Name of file containing the system table schemas.
-   */
+  /** Name of file containing the system table schemas. */
   private static final String SYSTEM_TABLE_SCHEMA_FILE = "sys_cmsTableDef.xml";
 
   /**
-   * Set of system table names as <code>String</code> objects, initialized
-   * during first call to <code>loadSystemTableDefs()</code>, never
-   * <code>null</code> or empty after that.
+   * Set of system table names as <code>String</code> objects, initialized during first call to
+   * <code>loadSystemTableDefs()</code>, never <code>null</code> or empty after that.
    */
   private Set<String> m_systemTables = null;
 
   /**
-   * Map of tables and their types specified by the resource bundle,
-   * initialized during first call to <code>loadTableTypeDefs()</code>, never
-   * <code>null</code> or modified after that, may be empty.  Key is the table
-   * name as a <code>String</code>, and value is the dependency type as an
+   * Map of tables and their types specified by the resource bundle, initialized during first call
+   * to <code>loadTableTypeDefs()</code>, never <code>null</code> or modified after that, may be
+   * empty. Key is the table name as a <code>String</code>, and value is the dependency type as an
    * <code>Integer</code>.
    */
   private Map<String, Integer> m_tableTypes = null;
 
   /**
-   * String bundle used to define table dependency type overrides.
-   * <code>null</code> until loaded by a call to {@link #getBundle()}, never
-   * <code>null</code> or modified after that.
+   * String bundle used to define table dependency type overrides. <code>null</code> until loaded by
+   * a call to {@link #getBundle()}, never <code>null</code> or modified after that.
    */
   private ResourceBundle m_bundle = null;
 
   /**
-   * Map of system table schemas, where key is tablename as a
-   * <code>String</code> and value is the corresponding
-   * <code>PSJdbcTableSchema</code> object.  Never <code>null</code>, may be
-   * empty.  Updated by calls to <code>getTableSchema()</code>.
+   * Map of system table schemas, where key is tablename as a <code>String</code> and value is the
+   * corresponding <code>PSJdbcTableSchema</code> object. Never <code>null</code>, may be empty.
+   * Updated by calls to <code>getTableSchema()</code>.
    */
   private Map<String, PSJdbcTableSchema> m_sysSchemaMap = new HashMap<>();
 
   /**
-   * Map of non-system table schemas, where key is tablename as a
-   * <code>String</code> and value is the corresponding
-   * <code>PSJdbcTableSchema</code> object.  <code>null</code> when the cache
-   * is disabled, is initialzed by calls to <code>enableSchemaCache()</code>,
-   * set back to <code>null</code> by calls to
-   * <code>disableSchemaCache()</code>, may be empty.  Entries may be updated
-   * by calls to <code>getTableSchema()</code>.
+   * Map of non-system table schemas, where key is tablename as a <code>String</code> and value is
+   * the corresponding <code>PSJdbcTableSchema</code> object. <code>null</code> when the cache is
+   * disabled, is initialzed by calls to <code>enableSchemaCache()</code>, set back to <code>null
+   * </code> by calls to <code>disableSchemaCache()</code>, may be empty. Entries may be updated by
+   * calls to <code>getTableSchema()</code>.
    */
   private Map<String, PSJdbcTableSchema> m_appSchemaMap = null;
 
   /**
-   * Server's repository info, <code>null</code> until first call to
-   * <code>getServerRepositoryInfo()</code>, never <code>null</code> after
-   * that.
+   * Server's repository info, <code>null</code> until first call to <code>getServerRepositoryInfo()
+   * </code>, never <code>null</code> after that.
    */
   private PSDbmsInfo m_repositoryInfo = null;
 }

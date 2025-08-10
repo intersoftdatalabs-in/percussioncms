@@ -26,20 +26,16 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to represent a file that is part of the deployable form of a deployable
- * object.
- */
+/** Class to represent a file that is part of the deployable form of a deployable object. */
 public class PSDependencyFile implements IPSDeployComponent {
 
   /**
    * Construct this object from its members.
    *
-   * @param fileType The type of file referenced by this class.  Must be one of
-   * the <code>TYPE_xxx</code> types.
-   * @param file A file reference to the file on the rx filesystem, may not be
-   * <code>null</code> and must be relative to the rhythmyx root.
-   *
+   * @param fileType The type of file referenced by this class. Must be one of the <code>TYPE_xxx
+   *     </code> types.
+   * @param file A file reference to the file on the rx filesystem, may not be <code>null</code> and
+   *     must be relative to the rhythmyx root.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDependencyFile(int fileType, File file) {
@@ -49,16 +45,14 @@ public class PSDependencyFile implements IPSDeployComponent {
   /**
    * Construct this object from its members.
    *
-   * @param fileType The type of file referenced by this class.  Must be one of
-   * the <code>TYPE_xxx</code> types.
-   * @param file A file reference to the file on the rx filesystem, may not be
-   * <code>null</code> and must be relative to the rhythmyx root.
-   * @param originalFile A file reference to the original location of the file,
-   * used if the supplied <code>file</code> parameter references a temp file or
-   * some other file that will not adequately identify the location to deploy
-   * the file to when installing it from the archive.  May be
-   * <code>null</code>.
-   *
+   * @param fileType The type of file referenced by this class. Must be one of the <code>TYPE_xxx
+   *     </code> types.
+   * @param file A file reference to the file on the rx filesystem, may not be <code>null</code> and
+   *     must be relative to the rhythmyx root.
+   * @param originalFile A file reference to the original location of the file, used if the supplied
+   *     <code>file</code> parameter references a temp file or some other file that will not
+   *     adequately identify the location to deploy the file to when installing it from the archive.
+   *     May be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDependencyFile(int fileType, File file, File originalFile) {
@@ -74,11 +68,9 @@ public class PSDependencyFile implements IPSDeployComponent {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSDependencyFile(Element source) throws PSUnknownNodeTypeException {
@@ -108,8 +100,7 @@ public class PSDependencyFile implements IPSDeployComponent {
   /**
    * Set the archive location.
    *
-   * @param archiveLocation The archive location to be set to. It may not be
-   * <code>null</code>.
+   * @param archiveLocation The archive location to be set to. It may not be <code>null</code>.
    */
   public void setArchiveLocation(File archiveLocation) {
     if (archiveLocation == null)
@@ -121,17 +112,16 @@ public class PSDependencyFile implements IPSDeployComponent {
   /**
    * Get the archive location.
    *
-   * @return The archive location, it may be <code>null</code> if has not
-   * been set.
+   * @return The archive location, it may be <code>null</code> if has not been set.
    */
   public File getArchiveLocation() {
     return m_archiveLocation;
   }
 
   /**
-   * Get the original file location if one was provided during construction.
-   * If this object has been restored from its XML representation, the file
-   * path will contain normalized separators (forward slashes).
+   * Get the original file location if one was provided during construction. If this object has been
+   * restored from its XML representation, the file path will contain normalized separators (forward
+   * slashes).
    *
    * @return The original file, may be <code>null</code>.
    */
@@ -140,7 +130,8 @@ public class PSDependencyFile implements IPSDeployComponent {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXDependencyFile (RxFile, ArchiveFile, OriginalFile?)>
    * &lt;!ATTLIST PSXDependencyFile
@@ -152,13 +143,12 @@ public class PSDependencyFile implements IPSDeployComponent {
    * </code></pre>
    *
    * See {@link IPSDeployComponent#toXml(Document)} for more info.
-   * <P>
-   * Note: The archive location (the return from
-   * <code>getArchiveLocation()</code>) may not be <code>null</code>.
+   *
+   * <p>Note: The archive location (the return from <code>getArchiveLocation()</code>) may not be
+   * <code>null</code>.
    *
    * @throws IllegalArgumentException If <code>doc</code> is <code>null</code>
-   * @throws IllegalStateException If is the archive-location is
-   * <code>null</code>
+   * @throws IllegalStateException If is the archive-location is <code>null</code>
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -176,9 +166,8 @@ public class PSDependencyFile implements IPSDeployComponent {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -244,13 +233,10 @@ public class PSDependencyFile implements IPSDeployComponent {
   }
 
   /**
-   * Validates the supplied type is one of the <code>TYPE_xxx</code> values
-   * supported by this class.
+   * Validates the supplied type is one of the <code>TYPE_xxx</code> values supported by this class.
    *
    * @param fileType The type to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean isValidType(int fileType) {
     return fileType == TYPE_APPLICATION_XML
@@ -271,96 +257,87 @@ public class PSDependencyFile implements IPSDeployComponent {
   }
 
   /**
-   * Constant to indicate the file represented by this class is the XML format
-   * of an application.
+   * Constant to indicate the file represented by this class is the XML format of an application.
    */
   public static final int TYPE_APPLICATION_XML = 0;
 
   /**
-   * Constant to indicate the file represented by this class is a file located
-   * in an application directory.
+   * Constant to indicate the file represented by this class is a file located in an application
+   * directory.
    */
   public static final int TYPE_APPLICATION_FILE = 1;
 
   /**
-   * Constant to indicate the file represented by this class is the
-   * tablefactory XML representation of a table schema.
+   * Constant to indicate the file represented by this class is the tablefactory XML representation
+   * of a table schema.
    */
   public static final int TYPE_DBMS_SCHEMA = 2;
 
   /**
-   * Constant to indicate the file represented by this class is the
-   * tablefactory XML representation of data in a table.
+   * Constant to indicate the file represented by this class is the tablefactory XML representation
+   * of data in a table.
    */
   public static final int TYPE_DBMS_DATA = 3;
 
   /**
-   * Constant to indicate the file represented by this class is the
-   * XML representation of an extension defintion.
+   * Constant to indicate the file represented by this class is the XML representation of an
+   * extension defintion.
    */
   public static final int TYPE_EXTENSION_DEF_XML = 4;
 
   /**
-   * Constant to indicate the file represented by this class is the
-   * XML representation of a content editor control.
+   * Constant to indicate the file represented by this class is the XML representation of a content
+   * editor control.
    */
   public static final int TYPE_CONTROL_XML = 5;
 
   /**
-   * Constant to indicate the file represented by this class is a file
-   * of no particular type required by a dependency .
+   * Constant to indicate the file represented by this class is a file of no particular type
+   * required by a dependency .
    */
   public static final int TYPE_SUPPORT_FILE = 6;
 
   /**
-   * Constant to indicate the file represented by this class is a class or
-   * jar file used by an exit.
+   * Constant to indicate the file represented by this class is a class or jar file used by an exit.
    */
   public static int TYPE_EXTENSION_RESOURCE = 7;
 
   /**
-   * Constant to indicate the file represented by this class is the xml
-   * representation of a group from the shared def.
+   * Constant to indicate the file represented by this class is the xml representation of a group
+   * from the shared def.
    */
   public static final int TYPE_SHARED_GROUP_XML = 8;
 
   /**
-   * Constant to indicate the file represented by this class is the xml
-   * representation of a system def overide from the shared def.
+   * Constant to indicate the file represented by this class is the xml representation of a system
+   * def overide from the shared def.
    */
   public static final int TYPE_SHARED_SYSTEM_OVERRIDE_XML = 9;
 
   /**
-   * Constant to indicate the file represented by this class is the xml
-   * representation of the system def.
+   * Constant to indicate the file represented by this class is the xml representation of the system
+   * def.
    */
   public static final int TYPE_SYSTEM_DEF_XML = 10;
 
   /**
-   * Constant to indicate the file represented by this class is the xml
-   * representation of an <code>IPSDbComponent</code>.
+   * Constant to indicate the file represented by this class is the xml representation of an <code>
+   * IPSDbComponent</code>.
    */
   public static final int TYPE_COMPONENT_XML = 11;
 
-  /**
-   * Constant to indicate the file is the new service representation
-   */
+  /** Constant to indicate the file is the new service representation */
   public static final int TYPE_SERVICEGENERATED_XML = 12;
 
-  /**
-   * Constant to indicate the Node Definition file
-   */
+  /** Constant to indicate the Node Definition file */
   public static final int TYPE_NODE_DEFINITION = 13;
 
-  /**
-   * Constant to indicate the Item Definition file
-   */
+  /** Constant to indicate the Item Definition file */
   public static final int TYPE_ITEM_DEFINITION = 14;
 
   /**
-   * Array of file type names, the index into the array matches the
-   * corresponding constant value for that type.  Must be maintained as types
-   * are added, removed, or renamed.
+   * Array of file type names, the index into the array matches the corresponding constant value for
+   * that type. Must be maintained as types are added, removed, or renamed.
    */
   public static final String[] TYPE_ENUM = {
     "APPLICATION_XML",
@@ -380,40 +357,35 @@ public class PSDependencyFile implements IPSDeployComponent {
     "ITEM_DEFINITION"
   };
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXDependencyFile";
 
   /**
-   * The type of file this object represents, one of the <code>TYPE_xxx</code>
-   * values, set during construction, modified by <code>copyFrom()</code>
+   * The type of file this object represents, one of the <code>TYPE_xxx</code> values, set during
+   * construction, modified by <code>copyFrom()</code>
    */
   private int m_type;
 
   /**
-   * The location of the file this object represents, relative to the rx root.
-   * Intialized during construction, never <code>null</code> modified by
-   * <code>copyFrom()</code>.
+   * The location of the file this object represents, relative to the rx root. Intialized during
+   * construction, never <code>null</code> modified by <code>copyFrom()</code>.
    */
   private File m_file;
 
   /**
-   * The location of the file this object represents, relative to some location
-   * below the rx root. Intialized during construction, may be
-   * <code>null</code> if an original location is not specified.
+   * The location of the file this object represents, relative to some location below the rx root.
+   * Intialized during construction, may be <code>null</code> if an original location is not
+   * specified.
    */
   private File m_originalFile;
 
   /**
-   * The location of the file this object represents, relative to the archive
-   * root. <code>null</code> until {@link #setArchiveLocation(File)} is called.
+   * The location of the file this object represents, relative to the archive root. <code>null
+   * </code> until {@link #setArchiveLocation(File)} is called.
    */
   private File m_archiveLocation;
 
-  /**
-   * Constant to indicate a value is undefined.
-   */
+  /** Constant to indicate a value is undefined. */
   private static final int UNDEFINED = -1;
 
   // private XML constants

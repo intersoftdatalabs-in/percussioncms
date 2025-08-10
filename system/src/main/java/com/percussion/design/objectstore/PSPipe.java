@@ -20,40 +20,34 @@ package com.percussion.design.objectstore;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * The PSPipe abstract class is used to define how an XML document is being
- * mapped to one or more back-end data stores. Pipes requiring query
- * operations are handled through the PSQueryPipe class. Pipes requiring
- * insert, update and delete operations are handled through the PSUpdatePipe
- * class.
+ * The PSPipe abstract class is used to define how an XML document is being mapped to one or more
+ * back-end data stores. Pipes requiring query operations are handled through the PSQueryPipe class.
+ * Pipes requiring insert, update and delete operations are handled through the PSUpdatePipe class.
  *
- * @see   PSDataSet
- * @see   PSDataSet#getPipe
- * @see   PSQueryPipe
- * @see   PSUpdatePipe
- *
- * @author   Tas Giakouminakis
- * @version   1.0
- * @since   1.0
+ * @see PSDataSet
+ * @see PSDataSet#getPipe
+ * @see PSQueryPipe
+ * @see PSUpdatePipe
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSPipe extends PSComponent {
 
   /**
    * Get the name of the pipe.
    *
-   * @return   the name of the pipe
+   * @return the name of the pipe
    */
   public java.lang.String getName() {
     return m_name;
   }
 
   /**
-   * Set the name of the pipe.
-   * This is limited to 50 characters.
+   * Set the name of the pipe. This is limited to 50 characters.
    *
-   * @param   name  the new name of the pipe. This must be a unique
-   *              name within the data set. If it is non-unique,
-   *              an exception will be thrown when the application
-   *              is saved on the E2 server.
+   * @param name the new name of the pipe. This must be a unique name within the data set. If it is
+   *     non-unique, an exception will be thrown when the application is saved on the E2 server.
    */
   public void setName(java.lang.String name) {
     IllegalArgumentException ex = validateName(name);
@@ -76,17 +70,16 @@ public abstract class PSPipe extends PSComponent {
   /**
    * Get the description of the pipe.
    *
-   * @return   the description of the pipe
+   * @return the description of the pipe
    */
   public java.lang.String getDescription() {
     return m_description;
   }
 
   /**
-   * Set the description of the pipe.
-   * This is limited to 255 characters.
+   * Set the description of the pipe. This is limited to 255 characters.
    *
-   * @param   description the new description of the pipe.
+   * @param description the new description of the pipe.
    */
   public void setDescription(java.lang.String description) {
     IllegalArgumentException ex = validateDescription(description);
@@ -104,32 +97,28 @@ public abstract class PSPipe extends PSComponent {
   }
 
   /**
-   * Get the back-end data tank describing the back-end data stores
-   * being used to access data for this pipe.
+   * Get the back-end data tank describing the back-end data stores being used to access data for
+   * this pipe.
    *
-   * @return   the back-end data tank
+   * @return the back-end data tank
    */
   public PSBackEndDataTank getBackEndDataTank() {
     return m_backEndDataTank;
   }
 
   /**
-   * Overwrite the back-end data tank object with the specified back-end
-   * data tank object. If you only want to modify some settings, use
-   * getBackEndDataTank to get the existing object and modify the returned
-   * object directly.
-   * <p>
-   * The back-end data tank describes the back-end being used to access
-   * data for this pipe.
-   * <p>
-   * The PSBackEndDataTank object supplied to this method will be stored
-   * with the PSPipe object. Any subsequent changes made to the object by
-   * the caller will also effect the pipe.
+   * Overwrite the back-end data tank object with the specified back-end data tank object. If you
+   * only want to modify some settings, use getBackEndDataTank to get the existing object and modify
+   * the returned object directly.
    *
-   * @param   dt    the new back-end data tank object
+   * <p>The back-end data tank describes the back-end being used to access data for this pipe.
    *
-   * @see   #getBackEndDataTank
-   * @see   PSBackEndDataTank
+   * <p>The PSBackEndDataTank object supplied to this method will be stored with the PSPipe object.
+   * Any subsequent changes made to the object by the caller will also effect the pipe.
+   *
+   * @param dt the new back-end data tank object
+   * @see #getBackEndDataTank
+   * @see PSBackEndDataTank
    */
   public void setBackEndDataTank(PSBackEndDataTank dt) {
     m_backEndDataTank = dt;
@@ -142,37 +131,31 @@ public abstract class PSPipe extends PSComponent {
   }
 
   /**
-   * Get the data mapper associated with this pipe. The data mapper defines
-   * mappings between XML elements or attributes and back-end columns.
-   * JavaScript can also be used in lieu of a back-end column. This allows
-   * an XML element or attribute to be mapped to a dynamically computed
-   * value.
+   * Get the data mapper associated with this pipe. The data mapper defines mappings between XML
+   * elements or attributes and back-end columns. JavaScript can also be used in lieu of a back-end
+   * column. This allows an XML element or attribute to be mapped to a dynamically computed value.
    *
-   * @return   the data mapper (may be null)
+   * @return the data mapper (may be null)
    */
   public PSDataMapper getDataMapper() {
     return m_dataMapper;
   }
 
   /**
-   * Overwrite the data mappings object with the specified data mappings
-   * object. If you only want to modify some data mappings, use
-   * getDataMapper to get the existing object and modify the returned
+   * Overwrite the data mappings object with the specified data mappings object. If you only want to
+   * modify some data mappings, use getDataMapper to get the existing object and modify the returned
    * object directly.
-   * <p>
-   * The data mapper defines mappings between XML elements or attributes
-   * and back-end columns. JavaScript can also be used in lieu of a
-   * back-end column. This allows an XML element or attribute to be mapped
-   * to a computed value.
-   * <p>
-   * The PSDataMapper object supplied to this method will be stored with
-   * the PSPipe object. Any subsequent changes made to the object by the
-   * caller will also effect the pipe.
    *
-   * @param   mapper   the new data mapper (may be null to clear mappings)
+   * <p>The data mapper defines mappings between XML elements or attributes and back-end columns.
+   * JavaScript can also be used in lieu of a back-end column. This allows an XML element or
+   * attribute to be mapped to a computed value.
    *
-   * @see   #getDataMapper
-   * @see   PSDataMapper
+   * <p>The PSDataMapper object supplied to this method will be stored with the PSPipe object. Any
+   * subsequent changes made to the object by the caller will also effect the pipe.
+   *
+   * @param mapper the new data mapper (may be null to clear mappings)
+   * @see #getDataMapper
+   * @see PSDataMapper
    */
   public void setDataMapper(PSDataMapper mapper) {
     IllegalArgumentException ex = validateDataMapper(mapper);
@@ -193,11 +176,10 @@ public abstract class PSPipe extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param   pipe a valid PSPipe.
+   * @param pipe a valid PSPipe.
    */
   public void copyFrom(PSPipe pipe) {
     copyFrom((PSComponent) pipe);
@@ -225,27 +207,22 @@ public abstract class PSPipe extends PSComponent {
     return bEqual;
   }
 
-  /**
-   * Generates code of the object.
-   */
+  /** Generates code of the object. */
   @Override
   public int hashCode() {
     return new HashCodeBuilder().append(m_name).append(m_description).toHashCode();
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   @Override
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
@@ -279,80 +256,68 @@ public abstract class PSPipe extends PSComponent {
   }
 
   /**
-   * Get the input data extensions. Input data extensions are used to pre-process
-   * the data sent by the requestor. Validation can be done, as well as
-   * modification of that data. The extensions are returned in the order in
-   * which they will be executed.
+   * Get the input data extensions. Input data extensions are used to pre-process the data sent by
+   * the requestor. Validation can be done, as well as modification of that data. The extensions are
+   * returned in the order in which they will be executed.
    *
-   * @return   the extension calls used to massage the input data
-   *                    (may be null)
-   *
-   * @see   PSExtensionCall
+   * @return the extension calls used to massage the input data (may be null)
+   * @see PSExtensionCall
    */
   public PSExtensionCallSet getInputDataExtensions() {
     return m_inputDataExtensions;
   }
 
   /**
-   * Overwrite the input data extensions with the specified set.
-   * If you only want to modify certain extensions, add a new extension, etc. use
-   * getInputDataExtensions to get the existing set and modify the
-   * returned set directly.
-   * <p>
-   * Input data extensions are used to pre-process the data sent by the
-   * requestor. Validation can be done, as well as modification of that
-   * data. The extensions will be executed in the same order as they are stored
-   * in the set.
-   * <p>
-   * The PSExtensionCallSet object supplied to this method will be stored with
-   * the PSUpdatePipe object. Any subsequent changes made to the object by
-   * the caller will also effect the update pipe.
+   * Overwrite the input data extensions with the specified set. If you only want to modify certain
+   * extensions, add a new extension, etc. use getInputDataExtensions to get the existing set and
+   * modify the returned set directly.
    *
-   * @param   extensions    the new input data extensions (may be null)
+   * <p>Input data extensions are used to pre-process the data sent by the requestor. Validation can
+   * be done, as well as modification of that data. The extensions will be executed in the same
+   * order as they are stored in the set.
    *
-   * @see   #setInputDataExtensions
-   * @see   PSExtensionCall
+   * <p>The PSExtensionCallSet object supplied to this method will be stored with the PSUpdatePipe
+   * object. Any subsequent changes made to the object by the caller will also effect the update
+   * pipe.
+   *
+   * @param extensions the new input data extensions (may be null)
+   * @see #setInputDataExtensions
+   * @see PSExtensionCall
    */
   public void setInputDataExtensions(PSExtensionCallSet extensions) {
     m_inputDataExtensions = extensions;
   }
 
   /**
-   * Get the result data extensions. Result data extensions are used to post-process
-   * the data before it is sent back to the requestor. Data is in XML
-   * format at this point. Setting cookies and filtering data are the most
-   * common uses of this type of extension. The extensions are returned in the
-   * order in which they will be executed.
+   * Get the result data extensions. Result data extensions are used to post-process the data before
+   * it is sent back to the requestor. Data is in XML format at this point. Setting cookies and
+   * filtering data are the most common uses of this type of extension. The extensions are returned
+   * in the order in which they will be executed.
    *
-   * @return   the extension calls used to massage the result data
-   *              (may be null)
-   *
-   * @see   PSExtensionCallSet
+   * @return the extension calls used to massage the result data (may be null)
+   * @see PSExtensionCallSet
    */
   public PSExtensionCallSet getResultDataExtensions() {
     return m_resultDataExtensions;
   }
 
   /**
-   * Overwrite the result data extensions with the specified set.
-   * If you only want to modify certain extensions, add a new extension, etc. use
-   * getResultDataExtensions to get the existing set and modify the
-   * returned set directly.
-   * <p>
-   * Result data extensions are used to post-process the data before it is
-   * sent back to the requestor. Data is in XML format at this point.
-   * Setting cookies and filtering data are the most common uses of this
-   * type of extension. The extensions will be executed in the same order as they
-   * are stored in the collection.
-   * <p>
-   * The PSExtensionCallSet object supplied to this method will be stored with
-   * the PSQueryPipe object. Any subsequent changes made to the object
-   * by the caller will also effect the query pipe.
+   * Overwrite the result data extensions with the specified set. If you only want to modify certain
+   * extensions, add a new extension, etc. use getResultDataExtensions to get the existing set and
+   * modify the returned set directly.
    *
-   * @param   extensions the new result data extensions (may be null)
+   * <p>Result data extensions are used to post-process the data before it is sent back to the
+   * requestor. Data is in XML format at this point. Setting cookies and filtering data are the most
+   * common uses of this type of extension. The extensions will be executed in the same order as
+   * they are stored in the collection.
    *
-   * @see   #getResultDataExtensions
-   * @see   PSExtensionCallSet
+   * <p>The PSExtensionCallSet object supplied to this method will be stored with the PSQueryPipe
+   * object. Any subsequent changes made to the object by the caller will also effect the query
+   * pipe.
+   *
+   * @param extensions the new result data extensions (may be null)
+   * @see #getResultDataExtensions
+   * @see PSExtensionCallSet
    */
   public void setResultDataExtensions(PSExtensionCallSet extensions) {
     m_resultDataExtensions = extensions;
@@ -360,6 +325,7 @@ public abstract class PSPipe extends PSComponent {
 
   /**
    * Creates a deep copy of this <tt>PSPipe</tt> instance
+   *
    * @return a clone of this instance
    */
   @Override

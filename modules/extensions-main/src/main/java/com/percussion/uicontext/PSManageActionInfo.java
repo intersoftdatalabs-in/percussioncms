@@ -31,23 +31,18 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 /**
- * Load and manage action information in the user session. Used by the filtering
- * exit {@link com.percussion.uicontext.PSFilterContextMenu}to obtain
- * information about each action.
+ * Load and manage action information in the user session. Used by the filtering exit {@link
+ * com.percussion.uicontext.PSFilterContextMenu}to obtain information about each action.
  */
 public class PSManageActionInfo {
-  /**
-   * The component processor proxy. Initialized on demand.
-   */
+  /** The component processor proxy. Initialized on demand. */
   private PSComponentProcessorProxy m_componentProcessor = null;
 
   /**
-   * Ensure that the list of action ids are known about in the current request
-   * context's session.
+   * Ensure that the list of action ids are known about in the current request context's session.
    *
    * @param actionids A list of action ids, must never be <code>null</code>
-   * @param request The current request context, must never be
-   *           <code>null</code>
+   * @param request The current request context, must never be <code>null</code>
    * @throws PSException if a problem occurs loading the action information
    */
   public void ensureActionsLoaded(Collection actionids, IPSRequestContext request)
@@ -66,11 +61,9 @@ public class PSManageActionInfo {
   /**
    * Get the visibility for a specific action.
    *
-   * @param actionid the id of the action, must never be <code>null</code> or
-   *           empty
+   * @param actionid the id of the action, must never be <code>null</code> or empty
    * @param req the current request context, must never be <code>null</code>
-   * @return the visibility contexts or <code>null</code> if the action is
-   *         not loaded.
+   * @return the visibility contexts or <code>null</code> if the action is not loaded.
    */
   public PSActionVisibilityContexts getActionVisibility(String actionid, IPSRequestContext req) {
     if (actionid == null || actionid.trim().length() == 0) {
@@ -88,8 +81,8 @@ public class PSManageActionInfo {
 
   /**
    * Check the given action to see if it is an item.
-   * @param actionid the id of the action, must never be <code>null</code> or
-   *           empty
+   *
+   * @param actionid the id of the action, must never be <code>null</code> or empty
    * @param req the current request context, must never be <code>null</code>
    * @return <code>true</code> if the given action is an item and not a menu
    */
@@ -138,8 +131,8 @@ public class PSManageActionInfo {
   }
 
   /**
-   * Check the passed request context. If the action map isn't there yet,
-   * create it and place it in the request context.
+   * Check the passed request context. If the action map isn't there yet, create it and place it in
+   * the request context.
    *
    * @param request request context to check, assume not <code>null</code>
    * @return a {@link Map}, never <code>null</code>
@@ -156,10 +149,9 @@ public class PSManageActionInfo {
   /**
    * Returns a list of known action ids, which are the keys in the action map
    *
-   * @param request the request context to use in looking up the known action
-   *           ids, assumed not <code>null</code>
-   * @return a {@link Collection}of known action ids, never <code>null</code>
-   *         but may be empty
+   * @param request the request context to use in looking up the known action ids, assumed not
+   *     <code>null</code>
+   * @return a {@link Collection}of known action ids, never <code>null</code> but may be empty
    */
   private Collection knownActionIds(IPSRequestContext request) {
     Map actionMap = getOrCreateActionMap(request);
@@ -168,15 +160,13 @@ public class PSManageActionInfo {
 
   /**
    * Loads the specified actions from the repository.
-   * @param proc The processor to use, may not be <code>null</code>.
-   * @param ids An array of action ids, may not be <code>null</code> or empty.
-   *           Additionally, no element may be empty.
-   * @return The actions, may be empty, but never null. Specific elements may
-   *         be <code>null</code> if the corresponding action isn't found or
-   *         the action does not meet the leaf state passed.
-   * @throws PSException if there is a problem with loading the action
-   *            elements.
    *
+   * @param proc The processor to use, may not be <code>null</code>.
+   * @param ids An array of action ids, may not be <code>null</code> or empty. Additionally, no
+   *     element may be empty.
+   * @return The actions, may be empty, but never null. Specific elements may be <code>null</code>
+   *     if the corresponding action isn't found or the action does not meet the leaf state passed.
+   * @throws PSException if there is a problem with loading the action elements.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -205,14 +195,11 @@ public class PSManageActionInfo {
   }
 
   /**
-   * Determines if the supplied action is a leaf (an item or a dynamic menu,
-   * not a cascading category).
+   * Determines if the supplied action is a leaf (an item or a dynamic menu, not a cascading
+   * category).
    *
    * @param action The action, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if it is a leaf, <code>false</code>
-   *         otherwise.
-   *
+   * @return <code>true</code> if it is a leaf, <code>false</code> otherwise.
    * @throws IllegalArgumentException if any param is invalid.
    */
   protected boolean isLeaf(PSAction action) {
@@ -222,14 +209,11 @@ public class PSManageActionInfo {
   }
 
   /**
-   * Gets the local component processor shared by all dependency handlers. Sets
-   * the context using the supplied request.
+   * Gets the local component processor shared by all dependency handlers. Sets the context using
+   * the supplied request.
    *
-   * @param req The request context to use to set the context, assumed not
-   *           <code>null</code>.
-   *
+   * @param req The request context to use to set the context, assumed not <code>null</code>.
    * @return The processor, never <code>null</code>.
-   *
    * @throws PSDeployException if the processor cannot be created.
    */
   private PSComponentProcessorProxy getComponentProcessor(IPSRequestContext req)

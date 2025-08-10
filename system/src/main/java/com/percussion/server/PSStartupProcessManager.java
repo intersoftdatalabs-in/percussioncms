@@ -39,7 +39,6 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author JaySeletz
- *
  */
 public class PSStartupProcessManager implements IPSNotificationListener, IPSStartupProcessManager {
   private static final Logger log = LogManager.getLogger(PSStartupProcessManager.class);
@@ -130,8 +129,8 @@ public class PSStartupProcessManager implements IPSNotificationListener, IPSStar
   /**
    * Set the path to the startup properties and read them in.
    *
-   * @param propFilePath The path, relative to the install root, not <code>null</code>, must exist and
-   * reference a valid properties file.
+   * @param propFilePath The path, relative to the install root, not <code>null</code>, must exist
+   *     and reference a valid properties file.
    */
   public void setPropFilePath(String propFilePath) {
     m_propFile = new File(PSServer.getRxDir(), propFilePath);

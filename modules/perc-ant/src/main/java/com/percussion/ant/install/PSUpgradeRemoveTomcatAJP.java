@@ -29,10 +29,9 @@ import org.apache.tools.ant.BuildException;
 public class PSUpgradeRemoveTomcatAJP extends PSAction {
 
   /**
-   * This will handle initialization of the install logger, loading of
-   * PreviousVersion.properties for upgrades, and setting of the entity
-   * resolver's resolution home used to find DTD's.  It also determines if
-   * all files should be refreshed by date.
+   * This will handle initialization of the install logger, loading of PreviousVersion.properties
+   * for upgrades, and setting of the entity resolver's resolution home used to find DTD's. It also
+   * determines if all files should be refreshed by date.
    */
   @Override
   public void execute() throws BuildException {

@@ -32,30 +32,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Utilities for dispatch templates.  These utilities will dispatch to a template based on a content
+ * Utilities for dispatch templates. These utilities will dispatch to a template based on a content
  * type. The originating item may be specified as an assembly item, or by content type name.
- * <p>
- * The user must specify a map that contains 0 or more content types with the name of the template
- * to be used for each content type. This is the name that will be returned if an item of that content
- * type is dispatched.  If the content type does not match, the default content type name will be returned
- * instead.
+ *
+ * <p>The user must specify a map that contains 0 or more content types with the name of the
+ * template to be used for each content type. This is the name that will be returned if an item of
+ * that content type is dispatched. If the content type does not match, the default content type
+ * name will be returned instead.
  *
  * @author AdamGent
  * @author DavidBenua
- *
  */
 public class DispatchTemplateUtil extends SolnJexlBase {
 
   private static IPSAssemblyService assemblyService = null;
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   private static Log log = LogFactory.getLog(DispatchTemplateUtil.class);
 
-  /**
-   * Initialize service pointers.
-   */
+  /** Initialize service pointers. */
   private static void initServices() {
     if (assemblyService == null) {
       assemblyService = PSAssemblyServiceLocator.getAssemblyService();
@@ -64,9 +59,10 @@ public class DispatchTemplateUtil extends SolnJexlBase {
 
   /**
    * Picks a template to dispatch to.
+   *
    * @param item the assembly item to dispatch.
-   * @param templateMap the map templates by content type. The key of the map is the content type name,
-   * and the value of the map is the desired template name for that type.
+   * @param templateMap the map templates by content type. The key of the map is the content type
+   *     name, and the value of the map is the desired template name for that type.
    * @param defaultTemplate the default template if no matching content type names is found.
    * @return the name of the selected template.
    * @throws RepositoryException
@@ -95,9 +91,10 @@ public class DispatchTemplateUtil extends SolnJexlBase {
 
   /**
    * Picks a template from the map based on the content type name.
+   *
    * @param contentType the content type name.
-   * @param templateMap the map templates by content type. The key of the map is the content type name,
-   * and the value of the map is the desired template name for that type.
+   * @param templateMap the map templates by content type. The key of the map is the content type
+   *     name, and the value of the map is the desired template name for that type.
    * @param defaultTemplate the default template if no matching content type names is found.
    * @return the name of the template, or the default name, if not found.
    */
@@ -123,6 +120,7 @@ public class DispatchTemplateUtil extends SolnJexlBase {
 
   /**
    * Gets the template name based on the parameter map. Only the <code>sys_variantid</code> is used.
+   *
    * @param params the parameter map.
    * @return the template or <code>null</code> if the template could not be found.
    * @throws PSAssemblyException
@@ -142,8 +140,9 @@ public class DispatchTemplateUtil extends SolnJexlBase {
   }
 
   /**
-   * Generates a location for the default template based on a target item. If the location cannot be generated
-   * because no default template exists, the default location will be returned instead.
+   * Generates a location for the default template based on a target item. If the location cannot be
+   * generated because no default template exists, the default location will be returned instead.
+   *
    * @param targetItem the assembly item to generation.
    * @param defaultLocation the default returned when there is not location to generate.
    * @return the generated location or the default location.
@@ -169,7 +168,8 @@ public class DispatchTemplateUtil extends SolnJexlBase {
   }
 
   /**
-   * Gets the assembly service.  Used for unit testing only.
+   * Gets the assembly service. Used for unit testing only.
+   *
    * @return the assembly service
    */
   public IPSAssemblyService getAssemblyService() {
@@ -178,6 +178,7 @@ public class DispatchTemplateUtil extends SolnJexlBase {
 
   /**
    * Sets the assembly service. Used for unit testing only.
+   *
    * @param assemblyService the assembly service to set.
    */
   public void setAssemblyService(IPSAssemblyService assemblyService) {

@@ -20,8 +20,8 @@ package com.percussion.HTTPClient;
 /**
  * This class implements a singly linked list.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class LinkedList {
@@ -53,8 +53,7 @@ class LinkedList {
   }
 
   /**
-   * Remove the specified element from the list. Does nothing if the element
-   * is not in the list.
+   * Remove the specified element from the list. Does nothing if the element is not in the list.
    *
    * @param elem the object to remove from the list.
    */
@@ -78,8 +77,7 @@ class LinkedList {
   }
 
   /**
-   * Return the first element in the list. The list is not modified in any
-   * way.
+   * Return the first element in the list. The list is not modified in any way.
    *
    * @return the first element
    */
@@ -91,8 +89,8 @@ class LinkedList {
   private LinkElement next_enum = null;
 
   /**
-   * Starts an enumeration of all the elements in this list. Note that only
-   * one enumeration can be active at any time.
+   * Starts an enumeration of all the elements in this list. Note that only one enumeration can be
+   * active at any time.
    *
    * @return the first element, or null if the list is empty
    */
@@ -104,8 +102,8 @@ class LinkedList {
   }
 
   /**
-   * Gets the next element in the enumeration. The enumeration must have
-   * been first initalized with a call to <code>enumerate()</code>.
+   * Gets the next element in the enumeration. The enumeration must have been first initalized with
+   * a call to <code>enumerate()</code>.
    *
    * @return the next element, or null if none left
    * @see #enumerate()
@@ -167,9 +165,7 @@ class LinkedList {
   }
 }
 
-/**
- * The represents a single element in the linked list.
- */
+/** The represents a single element in the linked list. */
 class LinkElement {
   Object element;
   LinkElement next;

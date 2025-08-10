@@ -19,11 +19,9 @@ package com.percussion.delivery.utils.paging;
 import java.util.Map;
 
 /**
- * Defines a generic Interface for a ranged page option for
- * lookups to backend data stores.
+ * Defines a generic Interface for a ranged page option for lookups to backend data stores.
  *
  * @author natechadwick
- *
  */
 public interface IPSRangedPage {
   /***

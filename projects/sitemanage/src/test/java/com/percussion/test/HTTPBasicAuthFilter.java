@@ -21,32 +21,28 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.DatatypeConverter;
 
-/**
- * JAX-RS client filter for HTTP Basic Authentication.
- * // REFACTORED: CP-JAVA11
- */
+/** JAX-RS client filter for HTTP Basic Authentication. // REFACTORED: CP-JAVA11 */
 public class HTTPBasicAuthFilter implements ClientRequestFilter {
 
-    private final String user;
-    private final String password;
+  private final String user;
+  private final String password;
 
-    public HTTPBasicAuthFilter(String user, String password) {
-        this.user = user;
-        this.password = password;
-    }
+  public HTTPBasicAuthFilter(String user, String password) {
+    this.user = user;
+    this.password = password;
+  }
 
-    @Override
-    public void filter(ClientRequestContext requestContext) throws IOException {
-        var headers = requestContext.getHeaders();
-        final var basicAuthentication = getBasicAuthentication();
-        headers.add("Authorization", basicAuthentication);
-    }
+  @Override
+  public void filter(ClientRequestContext requestContext) throws IOException {
+    var headers = requestContext.getHeaders();
+    final var basicAuthentication = getBasicAuthentication();
+    headers.add("Authorization", basicAuthentication);
+  }
 
-    private String getBasicAuthentication() {
-        var token = this.user + ":" + this.password;
-        return "Basic " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
-    }
+  private String getBasicAuthentication() {
+    var token = this.user + ":" + this.password;
+    return "Basic " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
+  }
 }

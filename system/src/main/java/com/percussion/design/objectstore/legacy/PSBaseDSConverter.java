@@ -35,23 +35,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Base class providing datasource resolution functionality.
- */
+/** Base class providing datasource resolution functionality. */
 public abstract class PSBaseDSConverter {
   /**
    * Construct the converter
    *
-   * @param configCtx Supplies the configurations required for conversion, may
-   * not be <code>null</code>.
-   * @param repositoryInfo The repository info, used to determine if creating
-   * a datasource configuration that points to the repository.  May be
-   * <code>null</code> to assume the created configurations point to the
-   * repository.
-   * @param updateConfig <code>true</code> to create required configurations
-   * if they are not found in the configurations supplied by the
-   * <code>configCtx</code>, <code>false</code> to throw an exception if
-   * the required configurations are not found.
+   * @param configCtx Supplies the configurations required for conversion, may not be <code>null
+   *     </code>.
+   * @param repositoryInfo The repository info, used to determine if creating a datasource
+   *     configuration that points to the repository. May be <code>null</code> to assume the created
+   *     configurations point to the repository.
+   * @param updateConfig <code>true</code> to create required configurations if they are not found
+   *     in the configurations supplied by the <code>configCtx</code>, <code>false</code> to throw
+   *     an exception if the required configurations are not found.
    */
   public PSBaseDSConverter(
       PSConfigurationCtx configCtx, IPSRepositoryInfo repositoryInfo, boolean updateConfig) {
@@ -63,25 +59,22 @@ public abstract class PSBaseDSConverter {
   }
 
   /**
-   * Determine if the config can be updated during conversion, or if required
-   * configurations must already exist.
+   * Determine if the config can be updated during conversion, or if required configurations must
+   * already exist.
    *
-   * @return <code>true</code> if the config can be update, <code>false</code>
-   * if configs should already be complete.
+   * @return <code>true</code> if the config can be update, <code>false</code> if configs should
+   *     already be complete.
    */
   protected boolean shouldUpdateConfig() {
     return m_updateConfig;
   }
 
   /**
-   * Locates the driver config from the server config in the config ctx
-   * supplied during construction.  If no match is found, even if
-   * {@link #shouldUpdateConfig()} is <code>true</code>, a new config is NOT
-   * created.
+   * Locates the driver config from the server config in the config ctx supplied during
+   * construction. If no match is found, even if {@link #shouldUpdateConfig()} is <code>true</code>,
+   * a new config is NOT created.
    *
-   * @param driver The driver name to match, case-sensitive, may not be
-   * <code>null</code> or empty.
-   *
+   * @param driver The driver name to match, case-sensitive, may not be <code>null</code> or empty.
    * @return The matching config, or <code>null</code> if no match is found.
    */
   protected PSJdbcDriverConfig getDriver(String driver) {
@@ -107,19 +100,17 @@ public abstract class PSBaseDSConverter {
   }
 
   /**
-   * Get a matching datasource configuration name from the supplied
-   * information. If a match is not found and {@link #shouldUpdateConfig()}
-   * returns <code>true</code>, a new one is created and added to the
-   * configuration object supplied during construction.
+   * Get a matching datasource configuration name from the supplied information. If a match is not
+   * found and {@link #shouldUpdateConfig()} returns <code>true</code>, a new one is created and
+   * added to the configuration object supplied during construction.
    *
    * @param ds The jndi datasource to match, assumed not <code>null</code>.
-   * @param database The database name to match, case-insensitive, may be
-   * <code>null</code> or empty.
-   * @param origin The origin or schema to match, case-insensitive, may be
-   * <code>null</code> or empty.
-   *
-   * @return The datasource connection name, may be empty to signify the
-   * repository, <code>null</code> if a match could not be found or created.
+   * @param database The database name to match, case-insensitive, may be <code>null</code> or
+   *     empty.
+   * @param origin The origin or schema to match, case-insensitive, may be <code>null</code> or
+   *     empty.
+   * @return The datasource connection name, may be empty to signify the repository, <code>null
+   *     </code> if a match could not be found or created.
    */
   protected String getDatasourceName(IPSJndiDatasource ds, String database, String origin) {
     if (ds == null) throw new IllegalArgumentException("ds may not be null");
@@ -184,17 +175,14 @@ public abstract class PSBaseDSConverter {
   }
 
   /**
-   * Get the matching jndi datasource from the JBoss configuration files.  If
-   * a match is not found and {@link #shouldUpdateConfig()} returns
-   * <code>true</code>, a new one is created and added to the configuration
-   * object supplied during construction.
+   * Get the matching jndi datasource from the JBoss configuration files. If a match is not found
+   * and {@link #shouldUpdateConfig()} returns <code>true</code>, a new one is created and added to
+   * the configuration object supplied during construction.
    *
    * @param driver The driver to match on, may not be <code>null</code>.
-   * @param server The server name to match on, case-insensitive, may not be
-   * <code>null</code> or empty.
-   *
-   * @return The datasource, or <code>null</code> if no match is found and
-   * one was not created.
+   * @param server The server name to match on, case-insensitive, may not be <code>null</code> or
+   *     empty.
+   * @return The datasource, or <code>null</code> if no match is found and one was not created.
    */
   protected IPSJndiDatasource getJndiDatasource(PSJdbcDriverConfig driver, String server) {
     if (driver == null) throw new IllegalArgumentException("driver may not be null");
@@ -263,24 +251,17 @@ public abstract class PSBaseDSConverter {
   }
 
   /**
-   * Resolves the supplied connection information to a datasource. If no
-   * configuration is found and {@link #shouldUpdateConfig()} is
-   * <code>true</code>, the required configurations will be created.
+   * Resolves the supplied connection information to a datasource. If no configuration is found and
+   * {@link #shouldUpdateConfig()} is <code>true</code>, the required configurations will be
+   * created.
    *
-   * @param driverName The driver name to match or use, may not be
-   * <code>null</code> or empty.
-   * @param server The server name to match or use, may not be
-   * <code>null</code> or empty.
-   * @param database The database to match or use, may be <code>null</code>
-   * or empty.
-   * @param origin The origin to match or use, may be <code>null</code> or
-   * empty.
-   *
-   * @return The datasource name, <code>null</code> if it is the respository
-   * datasource, never empty.
-   *
-   * @throws PSUnknownNodeTypeException If the datasource name cannot be
-   * resolved.
+   * @param driverName The driver name to match or use, may not be <code>null</code> or empty.
+   * @param server The server name to match or use, may not be <code>null</code> or empty.
+   * @param database The database to match or use, may be <code>null</code> or empty.
+   * @param origin The origin to match or use, may be <code>null</code> or empty.
+   * @return The datasource name, <code>null</code> if it is the respository datasource, never
+   *     empty.
+   * @throws PSUnknownNodeTypeException If the datasource name cannot be resolved.
    */
   protected String resolveToDatasource(
       String driverName, String server, String database, String origin)
@@ -316,15 +297,13 @@ public abstract class PSBaseDSConverter {
   }
 
   /**
-   * Determine if the supplied datasource information matches the repository
-   * info supplied during construction.
+   * Determine if the supplied datasource information matches the repository info supplied during
+   * construction.
    *
    * @param ds The Jndi datasource, assumed not <code>null</code>.
    * @param config The datasouce config, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if they match the repository or if no
-   * repository info was supplied during construction, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if they match the repository or if no repository info was supplied
+   *     during construction, <code>false</code> otherwise.
    */
   private boolean matchesRepository(IPSJndiDatasource ds, PSDatasourceConfig config) {
     boolean isMatch = m_repositoryInfo == null;
@@ -345,7 +324,6 @@ public abstract class PSBaseDSConverter {
    *
    * @param name The proposed name, assumed not <code>null</code> or empty.
    * @param curNames The current list of names, assumed not <code>null</code>.
-   *
    * @return The unique name, never <code>null</code> or empty.
    */
   private String ensureUniqueName(String name, Set<String> curNames) {
@@ -373,25 +351,17 @@ public abstract class PSBaseDSConverter {
     return ms_logger;
   }
 
-  /**
-   * The config ctx supplied in the ctor, never <code>null</code> after that.
-   */
+  /** The config ctx supplied in the ctor, never <code>null</code> after that. */
   protected PSConfigurationCtx m_configCtx;
 
-  /**
-   * The repository info supplied during construction, may be
-   * <code>null</code>.
-   */
+  /** The repository info supplied during construction, may be <code>null</code>. */
   private IPSRepositoryInfo m_repositoryInfo;
 
   /**
-   * The flag passed during construction to determine if configs can be
-   * updated during conversion.
+   * The flag passed during construction to determine if configs can be updated during conversion.
    */
   private boolean m_updateConfig;
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger ms_logger = LogManager.getLogger(PSBaseDSConverter.class);
 }

@@ -24,14 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Types;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for PSJdbcDataTypeMap.
- */
+/** Unit test for PSJdbcDataTypeMap. */
 public class PSJdbcDataTypeMapTest {
 
-  /**
-   * Test the map
-   */
+  /** Test the map */
   @Test
   public void testMap() throws Exception {
     PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -67,10 +63,9 @@ public class PSJdbcDataTypeMapTest {
   }
 
   /**
-   * Grab specific data types from the DB2 map and see if they have the expected
-   * values for each of the attributes.  <b>This method is assuming values in
-   * PSJdbcDataTypeMaps.xml; if that file is updated, this test may need to be
-   * updated.</b>
+   * Grab specific data types from the DB2 map and see if they have the expected values for each of
+   * the attributes. <b>This method is assuming values in PSJdbcDataTypeMaps.xml; if that file is
+   * updated, this test may need to be updated.</b>
    */
   @Test
   public void testDB2Mappings() throws Exception {
@@ -131,10 +126,9 @@ public class PSJdbcDataTypeMapTest {
   }
 
   /**
-   * Grab specific data types from the Oracle map and see if they have the
-   * expected values for each of the attributes.  <b>This method is assuming
-   * values in PSJdbcDataTypeMaps.xml; if that file is updated, this test may
-   * need to be updated.</b>
+   * Grab specific data types from the Oracle map and see if they have the expected values for each
+   * of the attributes. <b>This method is assuming values in PSJdbcDataTypeMaps.xml; if that file is
+   * updated, this test may need to be updated.</b>
    */
   @Test
   public void testOracleMappings() throws Exception {
@@ -195,10 +189,9 @@ public class PSJdbcDataTypeMapTest {
   }
 
   /**
-   * Grab specific data types from the MSSQL map and see if they have the
-   * expected values for each of the attributes.  <b>This method is assuming
-   * values in PSJdbcDataTypeMaps.xml; if that file is updated, this test may
-   * need to be updated.</b>
+   * Grab specific data types from the MSSQL map and see if they have the expected values for each
+   * of the attributes. <b>This method is assuming values in PSJdbcDataTypeMaps.xml; if that file is
+   * updated, this test may need to be updated.</b>
    */
   @Test
   public void testMSSQLMappings() throws Exception {
@@ -259,8 +252,8 @@ public class PSJdbcDataTypeMapTest {
   }
 
   /**
-   * Tests for different databases if the createForeignKeyIndexes flag is
-   * turned on, if specified in PSJdbcDataTypeMap.xml
+   * Tests for different databases if the createForeignKeyIndexes flag is turned on, if specified in
+   * PSJdbcDataTypeMap.xml
    *
    * @throws Exception
    */

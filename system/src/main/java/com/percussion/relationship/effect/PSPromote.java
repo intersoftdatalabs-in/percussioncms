@@ -56,9 +56,10 @@ import org.w3c.dom.NodeList;
 
 /**
  * This effect is to get the following behavior:
- * <p>
- * If the item being processed is a Promotable item that is entering a public
- * state for the first time, then the following actions will be performed:
+ *
+ * <p>If the item being processed is a Promotable item that is entering a public state for the first
+ * time, then the following actions will be performed:
+ *
  * <pre>
  * 1. Transition the original item using a default or a specified workflow
  *    transition, which, for example, moves original item from public to
@@ -72,19 +73,17 @@ import org.w3c.dom.NodeList;
  *
  * If the above sequence fails at any stage, then the error is returned.
  *
- * The effect will return immediately for any context except RS_POST_WORKFLOW.
+ * <p>The effect will return immediately for any context except RS_POST_WORKFLOW.
  *
  * <p>This effect takes one parameter as described below:
- * <p>
- * params[0] is the internal name of the transition to use. If not supplied,
- * the first transition with the 'default' property (in alpha order) is used.
  *
+ * <p>params[0] is the internal name of the transition to use. If not supplied, the first transition
+ * with the 'default' property (in alpha order) is used.
  */
 public class PSPromote extends PSEffect {
   /**
-   * Override the method in the base class. This effect is meant to be run
-   * during RS_POST_WORKFLOW context and hence will return <code>false</code>
-   * for all other contexts.
+   * Override the method in the base class. This effect is meant to be run during RS_POST_WORKFLOW
+   * context and hence will return <code>false</code> for all other contexts.
    */
   public void test(
       Object[] params,
@@ -163,19 +162,18 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * Implements {@link IPSEffect.attempt(Object[], IPSRequestContext,
-   *  IPSExecutionContext, PSEffectResult)}.
+   * Implements {@link IPSEffect.attempt(Object[], IPSRequestContext, IPSExecutionContext,
+   * PSEffectResult)}.
+   *
    * <pre>
    * See class descr. for more details.
    * </pre>
    *
-   * The result is communicated back to the engine by setting success or error
-   * on the supplied result object.
+   * The result is communicated back to the engine by setting success or error on the supplied
+   * result object.
    *
-   * @exception PSExtensionProcessingException if anything goes wrong executing
-   * the attempt and the implementer chooses so. For this case the default
-   * implementation calls the recovery method.
-   *
+   * @exception PSExtensionProcessingException if anything goes wrong executing the attempt and the
+   *     implementer chooses so. For this case the default implementation calls the recovery method.
    * @throws PSParameterMismatchException never.
    */
   public void attempt(
@@ -223,7 +221,6 @@ public class PSPromote extends PSEffect {
    * Always returns success. For more info see {@link IPSEffect}.
    *
    * @returns always returns success, never <code>null</code>.
-   *
    * @throws PSExtensionProcessingException never.
    */
   public void recover(
@@ -239,17 +236,12 @@ public class PSPromote extends PSEffect {
   /**
    * Performs the supplied workflow transition.
    *
-   * @param request the request context to operate with,
-   *    assumed not <code>null</code>.
-   * @param item the item that needs to be transitioned,
-   *    assumed not <code>null</code>.
-   * @param resource the content editor resource,
-   *    assumed not <code>null</code> or empty.
-   * @param transition the transition trigger,
-   *    assumed not <code>null</code> or empty.
-   * @param forceDependent <code>true</code> if this is a transition that
-   *    forces a dependent to public, <code>false</code> otherwise.
-   *
+   * @param request the request context to operate with, assumed not <code>null</code>.
+   * @param item the item that needs to be transitioned, assumed not <code>null</code>.
+   * @param resource the content editor resource, assumed not <code>null</code> or empty.
+   * @param transition the transition trigger, assumed not <code>null</code> or empty.
+   * @param forceDependent <code>true</code> if this is a transition that forces a dependent to
+   *     public, <code>false</code> otherwise.
    * @throws PSExtensionProcessingException if anything goes wrong.
    */
   private void transitionItem(
@@ -292,15 +284,14 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * Get the transition to be used to move the original item of a promotable
-   * relationship out of its public state.
+   * Get the transition to be used to move the original item of a promotable relationship out of its
+   * public state.
    *
    * @param request the request to operate with, assumed not <code>null</code>.
-   * @param relationship the relationship for which to get the transition,
-   *    this assumes that the promotable flag is enabled.
-   * @param locator the locator of the item used to get the current state and
-   *    then the default transition from that state. Assumed not
-   *    <code>null</code>.
+   * @param relationship the relationship for which to get the transition, this assumes that the
+   *     promotable flag is enabled.
+   * @param locator the locator of the item used to get the current state and then the default
+   *     transition from that state. Assumed not <code>null</code>.
    * @return the transition to used, never <code>null</code> or empty.
    * @throws PSRelationshipProcessorException if anything goes wrong.
    */
@@ -387,16 +378,13 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * This method does the following:
-   * 1. Set dependent of all inbound relations of the original item to point
-   *    to the new PV item.
-   * 2. Set the new PV item as the owner of all outbound relations except
-   *    for clonable relationships, which are removed.
+   * This method does the following: 1. Set dependent of all inbound relations of the original item
+   * to point to the new PV item. 2. Set the new PV item as the owner of all outbound relations
+   * except for clonable relationships, which are removed.
    *
-   * @param request the request used to perform the changes, assumed not
-   *    <code>null</code>.
-   * @param relationship the promotable relationship for which to perform the
-   *    move, assumed not <code>null</code>.
+   * @param request the request used to perform the changes, assumed not <code>null</code>.
+   * @param relationship the promotable relationship for which to perform the move, assumed not
+   *     <code>null</code>.
    * @throws PSCmsException for any errors performing the move.
    */
   private void repointRelationships(IPSRequestContext request, PSRelationship relationship)
@@ -474,17 +462,16 @@ public class PSPromote extends PSEffect {
   }
 
   /**
-   * Remove any relationships from the set that already exist for the promotable
-   * item. This is done by first getting the relationships for the promotable
-   * item. These are then removed from the set of relationships to be modified.
-   * Note that this depends on the list being passed in already having been
-   * modified so that the relationships reference the new promotable item
+   * Remove any relationships from the set that already exist for the promotable item. This is done
+   * by first getting the relationships for the promotable item. These are then removed from the set
+   * of relationships to be modified. Note that this depends on the list being passed in already
+   * having been modified so that the relationships reference the new promotable item
    *
    * @param processor relationship processor, assumed never <code>null</code>
    * @param pvDependentItem the dependent item locator, never <code>null</code>
    * @param relationshipsToModify the set of relationships for modification
-   * @return any relationships that should be removed from the original
-   * item, may return empty but never <code>null</code>
+   * @return any relationships that should be removed from the original item, may return empty but
+   *     never <code>null</code>
    * @throws PSCmsException
    */
   PSRelationshipSet removeRedundentRelationships(
@@ -512,6 +499,7 @@ public class PSPromote extends PSEffect {
 
   /**
    * Returns item summaries given a locator.
+   *
    * @param request request, assumed never <code>null</code>.
    * @param locator locator, assumed never <code>null</code>.
    * @return component summary, never <code>null</code>.

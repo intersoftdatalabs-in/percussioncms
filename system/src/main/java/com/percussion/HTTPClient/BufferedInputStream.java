@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class is similar to java.io.BufferedInputStream, except that it fixes
- * certain bugs and provides support for finding multipart boundaries.
+ * This class is similar to java.io.BufferedInputStream, except that it fixes certain bugs and
+ * provides support for finding multipart boundaries.
  *
- * <P>Note: none of the methods here are synchronized because we assume the
- * caller is already taking care of that.
+ * <p>Note: none of the methods here are synchronized because we assume the caller is already taking
+ * care of that.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class BufferedInputStream extends FilterInputStream {
@@ -46,16 +46,16 @@ class BufferedInputStream extends FilterInputStream {
   private int mark_pos = -1;
 
   /**
-   * the large read threashhold: reads larger than this aren't buffered if
-   * both the current buffer is empty and no mark has been set. This is just
-   * an attempt to balance copying vs. multiple reads.
+   * the large read threashhold: reads larger than this aren't buffered if both the current buffer
+   * is empty and no mark has been set. This is just an attempt to balance copying vs. multiple
+   * reads.
    */
   private int lr_thrshld = 1500;
 
   /**
    * Create a new BufferedInputStream around the given input stream.
    *
-   * @param stream  the underlying input stream to use
+   * @param stream the underlying input stream to use
    */
   BufferedInputStream(InputStream stream) {
     super(stream);
@@ -76,9 +76,9 @@ class BufferedInputStream extends FilterInputStream {
   /**
    * Read a buffer full.
    *
-   * @param buf  the buffer to read into
-   * @param off  the offset within <var>buf</var> at which to start writing
-   * @param len  the number of bytes to read
+   * @param buf the buffer to read into
+   * @param off the offset within <var>buf</var> at which to start writing
+   * @param len the number of bytes to read
    * @return the number of bytes read
    * @exception IOException if thrown by the underlying stream
    */
@@ -103,7 +103,7 @@ class BufferedInputStream extends FilterInputStream {
   /**
    * Skip the given number of bytes in the stream.
    *
-   * @param n   the number of bytes to skip
+   * @param n the number of bytes to skip
    * @return the actual number of bytes skipped
    * @exception IOException if thrown by the underlying stream
    */
@@ -121,8 +121,8 @@ class BufferedInputStream extends FilterInputStream {
   }
 
   /**
-   * Fill buffer by reading from the underlying stream. This assumes the
-   * current buffer is empty, i.e. pos == end.
+   * Fill buffer by reading from the underlying stream. This assumes the current buffer is empty,
+   * i.e. pos == end.
    */
   private final void fillBuff() throws IOException {
     if (mark_pos > 0) // keep the marked stuff around if possible
@@ -145,8 +145,7 @@ class BufferedInputStream extends FilterInputStream {
 
   /**
    * @return the number of bytes available for reading without blocking
-   * @exception IOException if the buffer is empty and the underlying stream has been
-   *                        closed
+   * @exception IOException if the buffer is empty and the underlying stream has been closed
    */
   public int available() throws IOException {
     int avail = end - pos;
@@ -160,24 +159,21 @@ class BufferedInputStream extends FilterInputStream {
     return avail;
   }
 
-  /**
-   * Mark the current read position so that we can start searching for the end boundary.
-   */
+  /** Mark the current read position so that we can start searching for the end boundary. */
   void markForSearch() {
     mark_pos = pos;
   }
 
   /**
-   * Figures out how many bytes past the end of the multipart we read. If we
-   * found the end, it then resets the read pos to just past the end of the
-   * boundary and unsets the mark; if not found, is sets the mark_pos back
-   * enough from the current position so we can always be sure to find the
+   * Figures out how many bytes past the end of the multipart we read. If we found the end, it then
+   * resets the read pos to just past the end of the boundary and unsets the mark; if not found, is
+   * sets the mark_pos back enough from the current position so we can always be sure to find the
    * boundary.
    *
-   * @param search     the search string (end boundary)
+   * @param search the search string (end boundary)
    * @param search_cmp the compiled info of the search string
-   * @return how many bytes past the end of the boundary we went; -1 if we
-   *         haven't gone passed it yet.
+   * @return how many bytes past the end of the boundary we went; -1 if we haven't gone passed it
+   *     yet.
    */
   int pastEnd(byte[] search, int[] search_cmp) {
     int idx = Util.findStr(search, search_cmp, buffer, mark_pos, pos);

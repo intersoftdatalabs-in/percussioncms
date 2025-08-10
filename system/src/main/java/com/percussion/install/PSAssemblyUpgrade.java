@@ -19,17 +19,15 @@ package com.percussion.install;
 import com.percussion.utils.tools.PSParseArguments;
 
 /**
- * Upgrade the tables for assembly if the work hasn't yet been done. Update
- * GUID_DATA with the right minimum values for the variant to content type
- * join table.
+ * Upgrade the tables for assembly if the work hasn't yet been done. Update GUID_DATA with the right
+ * minimum values for the variant to content type join table.
  *
  * @author dougrand
  */
 // REFACTORED: CP-JAVA11
 public class PSAssemblyUpgrade {
   /**
-   * The arguments for this consist of the database connection parameters
-   * including the driver.
+   * The arguments for this consist of the database connection parameters including the driver.
    *
    * @param args
    */

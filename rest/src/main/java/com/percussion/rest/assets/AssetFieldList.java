@@ -20,38 +20,37 @@ package com.percussion.rest.assets;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "AssetFieldList")
 @XmlType(propOrder = {})
 @ArraySchema(schema = @Schema(implementation = AssetField.class))
 public class AssetFieldList extends ArrayList<AssetField> {
 
-    public AssetFieldList(Collection<? extends AssetField> c) {
-        super(c);
-    }
+  public AssetFieldList(Collection<? extends AssetField> c) {
+    super(c);
+  }
 
-    public AssetFieldList() {
-        super();
-    }
+  public AssetFieldList() {
+    super();
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof AssetFieldList && super.equals(o);
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof AssetFieldList && super.equals(o);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 
-    @Override
-    public String toString() {
-        return "AssetFieldList" + super.toString();
-    }
+  @Override
+  public String toString() {
+    return "AssetFieldList" + super.toString();
+  }
 }

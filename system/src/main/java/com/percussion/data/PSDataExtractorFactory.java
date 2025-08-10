@@ -43,21 +43,19 @@ import com.percussion.util.PSMapClassToObject;
 import java.lang.reflect.Constructor;
 
 /**
- * The PSDataExtractorFactory class provides a convenient mechanism for
- * building data extractors. Since extractors are used all over, this
- * is a simpler way to avoid programming errors.
+ * The PSDataExtractorFactory class provides a convenient mechanism for building data extractors.
+ * Since extractors are used all over, this is a simpler way to avoid programming errors.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSDataExtractorFactory {
   /**
    * Create a data extractor for the specified replacement value.
    *
-   * @param      replValue      the replacement value to use
-   *
-   * @return                    the newly created extractor
+   * @param replValue the replacement value to use
+   * @return the newly created extractor
    */
   public static IPSDataExtractor createReplacementValueExtractor(IPSReplacementValue replValue) {
     // hard to do this without a replacement value!
@@ -100,9 +98,7 @@ public abstract class PSDataExtractorFactory {
     return ret;
   }
 
-  /**
-   * Get the extractor constructor for the specified class.
-   */
+  /** Get the extractor constructor for the specified class. */
   private static Constructor getExtractorConstructor(IPSReplacementValue replValue)
       throws NoSuchMethodException {
     Class extractorClass = (Class) ms_extractors.getMapping(replValue.getClass());

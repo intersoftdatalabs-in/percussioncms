@@ -44,46 +44,41 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Generates Rhythmyx content list XML for all content items contained within
- * a specified site folder, or its child folders.  Determines which variants to
- * publish for each content type for the given site by referencing a lookup
- * table.  Builds delivery location paths by concatenating an item's ancestor
- * folders' names.
- * <p>
- * This class collects all items for a given sites, then send a (batch) SQL
- * statement to the database, let the database figuring out the published items.
+ * Generates Rhythmyx content list XML for all content items contained within a specified site
+ * folder, or its child folders. Determines which variants to publish for each content type for the
+ * given site by referencing a lookup table. Builds delivery location paths by concatenating an
+ * item's ancestor folders' names.
+ *
+ * <p>This class collects all items for a given sites, then send a (batch) SQL statement to the
+ * database, let the database figuring out the published items.
  */
 public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   /**
-   * Constructs a site-folder-driven, full-publishing, public-items
-   * content list builder.
+   * Constructs a site-folder-driven, full-publishing, public-items content list builder.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
    */
   public PSSiteFolderCListBulk(IPSRequestContext request) {
     super(request);
   }
 
   /**
-   * Constructs a site-folder-driven content list builder.  Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
    *
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   * parameters, logging, and making internal requests. Not <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   * publishing content list, <code>false</code> for full publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   * values for workflow states that are eligible for publishing. Never
-   * <code>null</code> or empty.
-   * @param maxRowsPerPage enables pagination mode by determining the maximum
-   * number of content items to appear in a single page of the content list.
-   * Use a value of <code>-1</code> to disable pagination mode
-   * (unlimited number of items)
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing. Never <code>null</code> or empty.
+   * @param maxRowsPerPage enables pagination mode by determining the maximum number of content
+   *     items to appear in a single page of the content list. Use a value of <code>-1</code> to
+   *     disable pagination mode (unlimited number of items)
    */
   public PSSiteFolderCListBulk(
       IPSRequestContext request,
@@ -94,41 +89,32 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   }
 
   /**
-   * Constructs a site-folder-driven content list builder. Whether the content
-   * list is full or incremental,
+   * Constructs a site-folder-driven content list builder. Whether the content list is full or
+   * incremental,
+   *
+   * <p>Construct a site folder content list builder that will use the specified request for
+   * obtaining request parameters, logging, and making internal requests.
+   *
    * <p>
-   * Construct a site folder content list builder that will use the specified
-   * request for obtaining request parameters, logging, and making internal
-   * requests.
-   * <p>
-   * @param request
-   *           the current request context, used to obtain request parameters,
-   *           logging, and making internal requests. Not <code>null</code>.
-   * @param isIncremental
-   *           <code>true</code> to generate an incremental publishing
-   *           content list, <code>false</code> for full publishing
-   * @param publishableContentValidValues
-   *           comma-delimited list of contentvalid values for workflow states
-   *           that are eligible for publishing. Never <code>null</code> or
-   *           empty.
-   * @param contentResourceName
-   *           the name of the application resource used for looking up the
-   *           items and its valid variants. Must be supplied in the form
-   *           &lt;ApplicationName&gt;/&lt;ResourceName&gt;. It default to
-   *           {@link #GET_SFP_CONTENT_LIST}if <code>null</code> or empty.
-   * @param maxRowsPerPage
-   *           the maximum number of items to publish on a page in the content
-   *           list.
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
-   * @param port the port number to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param paramSetToPass
-   *           Set of non-standard HTML parameters to pass from request context
-   *           to each content item url in the content list, must not be
-   *           <code>null</code>, may be empty.
+   *
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing. Never <code>null</code> or empty.
+   * @param contentResourceName the name of the application resource used for looking up the items
+   *     and its valid variants. Must be supplied in the form
+   *     &lt;ApplicationName&gt;/&lt;ResourceName&gt;. It default to {@link #GET_SFP_CONTENT_LIST}if
+   *     <code>null</code> or empty.
+   * @param maxRowsPerPage the maximum number of items to publish on a page in the content list.
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
+   * @param port the port number to use when creating content URLs, never <code>null</code> or empty
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, must not be <code>null</code>, may be empty.
    */
   public PSSiteFolderCListBulk(
       IPSRequestContext request,
@@ -174,8 +160,8 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   }
 
   /**
-   * The resource name used to catalog the content items, see
-   * {@link #GET_SFP_CONTENT_LIST}for detail
+   * The resource name used to catalog the content items, see {@link #GET_SFP_CONTENT_LIST}for
+   * detail
    *
    * @return the default resource name, never <code>null</code> or empty.
    */
@@ -306,19 +292,12 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   /**
    * Generates the content list from the supplied items and context parameters.
    *
-   * @param siteItems
-   *           a list of items, collected by
-   *           {@link #appendFolderItems(String, int, String, String, boolean, boolean, Map)}.
-   *           Assume never <code>null</code>, but be empty.
-   * @param location_context
-   *           the (file) location context, which is default to he value of
-   *           {@link IPSHtmlParameters#SYS_CONTEXT}. Assume not
-   *           <code>null</code>.
-   *
-   * @throws PSExtensionProcessingException
-   *            if cannot find resource.
-   * @throws PSCmsException
-   *            if other error occurs.
+   * @param siteItems a list of items, collected by {@link #appendFolderItems(String, int, String,
+   *     String, boolean, boolean, Map)}. Assume never <code>null</code>, but be empty.
+   * @param location_context the (file) location context, which is default to he value of {@link
+   *     IPSHtmlParameters#SYS_CONTEXT}. Assume not <code>null</code>.
+   * @throws PSExtensionProcessingException if cannot find resource.
+   * @throws PSCmsException if other error occurs.
    */
   private void generateContentItems(String location_context, Map siteItems)
       throws PSExtensionProcessingException, PSCmsException {
@@ -360,8 +339,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
   }
 
   /**
-   * lookup the last public revision for all items in quick-edit state
-   * and set to the item objects.
+   * lookup the last public revision for all items in quick-edit state and set to the item objects.
    *
    * @throws PSCmsException if an error occurs
    */
@@ -395,26 +373,18 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
 
   /**
    * Generates the content list items from the supplied parameters.
-   * @param sys_context
-   *           the value of {@link IPSHtmlParameters#SYS_CONTEXT}. Assume not
-   *           <code>null</code>.
-   * @param contentIds
-   *           a list of content ids, separated by comma. Assume not
-   *           <code>null</code> or empty.
-   * @param location_context
-   *           the (file) location context, which is default to the value of
-   *           {@link IPSHtmlParameters#SYS_CONTEXT}. Assumed not
-   *           <code>null</code>.
-   * @param siteItems
-   *           it maps content id (as the map key) to its parent folder (as the
-   *           map value). The map keys are <code>Integer</code> objects; the
-   *           map values are <code>ParentFolder</code> objects. Assume never
-   *           <code>null</code>, but be empty.
    *
-   * @throws PSExtensionProcessingException
-   *            if cannot find resource.
-   * @throws PSCmsException
-   *            if other error occurs.
+   * @param sys_context the value of {@link IPSHtmlParameters#SYS_CONTEXT}. Assume not <code>null
+   *     </code>.
+   * @param contentIds a list of content ids, separated by comma. Assume not <code>null</code> or
+   *     empty.
+   * @param location_context the (file) location context, which is default to the value of {@link
+   *     IPSHtmlParameters#SYS_CONTEXT}. Assumed not <code>null</code>.
+   * @param siteItems it maps content id (as the map key) to its parent folder (as the map value).
+   *     The map keys are <code>Integer</code> objects; the map values are <code>ParentFolder</code>
+   *     objects. Assume never <code>null</code>, but be empty.
+   * @throws PSExtensionProcessingException if cannot find resource.
+   * @throws PSCmsException if other error occurs.
    */
   private void generateContentItems(String location_context, String contentIds, Map siteItems)
       throws PSExtensionProcessingException, PSCmsException {
@@ -515,9 +485,7 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
     }
   }
 
-  /**
-   * A container class for a folder id and its path.
-   */
+  /** A container class for a folder id and its path. */
   private class ParentFolder {
     /**
      * Constructs an object from the supplied id and path.
@@ -530,51 +498,47 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
       m_folderPath = folderPath;
     }
 
-    /**
-     * The folder path, assume never <code>null</code>. Init by ctor.
-     */
+    /** The folder path, assume never <code>null</code>. Init by ctor. */
     String m_folderPath;
 
-    /**
-     * The content id of a folder.
-     */
+    /** The content id of a folder. */
     int m_folderId;
   }
 
   /**
-   * A list of items in quick-edit state are contained in
-   * {@link #m_contentList}. The map keys are content ids as
-   * <code>Integer</code> objects, which map to the related
-   * {@link PSContentListItem} set. Never <code>null</code>.
+   * A list of items in quick-edit state are contained in {@link #m_contentList}. The map keys are
+   * content ids as <code>Integer</code> objects, which map to the related {@link PSContentListItem}
+   * set. Never <code>null</code>.
    */
   private Map<Integer, Set<PSContentListItem>> m_quickEditCList = new HashMap<>();
 
   /**
-   * Name of the Rhythmyx internal resource used to catalog the published
-   * items for FULL and INCREMENTAL site folder publishing.
-   * <p>
-   * The required HTML parameter of the query resource for FULL publishing:
+   * Name of the Rhythmyx internal resource used to catalog the published items for FULL and
+   * INCREMENTAL site folder publishing.
+   *
+   * <p>The required HTML parameter of the query resource for FULL publishing:
+   *
    * <TABLE BORDER="1">
-   *<TR><TH>PSXSingleParam</TH><TH>description</TH></TR>
+   * <TR><TH>PSXSingleParam</TH><TH>description</TH></TR>
    * <TR><TD>isFullPublish</TD><TD>true</TD></TR>
    * <TR><TD>sys_siteid</TD><TD>The published site id</TD></TR>
    * <TR><TD>sys_contentid</TD><TD>Content ids with comma as delimiter</TD></TR>
    * <TR><TD>valid</TD><TD>The published state flags with comma as the delimiter</TD></TR>
    * </TABLE>
-   * <p>
-   * The required HTML parameter of the resource for INCREMENTAL publishing:
+   *
+   * <p>The required HTML parameter of the resource for INCREMENTAL publishing:
+   *
    * <TABLE BORDER="1">
-   *<TR><TH>PSXSingleParam</TH><TH>description</TH></TR>
+   * <TR><TH>PSXSingleParam</TH><TH>description</TH></TR>
    * <TR><TD>isFullPublish</TD><TD>false</TD></TR>
    * <TR><TD>sys_context</TD><TD>The context value</TD></TR>
    * <TR><TD>sys_siteid</TD><TD>The published site id</TD></TR>
    * <TR><TD>sys_contentid</TD><TD>Content ids with comma as delimiter</TD></TR>
    * <TR><TD>valid</TD><TD>The published state flags with comma as the delimiter</TD></TR>
    * </TABLE>
-   * <p>
-   * It returns the result set with the following columns:
-   *<TR><TH>Table name</TH><TH>Column name</TH></TR>
-   * <TR><TD>CONTENTSTATUS</TD><TD>CONTENTID</TD></TR>
+   *
+   * <p>It returns the result set with the following columns: <TR><TH>Table name</TH><TH>Column
+   * name</TH></TR> <TR><TD>CONTENTSTATUS</TD><TD>CONTENTID</TD></TR>
    * <TR><TD>CONTENTSTATUS</TD><TD>CURRENTREVISION</TD></TR>
    * <TR><TD>CONTENTSTATUS</TD><TD>TITLE</TD></TR>
    * <TR><TD>CONTENTSTATUS</TD><TD>CONTENTTYPEID</TD></TR>
@@ -587,9 +551,6 @@ public class PSSiteFolderCListBulk extends PSSiteFolderCListBase {
    */
   static final String GET_SFP_CONTENT_LIST = "rx_supportSiteFolderContentList/getSFPContentList";
 
-  /**
-   * The HTML parameter name, set to "true" for FULL publishing; otherwise
-   * set to "false".
-   */
+  /** The HTML parameter name, set to "true" for FULL publishing; otherwise set to "false". */
   private static final String IS_FULL_PUBLISH = "isFullPublish";
 }

@@ -29,19 +29,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This plugin has been written to migrate field control dependencies from
- * the user properties of a content editor application to the user properties of
- * the content editor pipe, which is the new format in 6.0.
+ * This plugin has been written to migrate field control dependencies from the user properties of a
+ * content editor application to the user properties of the content editor pipe, which is the new
+ * format in 6.0.
  */
 public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginMigrateControlDependencies() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin.  Performs the tasks
-   * described above.
+   * Implements the process function of IPSUpgradePlugin. Performs the tasks described above.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -110,11 +107,10 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
   }
 
   /**
-   * Migrates content editor field control dependency data from the application
-   * user properties to the content editor pipe.
+   * Migrates content editor field control dependency data from the application user properties to
+   * the content editor pipe.
    *
-   * @param doc the content type editor application document, assumed not be
-   * <code>null</code>
+   * @param doc the content type editor application document, assumed not be <code>null</code>
    */
   private void migrateFieldControlDependencies(Document doc) {
     try {
@@ -187,8 +183,7 @@ public class PSUpgradePluginMigrateControlDependencies implements IPSUpgradePlug
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

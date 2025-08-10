@@ -24,8 +24,8 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate5.HibernateCallback;
 
 /**
- * You can pass in a simple Query, or you can pass one in with substitutions defined, and
- * then supply a map of substitution values to be inserted on execute
+ * You can pass in a simple Query, or you can pass one in with substitutions defined, and then
+ * supply a map of substitution values to be inserted on execute
  */
 public class HibernateQuery implements HibernateCallback {
 

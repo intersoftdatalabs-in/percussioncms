@@ -25,10 +25,10 @@ import java.util.List;
  */
 public interface IPSSteppedWorkflowMetadata {
 
-    /**
-     * Finds all the states which are locked down by the system (not user-created).
-     *
-     * @return a list of state names, possibly empty or {@code null}
-     */
-    List<String> getSystemStatesList();
+  /**
+   * Finds all the states which are locked down by the system (not user-created).
+   *
+   * @return a list of state names, possibly empty or {@code null}
+   */
+  List<String> getSystemStatesList();
 }

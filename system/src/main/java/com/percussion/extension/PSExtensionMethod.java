@@ -25,41 +25,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Represents an extension method.
- */
+/** Represents an extension method. */
 public final class PSExtensionMethod implements Serializable {
-  /**
-   * Compiler generated serial version ID used for serialization.
-   */
+  /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = 1383116678428785411L;
 
-  /**
-   * The method name, never {@code null} or empty after construction.
-   */
+  /** The method name, never {@code null} or empty after construction. */
   private String m_name;
 
-  /**
-   * The method description, never {@code null} after construction, may
-   * be empty.
-   */
+  /** The method description, never {@code null} after construction, may be empty. */
   private String m_description;
 
   /**
-   * The method parameters, never {@code null}, may be empty. The order
-   * of the parameters is important for the way a method is called.
+   * The method parameters, never {@code null}, may be empty. The order of the parameters is
+   * important for the way a method is called.
    */
   private final List<PSExtensionMethodParam> m_parameters = new ArrayList<>();
 
-  /**
-   * The method return type, never {@code null} or empty after
-   * construction.
-   */
+  /** The method return type, never {@code null} or empty after construction. */
   private String m_returnType;
 
   /**
-   * Convenience constructor that calls {@link #PSExtensionMethod(String,
-   * String, String) PSExtensionMethod(name, returnType, null)}.
+   * Convenience constructor that calls {@link #PSExtensionMethod(String, String, String)
+   * PSExtensionMethod(name, returnType, null)}.
    *
    * @param name the method name, not {@code null} or empty
    * @param returnType the method return type, not {@code null} or empty
@@ -84,10 +72,8 @@ public final class PSExtensionMethod implements Serializable {
   /**
    * Construct a new extension method from its XML representation.
    *
-   * @param source the XML element from which to construct this method,
-   *    not {@code null}
-   * @throws PSExtensionException for any error deserializing the supplied
-   *    source
+   * @param source the XML element from which to construct this method, not {@code null}
+   * @throws PSExtensionException for any error deserializing the supplied source
    */
   public PSExtensionMethod(Element source) throws PSExtensionException {
     Objects.requireNonNull(source, "source element cannot be null");
@@ -137,8 +123,8 @@ public final class PSExtensionMethod implements Serializable {
   /**
    * Get all method parameters.
    *
-   * @return an iterator over all method parameters in the order they were
-   *    added, never {@code null}, may be empty
+   * @return an iterator over all method parameters in the order they were added, never {@code
+   *     null}, may be empty
    */
   public Iterator<PSExtensionMethodParam> getParameters() {
     return m_parameters.iterator();
@@ -240,10 +226,8 @@ public final class PSExtensionMethod implements Serializable {
   /**
    * Deserialize this method from its XML representation.
    *
-   * @param source the XML element from which to deserialize this method,
-   *    not {@code null}
-   * @throws PSExtensionException for any error deserializing the supplied
-   *    source
+   * @param source the XML element from which to deserialize this method, not {@code null}
+   * @throws PSExtensionException for any error deserializing the supplied source
    */
   public void fromXML(Element source) throws PSExtensionException {
     Objects.requireNonNull(source, "source element cannot be null");
@@ -285,8 +269,6 @@ public final class PSExtensionMethod implements Serializable {
     return element;
   }
 
-  /**
-   * The XML element name for this class.
-   */
+  /** The XML element name for this class. */
   public static final String XML_NAME = "PSExtensionMethod";
 }

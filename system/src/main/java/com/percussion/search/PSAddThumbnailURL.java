@@ -40,10 +40,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This exit is used to add thumbnail urls to the thumbnail column (if it exists) for
- * each row in the returned search result set. In order to determine the default variant
- * to use for each image content type, an entry must be put in the
- * sys_AddThumbnailURL.properties file located in rxconfig\Server
+ * This exit is used to add thumbnail urls to the thumbnail column (if it exists) for each row in
+ * the returned search result set. In order to determine the default variant to use for each image
+ * content type, an entry must be put in the sys_AddThumbnailURL.properties file located in
+ * rxconfig\Server
  */
 public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   /*
@@ -55,12 +55,12 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * Iterates through all search result rows and adds the thumbnail urls to
-   * the thumbnail columns if they exist. The thumbnail column to use can be passed
-   * in as parameter [0] or it will default to use sys_thumbnail.
-   * @see com.percussion.extension.IPSSearchResultsProcessor#processRows(
-   * java.lang.Object[],
-   *      java.util.List, com.percussion.server.IPSRequestContext)
+   * Iterates through all search result rows and adds the thumbnail urls to the thumbnail columns if
+   * they exist. The thumbnail column to use can be passed in as parameter [0] or it will default to
+   * use sys_thumbnail.
+   *
+   * @see com.percussion.extension.IPSSearchResultsProcessor#processRows( java.lang.Object[],
+   *     java.util.List, com.percussion.server.IPSRequestContext)
    */
   public List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -99,11 +99,10 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * Returns the assembly url which corresponds to the specified
-   * contenttype and variant.
+   * Returns the assembly url which corresponds to the specified contenttype and variant.
+   *
    * @param contenttype the content type id, assumed not <code>null</code>
-   * @param variant the default thumbnail variant, assumed not
-   * <code>null</code>
+   * @param variant the default thumbnail variant, assumed not <code>null</code>
    * @return the assembly url or <code>null</code> if it could not be found.
    * @throws PSExtensionProcessingException upon any error
    */
@@ -115,12 +114,10 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * Loads contenttype to default thumbnail variant mappings
-   * from sys_AddThumbnailURL.properties located in the server's
-   * rxconfig/Server directory and caches them in a static context.
+   * Loads contenttype to default thumbnail variant mappings from sys_AddThumbnailURL.properties
+   * located in the server's rxconfig/Server directory and caches them in a static context.
    *
-   * @throws IOException upon an error when attempting to fetch the properties
-   * file
+   * @throws IOException upon an error when attempting to fetch the properties file
    */
   private void loadVariantMappings() throws PSExtensionProcessingException {
     if (ms_variantMappings != null) return;
@@ -142,10 +139,10 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * Lazy Loads the variants for the specified contenttype from the lookup
-   * resource into the variant urls cache (local memory). We don't cache this in a static context
-   * as new contenttypes and variants may be added and we don't want to
-   * force a server restart to see them.
+   * Lazy Loads the variants for the specified contenttype from the lookup resource into the variant
+   * urls cache (local memory). We don't cache this in a static context as new contenttypes and
+   * variants may be added and we don't want to force a server restart to see them.
+   *
    * @param contenttype the contenttype id assumed not <code>null</code>.
    * @throws PSExtensionProcessingException upon internal request error.
    */
@@ -172,11 +169,11 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * Helper function that gets the value of the specified element under
-   * the passed in parent element.
+   * Helper function that gets the value of the specified element under the passed in parent
+   * element.
+   *
    * @param parent the parent element, assumed not <code>null</code>.
-   * @param name the name of the element that the value will be extracted
-   * from.
+   * @param name the name of the element that the value will be extracted from.
    * @return the value or <code>null</code> if no value found.
    */
   private String getElementValue(Element parent, String name) {
@@ -195,16 +192,12 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
 
   /**
    * Helper method to assemble the thumbnail preview url
-   * @param assemblyUrl the assembly url for the specified variant, assumed
-   * not <code>null</code>
-   * @param contentid the content id of the current row, assumed not
-   * <code>null</code>.
-   * @param contenttype the content type id of the current row, assumed not
-   * <code>null</code>.
-   * @param variant the variant id of the current row, assumed not
-   * <code>null</code>.
-   * @param revision the revision of the current row, assumed not
-   * <code>null</code>.
+   *
+   * @param assemblyUrl the assembly url for the specified variant, assumed not <code>null</code>
+   * @param contentid the content id of the current row, assumed not <code>null</code>.
+   * @param contenttype the content type id of the current row, assumed not <code>null</code>.
+   * @param variant the variant id of the current row, assumed not <code>null</code>.
+   * @param revision the revision of the current row, assumed not <code>null</code>.
    * @return the url preview url, never <code>null</code>
    */
   private String createUrl(
@@ -236,8 +229,8 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
   }
 
   /**
-   * The cache of variant urls, loaded by
-   * {@link #loadVariantsByContentType(String)}, never <code>null</code>.
+   * The cache of variant urls, loaded by {@link #loadVariantsByContentType(String)}, never <code>
+   * null</code>.
    */
   private Map<String, Map<String, String>> m_variantUrls =
       new HashMap<String, Map<String, String>>();
@@ -248,14 +241,10 @@ public class PSAddThumbnailURL implements IPSSearchResultsProcessor {
    */
   private IPSRequestContext m_currentRequest;
 
-  /**
-   * A static cache variable to hold the variant mappings
-   */
+  /** A static cache variable to hold the variant mappings */
   private static Properties ms_variantMappings;
 
-  /**
-   * The name of the thumbnail column
-   */
+  /** The name of the thumbnail column */
   private String m_thumbnail;
 
   /* Constants */

@@ -26,17 +26,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-/**
- * Image utility methods.
- */
+/** Image utility methods. */
 public class PSImageTools {
   /**
    * Fetches image information given a cas url.
    *
    * @param request request context, never <code>null</code>.
-   * @param casUrl url to image assembly, never <code>null</code> or
-   *  <code>empty</code>.
-   *
+   * @param casUrl url to image assembly, never <code>null</code> or <code>empty</code>.
    * @return image info object, never <code>null</code>.
    * @throws IOException on any file IO error.
    * @throws PSInternalRequestCallException on any internal request error.

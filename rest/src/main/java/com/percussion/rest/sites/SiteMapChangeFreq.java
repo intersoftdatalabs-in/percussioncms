@@ -17,10 +17,13 @@
 
 package com.percussion.rest.sites;
 
-/**
- * Enum for sitemap change frequency.
- * Sunny Sal: "Change frequency ka enum, SEO ka fun!"
- */
+/** Enum for sitemap change frequency. Sunny Sal: "Change frequency ka enum, SEO ka fun!" */
 public enum SiteMapChangeFreq {
-    ALWAYS, HOURLY, DAILY, WEEKLY, MONTHLY, YEARLY, NEVER
+  ALWAYS,
+  HOURLY,
+  DAILY,
+  WEEKLY,
+  MONTHLY,
+  YEARLY,
+  NEVER
 }

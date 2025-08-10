@@ -23,14 +23,12 @@ import com.percussion.rest.editions.IEditionsAdaptor;
 import com.percussion.rest.editions.PublishResponse;
 import org.springframework.stereotype.Component;
 
-/**
- * Test adaptor for Editions API bridge.
- */
+/** Test adaptor for Editions API bridge. */
 @Component
 public class TestEditionsAdaptor implements IEditionsAdaptor {
 
-    @Override
-    public PublishResponse publish(String id) {
-        return null;
-    }
+  @Override
+  public PublishResponse publish(String id) {
+    return null;
+  }
 }

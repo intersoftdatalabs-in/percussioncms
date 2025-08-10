@@ -23,27 +23,24 @@ import java.util.StringTokenizer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation of the interface {@link IPSJavaPlugin}
- */
+/** Implementation of the interface {@link IPSJavaPlugin} */
 public class PSJavaPlugin implements IPSJavaPlugin {
   /**
    * Ctor taking all the attributes required for the object creation.
-   * @param osKey string key representing the operating system of the client,
-   * must not be <code>null</code> or empty.
-   * @param browserKey string key representing the browser of the client,
-   * must not be <code>null</code> or empty.
-   * @param versionToUse string key representing the plugin version to use,
-   * must not be <code>null</code> or empty and conform to the plugin version
-   * syntax, i.e. 1.4.1_mn.
-   * @param isStatic <code>true</code> to use static versioning type and
-   * <code>false</code> otherwise.
-   * @param downloadLocation location URL of the plugin executable/cab file to
-   * download to the client's machine in case required, must not be <code>null</code>
-   * and must be a HTTP URL for remote download or a URL inapplet syntax,
-   * for example,<e> ../rx_resources/AppletJars/plugin.exe</e>.
-   * @throws IllegalArgumentException if any of the required parameters is
-   * invalid.
+   *
+   * @param osKey string key representing the operating system of the client, must not be <code>null
+   *     </code> or empty.
+   * @param browserKey string key representing the browser of the client, must not be <code>null
+   *     </code> or empty.
+   * @param versionToUse string key representing the plugin version to use, must not be <code>null
+   *     </code> or empty and conform to the plugin version syntax, i.e. 1.4.1_mn.
+   * @param isStatic <code>true</code> to use static versioning type and <code>false</code>
+   *     otherwise.
+   * @param downloadLocation location URL of the plugin executable/cab file to download to the
+   *     client's machine in case required, must not be <code>null</code> and must be a HTTP URL for
+   *     remote download or a URL inapplet syntax, for example,<e>
+   *     ../rx_resources/AppletJars/plugin.exe</e>.
+   * @throws IllegalArgumentException if any of the required parameters is invalid.
    */
   public PSJavaPlugin(
       String osKey,
@@ -69,21 +66,20 @@ public class PSJavaPlugin implements IPSJavaPlugin {
   }
 
   /**
-   * Another version of the ctor that takes the HTTP USER AGENT string instaed
-   * of osKey and browserKey.
-   * @param httpUserAgent string key representing the httpUserAgent, must not
-   * be <code>null</code> or empty.
-   * @param versionToUse string key representing the plugin version to use,
-   * must not be <code>null</code> or empty and conform to the plugin version
-   * syntax, i.e. 1.4.1_mn.
-   * @param isStatic <code>true</code> to use static versioning type and
-   * <code>false</code> otherwise.
-   * @param downloadLocation location URL of the plugin executable/cab file to
-   * download to the client's machine in case required, must not be <code>null</code>
-   * and must be a HTTP URL for remote download or a URL inapplet syntax,
-   * for example,<e> ../rx_resources/AppletJars/plugin.exe</e>.
-   * @throws IllegalArgumentException if any of the required parameters is
-   * invalid.
+   * Another version of the ctor that takes the HTTP USER AGENT string instaed of osKey and
+   * browserKey.
+   *
+   * @param httpUserAgent string key representing the httpUserAgent, must not be <code>null</code>
+   *     or empty.
+   * @param versionToUse string key representing the plugin version to use, must not be <code>null
+   *     </code> or empty and conform to the plugin version syntax, i.e. 1.4.1_mn.
+   * @param isStatic <code>true</code> to use static versioning type and <code>false</code>
+   *     otherwise.
+   * @param downloadLocation location URL of the plugin executable/cab file to download to the
+   *     client's machine in case required, must not be <code>null</code> and must be a HTTP URL for
+   *     remote download or a URL inapplet syntax, for example,<e>
+   *     ../rx_resources/AppletJars/plugin.exe</e>.
+   * @throws IllegalArgumentException if any of the required parameters is invalid.
    */
   public PSJavaPlugin(
       String httpUserAgent, String versionToUse, boolean isStatic, String downloadLocation)
@@ -113,12 +109,12 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Ctor taking the source element.
-   * @param elemSrc must not be <code>null</code> or empty and must conform to
-   * the DTD specified in the class description.
-   * @throws PSUnknownNodeTypeException if source XML element fails to conform
-   * to the DTD.
-   * @throws IllegalArgumentException if any of the required attributes is
-   * missing for object construction.
+   *
+   * @param elemSrc must not be <code>null</code> or empty and must conform to the DTD specified in
+   *     the class description.
+   * @throws PSUnknownNodeTypeException if source XML element fails to conform to the DTD.
+   * @throws IllegalArgumentException if any of the required attributes is missing for object
+   *     construction.
    */
   public PSJavaPlugin(Element elemSrc) throws PSUnknownNodeTypeException, IllegalArgumentException {
     fromXml(elemSrc, null, null);
@@ -126,8 +122,9 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Set the osKey.
-   * @param osKey to set, must not be <code>null</code> or empty and must be
-   * one of the supported OS types.
+   *
+   * @param osKey to set, must not be <code>null</code> or empty and must be one of the supported OS
+   *     types.
    */
   public void setOsKey(String osKey) {
     if (osKey == null || osKey.trim().length() < 1)
@@ -138,10 +135,11 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Set the browserKey.
-   * @param browserKey to set, must not be <code>null</code> or empty and must
-   * be one of the supported browser types.
-   * @throws IllegalArgumentException if browserKey is <code>null</code> or empty
-   * or is not one of the supported browsers.
+   *
+   * @param browserKey to set, must not be <code>null</code> or empty and must be one of the
+   *     supported browser types.
+   * @throws IllegalArgumentException if browserKey is <code>null</code> or empty or is not one of
+   *     the supported browsers.
    */
   public void setBrowserKey(String browserKey) {
     if (browserKey == null || browserKey.trim().length() < 1)
@@ -152,10 +150,11 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Set the plugin version to use.
-   * @param versionToUse version to set, must not be <code>null</code> or empty
-   *  and must follow the required syntax.
-   * @throws IllegalArgumentException if version is <code>null</code> or empty
-   *    or does not follow the requires syntax, i.e. 1.4.1_01
+   *
+   * @param versionToUse version to set, must not be <code>null</code> or empty and must follow the
+   *     required syntax.
+   * @throws IllegalArgumentException if version is <code>null</code> or empty or does not follow
+   *     the requires syntax, i.e. 1.4.1_01
    */
   public void setVersionToUse(String versionToUse) {
     if (versionToUse == null || versionToUse.trim().length() < 1)
@@ -166,8 +165,8 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Set the plugin download location.
-   * @param downloadLocation download location, must not be <code>null</code>
-   *    or empty.
+   *
+   * @param downloadLocation download location, must not be <code>null</code> or empty.
    * @throws IllegalArgumentException if version is <code>null</code> or empty.
    */
   public void setDownloadLocation(String downloadLocation) {
@@ -179,11 +178,10 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * Set the plugin versioning type to static or dynamic
-   * @param isStatic <code>true</code> to set it versioning type to
-   * VERSIONING_TYPE_STATIC or <code>false</code> for VERSIONING_TYPE_DYNAMIC
-   * type.
-   * @throws IllegalArgumentException if type specified is not from the allowed
-   * ones.
+   *
+   * @param isStatic <code>true</code> to set it versioning type to VERSIONING_TYPE_STATIC or <code>
+   *     false</code> for VERSIONING_TYPE_DYNAMIC type.
+   * @throws IllegalArgumentException if type specified is not from the allowed ones.
    */
   public void setStaticVersioningType(boolean isStatic) {
     if (isStatic) m_versioningType = VERSIONING_TYPE_STATIC;
@@ -300,9 +298,7 @@ public class PSJavaPlugin implements IPSJavaPlugin {
         + hashCodeOr0(m_downloadLocation);
   }
 
-  /**
-   * Hash code of the provided object or 0 if the object is <code>null</code>.
-   */
+  /** Hash code of the provided object or 0 if the object is <code>null</code>. */
   private int hashCodeOr0(Object object) {
     return object == null ? 0 : object.hashCode();
   }
@@ -329,6 +325,7 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * See IPSComponent.
+   *
    * @return id
    */
   public int getId() {
@@ -337,6 +334,7 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * See IPSComponent.
+   *
    * @param id
    */
   public void setId(@SuppressWarnings("unused") int id) {
@@ -345,6 +343,7 @@ public class PSJavaPlugin implements IPSJavaPlugin {
 
   /**
    * See IPSComponent.
+   *
    * @param cxt
    * @throws PSSystemValidationException
    */
@@ -358,35 +357,25 @@ public class PSJavaPlugin implements IPSJavaPlugin {
     throw new UnsupportedOperationException("clone is not implemented");
   }
 
-  /**
-   *
-   */
+  /** */
   private String m_osKey = "";
 
-  /**
-   *
-   */
+  /** */
   private String m_browserKey = "";
 
-  /**
-   *
-   */
+  /** */
   private String m_versionToUse = "";
 
-  /**
-   *
-   */
+  /** */
   private String m_versioningType = VERSIONING_TYPE_DYNAMIC;
 
-  /**
-   *
-   */
+  /** */
   private String m_downloadLocation = "";
 
   /**
-   * Map of supported java versions to family class ids.  Where version is the
-   * first two parts without the "." separator, e.g. JDK 1.5 is "15".  Never
-   * <code>null</code> or empty after initialization.
+   * Map of supported java versions to family class ids. Where version is the first two parts
+   * without the "." separator, e.g. JDK 1.5 is "15". Never <code>null</code> or empty after
+   * initialization.
    */
   private static Map<String, String> ms_familyClassIds = new HashMap<>();
 

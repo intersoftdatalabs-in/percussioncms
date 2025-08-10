@@ -27,16 +27,15 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
- * Extracts the text from a supplied input stream corresponding to a PDF file.
- * It uses PDFBox to extract the text from the PDF Document. The following are
- * the limitations.
- * <ul>
- * <li>Extracts only text and no meta data like author or created date etc.</li>
- * <li>If the document is password protected, it tries to decrypt using empty
- * password. If succeeds extracts the text and returns, otherwise throws
- * appropritae exception wrapped in PSExtensionProcessingException.</li>
- * </ul>
+ * Extracts the text from a supplied input stream corresponding to a PDF file. It uses PDFBox to
+ * extract the text from the PDF Document. The following are the limitations.
  *
+ * <ul>
+ *   <li>Extracts only text and no meta data like author or created date etc.
+ *   <li>If the document is password protected, it tries to decrypt using empty password. If
+ *       succeeds extracts the text and returns, otherwise throws appropritae exception wrapped in
+ *       PSExtensionProcessingException.
+ * </ul>
  */
 public class PSTextConverterPdf implements IPSLuceneTextConverter {
 
@@ -80,8 +79,6 @@ public class PSTextConverterPdf implements IPSLuceneTextConverter {
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
-  /**
-   * A member variable to hold the name of this class.
-   */
+  /** A member variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

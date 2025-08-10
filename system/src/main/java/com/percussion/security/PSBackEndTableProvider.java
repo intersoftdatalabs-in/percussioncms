@@ -36,24 +36,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSBackEndTableProvider class uses a JDBC (back-end) table as a user
- * directory. The user's name and password are stored in the table, which are
- * used to authenticate the user.
+ * The PSBackEndTableProvider class uses a JDBC (back-end) table as a user directory. The user's
+ * name and password are stored in the table, which are used to authenticate the user.
  */
 public class PSBackEndTableProvider extends PSSecurityProvider {
 
   private static final Logger log = LogManager.getLogger(PSBackEndTableProvider.class);
 
   /**
-   * Construct an instance of this provider.  If a password filter class
-   *    is specified in the properties, then it is assumed it will be
-   *    accessible for us to load.
+   * Construct an instance of this provider. If a password filter class is specified in the
+   * properties, then it is assumed it will be accessible for us to load.
    *
-   * @param props see
-   * {@link PSBackEndConnection#PSBackEndConnection(Properties)} for a
-   * description.
-   * @param providerInstance the name of this provider instance,
-   *    never <code>null</code>.
+   * @param props see {@link PSBackEndConnection#PSBackEndConnection(Properties)} for a description.
+   * @param providerInstance the name of this provider instance, never <code>null</code>.
    */
   PSBackEndTableProvider(Properties props, String providerInstance) {
     super(SP_NAME, providerInstance);
@@ -72,6 +67,7 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
 
   /**
    * Write an event to the audit log on
+   *
    * @param uid The user id
    * @param action The activity taken
    * @param activityMsg The action taken
@@ -92,9 +88,9 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
   }
 
   /**
-   * Authenticate a user with the specified credentials. If a connection can
-   * be made to the table and the uid can be found with the corresponding
-   * password, the authentication is considered successful.
+   * Authenticate a user with the specified credentials. If a connection can be made to the table
+   * and the uid can be found with the corresponding password, the authentication is considered
+   * successful.
    *
    * @see IPSSecurityProvider
    */
@@ -234,7 +230,9 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
     }
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public IPSSecurityProviderMetaData getMetaData() {
     if (m_metaData == null) {
       String[] attrNames = null;
@@ -255,7 +253,9 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
     return m_metaData;
   }
 
-  /** @see PSSecurityProvider */
+  /**
+   * @see PSSecurityProvider
+   */
   public PSProvider getDefaultDirectoryProvider() {
     return m_defaultDirectoryProvider;
   }
@@ -270,32 +270,27 @@ public class PSBackEndTableProvider extends PSSecurityProvider {
     return m_backendConnection.getDbConnection();
   }
 
-  /**
-   * The name of this security provider.
-   */
+  /** The name of this security provider. */
   public static final String SP_NAME = "BackEndTable";
 
-  /**
-   * The class name of this security provider.
-   */
+  /** The class name of this security provider. */
   public static final String SP_CLASSNAME = PSBackEndTableProvider.class.getName();
 
   /**
-   * The backend connection used to authenticate users and lookup user
-   * attributes. Initialized in constructor, never <code>null</code> or
-   * changed after that.
+   * The backend connection used to authenticate users and lookup user attributes. Initialized in
+   * constructor, never <code>null</code> or changed after that.
    */
   private PSBackEndConnection m_backendConnection = null;
 
   /**
-   * Default directory provider, initialized during ctor, never
-   * <code>null</code> or modified after that.
+   * Default directory provider, initialized during ctor, never <code>null</code> or modified after
+   * that.
    */
   private PSProvider m_defaultDirectoryProvider;
 
   /**
-   * Default directory cataloger, initialized during ctor, never
-   * <code>null</code> or modified after that.
+   * Default directory cataloger, initialized during ctor, never <code>null</code> or modified after
+   * that.
    */
   private IPSDirectoryCataloger m_dirCataloger;
 }

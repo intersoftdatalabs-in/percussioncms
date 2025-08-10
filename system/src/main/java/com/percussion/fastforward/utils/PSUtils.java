@@ -36,9 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * A collection of useful utility methods for Rhythmyx exits.
- */
+/** A collection of useful utility methods for Rhythmyx exits. */
 public class PSUtils {
 
   private static final Logger log = LogManager.getLogger(PSUtils.class);
@@ -47,8 +45,8 @@ public class PSUtils {
    * Tokenizes a string of comma-separated values into a Set.
    *
    * @param sourceCSV must not be <code>null</code>.
-   * @return set of strings parsed of of the source string of comma separated
-   *         values. Never <code>null</code>, may be empty.
+   * @return set of strings parsed of of the source string of comma separated values. Never <code>
+   *     null</code>, may be empty.
    */
   public static Set tokenizeCommaSeparatedValues(String sourceCSV) {
     if (sourceCSV == null) throw new IllegalArgumentException("sourceCSV may not be null");
@@ -63,19 +61,16 @@ public class PSUtils {
   }
 
   /**
-   * Safely gets the specified index of the parameter array as a String. The
-   * default value will be returned if parameter array is null, or does not
-   * contain a non-empty string at the specified index.
+   * Safely gets the specified index of the parameter array as a String. The default value will be
+   * returned if parameter array is null, or does not contain a non-empty string at the specified
+   * index.
    *
-   * @param params array of parameter objects from the calling function. if
-   *           <code>null</code> or the value requested for the index is
-   *           <code>null</code> or empty, the default value is returned.
+   * @param params array of parameter objects from the calling function. if <code>null</code> or the
+   *     value requested for the index is <code>null</code> or empty, the default value is returned.
    * @param index specifies which parameter from the array will be returned
-   * @param defaultValue returned if array does not have a non-empty string at
-   *           the specified index.
-   *
-   * @return the parameter at the specified index (converted to a String and
-   *         trimmed), or the defaultValue.
+   * @param defaultValue returned if array does not have a non-empty string at the specified index.
+   * @return the parameter at the specified index (converted to a String and trimmed), or the
+   *     defaultValue.
    */
   public static String getParameter(Object[] params, int index, String defaultValue) {
     if (params == null
@@ -89,9 +84,8 @@ public class PSUtils {
   }
 
   /**
-   * Convience method that calls
-   * {@link PSUtils#getParameter(Object[], int, String)}with <code>null</code>
-   * as the default value.
+   * Convience method that calls {@link PSUtils#getParameter(Object[], int, String)}with <code>null
+   * </code> as the default value.
    *
    * @param params
    * @param index
@@ -102,14 +96,12 @@ public class PSUtils {
   }
 
   /**
-   * Safely gets the specified index of the parameter array. The default value
-   * will be returned if parameter array is null, or contains a
-   * <code>null</code> value at the specified index.
+   * Safely gets the specified index of the parameter array. The default value will be returned if
+   * parameter array is null, or contains a <code>null</code> value at the specified index.
    *
    * @param params array of parameter objects from the calling function.
    * @param index specifies which parameter from the array will be returned
-   * @param defaultValue returned if array does not have a non-null value at
-   *           the specified index.
+   * @param defaultValue returned if array does not have a non-null value at the specified index.
    * @return the parameter at the specified index, or the defaultValue.
    */
   public static Object getParameterObject(Object[] params, int index, Object defaultValue) {
@@ -121,8 +113,7 @@ public class PSUtils {
   }
 
   /**
-   * Convience method that calls
-   * {@link PSUtils#getParameterObject(Object[], int, Object)}with
+   * Convience method that calls {@link PSUtils#getParameterObject(Object[], int, Object)}with
    * <code>null</code> as the default value.
    *
    * @param params
@@ -134,11 +125,10 @@ public class PSUtils {
   }
 
   /**
-   * Logs debug messages to the Rhythmyx application trace log and possibily to
-   * standard output.
+   * Logs debug messages to the Rhythmyx application trace log and possibily to standard output.
    *
-   * @param request the current request object, used for accessing the Rhythmyx
-   *           application trace log, not <code>null</code>.
+   * @param request the current request object, used for accessing the Rhythmyx application trace
+   *     log, not <code>null</code>.
    * @param msg the message to be logged, not <code>null</code>.
    */
   public static void printTraceMessage(IPSRequestContext request, String msg) {
@@ -151,10 +141,9 @@ public class PSUtils {
   }
 
   /**
-   * Returns true if this content item valid for incremental publishing.
-   * Content items which have already been published will have a row in the
-   * <code>RXSITEITEMS</code> table. These items are <b>INVALID </b> for
-   * publishing in an incremental edition.
+   * Returns true if this content item valid for incremental publishing. Content items which have
+   * already been published will have a row in the <code>RXSITEITEMS</code> table. These items are
+   * <b>INVALID </b> for publishing in an incremental edition.
    *
    * @param request
    * @param requestName
@@ -225,15 +214,14 @@ public class PSUtils {
   }
 
   /**
-   * Is this content item valid for publishing. Content items which have
-   * already been published will have a row in the <code>RXSITEITEMS</code>
-   * table. These items are <b>INVALID </b> for publishing in an incremental
-   * edition.
+   * Is this content item valid for publishing. Content items which have already been published will
+   * have a row in the <code>RXSITEITEMS</code> table. These items are <b>INVALID </b> for
+   * publishing in an incremental edition.
    *
    * @param elem the <code>contentitem</code> to check
    * @param req the request context from the caller
-   * @param reqName the name of the internal request. Must be in
-   *           <code>&lt;AppName&gt;/&lt;ReqName&gt;</code> format.
+   * @param reqName the name of the internal request. Must be in <code>
+   *     &lt;AppName&gt;/&lt;ReqName&gt;</code> format.
    * @param context the sys_context of this edition
    * @return <code>true</code> if no matching row is found.
    * @throws PSInternalRequestCallException when the internal request fails
@@ -259,19 +247,15 @@ public class PSUtils {
   }
 
   /**
-   * Get the site base URL from the system (as registered) for the given
-   * siteid.
+   * Get the site base URL from the system (as registered) for the given siteid.
    *
-   * @param siteId SiteId for which the base URL is sought, must not be
-   *           <code>null</code> or empty.
-   * @param request Request context object used to make an internal request for
-   *           site lookup, must not be <code>null</code>.
-   * @return Site base URL string as registered in the system, never
-   *         <code>null</code>, may be empty.
-   * @throws PSNotFoundException if the required application resource is
-   *            missing or not running.
-   * @throws PSInternalRequestCallException if there is any error while
-   *            executing internal request.
+   * @param siteId SiteId for which the base URL is sought, must not be <code>null</code> or empty.
+   * @param request Request context object used to make an internal request for site lookup, must
+   *     not be <code>null</code>.
+   * @return Site base URL string as registered in the system, never <code>null</code>, may be
+   *     empty.
+   * @throws PSNotFoundException if the required application resource is missing or not running.
+   * @throws PSInternalRequestCallException if there is any error while executing internal request.
    */
   public static String getbaseUrl(String siteId, IPSRequestContext request)
       throws PSNotFoundException, PSInternalRequestCallException {
@@ -300,43 +284,27 @@ public class PSUtils {
     return site.getAttribute("BaseUrl");
   }
 
-  /**
-   * The XML attribute for content id
-   */
+  /** The XML attribute for content id */
   private static final String XML_ATTR_CONTENTID = "contentid";
 
-  /**
-   * The XML attribute for variant id
-   */
+  /** The XML attribute for variant id */
   private static final String XML_ATTR_VARIANTID = "variantid";
 
-  /**
-   * The XML attribute for unpublish
-   */
+  /** The XML attribute for unpublish */
   private static final String XML_ATTR_UNPUBLISH = "unpublish";
 
-  /**
-   * The XML element for modify date
-   */
+  /** The XML element for modify date */
   private static final String XML_ELEM_MODIFY_DATE = "modifydate";
 
-  /**
-   * The XML element for modify date
-   */
+  /** The XML element for modify date */
   private static final String XML_ELEM_LOCATION = "location";
 
-  /**
-   * The publish operation keyword
-   */
+  /** The publish operation keyword */
   private static final String OPERATION_PUBLISH = "publish";
 
-  /**
-   * The unpublish operation keyword
-   */
+  /** The unpublish operation keyword */
   private static final String OPERATION_UNPUBLISH = "unpublish";
 
-  /**
-   * Rhythmyx resource name to fetch the site info given the sited id.
-   */
+  /** Rhythmyx resource name to fetch the site info given the sited id. */
   private static final String SITE_LOOKUP_RESOURCE = "sys_casSupport/SiteLookup";
 }

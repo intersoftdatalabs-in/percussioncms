@@ -36,14 +36,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implements the PSXContentEditorLocalDef DTD defined in
- * ContentEditorLocalDef.dtd.
- */
+/** Implements the PSXContentEditorLocalDef DTD defined in ContentEditorLocalDef.dtd. */
 public class PSContentEditor extends PSDataSet {
   /**
-   * Creates a new content editor for the provided name, content type and
-   * workflow id. Related content is disabled.
+   * Creates a new content editor for the provided name, content type and workflow id. Related
+   * content is disabled.
    *
    * @param name the dataSet name, not <code>null</code> or empty.
    * @param contentType the content type this editor will will work with.
@@ -58,14 +55,14 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Creates a new content editor for the provided name, content type and
-   * workflow id. Related content is enabled as specified.
+   * Creates a new content editor for the provided name, content type and workflow id. Related
+   * content is enabled as specified.
    *
    * @param name the dataSet name, not <code>null</code> or empty.
    * @param contentType the content type this editor will will work with.
    * @param workflowId the workflow id used for items of this content editor.
-   * @param enableRelatedContent this flag defines whether or not related
-   *           content is supported by this content editor.
+   * @param enableRelatedContent this flag defines whether or not related content is supported by
+   *     this content editor.
    */
   public PSContentEditor(
       String name, long contentType, int workflowId, boolean enableRelatedContent) {
@@ -77,14 +74,14 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Creates a new content editor for the provided name, content type, workflow
-   * id and stylesheet set. Related content is enabled as specified.
+   * Creates a new content editor for the provided name, content type, workflow id and stylesheet
+   * set. Related content is enabled as specified.
    *
    * @param name the dataSet name, not <code>null</code> or empty.
    * @param contentType the content type this editor will will work with.
    * @param workflowId the workflow id used for items of this content editor.
-   * @param enableRelatedContent this flag defines whether or not related
-   *           content is supported by this content editor.
+   * @param enableRelatedContent this flag defines whether or not related content is supported by
+   *     this content editor.
    * @param stylesheetSet the stylesheet set, not <code>null</code>.
    */
   public PSContentEditor(
@@ -99,8 +96,8 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Creates a new content editor for the provided name, content type, workflow
-   * id and stylesheet set. Related content is disabled.
+   * Creates a new content editor for the provided name, content type, workflow id and stylesheet
+   * set. Related content is disabled.
    *
    * @param name the dataSet name, not <code>null</code> or empty.
    * @param contentType the content type this editor will will work with.
@@ -117,14 +114,10 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from, not
-   *           <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object, not
-   *           <code>null</code>.
-   * @param parentComponents the parent objects of this object, not
-   *           <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *            appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditor(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -134,16 +127,12 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from, not
-   * <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object, not
-   * <code>null</code>.
-   * @param parentComponents the parent objects of this object, not
-   * <code>null</code>.
-   * @param runUpdater a flag to indicate whether to run the updaters upon
-   * creating the contenteditor or not.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @param runUpdater a flag to indicate whether to run the updaters upon creating the
+   *     contenteditor or not.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSContentEditor(
       Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean runUpdater)
@@ -172,9 +161,7 @@ public class PSContentEditor extends PSDataSet {
     }
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSContentEditor() {}
 
   // see interface for description
@@ -217,11 +204,9 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Retrieves the field control ref for the specified field in this content
-   * editor.
+   * Retrieves the field control ref for the specified field in this content editor.
    *
-   * @param fieldname the name of the field. Cannot be <code>null</code> or
-   *           empty.
+   * @param fieldname the name of the field. Cannot be <code>null</code> or empty.
    * @return the control ref or <code>null</code> if not found.
    */
   public PSControlRef getFieldControl(String fieldname) {
@@ -233,11 +218,9 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Retrieves the field UI Set for the specified field in this content
-   * editor.
+   * Retrieves the field UI Set for the specified field in this content editor.
    *
-   * @param fieldname the name of the field. Cannot be <code>null</code> or
-   *           empty.
+   * @param fieldname the name of the field. Cannot be <code>null</code> or empty.
    * @return the UI set or <code>null</code> if cannot find the field.
    */
   public PSUISet getFieldUiSet(String fieldname) {
@@ -292,8 +275,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Enables or disables related content for this content editor.
    *
-   * @param enable <code>true</code> to enable, <code>false</code> to
-   *           disable.
+   * @param enable <code>true</code> to enable, <code>false</code> to disable.
    */
   public void enableRelatedContent(boolean enable) {
     m_enableRelatedContent = enable;
@@ -318,8 +300,7 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Returns the status whether the content editor produces resource type item
-   * or not.
+   * Returns the status whether the content editor produces resource type item or not.
    *
    * @return <code>true</code> if it does, otherwise <code>false</code>.
    */
@@ -328,13 +309,12 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Before 5.0, there was only 1 type of content, namely item. In 5.0, we
-   * introduced a new type, folder. We genericized the editors to work with the
-   * concept of different content (or object) types. These types are defined in
-   * the OBJECTS table. The type is the primary key of that table.
+   * Before 5.0, there was only 1 type of content, namely item. In 5.0, we introduced a new type,
+   * folder. We genericized the editors to work with the concept of different content (or object)
+   * types. These types are defined in the OBJECTS table. The type is the primary key of that table.
    *
-   * @return One of the <code>PSCmsObject.TYPE_XXX</code> values. The default
-   *         value is PSCmsObject.TYPE_ITEM.
+   * @return One of the <code>PSCmsObject.TYPE_XXX</code> values. The default value is
+   *     PSCmsObject.TYPE_ITEM.
    */
   public int getObjectType() {
     return m_objectType;
@@ -352,9 +332,8 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * @return the PSWorkflowInfo object that holds the dynamic workflow rules,
-   *         or <code>null</code>, and if <code>null</code> it is treated
-   *         as all workflows allowed by community visibility.
+   * @return the PSWorkflowInfo object that holds the dynamic workflow rules, or <code>null</code>,
+   *     and if <code>null</code> it is treated as all workflows allowed by community visibility.
    */
   public PSWorkflowInfo getWorkflowInfo() {
     return m_workflowInfo;
@@ -372,8 +351,8 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Get the section link list.
    *
-   * @return the section link list, never <code>null</code>, might be empty.
-   *         An iterator of PSUrlRequest objects.
+   * @return the section link list, never <code>null</code>, might be empty. An iterator of
+   *     PSUrlRequest objects.
    */
   public Iterator getSectionLinkList() {
     return m_sectionLinkList.iterator();
@@ -382,8 +361,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Set a new section link list.
    *
-   * @param sectionList a collection of PSUrlRequest objects, might be
-   *           <code>null</code> or empty.
+   * @param sectionList a collection of PSUrlRequest objects, might be <code>null</code> or empty.
    */
   public void setSectionLinkList(PSCollection sectionList) {
     if (sectionList != null
@@ -397,8 +375,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Get the stylesheet set.
    *
-   * @return the current stylesheet set, never <code>null</code>, might be
-   *         empty.
+   * @return the current stylesheet set, never <code>null</code>, might be empty.
    */
   public PSCommandHandlerStylesheets getStylesheetSet() {
     return m_stylesheetSet;
@@ -427,8 +404,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Set a new application flow.
    *
-   * @param applicationFlow the new application flow, might be
-   *           <code>null</code>.
+   * @param applicationFlow the new application flow, might be <code>null</code>.
    */
   public void setApplicationFlow(PSApplicationFlow applicationFlow) {
     m_applicationFlow = applicationFlow;
@@ -437,19 +413,17 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Get the group validation rules.
    *
-   * @return the group validation rules (a collection of PSConditionalExit
-   *         objects), never <code>null</code>, might be empty.
+   * @return the group validation rules (a collection of PSConditionalExit objects), never <code>
+   *     null</code>, might be empty.
    */
   public Iterator getValidationRules() {
     return m_validationRules.iterator();
   }
 
   /**
-   * Get the maximal number of errors that can occur until itme validation is
-   * stopped.
+   * Get the maximal number of errors that can occur until itme validation is stopped.
    *
-   * @return the number of errors that can occur to stop item validation,
-   *         always > 0.
+   * @return the number of errors that can occur to stop item validation, always > 0.
    */
   public int getMaxErrorsToStopValidation() {
     return m_validationRules.getMaxErrorsToStop();
@@ -458,8 +432,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Set new group validation rules.
    *
-   * @param groupValidations the new group validation rules, might be
-   *           <code>null</code>.
+   * @param groupValidations the new group validation rules, might be <code>null</code>.
    */
   public void setValidationRules(PSValidationRules groupValidations) {
     m_validationRules.clear();
@@ -472,8 +445,8 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Get the group input translations.
    *
-   * @return the group input translations (a collection of PSConditionalExit
-   *         objects), never <code>null</code> might be empty.
+   * @return the group input translations (a collection of PSConditionalExit objects), never <code>
+   *     null</code> might be empty.
    */
   public Iterator getInputTranslations() {
     return m_inputTranslations.iterator();
@@ -482,8 +455,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Set new group input translations.
    *
-   * @param groupInputTranslations the new input group translations, might be
-   *           <code>null</code>.
+   * @param groupInputTranslations the new input group translations, might be <code>null</code>.
    */
   public void setInputTranslation(PSInputTranslations groupInputTranslations) {
     m_inputTranslations.clear();
@@ -493,8 +465,8 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Get the group output translations.
    *
-   * @return the group output translations (a collection of PSConditionalExit
-   *         objects), never <code>null</code> might be empty.
+   * @return the group output translations (a collection of PSConditionalExit objects), never <code>
+   *     null</code> might be empty.
    */
   public Iterator getOutputTranslations() {
     return m_outputTranslations.iterator();
@@ -503,8 +475,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Set the group output translations.
    *
-   * @param groupOutputTranslations the new group output translations, might be
-   *           <code>null</code>.
+   * @param groupOutputTranslations the new group output translations, might be <code>null</code>.
    */
   public void setOutputTranslation(PSOutputTranslations groupOutputTranslations) {
     m_outputTranslations.clear();
@@ -512,12 +483,10 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Get all custom action groups currently defined. A custom action can be
-   * used by the designer to add and remove default buttons supplied by the
-   * system in various locations.
+   * Get all custom action groups currently defined. A custom action can be used by the designer to
+   * add and remove default buttons supplied by the system in various locations.
    *
    * @return the current custom action group, might be <code>null</code>.
-   *
    * @see #getCustomActionGroup(int, int, String)
    * @see com.percussion.design.objectstore.PSLocation
    */
@@ -526,14 +495,12 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Scans all custom actions currently defined and returns a set of them that
-   * match the supplied parameters. See {@link
-   * com.percussion.design.objectstore.PSLocation#hasCustomActions(int, int,
+   * Scans all custom actions currently defined and returns a set of them that match the supplied
+   * parameters. See {@link com.percussion.design.objectstore.PSLocation#hasCustomActions(int, int,
    * String) PSLocation.hasCustomActions} for a description of the params.
    *
    * @return A valid action that matches the supplied criteria, or <code>null
-   *    </code>
-   *         if no match was found.
+   *    </code> if no match was found.
    */
   public PSCustomActionGroup getCustomActionGroup(int pageType, int pageLocation, String fieldRef) {
     PSCustomActionGroup matchGroup = null;
@@ -563,24 +530,20 @@ public class PSContentEditor extends PSDataSet {
    * Remove a custom action group from the set of existing groups.
    *
    * @param customActionGroup an existing custom action group, If <code>null
-   *    </code>,
-   *           nothing is done.
+   *    </code>, nothing is done.
    */
   public void removeCustomActionGroup(PSCustomActionGroup customActionGroup) {
     if (null != customActionGroup) m_customActionGroups.remove(customActionGroup);
   }
 
-  /**
-   * Removes all custom action groups from this editor.
-   */
+  /** Removes all custom action groups from this editor. */
   public void clearCustomActionGroups() {
     m_customActionGroups.clear();
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSContentEditor, not <code>null</code>.
    */
@@ -859,11 +822,12 @@ public class PSContentEditor extends PSDataSet {
 
   /**
    * Validates this object's internal state by checking that:
+   *
    * <ol>
-   * <li>Content type is a valid id
-   * <li>Workflow is a valid id
-   * <li>A <code>PSContentEditorPipe</code> is attached
-   * <li>Each child node is valid
+   *   <li>Content type is a valid id
+   *   <li>Workflow is a valid id
+   *   <li>A <code>PSContentEditorPipe</code> is attached
+   *   <li>Each child node is valid
    * </ol>
    *
    * @param context The validation context, not <code>null</code>.
@@ -949,11 +913,10 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Gets this content editor's view set. Used to filter the fields that are
-   * displayed.
+   * Gets this content editor's view set. Used to filter the fields that are displayed.
    *
-   * @return The view set, may be <code>null</code> if one has not been set
-   *         by a call to {@link #setViewSet(PSViewSet)}.
+   * @return The view set, may be <code>null</code> if one has not been set by a call to {@link
+   *     #setViewSet(PSViewSet)}.
    */
   public PSViewSet getViewSet() {
     return m_viewSet;
@@ -971,18 +934,16 @@ public class PSContentEditor extends PSDataSet {
   }
 
   /**
-   * Gets the source of the icon for this content editor one of
-   * ICON_SOURCE_XXX value. Defaulted to {@link #ICON_SOURCE_NONE}, never
-   * <code>null</code>.
+   * Gets the source of the icon for this content editor one of ICON_SOURCE_XXX value. Defaulted to
+   * {@link #ICON_SOURCE_NONE}, never <code>null</code>.
    */
   public String getIconSource() {
     return m_iconSource;
   }
 
   /**
-   * Gets the icon value. If the IconSource is none then the value
-   * will be <code>null</code>. The value depends on the mode. See
-   * ICON_SOURCE_XXX for the details.
+   * Gets the icon value. If the IconSource is none then the value will be <code>null</code>. The
+   * value depends on the mode. See ICON_SOURCE_XXX for the details.
    */
   public String getIconValue() {
     return m_iconValue;
@@ -990,6 +951,7 @@ public class PSContentEditor extends PSDataSet {
 
   /**
    * Sets the icon source and values.
+   *
    * @param source Must be one of ICON_SOURCE_XXX values.
    * @param value Must not be blank if icon source is not ICON_SOURCE_NONE.
    */
@@ -1008,8 +970,7 @@ public class PSContentEditor extends PSDataSet {
   /**
    * Sets the icon source.
    *
-   * @param source the new icon source, it must be one of ICON_SOURCE_XXX
-   * values.
+   * @param source the new icon source, it must be one of ICON_SOURCE_XXX values.
    */
   public void setIconSource(String source) {
     if (StringUtils.isBlank(source)) throw new IllegalArgumentException("source must not be blank");
@@ -1021,8 +982,9 @@ public class PSContentEditor extends PSDataSet {
 
   /**
    * Sets icon value.
-   * @param iconValue the new icon value. It may be <code>null</code> or empty
-   * if the icon source is {@link #ICON_SOURCE_NONE}.
+   *
+   * @param iconValue the new icon value. It may be <code>null</code> or empty if the icon source is
+   *     {@link #ICON_SOURCE_NONE}.
    */
   public void setIconValue(String iconValue) {
     m_iconValue = iconValue;
@@ -1031,118 +993,91 @@ public class PSContentEditor extends PSDataSet {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXContentEditor";
 
-  /**
-   * A numeric id that uniquely identifies the type of content this editor
-   * works with.
-   */
+  /** A numeric id that uniquely identifies the type of content this editor works with. */
   private long m_contentType = -1;
 
   /**
-   * The numeric id of the workflow into which new content items will be sent
-   * once they are created.
+   * The numeric id of the workflow into which new content items will be sent once they are created.
    */
   private int m_workflowId = -1;
 
   /**
-   * A flag specifying if this content editor supports related content.
-   * Defaults to <code>true</code>.
+   * A flag specifying if this content editor supports related content. Defaults to <code>true
+   * </code>.
    */
   private boolean m_enableRelatedContent = true;
 
   /**
-   * A flag specifying if this content editor produces a resource kind of item
-   * for example images, files etc... Defaults to <code>false</code>.
+   * A flag specifying if this content editor produces a resource kind of item for example images,
+   * files etc... Defaults to <code>false</code>.
    */
   private boolean m_producesResource = false;
 
   /**
-   * The object type for this content editor. Default to
-   * <code>PSCmsObject.TYPE_ITEM</code>. See {@link #getObjectType()} for
-   * more details. Always one of the PSCmsObject.TYPE_xxx values.
+   * The object type for this content editor. Default to <code>PSCmsObject.TYPE_ITEM</code>. See
+   * {@link #getObjectType()} for more details. Always one of the PSCmsObject.TYPE_xxx values.
    */
   private int m_objectType = PSCmsObject.TYPE_ITEM;
 
-  /**
-   * See {@link #getIconSource()}
-   */
+  /** See {@link #getIconSource()} */
   private String m_iconSource = ICON_SOURCE_NONE;
 
-  /**
-   * See {@link #getIconValue()}
-   */
+  /** See {@link #getIconValue()} */
   private String m_iconValue = null;
 
-  /**
-   * Constant for icon mode none. Indicates that the icon value is
-   * <code>null</code>.
-   */
+  /** Constant for icon mode none. Indicates that the icon value is <code>null</code>. */
   public static final String ICON_SOURCE_NONE = "0";
 
   /**
-   * Constant for icon source specified. Indicates that the icon value
-   * contains a icon file name.
+   * Constant for icon source specified. Indicates that the icon value contains a icon file name.
    */
   public static final String ICON_SOURCE_SPECIFIED = "1";
 
   /**
-   * Constant for icon source from a file field. Indicates that the icon value
-   * contains a file field name.
+   * Constant for icon source from a file field. Indicates that the icon value contains a file field
+   * name.
    */
   public static final String ICON_SOURCE_FROMFILEEXT = "2";
 
-  /**
-   * Static array of the allowed icon sources.
-   */
+  /** Static array of the allowed icon sources. */
   private static final String[] ms_iconSources = {
     ICON_SOURCE_NONE, ICON_SOURCE_SPECIFIED, ICON_SOURCE_FROMFILEEXT
   };
 
-  /**
-   * A collection of PSUrlRequest objects, never <code>null</code>.
-   */
+  /** A collection of PSUrlRequest objects, never <code>null</code>. */
   private PSCollection m_sectionLinkList = new PSCollection(PSUrlRequest.class);
 
-  /**
-   * The command handler stylesheets, never <code>null</code> after
-   * construction.
-   */
+  /** The command handler stylesheets, never <code>null</code> after construction. */
   private PSCommandHandlerStylesheets m_stylesheetSet = new PSCommandHandlerStylesheets();
 
   /** The application flow map, might be <code>null</code>. */
   private PSApplicationFlow m_applicationFlow = null;
 
   /**
-   * Specifies which workflows are permitted for content items created by this
-   * editor. Might be <code>null</code>, in which case all content items
-   * will use the default workflow.
+   * Specifies which workflows are permitted for content items created by this editor. Might be
+   * <code>null</code>, in which case all content items will use the default workflow.
    */
   private PSWorkflowInfo m_workflowInfo = null;
 
   /** The group validation rules, never <code>null</code> might be empty. */
   private PSValidationRules m_validationRules = new PSValidationRules();
 
-  /**
-   * The group input translations, never <code>null</code> might be empty.
-   */
+  /** The group input translations, never <code>null</code> might be empty. */
   private PSInputTranslations m_inputTranslations = new PSInputTranslations();
 
-  /**
-   * The group output translations, never <code>null</code> might be empty.
-   */
+  /** The group output translations, never <code>null</code> might be empty. */
   private PSOutputTranslations m_outputTranslations = new PSOutputTranslations();
 
   /**
-   * A set of PSCustomActionGroup objects. Never <code>null</code>, may be
-   * empty. A custom action group allows the designer to add to or replace
-   * actions in various parts of the editors (example: the main form button
-   * could be replaced with the designer specific action).
+   * A set of PSCustomActionGroup objects. Never <code>null</code>, may be empty. A custom action
+   * group allows the designer to add to or replace actions in various parts of the editors
+   * (example: the main form button could be replaced with the designer specific action).
    */
   private Collection m_customActionGroups = new ArrayList();
 
   /**
-   * This content editor's viewset, contains the set of views used to filter
-   * which fields will be displayed. May be <code>null</code>, modified by a
-   * call to {@link #setViewSet(PSViewSet)}.
+   * This content editor's viewset, contains the set of views used to filter which fields will be
+   * displayed. May be <code>null</code>, modified by a call to {@link #setViewSet(PSViewSet)}.
    */
   private PSViewSet m_viewSet;
 
@@ -1160,18 +1095,12 @@ public class PSContentEditor extends PSDataSet {
 
   private static final String SECTION_LINK_LIST_ELEM = "SectionLinkList";
 
-  /**
-   * The XML attribute name for object type property.
-   */
+  /** The XML attribute name for object type property. */
   public static final String OBJECT_TYPE_ATTR = "objectType";
 
-  /**
-   * The XML attribute name for icon mode property.
-   */
+  /** The XML attribute name for icon mode property. */
   public static final String ICON_SOURCE_ATTR = "iconSource";
 
-  /**
-   * The XML attribute name for icon value property.
-   */
+  /** The XML attribute name for icon value property. */
   public static final String ICON_VALUE_ATTR = "iconValue";
 }

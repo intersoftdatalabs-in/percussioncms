@@ -16,15 +16,13 @@
  */
 package com.percussion.share.dao;
 
-/**
- * Used to perform runtime modifications of the server configuration.
- */
+/** Used to perform runtime modifications of the server configuration. */
 public interface IPSServerConfigUpdater {
 
-    /**
-     * Locks, loads, modifies, and then saves the server configuration.
-     *
-     * @throws Exception if an error occurs during the update.
-     */
-    void update() throws Exception;
+  /**
+   * Locks, loads, modifies, and then saves the server configuration.
+   *
+   * @throws Exception if an error occurs during the update.
+   */
+  void update() throws Exception;
 }

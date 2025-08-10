@@ -35,45 +35,30 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * @author DougRand
- *
- * Provides a series of methods that aid in the analysis of object equality,
- * cloning and test setup. These methods may or may not suit a specific class.
- *
- * <p>
- * Classes that can be tested with this helper will fit the following pattern:
- * <ul>
- * <li>Implement a no-args constructor
- * <li>Don't care about specific values for members
- * </ul>
- *
- * <p>
- * It would be possible to extend this framework with a context that could allow
- * arguments to be constrained.
- *
- * <p>
- * The initial design point is to help test objects that have no argument
- * constructors and regular setter and getter methods. Minimal filtering is
- * supported, and the code assumes that only public accessors are interesting.
- *
- * <p>
- * Note that this class is intentionally not thread safe at this time. This
- * class is intended for unit test support, and thread safety should not be an
- * issue.
+ *     <p>Provides a series of methods that aid in the analysis of object equality, cloning and test
+ *     setup. These methods may or may not suit a specific class.
+ *     <p>Classes that can be tested with this helper will fit the following pattern:
+ *     <ul>
+ *       <li>Implement a no-args constructor
+ *       <li>Don't care about specific values for members
+ *     </ul>
+ *     <p>It would be possible to extend this framework with a context that could allow arguments to
+ *     be constrained.
+ *     <p>The initial design point is to help test objects that have no argument constructors and
+ *     regular setter and getter methods. Minimal filtering is supported, and the code assumes that
+ *     only public accessors are interesting.
+ *     <p>Note that this class is intentionally not thread safe at this time. This class is intended
+ *     for unit test support, and thread safety should not be an issue.
  */
 public class PSReflectionHelper {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSReflectionHelper.class);
 
-  /**
-   * This class groups the information about a specific field&apos;s getter and
-   * setter method.
-   */
+  /** This class groups the information about a specific field&apos;s getter and setter method. */
   public static class Accessor {
     /**
-     * Ctor to assemble an accessor from the associated get and set methods.
-     * Get and set methods are paired such that they take the same type.
+     * Ctor to assemble an accessor from the associated get and set methods. Get and set methods are
+     * paired such that they take the same type.
      *
      * @param get The get method, must never be <code>null</code>
      * @param set The set method, must never be <code>null</code>
@@ -113,9 +98,8 @@ public class PSReflectionHelper {
     }
 
     /**
-     * Returns the value class that the accessors use. The get and set method
-     * match on this type, i.e. the get method returns it and the set method
-     * takes it as the argument type.
+     * Returns the value class that the accessors use. The get and set method match on this type,
+     * i.e. the get method returns it and the set method takes it as the argument type.
      *
      * @return the class, will never be <code>null</code>.
      */
@@ -126,53 +110,40 @@ public class PSReflectionHelper {
     /**
      * Determine if either accessor methods declare the static modifier
      *
-     * @return <code>true</code> if either are static, <code>false</code>
-     * otherwise.
+     * @return <code>true</code> if either are static, <code>false</code> otherwise.
      */
     public boolean isStatic() {
       return Modifier.isStatic(m_getMethod.getModifiers())
           || Modifier.isStatic(m_setMethod.getModifiers());
     }
 
-    /**
-     * The get method for a specific field. This is never <code>null</code>
-     * after construction.
-     */
+    /** The get method for a specific field. This is never <code>null</code> after construction. */
     private Method m_getMethod;
 
-    /**
-     * The set method for a specific field. This is never <code>null</code>
-     * after construction.
-     */
+    /** The set method for a specific field. This is never <code>null</code> after construction. */
     private Method m_setMethod;
 
-    /**
-     * The class for a specific field. This is never <code>null</code> after
-     * construction.
-     */
+    /** The class for a specific field. This is never <code>null</code> after construction. */
     private Class m_valuetype;
   }
 
   /**
-   * This class gathers all the per field information into a single data
-   * structure. Each field is mapped to an <code>Accessor</code>
+   * This class gathers all the per field information into a single data structure. Each field is
+   * mapped to an <code>Accessor</code>
    */
   public static class AccessorMap {
-    /**
-     * Create an empty accessor map.
-     */
+    /** Create an empty accessor map. */
     public AccessorMap() {
       mi_fieldMap = new HashMap<>();
       mi_sortedFields = new TreeSet<>();
     }
 
     /**
-     * Add a mapping from a given fieldname to the type and method information
-     * stored in the <code>Accessor</code> class.
+     * Add a mapping from a given fieldname to the type and method information stored in the <code>
+     * Accessor</code> class.
      *
      * @param fieldname The fieldname, must never be <code>null</code>
-     * @param mapping The mapping information, which must never be
-     *           <code>null</code>
+     * @param mapping The mapping information, which must never be <code>null</code>
      */
     public void addMapping(String fieldname, Accessor mapping) {
       if (fieldname == null) {
@@ -196,41 +167,36 @@ public class PSReflectionHelper {
     }
 
     /**
-     * Returns the <code>Set</code> of sorted fields. Since the internal set
-     * is a <code>TreeSet</code>, it will be sorted.
+     * Returns the <code>Set</code> of sorted fields. Since the internal set is a <code>TreeSet
+     * </code>, it will be sorted.
      *
-     * @return may return an empty set, but never <code>null</code>. The
-     *         return set should be treated as read-only as the ownership is
-     *         retained by this class.
+     * @return may return an empty set, but never <code>null</code>. The return set should be
+     *     treated as read-only as the ownership is retained by this class.
      */
     public Set<String> getFields() {
       return mi_sortedFields;
     }
 
     /**
-     * This set is an instance of {@link java.util.TreeSet}, which keeps it's
-     * members in a sorted order. Initialized in the constructor, never
-     * <code>null</code> afterward.
+     * This set is an instance of {@link java.util.TreeSet}, which keeps it's members in a sorted
+     * order. Initialized in the constructor, never <code>null</code> afterward.
      */
     private Set<String> mi_sortedFields;
 
     /**
-     * This is initialized in the constructor and never <code>null</code>
-     * afterward. This map contains mappings from a field name to an
-     * {@link PSReflectionHelper.Accessor}.
+     * This is initialized in the constructor and never <code>null</code> afterward. This map
+     * contains mappings from a field name to an {@link PSReflectionHelper.Accessor}.
      */
     private Map<String, Accessor> mi_fieldMap;
 
     /**
-     * This maps class objects to a structure that describes the class's
-     * accessors in a matched fashion.
+     * This maps class objects to a structure that describes the class's accessors in a matched
+     * fashion.
      */
     static Map<Class, AccessorMap> ms_classAccessors = new HashMap<Class, AccessorMap>();
   }
 
-  /**
-   * Invocation handler used to "test" interfaces
-   */
+  /** Invocation handler used to "test" interfaces */
   static class TestInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
       if (method.getName().equals("hashCode")) {
@@ -245,27 +211,22 @@ public class PSReflectionHelper {
   ;
 
   /**
-   * Are these objects basically different? To answer this question, check that
-   * both the object references themselves are different as well as any objects
-   * held in members. This test does not dive into objects, it only tests their
-   * references. This means that all contained objects should be tested
-   * separately.
+   * Are these objects basically different? To answer this question, check that both the object
+   * references themselves are different as well as any objects held in members. This test does not
+   * dive into objects, it only tests their references. This means that all contained objects should
+   * be tested separately.
    *
-   * The exception are <code>Collection</code> and <code>Map</code> objects
-   * that are contained. Those are walked and compared to ensure they do not
-   * contain the same references.
+   * <p>The exception are <code>Collection</code> and <code>Map</code> objects that are contained.
+   * Those are walked and compared to ensure they do not contain the same references.
    *
-   * <p>
-   * This method also assumes that the list <code>ms_immutables</code> is up
-   * to date and contains all types that are basically immutable that are in
-   * use. You, the caller, are responsible for extending that list as new
-   * classes are added that are tested through getters in this method.
+   * <p>This method also assumes that the list <code>ms_immutables</code> is up to date and contains
+   * all types that are basically immutable that are in use. You, the caller, are responsible for
+   * extending that list as new classes are added that are tested through getters in this method.
    *
    * @param a An instance, never <code>null</code>
    * @param b A different instance, never <code>null</code>
    * @param filter A reflection filter, which may be <code>null</code>
-   * @return <code>true</code> if the two differ, <code>false</code> if
-   *         they are the same
+   * @return <code>true</code> if the two differ, <code>false</code> if they are the same
    * @throws IllegalAccessException
    * @throws InvocationTargetException
    */
@@ -326,12 +287,9 @@ public class PSReflectionHelper {
   /**
    * Test two lists for proper cloning behavior.
    *
-   * @param result1 The first object, must be of type
-   *           <code>java.util.List</code>.
-   * @param result2 The second object, must be of type
-   *           <code>java.util.List</code>.
-   * @return <code>true</code> if the test succeeds, <code>false</code>
-   *         otherwise.
+   * @param result1 The first object, must be of type <code>java.util.List</code>.
+   * @param result2 The second object, must be of type <code>java.util.List</code>.
+   * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
   private static boolean testList(Object result1, Object result2) {
     if (((List) result1).size() != ((List) result2).size()) {
@@ -352,12 +310,9 @@ public class PSReflectionHelper {
   /**
    * Test two maps for proper cloning behavior.
    *
-   * @param result1 The first object, must be of type
-   *           <code>java.util.Map</code>.
-   * @param result2 The second object, must be of type
-   *           <code>java.util.Map</code>.
-   * @return <code>true</code> if the test succeeds, <code>false</code>
-   *         otherwise.
+   * @param result1 The first object, must be of type <code>java.util.Map</code>.
+   * @param result2 The second object, must be of type <code>java.util.Map</code>.
+   * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
   private static boolean testMap(Object result1, Object result2) {
     if (((Map) result1).size() != ((Map) result2).size()) {
@@ -388,12 +343,9 @@ public class PSReflectionHelper {
   /**
    * Test two sets for proper cloning behavior.
    *
-   * @param keySet1 The first object, must be of type
-   *           <code>java.util.Set</code>.
-   * @param keySet2 The second object, must be of type
-   *           <code>java.util.Set</code>.
-   * @return <code>true</code> if the test succeeds, <code>false</code>
-   *         otherwise.
+   * @param keySet1 The first object, must be of type <code>java.util.Set</code>.
+   * @param keySet2 The second object, must be of type <code>java.util.Set</code>.
+   * @return <code>true</code> if the test succeeds, <code>false</code> otherwise.
    */
   private static boolean testSet(Object keySet1, Object keySet2) {
     for (Iterator iter = ((Set) keySet1).iterator(); iter.hasNext(); ) {
@@ -416,8 +368,7 @@ public class PSReflectionHelper {
    * Is the passed object&apos;s class an immutable one?
    *
    * @param obj The object to test, must never be <code>null</code>.
-   * @return <code>true</code> if the passed object is not an immutable
-   *         object.
+   * @return <code>true</code> if the passed object is not an immutable object.
    */
   private static boolean isNotImmutable(Object obj) {
     if (obj == null) {
@@ -428,24 +379,21 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Take the passed objects and start modifying fields. The initial objects
-   * should return <code>true</code> for equals.
+   * Take the passed objects and start modifying fields. The initial objects should return <code>
+   * true</code> for equals.
    *
-   * <p>
-   * Each field modification should yield a non-equal value, and copying the
-   * new value to the second object should return the state to equals.
+   * <p>Each field modification should yield a non-equal value, and copying the new value to the
+   * second object should return the state to equals.
    *
-   * <p>
-   * Note that for fields of type {@link java.util.Collection}, this code
-   * generates empty collections. These will not work if the original is an
-   * empty collection since the two empty collections would be equals after the
-   * modification. This is a limitation of this testing technique since the
-   * underlying code cannot know what types are valid for the given collection.
+   * <p>Note that for fields of type {@link java.util.Collection}, this code generates empty
+   * collections. These will not work if the original is an empty collection since the two empty
+   * collections would be equals after the modification. This is a limitation of this testing
+   * technique since the underlying code cannot know what types are valid for the given collection.
    *
    * @param a First instance, must never be <code>null</code>
    * @param b Second instance, must never be <code>null</code>
-   * @param filter A reflection filter to determine what methods should be
-   *           called, may be <code>null</code>
+   * @param filter A reflection filter to determine what methods should be called, may be <code>null
+   *     </code>
    * @throws Exception
    */
   public static void testEquals(Object a, Object b, IPSReflectionFilter filter) throws Exception {
@@ -521,13 +469,11 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Coalesce the getters and setters into the internal datastructures and
-   * register them with the class. This code assumes that field names are
-   * unique ignoring letter case.
+   * Coalesce the getters and setters into the internal datastructures and register them with the
+   * class. This code assumes that field names are unique ignoring letter case.
    *
    * @param clazz The given class to analyze, never <code>null</code>
-   * @param filter The filter for the setters and getters, may be
-   *           <code>null</code>
+   * @param filter The filter for the setters and getters, may be <code>null</code>
    * @return the accessor map for the given class, never <code>null</code>
    * @throws Exception
    */
@@ -592,23 +538,19 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Constructs the list of set methods apropos for the given class. The set
-   * methods return take a single argument. This is done by simply walking all
-   * the class&apos;s methods.
-   * <p>
-   * Two filters are applied in this process. The first filter accepts methods
-   * that start with the string "set". The next filter accepts methods that
-   * have a single argument. The last filter is an optional user supplied
-   * filter to the process. That filter may apply any criteria. Each accepted
-   * method is added to the return list.
+   * Constructs the list of set methods apropos for the given class. The set methods return take a
+   * single argument. This is done by simply walking all the class&apos;s methods.
+   *
+   * <p>Two filters are applied in this process. The first filter accepts methods that start with
+   * the string "set". The next filter accepts methods that have a single argument. The last filter
+   * is an optional user supplied filter to the process. That filter may apply any criteria. Each
+   * accepted method is added to the return list.
    *
    * @param clazz The given class, assumed not <code>null</code>
-   * @param filter The given filter, which may be <code>null</code>. The
-   *           {@link IPSReflectionFilter filter} exposes an accept method that
-   *           is called with the name of the method. It returns
-   *           <code>true</code> if the method is accepted.
-   * @return a list of methods, must never be <code>null</code>, but
-   *         conceivably could be empty.
+   * @param filter The given filter, which may be <code>null</code>. The {@link IPSReflectionFilter
+   *     filter} exposes an accept method that is called with the name of the method. It returns
+   *     <code>true</code> if the method is accepted.
+   * @return a list of methods, must never be <code>null</code>, but conceivably could be empty.
    */
   private static List<Method> findSetMethods(Class clazz, IPSReflectionFilter filter) {
     List<Method> rval = new ArrayList<Method>();
@@ -634,23 +576,20 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Constructs the list of get methods apropos for the given class. Will not
-   * include any methods implemented by <code>Object</code>. This is done by
-   * simply walking all the class&apos;s methods.
-   * <p>
-   * Several filters are applied in this process. The first filter accepts
-   * methods that start with the string "get". The next only accepts methods
-   * with no arguments. The last filter is an optional user supplied filter to
-   * the process. That filter may apply any criteria. Each accepted method is
-   * added to the return list.
+   * Constructs the list of get methods apropos for the given class. Will not include any methods
+   * implemented by <code>Object</code>. This is done by simply walking all the class&apos;s
+   * methods.
+   *
+   * <p>Several filters are applied in this process. The first filter accepts methods that start
+   * with the string "get". The next only accepts methods with no arguments. The last filter is an
+   * optional user supplied filter to the process. That filter may apply any criteria. Each accepted
+   * method is added to the return list.
    *
    * @param clazz The given class, assumed not <code>null</code>
-   * @param filter The given filter, which may be <code>null</code>. The
-   *           {@link IPSReflectionFilter filter} exposes an accept method that
-   *           is called with the name of the method. It returns
-   *           <code>true</code> if the method is accepted.
-   * @return a list of methods, must never be <code>null</code>, but
-   *         conceivably could be empty.
+   * @param filter The given filter, which may be <code>null</code>. The {@link IPSReflectionFilter
+   *     filter} exposes an accept method that is called with the name of the method. It returns
+   *     <code>true</code> if the method is accepted.
+   * @return a list of methods, must never be <code>null</code>, but conceivably could be empty.
    */
   private static List<Method> findGetMethods(Class clazz, IPSReflectionFilter filter) {
     List<Method> rval = new ArrayList<Method>();
@@ -675,15 +614,13 @@ public class PSReflectionHelper {
     return rval;
   }
 
-  /**
-   * The immutable classes are stored in this set.
-   */
+  /** The immutable classes are stored in this set. */
   private static Set<Class> ms_immutableSet = new HashSet<Class>();
 
   /**
-   * Gets a list of classes that are known to be immutable. Immutable objects
-   * are those that cannot be modified after construction. Immutable objects do
-   * not need to be copied during cloning and may be shared among objects.
+   * Gets a list of classes that are known to be immutable. Immutable objects are those that cannot
+   * be modified after construction. Immutable objects do not need to be copied during cloning and
+   * may be shared among objects.
    *
    * @return a set of immutable classes, will never be <code>null</code>.
    */
@@ -698,14 +635,13 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Returns an appropriate new value according to type. For unknown classes it
-   * simply calls {@link Class#newInstance()}. Note that this requires that
-   * the class in question have a default constructor.
+   * Returns an appropriate new value according to type. For unknown classes it simply calls {@link
+   * Class#newInstance()}. Note that this requires that the class in question have a default
+   * constructor.
    *
    * @param clazz the class to instantiate, assumed not <code>null</code>.
-   *
-   * @return a new value of the same class, which is guaranteed to be at least
-   *         !=, and which will be ! equals for immutable objects.
+   * @return a new value of the same class, which is guaranteed to be at least !=, and which will be
+   *     ! equals for immutable objects.
    * @throws InstantiationException
    * @throws IllegalAccessException
    */
@@ -733,8 +669,8 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Create a proxy of the passed class. This creates a disfunctional object,
-   * but one that is adequate for the purposes of testing.
+   * Create a proxy of the passed class. This creates a disfunctional object, but one that is
+   * adequate for the purposes of testing.
    *
    * @param clazz a class that is an interface, assumed not <code>null</code>
    * @return a proxy that obeys the given interface
@@ -746,9 +682,9 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>String</code> with a guaranteed
-   * non-equal value. This assumes that all values have been obtained through
-   * these methods as a given object might, in fact, match the value.
+   * Return a new instance of a <code>String</code> with a guaranteed non-equal value. This assumes
+   * that all values have been obtained through these methods as a given object might, in fact,
+   * match the value.
    *
    * @return A new value obtained by using a static counter.
    */
@@ -759,9 +695,9 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>Long</code> with a guaranteed non-equal
-   * value. This assumes that all values have been obtained through these
-   * methods as a given object might, in fact, match the value.
+   * Return a new instance of a <code>Long</code> with a guaranteed non-equal value. This assumes
+   * that all values have been obtained through these methods as a given object might, in fact,
+   * match the value.
    *
    * @return A new value obtained by using a static counter.
    */
@@ -772,9 +708,9 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of an <code>Integer</code> with a guaranteed
-   * non-equal value. This assumes that all values have been obtained through
-   * these methods as a given object might, in fact, match the value.
+   * Return a new instance of an <code>Integer</code> with a guaranteed non-equal value. This
+   * assumes that all values have been obtained through these methods as a given object might, in
+   * fact, match the value.
    *
    * @return A new value obtained by using a static counter.
    */
@@ -785,9 +721,9 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>Short</code> with a guaranteed
-   * non-equal value. This assumes that all values have been obtained through
-   * these methods as a given object might, in fact, match the value.
+   * Return a new instance of a <code>Short</code> with a guaranteed non-equal value. This assumes
+   * that all values have been obtained through these methods as a given object might, in fact,
+   * match the value.
    *
    * @return A new value obtained by using a static counter.
    */
@@ -798,9 +734,9 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>Byte</code> with a guaranteed non-equal
-   * value. This assumes that all values have been obtained through these
-   * methods as a given object might, in fact, match the value.
+   * Return a new instance of a <code>Byte</code> with a guaranteed non-equal value. This assumes
+   * that all values have been obtained through these methods as a given object might, in fact,
+   * match the value.
    *
    * @return A new value obtained by using a static counter.
    */
@@ -811,9 +747,8 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>List</code>. This is simply a new
-   * list, not necessarily a list that is non-equals to another list. This must
-   * be used with care.
+   * Return a new instance of a <code>List</code>. This is simply a new list, not necessarily a list
+   * that is non-equals to another list. This must be used with care.
    *
    * @return A new value of an empty list.
    */
@@ -822,9 +757,8 @@ public class PSReflectionHelper {
   }
 
   /**
-   * Return a new instance of a <code>Map</code>. This is simply a new map,
-   * not necessarily a map that is non-equals to another map. This must be used
-   * with care.
+   * Return a new instance of a <code>Map</code>. This is simply a new map, not necessarily a map
+   * that is non-equals to another map. This must be used with care.
    *
    * @return A new value of an empty map.
    */
@@ -832,15 +766,12 @@ public class PSReflectionHelper {
     return new HashMap(); // Just needs to be !=, not different
   }
 
-  /**
-   * This is used by the code that creates new values of various types
-   */
+  /** This is used by the code that creates new values of various types */
   private static long ms_nextValue = 0;
 
   /**
-   * A list of classes that cannot be modified after construction. This is not
-   * a complete list, and should be extended as required. Classes on this list
-   * are not required to be copied in clones.
+   * A list of classes that cannot be modified after construction. This is not a complete list, and
+   * should be extended as required. Classes on this list are not required to be copied in clones.
    */
   private static Class ms_immutables[] = {
     Long.class, String.class, Integer.class, Short.class, Byte.class, Character.class

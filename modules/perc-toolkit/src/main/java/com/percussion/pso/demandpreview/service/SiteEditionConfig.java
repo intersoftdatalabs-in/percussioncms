@@ -18,14 +18,11 @@
 package com.percussion.pso.demandpreview.service;
 
 /**
- * Configuration bean for use in Spring configuration of
- * the preview site, edition, template and context.
- * This class is used as an inner bean in the Spring configuration.
- * The members are all names of objects, rather than object classes
- * themselves.
+ * Configuration bean for use in Spring configuration of the preview site, edition, template and
+ * context. This class is used as an inner bean in the Spring configuration. The members are all
+ * names of objects, rather than object classes themselves.
  *
  * @author davidbenua
- *
  */
 public class SiteEditionConfig {
 
@@ -34,13 +31,12 @@ public class SiteEditionConfig {
   private String contextURLRootVar;
   private int assemblyContext;
 
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public SiteEditionConfig() {}
 
   /**
    * Gets the site name
+   *
    * @return the site name.
    */
   public String getSiteName() {
@@ -49,6 +45,7 @@ public class SiteEditionConfig {
 
   /**
    * Sets the site name.
+   *
    * @param siteName the site name to set.
    */
   public void setSiteName(String siteName) {
@@ -57,6 +54,7 @@ public class SiteEditionConfig {
 
   /**
    * Gets the edition name
+   *
    * @return the edition name.
    */
   public String getEditionName() {
@@ -65,6 +63,7 @@ public class SiteEditionConfig {
 
   /**
    * Sets the edition name.
+   *
    * @param editionName the edition name to set.
    */
   public void setEditionName(String editionName) {
@@ -73,6 +72,7 @@ public class SiteEditionConfig {
 
   /**
    * Gets the assembly context.
+   *
    * @return the assemblyContext
    */
   public int getAssemblyContext() {
@@ -81,6 +81,7 @@ public class SiteEditionConfig {
 
   /**
    * Sets the assembly context.
+   *
    * @param assemblyContext the assemblyContext to set
    */
   public void setAssemblyContext(int assemblyContext) {
@@ -88,8 +89,7 @@ public class SiteEditionConfig {
   }
 
   /**
-   * Gets the context variable that holds the URL root for
-   * the assembly context.
+   * Gets the context variable that holds the URL root for the assembly context.
    *
    * @return The context variable name
    */
@@ -98,8 +98,7 @@ public class SiteEditionConfig {
   }
 
   /**
-   * Sets the context variable that holds the URL root for
-   * the assembly context.
+   * Sets the context variable that holds the URL root for the assembly context.
    *
    * @param contextURLRootVar The name of the context variable holding the URL root
    */

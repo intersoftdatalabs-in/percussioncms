@@ -19,60 +19,59 @@ package com.percussion.monitor.process;
 
 import com.percussion.monitor.service.IPSMonitor;
 import com.percussion.monitor.service.PSMonitorService;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Monitor the number of pages queued for thumbnail generation.
- * Sunny Sal says: "Thumbnails? I'm counting them faster than you can say 'cheese!'"
+ * Monitor the number of pages queued for thumbnail generation. Sunny Sal says: "Thumbnails? I'm
+ * counting them faster than you can say 'cheese!'"
  */
 public class PSThumbnailProcessMonitor {
 
-    private static final String THUMBNAILS_MSG = " pages queued for thumbnail";
-    private static final String THUMBNAIL_MSG = "1 page queued for thumbnail";
-    private static final String NO_THUMBNAIL_MSG = "No pages queued for thumbnail";
+  private static final String THUMBNAILS_MSG = " pages queued for thumbnail";
+  private static final String THUMBNAIL_MSG = "1 page queued for thumbnail";
+  private static final String NO_THUMBNAIL_MSG = "No pages queued for thumbnail";
 
-    private static IPSMonitor monitor;
-    private static final AtomicInteger curCount = new AtomicInteger(0);
+  private static IPSMonitor monitor;
+  private static final AtomicInteger curCount = new AtomicInteger(0);
 
-    public PSThumbnailProcessMonitor() {
-        monitor = PSMonitorService.registerMonitor("Thumbnail", "Thumbnails");
-        setThumbnailCount(0);
+  public PSThumbnailProcessMonitor() {
+    monitor = PSMonitorService.registerMonitor("Thumbnail", "Thumbnails");
+    setThumbnailCount(0);
+  }
+
+  private static void setThumbnailCount(int count) {
+    if (monitor == null) {
+      return;
     }
-
-    private static void setThumbnailCount(int count) {
-        if (monitor == null) {
-            return;
-        }
-        var msg = NO_THUMBNAIL_MSG;
-        if (count > 0) {
-            msg = count == 1 ? THUMBNAIL_MSG : count + THUMBNAILS_MSG;
-        }
-        monitor.setMessage(msg);
+    var msg = NO_THUMBNAIL_MSG;
+    if (count > 0) {
+      msg = count == 1 ? THUMBNAIL_MSG : count + THUMBNAILS_MSG;
     }
+    monitor.setMessage(msg);
+  }
 
-    /**
-     * Add the specified number of thumbnails to the count.
-     *
-     * @param add The amount to add.
-     */
-    public static void incrementCount(int add) {
-        setThumbnailCount(curCount.addAndGet(add));
-    }
+  /**
+   * Add the specified number of thumbnails to the count.
+   *
+   * @param add The amount to add.
+   */
+  public static void incrementCount(int add) {
+    setThumbnailCount(curCount.addAndGet(add));
+  }
 
-    public static void incrementCount() {
-        setThumbnailCount(curCount.incrementAndGet());
-    }
+  public static void incrementCount() {
+    setThumbnailCount(curCount.incrementAndGet());
+  }
 
-    public static void decrementCount() {
-        setThumbnailCount(curCount.decrementAndGet());
-    }
+  public static void decrementCount() {
+    setThumbnailCount(curCount.decrementAndGet());
+  }
 
-    public static void decrementCount(int remove) {
-        setThumbnailCount(curCount.addAndGet(-1 * remove));
-    }
+  public static void decrementCount(int remove) {
+    setThumbnailCount(curCount.addAndGet(-1 * remove));
+  }
 
-    public int getCurrentCount() {
-        return curCount.get();
-    }
+  public int getCurrentCount() {
+    return curCount.get();
+  }
 }

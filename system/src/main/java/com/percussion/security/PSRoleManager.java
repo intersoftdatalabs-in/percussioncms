@@ -50,25 +50,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The PSRoleManager class keeps track of roles, their contained subjects
- * and all related attributes. This does not provide authentication services
- * directly, but determines role membership based on prior authentications.
- * <p>The class implements the Singleton pattern. A long lived class should
- * get an instance to avoid the class being garbage collected.
- * <p>This class uses a cataloging application to obtain the meta-data.
- * Although other classes could make the request directly, they should not
- * because the role mgr may implement caching at some point. If it does,
- * we want all classes to have the same view of the data.
- * <p>The cataloging app is sys_roleCataloger. Each resource must either
- * return a totally empty document (no elements), or a valid document for
- * the request type. See the Rhythmyx 4.0 functional for a description of the
- * resource names and dtds they use.
+ * The PSRoleManager class keeps track of roles, their contained subjects and all related
+ * attributes. This does not provide authentication services directly, but determines role
+ * membership based on prior authentications.
+ *
+ * <p>The class implements the Singleton pattern. A long lived class should get an instance to avoid
+ * the class being garbage collected.
+ *
+ * <p>This class uses a cataloging application to obtain the meta-data. Although other classes could
+ * make the request directly, they should not because the role mgr may implement caching at some
+ * point. If it does, we want all classes to have the same view of the data.
+ *
+ * <p>The cataloging app is sys_roleCataloger. Each resource must either return a totally empty
+ * document (no elements), or a valid document for the request type. See the Rhythmyx 4.0 functional
+ * for a description of the resource names and dtds they use.
  */
 @SuppressWarnings(value = {"unchecked"})
 public class PSRoleManager {
   /**
-   * Gets the one and only instance of this class. If one doesn't exist, it
-   * is created.
+   * Gets the one and only instance of this class. If one doesn't exist, it is created.
    *
    * @return A valid instance.
    */
@@ -78,30 +78,26 @@ public class PSRoleManager {
   }
 
   /**
-   * Convenience method that calls {@link #getRoles(String, int)} with a
-   * subject name of <code>null</code> and a subject type of 0.
+   * Convenience method that calls {@link #getRoles(String, int)} with a subject name of <code>null
+   * </code> and a subject type of 0.
    *
-   * @return a list with all roles found for all defined security providers.
-   *    The list is never <code>null</code>, may be empty and does not contain
-   *    duplicates.
+   * @return a list with all roles found for all defined security providers. The list is never
+   *     <code>null</code>, may be empty and does not contain duplicates.
    */
   public List getRoles() {
     return getRoles(null, 0);
   }
 
   /**
-   * Get all roles from all specified security providers for the supplied
-   * parameters.
+   * Get all roles from all specified security providers for the supplied parameters.
    *
-   * @param subjectName the name of the subject for which to filter the
-   *    results. Provide <code>null</code> to ignore this filter.
-   * @param subjectType the type of subjects for which to filter the results,
-   *    one of <code>PSSubject.SUBJECT_TYPE_xxx</code>. Provide 0 to ignore
-   *    this filter.
-   * @return a list with all roles from all specified security providers where
-   *    the supplied subject is a member for the provided subject type. The
-   *    list is never <code>null</code>, may be empty and does not contain
-   *    duplicates.
+   * @param subjectName the name of the subject for which to filter the results. Provide <code>null
+   *     </code> to ignore this filter.
+   * @param subjectType the type of subjects for which to filter the results, one of <code>
+   *     PSSubject.SUBJECT_TYPE_xxx</code>. Provide 0 to ignore this filter.
+   * @return a list with all roles from all specified security providers where the supplied subject
+   *     is a member for the provided subject type. The list is never <code>null</code>, may be
+   *     empty and does not contain duplicates.
    */
   public List getRoles(String subjectName, int subjectType) {
     // use a set to remove duplicates
@@ -118,20 +114,14 @@ public class PSRoleManager {
   }
 
   /**
-   * Find a role definition and determine whether the userName is contained
-   * within it.
+   * Find a role definition and determine whether the userName is contained within it.
    *
-   * @param userName The userName to compare. It
-   *    is used to cache the session's collection of roles.
-   *    Never <code>null</code> or empty.
-   *
-   * @param roleName The role name. The case of the name is ignored.
-   *    Never <code>null</code> or empty.
-   *
-   * @return     <code>true</code>    if the user is a member of roleName
-   *             <code>false</code>   if the user is not a member of roleName,
-   *                                  roleName is not a valid role,
-   *                                  or if either parameter is invalid.
+   * @param userName The userName to compare. It is used to cache the session's collection of roles.
+   *     Never <code>null</code> or empty.
+   * @param roleName The role name. The case of the name is ignored. Never <code>null</code> or
+   *     empty.
+   * @return <code>true</code> if the user is a member of roleName <code>false</code> if the user is
+   *     not a member of roleName, roleName is not a valid role, or if either parameter is invalid.
    */
   public boolean isMemberOfRole(String userName, String roleName) {
     if (null == userName
@@ -144,9 +134,9 @@ public class PSRoleManager {
   }
 
   /**
-   * Just like {@link #memberRoleList(PSUserSession, PSSubject)}. The
-   * subject supplied to {@link #memberRoleList(PSUserSession, PSSubject)}
-   * will use type <code>PSSubject.SUBJECT_TYPE_USER</code>.
+   * Just like {@link #memberRoleList(PSUserSession, PSSubject)}. The subject supplied to {@link
+   * #memberRoleList(PSUserSession, PSSubject)} will use type <code>PSSubject.SUBJECT_TYPE_USER
+   * </code>.
    */
   public List memberRoleList(PSUserSession session, String subjectName) {
     PSSubject subject = new PSGlobalSubject(subjectName, PSSubject.SUBJECT_TYPE_USER, null);
@@ -157,18 +147,15 @@ public class PSRoleManager {
   /**
    * Get the list of roles that the specified user/group is a member of.
    *
-   * @param session The session of the request currently being processed. It
-   *    may be used for caching. Used to retrieve the groups of which the
-   *    subject is a member.  May not be <code>null</code>.
+   * @param session The session of the request currently being processed. It may be used for
+   *     caching. Used to retrieve the groups of which the subject is a member. May not be <code>
+   *     null</code>.
    * @param subject The subject to search for. Never <code>null</code>.
-   * @return  A list of every role that contains the specified subject.  If the
-   *    subject is a user, and the user is a member of any groups through the
-   *    subject's security provider, then the list will also contain any roles
-   *    that those groups are members of. Entries are of type String. Never
-   *    <code>null</code>. The list will be in alpha order, and will not
-   *    contain duplicates.
-   * @throws PSSecurityException If the meta data to process the request
-   *    can't be obtained.
+   * @return A list of every role that contains the specified subject. If the subject is a user, and
+   *     the user is a member of any groups through the subject's security provider, then the list
+   *     will also contain any roles that those groups are members of. Entries are of type String.
+   *     Never <code>null</code>. The list will be in alpha order, and will not contain duplicates.
+   * @throws PSSecurityException If the meta data to process the request can't be obtained.
    */
   public List<String> memberRoleList(PSUserSession session, PSSubject subject) {
     if (session == null) throw new IllegalArgumentException("session may not be null");
@@ -203,13 +190,12 @@ public class PSRoleManager {
   /**
    * Get all roles in which the supplied subject is a member.
    *
-   * @param subjectName the subject name for which to get all roles, may be
-   *    <code>null</code> or empty.
-   * @param subjectType one of the <code>PSSubject.SUBJECT_TYPE_xxx</code>
-   *    types, or 0 to ignore this parameter.
-   * @return a set of all roles from all defined security provider role
-   *    catalogers in which the supplied subject is a member. Never
-   *    <code>null</code>, may be empty.
+   * @param subjectName the subject name for which to get all roles, may be <code>null</code> or
+   *     empty.
+   * @param subjectType one of the <code>PSSubject.SUBJECT_TYPE_xxx</code> types, or 0 to ignore
+   *     this parameter.
+   * @return a set of all roles from all defined security provider role catalogers in which the
+   *     supplied subject is a member. Never <code>null</code>, may be empty.
    */
   private Set<String> getSecurityProviderRoles(String subjectName, int subjectType) {
     Set<String> resultSet = new HashSet<>();
@@ -253,26 +239,23 @@ public class PSRoleManager {
   /**
    * Get all subjects for the supplied parameters.
    *
-   * @param subjectNameFilter a filter to limit the subject lookup.
-   *    If not provided (<code>null</code> or empty), all members of the role
-   *    are returned. The filter uses SQL LIKE syntax ('%' matches 0 or more
-   *    chars, '_' matches any single char).
-   * @param subjectType one of the <code>PSSubject.SUBJECT_TYPE_xxx</code>
-   *    flags to filter the results by type, provide 0 to return all types.
-   * @param roleName The name of the role for which you wish to get the
-   *    member list. If <code>null</code> or empty, all subjects matching the
-   *    subjectNameFilter are returned. If a role by this name doesn't exist,
-   *    an empty list is returned.
-   * @param attributeNameFilter an attribute name by which to filter the
-   *    returned subjects, <code>null</code> to ignore this filter.
-   * @param includeEmptySubjects <code>true</code> to include subjects with
-   *    an empty attribute list, <code>false</code> otherwise.
-   * @param backendType the backend request type, assumed to be one of
-   *    <code>BACKEND_xxx</code>.
-   * @param communityId the community id by which to filter the subjects,
-   *    may be <code>null</code> to ignore the community filter.
-   * @return a list with all subjects found for the supplied parameters from
-   *    all defined security providers, never <code>null</code>, may be empty.
+   * @param subjectNameFilter a filter to limit the subject lookup. If not provided (<code>null
+   *     </code> or empty), all members of the role are returned. The filter uses SQL LIKE syntax
+   *     ('%' matches 0 or more chars, '_' matches any single char).
+   * @param subjectType one of the <code>PSSubject.SUBJECT_TYPE_xxx</code> flags to filter the
+   *     results by type, provide 0 to return all types.
+   * @param roleName The name of the role for which you wish to get the member list. If <code>null
+   *     </code> or empty, all subjects matching the subjectNameFilter are returned. If a role by
+   *     this name doesn't exist, an empty list is returned.
+   * @param attributeNameFilter an attribute name by which to filter the returned subjects, <code>
+   *     null</code> to ignore this filter.
+   * @param includeEmptySubjects <code>true</code> to include subjects with an empty attribute list,
+   *     <code>false</code> otherwise.
+   * @param backendType the backend request type, assumed to be one of <code>BACKEND_xxx</code>.
+   * @param communityId the community id by which to filter the subjects, may be <code>null</code>
+   *     to ignore the community filter.
+   * @return a list with all subjects found for the supplied parameters from all defined security
+   *     providers, never <code>null</code>, may be empty.
    */
   private List<PSSubject> getSecurityProviderSubjects(
       String subjectNameFilter,
@@ -400,15 +383,13 @@ public class PSRoleManager {
   /**
    * Filters the supplied list of subjects by the supplied attribute filter.
    *
-   * @param subjects The list of subjects to filter, assumed not
-   * <code>null</code>.
-   * @param attributeNameFilter an attribute name by which to filter the
-   * returned subjects, <code>null</code> to ignore this filter.  Only
-   * attributes matching this filter are included in the returned subjects.
-   * @param includeEmptySubjects <code>true</code> to include subjects with
-   * an empty attribute list, <code>false</code> to only include subjects
-   * with non-empty attribute lists after applying the attribute name filter.
-   *
+   * @param subjects The list of subjects to filter, assumed not <code>null</code>.
+   * @param attributeNameFilter an attribute name by which to filter the returned subjects, <code>
+   *     null</code> to ignore this filter. Only attributes matching this filter are included in the
+   *     returned subjects.
+   * @param includeEmptySubjects <code>true</code> to include subjects with an empty attribute list,
+   *     <code>false</code> to only include subjects with non-empty attribute lists after applying
+   *     the attribute name filter.
    * @return The filtered list, never <code>null</code>.
    */
   private List<PSSubject> filterByAttributes(
@@ -442,12 +423,10 @@ public class PSRoleManager {
    * Filters the supplied subjects by the specified community id.
    *
    * @param subjects The subjects to filter, assumed not <code>null</code>.
-   * @param communityId The community id to use.  If not a valid community id,
-   * then an empty list is returned.
-   * @param expandGroups <code>true</code> to expand the membership of
-   * any community members that are groups, <code>false</code> to treat the
-   * groups as individuals.
-   *
+   * @param communityId The community id to use. If not a valid community id, then an empty list is
+   *     returned.
+   * @param expandGroups <code>true</code> to expand the membership of any community members that
+   *     are groups, <code>false</code> to treat the groups as individuals.
    * @return The filtered subjects, never <code>null</code>.
    */
   private List<PSSubject> filterSubjectsByCommunity(
@@ -479,12 +458,10 @@ public class PSRoleManager {
    * Filters the supplied subjects by the specified community id.
    *
    * @param principals The principals to filter, assumed not <code>null</code>.
-   * @param communityId The community id to use.  If not a valid community id,
-   * then an empty list is returned.
-   * @param expandGroups <code>true</code> to expand the membership of
-   * any community members that are groups, <code>false</code> to treat the
-   * groups as individuals.
-   *
+   * @param communityId The community id to use. If not a valid community id, then an empty list is
+   *     returned.
+   * @param expandGroups <code>true</code> to expand the membership of any community members that
+   *     are groups, <code>false</code> to treat the groups as individuals.
    * @return The filtered subjects, never <code>null</code>.
    */
   public Set<IPSTypedPrincipal> filterByCommunity(
@@ -526,20 +503,17 @@ public class PSRoleManager {
   }
 
   /**
-   * Attempts to replace any subjects in the supplied list that are goups with
-   * subjects representing the members of the groups. Handling of nested groups
-   * is implementation specific depending on the cataloger that resolves the
-   * group. Any supplied subjects that are users are simply added to the
-   * returned set.
+   * Attempts to replace any subjects in the supplied list that are goups with subjects representing
+   * the members of the groups. Handling of nested groups is implementation specific depending on
+   * the cataloger that resolves the group. Any supplied subjects that are users are simply added to
+   * the returned set.
    *
-   * @param subjects A set of subjects, may contain both users and groups.
-   * Never <code>null</code>, may be empty.
-   *
-   * @return A new set containing all users supplied, and any users that were
-   * the result of expanding the membership of any groups supplied, and any
-   * groups that could not be expanded or that were returned as members of a
-   * supplied group.  Subjects added as expanded group members will not have
-   * any attributes loaded.
+   * @param subjects A set of subjects, may contain both users and groups. Never <code>null</code>,
+   *     may be empty.
+   * @return A new set containing all users supplied, and any users that were the result of
+   *     expanding the membership of any groups supplied, and any groups that could not be expanded
+   *     or that were returned as members of a supplied group. Subjects added as expanded group
+   *     members will not have any attributes loaded.
    */
   public Set<PSSubject> expandGroups(Set<PSSubject> subjects) {
     Set<PSSubject> expanded = new HashSet<>();
@@ -570,14 +544,13 @@ public class PSRoleManager {
   }
 
   /**
-   * Expands the membership of all groups in the supplied collection.  Any
-   * non-group entries are simply added to the results.
+   * Expands the membership of all groups in the supplied collection. Any non-group entries are
+   * simply added to the results.
    *
-   * @param principals Collection of principals which may contain groups to be
-   * expanded, assumed not <code>null</code>.
-   *
-   * @return The resulting set of principals, may still contain groups that
-   * were not able to be expanded.
+   * @param principals Collection of principals which may contain groups to be expanded, assumed not
+   *     <code>null</code>.
+   * @return The resulting set of principals, may still contain groups that were not able to be
+   *     expanded.
    */
   private Set<IPSTypedPrincipal> expandGroups(Collection<IPSTypedPrincipal> principals) {
     Set<IPSTypedPrincipal> expandedMembers = new HashSet<>();
@@ -595,14 +568,11 @@ public class PSRoleManager {
   /**
    * Filters the supplied principals by the supplied type and optional pattern.
    *
-   * @param roleMembers The set of principals to filter, assumed not
-   * <code>null</code>.
-   * @param subjectType The subject type to filter on, one of the
-   * <code>PSSubject.SUBJECT_TYPE_XXX</code> values.
-   * @param subjectNameFilter Optional subject name filter.  The filter uses
-   * SQL LIKE syntax ('%' matches 0 or more chars, '_' matches any single
-   * char), may be <code>null</code>.
-   *
+   * @param roleMembers The set of principals to filter, assumed not <code>null</code>.
+   * @param subjectType The subject type to filter on, one of the <code>PSSubject.SUBJECT_TYPE_XXX
+   *     </code> values.
+   * @param subjectNameFilter Optional subject name filter. The filter uses SQL LIKE syntax ('%'
+   *     matches 0 or more chars, '_' matches any single char), may be <code>null</code>.
    * @return The list, never <code>null</code>, may be empty.
    */
   private List<String> filterPrincipals(
@@ -628,14 +598,13 @@ public class PSRoleManager {
   }
 
   /**
-   * Converts the supplied subjects to {@link PSSubject} objects and merges
-   * them into the supplied map.
+   * Converts the supplied subjects to {@link PSSubject} objects and merges them into the supplied
+   * map.
    *
    * @param subjects The subjects to process, assumed not <code>null</code>.
-   * @param subjectMap Map of subjects where key is the subject name, assumed
-   * not <code>null</code>.  If a processed subject is already found in the
-   * map, it's attributes are added to the existing subject, otherwise it is
-   * added to the map.
+   * @param subjectMap Map of subjects where key is the subject name, assumed not <code>null</code>.
+   *     If a processed subject is already found in the map, it's attributes are added to the
+   *     existing subject, otherwise it is added to the map.
    */
   private void mergeSubjects(Collection<Subject> subjects, Map<String, PSSubject> subjectMap) {
     for (Subject subject : subjects) {
@@ -649,10 +618,9 @@ public class PSRoleManager {
   /**
    * Merges the supplied subject into the supplied map.
    *
-   * @param subjectMap Map of subjects where key is the subject name, assumed
-   * not <code>null</code>.  If a processed subject is already found in the
-   * map, it's attributes are added to the existing subject, otherwise it is
-   * added to the map.
+   * @param subjectMap Map of subjects where key is the subject name, assumed not <code>null</code>.
+   *     If a processed subject is already found in the map, it's attributes are added to the
+   *     existing subject, otherwise it is added to the map.
    * @param subject The subject to process, assumed not <code>null</code>.
    */
   private void mergeSubject(Map<String, PSSubject> subjectMap, PSSubject subject) {
@@ -662,8 +630,8 @@ public class PSRoleManager {
   }
 
   /**
-   * Convenience method that calls {@link #roleMembers(String, int, String)
-   * roleMembers(roleName, memberFlags, null)}.
+   * Convenience method that calls {@link #roleMembers(String, int, String) roleMembers(roleName,
+   * memberFlags, null)}.
    */
   public List roleMembers(String roleName, int memberFlags) {
     return roleMembers(roleName, memberFlags, null);
@@ -672,17 +640,15 @@ public class PSRoleManager {
   /**
    * Get the list of members for the role specified.
    *
-   * @param roleName The name of the role. Supply <code>null</code> or
-   *    empty to get all subjects regardless of their role membership.
-   * @param memberFlags 0 or more of the PSSubject.SUBJECT_TYPE_xxx flags,
-   *    OR'd together. To get all types, pass in 0.
-   * @param subjectNameFilter Can be used to limit the returned members. If
-   *    <code>null</code> or empty, all members are returned. The filter
-   *    uses SQL LIKE syntax.
-   * @return  The list of members(members will be type <code>PSSubject</code>).
-   *    Never <code>null</code>.
-   * @throws PSSecurityException If the meta data to process the request
-   *    can't be obtained.
+   * @param roleName The name of the role. Supply <code>null</code> or empty to get all subjects
+   *     regardless of their role membership.
+   * @param memberFlags 0 or more of the PSSubject.SUBJECT_TYPE_xxx flags, OR'd together. To get all
+   *     types, pass in 0.
+   * @param subjectNameFilter Can be used to limit the returned members. If <code>null</code> or
+   *     empty, all members are returned. The filter uses SQL LIKE syntax.
+   * @return The list of members(members will be type <code>PSSubject</code>). Never <code>null
+   *     </code>.
+   * @throws PSSecurityException If the meta data to process the request can't be obtained.
    */
   public List<PSSubject> roleMembers(String roleName, int memberFlags, String subjectNameFilter) {
     Set<PSSubject> members = getSubjects(roleName, subjectNameFilter);
@@ -700,11 +666,11 @@ public class PSRoleManager {
   /**
    * Get all role attributes for the supplied role name.
    *
-   * @param roleName the role name for which to get the role attributes, not
-   *    <code>null</code> or empty.
-   * @return a valid list of 0 or more <code>PSAttribute</code> objects. They
-   *    are ordered in ascending alpha order by attribute name. There will
-   *    be no duplicates. The caller takes ownership of the list.
+   * @param roleName the role name for which to get the role attributes, not <code>null</code> or
+   *     empty.
+   * @return a valid list of 0 or more <code>PSAttribute</code> objects. They are ordered in
+   *     ascending alpha order by attribute name. There will be no duplicates. The caller takes
+   *     ownership of the list.
    */
   public List getRoleAttributes(String roleName) {
     if (roleName == null) throw new IllegalArgumentException("roleName cannot be null");
@@ -736,28 +702,23 @@ public class PSRoleManager {
   }
 
   /**
-   * Dynamically gets the global and role specific attributes for the
-   * specified subject(s). The attributes are returned associated with their
-   * subject. If an attribute appears in both the global and role list, the
-   * one in the role list is returned. If you want to distinguish between
-   * global and role attributes, call <code>getSubjectGlobalAttributes()</code>
-   * or <code>getSubjectRoleAttributes()</code> directly.
+   * Dynamically gets the global and role specific attributes for the specified subject(s). The
+   * attributes are returned associated with their subject. If an attribute appears in both the
+   * global and role list, the one in the role list is returned. If you want to distinguish between
+   * global and role attributes, call <code>getSubjectGlobalAttributes()</code> or <code>
+   * getSubjectRoleAttributes()</code> directly.
    *
-   * @param subjectNameFilter The individual whose attributes you wish.
-   *    Wildcards allowed following SQL LIKE syntax. If <code>null</code> or
-   *    empty, all subjects are included.
-   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags.
-   *    Provide 0 to ignore this property.
-   * @param roleName If <code>null</code> only global subject attributes are
-   *    returned. Otherwise, both role specific and global attributes are
-   *    returned. If an attribute occurs in both the global and role list, the
-   *    role specific one will be returned. Wildcards not allowed.
-   * @param attributeNameFilter  A single pattern used to select the desired
-   *    attributes. Use SQL LIKE syntax. Supply empty or <code>null</code> to
-   *    get all attributes.
-   * @return a valid list of 0 or more PSSubjects containing 1 or more
-   *    attributes, ordered in ascending alpha order by subject name. The
-   *    caller takes ownership of the list.
+   * @param subjectNameFilter The individual whose attributes you wish. Wildcards allowed following
+   *     SQL LIKE syntax. If <code>null</code> or empty, all subjects are included.
+   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags. Provide 0 to ignore this
+   *     property.
+   * @param roleName If <code>null</code> only global subject attributes are returned. Otherwise,
+   *     both role specific and global attributes are returned. If an attribute occurs in both the
+   *     global and role list, the role specific one will be returned. Wildcards not allowed.
+   * @param attributeNameFilter A single pattern used to select the desired attributes. Use SQL LIKE
+   *     syntax. Supply empty or <code>null</code> to get all attributes.
+   * @return a valid list of 0 or more PSSubjects containing 1 or more attributes, ordered in
+   *     ascending alpha order by subject name. The caller takes ownership of the list.
    */
   public List getSubjectAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
@@ -793,10 +754,10 @@ public class PSRoleManager {
   }
 
   /**
-   * Gets only the global attributes for a set of subjects, using
-   * {@link #DEFAULT_INCLUDE_EMPTY_SUBJECTS} as the includeEmptySubjects
-   * parameter. See {@link #getSubjectGlobalAttributes(String, int, String,
-   * String, boolean) getSubjectGlobalAttributes} for details of params.
+   * Gets only the global attributes for a set of subjects, using {@link
+   * #DEFAULT_INCLUDE_EMPTY_SUBJECTS} as the includeEmptySubjects parameter. See {@link
+   * #getSubjectGlobalAttributes(String, int, String, String, boolean) getSubjectGlobalAttributes}
+   * for details of params.
    */
   public List getSubjectGlobalAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
@@ -809,9 +770,8 @@ public class PSRoleManager {
   }
 
   /**
-   * Convenience method which calls {@link #getSubjectGlobalAttributes(String,
-   * int, String, String, boolean, String)} with <code>communityId</code>
-   * parameter set to <code>null</code>.
+   * Convenience method which calls {@link #getSubjectGlobalAttributes(String, int, String, String,
+   * boolean, String)} with <code>communityId</code> parameter set to <code>null</code>.
    */
   public List getSubjectGlobalAttributes(
       String subjectNameFilter,
@@ -824,36 +784,30 @@ public class PSRoleManager {
   }
 
   /**
-   * Provides a list of subjects with attributes that match any supplied
-   * filters.
-   * <p>
-   * This method may be slower when called with <code>includeEmptySubjects =
+   * Provides a list of subjects with attributes that match any supplied filters.
+   *
+   * <p>This method may be slower when called with <code>includeEmptySubjects =
    * true</code> than when called with <code>false</code>.
    *
-   * @param subjectNameFilter The individual whose attributes you wish.
-   *    Wildcards allowed following SQL LIKE syntax. If <code>null</code> or
-   *    empty, all subjects are included.
-   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags.
-   *    Provide 0 to ignore this property.
-   * @param roleName If <code>null</code> only global subject attributes are
-   *    returned. Otherwise, both role specific and global attributes are
-   *    returned. If an attribute occurs in both the global and role list, the
-   *    role specific one will be returned. Wildcards not allowed.
-   * @param attributeNameFilter  A single pattern used to select the desired
-   *    attributes. Use SQL LIKE syntax. Supply empty or <code>null</code> to
-   *    get all attributes.
-   * @param includeEmptySubjects A flag to indicate whether subjects with
-   *    no attributes should be included in the returned list. If <code>
-   *    true</code>, they are included, otherwise, only subjects that
-   *    have 1 or more attributes are included.
-   * @param communityId the community to which the subjects must be a member
-   *    of, may be <code>null</code> or empty in which case no filtering is
-   *    done based on community
-   * @return a valid list of 0 or more PSSubjects containing either 1 or more
-   *    attributes (if includeEmptySubjects is <code>false</code>) or 0 or
-   *    more attributes (if includeEmptySubjects is <code>true</code>),
-   *    ordered in ascending alpha order by subject name. The caller
-   *    takes ownership of the list.
+   * @param subjectNameFilter The individual whose attributes you wish. Wildcards allowed following
+   *     SQL LIKE syntax. If <code>null</code> or empty, all subjects are included.
+   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags. Provide 0 to ignore this
+   *     property.
+   * @param roleName If <code>null</code> only global subject attributes are returned. Otherwise,
+   *     both role specific and global attributes are returned. If an attribute occurs in both the
+   *     global and role list, the role specific one will be returned. Wildcards not allowed.
+   * @param attributeNameFilter A single pattern used to select the desired attributes. Use SQL LIKE
+   *     syntax. Supply empty or <code>null</code> to get all attributes.
+   * @param includeEmptySubjects A flag to indicate whether subjects with no attributes should be
+   *     included in the returned list. If <code>
+   *    true</code>, they are included, otherwise, only subjects that have 1 or more attributes are
+   *     included.
+   * @param communityId the community to which the subjects must be a member of, may be <code>null
+   *     </code> or empty in which case no filtering is done based on community
+   * @return a valid list of 0 or more PSSubjects containing either 1 or more attributes (if
+   *     includeEmptySubjects is <code>false</code>) or 0 or more attributes (if
+   *     includeEmptySubjects is <code>true</code>), ordered in ascending alpha order by subject
+   *     name. The caller takes ownership of the list.
    */
   public List<PSSubject> getSubjectGlobalAttributes(
       String subjectNameFilter,
@@ -880,22 +834,21 @@ public class PSRoleManager {
   }
 
   /**
-   * Convenience method that calls {@link #getSubjects(String, String, int,
-   * String, String, boolean)} with parameters to ignore the filters
-   * subjectType, attributeNameFilter and communityId and to include empty
-   * subjects.
+   * Convenience method that calls {@link #getSubjects(String, String, int, String, String,
+   * boolean)} with parameters to ignore the filters subjectType, attributeNameFilter and
+   * communityId and to include empty subjects.
    */
   public Set<PSSubject> getSubjects(String roleName, String subjectNameFilter) {
     return getSubjects(roleName, subjectNameFilter, 0, null, null, true);
   }
 
   /**
-   * Get all subjects for the supplied parematers from all security providers.
-   * See {@link IPSInternalRoleCataloger#getSubjects(String, String, int,
-   * String, boolean)} for parameter description.
+   * Get all subjects for the supplied parematers from all security providers. See {@link
+   * IPSInternalRoleCataloger#getSubjects(String, String, int, String, boolean)} for parameter
+   * description.
    *
-   * @return a set of subjects retrieved from all defined security providers
-   *    for the supplied parameters, never <code>null</code>, may be empty.
+   * @return a set of subjects retrieved from all defined security providers for the supplied
+   *     parameters, never <code>null</code>, may be empty.
    */
   public Set<PSSubject> getSubjects(
       String roleName,
@@ -925,9 +878,8 @@ public class PSRoleManager {
    * Returns the roles the user is a member of through group membership.
    *
    * @param subject The subject to check, assumed not <code>null</code>.
-   *
-   * @return The list of role names as Strings, never <code>null</code>, may
-   *    be emtpy, may contain duplicate rolenames.
+   * @return The list of role names as Strings, never <code>null</code>, may be emtpy, may contain
+   *     duplicate rolenames.
    */
   private List<String> getGroupRoles(PSSubject subject) {
     List<String> results = new ArrayList<>();
@@ -946,24 +898,21 @@ public class PSRoleManager {
   }
 
   /**
-   * Gets only the role specific attributes for a set of subjects. A subject
-   * will not be included in the returned list if it does not have a role
-   * attribute that matches the <code>attributeNameFilter</code>.
+   * Gets only the role specific attributes for a set of subjects. A subject will not be included in
+   * the returned list if it does not have a role attribute that matches the <code>
+   * attributeNameFilter</code>.
    *
-   * @param subjectNameFilter the subject name filter for which to get the
-   *    role attributes, may be <code>null</code> or empty. This filter is
-   *    ignored if <code>null</code> or empty.
-   * @param subjectType One of the <code>PSSubject.SUBJECT_TYPE_xxx</code>
-   *    flags. Provide 0 to ignore this property. If 0 is provided, the
-   *    type <code>PSSubject.SUBJECT_TYPE_USER</code> is used as default.
-   * @param roleName the name of the role for which to filter the attributes,
-   *    not <code>null</code> or empty.
-   * @param attributeNameFilter an attribute name based on which to filter the
-   *    results, may be <code>null</code> or empty in which case this filter
-   *    is ignored.
-   * @return a valid list of 0 or more PSSubjects with their attributes,
-   *    no duplicates and ordered in ascending alpha order by subject name.
-   *    The caller takes ownership of the list.
+   * @param subjectNameFilter the subject name filter for which to get the role attributes, may be
+   *     <code>null</code> or empty. This filter is ignored if <code>null</code> or empty.
+   * @param subjectType One of the <code>PSSubject.SUBJECT_TYPE_xxx</code> flags. Provide 0 to
+   *     ignore this property. If 0 is provided, the type <code>PSSubject.SUBJECT_TYPE_USER</code>
+   *     is used as default.
+   * @param roleName the name of the role for which to filter the attributes, not <code>null</code>
+   *     or empty.
+   * @param attributeNameFilter an attribute name based on which to filter the results, may be
+   *     <code>null</code> or empty in which case this filter is ignored.
+   * @return a valid list of 0 or more PSSubjects with their attributes, no duplicates and ordered
+   *     in ascending alpha order by subject name. The caller takes ownership of the list.
    */
   public List getSubjectRoleAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
@@ -990,26 +939,21 @@ public class PSRoleManager {
   }
 
   /**
-   * Get all email addresses from all subjects that belong to the supplied role
-   * for all defined security providers.  Any groups in the role membership
-   * will be expanded to obtain email addresses from the users.
+   * Get all email addresses from all subjects that belong to the supplied role for all defined
+   * security providers. Any groups in the role membership will be expanded to obtain email
+   * addresses from the users.
    *
-   * @param roleName the role for which to get all subject emails, not
-   * <code>null</code> or empty.
-   * @param emailAttributeName The email attribute name used for subjects that
-   * are not returned with {@link PSPrincipalAttribute} typed as an email
-   * address, may be empty or <code>null</code>.
-   * @param community the community for which to filter the result, may be
-   * <code>null</code> or empty to ignore the community filter.  Any groups
-   * that are members of the community will be expanded to use the members
-   * when filtering the results.
-   * @param subjectsWithoutEmail an empty set in which all subjects (as
-   * <code>PSSubject</code> objects) without an email address will be
-   * returned. May be <code>null</code> if users without email are not of
-   * interest.
-   *
-   * @return a set of email addresses as <code>String</code> objects in alpha
-   * ascending order, never <code>null</code>, may be empty.
+   * @param roleName the role for which to get all subject emails, not <code>null</code> or empty.
+   * @param emailAttributeName The email attribute name used for subjects that are not returned with
+   *     {@link PSPrincipalAttribute} typed as an email address, may be empty or <code>null</code>.
+   * @param community the community for which to filter the result, may be <code>null</code> or
+   *     empty to ignore the community filter. Any groups that are members of the community will be
+   *     expanded to use the members when filtering the results.
+   * @param subjectsWithoutEmail an empty set in which all subjects (as <code>PSSubject</code>
+   *     objects) without an email address will be returned. May be <code>null</code> if users
+   *     without email are not of interest.
+   * @return a set of email addresses as <code>String</code> objects in alpha ascending order, never
+   *     <code>null</code>, may be empty.
    */
   public Set<PSNotificationEmailAddress> getRoleEmailAddresses(
       String roleName, String emailAttributeName, String community, Set subjectsWithoutEmail) {
@@ -1047,17 +991,14 @@ public class PSRoleManager {
   /**
    * Get email addresses for all of the supplied principals.
    *
-   * @param principals The list of principals for which email addresses are to
-   * be returned, assumed not <code>null</code>, may be empty.
-   * @param emailAttributeName The email attribute name used for subjects that
-   * are not returned with {@link PSPrincipalAttribute} typed as an email
-   * address, may be empty or <code>null</code>.
-   * @param principalsWithoutEmail an empty set in which all principals without
-   * an email address will be returned. May be <code>null</code> if users
-   * without email are not of interest.
-   *
-   * @return The email addresses, never <code>null</code>, will be empty if
-   * an empty list of principals is supplied.
+   * @param principals The list of principals for which email addresses are to be returned, assumed
+   *     not <code>null</code>, may be empty.
+   * @param emailAttributeName The email attribute name used for subjects that are not returned with
+   *     {@link PSPrincipalAttribute} typed as an email address, may be empty or <code>null</code>.
+   * @param principalsWithoutEmail an empty set in which all principals without an email address
+   *     will be returned. May be <code>null</code> if users without email are not of interest.
+   * @return The email addresses, never <code>null</code>, will be empty if an empty list of
+   *     principals is supplied.
    */
   public Collection<PSNotificationEmailAddress> getSubjectEmailAddresses(
       String roleName,
@@ -1128,21 +1069,18 @@ public class PSRoleManager {
   }
 
   /**
-   * Attempt to obtain the email address from the supplied subject using the
-   * specified attribute name.
+   * Attempt to obtain the email address from the supplied subject using the specified attribute
+   * name.
    *
-   * @param emailAttributeName The email attribute name used for subjects that
-   * are not returned with {@link PSPrincipalAttribute} typed as an email
-   * address, may be empty or <code>null</code>.
-   * @param names Map of users being processed, where the key is the user's
-   * name and the value is the principle from which the name was obtained,
-   * assumed not <code>null</code>. If an email address is specified in the
-   * supplied subject, the matching user is removed from this map.
-   * @param subject The subject from which the email address is to be obtained
-   * if possible, assumed not <code>null</code>.
-   *
-   * @return The email address of the subject, may be <code>null</code> or
-   * empty if one is not specified.
+   * @param emailAttributeName The email attribute name used for subjects that are not returned with
+   *     {@link PSPrincipalAttribute} typed as an email address, may be empty or <code>null</code>.
+   * @param names Map of users being processed, where the key is the user's name and the value is
+   *     the principle from which the name was obtained, assumed not <code>null</code>. If an email
+   *     address is specified in the supplied subject, the matching user is removed from this map.
+   * @param subject The subject from which the email address is to be obtained if possible, assumed
+   *     not <code>null</code>.
+   * @return The email address of the subject, may be <code>null</code> or empty if one is not
+   *     specified.
    */
   private PSNotificationEmailAddress processSubjectEmail(
       String emailAttributeName, Map<String, IPSTypedPrincipal> names, Subject subject) {
@@ -1165,16 +1103,13 @@ public class PSRoleManager {
   /**
    * Get all email addresses from the supplied subject.
    *
-   * @param subjectName the subject from which to get all emails, not
-   * <code>null</code> or empty.
-   * @param emailAttributeName The email attribute name used for subjects that
-   * are not returned with {@link PSPrincipalAttribute} typed as an email
-   * address, may be empty or <code>null</code>.
-   * @param community the community for which to filter the result, may be
-   * <code>null</code> or empty to ignore the community filter.
-   *
-   * @return a set of email addresses as <code>String</code> objects, never
-   * <code>null</code>, may be empty.
+   * @param subjectName the subject from which to get all emails, not <code>null</code> or empty.
+   * @param emailAttributeName The email attribute name used for subjects that are not returned with
+   *     {@link PSPrincipalAttribute} typed as an email address, may be empty or <code>null</code>.
+   * @param community the community for which to filter the result, may be <code>null</code> or
+   *     empty to ignore the community filter.
+   * @return a set of email addresses as <code>String</code> objects, never <code>null</code>, may
+   *     be empty.
    */
   public Set<PSNotificationEmailAddress> getSubjectEmailAddresses(
       String subjectName, String emailAttributeName, String community) {
@@ -1219,14 +1154,13 @@ public class PSRoleManager {
   }
 
   /**
-   * Filters the supplied collection of principals by type.  Those of undefined
-   * type are discarded.
+   * Filters the supplied collection of principals by type. Those of undefined type are discarded.
    *
    * @param principals The collection to filter, assumed not <code>null</code>.
-   * @param users The set to which principals representing users are added,
-   * assumed not <code>null</code>.
-   * @param groups The set to which principals representing groups are added,
-   * assumed not <code>null</code>.
+   * @param users The set to which principals representing users are added, assumed not <code>null
+   *     </code>.
+   * @param groups The set to which principals representing groups are added, assumed not <code>null
+   *     </code>.
    */
   private void filterPrincipalsByType(
       Collection<IPSTypedPrincipal> principals,
@@ -1241,47 +1175,39 @@ public class PSRoleManager {
     }
   }
 
-  /**
-   * Private to implement the singleton pattern.
-   */
+  /** Private to implement the singleton pattern. */
   private PSRoleManager() {}
 
-  /**
-   * The name of this (pseudo-) security provider.
-   */
+  /** The name of this (pseudo-) security provider. */
   public static final String SP_NAME = "Role";
 
   /**
-   * The singleton instance of this class. Initialized the first time it
-   * is requested, then never <code>null</code> after that.
+   * The singleton instance of this class. Initialized the first time it is requested, then never
+   * <code>null</code> after that.
    */
   private static PSRoleManager ms_instance;
 
-  /**
-   * The logger to use, never <code>null</code>.
-   */
+  /** The logger to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSRoleManager.class);
 
   /**
-   * The default value for including empty subjects (those with no attributes)
-   * for methods that do not explicitly provide the option.
+   * The default value for including empty subjects (those with no attributes) for methods that do
+   * not explicitly provide the option.
    */
   private static final boolean DEFAULT_INCLUDE_EMPTY_SUBJECTS = false;
 
-  /**
-   * Specifies the default request handling for backend security providers.
-   */
+  /** Specifies the default request handling for backend security providers. */
   private static final int BACKEND_DEFAULT = 0;
 
   /**
-   * Specifies a special handling is required for a global attributes
-   * request for backend security providers.
+   * Specifies a special handling is required for a global attributes request for backend security
+   * providers.
    */
   private static final int BACKEND_GLOBAL_ATTRIBUTES = 1;
 
   /**
-   * Specifies a special handling is required for a subject role attributes
-   * request for backend security providers.
+   * Specifies a special handling is required for a subject role attributes request for backend
+   * security providers.
    */
   private static final int BACKEND_SUBJECT_ROLE_ATTRIBUTES = 2;
 }

@@ -17,13 +17,12 @@
 package com.percussion.testing;
 
 /**
- * This is purely a marker class. If a JUnit test does not fall into any of
- * the existing categories, then it should implement this interface. All
- * classes implementing this interface will not be executed in the nightly
- * suite.
- * <p>An example of why this might be required is a unit test for a daemon
- * class. The unit test would require the daemon to be running but has no
- * dependencies on the Rx server.
+ * This is purely a marker class. If a JUnit test does not fall into any of the existing categories,
+ * then it should implement this interface. All classes implementing this interface will not be
+ * executed in the nightly suite.
+ *
+ * <p>An example of why this might be required is a unit test for a daemon class. The unit test
+ * would require the daemon to be running but has no dependencies on the Rx server.
  *
  * @author paulhoward
  */

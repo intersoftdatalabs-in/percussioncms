@@ -19,19 +19,17 @@ package com.percussion.utils.container;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Defines the mbean name and attribute to use to access a port value in a
- * JBoss service config file.
+ * Defines the mbean name and attribute to use to access a port value in a JBoss service config
+ * file.
  */
 public class PSServicePortAttrDef {
   /**
    * Construct a definition.
    *
-   * @param portName The name to use as the identifier of the port, may not be
-   * <code>null</code> or empty.
-   * @param mbean The mbean name that has the port attribute, may not be
-   * <code>null</code> or empty.
-   * @param attr The name of the port attribute, may not be <code>null</code>
-   * or empty.
+   * @param portName The name to use as the identifier of the port, may not be <code>null</code> or
+   *     empty.
+   * @param mbean The mbean name that has the port attribute, may not be <code>null</code> or empty.
+   * @param attr The name of the port attribute, may not be <code>null</code> or empty.
    */
   public PSServicePortAttrDef(String portName, String mbean, String attr) {
     if (StringUtils.isBlank(portName))
@@ -75,21 +73,12 @@ public class PSServicePortAttrDef {
     return m_portName;
   }
 
-  /**
-   * The port name supplied during construction, never <code>null</code> or
-   * empty.
-   */
+  /** The port name supplied during construction, never <code>null</code> or empty. */
   String m_portName;
 
-  /**
-   * The mbean name supplied during construction, never <code>null</code> or
-   * empty.
-   */
+  /** The mbean name supplied during construction, never <code>null</code> or empty. */
   String m_mbean;
 
-  /**
-   * The attr name supplied during construction, never <code>null</code> or
-   * empty.
-   */
+  /** The attr name supplied during construction, never <code>null</code> or empty. */
   String m_attr;
 }

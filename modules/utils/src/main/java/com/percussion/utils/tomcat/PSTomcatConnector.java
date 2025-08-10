@@ -41,9 +41,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.xml.sax.SAXException;
 
 /**
- * Provides an object representation and implements XML serialization for a
- * Tomcat Connector element. See http://jakarta.apache.org/tomcat/tomcat-4.1-
- * doc/config/coyote.html for details and the XML format.
+ * Provides an object representation and implements XML serialization for a Tomcat Connector
+ * element. See http://jakarta.apache.org/tomcat/tomcat-4.1- doc/config/coyote.html for details and
+ * the XML format.
  */
 public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled {
 
@@ -129,8 +129,8 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
   }
 
   /**
-   * Serialize this connector to its XML representation.  See
-   * {@link #PSTomcatConnector(Element)} for more information.
+   * Serialize this connector to its XML representation. See {@link #PSTomcatConnector(Element)} for
+   * more information.
    *
    * @param doc The document to use, may not be <code>null</code>.
    * @return The resulting connector element, never <code>null</code>.
@@ -181,11 +181,9 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
    * Gets all attributes from the supplied element as a set of properties.
    *
    * @param source The source element, assumed not <code>null</code>.
-   *
    * @param properties
-   * @return The properties, never <code>null</code>, may be empty.  Each
-   * property has the attribute name as the key and the attribute value as the
-   * value.
+   * @return The properties, never <code>null</code>, may be empty. Each property has the attribute
+   *     name as the key and the attribute value as the value.
    */
   private Map<String, String> loadAttributeMap(Element source) {
     Map<String, String> attributeMap = new LinkedHashMap<>();
@@ -201,9 +199,7 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
     return attributeMap;
   }
 
-  /**
-   * Constant for the port attribute name.
-   */
+  /** Constant for the port attribute name. */
   public static final String PORT_ATTR = "port";
 
   public static final String PROTOCOL_ATTR = "protocol";
@@ -285,11 +281,9 @@ public class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled
   }
 
   /**
-   * If the supplied element is a connector element that specifies the HTTP
-   * protocol.
+   * If the supplied element is a connector element that specifies the HTTP protocol.
    *
    * @param connEl The element to check, may not be <code>null</code>.
-   *
    * @return <code>true</code> if it is, <code>false</code> if no.
    */
   public static boolean isHttpConnector(Element connEl) {

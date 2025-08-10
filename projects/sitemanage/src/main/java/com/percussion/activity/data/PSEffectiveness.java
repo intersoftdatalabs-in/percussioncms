@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * This object holds the effectiveness details of the items under named site or site folder.
- */
+/** This object holds the effectiveness details of the items under named site or site folder. */
 @JsonRootName(value = "Effectiveness")
 public class PSEffectiveness {
 

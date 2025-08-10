@@ -68,75 +68,47 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.*;
 
 /**
- * This class is a placeholder for several global constants or variables that
- * need to be evaluated only once, and also contains static functions used
- * for workflow.
+ * This class is a placeholder for several global constants or variables that need to be evaluated
+ * only once, and also contains static functions used for workflow.
  */
 @SuppressWarnings("unchecked")
 public class PSWorkFlowUtils {
-  /**
-   * Role delimiter (in role list)
-   */
+  /** Role delimiter (in role list) */
   public static final String ROLE_DELIMITER = ",";
 
-  /**
-   * Adhoc user list delimiter (in HTML parameter)
-   */
+  /** Adhoc user list delimiter (in HTML parameter) */
   public static final String ADHOC_USER_LIST_DELIMITER = ";";
 
   /**
-   * Adhoc user list separator.  The user list is passed as
-   * &lt;rolename&gt;<code>ADHOC_USER_ROLE_TYPE_SEP</code>&lt;adhoctype&gt;
-   * .
+   * Adhoc user list separator. The user list is passed as &lt;rolename&gt;<code>
+   * ADHOC_USER_ROLE_TYPE_SEP</code>&lt;adhoctype&gt; .
    */
   public static final String ADHOC_USER_ROLE_TYPE_SEP = ":";
 
-  /**
-   * Delimiter for workflow actions in database column
-   * TRANSITIONS.TRANSITIONACTIONS
-   */
+  /** Delimiter for workflow actions in database column TRANSITIONS.TRANSITIONACTIONS */
   public static final String WORKFLOW_ACTION_DELIMITER = ",";
 
-  /**
-   * Delimiter for database <CODE>String</CODE>s containing email recipients
-   */
+  /** Delimiter for database <CODE>String</CODE>s containing email recipients */
   public static final String EMAIL_STRING_DELIMITER = ",";
 
-  /**
-   * Separator for <CODE>String</CODE>s used to pass email recipients
-   * to mail programs.
-   */
+  /** Separator for <CODE>String</CODE>s used to pass email recipients to mail programs. */
   public static final String EMAIL_STRING_SEPARATOR = ", ";
 
-  /**
-   * Name of the properties file.
-   */
+  /** Name of the properties file. */
   public static final String FILE_PROPERTIES = "rxworkflow.properties";
 
-  /**
-   * Default name for storing the new state id when transition takes place.
-   */
+  /** Default name for storing the new state id when transition takes place. */
   public static String DEFAULT_NEWSTATEID_NAME = "newstateid";
 
-  /**
-   * Default name for storing the transition id.
-   */
+  /** Default name for storing the transition id. */
   public static String DEFAULT_TRANSITIONID_NAME = "transitionid";
 
-  /**
-   * Default key for the default workflow property.
-   */
+  /** Default key for the default workflow property. */
   private static String DEFAULT_WORKFLOW_KEY = "DEFAULT_WORKFLOW";
 
   /**
-   * Installer Options
-   *   Table works as followed :
-   *             Yes  No   Ignore    No Action
-   *             ===  ==  ========  ===========
-   *    CREATE    1    2     3          0
-   *    ALTER     1    2     3          0
-   *    DELETE    1    2     3          0
-   *
+   * Installer Options Table works as followed : Yes No Ignore No Action === == ======== ===========
+   * CREATE 1 2 3 0 ALTER 1 2 3 0 DELETE 1 2 3 0
    */
   public static final int CREATE_NONE = 0;
 
@@ -152,9 +124,7 @@ public class PSWorkFlowUtils {
   public static final int DELETE_NO = 2;
   public static final int DELETE_NOT = 3;
 
-  /**
-   * Error Messages ref write option to Disk.
-   */
+  /** Error Messages ref write option to Disk. */
   public static final int SUCCESS = 0;
 
   public static final int WRITE_ERRROR = 1;
@@ -164,12 +134,10 @@ public class PSWorkFlowUtils {
   public static final int UNKNOWN_FAILURE = 5;
 
   /**
-   * Flags for writing to disk
-   * CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
-   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists
-   * APPEND_CREATE = Append to file. Create file if it doesn't exist
-   * APPEND = Append to existing file. Fail if it doesn't exist.
-   *
+   * Flags for writing to disk CREATE_NEW_OVERWRITE = Create new file. Overwrite the old file.
+   * CREATE_NEW_OLD = Create new, rename old file with ".old" ext if exists APPEND_CREATE = Append
+   * to file. Create file if it doesn't exist APPEND = Append to existing file. Fail if it doesn't
+   * exist.
    */
   public static final int CREATE_NEW_OVERWRITE = 0;
 
@@ -184,42 +152,34 @@ public class PSWorkFlowUtils {
   public static final int TABLE_ALTER_NO = 5;
 
   /**
-   * Preset file name which the old data is stored in if system
-   * fails to insert them back into the new tables.
-   *
+   * Preset file name which the old data is stored in if system fails to insert them back into the
+   * new tables.
    */
   public static String PS_OLD_DATA_FILENAME = new String("ps_org_tbl_data.xml");
 
   public static String PS_OLD_DTD_FILENAME = new String("ps_org_tbl_def.xml");
 
-  /**
-   * error constants
-   */
+  /** error constants */
   public static final int ERROR_INVALID_NMBER_OF_PARAMETERS = 7006;
 
   public static final int ERROR_INVALID_PARAMETER_TYPE = 7003;
   public static final int ERROR_AUTHORIZATION_FAILURE = 1203;
 
-  /**
-   * The string used as the start of field tokens.
-   */
+  /** The string used as the start of field tokens. */
   public static final String FIELD_TOKEN_START = "${";
 
-  /**
-   * The string used as the end of field tokens.
-   */
+  /** The string used as the end of field tokens. */
   public static final String FIELD_TOKEN_END = "}";
 
   /**
-   * Constant for the name of the workflow property specifying the extension to use for notification link generation.
+   * Constant for the name of the workflow property specifying the extension to use for notification
+   * link generation.
    */
   public static final String NOTIFICATION_LINK_GEN_EXIT_PROP = "MAIL_NOTIFY_LINK_GEN_EXIT";
 
   public static final String NOTIFICATION_ENABLE = "NOTIFICATION_ENABLE";
 
-  /**
-   * The property that turns on test run mode.
-   */
+  /** The property that turns on test run mode. */
   public static final String ENABLE_TEST_RUN_MODE = "ENABLE_TEST_RUN_MODE";
 
   public static final String TEST_RUN_MODE_LOG_LOCATION =
@@ -232,79 +192,60 @@ public class PSWorkFlowUtils {
           + File.separator
           + "notifications_test_run.log";
 
-  /**
-   * Default username when workflow action is triggered by a server action.
-   */
+  /** Default username when workflow action is triggered by a server action. */
   public static final String RXSERVER = "rxserver";
 
-  /**
-   * String used to denote the name of the HTML page
-   * for a navOn.
-   */
+  /** String used to denote the name of the HTML page for a navOn. */
   public static final String PERCNAVON = "percNavon.html";
 
   /**
-   * Constant for the name of the workflow property specifying the format to
-   * use for dates in messages.
+   * Constant for the name of the workflow property specifying the format to use for dates in
+   * messages.
    */
   public static final String DATE_FORMAT_PROP = "NOTIFICATION_DATE_FORMAT";
 
-  /**
-   * Instantiation of empty properties. File will be loaded later.
-   *
-   */
+  /** Instantiation of empty properties. File will be loaded later. */
   public static Properties properties = null;
 
   /**
-   * Constant for the propery name which is used to create the
-   * {@link #WORKFLOW_COMMENT_TOKEN}. The value of this constant is
-   * "wfcomment".
+   * Constant for the propery name which is used to create the {@link #WORKFLOW_COMMENT_TOKEN}. The
+   * value of this constant is "wfcomment".
    */
   public static final String WORKFLOW_COMMENT_PROP = "wfcomment";
 
   /**
-   * Constant for the token name which is replaced by the user's comment for
-   * the current transition. The value of this constant is "$wfcomment". The
-   * runtime value of this token is the transition comment entered by the
-   * user.
+   * Constant for the token name which is replaced by the user's comment for the current transition.
+   * The value of this constant is "$wfcomment". The runtime value of this token is the transition
+   * comment entered by the user.
    */
   public static final String WORKFLOW_COMMENT_TOKEN = "$" + WORKFLOW_COMMENT_PROP;
 
   /**
-   * Constant for the property name which is used to create the
-   * {@link #WORKFLOW_LINK_TOKEN}. The value of this constant is
-   * "wflink".
+   * Constant for the property name which is used to create the {@link #WORKFLOW_LINK_TOKEN}. The
+   * value of this constant is "wflink".
    */
   public static final String WORKFLOW_LINK_PROP = "wflink";
 
   /**
-   * Constant for the token name which is replaced by the content URL for
-   * the current item. The value of this constant is "$wflink". The
-   * runtime value of this token is the content URL of the item being
-   * transitioned.
+   * Constant for the token name which is replaced by the content URL for the current item. The
+   * value of this constant is "$wflink". The runtime value of this token is the content URL of the
+   * item being transitioned.
    */
   public static final String WORKFLOW_LINK_TOKEN = "$" + WORKFLOW_LINK_PROP;
 
   /**
-   * Tokens which can be used in the notification mail subject or body.
-   * Currently only the tokens (<code>WORKFLOW_COMMENT_TOKEN</code>,
-   * <code>WORKFLOW_LINK_TOKEN</code>) are supported.
+   * Tokens which can be used in the notification mail subject or body. Currently only the tokens (
+   * <code>WORKFLOW_COMMENT_TOKEN</code>, <code>WORKFLOW_LINK_TOKEN</code>) are supported.
    */
   public static final String[] MAIL_TOKENS = {WORKFLOW_COMMENT_TOKEN, WORKFLOW_LINK_TOKEN};
 
   /**
-   *
-   * AssignmentType:
-   *  -1 - User is not listed in this content adhoc users context.
-   * 0 - Not in workflow - Either the user is not in any role, or all of his
-   *       roles  are not listed in the workflow definition
-   * 1 - None - User is in a role, but the role is not assigned for this
-   *       state
-   * 2 - Reader - User is in a role assigned as Reader
-   * 3 - Assignee - User is assigned to transition the document
-   *   4 - Admin - User is an administrator in this Workflow.  Administrators
-   *       have all rights
-   *
+   * AssignmentType: -1 - User is not listed in this content adhoc users context. 0 - Not in
+   * workflow - Either the user is not in any role, or all of his roles are not listed in the
+   * workflow definition 1 - None - User is in a role, but the role is not assigned for this state 2
+   * - Reader - User is in a role assigned as Reader 3 - Assignee - User is assigned to transition
+   * the document 4 - Admin - User is an administrator in this Workflow. Administrators have all
+   * rights
    */
   public static final int ASSIGNMENT_TYPE_NOT_IN_ADHOC_USERS_CONTEXT = -1;
 
@@ -315,20 +256,14 @@ public class PSWorkFlowUtils {
   public static final int ASSIGNMENT_TYPE_ADMIN = 4;
 
   /**
-   * HTML Parameter name that stores the current user's assignment type.
-   * authenticateUser exit adds this to the list and performTransition may
-   * modify, if required.
-   *
+   * HTML Parameter name that stores the current user's assignment type. authenticateUser exit adds
+   * this to the list and performTransition may modify, if required.
    */
   public static final String ASSIGNMENT_TYPE_CURRENT_USER = "assignmenttypecurrentuser";
 
   /**
-   *
-   * Document check out status values
-   * 0 - Not checked-out by anybody
-   * 1 - Checked out by current user
+   * Document check out status values 0 - Not checked-out by anybody 1 - Checked out by current user
    * 2 - Checked out by somebody else
-   *
    */
   public static final int CHECKOUT_STATUS_NONE = 0;
 
@@ -336,46 +271,29 @@ public class PSWorkFlowUtils {
   public static final int CHECKOUT_STATUS_OTHER = 2;
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout status.
-   * authenticateUser exit adds this to the list and performTransition may
-   * modify, if required.
-   *
+   * HTML Parameter name that stores the current document's checkout status. authenticateUser exit
+   * adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_STATUS_CURRENT_DOCUMENT = "checkoutstatuscurrentdocument";
 
   /**
-   *
-   * HTML Parameter name that stores the current document's checkout user .
-   * name authenticateUser exit adds this to the list and performTransition
-   * may modify, if required.
-   *
+   * HTML Parameter name that stores the current document's checkout user . name authenticateUser
+   * exit adds this to the list and performTransition may modify, if required.
    */
   public static final String CHECKOUT_USER_NAME = "checkoutusername";
 
-  /**
-   *
-   * HTML Parameter name that stores the content status history id after
-   * writing the history.
-   *
-   */
+  /** HTML Parameter name that stores the content status history id after writing the history. */
   public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
 
   /**
-   *
-   * Default HTML Parameter name used to access the transition comment if
-   * a value is not assigned to property HTML_PARAM_TRANSITION_COMMENT
-   * in the property file PSWorkFlowUtilsResources.properties.
-   * This is used by the exits performTransition and updateHistory.
+   * Default HTML Parameter name used to access the transition comment if a value is not assigned to
+   * property HTML_PARAM_TRANSITION_COMMENT in the property file
+   * PSWorkFlowUtilsResources.properties. This is used by the exits performTransition and
+   * updateHistory.
    */
   public static final String TRANSITION_COMMENT = "commenttext";
 
-  /**
-   * Ad-hoc options:
-   *   0 - No Ad-Hoc
-   * 1 - Ad-Hoc enabled
-   * 2 - Anonymous Ad-Hoc
-   */
+  /** Ad-hoc options: 0 - No Ad-Hoc 1 - Ad-Hoc enabled 2 - Anonymous Ad-Hoc */
   public static final int ADHOC_DISABLED = 0;
 
   public static final int ADHOC_ENABLED = 1;
@@ -420,67 +338,45 @@ public class PSWorkFlowUtils {
   public static final String USER_EMAIL_ATTRIBUTE = "sys_email";
 
   /**
-   * An optional property that stores the attribute name for the attribute
-   * that holds the user's email address.
+   * An optional property that stores the attribute name for the attribute that holds the user's
+   * email address.
    */
   public static final String USER_EMAIL_ATTRIBUTE_PROPERTY = "MAIL_ATTRIBUTE_NAME";
 
-  /**
-   * Constant for the name of the entry that represents workflow's
-   * name/value pair.
-   */
+  /** Constant for the name of the entry that represents workflow's name/value pair. */
   private static final String ENTRY_NAME = "workflow_config_base_dir";
 
   /**
-   * Constant for the directory containing workflow configs.
-   * Assumed to be relative to the Rx directory.
+   * Constant for the directory containing workflow configs. Assumed to be relative to the Rx
+   * directory.
    */
   public static final String WORKFLOW_DIR = "rxconfig/Workflow";
 
   /**
-   * Debug flag, set to <CODE>true</CODE> when running tests for which the
-   * server is not used, else <CODE>false</CODE>.
+   * Debug flag, set to <CODE>true</CODE> when running tests for which the server is not used, else
+   * <CODE>false</CODE>.
    */
   public static boolean m_bTestWithoutServer = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> trace message output is sent to
-   * the PSConsole.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to the PSConsole. */
   public static boolean m_bPSConsoleTraceMessages = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> stack trace output is sent to
-   * the PSConsole.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> stack trace output is sent to the PSConsole. */
   public static boolean m_bPSConsoleStackTrace = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> trace message output is sent to
-   * System.out.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> trace message output is sent to System.out. */
   public static boolean m_bSystemOutTraceMessages = false;
 
-  /**
-   * Debug flag, when set to <CODE>true</CODE> stack trace output is sent to
-   *  System.out.
-   */
+  /** Debug flag, when set to <CODE>true</CODE> stack trace output is sent to System.out. */
   public static boolean m_bSystemOutStackTrace = false;
 
-  /**
-   * Used to maintain name of rxworkflow.properties file.
-   */
+  /** Used to maintain name of rxworkflow.properties file. */
   private static final String WORKFLOW_PROPS_FILE_NAME = "rxworkflow.properties";
 
-  /**
-   * Used to maintain location of rxworkflow.properties file.
-   */
+  /** Used to maintain location of rxworkflow.properties file. */
   private static final String WORKFLOW_PROPS_PATH = "rxconfig/Workflow";
 
-  /**
-   * Props that will be encrypted in the
-   * rxworkflow.properties file.
-   */
+  /** Props that will be encrypted in the rxworkflow.properties file. */
   private static String[] encryptProps;
 
   static {
@@ -519,9 +415,7 @@ public class PSWorkFlowUtils {
     }
   }
 
-  /**
-   * Load the properties of the rxworkflow.properties file.
-   */
+  /** Load the properties of the rxworkflow.properties file. */
   private static synchronized void loadProperties() {
     try {
       properties = new Properties();
@@ -540,27 +434,21 @@ public class PSWorkFlowUtils {
   /*  ********* Workflow Utility Methods ******** */
 
   /**
-   * Outputs a message to trace file and PSConsole or output stream, depending
-   * on workflow properties and application tracing options.
+   * Outputs a message to trace file and PSConsole or output stream, depending on workflow
+   * properties and application tracing options.
    *
-   * @param request <CODE>null</CODE> for no system trace file output else
-   * the request context used to output message via
-   * {@link #printWorkflowMessage(IPSRequestContext, String, boolean, boolean)}
-   * .
-   * The message will be added to the trace file only if tracing is enabled for
-   * the application and for the exit tracing option.
-   *
+   * @param request <CODE>null</CODE> for no system trace file output else the request context used
+   *     to output message via {@link #printWorkflowMessage(IPSRequestContext, String, boolean,
+   *     boolean)} . The message will be added to the trace file only if tracing is enabled for the
+   *     application and for the exit tracing option.
    * @param message message to output
-   *
-   * <ul>
-   * Output is sent to:
-   * <li>trace file if request is non <CODE>null</CODE> and application and
-   * exit tracing is enabled</li>
-   * <li>{@link System#out} if workflow property "SYSTEMOUTTRACEMESSAGES" is
-   * "true"</li>
-   * <li>{@link PSConsole} if workflow property "PSCONSOLETRACEMESSAGES" is
-   * "true"</li>
-   * </ul>
+   *     <ul>
+   *       Output is sent to:
+   *       <li>trace file if request is non <CODE>null</CODE> and application and exit tracing is
+   *           enabled
+   *       <li>{@link System#out} if workflow property "SYSTEMOUTTRACEMESSAGES" is "true"
+   *       <li>{@link PSConsole} if workflow property "PSCONSOLETRACEMESSAGES" is "true"
+   *     </ul>
    */
   public static void printWorkflowMessage(IPSRequestContext request, String message) {
     boolean useSysOut = m_bSystemOutTraceMessages;
@@ -569,24 +457,16 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Outputs a message to trace file and PSConsole or system output stream,
-   * depending on input arguments and application tracing options.
+   * Outputs a message to trace file and PSConsole or system output stream, depending on input
+   * arguments and application tracing options.
    *
-   * @param request      <CODE>null</CODE> for no system trace file output
-   *                     else the request context used to output message via
-   *                     {@link IPSRequestContext#printTraceMessage(String)}.
-   *                     The message will be added to the trace file only if
-   *                     tracing is enabled for the application and for the
-   *                     exit tracing option.
-   *
-   * @param message      message to output
-   *
-   * @param useSysOut    if <CODE>true</CODE> send message to
-   *                     {@link System#out} else don't
-   *
-   * @param usePSConsole if <CODE>true</CODE>, send message to
-   *                     {@link PSConsole} else don't.
-   *
+   * @param request <CODE>null</CODE> for no system trace file output else the request context used
+   *     to output message via {@link IPSRequestContext#printTraceMessage(String)}. The message will
+   *     be added to the trace file only if tracing is enabled for the application and for the exit
+   *     tracing option.
+   * @param message message to output
+   * @param useSysOut if <CODE>true</CODE> send message to {@link System#out} else don't
+   * @param usePSConsole if <CODE>true</CODE>, send message to {@link PSConsole} else don't.
    */
   public static void printWorkflowMessage(
       IPSRequestContext request, String message, boolean useSysOut, boolean usePSConsole) {
@@ -599,26 +479,21 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Prints a stack trace to trace file and PSConsole or system output stream,
-   * depending on workflow properties and application tracing options.
+   * Prints a stack trace to trace file and PSConsole or system output stream, depending on workflow
+   * properties and application tracing options.
    *
-   * @param request <CODE>null</CODE> for no system trace file output else
-   * the request context used to output message via
-   * {@link #printWorkflowMessage(IPSRequestContext, String, boolean, boolean)}.
-   * The message will be added to the trace file only if tracing is enabled for
-   * the application and for the exit tracing option.
-   *
+   * @param request <CODE>null</CODE> for no system trace file output else the request context used
+   *     to output message via {@link #printWorkflowMessage(IPSRequestContext, String, boolean,
+   *     boolean)}. The message will be added to the trace file only if tracing is enabled for the
+   *     application and for the exit tracing option.
    * @param throwable exception for which stack trace should be output.
-   *
-   * <ul>
-   * Output is sent to:
-   * <li>trace file if request is non <CODE>null</CODE> and application and
-   * exit tracing is enabled</li>
-   * <li>{@link System#out} if workflow property "SYSTEMOUTSTACKTRACE" is
-   * "true"</li>
-   * <li>{@link PSConsole} if workflow property "PSCONSOLESTACKTRACE" is
-   * "true"</li>
-   * </ul>
+   *     <ul>
+   *       Output is sent to:
+   *       <li>trace file if request is non <CODE>null</CODE> and application and exit tracing is
+   *           enabled
+   *       <li>{@link System#out} if workflow property "SYSTEMOUTSTACKTRACE" is "true"
+   *       <li>{@link PSConsole} if workflow property "PSCONSOLESTACKTRACE" is "true"
+   *     </ul>
    */
   public static void printWorkflowException(IPSRequestContext request, Throwable throwable) {
     // TODO: use get/set methods that don't require restarting the server
@@ -628,23 +503,16 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Prints a stack trace to trace file and PSConsole or output stream,
-   * depending on input arguments and application tracing options.
+   * Prints a stack trace to trace file and PSConsole or output stream, depending on input arguments
+   * and application tracing options.
    *
-   * @param request      the request context for the extension used for
-   *                     if <CODE>null</CODE>, do not send stack trace to
-   *                     application trace file.
-   *
-   * @param throwable    exception for which stack trace should be output.
-   *                     Also output to tracing
-   *                     file if request is not <CODE>null</CODE>, and
-   *                     extension execution tracing is on in the application.
-   *
-   * @param useSysOut    if <CODE>true</CODE> send message to
-   *                     {@link System#out} else don't
-   *
-   * @param usePSConsole if <CODE>true</CODE>, send message to
-   *                     {@link PSConsole} else don't.
+   * @param request the request context for the extension used for if <CODE>null</CODE>, do not send
+   *     stack trace to application trace file.
+   * @param throwable exception for which stack trace should be output. Also output to tracing file
+   *     if request is not <CODE>null</CODE>, and extension execution tracing is on in the
+   *     application.
+   * @param useSysOut if <CODE>true</CODE> send message to {@link System#out} else don't
+   * @param usePSConsole if <CODE>true</CODE>, send message to {@link PSConsole} else don't.
    */
   public static void printWorkflowException(
       IPSRequestContext request, Throwable throwable, boolean useSysOut, boolean usePSConsole) {
@@ -667,15 +535,11 @@ public class PSWorkFlowUtils {
 
   /**
    * Helper function to compare two role lists
-   * @param assignmentTypeList - ArrayList containing assignment types as
-   *                             Integers
    *
-   * @param roleList -           first role list as ArrayList;
-   *
-   * @param sRoleList -          the second role list as comma separated list
-   *
-   * @return                     the assignment type - one of the values
-   *                             defined in this file (PSWorkFlowUtils.java)
+   * @param assignmentTypeList - ArrayList containing assignment types as Integers
+   * @param roleList - first role list as ArrayList;
+   * @param sRoleList - the second role list as comma separated list
+   * @return the assignment type - one of the values defined in this file (PSWorkFlowUtils.java)
    */
   public static int compareRoleList(
       List<Integer> assignmentTypeList, List<String> roleList, String sRoleList) {
@@ -702,12 +566,9 @@ public class PSWorkFlowUtils {
   /**
    * Determine if two role lists have a common role.
    *
-   * @param roleList -           first role list as <CODE>List</CODE>;
-   *
-   * @param sRoleList -          the second role list as comma separated list
-   *
-   * @return                     <CODE>true</CODE> if there is a common role,
-   *                             else <CODE>false</CODE>
+   * @param roleList - first role list as <CODE>List</CODE>;
+   * @param sRoleList - the second role list as comma separated list
+   * @return <CODE>true</CODE> if there is a common role, else <CODE>false</CODE>
    */
   public static boolean compareRoleList(List<String> roleList, String sRoleList) {
     StringTokenizer sTokenizer = new StringTokenizer(sRoleList, ROLE_DELIMITER);
@@ -728,15 +589,14 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Determine whether the user is an administrator. <BR>
-   * The user is an administrator if the Workflow admin name is the user's
-   * name or is one of the user's roles.
+   * Determine whether the user is an administrator. <br>
+   * The user is an administrator if the Workflow admin name is the user's name or is one of the
+   * user's roles.
    *
-   * @param sAdminName  The name of the workflow administrator
-   * @param sUserName   The user's name, cannot be <CODE>null</CODE>
-   * @param sRoleList   A comma-delimited list of the user's roles.
-   * @return            <CODE>true</CODE> if the user is an administrator,
-   *                    <CODE>false</CODE> if not.
+   * @param sAdminName The name of the workflow administrator
+   * @param sUserName The user's name, cannot be <CODE>null</CODE>
+   * @param sRoleList A comma-delimited list of the user's roles.
+   * @return <CODE>true</CODE> if the user is an administrator, <CODE>false</CODE> if not.
    */
   public static boolean isAdmin(String sAdminName, String sUserName, String sRoleList) {
     // If the admin name is null or empty, the person is not an admin
@@ -782,19 +642,17 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Takes the assignment type based on the workflow rules and modifies it
-   * based on the user's login community and item's community. If they are same
-   * then returns ASSIGNMENT_TYPE_NONE if input assignment type is
-   * ASSIGNMENT_TYPE_NONE otherwise returns ASSIGNMENT_TYPE_READER if input
-   * assignment type is equal or greater than ASSIGNMENT_TYPE_READER.
-   * Returns assignment type un changed if items community and users community
-   * are same.
+   * Takes the assignment type based on the workflow rules and modifies it based on the user's login
+   * community and item's community. If they are same then returns ASSIGNMENT_TYPE_NONE if input
+   * assignment type is ASSIGNMENT_TYPE_NONE otherwise returns ASSIGNMENT_TYPE_READER if input
+   * assignment type is equal or greater than ASSIGNMENT_TYPE_READER. Returns assignment type un
+   * changed if items community and users community are same.
    *
-   * @param assignmentType  assignment type from workflow rules
-   * @param itemCommunity   items community
-   * @param usersCommunity   users community
-   * @return  assignmentType
-   * @throws            IllegalArgumentException if the username is <CODE>null</CODE>or empty.
+   * @param assignmentType assignment type from workflow rules
+   * @param itemCommunity items community
+   * @param usersCommunity users community
+   * @return assignmentType
+   * @throws IllegalArgumentException if the username is <CODE>null</CODE>or empty.
    */
   public static int modifyAssignmentType(
       int assignmentType, int itemCommunity, int usersCommunity) {
@@ -805,17 +663,13 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Helper function that returns username after last comma.
-   * This is useful when we need to extract actual username out of the
-   * name that is obtainable by user context/username. This has of the form:
-   * host1,host2,host3,host4,username.
+   * Helper function that returns username after last comma. This is useful when we need to extract
+   * actual username out of the name that is obtainable by user context/username. This has of the
+   * form: host1,host2,host3,host4,username.
    *
-   * @deprecated This method was written for the IP Security Provider,
-   * which is no longer supported.
-   *
+   * @deprecated This method was written for the IP Security Provider, which is no longer supported.
    * @author Rammohan Vangapalli
    * @since 2.0
-   *
    */
   public static String filterUserName(String sUserName) {
     /*
@@ -831,17 +685,12 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Gets the descriptive comment for this transition from the HTML Parameter
-   * hash map.
+   * Gets the descriptive comment for this transition from the HTML Parameter hash map.
    *
-   * @param   htmlParams hash map containing the HTML parameters for this
-   *          request
-   *
-   * @return  the descriptive comment for this transition or
-   *          <CODE>null</CODE> if there is no descriptive comment in the
-   *          HTML Parameter hash map, or the comment is empty or consists
-   *          entirely of whitespace.
-   *          May not be more than 255 characters.
+   * @param htmlParams hash map containing the HTML parameters for this request
+   * @return the descriptive comment for this transition or <CODE>null</CODE> if there is no
+   *     descriptive comment in the HTML Parameter hash map, or the comment is empty or consists
+   *     entirely of whitespace. May not be more than 255 characters.
    */
   public static String getTransitionCommentFromHTMLParams(Map<String, Object> htmlParams) {
     String paramName = getTransitionCommentParamName();
@@ -869,13 +718,12 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Sets the descriptive comment for this transition in the HTML Parameter
-   * hash map.
+   * Sets the descriptive comment for this transition in the HTML Parameter hash map.
    *
-   * @param comment The comment, ignored if <code>null</code>, may be empty,
-   * not more than 255 characters.
-   * @param params map containing the HTML parameters for this request, may not
-   * be <code>null</code>.
+   * @param comment The comment, ignored if <code>null</code>, may be empty, not more than 255
+   *     characters.
+   * @param params map containing the HTML parameters for this request, may not be <code>null</code>
+   *     .
    */
   public static void setTransitionCommentInHTMLParams(String comment, Map<String, Object> params) {
     if (comment != null && comment.length() > 255)
@@ -887,8 +735,8 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * All the error and other messages are stored in a resource file. This
-   * static method returns (instantiates if required) the resource bundle.
+   * All the error and other messages are stored in a resource file. This static method returns
+   * (instantiates if required) the resource bundle.
    */
   public static ResourceBundle getResourceBundle() {
     /*
@@ -906,10 +754,9 @@ public class PSWorkFlowUtils {
   /**
    * Gets an iterator over all the installed workflow action extensions.
    *
-   * @return   A non-null Iterator over 0 or more non-null PSExtensionRefs of
-   *           workflow action extensions (extensions that implement
-   *           <CODE>IPSWorkflowAction</CODE>
-   * @throws   PSExtensionException if an error occurs
+   * @return A non-null Iterator over 0 or more non-null PSExtensionRefs of workflow action
+   *     extensions (extensions that implement <CODE>IPSWorkflowAction</CODE>
+   * @throws PSExtensionException if an error occurs
    */
   public static Iterator<PSExtensionRef> getWorkflowActionExtensionRefs()
       throws PSExtensionException {
@@ -923,8 +770,7 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #getContentItemURL(int, int, IPSRequestContext, boolean)
+   * Convenience method that calls {@link #getContentItemURL(int, int, IPSRequestContext, boolean)
    * getContentItemURL(contentID, revisionID, request, false)}
    */
   public static String getContentItemURL(int contentID, int revisionID, IPSRequestContext request)
@@ -935,25 +781,20 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Gets the URL to preview the content item.
-   * Starting from version 4.5 the url generated will be the search url which
-   * when clicked bring the search results with only that content item. Earlier
+   * Gets the URL to preview the content item. Starting from version 4.5 the url generated will be
+   * the search url which when clicked bring the search results with only that content item. Earlier
    * clicking the url was opening content editor.
    *
-   * @param contentID          ID of the content item
-   * @param revisionID         revision ID of the content item
-   * @param request  connection to back-end database
-   * @param overrideCommunity  If <code>true</code>, the community id of the
-   *                           item is appended using the
-   *                           sys_overridecommunityid parameter, which will
-   *                           switch the user to the item's community when
-   *                           they use the url.  Otherwise, it is not.
-   *
-   * @return Unescaped URL String to preview the content item,
-   * <code>null</code> if it could not be generated
-   *
-   * @throws IllegalArgumentException if the request object is null, the
-   *  content ID is invalid, or the revision ID is invalid
+   * @param contentID ID of the content item
+   * @param revisionID revision ID of the content item
+   * @param request connection to back-end database
+   * @param overrideCommunity If <code>true</code>, the community id of the item is appended using
+   *     the sys_overridecommunityid parameter, which will switch the user to the item's community
+   *     when they use the url. Otherwise, it is not.
+   * @return Unescaped URL String to preview the content item, <code>null</code> if it could not be
+   *     generated
+   * @throws IllegalArgumentException if the request object is null, the content ID is invalid, or
+   *     the revision ID is invalid
    * @throws PSAuthenticationFailedException if thrown from internal request
    * @throws PSInternalRequestCallException if thrown from internal request
    * @throws PSAuthorizationException if thrown from internal request
@@ -1106,7 +947,9 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * This method sends an email to passed in email address with given file as attachment, subject and body
+   * This method sends an email to passed in email address with given file as attachment, subject
+   * and body
+   *
    * @param attachment
    * @param subject
    * @param body
@@ -1177,19 +1020,16 @@ public class PSWorkFlowUtils {
   /*  ********* String Methods ********* */
 
   /**
-   * Create a list of the substrings of a string, using a specified delimiter.
-   * Surrounding whitespace is trimmed from each substring. Consecutive
-   * occurrences of the delimiter are ignored.
+   * Create a list of the substrings of a string, using a specified delimiter. Surrounding
+   * whitespace is trimmed from each substring. Consecutive occurrences of the delimiter are
+   * ignored.
    *
-   * @param inString   the string to be tokenized (divided into substrings
-   *                   separated by a delimiter.)
-   * @param delimiter  The delimiter used to tokenize the string.
-   *                   if <CODE>null</CODE> whitespace is used as a delimiter
-   * @return           the list of substrings; will contain no elements if
-   *                   the <CODE>inString</CODE> consists entirely of
-   *                   delimiters.
-   * @throws           IllegalArgumentException if <CODE>inString</CODE> is
-   *                   <CODE>null</CODE> or empty
+   * @param inString the string to be tokenized (divided into substrings separated by a delimiter.)
+   * @param delimiter The delimiter used to tokenize the string. if <CODE>null</CODE> whitespace is
+   *     used as a delimiter
+   * @return the list of substrings; will contain no elements if the <CODE>inString</CODE> consists
+   *     entirely of delimiters.
+   * @throws IllegalArgumentException if <CODE>inString</CODE> is <CODE>null</CODE> or empty
    */
   public static List<String> tokenizeString(String inString, String delimiter) {
     if (null == inString || inString.length() == 0) {
@@ -1212,12 +1052,10 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Creates a <CODE>String</CODE> for the stack trace of a
-   * <CODE>throwable</CODE>.
+   * Creates a <CODE>String</CODE> for the stack trace of a <CODE>throwable</CODE>.
    *
-   * @param throwable Throwable for which stack trace is desired
-   *                  never <CODE>null</CODE>
-   * @return          <CODE>String</CODE> containing the stack trace
+   * @param throwable Throwable for which stack trace is desired never <CODE>null</CODE>
+   * @return <CODE>String</CODE> containing the stack trace
    * @throws IllegalArgumentException if the input is <CODE>null</CODE>
    */
   // TODO: Remove me @SuppressFBWarnings()
@@ -1233,11 +1071,11 @@ public class PSWorkFlowUtils {
 
   /*  ********* Date and Calender Methods ********* */
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param date  date to be turned into a string
-   * @return      string giving date information down to the millisecond
+   * @param date date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Date date) {
     if (null == date) {
@@ -1250,11 +1088,11 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Produces a string giving date information down to the millisecond in the
-   * format mm/dd/yyyy hh:mm:ss:milli.
+   * Produces a string giving date information down to the millisecond in the format mm/dd/yyyy
+   * hh:mm:ss:milli.
    *
-   * @param calendar  calendar specifying date to be turned into a string
-   * @return          string giving date information down to the millisecond
+   * @param calendar calendar specifying date to be turned into a string
+   * @return string giving date information down to the millisecond
    */
   public static String DateString(Calendar calendar) {
     if (null == calendar) {
@@ -1272,38 +1110,36 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Convert a Timestamp to a <CODE>java.sql.Date</CODE>, passing through a
-   * <CODE>null</CODE>  value.
+   * Convert a Timestamp to a <CODE>java.sql.Date</CODE>, passing through a <CODE>null</CODE> value.
    *
-   * @param timestamp  The time value to convert to a
-   *                   <CODE>java.sql.Date</CODE> or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return  corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   * @param timestamp The time value to convert to a <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   *     if no corresponding time exists.
+   * @return corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
    */
   public static Date sqlDateFromTimestamp(Timestamp timestamp) {
     return (null == timestamp) ? null : new Date(timestamp.getTime());
   }
 
   /**
-   * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a
-   * <CODE>null</CODE>  value.
+   * Convert a <CODE>java.util.Date</CODE> to aTimestamp to passing through a <CODE>null</CODE>
+   * value.
    *
-   * @param date  The<CODE>java.util.Date</CODE to convert to a Timestamp
-   *              or <CODE>null</CODE> if the date is <CODE>null</CODE>
-   * @return      corresponding Timestamp or <CODE>null</CODE>
+   * @param date The<CODE>java.util.Date</CODE to convert to a Timestamp
+   *              or <CODE>
+   *     null</CODE> if the date is <CODE>null</CODE>
+   * @return corresponding Timestamp or <CODE>null</CODE>
    */
   public static Timestamp timestampFromDate(java.util.Date date) {
     return (null == date) ? null : new Timestamp(date.getTime());
   }
 
   /**
-   * Convert a Calendar time to a <CODE>java.sql.Date</CODE>, passing through
-   * a <CODE>null</CODE> value.
+   * Convert a Calendar time to a <CODE>java.sql.Date</CODE>, passing through a <CODE>null</CODE>
+   * value.
    *
-   * @param calendar  The calendar with the time value to convert to a
-   *                   <CODE>java.sql.Date</CODE> or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return  corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
+   * @param calendar The calendar with the time value to convert to a <CODE>java.sql.Date</CODE> or
+   *     <CODE>null</CODE> if no corresponding time exists.
+   * @return corresponding <CODE>java.sql.Date</CODE> or <CODE>null</CODE>
    */
   public static Date sqlDateFromCalendar(Calendar calendar) {
     /*
@@ -1315,17 +1151,15 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Return a Calendar with time equal to a <CODE>java.util.Date</CODE>,
-   * passing through a <CODE>null</CODE> a value, possibly making use of
-   * an existing Calendar
+   * Return a Calendar with time equal to a <CODE>java.util.Date</CODE>, passing through a <CODE>
+   * null</CODE> a value, possibly making use of an existing Calendar
    *
-   * @param calendar  The calendar for which the time value to convert to a
-   *                   <CODE>java.util.Date</CODE> or <CODE>null</CODE> if no
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set,  or <CODE>null</CODE> if no
-   *                   corresponding time exists.
-   * @return          <CODE>Calendar</CODE> with time set to the given
-   *                  <CODE>java.util.Date</CODE> or <CODE>null</CODE>
+   * @param calendar The calendar for which the time value to convert to a <CODE>java.util.Date
+   *     </CODE> or <CODE>null</CODE> if no
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set, or <CODE>
+   *     null</CODE> if no corresponding time exists.
+   * @return <CODE>Calendar</CODE> with time set to the given <CODE>java.util.Date</CODE> or <CODE>
+   *     null</CODE>
    */
   public static Calendar calendarFromDate(Calendar calendar, java.util.Date date) {
     if (null == date) {
@@ -1341,14 +1175,11 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Find the difference in milliseconds between the time values of two
-   * calenders.
+   * Find the difference in milliseconds between the time values of two calenders.
    *
-   * @param calendar1  calendar with time to subtract from,
-   *                   never <CODE>null</CODE>
-   * @param calendar2  calendar with time to be subtracted
-   *                   never <CODE>null</CODE>
-   * @return  difference in milliseconds between the time values
+   * @param calendar1 calendar with time to subtract from, never <CODE>null</CODE>
+   * @param calendar2 calendar with time to be subtracted never <CODE>null</CODE>
+   * @return difference in milliseconds between the time values
    */
   public static long timeDiffMillis(Calendar calendar1, Calendar calendar2) {
     long time1 = 0;
@@ -1369,14 +1200,11 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Find the difference in seconds between the time values of two
-   * calenders.
+   * Find the difference in seconds between the time values of two calenders.
    *
-   * @param calendar1  calendar with time to subtract from,
-   *                   never <CODE>null</CODE>
-   * @param calendar2  calendar with time to be subtracted
-   *                   never <CODE>null</CODE>
-   * @return  difference in seconds between the time values
+   * @param calendar1 calendar with time to subtract from, never <CODE>null</CODE>
+   * @param calendar2 calendar with time to be subtracted never <CODE>null</CODE>
+   * @return difference in seconds between the time values
    */
   public static long timeDiffSecs(Calendar calendar1, Calendar calendar2) {
 
@@ -1392,12 +1220,11 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Find the difference in seconds between the time values of two
-   * calenders.
+   * Find the difference in seconds between the time values of two calenders.
    *
-   * @param date1  time to subtract from, never <CODE>null</CODE>
-   * @param date2  time to be subtracted, never <CODE>null</CODE>
-   * @return  difference in seconds between the time values
+   * @param date1 time to subtract from, never <CODE>null</CODE>
+   * @param date2 time to be subtracted, never <CODE>null</CODE>
+   * @return difference in seconds between the time values
    */
   public static long timeDiffSecs(java.util.Date date1, java.util.Date date2) {
     long time1 = 0;
@@ -1418,19 +1245,16 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Return a Calendar with time equal to a <CODE>java.util.Date</CODE>,
-   * incremented by a time interval (in minutes), possibly making use of
-   * an existing Calendar
+   * Return a Calendar with time equal to a <CODE>java.util.Date</CODE>, incremented by a time
+   * interval (in minutes), possibly making use of an existing Calendar
    *
-   * @param calendar  The calendar for which the time value to convert to a
-   *                   <CODE>java.util.Date</CODE> or <CODE>null</CODE> if no
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>Calendar</CODE> with the desired time set.
+   * @param calendar The calendar for which the time value to convert to a <CODE>java.util.Date
+   *     </CODE> or <CODE>null</CODE> if no
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set. may not
+   *     be <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>Calendar</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static Calendar incrementCalendar(Calendar calendar, java.util.Date date, int interval) {
     if (null == date) {
@@ -1444,16 +1268,14 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Return a date with time equal to a <CODE>java.sql.Date</CODE>,
-   * incremented by a time interval (in minutes)
+   * Return a date with time equal to a <CODE>java.sql.Date</CODE>, incremented by a time interval
+   * (in minutes)
    *
-   * @param date      The <CODE>java.sql.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>java.sql.Date</CODE> with the desired time set.
+   * @param date The <CODE>java.sql.Date</CODE> to which the Calendar time should be set. may not be
+   *     <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>java.sql.Date</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static Date incrementDate(Date date, int interval) {
     if (null == date) {
@@ -1467,16 +1289,14 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Return a date with time equal to a <CODE>java.util.Date</CODE>,
-   * incremented by a time interval (in minutes)
+   * Return a date with time equal to a <CODE>java.util.Date</CODE>, incremented by a time interval
+   * (in minutes)
    *
-   * @param date      The <CODE>java.util.Date</CODE> to which the Calendar
-   *                  time should be set. may not be <CODE>null</CODE>
-   * @param interval  Time interval in minutes by which date should be
-   *                  incremented.
-   * @return          <CODE>java.util.Date</CODE> with the desired time set.
+   * @param date The <CODE>java.util.Date</CODE> to which the Calendar time should be set. may not
+   *     be <CODE>null</CODE>
+   * @param interval Time interval in minutes by which date should be incremented.
+   * @return <CODE>java.util.Date</CODE> with the desired time set.
    * @throws IllegalArgumentException if the date is <CODE>null</CODE>.
-   *
    */
   public static java.util.Date incrementDate(java.util.Date date, int interval) {
     if (null == date) {
@@ -1490,14 +1310,11 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed
-   * string is empty.
+   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed string is empty.
    *
-   * @param string  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   <CODE>null</CODE> if the input string is <CODE>null</CODE>,
-   *           or is empty after trimming.
-   *           Otherwise, return the trimmed string.
+   * @param string string to be trimmed. May be <CODE>null</CODE>
+   * @return <CODE>null</CODE> if the input string is <CODE>null</CODE>, or is empty after trimming.
+   *     Otherwise, return the trimmed string.
    */
   public static String trimmedOrNullString(String string) {
     String trimmedString = (null == string) ? null : string.trim();
@@ -1506,12 +1323,10 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Trim a non-null string, and return an empty string if the input string is
-   * empty.
+   * Trim a non-null string, and return an empty string if the input string is empty.
    *
-   * @param string  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   an empty string ("") if the input string is <CODE>null</CODE>
+   * @param string string to be trimmed. May be <CODE>null</CODE>
+   * @return an empty string ("") if the input string is <CODE>null</CODE>
    */
   public static String trimmedOrEmptyString(String string) {
     if (null == string) {
@@ -1523,12 +1338,12 @@ public class PSWorkFlowUtils {
 
   /*  ********* List Methods ********* */
   /**
-   * Create a list from an array of objects with primitives replaced by
-   * wrapper classes (e.g. int replaced by Integer)
+   * Create a list from an array of objects with primitives replaced by wrapper classes (e.g. int
+   * replaced by Integer)
    *
-   * @param array  array of objects
-   * @return       corresponding list, with primitives replaced by wrapper
-   *               classes, empty list if input array is <CODE>null</CODE>
+   * @param array array of objects
+   * @return corresponding list, with primitives replaced by wrapper classes, empty list if input
+   *     array is <CODE>null</CODE>
    */
   public static List arrayToList(Object array) {
     List newList = new ArrayList();
@@ -1544,9 +1359,9 @@ public class PSWorkFlowUtils {
   /**
    * Creates a lower case version of a list of strings.
    *
-   * @param inputList  list of strings,can be <code>null</code>
-   * @return           list with items in lower case, or <CODE>null</CODE> if
-   *                   original list was <CODE>null</CODE>.
+   * @param inputList list of strings,can be <code>null</code>
+   * @return list with items in lower case, or <CODE>null</CODE> if original list was <CODE>null
+   *     </CODE>.
    */
   static List lowerCaseList(List inputList) {
     if (null == inputList) {
@@ -1570,18 +1385,15 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a list by applying a boolean map to the members of a list and
-   * retaining only items which map to <CODE>true</CODE>.
+   * Create a list by applying a boolean map to the members of a list and retaining only items which
+   * map to <CODE>true</CODE>.
    *
-   * @param inputList  list of <CODE>Objects</CODE>, can be <code>null</code>
-   * @param map        map with <CODE>Boolean</CODE> values,
-   *                   <CODE>true</CODE> if objects with the corresponding
-   *                   key should be retained, else <CODE>false</CODE>
-   * @return           list resulting from application of the map to the list,
-   *                   retaining only items which map to <CODE>true</CODE>.
-   *                   Return <CODE>null</CODE> if the
-   *                   original list was <CODE>null</CODE> or the map was
-   *                   <CODE>null</CODE> or empty.
+   * @param inputList list of <CODE>Objects</CODE>, can be <code>null</code>
+   * @param map map with <CODE>Boolean</CODE> values, <CODE>true</CODE> if objects with the
+   *     corresponding key should be retained, else <CODE>false</CODE>
+   * @return list resulting from application of the map to the list, retaining only items which map
+   *     to <CODE>true</CODE>. Return <CODE>null</CODE> if the original list was <CODE>null</CODE>
+   *     or the map was <CODE>null</CODE> or empty.
    */
   public static List filterList(List inputList, Map map) {
     if (null == inputList || null == map || map.isEmpty()) {
@@ -1608,17 +1420,16 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * This is a utility method that was put in place because of the way roles
-   * are dealt with for transitions.  In some places the role name is used,
-   * in others the role id is used.  A has been used throughout with the id
-   * as the key and the role name as the value.  There are places where a role
-   * id is needed but all that is available is the map and the name, so this
-   * method provides a solution for that.
+   * This is a utility method that was put in place because of the way roles are dealt with for
+   * transitions. In some places the role name is used, in others the role id is used. A has been
+   * used throughout with the id as the key and the role name as the value. There are places where a
+   * role id is needed but all that is available is the map and the name, so this method provides a
+   * solution for that.
    *
-   * @param roleMap a map with its key being an <code>Integer</code> and the
-   * value being a <code>String</code>. Must not be <code>null</code>.
+   * @param roleMap a map with its key being an <code>Integer</code> and the value being a <code>
+   *     String</code>. Must not be <code>null</code>.
    * @param value the value whose id is needed.
-   * @return the key if found.  -1 if not found.
+   * @return the key if found. -1 if not found.
    */
   public static int getRoleIdFromMap(Map roleMap, String value) {
     if (roleMap == null || value == null || value.trim().length() == 0)
@@ -1646,16 +1457,14 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a list by applying a map to the members of a list and discarding
-   * items which are not keys in the map, or which map to <CODE>null</CODE>.
+   * Create a list by applying a map to the members of a list and discarding items which are not
+   * keys in the map, or which map to <CODE>null</CODE>.
    *
-   * @param inputList  list of <CODE>Objects</CODE>
-   * @param map        map to be applied to objects
-   * @return           list resulting from application of the map to the list,
-   *                   discarding <CODE>null</CODE>s
-   *                   Return <CODE>null</CODE> if the
-   *                   original list was <CODE>null</CODE> or the map was
-   *                   <CODE>null</CODE> or empty.
+   * @param inputList list of <CODE>Objects</CODE>
+   * @param map map to be applied to objects
+   * @return list resulting from application of the map to the list, discarding <CODE>null</CODE>s
+   *     Return <CODE>null</CODE> if the original list was <CODE>null</CODE> or the map was <CODE>
+   *     null</CODE> or empty.
    */
   public static <V, K> List<V> applyMapList(List<K> inputList, Map<K, V> map) {
     if (null == inputList || null == map || map.isEmpty()) {
@@ -1682,17 +1491,15 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a list that contains only strings from an existing list which are
-   * unique under case-insensitive comparison, retaining the first occurrence
-   * of any item, and discarding <CODE>null</CODE> strings. Leading and
-   * trailing whitespace is trimmed from strings.
-   * to <CODE>null</CODE>.
+   * Create a list that contains only strings from an existing list which are unique under
+   * case-insensitive comparison, retaining the first occurrence of any item, and discarding <CODE>
+   * null</CODE> strings. Leading and trailing whitespace is trimmed from strings. to <CODE>null
+   * </CODE>.
    *
-   * @param inputList  list of <CODE>Strings</CODE>
-   * @return           list that contains only strings from the input list
-   * which are unique under case-insensitive comparison, retaining the first
-   * occurrence of any item, and discarding <CODE>null</CODE> strings.
-   * Returns <CODE>null</CODE> if the original list is null.
+   * @param inputList list of <CODE>Strings</CODE>
+   * @return list that contains only strings from the input list which are unique under
+   *     case-insensitive comparison, retaining the first occurrence of any item, and discarding
+   *     <CODE>null</CODE> strings. Returns <CODE>null</CODE> if the original list is null.
    */
   public static List<String> caseInsensitiveUniqueList(List<String> inputList) {
     HashMap<String, String> localMap = new HashMap<>();
@@ -1729,17 +1536,15 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a list that contains only strings from an existing list which are
-   * unique under case-insensitive comparison, retaining the first occurrence
-   * of any item, and discarding <CODE>null</CODE> strings. Leading and
-   * trailing whitespace is trimmed from strings.
-   * to <CODE>null</CODE>.
+   * Create a list that contains only strings from an existing list which are unique under
+   * case-insensitive comparison, retaining the first occurrence of any item, and discarding <CODE>
+   * null</CODE> strings. Leading and trailing whitespace is trimmed from strings. to <CODE>null
+   * </CODE>.
    *
-   * @param inputList  list of <CODE>PSNotificationEmailAddress</CODE>
-   * @return           list that contains only strings from the input list
-   * which are unique under case-insensitive comparison, retaining the first
-   * occurrence of any item, and discarding <CODE>null</CODE> strings.
-   * Returns <CODE>null</CODE> if the original list is null.
+   * @param inputList list of <CODE>PSNotificationEmailAddress</CODE>
+   * @return list that contains only strings from the input list which are unique under
+   *     case-insensitive comparison, retaining the first occurrence of any item, and discarding
+   *     <CODE>null</CODE> strings. Returns <CODE>null</CODE> if the original list is null.
    */
   public static List<PSNotificationEmailAddress> caseInsensitiveUniqueEmailList(
       List<PSNotificationEmailAddress> inputList) {
@@ -1779,15 +1584,13 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Intersect 2 lists, returning a list consisting of all elements of the
-   * first list that are contained in the second list, or <CODE>null</CODE>
-   * if either list is empty.
+   * Intersect 2 lists, returning a list consisting of all elements of the first list that are
+   * contained in the second list, or <CODE>null</CODE> if either list is empty.
    *
-   * @param list1  first list
-   * @param list2  second list
-   * @return       a list consisting of all elements of the
-   * first list that are contained in the second list, or <CODE>null</CODE>
-   * if either list is empty.
+   * @param list1 first list
+   * @param list2 second list
+   * @return a list consisting of all elements of the first list that are contained in the second
+   *     list, or <CODE>null</CODE> if either list is empty.
    */
   public static List intersectLists(List list1, List list2) {
     if (null == list1 || null == list2) {
@@ -1811,22 +1614,18 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed
-   * string is empty.
+   * Trim a non-null string, and return <CODE>null</CODE> if the trimmed string is empty.
    *
-   * @param obj  string to be trimmed. May be <CODE>null</CODE>
-   *
-   * @return   <CODE>null</CODE> if the input string is <CODE>null</CODE>,
-   *           or is empty after trimming.
-   *           Otherwise, return the trimmed string.
+   * @param obj string to be trimmed. May be <CODE>null</CODE>
+   * @return <CODE>null</CODE> if the input string is <CODE>null</CODE>, or is empty after trimming.
+   *     Otherwise, return the trimmed string.
    */
   public static String toStringHandleNull(Object obj, String stringForNull) {
     return (null == obj) ? stringForNull : obj.toString();
   }
 
   /**
-   * Convenience method. Calls
-   * {@link #listToDelimitedString(List,String,String)
+   * Convenience method. Calls {@link #listToDelimitedString(List,String,String)
    * listToDelimitedString(list, delimiter, "")}
    */
   public static String listToDelimitedString(List list, String delimiter) {
@@ -1834,14 +1633,12 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a string by concatenating the string representations of the
-   * elements of an array list, separating the substrings by a delimiter.
+   * Create a string by concatenating the string representations of the elements of an array list,
+   * separating the substrings by a delimiter.
    *
-   * @param  list       the array list from which the string will be created
-   * @param  delimiter  the delimiter used to separate the substrings
-   *                    can be empty ("").
-   * @throws IllegalArgumentException if list is <CODE>null</CODE> or
-   * empty.
+   * @param list the array list from which the string will be created
+   * @param delimiter the delimiter used to separate the substrings can be empty ("").
+   * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
   public static String listToDelimitedString(
       List<String> list, String delimiter, String stringForNull) {
@@ -1872,14 +1669,12 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Create a string by concatenating the string representations of the
-   * elements of an array list, separating the substrings by a delimiter.
+   * Create a string by concatenating the string representations of the elements of an array list,
+   * separating the substrings by a delimiter.
    *
-   * @param  list       the array list from which the string will be created
-   * @param  delimiter  the delimiter used to separate the substrings
-   *                    can be empty ("").
-   * @throws IllegalArgumentException if list is <CODE>null</CODE> or
-   * empty.
+   * @param list the array list from which the string will be created
+   * @param delimiter the delimiter used to separate the substrings can be empty ("").
+   * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
   public static String emailListToDelimitedString(
       List<PSNotificationEmailAddress> list, String delimiter, String stringForNull) {
@@ -1910,20 +1705,19 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Tests if the currently processed item was transitioned into a public
-   * workflow state. The request parameters <code>sys_contentid</code> and
-   * <code>IPSConstants.DEFAULT_NEWSTATEID_NAME</code> are required.
+   * Tests if the currently processed item was transitioned into a public workflow state. The
+   * request parameters <code>sys_contentid</code> and <code>IPSConstants.DEFAULT_NEWSTATEID_NAME
+   * </code> are required.
    *
    * @param request the request to operate on, not <code>null</code>.
-   * @param params the request parameters if <code>inherit</code> if
-   *    <code>false</code>, additional parameters if <code>inherit</code> is
-   *    <code>true</code>, may be <code>null</code> or empty.
-   * @param inherit <code>true</code> to inherit the parameters from the
-   *    supplied request, <code>false</code> otherwise.
-   * @return <code>true</code> if the current item was transitioned into a
-   *    public state, <code>false</code> otherwise.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @param params the request parameters if <code>inherit</code> if <code>false</code>, additional
+   *     parameters if <code>inherit</code> is <code>true</code>, may be <code>null</code> or empty.
+   * @param inherit <code>true</code> to inherit the parameters from the supplied request, <code>
+   *     false</code> otherwise.
+   * @return <code>true</code> if the current item was transitioned into a public state, <code>false
+   *     </code> otherwise.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static boolean isPublicState(IPSRequestContext request, Map params, boolean inherit)
@@ -1952,12 +1746,12 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Tests if the currently processed item is in the public state.
-   * The request parameter <code>sys_contentid</code> is required.
+   * Tests if the currently processed item is in the public state. The request parameter <code>
+   * sys_contentid</code> is required.
    *
    * @param request the request to operate on, not <code>null</code>.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static boolean isInPublicState(IPSRequestContext request)
@@ -1987,13 +1781,13 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Tests if the supplied contentid is in the public state.
-   * The request parameter <code>sys_contentid</code> is required.
+   * Tests if the supplied contentid is in the public state. The request parameter <code>
+   * sys_contentid</code> is required.
    *
    * @param request the request to operate on, not <code>null</code>.
    * @param contentid to test for public state, must be a valid contentid.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static boolean isInPublicState(IPSRequestContext request, int contentid)
@@ -2023,14 +1817,13 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Tests whether the workflow action of the supplied request is
-   * a transition to a public state.
+   * Tests whether the workflow action of the supplied request is a transition to a public state.
    *
    * @param request the request to test, not <code>null</code>.
-   * @return <code>true</code> if the workflow action is a transition to a
-   *    public state, <code>false</code> otherwise.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @return <code>true</code> if the workflow action is a transition to a public state, <code>false
+   *     </code> otherwise.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static boolean toPublicState(IPSRequestContext request)
@@ -2063,9 +1856,9 @@ public class PSWorkFlowUtils {
 
   /**
    * Get the property of the specified property.
+   *
    * @param name the name of the property, never <code>null</code>.
-   * @return the value of the property, may be <code>null</code> if the
-   *    property does not exist.
+   * @return the value of the property, may be <code>null</code> if the property does not exist.
    */
   public static String getProperty(String name) {
     if (StringUtils.isBlank(name)) throw new IllegalArgumentException("name may not be null.");
@@ -2089,10 +1882,7 @@ public class PSWorkFlowUtils {
     storeProperty();
   }
 
-  /**
-   * Stores the property file.
-   *
-   */
+  /** Stores the property file. */
   private static synchronized void storeProperty() {
     try {
       File confFile =
@@ -2109,6 +1899,7 @@ public class PSWorkFlowUtils {
 
   /**
    * Determines if ssl should be used by notification during link generation.
+   *
    * @return <code>true</code> if ssl is enabled, <code>false</code> otherwise.
    */
   public static boolean isSSLEnabledForNotification() {
@@ -2142,7 +1933,6 @@ public class PSWorkFlowUtils {
    * Loads the specified default workflow by name.
    *
    * @param wfName the name of the (default) workflow in question, assumed not blank.
-   *
    * @return the workflow, never <code>null</code>.
    */
   private static PSWorkflow loadDefaultWorkflow(String wfName)
@@ -2159,9 +1949,8 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Encrypts the rxworkflow.properties file with
-   * any property added to the <code>encryptProps</code>
-   * array.
+   * Encrypts the rxworkflow.properties file with any property added to the <code>encryptProps
+   * </code> array.
    */
   private static void encryptWorkflowProps() {
     Collection<String> props = new ArrayList<String>();
@@ -2176,20 +1965,15 @@ public class PSWorkFlowUtils {
 
   /**
    * Get allowed transitions for the specified user and item.
+   *
    * @param contentId The id of the item to get transitions for.
-   * @param userName The name of the user to check for, may not be
-   * <code>null</code> or empty.
-   * @param roles A list of the user's roles, not <code>null</code>, may be
-   * empty.
+   * @param userName The name of the user to check for, may not be <code>null</code> or empty.
+   * @param roles A list of the user's roles, not <code>null</code>, may be empty.
    * @param commId The user's current community.
-   *
-   * @return A list of allowed transition objects, never <code>null</code>,
-   * may be empty.
-   *
-   * @throws NamingException If there is a problem obtaining a database
-   * connection.
-   * @throws PSEntryNotFoundException If the content status entry for the
-   * specified item cannot be located.
+   * @return A list of allowed transition objects, never <code>null</code>, may be empty.
+   * @throws NamingException If there is a problem obtaining a database connection.
+   * @throws PSEntryNotFoundException If the content status entry for the specified item cannot be
+   *     located.
    * @throws PSORMException If there are errors loading the workflow definition.
    * @throws SQLException If there are any other errors accessing the database.
    */
@@ -2216,19 +2000,14 @@ public class PSWorkFlowUtils {
   /**
    * Get allowed transitions for the specified user and item.
    *
-   * @param csc The content status context of the item, assumed not
-   * <code>null</code>.
+   * @param csc The content status context of the item, assumed not <code>null</code>.
    * @param conn The connection to use, assumed not <code>null</code>.
-   * @param userName The name of the user, assumed not <code>null</code> or
-   * empty.
-   * @param isAdmin <code>true</code> if the user has workflow administrator
-   * privileges, <code>false</code> otherwise.
-   * @param actorRoles A comma-delimited list of the user's roles, assumed not
-   * <code>null</code>, may be empty.
-   *
-   * @return A list of allowed transition objects, never <code>null</code>,
-   * may be empty.
-   *
+   * @param userName The name of the user, assumed not <code>null</code> or empty.
+   * @param isAdmin <code>true</code> if the user has workflow administrator privileges, <code>false
+   *     </code> otherwise.
+   * @param actorRoles A comma-delimited list of the user's roles, assumed not <code>null</code>,
+   *     may be empty.
+   * @return A list of allowed transition objects, never <code>null</code>, may be empty.
    * @throws SQLException If there are errors accessing the database.
    */
   @SuppressWarnings("unchecked")
@@ -2300,15 +2079,15 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Checks to see if all the roles specified for the user that match with the
-   * list of roles supplied on the transition context.
+   * Checks to see if all the roles specified for the user that match with the list of roles
+   * supplied on the transition context.
+   *
    * @param cac The current approval context, assumed not <code>null</code>.
    * @param tc The current transition context, assumed not <code>null</code>.
-   * @param roleList The comma delimited list of user role names, assumed not
-   * <code>null</code> or empty.
-   *
-   * @return <code>false</code> if at least 1 role that exists in the
-   * transition context has not been acted, <code>true</code> otherwise.
+   * @param roleList The comma delimited list of user role names, assumed not <code>null</code> or
+   *     empty.
+   * @return <code>false</code> if at least 1 role that exists in the transition context has not
+   *     been acted, <code>true</code> otherwise.
    */
   private static boolean hasRolesActed(
       PSContentApprovalsContext cac, PSTransitionsContext tc, String roleList) {
@@ -2332,16 +2111,11 @@ public class PSWorkFlowUtils {
   /**
    * Determine if the specified user is a workflow administrator.
    *
-   * @param csc The content status context to use, assumed not
-   * <code>null</code> and to have been closed already.
-   * @param userName The user to check, assumed not <code>null</code> or
-   * empty.
-   * @param roleNameList A comma delimited list of the user's roles, assumed
-   * not <code>null</code>.
-   *
-   * @return <code>true</code> if the user is an admin, <code>false</code>
-   * if not.
-   *
+   * @param csc The content status context to use, assumed not <code>null</code> and to have been
+   *     closed already.
+   * @param userName The user to check, assumed not <code>null</code> or empty.
+   * @param roleNameList A comma delimited list of the user's roles, assumed not <code>null</code>.
+   * @return <code>true</code> if the user is an admin, <code>false</code> if not.
    * @throws SQLException If there are any other database errors.
    */
   public static boolean isAdmin(PSContentStatusContext csc, String userName, String roleNameList)
@@ -2372,8 +2146,9 @@ public class PSWorkFlowUtils {
   }
 
   /**
-   * Determine if notifications are in test run mode.  In test run mode notifications are logged
-   * to a file and no email notifications are actually sent. Defaults to off/ no / false
+   * Determine if notifications are in test run mode. In test run mode notifications are logged to a
+   * file and no email notifications are actually sent. Defaults to off/ no / false
+   *
    * @return
    */
   public static boolean isTestRunModeEnabled() {
@@ -2385,14 +2160,12 @@ public class PSWorkFlowUtils {
         || val.equalsIgnoreCase("true");
   }
 
-  /**
-   * The logger
-   */
+  /** The logger */
   private static final Logger log = LogManager.getLogger(IPSConstants.WORKFLOW_LOG);
 
   /**
-   * When test run mode is enabled for notifications, writes all notifications
-   * to the test run log.
+   * When test run mode is enabled for notifications, writes all notifications to the test run log.
+   *
    * @param messageContext a message context with prepared email messages to send.
    */
   public static synchronized void logTestRunNotifications(IPSMailMessageContext messageContext) {

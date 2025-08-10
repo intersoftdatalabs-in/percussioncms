@@ -27,14 +27,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * PSRxFix will run the RxFix tool with a set of modules for database
- * consistency.  The set of modules executed are defined by
- * {@link #m_fixModules}.
+ * PSRxFix will run the RxFix tool with a set of modules for database consistency. The set of
+ * modules executed are defined by {@link #m_fixModules}. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -51,7 +48,6 @@ import java.util.List;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSRxFix extends PSAction {
   // see base class
@@ -113,16 +109,12 @@ public class PSRxFix extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /**
-   * Accessor for the fix modules property
-   */
+  /** Accessor for the fix modules property */
   public String[] getFixModules() {
     return m_fixModules;
   }
 
-  /**
-   * Mutator for the fix modules property.
-   */
+  /** Mutator for the fix modules property. */
   public void setFixModules(String fixModules) {
     m_fixModules = convertToArray(fixModules);
   }
@@ -131,9 +123,7 @@ public class PSRxFix extends PSAction {
    * Bean properties
    ***************************************************************************/
 
-  /**
-   * The list of RxFix modules to be executed.
-   */
+  /** The list of RxFix modules to be executed. */
   private String m_fixModules[] = new String[0];
 
   /**************************************************************************

@@ -21,8 +21,8 @@ import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Represents a workflow in the system. This object is not cached at this time
- * as it may be updated via the XML applications.
+ * Represents a workflow in the system. This object is not cached at this time as it may be updated
+ * via the XML applications.
  */
 public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
   private int m_nWorkflowAppID = 0;
@@ -31,9 +31,7 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
   private String m_sWorkflowAppDesc = "";
   private int m_initialStateId = 0;
 
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSWorkflowAppsContext() {}
 
   /**
@@ -53,7 +51,8 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Gets the Workflow application ID
-   * @return  Workflow app name
+   *
+   * @return Workflow app name
    */
   public int getWorkFlowAppID() {
     return m_nWorkflowAppID;
@@ -61,6 +60,7 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Set the new workflow app id
+   *
    * @param newid the new id
    */
   public void setWorkFlowAppID(int newid) {
@@ -69,7 +69,8 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Gets the Workflow application name
-   * @return  Workflow app name
+   *
+   * @return Workflow app name
    */
   public String getWorkFlowAppName() {
     return m_sWorkflowAppName;
@@ -77,6 +78,7 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Set the new workflow name
+   *
    * @param name the new name, never <code>null</code> or empty
    */
   public void setWorkFlowAppName(String name) {
@@ -88,8 +90,8 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Gets the Workflow application description
-   * @return  Workflow app description
    *
+   * @return Workflow app description
    */
   public String getWorkFlowAppDescription() {
     return m_sWorkflowAppDesc;
@@ -97,6 +99,7 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Set a new description
+   *
    * @param desc the new description, may be <code>null</code> or empty
    */
   public void setWorkFlowAppDescription(String desc) {
@@ -105,7 +108,8 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Gets the Workflow application's administrator name
-   * @return  name of the Workflow application's administrator
+   *
+   * @return name of the Workflow application's administrator
    */
   public String getWorkFlowAdministrator() {
     return m_sWorkflowAppAdmin;
@@ -113,6 +117,7 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Set a new administrator
+   *
    * @param admin the new admin name, never <code>null</code> or empty
    */
   public void setWorkFlowAdministrator(String admin) {
@@ -124,7 +129,8 @@ public class PSWorkflowAppsContext implements IPSWorkflowAppsContext {
 
   /**
    * Gets the Workflow application's initial stateID
-   * @return  Workflow's initial stateID
+   *
+   * @return Workflow's initial stateID
    */
   public int getWorkFlowInitialStateID() throws SQLException {
     return m_initialStateId;

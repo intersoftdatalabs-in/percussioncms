@@ -46,24 +46,19 @@ public class PSIndexStatistics {
     m_columns = new ArrayList<>();
   }
 
-  /**
-   * Is this a unique index?
-   */
+  /** Is this a unique index? */
   public boolean isUnique() {
     return m_isUnique;
   }
 
-  /**
-   * Get the name of the index
-   */
+  /** Get the name of the index */
   public String getIndexName() {
     return m_indexName;
   }
 
   /**
-   * Get the names of the columns this index sorts on. The first column
-   * in the returned array is the first sorted column, the second is the
-   * second, etc.
+   * Get the names of the columns this index sorts on. The first column in the returned array is the
+   * first sorted column, the second is the second, etc.
    */
   public String[] getSortedColumns() {
     if (m_columns == null) {
@@ -74,31 +69,27 @@ public class PSIndexStatistics {
     return ret;
   }
 
-  /**
-   * Get the DatabaseMetaData.tableIndexXXX type of this index.
-   */
+  /** Get the DatabaseMetaData.tableIndexXXX type of this index. */
   public short getIndexType() {
     return m_indexType;
   }
 
   /**
-   * Get the cardinality of this index. If type is tableIndexStatistic
-   * this is the number of rows in the table, otherwise it is the number
-   * of unique values in this index.
+   * Get the cardinality of this index. If type is tableIndexStatistic this is the number of rows in
+   * the table, otherwise it is the number of unique values in this index.
    */
   public int getCardinality() {
     return m_cardinality;
   }
 
-  /**
-   * Get the back-end table this index is on.
-   */
+  /** Get the back-end table this index is on. */
   public PSBackEndTable getTable() {
     return m_table;
   }
 
   /**
    * Indicates whether or not a table is actually a view.
+   *
    * @param table the PSBackEndTable in question.
    * @param md the database meta data object for this database.
    * @return <code>true</code> if the table is a view, else <code>false</code>.
@@ -129,14 +120,10 @@ public class PSIndexStatistics {
   /**
    * Get information about the indices associated with a table.
    *
-   * @param   table the table to check, may not be <code>null</code>.
-   *
-   * @param   md The database meta data
-   *
-   * @return  an array containing the index statistics, may return
-   * <code>null</code>.
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param table the table to check, may not be <code>null</code>.
+   * @param md The database meta data
+   * @return an array containing the index statistics, may return <code>null</code>.
+   * @exception SQLException if a SQL error occurs
    */
   public static PSIndexStatistics[] getStatistics(PSBackEndTable table, DatabaseMetaData md)
       throws SQLException {
@@ -225,8 +212,6 @@ public class PSIndexStatistics {
   private int m_cardinality;
   private PSBackEndTable m_table;
 
-  /**
-   * the log4j logger used for this class
-   */
+  /** the log4j logger used for this class */
   private static Logger ms_logger = LogManager.getLogger("GetTableIndexInfo");
 }

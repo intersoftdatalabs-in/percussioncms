@@ -28,16 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Utility class to build and write a DTD.  Does not support mixed content
- * models or attributes at this time.
+ * Utility class to build and write a DTD. Does not support mixed content models or attributes at
+ * this time.
  */
 public class PSDtdBuilder {
   /**
-   * Constructor for this class.  Creates a DTD with the specified root
-   * element.
+   * Constructor for this class. Creates a DTD with the specified root element.
    *
-   * @param rootName The name of the root.  May not be <code>null</code>
-   * or <code>zero</code>-length.
+   * @param rootName The name of the root. May not be <code>null</code> or <code>zero</code>-length.
    */
   public PSDtdBuilder(String rootName) {
     if (rootName == null || rootName.length() == 0)
@@ -48,26 +46,24 @@ public class PSDtdBuilder {
   }
 
   /**
-   * Creates an element with the specified name and appends
-   * it to the parent's list of child elements with the specified occurence.
-   * The same child element name may be added to multiple parents, using a
-   * different occurence if desired.
+   * Creates an element with the specified name and appends it to the parent's list of child
+   * elements with the specified occurence. The same child element name may be added to multiple
+   * parents, using a different occurence if desired.
    *
-   * @param name The name of the element.  May not be <code>null</code>.
-   * @param occurence The occurence type.  Once of the following:
-   * <ol>
-   * <li>{@link #OCCURS_ONCE}</li>
-   * <li>{@link #OCCURS_OPTIONAL}</li>
-   * <li>{@link #OCCURS_ATLEASTONCE}</li>
-   * <li>{@link #OCCURS_ANY}</li>
-   * </ol>
-   * @param parent The child will be added to the parent with this name. May
-   * not be <code>null</code> and must already exist in this dtd.
+   * @param name The name of the element. May not be <code>null</code>.
+   * @param occurence The occurence type. Once of the following:
+   *     <ol>
+   *       <li>{@link #OCCURS_ONCE}
+   *       <li>{@link #OCCURS_OPTIONAL}
+   *       <li>{@link #OCCURS_ATLEASTONCE}
+   *       <li>{@link #OCCURS_ANY}
+   *     </ol>
    *
-   * @throws IllegalArgumentException if name or parent is
-   * <code>null</code>, parent is not an existing element,
-   * if name already exists, or if occurence is not a recognized occurence
-   * value.
+   * @param parent The child will be added to the parent with this name. May not be <code>null
+   *     </code> and must already exist in this dtd.
+   * @throws IllegalArgumentException if name or parent is <code>null</code>, parent is not an
+   *     existing element, if name already exists, or if occurence is not a recognized occurence
+   *     value.
    */
   public void addElement(String name, int occurence, String parent) {
     if (name == null || name.length() == 0)
@@ -111,15 +107,13 @@ public class PSDtdBuilder {
   }
 
   /**
-   * Writes a valid DTD file to the specified output stream.  Any empty
-   * elements are added with #PCDATA as their child data. Encoding specified
-   * in the dtd will be the {@link PSCharSets#rxStdEnc()}.
+   * Writes a valid DTD file to the specified output stream. Any empty elements are added with
+   * #PCDATA as their child data. Encoding specified in the dtd will be the {@link
+   * PSCharSets#rxStdEnc()}.
    *
-   * @param out The output stream to write to.  This will be wrapped with
-   * a buffered writer, so this stream should not already be buffered in
-   * any way.  The caller of this method is responsible for closing the
-   * output stream.
-   *
+   * @param out The output stream to write to. This will be wrapped with a buffered writer, so this
+   *     stream should not already be buffered in any way. The caller of this method is responsible
+   *     for closing the output stream.
    * @throws IllegalArgumentException if out is <code>null</code>.
    * @throws IOException if there is an error writing to the output stream.
    */
@@ -141,18 +135,14 @@ public class PSDtdBuilder {
   }
 
   /**
-   * Writes out the element.  Also recursivley writes out any children that
-   * element contains if they have not yet been written. If no children, then
-   * writes #PCDATA for element data.
+   * Writes out the element. Also recursivley writes out any children that element contains if they
+   * have not yet been written. If no children, then writes #PCDATA for element data.
    *
    * @param writer The writer to writer to. Assumed not <code>null</code>.
-   * @param element The name of the element to write.  Assumed not
-   * <code>null</code>.
-   * @param writtenElements List of Element names whose definitions have
-   * already been written to the DTD.  Allows multiple parents to reference the
-   * same child element without the child's definition being written to the
-   * DTD more than once.  Assumed not <code>null</code>.
-   *
+   * @param element The name of the element to write. Assumed not <code>null</code>.
+   * @param writtenElements List of Element names whose definitions have already been written to the
+   *     DTD. Allows multiple parents to reference the same child element without the child's
+   *     definition being written to the DTD more than once. Assumed not <code>null</code>.
    * @throws IOException if there is an error writing to the output stream.
    */
   private void writeElement(BufferedWriter writer, String element, List writtenElements)
@@ -210,18 +200,16 @@ public class PSDtdBuilder {
   public static final int OCCURS_ANY = 3;
 
   /**
-   * Map of elements and their children by name.  Key is element name,
-   * value is an ArrayList of their children's names or null if no child
-   * element has been added to this element.  Each child
-   * element will be in the map and in their parents child list.  Never
-   * <code>null</code>, may be empty.
+   * Map of elements and their children by name. Key is element name, value is an ArrayList of their
+   * children's names or null if no child element has been added to this element. Each child element
+   * will be in the map and in their parents child list. Never <code>null</code>, may be empty.
    */
   private HashMap m_elements = new HashMap();
 
   /**
-   * Map of elements and their occurence types converted to Strings.
-   * Never <code>null</code>, may be empty.  Key is "parentName:childName", so
-   * that each child's occurence is associated with a parent.
+   * Map of elements and their occurence types converted to Strings. Never <code>null</code>, may be
+   * empty. Key is "parentName:childName", so that each child's occurence is associated with a
+   * parent.
    */
   private HashMap m_occurences = new HashMap();
 

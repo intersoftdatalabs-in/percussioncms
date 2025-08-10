@@ -38,50 +38,42 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class is used to create template from an Content Editor application
- * XML file and write it to a new file(target).  A DTD must be specified to
- * validate the target and add it to the target. This class has a main method
- * and a public static method so that it can be used from command line or any
- * other java class.
+ * This class is used to create template from an Content Editor application XML file and write it to
+ * a new file(target). A DTD must be specified to validate the target and add it to the target. This
+ * class has a main method and a public static method so that it can be used from command line or
+ * any other java class.
  */
 public class PSCETemplateGenerator {
 
   private static final Logger log = LogManager.getLogger(PSCETemplateGenerator.class);
 
   /**
-   * Extracts the &lt;PSXContentEditor> element from the source file, modifies
-   * the element to use that as template and writes the modified element to the
-   * target file. If the source has multiple &lt;PSXContentEditor> elements,
-   * then it creates template for the first element found. If the source
-   * content editor element contains multiproperty simple child fieldsets, it
-   * will not create a template for the source file and throws
-   * <code>PSCreateTemplateException</code>.
+   * Extracts the &lt;PSXContentEditor> element from the source file, modifies the element to use
+   * that as template and writes the modified element to the target file. If the source has multiple
+   * &lt;PSXContentEditor> elements, then it creates template for the first element found. If the
+   * source content editor element contains multiproperty simple child fieldsets, it will not create
+   * a template for the source file and throws <code>PSCreateTemplateException</code>.
    *
-   * <p>
-   * The modifications include the following.
+   * <p>The modifications include the following.
+   *
    * <ol>
-   * <li>Adds the document type to the target with specified dtd or document
-   * type path</li>
-   * <li>Removes all existing table references and add a new dummy table
-   * reference 'psx_dummy'.</li>
-   * <li>Removes the &lt;PSXPageDataTank> element.</li>
+   *   <li>Adds the document type to the target with specified dtd or document type path
+   *   <li>Removes all existing table references and add a new dummy table reference 'psx_dummy'.
+   *   <li>Removes the &lt;PSXPageDataTank> element.
    * </ol>
    *
-   * @param source The source Xml file, may not be <code>null</code>.  Must
-   * point to an existing Xml file and should have &lt;PSXContentEditor>
-   * element. File is assumed to be in UTF-8.
-   * @param target The file to write the extracted Xml to.  May not be <code>
-   * null</code>.  File pointed to may or may not exist.  If it does not, then
-   * it is created, including any necessary directories.  If it exists, it will
-   * be overwritten.
-   * @param dtd dtd to add it to the target and validate or to validate only.
-   * May not be <code>null</code>.
-   * @param docTypePath The document type path to add to the target. This
-   * should be supplied if the dtd to add to the target is different from
-   * the dtd supplied to validate. May be <code>null</code>
-   *
-   * @throws PSCreateTemplateException with detailed error message if it fails
-   * to create the template.
+   * @param source The source Xml file, may not be <code>null</code>. Must point to an existing Xml
+   *     file and should have &lt;PSXContentEditor> element. File is assumed to be in UTF-8.
+   * @param target The file to write the extracted Xml to. May not be <code>
+   * null</code>. File pointed to may or may not exist. If it does not, then it is created,
+   *     including any necessary directories. If it exists, it will be overwritten.
+   * @param dtd dtd to add it to the target and validate or to validate only. May not be <code>null
+   *     </code>.
+   * @param docTypePath The document type path to add to the target. This should be supplied if the
+   *     dtd to add to the target is different from the dtd supplied to validate. May be <code>null
+   *     </code>
+   * @throws PSCreateTemplateException with detailed error message if it fails to create the
+   *     template.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws IOException if any io error occurs
    * @throws FileNotFoundException if any file cannot be located.
@@ -166,13 +158,12 @@ public class PSCETemplateGenerator {
   }
 
   /**
-   * Checks whether the supplied content editor xml document has
-   * 'multiPropertySimpleChild' field sets.
+   * Checks whether the supplied content editor xml document has 'multiPropertySimpleChild' field
+   * sets.
    *
    * @param doc the document to check, assumed not to be <code>null</code>
-   *
-   * @return <code>true</code> if field sets of type 'multiPropertySimpleChild'
-   * exists, otherwise <code>false</code>
+   * @return <code>true</code> if field sets of type 'multiPropertySimpleChild' exists, otherwise
+   *     <code>false</code>
    */
   private boolean hasMultiPropertySimpleChild(Document doc) {
     boolean exists = false;
@@ -192,8 +183,8 @@ public class PSCETemplateGenerator {
   }
 
   /**
-   * The exception class to represent the exception to be thrown when
-   * an error happens while creating the template.
+   * The exception class to represent the exception to be thrown when an error happens while
+   * creating the template.
    */
   public class PSCreateTemplateException extends Exception {
     /**
@@ -207,26 +198,18 @@ public class PSCETemplateGenerator {
   }
 
   /**
-   * This class may be used from the command line.  This is essentially a
-   * wrapper for {@link #createTemplate()}. Arguments expected are:
+   * This class may be used from the command line. This is essentially a wrapper for {@link
+   * #createTemplate()}. Arguments expected are:
    *
    * <ol>
-   * <li>source: The source Xml file.  Must point to an existing Xml file and
-   * should have &lt;PSXContentEditor> element. File is assumed to be in UTF-8.
-   * </li>
-   *
-   * <li> target: The file to write the extracted Xml to.  May not be <code>
-   * null</code>.  File pointed to may or may not exist.  If it does not, then
-   * it is created, including any necessary directories.  If it exists, it will
-   * be overwritten.</li>
-   *
-   * <li>dtd: dtd to use to validate and add to the target, specifed as a file
-   * or URL.
-   * </li>
-   *
-   * <li>documentType: optional. If it is provided, this is used to set
-   * document type of target, otherwise it uses the dtd given for validating.
-   * </li>
+   *   <li>source: The source Xml file. Must point to an existing Xml file and should have
+   *       &lt;PSXContentEditor> element. File is assumed to be in UTF-8.
+   *   <li>target: The file to write the extracted Xml to. May not be <code>
+   * null</code>. File pointed to may or may not exist. If it does not, then it is created,
+   *       including any necessary directories. If it exists, it will be overwritten.
+   *   <li>dtd: dtd to use to validate and add to the target, specifed as a file or URL.
+   *   <li>documentType: optional. If it is provided, this is used to set document type of target,
+   *       otherwise it uses the dtd given for validating.
    * </ol>
    *
    * Any errors are written to System.out
@@ -275,9 +258,7 @@ public class PSCETemplateGenerator {
     }
   }
 
-  /**
-   * Prints cmd line usage to the screen.
-   */
+  /** Prints cmd line usage to the screen. */
   private static void printUsage() {
     System.out.println("Usage:");
     System.out.print("java com.percussion.tools.simple.PSCETemplateGenerator ");
@@ -290,48 +271,30 @@ public class PSCETemplateGenerator {
   // Constants for element names are duplicated here to avoid the dependency on
   // ObjectStore code.
 
-  /**
-   * The tag name of root content editor element.
-   */
+  /** The tag name of root content editor element. */
   private static final String CE_ROOT_ELEMENT_NAME = "PSXContentEditor";
 
-  /**
-   * The tag name of page data tank element.
-   */
+  /** The tag name of page data tank element. */
   private static final String PAGE_DATATANK_ELEMENT = "PSXPageDataTank";
 
-  /**
-   * The tag name of table set element.
-   */
+  /** The tag name of table set element. */
   private static final String TABLE_SET_ELEMENT = "PSXTableSet";
 
-  /**
-   * The tag name of table reference element.
-   */
+  /** The tag name of table reference element. */
   private static final String TABLE_REFERENCE_ELEMENT = "PSXTableRef";
 
-  /**
-   * The attribute name of table reference element attribute 'NAME'.
-   */
+  /** The attribute name of table reference element attribute 'NAME'. */
   private static final String TABLE_REFERENCE_NAME_ATTRIBUTE = "name";
 
-  /**
-   * The tag name of field set element.
-   */
+  /** The tag name of field set element. */
   private static final String FIELD_SET_ELEMENT = "PSXFieldSet";
 
-  /**
-   * The attribute name of field set element attribute 'TYPE'
-   */
+  /** The attribute name of field set element attribute 'TYPE' */
   private static final String FIELD_SET_TYPE_ATTRBUTE = "type";
 
-  /**
-   * The type string for multi property simple child fieldset.
-   */
+  /** The type string for multi property simple child fieldset. */
   private static final String FIELD_SET_MULTI = "multiPropertySimpleChild";
 
-  /**
-   * The dummy table reference name.
-   */
+  /** The dummy table reference name. */
   private static final String DUMMY_TABLE_REFERENCE_NAME = "psx_dummy";
 }

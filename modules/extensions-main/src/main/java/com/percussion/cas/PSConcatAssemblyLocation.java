@@ -24,9 +24,7 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import java.io.File;
 
-/**
- * This assembly location generator concatenates all provided parameters.
- */
+/** This assembly location generator concatenates all provided parameters. */
 public class PSConcatAssemblyLocation implements IPSAssemblyLocation {
   // See interface for details
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
@@ -34,12 +32,10 @@ public class PSConcatAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This implementation takes as many parameters defined in the
-   * RXLOCATIONSCHEMEPARAMS table and simply concatenates them together. If
-   * no parameters are specified, an empty String will be returned.
-   * e.g. params[0] + params[1] + ... + params[n]. There will be no checks
-   * made. All parameters provided with backslashes will be transformed to
-   * forward slashes.
+   * This implementation takes as many parameters defined in the RXLOCATIONSCHEMEPARAMS table and
+   * simply concatenates them together. If no parameters are specified, an empty String will be
+   * returned. e.g. params[0] + params[1] + ... + params[n]. There will be no checks made. All
+   * parameters provided with backslashes will be transformed to forward slashes.
    */
   public String createLocation(Object[] params, IPSRequestContext request)
       throws PSExtensionException {
@@ -66,8 +62,8 @@ public class PSConcatAssemblyLocation implements IPSAssemblyLocation {
   }
 
   /**
-   * This is the definition for this extension. You may want to use it for
-   * validation purposes in the <code>createLocation</code> method.
+   * This is the definition for this extension. You may want to use it for validation purposes in
+   * the <code>createLocation</code> method.
    */
   protected IPSExtensionDef m_def = null;
 }

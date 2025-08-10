@@ -32,18 +32,20 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * A cataloger using a directory server as source.
- */
+/** A cataloger using a directory server as source. */
 public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
-  /** @see PSCataloger */
+  /**
+   * @see PSCataloger
+   */
   public PSDirectoryServerCataloger(Properties properties) {
     super(properties);
   }
 
   private static final Logger log = LogManager.getLogger(PSDirectoryServerCataloger.class);
 
-  /** @see PSCataloger */
+  /**
+   * @see PSCataloger
+   */
   public PSDirectoryServerCataloger(Properties properties, PSServerConfiguration config) {
     super(properties, config);
   }
@@ -58,7 +60,9 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
     return "Directory Provider";
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public String getAttribute(PSSubject user, String attributeName) {
     if (user == null) throw new IllegalArgumentException("user cannot be null");
 
@@ -87,7 +91,9 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
     return result;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(PSSubject user) {
     if (user == null) throw new IllegalArgumentException("user cannot be null");
 
@@ -112,7 +118,9 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
     return user;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public PSSubject getAttributes(PSSubject user, Collection attributeNames) {
     if (user == null) throw new IllegalArgumentException("user cannot be null");
 
@@ -152,7 +160,9 @@ public class PSDirectoryServerCataloger extends PSDirectoryCataloger {
     return user;
   }
 
-  /** @see IPSDirectoryCataloger */
+  /**
+   * @see IPSDirectoryCataloger
+   */
   public Collection findUsers(PSConditional[] criteria, Collection attributeNames) {
     Collection result = new ArrayList();
 

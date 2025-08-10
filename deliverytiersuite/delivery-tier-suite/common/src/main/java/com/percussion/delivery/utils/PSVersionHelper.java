@@ -25,7 +25,6 @@ import org.apache.commons.lang.Validate;
  * Utility class for discovering the version of a service.
  *
  * @author natechadwick
- *
  */
 public class PSVersionHelper {
 

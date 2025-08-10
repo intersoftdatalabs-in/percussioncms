@@ -19,9 +19,7 @@ package com.percussion.services.pkginfo;
 
 import com.percussion.rx.config.IPSConfigChangeListener;
 
-/**
- * Package updater is used for updating package information.
- */
+/** Package updater is used for updating package information. */
 interface IPSPkgUpdater extends IPSConfigChangeListener {
   // Marker interface for package updaters.
 }

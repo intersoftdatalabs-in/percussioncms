@@ -36,25 +36,24 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * Provides configurations required for conversion, and can persist changes made
- * to those configurations.
+ * Provides configurations required for conversion, and can persist changes made to those
+ * configurations.
  */
 public class PSConfigurationCtx {
   /**
    * Construct the context with a file locator.
    *
-   * @param fileLocator Provides the file locations of the configurations this
-   * context will provide, may not be <code>null</code>.
-   * @param secretKey The secret key used to encrypt and decrypt passwords, may
-   * not be <code>null</code> or empty.
-   *
+   * @param fileLocator Provides the file locations of the configurations this context will provide,
+   *     may not be <code>null</code>.
+   * @param secretKey The secret key used to encrypt and decrypt passwords, may not be <code>null
+   *     </code> or empty.
    * @throws SAXException If any source document is malformed.
    * @throws IOException If there are any errors reading from a source file.
    * @throws PSInvalidXmlException If a source document is invalid.
    * @throws PSUnknownNodeTypeException If a source document is invalid
    * @throws PSUnknownDocTypeException If a source document is invalid
-   * @throws PSMissingApplicationPolicyException If an existing datasource
-   * specifies an invalid application policy name.
+   * @throws PSMissingApplicationPolicyException If an existing datasource specifies an invalid
+   *     application policy name.
    */
   public PSConfigurationCtx(IPSConfigFileLocator fileLocator, String secretKey)
       throws PSInvalidXmlException,
@@ -88,9 +87,8 @@ public class PSConfigurationCtx {
   /**
    * Get the server configuration to use for conversion.
    *
-   * @return The config, never <code>null</code>.  Modifications to this config
-   * will be reflected in this context and persisted if {@link #saveConfigs()}
-   * is called.
+   * @return The config, never <code>null</code>. Modifications to this config will be reflected in
+   *     this context and persisted if {@link #saveConfigs()} is called.
    */
   public PSLegacyServerConfig getServerConfig() {
     return m_serverConfig;
@@ -99,9 +97,8 @@ public class PSConfigurationCtx {
   /**
    * Get the spring configuration to use for conversion.
    *
-   * @return The config, never <code>null</code>.  Modifications to this config
-   * will be reflected in this context and persisted if {@link #saveConfigs()}
-   * is called.
+   * @return The config, never <code>null</code>. Modifications to this config will be reflected in
+   *     this context and persisted if {@link #saveConfigs()} is called.
    */
   public PSSpringConfiguration getSpringConfig() {
     return m_springConfig;
@@ -110,9 +107,8 @@ public class PSConfigurationCtx {
   /**
    * Get the list of JNDI datasource configurations to use for conversion.
    *
-   * @return A list of datasources, never <code>null</code>, may be empty.
-   * Modifications to this list will be reflected in this context and persisted
-   * if {@link #saveConfigs()} is called.
+   * @return A list of datasources, never <code>null</code>, may be empty. Modifications to this
+   *     list will be reflected in this context and persisted if {@link #saveConfigs()} is called.
    */
   public List<IPSJndiDatasource> getJndiDatasources() {
     return m_datasources;
@@ -121,10 +117,8 @@ public class PSConfigurationCtx {
   /**
    * Saves all configurations held by this context to their respective files.
    *
-   * @throws IOException If there are any errors reading from or writing to a
-   * file.
-   * @throws SAXException If there are any errors parsing a document when
-   * parsing it for editing.
+   * @throws IOException If there are any errors reading from or writing to a file.
+   * @throws SAXException If there are any errors parsing a document when parsing it for editing.
    */
   public void saveConfigs() throws IOException, SAXException {
 
@@ -148,32 +142,32 @@ public class PSConfigurationCtx {
   }
 
   /**
-   * Config file locator supplied during construction, never <code>null</code>
-   * or modified after that.
+   * Config file locator supplied during construction, never <code>null</code> or modified after
+   * that.
    */
   private IPSConfigFileLocator m_locator;
 
   /**
-   * Legacy server config, instantiated during construction, never
-   * <code>null</code> or modified after that.
+   * Legacy server config, instantiated during construction, never <code>null</code> or modified
+   * after that.
    */
   private PSLegacyServerConfig m_serverConfig;
 
   /**
-   * Spring config, instantiated during construction, never
-   * <code>null</code> or modified after that.
+   * Spring config, instantiated during construction, never <code>null</code> or modified after
+   * that.
    */
   private PSSpringConfiguration m_springConfig;
 
   /**
-   * List of JNDI datasources, instantiated during construction, never
-   * <code>null</code> or modified after that.
+   * List of JNDI datasources, instantiated during construction, never <code>null</code> or modified
+   * after that.
    */
   private List<IPSJndiDatasource> m_datasources;
 
   /**
-   * Secret shared key supplied during ctor, never <code>null</code> or empty
-   * or modified after that.
+   * Secret shared key supplied during ctor, never <code>null</code> or empty or modified after
+   * that.
    */
   private String m_secretKey;
 }

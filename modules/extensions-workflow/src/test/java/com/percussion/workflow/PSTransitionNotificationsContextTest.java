@@ -35,8 +35,7 @@ public class PSTransitionNotificationsContextTest extends PSAbstractWorkflowTest
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - see  {@link #HelpMessage}
-   *               for options.
+   * @param args command line arguments - see {@link #HelpMessage} for options.
    */
   public PSTransitionNotificationsContextTest(String[] args) {
     m_sArgs = args;

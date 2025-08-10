@@ -44,11 +44,10 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   /**
-   * Constructs an instance of <code>PSChildRelationshipBuilder</code> that
-   * will use the specified relationship processor for managing relationships.
+   * Constructs an instance of <code>PSChildRelationshipBuilder</code> that will use the specified
+   * relationship processor for managing relationships.
    *
-   * @param relProcessor used to query, add, and delete relationships, not
-   *           <code>null</code>
+   * @param relProcessor used to query, add, and delete relationships, not <code>null</code>
    * @throws IllegalArgumentException if relProcessor is <code>null</code>
    */
   public PSChildRelationshipBuilder(IPSRelationshipProcessor relProcessor) {
@@ -56,21 +55,18 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Synchronizes relationships in a slot with the specified dependent item to
-   * match the supplied owner item array. Relationships are created for items
-   * in the owner array without them, using the specified template. Any
-   * existing relationships owned by items not in the owner array are removed.
+   * Synchronizes relationships in a slot with the specified dependent item to match the supplied
+   * owner item array. Relationships are created for items in the owner array without them, using
+   * the specified template. Any existing relationships owned by items not in the owner array are
+   * removed.
    *
    * @param dependentId item that is the dependent of all relationships
-   * @param ownerIds only relationships owned by these ids should have the
-   *           dependentId
-   * @param slotName the name of the slot whose relationships between
-   *           <code>ownerIds</code> and <code>dependentId</code> will be
-   *           synchronized.
+   * @param ownerIds only relationships owned by these ids should have the dependentId
+   * @param slotName the name of the slot whose relationships between <code>ownerIds</code> and
+   *     <code>dependentId</code> will be synchronized.
    * @param templateName template to assign to any created relationships
    * @throws PSCmsException propagated from relationship api errors
-   * @throws PSAssemblyException if the slot or template cannot be found by
-   * assembly service.
+   * @throws PSAssemblyException if the slot or template cannot be found by assembly service.
    */
   public void build(int dependentId, Object[] ownerIds, String slotName, String templateName)
       throws PSCmsException, PSAssemblyException {
@@ -107,20 +103,17 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Creates an active assembly relationship between the "active" revision
-   * (current or edit) of each item in <code>ownerIds</code> and the
-   * dependent item, using the specified slot and template.
+   * Creates an active assembly relationship between the "active" revision (current or edit) of each
+   * item in <code>ownerIds</code> and the dependent item, using the specified slot and template.
    *
-   * @param ownerIds content ids of the items to own the relationships, assumed
-   *           not <code>null</code>
-   * @param dependent the item that will be dependent of the relationship,
-   *           assumed not <code>null</code>
-   * @param slot the slot that will be assigned to the relationship, assumed
-   *           not <code>null</code>
-   * @param template the template that will be assigned to the relationship,
-   *           assumed not <code>null</code>
-   * @throws PSCmsException propagated if an error occurs saving the
-   *            relationships
+   * @param ownerIds content ids of the items to own the relationships, assumed not <code>null
+   *     </code>
+   * @param dependent the item that will be dependent of the relationship, assumed not <code>null
+   *     </code>
+   * @param slot the slot that will be assigned to the relationship, assumed not <code>null</code>
+   * @param template the template that will be assigned to the relationship, assumed not <code>null
+   *     </code>
+   * @throws PSCmsException propagated if an error occurs saving the relationships
    */
   private void addRelationships(
       Collection<Integer> ownerIds,
@@ -143,14 +136,13 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Builds a collection of <code>PSLocator</code> using the edit locator for
-   * each content id in the <code>idsToAdd</code> parameter.
+   * Builds a collection of <code>PSLocator</code> using the edit locator for each content id in the
+   * <code>idsToAdd</code> parameter.
    *
-   * @param ownerIds content ids to be converted to edit revision locators,
-   *           assumed not <code>null</code>, may be empty.
-   * @return collection of edit <code>PSLocator</code>s for the content ids
-   *         provided. never <code>null</code>, will be empty if
-   *         <code>ownerIds</code> parameter is empty.
+   * @param ownerIds content ids to be converted to edit revision locators, assumed not <code>null
+   *     </code>, may be empty.
+   * @return collection of edit <code>PSLocator</code>s for the content ids provided. never <code>
+   *     null</code>, will be empty if <code>ownerIds</code> parameter is empty.
    */
   private Collection<PSLocator> buildOwnerLocators(Collection<Integer> ownerIds) {
     Collection<PSLocator> owners = new ArrayList<>(ownerIds.size());
@@ -164,14 +156,13 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Removes any relationships from the set that are not owned by an item id in
-   * the <code>idsToRemove</code> collection. This leaves the set with only
-   * those relationships that should be deleted.
+   * Removes any relationships from the set that are not owned by an item id in the <code>
+   * idsToRemove</code> collection. This leaves the set with only those relationships that should be
+   * deleted.
    *
    * @param relationships modified
-   * @param idsToRemove list of owner ids whose relationships should remain in
-   *           the set, because those relationships should be deleted. Assumed
-   *           not <code>null</code>, may be empty.
+   * @param idsToRemove list of owner ids whose relationships should remain in the set, because
+   *     those relationships should be deleted. Assumed not <code>null</code>, may be empty.
    */
   private void filterForRelationshipsToRemove(
       PSRelationshipSet relationships, Collection<Integer> idsToRemove) {
@@ -188,15 +179,15 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Creates a new list of the elements in <code>retain</code> that are not
-   * in <code>suppress</code>.
+   * Creates a new list of the elements in <code>retain</code> that are not in <code>suppress</code>
+   * .
    *
-   * @param retain all integers except those also in <code>suppress</code>
-   *           are copied to returned list. Assumed not <code>null</code>
-   * @param suppress integers to be suppressed from being copied from
-   *           <code>retain</code>. Assumed not <code>null</code>
-   * @return a new list of the elements in <code>retain</code> that are not
-   *         in <code>suppress</code>, never <code>null</code>
+   * @param retain all integers except those also in <code>suppress</code> are copied to returned
+   *     list. Assumed not <code>null</code>
+   * @param suppress integers to be suppressed from being copied from <code>retain</code>. Assumed
+   *     not <code>null</code>
+   * @return a new list of the elements in <code>retain</code> that are not in <code>suppress</code>
+   *     , never <code>null</code>
    */
   protected List<Integer> createComplement(
       final List<Integer> retain, final List<Integer> suppress) {
@@ -210,13 +201,10 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
   }
 
   /**
-   * Converts an array of objects to a list of integers. Non-parsable elements
-   * are skipped.
+   * Converts an array of objects to a list of integers. Non-parsable elements are skipped.
    *
-   * @param ids array of ids to be converted. if <code>null</code> returned
-   *           list will be empty.
-   * @return the <code>ids</code> array converted to integer list; never
-   *         <code>null</code>
+   * @param ids array of ids to be converted. if <code>null</code> returned list will be empty.
+   * @return the <code>ids</code> array converted to integer list; never <code>null</code>
    */
   private List<Integer> convert(Object[] ids) {
     if (ids == null) return new ArrayList<>();
@@ -238,8 +226,6 @@ public class PSChildRelationshipBuilder extends PSChildRelationshipBase {
     return convertedList;
   }
 
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   protected static final Logger m_log = LogManager.getLogger(PSChildRelationshipBuilder.class);
 }

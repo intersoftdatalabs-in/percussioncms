@@ -21,40 +21,40 @@ import com.percussion.sitemanage.importer.helpers.IPSImportHelper;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Base class for all import helpers. Common behavior should be in this class.
- * Sunny Sal says: "DRY is the way—put your shared logic here!"
+ * Base class for all import helpers. Common behavior should be in this class. Sunny Sal says: "DRY
+ * is the way—put your shared logic here!"
  */
 public abstract class PSImportHelper implements IPSImportHelper {
 
-    private static final String MESSAGE_SEPARATOR = " ";
+  private static final String MESSAGE_SEPARATOR = " ";
 
-    private long startTime = 0;
+  private long startTime = 0;
 
-    public static final String REGION_CONTENT = "perc-content";
+  public static final String REGION_CONTENT = "perc-content";
 
-    /**
-     * All helper subclasses must implement this method to provide a custom
-     * status message to show progress to the client during import process.
-     * It is recommended to declare a constant STATUS_MESSAGE and return that constant.
-     */
-    public abstract String getHelperMessage();
+  /**
+   * All helper subclasses must implement this method to provide a custom status message to show
+   * progress to the client during import process. It is recommended to declare a constant
+   * STATUS_MESSAGE and return that constant.
+   */
+  public abstract String getHelperMessage();
 
-    @Override
-    public String getStatusMessage(String statusMessagePrefix) {
-        var statusMessage = "";
-        if (StringUtils.isNotEmpty(statusMessagePrefix)) {
-            statusMessage = statusMessagePrefix + MESSAGE_SEPARATOR;
-        }
-        statusMessage += getHelperMessage();
-        return statusMessage;
+  @Override
+  public String getStatusMessage(String statusMessagePrefix) {
+    var statusMessage = "";
+    if (StringUtils.isNotEmpty(statusMessagePrefix)) {
+      statusMessage = statusMessagePrefix + MESSAGE_SEPARATOR;
     }
+    statusMessage += getHelperMessage();
+    return statusMessage;
+  }
 
-    public void startTimer() {
-        startTime = System.nanoTime();
-    }
+  public void startTimer() {
+    startTime = System.nanoTime();
+  }
 
-    public void endTimer() {
-        PSHelperPerformanceMonitor.updateStats(this.getClass().getSimpleName(),
-                ((System.nanoTime() - startTime) / 1_000_000));
-    }
+  public void endTimer() {
+    PSHelperPerformanceMonitor.updateStats(
+        this.getClass().getSimpleName(), ((System.nanoTime() - startTime) / 1_000_000));
+  }
 }

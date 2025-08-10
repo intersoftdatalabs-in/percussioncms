@@ -26,26 +26,20 @@ import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSHtmlParameters;
 import java.util.Map;
 
-/**
- * Modify step that updates the a content item.
- */
+/** Modify step that updates the a content item. */
 public class PSUpdateStep extends PSModifyStep {
   /**
-   * Constructs a step. See {@link PSModifyStep#PSModifyStep(String, String,
-   * String) super()} for more info on params and exceptions. The differences
-   * are noted below.
+   * Constructs a step. See {@link PSModifyStep#PSModifyStep(String, String, String) super()} for
+   * more info on params and exceptions. The differences are noted below.
    *
-   * @param allowMultiple Indicates if multiple rows should be inserted or
-   * updated if the params map in the request contains ArrayLists. If <code>
-   * false</code>
-   * and there are lists in the parameter map, then a copy will be used with
-   * each parameter truncated to the first value in it's list. If
-   * <code>true</code>, then the parameters will be passed unaltered.
-   * Special handling is done if psxmldoc param is present. If that is the only
-   * multi-value param present, then it is treated as a single update. This
-   * special case handling is required when there are multiple 'file' controls
-   * on a complex child.
-   *
+   * @param allowMultiple Indicates if multiple rows should be inserted or updated if the params map
+   *     in the request contains ArrayLists. If <code>
+   * false</code> and there are lists in the parameter map, then a copy will be used with each
+   *     parameter truncated to the first value in it's list. If <code>true</code>, then the
+   *     parameters will be passed unaltered. Special handling is done if psxmldoc param is present.
+   *     If that is the only multi-value param present, then it is treated as a single update. This
+   *     special case handling is required when there are multiple 'file' controls on a complex
+   *     child.
    */
   public PSUpdateStep(
       String requestName, String dbActionTypeParam, String dbActionType, boolean allowMultiple) {
@@ -53,9 +47,7 @@ public class PSUpdateStep extends PSModifyStep {
     m_allowMultiple = allowMultiple;
   }
 
-  /**
-   * Convienience ctor that always disallows muliple updates.
-   */
+  /** Convienience ctor that always disallows muliple updates. */
   public PSUpdateStep(String requestName, String dbActionTypeParam, String dbActionType) {
     this(requestName, dbActionTypeParam, dbActionType, false);
   }
@@ -110,13 +102,12 @@ public class PSUpdateStep extends PSModifyStep {
   }
 
   /**
-   * Set the name of the parameter to use to control parameter value list
-   * length.  If multiple row updates are allowed, all parameters in the
-   * parameter map are truncated to this parameter's orginal length before
-   * the request is executed.  If multiple row updates are not allowed, setting
+   * Set the name of the parameter to use to control parameter value list length. If multiple row
+   * updates are allowed, all parameters in the parameter map are truncated to this parameter's
+   * orginal length before the request is executed. If multiple row updates are not allowed, setting
    * this value will have no effect.
    *
-   * @param paramName Name of the parameter to use.  May be <code>null
+   * @param paramName Name of the parameter to use. May be <code>null
    * </code>, parameter with this name must be in the request's paramter map.
    */
   public void setControlParam(String paramName) {
@@ -124,18 +115,17 @@ public class PSUpdateStep extends PSModifyStep {
   }
 
   /**
-   * Flag to indicate if multiple rows should be inserted or updated if the
-   * params map in the request contains ArrayLists.  Set in the constructor.
+   * Flag to indicate if multiple rows should be inserted or updated if the params map in the
+   * request contains ArrayLists. Set in the constructor.
    */
   private boolean m_allowMultiple = false;
 
   /**
-   * Name of the parameter to use to control length of parameter lists if
-   * allowing multiple rows.  If the params map contains lists and multiple
-   * rows are allowed, then the original length of this parameter's list will
-   * cause the map to truncate value ArrayLists to that original list's length.
-   * Modified by a call to {@link #setControlParam(String) setControlParam},
-   * may be <code>null</code>.
+   * Name of the parameter to use to control length of parameter lists if allowing multiple rows. If
+   * the params map contains lists and multiple rows are allowed, then the original length of this
+   * parameter's list will cause the map to truncate value ArrayLists to that original list's
+   * length. Modified by a call to {@link #setControlParam(String) setControlParam}, may be <code>
+   * null</code>.
    */
   private String m_controlParam = null;
 }

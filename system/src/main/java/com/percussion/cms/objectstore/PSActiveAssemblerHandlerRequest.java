@@ -26,16 +26,13 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class encapsulates a request to the Active Assembler Request handler.
- */
+/** This class encapsulates a request to the Active Assembler Request handler. */
 public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   /**
    * Constructs a new active asembler request for the supplied parameters.
    *
    * @param owner the relationship owner, not <code>null</code>.
-   * @param dependents the relationship dependents, not <code>null</code>,
-   *    may be empty.
+   * @param dependents the relationship dependents, not <code>null</code>, may be empty.
    */
   public PSActiveAssemblerHandlerRequest(PSLocator owner, PSDependentSet dependents) {
     this(owner, dependents, -1);
@@ -45,10 +42,8 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
    * Constructs a new active asembler request for the supplied parameters.
    *
    * @param owner the relationship owner, not <code>null</code>.
-   * @param dependents the relationship dependents, not <code>null</code>,
-   *    may be empty.
-   * @param index the index used for insert and reorder operations, -1 if
-   *    not used.
+   * @param dependents the relationship dependents, not <code>null</code>, may be empty.
+   * @param index the index used for insert and reorder operations, -1 if not used.
    */
   public PSActiveAssemblerHandlerRequest(PSLocator owner, PSDependentSet dependents, int index) {
     setOwner(owner);
@@ -111,11 +106,9 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * Get the index used for this request. The index is only needed for
-   * insert and reorder requests.
+   * Get the index used for this request. The index is only needed for insert and reorder requests.
    *
-   * @return the index used for this request, -1 means its undefined, not
-   *    used.
+   * @return the index used for this request, -1 means its undefined, not used.
    */
   public int getIndex() {
     return m_index;
@@ -124,8 +117,8 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   /**
    * Set the new index for this request.
    *
-   * @param index the new index, -1 if not used. If a number lower then -1
-   *    is provided, it is set to undefined (-1).
+   * @param index the new index, -1 if not used. If a number lower then -1 is provided, it is set to
+   *     undefined (-1).
    */
   public void setIndex(int index) {
     if (index < -1) m_index = -1;
@@ -133,8 +126,7 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * This is the name of the root element in the serialized version of this
-   * object.
+   * This is the name of the root element in the serialized version of this object.
    *
    * @return the root name, never <code>null</code> or empty.
    */
@@ -143,11 +135,10 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the members. All
-   * members are compared for exact matches.
+   * Overrides the base class to compare each of the members. All members are compared for exact
+   * matches.
    *
-   * @return <code>true</code> if all members are equal, otherwise
-   *    <code>false</code> is returned.
+   * @return <code>true</code> if all members are equal, otherwise <code>false</code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSActiveAssemblerHandlerRequest)) return false;
@@ -162,9 +153,8 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the
-   * PSXActiveAssemblerHandlerRequest.dtd.
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the PSXActiveAssemblerHandlerRequest.dtd.
    *
    * @see IPSComponent for additional information.
    */
@@ -180,8 +170,8 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * Constructs a new object from its XML representation. The DTD expected is
-   * defined in PSXActiveAssemblerHandlerRequest.dtd.
+   * Constructs a new object from its XML representation. The DTD expected is defined in
+   * PSXActiveAssemblerHandlerRequest.dtd.
    *
    * @see IPSComponent for additional information.
    */
@@ -223,22 +213,20 @@ public class PSActiveAssemblerHandlerRequest extends PSCmsComponent {
   }
 
   /**
-   * The owner locator for this request, initialized during construction,
-   * never <code>null</code> after that. May be changed through
-   * {@link #setOwner(PSLocator)}.
+   * The owner locator for this request, initialized during construction, never <code>null</code>
+   * after that. May be changed through {@link #setOwner(PSLocator)}.
    */
   private PSLocator m_owner = null;
 
   /**
-   * A list of dependents for this request, initialized during construction,
-   * never <code>null</code>, may empty after that. May be changed through
-   * {@link #setDependents(PSDependentSet)}.
+   * A list of dependents for this request, initialized during construction, never <code>null</code>
+   * , may empty after that. May be changed through {@link #setDependents(PSDependentSet)}.
    */
   private PSDependentSet m_dependents = null;
 
   /**
-   * The index for this request. initialized during construction. May be
-   * changed through {@link #setIndex(int)}. -1 if not used.
+   * The index for this request. initialized during construction. May be changed through {@link
+   * #setIndex(int)}. -1 if not used.
    */
   private int m_index = -1;
 }

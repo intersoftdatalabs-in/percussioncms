@@ -18,16 +18,10 @@
 package com.percussion.design.objectstore;
 
 /**
- * Interface to implement the Java plugin object whose XML representation
- * follows the following DTD.
- * &lt;!ELEMENT PSXJavaPlugin EMPTY&gt;
- * &lt;!ATTLIST PSXJavaPlugin
- * oskey CDATA #REQUIRED
- * browserkey CDATA #REQUIRED
- * versiontouse CDATA #REQUIRED
- * versioningtype (Dynamic | Static) #REQUIRED
- * downloadlocation CDATA #IMPLIED
- * &gt;
+ * Interface to implement the Java plugin object whose XML representation follows the following DTD.
+ * &lt;!ELEMENT PSXJavaPlugin EMPTY&gt; &lt;!ATTLIST PSXJavaPlugin oskey CDATA #REQUIRED browserkey
+ * CDATA #REQUIRED versiontouse CDATA #REQUIRED versioningtype (Dynamic | Static) #REQUIRED
+ * downloadlocation CDATA #IMPLIED &gt;
  */
 public interface IPSJavaPlugin extends IPSComponent {
   /**
@@ -56,29 +50,25 @@ public interface IPSJavaPlugin extends IPSComponent {
   public String getDownloadLocation();
 
   /**
-   * @return <code>true</code> if plugin uses static versioning,
-   * <code>false</code> for dynamic versioning.
+   * @return <code>true</code> if plugin uses static versioning, <code>false</code> for dynamic
+   *     versioning.
    */
   public boolean isStaticVersioning();
 
   /**
-   * See the {@link
-   * com.percussion.cms.objectstore.IPSCmsComponent#equals(Object) interface}
-   * for complete details.
+   * See the {@link com.percussion.cms.objectstore.IPSCmsComponent#equals(Object) interface} for
+   * complete details.
    */
   public boolean equals(Object obj);
 
-  /**
-   * Generates code of the object.
-   */
+  /** Generates code of the object. */
   public int hashCode();
 
   /**
-   * Returns the family classid based on the major version.  The rest of the
-   * version string is ignored.
-   * See http://java.sun.com/javase/6/webnotes/family-clsid.html for more info.
-   * Currently only the 1.5 and 1.6 families are supported (
-   * {@link #CLASSID_STATIC_15} and {@link #CLASSID_STATIC_16}).
+   * Returns the family classid based on the major version. The rest of the version string is
+   * ignored. See http://java.sun.com/javase/6/webnotes/family-clsid.html for more info. Currently
+   * only the 1.5 and 1.6 families are supported ( {@link #CLASSID_STATIC_15} and {@link
+   * #CLASSID_STATIC_16}).
    *
    * @return the static classid based on the version
    */
@@ -91,14 +81,10 @@ public interface IPSJavaPlugin extends IPSComponent {
   public static final String CLASSID_DYNAMIC = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93";
   public static final String VERSION_DYNAMIC = "version";
 
-  /**
-   * Static family classid for version 1.5
-   */
+  /** Static family classid for version 1.5 */
   public static final String CLASSID_STATIC_15 = "clsid:CAFEEFAC-0015-0000-FFFF-ABCDEFFEDCBA";
 
-  /**
-   * Static family classid for version 1.6
-   */
+  /** Static family classid for version 1.6 */
   public static final String CLASSID_STATIC_16 = "clsid:CAFEEFAC-0016-0000-FFFF-ABCDEFFEDCBA";
 
   /** DTD constant. */

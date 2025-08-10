@@ -27,18 +27,14 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Descriptor used to run an import job to install objects from a deployment
- * archive.
- */
+/** Descriptor used to run an import job to install objects from a deployment archive. */
 public class PSImportDescriptor extends PSDescriptor {
 
   /**
-   * Construct this object from its XML representation.  See
-   * {@link #toXml(Document)} for the format expected.
+   * Construct this object from its XML representation. See {@link #toXml(Document)} for the format
+   * expected.
    *
    * @param src The source XML element, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>src</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException if <code>src</code> is malformed.
    */
@@ -51,11 +47,9 @@ public class PSImportDescriptor extends PSDescriptor {
   /**
    * Construct this descriptor from a previously installed archive.
    *
-   * @param archiveInfo The archive information from the archive.  May not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>archiveInfo</code> is
-   * <code>null</code> or does not contain a detail object.
+   * @param archiveInfo The archive information from the archive. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>archiveInfo</code> is <code>null</code> or does not
+   *     contain a detail object.
    */
   public PSImportDescriptor(PSArchiveInfo archiveInfo) {
     super("temp");
@@ -72,7 +66,8 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Add all packages as import packages, sets the archive ref to what's defined in the export descriptor
+   * Add all packages as import packages, sets the archive ref to what's defined in the export
+   * descriptor
    */
   @SuppressWarnings("rawtypes")
   public static PSImportDescriptor configureFromArchive(PSArchiveInfo archiveInfo) {
@@ -104,11 +99,10 @@ public class PSImportDescriptor extends PSDescriptor {
   /**
    * Get the list of import packages contained in this descriptor.
    *
-   * @return List of zero or more <code>PSImportPackage</code> objects.  A
-   * reference to the list contained by this descriptor are returned.  Packages
-   * may be added, removed, and reordered within this list, and the changes
-   * will be reflected within this descriptor.  Never <code>null</code>, may be
-   * empty.
+   * @return List of zero or more <code>PSImportPackage</code> objects. A reference to the list
+   *     contained by this descriptor are returned. Packages may be added, removed, and reordered
+   *     within this list, and the changes will be reflected within this descriptor. Never <code>
+   *     null</code>, may be empty.
    */
   public List<PSImportPackage> getImportPackageList() {
     return m_packages;
@@ -124,11 +118,10 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Determine if the supplied package is contained in this descriptor.
-   * Package type and id are compared, but the child dependencies are ignored.
+   * Determine if the supplied package is contained in this descriptor. Package type and id are
+   * compared, but the child dependencies are ignored.
    *
    * @param pkg The package to check, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if <code>pkg</code> is <code>null</code>.
    */
   public boolean isPackageIncluded(PSDeployableElement pkg) {
@@ -145,7 +138,8 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXImportDescriptor (PSXDescriptor, PSXArchiveInfo,
    *    PSXImportPackage*)>
@@ -174,9 +168,8 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   @Override
@@ -267,8 +260,8 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Determines if ancestor validation is enabled.  See
-   * {@link #setAncestorValidationEnabled(boolean)} for more info.
+   * Determines if ancestor validation is enabled. See {@link
+   * #setAncestorValidationEnabled(boolean)} for more info.
    *
    * @return <code>true</code> if it is enabled, <code>false</code> otherwise.
    */
@@ -277,41 +270,37 @@ public class PSImportDescriptor extends PSDescriptor {
   }
 
   /**
-   * Sets whether or not the ancestors of dependencies being installed should
-   * be checked during validation to determine if there will be any impact to
-   * them.  Initially set to <code>false</code>.
+   * Sets whether or not the ancestors of dependencies being installed should be checked during
+   * validation to determine if there will be any impact to them. Initially set to <code>false
+   * </code>.
    *
-   * @param isEnabled If <code>true</code>, ancestors will be validated, if
-   * <code>true</code>, they will not.
+   * @param isEnabled If <code>true</code>, ancestors will be validated, if <code>true</code>, they
+   *     will not.
    */
   public void setAncestorValidationEnabled(boolean isEnabled) {
     m_validateAncestors = isEnabled;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXImportDescriptor";
 
   /**
-   * List of <code>PSImportPackage</code> objects included in this descriptor.
-   * Never <code>null</code>, may be empty, and may be directly modified by
-   * obtaining this reference through a call to {@link #getImportPackageList()}
+   * List of <code>PSImportPackage</code> objects included in this descriptor. Never <code>null
+   * </code>, may be empty, and may be directly modified by obtaining this reference through a call
+   * to {@link #getImportPackageList()}
    */
   List<PSImportPackage> m_packages = new ArrayList<>();
 
   /**
-   * The archive info from the archive this descriptor will install from.
-   * Never <code>null</code> after ctor, may be modified by a call to
-   * <code>copyFrom()</code>.
+   * The archive info from the archive this descriptor will install from. Never <code>null</code>
+   * after ctor, may be modified by a call to <code>copyFrom()</code>.
    */
   PSArchiveInfo m_archiveInfo;
 
   /**
-   * Determines if ancestors of dependencies marked for installation should be
-   * validated to determine if they will be impacted.  Initially
-   * <code>true</code>, modified by calls to
-   * {@link #setAncestorValidationEnabled(boolean)}.
+   * Determines if ancestors of dependencies marked for installation should be validated to
+   * determine if they will be impacted. Initially <code>true</code>, modified by calls to {@link
+   * #setAncestorValidationEnabled(boolean)}.
    */
   // TODO: for msm the default was true. boolean m_validateAncestors = true;
   boolean m_validateAncestors = false;

@@ -35,12 +35,9 @@ import org.apache.logging.log4j.Logger;
  * Manages connections to the backend SQL repository.
  *
  * @author DavidBenua
- *
  */
 public class PSNavSqlConnectionMgr {
-  /**
-   * Singleton pattern, no public constructors
-   */
+  /** Singleton pattern, no public constructors */
   private PSNavSqlConnectionMgr() {}
 
   /**
@@ -136,39 +133,25 @@ public class PSNavSqlConnectionMgr {
     return slotContents;
   }
 
-  /**
-   * Writes the log.
-   */
+  /** Writes the log. */
   private static final Logger log = LogManager.getLogger(PSNavSqlConnectionMgr.class);
 
-  /**
-   * User name for database.
-   */
+  /** User name for database. */
   private String m_user;
 
-  /**
-   * Password for database.
-   */
+  /** Password for database. */
   private String m_password;
 
-  /**
-   * SQL Connection
-   */
+  /** SQL Connection */
   private Connection m_conn;
 
-  /**
-   * Saved connection.
-   */
+  /** Saved connection. */
   private static PSNavSqlConnectionMgr ms_connect = null;
 
-  /**
-   * Server properties file name.
-   */
+  /** Server properties file name. */
   private static final String SERVER_PROPERTIES = "rxconfig/Server/server.properties";
 
-  /**
-   * SQL Statement for loading slot data.
-   */
+  /** SQL Statement for loading slot data. */
   private static final String SQL_SLOT =
       "select owner_id, variant_id from "
           + IPSConstants.PSX_RELATIONSHIPS

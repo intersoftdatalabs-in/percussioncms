@@ -35,228 +35,201 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.util.Map.Entry;
 import java.util.Set;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @PSHandlesEffectContext()
 // REFACTORED: CP-JAVA11
-public class PSEffectLoggingEffect implements IPSEffect
-	  
-{
-	
-	/**
-		* Get the extension definition.
-		*
-		* @return the extension definition, never <code>null</code>.
-		*/
-	   public IPSExtensionDef getExtensionDef()
-	   {
-	  return m_def.get();
-	   }
+public class PSEffectLoggingEffect implements IPSEffect {
 
-	   /**
-		* Get the extension code root.
-		*
-		* @return the extension code root, never <code>null</code>.
-		*/
-	   public File getCodeRoot()
-	   {
-	  return m_codeRoot.get();
-	   }
+  /**
+   * Get the extension definition.
+   *
+   * @return the extension definition, never <code>null</code>.
+   */
+  public IPSExtensionDef getExtensionDef() {
+    return m_def.get();
+  }
 
-	
-	 /**
-		* Logger for this class
-		*/
+  /**
+   * Get the extension code root.
+   *
+   * @return the extension code root, never <code>null</code>.
+   */
+  public File getCodeRoot() {
+    return m_codeRoot.get();
+  }
 
-	   private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
+  /** Logger for this class */
+  private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
 
-	   protected static IPSSystemWs sws = null;
-	   protected static IPSGuidManager gmgr = null;
-	   protected static IPSContentWs cws = null; 
+  protected static IPSSystemWs sws = null;
+  protected static IPSGuidManager gmgr = null;
+  protected static IPSContentWs cws = null;
 
-	   /**
-		* Initialize service pointers. 
-		*/
-	   protected static void initServices()
-	   {
-		  if(sws == null)
-		  {
-			 sws = PSSystemWsLocator.getSystemWebservice(); 
-			 gmgr = PSGuidManagerLocator.getGuidMgr(); 
-			 cws = PSContentWsLocator.getContentWebservice(); 
-		  }
-	   }
-   /**
-	* Default constructor.
-	*/
-   public PSEffectLoggingEffect()
-   {
-		super();
-   }
+  /** Initialize service pointers. */
+  protected static void initServices() {
+    if (sws == null) {
+      sws = PSSystemWsLocator.getSystemWebservice();
+      gmgr = PSGuidManagerLocator.getGuidMgr();
+      cws = PSContentWsLocator.getContentWebservice();
+    }
+  }
 
-   /**
-	* Saves references to the provided extension definition and code root,
-	* which might be of use in the effect implementation.
-	*
-	* See <code>IPSExtension</code> for description.
-	*/
-   public void init(IPSExtensionDef def, File codeRoot)
-	  throws PSExtensionException
-   {
-	  if (def == null || codeRoot == null)
-		 throw new IllegalArgumentException("def and codeRoot cannot be null");
+  /** Default constructor. */
+  public PSEffectLoggingEffect() {
+    super();
+  }
 
-	  m_def.set(def);
-	  m_codeRoot.set(codeRoot);
-	  m_name = def.getRef().toString();
-   }
+  /**
+   * Saves references to the provided extension definition and code root, which might be of use in
+   * the effect implementation.
+   *
+   * <p>See <code>IPSExtension</code> for description.
+   */
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    if (def == null || codeRoot == null)
+      throw new IllegalArgumentException("def and codeRoot cannot be null");
 
+    m_def.set(def);
+    m_codeRoot.set(codeRoot);
+    m_name = def.getRef().toString();
+  }
 
-   
-	   public void recover(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSExtensionProcessingException ex,
-			 PSEffectResult result) throws PSExtensionProcessingException
-	   { //Nothing to do here      
-		  result.setSuccess(); 
-	   }
+  public void recover(
+      Object[] params,
+      IPSRequestContext req,
+      IPSExecutionContext exCtx,
+      PSExtensionProcessingException ex,
+      PSEffectResult result)
+      throws PSExtensionProcessingException { // Nothing to do here
+    result.setSuccess();
+  }
 
-	   public void test(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-			 throws PSExtensionProcessingException, PSParameterMismatchException
-	   { 
-		   
-		 
-		   // TODO: Replace deprecated RS_* constants with context type check when available
-		   // For now, fallback to UNKNOWN for backward compatibility
-		   String context = "UNKNOWN";
-			  
-			  String sourceFolderId = req.getParameter("sys_moveSourceFolderId");
-			  String targetFolderId = req.getParameter("sys_moveTargetFolderId");
-			  
-			  log.debug("Move source folder id is ="+sourceFolderId);
-			  log.debug("Move target folder id is ="+targetFolderId);
-			  
-			  PSRelationship current = exCtx.getCurrentRelationship(); 
-			  PSRelationship orig =  exCtx.getOriginatingRelationship();
-		 //noinspection unchecked
-		 Set<PSRelationship> processed = (Set<PSRelationship>)exCtx.getProcessedRelationships();
-			  
-			  String o="EFFECT Context="+context+"\n";
-			  o+="Current Relationship\n";
-			  if (current!=null) {
-				  o+=outputRelationship(current);
-			  }
-			  o+="Original Relationship\n";
-			  if (orig!=null) {
-				  o+=outputRelationship(orig);
-			  }
-			  o+="Processed Relationships\n";
-			  int i=0;
-			  for (PSRelationship rel : processed) {
-				 o+="Pos:"+i++;
-				 o+=outputRelationship(rel);  
-			  }
-			  
-			  // check original folders of dependent
-			  // if item is in no folder item is added
-			  // if item is in folder possibly will be a move
-			  
-			  // if following can just replicate add and removing of items
-			  
-			  log.debug(o);
-			  
-			  
-			  
-			  // TODO: Replace deprecated isConstruction()/isDestruction() and RS_* constants with context type check when available
-			  // For now, always run effect for backward compatibility
-			  if (current != null && "rs_folder".equals(current.getConfig().getCategory())) {
-				  int dependent = current.getDependent().getId();
-				  int owner = current.getOwner().getId();
-				  log.debug("Setting private object " + "Added:" + dependent);
-				  req.setPrivateObject("Added:" + dependent, owner);
-				  Object obj = req.getPrivateObject("Added:" + dependent);
-				  if (obj != null) {
-					  int newFolder = Integer.parseInt(obj.toString());
-					  log.debug("Detected item moved from folder " + owner + " to folder" + newFolder);
-				  }
-				  if (dependent == 503) {
-					  // String msg = "Cannot Move Item";
-					  result.setError(new PSRequestValidationException(1104, m_name));
-				  } else {
-					  result.setSuccess();
-				  }
-			  } else {
-				  result.setSuccess();
-			  }
-			
-			  
-	   }
-	   
+  public void test(
+      Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
 
-	   
+    // TODO: Replace deprecated RS_* constants with context type check when available
+    // For now, fallback to UNKNOWN for backward compatibility
+    String context = "UNKNOWN";
 
-   /**
-	* @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
-	*/
-   public void attempt(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-		 throws PSExtensionProcessingException, PSParameterMismatchException
-   {
-	  
-	  result.setSuccess();
-	   
-   }
-   
-   private String outputRelationship(PSRelationship rel) {
-	   String o="";
-	   if(rel.getConfig()!= null) {
-	   o+="    Relationship config Category"+rel.getConfig().getCategory()+"\n";
-	   o+="    Relationship config Name"+rel.getConfig().getName()+"\n";
-	   o+="    Relationship config Label"+rel.getConfig().getLabel()+"\n";
-	   o+="    Relationship config Type"+rel.getConfig().getType()+"\n";
-	   }
-	   o+="    "+rel.getDescription()+"\n";
-	   o+="    Owner="+outputItem(rel.getOwner())+"\n";
-	   o+="    Dependent="+outputItem(rel.getDependent())+"\n";
-	   o+="    Dependent Object Type="+rel.getDependentObjectType()+"\n";
-	   o+="    Relationship Properties:\n";
-	   
-	   for(Entry<String, String> entry : rel.getAllProperties().entrySet()) {
-		   o+="      "+entry.getKey()+":"+entry.getValue()+"\n";
-	   }
-	   o+="\n";
-	   return o;
-   }
-   
-   private String outputItem(PSLocator loc) {
-	   String o=loc.getId()+":"+loc.getRevision()+"\n";
-	   return o;
-   }
-   
-   /**
-	* This holds the definition for this extension, initialized in
-   * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
-   * after that.
+    String sourceFolderId = req.getParameter("sys_moveSourceFolderId");
+    String targetFolderId = req.getParameter("sys_moveTargetFolderId");
+
+    log.debug("Move source folder id is =" + sourceFolderId);
+    log.debug("Move target folder id is =" + targetFolderId);
+
+    PSRelationship current = exCtx.getCurrentRelationship();
+    PSRelationship orig = exCtx.getOriginatingRelationship();
+    //noinspection unchecked
+    Set<PSRelationship> processed = (Set<PSRelationship>) exCtx.getProcessedRelationships();
+
+    String o = "EFFECT Context=" + context + "\n";
+    o += "Current Relationship\n";
+    if (current != null) {
+      o += outputRelationship(current);
+    }
+    o += "Original Relationship\n";
+    if (orig != null) {
+      o += outputRelationship(orig);
+    }
+    o += "Processed Relationships\n";
+    int i = 0;
+    for (PSRelationship rel : processed) {
+      o += "Pos:" + i++;
+      o += outputRelationship(rel);
+    }
+
+    // check original folders of dependent
+    // if item is in no folder item is added
+    // if item is in folder possibly will be a move
+
+    // if following can just replicate add and removing of items
+
+    log.debug(o);
+
+    // TODO: Replace deprecated isConstruction()/isDestruction() and RS_* constants with context
+    // type check when available
+    // For now, always run effect for backward compatibility
+    if (current != null && "rs_folder".equals(current.getConfig().getCategory())) {
+      int dependent = current.getDependent().getId();
+      int owner = current.getOwner().getId();
+      log.debug("Setting private object " + "Added:" + dependent);
+      req.setPrivateObject("Added:" + dependent, owner);
+      Object obj = req.getPrivateObject("Added:" + dependent);
+      if (obj != null) {
+        int newFolder = Integer.parseInt(obj.toString());
+        log.debug("Detected item moved from folder " + owner + " to folder" + newFolder);
+      }
+      if (dependent == 503) {
+        // String msg = "Cannot Move Item";
+        result.setError(new PSRequestValidationException(1104, m_name));
+      } else {
+        result.setSuccess();
+      }
+    } else {
+      result.setSuccess();
+    }
+  }
+
+  /**
+   * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
+   */
+  public void attempt(
+      Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException {
+
+    result.setSuccess();
+  }
+
+  private String outputRelationship(PSRelationship rel) {
+    String o = "";
+    if (rel.getConfig() != null) {
+      o += "    Relationship config Category" + rel.getConfig().getCategory() + "\n";
+      o += "    Relationship config Name" + rel.getConfig().getName() + "\n";
+      o += "    Relationship config Label" + rel.getConfig().getLabel() + "\n";
+      o += "    Relationship config Type" + rel.getConfig().getType() + "\n";
+    }
+    o += "    " + rel.getDescription() + "\n";
+    o += "    Owner=" + outputItem(rel.getOwner()) + "\n";
+    o += "    Dependent=" + outputItem(rel.getDependent()) + "\n";
+    o += "    Dependent Object Type=" + rel.getDependentObjectType() + "\n";
+    o += "    Relationship Properties:\n";
+
+    for (Entry<String, String> entry : rel.getAllProperties().entrySet()) {
+      o += "      " + entry.getKey() + ":" + entry.getValue() + "\n";
+    }
+    o += "\n";
+    return o;
+  }
+
+  private String outputItem(PSLocator loc) {
+    String o = loc.getId() + ":" + loc.getRevision() + "\n";
+    return o;
+  }
+
+  /**
+   * This holds the definition for this extension, initialized in {#link init(IPSExtensionDef,
+   * File)}, never changed or <code>null</code> after that.
    */
   private final ThreadLocal<IPSExtensionDef> m_def = new ThreadLocal<>();
 
   /**
-   * This holds the 'root' directory for this extension. When installed, all
-   * files are installed relative to this location. Files can be loaded from
-   * anywhere under this directory and no where else (by default, the actual
-   * security policy may vary). This object could be used to load a property
-   * file when executing the Effect. Initialized in
-   * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
-   * after that.
+   * This holds the 'root' directory for this extension. When installed, all files are installed
+   * relative to this location. Files can be loaded from anywhere under this directory and no where
+   * else (by default, the actual security policy may vary). This object could be used to load a
+   * property file when executing the Effect. Initialized in {#link init(IPSExtensionDef, File)},
+   * never changed or <code>null</code> after that.
    */
   private final ThreadLocal<File> m_codeRoot = new ThreadLocal<>();
 
   /**
-   * Name of the effect as registered. Initialized in the init() method,
-   * never <code>null</code> or empty after that.
+   * Name of the effect as registered. Initialized in the init() method, never <code>null</code> or
+   * empty after that.
    */
   protected String m_name = "";
 }

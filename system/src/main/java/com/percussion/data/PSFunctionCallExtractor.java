@@ -32,10 +32,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The PSFunctionCallExtractor class is used to extract data for all the
- * function parameter values for the database function call (specified in its
- * ctor). The processed parameter values are then substituted in proper order
- * in the body of the database function.
+ * The PSFunctionCallExtractor class is used to extract data for all the function parameter values
+ * for the database function call (specified in its ctor). The processed parameter values are then
+ * substituted in proper order in the body of the database function.
  *
  * @see com.percussion.design.objectstore.PSFunctionCall
  * @see com.percussion.design.objectstore.PSFunctionParamValue
@@ -45,25 +44,21 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   /**
    * Construct an object from its object store counterpart.
    *
-   * @param funcCall The database function that contains the function
-   * definition and the parameter values, may not be <code>null</code>.
+   * @param funcCall The database function that contains the function definition and the parameter
+   *     values, may not be <code>null</code>.
    */
   public PSFunctionCallExtractor(PSFunctionCall funcCall) {
     super(getReplacementValues(funcCall));
     m_funcCall = funcCall;
   }
 
-  /**
-   * See {@link com.percussion.data.IPSDataExtractor#extract(PSExecutionData)}
-   * for details.
-   */
+  /** See {@link com.percussion.data.IPSDataExtractor#extract(PSExecutionData)} for details. */
   public Object extract(PSExecutionData data) throws PSDataExtractionException {
     return extract(data, null);
   }
 
   /**
-   * See {@link com.percussion.data.IPSDataExtractor#extract(
-   * PSExecutionData, Object)}for details.
+   * See {@link com.percussion.data.IPSDataExtractor#extract( PSExecutionData, Object)}for details.
    */
   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
     PSDatabaseFunctionDef funcDef = m_funcCall.getDatabaseFunctionDef();
@@ -157,19 +152,13 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   }
 
   /**
-   * Extracts the value of the specified replacement value from the execution
-   * data.
+   * Extracts the value of the specified replacement value from the execution data.
    *
-   * @param value replacement value whose value is to be extracted from the
-   * execution data, assumed not <code>null</code>
-   *
+   * @param value replacement value whose value is to be extracted from the execution data, assumed
+   *     not <code>null</code>
    * @param data execution data, assumed not <code>null</code>
-   *
-   * @return the value of the specified replacement value, may be
-   * <code>null</code>
-   *
-   * @throws PSDataExtractionException if an error condition causes the
-   * extraction to fail
+   * @return the value of the specified replacement value, may be <code>null</code>
+   * @throws PSDataExtractionException if an error condition causes the extraction to fail
    */
   private Object extract(IPSReplacementValue value, PSExecutionData data)
       throws PSDataExtractionException {
@@ -180,11 +169,9 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   /**
    * Formats the database function body using the specified paramater values.
    *
-   * @param body the database function body, assumed not <code>null</code> and
-   * non-empty
-   * @param paramValues contains the value of database function parameters,
-   * assumed not <code>null</code>, may be empty
-   *
+   * @param body the database function body, assumed not <code>null</code> and non-empty
+   * @param paramValues contains the value of database function parameters, assumed not <code>null
+   *     </code>, may be empty
    * @return the formatted database function body, may be <code>null</code>
    */
   public String formatFunctionBody(String body, String[] paramValues) throws ParseException {
@@ -230,16 +217,14 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   }
 
   /**
-   * Returns the replacement values contained in the database function
-   * parameters of the specified function call.
+   * Returns the replacement values contained in the database function parameters of the specified
+   * function call.
    *
-   * @param funcCall The database function that contains the function
-   * definition and the parameter values, may not be <code>null</code>.
-   *
-   * @return the replacement values contained in the database function call
-   * parameters, never <code>null</code>, may be empty if the database
-   * function does not require any paramaters. All members of the returned
-   * array are guaranteed to be non-<code>null</code>.
+   * @param funcCall The database function that contains the function definition and the parameter
+   *     values, may not be <code>null</code>.
+   * @return the replacement values contained in the database function call parameters, never <code>
+   *     null</code>, may be empty if the database function does not require any paramaters. All
+   *     members of the returned array are guaranteed to be non-<code>null</code>.
    */
   private static IPSReplacementValue[] getReplacementValues(PSFunctionCall funcCall) {
     if (funcCall == null) throw new IllegalArgumentException("funcCall may not be null");
@@ -254,22 +239,19 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   }
 
   /**
-   * Determines if the specified parameter value (<code>value</code>) should
-   * be enclosed in single quotes when being converted to a string
-   * (for use in WHERE clause).
-   * <p>
-   * If the parameter value is a backend column, then <code>false</code> is
-   * returned, else the parameter definition at the specified index is obtained
-   * from the function definition. If the parameter is of type number then
-   * <code>false</code> is returned, otherwise <code>true</code> is returned.
+   * Determines if the specified parameter value (<code>value</code>) should be enclosed in single
+   * quotes when being converted to a string (for use in WHERE clause).
    *
-   * @param funcDef, database function definition, assumed not
-   * <code>null</code>
+   * <p>If the parameter value is a backend column, then <code>false</code> is returned, else the
+   * parameter definition at the specified index is obtained from the function definition. If the
+   * parameter is of type number then <code>false</code> is returned, otherwise <code>true</code> is
+   * returned.
+   *
+   * @param funcDef, database function definition, assumed not <code>null</code>
    * @param value the function parameter, assumed not <code>null</code>
    * @param index the index of the parameter, assumed valid index
-   *
-   * @return <code>true</code> if this parameter should be enclosed in
-   * single quotes, <code>false</code> otherwise.
+   * @return <code>true</code> if this parameter should be enclosed in single quotes, <code>false
+   *     </code> otherwise.
    */
   private boolean encloseInQuotes(
       PSDatabaseFunctionDef funcDef, PSFunctionParamValue value, int index) {
@@ -284,15 +266,13 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   }
 
   /**
-   * Determines if the database function parameter defined at the specified
-   * index is bound statically or dynamically.
+   * Determines if the database function parameter defined at the specified index is bound
+   * statically or dynamically.
    *
-   * @param funcDef, database function definition, assumed not
-   * <code>null</code>
+   * @param funcDef, database function definition, assumed not <code>null</code>
    * @param index the index of the parameter, assumed valid index
-   *
-   * @return <code>true</code> if the parameter at the specified index is
-   * bound statically, <code>false</code> otherwise.
+   * @return <code>true</code> if the parameter at the specified index is bound statically, <code>
+   *     false</code> otherwise.
    */
   private boolean isStaticBindParam(PSDatabaseFunctionDef funcDef, int index) {
     PSDatabaseFunctionDefParam param = funcDef.getParamAtIndex(index);
@@ -300,9 +280,8 @@ public class PSFunctionCallExtractor extends PSDataExtractor {
   }
 
   /**
-   * Stores the database function for which the data has to be extracted,
-   * initialized in the ctor, never <code>null</code> or modified after
-   * initialization.
+   * Stores the database function for which the data has to be extracted, initialized in the ctor,
+   * never <code>null</code> or modified after initialization.
    */
   private PSFunctionCall m_funcCall;
 }

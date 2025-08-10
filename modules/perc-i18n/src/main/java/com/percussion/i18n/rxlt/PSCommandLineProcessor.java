@@ -40,27 +40,25 @@ import org.xml.sax.SAXException;
 
 /**
  * This class serves the following two purposes:
- * <ol>
- * <li>Collect the action specifc data to modify the action configuration via
- * commandline user interface</li>
- * <li>Process the action(s) that have the "process" attributes set to "yes"</li>
- * <li>May also be run inline from another Java process without the command line user interface</li>
- * </ol>
  *
+ * <ol>
+ *   <li>Collect the action specifc data to modify the action configuration via commandline user
+ *       interface
+ *   <li>Process the action(s) that have the "process" attributes set to "yes"
+ *   <li>May also be run inline from another Java process without the command line user interface
+ * </ol>
  */
 public class PSCommandLineProcessor {
   /**
-   * Constructor. This takes the configuration XML document and the Rhythmyx
-   * root directory.
-   * @param rxroot Rhythmyx root directory (absolute path) may be
-   * <code>null</code> in which case, root specified in the configuration
-   * document is used.
-   * @param standalone <code>true</code> to enable the commandline user interface,
-   * <code>false</code> to run with no command line ui from within another java process.
+   * Constructor. This takes the configuration XML document and the Rhythmyx root directory.
+   *
+   * @param rxroot Rhythmyx root directory (absolute path) may be <code>null</code> in which case,
+   *     root specified in the configuration document is used.
+   * @param standalone <code>true</code> to enable the commandline user interface, <code>false
+   *     </code> to run with no command line ui from within another java process.
    * @throws SAXException if any error occurs parsing rxltconfig.xml file
-   * @throws IOException in case of error building XML document from input
-   * stream for the configuration file
-   * obtained to
+   * @throws IOException in case of error building XML document from input stream for the
+   *     configuration file obtained to
    */
   public PSCommandLineProcessor(String rxroot, boolean standalone)
       throws SAXException, IOException {
@@ -93,8 +91,9 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Method to set the configuration document and initializes the log file.
-   * {@link process} cannot be run without the configuration document set.
+   * Method to set the configuration document and initializes the log file. {@link process} cannot
+   * be run without the configuration document set.
+   *
    * @param cfgDoc must not be </code>null</code>
    * @throws IllegalArgumentException if cfgDoc is <code>null</code>
    * @throws IOException if there is any error setting the output log file
@@ -110,9 +109,7 @@ public class PSCommandLineProcessor {
     logMessage("--------------------------------------------");
   }
 
-  /**
-   * Method to allow any cleanup. must be last call.
-   */
+  /** Method to allow any cleanup. must be last call. */
   public void terminate() {
     logMessage("End of the session");
     if (consoleLineReader != null) {
@@ -133,14 +130,14 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * This method gets the action to run from UI. Gathers all the inoformation
-   * specific to that action and midifies the config document in memory.
-   * @return the actionid chosen by the user to run. One of the actions from
-   * the list defined in the interface {@link IPSActionHandler}
-   * @throws IOException if there is a problem reading console. Very rare
-   * possibility.
-   * @throws PSFatalException if there is a problem connecting to server
-   * database to get the supported languages.
+   * This method gets the action to run from UI. Gathers all the inoformation specific to that
+   * action and midifies the config document in memory.
+   *
+   * @return the actionid chosen by the user to run. One of the actions from the list defined in the
+   *     interface {@link IPSActionHandler}
+   * @throws IOException if there is a problem reading console. Very rare possibility.
+   * @throws PSFatalException if there is a problem connecting to server database to get the
+   *     supported languages.
    */
   protected int getActionToRun() throws IOException, PSFatalException {
     if (!ms_standalone)
@@ -190,17 +187,16 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Collects the required information specific to the action from the user
-   * interface and modifes the configuration document (in memory). Look at the
-   * DTD for the configuration document for the configuration parameters.
+   * Collects the required information specific to the action from the user interface and modifes
+   * the configuration document (in memory). Look at the DTD for the configuration document for the
+   * configuration parameters.
+   *
    * @param actionid one of the
-   * @throws IllegalArgumentException the supplied actionid is not match with
-   * one of those listed in the configuration document.
-   * possibility.
-   * @throws IOException if there is a problem reading console. Very rare
-   * possibility.
-   * @throws PSFatalException if there is a problem connecting to server
-   * database to get supported languages.
+   * @throws IllegalArgumentException the supplied actionid is not match with one of those listed in
+   *     the configuration document. possibility.
+   * @throws IOException if there is a problem reading console. Very rare possibility.
+   * @throws PSFatalException if there is a problem connecting to server database to get supported
+   *     languages.
    */
   private void gatherActionInfo(int actionid) throws IOException, PSFatalException {
     Element elem = getActionElement(actionid);
@@ -309,10 +305,9 @@ public class PSCommandLineProcessor {
 
   /**
    * Helper method to parse the comma separated list of sectionids.
-   * @param line line input to be parsed which is read from the UI. Must not
-   * be <code>null</code>
-   * @return List of sectionids chosen by the user for processing. Never
-   * <code>null</code>.
+   *
+   * @param line line input to be parsed which is read from the UI. Must not be <code>null</code>
+   * @return List of sectionids chosen by the user for processing. Never <code>null</code>.
    */
   private List<String> parseSectionList(String line) {
     ArrayList<String> list = new ArrayList<>();
@@ -335,11 +330,11 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Helper method to locate the action element matching the given actionid
-   * from the configuration document.
+   * Helper method to locate the action element matching the given actionid from the configuration
+   * document.
+   *
    * @param action actionid of the action element to find
-   * @return Matching action element for the given actionid. Will be
-   * <code>null</code> if not found.
+   * @return Matching action element for the given actionid. Will be <code>null</code> if not found.
    */
   private Element getActionElement(int action) {
     String actionString = String.valueOf(action);
@@ -355,17 +350,15 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * This is the method that processes all actions that have the "process"
-   * attribute set to "yes". With UI mode user will run only one action in pass.
-   * However, in non-UI mode (in which case the config document shall not be
-   * modifed) the configuartion document should define the actions in a
-   * meaningful way. For example, {@link IPSActionHandler#ACTIONID_EXIT} must
-   * always be disabled by setting the attribute process=no.
-   * @throws PSActionProcessingException in case of any failure to process any
-   * of the actions.
-   * @return returns <code>true</code> if the process has to be terminated
-   * since user chose to exit. This used UI mode to keep the user in loop until
-   * he wants to quit.
+   * This is the method that processes all actions that have the "process" attribute set to "yes".
+   * With UI mode user will run only one action in pass. However, in non-UI mode (in which case the
+   * config document shall not be modifed) the configuartion document should define the actions in a
+   * meaningful way. For example, {@link IPSActionHandler#ACTIONID_EXIT} must always be disabled by
+   * setting the attribute process=no.
+   *
+   * @throws PSActionProcessingException in case of any failure to process any of the actions.
+   * @return returns <code>true</code> if the process has to be terminated since user chose to exit.
+   *     This used UI mode to keep the user in loop until he wants to quit.
    */
   public boolean process() throws PSActionProcessingException {
     try {
@@ -408,10 +401,9 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Helper method to display the existing languages in the Rhythmyx Content
-   * Manager.
-   * @throws PSFatalException if could not connect to server database and get
-   * the supported Locales.
+   * Helper method to display the existing languages in the Rhythmyx Content Manager.
+   *
+   * @throws PSFatalException if could not connect to server database and get the supported Locales.
    */
   private void displayExistingLanguages() throws PSFatalException {
     PSLocaleHandler localehandler = new PSLocaleHandler();
@@ -448,17 +440,14 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Helper method to get the list of languages from the Locales XML document
-   * produced by the {@link PSLocaleHandler#getLocaleDocument}.
+   * Helper method to get the list of languages from the Locales XML document produced by the {@link
+   * PSLocaleHandler#getLocaleDocument}.
+   *
    * @param doc must not be <code>null</code>.
-   * @param language may be <code>null</code> in which case a new List is
-   * created.
-   * @param status may be <code>null</code> in which case a new List is
-   * created.
-   * @param disname may be <code>null</code> in which case a new List is
-   * created.
-   * @param desc may be <code>null</code> in which case a new List is
-   * created.
+   * @param language may be <code>null</code> in which case a new List is created.
+   * @param status may be <code>null</code> in which case a new List is created.
+   * @param disname may be <code>null</code> in which case a new List is created.
+   * @param desc may be <code>null</code> in which case a new List is created.
    */
   private void getLanguageList(Document doc, List language, List status, List disname, List desc) {
     if (language == null) language = new ArrayList();
@@ -493,22 +482,17 @@ public class PSCommandLineProcessor {
     }
   }
 
-  /**
-   * The Configuration XML document. Never <code>null</code> after the class
-   * object constructed.
-   */
+  /** The Configuration XML document. Never <code>null</code> after the class object constructed. */
   Document m_CfgDocument = null;
 
-  /**
-   * The console line reader initialized when this class is loaded.
-   */
+  /** The console line reader initialized when this class is loaded. */
   static BufferedReader consoleLineReader = null;
 
   static InputStreamReader consoleInputStreamReader = null;
 
   /**
-   * Root directory for Rhythmyx, initialized in {@link #init(Document)} method, never
-   * <code>null</code> after that.
+   * Root directory for Rhythmyx, initialized in {@link #init(Document)} method, never <code>null
+   * </code> after that.
    */
   private String m_rxroot = null;
 
@@ -518,8 +502,7 @@ public class PSCommandLineProcessor {
       LogManager.getLogger(PSCommandLineProcessor.class);
 
   /**
-   * String constant representing the Logfile name. Log file is always written
-   * to working  directory.
+   * String constant representing the Logfile name. Log file is always written to working directory.
    */
   private static final String LOG_FILE = "rxlt" + File.separator + "rxlt.log";
 
@@ -568,6 +551,7 @@ public class PSCommandLineProcessor {
 
   /**
    * Access method for logger object.
+   *
    * @return logger object never <code>null</code>.
    */
   static Logger getLogger() {
@@ -576,8 +560,9 @@ public class PSCommandLineProcessor {
 
   /**
    * Get the program resources.
-   * @return Java ResourceBundle object, never <code>null</code> unless the
-   * loading of resources fails.
+   *
+   * @return Java ResourceBundle object, never <code>null</code> unless the loading of resources
+   *     fails.
    */
   public static ResourceBundle getRes() {
     /* load the resources first. this will throw an exception if we can't
@@ -589,22 +574,18 @@ public class PSCommandLineProcessor {
   }
 
   /**
-   * Set if the various <code>logMessage()</code> methods will actually
-   * produce log messages.
+   * Set if the various <code>logMessage()</code> methods will actually produce log messages.
    *
-   * @param enabled <code>true</code> to log messages, <code>false</code> to
-   * ignore them.
+   * @param enabled <code>true</code> to log messages, <code>false</code> to ignore them.
    */
   public static void setIsLogEnabled(boolean enabled) {
     logEnabled = enabled;
   }
 
   /**
-   * Determine if the various <code>logMessage()</code> methods will actually
-   * produce log messages.
+   * Determine if the various <code>logMessage()</code> methods will actually produce log messages.
    *
-   * @return <code>true</code> if messages are logged, <code>false</code> if
-   * they are ignored.
+   * @return <code>true</code> if messages are logged, <code>false</code> if they are ignored.
    */
   public static boolean isLogEnabled() {
     return logEnabled;
@@ -618,27 +599,21 @@ public class PSCommandLineProcessor {
     dotsEnabled = enabled;
   }
 
-  /**
-   * Name of the default config file used by the tool. This is part of the JAR.
-   */
+  /** Name of the default config file used by the tool. This is part of the JAR. */
   static final String CONFIG_FILE = "rxltconfig.xml";
 
-  /**
-   * Path of the Repository Properties file relative to the Rhythmyx root
-   * directory.
-   */
+  /** Path of the Repository Properties file relative to the Rhythmyx root directory. */
   public static final String REPOSITORY_PROPFILEPATH =
       "rxconfig" + File.separator + "Installer" + File.separator + "rxrepository.properties";
 
   /**
-   * The program resources. You must access this variable through the {@link
-   * #getRes getRes} method.
+   * The program resources. You must access this variable through the {@link #getRes getRes} method.
    */
   private static ResourceBundle res = null;
 
   /**
-   * Indicates if logging is enabled.  Intially <code>true</code>, modified
-   * by {@link #setIsLogEnabled(boolean)}.
+   * Indicates if logging is enabled. Intially <code>true</code>, modified by {@link
+   * #setIsLogEnabled(boolean)}.
    */
   private static boolean logEnabled = true;
 

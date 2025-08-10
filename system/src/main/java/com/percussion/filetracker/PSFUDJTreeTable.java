@@ -27,13 +27,11 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 /**
- * This class creates a simple PSFUDJTreeTable component, by using a JTree as a
- * renderer (and editor) for the cells in a particular column in the JTable.
- *<p>
- * PSFUDJTreeTable is a combination of JTable and JTree. Actually derived from
- * JTable and uses JTree as cell renderer. This way we get a kind of tree list
- * view
+ * This class creates a simple PSFUDJTreeTable component, by using a JTree as a renderer (and
+ * editor) for the cells in a particular column in the JTable.
  *
+ * <p>PSFUDJTreeTable is a combination of JTable and JTree. Actually derived from JTable and uses
+ * JTree as cell renderer. This way we get a kind of tree list view
  */
 public class PSFUDJTreeTable extends JTable {
   protected TreeTableCellRenderer tree;
@@ -42,7 +40,6 @@ public class PSFUDJTreeTable extends JTable {
    * Constructor.
    *
    * @param treeTableModel table model as PSFUDTreeTableModel
-   *
    */
   public PSFUDJTreeTable(PSFUDTreeTableModel treeTableModel) {
     super();
@@ -88,11 +85,10 @@ public class PSFUDJTreeTable extends JTable {
   }
 
   /**
-   * Workaround for BasicTableUI anomaly. Make sure the UI never tries to
-   * paint the editor. The UI currently uses different techniques to
-   * paint the renderers and editors and overriding setBounds() below
-   * is not the right thing to do for an editor. Returning -1 for the
-   * editing row in this case, ensures the editor is never painted.
+   * Workaround for BasicTableUI anomaly. Make sure the UI never tries to paint the editor. The UI
+   * currently uses different techniques to paint the renderers and editors and overriding
+   * setBounds() below is not the right thing to do for an editor. Returning -1 for the editing row
+   * in this case, ensures the editor is never painted.
    */
   @Override
   public int getEditingRow() {
@@ -102,9 +98,7 @@ public class PSFUDJTreeTable extends JTable {
   /**
    * Gets the list of all selected nodes.
    *
-   * @return list of all selected PSFUDFileNode objects in the tree as an
-   * ArrayList.
-   *
+   * @return list of all selected PSFUDFileNode objects in the tree as an ArrayList.
    */
   public ArrayList getSelectedFileList() {
     ArrayList fileNodes = new ArrayList();
@@ -125,7 +119,6 @@ public class PSFUDJTreeTable extends JTable {
    * Expands/Collapses all the nodes in the tree table
    *
    * @param bExpand <code>true</code> to expand <code>false</code> to collapse
-   *
    */
   public void expandAll(boolean bExpand) {
     for (int i = 0; i < tree.getRowCount(); i++) {
@@ -134,9 +127,7 @@ public class PSFUDJTreeTable extends JTable {
     }
   }
 
-  /**
-   * The renderer used to display the tree nodes in the table , a JTree.
-   */
+  /** The renderer used to display the tree nodes in the table , a JTree. */
   public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
     protected int visibleRow;
 
@@ -158,9 +149,7 @@ public class PSFUDJTreeTable extends JTable {
       super.paint(g);
     }
 
-    /**
-     * Implementation of the method in the interface
-     */
+    /** Implementation of the method in the interface */
     public Component getTableCellRendererComponent(
         JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
       if (isSelected) setBackground(table.getSelectionBackground());
@@ -171,13 +160,9 @@ public class PSFUDJTreeTable extends JTable {
     }
   }
 
-  /**
-   * The editor used to interact with tree nodes, a JTree.
-   */
+  /** The editor used to interact with tree nodes, a JTree. */
   public class TreeTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-    /**
-     * Implementation of the method in the interface
-     */
+    /** Implementation of the method in the interface */
     public Component getTableCellEditorComponent(
         JTable table, Object value, boolean isSelected, int r, int c) {
       return tree;

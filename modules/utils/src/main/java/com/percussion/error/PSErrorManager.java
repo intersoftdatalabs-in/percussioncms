@@ -24,11 +24,12 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 
 /**
- * The PSErrorManager class is used to load the error string resources and
- * default error pages based upon the E2 server's locale.
- * <p>
- * Error messages are broken down into ranges, assigned to the various
- * components. The ranges we are using are as follows:
+ * The PSErrorManager class is used to load the error string resources and default error pages based
+ * upon the E2 server's locale.
+ *
+ * <p>Error messages are broken down into ranges, assigned to the various components. The ranges we
+ * are using are as follows:
+ *
  * <table border="1">
  *    <tr><th>Range</th>      <th>Component</th></tr>
  *    <tr><td>0001 - 1000</td><td>HTML - this is HTML's range of errors</td></tr>
@@ -41,13 +42,12 @@ import java.util.MissingResourceException;
  *    <tr><td>7001 - 8000</td><td>Exit Processing</td></tr>
  *    <tr><td>8001 - 9000</td><td>Server Admin</td></tr>
  * </table>
- * <p>
- * All error messages are stored using the format defined in
- * the java.text.MessageFormat class. The message string contains curly
- * braces around parameters, which are 0 based. The error manager provides
- * two utility methods which take advantage of the MessageFormat.format
- * method. The following example uses an array of arguments to generate the
- * appropriate string:
+ *
+ * <p>All error messages are stored using the format defined in the java.text.MessageFormat class.
+ * The message string contains curly braces around parameters, which are 0 based. The error manager
+ * provides two utility methods which take advantage of the MessageFormat.format method. The
+ * following example uses an array of arguments to generate the appropriate string:
+ *
  * <pre><code>
  *    String msg = PSErrorManager.getErrorText(999);
  *
@@ -62,22 +62,19 @@ import java.util.MissingResourceException;
  *    //    "param1=1, param 2 date=Jan 6, 1999, param 2 time=4:50 PM"
  * </code></pre>
  *
- * This model is excellent for internationalization as the position of the
- * parameters may change based upon the target language.
+ * This model is excellent for internationalization as the position of the parameters may change
+ * based upon the target language.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSErrorManager {
 
   public static final String ERROR_MGR_CLASS = "com.percussion.error.PSErrorManagerImpl";
   private static IPSErrorManager errorManagerInstance = new PSErrorManagerDefaultImpl();
 
-  /**
-   * Initialize the error manager
-   *
-   */
+  /** Initialize the error manager */
   public static synchronized void init() throws MissingResourceException, NumberFormatException {
     try {
       errorManagerInstance =
@@ -94,9 +91,8 @@ public class PSErrorManager {
   }
 
   /**
-   * Shut down the error manager. This discards all the error page and
-   * error string information. Use the {@link #init() init}
-   * method to re-initialize the error facility.
+   * Shut down the error manager. This discards all the error page and error string information. Use
+   * the {@link #init() init} method to re-initialize the error facility.
    */
   public static synchronized void close() {
     errorManagerInstance.close();
@@ -105,9 +101,8 @@ public class PSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code     the error code
-   *
-   * @return           the error text
+   * @param code the error code
+   * @return the error text
    */
   public static java.lang.String getErrorText(int code) {
     return errorManagerInstance.getErrorText(code);
@@ -116,12 +111,9 @@ public class PSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @return the error text
    */
   public static java.lang.String getErrorText(int code, boolean nullNotFound) {
     return errorManagerInstance.getErrorText(code, nullNotFound);
@@ -130,14 +122,10 @@ public class PSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @param   loc            the locale to use
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @param loc the locale to use
+   * @return the error text
    */
   public static String getErrorText(int code, boolean nullNotFound, Locale loc) {
 
@@ -147,81 +135,59 @@ public class PSErrorManager {
   /**
    * Get the error text associated with the specified error code.
    *
-   * @param   code           the error code
-   *
-   * @param   nullNotFound   return <code>null</code> if the error string
-   *                         is not found
-   *
-   * @param   language       the language string to use
-   *
-   * @return                 the error text
+   * @param code the error code
+   * @param nullNotFound return <code>null</code> if the error string is not found
+   * @param language the language string to use
+   * @return the error text
    */
   public static java.lang.String getErrorText(int code, boolean nullNotFound, String language) {
     return errorManagerInstance.getErrorText(code, nullNotFound, language);
   }
 
   /**
-   * Create a formatted message for messages taking only a single
-   * argument.
+   * Create a formatted message for messages taking only a single argument.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   singleArg      the argument to use as the sole argument in
-   *                         the error message
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param singleArg the argument to use as the sole argument in the error message
+   * @return the formatted message
    */
   public static java.lang.String createMessage(int msgCode, Object singleArg) {
     return errorManagerInstance.createMessage(msgCode, singleArg);
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @return the formatted message
    */
   public static java.lang.String createMessage(int msgCode, Object[] arrayArgs) {
     return errorManagerInstance.createMessage(msgCode, arrayArgs);
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @param   loc            the locale to use
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param loc the locale to use
+   * @return the formatted message
    */
   public static java.lang.String createMessage(int msgCode, Object[] arrayArgs, Locale loc) {
     return errorManagerInstance.createMessage(msgCode, arrayArgs, loc);
   }
 
   /**
-   * Create a formatted message for messages taking an array of
-   * arguments. Be sure to store the arguments in the correct order in
-   * the array, where {0} in the string is array element 0, etc.
+   * Create a formatted message for messages taking an array of arguments. Be sure to store the
+   * arguments in the correct order in the array, where {0} in the string is array element 0, etc.
    *
-   * @param   msgCode        the error string to load
-   *
-   * @param   arrayArgs      the array of arguments to use as the arguments
-   *                         in the error message
-   *
-   * @param   language       the language string to use
-   *
-   * @return                 the formatted message
+   * @param msgCode the error string to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param language the language string to use
+   * @return the formatted message
    */
   public static java.lang.String createMessage(int msgCode, Object[] arrayArgs, String language) {
     return errorManagerInstance.createMessage(msgCode, arrayArgs, language);

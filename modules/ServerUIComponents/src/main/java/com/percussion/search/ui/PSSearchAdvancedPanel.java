@@ -26,27 +26,28 @@ import javax.swing.*;
 
 /**
  * See {@link PSSearchSimplePanel}'s class description for an overview.
- * <p>This class groups the useful but less frequently used controls together.
- * Generally, these are the search-engine specific properties.
- * The controls that may be included in this panel are:
+ *
+ * <p>This class groups the useful but less frequently used controls together. Generally, these are
+ * the search-engine specific properties. The controls that may be included in this panel are:
+ *
  * <ol>
- *    <li>Lucene 'Expand query with synonyms' property</li>
- *    <li>Use DB case sensitivity flag, if appropriate (full text not enabled
- *    and the underlying db is case sensitive)</li>
- * <ol>
- * The presence of the these controls can be controlled by the caller. Either
- * the full-text controls or the db flag is present, but never both.
+ *   <li>Lucene 'Expand query with synonyms' property
+ *   <li>Use DB case sensitivity flag, if appropriate (full text not enabled and the underlying db
+ *       is case sensitive)
+ *       <ol>
+ *         The presence of the these controls can be controlled by the caller. Either the full-text
+ *         controls or the db flag is present, but never both.
  */
 public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionListener {
   /**
    * Creates the advanced search panel.
-   * @param isEngineAvailable flag to indicate whether the external search
-   * engine is available or not. This controls which controls will be
-   * present. It is possible that an empty panel could be returned.
-   * @param isDBCaseSensitive flag to indicate whether database is case
-   * sensitive or not.
-   * @param isSynonymExpansionEnabled flag to indicate whether queries will be
-   * expanded with synonyms.
+   *
+   * @param isEngineAvailable flag to indicate whether the external search engine is available or
+   *     not. This controls which controls will be present. It is possible that an empty panel could
+   *     be returned.
+   * @param isDBCaseSensitive flag to indicate whether database is case sensitive or not.
+   * @param isSynonymExpansionEnabled flag to indicate whether queries will be expanded with
+   *     synonyms.
    */
   public PSSearchAdvancedPanel(
       boolean isEngineAvailable, boolean isDBCaseSensitive, boolean isSynonymExpansionEnabled) {
@@ -57,15 +58,14 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   }
 
   /**
-   * Similar to {@link #PSSearchAdvancedPanel(boolean, boolean, boolean)},
-   * except the rows are placed in a supplied panel rather than this one (see
-   * that ctor for descriptions of other params). This ctor is provided so that
-   * the rows could be added into the {@link PSSearchSimplePanel} if desired.
-   * <p>The returned panel is still used in the same way for data validation
-   * and transfer.
+   * Similar to {@link #PSSearchAdvancedPanel(boolean, boolean, boolean)}, except the rows are
+   * placed in a supplied panel rather than this one (see that ctor for descriptions of other
+   * params). This ctor is provided so that the rows could be added into the {@link
+   * PSSearchSimplePanel} if desired.
    *
-   * @param parent All property rows are added to this panel. Never
-   * <code>null</code>.
+   * <p>The returned panel is still used in the same way for data validation and transfer.
+   *
+   * @param parent All property rows are added to this panel. Never <code>null</code>.
    */
   public PSSearchAdvancedPanel(
       PSPropertyPanel parent,
@@ -79,16 +79,13 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   }
 
   /**
-   * Use the {@link PSI18NTranslationKeyValues} class to lookup a mnemonic
-   * string for the given lookup string value. Returns <code>0</code> if
-   * no mnemonic is defined. The actual lookup adds the string <q>_mnemonic</q>
-   * to the lookup.
+   * Use the {@link PSI18NTranslationKeyValues} class to lookup a mnemonic string for the given
+   * lookup string value. Returns <code>0</code> if no mnemonic is defined. The actual lookup adds
+   * the string <q>_mnemonic</q> to the lookup.
    *
-   * @param lookup the lookup string, without the class or package name,
-   * assumed non-<code>null</code>
-   *
-   * @return the mnemonic value as an integer or <code>0</code>
-   * if no mnemonic is defined.
+   * @param lookup the lookup string, without the class or package name, assumed non-<code>null
+   *     </code>
+   * @return the mnemonic value as an integer or <code>0</code> if no mnemonic is defined.
    */
   private char getMnemonic(String lookup) {
     char mnemonic = (char) PSI18NTranslationKeyValues.getInstance().getMnemonic(lookup);
@@ -96,15 +93,12 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   }
 
   /**
-   * Use the {@link PSI18NTranslationKeyValues} class to lookup a label
-   * string for the given lookup string value. Returns <code>null</code> if
-   * no label is defined.
+   * Use the {@link PSI18NTranslationKeyValues} class to lookup a label string for the given lookup
+   * string value. Returns <code>null</code> if no label is defined.
    *
-   * @param lookup the lookup string, without the class or package name,
-   * assumed non-<code>null</code>
-   *
-   * @return the label, or the lookup string after the '@' character if not
-   * found
+   * @param lookup the lookup string, without the class or package name, assumed non-<code>null
+   *     </code>
+   * @return the label, or the lookup string after the '@' character if not found
    */
   private String getLabel(String lookup) {
     return PSI18NTranslationKeyValues.getInstance().getTranslationValue(lookup);
@@ -113,8 +107,7 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   /**
    * Initializes the search simple panel.
    *
-   * @param target All rows are added to this panel. Assumed not
-   * <code>null</code>.
+   * @param target All rows are added to this panel. Assumed not <code>null</code>.
    */
   private void init(PSPropertyPanel target) {
     String label;
@@ -135,8 +128,8 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
 
   /**
    * There is nothing to validate.
-   * @param isQuiet boolean flag to indicate whether the system is
-   *    running in quiet mode or not.
+   *
+   * @param isQuiet boolean flag to indicate whether the system is running in quiet mode or not.
    * @return Always <code>true</code>.
    */
   public boolean onValidateData(boolean isQuiet) {
@@ -144,14 +137,13 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   }
 
   /**
-   * Initializes this panel with the data from the supplied PSSearch object if
-   * the bDirection is <code>false</code>. Updates the search object if the
-   * bDirection is <code>true</code> with the values from the panel.
+   * Initializes this panel with the data from the supplied PSSearch object if the bDirection is
+   * <code>false</code>. Updates the search object if the bDirection is <code>true</code> with the
+   * values from the panel.
    *
-   * @param bDirection Supply <code>true</code> to update the data,
-   * <code>false</code>to initialize the panel.
+   * @param bDirection Supply <code>true</code> to update the data, <code>false</code>to initialize
+   *     the panel.
    * @param search PSSearch object must not be <code>null</code>.
-   *
    */
   public void updateData(boolean bDirection, PSSearch search) {
     if (search == null) {
@@ -186,16 +178,14 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   }
 
   /**
-   * Get the synonym expansion setting from the supplied search. If the
-   * supplied search does not define one or it is an invalid setting the
-   * default will be used.
+   * Get the synonym expansion setting from the supplied search. If the supplied search does not
+   * define one or it is an invalid setting the default will be used.
    *
-   * @param search the search from which to get the synonym expansion setting,
-   * not <code>null</code>.
-   * @return the synonym expansion setting from the supplied search, defaults
-   *    to {@link #BOOL_NO} if the supplied search has no synonym expansion
-   *    setting specified or the one specified is invalid. Never
-   *    <code>null</code> or empty.
+   * @param search the search from which to get the synonym expansion setting, not <code>null</code>
+   *     .
+   * @return the synonym expansion setting from the supplied search, defaults to {@link #BOOL_NO} if
+   *     the supplied search has no synonym expansion setting specified or the one specified is
+   *     invalid. Never <code>null</code> or empty.
    */
   public static String getSynonymExpansion(PSSearch search) {
     if (search == null) throw new IllegalArgumentException("search cannot be null");
@@ -223,74 +213,52 @@ public class PSSearchAdvancedPanel extends PSPropertyPanel implements ActionList
   /**
    * Exposes the synonym expansion checkbox control.
    *
-   * @return a reference to the control used for setting the expand query
-   * with synonyms property.
+   * @return a reference to the control used for setting the expand query with synonyms property.
    */
   public JCheckBox getSynonymExpansionControl() {
     return m_synonymExpansionCheckBox;
   }
 
-  /**
-   * This is the property name used to transfer the 'Expand query with
-   * synonyms' checkbox value.
-   */
+  /** This is the property name used to transfer the 'Expand query with synonyms' checkbox value. */
   public static final String PROP_SYNONYM_EXPANSION = "synonym_expansion";
 
-  /**
-   * Constant for the "yes" boolean value.
-   */
+  /** Constant for the "yes" boolean value. */
   public static final String BOOL_YES = "yes";
 
-  /**
-   * Constant for the "no" boolean value.
-   */
+  /** Constant for the "no" boolean value. */
   public static final String BOOL_NO = "no";
 
   /**
-   * A boolean flag to hold whether search engine is enabled
-   * or not. <code>true</code> value indicates that search
-   * engine is enabled and query text and corresponding
-   * components will be displayed.
+   * A boolean flag to hold whether search engine is enabled or not. <code>true</code> value
+   * indicates that search engine is enabled and query text and corresponding components will be
+   * displayed.
    */
   private boolean m_isEngineAvailable = false;
 
   /**
-   * Check box for determining if the query should be expanded using
-   * synonyms. Never <code>null</code>. Never modified after
-   * initialization.
+   * Check box for determining if the query should be expanded using synonyms. Never <code>null
+   * </code>. Never modified after initialization.
    */
   private JCheckBox m_synonymExpansionCheckBox = new JCheckBox();
 
-  /**
-   * A boolean flag to indicate whether synonym expansion is enabled for
-   * queries.
-   */
+  /** A boolean flag to indicate whether synonym expansion is enabled for queries. */
   private boolean m_isSynonymExpansionEnabled;
 
-  /**
-   * Prefix for lookups for I18N strings
-   */
+  /** Prefix for lookups for I18N strings */
   private static final String I18N_PREFIX = PSSearchAdvancedPanel.class.getName();
 
-  /**
-   * Lookup string for I18N synonym expansion label value
-   */
+  /** Lookup string for I18N synonym expansion label value */
   private static final String I18N_SYNONYM_EXPANSION = I18N_PREFIX + "@Expand query with synonyms";
 
-  /**
-   * Lookup string for I18N case sensitive label value
-   */
+  /** Lookup string for I18N case sensitive label value */
   private static final String I18N_CASE_SENSITIVE = I18N_PREFIX + "@Case Sensitive";
 
   /**
-   * Check box for determining if the query should treat text data in
-   * case-sensitive manner. Never <code>null</code>. Never modified after
-   * initialization.
+   * Check box for determining if the query should treat text data in case-sensitive manner. Never
+   * <code>null</code>. Never modified after initialization.
    */
   private JCheckBox m_caseSensitiveCheckBox = new JCheckBox();
 
-  /**
-   * Flag to indicate whether database is case sensitve or not.
-   */
+  /** Flag to indicate whether database is case sensitve or not. */
   private boolean m_isDBCaseSensitive;
 }

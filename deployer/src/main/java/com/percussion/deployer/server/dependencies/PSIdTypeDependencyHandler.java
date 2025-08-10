@@ -27,20 +27,16 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.List;
 
 /**
- * Base class to provide common functionality to handlers implementing the
- * {@link com.percussion.deployer.server.IPSIdTypeHandler IPSIdTypeHandler}
- * interface.
+ * Base class to provide common functionality to handlers implementing the {@link
+ * com.percussion.deployer.server.IPSIdTypeHandler IPSIdTypeHandler} interface.
  */
 public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSIdTypeDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -48,9 +44,8 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Convenience method that calls {@link #getIdTypeDependencies(
-   * PSSecurityToken, PSDependency, PSDependencyHandler)
-   * getIdTypeDependencies(tok, dep, this)}
+   * Convenience method that calls {@link #getIdTypeDependencies( PSSecurityToken, PSDependency,
+   * PSDependencyHandler) getIdTypeDependencies(tok, dep, this)}
    */
   protected List<PSDependency> getIdTypeDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
@@ -62,17 +57,13 @@ public abstract class PSIdTypeDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Gets all child dependencies identified by the id types for the supplied
-   * dependency.
+   * Gets all child dependencies identified by the id types for the supplied dependency.
    *
    * @param tok The security token to use, may not be <code>null</code>.
-   * @param dep The dependency to get children for, may not be
-   * <code>null</code>.
-   * @param handler The handler to use to for loading of other handlers, may
-   * not be <code>null</code>.
-   *
+   * @param dep The dependency to get children for, may not be <code>null</code>.
+   * @param handler The handler to use to for loading of other handlers, may not be <code>null
+   *     </code>.
    * @return The children, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public static List<PSDependency> getIdTypeDependencies(

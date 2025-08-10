@@ -137,9 +137,7 @@ public class TaxonomyServiceTest extends ServletTestCase {
     attributes.add(attribute3);
   }
 
-  /**
-   * Initialize services if they are <code>null</code>.
-   */
+  /** Initialize services if they are <code>null</code>. */
   private void initServices() {
     if (securitySrv == null) {
       securitySrv = PSSecurityWsLocator.getSecurityWebservice();

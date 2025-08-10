@@ -30,8 +30,8 @@ import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
 
 /**
- * Hibernate ID Generator that uses the Percussion Next Number table to get Id
- * Key is based upon table name.
+ * Hibernate ID Generator that uses the Percussion Next Number table to get Id Key is based upon
+ * table name.
  *
  * @author Stephen Bolton
  */
@@ -46,7 +46,7 @@ public class PSGuidHibernateGenerator implements IdentifierGenerator, Configurab
    * Generate a new identifier.
    *
    * @param session The session from which the request originates
-   * @param obj  the entity or collection (idbag) for which the id is being generated
+   * @param obj the entity or collection (idbag) for which the id is being generated
    * @return a new identifier
    * @throws HibernateException Indicates trouble generating the identifier
    */

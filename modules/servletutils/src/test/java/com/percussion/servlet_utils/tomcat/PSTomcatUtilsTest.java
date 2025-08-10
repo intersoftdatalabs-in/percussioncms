@@ -31,13 +31,9 @@ import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test case for the {@link PSTomcatUtils} class.
- */
+/** Test case for the {@link PSTomcatUtils} class. */
 public class PSTomcatUtilsTest extends PSBaseXmlConfigTest {
-  /**
-   * Constant for test tomcat server file
-   */
+  /** Constant for test tomcat server file */
   public static final String TEST_TOMCAT_SERVER_FILE =
       getResourcePath(
           PSTomcatUtilsTest.class,

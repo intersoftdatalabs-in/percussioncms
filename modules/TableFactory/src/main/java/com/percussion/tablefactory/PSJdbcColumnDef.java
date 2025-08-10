@@ -26,16 +26,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to represent a column definition in a table schema, and
- * the action to perform when that table schema is used to create or modify a
- * table.
+ * This class is used to represent a column definition in a table schema, and the action to perform
+ * when that table schema is used to create or modify a table.
  */
 public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
-   * Convenience method for calling {@link #PSJdbcColumnDef(PSJdbcDataTypeMap,
-   * String, int, int, String, String, boolean, String)} with the scale
-   * parameter as <code>null</code>.  See that method for parameter
-   * descriptions.
+   * Convenience method for calling {@link #PSJdbcColumnDef(PSJdbcDataTypeMap, String, int, int,
+   * String, String, boolean, String)} with the scale parameter as <code>null</code>. See that
+   * method for parameter descriptions.
    */
   public PSJdbcColumnDef(
       PSJdbcDataTypeMap dataTypeMap,
@@ -49,41 +47,27 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Initializes a newly created <code>PSJdbcColumnDef</code> object from the
-   * specified parameters.
+   * Initializes a newly created <code>PSJdbcColumnDef</code> object from the specified parameters.
    *
-   * @param dataTypeMap The object containing the jdbc to native mappings.
-   * May not be <code>null</code>.
-   *
+   * @param dataTypeMap The object containing the jdbc to native mappings. May not be <code>null
+   *     </code>.
    * @param name The name of the column, may not be <code>null</code> or empty.
-   *
-   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code>
-   * constants.
-   *
-   * @param jdbcType The jdbc datatype of this column.  Must a valid jdbc data
-   * type whose name is contained in the dataTypeMap.
-   *
-   * @param size the length of the datatype.  This value will be interpreted
-   * slightly differently for each datatype:  number of characters for a
-   * string value, number of bytes for a LOB value, or number of digits
-   * (precision) for a numeric value.  May be <code>null</code> if datatype
-   * does not support size, or to use the default size defined in the datatype
-   * map.  Never empty.
-   *
-   * @param scale the number of digits to the right of the decimal point in
-   * numeric data types.  May be <code>null</code> if datatype does not support
-   * scale, or to use the default scale defined in the datatype map.  Never
-   * empty.
-   *
+   * @param action One of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
+   * @param jdbcType The jdbc datatype of this column. Must a valid jdbc data type whose name is
+   *     contained in the dataTypeMap.
+   * @param size the length of the datatype. This value will be interpreted slightly differently for
+   *     each datatype: number of characters for a string value, number of bytes for a LOB value, or
+   *     number of digits (precision) for a numeric value. May be <code>null</code> if datatype does
+   *     not support size, or to use the default size defined in the datatype map. Never empty.
+   * @param scale the number of digits to the right of the decimal point in numeric data types. May
+   *     be <code>null</code> if datatype does not support scale, or to use the default scale
+   *     defined in the datatype map. Never empty.
    * @param allowsNull If <code>true</code>, then column allows null values.
-   *
-   * @param defaultValue The default value to use if adding a column that does
-   *    not allow null values to a table with existing rows.  Is not used as
-   *    part of the column definition when adding the column to the table
-   *    schema in the database.  If <code>null</code>, then no default is
-   *    defined.  May be empty.  If the column allows null values, then the
-   *    value of this parameter is ignored.
-   *
+   * @param defaultValue The default value to use if adding a column that does not allow null values
+   *     to a table with existing rows. Is not used as part of the column definition when adding the
+   *     column to the table schema in the database. If <code>null</code>, then no default is
+   *     defined. May be empty. If the column allows null values, then the value of this parameter
+   *     is ignored.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJdbcColumnDef(
@@ -126,15 +110,13 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Create this object from its Xml representation.  See {@link #fromXml(
-   * Element) fromXml} for more information.
+   * Create this object from its Xml representation. See {@link #fromXml( Element) fromXml} for more
+   * information.
    *
-   * @param dataTypeMap The object containing the jdbc to native mappings.
-   *    May not be <code>null</code>.
-   * @param sourceNode The element from which this object is to be constructed.
-   *    Element must conform to the definition for the column element in the
-   *    tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param dataTypeMap The object containing the jdbc to native mappings. May not be <code>null
+   *     </code>.
+   * @param sourceNode The element from which this object is to be constructed. Element must conform
+   *     to the definition for the column element in the tabledef.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if either param is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -151,8 +133,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Construct this column by copying data from the supplied column.
    *
-   * @param srcCol The column to copy from.  May not be <code>null</code>.
-   *
+   * @param srcCol The column to copy from. May not be <code>null</code>.
    * @throws IllegalArgumentException if srcCol is <code>null</code>.
    * @throws IllegalStateException if srcCol's type is invalid.
    */
@@ -182,10 +163,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the column element in the
-   *    tabledef.dtd.  May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the column element in the tabledef.dtd. May not be <code>null</code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -248,12 +227,10 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
    *    null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   @Override
@@ -291,9 +268,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Serializes this object's state to a string. Creates an empty document,
-   * then calls <code>toXm()</code> method and then serializes the returned
-   * root element to a string.
+   * Serializes this object's state to a string. Creates an empty document, then calls <code>toXm()
+   * </code> method and then serializes the returned root element to a string.
    *
    * @return The string containing this object's state, never <code>
    * null</code> or empty
@@ -309,9 +285,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * compares this column to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcColumnDef with
-   *    identical values, excluding the dataTypeMap. Otherwise returns
-   *    <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcColumnDef with identical values, excluding
+   *     the dataTypeMap. Otherwise returns <code>false</code>.
    */
   @Override
   public boolean equals(Object obj) {
@@ -337,12 +312,10 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
-   * @return The sum of all the hash codes of the composite objects, excluding
-   * the dataTypeMap.
+   * @return The sum of all the hash codes of the composite objects, excluding the dataTypeMap.
    */
   @Override
   public int hashCode() {
@@ -362,19 +335,16 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Compares this column to another, testing equals of all members excluding
-   * the default value and the dataTypeMap.  Used to determine if
-   * this column specifies changes compared to a column that has been
-   * cataloged from the database, and the default value does not become part
-   * of the column's definition in the database, hence it is excluded. If the
-   * jdbc types do not match, and the native type of the old column has been
-   * set, it will be compared to the native type specified by this column's
-   * jdbc type and datatype map.
+   * Compares this column to another, testing equals of all members excluding the default value and
+   * the dataTypeMap. Used to determine if this column specifies changes compared to a column that
+   * has been cataloged from the database, and the default value does not become part of the
+   * column's definition in the database, hence it is excluded. If the jdbc types do not match, and
+   * the native type of the old column has been set, it will be compared to the native type
+   * specified by this column's jdbc type and datatype map.
    *
    * @param oldCol the columndef to compare, may be <code>null</code>.
-   *
-   * @return <code>true</code> if this column does specifies any changes
-   * from the supplied oldCol, <code>false</code> otherwise.
+   * @return <code>true</code> if this column does specifies any changes from the supplied oldCol,
+   *     <code>false</code> otherwise.
    */
   public boolean isChanged(PSJdbcColumnDef oldCol) {
     boolean isChanged = false;
@@ -439,9 +409,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Sets the jdbc datatype on this column.
    *
-   * @param type Must be a valid jdbc data type whose name is contained in the
-   * dataTypeMap supplied at construction.
-   *
+   * @param type Must be a valid jdbc data type whose name is contained in the dataTypeMap supplied
+   *     at construction.
    * @throws PSJdbcTableFactoryException if type is not valid.
    */
   public void setType(int type) throws PSJdbcTableFactoryException {
@@ -457,9 +426,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Sets the jdbc datatype on this column.
    *
-   * @param type Must be a valid jdbc data type contained in the dataTypeMap
-   * supplied at construction.  May not be <code>null</code> or empty.
-   *
+   * @param type Must be a valid jdbc data type contained in the dataTypeMap supplied at
+   *     construction. May not be <code>null</code> or empty.
    * @throws IllegalArgumentException if type is <code>null</code> or empty.
    * @throws PSJdbcTableFactoryException if type is not valid.
    */
@@ -477,17 +445,14 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Sets the native type of this column.  This value (instead of the value
-   * from the data type mapping) is used by {@link #isChanged(PSJdbcColumnDef)}
-   * to compare a column that has been catataloged with a new
-   * definition to determine if the new column specifies any changes.
-   * <p>
-   * This method can be used to record the native type as reported by the
-   * database driver's metadata (which may differ from the native type as
-   * specified in the data type map).
+   * Sets the native type of this column. This value (instead of the value from the data type
+   * mapping) is used by {@link #isChanged(PSJdbcColumnDef)} to compare a column that has been
+   * catataloged with a new definition to determine if the new column specifies any changes.
+   *
+   * <p>This method can be used to record the native type as reported by the database driver's
+   * metadata (which may differ from the native type as specified in the data type map).
    *
    * @param nativeType The type to assign, not <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if nativeType is invalid.
    */
   public void setNativeType(String nativeType) {
@@ -498,10 +463,9 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Returns the native type of this column. If a native type has been set
-   * using <code>setNativeType()</code>, then simply returns this type,
-   * otherwise uses the data type map set in the ctor to obtain the native
-   * type corresponding to the jdbc type of this column.
+   * Returns the native type of this column. If a native type has been set using <code>
+   * setNativeType()</code>, then simply returns this type, otherwise uses the data type map set in
+   * the ctor to obtain the native type corresponding to the jdbc type of this column.
    *
    * @return the native type of this column, never <code>null</code> or empty
    */
@@ -516,8 +480,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Determines if this column allows nulls.
    *
-   * @return <code>true</code> if this columns allows nulls, <code>false</code>
-   * if not.
+   * @return <code>true</code> if this columns allows nulls, <code>false</code> if not.
    */
   public boolean allowsNull() {
     return m_allowsNull;
@@ -526,27 +489,25 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Sets this column to allows nulls or not.
    *
-   * @param allowsNull If <code>true</code>, nulls will be allowed, if
-   * <code>false</code>, they will not be allowed.
+   * @param allowsNull If <code>true</code>, nulls will be allowed, if <code>false</code>, they will
+   *     not be allowed.
    */
   public void setAllowsNull(boolean allowsNull) {
     m_allowsNull = allowsNull;
   }
 
   /**
-   * Sets the default value to use if adding this column and {@link
-   * #allowsNull()} is <code>false</code>.
+   * Sets the default value to use if adding this column and {@link #allowsNull()} is <code>false
+   * </code>.
    *
-   * @param defaultValue The default value, may be <code>null</code> to clear
-   * it and may be empty.
+   * @param defaultValue The default value, may be <code>null</code> to clear it and may be empty.
    */
   public void setDefaultValue(String defaultValue) {
     m_defaultValue = defaultValue;
   }
 
   /**
-   * Returns this default value.  See {@link #setDefaultValue(String)
-   * setDefaultValue} for more info.
+   * Returns this default value. See {@link #setDefaultValue(String) setDefaultValue} for more info.
    *
    * @return The default value, may be <code>null</code> or empty.
    */
@@ -557,9 +518,8 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * is this column a sequence or identity column?
    *
-   * @return <code>true</code> if a sequence is defined,
-   * <code>false</code> otherwise.
-   **/
+   * @return <code>true</code> if a sequence is defined, <code>false</code> otherwise.
+   */
   public boolean isSequence() {
     return m_sequence != null;
   }
@@ -568,14 +528,14 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    * return the sequence name for this column
    *
    * @return the name of the sequence used to populate this column.
-   **/
+   */
   public String getSequence() {
     return m_sequence;
   }
 
   /**
-   * Gets this column's scale.  If one has not been set, the default scale for
-   * this datatype is returned.
+   * Gets this column's scale. If one has not been set, the default scale for this datatype is
+   * returned.
    *
    * @return The scale to use, may be <code>null</code>, never empty.
    */
@@ -586,12 +546,10 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Sets the scale parameter of this column's datatype definition.
    *
-   * @param scale the number of digits to the right of the decimal point in
-   * numeric data types.  If <code>null</code>, the default scale defined in
-   * the datatype map will be used instead (the default could also be
-   * <code>null</code>).  Will be ignored (and <code>null</code> assigned)
-   * if the datatype does not support scale.  Never empty.
-   *
+   * @param scale the number of digits to the right of the decimal point in numeric data types. If
+   *     <code>null</code>, the default scale defined in the datatype map will be used instead (the
+   *     default could also be <code>null</code>). Will be ignored (and <code>null</code> assigned)
+   *     if the datatype does not support scale. Never empty.
    * @throws IllegalArgumentException if <code>scale</code> is empty.
    */
   public void setScale(String scale) {
@@ -609,8 +567,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Get the size.  If one has not been set, the default size for this datatype
-   * is returned.
+   * Get the size. If one has not been set, the default size for this datatype is returned.
    *
    * @return The size, may be <code>null</code>, never empty.
    */
@@ -620,23 +577,19 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
 
   /**
    * Sets the size/precision parameter of this column's datatype definition.
-   * <p>
-   * For example, here is a create table statement that creates a table named
-   * "foo" with a column named "bar" of type varchar using a size value of
-   * "255":<br>
+   *
+   * <p>For example, here is a create table statement that creates a table named "foo" with a column
+   * named "bar" of type varchar using a size value of "255":<br>
    * <code><pre>
    * CREATE TABLE foo (bar VARCHAR(255) NULL)
    * </pre></code>
    *
-   * @param size the length of the datatype.  This value will be interpreted
-   * slightly differently for each datatype:  number of characters for a
-   * string value, number of bytes for a LOB value, or number of digits
-   * (precision) for a numeric value.  If <code>null</code>, the default size
-   * defined in the datatype map will be used when building the sql def (the
-   * default could also be <code>null</code>).  Will be ignored (and
-   * <code>null</code> assigned) if the datatype does not support size.
-   * Never empty.
-   *
+   * @param size the length of the datatype. This value will be interpreted slightly differently for
+   *     each datatype: number of characters for a string value, number of bytes for a LOB value, or
+   *     number of digits (precision) for a numeric value. If <code>null</code>, the default size
+   *     defined in the datatype map will be used when building the sql def (the default could also
+   *     be <code>null</code>). Will be ignored (and <code>null</code> assigned) if the datatype
+   *     does not support size. Never empty.
    * @throws IllegalArgumentException if size is empty.
    */
   public void setSize(String size) {
@@ -662,24 +615,23 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Sets the flag to indicate if this column should limit its size based on
-   * the maximum defined in the datatype map (see {@link #getAdjustedSize(boolean)}
-   * for more info.  Defaults to <code>false</code> if never set.
+   * Sets the flag to indicate if this column should limit its size based on the maximum defined in
+   * the datatype map (see {@link #getAdjustedSize(boolean)} for more info. Defaults to <code>false
+   * </code> if never set.
    *
-   * @param limitSize <code>true</code> to limit the size based on the defined
-   * maximum, <code>false</code> otherwise.
+   * @param limitSize <code>true</code> to limit the size based on the defined maximum, <code>false
+   *     </code> otherwise.
    */
   public void setLimitSizeForIndex(boolean limitSize) {
     m_limitSizeForIndex = limitSize;
   }
 
   /**
-   * Gets the flag to indicate if this column should limit its size based on
-   * the maximum defined in the datatype map (see
-   * {@link #setLimitSizeForIndex(boolean)} for more info.
+   * Gets the flag to indicate if this column should limit its size based on the maximum defined in
+   * the datatype map (see {@link #setLimitSizeForIndex(boolean)} for more info.
    *
-   * @return <code>true</code> if the size will be limited based on the defined
-   * maximum, <code>false</code> otherwise.
+   * @return <code>true</code> if the size will be limited based on the defined maximum, <code>false
+   *     </code> otherwise.
    */
   public boolean getLimitSizeForIndex() {
     return m_limitSizeForIndex;
@@ -688,11 +640,9 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   /**
    * Constructs this column's SQL syntax for a create/alter table statement.
    *
-   * @param dbmsDef Used to account for any backend specific syntax
-   * requirements.  May not be <code>null</code>.
-   *
+   * @param dbmsDef Used to account for any backend specific syntax requirements. May not be <code>
+   *     null</code>.
    * @return The syntax, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if dbmsDef is <code>null</code>.
    */
   public String getSqlDef(PSJdbcDbmsDef dbmsDef) {
@@ -748,11 +698,10 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Ensures that this component has an action that is valid for an alter
-   * table statement.  Overrides base class to additionally check if {@link
-   * #allowsNull()} is <code>false</code> (cannot alter table with a
-   * column that is NOT NULL unless default value is provided, and we don't
-   * actually specify default values in the database).
+   * Ensures that this component has an action that is valid for an alter table statement. Overrides
+   * base class to additionally check if {@link #allowsNull()} is <code>false</code> (cannot alter
+   * table with a column that is NOT NULL unless default value is provided, and we don't actually
+   * specify default values in the database).
    *
    * @return <code>true</code> if the component can be altered, <code>false
    * </code> if not.
@@ -782,16 +731,13 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   }
 
   /**
-   * Get the size to use for this column, adjusting the size based on the
-   * value of {@link PSJdbcDataTypeMap#getMaxIndexColSize()} in the map
-   * supplied during construction.  Only adjusts if this column should limit
-   * its size and the jdbctype of this column is a <code>CHAR</code> or
-   * <code>VARCHAR</code> and the map specifies a max size that is not
-   * <code>-1</code>.
+   * Get the size to use for this column, adjusting the size based on the value of {@link
+   * PSJdbcDataTypeMap#getMaxIndexColSize()} in the map supplied during construction. Only adjusts
+   * if this column should limit its size and the jdbctype of this column is a <code>CHAR</code> or
+   * <code>VARCHAR</code> and the map specifies a max size that is not <code>-1</code>.
    *
-   * @param doLog <code>true</code> to log if column size is adjusted,
-   * <code>false</code> to supress logging.
-   *
+   * @param doLog <code>true</code> to log if column size is adjusted, <code>false</code> to supress
+   *     logging.
    * @return The possibly adjusted size, may be <code>null</code>, never empty.
    */
   public String getAdjustedSize(boolean doLog) {
@@ -828,84 +774,77 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
   private boolean m_isChanged = false;
 
   /**
-   * These Flags are used to decide if table needs to be recreated or columns can be altered, without dropping table
+   * These Flags are used to decide if table needs to be recreated or columns can be altered,
+   * without dropping table
    */
   private boolean isAllowedNullChanged = false;
 
-  /**
-   * The name of this object's root Xml element.
-   */
+  /** The name of this object's root Xml element. */
   public static String NODE_NAME = "column";
 
   /**
-   * The jdbc type of this column.  Set in ctor, may be modified by a call to
-   * {@link #setType(int)} or {@link #setType(String)}.
+   * The jdbc type of this column. Set in ctor, may be modified by a call to {@link #setType(int)}
+   * or {@link #setType(String)}.
    */
   private int m_jdbcType;
 
   /**
-   * The String representation of the jdbc type of this column.  Set in ctor,
-   * may be modified by a call to {@link #setType(int)} or {@link
-   * #setType(String)}. Never <code>null</code> after construction.
+   * The String representation of the jdbc type of this column. Set in ctor, may be modified by a
+   * call to {@link #setType(int)} or {@link #setType(String)}. Never <code>null</code> after
+   * construction.
    */
   private String m_jdbcTypeString = null;
 
   /**
-   * The parameters that are part of this column's datatype definition, usually
-   * the size.  Initialized in the ctor, may be <code>null</code>, never empty.
+   * The parameters that are part of this column's datatype definition, usually the size.
+   * Initialized in the ctor, may be <code>null</code>, never empty.
    */
   private String m_size = null;
 
   /**
-   * The number of digits to the right of the decimal point in numeric data
-   * types.  Included inside the parameter parenthesis with the size in the
-   * generated SQL definition.  Will be <code>null</code> if the data type
-   * does not support scale, or if the dataTypeMap's default scale should be
-   * used.  Never empty.
+   * The number of digits to the right of the decimal point in numeric data types. Included inside
+   * the parameter parenthesis with the size in the generated SQL definition. Will be <code>null
+   * </code> if the data type does not support scale, or if the dataTypeMap's default scale should
+   * be used. Never empty.
    */
   private String m_scale = null;
 
   /**
-   * Determines if this column allows <code>NULL</code> values.  If <code>true
-   * </code> it does, otherwise not.  Default is to allow them.
+   * Determines if this column allows <code>NULL</code> values. If <code>true
+   * </code> it does, otherwise not. Default is to allow them.
    */
   private boolean m_allowsNull = true;
 
   /**
-   * The value to use when adding a non-nullable column to a table.  May be
-   * <code>null</code> only if {@link #m_allowsNull} is <code>true</code>.
+   * The value to use when adding a non-nullable column to a table. May be <code>null</code> only if
+   * {@link #m_allowsNull} is <code>true</code>.
    */
   private String m_defaultValue = null;
 
   /**
-   * The jdbc to native data type mappings, initialized at contruction, never
-   * <code>null</code> or modified after that.
+   * The jdbc to native data type mappings, initialized at contruction, never <code>null</code> or
+   * modified after that.
    */
   private PSJdbcDataTypeMap m_dataTypeMap = null;
 
   /**
-   * Used by {@link #isChanged(PSJdbcColumnDef)} to compare a new column
-   * with this column to determine if the new column defintion specifies
-   * any changes.  <code>null</code> unless set by a call to
-   * {@link #setNativeType(String) setNativeType}, never <code>null</code>
-   * after that.
+   * Used by {@link #isChanged(PSJdbcColumnDef)} to compare a new column with this column to
+   * determine if the new column defintion specifies any changes. <code>null</code> unless set by a
+   * call to {@link #setNativeType(String) setNativeType}, never <code>null</code> after that.
    */
   private String m_nativeType = null;
 
   /**
-   * the sequence name, may be <code>null</code> or empty if this is not a
-   * key column.
-   * If this column is a sequence in the database table then
-   * this variable contains the name of the sequence which
-   * will be used to obtain this column's value.
+   * the sequence name, may be <code>null</code> or empty if this is not a key column. If this
+   * column is a sequence in the database table then this variable contains the name of the sequence
+   * which will be used to obtain this column's value.
    */
   private String m_sequence = null;
 
   /**
-   * Flag to indicate if this column should limit its size based on the
-   * maximum defined in the datatype map
-   * (see {@link #setLimitSizeForIndex(boolean)} for more info.  Modified by
-   * {@link #fromXml(Element)} and {@link #setLimitSizeForIndex(boolean)}.
+   * Flag to indicate if this column should limit its size based on the maximum defined in the
+   * datatype map (see {@link #setLimitSizeForIndex(boolean)} for more info. Modified by {@link
+   * #fromXml(Element)} and {@link #setLimitSizeForIndex(boolean)}.
    */
   private boolean m_limitSizeForIndex = false;
 

@@ -24,79 +24,75 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
- * Loads implementer's configuration file which is in Spring bean's format.
- * This class assumes the configuration file contains beans that implement
- * {@link IPSConfigHandler}, provides API to retrieve these beans and ignores
- * beans that are not instances of {@link IPSConfigHandler}.
+ * Loads implementer's configuration file which is in Spring bean's format. This class assumes the
+ * configuration file contains beans that implement {@link IPSConfigHandler}, provides API to
+ * retrieve these beans and ignores beans that are not instances of {@link IPSConfigHandler}.
  *
  * @author YuBingChen
  */
 public class PSImplConfigLoader {
 
-    /**
-     * Creates an instance for a specified Spring bean configuration file.
-     *
-     * @param configPath the path of the configuration file, it may be relative or
-     *                   absolute path. Never {@code null} or empty.
-     */
-    public PSImplConfigLoader(String configPath) {
-        if (StringUtils.isBlank(configPath)) {
-            throw new IllegalArgumentException("configPath may not be null or empty.");
-        }
-
-        var fixedFile = configPath;
-        if (PSOsTool.isUnixPlatform()) {
-            // Bug in spring with absolute file paths. Paths are repeated during
-            // configuration which causes BeanDefinitionException. Files cannot
-            // be found. Must prepend with '/' as workaround.
-            fixedFile = "/" + fixedFile;
-        }
-
-        mCtx = new FileSystemXmlApplicationContext(fixedFile);
+  /**
+   * Creates an instance for a specified Spring bean configuration file.
+   *
+   * @param configPath the path of the configuration file, it may be relative or absolute path.
+   *     Never {@code null} or empty.
+   */
+  public PSImplConfigLoader(String configPath) {
+    if (StringUtils.isBlank(configPath)) {
+      throw new IllegalArgumentException("configPath may not be null or empty.");
     }
 
-    /**
-     * Gets all bean names with type of {@link IPSConfigHandler}.
-     *
-     * @return the bean names, may be empty, but not {@code null}.
-     */
-    public String[] getAllBeanNames() {
-        return mCtx.getBeanNamesForType(IPSConfigHandler.class);
+    var fixedFile = configPath;
+    if (PSOsTool.isUnixPlatform()) {
+      // Bug in spring with absolute file paths. Paths are repeated during
+      // configuration which causes BeanDefinitionException. Files cannot
+      // be found. Must prepend with '/' as workaround.
+      fixedFile = "/" + fixedFile;
     }
 
-    /**
-     * Gets the instance of the specified bean.
-     *
-     * @param name the name of the bean. It must be one of the elements returned
-     *             from {@link #getAllBeanNames()}.
-     * @return the bean instance, never {@code null}.
-     */
-    public IPSConfigHandler getBean(String name) {
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("name cannot be null or empty.");
-        }
+    mCtx = new FileSystemXmlApplicationContext(fixedFile);
+  }
 
-        var bean = mCtx.getBean(name);
-        if (bean == null) {
-            throw new IllegalArgumentException("Cannot find bean name: " + name);
-        }
+  /**
+   * Gets all bean names with type of {@link IPSConfigHandler}.
+   *
+   * @return the bean names, may be empty, but not {@code null}.
+   */
+  public String[] getAllBeanNames() {
+    return mCtx.getBeanNamesForType(IPSConfigHandler.class);
+  }
 
-        if (!(bean instanceof IPSConfigHandler)) {
-            throw new IllegalArgumentException("Unexpected bean '" + name + "' type: " + bean.getClass().getName());
-        }
-
-        return (IPSConfigHandler) bean;
+  /**
+   * Gets the instance of the specified bean.
+   *
+   * @param name the name of the bean. It must be one of the elements returned from {@link
+   *     #getAllBeanNames()}.
+   * @return the bean instance, never {@code null}.
+   */
+  public IPSConfigHandler getBean(String name) {
+    if (StringUtils.isBlank(name)) {
+      throw new IllegalArgumentException("name cannot be null or empty.");
     }
 
-    /**
-     * Release all resources that are used by this loader.
-     */
-    public void close() {
-        mCtx.close();
+    var bean = mCtx.getBean(name);
+    if (bean == null) {
+      throw new IllegalArgumentException("Cannot find bean name: " + name);
     }
 
-    /**
-     * The context of the bean factory. Initialized by the constructor, never null after that.
-     */
-    private FileSystemXmlApplicationContext mCtx;
+    if (!(bean instanceof IPSConfigHandler)) {
+      throw new IllegalArgumentException(
+          "Unexpected bean '" + name + "' type: " + bean.getClass().getName());
+    }
+
+    return (IPSConfigHandler) bean;
+  }
+
+  /** Release all resources that are used by this loader. */
+  public void close() {
+    mCtx.close();
+  }
+
+  /** The context of the bean factory. Initialized by the constructor, never null after that. */
+  private FileSystemXmlApplicationContext mCtx;
 }

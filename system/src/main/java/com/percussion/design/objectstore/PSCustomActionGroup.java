@@ -26,9 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implementation for the PSCustomActionGroup DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSCustomActionGroup DTD in BasicObjects.dtd. */
 public class PSCustomActionGroup extends PSComponent {
   /**
    * Creates a new custom action group for the provided location and actions.
@@ -44,14 +42,10 @@ public class PSCustomActionGroup extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCustomActionGroup(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -82,8 +76,7 @@ public class PSCustomActionGroup extends PSComponent {
   /**
    * Set a new custom action group location.
    *
-   * @param location the new custom action group location, not
-   *    <code>null</code>.
+   * @param location the new custom action group location, not <code>null</code>.
    */
   public void setLocation(PSLocation location) {
     if (location == null) throw new IllegalArgumentException("location cannot be null");
@@ -94,19 +87,17 @@ public class PSCustomActionGroup extends PSComponent {
   /**
    * Get the remove action link list.
    *
-   * @return the list of action links to be removed, never
-   *    <code>null</code>, might be empty.
+   * @return the list of action links to be removed, never <code>null</code>, might be empty.
    */
   public Iterator getRemoveActions() {
     return m_removeActions.iterator();
   }
 
   /**
-   * Set a new remove action link list, provide <code>null</code> if
-   * nothing is to be removed.
+   * Set a new remove action link list, provide <code>null</code> if nothing is to be removed.
    *
-   * @param removeActions the new remove action link list (a collection of
-   *    String objects) , <code>null</code> if nothing is to be removed.
+   * @param removeActions the new remove action link list (a collection of String objects) , <code>
+   *     null</code> if nothing is to be removed.
    */
   public void setRemoveActions(PSCollection removeActions) {
     if (removeActions != null
@@ -118,8 +109,8 @@ public class PSCustomActionGroup extends PSComponent {
   }
 
   /**
-   * The form action is the target url of this action. If the end user
-   * activates this action, the browser will redirect to this page.
+   * The form action is the target url of this action. If the end user activates this action, the
+   * browser will redirect to this page.
    *
    * @return A valid action, or <code>null</code> if no action has been set.
    */
@@ -138,12 +129,11 @@ public class PSCustomActionGroup extends PSComponent {
   }
 
   /**
-   * Get the action link list of this group. These actions should be used
-   * in addition to or in place of a set of buttons located at the position
-   * specified by the location object.
+   * Get the action link list of this group. These actions should be used in addition to or in place
+   * of a set of buttons located at the position specified by the location object.
    *
-   * @return the action link list of this group, never <code>null</code>,
-   *    may be empty. It may be empty if this group is only removing buttons.
+   * @return the action link list of this group, never <code>null</code>, may be empty. It may be
+   *     empty if this group is only removing buttons.
    */
   public Iterator getActionLinkList() {
     return null == m_actionLinkList ? PSIteratorUtils.emptyIterator() : m_actionLinkList.iterator();
@@ -162,9 +152,8 @@ public class PSCustomActionGroup extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSField, not <code>null</code>.
    */
@@ -319,29 +308,23 @@ public class PSCustomActionGroup extends PSComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXCustomActionGroup";
 
-  /**
-   * The location of this custom action group, never <code>null</code>.
-   */
+  /** The location of this custom action group, never <code>null</code>. */
   private PSLocation m_location = null;
 
   /**
-   * A list of action link references (String objects) to be removed, never
-   * <code>null</code>, might be empty.
+   * A list of action link references (String objects) to be removed, never <code>null</code>, might
+   * be empty.
    */
   private PSCollection m_removeActions = new PSCollection(String.class);
 
-  /**
-   * A list of new action links, may be <code>null</code>. Not empty if
-   * valid.
-   */
+  /** A list of new action links, may be <code>null</code>. Not empty if valid. */
   private PSActionLinkList m_actionLinkList = null;
 
   /**
-   * When associated actions are activated, if this property is present,
-   * then this will be the target of the action, rather than the original
-   * form action set by the handler. Should be present if action links are
-   * present. If this group is only for removing actions, then this property
-   * should be <code>null</code>.
+   * When associated actions are activated, if this property is present, then this will be the
+   * target of the action, rather than the original form action set by the handler. Should be
+   * present if action links are present. If this group is only for removing actions, then this
+   * property should be <code>null</code>.
    */
   private PSFormAction m_formAction;
 

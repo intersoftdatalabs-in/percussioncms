@@ -36,25 +36,14 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Construct a new revision entry.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @param   agent The agent responsible for the change. Can be
-   * <CODE>null</CODE>.
-   *
-   * @param   description A description of the change. Can be
-   * <CODE>null</CODE>.
-   *
-   * @param   majorVersion   The major version number corresponding to this
-   * entry.
-   *
-   * @param   minorVersion   The minor version number corresponding to this
-   * entry.
-   *
-   * @param   time The date/time of the change. If <CODE>null</CODE>,
-   * defaults to the current system time.
-   *
+   * @param agent The agent responsible for the change. Can be <CODE>null</CODE>.
+   * @param description A description of the change. Can be <CODE>null</CODE>.
+   * @param majorVersion The major version number corresponding to this entry.
+   * @param minorVersion The minor version number corresponding to this entry.
+   * @param time The date/time of the change. If <CODE>null</CODE>, defaults to the current system
+   *     time.
    */
   public PSRevisionEntry(
       String agent, String description, Date time, int majorVersion, int minorVersion) {
@@ -72,10 +61,8 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Package access no-args constructor for use with toXml/fromXml, etc.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
    */
   PSRevisionEntry() {
     m_agent = null;
@@ -86,11 +73,9 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Gets the agent responsible for the change.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @return   String
+   * @return String
    */
   public String getAgent() {
     return m_desc;
@@ -99,11 +84,9 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Gets a description of the change.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @return   String
+   * @return String
    */
   public String getDescription() {
     return m_desc;
@@ -112,11 +95,9 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Gets the date/time of the change.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/7/8
-   *
-   * @return   Date
+   * @return Date
    */
   public Date getTime() {
     return m_time;
@@ -125,11 +106,9 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Gets the major version.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/07/12
-   *
-   * @return   int
+   * @return int
    */
   public int getMajorVersion() {
     return m_majorVersion;
@@ -138,26 +117,21 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Gets the minor version.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.3 1999/07/12
-   *
-   * @return   int
+   * @return int
    */
   public int getMinorVersion() {
     return m_minorVersion;
   }
 
   /**
-   * Gets the version as a string with the format <CODE>M.m</CODE>,
-   * where <CODE>M</CODE> is the major version and <CODE>m</CODE> is
-   * the minor.
+   * Gets the version as a string with the format <CODE>M.m</CODE>, where <CODE>M</CODE> is the
+   * major version and <CODE>m</CODE> is the minor.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.3 1999/07/12
-   *
-   * @return   String
+   * @return String
    */
   public String getVersion() {
     return m_majorVersion + "." + m_minorVersion;
@@ -166,11 +140,9 @@ public class PSRevisionEntry extends PSComponent {
   /**
    * Returns a string representation of this entry.
    *
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/07/12
-   *
-   * @return   String
+   * @return String
    */
   public String toString() {
     return (getVersion() + ": " + FastDateFormat.getInstance().format(m_time))
@@ -201,10 +173,11 @@ public class PSRevisionEntry extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXRevisionEntry XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXRevisionEntry XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXRevisionEntry defines a list of changes associated with a
@@ -221,7 +194,7 @@ public class PSRevisionEntry extends PSComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXRevisionEntry XML element node
+   * @return the newly created PSXRevisionEntry XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_nodeType);
@@ -243,12 +216,11 @@ public class PSRevisionEntry extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSRevisionEntry Java object
-   * from a PSXRevisionEntry XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSRevisionEntry Java object from a PSXRevisionEntry XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRevisionEntry
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRevisionEntry
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -281,18 +253,15 @@ public class PSRevisionEntry extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

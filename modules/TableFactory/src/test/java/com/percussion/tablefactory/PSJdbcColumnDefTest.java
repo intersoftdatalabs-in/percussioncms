@@ -32,17 +32,13 @@ import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcColumnDef.
- */
+/** Unit test for PSJdbcColumnDef. */
 public class PSJdbcColumnDefTest {
   public PSJdbcColumnDefTest() {
     super();
   }
 
-  /**
-   * Test the def
-   */
+  /** Test the def */
   @Test
   public void testDef() throws Exception {
     PSJdbcColumnDef columnDef;
@@ -107,10 +103,7 @@ public class PSJdbcColumnDefTest {
     assertTrue(didThrow, "Rejected empty scale");
   }
 
-  /**
-   * Tests that the values assigned in the ctors are available through the
-   * getter methods.
-   */
+  /** Tests that the values assigned in the ctors are available through the getter methods. */
   @Test
   public void testGetters() throws Exception {
     PSJdbcColumnDef columnDef =
@@ -134,8 +127,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests setters and equals() by mutating a single field and making sure
-   * equals() detected the change.
+   * Tests setters and equals() by mutating a single field and making sure equals() detected the
+   * change.
    */
   @Test
   public void testSettersAndEquals() throws Exception {
@@ -215,8 +208,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Asserts the two provided instances are equal,
-   * have the same hash code, and are not considered changed.
+   * Asserts the two provided instances are equal, have the same hash code, and are not considered
+   * changed.
    */
   private void assertReallyEquals(PSJdbcColumnDef def1, PSJdbcColumnDef def2) {
     assertTrue(def1.equals(def2));
@@ -225,8 +218,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Asserts the two provided instances are not equal, do not
-   * have the same hash code, and are considered changed.
+   * Asserts the two provided instances are not equal, do not have the same hash code, and are
+   * considered changed.
    */
   private void assertReallyNotEquals(PSJdbcColumnDef oldDef, PSJdbcColumnDef newDef) {
     assertTrue(!oldDef.equals(newDef), "different columns are equal");
@@ -235,8 +228,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests that the values assigned in the ctors survive round-tripping
-   * through the XML representation.
+   * Tests that the values assigned in the ctors survive round-tripping through the XML
+   * representation.
    */
   @Test
   public void testXml() throws Exception {
@@ -271,9 +264,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * @return <code>true</code> if creating an object copy using the XML
-   * serialization methods if equal to the original object; <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if creating an object copy using the XML serialization methods if
+   *     equal to the original object; <code>false</code> otherwise.
    */
   private boolean xmlRoundTripIsEqual(PSJdbcColumnDef def) throws PSJdbcTableFactoryException {
     Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -282,9 +274,7 @@ public class PSJdbcColumnDefTest {
     return def.equals(defCopy);
   }
 
-  /**
-   * Tests the strings returned by getSqlDef()
-   */
+  /** Tests the strings returned by getSqlDef() */
   @Test
   public void testSqlDef_MSSQL() throws Exception {
     PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -356,11 +346,10 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests the strings returned by getSqlDef() when the size and scale
-   * parameters are not provided (it should use the MSSQL map defaults).
-   * <p>
-   * <b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need
-   * to be updated.</b>
+   * Tests the strings returned by getSqlDef() when the size and scale parameters are not provided
+   * (it should use the MSSQL map defaults).
+   *
+   * <p><b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need to be updated.</b>
    */
   @Test
   public void testSqlDefWithDefaults_MSSQL() throws Exception {
@@ -454,9 +443,7 @@ public class PSJdbcColumnDefTest {
     assertEquals(expected[5], columnDef.getSqlDef(dbDef));
   }
 
-  /**
-   * Tests the strings returned by getSqlDef()
-   */
+  /** Tests the strings returned by getSqlDef() */
   @Test
   public void testSqlDef_DB2() throws Exception {
     PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("DB2", "db2", null);
@@ -517,11 +504,10 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests the strings returned by getSqlDef() when the size and scale
-   * parameters are not provided (it should use the DB2 map defaults).
-   * <p>
-   * <b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need
-   * to be updated.</b>
+   * Tests the strings returned by getSqlDef() when the size and scale parameters are not provided
+   * (it should use the DB2 map defaults).
+   *
+   * <p><b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need to be updated.</b>
    */
   @Test
   public void testSqlDefWithDefaults_DB2() throws Exception {
@@ -595,11 +581,10 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests the strings returned by getSqlDef() when the size and scale
-   * parameters are not provided (it should use the Oracle map defaults).
-   * <p>
-   * <b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need
-   * to be updated.</b>
+   * Tests the strings returned by getSqlDef() when the size and scale parameters are not provided
+   * (it should use the Oracle map defaults).
+   *
+   * <p><b>If the defaults in PSJdbcDataTypeMaps.xml change, this test will need to be updated.</b>
    */
   @Test
   public void testSqlDefWithDefaults_Oracle() throws Exception {
@@ -709,8 +694,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * Tests if LimitSizeForIndex flag is set, if it is, it should limit the
-   * column width to 255. If not, it will be 1000.
+   * Tests if LimitSizeForIndex flag is set, if it is, it should limit the column width to 255. If
+   * not, it will be 1000.
    *
    * @throws Exception
    */
@@ -739,9 +724,7 @@ public class PSJdbcColumnDefTest {
 
   private String rxdeploydir;
 
-  /**
-   * Performs the setup required by the tests: creating a datatypemap.
-   */
+  /** Performs the setup required by the tests: creating a datatypemap. */
   @BeforeEach
   public void setUp() throws Exception {
     m_map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -756,8 +739,8 @@ public class PSJdbcColumnDefTest {
   }
 
   /**
-   * The datatypemap used by many of the tests. Created in <code>setUp()</code>.
-   * Never <code>null</code> while tests are running.
+   * The datatypemap used by many of the tests. Created in <code>setUp()</code>. Never <code>null
+   * </code> while tests are running.
    */
   protected PSJdbcDataTypeMap m_map;
 }

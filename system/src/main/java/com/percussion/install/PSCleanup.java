@@ -20,22 +20,19 @@ import com.percussion.util.IOTools;
 import java.io.File;
 
 /**
- * This class is launched at the end of the installation in a separate process
- * to complete the cleanup of temporary installation files.
+ * This class is launched at the end of the installation in a separate process to complete the
+ * cleanup of temporary installation files.
  *
  * @author peterfrontiero
  */
 // REFACTORED: CP-JAVA11
 public class PSCleanup {
   /**
-   * Deletes the directory specified by the passed in argument.  If the
-   * directory is in use, an attempt will be made to delete it for up to
-   * {@link #MAX_WAIT_TIME}.
+   * Deletes the directory specified by the passed in argument. If the directory is in use, an
+   * attempt will be made to delete it for up to {@link #MAX_WAIT_TIME}.
    *
    * @param args The following argument is accepted:
-   *
-   * directory - This is the path to the temporary directory used by the
-   *             installer.
+   *     <p>directory - This is the path to the temporary directory used by the installer.
    */
   public static void main(String args[]) {
     if (args.length == 0) {
@@ -51,8 +48,6 @@ public class PSCleanup {
     }
   }
 
-  /**
-   * The maximum time in minutes to continue trying to delete the directory.
-   */
+  /** The maximum time in minutes to continue trying to delete the directory. */
   private static final int MAX_WAIT_TIME = 3;
 }

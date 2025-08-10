@@ -30,29 +30,23 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Creates execution plans for schema and data modifications.
- */
+/** Creates execution plans for schema and data modifications. */
 public class PSJdbcPlanBuilder {
   /**
    * Creates an execution plan for processing the table's schema changes.
    *
    * @param conn A valid connection to the table's database, never <code>null
-   * </code>.  Connection is not closed by this method.
-   * @param dbmsDef Used to connect to the database.  May not be <code>null
+   * </code>. Connection is not closed by this method.
+   * @param dbmsDef Used to connect to the database. May not be <code>null
    * </code>.
-   * @param tableSchema Describes the table for which plans will be created.
-   * May not be <code>null</code>.
-   * @param schemaPlan The plan to which execution steps for processing the
-   * supplied schema will be added.  May not be <code>null</code>.
-   *
-   * @return The action that will be taken by the plan, one of the
-   * SCHEMA_ACTION_xxx types.
-   *
-   * @throws IllegalArgumentException if conn, dbmsDef, tableSchema or
-   * schemaPlan is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the tableSchema is not valid or any
-   * errors occur.
+   * @param tableSchema Describes the table for which plans will be created. May not be <code>null
+   *     </code>.
+   * @param schemaPlan The plan to which execution steps for processing the supplied schema will be
+   *     added. May not be <code>null</code>.
+   * @return The action that will be taken by the plan, one of the SCHEMA_ACTION_xxx types.
+   * @throws IllegalArgumentException if conn, dbmsDef, tableSchema or schemaPlan is <code>null
+   *     </code>.
+   * @throws PSJdbcTableFactoryException if the tableSchema is not valid or any errors occur.
    */
   public static int createSchemaPlan(
       Connection conn,
@@ -418,8 +412,8 @@ public class PSJdbcPlanBuilder {
   /**
    * Convenience method, calls {@link #getDataPlan(Connection,PSJdbcDbmsDef,
    * Map,PSJdbcTableSchema,PSJdbcTableData,PSJdbcExecutionPlan,
-   * PSJdbcExecutionPlan,PSJdbcExecutionPlan,PSJdbcReplaceExecutionPlan,
-   * boolean) getDataPlan(conn,dbmsDef,null,tableSchema,tableData,insertPlan,
+   * PSJdbcExecutionPlan,PSJdbcExecutionPlan,PSJdbcReplaceExecutionPlan, boolean)
+   * getDataPlan(conn,dbmsDef,null,tableSchema,tableData,insertPlan,
    * deletePlan,updatePlan,replacePlan,isChildTable)}
    */
   public static void getDataPlan(
@@ -447,46 +441,39 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Creates an execution plan for processing the table's data changes.
-   * We need four separate plans to support child tables. The plans are
-   * exectued in the following order : deletePlan then insertPlan then
-   * replacePlan then updatePlan. The plans have steps for child tables
-   * first and then for parent tables. For insertPlan and replacePlan
-   * the steps are executed in reverse order because inserts need to
-   * be done first for the parent table.
+   * Creates an execution plan for processing the table's data changes. We need four separate plans
+   * to support child tables. The plans are exectued in the following order : deletePlan then
+   * insertPlan then replacePlan then updatePlan. The plans have steps for child tables first and
+   * then for parent tables. For insertPlan and replacePlan the steps are executed in reverse order
+   * because inserts need to be done first for the parent table.
    *
    * @param conn A valid connection to the table's database, never <code>null
-   * </code>.  Connection is not closed by this method.
-   * @param dbmsDef Used to connect to the database.  May not be <code>null
+   * </code>. Connection is not closed by this method.
+   * @param dbmsDef Used to connect to the database. May not be <code>null
    * </code>.
-   * @param tableMetaMap Used to cache the table meta data. The meta data will
-   * be created and added to the map if the processed table does not exist
-   * in the map. The map key is the table name in <code>String</code>; the
-   * map value is <code>PSJdbcTableMetaData</code> object of the related
-   * table. It may be <code>null</code> if no need to cache the meta data.
-   * @param tableSchema Describes the table for which plans will be created.
-   * May not be <code>null</code>.
-   * @param tableData rows of data which need to inserted, deleted, replaced
-   * or updated depending upon the action attribute of the row. May not be
-   * <code>null</code>.
-   * @param insertPlan exectuion plan containing only the insert statements.
-   * May not be <code>null</code>.
-   * @param deletePlan exectuion plan containing only the delete statements.
-   * May not be <code>null</code>.
-   * @param updatePlan exectuion plan containing only the update statements.
-   * May not be <code>null</code>.
-   * @param replacePlan exectuion plan containing only the replace statements.
-   * In replace statements we first do an update and if no rows are updated
-   * then do an insert. May not be <code>null</code>.
-   * @param isChildTable true if this table is a child table. For child
-   * tables the insert action is converted to replace action. This is done
-   * because for child tables we always do an update first and only if no
-   * row is updated then we do an insert.
-   *
-   * @throws IllegalArgumentException if conn, dbmsDef, tableSchema,
-   * tableData, insertPlan, deletePlan, updatePlan, replacePlan is
-   * <code>null</code>, or if a row with an unrecognized action is supplied.
-   *
+   * @param tableMetaMap Used to cache the table meta data. The meta data will be created and added
+   *     to the map if the processed table does not exist in the map. The map key is the table name
+   *     in <code>String</code>; the map value is <code>PSJdbcTableMetaData</code> object of the
+   *     related table. It may be <code>null</code> if no need to cache the meta data.
+   * @param tableSchema Describes the table for which plans will be created. May not be <code>null
+   *     </code>.
+   * @param tableData rows of data which need to inserted, deleted, replaced or updated depending
+   *     upon the action attribute of the row. May not be <code>null</code>.
+   * @param insertPlan exectuion plan containing only the insert statements. May not be <code>null
+   *     </code>.
+   * @param deletePlan exectuion plan containing only the delete statements. May not be <code>null
+   *     </code>.
+   * @param updatePlan exectuion plan containing only the update statements. May not be <code>null
+   *     </code>.
+   * @param replacePlan exectuion plan containing only the replace statements. In replace statements
+   *     we first do an update and if no rows are updated then do an insert. May not be <code>null
+   *     </code>.
+   * @param isChildTable true if this table is a child table. For child tables the insert action is
+   *     converted to replace action. This is done because for child tables we always do an update
+   *     first and only if no row is updated then we do an insert.
+   * @throws IllegalArgumentException if conn, dbmsDef, tableSchema, tableData, insertPlan,
+   *     deletePlan, updatePlan, replacePlan is <code>null</code>, or if a row with an unrecognized
+   *     action is supplied.
    * @throws PSJdbcTableFactoryException if any errors occur.
    */
   public static void getDataPlan(
@@ -816,21 +803,16 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Returns <code>true</code> if it is possible to unpublish from child table
-   * based on the primary and foreign keys and a single row of data from the
-   * parent table.
-   * If childTableSchema is <code>null</code>, this method returns
-   * <code>false</code>.
+   * Returns <code>true</code> if it is possible to unpublish from child table based on the primary
+   * and foreign keys and a single row of data from the parent table. If childTableSchema is <code>
+   * null</code>, this method returns <code>false</code>.
    *
-   * @param parentTableSchema the schema of the parent table, assumed not
-   * <code>null</code>
-   * @param childTableSchema the schema of the child table, may be
-   * <code>null</code>
-   * @param parentRowData encapsulates the a single row of data from the parent
-   * table, assumed not <code>null</code>
-   *
-   * @return <code>true</code> if it is possible to unpublish from child table,
-   * <code>false</code> otherwise
+   * @param parentTableSchema the schema of the parent table, assumed not <code>null</code>
+   * @param childTableSchema the schema of the child table, may be <code>null</code>
+   * @param parentRowData encapsulates the a single row of data from the parent table, assumed not
+   *     <code>null</code>
+   * @return <code>true</code> if it is possible to unpublish from child table, <code>false</code>
+   *     otherwise
    */
   @SuppressWarnings("unchecked")
   private static boolean canUnpublishChildTables(
@@ -884,20 +866,18 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Constructs a <code>PSJdbcTableData</code>object containing all the rows
-   * that are in the dbChildTblData but not in the memChildTblData
-   * @param tableSchema schema object for the table whose data is to be
-   * compared, may not be <code>null</code>
-   * @param dbChildTblData contains the rows from the database, may be
-   * <code>null</code> if no rows exist in the database for this table
-   * @param memChildTblData contains the rows obtained by parsing the xml file,
-   * may be <code>null</code> if no data has been specified in the xml file
-   * for this table
+   * Constructs a <code>PSJdbcTableData</code>object containing all the rows that are in the
+   * dbChildTblData but not in the memChildTblData
    *
-   * @return a <code>PSJdbcTableData</code>object containing all the rows
-   * that are in the dbChildTblData but not in the memChildTblData, may return
-   * <code>null</code> if no rows exist in the database for this table
-   *
+   * @param tableSchema schema object for the table whose data is to be compared, may not be <code>
+   *     null</code>
+   * @param dbChildTblData contains the rows from the database, may be <code>null</code> if no rows
+   *     exist in the database for this table
+   * @param memChildTblData contains the rows obtained by parsing the xml file, may be <code>null
+   *     </code> if no data has been specified in the xml file for this table
+   * @return a <code>PSJdbcTableData</code>object containing all the rows that are in the
+   *     dbChildTblData but not in the memChildTblData, may return <code>null</code> if no rows
+   *     exist in the database for this table
    * @throws PSJdbcTableFactoryException if there are any errors.
    * @throws IllegalArgumentException if tableSchema is <code>null</code>
    */
@@ -954,17 +934,14 @@ public class PSJdbcPlanBuilder {
   /**
    * Compares two rows based upon their primary key values.
    *
-   * @param tableSchema Table Schema object from which the primary keys are
-   * obtained, may not be <code>null</code>.
+   * @param tableSchema Table Schema object from which the primary keys are obtained, may not be
+   *     <code>null</code>.
    * @param rowData RowData object to be compared, may not be <code>null</code>.
-   * @param rowDataToCompare RowData object to be compared, may not be
-   * <code>null</code>.
-   *
-   * @return <code>true</code> if both rows have the same values for primary
-   * key, else return <code>false</code>.
-   *
-   * @throws IllegalArgumentException if rowData or rowDataToCompare or schema
-   * is <code>null</code> or table schema has no primary key defined.
+   * @param rowDataToCompare RowData object to be compared, may not be <code>null</code>.
+   * @return <code>true</code> if both rows have the same values for primary key, else return <code>
+   *     false</code>.
+   * @throws IllegalArgumentException if rowData or rowDataToCompare or schema is <code>null</code>
+   *     or table schema has no primary key defined.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   public static boolean hasSameKeyValues(
@@ -1007,22 +984,17 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Sets the database, database server, table name and a single row containing
-   * the primary key columns in the <code>PSJdbcLogData</code> object
-   * associated with the execution of each step.
+   * Sets the database, database server, table name and a single row containing the primary key
+   * columns in the <code>PSJdbcLogData</code> object associated with the execution of each step.
    *
-   * @param step the step with whose <code>PSJdbcLogData</code>
-   * object the database server and table name will be set, may be
-   * <code>null</code>.
-   * @param dbmsDef the database object from which the database server will
-   * be obtained, never <code>null</code>.
-   * @param tableSchema the table schema object from which the table name
-   * will be obtained, never <code>null</code>.
-   * @param row the row of data for which the step is to be executed, never
-   * <code>null</code>
-   *
-   * @throws IllegalArgumentException if dbmsDef or tableSchema or row is
-   * <code>null</code>
+   * @param step the step with whose <code>PSJdbcLogData</code> object the database server and table
+   *     name will be set, may be <code>null</code>.
+   * @param dbmsDef the database object from which the database server will be obtained, never
+   *     <code>null</code>.
+   * @param tableSchema the table schema object from which the table name will be obtained, never
+   *     <code>null</code>.
+   * @param row the row of data for which the step is to be executed, never <code>null</code>
+   * @throws IllegalArgumentException if dbmsDef or tableSchema or row is <code>null</code>
    */
   @SuppressWarnings("unchecked")
   private static void setLogData(
@@ -1148,24 +1120,19 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Fetches those child rows from the database whose foreign key column values
-   * matches those of the parent table's row passed as parameter. This
-   * function has not be implemented fully as we do not support doing a
-   * cascading delete programmatically currently. This method needs
-   * implementation of "SELECT" statement in PSJdbcStatementFactory.
+   * Fetches those child rows from the database whose foreign key column values matches those of the
+   * parent table's row passed as parameter. This function has not be implemented fully as we do not
+   * support doing a cascading delete programmatically currently. This method needs implementation
+   * of "SELECT" statement in PSJdbcStatementFactory.
    *
-   * @param dbmsDef the object representing the database, may not be
-   * <code>null</code>
-   * @param parentTableSchema schema object representing the parent table,
-   * may not be <code>null</code>
-   * @param childTableSchema schema object representing the child table,
-   * may not be <code>null</code>
-   * @param parentRow row of data from the parent table containing the value
-   * of foreign key columns which needs to be deleted from the child table,
-   * may not be <code>null</code>
-   *
+   * @param dbmsDef the object representing the database, may not be <code>null</code>
+   * @param parentTableSchema schema object representing the parent table, may not be <code>null
+   *     </code>
+   * @param childTableSchema schema object representing the child table, may not be <code>null
+   *     </code>
+   * @param parentRow row of data from the parent table containing the value of foreign key columns
+   *     which needs to be deleted from the child table, may not be <code>null</code>
    * @return an iterator over the list of child rows fetched from the database.
-   *
    * @throws IllegalArgumentException if any parameter is null.
    */
   private static Iterator getChildRows(
@@ -1205,22 +1172,19 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Creates a block of statements that creates a copy of the specified
-   * table, and copying all current data to that table.  If a backup table
-   * already exists, it is dropped.
+   * Creates a block of statements that creates a copy of the specified table, and copying all
+   * current data to that table. If a backup table already exists, it is dropped.
    *
-   * @param dbmsDef Provides the database/schema information for the table.
-   * Assumed not <code>null</code>.
-   * @param tableSchema The table to drop.  assumed not <code>null</code>.
-   * @param targetTableName The name of the backup table to create.  Assumed
-   *  not <code>null</code> or empty.
-   * @param targetExists If <code>true</code>, a drop statement is first
-   * added for the target table, if <code>false</code>, it is not.
-   * @param failOnDataCopyError If <code>true</code>, if the copy of the data
-   * fails, execution will stop.  If <code>false</code>, it will not.
-   * @param schemaHandler table schema handler, may be
-   * <code>null</code>
-   *
+   * @param dbmsDef Provides the database/schema information for the table. Assumed not <code>null
+   *     </code>.
+   * @param tableSchema The table to drop. assumed not <code>null</code>.
+   * @param targetTableName The name of the backup table to create. Assumed not <code>null</code> or
+   *     empty.
+   * @param targetExists If <code>true</code>, a drop statement is first added for the target table,
+   *     if <code>false</code>, it is not.
+   * @param failOnDataCopyError If <code>true</code>, if the copy of the data fails, execution will
+   *     stop. If <code>false</code>, it will not.
+   * @param schemaHandler table schema handler, may be <code>null</code>
    * @return The statement block, never <code>null</code> or empty.
    */
   private static PSJdbcExecutionStep getCopyTableStatement(
@@ -1258,23 +1222,17 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Diff the two schema objects and returns table schema object containing
-   * the changes.  Will contain all columns, and keys, with their actions set
-   * appropriately, and the table action will be set to alter.  If a component
-   * is not changed, it will still be included with its action set to {@link
-   * PSJdbcTableComponent#ACTION_NONE}.  If an update key is defined in the
-   * new schema, it will replace any defined in the old schema.
+   * Diff the two schema objects and returns table schema object containing the changes. Will
+   * contain all columns, and keys, with their actions set appropriately, and the table action will
+   * be set to alter. If a component is not changed, it will still be included with its action set
+   * to {@link PSJdbcTableComponent#ACTION_NONE}. If an update key is defined in the new schema, it
+   * will replace any defined in the old schema.
    *
-   * @param oldSchema The schema representing the current table.  Assumed not
-   * <code>null</code>.
-   * @param newSchema The schema representing the desired table.  Assumed not
-   * <code>null</code>.
-   * @param buffer an empty string buffer to log schema changes, assumed
-   * not <code>null</code> and empty
-   *
-   * @return The tableSchema object, or <code>null</code> if no changes are
-   * required.
-   *
+   * @param oldSchema The schema representing the current table. Assumed not <code>null</code>.
+   * @param newSchema The schema representing the desired table. Assumed not <code>null</code>.
+   * @param buffer an empty string buffer to log schema changes, assumed not <code>null</code> and
+   *     empty
+   * @return The tableSchema object, or <code>null</code> if no changes are required.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   @SuppressWarnings("unchecked")
@@ -1475,18 +1433,15 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Takes a schema object with only changes specified and merges them with
-   * a schema object fully defining the current table, so that the result is a
-   * table schema fully defining the desired table.  If an updateKey is defined
-   * in the object with changes, it is used in the resulting schema.
+   * Takes a schema object with only changes specified and merges them with a schema object fully
+   * defining the current table, so that the result is a table schema fully defining the desired
+   * table. If an updateKey is defined in the object with changes, it is used in the resulting
+   * schema.
    *
-   * @param oldSchema The schema representing the current table.  Assumed not
-   * <code>null</code>.
-   * @param newSchema The schema containing the changes to make to the current
-   * table. Assumed not <code>null</code>.
-   *
+   * @param oldSchema The schema representing the current table. Assumed not <code>null</code>.
+   * @param newSchema The schema containing the changes to make to the current table. Assumed not
+   *     <code>null</code>.
    * @return A new composite tableSchema object, never <code>null</code>.
-   *
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
   private static PSJdbcTableSchema addTableChanges(
@@ -1540,19 +1495,16 @@ public class PSJdbcPlanBuilder {
   }
 
   /**
-   * Creates a backup table name for the specified table.  Appends value of
-   * {@link #BACKUP_SUFFIX} to the name, first truncating the name if the
-   * resulting length would exceed the databases maxium table length.
+   * Creates a backup table name for the specified table. Appends value of {@link #BACKUP_SUFFIX} to
+   * the name, first truncating the name if the resulting length would exceed the databases maxium
+   * table length.
    *
-   * @param conn A connection to use to get the max table name length, assumed
-   * to be a valid connection.
-   * @param tablename The name of the table, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param conn A connection to use to get the max table name length, assumed to be a valid
+   *     connection.
+   * @param tablename The name of the table, assumed not <code>null</code> or empty.
    * @return The backup name, not <code>null</code> or empty.
-   *
-   * @throws PSJdbcTableFactoryException if an error occurs retrieving the max
-   * length allowed from the database.
+   * @throws PSJdbcTableFactoryException if an error occurs retrieving the max length allowed from
+   *     the database.
    */
   private static String getBackupTableName(Connection conn, String tablename)
       throws PSJdbcTableFactoryException {
@@ -1574,8 +1526,8 @@ public class PSJdbcPlanBuilder {
   /**
    * Serializes the table schema to Xml and writes it to the log.
    *
-   * @param tableSchema the table schema which will be serialized to Xml
-   * format and written to log, assumed not <code>null</code>
+   * @param tableSchema the table schema which will be serialized to Xml format and written to log,
+   *     assumed not <code>null</code>
    */
   @SuppressWarnings("unused")
   private static void logTableSchema(PSJdbcTableSchema tableSchema) {
@@ -1590,34 +1542,24 @@ public class PSJdbcPlanBuilder {
     }
   }
 
-  /**
-   * Constant to indicate no action will be taken when processing the schema.
-   */
+  /** Constant to indicate no action will be taken when processing the schema. */
   public static int SCHEMA_ACTION_NONE = 0;
 
-  /**
-   * Constant to indicate the table will be created when processing the schema.
-   */
+  /** Constant to indicate the table will be created when processing the schema. */
   public static int SCHEMA_ACTION_CREATE = 1;
 
-  /**
-   * Constant to indicate the table will be altered when processing the schema.
-   */
+  /** Constant to indicate the table will be altered when processing the schema. */
   public static int SCHEMA_ACTION_ALTER = 2;
 
   /**
-   * Constant to indicate the table will be backed up, dropped and recreated
-   * when processing the schema.
+   * Constant to indicate the table will be backed up, dropped and recreated when processing the
+   * schema.
    */
   public static int SCHEMA_ACTION_RECREATE = 3;
 
-  /**
-   * Text to append to table name when creating a backup.
-   */
+  /** Text to append to table name when creating a backup. */
   public static final String BACKUP_SUFFIX = "_BAK";
 
-  /**
-   * Constant for newline character.
-   */
+  /** Constant for newline character. */
   public static final String NEWLINE = System.getProperty("line.separator", "\n");
 }

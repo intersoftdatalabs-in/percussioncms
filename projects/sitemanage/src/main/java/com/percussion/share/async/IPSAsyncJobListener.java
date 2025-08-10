@@ -17,14 +17,12 @@
 
 package com.percussion.share.async;
 
-/**
- * Provides notification of events that may occur while a job is running.
- */
+/** Provides notification of events that may occur while a job is running. */
 public interface IPSAsyncJobListener {
-    /**
-     * Notifies the listener that the job has been completed.
-     *
-     * @param jobId The Id of the job that has completed.
-     */
-    void jobCompleted(long jobId);
+  /**
+   * Notifies the listener that the job has been completed.
+   *
+   * @param jobId The Id of the job that has completed.
+   */
+  void jobCompleted(long jobId);
 }

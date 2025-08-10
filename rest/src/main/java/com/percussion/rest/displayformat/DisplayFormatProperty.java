@@ -21,75 +21,76 @@ package com.percussion.rest.displayformat;
 
 import com.percussion.rest.ValueList;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.Optional;
 
-/**
- * Represents a property of a DisplayFormat.
- * Properties may be multi-valued or single-valued.
- */
+/** Represents a property of a DisplayFormat. Properties may be multi-valued or single-valued. */
 @Schema(
     name = "DisplayFormatProperty",
-    description = "Represents a property of a DisplayFormat. Properties may be multi valued or single valued."
-)
+    description =
+        "Represents a property of a DisplayFormat. Properties may be multi valued or single"
+            + " valued.")
 public class DisplayFormatProperty {
 
-    @Schema(name = "propertyId", description = "The id for this property.")
-    private String propertyId;
+  @Schema(name = "propertyId", description = "The id for this property.")
+  private String propertyId;
 
-    @Schema(name = "propertyName", description = "The unique Name for this property.")
-    private String propertyName;
+  @Schema(name = "propertyName", description = "The unique Name for this property.")
+  private String propertyName;
 
-    @Schema(name = "propertyValue", description = "For a single value property, the value of the property")
-    private String propertyValue;
+  @Schema(
+      name = "propertyValue",
+      description = "For a single value property, the value of the property")
+  private String propertyValue;
 
-    @Schema(name = "description", description = "An optional description of this property's purpose")
-    private String description;
+  @Schema(name = "description", description = "An optional description of this property's purpose")
+  private String description;
 
-    @Schema(name = "propertyValues", description = "For a multi value property, the list of current values of the property")
-    private ValueList propertyValues;
+  @Schema(
+      name = "propertyValues",
+      description = "For a multi value property, the list of current values of the property")
+  private ValueList propertyValues;
 
-    public DisplayFormatProperty() {
-        // Default constructor
-    }
+  public DisplayFormatProperty() {
+    // Default constructor
+  }
 
-    public Optional<String> getPropertyId() {
-        return Optional.ofNullable(propertyId);
-    }
+  public Optional<String> getPropertyId() {
+    return Optional.ofNullable(propertyId);
+  }
 
-    public void setPropertyId(String propertyId) {
-        this.propertyId = propertyId;
-    }
+  public void setPropertyId(String propertyId) {
+    this.propertyId = propertyId;
+  }
 
-    public Optional<String> getPropertyName() {
-        return Optional.ofNullable(propertyName);
-    }
+  public Optional<String> getPropertyName() {
+    return Optional.ofNullable(propertyName);
+  }
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
-    }
+  public void setPropertyName(String propertyName) {
+    this.propertyName = propertyName;
+  }
 
-    public Optional<String> getPropertyValue() {
-        return Optional.ofNullable(propertyValue);
-    }
+  public Optional<String> getPropertyValue() {
+    return Optional.ofNullable(propertyValue);
+  }
 
-    public void setPropertyValue(String propertyValue) {
-        this.propertyValue = propertyValue;
-    }
+  public void setPropertyValue(String propertyValue) {
+    this.propertyValue = propertyValue;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Optional<ValueList> getPropertyValues() {
-        return Optional.ofNullable(propertyValues);
-    }
+  public Optional<ValueList> getPropertyValues() {
+    return Optional.ofNullable(propertyValues);
+  }
 
-    public void setPropertyValues(ValueList propertyValues) {
-        this.propertyValues = propertyValues;
-    }
+  public void setPropertyValues(ValueList propertyValues) {
+    this.propertyValues = propertyValues;
+  }
 }

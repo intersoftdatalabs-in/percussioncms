@@ -28,16 +28,13 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Context to represent a display mapper in a content editor.
- */
+/** Context to represent a display mapper in a content editor. */
 public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from its member data.
    *
-   * @param mapper The mapper within a content editor this context
-   * represents.  May not be <code>null</code>.
-   *
+   * @param mapper The mapper within a content editor this context represents. May not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if <code>fieldRef</code> is invalid.
    */
   public PSAppDisplayMapperIdContext(PSDisplayMapper mapper) {
@@ -50,12 +47,9 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppDisplayMapperIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -94,12 +88,13 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppDisplayMapperIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppDisplayMapperIdContext
@@ -123,9 +118,8 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -189,21 +183,18 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Name of the fieldSet ref of the mapper this context represents, never
-   * <code>null</code> or empty after ctor, may be modified by a call to
-   * <code>copyFrom()</code>.
+   * Name of the fieldSet ref of the mapper this context represents, never <code>null</code> or
+   * empty after ctor, may be modified by a call to <code>copyFrom()</code>.
    */
   private String m_fieldSetRef;
 
   /**
-   * ID of the mapper this context represents, intialized during ctor, may be
-   * modified by a call to <code>copyFrom()</code>.
+   * ID of the mapper this context represents, intialized during ctor, may be modified by a call to
+   * <code>copyFrom()</code>.
    */
   private int m_id;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppDisplayMapperIdContext";
 
   // private xml constant

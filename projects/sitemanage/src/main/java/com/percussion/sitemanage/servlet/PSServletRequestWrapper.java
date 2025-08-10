@@ -22,64 +22,60 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-/**
- * A mutable HTTP servlet request wrapper.
- * Refactored for Java 11 and Google Java Style.
- */
+/** A mutable HTTP servlet request wrapper. Refactored for Java 11 and Google Java Style. */
 public class PSServletRequestWrapper extends HttpServletRequestWrapper {
-    private Map<String, String[]> wrappedParams = new LinkedHashMap<>();
+  private Map<String, String[]> wrappedParams = new LinkedHashMap<>();
 
-    public PSServletRequestWrapper(HttpServletRequest request) {
-        super(request);
-        wrappedParams.putAll(super.getParameterMap());
-    }
+  public PSServletRequestWrapper(HttpServletRequest request) {
+    super(request);
+    wrappedParams.putAll(super.getParameterMap());
+  }
 
-    @Override
-    public String getParameter(String name) {
-        var p = getParameterValues(name);
-        if (p == null || p.length == 0) {
-            return null;
-        }
-        return p[0];
+  @Override
+  public String getParameter(String name) {
+    var p = getParameterValues(name);
+    if (p == null || p.length == 0) {
+      return null;
     }
+    return p[0];
+  }
 
-    @Override
-    public Map<String, String[]> getParameterMap() {
-        return Collections.unmodifiableMap(getMergedParameters());
-    }
+  @Override
+  public Map<String, String[]> getParameterMap() {
+    return Collections.unmodifiableMap(getMergedParameters());
+  }
 
-    @Override
-    public Enumeration<String> getParameterNames() {
-        return Collections.enumeration(getMergedParameters().keySet());
-    }
+  @Override
+  public Enumeration<String> getParameterNames() {
+    return Collections.enumeration(getMergedParameters().keySet());
+  }
 
-    @Override
-    public String[] getParameterValues(String name) {
-        return getMergedParameters().get(name);
-    }
+  @Override
+  public String[] getParameterValues(String name) {
+    return getMergedParameters().get(name);
+  }
 
-    /**
-     * Sets the parameter map for this request.
-     *
-     * @param params the params to set
-     */
-    public void setParameterMap(Map<String, String[]> params) {
-        this.wrappedParams = params;
-    }
+  /**
+   * Sets the parameter map for this request.
+   *
+   * @param params the params to set
+   */
+  public void setParameterMap(Map<String, String[]> params) {
+    this.wrappedParams = params;
+  }
 
-    /**
-     * Merge the superclass and local parameters together; the local
-     * parameters overwrite the super parameters.
-     *
-     * @return merged parameter map, never {@code null}, may be empty.
-     */
-    private Map<String, String[]> getMergedParameters() {
-        var mergedParams = new LinkedHashMap<String, String[]>(super.getParameterMap());
-        mergedParams.putAll(wrappedParams);
-        return mergedParams;
-    }
+  /**
+   * Merge the superclass and local parameters together; the local parameters overwrite the super
+   * parameters.
+   *
+   * @return merged parameter map, never {@code null}, may be empty.
+   */
+  private Map<String, String[]> getMergedParameters() {
+    var mergedParams = new LinkedHashMap<String, String[]>(super.getParameterMap());
+    mergedParams.putAll(wrappedParams);
+    return mergedParams;
+  }
 }

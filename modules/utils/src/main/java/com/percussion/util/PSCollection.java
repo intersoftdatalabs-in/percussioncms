@@ -22,23 +22,19 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
- * The PSCollection class is used to maintain a collection of objects.
- * Objects can be added, changed or removed from the collection. All
- * objects in the collection must be of the same class.
+ * The PSCollection class is used to maintain a collection of objects. Objects can be added, changed
+ * or removed from the collection. All objects in the collection must be of the same class.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCollection extends PSConcurrentList {
   /**
    * Construct a collection object to store objects of the specified type.
    *
-   * @param      className   the name of the class which this collection's
-   *                                                                     members must be or extend
-   *
-   * @exception   ClassNotFoundException   if the specified class cannot be
-   *                                                                                 found
+   * @param className the name of the class which this collection's members must be or extend
+   * @exception ClassNotFoundException if the specified class cannot be found
    */
   public PSCollection(String className) throws ClassNotFoundException {
     this(Class.forName(className));
@@ -47,20 +43,18 @@ public class PSCollection extends PSConcurrentList {
   /**
    * Construct a collection object to store objects of the specified type.
    *
-   * @param      cl            the class which this collection's
-   *                                                                     members must be or extend
+   * @param cl the class which this collection's members must be or extend
    */
   public PSCollection(Class<?> cl) {
     m_memberClass = cl;
   }
 
   /**
-   * Construct a collection object to store objects of the specified type
-   * with the specified initial capacity and with its capacity increment equal
-   * to zero.
+   * Construct a collection object to store objects of the specified type with the specified initial
+   * capacity and with its capacity increment equal to zero.
    *
    * @param cl the class which this collection's members must be or extend.
-   * @param initialCapacity   the initial capacity of the collection.
+   * @param initialCapacity the initial capacity of the collection.
    */
   public PSCollection(Class cl, int initialCapacity) {
     m_memberClass = cl;
@@ -69,11 +63,9 @@ public class PSCollection extends PSConcurrentList {
   /**
    * Construct a collection object from the objects in the supplied Iterator.
    *
-   * @param i An iterator over <code>zero</code> or more objects.  All objects
-   * must be of the same type.  May not be <code>null</code>.
-   *
-   * @throws ClassCastException if all of the objects under the iterator are
-   * not of the same type.
+   * @param i An iterator over <code>zero</code> or more objects. All objects must be of the same
+   *     type. May not be <code>null</code>.
+   * @throws ClassCastException if all of the objects under the iterator are not of the same type.
    */
   public PSCollection(Iterator i) throws ClassCastException {
     m_memberClass = null;
@@ -86,21 +78,18 @@ public class PSCollection extends PSConcurrentList {
     }
   }
 
-  /**
-   * Default constructor needed for serialization.
-   */
+  /** Default constructor needed for serialization. */
   protected PSCollection() {
     super();
   }
 
   /**
-   * Inserts the specified element at the specified index to the collection.
-   * All elements in the collection must be of the class or extend the
-   * class which was defined at construction of the collection. If the
-   * object is of an incorrect type, an exception will be thrown.
+   * Inserts the specified element at the specified index to the collection. All elements in the
+   * collection must be of the class or extend the class which was defined at construction of the
+   * collection. If the object is of an incorrect type, an exception will be thrown.
    *
    * @param index the insert position
-   * @param o   the object to add to the collection
+   * @param o the object to add to the collection
    * @throws ClassCastException if the object is not of the appropriate class
    */
   public void add(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
@@ -110,14 +99,12 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Adds the specified element to the collection. All elements in the
-   * collection must be of the class or extend the class which was
-   * defined at construction of the collection. If the object is of an
-   * incorrect type, an exception will be thrown.
+   * Adds the specified element to the collection. All elements in the collection must be of the
+   * class or extend the class which was defined at construction of the collection. If the object is
+   * of an incorrect type, an exception will be thrown.
    *
-   * @param o   the object to add to the collection
-   * @return <code>true</code> if the object was added,
-   *        throws ClassCastException otherwise
+   * @param o the object to add to the collection
+   * @return <code>true</code> if the object was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
   public boolean add(Object o) throws ClassCastException {
@@ -127,12 +114,11 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Adds the specified element to the collection. All elements in the
-   * collection must be of the class or extend the class which was
-   * defined at construction of the collection. If the object is of an
-   * incorrect type, an exception will be thrown.
+   * Adds the specified element to the collection. All elements in the collection must be of the
+   * class or extend the class which was defined at construction of the collection. If the object is
+   * of an incorrect type, an exception will be thrown.
    *
-   * @param o   the object to add to the collection
+   * @param o the object to add to the collection
    * @throws ClassCastException if the object is not of the appropriate class
    */
   public void addElement(Object o) throws ClassCastException {
@@ -140,14 +126,12 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Adds the specified collection to this collection. All elements in the
-   * collection must be of the class or extend the class which was
-   * defined at construction of the collection. If the object is of an
-   * incorrect type, an exception will be thrown.
+   * Adds the specified collection to this collection. All elements in the collection must be of the
+   * class or extend the class which was defined at construction of the collection. If the object is
+   * of an incorrect type, an exception will be thrown.
    *
-   * @param c   the collection to add to this collection
-   * @return <code>true</code> if the collection was added,
-   *        throws ClassCastException otherwise
+   * @param c the collection to add to this collection
+   * @return <code>true</code> if the collection was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
   public boolean addAll(Collection c) throws ArrayIndexOutOfBoundsException, ClassCastException {
@@ -157,14 +141,12 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Inserts the specified collection to this collection at the specified
-   * index. All elements in the collection must be of the class or extend
-   * the class which was defined at construction of the collection. If the
-   * object is of an incorrect type, an exception will be thrown.
+   * Inserts the specified collection to this collection at the specified index. All elements in the
+   * collection must be of the class or extend the class which was defined at construction of the
+   * collection. If the object is of an incorrect type, an exception will be thrown.
    *
-   * @param c   the collection to add to this collection
-   * @return <code>true</code> if the collection was added,
-   *        throws ClassCastException otherwise
+   * @param c the collection to add to this collection
+   * @return <code>true</code> if the collection was added, throws ClassCastException otherwise
    * @throws ClassCastException if the object is not of the appropriate class
    */
   public boolean addAll(int index, Collection c)
@@ -175,16 +157,15 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Sets the specified element in the collection. All elements in the
-   * collection must be of the class or extend the class which was
-   * defined at construction of the collection. If the object is of an
-   * incorrect type, an exception will be thrown.
+   * Sets the specified element in the collection. All elements in the collection must be of the
+   * class or extend the class which was defined at construction of the collection. If the object is
+   * of an incorrect type, an exception will be thrown.
    *
    * @param index the index of the element to set
    * @param o the object to set
    * @return the previous element in the specified position
-   * @throws ArrayIndexOutOfBoundsException   if index is out of range
-   * @throws ClassCastException   if the object is not of the appropriate class
+   * @throws ArrayIndexOutOfBoundsException if index is out of range
+   * @throws ClassCastException if the object is not of the appropriate class
    */
   public Object set(int index, Object o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
@@ -193,15 +174,14 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Sets the specified element in the collection. All elements in the
-   * collection must be of the class or extend the class which was
-   * defined at construction of the collection. If the object is of an
-   * incorrect type, an exception will be thrown.
+   * Sets the specified element in the collection. All elements in the collection must be of the
+   * class or extend the class which was defined at construction of the collection. If the object is
+   * of an incorrect type, an exception will be thrown.
    *
    * @param index the index of the element to set
    * @param o the object to set
-   * @throws ArrayIndexOutOfBoundsException   if index is out of range
-   * @throws ClassCastException   if the object is not of the appropriate class
+   * @throws ArrayIndexOutOfBoundsException if index is out of range
+   * @throws ClassCastException if the object is not of the appropriate class
    */
   public void setElementAt(Object o, int index)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
@@ -246,11 +226,10 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Check the type of the object and throw the appropriate execption if
-   * it's the wrong type.
+   * Check the type of the object and throw the appropriate execption if it's the wrong type.
    *
    * @param o the object to check
-   * @exception ClassCastException   if the object is of the wrong type
+   * @exception ClassCastException if the object is of the wrong type
    */
   protected void checkType(Object o) throws ClassCastException {
     if (!(m_memberClass.isInstance(o)))
@@ -262,13 +241,11 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Check the type of all objects in the provided collection and throw the
-   * appropriate execption if any of the collections objects has the wrong
-   * type.
+   * Check the type of all objects in the provided collection and throw the appropriate execption if
+   * any of the collections objects has the wrong type.
    *
    * @param c the collection to check
-   * @exception ClassCastException   if any object in the provided collection
-   *    is of the wrong type.
+   * @exception ClassCastException if any object in the provided collection is of the wrong type.
    */
   private void checkType(Collection c) throws ClassCastException {
     Iterator i = c.iterator();
@@ -284,21 +261,17 @@ public class PSCollection extends PSConcurrentList {
   }
 
   /**
-   * Creates a deep copy of PSCollection object.
-   * First clear the clone collection, then  check if the objects inside
-   * the collection is immutable if so the method just add to the clone.
-   * If not call the corresponding clone method for each of the object.
-   * The caller must perform their own clone of this object if
-   * the member of the collection are resources such as inputstream,
-   * database connection etc. 'String' and 'File' are the only classes
-   * considered immutable.
-   * Each object inside the collection has to have clone() method.
+   * Creates a deep copy of PSCollection object. First clear the clone collection, then check if the
+   * objects inside the collection is immutable if so the method just add to the clone. If not call
+   * the corresponding clone method for each of the object. The caller must perform their own clone
+   * of this object if the member of the collection are resources such as inputstream, database
+   * connection etc. 'String' and 'File' are the only classes considered immutable. Each object
+   * inside the collection has to have clone() method.
    *
-   * @return A new collection with each mutable member cloned and a reference
-   *    copy of each immutable member.
-   *
-   * @throws InternalError If any mutable member doesn't implement the clone
-   *    method or there are any problems executing that method.
+   * @return A new collection with each mutable member cloned and a reference copy of each immutable
+   *     member.
+   * @throws InternalError If any mutable member doesn't implement the clone method or there are any
+   *     problems executing that method.
    */
   public Object clone() {
     Object copy = null;
@@ -331,8 +304,6 @@ public class PSCollection extends PSConcurrentList {
     else throw new NoSuchElementException();
   }
 
-  /**
-   * The one and only valid class type for this collection.
-   */
+  /** The one and only valid class type for this collection. */
   private Class m_memberClass;
 }

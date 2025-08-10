@@ -28,9 +28,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Dependency class that represents a cms element that can only be deployed or
- * identified as a child dependency of {@link PSDeployableElement} or another
- * <code>PSDeployableObject</code>.
+ * Dependency class that represents a cms element that can only be deployed or identified as a child
+ * dependency of {@link PSDeployableElement} or another <code>PSDeployableObject</code>.
  */
 public class PSDeployableObject extends PSDependency {
   /**
@@ -62,27 +61,23 @@ public class PSDeployableObject extends PSDependency {
   /**
    * Construct a dependency with all required parameters.
    *
-   * @param dependencyType The type of dependency, must be one of the
-   * <code>TYPE_xxx</code> types.
-   * @param dependencyId Combined with <code>objectType</code> uniquely
-   * identifies the object this dependency represents.  May not be
-   * <code>null</code> or empty.
-   * @param displayName Name to use when displaying this dependency.  May not
-   * be <code>null</code> or empty.
-   * @param objectType The type of object this dependency represents. May not
-   * be <code>null</code> or empty.
-   * @param objectTypeName Displayable form of the <code>objectType</code>,
-   * may not be <code>null</code> or empty.
-   * @param supportsIdTypes <code>true</code> if this object contains static
-   * ID's whose type must be identified, <code>false</code> if not.
-   * @param supportsIdMapping <code>true</code> if this object's ID can change
-   * across server's and thus may be included in an ID Mapping.
-   * @param supportsUserDependencies If <code>true</code>, this dependency
-   * allows user defined dependencies to be added as children,
-   * <code>false</code> otherwise.
-   * @param supportsParentId If <code>true</code>, supports a parent id to be
-   * specified, if <code>false</code>, does not.
-   *
+   * @param dependencyType The type of dependency, must be one of the <code>TYPE_xxx</code> types.
+   * @param dependencyId Combined with <code>objectType</code> uniquely identifies the object this
+   *     dependency represents. May not be <code>null</code> or empty.
+   * @param displayName Name to use when displaying this dependency. May not be <code>null</code> or
+   *     empty.
+   * @param objectType The type of object this dependency represents. May not be <code>null</code>
+   *     or empty.
+   * @param objectTypeName Displayable form of the <code>objectType</code>, may not be <code>null
+   *     </code> or empty.
+   * @param supportsIdTypes <code>true</code> if this object contains static ID's whose type must be
+   *     identified, <code>false</code> if not.
+   * @param supportsIdMapping <code>true</code> if this object's ID can change across server's and
+   *     thus may be included in an ID Mapping.
+   * @param supportsUserDependencies If <code>true</code>, this dependency allows user defined
+   *     dependencies to be added as children, <code>false</code> otherwise.
+   * @param supportsParentId If <code>true</code>, supports a parent id to be specified, if <code>
+   *     false</code>, does not.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDeployableObject(
@@ -110,13 +105,10 @@ public class PSDeployableObject extends PSDependency {
   /**
    * Constructs this object from its XML representation.
    *
-   * @param src The source element.  Format expected is defined by
-   * {@link #toXml(Document)}.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param src The source element. Format expected is defined by {@link #toXml(Document)}.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public PSDeployableObject(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -124,25 +116,21 @@ public class PSDeployableObject extends PSDependency {
     fromXml(src);
   }
 
-  /**
-   * Parameterless ctor for use by derived classes only.
-   */
+  /** Parameterless ctor for use by derived classes only. */
   protected PSDeployableObject() {}
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. Format is:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. Format is:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXDeployableObject (PSXDependency, RequiredClasses)>
    * &lt;!ELEMENT RequiredClasses (className*)>
    * &lt;!ELEMENT className (#PCDATA)>
    * </pre></code>
    *
-   * @param doc The document to use to create the element, may not be
-   * <code>null</code>.
-   *
+   * @param doc The document to use to create the element, may not be <code>null</code>.
    * @return the newly created XML element node, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -164,13 +152,11 @@ public class PSDeployableObject extends PSDependency {
   /**
    * This method is called to populate this object from its XML representation.
    *
-   * @param sourceNode the XML element node to populate from, not
-   * <code>null</code>.  See {@link #toXml(Document)} for the format expected.
-   *
-   * @throws IllegalArgumentException if <code>sourceNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param sourceNode the XML element node to populate from, not <code>null</code>. See {@link
+   *     #toXml(Document)} for the format expected.
+   * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -240,15 +226,14 @@ public class PSDeployableObject extends PSDependency {
   }
 
   /**
-   * Sets the non-deployable classes required by this dependency.  Set when
-   * this dependency is added to an archive by its handler.
+   * Sets the non-deployable classes required by this dependency. Set when this dependency is added
+   * to an archive by its handler.
    *
-   * @param classNames An iterator over zero or more <code>String</code>
-   * objects specifiying fully qualified class names.  May not be
-   * <code>null</code>, and each entry may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>classNames</code> is
-   * <code>null</code>, empty, or contains an <code>null</code> or empty entry.
+   * @param classNames An iterator over zero or more <code>String</code> objects specifiying fully
+   *     qualified class names. May not be <code>null</code>, and each entry may not be <code>null
+   *     </code> or empty.
+   * @throws IllegalArgumentException if <code>classNames</code> is <code>null</code>, empty, or
+   *     contains an <code>null</code> or empty entry.
    */
   public void setRequiredClasses(Iterator classNames) {
     if (classNames == null || !classNames.hasNext())
@@ -266,26 +251,22 @@ public class PSDeployableObject extends PSDependency {
   }
 
   /**
-   * Gets the non-deployable classes required by this dependency.  See
-   * {@link #setRequiredClasses(Iterator)} for more info.
+   * Gets the non-deployable classes required by this dependency. See {@link
+   * #setRequiredClasses(Iterator)} for more info.
    *
-   * @return an iterator over zero or more non-<code>null</code> non-empty
-   * <code>String</code> objects specifiying fully qualified class names.
-   * Never <code>null</code>.
+   * @return an iterator over zero or more non-<code>null</code> non-empty <code>String</code>
+   *     objects specifiying fully qualified class names. Never <code>null</code>.
    */
   public Iterator getRequiredClasses() {
     return m_classNames.iterator();
   }
 
-  /**
-   * Constant for this object's root XML node.
-   */
+  /** Constant for this object's root XML node. */
   public static final String XML_NODE_NAME = "PSXDeployableObject";
 
   /**
-   * List of class names required by this dependency.  Never <code>null</code>,
-   * empty until contents are modified by a call to
-   * {@link #setRequiredClasses(Iterator)}.
+   * List of class names required by this dependency. Never <code>null</code>, empty until contents
+   * are modified by a call to {@link #setRequiredClasses(Iterator)}.
    */
   private List m_classNames = new ArrayList();
 

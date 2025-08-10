@@ -70,9 +70,7 @@ public class PSPathTest {
     assertEquals("b", p.getName(1));
   }
 
-  /**
-   * Test directory handling methods
-   */
+  /** Test directory handling methods */
   @Test
   public void testDir() {
     PSPath source = new PSPath("/a/b");
@@ -93,9 +91,7 @@ public class PSPathTest {
     assertEquals("d", result.toString());
   }
 
-  /**
-   * Test
-   */
+  /** Test */
   @Test
   public void testDoubleSlash() {
     PSPath source = new PSPath("//");
@@ -103,9 +99,7 @@ public class PSPathTest {
     assertEquals(0, source.getCount());
   }
 
-  /**
-   * Test subpath functions
-   */
+  /** Test subpath functions */
   @Test
   public void testSubpath() {
     PSPath source = new PSPath("/a/b/c/d");

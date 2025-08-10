@@ -29,20 +29,16 @@ import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
 /**
- * Class to handle discovering database function definitions as dependencies.
- * Database functions are not deployable and user-defined dependencies are
- * returned as "Server" type dependencies.
+ * Class to handle discovering database function definitions as dependencies. Database functions are
+ * not deployable and user-defined dependencies are returned as "Server" type dependencies.
  */
 public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSDbFunctionDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -90,8 +86,8 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * No child types supported by this handler.
+   * Provides the list of child dependency types this class can discover. No child types supported
+   * by this handler.
    *
    * @return An empty iterator, never <code>null</code>.
    */
@@ -122,7 +118,6 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
    * Create a dependency from the provided database function.
    *
    * @param func The function, assumed not <code>null</code>.
-   *
    * @return The dependency, never <code>null</code>.
    */
   private PSDependency createDependency(PSDatabaseFunction func) {
@@ -134,14 +129,10 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
     return dep;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "DbFunctionDef";
 
-  /**
-   * Constant for flag indicating both server and user function types.
-   */
+  /** Constant for flag indicating both server and user function types. */
   private static final int ALL_FUNC_TYPES =
       PSDatabaseFunctionManager.FUNCTION_TYPE_SYSTEM | PSDatabaseFunctionManager.FUNCTION_TYPE_USER;
 }

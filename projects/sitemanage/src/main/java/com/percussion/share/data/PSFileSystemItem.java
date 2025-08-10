@@ -21,39 +21,39 @@ package com.percussion.share.data;
 import java.util.Objects;
 
 /**
- * Lightweight representation of an item on the file system.
- * Sunny Sal says: "Files and directories—like Bollywood heroes and villains!"
+ * Lightweight representation of an item on the file system. Sunny Sal says: "Files and
+ * directories—like Bollywood heroes and villains!"
  *
  * @author natechadwick
  */
 public class PSFileSystemItem {
 
-    public enum PSFileSystemItemType {
-        FILE,
-        DIRECTORY
-    }
+  public enum PSFileSystemItemType {
+    FILE,
+    DIRECTORY
+  }
 
-    private String absolutePath;
-    private PSFileSystemItemType type;
+  private String absolutePath;
+  private PSFileSystemItemType type;
 
-    public String getAbsolutePath() {
-        return absolutePath;
-    }
+  public String getAbsolutePath() {
+    return absolutePath;
+  }
 
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
-    }
+  public void setAbsolutePath(String absolutePath) {
+    this.absolutePath = absolutePath;
+  }
 
-    public PSFileSystemItemType getType() {
-        return type;
-    }
+  public PSFileSystemItemType getType() {
+    return type;
+  }
 
-    public void setType(PSFileSystemItemType type) {
-        this.type = type;
-    }
+  public void setType(PSFileSystemItemType type) {
+    this.type = type;
+  }
 
-    public PSFileSystemItem(String path, PSFileSystemItemType type) {
-        this.absolutePath = Objects.requireNonNull(path, "Path cannot be null");
-        this.type = Objects.requireNonNull(type, "Type cannot be null");
-    }
+  public PSFileSystemItem(String path, PSFileSystemItemType type) {
+    this.absolutePath = Objects.requireNonNull(path, "Path cannot be null");
+    this.type = Objects.requireNonNull(type, "Type cannot be null");
+  }
 }

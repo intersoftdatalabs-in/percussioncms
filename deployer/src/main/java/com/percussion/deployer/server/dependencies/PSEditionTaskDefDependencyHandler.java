@@ -44,21 +44,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Class to handle packaging and deploying an edition task.
- */
+/** Class to handle packaging and deploying an edition task. */
 public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSServiceDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSEditionTaskDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -78,6 +73,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
 
   /**
    * Package the extension dependencies
+   *
    * @param tok the security token never <code>null</code>
    * @param dep the dependency for which child dependencies are returned
    * @return the extension child dependencies
@@ -144,15 +140,15 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ExitDef</li>
+   *   <li>ExitDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -228,8 +224,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
   /**
    * Retrieves all edition tasks.
    *
-   * @return edition tasks as a set, never <code>null</code>, may be
-   * empty.
+   * @return edition tasks as a set, never <code>null</code>, may be empty.
    */
   private Set<IPSEditionTaskDef> findAllEditionTasks() {
     return m_pubSvc.findAllEditions("").stream()
@@ -241,9 +236,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
    * Retrieves an edition task for the given id.
    *
    * @param id the edition task id, assumed not <code>null</code>.
-   *
-   * @return edition task corresponding to the id, <code>null</code> if a
-   * match was not found.
+   * @return edition task corresponding to the id, <code>null</code> if a match was not found.
    */
   private IPSEditionTaskDef findEditionTask(String id) throws PSNotFoundException {
     return m_pubSvc.findEditionTaskById(PSGuidUtils.makeGuid(id, PSTypeEnum.EDITION_TASK_DEF));
@@ -251,10 +244,9 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param task the edition task, assumed not <code>null</code>.
-   *
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -273,16 +265,12 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
   }
 
   /**
-   * Transfer IDs for the Edition Task dependency, from the source server to
-   * the current / target server.
+   * Transfer IDs for the Edition Task dependency, from the source server to the current / target
+   * server.
    *
-   * @param task The edition task to be modified, assumed not
-   * <code>null</code>.
-   * @param taskDep The edition task dependency object,
-   * assumed not <code>null</code>.
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   *
+   * @param task The edition task to be modified, assumed not <code>null</code>.
+   * @param taskDep The edition task dependency object, assumed not <code>null</code>.
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if an error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -303,20 +291,13 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "EditionTaskDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * Get the publisher service.
-   */
+  /** Get the publisher service. */
   private static IPSPublisherService m_pubSvc = PSPublisherServiceLocator.getPublisherService();
 
   static {
@@ -324,9 +305,8 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
   }
 
   /**
-   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles(
-   * PSSecurityToken, PSArchiveHandler, PSDependency, PSImportCtx)} for
-   * details.
+   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
+   * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
   @SuppressWarnings("unchecked")
   public void doInstallDependencyFiles(

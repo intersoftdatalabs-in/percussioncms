@@ -50,9 +50,7 @@ public class PSCheckManifestsForDuplicateFilesTest {
     m_fileSet2.setFile(m_file2);
   }
 
-  /**
-   * Creates empty temporary file for testing.
-   */
+  /** Creates empty temporary file for testing. */
   private File createTmpFile() throws IOException {
     final File file = File.createTempFile("checkManifestDups", "tmp");
     file.deleteOnExit();
@@ -123,9 +121,7 @@ public class PSCheckManifestsForDuplicateFilesTest {
     }
   }
 
-  /**
-   * Creates and initializes the task.
-   */
+  /** Creates and initializes the task. */
   private PSCheckManifestsForDuplicateFiles createTask() {
     final PSCheckManifestsForDuplicateFiles task = new PSCheckManifestsForDuplicateFiles();
     task.setProject(new Project());
@@ -182,23 +178,17 @@ public class PSCheckManifestsForDuplicateFilesTest {
     assertEquals(DUP_JAR, e.getName());
   }
 
-  /**
-   * Writes provided string to the file.
-   */
+  /** Writes provided string to the file. */
   private void writeToFile(String string, File file) throws IOException {
     try (Writer writer = new FileWriter(file)) {
       IOUtils.write(string, writer);
     }
   }
 
-  /**
-   * The library existing in both - {@link #MANIFEST1} and {@link #MANIFEST2_DUP};
-   */
+  /** The library existing in both - {@link #MANIFEST1} and {@link #MANIFEST2_DUP}; */
   private static final String DUP_JAR = "spring.jar";
 
-  /**
-   * Sample manifest 1.
-   */
+  /** Sample manifest 1. */
   private static final String MANIFEST1 =
       "Manifest-Version: 1.0\n"
           + "Bundle-ManifestVersion: 2\n"
@@ -219,9 +209,7 @@ public class PSCheckManifestsForDuplicateFilesTest {
           + "Require-Bundle: org.eclipse.core.runtime,\n"
           + " org.eclipse.core.runtime.compatibility\n";
 
-  /**
-   * Sample manifest 2 - no dups with 1.
-   */
+  /** Sample manifest 2 - no dups with 1. */
   private static final String MANIFEST2 =
       "Manifest-Version: 1.0\n"
           + "Bundle-ManifestVersion: 2\n"
@@ -239,10 +227,7 @@ public class PSCheckManifestsForDuplicateFilesTest {
           + "Require-Bundle: org.eclipse.core.runtime,\n"
           + " org.eclipse.core.runtime.compatibility\n";
 
-  /**
-   * Sample manifest 2 - contains jar {@link #DUP_JAR} duplicated with
-   * {@link #MANIFEST1}.
-   */
+  /** Sample manifest 2 - contains jar {@link #DUP_JAR} duplicated with {@link #MANIFEST1}. */
   private static final String MANIFEST2_DUP =
       "Manifest-Version: 1.0\n"
           + "Bundle-ManifestVersion: 2\n"
@@ -262,23 +247,15 @@ public class PSCheckManifestsForDuplicateFilesTest {
           + "Require-Bundle: org.eclipse.core.runtime,\n"
           + " org.eclipse.core.runtime.compatibility\n";
 
-  /**
-   * Fileset containing file 1.
-   */
+  /** Fileset containing file 1. */
   private FileSet m_fileSet1;
 
-  /**
-   * Fileset containing file 2.
-   */
+  /** Fileset containing file 2. */
   private FileSet m_fileSet2;
 
-  /**
-   * File 1 used for testing.
-   */
+  /** File 1 used for testing. */
   private File m_file1;
 
-  /**
-   * File 2 used for testing.
-   */
+  /** File 2 used for testing. */
   private File m_file2;
 }

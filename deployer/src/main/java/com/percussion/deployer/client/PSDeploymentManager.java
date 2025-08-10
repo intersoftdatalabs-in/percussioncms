@@ -75,9 +75,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-/**
- * Client-side manager for all deployment requests to the Rhythmyx server.
- */
+/** Client-side manager for all deployment requests to the Rhythmyx server. */
 public class PSDeploymentManager {
 
   private static final Logger log = LogManager.getLogger(PSDeploymentManager.class);
@@ -85,9 +83,7 @@ public class PSDeploymentManager {
   /**
    * Creates a deployment manager using the supplied connection.
    *
-   * @param conn The connection, may not be <code>null</code>, must be
-   * connected.
-   *
+   * @param conn The connection, may not be <code>null</code>, must be connected.
    * @throws IllegalArgumentException if <code>conn</code> is invalid.
    */
   public PSDeploymentManager(PSDeploymentServerConnection conn) {
@@ -102,12 +98,9 @@ public class PSDeploymentManager {
   /**
    * Adds all child dependencies to the supplied dependency object.
    *
-   * @param dependency The dependency to get child dependencies for.  They
-   * are added to this object and are available after the method completes.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dependency</code> is
-   * <code>null</code>.
+   * @param dependency The dependency to get child dependencies for. They are added to this object
+   *     and are available after the method completes. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>dependency</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void loadDependencies(PSDependency dependency) throws PSDeployException {
@@ -135,15 +128,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Adds all parent dependencies to the supplied dependency object, replacing
-   * any that were already loaded.
+   * Adds all parent dependencies to the supplied dependency object, replacing any that were already
+   * loaded.
    *
-   * @param dependency The dependency to get parent dependencies for.  They
-   * are added to this object and are available after the method completes.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dependency</code> is
-   * <code>null</code>.
+   * @param dependency The dependency to get parent dependencies for. They are added to this object
+   *     and are available after the method completes. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>dependency</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void loadAncestors(PSDependency dependency) throws PSDeployException {
@@ -173,26 +163,19 @@ public class PSDeploymentManager {
   /**
    * Gets all deployable elements of the specified type from the server.
    *
-   * @param type The type of element, may not be <code>null</code> or empty,
-   * and must be one of the element types defined by the server implementation.
-   * Valid types may be cataloged using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
-   * <p>
-   * For Custom types, supply the custom object
-   * type ({@link IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}) concatenated with
-   * the supported local dependency type using a forward slash as a delimeter
-   * (e.g. "Custom/Application").  For each instance of the child dependency
-   * type that exists, a custom deployable element will be returned with the
-   * child dependency as a local child.
-   *
-   * @return Iterator over zero or more PSDeployableElement objects, never
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>type</code> is <code>null</code>
-   * or empty.
-   * @throws PSDeployException if the <code>type</code> provided is invalid, if
-   * there are any other errors.
+   * @param type The type of element, may not be <code>null</code> or empty, and must be one of the
+   *     element types defined by the server implementation. Valid types may be cataloged using the
+   *     {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
+   *     <p>For Custom types, supply the custom object type ({@link
+   *     IPSDeployConstants#DEP_OBJECT_TYPE_CUSTOM}) concatenated with the supported local
+   *     dependency type using a forward slash as a delimeter (e.g. "Custom/Application"). For each
+   *     instance of the child dependency type that exists, a custom deployable element will be
+   *     returned with the child dependency as a local child.
+   * @return Iterator over zero or more PSDeployableElement objects, never <code>null</code>.
+   * @throws IllegalArgumentException if <code>type</code> is <code>null</code> or empty.
+   * @throws PSDeployException if the <code>type</code> provided is invalid, if there are any other
+   *     errors.
    */
   public Iterator getDeployableElements(String type) throws PSDeployException {
     if (type == null || type.trim().length() == 0)
@@ -236,16 +219,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets all existing dependencies of the specified type with the specified
-   * parent id.
+   * Gets all existing dependencies of the specified type with the specified parent id.
    *
-   * @param type The type to get, may not be <code>null</code> or empty.  Must
-   * support parent ids.
-   * @param parentId Specifies the parent of all dependencies to return, may
-   * not be <code>null</code> or empty.
-   *
+   * @param type The type to get, may not be <code>null</code> or empty. Must support parent ids.
+   * @param parentId Specifies the parent of all dependencies to return, may not be <code>null
+   *     </code> or empty.
    * @return an Iterator over zero or more PSDependency objects.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
@@ -284,9 +263,7 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Retrieve index of dependencies and elements to there owner
-   * packages.
-   * <code>
+   * Retrieve index of dependencies and elements to there owner packages. <code>
    * <pre>
    * The returned map contains the following properties:
    * <table border="1">
@@ -300,6 +277,7 @@ public class PSDeploymentManager {
    * </table>
    * </pre>
    * </code>
+   *
    * @return an Iterator over zero or more Map<String, String> objects.
    * @throws PSDeployException
    */
@@ -336,8 +314,7 @@ public class PSDeploymentManager {
   /**
    * Creates a descriptor guid.
    *
-   * @return the String representation of a guid's long value. Never
-   *         <code>null</code> or empty.
+   * @return the String representation of a guid's long value. Never <code>null</code> or empty.
    * @throws PSDeployException if any unexpected error occurs.
    */
   public String createDescriptorGuid() throws PSDeployException {
@@ -355,13 +332,11 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Get a map of child and parent types for dependency types that support
-   * parent ids.
+   * Get a map of child and parent types for dependency types that support parent ids.
    *
-   * @return A Map where the key is the child type and the value is the parent
-   * type, both as non-<code>null</code>, non-empty <code>String</code>
-   * objects, never <code>null</code>, may be empty.
-   *
+   * @return A Map where the key is the child type and the value is the parent type, both as non-
+   *     <code>null</code>, non-empty <code>String</code> objects, never <code>null</code>, may be
+   *     empty.
    * @throws PSDeployException if there are any errors.
    */
   public Map getParentTypes() throws PSDeployException {
@@ -397,9 +372,8 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets the connection used to construct this object.  If the connection
-   * is disconnected, then any methods in this class executed against the
-   * server will fail.
+   * Gets the connection used to construct this object. If the connection is disconnected, then any
+   * methods in this class executed against the server will fail.
    *
    * @return The connection, never <code>null</code>.
    */
@@ -411,13 +385,9 @@ public class PSDeploymentManager {
    * Gets the id map from the server for the specified source repository.
    *
    * @param source Identifies the source repository using the form
-   * <driver>:<server>:<database>:<origin>.  May not be <code>null</code> or
-   * empty.
-   *
+   *     <driver>:<server>:<database>:<origin>. May not be <code>null</code> or empty.
    * @return The map, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code> or empty.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any errors.
    */
   public PSIdMap getIdMap(String source) throws PSDeployException {
@@ -438,26 +408,20 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets a Deployment Component (specified by the given parameters)
-   * from the server.
+   * Gets a Deployment Component (specified by the given parameters) from the server.
    *
    * @param reqTypeName The request type, assume not <code>null</code> or empty
-   * @param reqRootName The XML root name of the request, assume not
-   * <code>null</code> or empty
-   * @param attrName The attribute name of the request document, it may be
-   * <code>null</code> if not need or no attribute. However, if it is not
-   * <code>null</code>, then assume not empty.
-   * @param attrValue The attribute value, which is the name of the specified
-   * Deployment Component object, assume not <code>null</code> or empty if
-   * <code>attrName</code> is not <code>null</code>.
-   * @param compClass The <code>Class</code> of the deployment component,
-   * assume not <code>null</code>.
-   * @param xmlNodeName The XML node name of the specified object, assume not
-   * <code>null</code> or empty.
-   *
-   * @return The retrieved <code>IPSDeployComponent</code> object, it never
-   * <code>null</code>.
-   *
+   * @param reqRootName The XML root name of the request, assume not <code>null</code> or empty
+   * @param attrName The attribute name of the request document, it may be <code>null</code> if not
+   *     need or no attribute. However, if it is not <code>null</code>, then assume not empty.
+   * @param attrValue The attribute value, which is the name of the specified Deployment Component
+   *     object, assume not <code>null</code> or empty if <code>attrName</code> is not <code>null
+   *     </code>.
+   * @param compClass The <code>Class</code> of the deployment component, assume not <code>null
+   *     </code>.
+   * @param xmlNodeName The XML node name of the specified object, assume not <code>null</code> or
+   *     empty.
+   * @return The retrieved <code>IPSDeployComponent</code> object, it never <code>null</code>.
    * @throws PSDeployException if there is any other error.
    */
   private IPSDeployComponent getDeployComponent(
@@ -503,8 +467,7 @@ public class PSDeploymentManager {
   /**
    * Gets the max dep count from the system property if available.
    *
-   * @return The count as a <code>String</code>, or <code>null</code> if
-   * not found.
+   * @return The count as a <code>String</code>, or <code>null</code> if not found.
    */
   private String getMaxDepCount() {
     return System.getProperty(IPSDeployConstants.PROP_MAX_DEPS);
@@ -513,13 +476,9 @@ public class PSDeploymentManager {
   /**
    * Get the dbms map from the server for the specified source Rx server name.
    *
-   * @param source The name of the source server, may not be <code>null</code>
-   * or empty.
-   *
+   * @param source The name of the source server, may not be <code>null</code> or empty.
    * @return The map, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>source</code> is
-   * <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>source</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any errors.
    */
   public PSDbmsMap getDbmsMap(String source) throws PSDeployException {
@@ -542,11 +501,8 @@ public class PSDeploymentManager {
   /**
    * Gets an instance of the cataloger to use for catalog requests.
    *
-   * @return The cataloger, never <code>null</code>, will contain a valid
-   * connection.
-   *
-   * @throws IllegalStateException If the connection held by this manager has
-   * been disconnected.
+   * @return The cataloger, never <code>null</code>, will contain a valid connection.
+   * @throws IllegalStateException If the connection held by this manager has been disconnected.
    */
   public PSCataloger getCataloger() {
     if (!m_conn.isConnected()) throw new IllegalStateException("connection has been disconnected");
@@ -557,18 +513,13 @@ public class PSDeploymentManager {
   /**
    * Gets the specified export descriptor from the server.
    *
-   * @param name The name of the descriptor, may not be <code>null</code> or
-   * empty.  Must be the name of an existing descriptor on the server.  Valid
-   * descriptor names may be cataloged using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
-   *
+   * @param name The name of the descriptor, may not be <code>null</code> or empty. Must be the name
+   *     of an existing descriptor on the server. Valid descriptor names may be cataloged using the
+   *     {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
    * @return The descriptor, never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
-   * or empty.
-   * @throws PSDeployException If the descriptor cannot be located or there are
-   * any other errors.
+   * @throws IllegalArgumentException if <code>name</code> is <code>null</code> or empty.
+   * @throws PSDeployException If the descriptor cannot be located or there are any other errors.
    */
   public PSExportDescriptor getExportDescriptor(String name) throws PSDeployException {
     if (name == null || name.trim().length() == 0)
@@ -588,21 +539,16 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets the export descriptor from the archive on the server referenced by
-   * the supplied archive log id.  Any packages that have never been installed
-   * will be removed, and listed in the package names returned by
-   * <code>PSExportDescriptor.getMissingPackages()</code>.
+   * Gets the export descriptor from the archive on the server referenced by the supplied archive
+   * log id. Any packages that have never been installed will be removed, and listed in the package
+   * names returned by <code>PSExportDescriptor.getMissingPackages()</code>.
    *
-   * @param archiveLogId The id of the archive log specifying the archive from
-   * which the descriptor is to be retrieved.  Must be an existing archive log
-   * id.  Archive log ids can be cataloged from the server using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
-   *
+   * @param archiveLogId The id of the archive log specifying the archive from which the descriptor
+   *     is to be retrieved. Must be an existing archive log id. Archive log ids can be cataloged
+   *     from the server using the {@link com.percussion.deployer.catalog.PSCataloger} class
+   *     returned by a call to {@link #getCataloger()}.
    * @return The descriptor, never <code>null</code>.
-   *
-   * @throws PSDeployException If the descriptor cannot be located or there are
-   * any other errors.
+   * @throws PSDeployException If the descriptor cannot be located or there are any other errors.
    */
   public PSExportDescriptor getExportDescriptor(int archiveLogId) throws PSDeployException {
     PSExportDescriptor desc =
@@ -621,16 +567,12 @@ public class PSDeploymentManager {
   /**
    * Deletes the specified export descriptor from the server.
    *
-   * @param name The name of the descriptor, may not be <code>null</code> or
-   * empty.  Must be the name of an existing descriptor on the server.  Valid
-   * descriptor names may be cataloged using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
-   *
-   * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
-   * or empty.
-   * @throws PSDeployException If the descriptor cannot be located or there are
-   * any other errors.
+   * @param name The name of the descriptor, may not be <code>null</code> or empty. Must be the name
+   *     of an existing descriptor on the server. Valid descriptor names may be cataloged using the
+   *     {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
+   * @throws IllegalArgumentException if <code>name</code> is <code>null</code> or empty.
+   * @throws PSDeployException If the descriptor cannot be located or there are any other errors.
    */
   public void deleteExportDescriptor(String name) throws PSDeployException {
     if (name == null || name.trim().length() == 0)
@@ -641,20 +583,15 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Sends a (simple) request to the server, the request is specified by
-   * a set of parameters.
+   * Sends a (simple) request to the server, the request is specified by a set of parameters.
    *
-   * @param reqTypeSuffix The suffix of the request type, assume not
-   * <code>null</code> or empty.
-   * @param reqNodeName The request XML node name, assume not
-   * <code>null</code> or empty.
-   * @param attrName The attribute name of the request XML node, assume not
-   * <code>null</code> or empty.
-   * @param attrValue The attribute value of the <code>attrName</code>,
-   * assume not <code>null</code> or empty.
-   *
+   * @param reqTypeSuffix The suffix of the request type, assume not <code>null</code> or empty.
+   * @param reqNodeName The request XML node name, assume not <code>null</code> or empty.
+   * @param attrName The attribute name of the request XML node, assume not <code>null</code> or
+   *     empty.
+   * @param attrValue The attribute value of the <code>attrName</code>, assume not <code>null</code>
+   *     or empty.
    * @return The responsed XML document, never <code>null</code>.
-   *
    * @throws PSDeployException if an error occures.
    */
   private Document sendSimpleRequst(
@@ -678,16 +615,13 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Saves the supplied export descriptor to the server.  If a descriptor with
-   * the same already exists, it will be overwritten.  To determine the names
-   * already in use, descriptor names may be cataloged using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
+   * Saves the supplied export descriptor to the server. If a descriptor with the same already
+   * exists, it will be overwritten. To determine the names already in use, descriptor names may be
+   * cataloged using the {@link com.percussion.deployer.catalog.PSCataloger} class returned by a
+   * call to {@link #getCataloger()}.
    *
    * @param descriptor The descriptor to save, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>descriptor</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException If <code>descriptor</code> is <code>null</code>.
    * @throws PSDeployException if there are any other errors.
    */
   public void saveExportDescriptor(PSExportDescriptor descriptor) throws PSDeployException {
@@ -697,18 +631,13 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Get a list of id type objects from the server for the specified
-   * dependencies.
+   * Get a list of id type objects from the server for the specified dependencies.
    *
-   * @param deps An iterator over one or more <code>PSDeployableObject</code>s.
-   * If <code>null</code>, idTypes for all dependencies on the server that
-   * support id types are returned.
-   *
-   * @return An Iterator over one or more <code>PSApplicationIDTypes</code>
-   * objects.  Never <code>null</code> or empty.
-   *
+   * @param deps An iterator over one or more <code>PSDeployableObject</code>s. If <code>null</code>
+   *     , idTypes for all dependencies on the server that support id types are returned.
+   * @return An Iterator over one or more <code>PSApplicationIDTypes</code> objects. Never <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException If <code>deps</code> is invalid.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public Iterator getIdTypes(Iterator deps) throws PSDeployException {
@@ -752,15 +681,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Saves the supplied appliation id types to the server, replacing the id
-   * types on the server for those appliations if they already exist.
+   * Saves the supplied appliation id types to the server, replacing the id types on the server for
+   * those appliations if they already exist.
    *
-   * @param idTypes An iterator over one or more
-   * <code>PSApplicationIDTypes</code> objects.  May not be <code>null</code>
-   * or empty.
-   *
-   * @throws IllegalArgumentException If <code>idTypes</code> is
-   * <code>null</code> or empty.
+   * @param idTypes An iterator over one or more <code>PSApplicationIDTypes</code> objects. May not
+   *     be <code>null</code> or empty.
+   * @throws IllegalArgumentException If <code>idTypes</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any other errors.
    */
   public void saveIdTypes(Iterator idTypes) throws PSDeployException {
@@ -792,10 +718,8 @@ public class PSDeploymentManager {
   /**
    * Saves the supplied user dependency to the server
    *
-   * @param dep The user dependency.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>dep</code> is
-   * <code>null</code>.
+   * @param dep The user dependency. May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>dep</code> is <code>null</code>.
    * @throws PSDeployException if there are any other errors.
    */
   public void saveUserDependency(PSUserDependency dep) throws PSDeployException {
@@ -820,8 +744,7 @@ public class PSDeploymentManager {
   /**
    * Deletes the supplied user dependency from the server
    *
-   * @param dep The user dependency.  May not be <code>null</code>.
-   *
+   * @param dep The user dependency. May not be <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void deleteUserDependency(PSUserDependency dep) throws PSDeployException {
@@ -845,15 +768,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Saves the provided ID map to the server.  All entries on the server with
-   * same source repository as those in the provided map will be deleted and
-   * replaced with those in the provided map.
+   * Saves the provided ID map to the server. All entries on the server with same source repository
+   * as those in the provided map will be deleted and replaced with those in the provided map.
    *
-   * @param map The full set of mappings for a particular source repository.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>map</code> is
-   * <code>null</code>.
+   * @param map The full set of mappings for a particular source repository. May not be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if <code>map</code> is <code>null</code>.
    * @throws PSDeployException if there are any other errors.
    */
   public void saveIdMap(PSIdMap map) throws PSDeployException {
@@ -865,12 +785,9 @@ public class PSDeploymentManager {
   /**
    * Saves the provided <code>IPSDeployComponent</code> object to the server.
    *
-   * @param component The to be saved object, assume it is not
-   * <code>null</code>.
+   * @param component The to be saved object, assume it is not <code>null</code>.
    * @param reqTypeName The reqeust type, assume not <code>null</code> or empty
-   * @param reqRootName The XML root name of the request, assume not
-   * <code>null</code> or empty.
-   *
+   * @param reqRootName The XML root name of the request, assume not <code>null</code> or empty.
    * @throws PSDeployException if there is any error.
    */
   private void saveDeployComponent(
@@ -893,9 +810,9 @@ public class PSDeploymentManager {
 
   /**
    * Validate local config file specified against the localConfig.xsd.
+   *
    * @param localConfig
-   * @return If valid returns <code>null</code>, else returns a list of
-   * validation error strings.
+   * @return If valid returns <code>null</code>, else returns a list of validation error strings.
    * @throws PSDeployException if any error occurs.
    */
   public List<String> validateLocalConfigFile(File localConfig) throws PSDeployException {
@@ -928,25 +845,19 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Checks the server version and build compatiblity, and archive name for
-   * uniqueness.  If there is an error (versions are not compatible, archive
-   * name not unique), an exception is thrown.  If there is a warning (builds
-   * are not compatible), a message is returned.  If there are no errors or
-   * warnings, <code>null</code> is returned.
+   * Checks the server version and build compatiblity, and archive name for uniqueness. If there is
+   * an error (versions are not compatible, archive name not unique), an exception is thrown. If
+   * there is a warning (builds are not compatible), a message is returned. If there are no errors
+   * or warnings, <code>null</code> is returned.
    *
    * @param archiveInfo The archive to validate, may not be <code>null</code>.
-   * @param checkArchiveRef if <code>true</code>, the archive ref will be
-   * checked against existing archives on the server to see if an existing
-   * archive will be overwritten, otherwise the archive ref is not checked.
-   *
-   * @return PSMultiValueHashMap with all errors and warnings.
-   * Keys used:
-   * <code>IPSDeployConstants.WARNING_KEY</code>
-   * <code>IPSDeployConstants.ERROR_KEY</code>
-   * value will have error message.
-   *
-   * @throws IllegalArgumentException if <code>archive</code> is
-   * <code>null</code>.
+   * @param checkArchiveRef if <code>true</code>, the archive ref will be checked against existing
+   *     archives on the server to see if an existing archive will be overwritten, otherwise the
+   *     archive ref is not checked.
+   * @return PSMultiValueHashMap with all errors and warnings. Keys used: <code>
+   *     IPSDeployConstants.WARNING_KEY</code> <code>IPSDeployConstants.ERROR_KEY</code> value will
+   *     have error message.
+   * @throws IllegalArgumentException if <code>archive</code> is <code>null</code>.
    * @throws PSDeployNonUniqueException if the archive already exists.
    * @throws PSDeployException if there are any errors.
    */
@@ -1004,15 +915,12 @@ public class PSDeploymentManager {
   /**
    * Gets the specified archive summary from the server.
    *
-   * @param archiveLogId The id of the archive log to retrieve.  Must be an
-   * existing archive log id.  Archive log ids can be cataloged from the
-   * server using the {@link com.percussion.deployer.catalog.PSCataloger} class
-   * returned by a call to {@link #getCataloger()}.
-   *
+   * @param archiveLogId The id of the archive log to retrieve. Must be an existing archive log id.
+   *     Archive log ids can be cataloged from the server using the {@link
+   *     com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
    * @return The summary, never <code>null</code>.
-   *
-   * @throws PSDeployException if the archive log cannot be found or there are
-   * any other errors.
+   * @throws PSDeployException if the archive log cannot be found or there are any other errors.
    */
   public PSArchiveSummary getArchiveSummary(int archiveLogId) throws PSDeployException {
     PSArchiveSummary archiveSummary =
@@ -1029,20 +937,15 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Get the most recent archive summary for the specified archive ref from the
-   * server.
+   * Get the most recent archive summary for the specified archive ref from the server.
    *
-   * @param archiveRef The name used to identify the archive for which the most
-   * recent log will be retrieved.  It may not be <code>null</code> or empty,
-   * and must refer to an existing archive file on the server.
-   *
-   * @return The retrieved archive summary object. It will never be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>archiveRef</code> is
-   * <code>null</code> or empty.
-   * @throws PSDeployException if an archive log cannot be found for the
-   * specified archive ref, or if any other errors occur.
+   * @param archiveRef The name used to identify the archive for which the most recent log will be
+   *     retrieved. It may not be <code>null</code> or empty, and must refer to an existing archive
+   *     file on the server.
+   * @return The retrieved archive summary object. It will never be <code>null</code>.
+   * @throws IllegalArgumentException if <code>archiveRef</code> is <code>null</code> or empty.
+   * @throws PSDeployException if an archive log cannot be found for the specified archive ref, or
+   *     if any other errors occur.
    */
   public PSArchiveSummary getArchiveSummary(String archiveRef) throws PSDeployException {
     if (archiveRef == null || archiveRef.trim().length() == 0)
@@ -1064,17 +967,13 @@ public class PSDeploymentManager {
   /**
    * Gets the specified package log summary from the server.
    *
-   * @param logId The id of the package log to retrieve.  Must be an
-   * existing package log id.  Package log ids can be cataloged from the
-   * server using the {@link com.percussion.deployer.catalog.PSCataloger} class
-   * returned by a call to {@link #getCataloger()}.
-   *
-   * @return The summary, never <code>null</code>.  It is guaranteed that
-   * {@link PSLogSummary#getLogDetail()} will not return <code>null</code> for
-   * this instance.
-   *
-   * @throws PSDeployException if the package log cannot be found or there are
-   * any other errors.
+   * @param logId The id of the package log to retrieve. Must be an existing package log id. Package
+   *     log ids can be cataloged from the server using the {@link
+   *     com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
+   * @return The summary, never <code>null</code>. It is guaranteed that {@link
+   *     PSLogSummary#getLogDetail()} will not return <code>null</code> for this instance.
+   * @throws PSDeployException if the package log cannot be found or there are any other errors.
    */
   public PSLogSummary getLogSummary(int logId) throws PSDeployException {
     PSLogSummary logSummary =
@@ -1091,17 +990,13 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Deletes the specified Archive file and all related archive and package
-   * logs from the server.
+   * Deletes the specified Archive file and all related archive and package logs from the server.
    *
-   * @param archiveLogId The id of an archive log related to the archive file
-   * to delete.  Must be an existing archive log id.  Archive log ids can be
-   * cataloged from the server using the
-   * {@link com.percussion.deployer.catalog.PSCataloger} class returned by a call
-   * to {@link #getCataloger()}.
-   *
-   * @throws PSDeployException if the archive log cannot be found or there are
-   * any other errors.
+   * @param archiveLogId The id of an archive log related to the archive file to delete. Must be an
+   *     existing archive log id. Archive log ids can be cataloged from the server using the {@link
+   *     com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
+   * @throws PSDeployException if the archive log cannot be found or there are any other errors.
    */
   public void deleteArchive(int archiveLogId) throws PSDeployException {
     sendSimpleRequst(
@@ -1112,14 +1007,11 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Deletes the specified Archive file and all related archive and package
-   * logs from the server.
+   * Deletes the specified Archive file and all related archive and package logs from the server.
    *
-   * @param archiveRef The name of an archive file on the server. May not be
-   * <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if <code>archiveRef</code> is
-   * <code>null</code> or empty.
+   * @param archiveRef The name of an archive file on the server. May not be <code>null</code> or
+   *     empty
+   * @throws IllegalArgumentException if <code>archiveRef</code> is <code>null</code> or empty.
    * @throws PSDeployException if there are any errors.
    */
   public void deleteArchive(String archiveRef) throws PSDeployException {
@@ -1130,20 +1022,16 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets the archive info for the archive on the server specified by the
-   * supplied archiveRef.  The returned object will include a
-   * <code>PSArchiveDetail</code> object.
+   * Gets the archive info for the archive on the server specified by the supplied archiveRef. The
+   * returned object will include a <code>PSArchiveDetail</code> object.
    *
-   * @param archiveLogId The log id of the archive to retrieve info for.
-   * Must be an existing archive log id.  Archive log ids can be cataloged from
-   * the server using the {@link com.percussion.deployer.catalog.PSCataloger}
-   * class returned by a call to {@link #getCataloger()}.
-   *
-   * @return The archive info, never <code>null</code>, will include a
-   * <code>PSArchiveDetail</code> object.
-   *
-   * @throws PSDeployException if the archive log cannot be found or there are
-   * any other errors.
+   * @param archiveLogId The log id of the archive to retrieve info for. Must be an existing archive
+   *     log id. Archive log ids can be cataloged from the server using the {@link
+   *     com.percussion.deployer.catalog.PSCataloger} class returned by a call to {@link
+   *     #getCataloger()}.
+   * @return The archive info, never <code>null</code>, will include a <code>PSArchiveDetail</code>
+   *     object.
+   * @throws PSDeployException if the archive log cannot be found or there are any other errors.
    */
   public PSArchiveInfo getArchiveInfo(int archiveLogId) throws PSDeployException {
     PSArchiveInfo archiveInfo =
@@ -1163,7 +1051,6 @@ public class PSDeploymentManager {
    * Gets the application policy settings from the server.
    *
    * @return The app policy settings, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   public PSAppPolicySettings getAppPolicySettings() throws PSDeployException {
@@ -1184,9 +1071,7 @@ public class PSDeploymentManager {
    * Saves the application policy settings to the server.
    *
    * @param settings The settings to save, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>settings</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>settings</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void saveAppPolicySettings(PSAppPolicySettings settings) throws PSDeployException {
@@ -1196,14 +1081,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Saves the dbms map to the server.  Contents will replace the current
-   * mapppings for the specified source server.
+   * Saves the dbms map to the server. Contents will replace the current mapppings for the specified
+   * source server.
    *
-   * @param map The map containing the mappings to save.  May contain both new
-   * and existing mappings.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>settings</code> is
-   * <code>null</code>.
+   * @param map The map containing the mappings to save. May contain both new and existing mappings.
+   *     May not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>settings</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors.
    */
   public void saveDbmsMap(PSDbmsMap map) throws PSDeployException {
@@ -1213,18 +1096,14 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Starts copying the supplied file to the server in a separate thread,
-   * returning a job controller used to track status and optionally cancel the
-   * copy.
+   * Starts copying the supplied file to the server in a separate thread, returning a job controller
+   * used to track status and optionally cancel the copy.
    *
-   * @param archiveRef The name to use to identify the archive on the server.
-   * May not be <code>null</code> or empty.
-   * @param archiveFile The archive file to copy to the server.  May not be
-   * <code>null</code> and must be an existing, valid, deployment archive
-   * file.
-   *
+   * @param archiveRef The name to use to identify the archive on the server. May not be <code>null
+   *     </code> or empty.
+   * @param archiveFile The archive file to copy to the server. May not be <code>null</code> and
+   *     must be an existing, valid, deployment archive file.
    * @return The job control handle, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors initiating the copy.
    */
   public IPSDeployJobControl copyArchiveToServer(String archiveRef, final File archiveFile)
@@ -1269,18 +1148,14 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Starts copying the supplied config file to the server in a separate thread,
-   * returning a job controller used to track status and optionally cancel the
-   * copy.
+   * Starts copying the supplied config file to the server in a separate thread, returning a job
+   * controller used to track status and optionally cancel the copy.
    *
-   * @param configRef The name to use to identify the config file on the server.
-   * May not be <code>null</code> or empty.
-   * @param configFile The config file to copy to the server.  May not be
-   * <code>null</code> and must be an existing, valid, config
-   * file.
-   *
+   * @param configRef The name to use to identify the config file on the server. May not be <code>
+   *     null</code> or empty.
+   * @param configFile The config file to copy to the server. May not be <code>null</code> and must
+   *     be an existing, valid, config file.
    * @return The job control handle, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors initiating the copy.
    */
   public IPSDeployJobControl copyConfigToServer(String configRef, final File configFile)
@@ -1326,12 +1201,13 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Creates a configdef shell file from the specified export descriptor and
-   * copies it to the specified target file.
-   * @param descName The name of the export descriptor to create a config def
-   * from.  May not be <code>null</code> or empty.
-   * @param targetFile The file on the local file system to which the configDef
-   * is written. May not be <code>null</code>.
+   * Creates a configdef shell file from the specified export descriptor and copies it to the
+   * specified target file.
+   *
+   * @param descName The name of the export descriptor to create a config def from. May not be
+   *     <code>null</code> or empty.
+   * @param targetFile The file on the local file system to which the configDef is written. May not
+   *     be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
    * @throws PSDeployException
    */
@@ -1384,12 +1260,12 @@ public class PSDeploymentManager {
   /**
    * Creates a local config and copies it to the specified target file.
    *
-   * @param descName The name of the export descriptor to create a config def
-   * from.  May not be <code>null</code> or empty.
-   * @param targetFile The file on the local file system to which the configDef
-   * is written. May not be <code>null</code>.
-   * @param configDef The file on the local file system to which the default
-   * config will be based on. May not be <code>null</code>.
+   * @param descName The name of the export descriptor to create a config def from. May not be
+   *     <code>null</code> or empty.
+   * @param targetFile The file on the local file system to which the configDef is written. May not
+   *     be <code>null</code>.
+   * @param configDef The file on the local file system to which the default config will be based
+   *     on. May not be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
    * @throws PSDeployException
    */
@@ -1474,12 +1350,13 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Creates a summary from the specified export descriptor and
-   * copies it to the specified target file.
-   * @param descName The name of the export descriptor to create a summary
-   * from.  May not be <code>null</code> or empty.
-   * @param targetFile The file on the local file system to which the summary
-   * is written. May not be <code>null</code>.
+   * Creates a summary from the specified export descriptor and copies it to the specified target
+   * file.
+   *
+   * @param descName The name of the export descriptor to create a summary from. May not be <code>
+   *     null</code> or empty.
+   * @param targetFile The file on the local file system to which the summary is written. May not be
+   *     <code>null</code>.
    * @return The job control handle, never <code>null</code>.
    * @throws PSDeployException
    */
@@ -1529,26 +1406,21 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Copies the specified archive from the server in a separate thread,
-   * returning a job controller to track the status and optionally cancel the
-   * copy.  The archive must have been created using the specified export
-   * descriptor to run an export job to completion.  If the server has been
-   * restarted since the export job was run, the archive will no longer be
-   * available.  If the copy is cancelled or aborts due to an error, an invalid
-   * file may have been written to the <code>targetFile</code>, and must be
-   * deleted by the caller.
+   * Copies the specified archive from the server in a separate thread, returning a job controller
+   * to track the status and optionally cancel the copy. The archive must have been created using
+   * the specified export descriptor to run an export job to completion. If the server has been
+   * restarted since the export job was run, the archive will no longer be available. If the copy is
+   * cancelled or aborts due to an error, an invalid file may have been written to the <code>
+   * targetFile</code>, and must be deleted by the caller.
    *
-   * @param descName The name of the export descriptor that was used to create
-   * the archive.  May not be <code>null</code> or empty.  Will retrieve the
-   * archive the was most recently created using this descriptor.
-   * @param targetFile The file on the local file system to which the archive
-   * is written. May not be <code>null</code>.
-   *
+   * @param descName The name of the export descriptor that was used to create the archive. May not
+   *     be <code>null</code> or empty. Will retrieve the archive the was most recently created
+   *     using this descriptor.
+   * @param targetFile The file on the local file system to which the archive is written. May not be
+   *     <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   *
-   * @throws PSDeployException if there is no archive on the server that was
-   * created using the specified descriptor, or if there are any errors
-   * initiating the copy.
+   * @throws PSDeployException if there is no archive on the server that was created using the
+   *     specified descriptor, or if there are any errors initiating the copy.
    */
   public IPSDeployJobControl copyArchiveFromServer(String descName, File targetFile)
       throws PSDeployException {
@@ -1597,15 +1469,11 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Runs an export job asynchronously on the server using the supplied
-   * descriptor, returning a job controller to track the status and optionally
-   * cancel the job.
+   * Runs an export job asynchronously on the server using the supplied descriptor, returning a job
+   * controller to track the status and optionally cancel the job.
    *
-   * @param desc The export descriptor defining the job, may not be
-   * <code>null</code>.
-   *
+   * @param desc The export descriptor defining the job, may not be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors initiating the job.
    */
   public IPSDeployJobControl runExportJob(PSExportDescriptor desc) throws PSDeployException {
@@ -1623,9 +1491,7 @@ public class PSDeploymentManager {
    * Gets the featureset from the server to support backward compatibility.
    *
    * @return The featureset, never <code>null</code>.
-   *
-   * @throws PSDeployException if there are any errors retrieving the
-   * featureset.
+   * @throws PSDeployException if there are any errors retrieving the featureset.
    */
   public PSFeatureSet getFeatureSet() throws PSDeployException {
     String reqType = getDeployReqType("getFeatureSet");
@@ -1660,22 +1526,17 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Runs an import job asynchronously on the server using the supplied
-   * descriptor, returning a job controller to track the status and optionally
-   * cancel the job. Note, use system property
-   * <code>sys_pkgVisibleToAllCommunities</code> to control whether the
-   * server will apply all existing communities to the imported package after
-   * finished importing the package.
-   * <p>
-   * For example, <code>-Dsys_pkgVisibleToAllCommunities=true</code> java
-   * option will cause server to apply all existing communities to the imported
-   * package after finished importing the package.
+   * Runs an import job asynchronously on the server using the supplied descriptor, returning a job
+   * controller to track the status and optionally cancel the job. Note, use system property <code>
+   * sys_pkgVisibleToAllCommunities</code> to control whether the server will apply all existing
+   * communities to the imported package after finished importing the package.
    *
-   * @param desc The import descriptor defining the job, may not be
-   * <code>null</code>.
+   * <p>For example, <code>-Dsys_pkgVisibleToAllCommunities=true</code> java option will cause
+   * server to apply all existing communities to the imported package after finished importing the
+   * package.
    *
+   * @param desc The import descriptor defining the job, may not be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   *
    * @throws PSServerLockException if the publisher is locked.
    * @throws PSDeployException if there are any errors initiating the job.
    */
@@ -1687,16 +1548,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Runs an validation job asynchronously on the server using the supplied
-   * descriptor, returning a job controller to track the status and optionally
-   * cancel the job.  Results may be obtained by calling
-   * {@link #loadValidationResults(PSImportDescriptor)}
+   * Runs an validation job asynchronously on the server using the supplied descriptor, returning a
+   * job controller to track the status and optionally cancel the job. Results may be obtained by
+   * calling {@link #loadValidationResults(PSImportDescriptor)}
    *
-   * @param desc The import descriptor to validate, may not be
-   * <code>null</code>.
-   *
+   * @param desc The import descriptor to validate, may not be <code>null</code>.
    * @return The job control handle, never <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors initiating the job.
    */
   public IPSDeployJobControl runValidationJob(PSImportDescriptor desc) throws PSDeployException {
@@ -1715,11 +1572,8 @@ public class PSDeploymentManager {
   /**
    * Loads the most recent validation results for the supplied descriptor.
    *
-   * @param desc The import descriptor to validate, may not be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>desc</code> is
-   * <code>null</code>.
+   * @param desc The import descriptor to validate, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>desc</code> is <code>null</code>.
    * @throws PSDeployException if there are any errors obtaining the results.
    */
   public void loadValidationResults(PSImportDescriptor desc) throws PSDeployException {
@@ -1761,7 +1615,6 @@ public class PSDeploymentManager {
    * This method is used to get the string resources used for messages.
    *
    * @return the bundle, never <code>null</code>.
-   *
    * @throws java.util.MissingResourceException if the bundle cannot be loaded.
    */
   public static ResourceBundle getBundle() {
@@ -1777,18 +1630,13 @@ public class PSDeploymentManager {
    * Get the current job status for the specified job id.
    *
    * @param jobId The id of the job.
-   * @param messageBuffer Buffer to use to return a the current status message.
-   * Contents are appended with the status message.  May not be
-   * <code>null</code>.
-   *
-   * @return The status,  a value between <code>1-100</code> to indicate the
-   * % done.  <code>100</code> indicates that the job has completed. A result
-   * of -1 indicates that there has been an error and the job completed
-   * abnormally. In the case of an error the <code>messageBuffer</code> will
-   * contain the error message.
-   *
-   * @throws IllegalArgumentException if <code>messageBuffer</code> is
-   * <code>null</code>.
+   * @param messageBuffer Buffer to use to return a the current status message. Contents are
+   *     appended with the status message. May not be <code>null</code>.
+   * @return The status, a value between <code>1-100</code> to indicate the % done. <code>100</code>
+   *     indicates that the job has completed. A result of -1 indicates that there has been an error
+   *     and the job completed abnormally. In the case of an error the <code>messageBuffer</code>
+   *     will contain the error message.
+   * @throws IllegalArgumentException if <code>messageBuffer</code> is <code>null</code>.
    * @throws PSDeployException if there is an error retrieving the status.
    */
   int getJobStatus(int jobId, StringBuilder messageBuffer) throws PSDeployException {
@@ -1831,17 +1679,14 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Attempts to stop the currently running job on the server.  Since the job
-   * is running in its own thread, it may complete on its own before noticing
-   * that it has been requested to stop.  This method may take some time to
-   * return as it will wait for the job to respond to the cancel request
-   * (or finish).
+   * Attempts to stop the currently running job on the server. Since the job is running in its own
+   * thread, it may complete on its own before noticing that it has been requested to stop. This
+   * method may take some time to return as it will wait for the job to respond to the cancel
+   * request (or finish).
    *
    * @param jobId The id of the job.
-   *
-   * @return a code indicating whether or not the job was cancelled.  See
-   * {@link IPSDeployJobControl#cancelDeployJob} for info on return codes.
-   *
+   * @return a code indicating whether or not the job was cancelled. See {@link
+   *     IPSDeployJobControl#cancelDeployJob} for info on return codes.
    * @throws PSDeployException If there are any errors.
    */
   int cancelJob(int jobId) throws PSDeployException {
@@ -1881,9 +1726,7 @@ public class PSDeploymentManager {
   /**
    * Prepends the deploy request prefix to the supplied type.
    *
-   * @param subType The sub-request type, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param subType The sub-request type, assumed not <code>null</code> or empty.
    * @return The full request type string, not <code>null</code> or empty.
    */
   private String getDeployReqType(String subType) {
@@ -1893,9 +1736,7 @@ public class PSDeploymentManager {
   /**
    * Prepends the job request prefix to the supplied type.
    *
-   * @param subType The sub-request type, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param subType The sub-request type, assumed not <code>null</code> or empty.
    * @return The full request type string, not <code>null</code> or empty.
    */
   private String getJobReqType(String subType) {
@@ -1903,16 +1744,12 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Checks the root of the supplied doc for a child element that is the root
-   * element of one of the <code>PSDependency</code> derived classes and
-   * restores that object from its XML.
+   * Checks the root of the supplied doc for a child element that is the root element of one of the
+   * <code>PSDependency</code> derived classes and restores that object from its XML.
    *
-   * @param reqType The request that was executed, assumed not <code>null</code>
-   * or empty.
+   * @param reqType The request that was executed, assumed not <code>null</code> or empty.
    * @param doc The request doc, assumed not <code>null</code>.
-   *
    * @return The dependency object, never <code>null</code>.
-   *
    * @throws PSDeployException If the doc is malformed.
    */
   private PSDependency getDependencyFromResultDoc(String reqType, Document doc)
@@ -1928,18 +1765,14 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Gets a dependency object from the supplied element assuming it is the root
-   * element of one of the <code>PSDependency</code> derived classes and
-   * restores that object from its XML.
+   * Gets a dependency object from the supplied element assuming it is the root element of one of
+   * the <code>PSDependency</code> derived classes and restores that object from its XML.
    *
-   * @param reqType The request that was executed, assumed not <code>null</code>
-   * or empty.
+   * @param reqType The request that was executed, assumed not <code>null</code> or empty.
    * @param depEl The element, assumed not <code>null</code>.
-   *
    * @return The dependency object, never <code>null</code>.
-   *
-   * @throws PSDeployException If the element does not represent a dependecy,
-   * the element is malformed, or any other errors occur.
+   * @throws PSDeployException If the element does not represent a dependecy, the element is
+   *     malformed, or any other errors occur.
    */
   private PSDependency getDependencyFromElement(String reqType, Element depEl)
       throws PSDeployException {
@@ -1967,11 +1800,8 @@ public class PSDeploymentManager {
    *
    * @param desc The job descriptor, assumed not <code>null</code>.
    * @param jobType The job type, assumed not <code>null</code> or empty.
-   *
    * @return The job control, never <code>null</code>.
-   *
-   * @throws PSServerLockException if a required server resource cannot be
-   * locked.
+   * @throws PSServerLockException if a required server resource cannot be locked.
    * @throws PSDeployException if there are any errors initiating the job.
    */
   private IPSDeployJobControl runServerJob(PSDescriptor desc, String jobType)
@@ -2026,26 +1856,24 @@ public class PSDeploymentManager {
   }
 
   /**
-   * Connection to the server used to execute all requests.  Never
-   * <code>null</code> after ctor, may retrieved by a call to
-   * {@link #getConnection()}. If disconnected, any attempt to use it to
+   * Connection to the server used to execute all requests. Never <code>null</code> after ctor, may
+   * retrieved by a call to {@link #getConnection()}. If disconnected, any attempt to use it to
    * execute requests will result in an exception.
-   * <p>
-   * Assigned protected visiblity to give the Threads spawned by this class
-   * effecient access to the field.
+   *
+   * <p>Assigned protected visiblity to give the Threads spawned by this class effecient access to
+   * the field.
    */
   protected PSDeploymentServerConnection m_conn;
 
   /**
-   * The cataloger used to make catalog requests to the server.  Initialized
-   * during construction, never <code>null</code> or modified after that.
+   * The cataloger used to make catalog requests to the server. Initialized during construction,
+   * never <code>null</code> or modified after that.
    */
   private PSCataloger m_cataloger;
 
   /**
-   * String bundle used for messages.  <code>null</code> until loaded
-   * by a call to {@link #getBundle()}, never <code>null</code> or modified
-   * after that.
+   * String bundle used for messages. <code>null</code> until loaded by a call to {@link
+   * #getBundle()}, never <code>null</code> or modified after that.
    */
   private static ResourceBundle ms_bundle = null;
 }

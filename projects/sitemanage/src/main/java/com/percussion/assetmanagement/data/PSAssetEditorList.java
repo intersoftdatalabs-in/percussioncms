@@ -23,17 +23,15 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * List wrapper for asset editors.
- */
+/** List wrapper for asset editors. */
 @JsonRootName("AssetEditor")
 public class PSAssetEditorList extends ArrayList<PSAssetEditor> {
 
-    public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
-        super(c);
-    }
+  public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
+    super(c);
+  }
 
-    public PSAssetEditorList() {
-        super();
-    }
+  public PSAssetEditorList() {
+    super();
+  }
 }

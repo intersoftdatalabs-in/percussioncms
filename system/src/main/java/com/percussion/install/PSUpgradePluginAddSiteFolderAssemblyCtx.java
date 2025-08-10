@@ -29,15 +29,13 @@ import java.sql.SQLException;
 import org.w3c.dom.Element;
 
 /**
- * This plugin is used to add the site folder assembly context if it does not
- * exist.  If it does exist and the name includes whitespace, then the name is
- * set to the new name with spaces converted to underscores.
+ * This plugin is used to add the site folder assembly context if it does not exist. If it does
+ * exist and the name includes whitespace, then the name is set to the new name with spaces
+ * converted to underscores.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginAddSiteFolderAssemblyCtx() {}
 
   /**
@@ -99,12 +97,9 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
    * Finds the supplied context.
    *
    * @param name the name of the context, assumed not <code>null</code>.
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @return the id of the context if it exists, <code>null</code> otherwise.
-   *
    * @throws Exception if an error occurs.
    */
   private Long findContext(String name, PrintStream logger, Connection conn) throws Exception {
@@ -134,10 +129,8 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
   /**
    * Inserts site folder assembly context.
    *
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void insertSiteFolderAssemblyCtx(PrintStream logger, Connection conn) throws Exception {
@@ -176,10 +169,8 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
    * Updates site folder assembly context with correct name.
    *
    * @param ctxId the context id.
-   * @param logger the logger used to log messages, assumed not
-   *           <code>null</code>.
+   * @param logger the logger used to log messages, assumed not <code>null</code>.
    * @param conn the JDBC connection, assumed not <code>null</code>.
-   *
    * @throws Exception if an error occurs.
    */
   private void updateSiteFolderAssemblyCtx(long ctxId, PrintStream logger, Connection conn)
@@ -211,18 +202,12 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
     logger.println("Successfully updated " + rowCount + " row(s) in " + contextTable);
   }
 
-  /**
-   * The name of the context table.
-   */
+  /** The name of the context table. */
   private static final String RXCONTEXT_TABLE = "RXCONTEXT";
 
-  /**
-   * The name of the site folder assembly context (6.6.0 and higher).
-   */
+  /** The name of the site folder assembly context (6.6.0 and higher). */
   private static final String NEW_CONTEXT_NAME = "Site_Folder_Assembly";
 
-  /**
-   * The name of the site folder assembly context (6.5.2 and lower).
-   */
+  /** The name of the site folder assembly context (6.5.2 and lower). */
   private static final String OLD_CONTEXT_NAME = "Site Folder Assembly";
 }

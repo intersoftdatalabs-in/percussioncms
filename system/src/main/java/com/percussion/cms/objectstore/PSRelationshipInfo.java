@@ -25,18 +25,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This is a read only class, it contains partial information of a specific
- * relationship configuration.
+ * This is a read only class, it contains partial information of a specific relationship
+ * configuration.
  */
 public class PSRelationshipInfo implements IPSCmsComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationshipInfo(Element sourceNode) throws PSUnknownNodeTypeException {
     fromXml(sourceNode);
@@ -60,8 +57,7 @@ public class PSRelationshipInfo implements IPSCmsComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to, may be <code>null</code>.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSRelationshipInfo)) return false;
@@ -73,9 +69,7 @@ public class PSRelationshipInfo implements IPSCmsComponent {
         && m_description.equals(t.m_description);
   }
 
-  /**
-   * Not implemented. Overrides {@link Object#hashCode()}.
-   */
+  /** Not implemented. Overrides {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     throw new UnsupportedOperationException("Not Implemented");
@@ -102,8 +96,7 @@ public class PSRelationshipInfo implements IPSCmsComponent {
   /**
    * Get the relationship description.
    *
-   * @return the relationship description, never <code>null</code>,
-   *    but may be empty.
+   * @return the relationship description, never <code>null</code>, but may be empty.
    */
   public String getDescription() {
     return m_description;
@@ -119,8 +112,9 @@ public class PSRelationshipInfo implements IPSCmsComponent {
   }
 
   /**
-   * See {@link IPSCmsComponent#toXml(Document) interface} for details.
-   * The DTD for this class is as follows:
+   * See {@link IPSCmsComponent#toXml(Document) interface} for details. The DTD for this class is as
+   * follows:
+   *
    * <pre><code>
    *    &lt;!ELEMENT PSXRelationshipInfo (Explanation?)>
    *    &lt;!ATTLIST PSXRelationshipInfo
@@ -186,9 +180,7 @@ public class PSRelationshipInfo implements IPSCmsComponent {
     else m_description = "";
   }
 
-  /**
-   * See {@link IPSCmsComponent#getNodeName() interface}
-   */
+  /** See {@link IPSCmsComponent#getNodeName() interface} */
   public String getNodeName() {
     return XML_NODE_NAME;
   }
@@ -214,29 +206,25 @@ public class PSRelationshipInfo implements IPSCmsComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXRelationshipInfo";
 
-  /**
-   * The relationship category.
-   */
+  /** The relationship category. */
   private String m_category = null;
 
   /**
-   * The relationship name, server-wide unique.  Initialized in ctor, may be
-   * modified through calls to <code>setName(String)</code>, never <code>null
+   * The relationship name, server-wide unique. Initialized in ctor, may be modified through calls
+   * to <code>setName(String)</code>, never <code>null
    * </code> or empty.
    */
   private String m_name = null;
 
   /**
-   * The relationship label.  Initialized in ctor, may be modified through
-   * calls to <code>setLabel(String)</code> and never <code>null</code> or
-   * empty.
+   * The relationship label. Initialized in ctor, may be modified through calls to <code>
+   * setLabel(String)</code> and never <code>null</code> or empty.
    */
   private String m_label = null;
 
   /**
-   * The relationship description. Initialized in ctor, may be modified through
-   * calls to <code>setDescription(String)</code>. May be <code>null</code> or
-   * empty.
+   * The relationship description. Initialized in ctor, may be modified through calls to <code>
+   * setDescription(String)</code>. May be <code>null</code> or empty.
    */
   private String m_description = null;
 

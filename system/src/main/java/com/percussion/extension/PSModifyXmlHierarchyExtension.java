@@ -27,47 +27,44 @@ import org.w3c.dom.Element;
 
 /**
  * This sample extension is used to modify an XML documents hierarchy.
- * <P>
- * The concept of XML hierarchy modification is based on the need for setting up
- * a discussion thread system. Each discussion topic submission can be
- * considered separately, thus having no relationship with other submissions.
- * However, most of the time, a submission may be a "response" to a previously
- * submitted topic. This creates a new discussion "thread" with response
- * submissions becoming children to a parent submission topic. A relationship
- * between the submissions is required to make this work.
- * <P>
- * To give a
- * relationship to different submission topics, a node-key pair comparison is
- * used in this exit extension to provide a hierarchical relationship between
- * submission topics. The 4 parameters are:
+ *
+ * <p>The concept of XML hierarchy modification is based on the need for setting up a discussion
+ * thread system. Each discussion topic submission can be considered separately, thus having no
+ * relationship with other submissions. However, most of the time, a submission may be a "response"
+ * to a previously submitted topic. This creates a new discussion "thread" with response submissions
+ * becoming children to a parent submission topic. A relationship between the submissions is
+ * required to make this work.
+ *
+ * <p>To give a relationship to different submission topics, a node-key pair comparison is used in
+ * this exit extension to provide a hierarchical relationship between submission topics. The 4
+ * parameters are:
+ *
  * <UL>
- * <LI>response node: (required) This is the name of the XML node that contains
- * the attribute, or "response key", for looking up
- * parent node of this submission topic.
- * <LI>response key: (required) This is the attribute owned by the "response
- * node". This key defines which node is this response node's parent by looking
- * at the "parent key" defined in the "parent node".
- * <LI>parent node: (required) This is the name of the XML node that contains
- * the attribute, or "parent key", for holding the key where response
- * nodes would look up to find the parent.
- * <LI>parent key: (required) This is the attribute owned by the "parent node".
- * This key defines the value for the "response node" to try and match its
- * "response key" value for the determination if this "parent node" is the
- * parent. The value of the response key MUST BE UNIQUE amongst all the response
- * nodes!
+ *   <LI>response node: (required) This is the name of the XML node that contains the attribute, or
+ *       "response key", for looking up parent node of this submission topic.
+ *   <LI>response key: (required) This is the attribute owned by the "response node". This key
+ *       defines which node is this response node's parent by looking at the "parent key" defined in
+ *       the "parent node".
+ *   <LI>parent node: (required) This is the name of the XML node that contains the attribute, or
+ *       "parent key", for holding the key where response nodes would look up to find the parent.
+ *   <LI>parent key: (required) This is the attribute owned by the "parent node". This key defines
+ *       the value for the "response node" to try and match its "response key" value for the
+ *       determination if this "parent node" is the parent. The value of the response key MUST BE
+ *       UNIQUE amongst all the response nodes!
  * </UL>
- * <P>
- * <BIG>Example:</BIG> Pay special attention to the relationship between
- * parentid and id attributes
+ *
+ * <p><BIG>Example:</BIG> Pay special attention to the relationship between parentid and id
+ * attributes
+ *
  * <UL>
- * <LI>response node = Discussion/Topic
- * <LI>response key = Discussion/Topic/@parentid
- * <LI>parent node = Discussion/Topic
- * <LI>parent key = Discussion/Topic/@id
+ *   <LI>response node = Discussion/Topic
+ *   <LI>response key = Discussion/Topic/@parentid
+ *   <LI>parent node = Discussion/Topic
+ *   <LI>parent key = Discussion/Topic/@id
  * </UL>
- * <P>
- * Original XML Document:
- * <BR>
+ *
+ * <p>Original XML Document: <br>
+ *
  * <PRE>
  * &lt;Discussion&gt;
  *   &lt;Topic id="1" parentid="0"&gt;
@@ -81,9 +78,9 @@ import org.w3c.dom.Element;
  *   &lt;/Topic&gt;
  * &lt;/Discussion&gt;
  * </PRE>
- * <P>
- * After ModifyXmlHierarchyExtension exit:
- * <BR>
+ *
+ * <p>After ModifyXmlHierarchyExtension exit: <br>
+ *
  * <PRE>
  * &lt;Discussion&gt;
  *   &lt;Topic id="1" parentid="0"&gt;
@@ -98,55 +95,46 @@ import org.w3c.dom.Element;
  * &lt;/Discussion&gt;
  * </PRE>
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSModifyXmlHierarchyExtension implements IPSResultDocumentProcessor {
-  /**
-   * Return false (this extension can not modify the style sheet).
-   */
+  /** Return false (this extension can not modify the style sheet). */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
-  /**
-   * No-op
-   */
+  /** No-op */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /**
-   * Modifies the XML hierarchy by linking nodes as children to the
-   * specified parent nodes. This is done by performing a key-based
-   * search from a value within the child node to a value within the
+   * Modifies the XML hierarchy by linking nodes as children to the specified parent nodes. This is
+   * done by performing a key-based search from a value within the child node to a value within the
    * parent node.
    *
-   * @param      params         the parameters for this extension; this is an
-   * array of 4 Objects, a toString() is called to convert the object to a
-   * String representation.
-   * <UL>
-   * <LI>response node: (required) This is the XML node (defined by the name of
-   * the node) that contains the attribute, or "response key", for looking up
-   * parent node of this submission topic.
-   * <LI>response key: (required) This is the attribute owned by the "response
-   * node". This key defines which node is this response node's parent by looking
-   * at the "parent key" defined in the "parent node".
-   * <LI>parent node: (required) This XML node (defined by the name of the node)
-   * contains the attribute, or "parent key", for holding the key where response
-   * nodes would look up to find the parent.
-   * <LI>parent key: (required) This is the attribute owned by the "parent node".
-   * This key defines the value for the "response node" to try and match its
-   * "response key" for the determination if this "parent node" is the parent.
-   * </UL>
+   * @param params the parameters for this extension; this is an array of 4 Objects, a toString() is
+   *     called to convert the object to a String representation.
+   *     <UL>
+   *       <LI>response node: (required) This is the XML node (defined by the name of the node) that
+   *           contains the attribute, or "response key", for looking up parent node of this
+   *           submission topic.
+   *       <LI>response key: (required) This is the attribute owned by the "response node". This key
+   *           defines which node is this response node's parent by looking at the "parent key"
+   *           defined in the "parent node".
+   *       <LI>parent node: (required) This XML node (defined by the name of the node) contains the
+   *           attribute, or "parent key", for holding the key where response nodes would look up to
+   *           find the parent.
+   *       <LI>parent key: (required) This is the attribute owned by the "parent node". This key
+   *           defines the value for the "response node" to try and match its "response key" for the
+   *           determination if this "parent node" is the parent.
+   *     </UL>
    *
-   * @param      request         the request context
-   *
-   * @param      resultDoc      the result XML document
-   *
-   * @return                     <code>resultDoc</code> is always returned
-   *
-   * @exception  PSParameterMismatchException  if the parameter number is incorrect
-   * @exception  PSExtensionProcessingException      if any parameter is <code>null</code>
+   * @param request the request context
+   * @param resultDoc the result XML document
+   * @return <code>resultDoc</code> is always returned
+   * @exception PSParameterMismatchException if the parameter number is incorrect
+   * @exception PSExtensionProcessingException if any parameter is <code>null</code>
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)

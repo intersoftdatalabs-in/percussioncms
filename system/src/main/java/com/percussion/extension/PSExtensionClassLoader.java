@@ -26,25 +26,20 @@ import java.security.CodeSource;
 import java.security.PermissionCollection;
 
 /**
- * Extension class loaders are used to load all extension handlers
- * and all Java-based extensions.
- * <p>
- * The extension class loader is also responsible for setting permissions
- * on extension handlers and Java-based extensions. The permissions may
- * be defined elsewhere, but they will be applied by this class.
+ * Extension class loaders are used to load all extension handlers and all Java-based extensions.
+ *
+ * <p>The extension class loader is also responsible for setting permissions on extension handlers
+ * and Java-based extensions. The permissions may be defined elsewhere, but they will be applied by
+ * this class.
  */
 public class PSExtensionClassLoader extends URLClassLoader {
   /**
-   * Constructs an extension class loader that will find its Java classes
-   * in specified directory or JAR file. Class loading will be delegated
-   * to the default parent class loader.
+   * Constructs an extension class loader that will find its Java classes in specified directory or
+   * JAR file. Class loading will be delegated to the default parent class loader.
    *
-   * @param root The directory under which all resources will be
-   * found. The directory must exist at construction time.
-   *
-   * @throws IOException If <CODE>root</CODE> does not exist or is not
-   * readable.
-   *
+   * @param root The directory under which all resources will be found. The directory must exist at
+   *     construction time.
+   * @throws IOException If <CODE>root</CODE> does not exist or is not readable.
    * @throws IllegalArgumentException If any param is invalid.
    */
   PSExtensionClassLoader(File root) throws IOException {
@@ -53,20 +48,14 @@ public class PSExtensionClassLoader extends URLClassLoader {
   }
 
   /**
-   * Constructs an extension class loader that will find its Java classes
-   * in specified directory or JAR file. Class loading will be delegated
-   * to the given parent class loader.
+   * Constructs an extension class loader that will find its Java classes in specified directory or
+   * JAR file. Class loading will be delegated to the given parent class loader.
    *
-   * @param root The directory or JAR file in which Java classes will be
-   * found. If <CODE>root</CODE> is a directory, it must end in a '/',
-   * otherwise it will be assumed to refer to a JAR file. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param root The directory or JAR file in which Java classes will be found. If <CODE>root</CODE>
+   *     is a directory, it must end in a '/', otherwise it will be assumed to refer to a JAR file.
+   *     Must not be <CODE>null</CODE>.
    * @param parent The parent class loader for delegation.
-   *
-   * @throws IOException If <CODE>root</CODE> does not exist or is not
-   * readable.
-   *
+   * @throws IOException If <CODE>root</CODE> does not exist or is not readable.
    * @throws IllegalArgumentException If any param is invalid.
    */
   PSExtensionClassLoader(File root, ClassLoader parent) throws IOException {
@@ -89,15 +78,12 @@ public class PSExtensionClassLoader extends URLClassLoader {
   }
 
   /**
-   * Returns the permissions for the given codesource. This method first
-   * calls URLClassLoader.getPermissions(), which in turn calls
-   * SecureClassLoader.getPermissions(). This method then adds some
-   * more liberal permissions to the permission collection, such as
-   * read and write access to all files under the extension's own
-   * directory.
+   * Returns the permissions for the given codesource. This method first calls
+   * URLClassLoader.getPermissions(), which in turn calls SecureClassLoader.getPermissions(). This
+   * method then adds some more liberal permissions to the permission collection, such as read and
+   * write access to all files under the extension's own directory.
    *
-   * @param codeSource The code source whose permissions we are to
-   * return. Can be <CODE>null</CODE>.
+   * @param codeSource The code source whose permissions we are to return. Can be <CODE>null</CODE>.
    */
   protected PermissionCollection getPermissions(CodeSource codeSource) {
     PermissionCollection perms = super.getPermissions(codeSource);
@@ -113,8 +99,8 @@ public class PSExtensionClassLoader extends URLClassLoader {
   }
 
   /**
-   * Private construction method to canonicalize the root directory member
-   * variable and create the code source object member variable.
+   * Private construction method to canonicalize the root directory member variable and create the
+   * code source object member variable.
    *
    * @param file The file. Must not be <CODE>null</CODE>.
    */
@@ -133,15 +119,11 @@ public class PSExtensionClassLoader extends URLClassLoader {
             new File(m_rootDir.toString() + "/-").toURL(), (java.security.cert.Certificate[]) null);
   }
 
-  /**
-   * The code source corresponding to the extension root dir.
-   * Never <CODE>null</CODE>
-   */
+  /** The code source corresponding to the extension root dir. Never <CODE>null</CODE> */
   private CodeSource m_codeSource;
 
   /**
-   * The canonical extension root dir. Never ends in File separator char.
-   * Never <CODE>null</CODE>.
+   * The canonical extension root dir. Never ends in File separator char. Never <CODE>null</CODE>.
    */
   private File m_rootDir;
 }

@@ -21,7 +21,6 @@ package com.percussion.delivery.comments.data;
  * A simple bean class to hold basic page/comment summary info.
  *
  * @author erikserating
- *
  */
 public class PSPageSummary {
   private String pagePath;
@@ -32,9 +31,7 @@ public class PSPageSummary {
 
   private long newCommentCount;
 
-  /**
-   *
-   */
+  /** */
   public PSPageSummary() {}
 
   /**
@@ -52,7 +49,6 @@ public class PSPageSummary {
    * @param commentCount
    * @param approvedCount
    * @param newCommentCount
-   *
    */
   public PSPageSummary(
       String pagePath, long commentCount, long approvedCount, long newCommentCount) {

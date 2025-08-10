@@ -22,20 +22,21 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Search field filter is used for filtering the keywords list for the search
- * fields in search dialog box.
+ * Search field filter is used for filtering the keywords list for the search fields in search
+ * dialog box.
  */
 public class PSSearchFieldFilter {
   /**
-   * ctor takes the search fieldname for which the filter needs to be done,
-   * new list of keywords, filter type
+   * ctor takes the search fieldname for which the filter needs to be done, new list of keywords,
+   * filter type
+   *
    * @param searchFieldName name of the search field.
-   * @param keywords <code>List</code> of the keywords which will be applied on
-   * source list based on the filterType
-   * @param filterType Three types are supported, default is replace the source
-   * list with the new list SEARCH_FILTER_TYPE_REPLACE, take the intersection
-   * of the new list and source list SEARCH_FILTER_TYPE_INTERSECTION, take the
-   * union of the new list and source list SEARCH_FILTER_TYPE_UNION.
+   * @param keywords <code>List</code> of the keywords which will be applied on source list based on
+   *     the filterType
+   * @param filterType Three types are supported, default is replace the source list with the new
+   *     list SEARCH_FILTER_TYPE_REPLACE, take the intersection of the new list and source list
+   *     SEARCH_FILTER_TYPE_INTERSECTION, take the union of the new list and source list
+   *     SEARCH_FILTER_TYPE_UNION.
    */
   public PSSearchFieldFilter(String searchFieldName, List keywords, String filterType) {
     setKeywords(keywords);
@@ -45,8 +46,9 @@ public class PSSearchFieldFilter {
 
   /**
    * Returns the list of the keywords
-   * @return list of keywords consisting of <code>PSEntry</code> objects.
-   *    May be empty but never <code>null</code>.
+   *
+   * @return list of keywords consisting of <code>PSEntry</code> objects. May be empty but never
+   *     <code>null</code>.
    */
   public List getKeywords() {
     return m_keywords;
@@ -54,10 +56,11 @@ public class PSSearchFieldFilter {
 
   /**
    * Sets the list of the keywords.
-   * @param keywords must not be <code>null</code> and must contain
-   *    <code>PSEntry</code> objects only.
-   * @throws IllegalArgumentException if keywords is null or if the objects
-   *    in the list are not of type <code>PSEntry</code>.
+   *
+   * @param keywords must not be <code>null</code> and must contain <code>PSEntry</code> objects
+   *     only.
+   * @throws IllegalArgumentException if keywords is null or if the objects in the list are not of
+   *     type <code>PSEntry</code>.
    */
   public void setKeywords(List keywords) {
     if (keywords == null) {
@@ -75,8 +78,8 @@ public class PSSearchFieldFilter {
 
   /**
    * Returns the type of the filter
-   * @return String type of the filter, never <code>null</code> or
-   *    <code>empty</code>
+   *
+   * @return String type of the filter, never <code>null</code> or <code>empty</code>
    */
   public String getFilterType() {
     return m_filterType;
@@ -84,10 +87,10 @@ public class PSSearchFieldFilter {
 
   /**
    * Sets the filter type
-   * @param filterType Type of the filter that needs to be applied. One of the
-   *    types defined as SEARCH_FILTER_TYPE_XXX in this class. Can be
-   *    <code>null</code>. If <code>null</code> sets filtertype as
-   *    SEARCH_FILTER_TYPE_REPLACE.
+   *
+   * @param filterType Type of the filter that needs to be applied. One of the types defined as
+   *     SEARCH_FILTER_TYPE_XXX in this class. Can be <code>null</code>. If <code>null</code> sets
+   *     filtertype as SEARCH_FILTER_TYPE_REPLACE.
    */
   public void setFilterType(String filterType) {
     if (SEARCH_FILTER_TYPE_INTERSECTION.equalsIgnoreCase(filterType)) {
@@ -101,8 +104,8 @@ public class PSSearchFieldFilter {
 
   /**
    * Returns the name of the search field.
-   * @return string search field name, never <code>null</code> or
-   *    <code>empty</code>
+   *
+   * @return string search field name, never <code>null</code> or <code>empty</code>
    */
   public String getSearchFieldName() {
     return m_searchFieldName;
@@ -110,10 +113,9 @@ public class PSSearchFieldFilter {
 
   /**
    * Sets the search field name.
-   * @param searchFieldName must not be <code>null</code> or
-   *    <code>empty</code>.
-   * @throws IllegalArgumentException if searchFieldName is <code>null</code>
-   *    or <code>empty</code>.
+   *
+   * @param searchFieldName must not be <code>null</code> or <code>empty</code>.
+   * @throws IllegalArgumentException if searchFieldName is <code>null</code> or <code>empty</code>.
    */
   public void setSearchFieldName(String searchFieldName) {
     if (searchFieldName == null || searchFieldName.trim().length() == 0) {
@@ -124,10 +126,11 @@ public class PSSearchFieldFilter {
 
   /**
    * Filters the list based on the filter type
-   * @param sourceList <code>List</code> of <code>PSEntry</code> objects must
-   * not be <code>null</code>
-   * @return List filtered list of the <code>PSEntry</code> objects may be
-   *    <code>empty</code> but never <code>null</code>
+   *
+   * @param sourceList <code>List</code> of <code>PSEntry</code> objects must not be <code>null
+   *     </code>
+   * @return List filtered list of the <code>PSEntry</code> objects may be <code>empty</code> but
+   *     never <code>null</code>
    * @throws IllegalArgumentException if sourceList is <code>null</code>.
    */
   public List getFilteredList(List sourceList) {
@@ -156,36 +159,30 @@ public class PSSearchFieldFilter {
     return keywords;
   }
 
-  /**
-   * List of the keywords that need to be used for filtering
-   */
+  /** List of the keywords that need to be used for filtering */
   private List m_keywords = new ArrayList();
 
-  /**
-   * Name of the search field for which the filtering is need to be done
-   */
+  /** Name of the search field for which the filtering is need to be done */
   private String m_searchFieldName;
 
-  /**
-   * Filter type, default is replace.
-   */
+  /** Filter type, default is replace. */
   private String m_filterType = SEARCH_FILTER_TYPE_REPLACE;
 
   /**
-   * Constant for Search Field Filter Type Replace, This is the default type.
-   * m_keywords list will be returned unaltered.
+   * Constant for Search Field Filter Type Replace, This is the default type. m_keywords list will
+   * be returned unaltered.
    */
   public static final String SEARCH_FILTER_TYPE_REPLACE = "Replace";
 
   /**
-   * Constant for Search Field Filter Type Intersection.
-   * The intersection of m_keywords and source list will be returned
+   * Constant for Search Field Filter Type Intersection. The intersection of m_keywords and source
+   * list will be returned
    */
   public static final String SEARCH_FILTER_TYPE_INTERSECTION = "Intersection";
 
   /**
-   * Constant for Search Field Filter Type Union.
-   * The union of m_keywords and source list will be returned
+   * Constant for Search Field Filter Type Union. The union of m_keywords and source list will be
+   * returned
    */
   public static final String SEARCH_FILTER_TYPE_UNION = "Union";
 }

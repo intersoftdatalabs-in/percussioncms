@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,6 @@
  * limitations under the License.
  */
 package com.percussion.pso.effects;
-import java.io.File;
-
-// REFACTORED: CP-JAVA11
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
@@ -36,65 +31,53 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
-
+import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Base class for folder effects.  
- * 
- * @author DavidBenua
+ * Base class for folder effects.
  *
+ * @author DavidBenua
  */
 @PSHandlesEffectContext()
-public abstract class PSAbstractFolderEffect implements IPSEffect
-{
-   // REFACTORED: CP-JAVA11
-   /**
-    * Logger for this class
-    */
-   protected static final Logger log = LogManager.getLogger(PSFolderFollowerEffect.class);
-   protected static IPSSystemWs sws = null;
-   protected static IPSGuidManager gmgr = null;
-   protected static IPSContentWs cws = null; 
+public abstract class PSAbstractFolderEffect implements IPSEffect {
+  /** Logger for this class */
+  protected static final Logger log = LogManager.getLogger(PSFolderFollowerEffect.class);
 
-   /**
-    * Initialize service pointers. 
-    */
-   protected static void initServices()
-   {
-      if(sws == null)
-      {
-         sws = PSSystemWsLocator.getSystemWebservice(); 
-         gmgr = PSGuidManagerLocator.getGuidMgr(); 
-         cws = PSContentWsLocator.getContentWebservice(); 
-      }
-   }
+  protected static IPSSystemWs sws = null;
+  protected static IPSGuidManager gmgr = null;
+  protected static IPSContentWs cws = null;
 
-   
-   public void recover(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSExtensionProcessingException ex,
-         PSEffectResult result) throws PSExtensionProcessingException
-   { //Nothing to do here      
-      result.setSuccess(); 
-   }
+  /** Initialize service pointers. */
+  protected static void initServices() {
+    if (sws == null) {
+      sws = PSSystemWsLocator.getSystemWebservice();
+      gmgr = PSGuidManagerLocator.getGuidMgr();
+      cws = PSContentWsLocator.getContentWebservice();
+    }
+  }
 
-   public void test(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-         throws PSExtensionProcessingException, PSParameterMismatchException
-   { //nothing to do here
-      result.setSuccess(); 
-   }
-   
-   /**
-    * Default constructor. 
-    */
-   public PSAbstractFolderEffect()
-   {
-      super();
-   }
+  public void recover(
+      Object[] params,
+      IPSRequestContext req,
+      IPSExecutionContext exCtx,
+      PSExtensionProcessingException ex,
+      PSEffectResult result)
+      throws PSExtensionProcessingException { // Nothing to do here
+    result.setSuccess();
+  }
 
-   
-   public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException
-   {
-         
-   }
+  public void test(
+      Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
+      throws PSExtensionProcessingException, PSParameterMismatchException { // nothing to do here
+    result.setSuccess();
+  }
 
-   
+  /** Default constructor. */
+  public PSAbstractFolderEffect() {
+    super();
+  }
+
+  public void init(IPSExtensionDef arg0, File arg1) throws PSExtensionException {}
 }

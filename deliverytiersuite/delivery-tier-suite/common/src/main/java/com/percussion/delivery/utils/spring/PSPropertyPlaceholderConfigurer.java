@@ -24,7 +24,6 @@ import org.springframework.util.StringValueResolver;
 
 /**
  * @author erikserating
- *
  */
 public class PSPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
 

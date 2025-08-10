@@ -30,12 +30,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This is a generic plugin base class that implements IPSUpgradePlugin.  This
- * plugin takes a table name, column name, and id column name as config data.
- * The string values in the column are modified in the
- * {@link #modifyColumnValues(Connection, PSJdbcDbmsDef, String, String, String)}
- * method.  This method must be overridden by subclasses to perform various
- * types of modifications on the column values.
+ * This is a generic plugin base class that implements IPSUpgradePlugin. This plugin takes a table
+ * name, column name, and id column name as config data. The string values in the column are
+ * modified in the {@link #modifyColumnValues(Connection, PSJdbcDbmsDef, String, String, String)}
+ * method. This method must be overridden by subclasses to perform various types of modifications on
+ * the column values.
  */
 public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugin {
   /**
@@ -105,18 +104,14 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   }
 
   /**
-   * Modifies the values of a given column from the specified table.  Must be
-   * overridden by all subclasses.
+   * Modifies the values of a given column from the specified table. Must be overridden by all
+   * subclasses.
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    * @param dbmsDef the database definition, cannot be <code>null</code>.
-   * @param table the name of the table to check, cannot be <code>null</code>
-   * or empty.
-   * @param column the name of the column to check, cannot be <code>null</code>
-   * or empty.
-   * @param idcolumn the name of the id column for this table, cannot be
-   * <code>null</code> or empty.
-   *
+   * @param table the name of the table to check, cannot be <code>null</code> or empty.
+   * @param column the name of the column to check, cannot be <code>null</code> or empty.
+   * @param idcolumn the name of the id column for this table, cannot be <code>null</code> or empty.
    * @return <code>true</code> if modifications were made.
    */
   protected abstract boolean modifyColumnValues(
@@ -126,9 +121,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
       String column,
       String idcolumn);
 
-  /**
-   * Write a log of the number of rows modified
-   */
+  /** Write a log of the number of rows modified */
   protected void logNumberOfRowsModified(String table, final int rowsModified) {
     if (rowsModified > 0) {
       String results = rowsModified + " row(s) modified in table " + table;
@@ -137,8 +130,8 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   }
 
   /**
-   * Constructs new value from existing value which does not match any of the
-   * existing values.
+   * Constructs new value from existing value which does not match any of the existing values.
+   *
    * @param value current value.
    * @param allValues all the existing values.
    */
@@ -152,9 +145,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
     return newValue;
   }
 
-  /**
-   * Creates updatable query to load all the values of the column.
-   */
+  /** Creates updatable query to load all the values of the column. */
   protected String constructUpdateValuesQuery(
       final Connection conn, final PSJdbcDbmsDef dbmsDef, final String valuesQuery)
       throws SQLException {
@@ -193,9 +184,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
         + qualTableName;
   }
 
-  /**
-   * Loads all the names from the database.
-   */
+  /** Loads all the names from the database. */
   protected Set loadValues(final Connection conn, String column, final String valuesQuery)
       throws SQLException {
     final Set allValues = new HashSet();
@@ -212,8 +201,7 @@ public abstract class PSUpgradePluginModifyColumnBase implements IPSUpgradePlugi
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

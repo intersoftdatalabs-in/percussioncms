@@ -40,23 +40,21 @@ import java.util.Stack;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * The PSConditionalEvaluator class is used to evaluate
- * conditions, returning <code>true</code> if the conditions are
- * met or <code>false</code> otherwise.
+ * The PSConditionalEvaluator class is used to evaluate conditions, returning <code>true</code> if
+ * the conditions are met or <code>false</code> otherwise.
  *
- * // REFACTORED: CP-JAVA11
+ * <p>// REFACTORED: CP-JAVA11
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSConditionalEvaluator {
   /**
-   * Constructs a conditional evaluator, parsing the conditionals
-   * and building the appropriate internal representation which is ready
-   * for run-time execution.
+   * Constructs a conditional evaluator, parsing the conditionals and building the appropriate
+   * internal representation which is ready for run-time execution.
    *
-   * @param   conditionals   the collection of PSConditional objects
+   * @param conditionals the collection of PSConditional objects
    */
   public PSConditionalEvaluator(PSCollection conditionals) {
     super();
@@ -68,20 +66,20 @@ public class PSConditionalEvaluator {
   }
 
   /**
-   * Checks the conditionals against the specified data. Tokens representing
-   * variables are substituted with their run-time values before performing
-   * the check.
+   * Checks the conditionals against the specified data. Tokens representing variables are
+   * substituted with their run-time values before performing the check.
+   *
+   * <p>This evaluator can use the request context hash tables, the input XML document and the
+   * result set(s) for processing.
+   *
+   * <p>When using multiple conditionals (chaining conditionals) a boolean operator must be
+   * specified on all but the last conditional. The boolean operators currently supported are AND
+   * and OR. AND is the default boolean operator. AND has a higher precedence than OR. All
+   * conditionals joined by AND will be evaluated before the corresponding OR conditionals. For
+   * instance, in the following example:
+   *
    * <p>
-   * This evaluator can use the request context hash tables, the input
-   * XML document and the result set(s) for processing.
-   * <P>
-   * When using multiple conditionals (chaining conditionals) a boolean
-   * operator must be specified on all but the last conditional. The boolean
-   * operators currently supported are AND and OR. AND is the default
-   * boolean operator. AND has a higher precedence than OR. All conditionals
-   * joined by AND will be evaluated before the corresponding OR
-   * conditionals. For instance, in the following example:
-   * <P>
+   *
    * <TABLE>
    *     <TR>
    *        <TH>Name</TH>
@@ -108,30 +106,22 @@ public class PSConditionalEvaluator {
    *        <TD></TD>
    *     </TR>
    * </TABLE>
-   * <P>
-   * Any product with a status of 'P' will be returned. In addition, any user
-   * who logged in through LDAP and is part of the Engineering organizational
-   * unit will get back all rows -- that is, with status set to any value.
-   * If the AND conditions were not of higher precedence, the result set
-   * would change. It would cause the first check to be if the status is 'P' or
-   * the user logged in through LDAP. This filters correctly, but then we apply
-   * the rule that they must also be in Engineering. This will cause
-   * Engineering to get all records, as expected, but everyone outside of
-   * Engineering will now get NO records, rather than records with a status
-   * of 'P'.
-   * <P>
-   * One use of conditionals is in the PSRequestor object to check the input
-   * data. If the input data meets the selection criteria, the request is
-   * handled. Input data is often provided as an INPUT parameter defined on a
-   * HTML FORM.
    *
-   * @param   data The execution data the evaluator will be applied to.
-   * The row data will be obtained by calling getCurrentResultRowData() on
-   * this parameter.
+   * <p>Any product with a status of 'P' will be returned. In addition, any user who logged in
+   * through LDAP and is part of the Engineering organizational unit will get back all rows -- that
+   * is, with status set to any value. If the AND conditions were not of higher precedence, the
+   * result set would change. It would cause the first check to be if the status is 'P' or the user
+   * logged in through LDAP. This filters correctly, but then we apply the rule that they must also
+   * be in Engineering. This will cause Engineering to get all records, as expected, but everyone
+   * outside of Engineering will now get NO records, rather than records with a status of 'P'.
    *
+   * <p>One use of conditionals is in the PSRequestor object to check the input data. If the input
+   * data meets the selection criteria, the request is handled. Input data is often provided as an
+   * INPUT parameter defined on a HTML FORM.
    *
-   * @return   <code>true</code> if the conditional criteria is met,
-   *          <code>false</code> otherwise
+   * @param data The execution data the evaluator will be applied to. The row data will be obtained
+   *     by calling getCurrentResultRowData() on this parameter.
+   * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise
    */
   public boolean isMatch(PSExecutionData data) throws PSEvaluationException {
     if (m_tokens == null) return true;
@@ -275,47 +265,37 @@ public class PSConditionalEvaluator {
   }
 
   /**
-   * Process a row of data returned from one or more back-ends. The
-   * data can be manipulated, or the entire row can be omitted from
-   * the result set.
-   * <P>
-   * E2 uses the request information to execute queries against the
-   * back-end(s). It then merges all results into a unified result
-   * set (if more than one query was executed) and allows this evaluator
-   * to process the data on a row by row basis. The evaluator can be used
-   * to remove the row from the result set, or to modify the data
-   * associated with the row.
-   * <P>
-   * Any changes made to the data will be made available to any other
-   * evaluators and for all additional processing done by the application.
-   * <P>
-   * <em>NOTE:</em> Modifying rows in the result set will not effect
-   * the back-end data store. The modifications will only be applied to
-   * the result set being used to generate the resulting XML document.
+   * Process a row of data returned from one or more back-ends. The data can be manipulated, or the
+   * entire row can be omitted from the result set.
    *
-   * @param   data   The execution data, which contains the request. The
-   * row, if needed, will be obtained by calling getCurrentResultRowData()
-   * on the execution data object.
+   * <p>E2 uses the request information to execute queries against the back-end(s). It then merges
+   * all results into a unified result set (if more than one query was executed) and allows this
+   * evaluator to process the data on a row by row basis. The evaluator can be used to remove the
+   * row from the result set, or to modify the data associated with the row.
    *
-   * @return                     <code>true</code> to keep the row
-   *                              (including any changes which may have
-   *                              been made); </code>false</code> to remove
-   *                              the row from the result set which will
-   *                              be used to generate the resulting XML
-   *                              document
+   * <p>Any changes made to the data will be made available to any other evaluators and for all
+   * additional processing done by the application.
+   *
+   * <p><em>NOTE:</em> Modifying rows in the result set will not effect the back-end data store. The
+   * modifications will only be applied to the result set being used to generate the resulting XML
+   * document.
+   *
+   * @param data The execution data, which contains the request. The row, if needed, will be
+   *     obtained by calling getCurrentResultRowData() on the execution data object.
+   * @return <code>true</code> to keep the row (including any changes which may have been made);
+   *     </code>false</code> to remove the row from the result set which will be used to generate
+   *     the resulting XML document
    */
   public boolean processRow(PSExecutionData data) throws PSParameterMismatchException {
     return isMatch(data);
   }
 
   /**
-   * Set the result set structure which will be given to this evaluator.
-   * The best use of this method is to store the index of columns this
-   * evaluator will act upon as member variables. When processRow is called,
-   * the column index can be used to quickly access the desired data.
+   * Set the result set structure which will be given to this evaluator. The best use of this method
+   * is to store the index of columns this evaluator will act upon as member variables. When
+   * processRow is called, the column index can be used to quickly access the desired data.
    *
-   * @param      meta            the meta data describing the result set
-   *                              which will be processed.
+   * @param meta the meta data describing the result set which will be processed.
    */
   public void setResultSetMetaData(ResultSetMetaData meta) throws SQLException {
     // m_metaData assignment removed (field deleted)
@@ -324,8 +304,7 @@ public class PSConditionalEvaluator {
   /**
    * Get the parameter definitions for this evaluator.
    *
-   * @return                     an array of PSExtensionParamDef objects
-   *                              describing the required parameters
+   * @return an array of PSExtensionParamDef objects describing the required parameters
    */
   public PSExtensionParamDef[] getParamDefs() {
     // Implementation for getParamDefs goes here (if needed)
@@ -358,9 +337,8 @@ public class PSConditionalEvaluator {
   /**
    * Get the integer number corresponding to the operator defined in PSConditional.
    *
-   * @param   opType    an operator
-   *
-   * @return             an integer representing the operator
+   * @param opType an operator
+   * @return an integer representing the operator
    */
   private int intOpBool(String opType) {
     if (opType.equalsIgnoreCase(PSConditional.OPTYPE_EQUALS)) return OPCODE_EQUALS;
@@ -387,12 +365,10 @@ public class PSConditionalEvaluator {
   /**
    * Compare two numbers according to the given operator.
    *
-   * @param   op      operator represented by an integer
-   * @param   left     the number in the left-hand side of the operator
-   * @param   right   the number in the right-hand side of the operator
-   *
-   * @return   <code>true</code> if the conditional criteria is met,
-   *          <code>false</code> otherwise
+   * @param op operator represented by an integer
+   * @param left the number in the left-hand side of the operator
+   * @param right the number in the right-hand side of the operator
+   * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise
    */
   private static boolean compareNumber(int op, double left, double right)
       throws PSEvaluationException {
@@ -453,10 +429,8 @@ public class PSConditionalEvaluator {
   /**
    * Compare two null values according to the given operator.
    *
-   * @param   op      operator represented by an integer
-   *
-   * @return   <code>true</code> if the conditional criteria is met,
-   *          <code>false</code> otherwise
+   * @param op operator represented by an integer
+   * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise
    */
   private static boolean compareNulls(int op) {
     // they must both be null to be here
@@ -476,14 +450,10 @@ public class PSConditionalEvaluator {
   /**
    * Compare two strings according to the given operator.
    *
-   * @param   op            operator represented by an integer
-   *
-   * @param   leftString   the left string to compare
-   *
-   * @param   rightString   the right string to compare
-   *
-   * @return   <code>true</code> if the conditional criteria is met,
-   *          <code>false</code> otherwise
+   * @param op operator represented by an integer
+   * @param leftString the left string to compare
+   * @param rightString the right string to compare
+   * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise
    */
   private static boolean compareStrings(int op, String leftString, String rightString)
       throws PSEvaluationException {
@@ -525,21 +495,20 @@ public class PSConditionalEvaluator {
   }
 
   /**
-   * Find out whether a number is within a certain range. The range can be
-   * either lowBound and upBound or upBound and lowBound.
-   * <P>
-   * Example:
+   * Find out whether a number is within a certain range. The range can be either lowBound and
+   * upBound or upBound and lowBound.
+   *
+   * <p>Example:
+   *
    * <UL>
-   * <LI>It is true that 123 is between 100 and 150
-   * <LI>It is true that 123 is between 150 and 100
+   *   <LI>It is true that 123 is between 100 and 150
+   *   <LI>It is true that 123 is between 150 and 100
    * </UL>
    *
-   * @param   mid   the number whose inclusion in the range is to be tested
-   * @param   lo    the lower bound of the range, inclusive
-   * @param   hi    the upper bound of the range, inclusive
-   *
-   * @return   <code>true</code> if the conditional criteria is met,
-   *          <code>false</code> otherwise
+   * @param mid the number whose inclusion in the range is to be tested
+   * @param lo the lower bound of the range, inclusive
+   * @param hi the upper bound of the range, inclusive
+   * @return <code>true</code> if the conditional criteria is met, <code>false</code> otherwise
    */
   private static boolean isBetween(double mid, double lo, double hi) {
     if (hi < lo) {
@@ -554,8 +523,8 @@ public class PSConditionalEvaluator {
   /**
    * Get an operator in String type based on its integer typed counterpart.
    *
-   * @param    op     an operator represented by an integer
-   * @return           an operator in String type
+   * @param op an operator represented by an integer
+   * @return an operator in String type
    */
   private static String getStringOperator(int op) {
     String stringOp = "UNKNOWN OPERATOR";
@@ -615,8 +584,8 @@ public class PSConditionalEvaluator {
 
   class PSConditionalToken {
     /**
-     * Construct a token which will load the specified replacement value
-     * onto the execution stack. This sets the op code to OPCODE_LOAD.
+     * Construct a token which will load the specified replacement value onto the execution stack.
+     * This sets the op code to OPCODE_LOAD.
      */
     PSConditionalToken(IPSReplacementValue value) {
       super();
@@ -631,8 +600,8 @@ public class PSConditionalEvaluator {
     }
 
     /**
-     * The op code to run. OPCODE_LOAD should not be used in this
-     * constructor! Use validateOperatorCode(int) first.
+     * The op code to run. OPCODE_LOAD should not be used in this constructor! Use
+     * validateOperatorCode(int) first.
      */
     PSConditionalToken(int op) {
       super();
@@ -645,19 +614,15 @@ public class PSConditionalEvaluator {
   } // end class PSConditionalToken
 
   /**
-   * Compares a list of values on the left of the operand with a list of values
-   * on the right. To compare single objects uses {@link #makeComparable2Obj(Object, Object, int)} ()}.
+   * Compares a list of values on the left of the operand with a list of values on the right. To
+   * compare single objects uses {@link #makeComparable2Obj(Object, Object, int)} ()}.
    *
-   * @param leftList list of objects, expected never <code>null</code>, may be
-   * <code>empty</code>.
-   * @param rightList list of objects, expected never <code>null</code>, may
-   * <code>empty</code>.
+   * @param leftList list of objects, expected never <code>null</code>, may be <code>empty</code>.
+   * @param rightList list of objects, expected never <code>null</code>, may <code>empty</code>.
    * @param opCode the operator to be used, expected to be valid.
-   *
-   * @return <code>true</code> if objects are the same, <code>false</code>
-   * otherwise.
-   * @exception   PSEvaluationException if one or both of the data types or
-   * the operand or a combination of all of the above is not acceptable.
+   * @return <code>true</code> if objects are the same, <code>false</code> otherwise.
+   * @exception PSEvaluationException if one or both of the data types or the operand or a
+   *     combination of all of the above is not acceptable.
    */
   private static boolean makeComparable2Lists(
       List<Object> leftList, List<Object> rightList, int opCode) throws PSEvaluationException {
@@ -809,50 +774,41 @@ public class PSConditionalEvaluator {
   }
 
   /**
-   * Makes two objects comparable and process the comparison. Currently the
-   * supported left/right data types are null, PSDateLiteral, Date,
-   * PSNumericLiteral, Number, PSTextLiteral, String, PSLiteralSet or
-   * a List of one of the above types.
+   * Makes two objects comparable and process the comparison. Currently the supported left/right
+   * data types are null, PSDateLiteral, Date, PSNumericLiteral, Number, PSTextLiteral, String,
+   * PSLiteralSet or a List of one of the above types.
    *
-   * If single objects are supplied, converts them to a List with one item
-   * and calls {@link #makeComparable2Lists(List, List, int)} method; which
-   * depending on the operand either iterates through the lists evaluating
-   * objects one by one or converts list to PSLiteralSet, then delegates
-   * actual operand evaluation to the legacy logic that is factored into the
-   * {@link #makeComparable2Obj(Object, Object, int)} method.
+   * <p>If single objects are supplied, converts them to a List with one item and calls {@link
+   * #makeComparable2Lists(List, List, int)} method; which depending on the operand either iterates
+   * through the lists evaluating objects one by one or converts list to PSLiteralSet, then
+   * delegates actual operand evaluation to the legacy logic that is factored into the {@link
+   * #makeComparable2Obj(Object, Object, int)} method.
    *
-   * note: even though this method can now handle List(s) the name is preserved
-   * for backwards compatibility.
+   * <p>note: even though this method can now handle List(s) the name is preserved for backwards
+   * compatibility.
    *
-   * For OPCODE_BETWEEN || OPCODE_NOTBETWEEN || OPCODE_IN || OPCODE_NOTIN
-   * the right object is expected to be of type (List) or (PSLiteralSet) or
-   * (PSLiteral or a String object with text delimited by commas).
-   * For OPCODE_BETWEEN and OPCODE_NOTBETWEEN there is a restriction that
+   * <p>For OPCODE_BETWEEN || OPCODE_NOTBETWEEN || OPCODE_IN || OPCODE_NOTIN the right object is
+   * expected to be of type (List) or (PSLiteralSet) or (PSLiteral or a String object with text
+   * delimited by commas). For OPCODE_BETWEEN and OPCODE_NOTBETWEEN there is a restriction that
    * requires exactly 1 item on the left and 2 items on the right.
    *
-   * <p>
-   * A special case is when one object is Date while the other object is a
-   * String or a set of PSTextLiterals, namely, all element of this
-   * PSLiteralSet is of type PSTextLiteral. Under this situation, every text
-   * literal must be in certain date format pattern in order to let the
-   * comparison work. Otherwise, an exception will be thrown.
-   * Our default date format pattern is "yyyy.MM.dd".
+   * <p>A special case is when one object is Date while the other object is a String or a set of
+   * PSTextLiterals, namely, all element of this PSLiteralSet is of type PSTextLiteral. Under this
+   * situation, every text literal must be in certain date format pattern in order to let the
+   * comparison work. Otherwise, an exception will be thrown. Our default date format pattern is
+   * "yyyy.MM.dd".
    *
-   * Here are some working examples:
+   * <p>Here are some working examples:
    *
-   * (1) "1999.08.12";
-   * (2) "1999.08.12 AD";
-   * (3) "1999.08.12 AD at 14:04:24";
-   * (4) "1999.08.12 at 01:01:01 PDT"
+   * <p>(1) "1999.08.12"; (2) "1999.08.12 AD"; (3) "1999.08.12 AD at 14:04:24"; (4) "1999.08.12 at
+   * 01:01:01 PDT"
    *
-   * @param   left    the left object, may be <code>null</code>.
-   * @param   right  the right object, may be <code>null</code>.
-   * @param   opCode the operator to be used.
-   *
-   * @return <code>true</code> if objects are the same, <code>false</code>
-   * otherwise.
-   * @exception   PSEvaluationException if one or both of the data types or
-   * the operand or a combination of all of the above is not acceptable.
+   * @param left the left object, may be <code>null</code>.
+   * @param right the right object, may be <code>null</code>.
+   * @param opCode the operator to be used.
+   * @return <code>true</code> if objects are the same, <code>false</code> otherwise.
+   * @exception PSEvaluationException if one or both of the data types or the operand or a
+   *     combination of all of the above is not acceptable.
    */
   public static boolean makeComparable2(Object left, Object right, int opCode)
       throws PSEvaluationException {
@@ -895,9 +851,7 @@ public class PSConditionalEvaluator {
     return makeComparable2Lists(leftList, rightList, opCode);
   }
 
-  /**
-   * Safely cast an object to List<Object>.
-   */
+  /** Safely cast an object to List<Object>. */
   @SuppressWarnings("unchecked")
   private static List<Object> safeCastToObjectList(Object obj) {
     if (obj instanceof List<?>) {
@@ -915,34 +869,26 @@ public class PSConditionalEvaluator {
   }
 
   /**
-   * Make two objects comparable and process the comparison. Currently the
-   * supported left/right data types are null, PSDateLiteral, Date,
-   * PSNumericLiteral, Number, PSTextLiteral, String, and PSLiteralSet.
-   * For OPCODE_BETWEEN || OPCODE_NOTBETWEEN || OPCODE_IN || OPCODE_NOTIN
-   * the right object is expected to be of type List or PSLiteralSet.
+   * Make two objects comparable and process the comparison. Currently the supported left/right data
+   * types are null, PSDateLiteral, Date, PSNumericLiteral, Number, PSTextLiteral, String, and
+   * PSLiteralSet. For OPCODE_BETWEEN || OPCODE_NOTBETWEEN || OPCODE_IN || OPCODE_NOTIN the right
+   * object is expected to be of type List or PSLiteralSet.
    *
-   * <p>
-   * A special case is when one object is Date while the other object is a
-   * String or a set of PSTextLiterals, namely, all element of this PSLiteralSet
-   * is of type PSTextLiteral. Under this situation, every text literal must be
-   * in certain date format pattern in order to let the comparison work.
-   * Otherwise, an exception will be thrown.
-   * Our default date format pattern is "yyyy.MM.dd".
-   * Here are some working examples:
+   * <p>A special case is when one object is Date while the other object is a String or a set of
+   * PSTextLiterals, namely, all element of this PSLiteralSet is of type PSTextLiteral. Under this
+   * situation, every text literal must be in certain date format pattern in order to let the
+   * comparison work. Otherwise, an exception will be thrown. Our default date format pattern is
+   * "yyyy.MM.dd". Here are some working examples:
    *
-   * (1) "1999.08.12";
-   * (2) "1999.08.12 AD";
-   * (3) "1999.08.12 AD at 14:04:24";
-   * (4) "1999.08.12 at 01:01:01 PDT"
+   * <p>(1) "1999.08.12"; (2) "1999.08.12 AD"; (3) "1999.08.12 AD at 14:04:24"; (4) "1999.08.12 at
+   * 01:01:01 PDT"
    *
-   * @param   left      the left object, expected never <code>null</code>.
-   * @param   right    the right object, expected never <code>null</code>.
-   * @param   opCode   the operator to be used, expected to be valid.
-   *
-   * @return <code>true</code> if objects are the same, <code>false</code>
-   * otherwise.
-   * @exception   PSEvaluationException if data type or operator or
-   * a combination of those is unacceptable.
+   * @param left the left object, expected never <code>null</code>.
+   * @param right the right object, expected never <code>null</code>.
+   * @param opCode the operator to be used, expected to be valid.
+   * @return <code>true</code> if objects are the same, <code>false</code> otherwise.
+   * @exception PSEvaluationException if data type or operator or a combination of those is
+   *     unacceptable.
    */
   private static boolean makeComparable2Obj(Object left, Object right, int opCode)
       throws PSEvaluationException {
@@ -1102,9 +1048,7 @@ public class PSConditionalEvaluator {
     return result;
   }
 
-  /**
-   * Determine whether the operator code is valid or not.
-   */
+  /** Determine whether the operator code is valid or not. */
   private static boolean validateOperatorCode(int opCode) {
     return false;
   }
@@ -1216,18 +1160,16 @@ public class PSConditionalEvaluator {
   /**
    * Determine whether a number or date is in a set of number or date, respectively.
    *
-   * @param   opCode   an integer stands for BETWEEN, NOTBETWEEN, IN, or NOT IN
-   * @param   left      an object of BigDecimal, or Date, or String
-   * @param   right      an object of type PSLiteralSet, with elements being
-   *                     PSNumericLiteral, or PSDateLiteral, or PSTextLiteral
-   * @param   dateFormat   a given date format to parse a string into a date
-   *
-   * @exception   PSEvaluationException   if a wrong operator or data type is used
+   * @param opCode an integer stands for BETWEEN, NOTBETWEEN, IN, or NOT IN
+   * @param left an object of BigDecimal, or Date, or String
+   * @param right an object of type PSLiteralSet, with elements being PSNumericLiteral, or
+   *     PSDateLiteral, or PSTextLiteral
+   * @param dateFormat a given date format to parse a string into a date
+   * @exception PSEvaluationException if a wrong operator or data type is used
    */
   /**
-   * @param   right      an object of type PSLiteralSet
-   *
-   * @exception   PSEvaluationException   if a wrong operator is used
+   * @param right an object of type PSLiteralSet
+   * @exception PSEvaluationException if a wrong operator is used
    */
   private static boolean compareWithTextSet(int opCode, Object left, Object right)
       throws PSEvaluationException {

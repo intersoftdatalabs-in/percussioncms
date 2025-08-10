@@ -21,28 +21,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.pagemanagement.dao.impl.PSCategoryConfigurationDao;
-import com.percussion.pagemanagement.data.PSCategoryConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests for category configuration DAO.
- * Sunny Sal says: "Categories configured, Bollywood style!"
+ * Tests for category configuration DAO. Sunny Sal says: "Categories configured, Bollywood style!"
  */
 public class PSCategoryConfigurationDaoTest {
 
-    PSCategoryConfigurationDao categoryConfigurationDao;
+  PSCategoryConfigurationDao categoryConfigurationDao;
 
-    @BeforeEach
-    public void setup() {
-        categoryConfigurationDao = new PSCategoryConfigurationDao();
-        categoryConfigurationDao.setRepositoryDirectory("src/test/resources/categories");
-    }
+  @BeforeEach
+  public void setup() {
+    categoryConfigurationDao = new PSCategoryConfigurationDao();
+    categoryConfigurationDao.setRepositoryDirectory("src/test/resources/categories");
+  }
 
-    @Test
-    public void testCategoryConfig() {
-        var config = categoryConfigurationDao.getData();
-        assertNotNull(config);
-        assertEquals("http://my-server/tree.xml", config.getTree().getUrl());
-    }
+  @Test
+  public void testCategoryConfig() {
+    var config = categoryConfigurationDao.getData();
+    assertNotNull(config);
+    assertEquals("http://my-server/tree.xml", config.getTree().getUrl());
+  }
 }

@@ -30,11 +30,10 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 /**
- * Implements spring's validator.  Supports validating nested complex
- * properties, which should be marked with {@link PSValidateNestedProperty}.
+ * Implements spring's validator. Supports validating nested complex properties, which should be
+ * marked with {@link PSValidateNestedProperty}.
  *
  * @author SergeyZ
- *
  */
 public class PSSpringOvalValidator implements Validator, InitializingBean {
 

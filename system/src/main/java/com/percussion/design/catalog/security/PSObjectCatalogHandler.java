@@ -24,22 +24,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is the client side of the cataloger. It creates an xml doc
- * appropriate for the request based on a set of supplied properties. The
- * format of the generated xml document can be seen {@link
- * com.percussion.design.catalog.security.server.PSObjectCatalogHandler here}.
+ * This class is the client side of the cataloger. It creates an xml doc appropriate for the request
+ * based on a set of supplied properties. The format of the generated xml document can be seen
+ * {@link com.percussion.design.catalog.security.server.PSObjectCatalogHandler here}.
  */
 public class PSObjectCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSObjectCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <TABLE border="2">
    * <tr><th>Key</th>
    *     <th>Value</th>
@@ -74,11 +72,8 @@ public class PSObjectCatalogHandler implements IPSCatalogHandler {
    *     <td>yes</td></tr>
    * </TABLE>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

@@ -20,11 +20,9 @@ package com.percussion.share.service.exception;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 /**
- *
  * Used to validate Java Bean data objects (aka POJOs with out behavior).
  *
  * @author adamgent
- *
  */
 public class PSBeanValidationException extends PSSpringValidationException {
 

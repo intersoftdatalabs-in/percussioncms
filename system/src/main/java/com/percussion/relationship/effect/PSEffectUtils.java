@@ -27,35 +27,24 @@ import java.util.HashMap;
 import java.util.Map;
 import org.w3c.dom.Document;
 
-/**
- * This utility class is used for the effect package
- */
+/** This utility class is used for the effect package */
 public class PSEffectUtils {
-  /**
-   * The private constructor to prevent an instance of this class.
-   */
+  /** The private constructor to prevent an instance of this class. */
   private PSEffectUtils() {}
 
   /**
-   * Get current workflow state for the supplied item. The returned document
-   * conform the following DTD:
-   * &lt;!ELEMENT CurrentState EMPTY>
-   * &lt;!ATTLIST isPublic CDATA #REQUIRED>
-   * &lt;!ATTLIST stateId CDATA #REQUIRED>
-   * &lt;!ATTLIST stateName CDATA #REQUIRED>
-   * &lt;!ATTLIST workflowId CDATA #REQUIRED>
+   * Get current workflow state for the supplied item. The returned document conform the following
+   * DTD: &lt;!ELEMENT CurrentState EMPTY> &lt;!ATTLIST isPublic CDATA #REQUIRED> &lt;!ATTLIST
+   * stateId CDATA #REQUIRED> &lt;!ATTLIST stateName CDATA #REQUIRED> &lt;!ATTLIST workflowId CDATA
+   * #REQUIRED>
    *
    * @param request the request to operate on, it may not be <code>null</code>.
    * @param contentId the content id of the item, may not be <code>null</code>.
-   * @param name the name of the registered effect, it may not be
-   *    <code>null</code> or empty.
-   *
-   * @return the requested document in the format described above. Never
-   *    <code>null</code>, but may be empty if the item does not exist or
-   *    does not have workflow (for folders).
-   *
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @param name the name of the registered effect, it may not be <code>null</code> or empty.
+   * @return the requested document in the format described above. Never <code>null</code>, but may
+   *     be empty if the item does not exist or does not have workflow (for folders).
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static Document getWorkflowState(IPSRequestContext request, int contentId, String name)
@@ -77,25 +66,18 @@ public class PSEffectUtils {
   }
 
   /**
-   * Get current workflow state for the supplied item. The returned document
-   * conform the following DTD:
-   * &lt;!ELEMENT CurrentStates (CurrentState*)>
-   * &lt;!ELEMENT CurrentState EMPTY>
-   * &lt;!ATTLIST contentId CDATA #REQUIRED>
-   * &lt;!ATTLIST isPublic CDATA #REQUIRED>
+   * Get current workflow state for the supplied item. The returned document conform the following
+   * DTD: &lt;!ELEMENT CurrentStates (CurrentState*)> &lt;!ELEMENT CurrentState EMPTY> &lt;!ATTLIST
+   * contentId CDATA #REQUIRED> &lt;!ATTLIST isPublic CDATA #REQUIRED>
    *
    * @param request the request to operate on, it may not be <code>null</code>.
-   * @param contentIds a collection of content ids (as <code>Integer</code>
-   * objects). It may not be <code>null</code>, but may be empty.
-   * @param name the name of the registered effect, it may not be
-   *    <code>null</code> or empty.
-   *
-   * @return the requested document in the format described above. Never
-   *    <code>null</code>, but may be empty if the item does not exist or
-   *    does not have workflow (for folders).
-   *
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @param contentIds a collection of content ids (as <code>Integer</code> objects). It may not be
+   *     <code>null</code>, but may be empty.
+   * @param name the name of the registered effect, it may not be <code>null</code> or empty.
+   * @return the requested document in the format described above. Never <code>null</code>, but may
+   *     be empty if the item does not exist or does not have workflow (for folders).
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSNotFoundException if a required resource cannot be found.
    */
   public static Document getWorkflowStates(
@@ -117,15 +99,9 @@ public class PSEffectUtils {
     }
   }
 
-  /**
-   * The name of the application used to query or update relationships in
-   * the repository.
-   */
+  /** The name of the application used to query or update relationships in the repository. */
   private static final String SYS_PSXRELATIONSHIPSUPPORT = "sys_psxRelationshipSupport";
 
-  /**
-   * The name of the query resource to get the current workflow state of an
-   * item.
-   */
+  /** The name of the query resource to get the current workflow state of an item. */
   private static final String GET_CURRENTSTATE = "getCurrentState";
 }

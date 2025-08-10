@@ -22,9 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * The action factory is a singleton class that is responsible for
- * retrieving requested aa client actions. Actions are instantiated
- * via reflection.
+ * The action factory is a singleton class that is responsible for retrieving requested aa client
+ * actions. Actions are instantiated via reflection.
  */
 public class PSAAClientActionFactory {
 
@@ -33,6 +32,7 @@ public class PSAAClientActionFactory {
 
   /**
    * Retrieve the singleton instance of this factory.
+   *
    * @return the instance, never <code>null</code>.
    */
   public static final PSAAClientActionFactory getInstance() {
@@ -41,13 +41,13 @@ public class PSAAClientActionFactory {
   }
 
   /**
-   * Returns the action for the specified action type. Actions are expected
-   * to be in the com.percussion.content.ui.aa.actions.impl package and must have
-   * the naming convention of PSXXXAction.
+   * Returns the action for the specified action type. Actions are expected to be in the
+   * com.percussion.content.ui.aa.actions.impl package and must have the naming convention of
+   * PSXXXAction.
+   *
    * @param actionType the action type of the action to be returned.
-   * @return the <code>IPSAAClientAction</code>. May be
-   * <code>null</code> if the action type specified does not
-   * exist.
+   * @return the <code>IPSAAClientAction</code>. May be <code>null</code> if the action type
+   *     specified does not exist.
    */
   public IPSAAClientAction getAction(String actionType) {
     IPSAAClientAction action = m_actions.get(actionType);
@@ -72,15 +72,13 @@ public class PSAAClientActionFactory {
   }
 
   /**
-   * The singleton instance of this factory. Initialized in
-   * {@link #getInstance()}. Never <code>null</code> after that.
+   * The singleton instance of this factory. Initialized in {@link #getInstance()}. Never <code>null
+   * </code> after that.
    */
   private static PSAAClientActionFactory ms_instance;
 
   private Map<String, IPSAAClientAction> m_actions = new HashMap<String, IPSAAClientAction>();
 
-  /**
-   * The logger for this class
-   */
+  /** The logger for this class */
   private static Log ms_log = LogFactory.getLog(PSAAClientActionFactory.class);
 }

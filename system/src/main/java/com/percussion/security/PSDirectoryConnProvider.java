@@ -43,16 +43,14 @@ import javax.naming.directory.SearchResult;
 import javax.security.auth.callback.CallbackHandler;
 
 /**
- * This class uses a directory server as an authentication proxy, meaning
- * that authentication will be successful if the given credentials allow us
- * to log in to the directory server. No actual directory lookups need to
- * be performed, because a successful login to the directory server is all
+ * This class uses a directory server as an authentication proxy, meaning that authentication will
+ * be successful if the given credentials allow us to log in to the directory server. No actual
+ * directory lookups need to be performed, because a successful login to the directory server is all
  * we need.
  */
 public class PSDirectoryConnProvider extends PSJndiProvider {
   /**
-   * Convenience constructor that calls
-   * {@link #PSDirectoryConnProvider(Properties, String, boolean)
+   * Convenience constructor that calls {@link #PSDirectoryConnProvider(Properties, String, boolean)
    * this(providerAttrs, providerInstance, true)}.
    */
   public PSDirectoryConnProvider(Properties providerAttrs, String providerInstance)
@@ -61,22 +59,16 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   }
 
   /**
-   * Construct an instance of this provider which can optionally be used for
-   * cataloging.
+   * Construct an instance of this provider which can optionally be used for cataloging.
    *
-   * @param providerAttrs The provider attributes. Must not be
-   * <CODE>null</CODE>. Must contain all required attributes described in
-   * the constructors for {@link com.percussion.security.PSJndiProvider
-   * PSJndiProvider}.
-   *
-   * @param providerInstance The name of this provider instance. Cannot be
-   * <CODE>null</CODE>.
-   *
-   * @param prepCataloging <CODE>true</CODE> if a catalog connection should be
-   * established, false otherwise.
-   *
-   * @throws NamingException If uid or pw defined by the providerAttrs is
-   *    incorrect for logging into directory.
+   * @param providerAttrs The provider attributes. Must not be <CODE>null</CODE>. Must contain all
+   *     required attributes described in the constructors for {@link
+   *     com.percussion.security.PSJndiProvider PSJndiProvider}.
+   * @param providerInstance The name of this provider instance. Cannot be <CODE>null</CODE>.
+   * @param prepCataloging <CODE>true</CODE> if a catalog connection should be established, false
+   *     otherwise.
+   * @throws NamingException If uid or pw defined by the providerAttrs is incorrect for logging into
+   *     directory.
    * @throws PSRuntimeException If the password filter cannot be initialized.
    * @throws IllegalArgumentException If any param is invalid.
    */
@@ -86,7 +78,9 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
     super(SP_NAME, providerInstance, providerAttrs, prepCataloging);
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public PSUserEntry authenticate(String uid, String pw, CallbackHandler callbackHandler)
       throws PSAuthenticationFailedException {
     // fail if null uid
@@ -235,30 +229,28 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
         getInstance(), m_spInstance, uid, errorMessage.toString());
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public IPSSecurityProviderMetaData getMetaData() {
     return new PSDirectoryConnProviderMetaData(this);
   }
 
   /**
-   * Authenticates by searching for the object and object attribute name for
-   * the supplied parameters. If the search was successful, a new context is
-   * created which does the authentication for us.
+   * Authenticates by searching for the object and object attribute name for the supplied
+   * parameters. If the search was successful, a new context is created which does the
+   * authentication for us.
    *
    * @param user the user to authenticate, assumed not <code>null</code>.
-   * @param userAttributeName the attribute name of the user, assumed not
-   *    <code>null</code>.
-   * @param password the password to authenticate with, assumed not
-   *    <code>null</code>.
+   * @param userAttributeName the attribute name of the user, assumed not <code>null</code>.
+   * @param password the password to authenticate with, assumed not <code>null</code>.
    * @param env the cataloging environment, assumed not <code>null</code>.
-   * @param scope the sope in which to search,  assumed to be one of
-   *    <code>SearchControls.xxx_SCOPE</code>.
-   * @param authentication the authentication used for the currently processed
-   *    directory, assumed not <code>null</code>.
-   * @param directory the directory used for the authentication, assumed not
-   *    <code>null</code>.
-   * @return a valid context if the user was authenticated, <code>null</code>
-   *    otherwise.
+   * @param scope the sope in which to search, assumed to be one of <code>SearchControls.xxx_SCOPE
+   *     </code>.
+   * @param authentication the authentication used for the currently processed directory, assumed
+   *     not <code>null</code>.
+   * @param directory the directory used for the authentication, assumed not <code>null</code>.
+   * @return a valid context if the user was authenticated, <code>null</code> otherwise.
    * @throws NamingException for all naming errors.
    */
   private DirContext authenticate(
@@ -279,24 +271,19 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   }
 
   /**
-   * Setup the environment required for authentication. First the object is
-   * looked up for the supplied user and user attribute name. If exactly
-   * one result is found, the object's attribute name and value are added
-   * to the supplied environment.
+   * Setup the environment required for authentication. First the object is looked up for the
+   * supplied user and user attribute name. If exactly one result is found, the object's attribute
+   * name and value are added to the supplied environment.
    *
    * @param user the user for which to search, assumed not <code>null</code>.
-   * @param userAttributeName the user attribute name to search for,
-   *    assumed not <code>null</code>.
-   * @param password the password to authenticate with, assumed not
-   *    <code>null</code>.
-   * @param env the environment setup for cataloging, assumed not
-   *    <code>null</code>.
-   * @param scope the sope in which to search,  assumed to be one of
-   *    <code>SearchControls.xxx_SCOPE</code>.
-   * @param authentication the authentication used for the currently processed directory,
-   *    assumed not <code>null</code>.
-   * @param directory the directory used for the authentication, assumed not
-   *    <code>null</code>.
+   * @param userAttributeName the user attribute name to search for, assumed not <code>null</code>.
+   * @param password the password to authenticate with, assumed not <code>null</code>.
+   * @param env the environment setup for cataloging, assumed not <code>null</code>.
+   * @param scope the sope in which to search, assumed to be one of <code>SearchControls.xxx_SCOPE
+   *     </code>.
+   * @param authentication the authentication used for the currently processed directory, assumed
+   *     not <code>null</code>.
+   * @param directory the directory used for the authentication, assumed not <code>null</code>.
    * @return the environment setup for authentication, never <code>null</code>.
    * @throws NamingException for any naming errors.
    */
@@ -416,8 +403,8 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   /**
    * Get the directory cataloger associated with this security provider.
    *
-   * @return the directory cataloger used with this security provider,
-   *    may be <code>null</code> if none is used.
+   * @return the directory cataloger used with this security provider, may be <code>null</code> if
+   *     none is used.
    */
   public IPSDirectoryCataloger getDirectoryCataloger() {
     return m_directoryCataloger;
@@ -429,9 +416,8 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   }
 
   /**
-   * Convenience method that calls {@link #setDirectoryProvider(PSProvider,
-   * Properties, PSServerConfiguration)
-   * setDirectoryProvider(PSProvider, Properties, null)}.
+   * Convenience method that calls {@link #setDirectoryProvider(PSProvider, Properties,
+   * PSServerConfiguration) setDirectoryProvider(PSProvider, Properties, null)}.
    */
   public void setDirectoryProvider(PSProvider provider, Properties props) {
     setDirectoryProvider(provider, props, null);
@@ -449,10 +435,9 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   /**
    * Set the supplied directory provider.
    *
-   * @param provider the provider to set, <code>null</code> if no directory
-   *    cataloging is required.
-   * @param props the security provider properties, never <code>null</code>,
-   *    may be empty, the method takes ownership.
+   * @param provider the provider to set, <code>null</code> if no directory cataloging is required.
+   * @param props the security provider properties, never <code>null</code>, may be empty, the
+   *     method takes ownership.
    */
   public void setDirectoryProvider(
       PSProvider provider, Properties props, PSServerConfiguration config) {
@@ -471,11 +456,10 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
   /**
    * Set and instatiate the directory cataloger for the supplied provider.
    *
-   * @param provider the directory cataloger provider, may be <code>null</code>
-   *    to remove the current directory cataloger.
-   * @param properties the configuration properties required to instantiate
-   *    the requested directory provider, assumed not <code>null</code>, may
-   *    be empty.
+   * @param provider the directory cataloger provider, may be <code>null</code> to remove the
+   *     current directory cataloger.
+   * @param properties the configuration properties required to instantiate the requested directory
+   *     provider, assumed not <code>null</code>, may be empty.
    * @param config the server configuration, may be <code>null</code>.
    */
   private void setDirectoryCataloger(
@@ -488,27 +472,22 @@ public class PSDirectoryConnProvider extends PSJndiProvider {
           (IPSDirectoryCataloger) instantiateProvider(provider, properties, config);
   }
 
-  /**
-   * The name of this security provider.
-   */
+  /** The name of this security provider. */
   public static final String SP_NAME = "DirectoryConn";
 
-  /**
-   * The class name of this security provider.
-   */
+  /** The class name of this security provider. */
   public static final String SP_CLASSNAME = PSDirectoryConnProvider.class.getName();
 
   /**
-   * The directory provider used with this security provider, may be
-   * <code>null</code> if no directory cataloging is needed. Initialized
-   * through {@link #setDirectoryProvider(PSProvider, Properties)}.
+   * The directory provider used with this security provider, may be <code>null</code> if no
+   * directory cataloging is needed. Initialized through {@link #setDirectoryProvider(PSProvider,
+   * Properties)}.
    */
   private PSProvider m_directoryProvider = null;
 
   /**
-   * The directory cataloger used with this security provider, may be
-   * <code>null</code> if the security provider does not need directory
-   * cataloging.
+   * The directory cataloger used with this security provider, may be <code>null</code> if the
+   * security provider does not need directory cataloging.
    */
   private IPSDirectoryCataloger m_directoryCataloger = null;
 }

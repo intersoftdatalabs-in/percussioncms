@@ -31,34 +31,31 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * Implementation of the interface <code>IPSJavaPluginConfig</code>.
- */
+/** Implementation of the interface <code>IPSJavaPluginConfig</code>. */
 public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   private static final Logger log = LogManager.getLogger(PSJavaPluginConfig.class);
 
-  /**
-   * Default ctor. Creates the configuration with just one entry for the
-   * default plugin.
-   */
+  /** Default ctor. Creates the configuration with just one entry for the default plugin. */
   public PSJavaPluginConfig() {
     addDefaultPlugin();
   }
 
   /**
    * Ctor taking the sourceElement for the plugin configuration.
-   * @param srcElem the source element, must not be <code>null</code> and must
-   * conform to the DTD specified in the interface definition.
-   * @throws PSUnknownNodeTypeException if the element specified does not
-   * conform to the DTD required.
+   *
+   * @param srcElem the source element, must not be <code>null</code> and must conform to the DTD
+   *     specified in the interface definition.
+   * @throws PSUnknownNodeTypeException if the element specified does not conform to the DTD
+   *     required.
    */
   public PSJavaPluginConfig(Element srcElem) throws PSUnknownNodeTypeException {
     fromXml(srcElem, null, null);
   }
 
   /**
-   * Add a new plugin to the configuration. If already exists, the old one will
-   * be replaced. Existence is checked based on the OS and browser keys.
+   * Add a new plugin to the configuration. If already exists, the old one will be replaced.
+   * Existence is checked based on the OS and browser keys.
+   *
    * @param plugin new plugin object to add, must not be <code>null</code>.
    * @thorws IllegalArgumentException if the plugin supplied is <code>null</code>.
    */
@@ -70,12 +67,11 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   }
 
   /**
-   * Remove and return an existing plugin from the configuration. Nothing
-   * happens if does already exist. Existence is checked based on the OS and
-   * browser keys.
+   * Remove and return an existing plugin from the configuration. Nothing happens if does already
+   * exist. Existence is checked based on the OS and browser keys.
+   *
    * @param plugin new plugin object to add, must not be <code>null</code>.
-   * @return removed plugin object, can be <code>null</code> only if supplied
-   * one does not exist.
+   * @return removed plugin object, can be <code>null</code> only if supplied one does not exist.
    * @thorws IllegalArgumentException if the plugin supplied is <code>null</code>.
    */
   public PSJavaPlugin removePlugin(PSJavaPlugin plugin) {
@@ -91,8 +87,9 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
 
   /**
    * Returns all plugins provisioned in the config.xml.
-   * @return collection of IPSJavaPlugin objects, never <code>null</code>,
-   * may be <code>empty</code>.
+   *
+   * @return collection of IPSJavaPlugin objects, never <code>null</code>, may be <code>empty</code>
+   *     .
    */
   public Collection getAllPlugins() {
     return Collections.unmodifiableCollection(m_plugins.values());
@@ -147,10 +144,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
     return root;
   }
 
-  /**
-   * See the {@link IPSCmsComponent#equals(Object) interface} for complete
-   * details.
-   */
+  /** See the {@link IPSCmsComponent#equals(Object) interface} for complete details. */
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof PSJavaPluginConfig)) return false;
@@ -172,9 +166,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
     return true;
   }
 
-  /**
-   * Config hash code.
-   */
+  /** Config hash code. */
   @Override
   public int hashCode() {
     int hashCode = 0;
@@ -185,30 +177,22 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
     return hashCode;
   }
 
-  /**
-   * See IPSComponent.
-   */
+  /** See IPSComponent. */
   public int getId() {
     throw new UnsupportedOperationException("getId is not implemented");
   }
 
-  /**
-   * See IPSComponent.
-   */
+  /** See IPSComponent. */
   public void setId(int id) {
     throw new UnsupportedOperationException("setId is not implemented");
   }
 
-  /**
-   * See IPSComponent.
-   */
+  /** See IPSComponent. */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     throw new UnsupportedOperationException("validate is not implemented");
   }
 
-  /**
-   * See IPSComponent.
-   */
+  /** See IPSComponent. */
   @Override
   public Object clone() {
     throw new UnsupportedOperationException("clone is not implemented");
@@ -216,28 +200,24 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
 
   /**
    * Helper method to make a unique key for the plugin map.
+   *
    * @param osKey assumed not <code>null</code> or empty.
    * @param browserKey assumed not <code>null</code> or empty.
-   * @return key string ready to use as the key for the plugin map, never
-   * <code>null</code>or empty. This made up of a combination of os key and
-   * browser key.
+   * @return key string ready to use as the key for the plugin map, never <code>null</code>or empty.
+   *     This made up of a combination of os key and browser key.
    */
   private String makeKey(String osKey, String browserKey) {
     return osKey + KEY_SEPARATOR + browserKey;
   }
 
   /**
-   * Gets the browser from useragent, if userAgent is <code>null</code> or
-   * empty or if the supported browser does not exist in userAgent then
-   * default value of Any is returned.
+   * Gets the browser from useragent, if userAgent is <code>null</code> or empty or if the supported
+   * browser does not exist in userAgent then default value of Any is returned.
    *
-   * @param userAgent, HTTP_USER_AGENT string, may be <code>null</code> or
-   * empty.
-   *
-   * @return One of the {@link #BROWSER_LIST} values, or
-   * {@link #DEFAULT_BROWSERKEY} if the supplied agent is <code>null</code> or
-   * empty or not one of the known types as defined in
-   * {@link #BROWSER_LIST_USERAGENT}.
+   * @param userAgent, HTTP_USER_AGENT string, may be <code>null</code> or empty.
+   * @return One of the {@link #BROWSER_LIST} values, or {@link #DEFAULT_BROWSERKEY} if the supplied
+   *     agent is <code>null</code> or empty or not one of the known types as defined in {@link
+   *     #BROWSER_LIST_USERAGENT}.
    */
   public static String getBrowserKeyFromUserAgent(String userAgent) {
     if (userAgent != null && userAgent.trim().length() > 1) {
@@ -250,15 +230,13 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   }
 
   /**
-   * Gets the OS from useragent, if userAgent is <code>null</code> or
-   * empty or if the supported OS does not exist in userAgent then
-   * default value will be returned.
-   * @param userAgent, HTTP_USER_AGENT string, may be <code>null</code> or
-   * empty.
+   * Gets the OS from useragent, if userAgent is <code>null</code> or empty or if the supported OS
+   * does not exist in userAgent then default value will be returned.
    *
-   * @return One of the {@link #OS_LIST} values, or {@link #DEFAULT_OSKEY} if
-   * the supplied agent is <code>null</code> or empty or not one of the known
-   * types as defined in {@link #OS_LIST_USERAGENT}.
+   * @param userAgent, HTTP_USER_AGENT string, may be <code>null</code> or empty.
+   * @return One of the {@link #OS_LIST} values, or {@link #DEFAULT_OSKEY} if the supplied agent is
+   *     <code>null</code> or empty or not one of the known types as defined in {@link
+   *     #OS_LIST_USERAGENT}.
    */
   public static String getOSKeyFromUserAgent(String userAgent) {
     if (userAgent != null && userAgent.trim().length() > 1) {
@@ -270,9 +248,7 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
     return DEFAULT_OSKEY;
   }
 
-  /**
-   * Adds the degfault plugin to the map if one already does not exist.
-   */
+  /** Adds the degfault plugin to the map if one already does not exist. */
   private void addDefaultPlugin() {
     String key = makeKey(DEFAULT_OSKEY, DEFAULT_BROWSERKEY);
     if (m_plugins.containsKey(key)) return;
@@ -289,9 +265,8 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   }
 
   /**
-   * Map of all plugins in the configuration. Never <code>null</code> may be
-   * empty. The key for the map is made up of a combination of OS and browser
-   * keys.
+   * Map of all plugins in the configuration. Never <code>null</code> may be empty. The key for the
+   * map is made up of a combination of OS and browser keys.
    */
   private Map m_plugins = new HashMap();
 
@@ -301,17 +276,15 @@ public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   private static List ms_SupportedBrowsers = new ArrayList();
 
   /**
-   * Put the list of suppot OSs and Browsers in a List for easy access, never
-   * <code>null</code> or empty.
+   * Put the list of suppot OSs and Browsers in a List for easy access, never <code>null</code> or
+   * empty.
    */
   static {
     for (int i = 0; i < OS_LIST.length; i++) ms_SupportedOS.add(OS_LIST[i]);
     for (int i = 0; i < BROWSER_LIST.length; i++) ms_SupportedBrowsers.add(BROWSER_LIST[i]);
   }
 
-  /**
-   * Main method for testing
-   */
+  /** Main method for testing */
   public static void main(String[] args) {
     try {
       String userAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";

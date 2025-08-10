@@ -27,8 +27,8 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Link Builder service implementation as a Spring bean.
  *
- * This service includes an optional suffix to be added to the
- * generated path.  This may be useful with certain types of files.
+ * <p>This service includes an optional suffix to be added to the generated path. This may be useful
+ * with certain types of files.
  *
  * @author davidbenua
  * @see LinkBuilderService
@@ -52,6 +52,7 @@ public class LinkBuilderBean implements LinkBuilderService {
 
   /**
    * Gets the link suffix.
+   *
    * @return the linkSuffix
    */
   public String getLinkSuffix() {
@@ -60,6 +61,7 @@ public class LinkBuilderBean implements LinkBuilderService {
 
   /**
    * Sets the link suffix.
+   *
    * @param linkSuffix the linkSuffix to set
    */
   public void setLinkSuffix(String linkSuffix) {

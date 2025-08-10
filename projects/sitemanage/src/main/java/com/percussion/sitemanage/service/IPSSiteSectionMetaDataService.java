@@ -22,45 +22,43 @@ import com.percussion.share.service.IPSDataService;
 import java.util.List;
 
 /**
- * Adds and removes items associated with a folder path.
- * This is a low-level service and should not yet be exposed publicly (WS API, REST API).
+ * Adds and removes items associated with a folder path. This is a low-level service and should not
+ * yet be exposed publicly (WS API, REST API).
  */
 public interface IPSSiteSectionMetaDataService {
-    String TEMPLATES = "Templates";
-    String PAGE_CATALOG = "PageCatalog";
-    String SECTION_SYSTEM_FOLDER_NAME = ".system";
+  String TEMPLATES = "Templates";
+  String PAGE_CATALOG = "PageCatalog";
+  String SECTION_SYSTEM_FOLDER_NAME = ".system";
 
-    void addItem(IPSFolderPath siteSection, String category, String itemId);
+  void addItem(IPSFolderPath siteSection, String category, String itemId);
 
-    void removeItem(IPSFolderPath siteSection, String category, String itemId);
+  void removeItem(IPSFolderPath siteSection, String category, String itemId);
 
-    void removeCategory(IPSFolderPath siteSection, String category);
+  void removeCategory(IPSFolderPath siteSection, String category);
 
-    List<IPSItemSummary> findItems(IPSFolderPath siteSection, String category)
-            throws IPSDataService.DataServiceNotFoundException;
+  List<IPSItemSummary> findItems(IPSFolderPath siteSection, String category)
+      throws IPSDataService.DataServiceNotFoundException;
 
-    List<IPSFolderPath> findSections(String category, String itemId);
+  List<IPSFolderPath> findSections(String category, String itemId);
 
-    List<String> findCategories(IPSFolderPath siteSection);
+  List<String> findCategories(IPSFolderPath siteSection);
 
-    boolean containCategoryFolder(IPSFolderPath siteSection);
+  boolean containCategoryFolder(IPSFolderPath siteSection);
 
-    /**
-     * Exception thrown when an unexpected error occurs in this service.
-     */
-    class PSSiteSectionMetaDataServiceException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+  /** Exception thrown when an unexpected error occurs in this service. */
+  class PSSiteSectionMetaDataServiceException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
-        public PSSiteSectionMetaDataServiceException(String message) {
-            super(message);
-        }
-
-        public PSSiteSectionMetaDataServiceException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public PSSiteSectionMetaDataServiceException(Throwable cause) {
-            super(cause);
-        }
+    public PSSiteSectionMetaDataServiceException(String message) {
+      super(message);
     }
+
+    public PSSiteSectionMetaDataServiceException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public PSSiteSectionMetaDataServiceException(Throwable cause) {
+      super(cause);
+    }
+  }
 }

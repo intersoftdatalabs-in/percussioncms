@@ -33,15 +33,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * This class creates backup of specified tables. If backup of the table is
- * successfully created, then it may drop the original table if
- * <code>dropTables</code> is <code>true</code>.  Create backup table name by
- * appending <code>suffix</code> to table name.
+ * This class creates backup of specified tables. If backup of the table is successfully created,
+ * then it may drop the original table if <code>dropTables</code> is <code>true</code>. Create
+ * backup table name by appending <code>suffix</code> to table name. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -60,7 +57,6 @@ import java.util.Properties;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSCreateTableBackupAction extends PSAction {
   // see base class
@@ -155,8 +151,8 @@ public class PSCreateTableBackupAction extends PSAction {
   /**
    * Returns the name of tables whose backup is to be created.
    *
-   * @return the name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @return the name of tables whose backup is to be created, never <code>null</code>, may be empty
+   *     array
    */
   public String[] getTables() {
     return tables;
@@ -165,21 +161,20 @@ public class PSCreateTableBackupAction extends PSAction {
   /**
    * Sets the name of tables whose backup is to be created.
    *
-   * @param tables name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @param tables name of tables whose backup is to be created, never <code>null</code>, may be
+   *     empty array
    */
   public void setTables(String tables) {
     this.tables = convertToArray(tables);
   }
 
   /**
-   * Returns a boolean indicating whether the tables should be deleted if a
-   * successful backup is created.
+   * Returns a boolean indicating whether the tables should be deleted if a successful backup is
+   * created.
    *
-   * @return <code>true</code> if the tables specified in <code>tables</code>
-   * will be dropped if a successful backup of tables has been created,
-   * <code>false</code> if the tables are not to be dropped even after a
-   * successful backup is created.
+   * @return <code>true</code> if the tables specified in <code>tables</code> will be dropped if a
+   *     successful backup of tables has been created, <code>false</code> if the tables are not to
+   *     be dropped even after a successful backup is created.
    */
   public boolean getDropTables() {
     return dropTables;
@@ -188,26 +183,22 @@ public class PSCreateTableBackupAction extends PSAction {
   /**
    * Sets whether the tables should be deleted if a successful backup is created.
    *
-   * @param dropTables <code>true</code> if the tables specified in <code>tables</code>
-   * should be dropped if a successful backup of tables has been created,
-   * <code>false</code> if the tables are not to be dropped even after a
-   * successful backup is created.
+   * @param dropTables <code>true</code> if the tables specified in <code>tables</code> should be
+   *     dropped if a successful backup of tables has been created, <code>false</code> if the tables
+   *     are not to be dropped even after a successful backup is created.
    */
   public void setDropTables(boolean dropTables) {
     this.dropTables = dropTables;
   }
 
-  /**
-   * Returns the suffix to be added to the table to obtain the name of the
-   * backup table.
-   */
+  /** Returns the suffix to be added to the table to obtain the name of the backup table. */
   public String getSuffix() {
     return suffix;
   }
 
   /**
-   * Sets the value of the suffix to be used in creating the backup table name.
-   * The set will only occur for non-empty input values.
+   * Sets the value of the suffix to be used in creating the backup table name. The set will only
+   * occur for non-empty input values.
    */
   public void setSuffix(String newSuffix) {
     if (newSuffix != null && newSuffix.trim().length() > 0) suffix = newSuffix;
@@ -217,22 +208,17 @@ public class PSCreateTableBackupAction extends PSAction {
    * properties
    **************************************************************************/
 
-  /**
-   * Name of tables whose backup is to be created, never <code>null</code>,
-   * may be empty
-   */
+  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String[] tables = new String[] {};
 
   /**
-   * if <code>true</code> then drops the tables specified in <code>tables</code>
-   * if a successful backup of tables has been created. If <code>false</code>,
-   * tables are not dropped even after a successful backup is created.
+   * if <code>true</code> then drops the tables specified in <code>tables</code> if a successful
+   * backup of tables has been created. If <code>false</code>, tables are not dropped even after a
+   * successful backup is created.
    */
   private boolean dropTables = false;
 
-  /**
-   * Suffix to be added to the table to obtain the name of backup tables.
-   */
+  /** Suffix to be added to the table to obtain the name of backup tables. */
   private String suffix = "_UPG";
 
   /**************************************************************************
@@ -240,8 +226,8 @@ public class PSCreateTableBackupAction extends PSAction {
    **************************************************************************/
 
   /**
-   * maximum number of characters that the table name can contain. Oracle
-   * does not permit table names with more than 30 characters.
+   * maximum number of characters that the table name can contain. Oracle does not permit table
+   * names with more than 30 characters.
    */
   private static final int MAX_TABLE_NAME_LENGTH = 30;
 }

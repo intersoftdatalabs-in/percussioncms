@@ -29,20 +29,14 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-/**
- * This class provides utility methods for converting between different java
- * datatypes.
- */
+/** This class provides utility methods for converting between different java datatypes. */
 public class PSDataTypeConverter {
   /**
-   * Converts the supplied String representation of binary data to a byte
-   * array.
+   * Converts the supplied String representation of binary data to a byte array.
    *
    * @param value The string containing the data, may not be <code>
-   * null</code>.  May be empty.  Must be either Hex or Base64 encoded.
-   *
+   * null</code>. May be empty. Must be either Hex or Base64 encoded.
    * @return The byte array, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if value is <code>null</code>.
    * @throws IOException if an error occurs.
    */
@@ -57,12 +51,9 @@ public class PSDataTypeConverter {
   /**
    * Determines if the supplied string can be coverted as Hex data.
    *
-   * @param value The string to check, may not be <code>null</code>.  May be
-   * empty.
-   *
-   * @return <code>true</code> if the value contains a hex representation of
-   * the data, <code>false</code> if not.
-   *
+   * @param value The string to check, may not be <code>null</code>. May be empty.
+   * @return <code>true</code> if the value contains a hex representation of the data, <code>false
+   *     </code> if not.
    * @throws IllegalArgumentException if value is <code>null</code>.
    */
   public static boolean isHexData(String value) {
@@ -91,10 +82,8 @@ public class PSDataTypeConverter {
    * Converts the supplied Hex data to a byte array.
    *
    * @param value The string containing the Hex data, may not be <code>null
-   * </code>.  May be empty.
-   *
+   * </code>. May be empty.
    * @return The byte array, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if value is <code>null</code>.
    */
   public static byte[] getBinaryFromHex(String value) {
@@ -134,10 +123,8 @@ public class PSDataTypeConverter {
    * Converts the supplied base64 encoded value to a byte array
    *
    * @param value The string containing the encoded data, may not be <code>
-   * null</code>.  May be empty.
-   *
+   * null</code>. May be empty.
    * @return The byte array, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if value is <code>null</code>.
    * @throws IOException if an error occurs.
    */
@@ -148,31 +135,23 @@ public class PSDataTypeConverter {
   }
 
   /**
-   * Takes a string possibly containing a date and an optional input format and
-   * parses it. If this succeeds, it then reformats it to the requested output
-   * format.
+   * Takes a string possibly containing a date and an optional input format and parses it. If this
+   * succeeds, it then reformats it to the requested output format.
    *
-   * @param value The date as a string, {@link Date} or
-   * {@link java.sql.Timestamp}. May be <code>null</code> or empty, in which
-   * case, <code>null</code> is returned.
-   *
-   * @param inputFormat One of the formats as specified by the
-   * {@link org.apache.commons.lang3.time.FastDateFormat} class. If <code>null</code> or blank, the
-   * formats supported by the {@link #parseStringToDate(String)} method are
-   * used.
-   *
-   * @param outputFormat One of the formats as specified by the
-   * {@link org.apache.commons.lang3.time.FastDateFormat} class. If <code>null</code> or blank,
-   * <code>yyyy-MM-dd HH:mm:ss.SSS</code> is used if a non-zero time component
-   * is present, otherwise, <code>yyyy-MM-dd</code> is used.
-   *
-   * @return The input date formated as specified by the
-   * <code>outputFormat</code> specifier, or <code>null</code> if the input
-   * date cannot be parsed. If the default output format is used, it is
-   * guaranteed parseable by the {@link #parseStringToDate(String)} method.
-   *
-   * @throws ParseException If <code>throwEx</code> is <code>true</code> and
-   * the input date cannot be parsed.
+   * @param value The date as a string, {@link Date} or {@link java.sql.Timestamp}. May be <code>
+   *     null</code> or empty, in which case, <code>null</code> is returned.
+   * @param inputFormat One of the formats as specified by the {@link
+   *     org.apache.commons.lang3.time.FastDateFormat} class. If <code>null</code> or blank, the
+   *     formats supported by the {@link #parseStringToDate(String)} method are used.
+   * @param outputFormat One of the formats as specified by the {@link
+   *     org.apache.commons.lang3.time.FastDateFormat} class. If <code>null</code> or blank, <code>
+   *     yyyy-MM-dd HH:mm:ss.SSS</code> is used if a non-zero time component is present, otherwise,
+   *     <code>yyyy-MM-dd</code> is used.
+   * @return The input date formated as specified by the <code>outputFormat</code> specifier, or
+   *     <code>null</code> if the input date cannot be parsed. If the default output format is used,
+   *     it is guaranteed parseable by the {@link #parseStringToDate(String)} method.
+   * @throws ParseException If <code>throwEx</code> is <code>true</code> and the input date cannot
+   *     be parsed.
    */
   public static String transformDateString(
       Object value, String inputFormat, String outputFormat, boolean throwEx)
@@ -213,42 +192,34 @@ public class PSDataTypeConverter {
   }
 
   /**
-   * Convenience version of {@link #parseStringToDate(String, StringBuilder)}
-   * that calls <code>parseStringToDate(myText, null)</code> and returns the
-   * result.
+   * Convenience version of {@link #parseStringToDate(String, StringBuilder)} that calls <code>
+   * parseStringToDate(myText, null)</code> and returns the result.
    */
   public static Date parseStringToDate(String myText) {
     return parseStringToDate(myText, null);
   }
 
   /**
-   * Convenience version of {@link #parseStringToDate(String, StringBuilder,
-   * Locale)} that calls <code>parseStringToDate(myText, patternUsed, null)</code>
-   * and returns the result.
+   * Convenience version of {@link #parseStringToDate(String, StringBuilder, Locale)} that calls
+   * <code>parseStringToDate(myText, patternUsed, null)</code> and returns the result.
    */
   public static Date parseStringToDate(String myText, StringBuilder patternUsed) {
     return parseStringToDate(myText, patternUsed, null);
   }
 
   /**
-   * Try to parse a given string to a date, using a pre-defined set of formats
-   * for a given locale. Tries to parse the string using each one, and returns
-   * the Date obtained by the first successful attempt. If all formats fail,
-   * tries to parse the string using {@link FastDateFormat} without a pattern
-   * specified.
+   * Try to parse a given string to a date, using a pre-defined set of formats for a given locale.
+   * Tries to parse the string using each one, and returns the Date obtained by the first successful
+   * attempt. If all formats fail, tries to parse the string using {@link FastDateFormat} without a
+   * pattern specified.
    *
    * @param myText a given string to be parsed. May not be <code>null</code>.
-   *
-   * @param patternUsed If successfully parsed, the pattern used will be
-   * appended on the supplied StringBuilder. If myText cannot be parsed, the
-   * buffer is not modified. May be <code>null</code> if the pattern need not
-   * be returned.
-   *
-   * @param locale Locale to parse the date. May be <code>null</code>, in
-   * which case the system default locale is used.
-   *
+   * @param patternUsed If successfully parsed, the pattern used will be appended on the supplied
+   *     StringBuilder. If myText cannot be parsed, the buffer is not modified. May be <code>null
+   *     </code> if the pattern need not be returned.
+   * @param locale Locale to parse the date. May be <code>null</code>, in which case the system
+   *     default locale is used.
    * @return A date object, <code>null</code> if the String cannot be parsed.
-   *
    * @throws IllegalArgumentException if myText is <code>null</code>.
    */
   public static Date parseStringToDate(String myText, StringBuilder patternUsed, Locale locale) {
@@ -294,15 +265,12 @@ public class PSDataTypeConverter {
   }
 
   /**
-   * Get a recognized date format for the supplied String.  Calls {@link
-   * #parseStringToDate(String, StringBuilder)} passing the supplied text and
-   * an empty StringBuilder, and returns the result contained in the
-   * StringBuilder.
+   * Get a recognized date format for the supplied String. Calls {@link #parseStringToDate(String,
+   * StringBuilder)} passing the supplied text and an empty StringBuilder, and returns the result
+   * contained in the StringBuilder.
    *
-   * @param text A given string to be parsed.  May not be <code>null</code>.
-   *
-   * @return The recognized format, or <code>null</code> if the supplied text
-   * cannot be parsed.
+   * @param text A given string to be parsed. May not be <code>null</code>.
+   * @return The recognized format, or <code>null</code> if the supplied text cannot be parsed.
    */
   public static String getRecognizedDateFormat(String text) {
     if (text == null) throw new IllegalArgumentException("text may not be null");
@@ -314,8 +282,9 @@ public class PSDataTypeConverter {
   }
 
   /**
-   * Determines if the passed in string has a year value as its first "token",
-   * i.e. it is a 4 digit integer that occurs before the ./- delimiters.
+   * Determines if the passed in string has a year value as its first "token", i.e. it is a 4 digit
+   * integer that occurs before the ./- delimiters.
+   *
    * @param value the date value, assumed not <code>null</code>
    * @return <code>true</code> if this is a date with the year first pattern type.
    */
@@ -335,15 +304,13 @@ public class PSDataTypeConverter {
   }
 
   /**
-   * An array of pre-set date pattern string to be used to determine whether a
-   * given string/text is recognizable as a date. In order to be recognized as
-   * a date more efficiently, it is better for a string to include year, month,
-   * and date. Some popular date patterns are NOT supported here, such as
-   * "dd/MM/yyyy" and any pattern using a two digit year cause confusion.
-   * That's because in JAVA, for example,
-   * "03/30/1999" and "03/30/99" would be recognized recognized respectively as
-   * March 30, 1999 AD and March 30, 99 AD. But in daily life, people tend to
-   * regard both expression as the same.
+   * An array of pre-set date pattern string to be used to determine whether a given string/text is
+   * recognizable as a date. In order to be recognized as a date more efficiently, it is better for
+   * a string to include year, month, and date. Some popular date patterns are NOT supported here,
+   * such as "dd/MM/yyyy" and any pattern using a two digit year cause confusion. That's because in
+   * JAVA, for example, "03/30/1999" and "03/30/99" would be recognized recognized respectively as
+   * March 30, 1999 AD and March 30, 99 AD. But in daily life, people tend to regard both expression
+   * as the same.
    */
   private static String[] ms_datePatternArray1 = {
     // Accurate ones should be listed first

@@ -21,9 +21,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXNullEntry DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXNullEntry DTD in BasicObjects.dtd. */
 public class PSNullEntry extends PSEntry {
   /**
    * Creates a new null entry for the provided parameters.
@@ -39,14 +37,10 @@ public class PSNullEntry extends PSEntry {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSNullEntry(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -66,8 +60,7 @@ public class PSNullEntry extends PSEntry {
    * Set the include when attribute.
    *
    * @param includeWhen the new include when attribute.
-   * @throws IllegalArgumentException if the include when provided is not
-   *    known.
+   * @throws IllegalArgumentException if the include when provided is not known.
    */
   public void setIncludeWhen(int includeWhen) {
     if (includeWhen != INCLUDE_WHEN_ALWAYS && includeWhen != INCLUDE_WHEN_ONLY_IF_NULL)
@@ -89,8 +82,7 @@ public class PSNullEntry extends PSEntry {
    * Set the new sort order.
    *
    * @param sortOrder the new sort order.
-   * @throws IllegalArgumentException if thw sort order provided is not
-   *    known.
+   * @throws IllegalArgumentException if thw sort order provided is not known.
    */
   public void setSortOrder(int sortOrder) {
     if (sortOrder != SORT_ORDER_FIRST
@@ -102,9 +94,8 @@ public class PSNullEntry extends PSEntry {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSNullEntry, not <code>null</code>.
    * @throws IllegalArgumentException if c is <code>null</code>.
@@ -120,8 +111,7 @@ public class PSNullEntry extends PSEntry {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   @Override
   public boolean equals(Object o) {
@@ -146,7 +136,6 @@ public class PSNullEntry extends PSEntry {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -215,7 +204,6 @@ public class PSNullEntry extends PSEntry {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -251,15 +239,15 @@ public class PSNullEntry extends PSEntry {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXNullEntry";
 
-  /**  Always includeWhen specifier. */
+  /** Always includeWhen specifier. */
   public static final int INCLUDE_WHEN_ALWAYS = 0;
 
   /** Only if null includeWhen specifier. */
   public static final int INCLUDE_WHEN_ONLY_IF_NULL = 1;
 
   /**
-   * An array of XML attribute values for the includeWhen. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the includeWhen. They are specified at the index of the
+   * specifier.
    */
   private static final String[] INCLUDE_WHEN_ENUM = {"always", "onlyIfNull"};
 
@@ -273,8 +261,8 @@ public class PSNullEntry extends PSEntry {
   public static final int SORT_ORDER_SORTED = 2;
 
   /**
-   * An array of XML attribute values for the sortOrder. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the sortOrder. They are specified at the index of the
+   * specifier.
    */
   private static final String[] SORT_ORDER_ENUM = {"first", "last", "sorted"};
 

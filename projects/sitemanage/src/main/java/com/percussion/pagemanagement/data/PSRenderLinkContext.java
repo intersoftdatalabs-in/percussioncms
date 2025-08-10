@@ -17,84 +17,88 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
+import com.percussion.sitemanage.data.PSSiteSummary;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-import com.percussion.sitemanage.data.PSSiteSummary;
-import java.util.Objects;
 
 /**
- * Holds all the information needed to create a link other than the resource or page.
- * See class-level Javadoc for details.
+ * Holds all the information needed to create a link other than the resource or page. See
+ * class-level Javadoc for details.
+ *
  * @author adamgent
  */
 public abstract class PSRenderLinkContext {
 
-    private String folderPath;
-    private boolean isDeliveryContext = false;
+  private String folderPath;
+  private boolean isDeliveryContext = false;
 
-    public enum Mode {
-        PUBLISH, PREVIEW
+  public enum Mode {
+    PUBLISH,
+    PREVIEW
+  }
+
+  public enum OwnerType {
+    PAGE,
+    TEMPLATE,
+    ASSET
+  }
+
+  /**
+   * There are at least two modes of generating links.
+   *
+   * @return the mode for generating links, never {@code null}.
+   */
+  @NotNull
+  public abstract Mode getMode();
+
+  /**
+   * @return the site, never {@code null} but may be an empty site for preview.
+   */
+  public abstract PSSiteSummary getSite();
+
+  /**
+   * The current CM system folder path. <strong>This is not the published URL or file path!</strong>
+   *
+   * @return never {@code null}.
+   */
+  @NotBlank
+  @NotNull
+  public String getFolderPath() {
+    return folderPath;
+  }
+
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
+
+  /**
+   * Determines if the context is delivery context or assembly context. The delivery context is used
+   * to generate publishing locations. The assembly context is used to generate links within HTML
+   * pages.
+   */
+  public boolean isDeliveryContext() {
+    return isDeliveryContext;
+  }
+
+  public void setDeliveryContext(boolean context) {
+    isDeliveryContext = context;
+  }
+
+  @Override
+  public Object clone() {
+    try {
+      return super.clone();
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot clone link legacyLinkContext", e);
     }
+  }
 
-    public enum OwnerType {
-        PAGE, TEMPLATE, ASSET
-    }
-
-    /**
-     * There are at least two modes of generating links.
-     * @return the mode for generating links, never {@code null}.
-     */
-    @NotNull
-    public abstract Mode getMode();
-
-    /**
-     * @return the site, never {@code null} but may be an empty site for preview.
-     */
-    public abstract PSSiteSummary getSite();
-
-    /**
-     * The current CM system folder path.
-     * <strong>This is not the published URL or file path!</strong>
-     * @return never {@code null}.
-     */
-    @NotBlank
-    @NotNull
-    public String getFolderPath() {
-        return folderPath;
-    }
-
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
-
-    /**
-     * Determines if the context is delivery context or assembly context.
-     * The delivery context is used to generate publishing locations.
-     * The assembly context is used to generate links within HTML pages.
-     */
-    public boolean isDeliveryContext() {
-        return isDeliveryContext;
-    }
-
-    public void setDeliveryContext(boolean context) {
-        isDeliveryContext = context;
-    }
-
-    @Override
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot clone link legacyLinkContext", e);
-        }
-    }
-
-    @Override
-    public String toString() {
-        var sb = new StringBuilder("PSRenderLinkContext{");
-        sb.append("folderPath='").append(folderPath).append('\'');
-        sb.append(", isDeliveryContext=").append(isDeliveryContext);
-        sb.append('}');
-        return sb.toString();
-    }
+  @Override
+  public String toString() {
+    var sb = new StringBuilder("PSRenderLinkContext{");
+    sb.append("folderPath='").append(folderPath).append('\'');
+    sb.append(", isDeliveryContext=").append(isDeliveryContext);
+    sb.append('}');
+    return sb.toString();
+  }
 }

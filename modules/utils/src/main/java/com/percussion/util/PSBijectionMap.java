@@ -20,10 +20,9 @@ import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *   A one-to-one object map (or bijection) backed by two ConcurrentHashMaps
- *   for time efficiency purposes. Like all hash tables, there is at most
- *   one value for a given key. However, unlike hash tables, this class
- *   guarantees that there is at most one key for a given value.
+ * A one-to-one object map (or bijection) backed by two ConcurrentHashMaps for time efficiency
+ * purposes. Like all hash tables, there is at most one value for a given key. However, unlike hash
+ * tables, this class guarantees that there is at most one key for a given value.
  */
 public class PSBijectionMap {
   public PSBijectionMap(int initialCapacity) {
@@ -37,12 +36,11 @@ public class PSBijectionMap {
   }
 
   /**
-   *   Given a key, removes both the key and its value from the
-   *   bijection. If the key is not paired with a value, it does
-   *   nothing.
+   * Given a key, removes both the key and its value from the bijection. If the key is not paired
+   * with a value, it does nothing.
    *
-   *   @return   The previous value associated with this key, or
-   *   <CODE>null</CODE> if this key was not paired with a value.
+   * @return The previous value associated with this key, or <CODE>null</CODE> if this key was not
+   *     paired with a value.
    */
   public Object removePairingWithKey(Object key) {
     Object value = m_values.get(key);
@@ -54,12 +52,11 @@ public class PSBijectionMap {
   }
 
   /**
-   *   Given a value, removes both the value and its key from the
-   *   bijection. If the value is not paired with a key, it does
-   *   nothing.
+   * Given a value, removes both the value and its key from the bijection. If the value is not
+   * paired with a key, it does nothing.
    *
-   *   @return The previous key associated with this value, or
-   *   <CODE>null</CODE> if this value was not paired with a key.
+   * @return The previous key associated with this value, or <CODE>null</CODE> if this value was not
+   *     paired with a key.
    */
   public Object removePairingWithValue(Object value) {
     Object key = m_keys.get(value);
@@ -71,33 +68,31 @@ public class PSBijectionMap {
   }
 
   /**
-   *   Gets the key paired with this value.
-   *   @return   the key paired with this value, or <CODE>null</CODE>
-   *   if the value is not paired with a key.
+   * Gets the key paired with this value.
+   *
+   * @return the key paired with this value, or <CODE>null</CODE> if the value is not paired with a
+   *     key.
    */
   public Object getKey(Object value) {
     return m_keys.get(value);
   }
 
   /**
-   *   Gets the value paired with this key.
-   *   @return   the value paired with this key, or <CODE>null</CODE>
-   *   if the key is not paired with a value.
+   * Gets the value paired with this key.
+   *
+   * @return the value paired with this key, or <CODE>null</CODE> if the key is not paired with a
+   *     value.
    */
   public Object getValue(Object key) {
     return m_values.get(key);
   }
 
-  /**
-   *   Returns an enumeration of all the values in the bijection map
-   */
+  /** Returns an enumeration of all the values in the bijection map */
   public Enumeration values() {
     return m_values.elements();
   }
 
-  /**
-   *   Returns an enumeration of all the keys in the bijection map
-   */
+  /** Returns an enumeration of all the keys in the bijection map */
   public Enumeration keys() {
     return m_keys.elements();
   }

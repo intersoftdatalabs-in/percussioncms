@@ -17,11 +17,11 @@
 package com.percussion.fastforward.managednav;
 
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.extension.IPSResultDocumentProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.impl.nav.PSNavConfig;
 import com.percussion.system.utils.IPSHtmlParameters;
@@ -31,11 +31,10 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The Nav Tree Extension builds the Nav Tree. This extension is a post-exit
- * only. It builds the tree with the current node as the "self" node.
+ * The Nav Tree Extension builds the Nav Tree. This extension is a post-exit only. It builds the
+ * tree with the current node as the "self" node.
  *
  * @author DavidBenua
- *
  */
 public class PSNavTreeExtension extends PSDefaultExtension implements IPSResultDocumentProcessor {
   /**
@@ -51,8 +50,9 @@ public class PSNavTreeExtension extends PSDefaultExtension implements IPSResultD
   /**
    * Process the request. Gets the XML document.
    *
-   * @see com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   * @see
+   *     com.percussion.extension.IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(Object[] params, IPSRequestContext req, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -103,8 +103,6 @@ public class PSNavTreeExtension extends PSDefaultExtension implements IPSResultD
     }
   }
 
-  /**
-   * Reference to Log4j singleton object used to log any errors or debug info.
-   */
+  /** Reference to Log4j singleton object used to log any errors or debug info. */
   Logger log = LogManager.getLogger(getClass());
 }

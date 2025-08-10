@@ -60,20 +60,19 @@ import java.util.Stack;
 import org.w3c.dom.Document;
 
 /**
- * This class defines a row editor, which is one of the editor types that make
- * up the editor set in a content editor. A row editor allows the user to
- * fiddle with all the fields in a single row at the same time. He cannot
- * delete the row from this view.
+ * This class defines a row editor, which is one of the editor types that make up the editor set in
+ * a content editor. A row editor allows the user to fiddle with all the fields in a single row at
+ * the same time. He cannot delete the row from this view.
  */
 public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   /**
-   * Processes the supplied editor definition, creating an efficient
-   * representation of the object for runtime. Creates a 'row editor'
-   * builder. A row editor allows the end user to create/modify a single
-   * row of content. It also displays child data in read-only tables.
-   * <p>See the {@link PSModifyDocumentBuilder#PSModifyDocumentBuilder(
-   * PSContentEditor, PSEditorDocumentContext, int, boolean) base} class
-   * for a description of the params and exceptions.
+   * Processes the supplied editor definition, creating an efficient representation of the object
+   * for runtime. Creates a 'row editor' builder. A row editor allows the end user to create/modify
+   * a single row of content. It also displays child data in read-only tables.
+   *
+   * <p>See the {@link PSModifyDocumentBuilder#PSModifyDocumentBuilder( PSContentEditor,
+   * PSEditorDocumentContext, int, boolean) base} class for a description of the params and
+   * exceptions.
    */
   public PSRowEditorDocumentBuilder(
       PSContentEditor ce,
@@ -276,35 +275,28 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Walks the supplied mapper looking for mappings that reference fields
-   * belonging to sdmp children. It finds all the different fieldsets used
-   * as sdmp children. If there are any, an extractor is created for every
-   * parent field and every sdmp field. The returned list is either <code>
-   * null</code> if there are no sdmp children, or contains an entry for the
-   * parent and each sdmp child. The parent is the first entry in the list
-   * followed by all sdmp children in the same order as they are specified
-   * in the content editor definition.
-   * Each entry in the list is a PSMapPair. Each pair has the alias of the
-   * table associated with the fieldset (lowercased) (as a String) as the key
-   * and a Collection as the value. Each entry in the collection is an
+   * Walks the supplied mapper looking for mappings that reference fields belonging to sdmp
+   * children. It finds all the different fieldsets used as sdmp children. If there are any, an
+   * extractor is created for every parent field and every sdmp field. The returned list is either
+   * <code>
+   * null</code> if there are no sdmp children, or contains an entry for the parent and each sdmp
+   * child. The parent is the first entry in the list followed by all sdmp children in the same
+   * order as they are specified in the content editor definition. Each entry in the list is a
+   * PSMapPair. Each pair has the alias of the table associated with the fieldset (lowercased) (as a
+   * String) as the key and a Collection as the value. Each entry in the collection is an
    * IPSDataExtractor built from a PSBackEndColumn.
    *
-   * @param fields The fieldset that contains all the fields referenced by
-   *    the supplied mapping. Assumed not <code>null</code>.
-   *
+   * @param fields The fieldset that contains all the fields referenced by the supplied mapping.
+   *     Assumed not <code>null</code>.
    * @param mapper The mapper for this editor. Assumed not <code>null</code>.
-   *
-   * @return If no queriable sdmp fields are present, <code>null</code> is
-   *    returned.  Queriable means a field with a non-binary back-end column.
-   *    Otherwise, for each sdmp field and the parent, an entry will be
-   *    created. Each entry is a PSMapPair. The key of this pair is the table
-   *    name, and the value is a list of IPSDataExtractors for all of the
-   *    fields in the table that have been mapped. The parent is always the
-   *    first entry, and the sdmp child entries appear in the order of the
-   *    appearance of the first mapping of each child in the document.
-   *
-   * @throws PSSystemValidationException If the backend columns in the supplied
-   *    fieldset are not fully specified.
+   * @return If no queriable sdmp fields are present, <code>null</code> is returned. Queriable means
+   *     a field with a non-binary back-end column. Otherwise, for each sdmp field and the parent,
+   *     an entry will be created. Each entry is a PSMapPair. The key of this pair is the table
+   *     name, and the value is a list of IPSDataExtractors for all of the fields in the table that
+   *     have been mapped. The parent is always the first entry, and the sdmp child entries appear
+   *     in the order of the appearance of the first mapping of each child in the document.
+   * @throws PSSystemValidationException If the backend columns in the supplied fieldset are not
+   *     fully specified.
    */
   private List createSdmpExtractors(PSFieldSet fs, PSDisplayMapper mapper)
       throws PSSystemValidationException {
@@ -362,28 +354,22 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Walks the supplied mappings list. For each mapping it gets the referenced
-   * field from the supplied fieldset. If the field has a non-binary as
-   * determined by {@link PSEditorDocumentBuilder#isBinaryField(PSField)
-   * isBinaryField} PSBackEndColumn as its data source, an extractor is built
-   * and added to the results list.
+   * Walks the supplied mappings list. For each mapping it gets the referenced field from the
+   * supplied fieldset. If the field has a non-binary as determined by {@link
+   * PSEditorDocumentBuilder#isBinaryField(PSField) isBinaryField} PSBackEndColumn as its data
+   * source, an extractor is built and added to the results list.
    *
    * @param fs A valid fieldset. Assumed not <code>null</code>.
-   *
-   * @param mappings A list of PSDisplayMappings that use the supplied
-   *    field set. Only columns that are mapped will get extractors created.
-   *    Assumed that all mappings in this list reference only PSFields and
-   *    the locator for each one is a PSBackEndColumn.
-   *
-   * @param results The created extractors are added to this list. Each
-   *    added entry is an IPSDataExtractor for a backend column.
-   *
-   * @return The name of the table that contains the columns in the fieldset.
-   *    May be <code>null</code> if the mappings reference only binary fields
-   *    or fields with locators referencing non-backend columns, never empty.
-   *
-   * @throws PSValidationExceptin if the name of the table associated with
-   *    a backend column is <code>null</code> or empty.
+   * @param mappings A list of PSDisplayMappings that use the supplied field set. Only columns that
+   *     are mapped will get extractors created. Assumed that all mappings in this list reference
+   *     only PSFields and the locator for each one is a PSBackEndColumn.
+   * @param results The created extractors are added to this list. Each added entry is an
+   *     IPSDataExtractor for a backend column.
+   * @return The name of the table that contains the columns in the fieldset. May be <code>null
+   *     </code> if the mappings reference only binary fields or fields with locators referencing
+   *     non-backend columns, never empty.
+   * @throws PSValidationExceptin if the name of the table associated with a backend column is
+   *     <code>null</code> or empty.
    */
   private String createExtractors(PSFieldSet fs, List mappings, List results)
       throws PSSystemValidationException {
@@ -413,38 +399,31 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * If there are any sdmp children in this editor, the parent result set
-   * and the result sets for all sdmp children are popped and their data
-   * is merged into a new result set, which is then pushed back onto the
-   * result set stack in the execution data. Upon returning, the execution
-   * data is ready for processing, whether any result sets were merged or
-   * not.
-   * This method count on the fact that the list of extractors
-   * (m_sdmpExtractors) is in the correct order. See
-   * {@link #createSdmpExtractors(PSFieldSet, PSDisplayMapper)} for details.
-   * <p>Originally, we got the data from sdmp fields
-   * by joining the table in the parent's request. However, if an sdmp child
-   * is added after content has been added to a parent, this model doesn't
-   * work. Therefore, we query each sdmp child individually, and create a
-   * new result set that contains the parent and all sdmp children as if
-   * they had been joined and empty rows existed where there were no rows.
-   * <p><em>Note:<em> I didn't put this in the data package because it didn't
-   * seem general enough.
+   * If there are any sdmp children in this editor, the parent result set and the result sets for
+   * all sdmp children are popped and their data is merged into a new result set, which is then
+   * pushed back onto the result set stack in the execution data. Upon returning, the execution data
+   * is ready for processing, whether any result sets were merged or not. This method count on the
+   * fact that the list of extractors (m_sdmpExtractors) is in the correct order. See {@link
+   * #createSdmpExtractors(PSFieldSet, PSDisplayMapper)} for details.
    *
-   * @param data The execution data that contains the result sets to be
-   *    merged. Assumed that no result set has been popped yet. Upon return,
-   *    the top result will have been popped by calling <code>
+   * <p>Originally, we got the data from sdmp fields by joining the table in the parent's request.
+   * However, if an sdmp child is added after content has been added to a parent, this model doesn't
+   * work. Therefore, we query each sdmp child individually, and create a new result set that
+   * contains the parent and all sdmp children as if they had been joined and empty rows existed
+   * where there were no rows.
+   *
+   * <p><em>Note:<em> I didn't put this in the data package because it didn't seem general enough.
+   *
+   * @param data The execution data that contains the result sets to be merged. Assumed that no
+   *     result set has been popped yet. Upon return, the top result will have been popped by
+   *     calling <code>
    *    getNextResultSet</code> on the data. Assumed not <code>null</code>.
-   *
-   * @throws PSConversionException If there are insufficient Result sets in
-   *    the supplied execution data.
-   *
-   * @throws SQLException If any problems occur while working with any of the
-   *    ResultSets. This could happen if the result sets in the execution
-   *    data are not in the expected order.
-   *
-   * @throws PSDataExtractionException If any problems occur while trying to
-   *    get the data from the result sets.
+   * @throws PSConversionException If there are insufficient Result sets in the supplied execution
+   *     data.
+   * @throws SQLException If any problems occur while working with any of the ResultSets. This could
+   *     happen if the result sets in the execution data are not in the expected order.
+   * @throws PSDataExtractionException If any problems occur while trying to get the data from the
+   *     result sets.
    */
   private void mergeResultSets(PSExecutionData data)
       throws PSConversionException, SQLException, PSDataExtractionException {
@@ -498,25 +477,19 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * Creates a new meta data object that makes meta data objects from
-   * multiple result sets look like a single one.
+   * Creates a new meta data object that makes meta data objects from multiple result sets look like
+   * a single one.
    */
   private class MergedMetaData implements ResultSetMetaData {
     /**
-     * Builds an internal representation using the supplied data so this
-     * class will act like a single meta data object even though it is
-     * composed of multiple meta data objects.
+     * Builds an internal representation using the supplied data so this class will act like a
+     * single meta data object even though it is composed of multiple meta data objects.
      *
-     * @param metaDataInfo A list of PSMapPairs. Each pair has the original
-     *    meta data as the key and a List of PSBackEndColumns as the value.
-     *    The merged meta data will represent the columns concatenated in
-     *    the order they appear in this list and within the sub-lists.
-     *
-     * @throws ClassCastException If any of the entries aren't of the
-     *    correct type.
-     *
-     * @throws SQLException If a specified column can't be found in its
-     *    associated result set.
+     * @param metaDataInfo A list of PSMapPairs. Each pair has the original meta data as the key and
+     *     a List of PSBackEndColumns as the value. The merged meta data will represent the columns
+     *     concatenated in the order they appear in this list and within the sub-lists.
+     * @throws ClassCastException If any of the entries aren't of the correct type.
+     * @throws SQLException If a specified column can't be found in its associated result set.
      */
     public MergedMetaData(List metaDataInfo) throws SQLException {
       if (null == metaDataInfo || metaDataInfo.size() == 0) {
@@ -676,26 +649,19 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     }
 
     /**
-     * Looks in the supplied metadata to find the column that matches the
-     * supplied table and column name (in a case insensitive manner). The
-     * index of this column is returned.
+     * Looks in the supplied metadata to find the column that matches the supplied table and column
+     * name (in a case insensitive manner). The index of this column is returned.
      *
      * @param md A valid meta data object.
-     *
      * @param tableName A valid, non-empty table name.
-     *
      * @param colName A valid, non-empty column name.
-     *
-     * @param origin The origin or schema of the table.  May be <code>null
+     * @param origin The origin or schema of the table. May be <code>null
      * </code> or empty.
-     *
-     * @param driver The JDBC subprotocol used in the connection string. For
-     *    example: 'odbc', 'oracle:thin', 'inetdae7'. Case sensitive.
-     *
-     * @return The index of the column in the meta data whose qualified name
-     *    is tableName.colName. If there is no table name available in the
-     *    supplied metadata, then just the column names are compared. 1 based
-     *
+     * @param driver The JDBC subprotocol used in the connection string. For example: 'odbc',
+     *     'oracle:thin', 'inetdae7'. Case sensitive.
+     * @return The index of the column in the meta data whose qualified name is tableName.colName.
+     *     If there is no table name available in the supplied metadata, then just the column names
+     *     are compared. 1 based
      * @throws SQLException If it can't be found.
      */
     private int getColumnIndex(
@@ -747,13 +713,10 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     }
 
     /**
-     * Returns the original meta data for the column at the specified index
-     * in the merged meta data.
+     * Returns the original meta data for the column at the specified index in the merged meta data.
      *
      * @param index Position of the column in the merged meta data, 1 based.
-     *
-     * @return The original result set that contains the column at the
-     *    specified index.
+     * @return The original result set that contains the column at the specified index.
      */
     private ResultSetMetaData getOriginalMetaData(int index) throws SQLException {
       if (index < 1 || index > getColumnCount()) throw new SQLException("Invalid column index");
@@ -763,13 +726,11 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     }
 
     /**
-     * Returns the index of the column that exists at the specified index
-     * in the merged result set. This index can be used with the original
-     * meta data to get information about the column.
+     * Returns the index of the column that exists at the specified index in the merged result set.
+     * This index can be used with the original meta data to get information about the column.
      *
      * @throws SQLException if index is < 1 or greater than <code>
      *    getColumnCount()</code>.
-     *
      * @see #getOriginalMetaData
      */
     private int getOriginalIndex(int index) throws SQLException {
@@ -780,10 +741,9 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
     }
 
     /**
-     * A map whose key is the index of the column in the merged metadata
-     * (as an Integer) and whose value is a PSMapPair. The key of this pair
-     * is the original index into the original meta data. The original
-     * index is an Integer and the value is a ResultSetMetaData object.
+     * A map whose key is the index of the column in the merged metadata (as an Integer) and whose
+     * value is a PSMapPair. The key of this pair is the original index into the original meta data.
+     * The original index is an Integer and the value is a ResultSetMetaData object.
      */
     private Map m_colIndexToMetaData = new HashMap();
 
@@ -797,16 +757,14 @@ public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   }
 
   /**
-   * This is set once during initialization and never changed after that.
-   * Might be <code>null</code>. For details see the create method
-   * {@link #createSdmpExtractors(PSFieldSet, PSDisplayMapper)}.
+   * This is set once during initialization and never changed after that. Might be <code>null</code>
+   * . For details see the create method {@link #createSdmpExtractors(PSFieldSet, PSDisplayMapper)}.
    */
   private List m_sdmpExtractors;
 
   /**
-   * The name of the fieldset that contained the definition for this editor.
-   * Used for error messages. Never empty or <code>null</code> after
-   * construction.
+   * The name of the fieldset that contained the definition for this editor. Used for error
+   * messages. Never empty or <code>null</code> after construction.
    */
   private String m_fieldSetName;
 }

@@ -17,9 +17,7 @@
 
 package com.percussion.server.job;
 
-/**
- * Provides notification of events that may occur while a job is running.
- */
+/** Provides notification of events that may occur while a job is running. */
 public interface IPSJobListener {
   /**
    * Notifies the listener that the job has been completed.

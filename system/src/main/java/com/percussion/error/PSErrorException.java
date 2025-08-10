@@ -22,26 +22,24 @@ import com.percussion.log.PSLogSubMessage;
 import com.percussion.server.IPSServerErrors;
 
 /**
- * The PSErrorException class provides a wrapper to throw PSLogError objects
- * which contain more useful error information. The contained PSLogError
- * object can then be logged directly without figuring out what the context
- * was.
+ * The PSErrorException class provides a wrapper to throw PSLogError objects which contain more
+ * useful error information. The contained PSLogError object can then be logged directly without
+ * figuring out what the context was.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSErrorException extends PSException {
   /**
-   * Constructs a new <code>PSErrorException</code> to allow the specified
-   * <code>PSLogError</code> to be thrown.  This exception will use the code
-   * {@link com.percussion.server.IPSServerErrors#WRAPPED_LOG_ERROR
-   * WRAPPED_LOG_ERROR} and the exception text will consist of all the log
-   * error's sub-messages concatenated together.
+   * Constructs a new <code>PSErrorException</code> to allow the specified <code>PSLogError</code>
+   * to be thrown. This exception will use the code {@link
+   * com.percussion.server.IPSServerErrors#WRAPPED_LOG_ERROR WRAPPED_LOG_ERROR} and the exception
+   * text will consist of all the log error's sub-messages concatenated together.
    *
-   * @param err the error object to wrap; if <code>null</code>, the text of
-   * this exception will be empty.
+   * @param err the error object to wrap; if <code>null</code>, the text of this exception will be
+   *     empty.
    */
   public PSErrorException(PSLogError err) {
     super(
@@ -51,13 +49,12 @@ public class PSErrorException extends PSException {
   }
 
   /**
-   * Same as {@link #PSErrorException(PSLogError)} but allows to specify the
-   * cause of the exception.
+   * Same as {@link #PSErrorException(PSLogError)} but allows to specify the cause of the exception.
    *
-   * @param err the error object to wrap; if <code>null</code>, the text of
-   *           this exception will be empty.
-   * @param cause The cause of the exception. May be <code>null</code>, in that
-   *           case it means the cause is unknown.
+   * @param err the error object to wrap; if <code>null</code>, the text of this exception will be
+   *     empty.
+   * @param cause The cause of the exception. May be <code>null</code>, in that case it means the
+   *     cause is unknown.
    */
   public PSErrorException(PSLogError err, Throwable cause) {
     super(
@@ -87,14 +84,11 @@ public class PSErrorException extends PSException {
   }
 
   /**
-   * Collects all of the log error's sub messages together into a single
-   * string.
+   * Collects all of the log error's sub messages together into a single string.
    *
    * @param err the log error, may be <code>null</code>.
-   *
-   * @return all of the log error's sub-message concatenated together, or
-   * the empty string if err is <code>null</code> or contains no sub-messages.
-   * Never <code>null</code>.
+   * @return all of the log error's sub-message concatenated together, or the empty string if err is
+   *     <code>null</code> or contains no sub-messages. Never <code>null</code>.
    */
   protected static String getMessageText(PSLogError err) {
     StringBuilder errorMsgs = new StringBuilder();

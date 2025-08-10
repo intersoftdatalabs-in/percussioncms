@@ -45,11 +45,10 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Gets the slot content that is used for snippet picker dialog. Builds the slot
- * content by getting the slot items and wrapping them with div tags. This
- * action can be used for getting the slot content as snippets or just titles.
- * If parameter with name "isTitles" exists with a value of true then returns
- * titles.
+ * Gets the slot content that is used for snippet picker dialog. Builds the slot content by getting
+ * the slot items and wrapping them with div tags. This action can be used for getting the slot
+ * content as snippets or just titles. If parameter with name "isTitles" exists with a value of true
+ * then returns titles.
  */
 public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
 
@@ -77,14 +76,12 @@ public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
   }
 
   /**
-   * Assumes the given object id is of a slot. Gets the assembly results of the
-   * snippets for that slot and wraps each snippet body in a div and returns
-   * the string. Adds class attribute with value as PSAASnippetPickerItem and
-   * rid attribute with relationship id of the snippet as value.
+   * Assumes the given object id is of a slot. Gets the assembly results of the snippets for that
+   * slot and wraps each snippet body in a div and returns the string. Adds class attribute with
+   * value as PSAASnippetPickerItem and rid attribute with relationship id of the snippet as value.
    *
    * @param objectId assumed to be a valid object id corresponding to a slot.
-   * @return a string corresponding to assembly snippets wrapped in divs, never
-   * null may be empty.
+   * @return a string corresponding to assembly snippets wrapped in divs, never null may be empty.
    * @throws Throwable
    */
   private String getAssembledSnippets(PSAAObjectId objectId) throws Throwable {
@@ -115,14 +112,13 @@ public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
   }
 
   /**
-   * Assumes the given object id is of a slot. Gets the relationship results
-   * for that slot and wraps each item's title in a div and returns the string.
-   * Adds class attribute with value as PSAASnippetPickerTitle and rid
-   * attribute with relationship id of the snippet as value.
+   * Assumes the given object id is of a slot. Gets the relationship results for that slot and wraps
+   * each item's title in a div and returns the string. Adds class attribute with value as
+   * PSAASnippetPickerTitle and rid attribute with relationship id of the snippet as value.
    *
    * @param objectId assumed to be a valid object id corresponding to a slot.
-   * @return a string corresponding to titles of the related items wrapped in
-   * divs, never null may be empty.
+   * @return a string corresponding to titles of the related items wrapped in divs, never null may
+   *     be empty.
    * @throws Throwable
    */
   private String getSnippetTitles(PSAAObjectId objectId) throws PSCmsException {
@@ -176,9 +172,8 @@ public class PSGetSnippetPickerSlotContentAction extends PSAAActionBase {
   }
 
   /**
-   * A local data object class to hold the relationship data and it implements
-   * Comparable interface so that the contents of the list can be sorted
-   * based on the sort rank.
+   * A local data object class to hold the relationship data and it implements Comparable interface
+   * so that the contents of the list can be sorted based on the sort rank.
    */
   private class RelatedItems implements Comparable<RelatedItems> {
     int relId;

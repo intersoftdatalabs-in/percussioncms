@@ -26,25 +26,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * A container that holds an object locator, e.g. for content items this
- * will be the contentid and revision.
+ * A container that holds an object locator, e.g. for content items this will be the contentid and
+ * revision.
  */
 public class PSLocator extends PSKey implements Serializable {
 
   private static final Logger log = LogManager.getLogger(PSLocator.class);
 
   /**
-   * Creates an empty locator object. This is used for creating a new
-   * component that has not been saved to the database.
+   * Creates an empty locator object. This is used for creating a new component that has not been
+   * saved to the database.
    */
   public PSLocator() {
     super(KEY_PARTS);
   }
 
   /**
-   * Convenience constructor {#link PSLocator(int, int)} with an undefined
-   * revision. The revision of the constructed object is default to
-   * <code>-1</code> and it is also default to persisted.
+   * Convenience constructor {#link PSLocator(int, int)} with an undefined revision. The revision of
+   * the constructed object is default to <code>-1</code> and it is also default to persisted.
    *
    * @param id the locator id, must be >= 0.
    */
@@ -55,12 +54,9 @@ public class PSLocator extends PSKey implements Serializable {
   }
 
   /**
-   * This ctor can be used to create the definition and data from a
-   * previously serialized key.
+   * This ctor can be used to create the definition and data from a previously serialized key.
    *
-   * @param src The xml previously created with <code>toXml</code>.
-   *    Never <code>null</code>.
-   *
+   * @param src The xml previously created with <code>toXml</code>. Never <code>null</code>.
    * @throws PSUnknownNodeTypeException See {@link #fromXml(Element)}.
    */
   public PSLocator(Element src) throws PSUnknownNodeTypeException {
@@ -68,8 +64,7 @@ public class PSLocator extends PSKey implements Serializable {
   }
 
   /**
-   * Constructs a new locator for the supplied id and revision.
-   * The constructed object is persisted.
+   * Constructs a new locator for the supplied id and revision. The constructed object is persisted.
    *
    * @param id the locator id, must be >= 0.
    * @param revision the locator revision, -1 means undefined.
@@ -82,8 +77,8 @@ public class PSLocator extends PSKey implements Serializable {
   }
 
   /**
-   * Just like {@link #PSLocator(int, int)}, except the persisted flag
-   * is determined by the <code>persisted</code> parameter.
+   * Just like {@link #PSLocator(int, int)}, except the persisted flag is determined by the <code>
+   * persisted</code> parameter.
    */
   public PSLocator(int id, int revision, boolean persisted) {
     super(KEY_PARTS, new int[] {id, revision}, persisted, (!persisted));
@@ -92,11 +87,11 @@ public class PSLocator extends PSKey implements Serializable {
   }
 
   /**
-   * Convenience constructor {#link PSLocator(String, String)} with an
-   * undefined revision. The constructed object is default to persisted.
+   * Convenience constructor {#link PSLocator(String, String)} with an undefined revision. The
+   * constructed object is default to persisted.
    *
-   * @param id the locator id. It may not be <code>null</code> or empty.
-   *    It must be a parsable int and >= 0.
+   * @param id the locator id. It may not be <code>null</code> or empty. It must be a parsable int
+   *     and >= 0.
    */
   public PSLocator(String id) {
     super(KEY_PARTS, new String[] {id, ""}, false);
@@ -108,16 +103,12 @@ public class PSLocator extends PSKey implements Serializable {
   }
 
   /**
-   * Constructs a new locator for the supplied id and revision.
-   * The constructed object is persisted.
+   * Constructs a new locator for the supplied id and revision. The constructed object is persisted.
    *
-   * @param id the locator id. It may not be <code>null</code> or empty.
-   *    It must be a parsable int and >= 0.
-   *
+   * @param id the locator id. It may not be <code>null</code> or empty. It must be a parsable int
+   *     and >= 0.
    * @param revision the locator revision, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if the supplied id is invalid.
-   *
    * @throws NumberFormatException if the supplied id is not a parsable int.
    */
   public PSLocator(String id, String revision) {
@@ -165,16 +156,13 @@ public class PSLocator extends PSKey implements Serializable {
   /**
    * Is the revision part of the locator?
    *
-   * @return <code>false</code> if the revision is undefined, <code>true</code>
-   *    otherwise.
+   * @return <code>false</code> if the revision is undefined, <code>true</code> otherwise.
    */
   public boolean useRevision() {
     return (getRevision() >= 0);
   }
 
-  /**
-   * See {@link com.percussion.cms.objectstore.IPSCmsComponent#getNodeName()}
-   */
+  /** See {@link com.percussion.cms.objectstore.IPSCmsComponent#getNodeName()} */
   public String getNodeName() {
     return XML_NODE_NAME;
   }

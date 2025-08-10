@@ -24,50 +24,43 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSOracleInsertBuilder class is used to build SQL INSERT statements.
- * It is responsible for creating Oracle specific update statements when
- * LOB columns are present.  When no LOBs are present, this builder will
- * use the generate method defined in PSSqlInsertBuilder.
+ * The PSOracleInsertBuilder class is used to build SQL INSERT statements. It is responsible for
+ * creating Oracle specific update statements when LOB columns are present. When no LOBs are
+ * present, this builder will use the generate method defined in PSSqlInsertBuilder.
  *
- * @see         PSUpdateOptimizer
- * @see         PSOracleUpdateBuilder
+ * @see PSUpdateOptimizer
+ * @see PSOracleUpdateBuilder
  */
 public class PSOracleInsertBuilder extends PSOracleUpdateBuilder {
   /**
-   * Construct a SQL builder to build an INSERT for a
-   * single table.
+   * Construct a SQL builder to build an INSERT for a single table.
    *
-   * @param table  The table to insert into.
+   * @param table The table to insert into.
    */
   PSOracleInsertBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super(table);
   }
 
   /**
-   * Add an INSERT column which is part of the lookup key. Since INSERTs
-   * do not use WHERE clauses for lookups, this is the same as calling
-   * addUpdateColumn.
+   * Add an INSERT column which is part of the lookup key. Since INSERTs do not use WHERE clauses
+   * for lookups, this is the same as calling addUpdateColumn.
    *
-   * @param   col      the column to add
+   * @param col the column to add
    */
   void addKeyColumn(PSBackEndColumn col) throws PSIllegalArgumentException {
     addUpdateColumn(col);
   }
 
   /**
-   * Generate the statement using the specified connection keys.
-   * If no LOB columns are present, this will call the default
-   * generateInsert method in PSSqlUpdateBuilder, otherwise create
-   * the Oracle-specific PSOracleUpadeStatement to process the insert.
+   * Generate the statement using the specified connection keys. If no LOB columns are present, this
+   * will call the default generateInsert method in PSSqlUpdateBuilder, otherwise create the
+   * Oracle-specific PSOracleUpadeStatement to process the insert.
    *
-   * @param   logins   The list of logins.
-   *
-   * @param   connKeys The map of connection keys.
-   *
-   * @return  The PSUpdate-derived statement to process this insert.
-   *
-   * @throws PSIllegalArgumentException If there are multiple tables
-   * or a PSDataExtractionException occurs.
+   * @param logins The list of logins.
+   * @param connKeys The map of connection keys.
+   * @return The PSUpdate-derived statement to process this insert.
+   * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
+   *     occurs.
    */
   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {

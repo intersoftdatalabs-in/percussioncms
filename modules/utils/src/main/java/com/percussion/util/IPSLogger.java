@@ -17,10 +17,7 @@
 
 package com.percussion.util;
 
-/**
- * This interface defines a few methods to log the messages so that any plugin
- * can use.
- */
+/** This interface defines a few methods to log the messages so that any plugin can use. */
 public interface IPSLogger {
   /*
    * Logs the message to whatever output the Logger object was initialized with

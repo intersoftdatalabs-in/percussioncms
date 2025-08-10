@@ -27,15 +27,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
-/**
- * RxUpgrade logger.
- */
+/** RxUpgrade logger. */
 public class RxUpgradeLog {
 
   private static final Logger log = LogManager.getLogger(RxUpgradeLog.class);
 
   /**
    * Log object into a upgrade print stream.
+   *
    * @param o any object to log, may be <code>null</code>.
    */
   public static void logIt(Object o) {
@@ -60,7 +59,7 @@ public class RxUpgradeLog {
   /**
    * Get the stack trace for the specified exception as a string.
    *
-   * @param   t        the throwable (usually an exception)
+   * @param t the throwable (usually an exception)
    */
   private static String getStackTraceAsString(java.lang.Throwable t) {
     // for unknown exceptions, it's useful to log the stack trace
@@ -92,15 +91,10 @@ public class RxUpgradeLog {
     return m_ps;
   }
 
-  /**
-   * Print stream holder.
-   */
+  /** Print stream holder. */
   private static PrintStream m_ps = null;
 
-  /**
-   * Time stamp format.
-   * i.e.: MM/dd/yy HH:mm:ss -> 09/29/04 18:31:28
-   */
+  /** Time stamp format. i.e.: MM/dd/yy HH:mm:ss -> 09/29/04 18:31:28 */
   private static FastDateFormat ms_dateFormat =
       FastDateFormat.getInstance("MM/dd/yy HH:mm:ss"); // ie: 09/29/04 18:31:28
 }

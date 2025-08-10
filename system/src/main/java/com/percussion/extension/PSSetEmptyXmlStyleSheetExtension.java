@@ -26,61 +26,51 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * The PSSetEmptyXmlStyleSheetExtension class implements extension handling
- * for the setEmptyXmlStyleSheet simple action extension. This exit associates
- * a style sheet with an empty XML document when there is no root node
- * in the XML document. This is used primarily to return a static page
- * when no data is found for the request.
- * The following parameter is defined for this exit:
+ * The PSSetEmptyXmlStyleSheetExtension class implements extension handling for the
+ * setEmptyXmlStyleSheet simple action extension. This exit associates a style sheet with an empty
+ * XML document when there is no root node in the XML document. This is used primarily to return a
+ * static page when no data is found for the request. The following parameter is defined for this
+ * exit:
+ *
  * <table border="1">
  * <tr><th>Parameter</th><th>Description</th></tr>
  * <tr><td>StyleSheet</td>
  *     <td>(required) the URL of the style sheet</td></tr>
  * </table>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSSetEmptyXmlStyleSheetExtension implements IPSResultDocumentProcessor {
   /* *************  IPSExtension Interface Implementation ************* */
 
-  /**
-   * No-op
-   */
+  /** No-op */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 
   /* *******  IPSResultDocumentProcessor Interface Implementation ******* */
 
-  /**
-   * Return true, this extension can modify the style sheet.
-   */
+  /** Return true, this extension can modify the style sheet. */
   public boolean canModifyStyleSheet() {
     return true;
   }
 
   /**
-   * If no rows were returned on a query, a result document will be created to
-   * display the empty result. A supplied XML style sheet will be used as a
-   * stylesheet for the result document.
+   * If no rows were returned on a query, a result document will be created to display the empty
+   * result. A supplied XML style sheet will be used as a stylesheet for the result document.
    *
-   * @param      params      the parameters defined by this extension; params
-   * is an array of 1 Objects, a toString() is called to convert the object to a
-   * String representation.
-   * <UL>
-   * <LI>stylesheet path: (required) The URL of the style sheet
-   * </UL>
+   * @param params the parameters defined by this extension; params is an array of 1 Objects, a
+   *     toString() is called to convert the object to a String representation.
+   *     <UL>
+   *       <LI>stylesheet path: (required) The URL of the style sheet
+   *     </UL>
    *
-   * @param      rc          the context of the request associated with this extension
-   *
-   * @param      resultDoc   the result XML document. May be <CODE>null</CODE>.
-   *
-   * @return                     If resultDoc is not <CODE>null</CODE>,
-   * it will be returned. Otherwise, a new document is
-   * created using the supplied stylesheet.
-   *
-   * @exception  PSParameterMismatchException  if the parameter number is incorrect
-   * @exception  PSExtensionProcessingException      if the first parameter is <code>null</code>
+   * @param rc the context of the request associated with this extension
+   * @param resultDoc the result XML document. May be <CODE>null</CODE>.
+   * @return If resultDoc is not <CODE>null</CODE>, it will be returned. Otherwise, a new document
+   *     is created using the supplied stylesheet.
+   * @exception PSParameterMismatchException if the parameter number is incorrect
+   * @exception PSExtensionProcessingException if the first parameter is <code>null</code>
    */
   public Document processResultDocument(Object[] params, IPSRequestContext rc, Document resultDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {

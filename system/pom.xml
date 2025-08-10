@@ -71,7 +71,8 @@
             <artifactId>tablefactory</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!--  <dependency>
+        <!-- This is the old WSDL axis generated SOAP
+        <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>webservices</artifactId>
             <version>${project.parent.version}</version>
@@ -292,11 +293,6 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>cactus</groupId>
-            <artifactId>cactus</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -903,13 +899,12 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
-            <!--  <resource>
+            <resource>
                 <directory>webservices/src</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
-            -->
             <resource>
                 <directory>beans/src</directory>
                 <excludes>
@@ -981,14 +976,12 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </testResource>
-            <!--
             <testResource>
                 <directory>webservices/test</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
             </testResource>
-            -->
             <testResource>
                 <directory>Testing/src</directory>
                 <excludes>
@@ -1030,8 +1023,8 @@
                             <sources>
                                 <source>agenthandler/src</source>
                                 <source>Tools/ImageWidgetService/src</source>
-                                <!--  <source>webservices/sample/loader/java/src</source> 
-                                <source>webservices/src</source>-->
+                                <!--  <source>webservices/sample/loader/java/src</source> -->
+                                <source>webservices/src</source>
                                 <source>beans/src</source>
                                 <source>i18n/src</source>
                                 <source>release/src</source>

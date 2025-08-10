@@ -37,12 +37,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSHtmlParameterTree class is used to generate an XML document
- * from HTML parameters.
+ * The PSHtmlParameterTree class is used to generate an XML document from HTML parameters.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSHtmlParameterTree {
   /**
@@ -158,11 +157,10 @@ public class PSHtmlParameterTree {
   }
 
   /**
-   * Convenience method, addParameter call without optional attribute
-   * parameters, specifies null for these parameters.
+   * Convenience method, addParameter call without optional attribute parameters, specifies null for
+   * these parameters.
    *
-   * @see #addParameter(Document, Element, List, int, String, Object, String,
-   *    Object)
+   * @see #addParameter(Document, Element, List, int, String, Object, String, Object)
    */
   private static void addParameter(
       Document doc, Element root, List nodeList, int index, String name, Object value) {
@@ -170,35 +168,24 @@ public class PSHtmlParameterTree {
   }
 
   /**
-   * Add an Html parameter value element to the PSXParam element in the node
-   * list at the specified index.  If the node list doesn't contain enough
-   * elements to contain the specified index, it will be padded with empty
-   * PSXParam elements so that this method may continue.  If the optional
-   * attribute information is supplied, the Html parameter value element will
-   * have the attribute set as specified.  The attribute information must
-   * contain at the very least a non-empty attribute name in order to be set.
+   * Add an Html parameter value element to the PSXParam element in the node list at the specified
+   * index. If the node list doesn't contain enough elements to contain the specified index, it will
+   * be padded with empty PSXParam elements so that this method may continue. If the optional
+   * attribute information is supplied, the Html parameter value element will have the attribute set
+   * as specified. The attribute information must contain at the very least a non-empty attribute
+   * name in order to be set.
    *
-   * @param doc  The document of Html parameters.
-   *             Assumed not <code>null</code>.
-   *
-   * @param root The root element of the supplied document.
-   *             Assumed not <code>null</code>.
-   *
+   * @param doc The document of Html parameters. Assumed not <code>null</code>.
+   * @param root The root element of the supplied document. Assumed not <code>null</code>.
    * @param nodeList The list of PSXParam nodes. Assumed not <code>null</code>.
-   *
-   * @param index The index at which to insert the Html parameter element.
-   *                Assumed to be a valid index (<code>&gt;=0</code>)
-   *
-   * @param name The name of the Html parameter. Assumed not <code>null</code>
-   *             or empty.
-   *
-   * @param value The value of the Html parameter.  Can be <code>null</code>.
-   *
-   * @param attributeName Optional attribute name to be set on the Html
-   *                      parameter value node.  May be <code>null</code>.
-   *
-   * @param attributeValue Optional attribute value to be set on the Html
-   *                       parameter value node.  May be <code>null</code>.
+   * @param index The index at which to insert the Html parameter element. Assumed to be a valid
+   *     index (<code>&gt;=0</code>)
+   * @param name The name of the Html parameter. Assumed not <code>null</code> or empty.
+   * @param value The value of the Html parameter. Can be <code>null</code>.
+   * @param attributeName Optional attribute name to be set on the Html parameter value node. May be
+   *     <code>null</code>.
+   * @param attributeValue Optional attribute value to be set on the Html parameter value node. May
+   *     be <code>null</code>.
    */
   private static void addParameter(
       Document doc,

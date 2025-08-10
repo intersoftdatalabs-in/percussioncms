@@ -25,12 +25,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 /**
- * Sets the request character encoding.
- * The encoding can be specified by requestEncoding filter parameter.
- * If the filter parameter is not specified, the value UTF-8 is used.
- * This filter was created based on the Tomcat wiki article
- * <a href="http://wiki.apache.org/tomcat/Tomcat/UTF-8">describing how
- * to make Tomcat to work with UTF8</a>.
+ * Sets the request character encoding. The encoding can be specified by requestEncoding filter
+ * parameter. If the filter parameter is not specified, the value UTF-8 is used. This filter was
+ * created based on the Tomcat wiki article <a
+ * href="http://wiki.apache.org/tomcat/Tomcat/UTF-8">describing how to make Tomcat to work with
+ * UTF8</a>.
  *
  * @author Andriy Palamarchuk
  */
@@ -42,9 +41,7 @@ public class PSCharacterSetFilter implements Filter {
     next.doFilter(request, response);
   }
 
-  /**
-   * Reads the filter configuration data.
-   */
+  /** Reads the filter configuration data. */
   public void init(FilterConfig config) {
     m_encoding = config.getInitParameter("requestEncoding");
     if (m_encoding == null) {
@@ -52,9 +49,7 @@ public class PSCharacterSetFilter implements Filter {
     }
   }
 
-  /**
-   * Does nothing.
-   */
+  /** Does nothing. */
   public void destroy() {}
 
   private String m_encoding;

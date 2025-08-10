@@ -21,11 +21,10 @@ import java.io.IOException;
 import java.net.ProtocolException;
 
 /**
- * This is the default module which gets called after all other modules
- * have done their stuff.
+ * This is the default module which gets called after all other modules have done their stuff.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class DefaultModule implements HTTPClientModule {
@@ -34,30 +33,22 @@ class DefaultModule implements HTTPClientModule {
 
   // Constructors
 
-  /**
-   * Three retries upon receipt of a 408.
-   */
+  /** Three retries upon receipt of a 408. */
   DefaultModule() {
     req_timeout_retries = 3;
   }
 
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) throws IOException {
     /* handle various response status codes until satisfied */
 
@@ -114,13 +105,9 @@ class DefaultModule implements HTTPClientModule {
     }
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 }

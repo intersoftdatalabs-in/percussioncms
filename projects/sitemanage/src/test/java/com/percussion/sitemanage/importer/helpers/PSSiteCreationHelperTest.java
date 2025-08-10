@@ -19,8 +19,6 @@ package com.percussion.sitemanage.importer.helpers;
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.pagemanagement.data.PSPage;
-import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.share.dao.IPSGenericDao.LoadException;
@@ -31,13 +29,11 @@ import com.percussion.sitemanage.dao.impl.PSSiteContentDao;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
-import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
 import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
-
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.junit.jupiter.api.*;
 
@@ -45,83 +41,87 @@ import org.junit.jupiter.api.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PSSiteCreationHelperTest {
 
-    private static final String TEST_SITE_NAME = "TestImportedSite";
-    private static final String TEST_SITE_URL = "http://www.test.com";
-    private static final String TEST_PAGE_TITLE = "TestTitle";
+  private static final String TEST_SITE_NAME = "TestImportedSite";
+  private static final String TEST_SITE_URL = "http://www.test.com";
+  private static final String TEST_PAGE_TITLE = "TestTitle";
 
-    private PSPageContent pageContent;
-    private PSSiteImportCtx importContext;
-    private PSSiteCreationHelper siteCreationHelper;
-    private IPSiteDao siteDao;
-    private IPSSecurityWs securityWs;
-    private IPSPageService pageService;
-    private IPSTemplateService templateService;
+  private PSPageContent pageContent;
+  private PSSiteImportCtx importContext;
+  private PSSiteCreationHelper siteCreationHelper;
+  private IPSiteDao siteDao;
+  private IPSSecurityWs securityWs;
+  private IPSPageService pageService;
+  private IPSTemplateService templateService;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-        securityWs.login("Admin", "demo", "Default", null);
-        siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
-        initData();
+  @BeforeEach
+  void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+    securityWs.login("Admin", "demo", "Default", null);
+    siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
+    initData();
+  }
+
+  private void initData() {
+    pageContent = new PSPageContent();
+    pageContent.setTitle(TEST_PAGE_TITLE);
+    importContext = new PSSiteImportCtx();
+    importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
+    var summaryService =
+        (IPSSiteImportSummaryService)
+            getWebApplicationContext().getBean("siteImportSummaryService");
+    importContext.setSummaryService(summaryService);
+    var site = new PSSite();
+    site.setBaseUrl(TEST_SITE_URL);
+    site.setName(TEST_SITE_NAME);
+    importContext.setSite(site);
+  }
+
+  @Test
+  @Order(10)
+  void testCreateSite() throws PSDataServiceException, PSSiteImportException {
+    assertNotNull(siteCreationHelper);
+    siteCreationHelper.process(pageContent, importContext);
+
+    var siteSummary = siteDao.findSummary(importContext.getSite().getName());
+    assertNotNull(siteSummary);
+
+    var homePage =
+        pageService.findPage(
+            PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
+    assertNotNull(homePage);
+    assertEquals(TEST_PAGE_TITLE, homePage.getTitle());
+
+    var template = templateService.load(homePage.getTemplateId());
+    assertNotNull(template);
+    assertEquals("Home", template.getName());
+  }
+
+  @Test
+  @Order(20)
+  void testRollback() {
+    siteCreationHelper.rollback(pageContent, importContext);
+    try {
+      var siteSummary = siteDao.findSummary(importContext.getSite().getName());
+      assertNull(siteSummary);
+    } catch (LoadException ex) {
+      // Expected: site not found after rollback
     }
+  }
 
-    private void initData() {
-        pageContent = new PSPageContent();
-        pageContent.setTitle(TEST_PAGE_TITLE);
-        importContext = new PSSiteImportCtx();
-        importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
-        var summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
-        importContext.setSummaryService(summaryService);
-        var site = new PSSite();
-        site.setBaseUrl(TEST_SITE_URL);
-        site.setName(TEST_SITE_NAME);
-        importContext.setSite(site);
-    }
+  // Dependency injection setters for test context
+  public void setSiteDao(IPSiteDao siteDao) {
+    this.siteDao = siteDao;
+  }
 
-    @Test
-    @Order(10)
-    void testCreateSite() throws PSDataServiceException, PSSiteImportException {
-        assertNotNull(siteCreationHelper);
-        siteCreationHelper.process(pageContent, importContext);
+  public void setSecurityWs(IPSSecurityWs securityWs) {
+    this.securityWs = securityWs;
+  }
 
-        var siteSummary = siteDao.findSummary(importContext.getSite().getName());
-        assertNotNull(siteSummary);
+  public void setPageService(IPSPageService pageService) {
+    this.pageService = pageService;
+  }
 
-        var homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
-        assertNotNull(homePage);
-        assertEquals(TEST_PAGE_TITLE, homePage.getTitle());
-
-        var template = templateService.load(homePage.getTemplateId());
-        assertNotNull(template);
-        assertEquals("Home", template.getName());
-    }
-
-    @Test
-    @Order(20)
-    void testRollback() {
-        siteCreationHelper.rollback(pageContent, importContext);
-        try {
-            var siteSummary = siteDao.findSummary(importContext.getSite().getName());
-            assertNull(siteSummary);
-        } catch (LoadException ex) {
-            // Expected: site not found after rollback
-        }
-    }
-
-    // Dependency injection setters for test context
-    public void setSiteDao(IPSiteDao siteDao) {
-        this.siteDao = siteDao;
-    }
-
-    public void setSecurityWs(IPSSecurityWs securityWs) {
-        this.securityWs = securityWs;
-    }
-
-    public void setPageService(IPSPageService pageService) {
-        this.pageService = pageService;
-    }
-
-    public void setTemplateService(IPSTemplateService templateService) {
-        this.templateService = templateService;
-    }
+  public void setTemplateService(IPSTemplateService templateService) {
+    this.templateService = templateService;
+  }
 }

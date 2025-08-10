@@ -29,8 +29,8 @@ public class PSSearchAdminReadOnly extends PSSearchAdmin {
 
   /**
    * The only ctor.
-   * @param realOne The admin that contains the real configuration. Never
-   * <code>null</code>.
+   *
+   * @param realOne The admin that contains the real configuration. Never <code>null</code>.
    */
   public PSSearchAdminReadOnly(PSSearchAdmin realOne) {
     if (null == realOne) {
@@ -45,48 +45,36 @@ public class PSSearchAdminReadOnly extends PSSearchAdmin {
     return m_admin.getFieldRetriever(key);
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   public void save() throws IOException {
     throw new IllegalStateException("The admin is not locked and cannot be modified.");
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   public void verify(Set<Long> knownContentTypes) throws PSSearchException {
     // This implementation should never be called as it
     // is not active. Complain!
     throw new IllegalStateException("The read-only admin object does not support verify.");
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   public PSKey[] optimizeIndexes(PSKey[] contentTypes) throws PSSearchException {
     throw new IllegalStateException(
         "The read-only admin object does not support index modification.");
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   public PSKey[] rebuildIndexes(PSKey[] contentTypes) throws PSSearchException {
     throw new IllegalStateException(
         "The read-only admin object does not support index modification.");
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   protected void doDelete(PSKey key) {
     throw new IllegalStateException("The admin is not locked and cannot be modified.");
   }
 
-  /**
-   * Always throws IllegalStateException.
-   */
+  /** Always throws IllegalStateException. */
   protected boolean update(PSItemDefinition def, boolean notify) {
     throw new IllegalStateException("The admin is not locked and cannot be modified.");
   }
@@ -98,8 +86,8 @@ public class PSSearchAdminReadOnly extends PSSearchAdmin {
   }
 
   /**
-   * The admin to which all supported (read-only) methods are delegated.
-   * Set in ctor, then never <code>null</code> or modified.
+   * The admin to which all supported (read-only) methods are delegated. Set in ctor, then never
+   * <code>null</code> or modified.
    */
   private PSSearchAdmin m_admin;
 }

@@ -25,11 +25,10 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /**
- * This exit collapses the supplied list of HTML parameters (as exit
- * parameters) in the request in that if it finds more than one value for the
- * parameter, i.e. array, it replaces the array with the first value from the
- * array. If the specified parameter does not exist in the request parameters,
- * it ignores.
+ * This exit collapses the supplied list of HTML parameters (as exit parameters) in the request in
+ * that if it finds more than one value for the parameter, i.e. array, it replaces the array with
+ * the first value from the array. If the specified parameter does not exist in the request
+ * parameters, it ignores.
  */
 public class PSCollapseHtmlParameter extends PSDefaultExtension
     implements IPSRequestPreProcessor, IPSResultDocumentProcessor {
@@ -66,10 +65,10 @@ public class PSCollapseHtmlParameter extends PSDefaultExtension
 
   /**
    * This method does the actual processing of the parameters.
-   * @param params - array of parameters supplied as exit parameters, may be
-   * <code>null</code> but normally not.
-   * @param request - the <code>IPSRequestContext</code> object assumed to be
-   * not <code>null</code>.
+   *
+   * @param params - array of parameters supplied as exit parameters, may be <code>null</code> but
+   *     normally not.
+   * @param request - the <code>IPSRequestContext</code> object assumed to be not <code>null</code>.
    */
   private void handleParam(Object[] params, IPSRequestContext request) {
     request.printTraceMessage("Starting collapseHTMLParameter...");

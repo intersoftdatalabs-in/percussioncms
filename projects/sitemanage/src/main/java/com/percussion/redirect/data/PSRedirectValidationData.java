@@ -21,51 +21,56 @@ package com.percussion.redirect.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Data object for redirect validation requests.
- */
+/** Data object for redirect validation requests. */
 @XmlRootElement(name = "data")
 @JsonRootName("data")
 public class PSRedirectValidationData {
 
-    private String fromPath;
-    private String toPath;
-    private RedirectPathType type;
+  private String fromPath;
+  private String toPath;
+  private RedirectPathType type;
 
-    /** @return the source path for the redirect */
-    public String getFromPath() {
-        return fromPath;
-    }
+  /**
+   * @return the source path for the redirect
+   */
+  public String getFromPath() {
+    return fromPath;
+  }
 
-    /** Sets the source path for the redirect. */
-    public void setFromPath(String fromPath) {
-        this.fromPath = fromPath;
-    }
+  /** Sets the source path for the redirect. */
+  public void setFromPath(String fromPath) {
+    this.fromPath = fromPath;
+  }
 
-    /** @return the destination path for the redirect */
-    public String getToPath() {
-        return toPath;
-    }
+  /**
+   * @return the destination path for the redirect
+   */
+  public String getToPath() {
+    return toPath;
+  }
 
-    /** Sets the destination path for the redirect. */
-    public void setToPath(String toPath) {
-        this.toPath = toPath;
-    }
+  /** Sets the destination path for the redirect. */
+  public void setToPath(String toPath) {
+    this.toPath = toPath;
+  }
 
-    /** @return the redirect path type */
-    public RedirectPathType getType() {
-        return type;
-    }
+  /**
+   * @return the redirect path type
+   */
+  public RedirectPathType getType() {
+    return type;
+  }
 
-    /** Sets the redirect path type. */
-    public void setType(RedirectPathType type) {
-        this.type = type;
-    }
+  /** Sets the redirect path type. */
+  public void setType(RedirectPathType type) {
+    this.type = type;
+  }
 
-    /**
-     * Enum for redirect path types.
-     */
-    public enum RedirectPathType {
-        PAGE, FOLDER, SECTION, SITE
-    }
+  /** Enum for redirect path types. */
+  public enum RedirectPathType {
+    PAGE,
+    FOLDER,
+    SECTION,
+    SITE
+  }
 }

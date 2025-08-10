@@ -32,21 +32,14 @@ import org.w3c.dom.Element;
  */
 public class PSAttributeValue extends PSDatabaseComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode        the XML element node to construct this
-   *                               object from, may not be <code>null</code>
-   *
-   * @param      parentDoc         the Java object which is the parent of this
-   *                               object can be <code>null</code>
-   *
-   * @param      parentComponents  the parent objects of this object
-   *                               can be <code>null</code>
-   *
-   * @throws  PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from, may not be <code>null
+   *     </code>
+   * @param parentDoc the Java object which is the parent of this object can be <code>null</code>
+   * @param parentComponents the parent objects of this object can be <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   PSAttributeValue(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -56,16 +49,14 @@ public class PSAttributeValue extends PSDatabaseComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSAttributeValue() {}
 
   /**
    * Construct a value from the specified text.
    *
-   * @param valueText  The text for this value, if <code>null</code>
-   * the value will be set to an empty string.
+   * @param valueText The text for this value, if <code>null</code> the value will be set to an
+   *     empty string.
    */
   PSAttributeValue(String valueText) {
     super();
@@ -76,12 +67,13 @@ public class PSAttributeValue extends PSDatabaseComponent {
   }
 
   /**
-   * This method is called to create one or more Action XML elements
-   * containing the data described in this object that is used to update
-   * the database. The Elements are appended to the root of the passed in doc.
-   * <p>
-   * The structure of the XML element(s) appended to the document (using a
-   * root element called 'root') is:
+   * This method is called to create one or more Action XML elements containing the data described
+   * in this object that is used to update the database. The Elements are appended to the root of
+   * the passed in doc.
+   *
+   * <p>The structure of the XML element(s) appended to the document (using a root element called
+   * 'root') is:
+   *
    * <pre><code>
    * &lt;!ELEMENT root (Action*)&gt;
    * &lt;!ELEMENT Action (PSXAttributeValue)
@@ -125,7 +117,7 @@ public class PSAttributeValue extends PSDatabaseComponent {
   /**
    * Get the value text of this attribute value.
    *
-   * @return The value's text represenation.  Never <code>null</code>.
+   * @return The value's text represenation. Never <code>null</code>.
    */
   String getValueText() {
     return m_value;
@@ -134,10 +126,11 @@ public class PSAttributeValue extends PSDatabaseComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXAttributeValue XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXAttributeValue XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *
    * &lt;!ELEMENT PSXAttributeValue (value)&gt;
@@ -150,10 +143,8 @@ public class PSAttributeValue extends PSDatabaseComponent {
    *
    * </code></pre>
    *
-   * @param doc The parent document.   May not be <code>null</code>.
-   *
-   * @return     the newly created PSXAttributeValue XML element node
-   *
+   * @param doc The parent document. May not be <code>null</code>.
+   * @return the newly created PSXAttributeValue XML element node
    * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public Element toXml(Document doc) {
@@ -175,15 +166,12 @@ public class PSAttributeValue extends PSDatabaseComponent {
   }
 
   /**
-   * This method is called to populate a PSAttributeValue Java object
-   * from a PSXAttributeValue XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSAttributeValue Java object from a PSXAttributeValue XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @throws   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRole
-   *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the
-   * interface description
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXRole
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for the interface description
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -235,9 +223,7 @@ public class PSAttributeValue extends PSDatabaseComponent {
     return Objects.hash(m_value);
   }
 
-  /**
-   * The value text.  Never <code>null</code>, may be empty.
-   */
+  /** The value text. Never <code>null</code>, may be empty. */
   private String m_value = "";
 
   /* package access on this so they may reference each other in fromXml */

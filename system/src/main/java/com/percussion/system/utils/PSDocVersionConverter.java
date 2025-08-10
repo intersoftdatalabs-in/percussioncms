@@ -36,16 +36,15 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * The PSDocVersionConverter class converts an old version of a Rhythmyx application's
- * XML document to a new version. The structure and nodes of the XML document will be
- * updated.
- * <p>
- * Users are responsible for validating the file or document to be converted and
- * knowing about the version to be changed to.
+ * The PSDocVersionConverter class converts an old version of a Rhythmyx application's XML document
+ * to a new version. The structure and nodes of the XML document will be updated.
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * <p>Users are responsible for validating the file or document to be converted and knowing about
+ * the version to be changed to.
+ *
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSDocVersionConverter {
 
@@ -83,7 +82,7 @@ public class PSDocVersionConverter {
   /**
    * Construct an object of document version converter.
    *
-   * @param      newVersion  the new version number, such as "1.1"
+   * @param newVersion the new version number, such as "1.1"
    */
   public PSDocVersionConverter(String newVersion) {
     if (newVersion == null) {
@@ -107,8 +106,8 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Construct an object of document version converter. The default new
-   * version number ("1.1") is assumed.
+   * Construct an object of document version converter. The default new version number ("1.1") is
+   * assumed.
    */
   public PSDocVersionConverter() {
     super();
@@ -117,21 +116,19 @@ public class PSDocVersionConverter {
   /**
    * Determine whether the document has been converted to a new version or not.
    *
-   * @return  <code>true</code> if the version is new; <code>false</code> if the
-   *          version is the same
+   * @return <code>true</code> if the version is new; <code>false</code> if the version is the same
    */
   public boolean isNewVersion() {
     return m_isConverted;
   }
 
   /**
-   * Convert version one point zero to version one point one. Only versions lower
-   * than one point one will be converted. If the version is one point one or higher,
-   * then the file content will be returned immediately without being converted.
+   * Convert version one point zero to version one point one. Only versions lower than one point one
+   * will be converted. If the version is one point one or higher, then the file content will be
+   * returned immediately without being converted.
    *
-   * @param   app   the application file of a version 1.0 XML document (may be null)
-   *
-   * @exception     Exception    if any exception happened during the conversion
+   * @param app the application file of a version 1.0 XML document (may be null)
+   * @exception Exception if any exception happened during the conversion
    */
   public void convertOneZeroToOneOne(File app) throws Exception {
     if (app == null) return;
@@ -167,15 +164,13 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Convert version one point zero to version one point one. Only versions lower
-   * than 1.1 will be converted. If the version is 1.1 or higher, then the document
-   * will be returned immediately without being converted.
+   * Convert version one point zero to version one point one. Only versions lower than 1.1 will be
+   * converted. If the version is 1.1 or higher, then the document will be returned immediately
+   * without being converted.
    *
-   * @param   doc   the input document (may be <code>null</code>)
-   *
-   * @return        the document of version 1.1 (may be <code>null</code>)
-   *
-   * @exception  Exception   if doc can not be processed
+   * @param doc the input document (may be <code>null</code>)
+   * @return the document of version 1.1 (may be <code>null</code>)
+   * @exception Exception if doc can not be processed
    */
   public Document convertOneZeroToOneOne(Document doc) throws Exception {
     if (doc == null) return doc;
@@ -265,12 +260,11 @@ public class PSDocVersionConverter {
   /**
    * Replace all <PSXJavaExit> node blocks with <PSXJavaExtensionDef> node blocks.
    *
-   * @param   doc            the document to be converted
-   * @param   parentNode     the parent node of <PSXJavaExit>
-   * @param   root           the root node which is <PSXApplication>
-   * @param   tree           the XML tree walker
-   *
-   * @exception  Exception   if replacement procedure has errors
+   * @param doc the document to be converted
+   * @param parentNode the parent node of <PSXJavaExit>
+   * @param root the root node which is <PSXApplication>
+   * @param tree the XML tree walker
+   * @exception Exception if replacement procedure has errors
    */
   private void replaceJavaExitNodeBlocks(
       Document doc, Node parentNode, Element root, PSXmlTreeWalker tree) throws Exception {
@@ -287,14 +281,12 @@ public class PSDocVersionConverter {
   /**
    * Replace one <PSXJavaExit> node block with a <PSXJavaExtensionDef> node block.
    *
-   * @param   doc            the document to be converted
-   * @param   javaExitNode   the node of <PSXJavaExit>
-   * @param   root           the root node, which is <PSXApplication>
-   * @param   tree           the XML tree walker
-   *
-   * @exception  Exception   if replacement procedure has errors
-   *
-   * @return  the new Element
+   * @param doc the document to be converted
+   * @param javaExitNode the node of <PSXJavaExit>
+   * @param root the root node, which is <PSXApplication>
+   * @param tree the XML tree walker
+   * @exception Exception if replacement procedure has errors
+   * @return the new Element
    */
   private Element replaceOneJavaExitNodeBlock(
       Document doc, Element javaExitNode, Element root, PSXmlTreeWalker tree) throws Exception {
@@ -395,11 +387,10 @@ public class PSDocVersionConverter {
   /**
    * Replace all <PSXUdfExit> node blocks with <PSXScriptExtensionDef> node blocks.
    *
-   * @param   doc            the document to be converted
-   * @param   parentNode     the parent node of <PSXUdfExit>
-   * @param   tree           the XML tree walker
-   *
-   * @exception  Exception   if replacement procedure has errors
+   * @param doc the document to be converted
+   * @param parentNode the parent node of <PSXUdfExit>
+   * @param tree the XML tree walker
+   * @exception Exception if replacement procedure has errors
    */
   private void replaceUdfExitNodeBlocks(Document doc, Node parentNode, PSXmlTreeWalker tree)
       throws Exception {
@@ -415,13 +406,11 @@ public class PSDocVersionConverter {
   /**
    * Replace one <PSXUdfExit> node block with a <PSXScriptExtensionDef> node block.
    *
-   * @param   doc            the document to be converted
-   * @param   udfExitNode    the node of <PSXUdfExit>
-   * @param   tree           the XML tree walker
-   *
-   * @exception  Exception   if replacement procedure has errors
-   *
-   * @return  the new Element
+   * @param doc the document to be converted
+   * @param udfExitNode the node of <PSXUdfExit>
+   * @param tree the XML tree walker
+   * @exception Exception if replacement procedure has errors
+   * @return the new Element
    */
   private Element replaceOneUdfExitNodeBlock(
       Document doc, Element udfExitNode, PSXmlTreeWalker tree) throws Exception {
@@ -506,14 +495,12 @@ public class PSDocVersionConverter {
    * Find the type of the processor based on the given extension name. The <code>origin</code>
    * element should be high enough in the element tree.
    *
-   * @param   doc         the XML document
-   * @param   nameNode    the node of extension name, such as <name>concat</name>
-   * @param   origin      the starting point of the search
-   * @param   tree        the XML tree walker
-   *
+   * @param doc the XML document
+   * @param nameNode the node of extension name, such as <name>concat</name>
+   * @param origin the starting point of the search
+   * @param tree the XML tree walker
    * @exception Exception if can not find the type node
-   *
-   * @return  the type string
+   * @return the type string
    */
   private String findType(Document doc, Node nameNode, Element origin, PSXmlTreeWalker tree)
       throws Exception {
@@ -533,17 +520,15 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Search inside node <code>InputDataExits</code> and node <code>ResultDataExits</code>
-   * to find the type of the processor based on the given <code>nameNode</code>.
+   * Search inside node <code>InputDataExits</code> and node <code>ResultDataExits</code> to find
+   * the type of the processor based on the given <code>nameNode</code>.
    *
-   * @param   doc         the XML document
-   * @param   nameNode    the node of extension name, such as <name>concat</name>
-   * @param   origin      the starting point of the search
-   * @param   tree        the XML tree walker
-   *
+   * @param doc the XML document
+   * @param nameNode the node of extension name, such as <name>concat</name>
+   * @param origin the starting point of the search
+   * @param tree the XML tree walker
    * @exception Exception if can not find the type node
-   *
-   * @return  the type string
+   * @return the type string
    */
   private String searchInputAndResultDataExits(
       Document doc, Node nameNode, Node origin, PSXmlTreeWalker tree) throws Exception {
@@ -585,14 +570,13 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Search and replace nodes <PSXUdfCall>, <PSXExitCall>, <PSXExitCallSet>,
-   * and <PSXExitParamValue>.
+   * Search and replace nodes <PSXUdfCall>, <PSXExitCall>, <PSXExitCallSet>, and
+   * <PSXExitParamValue>.
    *
-   * @param   doc         the document to be converted
-   * @param   origin      the node as the beginning position to search
-   * @param   tree        the XML tree walker
-   *
-   * @exception  Exception   if replacement procedure has errors
+   * @param doc the document to be converted
+   * @param origin the node as the beginning position to search
+   * @param tree the XML tree walker
+   * @exception Exception if replacement procedure has errors
    */
   private void replaceFourSingleNodes(Document doc, Node origin, PSXmlTreeWalker tree)
       throws Exception {
@@ -634,17 +618,15 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Replace the parent nodes of <PSExitCall> and </PSExitCall>. The parents
-   * could be <PSXExitCallSet> and </PSXExitCallSet>, or any other nodes.
+   * Replace the parent nodes of <PSExitCall> and </PSExitCall>. The parents could be
+   * <PSXExitCallSet> and </PSXExitCallSet>, or any other nodes.
    *
-   * @param   doc            the document to be updated
-   * @param   tree           the XML tree walker
-   * @param   oldTagName     the old tag name
-   * @param   newTagName     the new tag name
-   *
-   * @exception Exception    if error occurs during the process
-   *
-   * @return     a list of new nodes
+   * @param doc the document to be updated
+   * @param tree the XML tree walker
+   * @param oldTagName the old tag name
+   * @param newTagName the new tag name
+   * @exception Exception if error occurs during the process
+   * @return a list of new nodes
    */
   private ArrayList replaceExitCallSet(
       Document doc, PSXmlTreeWalker tree, String oldTagName, String newTagName) throws Exception {
@@ -690,18 +672,15 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Replace the parent nodes of <PSExitParamValue> and </PSExitParamValue>. The parents
-   * could be <PSXUdfCall> and </PSXUdfCall>, or <PSXExitCall> and </PSXExitCall>, or
-   * any other nodes.
+   * Replace the parent nodes of <PSExitParamValue> and </PSExitParamValue>. The parents could be
+   * <PSXUdfCall> and </PSXUdfCall>, or <PSXExitCall> and </PSXExitCall>, or any other nodes.
    *
-   * @param   doc            the document to be updated
-   * @param   tree           the XML tree walker
-   * @param   oldTagName     the old tag name
-   * @param   newTagName     the new tag name
-   *
-   * @exception Exception    if error occurs during the process
-   *
-   * @return     a list of new nodes
+   * @param doc the document to be updated
+   * @param tree the XML tree walker
+   * @param oldTagName the old tag name
+   * @param newTagName the new tag name
+   * @exception Exception if error occurs during the process
+   * @return a list of new nodes
    */
   private ArrayList replaceUdfOrExitCall(
       Document doc, PSXmlTreeWalker tree, String oldTagName, String newTagName) throws Exception {
@@ -753,20 +732,18 @@ public class PSDocVersionConverter {
   }
 
   /**
-   * Replace nodes having the same tag name with a new tag name. This is not a global
-   * replacement. Only those nodes having the same parent node will be replaced.
-   * <p>
-   * This method can not be used to change the XML document's root. That is, at least
-   * one ancestor node must exist.
+   * Replace nodes having the same tag name with a new tag name. This is not a global replacement.
+   * Only those nodes having the same parent node will be replaced.
    *
-   * @param   doc            the document to be updated
-   * @param   tree           the XML tree walker
-   * @param   oldTagName     the old tag name
-   * @param   newTagName     the new tag name
+   * <p>This method can not be used to change the XML document's root. That is, at least one
+   * ancestor node must exist.
    *
-   * @exception  Exception   if there is no parent node, or error occurs during the process
-   *
-   * @return     a list of new nodes
+   * @param doc the document to be updated
+   * @param tree the XML tree walker
+   * @param oldTagName the old tag name
+   * @param newTagName the new tag name
+   * @exception Exception if there is no parent node, or error occurs during the process
+   * @return a list of new nodes
    */
   private ArrayList replaceNodeTagName(
       Document doc, PSXmlTreeWalker tree, String oldTagName, String newTagName) throws Exception {
@@ -834,25 +811,19 @@ public class PSDocVersionConverter {
 
   /* These three types were copied from the original IPSExtensionDef, which
   was removed in v2.0. */
-  /**
-   * This extension is a user defined function (UDF) processor.
-   */
+  /** This extension is a user defined function (UDF) processor. */
   public static final int EXT_TYPE_UDF_PROC = 0x01;
 
-  /**
-   * This extension is a request pre-processor.
-   */
+  /** This extension is a request pre-processor. */
   public static final int EXT_TYPE_REQUEST_PRE_PROC = 0x02;
 
-  /**
-   * This extension is a result document processor.
-   */
+  /** This extension is a result document processor. */
   public static final int EXT_TYPE_RESULT_DOC_PROC = 0x04;
 
   /**
    * Get the handler used to process this type of extension.
    *
-   * @return      the handler used to process this type of extension.
+   * @return the handler used to process this type of extension.
    */
   private static final String ms_type1 = String.valueOf(EXT_TYPE_UDF_PROC);
 

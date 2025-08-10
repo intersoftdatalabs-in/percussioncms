@@ -22,9 +22,7 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXFieldTranslation DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXFieldTranslation DTD in BasicObjects.dtd. */
 public class PSFieldTranslation extends PSComponent {
   /**
    * Constructs a new field translation object.
@@ -38,30 +36,23 @@ public class PSFieldTranslation extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSFieldTranslation(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSFieldTranslation() {}
 
   /**
    * Get the field translations.
    *
-   * @return the field translations, never
-   *    <code>null</code>, might be empty. Guaranteed only UDF's.
+   * @return the field translations, never <code>null</code>, might be empty. Guaranteed only UDF's.
    */
   public PSExtensionCallSet getTranslations() {
     return m_translations;
@@ -70,8 +61,8 @@ public class PSFieldTranslation extends PSComponent {
   /**
    * Set new translations.
    *
-   * @param translations the new translations, never <code>null</code>,
-   *    might be empty, only UDF's allowed.
+   * @param translations the new translations, never <code>null</code>, might be empty, only UDF's
+   *     allowed.
    */
   public void setTranslations(PSExtensionCallSet translations) {
     if (translations == null) throw new IllegalArgumentException("translations can't be null");
@@ -98,9 +89,8 @@ public class PSFieldTranslation extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSFieldTranslation, not <code>null</code>.
    */
@@ -131,7 +121,6 @@ public class PSFieldTranslation extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -183,7 +172,6 @@ public class PSFieldTranslation extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -224,14 +212,14 @@ public class PSFieldTranslation extends PSComponent {
   public static final String XML_NODE_NAME = "PSXFieldTranslation";
 
   /**
-   * Name of the otional child element that will contain the error label.
-   * (package access for unit test)
+   * Name of the otional child element that will contain the error label. (package access for unit
+   * test)
    */
   static final String ERROR_LABEL_ELEM = "ErrorLabel";
 
   /**
-   * The field translations, never <code>null</code> after construction. Only
-   * UDF extensions are allowed.
+   * The field translations, never <code>null</code> after construction. Only UDF extensions are
+   * allowed.
    */
   private PSExtensionCallSet m_translations = null;
 

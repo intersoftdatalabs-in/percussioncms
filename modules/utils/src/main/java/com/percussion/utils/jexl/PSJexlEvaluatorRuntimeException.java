@@ -17,11 +17,9 @@
 package com.percussion.utils.jexl;
 
 /**
- * An exception that represents an error during Jexl Evaluation through the
- * Uberspect.
+ * An exception that represents an error during Jexl Evaluation through the Uberspect.
  *
  * @author adamgent
- *
  */
 public class PSJexlEvaluatorRuntimeException extends RuntimeException {
 

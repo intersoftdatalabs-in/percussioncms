@@ -27,17 +27,13 @@ import java.util.Optional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * ID Context to represent a <code>PSUrlRequest</code> object
- */
+/** ID Context to represent a <code>PSUrlRequest</code> object */
 public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
   /**
    * Construct this context from the object it represents
    *
    * @param req The url request, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>req</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>req</code> is <code>null</code>.
    */
   public PSAppUrlRequestIdContext(PSUrlRequest req) {
     if (req == null) throw new IllegalArgumentException("req may not be null");
@@ -49,12 +45,9 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppUrlRequestIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -83,11 +76,10 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
 
   /**
    * Determine if this context represents the supplied request
+   *
    * @param req The request to check, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if this context represents the supplied request,
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if this context represents the supplied request, <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if <code>req</code> is <code>null</code>.
    */
   public boolean isSameRequest(PSUrlRequest req) {
@@ -125,12 +117,13 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppUrlRequestIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppUrlRequestIdContext
@@ -154,9 +147,8 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -216,19 +208,13 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext {
     return m_href.hashCode() + m_name.hashCode() + super.hashCode();
   }
 
-  /**
-   * Name of the url request, may be <code>null</code>, never emtpy.
-   */
+  /** Name of the url request, may be <code>null</code>, never emtpy. */
   private String m_name;
 
-  /**
-   * Href of the url request, never <code>null</code>, may be empty.
-   */
+  /** Href of the url request, never <code>null</code>, may be empty. */
   private String m_href;
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppUrlRequestIdContext";
 
   // private xml constants

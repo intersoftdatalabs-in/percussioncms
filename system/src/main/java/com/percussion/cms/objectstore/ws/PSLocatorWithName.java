@@ -19,8 +19,8 @@ package com.percussion.cms.objectstore.ws;
 import com.percussion.design.objectstore.PSLocator;
 
 /**
- * This class contains {@link PSLocator} and an override name, which is used
- * to override sys_title when clone the item.
+ * This class contains {@link PSLocator} and an override name, which is used to override sys_title
+ * when clone the item.
  */
 public class PSLocatorWithName extends PSLocator {
   /**
@@ -28,8 +28,8 @@ public class PSLocatorWithName extends PSLocator {
    *
    * @param id the content id of an item.
    * @param revision the revision number of the item.
-   * @param name the value that will be used to override sys_title field when
-   *    clone the item. It may not be <code>null</code> or empty.
+   * @param name the value that will be used to override sys_title field when clone the item. It may
+   *     not be <code>null</code> or empty.
    */
   public PSLocatorWithName(int id, int revision, String name) {
     super(id, revision);
@@ -44,8 +44,8 @@ public class PSLocatorWithName extends PSLocator {
    *
    * @param id the content id of an item.
    * @param revision the revision number of the item.
-   * @param name the value that will be used to override sys_title field when
-   *   we clone the item. It may not be <code>null</code> or empty.
+   * @param name the value that will be used to override sys_title field when we clone the item. It
+   *     may not be <code>null</code> or empty.
    */
   public PSLocatorWithName(String id, String revision, String name) {
     super(id, revision);
@@ -63,14 +63,11 @@ public class PSLocatorWithName extends PSLocator {
     return m_overrideName;
   }
 
-  /**
-   * The attribute name of an XML element. The value is the override name
-   */
+  /** The attribute name of an XML element. The value is the override name */
   public static String ATTR_OVERRIDE_NAME = "overrideName";
 
   /**
-   * See ctor for its description. Initialized by ctor, never <code>null</code>
-   * or empty after that.
+   * See ctor for its description. Initialized by ctor, never <code>null</code> or empty after that.
    */
   private String m_overrideName;
 }

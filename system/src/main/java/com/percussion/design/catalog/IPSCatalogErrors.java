@@ -18,9 +18,9 @@
 package com.percussion.design.catalog;
 
 /**
- * The IPSCatalogErrors inteface is provided as a convenient mechanism
- * for accessing the various catalog related error codes. The catalog error
- * code ranges are:
+ * The IPSCatalogErrors inteface is provided as a convenient mechanism for accessing the various
+ * catalog related error codes. The catalog error code ranges are:
+ *
  * <TABLE BORDER="1">
  * <TR><TH>Range</TH><TH>Component</TH></TR>
  * <TR><TD>4000 - 4100</TD><TD>general errors used all over</TD></TR>
@@ -29,16 +29,17 @@ package com.percussion.design.catalog;
  * <TR><TD>4501 - 4999</TD><TD>-unassigned-</TD></TR>
  * </TABLE>
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public interface IPSCatalogErrors {
 
   /**
    * The required request property was not specified in the catalog call.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the name of the property</TD></TR>
@@ -48,8 +49,9 @@ public interface IPSCatalogErrors {
 
   /**
    * The request category specified does not match the expected value.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the value expected</TD></TR>
@@ -60,8 +62,9 @@ public interface IPSCatalogErrors {
 
   /**
    * The request type specified does not match the expected value.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the value expected</TD></TR>
@@ -71,10 +74,10 @@ public interface IPSCatalogErrors {
   public static final int REQ_TYPE_INVALID = 4103;
 
   /**
-   * An exception occurred loading the request generator
-   * for the specified category/type.
-   * <p>
-   * The arguments passed in for this message are:
+   * An exception occurred loading the request generator for the specified category/type.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
@@ -85,17 +88,17 @@ public interface IPSCatalogErrors {
   public static final int REQ_HANDLER_EXCEPTION = 4104;
 
   /**
-   * The PSCataloger constructor was called with null
-   * as the PSDesignerConnection object.
-   * <p>
-   * No arguments are passed for this message.
+   * The PSCataloger constructor was called with null as the PSDesignerConnection object.
+   *
+   * <p>No arguments are passed for this message.
    */
   public static final int CONN_OBJ_NULL = 4105;
 
   /**
    * a request document was not supplied with the request.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
@@ -105,20 +108,17 @@ public interface IPSCatalogErrors {
    */
   public static final int REQ_DOC_MISSING = 4301;
 
-  /**
-   * a request document was not supplied with the request .
-   */
+  /** a request document was not supplied with the request . */
   public static final int REQ_DOC_MISSING_GENERIC = 4302;
 
-  /**
-   * a request document was not supplied with the request
-   */
+  /** a request document was not supplied with the request */
   public static final int REQ_DOC_ROOT_MISSING_GENERIC = 4303;
 
   /**
    * the request document sent is not of the expected type.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the document type (DTD) expected</TD></TR>
@@ -129,8 +129,9 @@ public interface IPSCatalogErrors {
 
   /**
    * a request handler could not be found to process the request.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
@@ -141,8 +142,9 @@ public interface IPSCatalogErrors {
 
   /**
    * an exception occurred trying to load the the properties file.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>request category</TD></TR>
@@ -154,8 +156,9 @@ public interface IPSCatalogErrors {
 
   /**
    * the specified exit handler class could not be loaded.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
@@ -164,11 +167,12 @@ public interface IPSCatalogErrors {
   public static final int EXIT_HANDLER_CLASS_NOT_FOUND = 4307;
 
   /**
-   * the IPSExtensionHandler or IPSExtension interface is not implemented by this class
-   * (all extension handlers must implement IPSExtensionHandler, and all extensions
-   * must implement IPSExtension).
-   * <p>
-   * The arguments passed in for this message are:
+   * the IPSExtensionHandler or IPSExtension interface is not implemented by this class (all
+   * extension handlers must implement IPSExtensionHandler, and all extensions must implement
+   * IPSExtension).
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
@@ -178,8 +182,9 @@ public interface IPSCatalogErrors {
 
   /**
    * an exception occurred trying to load the exit handler class.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the class name</TD></TR>
@@ -190,8 +195,9 @@ public interface IPSCatalogErrors {
 
   /**
    * an exception occurred trying to load the exit handler class.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>the session id of the requestor</TD></TR>
@@ -203,8 +209,9 @@ public interface IPSCatalogErrors {
 
   /**
    * an exception occurred while processing the catalog request.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>exceptin text</TD></TR>

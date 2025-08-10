@@ -18,9 +18,7 @@ package com.percussion.share.dao;
 
 import java.util.List;
 
-/**
- * Catalogs relationships for content items.
- */
+/** Catalogs relationships for content items. */
 public interface IPSRelationshipCataloger {
-    List<String> findOwners(String id, String name, String contentType, String slotName);
+  List<String> findOwners(String id, String name, String contentType, String slotName);
 }

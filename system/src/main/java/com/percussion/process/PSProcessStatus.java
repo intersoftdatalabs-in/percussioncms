@@ -17,8 +17,9 @@
 package com.percussion.process;
 
 /**
- * Class for storing and obtaining the current status of the
- * process. A process must be in one of the following states:
+ * Class for storing and obtaining the current status of the process. A process must be in one of
+ * the following states:
+ *
  * <pre>
  * <code>PROCESS_NOT_STARTED</code>
  * <code>PROCESS_FAILED_TO_START</code>
@@ -40,8 +41,7 @@ public class PSProcessStatus {
   /**
    * Sets the process status.
    *
-   * @param status the process status, one of the <code>PROCESS_XXX</code>
-   * values
+   * @param status the process status, one of the <code>PROCESS_XXX</code> values
    */
   public synchronized void setStatus(int status) {
     if ((status == PROCESS_NOT_STARTED)
@@ -55,38 +55,30 @@ public class PSProcessStatus {
     }
   }
 
-  /**
-   * Constant indicating the process has not yet started.
-   */
+  /** Constant indicating the process has not yet started. */
   public static final int PROCESS_NOT_STARTED = 0;
 
   /**
-   * Constant indicating that the <code>Process.exec</code> method threw an
-   * <code>IOException</code>.
+   * Constant indicating that the <code>Process.exec</code> method threw an <code>IOException</code>
+   * .
    */
   public static final int PROCESS_FAILED_TO_START = 1;
 
-  /**
-   * Constant indicating the process has started but not completed.
-   */
+  /** Constant indicating the process has started but not completed. */
   public static final int PROCESS_STARTED = 2;
 
-  /**
-   * Constant indicating the process has finished.
-   */
+  /** Constant indicating the process has finished. */
   public static final int PROCESS_FINISHED = 3;
 
   /**
-   * Constant indicating the process may continue to run, but the action
-   * was interrupted while waiting for it to finish. This should never happen
-   * in practice.
+   * Constant indicating the process may continue to run, but the action was interrupted while
+   * waiting for it to finish. This should never happen in practice.
    */
   public static final int PROCESS_INTERRUPTED = 4;
 
   /**
-   * Stores the process status, initialized to
-   * <code>PROCESS_NOT_STARTED</code>, modified in the <code>setStaus</code>
-   * method.
+   * Stores the process status, initialized to <code>PROCESS_NOT_STARTED</code>, modified in the
+   * <code>setStaus</code> method.
    */
   private int m_status = PROCESS_NOT_STARTED;
 }

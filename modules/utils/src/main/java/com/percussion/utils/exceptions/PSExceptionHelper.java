@@ -27,24 +27,19 @@ import org.apache.velocity.exception.MethodInvocationException;
  */
 public class PSExceptionHelper {
   /**
-   * Exceptions can be nested in a variety of ways. The reflection API causes
-   * exceptions that occur during method invocation to be wrapped in an
-   * {@link InvocationTargetException}, other exceptions put the original
-   * problem into a chain, etc. Sometimes it is handy to get the original
-   * problem.
-   * <p>
-   * This method recurses until it finds a throwable that does not have a
-   * different cause and is not one of the known exceptions that point to
-   * another exception using a different mechanism.
+   * Exceptions can be nested in a variety of ways. The reflection API causes exceptions that occur
+   * during method invocation to be wrapped in an {@link InvocationTargetException}, other
+   * exceptions put the original problem into a chain, etc. Sometimes it is handy to get the
+   * original problem.
+   *
+   * <p>This method recurses until it finds a throwable that does not have a different cause and is
+   * not one of the known exceptions that point to another exception using a different mechanism.
    *
    * @param ex original exception, never <code>null</code>
-   * @param stopAtAppEx if <code>true</code> this will stop searching if it
-   *           finds an exception that is derived from {@link PSBaseException}
-   *           indicating one of <i>our</i> exceptions, which is presumed to
-   *           be a business exception.
-   *
-   * @return the root cause, which may be the passed argument. Never
-   *         <code>null</code>
+   * @param stopAtAppEx if <code>true</code> this will stop searching if it finds an exception that
+   *     is derived from {@link PSBaseException} indicating one of <i>our</i> exceptions, which is
+   *     presumed to be a business exception.
+   * @return the root cause, which may be the passed argument. Never <code>null</code>
    */
   public static Throwable findRootCause(Throwable ex, boolean stopAtAppEx) {
     // ATTENTION! Be careful when adding checks for new exception classes
@@ -74,8 +69,9 @@ public class PSExceptionHelper {
   }
 
   /**
-   * Returns <code>true</code> if velocity library is accessible and
-   * the provided exception is instance of {@link MethodInvocationException}.
+   * Returns <code>true</code> if velocity library is accessible and the provided exception is
+   * instance of {@link MethodInvocationException}.
+   *
    * @param e the exception to check. Assumed not <code>null</code>.
    */
   private static boolean isVelocityException(Throwable e) {

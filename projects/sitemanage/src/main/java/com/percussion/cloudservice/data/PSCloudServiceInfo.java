@@ -20,37 +20,35 @@ package com.percussion.cloudservice.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents cloud service information for Percussion CMS.
- */
+/** Represents cloud service information for Percussion CMS. */
 @XmlRootElement(name = "CloudServiceInfo")
 public class PSCloudServiceInfo {
 
-    private String clientIdentity;
-    private String uiProvider;
+  private String clientIdentity;
+  private String uiProvider;
 
-    public PSCloudServiceInfo() {
-        // Default constructor
-    }
+  public PSCloudServiceInfo() {
+    // Default constructor
+  }
 
-    public PSCloudServiceInfo(String clientIdentity, String uiProvider) {
-        this.clientIdentity = clientIdentity;
-        this.uiProvider = uiProvider;
-    }
+  public PSCloudServiceInfo(String clientIdentity, String uiProvider) {
+    this.clientIdentity = clientIdentity;
+    this.uiProvider = uiProvider;
+  }
 
-    public String getClientIdentity() {
-        return clientIdentity;
-    }
+  public String getClientIdentity() {
+    return clientIdentity;
+  }
 
-    public void setClientIdentity(String clientIdentity) {
-        this.clientIdentity = clientIdentity;
-    }
+  public void setClientIdentity(String clientIdentity) {
+    this.clientIdentity = clientIdentity;
+  }
 
-    public String getUiProvider() {
-        return uiProvider;
-    }
+  public String getUiProvider() {
+    return uiProvider;
+  }
 
-    public void setUiProvider(String uiProvider) {
-        this.uiProvider = uiProvider;
-    }
+  public void setUiProvider(String uiProvider) {
+    this.uiProvider = uiProvider;
+  }
 }

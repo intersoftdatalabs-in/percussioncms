@@ -23,16 +23,15 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author dougrand
- *
- * Unit tests for stopwatch class
+ *     <p>Unit tests for stopwatch class
  */
 public class PSStopwatchTest {
 
   /**
-   * Checks to see if the two times are within some milliseconds.
-   * Some variance is allowed to keep the test from failing on hiccups and
-   * inaccuracies in the bios timer. The basic issue is that the bios timer
-   * can vary by around 20 ms.
+   * Checks to see if the two times are within some milliseconds. Some variance is allowed to keep
+   * the test from failing on hiccups and inaccuracies in the bios timer. The basic issue is that
+   * the bios timer can vary by around 20 ms.
+   *
    * @param time1
    * @param time2
    * @throws AssertionFailedError

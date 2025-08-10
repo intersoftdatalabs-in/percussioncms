@@ -17,46 +17,41 @@
  */
 package com.percussion.share.dao;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Tests for {@link IPSNameGenerator}.
- * Sunny Sal: "Name generator, Java 11, and unique ka hero!"
- */
+/** Tests for {@link IPSNameGenerator}. Sunny Sal: "Name generator, Java 11, and unique ka hero!" */
 @Tag("IntegrationTest")
 @Tag("integration")
 public class PSNameGeneratorTest {
 
-    private IPSNameGenerator nameGenerator;
+  private IPSNameGenerator nameGenerator;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        PSSpringWebApplicationContextUtils.injectDependencies(this);
-    }
+  @BeforeEach
+  void setUp() throws Exception {
+    PSSpringWebApplicationContextUtils.injectDependencies(this);
+  }
 
-    @Test
-    void testGetLocalContentName() {
-        var name1 = nameGenerator.generateLocalContentName();
-        assertTrue(StringUtils.isNotBlank(name1), "First generated name should not be blank");
-        var name2 = nameGenerator.generateLocalContentName();
-        assertTrue(StringUtils.isNotBlank(name2), "Second generated name should not be blank");
-        assertNotEquals(name1, name2, "Generated names should be unique");
-    }
+  @Test
+  void testGetLocalContentName() {
+    var name1 = nameGenerator.generateLocalContentName();
+    assertTrue(StringUtils.isNotBlank(name1), "First generated name should not be blank");
+    var name2 = nameGenerator.generateLocalContentName();
+    assertTrue(StringUtils.isNotBlank(name2), "Second generated name should not be blank");
+    assertNotEquals(name1, name2, "Generated names should be unique");
+  }
 
-    public IPSNameGenerator getNameGenerator() {
-        return nameGenerator;
-    }
+  public IPSNameGenerator getNameGenerator() {
+    return nameGenerator;
+  }
 
-    public void setNameGenerator(IPSNameGenerator nameGenerator) {
-        this.nameGenerator = nameGenerator;
-    }
+  public void setNameGenerator(IPSNameGenerator nameGenerator) {
+    this.nameGenerator = nameGenerator;
+  }
 }

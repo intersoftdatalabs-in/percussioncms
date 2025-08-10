@@ -21,22 +21,19 @@ import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 
-/**
- * Site architecture data service interface.
- * Extends {@link IPSDataService}.
- */
+/** Site architecture data service interface. Extends {@link IPSDataService}. */
 public interface IPSSiteArchitectureDataService
-      extends IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String> {
+    extends IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String> {
 
-   /**
-    * Returns the site architecture object for the given ID.
-    *
-    * @param id the site ID, not null.
-    * @return the site architecture object.
-    * @throws PSValidationException if validation fails.
-    * @throws DataServiceLoadException if loading fails.
-    * @throws DataServiceNotFoundException if not found.
-    */
-   PSSiteArchitecture find(String id)
-         throws PSValidationException, DataServiceLoadException, DataServiceNotFoundException;
+  /**
+   * Returns the site architecture object for the given ID.
+   *
+   * @param id the site ID, not null.
+   * @return the site architecture object.
+   * @throws PSValidationException if validation fails.
+   * @throws DataServiceLoadException if loading fails.
+   * @throws DataServiceNotFoundException if not found.
+   */
+  PSSiteArchitecture find(String id)
+      throws PSValidationException, DataServiceLoadException, DataServiceNotFoundException;
 }

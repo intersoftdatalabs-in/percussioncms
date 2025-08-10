@@ -21,29 +21,22 @@ import com.percussion.extension.IPSFieldInputTransformer;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
 
-/**
- * The PSSimpleJavaUdf_toHash class returns a hashcode for the object
- * passed into the UDF.
- */
+/** The PSSimpleJavaUdf_toHash class returns a hashcode for the object passed into the UDF. */
 public class PSSimpleJavaUdf_toHash extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Returns a hash value for the supplied parameters by concatenating them
-   * into a string and returning the hash value of the string.
+   * Returns a hash value for the supplied parameters by concatenating them into a string and
+   * returning the hash value of the string.
    *
-   * @param      params         A single parameter to be converted.
-   *
-   * @param      request        the current request context
-   *
-   * @return                    params[0] converted to a string representing the objects
-   *                            hashcode, or <code>null</code> if <code>
+   * @param params A single parameter to be converted.
+   * @param request the current request context
+   * @return params[0] converted to a string representing the objects hashcode, or <code>null</code>
+   *     if <code>
    *                            null</code> is supplied.
-   *
-   * @exception  PSConversionException
-   *                            if params is <code>null</code> or more than
-   *                            1 argument is supplied.
+   * @exception PSConversionException if params is <code>null</code> or more than 1 argument is
+   *     supplied.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

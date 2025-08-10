@@ -54,36 +54,29 @@ import org.xml.sax.SAXException;
 
 // REFACTORED: CP-JAVA11
 /**
- * PSContentFactory provides a convenient set of methods to load
- * HTML, XML, XSL, and DTD files from disk in particular encodings
- * and automatically convert them to UTF-8.
- * <P>
- * Sometimes loading and converting requires us to make a distinct,
- * converted copy of the file in another location on disk. This is
- * the case, for example, with HTML files. Many HTML files do not
- * conform to the standard, so we try to fix them and update the
- * contents of the &lt;META HTTP-EQUIV="Content-Type" ...&gt; tag
- * to reflect the new UTF-8 encoding.
- * <P>
- * A similar situation exists with XML, XSL, or DTD files that
- * have a &lt;?xml ... encoding='whatever' ?&gt; header in them.
- * This is updated in the corrected version of the file to reflect
- * the new UTF-8 encoding.
- * <P>
- * We use UTF-8 because it is basically guaranteed that any character
- * from any language is representable in UTF-8 (or soon will be). This
- * guarantee cannot be made for any non-Unicode encodings.
+ * PSContentFactory provides a convenient set of methods to load HTML, XML, XSL, and DTD files from
+ * disk in particular encodings and automatically convert them to UTF-8.
  *
+ * <p>Sometimes loading and converting requires us to make a distinct, converted copy of the file in
+ * another location on disk. This is the case, for example, with HTML files. Many HTML files do not
+ * conform to the standard, so we try to fix them and update the contents of the &lt;META
+ * HTTP-EQUIV="Content-Type" ...&gt; tag to reflect the new UTF-8 encoding.
+ *
+ * <p>A similar situation exists with XML, XSL, or DTD files that have a &lt;?xml ...
+ * encoding='whatever' ?&gt; header in them. This is updated in the corrected version of the file to
+ * reflect the new UTF-8 encoding.
+ *
+ * <p>We use UTF-8 because it is basically guaranteed that any character from any language is
+ * representable in UTF-8 (or soon will be). This guarantee cannot be made for any non-Unicode
+ * encodings.
  */
 public abstract class PSContentFactory {
-  /**
-   * Logger to use.
-   */
+  /** Logger to use. */
   private static final Logger log = LogManager.getLogger(PSContentFactory.class);
 
   /**
-   * Interactive test. Command line arguments are filenames, which will
-   * be loaded by the content factory and processed accordingly.
+   * Interactive test. Command line arguments are filenames, which will be loaded by the content
+   * factory and processed accordingly.
    */
   /*
   * Copyright 1999-2025 Percussion Software, Inc.
@@ -116,9 +109,7 @@ public abstract class PSContentFactory {
     writeCharStream(in, cs);
   }
 
-  /**
-   * TESTING METHOD. Writes the content to System.out
-   */
+  /** TESTING METHOD. Writes the content to System.out */
   private static void writeCharStream(InputStream in, String enc) throws IOException {
     BufferedReader r = new BufferedReader(new InputStreamReader(in, enc));
     String line = r.readLine();
@@ -129,17 +120,12 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a buffered stream around the given stream, unless the
-   * given stream is already buffered.
+   * Returns a buffered stream around the given stream, unless the given stream is already buffered.
    *
-   * @param in The stream to be buffered. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return A buffered stream, possibly the original stream that
-   * was passed in. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @param in The stream to be buffered. Must not be <CODE>null</CODE>.
+   * @return A buffered stream, possibly the original stream that was passed in. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   @SuppressWarnings("deprecation")
   public static InputStream bufferStream(InputStream in) {
@@ -152,16 +138,12 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a buffered reader around the given reader, unless the
-   * given reader is already buffered.
+   * Returns a buffered reader around the given reader, unless the given reader is already buffered.
    *
    * @param in The reader to be buffered. Must not be <CODE>null</CODE>.
-   *
-   * @return A buffered reader, possibly the original reader that
-   * was passed in. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @return A buffered reader, possibly the original reader that was passed in. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static Reader bufferReader(Reader in) throws IOException {
     if (in == null) throw new IllegalArgumentException("in cannot be null");
@@ -173,17 +155,13 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a reader around a buffered version of the given stream,
-   * unless the given stream is already buffered.
+   * Returns a reader around a buffered version of the given stream, unless the given stream is
+   * already buffered.
    *
    * @param in The stream to be buffered. Must not be <CODE>null</CODE>.
-   * @param enc The character encoding to use. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param enc The character encoding to use. Must not be <CODE>null</CODE>.
    * @return A reader around a buffered stream. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static Reader bufferReader(InputStream in, String enc) throws IOException {
     if (in == null) throw new IllegalArgumentException("in cannot be null");
@@ -195,18 +173,13 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a buffered stream around the given output stream, unless
-   * the stream is already buffered, in which case the stream itself
-   * will be returned.
+   * Returns a buffered stream around the given output stream, unless the stream is already
+   * buffered, in which case the stream itself will be returned.
    *
-   * @param out The output stream to be buffered. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return The buffered output stream, possibly the same stream
-   * that was passed in. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @param out The output stream to be buffered. Must not be <CODE>null</CODE>.
+   * @return The buffered output stream, possibly the same stream that was passed in. Never <CODE>
+   *     null</CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static OutputStream bufferStream(OutputStream out) throws IOException {
     if (out == null) throw new IllegalArgumentException("out cannot be null");
@@ -217,18 +190,13 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a buffered writer around the given writer, unless
-   * the writer is already buffered, in which case the writer itself
-   * will be returned.
+   * Returns a buffered writer around the given writer, unless the writer is already buffered, in
+   * which case the writer itself will be returned.
    *
-   * @param out The writer to be buffered. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return The buffered writer, possibly the same writer
-   * that was passed in. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @param out The writer to be buffered. Must not be <CODE>null</CODE>.
+   * @return The buffered writer, possibly the same writer that was passed in. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static Writer bufferWriter(Writer out) throws IOException {
     if (out == null) throw new IllegalArgumentException("out cannot be null");
@@ -240,18 +208,13 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Returns a writer around a buffered version of the given output
-   * stream using the given character encoding. If the stream is
-   * already buffered, it will not be buffered again.
+   * Returns a writer around a buffered version of the given output stream using the given character
+   * encoding. If the stream is already buffered, it will not be buffered again.
    *
-   * @param out The writer to be buffered. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return The buffered writer, possibly the same writer
-   * that was passed in. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @param out The writer to be buffered. Must not be <CODE>null</CODE>.
+   * @return The buffered writer, possibly the same writer that was passed in. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static Writer bufferedWriter(OutputStream out, String enc) throws IOException {
     if (out == null) throw new IllegalArgumentException("out cannot be null");
@@ -265,15 +228,11 @@ public abstract class PSContentFactory {
   /**
    * Tries to guess the MIME type based on the file extension.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/12
-   *
-   * @param filename A filename with an extension. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @return   String The guessed MIME type. Will return
-   * "application/octet-stream" if it cannot guess. Never <CODE>null</CODE>.
+   * @param filename A filename with an extension. Must not be <CODE>null</CODE>.
+   * @return String The guessed MIME type. Will return "application/octet-stream" if it cannot
+   *     guess. Never <CODE>null</CODE>.
    */
   public static String guessMimeType(File filename) {
     if (filename == null) throw new IllegalArgumentException("filename cannot be null");
@@ -284,20 +243,13 @@ public abstract class PSContentFactory {
   /**
    * Tries to guess the MIME type based on the file extension.
    *
-   * @author   chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/11/12
-   *
-   * @param filename A filename with an extension. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @param defaultType The default type if we can't guess. Can be
-   * <CODE>null</CODE> in which case <CODE>null</CODE> will be
-   * returned if we can't guess.
-   *
-   * @return   String The guessed MIME type. Will return
-   * <CODE>defaultType</CODE> if it cannot guess. If defaultType is
-   * <CODE>null</CODE>, will return <CODE>null</CODE> if it cannot guess.
+   * @param filename A filename with an extension. Must not be <CODE>null</CODE>.
+   * @param defaultType The default type if we can't guess. Can be <CODE>null</CODE> in which case
+   *     <CODE>null</CODE> will be returned if we can't guess.
+   * @return String The guessed MIME type. Will return <CODE>defaultType</CODE> if it cannot guess.
+   *     If defaultType is <CODE>null</CODE>, will return <CODE>null</CODE> if it cannot guess.
    */
   public static String guessMimeType(File filename, String defaultType) {
     if (filename == null) throw new IllegalArgumentException("filename cannot be null");
@@ -318,10 +270,10 @@ public abstract class PSContentFactory {
   /**
    * Returns the mimetype associated with the supplied file extension.
    *
-   * @param ext The file extension, if <code>null</code> or empty returns
-   * <code>null</code> for mimetype. Leading dots are stripped.
-   * @return mimetype may be <code>null</code>. If the extension is not part
-   * of the mimemap.properties file.
+   * @param ext The file extension, if <code>null</code> or empty returns <code>null</code> for
+   *     mimetype. Leading dots are stripped.
+   * @return mimetype may be <code>null</code>. If the extension is not part of the
+   *     mimemap.properties file.
    */
   public static String guessMimeType(String ext) {
     if (StringUtils.isBlank(ext)) return null;
@@ -331,6 +283,7 @@ public abstract class PSContentFactory {
 
   /**
    * Returns the list of supported mime types in ascending order.
+   *
    * @return String array of supported mime types
    */
   public static String[] getSupportedMimeTypes() {
@@ -346,19 +299,15 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * <B>Not implemented</B>: Returns an input stream that will properly
-   * decode the transfer encoding of the MIME content. If there is no
-   * transfer encoding (if the encoding is raw binary), it will return
-   * the a stream to the raw data, untransformed.
+   * <B>Not implemented</B>: Returns an input stream that will properly decode the transfer encoding
+   * of the MIME content. If there is no transfer encoding (if the encoding is raw binary), it will
+   * return the a stream to the raw data, untransformed.
    *
    * @param mime The MIME content to be decoded. Must not be <CODE>null</CODE>.
-   *
-   * @return An input stream which presents a decoded version of the
-   * content. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If the content transfer encoding specified in
-   * the MIME content is not supported.
-   *
+   * @return An input stream which presents a decoded version of the content. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If the content transfer encoding specified in the MIME content is not
+   *     supported.
    * @todo Implement at least base64 decoding using filter streams
    */
   public static InputStream getDecodedInput(IPSMimeContent mime) throws IOException {
@@ -372,19 +321,14 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Gets a reader for the given content. If the content does not
-   * represent character data, an IllegalArgumentException will
-   * be thrown.
+   * Gets a reader for the given content. If the content does not represent character data, an
+   * IllegalArgumentException will be thrown.
    *
-   * @param mime The content to be read. The character encoding
-   * specified in this content will be used to construct the
-   * reader. Must not be <CODE>null</CODE>.
-   *
-   * @return A reader that properly converts the content bytes
-   * into characters. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
+   * @param mime The content to be read. The character encoding specified in this content will be
+   *     used to construct the reader. Must not be <CODE>null</CODE>.
+   * @return A reader that properly converts the content bytes into characters. Never <CODE>null
+   *     </CODE>.
+   * @throws IOException If an error occurred related to the content stream.
    */
   public static Reader getReader(IPSMimeContent mime) throws IOException {
     if (mime == null) throw new IllegalArgumentException("mime cannot be null");
@@ -395,44 +339,30 @@ public abstract class PSContentFactory {
   /**
    * Parses an XML document from the given content.
    *
-   * @param mime The content representing an XML document. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param mime The content representing an XML document. Must not be <CODE>null</CODE>.
    * @return A parsed XML document. Never <CODE>null</CODE>.
-   *
-   * @throws IOException If an error occurred related to the content
-   * stream.
-   *
+   * @throws IOException If an error occurred related to the content stream.
    * @throws SAXException If a parse error occurred.
-   *
    */
   public static Document getDocument(IPSMimeContent mime) throws IOException, SAXException {
     return PSXmlDocumentBuilder.createXmlDocument(getReader(mime), false);
   }
 
   /**
-   * Loads the given file from disk. If the file extension reflects
-   * an HTML or XML type that we understand, it corrects the file and
-   * puts it in UTF-8 format, and returns the corrected version
-   * (which may or may not point to another, distinct, disk file).
-   * The contents of the original file will not be modified in
-   * any way.
-   * <P>
-   * If the file extension reflects any other type, we try to guess
-   * the MIME type based on common file extensions, but we do no
-   * processing to the file's contents.
-   * <P>
-   * It is the caller's responsibility to close the returned
-   * content stream when he is finished.
+   * Loads the given file from disk. If the file extension reflects an HTML or XML type that we
+   * understand, it corrects the file and puts it in UTF-8 format, and returns the corrected version
+   * (which may or may not point to another, distinct, disk file). The contents of the original file
+   * will not be modified in any way.
+   *
+   * <p>If the file extension reflects any other type, we try to guess the MIME type based on common
+   * file extensions, but we do no processing to the file's contents.
+   *
+   * <p>It is the caller's responsibility to close the returned content stream when he is finished.
    *
    * @param f The filename. Must not be <CODE>null</CODE>.
-   *
-   * @return   IPSMimeContent The correctly typed MIME input. Never
-   * <CODE>null</CODE>.
-   *
-   * @throws   IOException If the type of file cannot be determined,
-   * if the given file cannot be found, or any other kind of I/O
-   * error occurred.
+   * @return IPSMimeContent The correctly typed MIME input. Never <CODE>null</CODE>.
+   * @throws IOException If the type of file cannot be determined, if the given file cannot be
+   *     found, or any other kind of I/O error occurred.
    */
   public static IPSMimeContent loadFile(File f) throws IOException {
     if (f == null) {
@@ -457,20 +387,15 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Loads the given XML file from disk, corrects it and puts it in
-   * UTF-8 format, and returns the corrected version (which may or
-   * may not point to another, distinct, disk file). The contents
-   * of the original file will not be modified in any way.
-   * <P>
-   * It is the caller's responsibility to close the returned
-   * content stream when he is finished.
+   * Loads the given XML file from disk, corrects it and puts it in UTF-8 format, and returns the
+   * corrected version (which may or may not point to another, distinct, disk file). The contents of
+   * the original file will not be modified in any way.
+   *
+   * <p>It is the caller's responsibility to close the returned content stream when he is finished.
    *
    * @param f The filename. Must not be <CODE>null</CODE>.
-   *
-   * @return   IPSMimeContent The (possibly corrected) content.
-   * Never <CODE>null</CODE>.
-   *
-   * @throws   IOException If an I/O error occurs.
+   * @return IPSMimeContent The (possibly corrected) content. Never <CODE>null</CODE>.
+   * @throws IOException If an I/O error occurs.
    */
   public static IPSMimeContent loadXmlFile(File f) throws IOException {
     if (f == null) throw new IllegalArgumentException("f cannot be null");
@@ -488,20 +413,15 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Loads the given XSL file from disk, corrects it and puts it in
-   * UTF-8 format, and returns the corrected version (which may or
-   * may not point to another, distinct, disk file). The contents
-   * of the original file will not be modified in any way.
-   * <P>
-   * It is the caller's responsibility to close the returned
-   * content stream when he is finished.
+   * Loads the given XSL file from disk, corrects it and puts it in UTF-8 format, and returns the
+   * corrected version (which may or may not point to another, distinct, disk file). The contents of
+   * the original file will not be modified in any way.
+   *
+   * <p>It is the caller's responsibility to close the returned content stream when he is finished.
    *
    * @param f The filename. Must not be <CODE>null</CODE>.
-   *
-   * @return   IPSMimeContent The (possibly corrected) content.
-   * Never <CODE>null</CODE>.
-   *
-   * @throws   IOException If an I/O error occurs.
+   * @return IPSMimeContent The (possibly corrected) content. Never <CODE>null</CODE>.
+   * @throws IOException If an I/O error occurs.
    */
   public static IPSMimeContent loadDtdFile(File f) throws IOException {
     if (f == null) throw new IllegalArgumentException("f cannot be null");
@@ -519,20 +439,15 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Loads the given XSL file from disk, corrects it and puts it in
-   * UTF-8 format, and returns the corrected version (which may or
-   * may not point to another, distinct, disk file). The contents
-   * of the original file will not be modified in any way.
-   * <P>
-   * It is the caller's responsibility to close the returned
-   * content stream when he is finished.
+   * Loads the given XSL file from disk, corrects it and puts it in UTF-8 format, and returns the
+   * corrected version (which may or may not point to another, distinct, disk file). The contents of
+   * the original file will not be modified in any way.
+   *
+   * <p>It is the caller's responsibility to close the returned content stream when he is finished.
    *
    * @param f The filename. Must not be <CODE>null</CODE>.
-   *
-   * @return   IPSMimeContent The (possibly corrected) content.
-   * Never <CODE>null</CODE>.
-   *
-   * @throws   IOException If an I/O error occurs.
+   * @return IPSMimeContent The (possibly corrected) content. Never <CODE>null</CODE>.
+   * @throws IOException If an I/O error occurs.
    */
   public static IPSMimeContent loadXslFile(File f) throws IOException {
     if (f == null) throw new IllegalArgumentException("f cannot be null");
@@ -550,24 +465,18 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Loads an XML, XSL, or DTD file from disk, corrects it, and returns
-   * the purgable temp file which contains the corrected version.
+   * Loads an XML, XSL, or DTD file from disk, corrects it, and returns the purgable temp file which
+   * contains the corrected version.
    *
    * @param f The original filename. Must not be null.
-   *
-   * @param initialEnc The initial encoding to use when reading the file.
-   * Must not be <CODE>null</CODE>.
-   *
-   * @param fileType The filetype, "XSL", "DTD", or "XSL" to use as the
-   * extension when creating the corrected file. Must not be
-   * <CODE>null</CODE>, and must reflect the actual type of the file.
-   *
-   * @return The purgable temp file of the corrected version. Never
-   *    <code>null</code>. It is the caller's responsibility to delete the
-   *    temp file.
-   *
-   * @throws IOException If file is too large, empty, unreadable or any I/O
-   *    failures.
+   * @param initialEnc The initial encoding to use when reading the file. Must not be <CODE>null
+   *     </CODE>.
+   * @param fileType The filetype, "XSL", "DTD", or "XSL" to use as the extension when creating the
+   *     corrected file. Must not be <CODE>null</CODE>, and must reflect the actual type of the
+   *     file.
+   * @return The purgable temp file of the corrected version. Never <code>null</code>. It is the
+   *     caller's responsibility to delete the temp file.
+   * @throws IOException If file is too large, empty, unreadable or any I/O failures.
    */
   public static PSPurgableTempFile loadXmlFile(File f, String initialEnc, String fileType)
       throws IOException {
@@ -607,23 +516,16 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Corrects an XML, DTD, or XSL file, puts it in the correct encoding,
-   * then returns the purgable temp file which contains the corrected version.
+   * Corrects an XML, DTD, or XSL file, puts it in the correct encoding, then returns the purgable
+   * temp file which contains the corrected version.
    *
-   * @param in The in-memory version of the document. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @param encoding The initial character encoding to use when reading the
-   * document. This will be superceded by any encoding specified in the
-   * document itself. Must not be <CODE>null</CODE>.
-   *
-   * @param fileType The filetype (must be one of "XML", "DTD", or "XSL",
-   * and must represent the type of the file. Must not be <CODE>null</CODE>.
-   *
-   * @return The purgable temp file of the corrected version.
-   *    Never <code>null</code>. It is the caller's responsibility to delete
-   *    the temp file.
-   *
+   * @param in The in-memory version of the document. Must not be <CODE>null</CODE>.
+   * @param encoding The initial character encoding to use when reading the document. This will be
+   *     superceded by any encoding specified in the document itself. Must not be <CODE>null</CODE>.
+   * @param fileType The filetype (must be one of "XML", "DTD", or "XSL", and must represent the
+   *     type of the file. Must not be <CODE>null</CODE>.
+   * @return The purgable temp file of the corrected version. Never <code>null</code>. It is the
+   *     caller's responsibility to delete the temp file.
    * @throws IOException If an IO error occurred.
    */
   private static PSPurgableTempFile correctXmlFile(
@@ -707,14 +609,11 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Extracts the XML character encoding from a line that looks like
-   * <CODE>&lt;?xml ... encoding='xxx'?&gt;</CODE> or
-   * <CODE>&lt;?xml ... encoding="xxx"?&gt;</CODE>
+   * Extracts the XML character encoding from a line that looks like <CODE>
+   * &lt;?xml ... encoding='xxx'?&gt;</CODE> or <CODE>&lt;?xml ... encoding="xxx"?&gt;</CODE>
    *
    * @param line The XML header line. Must not be <CODE>null</CODE>.
-   *
-   * @return The encoding specified in the line, or <CODE>null</CODE>
-   * if it could not be found.
+   * @return The encoding specified in the line, or <CODE>null</CODE> if it could not be found.
    */
   private static String extractXmlEncoding(String line) {
     if (line == null) throw new IllegalArgumentException("line cannot be null");
@@ -754,16 +653,11 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Save the given content to the given disk file, overwriting
-   * any existing file by that name. The content stream will be
-   * closed after reading.
+   * Save the given content to the given disk file, overwriting any existing file by that name. The
+   * content stream will be closed after reading.
    *
-   * @param fileName The named file to be saved. Must not be
-   * <CODE>null</CODE>.
-   *
-   * @param content The content of the file. Must not be
-   * <CODE>null</CODE>.
-   *
+   * @param fileName The named file to be saved. Must not be <CODE>null</CODE>.
+   * @param content The content of the file. Must not be <CODE>null</CODE>.
    * @throws IOException If an IO error occurred.
    */
   public static void saveFile(File fileName, IPSMimeContent content) throws IOException {
@@ -784,22 +678,14 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Copies all of the bytes from the InputStream to the
-   * OutputStream. Neither stream will be closed.
+   * Copies all of the bytes from the InputStream to the OutputStream. Neither stream will be
+   * closed.
    *
-   * @author   chad loder
-   *
-   * @param in The input stream from which all bytes will be read. Must
-   * not be <CODE>null</CODE>.
-   *
-   * @param out The output stream to which all bytes will be written. Must
-   * not be <CODE>null</CODE>.
-   *
-   * @param   bufSize The read/write increment buffer size to use. Must
-   * be greater than 0.
-   *
+   * @author chad loder
+   * @param in The input stream from which all bytes will be read. Must not be <CODE>null</CODE>.
+   * @param out The output stream to which all bytes will be written. Must not be <CODE>null</CODE>.
+   * @param bufSize The read/write increment buffer size to use. Must be greater than 0.
    * @return long The number of bytes written. Never < 0.
-   *
    * @throws IOException If an IO error occurred.
    */
   public static long copyStream(InputStream in, OutputStream out, int bufSize) throws IOException {
@@ -824,17 +710,13 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Loads the given disk file, without translating using UTF-8
-   * format, since static files are not converted to UTF-8 when stored.
-   * This file may or may not point to another, distinct, disk file.
+   * Loads the given disk file, without translating using UTF-8 format, since static files are not
+   * converted to UTF-8 when stored. This file may or may not point to another, distinct, disk file.
    * The contents of the original file will not be modified in any way.
    *
    * @param f The filename. Must not be <CODE>null</CODE>.
-   *
    * @return The (possibly corrected) content. Never <CODE>null</CODE>.
-   *
    * @throws IOException If an IO error occurred.
-   *
    * @throws HTMLException If a parse error occurred.
    */
   public static IPSMimeContent loadHtmlFile(File f) throws IOException, HTMLException {
@@ -861,44 +743,32 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Seamlessly joins a parsed partial tree with the rest of the unparsed
-   * characters and writes the output in UTF-8 format to the given output
-   * stream.
-   * <P>
-   * This is somewhat complicated, due to a chicken-and-egg problem with
-   * HTML file encoding. You have to read the HTML file in order to determine
-   * its encoding, but you cannot read anything correctly without knowing
-   * the encoding. So what we do is a partial parse up to the encoding
-   * specification (tentatively using one encoding), then if we guessed
-   * the encoding incorrectly, we close and re-read the file in that
-   * encoding. If we guessed correctly, then we don't bother re-reading,
-   * we simply prettyprint our partial parse tree up until where we stopped
-   * parsing, then print the rest of the unparsed characters with no
-   * modification. This requires a very exact behavior on the parser's
-   * part -- every character it reads must go into the parse tree
-   * immediately. It cannot buffer ahead, otherwise the buffered characters
-   * would get lost in the resulting version (because they would not be
-   * in the parse tree nor would they be in the unparsed output). Our
-   * HTML parser is designed to meet these requirements.
+   * Seamlessly joins a parsed partial tree with the rest of the unparsed characters and writes the
+   * output in UTF-8 format to the given output stream.
    *
-   * @param out The output stream to which the joined HTML will be
-   * written. Must not be <CODE>null</CODE>.
+   * <p>This is somewhat complicated, due to a chicken-and-egg problem with HTML file encoding. You
+   * have to read the HTML file in order to determine its encoding, but you cannot read anything
+   * correctly without knowing the encoding. So what we do is a partial parse up to the encoding
+   * specification (tentatively using one encoding), then if we guessed the encoding incorrectly, we
+   * close and re-read the file in that encoding. If we guessed correctly, then we don't bother
+   * re-reading, we simply prettyprint our partial parse tree up until where we stopped parsing,
+   * then print the rest of the unparsed characters with no modification. This requires a very exact
+   * behavior on the parser's part -- every character it reads must go into the parse tree
+   * immediately. It cannot buffer ahead, otherwise the buffered characters would get lost in the
+   * resulting version (because they would not be in the parse tree nor would they be in the
+   * unparsed output). Our HTML parser is designed to meet these requirements.
    *
-   * @param remainder The remainder of the unparsed output. Must not
-   * be <CODE>null</CODE>.
-   *
-   * @param start The start of our pretty printing. To recreate the input
-   * document exactly, this should be the root of the parse tree, but
-   * it does not have to be the root. This node and all its children
-   * up to and including <CODE>stop</CODE> will be written, but none of
-   * this node's siblings will be printed. Must not be <CODE>null</CODE>.
-   *
-   * @param stop The stop of our pretty printing. This must be a child of
-   * <CODE>start</CODE>, otherwise results are undefined. This
-   * will be the last node written. Must not be <CODE>null</CODE>.
-   *
+   * @param out The output stream to which the joined HTML will be written. Must not be <CODE>null
+   *     </CODE>.
+   * @param remainder The remainder of the unparsed output. Must not be <CODE>null</CODE>.
+   * @param start The start of our pretty printing. To recreate the input document exactly, this
+   *     should be the root of the parse tree, but it does not have to be the root. This node and
+   *     all its children up to and including <CODE>stop</CODE> will be written, but none of this
+   *     node's siblings will be printed. Must not be <CODE>null</CODE>.
+   * @param stop The stop of our pretty printing. This must be a child of <CODE>start</CODE>,
+   *     otherwise results are undefined. This will be the last node written. Must not be <CODE>null
+   *     </CODE>.
    * @throws IOException If an I/O error occurs.
-   *
    * @see PSHtmlParser#writeHtmlTree
    */
   /*
@@ -928,16 +798,12 @@ public abstract class PSContentFactory {
   */
 
   /**
-   * Dumps all characters from the given reader to the given
-   * writer.
+   * Dumps all characters from the given reader to the given writer.
    *
-   * @param  in The reader to read from. Must not be <CODE>null</CODE>.
-   * @param  out The writer to write to. Must not be <CODE>null</CODE>.
-   *
+   * @param in The reader to read from. Must not be <CODE>null</CODE>.
+   * @param out The writer to write to. Must not be <CODE>null</CODE>.
    * @return The number of characters read/written. Always >= 0.
-   *
    * @throws IOException If an I/O error occurs.
-   *
    */
   private static long dumpReader(Reader in, Writer out) throws IOException {
     if (in == null) throw new IllegalArgumentException("in cannot be null");
@@ -958,23 +824,18 @@ public abstract class PSContentFactory {
   }
 
   /**
-   * Reads at most <CODE>len</CODE> bytes from <CODE>in</CODE> into memory
-   * and returns a ByteArrayInputStream to the in-memory bytes. If at
-   * least <CODE>len</CODE> bytes can be read from <CODE>in</CODE>, then
-   * exactly <CODE>len</CODE> bytes <I>will</I> be read (even if multiple
+   * Reads at most <CODE>len</CODE> bytes from <CODE>in</CODE> into memory and returns a
+   * ByteArrayInputStream to the in-memory bytes. If at least <CODE>len</CODE> bytes can be read
+   * from <CODE>in</CODE>, then exactly <CODE>len</CODE> bytes <I>will</I> be read (even if multiple
    * reads are necessary).
    *
-   * @param in The input stream from which bytes are to be read. No more
-   * than <CODE>len</CODE> bytes will be read from this stream, and it
-   * will not be closed. Must not be <CODE>null</CODE>.
-   *
-   * @param len The maximum number of bytes that should be read. If
-   * there are at least <CODE>len</CODE> bytes available to be read,
-   * then exactly <CODE>len</CODE> bytes will be read. Must be > 0.
-   *
-   * @return An in-memory input stream containing at most <CODE>len</CODE>
-   * bytes from the given input stream. Never <CODE>null</CODE>.
-   *
+   * @param in The input stream from which bytes are to be read. No more than <CODE>len</CODE> bytes
+   *     will be read from this stream, and it will not be closed. Must not be <CODE>null</CODE>.
+   * @param len The maximum number of bytes that should be read. If there are at least <CODE>len
+   *     </CODE> bytes available to be read, then exactly <CODE>len</CODE> bytes will be read. Must
+   *     be > 0.
+   * @return An in-memory input stream containing at most <CODE>len</CODE> bytes from the given
+   *     input stream. Never <CODE>null</CODE>.
    * @throws IOException If an I/O error occurs.
    */
   private static ByteArrayInputStream readIntoMem(InputStream in, int len) throws IOException {
@@ -1140,16 +1001,12 @@ public abstract class PSContentFactory {
     }
   }
 
-  /**
-   * Returns <code>true</code> if file can be read.
-   */
+  /** Returns <code>true</code> if file can be read. */
   private static boolean canBeRead(File f) {
     return f != null && f.canRead() && f.isFile();
   }
 
-  /**
-   * Retrieves root directory from {@link PSRhythmyxInfoLocator}.
-   */
+  /** Retrieves root directory from {@link PSRhythmyxInfoLocator}. */
   private static String getRootDirFromLocator() {
     return (String)
         PSRhythmyxInfoLocator.getRhythmyxInfo().getProperty(IPSRhythmyxInfo.Key.ROOT_DIRECTORY);

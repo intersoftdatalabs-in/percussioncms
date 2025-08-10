@@ -26,10 +26,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.SAXException;
 
-/**
- * Helper class for validating an xml file against a specified Schema
- * and for well-formed ness.
- */
+/** Helper class for validating an xml file against a specified Schema and for well-formed ness. */
 public class PSXmlValidator {
   /*
    * Private ctor to inhibit instantiation.
@@ -38,12 +35,11 @@ public class PSXmlValidator {
 
   /**
    * Validates an Xml file against a specified Xml Schema (xsd).
-   * @param XmlFile the xml file to be validated, cannot be <code>null</code>
-   * or empty.
-   * @param SchemaFile the xsd file to validate against,
-   * cannot be <code>null</code> or empty.
-   * @param errors list where errors will be stored.
-   * May be <code>null</code>, in which case no errors will be stored.
+   *
+   * @param XmlFile the xml file to be validated, cannot be <code>null</code> or empty.
+   * @param SchemaFile the xsd file to validate against, cannot be <code>null</code> or empty.
+   * @param errors list where errors will be stored. May be <code>null</code>, in which case no
+   *     errors will be stored.
    * @return <code>true</code> if xml is valid against schema and well formed.
    */
   public static boolean validateXmlAgainstSchema(

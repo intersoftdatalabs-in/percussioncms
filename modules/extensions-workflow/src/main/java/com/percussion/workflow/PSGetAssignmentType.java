@@ -30,23 +30,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class implements the UDF processor interface so it can be used as a
- * Rhythmyx function. See {@link #processUdf(Object[], IPSRequestContext)
- * processUdf} for a description. This UDF is sepcifically designed for Content
- * Explorer, though it can be theoretically used elsewhere.
- * <p>
- * This UDF evaluates the assignment type to an image given the contentid of the
- * item and image url options. Assignment value (which is a number) is evaluated
- * based on the current state of the workflow of the item. Currently supported
- * assignment types are defined in {@link com.percussion.workflow.PSWorkflowUtils}.
- * The UDF takes the content id as the first parameter and the rest are the image
- * url options for each possible assignmenttype in asending order by value.
- * <p>
- * The image urls can either be standard Applet Url in the syntax of
- * "../app/resource.gif" or the icon key. An icon key is simple text not starting
- * with "..". In the first case, the Content Explorer loads the image by executing
- * the url request. In latter case, the image is loaded from the Content Explorer
- * archive (com/percussion/cx/images/iconkey.gif). It is recommended that the
+ * This class implements the UDF processor interface so it can be used as a Rhythmyx function. See
+ * {@link #processUdf(Object[], IPSRequestContext) processUdf} for a description. This UDF is
+ * sepcifically designed for Content Explorer, though it can be theoretically used elsewhere.
+ *
+ * <p>This UDF evaluates the assignment type to an image given the contentid of the item and image
+ * url options. Assignment value (which is a number) is evaluated based on the current state of the
+ * workflow of the item. Currently supported assignment types are defined in {@link
+ * com.percussion.workflow.PSWorkflowUtils}. The UDF takes the content id as the first parameter and
+ * the rest are the image url options for each possible assignmenttype in asending order by value.
+ *
+ * <p>The image urls can either be standard Applet Url in the syntax of "../app/resource.gif" or the
+ * icon key. An icon key is simple text not starting with "..". In the first case, the Content
+ * Explorer loads the image by executing the url request. In latter case, the image is loaded from
+ * the Content Explorer archive (com/percussion/cx/images/iconkey.gif). It is recommended that the
  * images match the normal icon images in the content explorer.
  */
 public class PSGetAssignmentType extends PSSimpleJavaUdfExtension implements IPSUdfProcessor {

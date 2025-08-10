@@ -7,9 +7,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Implementation of the Group interface for legacy compatibility.
- */
+/** Implementation of the Group interface for legacy compatibility. */
 public class GroupImpl implements Group {
   private final String name;
   private final Set<Principal> members = new HashSet<>();

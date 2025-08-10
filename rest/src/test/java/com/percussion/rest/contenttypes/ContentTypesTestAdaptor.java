@@ -22,38 +22,38 @@ import java.util.List;
 
 public class ContentTypesTestAdaptor implements IContentTypesAdaptor {
 
-    /**
-     * List all content types available to the System.
-     *
-     * @param baseUri Requesting URI
-     * @return A list of all available Content Types
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri) {
-        return null;
-    }
+  /**
+   * List all content types available to the System.
+   *
+   * @param baseUri Requesting URI
+   * @return A list of all available Content Types
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri) {
+    return null;
+  }
 
-    /**
-     * List ContentTypes available for the specified Site.
-     *
-     * @param baseUri Originating URI
-     * @param siteId Site Id for Site to filter Types by
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-        return null;
-    }
+  /**
+   * List ContentTypes available for the specified Site.
+   *
+   * @param baseUri Originating URI
+   * @param siteId Site Id for Site to filter Types by
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri, int siteId) {
+    return null;
+  }
 
-    /**
-     * List ContentTypes available for the specified Site using a filter.
-     *
-     * @param baseUri Originating URI
-     * @param filter A ContentTypeFilter that can be used to filter content types.
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-        return null;
-    }
+  /**
+   * List ContentTypes available for the specified Site using a filter.
+   *
+   * @param baseUri Originating URI
+   * @param filter A ContentTypeFilter that can be used to filter content types.
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
+    return null;
+  }
 }

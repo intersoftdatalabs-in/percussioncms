@@ -38,25 +38,19 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This exit builds a cascaded menu item list XML document by making multiple
- * internal requests to a rhythmyx resource. The tree we get depends on the
- * backend table RXSYSCOMPONENTS and RXSYSCOMPONENTRELATIONS tables. The XML
- * docuemnt generated shall have the DTD as follows:
+ * This exit builds a cascaded menu item list XML document by making multiple internal requests to a
+ * rhythmyx resource. The tree we get depends on the backend table RXSYSCOMPONENTS and
+ * RXSYSCOMPONENTRELATIONS tables. The XML docuemnt generated shall have the DTD as follows:
  *
- * &lt;menuitem name="ca_inbox" id="20" type="2"&gt;
- *  &lt;displaytext&gt;Inbox&lt;/displaytext&gt;
- *  &lt;description&gt;Items assigned to me&lt;/description&gt;
- *  &lt;url&gt;http://10.10.10.56:9992/Rhythmyx/sys_ca/camain.html?sys_sortparam=title&amp;sys_componentname=ca_inbox&lt;/url&gt;
- *  &lt;userrolesurl&gt;http://127.0.0.1:9992/Rhythmyx/sys_cmpUserStatus/userstatus.xml?pssessionid=8037ca1cbcc8bd31e3db8b392d4fff8c62c9dacc&lt;/userrolesurl&gt;
- *  &lt;contexturl&gt;http://127.0.0.1:9992/Rhythmyx/sys_ComponentSupport/componentcontext.xml?pssessionid=8037ca1cbcc8bd31e3db8b392d4fff8c62c9dacc&amp;sys_componentid=20&lt;/contexturl&gt;
- *  &lt;componentname&gt;ca_inbox&lt;/componentname&gt;
- *  &lt;childitem id="1"/&gt;
- *  &lt;childitem id="2"/&gt;
- *  &lt;childitem id="6"/&gt;
- *  &lt;childitem id="7"/&gt;
- * &lt;/menuitem&gt;
+ * <p>&lt;menuitem name="ca_inbox" id="20" type="2"&gt; &lt;displaytext&gt;Inbox&lt;/displaytext&gt;
+ * &lt;description&gt;Items assigned to me&lt;/description&gt;
+ * &lt;url&gt;http://10.10.10.56:9992/Rhythmyx/sys_ca/camain.html?sys_sortparam=title&amp;sys_componentname=ca_inbox&lt;/url&gt;
+ * &lt;userrolesurl&gt;http://127.0.0.1:9992/Rhythmyx/sys_cmpUserStatus/userstatus.xml?pssessionid=8037ca1cbcc8bd31e3db8b392d4fff8c62c9dacc&lt;/userrolesurl&gt;
+ * &lt;contexturl&gt;http://127.0.0.1:9992/Rhythmyx/sys_ComponentSupport/componentcontext.xml?pssessionid=8037ca1cbcc8bd31e3db8b392d4fff8c62c9dacc&amp;sys_componentid=20&lt;/contexturl&gt;
+ * &lt;componentname&gt;ca_inbox&lt;/componentname&gt; &lt;childitem id="1"/&gt; &lt;childitem
+ * id="2"/&gt; &lt;childitem id="6"/&gt; &lt;childitem id="7"/&gt; &lt;/menuitem&gt;
  *
- * Multiple requests are made to expand each child item to menu item.
+ * <p>Multiple requests are made to expand each child item to menu item.
  */
 public class PSMenuTree implements IPSResultDocumentProcessor {
   /*
@@ -104,14 +98,14 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
   }
 
   /**
-   * This method is called recursively to render the child and/or parent items
-   * to render their children or parents.
-   * @param itemsRendered is a list all items rendered so far. List is different
-   *    for child treeand parent tree.
+   * This method is called recursively to render the child and/or parent items to render their
+   * children or parents.
+   *
+   * @param itemsRendered is a list all items rendered so far. List is different for child treeand
+   *     parent tree.
    * @param parent is the result element being built
    * @request <code>IPSRequestContext</code> object
-   * @param rxAppResource the Rhythmyx application resource for making internal
-   * request.
+   * @param rxAppResource the Rhythmyx application resource for making internal request.
    */
   private void processItem(
       ArrayList itemsRendered, Element parent, IPSRequestContext request, String rxAppResource) {
@@ -159,12 +153,12 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Helper function to return the first child element with iven name of a
-   * given paranet.
+   * Helper function to return the first child element with iven name of a given paranet.
+   *
    * @param parent, parent element - may be <code>null</code>
    * @param child, child element name may be <code>null</code>
-   * @return Child element with given name if exists, <code>null</code>
-   * otherwise or if the parent or child element name is <code>null</code>.
+   * @return Child element with given name if exists, <code>null</code> otherwise or if the parent
+   *     or child element name is <code>null</code>.
    */
   private Element getChildElement(Element parent, String child) {
     if (parent == null) return null;
@@ -178,9 +172,10 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
 
   /**
    * Helper function to get the text data of a given element
+   *
    * @param elem - Elelemnt to extract data of - may be <code>null</code>.
-   * @return element data represented by the first text child of the element.
-   * Empty string if the Element or its first child is <code>null</code>.
+   * @return element data represented by the first text child of the element. Empty string if the
+   *     Element or its first child is <code>null</code>.
    */
   private String getElementData(Element elem) {
     if (elem == null) return "";
@@ -191,8 +186,6 @@ public class PSMenuTree implements IPSResultDocumentProcessor {
     return "";
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String ms_fullExtensionName = "";
 }

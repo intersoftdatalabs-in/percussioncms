@@ -23,21 +23,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * This plugin modifies the values in a column by replacing space with "_"
- * according to the algorithm described by
- * {@link InstallUtil#modifyName(String)}.
+ * This plugin modifies the values in a column by replacing space with "_" according to the
+ * algorithm described by {@link InstallUtil#modifyName(String)}.
  */
 public class PSUpgradePluginSpaceToUnderscore extends PSUpgradePluginModifyColumnBase {
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public PSUpgradePluginSpaceToUnderscore() {}
 
   /**
-   * Replaces whitespace with "_" in the values from the given column of the
-   * given table.
+   * Replaces whitespace with "_" in the values from the given column of the given table.
    *
-   * See base class for additional details.
+   * <p>See base class for additional details.
    */
   public boolean modifyColumnValues(
       final Connection conn,

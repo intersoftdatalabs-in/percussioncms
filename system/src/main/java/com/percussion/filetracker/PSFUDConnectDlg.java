@@ -27,129 +27,104 @@ import javax.swing.*;
 import javax.swing.text.Keymap;
 
 /**
- * This displays a dialog box to connect to Rx server and get the content item
- * list. User needs to choose the server alias and supply userid and passwords.
- * The first empty input field gets the focus and OK is the default button.
- * Clicking CANCEL buton puts the application in offline mode, if a snapshot
- * exists, Application is colsed otherwise.
+ * This displays a dialog box to connect to Rx server and get the content item list. User needs to
+ * choose the server alias and supply userid and passwords. The first empty input field gets the
+ * focus and OK is the default button. Clicking CANCEL buton puts the application in offline mode,
+ * if a snapshot exists, Application is colsed otherwise.
  */
 public class PSFUDConnectDlg extends JDialog {
   // UI related variables are declared here
 
   /**
-   * Main panel for the dialog box. This will have a gridbag layout housing
-   * two panels, main panel and button panel.
+   * Main panel for the dialog box. This will have a gridbag layout housing two panels, main panel
+   * and button panel.
    */
   JPanel m_DialogPanel = new JPanel();
 
-  /**
-   * Layout used by the dialog panel - m_DialogPanel
-   */
+  /** Layout used by the dialog panel - m_DialogPanel */
   GridBagLayout m_GridBagLayoutDialog = new GridBagLayout();
 
   /**
-   * This is the first in the dialog panel with grid layout (4x1) housing four
-   * two panels for server alias, userid, password and version.
+   * This is the first in the dialog panel with grid layout (4x1) housing four two panels for server
+   * alias, userid, password and version.
    */
   JPanel m_MainPanel = new JPanel();
 
-  /**
-   * Layout used for main panel - m_MainPanel
-   */
+  /** Layout used for main panel - m_MainPanel */
   GridLayout m_GridLayoutMain = new GridLayout();
 
   /**
-   * This panel consists in of a label for server alias and a combobox to
-   * display a list of server aliases availabel in the configuration document.
-   * Uses a default layout (gridbag layout).
+   * This panel consists in of a label for server alias and a combobox to display a list of server
+   * aliases availabel in the configuration document. Uses a default layout (gridbag layout).
    */
   JPanel m_PanelServerAlias = new JPanel();
 
-  /**
-   * Label for server alias
-   */
+  /** Label for server alias */
   JLabel m_LabelServerAlias = new JLabel();
 
-  /**
-   * Combobox for server alias
-   */
+  /** Combobox for server alias */
   JComboBox m_ServerAlias = null;
 
   /**
-   * This panel consists in of a label for userid and a text field to input
-   * userid. Uses a default layout (gridbag layout).
+   * This panel consists in of a label for userid and a text field to input userid. Uses a default
+   * layout (gridbag layout).
    */
   JPanel m_PanelUserid = new JPanel();
 
-  /**
-   * Label for userid
-   */
+  /** Label for userid */
   JLabel m_LabelUserid = new JLabel();
 
-  /**
-   * Text field for userid
-   */
+  /** Text field for userid */
   JTextField m_Userid = new JTextField();
 
   /**
-   * This panel consists in of a label for password and a password field to
-   * input password. Uses a default layout (gridbag layout).
+   * This panel consists in of a label for password and a password field to input password. Uses a
+   * default layout (gridbag layout).
    */
   JPanel m_PanelPassword = new JPanel();
 
-  /**
-   * Label for password field
-   */
+  /** Label for password field */
   JLabel m_LabelPassord = new JLabel();
 
-  /**
-   * Password field
-   */
+  /** Password field */
   JPasswordField m_Password = new JPasswordField();
 
   /**
-   * This panel consists in of a label for displaying version String.
-   * Uses a default layout (gridbag layout).
+   * This panel consists in of a label for displaying version String. Uses a default layout (gridbag
+   * layout).
    */
   JPanel m_PanelVersion = new JPanel();
 
-  /**
-   * Label for Vesion string
-   */
+  /** Label for Vesion string */
   JLabel m_LabelVersion = new JLabel();
 
   /**
-   * This is the second panel the dialog panel with grid layout (3x1) housing
-   * OK button ,CANCEL button and label spacer.
+   * This is the second panel the dialog panel with grid layout (3x1) housing OK button ,CANCEL
+   * button and label spacer.
    */
   JPanel m_PanelButtons = new JPanel();
 
-  /**
-   * Layout used by m_PanelButtons
-   */
+  /** Layout used by m_PanelButtons */
   GridLayout m_GridLayoutButtons = new GridLayout();
 
-  /**
-   * A spacer, must have empty text
-   */
+  /** A spacer, must have empty text */
   JLabel m_LabelSpace1 = new JLabel();
 
   /**
-   * OK button clicking which the content item list metadata is loaded from
-   * the Rx server and the window is refreshed if load succeeds. Dialog box is
-   * redisplayed if load fails.
+   * OK button clicking which the content item list metadata is loaded from the Rx server and the
+   * window is refreshed if load succeeds. Dialog box is redisplayed if load fails.
    */
   JButton m_ButtonOK = new JButton();
 
   /**
-   * CANCEL button clicking which will put the application in offline mode if
-   * snapshot exists otherwise application closes.
+   * CANCEL button clicking which will put the application in offline mode if snapshot exists
+   * otherwise application closes.
    */
   JButton m_ButtonCancel = new JButton();
 
   /**
-   * Constructor that takes the parent Frame object and the dialogbox title.
-   * This dialog box is always a modal.
+   * Constructor that takes the parent Frame object and the dialogbox title. This dialog box is
+   * always a modal.
    */
   public PSFUDConnectDlg(JFrame frame, String title) throws PSFUDInvalidConfigFileException {
     super(frame, title, true);
@@ -160,14 +135,12 @@ public class PSFUDConnectDlg extends JDialog {
   }
 
   /**
-   * Initialize the dialog box with all default field values. The server alias
-   * combobox is populated with the list obtained from the configuration file.
-   * Current alias from the config document is set selected in the combobox.
-   * The cursor is set to first non empty field. OK button is made default
-   * button.
+   * Initialize the dialog box with all default field values. The server alias combobox is populated
+   * with the list obtained from the configuration file. Current alias from the config document is
+   * set selected in the combobox. The cursor is set to first non empty field. OK button is made
+   * default button.
    *
    * @throws if the configuration document does have any server aliases listed.
-   *
    */
   private void init() throws PSFUDInvalidConfigFileException {
     m_ServerAlias = new JComboBox(MainFrame.getConfig().getServerAliases());
@@ -290,7 +263,6 @@ public class PSFUDConnectDlg extends JDialog {
    * Get method that returns the selected server alias
    *
    * @return server alias as String
-   *
    */
   public String getServerAlias() {
     return m_ServerAlias.getSelectedItem().toString();
@@ -300,7 +272,6 @@ public class PSFUDConnectDlg extends JDialog {
    * Get method that returns userid
    *
    * @return userid as String
-   *
    */
   public String getUserid() {
     return m_Userid.getText();
@@ -310,15 +281,14 @@ public class PSFUDConnectDlg extends JDialog {
    * Get method that returns the password
    *
    * @return unencrypted password alias as String
-   *
    */
   public String getPassword() {
     return new String(m_Password.getPassword());
   }
 
   /**
-   * Acion handler for OK button. If user clicks OK or ENTER button with empty
-   * value for userid, a message box is displayed waiting for the input.
+   * Acion handler for OK button. If user clicks OK or ENTER button with empty value for userid, a
+   * message box is displayed waiting for the input.
    */
   void ButtonOK_actionPerformed(ActionEvent e) {
     String tmp = m_Userid.getText();
@@ -331,26 +301,19 @@ public class PSFUDConnectDlg extends JDialog {
     dispose();
   }
 
-  /**
-   * Acion handler for Cancel. Exit value is set to CANCEL and dialog box
-   * is closed.
-   */
+  /** Acion handler for Cancel. Exit value is set to CANCEL and dialog box is closed. */
   void ButtonCancel_actionPerformed(ActionEvent e) {
     m_exit = CANCEL;
     dispose();
   }
 
-  /**
-   * Handle the system close event. Result is same as CANCEL
-   */
+  /** Handle the system close event. Result is same as CANCEL */
   void windowClosing(WindowEvent e) {
     m_exit = CANCEL;
     dispose();
   }
 
-  /**
-   * Refernce to PSFUDConfig object for convenience
-   */
+  /** Refernce to PSFUDConfig object for convenience */
   private static PSFUDConfig ms_FUDConfig = MainFrame.getConfig();
 
   /**
@@ -362,39 +325,30 @@ public class PSFUDConnectDlg extends JDialog {
     return m_exit;
   }
 
-  /**
-   * The storage for the exit performed.
-   */
+  /** The storage for the exit performed. */
   private int m_exit = -1;
 
-  /**
-   * The exit indicator for OK.
-   */
+  /** The exit indicator for OK. */
   public static final int OK = 1;
 
-  /**
-   * The exit indicator for Cancel.
-   */
+  /** The exit indicator for Cancel. */
   public static final int CANCEL = 2;
 }
 
 /**
- * Action Listener for OK button. Handles actionPerformed which just calles the
- * Dialog class's method ButtonOK_actionPerformed()
+ * Action Listener for OK button. Handles actionPerformed which just calles the Dialog class's
+ * method ButtonOK_actionPerformed()
  */
 class PSFUDConnectDlg_m_ButtonOK_actionAdapter implements ActionListener {
   PSFUDConnectDlg dlg;
 
-  /**
-   * Constructor taking the caller class instance.
-   */
+  /** Constructor taking the caller class instance. */
   PSFUDConnectDlg_m_ButtonOK_actionAdapter(PSFUDConnectDlg dlg) {
     this.dlg = dlg;
   }
 
   /**
-   * Handle the actionPerformed event. Just calles the caller's
-   * ButtonOK_actionPerformed() method.
+   * Handle the actionPerformed event. Just calles the caller's ButtonOK_actionPerformed() method.
    */
   public void actionPerformed(ActionEvent e) {
     dlg.ButtonOK_actionPerformed(e);
@@ -402,22 +356,20 @@ class PSFUDConnectDlg_m_ButtonOK_actionAdapter implements ActionListener {
 }
 
 /**
- * Action Listener for CANCEL button. Handles actionPerformed which just calles
- * the Dialog class's method ButtonCancel_actionPerformed()
+ * Action Listener for CANCEL button. Handles actionPerformed which just calles the Dialog class's
+ * method ButtonCancel_actionPerformed()
  */
 class PSFUDConnectDlg_m_ButtonCancel_actionAdapter implements ActionListener {
   PSFUDConnectDlg dlg;
 
-  /**
-   * Constructor taking the caller class instance.
-   */
+  /** Constructor taking the caller class instance. */
   PSFUDConnectDlg_m_ButtonCancel_actionAdapter(PSFUDConnectDlg dlg) {
     this.dlg = dlg;
   }
 
   /**
-   * Handle the actionPerformed event. Just calles the caller's
-   * ButtonCancel_actionPerformed() method.
+   * Handle the actionPerformed event. Just calles the caller's ButtonCancel_actionPerformed()
+   * method.
    */
   public void actionPerformed(ActionEvent e) {
     dlg.ButtonCancel_actionPerformed(e);

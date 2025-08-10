@@ -20,36 +20,31 @@ package com.percussion.monitor.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import java.util.Map;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-/**
- * Unit tests for monitor service.
- * Sunny Sal says: "Testing monitors, Bollywood style!"
- */
+/** Unit tests for monitor service. Sunny Sal says: "Testing monitors, Bollywood style!" */
 @Tag("IntegrationTest")
 public class PSMonitorServiceTest {
 
-    @Test
-    public void testMonitorReferences() {
-        var monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-        var extraMonitor = PSMonitorService.registerMonitor("EXTRA_TESTMONITOR", "testMonitorName");
-        monitor.setMessage("FUBAR");
-        monitor.setStatus("BARFU");
-        assertEquals(2, PSMonitorService.getMonitorDesignators().designator.size());
-        var wrapper = PSMonitorService.getMonitor("TESTMONITOR").getStats();
-        Map<?, ?> map = wrapper.getEntries();
-        assertEquals("FUBAR", map.get("message"));
-        assertEquals("BARFU", map.get("status"));
-    }
+  @Test
+  public void testMonitorReferences() {
+    var monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+    var extraMonitor = PSMonitorService.registerMonitor("EXTRA_TESTMONITOR", "testMonitorName");
+    monitor.setMessage("FUBAR");
+    monitor.setStatus("BARFU");
+    assertEquals(2, PSMonitorService.getMonitorDesignators().designator.size());
+    var wrapper = PSMonitorService.getMonitor("TESTMONITOR").getStats();
+    Map<?, ?> map = wrapper.getEntries();
+    assertEquals("FUBAR", map.get("message"));
+    assertEquals("BARFU", map.get("status"));
+  }
 
-    @Test
-    public void testDuplicateDesignation() {
-        var monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-        var monitorDeuce = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
-        // No assertion needed; just ensure no exception is thrown.
-    }
+  @Test
+  public void testDuplicateDesignation() {
+    var monitor = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+    var monitorDeuce = PSMonitorService.registerMonitor("TESTMONITOR", "testMonitorName");
+    // No assertion needed; just ensure no exception is thrown.
+  }
 }

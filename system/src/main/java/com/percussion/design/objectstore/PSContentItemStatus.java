@@ -21,22 +21,16 @@ import com.percussion.util.PSStringOperation;
 import java.util.List;
 import org.w3c.dom.Element;
 
-/**
- * The replacement values used for content item status information.
- */
+/** The replacement values used for content item status information. */
 public class PSContentItemStatus extends PSNamedReplacementValue {
   /**
    * Constructs a new content itme status from its XML representation.
    *
-   * @param source the XML element node to construct this object from, not
-   *    <code>null</code>.
-   * @param parent the Java object which is the parent of this object, may be
-   *    <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code> or empty.
+   * @param source the XML element node to construct this object from, not <code>null</code>.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty.
    * @throws IllegalArgumentException if source is <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public PSContentItemStatus(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -44,15 +38,12 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
   }
 
   /**
-   * Constructs a new content item status replacement value for the supplied
-   * name.
+   * Constructs a new content item status replacement value for the supplied name.
    *
-   * @param table the table name, this currently supports the CONTENTSTATUS,
-   *    WORKFLOWAPPS and STATES tables, assumed not <code>null</code>.
+   * @param table the table name, this currently supports the CONTENTSTATUS, WORKFLOWAPPS and STATES
+   *     tables, assumed not <code>null</code>.
    * @param column the column name, assumed not <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the supplied table name is not
-   * supported.
+   * @throws IllegalArgumentException if the supplied table name is not supported.
    */
   public PSContentItemStatus(String table, String column) {
     super(table.toUpperCase() + "." + column.toUpperCase());
@@ -61,15 +52,11 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
   }
 
   /**
-   * Constructs a new content item status replacement value for the supplied
-   * name.
+   * Constructs a new content item status replacement value for the supplied name.
    *
-   * @param tableCol The table and column names, in the form TABLE.COLUMN.
-   * This currently supports the CONTENTSTATUS, WORKFLOWAPPS and STATES tables,
-   * assumed not <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the supplied table name is not
-   * supported.
+   * @param tableCol The table and column names, in the form TABLE.COLUMN. This currently supports
+   *     the CONTENTSTATUS, WORKFLOWAPPS and STATES tables, assumed not <code>null</code>.
+   * @throws IllegalArgumentException if the supplied table name is not supported.
    */
   public PSContentItemStatus(String tableCol) {
     super(tableCol);
@@ -84,9 +71,8 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
   }
 
   /**
-   * Checks {@link #isSupportedTable(String)} for the supplied table and
-   * throws an {@link IllegalArgumentException} if it is not supported, or if
-   * it is <code>null</code> or empty.
+   * Checks {@link #isSupportedTable(String)} for the supplied table and throws an {@link
+   * IllegalArgumentException} if it is not supported, or if it is <code>null</code> or empty.
    *
    * @param table The table to check, may be <code>null</code> or empty.
    */
@@ -100,11 +86,10 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
   }
 
   /**
-   * Checks whether the supplied table is a supported table for this object.
-   * Currently supports the CONTENTSTATUS, WORKFLOWAPPS and STATES tables.
+   * Checks whether the supplied table is a supported table for this object. Currently supports the
+   * CONTENTSTATUS, WORKFLOWAPPS and STATES tables.
    *
    * @param table the table name, may not be <code>null</code> or empty.
-   *
    * @return <code>true</code> if it is supported, otherwise <code>false</code>
    */
   public static boolean isSupportedTable(String table) {
@@ -146,18 +131,12 @@ public class PSContentItemStatus extends PSNamedReplacementValue {
     return IPSObjectStoreErrors.RELATIONSHIP_PROPERTY_NAME_EMPTY;
   }
 
-  /**
-   * The value type associated with instances of this class.
-   */
+  /** The value type associated with instances of this class. */
   public static final String VALUE_TYPE = "ContentItemStatus";
 
-  /**
-   * The node name used in XML representations.
-   */
+  /** The node name used in XML representations. */
   public static final String XML_NODE_NAME = "PSXContentItemStatus";
 
-  /**
-   * A list of all supported tables names.
-   */
+  /** A list of all supported tables names. */
   public static final String[] SUPPORTED_TABLES = {"CONTENTSTATUS", "WORKFLOWAPPS", "STATES"};
 }

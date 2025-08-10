@@ -42,9 +42,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * This exit is used to produce database publisher documents that conform to
- * the sys_DatabasePublisher.dtd out of input documents conforming to the
- * markup.dtd.
+ * This exit is used to produce database publisher documents that conform to the
+ * sys_DatabasePublisher.dtd out of input documents conforming to the markup.dtd.
  */
 public class PSDatabasePublisher implements IPSResultDocumentProcessor {
 
@@ -141,10 +140,9 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   /**
    * Get the alias map out of the provided element.
    *
-   * @param aliases an element that contains all specified aliases, might be
-   *    <code>null</code>.
-   * @return a map of alias String objects as key and name String objects as
-   *    value, never <code>null</code>, might be empty.
+   * @param aliases an element that contains all specified aliases, might be <code>null</code>.
+   * @return a map of alias String objects as key and name String objects as value, never <code>null
+   *     </code>, might be empty.
    */
   private Map getAliasMap(Element aliases) {
     Map aliasMap = new HashMap();
@@ -162,10 +160,10 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   /**
    * Gets the replacement value for the specified alias.
    *
-   * @param alias the alias we want the replacement value for, assumed not
-   *    <code>null</code> or empty.
-   * @return the replacement value found for the supplied alias or the alias
-   *    if not found, never <code>null</code> or empty.
+   * @param alias the alias we want the replacement value for, assumed not <code>null</code> or
+   *     empty.
+   * @return the replacement value found for the supplied alias or the alias if not found, never
+   *     <code>null</code> or empty.
    */
   private String resolveAlias(String alias) {
     if (m_aliasMap != null && m_aliasMap.containsKey(alias)) return (String) m_aliasMap.get(alias);
@@ -309,14 +307,13 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Creates a new column element for the provided column node and append it
-   * to the supplied row.
+   * Creates a new column element for the provided column node and append it to the supplied row.
    *
-   * @param column the column node for which this creates a new column
-   *    element, assumed not <code>null</code>.
+   * @param column the column node for which this creates a new column element, assumed not <code>
+   *     null</code>.
    * @param target the target document, assumed not <code>null</code>.
-   * @param row the row element to which the newly created column will be
-   *    appended, assumed not <code>null</code>.
+   * @param row the row element to which the newly created column will be appended, assumed not
+   *     <code>null</code>.
    */
   private void addColumn(Node column, Document target, Element row) {
     Element columnElem = target.createElement(COLUMN_ELEM);
@@ -343,12 +340,11 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   }
 
   /**
-   * The markup of the supplied node list is checked for <rowid> markup. If
-   * <rowid> markup is provided, row list is one level deeper, otherwise
-   * the provided list is already the row list.
+   * The markup of the supplied node list is checked for <rowid> markup. If <rowid> markup is
+   * provided, row list is one level deeper, otherwise the provided list is already the row list.
    *
-   * @param rows a list of nodes to be tested if it already is the row list or
-   *    if we have to go one level deeper. Might be <code>null</code> or empty.
+   * @param rows a list of nodes to be tested if it already is the row list or if we have to go one
+   *     level deeper. Might be <code>null</code> or empty.
    * @return a NodeList of rows, might be <code>null</code> or empty.
    */
   private NodeList getRows(NodeList rows) {
@@ -365,14 +361,11 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
   }
 
   /**
-   * Makes an internal lookup request for the supplided resource and returns
-   * its document element.
+   * Makes an internal lookup request for the supplided resource and returns its document element.
    *
-   * @param request the request context to use for internal requests, assumed
-   *    not <code>null</code>.
+   * @param request the request context to use for internal requests, assumed not <code>null</code>.
    * @param resource the resource to lookup, assumed not <code>null</code>.
-   * @return the document element of the lookup result, never
-   *    <code>null</code>.
+   * @return the document element of the lookup result, never <code>null</code>.
    * @throws PSExtensionProcessingException if the internal lookup fails.
    */
   private Element lookup(IPSRequestContext request, String resource)
@@ -408,29 +401,25 @@ public class PSDatabasePublisher implements IPSResultDocumentProcessor {
     throw new PSExtensionProcessingException(0, "Invalid action specified: " + action);
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private static String ms_fullExtensionName = "";
 
   /**
-   * The number of parameters provided for this exit. Initially set to
-   * NOT_INITIALIZED to reflect that the #init(IPSExtensionDef, File) method
-   * has not been called yet. Is set during the first call to #init(
-   * IPSExtensionDef, File).
+   * The number of parameters provided for this exit. Initially set to NOT_INITIALIZED to reflect
+   * that the #init(IPSExtensionDef, File) method has not been called yet. Is set during the first
+   * call to #init( IPSExtensionDef, File).
    */
   public static int ms_paramCount = NOT_INITIALIZED;
 
   /**
-   * A map of alias String objects as key and name String objects as value.
-   * Initialized if <code>processResultDocument</code>, never <code>null</code>
-   * after that, might be empty.
+   * A map of alias String objects as key and name String objects as value. Initialized if <code>
+   * processResultDocument</code>, never <code>null</code> after that, might be empty.
    */
   private Map m_aliasMap = null;
 
   /**
-   * All constants following define elements, attributes or attribute values
-   * from the sys_DatabasePublisher.dtd.
+   * All constants following define elements, attributes or attribute values from the
+   * sys_DatabasePublisher.dtd.
    */
   private static final String DATAPUBLISHER_ELEM = "datapublisher";
 

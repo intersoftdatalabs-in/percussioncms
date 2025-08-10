@@ -30,55 +30,42 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The PSOracleUpdateBuilder class is used to build SQL UPDATE statements.
- * It can be used to generate single table UPDATEs.  This class will be used
- * to utilize Oracle-specific extensions to JDBC to allow the update of
- * LOB columns when LOB columns are present.  When LOB columns are not
- * present, this builder will utilize its base class (PSSqlUpdateHandler)
- * to create normal JDBC-based statements.
+ * The PSOracleUpdateBuilder class is used to build SQL UPDATE statements. It can be used to
+ * generate single table UPDATEs. This class will be used to utilize Oracle-specific extensions to
+ * JDBC to allow the update of LOB columns when LOB columns are present. When LOB columns are not
+ * present, this builder will utilize its base class (PSSqlUpdateHandler) to create normal
+ * JDBC-based statements.
  *
- * @see         PSUpdateOptimizer
- * @see         PSSqlUpdateBuilder
+ * @see PSUpdateOptimizer
+ * @see PSSqlUpdateBuilder
  */
 public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   /**
-   * Construct an update builder to build the statements
-   * to do Oracle-specific updates when required.
+   * Construct an update builder to build the statements to do Oracle-specific updates when
+   * required.
    *
-   * @param table  The table to insert into.
-   *
-   * @throws PSIllegalArgumentException  When the super-class throws
-   *    this exception.
+   * @param table The table to insert into.
+   * @throws PSIllegalArgumentException When the super-class throws this exception.
    */
   PSOracleUpdateBuilder(PSBackEndTable table) throws PSIllegalArgumentException {
     super(table);
   }
 
   /**
-   * Build the column and placeholder list based upon the specified
-   * parameters. This can be used in an UPDATE statement's SET clause
-   * or in a DELETE or UPDATE's WHERE clause.  For Oracle we override
-   * this method so that we can check for LOB columns during processing.
-   * If none are found, we will simply call up to PSSqlUpdateBuilder.
+   * Build the column and placeholder list based upon the specified parameters. This can be used in
+   * an UPDATE statement's SET clause or in a DELETE or UPDATE's WHERE clause. For Oracle we
+   * override this method so that we can check for LOB columns during processing. If none are found,
+   * we will simply call up to PSSqlUpdateBuilder.
    *
-   * @param   context        the builder context
-   *
-   * @param   table          the table the statement is being built for
-   *
-   * @param   datatypes      the data type hash map containing the
-   *                         table.column to data type mapping
-   *
-   * @param   columnList     the columns to build into the statement
-   *
-   * @param   delimiter      the delimiter to use, such as ", " for SET
-   *                         clauses or " AND " for WHERE clauses
-   *
-   * @param   ignoreAutoIncrements
-   *                           <code>true</code> to omit columns which are
-   *                           auto-incremented by the server
-   *
-   * @return                   <code>true</code> if at least one column
-   *                           was used; <code>false</code> otherwise
+   * @param context the builder context
+   * @param table the table the statement is being built for
+   * @param datatypes the data type hash map containing the table.column to data type mapping
+   * @param columnList the columns to build into the statement
+   * @param delimiter the delimiter to use, such as ", " for SET clauses or " AND " for WHERE
+   *     clauses
+   * @param ignoreAutoIncrements <code>true</code> to omit columns which are auto-incremented by the
+   *     server
+   * @return <code>true</code> if at least one column was used; <code>false</code> otherwise
    */
   protected boolean buildColumnAndPlaceholderList(
       PSSqlBuilderContext context,
@@ -100,28 +87,18 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Build a column list of the form col1, col2, ..., coln. Any columns
-   * which are not updatable (eg, MS SQL identity columns) are not included
-   * in the list.   This overrides PSSqlUpdateBuilder functionality to
-   * allow for IPSLobColumnInitializers when Lob columns are present.
+   * Build a column list of the form col1, col2, ..., coln. Any columns which are not updatable (eg,
+   * MS SQL identity columns) are not included in the list. This overrides PSSqlUpdateBuilder
+   * functionality to allow for IPSLobColumnInitializers when Lob columns are present.
    *
-   * @param context The builder context for the specified statement,
-   *    never <code>null</code>.
-   *
-   * @param table   The back end table for the specified statement,
-   *    never <code>null</code>.
-   *
-   * @param dataTypes The map of data types.  Never <code>null</code>.
-   *
-   * @param usePlaceHolder <code>true</code> indicates this is a placeholder
-   *    pass for the statement, <code>false</code> indicates this is a column
-   *    name pass.
-   *
-   * @param columns The column list to add to the specified context.
-   *    Never <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException If a udf is found in the column list,
-   *    a specified column is not mapped, or no columns were found.
+   * @param context The builder context for the specified statement, never <code>null</code>.
+   * @param table The back end table for the specified statement, never <code>null</code>.
+   * @param dataTypes The map of data types. Never <code>null</code>.
+   * @param usePlaceHolder <code>true</code> indicates this is a placeholder pass for the statement,
+   *     <code>false</code> indicates this is a column name pass.
+   * @param columns The column list to add to the specified context. Never <code>null</code>.
+   * @throws PSIllegalArgumentException If a udf is found in the column list, a specified column is
+   *     not mapped, or no columns were found.
    */
   protected void buildColumnList(
       PSSqlBuilderContext context,
@@ -136,25 +113,18 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Build the LOB column list.  This list will be used to create the
-   * queries that are required to update the Oracle LOB types.
+   * Build the LOB column list. This list will be used to create the queries that are required to
+   * update the Oracle LOB types.
    *
-   * @param   context        the builder context
-   *
-   * @param   table          the table the statement is being built for
-   *
-   * @param   datatypes      the data type hash map containing the
-   *                         table.column to data type mapping
-   *
-   * @param   columnList     the columns to build into the statement
-   *
-   * @param   delimiter      the delimiter to use, such as ", " for SET
-   *                         clauses or " AND " for WHERE clauses
-   *
-   * @return                   <code>true</code> if at least one column
-   *                           was used; <code>false</code> otherwise
-   * @throws PSIllegalArgumentException  If a back-end mapping is found
-   *          which is not a PSBackEndColumn.
+   * @param context the builder context
+   * @param table the table the statement is being built for
+   * @param datatypes the data type hash map containing the table.column to data type mapping
+   * @param columnList the columns to build into the statement
+   * @param delimiter the delimiter to use, such as ", " for SET clauses or " AND " for WHERE
+   *     clauses
+   * @return <code>true</code> if at least one column was used; <code>false</code> otherwise
+   * @throws PSIllegalArgumentException If a back-end mapping is found which is not a
+   *     PSBackEndColumn.
    */
   protected boolean buildLobColumnList(
       PSSqlBuilderContext context,
@@ -198,9 +168,7 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   /**
    * Does the specified type map contain Lob types?
    *
-   * @param dataTypes The map of data types for this builder.  Can
-   *                   be <code>null</code>.
-   *
+   * @param dataTypes The map of data types for this builder. Can be <code>null</code>.
    * @return <code>true</code> if so, <code>false</code> if not
    */
   boolean typeMapContainsLobs(HashMap dataTypes) {
@@ -219,20 +187,14 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Return the Oracle-specific context for selecting the ROWIDs based
-   * on the supplied keys.
+   * Return the Oracle-specific context for selecting the ROWIDs based on the supplied keys.
    *
-   * @param table   The table to insert into.  Never <code>null</code>.
-   *
-   * @param login   The back end login.  Never <code>null</code>.
-   *
-   * @param dtHash  The data type map for this table.  Never <code>null</code>.
-   *
-   * @return  The builder context for retrieving the LOB columns for a single
-   *   row in this table.  Never <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException If any support method throws this
-   *    exception.
+   * @param table The table to insert into. Never <code>null</code>.
+   * @param login The back end login. Never <code>null</code>.
+   * @param dtHash The data type map for this table. Never <code>null</code>.
+   * @return The builder context for retrieving the LOB columns for a single row in this table.
+   *     Never <code>null</code>.
+   * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getRowIdsFromKeysContext(
       PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
@@ -254,26 +216,20 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Return the Oracle-specific context for selecting LOB-columns from rows
-   * based on ROWID.  The ROWID for this statement will not be bound, but
-   * is to be appended to the generated statement at execution time.
+   * Return the Oracle-specific context for selecting LOB-columns from rows based on ROWID. The
+   * ROWID for this statement will not be bound, but is to be appended to the generated statement at
+   * execution time.
    *
-   * <I>Example:<I>
-   *    <code>
+   * <p><I>Example:<I> <code>
    *    SELECT mydata from mytable WHERE ROWID =
    *    </code>
    *
-   * @param table   The table to insert into.  Never <code>null</code>.
-   *
-   * @param login   The back end login.  Never <code>null</code>.
-   *
-   * @param dtHash  The data type map for this table.  Never <code>null</code>.
-   *
-   * @return  The builder context for retrieving the LOB columns for a single
-   *   row in this table.  Never <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException If any support method throws this
-   *    exception.
+   * @param table The table to insert into. Never <code>null</code>.
+   * @param login The back end login. Never <code>null</code>.
+   * @param dtHash The data type map for this table. Never <code>null</code>.
+   * @return The builder context for retrieving the LOB columns for a single row in this table.
+   *     Never <code>null</code>.
+   * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getRowRetrievalByRowidContext(
       PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
@@ -297,25 +253,18 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Return the Oracle-specific context for updating a row based on
-   * rowid.  This will initialize all LOBs.
+   * Return the Oracle-specific context for updating a row based on rowid. This will initialize all
+   * LOBs.
    *
-   * <I>Example:<I>
-   *    <code>
+   * <p><I>Example:<I> <code>
    *    UPDATE myTable set mydata=empty_blob() WHERE ROWID = ?
    *    </code>
    *
-   * @param table   The table to insert into.  Never <code>null</code>.
-   *
-   * @param login   The back end login.  Never <code>null</code>.
-   *
-   * @param dtHash  The data type map for this table.  Never <code>null</code>.
-   *
-   * @return  The builder context for updating a row in this table.  Never
-   *    <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException If any support method throws this
-   *    exception.
+   * @param table The table to insert into. Never <code>null</code>.
+   * @param login The back end login. Never <code>null</code>.
+   * @param dtHash The data type map for this table. Never <code>null</code>.
+   * @return The builder context for updating a row in this table. Never <code>null</code>.
+   * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getSingleRowidUpdateContext(
       PSBackEndTable table, PSBackEndLogin login, HashMap dtHash)
@@ -341,29 +290,19 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Return the Oracle-specific context for inserting rows containing
-   * LOBs which can return ROWID.  This will be a callable statement
-   * with input parameters for all columns being set and an output
-   * parameter which will return the rowid for the inserted row.<B>
-   * <I>Example:<I>
-   *    <code>
+   * Return the Oracle-specific context for inserting rows containing LOBs which can return ROWID.
+   * This will be a callable statement with input parameters for all columns being set and an output
+   * parameter which will return the rowid for the inserted row.<B> <I>Example:<I> <code>
    *    DECLARE rid ROWID; BEGIN insert into mytable (myid, mydata)
    *    VALUES (?, empty_blob()) RETURNING ROWID into rid; ? := rid; EMD;
    *    </code>
    *
-   * @param table   The table to insert into.  Never <code>null</code>.
-   *
-   * @param login   The back end login.  Never <code>null</code>.
-   *
-   * @param dtHash  The data type map for this table.  Never <code>null</code>.
-   *
-   * @param columnList The list of columns to insert.  Never <code>null</code>.
-   *
-   * @return  The builder context for inserting a row into this table.  Never
-   *    <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException If any support method throws this
-   *    exception.
+   * @param table The table to insert into. Never <code>null</code>.
+   * @param login The back end login. Never <code>null</code>.
+   * @param dtHash The data type map for this table. Never <code>null</code>.
+   * @param columnList The list of columns to insert. Never <code>null</code>.
+   * @return The builder context for inserting a row into this table. Never <code>null</code>.
+   * @throws PSIllegalArgumentException If any support method throws this exception.
    */
   PSSqlBuilderContext getInsertContext(
       PSBackEndTable table, PSBackEndLogin login, HashMap dtHash, List columnList)
@@ -397,23 +336,16 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Validate the builder and its connection, returning the connection
-   * key and filling in the datatypes for the table member on success.
+   * Validate the builder and its connection, returning the connection key and filling in the
+   * datatypes for the table member on success.
    *
-   * @param   dtHash   The hashmap to fill in with the data types for
-   *                   the table which this builder is associated with.
-   *                   Never <code>null</code>
-   *
-   * @param   connKeys The map of connection keys, keyed on driver:server
-   *
-   * @param   logins   The list of back end logins, indexed by
-   *                   connection key.
-   *
-   * @return  The valid connection key for this builder.
-   *
-   * @throws PSIllegalArgumentException  If the builder does not have
-   *          one table defined, any argument is invalid or the connection
-   *          key is undefined.
+   * @param dtHash The hashmap to fill in with the data types for the table which this builder is
+   *     associated with. Never <code>null</code>
+   * @param connKeys The map of connection keys, keyed on driver:server
+   * @param logins The list of back end logins, indexed by connection key.
+   * @return The valid connection key for this builder.
+   * @throws PSIllegalArgumentException If the builder does not have one table defined, any argument
+   *     is invalid or the connection key is undefined.
    */
   int validateBuilderConnection(HashMap dtHash, ConcurrentHashMap connKeys, List logins)
       throws PSIllegalArgumentException {
@@ -428,25 +360,19 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * Generate the statement using the specified connection keys.  For
-   * Oracle, an update is the same as any other SQL update EXCEPT when
-   * there are LOB columns present.  In the case of LOB columns, we must
-   * first query the table based on the key columns to retrieve the ROWIDs
-   * for the columns we are interested in.  Each row identified by the
-   * specified ROWIDs must then be updated once to set the non-LOB columns
-   * and to initialize the LOB columns, and then queried so that the
-   * LOB columns can be updated with the values we have received to update
-   * them with.
+   * Generate the statement using the specified connection keys. For Oracle, an update is the same
+   * as any other SQL update EXCEPT when there are LOB columns present. In the case of LOB columns,
+   * we must first query the table based on the key columns to retrieve the ROWIDs for the columns
+   * we are interested in. Each row identified by the specified ROWIDs must then be updated once to
+   * set the non-LOB columns and to initialize the LOB columns, and then queried so that the LOB
+   * columns can be updated with the values we have received to update them with.
    *
-   * @param  logins    The list of logins.
-   *
-   * @param  connKeys  the hash table containing the driver:server
-   *                   as the key and the conn number as the value
-   *
+   * @param logins The list of logins.
+   * @param connKeys the hash table containing the driver:server as the key and the conn number as
+   *     the value
    * @return The PSUpdate-derived statement to process this update.
-   *
-   * @throws PSIllegalArgumentException If there are multiple tables
-   * or a PSDataExtractionException occurs.
+   * @throws PSIllegalArgumentException If there are multiple tables or a PSDataExtractionException
+   *     occurs.
    */
   PSUpdateStatement generate(java.util.List logins, ConcurrentHashMap connKeys)
       throws PSIllegalArgumentException {
@@ -478,22 +404,16 @@ public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   }
 
   /**
-   * The lob column initializer for this builder.
-   * <code>null</code> indicates that this builder has no lob
-   * columns.  Set in generate() prior to calling any of the
-   * get***Context methods in PSOracleUpdateBuilder if
-   * the column/placeholder build methods are to supply lob
-   * column initializers when creating replacement fields.
+   * The lob column initializer for this builder. <code>null</code> indicates that this builder has
+   * no lob columns. Set in generate() prior to calling any of the get***Context methods in
+   * PSOracleUpdateBuilder if the column/placeholder build methods are to supply lob column
+   * initializers when creating replacement fields.
    */
   protected IPSLobColumnInitializer m_lobColumnInitializer = null;
 
-  /**
-   * The value representing a Blob type value in a data type map.
-   */
+  /** The value representing a Blob type value in a data type map. */
   private static Integer BLOB_TYPE_VALUE = new Integer(java.sql.Types.BLOB);
 
-  /**
-   * The value representing a Clob type value in a data type map.
-   */
+  /** The value representing a Clob type value in a data type map. */
   private static Integer CLOB_TYPE_VALUE = new Integer(java.sql.Types.CLOB);
 }

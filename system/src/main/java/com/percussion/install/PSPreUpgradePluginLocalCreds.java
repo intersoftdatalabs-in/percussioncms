@@ -27,21 +27,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to scan the existing non-system applications looking for
- * any with “local” back-end credentials.  If any are found, a message will be
- * returned informing the user to make the appropriate modifications.
+ * This plugin has been written to scan the existing non-system applications looking for any with
+ * “local” back-end credentials. If any are found, a message will be returned informing the user to
+ * make the appropriate modifications.
  */
 public class PSPreUpgradePluginLocalCreds implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSPreUpgradePluginLocalCreds() {}
 
   /**
-   * Implements the process function of IPSUpgradePlugin. Scans all the
-   * non-system application files looking for "local" back-end credentials.
-   * If any are found, a message is returned informing the user to modify
-   * these applications.
+   * Implements the process function of IPSUpgradePlugin. Scans all the non-system application files
+   * looking for "local" back-end credentials. If any are found, a message is returned informing the
+   * user to modify these applications.
    *
    * @param config PSUpgradeModule object.
    * @param elemData We do not use this element in this function.
@@ -101,8 +98,8 @@ public class PSPreUpgradePluginLocalCreds implements IPSUpgradePlugin {
    * Determines if an application is a system application
    *
    * @param name the name of the application, never <code>null</code>
-   * @return <code>true</code> if the application is a system application,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the application is a system application, <code>false</code>
+   *     otherwise.
    */
   public static boolean isSystemApp(String name) {
     if (name == null) throw new IllegalArgumentException("name may not be null");
@@ -118,9 +115,8 @@ public class PSPreUpgradePluginLocalCreds implements IPSUpgradePlugin {
    * Helper function that scans an application for local back-end credentials.
    *
    * @param appFile - application file to scan, can not be <code>null</code>.
-   *
-   * @return - <code>true</code> if the application contains local back-end
-   * credentials, <code>false</code> otherwise.
+   * @return - <code>true</code> if the application contains local back-end credentials, <code>false
+   *     </code> otherwise.
    */
   private boolean hasLocalBECreds(File appFile) throws Exception {
     boolean localCreds = false;
@@ -142,8 +138,6 @@ public class PSPreUpgradePluginLocalCreds implements IPSUpgradePlugin {
     return localCreds;
   }
 
-  /**
-   * String constant for objectstore directory.
-   */
+  /** String constant for objectstore directory. */
   private static final String OBJECT_STORE_DIRECTORY = "ObjectStore";
 }

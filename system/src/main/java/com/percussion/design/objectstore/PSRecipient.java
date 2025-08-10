@@ -28,32 +28,23 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSRecipient class defines the mail notification settings for a
- * particular user. Notifications are sent based upon various errors
- * which may occur during request processing by an application.
+ * The PSRecipient class defines the mail notification settings for a particular user. Notifications
+ * are sent based upon various errors which may occur during request processing by an application.
  *
  * @see PSNotifier#getRecipients
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRecipient extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRecipient(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -61,18 +52,16 @@ public class PSRecipient extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSRecipient() {
     super();
   }
 
   /**
-   * Construct a recipient object for the specified user. It is enabled
-   * by default. No notification conditions are initially set.
+   * Construct a recipient object for the specified user. It is enabled by default. No notification
+   * conditions are initially set.
    *
-   * @param   name      the e-mail address of the recipient
+   * @param name the e-mail address of the recipient
    */
   public PSRecipient(java.lang.String name) throws PSIllegalArgumentException {
     super();
@@ -83,22 +72,19 @@ public class PSRecipient extends PSComponent {
   /**
    * Gets the e-mail address of the recipient.
    *
-   * @return     the e-mail address of the recipient
+   * @return the e-mail address of the recipient
    */
   public java.lang.String getName() {
     return m_name;
   }
 
   /**
-   * Sets the e-mail address of the recipient. The e-mail address is not
-   * verified as being a valid mail account. This may result in
-   * non-delivery errors at run-time.
-   *   This is limited to 255 characters.
+   * Sets the e-mail address of the recipient. The e-mail address is not verified as being a valid
+   * mail account. This may result in non-delivery errors at run-time. This is limited to 255
+   * characters.
    *
-   * @param      name   the e-mail address of the recipient
-   *
-   * @exception   PSIllegalArgumentException   if name is null, empty or
-   *                                          exceeds the specified limit
+   * @param name the e-mail address of the recipient
+   * @exception PSIllegalArgumentException if name is null, empty or exceeds the specified limit
    */
   public void setName(java.lang.String name) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateName(name);
@@ -121,19 +107,18 @@ public class PSRecipient extends PSComponent {
   /**
    * Is the sending of e-mail notifications to this recipient enabled?
    *
-   * @return     <code>true</code> if sending notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if sending notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isSendEnabled() {
     return ((m_options & MN_SEND_ENABLED) == MN_SEND_ENABLED);
   }
 
   /**
-   * Enable or disable the sending of e-mail notifications to this
-   * recipient.
+   * Enable or disable the sending of e-mail notifications to this recipient.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setSendEnabled(boolean enable) {
     if (enable) m_options |= MN_SEND_ENABLED;
@@ -141,28 +126,25 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification resent after the same error occurs a specified
-   * number of times?
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the number of times the error
-   * must recur before sending notification can help avoid such situations.
+   * Is notification resent after the same error occurs a specified number of times?
    *
-   * @return            <code>true</code> if the error threshold is
-   *                   based upon the number of times the error recurs,
-   *                   <code>false</code> otherwise
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the number of times the error must recur before sending
+   * notification can help avoid such situations.
+   *
+   * @return <code>true</code> if the error threshold is based upon the number of times the error
+   *     recurs, <code>false</code> otherwise
    */
   public boolean isErrorThresholdByCount() {
     return ((m_options & MN_ERROR_THRESHOLD_BY_COUNT) == MN_ERROR_THRESHOLD_BY_COUNT);
   }
 
   /**
-   * Enable resending notification after the same error occurs a specified
-   * number of times.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the number of times the error
-   * must recur before sending notification can help avoid such situations.
+   * Enable resending notification after the same error occurs a specified number of times.
+   *
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the number of times the error must recur before sending
+   * notification can help avoid such situations.
    */
 
   // Ravi      boolean parameter is included for this mathod
@@ -172,61 +154,53 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the number of times the same error must be encountered before
-   * notification is resent.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the number of times the error
-   * must recur before sending notification can help avoid such situations.
+   * Get the number of times the same error must be encountered before notification is resent.
    *
-   * @return            the number of times the same error must be
-   *                   encountered before notification is resent
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the number of times the error must recur before sending
+   * notification can help avoid such situations.
+   *
+   * @return the number of times the same error must be encountered before notification is resent
    */
   public int getErrorThresholdCount() {
     return m_errorThresholdCount;
   }
 
   /**
-   * Set the number of times the same error must be encountered before
-   * notification is resent.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the number of times the error
-   * must recur before sending notification can help avoid such situations.
+   * Set the number of times the same error must be encountered before notification is resent.
    *
-   * @param   count    the number of times the same error must be
-   *                   encountered before notification is resent
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the number of times the error must recur before sending
+   * notification can help avoid such situations.
+   *
+   * @param count the number of times the same error must be encountered before notification is
+   *     resent
    */
   public void setErrorThresholdCount(int count) {
     m_errorThresholdCount = count;
   }
 
   /**
-   * Is notification resent if the same error persists for the specified
-   * interval of time?
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the interval for which
-   * recurring errors must persist before sending notification can help
-   * avoid such situations. It can also be useful as a reminder to the
+   * Is notification resent if the same error persists for the specified interval of time?
+   *
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the interval for which recurring errors must persist before
+   * sending notification can help avoid such situations. It can also be useful as a reminder to the
    * administrator.
    *
-   * @return            <code>true</code> if the error threshold is
-   *                   based upon the time interval the error recurs,
-   *                   <code>false</code> otherwise
+   * @return <code>true</code> if the error threshold is based upon the time interval the error
+   *     recurs, <code>false</code> otherwise
    */
   public boolean isErrorThresholdByInterval() {
     return ((m_options & MN_ERROR_THRESHOLD_BY_INTERVAL) == MN_ERROR_THRESHOLD_BY_INTERVAL);
   }
 
   /**
-   * Enable resending notification if the same error persists for the
-   * specified interval of time.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the interval for which
-   * recurring errors must persist before sending notification can help
-   * avoid such situations. It can also be useful as a reminder to the
+   * Enable resending notification if the same error persists for the specified interval of time.
+   *
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the interval for which recurring errors must persist before
+   * sending notification can help avoid such situations. It can also be useful as a reminder to the
    * administrator.
    */
 
@@ -237,57 +211,53 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the time interval for which the same error must be encountered
-   * before notification is resent.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the interval for which
-   * recurring errors must persist before sending notification can help
-   * avoid such situations. It can also be useful as a reminder to the
+   * Get the time interval for which the same error must be encountered before notification is
+   * resent.
+   *
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the interval for which recurring errors must persist before
+   * sending notification can help avoid such situations. It can also be useful as a reminder to the
    * administrator.
    *
-   * @return               the time interval, in minutes
+   * @return the time interval, in minutes
    */
   public int getErrorThresholdInterval() {
     return m_errorThresholdInterval;
   }
 
   /**
-   * Set the time interval for which the same error must be encountered
-   * before notification is resent.
-   * <p>
-   * When a particular type of error persists, it may be undesirable to have
-   * notification continually sent. By setting the interval for which
-   * recurring errors must persist before sending notification can help
-   * avoid such situations. It can also be useful as a reminder to the
+   * Set the time interval for which the same error must be encountered before notification is
+   * resent.
+   *
+   * <p>When a particular type of error persists, it may be undesirable to have notification
+   * continually sent. By setting the interval for which recurring errors must persist before
+   * sending notification can help avoid such situations. It can also be useful as a reminder to the
    * administrator.
    *
-   * @param   interval    the time interval, in minutes
+   * @param interval the time interval, in minutes
    */
   public void setErrorThresholdInterval(int interval) {
     m_errorThresholdInterval = interval;
   }
 
   /**
-   * Is notification sent when an application authorization failure is
-   * encountered?
+   * Is notification sent when an application authorization failure is encountered?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppAuthorizationFailureEnabled() {
     return ((m_options & MN_APP_AUTH_FAILURE) == MN_APP_AUTH_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when an application
-   * authorization failure is encountered. If this is being enabled
-   * and a failure count was not previously set, a default count of 5
-   * will be set.
+   * Enable or disable sending notification when an application authorization failure is
+   * encountered. If this is being enabled and a failure count was not previously set, a default
+   * count of 5 will be set.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setAppAuthorizationFailureCount
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setAppAuthorizationFailureCount
    */
   public void setAppAuthorizationFailureEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_AUTH_FAILURE;
@@ -295,54 +265,46 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the number of failed logins from a particular host which
-   * will cause notification of an application authorization failure
-   * to be sent.
-   * <p>
-   * Login failures are remembered for 15 minutes or until the user
-   * successfully logs in.
+   * Get the number of failed logins from a particular host which will cause notification of an
+   * application authorization failure to be sent.
    *
-   * @return            the number of times the same host machine can
-   *                   attempt to login before sending notification of
-   *                   the authorization failure
+   * <p>Login failures are remembered for 15 minutes or until the user successfully logs in.
+   *
+   * @return the number of times the same host machine can attempt to login before sending
+   *     notification of the authorization failure
    */
   public int getAppAuthorizationFailureCount() {
     return m_appAuthFailureCount;
   }
 
   /**
-   * Set the number of failed logins from a particular host which
-   * will cause notification of an application authorization failure
-   * to be sent.
-   * <p>
-   * Login failures are remembered for 15 minutes or until the user
-   * successfully logs in.
+   * Set the number of failed logins from a particular host which will cause notification of an
+   * application authorization failure to be sent.
    *
-   * @param   count    the number of times the same host machine can
-   *                   attempt to login before sending notification of
-   *                   the authorization failure
+   * <p>Login failures are remembered for 15 minutes or until the user successfully logs in.
+   *
+   * @param count the number of times the same host machine can attempt to login before sending
+   *     notification of the authorization failure
    */
   public void setAppAuthorizationFailureCount(int count) {
     m_appAuthFailureCount = count;
   }
 
   /**
-   * Is notification sent when an application design error is
-   * encountered?
+   * Is notification sent when an application design error is encountered?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppDesignErrorEnabled() {
     return ((m_options & MN_APP_DESIGN_ERROR) == MN_APP_DESIGN_ERROR);
   }
 
   /**
-   * Enable or disable sending notification when an application
-   * design error is encountered.
+   * Enable or disable sending notification when an application design error is encountered.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setAppDesignErrorEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_DESIGN_ERROR;
@@ -350,22 +312,20 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when the application encounters a data validation
-   * error?
+   * Is notification sent when the application encounters a data validation error?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppValidationErrorEnabled() {
     return ((m_options & MN_APP_VALIDATION_ERROR) == MN_APP_VALIDATION_ERROR);
   }
 
   /**
-   * Enable or disable sending notification when the application
-   * encounters a data valdiation error.
+   * Enable or disable sending notification when the application encounters a data valdiation error.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setAppValidationErrorEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_VALIDATION_ERROR;
@@ -373,22 +333,21 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when the application encounters an error
-   * processing the XML document?
+   * Is notification sent when the application encounters an error processing the XML document?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppXmlErrorEnabled() {
     return ((m_options & MN_APP_XML_ERROR) == MN_APP_XML_ERROR);
   }
 
   /**
-   * Enable or disable sending notification when the application
-   * encounters an error processing the XML document?
+   * Enable or disable sending notification when the application encounters an error processing the
+   * XML document?
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setAppXmlErrorEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_XML_ERROR;
@@ -396,22 +355,21 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when the application encounters an error
-   * processing HTML data?
+   * Is notification sent when the application encounters an error processing HTML data?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppHtmlErrorEnabled() {
     return ((m_options & MN_APP_HTML_ERROR) == MN_APP_HTML_ERROR);
   }
 
   /**
-   * Enable or disable sending notification when the application
-   * encounters an error processing HTML data?
+   * Enable or disable sending notification when the application encounters an error processing HTML
+   * data?
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setAppHtmlErrorEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_HTML_ERROR;
@@ -419,25 +377,23 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when poor application response time is
-   * detected?
+   * Is notification sent when poor application response time is detected?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppResponseTimeEnabled() {
     return ((m_options & MN_APP_RESPONSE_TIME) == MN_APP_RESPONSE_TIME);
   }
 
   /**
-   * Enable or disable sending notification when poor application
-   * response time is detected. If this is being enabled and the max
-   * response time was not previously set, a default max of 5 minutes
+   * Enable or disable sending notification when poor application response time is detected. If this
+   * is being enabled and the max response time was not previously set, a default max of 5 minutes
    * will be set.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setAppResponseTimeMax
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setAppResponseTimeMax
    */
   public void setAppResponseTimeEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_RESPONSE_TIME;
@@ -445,45 +401,43 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the maximum amount of time permitted before sending notification
-   * of poor application response time.
+   * Get the maximum amount of time permitted before sending notification of poor application
+   * response time.
    *
-   * @return            the response time threshold
+   * @return the response time threshold
    */
   public int getAppResponseTimeMax() {
     return m_appResponseTime;
   }
 
   /**
-   * Set the maximum amount of time permitted before sending notification
-   * of poor application response time.
+   * Set the maximum amount of time permitted before sending notification of poor application
+   * response time.
    *
-   * @param   max      the response time threshold
+   * @param max the response time threshold
    */
   public void setAppResponseTimeMax(int max) {
     m_appResponseTime = max;
   }
 
   /**
-   * Is notification sent when the user request queue for the
-   * application is too large?
+   * Is notification sent when the user request queue for the application is too large?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isAppRequestQueueLargeEnabled() {
     return ((m_options & MN_APP_REQUEST_QUEUE) == MN_APP_REQUEST_QUEUE);
   }
 
   /**
-   * Enable or disable sending notification when the user request queue
-   * for the application is too large. If this is being enabled and the
-   * queue limit was not previously set, a default limit of 50 requests
-   * will be set.
+   * Enable or disable sending notification when the user request queue for the application is too
+   * large. If this is being enabled and the queue limit was not previously set, a default limit of
+   * 50 requests will be set.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setAppRequestQueueMax
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setAppRequestQueueMax
    */
   public void setAppRequestQueueLargeEnabled(boolean enable) {
     if (enable) m_options |= MN_APP_REQUEST_QUEUE;
@@ -491,45 +445,43 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the maximum number of requests which may be queued before
-   * sending notification of a large application user request queue.
+   * Get the maximum number of requests which may be queued before sending notification of a large
+   * application user request queue.
    *
-   * @return            the request queue limit
+   * @return the request queue limit
    */
   public int getAppRequestQueueMax() {
     return m_appRequestQueue;
   }
 
   /**
-   * Set the maximum number of requests which may be queued before
-   * sending notification of a large application user request queue.
+   * Set the maximum number of requests which may be queued before sending notification of a large
+   * application user request queue.
    *
-   * @param   max      the request queue limit
+   * @param max the request queue limit
    */
   public void setAppRequestQueueMax(int max) {
     m_appRequestQueue = max;
   }
 
   /**
-   * Is notification sent when a back-end authorization failure is
-   * encountered?
+   * Is notification sent when a back-end authorization failure is encountered?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndAuthorizationFailureEnabled() {
     return ((m_options & MN_BACKEND_AUTH_FAILURE) == MN_BACKEND_AUTH_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when a back-end
-   * authorization failure is encountered. If this is being enabled
-   * and a failure count was not previously set, a default count of 5
-   * will be set.
+   * Enable or disable sending notification when a back-end authorization failure is encountered. If
+   * this is being enabled and a failure count was not previously set, a default count of 5 will be
+   * set.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setBackEndAuthorizationFailureCount
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setBackEndAuthorizationFailureCount
    */
   public void setBackEndAuthorizationFailureEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_AUTH_FAILURE;
@@ -537,32 +489,26 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the number of failed logins from a particular host which
-   * will cause notification of a back-end authorization failure
-   * to be sent.
-   * <p>
-   * Login failures are remembered for 15 minutes or until the user
-   * successfully logs in.
+   * Get the number of failed logins from a particular host which will cause notification of a
+   * back-end authorization failure to be sent.
    *
-   * @return            the number of times the same host machine can
-   *                   attempt to login before sending notification of
-   *                   the authorization failure
+   * <p>Login failures are remembered for 15 minutes or until the user successfully logs in.
+   *
+   * @return the number of times the same host machine can attempt to login before sending
+   *     notification of the authorization failure
    */
   public int getBackEndAuthorizationFailureCount() {
     return m_backendAuthFailureCount;
   }
 
   /**
-   * Set the number of failed logins from a particular host which
-   * will cause notification of a back-end authorization failure
-   * to be sent.
-   * <p>
-   * Login failures are remembered for 15 minutes or until the user
-   * successfully logs in.
+   * Set the number of failed logins from a particular host which will cause notification of a
+   * back-end authorization failure to be sent.
    *
-   * @param   count    the number of times the same host machine can
-   *                   attempt to login before sending notification of
-   *                   the authorization failure
+   * <p>Login failures are remembered for 15 minutes or until the user successfully logs in.
+   *
+   * @param count the number of times the same host machine can attempt to login before sending
+   *     notification of the authorization failure
    */
   public void setBackEndAuthorizationFailureCount(int count) {
     m_backendAuthFailureCount = count;
@@ -571,19 +517,18 @@ public class PSRecipient extends PSComponent {
   /**
    * Is notification sent when the back-end server is down?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndServerDownFailureEnabled() {
     return ((m_options & MN_BACKEND_SERVER_DOWN_FAILURE) == MN_BACKEND_SERVER_DOWN_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when the back-end server
-   * is down.
+   * Enable or disable sending notification when the back-end server is down.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setBackEndServerDownFailureEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_SERVER_DOWN_FAILURE;
@@ -591,23 +536,21 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when a back-end data conversion failure is
-   * encountered?
+   * Is notification sent when a back-end data conversion failure is encountered?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndDataConversionErrorEnabled() {
     return ((m_options & MN_BACKEND_DATA_CONVERSION_FAILURE) == MN_BACKEND_DATA_CONVERSION_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when a back-end data
-   * conversion failure is encountered.
+   * Enable or disable sending notification when a back-end data conversion failure is encountered.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setAppAuthorizationFailureCount
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setAppAuthorizationFailureCount
    */
   public void setBackEndDataConversionErrorEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_DATA_CONVERSION_FAILURE;
@@ -617,19 +560,19 @@ public class PSRecipient extends PSComponent {
   /**
    * Is notification sent when a back-end query fails?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndQueryFailureEnabled() {
     return ((m_options & MN_BACKEND_QUERY_FAILURE) == MN_BACKEND_QUERY_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when a back-end query fails.
-   * A query resulting in no data being found is not considered an error.
+   * Enable or disable sending notification when a back-end query fails. A query resulting in no
+   * data being found is not considered an error.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setBackEndQueryFailureEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_QUERY_FAILURE;
@@ -639,20 +582,19 @@ public class PSRecipient extends PSComponent {
   /**
    * Is notification sent when a back-end insert, update or delete fails?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndUpdateFailureEnabled() {
     return ((m_options & MN_BACKEND_UPDATE_FAILURE) == MN_BACKEND_UPDATE_FAILURE);
   }
 
   /**
-   * Enable or disable sending notification when a back-end insert, update
-   * or delete fails. Unlike query, an update or delete which does not
-   * find a match is considered an error.
+   * Enable or disable sending notification when a back-end insert, update or delete fails. Unlike
+   * query, an update or delete which does not find a match is considered an error.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
    */
   public void setBackEndUpdateFailureEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_UPDATE_FAILURE;
@@ -660,25 +602,23 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Is notification sent when the request queue for the
-   * back-end is too large?
+   * Is notification sent when the request queue for the back-end is too large?
    *
-   * @return     <code>true</code> if this type of notification is enabled,
-   *            <code>false</code> if it is disabled
+   * @return <code>true</code> if this type of notification is enabled, <code>false</code> if it is
+   *     disabled
    */
   public boolean isBackEndRequestQueueLargeEnabled() {
     return ((m_options & MN_BACKEND_REQUEST_QUEUE) == MN_BACKEND_REQUEST_QUEUE);
   }
 
   /**
-   * Enable or disable sending notification when the request queue
-   * for the back-end is too large. If this is being enabled and the
-   * queue limit was not previously set, a default limit of 50 requests
-   * will be set.
+   * Enable or disable sending notification when the request queue for the back-end is too large. If
+   * this is being enabled and the queue limit was not previously set, a default limit of 50
+   * requests will be set.
    *
-   * @param   enable   <code>true</code> to enable sending notification,
-   *                   <code>false</code> to disable it
-   * @see      #setBackEndRequestQueueMax
+   * @param enable <code>true</code> to enable sending notification, <code>false</code> to disable
+   *     it
+   * @see #setBackEndRequestQueueMax
    */
   public void setBackEndRequestQueueLargeEnabled(boolean enable) {
     if (enable) m_options |= MN_BACKEND_REQUEST_QUEUE;
@@ -686,20 +626,20 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Get the maximum number of requests which may be queued before
-   * sending notification of a large back-end request queue.
+   * Get the maximum number of requests which may be queued before sending notification of a large
+   * back-end request queue.
    *
-   * @return            the request queue limit
+   * @return the request queue limit
    */
   public int getBackEndRequestQueueMax() {
     return m_backendRequestQueue;
   }
 
   /**
-   * Set the maximum number of requests which may be queued before
-   * sending notification of a large back-end request queue.
+   * Set the maximum number of requests which may be queued before sending notification of a large
+   * back-end request queue.
    *
-   * @param   max      the request queue limit
+   * @param max the request queue limit
    */
   public void setBackEndRequestQueueMax(int max) {
     m_backendRequestQueue = max;
@@ -708,10 +648,11 @@ public class PSRecipient extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXRecipient XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXRecipient XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXRecipient defines the mail notification settings for a
@@ -904,7 +845,7 @@ public class PSRecipient extends PSComponent {
    *    &gt;
    * </code></pre>
    *
-   * @return     the newly created PSXRecipient XML element node
+   * @return the newly created PSXRecipient XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -1012,12 +953,10 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSRecipient Java object
-   * from a PSXRecipient XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSRecipient Java object from a PSXRecipient XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRecipient
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRecipient
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -1242,18 +1181,15 @@ public class PSRecipient extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

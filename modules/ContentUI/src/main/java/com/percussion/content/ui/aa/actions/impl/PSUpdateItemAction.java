@@ -29,11 +29,10 @@ import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
 /**
- * Action to update the item. Gets the content editor url from ceUrl parameter
- * and creates an internal request to the content editor. Calls the update
- * method to update the item. If succeeds returns success, If there are any
- * validation errors, returns a JSON object with parameter validationError and
- * value as concatenated string of all validation error messages and the
+ * Action to update the item. Gets the content editor url from ceUrl parameter and creates an
+ * internal request to the content editor. Calls the update method to update the item. If succeeds
+ * returns success, If there are any validation errors, returns a JSON object with parameter
+ * validationError and value as concatenated string of all validation error messages and the
  * ceCachedPageUrl parameter is added with the cached page URL.
  */
 public class PSUpdateItemAction extends PSAAActionBase {

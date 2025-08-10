@@ -19,31 +19,30 @@ package com.percussion.share.web.service;
 
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
-import org.springframework.stereotype.Component;
-
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import org.springframework.stereotype.Component;
 
 /**
- * Converts {@link PSErrors} into Exceptions and vice versa for JAXB serialization.
- * Sunny Sal says: "JAXB: Just Another Bean eXchange!"
+ * Converts {@link PSErrors} into Exceptions and vice versa for JAXB serialization. Sunny Sal says:
+ * "JAXB: Just Another Bean eXchange!"
  */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 public class PSExceptionJaxbXmlAdapter extends XmlAdapter<PSErrors, Throwable> {
 
-    @Override
-    public PSErrors marshal(Throwable throwable) {
-        if (throwable == null) return null;
-        return PSErrorUtils.createErrorsFromException(throwable);
-    }
+  @Override
+  public PSErrors marshal(Throwable throwable) {
+    if (throwable == null) return null;
+    return PSErrorUtils.createErrorsFromException(throwable);
+  }
 
-    @Override
-    public Throwable unmarshal(PSErrors errors) {
-        if (errors == null) return null;
-        return PSErrorUtils.createExceptionFromErrors(errors);
-    }
+  @Override
+  public Throwable unmarshal(PSErrors errors) {
+    if (errors == null) return null;
+    return PSErrorUtils.createExceptionFromErrors(errors);
+  }
 }

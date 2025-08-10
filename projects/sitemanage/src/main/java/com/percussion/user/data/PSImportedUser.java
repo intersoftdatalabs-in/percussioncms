@@ -20,40 +20,40 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a user that may or may not have been imported successfully.
- * See {@link PSImportedUser#getStatus()}.
+ * Represents a user that may or may not have been imported successfully. See {@link
+ * PSImportedUser#getStatus()}.
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "ImportedUser")
 @JsonRootName("ImportedUser")
 public class PSImportedUser extends PSAbstractUser {
 
-    private static final long serialVersionUID = 1L;
-    private ImportStatus status = ImportStatus.SUCCESS;
+  private static final long serialVersionUID = 1L;
+  private ImportStatus status = ImportStatus.SUCCESS;
 
-    /**
-     * Was the user imported?
-     * @return never {@code null}.
-     */
-    public ImportStatus getStatus() {
-        return status;
-    }
+  /**
+   * Was the user imported?
+   *
+   * @return never {@code null}.
+   */
+  public ImportStatus getStatus() {
+    return status;
+  }
 
-    public void setStatus(ImportStatus status) {
-        this.status = status;
-    }
+  public void setStatus(ImportStatus status) {
+    this.status = status;
+  }
 
-    /**
-     * Indicates whether or not the user was imported.
-     */
-    public enum ImportStatus {
-        /** The user was successfully imported. */
-        SUCCESS,
-        /** The user already exists as a back-end user. */
-        DUPLICATE,
-        /** The user was not imported because of an invalid name. */
-        INVALID,
-        /** Some unknown error occurred. */
-        ERROR
-    }
+  /** Indicates whether or not the user was imported. */
+  public enum ImportStatus {
+    /** The user was successfully imported. */
+    SUCCESS,
+    /** The user already exists as a back-end user. */
+    DUPLICATE,
+    /** The user was not imported because of an invalid name. */
+    INVALID,
+    /** Some unknown error occurred. */
+    ERROR
+  }
 }

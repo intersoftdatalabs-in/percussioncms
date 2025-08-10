@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.cms.objectstore.PSObjectAcl;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -33,101 +32,102 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "FolderProperties")
 @JsonRootName("FolderProperties")
 public class PSFolderProperties extends PSAbstractDataObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private PSObjectAcl acl;
-    private String locale = PSI18nUtils.DEFAULT_LANG;
-    private String communityName;
-    private int communityId;
-    private String displayFormatName;
-    private String id;
-    private String name;
-    private PSFolderPermission permission;
-    private int workflowId;
-    /**
-     * Comma-separated list of allowed sites for publishing assets.
-     * If null, assets are published to all sites by default.
-     */
-    private String allowedSites;
+  private PSObjectAcl acl;
+  private String locale = PSI18nUtils.DEFAULT_LANG;
+  private String communityName;
+  private int communityId;
+  private String displayFormatName;
+  private String id;
+  private String name;
+  private PSFolderPermission permission;
+  private int workflowId;
 
-    public PSObjectAcl getAcl() {
-        return acl;
-    }
+  /**
+   * Comma-separated list of allowed sites for publishing assets. If null, assets are published to
+   * all sites by default.
+   */
+  private String allowedSites;
 
-    public void setAcl(PSObjectAcl acl) {
-        this.acl = acl;
-    }
+  public PSObjectAcl getAcl() {
+    return acl;
+  }
 
-    public String getLocale() {
-        return locale;
-    }
+  public void setAcl(PSObjectAcl acl) {
+    this.acl = acl;
+  }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
+  public String getLocale() {
+    return locale;
+  }
 
-    public String getCommunityName() {
-        return communityName;
-    }
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
 
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
-    }
+  public String getCommunityName() {
+    return communityName;
+  }
 
-    public int getCommunityId() {
-        return communityId;
-    }
+  public void setCommunityName(String communityName) {
+    this.communityName = communityName;
+  }
 
-    public void setCommunityId(int communityId) {
-        this.communityId = communityId;
-    }
+  public int getCommunityId() {
+    return communityId;
+  }
 
-    public String getDisplayFormatName() {
-        return displayFormatName;
-    }
+  public void setCommunityId(int communityId) {
+    this.communityId = communityId;
+  }
 
-    public void setDisplayFormatName(String displayFormatName) {
-        this.displayFormatName = displayFormatName;
-    }
+  public String getDisplayFormatName() {
+    return displayFormatName;
+  }
 
-    @XmlElement
-    public String getId() {
-        return id;
-    }
+  public void setDisplayFormatName(String displayFormatName) {
+    this.displayFormatName = displayFormatName;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  @XmlElement
+  public String getId() {
+    return id;
+  }
 
-    public int getWorkflowId() {
-        return workflowId;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setWorkflowId(int workflowId) {
-        this.workflowId = workflowId;
-    }
+  public int getWorkflowId() {
+    return workflowId;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setWorkflowId(int workflowId) {
+    this.workflowId = workflowId;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public PSFolderPermission getPermission() {
-        return permission;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setPermission(PSFolderPermission permission) {
-        this.permission = permission;
-    }
+  public PSFolderPermission getPermission() {
+    return permission;
+  }
 
-    public String getAllowedSites() {
-        return allowedSites;
-    }
+  public void setPermission(PSFolderPermission permission) {
+    this.permission = permission;
+  }
 
-    public void setAllowedSites(String allowedSites) {
-        this.allowedSites = allowedSites;
-    }
+  public String getAllowedSites() {
+    return allowedSites;
+  }
+
+  public void setAllowedSites(String allowedSites) {
+    this.allowedSites = allowedSites;
+  }
 }

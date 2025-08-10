@@ -36,19 +36,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class contains the know how to implement the necessary relationship
- * processing when operating in a different JVM than the server.
+ * This class contains the know how to implement the necessary relationship processing when
+ * operating in a different JVM than the server.
  */
 public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
-   * Construct an instance from the given parameters. This constructor is
-   * expected to be called by the proxy.
+   * Construct an instance from the given parameters. This constructor is expected to be called by
+   * the proxy.
    *
-   * @param conn The remote request object, knows how to communicate with
-   *    the server. It may not be <code>null</code>.
-   *
-   * @param procConfig The parameters from the config file. This is not
-   *    needed.
+   * @param conn The remote request object, knows how to communicate with the server. It may not be
+   *     <code>null</code>.
+   * @param procConfig The parameters from the config file. This is not needed.
    */
   public PSRelationshipProcessor(IPSRemoteRequester conn, Map procConfig) {
     if (null == conn) {
@@ -63,8 +61,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#add(String, String, List, PSKey)
-   * interface}
+   * See {@link IPSRelationshipProcessor#add(String, String, List, PSKey) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -73,43 +70,31 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey)
-   * interface}
-   */
+  /** See {@link IPSRelationshipProcessor#getChildren(String, String, PSKey) interface} */
   public PSComponentSummary[] getChildren(String type, String relationshipType, PSKey parent)
       throws PSCmsException {
     return getComponentSummaries("getChildren", type, relationshipType, parent);
   }
 
-  /**
-   * See {@link IPSRelationshipProcessor#getParents(String, String, PSKey)
-   * interface}
-   */
+  /** See {@link IPSRelationshipProcessor#getParents(String, String, PSKey) interface} */
   public PSComponentSummary[] getParents(String type, String relationshipType, PSKey locator)
       throws PSCmsException {
     return getComponentSummaries("getParents", type, relationshipType, locator);
   }
 
   /**
-   * A convenience method to get children or get parents for a given locator.
-   * This is determined by the <code>method</code>.
+   * A convenience method to get children or get parents for a given locator. This is determined by
+   * the <code>method</code>.
    *
-   * @param method If it is "getChildren", then get a list of children for
-   *    the given locator; otherwise get a list of parents. Assume
-   *    it is either "getChildren" or "getParents".
-   *
+   * @param method If it is "getChildren", then get a list of children for the given locator;
+   *     otherwise get a list of parents. Assume it is either "getChildren" or "getParents".
    * @param type The component type. It must be <code>COMPONENT_TYPE</code>.
-   *
-   * @param relationshipType The type of the requested relationship, it may
-   *    not be <code>null</code> or empty.
-   *
-   * @param locator The locator of a parent if the <code>method</code> is
-   *    "getChildren", or it is a locator of a child otherwise.
-   *
-   * @return Array of component summaries, which may be a list of children or
-   *    parents. Never <code>null</code>, but may be empty.
-   *
+   * @param relationshipType The type of the requested relationship, it may not be <code>null</code>
+   *     or empty.
+   * @param locator The locator of a parent if the <code>method</code> is "getChildren", or it is a
+   *     locator of a child otherwise.
+   * @return Array of component summaries, which may be a list of children or parents. Never <code>
+   *     null</code>, but may be empty.
    * @throws PSCmsException if an error occurs.
    */
   private PSComponentSummary[] getComponentSummaries(
@@ -152,8 +137,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#move(String, PSKey, PSKey [], PSKey)
-   * interface}
+   * See {@link IPSRelationshipProcessor#move(String, PSKey, PSKey [], PSKey) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -163,8 +147,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#copy(String, PSKey, PSKey [])
-   * interface}
+   * See {@link IPSRelationshipProcessor#copy(String, PSKey, PSKey []) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -182,8 +165,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getSummaryByPath(String, String,
-   * String) interface}
+   * See {@link IPSRelationshipProcessor#getSummaryByPath(String, String, String) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -196,7 +178,6 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
    * Validates a specified type. It must by <code>COMPONENT_TYPE</code>.
    *
    * @param type The to be validated component type.
-   *
    */
   private void validateComponentType(String type) {
     if (type == null || type.trim().length() == 0)
@@ -208,8 +189,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator)
-   * interface}
+   * See {@link IPSRelationshipProcessor#add(String, List, PSLocator) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -220,8 +200,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String,
-   * PSLocator, String) interface}
+   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String, PSLocator, String)
+   * interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -232,8 +212,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#move(String, PSLocator, List,
-   * PSLocator) interface}
+   * See {@link IPSRelationshipProcessor#move(String, PSLocator, List, PSLocator) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -245,8 +224,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationships(PSRelationshipFilter)
-   * interface}
+   * See {@link IPSRelationshipProcessor#getRelationships(PSRelationshipFilter) interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -256,8 +234,7 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getSummaries(PSRelationshipFilter,
-   * boolean) interface}
+   * See {@link IPSRelationshipProcessor#getSummaries(PSRelationshipFilter, boolean) interface}
    *
    * @throws PSCmsException if an error occurs.
    */
@@ -320,8 +297,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String,
-   * PSLocator, String) interface}
+   * See {@link IPSRelationshipProcessor#getRelationshipOwnerPaths(String, PSLocator, String)
+   * interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -332,8 +309,8 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   }
 
   /**
-   * See {@link IPSRelationshipProcessor#isDescendent(String, PSLocator,
-   * PSLocator, String) interface}
+   * See {@link IPSRelationshipProcessor#isDescendent(String, PSLocator, PSLocator, String)
+   * interface}
    *
    * @throws UnsupportedOperationException Always.
    */
@@ -350,21 +327,16 @@ public class PSRelationshipProcessor implements IPSRelationshipProcessor {
     throw new UnsupportedOperationException("Not supported by this processor.");
   }
 
-  /**
-   * Object used to make the requests to the server. Never <code>null</code>
-   * after construction.
-   */
+  /** Object used to make the requests to the server. Never <code>null</code> after construction. */
   private IPSRemoteRequester m_conn = null;
 
   /**
-   * This is the name of <code>CmsComponent</code> that is used in the proxy
-   * config file for this processor.
+   * This is the name of <code>CmsComponent</code> that is used in the proxy config file for this
+   * processor.
    */
   public static String COMPONENT_TYPE = "Relationship";
 
-  /**
-   * A list of names for URL parameters
-   */
+  /** A list of names for URL parameters */
   public static String PARAM_ID = "id";
 
   public static String PARAM_REVISION = "revision";

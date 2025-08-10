@@ -31,24 +31,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to handle all content data related operations for
- * webservices. These operations are specified in the "Design" port in the
- * <code>WebServices.wsdl</code>.
- *
- * @See {@link com.percussion.hooks.webservices.PSWSDesign}.
+ * This class is used to handle all content data related operations for webservices. These
+ * operations are specified in the "Design" port in the <code>WebServices.wsdl</code>. @See {@link
+ * com.percussion.hooks.webservices.PSWSDesign}.
  */
 public class PSDesignHandler extends PSWebServicesBaseHandler {
 
   /**
-   * This operation is used to retrieve a blank copy of content type definition
-   * which can be used to create a new content type Object.
+   * This operation is used to retrieve a blank copy of content type definition which can be used to
+   * create a new content type Object.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void contentTypeAction(PSRequest request, Document parent) throws PSException {
@@ -88,15 +83,12 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * This operation is used to retrieve the list of content types available.
-   * This list will also contain the url location of where to obtain the editor.
+   * This operation is used to retrieve the list of content types available. This list will also
+   * contain the url location of where to obtain the editor.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void contentTypeListAction(PSRequest request, Document parent) throws PSException {
@@ -119,16 +111,12 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
   }
 
   /**
-   * This operation is used to retrieve the list of variants available to
-   * the specified content type or the content item, in which case we find
-   * the content type and the retrieve the list.
+   * This operation is used to retrieve the list of variants available to the specified content type
+   * or the content item, in which case we find the content type and the retrieve the list.
    *
-   * @param request The original request for the operation,
-   *    assumed not <code>null</code>
-   * @param parent The parent document to add the response element to,
-   *    assumed not <code>null</code> and it will already contain the correct
-   *    base element for the response
-   *
+   * @param request The original request for the operation, assumed not <code>null</code>
+   * @param parent The parent document to add the response element to, assumed not <code>null</code>
+   *     and it will already contain the correct base element for the response
    * @throws PSException
    */
   void variantListAction(PSRequest request, Document parent) throws PSException {
@@ -174,14 +162,12 @@ public class PSDesignHandler extends PSWebServicesBaseHandler {
     processInternalRequest(request, path, parent);
   }
 
-  /**
-   * action string constants
-   */
+  /** action string constants */
   private static final String WS_VARIANTLIST = "variantList";
 
   /**
-   * Constants for XML elements/attributes defined in the
-   * schema <code>sys_DesignParameters.xsd</code>
+   * Constants for XML elements/attributes defined in the schema <code>sys_DesignParameters.xsd
+   * </code>
    */
   private static final String EL_CONTENTTYPENAMEID = "ContentTypeNameId";
 

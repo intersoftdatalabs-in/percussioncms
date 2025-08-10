@@ -34,8 +34,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Program that converts a Retroguard obfuscation exclusion file (rx.rgs) into
- * YGuard xml exclusion entries.
+ * Program that converts a Retroguard obfuscation exclusion file (rx.rgs) into YGuard xml exclusion
+ * entries.
  */
 public class PSRgs2Xml {
 
@@ -43,20 +43,18 @@ public class PSRgs2Xml {
 
   /**
    * Construct a new converter.
-   * @param rgsPath path to the rgs file to be converted, cannot be
-   * <code>null</code> or empty and the file must exist.
-   * @param xmlPath the path to the YGuard xml file to be used as output.
-   * Cannot be <code>null</code> or empty.
+   *
+   * @param rgsPath path to the rgs file to be converted, cannot be <code>null</code> or empty and
+   *     the file must exist.
+   * @param xmlPath the path to the YGuard xml file to be used as output. Cannot be <code>null
+   *     </code> or empty.
    */
   public PSRgs2Xml(String rgsPath, String xmlPath) {
     m_rgsPath = rgsPath;
     m_xmlPath = xmlPath;
   }
 
-  /**
-   * Converts the rgs file to the YGuard xml expose file.
-   *
-   */
+  /** Converts the rgs file to the YGuard xml expose file. */
   public void convert() {
     BufferedReader in = null;
     BufferedWriter out = null;
@@ -85,8 +83,8 @@ public class PSRgs2Xml {
   }
 
   /**
-   * Does the work of transforming an rgs file entry into an YGuard xml
-   * entry.
+   * Does the work of transforming an rgs file entry into an YGuard xml entry.
+   *
    * @param line one line from the rgs file
    * @return an aml entry as a string.
    */
@@ -167,8 +165,8 @@ public class PSRgs2Xml {
   }
 
   /**
-   * Parses out the type Mnemonics and converts them to the java representation
-   * used in YGuard.
+   * Parses out the type Mnemonics and converts them to the java representation used in YGuard.
+   *
    * @param s string containing the type mnemonics
    * @return converted string, Never <code>null</code>, may be empty.
    */
@@ -213,6 +211,7 @@ public class PSRgs2Xml {
 
   /**
    * Returns a package string from a path string
+   *
    * @param path the path string to be converted, may be <code>null</code>.
    * @return the converted string, May be <code>null</code>.
    */
@@ -228,8 +227,8 @@ public class PSRgs2Xml {
   }
 
   /**
-   * Main method
-   * Usage: java PSRgs2Xml [rgsfilePath] [xmlOuputFilePath]
+   * Main method Usage: java PSRgs2Xml [rgsfilePath] [xmlOuputFilePath]
+   *
    * @param args
    */
   public static void main(String[] args) {

@@ -33,10 +33,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * The PSConsoleCommandCache abstract class is the base for all cache console
- * command handlers.
- */
+/** The PSConsoleCommandCache abstract class is the base for all cache console command handlers. */
 public abstract class PSConsoleCommandCache extends PSConsoleCommand {
 
   private static final Logger log = LogManager.getLogger(IPSConstants.CACHING_LOG);
@@ -44,8 +41,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   PSConsoleCommandCache(String cmdArgs) {
     super(cmdArgs);
@@ -54,8 +51,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * Sets the cache debug logging enabled/disabled.
    *
-   * @param enable if <code>true</code> enables logging debug messages to
-   * console, otherwise disables.
+   * @param enable if <code>true</code> enables logging debug messages to console, otherwise
+   *     disables.
    */
   protected void setCacheDebugLogging(boolean enable) {
     PSCacheManager cacheManager = PSCacheManager.getInstance();
@@ -78,11 +75,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * Starts caching.
    *
-   * @return <code>false</code> if the caching is already started, otherwise
-   * <code>true</code>
-   *
+   * @return <code>false</code> if the caching is already started, otherwise <code>true</code>
    * @throws IllegalStateException if the cache manager is not yet inited.
-   *
    * @throws PSCacheException
    */
   protected boolean startCache() throws PSCacheException {
@@ -92,11 +86,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * Stops caching.
    *
-   * @return <code>false</code> if the caching is already stopped, otherwise
-   * <code>true</code>
-   *
+   * @return <code>false</code> if the caching is already stopped, otherwise <code>true</code>
    * @throws IllegalStateException if the cache manager is not yet inited.
-   *
    * @throws PSCacheException
    */
   protected boolean stopCache() throws PSCacheException {
@@ -108,10 +99,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
    *
    * @param start supply <code>true</code> to start caching and <code>false
    * </code> to stop caching.
-   *
-   * @return  <code>false</code> if the caching is already started/stopped and
-   * we are trying to start/stop, otherwise <code>true</code>
-   *
+   * @return <code>false</code> if the caching is already started/stopped and we are trying to
+   *     start/stop, otherwise <code>true</code>
    * @throws PSCacheException
    */
   private boolean startStopCache(boolean start) throws PSCacheException {
@@ -140,7 +129,6 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
    * Restarts the cache.
    *
    * @throws IllegalStateException if the cache manager is not yet inited.
-   *
    * @throws PSCacheException
    */
   protected void restartCache() throws PSCacheException {
@@ -162,10 +150,7 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
    *
    * @param doc the document to use to create the element, may not be <code>
    * null</code>
-   *
-   * @return the XML element representing cache statistics, never
-   * <code>null</code>
-   *
+   * @return the XML element representing cache statistics, never <code>null</code>
    * @throws IllegalArgumentException if doc is <code>null</code>
    * @throws IllegalStateException if the cache manager is not yet initialized.
    */
@@ -187,9 +172,7 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * Get the assembly and resource cache statistics.
    *
-   * @param doc the document, use to create the returned element, assumed
-   *    not <code>null</code>.
-   *
+   * @param doc the document, use to create the returned element, assumed not <code>null</code>.
    * @return the XML representation of the statistics, never <code>null</code>.
    */
   private static Element getLegacyCacheStatistics(Document doc) {
@@ -213,11 +196,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   /**
    * Get the EhCache statistics.
    *
-   * @param doc the document used to create the returned object.
-   *    Assumed not <code>null</code>.
-   *
-   * @return the XML representation of the cache statistics,
-   *    never <code>null</code>.
+   * @param doc the document used to create the returned object. Assumed not <code>null</code>.
+   * @return the XML representation of the cache statistics, never <code>null</code>.
    */
   private static Element getEhCacheStatistics(Document doc) {
     Element parentEl = doc.createElement("EhCacheStatistics");
@@ -257,8 +237,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   }
 
   /**
-   * Gets the basic result document. The structure of the document is as
-   * follows.
+   * Gets the basic result document. The structure of the document is as follows.
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXConsoleCommandResults   (command)&gt;
    *
@@ -278,8 +258,8 @@ public abstract class PSConsoleCommandCache extends PSConsoleCommand {
   }
 
   /**
-   * Gets the command name. This should be overridden by the derived classes
-   * to provide their command name.
+   * Gets the command name. This should be overridden by the derived classes to provide their
+   * command name.
    *
    * @return the command name, never <code>null</code> or empty.
    */

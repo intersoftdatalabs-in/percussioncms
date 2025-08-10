@@ -24,42 +24,29 @@ import com.percussion.server.PSApplicationHandler;
 import java.util.HashMap;
 
 /**
- * The PSQueryJoiner class is used internally by the E2 server to merge
- * the results of heterogenous queries into a single, joined result set.
- * <p>
- * The Query Optimizer (PSQueryOptimizer) chooses an execution plan which
- * will optimally access the data from each back-end. It also defines
- * the join requirements. The Query Joiner takes the result sets from each
- * query along with the join requirements and produces the merged result set.
+ * The PSQueryJoiner class is used internally by the E2 server to merge the results of heterogenous
+ * queries into a single, joined result set.
  *
- * @see        PSQueryOptimizer
+ * <p>The Query Optimizer (PSQueryOptimizer) chooses an execution plan which will optimally access
+ * the data from each back-end. It also defines the join requirements. The Query Joiner takes the
+ * result sets from each query along with the join requirements and produces the merged result set.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSQueryOptimizer
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSQueryJoiner implements IPSExecutionStep {
   /**
    * Construct a joiner to handle the speciifed result sets.
    *
-   * @param      ah         the application handler containing this join
-   *
-   * @param      join      the join condition
-   *
-   * @param      lCols      the columns to select from the left side table
-   *
-   * @param      lOmitCols   the left columns for join only (will be
-   *                        omitted from the result set)
-   *
-   * @param      rCols      the columns to select from the right side table
-   *
-   * @param      rOmitCols   the right columns for join only (will be
-   *                        omitted from the result set)
-   *
-   * @param      expectedSelectivity
-   *                        the number of rows we expect to be in a typical
-   *                        result set
-   *
+   * @param ah the application handler containing this join
+   * @param join the join condition
+   * @param lCols the columns to select from the left side table
+   * @param lOmitCols the left columns for join only (will be omitted from the result set)
+   * @param rCols the columns to select from the right side table
+   * @param rOmitCols the right columns for join only (will be omitted from the result set)
+   * @param expectedSelectivity the number of rows we expect to be in a typical result set
    */
   protected PSQueryJoiner(
       PSApplicationHandler ah,
@@ -160,11 +147,10 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
   }
 
   /**
-   * Get the names of the columns associated with the result set this
-   * joiner will generate.
+   * Get the names of the columns associated with the result set this joiner will generate.
    *
-   * @return         a String array containing the column names in their
-   *                  appropriate sequence (1st col is 1st, etc.)
+   * @return a String array containing the column names in their appropriate sequence (1st col is
+   *     1st, etc.)
    */
   public String[] getColumnNames() {
     return m_columnNames;
@@ -211,21 +197,15 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
   /**
    * Compare the keys.
    *
-   * <EM>NOTE: anyone extending this class (and thus using this method)
-   * must be sure to set the left side meta data and current row object
-   * in the PSExecutionData!!!</EM>
+   * <p><EM>NOTE: anyone extending this class (and thus using this method) must be sure to set the
+   * left side meta data and current row object in the PSExecutionData!!!</EM>
    *
-   * @param   rowData         the data area to get the values from
-   *
-   * @param   leftHasData      <code>true</code> if the left side table
-   *                           still has rows of data (end of set not reached)
-   *
-   * @param   rightHasData   <code>true</code> if the right side table
-   *                           still has rows of data (end of set not reached)
-   *
-   * @return                  -1 if the left value is smaller;
-   *                           0 if they're equal;
-   *                         1 if right value is smaller
+   * @param rowData the data area to get the values from
+   * @param leftHasData <code>true</code> if the left side table still has rows of data (end of set
+   *     not reached)
+   * @param rightHasData <code>true</code> if the right side table still has rows of data (end of
+   *     set not reached)
+   * @return -1 if the left value is smaller; 0 if they're equal; 1 if right value is smaller
    */
   protected int compareKeys(
       PSExecutionData execData, Object[] rowData, boolean leftHasData, boolean rightHasData)
@@ -247,13 +227,9 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
   /**
    * Compare the keys.
    *
-   * @param   lKey            the left side value to compare
-   *
-   * @param   rKey            the right side value to compare
-   *
-   * @return                  -1 if the left value is smaller;
-   *                           0 if they're equal;
-   *                         1 if right value is smaller
+   * @param lKey the left side value to compare
+   * @param rKey the right side value to compare
+   * @return -1 if the left value is smaller; 0 if they're equal; 1 if right value is smaller
    */
   protected int compareKeyValues(Object lKey, Object rKey)
       throws com.percussion.data.PSDataExtractionException {
@@ -294,9 +270,8 @@ public abstract class PSQueryJoiner implements IPSExecutionStep {
   }
 
   /**
-   * Update the average selectivity for this joiner by taking into
-   * consideration the number of matching rows for the join which was
-   * just completed.
+   * Update the average selectivity for this joiner by taking into consideration the number of
+   * matching rows for the join which was just completed.
    */
   protected void updateAverageSelectivity(int rowCount) {
     // we ignore 0 row counts as this does not help us determine what to

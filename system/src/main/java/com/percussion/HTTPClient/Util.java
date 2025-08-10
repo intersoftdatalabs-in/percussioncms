@@ -31,8 +31,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 /**
  * This class holds various utility methods.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public class Util {
@@ -102,9 +102,7 @@ public class Util {
 
   // Constructors
 
-  /**
-   * This class isn't meant to be instantiated.
-   */
+  /** This class isn't meant to be instantiated. */
   private Util() {}
 
   // Methods
@@ -164,10 +162,7 @@ public class Util {
     return tmp;
   }
 
-  /**
-   * Split a property into an array of Strings, using "|" as the
-   * separator.
-   */
+  /** Split a property into an array of Strings, using "|" as the separator. */
   static String[] splitProperty(String prop) {
     if (prop == null) return new String[0];
 
@@ -179,9 +174,8 @@ public class Util {
   }
 
   /**
-   * Helper method for context lists used by modules. Returns the
-   * list associated with the context if it exists; otherwise it creates
-   * a new list and adds it to the context list.
+   * Helper method for context lists used by modules. Returns the list associated with the context
+   * if it exists; otherwise it creates a new list and adds it to the context list.
    *
    * @param cntxt_list the list of lists indexed by context
    * @param cntxt the context
@@ -197,14 +191,11 @@ public class Util {
   }
 
   /**
-   * Creates an array of distances to speed up the search in findStr().
-   * The returned array should be passed as the second argument to
-   * findStr().
+   * Creates an array of distances to speed up the search in findStr(). The returned array should be
+   * passed as the second argument to findStr().
    *
-   * @param search the search string (same as the first argument to
-   *               findStr()).
-   * @return an array of distances (to be passed as the second argument to
-   *         findStr()).
+   * @param search the search string (same as the first argument to findStr()).
+   * @return an array of distances (to be passed as the second argument to findStr()).
    */
   static final int[] compile_search(byte[] search) {
     int[] cmp = {0, 1, 0, 1, 0, 1};
@@ -241,18 +232,15 @@ public class Util {
   }
 
   /**
-   * Search for a string. Use compile_search() to first generate the second
-   * argument. This uses a Knuth-Morris-Pratt like algorithm.
+   * Search for a string. Use compile_search() to first generate the second argument. This uses a
+   * Knuth-Morris-Pratt like algorithm.
    *
-   * @param search  the string to search for.
-   * @param cmp     the the array returned by compile_search.
-   * @param str     the string in which to look for <var>search</var>.
-   * @param beg     the position at which to start the search in
-   *                <var>str</var>.
-   * @param end     the position at which to end the search in <var>str</var>,
-   *                noninclusive.
-   * @return the position in <var>str</var> where <var>search</var> was
-   *         found, or -1 if not found.
+   * @param search the string to search for.
+   * @param cmp the the array returned by compile_search.
+   * @param str the string in which to look for <var>search</var>.
+   * @param beg the position at which to start the search in <var>str</var>.
+   * @param end the position at which to end the search in <var>str</var>, noninclusive.
+   * @return the position in <var>str</var> where <var>search</var> was found, or -1 if not found.
    */
   static final int findStr(byte[] search, int[] cmp, byte[] str, int beg, int end) {
     int c1f = cmp[0],
@@ -300,15 +288,13 @@ public class Util {
   }
 
   /**
-   * Replace quoted characters by their unquoted version. Quoted characters
-   * are characters preceded by a slash. E.g. "\c" would be replaced by "c".
-   * This is used in parsing http headers where quoted-characters are
-   * allowed in quoted-strings and often used to quote the quote character
+   * Replace quoted characters by their unquoted version. Quoted characters are characters preceded
+   * by a slash. E.g. "\c" would be replaced by "c". This is used in parsing http headers where
+   * quoted-characters are allowed in quoted-strings and often used to quote the quote character
    * &lt;"&gt;.
    *
    * @param str the string do dequote
-   * @return the string do with all quoted characters replaced by their
-   *         true value.
+   * @return the string do with all quoted characters replaced by their true value.
    */
   public static final String dequoteString(String str) {
     if (str.indexOf('\\') == -1) return str;
@@ -327,15 +313,13 @@ public class Util {
   }
 
   /**
-   * Replace given characters by their quoted version. Quoted characters
-   * are characters preceded by a slash. E.g. "c" would be replaced by "\c".
-   * This is used in generating http headers where certain characters need
-   * to be quoted, such as the quote character &lt;"&gt;.
+   * Replace given characters by their quoted version. Quoted characters are characters preceded by
+   * a slash. E.g. "c" would be replaced by "\c". This is used in generating http headers where
+   * certain characters need to be quoted, such as the quote character &lt;"&gt;.
    *
-   * @param str   the string do quote
+   * @param str the string do quote
    * @param qlist the list of characters to quote
-   * @return the string do with all characters replaced by their
-   *         quoted version.
+   * @return the string do with all characters replaced by their quoted version.
    */
   public static final String quoteString(String str, String qlist) {
     char[] list = qlist.toCharArray();
@@ -362,13 +346,12 @@ public class Util {
   }
 
   /**
-   * This parses the value part of a header. All quoted strings are
-   * dequoted.
+   * This parses the value part of a header. All quoted strings are dequoted.
    *
    * @see #parseHeader(java.lang.String, boolean)
-   * @param header  the value part of the header.
-   * @return a Vector containing all the elements; each entry is an
-   *         instance of <var>HttpHeaderElement</var>.
+   * @param header the value part of the header.
+   * @return a Vector containing all the elements; each entry is an instance of
+   *     <var>HttpHeaderElement</var>.
    * @exception ParseException if the syntax rules are violated.
    */
   public static final Vector parseHeader(String header) throws ParseException {
@@ -376,8 +359,8 @@ public class Util {
   }
 
   /**
-   * This parses the value part of a header. The result is a Vector of
-   * HttpHeaderElement's. The syntax the header must conform to is:
+   * This parses the value part of a header. The result is a Vector of HttpHeaderElement's. The
+   * syntax the header must conform to is:
    *
    * <PRE>
    * header  = [ element ] *( "," [ element ] )
@@ -394,15 +377,14 @@ public class Util {
    * quoted-char   = "\" char
    * </PRE>
    *
-   * Any amount of white space is allowed between any part of the header,
-   * element or param and is ignored. A missing value in any element or
-   * param will be stored as the empty string; if the "=" is also missing
-   * <var>null</var> will be stored instead.
+   * Any amount of white space is allowed between any part of the header, element or param and is
+   * ignored. A missing value in any element or param will be stored as the empty string; if the "="
+   * is also missing <var>null</var> will be stored instead.
    *
-   * @param header  the value part of the header.
+   * @param header the value part of the header.
    * @param dequote if true all quoted strings are dequoted.
-   * @return a Vector containing all the elements; each entry is an
-   *         instance of <var>HttpHeaderElement</var>.
+   * @return a Vector containing all the elements; each entry is an instance of
+   *     <var>HttpHeaderElement</var>.
    * @exception ParseException if the above syntax rules are violated.
    * @see HTTPClient.HttpHeaderElement
    */
@@ -509,9 +491,7 @@ public class Util {
     return elems;
   }
 
-  /**
-   * Parse the value part. Accepts either token or quoted string.
-   */
+  /** Parse the value part. Accepts either token or quoted string. */
   private static String parseValue(char[] buf, int[] abeg, String header, boolean dequote)
       throws ParseException {
     int beg = abeg[0], end = beg, len = buf.length;
@@ -567,12 +547,12 @@ public class Util {
   }
 
   /**
-   * Determines if the given header contains a certain token. The header
-   * must conform to the rules outlined in parseHeader().
+   * Determines if the given header contains a certain token. The header must conform to the rules
+   * outlined in parseHeader().
    *
    * @see #parseHeader(java.lang.String)
    * @param header the header value.
-   * @param token  the token to find; the match is case-insensitive.
+   * @param token the token to find; the match is case-insensitive.
    * @return true if the token is present, false otherwise.
    * @exception ParseException if this is thrown parseHeader().
    */
@@ -584,10 +564,9 @@ public class Util {
   /**
    * Get the HttpHeaderElement with the name <var>name</var>.
    *
-   * @param header a vector of HttpHeaderElement's, such as is returned
-   *               from <code>parseHeader()</code>
-   * @param name   the name of element to retrieve; matching is
-   *               case-insensitive
+   * @param header a vector of HttpHeaderElement's, such as is returned from <code>parseHeader()
+   *     </code>
+   * @param name the name of element to retrieve; matching is case-insensitive
    * @return the request element, or null if none found.
    * @see #parseHeader(java.lang.String)
    */
@@ -598,17 +577,16 @@ public class Util {
   }
 
   /**
-   * retrieves the value associated with the parameter <var>param</var> in
-   * a given header string. It parses the header using
-   * <code>parseHeader()</code> and then searches the first element for the
-   * given parameter. This is used especially in headers like
-   * 'Content-type' and 'Content-Disposition'.
+   * retrieves the value associated with the parameter <var>param</var> in a given header string. It
+   * parses the header using <code>parseHeader()</code> and then searches the first element for the
+   * given parameter. This is used especially in headers like 'Content-type' and
+   * 'Content-Disposition'.
    *
-   * <P>quoted characters ("\x") in a quoted string are dequoted.
+   * <p>quoted characters ("\x") in a quoted string are dequoted.
    *
    * @see #parseHeader(java.lang.String)
-   * @param  param  the parameter name
-   * @param  hdr    the header value
+   * @param param the parameter name
+   * @param hdr the header value
    * @return the value for this parameter, or null if not found.
    * @exception ParseException if the above syntax rules are violated.
    */
@@ -623,8 +601,8 @@ public class Util {
   }
 
   /**
-   * Assembles a Vector of HttpHeaderElements into a full header string.
-   * The individual header elements are seperated by a ", ".
+   * Assembles a Vector of HttpHeaderElements into a full header string. The individual header
+   * elements are seperated by a ", ".
    *
    * @param the parsed header
    * @return a string containing the assembled header
@@ -643,8 +621,7 @@ public class Util {
   }
 
   /**
-   * returns the position of the first non-space character in a char array
-   * starting a position pos.
+   * returns the position of the first non-space character in a char array starting a position pos.
    *
    * @param str the char array
    * @param pos the position to start looking
@@ -657,13 +634,11 @@ public class Util {
   }
 
   /**
-   * returns the position of the first space character in a char array
-   * starting a position pos.
+   * returns the position of the first space character in a char array starting a position pos.
    *
    * @param str the char array
    * @param pos the position to start looking
-   * @return the position of the first space character, or the length of
-   *         the string if not found
+   * @return the position of the first space character, or the length of the string if not found
    */
   static final int findSpace(char[] str, int pos) {
     int len = str.length;
@@ -672,13 +647,11 @@ public class Util {
   }
 
   /**
-   * returns the position of the first non-token character in a char array
-   * starting a position pos.
+   * returns the position of the first non-token character in a char array starting a position pos.
    *
    * @param str the char array
    * @param pos the position to start looking
-   * @return the position of the first non-token character, or the length
-   *         of the string if not found
+   * @return the position of the first non-token character, or the length of the string if not found
    */
   static final int skipToken(char[] str, int pos) {
     int len = str.length;
@@ -687,8 +660,8 @@ public class Util {
   }
 
   /**
-   * Does the string need to be quoted when sent in a header? I.e. does
-   * it contain non-token characters?
+   * Does the string need to be quoted when sent in a header? I.e. does it contain non-token
+   * characters?
    *
    * @param str the string
    * @return true if it needs quoting (i.e. it contains non-token chars)
@@ -701,14 +674,13 @@ public class Util {
   }
 
   /**
-   * Compares two http urls for equality. This exists because the method
-   * <code>java.net.URL.sameFile()</code> is broken (an explicit port 80
-   * doesn't compare equal to an implicit port, and it doesn't take
-   * escapes into account).
+   * Compares two http urls for equality. This exists because the method <code>
+   * java.net.URL.sameFile()</code> is broken (an explicit port 80 doesn't compare equal to an
+   * implicit port, and it doesn't take escapes into account).
    *
-   * <P>Two http urls are considered equal if they have the same protocol
-   * (case-insensitive match), the same host (case-insensitive), the
-   * same port and the same file (after decoding escaped characters).
+   * <p>Two http urls are considered equal if they have the same protocol (case-insensitive match),
+   * the same host (case-insensitive), the same port and the same file (after decoding escaped
+   * characters).
    *
    * @param url1 the first url
    * @param url1 the second url
@@ -744,10 +716,10 @@ public class Util {
   }
 
   /**
-   * Parse the http date string. java.util.Date will do this fine, but
-   * is deprecated, so we use SimpleDateFormat instead.
+   * Parse the http date string. java.util.Date will do this fine, but is deprecated, so we use
+   * SimpleDateFormat instead.
    *
-   * @param dstr  the date string to parse
+   * @param dstr the date string to parse
    * @return the Date object
    */
   static final Date parseHttpDate(String dstr) {
@@ -783,16 +755,14 @@ public class Util {
   }
 
   /**
-   * This returns a string containing the date and time in <var>date</var>
-   * formatted according to a subset of RFC-1123. The format is defined in
-   * the HTTP/1.0 spec (RFC-1945), section 3.3, and the HTTP/1.1 spec
-   * (RFC-2616), section 3.3.1. Note that Date.toGMTString() is close, but
-   * is missing the weekday and supresses the leading zero if the day is
-   * less than the 10th. Instead we use the SimpleDateFormat class.
+   * This returns a string containing the date and time in <var>date</var> formatted according to a
+   * subset of RFC-1123. The format is defined in the HTTP/1.0 spec (RFC-1945), section 3.3, and the
+   * HTTP/1.1 spec (RFC-2616), section 3.3.1. Note that Date.toGMTString() is close, but is missing
+   * the weekday and supresses the leading zero if the day is less than the 10th. Instead we use the
+   * SimpleDateFormat class.
    *
-   * <P>Some versions of JDK 1.1.x are bugged in that their GMT uses
-   * daylight savings time... Therefore we use our own timezone
-   * definitions.
+   * <p>Some versions of JDK 1.1.x are bugged in that their GMT uses daylight savings time...
+   * Therefore we use our own timezone definitions.
    *
    * @param date the date and time to be converted
    * @return a string containg the date and time as used in http
@@ -842,10 +812,9 @@ public class Util {
   /**
    * Extract the path from an http resource.
    *
-   * <P>The "resource" part of an HTTP URI can contain a number of parts,
-   * some of which are not always of interest. These methods here will
-   * extract the various parts, assuming the following syntanx (taken from
-   * RFC-2616):
+   * <p>The "resource" part of an HTTP URI can contain a number of parts, some of which are not
+   * always of interest. These methods here will extract the various parts, assuming the following
+   * syntanx (taken from RFC-2616):
    *
    * <PRE>
    * resource = [ "/" ] [ path ] [ ";" params ] [ "?" query ] [ "#" fragment ]
@@ -920,13 +889,12 @@ public class Util {
   }
 
   /**
-   * Match <var>pattern</var> against <var>name</var>, where
-   * <var>pattern</var> may contain wildcards ('*').
+   * Match <var>pattern</var> against <var>name</var>, where <var>pattern</var> may contain
+   * wildcards ('*').
    *
-   * @param pattern the pattern to match; may contain '*' which match
-   *                any number (0 or more) of any character (think file
-   *                globbing)
-   * @param name    the name to match against the pattern
+   * @param pattern the pattern to match; may contain '*' which match any number (0 or more) of any
+   *     character (think file globbing)
+   * @param name the name to match against the pattern
    * @return true if the name matches the pattern; false otherwise
    */
   public static final boolean wildcardMatch(String pattern, String name) {

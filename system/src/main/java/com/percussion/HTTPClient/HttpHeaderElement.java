@@ -18,14 +18,14 @@
 package com.percussion.HTTPClient;
 
 /**
- * This class holds a description of an http header element. It is used
- * by {@link Util#parseHeader(java.lang.String) Util.parseHeader}.
+ * This class holds a description of an http header element. It is used by {@link
+ * Util#parseHeader(java.lang.String) Util.parseHeader}.
  *
  * @see Util#parseHeader(java.lang.String)
  * @see Util#getElement(java.util.Vector, java.lang.String)
  * @see Util#assembleHeader(java.util.Vector)
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public class HttpHeaderElement {
@@ -41,11 +41,10 @@ public class HttpHeaderElement {
   // Constructors
 
   /**
-   * Construct an element with the given name. The value and parameters
-   * are set to null. This can be used when a dummy element is constructed
-   * for comparison or retrieval purposes.
+   * Construct an element with the given name. The value and parameters are set to null. This can be
+   * used when a dummy element is constructed for comparison or retrieval purposes.
    *
-   * @param name   the name of the element
+   * @param name the name of the element
    */
   public HttpHeaderElement(String name) {
     this.name = name;
@@ -54,8 +53,8 @@ public class HttpHeaderElement {
   }
 
   /**
-   * @param name   the first token in the element
-   * @param value  the value part, or null
+   * @param name the first token in the element
+   * @param value the value part, or null
    * @param params the parameters
    */
   public HttpHeaderElement(String name, String value, NVPair[] params) {
@@ -91,12 +90,10 @@ public class HttpHeaderElement {
   }
 
   /**
-   * Two elements are equal if they have the same name. The comparison is
-   * <em>case-insensitive</em>.
+   * Two elements are equal if they have the same name. The comparison is <em>case-insensitive</em>.
    *
    * @param obj the object to compare with
-   * @return true if <var>obj</var> is an HttpHeaderElement with the same
-   *         name as this element.
+   * @return true if <var>obj</var> is an HttpHeaderElement with the same name as this element.
    */
   public boolean equals(Object obj) {
     if ((obj != null) && (obj instanceof HttpHeaderElement)) {
@@ -108,8 +105,7 @@ public class HttpHeaderElement {
   }
 
   /**
-   * @return a string containing the HttpHeaderElement formatted as it
-   *         would appear in a header
+   * @return a string containing the HttpHeaderElement formatted as it would appear in a header
    */
   public String toString() {
     StringBuilder buf = new StringBuilder();
@@ -118,9 +114,8 @@ public class HttpHeaderElement {
   }
 
   /**
-   * Append this header element to the given buffer. This is basically a
-   * more efficient version of <code>toString()</code> for assembling
-   * multiple elements.
+   * Append this header element to the given buffer. This is basically a more efficient version of
+   * <code>toString()</code> for assembling multiple elements.
    *
    * @param buf the StringBuilder to append this header to
    * @see #toString()

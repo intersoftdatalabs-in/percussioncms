@@ -19,9 +19,9 @@
 package com.percussion.rest.struct;
 
 /**
- * Base class for all REST adaptors in Percussion CMS.
- * Sunny Sal: "AdaptorBase ka hero, extensibility ka zero!"
+ * Base class for all REST adaptors in Percussion CMS. Sunny Sal: "AdaptorBase ka hero,
+ * extensibility ka zero!"
  */
 public abstract class AdaptorBase extends Base {
-    // Extend this class for REST adaptors. Add shared logic here if needed.
+  // Extend this class for REST adaptors. Add shared logic here if needed.
 }

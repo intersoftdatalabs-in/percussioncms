@@ -45,9 +45,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * This class is used for generating DTD from a XML document.
- */
+/** This class is used for generating DTD from a XML document. */
 public class PSDtdGenerator {
   private static final Logger log = LogManager.getLogger(PSDtdGenerator.class);
 
@@ -94,9 +92,8 @@ public class PSDtdGenerator {
   }
 
   /**
-   * @author   chadloder
-   *
-   * Constructor. Does nothing.
+   * @author chadloder
+   *     <p>Constructor. Does nothing.
    */
   public PSDtdGenerator() {}
 
@@ -106,11 +103,11 @@ public class PSDtdGenerator {
 
   /**
    * Generates DTD from XML documents.
-   * @param exemplars array of XML documents from which the DTD should be
-   * generated. May not be <code>null</code> or empty.
-   * @return the <code>PSDtdTree</code> representing the DTD for the input
-   * XML documents. May be <code>null</code> if any error occurs during DTD
-   * generation or parsing the generated DTD.
+   *
+   * @param exemplars array of XML documents from which the DTD should be generated. May not be
+   *     <code>null</code> or empty.
+   * @return the <code>PSDtdTree</code> representing the DTD for the input XML documents. May be
+   *     <code>null</code> if any error occurs during DTD generation or parsing the generated DTD.
    */
   public static PSDtdTree generate(Document[] exemplars) {
     PSDtdGenerator gen = new PSDtdGenerator();
@@ -146,39 +143,38 @@ public class PSDtdGenerator {
   }
 
   /**
-   * Infers a DTD to which the given document will conform. The generated
-   * DTD tends to be as restrictive as possible.
+   * Infers a DTD to which the given document will conform. The generated DTD tends to be as
+   * restrictive as possible.
    *
-   * The strategy used is:
+   * <p>The strategy used is:
    *
-   *   <ul>
-   *       <li>If an element contains both non-space character data and child elements, then it is
-   *                                                                                               declared with mixed element content, permitting all child elements that are actually
-   *                                                                                               encountered within instances of that parent element.</li>
-   *       <li>If no significant character data is found in an element, it is assumed that the element
-   *                                                                                               cannot contain character data.</li>
-   *       <li>If an element contains child elements but no significant character data, then it is
-   *                                                                                               declared as having element content. If the same child elements occur in every instance
-   *                                                                                               of the parent and in a consistent sequence, then this sequence is reflected in the element
-   *                                                                                               declaration: where child elements are repeated or trailing children (only) are omitted
-   *                                                                                               in some instances of the parent element, this will result in a declaration that shows
-   *                                                                                               the child element as being repeatable or optional or both. If no such consistency of
-   *                                                                                               sequence can be detected, then a more general form of element
-   *                                                                                               declaration is used in which all child elements may appear any number of times in any sequence.
-   *       <li>If neither character data nor subordinate elements are found in an element, it is
-   *                                                                                               assumed the element must always be empty.</li>
-   *       <li>An attribute appearing in an element is assumed to be REQUIRED if it appears in every
-   *                                                                                               occurrence of the element.</li>
-   *       <li>NOT IMPLEMENTED: An attribute that has a distinct value every time it appears is assumed to be an
-   *                                                                                               identifying (ID) attribute, provided that there are at least 10 instances of the element
-   *                                                                                               in the input document.</li>
-   *       <li>NOT IMPLEMENTED: An attribute is assumed to be an enumeration attribute if it has less than ten distinct
-   *                                                                                               values, provided that the number of instances of the attribute is at least three times the
-   *                                                                                               number of distinct values and at least ten. </li>
-   *   </ul>
+   * <ul>
+   *   <li>If an element contains both non-space character data and child elements, then it is
+   *       declared with mixed element content, permitting all child elements that are actually
+   *       encountered within instances of that parent element.
+   *   <li>If no significant character data is found in an element, it is assumed that the element
+   *       cannot contain character data.
+   *   <li>If an element contains child elements but no significant character data, then it is
+   *       declared as having element content. If the same child elements occur in every instance of
+   *       the parent and in a consistent sequence, then this sequence is reflected in the element
+   *       declaration: where child elements are repeated or trailing children (only) are omitted in
+   *       some instances of the parent element, this will result in a declaration that shows the
+   *       child element as being repeatable or optional or both. If no such consistency of sequence
+   *       can be detected, then a more general form of element declaration is used in which all
+   *       child elements may appear any number of times in any sequence.
+   *   <li>If neither character data nor subordinate elements are found in an element, it is assumed
+   *       the element must always be empty.
+   *   <li>An attribute appearing in an element is assumed to be REQUIRED if it appears in every
+   *       occurrence of the element.
+   *   <li>NOT IMPLEMENTED: An attribute that has a distinct value every time it appears is assumed
+   *       to be an identifying (ID) attribute, provided that there are at least 10 instances of the
+   *       element in the input document.
+   *   <li>NOT IMPLEMENTED: An attribute is assumed to be an enumeration attribute if it has less
+   *       than ten distinct values, provided that the number of instances of the attribute is at
+   *       least three times the number of distinct values and at least ten.
+   * </ul>
    *
    * @param exemplar A representative document.
-   *
    * @return PSDtdTree a DTD to which the given document will confirm.
    */
   public void generateDtd(Document exemplar) {
@@ -186,14 +182,12 @@ public class PSDtdGenerator {
   }
 
   /**
-   * Infers a DTD to which all of the given documents will conform. The generated
-   * DTD tends to be as restrictive as possible. All documents in the array must
-   * have a root element with the same name.
+   * Infers a DTD to which all of the given documents will conform. The generated DTD tends to be as
+   * restrictive as possible. All documents in the array must have a root element with the same
+   * name.
    *
    * @param exemplar An array of representative documents.
-   *
    * @return PSDtdTree a DTD to which the given document will confirm.
-   *
    * @see #generateDtd(Document)
    */
   public void generateDtd(Document[] exemplars) {
@@ -223,34 +217,24 @@ public class PSDtdGenerator {
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/06/02
-   *
-   * Writes the generated DTD to the given OutputStream using the given encoding.
-   *
-   * @param   out The stream to which the DTD will be written.
-   *
-   * @throws   IllegalStateException If the DTD has not been generated yet.
-   *
+   *     <p>Writes the generated DTD to the given OutputStream using the given encoding.
+   * @param out The stream to which the DTD will be written.
+   * @throws IllegalStateException If the DTD has not been generated yet.
    */
   public void writeDtd(OutputStream out) throws IOException {
     writeDtd(out, null);
   }
 
   /**
-   * @author   chadloder
-   *
+   * @author chadloder
    * @version 1.2 1999/06/02
-   *
-   * Writes the generated DTD to the given OutputStream using the given encoding.
-   *
-   * @param   out The stream to which the DTD will be written.
-   * @param   enc   The character encoding that will be used. If null, the default
-   * character encoding will be used.
-   *
-   * @throws   IllegalStateException If the DTD has not been generated yet.
-   *
+   *     <p>Writes the generated DTD to the given OutputStream using the given encoding.
+   * @param out The stream to which the DTD will be written.
+   * @param enc The character encoding that will be used. If null, the default character encoding
+   *     will be used.
+   * @throws IllegalStateException If the DTD has not been generated yet.
    */
   public void writeDtd(OutputStream out, String enc) throws IOException {
     // go through each element and print out a <!ELEMENT entry for it
@@ -530,11 +514,9 @@ public class PSDtdGenerator {
     }
 
     /**
-     * @author   chadloder
-     *
+     * @author chadloder
      * @version 1.0 1999/6/1
-     *
-     * Increments the number of occurrences of this element.
+     *     <p>Increments the number of occurrences of this element.
      */
     public void incrementOccurrences() {
       m_occurrences++;
@@ -545,41 +527,29 @@ public class PSDtdGenerator {
     }
 
     /**
-     * @author   chadloder
-     *
+     * @author chadloder
      * @version 1.0 1999/6/1
-     *
-     * Adds a possible value that this attribute can have. Duplicate values
-     * will not be added.
-     *
-     * @param   value
-     *
+     *     <p>Adds a possible value that this attribute can have. Duplicate values will not be
+     *     added.
+     * @param value
      */
     public void addValue(String value) {
       m_values.put(value, Boolean.TRUE);
     }
 
     /**
-     * @author   chadloder
-     *
+     * @author chadloder
      * @version 1.0 1999/6/1
-     *
-     *
-     * @return   int The number of possible values that this attribute can
-     * have.
+     * @return int The number of possible values that this attribute can have.
      */
     public int getNumValues() {
       return m_values.size();
     }
 
     /**
-     * @author   unascribed
-     *
+     * @author unascribed
      * @version 1.0 1999/6/1
-     *
-     *
-     * @return   Iterator An iterator over the possible values that this
-     * attribute can have.
+     * @return Iterator An iterator over the possible values that this attribute can have.
      */
     public Iterator getValuesIterator() {
       return m_values.values().iterator();
@@ -608,11 +578,9 @@ public class PSDtdGenerator {
     }
 
     /**
-     * @author   chadloder
-     *
+     * @author chadloder
      * @version 1.0 1999/6/1
-     *
-     * Increments the number of occurrences of this element.
+     *     <p>Increments the number of occurrences of this element.
      */
     public void incrementOccurrences() {
       m_occurrences++;

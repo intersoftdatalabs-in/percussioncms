@@ -35,30 +35,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
 
 /**
- * The PSUpdateOptimizer class is used internally by the E2 server to
- * determine the best execution plan for data modifications (update, insert
- * or delete). This is critical when performing transactions across
- * multiple back-ends. A poor execution plan may lead to deadlocking or
- * other bad behavior.
+ * The PSUpdateOptimizer class is used internally by the E2 server to determine the best execution
+ * plan for data modifications (update, insert or delete). This is critical when performing
+ * transactions across multiple back-ends. A poor execution plan may lead to deadlocking or other
+ * bad behavior.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUpdateOptimizer extends PSOptimizer {
   /**
-   * Generate an execution plan for inserting data against the given data
-   * set. This determines what transaction sets must be executed and exits
-   * fired.
+   * Generate an execution plan for inserting data against the given data set. This determines what
+   * transaction sets must be executed and exits fired.
    *
-   * @param   ah   The application handler for this request
-   *
-   * @param   ds   The data set for which to generate an execution plan
-   *
-   * @return   the array of execution steps in the execution plan
-   *
-   * @exception PSIllegalArgumentException if <CODE>ah</CODE> is null,
-   * if <CODE>ds</CODE> is null or does not contain exactly one query pipe.
+   * @param ah The application handler for this request
+   * @param ds The data set for which to generate an execution plan
+   * @return the array of execution steps in the execution plan
+   * @exception PSIllegalArgumentException if <CODE>ah</CODE> is null, if <CODE>ds</CODE> is null or
+   *     does not contain exactly one query pipe.
    */
   public static IPSExecutionStep[] createInsertExecutionPlan(PSApplicationHandler ah, PSDataSet ds)
       throws PSIllegalArgumentException, SQLException {
@@ -66,13 +61,11 @@ public class PSUpdateOptimizer extends PSOptimizer {
   }
 
   /**
-   * Generate an execution plan for updating data against the given data
-   * set. This determines what transaction sets must be executed and exits
-   * fired.
+   * Generate an execution plan for updating data against the given data set. This determines what
+   * transaction sets must be executed and exits fired.
    *
-   * @param   ds     the data set for which to generate an execution plan
-   *
-   * @return   the array of execution steps in the execution plan
+   * @param ds the data set for which to generate an execution plan
+   * @return the array of execution steps in the execution plan
    */
   public static IPSExecutionStep[] createUpdateExecutionPlan(PSApplicationHandler ah, PSDataSet ds)
       throws PSIllegalArgumentException, SQLException {
@@ -80,13 +73,11 @@ public class PSUpdateOptimizer extends PSOptimizer {
   }
 
   /**
-   * Generate an execution plan for deleting data against the given data
-   * set. This determines what transaction sets must be executed and exits
-   * fired.
+   * Generate an execution plan for deleting data against the given data set. This determines what
+   * transaction sets must be executed and exits fired.
    *
-   * @param   ds     the data set for which to generate an execution plan
-   *
-   * @return   the array of execution steps in the execution plan
+   * @param ds the data set for which to generate an execution plan
+   * @return the array of execution steps in the execution plan
    */
   public static IPSExecutionStep[] createDeleteExecutionPlan(PSApplicationHandler ah, PSDataSet ds)
       throws PSIllegalArgumentException, SQLException {
@@ -96,14 +87,11 @@ public class PSUpdateOptimizer extends PSOptimizer {
   /**
    * Generate an execution plan for against the given data set.
    *
-   * @param   ah   The application handler for this request
-   *
-   * @param   ds   The data set for which to generate an execution plan
-   *
-   * @return   the array of execution steps in the execution plan
-   *
-   * @exception PSIllegalArgumentException if <CODE>ah</CODE> is null,
-   * if <CODE>ds</CODE> is null or does not contain exactly one query pipe.
+   * @param ah The application handler for this request
+   * @param ds The data set for which to generate an execution plan
+   * @return the array of execution steps in the execution plan
+   * @exception PSIllegalArgumentException if <CODE>ah</CODE> is null, if <CODE>ds</CODE> is null or
+   *     does not contain exactly one query pipe.
    */
   public static IPSExecutionStep[] createExecutionPlan(
       PSApplicationHandler ah, PSDataSet ds, int planType)
@@ -289,11 +277,10 @@ public class PSUpdateOptimizer extends PSOptimizer {
   }
 
   /**
-   * Get the update pipe in this data set and verify it does indeed
-   * contain an update pipe.
+   * Get the update pipe in this data set and verify it does indeed contain an update pipe.
    *
-   * @param   ah      the application handler
-   * @param   ds      the data set containing the pipes
+   * @param ah the application handler
+   * @param ds the data set containing the pipes
    */
   private static PSUpdatePipe getUpdatePipe(PSApplicationHandler ah, PSDataSet ds)
       throws PSIllegalArgumentException {
@@ -325,16 +312,13 @@ public class PSUpdateOptimizer extends PSOptimizer {
   }
 
   /**
-   * Reorder the execution steps, if necessary. The main reason to
-   * change the ordering is when referential constraints, such as
-   * foreign keys, exist. When this is the case, changes to one of the
-   * tables must occur before the others, otherwise an error will occur.
+   * Reorder the execution steps, if necessary. The main reason to change the ordering is when
+   * referential constraints, such as foreign keys, exist. When this is the case, changes to one of
+   * the tables must occur before the others, otherwise an error will occur.
    *
-   * @param   beTables         the back-end tables the execution steps are for
-   *
-   * @param   execSteps      the execution steps to reorder
-   *
-   * @return                  the reordered execution steps
+   * @param beTables the back-end tables the execution steps are for
+   * @param execSteps the execution steps to reorder
+   * @return the reordered execution steps
    */
   private static java.util.List reorderExecutionSteps(
       int planType, PSCollection beTables, java.util.List execSteps, java.util.Map builderMaps)
@@ -568,12 +552,11 @@ public class PSUpdateOptimizer extends PSOptimizer {
   }
 
   /**
-   * Go through the dependencies for a given table and see if the table
-   * is listed in one of its dependent tables as a dependent. This should
-   * really never happen, but we should definitely want to know about it.
+   * Go through the dependencies for a given table and see if the table is listed in one of its
+   * dependent tables as a dependent. This should really never happen, but we should definitely want
+   * to know about it.
    *
-   * @return      the name of the cross-dependent table; <code>null</code>
-   *                                                                                                                     if no cross-dependencies exist
+   * @return the name of the cross-dependent table; <code>null</code> if no cross-dependencies exist
    */
   private static String getCrossDependentTable(
       String tableName, java.util.Map dependencyMap, java.util.List dependentTables) {

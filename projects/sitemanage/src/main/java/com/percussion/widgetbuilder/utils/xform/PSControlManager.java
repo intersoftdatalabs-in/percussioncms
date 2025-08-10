@@ -20,12 +20,10 @@ package com.percussion.widgetbuilder.utils.xform;
 import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.server.PSSystemControlManager;
 
-/**
- * Default implementation of IPSControlManager using PSSystemControlManager.
- */
+/** Default implementation of IPSControlManager using PSSystemControlManager. */
 public class PSControlManager implements IPSControlManager {
-    @Override
-    public PSControlMeta getControl(String name) {
-        return PSSystemControlManager.getInstance().getControl(name);
-    }
+  @Override
+  public PSControlMeta getControl(String name) {
+    return PSSystemControlManager.getInstance().getControl(name);
+  }
 }

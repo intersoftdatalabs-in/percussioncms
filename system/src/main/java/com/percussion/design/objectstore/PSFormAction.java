@@ -23,9 +23,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Implementation for the PSFormAction DTD in BasicObjects.dtd. A form action
- * is a way for the designer to specify the 'action' attribute of the 'FORM'
- * command in an html form. It includes a url and a type.
+ * Implementation for the PSFormAction DTD in BasicObjects.dtd. A form action is a way for the
+ * designer to specify the 'action' attribute of the 'FORM' command in an html form. It includes a
+ * url and a type.
  */
 public class PSFormAction extends PSComponent {
   /**
@@ -40,17 +40,13 @@ public class PSFormAction extends PSComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSFormAction(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -107,9 +103,8 @@ public class PSFormAction extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSField, not <code>null</code>.
    */
@@ -219,30 +214,22 @@ public class PSFormAction extends PSComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXFormAction";
 
-  /**
-   * GET method specifier. The index into the <code>METHOD_ENUM</code> array.
-   */
+  /** GET method specifier. The index into the <code>METHOD_ENUM</code> array. */
   public static final int METHOD_GET = 0;
 
-  /**
-   * POST method specifier. The index into the <code>METHOD_ENUM</code> array.
-   */
+  /** POST method specifier. The index into the <code>METHOD_ENUM</code> array. */
   public static final int METHOD_POST = 1;
 
   /**
-   * An array of XML attribute values for the form method.
-   * They are specified at the index of the specifier.
+   * An array of XML attribute values for the form method. They are specified at the index of the
+   * specifier.
    */
   private static final String[] METHOD_ENUM = {"GET", "POST"};
 
-  /**
-   * The form action method.
-   */
+  /** The form action method. */
   private int m_method = METHOD_GET;
 
-  /**
-   * The form action, never <code>null</code> after construction.
-   */
+  /** The form action, never <code>null</code> after construction. */
   private PSUrlRequest m_action;
 
   //

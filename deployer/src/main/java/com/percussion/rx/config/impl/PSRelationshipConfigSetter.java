@@ -22,7 +22,6 @@ import com.percussion.design.objectstore.PSCloneOverrideField;
 import com.percussion.design.objectstore.PSCloneOverrideFieldList;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSExtensionCall;
-import com.percussion.design.objectstore.PSProcessCheck;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRule;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
@@ -30,10 +29,9 @@ import com.percussion.rx.config.PSConfigException;
 import com.percussion.rx.design.IPSAssociationSet;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.PSCollection;
-import org.apache.commons.lang.StringUtils;
-
 import java.text.MessageFormat;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Relationship configuration setter to set shallowCloning, deepCloning, and fieldOverrides.
@@ -42,184 +40,196 @@ import java.util.*;
  */
 public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
 
-    @Override
-    protected boolean applyProperty(Object obj, ObjectState state,
-                                    List<IPSAssociationSet> aSets, String propName, Object propValue)
-            throws Exception {
-        if (!(obj instanceof PSRelationshipConfig))
-            throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
-        var relConfig = (PSRelationshipConfig) obj;
-        switch (propName) {
-            case PROP_SHALLOWCLONING:
-                setCloningProperty(relConfig, propValue, true);
-                break;
-            case PROP_DEEPCLONING:
-                setCloningProperty(relConfig, propValue, false);
-                break;
-            case PROP_FIELDOVERRIDES:
-                setCloneFieldOverrides(relConfig, propValue);
-                break;
-            default:
-                super.applyProperty(obj, state, aSets, propName, propValue);
-        }
-        return true;
+  @Override
+  protected boolean applyProperty(
+      Object obj,
+      ObjectState state,
+      List<IPSAssociationSet> aSets,
+      String propName,
+      Object propValue)
+      throws Exception {
+    if (!(obj instanceof PSRelationshipConfig))
+      throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
+    var relConfig = (PSRelationshipConfig) obj;
+    switch (propName) {
+      case PROP_SHALLOWCLONING:
+        setCloningProperty(relConfig, propValue, true);
+        break;
+      case PROP_DEEPCLONING:
+        setCloningProperty(relConfig, propValue, false);
+        break;
+      case PROP_FIELDOVERRIDES:
+        setCloneFieldOverrides(relConfig, propValue);
+        break;
+      default:
+        super.applyProperty(obj, state, aSets, propName, propValue);
     }
+    return true;
+  }
 
-    @Override
-    protected boolean addPropertyDefs(Object obj, String propName, Object pvalue, Map<String, Object> defs) throws PSNotFoundException {
-        if (super.addPropertyDefs(obj, propName, pvalue, defs))
-            return true;
-        if (!(obj instanceof PSRelationshipConfig))
-            throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
-        var relConfig = (PSRelationshipConfig) obj;
+  @Override
+  protected boolean addPropertyDefs(
+      Object obj, String propName, Object pvalue, Map<String, Object> defs)
+      throws PSNotFoundException {
+    if (super.addPropertyDefs(obj, propName, pvalue, defs)) return true;
+    if (!(obj instanceof PSRelationshipConfig))
+      throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
+    var relConfig = (PSRelationshipConfig) obj;
 
-        switch (propName) {
-            case PROP_SHALLOWCLONING:
-                addPropertyDefsForMap(propName, pvalue, getClonningProperty(relConfig, true), defs);
-                break;
-            case PROP_DEEPCLONING:
-                addPropertyDefsForMap(propName, pvalue, getClonningProperty(relConfig, false), defs);
-                break;
-            case PROP_FIELDOVERRIDES:
-                addFixmePropertyDefsForList(propName, pvalue, defs);
-                break;
-        }
-        return true;
+    switch (propName) {
+      case PROP_SHALLOWCLONING:
+        addPropertyDefsForMap(propName, pvalue, getClonningProperty(relConfig, true), defs);
+        break;
+      case PROP_DEEPCLONING:
+        addPropertyDefsForMap(propName, pvalue, getClonningProperty(relConfig, false), defs);
+        break;
+      case PROP_FIELDOVERRIDES:
+        addFixmePropertyDefsForList(propName, pvalue, defs);
+        break;
     }
+    return true;
+  }
 
-    @Override
-    protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
-        if (!(obj instanceof PSRelationshipConfig))
-            throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
-        var relConfig = (PSRelationshipConfig) obj;
-        switch (propName) {
-            case PROP_SHALLOWCLONING:
-                return getClonningProperty(relConfig, true);
-            case PROP_DEEPCLONING:
-                return getClonningProperty(relConfig, false);
-            case PROP_FIELDOVERRIDES:
-                return getCloneFieldOverrides(relConfig);
-            default:
-                return super.getPropertyValue(obj, propName);
-        }
+  @Override
+  protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
+    if (!(obj instanceof PSRelationshipConfig))
+      throw new IllegalArgumentException("obj type must be PSRelationshipConfig.");
+    var relConfig = (PSRelationshipConfig) obj;
+    switch (propName) {
+      case PROP_SHALLOWCLONING:
+        return getClonningProperty(relConfig, true);
+      case PROP_DEEPCLONING:
+        return getClonningProperty(relConfig, false);
+      case PROP_FIELDOVERRIDES:
+        return getCloneFieldOverrides(relConfig);
+      default:
+        return super.getPropertyValue(obj, propName);
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    private void setCloneFieldOverrides(PSRelationshipConfig relConfig, Object propValue) {
-        if (!(propValue instanceof List))
-            throw new IllegalArgumentException(PROP_FIELDOVERRIDES + " property value must be a List type");
-        var tempMap = (List<Map<String, Object>>) propValue;
-        var cofList = new PSCloneOverrideFieldList();
-        for (var map : tempMap) {
-            var fieldName = (String) map.get(PROP_FIELDNAME);
-            if (StringUtils.isBlank(fieldName)) {
-                throw new PSConfigException("The fieldOverride is missing required property \"fieldName\".");
-            }
-            var extName = (String) map.get(PROP_EXTENSION);
-            if (StringUtils.isBlank(extName)) {
-                throw new PSConfigException("The fieldOverride is missing required property \"extension\".");
-            }
-            var extParams = (List<String>) map.get("extensionParams");
-            var extCall = PSConfigUtils.createExtensionCall(extName, extParams, "com.percussion.extension.IPSUdfProcessor");
-            var condition = map.get(PROP_CONDITION);
-            var cofld = new PSCloneOverrideField(fieldName, extCall);
-            if (condition != null) {
-                var conds = PSConfigUtils.prepareConditions(condition);
-                cofld.setRules(conds);
-            }
-            cofList.add(cofld);
-        }
-        relConfig.setCloneOverrideFieldList(cofList);
+  @SuppressWarnings("unchecked")
+  private void setCloneFieldOverrides(PSRelationshipConfig relConfig, Object propValue) {
+    if (!(propValue instanceof List))
+      throw new IllegalArgumentException(
+          PROP_FIELDOVERRIDES + " property value must be a List type");
+    var tempMap = (List<Map<String, Object>>) propValue;
+    var cofList = new PSCloneOverrideFieldList();
+    for (var map : tempMap) {
+      var fieldName = (String) map.get(PROP_FIELDNAME);
+      if (StringUtils.isBlank(fieldName)) {
+        throw new PSConfigException(
+            "The fieldOverride is missing required property \"fieldName\".");
+      }
+      var extName = (String) map.get(PROP_EXTENSION);
+      if (StringUtils.isBlank(extName)) {
+        throw new PSConfigException(
+            "The fieldOverride is missing required property \"extension\".");
+      }
+      var extParams = (List<String>) map.get("extensionParams");
+      var extCall =
+          PSConfigUtils.createExtensionCall(
+              extName, extParams, "com.percussion.extension.IPSUdfProcessor");
+      var condition = map.get(PROP_CONDITION);
+      var cofld = new PSCloneOverrideField(fieldName, extCall);
+      if (condition != null) {
+        var conds = PSConfigUtils.prepareConditions(condition);
+        cofld.setRules(conds);
+      }
+      cofList.add(cofld);
     }
+    relConfig.setCloneOverrideFieldList(cofList);
+  }
 
-    private Map<String, Object> getClonningProperty(PSRelationshipConfig relConfig, boolean isShallow) {
-        var result = new HashMap<String, Object>();
-        var cloneName = isShallow ? "rs_cloneshallow" : "rs_clonedeep";
-        var prCheck = relConfig.getProcessCheck(cloneName);
-        var iter = prCheck.getConditions();
-        //enable condition
-        if (iter.hasNext()) {
-            var cond = (PSRule) iter.next();
-            var trueCcond = PSConfigUtils.createBooleanCondition(true);
-            var condRules = new PSCollection(PSConditional.class);
-            condRules.add(trueCcond);
-            var trueRule = new PSRule(condRules);
-            if (cond.equals(trueRule)) {
-                result.put(PROP_ENABLED, Boolean.TRUE);
-            } else {
-                result.put(PROP_ENABLED, Boolean.FALSE);
-            }
-        }
-        var conditions = new PSCollection(PSConditional.class);
-        while (iter.hasNext()) {
-            conditions.add((PSConditional) iter.next());
-        }
-        if (!conditions.isEmpty()) {
-            var condDefs = PSConfigUtils.getCondtionsDef(conditions.iterator());
-            result.put(PROP_CONDITION, condDefs);
-        }
-        return result;
+  private Map<String, Object> getClonningProperty(
+      PSRelationshipConfig relConfig, boolean isShallow) {
+    var result = new HashMap<String, Object>();
+    var cloneName = isShallow ? "rs_cloneshallow" : "rs_clonedeep";
+    var prCheck = relConfig.getProcessCheck(cloneName);
+    var iter = prCheck.getConditions();
+    // enable condition
+    if (iter.hasNext()) {
+      var cond = (PSRule) iter.next();
+      var trueCcond = PSConfigUtils.createBooleanCondition(true);
+      var condRules = new PSCollection(PSConditional.class);
+      condRules.add(trueCcond);
+      var trueRule = new PSRule(condRules);
+      if (cond.equals(trueRule)) {
+        result.put(PROP_ENABLED, Boolean.TRUE);
+      } else {
+        result.put(PROP_ENABLED, Boolean.FALSE);
+      }
     }
-
-    private List<Map<String, Object>> getCloneFieldOverrides(PSRelationshipConfig relConfig) {
-        var result = new ArrayList<Map<String, Object>>();
-        var cfList = relConfig.getCloneOverrideFieldList();
-        var iter = cfList.iterator();
-        while (iter.hasNext()) {
-            var cf = (PSCloneOverrideField) iter.next();
-
-            var cfEntry = new HashMap<String, Object>();
-            var name = cf.getName();
-            cfEntry.put(PROP_FIELDNAME, name);
-            var extCall = (PSExtensionCall) cf.getReplacementValue();
-            cfEntry.putAll(PSConfigUtils.getExtensionCallDef(extCall, PROP_EXTENSION));
-            var rules = cf.getRules();
-            if (!rules.isEmpty()) {
-                var rulesDef = PSConfigUtils.getCondtionsDef(rules.iterator());
-                cfEntry.put(PROP_CONDITION, rulesDef);
-            }
-            result.add(cfEntry);
-        }
-        return result;
+    var conditions = new PSCollection(PSConditional.class);
+    while (iter.hasNext()) {
+      conditions.add((PSConditional) iter.next());
     }
-
-    @SuppressWarnings("unchecked")
-    private void setCloningProperty(PSRelationshipConfig relConfig, Object cloningPropValue, boolean isShallow) {
-        if (!(cloningPropValue instanceof Map))
-            throw new PSConfigException("cloningPropValue must be a \"Map\" type");
-        var map = (Map<String, Object>) cloningPropValue;
-
-        var enabled = (String) map.get(PROP_ENABLED);
-        var condition = map.get(PROP_CONDITION);
-        if (StringUtils.isBlank(enabled)) {
-            var msg = "The required property ({0}) is missing for the supplied property ({1}).";
-            var type = isShallow ? PROP_SHALLOWCLONING : PROP_DEEPCLONING;
-            Object[] args = {PROP_ENABLED, type};
-            throw new PSConfigException(MessageFormat.format(msg, args));
-        }
-        var cloneName = isShallow ? "rs_cloneshallow" : "rs_clonedeep";
-        var prCheck = relConfig.getProcessCheck(cloneName);
-        var enFlag = Boolean.valueOf(enabled);
-        var cond = PSConfigUtils.createBooleanCondition(enFlag);
-        var condRules = new PSCollection(PSConditional.class);
-        condRules.add(cond);
-        var rule = new PSRule(condRules);
-        var rules = new PSCollection(PSRule.class);
-        rules.add(rule);
-        // If enabled and conditions are not null then add the conditions.
-        if (enFlag && condition != null) {
-            var conds = PSConfigUtils.prepareConditions(condition);
-            rules.addAll(conds);
-        }
-        prCheck.setConditions(rules.iterator());
+    if (!conditions.isEmpty()) {
+      var condDefs = PSConfigUtils.getCondtionsDef(conditions.iterator());
+      result.put(PROP_CONDITION, condDefs);
     }
+    return result;
+  }
 
-    // Constants for the names of the properties handled by this setter.
-    private static final String PROP_SHALLOWCLONING = "shallowCloning";
-    private static final String PROP_DEEPCLONING = "deepCloning";
-    private static final String PROP_FIELDOVERRIDES = "fieldOverrides";
-    private static final String PROP_ENABLED = "enabled";
-    private static final String PROP_CONDITION = "condition";
-    private static final String PROP_FIELDNAME = "fieldName";
-    private static final String PROP_EXTENSION = "extension";
+  private List<Map<String, Object>> getCloneFieldOverrides(PSRelationshipConfig relConfig) {
+    var result = new ArrayList<Map<String, Object>>();
+    var cfList = relConfig.getCloneOverrideFieldList();
+    var iter = cfList.iterator();
+    while (iter.hasNext()) {
+      var cf = (PSCloneOverrideField) iter.next();
+
+      var cfEntry = new HashMap<String, Object>();
+      var name = cf.getName();
+      cfEntry.put(PROP_FIELDNAME, name);
+      var extCall = (PSExtensionCall) cf.getReplacementValue();
+      cfEntry.putAll(PSConfigUtils.getExtensionCallDef(extCall, PROP_EXTENSION));
+      var rules = cf.getRules();
+      if (!rules.isEmpty()) {
+        var rulesDef = PSConfigUtils.getCondtionsDef(rules.iterator());
+        cfEntry.put(PROP_CONDITION, rulesDef);
+      }
+      result.add(cfEntry);
+    }
+    return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  private void setCloningProperty(
+      PSRelationshipConfig relConfig, Object cloningPropValue, boolean isShallow) {
+    if (!(cloningPropValue instanceof Map))
+      throw new PSConfigException("cloningPropValue must be a \"Map\" type");
+    var map = (Map<String, Object>) cloningPropValue;
+
+    var enabled = (String) map.get(PROP_ENABLED);
+    var condition = map.get(PROP_CONDITION);
+    if (StringUtils.isBlank(enabled)) {
+      var msg = "The required property ({0}) is missing for the supplied property ({1}).";
+      var type = isShallow ? PROP_SHALLOWCLONING : PROP_DEEPCLONING;
+      Object[] args = {PROP_ENABLED, type};
+      throw new PSConfigException(MessageFormat.format(msg, args));
+    }
+    var cloneName = isShallow ? "rs_cloneshallow" : "rs_clonedeep";
+    var prCheck = relConfig.getProcessCheck(cloneName);
+    var enFlag = Boolean.valueOf(enabled);
+    var cond = PSConfigUtils.createBooleanCondition(enFlag);
+    var condRules = new PSCollection(PSConditional.class);
+    condRules.add(cond);
+    var rule = new PSRule(condRules);
+    var rules = new PSCollection(PSRule.class);
+    rules.add(rule);
+    // If enabled and conditions are not null then add the conditions.
+    if (enFlag && condition != null) {
+      var conds = PSConfigUtils.prepareConditions(condition);
+      rules.addAll(conds);
+    }
+    prCheck.setConditions(rules.iterator());
+  }
+
+  // Constants for the names of the properties handled by this setter.
+  private static final String PROP_SHALLOWCLONING = "shallowCloning";
+  private static final String PROP_DEEPCLONING = "deepCloning";
+  private static final String PROP_FIELDOVERRIDES = "fieldOverrides";
+  private static final String PROP_ENABLED = "enabled";
+  private static final String PROP_CONDITION = "condition";
+  private static final String PROP_FIELDNAME = "fieldName";
+  private static final String PROP_EXTENSION = "extension";
 }

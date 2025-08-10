@@ -30,35 +30,32 @@ import org.w3c.dom.Node;
 /**
  * Implementation for the PSXApplicationFlow DTD in BasicObjects.dtd.
  *
- * A map of collections of PSConditionalRequest objects. The last entry
- * in the PSConditionalRequest collections is the default request
- * which has a condition always evaluating to <code>true</code>.
+ * <p>A map of collections of PSConditionalRequest objects. The last entry in the
+ * PSConditionalRequest collections is the default request which has a condition always evaluating
+ * to <code>true</code>.
  */
 @SuppressWarnings("serial")
 public class PSApplicationFlow extends PSComponent {
   /**
-   * Create a new map of command handler redirects for the provided name
-   * and default redirect.
+   * Create a new map of command handler redirects for the provided name and default redirect.
    *
-   * @param name the name of the command handler to create this for, never
-   *    <code>null</code> or empty.
-   * @param redirect the default redirect request for this handler,
-   *    not <code>null</code>.
+   * @param name the name of the command handler to create this for, never <code>null</code> or
+   *     empty.
+   * @param redirect the default redirect request for this handler, not <code>null</code>.
    */
   public PSApplicationFlow(String name, PSUrlRequest redirect) {
     setDefaultRedirect(name, redirect);
   }
 
   /**
-   * Create a new map of command handler redirects for the provided name
-   * and redirect request collection (a collection of PSConditionalRequest
-   * objects).
+   * Create a new map of command handler redirects for the provided name and redirect request
+   * collection (a collection of PSConditionalRequest objects).
    *
-   * @param name the name of the command handler to create this for, never
-   *    <code>null</code> or empty.
-   * @param redirects a collection of PSConditionalRequest objects for
-   *    the provided command handler name. Not <code>null</code> or empty.
-   *    The last entry must have a condition evaluating to <code>true</code>.
+   * @param name the name of the command handler to create this for, never <code>null</code> or
+   *     empty.
+   * @param redirects a collection of PSConditionalRequest objects for the provided command handler
+   *     name. Not <code>null</code> or empty. The last entry must have a condition evaluating to
+   *     <code>true</code>.
    */
   public PSApplicationFlow(String name, PSCollection redirects) {
     addRedirects(name, redirects);
@@ -67,14 +64,10 @@ public class PSApplicationFlow extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSApplicationFlow(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -90,9 +83,7 @@ public class PSApplicationFlow extends PSComponent {
     copyFrom(source);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSApplicationFlow() {}
 
   // see interface for description
@@ -116,15 +107,14 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   * Returns an iterator (a collection of
-   * PSConditionalRequest objects) for the provided command handler name.
-   * The last entry is the default redirect with a condition evaluating
-   * always to <code>true</code>.
+   * Returns an iterator (a collection of PSConditionalRequest objects) for the provided command
+   * handler name. The last entry is the default redirect with a condition evaluating always to
+   * <code>true</code>.
    *
-   * @param name the name of the command handler we want the
-   *    redirect for. Never code>null</code> or empty.
-   * @return a collection of PSConditionalRequest objects,
-   *    <code>null</code> if not found, but never empty.
+   * @param name the name of the command handler we want the redirect for. Never code>null</code> or
+   *     empty.
+   * @return a collection of PSConditionalRequest objects, <code>null</code> if not found, but never
+   *     empty.
    */
   public Iterator getRedirects(String name) {
     validate(name);
@@ -135,15 +125,14 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   * Returns the redirect collection (a collection of
-   * PSConditionalRequest objects) for the provided command handler name.
-   * The last entry is the default redirect with a condition evaluating
-   * always to <code>true</code>.
+   * Returns the redirect collection (a collection of PSConditionalRequest objects) for the provided
+   * command handler name. The last entry is the default redirect with a condition evaluating always
+   * to <code>true</code>.
    *
-   * @param name the name of the command handler we want the
-   *    redirect for. Never <code>null</code> or empty.
-   * @return a collection of PSConditionalRequest objects,
-   *    <code>null</code> if not found, but never empty.
+   * @param name the name of the command handler we want the redirect for. Never <code>null</code>
+   *     or empty.
+   * @return a collection of PSConditionalRequest objects, <code>null</code> if not found, but never
+   *     empty.
    */
   public PSCollection getRedirectCollection(String name) {
     validate(name);
@@ -168,11 +157,10 @@ public class PSApplicationFlow extends PSComponent {
   /**
    * Set a new default redirect for the provided command handler name.
    *
-   * @param name a valid command handler name, never
-   *    <code>null</code> or empty.
+   * @param name a valid command handler name, never <code>null</code> or empty.
    * @param redirect the default redirect, never <code>null</code>.
-   * @throws IllegalArgumentException if the provided command handler name is
-   *    <code>null</code> or empty or if the redirect is <code>null</code>.
+   * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
+   *     empty or if the redirect is <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public void setDefaultRedirect(String name, PSUrlRequest redirect) {
@@ -209,20 +197,16 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   * Adds/replaces the collection of PSConditionalRequest objects for
-   * the provided command handler name. The entire collection is expected
-   * with the last entry beeing the default redirect, a conditional
-   * request with a condition always <code>true</code>.
+   * Adds/replaces the collection of PSConditionalRequest objects for the provided command handler
+   * name. The entire collection is expected with the last entry beeing the default redirect, a
+   * conditional request with a condition always <code>true</code>.
    *
-   * @param name a valid command handler name, never
-   *    <code>null</code> or empty.
-   * @param redirects a collection of PSConditionalRequest objects,
-   *    never <code>null</code>, must have at least one entry, the last
-   *    entry is the default redirect with a condition always
-   *    <code>true</code>.
-   * @throws IllegalArgumentException if the provided command handler name is
-   *    <code>null</code> or empty or if the redirect collection is
-   *    <code>null</code>.
+   * @param name a valid command handler name, never <code>null</code> or empty.
+   * @param redirects a collection of PSConditionalRequest objects, never <code>null</code>, must
+   *     have at least one entry, the last entry is the default redirect with a condition always
+   *     <code>true</code>.
+   * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
+   *     empty or if the redirect collection is <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   public void addRedirects(String name, PSCollection redirects) {
@@ -233,17 +217,15 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   * Adds/replaces all conditional redirects. This will add/replace all
-   * but the last entry in the current collection.
+   * Adds/replaces all conditional redirects. This will add/replace all but the last entry in the
+   * current collection.
    *
-   * @param name a valid command handler name, never
-   *    <code>null</code> or empty.
-   * @param redirects a collection of PSConditionalRequest objects,
-   *    not <code>null</code>, might be empty.
-   * @throws IllegalArgumentException if the provided command handler name is
-   *    <code>null</code> or empty or if the redirect collection is
-   *    <code>null</code> or if no command handler was found for the provided
-   *    name.
+   * @param name a valid command handler name, never <code>null</code> or empty.
+   * @param redirects a collection of PSConditionalRequest objects, not <code>null</code>, might be
+   *     empty.
+   * @throws IllegalArgumentException if the provided command handler name is <code>null</code> or
+   *     empty or if the redirect collection is <code>null</code> or if no command handler was found
+   *     for the provided name.
    */
   @SuppressWarnings("unchecked")
   public void addConditionalRedirects(String name, PSCollection redirects) {
@@ -282,13 +264,11 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   * Removes the command handler redirects from this map and returns the
-   * removed collection.
+   * Removes the command handler redirects from this map and returns the removed collection.
    *
-   * @param name the command handler name to remove the redirect collection
-   *    for, never <code>null</code> or empty.
-   * @return the redirect collection removed or
-   *    <code>null</code> if not found.
+   * @param name the command handler name to remove the redirect collection for, never <code>null
+   *     </code> or empty.
+   * @return the redirect collection removed or <code>null</code> if not found.
    */
   public PSCollection removeStylesheets(String name) {
     validate(name);
@@ -298,17 +278,15 @@ public class PSApplicationFlow extends PSComponent {
   /**
    * Get a list of known command handler names.
    *
-   * @return a list of command handler names, never
-   *    <code>null</code> or empty.
+   * @return a list of command handler names, never <code>null</code> or empty.
    */
   public Iterator getCommandHandlerNames() {
     return m_redirects.keySet().iterator();
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSApplicationFlow, not <code>null</code>.
    */
@@ -339,7 +317,6 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -414,7 +391,6 @@ public class PSApplicationFlow extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -499,15 +475,14 @@ public class PSApplicationFlow extends PSComponent {
   public static final String XML_NODE_NAME = "PSXApplicationFlow";
 
   /**
-   * Maps a command handler name (<code>String</code>) to a collection of
-   * redirects (<code>PSCollection</code> of <code>PSConditionalRequest
-   * </code>).  Never <code>null</code>.
+   * Maps a command handler name (<code>String</code>) to a collection of redirects (<code>
+   * PSCollection</code> of <code>PSConditionalRequest
+   * </code>). Never <code>null</code>.
    */
   private HashMap m_redirects = new HashMap();
 
   /**
-   * The name of the file storing this shared field group, may be
-   * <code>null</code>, never empty.
+   * The name of the file storing this shared field group, may be <code>null</code>, never empty.
    */
   private String m_filename = null;
 

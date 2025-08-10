@@ -17,7 +17,8 @@
 package com.percussion.cms.objectstore;
 
 /**
- * Stub interface for IPSRelationshipProcessor. All methods referencing unresolved types have been removed for compilation.
+ * Stub interface for IPSRelationshipProcessor. All methods referencing unresolved types have been
+ * removed for compilation.
  */
 public interface IPSRelationshipProcessor {
   // TODO: Implement methods when types are available.

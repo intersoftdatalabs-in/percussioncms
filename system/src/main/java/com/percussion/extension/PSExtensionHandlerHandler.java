@@ -30,9 +30,8 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 /**
- * The extension handler handler is a type of Java extension handler
- * that manages extension handlers themselves. Remember that extension
- * handlers are themselves a kind of extension.
+ * The extension handler handler is a type of Java extension handler that manages extension handlers
+ * themselves. Remember that extension handlers are themselves a kind of extension.
  */
 class PSExtensionHandlerHandler extends PSJavaExtensionHandler {
   /**
@@ -93,9 +92,8 @@ class PSExtensionHandlerHandler extends PSJavaExtensionHandler {
   }
 
   /**
-   * Loop through all pending removals and fix the handler version for each
-   * entry. The fixed pending removals will be stored back to the source
-   * configuration file.
+   * Loop through all pending removals and fix the handler version for each entry. The fixed pending
+   * removals will be stored back to the source configuration file.
    *
    * @param configFile the extensions vonfiguration file to fix
    * @throws PSExtensionException for any error dealing with the config file
@@ -115,15 +113,14 @@ class PSExtensionHandlerHandler extends PSJavaExtensionHandler {
   }
 
   /**
-   * Because the entire handler structure is copied before we process
-   * pending removals, we have to fix the context for the pending removal
-   * entries in the extensions.xml file. We need to increment the handler
-   * version by 1, so the correct versions are processed the next time
-   * pending removals are processed.
+   * Because the entire handler structure is copied before we process pending removals, we have to
+   * fix the context for the pending removal entries in the extensions.xml file. We need to
+   * increment the handler version by 1, so the correct versions are processed the next time pending
+   * removals are processed.
    *
    * @param context the current context, not <code>null</code>
-   * @return the corrected context (handler version increased by one), the
-   *    original context if not handler context is found.
+   * @return the corrected context (handler version increased by one), the original context if not
+   *     handler context is found.
    * @throws IOException for any file handling error
    * @throws IllegalArgumentException for any illegal arguments passed
    */
@@ -169,17 +166,14 @@ class PSExtensionHandlerHandler extends PSJavaExtensionHandler {
   }
 
   /**
-   * Recursively copies all the files from the given source directory
-   * to the given destination directory, preserving the directory
-   * structure.
+   * Recursively copies all the files from the given source directory to the given destination
+   * directory, preserving the directory structure.
    *
    * @param source The source directory. Must not be <CODE>null</CODE>.
-   *
-   * @param dest The destination directory. Must exist prior to
-   * calling. Must not be <CODE>null</CODE>.
-   *
-   * @param overWrite Files already existing in dest will be overwritten
-   * if and only if <CODE>true</CODE>.
+   * @param dest The destination directory. Must exist prior to calling. Must not be <CODE>null
+   *     </CODE>.
+   * @param overWrite Files already existing in dest will be overwritten if and only if <CODE>true
+   *     </CODE>.
    */
   static int recursiveCopy(File source, File dest, boolean overWrite)
       throws IOException, PSExtensionException {

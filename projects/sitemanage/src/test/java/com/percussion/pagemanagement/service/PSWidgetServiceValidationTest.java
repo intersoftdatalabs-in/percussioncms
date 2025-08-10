@@ -18,6 +18,9 @@
 
 package com.percussion.pagemanagement.service;
 
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.pagemanagement.data.PSWidgetDefinition.AbstractUserPref.EnumValue;
 import com.percussion.pagemanagement.data.PSWidgetDefinition.UserPref;
@@ -28,147 +31,150 @@ import com.percussion.share.service.exception.PSPropertiesValidationException;
 import com.percussion.share.service.exception.PSValidationException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 @ExtendWith(MockitoExtension.class)
 class PSWidgetServiceValidationTest {
 
-    private final Mockery context = new JUnit4Mockery();
-    private PSWidgetUserPropertiesValidator validator;
-    private IPSWidgetService widgetService;
-    private final PSWidgetDefinition definition = new PSWidgetDefinition();
-    private final PSWidgetItem widgetItem = new PSWidgetItem();
-    private UserPref numberPref;
-    private UserPref stringPref;
-    private UserPref listPref;
-    private UserPref enumPref;
-    private UserPref boolPref;
+  private final Mockery context = new JUnit4Mockery();
+  private PSWidgetUserPropertiesValidator validator;
+  private IPSWidgetService widgetService;
+  private final PSWidgetDefinition definition = new PSWidgetDefinition();
+  private final PSWidgetItem widgetItem = new PSWidgetItem();
+  private UserPref numberPref;
+  private UserPref stringPref;
+  private UserPref listPref;
+  private UserPref enumPref;
+  private UserPref boolPref;
 
-    @BeforeEach
-    void setUp() {
-        widgetService = context.mock(IPSWidgetService.class);
-        validator = new PSWidgetUserPropertiesValidator(widgetService);
-        widgetItem.setDefinitionId("wid");
-        numberPref = create("number", "number", true);
-        stringPref = create("string", "string", true);
-        listPref = create("list", "list", true);
-        enumPref = create("enum", "enum", true);
-        var a = new EnumValue();
-        a.setValue("a");
-        var b = new EnumValue();
-        b.setValue("b");
-        var c = new EnumValue();
-        c.setValue("c");
-        enumPref.getEnumValue().addAll(asList(a, b, c));
-        boolPref = create("bool", "bool", true);
-    }
+  @BeforeEach
+  void setUp() {
+    widgetService = context.mock(IPSWidgetService.class);
+    validator = new PSWidgetUserPropertiesValidator(widgetService);
+    widgetItem.setDefinitionId("wid");
+    numberPref = create("number", "number", true);
+    stringPref = create("string", "string", true);
+    listPref = create("list", "list", true);
+    enumPref = create("enum", "enum", true);
+    var a = new EnumValue();
+    a.setValue("a");
+    var b = new EnumValue();
+    b.setValue("b");
+    var c = new EnumValue();
+    c.setValue("c");
+    enumPref.getEnumValue().addAll(asList(a, b, c));
+    boolPref = create("bool", "bool", true);
+  }
 
-    @Test
-    void shouldValidateWidgetId() throws Exception {
-        expectDefinition("wid");
-        widgetItem.setId("123");
-        validator.validate(widgetItem);
+  @Test
+  void shouldValidateWidgetId() throws Exception {
+    expectDefinition("wid");
+    widgetItem.setId("123");
+    validator.validate(widgetItem);
 
-        expectDefinition("wid");
-        widgetItem.setId("2");
-        validator.validate(widgetItem);
-    }
+    expectDefinition("wid");
+    widgetItem.setId("2");
+    validator.validate(widgetItem);
+  }
 
-    @Test
-    @Disabled("TODO: Fix Me")
-    void shouldValidateWidgetIdAndFailOnNonNumeric() throws Exception {
-        widgetItem.setId("Blah");
-        assertThrows(PSValidationException.class, () -> validator.validate(widgetItem));
-    }
+  @Test
+  @Disabled("TODO: Fix Me")
+  void shouldValidateWidgetIdAndFailOnNonNumeric() throws Exception {
+    widgetItem.setId("Blah");
+    assertThrows(PSValidationException.class, () -> validator.validate(widgetItem));
+  }
 
-    @Test
-    void shouldValidateNumberOk() throws Exception {
-        assertPropertyValid("number", 200, numberPref);
-    }
+  @Test
+  void shouldValidateNumberOk() throws Exception {
+    assertPropertyValid("number", 200, numberPref);
+  }
 
-    @Test
-    void shouldValidateNumberAndFail() throws Exception {
-        assertPropertyInvalid("number", "blah", numberPref);
-    }
+  @Test
+  void shouldValidateNumberAndFail() throws Exception {
+    assertPropertyInvalid("number", "blah", numberPref);
+  }
 
-    @Test
-    void shouldValidateList() throws Exception {
-        assertPropertyValid("list", asList("a", "b"), listPref);
-    }
+  @Test
+  void shouldValidateList() throws Exception {
+    assertPropertyValid("list", asList("a", "b"), listPref);
+  }
 
-    @Test
-    void shouldValidateListAndFail() throws Exception {
-        assertPropertyInvalid("list", "blah", listPref);
-    }
+  @Test
+  void shouldValidateListAndFail() throws Exception {
+    assertPropertyInvalid("list", "blah", listPref);
+  }
 
-    @Test
-    void shouldValidateString() throws Exception {
-        assertPropertyValid("string", "oK", stringPref);
-    }
+  @Test
+  void shouldValidateString() throws Exception {
+    assertPropertyValid("string", "oK", stringPref);
+  }
 
-    @Test
-    void shouldValidateStringAndFail() throws Exception {
-        assertPropertyInvalid("string", 100, stringPref);
-    }
+  @Test
+  void shouldValidateStringAndFail() throws Exception {
+    assertPropertyInvalid("string", 100, stringPref);
+  }
 
-    @Test
-    void shouldValidateBool() throws Exception {
-        assertPropertyValid("bool", true, boolPref);
-    }
+  @Test
+  void shouldValidateBool() throws Exception {
+    assertPropertyValid("bool", true, boolPref);
+  }
 
-    @Test
-    void shouldValidateBoolAndFail() throws Exception {
-        assertPropertyInvalid("bool", 100, boolPref);
-    }
+  @Test
+  void shouldValidateBoolAndFail() throws Exception {
+    assertPropertyInvalid("bool", 100, boolPref);
+  }
 
-    @Test
-    void shouldValidateEnum() throws Exception {
-        assertPropertyValid("enum", "a", enumPref);
-        assertPropertyValid("enum", "b", enumPref);
-        assertPropertyValid("enum", "c", enumPref);
-    }
+  @Test
+  void shouldValidateEnum() throws Exception {
+    assertPropertyValid("enum", "a", enumPref);
+    assertPropertyValid("enum", "b", enumPref);
+    assertPropertyValid("enum", "c", enumPref);
+  }
 
-    @Test
-    void shouldValidateEnumAndFail() throws Exception {
-        assertPropertyInvalid("enum", "d", enumPref);
-    }
+  @Test
+  void shouldValidateEnumAndFail() throws Exception {
+    assertPropertyInvalid("enum", "d", enumPref);
+  }
 
-    private PSPropertiesValidationException validate(String field, Object value, UserPref userPref) throws PSDataServiceException {
-        definition.getUserPref().add(userPref);
-        expectDefinition("wid");
-        widgetItem.getProperties().put(field, value);
-        return validator.validate(widgetItem);
-    }
+  private PSPropertiesValidationException validate(String field, Object value, UserPref userPref)
+      throws PSDataServiceException {
+    definition.getUserPref().add(userPref);
+    expectDefinition("wid");
+    widgetItem.getProperties().put(field, value);
+    return validator.validate(widgetItem);
+  }
 
-    private void assertPropertyValid(String field, Object value, UserPref userPref) throws PSDataServiceException {
-        var e = validate(field, value, userPref);
-        assertFalse(e.hasErrors());
-    }
+  private void assertPropertyValid(String field, Object value, UserPref userPref)
+      throws PSDataServiceException {
+    var e = validate(field, value, userPref);
+    assertFalse(e.hasErrors());
+  }
 
-    private void assertPropertyInvalid(String field, Object value, UserPref userPref) throws PSDataServiceException {
-        var e = validate(field, value, userPref);
-        assertTrue(e.hasErrors(), "should have errors");
-        assertEquals(value, e.getFieldValue(field), "should equal value");
-    }
+  private void assertPropertyInvalid(String field, Object value, UserPref userPref)
+      throws PSDataServiceException {
+    var e = validate(field, value, userPref);
+    assertTrue(e.hasErrors(), "should have errors");
+    assertEquals(value, e.getFieldValue(field), "should equal value");
+  }
 
-    private UserPref create(String name, String dataType, Boolean required) {
-        var up = new UserPref();
-        up.setName(name);
-        up.setDatatype(dataType);
-        up.setRequired("" + required);
-        return up;
-    }
+  private UserPref create(String name, String dataType, Boolean required) {
+    var up = new UserPref();
+    up.setName(name);
+    up.setDatatype(dataType);
+    up.setRequired("" + required);
+    return up;
+  }
 
-    private void expectDefinition(final String id) throws PSDataServiceException {
-        context.checking(new Expectations() {{
+  private void expectDefinition(final String id) throws PSDataServiceException {
+    context.checking(
+        new Expectations() {
+          {
             one(widgetService).load(with(any(String.class)));
             will(returnValue(definition));
-        }});
-    }
+          }
+        });
+  }
 }

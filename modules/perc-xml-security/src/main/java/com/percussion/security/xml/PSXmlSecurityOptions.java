@@ -17,9 +17,7 @@
 
 package com.percussion.security.xml;
 
-/**
- * Allows for the setting of XML security options.
- */
+/** Allows for the setting of XML security options. */
 public class PSXmlSecurityOptions {
   public PSXmlSecurityOptions(
       boolean enableExternalEntities,

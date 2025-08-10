@@ -35,11 +35,10 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Extracts the text from html and returns. Walks through all the nodes and gets
- * the text from only text nodes and concatenates them with a space. Uses
- * {@link PSXmlDocumentBuilder#createXmlDocument(InputStream, boolean)} to parse
- * the input html document. Text from comments and attributes is not extracted.
- *
+ * Extracts the text from html and returns. Walks through all the nodes and gets the text from only
+ * text nodes and concatenates them with a space. Uses {@link
+ * PSXmlDocumentBuilder#createXmlDocument(InputStream, boolean)} to parse the input html document.
+ * Text from comments and attributes is not extracted.
  */
 public class PSTextConverterHtml implements IPSLuceneTextConverter {
 
@@ -88,9 +87,7 @@ public class PSTextConverterHtml implements IPSLuceneTextConverter {
    * Attempts to extract the text content from the given html String.
    *
    * @param html String containing html content.
-   *
    * @return the extracted text, never <code>null</code>.
-   *
    * @throws IOException if an I/O error occurs.
    * @throws SAXException if a parsing error occurs.
    */
@@ -108,6 +105,7 @@ public class PSTextConverterHtml implements IPSLuceneTextConverter {
   /**
    * Extract text content from HTML using Jericho.
    * http://stackoverflow.com/questions/240546/removing-html-from-a-java-string
+   *
    * @param htmlText
    * @return not <code>null</code>
    */
@@ -118,8 +116,6 @@ public class PSTextConverterHtml implements IPSLuceneTextConverter {
     return htmlRend.toString();
   }
 
-  /**
-   * A memeber variable to hold the name of this class.
-   */
+  /** A memeber variable to hold the name of this class. */
   private String m_className = getClass().getName();
 }

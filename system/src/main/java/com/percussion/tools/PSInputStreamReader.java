@@ -21,13 +21,11 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 
-/**
- * Allows the readLine method to be called on an input stream.
- */
+/** Allows the readLine method to be called on an input stream. */
 public class PSInputStreamReader extends PushbackInputStream {
   /**
-   * Constructs an input stream reader for the specified stream. Optionally wraps in a buffered stream.
-   * The underlying pushback stream buffer defaults to 1 byte.
+   * Constructs an input stream reader for the specified stream. Optionally wraps in a buffered
+   * stream. The underlying pushback stream buffer defaults to 1 byte.
    *
    * @param in the input stream to wrap
    * @param noBuffer true to avoid wrapping in BufferedInputStream
@@ -37,8 +35,8 @@ public class PSInputStreamReader extends PushbackInputStream {
   }
 
   /**
-   * Constructs an input stream reader for the specified stream. Always wraps in BufferedInputStream.
-   * The underlying pushback stream buffer defaults to 1 byte.
+   * Constructs an input stream reader for the specified stream. Always wraps in
+   * BufferedInputStream. The underlying pushback stream buffer defaults to 1 byte.
    *
    * @param in the input stream to wrap
    */
@@ -47,8 +45,8 @@ public class PSInputStreamReader extends PushbackInputStream {
   }
 
   /**
-   * Constructs an input stream reader for the specified stream. Optionally wraps in a buffered stream.
-   * The underlying pushback stream buffer size is configurable.
+   * Constructs an input stream reader for the specified stream. Optionally wraps in a buffered
+   * stream. The underlying pushback stream buffer size is configurable.
    *
    * @param in the input stream to wrap
    * @param noBuffer true to avoid wrapping in BufferedInputStream
@@ -61,6 +59,7 @@ public class PSInputStreamReader extends PushbackInputStream {
 
   /**
    * Reads a line from this stream.
+   *
    * @return the next line or null if no more lines exist
    */
   public String readLine() throws java.io.IOException {
@@ -69,6 +68,7 @@ public class PSInputStreamReader extends PushbackInputStream {
 
   /**
    * Reads a line from this stream using the specified character encoding.
+   *
    * @param encoding character encoding to use for decoding bytes
    * @return the next line or null if no more lines exist
    */

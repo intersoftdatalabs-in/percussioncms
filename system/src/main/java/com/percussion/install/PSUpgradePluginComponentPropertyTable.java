@@ -34,22 +34,17 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /**
- * Plugin class to modify RXSYSCOMPONENTPROPERTY table.
- * Two new columns have been added to the above table, one of which is
- * non-nullable column. The regular installation process creates a backup table
- * but fails to add the data. This plugin takes the data from the backup table
- * and then generates a sequential number for the newly added PROPERTYID column
+ * Plugin class to modify RXSYSCOMPONENTPROPERTY table. Two new columns have been added to the above
+ * table, one of which is non-nullable column. The regular installation process creates a backup
+ * table but fails to add the data. This plugin takes the data from the backup table and then
+ * generates a sequential number for the newly added PROPERTYID column
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginComponentPropertyTable implements IPSUpgradePlugin {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSUpgradePluginComponentPropertyTable() {}
 
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     FileInputStream in = null;
     String bkptablename = "RXSYSCOMPONENTPROPERTY" + PSJdbcPlanBuilder.BACKUP_SUFFIX;

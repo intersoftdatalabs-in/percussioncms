@@ -33,6 +33,7 @@ import javax.jcr.ValueFormatException;
 public class PSReferenceValue extends PSBaseValue<Node> {
   /**
    * Constructor
+   *
    * @param arg0 the node value, may be <code>null</code>
    */
   public PSReferenceValue(Node arg0) {

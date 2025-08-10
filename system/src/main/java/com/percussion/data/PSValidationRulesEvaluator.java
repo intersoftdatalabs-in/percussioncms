@@ -28,19 +28,15 @@ import java.util.Iterator;
 import java.util.List;
 import org.w3c.dom.Document;
 
-/**
- * This validator runs all item level validation exits.
- */
+/** This validator runs all item level validation exits. */
 public class PSValidationRulesEvaluator {
   /**
-   * Creates a new item validator for the provided item level validation
-   * rules.
+   * Creates a new item validator for the provided item level validation rules.
    *
-   * @param rules the item level validation rules to be processed, not
-   *   <code>null</code>, might be empty.
+   * @param rules the item level validation rules to be processed, not <code>null</code>, might be
+   *     empty.
    * @param ah the application handler, not <code>null</code>.
-   * @throws IllegalArgumentException if the provided rules is
-   *   <code>null</code>.
+   * @throws IllegalArgumentException if the provided rules is <code>null</code>.
    */
   public PSValidationRulesEvaluator(Iterator rules, PSApplicationHandler ah)
       throws PSNotFoundException, PSExtensionException {
@@ -56,18 +52,14 @@ public class PSValidationRulesEvaluator {
   /**
    * Checks if this item is valid against the provided item document.
    *
-   * @param data the execution data to perform the validation with,
-   *    not <code>null</code>.
-   * @param item the item document based on which the validation will be
-   *    performed, not <code>null</code>.
-   * @param errorCollector the error collector to be updated in case of a
-   *    validation error, not <code>null</code>.
-   * @return <code>true</code> if the validation succeeded,
-   *    <code>false</code> otherwise.
-   * @throws IllegalArgumentException if any of the provided parameters is
-   *    <code>null</code>.
-   * @throws @link IPSResultDocumentProcessor#processResultDocument for
-   *    exception description.
+   * @param data the execution data to perform the validation with, not <code>null</code>.
+   * @param item the item document based on which the validation will be performed, not <code>null
+   *     </code>.
+   * @param errorCollector the error collector to be updated in case of a validation error, not
+   *     <code>null</code>.
+   * @return <code>true</code> if the validation succeeded, <code>false</code> otherwise.
+   * @throws IllegalArgumentException if any of the provided parameters is <code>null</code>.
+   * @throws @link IPSResultDocumentProcessor#processResultDocument for exception description.
    */
   public boolean isValid(PSExecutionData data, Document item, PSErrorCollector errorCollector)
       throws PSExtensionProcessingException,
@@ -97,8 +89,8 @@ public class PSValidationRulesEvaluator {
   }
 
   /**
-   * A list of conditional exit evaluators, initialized during construction,
-   * never <code>null</code> after that.
+   * A list of conditional exit evaluators, initialized during construction, never <code>null</code>
+   * after that.
    */
   private List m_evals = new ArrayList();
 }

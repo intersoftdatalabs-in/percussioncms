@@ -19,9 +19,7 @@ package com.percussion.taxonomy.domain;
 
 public class Language {
 
-  /**
-   * Taxonomy Language class to represent the language in which taxonomy can be created.
-   */
+  /** Taxonomy Language class to represent the language in which taxonomy can be created. */
   public static final int DEFAUL_LANG = 1;
 
   private int id;
@@ -31,6 +29,7 @@ public class Language {
 
   /**
    * Returns unique id of a Language
+   *
    * @return id - unique int id of a Langauge
    */
   public int getId() {
@@ -39,6 +38,7 @@ public class Language {
 
   /**
    * Set id unique id of a Language
+   *
    * @param id - int id of a Language
    */
   public void setId(int id) {
@@ -47,6 +47,7 @@ public class Language {
 
   /**
    * Returns name of a Language
+   *
    * @return name - String name of a Langauge
    */
   public String getName() {
@@ -55,6 +56,7 @@ public class Language {
 
   /**
    * Set Language name
+   *
    * @param name - String name of a Language
    */
   public void setName(String name) {
@@ -63,6 +65,7 @@ public class Language {
 
   /**
    * Return Language abbreviation
+   *
    * @return abbreviation - String Language abbreviation
    */
   public String getAbbreviation() {
@@ -71,6 +74,7 @@ public class Language {
 
   /**
    * Set Language abbreviation
+   *
    * @param abbreviation - String abbreviation of a Language
    */
   public void setAbbreviation(String abbreviation) {
@@ -79,6 +83,7 @@ public class Language {
 
   /**
    * Returns Language script
+   *
    * @return script - Language script
    */
   public String getScript() {
@@ -87,15 +92,14 @@ public class Language {
 
   /**
    * Set script of the Language
+   *
    * @param script - String script of a Language
    */
   public void setScript(String script) {
     this.script = script;
   }
 
-  /**
-   * Returns a String representation of the object.
-   */
+  /** Returns a String representation of the object. */
   public String toString() {
     return "Language ----------------------\n"
         + "ID: "

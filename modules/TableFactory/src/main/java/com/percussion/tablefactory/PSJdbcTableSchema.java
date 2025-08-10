@@ -29,27 +29,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to describe a table schema, and is a container for
- * columns, primary keys, foreign keys, unique indexes, and optionally table
- * data as well.  May also be used to specify schema changes only.
+ * This class is used to describe a table schema, and is a container for columns, primary keys,
+ * foreign keys, unique indexes, and optionally table data as well. May also be used to specify
+ * schema changes only.
  */
 public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
-   * Creates a table schema using the supplied columns.  The table action is
-   * defaulted to {#isCreate()} = <code>true</code>, {@link #isDelOldData()} =
-   * <code>false</code>, {@link #isAlter()} = false.
+   * Creates a table schema using the supplied columns. The table action is defaulted to
+   * {#isCreate()} = <code>true</code>, {@link #isDelOldData()} = <code>false</code>, {@link
+   * #isAlter()} = false.
    *
    * @param name The name of this table, may not be <code>null</code> or empty.
-   * @param columns An Iterator over one or more non-<code>null</code>
-   * PSJdbcColumnDef objects.  May not be <code>null</code> or empty, or
-   * contain columns with the same name.
-   *
-   * @throws IllegalArgumentException if any param is <code>null</code>, if
-   * name is empty, or if columns does not contain at least one instance of a
-   * PSJdbcColumnDef, or if columns contains any <code>null</code> entries, or
-   * entries that are not instances of PSJdbcColumnDef objects.
-   * @throws PSJdbcTableFactoryException if columns contains any duplicate
-   * columns.
+   * @param columns An Iterator over one or more non-<code>null</code> PSJdbcColumnDef objects. May
+   *     not be <code>null</code> or empty, or contain columns with the same name.
+   * @throws IllegalArgumentException if any param is <code>null</code>, if name is empty, or if
+   *     columns does not contain at least one instance of a PSJdbcColumnDef, or if columns contains
+   *     any <code>null</code> entries, or entries that are not instances of PSJdbcColumnDef
+   *     objects.
+   * @throws PSJdbcTableFactoryException if columns contains any duplicate columns.
    */
   public PSJdbcTableSchema(String name, Iterator<PSJdbcColumnDef> columns)
       throws PSJdbcTableFactoryException {
@@ -68,9 +65,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Creates a table schema using the supplied name.  The table action is
-   * defaulted to {#isCreate()} = <code>true</code>, {@link #isDelOldData()} =
-   * <code>false</code>, {@link #isAlter()} = false.
+   * Creates a table schema using the supplied name. The table action is defaulted to {#isCreate()}
+   * = <code>true</code>, {@link #isDelOldData()} = <code>false</code>, {@link #isAlter()} = false.
    *
    * @param name The name of this table, may not be <code>null</code> or empty.
    */
@@ -82,19 +78,16 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Creates this object from its Xml representation.  See {@link #fromXml(
-   * Element, PSJdbcDataTypeMap) fromXml} for more information.
+   * Creates this object from its Xml representation. See {@link #fromXml( Element,
+   * PSJdbcDataTypeMap) fromXml} for more information.
    *
-   * @param sourceNode The element from which this object is to be constructed.
-   *    Element must conform to the definition for the table element in
-   *    the tabledef.dtd.  May not be <code>null</code>.
-   * @param dataTypeMap The dataType map to use for this table's columns.
-   * May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if sourceNode or dataTypeMap is
-   * <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or
-   * if there are any other errors.
+   * @param sourceNode The element from which this object is to be constructed. Element must conform
+   *     to the definition for the table element in the tabledef.dtd. May not be <code>null</code>.
+   * @param dataTypeMap The dataType map to use for this table's columns. May not be <code>null
+   *     </code>.
+   * @throws IllegalArgumentException if sourceNode or dataTypeMap is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if the Xml definition is invalid, or if there are any other
+   *     errors.
    */
   public PSJdbcTableSchema(Element sourceNode, PSJdbcDataTypeMap dataTypeMap)
       throws PSJdbcTableFactoryException {
@@ -106,11 +99,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Copy constructor.  Performs a deep copy of the source schema to create
-   * this schema.
+   * Copy constructor. Performs a deep copy of the source schema to create this schema.
    *
    * @param source The table to copy from, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if source is <code>null</code>
    */
   public PSJdbcTableSchema(PSJdbcTableSchema source) {
@@ -173,8 +164,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns an iterator over the <code>String</code> objects representing the
-   * name of child tables of this table.
+   * Returns an iterator over the <code>String</code> objects representing the name of child tables
+   * of this table.
    *
    * @return the Iterator, may be empty.
    */
@@ -183,8 +174,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns an iterator over the <code>String</code> objects representing the
-   * name of parent tables of this table.
+   * Returns an iterator over the <code>String</code> objects representing the name of parent tables
+   * of this table.
    *
    * @return the Iterator, may be empty.
    */
@@ -193,12 +184,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns the column with the specified name.  Name is compared case
-   * insensitive.
+   * Returns the column with the specified name. Name is compared case insensitive.
    *
-   * @param name The name of the column to return, may not be <code>null</code>
-   * or empty.
-   *
+   * @param name The name of the column to return, may not be <code>null</code> or empty.
    * @return The column object, or <code>null</code> if a match is not found.
    */
   public PSJdbcColumnDef getColumn(String name) {
@@ -214,14 +202,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Appends the column to this table definition.  If a column with the same
-   * name already exists, it is replaced.
+   * Appends the column to this table definition. If a column with the same name already exists, it
+   * is replaced.
    *
    * @param column The column to set on this table, may not be <code>null
    * </code>.
-   *
-   * @return <code>null</code> if there is not already a column with the same
-   * name that is replaced, or the old column object if it is replaced.
+   * @return <code>null</code> if there is not already a column with the same name that is replaced,
+   *     or the old column object if it is replaced.
    */
   public PSJdbcColumnDef setColumn(PSJdbcColumnDef column) {
     if (column == null) throw new IllegalArgumentException("column may not be null");
@@ -239,14 +226,10 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Remove's the column with the specified name.
    *
-   * @param name The name of the column to remove, may not be <code>null</code>
-   * or empty.
-   *
+   * @param name The name of the column to remove, may not be <code>null</code> or empty.
    * @return The column removed, or <code>null</code> if a match is not found.
-   *
-   * @throws PSJdbcTableFactoryException if removing the last column in the
-   * table, or if removing a column that is referenced by another schema object
-   * e.g. primary key, or foreign key.
+   * @throws PSJdbcTableFactoryException if removing the last column in the table, or if removing a
+   *     column that is referenced by another schema object e.g. primary key, or foreign key.
    */
   public PSJdbcColumnDef removeColumn(String name) throws PSJdbcTableFactoryException {
     if (name == null) throw new IllegalArgumentException("name may not be null");
@@ -267,15 +250,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Sets the primary key object on this table schema.  If there is an existing
-   * primary key defined, it is replaced.  All columns referenced by the
-   * primary key must be defined in this schema (may have an action of {@link
-   * PSJdbcTableComponent#ACTION_NONE}).
+   * Sets the primary key object on this table schema. If there is an existing primary key defined,
+   * it is replaced. All columns referenced by the primary key must be defined in this schema (may
+   * have an action of {@link PSJdbcTableComponent#ACTION_NONE}).
    *
    * @param primaryKey The primary key definition, may be <code>null</code>.
-   *
-   * @throws PSJdbcTableFactoryException if the primary key references columns
-   * not defined in this schema.
+   * @throws PSJdbcTableFactoryException if the primary key references columns not defined in this
+   *     schema.
    */
   public void setPrimaryKey(PSJdbcPrimaryKey primaryKey) throws PSJdbcTableFactoryException {
     m_primaryKey = primaryKey;
@@ -292,16 +273,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Sets the foreign key objects on this table schema.  If there is an existing
-   * foreign key defined, it is replaced.   All columns referenced by the
-   * foreign key must be defined in this schema (may have an action of {@link
-   * PSJdbcTableComponent#ACTION_NONE}).
+   * Sets the foreign key objects on this table schema. If there is an existing foreign key defined,
+   * it is replaced. All columns referenced by the foreign key must be defined in this schema (may
+   * have an action of {@link PSJdbcTableComponent#ACTION_NONE}).
    *
    * @param foreignKeys The List of foreign key definition, may be <code>null</code>.
-   *
-   * @throws PSJdbcTableFactoryException if the foreign key references
-   * internal columns not defined in this schema (external columns are not
-   * validated until the schema is processed).
+   * @throws PSJdbcTableFactoryException if the foreign key references internal columns not defined
+   *     in this schema (external columns are not validated until the schema is processed).
    */
   public void setForeignKeys(List<PSJdbcForeignKey> foreignKeys, boolean createIndexes)
       throws PSJdbcTableFactoryException {
@@ -328,19 +306,15 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Adds the index to this table definition.  If an index with the
-   * same name already exists, it is replaced.  All columns referenced by the
-   * index must be defined in this schema (may have an action of {@link
-   * PSJdbcTableComponent#ACTION_NONE}).
+   * Adds the index to this table definition. If an index with the same name already exists, it is
+   * replaced. All columns referenced by the index must be defined in this schema (may have an
+   * action of {@link PSJdbcTableComponent#ACTION_NONE}).
    *
    * @param index The index to set on this table, may not be <code>null</code>.
-   *
-   * @return <code>null</code> if there is not already an index with the same
-   * name that is replaced, or the old index object if it is replaced.
-   *
+   * @return <code>null</code> if there is not already an index with the same name that is replaced,
+   *     or the old index object if it is replaced.
    * @throws IllegalArgumentException if index is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the index references columns
-   * not defined in this schema.
+   * @throws PSJdbcTableFactoryException if the index references columns not defined in this schema.
    */
   public PSJdbcIndex setIndex(PSJdbcIndex index) throws PSJdbcTableFactoryException {
     if (index == null) throw new IllegalArgumentException("index may not be null");
@@ -388,12 +362,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns the index with the specified name.  Name is compared case
-   * insensitive.
+   * Returns the index with the specified name. Name is compared case insensitive.
    *
-   * @param name The name of the index to return, may not be <code>null</code>
-   * or empty.
-   *
+   * @param name The name of the index to return, may not be <code>null</code> or empty.
    * @return The index object, or <code>null</code> if a match is not found.
    */
   public PSJdbcIndex getIndex(String name) {
@@ -419,24 +390,19 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     }
   }
 
-  /**
-   * Convenience method that calls
-   * {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)}
-   */
+  /** Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)} */
   public Iterator<PSJdbcIndex> getIndexes() {
     return getIndexes(PSJdbcIndex.TYPE_UNIQUE);
   }
 
   /**
-   * Returns an iterator over zero or more valid <code>PSJdbcIndex</code>
-   * objects.
+   * Returns an iterator over zero or more valid <code>PSJdbcIndex</code> objects.
    *
-   * @param type the type of indexes to include in the list whose iterator
-   * is returned, should be one of <code>PSJdbcIndex.TYPE_XXX</code> or
-   * multiple <code>PSJdbcIndex.TYPE_XXX</code> values OR'ed together.
-   *
-   * @return the Iterator over a list of <code>PSJdbcIndex</code> objects,
-   * never <code>null</code>, may be empty.
+   * @param type the type of indexes to include in the list whose iterator is returned, should be
+   *     one of <code>PSJdbcIndex.TYPE_XXX</code> or multiple <code>PSJdbcIndex.TYPE_XXX</code>
+   *     values OR'ed together.
+   * @return the Iterator over a list of <code>PSJdbcIndex</code> objects, never <code>null</code>,
+   *     may be empty.
    */
   public Iterator<PSJdbcIndex> getIndexes(int type) {
     List<PSJdbcIndex> indexList = new ArrayList<>();
@@ -449,9 +415,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Remove's the index with the specified name.
    *
-   * @param name The name of the index to remove, may not be <code>null</code>
-   * or empty.
-   *
+   * @param name The name of the index to remove, may not be <code>null</code> or empty.
    * @return The index removed, or <code>null</code> if a match is not found.
    */
   public PSJdbcIndex removeIndex(String name) {
@@ -470,34 +434,25 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     return removeIdx;
   }
 
-  /**
-   * Removes all indexes from this table schema.
-   *
-   */
+  /** Removes all indexes from this table schema. */
   public void clearIndexes() {
     m_indexes.clear();
   }
 
-  /**
-   * Removes all foreign keys from this table schema.
-   *
-   */
+  /** Removes all foreign keys from this table schema. */
   public void clearForeignKeys() {
     m_foreignKeys.clear();
   }
 
   /**
-   * Sets the update key object on this table schema.  If there is an existing
-   * update key defined, it is replaced.  All columns referenced by the
-   * update key must be defined in this schema (may have an action of {@link
-   * PSJdbcTableComponent#ACTION_NONE}).
+   * Sets the update key object on this table schema. If there is an existing update key defined, it
+   * is replaced. All columns referenced by the update key must be defined in this schema (may have
+   * an action of {@link PSJdbcTableComponent#ACTION_NONE}).
    *
-   * @param updateKey The update key definition, may not be
-   * <code>null</code>.
-   *
+   * @param updateKey The update key definition, may not be <code>null</code>.
    * @throws IllegalArgumentException if updateKey is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if the update key references columns
-   * not defined in this schema.
+   * @throws PSJdbcTableFactoryException if the update key references columns not defined in this
+   *     schema.
    */
   public void setUpdateKey(PSJdbcUpdateKey updateKey) throws PSJdbcTableFactoryException {
     if (updateKey == null) throw new IllegalArgumentException("updateKey may not be null");
@@ -518,14 +473,11 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Serializes this object's state to Xml conforming with the tabledef.dtd.
    *
-   * @param doc The document to use when creating elements.  May not be <code>
+   * @param doc The document to use when creating elements. May not be <code>
    *    null</code>.
-   *
    * @return The element containing this object's state, never <code>
-   *    null</code>. This does not include the Xml for any tableData that has
-   *    been set on this object.  That must be retrieved and serialized
-   *    separately.
-   *
+   *    null</code>. This does not include the Xml for any tableData that has been set on this
+   *     object. That must be retrieved and serialized separately.
    * @throws IllegalArgumentException if doc is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -576,12 +528,10 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Restore this object from an Xml representation.
    *
-   * @param sourceNode The element from which to get this object's state.
-   *    Element must conform to the definition for the component
-   *    element in the tabledef.dtd.  May not be <code>null</code>.
-   * @param dataTypeMap The dataType map to use for this table's columns.
-   * May not be <code>null</code>.
-   *
+   * @param sourceNode The element from which to get this object's state. Element must conform to
+   *     the definition for the component element in the tabledef.dtd. May not be <code>null</code>.
+   * @param dataTypeMap The dataType map to use for this table's columns. May not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    * @throws PSJdbcTableFactoryException if there are any errors.
    */
@@ -720,11 +670,10 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Creates indexes for foreign key columns if they do not exist and does
-   * nothing if there are no foreign keys.
+   * Creates indexes for foreign key columns if they do not exist and does nothing if there are no
+   * foreign keys.
    *
    * @param dataTypeMap data type map, assume not <code>null</code>.
-   *
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private void createIndexesForForeignKey(PSJdbcDataTypeMap dataTypeMap)
@@ -775,13 +724,10 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Creates and loads the index to the table definition. Makes sure the index
-   * name is unique.
+   * Creates and loads the index to the table definition. Makes sure the index name is unique.
    *
    * @param indexName name of the index
-   * @param foreignKeyColumnIt An iterator over one or more foreign key column
-   *            names
-   *
+   * @param foreignKeyColumnIt An iterator over one or more foreign key column names
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private void processIndex(String indexName, Iterator<String> foreignKeyColumnIt)
@@ -833,20 +779,22 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns <code>true</code> if the table represented by this schema is a
-   * "VIEW", <code>false</code> if not.
-   * @return <code>true</code> if the table represented by this schema is a
-   * "VIEW", <code>false</code> if not.
+   * Returns <code>true</code> if the table represented by this schema is a "VIEW", <code>false
+   * </code> if not.
+   *
+   * @return <code>true</code> if the table represented by this schema is a "VIEW", <code>false
+   *     </code> if not.
    */
   public boolean isView() {
     return m_isView;
   }
 
   /**
-   * Set <code>true</code> if the table represented by this schema
-   * is a "VIEW", <code>false</code> if not.
-   * @param isView <code>true</code> if the table represented by this schema
-   * is a "VIEW", <code>false</code> if not.
+   * Set <code>true</code> if the table represented by this schema is a "VIEW", <code>false</code>
+   * if not.
+   *
+   * @param isView <code>true</code> if the table represented by this schema is a "VIEW", <code>
+   *     false</code> if not.
    */
   public void setIsView(boolean isView) {
     m_isView = isView;
@@ -872,75 +820,64 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Sets the create flag value for this table, used when table is
-   * processed by the {@link PSJdbcTableFactory}.
+   * Sets the create flag value for this table, used when table is processed by the {@link
+   * PSJdbcTableFactory}.
    *
-   * @param isCreate If <code>true</code>, table is created if it does not
-   * already exist, and data is inserted if supplied.
-   *
-   * If <code>false</code>, table is only altered and/or data modified if it
-   * already exists.
-   *
-   * @throws IllegalArgumentException if isCreate is <code>true</code> and the
-   * value of {@link #isAlter()} is already <code>true</code>.
+   * @param isCreate If <code>true</code>, table is created if it does not already exist, and data
+   *     is inserted if supplied.
+   *     <p>If <code>false</code>, table is only altered and/or data modified if it already exists.
+   * @throws IllegalArgumentException if isCreate is <code>true</code> and the value of {@link
+   *     #isAlter()} is already <code>true</code>.
    */
   public void setCreate(boolean isCreate) {
     m_create = isCreate;
   }
 
   /**
-   * @return The create flag value.  See {@link #setCreate(boolean) setCreate}
-   * for more info.
+   * @return The create flag value. See {@link #setCreate(boolean) setCreate} for more info.
    */
   public boolean isCreate() {
     return m_create;
   }
 
   /**
-   * Sets the delolddata flag value for this table, used when table is
-   * processed by the {@link PSJdbcTableFactory}.
+   * Sets the delolddata flag value for this table, used when table is processed by the {@link
+   * PSJdbcTableFactory}.
    *
    * @param isDelOldData If the table exists and {@link #isCreate()} is <code>
-   * true</code>, this value is used to determine the action taken.  If the
-   * table does not exist, exists but is empty, or if {@link #isCreate()} is
-   * <code>false</code>, then this value is ignored. Otherwise:
-   *
-   * If <code>true</code>, old data is discarded.
-   *
-   * If <code>false</code>, then an attempt is made to preserve any existing
-   * data while altering the table, after which any data modifications supplied
-   * are processed.
+   * true</code>, this value is used to determine the action taken. If the table does not exist,
+   *     exists but is empty, or if {@link #isCreate()} is <code>false</code>, then this value is
+   *     ignored. Otherwise:
+   *     <p>If <code>true</code>, old data is discarded.
+   *     <p>If <code>false</code>, then an attempt is made to preserve any existing data while
+   *     altering the table, after which any data modifications supplied are processed.
    */
   public void setDelOldData(boolean isDelOldData) {
     m_delOldData = isDelOldData;
   }
 
   /**
-   * @return The delolddata flag value.  See {@link #setDelOldData(boolean)
-   * setDelOldData} for more info.
+   * @return The delolddata flag value. See {@link #setDelOldData(boolean) setDelOldData} for more
+   *     info.
    */
   public boolean isDelOldData() {
     return m_delOldData;
   }
 
   /**
-   * Sets the alter flag value for this table, used when table is
-   * processed by the {@link PSJdbcTableFactory}.
+   * Sets the alter flag value for this table, used when table is processed by the {@link
+   * PSJdbcTableFactory}.
    *
-   * @param isAlter Determines if the child elements of the table are to be
-   * treated as the complete schema definition, or only the changes to be made.
-   * This value is ignored if {@link #isCreate()} is <code>true</code>.
-   *
-   * If <code>true</code>, then child objects defined in this table schema are
-   * treated as changes.  Each object (column, primary key, foreign key, index)
-   * is handled based on its action attribute.  Data modifications may not also
-   * be specified.
-   *
-   * If <code>false</code>, then a the full table schema must be provided, and
-   * the action attribute of each child object is ignored.
-   *
-   * @throws PSJdbcTableFactoryException if isAlter() is <code>true</code> and
-   * {@link #getTableData()} does not return <code>null</code>.
+   * @param isAlter Determines if the child elements of the table are to be treated as the complete
+   *     schema definition, or only the changes to be made. This value is ignored if {@link
+   *     #isCreate()} is <code>true</code>.
+   *     <p>If <code>true</code>, then child objects defined in this table schema are treated as
+   *     changes. Each object (column, primary key, foreign key, index) is handled based on its
+   *     action attribute. Data modifications may not also be specified.
+   *     <p>If <code>false</code>, then a the full table schema must be provided, and the action
+   *     attribute of each child object is ignored.
+   * @throws PSJdbcTableFactoryException if isAlter() is <code>true</code> and {@link
+   *     #getTableData()} does not return <code>null</code>.
    */
   public void setAlter(boolean isAlter) throws PSJdbcTableFactoryException {
     // can't alter and have data
@@ -951,16 +888,14 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * @return The alter flag value.  See {@link #setAlter(boolean) setAlter} for
-   * more info.
+   * @return The alter flag value. See {@link #setAlter(boolean) setAlter} for more info.
    */
   public boolean isAlter() {
     return m_alter && !m_create;
   }
 
   /**
-   * Method to set the flag for allowing/disallowing schema changes
-   * for this table.
+   * Method to set the flag for allowing/disallowing schema changes for this table.
    *
    * @param bAllow if true then allows schema changes for this table
    */
@@ -969,8 +904,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns true if schema changes are allowed for this table else returns
-   * false.
+   * Returns true if schema changes are allowed for this table else returns false.
    *
    * @return allow schema changes flag.
    */
@@ -981,12 +915,11 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Returns type of action that will be taken when processing this schema.
    *
-   * @return type of action that will be taken when processing this schema,
-   * should be one of the following values:
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
+   * @return type of action that will be taken when processing this schema, should be one of the
+   *     following values: <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
    */
   public int getSchemaAction() {
     return m_schemaAction;
@@ -995,13 +928,11 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Sets the type of action that will be taken when processing this schema.
    *
-   * @param schemaAction the type of action that will be taken when processing
-   * this schema, should be one of the following values:
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
-   *
+   * @param schemaAction the type of action that will be taken when processing this schema, should
+   *     be one of the following values: <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or <code>
+   *     PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
    * @throws IllegalArgumentException if <code>schemaAction</code> is invalid
    */
   public void setSchemaAction(int schemaAction) {
@@ -1016,16 +947,15 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Sets table data on this table, used to specify the table's data when this
-   * table is processed by the {@link PSJdbcTableFactory}.
+   * Sets table data on this table, used to specify the table's data when this table is processed by
+   * the {@link PSJdbcTableFactory}.
    *
    * @param tableData The table data, may be <code>null</code>.
-   *
    * @throws IllegalArgumentException if tableData is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if a column defined in the table data
-   * is not defined in the table schema, or if an update has been specified and
-   * no primary or update keys are defined or values for those key columns are
-   * not provided, or if {@link #isAlter()} is <code>true</code>.
+   * @throws PSJdbcTableFactoryException if a column defined in the table data is not defined in the
+   *     table schema, or if an update has been specified and no primary or update keys are defined
+   *     or values for those key columns are not provided, or if {@link #isAlter()} is <code>true
+   *     </code>.
    */
   public void setTableData(PSJdbcTableData tableData) throws PSJdbcTableFactoryException {
     if (tableData != null) {
@@ -1043,8 +973,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Validates that the child components of this schema are valid.
    *
-   * @throws PSJdbcTableFactoryException if a column defined in a primary
-   * key, or foreign key is not defined as a column in this schema.
+   * @throws PSJdbcTableFactoryException if a column defined in a primary key, or foreign key is not
+   *     defined as a column in this schema.
    */
   public void validateSchema() throws PSJdbcTableFactoryException {
     if (m_primaryKey != null) {
@@ -1086,12 +1016,10 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * Validates that the supplied tableData is valid for this schema.
    *
    * @param tableData The table data, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if tableData is <code>null</code>.
-   * @throws PSJdbcTableFactoryException if a column defined in the table data
-   * is not defined in this schema, or if an update has been specified and
-   * no primary or update keys are defined or values for those key columns are
-   * not provided.
+   * @throws PSJdbcTableFactoryException if a column defined in the table data is not defined in
+   *     this schema, or if an update has been specified and no primary or update keys are defined
+   *     or values for those key columns are not provided.
    */
   public void validateTableData(PSJdbcTableData tableData) throws PSJdbcTableFactoryException {
     if (tableData == null) throw new IllegalArgumentException("tableData may not be null");
@@ -1135,8 +1063,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns the table data object if one has been set.  See {@link
-   * #setTableData(PSJdbcTableData) setTableData} for more info.
+   * Returns the table data object if one has been set. See {@link #setTableData(PSJdbcTableData)
+   * setTableData} for more info.
    *
    * @return The table data, may be <code>null</code>
    */
@@ -1148,9 +1076,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * Compares this schema to another object.
    *
    * @param obj the object to compare
-   * @return <code>true</code> if the object is a PSJdbcTableSchema with
-   *    identical values, excluding the dataTypeMap. Otherwise returns
-   *    <code>false</code>.
+   * @return <code>true</code> if the object is a PSJdbcTableSchema with identical values, excluding
+   *     the dataTypeMap. Otherwise returns <code>false</code>.
    */
   public boolean equals(Object obj) {
     boolean isMatch = true;
@@ -1182,9 +1109,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Overridden to fulfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fulfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -1219,7 +1145,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
 
   /**
    * @return <code>false</code> if all table components have an action of
-   * PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
+   *     PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
    */
   public boolean hasChanges() {
     boolean hasChanges = false;
@@ -1239,22 +1165,15 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns a schema handler object of the specified type if it exists
-   * in schema handler collection associated with this table schema,
-   * otherwise returns <code>null</code>.
+   * Returns a schema handler object of the specified type if it exists in schema handler collection
+   * associated with this table schema, otherwise returns <code>null</code>.
    *
    * @param schemaHandlerType The type of the schema handler to locate.
-   *
-   * @return a schema handler object of the specified type if it exists
-   * in schema handler collection associated with this table schema,
-   * otherwise returns <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>schemaHandlerType</code>
-   * is not one of the following values:
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
-   * <code>TYPE_INT_TO_BACKUP</code>
-   * <code>TYPE_INT_FROM_BACKUP</code>
-   * <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
+   * @return a schema handler object of the specified type if it exists in schema handler collection
+   *     associated with this table schema, otherwise returns <code>null</code>.
+   * @throws IllegalArgumentException if <code>schemaHandlerType</code> is not one of the following
+   *     values: <code>TYPE_INT_NO_ALTER_TABLE_STMT</code> <code>TYPE_INT_TO_BACKUP</code> <code>
+   *     TYPE_INT_FROM_BACKUP</code> <code>TYPE_INT_NO_ALTER_TABLE_STMT</code>
    */
   public PSJdbcTableSchemaHandler getTableSchemaHandler(int schemaHandlerType) {
     if (m_schemaHandlerCollection == null) return null;
@@ -1262,10 +1181,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Determines if this table can be processed using ALTER TABLE statements
-   * if it exists.
-   * @return <code>true</code> if the only changes are adding columns, and
-   * keys.
+   * Determines if this table can be processed using ALTER TABLE statements if it exists.
+   *
+   * @return <code>true</code> if the only changes are adding columns, and keys.
    */
   public boolean canBeAltered() {
     for (PSJdbcColumnDef m_column : m_columns) {
@@ -1292,13 +1210,11 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Builds list of column names that comprise the key to use when updating
-   * a row of data.
+   * Builds list of column names that comprise the key to use when updating a row of data.
    *
-   * @return A list of column names as Strings.  If this tableSchema contains
-   * an update key, those columns will be used, otherwise the columns from the
-   * primary key will be used.  If neither are defined, an empty list is
-   * returned.
+   * @return A list of column names as Strings. If this tableSchema contains an update key, those
+   *     columns will be used, otherwise the columns from the primary key will be used. If neither
+   *     are defined, an empty list is returned.
    */
   public List<String> getKeyColumns() {
     List<String> keyCols = new ArrayList<>();
@@ -1317,14 +1233,12 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Adds the name of the parent table into the list containing the
-   * name of this table's parent tables.
+   * Adds the name of the parent table into the list containing the name of this table's parent
+   * tables.
    *
-   * @param parentTableName name of the this table's parent table, may not be
-   * <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if parentTableName is
-   * <code>null</code> or empty
+   * @param parentTableName name of the this table's parent table, may not be <code>null</code> or
+   *     empty
+   * @throws IllegalArgumentException if parentTableName is <code>null</code> or empty
    */
   public void addParentTable(String parentTableName) {
     if ((parentTableName == null) || (parentTableName.trim().length() == 0))
@@ -1334,14 +1248,11 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Adds the name of the child table into the list containing the
-   * name of this table's child tables.
+   * Adds the name of the child table into the list containing the name of this table's child
+   * tables.
    *
-   * @param childTableName name of the child table, may not be
-   * <code>null</code> or empty
-   *
-   * @throws IllegalArgumentException if childTableName is
-   * <code>null</code> or empty
+   * @param childTableName name of the child table, may not be <code>null</code> or empty
+   * @throws IllegalArgumentException if childTableName is <code>null</code> or empty
    */
   public void addChildTable(String childTableName) {
     if ((childTableName == null) || (childTableName.trim().length() == 0))
@@ -1354,9 +1265,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * Adds a listener to be informed of table schema change events.
    *
    * @param listener The listener, may not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>listener</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>listener</code> is <code>null</code>.
    */
   public void addSchemaChangeListener(IPSJdbcTableChangeListener listener) {
     if (listener == null) throw new IllegalArgumentException("listener may not be null");
@@ -1366,8 +1275,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Gets the list of {@link IPSJdbcTableChangeListener} objects to be informed
-   * of changes to this table's schema.
+   * Gets the list of {@link IPSJdbcTableChangeListener} objects to be informed of changes to this
+   * table's schema.
    *
    * @return The list, may be <code>null</code>, never empty.
    */
@@ -1378,11 +1287,9 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   /**
    * Returns the index into the internal column list of the specified column.
    *
-   * @param name The name of the column to find.  Assumed not <code>null</code>
-   * or empty.
-   *
-   * @return The index, or <code>-1</code> if not found in the list.  Match
-   * is case insensitive by name.
+   * @param name The name of the column to find. Assumed not <code>null</code> or empty.
+   * @return The index, or <code>-1</code> if not found in the list. Match is case insensitive by
+   *     name.
    */
   private int getColumnIndex(String name) {
     PSJdbcColumnDef column;
@@ -1400,15 +1307,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Checks each name in the supplied iterator and validates that a column
-   * with that name is defined in this schema.
+   * Checks each name in the supplied iterator and validates that a column with that name is defined
+   * in this schema.
    *
    * @param names An iterator over zero or more names, assumed not <code>null
    * </code> and to contain only String objects.
-   *
-   * @return <code>null</code> if all names in the iterator have corresponding
-   * column definitions in this schema, a comma delimited list of invalid names
-   * if not.
+   * @return <code>null</code> if all names in the iterator have corresponding column definitions in
+   *     this schema, a comma delimited list of invalid names if not.
    */
   private String checkColumns(Iterator<String> names) {
     List<String> badNameList = new ArrayList<>();
@@ -1422,6 +1327,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
 
   /**
    * Puts/associates TableWithForeignKey relationship to this schema.
+   *
    * @param schema never <code>null</code>.
    */
   public void addTableWithForeignKey(PSJdbcTableSchema schema) {
@@ -1431,137 +1337,100 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
-   * Returns an iterator to collection of PSJdbcTableSchema that
-   * have Foreign Keys.
+   * Returns an iterator to collection of PSJdbcTableSchema that have Foreign Keys.
+   *
    * @return never <code>null</code>, may be <code>empty</code>.
    */
   public Iterator<PSJdbcTableSchema> getTablesWithForeignKey() {
     return m_mapTablesWithForeignKey.values().iterator();
   }
 
-  /**
-   * The name of this objects root Xml element.
-   */
+  /** The name of this objects root Xml element. */
   public static String NODE_NAME = "table";
 
-  /**
-   * The name of this table.  Initialized in the ctor, never <code>null</code>
-   * after that.
-   */
+  /** The name of this table. Initialized in the ctor, never <code>null</code> after that. */
   private String m_name = null;
 
-  /**
-   * The create flag for this table.  See {@link #setCreate(boolean)} for more
-   * info.
-   */
+  /** The create flag for this table. See {@link #setCreate(boolean)} for more info. */
   private boolean m_create = true;
 
-  /**
-   * The create flag for this table.  See {@link #setDelOldData(boolean)} for
-   * more info.
-   */
+  /** The create flag for this table. See {@link #setDelOldData(boolean)} for more info. */
   private boolean m_delOldData = false;
 
-  /**
-   * The create flag for this table.  See {@link #setAlter(boolean)} for more
-   * info.
-   */
+  /** The create flag for this table. See {@link #setAlter(boolean)} for more info. */
   private boolean m_alter = false;
 
-  /**
-   * The create flag for this table.  See
-   * {@link #setAllowSchemaChanges(boolean)} for more info.
-   */
+  /** The create flag for this table. See {@link #setAllowSchemaChanges(boolean)} for more info. */
   private boolean m_allowSchemaChanges = true;
 
   /**
-   * <code>true</code> if the table represented by this schema is a
-   * "VIEW", <code>false</code> if not.
+   * <code>true</code> if the table represented by this schema is a "VIEW", <code>false</code> if
+   * not.
    */
   private boolean m_isView = false;
 
   /**
-   * This table's column definitions.  Never <code>null</code> or empty after
-   * construction, contains only valid PSJdbcColumnDef objects.
+   * This table's column definitions. Never <code>null</code> or empty after construction, contains
+   * only valid PSJdbcColumnDef objects.
    */
   private List<PSJdbcColumnDef> m_columns = new ArrayList<>();
 
-  /**
-   * List for storing the name of this table's parent tables.
-   * May be empty.
-   */
+  /** List for storing the name of this table's parent tables. May be empty. */
   private List<String> m_parentTables = new ArrayList<>();
 
-  /**
-   * List for storing the name of this table's child tables.
-   * May be empty.
-   */
+  /** List for storing the name of this table's child tables. May be empty. */
   private List<String> m_childTables = new ArrayList<>();
 
-  /**
-   * This table's primary key definition.  May be <code>null</code>.
-   */
+  /** This table's primary key definition. May be <code>null</code>. */
   private PSJdbcPrimaryKey m_primaryKey = null;
 
-  /**
-   * This table's foreign key definition.  May be <code>null</code>.
-   */
+  /** This table's foreign key definition. May be <code>null</code>. */
   private List<PSJdbcForeignKey> m_foreignKeys = new ArrayList<>();
 
-  /**
-   * This table's index definitions.  Never <code>null</code>, may be empty.
-   */
+  /** This table's index definitions. Never <code>null</code>, may be empty. */
   private List<PSJdbcIndex> m_indexes = new ArrayList<>();
 
   /**
-   * This table's update key definition.  Used when updating rows as the key
-   * columns if it has been defined.  May be <code>null</code>.
+   * This table's update key definition. Used when updating rows as the key columns if it has been
+   * defined. May be <code>null</code>.
    */
   private PSJdbcUpdateKey m_updateKey = null;
 
   /**
-   * This table's data.  May be <code>null</code> if none has been specified.
-   * Used to specify the table's data when processed by the {@link
-   * PSJdbcTableFactory}.
+   * This table's data. May be <code>null</code> if none has been specified. Used to specify the
+   * table's data when processed by the {@link PSJdbcTableFactory}.
    */
   private PSJdbcTableData m_tableData = null;
 
   /**
-   * List of {@link IPSJdbcTableChangeListener} objects to be notified of
-   * schema changes.  May be <code>null</code>, never empty, modified by calls
-   * to {@link #addSchemaChangeListener(IPSJdbcTableChangeListener)
-   * addTableChangeListener}.
+   * List of {@link IPSJdbcTableChangeListener} objects to be notified of schema changes. May be
+   * <code>null</code>, never empty, modified by calls to {@link
+   * #addSchemaChangeListener(IPSJdbcTableChangeListener) addTableChangeListener}.
    */
   private List<IPSJdbcTableChangeListener> m_schemaChangeListeners = null;
 
   /**
-   * This map holds a set of PSJdbcTableSchema objects that have a foreign key
-   * relationship with this table. never <code>null</code>,
-   * may be <code>empty</code>.
+   * This map holds a set of PSJdbcTableSchema objects that have a foreign key relationship with
+   * this table. never <code>null</code>, may be <code>empty</code>.
    */
   private Map<String, PSJdbcTableSchema> m_mapTablesWithForeignKey = new HashMap<>();
 
-  /**
-   * Collection of table schema handler objects, may be <code>null</code>.
-   */
+  /** Collection of table schema handler objects, may be <code>null</code>. */
   private PSJdbcTableSchemaHandlerCollection m_schemaHandlerCollection = null;
 
   /**
-   * Prefix to be added to the new index name of a new index that gets created
-   * when createForeignkeyIndexes mapping in is set to "yes" in
-   * PSJdbcDataTypeMap.xml
+   * Prefix to be added to the new index name of a new index that gets created when
+   * createForeignkeyIndexes mapping in is set to "yes" in PSJdbcDataTypeMap.xml
    */
   public static final String INDEX_PREFIX = "IX_";
 
   /**
-   * The type of action that will be taken when processing this schema.
-   * Default is <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code>, which
-   * indicates that no action will be taken when processing the schema.
-   * Valid values for this variable are:
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or
-   * <code>PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
+   * The type of action that will be taken when processing this schema. Default is <code>
+   * PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code>, which indicates that no action will be taken when
+   * processing the schema. Valid values for this variable are: <code>
+   * PSJdbcPlanBuilder.SCHEMA_ACTION_NONE</code> or <code>PSJdbcPlanBuilder.SCHEMA_ACTION_CREATE
+   * </code> or <code>PSJdbcPlanBuilder.SCHEMA_ACTION_ALTER</code> or <code>
+   * PSJdbcPlanBuilder.SCHEMA_ACTION_RECREATE</code>
    */
   private int m_schemaAction = PSJdbcPlanBuilder.SCHEMA_ACTION_NONE;
 

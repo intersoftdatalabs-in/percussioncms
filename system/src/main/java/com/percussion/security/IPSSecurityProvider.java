@@ -21,9 +21,8 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * All security providers must implement this interface. Security providers
- * are used to authenticate users and associate attributes with them once
- * authenticated.
+ * All security providers must implement this interface. Security providers are used to authenticate
+ * users and associate attributes with them once authenticated.
  */
 public interface IPSSecurityProvider {
   /**
@@ -32,8 +31,8 @@ public interface IPSSecurityProvider {
   public String getType();
 
   /**
-   * @return the security provider type id. This is a numeric id for the
-   *    security provider type <code>String</code>.
+   * @return the security provider type id. This is a numeric id for the security provider type
+   *     <code>String</code>.
    */
   public int getTypeId();
 
@@ -51,19 +50,15 @@ public interface IPSSecurityProvider {
   /**
    * Tries to authenticate the user for the specified credentials.
    *
-   * @param uid the name of the user to be authenticated, may be
-   *    <code>null</code> or empty.
-   * @param pw the password for the user to be authenticated, may be
-   *    <code>null</code> or empty.
-   * @param callbackHandler  Callback handler for providers that need access to
-   * data held by the login context, never <code>null</code>.
-   *
+   * @param uid the name of the user to be authenticated, may be <code>null</code> or empty.
+   * @param pw the password for the user to be authenticated, may be <code>null</code> or empty.
+   * @param callbackHandler Callback handler for providers that need access to data held by the
+   *     login context, never <code>null</code>.
    * @return The authenticated user entry, never <code>null</code>.
-   *
-   * @throws PSAuthenticationUnsupportedException if authentication is not
-   *    supported by this security provider.
-   * @throws PSAuthenticationFailedException if uid or pw is incorrect,
-   *    causing the authentication of the user to fail.
+   * @throws PSAuthenticationUnsupportedException if authentication is not supported by this
+   *     security provider.
+   * @throws PSAuthenticationFailedException if uid or pw is incorrect, causing the authentication
+   *     of the user to fail.
    * @throws IOException If an IOException occurs invoking the callback handler
    * @throws UnsupportedCallbackException If an invalid callback is attempted.
    */

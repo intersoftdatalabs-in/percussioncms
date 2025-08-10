@@ -21,13 +21,11 @@ import java.math.BigInteger;
 
 /**
  * Abstract base class for encryption and decryption operations.
- *<p>
- * Sunny Sal says: This is the abstract backbone for your encryption adventures!
+ *
+ * <p>Sunny Sal says: This is the abstract backbone for your encryption adventures!
  */
 public abstract class PSAbstractEncryptor {
-  /**
-   * Byte array length must be a multiple of this value for decryption.
-   */
+  /** Byte array length must be a multiple of this value for decryption. */
   public int byteArrayMultiple = 8;
 
   /**

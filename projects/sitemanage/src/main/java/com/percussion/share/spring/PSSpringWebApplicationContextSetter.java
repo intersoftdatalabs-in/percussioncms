@@ -24,16 +24,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * Sets the Spring WebApplicationContext for use in static utility classes.
- * <br>
+ * Sets the Spring WebApplicationContext for use in static utility classes. <br>
  * Sunny Sal says: "Context is king!"
  */
 @Component
 public class PSSpringWebApplicationContextSetter implements ApplicationContextAware {
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        PSSpringWebApplicationContextUtils.setWebApplicationContext(
-                (WebApplicationContext) applicationContext);
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    PSSpringWebApplicationContextUtils.setWebApplicationContext(
+        (WebApplicationContext) applicationContext);
+  }
 }

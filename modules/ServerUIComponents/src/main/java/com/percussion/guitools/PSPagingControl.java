@@ -37,10 +37,9 @@ import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 
 /**
- * A control that consists of four buttons, a slider, and a label
- * showing the current page and page total. The label uses an input
- * field for the current page value so that a user can directly modify
- * it.
+ * A control that consists of four buttons, a slider, and a label showing the current page and page
+ * total. The label uses an input field for the current page value so that a user can directly
+ * modify it.
  *
  * <pre>
  *  The control looks something like the following example:
@@ -50,7 +49,6 @@ import javax.swing.text.PlainDocument;
  * </pre>
  *
  * @author erikserating
- *
  */
 public class PSPagingControl extends JPanel {
 
@@ -64,10 +62,7 @@ public class PSPagingControl extends JPanel {
     init();
   }
 
-  /**
-   * Initialize all the panel controls and lay them out and add any
-   * required listeners.
-   */
+  /** Initialize all the panel controls and lay them out and add any required listeners. */
   private void init() {
     setLayout(new GridBagLayout());
     setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -122,8 +117,8 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Set the current page index.
-   * @param pageIndex the current page index to be set or
-   * -1 to "unset".
+   *
+   * @param pageIndex the current page index to be set or -1 to "unset".
    */
   public void setCurrentPage(int pageIndex) {
     if (pageIndex > m_pageCount)
@@ -137,11 +132,11 @@ public class PSPagingControl extends JPanel {
   }
 
   /**
-   * Sets the total page count value. Changing this value may result
-   * in setting the current page value to 1 or 0 if the current page value exceeds
-   * the page count after it is set.
-   * @param count a non negative integer greater than zero indicating the total number of pages
-   * for this control.
+   * Sets the total page count value. Changing this value may result in setting the current page
+   * value to 1 or 0 if the current page value exceeds the page count after it is set.
+   *
+   * @param count a non negative integer greater than zero indicating the total number of pages for
+   *     this control.
    */
   public void setPageCount(int count) {
     if (count < 1) throw new IllegalArgumentException("count must be greater than 0.");
@@ -153,6 +148,7 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Add a paging control listener to listen for page change events.
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void addPagingControlListener(IPSPagingControlListener listener) {
@@ -164,6 +160,7 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Remove a paging control listener.
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void removePagingControlListener(IPSPagingControlListener listener) {
@@ -175,8 +172,9 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Fires a page change event, notifying all listeners.
-   * @param newPageIndex the current page index that results from the
-   * action that fired the event. Set to -1 if no page indicated.
+   *
+   * @param newPageIndex the current page index that results from the action that fired the event.
+   *     Set to -1 if no page indicated.
    */
   private void firePageChangeEvent(int newPageIndex) {
     PSPagingControlEvent event = new PSPagingControlEvent(this, newPageIndex);
@@ -187,6 +185,7 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Helper method to create the current page field and attach listeners.
+   *
    * @return the text field. Never <code>null</code>.
    */
   private FixedWholeNumberField createCurrentPageField() {
@@ -197,8 +196,8 @@ public class PSPagingControl extends JPanel {
   }
 
   /**
-   * Helper method to create the various buttons needed for this control and
-   * add listeners.
+   * Helper method to create the various buttons needed for this control and add listeners.
+   *
    * @param type one of the BUTTON_TYPE_XXX constants.
    * @return the button, never <code>null</code>.
    */
@@ -233,6 +232,7 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Helper method to create the slider control and add listeners.
+   *
    * @return the slider, never <code>null</code>.
    */
   private JSlider createSlider() {
@@ -244,8 +244,8 @@ public class PSPagingControl extends JPanel {
 
   /**
    * Convienience method to retrieve icon.
-   * @param file the image file, assumed not <code>null</code> or
-   * empty.
+   *
+   * @param file the image file, assumed not <code>null</code> or empty.
    * @return the image if it exists.
    */
   private ImageIcon getIcon(String file) {
@@ -254,10 +254,8 @@ public class PSPagingControl extends JPanel {
   }
 
   /**
-   * Helper method to set current page from text field, resetting
-   * the text field to the current page value if it is not in a
-   * valid range.
-   *
+   * Helper method to set current page from text field, resetting the text field to the current page
+   * value if it is not in a valid range.
    */
   private void setCurrentPageFromTextField() {
     String rawValue = m_currentPageField.getText();
@@ -279,10 +277,9 @@ public class PSPagingControl extends JPanel {
   }
 
   /**
-   * A text field that only accepts whole number characters and
-   * is fixed in width and height.
-   * @author erikserating
+   * A text field that only accepts whole number characters and is fixed in width and height.
    *
+   * @author erikserating
    */
   public class FixedWholeNumberField extends JTextField {
     public FixedWholeNumberField(String name) {
@@ -315,9 +312,7 @@ public class PSPagingControl extends JPanel {
     }
   }
 
-  /**
-   * Document class that only allows whole numbers
-   */
+  /** Document class that only allows whole numbers */
   private class WholeNumberDocument extends PlainDocument {
 
     @Override
@@ -338,10 +333,10 @@ public class PSPagingControl extends JPanel {
   }
 
   /**
-   * This inner class implements the various listeners needed by
-   * the controls that make up the paging control.
-   * @author erikserating
+   * This inner class implements the various listeners needed by the controls that make up the
+   * paging control.
    *
+   * @author erikserating
    */
   private class MultiListener
       implements ActionListener, ChangeListener, FocusListener, KeyListener {
@@ -428,68 +423,40 @@ public class PSPagingControl extends JPanel {
     }
   }
 
-  /**
-   * Multi listener instance for the class. Never <code>null</code>.
-   */
+  /** Multi listener instance for the class. Never <code>null</code>. */
   private MultiListener m_multiListener = new MultiListener();
 
-  /**
-   * Current page index value. Will be 0 if no page is indicated.
-   */
+  /** Current page index value. Will be 0 if no page is indicated. */
   private int m_currentPage = 0;
 
-  /**
-   * Total page count value.
-   */
+  /** Total page count value. */
   private int m_pageCount;
 
-  /**
-   * List of all paging control listeners. Never <code>null</code>
-   * but may be empty.
-   */
+  /** List of all paging control listeners. Never <code>null</code> but may be empty. */
   private List<IPSPagingControlListener> m_listeners = new ArrayList<IPSPagingControlListener>();
 
   /**
-   * The textfield to modify and display the current page value.
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
+   * The textfield to modify and display the current page value. Initialized in {@link #init()},
+   * never <code>null</code> after that.
    */
   private FixedWholeNumberField m_currentPageField;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private UTFixedButton m_firstButton;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private UTFixedButton m_lastButton;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private UTFixedButton m_nextButton;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private UTFixedButton m_previousButton;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private JSlider m_slider;
 
-  /**
-   * Initialized in {@link #init()}, never <code>null</code> after
-   * that.
-   */
+  /** Initialized in {@link #init()}, never <code>null</code> after that. */
   private JLabel m_totalPagesLabel;
 
   // Button types
@@ -498,9 +465,7 @@ public class PSPagingControl extends JPanel {
   private static final short BUTTON_TYPE_NEXT = 2;
   private static final short BUTTON_TYPE_PREV = 3;
 
-  /**
-   * Resource bundle reference. Never <code>null</code> after that.
-   */
+  /** Resource bundle reference. Never <code>null</code> after that. */
   private static ResourceBundle ms_res;
 
   static {

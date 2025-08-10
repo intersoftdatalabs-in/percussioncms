@@ -42,26 +42,23 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 /**
- * The PSDirectoryConnProviderMetaData class implements cataloging for
- * the PSDirectoryConnProvider security provider.
+ * The PSDirectoryConnProviderMetaData class implements cataloging for the PSDirectoryConnProvider
+ * security provider.
  *
  * @author chadloder
  */
 public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
   /**
-   * Construct a meta data object for the specified provider
-   * instance.
+   * Construct a meta data object for the specified provider instance.
    *
-   * @param inst The provider instance. Can be <CODE>null</CODE>,
-   * in which case not all of the information will be available.
+   * @param inst The provider instance. Can be <CODE>null</CODE>, in which case not all of the
+   *     information will be available.
    */
   PSDirectoryConnProviderMetaData(PSDirectoryConnProvider inst) {
     super(inst);
   }
 
-  /**
-   * Default constructor to find connection properties, etc.
-   */
+  /** Default constructor to find connection properties, etc. */
   public PSDirectoryConnProviderMetaData() {
     this(null);
   }
@@ -69,7 +66,7 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
   /**
    * Get the name of this security provider.
    *
-   * @return      the provider's name
+   * @return the provider's name
    */
   public String getName() {
     return PSDirectoryConnProvider.SP_NAME;
@@ -78,7 +75,7 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
   /**
    * Get the full name of this security provider.
    *
-   * @return      the provider's full name
+   * @return the provider's full name
    */
   public String getFullName() {
     return "Directory Connection Security Provider";
@@ -87,21 +84,22 @@ public class PSDirectoryConnProviderMetaData extends PSJndiProviderMetaData {
   /**
    * Get the descritpion of this security provider.
    *
-   * @return      the provider's description
+   * @return the provider's description
    */
   public String getDescription() {
     return "Directory server authentication proxy.";
   }
 
   /**
-   * See {@link IPSSecurityProviderMetaData#getObjects(String[], String[])} for
-   * description.  The following information is specific to this class:
+   * See {@link IPSSecurityProviderMetaData#getObjects(String[], String[])} for description. The
+   * following information is specific to this class:
+   *
    * <ul>
-   * <li>This class does not support the <code>"_"</code> wildcard
-   * in filter patterns, and will throw a SQLException if one is supplied.</li>
-   * <li>If returning user names, they are not distiguished, and only contain
-   * the value of the user entries principle attribute.</li>
-   * <li>If returning group names, they fully qualified distiguished name.</li>
+   *   <li>This class does not support the <code>"_"</code> wildcard in filter patterns, and will
+   *       throw a SQLException if one is supplied.
+   *   <li>If returning user names, they are not distiguished, and only contain the value of the
+   *       user entries principle attribute.
+   *   <li>If returning group names, they fully qualified distiguished name.
    * </ul>
    */
   public ResultSet getObjects(String[] objectTypes, String[] filterPattern) throws SQLException {

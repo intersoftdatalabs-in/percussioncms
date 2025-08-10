@@ -22,11 +22,9 @@ import com.percussion.install.InstallUtil;
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 /**
- * This is a condition to determine if a Rhythmyx component is licensed or not.
+ * This is a condition to determine if a Rhythmyx component is licensed or not. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the typedef:
@@ -46,7 +44,6 @@ import org.apache.tools.ant.taskdefs.condition.Condition;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSLicenseProdCondition extends PSAction implements Condition {
   /* (non-Javadoc)
@@ -62,9 +59,9 @@ public class PSLicenseProdCondition extends PSAction implements Condition {
    **************************************************************************/
 
   /**
-   * Returns the id of the component whose license is to be verified. This id
-   * uniquely identifies a component. See the ComponentMap.xml file to
-   * obtain the name of the component corresponding to this id.
+   * Returns the id of the component whose license is to be verified. This id uniquely identifies a
+   * component. See the ComponentMap.xml file to obtain the name of the component corresponding to
+   * this id.
    *
    * @return the id of the component whose license is to be verified.
    */
@@ -73,10 +70,9 @@ public class PSLicenseProdCondition extends PSAction implements Condition {
   }
 
   /**
-   *  Sets the id of the component whose license is to be verified.
+   * Sets the id of the component whose license is to be verified.
    *
-   *  @param componentId the id of the component whose license is to be
-   *  verified
+   * @param componentId the id of the component whose license is to be verified
    */
   public void setComponentId(int componentId) {
     this.componentId = componentId;
@@ -87,9 +83,8 @@ public class PSLicenseProdCondition extends PSAction implements Condition {
    **************************************************************************/
 
   /**
-   * The id of the component whose license is to be verified. This id should be
-   * obtained from the ComponentMap.xml file and set using the Installshield
-   * UI.
+   * The id of the component whose license is to be verified. This id should be obtained from the
+   * ComponentMap.xml file and set using the Installshield UI.
    */
   public int componentId = 0;
 }

@@ -22,17 +22,17 @@ import com.percussion.share.async.PSAsyncJobStatus;
 import com.percussion.share.test.PSObjectRestClient;
 
 /**
- * REST client for async job status.
- * Sunny Sal: "Async job status REST client, Java 11, and status ka hero!"
+ * REST client for async job status. Sunny Sal: "Async job status REST client, Java 11, and status
+ * ka hero!"
  */
 public class PSAsyncJobStatusRestClient extends PSObjectRestClient {
-    private String path = "/Rhythmyx/services/share/jobstatus/";
+  private String path = "/Rhythmyx/services/share/jobstatus/";
 
-    public PSAsyncJobStatus getStatus(String jobId) {
-        return getObjectFromPath(concatPath(path, jobId), PSAsyncJobStatus.class);
-    }
+  public PSAsyncJobStatus getStatus(String jobId) {
+    return getObjectFromPath(concatPath(path, jobId), PSAsyncJobStatus.class);
+  }
 
-    public Long startDummyJob() {
-        return Long.valueOf(GET(concatPath(path, "startTestJob")));
-    }
+  public Long startDummyJob() {
+    return Long.valueOf(GET(concatPath(path, "startTestJob")));
+  }
 }

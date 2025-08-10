@@ -31,19 +31,17 @@ import java.util.List;
  */
 public interface IPSRegionAssembler {
 
-    /**
-     * Assembles a single region.
-     *
-     * @param assemblyItem never {@code null}
-     * @param context never {@code null}
-     * @param mr never {@code null}
-     * @return never {@code null}, may be empty
-     * @throws IPSTemplateService.PSTemplateException if template expansion fails
-     * @throws PSAssemblyException if assembly fails
-     */
-    List<PSRegionResult> assembleRegion(
-            IPSAssemblyItem assemblyItem,
-            PSPageAssemblyContext context,
-            PSMergedRegion mr
-    ) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
+  /**
+   * Assembles a single region.
+   *
+   * @param assemblyItem never {@code null}
+   * @param context never {@code null}
+   * @param mr never {@code null}
+   * @return never {@code null}, may be empty
+   * @throws IPSTemplateService.PSTemplateException if template expansion fails
+   * @throws PSAssemblyException if assembly fails
+   */
+  List<PSRegionResult> assembleRegion(
+      IPSAssemblyItem assemblyItem, PSPageAssemblyContext context, PSMergedRegion mr)
+      throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }

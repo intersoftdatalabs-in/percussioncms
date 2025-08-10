@@ -53,20 +53,15 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to handle packaging and deploying a Relationship defintion.
- */
+/** Class to handle packaging and deploying a Relationship defintion. */
 public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHandler
     implements IPSIdTypeHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -123,16 +118,16 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Extension</li>
-   * <li>Any Id Type</li>
+   *   <li>Extension
+   *   <li>Any Id Type
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -350,14 +345,11 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
   }
 
   /**
-   * Load the relationship config set containing all relationship
-   * configurations.
+   * Load the relationship config set containing all relationship configurations.
    *
-   * @param edit <code>true</code> to lock for editing, <code>false</code> for
-   * read only.  If <code>true</code>, any existing locks on the config will
-   * be overriden.
+   * @param edit <code>true</code> to lock for editing, <code>false</code> for read only. If <code>
+   *     true</code>, any existing locks on the config will be overriden.
    * @return the relationshipconfiguration set
-   *
    * @throws PSDeployException if there are any errors.
    */
   private PSRelationshipConfigSet getRelationshipConfigSet(boolean edit) throws PSDeployException {
@@ -381,15 +373,10 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "RelationshipDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

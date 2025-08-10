@@ -29,15 +29,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * 3 html parameters are expected: sys_originalSiteName, sys_newSiteName and
- * sys_newFolderPath. A search is done looking for a site whose name matches the
- * original supplied (case-insensitive). Once found, this site is copied and the
- * site name and folder path are set from the supplied values before saving the
- * copy. The variables(Assembler Properties) of the original site will be copied
- * to the new site. The result doc indicates success or failure and includes
- * error info on failure (if success is false). If successful the result
- * includes the source site id and the new copied site id in the result. The
- * result doc has the following DTD:
+ * 3 html parameters are expected: sys_originalSiteName, sys_newSiteName and sys_newFolderPath. A
+ * search is done looking for a site whose name matches the original supplied (case-insensitive).
+ * Once found, this site is copied and the site name and folder path are set from the supplied
+ * values before saving the copy. The variables(Assembler Properties) of the original site will be
+ * copied to the new site. The result doc indicates success or failure and includes error info on
+ * failure (if success is false). If successful the result includes the source site id and the new
+ * copied site id in the result. The result doc has the following DTD:
  *
  * <pre>
  *
@@ -68,8 +66,7 @@ public class PSCopySiteDef extends PSDefaultExtension implements IPSResultDocume
    *
    * @param params none expected.
    * @param request Never <code>null</code>.
-   * @param resultDoc Discarded and replaced with document generated in this
-   *    exit.
+   * @param resultDoc Discarded and replaced with document generated in this exit.
    */
   public Document processResultDocument(
       @SuppressWarnings("unused") Object[] params,
@@ -139,18 +136,16 @@ public class PSCopySiteDef extends PSDefaultExtension implements IPSResultDocume
   }
 
   /**
-   * Builds a doc fragment and adds it to the supplied document. The fragment
-   * follows the &lt;Error&gt; element in the dtd as specified in the class
-   * description.
+   * Builds a doc fragment and adds it to the supplied document. The fragment follows the
+   * &lt;Error&gt; element in the dtd as specified in the class description.
    *
    * @param doc Assumed not <code>null</code>.
-   * @param parent The node to which the generated fragment will be added.
-   *           Assumed not <code>null</code>.
-   * @param message Will be set as the content of the &lt;Message&gt; element.
-   *           May be <code>null</code> or empty, in which case the message
-   *           will say "None available".
-   * @param stack Will be set as the content of the &lt;StackTrace&gt; element.
-   *           May be <code>null</code> or empty.
+   * @param parent The node to which the generated fragment will be added. Assumed not <code>null
+   *     </code>.
+   * @param message Will be set as the content of the &lt;Message&gt; element. May be <code>null
+   *     </code> or empty, in which case the message will say "None available".
+   * @param stack Will be set as the content of the &lt;StackTrace&gt; element. May be <code>null
+   *     </code> or empty.
    */
   static void createErrorResult(
       Document doc, Element parent, String message, StackTraceElement[] stack) {

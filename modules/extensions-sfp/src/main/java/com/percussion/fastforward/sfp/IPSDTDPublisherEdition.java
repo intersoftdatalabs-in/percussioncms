@@ -18,17 +18,15 @@
 package com.percussion.fastforward.sfp;
 
 /**
- * This interface defines all string constants representing the DTD for the
- * remote publisher edition XML document that is sent part of the SOAP request
- * to the publisher client. The DTD and a typical XML document shall be of the
- * following syntax:
- * <P>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+ * This interface defines all string constants representing the DTD for the remote publisher edition
+ * XML document that is sent part of the SOAP request to the publisher client. The DTD and a typical
+ * XML document shall be of the following syntax:
+ *
+ * <p>&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
  * &lt;!DOCTYPE psxpub:pubdata[<br>
- * &lt;!ELEMENT psxpub:pubdata (destsite, publisherconfig, contentlist)
- * &gt;<br>
- * &lt;!ATTLIST psxpub:pubdata xmlns:psxpub CDATA #FIXED "urn:www.percussion.
- * com/publisher" &gt;<br>
+ * &lt;!ELEMENT psxpub:pubdata (destsite, publisherconfig, contentlist) &gt;<br>
+ * &lt;!ATTLIST psxpub:pubdata xmlns:psxpub CDATA #FIXED "urn:www.percussion. com/publisher" &gt;
+ * <br>
  * &lt;!ELEMENT destsite (#PCDATA) &gt;<br>
  * &lt;!ATTLIST destsite siteid #REQUIRED&gt;<br>
  * &lt;!ATTLIST destsite name #IMPLIED&gt;<br>
@@ -50,8 +48,7 @@ package com.percussion.fastforward.sfp;
  * &lt;!ATTLIST contentlist pubstatusid #REQUIRED&gt;<br>
  * &lt;!ATTLIST contentlist pageindex #REQUIRED&gt;<br>
  * &lt;!ATTLIST contentlist islastpage #REQUIRED&gt;<br>
- * &lt;!ELEMENT contentitem* (title, contenturl, delivery, customproperties?)
- * &gt;<br>
+ * &lt;!ELEMENT contentitem* (title, contenturl, delivery, customproperties?) &gt;<br>
  * &lt;!ATTLIST contentitem contentid #REQUIRED&gt;<br>
  * &lt;!ATTLIST contentitem unpublish #IMPLIED&gt;<br>
  * &lt;!ATTLIST contentitem revision #IMPLIED&gt;<br>
@@ -66,44 +63,37 @@ package com.percussion.fastforward.sfp;
  * ]&gt;<br>
  * &lt;!-- sample document --&gt;<br>
  * &lt;psxpub:pubdata xmlns:psxpub="urn:www.percussion.com/publisher"&gt;<br>
- * &lt;destsite siteid="111" name="site1" ipaddress="yy.yyy.yy.yyy" port="27"
- * userid="ftpuser" password="23dfs54g8j" rootdir="wwwroot/testsite"&gt;site
- * description &lt;/destsite&gt;<br>
+ * &lt;destsite siteid="111" name="site1" ipaddress="yy.yyy.yy.yyy" port="27" userid="ftpuser"
+ * password="23dfs54g8j" rootdir="wwwroot/testsite"&gt;site description &lt;/destsite&gt;<br>
  * &lt;publisherconfig&gt;<br>
  * &lt;param name="rxserver"&gt;12.345.567.32 &lt;/param&gt;<br>
  * &lt;param name="rxport"&gt;9992 &lt;/param&gt;<br>
  * &lt;param name="rxsslport"&gt;9443 &lt;/param&gt;<br>
- * &lt;param name="statusurl"&gt;/Rhythmyx/rx_pubMain/updatestatus.xml
+ * &lt;param name="statusurl"&gt;/Rhythmyx/rx_pubMain/updatestatus.xml &lt;/param&gt;<br>
+ * &lt;param name="filesystem"&gt;com.percussion.cml.publisher. PSFilePublisherHandler
  * &lt;/param&gt;<br>
- * &lt;param name="filesystem"&gt;com.percussion.cml.publisher.
- * PSFilePublisherHandler &lt;/param&gt;<br>
- * &lt;param name="ftp"&gt;com.percussion.cml.publisher.PSFtpPublisherHandler
- * &lt;/param&gt;<br>
+ * &lt;param name="ftp"&gt;com.percussion.cml.publisher.PSFtpPublisherHandler &lt;/param&gt;<br>
  * &lt;param name="usserid"&gt;cmsuser &lt;/param&gt;<br>
  * &lt;param name="password"&gt;1sgw437yurg &lt;/param&gt;<br>
  * &lt;/publisherconfig&gt;<br>
  * &lt;contentlist clistid="11" context="1" deliverytype="filesystem" publicationid="222"
- * editionid="100" publisherid="333" pubstatusid="403" pageindex="3"
- * islastpage="false" &gt;<br>
+ * editionid="100" publisherid="333" pubstatusid="403" pageindex="3" islastpage="false" &gt;<br>
  * &lt;contentitem contentid="1" variantid="101"&gt;<br>
  * &lt;title&gt;testtitle &lt;/title&gt;<br>
- * &lt;contenturl&gt;https://www.percussion.com/rhythmyx/index.htm
- * &lt;/contenturl&gt;<br>
+ * &lt;contenturl&gt;https://www.percussion.com/rhythmyx/index.htm &lt;/contenturl&gt;<br>
  * &lt;delivery&gt;<br>
  * &lt;location&gt;test/test.htm &lt;/location&gt;<br>
  * &lt;/delivery&gt;<br>
  * &lt;/contentitem&gt;<br>
  * &lt;contentitem contentid="2"&gt;<br>
  * &lt;title&gt;testtitle &lt;/title&gt;<br>
- * &lt;contenturl&gt;http://www.microsoft.com/windows/default.asp
- * &lt;/contenturl&gt;<br>
+ * &lt;contenturl&gt;http://www.microsoft.com/windows/default.asp &lt;/contenturl&gt;<br>
  * &lt;delivery&gt;<br>
  * &lt;location&gt;test/ms.htm &lt;/location&gt;<br>
  * &lt;/delivery&gt;<br>
  * &lt;/contentitem&gt;<br>
  * &lt;/contentlist&gt;<br>
  * &lt;/psxpub:pubdata&gt;<br>
- *
  */
 public interface IPSDTDPublisherEdition {
   /*
@@ -153,112 +143,90 @@ public interface IPSDTDPublisherEdition {
   public static final String ATTR_ELAPSETIME = "elapsetime";
 
   /**
-   * The name for the attribute holding the publisher user identification,
-   * never <code>null</code>.
+   * The name for the attribute holding the publisher user identification, never <code>null</code>.
    */
   public static final String ATTR_PUBUID = "pubuid";
 
-  /**
-   * The name for the attribute holding the publisher password, never
-   * <code>null</code>.
-   */
+  /** The name for the attribute holding the publisher password, never <code>null</code>. */
   public static final String ATTR_PUBPW = "pubpw";
 
-  /**
-   * The parameter name for the rhythmyx server name.
-   */
+  /** The parameter name for the rhythmyx server name. */
   public static final String PARAM_RXSERVER = "rxserver";
 
-  /**
-   * The parameter name for the rhythmyx server port.
-   */
+  /** The parameter name for the rhythmyx server port. */
   public static final String PARAM_RXPORT = "rxport";
 
-  /**
-   * The parameter name for the rhythmyx server SSL port.
-   */
+  /** The parameter name for the rhythmyx server SSL port. */
   public static final String PARAM_RXSSLPORT = "rxsslport";
 
-  /**
-   * The parameter name for the rhythmyx server user name.
-   */
+  /** The parameter name for the rhythmyx server user name. */
   public static final String PARAM_USERID = "userid";
 
-  /**
-   * The parameter name for the rhythmyx server password.
-   */
+  /** The parameter name for the rhythmyx server password. */
   public static final String PARAM_PASSWORD = "password";
 
-  /**
-   * The parameter name for the publisher user name parameter.
-   */
+  /** The parameter name for the publisher user name parameter. */
   public static final String PARAM_PUBUID = "pubuid";
 
-  /**
-   * The parameter name for the publisher password.
-   */
+  /** The parameter name for the publisher password. */
   public static final String PARAM_PUBPW = "pubpw";
 
   /**
-   * The parameter name for the publisher SSL port. Use this name to specify
-   * the publisher SSL port in the publisher setup form.
+   * The parameter name for the publisher SSL port. Use this name to specify the publisher SSL port
+   * in the publisher setup form.
    */
   public static final String PARAM_SSLPORT = "sslport";
 
   /**
-   * The parameter name for the publisher log location. Use this name to
-   * specify the log location in the publisher setup form.
+   * The parameter name for the publisher log location. Use this name to specify the log location in
+   * the publisher setup form.
    */
   public static final String PARAM_LOG_LOCATION = "loglocation";
 
   /**
-   * The parameter name for the publisher soap request file. Use this name to
-   * specify the soap request file in the publisher setup form.
+   * The parameter name for the publisher soap request file. Use this name to specify the soap
+   * request file in the publisher setup form.
    */
   public static final String PARAM_SOAP_REQUEST = "soaprequest";
 
   /**
-   * The parameter name for the database publisher jdbc context factory used
-   * for jndi lookups. Use this name to specify the database publisher jdbc
-   * context factory in the publisher setup form.
+   * The parameter name for the database publisher jdbc context factory used for jndi lookups. Use
+   * this name to specify the database publisher jdbc context factory in the publisher setup form.
    */
   public static final String PARAM_JDBC_CONTEXTFACTORY = "jdbccontextfactory";
 
   /**
-   * The parameter name for the database publisher jndi provider url to use.
-   * Use this name to specify the database publisher jndi provider url in the
-   * publisher setup form.
+   * The parameter name for the database publisher jndi provider url to use. Use this name to
+   * specify the database publisher jndi provider url in the publisher setup form.
    */
   public static final String PARAM_JNDI_PROVIDERURL = "jndiproviderurl";
 
   /**
-   * The parameter name for the number of items after which the FTP client will
-   * log out of and then log back into a server session. Defaults to
-   * Integer.MAX_INT if not found in the database.
+   * The parameter name for the number of items after which the FTP client will log out of and then
+   * log back into a server session. Defaults to Integer.MAX_INT if not found in the database.
    */
   public static final String PARAM_FTP_RELOGIN_ITEMCOUNT = "ftpreloginitemcount";
 
   /**
-   * The parameter name for the time (in seconds) that the FTP Publisher
-   * client will wait for the complete content list to arrive. The client
-   * will time out if this request is not complete in the specified number
-   * of seconds. Defaults to 0 if not found in the database.
+   * The parameter name for the time (in seconds) that the FTP Publisher client will wait for the
+   * complete content list to arrive. The client will time out if this request is not complete in
+   * the specified number of seconds. Defaults to 0 if not found in the database.
    */
   public static final String PARAM_SERVER_REQUEST_TIMEOUT = "serverrequesttimeout";
 
   /**
-   * The parameter name for the field that indicates whether to use
-   * Active mode (false) or Passive mode (true) in FTP Publisher requests.
-   * Defaults to false (use Active mode) if not found in the database.
+   * The parameter name for the field that indicates whether to use Active mode (false) or Passive
+   * mode (true) in FTP Publisher requests. Defaults to false (use Active mode) if not found in the
+   * database.
    */
   public static final String PARAM_FTP_USE_PASSIVE_MODE = "enablepassivemode";
 
-  /** Parameter name for the time (in seconds) to wait for data to arrive on FTP
-   * sockets when publishing. Note that timeouts should be rare,
-   * especially since most of the time we're tranmitting data, not
-   * receiving it.
+  /**
+   * Parameter name for the time (in seconds) to wait for data to arrive on FTP sockets when
+   * publishing. Note that timeouts should be rare, especially since most of the time we're
+   * tranmitting data, not receiving it.
    *
-   * Defaults to 60 seconds. 0 means no timeout is set.
+   * <p>Defaults to 60 seconds. 0 means no timeout is set.
    *
    * @see net.oroinc.ftp.FtpClient#setDataTimeout
    * @see net.oroinc.net.SocketClient#setSoTimeout

@@ -23,24 +23,18 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Encapsulates all policy settings.
- */
+/** Encapsulates all policy settings. */
 public class PSAppPolicySettings implements IPSDeployComponent {
 
-  /**
-   * Default constructor with default settings.
-   */
+  /** Default constructor with default settings. */
   public PSAppPolicySettings() {}
 
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppPolicySettings(Element source) throws PSUnknownNodeTypeException {
@@ -161,26 +155,15 @@ public class PSAppPolicySettings implements IPSDeployComponent {
     return result;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppPolicySettings";
 
-  /**
-   * The app enabled policy, initialized to default setting,
-   * never <code>null</code>.
-   */
+  /** The app enabled policy, initialized to default setting, never <code>null</code>. */
   private PSAppEnabledPolicySetting m_appEnabledPolicy = new PSAppEnabledPolicySetting();
 
-  /**
-   * The trace policy, initialized to default setting,
-   * never <code>null</code>.
-   */
+  /** The trace policy, initialized to default setting, never <code>null</code>. */
   private PSTracePolicySetting m_tracePolicy = new PSTracePolicySetting();
 
-  /**
-   * The log policy, initialized to default setting,
-   * never <code>null</code>.
-   */
+  /** The log policy, initialized to default setting, never <code>null</code>. */
   private PSLogPolicySetting m_logPolicy = new PSLogPolicySetting();
 }

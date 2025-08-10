@@ -26,21 +26,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSComponentSummaries is a container class which contains a set of
- * PSComponentSummary objects
+ * The PSComponentSummaries is a container class which contains a set of PSComponentSummary objects
  */
 public class PSComponentSummaries extends PSDbComponentSet {
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSComponentSummaries() {
     super(PSComponentSummary.class);
   }
 
   /**
    * Ctor that takes an array of PSComponentSummary objects.
-   * @param compArray array of PSComponentSummary objects,
-   * never <code>null</code> may be <code>empty</code>.
+   *
+   * @param compArray array of PSComponentSummary objects, never <code>null</code> may be <code>
+   *     empty</code>.
    */
   public PSComponentSummaries(PSComponentSummary[] compArray) {
     super(PSComponentSummary.class);
@@ -123,11 +121,8 @@ public class PSComponentSummaries extends PSDbComponentSet {
   /**
    * Get the component summary objects for a specified type
    *
-   * @param type The type of the returned component. It must be
-   *    <code>TYPE_XXX</code>.
-   *
-   * @return An iterator over <code>0</code> or more
-   *    <code>PSComponentSummary</code> objects.
+   * @param type The type of the returned component. It must be <code>TYPE_XXX</code>.
+   * @return An iterator over <code>0</code> or more <code>PSComponentSummary</code> objects.
    */
   public Iterator getComponents(int type) {
     return getComponents(type, PSComponentSummary.GET_SUMMARY).iterator();
@@ -136,50 +131,43 @@ public class PSComponentSummaries extends PSDbComponentSet {
   /**
    * Just like {@link #getComponents(int)}, except it returns a list.
    *
-   * @return A list of <code>PSComponentSummary</code> objects, never
-   *    <code>null</code>, but may be empty.
+   * @return A list of <code>PSComponentSummary</code> objects, never <code>null</code>, but may be
+   *     empty.
    */
   public List getComponentList(int type) {
     return getComponents(type, PSComponentSummary.GET_SUMMARY);
   }
 
   /**
-   * Convenience method to get a list of component locators for a specified
-   * type
+   * Convenience method to get a list of component locators for a specified type
    *
-   * @param objectType The type of the returned component locators. It must be
-   *    <code>TYPE_XXX</code>.
-   *
-   * @param locatorType The type of the locator requested. It must be one of the
-   * <code>PSComponentSummary.GET_XXX_LOCATOR</code> values.
-   *
-   * @return A list over <code>0</code> or more <code>PSLocator</code>
-   * objects.
+   * @param objectType The type of the returned component locators. It must be <code>TYPE_XXX</code>
+   *     .
+   * @param locatorType The type of the locator requested. It must be one of the <code>
+   *     PSComponentSummary.GET_XXX_LOCATOR</code> values.
+   * @return A list over <code>0</code> or more <code>PSLocator</code> objects.
    */
   public List getComponentLocators(int objectType, int locatorType) {
     return getComponents(objectType, locatorType);
   }
 
   /**
-   * Just like the {@link #getComponentLocators(int, int)}, except it returns
-   * a list of names for the specified type.
+   * Just like the {@link #getComponentLocators(int, int)}, except it returns a list of names for
+   * the specified type.
    */
   public List getComponentNames(int type) {
     return getComponents(type, PSComponentSummary.GET_NAME);
   }
 
   /**
-   * Convenience method to get a list of component summaries, locators, or
-   * names for a specified type
+   * Convenience method to get a list of component summaries, locators, or names for a specified
+   * type
    *
-   * @param type The type of the returned component locators. It must be
-   *    <code>TYPE_XXX</code>.
-   *
-   * @param whichInfo Specify with part of the summaries need to get. Assume
-   *    it is of the <code>GET_XXX</code> values.
-   *
-   * @return A list over <code>0</code> or more
-   *    <code>PSLocator</code> or <code>PSComponentSummary</code> objects.
+   * @param type The type of the returned component locators. It must be <code>TYPE_XXX</code>.
+   * @param whichInfo Specify with part of the summaries need to get. Assume it is of the <code>
+   *     GET_XXX</code> values.
+   * @return A list over <code>0</code> or more <code>PSLocator</code> or <code>PSComponentSummary
+   *     </code> objects.
    */
   private List getComponents(int type, int whichInfo) {
     PSComponentSummary.validateType(type);
@@ -214,8 +202,7 @@ public class PSComponentSummaries extends PSDbComponentSet {
   }
 
   /**
-   * Convenience method to get a list of locators of the component summaries
-   * in this object.
+   * Convenience method to get a list of locators of the component summaries in this object.
    *
    * @return A list over <code>0</code> or more <code>PSLocator</code> objects.
    */
@@ -235,9 +222,7 @@ public class PSComponentSummaries extends PSDbComponentSet {
    * Get a component summary from a given id.
    *
    * @param id the retrieved component summary id.
-   *
-   * @return the searched component summary object. It may be <code>null</code>
-   *   if cannot find one.
+   * @return the searched component summary object. It may be <code>null</code> if cannot find one.
    */
   public PSComponentSummary getComponentFromId(int id) {
     Iterator comps = super.iterator();
@@ -253,8 +238,8 @@ public class PSComponentSummaries extends PSDbComponentSet {
   /**
    * Get a list of component summary object.
    *
-   * @return An iterator over zero or more <code>PSComponentSummary</code>
-   *    objects. Never <code>null</code>, but may be empty.
+   * @return An iterator over zero or more <code>PSComponentSummary</code> objects. Never <code>null
+   *     </code>, but may be empty.
    */
   public Iterator<PSComponentSummary> getSummaries() {
     return iterator();
@@ -270,8 +255,8 @@ public class PSComponentSummaries extends PSDbComponentSet {
   }
 
   /**
-   * Just like {@link #getSummaries()}, except this returns array of
-   * zero or more <code>PSComponentSummary</code> objects.
+   * Just like {@link #getSummaries()}, except this returns array of zero or more <code>
+   * PSComponentSummary</code> objects.
    */
   public PSComponentSummary[] toArray() {
     PSComponentSummary[] sArray = new PSComponentSummary[super.size()];
@@ -287,9 +272,8 @@ public class PSComponentSummaries extends PSDbComponentSet {
   }
 
   /**
-   * See {@link PSDbComponentList#toDbXml(Document, Element, IPSKeyGenerator,
-   * PSKey)}.
-   * note: this operation is not supported for the read-only components.
+   * See {@link PSDbComponentList#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. note: this
+   * operation is not supported for the read-only components.
    */
   @Override
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent) {

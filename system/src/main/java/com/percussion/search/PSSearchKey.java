@@ -22,32 +22,27 @@ import com.percussion.cms.objectstore.PSKey;
 import com.percussion.design.objectstore.PSLocator;
 
 /**
- * This key is used to uniquely identify indexable units of content. Each unit
- * must have a key that uniquely identifies it among all other possible units
- * that are submitted to the search indexer.
+ * This key is used to uniquely identify indexable units of content. Each unit must have a key that
+ * uniquely identifies it among all other possible units that are submitted to the search indexer.
+ *
  * <p>Instances of this class are immutable.
  *
  * @author paulhoward
  */
 public class PSSearchKey {
   /**
-   * A composite key that uniquely identifies an item, or any complex child
-   * entry in an item. The child key is either absent or present.
-   * It only needs to be present when identifying a child entry fragment.
+   * A composite key that uniquely identifies an item, or any complex child entry in an item. The
+   * child key is either absent or present. It only needs to be present when identifying a child
+   * entry fragment.
    *
-   * @param cTypeKey  See {@link #getContentTypeKey()} for description.
-   * Always required. The value is not verified to identify a running/existing
-   * editor.
-   *
-   * @param itemKey See {@link #getParentLocator()} for description.
-   * Never <code>null</code>. The revision may be -1. The value is not
-   * verified that it points to a real item.
-   * <p>Note: some users of this class may require the revision to be properly
-   * set, so read each classes doc.
-   *
-   * @param itemChildKey Only required if this key identifies a child entry
-   * item fragment. [This is equivalent to the complex child submit name and
-   * sys_childrowid parameter.]
+   * @param cTypeKey See {@link #getContentTypeKey()} for description. Always required. The value is
+   *     not verified to identify a running/existing editor.
+   * @param itemKey See {@link #getParentLocator()} for description. Never <code>null</code>. The
+   *     revision may be -1. The value is not verified that it points to a real item.
+   *     <p>Note: some users of this class may require the revision to be properly set, so read each
+   *     classes doc.
+   * @param itemChildKey Only required if this key identifies a child entry item fragment. [This is
+   *     equivalent to the complex child submit name and sys_childrowid parameter.]
    */
   public PSSearchKey(PSKey cTypeKey, PSLocator itemKey, PSItemChildLocator itemChildKey) {
     if (null == cTypeKey) {
@@ -82,8 +77,8 @@ public class PSSearchKey {
   }
 
   /**
-   * A key that identifies the complex child w/in this item
-   * and the specific child within an instance (table row).
+   * A key that identifies the complex child w/in this item and the specific child within an
+   * instance (table row).
    *
    * @return May be <code>null</code> if this key is for the parent.
    */
@@ -114,21 +109,20 @@ public class PSSearchKey {
   }
 
   /**
-   * See {@link #getParentLocator()} for a description.
-   * Never <code>null</code> or modified after construction.
+   * See {@link #getParentLocator()} for a description. Never <code>null</code> or modified after
+   * construction.
    */
   private PSLocator m_itemKey;
 
   /**
-   * See {@link #getContentTypeKey()} for description.
-   * Never <code>null</code> or modified after construction.
+   * See {@link #getContentTypeKey()} for description. Never <code>null</code> or modified after
+   * construction.
    */
   private PSKey m_contentTypeKey;
 
   /**
-   * See {@link #getChildId()} for a description.
-   * Never modified after construction. May be <code>null</code> if this key
-   * is only for the parent item.
+   * See {@link #getChildId()} for a description. Never modified after construction. May be <code>
+   * null</code> if this key is only for the parent item.
    */
   private PSItemChildLocator m_itemChildKey;
 }

@@ -25,8 +25,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Upgrade plugin class used to upgrade the rx_Support_pub, which is one of
- * the Fast Forward application, but not a system application.
+ * Upgrade plugin class used to upgrade the rx_Support_pub, which is one of the Fast Forward
+ * application, but not a system application.
  */
 public class PSUpgradePluginFFrxSupportpub implements IPSUpgradePlugin {
   // Implement the IPSUpgardePlugin#process() method
@@ -89,8 +89,8 @@ public class PSUpgradePluginFFrxSupportpub implements IPSUpgradePlugin {
   }
 
   /**
-   * Log the supplied message to the upgrade log.
-   * Note, must set {@link #m_logStream} before call this method.
+   * Log the supplied message to the upgrade log. Note, must set {@link #m_logStream} before call
+   * this method.
    *
    * @param msg the log message, assumed not <code>null</code> or empty.
    */
@@ -100,8 +100,6 @@ public class PSUpgradePluginFFrxSupportpub implements IPSUpgradePlugin {
     m_logStream.println(msg);
   }
 
-  /**
-   * The logger to the upgrade log file. Init by process() method.
-   */
+  /** The logger to the upgrade log file. Init by process() method. */
   private PrintStream m_logStream;
 }

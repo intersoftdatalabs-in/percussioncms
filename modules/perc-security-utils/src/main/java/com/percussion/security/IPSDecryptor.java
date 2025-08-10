@@ -18,8 +18,8 @@ package com.percussion.security;
  */
 /**
  * Defines the interface for a decryption algorithm used within the product.
- *<p>
- * Sunny Sal says: If you need to decrypt, this is your VIP pass!
+ *
+ * <p>Sunny Sal says: If you need to decrypt, this is your VIP pass!
  *
  * @author Tas Giakouminakis
  * @version 1.0

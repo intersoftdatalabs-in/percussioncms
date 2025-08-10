@@ -29,16 +29,17 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
- * This class provides implementation for the merge configuration interface
- * which provides rules to merge different kinds of TMX nodes. The unique
- * nodeids for specifying the configuration parameters are based on the current
- * and its parent element names.
+ * This class provides implementation for the merge configuration interface which provides rules to
+ * merge different kinds of TMX nodes. The unique nodeids for specifying the configuration
+ * parameters are based on the current and its parent element names.
+ *
  * @see IPSTmxDtdConstants
  */
 public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   /**
-   * Constructor. Loads the default merge configuration document from the class
-   * file archive and builds map of configuration parameter property map.
+   * Constructor. Loads the default merge configuration document from the class file archive and
+   * builds map of configuration parameter property map.
+   *
    * @throws IOException
    * @throws SAXException
    */
@@ -49,8 +50,9 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   }
 
   /**
-   * Constructor. Takes the DOM document specifying the merge configuration and
-   * builds the map of parameter maps.
+   * Constructor. Takes the DOM document specifying the merge configuration and builds the map of
+   * parameter maps.
+   *
    * @param doc Must not be <code>null</code>.
    * @throws IllegalArgumentException
    */
@@ -89,15 +91,13 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   }
 
   /**
-   * Helper method to process the given element for the configuration
-   * parameters.
-   * @param parent Parent DOM element whose child happens to be the element
-   * with name supplied as second parameter.
-   * @param elemName Name of the element for which the configuration parameter
-   * map is to be built.
+   * Helper method to process the given element for the configuration parameters.
+   *
+   * @param parent Parent DOM element whose child happens to be the element with name supplied as
+   *     second parameter.
+   * @param elemName Name of the element for which the configuration parameter map is to be built.
    * @param nodeId one of the nodeids defined in {@link IPSTmxMergeConfig}
-   * @return the DOM element with name as in the second parameter,
-   * never <code>null</code>
+   * @return the DOM element with name as in the second parameter, never <code>null</code>
    */
   private Element processConfigElement(Element parent, String elemName, String nodeId) {
     PSTmxConfigParams configParams = new PSTmxConfigParams();
@@ -133,16 +133,15 @@ public class PSTmxMergeConfig implements IPSTmxMergeConfig {
   }
 
   /**
-   * Map of nodeid-parameter map pairs defined in the configuration document.
-   * Nodeid locates the node for which the merge configuration is specified.
-   * Built when the configuration XML document is set, never <code>null</code>
-   * after that.
+   * Map of nodeid-parameter map pairs defined in the configuration document. Nodeid locates the
+   * node for which the merge configuration is specified. Built when the configuration XML document
+   * is set, never <code>null</code> after that.
    */
   protected Map m_PSTmxConfigParams = null;
 
   /**
-   * String constant representing the default merge config file name. This file
-   * is shipped as part of the JAR file.
+   * String constant representing the default merge config file name. This file is shipped as part
+   * of the JAR file.
    */
   public static final String DEFAULT_MERGE_CONFIG_FILE_NAME = "defaultmergeconfig.xml";
 }

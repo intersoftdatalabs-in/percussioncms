@@ -18,31 +18,27 @@ package com.percussion.utils.xml;
 
 import com.percussion.utils.exceptions.PSBaseException;
 
-/**
- * Exception to indicate general Xml format errors.
- */
+/** Exception to indicate general Xml format errors. */
 public class PSInvalidXmlException extends PSBaseException {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
   /**
-   *  @see PSBaseException#PSBaseException(int, Object[])
+   * @see PSBaseException#PSBaseException(int, Object[])
    */
   public PSInvalidXmlException(int msgCode, Object singleArg) {
     super(msgCode, singleArg);
   }
 
   /**
-   *  @see PSBaseException#PSBaseException(int, Object[])
+   * @see PSBaseException#PSBaseException(int, Object[])
    */
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs) {
     super(msgCode, arrayArgs);
   }
 
   /**
-   *  @see PSBaseException#PSBaseException(int)
+   * @see PSBaseException#PSBaseException(int)
    */
   public PSInvalidXmlException(int msgCode) {
     super(msgCode);

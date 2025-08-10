@@ -17,22 +17,17 @@
 package com.percussion.xml.serialization;
 
 /**
- * Exception that is thrown due to any irrecoverable error during serialization
- * and deserialization of objects. This is a nested exception and will have
- * information about the chain of exceptions.
+ * Exception that is thrown due to any irrecoverable error during serialization and deserialization
+ * of objects. This is a nested exception and will have information about the chain of exceptions.
  *
  * @version 6.0
  * @created 09-Sep-2005 2:49:09 PM
  */
 public class PSObjectSerializerException extends Exception {
-  /**
-   * Auto generated serialization id.
-   */
+  /** Auto generated serialization id. */
   private static final long serialVersionUID = 4176547846912708878L;
 
-  /**
-   * Delegates to base class version.
-   */
+  /** Delegates to base class version. */
   public PSObjectSerializerException() {}
 
   /**

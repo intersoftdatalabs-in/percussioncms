@@ -31,32 +31,26 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Base class for adding new character sets to Saxon from an XML document.
- * The document defines which character codes are present in the set.  The
- * format of the document is defined by:
- * <code>http://www.unicode.org/unicode/reports/tr22/CharacterMapping.dtd</code>
- * <p>
- * Source of the XML documents:
- * <code>http://oss.software.ibm.com/cvs/icu/charset/data/xml/</code>
+ * Base class for adding new character sets to Saxon from an XML document. The document defines
+ * which character codes are present in the set. The format of the document is defined by: <code>
+ * http://www.unicode.org/unicode/reports/tr22/CharacterMapping.dtd</code>
+ *
+ * <p>Source of the XML documents: <code>http://oss.software.ibm.com/cvs/icu/charset/data/xml/
+ * </code>
  */
 public abstract class PSGenericCharacterSet implements PluggableCharacterSet {
   private static final Logger log = LogManager.getLogger(PSGenericCharacterSet.class);
 
   /**
-   * Creates an instance of a <code>PluggableCharacterSet</code> for the
-   * specified character encoding by loading the specified resource file into
-   * a boolean array.
+   * Creates an instance of a <code>PluggableCharacterSet</code> for the specified character
+   * encoding by loading the specified resource file into a boolean array.
    *
-   * @param encodingName the name of the encoding defined by this instance,
-   * not <code>null</code> or empty.
-   *
-   * @param rscsName the name of a resource file that contains the XML
-   * definition of the encoding, not <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if either parameter is <code>null</code>
-   * or empty, or if the resource specified by <code>rscsName</code> does
-   * not exist.
-   *
+   * @param encodingName the name of the encoding defined by this instance, not <code>null</code> or
+   *     empty.
+   * @param rscsName the name of a resource file that contains the XML definition of the encoding,
+   *     not <code>null</code> or empty.
+   * @throws IllegalArgumentException if either parameter is <code>null</code> or empty, or if the
+   *     resource specified by <code>rscsName</code> does not exist.
    * @throws IOException if there is a problem reading the resource file.
    */
   protected PSGenericCharacterSet(String encodingName, String rscsName) throws IOException {
@@ -101,17 +95,14 @@ public abstract class PSGenericCharacterSet implements PluggableCharacterSet {
   }
 
   /**
-   * Reads the character set encoding document described by fileName and
-   * for each character code defined, sets that element of the
-   * m_CharacterInEncoding array to true.  If any errors occur, they will be
-   * logged to stderr.
+   * Reads the character set encoding document described by fileName and for each character code
+   * defined, sets that element of the m_CharacterInEncoding array to true. If any errors occur,
+   * they will be logged to stderr.
    *
-   * @param encodingFile contains the character set definition document,
-   * assumed not <code>null</code>
-   *
+   * @param encodingFile contains the character set definition document, assumed not <code>null
+   *     </code>
    * @throws IOException if there is a problem reading from the stream.
-   * @throws SAXException if there is a problem building a XML document
-   * from the stream.
+   * @throws SAXException if there is a problem building a XML document from the stream.
    */
   private void loadMappingDocument(InputStream encodingFile) throws IOException, SAXException {
     Document encodingDoc = PSXmlDocumentBuilder.createXmlDocument(encodingFile, false);
@@ -138,8 +129,7 @@ public abstract class PSGenericCharacterSet implements PluggableCharacterSet {
   }
 
   /**
-   * When an error is received, print its message and stack trace to standard
-   * error
+   * When an error is received, print its message and stack trace to standard error
    *
    * @param e the exception (no message printed if <code>null</code>)
    */
@@ -151,14 +141,12 @@ public abstract class PSGenericCharacterSet implements PluggableCharacterSet {
   }
 
   /**
-   * Determines if a Unicode character code is supported by this character set
-   * encoding.  This method is declared final to improve performance.
+   * Determines if a Unicode character code is supported by this character set encoding. This method
+   * is declared final to improve performance.
    *
    * @param i the Unicode character code, must not be less than zero.
-   *
-   * @return <code>true</code> if the character is encoded by this set;
-   * <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the character is encoded by this set; <code>false</code>
+   *     otherwise.
    * @throws IllegalArgumentException if <code>i</code> is less than zero.
    */
   public final boolean inCharset(int i) {
@@ -169,33 +157,31 @@ public abstract class PSGenericCharacterSet implements PluggableCharacterSet {
   }
 
   /**
-   * Gets the name of the character encoding defined by this instance.
-   * This method is declared final to improve performance.
+   * Gets the name of the character encoding defined by this instance. This method is declared final
+   * to improve performance.
    *
-   * @return the name of the character encoding scheme, never empty or
-   * <code>null</code>.
+   * @return the name of the character encoding scheme, never empty or <code>null</code>.
    */
   public final String getEncodingName() {
     return m_encodingName;
   }
 
   /**
-   * Maps a Unicode character code to a boolean value.  <code>true</code>
-   * indicates the character code is supported by this encoding.
-   * Created in the constructor, and never modified after.
+   * Maps a Unicode character code to a boolean value. <code>true</code> indicates the character
+   * code is supported by this encoding. Created in the constructor, and never modified after.
    */
   private boolean[] m_characterInEncoding;
 
   /**
-   * Name of the character set encoding defined by this instance.  Assigned
-   * in the ctor, and never <code>null</code> or empty after that.
+   * Name of the character set encoding defined by this instance. Assigned in the ctor, and never
+   * <code>null</code> or empty after that.
    */
   private String m_encodingName;
 
   /**
-   * Maintains a cache of the character encoding arrays (as they are expensive
-   * to construct).  Keyed by the encoding's name (<code>String</code>).
-   * Values are <code>boolean[]</code>.  Never <code>null</code>, may be empty.
+   * Maintains a cache of the character encoding arrays (as they are expensive to construct). Keyed
+   * by the encoding's name (<code>String</code>). Values are <code>boolean[]</code>. Never <code>
+   * null</code>, may be empty.
    */
   private static final Map ms_cache = new HashMap();
 

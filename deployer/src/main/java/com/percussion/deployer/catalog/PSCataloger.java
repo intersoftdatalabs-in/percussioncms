@@ -39,21 +39,22 @@ import org.w3c.dom.Element;
 /**
  * This class is used to handle the catalog requests against a deployment server.
  *
- * <p> To use the cataloger, a connection to the deployment server must first be
- * established. Requests can then be made through this object. The catalog
- * request results in a {@link PSCatalogResultSet resultset} object. The
- * supported catalog request types are:
+ * <p>To use the cataloger, a connection to the deployment server must first be established.
+ * Requests can then be made through this object. The catalog request results in a {@link
+ * PSCatalogResultSet resultset} object. The supported catalog request types are:
+ *
  * <ol>
- * <li>Archives</li>
- * <li>DBMSDrivers</li>
- * <li>CustomElementTypes</li>
- * <li>DeployableElementTypes</li>
- * <li>Descriptors<li>
- * <li>LiteralIDTypes</li>
- * <li>IDTypeObjects</li>
- * <li>PackageLogs</li>
- * <li>UserDependencies</li>
- * <li>
+ *   <li>Archives
+ *   <li>DBMSDrivers
+ *   <li>CustomElementTypes
+ *   <li>DeployableElementTypes
+ *   <li>Descriptors
+ *   <li>
+ *   <li>LiteralIDTypes
+ *   <li>IDTypeObjects
+ *   <li>PackageLogs
+ *   <li>UserDependencies
+ *   <li>
  * </ol>
  */
 public class PSCataloger {
@@ -61,14 +62,12 @@ public class PSCataloger {
   private static final Logger log = LogManager.getLogger(PSCataloger.class);
 
   /**
-   * Creates a cataloger that wil be connected to the server specified by the
-   * connection to serve the catalog requests.
+   * Creates a cataloger that wil be connected to the server specified by the connection to serve
+   * the catalog requests.
    *
-   * @param conn   the connection object for the desired deployment server, may
-   * not be <code>null</code> and must be connected.
-   *
-   * @throws IllegalArgumentException   if <code>conn</code> is <code>null</code>
-   * or not connected.
+   * @param conn the connection object for the desired deployment server, may not be <code>null
+   *     </code> and must be connected.
+   * @throws IllegalArgumentException if <code>conn</code> is <code>null</code> or not connected.
    */
   public PSCataloger(PSDeploymentServerConnection conn) {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");
@@ -79,15 +78,14 @@ public class PSCataloger {
   }
 
   /**
-   * Perform a catalog request against the connected deployment server. Formats
-   * the request as an xml document with root element referring to the request
-   * type and any properties supplied as its immediate children with parameter
-   * name as element name and value as the element value. Builds the {@link
-   * PSCatalogResultSet results} object from the result document and returns.
-   * <p>
-   * The following table describes the request type, corresponding properties
-   * required if it requires properties. The validation for required properties
-   * is done by server.
+   * Perform a catalog request against the connected deployment server. Formats the request as an
+   * xml document with root element referring to the request type and any properties supplied as its
+   * immediate children with parameter name as element name and value as the element value. Builds
+   * the {@link PSCatalogResultSet results} object from the result document and returns.
+   *
+   * <p>The following table describes the request type, corresponding properties required if it
+   * requires properties. The validation for required properties is done by server.
+   *
    * <table border=1>
    * <tr>
    * <th>Request Type</th><th>Require Properties?</th><th>Property Names</th>
@@ -106,7 +104,9 @@ public class PSCataloger {
    * for user dependency files)</td>
    * </tr>
    * </table>
+   *
    * The following table represents the result structure for each request.
+   *
    * <table border=1>
    * <tr>
    * <th>Request Type</th><th>ID</th><th>DisplayText</th><th>hasColumns?</th>
@@ -129,25 +129,19 @@ public class PSCataloger {
    * <td>the directory/file name</td><td>No</td></tr>
    * </table>
    *
-   * @param requestType the catalog request type must be one of the
-   * TYPE_REQ_xxx values
-   * @param props the additional parameters and values to be supplied with the
-   * request to the server, may be <code>null</code> or empty.
-   *
-   * @return the result set object constructed from the result document, never
-   * <code>null</code>
-   *
+   * @param requestType the catalog request type must be one of the TYPE_REQ_xxx values
+   * @param props the additional parameters and values to be supplied with the request to the
+   *     server, may be <code>null</code> or empty.
+   * @return the result set object constructed from the result document, never <code>null</code>
    * @throws IOException if an IO error occurs
-   * @throws PSAuthorizationException if deployment access to the server is
-   * denied.
-   * @throws PSAuthenticationFailedException if the user cannot be authenticated
-   * by the server.
-   * @throws PSServerException if the server is not responding or invalid
-   * parameters are supplied to the request .
-   * @throws PSDeployException if the connection is not valid or any other
-   * errors occur executing the request.
-   * @throws IllegalArgumentException if the requestType is <code>null</code> or
-   * not one of the supported types.
+   * @throws PSAuthorizationException if deployment access to the server is denied.
+   * @throws PSAuthenticationFailedException if the user cannot be authenticated by the server.
+   * @throws PSServerException if the server is not responding or invalid parameters are supplied to
+   *     the request .
+   * @throws PSDeployException if the connection is not valid or any other errors occur executing
+   *     the request.
+   * @throws IllegalArgumentException if the requestType is <code>null</code> or not one of the
+   *     supported types.
    */
   public PSCatalogResultSet catalog(String requestType, Properties props)
       throws PSServerException,
@@ -190,15 +184,11 @@ public class PSCataloger {
   }
 
   /**
-   * Creates the request document to the server from the supplied request type
-   * and properties.
+   * Creates the request document to the server from the supplied request type and properties.
    *
-   * @param requestType the catalog request type, assumed to be one of the
-   * supported types.
-   * @param requestProps the additional properties to be set with the request,
-   * may be <code>null</code> if the request does not need any additional
-   * parameters to fulfill the request.
-   *
+   * @param requestType the catalog request type, assumed to be one of the supported types.
+   * @param requestProps the additional properties to be set with the request, may be <code>null
+   *     </code> if the request does not need any additional parameters to fulfill the request.
    * @return the request document, never <code>null</code>
    */
   private Document formatRequest(String requestType, Properties requestProps) {
@@ -216,64 +206,40 @@ public class PSCataloger {
     return reqDoc;
   }
 
-  /**
-   * The prefix of the catalog request document root element.
-   */
+  /** The prefix of the catalog request document root element. */
   public static final String ROOT_PREFIX = "PSXCatalog";
 
-  /**
-   * The constant to indicate catalog request.
-   */
+  /** The constant to indicate catalog request. */
   public static final String CATALOG_REQUEST_TYPE = "deploy-catalog";
 
-  /**
-   * The constant to represent 'Archives' request type.
-   */
+  /** The constant to represent 'Archives' request type. */
   public static final String TYPE_REQ_ARCHIVES = "Archives";
 
-  /**
-   * The constant to represent 'DBMS Drivers' request type.
-   */
+  /** The constant to represent 'DBMS Drivers' request type. */
   public static final String TYPE_REQ_DRIVERS = "DBMSDrivers";
 
-  /**
-   * The constant to represent 'DBMS Drivers' request type.
-   */
+  /** The constant to represent 'DBMS Drivers' request type. */
   public static final String TYPE_REQ_DATASOURCES = "DataSources";
 
-  /**
-   * The constant to represent 'Custom Element Types' request type.
-   */
+  /** The constant to represent 'Custom Element Types' request type. */
   public static final String TYPE_REQ_CUSTOM_TYPES = "CustomElementTypes";
 
-  /**
-   * The constant to represent 'Deployable Element Types' request type.
-   */
+  /** The constant to represent 'Deployable Element Types' request type. */
   public static final String TYPE_REQ_DEPLOY_TYPES = "DeployableElementTypes";
 
-  /**
-   * The constant to represent 'Descriptors' request type.
-   */
+  /** The constant to represent 'Descriptors' request type. */
   public static final String TYPE_REQ_DESCRIPTORS = "Descriptors";
 
-  /**
-   * The constant to represent 'Literal ID Types' request type.
-   */
+  /** The constant to represent 'Literal ID Types' request type. */
   public static final String TYPE_REQ_LITERAL_ID_TYPES = "LiteralIDTypes";
 
-  /**
-   * The constant to represent 'Objects by ID Type' request type.
-   */
+  /** The constant to represent 'Objects by ID Type' request type. */
   public static final String TYPE_REQ_TYPE_OBJECTS = "IDTypeObjects";
 
-  /**
-   * The constant to represent 'Package Logs' request type.
-   */
+  /** The constant to represent 'Package Logs' request type. */
   public static final String TYPE_REQ_PACKAGELOGS = "PackageLogs";
 
-  /**
-   * The constant to represent 'User Dependencies' request type.
-   */
+  /** The constant to represent 'User Dependencies' request type. */
   public static final String TYPE_REQ_USER_DEP = "UserDependencies";
 
   public static List<String> ms_supportedReqTypes =
@@ -289,8 +255,8 @@ public class PSCataloger {
           TYPE_REQ_USER_DEP);
 
   /**
-   * The connection to deployment server that to be cataloged for requests.
-   * Initialized in the constructor and never modified after that.
+   * The connection to deployment server that to be cataloged for requests. Initialized in the
+   * constructor and never modified after that.
    */
   private PSDeploymentServerConnection m_conn;
 }

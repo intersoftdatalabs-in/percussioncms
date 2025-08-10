@@ -24,18 +24,16 @@ import java.sql.ResultSet;
 import org.w3c.dom.Document;
 
 /**
- * Proxies <code>PSInternalRequest</code> to prevent access to the getRequest
- * method by user-space code.  All methods in the interface are passed
- * through to the real object.
+ * Proxies <code>PSInternalRequest</code> to prevent access to the getRequest method by user-space
+ * code. All methods in the interface are passed through to the real object.
  */
 public class PSInternalRequestProxy implements IPSInternalRequest {
   /**
-   * Constructs a new <code>PSInternalRequestProxy</code> that proxies the
-   * supplied internal request.
+   * Constructs a new <code>PSInternalRequestProxy</code> that proxies the supplied internal
+   * request.
    *
    * @param internalRequest the object to be proxied, not <code>null</code>
-   * @throws IllegalArgumentException if <code>internalRequest</code> is
-   * <code>null</code>
+   * @throws IllegalArgumentException if <code>internalRequest</code> is <code>null</code>
    */
   public PSInternalRequestProxy(PSInternalRequest internalRequest) {
     if (internalRequest == null)
@@ -99,8 +97,8 @@ public class PSInternalRequestProxy implements IPSInternalRequest {
   }
 
   /**
-   * The internal request being proxied.  Assigned in the ctor and never
-   * <code>null</code> or modified after that.
+   * The internal request being proxied. Assigned in the ctor and never <code>null</code> or
+   * modified after that.
    */
   PSInternalRequest m_internalRequest;
 }

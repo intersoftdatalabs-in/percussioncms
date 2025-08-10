@@ -37,14 +37,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * Client side object containing the cataloged content editor fields.
- */
+/** Client side object containing the cataloged content editor fields. */
 public class PSContentEditorFieldCataloger {
   /**
-   * Construct this cataloger without an initial set of fields.  See
-   * {@link #PSContentEditorFieldCataloger(IPSFieldCataloger, Set, int)} for
-   * more info.
+   * Construct this cataloger without an initial set of fields. See {@link
+   * #PSContentEditorFieldCataloger(IPSFieldCataloger, Set, int)} for more info.
    */
   public PSContentEditorFieldCataloger(IPSFieldCataloger cataloger, int controlFlags)
       throws PSCmsException {
@@ -57,13 +54,12 @@ public class PSContentEditorFieldCataloger {
   /**
    * Construct this cataloger with an initial set of fields
    *
-   * @param cataloger The field cataloger to use to retrieve the fields, may
-   * not be <code>null</code>.
-   * @param fields An optional list of fields to initially catalog, may be
-   * <code>null</code> or empty to catalog all fields.
-   * @param controlFlags Any of the {@link IPSFieldCataloger}.FLAG_XXX values
-   * or'd together used to filter the fields returned.
-   *
+   * @param cataloger The field cataloger to use to retrieve the fields, may not be <code>null
+   *     </code>.
+   * @param fields An optional list of fields to initially catalog, may be <code>null</code> or
+   *     empty to catalog all fields.
+   * @param controlFlags Any of the {@link IPSFieldCataloger}.FLAG_XXX values or'd together used to
+   *     filter the fields returned.
    * @throws PSCmsException if there are any errors loading the fields.
    */
   public PSContentEditorFieldCataloger(
@@ -73,28 +69,26 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Convenience method that calls {@link #loadFields(Set, int, boolean)
-   * loadFields(fields, controlFlags, true)}
+   * Convenience method that calls {@link #loadFields(Set, int, boolean) loadFields(fields,
+   * controlFlags, true)}
    */
   public void loadFields(Set<String> fields, int controlFlags) throws PSCmsException {
     loadFields(fields, controlFlags, true);
   }
 
   /**
-   * Load the specified fields and add them to the catalog. If the field
-   * already exists in the catalog, it will not be replaced if the existing
-   * field in the catalog has choices loaded and the loaded field does not have
-   * choices (regardless of the value for the <code>refresh</code> parameter).
-   * See {@link IPSFieldCataloger#FLAG_EXCLUDE_CHOICES} for more info.
+   * Load the specified fields and add them to the catalog. If the field already exists in the
+   * catalog, it will not be replaced if the existing field in the catalog has choices loaded and
+   * the loaded field does not have choices (regardless of the value for the <code>refresh</code>
+   * parameter). See {@link IPSFieldCataloger#FLAG_EXCLUDE_CHOICES} for more info.
    *
-   * @param fields An optional list of fields to catalog, may be
-   * <code>null</code> or empty to catalog all fields.
-   * @param controlFlags Any of the {@link IPSFieldCataloger}.FLAG_XXX values
-   * or'd together used to filter the fields returned.
-   * @param refresh <code>true</code> recatalog the field even if it has been
-   * previously cataloged, <code>false</code> to skip previously cataloged
-   * fields.  Ignored if <code>fields</code> is <code>null</code> or empty.
-   *
+   * @param fields An optional list of fields to catalog, may be <code>null</code> or empty to
+   *     catalog all fields.
+   * @param controlFlags Any of the {@link IPSFieldCataloger}.FLAG_XXX values or'd together used to
+   *     filter the fields returned.
+   * @param refresh <code>true</code> recatalog the field even if it has been previously cataloged,
+   *     <code>false</code> to skip previously cataloged fields. Ignored if <code>fields</code> is
+   *     <code>null</code> or empty.
    * @throws PSCmsException if there are any errors loading the fields.
    */
   public void loadFields(Set<String> fields, int controlFlags, boolean refresh)
@@ -132,12 +126,10 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * The method creates the objects from the supplied xml and adds them to the
-   * catalog.
+   * The method creates the objects from the supplied xml and adds them to the catalog.
    *
-   * @param src assumed not <code>null</code> and to conform to the element
-   * returned by {@link IPSFieldCataloger#getCEFieldXml(int, Set)}
-   *
+   * @param src assumed not <code>null</code> and to conform to the element returned by {@link
+   *     IPSFieldCataloger#getCEFieldXml(int, Set)}
    * @throws PSCmsException if there are any errors.
    */
   private void fromXml(Element src) throws PSCmsException {
@@ -147,20 +139,17 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Parse the field elements from the specified child of the supplied node and
-   * populate the supplied field map.
+   * Parse the field elements from the specified child of the supplied node and populate the
+   * supplied field map.
    *
-   * @param src The node to process, assumed not <code>null</code> and to
-   * conform to the element returned by
-   * {@link IPSFieldCataloger#getCEFieldXml(int, Set)}.
-   * @param tagName The tag name of the immediate child of the supplied
-   * element from which fields will be parsed, assumed not <code>null</code> or
-   * empty.
-   * @param fieldMap The map to populate, assumed not <code>null</code>, the
-   * key is the field name, the value is the field.
-   * @param typeMap Optional map to populate mapping content type to a list of
-   * fields, may be <code>null</code> to avoid this processing.
-   *
+   * @param src The node to process, assumed not <code>null</code> and to conform to the element
+   *     returned by {@link IPSFieldCataloger#getCEFieldXml(int, Set)}.
+   * @param tagName The tag name of the immediate child of the supplied element from which fields
+   *     will be parsed, assumed not <code>null</code> or empty.
+   * @param fieldMap The map to populate, assumed not <code>null</code>, the key is the field name,
+   *     the value is the field.
+   * @param typeMap Optional map to populate mapping content type to a list of fields, may be <code>
+   *     null</code> to avoid this processing.
    * @throws PSCmsException If the XML is invalid.
    */
   private void processNode(
@@ -188,16 +177,13 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Populate several maps that hold info related to system, shared and
-   * local fields from all the defined content editors.
+   * Populate several maps that hold info related to system, shared and local fields from all the
+   * defined content editors.
    *
-   * @param elem 'System', 'Shared' or 'Local' element. Assumed to be not
-   * <code>null</code>.
-   * @param groups maps search field name to a list of fields,
-   * assumed to be not <code>null</code>.
-   * @param contentTypes maps content type name to one or more light weight
-   * fields, may be <code>null</code>.
-   *
+   * @param elem 'System', 'Shared' or 'Local' element. Assumed to be not <code>null</code>.
+   * @param groups maps search field name to a list of fields, assumed to be not <code>null</code>.
+   * @param contentTypes maps content type name to one or more light weight fields, may be <code>
+   *     null</code>.
    * @throws PSCmsException if there are any errors.
    */
   private void populateMaps(
@@ -263,9 +249,8 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Adds the supplied field to the collection, unless the field already exists
-   * in the collection with choices defined, and the supplied field does not
-   * have choices defined.
+   * Adds the supplied field to the collection, unless the field already exists in the collection
+   * with choices defined, and the supplied field does not have choices defined.
    *
    * @param field The field to add, assumed not <code>null</code>.
    * @param coll The collection to add to, assumed not <code>null</code>.
@@ -290,16 +275,15 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Determine if the current field should be replaced by the new field based
-   * on whether they have choices loaded. Chooses the new field unless the
-   * current field has choices loaded and the new field does not.
+   * Determine if the current field should be replaced by the new field based on whether they have
+   * choices loaded. Chooses the new field unless the current field has choices loaded and the new
+   * field does not.
    *
    * @param curField The current field, assumed not <code>null</code>.
-   * @param newField The new field, assumed not <code>null</code> and to
-   * represent the same field as <code>curField</code>.
-   *
-   * @return <code>true</code> if the new field should replace the current
-   * field, <code>false</code> if the current field should still be used.
+   * @param newField The new field, assumed not <code>null</code> and to represent the same field as
+   *     <code>curField</code>.
+   * @return <code>true</code> if the new field should replace the current field, <code>false</code>
+   *     if the current field should still be used.
    */
   private boolean replaceField(PSLightWeightField curField, PSLightWeightField newField) {
     return !hasChoicesLoaded(curField) || hasChoicesLoaded(newField);
@@ -309,9 +293,8 @@ public class PSContentEditorFieldCataloger {
    * Determine if the supplied field has choices that are loaded.
    *
    * @param field The field to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the field has choices and the choices are
-   * loaded, <code>false</code> if not.
+   * @return <code>true</code> if the field has choices and the choices are loaded, <code>false
+   *     </code> if not.
    */
   private boolean hasChoicesLoaded(PSLightWeightField field) {
     PSDisplayChoices fieldChoices = field.getDisplayChoices();
@@ -319,9 +302,9 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Gets a map containing system fields with internal field name as key and
-   * {@link PSLightWeightField} object as value. It's provided as a convenience
-   * for getting unique fields over a similar method which returns a list.
+   * Gets a map containing system fields with internal field name as key and {@link
+   * PSLightWeightField} object as value. It's provided as a convenience for getting unique fields
+   * over a similar method which returns a list.
    *
    * @return The map, never <code>null</code> or empty.
    */
@@ -330,9 +313,9 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Gets a map containing local fields with internal field name as key and
-   * {@link PSLightWeightField} object as value. It's provided as a convenience
-   * for getting unique fields over a similar method which returns a list.
+   * Gets a map containing local fields with internal field name as key and {@link
+   * PSLightWeightField} object as value. It's provided as a convenience for getting unique fields
+   * over a similar method which returns a list.
    *
    * @return The map, never <code>null</code> or empty.
    */
@@ -341,8 +324,8 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Returns a sorted map that maps content type name to a Collection of one or
-   * more LOCAL fields wrapped in as objects of {@link PSLightWeightField}.
+   * Returns a sorted map that maps content type name to a Collection of one or more LOCAL fields
+   * wrapped in as objects of {@link PSLightWeightField}.
    *
    * @return map as described above, never <code>null</code> or empty.
    */
@@ -351,9 +334,9 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Gets a map containing shared fields with internal field name as key and
-   * {@link PSLightWeightField} object as value. It's provided as a convenience
-   * for getting unique fields over a similar method which returns a list.
+   * Gets a map containing shared fields with internal field name as key and {@link
+   * PSLightWeightField} object as value. It's provided as a convenience for getting unique fields
+   * over a similar method which returns a list.
    *
    * @return The map, never <code>null</code> or empty.
    */
@@ -362,8 +345,8 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Gets a map of maps containing type - 'Shared', 'System', 'Local' as key
-   * and system, shared and local maps as value.
+   * Gets a map of maps containing type - 'Shared', 'System', 'Local' as key and system, shared and
+   * local maps as value.
    *
    * @return The map, never <code>null</code> or empty.
    */
@@ -377,15 +360,12 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Get the display choices for the matching field in this catalog.  Checks
-   * for a matching field with choices in the local fields, then shared, and
-   * finally system, matching case-sensitive on internal name and
-   * case-insensitive on data type.
+   * Get the display choices for the matching field in this catalog. Checks for a matching field
+   * with choices in the local fields, then shared, and finally system, matching case-sensitive on
+   * internal name and case-insensitive on data type.
    *
    * @param field The field, may not be <code>null</code>.
-   *
-   * @return The choices, may be <code>null</code> if choices have not been
-   * set.
+   * @return The choices, may be <code>null</code> if choices have not been set.
    */
   public PSDisplayChoices getDisplayChoices(PSLightWeightField field) {
     if (field == null) throw new IllegalArgumentException("field may not be null");
@@ -394,18 +374,14 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Get the display choices for the matching field in this catalog.  Checks
-   * for a matching field with choices in the local fields, then shared, and
-   * finally system, matching case-sensitive on internal name and
-   * case-insensitive on data type.
+   * Get the display choices for the matching field in this catalog. Checks for a matching field
+   * with choices in the local fields, then shared, and finally system, matching case-sensitive on
+   * internal name and case-insensitive on data type.
    *
-   * @param intName The internal name of the field, may not be
-   * <code>null</code> or empty.
-   * @param dataType The datatype of the field, may not be <code>null</code>
-   * or empty, usually one of the <code>PSField.DT_xxx</code> constants.
-   *
-   * @return The choices, may be <code>null</code> if choices have not been
-   * set.
+   * @param intName The internal name of the field, may not be <code>null</code> or empty.
+   * @param dataType The datatype of the field, may not be <code>null</code> or empty, usually one
+   *     of the <code>PSField.DT_xxx</code> constants.
+   * @return The choices, may be <code>null</code> if choices have not been set.
    */
   public PSDisplayChoices getDisplayChoices(String intName, String dataType) {
     if (intName == null || intName.trim().length() == 0)
@@ -435,14 +411,12 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Get the mnemonic key for the field with given internal name. Looks up in
-   * the local, shared and system field map in order.
+   * Get the mnemonic key for the field with given internal name. Looks up in the local, shared and
+   * system field map in order.
    *
-   * @param intName Internal name of the field, may not be <code>null</code>
-   * or empty.
-   *
-   * @return knemonic key as string, will be <code>null</code> if it is not
-   * defined in any of the field maps for the field.
+   * @param intName Internal name of the field, may not be <code>null</code> or empty.
+   * @return knemonic key as string, will be <code>null</code> if it is not defined in any of the
+   *     field maps for the field.
    */
   public String getMnemonicKey(String intName) {
     if (StringUtils.isEmpty(intName)) {
@@ -463,17 +437,15 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Get the matching lightweight field from the supplied map, matching
-   * case-sensitive on internal name, case-insensitive on data type.
+   * Get the matching lightweight field from the supplied map, matching case-sensitive on internal
+   * name, case-insensitive on data type.
    *
-   * @param catalogMap The map to check, the key is the internal name as a
-   * <code>String</code>, the value is the matching
-   * <code>PSLightWeightField</code> object, assumed not <code>null</code>.
-   * @param intName The internal name of the field, assumed not
-   * <code>null</code> or empty.
-   * @param dataType The datatype of the field, assumed not <code>null</code>
-   * or empty, usually one of the <code>PSField.DT_xxx</code> constants.
-   *
+   * @param catalogMap The map to check, the key is the internal name as a <code>String</code>, the
+   *     value is the matching <code>PSLightWeightField</code> object, assumed not <code>null</code>
+   *     .
+   * @param intName The internal name of the field, assumed not <code>null</code> or empty.
+   * @param dataType The datatype of the field, assumed not <code>null</code> or empty, usually one
+   *     of the <code>PSField.DT_xxx</code> constants.
    * @return The matching field, or <code>null</code> if not found.
    */
   private PSLightWeightField locateField(Map catalogMap, String intName, String dataType) {
@@ -490,9 +462,9 @@ public class PSContentEditorFieldCataloger {
   }
 
   /**
-   * Convenience class abstracting the display name, datatype and id of a
-   * content field. It's being used as a value in <code>m_sharedMap</code>
-   * <code>m_localMap</code> with field's internal name as the key.
+   * Convenience class abstracting the display name, datatype and id of a content field. It's being
+   * used as a value in <code>m_sharedMap</code> <code>m_localMap</code> with field's internal name
+   * as the key.
    */
   public class Field implements Comparable {
     /**
@@ -500,10 +472,8 @@ public class PSContentEditorFieldCataloger {
      *
      * @param dataType the data type of the field, assumed to be not <code>
      * null</code>.
-     *
      * @param dispName the display name, assumed to be not <code>
      * null</code>.
-     *
      * @param id the id of the field, assumed to be not <code>
      * null</code>.
      */
@@ -523,7 +493,6 @@ public class PSContentEditorFieldCataloger {
      *
      * @param dataType the data type of the field, assumed to be not <code>
      * null</code>.
-     *
      * @param id the id of the field, assumed to be not <code>
      * null</code>.
      */
@@ -572,59 +541,43 @@ public class PSContentEditorFieldCataloger {
      */
     private String m_dataType;
 
-    /**
-     * Display name of the field, initialized in one of the ctors, may be <
-     * code>null</code>.
-     */
+    /** Display name of the field, initialized in one of the ctors, may be < code>null</code>. */
     private String m_displayName;
   }
 
-  /**
-   * Field cataloger supplied during ctor, never <code>null</code> or modified
-   * after that.
-   */
+  /** Field cataloger supplied during ctor, never <code>null</code> or modified after that. */
   private IPSFieldCataloger m_fieldCat;
 
   /**
-   * System map for system content editor fields. The key is the internal name
-   * of the field and the value is a Collection containing <code>PSLightWeightField
-   * </code> types, abstracting display name, data type and content type id.
-   * Never <code>null</code>.
+   * System map for system content editor fields. The key is the internal name of the field and the
+   * value is a Collection containing <code>PSLightWeightField
+   * </code> types, abstracting display name, data type and content type id. Never <code>null</code>
+   * .
    */
   private Map<String, PSLightWeightField> m_systemMap = new HashMap<>();
 
   /**
-   * Shared map for shared content editor fields. The key is the internal name
-   * of the field and the value is a List containing <code>PSLightWeightField</code>
-   * types, abstracting display name, data type and content type id. Since
-   * any given name could occur in multiple editors, we provide all the data
-   * so the client can display the results in different ways. Never
-   * <code>null</code>.
+   * Shared map for shared content editor fields. The key is the internal name of the field and the
+   * value is a List containing <code>PSLightWeightField</code> types, abstracting display name,
+   * data type and content type id. Since any given name could occur in multiple editors, we provide
+   * all the data so the client can display the results in different ways. Never <code>null</code>.
    */
   private Map<String, PSLightWeightField> m_sharedMap = new HashMap<>();
 
   /**
-   * Local map for local fields. See <code>m_sharedMap</code> for details.
-   * Never <code>null</code>.
+   * Local map for local fields. See <code>m_sharedMap</code> for details. Never <code>null</code>.
    */
   private Map<String, PSLightWeightField> m_localMap = new HashMap<>();
 
-  /**
-   * Maps local content types to one or more light weight fields,
-   * never <code>null</code>.
-   */
+  /** Maps local content types to one or more light weight fields, never <code>null</code>. */
   private Map<String, Collection<PSLightWeightField>> m_localContentTypeMap = new TreeMap<>();
 
-  /**
-   * The control flags supplied during construction.
-   */
+  /** The control flags supplied during construction. */
   private int m_controlFlags;
 
   private PSFieldTracker m_fieldTracker = new PSFieldTracker();
 
-  /**
-   * Used to represent that there is not content type associated with a field.
-   */
+  /** Used to represent that there is not content type associated with a field. */
   private static final String INVALID_CONTENT_TYPE = "-1";
 
   // node names
@@ -640,17 +593,14 @@ public class PSContentEditorFieldCataloger {
   private static final String TYPE = "datatype";
   private static final String INTERNALNAME = "name";
 
-  /**
-   * Class to track which fields have been previously loaded.
-   */
+  /** Class to track which fields have been previously loaded. */
   private class PSFieldTracker {
     /**
      * Set that all fields have been loaded.
      *
-     * @param noChoices <code>true</code> if the request to load indicated
-     * that choices should not be loaded, <code>false</code> otherwise.  If
-     * <code>false</code> and this method has been previously called with
-     * a <code>true</code> value, then the call is a noop.
+     * @param noChoices <code>true</code> if the request to load indicated that choices should not
+     *     be loaded, <code>false</code> otherwise. If <code>false</code> and this method has been
+     *     previously called with a <code>true</code> value, then the call is a noop.
      */
     public void setAllLoaded(boolean noChoices) {
       if (noChoices) {
@@ -664,14 +614,12 @@ public class PSContentEditorFieldCataloger {
     /**
      * Determine if all fields have been previously loaded.
      *
-     * @param noChoices <code>true</code> to indicate loading without choices,
-     * <code>false</code> for loading with choices.
-     *
-     * @return <code>true</code> if all fields should have been considered
-     * loaded.  If <code>noChoices</code> is <code>false</code>, returns
-     * <code>true</code> if previously loaded either with or without choices,
-     * if <code>true</code>, then returns whether all fields have been
-     * previously loaded with choices.
+     * @param noChoices <code>true</code> to indicate loading without choices, <code>false</code>
+     *     for loading with choices.
+     * @return <code>true</code> if all fields should have been considered loaded. If <code>
+     *     noChoices</code> is <code>false</code>, returns <code>true</code> if previously loaded
+     *     either with or without choices, if <code>true</code>, then returns whether all fields
+     *     have been previously loaded with choices.
      */
     public boolean allFieldsLoaded(boolean noChoices) {
       if (noChoices) return m_allLoadedChoices || m_allLoadedNoChoices;
@@ -680,16 +628,12 @@ public class PSContentEditorFieldCataloger {
     }
 
     /**
-     * Given a set of fields to load, returns only those fields that have not
-     * yet been loaded.
+     * Given a set of fields to load, returns only those fields that have not yet been loaded.
      *
-     * @param requestedFields The set of fields requested to load, assumed not
-     * <code>null</code>.
-     * @param noChoices <code>true</code> to indicate loading without choices,
-     * <code>false</code> for loading with choices.
-     *
-     * @return A set containing only the requested fields that have not
-     * been previously loaded.
+     * @param requestedFields The set of fields requested to load, assumed not <code>null</code>.
+     * @param noChoices <code>true</code> to indicate loading without choices, <code>false</code>
+     *     for loading with choices.
+     * @return A set containing only the requested fields that have not been previously loaded.
      */
     public Set<String> getFieldsToLoad(Set<String> requestedFields, boolean noChoices) {
       Set<String> fieldsToLoad = new HashSet<>(requestedFields);
@@ -708,9 +652,7 @@ public class PSContentEditorFieldCataloger {
       m_loadedFields.addAll(fields);
     }
 
-    /**
-     * Set of field names that have been loaded.
-     */
+    /** Set of field names that have been loaded. */
     private Set<String> m_loadedFields = new HashSet<>();
 
     private boolean m_allLoadedNoChoices = false;

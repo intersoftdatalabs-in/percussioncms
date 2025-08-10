@@ -31,13 +31,12 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 
 /**
- *   The PSConsole offers a single point of reference for console output
- *   (and in the future, perhaps input). Most subsystems should be using
- *   the log mechanism, but for those low-level areas that cannot rely
- *   on logging to be working, they should use PSConsole.
- *   The output through PSConsole currently uses m_out, but this
- *   could change in the future. Output looks like this:
- *   <PRE>
+ * The PSConsole offers a single point of reference for console output (and in the future, perhaps
+ * input). Most subsystems should be using the log mechanism, but for those low-level areas that
+ * cannot rely on logging to be working, they should use PSConsole. The output through PSConsole
+ * currently uses m_out, but this could change in the future. Output looks like this:
+ *
+ * <PRE>
  *   LogManager       1/22/99 5:12 PM: Caught SQLException
  *                    Message: [Microsoft][ODBC SQL Server Driver]Unable to load communication module.  Driver has not been correctly installed.
  *                    SQLState: S1000
@@ -48,16 +47,15 @@ import org.apache.logging.log4j.io.IoBuilder;
  *                    ErrorCode: 0
  *   LogQueueThread   1/22/99 5:12 PM: Started log queue thread: Thread[Thread-2,5,main]
  *   LogQueueThread   1/22/99 5:12 PM: Interrupted. Shutting down.
- *</PRE>
+ * </PRE>
  */
 public class PSConsole /* extends Thread */ {
   /**
-   * Construct the local server console which receives user input and
-   * dispatches the appropriate console command handler.
+   * Construct the local server console which receives user input and dispatches the appropriate
+   * console command handler.
    *
-   * @param printCallStacks a flag specifying whether or not to print the
-   *    call stack to the console and to the log (<code>true</code>) or only
-   *    to the log.
+   * @param printCallStacks a flag specifying whether or not to print the call stack to the console
+   *     and to the log (<code>true</code>) or only to the log.
    */
   PSConsole(boolean printCallStacks) {
     // setName("server console");
@@ -66,47 +64,38 @@ public class PSConsole /* extends Thread */ {
     ms_printCallStacks = printCallStacks;
   }
 
-  /**
-   * This method is called by Thread.start to begin execution of this
-   * thread.
-   */
+  /** This method is called by Thread.start to begin execution of this thread. */
   public void run() {
     return;
   }
 
   /**
-   *   Prints out the message for the given subsystem using an error code and
-   * argument array. If the subsystem name
-   *   is longer than 14 characters, it will be truncated to 14.
+   * Prints out the message for the given subsystem using an error code and argument array. If the
+   * subsystem name is longer than 14 characters, it will be truncated to 14.
    *
-   *   @param   subsystem   The name of the subsystem.
-   *
-   * @param   errorCode   The error code describing the message to print
-   *
-   *   @param   errorArgs   An array of arguments associated with the error
+   * @param subsystem The name of the subsystem.
+   * @param errorCode The error code describing the message to print
+   * @param errorArgs An array of arguments associated with the error
    */
   public static void printMsg(String subsystem, int errorCode, Object[] errorArgs) {
     getLogger(subsystem).error(PSErrorManager.createMessage(errorCode, errorArgs));
   }
 
   /**
-   *   Prints out the warning message for the given subsystem using an error
-   *   code and argument array. If the subsystem name is longer than 14
-   *   characters, it will be truncated to 14.
+   * Prints out the warning message for the given subsystem using an error code and argument array.
+   * If the subsystem name is longer than 14 characters, it will be truncated to 14.
    *
-   *   @param   subsystem   The name of the subsystem.
-   *
-   *   @param   errorCode   The error code describing the message to print
-   *
-   *   @param   errorArgs   An array of arguments associated with the error
+   * @param subsystem The name of the subsystem.
+   * @param errorCode The error code describing the message to print
+   * @param errorArgs An array of arguments associated with the error
    */
   public static void printWarnMsg(String subsystem, int errorCode, Object[] errorArgs) {
     getLogger(subsystem).warn(PSErrorManager.createMessage(errorCode, errorArgs));
   }
 
   /**
-   * Convenience method that calls {@link #printInfoMsg(String, int, Object[],
-   * Level) printInfoMsg(subsystem, errorCode, errorArgs, null)}
+   * Convenience method that calls {@link #printInfoMsg(String, int, Object[], Level)
+   * printInfoMsg(subsystem, errorCode, errorArgs, null)}
    */
   public static void printInfoMsg(String subsystem, int errorCode, Object[] errorArgs) {
     if (subsystem == null) throw new IllegalArgumentException("subsystem may not be null");
@@ -115,18 +104,16 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Prints out an informational message for the given subsystem using an
-   * error code and argument array.
+   * Prints out an informational message for the given subsystem using an error code and argument
+   * array.
    *
-   * @param subsystem the subsystem for which to print the message, not
-   *    <code>null</code>, may be empty. If the subsystem name is longer than
-   *    14 characters, it will be truncated to 14.
+   * @param subsystem the subsystem for which to print the message, not <code>null</code>, may be
+   *     empty. If the subsystem name is longer than 14 characters, it will be truncated to 14.
    * @param errorCode the error code for which to display the message.
-   * @param errorArgs all arguments which are required to format the error
-   *    message for the supplied error code, may be <code>null</code> or
-   *    empty.
-   * @param level the logging level, may be <code>null</code>. If not
-   *    provided the default <code>Level.INFO</code> is used.
+   * @param errorArgs all arguments which are required to format the error message for the supplied
+   *     error code, may be <code>null</code> or empty.
+   * @param level the logging level, may be <code>null</code>. If not provided the default <code>
+   *     Level.INFO</code> is used.
    */
   public static void printInfoMsg(
       String subsystem, int errorCode, Object[] errorArgs, Level level) {
@@ -138,8 +125,8 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Convenience method that calls {@link #printMsg(String, String, String[],
-   * Level) printMsg(subsystem, message, subMessages, null)}
+   * Convenience method that calls {@link #printMsg(String, String, String[], Level)
+   * printMsg(subsystem, message, subMessages, null)}
    */
   public static void printMsg(String subsystem, String message, String[] subMessages) {
     if (subsystem == null) throw new IllegalArgumentException("subsystem may not be null");
@@ -150,8 +137,8 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Convenience method that calls {@link #printMsg(String, String, String[])
-   * printMsg(subsystem, message, null)}
+   * Convenience method that calls {@link #printMsg(String, String, String[]) printMsg(subsystem,
+   * message, null)}
    */
   public static void printMsg(String subsystem, String message) {
     if (subsystem == null) throw new IllegalArgumentException("subsystem may not be null");
@@ -162,18 +149,15 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Prints the supplied message and sub-messages to the console for the
-   * provided subsystem and logging level.
+   * Prints the supplied message and sub-messages to the console for the provided subsystem and
+   * logging level.
    *
-   * @param subsystem the subsystem for which to print the message, not
-   *    <code>null</code>, may be empty. If the subsystem name is longer than
-   *    14 characters, it will be truncated to 14.
-   * @param message the message to be printed, not <code>null</code>, may be
-   *    empty.
-   * @param subMessages the sub-messages to be printed, may be
-   *    <code>null</code> or empty.
-   * @param level the logging level, may be <code>null</code>. If not
-   *    provided the default <code>Level.INFO</code> is used.
+   * @param subsystem the subsystem for which to print the message, not <code>null</code>, may be
+   *     empty. If the subsystem name is longer than 14 characters, it will be truncated to 14.
+   * @param message the message to be printed, not <code>null</code>, may be empty.
+   * @param subMessages the sub-messages to be printed, may be <code>null</code> or empty.
+   * @param level the logging level, may be <code>null</code>. If not provided the default <code>
+   *     Level.INFO</code> is used.
    */
   public static void printMsg(String subsystem, String message, String[] subMessages, Level level) {
     if (subsystem == null) throw new IllegalArgumentException("subsystem may not be null");
@@ -193,20 +177,18 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Prints an error message to the console for the provided subsystem and
-   * exception. If the error message retrieved from the exception is
-   * <code>null</code> or empty, we add the class name instead. The same
-   * message and the exception call-stack is also logged to the log database.
-   * If the exception is a <code>SQLException</code>, the messages of the
-   * entire tree is logged to the log database, but only the first message
-   * is printed to the server console.
+   * Prints an error message to the console for the provided subsystem and exception. If the error
+   * message retrieved from the exception is <code>null</code> or empty, we add the class name
+   * instead. The same message and the exception call-stack is also logged to the log database. If
+   * the exception is a <code>SQLException</code>, the messages of the entire tree is logged to the
+   * log database, but only the first message is printed to the server console.
    *
-   * @param subsystem the subsystem string which caused the exception, not
-   *    <code>null</code> or empty.
-   * @param t the exception causing this error and for which to log the
-   * call-stack to the log database, not <code>null</code>.
-   * @throws IllegalArgumentException is any parameter is <code>null</code>
-   *    or the subsystem string is empty.
+   * @param subsystem the subsystem string which caused the exception, not <code>null</code> or
+   *     empty.
+   * @param t the exception causing this error and for which to log the call-stack to the log
+   *     database, not <code>null</code>.
+   * @throws IllegalArgumentException is any parameter is <code>null</code> or the subsystem string
+   *     is empty.
    */
   public static void printMsg(String subsystem, Throwable t) {
     if (subsystem == null || subsystem.length() == 0)
@@ -225,22 +207,20 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Prints the provided message for the supplied subsystem to the server
-   * console. If the error message retrieved from the exception is
-   * <code>null</code> or empty, we add the class name instead. The same
-   * message and the exception call-stack is also logged to the log database.
-   * If the exception is a <code>SQLException</code>, the messages of the
-   * entire tree is logged to the log database, but only the first message
-   * is printed to the server console.
+   * Prints the provided message for the supplied subsystem to the server console. If the error
+   * message retrieved from the exception is <code>null</code> or empty, we add the class name
+   * instead. The same message and the exception call-stack is also logged to the log database. If
+   * the exception is a <code>SQLException</code>, the messages of the entire tree is logged to the
+   * log database, but only the first message is printed to the server console.
    *
-   * @param subsystem the subsystem string which caused the exception, not
-   *    <code>null</code> or empty.
-   * @param t the exception causing this error and for which to log the
-   * call-stack to the log database, not <code>null</code>.
-   * @param message the error message to be printed to the server console,
-   *    not <code>null</code> or empty.
-   * @throws IllegalArgumentException is any parameter is <code>null</code>
-   *    or the subsystem or message string is empty.
+   * @param subsystem the subsystem string which caused the exception, not <code>null</code> or
+   *     empty.
+   * @param t the exception causing this error and for which to log the call-stack to the log
+   *     database, not <code>null</code>.
+   * @param message the error message to be printed to the server console, not <code>null</code> or
+   *     empty.
+   * @throws IllegalArgumentException is any parameter is <code>null</code> or the subsystem or
+   *     message string is empty.
    */
   public static void printMsg(String subsystem, Throwable t, String message) {
     if (subsystem == null || subsystem.length() == 0)
@@ -274,15 +254,13 @@ public class PSConsole /* extends Thread */ {
   }
 
   /**
-   * Get user input from the server console. This method will wait until
-   * user input is available before returning to the caller.
+   * Get user input from the server console. This method will wait until user input is available
+   * before returning to the caller.
    *
-   * @param   noWait   <code>true</code> to return immediately if no
-   *                     data is readily available for reading
-   *
-   * @return            the console command submitted by the user or
-   *                     <code>null</code> if no input is available and
-   *                     <code>noWait</code> is <code>true</code>
+   * @param noWait <code>true</code> to return immediately if no data is readily available for
+   *     reading
+   * @return the console command submitted by the user or <code>null</code> if no input is available
+   *     and <code>noWait</code> is <code>true</code>
    */
   public static String getUserInput(boolean noWait) {
     try {
@@ -318,7 +296,6 @@ public class PSConsole /* extends Thread */ {
    * Get the logger based on the subsystem name.
    *
    * @param subsystem The name, assumed not <code>null</code> or empty.
-   *
    * @return The logger, not <code>null</code>.
    */
   private static final Logger getLogger(String subsystem) {
@@ -329,9 +306,7 @@ public class PSConsole /* extends Thread */ {
     return LogManager.getLogger(subsystem);
   }
 
-  /**
-   * This is the reader we use for accessing console input.
-   */
+  /** This is the reader we use for accessing console input. */
   private static final BufferedReader m_inBuf =
       new BufferedReader(new InputStreamReader(System.in));
 
@@ -339,8 +314,8 @@ public class PSConsole /* extends Thread */ {
   private static PrintStream m_out = IoBuilder.forLogger().buildPrintStream();
 
   /**
-   * If <code>true</code> this flag indicates to print the call stack in the
-   * <code>printMsg</code> not only to the log, but also to the console.
+   * If <code>true</code> this flag indicates to print the call stack in the <code>printMsg</code>
+   * not only to the log, but also to the console.
    */
   private static boolean ms_printCallStacks = false;
 
@@ -363,24 +338,21 @@ public class PSConsole /* extends Thread */ {
           PSUserEntry.createSignature("server-console", ""));
 
   /**
-   * This reference to a root logger is used for stand-alone uses of
-   * PSConsole. Note that this is not used by PSConsole itself, it only
-   * prevents gc from removing log4j from memory as long as PSConsole.class
-   * is in memory. It also serves as a flag to indicate that log4j has
-   * been configured.
+   * This reference to a root logger is used for stand-alone uses of PSConsole. Note that this is
+   * not used by PSConsole itself, it only prevents gc from removing log4j from memory as long as
+   * PSConsole.class is in memory. It also serves as a flag to indicate that log4j has been
+   * configured.
    *
-   * It's worth noting for educational purposes that there are circumstances
-   * where log4j may be configured externally to any percussion code. The
-   * method {@link #ensureLog4jConfiguration()} checks first to make sure
-   * that there isn't a root logger before configuration, which allows an
+   * <p>It's worth noting for educational purposes that there are circumstances where log4j may be
+   * configured externally to any percussion code. The method {@link #ensureLog4jConfiguration()}
+   * checks first to make sure that there isn't a root logger before configuration, which allows an
    * external entity to not have its configuration overwritten.
    */
   private static final Logger ms_rootLogger = null;
 
   /**
-   * This method makes sure that log4j is configured for use in the console.
-   * Normally this is configured in {@link PSServer} but there are a few
-   * uses outside of the server for PSConsole.
+   * This method makes sure that log4j is configured for use in the console. Normally this is
+   * configured in {@link PSServer} but there are a few uses outside of the server for PSConsole.
    */
   private static synchronized void ensureLog4jConfiguration() {}
 }

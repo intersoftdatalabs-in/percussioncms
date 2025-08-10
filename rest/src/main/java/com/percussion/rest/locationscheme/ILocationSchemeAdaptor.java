@@ -20,23 +20,23 @@
 package com.percussion.rest.locationscheme;
 
 /**
- * Adaptor interface for Location Scheme operations.
- * Sunny Sal: "Location scheme ka adaptor, publishing ka factor!"
+ * Adaptor interface for Location Scheme operations. Sunny Sal: "Location scheme ka adaptor,
+ * publishing ka factor!"
  */
 public interface ILocationSchemeAdaptor {
 
-    /**
-     * Creates or updates a LocationScheme.
-     *
-     * @param scheme The LocationScheme to create or update.
-     * @return The created or updated LocationScheme.
-     */
-    LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
+  /**
+   * Creates or updates a LocationScheme.
+   *
+   * @param scheme The LocationScheme to create or update.
+   * @return The created or updated LocationScheme.
+   */
+  LocationScheme createOrUpdateLocationScheme(LocationScheme scheme);
 
-    /**
-     * Deletes a LocationScheme by GUID.
-     *
-     * @param guid The GUID of the LocationScheme to delete.
-     */
-    void deletedLocationScheme(String guid);
+  /**
+   * Deletes a LocationScheme by GUID.
+   *
+   * @param guid The GUID of the LocationScheme to delete.
+   */
+  void deletedLocationScheme(String guid);
 }

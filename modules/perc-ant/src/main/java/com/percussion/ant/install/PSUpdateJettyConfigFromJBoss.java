@@ -54,10 +54,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.BuildException;
 
-/**
- * Update jetty configuration based upon JBoss for an upgrade
- *
- */
+/** Update jetty configuration based upon JBoss for an upgrade */
 public class PSUpdateJettyConfigFromJBoss extends PSAction {
   private static final Logger log = LogManager.getLogger(PSUpdateJettyConfigFromJBoss.class);
 
@@ -75,14 +72,10 @@ public class PSUpdateJettyConfigFromJBoss extends PSAction {
           "-Xrunjdwp",
           "-Dfile.encoding");
 
-  /**
-   * The repository location, relative to the Rhythmyx root.
-   */
+  /** The repository location, relative to the Rhythmyx root. */
   private String repositoryLocation = "rxconfig/Installer/rxrepository.properties";
 
-  /**
-   * Accessor for the repository location
-   */
+  /** Accessor for the repository location */
   public String getRepositoryLocation() {
     return repositoryLocation;
   }

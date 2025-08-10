@@ -27,7 +27,6 @@ import com.percussion.pagemanagement.data.PSRegionWidgets;
 import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.web.service.PSPageRestClient;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,145 +40,145 @@ import java.util.Set;
  */
 public class PSWidgetGenerator extends PSItemGenerator<PSPageRestClient> {
 
-    private final PSAssetServiceRestClient assetClient;
+  private final PSAssetServiceRestClient assetClient;
 
-    public PSWidgetGenerator(String baseUrl, String uid, String pw) {
-        super(PSPageRestClient.class, baseUrl, uid, pw);
-        assetClient = new PSAssetServiceRestClient(baseUrl);
-        assetClient.login(uid, pw);
+  public PSWidgetGenerator(String baseUrl, String uid, String pw) {
+    super(PSPageRestClient.class, baseUrl, uid, pw);
+    assetClient = new PSAssetServiceRestClient(baseUrl);
+    assetClient.login(uid, pw);
+  }
+
+  /**
+   * Parse the regions where the widgets will be added to assign each one the corresponding widget
+   * to add.
+   *
+   * @param widgets The list of widgets you want to add.
+   * @return A list which associates the widgets with the respective regions where they will be
+   *     added.
+   */
+  public Map<String, List<String>> parseRegionWidget(List<Widget> widgets) {
+    var regionToWidgets = new HashMap<String, List<String>>();
+    for (var widget : widgets) {
+      var regionName = widget.getRegionName();
+      var widgetNames = regionToWidgets.get(regionName);
+      if (widgetNames == null) {
+        widgetNames = new ArrayList<String>();
+        regionToWidgets.put(regionName, widgetNames);
+      }
+      widgetNames.add(widget.getWidgetName());
     }
+    return regionToWidgets;
+  }
 
-    /**
-     * Parse the regions where the widgets will be added to assign each one the
-     * corresponding widget to add.
-     *
-     * @param widgets The list of widgets you want to add.
-     * @return A list which associates the widgets with the respective regions
-     *         where they will be added.
-     */
-    public Map<String, List<String>> parseRegionWidget(List<Widget> widgets) {
-        var regionToWidgets = new HashMap<String, List<String>>();
-        for (var widget : widgets) {
-            var regionName = widget.getRegionName();
-            var widgetNames = regionToWidgets.get(regionName);
-            if (widgetNames == null) {
-                widgetNames = new ArrayList<String>();
-                regionToWidgets.put(regionName, widgetNames);
-            }
-            widgetNames.add(widget.getWidgetName());
-        }
-        return regionToWidgets;
+  /**
+   * In view of the associations between widgets and regions, it adds.
+   *
+   * @param regionToWidgets The regions of the page where the widgets should be will. null when the
+   *     method call comes from the creation of a template.
+   * @param resultWithRegion The regions of the template where the widgets will be added. null when
+   *     the method call comes from the creation of a page.
+   * @param regions The regions of the place to add widgets.
+   */
+  public void createAndAssignWidgets(
+      Map<String, List<String>> regionToWidgets,
+      PSTemplate resultWithRegion,
+      PSRegionBranches regions) {
+    for (var regionName : regionToWidgets.keySet()) {
+      var rw = new PSRegionWidgets();
+      rw.setRegionId(regionName);
+      var widgetItems = new ArrayList<PSWidgetItem>();
+      for (var widgetName : regionToWidgets.get(regionName)) {
+        var wi = new PSWidgetItem();
+        widgetItems.add(wi);
+        wi.setDefinitionId(widgetName);
+      }
+
+      if (resultWithRegion != null) {
+        resultWithRegion.getRegionTree().setRegionWidgets(regionName, widgetItems);
+      } else if (regions != null) {
+        regions.setRegionWidgets(regionName, widgetItems);
+      }
     }
+  }
 
-    /**
-     * In view of the associations between widgets and regions, it adds.
-     *
-     * @param regionToWidgets The regions of the page where the widgets should
-     *            be will. null when the method call comes from the
-     *            creation of a template.
-     * @param resultWithRegion The regions of the template where the widgets
-     *            will be added. null when the method call comes
-     *            from the creation of a page.
-     * @param regions The regions of the place to add widgets.
-     */
-    public void createAndAssignWidgets(Map<String, List<String>> regionToWidgets, PSTemplate resultWithRegion,
-            PSRegionBranches regions) {
-        for (var regionName : regionToWidgets.keySet()) {
-            var rw = new PSRegionWidgets();
-            rw.setRegionId(regionName);
-            var widgetItems = new ArrayList<PSWidgetItem>();
-            for (var widgetName : regionToWidgets.get(regionName)) {
-                var wi = new PSWidgetItem();
-                widgetItems.add(wi);
-                wi.setDefinitionId(widgetName);
-            }
+  /**
+   * If the widget has an associated asset, get this property to associate the widget.
+   *
+   * @param widgets The list of widgets you want to add.
+   * @param template The template where the widgets should be added. null when the method call comes
+   *     from the creation of a page.
+   * @param page The page where the widgets should be added. null when the method call comes from
+   *     the creation of a template.
+   */
+  public void linkContent(List<Widget> widgets, PSTemplate template, PSPage page) {
+    var regionNameToWidgetCount = new HashMap<String, Map<String, Integer>>();
+    for (var widget : widgets) {
+      var widgetInstanceId = getWidgetInstanceId(template, page, widget, regionNameToWidgetCount);
+      if (widget.getContentSource().equalsIgnoreCase("local"))
+        throw new UnsupportedOperationException("contentSource=local not supported yet");
+      if (widget.getSourceAssetName() != null && widget.getSourceAssetName().trim().length() > 0) {
+        var sharedAssetId = getAssetGuidFromPath("/Assets" + widget.getSourceAssetName());
 
-            if (resultWithRegion != null) {
-                resultWithRegion.getRegionTree().setRegionWidgets(regionName, widgetItems);
-            } else if (regions != null) {
-                regions.setRegionWidgets(regionName, widgetItems);
-            }
-        }
+        // todo: fix asset order
+        var id = (page != null) ? page.getId() : template.getId();
+        var awRel =
+            new PSAssetWidgetRelationship(
+                id, widgetInstanceId, widget.getWidgetName(), sharedAssetId, 0);
+        awRel.setResourceType(PSAssetResourceType.shared);
+        assetClient.createAssetWidgetRelationship(awRel);
+      }
     }
+  }
 
-    /**
-     * If the widget has an associated asset, get this property to associate the
-     * widget.
-     *
-     * @param widgets The list of widgets you want to add.
-     * @param template The template where the widgets should be added.
-     *            null when the method call comes from the creation
-     *            of a page.
-     * @param page The page where the widgets should be added. null
-     *            when the method call comes from the creation of a template.
-     */
-    public void linkContent(List<Widget> widgets, PSTemplate template, PSPage page) {
-        var regionNameToWidgetCount = new HashMap<String, Map<String, Integer>>();
-        for (var widget : widgets) {
-            var widgetInstanceId = getWidgetInstanceId(template, page, widget, regionNameToWidgetCount);
-            if (widget.getContentSource().equalsIgnoreCase("local"))
-                throw new UnsupportedOperationException("contentSource=local not supported yet");
-            if (widget.getSourceAssetName() != null && widget.getSourceAssetName().trim().length() > 0) {
-                var sharedAssetId = getAssetGuidFromPath("/Assets" + widget.getSourceAssetName());
-
-                // todo: fix asset order
-                var id = (page != null) ? page.getId() : template.getId();
-                var awRel = new PSAssetWidgetRelationship(id, widgetInstanceId,
-                        widget.getWidgetName(), sharedAssetId, 0);
-                awRel.setResourceType(PSAssetResourceType.shared);
-                assetClient.createAssetWidgetRelationship(awRel);
-            }
-        }
+  /**
+   * @param template Contains the widget you are looking for.
+   * @param page Contains the widget you are looking for.
+   * @param widgetDef The widget type you wish to find in this page.
+   * @param regionNameToWidgetCount Tracks how many instances of each widget type within each
+   *     region. The key is the region name, the value is a map whose key is the widget def type and
+   *     whose value is the count of that type within that region. The first time you call this
+   *     method, pass in an empty one, then keep passing the same one for each successive call.
+   * @return Always a valid widget instance id.
+   */
+  static long getWidgetInstanceId(
+      PSTemplate template,
+      PSPage page,
+      Widget widgetDef,
+      Map<String, Map<String, Integer>> regionNameToWidgetCount) {
+    var widgetTypeToInstanceCount = regionNameToWidgetCount.get(widgetDef.getRegionName());
+    if (widgetTypeToInstanceCount == null) {
+      widgetTypeToInstanceCount = new HashMap<String, Integer>();
+      regionNameToWidgetCount.put(widgetDef.getRegionName(), widgetTypeToInstanceCount);
     }
-
-    /**
-     *
-     * @param template Contains the widget you are looking for.
-     * @param page Contains the widget you are looking for.
-     * @param widgetDef The widget type you wish to find in this page.
-     * @param regionNameToWidgetCount Tracks how many instances of each widget
-     *            type within each region. The key is the region name, the value
-     *            is a map whose key is the widget def type and whose value is
-     *            the count of that type within that region. The first time you
-     *            call this method, pass in an empty one, then keep passing the
-     *            same one for each successive call.
-     * @return Always a valid widget instance id.
-     */
-    static long getWidgetInstanceId(PSTemplate template, PSPage page, Widget widgetDef,
-            Map<String, Map<String, Integer>> regionNameToWidgetCount) {
-        var widgetTypeToInstanceCount = regionNameToWidgetCount.get(widgetDef.getRegionName());
-        if (widgetTypeToInstanceCount == null) {
-            widgetTypeToInstanceCount = new HashMap<String, Integer>();
-            regionNameToWidgetCount.put(widgetDef.getRegionName(), widgetTypeToInstanceCount);
-        }
-        Set<PSRegionWidgets> rws = (page != null) ? page.getRegionBranches().getRegionWidgetAssociations() : template
-                .getRegionTree().getRegionWidgetAssociations();
-        PSRegionWidgets matchingRw = null;
-        for (var rw : rws) {
-            if (rw.getRegionId().equalsIgnoreCase(widgetDef.getRegionName())) {
-                matchingRw = rw;
-                break;
-            }
-        }
-        assert (matchingRw != null);
-
-        var widgetItems = matchingRw.getWidgetItems();
-        int count = 0;
-        long instanceId = 0L;
-        for (var wi : widgetItems) {
-            if (wi.getDefinitionId().equalsIgnoreCase(widgetDef.getWidgetName())) {
-                var curCount = widgetTypeToInstanceCount.get(wi.getDefinitionId());
-                if (curCount == null) {
-                    curCount = 0;
-                }
-                if (count == curCount.intValue()) {
-                    widgetTypeToInstanceCount.put(wi.getDefinitionId(), count + 1);
-                    instanceId = Long.parseLong(wi.getId());
-                } else
-                    count++;
-            }
-        }
-        assert (instanceId != 0L);
-        return instanceId;
+    Set<PSRegionWidgets> rws =
+        (page != null)
+            ? page.getRegionBranches().getRegionWidgetAssociations()
+            : template.getRegionTree().getRegionWidgetAssociations();
+    PSRegionWidgets matchingRw = null;
+    for (var rw : rws) {
+      if (rw.getRegionId().equalsIgnoreCase(widgetDef.getRegionName())) {
+        matchingRw = rw;
+        break;
+      }
     }
+    assert (matchingRw != null);
+
+    var widgetItems = matchingRw.getWidgetItems();
+    int count = 0;
+    long instanceId = 0L;
+    for (var wi : widgetItems) {
+      if (wi.getDefinitionId().equalsIgnoreCase(widgetDef.getWidgetName())) {
+        var curCount = widgetTypeToInstanceCount.get(wi.getDefinitionId());
+        if (curCount == null) {
+          curCount = 0;
+        }
+        if (count == curCount.intValue()) {
+          widgetTypeToInstanceCount.put(wi.getDefinitionId(), count + 1);
+          instanceId = Long.parseLong(wi.getId());
+        } else count++;
+      }
+    }
+    assert (instanceId != 0L);
+    return instanceId;
+  }
 }

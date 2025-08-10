@@ -22,46 +22,33 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
 /**
- * This class is an adapter that converts a java reader to an input stream. It
- * does this by converting character by character from the reader to the
- * equivalent UTF-8 bytes.
+ * This class is an adapter that converts a java reader to an input stream. It does this by
+ * converting character by character from the reader to the equivalent UTF-8 bytes.
  *
  * @author dougrand
- *
  */
 public class PSReaderInputStream extends InputStream {
-  /**
-   * Count of characters to be buffered.
-   */
+  /** Count of characters to be buffered. */
   private static final int BUFFER_SIZE = 4096;
 
-  /**
-   * The reader wrapped by this input stream.
-   */
+  /** The reader wrapped by this input stream. */
   private Reader m_reader;
 
-  /**
-   * Byte array to buffer multi-byte characters from the reader.
-   */
+  /** Byte array to buffer multi-byte characters from the reader. */
   private byte[] m_buffer = null;
 
-  /**
-   * Input buffer for characters from the reader.
-   */
+  /** Input buffer for characters from the reader. */
   private char[] m_input = new char[BUFFER_SIZE];
 
-  /**
-   * Position to return byte from in the output buffer.
-   */
+  /** Position to return byte from in the output buffer. */
   private int m_pos = 0;
 
-  /**
-   * The count of characters in the input buffer.
-   */
+  /** The count of characters in the input buffer. */
   private int m_count = 0;
 
   /**
    * Ctor
+   *
    * @param reader the reader, never <code>null</code>.
    */
   public PSReaderInputStream(Reader reader) {

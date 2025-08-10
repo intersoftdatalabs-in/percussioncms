@@ -25,21 +25,15 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A collection of PSRelationshipConfig objects.
- */
+/** A collection of PSRelationshipConfig objects. */
 public class PSRelationshipConfigSet extends PSCollectionComponent implements IPSConfig {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRelationshipConfigSet(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -48,16 +42,13 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public PSRelationshipConfigSet() {
     super(PSRelationshipConfig.class);
   }
 
   /**
-   * Convenience constructor, calls
-   * {@link #PSRelationshipConfigSet(Element, IPSDocument, List)
+   * Convenience constructor, calls {@link #PSRelationshipConfigSet(Element, IPSDocument, List)
    * PSRelationshipConfigSet(Element, null, null)}
    */
   public PSRelationshipConfigSet(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -65,15 +56,12 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Get the relationship configuration for the supplied name of the
-   * relationship. The check is case-sensitive.
+   * Get the relationship configuration for the supplied name of the relationship. The check is
+   * case-sensitive.
    *
-   * @param name the relationship configuration name, not <code>null</code>
-   *    or empty.
-   * @return the relationship configuration, might be <code>null</code>
-   *    if not found for name.
-   * @throws IllegalArgumentException if the supplied name is <code>null</code>
-   *    or empty.
+   * @param name the relationship configuration name, not <code>null</code> or empty.
+   * @return the relationship configuration, might be <code>null</code> if not found for name.
+   * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
    */
   public PSRelationshipConfig getConfig(String name) {
     if (name == null || name.trim().length() == 0)
@@ -91,12 +79,9 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   /**
    * Get the relationship configuration with the supplied GUID.
    *
-   * @param id the GUID of the requested relationship configuration, not
-   *    <code>null</code>.
-   *
-   * @return the relationship configuration with the given GUID. It may be
-   *    <code>null</code> if not found.
-   *
+   * @param id the GUID of the requested relationship configuration, not <code>null</code>.
+   * @return the relationship configuration with the given GUID. It may be <code>null</code> if not
+   *     found.
    * @throws IllegalArgumentException if the supplied GUID is <code>null</code>
    */
   public PSRelationshipConfig getConfig(IPSGuid id) {
@@ -112,15 +97,12 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Get the relationship configuration for the supplied category. The check is
-   * case-sensitive.
+   * Get the relationship configuration for the supplied category. The check is case-sensitive.
    *
-   * @param category the relationship configuration category, not
-   *    <code>null</code> or empty.
-   * @return the relationship configuration, might be <code>null</code>
-   *    if not found for the category.
-   * @throws IllegalArgumentException if the supplied category is <code>null</code>
-   *    or empty.
+   * @param category the relationship configuration category, not <code>null</code> or empty.
+   * @return the relationship configuration, might be <code>null</code> if not found for the
+   *     category.
+   * @throws IllegalArgumentException if the supplied category is <code>null</code> or empty.
    */
   public PSRelationshipConfig getConfigByCategory(String category) {
     if (category == null || category.trim().length() == 0)
@@ -139,10 +121,8 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   /**
    * Gets a list of configs for the specified type.
    *
-   * @param type the type of the returned configs, which must be either
-   *    {@link PSRelationshipConfig#RS_TYPE_SYSTEM} or
-   *    {@link PSRelationshipConfig#RS_TYPE_USER}.
-   *
+   * @param type the type of the returned configs, which must be either {@link
+   *     PSRelationshipConfig#RS_TYPE_SYSTEM} or {@link PSRelationshipConfig#RS_TYPE_USER}.
    * @return the specified configs, never <code>null</code>, may be empty.
    */
   public List<PSRelationshipConfig> getConfigsByType(String type) {
@@ -162,14 +142,12 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Get all relationships for a given relationship category. The check is
-   * case-sensitive.
+   * Get all relationships for a given relationship category. The check is case-sensitive.
    *
    * @param category the relationship category, not <code>null</code> or empty.
-   * @return iterator of relationship configurations for the given category or
-   * category, never <code>null</code> but may be empty.
-   * @throws IllegalArgumentException if the supplied category is <code>null</code>
-   *    or empty.
+   * @return iterator of relationship configurations for the given category or category, never
+   *     <code>null</code> but may be empty.
+   * @throws IllegalArgumentException if the supplied category is <code>null</code> or empty.
    */
   public Iterator<PSRelationshipConfig> getConfigsByCategory(String category) {
     return getConfigListByCategory(category).iterator();
@@ -187,8 +165,8 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Just like {@link #getConfigsByCategory(String)}, except this returns
-   * a list of relationship configs.
+   * Just like {@link #getConfigsByCategory(String)}, except this returns a list of relationship
+   * configs.
    */
   public List<PSRelationshipConfig> getConfigListByCategory(String category) {
     if (category == null || category.trim().length() == 0)
@@ -206,16 +184,16 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Get the relationship configuration for the supplied name or category. The
-   * check is case-sensitive.
+   * Get the relationship configuration for the supplied name or category. The check is
+   * case-sensitive.
    *
-   * @param nameOrCategory the relationship configuration name or category, not
-   * <code>null</code> or empty. It assumed to be name first and if a
-   * relationship is not found then it assumed to be category.
-   * @return the relationship configuration, might be <code>null</code>
-   *    if not found for the name or category.
-   * @throws IllegalArgumentException if the supplied name or category is
-   * <code>null</code> or empty.
+   * @param nameOrCategory the relationship configuration name or category, not <code>null</code> or
+   *     empty. It assumed to be name first and if a relationship is not found then it assumed to be
+   *     category.
+   * @return the relationship configuration, might be <code>null</code> if not found for the name or
+   *     category.
+   * @throws IllegalArgumentException if the supplied name or category is <code>null</code> or
+   *     empty.
    */
   public PSRelationshipConfig getConfigByNameOrCategory(String nameOrCategory) {
     if (nameOrCategory == null || nameOrCategory.trim().length() == 0)
@@ -226,18 +204,15 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Creates a 'User' relationship configuration with the specified name and
-   * adds that to this list. The configuration will have default system
-   * properties.
+   * Creates a 'User' relationship configuration with the specified name and adds that to this list.
+   * The configuration will have default system properties.
    *
-   * @param name the name of the config, may not be <code>null</code> or empty.
-   * Must be unique among this collection of configurations. Can use {@link
-   * #getConfig(String) } to check for uniqueness of the configuration name.
-   * @param type the type of the rel  config, RS_TYPE_SYSTEM or RS_TYPE_USER,
-   * may not be <code>null</code> or empty.
-   *
+   * @param name the name of the config, may not be <code>null</code> or empty. Must be unique among
+   *     this collection of configurations. Can use {@link #getConfig(String) } to check for
+   *     uniqueness of the configuration name.
+   * @param type the type of the rel config, RS_TYPE_SYSTEM or RS_TYPE_USER, may not be <code>null
+   *     </code> or empty.
    * @return the added relationship config, never <code>null</code>
-   *
    * @throws IllegalArgumentException if name is invalid.
    */
   public PSRelationshipConfig addConfig(String name, String type) {
@@ -263,14 +238,11 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   }
 
   /**
-   * Deletes the configuration with the supplied name if the configuration is
-   * an 'User' configuration.
+   * Deletes the configuration with the supplied name if the configuration is an 'User'
+   * configuration.
    *
-   * @param name the name of configuration, may not be <code>null</code> or
-   * empty.
-   *
-   * @throws IllegalArgumentException if name is not valid or it represents a
-   * system configuration.
+   * @param name the name of configuration, may not be <code>null</code> or empty.
+   * @throws IllegalArgumentException if name is not valid or it represents a system configuration.
    */
   public void deleteConfig(String name) {
     if (name == null || name.trim().length() == 0)
@@ -341,17 +313,12 @@ public class PSRelationshipConfigSet extends PSCollectionComponent implements IP
   /**
    * Creates a member object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    it may be <code>null</code>.
-   * @param parentComponents the parent objects of this object, it may be
-   *    <code>null</code>.
-   *
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, it may be <code>null
+   *     </code>.
+   * @param parentComponents the parent objects of this object, it may be <code>null</code>.
    * @return the created object, never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   protected PSRelationshipConfig createMemberObject(
       Element sourceNode, IPSDocument parentDoc, List parentComponents)

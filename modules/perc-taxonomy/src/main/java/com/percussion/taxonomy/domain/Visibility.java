@@ -17,10 +17,7 @@
 
 package com.percussion.taxonomy.domain;
 
-/**
- * Taxonomy Visibility class to represent community visibility information of a taxonomy.
- *
- */
+/** Taxonomy Visibility class to represent community visibility information of a taxonomy. */
 public class Visibility {
 
   private int id;
@@ -29,6 +26,7 @@ public class Visibility {
 
   /**
    * Returns unique id of Visibility
+   *
    * @return id - unique int value of visibility id
    */
   public int getId() {
@@ -36,7 +34,8 @@ public class Visibility {
   }
 
   /**
-   *Set unique id of Visibility
+   * Set unique id of Visibility
+   *
    * @param id - int value of Visibility
    */
   public void setId(int id) {
@@ -45,6 +44,7 @@ public class Visibility {
 
   /**
    * Returns Taxonomy object
+   *
    * @return taxonomy - a Taxonomy object
    */
   public Taxonomy getTaxonomy() {
@@ -53,6 +53,7 @@ public class Visibility {
 
   /**
    * Set Taxonomy object
+   *
    * @param taxonomy
    */
   public void setTaxonomy(Taxonomy taxonomy) {
@@ -60,7 +61,8 @@ public class Visibility {
   }
 
   /**
-   * Returns visible  community id
+   * Returns visible community id
+   *
    * @return community_id - visibility community id
    */
   public long getCommunity_id() {
@@ -69,6 +71,7 @@ public class Visibility {
 
   /**
    * Set visible community id
+   *
    * @param communityId
    */
   public void setCommunity_id(long communityId) {

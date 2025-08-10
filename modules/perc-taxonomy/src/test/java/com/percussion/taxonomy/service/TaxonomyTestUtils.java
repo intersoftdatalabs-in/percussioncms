@@ -103,16 +103,15 @@ public class TaxonomyTestUtils {
   }
 
   /**
-   * Builds a tree of nodes for testing the taxonomy node ordering for
-   * deletion. The nodes will have a fake id. The generated structure is:
-   * - taxonomy<br>
-   *    - N1<br>
-   *       - N11<br>
-   *       - N12<br>
-   *          - N121<br>
-   *          - N122<br>
-   *    - N2<br>
-   *       - N21<br>
+   * Builds a tree of nodes for testing the taxonomy node ordering for deletion. The nodes will have
+   * a fake id. The generated structure is: - taxonomy<br>
+   * - N1<br>
+   * - N11<br>
+   * - N12<br>
+   * - N121<br>
+   * - N122<br>
+   * - N2<br>
+   * - N21<br>
    *
    * @return {@link List}<{@link Node}> never <code>null</code> or empty.
    */
@@ -153,19 +152,18 @@ public class TaxonomyTestUtils {
   }
 
   /**
-   * Builds a tree of nodes for testing the taxonomy node ordering for
-   * deletion. The nodes will have a fake id. The generated structure is:
-   * - taxonomy<br>
-   *    - N1<br>
-   *       - N11<br>
-   *       - N12<br>
-   *          - N121<br>
-   *             - N121<br>
-   *                - N1211<br>
-   *                   - N12111<br>
-   *                   - N12112<br>
-   *       - N13<br>
-   *          - N131<br>
+   * Builds a tree of nodes for testing the taxonomy node ordering for deletion. The nodes will have
+   * a fake id. The generated structure is: - taxonomy<br>
+   * - N1<br>
+   * - N11<br>
+   * - N12<br>
+   * - N121<br>
+   * - N121<br>
+   * - N1211<br>
+   * - N12111<br>
+   * - N12112<br>
+   * - N13<br>
+   * - N131<br>
    *
    * @return {@link List}<{@link Node}> never <code>null</code> or empty.
    */
@@ -216,25 +214,24 @@ public class TaxonomyTestUtils {
   }
 
   /**
-   * Builds a tree of nodes for testing the taxonomy node ordering for
-   * deletion. The nodes will have a fake id. The generated structure is:
-   * - taxonomy<br>
-   *    - N1<br>
-   *       - N11<br>
-   *          - N111<br>
-   *             - N111<br>
-   *                - N11111<br>
-   *                - N11112<br>
-   *    - N2<br>
-   *       - N21<br>
-   *          - N121<br>
-   *          - N122<br>
-   *    - N3<br>
-   *       - N31<br>
-   *          - N311<br>
-   *             - N3111<br>
-   *             - N3112<br>
-   *             - N3113<br>
+   * Builds a tree of nodes for testing the taxonomy node ordering for deletion. The nodes will have
+   * a fake id. The generated structure is: - taxonomy<br>
+   * - N1<br>
+   * - N11<br>
+   * - N111<br>
+   * - N111<br>
+   * - N11111<br>
+   * - N11112<br>
+   * - N2<br>
+   * - N21<br>
+   * - N121<br>
+   * - N122<br>
+   * - N3<br>
+   * - N31<br>
+   * - N311<br>
+   * - N3111<br>
+   * - N3112<br>
+   * - N3113<br>
    *
    * @return {@link List}<{@link Node}> never <code>null</code> or empty.
    */

@@ -24,21 +24,21 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This class represents a set of effect test and result pairs for a
- * particular relationship. The effect processing can make use of this class
- * to gather all relationship-effect-test results for all relationships
- * processed. One such use is by {@link com.percussion.cms.handlers.
- * PSRelationshipEffectProcessor effect processor} which walks throw each
- * relationship running all effects attached to it. The analysis of test
- * results is done later before running the attempt() methods of the effects.
+ * This class represents a set of effect test and result pairs for a particular relationship. The
+ * effect processing can make use of this class to gather all relationship-effect-test results for
+ * all relationships processed. One such use is by {@link com.percussion.cms.handlers.
+ * PSRelationshipEffectProcessor effect processor} which walks throw each relationship running all
+ * effects attached to it. The analysis of test results is done later before running the attempt()
+ * methods of the effects.
  *
  * @author RammohanVangapalli
  */
 public class PSRelationshipEffectTestResult {
   /**
    * Ctor. Takes the relationship object.
-   * @param relationship relationship object for which the effect test
-   * results are to be stored, assumed not <code>null</code>.
+   *
+   * @param relationship relationship object for which the effect test results are to be stored,
+   *     assumed not <code>null</code>.
    */
   public PSRelationshipEffectTestResult(PSRelationship relationship) {
     m_relationship = relationship;
@@ -46,6 +46,7 @@ public class PSRelationshipEffectTestResult {
 
   /**
    * Add an effect and its test result.
+   *
    * @param effect the effect that was tested, assumed not <code>null</code>.
    * @param result the result of the effect test, assumed not <code>null</code>.
    */
@@ -55,8 +56,9 @@ public class PSRelationshipEffectTestResult {
 
   /**
    * Add effect and test result pair.
-   * @param pair <code>EffectTestResultPair</code> object represent and
-   * effect and its test result, assumed not <code>null</code>.
+   *
+   * @param pair <code>EffectTestResultPair</code> object represent and effect and its test result,
+   *     assumed not <code>null</code>.
    */
   public void add(PSEffectTestResultPair pair) {
     m_list.add(pair);
@@ -64,9 +66,9 @@ public class PSRelationshipEffectTestResult {
 
   /**
    * Access method for the test effect results object.
-   * @return and iterator of <code>EffectTestResultPair</code> objects
-   * representing the effect test results for the relationship,
-   * never <code>null</code>
+   *
+   * @return and iterator of <code>EffectTestResultPair</code> objects representing the effect test
+   *     results for the relationship, never <code>null</code>
    */
   public Iterator getResults() {
     return m_list.iterator();
@@ -74,6 +76,7 @@ public class PSRelationshipEffectTestResult {
 
   /**
    * Access method for the relationship object.
+   *
    * @return may not be <code>null</code>
    */
   public PSRelationship getRelationship() {
@@ -81,14 +84,14 @@ public class PSRelationshipEffectTestResult {
   }
 
   /**
-   * Reference to the relationship for which the effects are tested,
-   * initialized in the ctor and never <code>null</code> after that.
+   * Reference to the relationship for which the effects are tested, initialized in the ctor and
+   * never <code>null</code> after that.
    */
   private PSRelationship m_relationship = null;
 
   /**
-   * List of {@link EffectTestResultPair objects} representing all effects
-   * and results for the relationship.
+   * List of {@link EffectTestResultPair objects} representing all effects and results for the
+   * relationship.
    */
   private List m_list = new ArrayList();
 }

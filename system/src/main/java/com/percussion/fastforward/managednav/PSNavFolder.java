@@ -19,16 +19,14 @@ package com.percussion.fastforward.managednav;
 import com.percussion.cms.objectstore.PSComponentSummary;
 
 /**
- * This class represents a parent folder that has a Navon (or Navtree) object in
- * it.
- *
+ * This class represents a parent folder that has a Navon (or Navtree) object in it.
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolder {
   /**
    * construct a nav folder from the folder and navon.
+   *
    * @param folder
    * @param navon
    * @throws PSNavException
@@ -73,9 +71,10 @@ public class PSNavFolder {
   }
 
   /**
-   * NavFolders are equal if they represent the same folder. This implies that
-   * they have the same content id and path. The equals method only checks that
-   * the content ids are equal, since the id is guaranteed to be unique.
+   * NavFolders are equal if they represent the same folder. This implies that they have the same
+   * content id and path. The equals method only checks that the content ids are equal, since the id
+   * is guaranteed to be unique.
+   *
    * @param o
    * @return
    */
@@ -91,8 +90,8 @@ public class PSNavFolder {
   }
 
   /**
-   * this method is over-ridden here to keep the contract between hashCode()
-   * and equals().
+   * this method is over-ridden here to keep the contract between hashCode() and equals().
+   *
    * @return
    */
   public int hashCode() {
@@ -101,13 +100,9 @@ public class PSNavFolder {
     return hString.hashCode();
   }
 
-  /**
-   * the folder summary.
-   */
+  /** the folder summary. */
   private PSComponentSummary m_folderSummary;
 
-  /**
-   * The navon summary.
-   */
+  /** The navon summary. */
   private PSComponentSummary m_navonSummary;
 }

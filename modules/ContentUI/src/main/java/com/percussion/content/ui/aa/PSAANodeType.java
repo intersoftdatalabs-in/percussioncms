@@ -16,33 +16,22 @@
  */
 package com.percussion.content.ui.aa;
 
-/**
- * Node type definitions for the nodes used in the AA.
- */
+/** Node type definitions for the nodes used in the AA. */
 public enum PSAANodeType {
-  /**
-   * AA parent page
-   */
+  /** AA parent page */
   AA_NODE_TYPE_PAGE(0, "/Rhythmyx/sys_resources/images/page.gif"),
-  /**
-   * AA slot
-   */
+  /** AA slot */
   AA_NODE_TYPE_SLOT(1, "/Rhythmyx/sys_resources/images/slot.gif"),
-  /**
-   * AA snippet
-   */
+  /** AA snippet */
   AA_NODE_TYPE_SNIPPET(2, "/Rhythmyx/sys_resources/images/snippet.gif"),
-  /**
-   * CE Field
-   */
+  /** CE Field */
   AA_NODE_TYPE_FIELD(3, "/Rhythmyx/sys_resources/images/field.gif");
 
   /**
    * Construct a type enum.
    *
    * @param ord The ordinal value to use
-   * @param iconUrl The icon URL for the node, may be <code>null</code> or
-   * empty.
+   * @param iconUrl The icon URL for the node, may be <code>null</code> or empty.
    */
   private PSAANodeType(int ord, String iconUrl) {
     if (ord > Short.MAX_VALUE) {
@@ -73,12 +62,11 @@ public enum PSAANodeType {
   }
 
   /**
-   * Lookup enum value by ordinal. Ordinals should be unique. If they are not
-   * unique, then the first enum value with a matching ordinal is returned.
+   * Lookup enum value by ordinal. Ordinals should be unique. If they are not unique, then the first
+   * enum value with a matching ordinal is returned.
    *
    * @param s ordinal value
-   * @return an enumerated value or <code>null</code> if the ordinal does not
-   * match
+   * @return an enumerated value or <code>null</code> if the ordinal does not match
    */
   public static PSAANodeType valueOf(int s) throws IllegalArgumentException {
     PSAANodeType types[] = values();
@@ -88,14 +76,12 @@ public enum PSAANodeType {
     return null;
   }
 
-  /**
-   * Ordinal value, initialized in the ctor, and never modified.
-   */
+  /** Ordinal value, initialized in the ctor, and never modified. */
   private short mi_ordinal;
 
   /**
-   * Key value, initialized for legacy types in the ctor, never modified, may
-   * be <code>null</code>, never empty.
+   * Key value, initialized for legacy types in the ctor, never modified, may be <code>null</code>,
+   * never empty.
    */
   private String mi_iconUrl = null;
 }

@@ -29,13 +29,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Autotunes the ehcache.xml file. Currently not configurable with the current
- * ehcache version so must be read in as an XML file.
- *
- * <br/>
+ * Autotunes the ehcache.xml file. Currently not configurable with the current ehcache version so
+ * must be read in as an XML file. <br>
  *
  * @author chriswright
- *
  */
 public class PSConsoleCommandAutotuneCache extends PSConsoleCommand {
 
@@ -43,18 +40,16 @@ public class PSConsoleCommandAutotuneCache extends PSConsoleCommand {
    * The constructor for this class.
    *
    * @param cmdArgs the argument string to use when executing this command
-   *
    */
   public PSConsoleCommandAutotuneCache(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
   }
 
   /**
-   * Execute the command specified by this object. The results are returned as
-   * an XML document of the appropriate structure for the command.
-   * <P>
-   * The execution of this command results in the following XML document
-   * structure:
+   * Execute the command specified by this object. The results are returned as an XML document of
+   * the appropriate structure for the command.
+   *
+   * <p>The execution of this command results in the following XML document structure:
    *
    * <PRE>
    * <CODE>
@@ -78,9 +73,7 @@ public class PSConsoleCommandAutotuneCache extends PSConsoleCommand {
    * </PRE>
    *
    * @param request the requestor object
-   *
    * @return the result document
-   *
    * @exception PSConsoleCommandException if an error occurs during execution
    */
   public Document execute(PSRequest request) throws PSConsoleCommandException {
@@ -115,9 +108,7 @@ public class PSConsoleCommandAutotuneCache extends PSConsoleCommand {
     }
   }
 
-  /**
-   * Allow package members to see our command name
-   */
+  /** Allow package members to see our command name */
   private static final String ms_cmdName = "autotune cache";
 
   static String getPropName() {

@@ -28,9 +28,7 @@ import com.percussion.pathmanagement.service.impl.PSDispatchingPathService;
 import com.percussion.pathmanagement.service.impl.PSDispatchingPathService.IPSPathMatcher.PathMatch;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSNoContent;
-import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.ui.service.IPSListViewHelper;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,94 +36,139 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PSDispatchingPathServicePathParsingTest {
-    PSDispatchingPathService.PathMatcher pathMatcher;
-    PSDispatchingPathService.PathNormalizer pathNormalizer;
-    Map<String, IPSPathService> pathRegistry;
-    TestPathService pathServiceA;
-    TestPathService pathServiceB;
+  PSDispatchingPathService.PathMatcher pathMatcher;
+  PSDispatchingPathService.PathNormalizer pathNormalizer;
+  Map<String, IPSPathService> pathRegistry;
+  TestPathService pathServiceA;
+  TestPathService pathServiceB;
 
-    @BeforeEach
-    public void setup() {
-        pathRegistry = new HashMap<>();
-        pathNormalizer = new PSDispatchingPathService.PathNormalizer();
-        pathMatcher = new PSDispatchingPathService.PathMatcher(pathNormalizer, pathRegistry, null, null);
-        pathServiceA = new TestPathService();
-        pathServiceB = new TestPathService();
-        pathRegistry.put("/a/", pathServiceA);
-        pathRegistry.put("/b/", pathServiceB);
+  @BeforeEach
+  public void setup() {
+    pathRegistry = new HashMap<>();
+    pathNormalizer = new PSDispatchingPathService.PathNormalizer();
+    pathMatcher =
+        new PSDispatchingPathService.PathMatcher(pathNormalizer, pathRegistry, null, null);
+    pathServiceA = new TestPathService();
+    pathServiceB = new TestPathService();
+    pathRegistry.put("/a/", pathServiceA);
+    pathRegistry.put("/b/", pathServiceB);
+  }
+
+  @Test
+  public void shouldReturnProperFullPath() {
+    var pm = new PathMatch("/a/", "/b/", "/a/b/", null, null, null);
+    assertEquals("/a/b/c/d", pm.toFullPath("b/c/d"));
+    assertEquals("/a/b/c/d", pm.toFullPath("/b/c/d"));
+  }
+
+  @Test
+  public void shouldFailToReturnProperFullPathIfGivenRelativePathIsNull() {
+    var pm = new PathMatch("/a/", "/b/", "/a/b/", null, null, null);
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> pm.toFullPath(null));
+  }
+
+  @Test
+  public void shouldNormalizePath() {
+    assertNormalize("", "/");
+    assertNormalize("aba/", "/aba/");
+    assertNormalize("/aba", "/aba/");
+    assertNormalize("     /aba         ", "/aba/");
+    assertNormalize("/ ", "/");
+  }
+
+  @Test
+  // TODO: Remove me @SuppressFBWarnings("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS")
+  public void shouldFailOnNormalizeNullPath() {
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> assertNormalize(null, null));
+  }
+
+  void assertNormalize(String path, String expected) {
+    var actual = pathNormalizer.normalizePath(path);
+    assertEquals(expected, actual, "Expected path to normalize: ");
+  }
+
+  @Test
+  public void shouldMatchPath() throws Exception {
+    assertPathMatch("/a/b/", "/b/", pathServiceA);
+    assertPathMatch("/b/c/", "/c/", pathServiceB);
+    assertPathMatch("/b/", "/", pathServiceB);
+  }
+
+  @Test
+  public void shouldMatchPathUsingNormalizer() throws Exception {
+    assertPathMatch(" /a/b   ", "/a/b/", "/b/", pathServiceA);
+    assertPathMatch(" b/c ", "/b/c/", "/c/", pathServiceB);
+    assertPathMatch("b/c/", "/b/c/", "/c/", pathServiceB);
+  }
+
+  public void assertPathMatch(String fullPath, String relativePath, IPSPathService pathService)
+      throws IPSPathService.PSPathNotFoundServiceException {
+    assertPathMatch(fullPath, fullPath, relativePath, pathService);
+  }
+
+  public void assertPathMatch(
+      String fullPath, String properFullPath, String relativePath, IPSPathService pathService)
+      throws IPSPathService.PSPathNotFoundServiceException {
+    var pm = pathMatcher.matchPath(fullPath);
+    assertEquals(properFullPath, pm.fullPath, "Full path: ");
+    assertEquals(relativePath, pm.relativePath, "Relative path: ");
+    assertSame(pathService, pm.pathService);
+  }
+
+  public static class TestPathService implements IPSPathService {
+    public PSPathItem find(String path) {
+      throw new UnsupportedOperationException("find is not yet supported");
     }
 
-    @Test
-    public void shouldReturnProperFullPath() {
-        var pm = new PathMatch("/a/", "/b/", "/a/b/", null, null, null);
-        assertEquals("/a/b/c/d", pm.toFullPath("b/c/d"));
-        assertEquals("/a/b/c/d", pm.toFullPath("/b/c/d"));
+    public List<String> getRolesAllowed() {
+      return null;
     }
 
-    @Test
-    public void shouldFailToReturnProperFullPathIfGivenRelativePathIsNull() {
-        var pm = new PathMatch("/a/", "/b/", "/a/b/", null, null, null);
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> pm.toFullPath(null));
+    public PSItemProperties findItemProperties(String path) {
+      throw new UnsupportedOperationException("find item properties is not yet supported");
     }
 
-    @Test
-    public void shouldNormalizePath() {
-        assertNormalize("", "/");
-        assertNormalize("aba/", "/aba/");
-        assertNormalize("/aba", "/aba/");
-        assertNormalize("     /aba         ", "/aba/");
-        assertNormalize("/ ", "/");
+    public List<PSPathItem> findChildren(String path) {
+      throw new UnsupportedOperationException("findChildren is not yet supported");
     }
 
-    @Test
-    // TODO: Remove me @SuppressFBWarnings("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS")
-    public void shouldFailOnNormalizeNullPath() {
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> assertNormalize(null, null));
+    public PSPathItem addFolder(String path) {
+      throw new UnsupportedOperationException("addFolder is not yet supported");
     }
 
-    void assertNormalize(String path, String expected) {
-        var actual = pathNormalizer.normalizePath(path);
-        assertEquals(expected, actual, "Expected path to normalize: ");
+    public PSPathItem addNewFolder(String path) {
+      throw new UnsupportedOperationException("addNewFolder is not yet supported");
     }
 
-    @Test
-    public void shouldMatchPath() throws Exception {
-        assertPathMatch("/a/b/", "/b/", pathServiceA);
-        assertPathMatch("/b/c/", "/c/", pathServiceB);
-        assertPathMatch("/b/", "/", pathServiceB);
+    public PSPathItem renameFolder(PSRenameFolderItem item) {
+      throw new UnsupportedOperationException("renameFolder is not yet supported");
     }
 
-    @Test
-    public void shouldMatchPathUsingNormalizer() throws Exception {
-        assertPathMatch(" /a/b   ", "/a/b/", "/b/", pathServiceA);
-        assertPathMatch(" b/c ", "/b/c/", "/c/", pathServiceB);
-        assertPathMatch("b/c/", "/b/c/", "/c/", pathServiceB);
+    public PSNoContent moveItem(PSMoveFolderItem request) {
+      throw new UnsupportedOperationException("moveItem is not yet supported");
     }
 
-    public void assertPathMatch(String fullPath, String relativePath, IPSPathService pathService) throws IPSPathService.PSPathNotFoundServiceException {
-        assertPathMatch(fullPath, fullPath, relativePath, pathService);
+    public int deleteFolder(PSDeleteFolderCriteria criteria) {
+      throw new UnsupportedOperationException("deleteFolder is not yet supported");
     }
 
-    public void assertPathMatch(String fullPath, String properFullPath, String relativePath, IPSPathService pathService) throws IPSPathService.PSPathNotFoundServiceException {
-        var pm = pathMatcher.matchPath(fullPath);
-        assertEquals(properFullPath, pm.fullPath, "Full path: ");
-        assertEquals(relativePath, pm.relativePath, "Relative path: ");
-        assertSame(pathService, pm.pathService);
+    public String validateFolderDelete(String path) {
+      throw new UnsupportedOperationException("validateFolderDelete is not yet supported");
     }
 
-    public static class TestPathService implements IPSPathService {
-        public PSPathItem find(String path) { throw new UnsupportedOperationException("find is not yet supported"); }
-        public List<String> getRolesAllowed() { return null; }
-        public PSItemProperties findItemProperties(String path) { throw new UnsupportedOperationException("find item properties is not yet supported"); }
-        public List<PSPathItem> findChildren(String path) { throw new UnsupportedOperationException("findChildren is not yet supported"); }
-        public PSPathItem addFolder(String path) { throw new UnsupportedOperationException("addFolder is not yet supported"); }
-        public PSPathItem addNewFolder(String path) { throw new UnsupportedOperationException("addNewFolder is not yet supported"); }
-        public PSPathItem renameFolder(PSRenameFolderItem item) { throw new UnsupportedOperationException("renameFolder is not yet supported"); }
-        public PSNoContent moveItem(PSMoveFolderItem request) { throw new UnsupportedOperationException("moveItem is not yet supported"); }
-        public int deleteFolder(PSDeleteFolderCriteria criteria) { throw new UnsupportedOperationException("deleteFolder is not yet supported"); }
-        public String validateFolderDelete(String path) { throw new UnsupportedOperationException("validateFolderDelete is not yet supported"); }
-        public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request) { throw new UnsupportedOperationException("findItemProperties(PSItemByWfStateRequest) is not yet supported"); }
-        public String findLastExistingPath(String path) { throw new UnsupportedOperationException("findLastExistingPath is not yet supported"); }
-        public IPSListViewHelper getListViewHelper() { return null; }
+    public List<PSItemProperties> findItemProperties(PSItemByWfStateRequest request) {
+      throw new UnsupportedOperationException(
+          "findItemProperties(PSItemByWfStateRequest) is not yet supported");
     }
+
+    public String findLastExistingPath(String path) {
+      throw new UnsupportedOperationException("findLastExistingPath is not yet supported");
+    }
+
+    public IPSListViewHelper getListViewHelper() {
+      return null;
+    }
+  }
 }

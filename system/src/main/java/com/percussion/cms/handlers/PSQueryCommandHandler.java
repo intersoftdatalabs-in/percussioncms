@@ -84,29 +84,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;
 
 /**
- * This class encapsulates behavior that is common to all query command
- * handlers. Derived classes must implement the
- * {@link #getDocumentBuilder(int, PSExecutionData)
- * getDocumentBuilder} method and may implement the {@link #getAppList(int,
- * PSExecutionData,boolean) getAppList} method.
+ * This class encapsulates behavior that is common to all query command handlers. Derived classes
+ * must implement the {@link #getDocumentBuilder(int, PSExecutionData) getDocumentBuilder} method
+ * and may implement the {@link #getAppList(int, PSExecutionData,boolean) getAppList} method.
+ *
  * <p>The class performs the following steps in the processing loop:
+ *
  * <ol>
- * <li>Get the apps from the derived class that generate the result sets
- *    needed by the builders.</li>
- * <li>Execute the apps and store the result sets on the execution data stack</li>
- * <li>Get the builder based on a passed in id. If no id is passed in, the
- *    root builder is obtained.</li>
- * <li>Build the documents using the builder</li>
- * <li>Apply the stylesheet, if needed.</li>
- * <li>Clean up the internal handlers and result sets</li>
+ *   <li>Get the apps from the derived class that generate the result sets needed by the builders.
+ *   <li>Execute the apps and store the result sets on the execution data stack
+ *   <li>Get the builder based on a passed in id. If no id is passed in, the root builder is
+ *       obtained.
+ *   <li>Build the documents using the builder
+ *   <li>Apply the stylesheet, if needed.
+ *   <li>Clean up the internal handlers and result sets
  * </ol>
  */
 public abstract class PSQueryCommandHandler extends PSCommandHandler
     implements IPSInternalCommandRequestHandlerEx {
   /**
-   * The page id for the root parent, which is the row editor for the main
-   * page of the content item. It is set to 0 so page ids could be used as
-   * indexes into an array if desired.
+   * The page id for the root parent, which is the row editor for the main page of the content item.
+   * It is set to 0 so page ids could be used as indexes into an array if desired.
    */
   public static final int ROOT_PARENT_PAGE_ID = 0;
 
@@ -114,31 +112,19 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
       "Failed to process XSL stylesheets for the content editor.Please see server log for errors.";
 
   /**
-   * Looks in the system def for pre/post exits assigned to this handler and
-   * initializes them.
+   * Looks in the system def for pre/post exits assigned to this handler and initializes them.
    *
-   * @param ah The handler for the application that contains this editor
-   *    resource. See base class for requirements.
-   *
+   * @param ah The handler for the application that contains this editor resource. See base class
+   *     for requirements.
    * @param ceh The parent handler of this handler. Never <code>null</code>.
-   *
    * @param ce The definition of the editor. See base class for requirements.
-   *
-   * @param app Any resources that are created dynamically will be added to
-   *    this application. Never <code>null</code>.
-   *
+   * @param app Any resources that are created dynamically will be added to this application. Never
+   *     <code>null</code>.
    * @param cmdName The internal name of the command handler. Never empty.
-   *
-   * @throws IllegalArgumentException if ceh is <code>null</code> or cmdName
-   *    is empty.
-   *
+   * @throws IllegalArgumentException if ceh is <code>null</code> or cmdName is empty.
    * @throws PSNotFoundException If an exit cannot be found.
-   *
-   * @throws PSIllegalArgumentException  We only throw this because the
-   *    existing base class does.
-   *
-   * @throws PSExtensionException If any problems occur druing extension
-   *    initialization.
+   * @throws PSIllegalArgumentException We only throw this because the existing base class does.
+   * @throws PSExtensionException If any problems occur druing extension initialization.
    */
   public PSQueryCommandHandler(
       PSApplicationHandler ah,
@@ -190,12 +176,11 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
    * Executes the provided query request to produce the execution data.
    *
    * @param req the request, assumed not <code>null</code>.
-   * @param data the execution data to process, assumed not
-   *    <code>null</code>.
-   * @param execDataCleanupList a list of execution data objects that need
-   *    cleanup when done with the request.
-   * @param resultSetCleanupList a list of result set objects that need
-   *    cleanup when done with the request.
+   * @param data the execution data to process, assumed not <code>null</code>.
+   * @param execDataCleanupList a list of execution data objects that need cleanup when done with
+   *     the request.
+   * @param resultSetCleanupList a list of result set objects that need cleanup when done with the
+   *     request.
    */
   @SuppressWarnings("unchecked")
   private void executeQueryRequest(
@@ -255,14 +240,12 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   /**
    * Get the document builder for the provided execution data.
    *
-   * @param data the execution data to get the document builder for, not
-   *    <code>null</code>.
+   * @param data the execution data to get the document builder for, not <code>null</code>.
    * @return the document builder, never <code>null</code>.
    * @throws PSRequestValidationException for all request validation errors.
-   * @throws PSNotFoundException if the document builder could not be found
-   *    for the provided request.
-   * @throws PSDataExtractionException if the pageid could not be extracted
-   *    from the provided data.
+   * @throws PSNotFoundException if the document builder could not be found for the provided
+   *     request.
+   * @throws PSDataExtractionException if the pageid could not be extracted from the provided data.
    */
   private PSEditorDocumentBuilder getDocumentBuilder(PSExecutionData data)
       throws PSRequestValidationException, PSNotFoundException, PSDataExtractionException {
@@ -276,11 +259,9 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * This part of the query request execution builds the document builder
-   * for the provided request.
+   * This part of the query request execution builds the document builder for the provided request.
    *
-   * @param data the execution data to process, assumed not
-   *    <code>null</code>.
+   * @param data the execution data to process, assumed not <code>null</code>.
    * @param builder the document builder to use, assumed not <code>null</code>.
    * @return the result XML document built, never <code>null</code>.
    */
@@ -311,15 +292,12 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * This is a convenience method that allows us
-   * to do some pre processing before process request
-   * does any real work, but allow any exceptions to be handled
-   * by the processRequest's try/catch block.
+   * This is a convenience method that allows us to do some pre processing before process request
+   * does any real work, but allow any exceptions to be handled by the processRequest's try/catch
+   * block.
    *
-   * @param req the request to be preprocessed.
-   *  Must not be <code>null</code>
-   * @throws Throwable so any type of throwable exception
-   *   can be passed through to processRequest
+   * @param req the request to be preprocessed. Must not be <code>null</code>
+   * @throws Throwable so any type of throwable exception can be passed through to processRequest
    */
   public void preProcessRequest(PSRequest req) throws Throwable {
     // Empty implementation
@@ -582,8 +560,7 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
    * Makes an internal request using the supplied request.
    *
    * @param request the request to make, not <code>null</code>.
-   * @return the result document creted through the provided request,
-   *    never <code>null</code>.
+   * @return the result document creted through the provided request, never <code>null</code>.
    */
   public Document makeInternalRequestEx(PSRequest request)
       throws PSInternalRequestCallException,
@@ -615,15 +592,13 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Cleanup all resources created during a request. Provide <code>null</code>
-   * to keep the execution data and clean it yourself.
+   * Cleanup all resources created during a request. Provide <code>null</code> to keep the execution
+   * data and clean it yourself.
    *
-   * @param data the execution data to be cleaned, <code>null</code> if nothing
-   *    to clean.
-   * @param resultSetCleanupList a list of result sets to be cleaned,
-   *    assumed not <code>null</code>.
-   * @param execDataCleanupList a list of execution data to be cleaned,
-   *    assumed not <code>null</code>.
+   * @param data the execution data to be cleaned, <code>null</code> if nothing to clean.
+   * @param resultSetCleanupList a list of result sets to be cleaned, assumed not <code>null</code>.
+   * @param execDataCleanupList a list of execution data to be cleaned, assumed not <code>null
+   *     </code>.
    */
   private void cleanup(PSExecutionData data, List resultSetCleanupList, List execDataCleanupList) {
     /*
@@ -651,38 +626,30 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Performs resource cleanup when the handler is shut down. If derived
-   * classes override this method, they must perform their own cleanup, then
-   * call the base class.
+   * Performs resource cleanup when the handler is shut down. If derived classes override this
+   * method, they must perform their own cleanup, then call the base class.
    */
   public void shutdown() {
     // dynamic app shutdown by content editor handler
   }
 
   /**
-   * Each handler has a set of 0 or more applications used to generate the
-   * result sets used to create the result document. The derived class must
-   * provide this list in the proper order for processing by the document
-   * builder it supplies via the
-   * {@link #getDocumentBuilder(int, PSExecutionData) getDocumentBuilder}
-   * method. The {@link #processRequest(PSRequest) processRequest} method will
-   * walk this list to generate all result sets, which will then be used by the
-   * document builder. The result set for the parent editor <em>MUST</em> be
-   * at the top of the stack, even if it is not the first result set used by
-   * the builder. This is required because the top result set is always
-   * prepared before any builders are called. This class returns an empty list.
+   * Each handler has a set of 0 or more applications used to generate the result sets used to
+   * create the result document. The derived class must provide this list in the proper order for
+   * processing by the document builder it supplies via the {@link #getDocumentBuilder(int,
+   * PSExecutionData) getDocumentBuilder} method. The {@link #processRequest(PSRequest)
+   * processRequest} method will walk this list to generate all result sets, which will then be used
+   * by the document builder. The result set for the parent editor <em>MUST</em> be at the top of
+   * the stack, even if it is not the first result set used by the builder. This is required because
+   * the top result set is always prepared before any builders are called. This class returns an
+   * empty list.
    *
-   * @param id The value in the sys_pageId html param, or 0 if the param is not
-   * present.
-   *
+   * @param id The value in the sys_pageId html param, or 0 if the param is not present.
    * @param data The execution data before any result sets have been added.
-   *
-   * @param isNewDoc A flag that indicates whether this request is to obtain an
-   * editor to insert a new item (<code>true</code>) or edit an existing
-   * one.
-   *
-   * @return a list of 0 or more IPSInternalResultHandler objects, never
-   * <code>null</code>. By default, no apps are returned.
+   * @param isNewDoc A flag that indicates whether this request is to obtain an editor to insert a
+   *     new item (<code>true</code>) or edit an existing one.
+   * @return a list of 0 or more IPSInternalResultHandler objects, never <code>null</code>. By
+   *     default, no apps are returned.
    */
   @SuppressWarnings("unused")
   protected Iterator getAppList(int id, PSExecutionData data, boolean isNewDoc)
@@ -691,31 +658,26 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Each derived class must supply a builder that can create the result
-   * document from the PSExecutionData object.
+   * Each derived class must supply a builder that can create the result document from the
+   * PSExecutionData object.
    *
-   * @param id The value passed in as the ~rxchildid HTML param. Will be 0
-   *    if this param is not present.
-   *
+   * @param id The value passed in as the ~rxchildid HTML param. Will be 0 if this param is not
+   *     present.
    * @param data The execution data, it may not be <code>null</code>.
-   *
-   * @return The builder identified by the supplied key, or <code>null</code>
-   *    if the key can't be found.
+   * @return The builder identified by the supplied key, or <code>null</code> if the key can't be
+   *     found.
    */
   protected abstract PSEditorDocumentBuilder getDocumentBuilder(int id, PSExecutionData data);
 
   /**
-   * Extracts the child id list from the supplied pageInfo and builds a map
-   * that just contains these lists. The generated map has the same keys
-   * as the supplied map, only the values differ.
+   * Extracts the child id list from the supplied pageInfo and builds a map that just contains these
+   * lists. The generated map has the same keys as the supplied map, only the values differ.
    *
-   * @param pageInfo A map that contains 1 or more entries. For each entry,
-   *    the key must be an Integer whose value is the pageId of the value
-   *    object (i.e. the parent id). The value is a PSPageInfo object (which
-   *    contains the child id list).
-   *
-   * @return A map containing all of the parent ids found in the page info,
-   *    as keys, and their list of child page ids as the value for the entry.
+   * @param pageInfo A map that contains 1 or more entries. For each entry, the key must be an
+   *     Integer whose value is the pageId of the value object (i.e. the parent id). The value is a
+   *     PSPageInfo object (which contains the child id list).
+   * @return A map containing all of the parent ids found in the page info, as keys, and their list
+   *     of child page ids as the value for the entry.
    */
   @SuppressWarnings("unchecked")
   protected Map createPageMap(Map pageInfo) {
@@ -736,29 +698,20 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   /**
    * Apply the style sheet conditions to the XML document.
    *
-   * Processes the set of conditional stylesheets for this handler, finding the
-   * first one that evaluates to <code>true</code> and sets the stylesheet
-   * processing instruction in the XML document.
+   * <p>Processes the set of conditional stylesheets for this handler, finding the first one that
+   * evaluates to <code>true</code> and sets the stylesheet processing instruction in the XML
+   * document.
    *
-   * @param data The execution data for the current request. Used to
-   *    process the conditionals associated with the stylesheets. Never
-   *    <code>null</code>
-   *
-   * @param doc The document to which the stylesheet PI will be added. Never
-   *    <code>null</code>
-   *
-   * @param stylesheet the stylesheet url-string to use, if not provided
-   *    (<code>null</code>) the one from the stylesheet evaluators will
-   *    be retrieved.
-   *
-   * @param fixupURL If <code>true</code>, the url specified in the
-   *    stylesheet evaluator will be made in an external form, including
-   *    the protocol (http), server, port, etc. If <code>false</code>, the
-   *    url is placed in the output document without modification.
-   *
+   * @param data The execution data for the current request. Used to process the conditionals
+   *     associated with the stylesheets. Never <code>null</code>
+   * @param doc The document to which the stylesheet PI will be added. Never <code>null</code>
+   * @param stylesheet the stylesheet url-string to use, if not provided (<code>null</code>) the one
+   *     from the stylesheet evaluators will be retrieved.
+   * @param fixupURL If <code>true</code>, the url specified in the stylesheet evaluator will be
+   *     made in an external form, including the protocol (http), server, port, etc. If <code>false
+   *     </code>, the url is placed in the output document without modification.
    * @return a URL for the stylesheet before it is fixed up, never <code>null
    *    </code>.
-   *
    * @throws NullPointerException if execData or doc is <code>null</code>.
    */
   private URL applyStylesheetConditions(
@@ -798,12 +751,10 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * Process all output field translations for the provided document and
-   * execution data.
+   * Process all output field translations for the provided document and execution data.
    *
    * @param doc the document to process, assumed not <code>null</code>.
-   * @param data the execution data to run the translations for, assumed
-   *    not <code>null</code>.
+   * @param data the execution data to run the translations for, assumed not <code>null</code>.
    * @throws PSConversionException if the UDF fails.
    * @throws PSDataExtractionException if data extraction failed.
    */
@@ -848,28 +799,24 @@ public abstract class PSQueryCommandHandler extends PSCommandHandler
   }
 
   /**
-   * It is possible for 1 or more stylesheets to be specified for a command
-   * handler. This list contains 1 or more these. They are evaluated at run
-   * time and the winning one is used to render the output document. Never
-   * <code>null</code>, immutable once set in ctor.
+   * It is possible for 1 or more stylesheets to be specified for a command handler. This list
+   * contains 1 or more these. They are evaluated at run time and the winning one is used to render
+   * the output document. Never <code>null</code>, immutable once set in ctor.
    */
   private PSConditionalUrlEvaluator[] m_stylesheetEvaluators;
 
   /**
-   * Used to get the page id at runtime. The page id identifies which of the
-   * row/summary editors are being accessed. Never <code>null</code> and
-   * immutable after construction.
+   * Used to get the page id at runtime. The page id identifies which of the row/summary editors are
+   * being accessed. Never <code>null</code> and immutable after construction.
    */
   private IPSDataExtractor m_pageIdExtractor;
 
   /**
-   * The internal name of the command handler derived from this base class.
-   * Never empty and immutable after set in ctor.
+   * The internal name of the command handler derived from this base class. Never empty and
+   * immutable after set in ctor.
    */
   private String m_cmdName;
 
-  /**
-   * Name of the stylesheet processing instruction inside xml document.
-   */
+  /** Name of the stylesheet processing instruction inside xml document. */
   private static final String XSL_STYLESHEET_PI = "xml-stylesheet";
 }

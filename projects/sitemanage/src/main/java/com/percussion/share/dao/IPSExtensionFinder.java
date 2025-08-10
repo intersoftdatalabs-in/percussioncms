@@ -16,9 +16,7 @@
  */
 package com.percussion.share.dao;
 
-/**
- * Finds and returns an extension by its ID and type.
- */
+/** Finds and returns an extension by its ID and type. */
 public interface IPSExtensionFinder {
-    <T> T findExtension(String extensionId, Class<T> klass);
+  <T> T findExtension(String extensionId, Class<T> klass);
 }

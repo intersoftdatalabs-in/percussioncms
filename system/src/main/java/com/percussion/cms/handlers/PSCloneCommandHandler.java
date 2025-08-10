@@ -51,28 +51,22 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class encapsulates behavior required to handle Clone commands.  Creates
- * a copy of a specified item and all of it's child and shared data, inserting
- * it as the initial revision of a new item.
+ * This class encapsulates behavior required to handle Clone commands. Creates a copy of a specified
+ * item and all of it's child and shared data, inserting it as the initial revision of a new item.
  */
 public class PSCloneCommandHandler extends PSCommandHandler {
   /**
-   * Creates a handler to process requests for cloning existing content
-   * items.
+   * Creates a handler to process requests for cloning existing content items.
    *
-   * @param ah The application handler for this app.  May not be
-   * <code>null</code>.
-   * @param ceh The content editor handler for this dataset.  May not be
-   * <code>null</code>.
-   * @param app The application created by the PSContentEditor for each
-   * command handler to add datasets to.  The app is started and stopped by the
-   * ContentEditorHandler.  May not be <code>null</code>.
-   *
+   * @param ah The application handler for this app. May not be <code>null</code>.
+   * @param ceh The content editor handler for this dataset. May not be <code>null</code>.
+   * @param app The application created by the PSContentEditor for each command handler to add
+   *     datasets to. The app is started and stopped by the ContentEditorHandler. May not be <code>
+   *     null</code>.
    * @throws PSIllegalArgumentException if there is any invalid data
    * @throws PSExtensionException if there is an error preparing an exception.
    * @throws PSNotFoundException if a udf or extension cannot be located.
-   * @throws PSSystemValidationException if there is a problem starting an internal
-   * application.
+   * @throws PSSystemValidationException if there is a problem starting an internal application.
    * @throws IllegalArgumentException if any param is <code>null</code>.
    */
   public PSCloneCommandHandler(
@@ -98,13 +92,10 @@ public class PSCloneCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * Process a content editor clone request using the input context
-   * information and data.  Creates a new content item with a new content id
-   * and a revision of <code>1</code>.
+   * Process a content editor clone request using the input context information and data. Creates a
+   * new content item with a new content id and a revision of <code>1</code>.
    *
-   * @param request the request object containing all context data associated
-   * with the request.
-   *
+   * @param request the request object containing all context data associated with the request.
    * @throws IllegalArgumentException if request is <code>null</code>.
    */
   public void processRequest(PSRequest request) {
@@ -179,20 +170,17 @@ public class PSCloneCommandHandler extends PSCommandHandler {
    * @param execData the execution data to use, assumed not <code>null</code>.
    * @return the new contentid created.
    * @throws PSRequestValidationException for invalid requests.
-   * @throws PSAuthorizationException if the user is not authorize to perform
-   *    the request.
+   * @throws PSAuthorizationException if the user is not authorize to perform the request.
    * @throws PSRequestValidationException for any failed request validation.
    * @throws PSSystemValidationException for any failed validation.
    * @throws SQLException for any failed SQL operation.
    * @throws PSNotFoundException for any file not found.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSAuthenticationFailedException if the user failed to
-   *    authenticate.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    * @throws IOException for any IO operation that failed.
-   * @throws PSCmsException if anything goes wrong looking up existing
-   *    relationships.
+   * @throws PSCmsException if anything goes wrong looking up existing relationships.
    * @throws PSUnknownNodeTypeException for objectstore XML parsing errors.
    */
   private int executeCloneRequest(PSRequest request, PSExecutionData execData)
@@ -255,12 +243,11 @@ public class PSCloneCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * See {@link IPSInternalRequestHandler#makeInternalRequest(PSRequest)
-   * IPSInternalRequestHandler} interface for method and parameter
-   * descriptions.
+   * See {@link IPSInternalRequestHandler#makeInternalRequest(PSRequest) IPSInternalRequestHandler}
+   * interface for method and parameter descriptions.
    *
-   * @return <code>null</code> always.  The execution data created by this
-   * request is released before returning to caller.
+   * @return <code>null</code> always. The execution data created by this request is released before
+   *     returning to caller.
    */
   public PSExecutionData makeInternalRequest(PSRequest request)
       throws PSInternalRequestCallException,
@@ -303,24 +290,21 @@ public class PSCloneCommandHandler extends PSCommandHandler {
    * @param toRid the revision to copy the relationships for.
    * @param data the execution data to operate on, not <code>null</code>.
    * @param ceh the content editor handler to be used, not <code>null</code>.
-   * @return a map with all new created inline link relationships. The map
-   *    key is the original relationship id as <code>Integer</code>,
-   *    the map value is the new cloned relationship as
-   *    <code>PSRelationship</code>. Never <code>null</code>, may be empty.
+   * @return a map with all new created inline link relationships. The map key is the original
+   *     relationship id as <code>Integer</code>, the map value is the new cloned relationship as
+   *     <code>PSRelationship</code>. Never <code>null</code>, may be empty.
    * @throws PSRequestValidationException for any failed request validation.
    * @throws PSAuthorizationException if the user is not authorized.
-   * @throws PSInternalRequestCallException if any error occurs processing
-   *    the internal request call.
+   * @throws PSInternalRequestCallException if any error occurs processing the internal request
+   *     call.
    * @throws PSSystemValidationException for any failed validation.
    * @throws SQLException for any failed SQL operation.
-   * @throws PSAuthenticationFailedException if the user failed to
-   *    authenticate.
+   * @throws PSAuthenticationFailedException if the user failed to authenticate.
    * @throws PSNotFoundException for any file not found.
    * @throws IOException for any IO error occurred.
-   * @throws PSUnknownNodeTypeException if the requested document does not
-   *    contain a valid relationship set.
-   * @throws PSCmsException if anything goes wrong looking up existing
-   *    relationships.
+   * @throws PSUnknownNodeTypeException if the requested document does not contain a valid
+   *     relationship set.
+   * @throws PSCmsException if anything goes wrong looking up existing relationships.
    */
   public static Map copyRelatedContent(
       int fromCid,
@@ -408,46 +392,42 @@ public class PSCloneCommandHandler extends PSCommandHandler {
   }
 
   /**
-   * The internal name of this handler. When handler names are used in
-   * config files, this is the name that must be used.
+   * The internal name of this handler. When handler names are used in config files, this is the
+   * name that must be used.
    */
   public static final String COMMAND_NAME = "clone";
 
   /**
-   * The HTML parameter used to supply the workflow action to take after the
-   * clone has been created. Currently only 'checkin' is supported. If not
-   * provided, no action will be taken.
+   * The HTML parameter used to supply the workflow action to take after the clone has been created.
+   * Currently only 'checkin' is supported. If not provided, no action will be taken.
    */
   public static final String SYS_WFACTION = "sys_wfAction";
 
-  /**
-   * The HTML parameter value to perform a checkin.
-   */
+  /** The HTML parameter value to perform a checkin. */
   public static final String WF_ACTION_CHECKIN = "checkin";
 
   /**
-   * Name of the HTML parameter to pass the map of name-value pairs for the
-   * fields in the cloned item. This map is typically built in the
-   * relatinship handler and set as the HTML parameter so that the clone or
-   * copy handler can make use of this later while creating a clone.
+   * Name of the HTML parameter to pass the map of name-value pairs for the fields in the cloned
+   * item. This map is typically built in the relatinship handler and set as the HTML parameter so
+   * that the clone or copy handler can make use of this later while creating a clone.
    */
   public static final String SYS_CLONE_OVERRIDE_FIELDSET = "sys_cloneoverridefieldset";
 
   /**
-   * Used to perform the actual copying of the item.  Initialized in the ctor,
-   * never <code>null</code> after that.
+   * Used to perform the actual copying of the item. Initialized in the ctor, never <code>null
+   * </code> after that.
    */
   private PSCopyHandler m_copyHandler = null;
 
   /**
-   * Stores the name of the html parameter to extract the content id from.
-   * Initialized in the ctor, never <code>null</code> or changed after that.
+   * Stores the name of the html parameter to extract the content id from. Initialized in the ctor,
+   * never <code>null</code> or changed after that.
    */
   private String m_contentIdParamName = null;
 
   /**
-   * Stores the name of the html parameter to extract the revision id from.
-   * Initialized in the ctor, never <code>null</code> or changed after that.
+   * Stores the name of the html parameter to extract the revision id from. Initialized in the ctor,
+   * never <code>null</code> or changed after that.
    */
   private String m_revisionIdParamName = null;
 }

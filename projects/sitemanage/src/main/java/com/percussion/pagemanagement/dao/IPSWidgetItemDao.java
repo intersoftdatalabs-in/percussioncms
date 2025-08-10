@@ -20,9 +20,7 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.share.dao.IPSGenericDao;
 
-/**
- * DAO for widget items.
- */
+/** DAO for widget items. */
 public interface IPSWidgetItemDao extends IPSGenericDao<PSWidgetItem, String> {
-    // No additional methods.
+  // No additional methods.
 }

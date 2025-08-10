@@ -18,13 +18,12 @@
 package com.percussion.HTTPClient;
 
 /**
- * This interface defines the return codes that the handlers in modules
- * may return.
+ * This interface defines the return codes that the handlers in modules may return.
  *
  * @see HTTPClientModule
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
+ * @since V0.3
  */
 @Deprecated
 public interface HTTPClientModuleConstants {

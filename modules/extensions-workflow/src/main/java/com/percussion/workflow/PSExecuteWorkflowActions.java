@@ -39,18 +39,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.w3c.dom.Document;
 
 /**
- * The PSExecuteWorkflowActions class implements extension handling for the
- * workflow action extensions (Extensions that implement
- * <CODE>IPSWorkflowAction</CODE>). This extension loads (if necessary) and
- * executes all workflow action extensions in the list
- * <CODE>requestContext.getSessionPrivateObject</CODE>.
- * <CODE>(IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT)</CODE>.
+ * The PSExecuteWorkflowActions class implements extension handling for the workflow action
+ * extensions (Extensions that implement <CODE>IPSWorkflowAction</CODE>). This extension loads (if
+ * necessary) and executes all workflow action extensions in the list <CODE>
+ * requestContext.getSessionPrivateObject</CODE>. <CODE>
+ * (IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT)</CODE>.
  */
 public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 
   /*
@@ -61,9 +58,9 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
   /* *************  IPSExtension Interface Implementation ************* */
 
   /**
-   * Caches the extension manager instance, and creates an empty hash map for
-   * which the full workflow action extension name will be the key, and the
-   * executable workflow action extension instance is the value.
+   * Caches the extension manager instance, and creates an empty hash map for which the full
+   * workflow action extension name will be the key, and the executable workflow action extension
+   * instance is the value.
    */
   public void init(IPSExtensionDef extensionDef, File codeRoot) throws PSExtensionException {
     if (!m_extensionInitialized) {
@@ -76,64 +73,45 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
 
   /* *******  IPSResultDocumentProcessor Interface Implementation ******* */
 
-  /**
-   * Return <CODE>false</CODE>, this extension can not modify the style sheet.
-   */
+  /** Return <CODE>false</CODE>, this extension can not modify the style sheet. */
   public boolean canModifyStyleSheet() {
     return false;
   }
 
   /**
-   * Loads (if necessary) and executes all workflow action extensions in the
-   * request context workflow action private object. If the extension was not
-   * previously loaded, the executable extension will be cached in a hash map
-   * for which the extension name is the key. If any of the extensions
-   * in the list is not an installed workflow action, none will be
-   * executed. An empty workflow action private object will result in an
-   * exception, however it is not an error if the private object does not
-   * exist.
+   * Loads (if necessary) and executes all workflow action extensions in the request context
+   * workflow action private object. If the extension was not previously loaded, the executable
+   * extension will be cached in a hash map for which the extension name is the key. If any of the
+   * extensions in the list is not an installed workflow action, none will be executed. An empty
+   * workflow action private object will result in an exception, however it is not an error if the
+   * private object does not exist.
    *
-   * @param  params          the parameters for this extension. Should be
-   *                         <CODE>null</CODE> or of size 0, because this
-   *                         extension does not have any parameters.
-   * @param requestContext   the context of the request associated with this
-   *                         extension
-   *                         <ul>If there are transition workflow action
-   *                         extensions to be performed, the following two
-   *                         private objects must be present:
-   *               <li>workflow context - key <CODE>
+   * @param params the parameters for this extension. Should be <CODE>null</CODE> or of size 0,
+   *     because this extension does not have any parameters.
+   * @param requestContext the context of the request associated with this extension
+   *     <ul>
+   *       If there are transition workflow action extensions to be performed, the following two
+   *       private objects must be present:
+   *       <li>workflow context - key <CODE>
    *                         IPSWorkFlowContext.WORKFLOW_CONTEXT_PRIVATE_OBJECT
    *                         </CODE>
-   *                         </li>
-   *                         <li>workflow action extensions list - key <CODE>
+   *       <li>workflow action extensions list - key <CODE>
    *                         IPSWorkflowAction.WORKFLOW_ACTIONS_PRIVATE_OBJECT
    *                         </CODE>
-   *                         </li>
-   *                         </ul>
-   * @param  resultDoc       the result XML document (may be <CODE>null</CODE>
-   *                         because it will be ignored)
+   *     </ul>
    *
-   * @return                 <code>resultDoc</code> is returned unchanged
-   *
-   * @throws                 PSParameterMismatchException
-   *                         if any parameters are supplied.
-   * @throws                 PSExtensionProcessingException if
-   *                         <ul>
-   *               <li>a list of workflow actions exists, but the
-   *                         workflow context does not.
-   *               </li>
-   *                         <li>an extension on the list is not a workflow
-   *                         action. (Does not  implement
-   *                         <CODE>IPSWorkflowAction</CODE>)
-   *               </li>
-   *                         <li>an extension on the list is not installed
-   *               </li>
-   *                         <li>an extension on the list cannot be loaded
-   *               </li>
-   *                         <li>an exception is thrown while executing one
-   *                         of the extensions.
-   *               </li>
-   *               </ul>
+   * @param resultDoc the result XML document (may be <CODE>null</CODE> because it will be ignored)
+   * @return <code>resultDoc</code> is returned unchanged
+   * @throws PSParameterMismatchException if any parameters are supplied.
+   * @throws PSExtensionProcessingException if
+   *     <ul>
+   *       <li>a list of workflow actions exists, but the workflow context does not.
+   *       <li>an extension on the list is not a workflow action. (Does not implement <CODE>
+   *           IPSWorkflowAction</CODE>)
+   *       <li>an extension on the list is not installed
+   *       <li>an extension on the list cannot be loaded
+   *       <li>an exception is thrown while executing one of the extensions.
+   *     </ul>
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext requestContext, Document resultDoc)
@@ -248,9 +226,7 @@ public class PSExecuteWorkflowActions implements IPSResultDocumentProcessor {
     return resultDoc;
   }
 
-  /**
-   * The unique system extension manager.
-   */
+  /** The unique system extension manager. */
   private IPSExtensionManager ms_extensionMgr = null;
 
   /**

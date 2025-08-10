@@ -24,15 +24,13 @@ import com.percussion.utils.guid.IPSGuid;
 
 /**
  * Service for saving, loading, and deleting dependency element id-name mappings.
- * <p>
- * This interface provides methods to manage mappings between dependency names and GUIDs.
- * All methods are thread-safe and must not return null unless explicitly documented.
+ *
+ * <p>This interface provides methods to manage mappings between dependency names and GUIDs. All
+ * methods are thread-safe and must not return null unless explicitly documented.
  */
 public interface IPSIdNameService {
 
-  /**
-   * Deletes all id-name mappings. Intended for unit testing only.
-   */
+  /** Deletes all id-name mappings. Intended for unit testing only. */
   void deleteAll();
 
   /**
@@ -55,8 +53,8 @@ public interface IPSIdNameService {
    * Gets a name for the given {@code IPSGuid}.
    *
    * @param guid The guid; must not be {@code null}.
-   * @return The name of the dependency element corresponding to the guid,
-   *     or {@code null} if not found.
+   * @return The name of the dependency element corresponding to the guid, or {@code null} if not
+   *     found.
    */
   String findName(IPSGuid guid);
 }

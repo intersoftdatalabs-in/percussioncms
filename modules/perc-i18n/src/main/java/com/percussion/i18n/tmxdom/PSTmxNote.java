@@ -20,19 +20,17 @@ import com.percussion.i18n.PSI18nUtils;
 import org.w3c.dom.Element;
 
 /**
- * This class wraps the functionality of note DOM element of the TMX document
- * as an easy to use TMX node. The TMX counterpart provides methods to manipulate
- * the note, the most important one being to merge two nodes applying the merge
- * configuration.
+ * This class wraps the functionality of note DOM element of the TMX document as an easy to use TMX
+ * node. The TMX counterpart provides methods to manipulate the note, the most important one being
+ * to merge two nodes applying the merge configuration.
  */
 public class PSTmxNote extends PSTmxLeafNode implements IPSTmxNote {
   /**
-   * Constructor. Takes the parent TMX document object and the DOM element
-   * representing the note. The language this note associated with is
-   * constructed from the supplied DOM element.
+   * Constructor. Takes the parent TMX document object and the DOM element representing the note.
+   * The language this note associated with is constructed from the supplied DOM element.
+   *
    * @param tmxdoc parent TMX document, nust not be <code>null</code>.
-   * @param note DOM element for the TMX property to be contstructed, must not
-   * be <code>null</code>.
+   * @param note DOM element for the TMX property to be contstructed, must not be <code>null</code>.
    * @throws IllegalArgumentException if tmxdoc or note is <code>null</code>
    */
   PSTmxNote(IPSTmxDocument tmxdoc, Element note) {
@@ -86,8 +84,8 @@ public class PSTmxNote extends PSTmxLeafNode implements IPSTmxNote {
   }
 
   /**
-   * The default language this node is associated with. A note is always
-   * associated with a language. Never <code>null</code> or <code>empty</code>.
+   * The default language this node is associated with. A note is always associated with a language.
+   * Never <code>null</code> or <code>empty</code>.
    */
   protected String m_Lang = PSI18nUtils.DEFAULT_LANG;
 }

@@ -29,13 +29,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSServerCatalogHandler class implements cataloging of
- * servers. This request type is used to locate the servers available
- * through a back-end driver. Not all drivers are capable of locating
+ * The PSServerCatalogHandler class implements cataloging of servers. This request type is used to
+ * locate the servers available through a back-end driver. Not all drivers are capable of locating
  * servers.
- * <p>
- * Server catalog requests are sent to the server using the
- * PSXSecurityServerCatalog XML document. Its definition is as follows:
+ *
+ * <p>Server catalog requests are sent to the server using the PSXSecurityServerCatalog XML
+ * document. Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalog      (providverName)&gt;
  *
@@ -44,8 +44,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT providerName         (#PCDATA)&gt;
  * </pre>
  *
- * The PSXSecurityServerCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXSecurityServerCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXSecurityServerCatalogResults (providerName, Server*)&gt;
  *
@@ -60,15 +61,13 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name                        (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSServerCatalogHandler extends com.percussion.design.catalog.PSCatalogRequestHandler
     implements com.percussion.design.catalog.IPSCatalogRequestHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSServerCatalogHandler() {
     super();
   }
@@ -76,10 +75,9 @@ public class PSServerCatalogHandler extends com.percussion.design.catalog.PSCata
   /* ********  IPSCatalogRequestHandler Interface Implementation ******** */
 
   /**
-   * Get the request type(s) (XML document types) supported by this
-   * handler.
+   * Get the request type(s) (XML document types) supported by this handler.
    *
-   * @return      the supported request type(s)
+   * @return the supported request type(s)
    */
   public String[] getSupportedRequestTypes() {
     return new String[] {ms_RequestDTD};
@@ -88,12 +86,10 @@ public class PSServerCatalogHandler extends com.percussion.design.catalog.PSCata
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process the catalog request. This uses the XML document sent as the
-   * input data. The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process the catalog request. This uses the XML document sent as the input data. The results are
+   * written to the specified output stream using the appropriate XML document format.
    *
-   * @param   request     the request object containing all context
-   *                      data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document doc = request.getInputDocument();
@@ -151,9 +147,7 @@ public class PSServerCatalogHandler extends com.percussion.design.catalog.PSCata
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

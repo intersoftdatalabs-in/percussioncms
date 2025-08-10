@@ -20,21 +20,18 @@ package com.percussion.server;
 import java.util.Date;
 
 /**
- * This class is used to store the statistics for an application running
- * on the server.
+ * This class is used to store the statistics for an application running on the server.
  *
- * @see         com.percussion.server.PSApplicationHandler#getStatistics
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see com.percussion.server.PSApplicationHandler#getStatistics
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSApplicationStatistics extends PSHandlerStatistics {
   /**
-   * Construct an application statistics object with the specified
-   *   application start time.
+   * Construct an application statistics object with the specified application start time.
    *
-   * @param   startTime      the time/date the application started
+   * @param startTime the time/date the application started
    */
   public PSApplicationStatistics(Date startTime) {
     super(startTime);
@@ -42,8 +39,8 @@ public class PSApplicationStatistics extends PSHandlerStatistics {
   }
 
   /**
-   * Construct an application statistics object using the current time as
-   * the time the application was started.
+   * Construct an application statistics object using the current time as the time the application
+   * was started.
    */
   public PSApplicationStatistics() {
     this(new Date());
@@ -52,7 +49,7 @@ public class PSApplicationStatistics extends PSHandlerStatistics {
   /**
    * Add the statistics for the specified request.
    *
-   * @param      stats         the statistics for the processed request
+   * @param stats the statistics for the processed request
    */
   public synchronized void update(PSRequestStatistics stats) {
     super.update(stats);
@@ -61,17 +58,13 @@ public class PSApplicationStatistics extends PSHandlerStatistics {
     m_ServerStatistics.update(stats);
   }
 
-  /**
-   * Increment the pending event count.
-   */
+  /** Increment the pending event count. */
   public synchronized void incrementPendingEventCount() {
     super.incrementPendingEventCount();
     m_ServerStatistics.incrementPendingEventCount(); // update server stats
   }
 
-  /**
-   * Decrement the pending event count.
-   */
+  /** Decrement the pending event count. */
   public synchronized void decrementPendingEventCount() {
     super.decrementPendingEventCount();
     m_ServerStatistics.decrementPendingEventCount(); // update server stats

@@ -19,33 +19,30 @@ package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a render result.
- */
+/** Represents a render result. */
 @XmlRootElement(name = "RenderResult")
 @JsonRootName("RenderResult")
 public class PSRenderResult extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
-    private String result;
-    private String regionId;
+  private static final long serialVersionUID = 1L;
+  private String result;
+  private String regionId;
 
-    public String getRegionId() {
-        return regionId;
-    }
+  public String getRegionId() {
+    return regionId;
+  }
 
-    public void setRegionId(String regionId) {
-        this.regionId = regionId;
-    }
+  public void setRegionId(String regionId) {
+    this.regionId = regionId;
+  }
 
-    public String getResult() {
-        return result;
-    }
+  public String getResult() {
+    return result;
+  }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
+  public void setResult(String result) {
+    this.result = result;
+  }
 }

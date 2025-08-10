@@ -21,20 +21,13 @@
 package com.percussion.data;
 
 public class PSBinaryData {
-  /**
-   * Constructs a new binary data object
-   *
-   */
+  /** Constructs a new binary data object */
   public PSBinaryData(byte[] binaryData) {
     super();
     m_byte = binaryData;
   }
 
-  /**
-   * Return the binary data in default string
-   *   (currently hexadecimal) format
-   *
-   */
+  /** Return the binary data in default string (currently hexadecimal) format */
   public String toString() {
     /* this used to be a hex string, but since we're primarily using this
      * to send data to the web, changing this to use base64 which is the
@@ -43,10 +36,7 @@ public class PSBinaryData {
     return toBase64String();
   }
 
-  /**
-   * Return the binary data in base64 format (String)
-   *
-   */
+  /** Return the binary data in base64 format (String) */
   /**
    * Converts the byte array to a Base64-encoded string.
    *
@@ -68,10 +58,7 @@ public class PSBinaryData {
     }
   }
 
-  /**
-   * Return the binary data in hexadecimal format (String)
-   *
-   */
+  /** Return the binary data in hexadecimal format (String) */
   public String toHexString() {
     if (m_byte != null) {
       StringBuilder my_StringBuilder = new StringBuilder();
@@ -84,10 +71,7 @@ public class PSBinaryData {
     } else return null;
   }
 
-  /**
-   * Return the binary data in Octal format (String)
-   *
-   */
+  /** Return the binary data in Octal format (String) */
   public String toOctalString() {
     if (m_byte != null) {
       StringBuilder my_StringBuilder = new StringBuilder();
@@ -100,10 +84,7 @@ public class PSBinaryData {
     } else return null;
   }
 
-  /**
-   * Return the binary data in Binary format (String)
-   *
-   */
+  /** Return the binary data in Binary format (String) */
   public String toBinaryString() {
     if (m_byte != null) {
       StringBuilder my_StringBuilder = new StringBuilder();
@@ -116,10 +97,7 @@ public class PSBinaryData {
     } else return null;
   }
 
-  /**
-   * Return the binary data byte array
-   *
-   */
+  /** Return the binary data byte array */
   public byte[] getByteArray() {
     return m_byte;
   }

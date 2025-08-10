@@ -27,8 +27,8 @@ import org.apache.tools.ant.taskdefs.Delete;
 import org.apache.tools.ant.types.FileSet;
 
 /**
- * This class extends the Ant Delte task so that we can now map
- * the files in one directory to another and delete the mapped files.
+ * This class extends the Ant Delte task so that we can now map the files in one directory to
+ * another and delete the mapped files.
  */
 public class PSDelete extends Delete {
   /**
@@ -46,12 +46,11 @@ public class PSDelete extends Delete {
   }
 
   /**
-   * If true and the file does not exist, do not display a diagnostic
-   * message or modify the exit status to reflect an error.
-   * This means that if a file or directory cannot be deleted,
-   * then no error is reported. This setting emulates the
-   * -f option to the Unix &quot;rm&quot; command.
+   * If true and the file does not exist, do not display a diagnostic message or modify the exit
+   * status to reflect an error. This means that if a file or directory cannot be deleted, then no
+   * error is reported. This setting emulates the -f option to the Unix &quot;rm&quot; command.
    * Default is false meaning things are &quot;noisy&quot;
+   *
    * @param quiet "true" or "on"
    */
   public void setQuiet(boolean quiet) {
@@ -78,9 +77,7 @@ public class PSDelete extends Delete {
     }
   }
 
-  /**
-   * Delete the file(s).
-   */
+  /** Delete the file(s). */
   public void execute() throws BuildException {
     if (usedMatchingTask) {
       log(
@@ -227,12 +224,12 @@ public class PSDelete extends Delete {
   }
 
   /**
-   * Will change the file to be deleted to the specified mapped
-   * file. This only works if "dir" & "mappedDir" have been
-   * specified.
+   * Will change the file to be deleted to the specified mapped file. This only works if "dir" &
+   * "mappedDir" have been specified.
+   *
    * @param fileToMutate the file to mutate, cannot be <code>null</code>.
-   * @return the mutated file, may be <code>null</code> if
-   * mappingDir and dir exist but the new mapped dir could not be found.
+   * @return the mutated file, may be <code>null</code> if mappingDir and dir exist but the new
+   *     mapped dir could not be found.
    */
   private File mutateFile(File fileToMutate) {
     if (fileToMutate == null) {
@@ -267,11 +264,10 @@ public class PSDelete extends Delete {
   }
 
   /**
-   * Validates whether or not this directory contains
-   * files.
+   * Validates whether or not this directory contains files.
+   *
    * @param dirToCheck the directory to check, cannot be <code>null</code>.
-   * @return <code>true</code> if this directory contains files,
-   * else <code>false</code>.
+   * @return <code>true</code> if this directory contains files, else <code>false</code>.
    */
   private boolean containsFiles(File dirToCheck) {
     if (dirToCheck == null) throw new IllegalArgumentException("Directory cannot be null.");

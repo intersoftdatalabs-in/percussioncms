@@ -23,29 +23,24 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSFatalError class is used to report end-conditions. These are
- * usually errors which were considered "impossible" yet it seems we've
- * managed to hit them. These are always logged so we can revisit them
- * when they surface.
+ * The PSFatalError class is used to report end-conditions. These are usually errors which were
+ * considered "impossible" yet it seems we've managed to hit them. These are always logged so we can
+ * revisit them when they surface.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSInternalError extends PSLogError {
   /**
-   * Report am internal error. The error code and parameters should
-   * clearly define where the error occurred for easy debugging.
+   * Report am internal error. The error code and parameters should clearly define where the error
+   * occurred for easy debugging.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   public PSInternalError(int errorCode, Object[] errorParams) {
     super(0);
@@ -54,23 +49,17 @@ public class PSInternalError extends PSLogError {
   }
 
   /**
-   * Report am internal error. The error code and parameters should
-   * clearly define where the error occurred for easy debugging.
+   * Report am internal error. The error code and parameters should clearly define where the error
+   * occurred for easy debugging.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   *
-   * @param      singleArg   the argument to use as the sole argument in
-   *                           the error message
+   * @param errorCode the error code describing the type of error
+   * @param singleArg the argument to use as the sole argument in the error message
    */
   public PSInternalError(int errorCode, Object singleArg) {
     this(errorCode, new Object[] {singleArg});
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

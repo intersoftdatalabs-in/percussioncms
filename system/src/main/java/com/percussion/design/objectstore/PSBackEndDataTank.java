@@ -26,34 +26,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndDataTank class is used to define the back-end data stores
- * used in a PSPipe object. When multiple back-end tables are permitted,
- * the back-end data tank is also used to define the relationships (joins)
- * between the tables.
+ * The PSBackEndDataTank class is used to define the back-end data stores used in a PSPipe object.
+ * When multiple back-end tables are permitted, the back-end data tank is also used to define the
+ * relationships (joins) between the tables.
  *
  * @see PSPipe
  * @see PSPipe#getBackEndDataTank
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndDataTank extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndDataTank(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -63,8 +54,8 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Construct a back-end data tank object. The object can be used to
-   * allow multiple tables (which must be joined for query).
+   * Construct a back-end data tank object. The object can be used to allow multiple tables (which
+   * must be joined for query).
    */
   public PSBackEndDataTank() {
     super();
@@ -75,10 +66,8 @@ public class PSBackEndDataTank extends PSComponent {
   /**
    * Get the back-end tables associated with this data tank.
    *
-   * @return      a collection containing the back-end tables
-   *             (PSBackEndTable objects)
-   *
-   * @see         PSBackEndTable
+   * @return a collection containing the back-end tables (PSBackEndTable objects)
+   * @see PSBackEndTable
    */
   public com.percussion.util.PSCollection getTables() {
     return m_tables;
@@ -111,14 +100,11 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   *Scan a string ( from the end towards the begining ) for posible matches
+   * Scan a string ( from the end towards the begining ) for posible matches
    *
-   *@param str the <code> String </code> to be searched
-   *
-   *@param scMatchingSet the <code> String </code> containing the matching set
-   *
-   *@return -1 not match was found, else the position of the first char on str
-   * that matches
+   * @param str the <code> String </code> to be searched
+   * @param scMatchingSet the <code> String </code> containing the matching set
+   * @return -1 not match was found, else the position of the first char on str that matches
    */
   private int findChars(String str, String scMatchingSet) {
     int iRet = -1;
@@ -144,20 +130,16 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Overwrite the back-end tables with the specified collection.
-   * If you only want to modify certain back-end table, add a new one, etc.
-   * use getTables to get the existing collection and modify the
+   * Overwrite the back-end tables with the specified collection. If you only want to modify certain
+   * back-end table, add a new one, etc. use getTables to get the existing collection and modify the
    * returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSBackEndDataTank object. Any subsequent changes made to the object
-   * by the caller will also effect the data tank.
    *
-   * @param tables   the new back-end tables
+   * <p>The PSCollection object supplied to this method will be stored with the PSBackEndDataTank
+   * object. Any subsequent changes made to the object by the caller will also effect the data tank.
    *
-   * @see            #getTables
-   *
-   * @see            PSBackEndTable
+   * @param tables the new back-end tables
+   * @see #getTables
+   * @see PSBackEndTable
    */
   public void setTables(com.percussion.util.PSCollection tables) {
     if ((tables == null) || (tables.size() == 0))
@@ -261,32 +243,27 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Get the joins defined between the back-end tables. If more than one
-   * table is defined in this data tank, joins between the tables must
-   * be defined.
+   * Get the joins defined between the back-end tables. If more than one table is defined in this
+   * data tank, joins between the tables must be defined.
    *
-   * @return      a collection containing the joins (PSBackEndJoin objects)
-   *
-   * @see         PSBackEndJoin
+   * @return a collection containing the joins (PSBackEndJoin objects)
+   * @see PSBackEndJoin
    */
   public com.percussion.util.PSCollection getJoins() {
     return m_joins;
   }
 
   /**
-   * Overwrite the joins with the specified collection.
-   * If you only want to modify certain joins, add a new one, etc. use
-   * getJoins to get the existing collection and modify the
-   * returned collection directly.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSBackEndDataTank object. Any subsequent changes made to the object
-   * by the caller will also effect the data tank.
+   * Overwrite the joins with the specified collection. If you only want to modify certain joins,
+   * add a new one, etc. use getJoins to get the existing collection and modify the returned
+   * collection directly.
    *
-   * @param joins   the new joins (may be <code>null</code>)
+   * <p>The PSCollection object supplied to this method will be stored with the PSBackEndDataTank
+   * object. Any subsequent changes made to the object by the caller will also effect the data tank.
    *
-   * @see            #getJoins
-   * @see            PSBackEndJoin
+   * @param joins the new joins (may be <code>null</code>)
+   * @see #getJoins
+   * @see PSBackEndJoin
    */
   public void setJoins(com.percussion.util.PSCollection joins) {
     if (joins != null) {
@@ -304,9 +281,8 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param tank a valid PSBackEndDataTank.
    */
@@ -321,10 +297,11 @@ public class PSBackEndDataTank extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndDataTank XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndDataTank XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXBackEndDataTank is used to define the back-end data stores
@@ -344,7 +321,7 @@ public class PSBackEndDataTank extends PSComponent {
    *    &lt;!ELEMENT PSXBackEndDataTank   (PSXBackEndTable+, PSXBackEndJoin*)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXBackEndDataTank XML element node
+   * @return the newly created PSXBackEndDataTank XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -369,12 +346,11 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndDataTank Java object
-   * from a PSXBackEndDataTank XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndDataTank Java object from a PSXBackEndDataTank XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXBackEndDataTank
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndDataTank
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -452,18 +428,15 @@ public class PSBackEndDataTank extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -500,6 +473,7 @@ public class PSBackEndDataTank extends PSComponent {
 
   /**
    * Creates a deep copy of this <tt>PSBackEndDataTank</tt> instance
+   *
    * @return a clone of this <tt>PSBackEndDataTank</tt>
    */
   public Object clone() {

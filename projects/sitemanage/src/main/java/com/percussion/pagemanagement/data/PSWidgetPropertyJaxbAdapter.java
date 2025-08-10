@@ -17,54 +17,56 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
+import com.percussion.pagemanagement.data.PSWidgetProperties.PSWidgetProperty;
+import com.percussion.share.dao.PSSerializerUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import com.percussion.pagemanagement.data.PSWidgetProperties.PSWidgetProperty;
-import com.percussion.share.dao.PSSerializerUtils;
 
 /**
- * Converts widget properties in their XML representation into a {@link Map}
- * for {@link PSWidgetItem#setProperties(Map)}.
- * The {@link PSWidgetProperty#getValue()} is a JSON string that gets converted into
- * a Java object.
- * Sunny Sal says: "Adapters—because even widgets need a little help fitting in!"
+ * Converts widget properties in their XML representation into a {@link Map} for {@link
+ * PSWidgetItem#setProperties(Map)}. The {@link PSWidgetProperty#getValue()} is a JSON string that
+ * gets converted into a Java object. Sunny Sal says: "Adapters—because even widgets need a little
+ * help fitting in!"
  */
-public class PSWidgetPropertyJaxbAdapter extends XmlAdapter<PSWidgetProperties, Map<String, Object>> {
+public class PSWidgetPropertyJaxbAdapter
+    extends XmlAdapter<PSWidgetProperties, Map<String, Object>> {
 
-    @Override
-    public PSWidgetProperties marshal(Map<String, Object> map) throws Exception {
-        var props = new PSWidgetProperties();
-        props.setProperties(new ArrayList<>());
-        var names = new ArrayList<>(map.keySet());
-        names.sort(String::compareTo);
-        for (var key : names) {
-            var wp = new PSWidgetProperty();
-            var v = PSSerializerUtils.getJsonFromObject(map.get(key));
-            wp.setName(key);
-            wp.setValue(v);
-            props.getProperties().add(wp);
-        }
-        return props;
+  @Override
+  public PSWidgetProperties marshal(Map<String, Object> map) throws Exception {
+    var props = new PSWidgetProperties();
+    props.setProperties(new ArrayList<>());
+    var names = new ArrayList<>(map.keySet());
+    names.sort(String::compareTo);
+    for (var key : names) {
+      var wp = new PSWidgetProperty();
+      var v = PSSerializerUtils.getJsonFromObject(map.get(key));
+      wp.setName(key);
+      wp.setValue(v);
+      props.getProperties().add(wp);
     }
+    return props;
+  }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * The value of the properties is a JSON string.
-     */
-    @Override
-    public Map<String, Object> unmarshal(PSWidgetProperties props) throws Exception {
-        var map = new HashMap<String, Object>();
-        Optional.ofNullable(props)
-                .map(PSWidgetProperties::getProperties)
-                .ifPresent(ps -> ps.forEach(wp -> {
-                    var v = PSSerializerUtils.getObjectFromJson(wp.getValue());
-                    map.put(wp.getName(), v);
-                }));
-        return map;
-    }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The value of the properties is a JSON string.
+   */
+  @Override
+  public Map<String, Object> unmarshal(PSWidgetProperties props) throws Exception {
+    var map = new HashMap<String, Object>();
+    Optional.ofNullable(props)
+        .map(PSWidgetProperties::getProperties)
+        .ifPresent(
+            ps ->
+                ps.forEach(
+                    wp -> {
+                      var v = PSSerializerUtils.getObjectFromJson(wp.getValue());
+                      map.put(wp.getName(), v);
+                    }));
+    return map;
+  }
 }

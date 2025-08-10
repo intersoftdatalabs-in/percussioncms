@@ -24,87 +24,77 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.utils.guid.IPSGuid;
-
-import org.junit.jupiter.api.Tag;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 
 @Tag("IntegrationTest")
-public class PSContextSetterTest extends PSConfigurationTest
-{
-   public void testConfigFiles() throws Exception
-   {
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG_2);      
+public class PSContextSetterTest extends PSConfigurationTest {
+  public void testConfigFiles() throws Exception {
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG_2);
 
-      // validate the configuration
-      String schemeName = getDefaultScheme("Site_Folder_Assembly");
-      assertTrue(schemeName == null);
-            
+    // validate the configuration
+    String schemeName = getDefaultScheme("Site_Folder_Assembly");
+    assertTrue(schemeName == null);
 
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);      
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);
 
-      // validate the configuration
-      schemeName = getDefaultScheme("Site_Folder_Assembly");
-      assertTrue(schemeName.equals("CI_Home"));
-            
-      //\/\/\/\/\/\
-      // Cleanup
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
-      
-      // validate
-      schemeName = getDefaultScheme("Site_Folder_Assembly");
-      assertTrue(schemeName.equals("Generic"));
-   }
+    // validate the configuration
+    schemeName = getDefaultScheme("Site_Folder_Assembly");
+    assertTrue(schemeName.equals("CI_Home"));
 
-   public void testAddPropertyDefs() throws Exception
-   {
-      IPSDesignModel ctxModel = PSConfigUtils.getContextModel();
-      IPSPublishingContext ctx = (IPSPublishingContext) ctxModel
-            .load("Site_Folder_Assembly");
-      
-      PSContextSetter setter = new PSContextSetter();
-      
-      Map<String, Object> props = new HashMap<String, Object>();
-      Map<String, Object> defs = new HashMap<String, Object>();
-      props.put(PSContextSetter.DEFAULT_SCHEME, "${perc.prefix.defaultScheme}");
-      
-      setter.setProperties(props);
-      setter.addPropertyDefs(ctx, defs);
-      
-      assertTrue("Expect 1 def", defs.size() == 1);
-      assertTrue("Expect \"Generic\"", defs.get("perc.prefix.defaultScheme")
-            .equals("Generic"));
-   }
-   
-   /**
-    * Gets the default Location Scheme name from the specified context name.
-    * @param ctxName the Context name, assumed not <code>null</code> or empty.
-    * @return the default Location Scheme name.
-    */
-   private String getDefaultScheme(String ctxName) throws PSNotFoundException {
-      IPSDesignModel ctxModel = PSConfigUtils.getContextModel();
-      IPSPublishingContext ctx = (IPSPublishingContext) ctxModel.load(ctxName);
-      IPSGuid schemeId = ctx.getDefaultSchemeId();
-      if (schemeId == null)
-         return null;
-      
-      PSLocationSchemeModel schemeModel = PSConfigUtils.getSchemeModel();
-      IPSLocationScheme scheme = (IPSLocationScheme) schemeModel.load(schemeId);
-      
-      assertTrue(scheme != null);
-      return scheme.getName();      
-   }
-   
-   public static final String PKG_NAME = "PSContextSetterTest";
-   
-   public static final String IMPL_CFG = PKG_NAME + "_configDef.xml";
+    // \/\/\/\/\/\
+    // Cleanup
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
 
-   public static final String LOCAL_CFG = PKG_NAME + "_localConfig.xml";
+    // validate
+    schemeName = getDefaultScheme("Site_Folder_Assembly");
+    assertTrue(schemeName.equals("Generic"));
+  }
 
-   public static final String LOCAL_CFG_2 = PKG_NAME + "_2_localConfig.xml";
+  public void testAddPropertyDefs() throws Exception {
+    IPSDesignModel ctxModel = PSConfigUtils.getContextModel();
+    IPSPublishingContext ctx = (IPSPublishingContext) ctxModel.load("Site_Folder_Assembly");
 
-   public static final String DEFAULT_CFG = PKG_NAME + "_defaultConfig.xml";
+    PSContextSetter setter = new PSContextSetter();
 
+    Map<String, Object> props = new HashMap<String, Object>();
+    Map<String, Object> defs = new HashMap<String, Object>();
+    props.put(PSContextSetter.DEFAULT_SCHEME, "${perc.prefix.defaultScheme}");
 
+    setter.setProperties(props);
+    setter.addPropertyDefs(ctx, defs);
+
+    assertTrue("Expect 1 def", defs.size() == 1);
+    assertTrue("Expect \"Generic\"", defs.get("perc.prefix.defaultScheme").equals("Generic"));
+  }
+
+  /**
+   * Gets the default Location Scheme name from the specified context name.
+   *
+   * @param ctxName the Context name, assumed not <code>null</code> or empty.
+   * @return the default Location Scheme name.
+   */
+  private String getDefaultScheme(String ctxName) throws PSNotFoundException {
+    IPSDesignModel ctxModel = PSConfigUtils.getContextModel();
+    IPSPublishingContext ctx = (IPSPublishingContext) ctxModel.load(ctxName);
+    IPSGuid schemeId = ctx.getDefaultSchemeId();
+    if (schemeId == null) return null;
+
+    PSLocationSchemeModel schemeModel = PSConfigUtils.getSchemeModel();
+    IPSLocationScheme scheme = (IPSLocationScheme) schemeModel.load(schemeId);
+
+    assertTrue(scheme != null);
+    return scheme.getName();
+  }
+
+  public static final String PKG_NAME = "PSContextSetterTest";
+
+  public static final String IMPL_CFG = PKG_NAME + "_configDef.xml";
+
+  public static final String LOCAL_CFG = PKG_NAME + "_localConfig.xml";
+
+  public static final String LOCAL_CFG_2 = PKG_NAME + "_2_localConfig.xml";
+
+  public static final String DEFAULT_CFG = PKG_NAME + "_defaultConfig.xml";
 }

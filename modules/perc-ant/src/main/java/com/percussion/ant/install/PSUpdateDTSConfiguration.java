@@ -204,6 +204,7 @@ public class PSUpdateDTSConfiguration extends PSAction {
 
   /**
    * return the previously installed version if possible.
+   *
    * @return null or the version
    */
   private String getUpgradingFromVersion() {

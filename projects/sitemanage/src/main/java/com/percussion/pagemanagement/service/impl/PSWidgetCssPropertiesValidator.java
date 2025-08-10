@@ -21,7 +21,6 @@ import com.percussion.pagemanagement.data.PSWidgetDefinition;
 import com.percussion.pagemanagement.data.PSWidgetDefinition.CssPref;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.service.IPSWidgetService;
-
 import java.util.Map;
 
 /**
@@ -32,17 +31,17 @@ import java.util.Map;
  */
 public class PSWidgetCssPropertiesValidator extends PSWidgetPropertiesValidator<CssPref> {
 
-    public PSWidgetCssPropertiesValidator(IPSWidgetService widgetService) {
-        super(widgetService);
-    }
+  public PSWidgetCssPropertiesValidator(IPSWidgetService widgetService) {
+    super(widgetService);
+  }
 
-    @Override
-    protected Map<String, Object> getProperties(PSWidgetItem widgetItem) {
-        return widgetItem.getCssProperties();
-    }
+  @Override
+  protected Map<String, Object> getProperties(PSWidgetItem widgetItem) {
+    return widgetItem.getCssProperties();
+  }
 
-    @Override
-    protected Map<String, CssPref> getPropertyDefinitions(PSWidgetDefinition definition) {
-        return PSWidgetUtils.getCssPrefs(definition);
-    }
+  @Override
+  protected Map<String, CssPref> getPropertyDefinitions(PSWidgetDefinition definition) {
+    return PSWidgetUtils.getCssPrefs(definition);
+  }
 }

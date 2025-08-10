@@ -30,11 +30,11 @@ import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.core.io.Resource;
 
 /**
- * Extended the Spring PropertiesFactoryBean to add the ability to automatically
- * encrypt properties that should be password protected. All location files will
- * be modified if they contain a field specified to be encrypted in the "securedProperties"
- * property and if the "autoSecure" property is set to <code>true</code>, the default is
- * <code>false</code>.
+ * Extended the Spring PropertiesFactoryBean to add the ability to automatically encrypt properties
+ * that should be password protected. All location files will be modified if they contain a field
+ * specified to be encrypted in the "securedProperties" property and if the "autoSecure" property is
+ * set to <code>true</code>, the default is <code>false</code>.
+ *
  * <pre>
  *
  * Example Bean file declaration:
@@ -74,7 +74,6 @@ import org.springframework.core.io.Resource;
  * </pre>
  *
  * @author erikserating
- *
  */
 public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
   private static final Logger log = LogManager.getLogger(PSPropertiesFactoryBean.class);
@@ -163,6 +162,7 @@ public class PSPropertiesFactoryBean extends PropertiesFactoryBean {
 
   /**
    * Loops through all resources and secures the properties by encryption.
+   *
    * @param encryptionType Type of encryption
    */
   private void encryptProps(String encryptionType) {

@@ -25,10 +25,7 @@ import com.percussion.utils.types.PSPair;
 import java.util.Map;
 import org.json.JSONObject;
 
-/**
- * Retrieves the mime type of the assembled snippet. Expects an
- * objectid for the snippet.
- */
+/** Retrieves the mime type of the assembled snippet. Expects an objectid for the snippet. */
 public class PSGetSnippetMimeTypeAction extends PSAAActionBase {
 
   // see interface for more detail

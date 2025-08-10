@@ -17,67 +17,53 @@
 
 package com.percussion.deployer.server;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.percussion.deployer.objectstore.PSDatasourceMap;
 import com.percussion.deployer.objectstore.PSDbmsInfo;
 import com.percussion.deployer.objectstore.PSDbmsMap;
 import com.percussion.deployer.objectstore.PSDbmsMapping;
-
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-/**
- * Unit test class for the <code>PSDbmsMapManager</code> class.
- */
+/** Unit test class for the <code>PSDbmsMapManager</code> class. */
 @Tag("IntegrationTest")
-public class PSDbmsMapManagerTest
-{
+public class PSDbmsMapManagerTest {
 
-    public PSDbmsMapManagerTest(){
-   }
+  public PSDbmsMapManagerTest() {}
 
-   /**
-    * Test saving and retrieving <code>PSDbmsMap</code> object
-    *
-    * @throws Exception If there are any errors.
-    */
-   @Test
-   public void testSaveThenGet() throws Exception
-   {
+  /**
+   * Test saving and retrieving <code>PSDbmsMap</code> object
+   *
+   * @throws Exception If there are any errors.
+   */
+  @Test
+  public void testSaveThenGet() throws Exception {
 
-      try {
+    try {
 
-         // Test SAVE
-         PSDbmsInfo dbms1 = new PSDbmsInfo("driver", "server", "db", "orig",
-            "uid", "pwd", false);
-         PSDbmsInfo dbms2 = new PSDbmsInfo("driver2", "server2", "db", "orig",
-            "uid", "pwd", false);
-         PSDbmsInfo dbms3 = new PSDbmsInfo("driver3", "server3", "db", "orig",
-            "uid", "pwd", false);
-         PSDbmsMapping mapping1 = new PSDbmsMapping(
-               new PSDatasourceMap(dbms1.getDatasource(), dbms2.getDatasource()));
+      // Test SAVE
+      PSDbmsInfo dbms1 = new PSDbmsInfo("driver", "server", "db", "orig", "uid", "pwd", false);
+      PSDbmsInfo dbms2 = new PSDbmsInfo("driver2", "server2", "db", "orig", "uid", "pwd", false);
+      PSDbmsInfo dbms3 = new PSDbmsInfo("driver3", "server3", "db", "orig", "uid", "pwd", false);
+      PSDbmsMapping mapping1 =
+          new PSDbmsMapping(new PSDatasourceMap(dbms1.getDatasource(), dbms2.getDatasource()));
 
-         PSDbmsMapping mapping2 = new PSDbmsMapping(
-               new PSDatasourceMap(dbms3.getDatasource(), ""));
+      PSDbmsMapping mapping2 = new PSDbmsMapping(new PSDatasourceMap(dbms3.getDatasource(), ""));
 
-         PSDbmsMap mapSave = new PSDbmsMap("PSDbmsMap:ManagerTest1:ben");
-         mapSave.addMapping(mapping1);
-         mapSave.addMapping(mapping2);
+      PSDbmsMap mapSave = new PSDbmsMap("PSDbmsMap:ManagerTest1:ben");
+      mapSave.addMapping(mapping1);
+      mapSave.addMapping(mapping2);
 
-         PSDbmsMapManager.saveDbmsMap(mapSave);
+      PSDbmsMapManager.saveDbmsMap(mapSave);
 
-         // Test GET
-         PSDbmsMap mapGet = PSDbmsMapManager.getDbmsMap(
-            "PSDbmsMap:ManagerTest1:ben");
+      // Test GET
+      PSDbmsMap mapGet = PSDbmsMapManager.getDbmsMap("PSDbmsMap:ManagerTest1:ben");
 
-         assertTrue(mapGet.equals(mapSave));
+      assertTrue(mapGet.equals(mapSave));
 
-      }
-      catch (Exception e)
-      {
-         System.out.println("\nCaught ERROR: " + e.toString());
-      }
-   }
-
+    } catch (Exception e) {
+      System.out.println("\nCaught ERROR: " + e.toString());
+    }
+  }
 }

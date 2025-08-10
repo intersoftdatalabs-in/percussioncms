@@ -20,9 +20,7 @@ package com.percussion.services.pkginfo;
 
 import com.percussion.services.PSBaseServiceLocator;
 
-/**
- * Locator for the {@link IPSIdNameService}.
- */
+/** Locator for the {@link IPSIdNameService}. */
 public class PSIdNameServiceLocator extends PSBaseServiceLocator {
 
   /**

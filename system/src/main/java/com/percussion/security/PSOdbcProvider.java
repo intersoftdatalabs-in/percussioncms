@@ -22,25 +22,23 @@ import java.util.Properties;
 import javax.security.auth.callback.CallbackHandler;
 
 /**
- * The PSOdbcProvider class uses ODBC's login facility
- * to authenticate the user.
+ * The PSOdbcProvider class uses ODBC's login facility to authenticate the user.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSOdbcProvider extends PSSecurityProvider {
-  /**
-   * Construct an instance of this provider.
-   *
-   */
+  /** Construct an instance of this provider. */
   public PSOdbcProvider(Properties props, String providerInstance) {
     super(SP_NAME, providerInstance);
 
     m_dsn = props.getProperty(PROPS_SERVER_NAME);
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public PSUserEntry authenticate(String uid, String pw, CallbackHandler callbackHandler)
       throws PSAuthenticationFailedException {
 
@@ -69,33 +67,27 @@ public class PSOdbcProvider extends PSSecurityProvider {
     return new PSUserEntry(uid, 0, null, null, PSUserEntry.createSignature(uid, pw));
   }
 
-  /** @see IPSSecurityProvider */
+  /**
+   * @see IPSSecurityProvider
+   */
   public IPSSecurityProviderMetaData getMetaData() {
     if (m_metaData == null) m_metaData = new PSOdbcProviderMetaData(this);
 
     return m_metaData;
   }
 
-  /**
-   * The name of this security provider.
-   */
+  /** The name of this security provider. */
   public static final String SP_NAME = "ODBC";
 
-  /**
-   * The class name of this security provider.
-   */
+  /** The class name of this security provider. */
   public static final java.lang.String SP_CLASSNAME = PSOdbcProvider.class.getName();
 
-  /**
-   * The String keyword for the server name property.
-   */
+  /** The String keyword for the server name property. */
   public static final String PROPS_SERVER_NAME = "serverName";
 
   public static final String PROPS_LOGIN_ID = "loginId";
   public static final String PROPS_LOGIN_PW = "loginPw";
 
-  /**
-   * The DSN this instance is connected to.
-   */
+  /** The DSN this instance is connected to. */
   private String m_dsn = null;
 }

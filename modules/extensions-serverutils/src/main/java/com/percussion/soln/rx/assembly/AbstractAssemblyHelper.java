@@ -27,9 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractAssemblyHelper {
-  /**
-   * The log instance to use for this class, never <code>null</code>.
-   */
+  /** The log instance to use for this class, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(AbstractAssemblyHelper.class);
 
   public PSJexlEvaluator doBindings(IPSAssemblyItem item) throws Exception {

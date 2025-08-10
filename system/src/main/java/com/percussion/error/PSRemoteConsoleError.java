@@ -25,19 +25,17 @@ import java.util.Locale;
 /**
  * The PSRemoteConsoleError class is used to report a remote console command error.
  *
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRemoteConsoleError extends PSLogError {
 
   /**
    * Report a remote console exception.
    *
-   * @param      command      the command executing at the time of the error
-   *
-   * @param      t            the exception
+   * @param command the command executing at the time of the error
+   * @param t the exception
    */
   public PSRemoteConsoleError(String command, Throwable t) {
     super(0);
@@ -53,10 +51,7 @@ public class PSRemoteConsoleError extends PSLogError {
     }
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

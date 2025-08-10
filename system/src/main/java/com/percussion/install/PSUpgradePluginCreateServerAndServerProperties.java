@@ -33,13 +33,12 @@ import org.w3c.dom.Element;
 
 /**
  * @author Ignacio Erro
- *
  */
 public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgradePlugin {
   /**
-   * The properties contains database information such as 'DB_NAME',
-   * 'DB_SCHEMA' and 'DB_DRIVER_NAME'. It is initialized at the beginning of
-   * the {@link #process(IPSUpgradeModule, Element)} method.
+   * The properties contains database information such as 'DB_NAME', 'DB_SCHEMA' and
+   * 'DB_DRIVER_NAME'. It is initialized at the beginning of the {@link #process(IPSUpgradeModule,
+   * Element)} method.
    */
   private Properties m_dbProps = null;
 
@@ -47,9 +46,7 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
 
   private PrintStream logger = null;
 
-  /**
-   * Tables names
-   */
+  /** Tables names */
   private String sitesTable;
 
   private String serversTable;
@@ -66,19 +63,13 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
 
   private String publicationSiteItem;
 
-  /**
-   * Property fields to be saved in new serverPropertiesTable
-   */
+  /** Property fields to be saved in new serverPropertiesTable */
   private static Map<String, String> propertiesMap = initializeProperties();
 
-  /**
-   * The character that seperates the param from the value.
-   */
+  /** The character that seperates the param from the value. */
   private static final String PARAM_SEP = "&";
 
-  /**
-   * The character that separates each parameter/value pairing from each other.
-   */
+  /** The character that separates each parameter/value pairing from each other. */
   private static final String PARAM_VALUE_SEP = "=";
 
   /*
@@ -123,8 +114,8 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
   }
 
   /**
-   * This will create a fully qualified table name. Depending on the provided
-   * driver type we will return table, owner.table or db.owner.table.
+   * This will create a fully qualified table name. Depending on the provided driver type we will
+   * return table, owner.table or db.owner.table.
    *
    * @param table the table name to qualify, must be valid.
    * @return the table
@@ -406,8 +397,8 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
   }
 
   /**
-   * Retrieves the editions from the join between editions table and
-   * pubStatus table for the given server id.
+   * Retrieves the editions from the join between editions table and pubStatus table for the given
+   * server id.
    *
    * @param serverId
    * @return
@@ -510,10 +501,9 @@ public class PSUpgradePluginCreateServerAndServerProperties implements IPSUpgrad
   /**
    * Parse the url parameter value for the supplied name from the provided url.
    *
-   * @param url the url from which to parse the parameter value, not
-   *           <code>null</code> or empty.
-   * @param name the parameter name for which to parse the value from the
-   *           supplied url, not <code>null</code> or empty.
+   * @param url the url from which to parse the parameter value, not <code>null</code> or empty.
+   * @param name the parameter name for which to parse the value from the supplied url, not <code>
+   *     null</code> or empty.
    * @return the parameter value, may be <code>null</code> if not found.
    */
   private String getUrlParameterValue(String url, String name) {

@@ -20,12 +20,10 @@ import com.percussion.install.InstallUtil;
 import org.apache.tools.ant.BuildException;
 
 /**
- * An install action bean to check for a running Rhythmyx server.  If a running
- * server is found, a build exception will be thrown.
+ * An install action bean to check for a running Rhythmyx server. If a running server is found, a
+ * build exception will be thrown. <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -45,7 +43,6 @@ import org.apache.tools.ant.BuildException;
  * </pre>
  *
  * @author vamsinukala
- *
  */
 public class PSCheckRunningServer extends PSAction {
   // see base class

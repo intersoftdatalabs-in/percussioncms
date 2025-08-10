@@ -34,21 +34,19 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 /**
- * A simple class to create a list box with add and remove buttons below.
- * <code>onAdd()</code> is abstract, and caller must overide to provide the
- * implementation of the add button to supply the object to add to the list.
- * The list will render objects using their <code>toString()</code> method.
- * Mult-select is not currently supported.
+ * A simple class to create a list box with add and remove buttons below. <code>onAdd()</code> is
+ * abstract, and caller must overide to provide the implementation of the add button to supply the
+ * object to add to the list. The list will render objects using their <code>toString()</code>
+ * method. Mult-select is not currently supported.
  */
 public abstract class PSListBox extends JPanel {
   /**
    * Construct the list box, providing its title and initial data.
    *
-   * @param title The title of the list, may not be <code>null</code> or empty.
-   * Appears in the border used to group all list components.
-   * @param listData The initial data, an iterator over zero or more objects
-   * to include in the list.  May not be <code>null</code>, may be empty.
-   *
+   * @param title The title of the list, may not be <code>null</code> or empty. Appears in the
+   *     border used to group all list components.
+   * @param listData The initial data, an iterator over zero or more objects to include in the list.
+   *     May not be <code>null</code>, may be empty.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSListBox(String title, Iterator listData) {
@@ -64,26 +62,22 @@ public abstract class PSListBox extends JPanel {
   }
 
   /**
-   * Must be overriden by the derived class to handle clicking the "Add"
-   * button.  Generally another dialog is shown to allow user to specify an
-   * item to add to the list.
+   * Must be overriden by the derived class to handle clicking the "Add" button. Generally another
+   * dialog is shown to allow user to specify an item to add to the list.
    *
-   * @return An object to add to the list, return <code>null</code> if none
-   * to be provided.  <code>null</code> values are not added to the list.
+   * @return An object to add to the list, return <code>null</code> if none to be provided. <code>
+   *     null</code> values are not added to the list.
    */
   public abstract Object onAdd();
 
   /**
-   * May be overriden by the derived class to handle a double-click on a list
-   * item.  Generally another dialog is shown to allow user to edit the
-   * selected item in the list.  The base class implementation simply returns
-   * <code>null</code>, which results in a noop.
+   * May be overriden by the derived class to handle a double-click on a list item. Generally
+   * another dialog is shown to allow user to edit the selected item in the list. The base class
+   * implementation simply returns <code>null</code>, which results in a noop.
    *
-   * @param data The object represented by the current list selection, never
-   * <code>null</code>.
-   *
-   * @return The edited object.  If <code>null</code>, the edit event is
-   * ignored and the current selection is not modified.
+   * @param data The object represented by the current list selection, never <code>null</code>.
+   * @return The edited object. If <code>null</code>, the edit event is ignored and the current
+   *     selection is not modified.
    */
   public Object onEdit(Object data) {
     // noop in base class
@@ -93,14 +87,11 @@ public abstract class PSListBox extends JPanel {
   }
 
   /**
-   * Determine if the list already contains the supplied object.  Comparison
-   * is made using the object's <code>equals</code> method.
+   * Determine if the list already contains the supplied object. Comparison is made using the
+   * object's <code>equals</code> method.
    *
    * @param obj The object to check, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if the object is contained in the list,
-   * <code>false</code> if not.
-   *
+   * @return <code>true</code> if the object is contained in the list, <code>false</code> if not.
    * @throws IllegalArgumentException if <code>obj</code> is <code>null</code>.
    */
   public boolean containsItem(Object obj) {
@@ -112,8 +103,8 @@ public abstract class PSListBox extends JPanel {
   /**
    * Get the contents of the list.
    *
-   * @return An iterator over zero or more objects that are currently contained
-   * by this list.  Never <code>null</code>.
+   * @return An iterator over zero or more objects that are currently contained by this list. Never
+   *     <code>null</code>.
    */
   public Iterator iterator() {
     return getListData().iterator();
@@ -122,9 +113,8 @@ public abstract class PSListBox extends JPanel {
   /**
    * Add a listener to be informed of add, edit, and remove events.
    *
-   * @param listener The listener to add, may not be <code>null</code>.
-   * Upon notification, {@link ActionEvent#getActionCommand()} will return
-   * "add", "edit" or "remove".
+   * @param listener The listener to add, may not be <code>null</code>. Upon notification, {@link
+   *     ActionEvent#getActionCommand()} will return "add", "edit" or "remove".
    */
   public void addActionListener(ActionListener listener) {
     if (listener == null) throw new IllegalArgumentException("listener may not be null");
@@ -135,8 +125,8 @@ public abstract class PSListBox extends JPanel {
   /**
    * Get the contents of the list.
    *
-   * @return A list containing zero or more objects that are currently
-   * contained by this list.  Never <code>null</code>.
+   * @return A list containing zero or more objects that are currently contained by this list. Never
+   *     <code>null</code>.
    */
   private List getListData() {
     List data = new ArrayList();
@@ -151,8 +141,7 @@ public abstract class PSListBox extends JPanel {
   /**
    * Initializes all ui components.
    *
-   * @param title The title used in the group border, assumed not
-   * <code>null</code> or empty.
+   * @param title The title used in the group border, assumed not <code>null</code> or empty.
    */
   private void initPanel(String title) {
     setLayout(new BorderLayout());
@@ -272,8 +261,8 @@ public abstract class PSListBox extends JPanel {
   /**
    * Initializes the data in the list.
    *
-   * @param listData An iterator over zero or more objects to add to the list,
-   * assumed not <code>null</code>.
+   * @param listData An iterator over zero or more objects to add to the list, assumed not <code>
+   *     null</code>.
    */
   private void initData(Iterator listData) {
     DefaultListModel model = (DefaultListModel) m_list.getModel();
@@ -285,10 +274,9 @@ public abstract class PSListBox extends JPanel {
   /**
    * Get the resource bundle used by this class.
    *
-   * @return The bundle, should never be <code>null</code>.  If an unexpected
-   * error occurs loading the bundle, the stack trace is written to the console
-   * and <code>null</code> is returned (this should never happen as the bundle
-   * is in the same jar as this class).
+   * @return The bundle, should never be <code>null</code>. If an unexpected error occurs loading
+   *     the bundle, the stack trace is written to the console and <code>null</code> is returned
+   *     (this should never happen as the bundle is in the same jar as this class).
    */
   private ResourceBundle getResources() {
     try {
@@ -302,34 +290,32 @@ public abstract class PSListBox extends JPanel {
   }
 
   /**
-   * The list, initialized in the <code>initPanel()</code> method, never
-   * <code>null</code> after that.
+   * The list, initialized in the <code>initPanel()</code> method, never <code>null</code> after
+   * that.
    */
   private JList m_list;
 
   /**
-   * The button used to add items to the list, initialized in the
-   * <code>initPanel()</code> method, never <code>null</code> after that.
+   * The button used to add items to the list, initialized in the <code>initPanel()</code> method,
+   * never <code>null</code> after that.
    */
   private JButton m_addButton;
 
   /**
-   * The button used to remove items from the list, initialized in the
-   * <code>initPanel()</code> method, never <code>null</code> after that.
+   * The button used to remove items from the list, initialized in the <code>initPanel()</code>
+   * method, never <code>null</code> after that.
    */
   private JButton m_removeButton;
 
   /**
-   * Resource bundle for this class.  Initialized by call to
-   * <code>getResources()</code>, only <code>null</code> after that if it
-   * could not be loaded.
+   * Resource bundle for this class. Initialized by call to <code>getResources()</code>, only <code>
+   * null</code> after that if it could not be loaded.
    */
   private static ResourceBundle ms_res = null;
 
   /**
-   * List of listeners to be notified of add or remove actions.  Never
-   * <code>null</code>, may be empty.  Modified by calls to
-   * {@link #addActionListener(ActionListener)}.
+   * List of listeners to be notified of add or remove actions. Never <code>null</code>, may be
+   * empty. Modified by calls to {@link #addActionListener(ActionListener)}.
    */
   private List m_actionListeners = new ArrayList();
 }

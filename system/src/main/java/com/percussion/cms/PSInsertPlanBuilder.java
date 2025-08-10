@@ -31,9 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/**
- * Plan builder for performing inserts of parent content items.
- */
+/** Plan builder for performing inserts of parent content items. */
 public class PSInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSInsertPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
@@ -41,13 +39,11 @@ public class PSInsertPlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will perform an insert of the parent item specified by
-   * the supplied mapper.   See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
+   * Creates a plan that will perform an insert of the parent item specified by the supplied mapper.
+   * See {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
    * super.createModifyPlan()} for additional details.
    *
-   * @throws IllegalArgumentException if fieldSet type is not
-   * {@link PSFieldSet#TYPE_PARENT}.
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_PARENT}.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException {

@@ -16,72 +16,63 @@
  */
 /*
  * com.percussion.pso.utils RxRequestUtils.java
- *  
+ *
  * @author DavidBenua
  *
  */
 package com.percussion.pso.utils;
+
+import com.percussion.server.IPSRequestContext;
 import javax.servlet.ServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.percussion.server.IPSRequestContext;
 
 /**
- * Helper methods for accessing Percussion CMS request objects. 
+ * Helper methods for accessing Percussion CMS request objects.
  *
  * @author DavidBenua
- *
  */
-public class RxRequestUtils
-{
-   /**
-    * Logger for this class
-    */
-   private static final Logger log = LogManager.getLogger(RxRequestUtils.class);
-   
-   /**
-    * Static methods only 
-    */
-   private RxRequestUtils()
-   {
-   }
-   
-   /**
-    * Gets the Percussion CMS request for this servlet request.
-    * @param req the calling servlet's request
-    * @return the Percussion CMS request context or null if this request
-    * did not originate in Percussion CMS. 
-    */
-   public static IPSRequestContext getRequest(ServletRequest req)
-   {
-      return (IPSRequestContext) req.getAttribute(REQUEST_ATTRIBUTE); 
-   }
- 
-   /**
-    * Convience function to get the rx username from a servlet request.
-    * @param req
-    * @return the user name
-    */
-   public static String getUserName(ServletRequest req) {
-      IPSRequestContext irq = getRequest(req);
-      return irq.getUserName();
-   }
-   
-   public static String getSessionId(ServletRequest req)
-   {
-      IPSRequestContext irq = getRequest(req); 
-      if(irq == null)
-      {
-         throw new IllegalStateException("Percussion CMS Request not found");
-      }
-      String sessionid = irq.getUserSessionId();
-      log.debug("Session ID from request: " + sessionid); 
+public class RxRequestUtils {
+  /** Logger for this class */
+  private static final Logger log = LogManager.getLogger(RxRequestUtils.class);
 
-      String community = (String)irq.getSessionPrivateObject("sys_community");
-      log.debug("Community is " + community); 
-      return  sessionid; 
-   }
-   
- 
-   public static final String REQUEST_ATTRIBUTE = "RX_REQUEST_CONTEXT"; 
+  /** Static methods only */
+  private RxRequestUtils() {}
+
+  /**
+   * Gets the Percussion CMS request for this servlet request.
+   *
+   * @param req the calling servlet's request
+   * @return the Percussion CMS request context or null if this request did not originate in
+   *     Percussion CMS.
+   */
+  public static IPSRequestContext getRequest(ServletRequest req) {
+    return (IPSRequestContext) req.getAttribute(REQUEST_ATTRIBUTE);
+  }
+
+  /**
+   * Convience function to get the rx username from a servlet request.
+   *
+   * @param req
+   * @return the user name
+   */
+  public static String getUserName(ServletRequest req) {
+    IPSRequestContext irq = getRequest(req);
+    return irq.getUserName();
+  }
+
+  public static String getSessionId(ServletRequest req) {
+    IPSRequestContext irq = getRequest(req);
+    if (irq == null) {
+      throw new IllegalStateException("Percussion CMS Request not found");
+    }
+    String sessionid = irq.getUserSessionId();
+    log.debug("Session ID from request: " + sessionid);
+
+    String community = (String) irq.getSessionPrivateObject("sys_community");
+    log.debug("Community is " + community);
+    return sessionid;
+  }
+
+  public static final String REQUEST_ATTRIBUTE = "RX_REQUEST_CONTEXT";
 }

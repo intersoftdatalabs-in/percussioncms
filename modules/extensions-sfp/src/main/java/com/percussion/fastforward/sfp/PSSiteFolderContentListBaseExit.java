@@ -46,6 +46,7 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
 
   /**
    * Implementation of the method from the interface.
+   *
    * @return always <code>false</code>.
    */
   public boolean canModifyStyleSheet() {
@@ -54,29 +55,29 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
 
   /**
    * @param params values passed by the application invoking the exit
-   * <ol start="0">
-   * <li>filenameContext: id of the context used to generate content items
-   * delivery locations. Defaults to the context of the current request.</li>
-   * <li>deliveryType: determines the value of the deliverytype attribute of
-   * the contentlist root element. Defaults to ftp.</li>
-   * <li>isIncremental: defaults to n.</li>
-   * <li>publishableContentValidValues: defaults to y (public states only).</li>
-   * <li>maxRowsPerPage: enables pagination mode by determining the maximum
-   * number of content items to appear in a single page of the content list.
-   * Defaults to -1 (disables pagination mode; unlimited number of items)</li>
-   * <li>contentResourceName: Content items and its variants lookup resource
-   * name, default resource will be provided by the derived classes</li>
-   * </ol>
-   * <li>NonStandardParamsToPass: Comma separated list of all non standard HTML
-   * parameters to pass on from request to the content URL for each item in the
-   * content list</li>
-   * </ol>
+   *     <ol start="0">
+   *       <li>filenameContext: id of the context used to generate content items delivery locations.
+   *           Defaults to the context of the current request.
+   *       <li>deliveryType: determines the value of the deliverytype attribute of the contentlist
+   *           root element. Defaults to ftp.
+   *       <li>isIncremental: defaults to n.
+   *       <li>publishableContentValidValues: defaults to y (public states only).
+   *       <li>maxRowsPerPage: enables pagination mode by determining the maximum number of content
+   *           items to appear in a single page of the content list. Defaults to -1 (disables
+   *           pagination mode; unlimited number of items)
+   *       <li>contentResourceName: Content items and its variants lookup resource name, default
+   *           resource will be provided by the derived classes
+   *     </ol>
+   *     <li>NonStandardParamsToPass: Comma separated list of all non standard HTML parameters to
+   *         pass on from request to the content URL for each item in the content list
+   *     </ol>
+   *
    * @param request
    * @param resultDoc
    * @return
    * @throws com.percussion.extension.PSParameterMismatchException if the current request does not
-   * contain a sys_siteid parameter, if no site folder root is registered to
-   * that site, or if the filenameContext parameter is mot provided.
+   *     contain a sys_siteid parameter, if no site folder root is registered to that site, or if
+   *     the filenameContext parameter is mot provided.
    * @throws PSExtensionProcessingException
    */
   public Document processResultDocument(
@@ -176,38 +177,30 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
   }
 
   /**
-   * Gets an instance of a site-folder-driven content list builder. Whether the
-   * content list is full or incremental,
+   * Gets an instance of a site-folder-driven content list builder. Whether the content list is full
+   * or incremental,
    *
-   * The a site folder content list builder that will use the specified request
-   * for obtaining request parameters, logging, and making internal requests.
+   * <p>The a site folder content list builder that will use the specified request for obtaining
+   * request parameters, logging, and making internal requests.
    *
-   * @param request the current request context, used to obtain request
-   *           parameters, logging, and making internal requests. Not
-   *           <code>null</code>.
-   * @param isIncremental <code>true</code> to generate an incremental
-   *           publishing content list, <code>false</code> for full
-   *           publishing
-   * @param publishableContentValidValues comma-delimited list of contentvalid
-   *           values for workflow states that are eligible for publishing.
-   *           Never <code>null</code> or empty.
-   * @param contentResourceName the name of the application resource used for
-   *           looking up the valid items and its variants. Must be supplied in
-   *           the form &lt;ApplicationName&gt;/&lt;ResourceName&gt;
-   * @param maxRowsPerPage the maximum number of items to publish on a page in
-   *           the content list.
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
-   * @param port the port number to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param paramSetToPass Set of non-standard HTML parameters to pass from
-   *           request context to each content item url in the content list,
-   *           must not be <code>null</code>, may be empty.
-   *
-   * @return the instance of the site-folder-driven content list builder, never
-   *         <code>null</code>.
+   * @param request the current request context, used to obtain request parameters, logging, and
+   *     making internal requests. Not <code>null</code>.
+   * @param isIncremental <code>true</code> to generate an incremental publishing content list,
+   *     <code>false</code> for full publishing
+   * @param publishableContentValidValues comma-delimited list of contentvalid values for workflow
+   *     states that are eligible for publishing. Never <code>null</code> or empty.
+   * @param contentResourceName the name of the application resource used for looking up the valid
+   *     items and its variants. Must be supplied in the form
+   *     &lt;ApplicationName&gt;/&lt;ResourceName&gt;
+   * @param maxRowsPerPage the maximum number of items to publish on a page in the content list.
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
+   * @param port the port number to use when creating content URLs, never <code>null</code> or empty
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, must not be <code>null</code>, may be empty.
+   * @return the instance of the site-folder-driven content list builder, never <code>null</code>.
    */
   protected abstract PSSiteFolderCListBase getSiteFolderCListInstance(
       IPSRequestContext request,
@@ -223,7 +216,8 @@ public abstract class PSSiteFolderContentListBaseExit implements IPSResultDocume
   /**
    * Implementation of the interface method. Does nothing.
    *
-   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
+   * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef,
+   *     java.io.File)
    */
   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {}
 }

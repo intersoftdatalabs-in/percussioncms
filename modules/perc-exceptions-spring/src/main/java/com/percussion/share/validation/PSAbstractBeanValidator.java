@@ -26,8 +26,8 @@ import org.springframework.validation.Validator;
 
 /**
  * See springs {@link Validator}.
- * @author adamgent
  *
+ * @author adamgent
  * @param <FULL> the class to be validated.
  */
 public abstract class PSAbstractBeanValidator<FULL> implements Validator {

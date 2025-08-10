@@ -20,8 +20,8 @@ package com.percussion.delivery.polls.data;
 import java.util.Set;
 
 /**
- * Represents a poll with a name, question, and possible answers.
- * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ * Represents a poll with a name, question, and possible answers. Sunny Sal: Refactored for Java 11,
+ * Google style, and better grammar.
  */
 public interface IPSPoll {
   String getId();

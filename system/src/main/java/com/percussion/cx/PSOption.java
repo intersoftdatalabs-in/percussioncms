@@ -24,18 +24,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-/**
- * This class represents the <code>Option</code> element in the sys_Options.dtd.
- */
+/** This class represents the <code>Option</code> element in the sys_Options.dtd. */
 public class PSOption implements IPSClientObjects {
   /**
-   * Creates an instance from the XML representation specified in the
-   * dtd mentioned in the  class description.
+   * Creates an instance from the XML representation specified in the dtd mentioned in the class
+   * description.
    *
-   * @param optionsElement - must not be <code>null</code>, must be defined
-   * as specified in the dtd list in the class description.
-   * @throws PSContentExplorerException - if optionsElement has an invalid
-   * definition.
+   * @param optionsElement - must not be <code>null</code>, must be defined as specified in the dtd
+   *     list in the class description.
+   * @throws PSContentExplorerException - if optionsElement has an invalid definition.
    */
   public PSOption(Element optionsElement) throws PSContentExplorerException {
     fromXml(optionsElement);
@@ -44,12 +41,10 @@ public class PSOption implements IPSClientObjects {
   /**
    * Construct this option with supplied parameters.
    *
-   * @param context the context of the option, may not be <code>null</code> or
-   * empty.
+   * @param context the context of the option, may not be <code>null</code> or empty.
    * @param optionId the unique identifier of the option, may not be <code>null
    * </code> or empty.
    * @param optionValue the option value, may not be <code>null</code>
-   *
    * @throws IllegalArgumentException if any parameter is invalid
    */
   public PSOption(String context, String optionId, Object optionValue) {
@@ -59,21 +54,17 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * Given an element representation of this object this method creates the
-   * object.  There is one important aspect to note about
-   * this particular method.  Because this element (see the class description
-   * to find dtd name) must have an "ANY" element, which means it may have text
-   * or other children, there needs to be a way to store the data in a dynamic
-   * fashion.  Therefore, if the <code>ELEM_OPTION</code> has a child node, the
-   * <code>ATTR_OPTIONID</code> value must correspond to a PSxxxx.class in the
-   * classpath,
-   * or an exception will be thrown.  That class must properly implement
-   * <code>IPSClientObjects</code>, and have an accessible constructor that
-   * takes and <code>Element</code>.
+   * Given an element representation of this object this method creates the object. There is one
+   * important aspect to note about this particular method. Because this element (see the class
+   * description to find dtd name) must have an "ANY" element, which means it may have text or other
+   * children, there needs to be a way to store the data in a dynamic fashion. Therefore, if the
+   * <code>ELEM_OPTION</code> has a child node, the <code>ATTR_OPTIONID</code> value must correspond
+   * to a PSxxxx.class in the classpath, or an exception will be thrown. That class must properly
+   * implement <code>IPSClientObjects</code>, and have an accessible constructor that takes and
+   * <code>Element</code>.
    *
-   * For example. if &lt;font&gt; is found there must be a
-   * PSFont in the class path that properly implements
-   * <code>IPSClientObjects</code>
+   * <p>For example. if &lt;font&gt; is found there must be a PSFont in the class path that properly
+   * implements <code>IPSClientObjects</code>
    *
    * @see IPSClientObjects
    */
@@ -113,17 +104,14 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * This method locates the class specified by the argument, and returns
-   * its instance.
+   * This method locates the class specified by the argument, and returns its instance.
    *
    * @param source assumed not <code>null</code>
-   * @param className The name of the class that needs to be loaded to
-   * represent the option value, assumed not <code>null</code> or empty.
-   *
+   * @param className The name of the class that needs to be loaded to represent the option value,
+   *     assumed not <code>null</code> or empty.
    * @return new instance, never <code>null</code>
-   *
-   * @throws PSContentExplorerException if there is any problem accessing
-   * the class or createing an instance of it from the node name provided.
+   * @throws PSContentExplorerException if there is any problem accessing the class or createing an
+   *     instance of it from the node name provided.
    */
   private IPSClientObjects makeObject(Element source, String className)
       throws PSContentExplorerException {
@@ -150,12 +138,11 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * This toXml() creates a XML representation of this object defined in the
-   * dtd listed in the class description.  If the value of this option is of
-   * type <code>IPSClientObjects</code> it calls <code>toXml()</code> on that
-   * object and appends the element returned, otherwise this will call
-   * <code>toString()</code> on the object stored as the value and that
-   * value will be used as the #TEXT element returned by this method.
+   * This toXml() creates a XML representation of this object defined in the dtd listed in the class
+   * description. If the value of this option is of type <code>IPSClientObjects</code> it calls
+   * <code>toXml()</code> on that object and appends the element returned, otherwise this will call
+   * <code>toString()</code> on the object stored as the value and that value will be used as the
+   * #TEXT element returned by this method.
    *
    * @see IPSClientObjects
    */
@@ -186,8 +173,8 @@ public class PSOption implements IPSClientObjects {
   /**
    * Gets the value of this option.
    *
-   * @return theOptionValue, any modifications to the
-   * <code>Obect</code> will affect this class, never <code>null</code>.
+   * @return theOptionValue, any modifications to the <code>Obect</code> will affect this class,
+   *     never <code>null</code>.
    */
   public Object getOptionValue() {
     return m_optionValue;
@@ -195,10 +182,10 @@ public class PSOption implements IPSClientObjects {
 
   /**
    * Sets the value of this option.
-   * @todo the responsibility of this class has changed a bit..maybe, it seems
-   * that this class is really for loading and persisting and that noone will be accessing
-   * this except for handlers that know what they're looking for, if that's the case
-   * this should just take a string.
+   *
+   * @todo the responsibility of this class has changed a bit..maybe, it seems that this class is
+   *     really for loading and persisting and that noone will be accessing this except for handlers
+   *     that know what they're looking for, if that's the case this should just take a string.
    * @param theOptionValue must not <code>null</code>.
    */
   public void setOptionValue(Object theOptionValue) {
@@ -209,14 +196,13 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * Indicates whether some other object is "equal to" this one.
-   * Overrides the method in {@link Object.equals(Object) Object} and adheres
-   * to that contract.
+   * Indicates whether some other object is "equal to" this one. Overrides the method in {@link
+   * Object.equals(Object) Object} and adheres to that contract.
+   *
    * @param obj the reference object with which to compare.
-   * @return <code>true</code> if this object is the same as the
-   * <code>obj</code> argument; <code>false</code> otherwise. If
-   * <code>null</code> supplied or obj is not an instance of this class,
-   * <code>false</code> is returned.
+   * @return <code>true</code> if this object is the same as the <code>obj</code> argument; <code>
+   *     false</code> otherwise. If <code>null</code> supplied or obj is not an instance of this
+   *     class, <code>false</code> is returned.
    */
   public boolean equals(Object obj) {
     if (obj == null || !(getClass().isInstance(obj))) return false;
@@ -231,8 +217,7 @@ public class PSOption implements IPSClientObjects {
   }
 
   /**
-   * Overridden to fulfill contract of this method as described in
-   * {@link Object#hashCode() Object}.
+   * Overridden to fulfill contract of this method as described in {@link Object#hashCode() Object}.
    *
    * @return A hash code value for this object
    */
@@ -288,43 +273,33 @@ public class PSOption implements IPSClientObjects {
     m_optionId = optionId;
   }
 
-  /**
-   * The value of this option, never <code>null</code> and is invariant.
-   */
+  /** The value of this option, never <code>null</code> and is invariant. */
   private Object m_optionValue = null;
 
   /**
-   * The context value of this option, never <code>null</code> or empty once
-   * initialized by <code>setContext()</code>, is invariant.
+   * The context value of this option, never <code>null</code> or empty once initialized by <code>
+   * setContext()</code>, is invariant.
    */
   private String m_context = "";
 
   /**
-   * The id of this option, never <code>null</code> or empty once
-   * initialized by <code>setOptionId()</code>, is invariant.
+   * The id of this option, never <code>null</code> or empty once initialized by <code>setOptionId()
+   * </code>, is invariant.
    */
   private String m_optionId = "";
 
-  /**
-   * Name of the element holding one unit of option
-   */
+  /** Name of the element holding one unit of option */
   public static final String ELEM_OPTION = "PSXOption";
 
-  /**
-   * Attribute name of the element ELEM_OPTION representing the context of the
-   * option.
-   */
+  /** Attribute name of the element ELEM_OPTION representing the context of the option. */
   public static final String ATTR_CONTEXT = "context";
 
-  /**
-   * Attribute name of the element ELEM_OPTION representing the name or id of
-   * the option.
-   */
+  /** Attribute name of the element ELEM_OPTION representing the name or id of the option. */
   public static final String ATTR_OPTIONID = "optionid";
 
   /**
-   * The attribute name that represents the class name of the element that
-   * is the value (child element) of this option.
+   * The attribute name that represents the class name of the element that is the value (child
+   * element) of this option.
    */
   public static final String ATTR_CLASSNAME = "classname";
 }

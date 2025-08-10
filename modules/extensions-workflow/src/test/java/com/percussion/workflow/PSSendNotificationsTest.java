@@ -23,8 +23,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
 /**
- * PSSendNotificationsTest is a test class for the method
- * PSExitNotifyAssignees.sendNotifications.
+ * PSSendNotificationsTest is a test class for the method PSExitNotifyAssignees.sendNotifications.
  */
 @Tag("IntegrationTest")
 public class PSSendNotificationsTest extends PSAbstractWorkflowTest {
@@ -34,7 +33,7 @@ public class PSSendNotificationsTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - ignored
+   * @param args command line arguments - ignored
    */
   public PSSendNotificationsTest(String[] args) {
     m_sArgs = args;

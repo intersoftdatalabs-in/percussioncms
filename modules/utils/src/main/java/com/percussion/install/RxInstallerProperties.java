@@ -24,22 +24,18 @@ import java.util.ResourceBundle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * RxInstallerProperties is used to manage the resource bundle
- */
+/** RxInstallerProperties is used to manage the resource bundle */
 public class RxInstallerProperties {
 
   private static final Logger log = LogManager.getLogger(RxInstallerProperties.class);
 
-  /**
-   * Constructs an RxInstallerProperties
-   */
+  /** Constructs an RxInstallerProperties */
   public RxInstallerProperties() {}
 
   /**
-   * Get string resource given a key. If resourse or a key
-   * is not available it prints a message on a console and
-   * returns a key itself.
+   * Get string resource given a key. If resourse or a key is not available it prints a message on a
+   * console and returns a key itself.
+   *
    * @param key string key, never <code>null</code> or <code>empty</code>.
    * @return resource string, never <code>null</code>.
    */
@@ -59,9 +55,7 @@ public class RxInstallerProperties {
     }
   }
 
-  /**
-   * Get the resource
-   */
+  /** Get the resource */
   public static ResourceBundle getResources() {
     try {
       if (null == m_res) {

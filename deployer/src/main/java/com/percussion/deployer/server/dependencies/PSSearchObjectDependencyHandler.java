@@ -60,20 +60,15 @@ import java.util.Objects;
 import java.util.Set;
 import org.w3c.dom.Element;
 
-/**
- * Base class to handle packaging and deploying search objects.
- */
+/** Base class to handle packaging and deploying search objects. */
 public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDependencyHandler
     implements IPSIdTypeHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -204,16 +199,16 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>DisplayFormat</li>
+   *   <li>Application
+   *   <li>DisplayFormat
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -428,14 +423,12 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Determines if the supplied search object should be treated as a dependency
-   * by the derived handler.
+   * Determines if the supplied search object should be treated as a dependency by the derived
+   * handler.
    *
    * @param search The search to check, never <code>null</code>.
-   *
-   * @return <code>true</code> if the supplied search is to be treated as a
-   * dependency of the handler's type, <code>false</code> otherwise.
-   *
+   * @return <code>true</code> if the supplied search is to be treated as a dependency of the
+   *     handler's type, <code>false</code> otherwise.
    * @throws IllegalArgumentException if any param is invalid.
    */
   protected abstract boolean isDependentType(PSSearch search);
@@ -443,11 +436,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   /**
    * Convert the supplied map to a list of properties
    *
-   * @param map The map, assumed not <code>null</code>, and to have
-   * non-<code>null</code> <code>String</code> objects for the key and value.
-   *
-   * @return A list of <code>PSProperty</code> objects, never
-   * <code>null</code>, may be empty.
+   * @param map The map, assumed not <code>null</code>, and to have non-<code>null</code> <code>
+   *     String</code> objects for the key and value.
+   * @return A list of <code>PSProperty</code> objects, never <code>null</code>, may be empty.
    */
   private List<PSProperty> mapToProps(Map<String, String> map) {
     return map.entrySet().stream()
@@ -465,9 +456,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    *
    * @param proc The processor to use, assumed not <code>null</code>.
    * @param id The id of the search, assumed not <code>null</code> or empty.
-   *
    * @return The search, or <code>null</code> if no matching object is found.
-   *
    * @throws PSDeployException If there are any errors.
    */
   private PSSearch loadSearch(PSComponentProcessorProxy proc, String id) throws PSDeployException {
@@ -489,14 +478,11 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Gets the property containing defined communities, unless the property
-   * specifies "all" communities.
+   * Gets the property containing defined communities, unless the property specifies "all"
+   * communities.
    *
-   * @param search The search object to get the property from, assumed not
-   * <code>null</code>.
-   *
-   * @return The property, or <code>null</code> if "all" is defined or the
-   * property does not exist.
+   * @param search The search object to get the property from, assumed not <code>null</code>.
+   * @return The property, or <code>null</code> if "all" is defined or the property does not exist.
    */
   private PSSearchMultiProperty getCommunityProperty(PSSearch search) {
     PSSearchMultiProperty result = null;
@@ -515,15 +501,11 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Gets dependencies specified by search criteria using system fields and
-   * literal values.
+   * Gets dependencies specified by search criteria using system fields and literal values.
    *
    * @param tok The security token to use, assumed not <code>null</code>.
-   * @param search The search to get the dependencies from, assumed not
-   * <code>null</code>.
-   *
+   * @param search The search to get the dependencies from, assumed not <code>null</code>.
    * @return A list of dependencies, never <code>null</code>, may be empty.
-   *
    * @throws PSDeployException
    */
   private List<PSDependency> getSystemFieldDeps(PSSecurityToken tok, PSSearch search)
@@ -574,21 +556,17 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Transforms the child dependency ids in the supplied search.
-   * (Only Display Formats and System Fields for now.)
+   * Transforms the child dependency ids in the supplied search. (Only Display Formats and System
+   * Fields for now.)
    *
    * @param tok The security token to use, assumed not <code>null</code>.
    * @param proc The processor to use, assumed not <code>null</code>
    * @param dep The dependency being installed, assumed not <code>null</code>.
-   * @param ctx The context to use to get id mappings, assumed not
-   * <code>null</code>.
+   * @param ctx The context to use to get id mappings, assumed not <code>null</code>.
    * @param search The search to transform, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the child dependency ids were transformed,
-   * <code>false</code> if the search's display format is not
-   * included in the package, does not exist on the system, and the "Default"
-   * search does not exist on the system.
-   *
+   * @return <code>true</code> if the child dependency ids were transformed, <code>false</code> if
+   *     the search's display format is not included in the package, does not exist on the system,
+   *     and the "Default" search does not exist on the system.
    * @throws PSDeployException if there are any errors
    */
   private Boolean transformIds(
@@ -666,10 +644,8 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    * Transforms all literal system field values
    *
    * @param dep The dependency being installed, assumed not <code>null</code>.
-   * @param ctx The import context to use for id transforms, assumed not
-   * <code>null</code>.
+   * @param ctx The import context to use for id transforms, assumed not <code>null</code>.
    * @param search The search being transformed, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void transformSystemFieldIds(PSDependency dep, PSImportCtx ctx, PSSearch search)
@@ -720,18 +696,14 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Discovers all system def fields used by the supplied search with a numeric
-   * value or values, and returns them with their corresponding dependency
-   * object type.
+   * Discovers all system def fields used by the supplied search with a numeric value or values, and
+   * returns them with their corresponding dependency object type.
    *
    * @param search The search to check, assumed not <code>null</code>.
-   * @param forTransform <code>true</code> to return types used in id
-   * transformations, <code>false</code> to return types used in dependency
-   * discovery.
-   *
-   * @return A map where the key is the object type of the dependency the
-   * field represents as a <code>String</code>, and the value is the
-   * <code>PSSearchField</code> object.
+   * @param forTransform <code>true</code> to return types used in id transformations, <code>false
+   *     </code> to return types used in dependency discovery.
+   * @return A map where the key is the object type of the dependency the field represents as a
+   *     <code>String</code>, and the value is the <code>PSSearchField</code> object.
    */
   private Map getSystemDefFields(PSSearch search, boolean forTransform) {
     Map<String, PSSearchField> values = new HashMap<>();
@@ -757,16 +729,13 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   /**
-   * Searches the target system for the "Default" Display Format.
-   * If such a Display Format is not found, then the first
-   * Display Format found is chosen.
+   * Searches the target system for the "Default" Display Format. If such a Display Format is not
+   * found, then the first Display Format found is chosen.
    *
    * @param proc The processor to use, assumed not <code>null</code>.
-   * @param dfHandler The display format dependency handler to use to find
-   * display formats on the target system, assumed not <code>null</code>.
-   *
-   * @return The id of the Display Format to use as default or -1
-   * if a Display Format was not found.
+   * @param dfHandler The display format dependency handler to use to find display formats on the
+   *     target system, assumed not <code>null</code>.
+   * @return The id of the Display Format to use as default or -1 if a Display Format was not found.
    * @throws PSDeployException if any errors occur.
    */
   @SuppressWarnings("unchecked")
@@ -807,29 +776,24 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     return defDispFmt;
   }
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   /**
-   * Map of system fields and the corresponding child dependency type.  Key is
-   * the field name as a <code>String</code>, value is the dependency object
-   * type as a <code>String</code>.  Never <code>null</code> or empty.  Used to
-   * get child dependencies identified by values of system fields in
+   * Map of system fields and the corresponding child dependency type. Key is the field name as a
+   * <code>String</code>, value is the dependency object type as a <code>String</code>. Never <code>
+   * null</code> or empty. Used to get child dependencies identified by values of system fields in
    * conditions.
    */
   private static Map<String, String> ms_sysChildDepFieldTypes = new HashMap<>();
 
   /**
-   * Map of system fields and the corresponding transform dependency type.  Key
-   * is the field name as a <code>String</code>, value is the dependency object
-   * type as a <code>String</code>.  Never <code>null</code> or empty.  Used to
-   * transform values of system fields in conditions when installing.  Usually
-   * the child dependency is discovered as an element, but the id is
-   * transformed using the child defintion dependency handler (this is a design
-   * flaw that should be resolved at some point).
+   * Map of system fields and the corresponding transform dependency type. Key is the field name as
+   * a <code>String</code>, value is the dependency object type as a <code>String</code>. Never
+   * <code>null</code> or empty. Used to transform values of system fields in conditions when
+   * installing. Usually the child dependency is discovered as an element, but the id is transformed
+   * using the child defintion dependency handler (this is a design flaw that should be resolved at
+   * some point).
    */
   private static Map<String, String> ms_sysTransformDepFieldTypes = new HashMap<>();
 

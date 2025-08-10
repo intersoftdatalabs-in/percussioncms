@@ -53,8 +53,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The traffic data service. This service provides actual data.
- * Sunny Sal: "If you can measure it, you can improve it!"
+ * The traffic data service. This service provides actual data. Sunny Sal: "If you can measure it,
+ * you can improve it!"
  */
 public class PSTrafficService implements IPSTrafficService {
 
@@ -239,8 +239,8 @@ public class PSTrafficService implements IPSTrafficService {
   }
 
   /**
-   * Helper method to create PSDateRange from string dates and granularity.
-   * The end date of the created range will be the specified end date plus one.
+   * Helper method to create PSDateRange from string dates and granularity. The end date of the
+   * created range will be the specified end date plus one.
    */
   private PSDateRange createPSDateRange(String start, String end, String granularity)
       throws ParseException {
@@ -250,9 +250,7 @@ public class PSTrafficService implements IPSTrafficService {
     return new PSDateRange(startDate, endDate, PSDateRange.Granularity.valueOf(granularity));
   }
 
-  /**
-   * Helper method to convert PSItemProperties to PSTrafficDetails.
-   */
+  /** Helper method to convert PSItemProperties to PSTrafficDetails. */
   private PSTrafficDetails createTrafficDetail(PSItemProperties itemProp) {
     var tDetail = new PSTrafficDetails();
     tDetail.setId(itemProp.getId());
@@ -267,9 +265,7 @@ public class PSTrafficService implements IPSTrafficService {
     return tDetail;
   }
 
-  /**
-   * Helper method to loop through Analytics and find matches for a page.
-   */
+  /** Helper method to loop through Analytics and find matches for a page. */
   private int findPageAnalyticsCount(
       List<IPSAnalyticsQueryResult> visitResults,
       PSItemProperties itemProp,
@@ -287,9 +283,7 @@ public class PSTrafficService implements IPSTrafficService {
     return visitCount;
   }
 
-  /**
-   * Helper method to get analytics by list of dates.
-   */
+  /** Helper method to get analytics by list of dates. */
   private String addDay(String dt, FastDateFormat sdf) throws ParseException {
     var c = Calendar.getInstance();
     c.setTime(sdf.parse(dt));
@@ -297,9 +291,7 @@ public class PSTrafficService implements IPSTrafficService {
     return sdf.format(c.getTime());
   }
 
-  /**
-   * Helper method to remove last index in List.
-   */
+  /** Helper method to remove last index in List. */
   private <T> List<T> removeLast(List<T> list) {
     if (!list.isEmpty()) {
       list.remove(list.size() - 1);
@@ -307,9 +299,7 @@ public class PSTrafficService implements IPSTrafficService {
     return list;
   }
 
-  /**
-   * Helper method to get analytics by list of dates.
-   */
+  /** Helper method to get analytics by list of dates. */
   public List<Integer> createAnalyticsActivity(
       PSDateRange range, List<Date> dates, String siteName, String usage)
       throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {

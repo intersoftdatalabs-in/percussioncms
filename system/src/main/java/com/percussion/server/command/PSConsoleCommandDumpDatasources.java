@@ -31,8 +31,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Console command to dump all active datasource configurations. Here is an
- * example of the command output:
+ * Console command to dump all active datasource configurations. Here is an example of the command
+ * output:
  *
  * <pre><code>
  *  &lt;datasources&gt;
@@ -98,8 +98,6 @@ public class PSConsoleCommandDumpDatasources extends PSConsoleCommand {
     return doc;
   }
 
-  /**
-   * allow package members to see our command name
-   */
+  /** allow package members to see our command name */
   static final String ms_cmdName = "dump datasources";
 }

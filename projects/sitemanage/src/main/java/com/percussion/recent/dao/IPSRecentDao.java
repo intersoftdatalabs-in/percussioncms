@@ -20,50 +20,47 @@ package com.percussion.recent.dao;
 
 import com.percussion.recent.data.PSRecent;
 import com.percussion.share.dao.IPSGenericDao;
-
 import java.util.List;
 
-/**
- * DAO interface for managing recent items.
- */
+/** DAO interface for managing recent items. */
 public interface IPSRecentDao {
 
-    /**
-     * Finds recent items for the given user, site, and type.
-     *
-     * @param user the user name, may be null
-     * @param siteName the site name, may be null
-     * @param type the recent type, may be null
-     * @return list of recent items, never null
-     */
-    List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
+  /**
+   * Finds recent items for the given user, site, and type.
+   *
+   * @param user the user name, may be null
+   * @param siteName the site name, may be null
+   * @param type the recent type, may be null
+   * @return list of recent items, never null
+   */
+  List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
 
-    /**
-     * Saves all recent items in the list.
-     *
-     * @param recentList the list of recent items to save, not null
-     */
-    void saveAll(List<PSRecent> recentList);
+  /**
+   * Saves all recent items in the list.
+   *
+   * @param recentList the list of recent items to save, not null
+   */
+  void saveAll(List<PSRecent> recentList);
 
-    /**
-     * Deletes the given recent item.
-     *
-     * @param recent the recent item to delete, not null
-     */
-    void delete(PSRecent recent);
+  /**
+   * Deletes the given recent item.
+   *
+   * @param recent the recent item to delete, not null
+   */
+  void delete(PSRecent recent);
 
-    /**
-     * Deletes all recent items in the list.
-     *
-     * @param recentList the list of recent items to delete, not null
-     */
-    void deleteAll(List<PSRecent> recentList);
+  /**
+   * Deletes all recent items in the list.
+   *
+   * @param recentList the list of recent items to delete, not null
+   */
+  void deleteAll(List<PSRecent> recentList);
 
-    /**
-     * Saves the given recent item.
-     *
-     * @param recent the recent item to save, not null
-     * @throws IPSGenericDao.SaveException if the save fails
-     */
-    void save(PSRecent recent) throws IPSGenericDao.SaveException;
+  /**
+   * Saves the given recent item.
+   *
+   * @param recent the recent item to save, not null
+   * @throws IPSGenericDao.SaveException if the save fails
+   */
+  void save(PSRecent recent) throws IPSGenericDao.SaveException;
 }

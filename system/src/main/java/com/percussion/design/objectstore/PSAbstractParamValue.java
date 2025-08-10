@@ -24,29 +24,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSAbstractParamValue class is used to set the value associated with a
- * parameter (for example, in a call to an exit or a database function).
- * The value may refer to a literal, CGI variable, HTML parameter, XML field or
- * back-end column.
+ * The PSAbstractParamValue class is used to set the value associated with a parameter (for example,
+ * in a call to an exit or a database function). The value may refer to a literal, CGI variable,
+ * HTML parameter, XML field or back-end column.
  */
 public abstract class PSAbstractParamValue extends PSComponent implements IPSParameter {
 
   /**
-   * Constructs this object from its XML representation. See the
-   * {@link #toXml(Document) toXml()} method for the DTD of the
-   * <code>sourceNode</code> element.
+   * Constructs this object from its XML representation. See the {@link #toXml(Document) toXml()}
+   * method for the DTD of the <code>sourceNode</code> element.
    *
-   * @param sourceNode the XML element node to construct this object from,
-   * may not be <code>null</code>
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
-   *
-   * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * <code>null</code> or the XML element node is not of the appropriate type
+   * @param sourceNode the XML element node to construct this object from, may not be <code>null
+   *     </code>
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
+   * @exception PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or the
+   *     XML element node is not of the appropriate type
    */
   public PSAbstractParamValue(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -57,9 +50,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Construct this object from the specified replacement value.
    *
-   * @param value the value to use at run-time for the parameter, may not be
-   * <code>null</code>
-   *
+   * @param value the value to use at run-time for the parameter, may not be <code>null</code>
    * @see setValue()
    */
   public PSAbstractParamValue(IPSReplacementValue value) {
@@ -80,8 +71,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from a literal?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isLiteralValue() {
     return PSLiteral.VALUE_TYPE.equals(m_value.getValueType());
@@ -90,8 +80,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from a CGI variable?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isCgiVariable() {
     return PSCgiVariable.VALUE_TYPE.equals(m_value.getValueType());
@@ -100,8 +89,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from an HTML parameter?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isHtmlParameter() {
     return (PSHtmlParameter.VALUE_TYPE.equals(m_value.getValueType())
@@ -111,8 +99,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from a cookie?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isCookie() {
     return PSCookie.VALUE_TYPE.equals(m_value.getValueType());
@@ -121,8 +108,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from a back-end column?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isBackEndColumn() {
     return PSBackEndColumn.VALUE_TYPE.equals(m_value.getValueType());
@@ -131,8 +117,7 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from an XML field?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isXmlField() {
     return PSXmlField.VALUE_TYPE.equals(m_value.getValueType());
@@ -141,24 +126,18 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Is this value coming from the user context?
    *
-   * @return <code>true</code> if this value coming from a literal,
-   * <code>false</code> otherwise
+   * @return <code>true</code> if this value coming from a literal, <code>false</code> otherwise
    */
   public boolean isUserContext() {
     return PSUserContext.VALUE_TYPE.equals(m_value.getValueType());
   }
 
-  /**
-   * See {@link IPSParameter#getValue()} for details.
-   */
+  /** See {@link IPSParameter#getValue()} for details. */
   public IPSReplacementValue getValue() {
     return m_value;
   }
 
-  /**
-   * See {@link IPSParameter#setValue(IPSReplacementValue) setValue()} for
-   * details.
-   */
+  /** See {@link IPSParameter#setValue(IPSReplacementValue) setValue()} for details. */
   public void setValue(IPSReplacementValue value) {
     if (value == null) throw new IllegalArgumentException("replacement value may not be null");
     m_value = value;
@@ -167,8 +146,8 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * This method is called to serialize this object to an XML element.
    *
-   * <p>
-   * The DTD of the returned XML element is:
+   * <p>The DTD of the returned XML element is:
+   *
    * <pre><code>
    *
    * &lt;!ELEMENT %getNodeName()%   (value)>
@@ -177,14 +156,13 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
    * >
    *
    * </code></pre>
-   * %getNodeName()% value is replaced by the actual value returned by the
-   * <code>getNodeName()</code> method.
    *
-   * See the "sys_BasicObjects.dtd" file for the DTD of the "value" element
+   * %getNodeName()% value is replaced by the actual value returned by the <code>getNodeName()
+   * </code> method.
    *
-   * @param doc The document to use when creating elements, may not be
-   * <code>null</code>.
+   * <p>See the "sys_BasicObjects.dtd" file for the DTD of the "value" element
    *
+   * @param doc The document to use when creating elements, may not be <code>null</code>.
    * @return The element containing this object's state, never <code>
    * null</code>.
    */
@@ -202,20 +180,14 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   }
 
   /**
-   * Loads this object from the supplied element.
-   * See {@link#toXml(Document) toXml()} for the expected form of XML.
+   * Loads this object from the supplied element. See {@link#toXml(Document) toXml()} for the
+   * expected form of XML.
    *
    * @param sourceNode the element to load from, may not be <code>null</code>
-   *
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>
-   *
-   * @param parentComponents   the parent objects of this object, may be
-   * <code>null</code> or empty
-   *
-   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is
-   * <code>null</code> or does not conform to the DTD specified in
-   * {@link #toXml(Document) toXml()}
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty
+   * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is <code>null</code> or does not
+   *     conform to the DTD specified in {@link #toXml(Document) toXml()}
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -264,18 +236,15 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -294,11 +263,9 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   /**
    * Compares this object with the specified object.
    *
-   * @param obj the object with which to compare this object, may not be
-   * <code>null</code>
-   *
-   * @return <code>true</code> if the specified object is an instance of this
-   * class and the contained replacement value is equal.
+   * @param obj the object with which to compare this object, may not be <code>null</code>
+   * @return <code>true</code> if the specified object is an instance of this class and the
+   *     contained replacement value is equal.
    */
   public boolean equals(Object obj) {
     if (obj == null) throw new IllegalArgumentException("object to be compared may not be null");
@@ -318,28 +285,23 @@ public abstract class PSAbstractParamValue extends PSComponent implements IPSPar
   }
 
   /**
-   * Returns the tag name of the root element from which this object can be
-   * constructed. The only abstract method of this class. Concrete classes
-   * should override this method to return the name of the root element of
-   * the XML generated by their <code>toXml()</code> method.
+   * Returns the tag name of the root element from which this object can be constructed. The only
+   * abstract method of this class. Concrete classes should override this method to return the name
+   * of the root element of the XML generated by their <code>toXml()</code> method.
    *
-   * @return the name of the root node of the XML document returned by a call
-   * to {@link#toXml(Document) toXml()} method.
-   *
+   * @return the name of the root node of the XML document returned by a call to
+   *     {@link#toXml(Document) toXml()} method.
    * @see toXml(Document)
    */
   protected abstract String getNodeName();
 
   /**
-   * stores the replacement value associated with this parameter, initialized
-   * in the ctor, modified using <code>setValue()</code> method, never
-   * <code>null</code> after initialization.
+   * stores the replacement value associated with this parameter, initialized in the ctor, modified
+   * using <code>setValue()</code> method, never <code>null</code> after initialization.
    */
   private IPSReplacementValue m_value;
 
-  /**
-   * Constants for XML elements and attributes
-   */
+  /** Constants for XML elements and attributes */
   private static final String ATTR_ID = "id";
 
   private static final String EL_VALUE = "value";

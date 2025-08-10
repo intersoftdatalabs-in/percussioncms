@@ -23,35 +23,26 @@ import com.percussion.extension.PSDefaultExtension;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.pso.utils.PSOExtensionParamsHelper;
 import com.percussion.server.IPSRequestContext;
+import java.io.File;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
+public class PSOHashCodeTransformer extends PSDefaultExtension implements IPSFieldInputTransformer {
+  private static final Logger log = LogManager.getLogger(PSOHashCodeTransformer.class);
 
-public class PSOHashCodeTransformer extends PSDefaultExtension
-implements
-IPSFieldInputTransformer
-{
-private static final Logger log = LogManager.getLogger(PSOHashCodeTransformer.class);
+  private IPSExtensionDef extDef = null;
 
-private IPSExtensionDef extDef = null;
+  public Object processUdf(Object[] params, IPSRequestContext request)
+      throws PSConversionException {
 
-	public Object processUdf(Object[] params, IPSRequestContext request)
-			throws PSConversionException {
-		
-	
-		PSOExtensionParamsHelper helper = new PSOExtensionParamsHelper(extDef,
-		            params, request, log);
-		
-		 return helper.getParameter("source").hashCode();
-	}
+    PSOExtensionParamsHelper helper = new PSOExtensionParamsHelper(extDef, params, request, log);
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot)
-			throws PSExtensionException {
-		  super.init(def, codeRoot);
-	      extDef = def; 
+    return helper.getParameter("source").hashCode();
+  }
 
-	}
-
+  @Override
+  public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+    super.init(def, codeRoot);
+    extDef = def;
+  }
 }

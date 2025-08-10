@@ -35,10 +35,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used to store a multi-part identifier for a component. Each
- * part of the key has a unique name (within an instance). In general, the
- * key parts are the column names of the primary key for a specific component
- * type.
+ * This class is used to store a multi-part identifier for a component. Each part of the key has a
+ * unique name (within an instance). In general, the key parts are the column names of the primary
+ * key for a specific component type.
  *
  * @author Paul Howard
  * @version 1.0
@@ -47,30 +46,24 @@ public class PSKey implements IPSCmsComponent, Serializable {
   private static final Logger log = LogManager.getLogger(PSKey.class);
 
   /**
-   * Creates an assigned key. An assigned key has values for the key parts.
-   * The constructed object will not need generate id,
-   * {@link #needGenerateId()} return <code>false</code>.
+   * Creates an assigned key. An assigned key has values for the key parts. The constructed object
+   * will not need generate id, {@link #needGenerateId()} return <code>false</code>.
    *
-   * @param definition  The names of the parts that make up this key. Each
-   *    entry in the supplied array must be a non-<code>null</code>,
-   *    non-empty string.
-   *
-   * @param values  The values for each key part. The i'th value must
-   *    correspond to the i'th entry in the definition. Each entry in the
-   *    supplied array may be <code>null</code> or empty.
-   *
-   * @param persisted A flag to indicate whether this key represents a
-   *    component that exists in the db. Realize that this is a snapshot,
-   *    so the component represented by this key could be removed while
-   *    this key is instantiated.
+   * @param definition The names of the parts that make up this key. Each entry in the supplied
+   *     array must be a non-<code>null</code>, non-empty string.
+   * @param values The values for each key part. The i'th value must correspond to the i'th entry in
+   *     the definition. Each entry in the supplied array may be <code>null</code> or empty.
+   * @param persisted A flag to indicate whether this key represents a component that exists in the
+   *     db. Realize that this is a snapshot, so the component represented by this key could be
+   *     removed while this key is instantiated.
    */
   public PSKey(String[] definition, String[] values, boolean persisted) {
     this(definition, values, persisted, false);
   }
 
   /**
-   * Just like the {@link #PSKey(String[],String[],boolean) other} ctor,
-   * except there is an additional parameter, <code>needGenerateId</code>.
+   * Just like the {@link #PSKey(String[],String[],boolean) other} ctor, except there is an
+   * additional parameter, <code>needGenerateId</code>.
    *
    * @param needGenerateId see {@link #needGenerateId()} for detail.
    */
@@ -79,17 +72,16 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Just like the {@link #PSKey(String[],String[],boolean) other} ctor,
-   * except the values are supplied as integers.
-   * See the javadoc of that method for details.
+   * Just like the {@link #PSKey(String[],String[],boolean) other} ctor, except the values are
+   * supplied as integers. See the javadoc of that method for details.
    */
   public PSKey(String[] definition, int[] values, boolean persisted) {
     this(definition, values, persisted, false);
   }
 
   /**
-   * Just like the {@link #PSKey(String[],int[],boolean) other} ctor,
-   * except there is an additional parameter, <code>needGenerateId</code>.
+   * Just like the {@link #PSKey(String[],int[],boolean) other} ctor, except there is an additional
+   * parameter, <code>needGenerateId</code>.
    *
    * @param needGenerateId see {@link #needGenerateId()} for detail.
    */
@@ -103,22 +95,20 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * This ctor is used to create a <code>null</code>, or unassigned key.
-   * The {@link #needGenerateId()} return <code>true</code> and
-   * {@link #isPersisted()} return <code>false</code>.
+   * This ctor is used to create a <code>null</code>, or unassigned key. The {@link
+   * #needGenerateId()} return <code>true</code> and {@link #isPersisted()} return <code>false
+   * </code>.
    *
-   * @param definition  The names of the parts that make up this key. Each
-   *    entry in the supplied array must be a non-<code>null</code>,
-   *    non-empty string.
+   * @param definition The names of the parts that make up this key. Each entry in the supplied
+   *     array must be a non-<code>null</code>, non-empty string.
    */
   public PSKey(String[] definition) {
     this(definition, true);
   }
 
   /**
-   * Just like the {@link #PSKey(String[]) other} ctor,
-   * except the {@link #needGenerateId()} is determined by the parameter,
-   * <code>needGenerateId</code>.
+   * Just like the {@link #PSKey(String[]) other} ctor, except the {@link #needGenerateId()} is
+   * determined by the parameter, <code>needGenerateId</code>.
    *
    * @param needGenerateId see {@link #needGenerateId()} for detail.
    */
@@ -127,39 +117,31 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * This ctor can be used to create the definition and data from a
-   * previously serialized key.
+   * This ctor can be used to create the definition and data from a previously serialized key.
+   *
    * <p>Derived classes must implement a similar ctor and call this one.
    *
-   * @param source The xml previously created with <code>toXml</code>.
-   *    Never <code>null</code>.
-   *
+   * @param source The xml previously created with <code>toXml</code>. Never <code>null</code>.
    * @throws PSUnknownNodeTypeException See {@link #fromXml(Element)}.
    */
   public PSKey(Element source) throws PSUnknownNodeTypeException {
     fromXml(source, false);
   }
 
-  /**
-   * Default ctor, needed by derived classes, such as PSLocator(Element)
-   */
+  /** Default ctor, needed by derived classes, such as PSLocator(Element) */
   protected PSKey() {}
 
   /**
-   * Initialize the instance from the given set of parameters. Do the same as
-   * {@link #PSKey(String[],String[],boolean) other} ctor,
-   * except the following.
+   * Initialize the instance from the given set of parameters. Do the same as {@link
+   * #PSKey(String[],String[],boolean) other} ctor, except the following.
    *
-   * @param values <code>values</code> can be <code>null</code> when
-   *    the <code>allowNullValues</code> is <code>false</code>.
-   *
+   * @param values <code>values</code> can be <code>null</code> when the <code>allowNullValues
+   *     </code> is <code>false</code>.
    * @param persisted see {@link #isPersisted()} for detail
-   *
-   * @param needGenId see {@link #needGenerateId()} for detail. It cannot
-   *    be <code>true</code> if <code>persisted</code> is <code>true</code>.
-   *
-   * @param allowNullValues <code>true</code> then <code>values</code> can be
-   *    <code>null</code> for creating empty object.
+   * @param needGenId see {@link #needGenerateId()} for detail. It cannot be <code>true</code> if
+   *     <code>persisted</code> is <code>true</code>.
+   * @param allowNullValues <code>true</code> then <code>values</code> can be <code>null</code> for
+   *     creating empty object.
    */
   private void init(
       String[] definition,
@@ -195,8 +177,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Each key is made up of 1 or more named parts. This method returns the
-   * # of parts in this key.
+   * Each key is made up of 1 or more named parts. This method returns the # of parts in this key.
    *
    * @return a positive integer.
    */
@@ -205,12 +186,12 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * This method is used to determine if this key instance has a value or
-   * is just a definition. If the {@link #isPersisted()} method returns
-   * <code>true</code>, this method is guaranteed to return <code>true</code>.
+   * This method is used to determine if this key instance has a value or is just a definition. If
+   * the {@link #isPersisted()} method returns <code>true</code>, this method is guaranteed to
+   * return <code>true</code>.
    *
-   * @return <code>true</code> if this key has values assigned for its parts,
-   *    otherwise <code>false</code>.
+   * @return <code>true</code> if this key has values assigned for its parts, otherwise <code>false
+   *     </code>.
    */
   public boolean isAssigned() {
     for (int i = 0; i < m_definition.length; i++) {
@@ -221,13 +202,12 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * A persisted key is one that references an existing db component (at the
-   * point in time that the key was created). If the state of the object
-   * is known to change, the {@link #setPersisted(boolean) setPersisted}
-   * method can be used to resynchronize the key with the db.
+   * A persisted key is one that references an existing db component (at the point in time that the
+   * key was created). If the state of the object is known to change, the {@link
+   * #setPersisted(boolean) setPersisted} method can be used to resynchronize the key with the db.
    *
-   * @return <code>true</code> if this key references a component that exists
-   *    in the db, <code>false</code> otherwise.
+   * @return <code>true</code> if this key references a component that exists in the db, <code>false
+   *     </code> otherwise.
    */
   public boolean isPersisted() {
     return m_isPersisted;
@@ -236,16 +216,15 @@ public class PSKey implements IPSCmsComponent, Serializable {
   /**
    * Determines whether the object need a generated id or not.
    *
-   * @return <code>true</code> if it does need the id; <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if it does need the id; <code>false</code> otherwise.
    */
   public boolean needGenerateId() {
     return m_needGenerateId;
   }
 
   /**
-   * See {@link #isPersisted()} for a description. In general, this method
-   * should only be used by the system.
+   * See {@link #isPersisted()} for a description. In general, this method should only be used by
+   * the system.
    *
    * @param persisted The new persisted state.
    */
@@ -258,9 +237,8 @@ public class PSKey implements IPSCmsComponent, Serializable {
   /**
    * Assigns a new value to each key part.
    *
-   * @param values  Must have a non-<code>null</code>, non-empty entry for
-   *    each key part in the same order as the definition. Never
-   *    <code>null</code>.
+   * @param values Must have a non-<code>null</code>, non-empty entry for each key part in the same
+   *     order as the definition. Never <code>null</code>.
    */
   public void assign(String[] values) {
     String[] def = getDefinition();
@@ -295,16 +273,13 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Gets the value for a particular part of this key. If the key is
-   * unassigned, the empty string is returned.
+   * Gets the value for a particular part of this key. If the key is unassigned, the empty string is
+   * returned.
    *
-   * @param name  The name of the key part for which you want the value.
-   *    Never <code>null</code> or empty. If the supplied name is not a part
-   *    of this key, an exception is thrown. The comparison is done case-
-   *    insensitive.
-   *
-   * @return The value for the named part, or "" if no value has been
-   *    assigned.
+   * @param name The name of the key part for which you want the value. Never <code>null</code> or
+   *     empty. If the supplied name is not a part of this key, an exception is thrown. The
+   *     comparison is done case- insensitive.
+   * @return The value for the named part, or "" if no value has been assigned.
    */
   public String getPart(String name) {
     String value = (String) m_nameValueMap.get(name.toLowerCase());
@@ -313,10 +288,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
     else return value;
   }
 
-  /**
-   * Convenience method that calls {@link #getPart(String)
-   * getPart(getDefinition()[0])}.
-   */
+  /** Convenience method that calls {@link #getPart(String) getPart(getDefinition()[0])}. */
   public String getPart() {
     return getPart(getDefinition()[0]);
   }
@@ -324,9 +296,8 @@ public class PSKey implements IPSCmsComponent, Serializable {
   /**
    * Gets the names for all the parts making up this key.
    *
-   * @return An array whose length is equal to the value returned by
-   *    {@link #getPartCount()}. If the key is assigned, each entry is a
-   *    name with 1 or more chars, otherwise, all entries are "".
+   * @return An array whose length is equal to the value returned by {@link #getPartCount()}. If the
+   *     key is assigned, each entry is a name with 1 or more chars, otherwise, all entries are "".
    */
   public String[] getDefinition() {
     return m_definition;
@@ -336,20 +307,15 @@ public class PSKey implements IPSCmsComponent, Serializable {
    * Compares only the definition of the supplied key with this key.
    *
    * @param key May be <code>null</code>.
-   *
-   * @return If all the parts of the supplied kay and this key have the
-   *    same name (case insensitive compare) and are in the same order,
-   *    <code>true</code> is returned. Otherwise, or if <code>null</code>,
-   *    <code>false</code> is returned.
+   * @return If all the parts of the supplied kay and this key have the same name (case insensitive
+   *     compare) and are in the same order, <code>true</code> is returned. Otherwise, or if <code>
+   *     null</code>, <code>false</code> is returned.
    */
   public boolean isSameType(PSKey key) {
     return isSameType(key.m_definition);
   }
 
-  /**
-   * Just like {@link #isSameType(PSKey)}, exception it takes array of
-   * <code>String</code>.
-   */
+  /** Just like {@link #isSameType(PSKey)}, exception it takes array of <code>String</code>. */
   private boolean isSameType(String[] definition) {
     if (m_definition.length != definition.length) {
       return false;
@@ -362,11 +328,10 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Convenience method for {@link #getPart(String)}, converting the value
-   * to an integer. See that method for full description.
+   * Convenience method for {@link #getPart(String)}, converting the value to an integer. See that
+   * method for full description.
    *
    * @return The requested key part converted to int.
-   *
    * @throws NumberFormatException If the value returned by <code>
    *    getPart</code> cannot be parsed as an integer.
    */
@@ -379,16 +344,16 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Convenience method that calls {@link #getPartAsInt(String)
-   * getPartAsInt(getDefinition()[0])}.
+   * Convenience method that calls {@link #getPartAsInt(String) getPartAsInt(getDefinition()[0])}.
    */
   public int getPartAsInt() {
     return getPartAsInt(getDefinition()[0]);
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * &lt;!ELEMENT PSXKey (Property+)>
    * &lt;!ATTLIST PSXKey
@@ -397,12 +362,11 @@ public class PSKey implements IPSCmsComponent, Serializable {
    *    >
    * &lt;!ELEMENT Property (#PCDATA)>
    * </pre>
-   * Where <code>Property</code> is the name of various definitions.
-   * the <code>needGenerateId</code> attribute only needed for non-persisted
-   * key object.
+   *
+   * Where <code>Property</code> is the name of various definitions. the <code>needGenerateId</code>
+   * attribute only needed for non-persisted key object.
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -433,21 +397,16 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * This method allows the fromXml to be used by the ctor and the 1 param
-   * version. The 1 param version will throw an exception if the key parts
-   * of the serialized version don't match this one. During ctor, we
-   * don't have any parts to compare to, so we need to skip that step.
+   * This method allows the fromXml to be used by the ctor and the 1 param version. The 1 param
+   * version will throw an exception if the key parts of the serialized version don't match this
+   * one. During ctor, we don't have any parts to compare to, so we need to skip that step.
    *
    * @param src Assumed not <code>null</code>.
-   *
-   * @param validate If <code>true</code>, the key parts in the source are
-   *    used to initialize this method. Otherwise, the key parts in the
-   *    source must match the key parts of this method or an exception is
-   *    thrown.
-   *
-   * @throws PSUnknownNodeTypeException If validate is <code>true</code> and
-   *    the key parts don't match, or any elements or attributes are not
-   *    correct.
+   * @param validate If <code>true</code>, the key parts in the source are used to initialize this
+   *     method. Otherwise, the key parts in the source must match the key parts of this method or
+   *     an exception is thrown.
+   * @throws PSUnknownNodeTypeException If validate is <code>true</code> and the key parts don't
+   *     match, or any elements or attributes are not correct.
    */
   private void fromXml(Element src, boolean validate) throws PSUnknownNodeTypeException {
     if (null == src) throw new IllegalArgumentException("src must be supplied");
@@ -498,13 +457,10 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Helper method to convert array of strings to a single string for error
-   * messages.
+   * Helper method to convert array of strings to a single string for error messages.
    *
    * @param definition The string array, assume not <code>null</code>.
-   *
-   * @return The string representation of the parameter.
-   *    Never <code>null</code>
+   * @return The string representation of the parameter. Never <code>null</code>
    */
   private String arrayToString(String[] definition) {
     StringBuilder buffer = new StringBuilder();
@@ -518,11 +474,11 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * By default, takes the base class name and replaces the leading PS with
-   * PSX. If the base name doesn't begin with PS, the base name is returned.
+   * By default, takes the base class name and replaces the leading PS with PSX. If the base name
+   * doesn't begin with PS, the base name is returned.
    *
-   * @return The name to use for the Element returned by toXml and expected
-   *    by fromXml. Never <code>null</code> or empty.
+   * @return The name to use for the Element returned by toXml and expected by fromXml. Never <code>
+   *     null</code> or empty.
    */
   public String getNodeName() {
     String name = getClass().getName();
@@ -554,15 +510,15 @@ public class PSKey implements IPSCmsComponent, Serializable {
   }
 
   /**
-   * Since it is expected that derived classes will only add behavior (and not
-   * data) that makes this class easier to use in specific situations, this
-   * method assumes that no data outside this class needs to be compared when
-   * checking equality.
-   * <p>This allows instances of derived classes to be equivalent to instances
-   * of this class where a typical implementation would be asymmetrical.
-   * <p>If a derived class has additional data that must be considered, it
-   * should override this method and call it, then test the additional data
-   * it has.
+   * Since it is expected that derived classes will only add behavior (and not data) that makes this
+   * class easier to use in specific situations, this method assumes that no data outside this class
+   * needs to be compared when checking equality.
+   *
+   * <p>This allows instances of derived classes to be equivalent to instances of this class where a
+   * typical implementation would be asymmetrical.
+   *
+   * <p>If a derived class has additional data that must be considered, it should override this
+   * method and call it, then test the additional data it has.
    */
   public boolean equals(Object obj) {
     if (null == obj || !(getClass().isInstance(obj) || obj.getClass().isInstance(this))) {
@@ -604,8 +560,7 @@ public class PSKey implements IPSCmsComponent, Serializable {
   /**
    * Override the value of an existing part
    *
-   * @param partName The name of the part, may not be <code>null</code> or
-   *    empty.
+   * @param partName The name of the part, may not be <code>null</code> or empty.
    */
   protected void setPart(String partName, String value) {
     if (m_nameValueMap.get(partName.toLowerCase()) == null) {
@@ -616,41 +571,32 @@ public class PSKey implements IPSCmsComponent, Serializable {
     m_nameValueMap.put(partName.toLowerCase(), value);
   }
 
-  /**
-   * The XML element name of the PSKey class
-   */
+  /** The XML element name of the PSKey class */
   public static final String XML_NODE_NAME = "PSXKey";
 
-  /**
-   * Private XML tag or attribute names
-   */
+  /** Private XML tag or attribute names */
   public static final String XML_ATTR_NEED_GEN_ID = "needGenerateId";
 
   public static final String XML_ATTR_IS_PERSISTED = "isPersisted";
   public static final String XML_TRUE = "yes";
   public static final String XML_FALSE = "no";
 
-  /**
-   * See {@link #needGenerateId()} for its description.
-   */
+  /** See {@link #needGenerateId()} for its description. */
   private boolean m_needGenerateId = true;
 
-  /**
-   * See {@link #isPersisted()} for its description.
-   */
+  /** See {@link #isPersisted()} for its description. */
   private boolean m_isPersisted = false;
 
   /**
-   * Maps the definition to its corresponding value. The map key is the
-   * definition in <code>String</code>, which is normalized to lower case.
-   * The map value is the value of the definition in <code>String</code>.
-   * Never <code>null</code>, but may be empty.
+   * Maps the definition to its corresponding value. The map key is the definition in <code>String
+   * </code>, which is normalized to lower case. The map value is the value of the definition in
+   * <code>String</code>. Never <code>null</code>, but may be empty.
    */
   private Map m_nameValueMap = new HashMap();
 
   /**
-   * The definitions in its original case sensitive form. Initialized by
-   * the constructor, never <code>null</code> after that.
+   * The definitions in its original case sensitive form. Initialized by the constructor, never
+   * <code>null</code> after that.
    */
   private String[] m_definition;
 }

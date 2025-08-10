@@ -22,53 +22,50 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.contenttypes.ContentType;
 import com.percussion.rest.contenttypes.ContentTypeFilter;
 import com.percussion.rest.contenttypes.IContentTypesAdaptor;
-import org.springframework.stereotype.Component;
-
 import java.net.URI;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
-/**
- * Test adaptor for ContentType API bridge.
- */
+/** Test adaptor for ContentType API bridge. */
 @Component
 public class TestContentTypeAdaptor implements IContentTypesAdaptor {
 
-    public TestContentTypeAdaptor() {
-        // Default constructor
-    }
+  public TestContentTypeAdaptor() {
+    // Default constructor
+  }
 
-    /**
-     * Lists all content types available to the system.
-     *
-     * @param baseUri Requesting URI
-     * @return A list of all available Content Types
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri) {
-        return null;
-    }
+  /**
+   * Lists all content types available to the system.
+   *
+   * @param baseUri Requesting URI
+   * @return A list of all available Content Types
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri) {
+    return null;
+  }
 
-    /**
-     * Lists ContentTypes available for the specified Site.
-     *
-     * @param baseUri Originating URI
-     * @param siteId Site Id for Site to filter Types by
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-        return null;
-    }
+  /**
+   * Lists ContentTypes available for the specified Site.
+   *
+   * @param baseUri Originating URI
+   * @param siteId Site Id for Site to filter Types by
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypes(URI baseUri, int siteId) {
+    return null;
+  }
 
-    /**
-     * Lists ContentTypes available for the specified Site using a filter.
-     *
-     * @param baseUri Originating URI
-     * @param filter A ContentTypeFilter that can be used to filter content types.
-     * @return An array of ContentTypes
-     */
-    @Override
-    public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
-        return null;
-    }
+  /**
+   * Lists ContentTypes available for the specified Site using a filter.
+   *
+   * @param baseUri Originating URI
+   * @param filter A ContentTypeFilter that can be used to filter content types.
+   * @return An array of ContentTypes
+   */
+  @Override
+  public List<ContentType> listContentTypesByFilter(URI baseUri, ContentTypeFilter filter) {
+    return null;
+  }
 }

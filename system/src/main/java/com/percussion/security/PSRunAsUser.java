@@ -31,23 +31,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Executes code as if the given user was logged in. Much of CM System uses the current request and
+ * thread local information to determine security access.
  *
- * Executes code as if the given user was logged in.
- * Much of CM System uses the current request and thread local
- * information to determine security access.
- * <p>
- * This helper callback allows you to run code as a different user
- * with all the security details including roles loaded correctly.
- * <p>
- * Once {@link #run(String, Object)} is finished the request
- * and thread local will be restored to what the original caller
- * security was.
- * <p>
- * While this class is thread safe its recommend that you do not use
- * it with multiple threads as other parts of the system may not be.
+ * <p>This helper callback allows you to run code as a different user with all the security details
+ * including roles loaded correctly.
+ *
+ * <p>Once {@link #run(String, Object)} is finished the request and thread local will be restored to
+ * what the original caller security was.
+ *
+ * <p>While this class is thread safe its recommend that you do not use it with multiple threads as
+ * other parts of the system may not be.
  *
  * @author adamgent
- *
  * @param <CONTEXT>
  */
 public abstract class PSRunAsUser<CONTEXT> {
@@ -56,6 +52,7 @@ public abstract class PSRunAsUser<CONTEXT> {
 
   /**
    * Runs the callback {@link #run(Object, PSRequest)} as the given user.
+   *
    * @param userName not blank or null.
    * @param c a custom object that may needed for execution as the given user.
    * @throws Exception
@@ -115,6 +112,7 @@ public abstract class PSRunAsUser<CONTEXT> {
 
   /**
    * Gets the JAAS subject for the given user.
+   *
    * @param userName not null or empty.
    * @return not null
    * @throws PSSecurityCatalogException
@@ -126,6 +124,7 @@ public abstract class PSRunAsUser<CONTEXT> {
 
   /**
    * This is the callback method that will be executed as the given user.
+   *
    * @param c maybe null.
    * @param request the new request as the given user, not null.
    * @throws Exception

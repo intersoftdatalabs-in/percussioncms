@@ -17,7 +17,7 @@
 package com.percussion.server;
 
 /**
- * This is an empty interface is implemeted, a user session validation is
- * done and if the test failed a PSAuthenticationRequiredException is thrown.
+ * This is an empty interface is implemeted, a user session validation is done and if the test
+ * failed a PSAuthenticationRequiredException is thrown.
  */
 public interface IPSValidateSession {}

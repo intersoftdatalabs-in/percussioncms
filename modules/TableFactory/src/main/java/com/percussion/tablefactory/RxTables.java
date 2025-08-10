@@ -19,9 +19,7 @@ package com.percussion.tablefactory;
 import java.util.Vector;
 import org.w3c.dom.Element;
 
-/**
- *  This class is used to define a table and it's columns.
- */
+/** This class is used to define a table and it's columns. */
 class RxTables {
 
   RxTables() {}
@@ -29,16 +27,12 @@ class RxTables {
   /**
    * Comparison method to get the difference between 2 tables.
    *
-   * A list of columns will be returned with the colAction set.
-   * If a column exits in the source but not in the target then the
-   * column should be added.  If they exist in both but have different
-   * types or length then the column should be modified.  If a column
-   * exists in the target but does not exits in the source it will not be
-   * returned in the resulting column list.
+   * <p>A list of columns will be returned with the colAction set. If a column exits in the source
+   * but not in the target then the column should be added. If they exist in both but have different
+   * types or length then the column should be modified. If a column exists in the target but does
+   * not exits in the source it will not be returned in the resulting column list.
    *
-   * @param targetTable - the target to compare with.
-   *   Must not be <CODE>null</CODE>
-   *
+   * @param targetTable - the target to compare with. Must not be <CODE>null</CODE>
    * @return - A vector of RxColumns with the colAction set.
    */
   public Vector compareTables(RxTables targetTable) {

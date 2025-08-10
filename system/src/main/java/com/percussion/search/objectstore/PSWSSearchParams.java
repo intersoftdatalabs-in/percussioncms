@@ -35,25 +35,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to represent the <code>SearchParams</code> element of the document
- * created from a {@link PSWSSearchRequest} object.  See
- * {@link #toXml(Document)} for more information.
+ * Class to represent the <code>SearchParams</code> element of the document created from a {@link
+ * PSWSSearchRequest} object. See {@link #toXml(Document)} for more information.
  */
 public class PSWSSearchParams {
   /**
-   * Construct an empty search params object.  All members are optional, and
-   * may be modified using the appropriate setter method.
+   * Construct an empty search params object. All members are optional, and may be modified using
+   * the appropriate setter method.
    */
   public PSWSSearchParams() {}
 
   /**
    * Construct this object from its xml representation.
    *
-   * @param src The source XML element.  See {@link #toXml(Document)} for
-   * details on the expected format.  May not be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If <code>src</code> does not match the
-   * expected format.
+   * @param src The source XML element. See {@link #toXml(Document)} for details on the expected
+   *     format. May not be <code>null</code>.
+   * @throws PSUnknownNodeTypeException If <code>src</code> does not match the expected format.
    */
   public PSWSSearchParams(Element src) throws PSUnknownNodeTypeException {
     if (src == null) throw new IllegalArgumentException("src may not be null");
@@ -74,12 +71,11 @@ public class PSWSSearchParams {
    * Set the system title to search for.
    *
    * @param title The title, <code>null</code> or empty to clear it.
-   * @param op The operator, one of the
-   * <code>PSWSSearchField.OP_ATTR_XXX</code> values. Ignored if
-   * <code>title</code> is <code>null</code>.
-   * @param connector The connector to use with other search field criteria,
-   * one of the <code>PSWSSearchField.OP_CONN_XXX</code> values. Ignored if
-   * <code>title</code> is <code>null</code>.    *
+   * @param op The operator, one of the <code>PSWSSearchField.OP_ATTR_XXX</code> values. Ignored if
+   *     <code>title</code> is <code>null</code>.
+   * @param connector The connector to use with other search field criteria, one of the <code>
+   *     PSWSSearchField.OP_CONN_XXX</code> values. Ignored if <code>title</code> is <code>null
+   *     </code>. *
    */
   public void setTitle(String title, int op, int connector) {
     PSWSSearchField titleField = null;
@@ -90,11 +86,10 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Get the content type id to search for. See {@link #setContentTypeId(long)}
-   * for more info.
+   * Get the content type id to search for. See {@link #setContentTypeId(long)} for more info.
    *
-   * @return The content type id.  A value of <code>-1</code> indicates not to
-   * search on this property.
+   * @return The content type id. A value of <code>-1</code> indicates not to search on this
+   *     property.
    */
   public long getContentTypeId() {
     return m_contentTypeId;
@@ -103,8 +98,8 @@ public class PSWSSearchParams {
   /**
    * Set the content type id to search for.
    *
-   * @param contentTypeId The content type id, must be greater than or equal
-   * to <code>0</code>, or <code>-1</code> to clear it.
+   * @param contentTypeId The content type id, must be greater than or equal to <code>0</code>, or
+   *     <code>-1</code> to clear it.
    */
   public void setContentTypeId(long contentTypeId) {
     if (contentTypeId < 0 && contentTypeId != -1)
@@ -125,8 +120,7 @@ public class PSWSSearchParams {
   /**
    * Set the full text query string.
    *
-   * @param query The query string, may be <code>null</code> or empty to clear
-   * it.
+   * @param query The query string, may be <code>null</code> or empty to clear it.
    */
   public void setFTSQuery(String query) {
     if (query != null && query.trim().length() == 0) query = null;
@@ -136,22 +130,21 @@ public class PSWSSearchParams {
   /**
    * Get the search criteria for all fields to search for.
    *
-   * @return A read-only list of {@link PSWSSearchField} objects, never
-   * <code>null</code>, may be empty.
+   * @return A read-only list of {@link PSWSSearchField} objects, never <code>null</code>, may be
+   *     empty.
    */
   public List<PSWSSearchField> getSearchFields() {
     return Collections.unmodifiableList(m_searchFields);
   }
 
   /**
-   * Convenience method to get only internal or external search fields.  See
-   * {@link PSWSSearchField#isExternal()} for more information.
+   * Convenience method to get only internal or external search fields. See {@link
+   * PSWSSearchField#isExternal()} for more information.
    *
-   * @param external <code>true</code> to get external fields,
-   * <code>false</code> to get internal fields.
-   *
-   * @return The list of <code>PSWSSearchField</code> objects, never
-   * <code>null</code>, may be emtpy.  The caller takes ownership of the list.
+   * @param external <code>true</code> to get external fields, <code>false</code> to get internal
+   *     fields.
+   * @return The list of <code>PSWSSearchField</code> objects, never <code>null</code>, may be
+   *     emtpy. The caller takes ownership of the list.
    */
   public List<PSWSSearchField> getSearchFieldsByType(boolean external) {
     List<PSWSSearchField> fieldList = new ArrayList<PSWSSearchField>();
@@ -165,11 +158,10 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Get the content types to search for as a comma separated string of
-   * content type ids.
+   * Get the content types to search for as a comma separated string of content type ids.
    *
-   * @return the content type ids to search for or <code>null</code> if the
-   *    search is not limited by content types.
+   * @return the content type ids to search for or <code>null</code> if the search is not limited by
+   *     content types.
    */
   public String getContentTypes() {
     Iterator<PSWSSearchField> fields = m_searchFields.iterator();
@@ -184,9 +176,8 @@ public class PSWSSearchParams {
   /**
    * Set the search criteria for all fields to search for.
    *
-   * @param searchFields A list of {@link PSWSSearchField} objects, never
-   * <code>null</code>, may be empty.  A shallow copy of the list is stored in
-   * this object.
+   * @param searchFields A list of {@link PSWSSearchField} objects, never <code>null</code>, may be
+   *     empty. A shallow copy of the list is stored in this object.
    */
   public void setSearchFields(List searchFields) {
     if (searchFields == null) throw new IllegalArgumentException("searchFields may not be null");
@@ -206,8 +197,8 @@ public class PSWSSearchParams {
   /**
    * Get the field names to include in the search results.
    *
-   * @return A read-only collection of the field names as <code>String</code>
-   * objects, never <code>null</code>, may be empty.
+   * @return A read-only collection of the field names as <code>String</code> objects, never <code>
+   *     null</code>, may be empty.
    */
   public Collection<String> getResultFields() {
     return Collections.unmodifiableCollection(m_resultFields);
@@ -216,9 +207,8 @@ public class PSWSSearchParams {
   /**
    * Set the field names to include in the search results.
    *
-   * @param resultFields A collection of field names as <code>String</code>
-   * objects, never <code>null</code>, may be empty.  A copy of the collection
-   * is stored in this object.
+   * @param resultFields A collection of field names as <code>String</code> objects, never <code>
+   *     null</code>, may be empty. A copy of the collection is stored in this object.
    */
   public void setResultFields(Collection resultFields) {
     if (resultFields == null) throw new IllegalArgumentException("resultFields may not be null");
@@ -235,8 +225,8 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Get the list of properties to pass thru to the search engine.  See
-   * {@link #setProperties(Map)} for more info.
+   * Get the list of properties to pass thru to the search engine. See {@link #setProperties(Map)}
+   * for more info.
    *
    * @return A read-only map of the properties.
    */
@@ -247,9 +237,9 @@ public class PSWSSearchParams {
   /**
    * Set the properties to pass thru to the search engine.
    *
-   * @param props The properties, where the key is the property name and the
-   * value is the property value, both as <code>String</code> objects.  May not
-   * be <code>null</code>.  A shallow copy of the map is stored in this object.
+   * @param props The properties, where the key is the property name and the value is the property
+   *     value, both as <code>String</code> objects. May not be <code>null</code>. A shallow copy of
+   *     the map is stored in this object.
    */
   public void setProperties(Map<String, String> props) {
     if (props == null) throw new IllegalArgumentException("props may not be null");
@@ -268,11 +258,10 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Set the start index of results to return, inclusive.  Initially
-   * <code>1</code> if never set.
+   * Set the start index of results to return, inclusive. Initially <code>1</code> if never set.
    *
-   * @param start The start index, must be greater than <code>0</code> and less
-   * than or equal to the end index if set (see {@link #setEndIndex(int)}).
+   * @param start The start index, must be greater than <code>0</code> and less than or equal to the
+   *     end index if set (see {@link #setEndIndex(int)}).
    */
   public void setStartIndex(int start) {
     if (start <= 0 || (m_endIndex != -1 && start > m_endIndex))
@@ -282,7 +271,7 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Get the start index.  See {@link #setStartIndex(int)} for more info.
+   * Get the start index. See {@link #setStartIndex(int)} for more info.
    *
    * @return The start index.
    */
@@ -291,13 +280,12 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Set the end index of results to return, inclusive.  Initially
-   * <code>-1</code> if never set, which indicates all results should be
-   * returned.
+   * Set the end index of results to return, inclusive. Initially <code>-1</code> if never set,
+   * which indicates all results should be returned.
    *
-   * @param end The end index, <code>-1</code> to include all results, or else
-   * must be greater than <code>0</code> and greater than or equal to the start
-   * index (see {@link #setStartIndex(int)}).
+   * @param end The end index, <code>-1</code> to include all results, or else must be greater than
+   *     <code>0</code> and greater than or equal to the start index (see {@link
+   *     #setStartIndex(int)}).
    */
   public void setEndIndex(int end) {
     if (end != -1 && (end <= 0 || end < m_startIndex))
@@ -307,7 +295,7 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Get the end index.  See {@link #setEndIndex(int)} for more info.
+   * Get the end index. See {@link #setEndIndex(int)} for more info.
    *
    * @return The end index.
    */
@@ -318,36 +306,31 @@ public class PSWSSearchParams {
   /**
    * See {@link #setFolderPathFilter(String, boolean)} for details.
    *
-   * @return Returns the value set by
-   *    {@link #setFolderPathFilter(String, boolean)}. If no path is set,
-   *    <code>null</code> is returned. Never empty.
+   * @return Returns the value set by {@link #setFolderPathFilter(String, boolean)}. If no path is
+   *     set, <code>null</code> is returned. Never empty.
    */
   public String getFolderPathFilter() {
     return m_folderPathFilter;
   }
 
   /**
-   * This property allows the caller to limit the scope of their search to a
-   * folder tree. The following logical operations are performed if a path has
-   * been set:
+   * This property allows the caller to limit the scope of their search to a folder tree. The
+   * following logical operations are performed if a path has been set:
+   *
    * <ol>
-   * <li>Perform the search using the standard criteria.</li>
-   * <li>Get all children of the folder specified by this path. Whether to
-   * recurse into sub-folders is determined by the
-   * {@link #isIncludeSubFolders()} method.</li>
-   * <li>The result is the intersection.</li>
+   *   <li>Perform the search using the standard criteria.
+   *   <li>Get all children of the folder specified by this path. Whether to recurse into
+   *       sub-folders is determined by the {@link #isIncludeSubFolders()} method.
+   *   <li>The result is the intersection.
    * </ol>
    *
-   * @param folderPathFilter <code>null</code> or empty to clear, otherwise a
-   * path to an existing folder in the Rx server or its folder id. The path is
-   * stored case-sensitive, but used case-insensitive for comparison purposes.
-   * No validation is performed now, it will be validated when the search
-   * request is made. Defaults to <code>null</code>.
-   *
-   * @param includeSubFolders If <code>true</code>, objects in the specified
-   * folder and any of its sub-folders are allowed in the search results.
-   * Otherwise, only objects in the top level folder are allowed. Defaults to
-   * <code>true</code>.
+   * @param folderPathFilter <code>null</code> or empty to clear, otherwise a path to an existing
+   *     folder in the Rx server or its folder id. The path is stored case-sensitive, but used
+   *     case-insensitive for comparison purposes. No validation is performed now, it will be
+   *     validated when the search request is made. Defaults to <code>null</code>.
+   * @param includeSubFolders If <code>true</code>, objects in the specified folder and any of its
+   *     sub-folders are allowed in the search results. Otherwise, only objects in the top level
+   *     folder are allowed. Defaults to <code>true</code>.
    */
   public void setFolderPathFilter(String folderPathFilter, boolean includeSubFolders) {
     if (null != folderPathFilter && folderPathFilter.trim().length() == 0) folderPathFilter = null;
@@ -358,8 +341,7 @@ public class PSWSSearchParams {
   /**
    * See {@link #setFolderPathFilter(String, boolean)} for details.
    *
-   * @return Returns the value set with
-   *    {@link #setFolderPathFilter(String, boolean)}.
+   * @return Returns the value set with {@link #setFolderPathFilter(String, boolean)}.
    */
   public boolean isIncludeSubFolders() {
     return m_includeSubFolders;
@@ -375,27 +357,23 @@ public class PSWSSearchParams {
   }
 
   /**
-   * This property controls whether folders will be included in the search
-   * results. This property works in conjunction w/ the
-   * {@link #setFolderPathFilter(String, boolean) folder path} property. In
-   * other words, if that property is set, only folders that are in the
-   * specified folder tree will be returned.
+   * This property controls whether folders will be included in the search results. This property
+   * works in conjunction w/ the {@link #setFolderPathFilter(String, boolean) folder path} property.
+   * In other words, if that property is set, only folders that are in the specified folder tree
+   * will be returned.
    *
-   * @param searchForFolders If <code>true</code>, then folders that match
-   * the search criteria will be included in the results, otherwise, no
-   * folder will be allowed in the result set.
+   * @param searchForFolders If <code>true</code>, then folders that match the search criteria will
+   *     be included in the results, otherwise, no folder will be allowed in the result set.
    */
   public void setSearchForFolders(boolean searchForFolders) {
     m_searchForFolders = searchForFolders;
   }
 
   /**
-   * Serializes this object to its XML representation.  See the
-   * sys_SearchParameters.xsd schema for details and the required format of the
-   * <code>SearchParams</code> element.
+   * Serializes this object to its XML representation. See the sys_SearchParameters.xsd schema for
+   * details and the required format of the <code>SearchParams</code> element.
    *
    * @param doc The document to use, may not be <code>null</code>.
-   *
    * @return The root element of the search request, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -479,11 +457,10 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Provides a string representation of the provided boolean value that is
-   * suitable for use as an xml boolean attribute's value.
+   * Provides a string representation of the provided boolean value that is suitable for use as an
+   * xml boolean attribute's value.
    *
    * @param boolValue The boolean for which you want a string representation.
-   *
    * @return Either 'true' or 'false'.
    */
   private String getAttributeBool(boolean boolValue) {
@@ -493,8 +470,8 @@ public class PSWSSearchParams {
   /**
    * Restores a search request from its XML representation.
    *
-   * @param src The root element of the request, assumed not <code>null</code>.
-   * See {@link #toXml(Document)} for details on the expected format.
+   * @param src The root element of the request, assumed not <code>null</code>. See {@link
+   *     #toXml(Document)} for details on the expected format.
    */
   @SuppressWarnings("static-access")
   private void fromXml(Element src) throws PSUnknownNodeTypeException {
@@ -598,9 +575,8 @@ public class PSWSSearchParams {
    * Overrides {@link Object#equals(Object)} to compare all member data.
    *
    * @param obj The object to compare, may be <code>null</code>.
-   *
-   * @return <code>true</code> if <code>obj</code> is an instance of
-   * {@link PSWSSearchParams} with the same member data.
+   * @return <code>true</code> if <code>obj</code> is an instance of {@link PSWSSearchParams} with
+   *     the same member data.
    */
   @Override
   public boolean equals(Object obj) {
@@ -632,9 +608,7 @@ public class PSWSSearchParams {
     return isEqual;
   }
 
-  /**
-   * Overridden to properly fufill contract of {@link Object#hashCode()}.
-   */
+  /** Overridden to properly fufill contract of {@link Object#hashCode()}. */
   @Override
   public int hashCode() {
     return hashCode(m_title)
@@ -653,6 +627,7 @@ public class PSWSSearchParams {
 
   /**
    * Compare two objects for equality.
+   *
    * @param a First object, may be <code>null</code>
    * @param b Second object, may be <code>null</code>
    * @return <code>true</code>if the objects are equal, or both null.
@@ -682,72 +657,60 @@ public class PSWSSearchParams {
   }
 
   /**
-   * Constant for the root element name used to serialize this object to and
-   * from its XML representation.
+   * Constant for the root element name used to serialize this object to and from its XML
+   * representation.
    */
   public static final String XML_NODE_NAME = "SearchParams";
 
   /**
-   * The system title search criteria, may be <code>null</code>, never empty,
-   * modified by {@link #setTitle(String, int, int)}
+   * The system title search criteria, may be <code>null</code>, never empty, modified by {@link
+   * #setTitle(String, int, int)}
    */
   private PSWSSearchField m_title = null;
 
-  /**
-   * The content type id to search for.  See {@link #setContentTypeId(int)} for
-   * more info.
-   */
+  /** The content type id to search for. See {@link #setContentTypeId(int)} for more info. */
   private long m_contentTypeId = -1;
 
   /**
-   * The full text query string to use, may be <code>null</code>, never empty.
-   * Modified by {@link #setFTSQuery(String)}.
+   * The full text query string to use, may be <code>null</code>, never empty. Modified by {@link
+   * #setFTSQuery(String)}.
    */
   private String m_FTSQuery = null;
 
   /**
-   * List of <code>PSWSSearchField</code> objects.  Never <code>null</code>,
-   * may be empty.  See {@link #setSearchFields(List)} for more info.
+   * List of <code>PSWSSearchField</code> objects. Never <code>null</code>, may be empty. See {@link
+   * #setSearchFields(List)} for more info.
    */
   private List<PSWSSearchField> m_searchFields = new ArrayList<PSWSSearchField>();
 
   /**
-   * List of result field names as <code>String</code> objects.  Never
-   * <code>null</code>, may be empty.  See {@link #setResultFields(Collection)}
-   * for more info.
+   * List of result field names as <code>String</code> objects. Never <code>null</code>, may be
+   * empty. See {@link #setResultFields(Collection)} for more info.
    */
   private Collection<String> m_resultFields = new HashSet<String>();
 
   /**
-   * Map of properties to pass thru to the search engine.  See
-   * {@link #setProperties(Map)} for more info.
+   * Map of properties to pass thru to the search engine. See {@link #setProperties(Map)} for more
+   * info.
    */
   private Map<String, String> m_props = new HashMap<String, String>();
 
-  /**
-   * See {@link #setStartIndex(int)} for more info.
-   */
+  /** See {@link #setStartIndex(int)} for more info. */
   private int m_startIndex = 1;
 
-  /**
-   * See {@link #setEndIndex(int)} for more info.
-   */
+  /** See {@link #setEndIndex(int)} for more info. */
   private int m_endIndex = -1;
 
   /**
-   * See {@link #setFolderPathFilter(String, boolean)} for details.
-   * Either <code>null </code> or non-empty.
+   * See {@link #setFolderPathFilter(String, boolean)} for details. Either <code>null </code> or
+   * non-empty.
    */
   private String m_folderPathFilter = null;
 
-  /**
-   * See {@link #setFolderPathFilter(String, boolean)} for details.
-   */
+  /** See {@link #setFolderPathFilter(String, boolean)} for details. */
   private boolean m_includeSubFolders = true;
 
-  /**
-   * See {@link #setSearchForFolders(boolean)} for details.
-   */
+  /** See {@link #setSearchForFolders(boolean)} for details. */
   private boolean m_searchForFolders = false;
 
   // private xml constants

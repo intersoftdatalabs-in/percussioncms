@@ -24,36 +24,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSTextLiteral class is used to define a replacement value is a
- * static text literal value.
+ * The PSTextLiteral class is used to define a replacement value is a static text literal value.
  *
- * @see         IPSReplacementValue
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see IPSReplacementValue
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementValue {
-  /**
-   * The value type associated with this instances of this class.
-   */
+  /** The value type associated with this instances of this class. */
   public static final String VALUE_TYPE = "TextLiteral";
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSTextLiteral(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -63,7 +52,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
   /**
    * Constructs a literal.
    *
-   * @param   text       the literal text
+   * @param text the literal text
    */
   public PSTextLiteral(String text) {
     setText(text);
@@ -81,8 +70,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
   /**
    * Sets the literal text.
    *
-   * @param text the literal text to assign. if <code>null</code>, an empty
-   * string is assigned
+   * @param text the literal text to assign. if <code>null</code>, an empty string is assigned
    */
   public void setText(String text) {
     if (null == text) text = "";
@@ -92,15 +80,14 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
 
   /* *********** IPSReplacementValue Interface Implementation *********** */
 
-  /**
-   * Get the type of replacement value this object represents.
-   */
+  /** Get the type of replacement value this object represents. */
   public String getValueType() {
     return VALUE_TYPE;
   }
 
   /**
    * Get the text which can be displayed to represent this value.
+   *
    * @return the text, never <code>null</code>, may be empty.
    * @see #getText
    */
@@ -110,6 +97,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
 
   /**
    * Get the implementation specific text which for this value.
+   *
    * @return the text, never <code>null</code>, may be empty.
    * @see #getText
    */
@@ -119,8 +107,8 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
 
   /**
    * Sets the literal text.
-   * @param text the literal text to assign. if <code>null</code>, an empty
-   * string is assigned
+   *
+   * @param text the literal text to assign. if <code>null</code>, an empty string is assigned
    * @see #setText
    */
   public void setValueText(String text) {
@@ -130,10 +118,11 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXTextLiteral XML element node
-   * containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXTextLiteral XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *         PSXTextLiteral is used to define a replacement value is a
@@ -147,7 +136,7 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
    *    &lt;!ELEMENT text         (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXTextLiteral XML element node
+   * @return the newly created PSXTextLiteral XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -160,12 +149,10 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
   }
 
   /**
-   * This method is called to populate a PSTextLiteral Java object from a
-   * PSXTextLiteral XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSTextLiteral Java object from a PSXTextLiteral XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXTextLiteral
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXTextLiteral
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -193,18 +180,15 @@ public class PSTextLiteral extends PSLiteral implements IPSMutatableReplacementV
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     super.validate(cxt);

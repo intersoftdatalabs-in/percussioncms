@@ -24,44 +24,35 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class wraps the the body part of the TMX document. One can modify the
- * body by adding or removing the translation units. Refer to the DTD of the TMX
- * document for more details of the structure of this node.
+ * This class wraps the the body part of the TMX document. One can modify the body by adding or
+ * removing the translation units. Refer to the DTD of the TMX document for more details of the
+ * structure of this node.
+ *
  * @see PSTmxNode
  */
 public class PSTmxBody extends PSTmxNode {
-  /**
-   * Map of all translation units of this node. A TMX body is just a set of
-   * translation units.
-   */
+  /** Map of all translation units of this node. A TMX body is just a set of translation units. */
   protected Map m_TransUnits = new HashMap();
 
   /**
-   * Name of this node. This is the element tag name of the DOM element
-   * associated with this node.
+   * Name of this node. This is the element tag name of the DOM element associated with this node.
    */
   public static final String TMXNODENAME = IPSTmxNode.NODENAMEMAP[IPSTmxNode.TMXBODY];
 
-  /**
-   * Convenience ctor that calls {@link #PSTmxBody(IPSTmxDocument, boolean)
-   * this(TMXDoc, true)}.
-   */
+  /** Convenience ctor that calls {@link #PSTmxBody(IPSTmxDocument, boolean) this(TMXDoc, true)}. */
   PSTmxBody(IPSTmxDocument TMXDoc) {
     this(TMXDoc, true);
   }
 
   /**
-   * Constructor that takes the TMX document object. Parses the document and
-   * builds the translationa units. If the document does not have a body part,
-   * It will add an empty one.
+   * Constructor that takes the TMX document object. Parses the document and builds the translationa
+   * units. If the document does not have a body part, It will add an empty one.
    *
    * @param TMXDoc must not be <code>null</code>.
-   * @param createDefault If <code>true</code>, a variant is also
-   * added for the default language to each translation unit if it does not
-   * already exist.  If <code>false</code>, no defaults are added.
-   *
-   * @throws IllegalArgumentException if supplied TMXDocument is
-   * <code>null</code>.
+   * @param createDefault If <code>true</code>, a variant is also added for the default language to
+   *     each translation unit if it does not already exist. If <code>false</code>, no defaults are
+   *     added.
+   * @throws IllegalArgumentException if supplied TMXDocument is <code>null</code>.
    */
   PSTmxBody(IPSTmxDocument TMXDoc, boolean createDefault) {
     if (TMXDoc == null) {
@@ -85,6 +76,7 @@ public class PSTmxBody extends PSTmxNode {
 
   /**
    * Helper function to locate and return the body element of the TMX document.
+   *
    * @param TMXDocument must not be <code>null</code>.
    * @return the body DOM element. May be <code>null</code>.
    * @throws IllegalArgumentException if supplied TMXDocument is <code>null</code>.
@@ -98,12 +90,11 @@ public class PSTmxBody extends PSTmxNode {
   }
 
   /**
-   * Helper method that locates all translation units and parses to Translation
-   * Unit objects.
+   * Helper method that locates all translation units and parses to Translation Unit objects.
    *
-   * @param createDefault If <code>true</code>, a variant is also
-   * added for the default language to each translation unit if it does not
-   * already exist.  If <code>false</code>, no defaults are added.
+   * @param createDefault If <code>true</code>, a variant is also added for the default language to
+   *     each translation unit if it does not already exist. If <code>false</code>, no defaults are
+   *     added.
    */
   private void processBodyElement(boolean createDefault) {
     NodeList nl =
@@ -117,8 +108,8 @@ public class PSTmxBody extends PSTmxNode {
 
   /**
    * Method to get the translation units of the body.
-   * @return iterator of all translation units. Never <code>null</code>, may
-   * be <code>empty</code>
+   *
+   * @return iterator of all translation units. Never <code>null</code>, may be <code>empty</code>
    */
   protected Iterator getTraslationUnits() {
     return m_TransUnits.entrySet().iterator();
@@ -162,12 +153,11 @@ public class PSTmxBody extends PSTmxNode {
   }
 
   /**
-   * This method adds the supplied tanslation unit if it does not exist. Use
-   * {@link #merge} to merge applying the merge rules.
-   * @param    tu    translation unit object to be added. Must not be
-   * <code>null</code>.
-   * @throws PSTmxDomException when trying to add a translation unit that
-   * already exists.
+   * This method adds the supplied tanslation unit if it does not exist. Use {@link #merge} to merge
+   * applying the merge rules.
+   *
+   * @param tu translation unit object to be added. Must not be <code>null</code>.
+   * @throws PSTmxDomException when trying to add a translation unit that already exists.
    */
   protected void addTranslationUnit(IPSTmxTranslationUnit tu) throws PSTmxDomException {
     if (tu == null) {
@@ -185,12 +175,10 @@ public class PSTmxBody extends PSTmxNode {
   }
 
   /**
-   * Method to remove a translation unit whose key matches with the supplied
-   * one's.
-   * @param    tu    translation unit object to be added. Must not be
-   * <code>null</code>
-   * @throws PSTmxDomException when trying to remove a nonexisting translation
-   * unit.
+   * Method to remove a translation unit whose key matches with the supplied one's.
+   *
+   * @param tu translation unit object to be added. Must not be <code>null</code>
+   * @throws PSTmxDomException when trying to remove a nonexisting translation unit.
    */
   protected void removeTranslationUnit(IPSTmxTranslationUnit tu) throws PSTmxDomException {
     IPSTmxTranslationUnit temp = (PSTmxTranslationUnit) m_TransUnits.get(tu.getKey());

@@ -38,16 +38,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This upgrade plug-in will clean the TITLE column of the
- * CONTENTSTATUS table by replacing <code>null</code> or non-text entries with
- * a dummy value of "title_CONTENTID". It will also write to the log file showing
- * any table rows that were modified.
+ * This upgrade plug-in will clean the TITLE column of the CONTENTSTATUS table by replacing <code>
+ * null</code> or non-text entries with a dummy value of "title_CONTENTID". It will also write to
+ * the log file showing any table rows that were modified.
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
-  /**
-   * Implements process method of IPSUpgardePlugin.
-   */
+  /** Implements process method of IPSUpgardePlugin. */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
     m_config = config;
     log("inside the process() of the plugin...");
@@ -123,16 +120,15 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
   }
 
   /**
-   * Looks for <code>null</code> and non-text titles in the CONTENTSTATUS table.
-   * If <code>null</code> or non-text title is found it is modified to be
-   * "title_CONTENTID".
+   * Looks for <code>null</code> and non-text titles in the CONTENTSTATUS table. If <code>null
+   * </code> or non-text title is found it is modified to be "title_CONTENTID".
    *
    * @param conn the database connection object, cannot be <code>null</code>.
    * @param dbmsDef the database definition, cannot be <code>null</code>.
-   * @param csSchema the table schema object for the CONTENTSTATUS table,
-   * cannot be <code>null</code>.
-   * @return <code>true</code> if <code>null</code> or non-text titles are found
-   * indicating that processing needs to be done.
+   * @param csSchema the table schema object for the CONTENTSTATUS table, cannot be <code>null
+   *     </code>.
+   * @return <code>true</code> if <code>null</code> or non-text titles are found indicating that
+   *     processing needs to be done.
    */
   private boolean checkForNullsNonTextAndModify(
       final Connection conn, final PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema csSchema) {
@@ -195,8 +191,7 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

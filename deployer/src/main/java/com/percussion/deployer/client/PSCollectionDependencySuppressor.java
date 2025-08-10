@@ -21,16 +21,15 @@ import com.percussion.deployer.objectstore.PSDependency;
 import java.util.Collection;
 
 /**
- * A dependency suppressor that will suppress any dependency whose key is
- * included in a specified collection.
+ * A dependency suppressor that will suppress any dependency whose key is included in a specified
+ * collection.
  */
 public class PSCollectionDependencySuppressor implements IPSDependencySuppressor {
   /**
-   * Constructs a dependency suppressor to suppress members included in the
-   * specified collection.
+   * Constructs a dependency suppressor to suppress members included in the specified collection.
    *
-   * @param dependenciesToSuppress a collection of dependency keys (Strings)
-   *           that should be suppressed, not <code>null</code>
+   * @param dependenciesToSuppress a collection of dependency keys (Strings) that should be
+   *     suppressed, not <code>null</code>
    */
   public PSCollectionDependencySuppressor(Collection<String> dependenciesToSuppress) {
     if (dependenciesToSuppress == null) {
@@ -40,16 +39,12 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
   }
 
   /**
-   * Determines if the specified dependency should be suppressed by comparing
-   * that dependency's key against the collection of dependency keys provided
-   * to the constructor.
+   * Determines if the specified dependency should be suppressed by comparing that dependency's key
+   * against the collection of dependency keys provided to the constructor.
    *
-   * @param dependency the dependency to be evaluated for suppression, not
-   *           <code>null</code>
-   *
-   * @return <code>true</code> if the dependency should be suppressed because
-   *         its key is included in the collection, <code>false</code>
-   *         otherwise.
+   * @param dependency the dependency to be evaluated for suppression, not <code>null</code>
+   * @return <code>true</code> if the dependency should be suppressed because its key is included in
+   *     the collection, <code>false</code> otherwise.
    */
   public boolean suppress(PSDependency dependency) {
     if (dependency == null) {
@@ -59,8 +54,8 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
   }
 
   /**
-   * Collection of dependency keys (Strings) that should be suppressed.
-   * Assigned in ctor, and never <code>null</code> after.
+   * Collection of dependency keys (Strings) that should be suppressed. Assigned in ctor, and never
+   * <code>null</code> after.
    */
   private Collection<String> m_depsToSuppress;
 }

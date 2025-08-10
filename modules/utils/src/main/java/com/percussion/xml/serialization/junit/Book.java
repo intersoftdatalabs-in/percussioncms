@@ -22,19 +22,16 @@ import java.util.Objects;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * A sample Book class used in unit test of the
- * {@link com.percussion.xml.serialization.PSObjectSerializer} class. As can be
- * seen it is a simple java bean with a default ctor (required) and setXxx() and
- * getXxx() methods.
+ * A sample Book class used in unit test of the {@link
+ * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
+ * bean with a default ctor (required) and setXxx() and getXxx() methods.
  */
 public class Book {
   String title;
 
   Date pubDate;
 
-  /**
-   * Default ctor. Required by serializer.
-   */
+  /** Default ctor. Required by serializer. */
   public Book() {}
 
   /**

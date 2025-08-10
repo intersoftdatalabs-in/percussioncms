@@ -20,22 +20,19 @@ package com.percussion.install;
 import org.w3c.dom.Element;
 
 /**
- * This plugin has been written to initiliaze the spring configuration.  It must
- * be run prior to the repository upgrade.
+ * This plugin has been written to initiliaze the spring configuration. It must be run prior to the
+ * repository upgrade.
  */
 public class PSSpringUpgradePluginInit extends PSSpringUpgradePluginBase {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSSpringUpgradePluginInit() {
     super();
   }
 
   /**
-   * Implements the process function of IPSUpgradePlugin.  Logs an initiliazation
-   * complete message.
+   * Implements the process function of IPSUpgradePlugin. Logs an initiliazation complete message.
    *
-   * @param config PSUpgradeModule object.  Not used.
+   * @param config PSUpgradeModule object. Not used.
    * @param elemData We do not use this element in this function.
    * @return <code>null</code>.
    */
@@ -47,8 +44,7 @@ public class PSSpringUpgradePluginInit extends PSSpringUpgradePluginBase {
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */

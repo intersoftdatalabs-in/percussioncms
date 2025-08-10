@@ -20,27 +20,27 @@ package com.percussion.share.data;
 import java.util.Map;
 
 /**
- * A generic, low-level representation of an item in the system backed
- * by a Rhythmyx content item.
+ * A generic, low-level representation of an item in the system backed by a Rhythmyx content item.
  *
- * <p>Provides access to all fields as a map, where the key is the field name and the value is the field value.
+ * <p>Provides access to all fields as a map, where the key is the field name and the value is the
+ * field value.
  *
  * @author adamgent
  */
 public interface IPSContentItem extends IPSItemSummary {
 
-    /**
-     * Returns a map of all fields for this content item.
-     * The key is the field name, and the value is the field value.
-     *
-     * @return a non-null map of field names to values
-     */
-    Map<String, Object> getFields();
+  /**
+   * Returns a map of all fields for this content item. The key is the field name, and the value is
+   * the field value.
+   *
+   * @return a non-null map of field names to values
+   */
+  Map<String, Object> getFields();
 
-    /**
-     * Sets the fields for this content item.
-     *
-     * @param fields a non-null map of field names to values
-     */
-    void setFields(Map<String, Object> fields);
+  /**
+   * Sets the fields for this content item.
+   *
+   * @param fields a non-null map of field names to values
+   */
+  void setFields(Map<String, Object> fields);
 }

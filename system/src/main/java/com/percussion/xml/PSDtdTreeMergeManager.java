@@ -24,23 +24,17 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- *
- */
+/** */
 public class PSDtdTreeMergeManager {
   private static final Logger log = LogManager.getLogger(PSDtdTreeMergeManager.class);
 
   /**
-   * Constructor needs a master PSDtdTree for all incoming slave trees.
-   * Re-create a UTDtdMergeManager if you want to restart the merge without
-   * the previously merged instances.
+   * Constructor needs a master PSDtdTree for all incoming slave trees. Re-create a
+   * UTDtdMergeManager if you want to restart the merge without the previously merged instances.
    *
-   * @param masterTree The DTD tree provided by OSPageDatatank. If masterTree is
-   * <CODE>null</CODE> or if masterTree has no root, an IllegalArgumentException
-   * will be thrown.
-   *
+   * @param masterTree The DTD tree provided by OSPageDatatank. If masterTree is <CODE>null</CODE>
+   *     or if masterTree has no root, an IllegalArgumentException will be thrown.
    * @throws IllegalArgumentException if masterTree is null.
-   *
    * @see PSDtdTree
    */
   public PSDtdTreeMergeManager(PSDtdTree masterTree) {
@@ -100,23 +94,16 @@ public class PSDtdTreeMergeManager {
   }
 
   /**
-   * For every element entry in the slave
-   * tree, if an entry that has the same path is found in the master tree,
-   * the occurrence setting of that node in the master tree is changed to match
-   * the occurrence setting in the slave tree. Modifications are done on a
-   * clone of the master tree.
-   * This method treats all children of an element as if the groupings were not
-   * present, i.e. occurrence settings for 'groups' (e.g. (a | b | c)
-   * is a group) are not modified, only the individual elements within the group.
+   * For every element entry in the slave tree, if an entry that has the same path is found in the
+   * master tree, the occurrence setting of that node in the master tree is changed to match the
+   * occurrence setting in the slave tree. Modifications are done on a clone of the master tree.
+   * This method treats all children of an element as if the groupings were not present, i.e.
+   * occurrence settings for 'groups' (e.g. (a | b | c) is a group) are not modified, only the
+   * individual elements within the group.
    *
-   * @param master The tree to compare element entries against for occurrence
-   * settings variations.
-   *
+   * @param master The tree to compare element entries against for occurrence settings variations.
    * @param slave The source of the occurrence settings.
-   *
-   * @return A cloned master tree with the occurrence settings of the slave
-   * tree.
-   *
+   * @return A cloned master tree with the occurrence settings of the slave tree.
    * @todo This could be optimized quite a bit.
    */
   public PSDtdTree updateTreeForUserMod(PSDtdTree master, PSDtdTree slave) {
@@ -176,14 +163,14 @@ public class PSDtdTreeMergeManager {
   }
 
   /**
-   * Performs the merge between the slaveTree passed in and the master tree. The
-   * merge will base on the merging algorithm.
+   * Performs the merge between the slaveTree passed in and the master tree. The merge will base on
+   * the merging algorithm.
    *
-   * Attach algorithm here!!!
+   * <p>Attach algorithm here!!!
    *
-   * @param slaveTree The slave tree that will be merged into the master tree.
-   * Method will return immediately if <CODE>null</CODE>. A PSDtdTree with no
-   * root is passed in will cause the method to return immediately as well.
+   * @param slaveTree The slave tree that will be merged into the master tree. Method will return
+   *     immediately if <CODE>null</CODE>. A PSDtdTree with no root is passed in will cause the
+   *     method to return immediately as well.
    */
   public void mergeDtdTree(PSDtdTree slaveTree) {
     if (null == slaveTree || null == slaveTree.getRoot()) return;
@@ -226,8 +213,8 @@ public class PSDtdTreeMergeManager {
   }
 
   /**
-   * Merges the slave attribute to the master attribute by finding an attribute
-   * in the master tree (for this element) that has the same name.
+   * Merges the slave attribute to the master attribute by finding an attribute in the master tree
+   * (for this element) that has the same name.
    */
   private void mergeAttributes(String key) {
     PSDtdElement master = m_masterTree.getElement(key);
@@ -297,17 +284,16 @@ public class PSDtdTreeMergeManager {
   }
 
   /**
-   * Merges the slave PSDtdElement to the master PSDtdElement. The result is set
-   * into the member master tree (m_masterTree).
+   * Merges the slave PSDtdElement to the master PSDtdElement. The result is set into the member
+   * master tree (m_masterTree).
    *
-   * (!) Add merge algorithm here!
+   * <p>(!) Add merge algorithm here!
    *
-   * @param key The String key that is the name of the Element that we are
-   * currently merging. This key is used by both the master tree and the slave
-   * tree and retrieved by calling <tree instance>.getElement() method
-   * (essentially a HashMap.get() call).
-   * @todo Merging of inner NodeLists ALWAYS removes all nested parenthesis. Must
-   * add code to accurately preserve the nested NodeLists.
+   * @param key The String key that is the name of the Element that we are currently merging. This
+   *     key is used by both the master tree and the slave tree and retrieved by calling <tree
+   *     instance>.getElement() method (essentially a HashMap.get() call).
+   * @todo Merging of inner NodeLists ALWAYS removes all nested parenthesis. Must add code to
+   *     accurately preserve the nested NodeLists.
    */
   private PSDtdElement mergeElement(String key) {
     PSDtdElement sElement = m_slaveTree.getElement(key);
@@ -662,8 +648,8 @@ public class PSDtdTreeMergeManager {
   /**
    * Used by mergeElement(String) method to specifically merge inner NodeLists.
    *
-   * @param innerList The inner NodeList that we will be traversing and used to
-   * merge into ownerList.
+   * @param innerList The inner NodeList that we will be traversing and used to merge into
+   *     ownerList.
    * @param ownerList The NodeList to merge into.
    * @return boolean <CODE>true</CODE> if any of the inner nodes has PCDATA.
    */
@@ -695,10 +681,10 @@ public class PSDtdTreeMergeManager {
   /**
    * Recursively adds nodes in NodeLists to the storage HashMap.
    *
-   * @param mMap The HashMap used for data storage, basically the a HashMap
-   * version of the master NodeList. This should never be <CODE>null</CODE>.
-   * @param sNodeList The current node element (which is a PSDtdNodeList) that
-   * is being traversed. This has to be the slave NodeList.
+   * @param mMap The HashMap used for data storage, basically the a HashMap version of the master
+   *     NodeList. This should never be <CODE>null</CODE>.
+   * @param sNodeList The current node element (which is a PSDtdNodeList) that is being traversed.
+   *     This has to be the slave NodeList.
    * @return boolean <CODE>true</CODE> if contains a PCDATA.
    */
   private boolean addNodeListIntoMap(HashMap mMap, PSDtdNodeList sNodeList) {
@@ -747,19 +733,16 @@ public class PSDtdTreeMergeManager {
   }
 
   /**
-   * Fixes up the NodeList to conform to the mixed-content model. A post-merge
-   * NodeList may contain a DataElement (PCDATA) that is not in
-   * the first element of the NodeList. This is considered a malformed DTD
-   * NodeList. The correct mixed-content model for DTDs is ALWAYS have the
-   * PCDATA (ONLY one in list) first in the list, and all else follow. All
-   * other nodes will forced to changed to a repeat attribute of OCCURS_ONCE.
+   * Fixes up the NodeList to conform to the mixed-content model. A post-merge NodeList may contain
+   * a DataElement (PCDATA) that is not in the first element of the NodeList. This is considered a
+   * malformed DTD NodeList. The correct mixed-content model for DTDs is ALWAYS have the PCDATA
+   * (ONLY one in list) first in the list, and all else follow. All other nodes will forced to
+   * changed to a repeat attribute of OCCURS_ONCE.
    *
-   * @param list The NodeList that needs to be fixed up, which MUST be a
-   * NodeList that needs to become a proper mixed-content model.
-   * <CODE>null</CODE> is not a valid parameter, IllegalArgumentException will
-   * be thrown.
-   * @return Creates a new NodeList based on the list passed in, it is returned
-   * after fix-up.
+   * @param list The NodeList that needs to be fixed up, which MUST be a NodeList that needs to
+   *     become a proper mixed-content model. <CODE>null</CODE> is not a valid parameter,
+   *     IllegalArgumentException will be thrown.
+   * @return Creates a new NodeList based on the list passed in, it is returned after fix-up.
    * @throw IllegalArgumentException Only if list was <CODE>null</CODE>.
    * @see PSDtdNodeList
    * @see PSDtdDataElement
@@ -786,6 +769,6 @@ public class PSDtdTreeMergeManager {
   /** This is used as a hidden parameter for certain private methods */
   private PSDtdTree m_slaveTree = null;
 
-  /**  */
+  /** */
   private boolean m_bNodeInList = false;
 }

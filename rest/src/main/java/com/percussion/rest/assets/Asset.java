@@ -24,13 +24,12 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.pages.WorkflowInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Asset")
 @JsonRootName(value = "Asset")
@@ -40,186 +39,221 @@ import java.util.Optional;
 @Schema(description = "Represents a shared asset")
 public class Asset {
 
-    @Schema(description = "fields")
-    private AssetFieldList fields = new AssetFieldList();
+  @Schema(description = "fields")
+  private AssetFieldList fields = new AssetFieldList();
 
-    @Schema(description = "id must match the id of the item for the same server path, usually best not to send id to server.")
-    private String id;
+  @Schema(
+      description =
+          "id must match the id of the item for the same server path, usually best not to send id"
+              + " to server.")
+  private String id;
 
-    private String name;
-    private String type;
-    private String folderPath;
-    private WorkflowInfo workflow;
-    private Date lastModifiedDate;
-    private Date createdDate;
-    private List<LinkRef> links;
-    private ImageInfo image;
-    private ImageInfo thumbnail;
-    private BinaryFile file;
-    private Flash flash;
-    private Boolean remove;
+  private String name;
+  private String type;
+  private String folderPath;
+  private WorkflowInfo workflow;
+  private Date lastModifiedDate;
+  private Date createdDate;
+  private List<LinkRef> links;
+  private ImageInfo image;
+  private ImageInfo thumbnail;
+  private BinaryFile file;
+  private Flash flash;
+  private Boolean remove;
 
-    public Asset() {}
+  public Asset() {}
 
-    // --- Getters and Setters with Optional ---
+  // --- Getters and Setters with Optional ---
 
-    public AssetFieldList getFields() {
-        return fields;
-    }
+  public AssetFieldList getFields() {
+    return fields;
+  }
 
-    public void setFields(AssetFieldList fields) {
-        this.fields = fields;
-    }
+  public void setFields(AssetFieldList fields) {
+    this.fields = fields;
+  }
 
-    public Optional<String> getId() {
-        return Optional.ofNullable(id);
-    }
+  public Optional<String> getId() {
+    return Optional.ofNullable(id);
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
+  public Optional<String> getType() {
+    return Optional.ofNullable(type);
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public Optional<String> getFolderPath() {
-        return Optional.ofNullable(folderPath);
-    }
+  public Optional<String> getFolderPath() {
+    return Optional.ofNullable(folderPath);
+  }
 
-    public void setFolderPath(String path) {
-        this.folderPath = path;
-    }
+  public void setFolderPath(String path) {
+    this.folderPath = path;
+  }
 
-    public Optional<WorkflowInfo> getWorkflow() {
-        return Optional.ofNullable(workflow);
-    }
+  public Optional<WorkflowInfo> getWorkflow() {
+    return Optional.ofNullable(workflow);
+  }
 
-    public void setWorkflow(WorkflowInfo workflow) {
-        this.workflow = workflow;
-    }
+  public void setWorkflow(WorkflowInfo workflow) {
+    this.workflow = workflow;
+  }
 
-    public Optional<Date> getLastModifiedDate() {
-        return Optional.ofNullable(lastModifiedDate);
-    }
+  public Optional<Date> getLastModifiedDate() {
+    return Optional.ofNullable(lastModifiedDate);
+  }
 
-    public void setLastModifiedDate(Date lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
+  public void setLastModifiedDate(Date lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+  }
 
-    public Optional<Date> getCreatedDate() {
-        return Optional.ofNullable(createdDate);
-    }
+  public Optional<Date> getCreatedDate() {
+    return Optional.ofNullable(createdDate);
+  }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
+  public void setCreatedDate(Date createdDate) {
+    this.createdDate = createdDate;
+  }
 
-    public Optional<List<LinkRef>> getLinks() {
-        return Optional.ofNullable(links);
-    }
+  public Optional<List<LinkRef>> getLinks() {
+    return Optional.ofNullable(links);
+  }
 
-    public void setLinks(List<LinkRef> links) {
-        this.links = links;
-    }
+  public void setLinks(List<LinkRef> links) {
+    this.links = links;
+  }
 
-    public Optional<ImageInfo> getImage() {
-        return Optional.ofNullable(image);
-    }
+  public Optional<ImageInfo> getImage() {
+    return Optional.ofNullable(image);
+  }
 
-    public void setImage(ImageInfo image) {
-        this.image = image;
-    }
+  public void setImage(ImageInfo image) {
+    this.image = image;
+  }
 
-    public Optional<ImageInfo> getThumbnail() {
-        return Optional.ofNullable(thumbnail);
-    }
+  public Optional<ImageInfo> getThumbnail() {
+    return Optional.ofNullable(thumbnail);
+  }
 
-    public void setThumbnail(ImageInfo thumbnail) {
-        this.thumbnail = thumbnail;
-    }
+  public void setThumbnail(ImageInfo thumbnail) {
+    this.thumbnail = thumbnail;
+  }
 
-    public Optional<BinaryFile> getFile() {
-        return Optional.ofNullable(file);
-    }
+  public Optional<BinaryFile> getFile() {
+    return Optional.ofNullable(file);
+  }
 
-    public void setFile(BinaryFile file) {
-        this.file = file;
-    }
+  public void setFile(BinaryFile file) {
+    this.file = file;
+  }
 
-    public Optional<Flash> getFlash() {
-        return Optional.ofNullable(flash);
-    }
+  public Optional<Flash> getFlash() {
+    return Optional.ofNullable(flash);
+  }
 
-    public void setFlash(Flash flash) {
-        this.flash = flash;
-    }
+  public void setFlash(Flash flash) {
+    this.flash = flash;
+  }
 
-    public Optional<Boolean> getRemove() {
-        return Optional.ofNullable(remove);
-    }
+  public Optional<Boolean> getRemove() {
+    return Optional.ofNullable(remove);
+  }
 
-    public void setRemove(Boolean remove) {
-        this.remove = remove;
-    }
+  public void setRemove(Boolean remove) {
+    this.remove = remove;
+  }
 
-    // --- equals, hashCode, toString ---
+  // --- equals, hashCode, toString ---
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Asset)) return false;
-        var asset = (Asset) o;
-        return Objects.equals(fields, asset.fields)
-                && Objects.equals(id, asset.id)
-                && Objects.equals(name, asset.name)
-                && Objects.equals(type, asset.type)
-                && Objects.equals(folderPath, asset.folderPath)
-                && Objects.equals(workflow, asset.workflow)
-                && Objects.equals(lastModifiedDate, asset.lastModifiedDate)
-                && Objects.equals(createdDate, asset.createdDate)
-                && Objects.equals(links, asset.links)
-                && Objects.equals(image, asset.image)
-                && Objects.equals(thumbnail, asset.thumbnail)
-                && Objects.equals(file, asset.file)
-                && Objects.equals(flash, asset.flash)
-                && Objects.equals(remove, asset.remove);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Asset)) return false;
+    var asset = (Asset) o;
+    return Objects.equals(fields, asset.fields)
+        && Objects.equals(id, asset.id)
+        && Objects.equals(name, asset.name)
+        && Objects.equals(type, asset.type)
+        && Objects.equals(folderPath, asset.folderPath)
+        && Objects.equals(workflow, asset.workflow)
+        && Objects.equals(lastModifiedDate, asset.lastModifiedDate)
+        && Objects.equals(createdDate, asset.createdDate)
+        && Objects.equals(links, asset.links)
+        && Objects.equals(image, asset.image)
+        && Objects.equals(thumbnail, asset.thumbnail)
+        && Objects.equals(file, asset.file)
+        && Objects.equals(flash, asset.flash)
+        && Objects.equals(remove, asset.remove);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(fields, id, name, type, folderPath, workflow, lastModifiedDate, createdDate, links, image, thumbnail, file, flash, remove);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        fields,
+        id,
+        name,
+        type,
+        folderPath,
+        workflow,
+        lastModifiedDate,
+        createdDate,
+        links,
+        image,
+        thumbnail,
+        file,
+        flash,
+        remove);
+  }
 
-    @Override
-    public String toString() {
-        return "Asset{" +
-                "fields=" + fields +
-                ", id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", folderPath='" + folderPath + '\'' +
-                ", workflow=" + workflow +
-                ", lastModifiedDate=" + lastModifiedDate +
-                ", createdDate=" + createdDate +
-                ", links=" + links +
-                ", image=" + image +
-                ", thumbnail=" + thumbnail +
-                ", file=" + file +
-                ", flash=" + flash +
-                ", remove=" + remove +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "Asset{"
+        + "fields="
+        + fields
+        + ", id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + ", folderPath='"
+        + folderPath
+        + '\''
+        + ", workflow="
+        + workflow
+        + ", lastModifiedDate="
+        + lastModifiedDate
+        + ", createdDate="
+        + createdDate
+        + ", links="
+        + links
+        + ", image="
+        + image
+        + ", thumbnail="
+        + thumbnail
+        + ", file="
+        + file
+        + ", flash="
+        + flash
+        + ", remove="
+        + remove
+        + '}';
+  }
 }

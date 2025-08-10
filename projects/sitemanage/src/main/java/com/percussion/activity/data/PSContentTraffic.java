@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * This object holds traffic activity details of the items under named site by date.
- */
+/** This object holds traffic activity details of the items under named site by date. */
 @JsonRootName(value = "ContentTraffic")
 public class PSContentTraffic {
 

@@ -18,11 +18,11 @@
 
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Contains the publishing information for a site.
@@ -31,99 +31,99 @@ import java.util.Optional;
  */
 @XmlRootElement(name = "SitePublishProperties")
 public class PSSitePublishProperties extends PSAbstractPersistantObject {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String id;
-    private String deliveryRootPath;
-    private String ftpServerName;
-    private String ftpPassword;
-    private String privateKey;
-    private Integer ftpServerPort;
-    private String ftpUserName;
-    private String siteName;
-    private PublishType publishType;
-    private Boolean secure;
+  private String id;
+  private String deliveryRootPath;
+  private String ftpServerName;
+  private String ftpPassword;
+  private String privateKey;
+  private Integer ftpServerPort;
+  private String ftpUserName;
+  private String siteName;
+  private PublishType publishType;
+  private Boolean secure;
 
-    @XmlElement
-    @Override
-    public String getId() {
-        return id;
-    }
+  @XmlElement
+  @Override
+  public String getId() {
+    return id;
+  }
 
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
+  @Override
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public Optional<String> getDeliveryRootPath() {
-        return Optional.ofNullable(deliveryRootPath);
-    }
+  public Optional<String> getDeliveryRootPath() {
+    return Optional.ofNullable(deliveryRootPath);
+  }
 
-    public void setDeliveryRootPath(String deliveryRootPath) {
-        this.deliveryRootPath = deliveryRootPath;
-    }
+  public void setDeliveryRootPath(String deliveryRootPath) {
+    this.deliveryRootPath = deliveryRootPath;
+  }
 
-    public Optional<String> getFtpServerName() {
-        return Optional.ofNullable(ftpServerName);
-    }
+  public Optional<String> getFtpServerName() {
+    return Optional.ofNullable(ftpServerName);
+  }
 
-    public void setFtpServerName(String ftpServerName) {
-        this.ftpServerName = ftpServerName;
-    }
+  public void setFtpServerName(String ftpServerName) {
+    this.ftpServerName = ftpServerName;
+  }
 
-    public Optional<String> getFtpPassword() {
-        return Optional.ofNullable(ftpPassword);
-    }
+  public Optional<String> getFtpPassword() {
+    return Optional.ofNullable(ftpPassword);
+  }
 
-    public void setFtpPassword(String ftpPassword) {
-        this.ftpPassword = ftpPassword;
-    }
+  public void setFtpPassword(String ftpPassword) {
+    this.ftpPassword = ftpPassword;
+  }
 
-    public Optional<String> getPrivateKey() {
-        return Optional.ofNullable(privateKey);
-    }
+  public Optional<String> getPrivateKey() {
+    return Optional.ofNullable(privateKey);
+  }
 
-    public void setPrivateKey(String privateKey) {
-        this.privateKey = privateKey;
-    }
+  public void setPrivateKey(String privateKey) {
+    this.privateKey = privateKey;
+  }
 
-    public Optional<Integer> getFtpServerPort() {
-        return Optional.ofNullable(ftpServerPort);
-    }
+  public Optional<Integer> getFtpServerPort() {
+    return Optional.ofNullable(ftpServerPort);
+  }
 
-    public void setFtpServerPort(Integer ftpServerPort) {
-        this.ftpServerPort = ftpServerPort;
-    }
+  public void setFtpServerPort(Integer ftpServerPort) {
+    this.ftpServerPort = ftpServerPort;
+  }
 
-    public Optional<String> getFtpUserName() {
-        return Optional.ofNullable(ftpUserName);
-    }
+  public Optional<String> getFtpUserName() {
+    return Optional.ofNullable(ftpUserName);
+  }
 
-    public void setFtpUserName(String ftpUserName) {
-        this.ftpUserName = ftpUserName;
-    }
+  public void setFtpUserName(String ftpUserName) {
+    this.ftpUserName = ftpUserName;
+  }
 
-    public Optional<String> getSiteName() {
-        return Optional.ofNullable(siteName);
-    }
+  public Optional<String> getSiteName() {
+    return Optional.ofNullable(siteName);
+  }
 
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    public Optional<PublishType> getPublishType() {
-        return Optional.ofNullable(publishType);
-    }
+  public Optional<PublishType> getPublishType() {
+    return Optional.ofNullable(publishType);
+  }
 
-    public void setPublishType(PublishType publishType) {
-        this.publishType = publishType;
-    }
+  public void setPublishType(PublishType publishType) {
+    this.publishType = publishType;
+  }
 
-    public Optional<Boolean> getSecure() {
-        return Optional.ofNullable(secure);
-    }
+  public Optional<Boolean> getSecure() {
+    return Optional.ofNullable(secure);
+  }
 
-    public void setSecure(Boolean secure) {
-        this.secure = secure;
-    }
+  public void setSecure(Boolean secure) {
+    this.secure = secure;
+  }
 }

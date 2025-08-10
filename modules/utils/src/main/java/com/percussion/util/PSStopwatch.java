@@ -21,17 +21,15 @@ import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <P>A simple stopwatch class that simplifies timing things during testing. The
- * class starts in a stopped state, and needs to have the various methods called
- * to change the state. It is illegal to stop the stopwatch if it hasn't been
- * started.
+ * A simple stopwatch class that simplifies timing things during testing. The class starts in a
+ * stopped state, and needs to have the various methods called to change the state. It is illegal to
+ * stop the stopwatch if it hasn't been started.
  *
- * <P>A stopwatch can be used multiple times as long as the state transitions are
- * correct.
+ * <p>A stopwatch can be used multiple times as long as the state transitions are correct.
  *
- * <P>Note that on Windows, this class makes use of the hrtlib.dll. See the
- * article at http://www.javaworld.com/javaworld/javaqa/2003-01/01-qa-0110-timing.html#resources
- * for a good discussion.
+ * <p>Note that on Windows, this class makes use of the hrtlib.dll. See the article at
+ * http://www.javaworld.com/javaworld/javaqa/2003-01/01-qa-0110-timing.html#resources for a good
+ * discussion.
  */
 public class PSStopwatch {
   /*
@@ -44,8 +42,7 @@ public class PSStopwatch {
   private static final String STATES[] = {"running", "stopped", "paused"};
 
   /**
-   * Create a new stopwatch object. Note that the object must be started
-   * in order to record time.
+   * Create a new stopwatch object. Note that the object must be started in order to record time.
    */
   public PSStopwatch() {
     m_state = STOP_STATE;
@@ -56,9 +53,8 @@ public class PSStopwatch {
   }
 
   /**
-   * Initialize the time in the stopwatch and change the state to
-   * running. The stopwatch must be in the stopped state before this
-   * method is called. The initial state of the stopwatch is stopped.
+   * Initialize the time in the stopwatch and change the state to running. The stopwatch must be in
+   * the stopped state before this method is called. The initial state of the stopwatch is stopped.
    */
   public void start() {
     if (!isStopped()) {
@@ -71,10 +67,7 @@ public class PSStopwatch {
     m_pauseDelta = 0;
   }
 
-  /**
-   * Stop the stopwatch and record the end time. The stopwatch must be
-   * running or paused.
-   */
+  /** Stop the stopwatch and record the end time. The stopwatch must be running or paused. */
   public void stop() {
     if (!isRunning() && !isPaused()) {
       throw new IllegalStateException("Stopwatch must be running before stopped");
@@ -84,13 +77,11 @@ public class PSStopwatch {
   }
 
   /**
-   * Pause the stopwatch. This causes any time between the pause and a
-   * call to {@link #cont()} to be disregarded in the reported time.
-   * A pause with no corresponding continue will act like a call to
-   * {@link #stop()}, but the reported state will be paused. It is an
-   * error if the stopwatch is not running and not paused when this call
-   * is made. If the stopwatch is already paused then this call has no
-   * effect.
+   * Pause the stopwatch. This causes any time between the pause and a call to {@link #cont()} to be
+   * disregarded in the reported time. A pause with no corresponding continue will act like a call
+   * to {@link #stop()}, but the reported state will be paused. It is an error if the stopwatch is
+   * not running and not paused when this call is made. If the stopwatch is already paused then this
+   * call has no effect.
    */
   public void pause() {
     if (isPaused()) return;
@@ -103,10 +94,9 @@ public class PSStopwatch {
   }
 
   /**
-   * Put the stopwatch back into a running state. This call has no effect
-   * if the stopwatch is already running. If it is paused, the time since
-   * the call to pause is calculated and summed with any previous paused
-   * times.
+   * Put the stopwatch back into a running state. This call has no effect if the stopwatch is
+   * already running. If it is paused, the time since the call to pause is calculated and summed
+   * with any previous paused times.
    */
   public void cont() {
     if (isRunning()) return;
@@ -120,9 +110,10 @@ public class PSStopwatch {
   }
 
   /**
-   * Elapsed either returns the current elapsed time or the total time. If
-   * the stopwatch is stopped then elapsed uses the recorded time, otherwise
-   * it returns the elapsed time since <code>start</code> was called.
+   * Elapsed either returns the current elapsed time or the total time. If the stopwatch is stopped
+   * then elapsed uses the recorded time, otherwise it returns the elapsed time since <code>start
+   * </code> was called.
+   *
    * @return elapsed time in millis
    */
   public double elapsed() {
@@ -152,8 +143,7 @@ public class PSStopwatch {
   }
 
   /**
-   * @return <code>true</code> if the stopwatch has not been
-   * started, or has been stopped.
+   * @return <code>true</code> if the stopwatch has not been started, or has been stopped.
    */
   private boolean isStopped() {
     return m_state == STOP_STATE;
@@ -174,8 +164,8 @@ public class PSStopwatch {
   }
 
   /**
-   * Get the current time, either using a high-resolution timer or the
-   * default system timer.
+   * Get the current time, either using a high-resolution timer or the default system timer.
+   *
    * @return the current time as fractional nanoseconds
    */
   private long getCurrentTime() {
@@ -191,39 +181,33 @@ public class PSStopwatch {
     return String.format("%02d:%02d:%02d", Math.abs(hours), Math.abs(minutes), Math.abs(seconds));
   }
 
-  /**
-   * A format to use when outputting the elapsed time.
-   */
+  /** A format to use when outputting the elapsed time. */
   private static NumberFormat ms_numberFormat = new DecimalFormat("###,##0.##");
 
   /**
-   * State is initialized in the constructor, and modified through
-   * method calls. It should only ever have the state
-   * <code>STOP_STATE</code> or <code>RUN_STATE</code>.
+   * State is initialized in the constructor, and modified through method calls. It should only ever
+   * have the state <code>STOP_STATE</code> or <code>RUN_STATE</code>.
    */
   private int m_state;
 
   /**
-   * Contains the first time recorded in nanoseconds. This is set
-   * in the {@link PSStopwatch#start()} method.
+   * Contains the first time recorded in nanoseconds. This is set in the {@link PSStopwatch#start()}
+   * method.
    */
   private long m_initialTime;
 
-  /**
-   * Contains the final time recorded in nanoseconds. This is set
-   * in the {@link #stop()} method.
-   */
+  /** Contains the final time recorded in nanoseconds. This is set in the {@link #stop()} method. */
   private long m_stopTime;
 
   /**
-   * Contains the time (in nanoseconds) when the stopwatch was paused.
-   * This is set in the {@link #pause()} method.
+   * Contains the time (in nanoseconds) when the stopwatch was paused. This is set in the {@link
+   * #pause()} method.
    */
   private long m_pausedTime;
 
   /**
-   * Contains the total time (in nanoseconds) spend in a paused state.
-   * This is set in the {@link #continue()} method.
+   * Contains the total time (in nanoseconds) spend in a paused state. This is set in the {@link
+   * #continue()} method.
    */
   private long m_pauseDelta;
 }

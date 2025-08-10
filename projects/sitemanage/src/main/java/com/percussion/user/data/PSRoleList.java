@@ -16,19 +16,17 @@
  */
 package com.percussion.user.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * A list of roles.
- * <p>
- * Some tools have problems serializing a list of strings, hence this wrapping object.
- * </p>
+ *
+ * <p>Some tools have problems serializing a list of strings, hence this wrapping object.
+ *
  * @author adamgent
  * @author DavidBenua
  */
@@ -36,24 +34,20 @@ import com.percussion.share.data.PSAbstractDataObject;
 @JsonRootName("RoleList")
 public class PSRoleList extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
-    private List<String> roles;
+  private static final long serialVersionUID = 1L;
+  private List<String> roles;
 
-    public PSRoleList() {
-        roles = new ArrayList<>();
-    }
+  public PSRoleList() {
+    roles = new ArrayList<>();
+  }
 
-    /**
-     * Gets the roles.
-     */
-    public List<String> getRoles() {
-        return roles;
-    }
+  /** Gets the roles. */
+  public List<String> getRoles() {
+    return roles;
+  }
 
-    /**
-     * Sets the roles.
-     */
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
+  /** Sets the roles. */
+  public void setRoles(List<String> roles) {
+    this.roles = roles;
+  }
 }

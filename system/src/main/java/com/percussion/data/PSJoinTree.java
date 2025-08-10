@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The PSJoinTree class is used to determine what the connections are
- * between the tables being joined.
+ * The PSJoinTree class is used to determine what the connections are between the tables being
+ * joined.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSJoinTree {
   public PSJoinTree(List<PSBackEndJoin> joins) {

@@ -18,27 +18,25 @@
 package com.percussion.deployer.objectstore;
 
 /**
- * Implemented by classes that are to be notified of changes to the
- * {@link PSDependencyTreeContext} in case the UI representing that context
- * needs to be updated.
+ * Implemented by classes that are to be notified of changes to the {@link PSDependencyTreeContext}
+ * in case the UI representing that context needs to be updated.
  */
 public interface IPSDependencyTreeCtxListener {
   /**
-   * Informs the listener that the supplied context has been modified and that
-   * any nodes represented by that context may need to be updated in the UI.
+   * Informs the listener that the supplied context has been modified and that any nodes represented
+   * by that context may need to be updated in the UI.
    *
    * @param ctx The modified context, never <code>null</code>.
    */
   void ctxChanged(PSDependencyContext ctx);
 
   /**
-   * Determine if the listener is listening for changes on the supplied
-   * package. Used to remove listeners when a package's tree is removed.
+   * Determine if the listener is listening for changes on the supplied package. Used to remove
+   * listeners when a package's tree is removed.
    *
    * @param pkg The package to check, never <code>null</code>.
-   *
-   * @return <code>true</code> if the listener is listening for changes to the
-   * supplied package's tree, <code>false</code> if not.
+   * @return <code>true</code> if the listener is listening for changes to the supplied package's
+   *     tree, <code>false</code> if not.
    */
   boolean listensForChanges(PSDeployableElement pkg);
 }

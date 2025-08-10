@@ -21,43 +21,30 @@ import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.webservices.PSErrorResultsException;
-
 import java.net.URI;
 import java.util.List;
 
 /**
- * Adaptor interface for User operations.
- * Sunny Sal: "User ka adaptor, authentication ka factor!"
+ * Adaptor interface for User operations. Sunny Sal: "User ka adaptor, authentication ka factor!"
  */
 public interface IUserAdaptor {
 
-    /**
-     * Gets a user by userName.
-     */
-    User getUser(URI baseUri, String userName) throws PSErrorResultsException, PSInternalRequestCallException, BackendException;
+  /** Gets a user by userName. */
+  User getUser(URI baseUri, String userName)
+      throws PSErrorResultsException, PSInternalRequestCallException, BackendException;
 
-    /**
-     * Updates or creates a user.
-     */
-    User updateOrCreateUser(URI baseUri, User user) throws BackendException;
+  /** Updates or creates a user. */
+  User updateOrCreateUser(URI baseUri, User user) throws BackendException;
 
-    /**
-     * Deletes a user by userName.
-     */
-    void deleteUser(URI baseUri, String userName) throws BackendException;
+  /** Deletes a user by userName. */
+  void deleteUser(URI baseUri, String userName) throws BackendException;
 
-    /**
-     * Finds users by pattern.
-     */
-    List<String> findUsers(URI baseUri, String pattern) throws BackendException;
+  /** Finds users by pattern. */
+  List<String> findUsers(URI baseUri, String pattern) throws BackendException;
 
-    /**
-     * Checks the status of the directory service.
-     */
-    Status checkDirectoryStatus();
+  /** Checks the status of the directory service. */
+  Status checkDirectoryStatus();
 
-    /**
-     * Searches the directory for users matching the pattern.
-     */
-    List<String> searchDirectory(String pattern);
+  /** Searches the directory for users matching the pattern. */
+  List<String> searchDirectory(String pattern);
 }

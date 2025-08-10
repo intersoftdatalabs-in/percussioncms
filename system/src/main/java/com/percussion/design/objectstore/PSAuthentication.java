@@ -36,9 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * A component that holds one authentication definition used to connect with
- * directory servers. See the toXml(Document) method for the DTD
- * description.
+ * A component that holds one authentication definition used to connect with directory servers. See
+ * the toXml(Document) method for the DTD description.
  */
 public class PSAuthentication extends PSComponent {
   private static final Logger logger = LogManager.getLogger(PSAuthentication.class);
@@ -46,14 +45,10 @@ public class PSAuthentication extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSAuthentication(
       Element sourceNode, IPSDocument parentDoc, List parentComponents, boolean encryptPwd)
@@ -65,19 +60,16 @@ public class PSAuthentication extends PSComponent {
   /**
    * Constructs this object with supplied parameters.
    *
-   * @param name the name of this authentication, not <code>null</code> or
-   *    empty.
-   * @param scheme the authentication scheme, not <code>null</code>,
-   *    one of <code>SCHEME_ENUM</code>.
-   * @param user the user name used to authenticate, not <code>null</code> or
-   *    empty.
-   * @param userAttr the attribute name that holds the user to be
-   *    authenticated, may be <code>null</code> or empty.
-   * @param pw the user password to authenticate with, may be <code>null</code>
-   *    or empty. If <code>null</code> is supplied, an empty
-   *    <code>String</code> is used to authenticate.
-   * @param filterExtension the fully qualified extension name to filter the
-   *    password, may be <code>null</code> but not empty.
+   * @param name the name of this authentication, not <code>null</code> or empty.
+   * @param scheme the authentication scheme, not <code>null</code>, one of <code>SCHEME_ENUM</code>
+   *     .
+   * @param user the user name used to authenticate, not <code>null</code> or empty.
+   * @param userAttr the attribute name that holds the user to be authenticated, may be <code>null
+   *     </code> or empty.
+   * @param pw the user password to authenticate with, may be <code>null</code> or empty. If <code>
+   *     null</code> is supplied, an empty <code>String</code> is used to authenticate.
+   * @param filterExtension the fully qualified extension name to filter the password, may be <code>
+   *     null</code> but not empty.
    */
   public PSAuthentication(
       String name, String scheme, String user, String userAttr, String pw, String filterExtension) {
@@ -92,9 +84,8 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the name of this authentication object.
    *
-   * @return the name of this authentication object, never <code>null</code> or
-   *    empty. This name is used to reference this definition from other
-   *    contexts.
+   * @return the name of this authentication object, never <code>null</code> or empty. This name is
+   *     used to reference this definition from other contexts.
    */
   public String getName() {
     return m_name;
@@ -117,19 +108,18 @@ public class PSAuthentication extends PSComponent {
   /**
    * Should the base DN be appended to the user name for authentication?
    *
-   * @return <code>true</code> if the base DN must be appended to the user
-   *    name for authentication, <code>false</code> otherwise.
+   * @return <code>true</code> if the base DN must be appended to the user name for authentication,
+   *     <code>false</code> otherwise.
    */
   public boolean shouldAppendBaseDn() {
     return m_appendBaseDn;
   }
 
   /**
-   * Set whether or not the base DN must be appended to the user name for
-   * authentication.
+   * Set whether or not the base DN must be appended to the user name for authentication.
    *
-   * @param value <code>true</code> if the base DN must be appended to the
-   *    user name for authentication, <code>false</code> otherwise.
+   * @param value <code>true</code> if the base DN must be appended to the user name for
+   *     authentication, <code>false</code> otherwise.
    */
   public void setAppendBaseDn(boolean value) {
     m_appendBaseDn = value;
@@ -138,19 +128,19 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the scheme used for this authentication.
    *
-   * @return the scheme to be used for this authentication, never
-   *    <code>null</code> or empty, one of <code>SCHEME_ENUM</code>.
+   * @return the scheme to be used for this authentication, never <code>null</code> or empty, one of
+   *     <code>SCHEME_ENUM</code>.
    */
   public String getScheme() {
     return m_scheme;
   }
 
   /**
-   * Set the new authentication scheme. The scheme is not case sensitive and
-   * will be saved in lower case always.
+   * Set the new authentication scheme. The scheme is not case sensitive and will be saved in lower
+   * case always.
    *
-   * @param scheme the authentication scheme to set, not <code>null</code> or
-   *    empty, must be one of <code>SCHEME_ENUM</code>.
+   * @param scheme the authentication scheme to set, not <code>null</code> or empty, must be one of
+   *     <code>SCHEME_ENUM</code>.
    */
   public void setScheme(String scheme) {
     if (scheme == null) throw new IllegalArgumentException("scheme cannot be null");
@@ -173,21 +163,19 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the user name to authenticate with.
    *
-   * @return the user name to authenticate with, never <code>null</code> but
-   *    may be empty.
+   * @return the user name to authenticate with, never <code>null</code> but may be empty.
    */
   public String getUser() {
     return m_user;
   }
 
   /**
-   * Get the user name to authenticate with. The base DN will be appended if
-   * this object defines so.
+   * Get the user name to authenticate with. The base DN will be appended if this object defines so.
    *
-   * @param providerUrl the provider url to extract the base DN from, not
-   *    <code>null</code> or empty.
-   * @return the user name with the base DN appended if this object defines
-   *    so, never <code>null</code> but may empty.
+   * @param providerUrl the provider url to extract the base DN from, not <code>null</code> or
+   *     empty.
+   * @return the user name with the base DN appended if this object defines so, never <code>null
+   *     </code> but may empty.
    */
   public String getUser(String providerUrl) {
     String user = getUser();
@@ -206,8 +194,8 @@ public class PSAuthentication extends PSComponent {
   /**
    * Set a new user.
    *
-   * @param user the new user, may be <code>null</code> but not empty. A
-   *    <code>null</code> parameter is stored as empty <code>String</code>.
+   * @param user the new user, may be <code>null</code> but not empty. A <code>null</code> parameter
+   *     is stored as empty <code>String</code>.
    */
   public void setUser(String user) {
     if (user == null) user = "";
@@ -218,8 +206,8 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the attribute name for the user to authentication with.
    *
-   * @return the attribute name for the user to authenticate with, may be
-   *    <code>null</code>, never empty.
+   * @return the attribute name for the user to authenticate with, may be <code>null</code>, never
+   *     empty.
    */
   public String getUserAttr() {
     return m_userAttr;
@@ -255,15 +243,13 @@ public class PSAuthentication extends PSComponent {
   }
 
   /**
-   * Get the principal for the supplied provider url. This is the user
-   * attribute name appended with the user and appended with the base DN if
-   * so specified in this object.
+   * Get the principal for the supplied provider url. This is the user attribute name appended with
+   * the user and appended with the base DN if so specified in this object.
    *
-   * @param providerUrl the provider url from which to get the base DN which
-   *    will be appended to the principal if shouldAppendBaseDn()
-   *    returns <code>true</code>.
-   * @return the full principal string in the form
-   *    <code>userAttr=user, base DN</code>, never <code>null</code> or empty.
+   * @param providerUrl the provider url from which to get the base DN which will be appended to the
+   *     principal if shouldAppendBaseDn() returns <code>true</code>.
+   * @return the full principal string in the form <code>userAttr=user, base DN</code>, never <code>
+   *     null</code> or empty.
    */
   public String getPrincipal(String providerUrl) {
     String principal = getPrincipal();
@@ -282,10 +268,9 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the base DN from the supplied provider url.
    *
-   * @param providerUrl the provider url from which to get the base url, not
-   *    <code>null</code> or empty.
-   * @return the base DN found in the supplied provider url, never
-   *    <code>null</code>, may be empty.
+   * @param providerUrl the provider url from which to get the base url, not <code>null</code> or
+   *     empty.
+   * @return the base DN found in the supplied provider url, never <code>null</code>, may be empty.
    * @throws MalformedURLException for any error extracting te base DN.
    */
   private String getBaseDn(String providerUrl) throws MalformedURLException {
@@ -307,8 +292,7 @@ public class PSAuthentication extends PSComponent {
   /**
    * Get the password to authenticate with.
    *
-   * @return the password to authenticate with, never <code>null</code>, may
-   *    be empty.
+   * @return the password to authenticate with, never <code>null</code>, may be empty.
    */
   public String getPassword() {
     return m_pw;
@@ -317,9 +301,8 @@ public class PSAuthentication extends PSComponent {
   /**
    * Set a new password to authenticate with.
    *
-   * @param pw the new password to authenticate with, may be <code>null</code>
-   *    or empty. A <code>null</code> parameter is stored as empty
-   *    <code>String</code>.
+   * @param pw the new password to authenticate with, may be <code>null</code> or empty. A <code>
+   *     null</code> parameter is stored as empty <code>String</code>.
    */
   public void setPassword(String pw) {
     if (pw == null) pw = "";
@@ -338,19 +321,19 @@ public class PSAuthentication extends PSComponent {
   }
 
   /**
-   * @return the fully qualified filter extension name to filter the password
-   *    with, never <code>null</code> may be empty.
+   * @return the fully qualified filter extension name to filter the password with, never <code>null
+   *     </code> may be empty.
    */
   public String getFilterExtension() {
     return m_filterExtension;
   }
 
   /**
-   * Set a new password filter extension. Set it to <code>null</code> or empty
-   * if no password filter needs to be applied.
+   * Set a new password filter extension. Set it to <code>null</code> or empty if no password filter
+   * needs to be applied.
    *
-   * @param filterExtension the new password filter extension name, may be
-   *    <code>null</code> or empty.
+   * @param filterExtension the new password filter extension name, may be <code>null</code> or
+   *     empty.
    */
   public void setFilterExtension(String filterExtension) {
     if (filterExtension == null) filterExtension = "";
@@ -358,7 +341,9 @@ public class PSAuthentication extends PSComponent {
     m_filterExtension = filterExtension.trim();
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -452,25 +437,12 @@ public class PSAuthentication extends PSComponent {
   }
 
   /**
-   * Creates an XML output for the following DTD:
-   * &lt;!ELEMENT PSXAuthentication (Credentials, FilterExtensionName?)&gt;
-   * &lt;!ATTLIST PSXAuthentication
-   *    name CDATA #REQUIRED
-   * &lt;
-   * &lt;!ELEMENT Credentials (User, Password)&gt;
-   * &lt;!ELEMENT User (#PCDATA)&gt;
-   * &lt;!ATTLIST User
-   *    attributeName CDATA #REQUIRED
-   * &lt;
-   * &lt;!ELEMENT Password (#PCDATA)&gt;
-   * &lt;!ATTLIST Password
-   *    attributeName CDATA #REQUIRED
-   *    encrypted (yes | no) "yes"
-   * &lt;
-   * &lt;!ELEMENT FilterExtensionName (#PCDATA)&gt;
-   * &lt;!ATTLIST PSAAuthentication
-   *    name CDATA #REQUIRED
-   * &lt;
+   * Creates an XML output for the following DTD: &lt;!ELEMENT PSXAuthentication (Credentials,
+   * FilterExtensionName?)&gt; &lt;!ATTLIST PSXAuthentication name CDATA #REQUIRED &lt; &lt;!ELEMENT
+   * Credentials (User, Password)&gt; &lt;!ELEMENT User (#PCDATA)&gt; &lt;!ATTLIST User
+   * attributeName CDATA #REQUIRED &lt; &lt;!ELEMENT Password (#PCDATA)&gt; &lt;!ATTLIST Password
+   * attributeName CDATA #REQUIRED encrypted (yes | no) "yes" &lt; &lt;!ELEMENT FilterExtensionName
+   * (#PCDATA)&gt; &lt;!ATTLIST PSAAuthentication name CDATA #REQUIRED &lt;
    *
    * @see IPSComponent
    */
@@ -522,11 +494,13 @@ public class PSAuthentication extends PSComponent {
   }
 
   /**
-   * This flag is set by UI dialog, when user changes the password, that is in plain text, thus needs to be reEncrypted.
+   * This flag is set by UI dialog, when user changes the password, that is in plain text, thus
+   * needs to be reEncrypted.
    *
-   * Password Encryption and Decryption takes place only on server side, not on client side.
-   * Thus if password was already encrypted and user has not changed it, then we don't need to reencrypt the password, else
-   * we need to encrypt the password.
+   * <p>Password Encryption and Decryption takes place only on server side, not on client side. Thus
+   * if password was already encrypted and user has not changed it, then we don't need to reencrypt
+   * the password, else we need to encrypt the password.
+   *
    * @param passwordEncrypted
    */
   public void setPasswordEncrypted(boolean passwordEncrypted) {
@@ -538,15 +512,18 @@ public class PSAuthentication extends PSComponent {
   }
 
   /**
-   * THis is a flag set by Client to not encrypt the password on client side. so all client code sets this flag to false
-   * and server side code is defaulted to true
+   * THis is a flag set by Client to not encrypt the password on client side. so all client code
+   * sets this flag to false and server side code is defaulted to true
+   *
    * @param encryptPwd
    */
   public void setEncryptPwd(boolean encryptPwd) {
     this.encryptPwd = encryptPwd;
   }
 
-  /** @see PSComponent */
+  /**
+   * @see PSComponent
+   */
   public void copyFrom(PSComponent c) {
     super.copyFrom(c);
 
@@ -588,8 +565,7 @@ public class PSAuthentication extends PSComponent {
    *
    * @param a the first string to be tested, assumed not <code>null</code>.
    * @param b the second string to be tested, assumed not <code>null</code>.
-   * @return <code>true</code> if both strings are equal, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if both strings are equal, <code>false</code> otherwise.
    */
   private boolean equals(String a, String b) {
     if (a == null && b == null) return true;
@@ -602,62 +578,51 @@ public class PSAuthentication extends PSComponent {
   /** The XML node name */
   public static final String XML_NODE_NAME = "PSXAuthentication";
 
-  /**
-   * The scheme element value if no authentication scheme is used.
-   */
+  /** The scheme element value if no authentication scheme is used. */
   public static final String SCHEME_NONE = "none";
 
-  /**
-   * The scheme element value for the simple authentication scheme.
-   */
+  /** The scheme element value for the simple authentication scheme. */
   public static final String SCHEME_SIMPLE = "simple";
 
-  /**
-   * The scheme element value for the cram-md authentication scheme.
-   */
+  /** The scheme element value for the cram-md authentication scheme. */
   public static final String SCHEME_CRAMMD = "cram-md";
 
-  /**
-   * An array with all supported authentication schemes.
-   */
+  /** An array with all supported authentication schemes. */
   public static final String[] SCHEME_ENUM = {SCHEME_NONE, SCHEME_SIMPLE, SCHEME_CRAMMD};
 
   /**
-   * Holds the name of this authentication. This name is used to reference
-   * this definition from other contexts. Set during construction, never
-   * <code>null</code> or empty after that.
+   * Holds the name of this authentication. This name is used to reference this definition from
+   * other contexts. Set during construction, never <code>null</code> or empty after that.
    */
   private String m_name = null;
 
   /**
-   * Holds the authentication scheme. Set during construction, never
-   * <code>null</code> or empty after that.
+   * Holds the authentication scheme. Set during construction, never <code>null</code> or empty
+   * after that.
    */
   private String m_scheme = null;
 
   /**
-   * Holds the user to authenticate with. Set during construction, never
-   * <code>null</code> may be empty after that.
+   * Holds the user to authenticate with. Set during construction, never <code>null</code> may be
+   * empty after that.
    */
   private String m_user = null;
 
   /**
-   * This flag is used to specify whether or not the base DN must be appended
-   * to the user name for authentication. Defaults to <code>false</code>, set
-   * through setAppendBaseDn(boolean).
+   * This flag is used to specify whether or not the base DN must be appended to the user name for
+   * authentication. Defaults to <code>false</code>, set through setAppendBaseDn(boolean).
    */
   private boolean m_appendBaseDn = false;
 
   /**
-   * Holds the attribute name which holds the user name to authenticate with.
-   * Set during construction, may be <code>null</code> but not empty after
-   * that.
+   * Holds the attribute name which holds the user name to authenticate with. Set during
+   * construction, may be <code>null</code> but not empty after that.
    */
   private String m_userAttr = null;
 
   /**
-   * Holds the user password to authenticate with. Set during construction,
-   * never <code>null</code> after that, may be empty.
+   * Holds the user password to authenticate with. Set during construction, never <code>null</code>
+   * after that, may be empty.
    */
   private String m_pw = null;
 
@@ -665,10 +630,9 @@ public class PSAuthentication extends PSComponent {
   private boolean encryptPwd = true;
 
   /**
-   * Holds the fully qualified name for the filter extension used to filter
-   * the password. Set during construction, never <code>null</code> after
-   * that but may be empty. Is set to empty if no password filter needs to be
-   * applied.
+   * Holds the fully qualified name for the filter extension used to filter the password. Set during
+   * construction, never <code>null</code> after that but may be empty. Is set to empty if no
+   * password filter needs to be applied.
    */
   private String m_filterExtension = "";
 

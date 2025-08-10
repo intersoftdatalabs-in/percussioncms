@@ -17,10 +17,9 @@
 package com.percussion.cms.objectstore;
 
 /**
- * This class is used to define rules for elements to be included in the
- * Element returned in {@link PSItemComponent#toXml(Document,PSAcceptElements)}
- * calls.  This may be expanded at a later date to provide more flexibility of
- * including and excluding elements based on object values in the
+ * This class is used to define rules for elements to be included in the Element returned in {@link
+ * PSItemComponent#toXml(Document,PSAcceptElements)} calls. This may be expanded at a later date to
+ * provide more flexibility of including and excluding elements based on object values in the
  * sys_StandardItem.xsd.
  */
 // REFACTORED: CP-JAVA11
@@ -46,6 +45,7 @@ public class PSAcceptElements {
 
   /**
    * Specifies the inclusion of binary values in {@link PSFieldItem#toXml(Document)} calls.
+   *
    * @return {@code true} if they are to be included, otherwise {@code false}.
    */
   public boolean includeBinary() {

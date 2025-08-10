@@ -145,13 +145,12 @@ public class PSCheckVersion extends Task {
   }
 
   /**
-   * Locates the Version.properties, the order of lookup is as follows:
-   * 1) rxapp.ear/rxapp.war/WEB-INF/lib/rxserver.jar
-   * 2) RxServices.war/WEB-INF/lib/rxclient.jar
-   * 3) com.percussion.client_1.0.0/lib/rxclient.jar
+   * Locates the Version.properties, the order of lookup is as follows: 1)
+   * rxapp.ear/rxapp.war/WEB-INF/lib/rxserver.jar 2) RxServices.war/WEB-INF/lib/rxclient.jar 3)
+   * com.percussion.client_1.0.0/lib/rxclient.jar
    *
-   * @return properties object containing version information, never
-   *         <code>null</code>, may be empty.
+   * @return properties object containing version information, never <code>null</code>, may be
+   *     empty.
    */
   private Properties loadVersionProperties() {
     InputStream in = null;
@@ -230,11 +229,8 @@ public class PSCheckVersion extends Task {
   /**
    * Gets the version information from a given set of properties.
    *
-   * @param p the properties containing the version information, assumed not
-   *           <code>null</code>.
-   *
-   * @return the version information in the following format:
-   *         {major}.{minor}.{micro}[buildNumber]
+   * @param p the properties containing the version information, assumed not <code>null</code>.
+   * @return the version information in the following format: {major}.{minor}.{micro}[buildNumber]
    */
   private String getVersion(Properties p) {
     String major = p.getProperty("majorVersion");
@@ -252,9 +248,7 @@ public class PSCheckVersion extends Task {
   /**
    * Gets the optional id from a given set of properties.
    *
-   * @param p the properties containing the version information, assumed not
-   *           <code>null</code>.
-   *
+   * @param p the properties containing the version information, assumed not <code>null</code>.
    * @return the optional id.
    */
   private String getOptionalId(Properties p) {
@@ -287,50 +281,38 @@ public class PSCheckVersion extends Task {
     m_operation = operation;
   }
 
-  /**
-   * The Rhythmyx root directory.
-   */
+  /** The Rhythmyx root directory. */
   private String m_root = "C:/Rhythmyx";
 
-  /**
-   * The location of the jar file, default is rxserver.jar.
-   */
+  /** The location of the jar file, default is rxserver.jar. */
   private String m_jarFile = "rxserver.jar";
 
   /**
-   * The type of patch operation to be performed if the version checking
-   * succeeds. Valid values are {@link #INSTALL_OP} and {@link #UNINSTALL_OP}.
-   * Defaults to {@link #INSTALL_OP}.
+   * The type of patch operation to be performed if the version checking succeeds. Valid values are
+   * {@link #INSTALL_OP} and {@link #UNINSTALL_OP}. Defaults to {@link #INSTALL_OP}.
    */
   private String m_operation = "install";
 
   /**
-   * The jar file to read the version properties from, relative to the Rhythmyx
-   * root of a server installation.
+   * The jar file to read the version properties from, relative to the Rhythmyx root of a server
+   * installation.
    */
   private static final String SERVER_JAR_FILE =
       "jetty/base/webapps/Rhythmyx/WEB-INF/lib/perc-system-*.jar";
 
   /**
-   * Directly read the version.properties if you fail to find it in the root of
-   * the installation.
+   * Directly read the version.properties if you fail to find it in the root of the installation.
    */
   private static final String DTS_STAGING = "Staging";
 
   private static final String VERSION_PROPERTIES = "Version.properties";
 
-  /**
-   * The name of the properties file containing the version.
-   */
+  /** The name of the properties file containing the version. */
   private static final String VERSION_FILE = "com/percussion/util/Version.properties";
 
-  /**
-   * Install operation.
-   */
+  /** Install operation. */
   private static final String INSTALL_OP = "install";
 
-  /**
-   * Uninstall operation.
-   */
+  /** Uninstall operation. */
   private static final String UNINSTALL_OP = "uninstall";
 }

@@ -27,9 +27,7 @@ import com.percussion.design.objectstore.PSSystemValidationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- * Plan builder for deleting simple child rows.
- */
+/** Plan builder for deleting simple child rows. */
 public class PSSimpleChildDeletePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSSimpleChildDeletePlanBuilder(
@@ -38,12 +36,11 @@ public class PSSimpleChildDeletePlanBuilder extends PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a plan that will delete any simple child rows.  See
-   * {@link PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet)
-   * super.createModifyPlan()} for details.
+   * Creates a plan that will delete any simple child rows. See {@link
+   * PSModifyPlanBuilder#createModifyPlan(PSDisplayMapper, PSFieldSet) super.createModifyPlan()} for
+   * details.
    *
-   * @throws IllegalArgumentException if fieldSet type is not
-   * {@link PSFieldSet#TYPE_SIMPLE_CHILD}.
+   * @throws IllegalArgumentException if fieldSet type is not {@link PSFieldSet#TYPE_SIMPLE_CHILD}.
    */
   public PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException {

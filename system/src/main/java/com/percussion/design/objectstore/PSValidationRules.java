@@ -22,13 +22,9 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXValidationRules DTD in BasicObjects.dtd.
- */
+/** Implementation for the PSXValidationRules DTD in BasicObjects.dtd. */
 public class PSValidationRules extends PSCollectionComponent {
-  /**
-   * Create a new collection of PSConditionalExit objects.
-   */
+  /** Create a new collection of PSConditionalExit objects. */
   public PSValidationRules() {
     super((new PSConditionalExit()).getClass());
   }
@@ -36,14 +32,10 @@ public class PSValidationRules extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSValidationRules(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -63,8 +55,8 @@ public class PSValidationRules extends PSCollectionComponent {
   /**
    * Set a new number ob errors after validation should stop.
    *
-   * @param maxErrorsToStop the new number of errors after validation should
-   *    stop. Must be greater than 0.
+   * @param maxErrorsToStop the new number of errors after validation should stop. Must be greater
+   *     than 0.
    */
   public void setMaxErrorsToStop(int maxErrorsToStop) {
     if (maxErrorsToStop <= 0)
@@ -74,9 +66,8 @@ public class PSValidationRules extends PSCollectionComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSValidationRules object, not <code>null</code>.
    */
@@ -94,8 +85,7 @@ public class PSValidationRules extends PSCollectionComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSValidationRules)) return false;
@@ -127,7 +117,6 @@ public class PSValidationRules extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -170,7 +159,6 @@ public class PSValidationRules extends PSCollectionComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -189,8 +177,8 @@ public class PSValidationRules extends PSCollectionComponent {
   public static final String XML_NODE_NAME = "PSXValidationRules";
 
   /**
-   * This attributes specifies the number of errors until the process is
-   * stopped and the errors returned to the user.
+   * This attributes specifies the number of errors until the process is stopped and the errors
+   * returned to the user.
    */
   private int m_maxErrorsToStop = 10;
 

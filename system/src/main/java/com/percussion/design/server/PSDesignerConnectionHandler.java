@@ -50,17 +50,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSDesignerConnectionHandler class is used to open and close
- * sessions on behalf of the designer client.
+ * The PSDesignerConnectionHandler class is used to open and close sessions on behalf of the
+ * designer client.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSDesignerConnectionHandler implements IPSRequestHandler {
-  /**
-   * Create a handler for designer connections.
-   */
+  /** Create a handler for designer connections. */
   public PSDesignerConnectionHandler() {
     super(); // no magic here!
   }
@@ -68,13 +66,11 @@ public class PSDesignerConnectionHandler implements IPSRequestHandler {
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
   /**
-   * Process a designer connect/disconnect request.
-   * This uses the input context information and data.
-   * The results are written to the specified output
-   * stream using the appropriate XML document format.
+   * Process a designer connect/disconnect request. This uses the input context information and
+   * data. The results are written to the specified output stream using the appropriate XML document
+   * format.
    *
-   * @param   request      the request object containing all context
-   *                        data associated with the request
+   * @param request the request object containing all context data associated with the request
    */
   public void processRequest(PSRequest request) {
     Document respDoc = null;
@@ -109,16 +105,11 @@ public class PSDesignerConnectionHandler implements IPSRequestHandler {
         respDoc, IPSMimeContentTypes.MIME_TYPE_TEXT_XML + "; charset=" + PSCharSets.rxStdEnc());
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() { // nothing to do here
   }
 
-  /**
-   * Opens a session to the server. Access levels may not be checked.
-   *
-   */
+  /** Opens a session to the server. Access levels may not be checked. */
   private Document openSession(PSRequest request)
       throws PSAuthorizationException,
           PSAuthenticationRequiredException,

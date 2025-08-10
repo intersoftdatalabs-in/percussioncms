@@ -64,14 +64,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Creates a new item or new copy of the supplied item and adds it to the
- * supplied folder corresponding to the folder path. Expects sys_contenttypeid,
- * folderPath as required parameters and itemPath as an optional parameter.
- * Returns a JSONObject consistsing of itemId and folderId parameters. If there
- * is an error adding the item to the folder then returns -1 for folderId. If
- * there is a validation error while creating the item, adds validationError
- * parameter to the JSONObject and returns.
- *
+ * Creates a new item or new copy of the supplied item and adds it to the supplied folder
+ * corresponding to the folder path. Expects sys_contenttypeid, folderPath as required parameters
+ * and itemPath as an optional parameter. Returns a JSONObject consistsing of itemId and folderId
+ * parameters. If there is an error adding the item to the folder then returns -1 for folderId. If
+ * there is a validation error while creating the item, adds validationError parameter to the
+ * JSONObject and returns.
  */
 public class PSCreateItemAction extends PSAAActionBase {
 
@@ -162,19 +160,16 @@ public class PSCreateItemAction extends PSAAActionBase {
   /**
    * Creates the new Item or new copy with the supplied parameters.
    *
-   * @param ctypeId Id of the content type whose item will be created assumed
-   *           to be a valid content type id.
-   * @param itemPath If <code>null</code> or empty creates a new item, other
-   *           wise creates a new copy of the item corresponding to the path.
+   * @param ctypeId Id of the content type whose item will be created assumed to be a valid content
+   *     type id.
+   * @param itemPath If <code>null</code> or empty creates a new item, other wise creates a new copy
+   *     of the item corresponding to the path.
    * @return Id of the newly created item.
-   * @throws PSErrorException
-   *            {@see IPSContentWs#createItems(String, int, String, String)}
-   * @throws PSErrorResultsException
-   *            {@see IPSContentWs#saveItems(List, boolean, boolean, String, String)}
-   * @throws PSInvalidContentTypeException
-   *            {@see PSItemDefManager#getSummary(String, int)}
-   * @throws PSErrorsException
-   *            {@see IPSContentWs#checkinItems(List, String, String)}
+   * @throws PSErrorException {@see IPSContentWs#createItems(String, int, String, String)}
+   * @throws PSErrorResultsException {@see IPSContentWs#saveItems(List, boolean, boolean, String,
+   *     String)}
+   * @throws PSInvalidContentTypeException {@see PSItemDefManager#getSummary(String, int)}
+   * @throws PSErrorsException {@see IPSContentWs#checkinItems(List, String, String)}
    * @throws PSAuthenticationFailedException
    * @throws PSAuthorizationException
    * @throws PSInternalRequestCallException
@@ -234,17 +229,15 @@ public class PSCreateItemAction extends PSAAActionBase {
   }
 
   /**
-   * Checks whether an item of the supplied content type can be created by the
-   * logged in user if not throws an exception, otherwise does nothing. Makes
-   * an internal request to the content editor URL by passing in workflow id
-   * and other parameters. If user is not authorized to create item, then the
-   * internal request throws an exception with authorization failure message in
-   * it. If the message has authorization failure, then throws client exception
-   * with authorization error message, for any other exception simply returns
-   * that exception wrapping in client exception.
+   * Checks whether an item of the supplied content type can be created by the logged in user if not
+   * throws an exception, otherwise does nothing. Makes an internal request to the content editor
+   * URL by passing in workflow id and other parameters. If user is not authorized to create item,
+   * then the internal request throws an exception with authorization failure message in it. If the
+   * message has authorization failure, then throws client exception with authorization error
+   * message, for any other exception simply returns that exception wrapping in client exception.
    *
-   * @param ctypeId id of the content type whose item needs to be created, if
-   * not a valid content type then throws exception.
+   * @param ctypeId id of the content type whose item needs to be created, if not a valid content
+   *     type then throws exception.
    * @throws PSInternalRequestCallException
    * @throws PSAuthorizationException
    * @throws PSAuthenticationFailedException
@@ -282,9 +275,8 @@ public class PSCreateItemAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to set the values of {@link IPSHtmlParameters#SYS_TITLE}
-   * field and displaytitle filed to the supplied itemTitle on the
-   * supplied coreItem, if those fields exist.
+   * Helper method to set the values of {@link IPSHtmlParameters#SYS_TITLE} field and displaytitle
+   * filed to the supplied itemTitle on the supplied coreItem, if those fields exist.
    *
    * @param itemTitle Assumed not <code>null</code>.
    * @param coreItem Assumed not <code>null</code>.
@@ -316,12 +308,11 @@ public class PSCreateItemAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to add the supplied itemid to the folder corresponding to
-   * the supplied folder path.
+   * Helper method to add the supplied itemid to the folder corresponding to the supplied folder
+   * path.
    *
    * @param itemid assumed as a valid item id.
-   * @param folderPath Assumed not <code>null</code> or empty and corresponds
-   *           to valid folder.
+   * @param folderPath Assumed not <code>null</code> or empty and corresponds to valid folder.
    * @return folder id corresponding to the supplied older path.
    * @throws PSErrorException Incase of failure to add the item to the folder.
    */
@@ -334,8 +325,6 @@ public class PSCreateItemAction extends PSAAActionBase {
     return fid.getUUID();
   }
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static Log ms_log = LogFactory.getLog(PSCreateItemAction.class);
 }

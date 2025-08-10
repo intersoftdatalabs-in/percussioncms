@@ -28,26 +28,23 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.cache.PSCacheProxy;
 
 /**
- * This effect flushes the item from the cache when it is added to or removed
- * from a folder. If the user moves a Landing Page, then this effect is not
- * adequate; a Nav Reset is required. However for pages which are not listed in
- * the Nav, this effect will force them to appear in the correct navigation once
- * they are moved.
+ * This effect flushes the item from the cache when it is added to or removed from a folder. If the
+ * user moves a Landing Page, then this effect is not adequate; a Nav Reset is required. However for
+ * pages which are not listed in the Nav, this effect will force them to appear in the correct
+ * navigation once they are moved.
  *
  * @author DavidBenua
- *
  */
 public class PSNavFolderCacheFlushEffect extends PSNavAbstractEffect implements IPSEffect {
 
   /**
-   * Attempt to process the effect. Items which are added or removed from
-   * folders will cause this effect to fire. This method only processes new or
-   * deleted relationships. All other changes are ignored.
+   * Attempt to process the effect. Items which are added or removed from folders will cause this
+   * effect to fire. This method only processes new or deleted relationships. All other changes are
+   * ignored.
    *
    * @see com.percussion.relationship.IPSEffect#attempt(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext,
-   *      com.percussion.relationship.IPSExecutionContext,
-   *      com.percussion.relationship.PSEffectResult)
+   *     com.percussion.server.IPSRequestContext, com.percussion.relationship.IPSExecutionContext,
+   *     com.percussion.relationship.PSEffectResult)
    */
   public void attempt(
       Object[] params, IPSRequestContext req, IPSExecutionContext excontext, PSEffectResult result)

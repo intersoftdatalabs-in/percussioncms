@@ -22,62 +22,71 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Response object for redirect validation.
- */
+/** Response object for redirect validation. */
 @XmlRootElement(name = "response")
 @JsonRootName("response")
 public class PSRedirectValidationResponse {
 
-    private String errorMessage;
-    private PSModuleLicense redirectLicense;
-    private String bucketName;
-    private RedirectValidationStatus status;
+  private String errorMessage;
+  private PSModuleLicense redirectLicense;
+  private String bucketName;
+  private RedirectValidationStatus status;
 
-    /** @return the error message, if any */
-    public String getErrorMessage() {
-        return errorMessage;
-    }
+  /**
+   * @return the error message, if any
+   */
+  public String getErrorMessage() {
+    return errorMessage;
+  }
 
-    /** Sets the error message. */
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+  /** Sets the error message. */
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
 
-    /** @return the redirect license */
-    public PSModuleLicense getRedirectLicense() {
-        return redirectLicense;
-    }
+  /**
+   * @return the redirect license
+   */
+  public PSModuleLicense getRedirectLicense() {
+    return redirectLicense;
+  }
 
-    /** Sets the redirect license. */
-    public void setRedirectLicense(PSModuleLicense redirectLicense) {
-        this.redirectLicense = redirectLicense;
-    }
+  /** Sets the redirect license. */
+  public void setRedirectLicense(PSModuleLicense redirectLicense) {
+    this.redirectLicense = redirectLicense;
+  }
 
-    /** @return the S3 bucket name */
-    public String getBucketName() {
-        return bucketName;
-    }
+  /**
+   * @return the S3 bucket name
+   */
+  public String getBucketName() {
+    return bucketName;
+  }
 
-    /** Sets the S3 bucket name. */
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
+  /** Sets the S3 bucket name. */
+  public void setBucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
 
-    /** @return the redirect validation status */
-    public RedirectValidationStatus getStatus() {
-        return status;
-    }
+  /**
+   * @return the redirect validation status
+   */
+  public RedirectValidationStatus getStatus() {
+    return status;
+  }
 
-    /** Sets the redirect validation status. */
-    public void setStatus(RedirectValidationStatus status) {
-        this.status = status;
-    }
+  /** Sets the redirect validation status. */
+  public void setStatus(RedirectValidationStatus status) {
+    this.status = status;
+  }
 
-    /**
-     * Enum for redirect validation status.
-     */
-    public enum RedirectValidationStatus {
-        PUBLISHED, NO_LICENSE, NOT_PUBLISHED, NO_CHILDREN, ERROR, NOT_APPLICABLE
-    }
+  /** Enum for redirect validation status. */
+  public enum RedirectValidationStatus {
+    PUBLISHED,
+    NO_LICENSE,
+    NOT_PUBLISHED,
+    NO_CHILDREN,
+    ERROR,
+    NOT_APPLICABLE
+  }
 }

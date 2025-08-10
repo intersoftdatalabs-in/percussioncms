@@ -18,26 +18,22 @@ package com.percussion.tablefactory;
 
 import com.percussion.utils.jdbc.IPSConnectionInfo;
 
-/**
- * Encapsulates information about a change to a table.
- */
+/** Encapsulates information about a change to a table. */
 public class PSJdbcTableChangeEvent {
   /**
-   * Constructs an event with the information about the table that has changed
-   * and the type of change that has occurred using jdbc connection info.
+   * Constructs an event with the information about the table that has changed and the type of
+   * change that has occurred using jdbc connection info.
    *
-   * @param driver The name of the driver used to access the table that has
-   * changed, may not be <code>null</code> or empty.
-   * @param server The name of the server on which the database containing the
-   * table resides, may be <code>null</code> or empty.
-   * @param database The name of the database in which the table is defined,
-   * may be <code>null</code> or empty.
-   * @param schema The origin or schema of the table, may be <code>null</code>,
-   * never empty.
+   * @param driver The name of the driver used to access the table that has changed, may not be
+   *     <code>null</code> or empty.
+   * @param server The name of the server on which the database containing the table resides, may be
+   *     <code>null</code> or empty.
+   * @param database The name of the database in which the table is defined, may be <code>null
+   *     </code> or empty.
+   * @param schema The origin or schema of the table, may be <code>null</code>, never empty.
    * @param table The name of the table, may not be <code>null</code> or empty.
-   * @param action The type of change that has occurred, must be one of the
-   * <code>ACTION_xxx</code> types.
-   *
+   * @param action The type of change that has occurred, must be one of the <code>ACTION_xxx</code>
+   *     types.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJdbcTableChangeEvent(
@@ -62,15 +58,14 @@ public class PSJdbcTableChangeEvent {
   }
 
   /**
-   * Constructs an event with the information about the table that has changed
-   * and the type of change that has occurred using a datasource.
+   * Constructs an event with the information about the table that has changed and the type of
+   * change that has occurred using a datasource.
    *
-   * @param connInfo The connection info used to access the table that
-   * has changed, may be <code>null</code> or empty.
+   * @param connInfo The connection info used to access the table that has changed, may be <code>
+   *     null</code> or empty.
    * @param table The name of the table, may not be <code>null</code> or empty.
-   * @param action The type of change that has occurred, must be one of the
-   * <code>ACTION_xxx</code> types.
-   *
+   * @param action The type of change that has occurred, must be one of the <code>ACTION_xxx</code>
+   *     types.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSJdbcTableChangeEvent(IPSConnectionInfo connInfo, String table, int action) {
@@ -85,11 +80,11 @@ public class PSJdbcTableChangeEvent {
   }
 
   /**
-   * Determine if connection info was supplied during construction, rather than
-   * the jdbc connection data.
+   * Determine if connection info was supplied during construction, rather than the jdbc connection
+   * data.
    *
-   * @return <code>true</code> if conn info was supplied, <code>false</code>
-   * if driver, server and database were supplied.
+   * @return <code>true</code> if conn info was supplied, <code>false</code> if driver, server and
+   *     database were supplied.
    */
   public boolean usedConnInfo() {
     return m_driver == null;
@@ -98,8 +93,8 @@ public class PSJdbcTableChangeEvent {
   /**
    * Get the driver name.
    *
-   * @return The driver name, , may <code>null</code> or empty if the database
-   * was located through a JNDI lookup.
+   * @return The driver name, , may <code>null</code> or empty if the database was located through a
+   *     JNDI lookup.
    */
   public String getDriver() {
     return m_driver;
@@ -108,8 +103,8 @@ public class PSJdbcTableChangeEvent {
   /**
    * Gets the server name.
    *
-   * @return The server name, may <code>null</code> or empty if the database
-   * was located through a JNDI lookup.
+   * @return The server name, may <code>null</code> or empty if the database was located through a
+   *     JNDI lookup.
    */
   public String getServer() {
     return m_server;
@@ -152,65 +147,58 @@ public class PSJdbcTableChangeEvent {
   }
 
   /**
-   * Get connection info supplied during construction.  Use
-   * {@link #usedConnInfo()} to determine if the event supplied connection
-   * info, as it may be supplied as <code>null</code>.
+   * Get connection info supplied during construction. Use {@link #usedConnInfo()} to determine if
+   * the event supplied connection info, as it may be supplied as <code>null</code>.
    *
-   * @return The connection info, may be <code>null</code> if not supplied
-   * or if <code>null</code> was supplied.
+   * @return The connection info, may be <code>null</code> if not supplied or if <code>null</code>
+   *     was supplied.
    */
   public IPSConnectionInfo getConnectionInfo() {
     return m_connInfo;
   }
 
-  /**
-   * Constant to indicate that a schema change has occurred.
-   */
+  /** Constant to indicate that a schema change has occurred. */
   public static final int ACTION_SCHEMA_CHANGED = 1;
 
   /**
-   * Info used to access the database in which the table change has
-   * occurred. May be <code>null</code> or empty, never modified after
-   * construction.
+   * Info used to access the database in which the table change has occurred. May be <code>null
+   * </code> or empty, never modified after construction.
    */
   private IPSConnectionInfo m_connInfo = null;
 
   /**
-   * Driver used to access the database in which the table change has occurred.
-   * May be <code>null</code> or empty only if constructed with a datasource,
-   * never modified after construction.
+   * Driver used to access the database in which the table change has occurred. May be <code>null
+   * </code> or empty only if constructed with a datasource, never modified after construction.
    */
   private String m_driver = null;
 
   /**
-   * Server of the database in which the table change has occurred.
-   * Initialized in the ctor, may be <code>null</code> or empty, never modified
-   * after that.
+   * Server of the database in which the table change has occurred. Initialized in the ctor, may be
+   * <code>null</code> or empty, never modified after that.
    */
   private String m_server = null;
 
   /**
-   * Name of the database in which the table change has occurred.
-   * Initialized in the ctor, may be <code>null</code> or empty, never modified
-   * after that.
+   * Name of the database in which the table change has occurred. Initialized in the ctor, may be
+   * <code>null</code> or empty, never modified after that.
    */
   private String m_database = null;
 
   /**
-   * Name of the table that has changed.  Initialized in the
-   * ctor, never <code>null</code>, empty, or modified after that.
+   * Name of the table that has changed. Initialized in the ctor, never <code>null</code>, empty, or
+   * modified after that.
    */
   private String m_table = null;
 
   /**
-   * Schema or origin of the table that has changed.  Initialized in the
-   * ctor, may be <code>null</code> or empty, never modified after that.
+   * Schema or origin of the table that has changed. Initialized in the ctor, may be <code>null
+   * </code> or empty, never modified after that.
    */
   private String m_schema = null;
 
   /**
-   * The type of change that has occurred, set in the ctor, one of the
-   * <code>ACTION_xxx</code> types.
+   * The type of change that has occurred, set in the ctor, one of the <code>ACTION_xxx</code>
+   * types.
    */
   private int m_action;
 }

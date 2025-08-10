@@ -53,10 +53,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Creates the DisplayField element according to the ContentEditor.dtd when
- * the data is an entire result set which contains multiple columns and
- * multiple rows. Behavior will vary depending on whether the context is
- * a row editor or summary editor and whether there is currently any data in
+ * Creates the DisplayField element according to the ContentEditor.dtd when the data is an entire
+ * result set which contains multiple columns and multiple rows. Behavior will vary depending on
+ * whether the context is a row editor or summary editor and whether there is currently any data in
  * the table being displayed with this builder.
  */
 public class PSTableValueBuilder extends PSDisplayFieldBuilder {
@@ -75,25 +74,20 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * Creates a DisplayField builder that creates a table view. All fields
-   * referenced in the mapper which are not binary and which the designer
-   * has not restricted from this view are allowed. The table headings are
-   * labeled the same as the field in the row editor and the order from
-   * left to right matches the order from top to bottom in the row editor
-   * for the same fieldset.
-   * <p>See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSFieldSet,
-   * PSUISet, PSEditorDocumentBuilder) base} class for description of fieldSet and ui and their
-   * requirements.
+   * Creates a DisplayField builder that creates a table view. All fields referenced in the mapper
+   * which are not binary and which the designer has not restricted from this view are allowed. The
+   * table headings are labeled the same as the field in the row editor and the order from left to
+   * right matches the order from top to bottom in the row editor for the same fieldset.
    *
-   * @param mapper A list of mappings used to determine the column headings
-   *    and display order for this table view.
+   * <p>See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSFieldSet, PSUISet,
+   * PSEditorDocumentBuilder) base} class for description of fieldSet and ui and their requirements.
    *
-   * @param parentBuilder This builder is always a single row in a larger
-   *    document. The larger document is managed by this parentBuilder.
-   *
-   * @param showAllFields This flag overrides the showInSummary and
-   *    showInPreview properties. If <code>true</code>, these properties are
-   *    ignored, otherwise they are honored.
+   * @param mapper A list of mappings used to determine the column headings and display order for
+   *     this table view.
+   * @param parentBuilder This builder is always a single row in a larger document. The larger
+   *     document is managed by this parentBuilder.
+   * @param showAllFields This flag overrides the showInSummary and showInPreview properties. If
+   *     <code>true</code>, these properties are ignored, otherwise they are honored.
    */
   public PSTableValueBuilder(
       PSFieldSet fieldSet,
@@ -343,23 +337,15 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   /**
    * Creates the hidden elements that will become hidden form parameters.
    *
-   * @param doc The document that will eventually contain the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param parent The generated elements will be added to this one. Assumed
-   *   not <code>null</code>.
-   *
-   * @param data The data used to get the values for the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param keyNames Contains the keys for extractors which you want to
-   *    add as hidden fields. Assumed none of the entries are empty.
-   *
+   * @param doc The document that will eventually contain the nodes. Assumed not <code>null</code>.
+   * @param parent The generated elements will be added to this one. Assumed not <code>null</code>.
+   * @param data The data used to get the values for the nodes. Assumed not <code>null</code>.
+   * @param keyNames Contains the keys for extractors which you want to add as hidden fields.
+   *     Assumed none of the entries are empty.
    * @return <code>true</code> if any node was added to parent, <code>false
    *   </code> otherwise.
-   *
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    needed values from the execution data.
+   * @throws PSDataExtractionException If any problems occur while getting needed values from the
+   *     execution data.
    */
   private boolean addHiddenFields(
       Document doc, Element parent, PSExecutionData data, String[] keyNames)
@@ -399,27 +385,17 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * Creates the ActionLink elements for the summary editor. Each row in the
-   * summary editor can have several actions, such as delete, move up, move
-   * down and modify.
+   * Creates the ActionLink elements for the summary editor. Each row in the summary editor can have
+   * several actions, such as delete, move up, move down and modify.
    *
-   * @param doc The document that will eventually contain the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param parent The generated elements will be added to this one. Assumed
-   *   not <code>null</code>.
-   *
-   * @param data The data used to get the values for the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param rowId The unique identifier for the table row which these
-   *   actions will work upon.
-   *
+   * @param doc The document that will eventually contain the nodes. Assumed not <code>null</code>.
+   * @param parent The generated elements will be added to this one. Assumed not <code>null</code>.
+   * @param data The data used to get the values for the nodes. Assumed not <code>null</code>.
+   * @param rowId The unique identifier for the table row which these actions will work upon.
    * @return <code>true</code> if any node was added to parent, <code>false
    *   </code> otherwise.
-   *
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    needed values from the execution data.
+   * @throws PSDataExtractionException If any problems occur while getting needed values from the
+   *     execution data.
    */
   private boolean addRowEditActions(
       Document doc, Element parent, PSExecutionData data, String rowId)
@@ -509,28 +485,19 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * Creates the ActionLink elements for the summary view. The summary view
-   * is one of the child table views used when building a row editor. Any
-   * custom actions are properly handled.
+   * Creates the ActionLink elements for the summary view. The summary view is one of the child
+   * table views used when building a row editor. Any custom actions are properly handled.
    *
-   * @param doc The document that will eventually contain the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param parent The generated elements will be added to this one. Assumed
-   *   not <code>null</code>.
-   *
-   * @param data The data used to get the values for the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param hasData A flag to indicate whether this table has any rows.
-   *    <code>true</code> indicates 1 or more rows are present. The text of
-   *    the button and the redirect differ between these 2 states.
-   *
+   * @param doc The document that will eventually contain the nodes. Assumed not <code>null</code>.
+   * @param parent The generated elements will be added to this one. Assumed not <code>null</code>.
+   * @param data The data used to get the values for the nodes. Assumed not <code>null</code>.
+   * @param hasData A flag to indicate whether this table has any rows. <code>true</code> indicates
+   *     1 or more rows are present. The text of the button and the redirect differ between these 2
+   *     states.
    * @return <code>true</code> if any node was added to parent, <code>false
    *   </code> otherwise.
-   *
-   * @throws PSDataExtractionException If any problems occur while getting
-   *    needed values from the execution data.
+   * @throws PSDataExtractionException If any problems occur while getting needed values from the
+   *     execution data.
    */
   private boolean addSummaryViewActions(
       Document doc, Element parent, PSExecutionData data, boolean hasData)
@@ -631,35 +598,26 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   }
 
   /**
-   * Adds all the parameters needed for the submit button on this form so
-   * it submits to the modify handler first. The following params are added:
+   * Adds all the parameters needed for the submit button on this form so it submits to the modify
+   * handler first. The following params are added:
+   *
    * <ul>
-   *    <li>sys_pageid - passed in value</li>
-   *    <li>DBActionType - insert or update based on new doc status</li>
-   *    <li>sys_childid - mapper id of the associated table</li>
-   *    <li>sys_contentid - contentid of this item, only present if not
-   *       empty.</li>
-   *    <li>sys_revision - revision id of this item, only present if not
-   *       empty.</li>
-   *    <li>sys_view - the view to use for the next page displayed</li>
+   *   <li>sys_pageid - passed in value
+   *   <li>DBActionType - insert or update based on new doc status
+   *   <li>sys_childid - mapper id of the associated table
+   *   <li>sys_contentid - contentid of this item, only present if not empty.
+   *   <li>sys_revision - revision id of this item, only present if not empty.
+   *   <li>sys_view - the view to use for the next page displayed
    * </ul>
    *
-   * @param isNewDoc A flag to indicate whether this request is for a new
-   *    document versus editing existing content.
-   *
-   * @param pageId The page id of the target editor (either a summary or row
-   *    editor).
-   *
-   * @param docContext The document context for this object. Assumed not
-   *    <code>null</code>.
-   *
-   * @param data The data used to get the values for the nodes. Assumed
-   *   not <code>null</code>.
-   *
-   * @param params All created param pairs will be added to this list as
-   *    PSMapPair objects, with the key as the parameter name and the value
-   *    as the parameter value (could be <code>null</code>). Assumed not
-   *    <code>null</code>.
+   * @param isNewDoc A flag to indicate whether this request is for a new document versus editing
+   *     existing content.
+   * @param pageId The page id of the target editor (either a summary or row editor).
+   * @param docContext The document context for this object. Assumed not <code>null</code>.
+   * @param data The data used to get the values for the nodes. Assumed not <code>null</code>.
+   * @param params All created param pairs will be added to this list as PSMapPair objects, with the
+   *     key as the parameter name and the value as the parameter value (could be <code>null</code>
+   *     ). Assumed not <code>null</code>.
    */
   private void addLocalParams(
       boolean isNewDoc,
@@ -709,10 +667,7 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   private static final String TABLE_NAME = "Table";
   private static final String HEADER_NAME = "Header";
 
-  /**
-   * The row element name specified in sys_ContentEditor.dtd. Never
-   * <code>null</code> or empty.
-   */
+  /** The row element name specified in sys_ContentEditor.dtd. Never <code>null</code> or empty. */
   public static final String ROW_NAME = "Row";
 
   public static final String ROWSET_NAME = "RowData";
@@ -728,146 +683,124 @@ public class PSTableValueBuilder extends PSDisplayFieldBuilder {
   private static final String IMAGEREF_ATTRIB = "imageHref";
 
   /**
-   * The display text for the main button that submits the form to edit the
-   * table. Never <code>null</code> or empty.
+   * The display text for the main button that submits the form to edit the table. Never <code>null
+   * </code> or empty.
    */
   private static final String FORMSUBMIT_LABEL = "Edit table";
 
   /**
-   * An index into the <code>m_imageLocations</code> array where the delete
-   * button url is stored.
+   * An index into the <code>m_imageLocations</code> array where the delete button url is stored.
    */
   private static final int DELETE_INDEX = 0;
 
   /**
-   * An index into the <code>m_imageLocations</code> array where the modify
-   * button url is stored.
+   * An index into the <code>m_imageLocations</code> array where the modify button url is stored.
    */
   private static final int MODIFY_INDEX = 1;
 
   /**
-   * An index into the <code>m_imageLocations</code> array where the moveup
-   * button url is stored.
+   * An index into the <code>m_imageLocations</code> array where the moveup button url is stored.
    */
   private static final int MOVEUP_INDEX = 2;
 
   /**
-   * An index into the <code>m_imageLocations</code> array where the movedown
-   * button url is stored.
+   * An index into the <code>m_imageLocations</code> array where the movedown button url is stored.
    */
   private static final int MOVEDOWN_INDEX = 3;
 
   /**
-   * 1 greater than the largest value in the ..._INDEX constants. Used for
-   * validation. If x is a constant, then x >= 0 && x < IMAGE_COUNT.
-   *
+   * 1 greater than the largest value in the ..._INDEX constants. Used for validation. If x is a
+   * constant, then x >= 0 && x < IMAGE_COUNT.
    */
   private static final int IMAGE_COUNT = 4;
 
   /**
-   * This array stores the optional images for the row editing buttons.
-   * Use the ..._INDEX constants to reference the elements. If an image hasn't
-   * been defined, the entry has <code>null</code>.
+   * This array stores the optional images for the row editing buttons. Use the ..._INDEX constants
+   * to reference the elements. If an image hasn't been defined, the entry has <code>null</code>.
    */
   private String[] m_imageLocations = new String[IMAGE_COUNT];
 
   /**
-   * The set of builders, 1 for each column, used to create the Control
-   * nodes for the output document when a request is being processed.
-   * The order in the list is for left to right in the table. Never
-   * empty after construction. The number of entries in this list is equal
-   * to the number of items in <code>m_columnHeaders</code>.
+   * The set of builders, 1 for each column, used to create the Control nodes for the output
+   * document when a request is being processed. The order in the list is for left to right in the
+   * table. Never empty after construction. The number of entries in this list is equal to the
+   * number of items in <code>m_columnHeaders</code>.
    */
   private List m_builders = new ArrayList();
 
   /**
-   * Contains the strings that label each column after construction. Never
-   * <code>null</code>. Contains the same number of items as m_builders.
-   * The strings are ordered for use from left to right.
+   * Contains the strings that label each column after construction. Never <code>null</code>.
+   * Contains the same number of items as m_builders. The strings are ordered for use from left to
+   * right.
    */
   private List m_columnHeaders = new ArrayList();
 
   /**
-   * Contains the names for all fields in a row, in left to right order as
-   * Strings. Never <code>null</code>. Immutable after construction. Contains
-   * the same number of entries as the <code>m_columnHeaders</code> list.
+   * Contains the names for all fields in a row, in left to right order as Strings. Never <code>null
+   * </code>. Immutable after construction. Contains the same number of entries as the <code>
+   * m_columnHeaders</code> list.
    */
   private List m_fieldNames = new ArrayList();
 
-  /**
-   * Used for error messages. Never empty or changed after construction.
-   */
+  /** Used for error messages. Never empty or changed after construction. */
   private String m_fieldSetName;
 
   /**
-   * Contains Map.Entry objects, keyed with the constants
-   * ..._EXTRACTOR_KEY. Each entry has the HTML param as the key and an
-   * extractor to get the output value as the entry's value. Never <code>null
+   * Contains Map.Entry objects, keyed with the constants ..._EXTRACTOR_KEY. Each entry has the HTML
+   * param as the key and an extractor to get the output value as the entry's value. Never <code>
+   * null
    * </code>.
    */
   private Map m_paramExtractors = new HashMap();
 
   /**
-   * Never <code>null</code> after construction. Contains the context for
-   * the editor builder that owns this builder. Set during construction,
-   * then immutable.
+   * Never <code>null</code> after construction. Contains the context for the editor builder that
+   * owns this builder. Set during construction, then immutable.
    */
   private PSEditorDocumentBuilder m_parentBuilder;
 
   /**
-   * This is the mapper id for the parent that owns this builder. It is sent
-   * to the modify handler to tell it which table to update. Set during
-   * construction, then immutable.
+   * This is the mapper id for the parent that owns this builder. It is sent to the modify handler
+   * to tell it which table to update. Set during construction, then immutable.
    */
   private int m_parentId = -1;
 
   /**
-   * This is the 'childid' for the mapper associated with this table. Set in
-   * ctor, then immutable.
+   * This is the 'childid' for the mapper associated with this table. Set in ctor, then immutable.
    */
   private int m_myId;
 
   /**
-   * A flag to indicate whether ordering by the end user is supported. It
-   * causes the reordering buttons to show or not. Set in ctor, then
-   * immutable.
+   * A flag to indicate whether ordering by the end user is supported. It causes the reordering
+   * buttons to show or not. Set in ctor, then immutable.
    */
   private boolean m_supportsSequencing;
 
   /**
-   * A flag that tells the builder to override the showInSummary and
-   * showInPreview settings of the editor def. If <code>true</code>, these
-   * settings are overridden.
-   * Set in ctor, never changed after that.
+   * A flag that tells the builder to override the showInSummary and showInPreview settings of the
+   * editor def. If <code>true</code>, these settings are overridden. Set in ctor, never changed
+   * after that.
    */
   private boolean m_showAllFields;
 
   /**
-   * The key to get the content id extractor. The content id is part of the
-   * primary key for the content item.
+   * The key to get the content id extractor. The content id is part of the primary key for the
+   * content item.
    */
   private static final String CONTENT_ID_EXTRACTOR_KEY = "a";
 
   /**
-   * The key to get the revision id extractor. The revision id is part of the
-   * primary key for the content item.
+   * The key to get the revision id extractor. The revision id is part of the primary key for the
+   * content item.
    */
   private static final String REVISION_ID_EXTRACTOR_KEY = "b";
 
-  /**
-   * The key to get the child id extractor. This is the mapper id.
-   */
+  /** The key to get the child id extractor. This is the mapper id. */
   private static final String CHILD_ID_EXTRACTOR_KEY = "c";
 
-  /**
-   * The key to get the child row id extractor. This is the primary key for
-   * the child table.
-   */
+  /** The key to get the child row id extractor. This is the primary key for the child table. */
   private static final String ROW_ID_EXTRACTOR_KEY = "d";
 
-  /**
-   * The key to get the page id extractor. This is the unique identifier for
-   * the editor page.
-   */
+  /** The key to get the page id extractor. This is the unique identifier for the editor page. */
   private static final String PAGE_ID_EXTRACTOR_KEY = "e";
 }

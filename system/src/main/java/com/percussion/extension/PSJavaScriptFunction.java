@@ -36,15 +36,14 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
 /**
- * The PSJavaScriptFunction class stores compiled JavaScript
- * functions executed by PSJavaScriptUdfExtension objects.
- * <p>
- * The class is implemented by calling native routines to run
- * the JavaScript interpreter.
+ * The PSJavaScriptFunction class stores compiled JavaScript functions executed by
+ * PSJavaScriptUdfExtension objects.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>The class is implemented by calling native routines to run the JavaScript interpreter.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 class PSJavaScriptFunction implements ErrorReporter {
   private static final Logger log = LogManager.getLogger(PSJavaScriptFunction.class);
@@ -52,7 +51,7 @@ class PSJavaScriptFunction implements ErrorReporter {
   /**
    * Create an executable function for JavaScript extension.
    *
-   * @param   def      the UDF extension to be compiled
+   * @param def the UDF extension to be compiled
    */
   PSJavaScriptFunction(IPSExtensionDef def) {
     String myKey = "";
@@ -145,9 +144,8 @@ class PSJavaScriptFunction implements ErrorReporter {
   /**
    * Convert the input raw string into a processed Java string.
    *
-   * @param   rawString   the input raw string
-   *
-   * @return              the processed Java string
+   * @param rawString the input raw string
+   * @return the processed Java string
    */
   private String digestString(String rawString) {
     try {
@@ -177,11 +175,9 @@ class PSJavaScriptFunction implements ErrorReporter {
   /**
    * Get runnable context and execute the function with the supplied arguments.
    *
-   * @param   args      an array of String parameters
-   *
-   * @param   req      a request context object
-   *
-   * @return            the execution result of the JavaScript function
+   * @param args an array of String parameters
+   * @param req a request context object
+   * @return the execution result of the JavaScript function
    */
   public Object processUdf(Object[] args, IPSRequestContext req) {
     /* This function must have thrown a compile error, now it
@@ -306,9 +302,8 @@ class PSJavaScriptFunction implements ErrorReporter {
   }
 
   /**
-   * hash table of compiled functions where:
-   *    key = appName/exitName
-   *      value = Integer(compiledScriptHandle)
+   * hash table of compiled functions where: key = appName/exitName value =
+   * Integer(compiledScriptHandle)
    */
   private static final HashMap<String, Function> compiledFunctions = new HashMap<>();
 
@@ -317,8 +312,8 @@ class PSJavaScriptFunction implements ErrorReporter {
   private Function myFunction;
 
   /**
-   * Contains all of the parameter definitions for this function. If a fct
-   * has no params, this will be an array of 0 elements. Never <code>null
+   * Contains all of the parameter definitions for this function. If a fct has no params, this will
+   * be an array of 0 elements. Never <code>null
    * </code> once initialized in ctor.
    */
   private String[] paramNames;

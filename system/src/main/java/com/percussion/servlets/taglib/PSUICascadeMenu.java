@@ -23,8 +23,8 @@ import javax.faces.context.ResponseWriter;
 
 /**
  * Create a cascade menu, either from the menubar or nested.
- * @author dougrand
  *
+ * @author dougrand
  */
 public class PSUICascadeMenu extends UIOutput {
   /* (non-Javadoc)

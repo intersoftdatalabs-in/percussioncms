@@ -48,20 +48,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Base class for all modify plan builders.  Provides common functionality
- * for all modify plan builders.
+ * Base class for all modify plan builders. Provides common functionality for all modify plan
+ * builders.
  */
 public abstract class PSModifyPlanBuilder {
 
   /**
    * Constructor for this class.
    *
-   * @param ceh The content editor handler of the dataset for which this plan
-   * is being built.  May not be <code>null</code>.
-   * @param ce The content editor dataset.  May not be <code>null</code>.
-   * @param app The application that all dataset created are added to.  May not
-   * be <code>null</code>.
-   *
+   * @param ceh The content editor handler of the dataset for which this plan is being built. May
+   *     not be <code>null</code>.
+   * @param ce The content editor dataset. May not be <code>null</code>.
+   * @param app The application that all dataset created are added to. May not be <code>null</code>.
    * @throws IllegalArgumentExcpetion if ceh or app are <code>null</code>.
    */
   public PSModifyPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {
@@ -76,15 +74,11 @@ public abstract class PSModifyPlanBuilder {
   /**
    * Creates a plan that will perform the required updates.
    *
-   * @param mapper The parent display mapper.  May not be <code>null</code>.
-   * @param fieldSet The fieldSet used by the mapper.  May not be
-   * <code>null</code>.
-   *
+   * @param mapper The parent display mapper. May not be <code>null</code>.
+   * @param fieldSet The fieldSet used by the mapper. May not be <code>null</code>.
    * @return The modify plan to execute at runtime.
-   *
    * @throws SQLException if there is an error determining a column's datatype.
-   * @throws PSSystemValidationException if any objects used by this method are
-   * invalid.
+   * @throws PSSystemValidationException if any objects used by this method are invalid.
    */
   public abstract PSModifyPlan createModifyPlan(PSDisplayMapper mapper, PSFieldSet fieldSet)
       throws PSSystemValidationException, SQLException;
@@ -92,11 +86,9 @@ public abstract class PSModifyPlanBuilder {
   /**
    * Returns the table that a display mapper uses.
    *
-   * @param dispMapper The mapper to get the table for.  Not <code>null</code>.
-   * @param fieldSet The fieldSet that the mapper uses.  Not <code>null</code>.
-   *
+   * @param dispMapper The mapper to get the table for. Not <code>null</code>.
+   * @param fieldSet The fieldSet that the mapper uses. Not <code>null</code>.
    * @return The table, never <code>null</code>.
-   *
    * @throws IllegalStateException if no tables are found.
    */
   public static PSBackEndTable getMapperTable(PSDisplayMapper dispMapper, PSFieldSet fieldSet) {
@@ -140,19 +132,16 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Walks the mapper and builds a list of all tables that the display mappings
-   * // REFACTORED: CP-JAVA11
-   * reference.  For any mappings that reference a field not found
-   * in the provided fieldSet, will check any immediate child fieldsets of
-   * the type {@link PSFieldSet#TYPE_MULTI_PROPERTY_SIMPLE_CHILD} for that
-   * field, and if found also adds that field's table to the list that is
-   * returned.
+   * Walks the mapper and builds a list of all tables that the display mappings // REFACTORED:
+   * CP-JAVA11 reference. For any mappings that reference a field not found in the provided
+   * fieldSet, will check any immediate child fieldsets of the type {@link
+   * PSFieldSet#TYPE_MULTI_PROPERTY_SIMPLE_CHILD} for that field, and if found also adds that
+   * field's table to the list that is returned.
    *
-   * @param dispMapper The mapper to get the table for.  Not <code>null</code>.
-   * @param fieldSet The fieldSet that the mapper uses.  Not <code>null</code>.
-   *
-   * @return An array of PSBackEndTable objects, never <code>null</code>.  Will
-   * exclude the CONTENTSTATUS table.
+   * @param dispMapper The mapper to get the table for. Not <code>null</code>.
+   * @param fieldSet The fieldSet that the mapper uses. Not <code>null</code>.
+   * @return An array of PSBackEndTable objects, never <code>null</code>. Will exclude the
+   *     CONTENTSTATUS table.
    */
   public static PSBackEndTable[] getMapperTables(PSDisplayMapper dispMapper, PSFieldSet fieldSet) {
     if (dispMapper == null || fieldSet == null)
@@ -206,15 +195,13 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Determines if multiple rows may be inserted in a single request.  Checks
-   * the fieldset to ensure that it is a complex child, and makes sure that
-   * the mapper does not contain a mapping referencing a simple child fieldset.
+   * Determines if multiple rows may be inserted in a single request. Checks the fieldset to ensure
+   * that it is a complex child, and makes sure that the mapper does not contain a mapping
+   * referencing a simple child fieldset.
    *
-   * @param mapper The mapper to check.  Assumed not <code>null</code>.
-   *
-   * @param fieldSet The fieldSet the mapper references.  Assumed not <code>
+   * @param mapper The mapper to check. Assumed not <code>null</code>.
+   * @param fieldSet The fieldSet the mapper references. Assumed not <code>
    * null</code> and to be the correct fieldSet
-   *
    * @return <code>true</code> if multiple inserts are allowed, <code>false
    * </code> if not.
    */
@@ -224,8 +211,8 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Creates a PSValidateModifyStep that compares the edit revision in the
-   * database against the supplied revision id.
+   * Creates a PSValidateModifyStep that compares the edit revision in the database against the
+   * supplied revision id.
    *
    * @throws PSSystemValidationException if there is an error creating the dataset.
    */
@@ -287,9 +274,7 @@ public abstract class PSModifyPlanBuilder {
    * Creates data mapper to use when updating the CONTENTSTATUS table.
    *
    * @param mapper The display mapper to use, may not be <code>null</code>.
-   * @param fieldSet The fieldSet used by the mapper, may not be
-   * <code>null</code>.
-   *
+   * @param fieldSet The fieldSet used by the mapper, may not be <code>null</code>.
    * @return A data mapper with the required mappings, never <code>null</code>.
    */
   protected PSDataMapper getSystemUpdateMapper(PSDisplayMapper mapper, PSFieldSet fieldSet) {
@@ -309,9 +294,7 @@ public abstract class PSModifyPlanBuilder {
    * Creates data mapper to use when deleting the CONTENTSTATUS table.
    *
    * @param mapper The display mapper to use, may not be <code>null</code>.
-   * @param fieldSet The fieldSet used by the mapper, may not be
-   * <code>null</code>.
-   *
+   * @param fieldSet The fieldSet used by the mapper, may not be <code>null</code>.
    * @return A data mapper with the required mappings, never <code>null</code>.
    */
   protected ArrayList<PSSystemMapping> getSystemDeleteMappings(
@@ -339,8 +322,9 @@ public abstract class PSModifyPlanBuilder {
 
   /**
    * a private utility method to return a fieldset based on the mapper id
+   *
    * @param the mapper id
-   * @return the field set with the above mapper id. May  be <code>null</code>.
+   * @return the field set with the above mapper id. May be <code>null</code>.
    */
   private PSFieldSet getMapperFieldSet(int mapperId) {
     PSFieldSet fieldSet = null;
@@ -354,9 +338,9 @@ public abstract class PSModifyPlanBuilder {
 
   /**
    * build complex and simple child mappings to add to delete plans
+   *
    * @param mapper The display mapper to use, may not be <code>null</code>.
-   * @param fieldSet The fieldSet used by the mapper, may not be
-   * <code>null</code>.
+   * @param fieldSet The fieldSet used by the mapper, may not be <code>null</code>.
    * @return A data mapper with the required mappings, never <code>null</code>.
    */
   protected List<PSSystemMapping> getDeleteChildMappings(
@@ -395,14 +379,11 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Returns any field in the fieldset that is force binary or a binary type.
-   * Will also check any immediate SDMP child fieldsets.
+   * Returns any field in the fieldset that is force binary or a binary type. Will also check any
+   * immediate SDMP child fieldsets.
    *
    * @param fieldSet The fieldset to check. May not be <code>null</code>.
-   *
-   * @return A List of binary PSField objects, may be empty if the fieldset
-   * does not contain any.
-   *
+   * @return A List of binary PSField objects, may be empty if the fieldset does not contain any.
    * @throws PSSystemValidationException if any field's table cannot be located.
    * @throws SQLException if the column type cannot be determined
    */
@@ -414,12 +395,11 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Same as {@link #getBinaryFields(PSFieldSet)} but will optionally check the
-   * immediate SDMP child fieldset if specified.  Only the additional
-   * parameter is described below.
+   * Same as {@link #getBinaryFields(PSFieldSet)} but will optionally check the immediate SDMP child
+   * fieldset if specified. Only the additional parameter is described below.
    *
-   * @param checkChildren If <code>true</code>, binary fields located in any
-   * immediate SDMP fieldsets will be included in the resulting list.
+   * @param checkChildren If <code>true</code>, binary fields located in any immediate SDMP
+   *     fieldsets will be included in the resulting list.
    */
   private List<PSField> getBinaryFields(PSFieldSet fieldSet, boolean checkChildren)
       throws SQLException, PSSystemValidationException {
@@ -506,8 +486,8 @@ public abstract class PSModifyPlanBuilder {
 
   /**
    * Convenience method that does not sort results by default.
-   * @see #addTableKeys(ArrayList, PSDisplayMapper, PSFieldSet, boolean)
-   * addTableKeys
+   *
+   * @see #addTableKeys(ArrayList, PSDisplayMapper, PSFieldSet, boolean) addTableKeys
    */
   protected ArrayList<PSSystemMapping> addTableKeys(
       ArrayList<PSSystemMapping> mappings, PSDisplayMapper dispMapper, PSFieldSet fieldSet) {
@@ -515,26 +495,20 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Adds required keys to the mappings array provided based on table and
-   * fieldset type of the supplied displayMapper, if they are not present in
-   * the displayMapper.
+   * Adds required keys to the mappings array provided based on table and fieldset type of the
+   * supplied displayMapper, if they are not present in the displayMapper.
    *
-   * @param mappings The list of PSSystemMapping objects to append to.  This is
-   * done with a copy, so the mappings list passed in is not modfied.  Not
-   * <code>null</code>.
-   * @param dispMapper The display mapper to use to determine what to add.
-   * Not <code>null</code>.
-   * @param fieldSet The fieldSet the display mapper uses. Not
-   * <code>null</code>.
-   * @param updateSequence If <code>true</code>, and the fieldSet is a
-   * complex child type that supports sequencing, then the SORTRANK column
-   * is added (although it is not technically a key, it is not part of the
-   * fieldSet and so is added here).  If <code>false</code> or if the fieldset
-   * is not of type complexChild then nothing is added.  If the fieldset does
-   * not support sequencing, then this parameter has no effect.
-   *
-   * @return A copy of the supplied mappings, with the new entries added.  The
-   * original mappings are not modified.  Never <code>null</code>.
+   * @param mappings The list of PSSystemMapping objects to append to. This is done with a copy, so
+   *     the mappings list passed in is not modfied. Not <code>null</code>.
+   * @param dispMapper The display mapper to use to determine what to add. Not <code>null</code>.
+   * @param fieldSet The fieldSet the display mapper uses. Not <code>null</code>.
+   * @param updateSequence If <code>true</code>, and the fieldSet is a complex child type that
+   *     supports sequencing, then the SORTRANK column is added (although it is not technically a
+   *     key, it is not part of the fieldSet and so is added here). If <code>false</code> or if the
+   *     fieldset is not of type complexChild then nothing is added. If the fieldset does not
+   *     support sequencing, then this parameter has no effect.
+   * @return A copy of the supplied mappings, with the new entries added. The original mappings are
+   *     not modified. Never <code>null</code>.
    */
   protected ArrayList<PSSystemMapping> addTableKeys(
       ArrayList<PSSystemMapping> mappings,
@@ -581,19 +555,16 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Adds required keys to the mappings array provided based on table and
-   * fieldset type of the supplied displayMapper, if they are not present in
-   * the displayMapper. Same as addTableKeys, except this is used for delete
+   * Adds required keys to the mappings array provided based on table and fieldset type of the
+   * supplied displayMapper, if they are not present in the displayMapper. Same as addTableKeys,
+   * except this is used for delete
    *
-   * @param mappings The list of PSSystemMapping objects to append to.  This is
-   * done with a copy, so the mappings list passed in is not modfied.  Not
-   * <code>null</code>.
-   * @param dispMapper The display mapper to use to determine what to add.
-   * Not <code>null</code>.
-   * @param fieldSet The fieldSet the display mapper uses. Not
-   * <code>null</code>.
-   * @return A copy of the supplied mappings, with the new entries added.  The
-   * original mappings are not modified.  Never <code>null</code>.
+   * @param mappings The list of PSSystemMapping objects to append to. This is done with a copy, so
+   *     the mappings list passed in is not modfied. Not <code>null</code>.
+   * @param dispMapper The display mapper to use to determine what to add. Not <code>null</code>.
+   * @param fieldSet The fieldSet the display mapper uses. Not <code>null</code>.
+   * @return A copy of the supplied mappings, with the new entries added. The original mappings are
+   *     not modified. Never <code>null</code>.
    */
   protected List<PSSystemMapping> addTableKeysForDelete(
       List<PSSystemMapping> mappings, PSDisplayMapper dispMapper, PSFieldSet fieldSet) {
@@ -617,13 +588,11 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Adds contentid and revisionid keys to the mappings using the specified
-   * table.
+   * Adds contentid and revisionid keys to the mappings using the specified table.
    *
-   * @param table The table we are adding keys for.  Assumed not <code>null
+   * @param table The table we are adding keys for. Assumed not <code>null
    * </code>.
-   * @param mappings The list of mappings to append to.  Assumed not
-   * <code>null</code>.
+   * @param mappings The list of mappings to append to. Assumed not <code>null</code>.
    */
   private void addCommonTableKeys(PSBackEndTable table, List<PSSystemMapping> mappings) {
     // all tables must have the following
@@ -645,8 +614,8 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Adds contentid key to the mappings using the specified table.
-   * This is specific for delete/purge item operation
+   * Adds contentid key to the mappings using the specified table. This is specific for delete/purge
+   * item operation
    */
   private void addCommonTableKeysForDelete(PSBackEndTable table, List<PSSystemMapping> mappings) {
     // all tables must have the following
@@ -660,19 +629,15 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * Determines if the mapper contains a mapping that references a fieldSet
-   * of the specified type.
+   * Determines if the mapper contains a mapping that references a fieldSet of the specified type.
    *
-   * @param mapper The mapper to check.  Assumed not <code>null</code>.
-   *
-   * @param fieldSet The fieldSet the mapper references.  Assumed not <code>
+   * @param mapper The mapper to check. Assumed not <code>null</code>.
+   * @param fieldSet The fieldSet the mapper references. Assumed not <code>
    * null</code> and to be the fieldSet referenced by the supplied mapper.
-   *
-   * @param childType The child fieldset type to locate.  Must be a valid
-   * PSFieldSet.TYPE_XXX_CHILD type.
-   *
-   * @return <code>true</code> if the mapper contains a mapping which
-   * references the specified fieldset type, <code>false</code> if not.
+   * @param childType The child fieldset type to locate. Must be a valid PSFieldSet.TYPE_XXX_CHILD
+   *     type.
+   * @return <code>true</code> if the mapper contains a mapping which references the specified
+   *     fieldset type, <code>false</code> if not.
    */
   private static boolean containsChildType(
       PSDisplayMapper mapper, PSFieldSet fieldSet, int childType) {
@@ -694,31 +659,28 @@ public abstract class PSModifyPlanBuilder {
   }
 
   /**
-   * The main content editor handler. Set in ctor, never <code>null</code> or
-   * modified after that.
+   * The main content editor handler. Set in ctor, never <code>null</code> or modified after that.
    */
   protected PSContentEditorHandler m_ceHandler = null;
 
   /**
-   * The application used to internally perform queries and updates.
-   * Obtained in the constructor, never <code>null</code> after that.  Query
-   * and update resources are added to this application as plans are built.
+   * The application used to internally perform queries and updates. Obtained in the constructor,
+   * never <code>null</code> after that. Query and update resources are added to this application as
+   * plans are built.
    */
   protected PSApplication m_internalApp = null;
 
   /**
-   * Map of fieldsets that have been checked for binary fields. Key is the
-   * PSFieldSet object, and value is a list of PSField objects that are binary
-   * fields, which may be empty if the fieldset does not contain any binary
-   * fields.  Never <code>null</code>, entries are added by calls to {@link
-   * #getBinaryFields(PSFieldSet, boolean) getBinaryFields()}.
+   * Map of fieldsets that have been checked for binary fields. Key is the PSFieldSet object, and
+   * value is a list of PSField objects that are binary fields, which may be empty if the fieldset
+   * does not contain any binary fields. Never <code>null</code>, entries are added by calls to
+   * {@link #getBinaryFields(PSFieldSet, boolean) getBinaryFields()}.
    */
   private Map<PSFieldSet, List<PSField>> m_binaryFields = new HashMap<>();
 
   /**
-   * The content editor dataset this handler is processing commands
-   * for, saved as a PSContentEditor reference for convenience. Never
-   * <code>null</code> after construction.
+   * The content editor dataset this handler is processing commands for, saved as a PSContentEditor
+   * reference for convenience. Never <code>null</code> after construction.
    */
   protected PSContentEditor m_ce = null;
 }

@@ -17,9 +17,7 @@
  */
 package com.percussion.utils;
 
-/**
- * Resolves tokens by name.
- */
+/** Resolves tokens by name. */
 public interface IPSTokenResolver {
-    String resolveToken(String tokenName);
+  String resolveToken(String tokenName);
 }

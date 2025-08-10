@@ -26,21 +26,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * Implements the PSChoiceFilter DTD in BasicObjects.dtd.
- */
+/** Implements the PSChoiceFilter DTD in BasicObjects.dtd. */
 public class PSChoiceFilter extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSChoiceFilter(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -49,8 +43,8 @@ public class PSChoiceFilter extends PSComponent {
 
   /**
    * Construct a choice filter from its member data.
-   * @param dependentFields collection of DependentFields,
-   * never <code>null</code>.
+   *
+   * @param dependentFields collection of DependentFields, never <code>null</code>.
    * @param lookup the lookup request, never <code>null</code>.
    */
   public PSChoiceFilter(PSCollection dependentFields, PSUrlRequest lookup) {
@@ -112,10 +106,7 @@ public class PSChoiceFilter extends PSComponent {
     }
   }
 
-  /**
-   * Validates that all of the required items are present.
-   * See IPSComponent.
-   */
+  /** Validates that all of the required items are present. See IPSComponent. */
   public void validate(IPSValidationContext context) throws PSSystemValidationException {
     if (!context.startValidation(this, null)) return;
 
@@ -140,7 +131,6 @@ public class PSChoiceFilter extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -175,8 +165,8 @@ public class PSChoiceFilter extends PSComponent {
   }
 
   /**
-   * @return collection of PSChoiceFilter.DependentField(s),
-   * never <code>null</code>, never <code>empty</code>.
+   * @return collection of PSChoiceFilter.DependentField(s), never <code>null</code>, never <code>
+   *     empty</code>.
    */
   public PSCollection getDependentFields() {
     return m_dependentFields;
@@ -214,13 +204,12 @@ public class PSChoiceFilter extends PSComponent {
     return Objects.hash(super.hashCode(), m_dependentFields, m_lookup);
   }
 
-  /**
-   * Implementation of the DependentField, see DTD in BasicObjects.dtd.
-   */
+  /** Implementation of the DependentField, see DTD in BasicObjects.dtd. */
   public static class DependentField extends PSComponent {
 
     /**
      * Construct from Xml.
+     *
      * @param el, assuming never <code>null</code>.
      * @throws PSUnknownNodeTypeException
      */
@@ -230,6 +219,7 @@ public class PSChoiceFilter extends PSComponent {
 
     /**
      * Construct from params.
+     *
      * @param fieldRef, never <code>null</code> or <code>empty</code>.
      * @param dependencyType, never <code>null</code> or <code>empty</code>.
      */
@@ -287,10 +277,7 @@ public class PSChoiceFilter extends PSComponent {
       }
     }
 
-    /**
-     * Validates that all of the required items are present.
-     * See IPSComponent.
-     */
+    /** Validates that all of the required items are present. See IPSComponent. */
     @Override
     public void validate(IPSValidationContext context) throws PSSystemValidationException {
       if (!context.startValidation(this, null)) return;
@@ -312,6 +299,7 @@ public class PSChoiceFilter extends PSComponent {
 
     /**
      * Returns FieldRef name.
+     *
      * @return FieldRef, never <code>null</code>.
      */
     public String getFieldRef() {
@@ -320,6 +308,7 @@ public class PSChoiceFilter extends PSComponent {
 
     /**
      * Returns DependencyType.
+     *
      * @return DependencyType, never <code>null</code>.
      */
     public String getDependencyType() {
@@ -327,21 +316,20 @@ public class PSChoiceFilter extends PSComponent {
     }
 
     /**
-     * Attaches a reference to a cataloged and corresponding
-     * LightWeightField instance.
-     * @param lwf a corresponding LightWeightField instance,
-     * may be <code>null</code>.
+     * Attaches a reference to a cataloged and corresponding LightWeightField instance.
+     *
+     * @param lwf a corresponding LightWeightField instance, may be <code>null</code>.
      */
     public void attachField(PSLightWeightField lwf) {
       m_lightWeightField = lwf;
     }
 
     /**
-     * Returns and Detaches a reference to a cataloged and
-     * previously attached corresponding LightWeightField instance.
+     * Returns and Detaches a reference to a cataloged and previously attached corresponding
+     * LightWeightField instance.
      *
-     * @return previously attached instance of the corresponsing
-     * LightWeightField instance, may be <code>null</code>.
+     * @return previously attached instance of the corresponsing LightWeightField instance, may be
+     *     <code>null</code>.
      */
     public PSLightWeightField detachField() {
       PSLightWeightField lwf = m_lightWeightField;
@@ -352,11 +340,11 @@ public class PSChoiceFilter extends PSComponent {
     }
 
     /**
-     * Returns a reference to a cataloged and previously attached
-     * corresponding LightWeightField instance.
+     * Returns a reference to a cataloged and previously attached corresponding LightWeightField
+     * instance.
      *
-     * @return previously attached instance of the corresponsing
-     * LightWeightField instance, may be <code>null</code>.
+     * @return previously attached instance of the corresponsing LightWeightField instance, may be
+     *     <code>null</code>.
      */
     public PSLightWeightField getField() {
       return m_lightWeightField;
@@ -366,8 +354,7 @@ public class PSChoiceFilter extends PSComponent {
      * Test if the provided object and this are equal.
      *
      * @param o the object to compare to.
-     * @return <code>true</code> if this and o are equal,
-     *    <code>false</code> otherwise.
+     * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
      */
     public boolean equals(Object o) {
       if (!(o instanceof DependentField)) return false;
@@ -389,31 +376,21 @@ public class PSChoiceFilter extends PSComponent {
       return m_fieldRef.hashCode() + m_dependencyType.hashCode();
     }
 
-    /**
-     * optional dependency.
-     */
+    /** optional dependency. */
     public static final String TYPE_OPTIONAL = "optional";
 
-    /**
-     * required dependency.
-     */
+    /** required dependency. */
     public static final String TYPE_REQUIRED = "required";
 
-    /**
-     * Represents field reference name, initialized in ctor,
-     * never <code>null</code> after that.
-     */
+    /** Represents field reference name, initialized in ctor, never <code>null</code> after that. */
     private String m_fieldRef;
 
-    /**
-     * Represents dependency type name, initialized in ctor,
-     * never <code>null</code> after that.
-     */
+    /** Represents dependency type name, initialized in ctor, never <code>null</code> after that. */
     private String m_dependencyType;
 
     /**
-     * Represents a reference to the corresponsing instance of the
-     * cataloged LightWeightField, may be <code>null</code>.
+     * Represents a reference to the corresponsing instance of the cataloged LightWeightField, may
+     * be <code>null</code>.
      */
     private PSLightWeightField m_lightWeightField;
 
@@ -423,15 +400,14 @@ public class PSChoiceFilter extends PSComponent {
   }
 
   /**
-   * Collection of REQUIRED DependentField+ . Initialized here, loaded by ctor,
-   * never <code>empty</code> after that.
+   * Collection of REQUIRED DependentField+ . Initialized here, loaded by ctor, never <code>empty
+   * </code> after that.
    */
   private PSCollection m_dependentFields = new PSCollection(DependentField.class);
 
   /**
-   * REQUIRED PSXUrlRequest specifies the URL request used to generate
-   * the filter choice list. Initialized by ctor, never <code>null</code> or
-   * <code>empty</code> after that.
+   * REQUIRED PSXUrlRequest specifies the URL request used to generate the filter choice list.
+   * Initialized by ctor, never <code>null</code> or <code>empty</code> after that.
    */
   private PSUrlRequest m_lookup = null;
 

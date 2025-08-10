@@ -37,9 +37,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Element;
 
-/**
- * Test case for the {@link PSTomcatConnector} class
- */
+/** Test case for the {@link PSTomcatConnector} class */
 @Tag("UnitTest")
 public class PSTomcatConnectorTest {
   public static final String DEFAULT_CIPHERS =
@@ -187,7 +185,6 @@ public class PSTomcatConnectorTest {
    *
    * @param tc The connector, assumed not <code>null</code>.
    * @param port The connector's expected port.
-   *
    * @throws Exception If there are any errors or failures.
    */
   @Test

@@ -21,32 +21,28 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * A binding can have name, will have index and value. Index is the location
- * of this expression, in a group of expressions. This is not a template
- * binding, but a name value pair in which the value must be a JEXL exp.
- * Currently, templates use this notion of bindings
+ * A binding can have name, will have index and value. Index is the location of this expression, in
+ * a group of expressions. This is not a template binding, but a name value pair in which the value
+ * must be a JEXL exp. Currently, templates use this notion of bindings
  *
  * @author vamsinukala
  */
 public class PSJexlBinding {
   /**
-   * The name of this binding, some bindings may not have a name i.e may be
-   * <code>null</code> or empty
+   * The name of this binding, some bindings may not have a name i.e may be <code>null</code> or
+   * empty
    */
   private String m_name;
 
-  /**
-   * the expression referenced in this binding never <code>null</code>
-   */
+  /** the expression referenced in this binding never <code>null</code> */
   private String m_expression;
 
-  /**
-   * the position of this binding in the list of bindings.
-   */
+  /** the position of this binding in the list of bindings. */
   private int m_index;
 
   /**
    * ctor: this is also called copy ctor.. does that matter?
+   *
    * @param b binding never <code>null</code>
    */
   public PSJexlBinding(PSJexlBinding b) {
@@ -58,11 +54,11 @@ public class PSJexlBinding {
 
   /**
    * ctor
+   *
    * @param ix the position of this binding always >= 0
-   * @param name the name of this binding, may be <code>null</code> in which
-   * case the index will be used
-   * @param value the expression that this binding refers to never
-   *        <code>null</code>
+   * @param name the name of this binding, may be <code>null</code> in which case the index will be
+   *     used
+   * @param value the expression that this binding refers to never <code>null</code>
    */
   public PSJexlBinding(int ix, String name, String value) {
     if (ix < 0) throw new IllegalStateException("ix may not be less than 1");
@@ -73,6 +69,7 @@ public class PSJexlBinding {
 
   /**
    * accessor to return the expression referenced by this binding
+   *
    * @return the value of this binding never <code>null</code>
    */
   public String getExpression() {
@@ -83,6 +80,7 @@ public class PSJexlBinding {
 
   /**
    * Accessor to set the value of this binding
+   *
    * @param expression never <code>null</code>
    */
   public void setExpression(String expression) {
@@ -93,8 +91,8 @@ public class PSJexlBinding {
 
   /**
    * the position of this binding in the list of bindings
-   * @return the index for this binding never <code>null</code> and is always
-   * >= 0
+   *
+   * @return the index for this binding never <code>null</code> and is always >= 0
    */
   public int getIndex() {
     return m_index;
@@ -102,6 +100,7 @@ public class PSJexlBinding {
 
   /**
    * see above, a simple setter
+   *
    * @param index always >= 0
    */
   public void setIndex(int index) {
@@ -111,6 +110,7 @@ public class PSJexlBinding {
 
   /**
    * return the name of this binding
+   *
    * @return the name, may be <code>null</code>
    */
   public String getName() {
@@ -119,6 +119,7 @@ public class PSJexlBinding {
 
   /**
    * set the name of this binding; may be <code>null</code> or empty
+   *
    * @param name the name of this binding
    */
   public void setName(String name) {
@@ -146,9 +147,7 @@ public class PSJexlBinding {
     else return getExpression().hashCode() + getIndex() + super.hashCode();
   }
 
-  /**
-   * make a copy of the binding
-   */
+  /** make a copy of the binding */
   public PSJexlBinding clone() {
     var clonedExpression = new String(getExpression());
     return new PSJexlBinding(getIndex(), getName(), clonedExpression);

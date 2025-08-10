@@ -21,12 +21,11 @@ package com.percussion.rest.acls;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement(name = "AclList")
 @XmlSeeAlso(Acl.class)
@@ -34,26 +33,26 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AclList extends ArrayList<Acl> {
 
-    public AclList(Collection<? extends Acl> c) {
-        super(c);
-    }
+  public AclList(Collection<? extends Acl> c) {
+    super(c);
+  }
 
-    public AclList() {
-        super();
-    }
+  public AclList() {
+    super();
+  }
 
-    @Override
-    public String toString() {
-        return "AclList" + super.toString();
-    }
+  @Override
+  public String toString() {
+    return "AclList" + super.toString();
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof AclList && super.equals(o);
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o instanceof AclList && super.equals(o);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode());
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode());
+  }
 }

@@ -17,138 +17,126 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
+import com.percussion.share.data.IPSFolderPath;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-import com.percussion.share.data.IPSFolderPath;
 
-/**
- * This is used to create a site.
- */
+/** This is used to create a site. */
 @XmlRootElement(name = "Site")
 public class PSSite extends PSSiteSummary implements IPSFolderPath {
 
-    private static final long serialVersionUID = -7271778081863112592L;
+  private static final long serialVersionUID = -7271778081863112592L;
 
-    @NotBlank
-    @NotNull
-    private String label;
+  @NotBlank @NotNull private String label;
 
-    private String description;
+  private String description;
 
-    private String defaultFileExtension = "html";
+  private String defaultFileExtension = "html";
 
-    @NotBlank
-    @NotNull
-    private String homePageTitle;
+  @NotBlank @NotNull private String homePageTitle;
 
-    @NotBlank
-    @NotNull
-    private String navigationTitle;
+  @NotBlank @NotNull private String navigationTitle;
 
-    @NotBlank
-    @NotNull
-    private String baseTemplateName;
+  @NotBlank @NotNull private String baseTemplateName;
 
-    @NotBlank
-    @NotNull
-    private String templateName;
+  @NotBlank @NotNull private String templateName;
 
-    @Override
-    public String getLabel() {
-        return label;
-    }
+  @Override
+  public String getLabel() {
+    return label;
+  }
 
-    @Override
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  @Override
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
+  @Override
+  public String getDescription() {
+    return description;
+  }
 
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  @Override
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    /**
-     * @deprecated Use {@link #setDefaultFileExtension(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public void setDefaultFileExtention(String defaultFileExtention) {
-        this.defaultFileExtension = defaultFileExtention;
-    }
+  /**
+   * @deprecated Use {@link #setDefaultFileExtension(String)} instead.
+   */
+  @Override
+  @Deprecated
+  public void setDefaultFileExtention(String defaultFileExtention) {
+    this.defaultFileExtension = defaultFileExtention;
+  }
 
-    /**
-     * @deprecated Use {@link #getDefaultFileExtension()} instead.
-     */
-    @Override
-    @Deprecated
-    public String getDefaultFileExtention() {
-        return defaultFileExtension;
-    }
+  /**
+   * @deprecated Use {@link #getDefaultFileExtension()} instead.
+   */
+  @Override
+  @Deprecated
+  public String getDefaultFileExtention() {
+    return defaultFileExtension;
+  }
 
-    /**
-     * Sets the default file extension used when creating a new page.
-     *
-     * @param defaultFileExtension the default file extension
-     */
-    public void setDefaultFileExtension(String defaultFileExtension) {
-        this.defaultFileExtension = defaultFileExtension;
-    }
+  /**
+   * Sets the default file extension used when creating a new page.
+   *
+   * @param defaultFileExtension the default file extension
+   */
+  public void setDefaultFileExtension(String defaultFileExtension) {
+    this.defaultFileExtension = defaultFileExtension;
+  }
 
-    /**
-     * Gets the default file extension.
-     *
-     * @return the default file extension used when creating a new page.
-     */
-    public String getDefaultFileExtension() {
-        return defaultFileExtension;
-    }
+  /**
+   * Gets the default file extension.
+   *
+   * @return the default file extension used when creating a new page.
+   */
+  public String getDefaultFileExtension() {
+    return defaultFileExtension;
+  }
 
-    public String getHomePageTitle() {
-        return homePageTitle;
-    }
+  public String getHomePageTitle() {
+    return homePageTitle;
+  }
 
-    public void setHomePageTitle(String homePageTitle) {
-        this.homePageTitle = homePageTitle;
-    }
+  public void setHomePageTitle(String homePageTitle) {
+    this.homePageTitle = homePageTitle;
+  }
 
-    public String getNavigationTitle() {
-        return navigationTitle;
-    }
+  public String getNavigationTitle() {
+    return navigationTitle;
+  }
 
-    public void setNavigationTitle(String navigationTitle) {
-        this.navigationTitle = navigationTitle;
-    }
+  public void setNavigationTitle(String navigationTitle) {
+    this.navigationTitle = navigationTitle;
+  }
 
-    public String getBaseTemplateName() {
-        return baseTemplateName;
-    }
+  public String getBaseTemplateName() {
+    return baseTemplateName;
+  }
 
-    public void setBaseTemplateName(String baseTemplateName) {
-        this.baseTemplateName = baseTemplateName;
-    }
+  public void setBaseTemplateName(String baseTemplateName) {
+    this.baseTemplateName = baseTemplateName;
+  }
 
-    public String getTemplateName() {
-        return templateName;
-    }
+  public String getTemplateName() {
+    return templateName;
+  }
 
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
+  }
 
-    /**
-     * Gets the description as Optional.
-     *
-     * @return Optional description.
-     */
-    public Optional<String> getDescriptionOptional() {
-        return Optional.ofNullable(description);
-    }
+  /**
+   * Gets the description as Optional.
+   *
+   * @return Optional description.
+   */
+  public Optional<String> getDescriptionOptional() {
+    return Optional.ofNullable(description);
+  }
 }

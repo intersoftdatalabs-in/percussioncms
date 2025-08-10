@@ -45,21 +45,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Class to handle packaging and deploying a location scheme definition.
- */
+/** Class to handle packaging and deploying a location scheme definition. */
 public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandler
     implements IPSServiceDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSLocSchemeDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -142,16 +137,16 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>ContentType</li>
-   * <li>VariantDef</li>
+   *   <li>ContentType
+   *   <li>VariantDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -225,9 +220,8 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles(
-   * PSSecurityToken, PSArchiveHandler, PSDependency, PSImportCtx)} for
-   * details.
+   * See {@link IPSServiceDependencyHandler#doInstallDependencyFiles( PSSecurityToken,
+   * PSArchiveHandler, PSDependency, PSImportCtx)} for details.
    */
   @SuppressWarnings("unchecked")
   public void doInstallDependencyFiles(
@@ -304,16 +298,12 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
   }
 
   /**
-   * Using the idMap in <code>ctx</code> to transfer the ids from the source
-   * to target for a given location scheme object and dependency object.
+   * Using the idMap in <code>ctx</code> to transfer the ids from the source to target for a given
+   * location scheme object and dependency object.
    *
-   * @param scheme The location scheme object to be modified, assumed not
-   * <code>null</code>.
-   * @param dep The location scheme dependency object, assumed not
-   * <code>null</code>.
-   * @param ctx The import context to aid in the installation, assumed not
-   * <code>null</code>.
-   *
+   * @param scheme The location scheme object to be modified, assumed not <code>null</code>.
+   * @param dep The location scheme dependency object, assumed not <code>null</code>.
+   * @param ctx The import context to aid in the installation, assumed not <code>null</code>.
    * @throws PSDeployException if any error occurs.
    */
   @SuppressWarnings("unchecked")
@@ -365,8 +355,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
   /**
    * Retrieves all location schemes.
    *
-   * @return location schemes as a list, never <code>null</code>, may be
-   * empty.
+   * @return location schemes as a list, never <code>null</code>, may be empty.
    */
   private Set<IPSLocationScheme> findAllLocationSchemes() {
     Set<IPSLocationScheme> schemes = new HashSet<>(m_siteMgr.findAllSchemes());
@@ -378,8 +367,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
    * Retrieves a location scheme for the given id.
    *
    * @param id the location scheme id, assumed not <code>null</code>.
-   * @return location scheme corresponding to the id, <code>null</code> if a
-   * match was not found.
+   * @return location scheme corresponding to the id, <code>null</code> if a match was not found.
    */
   private IPSLocationScheme findLocationScheme(String id) {
     IPSLocationScheme scheme = null;
@@ -397,10 +385,9 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
   /**
    * Creates a dependency file from a given dependency data object.
+   *
    * @param scheme the location scheme, assumed not <code>null</code>.
-   *
    * @return The dependency file object, it will never be <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -418,20 +405,13 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
     return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(str));
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "LocationSchemeDef";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
-  /**
-   * Get the site manager.
-   */
+  /** Get the site manager. */
   private static IPSSiteManager m_siteMgr = PSSiteManagerLocator.getSiteManager();
 
   static {

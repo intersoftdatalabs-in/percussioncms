@@ -17,48 +17,47 @@
 
 package com.percussion.test;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Base class for servlet tests which rely on the presence of a running server.
- * // REFACTORED: CP-JAVA11
+ * Base class for servlet tests which rely on the presence of a running server. // REFACTORED:
+ * CP-JAVA11
  */
 @Tag("IntegrationTest")
 public abstract class PSServletTestCase {
 
-    protected WebApplicationContext ctx;
+  protected WebApplicationContext ctx;
 
-    /**
-     * Initializes the Spring WebApplicationContext before each test.
-     * Subclasses should call super.setUp() if overridden.
-     */
-    @BeforeEach
-    protected void setUp() throws Exception {
-        // In a real test, inject or obtain the ServletContext as needed.
-        // Example:
-        // ServletContext servletContext = ...;
-        // ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        // For now, ctx should be set by the test environment.
-    }
+  /**
+   * Initializes the Spring WebApplicationContext before each test. Subclasses should call
+   * super.setUp() if overridden.
+   */
+  @BeforeEach
+  protected void setUp() throws Exception {
+    // In a real test, inject or obtain the ServletContext as needed.
+    // Example:
+    // ServletContext servletContext = ...;
+    // ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+    // For now, ctx should be set by the test environment.
+  }
 
-    /**
-     * Get the bean from the context for the specified name.
-     *
-     * @param beanName The name of the bean to locate, may not be blank.
-     * @return The specified bean as an Object. Must be cast to the appropriate interface by the caller.
-     */
-    protected Object getBean(String beanName) {
-        if (StringUtils.isBlank(beanName)) {
-            throw new IllegalArgumentException("beanName may not be blank");
-        }
-        if (ctx == null) {
-            throw new IllegalStateException("WebApplicationContext is not initialized.");
-        }
-        return ctx.getBean(beanName);
+  /**
+   * Get the bean from the context for the specified name.
+   *
+   * @param beanName The name of the bean to locate, may not be blank.
+   * @return The specified bean as an Object. Must be cast to the appropriate interface by the
+   *     caller.
+   */
+  protected Object getBean(String beanName) {
+    if (StringUtils.isBlank(beanName)) {
+      throw new IllegalArgumentException("beanName may not be blank");
     }
+    if (ctx == null) {
+      throw new IllegalStateException("WebApplicationContext is not initialized.");
+    }
+    return ctx.getBean(beanName);
+  }
 }

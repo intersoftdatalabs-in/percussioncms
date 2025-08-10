@@ -20,9 +20,9 @@ package com.percussion.debug;
 import java.text.MessageFormat;
 
 /**
- * Used to generate trace messages for the DB Pool trace message type (0x0200).
- * Includes:
- * When connection requested, did it come from pool or was a new connection made. For each new connection attempt, all info used (except pw) and whether successful or failed.
+ * Used to generate trace messages for the DB Pool trace message type (0x0200). Includes: When
+ * connection requested, did it come from pool or was a new connection made. For each new connection
+ * attempt, all info used (except pw) and whether successful or failed.
  */
 // REFACTORED: CP-JAVA11
 public class PSTraceDBPool extends PSTraceMessage {
@@ -43,20 +43,14 @@ public class PSTraceDBPool extends PSTraceMessage {
   }
 
   /**
-   * Formats the output for the body of the message, extracting the information
-   * required from the source object.
+   * Formats the output for the body of the message, extracting the information required from the
+   * source object.
    *
-   * @param source an array of objects containing the information required for the
-   * trace message:
-   * - Boolean IsNewConnection
-   * - String driver
-   * - String server
-   * - String database
-   * - String userid
-   * - int Wait in Milliseconds
-   *
-   * If IsNewConnection = <code>false</code>, the the others will not be included in
-   * the trace message.
+   * @param source an array of objects containing the information required for the trace message: -
+   *     Boolean IsNewConnection - String driver - String server - String database - String userid -
+   *     int Wait in Milliseconds
+   *     <p>If IsNewConnection = <code>false</code>, the the others will not be included in the
+   *     trace message.
    * @return the message body
    * @roseuid 39FEE2F303B9
    */

@@ -53,20 +53,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Class to handle packaging and deploying an ACL definition.
- */
+/** Class to handle packaging and deploying an ACL definition. */
 public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Construct the dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAclDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -118,10 +113,10 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Utility method to find the ACL by a given guid(as a STRINGGGGGG)
+   *
    * @param depId the guid
    * @return <code>null</code> if ACLEntry not found
    * @throws PSDeployException
-   *
    */
   private PSAclImpl findAclByDependencyID(String depId) throws PSDeployException {
     if (depId == null || depId.isBlank()) {
@@ -153,7 +148,7 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
    * acl dependency is returned based on ACL dep id (**NOT ITS PARENT**)
    *
    * @param tok
-   * @param id  the guid for the acl dependency
+   * @param id the guid for the acl dependency
    * @throws PSDeployException
    */
   @Override
@@ -179,16 +174,16 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Slot</li>
-   * <li>ContentTyp</li>
+   *   <li>Slot
+   *   <li>ContentTyp
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -209,8 +204,8 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Creates a dependency file from a given dependency data object.
-   * @param acl actual acl, may or may not be <code>null</code>.
-   * If the acl is present, deserialize
+   *
+   * @param acl actual acl, may or may not be <code>null</code>. If the acl is present, deserialize
    * @return The dependency file object, it will never be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
@@ -248,16 +243,15 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Return an iterator for dependency files in the archive
-   * @param archive The archive handler to retrieve the dependency files from,
-   *           may not be <code>null</code>.
+   *
+   * @param archive The archive handler to retrieve the dependency files from, may not be <code>null
+   *     </code>.
    * @param dep The dependency object, may not be <code>null</code>.
-   *
-   * @return An iterator one or more <code>PSDependencyFile</code> objects.
-   *         It will never be <code>null</code> or empty.
-   *
+   * @return An iterator one or more <code>PSDependencyFile</code> objects. It will never be <code>
+   *     null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if there is no dependency file in the archive
-   *            for the specified dependency object, or any other error occurs.
+   * @throws PSDeployException if there is no dependency file in the archive for the specified
+   *     dependency object, or any other error occurs.
    */
   protected static Iterator getAclDependencyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
@@ -279,13 +273,12 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Extract the ACL definition file from the archive and install/update
-   * the <br>
+   * Extract the ACL definition file from the archive and install/update the <br>
    *
-   * @param archive the ArchiveHandler to use to retrieve the files from the
-   *           archive, may not be <code>null</code>
-   * @param depFile the PSDependencyFile that was retrieved from the archive
-   *           may not be <code>null</code>
+   * @param archive the ArchiveHandler to use to retrieve the files from the archive, may not be
+   *     <code>null</code>
+   * @param depFile the PSDependencyFile that was retrieved from the archive may not be <code>null
+   *     </code>
    * @return the actual template
    * @throws PSDeployException
    */
@@ -458,15 +451,13 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
   /**
    * Updates the "Back End Roles" on target system with the ACL's roles.
-   * <p/>
-   * An Acl's Roles are no longer treated as dependencies of the ACL.
-   * This allows allow multiple elements in separate packages to include the
-   * same role. (If treated as dependencies, when the ACL is removed,
-   * the roles would be removed also, and any other object depending on those
-   * roles would be left misconfigured).
+   *
+   * <p>An Acl's Roles are no longer treated as dependencies of the ACL. This allows allow multiple
+   * elements in separate packages to include the same role. (If treated as dependencies, when the
+   * ACL is removed, the roles would be removed also, and any other object depending on those roles
+   * would be left misconfigured).
    *
    * @param acl The name of the Role from the ACL to be added to Back End.
-   *
    */
   private void updateBackEndRoles(PSAclImpl acl) {
     IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
@@ -480,20 +471,13 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "AclDef";
 
-  /**
-   * Da assembly Service Helper
-   */
+  /** Da assembly Service Helper */
   private static IPSAclService m_aclSvc = PSAclServiceLocator.getAclService();
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

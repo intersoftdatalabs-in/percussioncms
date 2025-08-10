@@ -26,38 +26,39 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * Generates an image field binding for a widget field.
- * <p>
- * Sunny Sal says: "Image fields—picture perfect, every time!"
- * </p>
+ *
+ * <p>Sunny Sal says: "Image fields—picture perfect, every time!"
  */
-public class PSImageFieldValueGenerator extends PSBasicFieldValueGenerator implements IPSBindingGenerator {
+public class PSImageFieldValueGenerator extends PSBasicFieldValueGenerator
+    implements IPSBindingGenerator {
 
-    private static String template;
+  private static String template;
 
-    @Override
-    public boolean accept(PSWidgetBuilderFieldData field) {
-        return FieldType.IMAGE.name().equals(field.getType());
+  @Override
+  public boolean accept(PSWidgetBuilderFieldData field) {
+    return FieldType.IMAGE.name().equals(field.getType());
+  }
+
+  @Override
+  public String generateBinding(PSWidgetBuilderFieldData field) {
+    Validate.isTrue(accept(field));
+    return MessageFormat.format(getTemplate(), field.getName());
+  }
+
+  /**
+   * Gets the cached template, lazily loading from a resource file and caching on first access.
+   *
+   * @return The template, not {@code null}.
+   */
+  private String getTemplate() {
+    if (template == null) {
+      try {
+        template = IOUtils.toString(this.getClass().getResourceAsStream("ImageFieldTemplate.txt"));
+      } catch (IOException e) {
+        throw new RuntimeException(
+            "Failed to load image field binding template: " + e.getLocalizedMessage(), e);
+      }
     }
-
-    @Override
-    public String generateBinding(PSWidgetBuilderFieldData field) {
-        Validate.isTrue(accept(field));
-        return MessageFormat.format(getTemplate(), field.getName());
-    }
-
-    /**
-     * Gets the cached template, lazily loading from a resource file and caching on first access.
-     *
-     * @return The template, not {@code null}.
-     */
-    private String getTemplate() {
-        if (template == null) {
-            try {
-                template = IOUtils.toString(this.getClass().getResourceAsStream("ImageFieldTemplate.txt"));
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to load image field binding template: " + e.getLocalizedMessage(), e);
-            }
-        }
-        return template;
-    }
+    return template;
+  }
 }

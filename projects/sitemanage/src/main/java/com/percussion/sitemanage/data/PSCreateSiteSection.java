@@ -21,170 +21,131 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTargetEnum;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
+import java.util.Optional;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
-import java.util.Optional;
 
 /**
- * Contains information for creating a site section.
- * A section contains a folder, landing page, and a navon item.
- * Sunny Sal says: "Sections are like Bollywood dance numbers—lots of moving parts!"
+ * Contains information for creating a site section. A section contains a folder, landing page, and
+ * a navon item. Sunny Sal says: "Sections are like Bollywood dance numbers—lots of moving parts!"
  */
 @JsonRootName("CreateSiteSection")
 public class PSCreateSiteSection extends PSAbstractDataObject {
 
-    public String getPageName() {
-        return pageName;
-    }
+  public String getPageName() {
+    return pageName;
+  }
 
-    public void setPageName(String name) {
-        this.pageName = name;
-    }
+  public void setPageName(String name) {
+    this.pageName = name;
+  }
 
-    public String getPageTitle() {
-        return pageTitle;
-    }
+  public String getPageTitle() {
+    return pageTitle;
+  }
 
-    public void setPageTitle(String title) {
-        this.pageTitle = title;
-    }
+  public void setPageTitle(String title) {
+    this.pageTitle = title;
+  }
 
-    public String getPageLinkTitle() {
-        return pageLinkTitle;
-    }
+  public String getPageLinkTitle() {
+    return pageLinkTitle;
+  }
 
-    public void setPageLinkTitle(String linkTitle) {
-        this.pageLinkTitle = linkTitle;
-    }
+  public void setPageLinkTitle(String linkTitle) {
+    this.pageLinkTitle = linkTitle;
+  }
 
-    public String getPageUrlIdentifier() {
-        return pageUrlIdentifier;
-    }
+  public String getPageUrlIdentifier() {
+    return pageUrlIdentifier;
+  }
 
-    public void setPageUrlIdentifier(String urlIdentifier) {
-        this.pageUrlIdentifier = urlIdentifier;
-    }
+  public void setPageUrlIdentifier(String urlIdentifier) {
+    this.pageUrlIdentifier = urlIdentifier;
+  }
 
-    public String getTemplateId() {
-        return templateId;
-    }
+  public String getTemplateId() {
+    return templateId;
+  }
 
-    public void setTemplateId(String id) {
-        templateId = id;
-    }
+  public void setTemplateId(String id) {
+    templateId = id;
+  }
 
-    public String getFolderPath() {
-        return folderPath;
-    }
+  public String getFolderPath() {
+    return folderPath;
+  }
 
-    public void setFolderPath(String folderPath) {
-        this.folderPath = folderPath;
-    }
+  public void setFolderPath(String folderPath) {
+    this.folderPath = folderPath;
+  }
 
-    public PSSectionTypeEnum getSectionType() {
-        return sectionType;
-    }
+  public PSSectionTypeEnum getSectionType() {
+    return sectionType;
+  }
 
-    /**
-     * Sets the section type. If {@code null}, defaults to {@link PSSectionTypeEnum#section}.
-     */
-    public void setSectionType(PSSectionTypeEnum sectionType) {
-        this.sectionType = Optional.ofNullable(sectionType).orElse(PSSectionTypeEnum.section);
-    }
+  /** Sets the section type. If {@code null}, defaults to {@link PSSectionTypeEnum#section}. */
+  public void setSectionType(PSSectionTypeEnum sectionType) {
+    this.sectionType = Optional.ofNullable(sectionType).orElse(PSSectionTypeEnum.section);
+  }
 
-    public PSSectionTargetEnum getTarget() {
-        return target;
-    }
+  public PSSectionTargetEnum getTarget() {
+    return target;
+  }
 
-    /**
-     * Sets the target window type. If {@code null}, defaults to {@link PSSectionTargetEnum#_self}.
-     */
-    public void setTarget(PSSectionTargetEnum target) {
-        this.target = Optional.ofNullable(target).orElse(PSSectionTargetEnum._self);
-    }
+  /**
+   * Sets the target window type. If {@code null}, defaults to {@link PSSectionTargetEnum#_self}.
+   */
+  public void setTarget(PSSectionTargetEnum target) {
+    this.target = Optional.ofNullable(target).orElse(PSSectionTargetEnum._self);
+  }
 
-    public String getBlogPostTemplateId() {
-        return blogPostTemplateId;
-    }
+  public String getBlogPostTemplateId() {
+    return blogPostTemplateId;
+  }
 
-    public void setBlogPostTemplateId(String blogPostTemplateId) {
-        this.blogPostTemplateId = blogPostTemplateId;
-    }
+  public void setBlogPostTemplateId(String blogPostTemplateId) {
+    this.blogPostTemplateId = blogPostTemplateId;
+  }
 
-    public void setCopyTemplates(Boolean copyTemplates) {
-        this.copyTemplates = copyTemplates;
-    }
+  public void setCopyTemplates(Boolean copyTemplates) {
+    this.copyTemplates = copyTemplates;
+  }
 
-    public Boolean getCopyTemplates() {
-        return this.copyTemplates;
-    }
+  public Boolean getCopyTemplates() {
+    return this.copyTemplates;
+  }
 
-    // Fields
+  // Fields
 
-    /**
-     * The name of the section. If null, will get default from site.
-     */
-    private String pageName;
+  /** The name of the section. If null, will get default from site. */
+  private String pageName;
 
-    /**
-     * The title of the section.
-     */
-    @NotBlank
-    @NotNull
-    private String pageTitle;
+  /** The title of the section. */
+  @NotBlank @NotNull private String pageTitle;
 
-    /**
-     * The URL identifier of the landing page.
-     */
-    @NotBlank
-    @NotNull
-    private String pageUrlIdentifier;
+  /** The URL identifier of the landing page. */
+  @NotBlank @NotNull private String pageUrlIdentifier;
 
-    /**
-     * The navon title of the section.
-     */
-    @NotBlank
-    @NotNull
-    private String pageLinkTitle;
+  /** The navon title of the section. */
+  @NotBlank @NotNull private String pageLinkTitle;
 
-    /**
-     * The ID of the template used to create the landing page.
-     */
-    @NotBlank
-    @NotNull
-    private String templateId;
+  /** The ID of the template used to create the landing page. */
+  @NotBlank @NotNull private String templateId;
 
-    /**
-     * The parent folder path of the section.
-     */
-    @NotBlank
-    @NotNull
-    private String folderPath;
+  /** The parent folder path of the section. */
+  @NotBlank @NotNull private String folderPath;
 
-    /**
-     * The template ID for new blog posts.
-     */
-    @NotEmpty
-    private String blogPostTemplateId;
+  /** The template ID for new blog posts. */
+  @NotEmpty private String blogPostTemplateId;
 
-    /**
-     * The type of the section, initialized to be a regular section.
-     */
-    private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
+  /** The type of the section, initialized to be a regular section. */
+  private PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
 
-    /**
-     * The target type of the section, initialized to be _self.
-     */
-    private PSSectionTargetEnum target = PSSectionTargetEnum._self;
+  /** The target type of the section, initialized to be _self. */
+  private PSSectionTargetEnum target = PSSectionTargetEnum._self;
 
-    /**
-     * Determines if a new template will be created or the selected ones will be used.
-     */
-    @NotBlank
-    @NotNull
-    private Boolean copyTemplates;
+  /** Determines if a new template will be created or the selected ones will be used. */
+  @NotBlank @NotNull private Boolean copyTemplates;
 }

@@ -21,10 +21,9 @@ package com.percussion.deployer.server;
 import java.util.Objects;
 
 /**
- * Represents a source or target element in the element(id) mapping.
- * Can be used as a user object for table cells or elements in a list.
- * Renders the element as 'Name(id)-ParentName(id)' if it has a parent,
- * otherwise 'Name(id)'.
+ * Represents a source or target element in the element(id) mapping. Can be used as a user object
+ * for table cells or elements in a list. Renders the element as 'Name(id)-ParentName(id)' if it has
+ * a parent, otherwise 'Name(id)'.
  */
 public class PSMappingElement implements Comparable<PSMappingElement> {
 
@@ -43,11 +42,10 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
   }
 
   /**
-   * Convenience constructor for derived classes to show an empty element in
-   * the combo-box. The derived classes using this constructor should override
-   * all or required methods (at least {@code equals()} and {@code toString()})
-   * to fit their needs, otherwise using the base-class methods results in
-   * {@code NullPointerException}s.
+   * Convenience constructor for derived classes to show an empty element in the combo-box. The
+   * derived classes using this constructor should override all or required methods (at least {@code
+   * equals()} and {@code toString()}) to fit their needs, otherwise using the base-class methods
+   * results in {@code NullPointerException}s.
    */
   protected PSMappingElement() {}
 
@@ -68,7 +66,8 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
   /**
    * Returns whether this element has a parent.
    *
-   * @return {@code true} if it has a parent (if {@link #setParent(String, String, String)} is called), otherwise {@code false}
+   * @return {@code true} if it has a parent (if {@link #setParent(String, String, String)} is
+   *     called), otherwise {@code false}
    */
   public boolean hasParent() {
     return m_parentId != null;
@@ -99,8 +98,8 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
   }
 
   /**
-   * Gets the string representation of this element's parent in the form
-   * 'Name(id)' if it has a parent.
+   * Gets the string representation of this element's parent in the form 'Name(id)' if it has a
+   * parent.
    *
    * @return the string, may be {@code null} if it does not have a parent, never empty.
    */
@@ -109,8 +108,8 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
   }
 
   /**
-   * Gets the string representation of this element as
-   * 'Name(id)-ParentName(id)' if it has a parent, otherwise as 'Name(id)'.
+   * Gets the string representation of this element as 'Name(id)-ParentName(id)' if it has a parent,
+   * otherwise as 'Name(id)'.
    *
    * @return the string, never {@code null} or empty.
    */
@@ -136,17 +135,14 @@ public class PSMappingElement implements Comparable<PSMappingElement> {
         && Objects.equals(m_parentType, element.m_parentType);
   }
 
-  /**
-   * Generates hash code corresponding to {@link #equals(Object)}.
-   */
+  /** Generates hash code corresponding to {@link #equals(Object)}. */
   @Override
   public int hashCode() {
     return Objects.hash(m_id, m_name, m_type, m_parentId, m_parentName, m_parentType);
   }
 
   /**
-   * Compares this object {@code toString()} representation
-   * lexicographically ignoring case.
+   * Compares this object {@code toString()} representation lexicographically ignoring case.
    *
    * @throws IllegalArgumentException if obj is {@code null}
    */

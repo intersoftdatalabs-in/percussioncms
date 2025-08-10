@@ -35,24 +35,26 @@ import java.util.ResourceBundle;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
- * Extends PSLogHandler by adding functionality to create and send trace messages.
- * Tracks all trace options for a particular application, and whether or not
- * tracing is enabled for that app.  Other objects make calls to the
- * PSDebugLogManager to create trace messages, and this class is responsible
- * delegating that to one of the classes derived from IPSTraceMessage.  This class also maintains a reference to the ouput stream that is used to when sending a trace message.  Currently that is to a file in the application directory, but
- * ultimately that may be to a remote debugging console or other Output Streams.
+ * Extends PSLogHandler by adding functionality to create and send trace messages. Tracks all trace
+ * options for a particular application, and whether or not tracing is enabled for that app. Other
+ * objects make calls to the PSDebugLogManager to create trace messages, and this class is
+ * responsible delegating that to one of the classes derived from IPSTraceMessage. This class also
+ * maintains a reference to the ouput stream that is used to when sending a trace message. Currently
+ * that is to a file in the application directory, but ultimately that may be to a remote debugging
+ * console or other Output Streams.
  */
 // REFACTORED: CP-JAVA11
 public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateListener {
 
   /**
-   * Stores the log and trace options for this handler's application.  Checks to see
-   * if trace is enabled and sets m_traceEnabled accordingly.  Adds itself as a
-   * listener to the PSTraceInfo object.
-   * @param logger The PSLogger from the application.  Contains all logging options
-   * for that application.  If <CODE>null</CODE>, all types of logging will be disabled.
-   * @param traceInfo The PSTraceInfo from the application.  Contains all
-   * tracing options for that application.  May not be <code>null</code>.
+   * Stores the log and trace options for this handler's application. Checks to see if trace is
+   * enabled and sets m_traceEnabled accordingly. Adds itself as a listener to the PSTraceInfo
+   * object.
+   *
+   * @param logger The PSLogger from the application. Contains all logging options for that
+   *     application. If <CODE>null</CODE>, all types of logging will be disabled.
+   * @param traceInfo The PSTraceInfo from the application. Contains all tracing options for that
+   *     application. May not be <code>null</code>.
    * @param app the name of the app this is logging for.
    * @throws IllegalArgumentException if traceInfo is <code>null</code>.
    * @roseuid 39F4699A007D
@@ -70,14 +72,12 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Constructs the appropriate message for the type specified using the object
-   * passed in and send this to the appropriate output stream.
+   * Constructs the appropriate message for the type specified using the object passed in and send
+   * this to the appropriate output stream.
    *
    * @param type the flag specifying the type of info to trace
-   * @param object An object which will contain the info required for the specified
-   * type of trace.
-   * @throws java.lang.IllegalArgumentException if the specified trace flag is not
-   * supported
+   * @param object An object which will contain the info required for the specified type of trace.
+   * @throws java.lang.IllegalArgumentException if the specified trace flag is not supported
    * @roseuid 39F49AE60242
    */
   public void printTrace(int type, Object object) {
@@ -103,12 +103,10 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Used to determine if tracing is on
+   * Used to determine if tracing is on <code>null</code>.
    *
-   * <code>null</code>.
-   * @return boolean indicating <code>true</code> if tracing is enabled
-   * for the application.  If tracing is not enabled for the application,
-   * <code>false</code> is returned.
+   * @return boolean indicating <code>true</code> if tracing is enabled for the application. If
+   *     tracing is not enabled for the application, <code>false</code> is returned.
    * @roseuid 39F49BC50203
    */
   public boolean isTraceEnabled() {
@@ -116,15 +114,12 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Used to determine if tracing is on, and if so, is it on
-   * for a particular type of message.
+   * Used to determine if tracing is on, and if so, is it on for a particular type of message.
    *
-   * @param typeFlag Flag indicating the type of trace.  May not be
-   * <code>null</code>.
-   * @return boolean indicating <code>true</code> if tracing is enabled
-   * for the application as well as for the specified type.  If tracing is not
-   * enabled for the application, or if tracing is not enabled for that option,
-   * <code>false</code> is returned.
+   * @param typeFlag Flag indicating the type of trace. May not be <code>null</code>.
+   * @return boolean indicating <code>true</code> if tracing is enabled for the application as well
+   *     as for the specified type. If tracing is not enabled for the application, or if tracing is
+   *     not enabled for that option, <code>false</code> is returned.
    * @roseuid 39F49BC50203
    */
   public boolean isTraceEnabled(int typeFlag) {
@@ -133,9 +128,10 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * Used to obtain the tracing options for this handler's application
-   * @return an object containing all trace options for the application.  This
-   * is a reference to the actual object stored in the PSApplication object.
-   * Changes to this object are reflected in the PSApplication object.
+   *
+   * @return an object containing all trace options for the application. This is a reference to the
+   *     actual object stored in the PSApplication object. Changes to this object are reflected in
+   *     the PSApplication object.
    * @roseuid 39F49DCF036B
    */
   public PSTraceInfo getTraceInfo() {
@@ -145,7 +141,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   /**
    * Set's the writer for this handler to use when outputting trace messages.
    *
-   * @param writer The trace writer to use.  May not be <code>null</code>.
+   * @param writer The trace writer to use. May not be <code>null</code>.
    */
   public void setTraceWriter(PSTraceWriter writer) {
     if (writer == null) throw new IllegalArgumentException("writer may not be null");
@@ -156,22 +152,19 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   /**
    * Retrieve the writer used by this handler for writing trace messages.
    *
-   * @return The writer used by this, may be <code>null</code> if a writer
-   * has not yet been set.
+   * @return The writer used by this, may be <code>null</code> if a writer has not yet been set.
    */
   public PSTraceWriter getTraceWriter() {
     return m_traceWriter;
   }
 
   /**
-   * Force any system buffers associated with the trace output stream to be
-   * synchronized with the underlying device (if there is one).  For example
-   * if the OutputStream is an instance of a FileOutputStream, this will cause
-   * all in-memory modified copies of buffers associated with it's
-   * FileDesecriptor to be written to the hard disk, and it's timestamp
-   * updated.  If any in-memory buffering is being done by the application
-   * (for example, by a BufferedOutputStream object), those buffers must be
-   * flushed into the FileDescriptor (for example, by invoking
+   * Force any system buffers associated with the trace output stream to be synchronized with the
+   * underlying device (if there is one). For example if the OutputStream is an instance of a
+   * FileOutputStream, this will cause all in-memory modified copies of buffers associated with it's
+   * FileDesecriptor to be written to the hard disk, and it's timestamp updated. If any in-memory
+   * buffering is being done by the application (for example, by a BufferedOutputStream object),
+   * those buffers must be flushed into the FileDescriptor (for example, by invoking
    * OutputStream.flush) before that data will be affected by this method.
    */
   public void syncOutputStream() {
@@ -187,12 +180,10 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Retrieves the appropriate trace message object matching the supplied trace
-   * flag.
-   * Has each possible type cached.  If the requested type is not already in the
-   * list, it will create one lazily using the PSTraceMessageFactory and then cache
-   * it
-   * for future use.
+   * Retrieves the appropriate trace message object matching the supplied trace flag. Has each
+   * possible type cached. If the requested type is not already in the list, it will create one
+   * lazily using the PSTraceMessageFactory and then cache it for future use.
+   *
    * @param typeFlag A flag indicating the type of info that will be traced
    * @return the type of trace info object as specified by the supplied flag
    * @roseuid 39F5A2CF0280
@@ -212,9 +203,8 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Notifies this object that tracing has been disabled.  In this case need to
-   * change internal flag to disabled and log messages
-   *
+   * Notifies this object that tracing has been disabled. In this case need to change internal flag
+   * to disabled and log messages
    *
    * @param traceInfo the PSTraceInfo object that has been disabled
    * @roseuid 3A0084E8031C
@@ -252,8 +242,8 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Notifies this object that tracing has been enabled.  In this case need to
-   * change internal flag to enabled and log messages
+   * Notifies this object that tracing has been enabled. In this case need to change internal flag
+   * to enabled and log messages
    *
    * @param traceInfo the PSTraceInfo object that has been enabled
    * @roseuid 3A0084F2004E
@@ -306,8 +296,8 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * Notifies this object that tracing has been re-enabled.  In this case there is
-   * no need to change internal flag to enabled - just log message
+   * Notifies this object that tracing has been re-enabled. In this case there is no need to change
+   * internal flag to enabled - just log message
    *
    * @param traceInfo the PSTraceInfo object that has been enabled
    * @roseuid 3A0084F2004E
@@ -318,6 +308,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * Disables tracing, freeing any associated resources.
+   *
    * @deprecated Use alternative logging mechanisms or updated trace management APIs.
    */
   @Deprecated
@@ -416,6 +407,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * appends the character to the buffer the specified number of times
+   *
    * @param buf the buffer to append to
    * @param addChar the character to repeat
    * @param len the number of chars to add
@@ -427,6 +419,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
 
   /**
    * appends the character to the buffer the specified number of times
+   *
    * @return the current time date as a String
    */
   private String getFormattedDate() {
@@ -443,9 +436,7 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
     return date;
   }
 
-  /**
-   * logs warning to console and log if io error
-   */
+  /** logs warning to console and log if io error */
   private void logIOServerWarning(String msg) {
     Object[] msgParams = {m_appName, msg};
 
@@ -488,51 +479,33 @@ public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateList
   }
 
   /**
-   * The writer used by this handler to write to the trace output stream, using
-   * the appropriate encoding. <code>null</code> until the first call to
-   * {@link #setTraceWriter(PSTraceWriter) setTraceWriter}, and is replaced
-   * by each subsequent call to that method.
+   * The writer used by this handler to write to the trace output stream, using the appropriate
+   * encoding. <code>null</code> until the first call to {@link #setTraceWriter(PSTraceWriter)
+   * setTraceWriter}, and is replaced by each subsequent call to that method.
    */
   private PSTraceWriter m_traceWriter = null;
 
-  /**
-   * A list of currently instantiated IPSTraceMessage objects.  Stored using
-   * typeFlag as a key.
-   */
+  /** A list of currently instantiated IPSTraceMessage objects. Stored using typeFlag as a key. */
   private HashMap<Integer, IPSTraceMessage> m_traceMessages = new HashMap<>();
 
-  /**
-   * Indicates if tracing is enabled for the application.
-   */
+  /** Indicates if tracing is enabled for the application. */
   private boolean m_traceEnabled = false;
 
-  /**
-   * The tracing options for this handler's application.
-   */
+  /** The tracing options for this handler's application. */
   private PSTraceInfo m_traceInfo = null;
 
-  /**
-   * The name of the app this is a handler for
-   */
+  /** The name of the app this is a handler for */
   private String m_appName = null;
 
-  /**
-   * The resource bundle used for logging messages
-   */
+  /** The resource bundle used for logging messages */
   private ResourceBundle m_resourceBundle = null;
 
-  /**
-   * The date formatter for trace header messages
-   */
+  /** The date formatter for trace header messages */
   private FastDateFormat m_format = null;
 
-  /**
-   * The resource bundle used for logging messages
-   */
+  /** The resource bundle used for logging messages */
   private static final char HEADER_CHAR = '#';
 
-  /**
-   * The app this is a handler for
-   */
+  /** The app this is a handler for */
   private PSApplication m_app = null;
 }

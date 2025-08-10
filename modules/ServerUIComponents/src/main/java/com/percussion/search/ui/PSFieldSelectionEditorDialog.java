@@ -68,9 +68,9 @@ import org.apache.oro.text.perl.MalformedPerl5PatternException;
 import org.apache.oro.text.perl.Perl5Util;
 
 /**
- * This dialog is used to let the user select fields used in Display Formats and
- * Searches. Fields already selected in the editor from where this is launched
- * will not be show in the Available List group.
+ * This dialog is used to let the user select fields used in Display Formats and Searches. Fields
+ * already selected in the editor from where this is launched will not be show in the Available List
+ * group.
  */
 public class PSFieldSelectionEditorDialog extends PSDialog {
 
@@ -78,8 +78,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   private static final int ADDITIONAL_BUTTON_BORDER_WIDTH = 10;
 
   /**
-   * Convienence ctor that calls
-   * <code>PSFieldSelectionEditorDialog(
+   * Convienence ctor that calls <code>PSFieldSelectionEditorDialog(
    * Frame, IPSDbComponent, PSContentEditorFieldCataloger, false)</code>.
    */
   public PSFieldSelectionEditorDialog(
@@ -93,8 +92,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
    * @param frame - the parent frame.
    * @param dbComponent
    * @param ceCatlg
-   * @param inWorkbench flag indicating this dialog was launched from
-   * the Eclipse based workbench
+   * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench
    */
   public PSFieldSelectionEditorDialog(
       Frame frame,
@@ -119,8 +117,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Convienence ctor that calls
-   * <code>PSFieldSelectionEditorDialog(
+   * Convienence ctor that calls <code>PSFieldSelectionEditorDialog(
    * Dialog, IPSDbComponent, PSContentEditorFieldCataloger, false)</code>
    */
   public PSFieldSelectionEditorDialog(
@@ -134,8 +131,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
    * @param dialog - the parent dialog.
    * @param dbComponent
    * @param ceCatlg
-   * @param inWorkbench flag indicating this dialog was launched from
-   * the Eclipse based workbench
+   * @param inWorkbench flag indicating this dialog was launched from the Eclipse based workbench
    */
   public PSFieldSelectionEditorDialog(
       Dialog dialog,
@@ -154,19 +150,18 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Set flag to indicate if external search engine is to be used.  Affects the
-   * operators used when columns are added.
+   * Set flag to indicate if external search engine is to be used. Affects the operators used when
+   * columns are added.
    *
-   * @param useExternal <code>true</code> if an external engine is to be used,
-   * <code>false</code> if not.
+   * @param useExternal <code>true</code> if an external engine is to be used, <code>false</code> if
+   *     not.
    */
   public void setUseExternalSearchEngine(boolean useExternal) {
     m_useExternalSearch = useExternal;
   }
 
   /**
-   * Override base class to limit dialog size to 100 pixel less than the screen
-   * width and height.
+   * Override base class to limit dialog size to 100 pixel less than the screen width and height.
    */
   @Override
   public Dimension getPreferredSize() {
@@ -185,12 +180,10 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
    * Retrieves the translated string from the i18n object.
    *
    * @param key Assumed not <code>null</code> or empty.
-   *
-   * @param addColon If <code>true</code>, a ':' is appended to the value
-   *    before it is returned (if there isn't one there already).
-   *
-   * @return The text associated with the supplied key, or if the key is not
-   *    found, the key is returned. Never <code>null</code> or empty.
+   * @param addColon If <code>true</code>, a ':' is appended to the value before it is returned (if
+   *     there isn't one there already).
+   * @return The text associated with the supplied key, or if the key is not found, the key is
+   *     returned. Never <code>null</code> or empty.
    */
   private String getResource(String key, boolean addColon) {
     String value =
@@ -204,8 +197,9 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * Retrieves the translated mnemonic from the i18n <TUV>.
+   *
    * @param key cannot not be <code>null</code> or empty.
-   *@return The mnemonic key's int value, else 0.
+   * @return The mnemonic key's int value, else 0.
    */
   private char getResourceMnemonic(String key) {
     if (key == null || key.trim().length() == 0)
@@ -218,8 +212,9 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * Retrieves the translated tooltip from the i18n <TUV>.
+   *
    * @param key cannot not be <code>null</code> or empty.
-   *@return the tool tip
+   * @return the tool tip
    */
   private String getResourceTooltip(String key) {
     if (key == null || key.trim().length() == 0)
@@ -230,17 +225,12 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     return value;
   }
 
-  /**
-   * Convenience method that calls {@link #getResource(String,boolean)
-   * getResource(key, false)}.
-   */
+  /** Convenience method that calls {@link #getResource(String,boolean) getResource(key, false)}. */
   private String getResource(String key) {
     return getResource(key, false);
   }
 
-  /**
-   * Initializes the dialog.
-   */
+  /** Initializes the dialog. */
   private void init() {
 
     // load all fields w/out choices
@@ -498,8 +488,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Initializes the selected fields table from <code>PSSearch</code> and
-   * <code>PSDisplayFormat</code> objects.
+   * Initializes the selected fields table from <code>PSSearch</code> and <code>PSDisplayFormat
+   * </code> objects.
    */
   private void initSelectedFieldsTable() {
     Iterator itr = null;
@@ -537,27 +527,24 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Recursively adds light weight field and its dependent fields to a given
-   * table model. If addDependentFields is set to true then it builds dependency
-   * and adds all discovered dependent fields in the "depth-first" fasion.
-   * If ignoreOptionalDependencies is set to false then for each optional
-   * dependency it also pops up an option dialog that allows the user to tell
-   * if he wants to include an optional dependency of not.
-   * @param dtm table model to which to add the light weight field,
-   * never <code>null</code>.
-   * @param lwf LightWeightField to add, never <code>null</code>.
-   * @param addDependentFields <code>true</code> makes it to recurse the
-   * dependency tree, otherwise simply adds a given field and returns.
-   * @param ignoreOptionalDependencies <code>true</code> makes it to skip
-   * optional dependecies with no questions asked, <code>false</code> results
-   * in the JOptionPane option dialog popup for each optional dependency of
-   * a given field, which allows user to decide whether to include it or not.
+   * Recursively adds light weight field and its dependent fields to a given table model. If
+   * addDependentFields is set to true then it builds dependency and adds all discovered dependent
+   * fields in the "depth-first" fasion. If ignoreOptionalDependencies is set to false then for each
+   * optional dependency it also pops up an option dialog that allows the user to tell if he wants
+   * to include an optional dependency of not.
    *
-   * @return JOptionPane result, which could be either YES_OPTION or
-   * CANCEL_OPTION. Unless there was an optional dependency the result returned
-   * will always be YES_OPTION. If there was an optional dependency and user
-   * decided to cancel or close the option dialog, then the result will NOT be
-   * YES_OPTION, which signals that any field addition/removal must be aborted.
+   * @param dtm table model to which to add the light weight field, never <code>null</code>.
+   * @param lwf LightWeightField to add, never <code>null</code>.
+   * @param addDependentFields <code>true</code> makes it to recurse the dependency tree, otherwise
+   *     simply adds a given field and returns.
+   * @param ignoreOptionalDependencies <code>true</code> makes it to skip optional dependecies with
+   *     no questions asked, <code>false</code> results in the JOptionPane option dialog popup for
+   *     each optional dependency of a given field, which allows user to decide whether to include
+   *     it or not.
+   * @return JOptionPane result, which could be either YES_OPTION or CANCEL_OPTION. Unless there was
+   *     an optional dependency the result returned will always be YES_OPTION. If there was an
+   *     optional dependency and user decided to cancel or close the option dialog, then the result
+   *     will NOT be YES_OPTION, which signals that any field addition/removal must be aborted.
    */
   private int addLightWeightField2TableModel(
       DefaultTableModel dtm,
@@ -660,10 +647,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     return JOptionPane.YES_OPTION;
   }
 
-  /**
-   * Updates the <code>PSSearch</code> and <code>PSDisplayFormat</code>
-   * objects.
-   */
+  /** Updates the <code>PSSearch</code> and <code>PSDisplayFormat</code> objects. */
   @Override
   public void onOk() {
     PSDbComponentList items = null;
@@ -680,10 +664,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     super.onOk();
   }
 
-  /**
-   * Applies the regular expressions filter
-   *
-   */
+  /** Applies the regular expressions filter */
   private void onApplyAvailableFilter() {
     String type = (String) m_availSelectorComboBox.getSelectedItem();
 
@@ -711,8 +692,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   /**
    * Updates the <code>PSSearch</code> object.
    *
-   * @param dbColl collection of {@link
-   * com.percussion.cms.objectstore.PSSearchField}. Assumed to be not <code>
+   * @param dbColl collection of {@link com.percussion.cms.objectstore.PSSearchField}. Assumed to be
+   *     not <code>
    * null</code>.
    */
   private void updateDispColumns(PSDbComponentList dbColl) {
@@ -781,11 +762,10 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Updates the position of each dbCol based on it's location in the
-   * model.
+   * Updates the position of each dbCol based on it's location in the model.
    *
-   * @param dispCols collection of {@link IPSSequencedComponent
-   * IPSSequencedComponent}. Assumed to be not <code>null</code>.
+   * @param dispCols collection of {@link IPSSequencedComponent IPSSequencedComponent}. Assumed to
+   *     be not <code>null</code>.
    */
   private void persistModelSequence(PSDbComponentList dispCols) {
     DefaultTableModel model = (DefaultTableModel) m_selectedTable.getModel();
@@ -816,19 +796,16 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * This is a convience method that returns the appropriate string to be
-   * used as the <code>FIELD_COLUMN</code>.  There were 2 different types
-   * of <code>IPSSequencedComponent</code> objects used when originally
-   * creating this class and these 2 objects store the value used in the
-   * <code>FIELD_COLUMN</code> in different places. This method does the
-   * work of getting the value from those objects.
+   * This is a convience method that returns the appropriate string to be used as the <code>
+   * FIELD_COLUMN</code>. There were 2 different types of <code>IPSSequencedComponent</code> objects
+   * used when originally creating this class and these 2 objects store the value used in the <code>
+   * FIELD_COLUMN</code> in different places. This method does the work of getting the value from
+   * those objects.
    *
-   * @todo there's really no need for this type of method, there should be a
-   * way (through polymorphism, data object or adapter) so that the
-   * appropriate data can be retrieved from the objects in a more efficient
-   * manner. This class has many redundancies that can and should be
-   * eliminated.
-   *
+   * @todo there's really no need for this type of method, there should be a way (through
+   *     polymorphism, data object or adapter) so that the appropriate data can be retrieved from
+   *     the objects in a more efficient manner. This class has many redundancies that can and
+   *     should be eliminated.
    * @param dbComp assumed not <code>null</code>
    * @return never <code>null</code> or empty.
    */
@@ -843,8 +820,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   /**
    * Updates the <code>PSSearch</code> object.
    *
-   * @param fields collection of {@link
-   * com.percussion.cms.objectstore.PSSearchField}. Assumed to be not <code>
+   * @param fields collection of {@link com.percussion.cms.objectstore.PSSearchField}. Assumed to be
+   *     not <code>
    * null</code>.
    */
   private void updateSearch(PSDbComponentList fields) {
@@ -929,9 +906,9 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Locates the correct lightweight field in the catalog and sets keywords
-   * found into the supplied field.  First checks the local fields, then
-   * shared, finally system, looking for a match that has keywords defined.
+   * Locates the correct lightweight field in the catalog and sets keywords found into the supplied
+   * field. First checks the local fields, then shared, finally system, looking for a match that has
+   * keywords defined.
    *
    * @param field The field to set keywords on, assumed not <code>null</code>.
    */
@@ -942,12 +919,10 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Intialize the 'Available Fields' table with system, shared and local
-   * fields on selection in the combo box.
+   * Intialize the 'Available Fields' table with system, shared and local fields on selection in the
+   * combo box.
    *
-   * @param map contains system, shared or local fields. Assumed to be not
-   * <code>null</code>.
-   *
+   * @param map contains system, shared or local fields. Assumed to be not <code>null</code>.
    * @param isAll specifies if all the fields have to be displayed.
    */
   private void loadAvailableTableData(Map map, boolean isAll) {
@@ -955,17 +930,13 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Intialize the 'Available Fields' table with system, shared and local
-   * fields on selection in the combo box.
+   * Intialize the 'Available Fields' table with system, shared and local fields on selection in the
+   * combo box.
    *
-   * @param map contains system, shared or local fields. Assumed to be not
-   * <code>null</code>.
-   *
+   * @param map contains system, shared or local fields. Assumed to be not <code>null</code>.
    * @param isAll specifies if all the fields have to be displayed.
-   *
-   * @param filter the regex string to filter the table on. If <code>null</code>
-   * , filtering will not be performed.
-   *
+   * @param filter the regex string to filter the table on. If <code>null</code> , filtering will
+   *     not be performed.
    */
   private void loadAvailableTableData(Map map, boolean isAll, String filter) {
     if (!isAll) {
@@ -986,16 +957,13 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Puts the data in the 'Available Fields' table based on the selection in
-   * <code>m_availSelectorComboBox</code>.
+   * Puts the data in the 'Available Fields' table based on the selection in <code>
+   * m_availSelectorComboBox</code>.
    *
-   * @param fields collection of system, shared or local fields, assumed to be
-   *           not <code>null</code>. Each entry in the collection is
-   *           {@link PSLightWeightField}.
-   *
-   * @param filter the regex string to filter the table on. If
-   *           <code>null</code>, filtering will not be performed.
-   *
+   * @param fields collection of system, shared or local fields, assumed to be not <code>null</code>
+   *     . Each entry in the collection is {@link PSLightWeightField}.
+   * @param filter the regex string to filter the table on. If <code>null</code>, filtering will not
+   *     be performed.
    */
   private void loadAvailableTableData(Collection fields, String filter) {
     DefaultTableModel modelAvail = (DefaultTableModel) m_availableTableSorter.getModel();
@@ -1073,6 +1041,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * Finds a given fieldName in the given table model.
+   *
    * @param dtm table model, never <code>null</code>.
    * @param fieldName internal field name, never <code>null</code>.
    * @return LightWeightField if match is found, <code>null</code> otherwise.
@@ -1103,8 +1072,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   /**
    * Gets the data for the combo box.
    *
-   * @return, vector containing the combo box data, never <code>null</code> or
-   * empty.
+   * @return, vector containing the combo box data, never <code>null</code> or empty.
    */
   private Vector prepareComboData() {
     Vector<String> vec = new Vector<String>();
@@ -1121,17 +1089,15 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Based on the row selection in 'Available Fields' and 'Selected Fields'
-   * table 'up' and 'down' buttons for moving rows across tables and within
-   * 'Selected Fields' are enabld or disabled.
+   * Based on the row selection in 'Available Fields' and 'Selected Fields' table 'up' and 'down'
+   * buttons for moving rows across tables and within 'Selected Fields' are enabld or disabled.
    */
   private class RowSelectionListener implements ListSelectionListener {
     /**
-     * Implementing the interface. Based on the row selection buttons states
-     * {@link #setButtonState()} are changed.
+     * Implementing the interface. Based on the row selection buttons states {@link
+     * #setButtonState()} are changed.
      *
-     * @param e provided by the event handling mechanism of swing, never
-     * <code>null</code>.
+     * @param e provided by the event handling mechanism of swing, never <code>null</code>.
      */
     public void valueChanged(@SuppressWarnings("unused") ListSelectionEvent e) {
       setButtonState();
@@ -1139,16 +1105,14 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Listens to selection of items in the combo box. Loads available table
-   * with appropriate fields based on the selected field type: System, Shared,
-   * Local or All.
+   * Listens to selection of items in the combo box. Loads available table with appropriate fields
+   * based on the selected field type: System, Shared, Local or All.
    */
   public class AvailableComboBoxListener implements ActionListener {
     /**
      * Implements the interface.
      *
-     * @param e never <code>null</code> provided by the swing event handler
-     * mechanism.
+     * @param e never <code>null</code> provided by the swing event handler mechanism.
      */
     public void actionPerformed(ActionEvent e) {
       DefaultTableModel modelAvail = (DefaultTableModel) m_availableTableSorter.getModel();
@@ -1212,20 +1176,18 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     m_selectedTable.setRowSelectionInterval(minIndex, maxIndex);
   }
 
-  /**
-   * The sortable table header renderer.
-   */
+  /** The sortable table header renderer. */
   private class SortableTableHeaderRenderer extends DefaultTableCellRenderer {
     /**
-     * Table sorter for a given sortable table. Initialized in the Ctor,
-     * never <code>null</code> after that.
+     * Table sorter for a given sortable table. Initialized in the Ctor, never <code>null</code>
+     * after that.
      */
     private PSTableSorter m_tableSorter;
 
     /**
      * Ctor.
-     * @param tableSorter table sorter for a given sortable table,
-     * never <code>null</code>.
+     *
+     * @param tableSorter table sorter for a given sortable table, never <code>null</code>.
      */
     public SortableTableHeaderRenderer(PSTableSorter tableSorter) {
       if (tableSorter == null) throw new IllegalArgumentException("tableSorter may not be null");
@@ -1233,9 +1195,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
       m_tableSorter = tableSorter;
     }
 
-    /**
-     * overridden method that displays up and down arrow that indicate sorting
-     */
+    /** overridden method that displays up and down arrow that indicate sorting */
     @Override
     public Component getTableCellRendererComponent(
         JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -1265,14 +1225,13 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     } // method ends
   } // inner class ends
 
-  /**
-   * Removes the selected rows in the <code>m_selectedTable</code> table.
-   */
+  /** Removes the selected rows in the <code>m_selectedTable</code> table. */
   private class RemoveSelectedRowListener implements ActionListener {
     private JTable m_table;
 
     /**
      * Ctor.
+     *
      * @param table selected table, never <code>null</code>.
      */
     RemoveSelectedRowListener(JTable table) {
@@ -1286,9 +1245,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
       setButtonState();
     }
 
-    /**
-     * Removes all selected rows in the <code>m_selectedTable</code> table.
-     */
+    /** Removes all selected rows in the <code>m_selectedTable</code> table. */
     @SuppressWarnings("unchecked")
     private void removeSelectedRows() {
       DefaultTableModel dtm = ((DefaultTableModel) m_table.getModel());
@@ -1313,6 +1270,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
               new Comparator() {
                 /**
                  * This comparator sorts in descending order.
+                 *
                  * @param o1 - Assumed to be an <code>Integer</code>.
                  * @param o2 - Assumed to be an <code>Integer</code>.
                  */
@@ -1369,15 +1327,14 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     }
 
     /**
-     * Discovers backward dependencies for all selected fields. The result
-     * selectedIndexes contains all the indexes that must be demoved together.
+     * Discovers backward dependencies for all selected fields. The result selectedIndexes contains
+     * all the indexes that must be demoved together.
      *
-     * @param dtm DefaultTableModel of the SelectedTable,
-     * never <code>null</code>.
-     * @param selectedIndexes user selected indexes set,
-     * never <code>null</code>, may be <code>empty</code>.
-     * @param notSelectedIndexes not selected rows' indexes,
-     * never <code>null</code>, may be <code>empty</code>.
+     * @param dtm DefaultTableModel of the SelectedTable, never <code>null</code>.
+     * @param selectedIndexes user selected indexes set, never <code>null</code>, may be <code>empty
+     *     </code>.
+     * @param notSelectedIndexes not selected rows' indexes, never <code>null</code>, may be <code>
+     *     empty</code>.
      */
     private int findAllIndexesToRemove(
         DefaultTableModel dtm, Set selectedIndexes, Set notSelectedIndexes) {
@@ -1494,8 +1451,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     /**
      * Implements the interface.
      *
-     * @param e provided by the event handling mechanism of swing, never
-     * <code>null</code>.
+     * @param e provided by the event handling mechanism of swing, never <code>null</code>.
      */
     public void actionPerformed(@SuppressWarnings("unused") ActionEvent e) {
 
@@ -1533,11 +1489,11 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Recursively builds field dependency tree by discovering
-   * and attaching PSLightWeightField instances to the corresponding
-   * PSChoiceFilter.DependentField objects.
-   * @param lwf a LightWeight field for which dependency tree needs
-   * to be built, never <code>null</code>.
+   * Recursively builds field dependency tree by discovering and attaching PSLightWeightField
+   * instances to the corresponding PSChoiceFilter.DependentField objects.
+   *
+   * @param lwf a LightWeight field for which dependency tree needs to be built, never <code>null
+   *     </code>.
    */
   private void buildForwardDependencyTree(PSLightWeightField lwf) {
 
@@ -1584,8 +1540,9 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Looks up cataloged LightWeightField by name.
-   * First checks local then shared then system field maps.
+   * Looks up cataloged LightWeightField by name. First checks local then shared then system field
+   * maps.
+   *
    * @param fieldName internal field name, never <code>null</code>.
    * @return cataloged LightWeightField if any, may be <code>null</code>.
    */
@@ -1604,10 +1561,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     return lwf;
   }
 
-  /**
-   * Up and down buttons are enabled or disabled based on row selection in the
-   * tables.
-   */
+  /** Up and down buttons are enabled or disabled based on row selection in the tables. */
   private void setButtonState() {
     ListSelectionModel lsm = m_selectedTable.getSelectionModel();
     int rc = m_selectedTable.getRowCount();
@@ -1630,8 +1584,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   }
 
   /**
-   * Sets if this dialog should show the focus highlight. There is no
-   * option to reset this value.
+   * Sets if this dialog should show the focus highlight. There is no option to reset this value.
+   *
    * @param color the new value, must never be <code>null</code>
    */
   public void setUseFocusHighlight(Color color) {
@@ -1648,6 +1602,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * Adds a value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void addValueChangedListener(IPSValueChangedListener listener) {
@@ -1659,6 +1614,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
 
   /**
    * Removes the specified value changed listener to this dialog
+   *
    * @param listener cannot be <code>null</code>.
    */
   public void removeValueChangedListener(IPSValueChangedListener listener) {
@@ -1668,10 +1624,7 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
     }
   }
 
-  /**
-   * Handles notification for all registered listeners of a value
-   * changed event.
-   */
+  /** Handles notification for all registered listeners of a value changed event. */
   private void fireValueChangedEvent() {
     PSValueChangedEvent event = new PSValueChangedEvent(this, Event.ACTION_EVENT);
     Iterator it = m_valueChangedListeners.iterator();
@@ -1684,8 +1637,8 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   private PSContentEditorFieldCataloger m_ceCatlg;
 
   /**
-   * Represents all search fields and properties that apply to this search/view.
-   * Initialized in the ctor, may be <code>null</code>.
+   * Represents all search fields and properties that apply to this search/view. Initialized in the
+   * ctor, may be <code>null</code>.
    */
   private PSSearch m_search;
 
@@ -1696,121 +1649,97 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
   private PSDisplayFormat m_dformat;
 
   /**
-   * The table shows all the available fields based on the filter defintions.
-   * The user can select one or more rows and move them to the 'Selected
-   * Fields' table through <code>m_selectBtn</code>.
+   * The table shows all the available fields based on the filter defintions. The user can select
+   * one or more rows and move them to the 'Selected Fields' table through <code>m_selectBtn</code>.
    */
   private JTable m_availableTable;
 
   /**
-   * The table sorter model that is used to sort the columns data represented
-   * by this view, initialized in <code>init()</code> method and never <code>
-   * null</code> after that. The data model of this is changed as the view
-   * changes.
+   * The table sorter model that is used to sort the columns data represented by this view,
+   * initialized in <code>init()</code> method and never <code>
+   * null</code> after that. The data model of this is changed as the view changes.
    */
   private PSTableSorter m_availableTableSorter;
 
-  /**
-   * The table shows all the selected fields during this edit session.
-   */
+  /** The table shows all the selected fields during this edit session. */
   private JTable m_selectedTable;
 
   /**
-   * Moves the selected rows in 'Available Fields' table to 'Selected Fields'.
-   * Initialized in {@link #init()}, never <code>null</code> or modified after
-   * that.
+   * Moves the selected rows in 'Available Fields' table to 'Selected Fields'. Initialized in {@link
+   * #init()}, never <code>null</code> or modified after that.
    */
   private JButton m_selectBtn;
 
   /**
-   * Shifts the selected rows in 'Selected Fields' table up.
-   * Initialized in {@link #init()}, never <code>null</code> or modified after
-   * that.
+   * Shifts the selected rows in 'Selected Fields' table up. Initialized in {@link #init()}, never
+   * <code>null</code> or modified after that.
    */
   private JButton m_upBtn;
 
   /**
-   * Shifts the selected rows in 'Selected Fields' table down.
-   * Initialized in {@link #init()}, never <code>null</code> or modified after
-   * that.
+   * Shifts the selected rows in 'Selected Fields' table down. Initialized in {@link #init()}, never
+   * <code>null</code> or modified after that.
    */
   private JButton m_downBtn;
 
   /**
-   * Removes the selected rows in 'Selected Fields' table.
-   * Initialized in {@link #init()}, never <code>null</code> or modified after
-   * that.
+   * Removes the selected rows in 'Selected Fields' table. Initialized in {@link #init()}, never
+   * <code>null</code> or modified after that.
    */
   private JButton m_removeBtn;
 
   /**
-   * the secondary field filter filters the list that made it through the
-   * primary field filter. This is regular expression filter. Initialized in {@
-   * link #init()}, never <code>null</code> or modified after that.
+   * the secondary field filter filters the list that made it through the primary field filter. This
+   * is regular expression filter. Initialized in {@ link #init()}, never <code>null</code> or
+   * modified after that.
    */
   private JTextField m_filterText;
 
   /**
-   * The button that is used to apply the filter.
-   * Initialized in {@link #init()}, never <code>null</code> or modified after
-   * that.
+   * The button that is used to apply the filter. Initialized in {@link #init()}, never <code>null
+   * </code> or modified after that.
    */
   private JButton m_applyFilterBtn;
 
   /**
-   * Represents the primary field filter is based on the field type. The user
-   * can choose from 'System', 'Shared', 'Local' or 'All'. Initialized in {@
-   * link #init()}, never <code>null</code> or modified after that.
+   * Represents the primary field filter is based on the field type. The user can choose from
+   * 'System', 'Shared', 'Local' or 'All'. Initialized in {@ link #init()}, never <code>null</code>
+   * or modified after that.
    */
   private JComboBox m_availSelectorComboBox;
 
   /**
-   * Determines if an external search engine will be used.  Initially
-   * <code>false</code>, modified by calls to
-   * {@link #setUseExternalSearchEngine(boolean)}
+   * Determines if an external search engine will be used. Initially <code>false</code>, modified by
+   * calls to {@link #setUseExternalSearchEngine(boolean)}
    */
   private boolean m_useExternalSearch = false;
 
   /**
-   * The color to use when drawing focus borders. Defaulted here, but
-   * set through the {@link #setUseFocusHighlight(Color)} method.
+   * The color to use when drawing focus borders. Defaulted here, but set through the {@link
+   * #setUseFocusHighlight(Color)} method.
    */
   private Color m_focusHighlightColor = null;
 
-  /**
-   * Flag indicating that this dialog was launched from within
-   * the Eclipse based workbench
-   */
+  /** Flag indicating that this dialog was launched from within the Eclipse based workbench */
   private boolean m_inWorkbench;
 
-  /**
-   * Flag indicating that a change has occurred since this
-   * dialog was initialized.
-   */
+  /** Flag indicating that a change has occurred since this dialog was initialized. */
   private boolean m_changeOccured;
 
-  /**
-   * List of all registered value changed listeners
-   */
+  /** List of all registered value changed listeners */
   private List<IPSValueChangedListener> m_valueChangedListeners =
       new ArrayList<IPSValueChangedListener>();
 
   /**
-   * The green check mark icon used for the apply filter button.
-   * Initialized in {@link #init()}. Never null after that.
+   * The green check mark icon used for the apply filter button. Initialized in {@link #init()}.
+   * Never null after that.
    */
   private static ImageIcon ms_checkMarkIcon;
 
-  /**
-   * Up arrow icon.
-   * Initialized in {@link #init()}. Never null after that.
-   */
+  /** Up arrow icon. Initialized in {@link #init()}. Never null after that. */
   private static ImageIcon ms_upIcon;
 
-  /**
-   * Down arrow icon.
-   * Initialized in {@link #init()}. Never null after that.
-   */
+  /** Down arrow icon. Initialized in {@link #init()}. Never null after that. */
   private static ImageIcon ms_downIcon;
 
   /** i18ned keyword for display. */
@@ -1828,13 +1757,9 @@ public class PSFieldSelectionEditorDialog extends PSDialog {
       PSI18NTranslationKeyValues.getInstance()
           .getTranslationValue(PSFieldSelectionEditorDialog.class.getName() + "@All");
 
-  /**
-   * The index for the column showing the field name.
-   */
+  /** The index for the column showing the field name. */
   private static final int FIELD_COLUMN = 1;
 
-  /**
-   * The content title field name.
-   */
+  /** The content title field name. */
   public static final String CONTENT_TITLE_FIELD = "sys_title";
 }

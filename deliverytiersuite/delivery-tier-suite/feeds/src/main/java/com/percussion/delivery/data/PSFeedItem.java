@@ -20,7 +20,6 @@ import java.util.Date;
 
 /**
  * @author erikserating
- *
  */
 public class PSFeedItem {
   private String title;

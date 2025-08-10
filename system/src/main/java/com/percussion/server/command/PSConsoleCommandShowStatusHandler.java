@@ -43,23 +43,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * PSConsoleCommandShowStatusHandler is the base class for all classes
- * reporting statistics for request handlers through the "show status"
- * console command.
+ * PSConsoleCommandShowStatusHandler is the base class for all classes reporting statistics for
+ * request handlers through the "show status" console command.
  *
- * @see         PSRemoteConsoleHandler
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @see PSRemoteConsoleHandler
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public abstract class PSConsoleCommandShowStatusHandler extends PSConsoleCommand {
   /**
    * The constructor for this class.
    *
-   * @param      cmdArgs      the argument string to use when executing
-   *                           this command
-   *
+   * @param cmdArgs the argument string to use when executing this command
    */
   protected PSConsoleCommandShowStatusHandler(String cmdArgs) throws PSIllegalArgumentException {
     super(cmdArgs);
@@ -67,8 +63,9 @@ public abstract class PSConsoleCommandShowStatusHandler extends PSConsoleCommand
 
   /**
    * Create the statistics tree as a child of the specified XML node.
-   *   <P>
-   * The statistics are structured as follows:
+   *
+   * <p>The statistics are structured as follows:
+   *
    * <PRE><CODE>
    *      &lt;ELEMENT PSXStatistics               (ElapsedTime, Counters, Timers)&gt;
    *
@@ -121,10 +118,8 @@ public abstract class PSConsoleCommandShowStatusHandler extends PSConsoleCommand
    *      &lt;ELEMENT EventMaximum               (days, hours, minutes, seconds, milliseconds)&gt;
    * </CODE></PRE>
    *
-   * @param      request                     the requestor object
-   *
-   * @return                                 the result document
-   *
+   * @param request the requestor object
+   * @return the result document
    */
   public void createStatistics(PSHandlerStatistics stats, Document doc, Element root) {
     if (stats != null) {

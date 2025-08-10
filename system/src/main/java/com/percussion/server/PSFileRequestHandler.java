@@ -37,22 +37,21 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * The PSFileRequestHandler class is used to get files from the file
- * system. This is primarily used for getting style sheets, etc.
+ * The PSFileRequestHandler class is used to get files from the file system. This is primarily used
+ * for getting style sheets, etc.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalRequestHandler {
 
   /**
    * Construct a file handler.
    *
-   * @param baseDirectory the directory within which all files must
-   * reside; <code>null</code> for the current
-   * directory
-   **/
+   * @param baseDirectory the directory within which all files must reside; <code>null</code> for
+   *     the current directory
+   */
   public PSFileRequestHandler(String baseDirectory) {
     super();
     File root = PSServer.getRxDir();
@@ -83,23 +82,23 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
   /**
-   * Process a file request using the input context information and data.
-   * The results will be written to the specified output stream.
-   * <p>
-   * The following steps are performed to handle the request:
+   * Process a file request using the input context information and data. The results will be
+   * written to the specified output stream.
+   *
+   * <p>The following steps are performed to handle the request:
+   *
    * <ol>
-   * <li>read the file from disk</li>
-   * <li>set the content type based upon file extension</li>
-   * <li>set the file as the content on the response</li>
+   *   <li>read the file from disk
+   *   <li>set the content type based upon file extension
+   *   <li>set the file as the content on the response
    * </ol>
-   * If the request type indicated in the supplied <code>request</code> is
-   * a HEAD request, the contents of the file are omitted.
    *
-   * @param request the request object containing all context data associated
-   * with the request
+   * If the request type indicated in the supplied <code>request</code> is a HEAD request, the
+   * contents of the file are omitted.
    *
-   * @todo Currently we validate security above this level, but we may want
-   * to do some kind of lower-level (file level) security in addition
+   * @param request the request object containing all context data associated with the request
+   * @todo Currently we validate security above this level, but we may want to do some kind of
+   *     lower-level (file level) security in addition
    */
   public void processRequest(PSRequest request) {
     FileInputStream fin = null;
@@ -181,9 +180,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
     }
   }
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }
@@ -253,8 +250,7 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
   /**
    * Returns <code>IPSInternalRequest.REQUEST_TYPE_FILE_SYSYSTEM</code>.
    *
-   * see {@link com.percussion.data.IPSInternalRequestHandler#getRequestType()}
-   * for details.
+   * <p>see {@link com.percussion.data.IPSInternalRequestHandler#getRequestType()} for details.
    */
   public int getRequestType() {
     return IPSInternalRequest.REQUEST_TYPE_FILE_SYSYSTEM;
@@ -271,8 +267,6 @@ public class PSFileRequestHandler implements IPSRequestHandler, IPSInternalReque
   /* Base directory */
   private File m_baseDirectory;
 
-  /**
-   * The XML header found in every well-formed XML file.
-   */
+  /** The XML header found in every well-formed XML file. */
   private static final String XML_HEADER = "<?xml";
 }

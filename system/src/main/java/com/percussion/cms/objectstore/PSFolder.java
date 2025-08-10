@@ -36,9 +36,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class contains all the persistent information for a folder object.
- * However, it does not contain the folder relationship information, which is
- * the information about its related child items or folders.
+ * This class contains all the persistent information for a folder object. However, it does not
+ * contain the folder relationship information, which is the information about its related child
+ * items or folders.
  */
 public class PSFolder extends PSDbComponent implements java.io.Serializable {
   private static final Logger logger = LogManager.getLogger(PSFolder.class);
@@ -47,17 +47,13 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Creates a PSFolder instance that is not persisted in the database.
    *
    * @param name The name of the folder. Never <code>null</code> or empty.
-   *
-   * @param communityId The identifier of a community that have access to this
-   *    folder, or -1 for all community.
-   *
-   * @param permissions permissions on the folder encapsulated by this object
-   * for the user accessing the folder, should be non-negative. This is a
-   * transient data, see {@link #getPermissions()} for detail.
-   *
-   * @param description An optional message that describes the folder.
-   *    May be <code>null</code> or empty.
-   *
+   * @param communityId The identifier of a community that have access to this folder, or -1 for all
+   *     community.
+   * @param permissions permissions on the folder encapsulated by this object for the user accessing
+   *     the folder, should be non-negative. This is a transient data, see {@link #getPermissions()}
+   *     for detail.
+   * @param description An optional message that describes the folder. May be <code>null</code> or
+   *     empty.
    */
   public PSFolder(String name, int communityId, int permissions, String description) {
     super(new PSLocator());
@@ -65,11 +61,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Creates an indentical instance from the specified folder object. This does
-   * a shallow copy of the key and all data.
+   * Creates an indentical instance from the specified folder object. This does a shallow copy of
+   * the key and all data.
    *
-   * @param fromFolder the folder object used to construct the new object,
-   *    must not be <code>null</code>.
+   * @param fromFolder the folder object used to construct the new object, must not be <code>null
+   *     </code>.
    */
   public PSFolder(PSFolder fromFolder) {
     super(fromFolder);
@@ -92,20 +88,14 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Creates a PSFolder instance that has persisted in the database.
    *
    * @param name The name of the folder. Never <code>null</code> or empty.
-   *
-   * @param id The identifier of the folder. It may not be less or equal to
-   *    <code>0</code>.
-   *
-   * @param communityId The identifier of a community that have access to this
-   *    folder, or -1 for all community.
-   *
-   * @param permissions permissions on the folder encapsulated by this object
-   * for the user accessing the folder, should be non-negative. This is a
-   * transient data, see {@link #getPermissions()} for detail.
-   *
-   * @param description An optional message that describes the folder.
-   *    May be <code>null</code> or empty.
-   *
+   * @param id The identifier of the folder. It may not be less or equal to <code>0</code>.
+   * @param communityId The identifier of a community that have access to this folder, or -1 for all
+   *     community.
+   * @param permissions permissions on the folder encapsulated by this object for the user accessing
+   *     the folder, should be non-negative. This is a transient data, see {@link #getPermissions()}
+   *     for detail.
+   * @param description An optional message that describes the folder. May be <code>null</code> or
+   *     empty.
    */
   public PSFolder(String name, int id, int communityId, int permissions, String description) {
     super(new PSLocator(id, 1));
@@ -134,10 +124,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Gets the publishing filename for the folder. If the folder property named
-   * {@link #PROPERTY_PUB_FILE_NAME} is present, not <code>null</code> or
-   * empty, its value will be used as the file name for this folder. If this
-   * property is not defined, the folder name is returned.
+   * Gets the publishing filename for the folder. If the folder property named {@link
+   * #PROPERTY_PUB_FILE_NAME} is present, not <code>null</code> or empty, its value will be used as
+   * the file name for this folder. If this property is not defined, the folder name is returned.
    *
    * @return the publishing file name, never <code>null</code> or empty.
    */
@@ -156,15 +145,12 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Utility method to initialize the object with the given parameters.
    *
    * @param name The name of the folder. Never <code>null</code> or empty.
-   *
-   * @param communityId The identifier of a community that have access to this
-   *    folder, or -1 for all community.
-   *
-   * @param permissions permissions on the folder encapsulated by this object
-   * for the user accessing the folder, should be non-negative
-   *
-   * @param description An optional message that describes the folder.
-   *    May be <code>null</code> or empty.
+   * @param communityId The identifier of a community that have access to this folder, or -1 for all
+   *     community.
+   * @param permissions permissions on the folder encapsulated by this object for the user accessing
+   *     the folder, should be non-negative
+   * @param description An optional message that describes the folder. May be <code>null</code> or
+   *     empty.
    */
   private void init(String name, int communityId, int permissions, String description) {
     if (name == null || name.trim().length() == 0)
@@ -184,9 +170,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     m_acl = new PSObjectAcl();
   }
 
-  /**
-   * See {@link PSDbComponent#getLookupName() base class} for a description
-   */
+  /** See {@link PSDbComponent#getLookupName() base class} for a description */
   protected String getLookupName() {
     return "CONTENT";
   }
@@ -209,14 +193,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Creates a key for the object.
    *
-   * @param values The values of the to be created key. It may be
-   *    <code>null</code>. If it is not <code>null</code>, it must contain
-   *    2 elemenent. The 1st element is the content id, the 2nd element is
-   *    the revision number.
-   *
-   * @return The created key. It is an empty key if the <code>values</code> is
-   *    <code>null</code>, otherwise the key is created with the
-   *    <code>values</code>.
+   * @param values The values of the to be created key. It may be <code>null</code>. If it is not
+   *     <code>null</code>, it must contain 2 elemenent. The 1st element is the content id, the 2nd
+   *     element is the revision number.
+   * @return The created key. It is an empty key if the <code>values</code> is <code>null</code>,
+   *     otherwise the key is created with the <code>values</code>.
    */
   public static PSKey createKey(String[] values) {
     if (values != null) {
@@ -231,8 +212,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Get the name of the object. The folder name is only unique within amount
-   * its siblings.
+   * Get the name of the object. The folder name is only unique within amount its siblings.
    *
    * @return The name supplied in the ctor.
    */
@@ -252,8 +232,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the community id that has access to this folder object.
    *
-   * @return The community id. If it is <code>-1</code>, then this folder
-   *    is accessable by all communities.
+   * @return The community id. If it is <code>-1</code>, then this folder is accessable by all
+   *     communities.
    */
   public int getCommunityId() {
     return m_communityId;
@@ -261,8 +241,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
 
   /**
    * Get locale string of the folder.
-   * @return Locale or language string in the standard syntax, e.q. en-us.
-   * Never <code>null</code> or empty.
+   *
+   * @return Locale or language string in the standard syntax, e.q. en-us. Never <code>null</code>
+   *     or empty.
    */
   public String getLocale() {
     return m_locale;
@@ -290,9 +271,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
 
   /**
    * Set method for locale of the folder.
-   * @param locale Language string representing the locale for the folder.
-   * Must not be <code>null</code> or empty and must be one of the
-   * registered locales in the system.
+   *
+   * @param locale Language string representing the locale for the folder. Must not be <code>null
+   *     </code> or empty and must be one of the registered locales in the system.
    */
   public void setLocale(String locale) {
     if (locale == null || locale.length() < 0) {
@@ -315,21 +296,14 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Checks if the specified folder is a root folder or not. Root folders have
-   * predefined IDs.
-   * {@link #ROOT_ID ROOT_ID}
-   * {@link #SYS_SITES_ID SYS_SITES_ID}
-   * {@link #SYS_FOLDERS_ID SYS_FOLDERS_ID}
+   * Checks if the specified folder is a root folder or not. Root folders have predefined IDs.
+   * {@link #ROOT_ID ROOT_ID} {@link #SYS_SITES_ID SYS_SITES_ID} {@link #SYS_FOLDERS_ID
+   * SYS_FOLDERS_ID}
    *
    * @param id the content id of the folder to check
-   *
-   * @return <code>true</code> if the specified <code>id</code> matches one of
-   * the following:
-   * <code>ROOT_ID</code>
-   * <code>SYS_SITES_ID</code>
-   * <code>SYS_FOLDERS_ID</code>
-   *
-   * Returns <code>false</code> otherwise.
+   * @return <code>true</code> if the specified <code>id</code> matches one of the following: <code>
+   *     ROOT_ID</code> <code>SYS_SITES_ID</code> <code>SYS_FOLDERS_ID</code> Returns <code>false
+   *     </code> otherwise.
    */
   public static boolean isRootFolder(int id) {
     if ((id == ROOT_ID) || (id == SYS_SITES_ID) || (id == SYS_FOLDERS_ID)) return true;
@@ -339,10 +313,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Checks if this folder is a root folder or not.
    *
-   * @return <code>true</code> if this folder is a root folder,
-   * <code>false</code> otherwise.
-   *
-   * See {@link #isRootFolder(int) isRootFolder(int)} for details.
+   * @return <code>true</code> if this folder is a root folder, <code>false</code> otherwise.
+   *     <p>See {@link #isRootFolder(int) isRootFolder(int)} for details.
    */
   public boolean isRootFolder() {
     PSLocator locator = (PSLocator) getLocator();
@@ -353,9 +325,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Is this folder marked to be published only for special editions?
    *
-   * @return <code>true</code> if the value of the
-   *    {@link IPSConstants#SYS_PUBLISH_FOLDER_WITH_SITE} property is
-   *    {@link Boolean#TRUE}; <code>false</code> otherwise.
+   * @return <code>true</code> if the value of the {@link IPSConstants#SYS_PUBLISH_FOLDER_WITH_SITE}
+   *     property is {@link Boolean#TRUE}; <code>false</code> otherwise.
    */
   public boolean isPublishOnlyInSpecialEdition() {
     PSFolderProperty property = getProperty(IPSConstants.SYS_PUBLISH_FOLDER_WITH_SITE);
@@ -365,12 +336,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Set the {@link IPSConstants#SYS_PUBLISH_FOLDER_WITH_SITE} property
-   * according to the supplied property value.
+   * Set the {@link IPSConstants#SYS_PUBLISH_FOLDER_WITH_SITE} property according to the supplied
+   * property value.
    *
-   * @param isFolderPublishProperty <code>true</code> if set the value of
-   *    the property to {@link Boolean#TRUE}; otherwise, delete
-   *    the property.
+   * @param isFolderPublishProperty <code>true</code> if set the value of the property to {@link
+   *     Boolean#TRUE}; otherwise, delete the property.
    */
   public void setPublishOnlyInSpecialEdition(boolean isFolderPublishProperty) {
     if (!isFolderPublishProperty) deleteProperty(IPSConstants.SYS_PUBLISH_FOLDER_WITH_SITE);
@@ -380,11 +350,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Checks if the specified property is display format property.
    *
-   * @return <code>true</code> if the specified property is display format
-   * property, <code>false</code> otherwise.
-   *
-   * @throws IllegalArgumentException if <code>property</code> is
-   * <code>null</code>
+   * @return <code>true</code> if the specified property is display format property, <code>false
+   *     </code> otherwise.
+   * @throws IllegalArgumentException if <code>property</code> is <code>null</code>
    */
   public static boolean isDisplayFormatProperty(PSFolderProperty property) {
     if (property == null) throw new IllegalArgumentException("property may not be null");
@@ -396,12 +364,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Checks if the specified property is the site folder publishing property.
    *
    * @param property the folder property, never <code>null</code>.
-   *
-   * @return <code>true</code> if the specified property is folder
-   * publishing property, <code>false</code> otherwise.
-   *
-   * @throws IllegalArgumentException if <code>property</code> is
-   * <code>null</code>
+   * @return <code>true</code> if the specified property is folder publishing property, <code>false
+   *     </code> otherwise.
+   * @throws IllegalArgumentException if <code>property</code> is <code>null</code>
    */
   public static boolean isFolderPublishProperty(PSFolderProperty property) {
     if (property == null) throw new IllegalArgumentException("property may not be null");
@@ -410,12 +375,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Get the value of display format property, which is the id of the display
-   * format, not the name of it.
+   * Get the value of display format property, which is the id of the display format, not the name
+   * of it.
    *
-   * @return <code>null</code> if the display format property does not exist,
-   * otherwise return the value (id) of the display format property,
-   * may be empty.
+   * @return <code>null</code> if the display format property does not exist, otherwise return the
+   *     value (id) of the display format property, may be empty.
    */
   public String getDisplayFormatPropertyValue() {
     return getPropertyValue(PROPERTY_DISPLAYFORMATID);
@@ -424,8 +388,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Gets the display format id property.
    *
-   * @return the id of the display format. It may be <code>-1</code> if the
-   *    property does not exist.
+   * @return the id of the display format. It may be <code>-1</code> if the property does not exist.
    */
   public int getDisplayFormatId() {
     String idString = getDisplayFormatPropertyValue();
@@ -436,12 +399,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Sets the display format property value.
    *
-   * @param value the value of the display format property, which must be
-   *    the id of the display format, not the name of it. It may not be
-   *    <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>value</code> is
-   * <code>null</code>
+   * @param value the value of the display format property, which must be the id of the display
+   *     format, not the name of it. It may not be <code>null</code>
+   * @throws IllegalArgumentException if <code>value</code> is <code>null</code>
    */
   public void setDisplayFormatPropertyValue(String value) {
     setProperty(PROPERTY_DISPLAYFORMATID, value);
@@ -459,8 +419,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the global template property.
    *
-   * @return the global template property name. It may be <code>null</code> or
-   *    empty if the global template is inherited from its parent.
+   * @return the global template property name. It may be <code>null</code> or empty if the global
+   *     template is inherited from its parent.
    */
   public String getGlobalTemplateProperty() {
     return getPropertyValue(PROPERTY_GLOBALTEMPLATE);
@@ -469,9 +429,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Set the global template property.
    *
-   * @param value the name of the global template. It may be <code>null</code>
-   *    or empty if the global template is inherited from its parent and the
-   *    original global template property will be deleted.
+   * @param value the name of the global template. It may be <code>null</code> or empty if the
+   *     global template is inherited from its parent and the original global template property will
+   *     be deleted.
    */
   public void setGlobalTemplateProperty(String value) {
     if (value == null || value.trim().length() == 0) deleteProperty(PROPERTY_GLOBALTEMPLATE);
@@ -482,8 +442,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * Checks if the specified property is the global template property.
    *
    * @param property the property to test, not <code>null</code>.
-   * @return <code>true</code> if the specified property is the folder
-   *    global template property, <code>false</code> otherwise.
+   * @return <code>true</code> if the specified property is the folder global template property,
+   *     <code>false</code> otherwise.
    */
   public static boolean isFolderGlobalTemplateProperty(PSFolderProperty property) {
     if (property == null) throw new IllegalArgumentException("property may not be null");
@@ -492,9 +452,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Returns the ACL set on this folder. This ACL contains zero or more ACL
-   * entries. Each ACL entry specifies the level of permission for a
-   * particular user, role or virtual entry (Folder Community, Everyone).
+   * Returns the ACL set on this folder. This ACL contains zero or more ACL entries. Each ACL entry
+   * specifies the level of permission for a particular user, role or virtual entry (Folder
+   * Community, Everyone).
    *
    * @return the ACL set on this folder, never <code>null</code>.
    */
@@ -505,11 +465,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Sets the ACL set on this folder.
    *
-   * @param acl the ACL to set on the folder encapsulated by this object,
-   * may not be <code>null</code>
-   *
+   * @param acl the ACL to set on the folder encapsulated by this object, may not be <code>null
+   *     </code>
    * @throws IllegalArgumentException if <code>acl</code> is <code>null</code>
-   *
    * @see PSFolder#getAcl() getAcl
    */
   public void setAcl(PSObjectAcl acl) {
@@ -518,14 +476,13 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Returns a <code>PSObjectPermissions</code> object which encapsulates an
-   * the permissions on this folder for the user accessing the folder.
-   * <p>
-   * This is a transient data, and it will not be persisted with the folder
-   * object when the folder is saved into the repository.
+   * Returns a <code>PSObjectPermissions</code> object which encapsulates an the permissions on this
+   * folder for the user accessing the folder.
    *
-   * @return the permissions set on the folder encapsulated by this object,
-   * never <code>null</code>
+   * <p>This is a transient data, and it will not be persisted with the folder object when the
+   * folder is saved into the repository.
+   *
+   * @return the permissions set on the folder encapsulated by this object, never <code>null</code>
    */
   public PSObjectPermissions getPermissions() {
     return m_permissions;
@@ -533,9 +490,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
 
   /**
    * Sets the specified folder permissions for this object.
-   * <p>
-   * This is a transient data, and it will not be persisted with the folder
-   * object when the folder is saved into the repository.
+   *
+   * <p>This is a transient data, and it will not be persisted with the folder object when the
+   * folder is saved into the repository.
    *
    * @param permissions the new folder permissions, never <code>null</code>.
    */
@@ -546,11 +503,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * This method has been overridden to also consider the equivalence of
-   * the folder's locator as we consider the locator a necessary part
-   * of the definition of a folders equivalence. We would not normally consider
-   * the locater when determining object equivalence, but folder is a special
+   * This method has been overridden to also consider the equivalence of the folder's locator as we
+   * consider the locator a necessary part of the definition of a folders equivalence. We would not
+   * normally consider the locater when determining object equivalence, but folder is a special
    * case.
+   *
    * @param o the object to check for equivalence against.
    * @return <code>true</code> if equivalent.
    */
@@ -579,9 +536,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     return compare.isEquals();
   }
 
-  /**
-   * See {@link IPSDbComponent#equalsFull(Object)}
-   */
+  /** See {@link IPSDbComponent#equalsFull(Object)} */
   public boolean equalsFull(Object o) {
     if (equals(o)) {
       return super.equalsFull(o);
@@ -591,9 +546,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * This method has been overridden to also consider the folder's locator as
-   * part of the hashcode, as we consider the locator a necessary part of the
-   * folder's identity.
+   * This method has been overridden to also consider the folder's locator as part of the hashcode,
+   * as we consider the locator a necessary part of the folder's identity.
    *
    * @return the calculated hashcode
    */
@@ -606,8 +560,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * &lt;!ELEMENT PSFolder (PSXLocator, Description, PSXComponentList?)>
    * &lt;!ATTLIST PSFolder
@@ -618,7 +573,6 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -647,9 +601,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     return PSXmlDocumentBuilder.toString(elem);
   }
 
-  /**
-   * See {@link IPSDbComponent#fromXml(Element)}
-   */
+  /** See {@link IPSDbComponent#fromXml(Element)} */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     super.fromXml(sourceNode); // set data for super class
 
@@ -689,11 +641,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Copy data from a specified object to this object, performing a deep copy
-   * of all members, except the key.
+   * Copy data from a specified object to this object, performing a deep copy of all members, except
+   * the key.
    *
-   * @param obj The object from which to copy values. It has to be the same
-   *    type as the current object. It may not be <code>null</code>.
+   * @param obj The object from which to copy values. It has to be the same type as the current
+   *     object. It may not be <code>null</code>.
    */
   public void copyFrom(IPSDbComponent obj) {
     if (!(obj instanceof PSFolder))
@@ -739,9 +691,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Merges current ACL with the specified source acl.  New entries
-   * will be added, deleted entries will be removed, and updated
-   * entries will be modified.
+   * Merges current ACL with the specified source acl. New entries will be added, deleted entries
+   * will be removed, and updated entries will be modified.
    *
    * @param srcAcl the to be merged ACL, may not be <code>null</code>.
    */
@@ -824,8 +775,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * A cloned folder does not copy the locator and will therefore
-   * not be considered equal to the original folder.
+   * A cloned folder does not copy the locator and will therefore not be considered equal to the
+   * original folder.
    *
    * @see IPSDbComponent#clone() for more details
    */
@@ -871,9 +822,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     return copy;
   }
 
-  /**
-   * See {@link PSDbComponent#getState()}
-   */
+  /** See {@link PSDbComponent#getState()} */
   public int getState() {
     if (super.getState() != IPSDbComponent.DBSTATE_UNMODIFIED) {
       return super.getState();
@@ -884,9 +833,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
     }
   }
 
-  /**
-   * See {@link PSDbComponent#createKey(Element)}
-   */
+  /** See {@link PSDbComponent#createKey(Element)} */
   protected PSKey createKey(Element keyEl) throws PSUnknownNodeTypeException {
     return (PSKey) new PSLocator(keyEl);
   }
@@ -894,8 +841,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the list of properties.
    *
-   * @return An iterator with zero or more <code>PSFolderProperty</code>
-   *    object. Never <code>null</code>, but may be empty.
+   * @return An iterator with zero or more <code>PSFolderProperty</code> object. Never <code>null
+   *     </code>, but may be empty.
    */
   public Iterator getProperties() {
     return m_properties.iterator();
@@ -904,8 +851,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get a list of to be deleted properties.
    *
-   * @return An iterator with zero or more <code>PSFolderProperty</code>
-   *    object. Never <code>null</code>, but may be empty.
+   * @return An iterator with zero or more <code>PSFolderProperty</code> object. Never <code>null
+   *     </code>, but may be empty.
    */
   public Iterator getDeletedProperties() {
     return m_properties.getDeleteCollection().iterator();
@@ -921,19 +868,13 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Set a property to the folder instance. If the property already exist
-   * in the properties list, it will modify the existing one; otherwise, add
-   * this property as a new one into the properties list. It searches
-   * properties in case insensitive fashion, see {@link #getProperty(String)}.
+   * Set a property to the folder instance. If the property already exist in the properties list, it
+   * will modify the existing one; otherwise, add this property as a new one into the properties
+   * list. It searches properties in case insensitive fashion, see {@link #getProperty(String)}.
    *
-   * @param name The name of the property, may not be <code>null</code> or
-   *    empty.
-   *
-   * @param value The value of the property, may not be <code>null</code>
-   *    but may be empty.
-   *
-   * @param desc The description of the property, may be <code>null</code>
-   *    or empty.
+   * @param name The name of the property, may not be <code>null</code> or empty.
+   * @param value The value of the property, may not be <code>null</code> but may be empty.
+   * @param desc The description of the property, may be <code>null</code> or empty.
    */
   public void setProperty(String name, String value, String desc) {
     if (name == null || name.trim().length() == 0)
@@ -952,23 +893,21 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Just like {@link #setProperty(String,String,String) setProperty}, except
-   * it set an empty description.
+   * Just like {@link #setProperty(String,String,String) setProperty}, except it set an empty
+   * description.
    */
   public void setProperty(String name, String value) {
     setProperty(name, value, "");
   }
 
   /**
-   * Set a property to the folder instance. If the property already exist
-   * in the properties list, it will modify the existing one, otherwise it will
-   * add this property as a new one into the properties list. It searches
-   * properties in case insensitive fashion, see {@link #getProperty(String)}.
+   * Set a property to the folder instance. If the property already exist in the properties list, it
+   * will modify the existing one, otherwise it will add this property as a new one into the
+   * properties list. It searches properties in case insensitive fashion, see {@link
+   * #getProperty(String)}.
    *
    * @param property the folder property, may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if <code>value</code> is
-   * <code>null</code>
+   * @throws IllegalArgumentException if <code>value</code> is <code>null</code>
    */
   public void setProperty(PSFolderProperty property) {
     if (property == null) throw new IllegalArgumentException("property may not be null");
@@ -978,8 +917,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Adds a property to this object.
    *
-   * @param prop The to be added property, may not be <code>null</code> and
-   *    it must not be exist.
+   * @param prop The to be added property, may not be <code>null</code> and it must not be exist.
    */
   public void addProperty(PSFolderProperty prop) {
     if (prop == null) throw new IllegalArgumentException("prop may not be null");
@@ -994,11 +932,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the value of a given property name.
    *
-   * @param name The name of the property, may not be empty or
-   *    <code>null</code>.
-   *
-   * @return <code>null</code> if the property does not exist; otherwise
-   *    return the value of the property, it may be empty.
+   * @param name The name of the property, may not be empty or <code>null</code>.
+   * @return <code>null</code> if the property does not exist; otherwise return the value of the
+   *     property, it may be empty.
    */
   public String getPropertyValue(String name) {
     PSFolderProperty prop = getProperty(name);
@@ -1009,11 +945,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the description of a given property name.
    *
-   * @param name The name of the property, may not be empty or
-   *    <code>null</code>.
-   *
-   * @return <code>null</code> if the property does not exist; otherwise
-   *    return the value of the property, it may be empty.
+   * @param name The name of the property, may not be empty or <code>null</code>.
+   * @return <code>null</code> if the property does not exist; otherwise return the value of the
+   *     property, it may be empty.
    */
   public String getPropertyDesciption(String name) {
     PSFolderProperty prop = getProperty(name);
@@ -1024,13 +958,9 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Get the property object by name, ignore case consideration.
    *
-   * @param name The name of the property, may not be <code>null</code> or
-   * empty.
-   *
+   * @param name The name of the property, may not be <code>null</code> or empty.
    * @return The property object if exist, <code>null</code> if not exist.
-   *
-   * @throws IllegalArgumentException if <code>name</code> is
-   * <code>null</code> or empty
+   * @throws IllegalArgumentException if <code>name</code> is <code>null</code> or empty
    */
   public PSFolderProperty getProperty(String name) {
     if ((name == null) || (name.trim().length() < 1))
@@ -1042,12 +972,10 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Gets a specified property from a specified property list.
    *
-   * @param name the specified property name, assumed not <code>null</code>
-   *    or empty.
+   * @param name the specified property name, assumed not <code>null</code> or empty.
    * @param props the specified property list, assumed not <code>null</code>.
-   *
-   * @return the specified property. It may be <code>null</code> if the
-   *    specified property does not exist in the specified property list.
+   * @return the specified property. It may be <code>null</code> if the specified property does not
+   *     exist in the specified property list.
    */
   private PSFolderProperty getProperty(String name, PSDbComponentList props) {
     Iterator entries = props.iterator();
@@ -1070,8 +998,8 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Sets the name of the Community. The name of the community is a transient
-   * data, and it will not be persisted with the folder object.
+   * Sets the name of the Community. The name of the community is a transient data, and it will not
+   * be persisted with the folder object.
    *
    * @param communityName the new name of the Community, may be null or empty.
    */
@@ -1080,25 +1008,21 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Gets the name of the Community. The name of the community is a transient
-   * data, and it will not be persisted with the folder object. Defaults to
-   * <code>null</code>.
+   * Gets the name of the Community. The name of the community is a transient data, and it will not
+   * be persisted with the folder object. Defaults to <code>null</code>.
    *
-   * @return the name of the Community. It may be <code>null</code> or empty
-   *    if has not been set by {@link #setCommunityName(String)} or the
-   *    community id is <code>-1</code>.
+   * @return the name of the Community. It may be <code>null</code> or empty if has not been set by
+   *     {@link #setCommunityName(String)} or the community id is <code>-1</code>.
    */
   public String getCommunityName() {
     return (m_communityId == -1) ? null : m_communityName;
   }
 
   /**
-   * Sets the name of the display format. The name of the display format is a
-   * transient data, and it will not be persisted with the folder object.
-   * Defaults to <code>null</code>.
+   * Sets the name of the display format. The name of the display format is a transient data, and it
+   * will not be persisted with the folder object. Defaults to <code>null</code>.
    *
-   * @param displayFormatName the new display format name, never
-   *    <code>null</code> or empty.
+   * @param displayFormatName the new display format name, never <code>null</code> or empty.
    */
   public void setDisplayFormatName(String displayFormatName) {
     if (StringUtils.isBlank(displayFormatName))
@@ -1108,23 +1032,21 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Gets the name of the display format. The name of the display format is a
-   * transient data, and it will not be persisted with the folder object.
-   * Defaults to <code>null</code>.
+   * Gets the name of the display format. The name of the display format is a transient data, and it
+   * will not be persisted with the folder object. Defaults to <code>null</code>.
    *
-   * @return the name of the display format. It may be <code>null</code> or
-   *    empty if has not been set by {@link #setDisplayFormatName(String)}.
+   * @return the name of the display format. It may be <code>null</code> or empty if has not been
+   *     set by {@link #setDisplayFormatName(String)}.
    */
   public String getDisplayFormatName() {
     return m_displayFormatName;
   }
 
   /**
-   * Sets the folder path. The folder path is a transient data, and will not
-   * be persisted with the folder object. Defaults to <code>null</code>.
+   * Sets the folder path. The folder path is a transient data, and will not be persisted with the
+   * folder object. Defaults to <code>null</code>.
    *
-   * @param folderPath the new folder path, may not be <code>null</code> or
-   *    empty.
+   * @param folderPath the new folder path, may not be <code>null</code> or empty.
    */
   public void setFolderPath(String folderPath) {
     if (StringUtils.isBlank(folderPath))
@@ -1134,11 +1056,11 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * Gets the folder path. The folder path is a transient data, and will not
-   * be persisted with the folder object. Defaults to <code>null</code>.
+   * Gets the folder path. The folder path is a transient data, and will not be persisted with the
+   * folder object. Defaults to <code>null</code>.
    *
-   * @return the folder path, may not be <code>null</code> or empty if has
-   *    not been set by {@link #setFolderPath(String)}.
+   * @return the folder path, may not be <code>null</code> or empty if has not been set by {@link
+   *     #setFolderPath(String)}.
    */
   public String getFolderPath() {
     return m_folderPath;
@@ -1147,8 +1069,7 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   /**
    * Gets the unique identifier for this folder.
    *
-   * @return The unique id, may be <code>null</code> if the folder was not
-   * loaded via the ws layer.
+   * @return The unique id, may be <code>null</code> if the folder was not loaded via the ws layer.
    */
   public IPSGuid getGuid() {
     return m_guid;
@@ -1168,128 +1089,108 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
   }
 
   /**
-   * The path of the folder. This is a transient data, and will not be
-   * persisted with the folder object. Defaults to <code>null</code>.
+   * The path of the folder. This is a transient data, and will not be persisted with the folder
+   * object. Defaults to <code>null</code>.
    */
   private String m_folderPath = null;
 
   /**
-   * The name of the display format. This is a transient data, and will not be
-   * persisted with the folder object. Defaults to <code>null</code>.
+   * The name of the display format. This is a transient data, and will not be persisted with the
+   * folder object. Defaults to <code>null</code>.
    */
   private String m_displayFormatName = null;
 
   /**
-   * The name of the folder. Initialized by the constructor.
-   * Never <code>null</code> or empty after that.
+   * The name of the folder. Initialized by the constructor. Never <code>null</code> or empty after
+   * that.
    */
   private String m_name;
 
   /**
-   * The community id that has access to this folder. <code>-1</code> if
-   * this folder can be accessed by all community. Initialized by constructor.
+   * The community id that has access to this folder. <code>-1</code> if this folder can be accessed
+   * by all community. Initialized by constructor.
    */
   private int m_communityId;
 
   /**
-   * The name of the community. Defaults to <code>null</code>. This is a
-   * transient data and will not persisted with this object when the folder
-   * object is saved into the repository.
+   * The name of the community. Defaults to <code>null</code>. This is a transient data and will not
+   * persisted with this object when the folder object is saved into the repository.
    */
   private String m_communityName = null;
 
   /**
-   * The description of the folder. Initialized by constructor, never
-   * <code>null</code>, but may be empty, after that.
+   * The description of the folder. Initialized by constructor, never <code>null</code>, but may be
+   * empty, after that.
    */
   private String m_description;
 
   /**
-   * The locale of the folder. Set by constructor or set method, never
-   * <code>null</code>, or empty.
+   * The locale of the folder. Set by constructor or set method, never <code>null</code>, or empty.
    */
   private String m_locale = PSI18nUtils.DEFAULT_LANG;
 
   /**
-   * Maps the name of the property (as the map key) to the value of the
-   * property (as the map value). Initialized by constructor, never
-   * <code>null</code>, but may be empty, after that.
+   * Maps the name of the property (as the map key) to the value of the property (as the map value).
+   * Initialized by constructor, never <code>null</code>, but may be empty, after that.
    */
   private PSDbComponentList m_properties = null;
 
   /**
-   * Specifies the permissions set on the folder for the user accessing the
-   * folder. Initialized in the <code>init()</code> or <code>fromXml()</code>
-   * methods. Never <code>null</code> or modified after initialization.
-   * <p>
-   * Note, this is a transient object, and it will not be persisted with the
-   * folder object.
+   * Specifies the permissions set on the folder for the user accessing the folder. Initialized in
+   * the <code>init()</code> or <code>fromXml()</code> methods. Never <code>null</code> or modified
+   * after initialization.
+   *
+   * <p>Note, this is a transient object, and it will not be persisted with the folder object.
    */
   private PSFolderPermissions m_permissions = null;
 
   /**
-   * Contains ACL entries. Each ACL entry specifies the level of permission
-   * for a particular user, role or virtual entry (Folder Community, Everyone)
-   * Initialized in the constructor or <code>fromXml()</code> method,
-   * Never <code>null</code> after initialization, modified using
-   * <code>setAcl()</code> method.
+   * Contains ACL entries. Each ACL entry specifies the level of permission for a particular user,
+   * role or virtual entry (Folder Community, Everyone) Initialized in the constructor or <code>
+   * fromXml()</code> method, Never <code>null</code> after initialization, modified using <code>
+   * setAcl()</code> method.
    */
   private PSObjectAcl m_acl = null;
 
   /**
-   * The global unique identifier for this folder when the folder is created
-   * via the ws layer.  May be <code>null</code>.
+   * The global unique identifier for this folder when the folder is created via the ws layer. May
+   * be <code>null</code>.
    */
   private IPSGuid m_guid = null;
 
   /**
-   * Folders are implemented as a content type. This is the type id. This
-   * is public for availability to other parts of the server. It should not
-   * be used by anyone else and no assumptions about the implementation
-   * should be made as it could change.
+   * Folders are implemented as a content type. This is the type id. This is public for availability
+   * to other parts of the server. It should not be used by anyone else and no assumptions about the
+   * implementation should be made as it could change.
    */
   public static final int FOLDER_CONTENT_TYPE_ID = 101;
 
   /**
-   * Name of the optional property of a folder that inidcates the file name for
-   * publishing. This property is used to override the default name which is
-   * folder name used to generate publish location.
+   * Name of the optional property of a folder that inidcates the file name for publishing. This
+   * property is used to override the default name which is folder name used to generate publish
+   * location.
    */
   public static final String PROPERTY_PUB_FILE_NAME = "sys_pubFilename";
 
-  /**
-   * The id of the system folder 'Folders'.
-   */
+  /** The id of the system folder 'Folders'. */
   public static final int SYS_FOLDERS_ID = 3;
 
-  /**
-   * The separator used for folder path
-   */
+  /** The separator used for folder path */
   public static final String PATH_SEP = "/";
 
-  /**
-   * Hidden System folder id.
-   */
+  /** Hidden System folder id. */
   public static final int SYS_SYSTEM_FOLDER_ID = 4;
 
-  /**
-   * Hidden System folder id.
-   */
+  /** Hidden System folder id. */
   public static final int SYS_SYSTEM_TEMPLATES_FOLDER_ID = 5;
 
-  /**
-   * Hidden System folder id.
-   */
+  /** Hidden System folder id. */
   public static final int SYS_SYSTEM_USERPROFILES_FOLDER_ID = 6;
 
-  /**
-   * The id of the system assets folder.
-   */
+  /** The id of the system assets folder. */
   public static final int SYS_ASSETS_ID = 7;
 
-  /**
-   * The id of the system site 'Sites'.
-   */
+  /** The id of the system site 'Sites'. */
   public static final int SYS_SITES_ID = 2;
 
   /***
@@ -1297,35 +1198,25 @@ public class PSFolder extends PSDbComponent implements java.io.Serializable {
    */
   public static final int SYS_RECYCLING_ID = 8;
 
-  /**
-   * The id of the root folder 'Root'.
-   */
+  /** The id of the root folder 'Root'. */
   public static final int ROOT_ID = 1;
 
-  /**
-   * The sys_title the root folder.
-   */
+  /** The sys_title the root folder. */
   public static final String ROOT_TITLE = "Root";
 
-  /**
-   * Constant for the display format property
-   */
+  /** Constant for the display format property */
   public static final String PROPERTY_DISPLAYFORMATID = "sys_displayformat";
 
-  /**
-   * Constant for the global template property name.
-   */
+  /** Constant for the global template property name. */
   public static final String PROPERTY_GLOBALTEMPLATE = "sys_globaltemplate";
 
   /**
-   * Constant used to save as global template property value if the global
-   * template is inherited from the parent.
+   * Constant used to save as global template property value if the global template is inherited
+   * from the parent.
    */
   public static final String INHERIT_FROM_PARENT = "inherit_from_parent";
 
-  /**
-   * Generated serial version id.
-   */
+  /** Generated serial version id. */
   private static final long serialVersionUID = -1771578151351445810L;
 
   // Private constants for XML attribute and element name

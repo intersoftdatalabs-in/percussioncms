@@ -28,7 +28,6 @@ import java.util.List;
  * Specifies a logical grouping of properties.
  *
  * @author natechadwick
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "propertygroup")
@@ -49,6 +48,7 @@ public class PSPropertyGroupDefinition {
 
   /**
    * When true, the last known state for this property group is expanded.
+   *
    * @return the expanded
    */
   public boolean isExpanded() {
@@ -56,7 +56,7 @@ public class PSPropertyGroupDefinition {
   }
 
   /**
-   * When true, indicates that this property group should be displayed expaned.  When false
+   * When true, indicates that this property group should be displayed expaned. When false
    * collapsed.
    *
    * @param expanded the expanded to set

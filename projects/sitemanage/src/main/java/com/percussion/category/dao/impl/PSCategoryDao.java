@@ -23,25 +23,23 @@ import com.percussion.category.dao.IPSCategoryDao;
 import com.percussion.services.contentmgr.impl.IPSContentRepository;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.utils.guid.IPSGuid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 /**
- * Hibernate implementation of {@link IPSCategoryDao}.
- * Provides methods to delete categories and retrieve page IDs by category.
+ * Hibernate implementation of {@link IPSCategoryDao}. Provides methods to delete categories and
+ * retrieve page IDs by category.
  *
  * @author chriswright
  */
@@ -49,71 +47,66 @@ import java.util.stream.Collectors;
 @Repository("categoryDao")
 public class PSCategoryDao implements IPSCategoryDao {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    private Session getSession() {
-        return entityManager.unwrap(Session.class);
-    }
+  private Session getSession() {
+    return entityManager.unwrap(Session.class);
+  }
 
-    @Autowired
-    private IPSContentRepository contentRepository;
+  @Autowired private IPSContentRepository contentRepository;
 
-    @Autowired
-    private IPSIdMapper idMapper;
+  @Autowired private IPSIdMapper idMapper;
 
-    private static final Logger log = LogManager.getLogger(PSCategoryDao.class);
+  private static final Logger log = LogManager.getLogger(PSCategoryDao.class);
 
-    private PSCategoryDao() {
-        // For Spring
-    }
+  private PSCategoryDao() {
+    // For Spring
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void delete(Set<String> ids, List<IPSGuid> pageIds) {
-        log.info("Category IDs to delete: {}", ids);
-        var session = getSession();
-        try {
-            ids.forEach(id -> {
-                var queryStr = "DELETE FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
-                var query = session.createQuery(queryStr);
-                query.setParameter("id", "%" + id + "%");
-                int result = query.executeUpdate();
-                log.info("Deleted {} records for category ID: {}", result, id);
-            });
-        } catch (HibernateException e) {
-            log.error("Error deleting page categories from the database.", e);
-        }
-        contentRepository.evict(pageIds);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Integer> getPageIdsFromCategoryIds(Set<String> ids) {
-        log.info("Category IDs to retrieve page IDs for: {}", ids);
-        var session = getSession();
-        var pageIds = new ArrayList<Integer>();
-        for (var id : ids) {
-            var queryStr = "SELECT DISTINCT id FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
+  /** {@inheritDoc} */
+  @Override
+  public void delete(Set<String> ids, List<IPSGuid> pageIds) {
+    log.info("Category IDs to delete: {}", ids);
+    var session = getSession();
+    try {
+      ids.forEach(
+          id -> {
+            var queryStr = "DELETE FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
             var query = session.createQuery(queryStr);
             query.setParameter("id", "%" + id + "%");
-            try {
-                var result = query.list();
-                if (result != null) {
-                    pageIds.addAll(result.stream()
-                            .filter(Integer.class::isInstance)
-                            .map(Integer.class::cast)
-                            .collect(Collectors.toList()));
-                }
-            } catch (HibernateException e) {
-                log.error("Error executing category query to get page IDs for category ID {}.", id, e);
-            }
-        }
-        log.info("Page IDs returned from the category IDs: {}", pageIds);
-        return pageIds;
+            int result = query.executeUpdate();
+            log.info("Deleted {} records for category ID: {}", result, id);
+          });
+    } catch (HibernateException e) {
+      log.error("Error deleting page categories from the database.", e);
     }
+    contentRepository.evict(pageIds);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public List<Integer> getPageIdsFromCategoryIds(Set<String> ids) {
+    log.info("Category IDs to retrieve page IDs for: {}", ids);
+    var session = getSession();
+    var pageIds = new ArrayList<Integer>();
+    for (var id : ids) {
+      var queryStr = "SELECT DISTINCT id FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
+      var query = session.createQuery(queryStr);
+      query.setParameter("id", "%" + id + "%");
+      try {
+        var result = query.list();
+        if (result != null) {
+          pageIds.addAll(
+              result.stream()
+                  .filter(Integer.class::isInstance)
+                  .map(Integer.class::cast)
+                  .collect(Collectors.toList()));
+        }
+      } catch (HibernateException e) {
+        log.error("Error executing category query to get page IDs for category ID {}.", id, e);
+      }
+    }
+    log.info("Page IDs returned from the category IDs: {}", pageIds);
+    return pageIds;
+  }
 }

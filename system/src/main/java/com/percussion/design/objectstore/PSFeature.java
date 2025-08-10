@@ -24,16 +24,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class describes a feature that is supported.  Each feature has a name and
- * a list of supported versions.  Each version has a number and an introduced
- * date.  Each feature must have at least one version, the initial version of the
- * feature.
+ * This class describes a feature that is supported. Each feature has a name and a list of supported
+ * versions. Each version has a number and an introduced date. Each feature must have at least one
+ * version, the initial version of the feature.
  */
 public class PSFeature {
-  /**
-   * The name used to identify the full text search engine functionality
-   * added in Rx 5.5.
-   */
+  /** The name used to identify the full text search engine functionality added in Rx 5.5. */
   public static final String FEATURE_FTS = "FullTextSearch";
 
   /**
@@ -57,12 +53,11 @@ public class PSFeature {
   }
 
   /**
-   * Constructor for this class.  Must be passed at least one version.
+   * Constructor for this class. Must be passed at least one version.
    *
    * @param name The name of the version
-   * @param versionList A list of supported versions of this feature, all objects of
-   * type PSVersion.  There must be at least one PSVersion object in this list, the
-   * initial version.
+   * @param versionList A list of supported versions of this feature, all objects of type PSVersion.
+   *     There must be at least one PSVersion object in this list, the initial version.
    * @roseuid 39FD89820242
    */
   public PSFeature(String name, ArrayList versionList) {
@@ -87,13 +82,13 @@ public class PSFeature {
   }
 
   /**
-   * Constructor for this class.  Must be passed a valid PSXFeature node
-   * containing at least one valid PXSVersion node.
+   * Constructor for this class. Must be passed a valid PSXFeature node containing at least one
+   * valid PXSVersion node.
    *
-   * @param sourceNode the Xml element node from which to construct this object.
-   *                   must contain at least one PSXVersion node.
+   * @param sourceNode the Xml element node from which to construct this object. must contain at
+   *     least one PSXVersion node.
    * @throws PSUnknownNodeTypeException if node is not found or invalid
-   * @see PSFeatureSet#fromXml(Document)  for more information.
+   * @see PSFeatureSet#fromXml(Document) for more information.
    */
   public PSFeature(Element sourceNode) throws PSUnknownNodeTypeException {
     if (sourceNode == null) {
@@ -136,18 +131,12 @@ public class PSFeature {
     }
   }
 
-  /**
-   * The name of this feature
-   */
+  /** The name of this feature */
   private String m_featureName = null;
 
-  /**
-   * List of versions supported
-   */
+  /** List of versions supported */
   private ArrayList m_versionList = null;
 
-  /**
-   * The name of the Xml node this object is serialized to and from.
-   */
+  /** The name of the Xml node this object is serialized to and from. */
   static final String ms_nodeName = "PSXFeature";
 }

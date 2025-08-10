@@ -17,112 +17,102 @@
  */
 package com.percussion.sitemanage.data;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-
-/**
- * This response object stores the information returned from a publish request.
- */
+/** This response object stores the information returned from a publish request. */
 @XmlRootElement(name = "SitePublishResponse")
 @JsonRootName("SitePublishResponse")
 public class PSSitePublishResponse {
-    private String siteName;
+  private String siteName;
 
-    @NotBlank
-    @NotNull
-    private String status;
+  @NotBlank @NotNull private String status;
 
-    @NotBlank
-    @NotNull
-    private String delivered;
+  @NotBlank @NotNull private String delivered;
 
-    @NotBlank
-    @NotNull
-    private String failures;
+  @NotBlank @NotNull private String failures;
 
-    private String warningMessage;
-    private long jobid;
+  private String warningMessage;
+  private long jobid;
 
-    public long getJobid() {
-        return jobid;
-    }
+  public long getJobid() {
+    return jobid;
+  }
 
-    public void setJobid(long jobid) {
-        this.jobid = jobid;
-    }
+  public void setJobid(long jobid) {
+    this.jobid = jobid;
+  }
 
-    /**
-     * @return the name of the site to be published.
-     */
-    public Optional<String> getSiteName() {
-        return Optional.ofNullable(siteName);
-    }
+  /**
+   * @return the name of the site to be published.
+   */
+  public Optional<String> getSiteName() {
+    return Optional.ofNullable(siteName);
+  }
 
-    /**
-     * @param siteName the name of the site to be published.
-     */
-    public void setSiteName(String siteName) {
-        this.siteName = siteName;
-    }
+  /**
+   * @param siteName the name of the site to be published.
+   */
+  public void setSiteName(String siteName) {
+    this.siteName = siteName;
+  }
 
-    /**
-     * @return the publishing status, never blank.
-     */
-    public String getStatus() {
-        return status;
-    }
+  /**
+   * @return the publishing status, never blank.
+   */
+  public String getStatus() {
+    return status;
+  }
 
-    /**
-     * @param status the publishing status. May not be blank.
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
+  /**
+   * @param status the publishing status. May not be blank.
+   */
+  public void setStatus(String status) {
+    this.status = status;
+  }
 
-    /**
-     * @return the number of items delivered, never blank.
-     */
-    public String getDelivered() {
-        return delivered;
-    }
+  /**
+   * @return the number of items delivered, never blank.
+   */
+  public String getDelivered() {
+    return delivered;
+  }
 
-    /**
-     * @param delivered the number of items delivered. May not be blank.
-     */
-    public void setDelivered(String delivered) {
-        this.delivered = delivered;
-    }
+  /**
+   * @param delivered the number of items delivered. May not be blank.
+   */
+  public void setDelivered(String delivered) {
+    this.delivered = delivered;
+  }
 
-    /**
-     * @return the number of failures, never blank.
-     */
-    public String getFailures() {
-        return failures;
-    }
+  /**
+   * @return the number of failures, never blank.
+   */
+  public String getFailures() {
+    return failures;
+  }
 
-    /**
-     * @param failures the number of failures. May not be blank.
-     */
-    public void setFailures(String failures) {
-        this.failures = failures;
-    }
+  /**
+   * @param failures the number of failures. May not be blank.
+   */
+  public void setFailures(String failures) {
+    this.failures = failures;
+  }
 
-    /**
-     * @return the warning message.
-     */
-    public Optional<String> getWarningMessage() {
-        return Optional.ofNullable(warningMessage);
-    }
+  /**
+   * @return the warning message.
+   */
+  public Optional<String> getWarningMessage() {
+    return Optional.ofNullable(warningMessage);
+  }
 
-    /**
-     * @param warningMessage the warning message.
-     */
-    public void setWarningMessage(String warningMessage) {
-        this.warningMessage = warningMessage;
-    }
+  /**
+   * @param warningMessage the warning message.
+   */
+  public void setWarningMessage(String warningMessage) {
+    this.warningMessage = warningMessage;
+  }
 }

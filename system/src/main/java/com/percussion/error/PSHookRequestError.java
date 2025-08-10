@@ -25,10 +25,9 @@ import java.util.Locale;
 /**
  * The PSHookRequestError class is used to report a remote console command error.
  *
- *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSHookRequestError extends PSLogError {
@@ -36,9 +35,8 @@ public class PSHookRequestError extends PSLogError {
   /**
    * Report a remote console exception.
    *
-   * @param      errorCode   the specific error code returned
-   *
-   * @param      t            the exception
+   * @param errorCode the specific error code returned
+   * @param t the exception
    */
   public PSHookRequestError(int errorCode, Throwable t) {
     super(0);
@@ -47,10 +45,7 @@ public class PSHookRequestError extends PSLogError {
     m_errorArgs[0] = t.getMessage();
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

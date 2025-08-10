@@ -20,18 +20,15 @@ package com.percussion.security;
 import com.percussion.error.PSException;
 
 /**
- * PSFiltersNotSupportedException is thrown to indicate that the
- * security provider does not support filters.
+ * PSFiltersNotSupportedException is thrown to indicate that the security provider does not support
+ * filters.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFiltersNotSupportedException extends PSException {
-  /**
-   * Constructs a filters not supported exception with the default
-   * message.
-   */
+  /** Constructs a filters not supported exception with the default message. */
   public PSFiltersNotSupportedException(java.lang.String provider) {
     super(IPSSecurityErrors.FILTERS_NOT_SUPPORTED, new Object[] {provider});
   }

@@ -50,14 +50,9 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Updates the status history context for this transition or checkout or
- * checkin action.
- */
+/** Updates the status history context for this transition or checkout or checkin action. */
 public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String m_fullExtensionName = "";
 
   private String ms_actionTriggerName = "";
@@ -85,54 +80,37 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
 
   /* *******  IPSResultDocumentProcessor Interface Implementation ******* */
 
-  /**
-   * Return <CODE>true</CODE>, this extension can modify the style sheet.
-   */
+  /** Return <CODE>true</CODE>, this extension can modify the style sheet. */
   public boolean canModifyStyleSheet() {
     return true;
   }
 
   /**
-   * Updates the status history context for this transition or checkout or
-   * checkin action after validating the input data. Add the status history
-   * context ID to the workflow context private object.
+   * Updates the status history context for this transition or checkout or checkin action after
+   * validating the input data. Add the status history context ID to the workflow context private
+   * object.
    *
-   * @param  params          the parameters for this extension.
-   *         params[0]       the content ID
-   *         params[1]       the user name
-   * @param request          the context of the request associated with this
-   *                         extension. if <CODE>request</CODE> does not
-   *                         contain the workflow context private object
-   *                         which has the key <CODE>
+   * @param params the parameters for this extension. params[0] the content ID params[1] the user
+   *     name
+   * @param request the context of the request associated with this extension. if <CODE>request
+   *     </CODE> does not contain the workflow context private object which has the key <CODE>
    *                        IPSWorkFlowContext.WORKFLOW_CONTEXT_PRIVATE_OBJECT
-   *                         </CODE> no action will be taken, because this
-   *                         object contains the transition ID associated
-   *                         with this status history item.
-   *                         The status history item ID of this private object
-   *                         will be updated by this ext.
-   *                         The HTML parameters used from this request:
-   *                         action trigger name, transition comments.
-   *
-   * @param  resDoc          the result XML document
-   *
-   * @return                 <code>resultDoc</code> is returned unchanged
-   *
-   * @throws                 PSParameterMismatchException
-   *                         if wrong number of parameters is supplied.
-   * @throws                 PSExtensionProcessingException if
-   *                         <ul>
-   *                          <li><CODE>request</CODE> is <CODE>null</CODE>
-   *                         </li>
-   *                         <li>user name parameter is <CODE>null</CODE>
-   *                         </li>
-   *                         <li>a parameter is of the wrong type
-   *                         </li>
-   *                         <li>an SQL exception is caught
-   *                         </li>
-   *                         <li>a PSEntryNotFoundException is caught because
-   *                         an expected data base entry does not exist
-   *                         </li>
-   *                         </ul>
+   *                         </CODE> no action will be taken, because this object contains the
+   *     transition ID associated with this status history item. The status history item ID of this
+   *     private object will be updated by this ext. The HTML parameters used from this request:
+   *     action trigger name, transition comments.
+   * @param resDoc the result XML document
+   * @return <code>resultDoc</code> is returned unchanged
+   * @throws PSParameterMismatchException if wrong number of parameters is supplied.
+   * @throws PSExtensionProcessingException if
+   *     <ul>
+   *       <li><CODE>request</CODE> is <CODE>null</CODE>
+   *       <li>user name parameter is <CODE>null</CODE>
+   *       <li>a parameter is of the wrong type
+   *       <li>an SQL exception is caught
+   *       <li>a PSEntryNotFoundException is caught because an expected data base entry does not
+   *           exist
+   *     </ul>
    */
   public Document processResultDocument(Object[] params, IPSRequestContext request, Document resDoc)
       throws PSParameterMismatchException, PSExtensionProcessingException {
@@ -315,29 +293,26 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
   /**
    * Do the actual work of updating the content status history context.
    *
-   * @param contentID           ID of the content item
-   * @param baseRevisionNum     The base revision number for the content item
-   *                            <ul><li>for transitions - current revision
-   *             </li>
-   *              <li>for checkin - revision being checked in
-   *             </li>
-   *              <li>for checkout - base revision for the item
-   *             being checked out:  either 1, or the revision
-   *             of the item copied to  create the revision
-   *                       checked out</li></ul>
-   * @param userName            the user performing the transition or action
-   * @param sessionID           the SessionID
-   * @param transitionID        the TransitionID for content status history
-   *                            entry. 0 for a checkin or checkout
-   * @param transitionComment   the descriptive comment for the transition
-   * @param request              the context of the request associated with
-   *                            this extension. (Used to output to trace log.)
-   * @return                    data base ID for this content status history
-   *                            entry.
-   * @throws                    SQLException if an SQL exception is caught
-   * @throws                    PSEntryNotFoundException an expected data base
-   *                            entry does not exist
-   * @throws                    PSExtensionProcessingException
+   * @param contentID ID of the content item
+   * @param baseRevisionNum The base revision number for the content item
+   *     <ul>
+   *       <li>for transitions - current revision
+   *       <li>for checkin - revision being checked in
+   *       <li>for checkout - base revision for the item being checked out: either 1, or the
+   *           revision of the item copied to create the revision checked out
+   *     </ul>
+   *
+   * @param userName the user performing the transition or action
+   * @param sessionID the SessionID
+   * @param transitionID the TransitionID for content status history entry. 0 for a checkin or
+   *     checkout
+   * @param transitionComment the descriptive comment for the transition
+   * @param request the context of the request associated with this extension. (Used to output to
+   *     trace log.)
+   * @return data base ID for this content status history entry.
+   * @throws SQLException if an SQL exception is caught
+   * @throws PSEntryNotFoundException an expected data base entry does not exist
+   * @throws PSExtensionProcessingException
    * @throws PSORMException
    */
   private int updateHistory(
@@ -437,10 +412,8 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
    * Updates the last public revision for the supplied item if needed.
    *
    * @param csh the to be updated item, assumed not <code>null</code>.
-   * @param sc the states context for the current state of the item, assumed
-   * not <code>null</code>.
+   * @param sc the states context for the current state of the item, assumed not <code>null</code>.
    * @param request the request context, assumed not <code>null</code>.
-   *
    * @throws PSException if an error occurs.
    */
   private void updateLastPublicRevision(
@@ -478,10 +451,7 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     PSInternalRequest ir =
         PSServer.getInternalRequest(PUT_LASTPUBREV_RSC, request, params, false, doc);
 
-    /**
-     * If the internal request is <code>null</code> now, we did not find the
-     * resource.
-     */
+    /** If the internal request is <code>null</code> now, we did not find the resource. */
     if (ir == null)
       throw new PSCmsException(IPSCmsErrors.REQUIRED_RESOURCE_MISSING, PUT_LASTPUBREV_RSC);
 
@@ -500,8 +470,6 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     return currentDate.getTime() >= startDate.getTime();
   }
 
-  /**
-   * The resource used to update the CONTENTSTATUS.LAST_PUBLIC_REVISION colum
-   */
+  /** The resource used to update the CONTENTSTATUS.LAST_PUBLIC_REVISION colum */
   private static final String PUT_LASTPUBREV_RSC = "sys_ceSupport/putLastPublicRev";
 }

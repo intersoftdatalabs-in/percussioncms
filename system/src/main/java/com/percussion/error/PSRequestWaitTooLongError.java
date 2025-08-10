@@ -23,33 +23,31 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSRequestWaitTooLongError class is used to report the removal
- * of user requests from the queue list due to the ending of the
- * waiting period inside the queue.
- * <p>
- * An error message containing the user's session id and the number
- * of requests in the queue is logged when this error is encountered.
+ * The PSRequestWaitTooLongError class is used to report the removal of user requests from the queue
+ * list due to the ending of the waiting period inside the queue.
  *
- * @author    Jian Huang
- * @version   1.0
- * @since     1.0
+ * <p>An error message containing the user's session id and the number of requests in the queue is
+ * logged when this error is encountered.
+ *
+ * @author Jian Huang
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestWaitTooLongError extends PSLogError {
   /**
    * Report a request waiting period expiration in the queue
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param   applId     the ID of the application that generated the error
-   * @param   sessionId  the session ID of the user making the request
-   * @param   size       the current size of the request queue
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
+   *
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
+   *
+   * @param applId the ID of the application that generated the error
+   * @param sessionId the session ID of the user making the request
+   * @param size the current size of the request queue
    */
   public PSRequestWaitTooLongError(int applId, String sessionId, int size) {
     super(applId);
@@ -60,10 +58,7 @@ public class PSRequestWaitTooLongError extends PSLogError {
     m_size = size;
   }
 
-  /**
-   * subclasses must override this to build the message in the
-   * specified locale
-   */
+  /** subclasses must override this to build the message in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[1];
 

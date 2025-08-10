@@ -28,30 +28,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndCredential class defines access credentials for a
- * back-end data store. The credentials are then used by the server
- * whenever accessing the particular back-end.
+ * The PSBackEndCredential class defines access credentials for a back-end data store. The
+ * credentials are then used by the server whenever accessing the particular back-end.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndCredential extends PSComponent implements IPSConnectionInfo {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSBackEndCredential(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -60,9 +52,7 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSBackEndCredential() {
     super();
   }
@@ -70,12 +60,10 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   /**
    * Constructs a back-end credential object with the specified name.
    *
-   * @param alias   the new alias for this object. This must be a
-   *                 unique name on the E2 server. If it is non-unique,
-   *                 an exception will be thrown when the application or
-   *                 server containing this entry is saved.
-   *
-   * @see       #setAlias
+   * @param alias the new alias for this object. This must be a unique name on the E2 server. If it
+   *     is non-unique, an exception will be thrown when the application or server containing this
+   *     entry is saved.
+   * @see #setAlias
    */
   public PSBackEndCredential(java.lang.String alias) {
     super();
@@ -102,20 +90,18 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   /**
    * Get the alias used to reference this object.
    *
-   * @return      the alias of the back-end table
+   * @return the alias of the back-end table
    */
   public java.lang.String getAlias() {
     return m_alias;
   }
 
   /**
-   * Set the alias used to reference this object.
-   * Aliases are limited to 128 characters.
+   * Set the alias used to reference this object. Aliases are limited to 128 characters.
    *
-   * @param alias   the new alias for this object. This must be a
-   *                 unique name on the E2 server. If it is non-unique,
-   *                 an exception will be thrown when the application or
-   *                 server containing this entry is saved.
+   * @param alias the new alias for this object. This must be a unique name on the E2 server. If it
+   *     is non-unique, an exception will be thrown when the application or server containing this
+   *     entry is saved.
    */
   public void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
@@ -154,17 +140,17 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   /**
    * Get the comment associated with this back-end credential object.
    *
-   * @return       the associated comment
+   * @return the associated comment
    */
   public java.lang.String getComment() {
     return m_comment;
   }
 
   /**
-   * Set the comment associated with this back-end credential object.
-   * Comments are limited to 255 characters.
+   * Set the comment associated with this back-end credential object. Comments are limited to 255
+   * characters.
    *
-   * @param comment  a descriptive blurb to associate with this object
+   * @param comment a descriptive blurb to associate with this object
    */
   public void setComment(String comment) {
     if (comment == null) comment = "";
@@ -184,16 +170,15 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
     return null;
   }
 
-  /**
-   * Get the collection of PSConditional objects.
-   */
+  /** Get the collection of PSConditional objects. */
   public PSCollection getConditionals() {
     return m_condCollection;
   }
 
   /**
    * Set the conditions which must be met for these credentials to be used.
-   * @param   conds  a collection of PSConditional objects
+   *
+   * @param conds a collection of PSConditional objects
    */
   public void setConditionals(PSCollection conds) {
     if (conds == null) {
@@ -221,9 +206,8 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param bc a valid PSBackEndCredential.
    */
@@ -239,10 +223,11 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndCredential XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndCredential XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *      PSBackEndCredential defines access credentials for a  back-end
@@ -290,7 +275,7 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
    *         encrypted (yes | no)            #IMPLIED&gt;
    * </code></pre>
    *
-   * @return      the newly created PSXBackEndCredential XML element node
+   * @return the newly created PSXBackEndCredential XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -320,12 +305,12 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   }
 
   /**
-   * This method is called to populate a PSBackEndCredential Java object
-   * from a PSXBackEndCredential XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndCredential Java object from a PSXBackEndCredential
+   * XML element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                               of type PSXBackEndCredential
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type
+   *     PSXBackEndCredential
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -430,8 +415,6 @@ public class PSBackEndCredential extends PSComponent implements IPSConnectionInf
   private static final int MAX_ALIAS_NAME_LEN = 128;
   private static final int MAX_COMMENT_LEN = 255;
 
-  /**
-   * Root node for this object's XML representation
-   */
+  /** Root node for this object's XML representation */
   public static final String ms_NodeType = "PSXBackEndCredential";
 }

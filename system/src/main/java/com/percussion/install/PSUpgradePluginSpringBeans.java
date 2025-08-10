@@ -38,32 +38,29 @@ import org.xml.sax.SAXException;
 
 /**
  * Upgrades a spring beans file.
- * <p>
- * If specified by the supplied data:
+ *
+ * <p>If specified by the supplied data:
+ *
  * <ul>
- * <li>Adds required beans
- * <li>Upgrade the spring configuration to 2.0
- * <li>Add "sys_" to beginning of 6.0 system bean id's
- * <li>Remove unsupported bean attributes
- * <li>Remove specified beans
+ *   <li>Adds required beans
+ *   <li>Upgrade the spring configuration to 2.0
+ *   <li>Add "sys_" to beginning of 6.0 system bean id's
+ *   <li>Remove unsupported bean attributes
+ *   <li>Remove specified beans
  * </ul>
- *
- *
  */
 public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
   /**
    * <code>elemData</code> element must define the following attributes:
+   *
    * <ul>
-   * <li>required-beans: relative path to the file containing beans to add</li>
-   * <li>spring-bean-path: relative path to the spring beans file to update
-   * </li>
-   * <li>doConversions: "yes" to perform the other conversions specified in
-   * this class's header, "no" to just add and/or remove beans</li>
-   * <li>backupSuffix: string to append onto the end of backup files to make
-   * them unique since this plugin may be run multiple times, e.g. "_required"
-   * </li>
-   * <li>beansToRemove: comma-separated list of bean id's which should be
-   * removed</li>
+   *   <li>required-beans: relative path to the file containing beans to add
+   *   <li>spring-bean-path: relative path to the spring beans file to update
+   *   <li>doConversions: "yes" to perform the other conversions specified in this class's header,
+   *       "no" to just add and/or remove beans
+   *   <li>backupSuffix: string to append onto the end of backup files to make them unique since
+   *       this plugin may be run multiple times, e.g. "_required"
+   *   <li>beansToRemove: comma-separated list of bean id's which should be removed
    * </ul>
    */
   public PSPluginResponse process(IPSUpgradeModule config, Element elemData) {
@@ -95,31 +92,24 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Add/remove bean definitions. If indicated, also upgrade the spring
-   * configuration, see {@link #performConversion(PSSpringConfiguration)}
-   * for details.
+   * Add/remove bean definitions. If indicated, also upgrade the spring configuration, see {@link
+   * #performConversion(PSSpringConfiguration)} for details.
    *
-   * @param source the source file containing the required beans that must be
-   * present in the finished bean configuration file.  If <code>null</code>,
-   * additional beans are not required.  Must exist if not <code>null</code>.
+   * @param source the source file containing the required beans that must be present in the
+   *     finished bean configuration file. If <code>null</code>, additional beans are not required.
+   *     Must exist if not <code>null</code>.
    * @param target the target file, may not be <code>null</code>.
-   * @param backup a backup of the current target will be copied to this
-   * location, overwriting the current file if it exists, may not be
-   * <code>null</code>.
-   * @param doConversions <code>true</code> to perform all other conversions
-   * noted above, <code>false</code> to only add missing beans.
-   * @param beanIds an array of bean id's to be removed if found in the
-   * current configuration, assumed not <code>null</code>.  May be empty.
-   *
+   * @param backup a backup of the current target will be copied to this location, overwriting the
+   *     current file if it exists, may not be <code>null</code>.
+   * @param doConversions <code>true</code> to perform all other conversions noted above, <code>
+   *     false</code> to only add missing beans.
+   * @param beanIds an array of bean id's to be removed if found in the current configuration,
+   *     assumed not <code>null</code>. May be empty.
    * @return <code>true</code> if this succeeds
-   *
-   * @throws FileNotFoundException If the previous version properties file
-   * cannot be found.
-   * @throws IOException If there is an error reading the previous version
-   * properties file.
+   * @throws FileNotFoundException If the previous version properties file cannot be found.
+   * @throws IOException If there is an error reading the previous version properties file.
    * @throws SAXException if a Spring configuration file is malformed.
-   * @throws PSInvalidXmlException if a Spring config file does not conform to
-   * the expected format.
+   * @throws PSInvalidXmlException if a Spring config file does not conform to the expected format.
    */
   private boolean upgradeSpringConfig(
       File source, File target, File backup, boolean doConversions, String[] beanIds)
@@ -170,20 +160,15 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Upgrade the spring configuration by modifying the 6.0 system bean id's,
-   * removing all unsupported bean attributes, and adding the new beans and the
-   * transaction element. Note that the beans element headers and namespace
-   * information will be updated by the spring configuration class
-   * automatically.
+   * Upgrade the spring configuration by modifying the 6.0 system bean id's, removing all
+   * unsupported bean attributes, and adding the new beans and the transaction element. Note that
+   * the beans element headers and namespace information will be updated by the spring configuration
+   * class automatically.
    *
    * @param config The config to upgrade, assumed not <code>null</code>.
-   *
-   * @throws FileNotFoundException If the previous version properties file
-   * cannot be found.
-   * @throws IOException If there is an error reading the previous version
-   * properties file.
-   * @throws PSInvalidXmlException If there is an error loading the hibernate
-   * dialect configuration
+   * @throws FileNotFoundException If the previous version properties file cannot be found.
+   * @throws IOException If there is an error reading the previous version properties file.
+   * @throws PSInvalidXmlException If there is an error loading the hibernate dialect configuration
    */
   private void performConversion(PSSpringConfiguration config)
       throws FileNotFoundException, IOException, PSInvalidXmlException {
@@ -241,11 +226,10 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
   }
 
   /**
-   * Removes all non-supported attributes, see {@link #ms_unsupportedAttrs},
-   * from the given element.
+   * Removes all non-supported attributes, see {@link #ms_unsupportedAttrs}, from the given element.
    *
-   * @param el all non-supported attributes will be removed from this element
-   * if any are found, otherwise no changes are made.
+   * @param el all non-supported attributes will be removed from this element if any are found,
+   *     otherwise no changes are made.
    */
   private void removeUnsupportedAttrs(Element el) {
     for (int i = 0; i < ms_unsupportedAttrs.length; i++) {
@@ -254,19 +238,13 @@ public class PSUpgradePluginSpringBeans implements IPSUpgradePlugin {
     }
   }
 
-  /**
-   * List of unsupported bean attributes.
-   */
+  /** List of unsupported bean attributes. */
   private static String[] ms_unsupportedAttrs = {"singleton"};
 
-  /**
-   * Constant for the hibernate dialect class for the mysql driver.
-   */
+  /** Constant for the hibernate dialect class for the mysql driver. */
   private static String MYSQL_DIALECT_NAME = "org.hibernate.dialect.MySQLDialect";
 
-  /**
-   * Set of system spring bean id's deployed in 6.0.
-   */
+  /** Set of system spring bean id's deployed in 6.0. */
   private static Set<String> ms_systemSpringBeans60Set = new HashSet<>();
 
   static {

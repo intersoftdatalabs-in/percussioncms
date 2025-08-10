@@ -36,7 +36,7 @@ public class ASTNullPredicate extends SimpleNode {
 
   private boolean m_negated = false;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

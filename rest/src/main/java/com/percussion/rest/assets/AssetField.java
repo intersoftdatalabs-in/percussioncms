@@ -19,64 +19,59 @@
 package com.percussion.rest.assets;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "AssetField")
 @XmlType(propOrder = {})
 @Schema(description = "Represents an Asset field")
 public class AssetField {
 
-    private String name;
-    private String value;
+  private String name;
+  private String value;
 
-    public AssetField() {
-        // Default constructor
-    }
+  public AssetField() {
+    // Default constructor
+  }
 
-    public AssetField(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
+  public AssetField(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Optional<String> getValue() {
-        return Optional.ofNullable(value);
-    }
+  public Optional<String> getValue() {
+    return Optional.ofNullable(value);
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AssetField)) return false;
-        var that = (AssetField) o;
-        return Objects.equals(name, that.name)
-                && Objects.equals(value, that.value);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof AssetField)) return false;
+    var that = (AssetField) o;
+    return Objects.equals(name, that.name) && Objects.equals(value, that.value);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, value);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value);
+  }
 
-    @Override
-    public String toString() {
-        return "AssetField{" +
-                "name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "AssetField{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
+  }
 }

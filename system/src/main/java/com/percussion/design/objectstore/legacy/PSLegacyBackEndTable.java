@@ -33,9 +33,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndTable class is used to define a back-end table. Back-end
- * tables can be used in PSBackEndDataTank and PSBackEndColumn objects to
- * define the table they are acting upon.
+ * The PSBackEndTable class is used to define a back-end table. Back-end tables can be used in
+ * PSBackEndDataTank and PSBackEndColumn objects to define the table they are acting upon.
  *
  * @see PSBackEndDataTank
  * @see PSBackEndColumn
@@ -43,9 +42,7 @@ import org.w3c.dom.Element;
 public class PSLegacyBackEndTable extends PSComponent {
   private static final long serialVersionUID = 1L;
 
-  /**
-   * Provide a suitable key for indexing database connections
-   */
+  /** Provide a suitable key for indexing database connections */
   public class PSServerKey {
 
     /* (non-Javadoc)
@@ -92,10 +89,11 @@ public class PSLegacyBackEndTable extends PSComponent {
 
     /**
      * Gets the server name
-     * @return the server from the backend table {@link #m_server}, never
-     * <code>null</code> or empty for a validly created {@link PSLegacyBackEndTable}
-     * created and populated with {@link PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any
-     * other case there are no guarantees.
+     *
+     * @return the server from the backend table {@link #m_server}, never <code>null</code> or empty
+     *     for a validly created {@link PSLegacyBackEndTable} created and populated with {@link
+     *     PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any other case there are
+     *     no guarantees.
      */
     public String getServer() {
       return m_server;
@@ -103,10 +101,11 @@ public class PSLegacyBackEndTable extends PSComponent {
 
     /**
      * Gets the driver name
-     * @return the driver from the backend table {@link #m_driver}, never
-     * <code>null</code> or empty for a validly created {@link PSLegacyBackEndTable}
-     * created and populated with {@link PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any
-     * other case there are no guarantees.
+     *
+     * @return the driver from the backend table {@link #m_driver}, never <code>null</code> or empty
+     *     for a validly created {@link PSLegacyBackEndTable} created and populated with {@link
+     *     PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any other case there are
+     *     no guarantees.
      */
     public String getDriver() {
       return m_driver;
@@ -114,10 +113,11 @@ public class PSLegacyBackEndTable extends PSComponent {
 
     /**
      * Gets the database name
-     * @return the database from the backend table {@link #m_database}, never
-     * <code>null</code> or empty for a validly created {@link PSLegacyBackEndTable}
-     * created and populated with {@link PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any
-     * other case there are no guarantees.
+     *
+     * @return the database from the backend table {@link #m_database}, never <code>null</code> or
+     *     empty for a validly created {@link PSLegacyBackEndTable} created and populated with
+     *     {@link PSLegacyBackEndTable#fromXml(Element, IPSDocument, List)}. For any other case
+     *     there are no guarantees.
      */
     public String getDatabase() {
       return m_database;
@@ -125,10 +125,10 @@ public class PSLegacyBackEndTable extends PSComponent {
 
     /**
      * Compare two objects for equality
+     *
      * @param a first object, may be <code>null</code>
      * @param b second object, may be <code>null</code>
-     * @return <code>true</code> if the objects are equal or both
-     * <code>null</code>
+     * @return <code>true</code> if the objects are equal or both <code>null</code>
      */
     private boolean eq(Object a, Object b) {
       if (a == null && b == null) return true;
@@ -140,20 +140,13 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSLegacyBackEndTable(
       org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -163,51 +156,42 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Construct a back-end table object. The object can be used to
-   * allow multiple joined tables or it can enforce that only a single
-   * table be used. The former is commonly associated with data tanks
-   * performing query operations and the latter with data tanks performing
-   * insert, update and/or delete operations.
-   * <p>
-   * Once this object is constructed, it cannot be changed from allowing
-   * single table to multiple tables.
+   * Construct a back-end table object. The object can be used to allow multiple joined tables or it
+   * can enforce that only a single table be used. The former is commonly associated with data tanks
+   * performing query operations and the latter with data tanks performing insert, update and/or
+   * delete operations.
    *
-   * @param alias            the new alias of the back-end table. This
-   *                         must be a unique name across all tables used
-   *                         in the data tank. If it is non-unique, an
-   *                         exception will be thrown when the back-end
-   *                         table is associated with a data tank.
+   * <p>Once this object is constructed, it cannot be changed from allowing single table to multiple
+   * tables.
    *
-   * @see         #setAlias
+   * @param alias the new alias of the back-end table. This must be a unique name across all tables
+   *     used in the data tank. If it is non-unique, an exception will be thrown when the back-end
+   *     table is associated with a data tank.
+   * @see #setAlias
    */
   public PSLegacyBackEndTable(java.lang.String alias) {
     super();
     setAlias(alias);
   }
 
-  /**
-   * Ctor
-   */
+  /** Ctor */
   PSLegacyBackEndTable() {}
 
   /**
    * Get the alias of the back-end table.
    *
-   * @return     the alias of the back-end table
+   * @return the alias of the back-end table
    */
   public java.lang.String getAlias() {
     return m_alias;
   }
 
   /**
-   * Set the alias of the back-end table.
-   * This is limited to 128 characters.
+   * Set the alias of the back-end table. This is limited to 128 characters.
    *
-   * @param alias   the new alias of the back-end table. This must be a
-   *                unique name across all tables used in the data tank.
-   *                If it is non-unique, an exception will be thrown when
-   *                the back-end table is associated with a data tank.
-   *
+   * @param alias the new alias of the back-end table. This must be a unique name across all tables
+   *     used in the data tank. If it is non-unique, an exception will be thrown when the back-end
+   *     table is associated with a data tank.
    */
   public void setAlias(java.lang.String alias) {
     IllegalArgumentException ex = validateAlias(alias);
@@ -229,20 +213,19 @@ public class PSLegacyBackEndTable extends PSComponent {
   /**
    * Get the driver used to access the back-end table.
    *
-   * @return     the driver used to access the back-end table
+   * @return the driver used to access the back-end table
    */
   public java.lang.String getDriver() {
     return m_driver;
   }
 
   /**
-   * Set the driver used to access the back-end table.
-   * This is limited to 128 characters.
-   * <p>
-   * The valid list of drivers can be located by using the PSCataloger
-   * to perform a catalog of category "data" and type "Driver".
+   * Set the driver used to access the back-end table. This is limited to 128 characters.
    *
-   * @param driver   the driver used to access the back-end table.
+   * <p>The valid list of drivers can be located by using the PSCataloger to perform a catalog of
+   * category "data" and type "Driver".
+   *
+   * @param driver the driver used to access the back-end table.
    */
   public void setDriver(java.lang.String driver) {
     IllegalArgumentException ex = validateDriver(driver);
@@ -264,17 +247,16 @@ public class PSLegacyBackEndTable extends PSComponent {
   /**
    * Get the server on which the back-end table resides.
    *
-   * @return     the server on which the back-end table resides
+   * @return the server on which the back-end table resides
    */
   public java.lang.String getServer() {
     return m_server;
   }
 
   /**
-   * Set the server on which the back-end table resides.
-   * This is limited to 128 characters.
+   * Set the server on which the back-end table resides. This is limited to 128 characters.
    *
-   * @param server   the server on which the back-end table resides.
+   * @param server the server on which the back-end table resides.
    */
   public void setServer(java.lang.String server) {
     if (server == null) server = "";
@@ -296,17 +278,16 @@ public class PSLegacyBackEndTable extends PSComponent {
   /**
    * Get the database on which the back-end table resides.
    *
-   * @return     the database on which the back-end table resides
+   * @return the database on which the back-end table resides
    */
   public java.lang.String getDatabase() {
     return m_database;
   }
 
   /**
-   * Set the database on which the back-end table resides.
-   * This is limited to 128 characters.
+   * Set the database on which the back-end table resides. This is limited to 128 characters.
    *
-   * @param database  the database on which the back-end table resides.
+   * @param database the database on which the back-end table resides.
    */
   public void setDatabase(java.lang.String database) {
     if (database == null) database = "";
@@ -326,21 +307,19 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Get the back-end table's origin. This is also referred to as the owner
-   * or schema.
+   * Get the back-end table's origin. This is also referred to as the owner or schema.
    *
-   * @return     the back-end table's origin
+   * @return the back-end table's origin
    */
   public java.lang.String getOrigin() {
     return m_origin;
   }
 
   /**
-   * Set the back-end table's origin. This is also referred to as the owner
-   * or schema.
-   * This is limited to 128 characters.
+   * Set the back-end table's origin. This is also referred to as the owner or schema. This is
+   * limited to 128 characters.
    *
-   * @param       origin   the back-end table's origin.
+   * @param origin the back-end table's origin.
    */
   public void setOrigin(java.lang.String origin) {
     if (origin == null) origin = "";
@@ -362,17 +341,16 @@ public class PSLegacyBackEndTable extends PSComponent {
   /**
    * Get the name of the back-end table.
    *
-   * @return     the name of the back-end table
+   * @return the name of the back-end table
    */
   public java.lang.String getTable() {
     return m_table;
   }
 
   /**
-   * Set the name of the back-end table.
-   * This is limited to 128 characters.
+   * Set the name of the back-end table. This is limited to 128 characters.
    *
-   * @param table   the name of the back-end table.
+   * @param table the name of the back-end table.
    */
   public void setTable(java.lang.String table) {
     if (table == null) table = "";
@@ -394,10 +372,11 @@ public class PSLegacyBackEndTable extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXBackEndTable XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXBackEndTable XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXBackEndTable class is used to define a back-end table.
@@ -442,7 +421,7 @@ public class PSLegacyBackEndTable extends PSComponent {
    *    &lt;!ELEMENT table            (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXBackEndTable XML element node
+   * @return the newly created PSXBackEndTable XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -470,12 +449,11 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSBackEndTable Java object
-   * from a PSXBackEndTable XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSBackEndTable Java object from a PSXBackEndTable XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXBackEndTable
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXBackEndTable
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -541,9 +519,8 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Overridden to fullfill the contract that if t1 and t2 are 2 different
-   * instances of this class and t1.equals(t2), t1.hashCode() ==
-   * t2.hashCode().
+   * Overridden to fullfill the contract that if t1 and t2 are 2 different instances of this class
+   * and t1.equals(t2), t1.hashCode() == t2.hashCode().
    *
    * @return The sum of all the hash codes of the composite objects.
    */
@@ -559,18 +536,15 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -595,9 +569,8 @@ public class PSLegacyBackEndTable extends PSComponent {
   }
 
   /**
-   * Performs a copy of the data in the supplied component to this component.
-   * Since the state of this object consists of non-mutable objects, the copy
-   * is effectively a deep copy.
+   * Performs a copy of the data in the supplied component to this component. Since the state of
+   * this object consists of non-mutable objects, the copy is effectively a deep copy.
    *
    * @param c a valid <code>PSBackEndTable</code>, not <code>null</code>.
    */
@@ -651,6 +624,7 @@ public class PSLegacyBackEndTable extends PSComponent {
 
   /**
    * Get a server key for use in storing and retrieving database connections.
+   *
    * @return a new server key, never <code>null</code>
    */
   public Object getServerKey() {
@@ -659,6 +633,7 @@ public class PSLegacyBackEndTable extends PSComponent {
 
   /**
    * Creates a deep copy of this PSBackEndTable instance
+   *
    * @return a clone of PSBackEndTable
    */
   public Object clone() {

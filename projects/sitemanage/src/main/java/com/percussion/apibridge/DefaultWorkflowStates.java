@@ -20,8 +20,8 @@
 package com.percussion.apibridge;
 
 /**
- * Defines default workflow state names for Percussion CMS.
- * These are used throughout the system for workflow transitions.
+ * Defines default workflow state names for Percussion CMS. These are used throughout the system for
+ * workflow transitions.
  */
 public final class DefaultWorkflowStates {
 

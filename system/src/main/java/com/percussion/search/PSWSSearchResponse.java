@@ -30,28 +30,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is an object representation of search results returned by
- * web services search.  This class does not implement all functionality
- * requried to support the schema defined by the WSDL for such results; it only
- * provides the functionality required to process search results for the content
- * explorer applet.
+ * This class is an object representation of search results returned by web services search. This
+ * class does not implement all functionality requried to support the schema defined by the WSDL for
+ * such results; it only provides the functionality required to process search results for the
+ * content explorer applet.
  */
 public class PSWSSearchResponse {
   /**
-   * Construct this object from its xml representation.  If
-   * <code>curUser</code> is supplied, then the <code>sys_revision</code>
-   * field will be calculated based on the current user if it is not found in
-   * the results.
-   * @param doc The document returned by a web services search request.  May
-   * not be <code>null</code>.
-   * @param curUser Optionally supplied to calculate the
-   * <code>sys_revision</code> field value for each row in the results.  If not
-   * <code>null</code> or empty, then it is compared against the value of the
-   * <code>sys_contentcheckoutusername</code> field, and if they match, the
-   * value of <code>sys_tiprevision</code> is used, otherwise
-   * the value of <code>sys_currentrevision</code> is used.
-   * @throws PSUnknownNodeTypeException if an element in the source document is
-   * invalid.
+   * Construct this object from its xml representation. If <code>curUser</code> is supplied, then
+   * the <code>sys_revision</code> field will be calculated based on the current user if it is not
+   * found in the results.
+   *
+   * @param doc The document returned by a web services search request. May not be <code>null</code>
+   *     .
+   * @param curUser Optionally supplied to calculate the <code>sys_revision</code> field value for
+   *     each row in the results. If not <code>null</code> or empty, then it is compared against the
+   *     value of the <code>sys_contentcheckoutusername</code> field, and if they match, the value
+   *     of <code>sys_tiprevision</code> is used, otherwise the value of <code>sys_currentrevision
+   *     </code> is used.
+   * @throws PSUnknownNodeTypeException if an element in the source document is invalid.
    */
   public PSWSSearchResponse(Document doc, String curUser) throws PSUnknownNodeTypeException {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -82,9 +79,7 @@ public class PSWSSearchResponse {
    *
    * @param rowElem the element contains the search result of an item, not <code>null</code>.
    * @param curUser current user, may be <code>null</code> or empty.
-   *
    * @return the created search result, not <code>null</code>.
-   *
    * @throws PSUnknownNodeTypeException if the element does not contain a search result.
    */
   public IPSSearchResultRow createRow(Element rowElem, String curUser)
@@ -117,26 +112,24 @@ public class PSWSSearchResponse {
 
   /**
    * Construct this object from its xml representation.
-   * @param doc The document returned by a web services search request.  May
-   * not be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if an element in the source document is
-   * invalid.
+   *
+   * @param doc The document returned by a web services search request. May not be <code>null</code>
+   *     .
+   * @throws PSUnknownNodeTypeException if an element in the source document is invalid.
    */
   public PSWSSearchResponse(Document doc) throws PSUnknownNodeTypeException {
     this(doc, null);
   }
 
-  /**
-   * Construct an empty set of search results
-   */
+  /** Construct an empty set of search results */
   public PSWSSearchResponse() {}
 
   /**
-   * Appends a <code>Result</code> element for each row in the results to the
-   * root element of the supplied document.
+   * Appends a <code>Result</code> element for each row in the results to the root element of the
+   * supplied document.
    *
-   * @param responseDoc The document to which the result rows are appended,
-   * may not be <code>null</code>.
+   * @param responseDoc The document to which the result rows are appended, may not be <code>null
+   *     </code>.
    */
   public void appendSearchResponseResults(Document responseDoc) {
     if (responseDoc == null) throw new IllegalArgumentException("responseDoc may not be null");
@@ -151,11 +144,11 @@ public class PSWSSearchResponse {
   }
 
   /**
-   * Returns an iterator over zero or more <code>PSSearchResultRow</code>
-   * objects, each representing a row of results.
+   * Returns an iterator over zero or more <code>PSSearchResultRow</code> objects, each representing
+   * a row of results.
    *
-   * @return An iterator over zero or more <code>IPSSearchResultRow</code>
-   *         objects, each representing a row of results.
+   * @return An iterator over zero or more <code>IPSSearchResultRow</code> objects, each
+   *     representing a row of results.
    */
   public Iterator<IPSSearchResultRow> getRows() {
     return m_rowList.iterator();
@@ -173,8 +166,8 @@ public class PSWSSearchResponse {
   }
 
   /**
-   * Returns a cloned row list as <code>List</code> object. Modification
-   * of the cloned list has no effect on this object or its members.
+   * Returns a cloned row list as <code>List</code> object. Modification of the cloned list has no
+   * effect on this object or its members.
    *
    * @return the modifiable row list, never <code>null</code> may be empty.
    */
@@ -191,9 +184,8 @@ public class PSWSSearchResponse {
   /**
    * Set the supplied rows on these results, replacing existing rows.
    *
-   * @param rows A list of zero or more <code>PSSearchResultRow</code>
-   * objects, each representing a row of result data. See {@link #getRows()}
-   * for more info. May not be <code>null</code>.
+   * @param rows A list of zero or more <code>PSSearchResultRow</code> objects, each representing a
+   *     row of result data. See {@link #getRows()} for more info. May not be <code>null</code>.
    */
   public void setRows(List<IPSSearchResultRow> rows) {
     if (rows == null) {
@@ -211,13 +203,11 @@ public class PSWSSearchResponse {
   }
 
   /**
-   * Cycle through the rows and add the given column if it does not already
-   * exist in the rows. If the column is already there then this call has no
-   * effect.
+   * Cycle through the rows and add the given column if it does not already exist in the rows. If
+   * the column is already there then this call has no effect.
    *
    * @param columnName the column name, never <code>null</code> or empty
-   * @param defaultValue the initial value, may be <code>null</code> or
-   *           empty.
+   * @param defaultValue the initial value, may be <code>null</code> or empty.
    */
   public void addColumn(String columnName, String defaultValue) {
     if (columnName == null || StringUtils.isBlank(columnName)) {
@@ -234,6 +224,7 @@ public class PSWSSearchResponse {
 
   /**
    * Is this result truncated?
+   *
    * @return <code>true</code> if this result could have had more rows.
    */
   public boolean isTruncated() {
@@ -242,6 +233,7 @@ public class PSWSSearchResponse {
 
   /**
    * Set new truncated state
+   *
    * @param truncated new value for truncated
    */
   public void setTruncated(boolean truncated) {
@@ -249,15 +241,14 @@ public class PSWSSearchResponse {
   }
 
   /**
-   * List of row data for these results. Never <code>null</code>, data is
-   * initialized in the ctor. List contains a {@link PSSearchResultRow}object
-   * for each row.
+   * List of row data for these results. Never <code>null</code>, data is initialized in the ctor.
+   * List contains a {@link PSSearchResultRow}object for each row.
    */
   private List<IPSSearchResultRow> m_rowList = new ArrayList<IPSSearchResultRow>();
 
   /**
-   * Is this response truncated, i.e. were there more search responses that
-   * could have been returned.
+   * Is this response truncated, i.e. were there more search responses that could have been
+   * returned.
    */
   private boolean m_truncated = false;
 

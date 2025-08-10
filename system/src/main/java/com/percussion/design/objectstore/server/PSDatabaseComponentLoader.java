@@ -41,18 +41,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is used by database components to load themselves from the
- * database.  It is responsible for making broad queries to the system and
- * caching their results.  This class should only exist for the duration of
- * the initialization of a set of database components from the back end.
+ * This class is used by database components to load themselves from the database. It is responsible
+ * for making broad queries to the system and caching their results. This class should only exist
+ * for the duration of the initialization of a set of database components from the back end.
  */
 public class PSDatabaseComponentLoader {
   /**
    * Constructor.
    *
-   * @param req  The request to use to access the system component application.
-   * Can't be <code>null</code>
-   *
+   * @param req The request to use to access the system component application. Can't be <code>null
+   *     </code>
    * @throws IllegalArgumentException if req is <code>null</code>
    */
   public PSDatabaseComponentLoader(PSRequest req) {
@@ -62,10 +60,8 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * Convenience method.  Calls
-   * {@link #actualizeCollectionComponent(PSDatabaseComponentCollection,
-   * PSRelation)}
-   * with a null relation context.
+   * Convenience method. Calls {@link #actualizeCollectionComponent(PSDatabaseComponentCollection,
+   * PSRelation)} with a null relation context.
    */
   public void actualizeCollectionComponent(PSDatabaseComponentCollection c)
       throws PSDatabaseComponentException, PSUnknownNodeTypeException {
@@ -73,17 +69,13 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * For the component collection specified lookup the associated xml element
-   * and use it to instantiate the collection.
+   * For the component collection specified lookup the associated xml element and use it to
+   * instantiate the collection.
    *
-   * @param component The component to instantiate.
-   * May not be <code>null</code>.
-   *
-   * @param relationContext  The relation context, may be <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException If the component specified could
-   * not recognize the supplied element.
-   *
+   * @param component The component to instantiate. May not be <code>null</code>.
+   * @param relationContext The relation context, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException If the component specified could not recognize the supplied
+   *     element.
    * @throws IllegalArgumentException if c is <code>null</code>
    */
   public void actualizeCollectionComponent(
@@ -201,25 +193,18 @@ public class PSDatabaseComponentLoader {
   /**
    * Retrieve a specific element from one of our lists.
    *
-   * @param resourceName The resource name associated with the component
-   * being retrieved.  Assumed not <code>null</code>.
-   *
-   * @param key  The key (DbComponentId) for the element to retrieve.  If
-   * <code>null</code> returns the root element containing all elements.
-   *
-   * @param cacheMap Cache the map of all elements returned by the map
-   * loader?  <code>true</code> indicates to cache the map, <code>false</code>
-   * indicates not to cache it.
-   *
-   * @return The xml element, from which the associated component can be
-   * instantiated.  May be <code>null</code> indicating the specified request
-   * returned no results.
-   *
-   * @throws PSUnknownNodeTypeException if a component fails to initialize
-   * itself from an element returned by the system component app
-   *
-   * @throws PSDatabaseComponentException if the database component fails
-   *    to load for any other reason
+   * @param resourceName The resource name associated with the component being retrieved. Assumed
+   *     not <code>null</code>.
+   * @param key The key (DbComponentId) for the element to retrieve. If <code>null</code> returns
+   *     the root element containing all elements.
+   * @param cacheMap Cache the map of all elements returned by the map loader? <code>true</code>
+   *     indicates to cache the map, <code>false</code> indicates not to cache it.
+   * @return The xml element, from which the associated component can be instantiated. May be <code>
+   *     null</code> indicating the specified request returned no results.
+   * @throws PSUnknownNodeTypeException if a component fails to initialize itself from an element
+   *     returned by the system component app
+   * @throws PSDatabaseComponentException if the database component fails to load for any other
+   *     reason
    */
   private Element lookupDatabaseXmlElement(String resourceName, String key, boolean cacheMap)
       throws PSDatabaseComponentException, PSUnknownNodeTypeException {
@@ -246,28 +231,19 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * Load an element map from the back end, caching all its
-   * elements using the internal sys components application.
-   * The root element of the document returned by the back end
-   * will be stored with the key <code>null</code>.
+   * Load an element map from the back end, caching all its elements using the internal sys
+   * components application. The root element of the document returned by the back end will be
+   * stored with the key <code>null</code>.
    *
-   * @param resourceName The name of the resource which will return
-   * the desired elements.  Assumed not <code>null</code> or empty.
-   *
-   * @return A map containing the elements, keyed by database component id.
-   * Never <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if a component fails to initialize
-   * itself from an element returned by the system component app
-   *
-   * @throws PSAuthorizationException if the user making the call does not
-   *    have permission to access the associated application
-   *
-   * @throws PSAuthenticationException if the user making the call fails to
-   *    authenticate
-   *
-   * @throws PSInternalRequestCallException if an error occurs processing the
-   *    internal request call
+   * @param resourceName The name of the resource which will return the desired elements. Assumed
+   *     not <code>null</code> or empty.
+   * @return A map containing the elements, keyed by database component id. Never <code>null</code>.
+   * @throws PSUnknownNodeTypeException if a component fails to initialize itself from an element
+   *     returned by the system component app
+   * @throws PSAuthorizationException if the user making the call does not have permission to access
+   *     the associated application
+   * @throws PSAuthenticationException if the user making the call fails to authenticate
+   * @throws PSInternalRequestCallException if an error occurs processing the internal request call
    */
   private Map loadElementMap(String resourceName)
       throws PSInternalRequestCallException,
@@ -295,23 +271,16 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * Call the system component application to retrieve database components
-   * using the specified resource.
+   * Call the system component application to retrieve database components using the specified
+   * resource.
    *
-   * @param resourceName The name of the resource which will return
-   * the desired elements.  Assumed not <code>null</code> or empty.
-   *
-   * @return The document returned by the call to the sys components app.
-   * Never <code>null</code>.
-   *
-   * @throws PSAuthorizationException if the user making the call does not
-   *    have permission to access the associated application
-   *
-   * @throws PSAuthenticationException if the user making the call fails to
-   *    authenticate
-   *
-   * @throws PSInternalRequestCallException if an error occurs processing the
-   *    internal request call
+   * @param resourceName The name of the resource which will return the desired elements. Assumed
+   *     not <code>null</code> or empty.
+   * @return The document returned by the call to the sys components app. Never <code>null</code>.
+   * @throws PSAuthorizationException if the user making the call does not have permission to access
+   *     the associated application
+   * @throws PSAuthenticationException if the user making the call fails to authenticate
+   * @throws PSInternalRequestCallException if an error occurs processing the internal request call
    */
   private Document getComponentDoc(String resourceName)
       throws PSInternalRequestCallException,
@@ -335,30 +304,25 @@ public class PSDatabaseComponentLoader {
   }
 
   /**
-   * The request used to make internal calls to the system component
-   * application.  Initialized at construct time, never <code>null</code>
-   * after that.
+   * The request used to make internal calls to the system component application. Initialized at
+   * construct time, never <code>null</code> after that.
    */
   private PSRequest m_request = null;
 
   /**
-   * The elements map is a map with a key based on a component resource
-   * name and a value which is a Map of DbComponentId - xml Element pairs.
-   * Never <code>null</code>, may be empty.  Initialized lazily as requests
-   * for Db element definitions are made.
+   * The elements map is a map with a key based on a component resource name and a value which is a
+   * Map of DbComponentId - xml Element pairs. Never <code>null</code>, may be empty. Initialized
+   * lazily as requests for Db element definitions are made.
    */
   private HashMap m_elementsMap = new HashMap();
 
   /**
-   * The relation list map is a map with a key based on a component resource
-   * name and a value which is a list of associated relations.
-   * Never <code>null</code>, may be empty.  Initialized lazily as requests
-   * for relations are made.
+   * The relation list map is a map with a key based on a component resource name and a value which
+   * is a list of associated relations. Never <code>null</code>, may be empty. Initialized lazily as
+   * requests for relations are made.
    */
   private HashMap m_relationListMap = new HashMap();
 
-  /**
-   * The name of the application used to retrieve DB components and relations.
-   */
+  /** The name of the application used to retrieve DB components and relations. */
   public static final String COMPONENT_HANDLER_APP_NAME = "sys_components";
 }

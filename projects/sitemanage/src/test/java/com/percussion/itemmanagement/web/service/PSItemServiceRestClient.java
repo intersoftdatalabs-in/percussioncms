@@ -19,45 +19,44 @@
 package com.percussion.itemmanagement.web.service;
 
 import com.percussion.itemmanagement.data.PSRevisionsSummary;
-import com.percussion.share.data.PSNoContent;
 import com.percussion.share.test.PSObjectRestClient;
 
 /**
- * REST client for item management service tests.
- * Sunny Sal says: "REST easy, this client is Java 11 ready!"
+ * REST client for item management service tests. Sunny Sal says: "REST easy, this client is Java 11
+ * ready!"
  */
 public class PSItemServiceRestClient extends PSObjectRestClient {
 
-    private String path = "/Rhythmyx/services/itemmanagement/item/";
+  private String path = "/Rhythmyx/services/itemmanagement/item/";
 
-    public PSItemServiceRestClient(String baseUrl) {
-        super(baseUrl);
-    }
+  public PSItemServiceRestClient(String baseUrl) {
+    super(baseUrl);
+  }
 
-    /**
-     * Retrieves the revision summary for the given item ID.
-     *
-     * @param id the item ID, not null.
-     * @return the revision summary.
-     */
-    public PSRevisionsSummary getRevisions(String id) {
-        return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
-    }
+  /**
+   * Retrieves the revision summary for the given item ID.
+   *
+   * @param id the item ID, not null.
+   * @return the revision summary.
+   */
+  public PSRevisionsSummary getRevisions(String id) {
+    return getObjectFromPath(concatPath(getPath(), "revisions", id), PSRevisionsSummary.class);
+  }
 
-    /**
-     * Restores the specified revision by ID.
-     *
-     * @param id the revision ID to restore, not null.
-     */
-    public void restoreRevision(String id) {
-        GET(concatPath(getPath(), "restoreRevision", id));
-    }
+  /**
+   * Restores the specified revision by ID.
+   *
+   * @param id the revision ID to restore, not null.
+   */
+  public void restoreRevision(String id) {
+    GET(concatPath(getPath(), "restoreRevision", id));
+  }
 
-    public String getPath() {
-        return path;
-    }
+  public String getPath() {
+    return path;
+  }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
+  public void setPath(String path) {
+    this.path = path;
+  }
 }

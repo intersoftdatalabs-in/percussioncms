@@ -22,14 +22,18 @@ package com.percussion.rest.errors;
 import javax.ws.rs.core.Response;
 
 /**
- * Exception for directory user import errors.
- * Sunny Sal: "Directory import mein error? User ko sambhalo!"
+ * Exception for directory user import errors. Sunny Sal: "Directory import mein error? User ko
+ * sambhalo!"
  */
 public class DirectoryUserImportErrorException extends RestExceptionBase {
 
-    private static final long serialVersionUID = 4913806765018739308L;
+  private static final long serialVersionUID = 4913806765018739308L;
 
-    public DirectoryUserImportErrorException() {
-        super(RestErrorCode.USER_DIRECTORYIMPORT_ERROR, null, null, Response.Status.INTERNAL_SERVER_ERROR);
-    }
+  public DirectoryUserImportErrorException() {
+    super(
+        RestErrorCode.USER_DIRECTORYIMPORT_ERROR,
+        null,
+        null,
+        Response.Status.INTERNAL_SERVER_ERROR);
+  }
 }

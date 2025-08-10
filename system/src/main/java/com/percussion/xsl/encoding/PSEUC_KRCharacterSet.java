@@ -18,14 +18,12 @@ package com.percussion.xsl.encoding;
 
 import java.io.IOException;
 
-/**
- * Defines the EUC_KR character encoding for the Saxon XSLT processor.
- */
+/** Defines the EUC_KR character encoding for the Saxon XSLT processor. */
 public final class PSEUC_KRCharacterSet extends PSGenericCharacterSet {
   /**
-   * Initializes a newly created <code>PSEUC_KRCharacterSet</code> object by
-   * delegating to {@link PSGenericCharacterSet#PSGenericCharacterSet(String,
-   * String) <code>super("EUC_KR", "java-EUC_KR.xml")</code>}
+   * Initializes a newly created <code>PSEUC_KRCharacterSet</code> object by delegating to {@link
+   * PSGenericCharacterSet#PSGenericCharacterSet(String, String) <code>super("EUC_KR",
+   * "java-EUC_KR.xml")</code>}
    *
    * @throws IOException if there are problems reading the resource file.
    */

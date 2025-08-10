@@ -62,25 +62,19 @@ public class HTMLNamedNodeMap extends HashMap<String, Node> implements NamedNode
     return size();
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Node getNamedItemNS(String namespaceURI, String localName) {
     // TODO: implement
     throw new RuntimeException("Method getNamedItemNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Node setNamedItemNS(Node arg) throws DOMException {
     // TODO: implement
     throw new RuntimeException("Method setNamedItemNS not supported");
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   public Node removeNamedItemNS(String namespaceURI, String localName) throws DOMException {
     // TODO: implement
     throw new RuntimeException("Method removeNamedItemNS not supported");

@@ -25,9 +25,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Retrieve the server properties for Rhythmyx.
- * Returns a JSON object with a property for each corresponding
- * server property.
+ * Retrieve the server properties for Rhythmyx. Returns a JSON object with a property for each
+ * corresponding server property.
  */
 public class PSGetServerPropertiesAction extends PSAAActionBase {
 

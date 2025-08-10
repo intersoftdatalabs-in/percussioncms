@@ -30,16 +30,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Object store implementation to the <code>PSXCloningOptions</code> object
- * as defined in schema sys_FolderParameters.xsd.
+ * Object store implementation to the <code>PSXCloningOptions</code> object as defined in schema
+ * sys_FolderParameters.xsd.
  */
 public class PSCloningOptions extends PSComponent {
   /**
-   * Convenience constructor for copy site subfolders where no site name is
-   * required.
+   * Convenience constructor for copy site subfolders where no site name is required.
    *
-   * @see #PSCloningOptions(int, String, String, String, int, int, Map)  for
-   *    documentation
+   * @see #PSCloningOptions(int, String, String, String, int, int, Map) for documentation
    */
   public PSCloningOptions(
       int type, String folderName, int copyOption, int copyContentOption, Map communityMappings) {
@@ -50,19 +48,16 @@ public class PSCloningOptions extends PSComponent {
    * Construct the cloning options for the supplied parameters.
    *
    * @param type the type of cloning, one of the <code>TYPE_XXX</code> values.
-   * @param siteToCopy the name of the site definition being copied, may be
-   *    <code>null</code> or empty.
+   * @param siteToCopy the name of the site definition being copied, may be <code>null</code> or
+   *     empty.
    * @param siteName the new site name, may be <code>null</code> or empty.
-   * @param folderName the new site folder name, not <code>null</code> or
-   *    empty.
-   * @param copyOption the option of what should be cloned, one of the
-   *    <code>COPY_XXX</code> values.
-   * @param copyContentOption the option how content should be cloned, one
-   *    of the <code>COPYCONTENT_XXX</code> values.
-   * @param communityMappings a map of communities that need to be changed
-   *    from the source to the target, may be <code>null</code> or empty.
-   *    Map key and value are expected as <code>Integer</code>, where the
-   *    key is the source community id and the value the target community id.
+   * @param folderName the new site folder name, not <code>null</code> or empty.
+   * @param copyOption the option of what should be cloned, one of the <code>COPY_XXX</code> values.
+   * @param copyContentOption the option how content should be cloned, one of the <code>
+   *     COPYCONTENT_XXX</code> values.
+   * @param communityMappings a map of communities that need to be changed from the source to the
+   *     target, may be <code>null</code> or empty. Map key and value are expected as <code>Integer
+   *     </code>, where the key is the source community id and the value the target community id.
    */
   public PSCloningOptions(
       int type,
@@ -100,8 +95,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Constructs the cloning options from its XML representation.
    *
-   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter
-   *    descriptions.
+   * @see IPSComponent#fromXml(Element, IPSDocument, List) for parameter descriptions.
    */
   public PSCloningOptions(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -166,8 +160,8 @@ public class PSCloningOptions extends PSComponent {
    * Tests if the supplied object is equal to this one.
    *
    * @param o the object to test, may be <code>null</code>.
-   * @return <code>true</code> if the supplied object is equal to this one,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied object is equal to this one, <code>false</code>
+   *     otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSCloningOptions)) return false;
@@ -215,8 +209,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Get the name of the site definition being copied.
    *
-   * @return the name of the site definition being copied, may be
-   *    <code>null</code> or empty.
+   * @return the name of the site definition being copied, may be <code>null</code> or empty.
    */
   public String getSiteToCopy() {
     return m_siteToCopy;
@@ -225,8 +218,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Set the site definition being copied.
    *
-   * @param siteToCopy the new site definition being copied, may be
-   *    <code>null</code> or empty.
+   * @param siteToCopy the new site definition being copied, may be <code>null</code> or empty.
    */
   public void setSiteToCopy(String siteToCopy) {
     m_siteToCopy = null;
@@ -257,8 +249,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Get the name for the new site folder or site subfolder.
    *
-   * @return the new site folder or site subfolder name, never
-   *    <code>null</code> or empty.
+   * @return the new site folder or site subfolder name, never <code>null</code> or empty.
    */
   public String getFolderName() {
     return m_folderName;
@@ -303,8 +294,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Get the option of how content should be cloned.
    *
-   * @return the copy content option, one of the <code>COPYCONTENT_XXX</code>
-   *    values.
+   * @return the copy content option, one of the <code>COPYCONTENT_XXX</code> values.
    */
   public int getCopyContentOption() {
     return m_copyContentOption;
@@ -331,8 +321,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Get the source to target community mappings.
    *
-   * @return the source - target community mappings, never <code>null</code>,
-   *    may be empty.
+   * @return the source - target community mappings, never <code>null</code>, may be empty.
    */
   public Map getCommunityMappings() {
     return m_communityMappings;
@@ -341,8 +330,7 @@ public class PSCloningOptions extends PSComponent {
   /**
    * Get the source to target site id mappings.
    *
-   * @return the source to target site id mappings, never <code>null</code>,
-   *    may be empty.
+   * @return the source to target site id mappings, never <code>null</code>, may be empty.
    */
   public Map getSiteMappings() {
     return m_siteMappings;
@@ -363,9 +351,8 @@ public class PSCloningOptions extends PSComponent {
   }
 
   /**
-   * Set if the src item workflow should be used if a valid selection.  See
-   * {@link #useSrcItemWorkflow()} for details.  Default is <code>false</code>
-   * if it has not been set.
+   * Set if the src item workflow should be used if a valid selection. See {@link
+   * #useSrcItemWorkflow()} for details. Default is <code>false</code> if it has not been set.
    *
    * @param useSrcWorkflow <code>true</code> to use the src, <code>false</code> otherwise.
    */
@@ -374,11 +361,12 @@ public class PSCloningOptions extends PSComponent {
   }
 
   /**
-   * Determine if the source item's workflow should be used if it is a valid selection.  Default system
-   * behavior is to calculate the workflow of the new item from the content type's workflow settings and
-   * the new item's community.  A <code>true</code> value returned by this method indicates the source
-   * item's workflow should be used as long as it is valid for the content type and community.  If it
-   * is not valid, or if this method returns <code>false</code>, the default system behavior should be used.
+   * Determine if the source item's workflow should be used if it is a valid selection. Default
+   * system behavior is to calculate the workflow of the new item from the content type's workflow
+   * settings and the new item's community. A <code>true</code> value returned by this method
+   * indicates the source item's workflow should be used as long as it is valid for the content type
+   * and community. If it is not valid, or if this method returns <code>false</code>, the default
+   * system behavior should be used.
    *
    * @return <code>true</code> to use the source item worklfow, <code>false</code> otherwise.
    */
@@ -534,10 +522,9 @@ public class PSCloningOptions extends PSComponent {
    * Tests if the supplied value is defined in the supplied array.
    *
    * @param value the value to test.
-   * @param validValues an array with all valid values, assumed not
-   *    <code>null</code>.
-   * @return <code>true</code> if the supplied value is defined in the
-   *    provided values array, <code>false</code> otherwise.
+   * @param validValues an array with all valid values, assumed not <code>null</code>.
+   * @return <code>true</code> if the supplied value is defined in the provided values array, <code>
+   *     false</code> otherwise.
    */
   private boolean isValid(int value, int[] validValues) {
     boolean isValid = false;
@@ -550,13 +537,12 @@ public class PSCloningOptions extends PSComponent {
    * Converts the supplied string value to its integer representation.
    *
    * @param value the value to convert, may be <code>null</code> or empty.
-   * @param validValues an array with all valid values in indexed order,
-   *    assumed not <code>null</code>.
-   * @param attrName the attribute name to convert, assumed not
-   *    <code>null</code> or empty.
+   * @param validValues an array with all valid values in indexed order, assumed not <code>null
+   *     </code>.
+   * @param attrName the attribute name to convert, assumed not <code>null</code> or empty.
    * @return the integer representation for the supplied string value.
-   * @throws PSUnknownNodeTypeException if the supplied is <code>null</code>
-   *    or does not have a known value.
+   * @throws PSUnknownNodeTypeException if the supplied is <code>null</code> or does not have a
+   *     known value.
    */
   private int toInteger(String value, String[] validValues, String attrName)
       throws PSUnknownNodeTypeException {
@@ -571,146 +557,109 @@ public class PSCloningOptions extends PSComponent {
   }
 
   /**
-   * The type of cloning options, either this is to clone a site or to clone
-   * a site subfolder. Initialized in constructor, always one of the
-   * <code>TYPE_XXX</code> values, never changed after that.
+   * The type of cloning options, either this is to clone a site or to clone a site subfolder.
+   * Initialized in constructor, always one of the <code>TYPE_XXX</code> values, never changed after
+   * that.
    */
   private int m_type = -1;
 
-  /**
-   * The type constant used if this cloning options are setup to clone a
-   * site.
-   */
+  /** The type constant used if this cloning options are setup to clone a site. */
   public static final int TYPE_SITE = 0;
 
-  /**
-   * The type constant used if this cloning options are setup to clone a
-   * site subfolder.
-   */
+  /** The type constant used if this cloning options are setup to clone a site subfolder. */
   public static final int TYPE_SITE_SUBFOLDER = 1;
 
-  /**
-   * An array with all valid type values.
-   */
+  /** An array with all valid type values. */
   public static final int[] ms_typeEnum = {TYPE_SITE, TYPE_SITE_SUBFOLDER};
 
-  /**
-   * An array that maps the type value to its XML representaion.
-   */
+  /** An array that maps the type value to its XML representaion. */
   public static final String[] ms_typeNames = {"site", "siteSubfolder"};
 
   /**
-   * Holds the name of the site definition being copied, initialized in
-   * constructor. May be <code>null</code> or empty in which case no site
-   * definition is copied.
+   * Holds the name of the site definition being copied, initialized in constructor. May be <code>
+   * null</code> or empty in which case no site definition is copied.
    */
   private String m_siteToCopy = null;
 
   /**
-   * Holds the name of the new site, initialized in constructor. May be
-   * <code>null</code> or empty in which case no site definition is copied.
+   * Holds the name of the new site, initialized in constructor. May be <code>null</code> or empty
+   * in which case no site definition is copied.
    */
   private String m_siteName = null;
 
   /**
-   * Holds the name of the new site folder or site subfolder, initialized
-   * while constructed, never <code>null</code> or empty after that.
+   * Holds the name of the new site folder or site subfolder, initialized while constructed, never
+   * <code>null</code> or empty after that.
    */
   private String m_folderName = null;
 
   /**
-   * This option defines what content is to be cloned. Initialized during
-   * construction, always one of the <code>COPY_XXX</code> values after
-   * that.
+   * This option defines what content is to be cloned. Initialized during construction, always one
+   * of the <code>COPY_XXX</code> values after that.
    */
   private int m_copyOption = -1;
 
-  /**
-   * The copy option constant used if no content will be cloned.
-   */
+  /** The copy option constant used if no content will be cloned. */
   public static final int COPY_NO_CONTENT = 0;
 
-  /**
-   * The copy option constant used if only navigation content will be cloned.
-   */
+  /** The copy option constant used if only navigation content will be cloned. */
   public static final int COPY_NAVIGATION_CONTENT = 1;
 
-  /**
-   * The copy option constant used if all content will be cloned.
-   */
+  /** The copy option constant used if all content will be cloned. */
   public static final int COPY_ALL_CONTENT = 2;
 
-  /**
-   * An array with all valid copy option values.
-   */
+  /** An array with all valid copy option values. */
   public static final int[] ms_copyOptionsEnum = {
     COPY_NO_CONTENT, COPY_NAVIGATION_CONTENT, COPY_ALL_CONTENT
   };
 
-  /**
-   * An array that maps the copy option value to its XML representaion.
-   */
+  /** An array that maps the copy option value to its XML representaion. */
   public static final String[] ms_copyOptionNames = {
     "noContent", "navigationContent", "allContent"
   };
 
   /**
-   * This option defines how content is to be cloned. Initialized during
-   * construction, always one of the <code>COPYCONTENT_XXX</code> values after
-   * that.
+   * This option defines how content is to be cloned. Initialized during construction, always one of
+   * the <code>COPYCONTENT_XXX</code> values after that.
    */
   private int m_copyContentOption = -1;
 
-  /**
-   * The copy content option constant used if content will be cloned as link.
-   */
+  /** The copy content option constant used if content will be cloned as link. */
   public static final int COPYCONTENT_AS_LINK = 0;
 
-  /**
-   * The copy content option constant used if content will be cloned as new
-   * copy.
-   */
+  /** The copy content option constant used if content will be cloned as new copy. */
   public static final int COPYCONTENT_AS_NEW_COPY = 1;
 
-  /**
-   * An array with all valid copy content option values.
-   */
+  /** An array with all valid copy content option values. */
   public static final int[] ms_copyContentOptionsEnum = {
     COPYCONTENT_AS_LINK, COPYCONTENT_AS_NEW_COPY
   };
 
-  /**
-   * An array that maps the copy content option value to its XML representaion.
-   */
+  /** An array that maps the copy content option value to its XML representaion. */
   public static final String[] ms_copyContentOptionNames = {"asLink", "asNewCopy"};
 
   /**
-   * This maps source community ids to target community ids. Initialized during
-   * construction, never <code>null</code>, may be empty. The map key is
-   * an <code>Integer</code> representing the source community id while the
-   * map value is an <code>Integer</code> representing the target community id.
-   * All folders and content that is cloned as new copy will be created for
-   * the target mapping found in this map. If no mapping is found the original
-   * community is used.
+   * This maps source community ids to target community ids. Initialized during construction, never
+   * <code>null</code>, may be empty. The map key is an <code>Integer</code> representing the source
+   * community id while the map value is an <code>Integer</code> representing the target community
+   * id. All folders and content that is cloned as new copy will be created for the target mapping
+   * found in this map. If no mapping is found the original community is used.
    */
   private Map<Integer, Integer> m_communityMappings = new HashMap<>();
 
   /**
-   * Maps source site ids as <code>Integer</code> to target site ids as
-   * <code>Integer</code>. Initialized to an empty map, updated through
-   * {@link #addSiteMapping(Integer, Integer)}.
+   * Maps source site ids as <code>Integer</code> to target site ids as <code>Integer</code>.
+   * Initialized to an empty map, updated through {@link #addSiteMapping(Integer, Integer)}.
    */
   private Map m_siteMappings = new HashMap();
 
   /**
-   * Indicates if source items workflow should be used as long as it is valid.  Transient
-   * value that is not persisted.
+   * Indicates if source items workflow should be used as long as it is valid. Transient value that
+   * is not persisted.
    */
   private transient boolean m_useSrcItemWorkflow = false;
 
-  /**
-   * The XML document node name.
-   */
+  /** The XML document node name. */
   public static final String XML_NODE_NAME = "PSXCloningOptions";
 
   // XML element and attribute names

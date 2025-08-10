@@ -29,18 +29,16 @@ import java.time.YearMonth;
 import javax.swing.*;
 
 /**
- * About dialog displays the Percussion Logo, Rhythmyx version info and has a
- * clickable link to the percussion website.
+ * About dialog displays the Percussion Logo, Rhythmyx version info and has a clickable link to the
+ * percussion website.
  */
 public class PSAboutDialog extends JDialog {
   /**
    * Initialies the dialog with supplied parameters.
    *
-   * @param title The string to be displayed at the title bar. It must not be
-   *    <code>null</code> or empty.
-   *
-   * @param clientVersion The current client version. It must not be
-   *    <code>null</code> or empty.
+   * @param title The string to be displayed at the title bar. It must not be <code>null</code> or
+   *     empty.
+   * @param clientVersion The current client version. It must not be <code>null</code> or empty.
    */
   public PSAboutDialog(Frame parent, String title, String clientVersion) {
     super(parent);
@@ -56,12 +54,10 @@ public class PSAboutDialog extends JDialog {
   /**
    * Initialies the dialog with supplied parameters.
    *
-   * @param title The string to be displayed at the title bar. It must not be
-   *    <code>null</code> or empty.
-   *
-   * @param versions It must contain 3 strings. Assume the 1st element is the
-   *    client version label, the 2nd element is the server name label, the
-   *    3nd element is the server version label.
+   * @param title The string to be displayed at the title bar. It must not be <code>null</code> or
+   *     empty.
+   * @param versions It must contain 3 strings. Assume the 1st element is the client version label,
+   *     the 2nd element is the server name label, the 3nd element is the server version label.
    */
   public PSAboutDialog(Frame parent, String title, String[] versions) {
     super(parent);
@@ -77,15 +73,11 @@ public class PSAboutDialog extends JDialog {
   /**
    * Initialies the dialog with supplied parameters.
    *
-   * @param title The string to be displayed at the title bar. It must not be
-   *    <code>null</code> or empty.
-   *
-   * @param versions It must contain 3 strings. Assume the 1st element is the
-   *    client version label, the 2nd element is the server name label, the
-   *    3nd element is the server version label.
-   *
-   * @param copyRight3Party The copy right for 3nd party software. It may be
-   *    <code>null</code>.
+   * @param title The string to be displayed at the title bar. It must not be <code>null</code> or
+   *     empty.
+   * @param versions It must contain 3 strings. Assume the 1st element is the client version label,
+   *     the 2nd element is the server name label, the 3nd element is the server version label.
+   * @param copyRight3Party The copy right for 3nd party software. It may be <code>null</code>.
    */
   public PSAboutDialog(Frame parent, String title, String[] versions, String copyRight3Party) {
     super(parent);
@@ -103,16 +95,12 @@ public class PSAboutDialog extends JDialog {
   /**
    * internal for creating the controls and initializing the dialog.
    *
-   * @param title The string to be displayed at the title bar. Assume it is
-   *    never <code>null</code> or empty.
-   *
-   * @param versions Assume the array length is either 1 or 3. Assume the
-   *    1st element is the client version label. If the length is 3, then the
-   *    2nd element is the server name label, the 3nd element is the server
-   *    version label.
-   *
-   * @param copyRight3Party The copy right for 3nd party software. It may be
-   *    <code>null</code>.
+   * @param title The string to be displayed at the title bar. Assume it is never <code>null</code>
+   *     or empty.
+   * @param versions Assume the array length is either 1 or 3. Assume the 1st element is the client
+   *     version label. If the length is 3, then the 2nd element is the server name label, the 3nd
+   *     element is the server version label.
+   * @param copyRight3Party The copy right for 3nd party software. It may be <code>null</code>.
    */
   private void initDialog(String title, String[] versions, String copyRight3Party) {
     this.setFocusable(true);
@@ -243,8 +231,7 @@ public class PSAboutDialog extends JDialog {
   /**
    * Set the applet context.
    *
-   * @param appletContext The current applet context, it may not be
-   *    <code>null</code>.
+   * @param appletContext The current applet context, it may not be <code>null</code>.
    */
   public void setAppletContext(AppletContext appletContext) {
     if (appletContext == null) throw new IllegalArgumentException("appletContext may not be null");
@@ -253,8 +240,8 @@ public class PSAboutDialog extends JDialog {
   }
 
   /**
-   * Handler for mouse exiting the URL label for percussion. Sets the color to
-   * darker shade of blue and mouse cursor to default cursor.
+   * Handler for mouse exiting the URL label for percussion. Sets the color to darker shade of blue
+   * and mouse cursor to default cursor.
    */
   protected void onMouseExit() {
     m_labelUrl.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -262,8 +249,8 @@ public class PSAboutDialog extends JDialog {
   }
 
   /**
-   * Handler for when mouse is over the URL label for percussion. Sets the
-   * color to blue and mouse cursor to hand cursor.
+   * Handler for when mouse is over the URL label for percussion. Sets the color to blue and mouse
+   * cursor to hand cursor.
    */
   protected void onMouseEnter() {
     m_labelUrl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -271,9 +258,8 @@ public class PSAboutDialog extends JDialog {
   }
 
   /**
-   * Handler for mouse click on the URL. Starts up the default browser and
-   * displays the percussion web page if the mouse click point is within the
-   * bounds of label url.
+   * Handler for mouse click on the URL. Starts up the default browser and displays the percussion
+   * web page if the mouse click point is within the bounds of label url.
    */
   protected void onMouseClick() {
     openInSystemBrowser(PERCUSSION_URL);
@@ -303,10 +289,9 @@ public class PSAboutDialog extends JDialog {
   }
 
   /**
-   * The applet context of the owner applet, it is <code>null</code> if the
-   * owner is not an applet. Default to <code>null</code>, but can be set by
-   * setAppletContext(), never modified after that. Used to launch new browser
-   * window for company url.
+   * The applet context of the owner applet, it is <code>null</code> if the owner is not an applet.
+   * Default to <code>null</code>, but can be set by setAppletContext(), never modified after that.
+   * Used to launch new browser window for company url.
    */
   private AppletContext m_appContext = null;
 
@@ -316,14 +301,10 @@ public class PSAboutDialog extends JDialog {
    */
   private JLabel m_labelUrl;
 
-  /**
-   * The constant for percussion home page url.
-   */
+  /** The constant for percussion home page url. */
   public static final String PERCUSSION_URL = "https://www.percussion.com";
 
-  /**
-   * Various public constant strings
-   */
+  /** Various public constant strings */
   public static final String LONG_IMAGE = "images/about_rx_long.gif";
 
   public static final String MID_IMAGE = "images/about_rx_mid.gif";

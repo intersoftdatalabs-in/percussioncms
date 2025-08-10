@@ -23,13 +23,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSUniqueKeyCatalogHandler class implements cataloging of
- * unique keys. This request type is used to locate the column
- * combinations which can be used to uniquely identify rows in
- * the specified back-end table.
- * <p>
- * Unique key catalog requests are sent to the server using the
- * PSXUniqueKeyCatalog XML document. Its definition is as follows:
+ * The PSUniqueKeyCatalogHandler class implements cataloging of unique keys. This request type is
+ * used to locate the column combinations which can be used to uniquely identify rows in the
+ * specified back-end table.
+ *
+ * <p>Unique key catalog requests are sent to the server using the PSXUniqueKeyCatalog XML document.
+ * Its definition is as follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXUniqueKeyCatalog (datasource?, tableName)&gt;
  *
@@ -43,8 +43,9 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT tableName           (#PCDATA)&gt;
  * </pre>
  *
- * The PSXUniqueKeyCatalogResults XML document is sent as the response.
- * Its definition is as follows:
+ * The PSXUniqueKeyCatalogResults XML document is sent as the response. Its definition is as
+ * follows:
+ *
  * <pre>
  *    &lt;!ELEMENT PSXUniqueKeyCatalogResults (datasource, tableName,
  *       UniqueKey*)&gt;
@@ -81,21 +82,20 @@ import org.w3c.dom.Element;
  *    &lt;!ELEMENT name                       (#PCDATA)&gt;
  * </pre>
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUniqueKeyCatalogHandler implements IPSCatalogHandler {
-  /**
-   * Constructs an instance of this handler.
-   */
+  /** Constructs an instance of this handler. */
   public PSUniqueKeyCatalogHandler() {
     super();
   }
 
   /**
-   * Format the catalog request based upon the specified request
-   * information. The request information for this request type is:
+   * Format the catalog request based upon the specified request information. The request
+   * information for this request type is:
+   *
    * <table border="2">
    *   <tr><th>Key</th>
    *       <th>Value</th>
@@ -116,11 +116,8 @@ public class PSUniqueKeyCatalogHandler implements IPSCatalogHandler {
    *       <td>yes</td></tr>
    * </table>
    *
-   * @param      req         the request information
-   *
-   * @return                 an XML document containing the appropriate
-   *                         catalog request information
-   *
+   * @param req the request information
+   * @return an XML document containing the appropriate catalog request information
    */
   public Document formatRequest(java.util.Properties req) {
     String sTemp = (String) req.get("RequestCategory");

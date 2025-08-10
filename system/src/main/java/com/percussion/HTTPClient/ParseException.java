@@ -18,26 +18,25 @@
 package com.percussion.HTTPClient;
 
 /**
- * Signals that something went wrong while parsing data. Usually means the
- * input data was invalid.
+ * Signals that something went wrong while parsing data. Usually means the input data was invalid.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 public class ParseException extends Exception {
 
   /**
-   * Constructs an ParseException with no detail message.
-   * A detail message is a String that describes this particular exception.
+   * Constructs an ParseException with no detail message. A detail message is a String that
+   * describes this particular exception.
    */
   public ParseException() {
     super();
   }
 
   /**
-   * Constructs an ParseException class with the specified detail message.
-   * A detail message is a String that describes this particular exception.
+   * Constructs an ParseException class with the specified detail message. A detail message is a
+   * String that describes this particular exception.
    *
    * @param s the String containing a detail message
    */

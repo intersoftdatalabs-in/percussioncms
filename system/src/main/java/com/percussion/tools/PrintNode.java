@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-/**
- * Utility for printing XML DOM nodes as formatted XML.
- */
+/** Utility for printing XML DOM nodes as formatted XML. */
 package com.percussion.tools;
 
 import java.io.IOException;
@@ -44,7 +42,6 @@ public class PrintNode {
    * @param node the node to print
    * @param indent indentation string
    * @param out output writer
-   *
    * @throws IOException if writing fails
    */
   public static void printNode(Node node, String indent, Writer out) throws IOException {
@@ -58,7 +55,6 @@ public class PrintNode {
    * @param indent indentation string
    * @param out output writer
    * @param useEmptyElementTag true to use empty element tag format
-   *
    * @throws IOException if writing fails
    */
   public static void printNode(Node node, String indent, Writer out, boolean useEmptyElementTag)
@@ -299,8 +295,6 @@ public class PrintNode {
 
   private static final String NEWLINE = "\r\n";
 
-  /**
-   * The document's XML header string
-   */
+  /** The document's XML header string */
   private static final String XML_HEADER = "<?xml version='1.0' encoding='UTF-8'?>";
 }

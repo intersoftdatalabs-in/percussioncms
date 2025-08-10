@@ -18,13 +18,11 @@
 package com.percussion.filetracker;
 
 /**
- * This exception is thrown if the configuartion document is invalid because of,
- * for example, there are no server aliases defined at all.
+ * This exception is thrown if the configuartion document is invalid because of, for example, there
+ * are no server aliases defined at all.
  */
 public class PSFUDMergeDocumentsException extends Exception {
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSFUDMergeDocumentsException() {
     super();
   }
@@ -33,7 +31,6 @@ public class PSFUDMergeDocumentsException extends Exception {
    * Constructor that takes the error message as parameter
    *
    * @param msg as String
-   *
    */
   public PSFUDMergeDocumentsException(String msg) {
     super(msg);

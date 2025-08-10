@@ -30,17 +30,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * ID Context to represent an item whose context is determined only by its
- * ordinal position in its parent context.
+ * ID Context to represent an item whose context is determined only by its ordinal position in its
+ * parent context.
  */
 public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   /**
    * Construct this from the source mapping
    *
    * @param mapping The source mapping, may not be <code>null</code>.
-   * @param type One of the <code>TYPE_XXX</code> constants to indicate which
-   * part of the mapping the id represents.
-   *
+   * @param type One of the <code>TYPE_XXX</code> constants to indicate which part of the mapping
+   *     the id represents.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSAppDataMappingIdContext(PSDataMapping mapping, int type) {
@@ -58,12 +57,9 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   /**
    * Create this object from its XML representation
    *
-   * @param source The source element.  See {@link #toXml(Document)} for
-   * the expected format.  May not be <code>null</code>.
-   *
-   * @throws IllegalArgumentException If <code>source</code> is
-   * <code>null</code>.
-   *
+   * @param source The source element. See {@link #toXml(Document)} for the expected format. May not
+   *     be <code>null</code>.
+   * @throws IllegalArgumentException If <code>source</code> is <code>null</code>.
    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
    */
   public PSAppDataMappingIdContext(Element source) throws PSUnknownNodeTypeException {
@@ -73,8 +69,7 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Get the <code>String</code> representation of this mapping's document
-   * mapping.
+   * Get the <code>String</code> representation of this mapping's document mapping.
    *
    * @return The text, never <code>null</code> or empty.
    */
@@ -83,8 +78,7 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Get the <code>String</code> representation of this mapping's backend
-   * mapping.
+   * Get the <code>String</code> representation of this mapping's backend mapping.
    *
    * @return The text, never <code>null</code> or empty.
    */
@@ -93,8 +87,7 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Get the type indicating which portion of this context's mapping is
-   * a literal id.
+   * Get the type indicating which portion of this context's mapping is a literal id.
    *
    * @return The type, one of the <code>TYPE_xxx</code> values.
    */
@@ -103,8 +96,7 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #isSameMapping(PSDataMapping, boolean)
+   * Convenience method that calls {@link #isSameMapping(PSDataMapping, boolean)
    * isSameMapping(mapping, false)}
    */
   public boolean isSameMapping(PSDataMapping mapping) {
@@ -112,20 +104,15 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Determines if the supplied mapping is the same mapping this context was
-   * constructed with.
+   * Determines if the supplied mapping is the same mapping this context was constructed with.
    *
    * @param mapping The mapping to check, may not be <code>null</code>.
-   * @param compareOriginal <code>true</code> to compare the mappings with
-   * which this object was originally constructed, <code>false</code> to use
-   * the current values one of which may have been updated by a call to
-   * {@link #updateCtxValue(Object)} or
-   * {@link #ctxValueUpdated(PSApplicationIdContext)}
-   *
+   * @param compareOriginal <code>true</code> to compare the mappings with which this object was
+   *     originally constructed, <code>false</code> to use the current values one of which may have
+   *     been updated by a call to {@link #updateCtxValue(Object)} or {@link
+   *     #ctxValueUpdated(PSApplicationIdContext)}
    * @return <code>true</code> if it is the same, <code>false</code> otherwise.
-   *
-   * @throws IllegalArgumentException if <code>mapping</code> is
-   * <code>null</code>.
+   * @throws IllegalArgumentException if <code>mapping</code> is <code>null</code>.
    */
   public boolean isSameMapping(PSDataMapping mapping, boolean compareOriginal) {
     if (mapping == null) throw new IllegalArgumentException("mapping may not be null");
@@ -171,12 +158,13 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Serializes this object's state to its XML representation.  The format is:
+   * Serializes this object's state to its XML representation. The format is:
    * <!--
    *    PSXApplicationIdContext is a place holder for the root node of the XML
    *    representation of any class derived from PSApplicationIdContext that
    *    is this context's parent context.
    * -->
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXAppDataMappingIdContext (PSXApplicationIDContext?)>
    * &lt;!ATTLIST PSXAppDataMappingIdContext
@@ -202,9 +190,8 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
   }
 
   /**
-   * Restores this object's state from its XML representation.  See
-   * {@link #toXml(Document)} for format of XML.  See
-   * {@link IPSDeployComponent#fromXml(Element)} for more info on method
+   * Restores this object's state from its XML representation. See {@link #toXml(Document)} for
+   * format of XML. See {@link IPSDeployComponent#fromXml(Element)} for more info on method
    * signature.
    */
   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
@@ -334,76 +321,62 @@ public class PSAppDataMappingIdContext extends PSApplicationIdContext {
    * Validates the supplied type is one of the <code>TYPE_XXX</code> values.
    *
    * @param type The value to check.
-   *
-   * @return <code>true</code> if the type is valid, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if the type is valid, <code>false</code> otherwise.
    */
   private boolean validateType(int type) {
     return type >= 0 && type < TYPE_ENUM.length;
   }
 
   /**
-   * Sets the value of the {@link #m_origMapping} member based on the mapping
-   * type.  Assumes all other member variables have been initialized.
+   * Sets the value of the {@link #m_origMapping} member based on the mapping type. Assumes all
+   * other member variables have been initialized.
    */
   private void setOrigMapping() {
     if (m_type == TYPE_BACK_END) m_origMapping = m_beMapping;
     else if (m_type == TYPE_XML) m_origMapping = m_docMapping;
   }
 
-  /**
-   * Root node name of this object's XML representation.
-   */
+  /** Root node name of this object's XML representation. */
   public static final String XML_NODE_NAME = "PSXAppDataMappingIdContext";
 
   /**
-   * Text representation of the mapping's backend mapping, never
-   * <code>null</code> or empty, modified by calls to <code>copyFrom()</code>
-   * and <code>updateCtxValue()</code>.
+   * Text representation of the mapping's backend mapping, never <code>null</code> or empty,
+   * modified by calls to <code>copyFrom()</code> and <code>updateCtxValue()</code>.
    */
   private String m_beMapping;
 
   /**
-   * Text representation of the mapping's document mapping, never
-   * <code>null</code> or empty, modified by calls to <code>copyFrom()</code>
-   * and <code>updateCtxValue()</code>.
+   * Text representation of the mapping's document mapping, never <code>null</code> or empty,
+   * modified by calls to <code>copyFrom()</code> and <code>updateCtxValue()</code>.
    */
   private String m_docMapping;
 
   /**
-   * The mapping this context represented at construction time,
-   * initially either the same as {@link #m_beMapping} or {@link #m_docMapping}
-   * depending on the value of {@link #m_type}, immutable after contruction.
-   * This value is not used as part of {@link #equals(Object)},
-   * {@link #hashCode()}, nor is it serialized to and from this object's
-   * XML representation.
+   * The mapping this context represented at construction time, initially either the same as {@link
+   * #m_beMapping} or {@link #m_docMapping} depending on the value of {@link #m_type}, immutable
+   * after contruction. This value is not used as part of {@link #equals(Object)}, {@link
+   * #hashCode()}, nor is it serialized to and from this object's XML representation.
    */
   private String m_origMapping;
 
   /**
-   * Indicates which part of the mapping this context specifies, one of the
-   * <code>TYPE_xxx</code> values.
+   * Indicates which part of the mapping this context specifies, one of the <code>TYPE_xxx</code>
+   * values.
    */
   private int m_type;
 
-  /**
-   * Constant to indicate type is for the back-end side of the mapping
-   */
+  /** Constant to indicate type is for the back-end side of the mapping */
   public static final int TYPE_BACK_END = 0;
 
-  /**
-   * Constant to indicate type is for the Xml side of the mapping
-   */
+  /** Constant to indicate type is for the Xml side of the mapping */
   public static final int TYPE_XML = 1;
 
-  /**
-   * Constant to indicate type is for the conditional of the mapping
-   */
+  /** Constant to indicate type is for the conditional of the mapping */
   public static final int TYPE_COND = 2;
 
   /**
-   * Enumeration of string constants representing each of the
-   * <code>TYPE_XXX</code> values, for Xml serialization.
+   * Enumeration of string constants representing each of the <code>TYPE_XXX</code> values, for Xml
+   * serialization.
    */
   public static final String[] TYPE_ENUM = {"Backend", "Xml", "Conditional"};
 

@@ -37,8 +37,7 @@ public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - see  {@link #HelpMessage}
-   *               for options.
+   * @param args command line arguments - see {@link #HelpMessage} for options.
    */
   public PSContentAdhocUsersContextTest(String[] args) {
     m_sArgs = args;

@@ -20,18 +20,14 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import javax.persistence.Transient;
 import org.w3c.dom.Element;
 
-/**
- * Base class for all versionable PSDbComponents.
- */
+/** Base class for all versionable PSDbComponents. */
 public abstract class PSVersionableDbComponent extends PSDbComponent {
-  /**
-   * Empty ctor.
-   */
+  /** Empty ctor. */
   protected PSVersionableDbComponent() {}
 
   /**
-   * Construct a versionable db component with key.  See
-   * {@link PSDbComponent#PSDbComponent(PSKey)} for details.
+   * Construct a versionable db component with key. See {@link PSDbComponent#PSDbComponent(PSKey)}
+   * for details.
    */
   protected PSVersionableDbComponent(PSKey locator) {
     super(locator);
@@ -42,9 +38,7 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
     super.fromXml(source);
   }
 
-  /**
-   * Just like {@link #equals(Object)}, except it considers the version.
-   */
+  /** Just like {@link #equals(Object)}, except it considers the version. */
   @Override
   public boolean equals(Object obj) {
     if (!super.equals(obj)) return false;
@@ -56,17 +50,13 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
     return true;
   }
 
-  /**
-   * Just like {@link #hashCode()}, except it considers the version.
-   */
+  /** Just like {@link #hashCode()}, except it considers the version. */
   @Override
   public int hashCode() {
     return super.hashCode() + m_version.hashCode();
   }
 
-  /**
-   * Just like {@link #equalsFull(Object)}, except it considers the version.
-   */
+  /** Just like {@link #equalsFull(Object)}, except it considers the version. */
   @Override
   public boolean equalsFull(Object obj) {
     if (!super.equalsFull(obj)) return false;
@@ -78,9 +68,7 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
     return true;
   }
 
-  /**
-   * Just like {@link #hashCodeFull()}, except it considers the version.
-   */
+  /** Just like {@link #hashCodeFull()}, except it considers the version. */
   @Override
   public int hashCodeFull() {
     return super.hashCodeFull() + m_version.hashCode();
@@ -89,7 +77,7 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
   /**
    * Get the version of this db component object.
    *
-   * @return version of object.  Never <code>null</code>.
+   * @return version of object. Never <code>null</code>.
    */
   public Integer getVersion() {
     return m_version;
@@ -107,8 +95,6 @@ public abstract class PSVersionableDbComponent extends PSDbComponent {
     m_version = version;
   }
 
-  /**
-   * The version information of this object.
-   */
+  /** The version information of this object. */
   @Transient protected Integer m_version = 0;
 }

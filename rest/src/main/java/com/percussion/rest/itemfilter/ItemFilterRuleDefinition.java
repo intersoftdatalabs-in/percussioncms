@@ -21,57 +21,47 @@ package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents an ItemFilter Rule.
- * Sunny Sal: "Rule definition, filter ka foundation!"
- */
+/** Represents an ItemFilter Rule. Sunny Sal: "Rule definition, filter ka foundation!" */
 @XmlRootElement(name = "ItemFilterRuleDefinition")
 @Schema(description = "Represents an ItemFilter Rule")
 public class ItemFilterRuleDefinition {
 
-    private Guid ruleId;
-    private String name;
-    private List<ItemFilterRuleDefinitionParam> params;
+  private Guid ruleId;
+  private String name;
+  private List<ItemFilterRuleDefinitionParam> params;
 
-    public ItemFilterRuleDefinition() {
-        // Default constructor
-    }
+  public ItemFilterRuleDefinition() {
+    // Default constructor
+  }
 
-    /**
-     * Gets the rule GUID.
-     */
-    public Optional<Guid> getRuleId() {
-        return Optional.ofNullable(ruleId);
-    }
+  /** Gets the rule GUID. */
+  public Optional<Guid> getRuleId() {
+    return Optional.ofNullable(ruleId);
+  }
 
-    public void setRuleId(Guid ruleId) {
-        this.ruleId = ruleId;
-    }
+  public void setRuleId(Guid ruleId) {
+    this.ruleId = ruleId;
+  }
 
-    /**
-     * Gets the rule name.
-     */
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  /** Gets the rule name. */
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * Gets the rule parameters.
-     */
-    public Optional<List<ItemFilterRuleDefinitionParam>> getParams() {
-        return Optional.ofNullable(params);
-    }
+  /** Gets the rule parameters. */
+  public Optional<List<ItemFilterRuleDefinitionParam>> getParams() {
+    return Optional.ofNullable(params);
+  }
 
-    public void setParams(List<ItemFilterRuleDefinitionParam> params) {
-        this.params = params;
-    }
+  public void setParams(List<ItemFilterRuleDefinitionParam> params) {
+    this.params = params;
+  }
 }

@@ -16,8 +16,5 @@
  */
 package com.percussion.server.config;
 
-/**
- * An interface to be implemented by all server configurations stored in the
- * system repository.
- */
+/** An interface to be implemented by all server configurations stored in the system repository. */
 public interface IPSConfig {}

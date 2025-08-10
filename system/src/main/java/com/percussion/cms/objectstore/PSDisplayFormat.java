@@ -36,19 +36,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Represents a single display format object defined by the system.
- * A display format lets describes how to render a search/view output.
+ * Represents a single display format object defined by the system. A display format lets describes
+ * how to render a search/view output.
  *
  * @see PSVersionableDbComponent
  */
 public class PSDisplayFormat extends PSVersionableDbComponent
     implements IPSCatalogSummary, IPSCloneTuner {
   /**
-   * Creates a new format with default values for the label, internal name,
-   * display type and community. The label defaults to something of the form
-   * 'Display Format n', where n is a small integer, that increments with
-   * every generated object. The type is set to TYPE_VIEWSANDSEARCHES and
-   * it is visible to all communities.
+   * Creates a new format with default values for the label, internal name, display type and
+   * community. The label defaults to something of the form 'Display Format n', where n is a small
+   * integer, that increments with every generated object. The type is set to TYPE_VIEWSANDSEARCHES
+   * and it is visible to all communities.
    */
   public PSDisplayFormat() throws PSCmsException {
     // setup primary key
@@ -88,9 +87,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     return getDisplayName();
   }
 
-  /**
-   * Required, if contained within collection
-   */
+  /** Required, if contained within collection */
   public PSDisplayFormat(Element src) throws PSUnknownNodeTypeException, PSCmsException {
     this();
     fromXml(src);
@@ -104,15 +101,13 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convience method to check whether this display format is valid for
-   * 'Related Content' Search results. A display format valid for related
-   * content search views is not valid for any other views because
-   * 'sys_variantid' does not apply for any other views.
+   * Convience method to check whether this display format is valid for 'Related Content' Search
+   * results. A display format valid for related content search views is not valid for any other
+   * views because 'sys_variantid' does not apply for any other views.
    *
-   * @return <code>true</code> if this display format contains
-   *         ({@link #COL_CONTENTTYPEID}or {@link #COL_CONTENTTYPENAME}) and
-   *         ({@link #COL_VARIANTID}or {@link #COL_VARIANTNAME}), otherwise
-   *         <code>false</code>
+   * @return <code>true</code> if this display format contains ({@link #COL_CONTENTTYPEID}or {@link
+   *     #COL_CONTENTTYPENAME}) and ({@link #COL_VARIANTID}or {@link #COL_VARIANTNAME}), otherwise
+   *     <code>false</code>
    */
   @SuppressWarnings("unchecked")
   public boolean isValidForRelatedContent() {
@@ -136,8 +131,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Get the name of the column by which to sort.
    *
-   * @return the column name by which to sort, may be <code>null</code>, never
-   *    empty.
+   * @return the column name by which to sort, may be <code>null</code>, never empty.
    */
   public String getSortedColumnName() {
     return getPropertyValue(PROP_SORT_COLUMN);
@@ -146,10 +140,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Is the supplied column sorted?
    *
-   * @param columnName the column name for which to test whether it is sorted
-   *    or not.
-   * @return <code>true</code> if the supplied column is sorted,
-   *    <code>false</code> otherwise.
+   * @param columnName the column name for which to test whether it is sorted or not.
+   * @return <code>true</code> if the supplied column is sorted, <code>false</code> otherwise.
    */
   public boolean isColumnSorted(String columnName) {
     boolean isSorted = false;
@@ -269,8 +261,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Whether or not this display format has a certain property
    *
-   * @return <code>true</code> if the property exists, otherwise
-   *    <code>false</code>.
+   * @return <code>true</code> if the property exists, otherwise <code>false</code>.
    */
   @SuppressWarnings("unchecked")
   public boolean hasProperty(String strName) {
@@ -289,8 +280,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convenience method that calls {@link #removeProperty(String,String,
-   * boolean) removeProperty(strName, null, false)}.
+   * Convenience method that calls {@link #removeProperty(String,String, boolean)
+   * removeProperty(strName, null, false)}.
    */
   public void removeProperty(String strName) {
     removeProperty(strName, null, false);
@@ -341,10 +332,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convience method to check whether this display format is valid for views
-   * and searches to use. A display format is valid for views and searches if
-   * the display format is not valid for related content. See the {@link
-   * #isValidForRelatedContent()} for more details.
+   * Convience method to check whether this display format is valid for views and searches to use. A
+   * display format is valid for views and searches if the display format is not valid for related
+   * content. See the {@link #isValidForRelatedContent()} for more details.
    *
    * @return <code>true</code> if it is valid, otherwise<code>false</code>
    */
@@ -353,10 +343,9 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convience method to check whether this display format is valid for folders
-   * to use. A display format is valid for folders if the display format is not
-   * valid for related content and does not contain any categorized columns.
-   * See the {@link #isValidForRelatedContent()} for more details.
+   * Convience method to check whether this display format is valid for folders to use. A display
+   * format is valid for folders if the display format is not valid for related content and does not
+   * contain any categorized columns. See the {@link #isValidForRelatedContent()} for more details.
    *
    * @return <code>true</code> if it is valid, otherwise<code>false</code>
    */
@@ -381,11 +370,10 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Get a string with a list of invalid column names for display formats
-   * used for folders.
+   * Get a string with a list of invalid column names for display formats used for folders.
    *
-   * @return the list of invalid column names for display formats used with
-   *    folders, never <code>null</code> or empty.
+   * @return the list of invalid column names for display formats used with folders, never <code>
+   *     null</code> or empty.
    */
   public String getInvalidFolderFieldNames() {
     StringBuilder names = new StringBuilder();
@@ -397,9 +385,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     return names.toString();
   }
 
-  /**
-   * Removes all columns which are not valid to be used with folders.
-   */
+  /** Removes all columns which are not valid to be used with folders. */
   @SuppressWarnings("unchecked")
   public void removeInvalidFolderColums() {
     List<IPSDbComponent> deletes = new ArrayList<>();
@@ -427,15 +413,12 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Convience method to determine if a given property has
-   * a given value.
+   * Convience method to determine if a given property has a given value.
    *
    * @param name property name never <code>null</code> or empty.
-   *
    * @param value value never <code>null</code> or empty.
-   *
-   * @return <code>true</code> if a property with <code>name</code>
-   *    has value <code>value</code>, <code>false</code> otherwise.
+   * @return <code>true</code> if a property with <code>name</code> has value <code>value</code>,
+   *     <code>false</code> otherwise.
    */
   @SuppressWarnings("unchecked")
   public boolean doesPropertyHaveValue(String name, String value) {
@@ -460,16 +443,13 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Gets the first value of the specified property.  If the property may have
-   * multiple values, use {@link #getProperties()} to determine the values
-   * directly.
+   * Gets the first value of the specified property. If the property may have multiple values, use
+   * {@link #getProperties()} to determine the values directly.
    *
-   * @param name the name of the property, may not be <code>null</code> or
-   * empty.  Name comparison is case-insensitive.
-   *
-   * @return The first value found for the specified property, or
-   * <code>null</code> if the property has no value or if the property is not
-   * found.
+   * @param name the name of the property, may not be <code>null</code> or empty. Name comparison is
+   *     case-insensitive.
+   * @return The first value found for the specified property, or <code>null</code> if the property
+   *     has no value or if the property is not found.
    */
   @SuppressWarnings("unchecked")
   public String getPropertyValue(String name) {
@@ -490,14 +470,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Checks whether this display format is allowed for supplied community or
-   * not.
+   * Checks whether this display format is allowed for supplied community or not.
    *
-   * @param communityId the community id to check, may not be <code>null</code>
-   * or empty.
-   *
-   * @return <code>true</code> if this display format is available for all
-   * communities or it is available for the supplied community id.
+   * @param communityId the community id to check, may not be <code>null</code> or empty.
+   * @return <code>true</code> if this display format is available for all communities or it is
+   *     available for the supplied community id.
    */
   public boolean isAllowedForCommunity(String communityId) {
     if (communityId == null || communityId.trim().length() == 0)
@@ -540,8 +517,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Get the display name of this display format object.
    *
-   * @return display name of object, never <code>null</code> or
-   *    empty.
+   * @return display name of object, never <code>null</code> or empty.
    */
   public String getDisplayName() {
     return m_strDisplayName;
@@ -606,9 +582,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Returns an iterator over
-   * {@link com.percussion.cms.objectstore.PSDFMultiProperty} objects to allow
-   * access to the properties.
+   * Returns an iterator over {@link com.percussion.cms.objectstore.PSDFMultiProperty} objects to
+   * allow access to the properties.
    *
    * @return list never <code>null</code> or empty.
    */
@@ -618,9 +593,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Returns the component collection columns for direct manipulation.
-   * Useful, as opposed to just the iterator, when adding or removing is
-   * necessary.
+   * Returns the component collection columns for direct manipulation. Useful, as opposed to just
+   * the iterator, when adding or removing is necessary.
    *
    * @return component collection never <code>null</code> or empty.
    */
@@ -629,9 +603,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Returns the component collection of properties for direct manipulation.
-   * Useful, as opposed to just the iterator, when adding or removing is
-   * necessary.
+   * Returns the component collection of properties for direct manipulation. Useful, as opposed to
+   * just the iterator, when adding or removing is necessary.
    *
    * @return component collection never <code>null</code> may be empty.
    */
@@ -640,9 +613,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Returns an iterator over
-   * {@link com.percussion.cms.objectstore.PSDisplayColumn} objects to allow
-   * access to the properties.
+   * Returns an iterator over {@link com.percussion.cms.objectstore.PSDisplayColumn} objects to
+   * allow access to the properties.
    *
    * @return list never <code>null</code> or empty.
    */
@@ -654,11 +626,8 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Determine the index of the specified column name.
    *
-   * @param columnName The name of the column, may not be <code>null</code> or
-   * empty.
-   *
-   * @return The index, or <code>-1</code> if the specified column is not
-   * found.
+   * @param columnName The name of the column, may not be <code>null</code> or empty.
+   * @return The index, or <code>-1</code> if the specified column is not found.
    */
   public int getColumnIndex(String columnName) {
     if (columnName == null || columnName.trim().length() == 0)
@@ -737,9 +706,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     }
 
     if (includeChildComps) {
-      /**
-       * Write out the component list(s) below
-       */
+      /** Write out the component list(s) below */
       Element elCols = m_columns.toXml(doc);
       root.appendChild(elCols);
 
@@ -827,12 +794,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Tests is the supplied columns contain the <code>sys_title</code>. If not
-   * it will be added as the first column.
+   * Tests is the supplied columns contain the <code>sys_title</code>. If not it will be added as
+   * the first column.
    *
-   * @param columns the display format columns to test, assumed not
-   *    <code>null</code>, may be empty. The supplied collection will be
-   *    modified if the <code>sys_title</code> column is not found.
+   * @param columns the display format columns to test, assumed not <code>null</code>, may be empty.
+   *     The supplied collection will be modified if the <code>sys_title</code> column is not found.
    */
   @SuppressWarnings("unchecked")
   private void addSystemTitle(PSDFColumns columns) {
@@ -862,14 +828,12 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Add the supplied community to the set of communities which have access
-   * to this object.
+   * Add the supplied community to the set of communities which have access to this object.
    *
-   * @param communityId To add a particular community, supply the community id
-   *    (not name), it will be added to the set of communities already
-   *    associated with this object. To allow anyone to access this object,
-   *    supply <code>null</code> or empty. Supplying <code>null</code> or
-   *    empty will clear all entries currently associated with this object.
+   * @param communityId To add a particular community, supply the community id (not name), it will
+   *     be added to the set of communities already associated with this object. To allow anyone to
+   *     access this object, supply <code>null</code> or empty. Supplying <code>null</code> or empty
+   *     will clear all entries currently associated with this object.
    */
   public void addCommunity(String communityId) {
     if (communityId == null || communityId.trim().length() == 0) {
@@ -891,7 +855,6 @@ public class PSDisplayFormat extends PSVersionableDbComponent
    * Remove a supplied community.
    *
    * @param strCommunity never <code>null</code> or empty.
-   *
    */
   public void removeCommunity(String strCommunity) {
     if (strCommunity == null || strCommunity.trim().length() == 0)
@@ -904,8 +867,7 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   /**
    * Get the internal name of this display format object.
    *
-   * @return display name of object, never <code>null</code> or
-   *    empty.
+   * @return display name of object, never <code>null</code> or empty.
    */
   public String getInternalName() {
     return m_strInternalName;
@@ -996,17 +958,13 @@ public class PSDisplayFormat extends PSVersionableDbComponent
     return IPSDbComponent.DBSTATE_UNMODIFIED;
   }
 
-  /**
-   * Temporary method to display the display formats in dropdown boxes.
-   */
+  /** Temporary method to display the display formats in dropdown boxes. */
   @Override
   public String toString() {
     return m_strDisplayName;
   }
 
-  /**
-   * Override to deal with all child components.
-   */
+  /** Override to deal with all child components. */
   @Override
   public void markForDeletion() {
     super.markForDeletion();
@@ -1015,12 +973,11 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Sets a list of allowed communites from the supplied all communities.
-   * This is a transient data and will not be saved into the persistent layer.
+   * Sets a list of allowed communites from the supplied all communities. This is a transient data
+   * and will not be saved into the persistent layer.
    *
-   * @param allCommunities a list of all communites, never <code>null</code>,
-   *   but may be empty. It maps the GUID of the communities to their names.
-   *
+   * @param allCommunities a list of all communites, never <code>null</code>, but may be empty. It
+   *     maps the GUID of the communities to their names.
    * @see #getAllowedCommunities()
    */
   public void setAllowedCommunities(Map<IPSGuid, String> allCommunities) {
@@ -1037,25 +994,19 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * Gets a list of allowed communities, which is a transient data and will not
-   * be saved into the persistent layer. Must call
-   * {@link #setAllowedCommunities(Map)} first and must not modify the
+   * Gets a list of allowed communities, which is a transient data and will not be saved into the
+   * persistent layer. Must call {@link #setAllowedCommunities(Map)} first and must not modify the
    * properties afterwards.
    *
-   * @return a list of allowed communities, which maps the communities
-   *    GUIDs to their names. It may be <code>null</code> if has not been set
-   *    by {@link #setAllowedCommunities(Map)}.
-   *
+   * @return a list of allowed communities, which maps the communities GUIDs to their names. It may
+   *     be <code>null</code> if has not been set by {@link #setAllowedCommunities(Map)}.
    * @see #setAllowedCommunities(Map)
    */
   public Map<IPSGuid, String> getAllowedCommunities() {
     return m_allowedCommunities;
   }
 
-  /**
-   * Resets the allowed community list. This must be called when modifying
-   * the properties.
-   */
+  /** Resets the allowed community list. This must be called when modifying the properties. */
   private void resetAllowedCommunities() {
     m_allowedCommunities = null;
   }
@@ -1084,57 +1035,47 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   }
 
   /**
-   * A list of allowed communities. It is a transient object and is not
-   * considered as part of the object. It is typically used by the
-   * webservice layer to get name/value pairs of the allowed communities.
-   * <p>
-   * It is set by {@link #setAllowedCommunities(Map)} and modified by any of
-   * the property changes. It is <code>null</code> if has not set yet.
+   * A list of allowed communities. It is a transient object and is not considered as part of the
+   * object. It is typically used by the webservice layer to get name/value pairs of the allowed
+   * communities.
+   *
+   * <p>It is set by {@link #setAllowedCommunities(Map)} and modified by any of the property
+   * changes. It is <code>null</code> if has not set yet.
    */
   private Map<IPSGuid, String> m_allowedCommunities = null;
 
-  /** property list, initialized in ctor, never <code>null</code>, may be
-   * empty.
-   */
+  /** property list, initialized in ctor, never <code>null</code>, may be empty. */
   private PSDFProperties m_properties;
 
-  /**
-   * column list, initialized in ctor, never <code>null</code>, may be
-   * empty.
-   */
+  /** column list, initialized in ctor, never <code>null</code>, may be empty. */
   private PSDFColumns m_columns;
 
   /**
-   * Display name attribute of object. Never <code>null</code> or empty. Set via
-   * <code>fromXml</code> and accessible via <code>getDisplayName</code> and
-   * <code>setDisplayName</code>.
+   * Display name attribute of object. Never <code>null</code> or empty. Set via <code>fromXml
+   * </code> and accessible via <code>getDisplayName</code> and <code>setDisplayName</code>.
    */
   private String m_strDisplayName = "";
 
   /**
-   * Description attribute of object. Never <code>null</code> but may be empty.
-   * Set via <code>fromXml</code> and accessible via <code>getDisplayName</code>
-   * and <code>setDisplayName</code>.
+   * Description attribute of object. Never <code>null</code> but may be empty. Set via <code>
+   * fromXml</code> and accessible via <code>getDisplayName</code> and <code>setDisplayName</code>.
    */
   private String m_strDescription = "";
 
   /**
-   * Internal name attribute of object. Never <code>null</code> but
-   * may be empty. Set via <code>fromXml</code> and accessible via
-   * <code>getInternalName</code> and <code>setInternalName</code>.
+   * Internal name attribute of object. Never <code>null</code> but may be empty. Set via <code>
+   * fromXml</code> and accessible via <code>getInternalName</code> and <code>setInternalName</code>
+   * .
    */
   private String m_strInternalName = "";
 
   /**
-   * This value is appended to the default name when a new instance is
-   * created. Use the current value, then increment. Starts at 1.
+   * This value is appended to the default name when a new instance is created. Use the current
+   * value, then increment. Starts at 1.
    */
   private static int ms_nameCounter = 1;
 
-  /**
-   * An array of field names which are not valid to use as display format
-   * columns for folders.
-   */
+  /** An array of field names which are not valid to use as display format columns for folders. */
   private static String[] ms_invalidFolderFields = {
     IPSHtmlParameters.SYS_FOLDERID, IPSHtmlParameters.SYS_SITEID
   };
@@ -1154,57 +1095,39 @@ public class PSDisplayFormat extends PSVersionableDbComponent
   // public static final String PROP_FOLDER = "folders";
 
   /**
-   * Defines the column used for initial sorting of results rendered by
-   * a display format.  Value is the column name as a <code>String</code>.
+   * Defines the column used for initial sorting of results rendered by a display format. Value is
+   * the column name as a <code>String</code>.
    */
   public static final String PROP_SORT_COLUMN = "sortColumn";
 
   /**
-   * Defines the direction used for initial sorting of results rendered by
-   * a display format.  Values is one of the <code>SORT_XXX</code> values.
+   * Defines the direction used for initial sorting of results rendered by a display format. Values
+   * is one of the <code>SORT_XXX</code> values.
    */
   public static final String PROP_SORT_DIRECTION = "sortDirection";
 
-  /**
-   * Value for the {@link #PROP_SORT_DIRECTION} property to indicate an
-   * ascending sort.
-   */
+  /** Value for the {@link #PROP_SORT_DIRECTION} property to indicate an ascending sort. */
   public static final String SORT_ASCENDING = "sortAscending";
 
-  /**
-   * Value for the {@link #PROP_SORT_DIRECTION} property to indicate a
-   * descending sort.
-   */
+  /** Value for the {@link #PROP_SORT_DIRECTION} property to indicate a descending sort. */
   public static final String SORT_DESCENDING = "sortDescending";
 
-  /**
-   * The constant that defines the name of the 'sys_contenttypeid' column.
-   */
+  /** The constant that defines the name of the 'sys_contenttypeid' column. */
   public static final String COL_CONTENTTYPEID = "sys_contenttypeid";
 
-  /**
-   * The constant that defines the name of the 'sys_contenttypename' column.
-   */
+  /** The constant that defines the name of the 'sys_contenttypename' column. */
   public static final String COL_CONTENTTYPENAME = "sys_contenttypename";
 
-  /**
-   * The constant that defines the name of the 'sys_variantid' column.
-   */
+  /** The constant that defines the name of the 'sys_variantid' column. */
   public static final String COL_VARIANTID = "sys_variantid";
 
-  /**
-   * The constant that defines the name of the 'sys_variantname' column.
-   */
+  /** The constant that defines the name of the 'sys_variantname' column. */
   public static final String COL_VARIANTNAME = "sys_variantname";
 
-  /**
-   * The default field name for the title column added if non was specified.
-   */
+  /** The default field name for the title column added if non was specified. */
   private static final String SYS_TITLE = "sys_title";
 
-  /**
-   * The default field label for the title column used if non was specified.
-   */
+  /** The default field label for the title column used if non was specified. */
   private static final String SYS_TITEL_LABEL = "System Title:";
 
   public static final String XML_NODE_INTERNALNAME = "INTERNALNAME";

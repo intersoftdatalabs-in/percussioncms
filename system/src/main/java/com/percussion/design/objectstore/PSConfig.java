@@ -39,8 +39,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * The class that represents a row in the PSX_RXCONFIGURATIONS table, typically
- * a rx configuration with its state.
+ * The class that represents a row in the PSX_RXCONFIGURATIONS table, typically a rx configuration
+ * with its state.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSConfig")
@@ -49,24 +49,18 @@ public class PSConfig extends PSComponent {
   /**
    * Constructs the configuration from its XML representation.
    *
-   * @param source the XML element node to construct this object from,
-   *    assumed not <code>null</code>. A document conforming to
-   *    sys_psxServerConfig/getConfigs resource is expected.
-   * @param parent the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param source the XML element node to construct this object from, assumed not <code>null</code>
+   *     . A document conforming to sys_psxServerConfig/getConfigs resource is expected.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSConfig(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(source, parent, parentComponents);
   }
 
-  /**
-   * A default constructor is required by hibernate
-   */
+  /** A default constructor is required by hibernate */
   private PSConfig() {}
 
   /**
@@ -90,8 +84,7 @@ public class PSConfig extends PSComponent {
   /**
    * Is this an XML configuration?
    *
-   * @return <code>true</code> if this is an XML configuration,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this is an XML configuration, <code>false</code> otherwise.
    */
   public boolean isXML() {
     return m_type.equalsIgnoreCase("xml");
@@ -100,8 +93,7 @@ public class PSConfig extends PSComponent {
   /**
    * Is this a property configuration?
    *
-   * @return <code>true</code> if this is a property configuration,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this is a property configuration, <code>false</code> otherwise.
    */
   public boolean isProperty() {
     return m_type.equalsIgnoreCase("property");
@@ -110,8 +102,7 @@ public class PSConfig extends PSComponent {
   /**
    * Get the name of the locker.
    *
-   * @return the locker name, never <code>null</code> but might be empty
-   *    if this is not locked.
+   * @return the locker name, never <code>null</code> but might be empty if this is not locked.
    */
   public String getLocker() {
     return m_locker == null ? "" : m_locker;
@@ -120,9 +111,7 @@ public class PSConfig extends PSComponent {
   /**
    * Sets the config as locked by the specified locker.
    *
-   * @param locker the user holding the lock, may not be <code>null</code> or
-   * empty.
-   *
+   * @param locker the user holding the lock, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if locker is <code>null</code> or empty.
    */
   public void lock(String locker) {
@@ -133,9 +122,7 @@ public class PSConfig extends PSComponent {
     m_locker = locker;
   }
 
-  /**
-   * Sets the config as not locked.
-   */
+  /** Sets the config as not locked. */
   public void releaseLock() {
     m_locked = NO;
     m_locker = "";
@@ -162,8 +149,8 @@ public class PSConfig extends PSComponent {
   }
 
   /**
-   * Converts the supplied configuration to either to a <code>Document</code>
-   * or <code>Properties</code> object based on this configuration type.
+   * Converts the supplied configuration to either to a <code>Document</code> or <code>Properties
+   * </code> object based on this configuration type.
    *
    * @param config the config as a <code>String</code>, may not be <code>null
    * </code> or empty.
@@ -181,8 +168,7 @@ public class PSConfig extends PSComponent {
   /**
    * Sets the configuration document.
    *
-   * @param doc the document containing the configuration, assumed not
-   *    <code>null</code>.
+   * @param doc the document containing the configuration, assumed not <code>null</code>.
    */
   public void setConfig(Document doc) {
     m_configObj = doc;
@@ -192,8 +178,7 @@ public class PSConfig extends PSComponent {
   /**
    * Sets the configuration properties.
    *
-   * @param props the properties containing the configuration, assumed
-   *    not <code>null</code>.
+   * @param props the properties containing the configuration, assumed not <code>null</code>.
    */
   public void setConfig(Properties props) {
     m_configObj = props;
@@ -203,15 +188,12 @@ public class PSConfig extends PSComponent {
   /**
    * Reads the configuration from its XML representation.
    *
-   * @param source the XML element node to construct this object from,
-   *    assumed not <code>null</code> and of correct type. An element
-   *    produced by the sys_psxServerConfig/getConfigs resource is expected.
-   * @param parent the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param source the XML element node to construct this object from, assumed not <code>null</code>
+   *     and of correct type. An element produced by the sys_psxServerConfig/getConfigs resource is
+   *     expected.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public void fromXml(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -289,8 +271,7 @@ public class PSConfig extends PSComponent {
   /**
    * Creates a document from the supplied string.
    *
-   * @param source the String to convert into a document, assumed not
-   *    <code>null</code>.
+   * @param source the String to convert into a document, assumed not <code>null</code>.
    * @return the XML document created, never <code>null</code>.
    * @throws IOException if anything goes wrong reading the XML string.
    * @throws SAXException if anything goes wrong parsing the XML string.
@@ -311,11 +292,9 @@ public class PSConfig extends PSComponent {
   /**
    * Creates a properties object from the supplied string.
    *
-   * @param source the String to convert into a properties object, assumed
-   *    not <code>null</code>.
+   * @param source the String to convert into a properties object, assumed not <code>null</code>.
    * @return the Properties object create, never <code>null</code>.
-   * @throws IOException if anything goes wrong loading the properties
-   *    from the supplied string.
+   * @throws IOException if anything goes wrong loading the properties from the supplied string.
    */
   private Properties fromPropertyString(String source) throws IOException {
     String data = null;
@@ -329,11 +308,10 @@ public class PSConfig extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for the given object.
+   * This method is called to create an XML element node with the appropriate format for the given
+   * object.
    *
-   * @param doc the document to use to create the new XML element, assumed
-   *    not <code>null</code>.
+   * @param doc the document to use to create the new XML element, assumed not <code>null</code>.
    * @return the created XML element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -373,10 +351,7 @@ public class PSConfig extends PSComponent {
     return m_name.hashCode();
   }
 
-  /**
-   * The configuration name. Initialized in ctor, never <code>null</code>
-   * or empty after that.
-   */
+  /** The configuration name. Initialized in ctor, never <code>null</code> or empty after that. */
   @Id
   @Column(name = "NAME")
   private String m_name = null;
@@ -387,63 +362,50 @@ public class PSConfig extends PSComponent {
   private Integer version;
 
   /**
-   * The configuration file type. Initialized in ctor, never
-   * <code>null</code> or empty after that.
+   * The configuration file type. Initialized in ctor, never <code>null</code> or empty after that.
    */
   @Basic
   @Column(name = "TYPE")
   private String m_type = null;
 
   /**
-   * A flag to indicate whether or not the configuration is locked,
-   * never <code>null</code>, defaults to unlocked.
+   * A flag to indicate whether or not the configuration is locked, never <code>null</code>,
+   * defaults to unlocked.
    */
   @Basic
   @Column(name = "LOCKED")
   private String m_locked = NO;
 
-  /**
-   * The name of the locker, might be empty if not locked bu never
-   * <code>null</code>.
-   */
+  /** The name of the locker, might be empty if not locked bu never <code>null</code>. */
   @Basic
   @Column(name = "LOCKER")
   private String m_locker = "";
 
   /**
-   * The string representation of the configuration content. Initialized in
-   * ctor, never <code>null</code> after that.
+   * The string representation of the configuration content. Initialized in ctor, never <code>null
+   * </code> after that.
    */
   @Lob
   @Column(name = "CONFIGURATION")
   private String m_configString = null;
 
   /**
-   * The object representation of the configuration. Initialized in
-   * ctor, never <code>null</code> after that.
+   * The object representation of the configuration. Initialized in ctor, never <code>null</code>
+   * after that.
    */
   @Transient private Object m_configObj = null;
 
-  /**
-   * A description for this server configuration, might be empty but
-   * never <code>null</code>.
-   */
+  /** A description for this server configuration, might be empty but never <code>null</code>. */
   @Basic
   @Column(name = "DESCRIPTION")
   private String m_description = "";
 
-  /**
-   * The constant to indicate the 'yes' value for a member.
-   */
+  /** The constant to indicate the 'yes' value for a member. */
   private static final String YES = "yes";
 
-  /**
-   * The constant to indicate the 'no' value for a member.
-   */
+  /** The constant to indicate the 'no' value for a member. */
   private static final String NO = "no";
 
-  /**
-   * The tag name of the xml element representation of this object.
-   */
+  /** The tag name of the xml element representation of this object. */
   public static final String RX_CONFIGURATIONS_ELEM = "PSX_RXCONFIGURATIONS";
 }

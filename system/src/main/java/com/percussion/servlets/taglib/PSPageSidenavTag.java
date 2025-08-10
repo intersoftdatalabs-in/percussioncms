@@ -27,14 +27,10 @@ import javax.servlet.jsp.JspWriter;
  * @author dougrand
  */
 public class PSPageSidenavTag extends PSPageBaseTag {
-  /**
-   * The name of the component
-   */
+  /** The name of the component */
   protected String m_component;
 
-  /**
-   * The name of the page
-   */
+  /** The name of the page */
   protected String m_page;
 
   @Override

@@ -26,33 +26,25 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSUpdatePipe class extends the PSPipe class providing support for
- * insert, update and/or delete enabled pipes.
+ * The PSUpdatePipe class extends the PSPipe class providing support for insert, update and/or
+ * delete enabled pipes.
  *
  * @see PSDataSet
  * @see PSDataSet#getPipe
  * @see PSPipe
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUpdatePipe extends PSPipe {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSUpdatePipe(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -60,22 +52,18 @@ public class PSUpdatePipe extends PSPipe {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSUpdatePipe() {
     super();
   }
 
   /**
-   * Constructs a new update pipe with the specified name. The pipe is
-   * initially empty -- that is, no mappings, exits, etc.
+   * Constructs a new update pipe with the specified name. The pipe is initially empty -- that is,
+   * no mappings, exits, etc.
    *
-   * @param name    the name of the pipe. This must be a unique
-   *                name within the data set. If it is non-unique,
-   *                an exception will be thrown when the application
-   *                is saved on the E2 server. This is limited to 50
-   *                characters.
+   * @param name the name of the pipe. This must be a unique name within the data set. If it is
+   *     non-unique, an exception will be thrown when the application is saved on the E2 server.
+   *     This is limited to 50 characters.
    */
   public PSUpdatePipe(java.lang.String name) {
     super();
@@ -84,31 +72,28 @@ public class PSUpdatePipe extends PSPipe {
   }
 
   /**
-   * Get the data synchronizer associated with this pipe. The data
-   * synchronizer defines how data modifications will be applied.
+   * Get the data synchronizer associated with this pipe. The data synchronizer defines how data
+   * modifications will be applied.
    *
-   * @return     the data synchronizer
+   * @return the data synchronizer
    */
   public PSDataSynchronizer getDataSynchronizer() {
     return m_dataSynchronizer;
   }
 
   /**
-   * Overwrite the data synchronizer object with the specified data
-   * synchronizer object. If you only want to modify some settings, use
-   * getDataSynchronizer to get the existing object and modify the returned
-   * object directly.
-   * <p>
-   * The data synchronizer defines how data modifications will be applied.
-   * <p>
-   * The PSDataSynchronizer object supplied to this method will be stored
-   * with the PSPipe object. Any subsequent changes made to the object by
-   * the caller will also effect the pipe.
+   * Overwrite the data synchronizer object with the specified data synchronizer object. If you only
+   * want to modify some settings, use getDataSynchronizer to get the existing object and modify the
+   * returned object directly.
    *
-   * @param synchronizer   the new data synchronizer
+   * <p>The data synchronizer defines how data modifications will be applied.
    *
-   * @see                  #getDataSynchronizer
-   * @see                  PSDataSynchronizer
+   * <p>The PSDataSynchronizer object supplied to this method will be stored with the PSPipe object.
+   * Any subsequent changes made to the object by the caller will also effect the pipe.
+   *
+   * @param synchronizer the new data synchronizer
+   * @see #getDataSynchronizer
+   * @see PSDataSynchronizer
    */
   public void setDataSynchronizer(PSDataSynchronizer synchronizer) {
     m_dataSynchronizer = synchronizer;
@@ -122,12 +107,10 @@ public class PSUpdatePipe extends PSPipe {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param pipe a valid PSUpdatePipe. If null, a IllegalArgumentException is
-   * thrown.
+   * @param pipe a valid PSUpdatePipe. If null, a IllegalArgumentException is thrown.
    */
   public void copyFrom(PSUpdatePipe pipe) {
     copyFrom((PSPipe) pipe);
@@ -138,10 +121,11 @@ public class PSUpdatePipe extends PSPipe {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXUpdatePipe XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXUpdatePipe XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       The PSXUpdatePipe provides support for insert, update and/or
@@ -188,7 +172,7 @@ public class PSUpdatePipe extends PSPipe {
    *    &lt;!ELEMENT InputDataExits   (PSXExitCall*)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXUpdatePipe XML element node
+   * @return the newly created PSXUpdatePipe XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -220,12 +204,10 @@ public class PSUpdatePipe extends PSPipe {
   }
 
   /**
-   * This method is called to populate a PSUpdatePipe Java object
-   * from a PSXUpdatePipe XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSUpdatePipe Java object from a PSXUpdatePipe XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXUpdatePipe
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXUpdatePipe
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -321,18 +303,15 @@ public class PSUpdatePipe extends PSPipe {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     super.validate(cxt);

@@ -193,9 +193,7 @@ public class PSManagedNavService implements IPSManagedNavService {
   /**
    * Gets the folder that is related to the specified navigation node.
    *
-   * @param navonId the ID of the navigation node, assumed not
-   * <code>null</code>.
-   *
+   * @param navonId the ID of the navigation node, assumed not <code>null</code>.
    * @return the summary of the related folder, never <code>null</code>.
    */
   private PSComponentSummary getNavonFolder(IPSGuid navonId) {
@@ -256,14 +254,13 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * Gets the relationship where the owner is the target node, dependent is
-   * the source node and the slot property is the menu slot.
+   * Gets the relationship where the owner is the target node, dependent is the source node and the
+   * slot property is the menu slot.
    *
    * @param srcId the ID of the source node, assumed not <code>null</code>.
    * @param targetId the ID of the target node, assumed not <code>null</code>.
-   *
-   * @return the relationship if exist; otherwise return <code>null</code> if
-   * the source is not a child of the target node.
+   * @return the relationship if exist; otherwise return <code>null</code> if the source is not a
+   *     child of the target node.
    */
   private PSAaRelationship getChildNavonRelationship(IPSGuid srcId, IPSGuid targetId) {
     List<PSAaRelationship> rels =
@@ -278,14 +275,14 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * Moves the source navigation node (and its related folder) to the target
-   * navigation node (and its related folder).
+   * Moves the source navigation node (and its related folder) to the target navigation node (and
+   * its related folder).
    *
    * @param srcId the ID of the source navigation node, assumed not <code>null</code>.
    * @param srcParentId the parent ID of the source navigation node. It may be <code>null</code>.
    * @param targetId the ID of the target navigation node, assumed not <code>null</code>.
-   * @param index the target location of the source node. It is <code>0</code>
-   * based, <code>-1</code> to append at the end of the target node.
+   * @param index the target location of the source node. It is <code>0</code> based, <code>-1
+   *     </code> to append at the end of the target node.
    */
   private void moveNavonAndFolder(
       PSLegacyGuid srcId, PSLegacyGuid srcParentId, PSLegacyGuid targetId, int index) {
@@ -330,7 +327,9 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * This API should return 1 live parent, if returns null, that is a problem with corrupted data and needs to be looked at
+   * This API should return 1 live parent, if returns null, that is a problem with corrupted data
+   * and needs to be looked at
+   *
    * @param childId
    * @return
    * @throws PSCmsException
@@ -356,13 +355,12 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * Make sure the target folder does not have a child with the
-   * same name as the source folder.
+   * Make sure the target folder does not have a child with the same name as the source folder.
    *
-   * @param srcFolder the source folder that contains the source navon,
-   * assumed not <code>null</code>.
-   * @param targetFolder the target folder that contains the target navon,
-   * assumed not <code>null</code>.
+   * @param srcFolder the source folder that contains the source navon, assumed not <code>null
+   *     </code>.
+   * @param targetFolder the target folder that contains the target navon, assumed not <code>null
+   *     </code>.
    */
   private void validateMoveRequest(PSComponentSummary srcFolder, PSComponentSummary targetFolder) {
     PSLegacyGuid tgtId = new PSLegacyGuid(targetFolder.getHeadLocator());
@@ -682,7 +680,6 @@ public class PSManagedNavService implements IPSManagedNavService {
    *
    * @param req the request context, assumed not <code>null</code>.
    * @param folderPath the folder path, assumed not blank.
-   *
    * @return the locator of the specified folder, not <code>null</code>.
    */
   private PSLocator getFolderIdFromPath(
@@ -820,13 +817,11 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * Gets the AA relationships that link the specified navigation node
-   * (navon / navtree) to its landing pages.
-   * Note, this may return more than one links, but there should not be more than
-   * one such link in a "right" environment.
+   * Gets the AA relationships that link the specified navigation node (navon / navtree) to its
+   * landing pages. Note, this may return more than one links, but there should not be more than one
+   * such link in a "right" environment.
    *
    * @param nodeId the ID of navigation node, assumed not <code>null</code>.
-   *
    * @return the AA relationships, it may be <code>null</code> if there is no such link.
    */
   private List<PSAaRelationship> getLandingPageLinks(IPSGuid nodeId) {
@@ -995,9 +990,8 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   /**
-   * Gets the request context, which contains either the current servlet
-   * request or the default request if the current thread is not initiated
-   * from a servlet request.
+   * Gets the request context, which contains either the current servlet request or the default
+   * request if the current thread is not initiated from a servlet request.
    *
    * @return the request context, never <code>null</code>.
    */
@@ -1048,7 +1042,6 @@ public class PSManagedNavService implements IPSManagedNavService {
    * Gets the slot identified by the specified name.
    *
    * @param name the slot name, assumed not <code>null</code>.
-   *
    * @return the slot, never <code>null</code>.
    * @throws PSNavException if the slot could not be found.
    */
@@ -1062,65 +1055,49 @@ public class PSManagedNavService implements IPSManagedNavService {
     }
   }
 
-  /**
-   * The cached navigation configuration, initialized by
-   * {@link #getNavConfig()}.
-   */
+  /** The cached navigation configuration, initialized by {@link #getNavConfig()}. */
   private PSNavConfig navConfig = null;
 
-  /**
-   * The content service, initialized by constructor.
-   */
+  /** The content service, initialized by constructor. */
   private IPSContentWs contentWs;
 
-  /**
-   * The content design service, initialized by constructor.
-   */
+  /** The content design service, initialized by constructor. */
   private IPSContentDesignWs contentDsWs;
 
-  /**
-   * The assembly service, initialized by constructor.
-   */
+  /** The assembly service, initialized by constructor. */
   private IPSAssemblyService asmService;
 
-  /**
-   * The guid manager, initialized by constructor.
-   */
+  /** The guid manager, initialized by constructor. */
   private IPSGuidManager guidMgr;
 
   /**
-   * The service used to retrieve legacy contents such as component summaries,
-   * initialized by constructor.
+   * The service used to retrieve legacy contents such as component summaries, initialized by
+   * constructor.
    */
   private IPSCmsObjectMgr cmsMgr;
 
   /**
-   * The menu slot defined in the navigation configuration.
-   * Set in {@link #getMenuSlot()}.  Never <code>null</code> after that.
+   * The menu slot defined in the navigation configuration. Set in {@link #getMenuSlot()}. Never
+   * <code>null</code> after that.
    */
   private IPSTemplateSlot menuSlot;
 
   /**
-   * The landing page slot defined in the navigation configuration.
-   * Set in {@link #getLandingPageSlot()}.  Never <code>null</code> after
-   * that.
+   * The landing page slot defined in the navigation configuration. Set in {@link
+   * #getLandingPageSlot()}. Never <code>null</code> after that.
    */
   private IPSTemplateSlot landingPageSlot;
 
-  /**
-   * Logger for this service.
-   */
+  /** Logger for this service. */
   private static final Logger log = LogManager.getLogger(IPSConstants.NAVIGATION_LOG);
 
   /**
-   * The dummy template ID, used for create AA relationship between navigation nodes
-   * where the template is not used for rendering the navigation node.
+   * The dummy template ID, used for create AA relationship between navigation nodes where the
+   * template is not used for rendering the navigation node.
    */
   private static Long DUMMY_TEMPLATEID = -2L;
 
-  /**
-   * Represents the Nav Tree content type name
-   */
+  /** Represents the Nav Tree content type name */
   private static final String CT_NAV_TREE = "percNavTree";
 
   private static final String FOLDER_RELATE_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;

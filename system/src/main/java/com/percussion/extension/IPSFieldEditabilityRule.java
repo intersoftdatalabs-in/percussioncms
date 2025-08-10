@@ -17,29 +17,26 @@
 package com.percussion.extension;
 
 /**
- * This interface must be implemented by extensions that are used to control
- * whether a field is marked as read-only or not. It is a marker interface, it
- * doesn't actually expose any functionality.
- * <p>
- * The <code>processUdf()</code> method must return an object of type
- * <code>Boolean</code> indicating <code>true</code> if the field should be
- * marked read-only, <code>false</code> if the field is editable.
- * <p>
- * At run-time, the extension handler that handles this extension will construct
- * an instance of this class. This occurs when Rhythmyx calls the
- * {@link IPSExtensionHandler#prepare <code>prepare</code>} method of the
- * {@link IPSExtensionHandler <code>IPSExtensionHandler</code>} managing the
- * extension.
- * <p>
- * <em>NOTE:</em> The <code>IPSFieldEditabilityFilter</code> implementation
- * must be safe for multi-threaded use. One instance of the class will be
- * defined for each usage in an application. For example, if the UDF is defined
- * to act in two separate mappings within the data mapper, two separate
- * instances of the class will be created. However, the same instance may be
- * accessed simultaneously by several threads. Each thread will have its own set
- * of context data. As such, any execution specific variables should be defined
- * within the method (not the class). Another alternative is to use variables of
- * type <code>java.lang.ThreadLocal</code> to define thread specific copies of
- * the variable.
+ * This interface must be implemented by extensions that are used to control whether a field is
+ * marked as read-only or not. It is a marker interface, it doesn't actually expose any
+ * functionality.
+ *
+ * <p>The <code>processUdf()</code> method must return an object of type <code>Boolean</code>
+ * indicating <code>true</code> if the field should be marked read-only, <code>false</code> if the
+ * field is editable.
+ *
+ * <p>At run-time, the extension handler that handles this extension will construct an instance of
+ * this class. This occurs when Rhythmyx calls the {@link IPSExtensionHandler#prepare
+ * <code>prepare</code>} method of the {@link IPSExtensionHandler <code>IPSExtensionHandler</code>}
+ * managing the extension.
+ *
+ * <p><em>NOTE:</em> The <code>IPSFieldEditabilityFilter</code> implementation must be safe for
+ * multi-threaded use. One instance of the class will be defined for each usage in an application.
+ * For example, if the UDF is defined to act in two separate mappings within the data mapper, two
+ * separate instances of the class will be created. However, the same instance may be accessed
+ * simultaneously by several threads. Each thread will have its own set of context data. As such,
+ * any execution specific variables should be defined within the method (not the class). Another
+ * alternative is to use variables of type <code>java.lang.ThreadLocal</code> to define thread
+ * specific copies of the variable.
  */
 public interface IPSFieldEditabilityRule extends IPSUdfProcessor {}

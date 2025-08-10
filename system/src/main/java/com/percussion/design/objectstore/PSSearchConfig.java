@@ -29,55 +29,51 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This object represents the configuration of the search engine in the server.
- * It encompases information including whether convera is configured, where the
- * server is located and what the configuration file is.
- * <p>Certain properties are accessed using {@link #getCustomProp(String)}.
- * Constants are provided for property names known to this class in the form
- * <code><i>TYPE</i>_KEY</code>. In an ideal world, these keys would not be
- * here because they are implementation specific and this object attempts to
- * be unaware of the implementation.
+ * This object represents the configuration of the search engine in the server. It encompases
+ * information including whether convera is configured, where the server is located and what the
+ * configuration file is.
+ *
+ * <p>Certain properties are accessed using {@link #getCustomProp(String)}. Constants are provided
+ * for property names known to this class in the form <code><i>TYPE</i>_KEY</code>. In an ideal
+ * world, these keys would not be here because they are implementation specific and this object
+ * attempts to be unaware of the implementation.
  */
 public class PSSearchConfig extends PSComponent {
   /**
-   * This is the name of the custom property that contains the default value
-   * for the synonym expansion. The presence of this property is optional.
-   * If present and has a value of yes then the query is expanded with synonyms
-   * before searching otherwise not.
+   * This is the name of the custom property that contains the default value for the synonym
+   * expansion. The presence of this property is optional. If present and has a value of yes then
+   * the query is expanded with synonyms before searching otherwise not.
    */
   public static final String SYNONYM_EXPANSION = "synonym_expansion";
 
   /**
-   * This is the name of the custom property that contains the directory
-   * of lucene index files. The presence of this property is
-   * required if the search engine is enabled.
+   * This is the name of the custom property that contains the directory of lucene index files. The
+   * presence of this property is required if the search engine is enabled.
    */
   public static final String INDEXROOTDIR_KEY = "indexRootDir";
 
-  /**
-   * Key to properties for the delay time
-   */
+  /** Key to properties for the delay time */
   public static final String PROPAGATION_DELAY = "propagation_delay";
 
   /**
-   * This is the name of the custom property that contains a flag indicating
-   * whether the content types should be indexed during server startup.  A
-   * value of yes or true will cause the content to be indexed on startup.
-   * This property will be set to yes by default for new installs, but will be
-   * set to no for upgrades.
+   * This is the name of the custom property that contains a flag indicating whether the content
+   * types should be indexed during server startup. A value of yes or true will cause the content to
+   * be indexed on startup. This property will be set to yes by default for new installs, but will
+   * be set to no for upgrades.
    */
   public static final String INDEX_ON_STARTUP = "index_on_startup";
 
   /**
-   * This is the name of the custom property that specifies a content type name that should
-   * be indexed during server startup.  A value matching a content type name will cause the
-   * content to be indexed on startup, an empty or invalid value will not index any content.
-   * Once indexed, the property is cleared.
+   * This is the name of the custom property that specifies a content type name that should be
+   * indexed during server startup. A value matching a content type name will cause the content to
+   * be indexed on startup, an empty or invalid value will not index any content. Once indexed, the
+   * property is cleared.
    */
   public static final String INDEX_TYPE_ON_STARTUP = "index_type_on_startup";
 
   /**
    * Default constructor. The following defaults are set:
+   *
    * <table>
    *    <tr>
    *       <th>Property</th>
@@ -106,17 +102,14 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   * Never <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object.
-   * May be <code>null</code>.
-   * @param parentComponents the parent objects of this object. May be
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * conform to the required dtd.
+   * @param sourceNode the XML element node to construct this object from. Never <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object. May be <code>null</code>.
+   * @param parentComponents the parent objects of this object. May be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not conform to the required
+   *     dtd.
    */
   public PSSearchConfig(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -126,6 +119,7 @@ public class PSSearchConfig extends PSComponent {
 
   /**
    * Copy constructor.
+   *
    * @param config object to copy, must never be <code>null</code>
    */
   public PSSearchConfig(PSSearchConfig config) {
@@ -133,10 +127,10 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Generates an element that conforms to the following dtd. All optional
-   * and implied values are added when the node is created, but they are not
-   * required when calling the {@link #fromXml(Element, IPSDocument, List)
-   * fromXml} method.
+   * Generates an element that conforms to the following dtd. All optional and implied values are
+   * added when the node is created, but they are not required when calling the {@link
+   * #fromXml(Element, IPSDocument, List) fromXml} method.
+   *
    * <p>See the interface for further details.
    *
    * <pre>
@@ -229,12 +223,11 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * See interface for full description. If the enabled attribute is not
-   * affirmative, the supplied xml is ignored and all properties are set to
-   * default values using {@link #initDefaults()}.
+   * See interface for full description. If the enabled attribute is not affirmative, the supplied
+   * xml is ignored and all properties are set to default values using {@link #initDefaults()}.
    *
-   * @param sourceNode Expected to comply w/ the dtd defined in the {@link
-   * #toXml(Document) toXml} method.
+   * @param sourceNode Expected to comply w/ the dtd defined in the {@link #toXml(Document) toXml}
+   *     method.
    */
   @Override
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -332,8 +325,7 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Copy search configuration to this object. A deep copy is made of all
-   * mutable members.
+   * Copy search configuration to this object. A deep copy is made of all mutable members.
    *
    * @param config Config to copy, must never be <code>null</code>
    */
@@ -371,9 +363,9 @@ public class PSSearchConfig extends PSComponent {
 
   /**
    * See base class for more details.
-   * <p>The id of this object is not considered in <code>hashCode</code> or in
-   * this method. The custom property names and values are considered case-
-   * sensitive.
+   *
+   * <p>The id of this object is not considered in <code>hashCode</code> or in this method. The
+   * custom property names and values are considered case- sensitive.
    */
   @Override
   public boolean equals(Object o) {
@@ -403,8 +395,8 @@ public class PSSearchConfig extends PSComponent {
 
   /**
    * See base class for more details.
-   * <p>The id of this object is not considered in <code>equals</code> or in
-   * this method.
+   *
+   * <p>The id of this object is not considered in <code>equals</code> or in this method.
    */
   public int hashCode() {
     String concat = "" + m_adminMaster + m_ftsEnabled;
@@ -434,10 +426,11 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Get the propagation delay value from the configuration in milliseconds.
-   * Defaults to 5 seconds (5000 millis) if not specified
-   * @return the value of the {@link #PROPAGATION_DELAY} property converted
-   * to an integer, or 5000 if incorrectly specified or not specified
+   * Get the propagation delay value from the configuration in milliseconds. Defaults to 5 seconds
+   * (5000 millis) if not specified
+   *
+   * @return the value of the {@link #PROPAGATION_DELAY} property converted to an integer, or 5000
+   *     if incorrectly specified or not specified
    */
   public int getPropagationDelay() {
     String str = getCustomProp(PROPAGATION_DELAY);
@@ -451,16 +444,14 @@ public class PSSearchConfig extends PSComponent {
     return 5000;
   }
 
-  /**
-   * See {@link #setTraceEnabled(boolean)} for details.
-   */
+  /** See {@link #setTraceEnabled(boolean)} for details. */
   public boolean isTraceEnabled() {
     return m_traceEnabled;
   }
 
   /**
-   * A flag to indicate whether the search engine should output additional
-   * information to aid debugging. Defaults to <code>false</code>.
+   * A flag to indicate whether the search engine should output additional information to aid
+   * debugging. Defaults to <code>false</code>.
    *
    * @param enable <code>true</code> to enable, <code>false</code> to disable.
    */
@@ -471,8 +462,8 @@ public class PSSearchConfig extends PSComponent {
   /**
    * See {@link #setAdminMaster(boolean)} for details.
    *
-   * @return <code>true</code> if this server controls the search engine,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this server controls the search engine, <code>false</code>
+   *     otherwise.
    */
   public boolean isAdminMaster() {
     return m_adminMaster;
@@ -482,7 +473,6 @@ public class PSSearchConfig extends PSComponent {
    * See {@link #addCustomProp(String,String)} for details.
    *
    * @param name The property name, never <code>null</code> or empty.
-   *
    * @return The value associated with the supplied name (never <code>null
    * </code>) or <code>null</code> if there is no property by that name.
    */
@@ -496,9 +486,9 @@ public class PSSearchConfig extends PSComponent {
   /**
    * See {@link #addCustomProp(String,String)} for details.
    *
-   * @return Each entry has a <code>String</code> key, which is the property
-   * name, and <code>String</code> value. Never <code>null</code>, may be
-   * empty. Caller takes ownership of the returned object.
+   * @return Each entry has a <code>String</code> key, which is the property name, and <code>String
+   *     </code> value. Never <code>null</code>, may be empty. Caller takes ownership of the
+   *     returned object.
    */
   public Map getCustomProps() {
     // since keys and values are immutable, we don't need to do anything else
@@ -506,15 +496,11 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Custom properties are known only by the search engine implementation.
-   * They are passed thru by the Rx server unmodified. Properties are order-
-   * insensitive.
+   * Custom properties are known only by the search engine implementation. They are passed thru by
+   * the Rx server unmodified. Properties are order- insensitive.
    *
-   * @param name The property identifier, never <code>null</code> or empty,
-   * case-sensitive.
-   *
-   * @param value May be <code>null</code> or empty. <code>null</code> is
-   * stored as an empty string.
+   * @param name The property identifier, never <code>null</code> or empty, case-sensitive.
+   * @param value May be <code>null</code> or empty. <code>null</code> is stored as an empty string.
    */
   public void addCustomProp(String name, String value) {
     if (null == name || name.trim().length() == 0) {
@@ -528,7 +514,6 @@ public class PSSearchConfig extends PSComponent {
    * Removes the specified property from the current set of properties.
    *
    * @param name Never <code>null</code> or empty. Case-sensitive.
-   *
    * @return the value of the removed property, may be <code>null</code>.
    */
   public String removeCustomProp(String name) {
@@ -538,36 +523,31 @@ public class PSSearchConfig extends PSComponent {
     return (String) m_properties.remove(name);
   }
 
-  /**
-   * Clears the set of custom properties currently held by this object.
-   */
+  /** Clears the set of custom properties currently held by this object. */
   public void removeAllCustomProps() {
     m_properties.clear();
   }
 
   /**
-   * In a system that contains multiple Rx servers, only one of them can be
-   * the search master administrator. The search master is responsible for
-   * maintaning the search engine configuration such that it matches the
-   * current master's configuration (namely content editor defs) and
+   * In a system that contains multiple Rx servers, only one of them can be the search master
+   * administrator. The search master is responsible for maintaning the search engine configuration
+   * such that it matches the current master's configuration (namely content editor defs) and
    * controlling the search engine processes.
    *
-   * @param isMaster Set to <code>true</code> to make this system the master,
-   * <code>false</code> otherwise. See {@link #PSSearchConfig()} for the
-   * default setting.
+   * @param isMaster Set to <code>true</code> to make this system the master, <code>false</code>
+   *     otherwise. See {@link #PSSearchConfig()} for the default setting.
    */
   public void setAdminMaster(boolean isMaster) {
     m_adminMaster = isMaster;
   }
 
   /**
-   * A flag to control whether to use the advanced search engine or not.
-   * Regardless of the setting, the brand code must have the FTS flag set in
-   * order for search to be usable. Defaults to <code>true</code>.
+   * A flag to control whether to use the advanced search engine or not. Regardless of the setting,
+   * the brand code must have the FTS flag set in order for search to be usable. Defaults to <code>
+   * true</code>.
    *
-   * @param isEnabled <code>true</code> to turn on advanced search,
-   * <code>false</code> otherwise. See {@link #PSSearchConfig()} for the
-   * default setting.
+   * @param isEnabled <code>true</code> to turn on advanced search, <code>false</code> otherwise.
+   *     See {@link #PSSearchConfig()} for the default setting.
    */
   public void setFtsEnabled(boolean isEnabled) {
     m_ftsEnabled = isEnabled;
@@ -576,8 +556,7 @@ public class PSSearchConfig extends PSComponent {
   /**
    * Set the maximum rows returned from a search result.
    *
-   * @param maxSearchResult the new max search result, <code>-1</code> if
-   *    unlimited.
+   * @param maxSearchResult the new max search result, <code>-1</code> if unlimited.
    */
   public void setMaxSearchResult(int maxSearchResult) {
     if (m_maxSearchResult < 0) m_maxSearchResult = -1;
@@ -585,14 +564,13 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * Convenient method to get the absolute location of the root directory of
-   * the search engine indexes. It gets the value from the custom property
-   * {@link #INDEXROOTDIR_KEY}. Returns <code>null</code> if the property
-   * does not exist, otherwise returns the absolute location of the index
-   * directory. Adds the trailing slashes if does not exist.
+   * Convenient method to get the absolute location of the root directory of the search engine
+   * indexes. It gets the value from the custom property {@link #INDEXROOTDIR_KEY}. Returns <code>
+   * null</code> if the property does not exist, otherwise returns the absolute location of the
+   * index directory. Adds the trailing slashes if does not exist.
    *
-   * @return Absolute location of index root directory or <code>null</code>,
-   * if the property {@link #INDEXROOTDIR_KEY} is not set.
+   * @return Absolute location of index root directory or <code>null</code>, if the property {@link
+   *     #INDEXROOTDIR_KEY} is not set.
    */
   public String getIndexDirectory() {
     String irDir = getCustomProp(INDEXROOTDIR_KEY);
@@ -612,9 +590,8 @@ public class PSSearchConfig extends PSComponent {
   }
 
   /**
-   * @return <code>true</code> if a custom property with name
-   * {@link #SYNONYM_EXPANSION} exists with a value of "yes" or "true",
-   * otherwise <code>false</code>.
+   * @return <code>true</code> if a custom property with name {@link #SYNONYM_EXPANSION} exists with
+   *     a value of "yes" or "true", otherwise <code>false</code>.
    */
   public boolean isSynonymExpansionRequired() {
     String prop = getCustomProp(SYNONYM_EXPANSION);
@@ -623,9 +600,7 @@ public class PSSearchConfig extends PSComponent {
     return false;
   }
 
-  /**
-   * Disables the engine and sets all properties to reasonable values.
-   */
+  /** Disables the engine and sets all properties to reasonable values. */
   private void initDefaults() {
     // Must configure to enable full-text search
     m_ftsEnabled = false;
@@ -645,8 +620,7 @@ public class PSSearchConfig extends PSComponent {
   /**
    * Get the analyzers.
    *
-   * @return map of locale string and extension call, Never <code>null</code>,
-   * may be empty.
+   * @return map of locale string and extension call, Never <code>null</code>, may be empty.
    */
   public Map<String, PSExtensionCall> getAnalyzers() {
     return m_analyzers;
@@ -655,61 +629,42 @@ public class PSSearchConfig extends PSComponent {
   /**
    * Get the text converters.
    *
-   * @return Map of mimetype and extension call, Never <code>null</code>,
-   * may be empty.
+   * @return Map of mimetype and extension call, Never <code>null</code>, may be empty.
    */
   public Map<String, PSExtensionCall> getTextConverters() {
     return m_textConverters;
   }
 
-  /**
-   * See {@link #setFtsEnabled(boolean)} and {@link #PSSearchConfig()} for
-   * details.
-   */
+  /** See {@link #setFtsEnabled(boolean)} and {@link #PSSearchConfig()} for details. */
   private boolean m_ftsEnabled;
 
-  /**
-   * See {@link #setAdminMaster(boolean)} and {@link #PSSearchConfig()} for
-   * details.
-   */
+  /** See {@link #setAdminMaster(boolean)} and {@link #PSSearchConfig()} for details. */
   private boolean m_adminMaster;
 
-  /**
-   * See {@link #setTraceEnabled(boolean)} and {@link #PSSearchConfig()}
-   * for details.
-   */
+  /** See {@link #setTraceEnabled(boolean)} and {@link #PSSearchConfig()} for details. */
   private boolean m_traceEnabled;
 
   /**
-   * See (@link #setMaxSearchResult(int) and {@link #PSSearchConfig()}for
-   * details. Default to <code>-1</code>.
+   * See (@link #setMaxSearchResult(int) and {@link #PSSearchConfig()}for details. Default to <code>
+   * -1</code>.
    */
   private int m_maxSearchResult = -1;
 
   /**
-   * Contains the custom properties. Each entry has a <code>String</code> key
-   * and a <code>String</code> value. Set in ctor, then never <code>
-   * null</code>. Modified by {@link #addCustomProp(String, String)},
-   * {@link #removeCustomProp(String)} and {@link #removeAllCustomProps()}.
+   * Contains the custom properties. Each entry has a <code>String</code> key and a <code>String
+   * </code> value. Set in ctor, then never <code>
+   * null</code>. Modified by {@link #addCustomProp(String, String)}, {@link
+   * #removeCustomProp(String)} and {@link #removeAllCustomProps()}.
    */
   private Map m_properties;
 
-  /**
-   * Search results processing extension set. Never <code>null</code> may be
-   * empty.
-   */
+  /** Search results processing extension set. Never <code>null</code> may be empty. */
   PSExtensionCallSet m_resultProcessingExitSet = new PSExtensionCallSet();
 
-  /**
-   * Search results processing extension set. Never <code>null</code> may be
-   * empty.
-   */
+  /** Search results processing extension set. Never <code>null</code> may be empty. */
   Map<String, PSExtensionCall> m_analyzers = new HashMap<>();
 
-  /**
-   * Search results processing extension set. Never <code>null</code> may be
-   * empty.
-   */
+  /** Search results processing extension set. Never <code>null</code> may be empty. */
   Map<String, PSExtensionCall> m_textConverters = new HashMap<>();
 
   /*
@@ -730,9 +685,8 @@ public class PSSearchConfig extends PSComponent {
   private static final String MAX_SEARCH_RESULT_ATTR = "maxSearchResult";
 
   /**
-   * Contains the strings used as values when writing boolean properties to
-   * the xml format. Index 0 is for <code>true</code> values, index 1 for
-   * <code>false</code> values.
+   * Contains the strings used as values when writing boolean properties to the xml format. Index 0
+   * is for <code>true</code> values, index 1 for <code>false</code> values.
    */
   private static final String[] BOOLEAN_VALUE = {"yes", "no"};
 }

@@ -24,42 +24,41 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * This is a helper class, provides convenient methods to catalog predefined
- * JEXL variables, such as, <code>$sys...</code>
+ * This is a helper class, provides convenient methods to catalog predefined JEXL variables, such
+ * as, <code>$sys...</code>
  *
  * @author yubingchen
  */
 public class PSPredefinedJexlVariableDefs {
   /**
-   * Gets a list of predefined system variables definitions that can be used
-   * in a template as the value of binding variables.
+   * Gets a list of predefined system variables definitions that can be used in a template as the
+   * value of binding variables.
    *
-   * @return the list described above. Each element contains 3 strings, they
-   * are variable name, the type of the variable, and the description of the
-   * variable. The list will not be <code>null</code> or empty.
+   * @return the list described above. Each element contains 3 strings, they are variable name, the
+   *     type of the variable, and the description of the variable. The list will not be <code>null
+   *     </code> or empty.
    */
   public static List<String[]> getPredefinedTemplateVarDefs() {
     return ms_predefinedTemplateVarDefs;
   }
 
   /**
-   * Gets a list of predefined system variables definitions that can be used
-   * in a JEXL expression that are used in a Location Scheme definition.
+   * Gets a list of predefined system variables definitions that can be used in a JEXL expression
+   * that are used in a Location Scheme definition.
    *
-   * @return the list described above. Each element contains 3 strings, they
-   * are variable name, the type of the variable, and the description of the
-   * variable. The list will not be <code>null</code> or empty.
+   * @return the list described above. Each element contains 3 strings, they are variable name, the
+   *     type of the variable, and the description of the variable. The list will not be <code>null
+   *     </code> or empty.
    */
   public static List<String[]> getPredefinedJexlVarDefs() {
     return ms_predefinedJexlVarDefs;
   }
 
   /**
-   * Sort the given variable definitions by the name of the variables, which
-   * is the 1st element of the String array.
+   * Sort the given variable definitions by the name of the variables, which is the 1st element of
+   * the String array.
    *
-   * @param varDefs the to be sorted variable definitions, assumed not
-   *    <code>null</code>.
+   * @param varDefs the to be sorted variable definitions, assumed not <code>null</code>.
    */
   private static void sortVarDefs(List<String[]> varDefs) {
     Collections.sort(
@@ -72,16 +71,13 @@ public class PSPredefinedJexlVariableDefs {
   }
 
   /**
-   * Create variable definition for the given name and type. The description
-   * of the definition will be retrieved from the resource bundle.
+   * Create variable definition for the given name and type. The description of the definition will
+   * be retrieved from the resource bundle.
    *
-   * @param name the name of the variable definition, assumed not
-   *    <code>null</code> or empty.
-   * @param type the Java type of the variable, assumed not <code>null</code>
-   *    or empty.
-   *
-   * @return 3 element array in the order of variable name, type and
-   *    description, never <code>null</code> or empty.
+   * @param name the name of the variable definition, assumed not <code>null</code> or empty.
+   * @param type the Java type of the variable, assumed not <code>null</code> or empty.
+   * @return 3 element array in the order of variable name, type and description, never <code>null
+   *     </code> or empty.
    */
   private static String[] getVarDef(String name, String type) {
     return new String[] {name, type, getString(name)};
@@ -89,36 +85,27 @@ public class PSPredefinedJexlVariableDefs {
 
   /**
    * Retrieves the value of the given key from the underline resource bundle.
+   *
    * @param key the key, assumed not <code>null</code> or empty.
-   * @return the value of the key, which is actually the description of the
-   *    predefined variables.
+   * @return the value of the key, which is actually the description of the predefined variables.
    */
   private static String getString(String key) {
     return RESOURCE_BUNDLE.getString(key);
   }
 
-  /**
-   * The location or base name of the resource bundle, {@link #RESOURCE_BUNDLE}
-   */
+  /** The location or base name of the resource bundle, {@link #RESOURCE_BUNDLE} */
   private static final String BUNDLE_NAME =
       "com.percussion.utils.jexl.PSPredefinedJexlVariableDefs";
 
   /**
-   * The name of the resource bundle that contains description of the predefined system
-   * variables.
+   * The name of the resource bundle that contains description of the predefined system variables.
    */
   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-  /**
-   * See {@link #getPredefinedTemplateVarDefs()}. It is initialized when the
-   * class is loaded.
-   */
+  /** See {@link #getPredefinedTemplateVarDefs()}. It is initialized when the class is loaded. */
   private static List<String[]> ms_predefinedTemplateVarDefs;
 
-  /**
-   * See {@link #getPredefinedJexlVarDefs()}. It is initialized when the
-   * class is loaded.
-   */
+  /** See {@link #getPredefinedJexlVarDefs()}. It is initialized when the class is loaded. */
   private static List<String[]> ms_predefinedJexlVarDefs;
 
   static {

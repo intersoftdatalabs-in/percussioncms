@@ -23,45 +23,32 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSBackEndAuthorizationError class is used to report a failed
- * attempt to login to a back-end (database) driver for authorization
- * reasons.
- * <p>
- * An error message containing the host address and login id is
- * logged when this error is encountered. The back-end driver/server and
- * any information provided by the back-end is also logged.
+ * The PSBackEndAuthorizationError class is used to report a failed attempt to login to a back-end
+ * (database) driver for authorization reasons.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>An error message containing the host address and login id is logged when this error is
+ * encountered. The back-end driver/server and any information provided by the back-end is also
+ * logged.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSBackEndAuthorizationError extends PSBackEndError {
   /**
    * Report an authorization failure.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
    *
-   * @param      applId      the id of the BackEnd that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
    *
-   * @param      ipAddress   the IP address of the host causing the
-   *                           authorization failure
-   *
-   * @param      driver      the back-end driver the login attempt was
-   *                           for
-   *
-   * @param      server      the back-end server the login attempt was
-   *                           for
-   *
-   * @param      loginId      the login id used which caused the error
-   *
-   * @param      errorCode   the error code provided by the driver
-   *                           when attempting the connection
-   *
-   * @param      errorString   the error string provided by the driver
-   *                           when attempting the connection
+   * @param applId the id of the BackEnd that generated the error
+   * @param ipAddress the IP address of the host causing the authorization failure
+   * @param driver the back-end driver the login attempt was for
+   * @param server the back-end server the login attempt was for
+   * @param loginId the login id used which caused the error
+   * @param errorCode the error code provided by the driver when attempting the connection
+   * @param errorString the error string provided by the driver when attempting the connection
    */
   public PSBackEndAuthorizationError(
       int applId,
@@ -87,15 +74,10 @@ public class PSBackEndAuthorizationError extends PSBackEndError {
   }
 
   /**
-   * Get the host name (or specifically, the IP address of the host).
-   * /* Subclasses must override this to build the messages in the
-   * public String getHost(){
-   * return m_host;
-   * }
+   * Get the host name (or specifically, the IP address of the host). /* Subclasses must override
+   * this to build the messages in the public String getHost(){ return m_host; }
    *
-   * /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
+   * <p>/** sublcasses must override this to build the messages in the specified locale
    */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];

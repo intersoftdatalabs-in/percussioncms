@@ -31,26 +31,24 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * RemoteConsole is a java program that executes a remote console command using
- * the PSRemoteConsole, the default command being to shut down the server.  The
- * reason is that when we daemonize the server, there is no console
- * window (it is part of the process), so we need to shutdown the
- * server in a normal way, and this class allows us to do so.
+ * RemoteConsole is a java program that executes a remote console command using the PSRemoteConsole,
+ * the default command being to shut down the server. The reason is that when we daemonize the
+ * server, there is no console window (it is part of the process), so we need to shutdown the server
+ * in a normal way, and this class allows us to do so.
  */
 public class RemoteConsole {
 
   private static final Logger log = LogManager.getLogger(RemoteConsole.class);
 
   /**
-   * Executes a command against the specified server.  This may be run in one of
-   * 2 modes -- non-interactive and interactive.  If the first 4 parameters are
-   * provided, the program will run in non-interactive mode.  If not, the
-   * program will provide default values and interactively allow the user to
-   * modify them.  If there will not be a console window, or no interactive
-   * user present when the program is run, be sure to supply all required
-   * arguments so the program runs non-interactively.
+   * Executes a command against the specified server. This may be run in one of 2 modes --
+   * non-interactive and interactive. If the first 4 parameters are provided, the program will run
+   * in non-interactive mode. If not, the program will provide default values and interactively
+   * allow the user to modify them. If there will not be a console window, or no interactive user
+   * present when the program is run, be sure to supply all required arguments so the program runs
+   * non-interactively.
    *
-   * The parameters are:
+   * <p>The parameters are:
    *
    * <table border="1">
    * <tr>
@@ -100,13 +98,13 @@ public class RemoteConsole {
    *
    * For example, to shutdown the server in interactive mode:<br>
    * java com.percussion.util.RemoteConsole localhost
-   * <p>
-   * To run in non-interactive mode, no logging:<br>
+   *
+   * <p>To run in non-interactive mode, no logging:<br>
    * java com.percussion.util.RemoteConsole localhost 9992 admin1 demo
-   * <p>
-   * To run in non-interactive mode, with logging, specifying a command:<br>
-   * java com.percussion.util.RemoteConsole localhost 9992 admin1 demo
-   *     "show status server" y
+   *
+   * <p>To run in non-interactive mode, with logging, specifying a command:<br>
+   * java com.percussion.util.RemoteConsole localhost 9992 admin1 demo "show status server" y
+   *
    * <p>
    */
   public static void main(String[] args) {
@@ -234,18 +232,13 @@ public class RemoteConsole {
   }
 
   /**
-   * Retreives a value assigned to a property from a specified
-   * file (generally a .properties file). The format of the
-   * property has to be <b><I>propertyname=propertyvalue</I></b>
-   * Note the delimiter is the <b>=</b>
+   * Retreives a value assigned to a property from a specified file (generally a .properties file).
+   * The format of the property has to be <b><I>propertyname=propertyvalue</I></b> Note the
+   * delimiter is the <b>=</b>
    *
    * @param fileName This can be execution directory or a full path.
-   *
    * @param propName property name such as bindPort or databaseName etc.
-   *
-   * @return the String value of the property name or null if not
-   *         found or exception encountered.
-   *
+   * @return the String value of the property name or null if not found or exception encountered.
    */
   public String getPortID(String fileName, String propName) {
     String propValue = null;
@@ -259,12 +252,9 @@ public class RemoteConsole {
   }
 
   /**
-   * Reads a String from the keyboard up to the point of carriage
-   * return.
+   * Reads a String from the keyboard up to the point of carriage return.
    *
-   * @return the String value of user input. Empty String if only
-   * CR is pressed.
-   *
+   * @return the String value of user input. Empty String if only CR is pressed.
    */
   public String readKb() {
     String response = new String("");
@@ -312,17 +302,15 @@ public class RemoteConsole {
   }
 
   /**
-   * Parses command that spans multiple commandline arguments as it is enclosed
-   * in double quotes and contains spaces i.e. "show status server"
+   * Parses command that spans multiple commandline arguments as it is enclosed in double quotes and
+   * contains spaces i.e. "show status server"
    *
    * @param args The command line arguments passed to the program
-   * @param start The index of arg that is the first word of the command,
-   * assumed to begin with a double quote.  Assumed to be less than the length
-   * of the args array.
+   * @param start The index of arg that is the first word of the command, assumed to begin with a
+   *     double quote. Assumed to be less than the length of the args array.
    * @param cmd A buffer in which the resulting command is returned.
-   *
-   * @return The index of the last argument that is part of the command.  If
-   * array is empty, <code>-1</code> is returned.
+   * @return The index of the last argument that is part of the command. If array is empty, <code>-1
+   *     </code> is returned.
    */
   private static int parseCommand(String[] args, int start, StringBuilder cmd) {
     int end = args.length - 1;
@@ -352,9 +340,7 @@ public class RemoteConsole {
     return end;
   }
 
-  /**
-   * Logs usage to the console.
-   */
+  /** Logs usage to the console. */
   private static void showUsage() {
     System.out.println("Usage:");
     System.out.println(

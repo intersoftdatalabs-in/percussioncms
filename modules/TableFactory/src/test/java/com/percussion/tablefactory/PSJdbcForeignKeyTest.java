@@ -24,15 +24,11 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Unit test for PSJdbcForeignKey.
- */
+/** Unit test for PSJdbcForeignKey. */
 public class PSJdbcForeignKeyTest {
   public PSJdbcForeignKeyTest() {}
 
-  /**
-   * Test the def
-   */
+  /** Test the def */
   @Test
   public void testDef() throws Exception {
     PSJdbcForeignKey fk =

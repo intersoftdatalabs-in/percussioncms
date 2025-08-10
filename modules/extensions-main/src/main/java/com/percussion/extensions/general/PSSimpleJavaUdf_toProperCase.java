@@ -23,32 +23,28 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.util.PSStringOperation;
 
 /**
- * The PSSimpleJavaUdf_toProperCase class converts strings given by a user
- * defined function (UDF) to proper cases for each individual characters.
+ * The PSSimpleJavaUdf_toProperCase class converts strings given by a user defined function (UDF) to
+ * proper cases for each individual characters.
  *
- * @author     Jian Huang
- * @version    1.1
- * @since      1.1
+ * @author Jian Huang
+ * @version 1.1
+ * @since 1.1
  */
 public class PSSimpleJavaUdf_toProperCase extends PSSimpleJavaUdfExtension
     implements IPSFieldInputTransformer {
   /* ************ IPSUdfProcessor Interface Implementation ************ */
 
   /**
-   * Converts the supplied object to a string using the toString method and
-   * capitalizes the first character of every word.
+   * Converts the supplied object to a string using the toString method and capitalizes the first
+   * character of every word.
    *
-   * @param      params         A single parameter to be converted.
-   *
-   * @param      request         Not used.
-   *
-   * @return                     params[0] converted to a string with every
-   *                            word capitalized, or <code>null</code> if <code>
+   * @param params A single parameter to be converted.
+   * @param request Not used.
+   * @return params[0] converted to a string with every word capitalized, or <code>null</code> if
+   *     <code>
    *                            null</code> is supplied.
-   *
-   * @exception  PSConversionException
-   *                            if params is <code>null</code> or more than
-   *                            1 argument is supplied.
+   * @exception PSConversionException if params is <code>null</code> or more than 1 argument is
+   *     supplied.
    */
   public Object processUdf(Object[] params, IPSRequestContext request)
       throws PSConversionException {

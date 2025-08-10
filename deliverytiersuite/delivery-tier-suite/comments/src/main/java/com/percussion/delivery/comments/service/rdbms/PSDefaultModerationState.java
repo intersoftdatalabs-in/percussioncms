@@ -28,8 +28,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Simple entity to store default moderation state for comments service.
- * @author erikserating
  *
+ * @author erikserating
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments2")

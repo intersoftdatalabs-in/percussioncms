@@ -20,33 +20,27 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * This class encapsulates a single value for the PSActionVisibilityContext
- * multivalued property. Both the property name and value are used to assign
- * the key, so they are immutable.
+ * This class encapsulates a single value for the PSActionVisibilityContext multivalued property.
+ * Both the property name and value are used to assign the key, so they are immutable.
  *
  * @author Paul Howard
  * @version 1.0
  */
 public class PSVisibilityContextEntry extends PSCmsProperty {
-  /**
-   * no-args constructor
-   */
+  /** no-args constructor */
   public PSVisibilityContextEntry() {}
 
   /**
-   * Convenience method that calls {@link #PSVisibilityContextEntry(String,
-   * String,String) PSVisibilityContextEntry(name, value, null)}.
+   * Convenience method that calls {@link #PSVisibilityContextEntry(String, String,String)
+   * PSVisibilityContextEntry(name, value, null)}.
    */
   public PSVisibilityContextEntry(String name, String value) {
     this(name, value, null);
   }
 
   /**
-   *
    * @param name Never <code>null</code> or empty.
-   *
    * @param value May be <code>null</code>. If so, "" is used.
-   *
    * @param desc May be <code>null</code>. If so, "" is used.
    */
   public PSVisibilityContextEntry(String name, String value, String desc) {
@@ -71,7 +65,6 @@ public class PSVisibilityContextEntry extends PSCmsProperty {
    * Because the value is used in key assignment, it cannot be reset.
    *
    * @param value Unused
-   *
    * @throws UnsupportedOperationException Always.
    */
   public void setValue(String value) {

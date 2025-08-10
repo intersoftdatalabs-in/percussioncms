@@ -19,41 +19,38 @@ package com.percussion.soln.jcr;
 
 // REFACTORED: CP-JAVA11
 import java.util.Calendar;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
 public abstract class AbstractSimplyProperty {
 
-    // REFACTORED: CP-JAVA11
-    public boolean getBoolean() throws ValueFormatException, RepositoryException {
-        return getValue().getBoolean();
-    }
+  // REFACTORED: CP-JAVA11
+  public boolean getBoolean() throws ValueFormatException, RepositoryException {
+    return getValue().getBoolean();
+  }
 
-    public Calendar getDate() throws ValueFormatException, RepositoryException {
-        return getValue().getDate();
-    }
+  public Calendar getDate() throws ValueFormatException, RepositoryException {
+    return getValue().getDate();
+  }
 
-    public double getDouble() throws ValueFormatException, RepositoryException {
-        return getValue().getDouble();
-    }
+  public double getDouble() throws ValueFormatException, RepositoryException {
+    return getValue().getDouble();
+  }
 
-    public long getLong() throws ValueFormatException, RepositoryException {
-        return getValue().getLong();
-    }
+  public long getLong() throws ValueFormatException, RepositoryException {
+    return getValue().getLong();
+  }
 
+  public String getString() throws ValueFormatException, RepositoryException {
+    return getValue().getString();
+  }
 
-    public String getString() throws ValueFormatException, RepositoryException {
-        return getValue().getString();
-    }
+  public int getType() throws RepositoryException {
+    return getValue().getType();
+  }
 
-    public int getType() throws RepositoryException {
-        return getValue().getType();
-    }
+  public abstract Value getValue() throws ValueFormatException, RepositoryException;
 
-    public abstract Value getValue() throws ValueFormatException, RepositoryException;
-
-    public abstract Value[] getValues() throws ValueFormatException, RepositoryException;
-
+  public abstract Value[] getValues() throws ValueFormatException, RepositoryException;
 }

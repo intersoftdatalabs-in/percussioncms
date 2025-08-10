@@ -31,9 +31,7 @@ public class HibernateAttributeDAO extends HibernateDaoSupport implements Attrib
     return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all Attributes
-   */
+  /** Return all Attributes */
   public Collection getAllAttributes(int taxonomy_id, int langID) {
     String queryString =
         "from Attribute a left join fetch a.taxonomy left join fetch a.attribute_langs al join"
@@ -44,9 +42,7 @@ public class HibernateAttributeDAO extends HibernateDaoSupport implements Attrib
     return (Collection) getHibernateTemplate().execute(new HibernateQuery(queryString));
   }
 
-  /**
-   * Return all Attribute names and IDs
-   */
+  /** Return all Attribute names and IDs */
   public Collection getAttributeNames(int taxonomy_id, int language_id) {
     String queryString =
         "select al.Name, a.id from Attribute a, Attribute_lang al where al.attribute.id = a.id and"

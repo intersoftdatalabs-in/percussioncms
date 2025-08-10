@@ -19,24 +19,20 @@ package com.percussion.rest.communities;
 
 import com.percussion.rest.GuidList;
 import com.percussion.rest.ObjectTypeEnum;
-
 import java.util.List;
 
-/**
- * Resource interface for Community REST operations.
- */
+/** Resource interface for Community REST operations. */
 public interface ICommunityResource {
 
-    CommunityList createCommunities(List<String> names);
+  CommunityList createCommunities(List<String> names);
 
-    CommunityList findCommunities(String name);
+  CommunityList findCommunities(String name);
 
-    CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock);
+  CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock);
 
-    void saveCommunities(CommunityList communities, boolean release);
+  void saveCommunities(CommunityList communities, boolean release);
 
-    void deleteCommunities(GuidList ids, boolean ignoreDependencies);
+  void deleteCommunities(GuidList ids, boolean ignoreDependencies);
 
-    CommunityVisibilityList getVisibilityByCommunity(
-            GuidList ids, ObjectTypeEnum type);
+  CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type);
 }

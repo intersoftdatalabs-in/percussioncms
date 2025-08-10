@@ -21,21 +21,15 @@ import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-/**
- * Class to restore {@link PSApplicationIdContext} objects from their XML
- * state.
- */
+/** Class to restore {@link PSApplicationIdContext} objects from their XML state. */
 public class PSApplicationIDContextFactory {
   /**
    * Creates an application id context object from its xml representatation.
    *
-   * @param sourceNode the XML element node to populate from, may not  be
-   * <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>soureNode</code> is
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node does not
-   * represent a type supported by the class.
+   * @param sourceNode the XML element node to populate from, may not be <code>null</code>.
+   * @throws IllegalArgumentException if <code>soureNode</code> is <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node does not represent a type supported
+   *     by the class.
    */
   public static PSApplicationIdContext fromXml(Element sourceNode)
       throws PSUnknownNodeTypeException {

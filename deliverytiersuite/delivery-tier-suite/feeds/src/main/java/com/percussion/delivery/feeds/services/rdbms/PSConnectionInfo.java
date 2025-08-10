@@ -25,7 +25,6 @@ import java.util.Objects;
 
 /**
  * @author erikserating
- *
  */
 @Entity
 @Table(name = "PERC_CONNECTION_INFO")

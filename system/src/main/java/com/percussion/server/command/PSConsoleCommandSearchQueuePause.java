@@ -40,18 +40,16 @@ import com.percussion.server.PSRequest;
 import org.w3c.dom.Document;
 
 /**
- * Command to pause the queue processing, but allow event to continue to queue.  Noop
- * if queue is already paused.
- *
+ * Command to pause the queue processing, but allow event to continue to queue. Noop if queue is
+ * already paused.
  */
 public class PSConsoleCommandSearchQueuePause extends PSConsoleCommand {
 
   /**
-   * The constructor for this class. The command arguments are ignored for this
-   * command.
+   * The constructor for this class. The command arguments are ignored for this command.
    *
-   * @param cmdArgs the argument string to use when executing this command, may
-   * be <code>null</code> or empty.
+   * @param cmdArgs the argument string to use when executing this command, may be <code>null</code>
+   *     or empty.
    */
   public PSConsoleCommandSearchQueuePause(String cmdArgs) {
     super(cmdArgs);
@@ -77,8 +75,6 @@ public class PSConsoleCommandSearchQueuePause extends PSConsoleCommand {
     return COMMAND_NAME;
   }
 
-  /**
-   * The full command that launched this handler.
-   */
+  /** The full command that launched this handler. */
   private static final String COMMAND_NAME = "search queue pause";
 }

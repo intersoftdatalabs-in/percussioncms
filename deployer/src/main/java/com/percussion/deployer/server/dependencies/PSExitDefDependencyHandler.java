@@ -50,24 +50,17 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Class to handle packaging and deploying an exit defintion.
- */
+/** Class to handle packaging and deploying an exit defintion. */
 public class PSExitDefDependencyHandler extends PSDependencyHandler {
-  /**
-   * Logger for this class
-   */
+  /** Logger for this class */
   private static final Logger log = LogManager.getLogger(PSExitDefDependencyHandler.class);
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSExitDefDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -309,7 +302,6 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
    * Adds any required classes to the supplied dependency.
    *
    * @param dep The dependency, assumed not <code>null</code>.
-   *
    * @throws PSDeployException If there are any errors.
    */
   private void addRequiredClasses(PSDependency dep) throws PSDeployException {
@@ -331,15 +323,15 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types currently supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types currently
+   * supported by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
+   *   <li>Application
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -372,18 +364,14 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Determine if the extension def refers to a system exit.  Currently that is
-   * determined by the name starting with the reserved system prefix
-   * <code>sys_</code> or if the extension is deprecated.
+   * Determine if the extension def refers to a system exit. Currently that is determined by the
+   * name starting with the reserved system prefix <code>sys_</code> or if the extension is
+   * deprecated.
    *
    * @param ref The extension ref to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the ref is a system exit, <code>false</code>
-   * otherwise.
-   *
+   * @return <code>true</code> if the ref is a system exit, <code>false</code> otherwise.
    * @throws PSNotFoundException if the extension defintion cannot be located.
-   * @throws PSExtensionException if there are any other errors retrieving
-   * the extension defintion.
+   * @throws PSExtensionException if there are any other errors retrieving the extension defintion.
    */
   private boolean isSystemExit(PSExtensionRef ref)
       throws PSNotFoundException, PSExtensionException {
@@ -399,8 +387,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   /**
    * Recurses supplied directory and returns all files below it.
    *
-   * @param dir Valid file reference to a directory, assumed not
-   * <code>null</code>.
+   * @param dir Valid file reference to a directory, assumed not <code>null</code>.
    * @param files List to which files are added, assumed not <code>null</code>.
    */
   private void catalogFiles(File dir, List files) {
@@ -413,13 +400,11 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Strips the codebase from the supplied file returning a file relative to
-   * the extension codebase.
-   * @param codeBase The code base of the extension, assumed not
-   * <code>null</code>.
-   * @param file The file, assumed not <code>null</code> and that its path
-   * includes the <code>codeBase</code>.
+   * Strips the codebase from the supplied file returning a file relative to the extension codebase.
    *
+   * @param codeBase The code base of the extension, assumed not <code>null</code>.
+   * @param file The file, assumed not <code>null</code> and that its path includes the <code>
+   *     codeBase</code>.
    * @return The file, never <code>null</code>.
    */
   private File stripCodeBase(File codeBase, File file) {
@@ -428,32 +413,22 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
     return new File(newPath);
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   private static final String EXTENSIONS_ROOT = "Extensions";
 
-  /**
-   * Constant for the root element of the def xml file when stored in the
-   * archive.
-   */
+  /** Constant for the root element of the def xml file when stored in the archive. */
   public static final String DEPENDENCY_TYPE = "Extension";
 
-  /**
-   * Constant for system exit name prefix.
-   */
+  /** Constant for system exit name prefix. */
   private static final String SYS_PREFIX = "sys_";
 
   /**
-   * Extension manager instance, initialized during ctor,
-   * never <code>null</code> or modified after that.
+   * Extension manager instance, initialized during ctor, never <code>null</code> or modified after
+   * that.
    */
   private IPSExtensionManager m_extMgr;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

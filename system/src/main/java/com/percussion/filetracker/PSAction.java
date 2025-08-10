@@ -20,32 +20,28 @@ package com.percussion.filetracker;
 import javax.swing.*;
 
 /**
- * This class adds storage for the mnemonic letter and accelerator keys used
- * with menu items. When a menu item is created using add(action), the mnemonic
- * and accel key can be taken from this object and added to the newly created
- * menu item.
- * <p>
- * The class is abstract because it does not define actionPerformed().
+ * This class adds storage for the mnemonic letter and accelerator keys used with menu items. When a
+ * menu item is created using add(action), the mnemonic and accel key can be taken from this object
+ * and added to the newly created menu item.
+ *
+ * <p>The class is abstract because it does not define actionPerformed().
  */
 abstract class PSAction extends AbstractAction {
   // constructors
   /**
-   * @param strMenuText text displayed with the item, if null or empty, no
-   * text is displayed
-   * @param cMnemonic the character that is set to access menu items by using
-   * ALT key combos, if 0, it is ignored
-   * @param AccelKey keystroke describing the accelerator key for this action,
-   * ignored if null
+   * @param strMenuText text displayed with the item, if null or empty, no text is displayed
+   * @param cMnemonic the character that is set to access menu items by using ALT key combos, if 0,
+   *     it is ignored
+   * @param AccelKey keystroke describing the accelerator key for this action, ignored if null
    */
   public PSAction(String strMenuText, char cMnemonic, KeyStroke AccelKey) {
     this(strMenuText, cMnemonic, AccelKey, (ImageIcon) null);
   }
 
   /**
-   * @param strMenuText text displayed with the item, if null or empty, no
-   * text is displayed
-   * @param cMnemonic the character that is set to access menu items by using
-   * ALT key combos, if 0, it is ignored
+   * @param strMenuText text displayed with the item, if null or empty, no text is displayed
+   * @param cMnemonic the character that is set to access menu items by using ALT key combos, if 0,
+   *     it is ignored
    * @param Icon the image for the UI, ignored if null
    */
   public PSAction(String strMenuText, char cMnemonic, Icon Img) {
@@ -53,12 +49,10 @@ abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * @param strMenuText text displayed with the item, if null or empty, no
-   * text is displayed
-   * @param cMnemonic the character that is set to access menu items by using
-   * ALT key combos, if 0, it is ignored
-   * @param AccelKey keystroke describing the accelerator key for this action,
-   * ignored if null
+   * @param strMenuText text displayed with the item, if null or empty, no text is displayed
+   * @param cMnemonic the character that is set to access menu items by using ALT key combos, if 0,
+   *     it is ignored
+   * @param AccelKey keystroke describing the accelerator key for this action, ignored if null
    * @param Icon the image for the UI, ignored if null
    */
   public PSAction(String strMenuText, char cMnemonic, KeyStroke AccelKey, Icon Img) {
@@ -70,11 +64,10 @@ abstract class PSAction extends AbstractAction {
 
   // attributes
   /**
-   * This is the internal name of the action. If present, the name of the
-   * component will be set to this value.
+   * This is the internal name of the action. If present, the name of the component will be set to
+   * this value.
    *
-   * @param strName the internal name of the action. If empty or null, the
-   * internal name is cleared.
+   * @param strName the internal name of the action. If empty or null, the internal name is cleared.
    */
   public void setInternalName(String strName) {
     if (0 == strName.trim().length()) strName = null;
@@ -83,8 +76,8 @@ abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * Returns the internal name assigned to this action. If there is no internal
-   * name, null is returned.
+   * Returns the internal name assigned to this action. If there is no internal name, null is
+   * returned.
    */
   public String getInternalName() {
     try {
@@ -96,8 +89,8 @@ abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * Returns <code>true</code> if this action has a successfully loaded icon
-   * image, otherwise, <code>false</code> is returned.
+   * Returns <code>true</code> if this action has a successfully loaded icon image, otherwise,
+   * <code>false</code> is returned.
    */
   public boolean hasIcon() {
     Icon img = (Icon) getValue(SMALL_ICON);
@@ -105,8 +98,7 @@ abstract class PSAction extends AbstractAction {
   }
 
   /**
-   * Returns the previously set tool tip text. If no tip has been set, the
-   * empty string is returned.
+   * Returns the previously set tool tip text. If no tip has been set, the empty string is returned.
    */
   public String getToolTipText() {
     try {
@@ -117,33 +109,25 @@ abstract class PSAction extends AbstractAction {
     }
   }
 
-  /**
-   * Sets the tooltip for this action item. If strToolTip is null, the tip
-   * is cleared.
-   */
+  /** Sets the tooltip for this action item. If strToolTip is null, the tip is cleared. */
   public void setToolTipText(String strToolTip) {
     if (null == strToolTip) strToolTip = "";
     putValue(SHORT_DESCRIPTION, strToolTip);
   }
 
-  /**
-   * Returns the image icon for this action or null if there is not a loaded
-   * image.
-   */
+  /** Returns the image icon for this action or null if there is not a loaded image. */
   public Icon getIcon() {
     return (hasIcon() ? (Icon) getValue(SMALL_ICON) : null);
   }
 
-  /**
-   * Sets the the icon to the provided icon.
-   */
+  /** Sets the the icon to the provided icon. */
   public void setIcon(Icon icon) {
     putValue(SMALL_ICON, icon);
   }
 
   /**
-   * @returns the mnemonic letter associated with this action item. If it has
-   * not been set, 0 is returned.
+   * @returns the mnemonic letter associated with this action item. If it has not been set, 0 is
+   *     returned.
    */
   public char getMnemonic() {
     try {
@@ -154,24 +138,20 @@ abstract class PSAction extends AbstractAction {
     }
   }
 
-  /**
-   * Sets the new mnemonic.
-   */
+  /** Sets the new mnemonic. */
   public void setMnemonic(Character mnemonic) {
     putValue(MNEMONIC_KEY, mnemonic);
   }
 
   /**
-   * @returns the accelerator key associated with this action item. If no
-   * key has been set, null is returned.
+   * @returns the accelerator key associated with this action item. If no key has been set, null is
+   *     returned.
    */
   public KeyStroke getAccelerator() {
     return ((KeyStroke) getValue(ACCEL_KEY));
   }
 
-  /**
-   * Sets the new accelerator key.
-   */
+  /** Sets the new accelerator key. */
   public void setAccelerator(KeyStroke key) {
     putValue(ACCEL_KEY, key);
   }

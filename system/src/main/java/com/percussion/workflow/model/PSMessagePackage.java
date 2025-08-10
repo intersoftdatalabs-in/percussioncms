@@ -21,20 +21,18 @@ import com.percussion.security.PSNotificationEmailAddress;
 import java.util.List;
 
 /**
- * Light weight class used to contain the following
- * fields for sending to a message queue.  This was implemented
- * to send a  list of unique messages to the executer as one
- * thread as opposed to creating many threads for each e-mail for each
- * recipient.
+ * Light weight class used to contain the following fields for sending to a message queue. This was
+ * implemented to send a list of unique messages to the executer as one thread as opposed to
+ * creating many threads for each e-mail for each recipient.
  *
  * <ol>
- * <li> To email address </li>
- * <li> Email Subject </li>
- * <li> Email Body </li>
- * <li> From email address </li>
+ *   <li>To email address
+ *   <li>Email Subject
+ *   <li>Email Body
+ *   <li>From email address
  * </ol>
- * @author chriswright
  *
+ * @author chriswright
  */
 public class PSMessagePackage {
   private String userEmail;

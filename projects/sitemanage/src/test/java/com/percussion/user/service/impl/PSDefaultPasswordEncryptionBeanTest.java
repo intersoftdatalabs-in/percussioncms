@@ -16,6 +16,8 @@
  */
 package com.percussion.user.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.github.javafaker.Faker;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
@@ -24,36 +26,34 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
- * Tests password encryption bean for compatibility with system password handler.
- * // REFACTORED: CP-JAVA11
+ * Tests password encryption bean for compatibility with system password handler. // REFACTORED:
+ * CP-JAVA11
  */
 public class PSDefaultPasswordEncryptionBeanTest {
 
-    private final PSDefaultPasswordEncryptionBean filter = new PSDefaultPasswordEncryptionBean();
-    private static final Logger log = LogManager.getLogger(PSDefaultPasswordEncryptionBeanTest.class);
+  private final PSDefaultPasswordEncryptionBean filter = new PSDefaultPasswordEncryptionBean();
+  private static final Logger log = LogManager.getLogger(PSDefaultPasswordEncryptionBeanTest.class);
 
-    @Test
-    public void shouldCreateHashesThatVerifyWithPasswordHandler() throws Exception {
-        var faker = new Faker();
-        var testPassword = faker.aquaTeenHungerForce().character().toString();
-        var beanPassword = filter.encrypt(testPassword);
-        var systemPassword = encrypt(testPassword);
+  @Test
+  public void shouldCreateHashesThatVerifyWithPasswordHandler() throws Exception {
+    var faker = new Faker();
+    var testPassword = faker.aquaTeenHungerForce().character().toString();
+    var beanPassword = filter.encrypt(testPassword);
+    var systemPassword = encrypt(testPassword);
 
-        log.info("These may be different even for same password depending on the salt.");
-        log.info("testPassword ==> " + beanPassword);
-        log.info("systemPassword ==> " + systemPassword);
+    log.info("These may be different even for same password depending on the salt.");
+    log.info("testPassword ==> " + beanPassword);
+    log.info("systemPassword ==> " + systemPassword);
 
-        assertTrue(PSPasswordHandler.checkHashedPassword(testPassword, beanPassword));
-        assertTrue(PSPasswordHandler.checkHashedPassword(testPassword, systemPassword));
+    assertTrue(PSPasswordHandler.checkHashedPassword(testPassword, beanPassword));
+    assertTrue(PSPasswordHandler.checkHashedPassword(testPassword, systemPassword));
+  }
+
+  public String encrypt(String password) throws PSEncryptionException {
+    if (StringUtils.isBlank(password)) {
+      return StringUtils.EMPTY;
     }
-
-    public String encrypt(String password) throws PSEncryptionException {
-        if (StringUtils.isBlank(password)) {
-            return StringUtils.EMPTY;
-        }
-        return PSPasswordHandler.getHashedPassword(password.trim());
-    }
+    return PSPasswordHandler.getHashedPassword(password.trim());
+  }
 }

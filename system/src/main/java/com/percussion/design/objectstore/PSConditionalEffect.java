@@ -33,22 +33,15 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implements the PSXConditionalEffect element defined in
- * sys_RelationshipConfig.dtd.
- */
+/** Implements the PSXConditionalEffect element defined in sys_RelationshipConfig.dtd. */
 public class PSConditionalEffect extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode the XML element node to construct this object from, not
-   * <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object, may
-   * be <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   * <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   * appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSConditionalEffect(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -59,7 +52,6 @@ public class PSConditionalEffect extends PSComponent {
    * Constructs this object with supplied extension call.
    *
    * @param effect the extension to use as effect, may not be <code>null</code>.
-   *
    * @throws IllegalArgumentException if effect is <code>null</code>
    */
   public PSConditionalEffect(PSExtensionCall effect) {
@@ -71,9 +63,7 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Sets the conditions to be satisfied to execute this object's extension.
    *
-   * @param conds list of conditions, may not be <code>null</code>, can be
-   * empty.
-   *
+   * @param conds list of conditions, may not be <code>null</code>, can be empty.
    * @throws IllegalArgumentException if conds is <code>null</code>.
    */
   public void setConditions(Iterator conds) {
@@ -93,9 +83,8 @@ public class PSConditionalEffect extends PSComponent {
   }
 
   /**
-   * @return activation end point for this effect. One of the
-   * ACTIVATION_ENDPOINT_XXXX values defined in {@link PSRelationshipConfig}.
-   * Never <code>null</code> or empty.
+   * @return activation end point for this effect. One of the ACTIVATION_ENDPOINT_XXXX values
+   *     defined in {@link PSRelationshipConfig}. Never <code>null</code> or empty.
    */
   public String getActivationEndPoint() {
     return m_activationEndPoint;
@@ -104,8 +93,8 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Set activation end point for this effect.
    *
-   * @param activationEndPoint must be one of the ACTIVATION_ENDPOINT_XXXX
-   * values defined in {@link PSRelationshipConfig}.
+   * @param activationEndPoint must be one of the ACTIVATION_ENDPOINT_XXXX values defined in {@link
+   *     PSRelationshipConfig}.
    */
   public void setActivationEndPoint(String activationEndPoint) {
     if (!PSRelationshipConfig.isActivationEndPointValid(activationEndPoint)) {
@@ -116,17 +105,17 @@ public class PSConditionalEffect extends PSComponent {
   }
 
   /**
-   * Get the current collection of conditions (a collection of {@link PSRule}
-   * objects).
+   * Get the current collection of conditions (a collection of {@link PSRule} objects).
    *
-   * @return the collection of conditions {@link PSRule}, never
-   * <code>null</code>, may be empty.
+   * @return the collection of conditions {@link PSRule}, never <code>null</code>, may be empty.
    */
   public Iterator getConditions() {
     return m_conditions.iterator();
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -185,7 +174,9 @@ public class PSConditionalEffect extends PSComponent {
     }
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
 
@@ -270,10 +261,9 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Set the Execution Contexts.
    *
-   * @param exeContexts a list of Execution Contexts. Each element must be
-   * between {@link IPSExcecutionContext#VALIDATION_MIN} and
-   * {@link IPSExcecutionContext#VALIDATION_MAX}. It may be EMPTY if unknown,
-   * never <code>null</code>.
+   * @param exeContexts a list of Execution Contexts. Each element must be between {@link
+   *     IPSExcecutionContext#VALIDATION_MIN} and {@link IPSExcecutionContext#VALIDATION_MAX}. It
+   *     may be EMPTY if unknown, never <code>null</code>.
    */
   public void setExecutionContexts(Collection<Integer> exeContexts) {
     if (exeContexts == null) throw new IllegalArgumentException("exeContexts must not be null");
@@ -288,24 +278,21 @@ public class PSConditionalEffect extends PSComponent {
   /**
    * Get a list of Execution Contexts that is relevent for this effect.
    *
-   * @return the Execution Context list. Each element is between
-   * {@link IPSExcecutionContext#VALIDATION_MIN} and
-   * {@link IPSExcecutionContext#VALIDATION_MAX}. It may be EMPTY if unknown,
-   * never <code>null</code>.
+   * @return the Execution Context list. Each element is between {@link
+   *     IPSExcecutionContext#VALIDATION_MIN} and {@link IPSExcecutionContext#VALIDATION_MAX}. It
+   *     may be EMPTY if unknown, never <code>null</code>.
    */
   public Collection<Integer> getExecutionContexts() {
     return m_exeContexts;
   }
 
   /**
-   * Determines whether the supplied Execution Context is interested by this
-   * effect.
+   * Determines whether the supplied Execution Context is interested by this effect.
    *
    * @param testCtx the to be tested Execution Context.
-   *
-   * @return <code>true</code> if the Execution Context is relevent to this
-   * effect; otherwise return <code>false</code>. Always return
-   * <code>true</code> if there is no Execution Contexts in this effect.
+   * @return <code>true</code> if the Execution Context is relevent to this effect; otherwise return
+   *     <code>false</code>. Always return <code>true</code> if there is no Execution Contexts in
+   *     this effect.
    */
   public boolean hasExecutionContext(int testCtx) {
     if (m_exeContexts.isEmpty()) return true;
@@ -317,13 +304,12 @@ public class PSConditionalEffect extends PSComponent {
   }
 
   /**
-   * Returns the execution context value for the given string representation.
-   * If not found removes the "-" from the supplied string and tries to find
-   * the value.
+   * Returns the execution context value for the given string representation. If not found removes
+   * the "-" from the supplied string and tries to find the value.
    *
    * @param executionContextName, name of the execution context.
-   * @return Integer value of execution context or <code>null</code> if the
-   * supplied string is does not represent a valid execution context.
+   * @return Integer value of execution context or <code>null</code> if the supplied string is does
+   *     not represent a valid execution context.
    */
   public static Integer getExecutionContextValueForName(String executionContextName) {
     Integer ctxVal = null;
@@ -337,12 +323,12 @@ public class PSConditionalEffect extends PSComponent {
   }
 
   /**
-   * Returns the execution context name for the given integer representation.
-   * If addHyphen is true then adds "-" after Pre or Post.
+   * Returns the execution context name for the given integer representation. If addHyphen is true
+   * then adds "-" after Pre or Post.
    *
    * @param executionContextValue, value of the execution context.
-   * @return String name of execution context or <code>null</code> if the
-   * supplied integer does not represent a valid execution context.
+   * @return String name of execution context or <code>null</code> if the supplied integer does not
+   *     represent a valid execution context.
    */
   public static String getExecutionContextNameForValue(
       Integer executionContextValue, boolean addHyphen) {
@@ -361,30 +347,28 @@ public class PSConditionalEffect extends PSComponent {
   public static final String XML_NODE_NAME = "PSXConditionalEffect";
 
   /**
-   * Attribute name of {@link XML_NODE_NAME} element indicating the activation
-   * end point for the effect.
+   * Attribute name of {@link XML_NODE_NAME} element indicating the activation end point for the
+   * effect.
    */
   public static final String XML_ATTR_ACTIVATIONENDPOINT = "activationEndpoint";
 
   /**
-   * Activation end point for this effect. One of the ACTIVATION_ENDPOINT_XXXX
-   * values defined in {@link PSRelationshipConfig}. Default is
-   * PSRelationshipConfig.ACTIVATION_ENDPOINT_OWNER. Never <code>null</code>
-   * or empty.
+   * Activation end point for this effect. One of the ACTIVATION_ENDPOINT_XXXX values defined in
+   * {@link PSRelationshipConfig}. Default is PSRelationshipConfig.ACTIVATION_ENDPOINT_OWNER. Never
+   * <code>null</code> or empty.
    */
   private String m_activationEndPoint = PSRelationshipConfig.ACTIVATION_ENDPOINT_OWNER;
 
   /**
-   * Holds the effect to be executed, initialized in ctor, never changed or
-   * <code>null</code> after that.
+   * Holds the effect to be executed, initialized in ctor, never changed or <code>null</code> after
+   * that.
    */
   private PSExtensionCall m_effect = null;
 
   /**
-   * A collection of conditions ({@link PSRule} objects) that specify if the
-   * effect need to be executed or not. Initialized in the ctor, and may be
-   * modified through a call to <code>setConditions(Iterator)</code>. Never
-   * <code>null</code>, might be empty.
+   * A collection of conditions ({@link PSRule} objects) that specify if the effect need to be
+   * executed or not. Initialized in the ctor, and may be modified through a call to <code>
+   * setConditions(Iterator)</code>. Never <code>null</code>, might be empty.
    */
   private PSCollection m_conditions = new PSCollection(PSRule.class);
 
@@ -395,57 +379,46 @@ public class PSConditionalEffect extends PSComponent {
   private static final String ELEM_CONDITIONS = "Conditions";
 
   /**
-   * The XML element name for the Execution Context Set, which contains a list
-   * of Execution Context element, refer to sys_RelationshipConfig.dtd for
-   * detail.
+   * The XML element name for the Execution Context Set, which contains a list of Execution Context
+   * element, refer to sys_RelationshipConfig.dtd for detail.
    */
   private static final String ELEM_EXE_CONTEXT_SET = "ExecutionContextSet";
 
-  /**
-   * The XML element name for a Execution Context
-   */
+  /** The XML element name for a Execution Context */
   private static final String ELEM_EXE_CONTEXT = "ExecutionContext";
 
-  /**
-   * The attribute of the {@link #ELEM_EXE_CONTEXT} element
-   */
+  /** The attribute of the {@link #ELEM_EXE_CONTEXT} element */
   private static final String ATTR_TYPE = "type";
 
   /**
-   * A list of Execution Contexts that is relevent for this effect. It may be
-   * EMPTY if unknown, never <code>null</code>.
+   * A list of Execution Contexts that is relevent for this effect. It may be EMPTY if unknown,
+   * never <code>null</code>.
    */
   private Collection<Integer> m_exeContexts = new ArrayList<>();
 
-  /**
-   * Computed number
-   */
+  /** Computed number */
   private static final long serialVersionUID = -8339993723317778994L;
 
-  /**
-   * The logger of this class.
-   */
+  /** The logger of this class. */
   private static final Logger log = LogManager.getLogger(PSConditionalEffect.class);
 
   /**
    * It maps context name (in lower case) to its related id that is defined in
-   * IPSExecutionContext.RS_XXX. The names are the allowed attributes for
-   * <code>ExecutionContext</code> element that are defined in
-   * <code>sys_RelationshipConfig.dtd</code>.
+   * IPSExecutionContext.RS_XXX. The names are the allowed attributes for <code>ExecutionContext
+   * </code> element that are defined in <code>sys_RelationshipConfig.dtd</code>.
    */
   private static HashMap<String, Integer> ms_ContextNameIdMapper = new HashMap<>();
 
   /**
-   * It maps context id to its related name. The id is defined in
-   * IPSExecutionContext.RS_XXX. The names are the allowed attributes for
-   * <code>ExecutionContext</code> element that are defined in
+   * It maps context id to its related name. The id is defined in IPSExecutionContext.RS_XXX. The
+   * names are the allowed attributes for <code>ExecutionContext</code> element that are defined in
    * <code>sys_RelationshipConfig.dtd</code>.
    */
   private static HashMap<Integer, String> ms_ContextIdNameMapper = new HashMap<>();
 
   /**
-   * A list of allowed attribute names for Execution Context element that is
-   * defined in sys_RelationshipConfig.dtd
+   * A list of allowed attribute names for Execution Context element that is defined in
+   * sys_RelationshipConfig.dtd
    */
   public static final String RS_PRE_CONSTRUCTION = "PreConstruction";
 

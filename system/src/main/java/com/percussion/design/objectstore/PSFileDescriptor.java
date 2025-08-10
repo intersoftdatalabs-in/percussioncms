@@ -23,21 +23,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Class to represent an associated file within metadata for a content editor
- * control, as defined by the &lt;psxctl:AssociatedFileList&gt; node in
- * <code>sys_LibraryControlDef.dtd</code>
+ * Class to represent an associated file within metadata for a content editor control, as defined by
+ * the &lt;psxctl:AssociatedFileList&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
 public class PSFileDescriptor extends PSComponent {
   /**
-   * Initializes a newly created <code>PSFileDescriptor</code> object, from
-   * an XML representation.  See {@link #toXml(Document)} for the format.
+   * Initializes a newly created <code>PSFileDescriptor</code> object, from an XML representation.
+   * See {@link #toXml(Document)} for the format.
    *
-   * @param sourceNode the XML element node to construct this object from.
-   *    Cannot be <code>null</code>.
-   *
+   * @param sourceNode the XML element node to construct this object from. Cannot be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if sourceNode is <code>null</code>
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format
    */
   public PSFileDescriptor(Element sourceNode) throws PSUnknownNodeTypeException {
     if (null == sourceNode) throw new IllegalArgumentException("sourceNode cannot be null.");
@@ -45,18 +42,15 @@ public class PSFileDescriptor extends PSComponent {
   }
 
   /**
-   * This method is called to populate an object from an XML
-   * element node. An element node may contain a hierarchical structure,
-   * including child objects. The element node can also be a child of
-   * another element node.  See {@link #toXml(Document)} for the format.
+   * This method is called to populate an object from an XML element node. An element node may
+   * contain a hierarchical structure, including child objects. The element node can also be a child
+   * of another element node. See {@link #toXml(Document)} for the format.
    *
    * @param sourceNode element with name specified by {@link #XML_NODE_NAME}
    * @param parentDoc ignored.
    * @param parentComponents ignored.
-   *
    * @throws IllegalArgumentException if <code>sourceNode</code> is <code>null</code>.
-   * @throws PSUnknownNodeTypeException  if an expected XML element is missing,
-   *    or <code>null</code>
+   * @throws PSUnknownNodeTypeException if an expected XML element is missing, or <code>null</code>
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -83,9 +77,8 @@ public class PSFileDescriptor extends PSComponent {
   }
 
   /**
-   * This method is called to create an XML element node with the
-   * appropriate format for this object. Format expected is defined by the
-   * sys_LibraryControlDef.dtd DTD:
+   * This method is called to create an XML element node with the appropriate format for this
+   * object. Format expected is defined by the sys_LibraryControlDef.dtd DTD:
    *
    * <pre><code>
    * &lt;!ELEMENT psxctl:AssociatedFileList (psxctl:FileLocation,
@@ -100,11 +93,9 @@ public class PSFileDescriptor extends PSComponent {
    * &lt; !ELEMENT psxctl:Timestamp (#PCDATA)>
    * </code></pre>
    *
-   * @param doc The XML document being constructed, needed to create new
-   *    elements.  Cannot be <code>null</code>.
-   *
-   * @return    the newly created XML element node
-   *
+   * @param doc The XML document being constructed, needed to create new elements. Cannot be <code>
+   *     null</code>.
+   * @return the newly created XML element node
    * @throws IllegalArgumentException if <code>doc</code> is <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -171,21 +162,19 @@ public class PSFileDescriptor extends PSComponent {
   /**
    * Get the time this file was saved on the server, if known.
    *
-   * @return The timestamp, in the fomat <code>YYYYMMDD HH:MM:SS</code>, never
-   * <code>null</code>, may be empty.
+   * @return The timestamp, in the fomat <code>YYYYMMDD HH:MM:SS</code>, never <code>null</code>,
+   *     may be empty.
    */
   public String getTimeStamp() {
     return m_timestamp;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component.
+   * Performs a shallow copy of the data in the supplied component to this component.
    *
    * @param source object to be shallow copied; may not be <code>null</code>
-   *
-   * @throws IllegalArgumentException if source is <code>null</code> or
-   * not an instance of <code>PSFileDescriptor</code>
+   * @throws IllegalArgumentException if source is <code>null</code> or not an instance of <code>
+   *     PSFileDescriptor</code>
    */
   public void copyFrom(PSComponent source) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -208,8 +197,7 @@ public class PSFileDescriptor extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param obj the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object obj) {
     boolean isEqual = true;
@@ -229,8 +217,8 @@ public class PSFileDescriptor extends PSComponent {
   }
 
   /**
-   * Returns a hash code value for the object. See
-   * {@link java.lang.Object#hashCode() Object.hashCode()} for more info.
+   * Returns a hash code value for the object. See {@link java.lang.Object#hashCode()
+   * Object.hashCode()} for more info.
    */
   public int hashCode() {
     return m_id
@@ -242,49 +230,42 @@ public class PSFileDescriptor extends PSComponent {
         + m_timestamp.hashCode();
   }
 
-  /**
-   * Array of allowed types.
-   */
+  /** Array of allowed types. */
   public static final String[] TYPE_ENUM = {"other", "script", "image", "include", "css"};
 
-  /**
-   * Name of the file, never <code>null</code>, empty, or modified after ctor.
-   */
+  /** Name of the file, never <code>null</code>, empty, or modified after ctor. */
   private String m_name;
 
   /**
-   * Type of file, one of the {@link #TYPE_ENUM} values, never
-   * <code>null</code>, empty, or modified after ctor.
+   * Type of file, one of the {@link #TYPE_ENUM} values, never <code>null</code>, empty, or modified
+   * after ctor.
    */
   private String m_type;
 
   /**
-   * The specific mimetype of the file, never <code>null</code> or modified
-   * after ctor, may be empty.
+   * The specific mimetype of the file, never <code>null</code> or modified after ctor, may be
+   * empty.
    */
   private String m_mimetype;
 
   /**
-   * The original location of the file, never <code>null</code> or modified
-   * after ctor, may be empty.
+   * The original location of the file, never <code>null</code> or modified after ctor, may be
+   * empty.
    */
   private String m_originalLocation;
 
   /**
-   * The location of the file relative to the rx root, never
-   * <code>null</code>, empty, or modified.
+   * The location of the file relative to the rx root, never <code>null</code>, empty, or modified.
    */
   private String m_fileLocation;
 
   /**
-   * The timestamp of the file when it was uploaded to the server,
-   * never <code>null</code> or modified after ctor, may be empty.
+   * The timestamp of the file when it was uploaded to the server, never <code>null</code> or
+   * modified after ctor, may be empty.
    */
   private String m_timestamp;
 
-  /**
-   * Name of this object's root XML element
-   */
+  /** Name of this object's root XML element */
   public static final String XML_NODE_NAME = "psxctl:FileDescriptor";
 
   // private xml constants

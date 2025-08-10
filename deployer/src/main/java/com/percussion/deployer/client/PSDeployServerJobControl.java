@@ -20,16 +20,16 @@ package com.percussion.deployer.client;
 import com.percussion.error.PSDeployException;
 
 /**
- * The job controller that represents a job started on the server. Provides
- * ability to query the job status, cancel the job, and get the job results.
+ * The job controller that represents a job started on the server. Provides ability to query the job
+ * status, cancel the job, and get the job results.
  */
 public class PSDeployServerJobControl implements IPSDeployJobControl {
   /**
    * Constructs this object using the supplied parameters.
-   * @param id The job id that identifies the job on the server, must be > 0.
-   * @param dm The deployment manager that will forward request to the server,
-   * may not be <code>null</code>.
    *
+   * @param id The job id that identifies the job on the server, must be > 0.
+   * @param dm The deployment manager that will forward request to the server, may not be <code>null
+   *     </code>.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
   public PSDeployServerJobControl(int id, PSDeploymentManager dm) {
@@ -67,22 +67,21 @@ public class PSDeployServerJobControl implements IPSDeployJobControl {
   }
 
   /**
-   * The job id this controller is handling. Initialized in constructor and
-   * never modified after that.
+   * The job id this controller is handling. Initialized in constructor and never modified after
+   * that.
    */
   private int m_jobId;
 
   /**
-   * The deployment manager that will be used to query the job status and
-   * cancel the job. Initialized in constructor and never <code>null</code> or
-   * modified after that.
+   * The deployment manager that will be used to query the job status and cancel the job.
+   * Initialized in constructor and never <code>null</code> or modified after that.
    */
   private PSDeploymentManager m_deployMgr;
 
   /**
-   * The status message that holds the message got from the deployment
-   * manager with the last call to the {@link #getStatus() getStatus} method.
-   * Gets modified with each call to <code>getStatus()</code> method.
+   * The status message that holds the message got from the deployment manager with the last call to
+   * the {@link #getStatus() getStatus} method. Gets modified with each call to <code>getStatus()
+   * </code> method.
    */
   private StringBuilder m_statusMsg = null;
 }

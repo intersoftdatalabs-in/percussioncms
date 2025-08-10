@@ -20,31 +20,31 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 
-/**
- * Generates IDs for widget items.
- * IDs only need to be unique within the page.
- */
+/** Generates IDs for widget items. IDs only need to be unique within the page. */
 public interface IPSWidgetItemIdGenerator {
 
-    /**
-     * Generates an ID that should be unique over the widget associations.
-     * @param widgets never {@code null}.
-     * @param item never {@code null}.
-     * @return generated ID.
-     */
-    Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item);
+  /**
+   * Generates an ID that should be unique over the widget associations.
+   *
+   * @param widgets never {@code null}.
+   * @param item never {@code null}.
+   * @return generated ID.
+   */
+  Long generateId(PSRegionWidgetAssociations widgets, PSWidgetItem item);
 
-    /**
-     * Generates and sets IDs for widgets that do not have an ID.
-     * Widgets where {@link PSWidgetItem#getId()} is {@code null} will get a new ID.
-     * <strong>Note: this method mutates the widgets.</strong>
-     * @param widgets never {@code null}.
-     */
-    void generateIds(PSRegionWidgetAssociations widgets);
+  /**
+   * Generates and sets IDs for widgets that do not have an ID. Widgets where {@link
+   * PSWidgetItem#getId()} is {@code null} will get a new ID. <strong>Note: this method mutates the
+   * widgets.</strong>
+   *
+   * @param widgets never {@code null}.
+   */
+  void generateIds(PSRegionWidgetAssociations widgets);
 
-    /**
-     * Sets IDs to null for widgets that have an ID.
-     * @param widgets never {@code null}.
-     */
-    void deleteIds(PSRegionWidgetAssociations widgets);
+  /**
+   * Sets IDs to null for widgets that have an ID.
+   *
+   * @param widgets never {@code null}.
+   */
+  void deleteIds(PSRegionWidgetAssociations widgets);
 }

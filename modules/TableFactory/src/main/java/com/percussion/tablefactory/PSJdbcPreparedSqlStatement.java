@@ -23,18 +23,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.apache.commons.io.IOUtils;
 
-/**
- * This is a SqlStatement that can be prepared and contains bound parameters.
- */
+/** This is a SqlStatement that can be prepared and contains bound parameters. */
 public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
   /**
    * Constructs Sql statement to execute.
    *
-   * @param statement The statement to execute, may have bound parameter
-   * tokens ("?").  May not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if statement is <code>null</code> or
-   * empty.
+   * @param statement The statement to execute, may have bound parameter tokens ("?"). May not be
+   *     <code>null</code> or empty.
+   * @throws IllegalArgumentException if statement is <code>null</code> or empty.
    */
   public PSJdbcPreparedSqlStatement(String statement) {
     super(statement);
@@ -43,14 +39,12 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
   /**
    * Constructs Sql statement to execute, including the parameter values.
    *
-   * @param statement The statement to execute, may have bound parameter
-   * tokens ("?").  May not be <code>null</code> or empty.
-   * @param values A list of {@link PSJdbcStatementColumn} objects, may be
-   * <code>null</code> but not empty.
-   *
-   * @throws IllegalArgumentException if statement is <code>null</code> or
-   * empty, or  if values does not contain at least one object, or does not
-   * contain object of the correct type.
+   * @param statement The statement to execute, may have bound parameter tokens ("?"). May not be
+   *     <code>null</code> or empty.
+   * @param values A list of {@link PSJdbcStatementColumn} objects, may be <code>null</code> but not
+   *     empty.
+   * @throws IllegalArgumentException if statement is <code>null</code> or empty, or if values does
+   *     not contain at least one object, or does not contain object of the correct type.
    */
   public PSJdbcPreparedSqlStatement(String statement, PSCollection values) {
     super(statement);
@@ -60,11 +54,10 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
   /**
    * A list of values to bind when the statement is executed.
    *
-   * @param values A list of {@link PSJdbcStatementColumn} objects, may be
-   * <code>null</code> but not empty.
-   *
-   * @throws IllegalArgumentException if values does not contain at least one
-   * object, or does not contain object of the correct type.
+   * @param values A list of {@link PSJdbcStatementColumn} objects, may be <code>null</code> but not
+   *     empty.
+   * @throws IllegalArgumentException if values does not contain at least one object, or does not
+   *     contain object of the correct type.
    */
   public void setValues(PSCollection values) {
     if (values != null) {
@@ -150,9 +143,8 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    * Binds the list of values to the statement.
    *
    * @param stmt The PreparedStatement, assumed not <code>null</code>.
-   * @param values A list of one or more PSJdbcStatementColumn objects,
-   * assumed not <code>null</code> or empty.
-   *
+   * @param values A list of one or more PSJdbcStatementColumn objects, assumed not <code>null
+   *     </code> or empty.
    * @throws SQLException if any errors occur
    */
   protected void bindValues(PreparedStatement stmt, PSCollection values) throws SQLException {
@@ -174,9 +166,9 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
   }
 
   /**
-   * List of {@link PSJdbcStatementColumn} objects, used to bind values into
-   * the statement at runtime.  May be <code>null</code> if the statement does
-   * not require any parameters, but never emtpy if not <code>null</code>.
+   * List of {@link PSJdbcStatementColumn} objects, used to bind values into the statement at
+   * runtime. May be <code>null</code> if the statement does not require any parameters, but never
+   * emtpy if not <code>null</code>.
    */
   protected PSCollection m_values = null;
 }

@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 /**
  * String utilities for Percussion Delivery Tier.
+ *
  * @author Sunny Sal
  */
 public final class PSDeliveryStringUtils {
@@ -16,6 +17,7 @@ public final class PSDeliveryStringUtils {
 
   /**
    * Joins non-empty strings with the given delimiter.
+   *
    * @param delimiter Delimiter to use.
    * @param values Strings to join.
    * @return Joined string.
@@ -29,6 +31,7 @@ public final class PSDeliveryStringUtils {
 
   /**
    * Returns an Optional containing the trimmed string if not null or empty.
+   *
    * @param value String to trim.
    * @return Optional containing trimmed string, or empty.
    */

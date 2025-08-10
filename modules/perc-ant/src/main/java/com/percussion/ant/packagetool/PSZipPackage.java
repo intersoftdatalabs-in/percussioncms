@@ -24,10 +24,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Zip;
 
 /**
+ * <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -153,28 +152,18 @@ public class PSZipPackage extends Zip {
     }
   }
 
-  /**
-   * Root directory path for packages
-   */
+  /** Root directory path for packages */
   private String rootDirPath;
 
-  /**
-   * Package name going to be zip up
-   */
+  /** Package name going to be zip up */
   private String packageName;
 
-  /**
-   * Temporary directory path
-   */
+  /** Temporary directory path */
   private String tempPath1;
 
-  /**
-   * Temporary directory path
-   */
+  /** Temporary directory path */
   private String tempPath2;
 
-  /**
-   * Destination directory path
-   */
+  /** Destination directory path */
   private String destDirPath;
 }

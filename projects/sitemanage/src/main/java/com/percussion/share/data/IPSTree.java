@@ -26,10 +26,10 @@ package com.percussion.share.data;
  */
 public interface IPSTree<T> {
 
-    /**
-     * Returns the root node of the tree.
-     *
-     * @return the root node, never null
-     */
-    IPSTreeNode<T> getRoot();
+  /**
+   * Returns the root node of the tree.
+   *
+   * @return the root node, never null
+   */
+  IPSTreeNode<T> getRoot();
 }

@@ -21,129 +21,101 @@ import com.percussion.cms.objectstore.IPSCmsComponent;
 import java.util.Collection;
 
 /**
- * Interface to implement the configuration of possible Java plugins based on
- * the client's OS and browser versions. The object represents a set of plugins
- * for each combination of OS and Browser versions.
- * The DTD for the XML block for this object is:
- * &lt;!ELEMENT PSXJavaPlugin EMPTY&gt;
- * &lt;!ATTLIST PSXJavaPlugin
- * oskey CDATA #REQUIRED
- * browserkey CDATA #REQUIRED
- * versiontouse CDATA #REQUIRED
- * versioningtype (Dynamic | Static) #REQUIRED
- * downloadlocation CDATA #IMPLIED
- * &gt;
+ * Interface to implement the configuration of possible Java plugins based on the client's OS and
+ * browser versions. The object represents a set of plugins for each combination of OS and Browser
+ * versions. The DTD for the XML block for this object is: &lt;!ELEMENT PSXJavaPlugin EMPTY&gt;
+ * &lt;!ATTLIST PSXJavaPlugin oskey CDATA #REQUIRED browserkey CDATA #REQUIRED versiontouse CDATA
+ * #REQUIRED versioningtype (Dynamic | Static) #REQUIRED downloadlocation CDATA #IMPLIED &gt;
  * &lt;!ELEMENT PSXJavaPluginConfig (PSXJavaPlugin+)&gt;
- *@see IPSJavaPlugin
+ *
+ * @see IPSJavaPlugin
  */
 public interface IPSJavaPluginConfig extends IPSComponent {
   /**
-   * Returns plugin object for the given http user agent string which is a CGI
-   * variable posted by the browser to the server.
-   * @param httpUserAgent HTTP User Agent string. This is typically a string
-   * representing the cient's browser and OS.
-   * @return <code>IPSPlugin</code> object for the given combination of the OS
-   * and Browser in the HTTP User Agent. May be <code>null</code> if one does
-   * not exist for that combination.
+   * Returns plugin object for the given http user agent string which is a CGI variable posted by
+   * the browser to the server.
+   *
+   * @param httpUserAgent HTTP User Agent string. This is typically a string representing the
+   *     cient's browser and OS.
+   * @return <code>IPSPlugin</code> object for the given combination of the OS and Browser in the
+   *     HTTP User Agent. May be <code>null</code> if one does not exist for that combination.
    */
   public IPSJavaPlugin getPlugin(String httpUserAgent);
 
   /**
    * Returns plugin object for the given OS and Browser combinations.
-   * @param osKey key string representing the operating system. This typically
-   * follows the syntax of the CGI variable for OS from the server.
-   * @param browserKey key string representing the browser. This typically
-   * follows the syntax of the CGI variable for Browser from the server.
-   * @return <code>IPSPlugin</code> object for the given combination of the OS
-   * and Browser. May be <code>null</code> if one does not exist for that
-   * combination.
+   *
+   * @param osKey key string representing the operating system. This typically follows the syntax of
+   *     the CGI variable for OS from the server.
+   * @param browserKey key string representing the browser. This typically follows the syntax of the
+   *     CGI variable for Browser from the server.
+   * @return <code>IPSPlugin</code> object for the given combination of the OS and Browser. May be
+   *     <code>null</code> if one does not exist for that combination.
    */
   public IPSJavaPlugin getPlugin(String osKey, String browserKey);
 
   /**
    * Returns all plugins provisioned in the config.xml.
-   * @return collection of IPSJavaPlugin objects, never <code>null</code>,
-   * may be <code>empty</code>.
+   *
+   * @return collection of IPSJavaPlugin objects, never <code>null</code>, may be <code>empty</code>
+   *     .
    */
   public Collection getAllPlugins();
 
   /**
    * Get the default plugin object.
-   * @return <code>IPSPlugin</code> object for the default plugin.
-   * Never <code>null</code>
+   *
+   * @return <code>IPSPlugin</code> object for the default plugin. Never <code>null</code>
    */
   public IPSJavaPlugin getDefaultPlugin();
 
-  /**
-   * See the {@link IPSCmsComponent#equals(Object) interface} for complete
-   * details.
-   */
+  /** See the {@link IPSCmsComponent#equals(Object) interface} for complete details. */
   public boolean equals(Object obj);
 
-  /**
-   * Generates code of the object. Overrides {@link Object#hashCode()}.
-   */
+  /** Generates code of the object. Overrides {@link Object#hashCode()}. */
   public int hashCode();
 
-  /**
-   * KEY_SEPARATOR.
-   */
+  /** KEY_SEPARATOR. */
   public static final char KEY_SEPARATOR = ':';
 
-  /**
-   * Default plugin attributes
-   */
+  /** Default plugin attributes */
   public static final String DEFAULT_OSKEY = "Any";
 
   public static final String DEFAULT_BROWSERKEY = "Any";
 
-  /**
-   * List of supported plugin versions
-   */
+  /** List of supported plugin versions */
   public static final String[] VERSION_LIST = {
     "1.5.0_11" // default
   };
 
   public static final String DEFAULT_VERSIONTOUSE = VERSION_LIST[0];
 
-  /**
-   * List of supported plugin locations
-   */
+  /** List of supported plugin locations */
   public static final String[] PLUGIN_LOCATION_LIST = {
     "http://java.sun.com/update/1.5.0/jinstall-1_5_0_11-windows-i586.cab#Version=1,5,0,11" // default
   };
 
   public static final String DEFAULT_DOWNLOADLOCATION = PLUGIN_LOCATION_LIST[0];
 
-  /**
-   * List of supported version types
-   */
+  /** List of supported version types */
   public static final String[] VERSIONING_LIST = {"Dynamic", "Static"};
 
-  /**
-   * List of supported Operating Systems
-   */
+  /** List of supported Operating Systems */
   public static final String[] OS_LIST = {
     DEFAULT_OSKEY, "Windows XP", "Windows 2000", "Windows NT", "Mac OS X"
   };
 
-  /**
-   * List of supported Operating Systems representation in useragent
-   */
+  /** List of supported Operating Systems representation in useragent */
   public static final String[] OS_LIST_USERAGENT = {
     DEFAULT_OSKEY, "Windows NT 5.1", "Windows NT 5.0", "Windows NT", "PPC Mac OS X"
   };
 
-  /**
-   * List of supported Browsers
-   */
+  /** List of supported Browsers */
   public static final String[] BROWSER_LIST = {
     DEFAULT_BROWSERKEY, "IE 5.0", "IE 5.5", "IE 6.0", "NS 4.79", "NS 7.0", "Firefox 1.0", "Safari"
   };
 
-  /**
-   * List of supported Browsers representation in useragent
-   */
+  /** List of supported Browsers representation in useragent */
   public static final String[] BROWSER_LIST_USERAGENT = {
     DEFAULT_BROWSERKEY,
     "MSIE 5.0",
@@ -155,9 +127,7 @@ public interface IPSJavaPluginConfig extends IPSComponent {
     "Safari"
   };
 
-  /**
-   * List of applications which use plugin
-   */
+  /** List of applications which use plugin */
   public static final String[] PLUGIN_APPLICATION_LIST = {
     "sys_cmpHelp", "sys_cx", "sys_cxDependencyTree", "sys_cxItemAssembly"
   };

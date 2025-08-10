@@ -99,9 +99,7 @@ public class PSDispatcherFilter implements Filter {
         "/Rhythmyx/services"
       };
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static final Logger log = LogManager.getLogger(PSDispatcherFilter.class);
 
   @Override
@@ -138,14 +136,14 @@ public class PSDispatcherFilter implements Filter {
   }
 
   /**
-   * This is not a good way of doing this.  Trying to make preview paths handle like they are
-   * on the original site we have to handle every unknown request and look at the referer.
-   * There will be problems if there are clashes with internal resources as well being difficult
-   * to see how this is working as it is hidden in this function and it is not normal to change the
-   * response based upon the referer.
+   * This is not a good way of doing this. Trying to make preview paths handle like they are on the
+   * original site we have to handle every unknown request and look at the referer. There will be
+   * problems if there are clashes with internal resources as well being difficult to see how this
+   * is working as it is hidden in this function and it is not normal to change the response based
+   * upon the referer.
    *
    * @param request the servlet request
-   * @param path  The path with initial /Rhythmyx removed if exists
+   * @param path The path with initial /Rhythmyx removed if exists
    * @return The path with /Sites/{sitename}/ prefix unless in set of resource paths
    */
   private String addSitePrefixFromReferer(HttpServletRequest request, String path) {

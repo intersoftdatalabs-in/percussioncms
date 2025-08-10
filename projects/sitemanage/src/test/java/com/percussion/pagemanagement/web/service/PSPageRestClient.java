@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+/** */
 // REFACTORED: CP-JAVA11
 
 package com.percussion.pagemanagement.web.service;
@@ -33,66 +31,66 @@ import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
 import com.percussion.share.data.PSNoContent;
 import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
-
 import java.util.List;
 
 public class PSPageRestClient extends PSDataServiceRestClient<PSPage> {
 
-    public PSPageRestClient(String baseUrl) {
-        super(PSPage.class, baseUrl, "/Rhythmyx/services/pagemanagement/page/");
-    }
+  public PSPageRestClient(String baseUrl) {
+    super(PSPage.class, baseUrl, "/Rhythmyx/services/pagemanagement/page/");
+  }
 
-    public PSPage load(String id) {
-        return get(id);
-    }
+  public PSPage load(String id) {
+    return get(id);
+  }
 
-    public String getPageEditUrl(String id) {
-        return GET(concatPath(getPath(), "pageEditUrl", id));
-    }
+  public String getPageEditUrl(String id) {
+    return GET(concatPath(getPath(), "pageEditUrl", id));
+  }
 
-    public String getPageViewUrl(String id) {
-        return GET(concatPath(getPath(), "pageViewUrl", id));
-    }
+  public String getPageViewUrl(String id) {
+    return GET(concatPath(getPath(), "pageViewUrl", id));
+  }
 
-    public PSPage findPageByFullFolderPath(String fullPath) {
-        notEmpty(fullPath, "fullPath");
-        var normalizedPath = removeStart(fullPath, "//");
-        return getObjectFromPath(concatPath(getPath(), "folderpath", normalizedPath));
-    }
+  public PSPage findPageByFullFolderPath(String fullPath) {
+    notEmpty(fullPath, "fullPath");
+    var normalizedPath = removeStart(fullPath, "//");
+    return getObjectFromPath(concatPath(getPath(), "folderpath", normalizedPath));
+  }
 
-    public void forceDelete(String pageId) {
-        GET(concatPath(getPath(), "/forceDelete", pageId));
-    }
+  public void forceDelete(String pageId) {
+    GET(concatPath(getPath(), "/forceDelete", pageId));
+  }
 
-    public PSNoContent validateDelete(String pageId) {
-        return getObjectFromPath(concatPath(getPath(), "/validateDelete", pageId), PSNoContent.class);
-    }
+  public PSNoContent validateDelete(String pageId) {
+    return getObjectFromPath(concatPath(getPath(), "/validateDelete", pageId), PSNoContent.class);
+  }
 
-    public List<PSSEOStatistics> findNonSEOPages(PSItemByWfStateRequest request) {
-        return postObjectToPathAndGetObjects(concatPath(getPath(), "/nonSEOPages"), request, PSSEOStatistics.class);
-    }
+  public List<PSSEOStatistics> findNonSEOPages(PSItemByWfStateRequest request) {
+    return postObjectToPathAndGetObjects(
+        concatPath(getPath(), "/nonSEOPages"), request, PSSEOStatistics.class);
+  }
 
-    public PSPage createPage(String name, String folderPath) throws Exception {
-        var templateId = getTemplateClient().getContentOnlyTemplateId();
+  public PSPage createPage(String name, String folderPath) throws Exception {
+    var templateId = getTemplateClient().getContentOnlyTemplateId();
 
-        var pageNew = new PSPage();
-        pageNew.setName(name);
-        pageNew.setTitle("title");
-        pageNew.setFolderPath(folderPath);
-        pageNew.setTemplateId(templateId);
-        pageNew.setLinkTitle("dummy");
-        var br = new PSRegionBranches();
-        var region = new PSRegion();
-        region.setRegionId("test");
-        br.setRegions(asList(region));
-        pageNew.setRegionBranches(br);
+    var pageNew = new PSPage();
+    pageNew.setName(name);
+    pageNew.setTitle("title");
+    pageNew.setFolderPath(folderPath);
+    pageNew.setTemplateId(templateId);
+    pageNew.setLinkTitle("dummy");
+    var br = new PSRegionBranches();
+    var region = new PSRegion();
+    region.setRegionId("test");
+    br.setRegions(asList(region));
+    pageNew.setRegionBranches(br);
 
-        return save(pageNew);
-    }
+    return save(pageNew);
+  }
 
-    private PSTemplateServiceClient getTemplateClient() throws Exception {
-        var client = new PSTemplateServiceClient(getUrl());
-        PSRestTestCase.setupClient(client);
-        return client;
-    }
+  private PSTemplateServiceClient getTemplateClient() throws Exception {
+    var client = new PSTemplateServiceClient(getUrl());
+    PSRestTestCase.setupClient(client);
+    return client;
+  }
 }

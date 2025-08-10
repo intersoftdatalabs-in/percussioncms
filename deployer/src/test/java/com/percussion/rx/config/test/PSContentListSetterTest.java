@@ -25,119 +25,109 @@ import com.percussion.services.filter.IPSFilterService;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSContentList;
-
-import org.junit.jupiter.api.Tag;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Tag;
 
 @Tag("IntegrationTest")
-public class PSContentListSetterTest extends PSConfigurationTest
-{
-   public void testNegative() throws Exception
-   {
-      try
-      {
-         PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG,
-               LOCAL_BAD_CFG);
-         assertTrue(false);
-      }
-      catch (Exception e)
-      {
-         assertTrue(true);
-      }
+public class PSContentListSetterTest extends PSConfigurationTest {
+  public void testNegative() throws Exception {
+    try {
+      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_BAD_CFG);
+      assertTrue(false);
+    } catch (Exception e) {
+      assertTrue(true);
+    }
+  }
 
-   }
-   
-   public void testConfigFiles() throws Exception
-   {
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);
-      validateLocalContentList();
-      
-      // \/\/\/\/\/\/\/\
-      // cleanup
-      PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
-      validateDefaultContentList();
-   }
+  public void testConfigFiles() throws Exception {
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, LOCAL_CFG);
+    validateLocalContentList();
 
-   private void validateLocalContentList() throws Exception
-   {
-      IPSContentList cList = getContentList();
+    // \/\/\/\/\/\/\/\
+    // cleanup
+    PSConfigFilesFactoryTest.applyConfig(PKG_NAME, IMPL_CFG, DEFAULT_CFG);
+    validateDefaultContentList();
+  }
 
-      assertTrue(cList.getExpander().equals("Java/global/percussion/system/sys_ListTemplateExpander"));
-      assertTrue(cList.getExpanderParams().get("template").equals("MyTemplate"));
-      
-      assertTrue(cList.getGenerator().equals("Java/global/percussion/system/sys_SearchGenerator"));
-      String sql = cList.getGeneratorParams().get("query");
-      assertTrue(sql.equals("select rx:sys_contentid from rx:rffimage where jcr:path like '//Sites%'"));
-      
-      assertTrue(cList.getUrl().indexOf("ftp") > 0);
+  private void validateLocalContentList() throws Exception {
+    IPSContentList cList = getContentList();
 
-      // filter
-      IPSFilterService srv = PSFilterServiceLocator.getFilterService();      
-      IPSItemFilter filter = srv.loadFilter(cList.getFilterId());
-      assertTrue(filter.getName().equals("preview"));
-   }
-   
-   public void testAddPropertyDefs() throws Exception
-   {
-      IPSContentList cList = getContentList();
-      
-      PSContentListSetter setter = new PSContentListSetter();
-      
-      Map<String, Object> defs = new HashMap<String, Object>();
-      Map<String, Object> props = new HashMap<String, Object>();
-      
-      props.put(PSContentListSetter.DELIVERY_TYPE, "${perc.prefix.deliveryType}");
-      props.put(PSContentListSetter.FILTER, "${perc.prefix.filter}");
-      props.put(PSContentListSetter.EXPANDER_PARAMS, "${perc.prefix.exp_params}");
-      props.put(PSContentListSetter.GEN_PARAMS, "${perc.prefix.gen_params}");
-      
-      setter.setProperties(props);
-      setter.addPropertyDefs(cList, defs);
-      
-      assertTrue("Expect 4 defs", defs.size() == 4);
-      String value = (String) defs.get("perc.prefix.filter");
-      assertTrue("Expect public", value.equals("public"));
-      value = (String) defs.get("perc.prefix.deliveryType");
-      assertTrue("Expect filesystem", value.equals("filesystem"));
-   }
-   
-   private IPSContentList getContentList() throws Exception
-   {
-      IPSDesignModelFactory factory = PSDesignModelFactoryLocator
-            .getDesignModelFactory();
-      IPSDesignModel model = factory.getDesignModel(PSTypeEnum.CONTENT_LIST);
-      return (IPSContentList) model.load(CONTENT_LIST);
-   }
+    assertTrue(
+        cList.getExpander().equals("Java/global/percussion/system/sys_ListTemplateExpander"));
+    assertTrue(cList.getExpanderParams().get("template").equals("MyTemplate"));
 
-   private void validateDefaultContentList() throws Exception
-   {
-      IPSContentList cList = getContentList();
-      assertTrue(cList.getExpander().equals("Java/global/percussion/system/sys_SiteTemplateExpander"));
-      
-      assertTrue(cList.getGenerator().equals("Java/global/percussion/system/sys_SearchGenerator"));
-      String sql = cList.getGeneratorParams().get("query");
-      assertTrue(sql.equals("select rx:sys_contentid, rx:sys_folderid from rx:rfffile,rx:rffimage,rx:percnavimage where jcr:path like '//Sites/CorporateInvestments%'"));
-      
-      assertTrue(cList.getUrl().indexOf("filesystem") > 0);
+    assertTrue(cList.getGenerator().equals("Java/global/percussion/system/sys_SearchGenerator"));
+    String sql = cList.getGeneratorParams().get("query");
+    assertTrue(
+        sql.equals("select rx:sys_contentid from rx:rffimage where jcr:path like '//Sites%'"));
 
-      // filter
-      IPSFilterService srv = PSFilterServiceLocator.getFilterService();      
-      IPSItemFilter filter = srv.loadFilter(cList.getFilterId());
-      assertTrue(filter.getName().equals("public"));
-   }
-   
-   private static final String CONTENT_LIST = "rffCiFullBinary";
-   
-   public static final String PKG_NAME = "PSContentListSetterTest";
-   
-   public static final String IMPL_CFG = PKG_NAME + "_ConfigDefs.xml";
+    assertTrue(cList.getUrl().indexOf("ftp") > 0);
 
-   public static final String LOCAL_CFG = PKG_NAME + "_LocalConfigs.xml";
+    // filter
+    IPSFilterService srv = PSFilterServiceLocator.getFilterService();
+    IPSItemFilter filter = srv.loadFilter(cList.getFilterId());
+    assertTrue(filter.getName().equals("preview"));
+  }
 
-   public static final String LOCAL_BAD_CFG = PKG_NAME + "_UnknownDeliveryType.xml";
-   
-   public static final String DEFAULT_CFG = PKG_NAME + "_DefaultConfigs.xml";
+  public void testAddPropertyDefs() throws Exception {
+    IPSContentList cList = getContentList();
 
+    PSContentListSetter setter = new PSContentListSetter();
+
+    Map<String, Object> defs = new HashMap<String, Object>();
+    Map<String, Object> props = new HashMap<String, Object>();
+
+    props.put(PSContentListSetter.DELIVERY_TYPE, "${perc.prefix.deliveryType}");
+    props.put(PSContentListSetter.FILTER, "${perc.prefix.filter}");
+    props.put(PSContentListSetter.EXPANDER_PARAMS, "${perc.prefix.exp_params}");
+    props.put(PSContentListSetter.GEN_PARAMS, "${perc.prefix.gen_params}");
+
+    setter.setProperties(props);
+    setter.addPropertyDefs(cList, defs);
+
+    assertTrue("Expect 4 defs", defs.size() == 4);
+    String value = (String) defs.get("perc.prefix.filter");
+    assertTrue("Expect public", value.equals("public"));
+    value = (String) defs.get("perc.prefix.deliveryType");
+    assertTrue("Expect filesystem", value.equals("filesystem"));
+  }
+
+  private IPSContentList getContentList() throws Exception {
+    IPSDesignModelFactory factory = PSDesignModelFactoryLocator.getDesignModelFactory();
+    IPSDesignModel model = factory.getDesignModel(PSTypeEnum.CONTENT_LIST);
+    return (IPSContentList) model.load(CONTENT_LIST);
+  }
+
+  private void validateDefaultContentList() throws Exception {
+    IPSContentList cList = getContentList();
+    assertTrue(
+        cList.getExpander().equals("Java/global/percussion/system/sys_SiteTemplateExpander"));
+
+    assertTrue(cList.getGenerator().equals("Java/global/percussion/system/sys_SearchGenerator"));
+    String sql = cList.getGeneratorParams().get("query");
+    assertTrue(
+        sql.equals(
+            "select rx:sys_contentid, rx:sys_folderid from rx:rfffile,rx:rffimage,rx:percnavimage"
+                + " where jcr:path like '//Sites/CorporateInvestments%'"));
+
+    assertTrue(cList.getUrl().indexOf("filesystem") > 0);
+
+    // filter
+    IPSFilterService srv = PSFilterServiceLocator.getFilterService();
+    IPSItemFilter filter = srv.loadFilter(cList.getFilterId());
+    assertTrue(filter.getName().equals("public"));
+  }
+
+  private static final String CONTENT_LIST = "rffCiFullBinary";
+
+  public static final String PKG_NAME = "PSContentListSetterTest";
+
+  public static final String IMPL_CFG = PKG_NAME + "_ConfigDefs.xml";
+
+  public static final String LOCAL_CFG = PKG_NAME + "_LocalConfigs.xml";
+
+  public static final String LOCAL_BAD_CFG = PKG_NAME + "_UnknownDeliveryType.xml";
+
+  public static final String DEFAULT_CFG = PKG_NAME + "_DefaultConfigs.xml";
 }

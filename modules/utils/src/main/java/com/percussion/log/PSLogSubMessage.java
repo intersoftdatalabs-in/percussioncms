@@ -18,22 +18,21 @@
 package com.percussion.log;
 
 /**
- * The PSLogSubMessage class is used to store sub-messages. This contains
- * the type code of the sub-message and its associated text. Certain
- * messages, such as PSLogApplicationStatistics, log an entry for each
- * statistic (providing search capabilities). For these messages, many
- * sub-messages will be handed to the log writer.
+ * The PSLogSubMessage class is used to store sub-messages. This contains the type code of the
+ * sub-message and its associated text. Certain messages, such as PSLogApplicationStatistics, log an
+ * entry for each statistic (providing search capabilities). For these messages, many sub-messages
+ * will be handed to the log writer.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSLogSubMessage {
   /**
    * Construct a log sub-message from the specified information.
    *
-   * @param   type     the sub-message type code
-   * @param   text     the sub-message text
+   * @param type the sub-message type code
+   * @param text the sub-message text
    */
   public PSLogSubMessage(int type, java.lang.String text) {
     super();
@@ -44,7 +43,7 @@ public class PSLogSubMessage {
   /**
    * Get the sub-message type.
    *
-   * @return  the sub-message type code
+   * @return the sub-message type code
    */
   public int getType() {
     return m_type;
@@ -53,7 +52,7 @@ public class PSLogSubMessage {
   /**
    * Get the sub-messages text.
    *
-   * @return  the sub-message text
+   * @return the sub-message text
    */
   public java.lang.String getText() {
     return m_text;

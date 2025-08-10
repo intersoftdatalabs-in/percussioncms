@@ -37,10 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class provides functionality to get different parts/formats of this
- * JAR version.
- */
+/** This class provides functionality to get different parts/formats of this JAR version. */
 ////////////////////////////////////////////////////////////////////////////////
 public class PSFormatVersion {
 
@@ -95,16 +92,12 @@ public class PSFormatVersion {
     m_displayVersion = props.getProperty(KEY_DISPLAY_VERSION);
   }
 
-  /**
-   * Private Constructor called from static factory method { createFromXml() createFromXml}
-   *
-   */
+  /** Private Constructor called from static factory method { createFromXml() createFromXml} */
   //////////////////////////////////////////////////////////////////////////////
   private PSFormatVersion() {}
 
   /**
-   * Returns the plain version in the format major.minor.micro
-   * (1.0.0, 2.4.1, ...).
+   * Returns the plain version in the format major.minor.micro (1.0.0, 2.4.1, ...).
    *
    * @return String the plain version string in the proper format.
    */
@@ -114,8 +107,8 @@ public class PSFormatVersion {
   }
 
   /**
-   * Returns the plain build identifier. This number uniquely identifies a
-   * build. However, most people will use the build date to identify the build.
+   * Returns the plain build identifier. This number uniquely identifies a build. However, most
+   * people will use the build date to identify the build.
    *
    * @return String the plain build number
    */
@@ -125,7 +118,7 @@ public class PSFormatVersion {
   }
 
   /**
-   * Returns the  build number, in the 8 digit form YYYYMMNN. NN is a counter.
+   * Returns the build number, in the 8 digit form YYYYMMNN. NN is a counter.
    *
    * @return String the build number
    */
@@ -147,8 +140,7 @@ public class PSFormatVersion {
   /**
    * Returns the plain build date as a <code>Date</code> object.
    *
-   * @return String the plain build date, <code>null</code> if the date is
-   * invalid or not set.
+   * @return String the plain build date, <code>null</code> if the date is invalid or not set.
    */
   //////////////////////////////////////////////////////////////////////////////
   public Date getBuildDate() {
@@ -165,7 +157,9 @@ public class PSFormatVersion {
 
   /**
    * Returns a complete version string.
+   *
    * <p>
+   *
    * <pre>
    *  Examples:
    *    Version 1.2  Build 200311R01 (257)
@@ -176,7 +170,7 @@ public class PSFormatVersion {
    *    Version 1.2  Build 200311P01 (257) [Rx-03-01-0123]
    *
    *  </pre>
-   * </p>
+   *
    * @return String the version string
    */
   //////////////////////////////////////////////////////////////////////////////
@@ -295,10 +289,11 @@ public class PSFormatVersion {
   }
 
   /**
-   * This method is called to create a PSXFormatVersion XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXFormatVersion XML element node containing the data
+   * described in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *    PSXFormatVersion defines all the information about the current version.
@@ -343,12 +338,10 @@ public class PSFormatVersion {
    *    &gt;
    * </code></pre>
    *
-   * @param doc the Xml document used to create this element.  If null, and
-   *          IllegalArgumentException is thrown
-   *
-   * @return     the newly created PSXFormatVersion XML element node
-   *
-   * @throws  IllegalArgumentException if doc is <code>null</code>
+   * @param doc the Xml document used to create this element. If null, and IllegalArgumentException
+   *     is thrown
+   * @return the newly created PSXFormatVersion XML element node
+   * @throws IllegalArgumentException if doc is <code>null</code>
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc cannot be null");
@@ -368,16 +361,13 @@ public class PSFormatVersion {
   }
 
   /**
-   * A static factory method called to create a PSFormatVersion object
-   * from a PSXFormatVersion XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * A static factory method called to create a PSFormatVersion object from a PSXFormatVersion XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
    * @param sourceNode an Xml Element containing the version info
-   *
-   * @return the newly created PSFormatVersion object initialized from
-   *  the Xml Element.  if unable to create the object using the supplied
-   *  Element, returns <code>null</code>.
-   *
+   * @return the newly created PSFormatVersion object initialized from the Xml Element. if unable to
+   *     create the object using the supplied Element, returns <code>null</code>.
    */
   public static PSFormatVersion createFromXml(Element sourceNode) {
     PSFormatVersion version = null;
@@ -393,14 +383,13 @@ public class PSFormatVersion {
   }
 
   /**
-   * This method is called to populate a PSFormatVersion Java object
-   * from a PSXFormatVersion XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSFormatVersion Java object from a PSXFormatVersion XML
+   * element node. See the {@link #toXml(Document) toXml} method for a description of the XML
+   * object.
    *
    * @param sourceNode a node containing the version XML Element
-   *
-   * @throws PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXFormatVersion or is <code>null</code>
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXFormatVersion or
+   *     is <code>null</code>
    */
   private void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
     // make sure we have a source node
@@ -442,29 +431,20 @@ public class PSFormatVersion {
   }
 
   /**
-   * This method is called to retrieve an attribute value
-   * from an XML element node.
+   * This method is called to retrieve an attribute value from an XML element node.
    *
-   * @param tree   a PSXmlTreeWalker with the current node set to the element
-   *               where the attribute is located.  if tree is <code>null</code>
-   *               an IllegalArgumentException will be thrown.
-   *
-   * @param attrName the name of the attribute to search for.  if null or empty,
-   *               an IllegalArgumentException will be thrown.
-   *
-   * @param required <code>true</code> if the attribute is required,
-   * <code>false</code> otherwise
-   *
-   * @param def default value used if attribute is not present or has no
-   * value, may be <code>null</code>.
-   *
-   * @return the value of the attribute, may be <code>null</code> or empty
-   * if <code>required</code> is <code>false</code>
-   *
-   * @throws PSUnknownNodeTypeException if <code>required</code> is
-   * <code>true</code> and the attribute is not present or is zero length
-   *
-   * @throws  IllegalArgumentException if tree or attrName is null or empty
+   * @param tree a PSXmlTreeWalker with the current node set to the element where the attribute is
+   *     located. if tree is <code>null</code> an IllegalArgumentException will be thrown.
+   * @param attrName the name of the attribute to search for. if null or empty, an
+   *     IllegalArgumentException will be thrown.
+   * @param required <code>true</code> if the attribute is required, <code>false</code> otherwise
+   * @param def default value used if attribute is not present or has no value, may be <code>null
+   *     </code>.
+   * @return the value of the attribute, may be <code>null</code> or empty if <code>required</code>
+   *     is <code>false</code>
+   * @throws PSUnknownNodeTypeException if <code>required</code> is <code>true</code> and the
+   *     attribute is not present or is zero length
+   * @throws IllegalArgumentException if tree or attrName is null or empty
    */
   private String getAttribute(PSXmlTreeWalker tree, String attrName, boolean required, String def)
       throws PSUnknownNodeTypeException {
@@ -484,17 +464,14 @@ public class PSFormatVersion {
   }
 
   /**
-   * Convienience method that calls
-   * {@link #getAttribute(PSXmlTreeWalker, String, boolean, String)}
+   * Convienience method that calls {@link #getAttribute(PSXmlTreeWalker, String, boolean, String)}
    */
   private String getAttribute(PSXmlTreeWalker tree, String attrName, boolean required)
       throws PSUnknownNodeTypeException {
     return getAttribute(tree, attrName, required, null);
   }
 
-  /**
-   * Returns version number formatted as majorVersion.minorVersion.microVersion.
-   */
+  /** Returns version number formatted as majorVersion.minorVersion.microVersion. */
   private String getFormattedVersion() {
     return m_majorVersion + "." + m_minorVersion + "." + m_microVersion;
   }
@@ -503,15 +480,14 @@ public class PSFormatVersion {
 
   /**
    * the build date, in the form YYYYMMDD, always 8 digits. never <code>
-   * null</code> after construction. This is used as the build number by
-   * everyone outside of development.
+   * null</code> after construction. This is used as the build number by everyone outside of
+   * development.
    */
   private String m_buildNumber = null;
 
   /**
-   * The monotonically increasing # that is different for every release
-   * build. If 2 builds were created on the same day, they would have the
-   * same build date, but different ids.
+   * The monotonically increasing # that is different for every release build. If 2 builds were
+   * created on the same day, they would have the same build date, but different ids.
    */
   private int m_buildId = 0;
 
@@ -531,28 +507,27 @@ public class PSFormatVersion {
   private String m_optionalId = null;
 
   /**
-   * the interface version, monotonically incremented only when the workbench
-   * and server are no longer compatible
+   * the interface version, monotonically incremented only when the workbench and server are no
+   * longer compatible
    */
   private int m_interfaceVersion = 0;
 
-  /**
-   * the display version seen in dialogs, consoles, etc.
-   */
+  /** the display version seen in dialogs, consoles, etc. */
   private String m_displayVersion = null;
 
   /**
-   * Mappings of build type string to build type mnemonic.
-   * Never <code>null</code> or empty.
-   *<p>Mappings:</p>
-   *<table border="1">
+   * Mappings of build type string to build type mnemonic. Never <code>null</code> or empty.
+   *
+   * <p>Mappings:
+   *
+   * <table border="1">
    *   <th><td>Build type</td><td>Mnemonic</td></th>
    *   <tr><td>BETA</td><td>B</tr>
    *   <tr><td>INTERNAL</td><td>X</tr>
    *   <tr><td>QA</td><td>Q</tr>
    *   <tr><td>RELEASE</td><td>R</tr>
    *   <tr><td>TEST</td><td>T</tr>
-   *</table>
+   * </table>
    */
   private static Map<String, String> ms_buildTypeMap = new HashMap<>();
 
@@ -577,6 +552,6 @@ public class PSFormatVersion {
   private static final String KEY_OPTIONAL_ID = "optionalId";
   private static final String KEY_DISPLAY_VERSION = "displayVersion";
 
-  /** the element name used for the root node  */
+  /** the element name used for the root node */
   public static final String NODE_TYPE = "PSXFormatVersion";
 }

@@ -21,26 +21,27 @@ package com.percussion.share.data;
 import java.io.Serializable;
 
 /**
- * Classes can extend this class to be persistent.
- * All the proper methods that are needed for Hibernate have been extended.
+ * Classes can extend this class to be persistent. All the proper methods that are needed for
+ * Hibernate have been extended.
  *
  * @author adamgent
  */
-public abstract class PSAbstractPersistantObject extends PSAbstractDataObject implements Serializable {
+public abstract class PSAbstractPersistantObject extends PSAbstractDataObject
+    implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Gets the unique identifier for this object.
-     *
-     * @return the id
-     */
-    public abstract String getId();
+  /**
+   * Gets the unique identifier for this object.
+   *
+   * @return the id
+   */
+  public abstract String getId();
 
-    /**
-     * Sets the unique identifier for this object.
-     *
-     * @param id the id to set
-     */
-    public abstract void setId(String id);
+  /**
+   * Sets the unique identifier for this object.
+   *
+   * @param id the id to set
+   */
+  public abstract void setId(String id);
 }

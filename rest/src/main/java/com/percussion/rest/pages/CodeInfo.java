@@ -20,57 +20,47 @@
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents code information for a page.
- * Sunny Sal: "Code ka info, page ka hero!"
- */
+/** Represents code information for a page. Sunny Sal: "Code ka info, page ka hero!" */
 @XmlRootElement(name = "CodeInfo")
 @Schema(name = "CodeInfo", description = "Represents code information.")
 public class CodeInfo {
 
-    @Schema(name = "head", required = false, description = "Head of the code.")
-    private String head = "";
+  @Schema(name = "head", required = false, description = "Head of the code.")
+  private String head = "";
 
-    @Schema(name = "afterStart", required = false, description = "After start of code.")
-    private String afterStart = "";
+  @Schema(name = "afterStart", required = false, description = "After start of code.")
+  private String afterStart = "";
 
-    @Schema(name = "beforeClose", required = false, description = "Before close of code.")
-    private String beforeClose = "";
+  @Schema(name = "beforeClose", required = false, description = "Before close of code.")
+  private String beforeClose = "";
 
-    /**
-     * Gets the head code.
-     */
-    public Optional<String> getHead() {
-        return Optional.ofNullable(head);
-    }
+  /** Gets the head code. */
+  public Optional<String> getHead() {
+    return Optional.ofNullable(head);
+  }
 
-    public void setHead(String head) {
-        this.head = head;
-    }
+  public void setHead(String head) {
+    this.head = head;
+  }
 
-    /**
-     * Gets the code after start.
-     */
-    public Optional<String> getAfterStart() {
-        return Optional.ofNullable(afterStart);
-    }
+  /** Gets the code after start. */
+  public Optional<String> getAfterStart() {
+    return Optional.ofNullable(afterStart);
+  }
 
-    public void setAfterStart(String afterStart) {
-        this.afterStart = afterStart;
-    }
+  public void setAfterStart(String afterStart) {
+    this.afterStart = afterStart;
+  }
 
-    /**
-     * Gets the code before close.
-     */
-    public Optional<String> getBeforeClose() {
-        return Optional.ofNullable(beforeClose);
-    }
+  /** Gets the code before close. */
+  public Optional<String> getBeforeClose() {
+    return Optional.ofNullable(beforeClose);
+  }
 
-    public void setBeforeClose(String beforeClose) {
-        this.beforeClose = beforeClose;
-    }
+  public void setBeforeClose(String beforeClose) {
+    this.beforeClose = beforeClose;
+  }
 }

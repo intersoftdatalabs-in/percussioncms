@@ -53,38 +53,28 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The PSFormContentParser class is used by the PSRequestParser to handle
- * content of types application/x-www-form-urlencoded and multipart/form-data
- * which are sent with POST requests or as part of the URL for GET requests.
+ * The PSFormContentParser class is used by the PSRequestParser to handle content of types
+ * application/x-www-form-urlencoded and multipart/form-data which are sent with POST requests or as
+ * part of the URL for GET requests.
  *
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSFormContentParser extends PSContentParser {
 
   private static final Logger log = LogManager.getLogger(PSFormContentParser.class);
 
   /**
-   * Parse the specified input stream and add it to the appropriate
-   * place in the request structure.
+   * Parse the specified input stream and add it to the appropriate place in the request structure.
    *
-   * @param   request        the request object to store the contents in
-   *
-   * @param   contentType    the Content-Type HTTP header value
-   *
-   * @param   charset        the character encoding of the content
-   *
-   * @param   content        the input stream containing the data
-   *
-   * @param   length         the amount of data to read
-   *
-   * @throws  IOException    if an i/o error occurs
-   *
-   * @throws  PSRequestParsingException
-   *                         if the content is invalid or the
-   *                         contentType is not supported
+   * @param request the request object to store the contents in
+   * @param contentType the Content-Type HTTP header value
+   * @param charset the character encoding of the content
+   * @param content the input stream containing the data
+   * @param length the amount of data to read
+   * @throws IOException if an i/o error occurs
+   * @throws PSRequestParsingException if the content is invalid or the contentType is not supported
    */
   public void parse(
       PSRequest request,
@@ -141,17 +131,13 @@ public class PSFormContentParser extends PSContentParser {
   }
 
   /**
-   * Add the request parameters defined in the specified parameter string
-   * to the specified hash map.
+   * Add the request parameters defined in the specified parameter string to the specified hash map.
    *
-   * @param  params the hash map to add the parameters to, may not be
-   * <code>null</code>, can be empty.
-   *
-   * @param paramString the request parameter string to parse, may not be
-   * <code>null</code>, can be empty.
-   *
-   * @throws PSRequestParsingException if an error occurs parsing the
-   * parameters.
+   * @param params the hash map to add the parameters to, may not be <code>null</code>, can be
+   *     empty.
+   * @param paramString the request parameter string to parse, may not be <code>null</code>, can be
+   *     empty.
+   * @throws PSRequestParsingException if an error occurs parsing the parameters.
    */
   public static void parseParameterString(Map<String, Object> params, String paramString)
       throws PSRequestParsingException {
@@ -213,16 +199,15 @@ public class PSFormContentParser extends PSContentParser {
   }
 
   /**
-   * Replaces all occurrences of entity refs allowed in URL query strings
-   * with their corresponding character. Currently, this is just &amp;
-   * <p>In XHTML, the ampersand used to separate params in the query string
-   * must be escaped because it is an xml document.
+   * Replaces all occurrences of entity refs allowed in URL query strings with their corresponding
+   * character. Currently, this is just &amp;
    *
-   * @param query The query string from a URL. If <code>null</code> or empty,
-   * it is returned unmodified.
+   * <p>In XHTML, the ampersand used to separate params in the query string must be escaped because
+   * it is an xml document.
    *
-   * @return The supplied query with all entity refs replaced with their
-   * corresponding character.
+   * @param query The query string from a URL. If <code>null</code> or empty, it is returned
+   *     unmodified.
+   * @return The supplied query with all entity refs replaced with their corresponding character.
    */
   private static String convertEntities(String query) {
     if (null == query) return null;
@@ -251,7 +236,7 @@ public class PSFormContentParser extends PSContentParser {
   /**
    * Get the content type(s) supported by this driver.
    *
-   * @return      an array containing the supported content type(s)
+   * @return an array containing the supported content type(s)
    */
   public String[] getSupportedContentTypes() {
     return ARRAY_SUPPORTED_TYPES;
@@ -260,9 +245,8 @@ public class PSFormContentParser extends PSContentParser {
   /**
    * Is the content type for a multi-part form?
    *
-   * @param      contentType      the content type to check
-   *
-   * @return                     <code>true</code> if it is
+   * @param contentType the content type to check
+   * @return <code>true</code> if it is
    */
   private boolean isMultipartContentType(String contentType) {
     /* multi-part content contains additional info */
@@ -274,15 +258,11 @@ public class PSFormContentParser extends PSContentParser {
   /**
    * Find a boundary pattern in the "content-type" header.
    *
-   * @param contentType Either the entire header or the value for the http
-   *    "content-type" header.
-   *
-   * @return The value of the 'boundary' parameter in the supplied content
-   *    type, if there is one, modified by prefixing '--' so it is ready for
-   *    use.
-   *
-   * @throws PSRequestParsingException If the boundary parameter isn't found
-   *    or the content-type value is malformed.
+   * @param contentType Either the entire header or the value for the http "content-type" header.
+   * @return The value of the 'boundary' parameter in the supplied content type, if there is one,
+   *     modified by prefixing '--' so it is ready for use.
+   * @throws PSRequestParsingException If the boundary parameter isn't found or the content-type
+   *     value is malformed.
    */
   private static String findBoundary(String contentType) throws PSRequestParsingException {
     String boundary = "";
@@ -310,7 +290,7 @@ public class PSFormContentParser extends PSContentParser {
   /**
    * Throw "content-type" line exception, e.g. "boundary" error
    *
-   * @param   contentType   the line string starts with "content-type"
+   * @param contentType the line string starts with "content-type"
    */
   private static void contentTypeError(String contentType) throws PSRequestParsingException {
     Object[] args = {contentType};
@@ -320,7 +300,7 @@ public class PSFormContentParser extends PSContentParser {
   /**
    * Throw "content-disposition" line exception
    *
-   * @param   contentDisp   the line string starts with "content disposition"
+   * @param contentDisp the line string starts with "content disposition"
    */
   private static void contentDispError(String contentDisp) throws PSRequestParsingException {
     Object[] args = {contentDisp};
@@ -328,23 +308,16 @@ public class PSFormContentParser extends PSContentParser {
   }
 
   /**
-   * Set the parameter HashMaps in the specified request with
-   * the request parameters defined in the specified parameter string.
+   * Set the parameter HashMaps in the specified request with the request parameters defined in the
+   * specified parameter string.
    *
-   * @param   contentType          The content-type header of the request.
-   * Assumed not <code>null</code>.
-   *
-   * @param   reader               The input stream for the request to be
-   * built.  Assumed not <code>null</code>.
-   *
-   * @param   request              The request. Assumed not <code>null</code>.
-   *
-   * @param   originalPageCharSet  The character set of the original request.
-   * May be <code>null</code> or empty.
-   *
-   * @throws  IOException    If an I/O exception occurs processing the request.
-   *
-   * @throws  PSRequestParsingException If an error occurs parsing the request.
+   * @param contentType The content-type header of the request. Assumed not <code>null</code>.
+   * @param reader The input stream for the request to be built. Assumed not <code>null</code>.
+   * @param request The request. Assumed not <code>null</code>.
+   * @param originalPageCharSet The character set of the original request. May be <code>null</code>
+   *     or empty.
+   * @throws IOException If an I/O exception occurs processing the request.
+   * @throws PSRequestParsingException If an error occurs parsing the request.
    */
   private static void parseMultipartForm(
       String contentType, PSInputStreamReader reader, PSRequest request, String originalPageCharSet)
@@ -393,45 +366,30 @@ public class PSFormContentParser extends PSContentParser {
   }
 
   /**
-   * Parse the next data block of a posted multipart form submission.
-   * <br>
-   * If the next data block has an xml file, then it uses the last value in
-   * <code>xmlDocFlags</code> list as the flag to define how to treat the
-   * uploaded xml document and removes that value from the list, so that the
-   * xml document uploaded gets their flags in the order when the next blocks
-   * are parsed. If the <code>xmlDocFlags</code> is <code>null</code> or empty
-   * it uses the server default value for 'useNonValidating' for not to
-   * validate the xml document if it finds the document in the next data block.
+   * Parse the next data block of a posted multipart form submission. <br>
+   * If the next data block has an xml file, then it uses the last value in <code>xmlDocFlags</code>
+   * list as the flag to define how to treat the uploaded xml document and removes that value from
+   * the list, so that the xml document uploaded gets their flags in the order when the next blocks
+   * are parsed. If the <code>xmlDocFlags</code> is <code>null</code> or empty it uses the server
+   * default value for 'useNonValidating' for not to validate the xml document if it finds the
+   * document in the next data block.
    *
-   * TODO: Cleanup: replace findBoundary w/ PSBaseHttpUtils.parseContentType
+   * <p>TODO: Cleanup: replace findBoundary w/ PSBaseHttpUtils.parseContentType
    *
-   * @param   reader   The input stream for the request to be built.
-   * Assumed not <code>null</code>.
-   *
-   * @param   boundary The boundary string. Assumed not <code>null</code>.
-   *
-   * @param   name     The paramater name. May be <code>null</code>
-   *
-   * @param   paramContext   The parameter context. Assumed not
-   * <code>null</code>.
-   *
-   * @param   request  The request. Assumed not <code>null</code>.
-   *
-   * @param   originalPageCharSet  The character set of the original request.
-   * May be <code>null</code> or empty.
-   *
-   * @param xmlDocFlags the list of flags to define how to treat the xml
-   * document uploaded in the reverse order of xml documents uploaded, may be
-   * <code>null</code> or empty. If it is not <code>null</code> or empty and
-   * finds an xml document in this block, it uses the last one in the list as
-   * the flag to define how to treat the uploaded xml document.
-   *
-   * @return <code>true</code> if the end boundary is not reached, otherwise
-   * <code>false</code>
-   *
-   * @throws  IOException    If an I/O exception occurs processing the request.
-   *
-   * @throws  PSRequestParsingException If an error occurs parsing the request.
+   * @param reader The input stream for the request to be built. Assumed not <code>null</code>.
+   * @param boundary The boundary string. Assumed not <code>null</code>.
+   * @param name The paramater name. May be <code>null</code>
+   * @param paramContext The parameter context. Assumed not <code>null</code>.
+   * @param request The request. Assumed not <code>null</code>.
+   * @param originalPageCharSet The character set of the original request. May be <code>null</code>
+   *     or empty.
+   * @param xmlDocFlags the list of flags to define how to treat the xml document uploaded in the
+   *     reverse order of xml documents uploaded, may be <code>null</code> or empty. If it is not
+   *     <code>null</code> or empty and finds an xml document in this block, it uses the last one in
+   *     the list as the flag to define how to treat the uploaded xml document.
+   * @return <code>true</code> if the end boundary is not reached, otherwise <code>false</code>
+   * @throws IOException If an I/O exception occurs processing the request.
+   * @throws PSRequestParsingException If an error occurs parsing the request.
    */
   private static boolean parseNextBlock(
       PSInputStreamReader reader,
@@ -946,16 +904,14 @@ public class PSFormContentParser extends PSContentParser {
   }
 
   /**
-   * Utility class to add the parameters to request parameters map while
-   * parsing the form parameters and content.
+   * Utility class to add the parameters to request parameters map while parsing the form parameters
+   * and content.
    */
   private class PSParamContext {
     /**
-     * Constructs a new <code>PSParamContext</code> object and initializes its
-     * members.
+     * Constructs a new <code>PSParamContext</code> object and initializes its members.
      *
-     * @param params the request parameter map, may not be <code>null</code>,
-     * can be empty.
+     * @param params the request parameter map, may not be <code>null</code>, can be empty.
      */
     PSParamContext(Map<String, Object> params) {
       if (params == null) throw new IllegalArgumentException("A parameter map must be supplied");
@@ -964,12 +920,10 @@ public class PSFormContentParser extends PSContentParser {
     }
 
     /**
-     * Add an entry to the parameter hash map. If the parameter exists, then
-     * it appends the value to its values list.
+     * Add an entry to the parameter hash map. If the parameter exists, then it appends the value to
+     * its values list.
      *
-     * @param name the name of the parameter, may not be <code>null</code> or
-     * empty.
-     *
+     * @param name the name of the parameter, may not be <code>null</code> or empty.
      * @param value the parameter value to add, may be <code>null</code>
      */
     void addParam(String name, Object value) {
@@ -991,9 +945,9 @@ public class PSFormContentParser extends PSContentParser {
     }
 
     /**
-     * The map of parameter values with parameter name as key and value as
-     * value that were passed in with the request. Initialized in constructor
-     * and never <code>null</code> after that. Gets filled in <code>
+     * The map of parameter values with parameter name as key and value as value that were passed in
+     * with the request. Initialized in constructor and never <code>null</code> after that. Gets
+     * filled in <code>
      * addParam(String, Object)</code> method.
      */
     Map<String, Object> m_params = null;
@@ -1003,29 +957,23 @@ public class PSFormContentParser extends PSContentParser {
    * Create a string from the specified buffer, by:
    *
    * <ol>
-   *    <li>url-decoding the buffer</li>
-   *    <li>creating a string using the specified encoding</li>
+   *   <li>url-decoding the buffer
+   *   <li>creating a string using the specified encoding
    * </ol>
-   * <I>Note:</I>The special URL encoding characters will be left alone
-   * so that our parameter processing engine will handle them correctly.
    *
-   * @param buf  The buffer to decode.
+   * <I>Note:</I>The special URL encoding characters will be left alone so that our parameter
+   * processing engine will handle them correctly.
    *
-   * @param charset The character set to create the <code>String</code>
-   *    from the decoded buffer with.  If <code>null</code> or empty,
-   *    the server's default character set will be used.
-   *    You should use the IANA MIME-preferred name of the character
-   *    set or the Java canonical name (preferred).  The encoding will
-   *    first be checked against our internal map of character set
-   *    names and aliases to see if there is an alias that matches this
-   *    value, if a match is found, the javaName specified in that
-   *    entry will be substituted before Java is called.  These maps
-   *    are contained in the csmaps.xml file and loaded at server
-   *    startup.
-   *
+   * @param buf The buffer to decode.
+   * @param charset The character set to create the <code>String</code> from the decoded buffer
+   *     with. If <code>null</code> or empty, the server's default character set will be used. You
+   *     should use the IANA MIME-preferred name of the character set or the Java canonical name
+   *     (preferred). The encoding will first be checked against our internal map of character set
+   *     names and aliases to see if there is an alias that matches this value, if a match is found,
+   *     the javaName specified in that entry will be substituted before Java is called. These maps
+   *     are contained in the csmaps.xml file and loaded at server startup.
    * @return The decoded string.
-   *
-   * @throws IOException  If an I/O error occurs.
+   * @throws IOException If an I/O error occurs.
    */
   public static String createUrlDecodedString(byte[] buf, String charset) throws IOException {
     /* This implementation should be fairly efficient in that

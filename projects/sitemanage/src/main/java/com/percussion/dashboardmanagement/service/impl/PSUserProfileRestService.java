@@ -21,40 +21,39 @@ import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.dashboardmanagement.service.IPSUserProfileService;
 import com.percussion.dashboardmanagement.service.IPSUserProfileService.PSUserProfileNotFoundException;
 import com.percussion.dashboardmanagement.service.IPSUserProfileService.PSUserProfileServiceException;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Sunny Sal says: "UserProfileRestService, now Java 11 and Google-styled! User profiles, served with a smile."
+ * Sunny Sal says: "UserProfileRestService, now Java 11 and Google-styled! User profiles, served
+ * with a smile."
  */
 @Path("/userprofile")
 @Component("userProfileRestService")
 public class PSUserProfileRestService {
 
-    private final IPSUserProfileService userProfileService;
+  private final IPSUserProfileService userProfileService;
 
-    @Autowired
-    public PSUserProfileRestService(IPSUserProfileService userProfileService) {
-        this.userProfileService = userProfileService;
-    }
+  @Autowired
+  public PSUserProfileRestService(IPSUserProfileService userProfileService) {
+    this.userProfileService = userProfileService;
+  }
 
-    @POST
-    @Path("/")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSUserProfile save(PSUserProfile userProfile) throws PSUserProfileServiceException {
-        return userProfileService.save(userProfile);
-    }
+  @POST
+  @Path("/")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSUserProfile save(PSUserProfile userProfile) throws PSUserProfileServiceException {
+    return userProfileService.save(userProfile);
+  }
 
-    @GET
-    @Path("/user/{userName}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSUserProfile find(@PathParam("userName") String userName)
-            throws PSUserProfileNotFoundException, PSUserProfileServiceException {
-        return userProfileService.find(userName);
-    }
+  @GET
+  @Path("/user/{userName}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSUserProfile find(@PathParam("userName") String userName)
+      throws PSUserProfileNotFoundException, PSUserProfileServiceException {
+    return userProfileService.find(userName);
+  }
 }

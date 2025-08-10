@@ -51,35 +51,35 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * The objectives of this extension are to filter the content list for
- * publishing by appending the content items/pages that were published earlier
- * and are:
+ * The objectives of this extension are to filter the content list for publishing by appending the
+ * content items/pages that were published earlier and are:
+ *
  * <ol>
- * <li>Purged from the system</li>
- * <li>Removed from a folder</li>
- * <li>Moved from one folder to another</li>
+ *   <li>Purged from the system
+ *   <li>Removed from a folder
+ *   <li>Moved from one folder to another
  * </ol>
- * to the unpublish content list XML result document. It uses the following
- * algorithm to do the above:
+ *
+ * to the unpublish content list XML result document. It uses the following algorithm to do the
+ * above:
+ *
  * <ol>
- * <li>Gets all previously published items/pages to the site by making an
- * internal request to a Rhythmyx resource. These are obtained as a result set
- * for performance reasons.
- * <li>Gets the parent folderids for each of the items. While doing so, it
- * assumes the item can exist in multiple folders.</li>
- * <li>It generates publish paths for each of the folders it exists in.</li>
- * <li>It filters out any item with publish path not matching with the
- * previously published location path.</li>
- * <li>It builds the content list document for these remaining items/pages by
- * making another internal request to a Rhythmyx resource.</li>
- * <li>Finally, this list is merged with the result document which is already
- * an unpublish content list document.</li>
+ *   <li>Gets all previously published items/pages to the site by making an internal request to a
+ *       Rhythmyx resource. These are obtained as a result set for performance reasons.
+ *   <li>Gets the parent folderids for each of the items. While doing so, it assumes the item can
+ *       exist in multiple folders.
+ *   <li>It generates publish paths for each of the folders it exists in.
+ *   <li>It filters out any item with publish path not matching with the previously published
+ *       location path.
+ *   <li>It builds the content list document for these remaining items/pages by making another
+ *       internal request to a Rhythmyx resource.
+ *   <li>Finally, this list is merged with the result document which is already an unpublish content
+ *       list document.
  * </ol>
- * <p>
- * The exit takes one optional parameter to indicate if the publish path
- * comparison should be case sensitive. The default value for this is "no". It
- * assumes the DTD of the result document to be <em>contentlist.dtd</em> and
- * the content list being generated is for unpublishing.
+ *
+ * <p>The exit takes one optional parameter to indicate if the publish path comparison should be
+ * case sensitive. The default value for this is "no". It assumes the DTD of the result document to
+ * be <em>contentlist.dtd</em> and the content list being generated is for unpublishing.
  */
 public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     implements IPSResultDocumentProcessor {
@@ -92,7 +92,7 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * See the class description.
    *
    * @see IPSResultDocumentProcessor#processResultDocument(java.lang.Object[],
-   *      com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
+   *     com.percussion.server.IPSRequestContext, org.w3c.dom.Document)
    */
   public Document processResultDocument(
       Object[] params, IPSRequestContext request, Document resultDoc)
@@ -190,15 +190,10 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   /**
    * Determines whether the supplied folder is under the given site.
    *
-   * @param siteRootLocator the locator of the site root, assumed not
-   *    <code>null</code>.
-   * @param sFolderId the id of the to be determined folder, assumed not
-   *    <code>null</code>.
+   * @param siteRootLocator the locator of the site root, assumed not <code>null</code>.
+   * @param sFolderId the id of the to be determined folder, assumed not <code>null</code>.
    * @param processor the folder processor, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the locator is a site folder; otherwise
-   *    return <code>false</code>.
-   *
+   * @return <code>true</code> if the locator is a site folder; otherwise return <code>false</code>.
    * @throws PSExtensionProcessingException if error occurs.
    */
   private boolean isSiteFolder(
@@ -226,12 +221,9 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   /**
    * Get the root locator of the site.
    *
-   * @param request the request context, the site id is specified by
-   *    {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}.
-   *    Assumed not <code>null</code>.
-   *
+   * @param request the request context, the site id is specified by {@link
+   *     com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}. Assumed not <code>null</code>.
    * @return the root locator of the site, never <code>null</code>.
-   *
    * @throws PSExtensionProcessingException if error occurs.
    */
   private PSLocator getSiteRootLocator(IPSRequestContext request)
@@ -256,27 +248,20 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   }
 
   /**
-   * Create unpublished content list from the supplied parameters and append
-   * the list to the supplied result document.
+   * Create unpublished content list from the supplied parameters and append the list to the
+   * supplied result document.
    *
    * @param resultDoc the result document, assumed not <code>null</code>.
-   * @param request request context used to make an internal request, assumed
-   *           not <code>null</code>.
-   * @param contentidSet set of contentids (as strings), assumed not
-   *           <code>null</code>.
-   * @param cidFolderPaths it maps contentid (as <code>String</code>) to a set
-   *           of folder paths (as <code>Set</code> of <code>String</code>).
-   *           The paths are lower case if the <code>caseSensitive</code> is
-   *           <code>false</code>. Assumed not <code>null</code>.
-   *           The folder paths are the suppose published locations. This is
-   *           used to filter out the entries that are returned from
-   *           {@link #buildContentList(Set, IPSRequestContext)}, so that we
-   *           filter out the good published entries and keep the bad published
-   *           entries.
+   * @param request request context used to make an internal request, assumed not <code>null</code>.
+   * @param contentidSet set of contentids (as strings), assumed not <code>null</code>.
+   * @param cidFolderPaths it maps contentid (as <code>String</code>) to a set of folder paths (as
+   *     <code>Set</code> of <code>String</code>). The paths are lower case if the <code>
+   *     caseSensitive</code> is <code>false</code>. Assumed not <code>null</code>. The folder paths
+   *     are the suppose published locations. This is used to filter out the entries that are
+   *     returned from {@link #buildContentList(Set, IPSRequestContext)}, so that we filter out the
+   *     good published entries and keep the bad published entries.
    * @param caseSensitive <code>true</code> if the path is case sensitive.
-   *
-   * @throws PSExtensionProcessingException if an error while executing a
-   *           request.
+   * @throws PSExtensionProcessingException if an error while executing a request.
    */
   private void appendContentList(
       Document resultDoc,
@@ -326,24 +311,19 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   }
 
   /**
-   * Helper method to build contentlist document for a given set of content
-   * ids. Makes an internal request to a rhythmyx resource to build the
-   * contentlist XML document.
-   * <p>
-   * Note, the returned list may contain more than one entries for each
-   * content id. In this case, the entries may contain both good locations
-   * (the suppose published locations) and bad locations (the moved or purged
-   * locations).
+   * Helper method to build contentlist document for a given set of content ids. Makes an internal
+   * request to a rhythmyx resource to build the contentlist XML document.
    *
-   * @param contentidSet set of contentids (as strings), assumed not
-   *           <code>null</code>.
-   * @param request request context used to make an internal request, assumed
-   *           not <code>null</code>.
-   * @return the content list XML document returned by the resource, may be
-   *         <code>null</code>. In not <code>null</code>, will conform to
-   *         contentlist.dtd.
-   * @throws PSExtensionProcessingException if the resource for the internal
-   *            request is missing or any error while executing the request.
+   * <p>Note, the returned list may contain more than one entries for each content id. In this case,
+   * the entries may contain both good locations (the suppose published locations) and bad locations
+   * (the moved or purged locations).
+   *
+   * @param contentidSet set of contentids (as strings), assumed not <code>null</code>.
+   * @param request request context used to make an internal request, assumed not <code>null</code>.
+   * @return the content list XML document returned by the resource, may be <code>null</code>. In
+   *     not <code>null</code>, will conform to contentlist.dtd.
+   * @throws PSExtensionProcessingException if the resource for the internal request is missing or
+   *     any error while executing the request.
    */
   private Document buildContentList(Set contentidSet, IPSRequestContext request)
       throws PSExtensionProcessingException {
@@ -372,19 +352,17 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   }
 
   /**
-   * Get all site items that have been successfully published and not
-   * successfully unpublished as result set by making an internal request to a
-   * Rhythmyx resource. The resource expects two parameters -
-   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}and
-   * {@link com.percussion.system.utils.IPSHtmlParameters#SYS_CONTEXT}which are
-   * assumed to exist in the original request context.
+   * Get all site items that have been successfully published and not successfully unpublished as
+   * result set by making an internal request to a Rhythmyx resource. The resource expects two
+   * parameters - {@link com.percussion.system.utils.IPSHtmlParameters#SYS_SITEID}and {@link
+   * com.percussion.system.utils.IPSHtmlParameters#SYS_CONTEXT}which are assumed to exist in the
+   * original request context.
    *
    * @param request request context, assumed not <code>null</code>.
-   * @return list of <code>PageData</code> objects representing the site items
-   *         which need to be unpublished, never <code>null</code>, may be
-   *         empty.
-   * @throws PSExtensionProcessingException if internal requet to Rhythmyx
-   *            resource fails for any reason.
+   * @return list of <code>PageData</code> objects representing the site items which need to be
+   *     unpublished, never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if internal requet to Rhythmyx resource fails for any
+   *     reason.
    */
   private List getSiteItems(IPSRequestContext request) throws PSExtensionProcessingException {
     String resource = "rx_Support_pub/siteitem_clist";
@@ -430,20 +408,17 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
   }
 
   /**
-   * Build a map of contentid and parent folder ids for each of the supplied
-   * content ids using relationship API.
+   * Build a map of contentid and parent folder ids for each of the supplied content ids using
+   * relationship API.
    *
    * @param request request context, assumed not <code>null</code>
-   *
-   * @param cids array of contentid's as <code>String</code> objects for
-   *           which the parent folder paths are being requested. assumed not
-   *           <code>null</code>.
-   * @return a map of contentid and parent folder paths. The key is the
-   *         contentid as <code>String</code> and the value is a string array
-   *         folder paths, which will never be <code>null</code> but may be
-   *         empty. Never <code>null</code>, may be empty.
-   * @throws PSExtensionProcessingException if the parent folder paths could
-   *            not be obtained from server for any reason.
+   * @param cids array of contentid's as <code>String</code> objects for which the parent folder
+   *     paths are being requested. assumed not <code>null</code>.
+   * @return a map of contentid and parent folder paths. The key is the contentid as <code>String
+   *     </code> and the value is a string array folder paths, which will never be <code>null</code>
+   *     but may be empty. Never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if the parent folder paths could not be obtained from
+   *     server for any reason.
    */
   private Map getParentFolderIdMap(IPSRequestContext request, String[] cids)
       throws PSExtensionProcessingException {
@@ -473,12 +448,10 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
    * Get array of content id of the folders given the array of full paths.
    *
    * @param request request context, assumed not <code>null</code>.
-   * @param paths array of full folder paths, assumed not <code>null</code>
-   *           may be empty.
-   * @return array of content ids of the folders specified by the paths as
-   *         <code>String</code>s, never <code>null</code>, may be empty.
-   * @throws PSExtensionProcessingException if it fails to get the id from the
-   *            path for any reason.
+   * @param paths array of full folder paths, assumed not <code>null</code> may be empty.
+   * @return array of content ids of the folders specified by the paths as <code>String</code>s,
+   *     never <code>null</code>, may be empty.
+   * @throws PSExtensionProcessingException if it fails to get the id from the path for any reason.
    */
   private String[] getFolderIdByPath(IPSRequestContext request, String[] paths)
       throws PSExtensionProcessingException {
@@ -502,31 +475,29 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     return ids;
   }
 
-  /**
-   * Inner class to hold some item/page specific data.
-   */
+  /** Inner class to hold some item/page specific data. */
   class PageData {
     /**
-     * Content Id of the page, initialized in the ctor. May be
-     * <code>null</code>. Never changed after that.
+     * Content Id of the page, initialized in the ctor. May be <code>null</code>. Never changed
+     * after that.
      */
     private String m_contentid = null;
 
     /**
-     * Revision of the page initialized in the ctor. May be
-     * <code>null</code>. Never changed after that.
+     * Revision of the page initialized in the ctor. May be <code>null</code>. Never changed after
+     * that.
      */
     private String m_revision;
 
     /**
-     * variant Id of the page, initialized in the ctor. May be
-     * <code>null</code>. Never changed after that.
+     * variant Id of the page, initialized in the ctor. May be <code>null</code>. Never changed
+     * after that.
      */
     private String m_variantid;
 
     /**
-     * Publish location of the page, initialized in the ctor. May be
-     * <code>null</code>. Never changed after that.
+     * Publish location of the page, initialized in the ctor. May be <code>null</code>. Never
+     * changed after that.
      */
     private String m_location;
 
@@ -548,8 +519,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     /**
      * Get the contentid as supplied in the ctor.
      *
-     * @param defaultValue default value to be returned if the value is
-     *           <code>null</code>, may be <code>null</code> or empty.
+     * @param defaultValue default value to be returned if the value is <code>null</code>, may be
+     *     <code>null</code> or empty.
      * @return contentid, may be <code>null</code> or empty.
      */
     String getContentid(String defaultValue) {
@@ -559,8 +530,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     /**
      * Get the location as supplied in the ctor.
      *
-     * @param defaultValue default value to be returned if the value is
-     *           <code>null</code>, may be <code>null</code> or empty.
+     * @param defaultValue default value to be returned if the value is <code>null</code>, may be
+     *     <code>null</code> or empty.
      * @return location, may be <code>null</code> or empty.
      */
     String getLocation(String defaultValue) {
@@ -570,8 +541,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     /**
      * Get the revision as supplied in the ctor.
      *
-     * @param defaultValue default value to be returned if the value is
-     *           <code>null</code>, may be <code>null</code> or empty.
+     * @param defaultValue default value to be returned if the value is <code>null</code>, may be
+     *     <code>null</code> or empty.
      * @return revision, may be <code>null</code> or empty.
      */
     String getRevision(String defaultValue) {
@@ -581,8 +552,8 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     /**
      * Get the variantid as supplied in the ctor.
      *
-     * @param defaultValue default value to be returned if the value is
-     *           <code>null</code>, may be <code>null</code> or empty.
+     * @param defaultValue default value to be returned if the value is <code>null</code>, may be
+     *     <code>null</code> or empty.
      * @return variantid, may be <code>null</code> or empty.
      */
     String getVariantid(String defaultValue) {
@@ -590,8 +561,6 @@ public class PSAppendPurgedOrMovedItems extends PSDefaultExtension
     }
   }
 
-  /**
-   * The logger instance for this class, never <code>null</code>.
-   */
+  /** The logger instance for this class, never <code>null</code>. */
   private static final Logger ms_logger = LogManager.getLogger("PSAppendPurgeOrMovedItems");
 }

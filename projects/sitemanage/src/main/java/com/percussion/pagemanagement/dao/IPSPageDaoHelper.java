@@ -24,71 +24,79 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Helper interface for page DAO operations.
- */
+/** Helper interface for page DAO operations. */
 public interface IPSPageDaoHelper {
 
-    /**
-     * Sets the workflow ID on the given page according to the parent folder's workflow association.
-     * @param page the page to update.
-     */
-    void setWorkflowAccordingToParentFolder(PSPage page) throws PSValidationException;
+  /**
+   * Sets the workflow ID on the given page according to the parent folder's workflow association.
+   *
+   * @param page the page to update.
+   */
+  void setWorkflowAccordingToParentFolder(PSPage page) throws PSValidationException;
 
-    /**
-     * Gets the workflow ID to use when creating pages in the specified folder path.
-     * @param folderPath the path, cannot be {@code null} or empty.
-     * @return the workflow ID.
-     */
-    int getWorkflowIdForPath(String folderPath) throws PSValidationException;
+  /**
+   * Gets the workflow ID to use when creating pages in the specified folder path.
+   *
+   * @param folderPath the path, cannot be {@code null} or empty.
+   * @return the workflow ID.
+   */
+  int getWorkflowIdForPath(String folderPath) throws PSValidationException;
 
-    /**
-     * Finds all page IDs using the specified template.
-     * @param templateId never blank.
-     * @return list of page IDs, never {@code null}, may be empty.
-     */
-    Collection<Integer> findPageIdsByTemplate(String templateId);
+  /**
+   * Finds all page IDs using the specified template.
+   *
+   * @param templateId never blank.
+   * @return list of page IDs, never {@code null}, may be empty.
+   */
+  Collection<Integer> findPageIdsByTemplate(String templateId);
 
-    /**
-     * Updates older revisions of pages to use the current template after a template is removed.
-     * @param deletedTemplate the template ID that was deleted, must not be blank.
-     */
-    void replaceTemplateForPageInOlderRevisions(String deletedTemplate);
+  /**
+   * Updates older revisions of pages to use the current template after a template is removed.
+   *
+   * @param deletedTemplate the template ID that was deleted, must not be blank.
+   */
+  void replaceTemplateForPageInOlderRevisions(String deletedTemplate);
 
-    /**
-     * Gets IDs of pages using the given template in an older revision (not current or tip).
-     * @param deletedTemplate the template ID that was deleted, must not be blank.
-     * @return IDs of pages, never {@code null}, may be empty.
-     */
-    Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate);
+  /**
+   * Gets IDs of pages using the given template in an older revision (not current or tip).
+   *
+   * @param deletedTemplate the template ID that was deleted, must not be blank.
+   * @return IDs of pages, never {@code null}, may be empty.
+   */
+  Collection<Integer> findPageIdsByTemplateInRecentRevision(String deletedTemplate);
 
-    /**
-     * Finds the template used by the current revision of the given pages.
-     * @param pages list of page IDs to update, not {@code null}.
-     * @return map of page ID to template, never {@code null}, may be empty.
-     */
-    Map<String, String> findTemplateUsedByCurrentRevisionOfPages(List<Integer> pages);
+  /**
+   * Finds the template used by the current revision of the given pages.
+   *
+   * @param pages list of page IDs to update, not {@code null}.
+   * @return map of page ID to template, never {@code null}, may be empty.
+   */
+  Map<String, String> findTemplateUsedByCurrentRevisionOfPages(List<Integer> pages);
 
-    /**
-     * Finds all imported page IDs using the specified template.
-     * @param templateId template ID to find, must not be blank.
-     * @param pages list of page IDs to find, not {@code null}.
-     * @return list of page IDs, never {@code null}, may be empty.
-     */
-    Collection<Integer> findImportedPageIdsByTemplate(String templateId, List<Integer> pages);
+  /**
+   * Finds all imported page IDs using the specified template.
+   *
+   * @param templateId template ID to find, must not be blank.
+   * @param pages list of page IDs to find, not {@code null}.
+   * @return list of page IDs, never {@code null}, may be empty.
+   */
+  Collection<Integer> findImportedPageIdsByTemplate(String templateId, List<Integer> pages);
 
-    /**
-     * Gets content IDs for fetching by status.
-     * @param criteria search criteria.
-     * @param contentIDs list of content IDs.
-     * @return collection of content IDs.
-     */
-    Collection<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria, List<Integer> contentIDs);
+  /**
+   * Gets content IDs for fetching by status.
+   *
+   * @param criteria search criteria.
+   * @param contentIDs list of content IDs.
+   * @return collection of content IDs.
+   */
+  Collection<Integer> getContentIdsForFetchingByStatus(
+      PSSearchCriteria criteria, List<Integer> contentIDs);
 
-    /**
-     * Finds the link text used by the current revision of the given pages.
-     * @param pages list of page IDs to update, not {@code null}.
-     * @return map of content ID to link text, never {@code null}, may be empty.
-     */
-    Map<String, String> findLinkTextForCurrentRevisionOfPages(List<Integer> pages);
+  /**
+   * Finds the link text used by the current revision of the given pages.
+   *
+   * @param pages list of page IDs to update, not {@code null}.
+   * @return map of content ID to link text, never {@code null}, may be empty.
+   */
+  Map<String, String> findLinkTextForCurrentRevisionOfPages(List<Integer> pages);
 }

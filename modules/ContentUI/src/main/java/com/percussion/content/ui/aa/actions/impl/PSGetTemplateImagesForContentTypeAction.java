@@ -52,12 +52,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Action to get the template image urls. Expects sys_contenttypeid and objectId
- * parameters, throws exception if they are not part of supplied params. Gets
- * the templates for the supplied content type and then returns
+ * Action to get the template image urls. Expects sys_contenttypeid and objectId parameters, throws
+ * exception if they are not part of supplied params. Gets the templates for the supplied content
+ * type and then returns
  *
- * JSONArray of JSONObjects with the template details. The JSONObject consists
- * of the following parameters.
+ * <p>JSONArray of JSONObjects with the template details. The JSONObject consists of the following
+ * parameters.
  *
  * <pre>
  *     templateId
@@ -66,8 +66,7 @@ import org.json.JSONObject;
  *     fullUrl
  * </pre>
  *
- * If the supplied objectId is of type item or slot then filters the templates
- * by slot.
+ * If the supplied objectId is of type item or slot then filters the templates by slot.
  */
 public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
 
@@ -149,12 +148,11 @@ public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to sort the supplied templates by outputformat and then by
-   * name.
+   * Helper method to sort the supplied templates by outputformat and then by name.
    *
    * @param templates assumed not <code>null</code>.
-   * @return sorted collection of templates by outputformat and by type, may be
-   *         empty but never <code>null</code>.
+   * @return sorted collection of templates by outputformat and by type, may be empty but never
+   *     <code>null</code>.
    */
   @SuppressWarnings("unchecked")
   private Collection<IPSAssemblyTemplate> getSortedTemplates(
@@ -225,13 +223,11 @@ public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
    *
    * @param template name of the template, assumed not <code>null</code>.
    * @param site name of the site, assumed not <code>null</code>.
-   * @param type assumed not <code>null</code> and to be one of
-   *           ["Thumb","Full"]
-   * @param fileNames assumed not <code>null</code> may be empty. See
-   *           {@link #getImageFileNames()} description of expected entrties.
-   * @return url of the image never <code>null</code>. relative to the
-   *         Rhythmyx root. Ex: rx_resources/images/TemplateImages/Corporate
-   *         Investments/rffPgCiGeneric_Thumb.jpg
+   * @param type assumed not <code>null</code> and to be one of ["Thumb","Full"]
+   * @param fileNames assumed not <code>null</code> may be empty. See {@link #getImageFileNames()}
+   *     description of expected entrties.
+   * @return url of the image never <code>null</code>. relative to the Rhythmyx root. Ex:
+   *     rx_resources/images/TemplateImages/Corporate Investments/rffPgCiGeneric_Thumb.jpg
    */
   private String getImageUrl(
       String template, String site, String type, Map<String, String> fileNames) {
@@ -249,15 +245,13 @@ public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to build a map of filename key and value as file path. Walks
-   * through all the folders under {@link #rxImageRoot} folder. Picks the files
-   * that end with either _Thumb and _Full. Creates a key by inserting parent
-   * foldername just before _Thumb or _Full in file name. The extension of file
-   * is omitted in the key. The value is the set with the path of the file with
-   * respect to {@link #rxImageRoot} folder.
+   * Helper method to build a map of filename key and value as file path. Walks through all the
+   * folders under {@link #rxImageRoot} folder. Picks the files that end with either _Thumb and
+   * _Full. Creates a key by inserting parent foldername just before _Thumb or _Full in file name.
+   * The extension of file is omitted in the key. The value is the set with the path of the file
+   * with respect to {@link #rxImageRoot} folder.
    *
-   * @return Map of filename key and location may be empty, never
-   *         <code>null</code>.
+   * @return Map of filename key and location may be empty, never <code>null</code>.
    */
   private Map<String, String> getImageFileNames() {
     Map<String, String> fileNames = new HashMap<String, String>();
@@ -310,35 +304,23 @@ public class PSGetTemplateImagesForContentTypeAction extends PSAAActionBase {
     return fileNames;
   }
 
-  /**
-   * Constant for template images root folder.
-   */
+  /** Constant for template images root folder. */
   private static final String rxImageRoot = "rx_resources/images/TemplateImages";
 
-  /**
-   * Default full image location
-   */
+  /** Default full image location */
   private static final String sysDefaultFullImage =
       "sys_resources/images/TemplateImages/Default_Full.jpg";
 
-  /**
-   * Default full image location
-   */
+  /** Default full image location */
   private static final String sysDefaultThumbImage =
       "sys_resources/images/templateImages/Default_Thumb.jpg";
 
-  /**
-   * Logger to use, never <code>null</code>.
-   */
+  /** Logger to use, never <code>null</code>. */
   private static Log ms_log = LogFactory.getLog(PSGetTemplateImagesForContentTypeAction.class);
 
-  /**
-   * Wild card constant for any site
-   */
+  /** Wild card constant for any site */
   private static final String WILD_CARD_ANY_SITE = "AnySite";
 
-  /**
-   * Wild card constant for any site
-   */
+  /** Wild card constant for any site */
   private static final String WILD_CARD_ANY_TEMPLATE = "AnyTemplate";
 }

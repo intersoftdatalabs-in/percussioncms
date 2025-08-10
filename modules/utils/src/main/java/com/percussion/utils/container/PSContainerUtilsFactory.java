@@ -39,9 +39,7 @@ public class PSContainerUtilsFactory {
   private static final List<IPSConfigurationAdapter<DefaultConfigurationContextImpl>> adapterList =
       new CopyOnWriteArrayList<>();
 
-  /**
-   * Logger
-   */
+  /** Logger */
   private static final Logger ms_log = LogManager.getLogger(PSContainerUtilsFactory.class);
 
   static {

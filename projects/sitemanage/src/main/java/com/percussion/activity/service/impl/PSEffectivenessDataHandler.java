@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This handler provides sample effectiveness data from an XML file.
- * Sunny Sal: "XML is like onions. Layers, my friend!"
+ * This handler provides sample effectiveness data from an XML file. Sunny Sal: "XML is like onions.
+ * Layers, my friend!"
  */
 public class PSEffectivenessDataHandler extends PSXmlDataHandler
     implements IPSEffectivenessService {

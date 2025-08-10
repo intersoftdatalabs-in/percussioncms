@@ -42,8 +42,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class encapsulates the knowledge to get the data for any binary
- * field within a particular content type.
+ * This class encapsulates the knowledge to get the data for any binary field within a particular
+ * content type.
+ *
  * <p>Instances of this class are immutable.
  *
  * @author paulhoward
@@ -52,35 +53,30 @@ public class PSFieldRetriever {
   /**
    * The only ctor.
    *
-   * @param contentTypeId The type from which data will be retrieved. The id
-   * is validated when the data is requested.
+   * @param contentTypeId The type from which data will be retrieved. The id is validated when the
+   *     data is requested.
    */
   public PSFieldRetriever(long contentTypeId) {
     m_contentTypeId = contentTypeId;
   }
 
   /**
-   * Makes an internal request to the content editor specified in the ctor
-   * to obtain the binary data for the supplied field using the binary
-   * command.
-   * <p>
-   * No validation is performed on the supplied name (i.e. that it names
-   * an existing binary field).
+   * Makes an internal request to the content editor specified in the ctor to obtain the binary data
+   * for the supplied field using the binary command.
    *
-   * @param req used to obtain a security token. If not supplied, the rx
-   *    server user will be used.
-   * @param itemId the item that contains the field to be retrieved. Never
-   *    <code>null</code>. Revision must be > 0.
+   * <p>No validation is performed on the supplied name (i.e. that it names an existing binary
+   * field).
+   *
+   * @param req used to obtain a security token. If not supplied, the rx server user will be used.
+   * @param itemId the item that contains the field to be retrieved. Never <code>null</code>.
+   *     Revision must be > 0.
    * @param fieldName never <code>null</code> or empty.
-   * @param childRowId the row id if the data is to be loaded from a child
-   *    item, &lt; 0 otherwise.
-   * @return an array containing the data. Never <code>null</code>, may be
-   *    empty.
-   * @throws PSInvalidContentTypeException if the type supplied in the ctor
-   *    does not identify a running content editor.
-   * @throws PSCmsException If the fieldName is not contained by the content
-   *    editor set in ctor or it is not a 'binary' field or any problems occur
-   *    obtaining the data.
+   * @param childRowId the row id if the data is to be loaded from a child item, &lt; 0 otherwise.
+   * @return an array containing the data. Never <code>null</code>, may be empty.
+   * @throws PSInvalidContentTypeException if the type supplied in the ctor does not identify a
+   *     running content editor.
+   * @throws PSCmsException If the fieldName is not contained by the content editor set in ctor or
+   *     it is not a 'binary' field or any problems occur obtaining the data.
    */
   public byte[] getFieldContent(PSRequest req, PSLocator itemId, String fieldName, int childRowId)
       throws PSCmsException, PSInvalidContentTypeException {
@@ -94,27 +90,23 @@ public class PSFieldRetriever {
   }
 
   /**
-   * Makes an internal request to the content editor specified in the ctor
-   * to obtain the binary temp file for the supplied field using the binary
-   * command.
-   * <p>
-   * No validation is performed on the supplied name (i.e. that it names
-   * an existing binary field).
+   * Makes an internal request to the content editor specified in the ctor to obtain the binary temp
+   * file for the supplied field using the binary command.
    *
-   * @param req used to obtain a security token. If not supplied, the rx
-   *    server user will be used.
-   * @param itemId the item that contains the field to be retrieved. Never
-   *    <code>null</code>. Revision must be > 0.
+   * <p>No validation is performed on the supplied name (i.e. that it names an existing binary
+   * field).
+   *
+   * @param req used to obtain a security token. If not supplied, the rx server user will be used.
+   * @param itemId the item that contains the field to be retrieved. Never <code>null</code>.
+   *     Revision must be > 0.
    * @param fieldName never <code>null</code> or empty.
-   * @param childRowId the row id if the data is to be loaded from a child
-   *    item, &lt; 0 otherwise.
-   * @return a purgable temp file containing the data, may be
-   *    <code>null</code> if the field does not contain any data.
-   * @throws PSInvalidContentTypeException if the type supplied in the ctor
-   *    does not identify a running content editor.
-   * @throws PSCmsException If the fieldName is not contained by the content
-   *    editor set in ctor or it is not a 'binary' field or any problems occur
-   *    obtaining the data.
+   * @param childRowId the row id if the data is to be loaded from a child item, &lt; 0 otherwise.
+   * @return a purgable temp file containing the data, may be <code>null</code> if the field does
+   *     not contain any data.
+   * @throws PSInvalidContentTypeException if the type supplied in the ctor does not identify a
+   *     running content editor.
+   * @throws PSCmsException If the fieldName is not contained by the content editor set in ctor or
+   *     it is not a 'binary' field or any problems occur obtaining the data.
    */
   public PSPurgableTempFile getFieldContentFile(
       PSRequest req, PSLocator itemId, String fieldName, int childRowId)
@@ -131,13 +123,11 @@ public class PSFieldRetriever {
   /**
    * Validates all supplied parameters and returns the request url.
    *
-   * @param req used to obtain a security token. If not supplied, the rx
-   *    server user will be used.
-   * @param itemId the item that contains the field to be retrieved. Never
-   *    <code>null</code>. Revision must be > 0.
+   * @param req used to obtain a security token. If not supplied, the rx server user will be used.
+   * @param itemId the item that contains the field to be retrieved. Never <code>null</code>.
+   *     Revision must be > 0.
    * @param fieldName never <code>null</code> or empty.
-   * @param childRowId the row id if the data is to be loaded from a child
-   *    item, &lt; 0 otherwise.
+   * @param childRowId the row id if the data is to be loaded from a child item, &lt; 0 otherwise.
    * @return the prepared url
    */
   private String getRequestUrl(PSRequest req, PSLocator itemId, String fieldName, int childRowId)
@@ -158,9 +148,8 @@ public class PSFieldRetriever {
   /**
    * Is Locator valid?
    *
-   * @param locator to check.  Assumed not <code>null</code>.
-   * @return <code>true</code> if it has an id > 0 and a revision > 0, otherwise
-   * <code>false</code>.
+   * @param locator to check. Assumed not <code>null</code>.
+   * @return <code>true</code> if it has an id > 0 and a revision > 0, otherwise <code>false</code>.
    */
   protected boolean isLocatorValid(PSLocator locator) {
     boolean isValid = true;
@@ -172,15 +161,12 @@ public class PSFieldRetriever {
   /**
    * Add the necessary parameters.
    *
-   * @param itemId assumed not <code>null</code> and valid. See
-   *    {@link #getFieldContent(PSRequest, PSLocator, String, int)
-   *    getFieldContent} for more info.
-   *
-   * @param fieldName assumed not <code>null</code> or empty. See
-   *    {@link #getFieldContent(PSRequest, PSLocator, String, int)
-   *    getFieldContent} for more info.
-   * @param childRowId the childRowId for retrieving the correct
-   *    child row data. If < 0 then we are not trying to retrieve a child row.
+   * @param itemId assumed not <code>null</code> and valid. See {@link #getFieldContent(PSRequest,
+   *     PSLocator, String, int) getFieldContent} for more info.
+   * @param fieldName assumed not <code>null</code> or empty. See {@link #getFieldContent(PSRequest,
+   *     PSLocator, String, int) getFieldContent} for more info.
+   * @param childRowId the childRowId for retrieving the correct child row data. If < 0 then we are
+   *     not trying to retrieve a child row.
    */
   private Map prepareParams(PSLocator itemId, String fieldName, int childRowId) {
     Map<String, Object> params = new HashMap<>();
@@ -210,8 +196,8 @@ public class PSFieldRetriever {
   }
 
   /**
-   * Implements {@link Object#equals(Object)} for this class.  Does
-   * not consider the <code>PSRequest</code> object supplied during ctor.
+   * Implements {@link Object#equals(Object)} for this class. Does not consider the <code>PSRequest
+   * </code> object supplied during ctor.
    */
   public boolean equals(Object o) {
     boolean isEqual = true;
@@ -235,7 +221,6 @@ public class PSFieldRetriever {
    *
    * @param tok Used to obtain the content editor def. Assumed not <code>null
    * </code>.
-   *
    * @throws PSInvalidContentTypeException if content type cannot be located.
    */
   private String getUrlToApp(PSSecurityToken tok)
@@ -259,8 +244,8 @@ public class PSFieldRetriever {
    * Removes the "../" and ".html" from the content editor url.
    *
    * @param theUrl assumed not <code>null</code> and containing "." and "/".
-   * @return the supplied url with the prefix and suffix removed as described,
-   *    never <code>null</code> or empty.
+   * @return the supplied url with the prefix and suffix removed as described, never <code>null
+   *     </code> or empty.
    */
   private String stripUrlExtras(String theUrl) {
     String ax = theUrl.substring(0, theUrl.lastIndexOf("."));
@@ -270,13 +255,9 @@ public class PSFieldRetriever {
   /**
    * Make the binary request and return the data.
    *
-   * @param requestUrl The url to use for the request, assumed not
-   * <code>null</code> or empty.
-   *
+   * @param requestUrl The url to use for the request, assumed not <code>null</code> or empty.
    * @return the data, may be <code>null</code> if there is no data.
-   *
-   * @throws PSCmsException if there is a problem acquiring
-   * the data.
+   * @throws PSCmsException if there is a problem acquiring the data.
    */
   private byte[] requestData(PSRequest request, String requestUrl, Map params)
       throws PSCmsException {
@@ -311,10 +292,8 @@ public class PSFieldRetriever {
   /**
    * Make the binary request.
    *
-   * @param requestUrl t url to use for the request, assumed not
-   *    <code>null</code> or empty.
-   * @return the mime content result, may be <code>null</code> if there is
-   *    no data.
+   * @param requestUrl t url to use for the request, assumed not <code>null</code> or empty.
+   * @return the mime content result, may be <code>null</code> if there is no data.
    * @throws PSCmsException if there is a problem acquiring the result.
    */
   private PSMimeContentResult requestMimeContent(PSRequest request, String requestUrl, Map params)
@@ -338,8 +317,8 @@ public class PSFieldRetriever {
   }
 
   /**
-   * The content type id of the object to locate. Set in ctor, then never
-   * modified. Not validated until the data is actually requested.
+   * The content type id of the object to locate. Set in ctor, then never modified. Not validated
+   * until the data is actually requested.
    */
   private long m_contentTypeId;
 }

@@ -36,18 +36,19 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class provides all functionality to handle server page code for the
- * split and merge processes. The approach we took has two main steps:
+ * This class provides all functionality to handle server page code for the split and merge
+ * processes. The approach we took has two main steps:
+ *
  * <ol>
- * <li>The source HTML is passed through the preProcess method to replace
- * all server page source code with our own markup. While doing this the
- * original code is stored in a map together with the key of our markup.</li>
- * <li>This specially marked HTML file is now ready to be split using tidy.</li>
- * <li>After the split process we put back the original server page code.
- * If the original code was part of an attribute, it will be escaped before
- * put back so the input parser is happy. Otherwise the original code is wrapped with
- * '<xsl:text disable-output-escaping="yes"><![CDATA[' ... ']]></xsl:text>'
- * to tell the parser not to escape the generated output.</li>
+ *   <li>The source HTML is passed through the preProcess method to replace all server page source
+ *       code with our own markup. While doing this the original code is stored in a map together
+ *       with the key of our markup.
+ *   <li>This specially marked HTML file is now ready to be split using tidy.
+ *   <li>After the split process we put back the original server page code. If the original code was
+ *       part of an attribute, it will be escaped before put back so the input parser is happy.
+ *       Otherwise the original code is wrapped with '<xsl:text
+ *       disable-output-escaping="yes"><![CDATA[' ... ']]></xsl:text>' to tell the parser not to
+ *       escape the generated output.
  * </ol>
  */
 public class PSProcessServerPageTags extends Object {
@@ -57,7 +58,6 @@ public class PSProcessServerPageTags extends Object {
    * Constructs and initializes the state machine.
    *
    * @param filePath the absolute path of the server page tags XML file.
-   *
    * @throws IOException if the server page tag file is invalid.
    */
   public PSProcessServerPageTags(File filePath) throws IOException {
@@ -98,8 +98,8 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This goes through the map created in the pre process and replaces the
-   * XSpLit markups with its original server page code.
+   * This goes through the map created in the pre process and replaces the XSpLit markups with its
+   * original server page code.
    *
    * @param xslSource the source XSL string
    * @return the processed XSL string
@@ -149,11 +149,9 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * In case this key did replace an attribute entry, we need to escape the
-   * code block.
-   * Whether or not this was an attribute entry is determined by the key
-   * used. If the key is wrapped with HTML comment opening/closing tags it
-   * is not an attribute entry, otherwise it is.
+   * In case this key did replace an attribute entry, we need to escape the code block. Whether or
+   * not this was an attribute entry is determined by the key used. If the key is wrapped with HTML
+   * comment opening/closing tags it is not an attribute entry, otherwise it is.
    *
    * @param key the key used to mark up the code block.
    * @param the codeBlock to escape.
@@ -177,10 +175,9 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This function will replace all server page blocks found with an
-   * enumerated key and put it together with the key into a hash map. After
-   * the splitting process we must put back the removed code into the XSL
-   * document created, marking it as CDATA.
+   * This function will replace all server page blocks found with an enumerated key and put it
+   * together with the key into a hash map. After the splitting process we must put back the removed
+   * code into the XSL document created, marking it as CDATA.
    *
    * @param tagIndex the closing tag index to use.
    */
@@ -230,12 +227,11 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This method returns whether the current handled server page block is
-   * part of an attribut or not.
+   * This method returns whether the current handled server page block is part of an attribut or
+   * not.
    *
    * @param end the end position until we search for the attribute closing tag.
-   * @return <code>true</code> if part of an attribute, <code>false</code>
-   *    otherwise.
+   * @return <code>true</code> if part of an attribute, <code>false</code> otherwise.
    */
   private boolean isAttribute(int end) {
     int close = m_lastClose;
@@ -250,8 +246,8 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This will return the next key to for our server page markup. It will be
-   * the key prefix plus an incremented counter.
+   * This will return the next key to for our server page markup. It will be the key prefix plus an
+   * incremented counter.
    *
    * @param isAttribute whether or not to get the attribute or regular key.
    */
@@ -262,9 +258,8 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * The XSL output is adding 2 spaces to the open and close comment tag.
-   * Use this function to save the key we are looking for in the post
-   * process.
+   * The XSL output is adding 2 spaces to the open and close comment tag. Use this function to save
+   * the key we are looking for in the post process.
    *
    * @param isAttribute whether or not to get the attribute or regular key.
    */
@@ -275,8 +270,7 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This will skip the current position to the next occurence of the skip
-   * tag provided.
+   * This will skip the current position to the next occurence of the skip tag provided.
    *
    * @param tagIndex the index of the skip tag to use.
    */
@@ -296,12 +290,10 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * Calculates and setx the index of the next opening tag starting from
-   * the provided index.
+   * Calculates and setx the index of the next opening tag starting from the provided index.
    *
    * @param start the index to start from.
-   * @return the vector index of the openingTag for which we found the next
-   *    position.
+   * @return the vector index of the openingTag for which we found the next position.
    */
   private int setNextOpeningTag(int start) {
     // assume there is no more opening tags
@@ -328,8 +320,7 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * Calculates the index of the next opening tag starting from the provided
-   * index.
+   * Calculates the index of the next opening tag starting from the provided index.
    *
    * @param start the index to start from.
    * @param tagIndex the tag index to use
@@ -343,8 +334,7 @@ public class PSProcessServerPageTags extends Object {
    * Calculate the next skip opening tag starting at the given position.
    *
    * @param start the index to start from.
-   * @return the vector index of the skip tag for which we found the next
-   *    position.
+   * @return the vector index of the skip tag for which we found the next position.
    */
   private int nextSkipTag(int start) {
     // assume there is no more opening tags
@@ -372,9 +362,8 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * Initialize the tag vectors. The vectors of opening and closing tags
-   * are created from the external XML file 'serverPageTags.xxml'. The skip
-   * vector is currently hardcoded.
+   * Initialize the tag vectors. The vectors of opening and closing tags are created from the
+   * external XML file 'serverPageTags.xxml'. The skip vector is currently hardcoded.
    *
    * @throws IOException if the server page tag file is invalid.
    */
@@ -411,12 +400,11 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * This parses the XML document from the provided file. An error is
-   * reported to the user if something goes wrong.
+   * This parses the XML document from the provided file. An error is reported to the user if
+   * something goes wrong.
    *
    * @param xmlFile the file to parse from.
-   * @return the document we have read and parsed. If something failed we
-   *    will return null.
+   * @return the document we have read and parsed. If something failed we will return null.
    */
   private static Document getXMLDocument(File xmlFile) {
     try {
@@ -436,93 +424,58 @@ public class PSProcessServerPageTags extends Object {
     return null;
   }
 
-  /**
-   * This is the hash table which will be used to store the removed server
-   * page code.
-   */
+  /** This is the hash table which will be used to store the removed server page code. */
   private ConcurrentHashMap m_codeMap = new ConcurrentHashMap<>();
 
   /**
-   * This is the hash table which will be used to store the enable/disable
-   * escape information. The keys correspond to the keys in the code map.
+   * This is the hash table which will be used to store the enable/disable escape information. The
+   * keys correspond to the keys in the code map.
    */
   private ConcurrentHashMap m_escapeMap = new ConcurrentHashMap<>();
 
-  /**
-   * The key prefix used to mark removed server page code.
-   */
+  /** The key prefix used to mark removed server page code. */
   private String m_keyPrefix = "XSpLit_Server_Page_Block";
 
-  /**
-   * The key counter.
-   */
+  /** The key counter. */
   private static int ms_keyCount = 0;
 
-  /**
-   * A vector of opening tags.
-   */
+  /** A vector of opening tags. */
   private Vector m_openingTags = null;
 
-  /**
-   * A vector of closing tags.
-   */
+  /** A vector of closing tags. */
   private Vector m_closingTags = null;
 
-  /**
-   * A vector of disable escaping information.
-   */
+  /** A vector of disable escaping information. */
   private Vector m_disableEscaping = null;
 
-  /**
-   * A vector of skip tags.
-   */
+  /** A vector of skip tags. */
   private Vector m_skipTags = null;
 
-  /**
-   * The source HTML string to pre-process server page tags for.
-   */
+  /** The source HTML string to pre-process server page tags for. */
   private String m_htmlSource = null;
 
-  /**
-   * The target HTML string to which we build the result to.
-   */
+  /** The target HTML string to which we build the result to. */
   private StringBuilder m_htmlTarget = null;
 
-  /**
-   * The current index of the state machine.
-   */
+  /** The current index of the state machine. */
   private int m_current = 0;
 
-  /**
-   * The next index of opening tag found. -1 indicates there is no next
-   * opening tag index.
-   */
+  /** The next index of opening tag found. -1 indicates there is no next opening tag index. */
   private int m_nextOpen = 0;
 
-  /**
-   * The last closeing tag position marked.
-   */
+  /** The last closeing tag position marked. */
   private int m_lastClose = 0;
 
-  /**
-   * The next index of skip tag found. -1 indicates there is no next
-   * skip tag index.
-   */
+  /** The next index of skip tag found. -1 indicates there is no next skip tag index. */
   private int m_nextSkip = 0;
 
-  /**
-   * All documentation opening tags.
-   */
+  /** All documentation opening tags. */
   private static final Vector<String> ms_openDocTags = new Vector<>();
 
-  /**
-   * All documentation closing tags.
-   */
+  /** All documentation closing tags. */
   private static final Vector<String> ms_closeDocTags = new Vector<>();
 
-  /**
-   * Initialize the documentation tags.
-   */
+  /** Initialize the documentation tags. */
   static {
     ms_openDocTags.add("<!--");
     ms_closeDocTags.add("-->");
@@ -532,29 +485,20 @@ public class PSProcessServerPageTags extends Object {
   }
 
   /**
-   * The document which holds the JSP / APS tags that need special handling
-   * for tidy. If the file is not found, the splitter still works fine for
-   * all cases where no JSP and/or ASP tags are used.
+   * The document which holds the JSP / APS tags that need special handling for tidy. If the file is
+   * not found, the splitter still works fine for all cases where no JSP and/or ASP tags are used.
    */
   private Document m_serverPageTags;
 
-  /**
-   * The CDATA wrapper opening part.
-   */
+  /** The CDATA wrapper opening part. */
   private static final String ms_strCDATABegin = "<![CDATA[\n";
 
-  /**
-   * The CDATA wrapper closing part.
-   */
+  /** The CDATA wrapper closing part. */
   private static final String ms_strCDATAEnd = "\n]]>";
 
-  /**
-   * The xsl:text wrapper opening part.
-   */
+  /** The xsl:text wrapper opening part. */
   private static final String ms_strXslTextBegin = "\n<xsl:text disable-output-escaping=\"yes\">";
 
-  /**
-   * The xsl:text wrapper closing part.
-   */
+  /** The xsl:text wrapper closing part. */
   private static final String ms_strXslTextEnd = "</xsl:text>";
 }

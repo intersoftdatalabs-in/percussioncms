@@ -29,28 +29,24 @@ import java.util.Map;
 import org.w3c.dom.*;
 
 /**
- * This pre-exit adds all HTML parameters in the request to the specified URLs.
- * The urls are specified as the first children of the root element in the
- * result document. For example, the result document
- * &lt;root&gt;
- *  &lt;url1&gt;/Rhythmyx/sampleApp/samplePage1.htm&lt;/url1&gt;
- *  &lt;url2&gt;/Rhythmyx/sampleApp/samplePage2.htm&lt;/url2&gt;
+ * This pre-exit adds all HTML parameters in the request to the specified URLs. The urls are
+ * specified as the first children of the root element in the result document. For example, the
+ * result document &lt;root&gt; &lt;url1&gt;/Rhythmyx/sampleApp/samplePage1.htm&lt;/url1&gt;
+ * &lt;url2&gt;/Rhythmyx/sampleApp/samplePage2.htm&lt;/url2&gt; &lt;/root&gt;
+ *
+ * <p>shall become
+ *
+ * <p>&lt;root&gt;
+ * &lt;url1&gt;/Rhythmyx/sampleApp/samplePage1.htm?param1=value1&amp;param2=value2&lt;/url1&gt;
+ * &lt;url2&gt;/Rhythmyx/sampleApp/samplePage2.htm?param1=value1&amp;param2=value2&lt;/url2&gt;
  * &lt;/root&gt;
  *
- * shall become
+ * <p>if the request came with the HTML parameters param1 and param2. The parameter 'pssessionid' is
+ * always skipped.
  *
- * &lt;root&gt;
- *  &lt;url1&gt;/Rhythmyx/sampleApp/samplePage1.htm?param1=value1&amp;param2=value2&lt;/url1&gt;
- *  &lt;url2&gt;/Rhythmyx/sampleApp/samplePage2.htm?param1=value1&amp;param2=value2&lt;/url2&gt;
- * &lt;/root&gt;
- *
- * if the request came with the HTML parameters param1 and param2. The parameter
- * 'pssessionid' is always skipped.
- *
- * Right now its restricted in the sense that it modifies all children and grand
- * children of the root that have the element name specified. Also, it does not
- * modify the URLs if to be the attributes of an element.
- *
+ * <p>Right now its restricted in the sense that it modifies all children and grand children of the
+ * root that have the element name specified. Also, it does not modify the URLs if to be the
+ * attributes of an element.
  */
 public class PSAddAllParamsToUrl implements IPSResultDocumentProcessor {
   /*
@@ -112,13 +108,9 @@ public class PSAddAllParamsToUrl implements IPSResultDocumentProcessor {
     return false;
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String ms_fullExtensionName = "";
 
-  /**
-   * Name of the html parameter for session id
-   */
+  /** Name of the html parameter for session id */
   private static final String HTMLPARAM_PSSESSIONID = "pssessionid";
 }

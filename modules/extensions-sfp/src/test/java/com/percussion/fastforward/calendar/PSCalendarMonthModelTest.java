@@ -205,9 +205,7 @@ public class PSCalendarMonthModelTest {
     assertEquals(c, m_info.getEndDate());
   }
 
-  /**
-   * Tests calling methods through Velocity templates
-   */
+  /** Tests calling methods through Velocity templates */
   @Test
   public void testVelocity() throws Exception {
     FastDateFormat df = FastDateFormat.getInstance("yyyy-MM-dd");
@@ -256,10 +254,7 @@ public class PSCalendarMonthModelTest {
     assertNull(m_info.getEvents(15));
   }
 
-  /**
-   * Tests assigning and retrieving events through 'setEvents' and
-   * 'getEventsForDay'
-   */
+  /** Tests assigning and retrieving events through 'setEvents' and 'getEventsForDay' */
   @Test
   @Disabled // TODO: Fix me - test is failing
   public void testEvents() throws Exception {
@@ -437,9 +432,7 @@ public class PSCalendarMonthModelTest {
     return rval;
   }
 
-  /**
-   * Object under test. Assigned in setUp().
-   */
+  /** Object under test. Assigned in setUp(). */
   private PSCalendarMonthModel m_info;
 
   private static VelocityEngine ms_engine = null;

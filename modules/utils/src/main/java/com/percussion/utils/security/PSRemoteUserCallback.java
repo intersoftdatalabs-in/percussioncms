@@ -19,13 +19,9 @@ package com.percussion.utils.security;
 import javax.security.auth.callback.Callback;
 import org.apache.commons.lang.StringUtils;
 
-/**
- * Used to get the remote user name of an already authenticated user.
- */
+/** Used to get the remote user name of an already authenticated user. */
 public class PSRemoteUserCallback implements Callback {
-  /**
-   * Default ctor
-   */
+  /** Default ctor */
   public PSRemoteUserCallback() {}
 
   /**
@@ -40,16 +36,13 @@ public class PSRemoteUserCallback implements Callback {
   /**
    * Set the remote username.
    *
-   * @param userName The user name, may be <code>null</code> or empty if no
-   * remote user has been identified.
+   * @param userName The user name, may be <code>null</code> or empty if no remote user has been
+   *     identified.
    */
   public void setRemoteUser(String userName) {
     m_remoteUser = StringUtils.isBlank(userName) ? null : userName;
   }
 
-  /**
-   * The remote user name, may be <code>null</code>, never empty. See
-   * {@link #getRemoteUser()}.
-   */
+  /** The remote user name, may be <code>null</code>, never empty. See {@link #getRemoteUser()}. */
   private String m_remoteUser = null;
 }

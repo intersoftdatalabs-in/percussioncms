@@ -24,25 +24,17 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-/**
- * This class represents a value to bind in a sql statement.  It is immutable
- * once constructed.
- */
+/** This class represents a value to bind in a sql statement. It is immutable once constructed. */
 public class PSJdbcStatementColumn {
   /**
    * Constructor for this class.
    *
-   * @param value The value to set on the column, may be <code>null</code> or
-   * empty.
-   * @param dataType, the jdbc datatype, one of the values defined in {@link
-   * java.sql.Types}.
-   * @param encoding, the method used to encode this column.  Valid values are
-   * <code> PSJdbcColumnData.ENC_TEXT </code>,
-   * <code> PSJdbcColumnData.ENC_BASE64 </code>
-   * and <code> PSJdbcColumnData.ENC_ESCAPED </code>.
-   *
-   * @throws IllegalArgumentException if encoding specified is not a valid
-   * value.
+   * @param value The value to set on the column, may be <code>null</code> or empty.
+   * @param dataType, the jdbc datatype, one of the values defined in {@link java.sql.Types}.
+   * @param encoding, the method used to encode this column. Valid values are <code>
+   *      PSJdbcColumnData.ENC_TEXT </code>, <code> PSJdbcColumnData.ENC_BASE64 </code> and <code>
+   *      PSJdbcColumnData.ENC_ESCAPED </code>.
+   * @throws IllegalArgumentException if encoding specified is not a valid value.
    */
   public PSJdbcStatementColumn(String value, int dataType, int encoding) {
     m_value = value;
@@ -65,15 +57,12 @@ public class PSJdbcStatementColumn {
   }
 
   /**
-   * Constructor without encoding, included for backward compatibility, and
-   * for systems that do not encode.
+   * Constructor without encoding, included for backward compatibility, and for systems that do not
+   * encode.
    *
-   * @param value The value to set on the column, may be <code>null</code> or
-   * empty.
-   * @param dataType, the jdbc datatype, one of the values defined in {@link
-   * java.sql.Types}.
-   *
-   **/
+   * @param value The value to set on the column, may be <code>null</code> or empty.
+   * @param dataType, the jdbc datatype, one of the values defined in {@link java.sql.Types}.
+   */
   public PSJdbcStatementColumn(String value, int dataType) {
     this(value, dataType, PSJdbcColumnData.ENC_TEXT);
   }
@@ -108,14 +97,12 @@ public class PSJdbcStatementColumn {
 
   /**
    * set the encoding method
-   * @param encoding, the method used to encode this column.  Valid values are
-   * <code> PSJdbcColumnData.ENC_TEXT </code>,
-   * <code> PSJdbcColumnData.ENC_BASE64 </code>
-   * and <code> PSJdbcColumnData.ENC_ESCAPED </code>.
    *
-   * @throws IllegalArgumentException if encoding specified is not a valid
-   * value.
-   **/
+   * @param encoding, the method used to encode this column. Valid values are <code>
+   *      PSJdbcColumnData.ENC_TEXT </code>, <code> PSJdbcColumnData.ENC_BASE64 </code> and <code>
+   *      PSJdbcColumnData.ENC_ESCAPED </code>.
+   * @throws IllegalArgumentException if encoding specified is not a valid value.
+   */
   public void setEncoding(int encoding) {
     if (!PSJdbcColumnData.validEncoding(encoding))
       throw new IllegalArgumentException("invalid encoding");
@@ -124,12 +111,10 @@ public class PSJdbcStatementColumn {
   }
 
   /**
-   * Sets this column's data on the prepared statement using the supplied
-   * datatype.
+   * Sets this column's data on the prepared statement using the supplied datatype.
    *
    * @param stmt The PreparedStatement, may not be <code>null</code>.
    * @param bindStart The index of the parameter to bind.
-   *
    * @throws IllegalArgumentException if stmt is <code>null</code>.
    * @throws SQLException if an error occurs.
    * @throws IOException if an error occurs converting any binary values.
@@ -163,22 +148,17 @@ public class PSJdbcStatementColumn {
   }
 
   /**
-   * This column's value, initialized in the ctor, may be <code>null</code> or
-   * empty, never modified after that.
+   * This column's value, initialized in the ctor, may be <code>null</code> or empty, never modified
+   * after that.
    */
   private String m_value = null;
 
-  /**
-   * This column's jdbc datatype, initialized in the ctor, never modified after
-   * that.
-   */
+  /** This column's jdbc datatype, initialized in the ctor, never modified after that. */
   private int m_type;
 
   /**
-   * The encoding value for this column. Valid values are
-   * <code> PSJdbcColumnData.ENC_TEXT </code>,
-   * <code> PSJdbcColumnData.ENC_BASE64 </code>
-   * and <code> PSJdbcColumnData.ENC_ESCAPED </code>.
+   * The encoding value for this column. Valid values are <code> PSJdbcColumnData.ENC_TEXT </code>,
+   * <code> PSJdbcColumnData.ENC_BASE64 </code> and <code> PSJdbcColumnData.ENC_ESCAPED </code>.
    */
   private int m_encoding = PSJdbcColumnData.ENC_TEXT;
 

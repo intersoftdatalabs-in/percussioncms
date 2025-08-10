@@ -24,7 +24,6 @@ import java.util.List;
  * Defines the definition for a Property.
  *
  * @author natechadwick
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
@@ -68,25 +67,19 @@ public class PSPropertyDefinition {
   /**
    * Gets the value of the enumValue property.
    *
-   * <p>
-   * This accessor method returns a reference to the live list,
-   * not a snapshot. Therefore any modification you make to the
-   * returned list will be present inside the JAXB object.
-   * This is why there is not a <CODE>set</CODE> method for the enumValue property.
+   * <p>This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the enumValue property.
    *
-   * <p>
-   * For example, to add a new item, do as follows:
+   * <p>For example, to add a new item, do as follows:
+   *
    * <pre>
    *    getEnumValue().add(newItem);
    * </pre>
    *
-   *
-   * <p>
-   * Objects of the following type(s) are allowed in the list
+   * <p>Objects of the following type(s) are allowed in the list
    *
    * @return never <code>null</code>.
-   *
-   *
    */
   public List<EnumValue> getEnumValue() {
     if (enumValue == null) {
@@ -98,10 +91,7 @@ public class PSPropertyDefinition {
   /**
    * Gets the value of the name property.
    *
-   * @return
-   *     possible object is
-   *     {@link String }
-   *
+   * @return possible object is {@link String }
    */
   public String getName() {
     return name;
@@ -110,10 +100,7 @@ public class PSPropertyDefinition {
   /**
    * Sets the value of the name property.
    *
-   * @param value
-   *     allowed object is
-   *     {@link String }
-   *
+   * @param value allowed object is {@link String }
    */
   public void setName(String value) {
     this.name = value;
@@ -122,10 +109,7 @@ public class PSPropertyDefinition {
   /**
    * Gets the value of the displayName property.
    *
-   * @return
-   *     possible object is
-   *     {@link String }
-   *
+   * @return possible object is {@link String }
    */
   public String getDisplayName() {
     return displayName;
@@ -134,10 +118,7 @@ public class PSPropertyDefinition {
   /**
    * Sets the value of the displayName property.
    *
-   * @param value
-   *     allowed object is
-   *     {@link String }
-   *
+   * @param value allowed object is {@link String }
    */
   public void setDisplayName(String value) {
     this.displayName = value;
@@ -147,7 +128,6 @@ public class PSPropertyDefinition {
    * Gets the value of the defaultValue property.
    *
    * @return default value, it may <code>null</code> if not defined.
-   *
    */
   public String getDefaultValue() {
     return defaultValue;
@@ -156,10 +136,7 @@ public class PSPropertyDefinition {
   /**
    * Sets the value of the defaultValue property.
    *
-   * @param value
-   *     allowed object is
-   *     {@link String }
-   *
+   * @param value allowed object is {@link String }
    */
   public void setDefaultValue(String value) {
     this.defaultValue = value;
@@ -168,10 +145,7 @@ public class PSPropertyDefinition {
   /**
    * Gets the value of the required property.
    *
-   * @return
-   *     possible object is
-   *     {@link String }
-   *
+   * @return possible object is {@link String }
    */
   public String getRequired() {
     return required;
@@ -180,10 +154,7 @@ public class PSPropertyDefinition {
   /**
    * Sets the value of the required property.
    *
-   * @param value
-   *     allowed object is
-   *     {@link String }
-   *
+   * @param value allowed object is {@link String }
    */
   public void setRequired(String value) {
     this.required = value;
@@ -192,10 +163,7 @@ public class PSPropertyDefinition {
   /**
    * Gets the value of the datatype property.
    *
-   * @return
-   *     possible object is
-   *     {@link String }
-   *
+   * @return possible object is {@link String }
    */
   public String getDatatype() {
     if (datatype == null) {
@@ -207,18 +175,15 @@ public class PSPropertyDefinition {
   /**
    * Sets the value of the datatype property.
    *
-   * @param value
-   *     allowed object is
-   *     {@link String }
-   *
+   * @param value allowed object is {@link String }
    */
   public void setDatatype(String value) {
     this.datatype = value;
   }
 
   /**
-   * Returns the maximum length that this
-   * property can contain.
+   * Returns the maximum length that this property can contain.
+   *
    * @return the maxLength
    */
   public int getMaxLength() {
@@ -226,8 +191,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Sets the maximum length that this property
-   * can contain.
+   * Sets the maximum length that this property can contain.
    *
    * @param maxLength the maxLength to set
    */
@@ -236,8 +200,8 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Returns a regular expression that can be used to validate
-   * data input for this property.  May be null.
+   * Returns a regular expression that can be used to validate data input for this property. May be
+   * null.
    *
    * @return the validationRegEx
    */
@@ -246,8 +210,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Sets the Validation regular expression that can be used
-   * to validate input for this property.
+   * Sets the Validation regular expression that can be used to validate input for this property.
    *
    * @param validationRegEx the validationRegEx to set
    */
@@ -256,8 +219,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Returns the help text to be displayed for this property
-   * May be null.
+   * Returns the help text to be displayed for this property May be null.
    *
    * @return the helpText
    */
@@ -275,8 +237,8 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Returns a Regular Expression that can be used to
-   * format the display of the property. May be null.
+   * Returns a Regular Expression that can be used to format the display of the property. May be
+   * null.
    *
    * @return the displayRegEx
    */
@@ -285,8 +247,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * Sets a Regular Expression that can be used to
-   * format the display of this property.
+   * Sets a Regular Expression that can be used to format the display of this property.
    *
    * @param displayRegEx the displayRegEx to set
    */
@@ -309,8 +270,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * When populated contains the current value
-   * if any for this property.
+   * When populated contains the current value if any for this property.
    *
    * @return the propertyValue
    */
@@ -328,7 +288,7 @@ public class PSPropertyDefinition {
   }
 
   /**
-   * <p>Java class for anonymous complex type.
+   * Java class for anonymous complex type.
    *
    * <p>The following schema fragment specifies the expected content contained within this class.
    *
@@ -342,8 +302,6 @@ public class PSPropertyDefinition {
    *   &lt;/complexContent>
    * &lt;/complexType>
    * </pre>
-   *
-   *
    */
   @XmlAccessorType(XmlAccessType.FIELD)
   @XmlType(name = "")
@@ -358,10 +316,7 @@ public class PSPropertyDefinition {
     /**
      * Gets the value of the value property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is {@link String }
      */
     public String getValue() {
       return value;
@@ -370,10 +325,7 @@ public class PSPropertyDefinition {
     /**
      * Sets the value of the value property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is {@link String }
      */
     public void setValue(String value) {
       this.value = value;
@@ -382,10 +334,7 @@ public class PSPropertyDefinition {
     /**
      * Gets the value of the displayValue property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is {@link String }
      */
     public String getDisplayValue() {
       return displayValue;
@@ -394,10 +343,7 @@ public class PSPropertyDefinition {
     /**
      * Sets the value of the displayValue property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is {@link String }
      */
     public void setDisplayValue(String value) {
       this.displayValue = value;

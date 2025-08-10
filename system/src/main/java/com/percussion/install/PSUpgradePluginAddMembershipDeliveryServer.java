@@ -25,7 +25,6 @@ import org.w3c.dom.NodeList;
  * Adds the membership service name to the list of available services for each delivery server.
  *
  * @author JaySeletz
- *
  */
 // REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddMembershipDeliveryServer extends PSUpgradePluginDeliveryServersBase {

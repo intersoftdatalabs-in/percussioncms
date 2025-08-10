@@ -45,13 +45,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Upgrade plugin for creating the content type workflow associations. Gets the
- * workflow info object from the content editors and creates the workflow
- * content type associations. Avoids duplicates and non existsing workflows.
- * Skips the processing if failed to get the workflows.
+ * Upgrade plugin for creating the content type workflow associations. Gets the workflow info object
+ * from the content editors and creates the workflow content type associations. Avoids duplicates
+ * and non existsing workflows. Skips the processing if failed to get the workflows.
  *
  * @author bjoginipally
- *
  */
 public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePluginBase {
 
@@ -98,14 +96,12 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
   }
 
   /**
-   * Processes supplied app file by loading it as an application and if the
-   * application is of type content editor then calls
-   * {@link #createCtWfAssociations(int, Iterator)} to create the content type
-   * and workflow associations. If the app file is not of type content editor
-   * skips it. Logs if there is any exception.
+   * Processes supplied app file by loading it as an application and if the application is of type
+   * content editor then calls {@link #createCtWfAssociations(int, Iterator)} to create the content
+   * type and workflow associations. If the app file is not of type content editor skips it. Logs if
+   * there is any exception.
    *
-   * @param appFile app file that needs to be processed, assumed not
-   * <code>null</code>.
+   * @param appFile app file that needs to be processed, assumed not <code>null</code>.
    */
   private void processAppFile(File appFile) {
     FileInputStream oldIn = null;
@@ -151,8 +147,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
    * PSX_CONTENTTYPE_WORKFLOW table. Logs if there is any exception.
    *
    * @param id Content Type id.
-   * @param wfs iterator of Integer objects of workflows. Assumed not
-   * <code>null</code>.
+   * @param wfs iterator of Integer objects of workflows. Assumed not <code>null</code>.
    * @throws Exception
    */
   private void createCtWfAssociations(long id, Iterator wfs) {
@@ -272,7 +267,6 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
    * Simple data class to hold content type and workflow association.
    *
    * @author bjoginipally
-   *
    */
   class CtWfAssociation {
     int mi_ct;
@@ -298,8 +292,8 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
   }
 
   /**
-   * Helper method to close closable object if it is not null. The exception
-   * thrown while closing the object is ignored.
+   * Helper method to close closable object if it is not null. The exception thrown while closing
+   * the object is ignored.
    *
    * @param obj a closeable object that needs to be closed.
    */
@@ -314,8 +308,8 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
   }
 
   /**
-   * Helper method to close the supplied SQL connection if it is not null. The
-   * exception thrown while closing the object is ignored.
+   * Helper method to close the supplied SQL connection if it is not null. The exception thrown
+   * while closing the object is ignored.
    *
    * @param conn SQL connection to close.
    */
@@ -330,8 +324,7 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
   }
 
   /**
-   * Prints message to the log printstream if it exists
-   * or just sends it to System.out
+   * Prints message to the log printstream if it exists or just sends it to System.out
    *
    * @param msg the message to be logged, can be <code>null</code>.
    */
@@ -344,19 +337,17 @@ public class PSUpgradePluginCreateCtWfAssociations extends PSSpringUpgradePlugin
   }
 
   /**
-   * List of workflows from WORKFLOWAPPS table. Intialized in ctor never
-   * <code>null</code> after that.
+   * List of workflows from WORKFLOWAPPS table. Intialized in ctor never <code>null</code> after
+   * that.
    */
   private List<Integer> m_workflows = null;
 
   /**
-   * List of existing Content Type, Workflow associations. Intialized in ctor
-   * never <code>null</code> after that.
+   * List of existing Content Type, Workflow associations. Intialized in ctor never <code>null
+   * </code> after that.
    */
   private List<CtWfAssociation> m_associations = null;
 
-  /**
-   * The config object, initialized in ctor never <code>null</code> after that.
-   */
+  /** The config object, initialized in ctor never <code>null</code> after that. */
   private static IPSUpgradeModule m_config;
 }

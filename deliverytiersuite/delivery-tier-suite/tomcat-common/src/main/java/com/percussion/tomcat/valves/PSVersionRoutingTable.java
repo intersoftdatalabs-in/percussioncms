@@ -24,11 +24,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Provides a basic data structure for indexing the routing table
- * used by the version redirector valve.
+ * Provides a basic data structure for indexing the routing table used by the version redirector
+ * valve.
  *
  * @author natechadwick
- *
  */
 public class PSVersionRoutingTable {
 

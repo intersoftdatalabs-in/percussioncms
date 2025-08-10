@@ -21,20 +21,15 @@ import com.percussion.deployer.server.PSDependencyMap;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a workflow deployable element.
- */
+/** Class to handle packaging and deploying a workflow deployable element. */
 public class PSWorkflowDependencyHandler extends PSElementDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSWorkflowDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -42,16 +37,16 @@ public class PSWorkflowDependencyHandler extends PSElementDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>WorkflowDef</li>
-   * <li>RoleDef</li>
+   *   <li>WorkflowDef
+   *   <li>RoleDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -76,14 +71,12 @@ public class PSWorkflowDependencyHandler extends PSElementDependencyHandler {
     return m_wdHandler;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "Workflow";
 
   /**
-   * The workflow definition handler, initialized by getChildHandler() if it
-   * is <code>null</code>, will never be <code>null</code> after that.
+   * The workflow definition handler, initialized by getChildHandler() if it is <code>null</code>,
+   * will never be <code>null</code> after that.
    */
   private PSDependencyHandler m_wdHandler = null;
 

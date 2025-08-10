@@ -44,25 +44,20 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * This class wraps the file node in the application and extends
- * the abstract class PSFUDAbstractNode. A file node can have various states,
- * e.g. normal, remote absent, local new, remote new etc.
+ * This class wraps the file node in the application and extends the abstract class
+ * PSFUDAbstractNode. A file node can have various states, e.g. normal, remote absent, local new,
+ * remote new etc.
  *
  * @see IPSFUDNode for node states.
- *
  */
 public class PSFUDFileNode extends PSFUDAbstractNode {
   /**
-   * Constructor takes the parent node and current element that is
-   * encapsulated by this class. Validation of these parameters is handled
-   * by the base class.
+   * Constructor takes the parent node and current element that is encapsulated by this class.
+   * Validation of these parameters is handled by the base class.
    *
    * @param parent node as IPSFUDNode
-   *
    * @param elem item element in the XML document as DOM Element
-   *
    * @throws PSFUDNullElementException that is thrown by the base class
-   *
    */
   public PSFUDFileNode(IPSFUDNode parent, Element elem) throws PSFUDNullElementException {
     super(parent, elem);
@@ -84,11 +79,10 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * This method is part of IPSFUDNode interface. A PSFUDFileNode is always
-   * a leaf node and hence has no children.
+   * This method is part of IPSFUDNode interface. A PSFUDFileNode is always a leaf node and hence
+   * has no children.
    *
    * @return always null.
-   *
    */
   public Object[] getChildren() {
     // File Node is always leaf node, no children
@@ -99,9 +93,7 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns current status code for the node.
    *
    * @return status code as int
-   *
    * @see IPSFUDNode class for status values
-   *
    */
   @Override
   public int getStatusCode() {
@@ -164,7 +156,6 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns the the string to be used to display this leaf in the JTree.
    *
    * @return string representation of the node for display as String
-   *
    */
   public String toString() {
     // return just the file name
@@ -175,7 +166,6 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns the download URL
    *
    * @return download URL as String - never <code>null</code>, may be empty.
-   *
    */
   public String getDownloadURL() {
     NodeList nl = m_Element.getElementsByTagName(PSFUDApplication.ELEM_DOWNLOADURL);
@@ -191,7 +181,6 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns the upload URL
    *
    * @return upload URL as String - never <code>null</code>, may be empty.
-   *
    */
   public String getUploadURL() {
     NodeList nl = m_Element.getElementsByTagName(PSFUDApplication.ELEM_UPLOADURL);
@@ -206,9 +195,7 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   /**
    * Returns file size in bytes as String
    *
-   * @return file size in bytes as String - never <code>null</code>,
-   * default is "0".
-   *
+   * @return file size in bytes as String - never <code>null</code>, default is "0".
    */
   public String getSize() {
     if (m_LocalFile.exists()) {
@@ -227,7 +214,6 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns file modified date as String
    *
    * @return modified date as String - never <code>null</code>, may be empty.
-   *
    */
   public String getModified() {
     if (m_LocalFile.exists()) {
@@ -240,17 +226,15 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Returns mime type as String
    *
    * @return mime type as String - never <code>null</code>, may be empty.
-   *
    */
   public String getMimeType() {
     return m_Element.getAttribute(PSFUDApplication.ATTRIB_MIMETYPE);
   }
 
   /**
-   * returns true if the copy of remote file is present locally else returns
-   * false.
+   * returns true if the copy of remote file is present locally else returns false.
    *
-   *  @return true if local copy present else false
+   * @return true if local copy present else false
    */
   public boolean isLocalCopy() {
     if (m_LocalFile.exists()) return true;
@@ -260,16 +244,13 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
 
   /**
    * Downloads the remote file to local machine. The path saved will be
-   * $current/serveralias/userid/contentid/filename, where $current is
-   * the current workign directory for the application.
+   * $current/serveralias/userid/contentid/filename, where $current is the current workign directory
+   * for the application.
    *
-   * @throws  PSFUDAuthenticationFailureException when HTTP authentication
-   *          failswhile loading content item list metadata document with
-   *          current userid and password.
-   *
-   * @throws  PSFUDServerException when HTTP request returns any other
-   *          (than authentication) status code.
-   *
+   * @throws PSFUDAuthenticationFailureException when HTTP authentication failswhile loading content
+   *     item list metadata document with current userid and password.
+   * @throws PSFUDServerException when HTTP request returns any other (than authentication) status
+   *     code.
    */
   public void download()
       throws IOException,
@@ -342,16 +323,13 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Uploads the local file to server. HTTP Headers are set as per the
-   * requirements outlined in RFC 1867 for uploading a file using HTTP POST.
+   * Uploads the local file to server. HTTP Headers are set as per the requirements outlined in RFC
+   * 1867 for uploading a file using HTTP POST.
    *
    * @throws IOException if downloaded file cannot be saved.
-   *
-   * @throws PSFUDAuthenticationFailureException when we receive HTTP
-   *         authentication failure from the server.
-   *
-   * @throws PSFUDServerException when we receive any other HTTP error from
-   *         the server
+   * @throws PSFUDAuthenticationFailureException when we receive HTTP authentication failure from
+   *     the server.
+   * @throws PSFUDServerException when we receive any other HTTP error from the server
    */
   public void upload()
       throws IOException, PSFUDServerException, PSFUDAuthenticationFailureException {
@@ -485,10 +463,8 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Launches the local file with associated program. A windows message box
-   * is displayed if launch fails or if no program is associated with this
-   * type of file.
-   *
+   * Launches the local file with associated program. A windows message box is displayed if launch
+   * fails or if no program is associated with this type of file.
    */
   public void launch() {
     if (m_LocalFile.exists()) UTBrowserControl.displayURL(m_LocalFile.getAbsolutePath());
@@ -498,9 +474,7 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
    * Deletes the local file.
    *
    * @return true if successful false otherwise.
-   *
-   * throws SecurityException if current user has no delete access forthe file.
-   *
+   *     <p>throws SecurityException if current user has no delete access forthe file.
    */
   public boolean purgeLocal() throws SecurityException {
     if (!m_LocalFile.exists()) return true;
@@ -518,9 +492,7 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   /**
    * Get the local file path.
    *
-   * @return full path as String,  can be empty string but never
-   *         <code>null</code>.
-   *
+   * @return full path as String, can be empty string but never <code>null</code>.
    */
   public String getLocalPath() {
     if (m_LocalFile.exists()) return m_LocalFile.getAbsolutePath();
@@ -529,11 +501,9 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Get the file name,  can be empty string but never
-   *         <code>null</code>.
+   * Get the file name, can be empty string but never <code>null</code>.
    *
    * @return file name as as String
-   *
    */
   public String getFileName() {
     if (m_LocalFile.exists()) return m_LocalFile.getName();
@@ -542,12 +512,10 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Resets or updates the timestamps for the timestamp child element of the
-   * DOM element encapsulated by this class. The modified date from the
-   * element is copied to that in the time stamp element. Current modified
-   * date for the local disk file is copied to time stamp element. See the
-   * DTD in the spec for the element and attribute names holding the
-   * timestamp elements.
+   * Resets or updates the timestamps for the timestamp child element of the DOM element
+   * encapsulated by this class. The modified date from the element is copied to that in the time
+   * stamp element. Current modified date for the local disk file is copied to time stamp element.
+   * See the DTD in the spec for the element and attribute names holding the timestamp elements.
    */
   public void updateTimestamp() {
     m_ElementTimestamp.setAttribute(
@@ -560,42 +528,37 @@ public class PSFUDFileNode extends PSFUDAbstractNode {
   }
 
   /**
-   * Reference to time stamp element that is child of current element.
-   * Stored since this required very frequently hence avoiding walking through
-   * evrytime. Shall never be null since we create one in the constructor if
-   * does not exist.
+   * Reference to time stamp element that is child of current element. Stored since this required
+   * very frequently hence avoiding walking through evrytime. Shall never be null since we create
+   * one in the constructor if does not exist.
    */
   private Element m_ElementTimestamp = null;
 
   /**
-   * Local file path obtained in the constructor from the configuration
-   * document.
-   * Never be null since this an attribute of an element in the configuration
-   * document.
+   * Local file path obtained in the constructor from the configuration document. Never be null
+   * since this an attribute of an element in the configuration document.
    */
   private String m_LocalPath = "";
 
   /**
-   * File object for local file path obtained in the constructor, never  null
-   * (even if the file does not exist) after constructor is called.
+   * File object for local file path obtained in the constructor, never null (even if the file does
+   * not exist) after constructor is called.
    */
   private File m_LocalFile = null;
 
-  /**
-   * Default date format for display.
-   */
+  /** Default date format for display. */
   public FastDateFormat ms_DateFormat = FastDateFormat.getInstance("MM/dd/yyyy hh:mm:ss a");
 
   /**
-   * Boundary string used in the header for the upload post request. This is
-   * like a signature we register in the header.
+   * Boundary string used in the header for the upload post request. This is like a signature we
+   * register in the header.
    */
   public static final String UPLOAD_BOUNDARYX = "rxfudboundary";
 
   /**
-   * Boundary string used in the upload post request. This is used as
-   * separator for each block of data we upload to the server. This is the
-   * same as UPLOAD_BOUNDARYX prefixed with '--'. Defined for convenience.
+   * Boundary string used in the upload post request. This is used as separator for each block of
+   * data we upload to the server. This is the same as UPLOAD_BOUNDARYX prefixed with '--'. Defined
+   * for convenience.
    */
   public static final String UPLOAD_BOUNDARY = "--rxfudboundary";
 }

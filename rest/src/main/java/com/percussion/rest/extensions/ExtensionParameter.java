@@ -21,75 +21,88 @@ package com.percussion.rest.extensions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents an Extension Parameter with value.
- * Sunny Sal: "Parameter ka power, extension ka tower!"
+ * Represents an Extension Parameter with value. Sunny Sal: "Parameter ka power, extension ka
+ * tower!"
  */
 @XmlRootElement(name = "ExtensionParameter")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an Extension Parameter with value")
 public class ExtensionParameter {
 
-    @Schema(name = "name", required = true, description = "The name of the Extension Parameter")
-    private String name;
+  @Schema(name = "name", required = true, description = "The name of the Extension Parameter")
+  private String name;
 
-    @Schema(name = "description", required = false, description = "The description of the Extension Parameter")
-    private String description;
+  @Schema(
+      name = "description",
+      required = false,
+      description = "The description of the Extension Parameter")
+  private String description;
 
-    @Schema(name = "dataType", required = false, description = "The Data Type of the Extension Parameter")
-    private String dataType;
+  @Schema(
+      name = "dataType",
+      required = false,
+      description = "The Data Type of the Extension Parameter")
+  private String dataType;
 
-    @Schema(name = "required", required = false, description = "When true, indicates that this is a required parameter for the Extension")
-    private boolean required;
+  @Schema(
+      name = "required",
+      required = false,
+      description = "When true, indicates that this is a required parameter for the Extension")
+  private boolean required;
 
-    @Schema(name = "value", required = false, description = "The current value of the type in String form. Use the data type for client side type conversion. May be null or empty.")
-    private String value;
+  @Schema(
+      name = "value",
+      required = false,
+      description =
+          "The current value of the type in String form. Use the data type for client side type"
+              + " conversion. May be null or empty.")
+  private String value;
 
-    public ExtensionParameter() {
-        // Default constructor
-    }
+  public ExtensionParameter() {
+    // Default constructor
+  }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Optional<String> getDataType() {
-        return Optional.ofNullable(dataType);
-    }
+  public Optional<String> getDataType() {
+    return Optional.ofNullable(dataType);
+  }
 
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
-    }
+  public void setDataType(String dataType) {
+    this.dataType = dataType;
+  }
 
-    public boolean isRequired() {
-        return required;
-    }
+  public boolean isRequired() {
+    return required;
+  }
 
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
+  public void setRequired(boolean required) {
+    this.required = required;
+  }
 
-    public Optional<String> getValue() {
-        return Optional.ofNullable(value);
-    }
+  public Optional<String> getValue() {
+    return Optional.ofNullable(value);
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

@@ -35,26 +35,26 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This exit authenticates the current user by means of his role-community
- * membership. The following is the list of things that happen:
- * <P>
+ * This exit authenticates the current user by means of his role-community membership. The following
+ * is the list of things that happen:
+ *
+ * <p>
+ *
  * <UL>
- * <LI>If the communities feature is disabled (by setting communities_enabled=no
- * in Server.properties file, the passes the authentication and the user's
- * communityid is set to 0 and stored as user's session object. Otherwise, </LI>
- * <LI>User community is obtained form the session assuming it stored
- * previously</LI>
- * <LI>If does not exist in user's session, tries to recover it from Cookies
- * assuming that the session object is lost because of server session timeout</LI>
- * <LI>Authentication fails if user has no community after the above step.</LI>
- * <LI>Exit now gets a list of user's role-communities by making an internal
- * request</LI>
- * <LI>if the list contains the user community, user authentication succeeds</LI>
- * <LI>Authentications fails, otherwise</LI>
- * <LI>If authentication is successful, the user community is stored as session
- * object to make sure it is available to all Rhythmyx applications for further
- * use</LI>
+ *   <LI>If the communities feature is disabled (by setting communities_enabled=no in
+ *       Server.properties file, the passes the authentication and the user's communityid is set to
+ *       0 and stored as user's session object. Otherwise,
+ *   <LI>User community is obtained form the session assuming it stored previously
+ *   <LI>If does not exist in user's session, tries to recover it from Cookies assuming that the
+ *       session object is lost because of server session timeout
+ *   <LI>Authentication fails if user has no community after the above step.
+ *   <LI>Exit now gets a list of user's role-communities by making an internal request
+ *   <LI>if the list contains the user community, user authentication succeeds
+ *   <LI>Authentications fails, otherwise
+ *   <LI>If authentication is successful, the user community is stored as session object to make
+ *       sure it is available to all Rhythmyx applications for further use
  * </UL>
+ *
  * </P
  */
 public class PSAuthenticateUser implements IPSRequestPreProcessor {
@@ -111,13 +111,13 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * This method retrieves the list user's role-communities, viz. list of all
-   * communities via his role membership.
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
-   * @return list of user communities (community ids) as Java List object never
-   * <code>null</code> may be empty.
+   * This method retrieves the list user's role-communities, viz. list of all communities via his
+   * role membership.
    *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
+   * @return list of user communities (community ids) as Java List object never <code>null</code>
+   *     may be empty.
    */
   private List getUserCommunities(IPSRequestContext request) throws Exception {
     ArrayList list = new ArrayList();
@@ -142,30 +142,28 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * This method retrieves the default community from the first role that
-   * belongs to the user. If user belongs to multiple roles, the first non-empty
-   * value is considered.
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
+   * This method retrieves the default community from the first role that belongs to the user. If
+   * user belongs to multiple roles, the first non-empty value is considered.
+   *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
    * @return community id of the
-   * @throws Exception, if it cannot retrieve tha role
-   * attribute for any reason.
+   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
    */
   public static String getUserDefaultCommunity(IPSRequestContext request) throws Exception {
     return getCommunityId(request, getUserRoleAttribute(request, SYS_DEFAULTCOMMUNITY));
   }
 
   /**
-   * This method retrieves the value of the given attribute for the user role.
-   * If user happens to be in multiple roles the first non empty value is
-   * considered
-   * @param request <code>IPSRequestContext</code> object that is available in
-   * the extension's process request method, assumed never <code>null</code>.
-   * @param srcAttrName, Name of the role attribute to retrieve, cannot be
-   * <code>null</code>, if <code>null</code> the result will be <code>null</code>.
+   * This method retrieves the value of the given attribute for the user role. If user happens to be
+   * in multiple roles the first non empty value is considered
+   *
+   * @param request <code>IPSRequestContext</code> object that is available in the extension's
+   *     process request method, assumed never <code>null</code>.
+   * @param srcAttrName, Name of the role attribute to retrieve, cannot be <code>null</code>, if
+   *     <code>null</code> the result will be <code>null</code>.
    * @return value of the given attribute, may be <code>null</code>
-   * @throws Exception, if it cannot retrieve tha role
-   * attribute for any reason.
+   * @throws Exception, if it cannot retrieve tha role attribute for any reason.
    */
   public static String getUserRoleAttribute(IPSRequestContext request, String srcAttrName)
       throws Exception {
@@ -199,9 +197,9 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * To know if communities are enabled for the server. Communities are enabled
-   * are enabled or disabled by setting the property variable
-   * 'communities_enabled=yes' (or no).
+   * To know if communities are enabled for the server. Communities are enabled are enabled or
+   * disabled by setting the property variable 'communities_enabled=yes' (or no).
+   *
    * @return <code>true</code> if communities are enabled.
    */
   public static boolean isCommunityEnabled() {
@@ -209,63 +207,54 @@ public class PSAuthenticateUser implements IPSRequestPreProcessor {
   }
 
   /**
-   * The fully qualified name of this extension. Nerver <code>null</code> or
-   * <code>empty</code> after initialization.
+   * The fully qualified name of this extension. Nerver <code>null</code> or <code>empty</code>
+   * after initialization.
    */
   private static String ms_fullExtensionName = "";
 
-  /**
-   * Initial value for the flag indicating of communities are enabled for the
-   * server
-   */
+  /** Initial value for the flag indicating of communities are enabled for the server */
   private static boolean ms_communitiesEnabled = false;
 
   /**
-   * Name of the element "Community" in the result document of the internal
-   * request for user communities.
+   * Name of the element "Community" in the result document of the internal request for user
+   * communities.
    */
   public static final String ELEM_COMMUNITY = "Community";
 
   /**
-   * Name of the attribute of the communityid of the element "Community" in
-   * the result document of the internal request for user communities.
+   * Name of the attribute of the communityid of the element "Community" in the result document of
+   * the internal request for user communities.
    */
   public static final String ATTR_COMMID = "commid";
 
-  /**
-   * Value of the system default community, hardcoded to 1.
-   */
+  /** Value of the system default community, hardcoded to 1. */
   public static final String SYSTEM_COMMUNITY = "1";
 
   /**
-   * Name of the internal request to get the user communities. This is a
-   * standard Rhythmyx resource meant for internal request.
+   * Name of the internal request to get the user communities. This is a standard Rhythmyx resource
+   * meant for internal request.
    */
   public static final String IREQ_USERCOMMUNITIES = "sys_commSupport/usercommunities";
 
   /**
-   * Name of the internal request to get the community id with a c
-   * community name. Requires parameter communityname=value, where value is
-   * a valid community name.
+   * Name of the internal request to get the community id with a c community name. Requires
+   * parameter communityname=value, where value is a valid community name.
    */
   public static final String IREQ_COMMUNITYLOOKUP = "sys_commSupport/communityidlookup";
 
   /**
-   * Name of the parameter requires for community id lookup. This
-   * paremeter is added when we lookup the community id.
+   * Name of the parameter requires for community id lookup. This paremeter is added when we lookup
+   * the community id.
    */
   public static final String COMMUNITYNAME = "communityname";
 
-  /**
-   * Name of user default community properties.
-   */
+  /** Name of user default community properties. */
   public static final String SYS_DEFAULTCOMMUNITY = "sys_defaultCommunity";
 
   /**
-   * Initialization of the flag ms_communitiesEnabled. This is done based on
-   * the value for the variable "communities_enabled" in the server
-   * configuration file (i.e. server.properties). This is done only during
-   * server startup which means server restart required if the property is
+   * Initialization of the flag ms_communitiesEnabled. This is done based on the value for the
+   * variable "communities_enabled" in the server configuration file (i.e. server.properties). This
+   * is done only during server startup which means server restart required if the property is
    * modified in the file.
    */
   static {

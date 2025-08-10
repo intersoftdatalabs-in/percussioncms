@@ -22,21 +22,15 @@ import java.util.Objects;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * A component that holds one reference to an other XML element.
- */
+/** A component that holds one reference to an other XML element. */
 public class PSReference extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    may be <code>null</code>.
-   * @param parentComponents   the parent objects of this object, may be
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSReference(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -46,10 +40,9 @@ public class PSReference extends PSComponent {
   /**
    * Construct a new reference with the supplied parameters.
    *
-   * @param name the name of the object that this references, not
-   *    <code>null</code> or empty.
-   * @param type an XML element name, specifying which XML element this
-   *    references, not <code>null</code> or empty.
+   * @param name the name of the object that this references, not <code>null</code> or empty.
+   * @param type an XML element name, specifying which XML element this references, not <code>null
+   *     </code> or empty.
    */
   public PSReference(String name, String type) {
     setName(name);
@@ -59,16 +52,14 @@ public class PSReference extends PSComponent {
   /**
    * Copy constructor.
    *
-   * @param source the source object that is being copied,
-   *    not <code>null</code>.
+   * @param source the source object that is being copied, not <code>null</code>.
    */
   public PSReference(PSReference source) {
     copyFrom(source);
   }
 
   /**
-   * @return the XML element type which this refereences, never
-   *    <code>null</code> or empty.
+   * @return the XML element type which this refereences, never <code>null</code> or empty.
    */
   public String getType() {
     return m_type;
@@ -78,8 +69,8 @@ public class PSReference extends PSComponent {
    * Test if this object is of the same type as the type provided.
    *
    * @param type the type to test for, may be <code>null</code> or empty.
-   * @return <code>true</code> if the supplied type is the same as the type
-   *    of this object, <code>false</code> otherwise.
+   * @return <code>true</code> if the supplied type is the same as the type of this object, <code>
+   *     false</code> otherwise.
    */
   public boolean isType(String type) {
     return getType().equals(type);
@@ -88,8 +79,7 @@ public class PSReference extends PSComponent {
   /**
    * Set a new object type.
    *
-   * @param type the new object type that this should reference, not
-   *    <code>null</code> or empty.
+   * @param type the new object type that this should reference, not <code>null</code> or empty.
    */
   private void setType(String type) {
     if (type == null) throw new IllegalArgumentException("type cannot be null");
@@ -101,8 +91,7 @@ public class PSReference extends PSComponent {
   }
 
   /**
-   * @return the name of the object that this references, never
-   *    <code>null</code> or empty.
+   * @return the name of the object that this references, never <code>null</code> or empty.
    */
   public String getName() {
     return m_name;
@@ -111,8 +100,8 @@ public class PSReference extends PSComponent {
   /**
    * Set a new reference name.
    *
-   * @param name the new name of the object that this should reference, not
-   *    <code>null</code> or eempty.
+   * @param name the new name of the object that this should reference, not <code>null</code> or
+   *     eempty.
    */
   public void setName(String name) {
     if (name == null) throw new IllegalArgumentException("name cannot be null");
@@ -123,7 +112,9 @@ public class PSReference extends PSComponent {
     m_name = name;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     if (sourceNode == null)
@@ -139,7 +130,9 @@ public class PSReference extends PSComponent {
     setType(getRequiredElement(tree, XML_ATTR_TYPE, false));
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Element toXml(Document doc) {
     Element root = doc.createElement(XML_NODE_NAME);
     root.setAttribute(XML_ATTR_NAME, getName());
@@ -148,12 +141,16 @@ public class PSReference extends PSComponent {
     return root;
   }
 
-  /** @see IPSComponent */
+  /**
+   * @see IPSComponent
+   */
   public Object clone() {
     return super.clone();
   }
 
-  /** @see PSComponent */
+  /**
+   * @see PSComponent
+   */
   public void copyFrom(PSComponent c) {
     super.copyFrom(c);
 
@@ -184,14 +181,14 @@ public class PSReference extends PSComponent {
   public static final String XML_NODE_NAME = "PSXReference";
 
   /**
-   * The name of the object that this references. Initialized during
-   * construction, never <code>null</code> or empty after that.
+   * The name of the object that this references. Initialized during construction, never <code>null
+   * </code> or empty after that.
    */
   private String m_name = null;
 
   /**
-   * The XML elemeent type that this references. Initialized during
-   * construction, never <code>null</code> or empty, never changed after that.
+   * The XML elemeent type that this references. Initialized during construction, never <code>null
+   * </code> or empty, never changed after that.
    */
   private String m_type = null;
 

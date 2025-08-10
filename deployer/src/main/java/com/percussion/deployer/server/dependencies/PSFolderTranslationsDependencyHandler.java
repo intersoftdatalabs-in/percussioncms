@@ -39,19 +39,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Class to handle packaging and deploying a folder's translation.
- */
+/** Class to handle packaging and deploying a folder's translation. */
 public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -231,13 +226,10 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   /**
-   * Creates a composite id from the owner folder path and the relationship
-   * type.
+   * Creates a composite id from the owner folder path and the relationship type.
    *
-   * @param folderPath The owner folder path, may not be <code>null</code> or
-   * empty.
-   * @param relationshipType The type of relationship, may not be
-   * <code>null</code> or empty.
+   * @param folderPath The owner folder path, may not be <code>null</code> or empty.
+   * @param relationshipType The type of relationship, may not be <code>null</code> or empty.
    */
   public static String createDependencyId(String folderPath, String relationshipType) {
     if (folderPath == null || folderPath.trim().length() == 0)
@@ -250,13 +242,11 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   /**
-   * Parse the supplied dependency id into two parts, the folder path and the
-   * relationship type.
+   * Parse the supplied dependency id into two parts, the folder path and the relationship type.
+   *
    * @param depId The dependency id, assumed not <code>null</code> or empty.
-   *
-   * @return A <code>String[2]</code> where the folder path is at index 0 and
-   * the relationship type is at index 1, never <code>null</code>.
-   *
+   * @return A <code>String[2]</code> where the folder path is at index 0 and the relationship type
+   *     is at index 1, never <code>null</code>.
    * @throws PSDeployException If the id cannot be parsed.
    */
   private static String[] parseDependencyId(String depId) throws PSDeployException {
@@ -289,24 +279,18 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   /**
-   * Returns the summaries for the folders which are translations of the
-   * folder specified by <code>folder</code>.
+   * Returns the summaries for the folders which are translations of the folder specified by <code>
+   * folder</code>.
    *
-   * @param proc relationship processor proxy, used for obtaining summaries
-   * of translated folders, assumed not <code>null</code>
-   *
-   * @param folder specifies the folder whose translated folder summaries is
-   * to be obtained, assumed not <code>null</code>
-   *
-   * @param type The relationship type, assumed to be a type in the translation
-   * category, not <code>null</code> or empty.
-   *
-   * @return the summary of translated folders, never <code>null</code>,
-   * may be empty if the folder specified by <code>folder</code> does not have
-   * any translated folders.
-   *
-   * @throws PSDeployException if any error occurs getting the summary of
-   * translated folders.
+   * @param proc relationship processor proxy, used for obtaining summaries of translated folders,
+   *     assumed not <code>null</code>
+   * @param folder specifies the folder whose translated folder summaries is to be obtained, assumed
+   *     not <code>null</code>
+   * @param type The relationship type, assumed to be a type in the translation category, not <code>
+   *     null</code> or empty.
+   * @return the summary of translated folders, never <code>null</code>, may be empty if the folder
+   *     specified by <code>folder</code> does not have any translated folders.
+   * @throws PSDeployException if any error occurs getting the summary of translated folders.
    */
   private PSComponentSummaries getTranslatedFolderSummaries(
       PSRelationshipProcessor proc, PSComponentSummary folder, String type)
@@ -347,16 +331,16 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>FolderDef</li>
-   * <li>Relationship</li>
+   *   <li>FolderDef
+   *   <li>Relationship
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -370,22 +354,16 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   /**
    * See {@link PSDependencyHandler#shouldDeferInstallation()} for more info.
    *
-   * @return <code>true</code>, since translated folders must be installed
-   * first.
+   * @return <code>true</code>, since translated folders must be installed first.
    */
   public boolean shouldDeferInstallation() {
     return true;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "FolderTranslations";
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

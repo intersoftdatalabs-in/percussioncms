@@ -64,19 +64,18 @@ import org.w3c.dom.NodeList;
 /**
  * The PSUserSession object defines a user logged in to the system.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSUserSession {
   /**
    * Create a new user session object.
    *
    * @param request the request object making this request
-   *
-   * @param   sessId the session id to use. Should be from prior call to
-   * {@link #getIdFromRequest(PSRequest)}, or if that returns
-   * <code>null</code>, then from {@link #createSessionId(PSRequest)}
+   * @param sessId the session id to use. Should be from prior call to {@link
+   *     #getIdFromRequest(PSRequest)}, or if that returns <code>null</code>, then from {@link
+   *     #createSessionId(PSRequest)}
    */
   PSUserSession(PSRequest request, String sessId) {
     m_isDesignerSession = PSUserSessionManager.isDesignerRequest(request);
@@ -91,11 +90,12 @@ public class PSUserSession {
   }
 
   /**
-   * Creates a new session for the supplied request based on the current one.
-   * Every member of the new session references to the existing one except for
-   * the authenticated entry list which will be empty.
-   * @param request the request object with which the cloned session is
-   * associated with. Must not be <code>null</code>.
+   * Creates a new session for the supplied request based on the current one. Every member of the
+   * new session references to the existing one except for the authenticated entry list which will
+   * be empty.
+   *
+   * @param request the request object with which the cloned session is associated with. Must not be
+   *     <code>null</code>.
    * @return new session with empty authenticated entry list.
    */
   PSUserSession cloneSessionForRequest(PSRequest request) {
@@ -113,19 +113,17 @@ public class PSUserSession {
   }
 
   /**
-   * Get the host that was used by the request that originated
-   * this session.
+   * Get the host that was used by the request that originated this session.
    *
-   * @return the original host, the one who created this session. Never
-   *    <code>null</code>, might be empty.
+   * @return the original host, the one who created this session. Never <code>null</code>, might be
+   *     empty.
    */
   public String getOriginalHost() {
     return m_originalHost;
   }
 
   /**
-   * Get the port that was used by the request that originated
-   * this session.
+   * Get the port that was used by the request that originated this session.
    *
    * @return the original port, the default (80) if none was provided.
    */
@@ -134,8 +132,7 @@ public class PSUserSession {
   }
 
   /**
-   * Get the protocol that was used by the request that originated
-   * this session.
+   * Get the protocol that was used by the request that originated this session.
    *
    * @return the original protocol as a string; either "http" or "https"
    */
@@ -146,33 +143,28 @@ public class PSUserSession {
   /**
    * Get this session's identifier.
    *
-   * @return                 this session's identifier
+   * @return this session's identifier
    */
   public String getId() {
     return m_id;
   }
 
   /**
-   * Test if this session is for a designer connection. This is an accessor
-   * for stored info thats never used within this class.
+   * Test if this session is for a designer connection. This is an accessor for stored info thats
+   * never used within this class.
    *
-   * @return <code>true</code> if this is a designer session,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this is a designer session, <code>false</code> otherwise.
    */
   public boolean isDesignerSession() {
     return m_isDesignerSession;
   }
 
   /**
-   * Get the session identifier string associated with the
-   * specified request object.
+   * Get the session identifier string associated with the specified request object.
    *
-   * @param      request     the request object
-   *
-   * @return                 the session identifier to use or
-   *                         <code>null</code> if a the request does not
-   *                         contain a session id.
-   *
+   * @param request the request object
+   * @return the session identifier to use or <code>null</code> if a the request does not contain a
+   *     session id.
    */
   public static String getIdFromRequest(PSRequest request) {
     String retId;
@@ -193,14 +185,13 @@ public class PSUserSession {
   }
 
   /**
-   * Create a new session Id. We will use <host address>, current system time,
-   * the user agent and a unique number incremented in each call run through a
-   * hash algorithm to generate the session id at this time. In the future we
-   * may also want to use the authenticated user name.
+   * Create a new session Id. We will use <host address>, current system time, the user agent and a
+   * unique number incremented in each call run through a hash algorithm to generate the session id
+   * at this time. In the future we may also want to use the authenticated user name.
    *
    * @param request the request to create the session id for.
-   * @return the new created session id or <code>null</code> if a session
-   *    id cannot be created or the provided request is <code>null</code>.
+   * @return the new created session id or <code>null</code> if a session id cannot be created or
+   *     the provided request is <code>null</code>.
    */
   public static String createSessionId(PSRequest request) {
     HttpSession s = request.getServletRequest().getSession();
@@ -217,11 +208,9 @@ public class PSUserSession {
   }
 
   /**
-   * Construct a unique session id from request information and a monotonically
-   * incremented counter.
+   * Construct a unique session id from request information and a monotonically incremented counter.
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
    * @return The session id, never <code>null</code> or empty.
    */
   private static String buildSessionId(PSRequest request) {
@@ -263,7 +252,7 @@ public class PSUserSession {
   /**
    * Get the users the requestor has authenticated as.
    *
-   * @return                 the array of user entries
+   * @return the array of user entries
    */
   @SuppressWarnings("unchecked")
   public PSUserEntry[] getAuthenticatedUserEntries() {
@@ -295,8 +284,8 @@ public class PSUserSession {
 
   /**
    * Get the user's current community
-   * @return the current community name or <code>null</code> if unknown or
-   * error
+   *
+   * @return the current community name or <code>null</code> if unknown or error
    */
   public String getUserCurrentCommunity() {
     IPSBackEndRoleMgr berm = PSRoleMgrLocator.getBackEndRoleManager();
@@ -313,17 +302,13 @@ public class PSUserSession {
   }
 
   /**
-   * This method retrieves the list user's role-communities, viz. list of all
-   * communities via his role membership.
+   * This method retrieves the list user's role-communities, viz. list of all communities via his
+   * role membership.
    *
    * @param request The current request, assumed not <code>null</code>.
-   *
-   * @return list of user communities (community ids) as <code>String</code>
-   * objects, never <code>null</code> may be empty.  List is cached in the
-   * user's session after the first call.
-   *
-   * @throws PSInternalRequestCallException if there is an error retrieving
-   * the communities
+   * @return list of user communities (community ids) as <code>String</code> objects, never <code>
+   *     null</code> may be empty. List is cached in the user's session after the first call.
+   * @throws PSInternalRequestCallException if there is an error retrieving the communities
    */
   @SuppressWarnings(value = {"unchecked"})
   public List<String> getUserCommunities(PSRequest request) throws PSInternalRequestCallException {
@@ -358,9 +343,7 @@ public class PSUserSession {
    * Get the list of the user's communites as a list of names.
    *
    * @param request The current request to use, may not be <code>null</code>.
-   *
    * @return The list of names, never <code>null</code>.
-   *
    * @throws PSInternalRequestCallException if there is an error.
    */
   @SuppressWarnings(value = {"unchecked"})
@@ -425,18 +408,14 @@ public class PSUserSession {
   }
 
   /**
-   * Looks at all authenticated users in this session, and the first one is
-   * returned.
-   * <p>
-   * Note: All authenticated entries will have the same name.
+   * Looks at all authenticated users in this session, and the first one is returned.
    *
-   * @return A valid, authenticated user name or <code>null</code> if there
-   * isn't one.
+   * <p>Note: All authenticated entries will have the same name.
    *
-   * @todo The Host provider should be removed from the list of authenticated
-   * user entries and this method should be removed. The host provider entries
-   * should be used as a filter on incoming request rather than as
-   * authenticated entries.
+   * @return A valid, authenticated user name or <code>null</code> if there isn't one.
+   * @todo The Host provider should be removed from the list of authenticated user entries and this
+   *     method should be removed. The host provider entries should be used as a filter on incoming
+   *     request rather than as authenticated entries.
    */
   public String getRealAuthenticatedUserEntry() {
     String userName = null;
@@ -453,21 +432,19 @@ public class PSUserSession {
   /**
    * Returns whether or not this session has authenticated user entries.
    *
-   * @return <code>true</code> if this session has authenticated users,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this session has authenticated users, <code>false</code>
+   *     otherwise.
    */
   public boolean hasAuthenticatedUserEntries() {
     return m_UserEntries.size() != 0;
   }
 
   /**
-   * Returns whether or not this session has the specified authenticated user
-   * entry.
+   * Returns whether or not this session has the specified authenticated user entry.
    *
    * @param testEntry The entry to check for, may not be <code>null</code>.
-   *
-   * @return <code>true</code> if this session has the specified authenticated
-   * user entry, <code>false</code> otherwise.
+   * @return <code>true</code> if this session has the specified authenticated user entry, <code>
+   *     false</code> otherwise.
    */
   public boolean hasAuthenticatedUserEntry(PSUserEntry testEntry) {
     if (testEntry == null) throw new IllegalArgumentException("testEntry may not be null");
@@ -484,11 +461,10 @@ public class PSUserSession {
   }
 
   /**
-   * Returns whether or not this session has the specified authenticated user
-   * name.
+   * Returns whether or not this session has the specified authenticated user name.
    *
-   * @return <code>true</code> if this session has the specified authenticated
-   * user entry, <code>false</code> otherwise.
+   * @return <code>true</code> if this session has the specified authenticated user entry, <code>
+   *     false</code> otherwise.
    */
   public boolean hasAuthenticatedUserEntry(String userName) {
     PSUserEntry[] entries = getAuthenticatedUserEntries();
@@ -503,10 +479,9 @@ public class PSUserSession {
   }
 
   /**
-   * Add an authenticated user entry to this session's identifier. This
-   * should only be called by the security engine once a user has been
-   * successfully authenticated.
-   * Loads all the system and designer persistent properties once.
+   * Add an authenticated user entry to this session's identifier. This should only be called by the
+   * security engine once a user has been successfully authenticated. Loads all the system and
+   * designer persistent properties once.
    */
   @SuppressWarnings("unchecked")
   public void addAuthenticatedUserEntry(PSUserEntry entry) {
@@ -515,17 +490,13 @@ public class PSUserSession {
   }
 
   /**
-   * Get the back-end login id/pw the user has supplied through this
-   * session (using the ODBC security provider).
+   * Get the back-end login id/pw the user has supplied through this session (using the ODBC
+   * security provider).
    *
-   * @param      driver      the back-end driver to get the credentials for
-   *
-   * @param      server      the back-end server to get the credentials for
-   *
-   * @return                 If the user has supplied credentials, returns
-   *                         an array containing the login id in
-   *                         element 0 and the login pw in element 1;
-   *                         otherwise <code>null</code> is returned
+   * @param driver the back-end driver to get the credentials for
+   * @param server the back-end server to get the credentials for
+   * @return If the user has supplied credentials, returns an array containing the login id in
+   *     element 0 and the login pw in element 1; otherwise <code>null</code> is returned
    */
   public String[] getBackEndCredentials(String driver, String server) {
     if (driver == null) driver = "";
@@ -535,16 +506,13 @@ public class PSUserSession {
   }
 
   /**
-   * Set the back-end login id/pw the user has supplied through this
-   * session (using the ODBC security provider).
+   * Set the back-end login id/pw the user has supplied through this session (using the ODBC
+   * security provider).
    *
-   * @param      driver      the back-end driver to set the credentials for
-   *
-   * @param      server      the back-end server to set the credentials for
-   *
-   * @param      loginId     the login id to use for connections
-   *
-   * @param      loginPw     the login password to use for connections
+   * @param driver the back-end driver to set the credentials for
+   * @param server the back-end server to set the credentials for
+   * @param loginId the login id to use for connections
+   * @param loginPw the login password to use for connections
    */
   @SuppressWarnings("unchecked")
   public void setBackEndCredentials(String driver, String server, String loginId, String loginPw) {
@@ -556,16 +524,12 @@ public class PSUserSession {
     m_Credentials.put((driver + "/" + server), new String[] {loginId, loginPw});
   }
 
-  /**
-   * Get the sessions create time stamp
-   */
+  /** Get the sessions create time stamp */
   public Date getCreateTimeStamp() {
     return m_createTime;
   }
 
-  /**
-   * Touching the idle time resets the sessions time stamp to the current time.
-   */
+  /** Touching the idle time resets the sessions time stamp to the current time. */
   public void touchIdle() {
     Boolean sessionTouch = (Boolean) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_NOSESSIONTOUCH);
     if (sessionTouch == null || sessionTouch != Boolean.TRUE)
@@ -573,7 +537,8 @@ public class PSUserSession {
   }
 
   /**
-   * Sets idle from to a number of milliseconds in the past,  will not set before current idleFrom time.
+   * Sets idle from to a number of milliseconds in the past, will not set before current idleFrom
+   * time.
    */
   public void setIdleOffset(long offset) {
     long now = System.currentTimeMillis();
@@ -581,9 +546,7 @@ public class PSUserSession {
     if (offsetTime > m_idleFrom) m_idleFrom = offsetTime;
   }
 
-  /**
-   * Get session idle time.
-   */
+  /** Get session idle time. */
   public long getIdleSince() {
     return m_idleFrom;
   }
@@ -591,8 +554,8 @@ public class PSUserSession {
   /**
    * Add an authentication to the authentication pool for passthrough
    *
-   * @param      uid      the id associated with this credential
-   * @param      auth     authentication info associated with this credential
+   * @param uid the id associated with this credential
+   * @param auth authentication info associated with this credential
    */
   public void addAuthentication(String uid, String auth) {
     try {
@@ -609,9 +572,8 @@ public class PSUserSession {
   /**
    * Get an authentication to the authentication pool for passthrough
    *
-   * @param      uid      the id associated with this credential
-   *
-   * @return     authentication info associated with this credential
+   * @param uid the id associated with this credential
+   * @return authentication info associated with this credential
    */
   public Object getAuthenticationData(String uid) {
     return m_authentications.get(uid);
@@ -620,30 +582,27 @@ public class PSUserSession {
   /**
    * Traverse the keys in the authentication pool for passthrough
    *
-   * <em>NOTE:</em> The caller must synchronize on the PSUserSession (the same
-   * instance on which authenticationIdIterator() is invoked) before
-   * invoking this method and while the Iterator is in use.
+   * <p><em>NOTE:</em> The caller must synchronize on the PSUserSession (the same instance on which
+   * authenticationIdIterator() is invoked) before invoking this method and while the Iterator is in
+   * use.
    *
-   * @return     keyset iterator for authentications
-   *
-   * @todo Consider changing this to return an iterator to a copied set of
-   * keys.  That would prevent the need for the caller to nize.
-   * <p>However, it's not clear at this time if an iterator is
-   * guaranteed to provide a reference to the container object itself, and
-   * thus prevent GC of the copied container.  (It's <em>very</em> likely,
-   * but I saw no guarantee in the spec) (dbreslau 12/12/02)
+   * @return keyset iterator for authentications
+   * @todo Consider changing this to return an iterator to a copied set of keys. That would prevent
+   *     the need for the caller to nize.
+   *     <p>However, it's not clear at this time if an iterator is guaranteed to provide a reference
+   *     to the container object itself, and thus prevent GC of the copied container. (It's
+   *     <em>very</em> likely, but I saw no guarantee in the spec) (dbreslau 12/12/02)
    */
   public Iterator authenticationIdIterator() {
     return m_authentications.keySet().iterator();
   }
 
   /**
-   *    Store a back end credential identifier which we know works
-   *    for this driver/server.
+   * Store a back end credential identifier which we know works for this driver/server.
    *
-   * @param      driver   the driver which used this credential
-   * @param      server   the server which accepted this credential
-   * @param      uid      the id associated with this credential
+   * @param driver the driver which used this credential
+   * @param server the server which accepted this credential
+   * @param uid the id associated with this credential
    */
   @SuppressWarnings("unchecked")
   public void putBeWorkingCredential(String driver, String server, String uid) {
@@ -673,16 +632,13 @@ public class PSUserSession {
   }
 
   /**
-   * Get a private object associated with this user session. This
-   * is provided as a storage area for exit handlers, etc. to create
-   * context information once. This can then be retrieved across
+   * Get a private object associated with this user session. This is provided as a storage area for
+   * exit handlers, etc. to create context information once. This can then be retrieved across
    * requests throught the user's session.
    *
-   * @param   key      the key under which the object is stored
-   *
-   * @return           the private object associated with the key
-   *
-   * @exception  com.percussion.error.PSRuntimeException   if key is null
+   * @param key the key under which the object is stored
+   * @return the private object associated with the key
+   * @exception com.percussion.error.PSRuntimeException if key is null
    */
   public synchronized Object getPrivateObject(Object key)
       throws com.percussion.error.PSRuntimeException {
@@ -695,20 +651,15 @@ public class PSUserSession {
   }
 
   /**
-   * Set a private object associated with this user session. This
-   * is provided as a storage area for exit handlers, etc. to create
-   * context information once. This can then be retrieved across
+   * Set a private object associated with this user session. This is provided as a storage area for
+   * exit handlers, etc. to create context information once. This can then be retrieved across
    * requests throught the user's session.
    *
-   * @param   key      the key under which the object is stored. Be sure to
-   *                   to specify a unique name -- that is, something other
-   *                   exit handlers, etc. using this mechanism will not
-   *                   likely use as a name.  Must not be <code>null</code>.
-   *
-   * @param   o        the private object associated with the key (may be
-   * <code>null</code>)
-   *
-   * @exception  com.percussion.error.PSRuntimeException   if key is null
+   * @param key the key under which the object is stored. Be sure to to specify a unique name --
+   *     that is, something other exit handlers, etc. using this mechanism will not likely use as a
+   *     name. Must not be <code>null</code>.
+   * @param o the private object associated with the key (may be <code>null</code>)
+   * @exception com.percussion.error.PSRuntimeException if key is null
    */
   @SuppressWarnings("unchecked")
   public synchronized void setPrivateObject(Object key, Object o)
@@ -723,12 +674,9 @@ public class PSUserSession {
   /**
    * Get the user session status.
    *
-   * @param doc the document for which to create the status element, not
-   *    <code>null</code>.
-   * @return the element containing all user session status information,
-   *    never <code>null</code>.
-   * @throws IllegalArgumentException if the provided document is
-   *    <code>null</code>.
+   * @param doc the document for which to create the status element, not <code>null</code>.
+   * @return the element containing all user session status information, never <code>null</code>.
+   * @throws IllegalArgumentException if the provided document is <code>null</code>.
    */
   public Element getUserSessionStatus(Document doc) {
     if (doc == null) throw new IllegalArgumentException("the document cannot be null");
@@ -800,7 +748,7 @@ public class PSUserSession {
 
   /**
    * @param name whoes value is being sought.
-   * @return  <code>null</code> if mapping doesn't exist.
+   * @return <code>null</code> if mapping doesn't exist.
    * @throws IllegalArgumentException if property name is <code>null</code>.
    */
   public synchronized Object getSessionObject(String name) {
@@ -811,8 +759,8 @@ public class PSUserSession {
   }
 
   /**
-   * Persists all the values for a user at the end of request.
-   * Decision to persist is made in PSPersistentPropertyManager.
+   * Persists all the values for a user at the end of request. Decision to persist is made in
+   * PSPersistentPropertyManager.
    */
   public synchronized void requestFinished() {
     if (!m_isLoaded) return;
@@ -823,12 +771,10 @@ public class PSUserSession {
   }
 
   /**
-   * Updates <code>PSPersistentProperty</code> objects in  m_usrMeta
-   * and adds new ones if added.
+   * Updates <code>PSPersistentProperty</code> objects in m_usrMeta and adds new ones if added.
    *
-   * <p><em>NOTE:</em> This method must be called only from
-   * <code>synchronized</code> methods.  Since the method is private,
-   * it should be easy to verify this.
+   * <p><em>NOTE:</em> This method must be called only from <code>synchronized</code> methods. Since
+   * the method is private, it should be easy to verify this.
    *
    * @param context - system or designer
    * @param map - system or private map, assumed not <code>null</code>
@@ -899,6 +845,7 @@ public class PSUserSession {
 
   /**
    * Gets <code>PSPersistentProperty</code> object from m_usrMeta.
+   *
    * @param propName property name
    * @return <code>null</code> if not found
    */
@@ -912,8 +859,8 @@ public class PSUserSession {
   }
 
   /**
-   * Checks if <code>PSPersistentProperty</code> object by a property name
-   * exists or not.
+   * Checks if <code>PSPersistentProperty</code> object by a property name exists or not.
+   *
    * @param propName
    * @return <code>true</code> if new porperty else <code>true</code>.
    */
@@ -937,11 +884,9 @@ public class PSUserSession {
   }
 
   /**
-   *
    * @param name of the property value to be cleared.
-   * @return value cleared corresponding to the key supplied. <code>null</code>
-   * if there is no mapping for key, or if the key had already been cleared.
-   *
+   * @return value cleared corresponding to the key supplied. <code>null</code> if there is no
+   *     mapping for key, or if the key had already been cleared.
    * @throws IllegalArgumentException if property name is <code>null</code>
    */
   @SuppressWarnings("unchecked")
@@ -961,6 +906,7 @@ public class PSUserSession {
 
   /**
    * Sets the specified key-value mapping.
+   *
    * @param name property name; must not be <code>null</code>
    * @param value property value; may be <code>null</code>
    * @return property value set.
@@ -998,10 +944,7 @@ public class PSUserSession {
     } else return value;
   }
 
-  /**
-   * Empty all authenticated user entries. Not exposed outside of this package.
-   *
-   */
+  /** Empty all authenticated user entries. Not exposed outside of this package. */
   public void clearAuthenticatedUserEntries() {
     m_UserEntries.clear();
   }
@@ -1032,9 +975,8 @@ public class PSUserSession {
   /**
    * Ensures that the persistent property cache is loaded.
    *
-   * <p><em>NOTE:</em> This method must be called only from
-   * <code>synchronized</code> methods. Since the method is private,
-   * it should be easy to verify this.
+   * <p><em>NOTE:</em> This method must be called only from <code>synchronized</code> methods. Since
+   * the method is private, it should be easy to verify this.
    */
   @SuppressWarnings("unchecked")
   private synchronized void loadPersistentProperties() {
@@ -1062,10 +1004,9 @@ public class PSUserSession {
   }
 
   /**
-   * Verifies that the currently persisted language is still valid and
-   * enabled. If not valid or enabled anymore, the language is set as
-   * follows: to <code>en-us</code> if that language is available and enabled
-   * or to the first enabled language found otherwise.
+   * Verifies that the currently persisted language is still valid and enabled. If not valid or
+   * enabled anymore, the language is set as follows: to <code>en-us</code> if that language is
+   * available and enabled or to the first enabled language found otherwise.
    */
   @SuppressWarnings("unchecked")
   private void verifyLanguage() {
@@ -1100,12 +1041,11 @@ public class PSUserSession {
   }
 
   /**
-   * Determines the original host/port/protocol. If the {@link #}
-   * exists in the session we parse it to get the host/port/protocol as this
-   * should provide the most accurate original host/port/protocol info.
-   * If it does not exist we grab the info from the servlet request.
-   * @param request the <code>PSRequest</code> object,
-   * assumed not <code>null</code>.
+   * Determines the original host/port/protocol. If the {@link #} exists in the session we parse it
+   * to get the host/port/protocol as this should provide the most accurate original
+   * host/port/protocol info. If it does not exist we grab the info from the servlet request.
+   *
+   * @param request the <code>PSRequest</code> object, assumed not <code>null</code>.
    */
   private void determineOriginalHostPortProtocol(PSRequest request) {
     try {
@@ -1156,8 +1096,7 @@ public class PSUserSession {
   }
 
   /**
-   * Returns the next session number, and increments the "next number"
-   * static field.
+   * Returns the next session number, and increments the "next number" static field.
    *
    * @return Next session number, starting from 0.
    */
@@ -1165,216 +1104,174 @@ public class PSUserSession {
     return ms_nextSessionNumber++;
   }
 
-  /**
-   * Session as category.
-   */
+  /** Session as category. */
   public static final String CATEGORY = "sys_session";
 
-  /**
-   * Tag used for values in the system map
-   */
+  /** Tag used for values in the system map */
   private static final String SYSTEM = "system";
 
-  /**
-   * Tag used for values in the private map
-   */
+  /** Tag used for values in the private map */
   private static final String PRIVATE = "private";
 
-  /**
-   * SQL wildcards
-   */
+  /** SQL wildcards */
   public static final String ALL = "%";
 
   public static final String ONE = "_";
 
   /**
-   * Stores <code>PSPersistentPropertyMeta</code> objects returned
-   * by PSPersistentPropertyManager. <code>null</code> until <code>m_isLoaded
+   * Stores <code>PSPersistentPropertyMeta</code> objects returned by PSPersistentPropertyManager.
+   * <code>null</code> until <code>m_isLoaded
    * </code> is <code>true</code>, then never <code>null</code> after that.
    */
   private volatile Collection m_usrMeta = null;
 
   /**
-   * Stores <code>PSPersistentProperty</code> objects returned
-   * by PSPersistentPropertyManager and those set on the session object.
-   * <code>null</code> until <code>m_isLoaded</code> is <code>true</code>,
-   * then never <code>null</code> after that.
+   * Stores <code>PSPersistentProperty</code> objects returned by PSPersistentPropertyManager and
+   * those set on the session object. <code>null</code> until <code>m_isLoaded</code> is <code>true
+   * </code>, then never <code>null</code> after that.
    */
   private volatile Collection m_usrProp = null;
 
-  /**
-   *  Maintains system session properties
-   */
+  /** Maintains system session properties */
   private ConcurrentHashMap m_systemObjects = new ConcurrentHashMap();
 
-  /**
-   * The designer session cookie
-   */
+  /** The designer session cookie */
   public static final String DESIGNER_SESSION_COOKIE = "psdsessid";
 
-  /**
-   * The standard session cookie
-   */
+  /** The standard session cookie */
   public static final String SESSION_COOKIE = "pssessid";
 
-  /**
-   * Session id.  Initialized at construction, never modified after
-   * that.
-   */
+  /** Session id. Initialized at construction, never modified after that. */
   private String m_id;
 
-  /**
-   * The time this session was created
-   */
+  /** The time this session was created */
   private final Date m_createTime = new Date();
 
   /**
-   * The time this session went idle. This can be used to determine when
-   * the session should timeout (it is null if the session is being used)
+   * The time this session went idle. This can be used to determine when the session should timeout
+   * (it is null if the session is being used)
    */
   private volatile long m_idleFrom = System.currentTimeMillis();
 
   /**
    * Store the users the requestor has authenticated as.
-   * <p>Accessing methods must <code>synchronize</code> on <code>this</code>
-   * to ensure thread safety.  Since the field is private,
-   * it should be easy to verify this.
+   *
+   * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
+   * safety. Since the field is private, it should be easy to verify this.
    */
   private CopyOnWriteArrayList m_UserEntries = new CopyOnWriteArrayList();
 
   /**
-   * Store the back-end credentials for this user with
-   * key = driver/server and value = String[] { login id, login pw }
-   * <p>Accessing methods must <code>synchronize</code> on <code>this</code>
-   * to ensure thread safety. Since the field is private,
-   * it should be easy to verify this.
+   * Store the back-end credentials for this user with key = driver/server and value = String[] {
+   * login id, login pw }
+   *
+   * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
+   * safety. Since the field is private, it should be easy to verify this.
    */
   private ConcurrentHashMap m_Credentials = new ConcurrentHashMap();
 
   /**
    * Table of database ids.
    *
-   * <p>Accessing methods must <code>synchronize</code> on <code>this</code>
-   * to ensure thread safety.  Since the field is private,
-   * it should be easy to verify this.
+   * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
+   * safety. Since the field is private, it should be easy to verify this.
    */
   private ConcurrentHashMap m_dbIds = new ConcurrentHashMap();
 
   /**
    * Table of database authentications.
-   * <p>Accessing methods must <code>synchronize</code> on <code>this</code>
-   * to ensure thread safety.  Since the field is private,
-   * it should be easy to verify this.
+   *
+   * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
+   * safety. Since the field is private, it should be easy to verify this.
    */
   private Map m_authentications = new ConcurrentHashMap();
 
   /**
    * Allows extensions to store user session information in a map.
-   * <p>Accessing methods must <code>synchronize</code> on <code>this</code>
-   * to ensure thread safety.  Since the field is private,
-   * it should be easy to verify this.
+   *
+   * <p>Accessing methods must <code>synchronize</code> on <code>this</code> to ensure thread
+   * safety. Since the field is private, it should be easy to verify this.
    */
   private ConcurrentHashMap m_privateObjects = new ConcurrentHashMap();
 
   /**
-   * Flag to mark this session as designer session (<code>true</code>). The
-   * default is set to <code>false</code>.
+   * Flag to mark this session as designer session (<code>true</code>). The default is set to <code>
+   * false</code>.
    */
   private boolean m_isDesignerSession = false;
 
   /**
-   * Storage for the originating host provided with the request this object
-   * was created with. Initialized during construction, never
-   * <code>null</code> after that.
+   * Storage for the originating host provided with the request this object was created with.
+   * Initialized during construction, never <code>null</code> after that.
    */
   private String m_originalHost = null;
 
   /**
-   * Storage for the originating port provided with the request this object
-   * was created with. Initialized during construction.  Defaults to 80 if no
-   * port is specified with the request.
+   * Storage for the originating port provided with the request this object was created with.
+   * Initialized during construction. Defaults to 80 if no port is specified with the request.
    */
   private int m_originalPort = 80;
 
   /**
-   * The server protocol with which the request that originated this object
-   * was created. Initialized during construction, never modified after that,
-   * and never <code>null</code>.
+   * The server protocol with which the request that originated this object was created. Initialized
+   * during construction, never modified after that, and never <code>null</code>.
    */
   private String m_originalProtocol = PROTOCOL_HTTP;
 
   /**
-   * Specifies whether system and private maps have been
-   * loaded. <code>true</code>if loaded; else <code>false</code>
+   * Specifies whether system and private maps have been loaded. <code>true</code>if loaded; else
+   * <code>false</code>
    */
   private volatile boolean m_isLoaded = false;
 
   /**
-   * A unique number used when we create a new session id,
-   * monotonically incremented each time an id is created.
-   * Access to this must be done <em>only</em> via
-   * {@link #getNextSessionNumber()}
+   * A unique number used when we create a new session id, monotonically incremented each time an id
+   * is created. Access to this must be done <em>only</em> via {@link #getNextSessionNumber()}
    */
   private static int ms_nextSessionNumber = 0;
 
-  /**
-   * String constant for HTTP protocol
-   */
+  /** String constant for HTTP protocol */
   public static final String PROTOCOL_HTTP = "http";
 
-  /**
-   * String constant for HTTPS protocol
-   */
+  /** String constant for HTTPS protocol */
   public static final String PROTOCOL_HTTPS = "https";
 
-  /**
-   * Name of the internal request to get the user communities.
-   */
+  /** Name of the internal request to get the user communities. */
   private static final String IREQ_USERCOMMUNITIES = "sys_commSupport/usercommunities";
 
   /**
-   * Name of the element "Community" in the result document of the internal
-   * request for user communities.
+   * Name of the element "Community" in the result document of the internal request for user
+   * communities.
    */
   private static final String ELEM_COMMUNITY = "Community";
 
   /**
-   * Name of the attribute of the communityid of the element "Community" in
-   * the result document of the internal request for user communities.
+   * Name of the attribute of the communityid of the element "Community" in the result document of
+   * the internal request for user communities.
    */
   private static final String ATTR_COMMID = "commid";
 
   /**
-   * Name of the internal request to get the community id with a
-   * community name. Requires parameter communityname=value, where value is
-   * a valid community name.
+   * Name of the internal request to get the community id with a community name. Requires parameter
+   * communityname=value, where value is a valid community name.
    */
   private static final String IREQ_COMMUNITYLOOKUP = "sys_commSupport/communityidlookup";
 
   /**
-   * Name of the parameter requires for community id lookup. This
-   * parameter is added when we lookup the community id.
+   * Name of the parameter requires for community id lookup. This parameter is added when we lookup
+   * the community id.
    */
   private static final String COMMUNITYNAME = "communityname";
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   private static final Logger ms_log = LogManager.getLogger(PSUserSession.class);
 
-  /**
-   * The name used to store a client id as session private object.
-   */
+  /** The name used to store a client id as session private object. */
   public static final String CLIENTID = "clientId";
 
-  /**
-   * The name used to store the user's community ids as session private object.
-   */
+  /** The name used to store the user's community ids as session private object. */
   public static final String USER_COMMUNITIES = "sys_userCommunities";
 
-  /**
-   * The name used to store the user's community names as session private
-   * object.
-   */
+  /** The name used to store the user's community names as session private object. */
   public static final String USER_COMMUNITY_NAMES = "sys_userCommunityNames";
 }

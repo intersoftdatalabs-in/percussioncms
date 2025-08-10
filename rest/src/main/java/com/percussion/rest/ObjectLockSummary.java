@@ -19,68 +19,62 @@ package com.percussion.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement
 @Schema(description = "Represents a multi-user lock on an object in the system.")
 public class ObjectLockSummary {
 
-    /**
-     * The session which has this object locked, never <code>null</code> or
-     * empty.
-     */
-    @Schema(description="The session id of the user who has this object locked.")
-    private String session;
+  /** The session which has this object locked, never <code>null</code> or empty. */
+  @Schema(description = "The session id of the user who has this object locked.")
+  private String session;
 
-    /**
-     * The user who has this object locked, never <code>null</code> or empty.
-     */
-    @Schema(description="The username of the user that has the object locked, never null or empty")
-    private String locker;
+  /** The user who has this object locked, never <code>null</code> or empty. */
+  @Schema(description = "The username of the user that has the object locked, never null or empty")
+  private String locker;
 
-    /**
-     * The remaining lock time, always > 0.
-     */
-    @Schema(description="The remaining lock time, always >0")
-    private long remainingTime;
+  /** The remaining lock time, always > 0. */
+  @Schema(description = "The remaining lock time, always >0")
+  private long remainingTime;
 
-    @Schema(description="The date and time that the API client last checked this lock.  Can be used for retries.")
-    private String callerAccessTime;
+  @Schema(
+      description =
+          "The date and time that the API client last checked this lock.  Can be used for retries.")
+  private String callerAccessTime;
 
-    public Optional<String> getSession() {
-        return Optional.ofNullable(session);
-    }
+  public Optional<String> getSession() {
+    return Optional.ofNullable(session);
+  }
 
-    public void setSession(String session) {
-        this.session = session;
-    }
+  public void setSession(String session) {
+    this.session = session;
+  }
 
-    public Optional<String> getLocker() {
-        return Optional.ofNullable(locker);
-    }
+  public Optional<String> getLocker() {
+    return Optional.ofNullable(locker);
+  }
 
-    public void setLocker(String locker) {
-        this.locker = locker;
-    }
+  public void setLocker(String locker) {
+    this.locker = locker;
+  }
 
-    public long getRemainingTime() {
-        return remainingTime;
-    }
+  public long getRemainingTime() {
+    return remainingTime;
+  }
 
-    public void setRemainingTime(long remainingTime) {
-        this.remainingTime = remainingTime;
-    }
+  public void setRemainingTime(long remainingTime) {
+    this.remainingTime = remainingTime;
+  }
 
-    public Optional<String> getCallerAccessTime() {
-        return Optional.ofNullable(callerAccessTime);
-    }
+  public Optional<String> getCallerAccessTime() {
+    return Optional.ofNullable(callerAccessTime);
+  }
 
-    public void setCallerAccessTime(String callerAccessTime) {
-        this.callerAccessTime = callerAccessTime;
-    }
+  public void setCallerAccessTime(String callerAccessTime) {
+    this.callerAccessTime = callerAccessTime;
+  }
 
-    public ObjectLockSummary(){}
+  public ObjectLockSummary() {}
 }

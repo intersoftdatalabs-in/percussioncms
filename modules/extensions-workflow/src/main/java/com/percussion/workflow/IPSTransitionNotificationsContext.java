@@ -18,12 +18,12 @@
 package com.percussion.workflow;
 
 /**
- * An interface that defines methods for the transition notifications context,
- * which contains information about notifications that should be performed
- * after a transition is completed, as well as recipient information.<BR>
- * The "get" methods will return data for the "current" notification. When
- * the context is created, the current notification is the first one. The
- * current notification can be advanced via calls to  {@link #moveNext}
+ * An interface that defines methods for the transition notifications context, which contains
+ * information about notifications that should be performed after a transition is completed, as well
+ * as recipient information.<br>
+ * The "get" methods will return data for the "current" notification. When the context is created,
+ * the current notification is the first one. The current notification can be advanced via calls to
+ * {@link #moveNext}
  */
 @Deprecated
 public interface IPSTransitionNotificationsContext {
@@ -42,83 +42,80 @@ public interface IPSTransitionNotificationsContext {
   public int getTransitionID();
 
   /**
-   * Gets the value of the notification ID for the current notification data
-   * set.
+   * Gets the value of the notification ID for the current notification data set.
    *
    * @return the value of the notification ID
    */
   public int getNotificationID();
 
   /**
-   * Return value indicating which state role recipients should receive
-   * notification: none, from-state, to-state or both
-   * (for the current notification data set).
+   * Return value indicating which state role recipients should receive notification: none,
+   * from-state, to-state or both (for the current notification data set).
+   *
    * @return
-   * <ul>
-   * <li>NO_STATE_ROLE_RECIPIENTS for No State Role recipients</li>
-   * <li>ONLY_NEW_STATE_ROLE_RECIPIENTS for To State Role recipients only</li>
-   * <li>ONLY_OLD_STATE_ROLE_RECIPIENTS for From State Role recipients
-   * only</li>
-   * <li>OLD_AND_NEW_STATE_ROLE_RECIPIENTS for Both To and From State Role
-   * recipients</li>
-   * </ul>
+   *     <ul>
+   *       <li>NO_STATE_ROLE_RECIPIENTS for No State Role recipients
+   *       <li>ONLY_NEW_STATE_ROLE_RECIPIENTS for To State Role recipients only
+   *       <li>ONLY_OLD_STATE_ROLE_RECIPIENTS for From State Role recipients only
+   *       <li>OLD_AND_NEW_STATE_ROLE_RECIPIENTS for Both To and From State Role recipients
+   *     </ul>
    */
   public int getStateRoleRecipientTypes();
 
   /**
-   * Return value indicating whether from-state role recipients should receive
-   * at least one notification
-   * @return  <CODE>true</CODE> if from-state role recipients should receive
-   *           at least one notification, else <CODE>false</CODE>
+   * Return value indicating whether from-state role recipients should receive at least one
+   * notification
+   *
+   * @return <CODE>true</CODE> if from-state role recipients should receive at least one
+   *     notification, else <CODE>false</CODE>
    */
   public boolean requireFromStateRoles();
 
   /**
-   * Return value indicating whether to-state role recipients should receive
-   * at least one notification
-   * @return  <CODE>true</CODE> if to-state role recipients should receive
-   *           at least one notification, else <CODE>false</CODE>
+   * Return value indicating whether to-state role recipients should receive at least one
+   * notification
+   *
+   * @return <CODE>true</CODE> if to-state role recipients should receive at least one notification,
+   *     else <CODE>false</CODE>
    */
   public boolean requireToStateRoles();
 
   /**
-   * Return value indicating whether from-state role recipients should receive
-   * this notification
-   * @return  <CODE>true</CODE> if from-state role recipients should receive
-   *           this notification, else <CODE>false</CODE>
+   * Return value indicating whether from-state role recipients should receive this notification
+   *
+   * @return <CODE>true</CODE> if from-state role recipients should receive this notification, else
+   *     <CODE>false</CODE>
    */
   public boolean notifyFromStateRoles();
 
   /**
-   * Return value indicating whether to-state role recipients should receive
-   * this notification
-   * @return  <CODE>true</CODE> if to-state role recipients should receive
-   *           this notification, else <CODE>false</CODE>
+   * Return value indicating whether to-state role recipients should receive this notification
+   *
+   * @return <CODE>true</CODE> if to-state role recipients should receive this notification, else
+   *     <CODE>false</CODE>
    */
   public boolean notifyToStateRoles();
 
   /**
-   * Returns comma-delimited list of additional notification recipients
-   * for the current notification data set.
+   * Returns comma-delimited list of additional notification recipients for the current notification
+   * data set.
    *
    * @return comma-delimited list of additional notification recipients
    */
   public String getAdditionalRecipientList();
 
   /**
-   * Returns comma-delimited list of CC notification recipients
-   * for the current notification data set.
+   * Returns comma-delimited list of CC notification recipients for the current notification data
+   * set.
    *
    * @return comma-delimited list of CC notification recipients
    */
   public String getCCList();
 
   /**
-   * Makes the data for the next notification in the list available via the
-   * "get" commands.
+   * Makes the data for the next notification in the list available via the "get" commands.
    *
-   * @return  <CODE>true</CODE> if there is another notification,
-   *          else <CODE>false</CODE>.
+   * @return <CODE>true</CODE> if there is another notification, else <CODE>false</CODE>.
    */
   public boolean moveNext();
 

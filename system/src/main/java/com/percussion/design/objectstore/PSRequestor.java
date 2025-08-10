@@ -30,37 +30,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * The PSRequestor class is used to define what constitutes a request the
- * the data set is interested in.
- * <p>
- * The requestor contains the URL and selection parameters. Selection
- * parameters are provided as conditionals which reference the input data.
- * This is often an INPUT parameter defined on a HTML FORM. If all the
- * request criteria is met, the request will be processed.
+ * The PSRequestor class is used to define what constitutes a request the the data set is interested
+ * in.
+ *
+ * <p>The requestor contains the URL and selection parameters. Selection parameters are provided as
+ * conditionals which reference the input data. This is often an INPUT parameter defined on a HTML
+ * FORM. If all the request criteria is met, the request will be processed.
  *
  * @see PSDataSet
  * @see PSDataSet#getRequestor
- *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSRequestor extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSRequestor(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -68,9 +59,7 @@ public class PSRequestor extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Construct a requestor object.
-   */
+  /** Construct a requestor object. */
   public PSRequestor() {
     super();
     m_selectionParams = new PSCollection(com.percussion.design.objectstore.PSConditional.class);
@@ -78,18 +67,16 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Get the name of the request page. The request page is concatenated
-   * with the server request root and the application request root to
-   * provide the complete request URL. For instance, a server request
-   * root of <code>E2</code>, an application request root of
-   * <code>ProductCatalog</code> and a request page of <code>products.xml</code>
-   * will cause the associated data set to respond to requests for the
-   * URL <code>/E2/ProductCatalog/products.xml</code>.
-   * <p>
-   * When the request page is specified with an extension, only requests
-   * exactly matching the specified page will be accepted. If an extension
-   * is not specified in the request page setting, requests will be
-   * handled as follows:
+   * Get the name of the request page. The request page is concatenated with the server request root
+   * and the application request root to provide the complete request URL. For instance, a server
+   * request root of <code>E2</code>, an application request root of <code>ProductCatalog</code> and
+   * a request page of <code>products.xml</code> will cause the associated data set to respond to
+   * requests for the URL <code>/E2/ProductCatalog/products.xml</code>.
+   *
+   * <p>When the request page is specified with an extension, only requests exactly matching the
+   * specified page will be accepted. If an extension is not specified in the request page setting,
+   * requests will be handled as follows:
+   *
    * <table border="1">
    * <tr><td>Extension</td><td>Output</td></tr>
    * <tr><td>-none-</td><td>XML data (MIME type text/xml)</td></tr>
@@ -107,25 +94,23 @@ public class PSRequestor extends PSComponent {
    * <tr><td>other</td><td>An error occurs</td></tr>
    * </table>
    *
-   * @return      the name of the request page
+   * @return the name of the request page
    */
   public java.lang.String getRequestPage() {
     return m_requestPageName;
   }
 
   /**
-   * Set the name of the request page. The request page is concatenated
-   * with the server request root and the application request root to
-   * provide the complete request URL. For instance, a server request
-   * root of <code>E2</code>, an application request root of
-   * <code>ProductCatalog</code> and a request page of <code>products.xml</code>
-   * will cause the associated data set to respond to requests for the
-   * URL <code>/E2/ProductCatalog/products.xml</code>.
-   * <p>
-   * When the request page is specified with an extension, only requests
-   * exactly matching the specified page will be accepted. If an extension
-   * is not specified in the request page setting, requests will be
-   * handled as follows:
+   * Set the name of the request page. The request page is concatenated with the server request root
+   * and the application request root to provide the complete request URL. For instance, a server
+   * request root of <code>E2</code>, an application request root of <code>ProductCatalog</code> and
+   * a request page of <code>products.xml</code> will cause the associated data set to respond to
+   * requests for the URL <code>/E2/ProductCatalog/products.xml</code>.
+   *
+   * <p>When the request page is specified with an extension, only requests exactly matching the
+   * specified page will be accepted. If an extension is not specified in the request page setting,
+   * requests will be handled as follows:
+   *
    * <table border="1">
    * <tr><td>Extension</td><td>Output</td></tr>
    * <tr><td>-none-</td><td>XML data (MIME type text/xml)</td></tr>
@@ -143,7 +128,7 @@ public class PSRequestor extends PSComponent {
    * <tr><td>other</td><td>An error occurs</td></tr>
    * </table>
    *
-   * @param  name   the name of the request page
+   * @param name the name of the request page
    */
   public void setRequestPage(java.lang.String name) {
     IllegalArgumentException ex = validateRequestPage(name);
@@ -161,43 +146,35 @@ public class PSRequestor extends PSComponent {
 
   /**
    * Get the selection criteria for this request.
-   * <P>
-   * Selection criteria can
-   * be provided as conditionals which reference the input data.
-   * This is often an INPUT parameter defined on a HTML FORM. The selection
-   * criteria will be executed against the incoming data. If the data
-   * matches, the request will be handled.
    *
-   * @return      a collection containing the selection criteria
-   *             (PSConditional objects). May be empty, but never <code>
+   * <p>Selection criteria can be provided as conditionals which reference the input data. This is
+   * often an INPUT parameter defined on a HTML FORM. The selection criteria will be executed
+   * against the incoming data. If the data matches, the request will be handled.
+   *
+   * @return a collection containing the selection criteria (PSConditional objects). May be empty,
+   *     but never <code>
    *             null</code>.
-   *
-   * @see         PSConditional
+   * @see PSConditional
    */
   public com.percussion.util.PSCollection getSelectionCriteria() {
     return m_selectionParams;
   }
 
   /**
-   * Overwrite the selection criteria associated with the specified
-   * collection. If you only want to modify certain criteria, add a
-   * new condition, etc. use getSelectionCriteria to get the existing
+   * Overwrite the selection criteria associated with the specified collection. If you only want to
+   * modify certain criteria, add a new condition, etc. use getSelectionCriteria to get the existing
    * collection and modify the returned collection directly.
-   * <p>
-   * Selection criteria can
-   * be provided as conditionals which reference the input data.
-   * This is often an INPUT parameter defined on a HTML FORM. The selection
-   * criteria will be executed against the incoming data. If the data
-   * matches, the request will be handled.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSRequestor object. Any subsequent changes made to the object by
-   * the caller will also effect the requestor object.
    *
-   * @param params   the new selection parameters. If <code>null</code>, all
-   * existing criteria are cleared.
+   * <p>Selection criteria can be provided as conditionals which reference the input data. This is
+   * often an INPUT parameter defined on a HTML FORM. The selection criteria will be executed
+   * against the incoming data. If the data matches, the request will be handled.
    *
-   * @see            PSConditional
+   * <p>The PSCollection object supplied to this method will be stored with the PSRequestor object.
+   * Any subsequent changes made to the object by the caller will also effect the requestor object.
+   *
+   * @param params the new selection parameters. If <code>null</code>, all existing criteria are
+   *     cleared.
+   * @see PSConditional
    */
   public void setSelectionCriteria(com.percussion.util.PSCollection params) {
     IllegalArgumentException ex = validateSelectionCriteria(params);
@@ -221,43 +198,35 @@ public class PSRequestor extends PSComponent {
 
   /**
    * Get the validation rules to be applied against incoming data.
-   *   <P>
-   * Validation rules are defined as
-   * PSConditional objects which may be chained together to validate
-   * the incoming data sent by the requestor. The rules are executed
-   * against the input data. If the input data is deemed invalid,
-   * an error is returned to the requestor.
    *
-   * @return      a collection containing the rules (PSConditional objects).
-   * May be empty, but never <code>null</code>.
+   * <p>Validation rules are defined as PSConditional objects which may be chained together to
+   * validate the incoming data sent by the requestor. The rules are executed against the input
+   * data. If the input data is deemed invalid, an error is returned to the requestor.
    *
-   * @see         PSConditional
+   * @return a collection containing the rules (PSConditional objects). May be empty, but never
+   *     <code>null</code>.
+   * @see PSConditional
    */
   public com.percussion.util.PSCollection getValidationRules() {
     return m_validationRules;
   }
 
   /**
-   * Overwrite the validation rules with the specified collection.
-   * If you only want to modify certain rules, add a new rule, etc. use
-   * getValidationRules to get the existing collection and modify the
-   * returned collection directly.
-   * <p>
-   * Validation rules are defined as
-   * PSConditional objects which may be chained together to validate
-   * the incoming data sent by the requestor. The rules are executed
-   * against the input data. If the input data is deemed invalid,
-   * an error is returned to the requestor.
-   * <p>
-   * The PSCollection object supplied to this method will be stored with
-   * the PSRequestor object. Any subsequent changes made to the object by
-   * the caller will also effect the requestor object.
+   * Overwrite the validation rules with the specified collection. If you only want to modify
+   * certain rules, add a new rule, etc. use getValidationRules to get the existing collection and
+   * modify the returned collection directly.
    *
-   * @param rules   the new input data validation rules (may be null). If
-   * <code>null</code>, all existing rules are cleared.
+   * <p>Validation rules are defined as PSConditional objects which may be chained together to
+   * validate the incoming data sent by the requestor. The rules are executed against the input
+   * data. If the input data is deemed invalid, an error is returned to the requestor.
    *
-   * @see            #getValidationRules
-   * @see            PSConditional
+   * <p>The PSCollection object supplied to this method will be stored with the PSRequestor object.
+   * Any subsequent changes made to the object by the caller will also effect the requestor object.
+   *
+   * @param rules the new input data validation rules (may be null). If <code>null</code>, all
+   *     existing rules are cleared.
+   * @see #getValidationRules
+   * @see PSConditional
    */
   public void setValidationRules(com.percussion.util.PSCollection rules) {
     IllegalArgumentException ex = validateValidationRules(rules);
@@ -280,41 +249,36 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Get the MIME type to use on output. This should normally be null
-   * to allow the engine to decide the type based upon the user request.
-   * The primary use of MIME type is to supply images. Set the MIME type
-   * to the image type stored in the back-end. For instance, if GIF images
-   * are being stored, use "image/gif" as the MIME type. When the MIME
-   * type override is enabled, only a single back-end column may be
-   * selected from the back-end. Attempting to query more than one column
+   * Get the MIME type to use on output. This should normally be null to allow the engine to decide
+   * the type based upon the user request. The primary use of MIME type is to supply images. Set the
+   * MIME type to the image type stored in the back-end. For instance, if GIF images are being
+   * stored, use "image/gif" as the MIME type. When the MIME type override is enabled, only a single
+   * back-end column may be selected from the back-end. Attempting to query more than one column
    * will cause an error.
    *
-   * @return               the output MIME type or <code>null</code>
+   * @return the output MIME type or <code>null</code>
    */
   public IPSReplacementValue getOutputMimeType() {
     return m_outputMimeType;
   }
 
   /**
-   * Set the MIME type to use on output. This should normally be null
-   * to allow the engine to decide the type based upon the user request.
-   * The primary use of MIME type is to supply images. Set the MIME type
-   * to the image type stored in the back-end. For instance, if GIF images
-   * are being stored, use "image/gif" as the MIME type. When the MIME
-   * type override is enabled, only a single back-end column may be
-   * selected from the back-end. Attempting to query more than one column
+   * Set the MIME type to use on output. This should normally be null to allow the engine to decide
+   * the type based upon the user request. The primary use of MIME type is to supply images. Set the
+   * MIME type to the image type stored in the back-end. For instance, if GIF images are being
+   * stored, use "image/gif" as the MIME type. When the MIME type override is enabled, only a single
+   * back-end column may be selected from the back-end. Attempting to query more than one column
    * will cause an error.
    *
-   * @param   mimeType      the output MIME type or <code>null</code>
+   * @param mimeType the output MIME type or <code>null</code>
    */
   public void setOutputMimeType(IPSReplacementValue mimeType) {
     m_outputMimeType = mimeType;
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param req a valid PSRequestor.
    */
@@ -333,10 +297,11 @@ public class PSRequestor extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXRequestor XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXRequestor XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXRequestor is used to define what constitutes a request the
@@ -422,7 +387,7 @@ public class PSRequestor extends PSComponent {
    *    &lt;!ELEMENT MimeProperties      (***the mime properties***)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXRequestor XML element node
+   * @return the newly created PSXRequestor XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -480,12 +445,10 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSRequestor Java object
-   * from a PSXRequestor XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSRequestor Java object from a PSXRequestor XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXRequestor
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXRequestor
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -627,18 +590,15 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;
@@ -714,25 +674,21 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Get the MIME properties.  The properties will be a map
-   *    containing the request extension as the key and the MIME type
-   *    as the value.
-   * <B> Note: </B> Modifications to this class will be reflected in
-   *    this requestor!
+   * Get the MIME properties. The properties will be a map containing the request extension as the
+   * key and the MIME type as the value. <B> Note: </B> Modifications to this class will be
+   * reflected in this requestor!
    */
   public HashMap getMimeProperties() {
     return m_mimeProps;
   }
 
   /**
-   * Set the MIME properties.  The properties will be a map
-   *    containing the request extension as the key and the MIME type
-   *    as the value.
+   * Set the MIME properties. The properties will be a map containing the request extension as the
+   * key and the MIME type as the value.
    *
-   * <B>Note:<B> The keys in the mime properties map must be lower case!
+   * <p><B>Note:<B> The keys in the mime properties map must be lower case!
    *
-   * @param  props  The map of extension/mime-type pairs.
-   *                      Can be <code>null</code>
+   * @param props The map of extension/mime-type pairs. Can be <code>null</code>
    */
   public void setMimeProperties(HashMap props) {
     m_mimeProps = props;
@@ -741,11 +697,9 @@ public class PSRequestor extends PSComponent {
   /**
    * Get the MIME type for this requestor.
    *
-   * @param  fileExtension  The extension of the request.
-   *                      Never <code>null</code>.
-   *
-   * @return the string returned by the replacementvalue, or null
-   *    if a mimeType could not be determined
+   * @param fileExtension The extension of the request. Never <code>null</code>.
+   * @return the string returned by the replacementvalue, or null if a mimeType could not be
+   *     determined
    */
   public IPSReplacementValue getMimeType(String fileExtension) {
     if (fileExtension == null) throw new IllegalArgumentException("an extension must be specified");
@@ -758,14 +712,10 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Check whether the following extension is handled by this
-   *    requestor.
+   * Check whether the following extension is handled by this requestor.
    *
-   * @param  extension  The extension of the request.
-   *                      Never <code>null</code>.
-   *
-   * @return <code>true</code>, or <code>false</code> if a mimeType
-   *    mapping could not be found.
+   * @param extension The extension of the request. Never <code>null</code>.
+   * @return <code>true</code>, or <code>false</code> if a mimeType mapping could not be found.
    */
   public boolean isExtensionSupported(String extension) {
     if (extension == null) throw new IllegalArgumentException("an extension must be specified");
@@ -778,24 +728,20 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Set the character encoding scheme associated with this requestor.
-   *    Specifying the empty string will indicate that no encoding is
-   *    to be used in the http content header.
+   * Set the character encoding scheme associated with this requestor. Specifying the empty string
+   * will indicate that no encoding is to be used in the http content header.
    *
-   * @return  The encoding string identifier.  UTF-8 is an example.
-   *             Never <code>null</code>.
+   * @return The encoding string identifier. UTF-8 is an example. Never <code>null</code>.
    */
   public String getCharacterEncoding() {
     return m_encoding;
   }
 
   /**
-   * Set the encoding scheme associated with this requestor.  Use
-   *    the empty string to indicate that the encoding parameter of
-   *    the http content header is not to be set.
+   * Set the encoding scheme associated with this requestor. Use the empty string to indicate that
+   * the encoding parameter of the http content header is not to be set.
    *
-   * @param  encoding The encoding string identifier. UTF-8 is an example.
-   *          Never <code>null</code>.
+   * @param encoding The encoding string identifier. UTF-8 is an example. Never <code>null</code>.
    */
   public void setCharacterEncoding(String encoding) {
     if (encoding == null) throw new IllegalArgumentException("encoding string can not be null");
@@ -804,23 +750,21 @@ public class PSRequestor extends PSComponent {
   }
 
   /**
-   * Set whether or not this requestor is for a single column request
-   *    for streaming data without using the Xml mapper.
+   * Set whether or not this requestor is for a single column request for streaming data without
+   * using the Xml mapper.
    *
-   * @param enableDirectDataStream set to
-   *    <code>true</code> to set direct data mode, and <code>false</code>
-   *    if this request is to be handled through the Xml processor
+   * @param enableDirectDataStream set to <code>true</code> to set direct data mode, and <code>false
+   *     </code> if this request is to be handled through the Xml processor
    */
   public void setDirectDataStream(boolean enableDirectDataStream) {
     m_directDataStream = enableDirectDataStream;
   }
 
   /**
-   * Is this requestor for a single column request for streaming
-   * data with no mapping?
+   * Is this requestor for a single column request for streaming data with no mapping?
    *
-   * @return  <code>true</code> if so, and <code>false</code>
-   *    if this request is to be handled through the Xml processor
+   * @return <code>true</code> if so, and <code>false</code> if this request is to be handled
+   *     through the Xml processor
    */
   public boolean isDirectDataStream() {
     return m_directDataStream;
@@ -837,19 +781,21 @@ public class PSRequestor extends PSComponent {
   equals, and validate methods
   Also: toXml and fromXml when appropriate */
 
-  /** The mime properties for this dataset, where the key is the file
-   *    extension, and the value is the mime-type string.
+  /**
+   * The mime properties for this dataset, where the key is the file extension, and the value is the
+   * mime-type string.
    */
   private HashMap m_mimeProps = null;
 
-  /** The character encoding associated with this dataset,
-   *    never <code>null</code>, the empty string indicates no encoding.
+  /**
+   * The character encoding associated with this dataset, never <code>null</code>, the empty string
+   * indicates no encoding.
    */
   private String m_encoding = "";
 
   /**
-   * Does this request select data from one column and stream it
-   *    directly?  Defaults to <code>false</code>
+   * Does this request select data from one column and stream it directly? Defaults to <code>false
+   * </code>
    */
   private boolean m_directDataStream = false;
 

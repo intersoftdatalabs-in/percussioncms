@@ -26,15 +26,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-/**
- * Implements the PSXChoices DTD in BasicObjects.dtd.
- */
+/** Implements the PSXChoices DTD in BasicObjects.dtd. */
 public class PSChoices extends PSComponent {
   /**
    * Create new choices of type global.
    *
-   * @param global the identifier of the global choices,must be greater
-   *    than 0.
+   * @param global the identifier of the global choices,must be greater than 0.
    */
   public PSChoices(int global) {
     setGlobal(global);
@@ -43,8 +40,7 @@ public class PSChoices extends PSComponent {
   /**
    * Create new choices of type local.
    *
-   * @param local a collection of PSEntry objects, never <code>null</code>,
-   *    might be empty.
+   * @param local a collection of PSEntry objects, never <code>null</code>, might be empty.
    */
   public PSChoices(PSCollection local) {
     setLocal(local);
@@ -54,8 +50,7 @@ public class PSChoices extends PSComponent {
    * Create new choices of type lookup.
    *
    * @param lookup the lookup request, never <code>null</code>.
-   * @param type the lookup type to create, can only be TYPE_LOOKUP or
-   *    TYPE_INTERNAL_LOOKUP.
+   * @param type the lookup type to create, can only be TYPE_LOOKUP or TYPE_INTERNAL_LOOKUP.
    */
   public PSChoices(PSUrlRequest lookup, int type) {
     setLookup(lookup, type);
@@ -73,14 +68,10 @@ public class PSChoices extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSChoices(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -167,8 +158,7 @@ public class PSChoices extends PSComponent {
   /**
    * Get the list of local choices, only used if type is 'local'.
    *
-   * @return the local choices, never <code>null</code>, might
-   *    be empty.
+   * @return the local choices, never <code>null</code>, might be empty.
    */
   public Iterator getLocal() {
     return m_local.iterator();
@@ -177,8 +167,7 @@ public class PSChoices extends PSComponent {
   /**
    * Set the local choices. This also resets the type to 'local'.
    *
-   * @param local a collection of PSEntry objects, not <code>null</code>
-   *    might be empty.
+   * @param local a collection of PSEntry objects, not <code>null</code> might be empty.
    */
   public void setLocal(PSCollection local) {
     if (local == null) throw new IllegalArgumentException("the collection cannot be null");
@@ -204,8 +193,7 @@ public class PSChoices extends PSComponent {
    * Set a new lookup request. This alse resets the type to 'lookup'.
    *
    * @param lookup the new lookup request, might be <code>null</code>.
-   * @param type the lookup type to create, can only be TYPE_LOOKUP or
-   *    TYPE_INTERNAL_LOOKUP.
+   * @param type the lookup type to create, can only be TYPE_LOOKUP or TYPE_INTERNAL_LOOKUP.
    */
   public void setLookup(PSUrlRequest lookup, int type) {
     if (lookup == null) throw new IllegalArgumentException("lookup cannot be null");
@@ -258,8 +246,8 @@ public class PSChoices extends PSComponent {
   /**
    * Get a list of default selected entries.
    *
-   * @return the list of default selected entries
-   *    (PSDefaultSelected objects), never <code>null</code>, might be empty.
+   * @return the list of default selected entries (PSDefaultSelected objects), never <code>null
+   *     </code>, might be empty.
    */
   public Iterator getDefaultSelected() {
     return m_defaultSelected.iterator();
@@ -284,10 +272,9 @@ public class PSChoices extends PSComponent {
   /**
    * Set new default selected entries.
    *
-   * @param defaultSelected a collection of PSDefaultSelected objects, might
-   *    be <code>null</code> or empty.
-   * @throws IllegalArgumentException if the provided collection is of wrong
-   *    objects types.
+   * @param defaultSelected a collection of PSDefaultSelected objects, might be <code>null</code> or
+   *     empty.
+   * @throws IllegalArgumentException if the provided collection is of wrong objects types.
    */
   public void setDefaultSelected(PSCollection defaultSelected) {
     if (defaultSelected != null
@@ -299,9 +286,8 @@ public class PSChoices extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSChoices, not <code>null</code>.
    */
@@ -356,7 +342,6 @@ public class PSChoices extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -485,7 +470,6 @@ public class PSChoices extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -585,42 +569,39 @@ public class PSChoices extends PSComponent {
   public static final String XML_NODE_NAME = "PSXChoices";
 
   /**
-   * Global type specifier. This type means the choices are stored in a
-   * lookup table. They are obtained by the server when the document is
-   * built.
+   * Global type specifier. This type means the choices are stored in a lookup table. They are
+   * obtained by the server when the document is built.
    */
   public static final int TYPE_GLOBAL = 0;
 
   /**
-   * Local type specifier. This type means the choices are entered directly
-   * and stored in the application.
+   * Local type specifier. This type means the choices are entered directly and stored in the
+   * application.
    */
   public static final int TYPE_LOCAL = 1;
 
   /**
-   * Lookup type specifier. This type means an href is supplied and the
-   * control/stylesheet is responsible for obtaining the entries.
+   * Lookup type specifier. This type means an href is supplied and the control/stylesheet is
+   * responsible for obtaining the entries.
    */
   public static final int TYPE_LOOKUP = 2;
 
   /**
-   * Internal lookup type specifier. This means an href is supplied. The
-   * entries are obtained through an internal request to the specified href.
-   * The application providing the entries must conform to the
-   * sys_Lookup.dtd.
+   * Internal lookup type specifier. This means an href is supplied. The entries are obtained
+   * through an internal request to the specified href. The application providing the entries must
+   * conform to the sys_Lookup.dtd.
    */
   public static final int TYPE_INTERNAL_LOOKUP = 3;
 
   /**
-   * Choice table info specifier. This means table and column info is
-   * specified. The entries are obtained by executing the SQL statement
-   * using the table info.
+   * Choice table info specifier. This means table and column info is specified. The entries are
+   * obtained by executing the SQL statement using the table info.
    */
   public static final int TYPE_TABLE_INFO = 4;
 
   /**
-   * An array of XML attribute values for the type. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the type. They are specified at the index of the
+   * specifier.
    */
   private static final String[] TYPE_ENUM = {
     "global", "local", "lookup", "internalLookup", "tableinfo"
@@ -636,14 +617,14 @@ public class PSChoices extends PSComponent {
   public static final int SORT_ORDER_USER = 2;
 
   /**
-   * An array of XML attribute values for the sort order. They are
-   * specified at the index of the specifier.
+   * An array of XML attribute values for the sort order. They are specified at the index of the
+   * specifier.
    */
   private static final String[] SORT_ORDER_ENUM = {"ascending", "descending", "user"};
 
   /**
-   * The type attribute specifies how and when the choices are specified/
-   * created. See the type specifiers for additional information.
+   * The type attribute specifies how and when the choices are specified/ created. See the type
+   * specifiers for additional information.
    */
   private int m_type = TYPE_GLOBAL;
 
@@ -651,46 +632,42 @@ public class PSChoices extends PSComponent {
   private int m_sortOrder = SORT_ORDER_ASCENDING;
 
   /**
-   * This member is only used if the type is global. It specifies the table
-   * identifier to the table the choices are stored in.
+   * This member is only used if the type is global. It specifies the table identifier to the table
+   * the choices are stored in.
    */
   private int m_global = -1;
 
   /**
-   * This member is only valid if the type is local. A collection of
-   * PSEntry objects specifying the choices. Never <code>null</code>, may
-   * be empty.
+   * This member is only valid if the type is local. A collection of PSEntry objects specifying the
+   * choices. Never <code>null</code>, may be empty.
    */
   private PSCollection m_local = new PSCollection(PSEntry.class);
 
-  /**
-   * This member is only valid if the type is table info. Might be
-   * <code>null</code>.
-   */
+  /** This member is only valid if the type is table info. Might be <code>null</code>. */
   private PSChoiceTableInfo m_tableInfo = null;
 
   /**
-   * This member is only valid if the type is lookup. It specifies the
-   * PSUrlRequest that contains the lookup. Might be <code>null</code>.
+   * This member is only valid if the type is lookup. It specifies the PSUrlRequest that contains
+   * the lookup. Might be <code>null</code>.
    */
   private PSUrlRequest m_lookup = null;
 
   /**
-   * Specifies the null entry and when and how to add is to this choices.
-   * This is optional and might therefor be <code>null</code>.
+   * Specifies the null entry and when and how to add is to this choices. This is optional and might
+   * therefor be <code>null</code>.
    */
   private PSNullEntry m_nullEntry = null;
 
   /**
-   * A collection of default selected entries (PSDefaultSelected objects).
-   * This is optional, never <code>null</code>, might be empty.
+   * A collection of default selected entries (PSDefaultSelected objects). This is optional, never
+   * <code>null</code>, might be empty.
    */
   private PSCollection m_defaultSelected = new PSCollection(PSDefaultSelected.class);
 
   /**
-   * OPTIONAL Choice filter, which is used to filter dynamic display choices
-   * list that replace that returned by the content editor cataloger.
-   * Since this element is OPTIONAL it may be <code>null</code>.
+   * OPTIONAL Choice filter, which is used to filter dynamic display choices list that replace that
+   * returned by the content editor cataloger. Since this element is OPTIONAL it may be <code>null
+   * </code>.
    */
   private PSChoiceFilter m_choiceFilter = null;
 

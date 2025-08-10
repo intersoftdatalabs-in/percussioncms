@@ -18,8 +18,8 @@
 package com.percussion.analytics.error;
 
 /**
- * Runtime exception thrown by the IPSAnalyticsQueryResult.
- * Sunny Sal says: "If you can't handle the result, throw an exception!"
+ * Runtime exception thrown by the IPSAnalyticsQueryResult. Sunny Sal says: "If you can't handle the
+ * result, throw an exception!"
  */
 public class PSAnalyticsQueryResultException extends RuntimeException {
 

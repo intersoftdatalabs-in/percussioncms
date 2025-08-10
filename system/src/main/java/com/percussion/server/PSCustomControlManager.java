@@ -36,14 +36,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * Singleton class that will manage custom control resources.  This class will
- * handle adding import declarations to the custom controls import file for each
- * control file present in the {@link #CUSTOM_CONTROLS_DIR}.
+ * Singleton class that will manage custom control resources. This class will handle adding import
+ * declarations to the custom controls import file for each control file present in the {@link
+ * #CUSTOM_CONTROLS_DIR}.
  */
 public class PSCustomControlManager extends PSBaseControlManager {
-  /**
-   * Private ctor to enforce singleton pattern.
-   */
+  /** Private ctor to enforce singleton pattern. */
   private PSCustomControlManager() {}
 
   /**
@@ -62,9 +60,7 @@ public class PSCustomControlManager extends PSBaseControlManager {
   /**
    * Initializes the control manager.
    *
-   * @param rxRoot The root directory.  May not be <code>null</code> and must
-   * exist.
-   *
+   * @param rxRoot The root directory. May not be <code>null</code> and must exist.
    * @throws IllegalStateException if the manager has been initialized.
    */
   public void init(File rxRoot) {
@@ -82,10 +78,9 @@ public class PSCustomControlManager extends PSBaseControlManager {
   }
 
   /**
-   * Ensures that an import declaration exists in the custom controls file for
-   * each control file present in the controls directory.  Also updates the
-   * last modified date of system files which need to be re-loaded for changes
-   * to take effect.
+   * Ensures that an import declaration exists in the custom controls file for each control file
+   * present in the controls directory. Also updates the last modified date of system files which
+   * need to be re-loaded for changes to take effect.
    */
   public void writeImports() {
     if (m_rxRoot == null) {
@@ -136,11 +131,10 @@ public class PSCustomControlManager extends PSBaseControlManager {
   }
 
   /**
-   * Gets the set of import declarations from the current custom controls
-   * import file.
+   * Gets the set of import declarations from the current custom controls import file.
    *
-   * @return The set of import declarations, as Strings, from the current
-   * custom controls import file.  Never <code>null</code>, may be empty.
+   * @return The set of import declarations, as Strings, from the current custom controls import
+   *     file. Never <code>null</code>, may be empty.
    */
   public Set<String> getImports() {
     Set<String> imports = new HashSet<>();
@@ -171,9 +165,7 @@ public class PSCustomControlManager extends PSBaseControlManager {
   /**
    * Creates an import declaration for the specified path.
    *
-   * @param path The file path relative to the Rhythmyx root.  May not be
-   * <code>null</code> or empty.
-   *
+   * @param path The file path relative to the Rhythmyx root. May not be <code>null</code> or empty.
    * @return An import declaration for the file path.
    */
   public String createImport(String path) {
@@ -186,9 +178,7 @@ public class PSCustomControlManager extends PSBaseControlManager {
    * Gets the file which contains the specified custom control.
    *
    * @param name The control name, may not be blank.
-   *
-   * @return The control file or <code>null</code> if the specified control
-   * could not be found.
+   * @return The control file or <code>null</code> if the specified control could not be found.
    */
   public File getControlFile(String name) {
     File file = null;
@@ -206,8 +196,8 @@ public class PSCustomControlManager extends PSBaseControlManager {
   /**
    * Gets the set of current custom control files.
    *
-   * @return The set of current custom control files as a list.  Never
-   * <code>null</code>, may be empty.
+   * @return The set of current custom control files as a list. Never <code>null</code>, may be
+   *     empty.
    */
   public List<File> getControlFiles() {
     List<File> files = new ArrayList<>();
@@ -228,16 +218,13 @@ public class PSCustomControlManager extends PSBaseControlManager {
   }
 
   /**
-   * Determines if the specified file represents a control file.  A file is
-   * considered to be a control file if it is an .xsl file, it contains one
-   * and only one control definition, and the name of the file matches that of
-   * its control.  Warnings are logged to the console for invalid control
-   * files.
+   * Determines if the specified file represents a control file. A file is considered to be a
+   * control file if it is an .xsl file, it contains one and only one control definition, and the
+   * name of the file matches that of its control. Warnings are logged to the console for invalid
+   * control files.
    *
    * @param file The file to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the file is a control file,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if the file is a control file, <code>false</code> otherwise.
    */
   private boolean isControlFile(File file) {
     boolean isControlFile = false;
@@ -278,67 +265,46 @@ public class PSCustomControlManager extends PSBaseControlManager {
   }
 
   /**
-   * The singleton instance of the control manager, <code>null</code> until
-   * a call to {@link #getInstance()}, never <code>null</code> after that.
+   * The singleton instance of the control manager, <code>null</code> until a call to {@link
+   * #getInstance()}, never <code>null</code> after that.
    */
   private static PSCustomControlManager ms_custCtrlMgr = null;
 
   /**
-   * The set of relative system file paths which need to be touched after the
-   * import file is updated.
+   * The set of relative system file paths which need to be touched after the import file is
+   * updated.
    */
   private static Set<String> ms_touchFiles = new HashSet<>();
 
-  /**
-   * The Rhythmyx root directory.  May be <code>null</code> until
-   * {@link #init(File)} is called.
-   */
+  /** The Rhythmyx root directory. May be <code>null</code> until {@link #init(File)} is called. */
   private File m_rxRoot = null;
 
-  /**
-   * The subsystem name.
-   */
+  /** The subsystem name. */
   private static final String SUBSYSTEM = "CustomControlMgr";
 
-  /**
-   * The rx_resources stylesheets directory relative to the Rhythmyx root.
-   */
+  /** The rx_resources stylesheets directory relative to the Rhythmyx root. */
   public static final String RX_STYLESHEETS_DIR = "rx_resources/stylesheets";
 
-  /**
-   * The sys_resources stylesheets directory relative to the Rhythmyx root.
-   */
+  /** The sys_resources stylesheets directory relative to the Rhythmyx root. */
   public static final String SYS_STYLESHEETS_DIR = "sys_resources/stylesheets";
 
-  /**
-   * The custom controls directory relative to the Rhythmyx root.
-   */
+  /** The custom controls directory relative to the Rhythmyx root. */
   public static final String CUSTOM_CONTROLS_DIR = RX_STYLESHEETS_DIR + "/controls";
 
-  /**
-   * The custom control imports file path relative to the Rhythmyx root.
-   */
+  /** The custom control imports file path relative to the Rhythmyx root. */
   public static final String CUSTOM_CONTROL_IMPORTS_FILE =
       SYS_STYLESHEETS_DIR + "/customControlImports.xsl";
 
-  /**
-   * The href file prefix in an import declaration.
-   */
+  /** The href file prefix in an import declaration. */
   private static final String HREF_FILE_PREFIX = "file:";
 
-  /**
-   * The import tag name.
-   */
+  /** The import tag name. */
   private static final String XSL_IMPORT_TAG_NAME = "xsl:import";
 
-  /**
-   * The import open tag (not closed).
-   */
+  /** The import open tag (not closed). */
   private static final String XSL_IMPORT_OPEN_TAG = '<' + XSL_IMPORT_TAG_NAME;
 
-  /**
-   * The stylesheet close tag.
-   */
+  /** The stylesheet close tag. */
   private static final String XSL_STYLESHEET_CLOSE_TAG = "</xsl:stylesheet>";
 
   static {

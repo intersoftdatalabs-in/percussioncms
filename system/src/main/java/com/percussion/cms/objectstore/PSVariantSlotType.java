@@ -24,8 +24,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This read-only DB component represents one row from the
- * RXVARIANTSLOTTYPE table.
+ * This read-only DB component represents one row from the RXVARIANTSLOTTYPE table.
+ *
  * @deprecated use the assembly service instead
  */
 public class PSVariantSlotType extends PSDbComponent {
@@ -45,8 +45,8 @@ public class PSVariantSlotType extends PSDbComponent {
   }
 
   /**
-   * Create a record from information from the assembly manager. Note that due
-   * to Java, we cannot check the arguments before calling super.
+   * Create a record from information from the assembly manager. Note that due to Java, we cannot
+   * check the arguments before calling super.
    *
    * @param guid the guid of the variant, never <code>null</code>
    * @param slot the slot, never <code>null</code>
@@ -70,8 +70,9 @@ public class PSVariantSlotType extends PSDbComponent {
   }
 
   /**
-   * Serializes this object into an xml element that can be attached to the
-   * supplied document. It will conform to the following dtd:
+   * Serializes this object into an xml element that can be attached to the supplied document. It
+   * will conform to the following dtd:
+   *
    * <pre>
    * <!ELEMENT VARIANTID (#PCDATA)>
    * <!ELEMENT SLOTID (#PCDATA)>
@@ -83,7 +84,6 @@ public class PSVariantSlotType extends PSDbComponent {
    * </pre>
    *
    * @param doc Used to generate the element. Never <code>null</code>.
-   *
    * @return the generated element, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -105,9 +105,9 @@ public class PSVariantSlotType extends PSDbComponent {
   }
 
   /**
-   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator,
-   *     PSKey)}.
-   * Since this is a read-only object, this is a not supported operation.
+   * See {@link IPSDbComponent#toDbXml(Document, Element, IPSKeyGenerator, PSKey)}. Since this is a
+   * read-only object, this is a not supported operation.
+   *
    * @throws UnsupportedOperationException always.
    */
   public void toDbXml(Document doc, Element root, IPSKeyGenerator keyGen, PSKey parent)
@@ -125,7 +125,6 @@ public class PSVariantSlotType extends PSDbComponent {
    * Creates the correct key for this component.
    *
    * @param variantid the variant id
-   *
    * @return the created key, never <code>null</code>.
    */
   public static PSKey createKey(int variantid) {
@@ -136,9 +135,9 @@ public class PSVariantSlotType extends PSDbComponent {
 
   /**
    * Creates the correct key for this component.
+   *
    * @param variantId the variant id
    * @param slotId the slot id
-   *
    * @return the created key, never <code>null</code>.
    */
   private static PSKey createKey(int variantId, int slotId) {
@@ -148,8 +147,7 @@ public class PSVariantSlotType extends PSDbComponent {
   }
 
   /**
-   * Override to create our own Key which is
-   * {@link com.percussion.design.objectstore.PSLocator}.
+   * Override to create our own Key which is {@link com.percussion.design.objectstore.PSLocator}.
    */
   protected PSKey createKey(Element el) throws PSUnknownNodeTypeException {
     if (el == null) throw new IllegalArgumentException("Source element cannot be null.");
@@ -158,17 +156,15 @@ public class PSVariantSlotType extends PSDbComponent {
   }
 
   /**
-   * Overrides the base class to compare each of the member properties. This
-   * class is an exception for this methid's implementation in that we compare
-   * the key values to decide if two objects are equal or not. This is because
-   * of the fact that this class has no other memeber data other than the key
-   * values.
+   * Overrides the base class to compare each of the member properties. This class is an exception
+   * for this methid's implementation in that we compare the key values to decide if two objects are
+   * equal or not. This is because of the fact that this class has no other memeber data other than
+   * the key values.
    *
-   * @param o The comparee. If null or not an instance of this class,
-   *    <code>false</code> is returned.
-   *
-   * @return <code>true</code> if all members are equal as defined above,
-   *    otherwise <code>false</code> is returned.
+   * @param o The comparee. If null or not an instance of this class, <code>false</code> is
+   *     returned.
+   * @return <code>true</code> if all members are equal as defined above, otherwise <code>false
+   *     </code> is returned.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSVariantSlotType)) return false;
@@ -184,9 +180,8 @@ public class PSVariantSlotType extends PSDbComponent {
   /**
    * Must be overridden because we overrode equals.
    *
-   * @return A value computed by concatenating all of the properties into one
-   *    string and taking the hashCode of that. The name is lowercased before
-   *    it is concatenated.
+   * @return A value computed by concatenating all of the properties into one string and taking the
+   *     hashCode of that. The name is lowercased before it is concatenated.
    */
   public int hashCode() {
     return ((KEY_SLOTID + getSlotId()).hashCode() + (KEY_VARIANTID + getVariantId()).hashCode());

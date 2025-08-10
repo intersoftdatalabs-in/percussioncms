@@ -17,9 +17,7 @@
 
 package com.percussion.deployer.server;
 
-/**
- * Handle to the currently executing job, used to update status.
- */
+/** Handle to the currently executing job, used to update status. */
 public interface IPSJobHandle {
 
   /**
@@ -33,9 +31,8 @@ public interface IPSJobHandle {
   /**
    * Determines if the current job has been cancelled.
    *
-   * @return {@code true} if the job is cancelled and the executing code
-   * should stop at an appropriate point, cleanup as required, and return,
-   * {@code false} otherwise.
+   * @return {@code true} if the job is cancelled and the executing code should stop at an
+   *     appropriate point, cleanup as required, and return, {@code false} otherwise.
    */
   boolean isCancelled();
 }

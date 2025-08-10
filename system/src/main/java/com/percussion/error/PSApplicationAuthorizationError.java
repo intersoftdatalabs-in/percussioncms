@@ -23,39 +23,31 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSApplicationAuthorizationError class is used to report a failed
- * attempt to login to an application.
- * <p>
- * An error message containing the host address and login id is logged
- * when this error is encountered.
+ * The PSApplicationAuthorizationError class is used to report a failed attempt to login to an
+ * application.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>An error message containing the host address and login id is logged when this error is
+ * encountered.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSApplicationAuthorizationError extends PSLogError {
 
   /**
    * Report an authorization failure.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      ipAddress   the IP address of the host causing the
-   *                           authorization failure
-   *
-   * @param      loginId      the login id used which caused the error
-   *
-   * @param      errorCode   the error code provided by the driver
-   *                           when attempting the connection
-   *
-   * @param      errorString   the error string provided by the driver
-   *                           when attempting the connection
+   * @param applId the id of the application that generated the error
+   * @param ipAddress the IP address of the host causing the authorization failure
+   * @param loginId the login id used which caused the error
+   * @param errorCode the error code provided by the driver when attempting the connection
+   * @param errorString the error string provided by the driver when attempting the connection
    */
   public PSApplicationAuthorizationError(
       int applId,
@@ -77,17 +69,12 @@ public class PSApplicationAuthorizationError extends PSLogError {
     else m_errorString = errorString;
   }
 
-  /**
-   * Get the host name (or specifically, the IP address of the host).
-   */
+  /** Get the host name (or specifically, the IP address of the host). */
   public String getHost() {
     return m_host;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

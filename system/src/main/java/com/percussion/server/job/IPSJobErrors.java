@@ -18,14 +18,15 @@
 package com.percussion.server.job;
 
 /**
- * The IPSJobErrors interface is provided as a convenient mechanism
- * for accessing the various deployent related error codes.
+ * The IPSJobErrors interface is provided as a convenient mechanism for accessing the various
+ * deployent related error codes.
  */
 public interface IPSJobErrors {
   /**
    * The specified job definition cannot be located.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The category</TD></TR>
@@ -36,8 +37,9 @@ public interface IPSJobErrors {
 
   /**
    * Error creating job runner in factory.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The class name</TD></TR>
@@ -48,8 +50,9 @@ public interface IPSJobErrors {
 
   /**
    * The server received an invalid request type.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request type</TD></TR>
@@ -59,8 +62,9 @@ public interface IPSJobErrors {
 
   /**
    * Unexpected error
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error message</TD></TR>
@@ -70,16 +74,16 @@ public interface IPSJobErrors {
 
   /**
    * The job handler received a request with a null input document.
-   * <p>
-   * There are no arguments for this message.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int NULL_INPUT_DOC = 5;
 
   /**
-   * The request recieved by the job handler contained an invalid required
-   * parameter.
-   * <p>
-   * The arguments passed in for this message are:
+   * The request recieved by the job handler contained an invalid required parameter.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The param name</TD></TR>
@@ -89,17 +93,17 @@ public interface IPSJobErrors {
   public static final int SERVER_REQUEST_PARAM_INVALID = 6;
 
   /**
-   * The Job handler received a request to run a job while another job is still
-   * running.
-   * <p>
-   * There are no arguments for this message.
+   * The Job handler received a request to run a job while another job is still running.
+   *
+   * <p>There are no arguments for this message.
    */
   public static final int JOB_ALREADY_RUNNING = 7;
 
   /**
    * The request received by the job handler is malformed.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The request element</TD></TR>
@@ -110,8 +114,9 @@ public interface IPSJobErrors {
 
   /**
    * The request received by the job handler specifies an invalid job id.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The job id</TD></TR>
@@ -120,10 +125,10 @@ public interface IPSJobErrors {
   public static final int INVALID_JOB_ID = 9;
 
   /**
-   * The run job request received by the job handler contains an invalid
-   * descriptor document.
-   * <p>
-   * The arguments passed in for this message are:
+   * The run job request received by the job handler contains an invalid descriptor document.
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>The error</TD></TR>
@@ -133,8 +138,9 @@ public interface IPSJobErrors {
 
   /**
    * The configuration file specified was not found.
-   * <p>
-   * The arguments passed in for this message are:
+   *
+   * <p>The arguments passed in for this message are:
+   *
    * <TABLE BORDER="1">
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
    * <TR><TD>0</TD><TD>Config file path</TD></TR>

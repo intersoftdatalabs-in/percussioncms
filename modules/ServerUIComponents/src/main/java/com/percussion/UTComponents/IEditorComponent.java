@@ -21,22 +21,20 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 /**
- * This interface defines methods which are required for using any
- * object which extends <code>JComponent</code> as editor component in
- * {@link UTCellEditor} which is used as table cell editor.
+ * This interface defines methods which are required for using any object which extends <code>
+ * JComponent</code> as editor component in {@link UTCellEditor} which is used as table cell editor.
  */
 public interface IEditorComponent {
   /**
-   * Returns the basic editor component in an editor. For example it can be any
-   * of the following controls, 'JTextField', 'JComboBox', 'JCheckBox', 'JList'.
+   * Returns the basic editor component in an editor. For example it can be any of the following
+   * controls, 'JTextField', 'JComboBox', 'JCheckBox', 'JList'.
    *
    * @return the editor component, may not be <code>null</code>
    */
   public JComponent getEditorComponent();
 
   /**
-   * Add listener to the component on whose action the cell editing to be
-   * stopped.
+   * Add listener to the component on whose action the cell editing to be stopped.
    *
    * @param l the action listener, may not be <code>null</code>
    */

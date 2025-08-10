@@ -17,47 +17,43 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import net.sf.oval.constraint.NotNull;
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Objects;
-import java.util.Optional;
+import net.sf.oval.constraint.NotNull;
 
 /**
  * Represents both a physical file location and logical link (URL).
+ *
  * @author adamgent
  */
 @XmlRootElement(name = "pSResourceLinkAndLocation")
 public class PSResourceLinkAndLocation extends PSAbstractDataObject {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @NotNull
-    private PSRenderLink renderLink;
+  @NotNull private PSRenderLink renderLink;
 
-    @NotNull
-    private PSResourceLocation resourceLocation;
+  @NotNull private PSResourceLocation resourceLocation;
 
-    /**
-     * @return never {@code null}.
-     */
-    public PSRenderLink getRenderLink() {
-        return renderLink;
-    }
+  /**
+   * @return never {@code null}.
+   */
+  public PSRenderLink getRenderLink() {
+    return renderLink;
+  }
 
-    public void setRenderLink(PSRenderLink renderLink) {
-        this.renderLink = renderLink;
-    }
+  public void setRenderLink(PSRenderLink renderLink) {
+    this.renderLink = renderLink;
+  }
 
-    /**
-     * @return never {@code null}.
-     */
-    public PSResourceLocation getResourceLocation() {
-        return resourceLocation;
-    }
+  /**
+   * @return never {@code null}.
+   */
+  public PSResourceLocation getResourceLocation() {
+    return resourceLocation;
+  }
 
-    public void setResourceLocation(PSResourceLocation resourceLocation) {
-        this.resourceLocation = resourceLocation;
-    }
+  public void setResourceLocation(PSResourceLocation resourceLocation) {
+    this.resourceLocation = resourceLocation;
+  }
 }

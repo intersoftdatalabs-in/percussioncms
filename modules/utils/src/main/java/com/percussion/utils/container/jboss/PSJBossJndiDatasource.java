@@ -37,29 +37,24 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Object representation of a JNDI datasource configuration.
- */
+/** Object representation of a JNDI datasource configuration. */
 public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
     implements Cloneable, IPSJndiDatasource {
 
   /**
-   * Construct a JNDI datasource, specifying each of the basic properties.
-   * The validity of the values is not checked until it is first used.
+   * Construct a JNDI datasource, specifying each of the basic properties. The validity of the
+   * values is not checked until it is first used.
    *
-   * @param name The name of the datasource, may not be <code>null</code> or
-   * empty.  See {@link #setName(String)} for more info.
-   * @param driverName The name of the JDBC driver, may not be
-   * <code>null</code> or empty.
-   * @param driverClassName The name of the JDBC driver class, may not be
-   * <code>null</code> or empty.
-   * @param server The name of the server to which the datasource will connect,
-   * may not be <code>null</code> or empty.
-   * @param userId The user id to use when connecting, may be <code>null</code>
-   * or empty.
-   * @param password The password to use when connecting, may be
-   * <code>null</code> or empty. Ignored if <code>userId</code> is not
-   * supplied.  The value must not be encrypted.
+   * @param name The name of the datasource, may not be <code>null</code> or empty. See {@link
+   *     #setName(String)} for more info.
+   * @param driverName The name of the JDBC driver, may not be <code>null</code> or empty.
+   * @param driverClassName The name of the JDBC driver class, may not be <code>null</code> or
+   *     empty.
+   * @param server The name of the server to which the datasource will connect, may not be <code>
+   *     null</code> or empty.
+   * @param userId The user id to use when connecting, may be <code>null</code> or empty.
+   * @param password The password to use when connecting, may be <code>null</code> or empty. Ignored
+   *     if <code>userId</code> is not supplied. The value must not be encrypted.
    */
   public PSJBossJndiDatasource(
       String name,
@@ -76,15 +71,13 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   }
 
   /**
-   * Construct a JNDI datasource from its XML representation as defined by
-   * the "local-tx-datasource" element in the the JBoss "jboss-ds_1_5.dtd" DTD.
-   * All child elements will be held in memory and re-written by
-   * {@link #toXml(Document)} so that properties not known to this object will
-   * still be maintained intact.
+   * Construct a JNDI datasource from its XML representation as defined by the "local-tx-datasource"
+   * element in the the JBoss "jboss-ds_1_5.dtd" DTD. All child elements will be held in memory and
+   * re-written by {@link #toXml(Document)} so that properties not known to this object will still
+   * be maintained intact.
    *
    * @param source The source element, may not be <code>null</code>.
-   * @throws PSInvalidXmlException If the element is not in the expected
-   * format.
+   * @throws PSInvalidXmlException If the element is not in the expected format.
    */
   public PSJBossJndiDatasource(Element source) throws PSInvalidXmlException {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -174,8 +167,8 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   }
 
   /**
-   * Sets up any driver specific data.  Currently this is the connection
-   * checker class and exception sorter class.
+   * Sets up any driver specific data. Currently this is the connection checker class and exception
+   * sorter class.
    */
   private void setDriverSpecificData() {
     if (m_backgroundValidation == null) m_backgroundValidation = "true";
@@ -207,18 +200,15 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   }
 
   /**
-   * Serializes this component to the JBoss datasource XML format.  During
-   * serialization, this method will add a connection checker class for Oracle
-   * datasources if one is not present (see the oracle-ds.xml example in
-   * <Jboss docs>\examples\jca), and will also add an exception sorter for
-   * both Oracle datasources if one is not present.  Also, if
-   * {@link #getSecurityDomain()} returns <code>null</code>, then the userId
-   * and password elements will not be written.
+   * Serializes this component to the JBoss datasource XML format. During serialization, this method
+   * will add a connection checker class for Oracle datasources if one is not present (see the
+   * oracle-ds.xml example in <Jboss docs>\examples\jca), and will also add an exception sorter for
+   * both Oracle datasources if one is not present. Also, if {@link #getSecurityDomain()} returns
+   * <code>null</code>, then the userId and password elements will not be written.
    *
-   * See {@link #PSJndiDatasource(Element)} for more info.
+   * <p>See {@link #PSJndiDatasource(Element)} for more info.
    *
    * @param doc The document to use, may not be <code>null</code>.
-   *
    * @return The root element of the XML, never <code>null</code>.
    */
   public Element toXml(Document doc) {
@@ -277,42 +267,32 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   }
 
   /**
-   * Adds the optional element to the supplied root if it is not
-   * <code>null</code>.
+   * Adds the optional element to the supplied root if it is not <code>null</code>.
    *
    * @param doc The doc to use, assumed not <code>null</code>.
    * @param root The root element, assumed not <code>null</code>.
-   * @param name The name of the element to add, assumed not <code>null</code>
-   * or empty.
-   * @param value The value of the element to add, may be <code>null</code> or
-   * empty.
+   * @param name The name of the element to add, assumed not <code>null</code> or empty.
+   * @param value The value of the element to add, may be <code>null</code> or empty.
    */
   private void addOptionalElement(Document doc, Element root, String name, String value) {
     if (value != null) PSXmlDocumentBuilder.addElement(doc, root, name, value);
   }
 
-  /**
-   * The root XML element name for a datasource.
-   */
+  /** The root XML element name for a datasource. */
   public static final String DATASOURCE_NODE_NAME = "local-tx-datasource";
 
   /**
-   * Gets the string text value of the specified element as a child of the
-   * root node of the supplied walker.  Walker position upon return is
-   * set back to the root.
+   * Gets the string text value of the specified element as a child of the root node of the supplied
+   * walker. Walker position upon return is set back to the root.
    *
    * @param walker The tree walker to use, assumed not <code>null</code>.
    * @param source The root element, assumed not <code>null</code>.
-   * @param name The name of the element from which to get the value, assumed
-   * not <code>null</code>.
-   * @param required <code>true</code> if a value is expected,
-   * <code>false</code> if it is optional.
-   *
-   * @return The value, may be <code>null</code> if the specified element is
-   * not found, or empty if the element has no data.
-   *
-   * @throws PSInvalidXmlException if no element or value is found and
-   * <code>required</code> is <code>true</code>.
+   * @param name The name of the element from which to get the value, assumed not <code>null</code>.
+   * @param required <code>true</code> if a value is expected, <code>false</code> if it is optional.
+   * @return The value, may be <code>null</code> if the specified element is not found, or empty if
+   *     the element has no data.
+   * @throws PSInvalidXmlException if no element or value is found and <code>required</code> is
+   *     <code>true</code>.
    */
   private String getElementValue(
       PSXmlTreeWalker walker, Element source, String name, boolean required)
@@ -324,13 +304,11 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   }
 
   /**
-   * Convenience that calls
-   * {@link #getElementValue(PSXmlTreeWalker, Element, String, boolean)
-   * getElementValue(walker, source, name, true)} and then returns the value as
-   * an integer.
+   * Convenience that calls {@link #getElementValue(PSXmlTreeWalker, Element, String, boolean)
+   * getElementValue(walker, source, name, true)} and then returns the value as an integer.
    *
-   * @throws PSInvalidXmlException if the value cannot be parsed as an integer
-   * or if the delegated call throws an exception.
+   * @throws PSInvalidXmlException if the value cannot be parsed as an integer or if the delegated
+   *     call throws an exception.
    */
   private int getElementValueInt(PSXmlTreeWalker walker, Element source, String name)
       throws PSInvalidXmlException {
@@ -407,29 +385,24 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
     return clone;
   }
 
-  /**
-   * Name of the oracle connection checker class.
-   */
+  /** Name of the oracle connection checker class. */
   private static final String ORACLE_CONN_CHECKER =
       "org.jboss.resource.adapter.jdbc.vendor.OracleValidConnectionChecker";
 
-  /**
-   * Name of the oracle exception sorter class.
-   */
+  /** Name of the oracle exception sorter class. */
   private static final String ORACLE_EX_SORTER =
       "org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter";
 
   /**
-   * Map of driver names to connection checker class names.  Initialized by a
-   * static initializer, never <code>null</code> or modified after that.
-   * See {@link #m_connectionCheckerClass} for more info.
+   * Map of driver names to connection checker class names. Initialized by a static initializer,
+   * never <code>null</code> or modified after that. See {@link #m_connectionCheckerClass} for more
+   * info.
    */
   private static Map<String, String> ms_connCheckerMap = new HashMap<String, String>();
 
   /**
-   * Map of driver names to exception sorter class names.  Initialized by a
-   * static initializer, never <code>null</code> or modified after that.  See
-   * {@link #m_exceptionSorterClass} for more info.
+   * Map of driver names to exception sorter class names. Initialized by a static initializer, never
+   * <code>null</code> or modified after that. See {@link #m_exceptionSorterClass} for more info.
    */
   private static Map<String, String> ms_exceptionSorterMap = new HashMap<String, String>();
 
@@ -492,32 +465,32 @@ public class PSJBossJndiDatasource extends PSJndiDatasourceImpl
   private static final String DEPENDS = "depends";
 
   /**
-   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element.
-   * See {@link #toXml(Document)} for more info.
+   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element. See {@link
+   * #toXml(Document)} for more info.
    */
   private String m_connectionCheckerClass = null;
 
   /**
-   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element.
-   * See {@link #toXml(Document)} for more info.
+   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element. See {@link
+   * #toXml(Document)} for more info.
    */
   private String m_backgroundValidation = null;
 
   /**
-   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element.
-   * See {@link #toXml(Document)} for more info.
+   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element. See {@link
+   * #toXml(Document)} for more info.
    */
   private String m_backgroundValidationMillis = "60000";
 
   /**
-   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element.
-   * See {@link #toXml(Document)} for more info.
+   * Name of the class assigned to the {@link #CONN_CHECKER_CLASS} element. See {@link
+   * #toXml(Document)} for more info.
    */
   private String m_validateOnMatch = null;
 
   /**
-   * Name of the class assigned to the {@link #EX_SORTER_CLASS} element.  See
-   * {@link #toXml(Document)} for more info.
+   * Name of the class assigned to the {@link #EX_SORTER_CLASS} element. See {@link
+   * #toXml(Document)} for more info.
    */
   private String m_exceptionSorterClass = null;
 }

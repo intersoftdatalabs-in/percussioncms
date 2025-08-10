@@ -30,11 +30,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Encapsulates an HTTP GET or POST request and the results of the request.
- * We use this class because we want more flexibility over the behavior
- * of the HTTP transaction than classes like java.net.HttpURLConnection
- * gives us. For example, we may want to send garbage or unencoded URLs.
- *
+ * Encapsulates an HTTP GET or POST request and the results of the request. We use this class
+ * because we want more flexibility over the behavior of the HTTP transaction than classes like
+ * java.net.HttpURLConnection gives us. For example, we may want to send garbage or unencoded URLs.
  */
 public class PSHttpRequest implements IPSHTTPConstants {
 
@@ -43,8 +41,8 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Constructs a request to the given URL with the given method.
-   * If request content is non-null, it will be sent after the request headers.
+   * Constructs a request to the given URL with the given method. If request content is non-null, it
+   * will be sent after the request headers.
    *
    * @param url the URL as a string
    * @param reqMethod the HTTP method
@@ -61,17 +59,13 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Sets the outgoing request content for this request. If an existing
-   * content had been specified (and it is not the same content stream
-   * as the argument to this method), the existing content will be
-   * closed first.
+   * Sets the outgoing request content for this request. If an existing content had been specified
+   * (and it is not the same content stream as the argument to this method), the existing content
+   * will be closed first.
    *
-   * @author	chadloder
-   *
+   * @author chadloder
    * @version 1.3 1999/11/03
-   *
-   * @param	content
-   *
+   * @param content
    */
   public void setRequestContent(InputStream content) {
     if (reqContent != null && content != reqContent) {
@@ -85,38 +79,28 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Sets the request's hostname. Usually this value will be extracted from
-   * the URL, but if the host is not available in the URL, then you will to
-   * set the host using this method.
-   * <p>
-   * If this value is set, then it will override any setting in the URL.
+   * Sets the request's hostname. Usually this value will be extracted from the URL, but if the host
+   * is not available in the URL, then you will to set the host using this method.
    *
-   * @author	chad loder
+   * <p>If this value is set, then it will override any setting in the URL.
    *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @param	hostName
-   *
+   * @param hostName
    */
   public void setRequestHost(String hostName) {
     reqHost = hostName;
   }
 
   /**
-   * Sets the request's port. Usually this value will be extracted from
-   * the URL, but if the port is not available in the URL, then you will need
-   * to set the port using this method.
-   * <p>
-   * If this value is set, then it will override any setting in the URL.
+   * Sets the request's port. Usually this value will be extracted from the URL, but if the port is
+   * not available in the URL, then you will need to set the port using this method.
    *
-   * @author	chad loder
+   * <p>If this value is set, then it will override any setting in the URL.
    *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @param	port
-   *
+   * @param port
    */
   public void setRequestPort(int port) {
     reqPort = port;
@@ -125,11 +109,9 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Gets the request method, usually "GET" or "POST".
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	String
+   * @return String
    */
   public String getRequestMethod() {
     return reqMethod;
@@ -138,29 +120,21 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Enables tracing status to the given PrintWriter.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @param	logger
-   *
+   * @param logger
    */
   public void enableTrace(LogSink logger) {
     logger = logger;
   }
 
   /**
-   * Sets the HTTP version to declare when making a request. The
-   * default is 1.0
+   * Sets the HTTP version to declare when making a request. The default is 1.0
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @param	major
-   * @param	minor
-   *
+   * @param major
+   * @param minor
    */
   public void setRequestHttpVersion(int major, int minor) {
     reqHttpVersion = "" + major + "." + minor;
@@ -169,12 +143,9 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Sets the request URL.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @param	URL
-   *
+   * @param URL
    */
   public void setRequestURL(String URL) {
     reqUrl = URL;
@@ -187,14 +158,10 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Adds a header that will be sent along with the request.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @param	headerName
-   * @param	headerValue
-   *
+   * @param headerName
+   * @param headerValue
    */
   public void addRequestHeader(String headerName, String headerValue) {
     reqHeaders.replaceHeader(headerName, headerValue);
@@ -203,13 +170,10 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Adds a response header that was present in the response.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @param	headerName
-   * @param	headerValue
-   *
+   * @param headerName
+   * @param headerValue
    */
   protected void addResponseHeader(String headerName, String headerValue) {
     respHeaders.addHeader(headerName, headerValue);
@@ -218,30 +182,24 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Returns the response headers.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	Iterator
+   * @return Iterator
    */
   public PSHttpHeaders getResponseHeaders() {
     return respHeaders;
   }
 
   /**
-   * Sends the request and parses the response. If request content was
-   * supplied in the constructor, it will be sent.
-   * <P>
-   * The request content stream (if specified in the constructor) is
-   * guaranteed to be closed after this method is called, even if
-   * exceptions are thrown from this method.
+   * Sends the request and parses the response. If request content was supplied in the constructor,
+   * it will be sent.
    *
-   * @author	chad loder
+   * <p>The request content stream (if specified in the constructor) is guaranteed to be closed
+   * after this method is called, even if exceptions are thrown from this method.
    *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @throws	IOException
-   *
+   * @throws IOException
    */
   public void sendRequest() throws IOException {
     PSHttpRequestTimings timings = new PSHttpRequestTimings();
@@ -250,21 +208,16 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Sends the request and parses the response. If request content was
-   * supplied in the constructor, it will be sent.
-   * <P>
-   * The request content stream (if specified in the constructor) is
-   * guaranteed to be closed after this method is called, even if
-   * exceptions are thrown from this method.
+   * Sends the request and parses the response. If request content was supplied in the constructor,
+   * it will be sent.
+   *
+   * <p>The request content stream (if specified in the constructor) is guaranteed to be closed
+   * after this method is called, even if exceptions are thrown from this method.
    *
    * @param timer Can be <CODE>null</CODE>.
-   *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @throws	IOException
-   *
+   * @throws IOException
    */
   private void sendRequest(PSHttpRequestTimings timings) throws IOException {
     try {
@@ -344,15 +297,12 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Gets the approximate number of milliseconds we had to wait
-   * for the first byte of the response to become available from the
-   * server.
+   * Gets the approximate number of milliseconds we had to wait for the first byte of the response
+   * to become available from the server.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	long
+   * @return long
    */
   public long getResponseLatency() {
     return respLatencyMs;
@@ -363,18 +313,14 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Gets the response content stream, which may be null
-   * or empty if getResponseCode() returns anything other
-   * than 2xx. If we are currently waiting for data to
-   * become available over the connection, this method
-   * will block until either we have timed out or until
-   * data becomes available.
+   * Gets the response content stream, which may be null or empty if getResponseCode() returns
+   * anything other than 2xx. If we are currently waiting for data to become available over the
+   * connection, this method will block until either we have timed out or until data becomes
+   * available.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	InputStream
+   * @return InputStream
    */
   public InputStream getResponseContent() {
     return respIn;
@@ -383,27 +329,21 @@ public class PSHttpRequest implements IPSHTTPConstants {
   /**
    * Gets the HTTP response code.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	int
+   * @return int
    */
   public int getResponseCode() {
     return respHttpCode;
   }
 
   /**
-   * Closes the request. Any pending results are discarded,
-   * and the response content is no longer valid.
+   * Closes the request. Any pending results are discarded, and the response content is no longer
+   * valid.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   *
-   * @throws	Exception;
-   *
+   * @throws Exception;
    */
   public void disconnect() throws IOException {
     if (respIn != null || sock != null) {
@@ -428,14 +368,12 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Gets the response message, that is any text following the status code on the
-   * response header line.
+   * Gets the response message, that is any text following the status code on the response header
+   * line.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
-   * @return	String
+   * @return String
    */
   public String getResponseMessage() {
     return respMsg;
@@ -482,10 +420,7 @@ public class PSHttpRequest implements IPSHTTPConstants {
     return bytes;
   }
 
-  /**
-   * Read the HTTP status code, which looks like "HTTP/1.1 nnn:blah"
-   * where nnn is the code
-   */
+  /** Read the HTTP status code, which looks like "HTTP/1.1 nnn:blah" where nnn is the code */
   protected long parseResponseStatus(PSInputStreamReader reader) throws IOException {
     String statusLine = reader.readLine();
 
@@ -512,13 +447,10 @@ public class PSHttpRequest implements IPSHTTPConstants {
   }
 
   /**
-   * Parses the headers, and positions the reader
-   * on first byte of actual data.
+   * Parses the headers, and positions the reader on first byte of actual data.
    *
-   * @author	chad loder
-   *
+   * @author chad loder
    * @version 1.0 1999/8/20
-   *
    */
   protected long parseResponseHeaders(PSInputStreamReader reader) throws IOException {
     long bytes = 0L;

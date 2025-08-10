@@ -48,20 +48,18 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
 /**
- * The PSExecutionData class is used primarily as a storage class for the
- * various pieces of context information passed along during the processing
- * of an execution plan. During each execution steps, any of this information
- * may be accessed, modified or removed. Additional information may also
- * be added.
+ * The PSExecutionData class is used primarily as a storage class for the various pieces of context
+ * information passed along during the processing of an execution plan. During each execution steps,
+ * any of this information may be accessed, modified or removed. Additional information may also be
+ * added.
  *
- * // REFACTORED: CP-JAVA11
+ * <p>// REFACTORED: CP-JAVA11
  *
- * @see        PSQueryOptimizer
- * @see        IPSExecutionStep
- *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSQueryOptimizer
+ * @see IPSExecutionStep
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSExecutionData implements AutoCloseable {
   private static final Logger ms_log = LogManager.getLogger(PSExecutionData.class);
@@ -69,14 +67,11 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Construct an execution object for this request.
    *
-   * @param ah the application handler associated with this request, may be
-   * <code>null</code>
-   *
-   * @param dh the data handler associated with this request
-   * ({@link com.percussion.data.PSQueryHandler PSQueryHandler} or
-   * {@link com.percussion.data.PSUpdateHandler PSUpdateHandler}).  May be
-   * <code>null</code> as this parameter is never used by this class.
-   *
+   * @param ah the application handler associated with this request, may be <code>null</code>
+   * @param dh the data handler associated with this request ({@link
+   *     com.percussion.data.PSQueryHandler PSQueryHandler} or {@link
+   *     com.percussion.data.PSUpdateHandler PSUpdateHandler}). May be <code>null</code> as this
+   *     parameter is never used by this class.
    * @param req the request context, not <code>null</code>.
    */
   public PSExecutionData(PSApplicationHandler ah, IPSRequestHandler dh, PSRequest req) {
@@ -88,11 +83,12 @@ public class PSExecutionData implements AutoCloseable {
 
   /**
    * Releases all of the resources held by this object.
+   *
    * <ol>
-   * <li>Release temporary file
-   * <li>Close all result sets
-   * <li>Close all prepared statements
-   * <li>Release connections to the database pool
+   *   <li>Release temporary file
+   *   <li>Close all result sets
+   *   <li>Close all prepared statements
+   *   <li>Release connections to the database pool
    * </ol>
    */
   public void release() {
@@ -153,12 +149,11 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Gets the id assigned to the application that generated this data. This is
-   * most commonly used when constructing a PSLogError subclass to report an
-   * error through the error handler.
+   * Gets the id assigned to the application that generated this data. This is most commonly used
+   * when constructing a PSLogError subclass to report an error through the error handler.
    *
-   * @return the id of the application that generated this data, or 0 if no
-   * application is associated with this data.
+   * @return the id of the application that generated this data, or 0 if no application is
+   *     associated with this data.
    */
   public int getId() {
     if (m_AppHandler != null) return m_AppHandler.getId();
@@ -166,15 +161,11 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the DB connection assigned to this request for the specified
-   * key.
+   * Get the DB connection assigned to this request for the specified key.
    *
-   * @param   connKey     the key associated with this connection
-   *
-   * throws  SQLException   if a SQL error occurs
-   *
-   * @throws  PSIllegalArgumentException if connKey is out of range
-   *                                        or no connections exist
+   * @param connKey the key associated with this connection
+   *     <p>throws SQLException if a SQL error occurs
+   * @throws PSIllegalArgumentException if connKey is out of range or no connections exist
    */
   public Connection getDbConnection(int connKey) throws SQLException, PSIllegalArgumentException {
     if ((m_Connections == null) || (m_Connections.size() == 0))
@@ -188,15 +179,11 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the DB connection detail assigned to this request for the specified
-   * key.
+   * Get the DB connection detail assigned to this request for the specified key.
    *
-   * @param   connKey     the key associated with this connection
-   *
+   * @param connKey the key associated with this connection
    * @return The connection detail, never <code>null</code>.
-   *
-   * @throws  PSIllegalArgumentException if connKey is out of range
-   *                                        or no connections exist
+   * @throws PSIllegalArgumentException if connKey is out of range or no connections exist
    */
   public PSConnectionDetail getDbConnectionDetail(int connKey) throws PSIllegalArgumentException {
     if ((m_Connections == null) || (m_Connections.size() == 0))
@@ -210,14 +197,11 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the DB connection assigned to this request for the specified
-   * DB.
+   * Get the DB connection assigned to this request for the specified DB.
    *
-   * @param   info        the connection info to add a connection from
-   *
-   * @return              the connection key
-   *
-   * @throws  SQLException   if a SQL error occurs
+   * @param info the connection info to add a connection from
+   * @return the connection key
+   * @throws SQLException if a SQL error occurs
    */
   public int addDbConnection(IPSConnectionInfo info) throws SQLException {
     if (m_Connections == null) {
@@ -239,8 +223,8 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Gets the log handler for logging against this request.
    *
-   * @return Either the log handler for the application that generated the
-   * data or the server's log handler.  Never <code>null</code>.
+   * @return Either the log handler for the application that generated the data or the server's log
+   *     handler. Never <code>null</code>.
    */
   public PSLogHandler getLogHandler() {
     if (m_LogHandler == null) {
@@ -254,8 +238,8 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Gets the error handler for reporting errors against this request.
    *
-   * @return Either the error handler for the application that generated the
-   * data or the server's error handler.  Never <code>null</code>.
+   * @return Either the error handler for the application that generated the data or the server's
+   *     error handler. Never <code>null</code>.
    */
   public PSErrorHandler getErrorHandler() {
     if (m_ErrorHandler == null) {
@@ -267,11 +251,10 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the request object associated with this request. The request
-   * object contains context information such as request parameters,
-   * CGI variables and input data.
+   * Get the request object associated with this request. The request object contains context
+   * information such as request parameters, CGI variables and input data.
    *
-   * @return           the request object
+   * @return the request object
    */
   public PSRequest getRequest() {
     return m_Request;
@@ -293,18 +276,18 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the stack containing the result sets. This can be used to merge
-   * result sets then push the merged result set back on, etc.
+   * Get the stack containing the result sets. This can be used to merge result sets then push the
+   * merged result set back on, etc.
    *
-   * @return     the stack of result sets
+   * @return the stack of result sets
    */
   public Stack<ResultSet> getResultSetStack() {
     return m_ResultSetStack;
   }
 
   /**
-   * Add a prepared statement to the list of statements. This is used
-   * to accumulate a list which the handler can close afterwards.
+   * Add a prepared statement to the list of statements. This is used to accumulate a list which the
+   * handler can close afterwards.
    */
   public void addPreparedStatement(PreparedStatement stmt) {
     if (m_Statements == null) m_Statements = new ArrayList<>();
@@ -312,16 +295,14 @@ public class PSExecutionData implements AutoCloseable {
     m_Statements.add(stmt);
   }
 
-  /**
-   * Remove a prepared statement from the list of statements.
-   */
+  /** Remove a prepared statement from the list of statements. */
   public void removePreparedStatement(PreparedStatement stmt) {
     if (m_Statements != null) m_Statements.remove(stmt);
   }
 
   /**
-   * Get the list of prepared statements. This is used
-   * by the handler to close any opened statements.
+   * Get the list of prepared statements. This is used by the handler to close any opened
+   * statements.
    */
   public List<PreparedStatement> getPreparedStatements() {
     if (m_Statements == null) {
@@ -335,10 +316,9 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the result set meta data object defining the structure of
-   * the result set currently being processed. This is not available until it
-   * is set by the user or {@link #getNextResultSet() getNextResultSet} has
-   * been called.
+   * Get the result set meta data object defining the structure of the result set currently being
+   * processed. This is not available until it is set by the user or {@link #getNextResultSet()
+   * getNextResultSet} has been called.
    *
    * @return The meta data for the current result set, possibly <code>null
    *    </code>.
@@ -348,19 +328,18 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Set the result set meta data object defining the structure of
-   * the result set currently being processed.
+   * Set the result set meta data object defining the structure of the result set currently being
+   * processed.
    *
-   * @param   meta     the result set meta data
+   * @param meta the result set meta data
    */
   public void setCurrentResultSetMetaData(ResultSetMetaData meta) {
     m_CurRSMetaData = meta;
   }
 
   /**
-   * Get the data associated with the current result set row. This is not
-   * available until it is set by the user or {@link #getNextResultSet()
-   * getNextResultSet} has been called.
+   * Get the data associated with the current result set row. This is not available until it is set
+   * by the user or {@link #getNextResultSet() getNextResultSet} has been called.
    *
    * @return The result row data, possibly <code>null</code>.
    */
@@ -371,18 +350,18 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Set the data associated with the current result set row.
    *
-   * @param   data     the result row data
+   * @param data the result row data
    */
   public void setCurrentResultRowData(Object[] data) {
     m_CurRowData = data;
   }
 
   /**
-   * Does the application that generated this data allow login information to
-   * be passed through to the back end?
+   * Does the application that generated this data allow login information to be passed through to
+   * the back end?
    *
-   * @return <code>true</code> if passthru is enabled, <code>false</code> if
-   * passthru is disabled or no application is associated with this data.
+   * @return <code>true</code> if passthru is enabled, <code>false</code> if passthru is disabled or
+   *     no application is associated with this data.
    */
   public boolean isBeLoginPassthruEnabled() {
     if (m_AppHandler != null)
@@ -393,7 +372,7 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Get the walker being used to traverse the input XML document.
    *
-   * @return           the walker for the request's input XML document
+   * @return the walker for the request's input XML document
    */
   public PSXmlTreeWalker getInputDocumentWalker() {
     return m_inputDocumentWalker;
@@ -402,17 +381,17 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Set the walker to use for traversal of the input XML document.
    *
-   * @param   walker   the walker for the request's input XML document
+   * @param walker the walker for the request's input XML document
    */
   public void setInputDocumentWalker(PSXmlTreeWalker walker) {
     m_inputDocumentWalker = walker;
   }
 
   /**
-   * When processing multiple result sets, the processing may not be linear.
-   * This method can be used to save the result set specific information in
-   * this object while processing the next result set. It can later be restored
-   * by calling {@link #restoreResultSetContext() restoreResultSetContext}.
+   * When processing multiple result sets, the processing may not be linear. This method can be used
+   * to save the result set specific information in this object while processing the next result
+   * set. It can later be restored by calling {@link #restoreResultSetContext()
+   * restoreResultSetContext}.
    */
   public void saveResultSetContext() {
     m_rsContext = new ResultSetContext();
@@ -422,10 +401,9 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * This method is used to restore state that was saved with the {@link
-   * #saveResultSetContext() saveResultSetContext} method. If no context had
-   * ever been saved an exception is thrown. After the context is restored, the
-   * saved context is cleared.
+   * This method is used to restore state that was saved with the {@link #saveResultSetContext()
+   * saveResultSetContext} method. If no context had ever been saved an exception is thrown. After
+   * the context is restored, the saved context is cleared.
    *
    * @throws IllegalStateException if there is no context to restore.
    */
@@ -439,17 +417,15 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Pops a result set off of the stack and sets up the meta data and the
-   * current row buffer. If there are no more result sets, <code>null</code>
-   * is returned and nothing is done. The current row buffer does not contain
-   * any data. You must call {@link #readRow() readRow} to get each row of
-   * data.
+   * Pops a result set off of the stack and sets up the meta data and the current row buffer. If
+   * there are no more result sets, <code>null</code> is returned and nothing is done. The current
+   * row buffer does not contain any data. You must call {@link #readRow() readRow} to get each row
+   * of data.
    *
-   * @return the result set that was popped from the stack, <code>null</code>
-   *    if there are no more result sets.
-   *
-   * @throws SQLException If any problems occur while getting the meta data or
-   *    reading the result set.
+   * @return the result set that was popped from the stack, <code>null</code> if there are no more
+   *     result sets.
+   * @throws SQLException If any problems occur while getting the meta data or reading the result
+   *     set.
    */
   public ResultSet getNextResultSet() throws SQLException {
     ResultSet rs = null;
@@ -486,18 +462,18 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the index of the result page that was used to generate the
-   * response. This is primarily used by the cacher.
+   * Get the index of the result page that was used to generate the response. This is primarily used
+   * by the cacher.
    *
-   * @return           the 0-based index; -1 if a result page was not used
+   * @return the 0-based index; -1 if a result page was not used
    */
   int getResultPageIndex() {
     return m_resultPageIndex;
   }
 
   /**
-   * Return a reference to the pager (if any) for the dataset.  This is used
-   * to tune the Statement and ResultSet.
+   * Return a reference to the pager (if any) for the dataset. This is used to tune the Statement
+   * and ResultSet.
    *
    * @return the pager, may be <code>null</code>
    */
@@ -510,8 +486,7 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Returns the first row number for the response, as specified by
-   * the original request.
+   * Returns the first row number for the response, as specified by the original request.
    *
    * @return The first row number; 0 if not specified
    */
@@ -531,8 +506,8 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Returns the calculated number of rows that this request may need to
-   * obtain from the ResultSet.
+   * Returns the calculated number of rows that this request may need to obtain from the ResultSet.
+   *
    * @return maximum number of rows; -1 if not known or no limit.
    */
   public int getMaxRows() {
@@ -554,30 +529,30 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Set the index of the result page that was used to generate the
-   * response. This is primarily used by the cacher.
+   * Set the index of the result page that was used to generate the response. This is primarily used
+   * by the cacher.
    *
-   * @param   cacher   the cacher for this request
+   * @param cacher the cacher for this request
    */
   void setResultPageIndex(int index) {
     m_resultPageIndex = index;
   }
 
   /**
-   * Set temp file resource information on this execution data.  This will
-   * be used to allow the mime content converter to return the relevant
-   * information instead of sending the response back directly, when needed.
+   * Set temp file resource information on this execution data. This will be used to allow the mime
+   * content converter to return the relevant information instead of sending the response back
+   * directly, when needed.
    *
-   * @param mc The mime content class containing the temp file information.
-   *  Can be <code>null</code>.
+   * @param mc The mime content class containing the temp file information. Can be <code>null</code>
+   *     .
    */
   public void setTempFileResource(PSMimeContentResult mc) {
     m_mimeContent = mc;
   }
 
   /**
-   * Release the temp file resource (if one was set) by removing the
-   * internal reference to the mime content result.
+   * Release the temp file resource (if one was set) by removing the internal reference to the mime
+   * content result.
    */
   private void releaseTempFileResource() {
     if (m_mimeContent != null) {
@@ -587,10 +562,9 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Get the mime content object for the temp file associated with this
-   * execution data.  This method may only be called once, after which the
-   * internal mime content result will be cleared.  The caller then has
-   * ownership of the mime content result.
+   * Get the mime content object for the temp file associated with this execution data. This method
+   * may only be called once, after which the internal mime content result will be cleared. The
+   * caller then has ownership of the mime content result.
    *
    * @return The mime content object, or <code>null</code> if one was not set.
    */
@@ -603,21 +577,19 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Are we processing a null result set (one row of all <code>null</code>s)?
    *
-   * @return  <code>true</code> if we are in process a fake result set
-   *    containing all <code>null</code>s, <code>false</code> otherwise.
+   * @return <code>true</code> if we are in process a fake result set containing all <code>null
+   *     </code>s, <code>false</code> otherwise.
    */
   public boolean forceNullRowForNullResultSet() {
     return m_forceRowOnNullResultSet;
   }
 
   /**
-   * Set whether or not we are forcing a row to be returned
-   * on an empty result set.  This will cause all back-end data
-   * extractors to return null immediately.
+   * Set whether or not we are forcing a row to be returned on an empty result set. This will cause
+   * all back-end data extractors to return null immediately.
    *
-   * @param forceNullRow  Force a row of <code>null</code>s for this
-   *  empty result set?  Set to <code>true</code> to do so, or
-   *  <code>false</code> for normal processing.
+   * @param forceNullRow Force a row of <code>null</code>s for this empty result set? Set to <code>
+   *     true</code> to do so, or <code>false</code> for normal processing.
    */
   public void setForceRowOnNullResultSet(boolean forceNullRow) {
     m_forceRowOnNullResultSet = forceNullRow;
@@ -644,8 +616,7 @@ public class PSExecutionData implements AutoCloseable {
   /**
    * Set the originating relationship.
    *
-   * @param relationship the new originating relationship,
-   *    may be <code>null</code>.
+   * @param relationship the new originating relationship, may be <code>null</code>.
    */
   public void setOriginatingRelationship(PSRelationship relationship) {
     m_Request.setOriginatingRelationship(relationship);
@@ -661,22 +632,20 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Sets the object used to collect the data used for updating a row in the
-   * backend.  See {@link #getTableChangeData()} for more info.
+   * Sets the object used to collect the data used for updating a row in the backend. See {@link
+   * #getTableChangeData()} for more info.
    *
-   * @param tableChangeData The data object, may be <code>null</code> to
-   * clear this value.
+   * @param tableChangeData The data object, may be <code>null</code> to clear this value.
    */
   void setTableChangeData(PSTableChangeData tableChangeData) {
     m_tableChangeData = tableChangeData;
   }
 
   /**
-   * Get the object used to collect the data used when updating a row in the
-   * backend.  If one has been set, then it should be used to collect the
-   * values bound to the specified columns.  These values will be used to
-   * notify any {@link IPSTableChangeListener}s with a
-   * {@link PSTableChangeEvent}.
+   * Get the object used to collect the data used when updating a row in the backend. If one has
+   * been set, then it should be used to collect the values bound to the specified columns. These
+   * values will be used to notify any {@link IPSTableChangeListener}s with a {@link
+   * PSTableChangeEvent}.
    *
    * @return The data object, may be <code>null</code>.
    */
@@ -690,8 +659,8 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * A container for the objects that are result set specific. Used to save/
-   * restore result set context.
+   * A container for the objects that are result set specific. Used to save/ restore result set
+   * context.
    */
   private class ResultSetContext {
     public ResultSetMetaData m_metaData;
@@ -701,9 +670,10 @@ public class PSExecutionData implements AutoCloseable {
 
   /**
    * Set method fot current relationship that can be processed by an effect.
-   * @return current relationship, not <code>null</code> within an effect
-   * except during {@link com.percussion.relationship.IPSExecutionContext#
-   * RS_PRE_CLONE clone context}. May be <code>null</code> otherwise.
+   *
+   * @return current relationship, not <code>null</code> within an effect except during {@link
+   *     com.percussion.relationship.IPSExecutionContext# RS_PRE_CLONE clone context}. May be <code>
+   *     null</code> otherwise.
    */
   public PSRelationship getCurrentRelationship() {
     return m_currentRelationship;
@@ -711,6 +681,7 @@ public class PSExecutionData implements AutoCloseable {
 
   /**
    * Access method fot current relationship that can be processed by an effect.
+   *
    * @param currentRel must not be <code>null</code>.
    */
   public void setCurrentRelationship(PSRelationship currentRel) {
@@ -720,9 +691,10 @@ public class PSExecutionData implements AutoCloseable {
 
   /**
    * Set method fot current relationship that can be processed by an effect.
-   * @return current relationship, not <code>null</code> within an effect
-   * except during {@link com.percussion.relationship.IPSExecutionContext#
-   * RS_PRE_CLONE clone context}. May be <code>null</code> otherwise.
+   *
+   * @return current relationship, not <code>null</code> within an effect except during {@link
+   *     com.percussion.relationship.IPSExecutionContext# RS_PRE_CLONE clone context}. May be <code>
+   *     null</code> otherwise.
    */
   public PSRelationship getSourceRelationship() {
     return m_sourceRelationship;
@@ -730,6 +702,7 @@ public class PSExecutionData implements AutoCloseable {
 
   /**
    * Access method fot current relationship that can be processed by an effect.
+   *
    * @param sourceRel must not be <code>null</code>.
    */
   public void setSourceRelationship(PSRelationship sourceRel) {
@@ -738,22 +711,20 @@ public class PSExecutionData implements AutoCloseable {
   }
 
   /**
-   * Relationship that is being processed during current context. Set just
-   * before running effect.
+   * Relationship that is being processed during current context. Set just before running effect.
    */
   private PSRelationship m_currentRelationship = null;
 
   /**
-   * Original relationship that is being processed during current context. Set just
-   * before running effect. This can be used to get the source owner of an update.
+   * Original relationship that is being processed during current context. Set just before running
+   * effect. This can be used to get the source owner of an update.
    */
   private PSRelationship m_sourceRelationship = null;
 
   /**
-   * The object used to collect the data used when updating a row in the
-   * backend.  If one has been set, then it should be used to collect the
-   * values bound to the specified columns. May be <code>null</code> if it is
-   * not set.
+   * The object used to collect the data used when updating a row in the backend. If one has been
+   * set, then it should be used to collect the values bound to the specified columns. May be <code>
+   * null</code> if it is not set.
    */
   private PSTableChangeData m_tableChangeData = null;
 
@@ -766,32 +737,29 @@ public class PSExecutionData implements AutoCloseable {
   private boolean m_forceRowOnNullResultSet = false;
 
   /**
-   * The storage location for the result set context object when a user saves
-   * it. It is <code>null</code> until <code>saveResultSetContext</code> is
-   * called. Then it is valid until <code>restoreResultSetContext</code> is
-   * called, at which point it is cleared.
+   * The storage location for the result set context object when a user saves it. It is <code>null
+   * </code> until <code>saveResultSetContext</code> is called. Then it is valid until <code>
+   * restoreResultSetContext</code> is called, at which point it is cleared.
    */
   private ResultSetContext m_rsContext;
 
   /**
-   * When <code>getNextResultSet</code> is called, it saves the generated row
-   * buffer here for use by the <code>nextRow</code> method.
+   * When <code>getNextResultSet</code> is called, it saves the generated row buffer here for use by
+   * the <code>nextRow</code> method.
    */
   private PSRowDataBuffer m_rowBuffer;
 
   /**
-   * The mime content associated with this execution data.  Can be
-   * <code>null</code>.  Currently used by PSResultSetMimeConverter to
-   * pass mime content back to internal request handlers.
+   * The mime content associated with this execution data. Can be <code>null</code>. Currently used
+   * by PSResultSetMimeConverter to pass mime content back to internal request handlers.
    */
   private PSMimeContentResult m_mimeContent = null;
 
   private PSXmlTreeWalker m_inputDocumentWalker = null;
 
   /**
-   * The application handler that generated this execution data.  May be
-   * <code>null</code>.  Assigned in the constructor and never modified after
-   * that.
+   * The application handler that generated this execution data. May be <code>null</code>. Assigned
+   * in the constructor and never modified after that.
    */
   private PSApplicationHandler m_AppHandler = null;
 
@@ -808,10 +776,7 @@ public class PSExecutionData implements AutoCloseable {
   private Object[] m_CurRowData = null;
   private int m_resultPageIndex = -1;
 
-  /**
-   * List of connection detail that mirrors the {@link #m_Connections}
-   * list.
-   */
+  /** List of connection detail that mirrors the {@link #m_Connections} list. */
   private List<PSConnectionDetail> m_connectionDetailList = null;
 
   public static final String FIRST_QUERY_INDEX_PARAMETER_NAME = "psfirst";

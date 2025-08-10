@@ -23,12 +23,11 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSFatalError class is used to report a fatal error which will cause
- * the server to shut down.
+ * The PSFatalError class is used to report a fatal error which will cause the server to shut down.
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSFatalError extends PSLogError {
@@ -36,14 +35,10 @@ public class PSFatalError extends PSLogError {
   /**
    * Report a fatal error which will cause the server to shut down.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
    */
   public PSFatalError(int errorCode, Object[] errorParams) {
     super(0);
@@ -51,10 +46,7 @@ public class PSFatalError extends PSLogError {
     m_errorArgs = errorParams;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

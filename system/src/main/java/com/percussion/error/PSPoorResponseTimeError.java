@@ -23,39 +23,33 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSPoorResponseTimeError class is used to report poor
- * response time for the processing of a request through the application.
- * <p>
- * An error message containing the user's session id and the amount of
- * time to handle the request is logged when this error is encountered. If
- * detailed user activity logging is also enabled, the request can be
- * tracked back to help determine why it took so long.
+ * The PSPoorResponseTimeError class is used to report poor response time for the processing of a
+ * request through the application.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>An error message containing the user's session id and the amount of time to handle the request
+ * is logged when this error is encountered. If detailed user activity logging is also enabled, the
+ * request can be tracked back to help determine why it took so long.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSPoorResponseTimeError extends PSLogError {
 
   /**
    * Report poor response time for the processing of a request.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId         the id of the application that generated
-   *                            the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId      the session id of the user making the
-   *                            request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      timeMS         the response time (in milliseconds)
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param timeMS the response time (in milliseconds)
    */
   public PSPoorResponseTimeError(int applId, java.lang.String sessionId, int timeMS) {
     super(applId);
@@ -66,24 +60,17 @@ public class PSPoorResponseTimeError extends PSLogError {
     m_timeMS = timeMS;
   }
 
-  /**
-   * Get the response time in milliseconds.
-   */
+  /** Get the response time in milliseconds. */
   public int getResponseTimeMS() {
     return m_timeMS;
   }
 
-  /**
-   * Get the session id of the user making the request.
-   */
+  /** Get the session id of the user making the request. */
   public String getSessionId() {
     return m_sessId;
   }
 
-  /**
-   * sublcasses must override this to build the messages in the
-   * specified locale
-   */
+  /** sublcasses must override this to build the messages in the specified locale */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[1];
 

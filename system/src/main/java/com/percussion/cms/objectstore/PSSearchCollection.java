@@ -19,13 +19,11 @@ package com.percussion.cms.objectstore;
 import java.util.Iterator;
 
 /**
- * This class overrides collection to enforce that none of the members of
- * the collection can have the same internal name (case-insensitive).
+ * This class overrides collection to enforce that none of the members of the collection can have
+ * the same internal name (case-insensitive).
  */
 public class PSSearchCollection extends PSDbComponentCollection {
-  /**
-   * ctor calls base class.
-   */
+  /** ctor calls base class. */
   public PSSearchCollection() throws ClassNotFoundException {
     super(PSSearch.class.getName());
   }
@@ -44,12 +42,11 @@ public class PSSearchCollection extends PSDbComponentCollection {
   }
 
   /**
-   * Adds the supplied component to this collection, checking first that a
-   * search with the same internal name is not already present. If the
-   * supplied search is already present (using the == method), then nothing
-   * is done. If a search with the same internal name, but different
-   * instance, the current search is added to the delete list and the supplied
-   * search replaces the existing one.
+   * Adds the supplied component to this collection, checking first that a search with the same
+   * internal name is not already present. If the supplied search is already present (using the ==
+   * method), then nothing is done. If a search with the same internal name, but different instance,
+   * the current search is added to the delete list and the supplied search replaces the existing
+   * one.
    *
    * @param search Never <code>null</code>.
    */
@@ -65,8 +62,8 @@ public class PSSearchCollection extends PSDbComponentCollection {
   /**
    * Convenience method that calls {@link #contains(PSSearch)}.
    *
-   * @param comp The datatype must be a PSSearch. If <code>null</code>,
-   *    <code>false</code> is returned.
+   * @param comp The datatype must be a PSSearch. If <code>null</code>, <code>false</code> is
+   *     returned.
    */
   public boolean contains(IPSDbComponent comp) {
     if (null == comp) return false;
@@ -77,28 +74,25 @@ public class PSSearchCollection extends PSDbComponentCollection {
   }
 
   /**
-   * Scans the entire list looking for an entry that matches the supplied
-   * search by internal name. For any entry, e, if
-   * e.getInternalName().equalsIgnoreCase(search.getInternalName()) is
-   * <code>true</code>, <code>true</code> is returned.
+   * Scans the entire list looking for an entry that matches the supplied search by internal name.
+   * For any entry, e, if e.getInternalName().equalsIgnoreCase(search.getInternalName()) is <code>
+   * true</code>, <code>true</code> is returned.
    *
    * @param search If <code>null</code>, <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the internal name of search matches any
-   *    entry in this list, case-insensitive, <code>false</code> otherwise.
+   * @return <code>true</code> if the internal name of search matches any entry in this list,
+   *     case-insensitive, <code>false</code> otherwise.
    */
   public boolean contains(PSSearch search) {
     return getSearchObject(search.getInternalName()) != null;
   }
 
   /**
-   * Scans the collection looking for a search that whose internal name
-   * matches the supplied one (case-insensitive).
+   * Scans the collection looking for a search that whose internal name matches the supplied one
+   * (case-insensitive).
    *
    * @param internalName Assumed not <code>null</code>.
-   *
-   * @return The search object in this collection that has the supplied name,
-   *    or <code>null</code>, if one is not found.
+   * @return The search object in this collection that has the supplied name, or <code>null</code>,
+   *     if one is not found.
    */
   private PSSearch getSearchObject(String internalName) {
     Iterator iter = iterator();

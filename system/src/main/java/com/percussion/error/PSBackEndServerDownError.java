@@ -23,36 +23,29 @@ import com.percussion.server.IPSServerErrors;
 import java.util.Locale;
 
 /**
- * The PSBackEndServerDownError class is used to report that a
- * back-end (database) server is unavailable (down).
- * <p>
- * An error message containing the unavailable back-end driver/server is
- * logged when this error is encountered.
+ * The PSBackEndServerDownError class is used to report that a back-end (database) server is
+ * unavailable (down).
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * <p>An error message containing the unavailable back-end driver/server is logged when this error
+ * is encountered.
+ *
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 // REFACTORED: CP-JAVA11
 public class PSBackEndServerDownError extends PSBackEndError {
   /**
    * Report a back-end server is down (unavailable).
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
    *
-   * @param      applId         the id of the application that encountered
-   *                              the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()}
    *
-   * @param      driver         the back-end driver
-   *
-   * @param      server         the back-end server
-   *
-   * @param      errorCode      the error code provided by the driver
-   *                              when attempting the connection
-   *
-   * @param      errorString      the error string provided by the driver
-   *                              when attempting the connection
+   * @param applId the id of the application that encountered the error
+   * @param driver the back-end driver
+   * @param server the back-end server
+   * @param errorCode the error code provided by the driver when attempting the connection
+   * @param errorString the error string provided by the driver when attempting the connection
    */
   public PSBackEndServerDownError(
       int applId,
@@ -69,10 +62,7 @@ public class PSBackEndServerDownError extends PSBackEndError {
     else m_server = server;
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale.
-   */
+  /** Subclasses must override this to build the messages in the specified locale. */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[2];
 

@@ -42,10 +42,7 @@ import java.util.TreeSet;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Base class which holds common backend catalog functionality used in
- * security classes.
- */
+/** Base class which holds common backend catalog functionality used in security classes. */
 @SuppressWarnings(value = {"unchecked"})
 public class PSBackendCataloger {
   /**
@@ -62,33 +59,28 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Provides a list of subjects with attributes that match any supplied
-   * filters.
-   * <p>
-   * This method may be slower when called with <code>includeEmptySubjects =
+   * Provides a list of subjects with attributes that match any supplied filters.
+   *
+   * <p>This method may be slower when called with <code>includeEmptySubjects =
    * true</code> than when called with <code>false</code>.
    *
-   * @param subjectNameFilter The individual whose attributes you wish.
-   *    Wildcards allowed following SQL LIKE syntax. If <code>null</code> or
-   *    empty, all subjects are included.
-   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags.
-   *    Provide 0 to ignore this property.
-   * @param roleName If <code>null</code> only global subject attributes are
-   *    returned. Otherwise, both role specific and global attributes are
-   *    returned. If an attribute occurs in both the global and role list, the
-   *    role specific one will be returned. Wildcards not allowed.
-   * @param attributeNameFilter  A single pattern used to select the desired
-   *    attributes. Use SQL LIKE syntax. Supply empty or <code>null</code> to
-   *    get all attributes.
-   * @param includeEmptySubjects A flag to indicate whether subjects with
-   *    no attributes should be included in the returned list. If <code>
-   *    true</code>, they are included, otherwise, only subjects that
-   *    have 1 or more attributes are included.
-   * @return a valid list of 0 or more PSSubjects containing either 1 or more
-   *    attributes (if includeEmptySubjects is <code>false</code>) or 0 or
-   *    more attributes (if includeEmptySubjects is <code>true</code>),
-   *    ordered in ascending alpha order by subject name. The caller
-   *    takes ownership of the list.
+   * @param subjectNameFilter The individual whose attributes you wish. Wildcards allowed following
+   *     SQL LIKE syntax. If <code>null</code> or empty, all subjects are included.
+   * @param subjectType One of the PSSubject.SUBJECT_TYPE_xxx flags. Provide 0 to ignore this
+   *     property.
+   * @param roleName If <code>null</code> only global subject attributes are returned. Otherwise,
+   *     both role specific and global attributes are returned. If an attribute occurs in both the
+   *     global and role list, the role specific one will be returned. Wildcards not allowed.
+   * @param attributeNameFilter A single pattern used to select the desired attributes. Use SQL LIKE
+   *     syntax. Supply empty or <code>null</code> to get all attributes.
+   * @param includeEmptySubjects A flag to indicate whether subjects with no attributes should be
+   *     included in the returned list. If <code>
+   *    true</code>, they are included, otherwise, only subjects that have 1 or more attributes are
+   *     included.
+   * @return a valid list of 0 or more PSSubjects containing either 1 or more attributes (if
+   *     includeEmptySubjects is <code>false</code>) or 0 or more attributes (if
+   *     includeEmptySubjects is <code>true</code>), ordered in ascending alpha order by subject
+   *     name. The caller takes ownership of the list.
    */
   public static List getSubjectGlobalAttributes(
       String subjectNameFilter,
@@ -127,23 +119,21 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Gets only the role specific attributes for a set of subjects. A subject
-   * will not be included in the returned list if it does not have a role
-   * attribute that matches the <code>attributeNameFilter</code>.
+   * Gets only the role specific attributes for a set of subjects. A subject will not be included in
+   * the returned list if it does not have a role attribute that matches the <code>
+   * attributeNameFilter</code>.
    *
-   * @param subjectNameFilter the subject name filter for which to get the
-   *    role attributes, may be <code>null</code> or empty. This filter is
-   *    ignored if <code>null</code> or empty.
-   * @param subjectType One of the <code>PSSubject.SUBJECT_TYPE_xxx</code>
-   *    flags. Provide 0 to ignore this property. If o is provided, the
-   *    type <code>PSSubject.SUBJECT_TYPE_USER</code> is used as default.
-   * @param roleName the name of the role for which to filter the attributes,
-   *    not <code>null</code> or empty.
-   * @param attributeNameFilter an attribute name based on which to filter the
-   *    results, may be <code>null</code> or empty in which case this filter
-   *    is ignored.
-   * @return the subject specific role attributes in a list of
-   *    <code>PSSubject</code> objects, never <code>null</code>, may be empty.
+   * @param subjectNameFilter the subject name filter for which to get the role attributes, may be
+   *     <code>null</code> or empty. This filter is ignored if <code>null</code> or empty.
+   * @param subjectType One of the <code>PSSubject.SUBJECT_TYPE_xxx</code> flags. Provide 0 to
+   *     ignore this property. If o is provided, the type <code>PSSubject.SUBJECT_TYPE_USER</code>
+   *     is used as default.
+   * @param roleName the name of the role for which to filter the attributes, not <code>null</code>
+   *     or empty.
+   * @param attributeNameFilter an attribute name based on which to filter the results, may be
+   *     <code>null</code> or empty in which case this filter is ignored.
+   * @return the subject specific role attributes in a list of <code>PSSubject</code> objects, never
+   *     <code>null</code>, may be empty.
    */
   public static List getSubjectRoleAttributes(
       String subjectNameFilter, int subjectType, String roleName, String attributeNameFilter) {
@@ -175,16 +165,15 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Dynamically gets the attributes for the specified role. If the role
-   * doesn't exist, an empty collection is returned.
+   * Dynamically gets the attributes for the specified role. If the role doesn't exist, an empty
+   * collection is returned.
    *
-   * @param roleName The name of the role for which you want attributes.
-   *    Not <code>null</code> or empty.
-   * @param attributeNameFilter an attribute name on which to filter the
-   *    results, may be <code>null</code> or empty.
-   * @return a valid list of 0 or more <code>PSAttribute</code> objects. They
-   *    are ordered in ascending alpha order by attribute name. The caller
-   *    takes ownership of the list.
+   * @param roleName The name of the role for which you want attributes. Not <code>null</code> or
+   *     empty.
+   * @param attributeNameFilter an attribute name on which to filter the results, may be <code>null
+   *     </code> or empty.
+   * @return a valid list of 0 or more <code>PSAttribute</code> objects. They are ordered in
+   *     ascending alpha order by attribute name. The caller takes ownership of the list.
    */
   protected static List getRoleAttributes(String roleName, String attributeNameFilter) {
     if (roleName == null || roleName.trim().length() == 0)
@@ -218,15 +207,13 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Scans the supplied element for nodes matching the DTD specified in the
-   * sys_rolesCataloger document for attributes. It creates objects out of any
-   * that it finds and returns them in a list.
+   * Scans the supplied element for nodes matching the DTD specified in the sys_rolesCataloger
+   * document for attributes. It creates objects out of any that it finds and returns them in a
+   * list.
    *
-   * @param parent The element containing the attribute nodes. Not
-   *    <code>null</code>.
-   * @return An object containing all the found attributes as a
-   *    <code>PSAttributeList</code>. It will contain 0 or more attributes.
-   *    Never <code>null</code>.
+   * @param parent The element containing the attribute nodes. Not <code>null</code>.
+   * @return An object containing all the found attributes as a <code>PSAttributeList</code>. It
+   *     will contain 0 or more attributes. Never <code>null</code>.
    * @throws PSSecurityException If the attribute name is not found.
    */
   protected static PSAttributeList getAttributes(Element parent) {
@@ -254,15 +241,13 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Scans the supplied element for nodes matching the DTD specified in the
-   * sys_rolesCataloger document for attribute values, then builds a list
-   * containing all of the values as Strings.
+   * Scans the supplied element for nodes matching the DTD specified in the sys_rolesCataloger
+   * document for attribute values, then builds a list containing all of the values as Strings.
    *
-   * @param parent The element containing the attribute values. Not
-   *    <code>null</code>.
-   * @return A list of all the Value nodes found as children of the supplied
-   *    parent, as Strings. If no values are found, <code>null</code> is
-   *    returned. The entries may be <code>null</code> or empty.
+   * @param parent The element containing the attribute values. Not <code>null</code>.
+   * @return A list of all the Value nodes found as children of the supplied parent, as Strings. If
+   *     no values are found, <code>null</code> is returned. The entries may be <code>null</code> or
+   *     empty.
    */
   protected static List getValues(Element parent) {
     if (parent == null) throw new IllegalArgumentException("parent cannot be null");
@@ -284,23 +269,21 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Makes an internal request to the resource whose dataset name is
-   * supplied. Every entry in the filter is added as an Http parameter.
+   * Makes an internal request to the resource whose dataset name is supplied. Every entry in the
+   * filter is added as an Http parameter.
    *
-   * @param datasetName The internal name of the resource that the query
-   *    will be made against. The name must be for a query resource or an
-   *    exception is thrown. Not <code>null</code> or empty.
-   * @param filters Each entry in this map will be added to the request's
-   *    html parameter map. This method takes ownership of the map.
-   *    Note: I use a HashMap instead of a Map because that's what the
-   *    underlying object requires and I don't want to copy all of the entries
-   *    to a new one. May be <code>null</code> or empty.
-   * @return The document containing all of the objects that meet the filter
-   *    criteria. If no objects match, an empty (no elements) document is
-   *    returned.
-   * @throws PSSecurityException If a handler for the specified
-   *    resource could not be found, it is not a query resource, security
-   *    on the app failed (the app is corrupted) or the actual request failed.
+   * @param datasetName The internal name of the resource that the query will be made against. The
+   *     name must be for a query resource or an exception is thrown. Not <code>null</code> or
+   *     empty.
+   * @param filters Each entry in this map will be added to the request's html parameter map. This
+   *     method takes ownership of the map. Note: I use a HashMap instead of a Map because that's
+   *     what the underlying object requires and I don't want to copy all of the entries to a new
+   *     one. May be <code>null</code> or empty.
+   * @return The document containing all of the objects that meet the filter criteria. If no objects
+   *     match, an empty (no elements) document is returned.
+   * @throws PSSecurityException If a handler for the specified resource could not be found, it is
+   *     not a query resource, security on the app failed (the app is corrupted) or the actual
+   *     request failed.
    */
   protected static Document getCatalogDocument(String datasetName, HashMap filters) {
     if (datasetName == null || datasetName.trim().length() == 0)
@@ -320,15 +303,13 @@ public class PSBackendCataloger {
   /**
    * Returns a list with all roles to which the supplied subject belongs.
    *
-   * @param subjectName the name of the subject to search for. If
-   *    <code>null</code>, all roles are returned regardless of whether they
-   *    contain any subjects, ignoring the other parameter values when
-   *    searching. If empty, this property is ignored, but roles are still
-   *    searched using the other parameter values.
-   * @param subjectType one of the PSSubject.SUBJECT_TYPE_xxx types, or 0 to
-   *    ignore this property.
-   * @return a valid list of 0 or more <code>Strings</code>, each naming a
-   *    role. The list will not contain duplicates.
+   * @param subjectName the name of the subject to search for. If <code>null</code>, all roles are
+   *     returned regardless of whether they contain any subjects, ignoring the other parameter
+   *     values when searching. If empty, this property is ignored, but roles are still searched
+   *     using the other parameter values.
+   * @param subjectType one of the PSSubject.SUBJECT_TYPE_xxx types, or 0 to ignore this property.
+   * @return a valid list of 0 or more <code>Strings</code>, each naming a role. The list will not
+   *     contain duplicates.
    */
   public static List getRhythmyxRoles(String subjectName, int subjectType) {
     // use a set to remove duplicates
@@ -346,17 +327,14 @@ public class PSBackendCataloger {
 
   /**
    * Takes the document returned for sys_catalogSubjectAttributes or
-   * sys_catalogSubjectRoleAttributes and builds the corresponding objects
-   * from it.
+   * sys_catalogSubjectRoleAttributes and builds the corresponding objects from it.
    *
-   * @param doc The document returned from the catalog, not
-   *    <code>null</code>.
-   * @param includeEmptySubjects A flag to indicate whether subjects with
-   *    no attributes should be included in the returned list. If <code>
-   *    true</code>, they are included, otherwise, only subjects that
-   *    have 1 or more attributes are included.
-   * @return A valid list with 0 or more PSSubjects, each containing any
-   *    attributes they have.
+   * @param doc The document returned from the catalog, not <code>null</code>.
+   * @param includeEmptySubjects A flag to indicate whether subjects with no attributes should be
+   *     included in the returned list. If <code>
+   *    true</code>, they are included, otherwise, only subjects that have 1 or more attributes are
+   *     included.
+   * @return A valid list with 0 or more PSSubjects, each containing any attributes they have.
    * @throws PSSecurityException If the document is improperly formed.
    */
   protected static List processSubjectAttributes(Document doc, boolean includeEmptySubjects) {
@@ -374,24 +352,22 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Builds the appropriate objects from the data in the supplied document.
-   * The document must meet the DTD as defined for the sys_roleCatalog app,
-   * sys_catalogSubjects or sys_catalogSubjectAttributes resources. The
-   * returned list can include subjects that only include attributes or all
-   * subjects, based in the supplied flag.
+   * Builds the appropriate objects from the data in the supplied document. The document must meet
+   * the DTD as defined for the sys_roleCatalog app, sys_catalogSubjects or
+   * sys_catalogSubjectAttributes resources. The returned list can include subjects that only
+   * include attributes or all subjects, based in the supplied flag.
    *
-   * @param parent The XML element containing the Subject elements. If empty,
-   *    <code>null</code> is returned. Otherwise, a list of PSSubjects
-   *    are constructed to contain the attributes. Not <code>null
+   * @param parent The XML element containing the Subject elements. If empty, <code>null</code> is
+   *     returned. Otherwise, a list of PSSubjects are constructed to contain the attributes. Not
+   *     <code>null
    *    </code>.
-   * @param includeEmptySubjects A flag to indicate whether subjects with
-   *    no attributes should be included in the returned list. If <code>
-   *    true</code>, they are included, otherwise, only subjects that
-   *    have 1 or more attributes are included.
+   * @param includeEmptySubjects A flag to indicate whether subjects with no attributes should be
+   *     included in the returned list. If <code>
+   *    true</code>, they are included, otherwise, only subjects that have 1 or more attributes are
+   *     included.
    * @return A set with 0 or more PSSubject objects. Never <code>null
    *    </code>.
-   * @throws PSSecurityException If any of a Subject's attributes are not
-   *    valid.
+   * @throws PSSecurityException If any of a Subject's attributes are not valid.
    */
   protected static Set processCatalogedSubjects(Element parent, boolean includeEmptySubjects) {
     if (parent == null) throw new IllegalArgumentException("parent cannot be null");
@@ -455,18 +431,14 @@ public class PSBackendCataloger {
   }
 
   /**
-   * Retrieves a set of subjects for the supplied filters with the requested
-   * attributes. Attributes which are not found will be available with a
-   * <code>null</code> value.
+   * Retrieves a set of subjects for the supplied filters with the requested attributes. Attributes
+   * which are not found will be available with a <code>null</code> value.
    *
-   * @param filters a map with all filters to be applied, not <code>null</code>
-   *    may be empty.
-   * @param attributeNames a list of attributes to be returned with each
-   *    subject. Attributes that are not available are returned as
-   *    <code>null</code> value. Supply <code>null</code> or empty to get
-   *    all attributes.
-   * @return a set of <code>PSSubject</code> objects with the requested
-   *    attributes.
+   * @param filters a map with all filters to be applied, not <code>null</code> may be empty.
+   * @param attributeNames a list of attributes to be returned with each subject. Attributes that
+   *     are not available are returned as <code>null</code> value. Supply <code>null</code> or
+   *     empty to get all attributes.
+   * @return a set of <code>PSSubject</code> objects with the requested attributes.
    */
   protected static Set getSubjects(HashMap filters, Collection attributeNames) {
     if (filters == null) throw new IllegalArgumentException("filters cannot be null");
@@ -503,56 +475,44 @@ public class PSBackendCataloger {
     return sortedSet;
   }
 
-  /**
-   * The flags used to find the first element in an XML document.
-   */
+  /** The flags used to find the first element in an XML document. */
   protected static final int ms_firstFlags =
       PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * The flags used to find the next element in an XML document.
-   */
+  /** The flags used to find the next element in an XML document. */
   protected static final int ms_nextFlags =
       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
 
-  /**
-   * The name of the application that contains the resources used for
-   * cataloging.
-   */
+  /** The name of the application that contains the resources used for cataloging. */
   protected static final String CATALOGER_APPNAME = "sys_roleCataloger";
 
   /**
-   * Name of the parameter passed to the resources in the Rhythmyx app
-   * CATALOGER_APPNAME for filtering on role name.
-   * The syntax for this filter are the same as a SQL LIKE clause.
+   * Name of the parameter passed to the resources in the Rhythmyx app CATALOGER_APPNAME for
+   * filtering on role name. The syntax for this filter are the same as a SQL LIKE clause.
    */
   protected static final String FILTER_ROLE_NAME = "sys_roleNameFilter";
 
   /**
-   * Name of the parameter passed to the resources in the Rhythmyx app
-   * CATALOGER_APPNAME for filtering on attribute.
-   * The syntax for this filter are the same as a SQL LIKE clause.
+   * Name of the parameter passed to the resources in the Rhythmyx app CATALOGER_APPNAME for
+   * filtering on attribute. The syntax for this filter are the same as a SQL LIKE clause.
    */
   protected static final String FILTER_ATTRIBUTE_NAME = "sys_attributeNameFilter";
 
   /**
-   * Name of the parameter passed to the resources in the Rhythmyx app
-   * CATALOGER_APPNAME for filtering on subject name.
-   * The syntax for this filter are the same as a SQL LIKE clause.
+   * Name of the parameter passed to the resources in the Rhythmyx app CATALOGER_APPNAME for
+   * filtering on subject name. The syntax for this filter are the same as a SQL LIKE clause.
    */
   protected static final String FILTER_SUBJECT_NAME = "sys_subjectNameFilter";
 
   /**
-   * Name of the parameter passed to the resources in the Rhythmyx app
-   * <code>CATALOGER_APPNAME</code> ("sys_roleCataloger") for filtering on
-   * community id.
+   * Name of the parameter passed to the resources in the Rhythmyx app <code>CATALOGER_APPNAME
+   * </code> ("sys_roleCataloger") for filtering on community id.
    */
   protected static final String FILTER_COMMUNITY_ID = "sys_communityIdFilter";
 
   /**
-   * Constant for the "sys_getRoleCommunitySubjects" resource in
-   * "sys_roleCataloger" application. This returns the subjects belonging to
-   * specified role and community.
+   * Constant for the "sys_getRoleCommunitySubjects" resource in "sys_roleCataloger" application.
+   * This returns the subjects belonging to specified role and community.
    */
   protected static final String CATALOG_ROLE_COMMUNITY_SUBJECTS_RESOURCE_URL =
       "sys_getRoleCommunitySubjects";

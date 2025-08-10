@@ -29,35 +29,29 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A utility class that contains methods useful for processing URLs. All
- * methods are static as it is never meant to be instantiated.
+ * A utility class that contains methods useful for processing URLs. All methods are static as it is
+ * never meant to be instantiated.
  */
 public class PSUrlUtils {
   /**
    * Builds a URL from its parts. The parts are combined in this way:
-   * <p>base?p1=v1&p2=v2#anchor</p>
+   *
+   * <p>base?p1=v1&p2=v2#anchor
+   *
    * <p>where pN is the Nth parameter and vN is the Nth value
    *
-   * @param base The root part of the URL. May contain a query string,
-   *    and/or anchor. All parameters and the anchor must be url-encoded.
-   *    The root part must not be <code>null</code> or empty.
-   *
-   * @param queryParams A set of Map.Entry objects, each of which contains
-   * a param name (String) as the key and the param value (String) as the
-   * value. If the key is <code>null</code>, the entry is ignored. The value
-   * may be <code>null</code>. If <code>null</code>, no query string is added.
-   * The params are added after any params already in the base part.
-   *
-   * @param anchor The anchor text. Only appended if not <code>null</code>
-   *    and not empty. If the base had an anchor, it is replaced by this one.
-   *    Handles presence of anchor seperator.
-   *
-   * @return The fully formed url as a String. Never <code>null</code>. If
-   *    the base has an anchor and an anchor is supplied, the supplied anchor
-   *    replaces the anchor in the base.
-   *
-   * @throws IllegalArgumentException if base is <code>null</code>,
-   *    empty or only contains query and/or anchor.
+   * @param base The root part of the URL. May contain a query string, and/or anchor. All parameters
+   *     and the anchor must be url-encoded. The root part must not be <code>null</code> or empty.
+   * @param queryParams A set of Map.Entry objects, each of which contains a param name (String) as
+   *     the key and the param value (String) as the value. If the key is <code>null</code>, the
+   *     entry is ignored. The value may be <code>null</code>. If <code>null</code>, no query string
+   *     is added. The params are added after any params already in the base part.
+   * @param anchor The anchor text. Only appended if not <code>null</code> and not empty. If the
+   *     base had an anchor, it is replaced by this one. Handles presence of anchor seperator.
+   * @return The fully formed url as a String. Never <code>null</code>. If the base has an anchor
+   *     and an anchor is supplied, the supplied anchor replaces the anchor in the base.
+   * @throws IllegalArgumentException if base is <code>null</code>, empty or only contains query
+   *     and/or anchor.
    */
   public static String createUrl(String base, Iterator queryParams, String anchor) {
     if (null == base || base.trim().length() == 0)
@@ -152,16 +146,12 @@ public class PSUrlUtils {
   }
 
   /**
-   * Convenience method that calls {@link #createUrl(String, Integer, String,
-   * Iterator, String, IPSRequestContext, boolean) createUrl(host, port,
-   * partialUrl, queryParams, anchor, request, true)}
+   * Convenience method that calls {@link #createUrl(String, Integer, String, Iterator, String,
+   * IPSRequestContext, boolean) createUrl(host, port, partialUrl, queryParams, anchor, request,
+   * true)}
    *
-   * @throws MalformedURLException if any of the pieces can't be converted
-   *    to a URL.
-   *
-   * @see #createUrl(String, Integer, String,
-   * Iterator, String, IPSRequestContext, boolean)
-   *
+   * @throws MalformedURLException if any of the pieces can't be converted to a URL.
+   * @see #createUrl(String, Integer, String, Iterator, String, IPSRequestContext, boolean)
    */
   public static URL createUrl(
       String host,
@@ -175,91 +165,81 @@ public class PSUrlUtils {
   }
 
   /**
-   * Creates a URL from the supplied parameters and returns it.  Will
-   * optionally create the url to use the HTTPS protocol if the supplied
-   * request context resulted from an HTTPS request.
-   * <p>A URI has the following pieces for purposes of this description
-   * (see RFC 2396 for more details):
+   * Creates a URL from the supplied parameters and returns it. Will optionally create the url to
+   * use the HTTPS protocol if the supplied request context resulted from an HTTPS request.
+   *
+   * <p>A URI has the following pieces for purposes of this description (see RFC 2396 for more
+   * details):
+   *
    * <p>
+   *
    * <p>&lt;scheme&gt;://&lt;host&gt;&lt;path-segments&gt;
-   *    &lt;resource&gt;?&lt;query&gt;#&lt;fragment&gt;
+   * &lt;resource&gt;?&lt;query&gt;#&lt;fragment&gt;
+   *
    * <p>
+   *
    * <p>All parts except resource are optional.
+   *
    * <p>Five basic forms are allowed for the supplied URI:
+   *
    * <ul>
-   * <li>Fully qualified (e.g.
-   * http://server:9992/Rhythmyx/approot/res.html</li>
-   * <li>Partially qualified (e.g. /Rhythmyx/approot/res.html)</li>
-   * <li>Relative (e.g. ../myApp/res.html)</li>
-   * <li>Resource name only (e.g. res.html)</li>
-   * <li>An empty string.</li>
+   *   <li>Fully qualified (e.g. http://server:9992/Rhythmyx/approot/res.html
+   *   <li>Partially qualified (e.g. /Rhythmyx/approot/res.html)
+   *   <li>Relative (e.g. ../myApp/res.html)
+   *   <li>Resource name only (e.g. res.html)
+   *   <li>An empty string.
    * </ul>
-   * <p>Any of these forms may contain a query and fragment part.  Any relative
-   * url is assumed to be relative from the orginating request's app root.
-   * <p>
-   * If the supplied URL is fully qualified and the protocol is not 'http(s)',
-   * the supplied URL will be returned, unmodified. Otherwise, any pieces
-   * supplied will be used in the result.  If the supplied URL is
-   * not fully qualified, the missing parts will be added as follows:
+   *
+   * <p>Any of these forms may contain a query and fragment part. Any relative url is assumed to be
+   * relative from the orginating request's app root.
+   *
+   * <p>If the supplied URL is fully qualified and the protocol is not 'http(s)', the supplied URL
+   * will be returned, unmodified. Otherwise, any pieces supplied will be used in the result. If the
+   * supplied URL is not fully qualified, the missing parts will be added as follows:
+   *
    * <ul>
-   * <li>For a partially
-   * qualified name, the http(s) protocol, server and port will be added to the
-   * supplied name.</li>
-   * <li>For an unqualified name, those same items plus the Rhythmyx
-   * request root and the originating application request root will be
-   * added.</li>
-   * <li>For a relative name, original request protocol (http or https),
-   * server, port, and Rhythmyx root will be added, assuming it is relative
-   * to the origination application's request root.</li>
-   * <li>For an empty string, all parts of the originating request will be
-   * used, substituting the supplied parameters. If the port is 80 and http
-   * is being used, no port number will be added to the generated url. If
-   * server and port are not provided, they will come from the current
-   * session, subject to the value of the <code>useSecure</code>
-   * parameter (see that parameter's documentation for more info).</li>
-   *</ul>
-   * @param host The hostname to use.  May be <code>null</code>.  If not
-   * specified, the hostname of the originating request will be used.
+   *   <li>For a partially qualified name, the http(s) protocol, server and port will be added to
+   *       the supplied name.
+   *   <li>For an unqualified name, those same items plus the Rhythmyx request root and the
+   *       originating application request root will be added.
+   *   <li>For a relative name, original request protocol (http or https), server, port, and
+   *       Rhythmyx root will be added, assuming it is relative to the origination application's
+   *       request root.
+   *   <li>For an empty string, all parts of the originating request will be used, substituting the
+   *       supplied parameters. If the port is 80 and http is being used, no port number will be
+   *       added to the generated url. If server and port are not provided, they will come from the
+   *       current session, subject to the value of the <code>useSecure</code> parameter (see that
+   *       parameter's documentation for more info).
+   * </ul>
    *
-   * @param port The port to use.  May be <code>null</code>.  If not specified,
-   * the port of the originating request will be used, subject to the value
-   * of the <code>useSecure</code> parameter (see that parameter's
-   * documentation for more info).  If specified, it will always be used
-   * regardless of the value of other parameters.
-   *
-   * @param partialUrl As much or as little of the URL as you wish to specify.
-   * Supplied pieces will be filled in as specified above. If a <code>null
-   * </code> or empty string is provided, then the request url that generated
-   * the current request (up through the request page) will be used. If a
-   * relative URL is specified, it is assumed to be relative to the originating
-   * request app root. Any query parameters in the url must be url-encoded
-   * and are retained.
-   *
-   * @param queryParams A set of Map.Entry objects, each of which contains
-   * a param name (String) as the key and the param value (String) as the
-   * value. If the key is <code>null</code>, the entry is ignored. The value
-   * may be <code>null</code>. If <code>null</code>, no query string is added.
-   * The params are added after any params already in the base part.
-   *
-   * @param anchor The anchor text. Only appended if not <code>null</code>
-   * and not empty. If the base had an anchor, it is replaced by this one.
-   * Handles presence of anchor seperator.
-   *
-   * @param request The request context of the originating request.  May not
-   * be <code>null</code>.
-   *
-   * @param allowHttps Indicates whether to allow the https protocol.
-   * If <code>true</code>, then https will be used if either
-   * the originating request used https or if the supplied
-   * <code>partialUrl</code> specifies the https protocol.  The following table
-   * shows the resulting protocol used based on combinations of input
-   * parameter values.  Note: if the <code>port</code> parameter is not
-   * <code>null</code>, that value will be used regardless of the other
-   * parameter values.
-   * <p>
-   * The table below shows the resulting protocol from various combinations of
-   * parameter values.
-   * <table border="1">
+   * @param host The hostname to use. May be <code>null</code>. If not specified, the hostname of
+   *     the originating request will be used.
+   * @param port The port to use. May be <code>null</code>. If not specified, the port of the
+   *     originating request will be used, subject to the value of the <code>useSecure</code>
+   *     parameter (see that parameter's documentation for more info). If specified, it will always
+   *     be used regardless of the value of other parameters.
+   * @param partialUrl As much or as little of the URL as you wish to specify. Supplied pieces will
+   *     be filled in as specified above. If a <code>null
+   * </code> or empty string is provided, then the request url that generated the current request
+   *     (up through the request page) will be used. If a relative URL is specified, it is assumed
+   *     to be relative to the originating request app root. Any query parameters in the url must be
+   *     url-encoded and are retained.
+   * @param queryParams A set of Map.Entry objects, each of which contains a param name (String) as
+   *     the key and the param value (String) as the value. If the key is <code>null</code>, the
+   *     entry is ignored. The value may be <code>null</code>. If <code>null</code>, no query string
+   *     is added. The params are added after any params already in the base part.
+   * @param anchor The anchor text. Only appended if not <code>null</code> and not empty. If the
+   *     base had an anchor, it is replaced by this one. Handles presence of anchor seperator.
+   * @param request The request context of the originating request. May not be <code>null</code>.
+   * @param allowHttps Indicates whether to allow the https protocol. If <code>true</code>, then
+   *     https will be used if either the originating request used https or if the supplied <code>
+   *     partialUrl</code> specifies the https protocol. The following table shows the resulting
+   *     protocol used based on combinations of input parameter values. Note: if the <code>port
+   *     </code> parameter is not <code>null</code>, that value will be used regardless of the other
+   *     parameter values.
+   *     <p>The table below shows the resulting protocol from various combinations of parameter
+   *     values.
+   *     <table border="1">
    * <tr>
    * <th><code>allowHttps</code></th><th>Original Request Protocol</th><th>
    *    <code>partialUrl</code> protocol</th><th>Resulting protocol</th>
@@ -309,15 +289,11 @@ public class PSUrlUtils {
    * </tr>
    * </table>
    *
-   * @return The fully formed URL; never <code>null</code>. If the base
-   * has an anchor and an anchor is supplied, the supplied anchor
-   * replaces the anchor in the base.  If the protocol specified is not http
-   * or https, then the supplied partialUrl is returned instead.
-   *
+   * @return The fully formed URL; never <code>null</code>. If the base has an anchor and an anchor
+   *     is supplied, the supplied anchor replaces the anchor in the base. If the protocol specified
+   *     is not http or https, then the supplied partialUrl is returned instead.
    * @throws IllegalArgumentException if request is <code>null</code>.
-   *
-   * @throws MalformedURLException if any of the pieces can't be converted
-   *    to a URL.
+   * @throws MalformedURLException if any of the pieces can't be converted to a URL.
    */
   public static URL createUrl(
       String host,
@@ -677,10 +653,9 @@ public class PSUrlUtils {
   /**
    * Parse the url parameter value for the supplied name from the provided url.
    *
-   * @param url the url from which to parse the parameter value, not
-   *    <code>null</code> or empty.
-   * @param name the parameter name for which to parse the value from the
-   *    supplied url, not <code>null</code> or empty.
+   * @param url the url from which to parse the parameter value, not <code>null</code> or empty.
+   * @param name the parameter name for which to parse the value from the supplied url, not <code>
+   *     null</code> or empty.
    * @return the parameter value, may be <code>null</code> if not found.
    */
   public static String getUrlParameterValue(String url, String name) {
@@ -705,17 +680,15 @@ public class PSUrlUtils {
   }
 
   /**
-   * Replace the url parameter value for the named parameter with the supplied
-   * value. Does nothing to the url if the parameter is not found.
+   * Replace the url parameter value for the named parameter with the supplied value. Does nothing
+   * to the url if the parameter is not found.
    *
-   * @param url the url in which to replace the supplied parameter value,
-   *    not <code>null</code> or empty.
-   * @param name the name of the parameter for which to replace the value,
-   *    not <code>null</code> or empty.
-   * @param value the new parameter value, not <code>null</code>, may be
-   *    empty.
-   * @return the url with the replaced parameter, never <code>null</code>,
-   *    may be empty.
+   * @param url the url in which to replace the supplied parameter value, not <code>null</code> or
+   *     empty.
+   * @param name the name of the parameter for which to replace the value, not <code>null</code> or
+   *     empty.
+   * @param value the new parameter value, not <code>null</code>, may be empty.
+   * @return the url with the replaced parameter, never <code>null</code>, may be empty.
    */
   public static String replaceUrlParameterValue(String url, String name, String value) {
     if (url == null || url.trim().length() == 0)
@@ -740,54 +713,33 @@ public class PSUrlUtils {
     return url;
   }
 
-  /**
-   * Private so it can never be instantiated.
-   */
+  /** Private so it can never be instantiated. */
   private PSUrlUtils() {}
 
-  /**
-   * The character that seperates the base part of the URL from the query
-   * string.
-   */
+  /** The character that seperates the base part of the URL from the query string. */
   private static final String QUERY_SEP = "?";
 
-  /**
-   * The character that seperates each param/value pairing from each other.
-   */
+  /** The character that seperates each param/value pairing from each other. */
   private static final String PARAM_SEP = "&";
 
-  /**
-   * The character that seperates the anchor from the rest of the URL.
-   */
+  /** The character that seperates the anchor from the rest of the URL. */
   private static final String ANCHOR_SEP = "#";
 
-  /**
-   * The character that seperates the param from the value.
-   */
+  /** The character that seperates the param from the value. */
   private static final String PARAM_VALUE_SEP = "=";
 
-  /**
-   * The character that separates part of the base url
-   */
+  /** The character that separates part of the base url */
   private static final String PATH_SEP = "/";
 
-  /**
-   * The string that indicates a relative url.
-   */
+  /** The string that indicates a relative url. */
   private static final String RELATIVE_PREFIX = "../";
 
-  /**
-   * The default protocol, http.
-   */
+  /** The default protocol, http. */
   private static final String DEFAULT_PROTOCOL = "http";
 
-  /**
-   * The secure protocol, https.
-   */
+  /** The secure protocol, https. */
   private static final String SECURE_PROTOCOL = "https";
 
-  /**
-   * The string that follows the protocol portion of a url.
-   */
+  /** The string that follows the protocol portion of a url. */
   private static final String PROTOCOL_SEP = ":";
 }

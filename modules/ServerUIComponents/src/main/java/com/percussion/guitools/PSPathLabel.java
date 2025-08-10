@@ -23,27 +23,19 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.*;
 
 /**
- * A label that will abbreviate the contents of the label, which is assumed to
- * be a path of some kind. The path contains forward slashes to separate the
- * path components
+ * A label that will abbreviate the contents of the label, which is assumed to be a path of some
+ * kind. The path contains forward slashes to separate the path components
  *
  * @author dougrand
  */
 public class PSPathLabel extends JTextField {
-  /**
-   * Text to display, will be abbreviated according to available size, never
-   * <code>null</code>
-   */
+  /** Text to display, will be abbreviated according to available size, never <code>null</code> */
   protected String m_text = "";
 
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 5446758279307498471L;
 
-  /**
-   * Ctor
-   */
+  /** Ctor */
   public PSPathLabel() {
     super();
     this.setBorder(null);
@@ -71,10 +63,7 @@ public class PSPathLabel extends JTextField {
     calculateVisibleText();
   }
 
-  /**
-   * Calculate and set visible text according to the currently available size
-   * of the control
-   */
+  /** Calculate and set visible text according to the currently available size of the control */
   private void calculateVisibleText() {
     String displayed = PSStringUtils.abbreviatePath(m_text, getSize(), getFont());
     super.setText(displayed);
@@ -115,7 +104,9 @@ public class PSPathLabel extends JTextField {
     return getMaximumSize();
   }
 
-  /** (non-Javadoc)
+  /**
+   * (non-Javadoc)
+   *
    * @see java.awt.Component#setBounds(int, int, int, int)
    */
   @Override

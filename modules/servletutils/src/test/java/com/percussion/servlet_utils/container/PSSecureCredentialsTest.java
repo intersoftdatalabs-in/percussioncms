@@ -25,9 +25,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-/**
- * Test case for the {@link PSSecureCredentials} class.
- */
+/** Test case for the {@link PSSecureCredentials} class. */
 public class PSSecureCredentialsTest {
   /**
    * Test the parameterized ctor and accessors
@@ -74,15 +72,13 @@ public class PSSecureCredentialsTest {
   }
 
   /**
-   * Attempts to construct a {@link PSSecureCredentials} using the supplied
-   * args.
+   * Attempts to construct a {@link PSSecureCredentials} using the supplied args.
    *
    * @param ds The datasource, may be <code>null</code>.
    * @param uid The username, may be <code>null</code> or empty.
    * @param pwd The password, may be <code>null</code> or empty.
-   * @param shouldThrow <code>true</code> if the supplied args should cause
-   * an exception, <code>false</code> if not.
-   *
+   * @param shouldThrow <code>true</code> if the supplied args should cause an exception, <code>
+   *     false</code> if not.
    * @throws Exception if the test fails.
    */
   private void doTestCtor(String ds, String uid, String pwd, boolean shouldThrow) throws Exception {

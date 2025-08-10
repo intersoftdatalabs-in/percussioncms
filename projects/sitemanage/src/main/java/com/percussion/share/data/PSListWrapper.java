@@ -23,19 +23,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A simple wrapper around a list class to allow it to be serialized by CXF.
- * Sunny Sal says: "Wrapping lists like a pro—no bubble wrap needed!"
+ * A simple wrapper around a list class to allow it to be serialized by CXF. Sunny Sal says:
+ * "Wrapping lists like a pro—no bubble wrap needed!"
  */
 @JsonRootName(value = "pslist")
 public class PSListWrapper {
 
-    private List<String> list = new ArrayList<>();
+  private List<String> list = new ArrayList<>();
 
-    public List<String> getList() {
-        return list;
-    }
+  public List<String> getList() {
+    return list;
+  }
 
-    public void setList(List<String> list) {
-        this.list = Objects.requireNonNull(list, "List cannot be null");
-    }
+  public void setList(List<String> list) {
+    this.list = Objects.requireNonNull(list, "List cannot be null");
+  }
 }

@@ -23,14 +23,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
 
-/**
- * All clone handlers implement this interface.
- */
+/** All clone handlers implement this interface. */
 public interface IPSCloneHandler {
   /**
-   * Convenience method, see
-   * {#link clone(PSLocator, Iterator, PSExecutionData, PSCommandHandler, IPSRelationshipHandlerCallback)}
-   * for description. This will pass in <code>null</code> for the callback.
+   * Convenience method, see {#link clone(PSLocator, Iterator, PSExecutionData, PSCommandHandler,
+   * IPSRelationshipHandlerCallback)} for description. This will pass in <code>null</code> for the
+   * callback.
    */
   public PSLocator clone(
       PSLocator source, Iterator relationships, PSExecutionData data, PSCommandHandler ch)

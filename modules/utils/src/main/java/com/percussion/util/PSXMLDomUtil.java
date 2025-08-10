@@ -29,20 +29,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 
-/**
- * Helper class to facilitate common XML tasks. That is available to clients
- * (rxclient.jar).
- */
+/** Helper class to facilitate common XML tasks. That is available to clients (rxclient.jar). */
 public class PSXMLDomUtil {
   /**
-   * Static helper function to retrieve the first child element of type
-   * <code>Node.ELEMENT_NODE</code>. The standard DOM supports
-   * getFirstChild() but does not allow for the type checking.
+   * Static helper function to retrieve the first child element of type <code>Node.ELEMENT_NODE
+   * </code>. The standard DOM supports getFirstChild() but does not allow for the type checking.
    *
    * @param node the node to start from, must not be <code>null</code>
-   *
-   * @return the first element child of the supplied node, or <code>null</code>
-   *         if none were found
+   * @return the first element child of the supplied node, or <code>null</code> if none were found
    */
   public static Element getFirstElementChild(Node node) {
     if (node == null) return null;
@@ -57,22 +51,16 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Static helper function to retrieve the first child element of type
-   * <code>Node.ELEMENT_NODE</code> and check it against the supplied name,
-   * if it is not the name, then throw an error. The standard DOM supports
-   * getFirstChild() but does not allow for the type checking.
+   * Static helper function to retrieve the first child element of type <code>Node.ELEMENT_NODE
+   * </code> and check it against the supplied name, if it is not the name, then throw an error. The
+   * standard DOM supports getFirstChild() but does not allow for the type checking.
    *
    * @param node the node to start from, must not be <code>null</code>
-   *
    * @param name the name of the node to check against, must not be <code>null
-   * </code>
-   *           or empty, is compared to this name case sensitive
-   *
-   * @return the first element child of the supplied node compared case, never
-   *         <code>null</code>.
-   *
-   * @throws PSUnknownNodeTypeException if a node was not found, or the name
-   *            does not match the found node
+   * </code> or empty, is compared to this name case sensitive
+   * @return the first element child of the supplied node compared case, never <code>null</code>.
+   * @throws PSUnknownNodeTypeException if a node was not found, or the name does not match the
+   *     found node
    */
   public static Element getFirstElementChild(Node node, String name)
       throws PSUnknownNodeTypeException {
@@ -85,15 +73,13 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Static helper function to retrieve only the <code>Node.ELEMENT_NODE</code>
-   * type sibling based from the specified node. The standard DOM supports
-   * getNextSibling(), but does not allow for node type checking.
+   * Static helper function to retrieve only the <code>Node.ELEMENT_NODE</code> type sibling based
+   * from the specified node. The standard DOM supports getNextSibling(), but does not allow for
+   * node type checking.
    *
-   * @param node the specified node to start from, must not be
-   *           <code>null</code>
-   *
-   * @return the next sibling element as an Element, or <code>null</code> if
-   *         there is no sibling of the supplied node
+   * @param node the specified node to start from, must not be <code>null</code>
+   * @return the next sibling element as an Element, or <code>null</code> if there is no sibling of
+   *     the supplied node
    */
   public static Element getNextElementSibling(Node node) {
     if (node == null) return null;
@@ -108,23 +94,17 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Static helper function to retrieve only the <code>Node.ELEMENT_NODE</code>
-   * type sibling based from the specified node. The standard DOM supports
-   * getNextSibling(), but does not allow for node type checking. This routine
-   * also checks if the next element sibling is a specified named node.
+   * Static helper function to retrieve only the <code>Node.ELEMENT_NODE</code> type sibling based
+   * from the specified node. The standard DOM supports getNextSibling(), but does not allow for
+   * node type checking. This routine also checks if the next element sibling is a specified named
+   * node.
    *
-   * @param node the specified node to start from, must not be
-   *           <code>null</code>
-   *
-   * @param name the name to check the node against to be sure the sibling is
-   *           the one expected, must not be <code>null</code> or empty
-   *
-   * @return the next sibling element as an Element, or <code>null</code> if
-   *         there is no sibling of the supplied node and compared with name
-   *         case sensitive,
-   *
+   * @param node the specified node to start from, must not be <code>null</code>
+   * @param name the name to check the node against to be sure the sibling is the one expected, must
+   *     not be <code>null</code> or empty
+   * @return the next sibling element as an Element, or <code>null</code> if there is no sibling of
+   *     the supplied node and compared with name case sensitive,
    * @see #checkNode(Element, String) for more info
-   *
    * @throws PSUnknownNodeTypeException
    */
   public static Element getNextElementSibling(Node node, String name)
@@ -140,11 +120,10 @@ public class PSXMLDomUtil {
   /**
    * Static helper function to get the element data of the specified node.
    *
-   * @param node the Node where the text data resides, may be <code>null</code>
-   *           in which case this funtion will return ""
-   *
-   * @return the complete text of the specified node or empty string if the
-   *         node has no text or is <code>null</code>
+   * @param node the Node where the text data resides, may be <code>null</code> in which case this
+   *     funtion will return ""
+   * @return the complete text of the specified node or empty string if the node has no text or is
+   *     <code>null</code>
    */
   public static String getElementData(Node node) {
     StringBuilder ret = new StringBuilder();
@@ -152,10 +131,7 @@ public class PSXMLDomUtil {
     if (node != null) {
       Node text;
       for (text = node.getFirstChild(); text != null; text = text.getNextSibling()) {
-        /**
-         * the item's value is in one or more text nodes which are its
-         * immediate children
-         */
+        /** the item's value is in one or more text nodes which are its immediate children */
         if (text.getNodeType() == Node.TEXT_NODE) {
           ret.append(text.getNodeValue());
         } else {
@@ -169,16 +145,13 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Static helper method to check a specific node for existance based on a
-   * node name.
+   * Static helper method to check a specific node for existance based on a node name.
    *
    * @param el the specific node to test, may be <code>null</code>
-   *
-   * @param name the name of the node we are checking against, it does a case
-   *           sensitive compare, must not be <code>null</code> or empty
-   *
-   * @throws PSUnknownNodeTypeException if the node is <code>null</code> or
-   *            is not the node we are checking for
+   * @param name the name of the node we are checking against, it does a case sensitive compare,
+   *     must not be <code>null</code> or empty
+   * @throws PSUnknownNodeTypeException if the node is <code>null</code> or is not the node we are
+   *     checking for
    */
   public static void checkNode(Element el, String name) throws PSUnknownNodeTypeException {
     if (el == null || name == null || name.trim().length() == 0)
@@ -197,20 +170,12 @@ public class PSXMLDomUtil {
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   *
    * @param name the name of the attribute to retrieve, must not be <code>
-   * null</code>
-   *           or empty
-   *
-   * @param required a boolean flag to determine if we throw an error if it
-   *           does not exist or just return blank, if true, we throw an error,
-   *           otherwise we just return "" if not found
-   *
-   * @return the value of the specified attribute or blank if not found and not
-   *         required
-   *
-   * @throws PSUnknownNodeTypeException if the attribute was not found and was
-   *            required
+   * null</code> or empty
+   * @param required a boolean flag to determine if we throw an error if it does not exist or just
+   *     return blank, if true, we throw an error, otherwise we just return "" if not found
+   * @return the value of the specified attribute or blank if not found and not required
+   * @throws PSUnknownNodeTypeException if the attribute was not found and was required
    */
   public static String checkAttribute(Element el, String name, boolean required)
       throws PSUnknownNodeTypeException {
@@ -226,28 +191,18 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Static helper method to check an attribute of a specific element and
-   * returns an integer of that value.
+   * Static helper method to check an attribute of a specific element and returns an integer of that
+   * value.
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   *
    * @param name the name of the attribute to retrieve, must not be <code>
-   * null</code>
-   *           or empty
-   *
-   * @param required a boolean flag to determine if we throw an error if it
-   *           does not exist or just return -1, if true, we throw an error,
-   *           otherwise we just return -1 if not found
-   *
-   * @return the value of the specified attribute or -1 if not found and not
-   *         required
-   *
-   * @throws PSUnknownNodeTypeException if the attribute was not found and was
-   *            required
-   *
-   * @throws NumberFormatException if the value does not contain a parsable
-   *            integer
+   * null</code> or empty
+   * @param required a boolean flag to determine if we throw an error if it does not exist or just
+   *     return -1, if true, we throw an error, otherwise we just return -1 if not found
+   * @return the value of the specified attribute or -1 if not found and not required
+   * @throws PSUnknownNodeTypeException if the attribute was not found and was required
+   * @throws NumberFormatException if the value does not contain a parsable integer
    */
   public static int checkAttributeInt(Element el, String name, boolean required)
       throws PSUnknownNodeTypeException, NumberFormatException {
@@ -260,36 +215,29 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Convenience method that calls {@link #checkAttributeBool(Element, String,
-   * boolean, String) checkAttributeBool(el, name, <code>true</code>,
-   * "yes")}.
+   * Convenience method that calls {@link #checkAttributeBool(Element, String, boolean, String)
+   * checkAttributeBool(el, name, <code>true</code>, "yes")}.
    */
   public static boolean checkAttributeBool(Element el, String name) {
     return checkAttributeBool(el, name, true, "yes");
   }
 
   /**
-   * Static helper method to check an attribute of a specific element for a
-   * <code>true</code>/<code>false</code> flag.
+   * Static helper method to check an attribute of a specific element for a <code>true</code>/<code>
+   * false</code> flag.
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   *
    * @param name the name of the attribute to retrieve, must not be <code>
-   * null</code>
-   *           or empty
-   *
-   * @param defaultValue If the attribute is not present or has no value, this
-   *           value will be returned.
-   *
-   * @param yesValue If the attribute has a non-empty value, it is compared
-   *           against this case-insensitive. If it matches, <code>true</code>
-   *           is returned. If <code>null</code> or empty, 'yes' is used.
-   *
-   * @return <code>true</code> if the attributes value is present and matches
-   *         the <code>yesValue</code>, otherwise the supplied <code>
-   * defaultValue</code>
-   *         is returned.
+   * null</code> or empty
+   * @param defaultValue If the attribute is not present or has no value, this value will be
+   *     returned.
+   * @param yesValue If the attribute has a non-empty value, it is compared against this
+   *     case-insensitive. If it matches, <code>true</code> is returned. If <code>null</code> or
+   *     empty, 'yes' is used.
+   * @return <code>true</code> if the attributes value is present and matches the <code>yesValue
+   *     </code>, otherwise the supplied <code>
+   * defaultValue</code> is returned.
    */
   public static boolean checkAttributeBool(
       Element el, String name, boolean defaultValue, String yesValue) {
@@ -314,8 +262,8 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Just like {@link #checkAttributeInt(Element, String, boolean)}, except
-   * this method will return a <code>long</code>.
+   * Just like {@link #checkAttributeInt(Element, String, boolean)}, except this method will return
+   * a <code>long</code>.
    */
   public static long checkAttributeLong(Element el, String name, boolean required)
       throws PSUnknownNodeTypeException, NumberFormatException {
@@ -328,8 +276,8 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Just like {@link #checkAttributeInt(Element, String, boolean)}, except
-   * this method will return a <code>Date</code>.
+   * Just like {@link #checkAttributeInt(Element, String, boolean)}, except this method will return
+   * a <code>Date</code>.
    *
    * @return a date or <code>null</code> if the value is empty
    */
@@ -348,27 +296,21 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Gets the element data from an attribute and validates that the data is a
-   * legal value, returning the index of that value into the supplied array of
-   * values.
+   * Gets the element data from an attribute and validates that the data is a legal value, returning
+   * the index of that value into the supplied array of values.
    *
    * @param el the element to get the attribute from, must not be <code>null
    * </code>
-   * @param attrName the name of the attribute to retrieve data from; not
-   *           <code>null</code>, or empty.
-   * @param legalValues the array of permitted values, not <code>null</code>,
-   *           with a default value at index 0 (must have at least one value).
-   * @param required <code>true</code> to throw an exception if the attribute
-   *           is not found or has no data, <code>false</code> to return 0 in
-   *           this case.
-   *
-   * @return The index into the supplied array that matches the attribute
-   *         value. If the data is <code>null</code> or empty, index 0 of the
-   *         legal value array is returned.
-   *
-   * @throws PSUnknownNodeTypeException if the node is found and has an illegal
-   *            value, regardless of if it is required. If required and not
-   *            found, then this exception is thrown as well.
+   * @param attrName the name of the attribute to retrieve data from; not <code>null</code>, or
+   *     empty.
+   * @param legalValues the array of permitted values, not <code>null</code>, with a default value
+   *     at index 0 (must have at least one value).
+   * @param required <code>true</code> to throw an exception if the attribute is not found or has no
+   *     data, <code>false</code> to return 0 in this case.
+   * @return The index into the supplied array that matches the attribute value. If the data is
+   *     <code>null</code> or empty, index 0 of the legal value array is returned.
+   * @throws PSUnknownNodeTypeException if the node is found and has an illegal value, regardless of
+   *     if it is required. If required and not found, then this exception is thrown as well.
    */
   public static int checkAttributeEnumerated(
       Element el, String attrName, String[] legalValues, boolean required)
@@ -406,11 +348,9 @@ public class PSXMLDomUtil {
    * Gets the trimmed value of the attribute.
    *
    * @param source The element to check, may not be <code>null</code>.
-   * @param name The name of the attribute, may not be <code>null</code> or
-   *           empty.
-   *
-   * @return The trimmed value, never empty, will be <code>null</code> if not
-   *         found or found to be empty.
+   * @param name The name of the attribute, may not be <code>null</code> or empty.
+   * @return The trimmed value, never empty, will be <code>null</code> if not found or found to be
+   *     empty.
    */
   public static String getAttributeTrimmed(Element source, String name) {
     if (source == null) throw new IllegalArgumentException("source may not be null");
@@ -429,7 +369,6 @@ public class PSXMLDomUtil {
    * Return the node's name without any namespace qualifier
    *
    * @param node Node may not be <code>null</code>
-   *
    * @return The unqualified name
    */
   public static String getUnqualifiedNodeName(Node node) {
@@ -481,9 +420,8 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Return the first child of the given element with the given tagname. Note
-   * that the underlying DOM function allows the special value '*' to match
-   * arbitrary tagnames.
+   * Return the first child of the given element with the given tagname. Note that the underlying
+   * DOM function allows the special value '*' to match arbitrary tagnames.
    *
    * @param parent Must be an element and must not be <code>null</code>.
    * @param tag Provides the tagname and may not be <code>null</code>.
@@ -500,16 +438,15 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Retrieves all elements of a certain name that exist under the passed
-   * in element. Will include all nested elements of the same name if the
-   * flag is set to <code>true</code>.
-   * @param root the element under which to locate the specified elements.
-   * Cannot be <code>null</code>.
+   * Retrieves all elements of a certain name that exist under the passed in element. Will include
+   * all nested elements of the same name if the flag is set to <code>true</code>.
+   *
+   * @param root the element under which to locate the specified elements. Cannot be <code>null
+   *     </code>.
    * @param name the element name, cannot be <code>null</code> or empty.
-   * @param includeNested flag indicating that all nested occurrences of the
-   * element should be retrieved.
-   * @return a list of all the located nodes, never <code>null</code>, may
-   * be empty.
+   * @param includeNested flag indicating that all nested occurrences of the element should be
+   *     retrieved.
+   * @return a list of all the located nodes, never <code>null</code>, may be empty.
    */
   public static List<Element> getAllElementsByName(
       Element root, String name, boolean includeNested) {
@@ -534,16 +471,12 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Returns the provided document as XML formatted, UTF8 encoded string with
-   * indentations.
+   * Returns the provided document as XML formatted, UTF8 encoded string with indentations.
    *
    * @deprecated Use PSXmlUtil or base TransformerFactory
-   *
-   * @param node the {@link Node} to be returned as string, may be
-   *           <code>null</code>.
-   * @return the provided document as string, the error message in case of
-   *         IOExceptions, an empty String if the provided document is
-   *         <code>null</code>.
+   * @param node the {@link Node} to be returned as string, may be <code>null</code>.
+   * @return the provided document as string, the error message in case of IOExceptions, an empty
+   *     String if the provided document is <code>null</code>.
    */
   @Deprecated
   public static String toString(Node node) {
@@ -551,17 +484,13 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Get the boolean value from the element text data of the specified node.
-   * Note: this method only check the values of <code>true</code> and/or
-   * <code>1</code>, which is compliant with W3C. However, this method does
-   * not check <code>yes</code>.
+   * Get the boolean value from the element text data of the specified node. Note: this method only
+   * check the values of <code>true</code> and/or <code>1</code>, which is compliant with W3C.
+   * However, this method does not check <code>yes</code>.
    *
-   * @param node the Node where the text data resides, may be <code>null</code>
-   *           or empty.
-   *
-   * @return <code>true</code> if the text of the specified node is
-   *         <code>1</code> or <code>true</code>; otherwise return
-   *         <code>false</code>. It is case insensitive.
+   * @param node the Node where the text data resides, may be <code>null</code> or empty.
+   * @return <code>true</code> if the text of the specified node is <code>1</code> or <code>true
+   *     </code>; otherwise return <code>false</code>. It is case insensitive.
    */
   public static boolean getBooleanElementData(Element node) {
     String sValue = PSXMLDomUtil.getElementData(node);
@@ -569,28 +498,24 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Get the boolean value from the specified string / text. Note: this method
-   * only check the values of <code>true</code> and/or <code>1</code>,
-   * which is compliant with W3C. However, this method does not check
-   * <code>yes</code>.
+   * Get the boolean value from the specified string / text. Note: this method only check the values
+   * of <code>true</code> and/or <code>1</code>, which is compliant with W3C. However, this method
+   * does not check <code>yes</code>.
    *
    * @param sValue the text data resides, may be <code>null</code> or empty.
-   *
-   * @return <code>true</code> if the specified text is <code>1</code> or
-   *         <code>true</code>; otherwise return <code>false</code>. It
-   *         is case insensitive.
+   * @return <code>true</code> if the specified text is <code>1</code> or <code>true</code>;
+   *     otherwise return <code>false</code>. It is case insensitive.
    */
   public static boolean getBooleanData(String sValue) {
     return "true".equalsIgnoreCase(sValue) || "1".equals(sValue);
   }
 
   /**
-   * Removes the stylesheet processing instruction from the supplied document.
-   * If the document is <code>null</code> or if the processing instruction is
-   * not found then does nothing.
+   * Removes the stylesheet processing instruction from the supplied document. If the document is
+   * <code>null</code> or if the processing instruction is not found then does nothing.
    *
-   * @param doc The Document from which stylesheet processing instruction needs
-   *           to be removed, may be <code>null</code>.
+   * @param doc The Document from which stylesheet processing instruction needs to be removed, may
+   *     be <code>null</code>.
    */
   public static void removeStyleSheetPiFromDoc(Document doc) {
     if (doc == null) return;
@@ -608,10 +533,8 @@ public class PSXMLDomUtil {
    * Check the supplied Document for a stylesheet processing instruction.
    *
    * @param doc The Document to check, may be <code>null</code>.
-   *
-   * @return <code>true</code> if a stylesheet processing instruction is
-   *         found, <code>false</code> if not or if the supplied doc is
-   *         <code>null</code>.
+   * @return <code>true</code> if a stylesheet processing instruction is found, <code>false</code>
+   *     if not or if the supplied doc is <code>null</code>.
    */
   public static boolean hasStyleSheetPiInDoc(Document doc) {
     if (doc == null) return false;
@@ -626,9 +549,8 @@ public class PSXMLDomUtil {
    * Check the supplied node for a stylesheet processing instruction.
    *
    * @param node The node to check, assumed not <code>null</code>.
-   *
-   * @return <code>true</code> if the node is stylesheet processing
-   *         instruction, <code>false</code> if not.
+   * @return <code>true</code> if the node is stylesheet processing instruction, <code>false</code>
+   *     if not.
    */
   private static boolean isNodeStyleSheetProcessingInstruction(Node node) {
     if (node instanceof ProcessingInstruction) {

@@ -48,32 +48,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.io.IoBuilder;
 
-/**
- * This class provides utility functions used for JNDI operations.
- */
+/** This class provides utility functions used for JNDI operations. */
 public class PSJndiUtils {
 
   private static final Logger log = LogManager.getLogger(PSJndiUtils.class);
 
-  /**
-   * Do not instantiate this class, all functionality exposed is static.
-   */
+  /** Do not instantiate this class, all functionality exposed is static. */
   private PSJndiUtils() {
     // hidden constructor to prevent instantiation.
   }
 
   /**
-   * Get the requested property and remove it from the supplied properties
-   * parameter.
+   * Get the requested property and remove it from the supplied properties parameter.
    *
-   * @param properties the properties from where to get and remove the
-   *    requested property, not <code>null</code>, may be empty.
+   * @param properties the properties from where to get and remove the requested property, not
+   *     <code>null</code>, may be empty.
    * @param name the property name, not <code>null</code> or empty.
-   * @param required <code>true</code> ir the property is required,
-   *    <code>false</code> otherwise.
+   * @param required <code>true</code> ir the property is required, <code>false</code> otherwise.
    * @return the requested property if found, <code>null</code> otherwise.
-   * @throws IllegalArgumentException if the property is required but not
-   *    found or empty.
+   * @throws IllegalArgumentException if the property is required but not found or empty.
    */
   public static String getProperty(Properties properties, String name, boolean required) {
     if (properties == null) throw new IllegalArgumentException("properties cannot be null");
@@ -175,11 +168,10 @@ public class PSJndiUtils {
   }
 
   /**
-   * Appends a condition to the supplied filter buffer for the specified
-   * key and value.
+   * Appends a condition to the supplied filter buffer for the specified key and value.
+   *
    * @param filter The buffer, assumed not <code>null</code>.
-   * @param attrName The name of the condition's attribute, assumed not
-   * <code>null</code> or empty.
+   * @param attrName The name of the condition's attribute, assumed not <code>null</code> or empty.
    * @param value The condition value, may be <code>null</code> or empty.
    */
   private static void appendFilterCond(StringBuilder filter, String attrName, String value) {
@@ -193,8 +185,7 @@ public class PSJndiUtils {
   }
 
   /**
-   * Convenience method that calls
-   * {@link #createContext(PSDirectoryDefinition, String)
+   * Convenience method that calls {@link #createContext(PSDirectoryDefinition, String)
    * createContext(directoryDef, null)}
    */
   public static DirContext createContext(PSDirectoryDefinition directoryDef)
@@ -255,8 +246,8 @@ public class PSJndiUtils {
   /**
    * Add the connection pooling configuration if its enabled.
    *
-   * @param env the environment to which to add the connection pooling
-   *    configuration properties, not <code>null</code>, may be empty.
+   * @param env the environment to which to add the connection pooling configuration properties, not
+   *     <code>null</code>, may be empty.
    */
   public static void addConnectionPooling(Map<String, Object> env) {
     if (env == null) throw new IllegalArgumentException("env cannot be null");
@@ -396,8 +387,8 @@ public class PSJndiUtils {
   }
 
   /**
-   * Convenience version of {@link #getCompoundName(String, String)} that calls
-   * <code>getCompoundName(dn, null)</code>.
+   * Convenience version of {@link #getCompoundName(String, String)} that calls <code>
+   * getCompoundName(dn, null)</code>.
    */
   public static CompoundName getCompoundName(String dn) throws InvalidNameException {
     return getCompoundName(dn, null);
@@ -452,16 +443,12 @@ public class PSJndiUtils {
   }
 
   /**
-   * Escapes reserved characters in the provided name so that it is a valid dn
-   * component.  Escapes the list of chars in {@link #DN_ESCAPE_CHARS} by
-   * preceding them with a backslash.  Will skip escaping them if they are
-   * already escaped.
+   * Escapes reserved characters in the provided name so that it is a valid dn component. Escapes
+   * the list of chars in {@link #DN_ESCAPE_CHARS} by preceding them with a backslash. Will skip
+   * escaping them if they are already escaped.
    *
-   * @param name The dn component that must be escaped, never <code>null</code>
-   * or empty.
-   *
+   * @param name The dn component that must be escaped, never <code>null</code> or empty.
    * @return The escaped string, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   public static String escapeDnComponent(String name) {
@@ -489,14 +476,11 @@ public class PSJndiUtils {
   }
 
   /**
-   * Unescapes reserved characters in the provided name.  Reverses the process
-   * done by {@link #escapeDnComponent(String)}.
+   * Unescapes reserved characters in the provided name. Reverses the process done by {@link
+   * #escapeDnComponent(String)}.
    *
-   * @param name The dn component to unescape, never <code>null</code>
-   * or empty.
-   *
+   * @param name The dn component to unescape, never <code>null</code> or empty.
    * @return The unescaped string, never <code>null</code> or empty.
-   *
    * @throws IllegalArgumentException if <code>name</code> is invalid.
    */
   public static String unEscapeDnComponent(String name) {
@@ -518,14 +502,11 @@ public class PSJndiUtils {
   }
 
   /**
-   * Translates a SQL like filter string to a directory service like filter
-   * string. SQL '%' filters and '_' are replaced with the directory service
-   * '*' filter.
+   * Translates a SQL like filter string to a directory service like filter string. SQL '%' filters
+   * and '_' are replaced with the directory service '*' filter.
    *
-   * @param filter the SQL filter to be translated, may be <code>null</code>
-   *    or empty.
-   * @return the translated filter of <code>null</code> if <code>null</code>
-   *    was supplied.
+   * @param filter the SQL filter to be translated, may be <code>null</code> or empty.
+   * @return the translated filter of <code>null</code> if <code>null</code> was supplied.
    */
   public static String translateSQLFilter(String filter) {
     if (filter == null) return filter;
@@ -536,14 +517,11 @@ public class PSJndiUtils {
   }
 
   /**
-   * Encodes any spaces and other special chars according to RFC2255, may not
-   * be <code>null</code> or empty.
+   * Encodes any spaces and other special chars according to RFC2255, may not be <code>null</code>
+   * or empty.
    *
-   * @param providerURL The url to encode, may not be <code>null</code> or
-   * empty.
-   *
+   * @param providerURL The url to encode, may not be <code>null</code> or empty.
    * @return The escaped url, never <code>null</code> or empty.
-   *
    * @throws NamingException if the url cannot be parsed or encoded.
    */
   public static String getEncodedProviderUrl(String providerURL) throws NamingException {
@@ -573,10 +551,8 @@ public class PSJndiUtils {
   /**
    * Get the protocol from the supplied url string.
    *
-   * @param url the url string from which we want the protocol, not
-   *    <code>null</code> or empty.
-   * @return the protocol of the supplied url string, never <code>null</code>
-   *    may be empty.
+   * @param url the url string from which we want the protocol, not <code>null</code> or empty.
+   * @return the protocol of the supplied url string, never <code>null</code> may be empty.
    */
   public static String getProtocol(String url) {
     if (url == null) throw new IllegalArgumentException("url cannot be null");
@@ -592,15 +568,13 @@ public class PSJndiUtils {
   }
 
   /**
-   * Get the url for the supplied url string. The protocol will be converted to
-   * use the <code>http</code>
-   * protocol to avoid using protocols not supported by the <code>URL</code>
-   * class.
+   * Get the url for the supplied url string. The protocol will be converted to use the <code>http
+   * </code> protocol to avoid using protocols not supported by the <code>URL</code> class.
    *
-   * @param url the url string for which to create an <code>URL</code> object,
-   *    not <code>null</code> or empty.
-   * @return the <code>URL</code> object created for the supplied url string,
-   *    never <code>null</code>.
+   * @param url the url string for which to create an <code>URL</code> object, not <code>null</code>
+   *     or empty.
+   * @return the <code>URL</code> object created for the supplied url string, never <code>null
+   *     </code>.
    * @throws MalformedURLException for any malformed url string provided.
    */
   public static URL getURL(String url) throws MalformedURLException {
@@ -616,13 +590,10 @@ public class PSJndiUtils {
   }
 
   /**
-   * Determines if the specified char is one of the chars in
-   * {@link #DN_ESCAPE_CHARS}.
+   * Determines if the specified char is one of the chars in {@link #DN_ESCAPE_CHARS}.
    *
    * @param test The char to test.
-   *
-   * @return <code>true</code> if it is in the list, <code>false</code>
-   * otherwise.
+   * @return <code>true</code> if it is in the list, <code>false</code> otherwise.
    */
   private static boolean isDnEscapeChar(char test) {
     boolean isEscChar = false;
@@ -638,24 +609,18 @@ public class PSJndiUtils {
   }
 
   /**
-   * Converts the array of String into a filter, applying the principle
-   * attribute and converting wildcards.
+   * Converts the array of String into a filter, applying the principle attribute and converting
+   * wildcards.
    *
-   * @param filterPattern An array of patterns, not <code>null</code>.
-   *    If any pattern is <code>null</code> or empty, it is ignored.
-   *
-   * @param attr The principle attribute to use when constructing the filter.
-   *    For example, if "cn" is supplied, each filter is used to constuct
-   *    "cn=<filter>".  All patterns are combined using the <code>OR</code>
-   *    condtional.
-   *
-   * @param baseFilter A base filter to append onto. The filter resulting from
-   *    the supplied <code>filterPattern</code> is appended onto this using the
-   *    <code>AND</code> conditional.  If <code>null</code> or empty, it is
-   *    ignored.
-   *
+   * @param filterPattern An array of patterns, not <code>null</code>. If any pattern is <code>null
+   *     </code> or empty, it is ignored.
+   * @param attr The principle attribute to use when constructing the filter. For example, if "cn"
+   *     is supplied, each filter is used to constuct "cn=<filter>". All patterns are combined using
+   *     the <code>OR</code> condtional.
+   * @param baseFilter A base filter to append onto. The filter resulting from the supplied <code>
+   *     filterPattern</code> is appended onto this using the <code>AND</code> conditional. If
+   *     <code>null</code> or empty, it is ignored.
    * @return The filter, never <code>null</code>, may be empty.
-   *
    * @throws PSSecurityException if the filter contains invalid wildcards.
    */
   public static String getFilterString(String[] filterPattern, String attr, String baseFilter)
@@ -692,11 +657,8 @@ public class PSJndiUtils {
   /**
    * Prepares the filter by converting any supported wildcards
    *
-   * @param filter The filter to process, may not be <code>null</code> or
-   * empty.
-   *
+   * @param filter The filter to process, may not be <code>null</code> or empty.
    * @return The converted filter, never <code>null</code> or empty.
-   *
    * @throws PSSecurityException if the filter contains invalid wildcards.
    */
   public static String processFilter(String filter) throws PSSecurityException {
@@ -710,41 +672,29 @@ public class PSJndiUtils {
   }
 
   /**
-   * The property key used to specify the alias attribute used for the
-   * object attribute. This property is required dor all directory catalogers
-   * and is used for authentication.
+   * The property key used to specify the alias attribute used for the object attribute. This
+   * property is required dor all directory catalogers and is used for authentication.
    */
   public static final String OBJECT_ATTRIBUTE_ALIAS = "objectAttributeAlias";
 
-  /**
-   * The attribute value used for wildcard searches.
-   */
+  /** The attribute value used for wildcard searches. */
   public static final String WILDCARD_SEARCH = "*";
 
-  /**
-   * The standard ldap protocol.
-   */
+  /** The standard ldap protocol. */
   public static final String PROTOCOL_LDAP = "ldap";
 
-  /**
-   * The secure ldap protocol.
-   */
+  /** The secure ldap protocol. */
   public static final String PROTOCOL_LDAPS = "ldaps";
 
-  /**
-   * Character used to escape reserved characters in a DN component.
-   */
+  /** Character used to escape reserved characters in a DN component. */
   private static final char DN_ESCAPE_CHAR = '\\';
 
-  /**
-   * Array of characters that must be escaped in a DN according to the LDAPv3
-   * specification.
-   */
+  /** Array of characters that must be escaped in a DN according to the LDAPv3 specification. */
   private static final char[] DN_ESCAPE_CHARS = {',', '+', '"', '\\', '<', '>', ';'};
 
   /**
-   * Set of properties used to create {@link CompoundName} objects to use to
-   * create, parse and compare distinguished names.
+   * Set of properties used to create {@link CompoundName} objects to use to create, parse and
+   * compare distinguished names.
    */
   private static final Properties ms_namingProps = new Properties();
 

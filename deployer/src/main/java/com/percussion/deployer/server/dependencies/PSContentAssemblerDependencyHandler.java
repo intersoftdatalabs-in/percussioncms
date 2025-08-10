@@ -35,20 +35,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Class to handle packaging and deploying a Content Assembler Element.
- */
+/** Class to handle packaging and deploying a Content Assembler Element. */
 public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSContentAssemblerDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -56,12 +51,11 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
   }
 
   /**
+   * Get all templates with assembly urls, matching a pattern like: <code>"../app-name/%"</code>
    *
-   * Get all templates with assembly urls, matching a pattern like:
-   *  <code>"../app-name/%"</code>
    * @param tok, the security token, never <code>null</code>
    * @param dep, the dependency, never <code>null</code>
-   * @return template guids, never  <code>null</code>.
+   * @return template guids, never <code>null</code>.
    */
   private Set<IPSGuid> getTemplateIdsByAssemblyUrl(PSSecurityToken tok, PSDependency dep) {
     if (tok == null || dep == null) {
@@ -106,10 +100,7 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
     return childDeps.iterator();
   }
 
-  /**
-   * Util method to initialize AssemblyServiceHelper
-   *
-   */
+  /** Util method to initialize AssemblyServiceHelper */
   private void init() {
     if (m_asHelper == null) m_asHelper = new PSAssemblyServiceHelper();
   }
@@ -143,8 +134,8 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Troll thru all the templates and return a list of application names from
-   * assembly url.
+   * Troll thru all the templates and return a list of application names from assembly url.
+   *
    * @param tmps, the template collection never <code>null</code>
    * @return
    */
@@ -181,16 +172,16 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>VariantDef</li>
+   *   <li>Application
+   *   <li>VariantDef
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -201,20 +192,13 @@ public class PSContentAssemblerDependencyHandler extends PSDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   static final String DEPENDENCY_TYPE = "ContentAssembler";
 
-  /**
-   * An instance of assembly service helper
-   */
+  /** An instance of assembly service helper */
   private PSAssemblyServiceHelper m_asHelper = null;
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

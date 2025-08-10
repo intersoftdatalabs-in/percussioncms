@@ -28,30 +28,30 @@ import org.junit.jupiter.api.Test;
 
 class PSTemplateComparatorTest {
 
-    private final PSTemplateSummary a = create("a", "");
-    private final PSTemplateSummary A = create("perc.base.A", "Z");
-    private final PSTemplateSummary b = create("perc.base.b", "b");
-    private final PSTemplateSummary B = create("b", "B");
+  private final PSTemplateSummary a = create("a", "");
+  private final PSTemplateSummary A = create("perc.base.A", "Z");
+  private final PSTemplateSummary b = create("perc.base.b", "b");
+  private final PSTemplateSummary B = create("b", "B");
 
-    {
-        A.setReadOnly(true);
-        b.setReadOnly(true);
-    }
+  {
+    A.setReadOnly(true);
+    b.setReadOnly(true);
+  }
 
-    private final List<PSTemplateSummary> sums = asList(b, A, B, a);
-    private final PSTemplateSorter comparator = new PSTemplateSorter();
+  private final List<PSTemplateSummary> sums = asList(b, A, B, a);
+  private final PSTemplateSorter comparator = new PSTemplateSorter();
 
-    private PSTemplateSummary create(String name, String label) {
-        var s = new PSTemplateSummary();
-        s.setName(name);
-        s.setLabel(label);
-        return s;
-    }
+  private PSTemplateSummary create(String name, String label) {
+    var s = new PSTemplateSummary();
+    s.setName(name);
+    s.setLabel(label);
+    return s;
+  }
 
-    @Test
-    void testCaseInsensitive() {
-        var expected = asList(a, A, b, B);
-        var actual = comparator.sort(sums);
-        assertEquals(expected, actual);
-    }
+  @Test
+  void testCaseInsensitive() {
+    var expected = asList(a, A, b, B);
+    var actual = comparator.sort(sums);
+    assertEquals(expected, actual);
+  }
 }

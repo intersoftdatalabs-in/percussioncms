@@ -23,70 +23,57 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class is used to group information about an item editor which is
- * represented as an xml result document.
- * It stores the following information:
+ * This class is used to group information about an item editor which is represented as an xml
+ * result document. It stores the following information:
+ *
  * <ol>
- *    <li>The type of the page, either row editor or summary editor.</li>
- *    <li>The childId for the page, which is passed to the modify handler
- *       so it knows which table(s) to modify. This is the mapper id.</li>
- *    <li>A sequenced list of dataset names that are used to get
- *       the data needed for the request from the backend.</li>
- *    <li>A sequenced list of page ids. Each entry in the list corresponds to
- *       a summary view in a row editor, in the same order they appear in
- *       the document from top to bottom.</li>
+ *   <li>The type of the page, either row editor or summary editor.
+ *   <li>The childId for the page, which is passed to the modify handler so it knows which table(s)
+ *       to modify. This is the mapper id.
+ *   <li>A sequenced list of dataset names that are used to get the data needed for the request from
+ *       the backend.
+ *   <li>A sequenced list of page ids. Each entry in the list corresponds to a summary view in a row
+ *       editor, in the same order they appear in the document from top to bottom.
  * </ol>
  */
 public class PSPageInfo {
   /**
-   * This value must be equal to the first editor type value. Editor type
-   * values should increase monotonically by 1 so there are no unused values
-   * between <code>TYPE_FIRST</code> and <code>TYPE_LAST</code>, inclusive.
+   * This value must be equal to the first editor type value. Editor type values should increase
+   * monotonically by 1 so there are no unused values between <code>TYPE_FIRST</code> and <code>
+   * TYPE_LAST</code>, inclusive.
    */
   private static final int TYPE_FIRST = 1;
 
-  /**
-   * One of the constants used to set the editor type.
-   */
+  /** One of the constants used to set the editor type. */
   public static final int TYPE_SUMMARY_EDITOR = 1;
 
-  /**
-   * One of the constants used to set the editor type.
-   */
+  /** One of the constants used to set the editor type. */
   public static final int TYPE_ROW_EDITOR = 2;
 
   /**
-   * This value is used to indicate that this page is for returning data
-   * only, not an editor. In fact, the data is similar to the data for the
-   * summary editor, but it includes fields that have the showInSummary or
-   * showInPreview flags set to <code>false</code> .
+   * This value is used to indicate that this page is for returning data only, not an editor. In
+   * fact, the data is similar to the data for the summary editor, but it includes fields that have
+   * the showInSummary or showInPreview flags set to <code>false</code> .
    */
   public static final int TYPE_SUMMARY_DATA = 3;
 
   /**
-   * This value must be equal to the last editor type value. If x is a TYPE_...
-   * then x >= TYPE_FIRST && x <= TYPE_LAST.
+   * This value must be equal to the last editor type value. If x is a TYPE_... then x >= TYPE_FIRST
+   * && x <= TYPE_LAST.
    */
   private static final int TYPE_LAST = 3;
 
   /**
    * The only constructor for this class.
    *
-   * @param type One of the TYPE_xxx constants. Specifies the type of editor
-   *    this object identifies.
-   *
-   * @param childId The id of the mapper that describes the associated
-   *    editor.
-   *
-   * @param queryHandlers A list of Strings which contain the names of
-   *    datasets used to obtain data to fulfill a query. May be <code>null
+   * @param type One of the TYPE_xxx constants. Specifies the type of editor this object identifies.
+   * @param childId The id of the mapper that describes the associated editor.
+   * @param queryHandlers A list of Strings which contain the names of datasets used to obtain data
+   *     to fulfill a query. May be <code>null
    *    </code>.
-   *
-   * @param pageMap A list of Map.Entry objects whose key is a page id (as
-   *    an Integer) and whose value is a list of complex child page ids.
-   *    May be <code>null</code> or empty. If supplied, the contents are
-   *    not validated.
-   *
+   * @param pageMap A list of Map.Entry objects whose key is a page id (as an Integer) and whose
+   *     value is a list of complex child page ids. May be <code>null</code> or empty. If supplied,
+   *     the contents are not validated.
    * @throws IllegalArgumentException if the type is not a supported value.
    */
   public PSPageInfo(
@@ -108,7 +95,6 @@ public class PSPageInfo {
    * Sets the builder which can be obtained with the getBuilder() method.
    *
    * @param builder The builder for this page. Never <code>null</code>.
-   *
    * @throws IllegalArgumentException if builder is <code>null</code>.
    */
   public void setBuilder(PSEditorDocumentBuilder builder) {
@@ -117,9 +103,8 @@ public class PSPageInfo {
   }
 
   /**
-   * Returns the child id for the page described by this object. The child
-   * id is the id of the mapper for the fieldset used for the associated
-   * editor.
+   * Returns the child id for the page described by this object. The child id is the id of the
+   * mapper for the fieldset used for the associated editor.
    *
    * @return The associated mapper's id.
    */
@@ -128,13 +113,11 @@ public class PSPageInfo {
   }
 
   /**
-   * Returns the builder set with the {@link
-   * #setBuilder(PSEditorDocumentBuilder) setBuilder} method. The builder
-   * generates the output document for this editor.
+   * Returns the builder set with the {@link #setBuilder(PSEditorDocumentBuilder) setBuilder}
+   * method. The builder generates the output document for this editor.
    *
-   * @return The builder, which may be <code>null</code> until it is set
-   *    once, then never <code>null</code>.
-   *
+   * @return The builder, which may be <code>null</code> until it is set once, then never <code>null
+   *     </code>.
    * @see #setBuilder(PSEditorDocumentBuilder) setBuilder
    */
   public PSEditorDocumentBuilder getBuilder() {
@@ -142,9 +125,8 @@ public class PSPageInfo {
   }
 
   /**
-   * One of the methods used to determine what type of editor this is. A
-   * summary editor displays all rows related to the parent, allowing actions
-   * at a row level, but not at a field level.
+   * One of the methods used to determine what type of editor this is. A summary editor displays all
+   * rows related to the parent, allowing actions at a row level, but not at a field level.
    *
    * @return <code>true</code> if this is a summary editor
    */
@@ -153,9 +135,9 @@ public class PSPageInfo {
   }
 
   /**
-   * One of the methods used to determine what type of editor this is. A
-   * row editor displays all fields for a single content item and allows
-   * modifications of the fields, but not of the entire row.
+   * One of the methods used to determine what type of editor this is. A row editor displays all
+   * fields for a single content item and allows modifications of the fields, but not of the entire
+   * row.
    *
    * @return <code>true</code> if this is a row editor
    */
@@ -164,34 +146,30 @@ public class PSPageInfo {
   }
 
   /**
-   * Compares the supplied type to this object. The type indicates what type
-   * of editor or result data this page represents.
+   * Compares the supplied type to this object. The type indicates what type of editor or result
+   * data this page represents.
    *
    * @param type One of the TYPE_XXX values.
-   *
-   * @return <code>true</code> if type matches the type of this object,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if type matches the type of this object, <code>false</code>
+   *     otherwise.
    */
   public boolean isType(int type) {
     return m_type == type;
   }
 
   /**
-   * Returns a list of dataset names supplied in the ctor. These are the
-   * names of the resources used to get the data to generate the editor
-   * associate with this object.
+   * Returns a list of dataset names supplied in the ctor. These are the names of the resources used
+   * to get the data to generate the editor associate with this object.
    *
-   * @return An iterator over the dataset names, never <code>null</code>,
-   *    may be empty.
+   * @return An iterator over the dataset names, never <code>null</code>, may be empty.
    */
   public Iterator<String> getDatasetList() {
     return m_handlers.iterator();
   }
 
   /**
-   * Returns the page id list set in the constructor. This list contains all
-   * of the child page ids referenced by the editor associated with this
-   * object in document order (from top to bottom).
+   * Returns the page id list set in the constructor. This list contains all of the child page ids
+   * referenced by the editor associated with this object in document order (from top to bottom).
    *
    * @return An iterator over the ids. Never <code>null</code>, may be empty.
    */
@@ -200,33 +178,30 @@ public class PSPageInfo {
   }
 
   /**
-   * One of the ..._TYPE constants. Always between TYPE_FIRST and TYPE_LAST
-   * inclusive, after construction. Immutable after construction.
+   * One of the ..._TYPE constants. Always between TYPE_FIRST and TYPE_LAST inclusive, after
+   * construction. Immutable after construction.
    */
   private int m_type;
 
-  /**
-   * The child id of the mapper for this editor. Set in ctor, then immutable.
-   */
+  /** The child id of the mapper for this editor. Set in ctor, then immutable. */
   private int m_childId;
 
   /**
    * The builder that will create the output document for a request. <code>
-   * null</code> until initialized by the <code>setBuilder</code> method,
-   * then never <code>null</code> after that.
+   * null</code> until initialized by the <code>setBuilder</code> method, then never <code>null
+   * </code> after that.
    */
   private PSEditorDocumentBuilder m_builder;
 
   /**
-   * A list of dataset names used to gather data for the request.
-   * Never <code>null</code>, may be empty.
+   * A list of dataset names used to gather data for the request. Never <code>null</code>, may be
+   * empty.
    */
   private List<String> m_handlers = new ArrayList<>();
 
   /**
-   * A list of Map.Entry objects whose key is a page id (as an Integer) and
-   * whose value is a PSPageInfo object. Never <code>null</code>, may be
-   * empty.
+   * A list of Map.Entry objects whose key is a page id (as an Integer) and whose value is a
+   * PSPageInfo object. Never <code>null</code>, may be empty.
    */
   private List<Map.Entry<Integer, PSPageInfo>> m_pageMap = new ArrayList<>();
 }

@@ -28,10 +28,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSSubject class defines a subject (group or user) to be stored
- * in some context, including attributes specific to that context for
- * that subject.  See {@link #toXml(Document) toXml} for a more
- * complete definition of this class.
+ * The PSSubject class defines a subject (group or user) to be stored in some context, including
+ * attributes specific to that context for that subject. See {@link #toXml(Document) toXml} for a
+ * more complete definition of this class.
  *
  * @since 4.0
  */
@@ -39,19 +38,14 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /* The SUBJECT_TYPE_xxx values must be flags so they can be OR'd together
   by users of this class. */
 
-  /**
-   * This subject represents a user.
-   */
+  /** This subject represents a user. */
   public static final int SUBJECT_TYPE_USER = 1;
 
-  /**
-   * This subject represents a group.
-   */
+  /** This subject represents a group. */
   public static final int SUBJECT_TYPE_GROUP = 2;
 
   /**
-   * Retrieve a comparator to sort and store subjects by
-   * their identification data.
+   * Retrieve a comparator to sort and store subjects by their identification data.
    *
    * @return the comparator, never <code>null</code>
    */
@@ -92,8 +86,8 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Test if this subject is equal to the supplied subject. Two subjects are
-   * equal if their names, types and attributes are equal.
+   * Test if this subject is equal to the supplied subject. Two subjects are equal if their names,
+   * types and attributes are equal.
    *
    * @param obj the object to test against, may be <code>null</code>.
    */
@@ -112,14 +106,13 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Does the object specified match this subject?  The result is true if and
-   * only if the argument is not <code>null</code> and has the same name and
-   * type as this subject.
-   * Case must match.  The attributes of the two subjects are not considered.
+   * Does the object specified match this subject? The result is true if and only if the argument is
+   * not <code>null</code> and has the same name and type as this subject. Case must match. The
+   * attributes of the two subjects are not considered.
    *
    * @param sub the subject to compare with, may be <code>null</code>.
-   * @return <code>true</code> if this subject matches the specified subject,
-   * <code>false</code> otherwise.
+   * @return <code>true</code> if this subject matches the specified subject, <code>false</code>
+   *     otherwise.
    */
   public boolean isMatch(PSSubject sub) {
     if (null == sub) return false;
@@ -129,11 +122,12 @@ public abstract class PSSubject extends PSDatabaseComponent {
 
   /**
    * Construct a complete subject.
+   *
    * @param name the subject name, not <code>null</code> or empty.
-   * @param type the subject type, one of <code>SUBJECT_TYPE_USER</code> or
-   *    <code>SUBJECT_TYPE_GROUP</code>.
-   * @param atts the subject's attributes, may be <code>null</code> in which
-   *    case an empty attribute list will be assigned.
+   * @param type the subject type, one of <code>SUBJECT_TYPE_USER</code> or <code>SUBJECT_TYPE_GROUP
+   *     </code>.
+   * @param atts the subject's attributes, may be <code>null</code> in which case an empty attribute
+   *     list will be assigned.
    */
   protected PSSubject(String name, int type, PSAttributeList atts) {
     setName(name);
@@ -142,23 +136,14 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param   sourceNode     the XML element node to construct this
-   *                             object from, never <code>null</code>.
-   *
-   * @param   parentDoc       the Java object which is the parent of this
-   *                             object, may be <code>null</code>.
-   *
-   * @param   parentComponents  the parent objects of this object, may be
-   *                               <code>null</code>.
-   *
-   * @throws   PSUnknownNodeTypeException
-   *                             if the XML element node is not of the
-   *                             appropriate type
-   *
-   * @throws  IllegalArgumentException if sourceNode is <code>null</code>.
+   * @param sourceNode the XML element node to construct this object from, never <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
+   * @throws IllegalArgumentException if sourceNode is <code>null</code>.
    */
   public PSSubject(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -167,24 +152,21 @@ public abstract class PSSubject extends PSDatabaseComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Empty constructor for creating from serialization, fromXml() etc
-   */
+  /** Empty constructor for creating from serialization, fromXml() etc */
   PSSubject() {}
 
   /**
    * Gets the name of the user or group associated with this subject.
    *
-   * @return the name of the user or group associated with this subject,
-   *    never <code>null</code> or empty.
+   * @return the name of the user or group associated with this subject, never <code>null</code> or
+   *     empty.
    */
   public String getName() {
     return m_name;
   }
 
   /**
-   * Returns a string representation of this PSSubject, using the format:
-   * NAME{TYPE_NAME}.
+   * Returns a string representation of this PSSubject, using the format: NAME{TYPE_NAME}.
    *
    * @return the String representation (never <code>null</code>)
    */
@@ -199,11 +181,9 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /**
    * Sets the name of the user or group subject.
    *
-   * @param   name the name of the user or group associate
-   *                with this subject. May not be <code>null</code> or empty,
-   *                must be less than {@link #SUBJECT_MAX_NAME_LEN} in length.
-   *
-   * @throws  IllegalArgumentException if name is invalid
+   * @param name the name of the user or group associate with this subject. May not be <code>null
+   *     </code> or empty, must be less than {@link #SUBJECT_MAX_NAME_LEN} in length.
+   * @throws IllegalArgumentException if name is invalid
    */
   void setName(String name) {
     if ((null == name) || (name.trim().length() == 0)) {
@@ -218,11 +198,11 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Set the attribute map for this subject.  See {@link #getAttributes()}
-   * for more information about the HashMap entries.
+   * Set the attribute map for this subject. See {@link #getAttributes()} for more information about
+   * the HashMap entries.
    *
-   * @param attributes the set of attributes to associate with this subject,
-   *    if <code>null</code> an empty attribute list will be set.
+   * @param attributes the set of attributes to associate with this subject, if <code>null</code> an
+   *     empty attribute list will be set.
    */
   void setAttributes(PSAttributeList attributes) {
     if (attributes == null) m_attributes = new PSAttributeList();
@@ -230,8 +210,8 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Get the attribute list for this subject.  Any modifications to
-   * this list will affect the internal attributes of this subject.
+   * Get the attribute list for this subject. Any modifications to this list will affect the
+   * internal attributes of this subject.
    *
    * @return the attribute list, never <code>null</code>.
    */
@@ -242,16 +222,13 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /**
    * Is this a user subject?
    *
-   * @return  <code>true</code> if this is a user subject,
-   *          <code>false</code> otherwise
+   * @return <code>true</code> if this is a user subject, <code>false</code> otherwise
    */
   public boolean isUser() {
     return (SUBJECT_TYPE_USER == m_type);
   }
 
-  /**
-   * Mark this subject as defining a user.
-   */
+  /** Mark this subject as defining a user. */
   protected void setUser() {
     m_type = SUBJECT_TYPE_USER;
   }
@@ -259,23 +236,18 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /**
    * Is this a group subject?
    *
-   * @return  <code>true</code> if this is a group subject,
-   *          <code>false</code> otherwise
+   * @return <code>true</code> if this is a group subject, <code>false</code> otherwise
    */
   public boolean isGroup() {
     return (SUBJECT_TYPE_GROUP == m_type);
   }
 
-  /**
-   * Mark this subject as defining a group.
-   */
+  /** Mark this subject as defining a group. */
   protected void setGroup() {
     m_type = SUBJECT_TYPE_GROUP;
   }
 
-  /**
-   * Override setDelete so that we can delete our attributes as well.
-   */
+  /** Override setDelete so that we can delete our attributes as well. */
   @Override
   protected void setDelete() {
     super.setDelete();
@@ -285,10 +257,11 @@ public abstract class PSSubject extends PSDatabaseComponent {
   // **************   IPSComponent Interface Implementation **************
 
   /**
-   * This method is called to create a PSXSubject XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXSubject XML element node containing the data described in
+   * this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *  &lt;!--
    *     PSXSubject defines a specific user or group entry in a specific
@@ -337,7 +310,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
    *  &lt;!ELEMENT securityProviderInstance  (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return   the newly created PSXSubject XML element node
+   * @return the newly created PSXSubject XML element node
    */
   public Element toXml(Document doc) {
     if (doc == null) throw new IllegalArgumentException("doc may not be null");
@@ -346,26 +319,21 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * This method serializes all the properties of this object, optionally
-   * including those properties that are PSDatabaseComponent objects. It
-   * creates a node with a name unique to this object and adds attributes
-   * and child elements to this node, which is returned when complete.
-   * Derived classes may need to call this in their <code>toDatabaseXml
+   * This method serializes all the properties of this object, optionally including those properties
+   * that are PSDatabaseComponent objects. It creates a node with a name unique to this object and
+   * adds attributes and child elements to this node, which is returned when complete. Derived
+   * classes may need to call this in their <code>toDatabaseXml
    * </code>.
    *
-   * @param doc The document to which the returned element will be added.
-   *    Assumed not <code>null</code>.
-   *
-   * @param includeCompChildren A flag to indicate whether to include
-   *    properties whose data type is PSDatabaseComponent. They are included
-   *    if this is <code>true</code>, otherwise they aren't. It was designed
-   *    to set this to <code>true</code> when calling from <code>toXml</code>
-   *    and <code>false</code> when calling from <code>toDatabaseXml</code>.
-   *    The db children are left out when saving to the db to make the
-   *    update work correctly.
-   *
-   * @return An XML element containing some or all of the properties of this
-   *    node, depending on the supplied flag, never <code>null</code>.
+   * @param doc The document to which the returned element will be added. Assumed not <code>null
+   *     </code>.
+   * @param includeCompChildren A flag to indicate whether to include properties whose data type is
+   *     PSDatabaseComponent. They are included if this is <code>true</code>, otherwise they aren't.
+   *     It was designed to set this to <code>true</code> when calling from <code>toXml</code> and
+   *     <code>false</code> when calling from <code>toDatabaseXml</code>. The db children are left
+   *     out when saving to the db to make the update work correctly.
+   * @return An XML element containing some or all of the properties of this node, depending on the
+   *     supplied flag, never <code>null</code>.
    */
   protected Element toXml(Document doc, boolean includeCompChildren) {
     Element root = doc.createElement(ms_NodeType);
@@ -384,13 +352,10 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * This method is called to populate a PSSubject
-   * from a PSXSubject XML element node. See the
-   * {@link #toXml(Document) toXml} method
-   * for a description of the XML object.
+   * This method is called to populate a PSSubject from a PSXSubject XML element node. See the
+   * {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @throws PSUnknownNodeTypeException if the XML element
-   *                node is not of type PSXSubject
+   * @throws PSUnknownNodeTypeException if the XML element node is not of type PSXSubject
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -455,13 +420,11 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
    * @param cxt The validation context.
    */
@@ -487,8 +450,7 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /**
    * Get the string representation of the subject type.
    *
-   * @return the name of the subject type, or "" if it is
-   *    invalid.
+   * @return the name of the subject type, or "" if it is invalid.
    */
   public String getSubjectTypeName() {
     String sRet = "";
@@ -501,9 +463,8 @@ public abstract class PSSubject extends PSDatabaseComponent {
   /**
    * Set the subject type (<code>SUBJECT_TYPE_XXX</code> value).
    *
-   * @param type type of subject, must be <code>SUBJECT_TYPE_USER</code>
-   * or <code>SUBJECT_TYPE_GROUP</code>.
-   *
+   * @param type type of subject, must be <code>SUBJECT_TYPE_USER</code> or <code>SUBJECT_TYPE_GROUP
+   *     </code>.
    * @throws IllegalArgumentException if the type is not valid.
    */
   private void setType(int type) {
@@ -525,11 +486,9 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Loads this object from the supplied element using {@link
-   * PSSubject#fromXml(Element, IPSDocument, List) fromXml},
-   * then loads all attributes for this subject using the supplied
-   * loader.  See {@link PSDatabaseComponent#fromDatabaseXml} for
-   * more information.
+   * Loads this object from the supplied element using {@link PSSubject#fromXml(Element,
+   * IPSDocument, List) fromXml}, then loads all attributes for this subject using the supplied
+   * loader. See {@link PSDatabaseComponent#fromDatabaseXml} for more information.
    */
   @Override
   public void fromDatabaseXml(Element e, PSDatabaseComponentLoader cl, PSRelation relationContext)
@@ -557,9 +516,9 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * Returns a hash code value for the object. The hash value generated comes
-   * from taking the hash code of the string representation of this object.
-   * It does not factor attributes into the computation.
+   * Returns a hash code value for the object. The hash value generated comes from taking the hash
+   * code of the string representation of this object. It does not factor attributes into the
+   * computation.
    *
    * @return a hash code value for this object.
    */
@@ -569,48 +528,36 @@ public abstract class PSSubject extends PSDatabaseComponent {
   }
 
   /**
-   * The name of this subject, initialized at construct time,
-   * never <code>null</code> or empty, initially "defaultSubjectName".
+   * The name of this subject, initialized at construct time, never <code>null</code> or empty,
+   * initially "defaultSubjectName".
    */
   protected String m_name = "defaultSubjectName";
 
   /**
-   * The type of this subject (<code>SUBJECT_TYPE_XXX</code>),
-   * Initially <code>SUBJECT_TYPE_USER</code>.
+   * The type of this subject (<code>SUBJECT_TYPE_XXX</code>), Initially <code>SUBJECT_TYPE_USER
+   * </code>.
    */
   protected int m_type = SUBJECT_TYPE_USER;
 
   /**
-   * The string representation of the subject type associated with
-   * <code>SUBJECT_TYPE_USER</code>.
+   * The string representation of the subject type associated with <code>SUBJECT_TYPE_USER</code>.
    */
   protected static final String SUBJECT_TYPE_USER_STRING = "user";
 
   /**
-   * The string representation of the subject type associated with
-   * <code>SUBJECT_TYPE_GROUP</code>.
+   * The string representation of the subject type associated with <code>SUBJECT_TYPE_GROUP</code>.
    */
   protected static final String SUBJECT_TYPE_GROUP_STRING = "group";
 
-  /**
-   * The maximum allowable subject name length, in characters.
-   */
+  /** The maximum allowable subject name length, in characters. */
   public static final int SUBJECT_MAX_NAME_LEN = 255;
 
-  /**
-   * The maximum allowable security provider instance name length, in
-   * characters.
-   */
+  /** The maximum allowable security provider instance name length, in characters. */
   public static final int SUBJECT_MAX_SP_INST_LEN = 50;
 
-  /**
-   * The attributes associated with this subject, never
-   * <code>null</code>.
-   */
+  /** The attributes associated with this subject, never <code>null</code>. */
   protected PSAttributeList m_attributes = new PSAttributeList();
 
-  /**
-   * The xml element tag name associated with this class.
-   */
+  /** The xml element tag name associated with this class. */
   public static final String ms_NodeType = "PSXSubject";
 }

@@ -32,9 +32,9 @@ import org.w3c.dom.Element;
 /**
  * This is a unit test for the PSXmlTreeWalker class.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSXmlTreeWalkerTest {
   @Test
@@ -113,6 +113,7 @@ public class PSXmlTreeWalkerTest {
 
   /**
    * This tests the static method getBaseElement for the following cases:
+   *
    * <table border="1">
    * <tr><th>currentBase</th><th>xmlField</th><th>expected result</th></tr>
    * <tr><td>root/foo/bar</td><td>root/foo/bar</td><td>root/foo/bar<td></tr>
@@ -255,6 +256,7 @@ public class PSXmlTreeWalkerTest {
 
   /**
    * Test the serialization
+   *
    * @throws IOException
    */
   @Test
@@ -275,8 +277,8 @@ public class PSXmlTreeWalkerTest {
   }
 
   /**
-   * This was the old implementation for the getBaseElement method. This is
-   * used to test the backwards compatibility.
+   * This was the old implementation for the getBaseElement method. This is used to test the
+   * backwards compatibility.
    */
   private String getBaseElement(String curBase, String xmlField) {
     int baseLen = (curBase == null) ? 0 : curBase.length();

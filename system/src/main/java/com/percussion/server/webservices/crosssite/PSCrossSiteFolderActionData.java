@@ -23,20 +23,16 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Serializable data object for PSCrossSite Processors.
- * This object holds the current state of the cross site processor and
- * does not contain any behavior.
+ * Serializable data object for PSCrossSite Processors. This object holds the current state of the
+ * cross site processor and does not contain any behavior.
  *
- * This object is sent to the queue if the cross site move is to
- * big (see {@link #getDependentItems()}.
+ * <p>This object is sent to the queue if the cross site move is to big (see {@link
+ * #getDependentItems()}.
  *
  * @author adamgent
- *
  */
 public class PSCrossSiteFolderActionData implements Serializable {
-  /**
-   * Safe to serialize
-   */
+  /** Safe to serialize */
   private static final long serialVersionUID = -8344627688437557286L;
 
   public PSLocator getSourceFolderId() {
@@ -96,23 +92,22 @@ public class PSCrossSiteFolderActionData implements Serializable {
   }
 
   /**
-   * Source folder locator for the action being processed, set in the ctors.
-   * Never <code>null</code> after that.
+   * Source folder locator for the action being processed, set in the ctors. Never <code>null</code>
+   * after that.
    */
   protected PSLocator m_sourceFolderId = null;
 
   /**
-   * Source siteid for the action being processed, computed in the stor.
-   * Corresponds tho the source folder id. May be <code>null</code> if the
-   * source folder does not part of any site.
+   * Source siteid for the action being processed, computed in the stor. Corresponds tho the source
+   * folder id. May be <code>null</code> if the source folder does not part of any site.
    */
   protected Integer m_sourceSiteId = null;
 
   private List<Integer> m_sourceSiteIds = null;
 
   /**
-   * Target child locators for the action being processed, set in the ctor,
-   * never <code>null</code> or empty after that.
+   * Target child locators for the action being processed, set in the ctor, never <code>null</code>
+   * or empty after that.
    */
   protected List<PSLocator> m_children = null;
 
@@ -126,9 +121,6 @@ public class PSCrossSiteFolderActionData implements Serializable {
    */
   protected List<PSAaFolderDependent> m_dependentItems = null;
 
-  /**
-   * Status of this processor, initialized to
-   * {@link ProcessorStatusEnum#PROCESSOR_STATUS_NONE}.
-   */
+  /** Status of this processor, initialized to {@link ProcessorStatusEnum#PROCESSOR_STATUS_NONE}. */
   protected ProcessorStatusEnum m_processorStatus = ProcessorStatusEnum.PROCESSOR_STATUS_NONE;
 }

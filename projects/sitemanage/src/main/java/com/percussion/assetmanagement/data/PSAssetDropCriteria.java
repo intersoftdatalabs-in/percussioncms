@@ -20,143 +20,138 @@
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
+import java.util.List;
 import net.sf.oval.constraint.Min;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNegative;
 import net.sf.oval.constraint.NotNull;
 
-import java.util.List;
-
-/**
- * Defines the criteria of allowed assets that can be dropped.
- */
+/** Defines the criteria of allowed assets that can be dropped. */
 @JsonRootName("AssetDropCriteria")
 public class PSAssetDropCriteria {
 
-    @NotNull
-    @NotEmpty
-    private String ownerId;
+  @NotNull @NotEmpty private String ownerId;
 
-    @NotNull
-    @NotNegative
-    @Min(value = 1)
-    private String widgetId;
+  @NotNull
+  @NotNegative
+  @Min(value = 1)
+  private String widgetId;
 
-    @NotNull
-    @NotEmpty
-    private String widgetName;
+  @NotNull @NotEmpty private String widgetName;
 
-    private boolean appendSupport;
-    private boolean multiItemSupport;
-    private List<String> supportedCtypes;
-    private boolean existingAsset;
-    private boolean assetShared;
-    private int relationshipId = -1;
+  private boolean appendSupport;
+  private boolean multiItemSupport;
+  private List<String> supportedCtypes;
+  private boolean existingAsset;
+  private boolean assetShared;
+  private int relationshipId = -1;
 
-    /** Default constructor for serializers. */
-    public PSAssetDropCriteria() {
-        // No-op
-    }
+  /** Default constructor for serializers. */
+  public PSAssetDropCriteria() {
+    // No-op
+  }
 
-    public String getOwnerId() {
-        return ownerId;
-    }
+  public String getOwnerId() {
+    return ownerId;
+  }
 
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
-    }
+  public void setOwnerId(String ownerId) {
+    this.ownerId = ownerId;
+  }
 
-    public String getWidgetId() {
-        return widgetId;
-    }
+  public String getWidgetId() {
+    return widgetId;
+  }
 
-    public void setWidgetId(String widgetId) {
-        this.widgetId = widgetId;
-    }
+  public void setWidgetId(String widgetId) {
+    this.widgetId = widgetId;
+  }
 
-    public String getWidgetName() {
-        return widgetName;
-    }
+  public String getWidgetName() {
+    return widgetName;
+  }
 
-    public void setWidgetName(String widgetName) {
-        this.widgetName = widgetName;
-    }
+  public void setWidgetName(String widgetName) {
+    this.widgetName = widgetName;
+  }
 
-    public boolean isMultiItemSupport() {
-        return multiItemSupport;
-    }
+  public boolean isMultiItemSupport() {
+    return multiItemSupport;
+  }
 
-    public void setMultiItemSupport(boolean multiItemSupport) {
-        this.multiItemSupport = multiItemSupport;
-    }
+  public void setMultiItemSupport(boolean multiItemSupport) {
+    this.multiItemSupport = multiItemSupport;
+  }
 
-    public List<String> getSupportedCtypes() {
-        return supportedCtypes;
-    }
+  public List<String> getSupportedCtypes() {
+    return supportedCtypes;
+  }
 
-    public void setSupportedCtypes(List<String> supportedCtypes) {
-        this.supportedCtypes = supportedCtypes;
-    }
+  public void setSupportedCtypes(List<String> supportedCtypes) {
+    this.supportedCtypes = supportedCtypes;
+  }
 
-    public boolean isAppendSupport() {
-        return appendSupport;
-    }
+  public boolean isAppendSupport() {
+    return appendSupport;
+  }
 
-    public void setAppendSupport(boolean appendSupport) {
-        this.appendSupport = appendSupport;
-    }
+  public void setAppendSupport(boolean appendSupport) {
+    this.appendSupport = appendSupport;
+  }
 
-    /**
-     * Returns value set by setExistingAsset.
-     *
-     * @return value of existingAsset
-     */
-    public boolean getExistingAsset() {
-        return existingAsset;
-    }
+  /**
+   * Returns value set by setExistingAsset.
+   *
+   * @return value of existingAsset
+   */
+  public boolean getExistingAsset() {
+    return existingAsset;
+  }
 
-    /**
-     * Set if the widget has an existing asset.
-     *
-     * @param existingAsset {@code true} to indicate this widget has a linked asset, otherwise {@code false}.
-     */
-    public void setExistingAsset(boolean existingAsset) {
-        this.existingAsset = existingAsset;
-    }
+  /**
+   * Set if the widget has an existing asset.
+   *
+   * @param existingAsset {@code true} to indicate this widget has a linked asset, otherwise {@code
+   *     false}.
+   */
+  public void setExistingAsset(boolean existingAsset) {
+    this.existingAsset = existingAsset;
+  }
 
-    /**
-     * Indicates that existing asset is shared.
-     *
-     * @return {@code true} if the asset is shared.
-     */
-    public boolean isAssetShared() {
-        return this.assetShared;
-    }
+  /**
+   * Indicates that existing asset is shared.
+   *
+   * @return {@code true} if the asset is shared.
+   */
+  public boolean isAssetShared() {
+    return this.assetShared;
+  }
 
-    /**
-     * Set if asset is shared.
-     *
-     * @param assetShared {@code true} to indicate the linked asset is shared, {@code false} if local.
-     */
-    public void setAssetShared(boolean assetShared) {
-        this.assetShared = assetShared;
-    }
+  /**
+   * Set if asset is shared.
+   *
+   * @param assetShared {@code true} to indicate the linked asset is shared, {@code false} if local.
+   */
+  public void setAssetShared(boolean assetShared) {
+    this.assetShared = assetShared;
+  }
 
-    /**
-     * The relationship ID that links the (page/template) widget to the asset.
-     *
-     * @return the relationship ID, should be >= 0 for valid ID. It is {@code -1} if the property is unknown.
-     */
-    public int getRelationshipId() {
-        return relationshipId;
-    }
+  /**
+   * The relationship ID that links the (page/template) widget to the asset.
+   *
+   * @return the relationship ID, should be >= 0 for valid ID. It is {@code -1} if the property is
+   *     unknown.
+   */
+  public int getRelationshipId() {
+    return relationshipId;
+  }
 
-    /**
-     * Sets a new relationship ID.
-     *
-     * @param rid the new relationship ID.
-     */
-    public void setRelationshipId(int rid) {
-        relationshipId = rid;
-    }
+  /**
+   * Sets a new relationship ID.
+   *
+   * @param rid the new relationship ID.
+   */
+  public void setRelationshipId(int rid) {
+    relationshipId = rid;
+  }
 }

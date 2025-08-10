@@ -17,21 +17,16 @@
 package com.percussion.error;
 
 /**
- * Thrown if the spring configuration file(s) is(are) missing. This is
- * generally a fatal error that should not be caught at a low level
- * in the system.
+ * Thrown if the spring configuration file(s) is(are) missing. This is generally a fatal error that
+ * should not be caught at a low level in the system.
  *
  * @author dougrand
  */
 public class PSMissingBeanConfigurationException extends RuntimeException {
-  /**
-   *
-   */
+  /** */
   private static final long serialVersionUID = 1L;
 
-  /**
-   *
-   */
+  /** */
   public PSMissingBeanConfigurationException() {
     super();
   }

@@ -25,9 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @created 18-Oct-2005 11:36:19 AM
  */
 public class PSFileCatalogHandler extends PSCatalogRequestHandler {
-  /**
-   * Construct the file related catalog handler.
-   */
+  /** Construct the file related catalog handler. */
   public PSFileCatalogHandler() {
     super();
 
@@ -43,9 +41,7 @@ public class PSFileCatalogHandler extends PSCatalogRequestHandler {
 
   /* ************ IPSRequestHandler Interface Implementation ************ */
 
-  /**
-   * Shutdown the request handler, freeing any associated resources.
-   */
+  /** Shutdown the request handler, freeing any associated resources. */
   public void shutdown() {
     /* nothing to do here */
   }

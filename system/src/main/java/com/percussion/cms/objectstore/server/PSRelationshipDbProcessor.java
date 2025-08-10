@@ -77,8 +77,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class encapsulates all backend operations to create, modify, delete and
- * catalog relationships.
+ * This class encapsulates all backend operations to create, modify, delete and catalog
+ * relationships.
  */
 public class PSRelationshipDbProcessor {
 
@@ -89,10 +89,10 @@ public class PSRelationshipDbProcessor {
   /**
    * Create the backend processor for the supplied request.
    *
-   * @param request the request to use, if <code>null</code> is provided, the
-   *    internal rhythmyx user will be used to perform the requests.
-   * @throws PSCmsException if the relationship support application is not
-   *    found or not initialized yet.
+   * @param request the request to use, if <code>null</code> is provided, the internal rhythmyx user
+   *     will be used to perform the requests.
+   * @throws PSCmsException if the relationship support application is not found or not initialized
+   *     yet.
    */
   public PSRelationshipDbProcessor(PSRequest request) throws PSCmsException {
     setRequest(request);
@@ -101,27 +101,24 @@ public class PSRelationshipDbProcessor {
   /**
    * Create the backend processor for the supplied context.
    *
-   * @param context the request context to use, if <code>null</code> is
-   *    provided, the internal rhythmyx user will be used to perform the
-   *    requests.
-   * @throws PSCmsException if the relationship support application is not
-   *    found or not initialized yet.
+   * @param context the request context to use, if <code>null</code> is provided, the internal
+   *     rhythmyx user will be used to perform the requests.
+   * @throws PSCmsException if the relationship support application is not found or not initialized
+   *     yet.
    */
   public PSRelationshipDbProcessor(IPSRequestContext context) throws PSCmsException {
     setRequestContext(context);
   }
 
   /**
-   * Catalogs all relationships based on the filter object supplied.
-   * This is the same as the {@link #getRelationshipList(PSRelationshipFilter)}
-   * except it returns relationships in a {@link PSRelationshipSet}.
+   * Catalogs all relationships based on the filter object supplied. This is the same as the {@link
+   * #getRelationshipList(PSRelationshipFilter)} except it returns relationships in a {@link
+   * PSRelationshipSet}.
    *
    * @param filter relationship filer, must not be <code>null</code>.
-   *
    * @return A set of 0 or more relationship objects, in no particular order.
-   *
-   * @throws PSCmsException If any problems occur trying to get the
-   * relationships, such as a db failure.
+   * @throws PSCmsException If any problems occur trying to get the relationships, such as a db
+   *     failure.
    */
   public PSRelationshipSet getRelationships(PSRelationshipFilter filter) throws PSCmsException {
     List<PSRelationship> result = getRelationshipList(filter);
@@ -131,16 +128,13 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Catalogs all relationships based on the filter object supplied.
-   * This is the same as the {@link #getRelationshipList(PSRelationshipFilter)}
-   * except it returns relationships in a {@link List}.
+   * Catalogs all relationships based on the filter object supplied. This is the same as the {@link
+   * #getRelationshipList(PSRelationshipFilter)} except it returns relationships in a {@link List}.
    *
    * @param filter relationship filer, must not be <code>null</code>.
-   *
    * @return A set of 0 or more relationship objects, in no particular order.
-   *
-   * @throws PSCmsException If any problems occur trying to get the
-   *    relationships, such as a db failure.
+   * @throws PSCmsException If any problems occur trying to get the relationships, such as a db
+   *     failure.
    */
   public List<PSRelationship> getRelationshipList(PSRelationshipFilter filter)
       throws PSCmsException {
@@ -156,15 +150,11 @@ public class PSRelationshipDbProcessor {
    * Catalogs all relationships based on the filter object supplied.
    *
    * @param filter relationship filer, must not be <code>null</code>.
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return A collection of 0 or more relationship objects, in no particular
-   *   order.
-   *
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return A collection of 0 or more relationship objects, in no particular order.
    * @throws PSCmsException
    */
   private List<PSRelationship> getRelationshipList(
@@ -420,12 +410,10 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Set the additional dependent properties, such as the community id and
-   * object type for the supplied relationship list.
+   * Set the additional dependent properties, such as the community id and object type for the
+   * supplied relationship list.
    *
-   * @param rels the relationship list, assumed never <code>null</code>, but
-   *   may be empty.
-   *
+   * @param rels the relationship list, assumed never <code>null</code>, but may be empty.
    * @throws PSCmsException if an error occurs.
    */
   private void setExtraDependentProperties(Collection<PSRelationship> rels) throws PSCmsException {
@@ -463,12 +451,10 @@ public class PSRelationshipDbProcessor {
   /**
    * Gets a integer value of the specified parameter.
    *
-   * @param paramName the name of the parameter value, assumed not
-   *   <code>null</code>.
+   * @param paramName the name of the parameter value, assumed not <code>null</code>.
    * @param params the looked up parameters, assumed not <code>null</code>.
-   *
-   * @return the integer value of the parameter. It may be <code>-1</code>
-   *   if not found or invalid integer value.
+   * @return the integer value of the parameter. It may be <code>-1</code> if not found or invalid
+   *     integer value.
    */
   private static int getParameterInt(String paramName, Map<String, Object> params) {
     String n = (String) params.get(paramName);
@@ -487,7 +473,6 @@ public class PSRelationshipDbProcessor {
    * Creates a relationship filter from a supplied parameters.
    *
    * @param params the parameters, never <code>null</code>.
-   *
    * @return the created filter, never <code>null</code>.
    */
   public static PSRelationshipFilter getFilterFromParameters(Map<String, Object> params) {
@@ -539,23 +524,19 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Queries the relationships of requested type for the supplied owner. This
-   * creates a new request with the internal Rhythmyx user to perform the
-   * requested query.
+   * Queries the relationships of requested type for the supplied owner. This creates a new request
+   * with the internal Rhythmyx user to perform the requested query.
    *
-   * @param type the relationship configuration for which to query the
-   *    relationships, not <code>null</code>.
-   * @param owner the relationship owner for which to query the relationships,
-   *    not <code>null</code>.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a set of relationships of the supplied type owned by the provided
-   *    owner, never <code>null</code>, might be empty.
+   * @param type the relationship configuration for which to query the relationships, not <code>null
+   *     </code>.
+   * @param owner the relationship owner for which to query the relationships, not <code>null</code>
+   *     .
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a set of relationships of the supplied type owned by the provided owner, never <code>
+   *     null</code>, might be empty.
    * @throws PSCmsException if anything goes wrong.
    */
   public PSRelationshipSet queryRelationships(
@@ -564,32 +545,24 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Queries the relationships of requested type for the supplied locator.
-   * This creates a new request with the internal Rhythmyx user to perform the
-   * requested query.
+   * Queries the relationships of requested type for the supplied locator. This creates a new
+   * request with the internal Rhythmyx user to perform the requested query.
    *
-   * @param type the relationship configuration for which to query the
-   *    relationships, not <code>null</code>.
-   * @param locator the relationship locator for which to query the
-   *    relationships, not <code>null</code>. Must be either the owner or
-   *    dependent locator depending on the supplied flag.  If the revision is
-   *    <code>-1</code> it will be ignored and all relationships of the
-   *    specified type for the specified id will be returned.
-   *
-   * @param lookupDependents <code>true</code> to lookup relationships for
-   *    dependents, <code>false</code> to lookup relationships for owners.
-   *
-   * @param doNotApplyFilters mask to restrict the filtering of relationships
-   * based on community or folder permissions (bitwise OR the FILTER_BY_xxx
-   * constants defined in <code>PSRelationshipConfig</code> to restrict
-   * filtering on both), should be set to <code>0</code> if filtering is to be
-   * performed.
-   *
-   * @return a set of relationships of the supplied type with the provided
-   *    locator as owner or dependent depending on the
-   *    <code>lookupDependents</code> flag, never <code>null</code>, might be
-   *    empty.
-   *
+   * @param type the relationship configuration for which to query the relationships, not <code>null
+   *     </code>.
+   * @param locator the relationship locator for which to query the relationships, not <code>null
+   *     </code>. Must be either the owner or dependent locator depending on the supplied flag. If
+   *     the revision is <code>-1</code> it will be ignored and all relationships of the specified
+   *     type for the specified id will be returned.
+   * @param lookupDependents <code>true</code> to lookup relationships for dependents, <code>false
+   *     </code> to lookup relationships for owners.
+   * @param doNotApplyFilters mask to restrict the filtering of relationships based on community or
+   *     folder permissions (bitwise OR the FILTER_BY_xxx constants defined in <code>
+   *     PSRelationshipConfig</code> to restrict filtering on both), should be set to <code>0</code>
+   *     if filtering is to be performed.
+   * @return a set of relationships of the supplied type with the provided locator as owner or
+   *     dependent depending on the <code>lookupDependents</code> flag, never <code>null</code>,
+   *     might be empty.
    * @throws PSCmsException if anything goes wrong.
    */
   public PSRelationshipSet queryRelationships(
@@ -623,22 +596,21 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * This method looks at the do not apply filter constant supplied to see if
-   * community filtering is not required. The check is evaluated as follows (in
-   * the same order):
+   * This method looks at the do not apply filter constant supplied to see if community filtering is
+   * not required. The check is evaluated as follows (in the same order):
+   *
    * <ol>
-   * <li><code>true</code> if not by community is <code>true</code> and
-   * not by item community is <code>true</code> and not by folder community
-   * is <code>true</code></li>
-   * <li><code>true</code> if not by item community is <code>true</code>
-   * and not by folder community is <code>true</code></li>
-   * <li><code>true</code> if not by community is <code>true</code></li>
+   *   <li><code>true</code> if not by community is <code>true</code> and not by item community is
+   *       <code>true</code> and not by folder community is <code>true</code>
+   *   <li><code>true</code> if not by item community is <code>true</code> and not by folder
+   *       community is <code>true</code>
+   *   <li><code>true</code> if not by community is <code>true</code>
    * </ol>
    *
-   * @param doNotApplyFilters integer value expected to consist of none, one,
-   * or more {@link PSRelationshipConfig} FILTER_TYPE flags.
-   * @return <code>true</code> if community filtering is required based on
-   * the above algorithm, <code>false</code> otheriwse.
+   * @param doNotApplyFilters integer value expected to consist of none, one, or more {@link
+   *     PSRelationshipConfig} FILTER_TYPE flags.
+   * @return <code>true</code> if community filtering is required based on the above algorithm,
+   *     <code>false</code> otheriwse.
    */
   private boolean notFilterByCommunity(int doNotApplyFilters) {
     boolean notByCom =
@@ -655,30 +627,23 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Returns the singleton instance of the folder relationship cache according
-   * to the supplied relationship name.
+   * Returns the singleton instance of the folder relationship cache according to the supplied
+   * relationship name.
    *
-   * @param relationshipName
-   *           the relationship name, assume not <code>null</code> or empty.
-   *
-   * @return the folder relationship cache object, may be <code>null</code>
-   *         if the cache is not initialized or the relationship name is not
-   *         the name of the folder relationship.
+   * @param relationshipName the relationship name, assume not <code>null</code> or empty.
+   * @return the folder relationship cache object, may be <code>null</code> if the cache is not
+   *     initialized or the relationship name is not the name of the folder relationship.
    */
   private IPSFolderRelationshipCache getFolderCache(String relationshipName) {
     return PSFolderRelationshipCache.getInstance();
   }
 
   /**
-   * Gets the relationships from the folder cache according to the supplied
-   * parameters.
+   * Gets the relationships from the folder cache according to the supplied parameters.
    *
-   * @param relCache the instance of the folder cache, assumed not
-   *    <code>null</code>.
+   * @param relCache the instance of the folder cache, assumed not <code>null</code>.
    * @param params the parameters, assume not <code>null</code>.
-   *
    * @return a list of relationships, never <code>null</code> may be empty.
-   *
    * @throws PSCmsException if an error occurs.
    */
   private List<PSRelationship> getRelationshipsFromFolderCache(
@@ -764,13 +729,10 @@ public class PSRelationshipDbProcessor {
   /**
    * Gets an item from the item cache for the supplied content id.
    *
-   * @param itemCache the Item Cache instance, assumed not
-   *    <code>null</code>.
+   * @param itemCache the Item Cache instance, assumed not <code>null</code>.
    * @param id the content id of the item.
    * @param errorCode the error code if the item not exist.
-   *
    * @return the cached item, never <code>null</code>.
-   *
    * @throws PSCmsException if the item not exist in item cache.
    */
   private IPSItemEntry getItemFromCache(PSItemSummaryCache itemCache, int id, int errorCode)
@@ -785,17 +747,15 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Determines if the relationship query can be handled by folder
-   * relationship cache. It parses the request parameters and returns the
-   * result to the caller in <code>criteria</code>.
-   * <p>
-   * Note: the sys_revision parameter will be ignored.
+   * Determines if the relationship query can be handled by folder relationship cache. It parses the
+   * request parameters and returns the result to the caller in <code>criteria</code>.
+   *
+   * <p>Note: the sys_revision parameter will be ignored.
    *
    * @param filter the relationship filter, assumed not <code>null</code>.
    * @param criteria the to be returned parameters, may be <code>null</code>.
-   *
-   * @return the instance of the Folder Cache if the request can be processed
-   *    by folder cache; otherwise return <code>null</code>.
+   * @return the instance of the Folder Cache if the request can be processed by folder cache;
+   *     otherwise return <code>null</code>.
    */
   private IPSFolderRelationshipCache canProcessedByFolderCache(
       PSRelationshipFilter filter, QueryRelationshipCriteria criteria) {
@@ -843,17 +803,15 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Determines if the relationship query can be handled by folder
-   * relationship cache. It parses the request parameters and returns the
-   * result to the caller in <code>criteria</code>.
-   * <p>
-   * Note: the sys_revision parameter will be ignored.
+   * Determines if the relationship query can be handled by folder relationship cache. It parses the
+   * request parameters and returns the result to the caller in <code>criteria</code>.
+   *
+   * <p>Note: the sys_revision parameter will be ignored.
    *
    * @param filter the relationship filter, assumed not <code>null</code>.
    * @param criteria the to be returned parameters, may be <code>null</code>.
-   *
-   * @return the instance of the Folder Cache if the request can be processed
-   *    by folder cache; otherwise return <code>null</code>.
+   * @return the instance of the Folder Cache if the request can be processed by folder cache;
+   *     otherwise return <code>null</code>.
    */
   private IPSFolderRelationshipCache canProcessedByAssemblyCache(
       PSRelationshipFilter filter, QueryRelationshipCriteria criteria) {
@@ -937,9 +895,7 @@ public class PSRelationshipDbProcessor {
     return assemblyCache;
   }
 
-  /**
-   * Container class for the query criteria of the requested relationships.
-   */
+  /** Container class for the query criteria of the requested relationships. */
   private class QueryRelationshipCriteria {
     protected int m_relationshipId = -1;
     protected int m_ownerId = -1;
@@ -994,18 +950,14 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Filters the relationship set based on the user permissions. If the user's
-   * permission is set to "No Access" then it is removed from the returned set.
-   * The user must alteast have "Read Access" on owner and dependent objects
-   * if a relationship is to be included in the returned set.
+   * Filters the relationship set based on the user permissions. If the user's permission is set to
+   * "No Access" then it is removed from the returned set. The user must alteast have "Read Access"
+   * on owner and dependent objects if a relationship is to be included in the returned set.
    *
-   * @param rels the relationship set to be filtered, assumed not
-   * </code>null</code>, may be an empty set
-   *
-   * @return the modified relationship set containing only the valid
-   * filtered <code>PSRelationShip</code> objects, may be an empty list,
-   * never <code>null</code>
-   *
+   * @param rels the relationship set to be filtered, assumed not </code>null</code>, may be an
+   *     empty set
+   * @return the modified relationship set containing only the valid filtered <code>PSRelationShip
+   *     </code> objects, may be an empty list, never <code>null</code>
    * @throws PSCmsException if an error occurs.
    */
   private List<PSRelationship> filterByFolderPermissions(List<PSRelationship> rels)
@@ -1023,31 +975,25 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Checks if the specified relationship if of type "Folder Content" and the
-   * dependend object is of type "Folder". If <code>true</code> then obtains
-   * the permissions on the parent and child folder. If either parent or child
-   * folder does not have permission specified by <code>accessLevel</code>,
-   * then returns <code>false</code> if <code>throwException</code> is
-   * <code>false</code> otherwise throws <code>PSCmsException</code>.
+   * Checks if the specified relationship if of type "Folder Content" and the dependend object is of
+   * type "Folder". If <code>true</code> then obtains the permissions on the parent and child
+   * folder. If either parent or child folder does not have permission specified by <code>
+   * accessLevel</code>, then returns <code>false</code> if <code>throwException</code> is <code>
+   * false</code> otherwise throws <code>PSCmsException</code>.
    *
-   * @param rel relationship specifiying the parent and child folder locators,
-   * assumed not <code>null</code>
-   *
-   * @param accessLevel the level of access to check for on the parent and
-   * child folder, should be non-negative
-   *
-   * @param throwException if <code>true</code> then an exception is thrown
-   * if the user does not have the specified permission on the parent or child
-   * folder, otherwise <code>false</code> is returned.
-   *
-   * @return <code>true</code> if the user has the specfied permission on the
-   * parent and child folder, <code>false</code> otherwise. If the child is
-   * not a folder, <code>true</code> is returned.
-   *
+   * @param rel relationship specifiying the parent and child folder locators, assumed not <code>
+   *     null</code>
+   * @param accessLevel the level of access to check for on the parent and child folder, should be
+   *     non-negative
+   * @param throwException if <code>true</code> then an exception is thrown if the user does not
+   *     have the specified permission on the parent or child folder, otherwise <code>false</code>
+   *     is returned.
+   * @return <code>true</code> if the user has the specfied permission on the parent and child
+   *     folder, <code>false</code> otherwise. If the child is not a folder, <code>true</code> is
+   *     returned.
    * @throws IllegalArgumentException if <code>accessLevel</code> is invalid
-   * @throws PSCmsException if the user does not the specified permission
-   * on parent or child folder and <code>throwException</code> is
-   * <code>true</code>
+   * @throws PSCmsException if the user does not the specified permission on parent or child folder
+   *     and <code>throwException</code> is <code>true</code>
    */
   private boolean checkFolderPermission(PSRelationship rel, int accessLevel, boolean throwException)
       throws PSCmsException {
@@ -1083,12 +1029,11 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Creates a <code>PSRelationshipSet</code> and then calls
-   * {@link #modifyRelationships(PSRelationshipSet)}.
+   * Creates a <code>PSRelationshipSet</code> and then calls {@link
+   * #modifyRelationships(PSRelationshipSet)}.
    *
-   * @param relationship the relationship to modify, not <code>null</code>.
-   *    Provide a realtionship id of -1 to perform an insert or >= 0 to
-   *    perform an update.
+   * @param relationship the relationship to modify, not <code>null</code>. Provide a realtionship
+   *     id of -1 to perform an insert or >= 0 to perform an update.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   public void modifyRelationship(PSRelationship relationship) throws PSCmsException {
@@ -1101,12 +1046,11 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Creates a modify plan for the supplied relationships and then performs
-   * inserts before updates.
+   * Creates a modify plan for the supplied relationships and then performs inserts before updates.
    *
-   * @param relationships a set of <code>PSRelationship</code> objects.
-   *    Relationships with an id of -1 will be inserted, relationships with
-   *    id's >= 0 will be updated. Not <code>null</code>, may be empty.
+   * @param relationships a set of <code>PSRelationship</code> objects. Relationships with an id of
+   *     -1 will be inserted, relationships with id's >= 0 will be updated. Not <code>null</code>,
+   *     may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   public void modifyRelationships(PSRelationshipSet relationships) throws PSCmsException {
@@ -1132,8 +1076,8 @@ public class PSRelationshipDbProcessor {
   /**
    * Set a new request.
    *
-   * @param request the request to use, if <code>null</code> is provided, the
-   *    internal rhythmyx user will be used to perform the requests.
+   * @param request the request to use, if <code>null</code> is provided, the internal rhythmyx user
+   *     will be used to perform the requests.
    */
   public void setRequest(PSRequest request) {
     if (request != null) m_context = new PSRequestContext(request);
@@ -1143,21 +1087,18 @@ public class PSRelationshipDbProcessor {
   /**
    * Set a new request context.
    *
-   * @param context the request context to use, if <code>null</code> is
-   *    provided, the internal rhythmyx user will be used to perform the
-   *    requests.
+   * @param context the request context to use, if <code>null</code> is provided, the internal
+   *     rhythmyx user will be used to perform the requests.
    */
   public void setRequestContext(IPSRequestContext context) {
     m_context = context;
   }
 
   /**
-   * Reset both owner and/or dependent revisions to <code>-1</code> if a
-   * specified relationship is configured to ignore its corresponding
-   * revisions.
+   * Reset both owner and/or dependent revisions to <code>-1</code> if a specified relationship is
+   * configured to ignore its corresponding revisions.
    *
-   * @param relationship The to be modified relationship object, assume it is
-   *    not <code>null</code>.
+   * @param relationship The to be modified relationship object, assume it is not <code>null</code>.
    */
   private void resetRevision(PSRelationship relationship) {
     if (!relationship.getConfig().useOwnerRevision()) {
@@ -1172,8 +1113,7 @@ public class PSRelationshipDbProcessor {
   /**
    * Deletes all provided relationships.
    *
-   * @param relationships a set of relationships to be deleted, not
-   *    <code>null</code>, may be empty.
+   * @param relationships a set of relationships to be deleted, not <code>null</code>, may be empty.
    * @throws PSCmsException if anything goes wrong processing the request.
    */
   @SuppressWarnings("unchecked") // rel iterator
@@ -1202,8 +1142,7 @@ public class PSRelationshipDbProcessor {
   /**
    * Processes the supplied modify plan.
    *
-   * @param plan the modify plan to be processed, assumed not <code>null</code>
-   *    may be empty.
+   * @param plan the modify plan to be processed, assumed not <code>null</code> may be empty.
    * @throws PSCmsException if anything goes wrong processing the plan.
    */
   private void processModifyPlan(Map<String, PSRelationshipSet> plan) throws PSCmsException {
@@ -1213,9 +1152,7 @@ public class PSRelationshipDbProcessor {
     }
   }
 
-  /**
-   * Enum used when modifying relationships
-   */
+  /** Enum used when modifying relationships */
   private enum ActionEnum {
     INSERT(PSRelationshipChangeEvent.ACTION_ADD),
     UPDATE(PSRelationshipChangeEvent.ACTION_MODIFY),
@@ -1237,14 +1174,13 @@ public class PSRelationshipDbProcessor {
       return m_ordinal;
     }
 
-    /**
-     * The enum value.
-     */
+    /** The enum value. */
     private int m_ordinal;
   }
 
   /**
    * Validates the relationship, to make sure both owner and dependent are existing items
+   *
    * @param rel the relationship in question.
    * @throws PSCmsException if either owner or dependent does not exist.
    */
@@ -1266,12 +1202,11 @@ public class PSRelationshipDbProcessor {
   /**
    * Processes the requested action for the supplied relationships.
    *
-   * @param dbActionType the database action type, assumed one of
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_INSERT</code> or
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_UPDATE</code> or
-   *    <code>PSApplicationBuilder.REQUEST_TYPE_VALUE_DELETE</code>.
-   * @param relationships the relatonships to process, assumed not
-   *    <code>null</code>, may be empty.
+   * @param dbActionType the database action type, assumed one of <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_INSERT</code> or <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_UPDATE</code> or <code>
+   *     PSApplicationBuilder.REQUEST_TYPE_VALUE_DELETE</code>.
+   * @param relationships the relatonships to process, assumed not <code>null</code>, may be empty.
    * @throws PSCmsException if anything goes wrong performing the request.
    */
   private void processModify(String dbActionType, PSRelationshipSet relationships)
@@ -1340,10 +1275,9 @@ public class PSRelationshipDbProcessor {
   /**
    * Updates both folder and assembly caches for the modified relationships.
    *
-   * @param action the action has been performed for the given relationships,
-   *   assumed not <code>null</code>.
-   * @param relationships the modified relationships, assumed not
-   *   <code>null</code>.
+   * @param action the action has been performed for the given relationships, assumed not <code>null
+   *     </code>.
+   * @param relationships the modified relationships, assumed not <code>null</code>.
    */
   private void updateCaches(ActionEnum action, PSRelationshipSet relationships) {
     // notify (Ehcache) listeners
@@ -1368,17 +1302,15 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Creates a modify plan for the supplied relationships. Relationships
-   * with an id of -1 will be put into the insert plan. Relationships with
-   * an id >= 0 will be put into the update plan. Relationships with an
-   * invalid id will be ignored.
+   * Creates a modify plan for the supplied relationships. Relationships with an id of -1 will be
+   * put into the insert plan. Relationships with an id >= 0 will be put into the update plan.
+   * Relationships with an invalid id will be ignored.
    *
-   * @param relationships a set of relationships for whicch to create the
-   *    modify plan, assumed not <code>null</code>.
-   * @return the modify plan, never <code>null</code> or empty. The map
-   *    key is the db action type, while the value is a
-   *    <code>PSRelationshipSet</code> which is never <code>null</code> but
-   *    may be empty.
+   * @param relationships a set of relationships for whicch to create the modify plan, assumed not
+   *     <code>null</code>.
+   * @return the modify plan, never <code>null</code> or empty. The map key is the db action type,
+   *     while the value is a <code>PSRelationshipSet</code> which is never <code>null</code> but
+   *     may be empty.
    * @throws PSCmsException if other error occurs.
    */
   private Map<String, PSRelationshipSet> createModifyPlan(PSRelationshipSet relationships)
@@ -1429,15 +1361,13 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Check if the supplied relationships by id exist in the system by returning
-   * a set of relationship ids that exist. Executes an internal request passing
-   * the relationship ids from the set and gets the relationshipids that exist
-   * in the system.
+   * Check if the supplied relationships by id exist in the system by returning a set of
+   * relationship ids that exist. Executes an internal request passing the relationship ids from the
+   * set and gets the relationshipids that exist in the system.
    *
-   * @param relationships relattionship set to check the existence, assumed not
-   *           <code>null</code>
-   * @return set of relationshipids from the set that DO exist in the database,
-   *         never <code>null</code> may be empty.
+   * @param relationships relattionship set to check the existence, assumed not <code>null</code>
+   * @return set of relationshipids from the set that DO exist in the database, never <code>null
+   *     </code> may be empty.
    */
   private Collection<Integer> getExisting(PSRelationshipSet relationships) {
     Set<Integer> relIds = new HashSet<>(relationships.size());
@@ -1453,8 +1383,8 @@ public class PSRelationshipDbProcessor {
   /**
    * Get the community for the current request.
    *
-   * @return the community of the user of the current request, may be
-   *    <code>-1</code> if not found, which indicates all communities.
+   * @return the community of the user of the current request, may be <code>-1</code> if not found,
+   *     which indicates all communities.
    */
   private int getCommunity() {
     // Assume the request context is available
@@ -1483,20 +1413,19 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Get list of all parent locators of the object with specified locator and
-   * specified relationship type name. This method assumes that the dependent
-   * is revision insensitive. This method is used for folder relationship only,
-   * but is NOT applicable to the relationship type, such as {@link
+   * Get list of all parent locators of the object with specified locator and specified relationship
+   * type name. This method assumes that the dependent is revision insensitive. This method is used
+   * for folder relationship only, but is NOT applicable to the relationship type, such as {@link
    * PSRelationshipConfig#CATEGORY_ACTIVE_ASSEMBLY}.
+   *
    * <p>
-   * @param object Locator of the object (item or folder) for which the
-   * owner locator list needs to be built. Must not be <code>null</code>.
-   * @param relationshipTypeName Name of the relationship type to base the
-   * path on, must not be <code>null</code> or empty.
    *
-   * @return List of all ancestors of the specified item related via the
-   * relationship type specified. Never <code>null</code> may be empty.
-   *
+   * @param object Locator of the object (item or folder) for which the owner locator list needs to
+   *     be built. Must not be <code>null</code>.
+   * @param relationshipTypeName Name of the relationship type to base the path on, must not be
+   *     <code>null</code> or empty.
+   * @return List of all ancestors of the specified item related via the relationship type
+   *     specified. Never <code>null</code> may be empty.
    * @throws PSCmsException if the list cannot be built for an reason.
    */
   public List<PSLocator> getOwnerLocators(PSLocator object, String relationshipTypeName)
@@ -1517,19 +1446,16 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Get list of all parent locators of the object with specified locator and
-   * specified relationship type name. This method assumes that the dependent
-   * is revision insensitive. The list contains immediate parent first,
-   * its parent next and so on.
+   * Get list of all parent locators of the object with specified locator and specified relationship
+   * type name. This method assumes that the dependent is revision insensitive. The list contains
+   * immediate parent first, its parent next and so on.
    *
-   * @param object Locator of the object (item or folder) for which the
-   * owner locator list needs to be built. Must not be <code>null</code>.
-   * @param relationshipTypeName Name of the relationship type to base the
-   * path on, must not be <code>null</code> or empty.
-   *
-   * @return List of all ancestors of the specified item related via the
-   * relationship type specified. Never <code>null</code> may be empty.
-   *
+   * @param object Locator of the object (item or folder) for which the owner locator list needs to
+   *     be built. Must not be <code>null</code>.
+   * @param relationshipTypeName Name of the relationship type to base the path on, must not be
+   *     <code>null</code> or empty.
+   * @return List of all ancestors of the specified item related via the relationship type
+   *     specified. Never <code>null</code> may be empty.
    * @throws PSCmsException if the list cannot be built for any reason.
    */
   private List<PSLocator> getOwnerLocatorsFromRepository(
@@ -1544,26 +1470,18 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Get the content id from the supplied path list names.
-   * Note: this is for folder relationship only. Other relationship is not
-   * supported.
+   * Get the content id from the supplied path list names. Note: this is for folder relationship
+   * only. Other relationship is not supported.
    *
-   * @param path
-   *           fully qualified relationship path as explained in
-   *           {@link com.percussion.cms.objectstore.IPSRelationshipProcessor#getSummaryByPath(String, String, String)},
-   *           must not be <code>null</code> or empty.
-   *
-   * @param relationshipTypeName
-   *           name of the relatiosnhip type that links the parent and child
-   *           items, must not be <code>null</code> or empty.
-   *
-   * @return contentid of the dependent item, -1 if the path is empty or
-   *         <code>null</code>, or the specified relationship type does not
-   *         exist between the items or the items themselves do not exist in
-   *         the system.
-   *
-   * @throws PSCmsException
-   *            if an error occurs.
+   * @param path fully qualified relationship path as explained in {@link
+   *     com.percussion.cms.objectstore.IPSRelationshipProcessor#getSummaryByPath(String, String,
+   *     String)}, must not be <code>null</code> or empty.
+   * @param relationshipTypeName name of the relatiosnhip type that links the parent and child
+   *     items, must not be <code>null</code> or empty.
+   * @return contentid of the dependent item, -1 if the path is empty or <code>null</code>, or the
+   *     specified relationship type does not exist between the items or the items themselves do not
+   *     exist in the system.
+   * @throws PSCmsException if an error occurs.
    */
   public int getIdByPath(String path, String relationshipTypeName) throws PSCmsException {
     if (!(relationshipTypeName.equalsIgnoreCase(PSRelationshipConfig.TYPE_FOLDER_CONTENT)
@@ -1607,12 +1525,8 @@ public class PSRelationshipDbProcessor {
    * Gets a child id from its parent folder id and the name of the child.
    *
    * @param parentId the parent folder id.
-   * @param childName the name of the child item/folder. Assumed not
-   *   <code>null</code>.
-   *
-   * @return the child id. It may be <code>-1</code> if cannot find such
-   *   child item/folder.
-   *
+   * @param childName the name of the child item/folder. Assumed not <code>null</code>.
+   * @return the child id. It may be <code>-1</code> if cannot find such child item/folder.
    * @throws PSCmsException if an error occurs.
    */
   private int getChildIdFromName(int parentId, String childName) throws PSCmsException {
@@ -1671,15 +1585,12 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Gets a list of relationships which are filtered by the supplied dependent
-   * and relationship type name. Note, it is not filtered by community.
+   * Gets a list of relationships which are filtered by the supplied dependent and relationship type
+   * name. Note, it is not filtered by community.
    *
    * @param dependent the dependent, assumed not <code>null</code>.
-   * @param relationshipTypeName the relationship type name, assumed not
-   *   not <code>null</code>.
-   *
+   * @param relationshipTypeName the relationship type name, assumed not not <code>null</code>.
    * @return a list of relationships, never <code>null</code>
-   *
    * @throws PSCmsException
    */
   private List<PSRelationship> getRelationshipsFromDependent(
@@ -1693,33 +1604,29 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Get object path built for the object parents by the supplied
-   * relationship type name. If the object happens to have multiple immediate
-   * parents, the method returns all paths. The path is built as described below:
-   * <p>
-   * "/sys_title_root/.../sys_title_second/sys_title_first"
-   * <p>
-   * If the object has no parents it returns an empty array NOT its title alone.
-   * <p>
-   * This method basically executes a Rhythmyx query to get an XML document
-   * based on the following DTD.
-   * <p>
-   * <!ELEMENT Owner EMPTY>
-   * <!ATTLIST  Owner sys_contentid CDATA #REQUIRED>
-   * <!ATTLIST  Owner sys_title CDATA #REQUIRED>
-   * <!ELEMENT Object (Owner* )>
-   * <!ATTLIST  Object sys_contentid CDATA #REQUIRED>
-   * <!ATTLIST  Object sys_relationshiptype CDATA #REQUIRED>
-   * Then the paths are generated using the sys_title values for each owner object.
+   * Get object path built for the object parents by the supplied relationship type name. If the
+   * object happens to have multiple immediate parents, the method returns all paths. The path is
+   * built as described below:
    *
-   * @param object Locator of the object (item or folder) for which the
-   * owner path needs to be built. Must not be <code>null</code>.
+   * <p>"/sys_title_root/.../sys_title_second/sys_title_first"
    *
-   * @return String array of relationship owner paths as explained above,
-   * never <code>null</code> but may be empty.
+   * <p>If the object has no parents it returns an empty array NOT its title alone.
+   *
+   * <p>This method basically executes a Rhythmyx query to get an XML document based on the
+   * following DTD.
+   *
+   * <p><!ELEMENT Owner EMPTY> <!ATTLIST Owner sys_contentid CDATA #REQUIRED> <!ATTLIST Owner
+   * sys_title CDATA #REQUIRED> <!ELEMENT Object (Owner* )> <!ATTLIST Object sys_contentid CDATA
+   * #REQUIRED> <!ATTLIST Object sys_relationshiptype CDATA #REQUIRED> Then the paths are generated
+   * using the sys_title values for each owner object.
+   *
+   * @param object Locator of the object (item or folder) for which the owner path needs to be
+   *     built. Must not be <code>null</code>.
+   * @return String array of relationship owner paths as explained above, never <code>null</code>
+   *     but may be empty.
    * @throws PSCmsException if the pah cannot be built for any reason.
-   * @throws PSInternalRequestCallException if call to the internal request
-   * to get the paths' document fails for any reason.
+   * @throws PSInternalRequestCallException if call to the internal request to get the paths'
+   *     document fails for any reason.
    */
   private String[] getOwnerPathsFromRepository(PSLocator object)
       throws PSCmsException, PSInternalRequestCallException {
@@ -1750,17 +1657,15 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * Generates a path to all ancestors of the given dependent. It calls itself
-   * recursively until reach to the root ancestor, which does not have owner.
+   * Generates a path to all ancestors of the given dependent. It calls itself recursively until
+   * reach to the root ancestor, which does not have owner.
    *
-   * @param dependent the locator of a folder child, assumed not
-   *   <code>null</code>.
-   * @param locators used to collect all owner/parent locators, assumed not
-   *   <code>null</code>. It adds the ancestors in reverse order, the direct
-   *   parent, grand parent, grand grand parent, ...etc.
-   * @param relationshipTypeName the name of the relationship config, assumed
-   *   not <code>null</code> or empty.
-   *
+   * @param dependent the locator of a folder child, assumed not <code>null</code>.
+   * @param locators used to collect all owner/parent locators, assumed not <code>null</code>. It
+   *     adds the ancestors in reverse order, the direct parent, grand parent, grand grand parent,
+   *     ...etc.
+   * @param relationshipTypeName the name of the relationship config, assumed not <code>null</code>
+   *     or empty.
    * @throws PSCmsException if an error occurs.
    */
   private void getAncestorLocatorsFromRepository(
@@ -1777,50 +1682,45 @@ public class PSRelationshipDbProcessor {
   }
 
   /**
-   * The request context to use to make all internal requests, initialized in
-   * constructor, never changed after that. May be <code>null</code>.
+   * The request context to use to make all internal requests, initialized in constructor, never
+   * changed after that. May be <code>null</code>.
    */
   private IPSRequestContext m_context = null;
 
   /**
-   * The HTML parameter used to select the relationship lookup resource
-   * depending on how the <code>CONTENTSTATUS</code> table is joined to the
-   * relationship tables. This parameter must be <code>null</code> to use
-   * the default which is 'dependentjoined', otherwise it will be set to
+   * The HTML parameter used to select the relationship lookup resource depending on how the <code>
+   * CONTENTSTATUS</code> table is joined to the relationship tables. This parameter must be <code>
+   * null</code> to use the default which is 'dependentjoined', otherwise it will be set to
    * 'ownerjoined' to use the correct resource for the lookups.
    */
   private static final String SYS_JOINSELECTOR = "sys_joinselector";
 
   /**
-   * The value used to select the relationship lookup resource that joins the
-   * <code>CONTENTSTATUS</code> table through the relationship owner id.
+   * The value used to select the relationship lookup resource that joins the <code>CONTENTSTATUS
+   * </code> table through the relationship owner id.
    */
   private static final String OWNER_JOINED = "ownerjoined";
 
   /**
-   * One of the <code>FILTER_xxx</code> flags. Used to indicate that items
-   * should be filtered by their community.
+   * One of the <code>FILTER_xxx</code> flags. Used to indicate that items should be filtered by
+   * their community.
    */
   private static final int FILTER_ITEM = 0x1;
 
   /**
-   * One of the <code>FILTER_xxx</code> flags. Used to indicate that folders
-   * should be filtered by their community.
+   * One of the <code>FILTER_xxx</code> flags. Used to indicate that folders should be filtered by
+   * their community.
    */
   private static final int FILTER_FOLDER = 0x1 << 1;
 
-  /**
-   * The separator used for folder path
-   */
+  /** The separator used for folder path */
   private static final String PATH_SEP = "/";
 
   private static final PSRelationshipDbProcessor instance = new PSRelationshipDbProcessor(true);
 
   private boolean thread_context = false;
 
-  /**
-   * The logger for this class.
-   */
+  /** The logger for this class. */
   Logger log = LogManager.getLogger(PSRelationshipDbProcessor.class);
 
   public static PSRelationshipDbProcessor getInstance() {

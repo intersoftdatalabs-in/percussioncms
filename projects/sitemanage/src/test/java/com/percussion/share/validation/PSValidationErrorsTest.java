@@ -18,36 +18,33 @@
 
 package com.percussion.share.validation;
 
-import org.junit.jupiter.api.Test;
-
+import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import java.io.StringWriter;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for {@link PSValidationErrors}.
- */
+/** Unit test for {@link PSValidationErrors}. */
 public class PSValidationErrorsTest {
 
-    @Test
-    void testSerialization() throws JAXBException {
-        var errors = new PSValidationErrors();
+  @Test
+  void testSerialization() throws JAXBException {
+    var errors = new PSValidationErrors();
 
-        // Get a JAXB Context for the object we created above
-        var context = JAXBContext.newInstance(errors.getClass());
+    // Get a JAXB Context for the object we created above
+    var context = JAXBContext.newInstance(errors.getClass());
 
-        // To convert errors to XML, create a JAXB Marshaller
-        var marshaller = context.createMarshaller();
+    // To convert errors to XML, create a JAXB Marshaller
+    var marshaller = context.createMarshaller();
 
-        // Make the output pretty
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        var sw = new StringWriter();
+    // Make the output pretty
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    var sw = new StringWriter();
 
-        // Marshall the object to XML
-        marshaller.marshal(errors, sw);
+    // Marshall the object to XML
+    marshaller.marshal(errors, sw);
 
-        // Print it out for this example
-        System.out.println(sw.toString());
-    }
+    // Print it out for this example
+    System.out.println(sw.toString());
+  }
 }

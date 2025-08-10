@@ -34,37 +34,37 @@ import java.util.Map;
 import javax.swing.*;
 
 /**
- * The search ui components are shared among different clients. There are 3
- * pieces that make up the search ui: simple controls, advanced controls and
- * the content editor fields. These are available in 3 classes, respectively:
- * <ol>
- *    <li>PSSearchSimplePanel (this class)</li>
- *    <li>PSSearchAdvancedPanel</li>
- *    <li>PSSearchFieldEditor</li>
- * <ol>
- * The simple panel contains those controls that are considered minimal to
- * use the search interface. The advanced panel contains those controls that
- * are useful, but needed less frequently. The search field editor is
- * generally considered advanced, but the caller can place that as they wish.
- * <p>The controls on this panel include the following:
- * <ol>
- *    <li>Full text query editor</li>
- *    <li>Display format selector</li>
- *    <li>Max results</li>
- * <ol>
+ * The search ui components are shared among different clients. There are 3 pieces that make up the
+ * search ui: simple controls, advanced controls and the content editor fields. These are available
+ * in 3 classes, respectively:
  *
+ * <ol>
+ *   <li>PSSearchSimplePanel (this class)
+ *   <li>PSSearchAdvancedPanel
+ *   <li>PSSearchFieldEditor
+ *       <ol>
+ *         The simple panel contains those controls that are considered minimal to use the search
+ *         interface. The advanced panel contains those controls that are useful, but needed less
+ *         frequently. The search field editor is generally considered advanced, but the caller can
+ *         place that as they wish.
+ *         <p>The controls on this panel include the following:
+ *         <ol>
+ *           <li>Full text query editor
+ *           <li>Display format selector
+ *           <li>Max results
+ *               <ol>
  */
 public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListener {
   /**
    * Creates the simple search panel.
-   * @param isEngineAvailable flag to Indicate whether External search engine
-   *    is available or not. If <code>true</code> then a text area for full
-   *    text query and its corresponding components will be added, otherwise
-   *    only display format, maxresults and case sensitive components will be added.
-   * @param dfmap map consisting of display format ids and display names must
-   *    not <code>null</code> or empty.
-   * @param maxSearchResult the max row returned from a search result.
-   *    <code>-1</code> if unlimited.
+   *
+   * @param isEngineAvailable flag to Indicate whether External search engine is available or not.
+   *     If <code>true</code> then a text area for full text query and its corresponding components
+   *     will be added, otherwise only display format, maxresults and case sensitive components will
+   *     be added.
+   * @param dfmap map consisting of display format ids and display names must not <code>null</code>
+   *     or empty.
+   * @param maxSearchResult the max row returned from a search result. <code>-1</code> if unlimited.
    */
   public PSSearchSimplePanel(boolean isEngineAvailable, Map dfmap, int maxSearchResult) {
     m_isEngineAvailable = isEngineAvailable;
@@ -77,16 +77,13 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   }
 
   /**
-   * Use the {@link PSI18NTranslationKeyValues} class to lookup a mnemonic
-   * string for the given lookup string value. Returns <code>0</code> if
-   * no mnemonic is defined. The actual lookup adds the string <q>_mnemonic</q>
-   * to the lookup.
+   * Use the {@link PSI18NTranslationKeyValues} class to lookup a mnemonic string for the given
+   * lookup string value. Returns <code>0</code> if no mnemonic is defined. The actual lookup adds
+   * the string <q>_mnemonic</q> to the lookup.
    *
-   * @param lookup the lookup string, without the class or package name,
-   * assumed non-<code>null</code>
-   *
-   * @return the mnemonic value as an integer or <code>0</code>
-   * if no mnemonic is defined.
+   * @param lookup the lookup string, without the class or package name, assumed non-<code>null
+   *     </code>
+   * @return the mnemonic value as an integer or <code>0</code> if no mnemonic is defined.
    */
   private char getMnemonic(String lookup) {
     char mnemonic = (char) PSI18NTranslationKeyValues.getInstance().getMnemonic(lookup);
@@ -94,23 +91,18 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   }
 
   /**
-   * Use the {@link PSI18NTranslationKeyValues} class to lookup a label
-   * string for the given lookup string value. Returns <code>null</code> if
-   * no label is defined.
+   * Use the {@link PSI18NTranslationKeyValues} class to lookup a label string for the given lookup
+   * string value. Returns <code>null</code> if no label is defined.
    *
-   * @param lookup the lookup string, without the class or package name,
-   * assumed non-<code>null</code>
-   *
-   * @return the label, or the lookup string after the '@' character if not
-   * found
+   * @param lookup the lookup string, without the class or package name, assumed non-<code>null
+   *     </code>
+   * @return the label, or the lookup string after the '@' character if not found
    */
   private String getLabel(String lookup) {
     return PSI18NTranslationKeyValues.getInstance().getTranslationValue(lookup);
   }
 
-  /**
-   * Initializes the search simple panel.
-   */
+  /** Initializes the search simple panel. */
   private void init() {
     String label;
     char mnemonic;
@@ -176,20 +168,16 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
     p.setMaximumSize(new Dimension(230, 30));
   }
 
-  /**
-   * Requests focus for the query box field component.
-   */
+  /** Requests focus for the query box field component. */
   public void focusQueryBox() {
     m_ftQuery.requestFocus();
   }
 
   /**
    * Must have a valid number for max results, fts query may not be too long.
-   * @param isQuiet boolean flag to indicate whether the system is
-   *    running in quiet mode or not.
    *
-   * @return boolean <code>true</code> if validation succeeds, otherwise
-   * <code>false</code>.
+   * @param isQuiet boolean flag to indicate whether the system is running in quiet mode or not.
+   * @return boolean <code>true</code> if validation succeeds, otherwise <code>false</code>.
    */
   public boolean onValidateData(boolean isQuiet) {
     if (m_isEngineAvailable) {
@@ -240,14 +228,13 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   }
 
   /**
-   * Initializes this panel with the data from the supplied PSSearch object if
-   * the bDirection is <code>false</code>. Updates the search object if the
-   * bDirection is <code>true</code> with the values from the panel.
+   * Initializes this panel with the data from the supplied PSSearch object if the bDirection is
+   * <code>false</code>. Updates the search object if the bDirection is <code>true</code> with the
+   * values from the panel.
    *
    * @param bDirection Supply <code>true</code> to update the data, <code>false
    *    </code>to initialize the panel.
    * @param search PSSearch object must not be <code>null</code>.
-   *
    */
   public void updateData(boolean bDirection, PSSearch search) {
     if (search == null) {
@@ -317,15 +304,14 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
    * Validates that the value supplied for the full text query.
    *
    * @param query The query, may be <code>null</code> or emtpy.
-   * @param translator the translator used to internationalize the error
-   * message, if <code>null</code> is supplied, <code>PSI18nUtils</code>
-   * will be used as translator along with the specified locale.
-   * @param locale the locale for which to internationalize the error message,
-   * may be <code>null</code> or empty in which case the default locale is
-   * used. Ignored if the <code>translator</code> is not <code>null</code>.
-   *
-   * @return <code>null</code> if the query is valid, otherwise a non-
-   * <code>null</code> internationalized error message.
+   * @param translator the translator used to internationalize the error message, if <code>null
+   *     </code> is supplied, <code>PSI18nUtils</code> will be used as translator along with the
+   *     specified locale.
+   * @param locale the locale for which to internationalize the error message, may be <code>null
+   *     </code> or empty in which case the default locale is used. Ignored if the <code>translator
+   *     </code> is not <code>null</code>.
+   * @return <code>null</code> if the query is valid, otherwise a non- <code>null</code>
+   *     internationalized error message.
    */
   public static String validateFTSSearchQuery(
       String query, PSI18NTranslationKeyValues translator, String locale) {
@@ -357,9 +343,7 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
     }
   }
 
-  /**
-   * Event handler for unlimited checkbox
-   */
+  /** Event handler for unlimited checkbox */
   public void onUnlimited() {
     if (m_unlimitedCheckBox.isSelected()) {
       m_maximumText.setEnabled(false);
@@ -369,15 +353,15 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   }
 
   /**
-   * A boolean flag to hold whether search engine is enabled
-   * or not. <code>true</code> value indicates that search
-   * engine is enabled and query text and coressponding
-   * components will be displayed.
+   * A boolean flag to hold whether search engine is enabled or not. <code>true</code> value
+   * indicates that search engine is enabled and query text and coressponding components will be
+   * displayed.
    */
   private boolean m_isEngineAvailable = false;
 
   /**
    * Returns the Full text area component.
+   *
    * @return JTextArea Full text query text area component.
    */
   public JTextArea getQueryText() {
@@ -385,8 +369,8 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   }
 
   /**
-   * The text area to enter the full text search query.
-   * Never <code>null</code> after initialization.
+   * The text area to enter the full text search query. Never <code>null</code> after
+   * initialization.
    */
   private JTextArea m_ftQuery = new JTextArea();
 
@@ -406,33 +390,29 @@ public class PSSearchSimplePanel extends PSPropertyPanel implements ActionListen
   private static final String I18N_ALLOWED_RANGE = I18N_PREFIX + "@AllowableRange";
 
   /**
-   * Component to display display formats. Never <code>null</code>.
-   * Never modified after initialization.
+   * Component to display display formats. Never <code>null</code>. Never modified after
+   * initialization.
    */
   protected JComboBox m_displayFormatCombo;
 
   /**
-   * Text field for the number of maximum rows returned after performing
-   * the search. Never <code>null</code>. Never modified after initialization.
+   * Text field for the number of maximum rows returned after performing the search. Never <code>
+   * null</code>. Never modified after initialization.
    */
   protected UTFixedHeightTextField m_maximumText;
 
   /**
-   * Check box to indicate maximum rows returned after performing the search
-   * to be unlimited or limited.  Never <code>null</code>. Never modified after
-   * initialization.
+   * Check box to indicate maximum rows returned after performing the search to be unlimited or
+   * limited. Never <code>null</code>. Never modified after initialization.
    */
   protected JCheckBox m_unlimitedCheckBox;
 
   /**
-   * A map consiting of displayformat ids and display names. Initialized in ctor
-   * never <code>null</code> or empty.
+   * A map consiting of displayformat ids and display names. Initialized in ctor never <code>null
+   * </code> or empty.
    */
   private Map m_displayFormatMap = null;
 
-  /**
-   * The max rows returned from a search result. Default to <code>-1</code>
-   * as unlimited.
-   */
+  /** The max rows returned from a search result. Default to <code>-1</code> as unlimited. */
   private int m_maxSearchResult = -1;
 }

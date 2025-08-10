@@ -51,10 +51,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Retrieves a listing of all allowed templates for a particular
- * slot.
- * Expects an objectId for the slot. Returns a Json Array
- * with a Json object for each template entry.
+ * Retrieves a listing of all allowed templates for a particular slot. Expects an objectId for the
+ * slot. Returns a Json Array with a Json object for each template entry.
+ *
  * <pre>
  * Each Json object that represents a template has the following
  * parameters:
@@ -65,7 +64,6 @@ import org.json.JSONObject;
  * objectid
  * outputformat
  * </pre>
- *
  */
 public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
 
@@ -105,8 +103,8 @@ public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
   /**
    * Filters the supplied assembly templates by user's logged in community.
    *
-   * @param temps Collection of IPSAssemblyTemplate that needs to be filtered,
-   *           assumed not <code>null</code>.
+   * @param temps Collection of IPSAssemblyTemplate that needs to be filtered, assumed not <code>
+   *     null</code>.
    * @throws PSErrorResultsException
    * @throws RemoteException
    * @throws PSInternalRequestCallException
@@ -143,14 +141,12 @@ public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
   }
 
   /**
-   * Retrieves the associated templates for the slot indicated in the
-   * object id passed in.
-   * @param objectId cannot be <code>null</code> or empty. Must have the
-   * slot id defined.
-   * @return collection of template object, never <code>null</code>,
-   * may be empty.
-   * @throws PSAssemblyException if an error occurs when retriving the
-   * slot or templates from the assembly service.
+   * Retrieves the associated templates for the slot indicated in the object id passed in.
+   *
+   * @param objectId cannot be <code>null</code> or empty. Must have the slot id defined.
+   * @return collection of template object, never <code>null</code>, may be empty.
+   * @throws PSAssemblyException if an error occurs when retriving the slot or templates from the
+   *     assembly service.
    */
   @SuppressWarnings("unchecked")
   protected static Collection<IPSAssemblyTemplate> getAssociatedTemplates(PSAAObjectId objectId)
@@ -163,17 +159,13 @@ public class PSGetItemTemplatesForSlotAction extends PSAAActionBase {
   }
 
   /**
-   * Retrieves the associated templates for the slot indicated in the object id
-   * passed in.
+   * Retrieves the associated templates for the slot indicated in the object id passed in.
    *
-   * @param ctypeid cannot be <code>null</code> or empty. Must be a valid
-   *           content type id.
-   * @param slotid cannot be <code>null</code> or empty. Must be a valid
-   *           slot id.
-   * @return collection of template object, never <code>null</code>, may be
-   *         empty.
-   * @throws PSAssemblyException if an error occurs when retriving the slot or
-   *            templates from the assembly service.
+   * @param ctypeid cannot be <code>null</code> or empty. Must be a valid content type id.
+   * @param slotid cannot be <code>null</code> or empty. Must be a valid slot id.
+   * @return collection of template object, never <code>null</code>, may be empty.
+   * @throws PSAssemblyException if an error occurs when retriving the slot or templates from the
+   *     assembly service.
    */
   @SuppressWarnings("unchecked")
   protected static Collection<IPSAssemblyTemplate> getAssociatedTemplates(

@@ -35,38 +35,30 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Defines methods to generate various types of assembly locations.
- */
+/** Defines methods to generate various types of assembly locations. */
 public class PSSiteFolderContentListLinkGenerator {
   /**
-   * Generates an absolute URL to the assembler resource for the specified
-   * variant, using the Rhythmyx server's external name and port. The URL
-   * will contain request parameters for sys_contentid, sys_revision,
-   * sys_authtype, sys_context, sys_variantid, sys_siteid, and rx_folder
-   * (containing the content id of the site folder of the item being
-   * assembled).
+   * Generates an absolute URL to the assembler resource for the specified variant, using the
+   * Rhythmyx server's external name and port. The URL will contain request parameters for
+   * sys_contentid, sys_revision, sys_authtype, sys_context, sys_variantid, sys_siteid, and
+   * rx_folder (containing the content id of the site folder of the item being assembled).
    *
    * @param contentId
    * @param revision
    * @param variantId
    * @param variantAssemblerBase
-   *
-   * @param folderId the ID of the site folder than contains the item. If
-   *           provided, this value will be included in the URL as
-   *           "sys_folderid"
+   * @param folderId the ID of the site folder than contains the item. If provided, this value will
+   *     be included in the URL as "sys_folderid"
    * @param request
-   * @param protocol the URL protocol to use when creating content URLs, never
-   *           <code>null</code> or empty
-   * @param host the host name or ip address to use when creating content URLs,
-   *           never <code>null</code> or empty
+   * @param protocol the URL protocol to use when creating content URLs, never <code>null</code> or
+   *     empty
+   * @param host the host name or ip address to use when creating content URLs, never <code>null
+   *     </code> or empty
    * @param port the port number to use when creating content URLs
-   * @param paramSetToPass Set of non-standard HTML parameters to pass from
-   *           request context to each content item url in the content list,
-   *           may be <code>null</code> or empty.
-   *
-   * @return an absolute external URL to the assembler for the specified
-   *         variant, never <code>null</code>.
+   * @param paramSetToPass Set of non-standard HTML parameters to pass from request context to each
+   *     content item url in the content list, may be <code>null</code> or empty.
+   * @return an absolute external URL to the assembler for the specified variant, never <code>null
+   *     </code>.
    */
   public static URL generateAssemblerLink(
       String contentId,
@@ -139,9 +131,8 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Generates the publishing location for the specified content item's variant
-   * in the specified context. Calls the sys_casGeneratePubLocation exit to do
-   * the heavy lifting.
+   * Generates the publishing location for the specified content item's variant in the specified
+   * context. Calls the sys_casGeneratePubLocation exit to do the heavy lifting.
    *
    * @param contentId
    * @param revision
@@ -149,16 +140,12 @@ public class PSSiteFolderContentListLinkGenerator {
    * @param context
    * @param folderPath
    * @param request
-   *
-   * @return the publishing location produced by the scheme generator
-   *         registered for the specified variant/context. Never
-   *         <code>null</code>, will be empty if an error occurs while
-   *         calling the generator (or if no generator is registered for the
-   *         variant/context).
-   * @deprecated use
-   *             {@link #generatePubLocation(String, String, String, String, String, String, IPSRequestContext)}
-   *             Created a new method that takes the folderid parameter to fix
-   *             the bug RX-13461.
+   * @return the publishing location produced by the scheme generator registered for the specified
+   *     variant/context. Never <code>null</code>, will be empty if an error occurs while calling
+   *     the generator (or if no generator is registered for the variant/context).
+   * @deprecated use {@link #generatePubLocation(String, String, String, String, String, String,
+   *     IPSRequestContext)} Created a new method that takes the folderid parameter to fix the bug
+   *     RX-13461.
    */
   public String generatePubLocation(
       String contentId,
@@ -171,9 +158,9 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Generates the publishing location for the specified content item's variant
-   * in the specified context.  Calls the sys_casGeneratePubLocation exit to do
-   * the heavy lifting.
+   * Generates the publishing location for the specified content item's variant in the specified
+   * context. Calls the sys_casGeneratePubLocation exit to do the heavy lifting.
+   *
    * @param contentId
    * @param revision
    * @param variantId
@@ -181,11 +168,9 @@ public class PSSiteFolderContentListLinkGenerator {
    * @param folderPath
    * @param folderId
    * @param request
-   *
-   * @return the publishing location produced by the scheme generator
-   * registered for the specified variant/context.  Never <code>null</code>,
-   * will be empty if an error occurs while calling the generator (or if no
-   * generator is registered for the variant/context).
+   * @return the publishing location produced by the scheme generator registered for the specified
+   *     variant/context. Never <code>null</code>, will be empty if an error occurs while calling
+   *     the generator (or if no generator is registered for the variant/context).
    */
   public String generatePubLocation(
       String contentId,
@@ -217,14 +202,13 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Generates a URL to a resource named "null" in the current application.
-   * This resource should return a trivial XML document; the URL is used as
-   * the assembly URL when an item has no publishable variants because the
-   * publisher requires a valid content URL.
-   * @param request
+   * Generates a URL to a resource named "null" in the current application. This resource should
+   * return a trivial XML document; the URL is used as the assembly URL when an item has no
+   * publishable variants because the publisher requires a valid content URL.
    *
-   * @return a URL to a resource named "null.xml" in the same application as
-   * the origining request, never null.
+   * @param request
+   * @return a URL to a resource named "null.xml" in the same application as the origining request,
+   *     never null.
    */
   public URL generateNullLink(IPSRequestContext request) {
     try {
@@ -241,10 +225,10 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Initializes the sys_casGeneratePubLocation UDF and caches it in a member
-   * variable.  If any errors occur, they are logged but not propagated.
+   * Initializes the sys_casGeneratePubLocation UDF and caches it in a member variable. If any
+   * errors occur, they are logged but not propagated.
    *
-   * TODO: replace with a more robust method when the server supports one
+   * <p>TODO: replace with a more robust method when the server supports one
    */
   protected void initGeneratorUDF() {
     try {
@@ -259,8 +243,7 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Get the ready to use location generator UDF which is
-   * <em>sys_casGeneratePubLocation</em>.
+   * Get the ready to use location generator UDF which is <em>sys_casGeneratePubLocation</em>.
    *
    * @return location generator UDF, never <code>null</code>
    */
@@ -270,25 +253,21 @@ public class PSSiteFolderContentListLinkGenerator {
   }
 
   /**
-   * Caches the sys_casGeneratePubLocation UDF used to build pub locations.
-   * Initialized in {@link #initGeneratorUDF()}, never <code>null</code> after
-   * that.
+   * Caches the sys_casGeneratePubLocation UDF used to build pub locations. Initialized in {@link
+   * #initGeneratorUDF()}, never <code>null</code> after that.
    */
   private IPSUdfProcessor m_generatorUDF = null;
 
   private static final Logger log =
       LogManager.getLogger(PSSiteFolderContentListLinkGenerator.class);
 
-  /**
-   * String constant for the assembly generation UDF.
-   */
+  /** String constant for the assembly generation UDF. */
   private static final String GENERATE_PUB_LOCATION_REF =
       "Java/global/percussion/contentassembler/sys_casGeneratePubLocation";
 
   /**
-   * Name of the HTML parameter used in Database Publishing. Each item's
-   * content URL will be added with this param only if it exists in the
-   * request.
+   * Name of the HTML parameter used in Database Publishing. Each item's content URL will be added
+   * with this param only if it exists in the request.
    */
   private static final String DBPUBACTION = "dbpubaction";
 }

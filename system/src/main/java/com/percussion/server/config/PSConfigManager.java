@@ -39,29 +39,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-/**
- * A singleton class to manage server configuration files.
- */
+/** A singleton class to manage server configuration files. */
 public class PSConfigManager {
 
   private static final Logger log = LogManager.getLogger(PSConfigManager.class);
 
   /**
-   * Private ctor to enforce the singleton design pattern. Creates a
-   * configuration manager. Use {@link #getInstance()} to obtain the singleton
-   * instance of this class. {@link #getInstance()} calls
-   * {@link #loadConfigurations()} before the instance is returned.
+   * Private ctor to enforce the singleton design pattern. Creates a configuration manager. Use
+   * {@link #getInstance()} to obtain the singleton instance of this class. {@link #getInstance()}
+   * calls {@link #loadConfigurations()} before the instance is returned.
    */
   private PSConfigManager() {}
 
   /**
-   * Gets the singleton instance of this class. The first caller must ensure
-   * that a reference to that instance is maintained to avoid garbage
-   * collection.
+   * Gets the singleton instance of this class. The first caller must ensure that a reference to
+   * that instance is maintained to avoid garbage collection.
    *
    * @return the singleton instance of this class, never <code>null</code>.
-   * @throws PSServerConfigException if anything fails loading the
-   *    configurations from the repository.
+   * @throws PSServerConfigException if anything fails loading the configurations from the
+   *     repository.
    */
   public static PSConfigManager getInstance() throws PSServerConfigException {
     if (ms_manager == null) {
@@ -73,10 +69,10 @@ public class PSConfigManager {
   }
 
   /**
-   * Gets the rx configuration either in edit mode or read mode based on the
-   * lock and override parameters specified in request document. Currently only
-   * 'relationships' configuration is allowed to edit. Expected document format
-   * is:
+   * Gets the rx configuration either in edit mode or read mode based on the lock and override
+   * parameters specified in request document. Currently only 'relationships' configuration is
+   * allowed to edit. Expected document format is:
+   *
    * <pre><code>
    * &lt;ELEMENT PSXDesignRxConfigLoad (EMPTY)>
    * &lt;ATTLIST PSXDesignerRxConfigLoad
@@ -86,17 +82,11 @@ public class PSConfigManager {
    *    overrideDifferentUser (yes|no) "no" >
    * </code></pre>
    *
-   * @param inDoc the XML document containing the get request, may not be
-   * <code>null</code>.
-   * @param reqUser the user requesting to save, may not be <code>null</code>
-   * or empty.
-   *
-   * @return the config document that confirms to the dtd specified in
-   * <code>PSConfig</code>
-   *
-   * @throws PSServerConfigException if the config for the specified name in
-   * request doc does not exist or if the configuration is not allowed to edit
-   * and user requested the config to edit.
+   * @param inDoc the XML document containing the get request, may not be <code>null</code>.
+   * @param reqUser the user requesting to save, may not be <code>null</code> or empty.
+   * @return the config document that confirms to the dtd specified in <code>PSConfig</code>
+   * @throws PSServerConfigException if the config for the specified name in request doc does not
+   *     exist or if the configuration is not allowed to edit and user requested the config to edit.
    * @throws PSLockedException if it can not acquire the lock to edit.
    * @throws IllegalArgumentException if any param is invalid.
    */
@@ -123,30 +113,22 @@ public class PSConfigManager {
   }
 
   /**
-   * Gets the rx configuration either in edit mode or read mode based on the
-   * lock and override parameters specified. Currently only the 'relationships'
-   * configuration is allowed to be edited.
+   * Gets the rx configuration either in edit mode or read mode based on the lock and override
+   * parameters specified. Currently only the 'relationships' configuration is allowed to be edited.
    *
-   * @param name The name of the configuration to edit, may not be
-   * <code>null</code> or empty.
-   * @param locked <code>true</code> to get the config locked for editing,
-   * <code>false</code> to get it read-only.
-   * @param overrideSameUser <code>true</code> to override the lock if the
-   * user specified by <code>reqUser</code> currently holds the lock,
-   * <code>false</code> to not allow the override.
-   * @param overrideDifferentUser <code>true</code> to override the lock if a
-   * user other than the user specified by <code>reqUser</code> currently holds
-   * the lock, <code>false</code> to not allow the override.
-   * @param reqUser the user requesting to save, may not be <code>null</code>
-   * or empty.
-   *
-   * @return the config document that confirms to the dtd specified in
-   * <code>PSConfig</code>
-   *
+   * @param name The name of the configuration to edit, may not be <code>null</code> or empty.
+   * @param locked <code>true</code> to get the config locked for editing, <code>false</code> to get
+   *     it read-only.
+   * @param overrideSameUser <code>true</code> to override the lock if the user specified by <code>
+   *     reqUser</code> currently holds the lock, <code>false</code> to not allow the override.
+   * @param overrideDifferentUser <code>true</code> to override the lock if a user other than the
+   *     user specified by <code>reqUser</code> currently holds the lock, <code>false</code> to not
+   *     allow the override.
+   * @param reqUser the user requesting to save, may not be <code>null</code> or empty.
+   * @return the config document that confirms to the dtd specified in <code>PSConfig</code>
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSServerConfigException if the config for the specified name in
-   * request doc does not exist or if the configuration is not allowed to edit
-   * and user requested the config to edit.
+   * @throws PSServerConfigException if the config for the specified name in request doc does not
+   *     exist or if the configuration is not allowed to edit and user requested the config to edit.
    * @throws PSLockedException if it can not acquire the lock to edit.
    */
   public Document getRxConfiguration(
@@ -201,8 +183,9 @@ public class PSConfigManager {
   }
 
   /**
-   * Updates the lock state on the rx configuration and/or the rx configuration
-   * specified in the request document. Expected document format is:
+   * Updates the lock state on the rx configuration and/or the rx configuration specified in the
+   * request document. Expected document format is:
+   *
    * <pre><code>
    * &lt;ELEMENT PSXDesignRxConfigSave (CONFIGURATION?)>
    * &lt;ATTLIST PSXDesignRxConfigSave
@@ -211,15 +194,11 @@ public class PSConfigManager {
    * &lt;ELEMENT CONFIGURATION (#PCDATA)>
    * </code></pre>
    *
-   * @param inDoc the XML document containing the save request, may not be
-   * <code>null</code>.
-   * @param reqUser the user requesting to save, may not be <code>null</code>
-   * or empty.
-   *
-   * @throws PSServerConfigException if the config for specified name is not
-   * found.
-   * @throws PSNotLockedException if the user requesting to save is not the
-   * locked user of rx configuration.
+   * @param inDoc the XML document containing the save request, may not be <code>null</code>.
+   * @param reqUser the user requesting to save, may not be <code>null</code> or empty.
+   * @throws PSServerConfigException if the config for specified name is not found.
+   * @throws PSNotLockedException if the user requesting to save is not the locked user of rx
+   *     configuration.
    * @throws IOException if an io error occurs saving the config.
    * @throws SAXException if an error occurs parsing the configuration.
    * @throws IllegalArgumentException if any param is invalid.
@@ -244,22 +223,17 @@ public class PSConfigManager {
   }
 
   /**
-   * Updates the lock state on the specified rx configuration and/or saves the
-   * supplied rx configuration.
+   * Updates the lock state on the specified rx configuration and/or saves the supplied rx
+   * configuration.
    *
    * @param name The name of the config, may not be <code>null</code> or empty.
-   * @param config The config data, may be <code>null</code> in order to
-   * release the lock only.
-   * @param releaseLock <code>true</code> to release the lock,
-   * <code>false</code> to keep the lock.
-   * @param reqUser the user requesting to save, may not be <code>null</code>
-   * or empty.
-   *
+   * @param config The config data, may be <code>null</code> in order to release the lock only.
+   * @param releaseLock <code>true</code> to release the lock, <code>false</code> to keep the lock.
+   * @param reqUser the user requesting to save, may not be <code>null</code> or empty.
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSServerConfigException if the config for specified name is not
-   * found.
-   * @throws PSNotLockedException if the user requesting to save is not the
-   * locked user of rx configuration.
+   * @throws PSServerConfigException if the config for specified name is not found.
+   * @throws PSNotLockedException if the user requesting to save is not the locked user of rx
+   *     configuration.
    * @throws IOException if an io error occurs saving the config.
    * @throws SAXException if an error occurs parsing the configuration.
    */
@@ -296,10 +270,8 @@ public class PSConfigManager {
    *
    * @param name the configuration name, not <code>null</code> or empty.
    * @return the requested XML configuration, never <code>null</code>.
-   * @throws IllegalArgumentException if the supplied name in <code>null</code>
-   *    or empty.
-   * @throws PSServerConfigException if no configuration exists for the
-   *    supplied name.
+   * @throws IllegalArgumentException if the supplied name in <code>null</code> or empty.
+   * @throws PSServerConfigException if no configuration exists for the supplied name.
    */
   public Document getXMLConfig(String name) throws PSServerConfigException {
     if (name == null || name.trim().length() == 0)
@@ -321,10 +293,8 @@ public class PSConfigManager {
    *
    * @param name the configuration name, not <code>null</code> or empty.
    * @return the requested properties configuration, never <code>null</code>.
-   * @throws IllegalArgumentException if the supplied name in <code>null</code>
-   *    or empty.
-   * @throws PSServerConfigException if no configuration exists for the
-   *    supplied name.
+   * @throws IllegalArgumentException if the supplied name in <code>null</code> or empty.
+   * @throws PSServerConfigException if no configuration exists for the supplied name.
    */
   public Properties getPropertyConfig(String name) throws PSServerConfigException {
     if (name == null || name.trim().length() == 0)
@@ -346,8 +316,8 @@ public class PSConfigManager {
    *
    * @param name the configuration name, not <code>null</code> or empty.
    * @param config the configuration to be set, not <code>null</code> or empty.
-   * @throws PSServerConfigException if no configuration was found for the
-   *    supplied name or the configuration is not of type XML.
+   * @throws PSServerConfigException if no configuration was found for the supplied name or the
+   *     configuration is not of type XML.
    */
   public void setConfig(String name, Document config) throws PSServerConfigException {
     if (name == null || name.trim().length() == 0)
@@ -374,8 +344,8 @@ public class PSConfigManager {
    *
    * @param name the configuration name, not <code>null</code> or empty.
    * @param config the configuration to be set, not <code>null</code> or empty.
-   * @throws PSServerConfigException if no configuration was found for the
-   *    supplied name or the configuration is not of type property.
+   * @throws PSServerConfigException if no configuration was found for the supplied name or the
+   *     configuration is not of type property.
    */
   public void setConfig(String name, Properties config) throws PSServerConfigException {
     if (name == null || name.trim().length() == 0)
@@ -400,8 +370,7 @@ public class PSConfigManager {
   /**
    * Clears all server configurations and reloads them from the repository.
    *
-   * @throws PSServerConfigException if anything goes wrong reloading the
-   *    server configurations.
+   * @throws PSServerConfigException if anything goes wrong reloading the server configurations.
    */
   public void reloadConfigs() throws PSServerConfigException {
     m_configs.clear();
@@ -412,8 +381,7 @@ public class PSConfigManager {
   /**
    * Loads all server configurations from the repository.
    *
-   * @throws PSServerConfigException if anything goes wrong loading the
-   *    server configurations.
+   * @throws PSServerConfigException if anything goes wrong loading the server configurations.
    */
   private void loadConfigs() throws PSServerConfigException {
     try {
@@ -432,13 +400,11 @@ public class PSConfigManager {
   /**
    * Save the supplied XML configuration to the repository.
    *
-   * @param name the configuration to be saved, not <code>null</code> or
-   *    empty.
+   * @param name the configuration to be saved, not <code>null</code> or empty.
    * @param config the configuration to be saved, not <code>null</code>.
-   * @throws IllegalArgumentException if the supplied name is <code>null</code>
-   *    or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the
-   *    provided name or the supplied configuration is not the expected type.
+   * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
+   * @throws PSServerConfigExcception if no configuration exists for the provided name or the
+   *     supplied configuration is not the expected type.
    */
   public void saveConfig(String name, Document config) throws PSServerConfigException {
     setConfig(name, config);
@@ -448,13 +414,11 @@ public class PSConfigManager {
   /**
    * Save the supplied priperties configuration to the repository.
    *
-   * @param name the configuration to be saved, not <code>null</code> or
-   *    empty.
+   * @param name the configuration to be saved, not <code>null</code> or empty.
    * @param config the configuration to be saved, not <code>null</code>.
-   * @throws IllegalArgumentException if the supplied name is <code>null</code>
-   *    or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the
-   *    provided name or the supplied configuration is not the expected type.
+   * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
+   * @throws PSServerConfigExcception if no configuration exists for the provided name or the
+   *     supplied configuration is not the expected type.
    */
   public void saveConfig(String name, Properties config) throws PSServerConfigException {
     setConfig(name, config);
@@ -464,12 +428,9 @@ public class PSConfigManager {
   /**
    * Save the addressed configuration to the repository.
    *
-   * @param name the configuration to be saved, not <code>null</code> or
-   *    empty.
-   * @throws IllegalArgumentException if the supplied name is <code>null</code>
-   *    or empty.
-   * @throws PSServerConfigExcception if no configuration exists for the
-   *    provided name.
+   * @param name the configuration to be saved, not <code>null</code> or empty.
+   * @throws IllegalArgumentException if the supplied name is <code>null</code> or empty.
+   * @throws PSServerConfigExcception if no configuration exists for the provided name.
    */
   public void saveConfig(String name) throws PSServerConfigException {
     try {
@@ -490,15 +451,15 @@ public class PSConfigManager {
   }
 
   /**
-   * A map of server configurations using the configuration name as key. The
-   * values are of type PSConfig. Initialized during the first call to
-   * {@link #getInstance()}, never <code>null</code> after that, may be empty.
+   * A map of server configurations using the configuration name as key. The values are of type
+   * PSConfig. Initialized during the first call to {@link #getInstance()}, never <code>null</code>
+   * after that, may be empty.
    */
   private Map<String, PSConfig> m_configs = new HashMap<>();
 
   /**
-   * The singleton instance of this class. Initialized by the first call to
-   * {@link #getInstance()}, never <code>null</code> after that.
+   * The singleton instance of this class. Initialized by the first call to {@link #getInstance()},
+   * never <code>null</code> after that.
    */
   private static PSConfigManager ms_manager = null;
 

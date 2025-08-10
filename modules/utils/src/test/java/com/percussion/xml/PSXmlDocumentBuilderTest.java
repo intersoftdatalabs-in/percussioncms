@@ -39,9 +39,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-/**
- * This file contains tests for both the document builder and the tree walker.
- */
+/** This file contains tests for both the document builder and the tree walker. */
 public class PSXmlDocumentBuilderTest {
   public PSXmlDocumentBuilderTest() {}
 

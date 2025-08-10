@@ -21,22 +21,18 @@ import org.w3c.dom.CDATASection;
 import org.w3c.dom.DOMException;
 
 /**
- * Similar to HTMLText, but this class specifically represents the context of
- * a CDATA within the HTML.
+ * Similar to HTMLText, but this class specifically represents the context of a CDATA within the
+ * HTML.
  */
 // REFACTORED: CP-JAVA11
 public class HTMLCDATA extends HTMLText implements CDATASection {
-  /**
-   * Initializes CDATASection node with an initial value within CDATA.
-   */
+  /** Initializes CDATASection node with an initial value within CDATA. */
   public HTMLCDATA(String initialValue) {
     super();
     setData(initialValue);
   }
 
-  /**
-   * Default constructor.
-   */
+  /** Default constructor. */
   public HTMLCDATA() {
     super();
   }

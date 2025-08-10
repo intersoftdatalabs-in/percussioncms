@@ -20,15 +20,15 @@ package com.percussion.install;
 import java.util.Iterator;
 
 /**
- * This interface defines an access method that returns the list of modules
- * required to be run on a Rhythmyx install. The configuration document may
- * define multiple modules depending the version of Rhythmyx. The required set
- * of modules depends on the previous installation of Rhythmyx.
+ * This interface defines an access method that returns the list of modules required to be run on a
+ * Rhythmyx install. The configuration document may define multiple modules depending the version of
+ * Rhythmyx. The required set of modules depends on the previous installation of Rhythmyx.
  */
 public interface IPSUpgradeConfig {
   /**
-   * Returns list of modules that needs to be run on the existing installation
-   * to upgrade to the current version.
+   * Returns list of modules that needs to be run on the existing installation to upgrade to the
+   * current version.
+   *
    * @return module list as Java <code>Iterator</code>
    */
   Iterator getModuleList();

@@ -24,7 +24,6 @@ import java.util.Set;
 
 /**
  * @author erikserating
- *
  */
 public interface IPSComment {
   /**
@@ -53,8 +52,8 @@ public interface IPSComment {
   public String getSite();
 
   /**
-   * @return the page path, the relative path to the page that this comment is on, not including the site.
-   * Never <code>null</code> or empty.
+   * @return the page path, the relative path to the page that this comment is on, not including the
+   *     site. Never <code>null</code> or empty.
    */
   public String getPagePath();
 
@@ -85,28 +84,30 @@ public interface IPSComment {
   public Set<String> getTags();
 
   /**
-   * @return the current approval state for this comment. Never <code>null</code>.
-   * Defaults to <code>APPROVAL_STATE.PENDING</code>.
+   * @return the current approval state for this comment. Never <code>null</code>. Defaults to
+   *     <code>APPROVAL_STATE.PENDING</code>.
    */
   public APPROVAL_STATE getApprovalState();
 
   /**
-   * Flag indicating that this comment has been moderated. This should only be
-   * <code>true</code> if this comment was put into a state by a user action and not
-   * programmatically.
+   * Flag indicating that this comment has been moderated. This should only be <code>true</code> if
+   * this comment was put into a state by a user action and not programmatically.
+   *
    * @return <code>true</code> if the the comment was moderated.
    */
   public boolean isModerated();
 
   /**
-   * Flag indicating that this comment was viewed once by a CM1 user and is no longer considered
-   * a new comment.
+   * Flag indicating that this comment was viewed once by a CM1 user and is no longer considered a
+   * new comment.
+   *
    * @return <code>true</code> if this comment was viewed.
    */
   public boolean isViewed();
 
   /**
    * Set the viewed flag to indicate the comment has been viewed once by a moderator.
+   *
    * @param viewed
    */
   public void setViewed(boolean viewed);
@@ -175,9 +176,7 @@ public interface IPSComment {
 
   void setCommentCreatedDate(String commentCreatedDate);
 
-  /**
-   * Comment approval states.
-   */
+  /** Comment approval states. */
   public enum APPROVAL_STATE {
     APPROVED,
     REJECTED

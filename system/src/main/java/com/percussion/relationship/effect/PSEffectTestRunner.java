@@ -42,16 +42,15 @@ import java.util.List;
  * @author RammohanVangapalli
  */
 public class PSEffectTestRunner {
-  /**
-   * Make ctor private. Use the static method.
-   */
+  /** Make ctor private. Use the static method. */
   private PSEffectTestRunner() {}
 
   /**
    * Runs the supplied list of effects for the supplied execution conext.
+   *
    * @param execContext execution context must not be <code>null</code>.
-   * @param effects iterator of all effects to run, must not be
-   * <code>null</code>, may be empty in which case, nothing happens.
+   * @param effects iterator of all effects to run, must not be <code>null</code>, may be empty in
+   *     which case, nothing happens.
    * @throws PSNotFoundException
    * @throws PSExtensionException
    * @throws PSExtensionProcessingException

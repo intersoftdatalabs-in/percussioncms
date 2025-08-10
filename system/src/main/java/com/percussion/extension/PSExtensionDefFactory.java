@@ -32,10 +32,7 @@ import java.util.Properties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Handles serialization of {@link PSExtensionDef} objects to and from their XML
- * representation.
- */
+/** Handles serialization of {@link PSExtensionDef} objects to and from their XML representation. */
 public class PSExtensionDefFactory implements IPSExtensionDefFactory {
   /* (non-Javadoc)
    * @see IPSExtensionDefFactory#toXml(Element, IPSExtensionDef)

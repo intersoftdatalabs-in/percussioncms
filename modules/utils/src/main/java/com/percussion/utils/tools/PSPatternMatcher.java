@@ -24,14 +24,14 @@ import java.io.File;
  */
 public class PSPatternMatcher {
   /**
-   * Construct a pattern matching object that uses <CODE>matchOne</CODE>
-   * to match exactly one arbitrary character and <CODE>matchZeroOrMore</CODE>
-   * to match zero or more arbitrary characters.
+   * Construct a pattern matching object that uses <CODE>matchOne</CODE> to match exactly one
+   * arbitrary character and <CODE>matchZeroOrMore</CODE> to match zero or more arbitrary
+   * characters.
    *
-   * For SQL, use '_' (underscore) to match a single arbitrary character and
-   * '%' (percent) to match zero or more arbitrary characters. For typical
-   * DOS and UNIX wildcard matching, use '?' (question mark) to match a single
-   * arbitrary character and '*' to match zero or more arbitrary characters.
+   * <p>For SQL, use '_' (underscore) to match a single arbitrary character and '%' (percent) to
+   * match zero or more arbitrary characters. For typical DOS and UNIX wildcard matching, use '?'
+   * (question mark) to match a single arbitrary character and '*' to match zero or more arbitrary
+   * characters.
    */
   public PSPatternMatcher(
       char matchOne, char matchZeroOrMore, String pattern, boolean caseSensitive) {
@@ -43,41 +43,38 @@ public class PSPatternMatcher {
   }
 
   /**
-   * Construct a pattern matching object that uses <CODE>matchOne</CODE>
-   * to match exactly one arbitrary character and <CODE>matchZeroOrMore</CODE>
-   * to match zero or more arbitrary characters.
+   * Construct a pattern matching object that uses <CODE>matchOne</CODE> to match exactly one
+   * arbitrary character and <CODE>matchZeroOrMore</CODE> to match zero or more arbitrary
+   * characters.
    *
-   * The pattern matcher will be case sensitive.
+   * <p>The pattern matcher will be case sensitive.
    *
-   * For SQL, use '_' (underscore) to match a single arbitrary character and
-   * '%' (percent) to match zero or more arbitrary characters. For typical
-   * DOS and UNIX wildcard matching, use '?' (question mark) to match a single
-   * arbitrary character and '*' to match zero or more arbitrary characters.
+   * <p>For SQL, use '_' (underscore) to match a single arbitrary character and '%' (percent) to
+   * match zero or more arbitrary characters. For typical DOS and UNIX wildcard matching, use '?'
+   * (question mark) to match a single arbitrary character and '*' to match zero or more arbitrary
+   * characters.
    */
   public PSPatternMatcher(char matchOne, char matchZeroOrMore, String pattern) {
     this(matchOne, matchZeroOrMore, pattern, true);
   }
 
   /**
-   * Returns a new pattern matcher that uses '_' (underscore) to match a
-   * single arbitrary character and '%' to match zero or more arbitrary
-   * characters.
+   * Returns a new pattern matcher that uses '_' (underscore) to match a single arbitrary character
+   * and '%' to match zero or more arbitrary characters.
    *
-   * This conforms to the SQL LIKE operator (case sensitive)
+   * <p>This conforms to the SQL LIKE operator (case sensitive)
    */
   public static PSPatternMatcher SQLPatternMatcher(String pattern) {
     return new PSPatternMatcher('_', '%', pattern, true);
   }
 
   /**
-   * Returns a new pattern matcher that uses '_' (underscore) to match a
-   * single arbitrary character and '%' to match zero or more arbitrary
-   * characters.
+   * Returns a new pattern matcher that uses '_' (underscore) to match a single arbitrary character
+   * and '%' to match zero or more arbitrary characters.
    *
-   * This will be case insensitive if and only if
-   * (new File("foo")).equals(new File("FOO")).
+   * <p>This will be case insensitive if and only if (new File("foo")).equals(new File("FOO")).
    *
-   * This conforms to UNIX and DOS filename matching.
+   * <p>This conforms to UNIX and DOS filename matching.
    */
   public static PSPatternMatcher FileWildcardMatcher(String pattern) {
     if ((new File("foo")).equals(new File("FOO")))
@@ -87,17 +84,14 @@ public class PSPatternMatcher {
   }
 
   /**
-   * Returns true if and only if <CODE>str</CODE> matches the pattern
-   * that this class was constructed with.
+   * Returns true if and only if <CODE>str</CODE> matches the pattern that this class was
+   * constructed with.
    */
   public boolean doesMatchPattern(String str) {
     return doesMatchPattern(m_pat, str);
   }
 
-  /**
-   * Returns true if and only if <CODE>str</CODE> matches the pattern
-   * <CODE>pat</CODE>
-   */
+  /** Returns true if and only if <CODE>str</CODE> matches the pattern <CODE>pat</CODE> */
   public boolean doesMatchPattern(String pat, String str) {
     if (!m_caseSensitive) {
       pat = pat.toUpperCase();

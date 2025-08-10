@@ -19,33 +19,39 @@
 
 package com.percussion.patch.test;
 
-import com.percussion.linkmanagement.service.IPSManagedLinkService;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.linkmanagement.service.IPSManagedLinkService;
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.Test;
+
 /**
- * Unit test for verifying anchor tag rel attributes for managed links.
- * Sunny Sal says: "Testing links is like checking pizza toppings—don't let anything suspicious slip through!"
+ * Unit test for verifying anchor tag rel attributes for managed links. Sunny Sal says: "Testing
+ * links is like checking pizza toppings—don't let anything suspicious slip through!"
  */
 public class PSSaveAssetsMainetanceProcessUT {
 
-    @Test
-    void testTarget() {
-        var doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
-        var targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
+  @Test
+  void testTarget() {
+    var doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
+    var targetAnchors =
+        doc.select(
+            IPSManagedLinkService.A_HREF
+                + "a[target=\"_blank\"]"
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
-        assertFalse(targetAnchors.isEmpty());
+    assertFalse(targetAnchors.isEmpty());
 
-        doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\" rel=\"noopener noreferrer\" />");
-        targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
+    doc =
+        Jsoup.parseBodyFragment(
+            "<p>This is <a href=\"#\" target=\"_blank\" rel=\"noopener noreferrer\" />");
+    targetAnchors =
+        doc.select(
+            IPSManagedLinkService.A_HREF
+                + "a[target=\"_blank\"]"
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
-        assertTrue(targetAnchors.isEmpty());
-    }
+    assertTrue(targetAnchors.isEmpty());
+  }
 }

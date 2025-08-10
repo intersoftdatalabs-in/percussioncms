@@ -47,15 +47,12 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 /**
- * This class creates backup of specified tables. If backup of the table is
- * successfully created, then it may drop the original table if
- * <code>dropTables</code> is <code>true</code>.  Create backup table name by
- * appending <code>suffix</code> to table name.
+ * This class creates backup of specified tables. If backup of the table is successfully created,
+ * then it may drop the original table if <code>dropTables</code> is <code>true</code>. Create
+ * backup table name by appending <code>suffix</code> to table name. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -74,7 +71,6 @@ import org.xml.sax.SAXException;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSExportDatabase extends PSAction {
   private static final String ERROR = "ERROR :";
@@ -195,8 +191,8 @@ public class PSExportDatabase extends PSAction {
   /**
    * Returns the name of tables whose backup is to be created.
    *
-   * @return the name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @return the name of tables whose backup is to be created, never <code>null</code>, may be empty
+   *     array
    */
   public String[] getTableIncludes() {
     return tableIncludes;
@@ -205,8 +201,8 @@ public class PSExportDatabase extends PSAction {
   /**
    * Sets the name of tables whose backup is to be created.
    *
-   * @param tableIncludes name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @param tableIncludes name of tables whose backup is to be created, never <code>null</code>, may
+   *     be empty array
    */
   public void setTableIncludes(String tableIncludes) {
     this.tableIncludes = convertToArray(tableIncludes);
@@ -215,8 +211,8 @@ public class PSExportDatabase extends PSAction {
   /**
    * Returns the name of tables whose backup is to be created.
    *
-   * @return the name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @return the name of tables whose backup is to be created, never <code>null</code>, may be empty
+   *     array
    */
   public String[] getTableExcludes() {
     return this.tableExcludes;
@@ -225,8 +221,8 @@ public class PSExportDatabase extends PSAction {
   /**
    * Sets the name of tables whose backup is to be created.
    *
-   * @param tableExcludes name of tables whose backup is to be created,
-   * never <code>null</code>, may be empty array
+   * @param tableExcludes name of tables whose backup is to be created, never <code>null</code>, may
+   *     be empty array
    */
   public void setTableExcludes(String tableExcludes) {
     this.tableIncludes = convertToArray(tableExcludes);
@@ -252,23 +248,14 @@ public class PSExportDatabase extends PSAction {
    * properties
    **************************************************************************/
 
-  /**
-   * Name of tables whose backup is to be created, never <code>null</code>,
-   * may be empty
-   */
+  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String tableDefFile = null;
 
   private String tableDataFile = null;
 
-  /**
-   * Name of tables whose backup is to be created, never <code>null</code>,
-   * may be empty
-   */
+  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String[] tableIncludes = null;
 
-  /**
-   * Name of tables whose backup is to be created, never <code>null</code>,
-   * may be empty
-   */
+  /** Name of tables whose backup is to be created, never <code>null</code>, may be empty */
   private String[] tableExcludes = null;
 }

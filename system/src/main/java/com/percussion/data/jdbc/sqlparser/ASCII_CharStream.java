@@ -17,8 +17,8 @@
 package com.percussion.data.jdbc.sqlparser;
 
 /**
- * An implementation of interface CharStream, where the stream is assumed to
- * contain only ASCII characters (without unicode processing).
+ * An implementation of interface CharStream, where the stream is assumed to contain only ASCII
+ * characters (without unicode processing).
  */
 public final class ASCII_CharStream {
   public static final boolean staticFlag = true;
@@ -287,9 +287,7 @@ public final class ASCII_CharStream {
     bufcolumn = null;
   }
 
-  /**
-   * Method to adjust line and column numbers for the start of a token.<BR>
-   */
+  /** Method to adjust line and column numbers for the start of a token.<br> */
   public static void adjustBeginLineColumn(int newLine, int newCol) {
     int start = tokenBegin;
     int len;

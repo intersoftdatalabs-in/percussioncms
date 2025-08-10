@@ -21,21 +21,18 @@ package com.percussion.sitemanage.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for site publish jobs.
- */
+/** List wrapper for site publish jobs. */
 @XmlRootElement(name = "SitePublishJob")
 @ArraySchema(schema = @Schema(implementation = PSSitePublishJob.class))
 @JsonRootName("SitePublishJob")
 public class PSSitePublishJobList extends ArrayList<PSSitePublishJob> {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSSitePublishJobList(Collection<? extends PSSitePublishJob> c) {
-        super(c);
-    }
+  public PSSitePublishJobList(Collection<? extends PSSitePublishJob> c) {
+    super(c);
+  }
 }

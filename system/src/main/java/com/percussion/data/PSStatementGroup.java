@@ -146,18 +146,11 @@ public class PSStatementGroup implements IPSStatementBlock {
   /**
    * Construct a statement group for the specified blocks.
    *
-   * @param   prefix            an optional prefix to prepend before the
-   *                                                                        groups text (if at least one part is
-   *                                                                        non-NULL)
-   *
-   * @param   leftBlock         the block to use on the left side of the
-   *                                                                        group
-   *
-   * @param   blockSeparator      an optional separator to use when both
-   *                                                                        parts are non-NULL
-   *
-   * @param   rightBlock         the block to use on the right side of the
-   *                                                                        group
+   * @param prefix an optional prefix to prepend before the groups text (if at least one part is
+   *     non-NULL)
+   * @param leftBlock the block to use on the left side of the group
+   * @param blockSeparator an optional separator to use when both parts are non-NULL
+   * @param rightBlock the block to use on the right side of the group
    */
   public PSStatementGroup(
       String prefix,
@@ -174,16 +167,11 @@ public class PSStatementGroup implements IPSStatementBlock {
   /**
    * Set the data for the bound column(s) associated with this block.
    *
-   * @param   data        the execution data associated with this plan
-   *
-   * @param   stmt         the prepared statement
-   *
-   * @param   bindStart   the starting position (1-based) to bind columns
-   *                                                                  to
-   *
-   * @return               the next bind position (1-based)
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @param stmt the prepared statement
+   * @param bindStart the starting position (1-based) to bind columns to
+   * @return the next bind position (1-based)
+   * @exception SQLException if a SQL error occurs
    */
   public int setColumnData(PSExecutionData data, PreparedStatement stmt, int bindStart)
       throws java.sql.SQLException, com.percussion.data.PSDataExtractionException {
@@ -202,13 +190,11 @@ public class PSStatementGroup implements IPSStatementBlock {
   }
 
   /**
-   * Build the statement text which can be passed to the JDBC Connection
-   * object's prepareStatement method. Placeholders (?) will be used for
-   * each variable defined in the statement;
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
    *
-   * @param   buf         the buffer to store the text in
-   *
-   * @param   data         the run-time context info for this request
+   * @param buf the buffer to store the text in
+   * @param data the run-time context info for this request
    */
   public void buildStatement(java.lang.StringBuilder buf, PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
@@ -260,13 +246,11 @@ public class PSStatementGroup implements IPSStatementBlock {
   }
 
   /**
-   * Build the statement text which can be passed to the JDBC Connection
-   * object's prepareStatement method. Placeholders (?) will be used for
-   * each variable defined in the statement;
+   * Build the statement text which can be passed to the JDBC Connection object's prepareStatement
+   * method. Placeholders (?) will be used for each variable defined in the statement;
    *
-   * @param   data         the run-time context info for this request
-   *
-   * @return               the statement text
+   * @param data the run-time context info for this request
+   * @return the statement text
    */
   public java.lang.String buildStatement(PSExecutionData data)
       throws com.percussion.data.PSDataExtractionException {
@@ -276,10 +260,10 @@ public class PSStatementGroup implements IPSStatementBlock {
   }
 
   /**
-   * Get the data extractors used to get the replacement values which will
-   * be used to execute the statement.
+   * Get the data extractors used to get the replacement values which will be used to execute the
+   * statement.
    *
-   * @return            the list of replacement values
+   * @return the list of replacement values
    */
   public java.util.List getReplacementValueExtractors() {
     java.util.ArrayList retList = new java.util.ArrayList();
@@ -297,8 +281,7 @@ public class PSStatementGroup implements IPSStatementBlock {
     return retList;
   }
 
-  /**
-   */
+  /** */
   public List getLobStatementColumns() {
     ArrayList retList = new ArrayList();
 
@@ -318,27 +301,23 @@ public class PSStatementGroup implements IPSStatementBlock {
   /**
    * Is this block static (not dependent upon run-time data)?
    *
-   * @return         <code>true</code> if it is
+   * @return <code>true</code> if it is
    */
   public boolean isStaticBlock() {
     return ((m_leftBlock != null) && m_leftBlock.isStaticBlock())
         && ((m_rightBlock != null) && m_rightBlock.isStaticBlock());
   }
 
-  /**
-   * See {@link IPSStatementBlock#hasStaticSql()} for details.
-   */
+  /** See {@link IPSStatementBlock#hasStaticSql()} for details. */
   public boolean hasStaticSql() {
     return ((m_leftBlock != null) && m_leftBlock.hasStaticSql())
         && ((m_rightBlock != null) && m_rightBlock.hasStaticSql());
   }
 
   /**
-   * See {@link IPSStatementBlock#addReplacementField(
-   * IPSReplacementValue, Object[])} for details.
+   * See {@link IPSStatementBlock#addReplacementField( IPSReplacementValue, Object[])} for details.
    *
-   * @throws UnsupportedOperationException cannot add replacement field to
-   * statement group
+   * @throws UnsupportedOperationException cannot add replacement field to statement group
    */
   public void addReplacementField(IPSReplacementValue value, Object[] params) {
     throw new UnsupportedOperationException("Cannot add replacement field to statement group");
@@ -347,8 +326,7 @@ public class PSStatementGroup implements IPSStatementBlock {
   /**
    * See {@link IPSStatementBlock#addText(String)} for details.
    *
-   * @throws UnsupportedOperationException cannot add text to
-   * statement group
+   * @throws UnsupportedOperationException cannot add text to statement group
    */
   public void addText(String text) {
     throw new UnsupportedOperationException("Cannot add text to statement group");

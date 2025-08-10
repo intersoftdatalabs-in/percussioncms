@@ -42,7 +42,6 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * @author erikserating
  * @author adamgent
- *
  */
 public class PSInputValidatorFilterTest {
 

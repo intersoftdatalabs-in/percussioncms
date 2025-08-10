@@ -49,43 +49,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSTransactionSet class is used to group connections into a single
- * transaction. When statements are executed against each connection,
- * failure in any of the statements will cause a roll back in all the
- * connections in the transaction group. Success causes the data to be
+ * The PSTransactionSet class is used to group connections into a single transaction. When
+ * statements are executed against each connection, failure in any of the statements will cause a
+ * roll back in all the connections in the transaction group. Success causes the data to be
  * committed across the transaction group.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSTransactionSet implements IPSExecutionStep {
-  /**
-   * Transactional integrity will not be honored.
-   */
+  /** Transactional integrity will not be honored. */
   public static final int XACT_NONE = 0;
 
-  /**
-   * Transactional integrity will be honored at the row level.
-   */
+  /** Transactional integrity will be honored at the row level. */
   public static final int XACT_EACH_ROW = 1;
 
-  /**
-   * Transactional integrity will be honored across all rows.
-   */
+  /** Transactional integrity will be honored across all rows. */
   public static final int XACT_ALL_ROWS = Integer.MAX_VALUE;
 
   /**
-   * Create a transaction set to handle update, insert and delete
-   * processing for the specified data set.
+   * Create a transaction set to handle update, insert and delete processing for the specified data
+   * set.
    *
-   * @param      ah         the application containing the data set
-   *
-   * @param      ds         the data set containing the update pipe(s) this
-   *                        object will handle
-   *
-   * @exception   PSInvalidRequestTypeException
-   *                        if ds contains no update pipes
+   * @param ah the application containing the data set
+   * @param ds the data set containing the update pipe(s) this object will handle
+   * @exception PSInvalidRequestTypeException if ds contains no update pipes
    */
   public PSTransactionSet(PSApplicationHandler ah, PSDataSet ds)
       throws PSInvalidRequestTypeException,
@@ -140,12 +129,11 @@ public class PSTransactionSet implements IPSExecutionStep {
   /* ************  IPSExecutionStep Interface Implementation ************ */
 
   /**
-   * Execute the data modification statements associated with this
-   * transaction set as a step in the execution plan.
+   * Execute the data modification statements associated with this transaction set as a step in the
+   * execution plan.
    *
-   * @param      data           the execution data associated with this plan
-   *
-   * @exception   SQLException   if a SQL error occurs
+   * @param data the execution data associated with this plan
+   * @exception SQLException if a SQL error occurs
    */
   public void execute(PSExecutionData data)
       throws java.sql.SQLException, com.percussion.error.PSErrorException {
@@ -788,9 +776,9 @@ public class PSTransactionSet implements IPSExecutionStep {
   }
 
   /**
-   * Determine whether an XML data source is being used, if not, then try to convert
-   * the current data source to an XML data source. The real purpose is to force the
-   * data extractor being a PSXmlFieldExtractor.
+   * Determine whether an XML data source is being used, if not, then try to convert the current
+   * data source to an XML data source. The real purpose is to force the data extractor being a
+   * PSXmlFieldExtractor.
    */
   private void fixupDataMappings(PSApplicationHandler ah, PSDataSet ds)
       throws PSIllegalArgumentException {
@@ -887,62 +875,54 @@ public class PSTransactionSet implements IPSExecutionStep {
   private static final String HTML_BASE_NODE = "PSXParam";
 
   /**
-   * This contains the update execution plan. It is an array containing
-   * the steps we must perform, in their appropriate order. It may
-   * contain INSERT statements (PSUpdateStatement)
-   * and exits (PSExitHandler).
+   * This contains the update execution plan. It is an array containing the steps we must perform,
+   * in their appropriate order. It may contain INSERT statements (PSUpdateStatement) and exits
+   * (PSExitHandler).
    */
   private IPSExecutionStep[] m_insertPlan;
 
   /**
-   * This contains the update execution plan. It is an array containing
-   * the steps we must perform, in their appropriate order. It may
-   * contain UPDATE statements (PSUpdateStatement)
-   * and exits (PSExitHandler).
+   * This contains the update execution plan. It is an array containing the steps we must perform,
+   * in their appropriate order. It may contain UPDATE statements (PSUpdateStatement) and exits
+   * (PSExitHandler).
    */
   private IPSExecutionStep[] m_updatePlan;
 
   /**
-   * This contains the update execution plan. It is an array containing
-   * the steps we must perform, in their appropriate order. It may
-   * contain DELETE statements (PSUpdateStatement)
-   * and exits (PSExitHandler).
+   * This contains the update execution plan. It is an array containing the steps we must perform,
+   * in their appropriate order. It may contain DELETE statements (PSUpdateStatement) and exits
+   * (PSExitHandler).
    */
   private IPSExecutionStep[] m_deletePlan;
 
   /**
-   * The XACT_xxx transaction type. This tells us whether or not we need
-   * to support transactions, and if so, what the checkpoint is, etc.
+   * The XACT_xxx transaction type. This tells us whether or not we need to support transactions,
+   * and if so, what the checkpoint is, etc.
    */
   private int m_type;
 
   /**
-   * We only need to execute logins once per transaction set. Furthermore,
-   * there's only one set of logins regardless of execution plan. That is,
-   * insert, update and delete all use the same login plan.
+   * We only need to execute logins once per transaction set. Furthermore, there's only one set of
+   * logins regardless of execution plan. That is, insert, update and delete all use the same login
+   * plan.
    */
   private PSBackEndLogin[] m_logins;
 
   /**
-   * The application handler we belong to. This gives us ways to figure
-   * out what type of request we're handling (eg, insert).
+   * The application handler we belong to. This gives us ways to figure out what type of request
+   * we're handling (eg, insert).
    */
   private PSApplicationHandler m_appHandler;
 
-  /**
-   * Is the data source XML or HTML (as defined by the mappings)
-   */
+  /** Is the data source XML or HTML (as defined by the mappings) */
   private boolean m_isXmlDataSource;
 
   /**
-   * We build a primary tree walker for the input document traversing the
-   * specified root element. This root is considered the "row" of input
-   * data (which may be many back-end rows).
+   * We build a primary tree walker for the input document traversing the specified root element.
+   * This root is considered the "row" of input data (which may be many back-end rows).
    */
   private String m_rootElement;
 
-  /**
-   * The name of the XML field containing the action type we are performing.
-   */
+  /** The name of the XML field containing the action type we are performing. */
   private String m_actionTypeXmlField;
 }

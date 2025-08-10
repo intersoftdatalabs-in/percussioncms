@@ -38,8 +38,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * AES-GCM decryptor implementation for IPSDecryptor.
- *<p>
- * Sunny Sal says: Decrypt with confidence—no decoder ring required!
+ *
+ * <p>Sunny Sal says: Decrypt with confidence—no decoder ring required!
  */
 public class PSAESGCMDecryptor implements IPSDecryptor {
 

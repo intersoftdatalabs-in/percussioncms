@@ -22,28 +22,25 @@ import com.percussion.ui.data.PSSimpleDisplayFormat;
 /**
  * Service to interact with the server's UI components.
  *
- * <p>
- * Refactored for Java 11 and Google Java Style.
- * </p>
+ * <p>Refactored for Java 11 and Google Java Style.
  *
  * @author erikserating
  */
 public interface IPSUiService {
-    /**
-     * Retrieve a display format by its internal name.
-     *
-     * @param name the internal name of the display format to be found. May
-     *             be {@code null} or empty, in which case it will return the default
-     *             CMS display format.
-     * @return the display format or {@code null} if not found.
-     */
-    PSSimpleDisplayFormat getDisplayFormatByName(String name);
+  /**
+   * Retrieve a display format by its internal name.
+   *
+   * @param name the internal name of the display format to be found. May be {@code null} or empty,
+   *     in which case it will return the default CMS display format.
+   * @return the display format or {@code null} if not found.
+   */
+  PSSimpleDisplayFormat getDisplayFormatByName(String name);
 
-    /**
-     * Retrieve the display format by its passed-in id.
-     *
-     * @param id the display format id.
-     * @return the display format or {@code null} if not found.
-     */
-    PSSimpleDisplayFormat getDisplayFormat(int id);
+  /**
+   * Retrieve the display format by its passed-in id.
+   *
+   * @param id the display format id.
+   * @return the display format or {@code null} if not found.
+   */
+  PSSimpleDisplayFormat getDisplayFormat(int id);
 }

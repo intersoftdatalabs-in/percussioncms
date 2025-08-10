@@ -19,52 +19,49 @@
 package com.percussion.share.validation;
 
 import com.percussion.share.validation.PSErrors.PSObjectError;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for {@link PSErrors}.
- */
+/** Unit test for {@link PSErrors}. */
 public class PSErrorsTest {
 
-    @Test
-    void testSerialization() throws JAXBException {
-        var errors = new PSErrors();
-        var objectError = new PSObjectError();
+  @Test
+  void testSerialization() throws JAXBException {
+    var errors = new PSErrors();
+    var objectError = new PSObjectError();
 
-        objectError.setCode("TEST");
-        objectError.setDefaultMessage("UNIT TEST");
-        List<String> args = Arrays.asList("ARG1", "ARG2");
-        objectError.setArguments(args);
+    objectError.setCode("TEST");
+    objectError.setDefaultMessage("UNIT TEST");
+    List<String> args = Arrays.asList("ARG1", "ARG2");
+    objectError.setArguments(args);
 
-        var cause = new PSErrorCause();
-        cause.setCause(new Throwable("TEST"));
-        cause.setLocalizedMessage("TEST");
-        cause.setMessage("TEST");
-        objectError.setCause(cause);
+    var cause = new PSErrorCause();
+    cause.setCause(new Throwable("TEST"));
+    cause.setLocalizedMessage("TEST");
+    cause.setMessage("TEST");
+    objectError.setCause(cause);
 
-        errors.setGlobalError(objectError);
+    errors.setGlobalError(objectError);
 
-        // Get a JAXB Context for the object we created above
-        var context = JAXBContext.newInstance(errors.getClass());
+    // Get a JAXB Context for the object we created above
+    var context = JAXBContext.newInstance(errors.getClass());
 
-        // To convert errors to XML, create a JAXB Marshaller
-        var marshaller = context.createMarshaller();
+    // To convert errors to XML, create a JAXB Marshaller
+    var marshaller = context.createMarshaller();
 
-        // Make the output pretty
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        var sw = new StringWriter();
+    // Make the output pretty
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    var sw = new StringWriter();
 
-        // Marshall the object to XML
-        marshaller.marshal(errors, sw);
+    // Marshall the object to XML
+    marshaller.marshal(errors, sw);
 
-        // Print it out for this example
-        System.out.println(sw.toString());
-    }
+    // Print it out for this example
+    System.out.println(sw.toString());
+  }
 }

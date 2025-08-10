@@ -36,7 +36,7 @@ public class ASTParameterSpecification extends SimpleNode {
 
   private String m_name;
 
-  /** Accept the visitor. **/
+  /** Accept the visitor. * */
   public Object jjtAccept(SQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

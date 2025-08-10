@@ -16,15 +16,13 @@
  */
 package com.percussion.utils.jdbc;
 
-/**
- * Simple concrete implementation of the {@link IPSConnectionInfo} interface.
- */
+/** Simple concrete implementation of the {@link IPSConnectionInfo} interface. */
 public class PSConnectionInfo implements IPSConnectionInfo {
   /**
    * Construct from datasource name.
    *
-   * @param datasource The name, may be <code>null</code> or empty to indicate
-   * the repository connection.
+   * @param datasource The name, may be <code>null</code> or empty to indicate the repository
+   *     connection.
    */
   public PSConnectionInfo(String datasource) {
     m_datasource = datasource;
@@ -35,8 +33,6 @@ public class PSConnectionInfo implements IPSConnectionInfo {
     return m_datasource;
   }
 
-  /**
-   * The datasource name supplied during construction, immutable after that.
-   */
+  /** The datasource name supplied during construction, immutable after that. */
   private String m_datasource;
 }

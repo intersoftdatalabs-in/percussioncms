@@ -22,21 +22,17 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
 /**
- * Class to handle packaging and deploying a user dependency. This class does
- * not support discovering user dependencies, merely extracting and installing
- * them.
+ * Class to handle packaging and deploying a user dependency. This class does not support
+ * discovering user dependencies, merely extracting and installing them.
  */
 public class PSUserDependencyHandler extends PSFileDependencyHandler {
 
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSUserDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -53,8 +49,6 @@ public class PSUserDependencyHandler extends PSFileDependencyHandler {
     return DEPENDENCY_TYPE;
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = PSUserDependency.USER_DEPENDENCY_TYPE;
 }

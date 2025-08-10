@@ -32,13 +32,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * A class that provides methods for accessing and setting fields in the
- * transitions' context. The table joins are hidden from the user.
+ * A class that provides methods for accessing and setting fields in the transitions' context. The
+ * table joins are hidden from the user.
  *
  * @author Rammohan Vangapalli
  * @version 1.0
  * @since 2.0
- *
  */
 public class PSTransitionsContext implements IPSTransitionsContext {
   private int workflowID = 0;
@@ -74,12 +73,10 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   /**
    * Constructor specifying the transition ID.
    *
-   * @param transitionID        ID of the transition
-   * @param connection          database connection
-   * @throws                    SQLException if an SQL error occurs
-   * @throws                    PSEntryNotFoundException if no records
-   *                            were returned corresponding to this set
-   *                            of data.
+   * @param transitionID ID of the transition
+   * @param connection database connection
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
    */
   public PSTransitionsContext(int transitionID, int workflowid, Connection connection)
       throws SQLException, PSEntryNotFoundException {
@@ -102,18 +99,15 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Constructor specifying the workFlowID, connection, transition trigger,
-   * and state which the content item is transitioning from.
+   * Constructor specifying the workFlowID, connection, transition trigger, and state which the
+   * content item is transitioning from.
    *
-   * @param workFlowID          ID of the workflow for this item
-   * @param connection          database connection
-   * @param transitionTrigger   trigger for the action associated with this
-   *                            transition, e.g. "reject"
-   * @param transitionFromStateID  state which item is transitioning from
-   * @throws                    SQLException if an SQL error occurs
-   * @throws                    PSEntryNotFoundException if no records
-   *                            were returned corresponding to this set
-   *                            of data.
+   * @param workFlowID ID of the workflow for this item
+   * @param connection database connection
+   * @param transitionTrigger trigger for the action associated with this transition, e.g. "reject"
+   * @param transitionFromStateID state which item is transitioning from
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
    */
   public PSTransitionsContext(
       int workFlowID, Connection connection, String transitionTrigger, int transitionFromStateID)
@@ -139,16 +133,14 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Constructor specifying the workFlowID, connection,
-   * and state which the content item is transitioning from.
+   * Constructor specifying the workFlowID, connection, and state which the content item is
+   * transitioning from.
    *
-   * @param workFlowID          ID of the workflow for this item
-   * @param connection          database connection
-   * @param transitionFromStateID  state which item is transitioning from
-   * @throws                    SQLException if an SQL error occurs
-   * @throws                    PSEntryNotFoundException if no records
-   *                            were returned corresponding to this set
-   *                            of data.
+   * @param workFlowID ID of the workflow for this item
+   * @param connection database connection
+   * @param transitionFromStateID state which item is transitioning from
+   * @throws SQLException if an SQL error occurs
+   * @throws PSEntryNotFoundException if no records were returned corresponding to this set of data.
    */
   public PSTransitionsContext(int workFlowID, Connection connection, int transitionFromStateID)
       throws SQLException, PSEntryNotFoundException {
@@ -194,10 +186,9 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * This makes a request to get the roles, names and ids of the
-   * transition.  A join would work but there are far too many changes
-   * to do at this time.  This must be called after the <code>connection</code>
-   * is set.
+   * This makes a request to get the roles, names and ids of the transition. A join would work but
+   * there are far too many changes to do at this time. This must be called after the <code>
+   * connection</code> is set.
    */
   private void buildRolesList(int transitionID, int workflowid) throws SQLException {
     PreparedStatement stmt;
@@ -222,7 +213,9 @@ public class PSTransitionsContext implements IPSTransitionsContext {
       m_TransitionRoleNames_List = new ArrayList<>();
       m_TransitionRoleIds_List = new ArrayList<>();
       while (resSet.next()) {
-        /** @todo refactor to remove these lists and get from Map */
+        /**
+         * @todo refactor to remove these lists and get from Map
+         */
         m_TransitionRoleNames_List.add(resSet.getString("ROLENAME"));
         m_TransitionRoleIds_List.add(resSet.getInt("TRANSITIONROLEID"));
 
@@ -315,6 +308,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
 
   /**
    * Returns a list of role names for this transition
+   *
    * @return may be <code>null</code>
    */
   public List<String> getTransitionRoles() {
@@ -332,6 +326,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
 
   /**
    * Returns a list of role id for this transition
+   *
    * @return may be <code>null</code>
    */
   public List<Integer> getTransitionRolesIds() {
@@ -339,8 +334,8 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Returns a map of the roles in this transition, with the roleid as the
-   * key and the rolename as the value.
+   * Returns a map of the roles in this transition, with the roleid as the key and the rolename as
+   * the value.
    *
    * @return the map, may be <code>null</code>.
    */
@@ -428,8 +423,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
   }
 
   /**
-   * Produce a string describing the transition aging related context values,
-   * one to a line.
+   * Produce a string describing the transition aging related context values, one to a line.
    *
    * @return string describing the transition aging related context values.
    */
@@ -510,9 +504,7 @@ public class PSTransitionsContext implements IPSTransitionsContext {
         + "\n";
   }
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_TC = PSConnectionMgr.getQualifiedIdentifier("TRANSITIONS");
 
   private static final String TRANSITIONS_SELECT =

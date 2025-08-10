@@ -52,28 +52,22 @@ import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
 
 /**
- * Parses ehcache.xml and updates the file using a result of SELECT COUNT(*)
- * results from specific tables defined in {@link PSAutotuneCacheRelationships}.
- *
- * <br/>
+ * Parses ehcache.xml and updates the file using a result of SELECT COUNT(*) results from specific
+ * tables defined in {@link PSAutotuneCacheRelationships}. <br>
  *
  * @author chriswright
- *
  */
 public class PSAutotuneCache {
-  /**
-   * Default ctor.
-   */
+  /** Default ctor. */
   private PSAutotuneCache() {
     // Spring
   }
 
   /**
-   * Creates a document builder to parse the ehcache.xml file. From here, it
-   * parses the document based on each 'cache' element. We get the
-   * maxElementsInMemory for each cache field, and if that cache element is
-   * present in the keys map, update it to match the result of the SELECT
-   * COUNT(*) result increased by 10%.
+   * Creates a document builder to parse the ehcache.xml file. From here, it parses the document
+   * based on each 'cache' element. We get the maxElementsInMemory for each cache field, and if that
+   * cache element is present in the keys map, update it to match the result of the SELECT COUNT(*)
+   * result increased by 10%.
    */
   public void updateEhcache() throws Exception {
     init();
@@ -145,6 +139,7 @@ public class PSAutotuneCache {
 
   /**
    * Writes the values ehcache.xml file.
+   *
    * @param doc - the processed document that needs writing.
    */
   private void writeEhCache(Document doc) {
@@ -187,17 +182,14 @@ public class PSAutotuneCache {
     return percentageOfHeapForCache - (long) bytesToSubtract;
   }
 
-  /**
-   * Loads the ehcache.xml file.
-   */
+  /** Loads the ehcache.xml file. */
   private void loadEhCacheFile() {
     ClassLoader loader = PSAutotuneCache.class.getClassLoader();
     ehcache = new File(loader.getResource("/ehcache.xml").getFile());
   }
 
   /**
-   * Calculates the MAX amount of MB that will be required
-   * to hold all large table data.
+   * Calculates the MAX amount of MB that will be required to hold all large table data.
    *
    * @return the number of MB to hold all large table data.
    */
@@ -213,12 +205,10 @@ public class PSAutotuneCache {
   }
 
   /**
-   * Iterates through the smallTables map and the result of
-   * counts from corresponding rows in the db to determine
-   * how many MB are allocated at maximum for each cache region.
+   * Iterates through the smallTables map and the result of counts from corresponding rows in the db
+   * to determine how many MB are allocated at maximum for each cache region.
    *
-   * @return a representation in bytes of how much space the small
-   *         tables will consume.
+   * @return a representation in bytes of how much space the small tables will consume.
    */
   private long calcSpaceForSmallerTables() {
     long kb = 0;
@@ -232,9 +222,8 @@ public class PSAutotuneCache {
   }
 
   /**
-   * Updates the HashMap with results of the SELECT COUNT(*)'s against the
-   * database. This maps the count results to the appropriate ehcache.xml
-   * fields.
+   * Updates the HashMap with results of the SELECT COUNT(*)'s against the database. This maps the
+   * count results to the appropriate ehcache.xml fields.
    */
   private void getDatabaseCountValues() throws SQLException, NamingException {
     try (Connection conn = PSConnectionHelper.getDbConnection()) {
@@ -257,10 +246,7 @@ public class PSAutotuneCache {
     }
   }
 
-  /**
-   * Backs up the ehcache.xml file.
-   *
-   */
+  /** Backs up the ehcache.xml file. */
   private void backupEhCache() {
     try (FileInputStream input = new FileInputStream(ehcache)) {
       File temp = File.createTempFile("ehcache", ".xml", ehcache.getParentFile());
@@ -273,9 +259,7 @@ public class PSAutotuneCache {
     }
   }
 
-  /**
-   * Sets the memory variables for use in later calculations.
-   */
+  /** Sets the memory variables for use in later calculations. */
   private void setHeapSizes() {
     this.heapSize = Runtime.getRuntime().totalMemory();
     this.heapMaxSize = Runtime.getRuntime().maxMemory();
@@ -317,101 +301,77 @@ public class PSAutotuneCache {
   }
 
   /**
-   * The total amount of memory currently available for current and future
-   * objects, measured in bytes. Corresponds to the amount of memory CURRENTLY
-   * available to the JVM.
+   * The total amount of memory currently available for current and future objects, measured in
+   * bytes. Corresponds to the amount of memory CURRENTLY available to the JVM.
    */
   private long heapSize;
 
   /**
-   * The maximum amount of memory that the virtual machine will attempt to use,
-   * measured in bytes. Exceeding this will result in OutOfMemory exception.
+   * The maximum amount of memory that the virtual machine will attempt to use, measured in bytes.
+   * Exceeding this will result in OutOfMemory exception.
    */
   private long heapMaxSize;
 
   /**
-   * An approximation to the total amount of memory currently available for
-   * future allocated objects, measured in bytes.
+   * An approximation to the total amount of memory currently available for future allocated
+   * objects, measured in bytes.
    */
   private long heapFreeSize;
 
-  /**
-   * The amount of presumable free memory.
-   */
+  /** The amount of presumable free memory. */
   private long freeMemory;
 
-  /**
-   * Error to use when backing up ehcache.xml.
-   */
+  /** Error to use when backing up ehcache.xml. */
   private static final String BACKUP_ERROR = "Error backing up ehcache.xml document. Error: {}";
 
-  /**
-   * maxElementsInMemory cache setting in ehcache.xml.
-   */
+  /** maxElementsInMemory cache setting in ehcache.xml. */
   private static final String MAX_ELEMS_IN_MEMORY = "maxElementsInMemory";
 
-  /**
-   * Maintains file reference to ehcache.xml.
-   */
+  /** Maintains file reference to ehcache.xml. */
   private File ehcache = null;
 
   /**
-   * Contains key/value pair for relationship between a table name and it's
-   * region name in ehcache.
+   * Contains key/value pair for relationship between a table name and it's region name in ehcache.
    */
   private static final Map<String, String> cacheRelationships =
       PSAutotuneCacheRelationships.DBTABLES_AND_CACHEFIELDS;
 
   /**
-   * Contains a key/value pair relationship between the tables that get very
-   * large in the database and their equivalent region associations in ehcache.
+   * Contains a key/value pair relationship between the tables that get very large in the database
+   * and their equivalent region associations in ehcache.
    */
   private static final Map<String, Double> largeTables = PSAutotuneCacheRelationships.LARGE_TABLES;
 
   /**
-   * Contains a key/value pair relationship between the tables that don't get
-   * as large and their equivalent region associations in ehcache.
+   * Contains a key/value pair relationship between the tables that don't get as large and their
+   * equivalent region associations in ehcache.
    */
   private static final Map<String, Double> smallTables = PSAutotuneCacheRelationships.SMALL_TABLES;
 
-  /**
-   * Names of the large tables to be iterated in order of how they should be processed.
-   */
+  /** Names of the large tables to be iterated in order of how they should be processed. */
   private static final String[] largeTableNames = PSAutotuneCacheRelationships.LARGE_TABLE_NAMES;
 
   /**
-   * Maintains relationships between the ehcache region name and the
-   * corresponding SELECT COUNT(*) result from the database.
+   * Maintains relationships between the ehcache region name and the corresponding SELECT COUNT(*)
+   * result from the database.
    */
   private HashMap<String, Integer> ehcacheDbRowCountValues = new HashMap<>();
 
-  /**
-   * Access to the cache manager.
-   */
+  /** Access to the cache manager. */
   private IPSCacheAccess m_cacheAccessor;
 
-  /**
-   * The percentage the ehcache is allowed to consume.
-   */
+  /** The percentage the ehcache is allowed to consume. */
   private double percentage = 40.0;
 
-  /**
-   * Convert bytes to MB
-   */
+  /** Convert bytes to MB */
   private static final long BYTES_TO_MB = 1024L * 1024L;
 
-  /**
-   * Convert kilobytes to MB
-   */
+  /** Convert kilobytes to MB */
   private static final long KB_TO_MB = 1024L;
 
-  /**
-   * Round decimals to two places.
-   */
+  /** Round decimals to two places. */
   private static final DecimalFormat DF2 = new DecimalFormat(".#");
 
-  /**
-   * Logger.
-   */
+  /** Logger. */
   public static final Logger log = LogManager.getLogger(PSAutotuneCache.class.getName());
 }

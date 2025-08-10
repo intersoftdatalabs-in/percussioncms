@@ -53,19 +53,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This extension builds a content item list for deletion by the Rhythmyx
- * update resource after deleting data from the content type specific tables by
- * cmaking internal requests to the content editor's purge resource. If the
- * attempt to delete this data fails for any reason we add this item to skipped
- * item list for deletion. The DTD for the document is:
- * &lt;!ELEMENT deleterows (row*, skipped) &gt;
- * &lt;!ELEMENT row (#PCDATA) &gt;
- * &lt;!ATTLIST row pkey CDATA #IMPLIED &gt;
- * &lt;!ELEMENT skipped (row*) &gt;
- * This exit shall typically placed on an Rx update resource that deletes the
- * rows from all system tables tables. The XML element pkey must be mapped to
- * the primary key in the backed table(s).
- *
+ * This extension builds a content item list for deletion by the Rhythmyx update resource after
+ * deleting data from the content type specific tables by cmaking internal requests to the content
+ * editor's purge resource. If the attempt to delete this data fails for any reason we add this item
+ * to skipped item list for deletion. The DTD for the document is: &lt;!ELEMENT deleterows (row*,
+ * skipped) &gt; &lt;!ELEMENT row (#PCDATA) &gt; &lt;!ATTLIST row pkey CDATA #IMPLIED &gt;
+ * &lt;!ELEMENT skipped (row*) &gt; This exit shall typically placed on an Rx update resource that
+ * deletes the rows from all system tables tables. The XML element pkey must be mapped to the
+ * primary key in the backed table(s).
  */
 public class PSDeleteContent implements IPSRequestPreProcessor {
   /*
@@ -214,8 +209,7 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
   /**
    * Updates both folder and assembly caches for the modified relationships.
    *
-   * @param relationships the modified relationships, assumed not
-   *   <code>null</code>.
+   * @param relationships the modified relationships, assumed not <code>null</code>.
    */
   private void updateCaches(PSRelationshipSet relationships) {
     // update the folder cache if needed
@@ -238,15 +232,13 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
   }
 
   /**
-   * This helper method parses the url to get the content editor application
-   * name, appends the purge resource name "/purge" and then returns.
+   * This helper method parses the url to get the content editor application name, appends the purge
+   * resource name "/purge" and then returns.
    *
-   * @param ceUrl The base content editor url returned by
-   * {@link #getEditorUrl(String, IPSRequestContext)}, assumed not
-   * <code>null</code> or empty.
-   *
-   * @return The url to call to purge the item from the editor tables,
-   * <code>null</code> if it cannot be parsed, never empty.
+   * @param ceUrl The base content editor url returned by {@link #getEditorUrl(String,
+   *     IPSRequestContext)}, assumed not <code>null</code> or empty.
+   * @return The url to call to purge the item from the editor tables, <code>null</code> if it
+   *     cannot be parsed, never empty.
    */
   private String getPurgeUrl(String ceUrl) {
     String result = null;
@@ -265,16 +257,13 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
   }
 
   /**
-   * This helper method retrieves the base url for the appropriate content
-   * editor resource
-   * e.g. http://locahost:9992/Rhythmxy/rx_ceArticle/article.html
+   * This helper method retrieves the base url for the appropriate content editor resource e.g.
+   * http://locahost:9992/Rhythmxy/rx_ceArticle/article.html
    *
-   * @param contentid The contentId of the item for which the url is to be
-   * retreived.  Assumed not <code>null</code> or empty.
+   * @param contentid The contentId of the item for which the url is to be retreived. Assumed not
+   *     <code>null</code> or empty.
    * @param request The current request context, assumed not <code>null</code>.
-   *
-   * @return The url, or <code>null</code> if the url cannot be retrived, never
-   * empty.
+   * @return The url, or <code>null</code> if the url cannot be retrived, never empty.
    */
   private String getEditorUrl(String contentid, IPSRequestContext request) {
     Document doc = null;
@@ -300,12 +289,11 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
   }
 
   /**
-   * Before performing the delete i.e. execute delete plans
-   * which would wipe out data from the tables, delete
-   * relationships
+   * Before performing the delete i.e. execute delete plans which would wipe out data from the
+   * tables, delete relationships
    *
-   * Changed to use underlying relationship service to prevent action firing
-   * which may throw error and prevent relationship from being removed.
+   * <p>Changed to use underlying relationship service to prevent action firing which may throw
+   * error and prevent relationship from being removed.
    *
    * @param request The request context
    * @throws PSException
@@ -334,49 +322,33 @@ public class PSDeleteContent implements IPSRequestPreProcessor {
     updateCaches(relset);
   }
 
-  /**
-   * The fully qualified name of this extension.
-   */
+  /** The fully qualified name of this extension. */
   private String ms_fullExtensionName = "";
 
   /**
-   * Name of the purge URL that must be present in the content editor app. This
-   * name is fixed and hence hard coded.
+   * Name of the purge URL that must be present in the content editor app. This name is fixed and
+   * hence hard coded.
    */
   private static final String PURGE_RESOURCE_NAME = "/purge";
 
-  /**
-   * Name of the element 'deleterows'.
-   */
+  /** Name of the element 'deleterows'. */
   private static final String ELEM_DELETEROWS = "deleterows";
 
-  /**
-   * Name of the element 'skipped'.
-   */
+  /** Name of the element 'skipped'. */
   private static final String ELEM_SKIPPED = "skipped";
 
-  /**
-   * Name of the element 'row'.
-   */
+  /** Name of the element 'row'. */
   private static final String ELEM_ROW = "row";
 
-  /**
-   * Name of the attribute 'error'.
-   */
+  /** Name of the attribute 'error'. */
   private static final String ATTR_ERROR = "error";
 
-  /**
-   * Name of the attribute 'pkey'.
-   */
+  /** Name of the attribute 'pkey'. */
   private static final String ATTR_PKEY = "pkey";
 
-  /**
-   * Name of the attribute primary key for the relationship tables.
-   */
+  /** Name of the attribute primary key for the relationship tables. */
   private static final String ATTR_RID = "rid";
 
-  /**
-   * The log instance to use for purging, never <code>null</code>.
-   */
+  /** The log instance to use for purging, never <code>null</code>. */
   private static final Logger purge_log = LogManager.getLogger("PurgeLog");
 }

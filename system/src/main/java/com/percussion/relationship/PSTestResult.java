@@ -18,15 +18,14 @@
 package com.percussion.relationship;
 
 /**
- * This class defines additional methods to pass sufficient informtion as test
- * result to relationship engine after executing the {@link IPSEffect#test()
- * method}. This information includes whether to test for dependents' processing
- * and error details if the test fails for some reason.
+ * This class defines additional methods to pass sufficient informtion as test result to
+ * relationship engine after executing the {@link IPSEffect#test() method}. This information
+ * includes whether to test for dependents' processing and error details if the test fails for some
+ * reason.
  */
 public class PSTestResult extends PSEffectResult {
   /**
-   * Implementation for an abstract method, that allows to set a recursion
-   * flag.
+   * Implementation for an abstract method, that allows to set a recursion flag.
    *
    * @param recurseDependents
    */
@@ -36,16 +35,17 @@ public class PSTestResult extends PSEffectResult {
 
   /**
    * Placeholder for ActivationEndPoint which was used to run Test.
-   * @param isOwner <code>true</code> sets activation end point to owner and
-   * <code>false</code> sets the activation end point to dependent.
+   *
+   * @param isOwner <code>true</code> sets activation end point to owner and <code>false</code> sets
+   *     the activation end point to dependent.
    */
   public void setActivationEndPoint(boolean isOwner) {
     m_activationEndPointOwner = isOwner;
   }
 
   /**
-   * Returns whether ActivationEndPoint which was used to run Test was the
-   * owner.
+   * Returns whether ActivationEndPoint which was used to run Test was the owner.
+   *
    * @return
    */
   public boolean isActivationEndPointOwner() {

@@ -22,10 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
 
-/**
- * PSNotificationsContextTest is a test class for the class
- * PSNotificationsContext
- */
+/** PSNotificationsContextTest is a test class for the class PSNotificationsContext */
 @Tag("IntegrationTest")
 public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
 
@@ -34,8 +31,7 @@ public class PSNotificationsContextTest extends PSAbstractWorkflowTest {
   /**
    * Constructor specifying command line arguments
    *
-   * @param args   command line arguments - see  {@link #HelpMessage}
-   *               for options.
+   * @param args command line arguments - see {@link #HelpMessage} for options.
    */
   public PSNotificationsContextTest(String[] args) {
     m_sArgs = args;

@@ -30,37 +30,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-/**
- * This class is used to map a set of Jdbc data types to a set of Native dbms
- * data types.
- */
+/** This class is used to map a set of Jdbc data types to a set of Native dbms data types. */
 public class PSJdbcDataTypeMap {
   /**
-   * Creates an instance of this class using the supplied document and
-   * attributes.  Loads mappings from the first DataTypeMap element found in
-   * the document that matches the attributes supplied.  If a parameter is
-   * <code>null</code> or empty, then the corresponding attribute on the
-   * DataType element is not considered when locating a match.
+   * Creates an instance of this class using the supplied document and attributes. Loads mappings
+   * from the first DataTypeMap element found in the document that matches the attributes supplied.
+   * If a parameter is <code>null</code> or empty, then the corresponding attribute on the DataType
+   * element is not considered when locating a match.
    *
-   * @param doc An Xml Document conforming to the DataTypeMaps DTD defined in
-   *    the datatypemap.dtd.  May not be <code>null</code>.
-   * @param dbAlias Attribute on the DataTypeMap specifying the backend
-   *    alias and used to determine which DataTypeMap element to load from the
-   *    doc.  May be <code>null</code> or empty, but either this param or
-   *    driver must not be <code>null</code> or empty.  Comparison on this
-   *    value is case insensitive.
-   * @param driver Additional attribute on the DataTypeMap to use to load a map
-   *    for a particular Jdbc driver. May be <code>null</code> or empty, but
-   *    either this param or dbAlias must not be <code>null</code> or empty.
-   *    May be a semi-colon delimited list.
-   * @param os Additional attribute on the DataTypeMap to use to load a map for
-   *    a particular operating system.  May be <code>null</code> or empty, in
-   *    which case this attribute is not considered when selecting a
-   *    DataTypeMap. May be a semi-colon delimited list.
-   *
+   * @param doc An Xml Document conforming to the DataTypeMaps DTD defined in the datatypemap.dtd.
+   *     May not be <code>null</code>.
+   * @param dbAlias Attribute on the DataTypeMap specifying the backend alias and used to determine
+   *     which DataTypeMap element to load from the doc. May be <code>null</code> or empty, but
+   *     either this param or driver must not be <code>null</code> or empty. Comparison on this
+   *     value is case insensitive.
+   * @param driver Additional attribute on the DataTypeMap to use to load a map for a particular
+   *     Jdbc driver. May be <code>null</code> or empty, but either this param or dbAlias must not
+   *     be <code>null</code> or empty. May be a semi-colon delimited list.
+   * @param os Additional attribute on the DataTypeMap to use to load a map for a particular
+   *     operating system. May be <code>null</code> or empty, in which case this attribute is not
+   *     considered when selecting a DataTypeMap. May be a semi-colon delimited list.
    * @throws IllegalArgumentException if any parameter is invalid.
-   * @throws PSJdbcTableFactoryException if any errors occur processing the
-   * document.
+   * @throws PSJdbcTableFactoryException if any errors occur processing the document.
    */
   public PSJdbcDataTypeMap(Document doc, String dbAlias, String driver, String os)
       throws PSJdbcTableFactoryException {
@@ -77,18 +68,16 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Provides common initialization functionality for the constructors.
-   * Populates the fields of this instance using the supplied document and
-   * attributes.  Loads mappings from the first DataTypeMap element found in
-   * the document that matches the attributes supplied.  If a parameter is
-   * <code>null</code> or empty, then the corresponding attribute on the
-   * DataType element is not considered when locating a match.
-   * <p>
-   * Assumes all parameters are valid.  See {@link #PSJdbcDataTypeMap(Document,
-   * String, String, String)} for a description of parameters.
+   * Provides common initialization functionality for the constructors. Populates the fields of this
+   * instance using the supplied document and attributes. Loads mappings from the first DataTypeMap
+   * element found in the document that matches the attributes supplied. If a parameter is <code>
+   * null</code> or empty, then the corresponding attribute on the DataType element is not
+   * considered when locating a match.
    *
-   * @throws PSJdbcTableFactoryException if any errors occur processing the
-   * document.
+   * <p>Assumes all parameters are valid. See {@link #PSJdbcDataTypeMap(Document, String, String,
+   * String)} for a description of parameters.
+   *
+   * @throws PSJdbcTableFactoryException if any errors occur processing the document.
    */
   private void initData(Document doc, String dbAlias, String driver, String os)
       throws PSJdbcTableFactoryException {
@@ -177,8 +166,8 @@ public class PSJdbcDataTypeMap {
   /**
    * Loads "maxIndexColSize" mapping from PSJdbcDataTypeMaps.xml
    *
-   *@param map The element from which to get this object's attribute. May be <code>null</code> or empty.
-   *
+   * @param map The element from which to get this object's attribute. May be <code>null</code> or
+   *     empty.
    * @throws PSJdbcTableFactoryException if error occurs
    */
   private void setMaxIndexColSize(Element map) throws PSJdbcTableFactoryException {
@@ -196,8 +185,8 @@ public class PSJdbcDataTypeMap {
   /**
    * Loads "createForeignKeyIndexes" mapping from PSJdbcDataTypeMaps.xm
    *
-   * @param map The element from which to get this object's attribute. May be <code>null</code> or empty.
-   *
+   * @param map The element from which to get this object's attribute. May be <code>null</code> or
+   *     empty.
    */
   private void setCreateForeignKeyIndexes(Element map) {
     String sTempIndex = map.getAttribute(CREATEFOREIGNKEYINDEXES);
@@ -208,9 +197,8 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Convenience version of {@link #PSJdbcDataTypeMap(Document, String, String,
-   * String)} that loads the document from a default mappings Xml document as
-   * a resource in this class's package.
+   * Convenience version of {@link #PSJdbcDataTypeMap(Document, String, String, String)} that loads
+   * the document from a default mappings Xml document as a resource in this class's package.
    *
    * @throws IOException if resource cannot be loaded.
    * @throws SAXException if the xml document cannot be parsed.
@@ -237,13 +225,10 @@ public class PSJdbcDataTypeMap {
   /**
    * Constructs an instance of this class using the supplied mappings.
    *
-   * @param mappings A Map of Jdbc types to Native types.  Both are supplied
-   * as Strings.  May not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if mappings is <code>null</code> or
-   * empty.
-   * @throws PSJdbcTableFactoryException if any errors occur processing the
-   * Map.
+   * @param mappings A Map of Jdbc types to Native types. Both are supplied as Strings. May not be
+   *     <code>null</code> or empty.
+   * @throws IllegalArgumentException if mappings is <code>null</code> or empty.
+   * @throws PSJdbcTableFactoryException if any errors occur processing the Map.
    */
   public PSJdbcDataTypeMap(Map<String, PSJdbcDataTypeMapping> mappings)
       throws PSJdbcTableFactoryException {
@@ -258,8 +243,7 @@ public class PSJdbcDataTypeMap {
    *
    * @param jdbcString the JDBC type, not <code>null</code> or empty.
    * @return the data type mapping or <code>null</code> if no mapping found.
-   * @throws IllegalArgumentException if jdbcString is <code>null</code> or
-   * empty.
+   * @throws IllegalArgumentException if jdbcString is <code>null</code> or empty.
    */
   public PSJdbcDataTypeMapping getMapping(String jdbcString) {
     if (jdbcString == null || jdbcString.trim().length() == 0)
@@ -272,7 +256,7 @@ public class PSJdbcDataTypeMap {
    * Gets the data type mapping information for the specified JDBC type.
    *
    * @param jdbcType the JDBC type
-   * @return the data type mapping or  <code>null</code> if no mapping found.
+   * @return the data type mapping or <code>null</code> if no mapping found.
    */
   public PSJdbcDataTypeMapping getMapping(int jdbcType) {
     return m_intJdbc2NativeMap.get(jdbcType);
@@ -281,14 +265,9 @@ public class PSJdbcDataTypeMap {
   /**
    * Given the Jdbc type as a String, returns the Native type as a String.
    *
-   * @param jdbcString The jdbc type as a String.  May not be <code>null</code>
-   * or empty.
-   *
-   * @return The native type as a String, <code>null</code> if no mapping
-   * found, never empty.
-   *
-   * @throws IllegalArgumentException if jdbcString is <code>null</code> or
-   * empty.
+   * @param jdbcString The jdbc type as a String. May not be <code>null</code> or empty.
+   * @return The native type as a String, <code>null</code> if no mapping found, never empty.
+   * @throws IllegalArgumentException if jdbcString is <code>null</code> or empty.
    */
   public String getNativeString(String jdbcString) {
     if (jdbcString == null || jdbcString.trim().length() == 0)
@@ -304,8 +283,7 @@ public class PSJdbcDataTypeMap {
    * Given the Jdbc type as an int, returns the Native type as a String.
    *
    * @param jdbcType the JDBC type
-   * @return The native type as a String, <code>null</code> if no mapping
-   * found, never empty.
+   * @return The native type as a String, <code>null</code> if no mapping found, never empty.
    */
   public String getNativeString(int jdbcType) {
     String nativeString = null;
@@ -317,14 +295,10 @@ public class PSJdbcDataTypeMap {
   /**
    * Given the Native type as a String, returns the Jdbc type as a String.
    *
-   * @param nativeString The native type as a String.  May not be <code>null
+   * @param nativeString The native type as a String. May not be <code>null
    * </code> or empty.
-   *
-   * @return The jdbc type as a String, <code>null</code> if no mapping
-   * found, never empty.
-   *
-   * @throws IllegalArgumentException if nativeString is <code>null</code> or
-   * empty.
+   * @return The jdbc type as a String, <code>null</code> if no mapping found, never empty.
+   * @throws IllegalArgumentException if nativeString is <code>null</code> or empty.
    */
   public String getJdbcString(String nativeString) {
     if (nativeString == null || nativeString.trim().length() == 0)
@@ -351,8 +325,7 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Convenience version that calls
-   * {@link #getJdbcType(String, String, String, int)
+   * Convenience version that calls {@link #getJdbcType(String, String, String, int)
    * getJdbcType(nativeString, null, null, defaultJdbcType)}
    */
   public int getJdbcType(String nativeString, int defaultJdbcType)
@@ -361,37 +334,30 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Finds the data type mapping (<code>PSJdbcDataTypeMapping</code>) object
-   * for the specified native data type <code>nativeString</code>. If this
-   * mapping returns <code>true</code> from <code>isNative2Jdbc()</code>
-   * method then this method returns the jdbc data type specified in this
-   * mapping, matching on size and scale if provided.
-   * If no data type mapping exists for the specified native data type
-   * <code>nativeString</code> or the mapping does not return true from the
-   * <code>isNative2Jdbc()</code> method then it returns
-   * <code>defaultJdbcType</code>
+   * Finds the data type mapping (<code>PSJdbcDataTypeMapping</code>) object for the specified
+   * native data type <code>nativeString</code>. If this mapping returns <code>true</code> from
+   * <code>isNative2Jdbc()</code> method then this method returns the jdbc data type specified in
+   * this mapping, matching on size and scale if provided. If no data type mapping exists for the
+   * specified native data type <code>nativeString</code> or the mapping does not return true from
+   * the <code>isNative2Jdbc()</code> method then it returns <code>defaultJdbcType</code>
+   *
    * <p>
-   * @param nativeString the native data type, may not be <code>null</code>
-   * or empty.
-   * @param size The size to match on, may be <code>null</code> or empty to
-   * exclude it as matching criteria.
-   * @param scale The scale to match on, may be <code>null</code> or empty to
-   * exclude it as matching criteria.
-   * @param defaultJdbcType the jdbc data type to return in case no mapping
-   * exists for the specified native data type <code>nativeString</code> or
-   * if the mapping does not return <code>true</code> from the
-   * <code>isNative2Jdbc()</code> method
    *
-   * @return Returns the jdbc data type for the specified native data type
-   * if the corresponding <code>PSJdbcDataTypeMapping</code> object returns
-   * <code>true</code> from the <code>isNative2Jdbc()</code> method, otherwise
-   * returns the default jdbc data type <code>defaultJdbcType</code>
-   *
-   * @throws IllegalArgumentException if <code>nativeString</code> is
-   * <code>null</code> or empty
-   * @throws PSJdbcTableFactoryException if an error occurs converting the
-   * jdbc data type from the string to integer format
-   *
+   * @param nativeString the native data type, may not be <code>null</code> or empty.
+   * @param size The size to match on, may be <code>null</code> or empty to exclude it as matching
+   *     criteria.
+   * @param scale The scale to match on, may be <code>null</code> or empty to exclude it as matching
+   *     criteria.
+   * @param defaultJdbcType the jdbc data type to return in case no mapping exists for the specified
+   *     native data type <code>nativeString</code> or if the mapping does not return <code>true
+   *     </code> from the <code>isNative2Jdbc()</code> method
+   * @return Returns the jdbc data type for the specified native data type if the corresponding
+   *     <code>PSJdbcDataTypeMapping</code> object returns <code>true</code> from the <code>
+   *     isNative2Jdbc()</code> method, otherwise returns the default jdbc data type <code>
+   *     defaultJdbcType</code>
+   * @throws IllegalArgumentException if <code>nativeString</code> is <code>null</code> or empty
+   * @throws PSJdbcTableFactoryException if an error occurs converting the jdbc data type from the
+   *     string to integer format
    * @see PSJdbcDataTypeMapping#isNative2Jdbc()
    */
   public int getJdbcType(String nativeString, String size, String scale, int defaultJdbcType)
@@ -444,13 +410,10 @@ public class PSJdbcDataTypeMap {
   /**
    * Converts a jdbc type from a String representation to an integer.
    *
-   * @param jdbcString The jdbc type as a String.  May not be <code>null</code>
-   * or empty.
-   *
+   * @param jdbcString The jdbc type as a String. May not be <code>null</code> or empty.
    * @return The jdbc type represented as an integer.
-   *
-   * @throws  PSJdbcTableFactoryException if jdbcString is <code>null</code> or
-   * empty, or if the provided string cannot be converted.
+   * @throws PSJdbcTableFactoryException if jdbcString is <code>null</code> or empty, or if the
+   *     provided string cannot be converted.
    */
   public int convertJdbcString(String jdbcString) throws PSJdbcTableFactoryException {
     if (jdbcString == null || jdbcString.trim().length() == 0)
@@ -470,12 +433,8 @@ public class PSJdbcDataTypeMap {
    * Converts a jdbc type from a integer to its String representation.
    *
    * @param jdbcType The jdbc type as an integer.
-   *
-   * @return The jdbc type represented as an String.  Never <code>null</code>
-   * or empty.
-   *
-   * @throws PSJdbcTableFactoryException if the provided type cannot be
-   * converted.
+   * @return The jdbc type represented as an String. Never <code>null</code> or empty.
+   * @throws PSJdbcTableFactoryException if the provided type cannot be converted.
    */
   public String convertJdbcType(int jdbcType) throws PSJdbcTableFactoryException {
     String jdbcString = m_jdbcInt2String.get(jdbcType);
@@ -496,8 +455,8 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Get the maximum size for any column that may be included in an index
-   * definition, see {@link #setMaxIndexColSize(long)} for more info.
+   * Get the maximum size for any column that may be included in an index definition, see {@link
+   * #setMaxIndexColSize(long)} for more info.
    *
    * @return The size, either -1 (unlimited) or greater than zero.
    */
@@ -516,14 +475,12 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Set the maximum size for any column that may be included in an index
-   * definition. Defaults to -1 (unlimited) if not specified. Used to avoid
-   * creating indexes that exceed the backend's maximum maximum allowable size
-   * of combined index column values. Applies only to columns that contain
+   * Set the maximum size for any column that may be included in an index definition. Defaults to -1
+   * (unlimited) if not specified. Used to avoid creating indexes that exceed the backend's maximum
+   * maximum allowable size of combined index column values. Applies only to columns that contain
    * character data (), and specifies the number of characters.
    *
-   * @param maxSize The maximum size, pass -1 if the size should not be
-   *            limited.
+   * @param maxSize The maximum size, pass -1 if the size should not be limited.
    */
   public void setMaxIndexColSize(long maxSize) {
     if (maxSize <= 0 && maxSize != -1) throw new IllegalArgumentException("invalid maxSize");
@@ -532,15 +489,12 @@ public class PSJdbcDataTypeMap {
   }
 
   /**
-   * Validates the contents of the Map, and stores the mappings in all internal
-   * maps for easy retrieval.
+   * Validates the contents of the Map, and stores the mappings in all internal maps for easy
+   * retrieval.
    *
-   * @param mappings The map of type mappings. The key is the jdbc type as a
-   *    String, and the value is the native type as a String.  Assumed not
-   *    <code> null</code> or empty.
-   *
-   * @throws PSJdbcTableFactoryException if there are any errors processing the
-   * map.
+   * @param mappings The map of type mappings. The key is the jdbc type as a String, and the value
+   *     is the native type as a String. Assumed not <code> null</code> or empty.
+   * @throws PSJdbcTableFactoryException if there are any errors processing the map.
    */
   private void processMappings(Map<String, PSJdbcDataTypeMapping> mappings)
       throws PSJdbcTableFactoryException {
@@ -578,63 +532,55 @@ public class PSJdbcDataTypeMap {
     }
   }
 
-  /**
-   * Name of the default mappings file loaded as a resource from this class's
-   * package.
-   */
+  /** Name of the default mappings file loaded as a resource from this class's package. */
   public static final String DEFAULT_MAP_FILE_NAME = "PSJdbcDataTypeMaps.xml";
 
   /**
-   * Map of jdbc type as a String to native type as a String.  Initialized in
-   * the ctor, never <code>null</code>, empty, or modified after that.
+   * Map of jdbc type as a String to native type as a String. Initialized in the ctor, never <code>
+   * null</code>, empty, or modified after that.
    */
   private Map<String, PSJdbcDataTypeMapping> m_strJdbc2NativeMap = null;
 
   /**
-   * Map of jdbc type as an Integer to native type as a String.  Initialized in
-   * the ctor, never <code>null</code>, empty, or modified after that.
+   * Map of jdbc type as an Integer to native type as a String. Initialized in the ctor, never
+   * <code>null</code>, empty, or modified after that.
    */
   private Map<Integer, PSJdbcDataTypeMapping> m_intJdbc2NativeMap = new HashMap<>();
 
   /**
-   * Map for storing the native type (<code>String</code>) as key and a
-   * <code>List</code> of <code>PSJdbcDataTypeMapping</code> objects as value.
-   * Initialized in the ctor, never <code>null</code>, empty, or modified after
-   * that.
+   * Map for storing the native type (<code>String</code>) as key and a <code>List</code> of <code>
+   * PSJdbcDataTypeMapping</code> objects as value. Initialized in the ctor, never <code>null</code>
+   * , empty, or modified after that.
    */
   private Map<String, List<PSJdbcDataTypeMapping>> m_native2JdbcMap = new HashMap<>();
 
   /**
-   * Map of Jdbc types as Integers mapped to the String representation.
-   * Initialized in the ctor, never <code>null</code>, empty, or modified after
-   * that.
+   * Map of Jdbc types as Integers mapped to the String representation. Initialized in the ctor,
+   * never <code>null</code>, empty, or modified after that.
    */
   private static Map<Integer, String> m_jdbcInt2String = new HashMap<>();
 
   /**
-   * Map of Jdbc types as Strings mapped to the Integer representation.
-   * Initialized in the ctor, never <code>null</code>, empty, or modified after
-   * that.
+   * Map of Jdbc types as Strings mapped to the Integer representation. Initialized in the ctor,
+   * never <code>null</code>, empty, or modified after that.
    */
   private static Map<String, Integer> m_jdbcString2Int = new HashMap<>();
 
   /**
-   * The name of the Jdbc driver.  Initialized in the ctor, never <code>null
+   * The name of the Jdbc driver. Initialized in the ctor, never <code>null
    * </code>, may be empty.
    */
   private String m_driver = "";
 
   /**
-   * The maximum column size for indexable columns, see
-   * {@link #setMaxIndexColSize(long)} for more info. Initialized during
-   * construction, -1 if not specified.
+   * The maximum column size for indexable columns, see {@link #setMaxIndexColSize(long)} for more
+   * info. Initialized during construction, -1 if not specified.
    */
   private long m_maxIndexColSize = -1;
 
   /**
-   * Flag to check if the condition to create indexes with foreign key columns
-   * is set. Look at {@link #setCreateForeignKeyIndexes(Element)} for more
-   * info. Default value is false.
+   * Flag to check if the condition to create indexes with foreign key columns is set. Look at
+   * {@link #setCreateForeignKeyIndexes(Element)} for more info. Default value is false.
    */
   private boolean m_createforeignkeyindexes = false;
 

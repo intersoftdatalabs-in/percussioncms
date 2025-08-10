@@ -25,16 +25,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for site blog properties.
- */
+/** List wrapper for site blog properties. */
 @XmlRootElement(name = "SiteBlogProperties")
 @ArraySchema(schema = @Schema(implementation = PSSiteBlogProperties.class))
 @JsonRootName("SiteBlogProperties")
 public class PSSiteBlogPropertiesList extends ArrayList<PSSiteBlogProperties> {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public PSSiteBlogPropertiesList(Collection<? extends PSSiteBlogProperties> c) {
-        super(c);
-    }
+  public PSSiteBlogPropertiesList(Collection<? extends PSSiteBlogProperties> c) {
+    super(c);
+  }
 }

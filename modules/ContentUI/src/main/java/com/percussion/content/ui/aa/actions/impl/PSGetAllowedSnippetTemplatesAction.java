@@ -46,11 +46,11 @@ import java.util.Map;
 import org.json.JSONObject;
 
 /**
- * This takes the ObjectId (JSON string) for a snippet
- * object and returns a json object with html containing each template
- * variation rendered for the passed in snippet and a template count.
- * Each redered template is surrounded by a div tag that has a onclick method to
- * allow the template to be selected.
+ * This takes the ObjectId (JSON string) for a snippet object and returns a json object with html
+ * containing each template variation rendered for the passed in snippet and a template count. Each
+ * redered template is surrounded by a div tag that has a onclick method to allow the template to be
+ * selected.
+ *
  * <pre>
  * The JSON object will contain the following parameters:
  *
@@ -58,9 +58,8 @@ import org.json.JSONObject;
  * count - The template count
  * </pre>
  *
- * The assembly service is used to render the snippet so
- * all of the required fields for assembly must be present.
- *
+ * The assembly service is used to render the snippet so all of the required fields for assembly
+ * must be present.
  */
 public class PSGetAllowedSnippetTemplatesAction extends PSAAActionBase {
 
@@ -81,14 +80,16 @@ public class PSGetAllowedSnippetTemplatesAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to retrieve the templates for this snippet and
-   * then assemble each template variation.
+   * Helper method to retrieve the templates for this snippet and then assemble each template
+   * variation.
+   *
    * @param objectId assumed not <code>null</code>.
    * @return the decorated assembled snippet variations and template count.
-   * <pre>
+   *     <pre>
    * [0] = assembled snippets
    * [1] = template count
    * </pre>
+   *
    * @throws Exception if an assembly error occurs
    */
   private String[] getSnippetTemplates(PSAAObjectId objectId) throws Exception {
@@ -149,9 +150,9 @@ public class PSGetAllowedSnippetTemplatesAction extends PSAAActionBase {
   }
 
   /**
-   * Helper method to decorate each of the rendered snippets. Surrounding
-   * each with a div tag with a specific class and onclick method
-   * so that the template may be selected.
+   * Helper method to decorate each of the rendered snippets. Surrounding each with a div tag with a
+   * specific class and onclick method so that the template may be selected.
+   *
    * @param slotObj assumed not <code>null</code>.
    * @param ais assumed not <code>null</code>.
    * @param results assumed not <code>null</code>.
@@ -181,8 +182,8 @@ public class PSGetAllowedSnippetTemplatesAction extends PSAAActionBase {
   }
 
   /**
-   * Replaces the href in all A tags with a javascript:void(0)
-   * statement so that they do nothing.
+   * Replaces the href in all A tags with a javascript:void(0) statement so that they do nothing.
+   *
    * @param html assumed not <code>null</code>.
    * @return modified string, never <code>null</code>.
    */

@@ -56,38 +56,31 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This servlet will process form based login/out calls. The servlet is mapped
- * to the "/Rhythmyx/login" and "/Rhythmyx/logout" request roots. The servlet
- * will look for pages named "login.jsp", "error.jsp", and "logout.jsp" in the
- * "<webapp root>/user" directory. Any or all of these pages may be defined. For
- * each found, that page will be used by Rhythmyx in place of the default
- * login/error and logout forms. If a custom login page is found, but a custom
- * error page is not found, then the custom login page will be used as the error
- * page.
+ * This servlet will process form based login/out calls. The servlet is mapped to the
+ * "/Rhythmyx/login" and "/Rhythmyx/logout" request roots. The servlet will look for pages named
+ * "login.jsp", "error.jsp", and "logout.jsp" in the "<webapp root>/user" directory. Any or all of
+ * these pages may be defined. For each found, that page will be used by Rhythmyx in place of the
+ * default login/error and logout forms. If a custom login page is found, but a custom error page is
+ * not found, then the custom login page will be used as the error page.
  */
 public class PSLoginServlet extends HttpServlet {
-  /**
-   * Serial version id
-   */
+  /** Serial version id */
   private static final long serialVersionUID = 1L;
 
   private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
 
   /**
-   * Handles requests to login and logout. Initial GET requests to "/login" are
-   * returned an include of the correct login page (standard or custom if
-   * defined). JAAS authentication will be performed for POST request from the
-   * login page that provide credentials (the "j_username" and "j_password"
-   * request params). Successful authentication will redirect to the originally
-   * requested page as specified by the "RX_REDIRECT_URL" session attribute.
-   * Authentication failures will return an include of either the custom error
-   * page if defined, or else the appropriate login form again. Requests to
-   * "/logout" will call {@link javax.servlet.http.HttpSession#invalidate()}
-   * and redirect the user to the appropriate logout page ((standard or custom
-   * if defined).
+   * Handles requests to login and logout. Initial GET requests to "/login" are returned an include
+   * of the correct login page (standard or custom if defined). JAAS authentication will be
+   * performed for POST request from the login page that provide credentials (the "j_username" and
+   * "j_password" request params). Successful authentication will redirect to the originally
+   * requested page as specified by the "RX_REDIRECT_URL" session attribute. Authentication failures
+   * will return an include of either the custom error page if defined, or else the appropriate
+   * login form again. Requests to "/logout" will call {@link
+   * javax.servlet.http.HttpSession#invalidate()} and redirect the user to the appropriate logout
+   * page ((standard or custom if defined).
    *
-   * @see HttpServlet#service(HttpServletRequest, HttpServletResponse) for
-   * other details.
+   * @see HttpServlet#service(HttpServletRequest, HttpServletResponse) for other details.
    */
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -103,15 +96,14 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Calculates the url to use when redirecting after successful form login and
-   * appends it to the supplied login page url as a query string parameter.
+   * Calculates the url to use when redirecting after successful form login and appends it to the
+   * supplied login page url as a query string parameter.
    *
    * @param request The current request, may not be <code>null</code>.
-   * @param loginPage The login page request url to which the result is
-   * appended, may not be <code>null</code> or empty.
-   *
-   * @return The login page value with the redirect url query string parameter
-   * appended, never <code>null</code> or empty.
+   * @param loginPage The login page request url to which the result is appended, may not be <code>
+   *     null</code> or empty.
+   * @return The login page value with the redirect url query string parameter appended, never
+   *     <code>null</code> or empty.
    */
   public static String addRedirect(HttpServletRequest request, String loginPage) {
     if (request == null) throw new IllegalArgumentException("request may not be null");
@@ -158,9 +150,7 @@ public class PSLoginServlet extends HttpServlet {
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   *
-   * @throws IOException If there are any errors redirecting to the logout
-   * page.
+   * @throws IOException If there are any errors redirecting to the logout page.
    * @throws ServletException If there are any other errors
    */
   private void logout(HttpServletRequest request, HttpServletResponse response)
@@ -193,9 +183,8 @@ public class PSLoginServlet extends HttpServlet {
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
-   *
-   * @throws IOException If there are any errors including the login page or
-   * redirecting to the originally requested page.
+   * @throws IOException If there are any errors including the login page or redirecting to the
+   *     originally requested page.
    * @throws ServletException If there are any other errors.
    */
   private void login(HttpServletRequest request, HttpServletResponse response)
@@ -276,9 +265,9 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Determines if a redirect URI is valid and safe (XSS).
-   * A redirection URI should be to the same host and a valid
-   * URI.
+   * Determines if a redirect URI is valid and safe (XSS). A redirection URI should be to the same
+   * host and a valid URI.
+   *
    * @param request never null.
    * @param uri maybe null or invalid <code>false</code> will be returned.
    * @return true if a valid redirect uri.
@@ -315,9 +304,8 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Performs the authentication.  If successful, the user is redirected to the
-   * originally requested page, if it fails, then the appropriate error page is
-   * included.
+   * Performs the authentication. If successful, the user is redirected to the originally requested
+   * page, if it fails, then the appropriate error page is included.
    *
    * @param request The current request, assumed not <code>null</code>.
    * @param response The current response, assumed not <code>null</code>.
@@ -404,8 +392,7 @@ public class PSLoginServlet extends HttpServlet {
   /**
    * Gets the appropriate page to include when authentication fails.
    *
-   * @return The relative path to the error page, never <code>null</code> or
-   * empty.
+   * @return The relative path to the error page, never <code>null</code> or empty.
    */
   private String getErrorPage() {
     File errorPage = new File(getUserDirectory(), ERROR_PAGE);
@@ -417,8 +404,7 @@ public class PSLoginServlet extends HttpServlet {
   /**
    * Gets the appropriate page to include when returning the login page.
    *
-   * @return The relative path to the login page, never <code>null</code> or
-   * empty.
+   * @return The relative path to the login page, never <code>null</code> or empty.
    */
   private String getLoginPage() {
     File loginPage = new File(getUserDirectory(), LOGIN_PAGE);
@@ -430,8 +416,7 @@ public class PSLoginServlet extends HttpServlet {
   /**
    * Gets the appropriate page to include when returning the logout page.
    *
-   * @return The relative path to the logout page, never <code>null</code> or
-   * empty.
+   * @return The relative path to the logout page, never <code>null</code> or empty.
    */
   private String getLogoutPage() {
     File logoutPage = new File(getUserDirectory(), LOGOUT_PAGE);
@@ -441,8 +426,8 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Get the absolute path to the user sub-directory of the web application in
-   * which this servlet is running.
+   * Get the absolute path to the user sub-directory of the web application in which this servlet is
+   * running.
    *
    * @return The file, never <code>null</code>.
    */
@@ -451,8 +436,7 @@ public class PSLoginServlet extends HttpServlet {
   }
 
   /**
-   * Get the path to the directory of the web application in which this
-   * servlet is running.
+   * Get the path to the directory of the web application in which this servlet is running.
    *
    * @return The path, never <code>null</code>.
    */
@@ -460,49 +444,37 @@ public class PSLoginServlet extends HttpServlet {
     return new File(getServletContext().getRealPath("/WEB-INF")).getParentFile();
   }
 
-  /**
-   * Default CMS page constant
-   */
+  /** Default CMS page constant */
   private static final String CMS_INDEX_PAGE = "index.jsp";
 
   private static final String LEGACY_INDEX_PAGE = "Rhythmyx/sys_cx/mainpage.html";
 
-  /**
-   * Constant for the "user" directory.
-   */
+  /** Constant for the "user" directory. */
   private static final String USER_DIR = "user";
 
-  /**
-   * Name of the user defined login page.
-   */
+  /** Name of the user defined login page. */
   private static final String LOGIN_PAGE = "login.jsp";
 
-  /**
-   * Name of the user defined logout page.
-   */
+  /** Name of the user defined logout page. */
   private static final String LOGOUT_PAGE = "logout.jsp";
 
-  /**
-   * Name of the user defined error page.
-   */
+  /** Name of the user defined error page. */
   private static final String ERROR_PAGE = "error.jsp";
 
   /**
-   * This is used to record the original request that the user was attempting
-   * when redirected to the login page while doing form based authentication.
+   * This is used to record the original request that the user was attempting when redirected to the
+   * login page while doing form based authentication.
    */
   public static final String REDIRECT_URL = "RX_REDIRECT_URL";
 
   public static final String LEGACY_UI_PARAM = "j_selectUI";
 
-  /**
-   * logger
-   */
+  /** logger */
   private static final Logger log = LogManager.getLogger(SECURITY_LOG);
 
   /**
-   * The Content-Type header value to set when returning included pages,
-   * currently text/html with the UTF-8 encoding.
+   * The Content-Type header value to set when returning included pages, currently text/html with
+   * the UTF-8 encoding.
    */
   private static final String CONTENT_TYPE_HEADER_VAL =
       IPSMimeContentTypes.MIME_TYPE_TEXT_HTML + ";charset=" + IPSUtilsConstants.RX_STANDARD_ENC;

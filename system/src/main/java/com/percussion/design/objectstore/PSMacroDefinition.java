@@ -22,22 +22,16 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class is used to define a macro definition.
- */
+/** This class is used to define a macro definition. */
 public class PSMacroDefinition extends PSComponent {
   /**
    * Construct a Java object from it's XML representation.
    *
-   * @param source the XML element node to construct this object from, not
-   *    <code>null</code>, see {@link toXml(Document)} for the expected XML
-   *    format.
-   * @param parent the Java object which is the parent of this object, may be
-   *    <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   *    <code>null</code> or empty.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of the
-   *    appropriate type.
+   * @param source the XML element node to construct this object from, not <code>null</code>, see
+   *     {@link toXml(Document)} for the expected XML format.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type.
    */
   public PSMacroDefinition(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -48,8 +42,8 @@ public class PSMacroDefinition extends PSComponent {
    * Constructs a macro definition.
    *
    * @param name the name of the macro, not <code>null</code> or empty.
-   * @param class the fully qualified class name used to extract the macro
-   *    value, not <code>null</code> or empty.
+   * @param class the fully qualified class name used to extract the macro value, not <code>null
+   *     </code> or empty.
    */
   public PSMacroDefinition(String name, String className) {
     setName(name);
@@ -91,11 +85,9 @@ public class PSMacroDefinition extends PSComponent {
   }
 
   /**
-   * Get the fully qualified class name of the class used to extract the
-   * macro value at runtime.
+   * Get the fully qualified class name of the class used to extract the macro value at runtime.
    *
-   * @return the fully qualified class name, never <code>null</code> or
-   *    empty.
+   * @return the fully qualified class name, never <code>null</code> or empty.
    */
   public String getClassName() {
     return m_className;
@@ -104,8 +96,7 @@ public class PSMacroDefinition extends PSComponent {
   /**
    * Set the name of the class used to extract the value for this macro.
    *
-   * @param className the fully qualified extractor class name, not
-   *    <code>null</code> or empty.
+   * @param className the fully qualified extractor class name, not <code>null</code> or empty.
    */
   public void setClassName(String className) {
     if (className == null) throw new IllegalArgumentException("className cannot be null");
@@ -128,8 +119,7 @@ public class PSMacroDefinition extends PSComponent {
   /**
    * Set the macro description.
    *
-   * @param description the macro description, may be <code>null</code> or
-   *    empty.
+   * @param description the macro description, may be <code>null</code> or empty.
    */
   public void setDescription(String description) {
     if (description == null) description = "";
@@ -138,16 +128,14 @@ public class PSMacroDefinition extends PSComponent {
   }
 
   /**
-   * This method is called to populate this instance from a XML
-   * representation. See the {@link #toXml(Document)} method for a description
-   * of the XML object.
+   * This method is called to populate this instance from a XML representation. See the {@link
+   * #toXml(Document)} method for a description of the XML object.
    *
-   * @param source the XML element node to construct this object from,
-   *    must not be <code>null</code>.
+   * @param source the XML element node to construct this object from, must not be <code>null</code>
+   *     .
    * @param parent may be <code>null</code>.
    * @param parentComponents may be <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public void fromXml(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -186,8 +174,9 @@ public class PSMacroDefinition extends PSComponent {
   }
 
   /**
-   * Creates the XML serialization for this class. The structure of the XML
-   * document conforms to this DTD:
+   * Creates the XML serialization for this class. The structure of the XML document conforms to
+   * this DTD:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXMacroDefinition (Name, Class, Description?)&lt;
    * &lt;!ATTLIST PSXMacroDefinition
@@ -234,27 +223,26 @@ public class PSMacroDefinition extends PSComponent {
   }
 
   /**
-   * The XML node name, package access on this so they may reference each
-   * other in <code>fromXml</code>.
+   * The XML node name, package access on this so they may reference each other in <code>fromXml
+   * </code>.
    */
   static final String XML_NODE_NAME = "PSXMacroDefinition";
 
   /**
-   * The macro name as used to reference this macro definition in macro
-   * repalcement values. Initialized in constructor, never <code>null</code>
-   * or empty after that.
+   * The macro name as used to reference this macro definition in macro repalcement values.
+   * Initialized in constructor, never <code>null</code> or empty after that.
    */
   private String m_name = null;
 
   /**
-   * The fully qualified class name used to extract the macro value,
-   * initialized in constructor, never <code>null</code> or empty after that.
+   * The fully qualified class name used to extract the macro value, initialized in constructor,
+   * never <code>null</code> or empty after that.
    */
   private String m_className = null;
 
   /**
-   * A description of this macro. Set through {@link setDescription(String)},
-   * never <code>null</code>, may be empty.
+   * A description of this macro. Set through {@link setDescription(String)}, never <code>null
+   * </code>, may be empty.
    */
   private String m_description = "";
 

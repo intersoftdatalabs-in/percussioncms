@@ -32,9 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Concrete implementation of the {@link IPSDatasourceResolver} interface.
- */
+/** Concrete implementation of the {@link IPSDatasourceResolver} interface. */
 public class PSDatasourceResolver implements IPSDatasourceResolver {
   // see IPSDatasourceResolver
   public IPSDatasourceConfig resolveDatasource(IPSConnectionInfo info) {
@@ -73,8 +71,8 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
   /**
    * Get the configurations to use to resolve datasources.
    *
-   * @return The configs, never <code>null</code>, only empty if
-   * {@link #setDatasourceConfigurations(List)} has never been called.
+   * @return The configs, never <code>null</code>, only empty if {@link
+   *     #setDatasourceConfigurations(List)} has never been called.
    */
   public List<IPSDatasourceConfig> getDatasourceConfigurations() {
     return m_configs;
@@ -82,8 +80,10 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
 
   /**
    * Gets the specified database configuration.
+   *
    * @param name the name of the database configuration. It may not be empty.
-   * @return the database configuration, it may be <code>null</code> if cannot find one with the specified name.
+   * @return the database configuration, it may be <code>null</code> if cannot find one with the
+   *     specified name.
    */
   @Override
   public IPSDatasourceConfig getDatasourceConfiguration(String name) {
@@ -101,22 +101,20 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
   }
 
   /**
-   * Get the repository datasource name, used to resolve requests for the
-   * repository datasource.
+   * Get the repository datasource name, used to resolve requests for the repository datasource.
    *
-   * @return The name, never <code>null</code>, only empty if
-   * {@link #setRepositoryDatasource(String)} has never been called.
+   * @return The name, never <code>null</code>, only empty if {@link
+   *     #setRepositoryDatasource(String)} has never been called.
    */
   public String getRepositoryDatasource() {
     return m_repositoryDatasource;
   }
 
   /**
-   * Sets the repository datasource name, used to resolve requests for the
-   * repository datasource.
+   * Sets the repository datasource name, used to resolve requests for the repository datasource.
    *
-   * @param datasourceName The name of one of the datasource configurations,
-   * may not be <code>null</code> or empty.
+   * @param datasourceName The name of one of the datasource configurations, may not be <code>null
+   *     </code> or empty.
    */
   public void setRepositoryDatasource(String datasourceName) {
     if (StringUtils.isBlank(datasourceName))
@@ -234,16 +232,14 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
   }
 
   /**
-   * The default datasource name, never <code>null</code>, empty until set by
-   * {@link #setRepositoryDatasource(String)}, never <code>null</code> or empty
-   * after that.
+   * The default datasource name, never <code>null</code>, empty until set by {@link
+   * #setRepositoryDatasource(String)}, never <code>null</code> or empty after that.
    */
   private String m_repositoryDatasource = null;
 
   /**
-   * List of datasource configurations, never <code>null</code>, empty until
-   * first call to {@link #setDatasourceConfigurations(List)}, never
-   * <code>null</code> or empty after that.
+   * List of datasource configurations, never <code>null</code>, empty until first call to {@link
+   * #setDatasourceConfigurations(List)}, never <code>null</code> or empty after that.
    */
   private List<IPSDatasourceConfig> m_configs = null;
 
@@ -253,14 +249,12 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
   private static final String DS_CONFIGS_PROP_NAME = "datasourceConfigurations";
 
   /**
-   * The name of the bean that defines the datasource resolver in 6.0.  Used
-   * by the Installer for 6.0 -> 6.X upgrades.
+   * The name of the bean that defines the datasource resolver in 6.0. Used by the Installer for 6.0
+   * -> 6.X upgrades.
    */
   public static final String DATASOURCE_RESOLVER_NAME_60 = "datasourceResolver";
 
-  /**
-   * The name of the bean that defines the datasource resolver.
-   */
+  /** The name of the bean that defines the datasource resolver. */
   public static final String DATASOURCE_RESOLVER_NAME = "sys_datasourceResolver";
 
   @Override

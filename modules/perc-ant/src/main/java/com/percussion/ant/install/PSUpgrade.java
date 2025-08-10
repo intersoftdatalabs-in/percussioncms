@@ -22,14 +22,11 @@ import com.percussion.install.RxUpgrade;
 import com.percussion.security.error.PSExceptionUtils;
 
 /**
- * The execute method of this called when it is an upgrade.
- * Execute method inturn calls RxUpgrade class process method to
- * process the upgrade.
+ * The execute method of this called when it is an upgrade. Execute method inturn calls RxUpgrade
+ * class process method to process the upgrade. <br>
+ * Example Usage: <br>
  *
- *<br>
- * Example Usage:
- *<br>
- *<pre>
+ * <pre>
  *
  * First set the taskdef:
  *
@@ -46,7 +43,6 @@ import com.percussion.security.error.PSExceptionUtils;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSUpgrade extends PSAction {
   // see base class
@@ -68,6 +64,7 @@ public class PSUpgrade extends PSAction {
 
   /**
    * Getter that returns UpgradeFileName.
+   *
    * @return Upgrade File Name that was set on this bean.
    */
   public String[] getUpgradeFileNames() {
@@ -76,6 +73,7 @@ public class PSUpgrade extends PSAction {
 
   /**
    * Setter for UpgradeFileName.
+   *
    * @param fileNames, never <code>null</code> or <code>empty</code>.
    */
   public void setUpgradeFileNames(String fileNames) {
@@ -88,13 +86,9 @@ public class PSUpgrade extends PSAction {
   /**************************************************************************
    * Variables
    **************************************************************************/
-  /**
-   * Root dir of this installation.
-   */
+  /** Root dir of this installation. */
   private String m_strRootDir = "";
 
-  /**
-   * config file names for upgradeaction
-   */
+  /** config file names for upgradeaction */
   private String[] m_strCfgFiles = {"rxupgrade.xml", "rxOrphanedDataCleanupPlugins.xml"};
 }

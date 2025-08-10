@@ -52,20 +52,15 @@ import java.util.Objects;
 import java.util.Set;
 import org.w3c.dom.Document;
 
-/**
- * Class to handle packaging and deploying a shared group
- */
+/** Class to handle packaging and deploying a shared group */
 public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDependencyHandler
     implements IPSIdTypeHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public PSSharedGroupDependencyHandler(PSDependencyDef def, PSDependencyMap dependencyMap) {
@@ -73,23 +68,22 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Control</li>
-   * <li>Exit</li>
-   * <li>Keyword</li>
-   * <li>TableSchema</li>
-   * <li>Stylesheet</li>
-   * <li>SupportFile</li>
-   * <li>Any ID Type</li>
+   *   <li>Application
+   *   <li>Control
+   *   <li>Exit
+   *   <li>Keyword
+   *   <li>TableSchema
+   *   <li>Stylesheet
+   *   <li>SupportFile
+   *   <li>Any ID Type
    * </ol>
    *
-   *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator getChildTypes() {
     return ms_childTypes.iterator();
@@ -463,11 +457,8 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Get the specified shared group.
    *
-   * @param groupName the name of the group, assumed not <code>null</code> or
-   * empty.
-   *
+   * @param groupName the name of the group, assumed not <code>null</code> or empty.
    * @return The group, may be <code>null</code> if not found.
-   *
    * @throws PSDeployException if the shared def cannot be loaded.
    */
   private PSSharedFieldGroup getSharedGroup(String groupName) throws PSDeployException {
@@ -478,10 +469,9 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   /**
    * Transform all required id's within the group.
    *
-   * @param ctx The current import context, assumed not <code>null</code> and
-   * to have a current Id Map.
+   * @param ctx The current import context, assumed not <code>null</code> and to have a current Id
+   *     Map.
    * @param group The group to tranform, assumed not <code>null</code>.
-   *
    * @throws PSDeployException if there are any errors.
    */
   private void transformGroup(PSImportCtx ctx, PSSharedFieldGroup group) throws PSDeployException {
@@ -494,15 +484,10 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
     }
   }
 
-  /**
-   * Constant for this handler's supported type
-   */
+  /** Constant for this handler's supported type */
   public static final String DEPENDENCY_TYPE = "SharedGroup";
 
-  /**
-   * List of child types supported by this handler, never <code>null</code> or
-   * empty.
-   */
+  /** List of child types supported by this handler, never <code>null</code> or empty. */
   private static List ms_childTypes = new ArrayList();
 
   static {

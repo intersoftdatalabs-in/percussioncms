@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -30,39 +29,35 @@ import org.apache.logging.log4j.Logger;
 
 public class PSTestUtils {
 
-    public static String resourceToString(Class<?> testCase, String fileName) {
-        try (InputStream stream = testCase.getResourceAsStream(fileName)) {
-            if (stream == null)
-                fail("To read: " + fileName);
-            return IOUtils.toString(stream, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error(e);
-            fail("To read: " + fileName);
-        }
-        return null;
+  public static String resourceToString(Class<?> testCase, String fileName) {
+    try (InputStream stream = testCase.getResourceAsStream(fileName)) {
+      if (stream == null) fail("To read: " + fileName);
+      return IOUtils.toString(stream, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      log.error(e);
+      fail("To read: " + fileName);
     }
+    return null;
+  }
 
-    public static String resourceToBase64(Class<?> testCase, String fileName) {
-        try (InputStream stream = testCase.getResourceAsStream(fileName)) {
-            if (stream == null)
-                fail("To read: " + fileName);
-            return resourceToBase64(stream);
-        } catch (IOException e) {
-            log.error(e);
-            fail("To read: " + fileName);
-        }
-        return null;
+  public static String resourceToBase64(Class<?> testCase, String fileName) {
+    try (InputStream stream = testCase.getResourceAsStream(fileName)) {
+      if (stream == null) fail("To read: " + fileName);
+      return resourceToBase64(stream);
+    } catch (IOException e) {
+      log.error(e);
+      fail("To read: " + fileName);
     }
+    return null;
+  }
 
-    public static String resourceToBase64(InputStream stream) throws IOException {
-        var raw = IOUtils.toByteArray(stream);
-        var encoder = new Base64();
-        var converted = encoder.encode(raw);
-        return new String(converted, StandardCharsets.UTF_8);
-    }
+  public static String resourceToBase64(InputStream stream) throws IOException {
+    var raw = IOUtils.toByteArray(stream);
+    var encoder = new Base64();
+    var converted = encoder.encode(raw);
+    return new String(converted, StandardCharsets.UTF_8);
+  }
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSTestUtils.class);
+  /** The log instance to use for this class, never <code>null</code>. */
+  private static final Logger log = LogManager.getLogger(PSTestUtils.class);
 }

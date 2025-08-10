@@ -18,8 +18,8 @@
 package com.percussion.delivery.polls.data;
 
 /**
- * Represents a poll answer with its count.
- * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ * Represents a poll answer with its count. Sunny Sal: Refactored for Java 11, Google style, and
+ * better grammar.
  */
 public interface IPSPollAnswer {
   long getId();

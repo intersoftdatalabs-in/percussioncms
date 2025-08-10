@@ -21,74 +21,73 @@ import com.percussion.monitor.service.IPSMonitor;
 import com.percussion.monitor.service.PSMonitorService;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublishingJobStatusCallback;
-
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Monitor the number of publishing jobs running.
- * Sunny Sal says: "Publishing jobs? I'm counting them like sheep!"
+ * Monitor the number of publishing jobs running. Sunny Sal says: "Publishing jobs? I'm counting
+ * them like sheep!"
  */
 public class PSPublishingProcessMonitor implements IPSPublishingJobStatusCallback {
 
-    private static final String STATUS_MSG_SOME = " publishing jobs running";
-    private static final String STATUS_MSG_ONE = " publishing job running";
-    private static final String STATUS_MSG_NONE = "No publishing jobs running";
+  private static final String STATUS_MSG_SOME = " publishing jobs running";
+  private static final String STATUS_MSG_ONE = " publishing job running";
+  private static final String STATUS_MSG_NONE = "No publishing jobs running";
 
-    private static IPSMonitor monitor;
-    private static final Set<Long> jobIds = new HashSet<>();
-    private static IPSPublishingJobStatusCallback callback;
+  private static IPSMonitor monitor;
+  private static final Set<Long> jobIds = new HashSet<>();
+  private static IPSPublishingJobStatusCallback callback;
 
-    public PSPublishingProcessMonitor() {
-        monitor = PSMonitorService.registerMonitor("Publishing", "Publishing");
-        updateStatusMessage();
-        callback = this;
+  public PSPublishingProcessMonitor() {
+    monitor = PSMonitorService.registerMonitor("Publishing", "Publishing");
+    updateStatusMessage();
+    callback = this;
+  }
+
+  private static void updateStatusMessage() {
+    if (monitor == null) {
+      return;
     }
-
-    private static void updateStatusMessage() {
-        if (monitor == null) {
-            return;
-        }
-        int count;
-        synchronized (jobIds) {
-            count = jobIds.size();
-        }
-        var buf = new StringBuilder();
-        if (count == 0) {
-            buf.append(STATUS_MSG_NONE);
-        } else {
-            buf.append(count);
-            buf.append(count == 1 ? STATUS_MSG_ONE : STATUS_MSG_SOME);
-        }
-        monitor.setMessage(buf.toString());
+    int count;
+    synchronized (jobIds) {
+      count = jobIds.size();
     }
-
-    /**
-     * Get the callback to use for pub status updates.
-     *
-     * @return The callback, not null.
-     */
-    public static IPSPublishingJobStatusCallback getPublishingJobStatusCallback() {
-        return callback;
+    var buf = new StringBuilder();
+    if (count == 0) {
+      buf.append(STATUS_MSG_NONE);
+    } else {
+      buf.append(count);
+      buf.append(count == 1 ? STATUS_MSG_ONE : STATUS_MSG_SOME);
     }
+    monitor.setMessage(buf.toString());
+  }
 
-    @Override
-    public void notifyStatus(IPSPublisherJobStatus status) {
-        synchronized (jobIds) {
-            jobIds.remove(status.getJobId());
-        }
-        updateStatusMessage();
-    }
+  /**
+   * Get the callback to use for pub status updates.
+   *
+   * @return The callback, not null.
+   */
+  public static IPSPublishingJobStatusCallback getPublishingJobStatusCallback() {
+    return callback;
+  }
 
-    /**
-     * Register a new publishing job.
-     *
-     * @param jobId The job id.
-     */
-    public static void startPublishingJob(long jobId) {
-        synchronized (jobIds) {
-            jobIds.add(jobId);
-        }
-        updateStatusMessage();
+  @Override
+  public void notifyStatus(IPSPublisherJobStatus status) {
+    synchronized (jobIds) {
+      jobIds.remove(status.getJobId());
     }
+    updateStatusMessage();
+  }
+
+  /**
+   * Register a new publishing job.
+   *
+   * @param jobId The job id.
+   */
+  public static void startPublishingJob(long jobId) {
+    synchronized (jobIds) {
+      jobIds.add(jobId);
+    }
+    updateStatusMessage();
+  }
 }

@@ -28,38 +28,28 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * The PSCustomError class defines the page which will be returned
- * when a specific error is encountered. This allows the E2 error
- * handling to be customized on an application basis.
- * <p>
- * An HTML page or a style sheet can be specifed for return. When E2 hits
- * an error, it provdes error information in the form of an XML document.
- * To provide diagnostic information to the requestor, it may be preferrable
- * to use a style sheet which E2 can merge with the XML document to return
- * a descriptive error page.
+ * The PSCustomError class defines the page which will be returned when a specific error is
+ * encountered. This allows the E2 error handling to be customized on an application basis.
  *
- * @see         PSErrorWebPages
+ * <p>An HTML page or a style sheet can be specifed for return. When E2 hits an error, it provdes
+ * error information in the form of an XML document. To provide diagnostic information to the
+ * requestor, it may be preferrable to use a style sheet which E2 can merge with the XML document to
+ * return a descriptive error page.
  *
- * @author      Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @see PSErrorWebPages
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSCustomError extends PSComponent {
   /**
-   * Construct a Java object from its XML representation. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * Construct a Java object from its XML representation. See the {@link #toXml(Document) toXml}
+   * method for a description of the XML object.
    *
-   * @param      sourceNode      the XML element node to construct this
-   *                              object from
-   *
-   * @param      parentDoc      the Java object which is the parent of this
-   *                              object
-   *
-   * @param      parentComponents   the parent objects of this object
-   *
-   * @exception   PSUnknownNodeTypeException
-   *                              if the XML element node is not of the
-   *                              appropriate type
+   * @param sourceNode the XML element node to construct this object from
+   * @param parentDoc the Java object which is the parent of this object
+   * @param parentComponents the parent objects of this object
+   * @exception PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSCustomError(org.w3c.dom.Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -67,9 +57,7 @@ public class PSCustomError extends PSComponent {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Constructor for serialization, fromXml, etc.
-   */
+  /** Constructor for serialization, fromXml, etc. */
   PSCustomError() {
     super();
   }
@@ -77,10 +65,9 @@ public class PSCustomError extends PSComponent {
   /**
    * Construct a custom error object.
    *
-   * @param   error       the error code of the error to customize
-   * @param   url         the URL of the error page to be returned
-   *
-   * @exception   PSIllegalArgumentException   if error or url is invalid
+   * @param error the error code of the error to customize
+   * @param url the URL of the error page to be returned
+   * @exception PSIllegalArgumentException if error or url is invalid
    */
   public PSCustomError(String error, java.net.URL url) throws PSIllegalArgumentException {
     super();
@@ -89,13 +76,10 @@ public class PSCustomError extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
-   * @param error a valid PSCustomError. If null, a PSIllegalArgumentException is
-   * thrown.
-   *
+   * @param error a valid PSCustomError. If null, a PSIllegalArgumentException is thrown.
    * @throws PSIllegalArgumentException if req is null
    */
   public void copyFrom(PSCustomError error) throws PSIllegalArgumentException {
@@ -109,7 +93,7 @@ public class PSCustomError extends PSComponent {
   /**
    * Get the error code of the error being customized.
    *
-   * @return      the error code of the error being customized.
+   * @return the error code of the error being customized.
    */
   public String getErrorCode() {
     return m_error;
@@ -118,9 +102,8 @@ public class PSCustomError extends PSComponent {
   /**
    * Set the error code of the error being customized.
    *
-   * @param   error       the error code of the error to customize
-   *
-   * @exception   PSIllegalArgumentException   if error is invalid
+   * @param error the error code of the error to customize
+   * @exception PSIllegalArgumentException if error is invalid
    */
   public void setErrorCode(String error) throws PSIllegalArgumentException {
     PSIllegalArgumentException ex = validateErrorCode(error);
@@ -139,7 +122,7 @@ public class PSCustomError extends PSComponent {
   /**
    * Get the URL of the error page to be returned.
    *
-   * @return         the URL of the error page
+   * @return the URL of the error page
    */
   public java.net.URL getURL() {
     return m_url;
@@ -148,7 +131,7 @@ public class PSCustomError extends PSComponent {
   /**
    * Set the URL of the error page to be returned.
    *
-   * @param   url   the URL of the error page
+   * @param url the URL of the error page
    */
   public void setURL(java.net.URL url) {
     m_url = url;
@@ -157,10 +140,11 @@ public class PSCustomError extends PSComponent {
   /* **************  IPSComponent Interface Implementation ************** */
 
   /**
-   * This method is called to create a PSXCustomError XML element
-   * node containing the data described in this object.
-   * <p>
-   * The structure of the XML document is:
+   * This method is called to create a PSXCustomError XML element node containing the data described
+   * in this object.
+   *
+   * <p>The structure of the XML document is:
+   *
    * <pre><code>
    *    &lt;!--
    *       PSXCustomError defines the page which will be returned when a
@@ -185,7 +169,7 @@ public class PSCustomError extends PSComponent {
    *    &lt;!ELEMENT url               (#PCDATA)&gt;
    * </code></pre>
    *
-   * @return     the newly created PSXCustomError XML element node
+   * @return the newly created PSXCustomError XML element node
    */
   public Element toXml(Document doc) {
     Element root = doc.createElement(ms_NodeType);
@@ -198,12 +182,10 @@ public class PSCustomError extends PSComponent {
   }
 
   /**
-   * This method is called to populate a PSCustomError Java object
-   * from a PSXCustomError XML element node. See the
-   * {@link #toXml(Document) toXml} method for a description of the XML object.
+   * This method is called to populate a PSCustomError Java object from a PSXCustomError XML element
+   * node. See the {@link #toXml(Document) toXml} method for a description of the XML object.
    *
-   * @exception   PSUnknownNodeTypeException if the XML element node is not
-   *                                        of type PSXCustomError
+   * @exception PSUnknownNodeTypeException if the XML element node is not of type PSXCustomError
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -246,18 +228,15 @@ public class PSCustomError extends PSComponent {
   }
 
   /**
-   * Validates this object within the given validation context. The method
-   * signature declares that it throws PSSystemValidationException, but the
-   * implementation must not directly throw any exceptions. Instead, it
-   * should register any errors with the validation context, which will
-   * decide whether to throw the exception (in which case the implementation
-   * of <CODE>validate</CODE> should not catch it unless it is to be
-   * rethrown).
+   * Validates this object within the given validation context. The method signature declares that
+   * it throws PSSystemValidationException, but the implementation must not directly throw any
+   * exceptions. Instead, it should register any errors with the validation context, which will
+   * decide whether to throw the exception (in which case the implementation of <CODE>validate
+   * </CODE> should not catch it unless it is to be rethrown).
    *
-   * @param   cxt The validation context.
-   *
-   * @throws PSSystemValidationException According to the implementation of the
-   * validation context (on warnings and/or errors).
+   * @param cxt The validation context.
+   * @throws PSSystemValidationException According to the implementation of the validation context
+   *     (on warnings and/or errors).
    */
   public void validate(IPSValidationContext cxt) throws PSSystemValidationException {
     if (!cxt.startValidation(this, null)) return;

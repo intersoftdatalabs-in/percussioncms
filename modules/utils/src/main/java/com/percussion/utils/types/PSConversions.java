@@ -23,8 +23,8 @@ package com.percussion.utils.types;
  */
 public class PSConversions {
   /**
-   * Convert a long value to a byte array. The first byte of the array is the
-   * high order byte of the long.
+   * Convert a long value to a byte array. The first byte of the array is the high order byte of the
+   * long.
    *
    * @param value long value to convert
    * @return an 8 byte array
@@ -41,8 +41,7 @@ public class PSConversions {
   /**
    * Convert 8 bytes from a byte array to a long value
    *
-   * @param arr the array, never <code>null</code> and must have at least
-   *           offset + 8 elements
+   * @param arr the array, never <code>null</code> and must have at least offset + 8 elements
    * @param offset the offset to start the conversion
    * @return a long value
    */

@@ -26,42 +26,31 @@ import java.util.Locale;
 import org.w3c.dom.Element;
 
 /**
- * The PSBackEndQueryProcessingError class is used to report an error
- * encountered during back-end (database) query processing.
+ * The PSBackEndQueryProcessingError class is used to report an error encountered during back-end
+ * (database) query processing.
  *
- * @author     Tas Giakouminakis
- * @version    1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
 public class PSBackEndQueryProcessingError extends PSBackEndError {
   /**
-   * Report an error encountered during
-   * back-end (database) query processing using the native error
+   * Report an error encountered during back-end (database) query processing using the native error
    * information and the SELECT statement.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId   the session id of the user making the
-   *                           request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode   the error code reported by the back-end
-   *                           (database)
-   *
-   * @param      errorString   the error text reported by the back-end
-   *                           (database)
-   *
-   * @param      queryString   the SELECT statement which caused the
-   *                           error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code reported by the back-end (database)
+   * @param errorString the error text reported by the back-end (database)
+   * @param queryString the SELECT statement which caused the error
    */
   public PSBackEndQueryProcessingError(
       int applId,
@@ -82,37 +71,24 @@ public class PSBackEndQueryProcessingError extends PSBackEndError {
   }
 
   /**
-   * Report an error encountered during
-   * back-end (database) query processing using the internal error
-   * information. This usually occurs when E2 encounters an error
-   * pre-processing the request.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
+   * Report an error encountered during back-end (database) query processing using the internal
+   * error information. This usually occurs when E2 encounters an error pre-processing the request.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId   the session id of the user making the
-   *                           request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
-   *
-   * @param      source      the sub-tree containing the element(s)
-   *                           causing the error (may be null)
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param source the sub-tree containing the element(s) causing the error (may be null)
    */
   public PSBackEndQueryProcessingError(
       int applId, java.lang.String sessionId, int errorCode, Object[] errorParams, Element source) {
@@ -120,36 +96,24 @@ public class PSBackEndQueryProcessingError extends PSBackEndError {
   }
 
   /**
-   * Report an error encountered during
-   * back-end (database) query processing using the specified error
-   * information and the SELECT statement.
-   * <p>
-   * The application id is most commonly obtained by calling
-   * {@link com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or
-   * {@link com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
-   * <p>
-   * The session id can be obtained from the
-   * {@link com.percussion.server.PSUserSession PSUserSession} object
-   * contained in the
-   * {@link com.percussion.server.PSRequest PSRequest} object.
+   * Report an error encountered during back-end (database) query processing using the specified
+   * error information and the SELECT statement.
    *
-   * @param      applId      the id of the application that generated
-   *                           the error
+   * <p>The application id is most commonly obtained by calling {@link
+   * com.percussion.data.PSExecutionData#getId PSExecutionData.getId()} or {@link
+   * com.percussion.server.PSApplicationHandler#getId PSApplicationHandler.getId()}.
    *
-   * @param      sessionId   the session id of the user making the
-   *                           request
+   * <p>The session id can be obtained from the {@link com.percussion.server.PSUserSession
+   * PSUserSession} object contained in the {@link com.percussion.server.PSRequest PSRequest}
+   * object.
    *
-   * @param      errorCode   the error code describing the type of error
-   *
-   * @param      errorParams   if the error string associated with the
-   *                           error code specifies parameters, this is
-   *                           an array of values to use to fill the string
-   *                           appropriately. Be sure to include the
-   *                           correct arguments in their correct
-   *                           positions!
-   *
-   * @param      queryString   the SELECT statement which caused the
-   *                           error
+   * @param applId the id of the application that generated the error
+   * @param sessionId the session id of the user making the request
+   * @param errorCode the error code describing the type of error
+   * @param errorParams if the error string associated with the error code specifies parameters,
+   *     this is an array of values to use to fill the string appropriately. Be sure to include the
+   *     correct arguments in their correct positions!
+   * @param queryString the SELECT statement which caused the error
    */
   public PSBackEndQueryProcessingError(
       int applId,
@@ -166,10 +130,7 @@ public class PSBackEndQueryProcessingError extends PSBackEndError {
     else m_source = source;
   }
 
-  /**
-   * Subclasses must override this to build the messages in the
-   * specified locale.
-   */
+  /** Subclasses must override this to build the messages in the specified locale. */
   protected PSLogSubMessage[] buildSubMessages(Locale loc) {
     PSLogSubMessage[] msgs = new PSLogSubMessage[3];
 

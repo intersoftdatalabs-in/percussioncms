@@ -23,10 +23,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * Implementation for the PSXSharedFieldGroup DTD in
- * ContentEditorSharedDef.dtd.
- */
+/** Implementation for the PSXSharedFieldGroup DTD in ContentEditorSharedDef.dtd. */
 @SuppressWarnings("serial")
 public class PSSharedFieldGroup extends PSComponent {
   /**
@@ -48,31 +45,24 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param sourceNode   the XML element node to construct this object from,
-   *    not <code>null</code>.
-   * @param parentDoc the Java object which is the parent of this object,
-   *    not <code>null</code>.
-   * @param parentComponents   the parent objects of this object, not
-   *    <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param sourceNode the XML element node to construct this object from, not <code>null</code>.
+   * @param parentDoc the Java object which is the parent of this object, not <code>null</code>.
+   * @param parentComponents the parent objects of this object, not <code>null</code>.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSSharedFieldGroup(Element sourceNode, IPSDocument parentDoc, List parentComponents)
       throws PSUnknownNodeTypeException {
     fromXml(sourceNode, parentDoc, parentComponents);
   }
 
-  /**
-   * Needed for serialization.
-   */
+  /** Needed for serialization. */
   protected PSSharedFieldGroup() {}
 
   /**
-   * Creates an empty shared field group with the supplied file name.
-   * Appropriate data must be set before the object is persistable.
+   * Creates an empty shared field group with the supplied file name. Appropriate data must be set
+   * before the object is persistable.
    *
-   * @param name name of the group, must not be <code>null</code> or empty.
-   * fileName
+   * @param name name of the group, must not be <code>null</code> or empty. fileName
    * @param fileName of the file for this group, must not be <code>null</code>
    */
   public PSSharedFieldGroup(String name, String fileName) {
@@ -131,8 +121,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Get the container locator of this shared field group.
    *
-   * @return the container locator,
-   *    never <code>null</code>.
+   * @return the container locator, never <code>null</code>.
    */
   public PSContainerLocator getLocator() {
     return m_locator;
@@ -192,8 +181,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Get the validation rules for this group.
    *
-   * @return the validation rules, never <code>null</code>, might
-   *    be empty.
+   * @return the validation rules, never <code>null</code>, might be empty.
    */
   public Iterator getValidationRules() {
     return m_validationRules.iterator();
@@ -202,8 +190,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Set the validation rules for this group.
    *
-   * @param validationRules the new validation rules, might be
-   *    <code>null</code> or empty.
+   * @param validationRules the new validation rules, might be <code>null</code> or empty.
    */
   public void setValidationRules(PSValidationRules validationRules) {
     if (validationRules == null) m_validationRules.clear();
@@ -213,8 +200,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Get the input translations for this group.
    *
-   * @return the input translations, never
-   *    <code>null</code>, might be empty.
+   * @return the input translations, never <code>null</code>, might be empty.
    */
   public Iterator getInputTranslations() {
     return m_inputTranslations.iterator();
@@ -223,8 +209,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Set new input translations for this group.
    *
-   * @param inputTranslations the new input translation, might be
-   *    <code>null</code> or empty.
+   * @param inputTranslations the new input translation, might be <code>null</code> or empty.
    */
   public void setInputTranslations(PSInputTranslations inputTranslations) {
     if (inputTranslations == null) m_inputTranslations.clear();
@@ -234,8 +219,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Get the output translations of this group.
    *
-   * @return the output translations, never <code>null</code>,
-   *    might be empty.
+   * @return the output translations, never <code>null</code>, might be empty.
    */
   public Iterator getOutputTranslations() {
     return m_outputTranslations.iterator();
@@ -244,8 +228,7 @@ public class PSSharedFieldGroup extends PSComponent {
   /**
    * Set new output translations for this group.
    *
-   * @param outputTranslations the new output translations, might be
-   *    <code>null</code> or empty
+   * @param outputTranslations the new output translations, might be <code>null</code> or empty
    */
   public void setOutputTranslations(PSOutputTranslations outputTranslations) {
     if (outputTranslations == null) m_outputTranslations.clear();
@@ -253,9 +236,8 @@ public class PSSharedFieldGroup extends PSComponent {
   }
 
   /**
-   * Performs a shallow copy of the data in the supplied component to this
-   * component. Derived classes should implement this method for their data,
-   * calling the base class method first.
+   * Performs a shallow copy of the data in the supplied component to this component. Derived
+   * classes should implement this method for their data, calling the base class method first.
    *
    * @param c a valid PSSharedFieldGroup, not <code>null</code>.
    */
@@ -279,8 +261,7 @@ public class PSSharedFieldGroup extends PSComponent {
    * Test if the provided object and this are equal.
    *
    * @param o the object to compare to.
-   * @return <code>true</code> if this and o are equal,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if this and o are equal, <code>false</code> otherwise.
    */
   public boolean equals(Object o) {
     if (!(o instanceof PSSharedFieldGroup)) return false;
@@ -308,7 +289,6 @@ public class PSSharedFieldGroup extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public void fromXml(Element sourceNode, IPSDocument parentDoc, List parentComponents)
@@ -389,7 +369,6 @@ public class PSSharedFieldGroup extends PSComponent {
   }
 
   /**
-   *
    * @see IPSComponent
    */
   public Element toXml(Document doc) {
@@ -451,49 +430,32 @@ public class PSSharedFieldGroup extends PSComponent {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXSharedFieldGroup";
 
-  /**
-   * The name of this shared field group, never <code>null</code> or empty
-   * after construction.
-   */
+  /** The name of this shared field group, never <code>null</code> or empty after construction. */
   private String m_name = null;
 
   /**
-   * The name of the file storing this shared field group, may be
-   * <code>null</code>, never empty.
+   * The name of the file storing this shared field group, may be <code>null</code>, never empty.
    */
   private String m_filename = null;
 
   /**
-   * The conatiner locator of this shared field group, never
-   * <code>null</code> after construction.
+   * The conatiner locator of this shared field group, never <code>null</code> after construction.
    */
   private PSContainerLocator m_locator = null;
 
-  /**
-   * The field set for this shared group, never <code>null</code> after
-   * construction.
-   */
+  /** The field set for this shared group, never <code>null</code> after construction. */
   private PSFieldSet m_fieldSet = null;
 
-  /**
-   * The UI definition of this shared group, never <code>null</code> after
-   * construction.
-   */
+  /** The UI definition of this shared group, never <code>null</code> after construction. */
   private PSUIDefinition m_uiDefinition = null;
 
-  /**
-   * The field validation rules, never <code>null</code>, might be empty.
-   */
+  /** The field validation rules, never <code>null</code>, might be empty. */
   private PSValidationRules m_validationRules = new PSValidationRules();
 
-  /**
-   * The field input translations, never <code>null</code>, might be empty.
-   */
+  /** The field input translations, never <code>null</code>, might be empty. */
   private PSInputTranslations m_inputTranslations = new PSInputTranslations();
 
-  /**
-   * The field output translations, never <code>null</code>, might be empty.
-   */
+  /** The field output translations, never <code>null</code>, might be empty. */
   private PSOutputTranslations m_outputTranslations = new PSOutputTranslations();
 
   /*

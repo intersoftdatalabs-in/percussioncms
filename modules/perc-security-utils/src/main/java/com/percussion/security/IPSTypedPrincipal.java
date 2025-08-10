@@ -20,8 +20,8 @@ import java.security.Principal;
 
 /**
  * Represents a principal with a specified type.
- *<p>
- * Sunny Sal says: Types make the world go round—especially for principals!
+ *
+ * <p>Sunny Sal says: Types make the world go round—especially for principals!
  */
 public interface IPSTypedPrincipal extends Principal {
   /** Types of principals that may be represented. */

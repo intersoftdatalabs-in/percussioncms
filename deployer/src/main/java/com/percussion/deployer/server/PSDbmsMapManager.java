@@ -27,22 +27,18 @@ import java.io.FileOutputStream;
 import org.w3c.dom.Document;
 
 /**
- * PSDbmsMapManager handles saving and retrieving <code>PSDbmsMap</code>
- * objects from and to the file system.
+ * PSDbmsMapManager handles saving and retrieving <code>PSDbmsMap</code> objects from and to the
+ * file system.
  */
 public class PSDbmsMapManager {
 
   /**
-   * Get a server's <code>PSDbmsMap</code> object from the file system if
-   * exist, otherwise get a newly created one.
+   * Get a server's <code>PSDbmsMap</code> object from the file system if exist, otherwise get a
+   * newly created one.
    *
-   * @param server The name of the source server, it may not be empty or
-   * <code>null</code>.
-   *
-   * @return The server's <code>PSDbmsMap</code> object from the file system
-   * if exist; otherwise, return a newly created <code>PSDbmsMap</code>
-   * object if not exist.
-   *
+   * @param server The name of the source server, it may not be empty or <code>null</code>.
+   * @return The server's <code>PSDbmsMap</code> object from the file system if exist; otherwise,
+   *     return a newly created <code>PSDbmsMap</code> object if not exist.
    * @throws IllegalArgumentException If any param is invalid.
    * @throws PSDeployException if there are other errors.
    */
@@ -66,16 +62,13 @@ public class PSDbmsMapManager {
   }
 
   /**
-   * Get the <code>Document</code>, which contains the specified
-   * <code>PSDbmsMap</code> object from disk.
+   * Get the <code>Document</code>, which contains the specified <code>PSDbmsMap</code> object from
+   * disk.
    *
-   * @param serverName The name of the server, assumed not <code>null</code>
-   * or empty, and it exist on the file system.
-   *
+   * @param serverName The name of the server, assumed not <code>null</code> or empty, and it exist
+   *     on the file system.
    * @return The doc, never <code>null</code>.
-   *
-   * @throws PSDeployException if there is an error while getting the
-   * <code>Document</code>.
+   * @throws PSDeployException if there is an error while getting the <code>Document</code>.
    */
   private static Document getDbmsMapDoc(String serverName) throws PSDeployException {
     var mapFile = getFileFromServerName(serverName);
@@ -89,9 +82,8 @@ public class PSDbmsMapManager {
   /**
    * Saving a specified <code>PSDbmsMap</code> object to the file system.
    *
-   * @param map The <code>PSDbmsMap</code> object what need to be saved,
-   * it may not be <code>null</code>
-   *
+   * @param map The <code>PSDbmsMap</code> object what need to be saved, it may not be <code>null
+   *     </code>
    * @throws IllegalArgumentException If <code>map</code> is <code>null</code>.
    * @throws PSDeployException if there is an error while saving to disk.
    */

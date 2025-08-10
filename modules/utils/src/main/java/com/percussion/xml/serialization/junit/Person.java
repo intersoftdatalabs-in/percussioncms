@@ -23,11 +23,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A sample person class used in unit test of the
- * {@link com.percussion.xml.serialization.PSObjectSerializer} class. As can be
- * seen it is a simple java bean with a default ctor (required) and setXxx() and
- * getXxx() methods. It has some other java objects and a collection of an
- * object as fields.
+ * A sample person class used in unit test of the {@link
+ * com.percussion.xml.serialization.PSObjectSerializer} class. As can be seen it is a simple java
+ * bean with a default ctor (required) and setXxx() and getXxx() methods. It has some other java
+ * objects and a collection of an object as fields.
  */
 public class Person {
   private Name name;
@@ -36,9 +35,7 @@ public class Person {
 
   private List<Book> books = new ArrayList<Book>();
 
-  /**
-   * Default ctor. Required by serializer.
-   */
+  /** Default ctor. Required by serializer. */
   public Person() {}
 
   public Person(String first, String last) {

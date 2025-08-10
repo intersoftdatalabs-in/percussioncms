@@ -23,20 +23,17 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
 /**
- * This module handles the TransferEncoding response header. It currently
- * handles the "gzip", "deflate", "compress", "chunked" and "identity"
- * tokens.
+ * This module handles the TransferEncoding response header. It currently handles the "gzip",
+ * "deflate", "compress", "chunked" and "identity" tokens.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version 0.3-3 06/05/2001
+ * @author Ronald Tschalär
  */
 @Deprecated
 class TransferEncodingModule implements HTTPClientModule {
   // Methods
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int requestHandler(Request req, Response[] resp) throws ModuleException {
     // Parse TE header
 
@@ -92,21 +89,15 @@ class TransferEncodingModule implements HTTPClientModule {
     return REQ_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase1Handler(Response resp, RoRequest req) {}
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public int responsePhase2Handler(Response resp, Request req) {
     return RSP_CONTINUE;
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void responsePhase3Handler(Response resp, RoRequest req)
       throws IOException, ModuleException {
     String te = resp.getHeader("Transfer-Encoding");
@@ -152,8 +143,6 @@ class TransferEncodingModule implements HTTPClientModule {
     else resp.deleteHeader("Transfer-Encoding");
   }
 
-  /**
-   * Invoked by the HTTPClient.
-   */
+  /** Invoked by the HTTPClient. */
   public void trailerHandler(Response resp, RoRequest req) {}
 }

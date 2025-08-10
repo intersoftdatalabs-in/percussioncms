@@ -17,186 +17,192 @@
 
 package com.percussion.rest.pages;
 
-import com.percussion.rest.MainTest;
-import com.percussion.rest.errors.RestError;
-import com.percussion.rest.errors.RestErrorCode;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Disabled;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.rest.MainTest;
+import com.percussion.rest.errors.RestError;
+import com.percussion.rest.errors.RestErrorCode;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
 @Tag("IntegrationTest")
-public class PagesTest extends MainTest
-{
-   
-    @Test
-    public void testPageById()
-    {
-    	
-    	
-        Response response = target("pages/1234")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get();
-        Page page = response.readEntity(Page.class);
-        assertEquals("1234", page.getId());
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
- 
-    }
+public class PagesTest extends MainTest {
 
-    @Test
-    public void testPageByIdNotFound()
-    {
-    	
-        Response response = target("pages/invalidId")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+  @Test
+  public void testPageById() {
 
-    }
-    
-    @Test
-    public void testPageRoundTrip()
-    {
-    	
-        String responseMsg = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-                .request(MediaType.APPLICATION_JSON)
-                .get(
-                String.class);
-        String putResponseMsg = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .put(Entity.entity(responseMsg, MediaType.APPLICATION_JSON_TYPE),String.class);
-        assertEquals(putResponseMsg, responseMsg);
-    }
+    Response response =
+        target("pages/1234")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get();
+    Page page = response.readEntity(Page.class);
+    assertEquals("1234", page.getId());
+    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+  }
 
-    @Test
-    public void testPageWrongPath()
-    {
-    	
-        String responseMsg = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
-                .request().get(String.class);
-        Response response = target("pages/by-path/sitea/path1/pathsub%20/pathsub3/page1.html")
-                .request()
-                .accept(MediaType.APPLICATION_JSON_TYPE).put(Entity.json(responseMsg));
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-    }
+  @Test
+  public void testPageByIdNotFound() {
 
-    @Test
-    public void testPageWrongName()
-    {
-    	
-        String responseMsg = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
-                .request().get(String.class);
-        Response response = target("pages/by-path/sitea/pathsub%20/pathsub2/page2.html")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.json(responseMsg));
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-    }
+    Response response =
+        target("pages/invalidId")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get(Response.class);
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+  }
 
-    @Test
-    public void testPageWrongSite()
-    {
-    	
-        String responseMsg = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(String.class);
-        Response response = target("pages/by-path/siteb/pathsub%20/pathsub2/page1.html")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.json(responseMsg));
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
-        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
-    }
+  @Test
+  public void testPageRoundTrip() {
 
-    @Test
-    public void testPageNameNotFound()
-    {
-    	
-        Response response = target("pages/by-path/sitea/path1/pathsub%20/pathsub2/testNotFound")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-    }
-    
-    @Test
-    public void testSiteNotFound()
-    {
-    	
-        Response response = target("pages/by-path/testNotFound/path1/pathsub%20/pathsub2/pathsub3")
-                .request(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.SITE_NOT_FOUND.getNumVal());
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-    }
-    
-    @Test
-    public void testPathNotFound()
-    {
-    	
-        Response response = target("pages/by-path/siteb/path1/pathsub%20/testNotFound/pathsub3")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(Response.class);
-        RestError ex = response.readEntity(RestError.class);
-        assertEquals(ex.getErrorCode(), RestErrorCode.FOLDER_NOT_FOUND.getNumVal());
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-    }
-    
-    @Test
-    @Disabled
-    public void testPage()
-    {
-    	
-    	
-        String responseMsg2 = target("pages/by-path/sitea/path1/pathsub/pathsub2/page1.html")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .get(String.class);
-        System.out.println(responseMsg2);
-        assertEquals(
-                "{\"id\":\"id\",\"name\":\"page1.html\",\"siteName\":\"sitea\",\"folderPath\":\"path1/pathsub/pathsub2\",\"displayName\":\"Display Name\",\"templateName\":\"Template1\",\"summary\":\"Summary\",\"overridePostDate\":\"2010-10-24T04:00:00.000+0000\",\"workflow\":{\"name\":null,\"state\":\"Approval\",\"checkedOut\":true,\"checkedOutUser\":\"Admin\"},\"seo\":{\"browserTitle\":\"Browser Title\",\"metaDescription\":\"Meta Description\",\"hideSearch\":false,\"tags\":[\"Tag1\",\"Tag2\"],\"categories\":[\"Category1\",\"Category2\"]},\"calendar\":{\"startDate\":\"2010-10-24T04:00:00.000+0000\",\"endDate\":\"2010-10-24T04:00:00.000+0000\",\"calendars\":[\"Caldendar1\",\"Calendar2\"]},\"code\":{\"head\":\"HeadCode\",\"afterStart\":\"AfterStartCode\",\"beforeClose\":\"BeforeCloseCode\"},\"body\":[{\"name\":\"region1\",\"type\":\"richtext\",\"editable\":false,\"widgets\":[{\"id\":\"1234\",\"name\":\"widget1\",\"type\":\"widgetType\",\"scope\":\"local\",\"editable\":true,\"asset\":{\"fields\":{\"Field2\":\"<a href=\\\"test\\\">test<\\\\a>\",\"Field1\":\"<a href=\\\"test\\\">test<\\\\a>\"}}}]}]}",
-                responseMsg2);
-       /*
-        assertEquals(
-                responseMsg2);
-                */
-    }
-    
-    @Test
-    public void testRenamePage() {
-        var p = target("pages/rename/sitea/path1/pathsub/pathsub2/page1.html/newname.html")
-                .request(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .post(Entity.json("{}"), Page.class);
-        assertTrue(p.getName().equals("newname.html"), "New Name Should Match");
-    }
+    String responseMsg =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .get(String.class);
+    String putResponseMsg =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .put(Entity.entity(responseMsg, MediaType.APPLICATION_JSON_TYPE), String.class);
+    assertEquals(putResponseMsg, responseMsg);
+  }
 
-    @Test
-    public void testNeverNull() {
-        var p = new Page();
-        p.setRecentUsers(null);
-        p.setBookmarkedUsers(null);
-        assertTrue(p.getBookmarkedUsers() != null, "Should Never be Null");
-        assertTrue(p.getRecentUsers() != null, "Should Never be Null");
-    }
+  @Test
+  public void testPageWrongPath() {
+
+    String responseMsg =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
+            .request()
+            .get(String.class);
+    Response response =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub3/page1.html")
+            .request()
+            .accept(MediaType.APPLICATION_JSON_TYPE)
+            .put(Entity.json(responseMsg));
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
+    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  public void testPageWrongName() {
+
+    String responseMsg =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/page1.html")
+            .request()
+            .get(String.class);
+    Response response =
+        target("pages/by-path/sitea/pathsub%20/pathsub2/page2.html")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .put(Entity.json(responseMsg));
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
+    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  public void testPageWrongSite() {
+
+    String responseMsg =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get(String.class);
+    Response response =
+        target("pages/by-path/siteb/pathsub%20/pathsub2/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .put(Entity.json(responseMsg));
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.LOCATION_MISMATCH.getNumVal());
+    assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  public void testPageNameNotFound() {
+
+    Response response =
+        target("pages/by-path/sitea/path1/pathsub%20/pathsub2/testNotFound")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get(Response.class);
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.PAGE_NOT_FOUND.getNumVal());
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  public void testSiteNotFound() {
+
+    Response response =
+        target("pages/by-path/testNotFound/path1/pathsub%20/pathsub2/pathsub3")
+            .request(MediaType.APPLICATION_JSON_TYPE)
+            .get(Response.class);
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.SITE_NOT_FOUND.getNumVal());
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  public void testPathNotFound() {
+
+    Response response =
+        target("pages/by-path/siteb/path1/pathsub%20/testNotFound/pathsub3")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get(Response.class);
+    RestError ex = response.readEntity(RestError.class);
+    assertEquals(ex.getErrorCode(), RestErrorCode.FOLDER_NOT_FOUND.getNumVal());
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+  }
+
+  @Test
+  @Disabled
+  public void testPage() {
+
+    String responseMsg2 =
+        target("pages/by-path/sitea/path1/pathsub/pathsub2/page1.html")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .get(String.class);
+    System.out.println(responseMsg2);
+    assertEquals(
+        "{\"id\":\"id\",\"name\":\"page1.html\",\"siteName\":\"sitea\",\"folderPath\":\"path1/pathsub/pathsub2\",\"displayName\":\"Display"
+            + " Name\",\"templateName\":\"Template1\",\"summary\":\"Summary\",\"overridePostDate\":\"2010-10-24T04:00:00.000+0000\",\"workflow\":{\"name\":null,\"state\":\"Approval\",\"checkedOut\":true,\"checkedOutUser\":\"Admin\"},\"seo\":{\"browserTitle\":\"Browser"
+            + " Title\",\"metaDescription\":\"Meta"
+            + " Description\",\"hideSearch\":false,\"tags\":[\"Tag1\",\"Tag2\"],\"categories\":[\"Category1\",\"Category2\"]},\"calendar\":{\"startDate\":\"2010-10-24T04:00:00.000+0000\",\"endDate\":\"2010-10-24T04:00:00.000+0000\",\"calendars\":[\"Caldendar1\",\"Calendar2\"]},\"code\":{\"head\":\"HeadCode\",\"afterStart\":\"AfterStartCode\",\"beforeClose\":\"BeforeCloseCode\"},\"body\":[{\"name\":\"region1\",\"type\":\"richtext\",\"editable\":false,\"widgets\":[{\"id\":\"1234\",\"name\":\"widget1\",\"type\":\"widgetType\",\"scope\":\"local\",\"editable\":true,\"asset\":{\"fields\":{\"Field2\":\"<a"
+            + " href=\\\"test\\\">test<\\\\a>\",\"Field1\":\"<a"
+            + " href=\\\"test\\\">test<\\\\a>\"}}}]}]}",
+        responseMsg2);
+    /*
+    assertEquals(
+            responseMsg2);
+            */
+  }
+
+  @Test
+  public void testRenamePage() {
+    var p =
+        target("pages/rename/sitea/path1/pathsub/pathsub2/page1.html/newname.html")
+            .request(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .post(Entity.json("{}"), Page.class);
+    assertTrue(p.getName().equals("newname.html"), "New Name Should Match");
+  }
+
+  @Test
+  public void testNeverNull() {
+    var p = new Page();
+    p.setRecentUsers(null);
+    p.setBookmarkedUsers(null);
+    assertTrue(p.getBookmarkedUsers() != null, "Should Never be Null");
+    assertTrue(p.getRecentUsers() != null, "Should Never be Null");
+  }
 }

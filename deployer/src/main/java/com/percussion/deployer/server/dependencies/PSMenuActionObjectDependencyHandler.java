@@ -49,19 +49,16 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * Base class for menu action dependency handlers, provides common functionality
- * for deploying and installing <code>PSAction</code> objects.
+ * Base class for menu action dependency handlers, provides common functionality for deploying and
+ * installing <code>PSAction</code> objects.
  */
 public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDependencyHandler {
   /**
    * Construct a dependency handler.
    *
-   * @param def The def for the type supported by this handler.  May not be
-   * <code>null</code> and must be of the type supported by this class.  See
-   * {@link #getType()} for more info.
-   * @param dependencyMap The full dependency map.  May not be
-   * <code>null</code>.
-   *
+   * @param def The def for the type supported by this handler. May not be <code>null</code> and
+   *     must be of the type supported by this class. See {@link #getType()} for more info.
+   * @param dependencyMap The full dependency map. May not be <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if any other error occurs.
    */
@@ -204,19 +201,19 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
   }
 
   /**
-   * Provides the list of child dependency types this class can discover.
-   * The child types supported by this handler are:
+   * Provides the list of child dependency types this class can discover. The child types supported
+   * by this handler are:
+   *
    * <ol>
-   * <li>Application</li>
-   * <li>Community</li>
-   * <li>ContentType</li>
-   * <li>MenuActionCategory</li>
-   * <li>SupportFile</li>
+   *   <li>Application
+   *   <li>Community
+   *   <li>ContentType
+   *   <li>MenuActionCategory
+   *   <li>SupportFile
    * </ol>
    *
-   * @return An iterator over zero or more types as <code>String</code>
-   * objects, never <code>null</code>, does not contain <code>null</code> or
-   * empty entries.
+   * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
+   *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
   public Iterator<String> getChildTypes() {
@@ -326,14 +323,11 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
    *
    * @param proc The processor to use, may not be <code>null</code>.
    * @param dep The dependency, may not be <code>null</code>.
-   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise
-   * only non-leaves are loaded.  See {@link #isLeaf(PSAction)} for more info.
-   *
+   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise only non-leaves are
+   *     loaded. See {@link #isLeaf(PSAction)} for more info.
    * @return The action, never <code>null</code>.
-   *
    * @throws IllegalArgumentException if any param is invalid.
-   * @throws PSDeployException if the action is not found or if there are any
-   * other errors.
+   * @throws PSDeployException if the action is not found or if there are any other errors.
    */
   protected PSAction loadAction(PSComponentProcessorProxy proc, PSDependency dep, boolean loadLeaf)
       throws PSDeployException {
@@ -355,11 +349,9 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
    *
    * @param proc The processor to use, may not be <code>null</code>.
    * @param id The id of the action, may not be <code>null</code> or empty.
-   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise
-   * only non-leaves are loaded.  See {@link #isLeaf(PSAction)} for more info.
-   *
+   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise only non-leaves are
+   *     loaded. See {@link #isLeaf(PSAction)} for more info.
    * @return The action, or <code>null</code> if it cannot be found.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -391,13 +383,11 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
    * Loads all action of the specified type from the repository.
    *
    * @param proc The processor to use, may not be <code>null</code>.
-   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise
-   * only non-leaves are loaded.  See {@link #isLeaf(PSAction)} for more info.
-   * @param childId If provided, only actions that are "parents" of this child
-   * are returned.  May be <code>null</code>, never empty.
-   * @return An iterator over zero or more <code>PSAction</code> objects,
-   * never <code>null</code>.
-   *
+   * @param loadLeaf If <code>true</code>, only leaves are loaded, otherwise only non-leaves are
+   *     loaded. See {@link #isLeaf(PSAction)} for more info.
+   * @param childId If provided, only actions that are "parents" of this child are returned. May be
+   *     <code>null</code>, never empty.
+   * @return An iterator over zero or more <code>PSAction</code> objects, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any errors.
    */
@@ -426,15 +416,12 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
   }
 
   /**
-   * Checks if the specified id represents a child action of the supplied
-   * action.
-   * @param action The action to check, assumed not <code>null</code>.
-   * @param childId The child to check for, assumed not <code>null</code> or
-   * empty.
+   * Checks if the specified id represents a child action of the supplied action.
    *
-   * @return <code>true</code> if the supplied <code>childId</code> is found
-   * in the child actions of the supplied <code>action</code>,
-   * <code>false</code> if not.
+   * @param action The action to check, assumed not <code>null</code>.
+   * @param childId The child to check for, assumed not <code>null</code> or empty.
+   * @return <code>true</code> if the supplied <code>childId</code> is found in the child actions of
+   *     the supplied <code>action</code>, <code>false</code> if not.
    */
   @SuppressWarnings("unchecked")
   private boolean isChild(PSAction action, String childId) {
@@ -449,13 +436,11 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
   }
 
   /**
-   * Determines if the supplied action is a leaf (an item or a dynamic menu,
-   * not a cascading category).
+   * Determines if the supplied action is a leaf (an item or a dynamic menu, not a cascading
+   * category).
    *
    * @param action The action, may not be <code>null</code>.
-   *
    * @return <code>true</code> if it is a leaf, <code>false</code> otherwise.
-   *
    * @throws IllegalArgumentException if any param is invalid.
    */
   protected boolean isLeaf(PSAction action) {
@@ -465,17 +450,14 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
   }
 
   /**
-   * Determines if this handler's object type represents a leaf object.  See
-   * {@link #isLeaf(PSAction)} for more info.
+   * Determines if this handler's object type represents a leaf object. See {@link
+   * #isLeaf(PSAction)} for more info.
    *
    * @return <code>true</code> if it is a leaf, <code>false</code> otherwise.
    */
   protected abstract boolean isLeaf();
 
-  /**
-   * List of child types supported by this handler, it will never be
-   * <code>null</code> or empty.
-   */
+  /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
   private static List<String> ms_childTypes = new ArrayList<>();
 
   static {

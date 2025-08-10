@@ -1,6 +1,5 @@
-// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,55 +17,49 @@
 
 package com.percussion.utils.web.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.*;
 
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.utils.service.impl.PSUtilityRestService;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-/**
- * Integration tests for the utility REST service.
- * Refactored for Java 11 and JUnit5.
- */
 public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient> {
 
-    private static PSUtilityRestClient utilityTestClient;
+  private static PSUtilityRestClient utilityTestClient;
 
-    @Override
-    protected PSUtilityRestClient getRestClient(String baseUrl) {
-        return utilityTestClient = new PSUtilityRestClient(baseUrl);
-    }
+  protected PSUtilityRestClient getRestClient(String baseUrl) {
+    return utilityTestClient = new PSUtilityRestClient(baseUrl);
+  }
 
-    @BeforeEach All
-    public static void setUp() {
-        // No-op, placeholder for future setup if needed.
-    }
+  @BeforeClass
+  public static void setUp() throws Exception {}
 
-    @Test
-    public void encryptDecryptUrlTest() {
-        var defaultKey = "D6ZX#23GGS$";
-        var stringToBeEncrypted = "http://yahoo.com";
+  @Test
+  public void encryptDecryptUrlTest() {
+    String defaultKey = "D6ZX#23GGS$";
 
-        var map = new HashMap<String, String>();
-        map.put(PSUtilityRestService.KEY_KEY, defaultKey);
-        map.put(PSUtilityRestService.STRING_KEY, stringToBeEncrypted);
-        var mapWrapper = new PSMapWrapper();
-        mapWrapper.setEntries(map);
+    String stringTobeEncrypted = "http://yahoo.com";
 
-        var mw = utilityTestClient.encryptString(mapWrapper);
+    Map<String, String> map = new HashMap<String, String>();
+    map.put(PSUtilityRestService.KEY_KEY, defaultKey);
+    map.put(PSUtilityRestService.STRING_KEY, stringTobeEncrypted);
+    PSMapWrapper mapWrapper = new PSMapWrapper();
+    mapWrapper.setEntries(map);
 
-        map.clear();
-        map.put(PSUtilityRestService.KEY_KEY, defaultKey);
-        map.put(PSUtilityRestService.STRING_KEY, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
-        mapWrapper = new PSMapWrapper();
-        mapWrapper.setEntries(map);
+    PSMapWrapper mw = utilityTestClient.encryptString(mapWrapper);
 
-        mw = utilityTestClient.decryptString(mapWrapper);
+    map.clear();
+    map.put(PSUtilityRestService.KEY_KEY, defaultKey);
+    map.put(PSUtilityRestService.STRING_KEY, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
+    mapWrapper = new PSMapWrapper();
+    mapWrapper.setEntries(map);
 
-        assertEquals(stringToBeEncrypted, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
-    }
+    mw = utilityTestClient.decryptString(mapWrapper);
+
+    assertEquals(stringTobeEncrypted, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
+  }
 }

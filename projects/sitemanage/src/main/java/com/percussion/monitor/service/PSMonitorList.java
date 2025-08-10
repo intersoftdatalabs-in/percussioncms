@@ -18,41 +18,39 @@
 package com.percussion.monitor.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * List wrapper for monitors, used for REST serialization.
- * Sunny Sal says: "Monitor list: because one monitor is never enough!"
+ * List wrapper for monitors, used for REST serialization. Sunny Sal says: "Monitor list: because
+ * one monitor is never enough!"
  */
 @XmlRootElement
 public class PSMonitorList {
 
-    @XmlElement
-    public List<PSMonitor> monitor = new ArrayList<>();
+  @XmlElement public List<PSMonitor> monitor = new ArrayList<>();
 
-    /**
-     * Adds entries from the given map to the list and sorts by monitor name.
-     *
-     * @param monitors the map of monitor designator to monitor
-     */
-    public void addEntriesToList(Map<String, PSMonitor> monitors) {
-        monitor.addAll(monitors.values());
-        monitor.sort((o1, o2) -> {
-            var name1 = o1.getStats().getEntries().get("name");
-            var name2 = o2.getStats().getEntries().get("name");
-            if (name1 == null) {
-                return -1;
-            }
-            return name1.compareToIgnoreCase(name2);
+  /**
+   * Adds entries from the given map to the list and sorts by monitor name.
+   *
+   * @param monitors the map of monitor designator to monitor
+   */
+  public void addEntriesToList(Map<String, PSMonitor> monitors) {
+    monitor.addAll(monitors.values());
+    monitor.sort(
+        (o1, o2) -> {
+          var name1 = o1.getStats().getEntries().get("name");
+          var name2 = o2.getStats().getEntries().get("name");
+          if (name1 == null) {
+            return -1;
+          }
+          return name1.compareToIgnoreCase(name2);
         });
-    }
+  }
 
-    public PSMonitorList() {
-        // Default constructor
-    }
+  public PSMonitorList() {
+    // Default constructor
+  }
 }

@@ -21,13 +21,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The class <CODE>PSWorkflowRoleInfo</CODE> provides static
- * methods for obtaining, manipulating and classifying state role and content
- * adhoc user information, and can be instantiated to provide methods for
- * setting and getting "state" variables such as the roles in which the user
- * is acting, enabling the sharing this information between contexts. This
- * sharing is done using a private object created by
- * <CODE>IPSRequestContext.setPrivateObject</CODE> with key  {@link
+ * The class <CODE>PSWorkflowRoleInfo</CODE> provides static methods for obtaining, manipulating and
+ * classifying state role and content adhoc user information, and can be instantiated to provide
+ * methods for setting and getting "state" variables such as the roles in which the user is acting,
+ * enabling the sharing this information between contexts. This sharing is done using a private
+ * object created by <CODE>IPSRequestContext.setPrivateObject</CODE> with key {@link
  * #WORKFLOW_ROLE_INFO_PRIVATE_OBJECT }
  */
 @SuppressWarnings("unchecked")
@@ -54,8 +52,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   }
 
   /**
-   * Gets the value of the content adhoc users context for the transition "to"
-   * state
+   * Gets the value of the content adhoc users context for the transition "to" state
    *
    * @return Content adhoc users context for the transition "to" state
    */
@@ -64,8 +61,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   }
 
   /**
-   * Gets the value of the content adhoc users context for the transition
-   * "from" state
+   * Gets the value of the content adhoc users context for the transition "from" state
    *
    * @return Content adhoc users context for the transition "from" state
    */
@@ -76,8 +72,7 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   /**
    * Sets the list of IDs of state roles in which a user is acting
    *
-   * @param userActingRoleIDs  list of IDs of state roles in which a user is
-   *                           acting
+   * @param userActingRoleIDs list of IDs of state roles in which a user is acting
    */
   public void setUserActingRoleIDs(List userActingRoleIDs) {
     m_userActingRoleIDs = userActingRoleIDs;
@@ -86,30 +81,25 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   /**
    * Sets the list of names of state roles in which a user is acting
    *
-   * @param userActingRoleNames  list of names of state roles in which a user
-   *                             is acting
+   * @param userActingRoleNames list of names of state roles in which a user is acting
    */
   public void setUserActingRoleNames(List userActingRoleNames) {
     m_userActingRoleNames = userActingRoleNames;
   }
 
   /**
-   * Gets the value of the content adhoc users context for the transition "to"
-   * state
+   * Gets the value of the content adhoc users context for the transition "to" state
    *
-   * @param toStateCauc  content adhoc users context for the transition
-   *                     "to" state
+   * @param toStateCauc content adhoc users context for the transition "to" state
    */
   public void setToStateCauc(IPSContentAdhocUsersContext toStateCauc) {
     m_toStateCauc = toStateCauc;
   }
 
   /**
-   * Sets the value of the content adhoc users context for the transition
-   * "from" state
+   * Sets the value of the content adhoc users context for the transition "from" state
    *
-   * @param fromStateCauc  content adhoc users context for the transition
-   *                       "from" state
+   * @param fromStateCauc content adhoc users context for the transition "from" state
    */
   public void setFromStateCauc(IPSContentAdhocUsersContext fromStateCauc) {
     m_fromStateCauc = fromStateCauc;
@@ -127,8 +117,6 @@ public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
   /** Content adhoc users context for the transition "from" state */
   private IPSContentAdhocUsersContext m_fromStateCauc = null;
 
-  /**
-   * Logger for this class.
-   */
+  /** Logger for this class. */
   public static final Logger log = LogManager.getLogger(PSWorkflowRoleInfo.class);
 }

@@ -20,230 +20,273 @@ package com.percussion.rest.actions;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents an Action Menu in Percussion CMS.
- */
+/** Represents an Action Menu in Percussion CMS. */
 @XmlRootElement(name = "ActionMenu")
 @Schema(description = "Represents an Action Menu")
 public class ActionMenu {
 
-    @Schema(description = "The id of the menu. It may be -1 if the id has not been assigned.")
-    private int id;
+  @Schema(description = "The id of the menu. It may be -1 if the id has not been assigned.")
+  private int id;
 
-    @Schema(description = "The universally unique id of the menu, never null")
-    private Guid guid;
+  @Schema(description = "The universally unique id of the menu, never null")
+  private Guid guid;
 
-    @Schema(description = "The name of the action. Never null.", required = true)
-    private String name;
+  @Schema(description = "The name of the action. Never null.", required = true)
+  private String name;
 
-    @Schema(description = "Display label for this action. Can be used to set the label for dynamic context menu actions.")
-    private String label;
+  @Schema(
+      description =
+          "Display label for this action. Can be used to set the label for dynamic context menu"
+              + " actions.")
+  private String label;
 
-    @Schema(description = "The action menu description.")
-    private String description;
+  @Schema(description = "The action menu description.")
+  private String description;
 
-    @Schema(description = "The action url that is relative to the document base for the page hosting the menu.")
-    private String url;
+  @Schema(
+      description =
+          "The action url that is relative to the document base for the page hosting the menu.")
+  private String url;
 
-    @Schema(description = "Sort rank of this Menu Action in its parent's children actions.")
-    private int sortRank;
+  @Schema(description = "Sort rank of this Menu Action in its parent's children actions.")
+  private int sortRank;
 
-    @Schema(description = "The menu type, never null or empty, must be a valid menu type.",
-            allowableValues = PSAction.TYPE_MENU + "," + PSAction.TYPE_CONTEXTMENU + "," + PSAction.TYPE_MENUITEM + ",DYNAMICMENU")
-    private String menuType;
+  @Schema(
+      description = "The menu type, never null or empty, must be a valid menu type.",
+      allowableValues =
+          PSAction.TYPE_MENU
+              + ","
+              + PSAction.TYPE_CONTEXTMENU
+              + ","
+              + PSAction.TYPE_MENUITEM
+              + ",DYNAMICMENU")
+  private String menuType;
 
-    @Schema(description = "Finds whether the action to be handled by client or not. An action that cannot be handled by client is handled by server.")
-    private String handler;
+  @Schema(
+      description =
+          "Finds whether the action to be handled by client or not. An action that cannot be"
+              + " handled by client is handled by server.")
+  private String handler;
 
-    @Schema(description = "Gets children actions of this action. Should be called only if the action represents a menu as indicated by isCascadedMenu() or isDynamicMenu. If this action represents a menu, then a valid object is returned, otherwise, it may be empty, but never null.")
-    private ActionMenuList children;
+  @Schema(
+      description =
+          "Gets children actions of this action. Should be called only if the action represents a"
+              + " menu as indicated by isCascadedMenu() or isDynamicMenu. If this action represents"
+              + " a menu, then a valid object is returned, otherwise, it may be empty, but never"
+              + " null.")
+  private ActionMenuList children;
 
-    @Schema(description = "A collection of action url parameters.")
-    private ActionMenuParameter[] parameters;
+  @Schema(description = "A collection of action url parameters.")
+  private ActionMenuParameter[] parameters;
 
-    @Schema(description = "Set the visibility contexts that is used to control when this action will be visible.")
-    private ActionMenuVisibilityContext[] visibilityContexts;
+  @Schema(
+      description =
+          "Set the visibility contexts that is used to control when this action will be visible.")
+  private ActionMenuVisibilityContext[] visibilityContexts;
 
-    @Schema(description = "Gets the list of mode-uicontexts with the action")
-    private ActionMenuModeUIContext[] uiContexts;
+  @Schema(description = "Gets the list of mode-uicontexts with the action")
+  private ActionMenuModeUIContext[] uiContexts;
 
-    @Schema(description = "An array of the Properties defined for this menu. See documentation for details.")
-    private ActionMenuProperty[] properties;
+  @Schema(
+      description =
+          "An array of the Properties defined for this menu. See documentation for details.")
+  private ActionMenuProperty[] properties;
 
-    public ActionMenu() {
-        // Default constructor for JAXB
-    }
+  public ActionMenu() {
+    // Default constructor for JAXB
+  }
 
-    // --- Getters and Setters with Optional and JavaDoc ---
+  // --- Getters and Setters with Optional and JavaDoc ---
 
-    public int getId() {
-        return id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public Optional<Guid> getGuid() {
-        return Optional.ofNullable(guid);
-    }
+  public Optional<Guid> getGuid() {
+    return Optional.ofNullable(guid);
+  }
 
-    public void setGuid(Guid guid) {
-        this.guid = guid;
-    }
+  public void setGuid(Guid guid) {
+    this.guid = guid;
+  }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
+  public Optional<String> getName() {
+    return Optional.ofNullable(name);
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Optional<String> getLabel() {
-        return Optional.ofNullable(label);
-    }
+  public Optional<String> getLabel() {
+    return Optional.ofNullable(label);
+  }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
+  public void setLabel(String label) {
+    this.label = label;
+  }
 
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
-    }
+  public Optional<String> getDescription() {
+    return Optional.ofNullable(description);
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public Optional<String> getUrl() {
-        return Optional.ofNullable(url);
-    }
+  public Optional<String> getUrl() {
+    return Optional.ofNullable(url);
+  }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    public int getSortRank() {
-        return sortRank;
-    }
+  public int getSortRank() {
+    return sortRank;
+  }
 
-    public void setSortRank(int sortRank) {
-        this.sortRank = sortRank;
-    }
+  public void setSortRank(int sortRank) {
+    this.sortRank = sortRank;
+  }
 
-    public Optional<String> getMenuType() {
-        return Optional.ofNullable(menuType);
-    }
+  public Optional<String> getMenuType() {
+    return Optional.ofNullable(menuType);
+  }
 
-    public void setMenuType(String menuType) {
-        this.menuType = menuType;
-    }
+  public void setMenuType(String menuType) {
+    this.menuType = menuType;
+  }
 
-    public Optional<String> getHandler() {
-        return Optional.ofNullable(handler);
-    }
+  public Optional<String> getHandler() {
+    return Optional.ofNullable(handler);
+  }
 
-    public void setHandler(String handler) {
-        this.handler = handler;
-    }
+  public void setHandler(String handler) {
+    this.handler = handler;
+  }
 
-    public Optional<ActionMenuList> getChildren() {
-        return Optional.ofNullable(children);
-    }
+  public Optional<ActionMenuList> getChildren() {
+    return Optional.ofNullable(children);
+  }
 
-    public void setChildren(ActionMenuList children) {
-        this.children = children;
-    }
+  public void setChildren(ActionMenuList children) {
+    this.children = children;
+  }
 
-    public Optional<ActionMenuParameter[]> getParameters() {
-        return Optional.ofNullable(parameters);
-    }
+  public Optional<ActionMenuParameter[]> getParameters() {
+    return Optional.ofNullable(parameters);
+  }
 
-    public void setParameters(ActionMenuParameter[] parameters) {
-        this.parameters = parameters;
-    }
+  public void setParameters(ActionMenuParameter[] parameters) {
+    this.parameters = parameters;
+  }
 
-    public Optional<ActionMenuVisibilityContext[]> getVisibilityContexts() {
-        return Optional.ofNullable(visibilityContexts);
-    }
+  public Optional<ActionMenuVisibilityContext[]> getVisibilityContexts() {
+    return Optional.ofNullable(visibilityContexts);
+  }
 
-    public void setVisibilityContexts(ActionMenuVisibilityContext[] visibilityContexts) {
-        this.visibilityContexts = visibilityContexts;
-    }
+  public void setVisibilityContexts(ActionMenuVisibilityContext[] visibilityContexts) {
+    this.visibilityContexts = visibilityContexts;
+  }
 
-    public Optional<ActionMenuModeUIContext[]> getUiContexts() {
-        return Optional.ofNullable(uiContexts);
-    }
+  public Optional<ActionMenuModeUIContext[]> getUiContexts() {
+    return Optional.ofNullable(uiContexts);
+  }
 
-    public void setUiContexts(ActionMenuModeUIContext[] uiContexts) {
-        this.uiContexts = uiContexts;
-    }
+  public void setUiContexts(ActionMenuModeUIContext[] uiContexts) {
+    this.uiContexts = uiContexts;
+  }
 
-    public Optional<ActionMenuProperty[]> getProperties() {
-        return Optional.ofNullable(properties);
-    }
+  public Optional<ActionMenuProperty[]> getProperties() {
+    return Optional.ofNullable(properties);
+  }
 
-    public void setProperties(ActionMenuProperty[] properties) {
-        this.properties = properties;
-    }
+  public void setProperties(ActionMenuProperty[] properties) {
+    this.properties = properties;
+  }
 
-    // --- equals, hashCode, toString ---
+  // --- equals, hashCode, toString ---
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ActionMenu)) return false;
-        var that = (ActionMenu) o;
-        return id == that.id &&
-                sortRank == that.sortRank &&
-                Objects.equals(guid, that.guid) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(label, that.label) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(url, that.url) &&
-                Objects.equals(menuType, that.menuType) &&
-                Objects.equals(handler, that.handler) &&
-                Objects.equals(children, that.children) &&
-                Arrays.equals(parameters, that.parameters) &&
-                Arrays.equals(visibilityContexts, that.visibilityContexts) &&
-                Arrays.equals(uiContexts, that.uiContexts) &&
-                Arrays.equals(properties, that.properties);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ActionMenu)) return false;
+    var that = (ActionMenu) o;
+    return id == that.id
+        && sortRank == that.sortRank
+        && Objects.equals(guid, that.guid)
+        && Objects.equals(name, that.name)
+        && Objects.equals(label, that.label)
+        && Objects.equals(description, that.description)
+        && Objects.equals(url, that.url)
+        && Objects.equals(menuType, that.menuType)
+        && Objects.equals(handler, that.handler)
+        && Objects.equals(children, that.children)
+        && Arrays.equals(parameters, that.parameters)
+        && Arrays.equals(visibilityContexts, that.visibilityContexts)
+        && Arrays.equals(uiContexts, that.uiContexts)
+        && Arrays.equals(properties, that.properties);
+  }
 
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(id, guid, name, label, description, url, sortRank, menuType, handler, children);
-        result = 31 * result + Arrays.hashCode(parameters);
-        result = 31 * result + Arrays.hashCode(visibilityContexts);
-        result = 31 * result + Arrays.hashCode(uiContexts);
-        result = 31 * result + Arrays.hashCode(properties);
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    int result =
+        Objects.hash(
+            id, guid, name, label, description, url, sortRank, menuType, handler, children);
+    result = 31 * result + Arrays.hashCode(parameters);
+    result = 31 * result + Arrays.hashCode(visibilityContexts);
+    result = 31 * result + Arrays.hashCode(uiContexts);
+    result = 31 * result + Arrays.hashCode(properties);
+    return result;
+  }
 
-    @Override
-    public String toString() {
-        return "ActionMenu{" +
-                "id=" + id +
-                ", guid=" + guid +
-                ", name='" + name + '\'' +
-                ", label='" + label + '\'' +
-                ", description='" + description + '\'' +
-                ", url='" + url + '\'' +
-                ", sortRank=" + sortRank +
-                ", menuType='" + menuType + '\'' +
-                ", handler='" + handler + '\'' +
-                ", children=" + children +
-                ", parameters=" + Arrays.toString(parameters) +
-                ", visibilityContexts=" + Arrays.toString(visibilityContexts) +
-                ", uiContexts=" + Arrays.toString(uiContexts) +
-                ", properties=" + Arrays.toString(properties) +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "ActionMenu{"
+        + "id="
+        + id
+        + ", guid="
+        + guid
+        + ", name='"
+        + name
+        + '\''
+        + ", label='"
+        + label
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", url='"
+        + url
+        + '\''
+        + ", sortRank="
+        + sortRank
+        + ", menuType='"
+        + menuType
+        + '\''
+        + ", handler='"
+        + handler
+        + '\''
+        + ", children="
+        + children
+        + ", parameters="
+        + Arrays.toString(parameters)
+        + ", visibilityContexts="
+        + Arrays.toString(visibilityContexts)
+        + ", uiContexts="
+        + Arrays.toString(uiContexts)
+        + ", properties="
+        + Arrays.toString(properties)
+        + '}';
+  }
 }

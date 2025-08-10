@@ -45,12 +45,10 @@ import org.w3c.dom.NodeList;
 /**
  * PSConfigureDatasource is a class which configures the default datasource.
  *
- * The rxrepository.properties file is used to gather the appropriate information,
- * then the JNDI datasource and datasource connection are configured
+ * <p>The rxrepository.properties file is used to gather the appropriate information, then the JNDI
+ * datasource and datasource connection are configured <br>
+ * Example Usage: <br>
  *
- * <br>
- * Example Usage:
- * <br>
  * <pre>
  *
  * First set the taskdef:
@@ -68,7 +66,6 @@ import org.w3c.dom.NodeList;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSConfigureDatasource extends PSAction {
 
@@ -171,45 +168,32 @@ public class PSConfigureDatasource extends PSAction {
    * Property Accessors and Mutators
    *************************************************************************/
 
-  /**
-   * Accessor for the repository location
-   */
+  /** Accessor for the repository location */
   public String getRepositoryLocation() {
     return m_strRepositoryLocation;
   }
 
-  /**
-   * Accessor for the server configuration location
-   */
+  /** Accessor for the server configuration location */
   public String getServerConfigLocation() {
     return m_strServerConfigLocation;
   }
 
-  /**
-   * Accessor for the Jndi datasource configuration location
-   */
+  /** Accessor for the Jndi datasource configuration location */
   public String getJndiDatasourceConfigLocation() {
     return m_strJndiDatasourceConfigLocation;
   }
 
-  /**
-   * Accessor for the login configuration location
-   */
+  /** Accessor for the login configuration location */
   public static String getLoginConfigLocation() {
     return ms_strLoginConfigLocation;
   }
 
-  /**
-   * Returns the name of the default Rhythmyx repository datasource
-   * configuration.
-   */
+  /** Returns the name of the default Rhythmyx repository datasource configuration. */
   public String getName() {
     return m_strName;
   }
 
-  /**
-   * Sets the name of the default Rhythmyx repository datasource configuration.
-   */
+  /** Sets the name of the default Rhythmyx repository datasource configuration. */
   public void setName(String dsConfig) {
     m_strName = dsConfig;
   }
@@ -218,34 +202,22 @@ public class PSConfigureDatasource extends PSAction {
    * Properties
    *************************************************************************/
 
-  /**
-   * The repository location, relative to the Rhythmyx root.
-   */
+  /** The repository location, relative to the Rhythmyx root. */
   private String m_strRepositoryLocation = "rxconfig/Installer/rxrepository.properties";
 
-  /**
-   * The server configuration location, relative to the Rhythmyx root.
-   */
+  /** The server configuration location, relative to the Rhythmyx root. */
   private String m_strServerConfigLocation = "rxconfig/Server/config.xml";
 
-  /**
-   * The spring configuration location, relative to the Rhythmyx root.
-   */
+  /** The spring configuration location, relative to the Rhythmyx root. */
   private String m_strSpringConfigLocation =
       "AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/" + "server-beans.xml";
 
-  /**
-   * The Jndi datasource configuration location, relative to the Rhythmyx root.
-   */
+  /** The Jndi datasource configuration location, relative to the Rhythmyx root. */
   private String m_strJndiDatasourceConfigLocation = "AppServer/server/rx/deploy/rx-ds.xml";
 
-  /**
-   * The login configuration location, relative to the Rhythmyx root.
-   */
+  /** The login configuration location, relative to the Rhythmyx root. */
   private static String ms_strLoginConfigLocation = "AppServer/server/rx/conf/login-config.xml";
 
-  /**
-   * The name of the datasource configuration, defaults to RhythmyxData.
-   */
+  /** The name of the datasource configuration, defaults to RhythmyxData. */
   private String m_strName = "RhythmyxData";
 }

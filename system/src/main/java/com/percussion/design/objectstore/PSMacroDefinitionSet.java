@@ -22,13 +22,9 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * This class represents a collection of <code>PSMacroDefinition</code> objects.
- */
+/** This class represents a collection of <code>PSMacroDefinition</code> objects. */
 public class PSMacroDefinitionSet extends PSCollectionComponent {
-  /**
-   * Constucts an empty macro set.
-   */
+  /** Constucts an empty macro set. */
   public PSMacroDefinitionSet() {
     super(PSMacroDefinition.class);
   }
@@ -36,11 +32,9 @@ public class PSMacroDefinitionSet extends PSCollectionComponent {
   /**
    * Construct a Java object from its XML representation.
    *
-   * @param source the XML element node to construct this object from,
-   *    not <code>null</code>, see {@link toXml(Document)} for the expected
-   *    XML format.
-   * @throws PSUnknownNodeTypeException if the XML element node is not of
-   *    the appropriate type
+   * @param source the XML element node to construct this object from, not <code>null</code>, see
+   *     {@link toXml(Document)} for the expected XML format.
+   * @throws PSUnknownNodeTypeException if the XML element node is not of the appropriate type
    */
   public PSMacroDefinitionSet(Element source) throws PSUnknownNodeTypeException {
     super(PSMacroDefinition.class);
@@ -89,8 +83,9 @@ public class PSMacroDefinitionSet extends PSCollectionComponent {
   }
 
   /**
-   * Creates the XML serialization for this class. The structure of the XML
-   * document conforms to this DTD:
+   * Creates the XML serialization for this class. The structure of the XML document conforms to
+   * this DTD:
+   *
    * <pre><code>
    * &lt;!ELEMENT PSXMacroDefinitionSet (PSXMacroDefinition*)&gt;
    * </code></pre>
@@ -110,8 +105,7 @@ public class PSMacroDefinitionSet extends PSCollectionComponent {
   /**
    * Get the macro definition for the supplied name.
    *
-   * @param name the macro name for which to get the definition, not
-   *    <code>null</code> or empty.
+   * @param name the macro name for which to get the definition, not <code>null</code> or empty.
    * @return the macro definition if found, <code>null</code> otherwise.
    */
   public PSMacroDefinition getMacroDefinition(String name) {

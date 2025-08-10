@@ -22,18 +22,15 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A List object that produces a SQL "IN" clause. The only restriction placed on
- * objects in this list is that they must have a <code>toString()</code>
- * method that returns their value. <code>java.lang.Integer</code> is a good
- * example of a class that can be added to this list.
+ * A List object that produces a SQL "IN" clause. The only restriction placed on objects in this
+ * list is that they must have a <code>toString()</code> method that returns their value. <code>
+ * java.lang.Integer</code> is a good example of a class that can be added to this list.
  *
  * @author DavidBenua
- *
  */
 public class PSSqlInList extends ArrayList implements List {
   /**
-   * Creates a list with a specificied capacity. The created object is
-   * {@link #TYPE_LITERAL}.
+   * Creates a list with a specificied capacity. The created object is {@link #TYPE_LITERAL}.
    *
    * @param initialCapacity
    */
@@ -41,16 +38,14 @@ public class PSSqlInList extends ArrayList implements List {
     super(initialCapacity);
   }
 
-  /**
-   * Creates an empty list. The created object is {@link #TYPE_LITERAL}.
-   */
+  /** Creates an empty list. The created object is {@link #TYPE_LITERAL}. */
   public PSSqlInList() {
     super();
   }
 
   /**
-   * Creates a list containing the members of the specified collection.
-   * The created object is {@link #TYPE_LITERAL}.
+   * Creates a list containing the members of the specified collection. The created object is {@link
+   * #TYPE_LITERAL}.
    *
    * @param c
    */
@@ -75,12 +70,11 @@ public class PSSqlInList extends ArrayList implements List {
   }
 
   /**
-   * Creates a string representation of the list suitable for use in a SQL
-   * <code>IN</code> clause.
-   * <p>
-   * If the list is empty, this method will return an in list that is
-   * syntactically correct but will not match any items. Callers who desire
-   * different behavior should call <code>isEmpty()</code> directly.
+   * Creates a string representation of the list suitable for use in a SQL <code>IN</code> clause.
+   *
+   * <p>If the list is empty, this method will return an in list that is syntactically correct but
+   * will not match any items. Callers who desire different behavior should call <code>isEmpty()
+   * </code> directly.
    */
   public String toString() {
     if (this.isEmpty()) {
@@ -115,19 +109,12 @@ public class PSSqlInList extends ArrayList implements List {
     m_type = type;
   }
 
-  /**
-   * The type of the IN clause. Default to
-   * {@link #TYPE_LITERAL}.
-   */
+  /** The type of the IN clause. Default to {@link #TYPE_LITERAL}. */
   private int m_type = TYPE_LITERAL;
 
-  /**
-   * Numeric values in the IN clause
-   */
+  /** Numeric values in the IN clause */
   public static final int TYPE_NUMERIC = 0;
 
-  /**
-   * Literal values in the IN clause
-   */
+  /** Literal values in the IN clause */
   public static final int TYPE_LITERAL = 1;
 }

@@ -33,7 +33,6 @@ import org.apache.logging.log4j.Logger;
  * Default codec implementation used by the GenericLinkbackController.
  *
  * @author DavidBenua
- *
  */
 public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
 
@@ -41,9 +40,7 @@ public class StringLinkBackTokenImpl implements LinkbackTokenCodec {
 
   private final byte bitMask;
 
-  /**
-   * Default Constructor.
-   */
+  /** Default Constructor. */
   public StringLinkBackTokenImpl() {
     bitMask = (byte) 0x55;
   }

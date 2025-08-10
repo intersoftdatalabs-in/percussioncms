@@ -22,9 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-/**
- * Class that represents the definition of a loadable request handler.
- */
+/** Class that represents the definition of a loadable request handler. */
 public class PSRequestHandlerDef {
   /**
    * Constructor for this class.
@@ -68,6 +66,7 @@ public class PSRequestHandlerDef {
 
   /**
    * Returns the handler name used to identify the handler.
+   *
    * @return The handler name, never <code>null</code>.
    */
   public String getHandlerName() {
@@ -76,6 +75,7 @@ public class PSRequestHandlerDef {
 
   /**
    * Returns the class name used to instantiate the handler.
+   *
    * @return The class name, never <code>null</code>.
    */
   public String getClassName() {
@@ -84,8 +84,8 @@ public class PSRequestHandlerDef {
 
   /**
    * Returns the config file used to initialize the handler.
-   * @return The config file, may be <code>null</code> if handler does not use
-   * one.
+   *
+   * @return The config file, may be <code>null</code> if handler does not use one.
    */
   public File getConfigFile() {
     return m_configFile;
@@ -93,7 +93,8 @@ public class PSRequestHandlerDef {
 
   /**
    * Returns an iterator over at least one or more request roots as Strings.
-   * @return The iterator of request roots.  Must have at least one entry.
+   *
+   * @return The iterator of request roots. Must have at least one entry.
    */
   public Iterator<String> getRequestRoots() {
     return m_requestRoots.keySet().iterator();
@@ -103,11 +104,10 @@ public class PSRequestHandlerDef {
    * Adds request methods for the specified root.
    *
    * @param requestRoot The request root for which the methods are valid.
-   * @param methods Iterator over request methods as Strings (i.e. "POST", or
-   * "GET").
-   * @throws IllegalArgumentException if requestRoot or methods is
-   * <code>null</code>, or if the specified requestRoot is not found in the
-   * list of request roots passed into the constructor.
+   * @param methods Iterator over request methods as Strings (i.e. "POST", or "GET").
+   * @throws IllegalArgumentException if requestRoot or methods is <code>null</code>, or if the
+   *     specified requestRoot is not found in the list of request roots passed into the
+   *     constructor.
    */
   public void addRequestMethods(String requestRoot, Iterator<String> methods) {
     if (requestRoot == null) throw new IllegalArgumentException("requestRoot may not be null");
@@ -127,11 +127,11 @@ public class PSRequestHandlerDef {
 
   /**
    * Returns the list of request methods supported by the specified root.
-   * @return Iterator over one or more request methods (i.e. "POST" or "GET").
-   * May be <code>null</code> if none have been set on this root.
-   * @throws IllegalArgumentException if requestRoot is
-   * <code>null</code>, or if the specified requestRoot is not found in the
-   * list of request roots passed into the constructor.
+   *
+   * @return Iterator over one or more request methods (i.e. "POST" or "GET"). May be <code>null
+   *     </code> if none have been set on this root.
+   * @throws IllegalArgumentException if requestRoot is <code>null</code>, or if the specified
+   *     requestRoot is not found in the list of request roots passed into the constructor.
    */
   @SuppressWarnings(value = "unchecked")
   public Iterator<String> getRequestMethods(String requestRoot) {
@@ -149,28 +149,27 @@ public class PSRequestHandlerDef {
   }
 
   /**
-   * Name used to identify this handler.  Initialized in the
-   * constructor, never <code>null</code> after that.
+   * Name used to identify this handler. Initialized in the constructor, never <code>null</code>
+   * after that.
    */
   private String m_handlerName = null;
 
   /**
-   * Class name used to instantiate this handler.  Initialized in the
-   * constructor, never <code>null</code> after that.
+   * Class name used to instantiate this handler. Initialized in the constructor, never <code>null
+   * </code> after that.
    */
   private String m_className = null;
 
   /**
-   * Config file used to initialize this handler.  Initialized in the
-   * constructor, may be <code>null</code>.
+   * Config file used to initialize this handler. Initialized in the constructor, may be <code>null
+   * </code>.
    */
   private File m_configFile = null;
 
   /**
-   * List of request roots and their request methods.  Root name is the key,
-   * and an ArrayList of requestMethods is the value.  Initialized in the
-   * constructor, modified in any call to
-   * {@link #addRequestMethods(String, Iterator)}.
+   * List of request roots and their request methods. Root name is the key, and an ArrayList of
+   * requestMethods is the value. Initialized in the constructor, modified in any call to {@link
+   * #addRequestMethods(String, Iterator)}.
    */
   private HashMap<String, ArrayList<String>> m_requestRoots = null;
 }

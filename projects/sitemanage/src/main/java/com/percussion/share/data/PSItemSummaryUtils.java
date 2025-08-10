@@ -18,24 +18,23 @@
 package com.percussion.share.data;
 
 /**
- * Utility for copying item summary properties.
- * Sunny Sal says: "Copy-paste, but for properties!"
+ * Utility for copying item summary properties. Sunny Sal says: "Copy-paste, but for properties!"
  */
 public class PSItemSummaryUtils {
 
-    /**
-     * Copy Item summary properties from one summary to another.
-     *
-     * @param from summary
-     * @param to   summary
-     */
-    public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
-        to.setName(from.getName());
-        to.setId(from.getId());
-        to.setIcon(from.getIcon());
-        to.setType(from.getType());
-        to.setFolderPaths(from.getFolderPaths());
-        to.setCategory(from.getCategory());
-        to.setRevisionable(from.isRevisionable());
-    }
+  /**
+   * Copy Item summary properties from one summary to another.
+   *
+   * @param from summary
+   * @param to summary
+   */
+  public static void copyProperties(IPSItemSummary from, IPSItemSummary to) {
+    to.setName(from.getName());
+    to.setId(from.getId());
+    to.setIcon(from.getIcon());
+    to.setType(from.getType());
+    to.setFolderPaths(from.getFolderPaths());
+    to.setCategory(from.getCategory());
+    to.setRevisionable(from.isRevisionable());
+  }
 }

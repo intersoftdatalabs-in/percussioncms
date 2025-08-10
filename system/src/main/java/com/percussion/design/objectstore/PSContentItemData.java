@@ -19,22 +19,16 @@ package com.percussion.design.objectstore;
 import java.util.List;
 import org.w3c.dom.Element;
 
-/**
- * The replacement values used for content item data information.
- */
+/** The replacement values used for content item data information. */
 public class PSContentItemData extends PSNamedReplacementValue {
   /**
    * Constructs a new content item data from its XML representation.
    *
-   * @param source the XML element node to construct this object from, not
-   *    <code>null</code>.
-   * @param parent the Java object which is the parent of this object, may be
-   *    <code>null</code>.
-   * @param parentComponents the parent objects of this object, may be
-   *    <code>null</code> or empty.
+   * @param source the XML element node to construct this object from, not <code>null</code>.
+   * @param parent the Java object which is the parent of this object, may be <code>null</code>.
+   * @param parentComponents the parent objects of this object, may be <code>null</code> or empty.
    * @throws IllegalArgumentException if source is <code>null</code>.
-   * @throws PSUnknownNodeTypeException if the XML representation is not
-   *    in the expected format.
+   * @throws PSUnknownNodeTypeException if the XML representation is not in the expected format.
    */
   public PSContentItemData(Element source, IPSDocument parent, List parentComponents)
       throws PSUnknownNodeTypeException {
@@ -42,13 +36,10 @@ public class PSContentItemData extends PSNamedReplacementValue {
   }
 
   /**
-   * Constructs a new content item data replacement value for the supplied
-   * field name.
+   * Constructs a new content item data replacement value for the supplied field name.
    *
    * @param fieldName, not <code>null</code>.
-   *
-   * @throws IllegalArgumentException if the supplied field name is not
-   * supported.
+   * @throws IllegalArgumentException if the supplied field name is not supported.
    */
   public PSContentItemData(String fieldName) {
     super(fieldName);
@@ -82,13 +73,9 @@ public class PSContentItemData extends PSNamedReplacementValue {
     return IPSObjectStoreErrors.RELATIONSHIP_PROPERTY_NAME_EMPTY;
   }
 
-  /**
-   * The value type associated with instances of this class.
-   */
+  /** The value type associated with instances of this class. */
   public static final String VALUE_TYPE = "ContentItemData";
 
-  /**
-   * The node name used in XML representations.
-   */
+  /** The node name used in XML representations. */
   public static final String XML_NODE_NAME = "PSXContentItemData";
 }

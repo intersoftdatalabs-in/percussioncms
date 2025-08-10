@@ -34,43 +34,34 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The CommentedProperties class is an extension of java.util.Properties
- * to allow retention of comment lines and blank (whitespace only) lines
- * in the properties file.
+ * The CommentedProperties class is an extension of java.util.Properties to allow retention of
+ * comment lines and blank (whitespace only) lines in the properties file.
  *
- * adapted from  garydeng https://www.dreamincode.net/forums/topic/53734-java-code-to-modify-properties-file-and-preserve-comments/
+ * <p>adapted from garydeng
+ * https://www.dreamincode.net/forums/topic/53734-java-code-to-modify-properties-file-and-preserve-comments/
  *
- * Written for Java version 1.4
+ * <p>Written for Java version 1.4
  */
 public class PSProperties extends java.util.Properties {
 
   private static final Logger log = LogManager.getLogger(PSProperties.class);
 
   /**
-   * Constant for the name of the config file containing name/value pairs for
-   * any module we install.
+   * Constant for the name of the config file containing name/value pairs for any module we install.
    */
   private static final String FILE_PROPS = "init.properties";
 
-  /**
-   * Use a Vector to keep a copy of lines that are a comment or 'blank'
-   */
+  /** Use a Vector to keep a copy of lines that are a comment or 'blank' */
   public Vector lineData = new Vector(0, 1);
 
-  /**
-   * Use a Vector to keep a copy of lines containing a key, i.e. they are a property.
-   */
+  /** Use a Vector to keep a copy of lines containing a key, i.e. they are a property. */
   public Vector keyData = new Vector(0, 1);
 
   /**
-   * Construct a collection of properties by loading them from the
-   * specified properties file.
+   * Construct a collection of properties by loading them from the specified properties file.
    *
-   * @param fileName the name of the file to load the
-   * settings from
-   *
+   * @param fileName the name of the file to load the settings from
    * @exception IOException if an i/o error occurs
-   *
    * @exception FileNotFoundException if fileName is not found
    */
   public PSProperties(java.lang.String fileName) throws IOException, FileNotFoundException {
@@ -83,9 +74,7 @@ public class PSProperties extends java.util.Properties {
     }
   }
 
-  /**
-   * Construct an empty collection of properties.
-   */
+  /** Construct an empty collection of properties. */
   public PSProperties() {
     super();
   }
@@ -94,9 +83,7 @@ public class PSProperties extends java.util.Properties {
    * Convenience routine to get a property's value as an int.
    *
    * @param key the key to retrieve
-   *
    * @return the property value as an integer
-   *
    * @exception NumberFormatException if the value cannot be converted
    */
   public int getInt(String key) throws NumberFormatException {
@@ -107,16 +94,12 @@ public class PSProperties extends java.util.Properties {
   }
 
   /**
-   * Convenience routine to get a property's value as an int. If the
-   * property does not exist, the specified default value is returned
-   * instead.
+   * Convenience routine to get a property's value as an int. If the property does not exist, the
+   * specified default value is returned instead.
    *
    * @param key the key to retrieve
-   *
    * @param defaultValue the default value to return
-   *
    * @return the property value as an integer
-   *
    * @exception NumberFormatException if the value cannot be converted
    */
   public int getInt(String key, int defaultValue) throws NumberFormatException {
@@ -165,9 +148,10 @@ public class PSProperties extends java.util.Properties {
   }
 
   /**
-   * Load properties from the specified InputStream.
-   * Overload the load method in Properties so we can keep comment and blank lines.
-   * @param   inStream   The InputStream to read.
+   * Load properties from the specified InputStream. Overload the load method in Properties so we
+   * can keep comment and blank lines.
+   *
+   * @param inStream The InputStream to read.
    */
   public void load(InputStream inStream) throws IOException {
     // The spec says that the file must be encoded using ISO-8859-1.
@@ -310,12 +294,10 @@ public class PSProperties extends java.util.Properties {
   /**
    * Write the properties to the specified OutputStream.
    *
-   * Overloads the store method in Properties so we can put back comment
-   * and blank lines.
+   * <p>Overloads the store method in Properties so we can put back comment and blank lines.
    *
-   * @param out	The OutputStream to write to.
+   * @param out The OutputStream to write to.
    * @param header Ignored, here for compatability w/ Properties.
-   *
    * @exception IOException
    */
   public void store(OutputStream out, String header) throws IOException {
@@ -349,13 +331,12 @@ public class PSProperties extends java.util.Properties {
   }
 
   /**
-   * Need this method from Properties because original code has StringBuilder,
-   * which is an element of Java 1.5, used StringBuilder instead (because
-   * this code was written for Java 1.4)
+   * Need this method from Properties because original code has StringBuilder, which is an element
+   * of Java 1.5, used StringBuilder instead (because this code was written for Java 1.4)
    *
-   * @param str	- the string to format
+   * @param str - the string to format
    * @param buffer - buffer to hold the string
-   * @param key	- true if str the key is formatted, false if the value is formatted
+   * @param key - true if str the key is formatted, false if the value is formatted
    */
   private void formatForOutput(String str, StringBuilder buffer, boolean key) {
     if (key) {
@@ -400,8 +381,8 @@ public class PSProperties extends java.util.Properties {
   /**
    * Add a Property to the end of the CommentedProperties.
    *
-   * @param   keyString	 The Property key.
-   * @param   value		 The value of this Property.
+   * @param keyString The Property key.
+   * @param value The value of this Property.
    */
   @Override
   public synchronized Object put(Object keyString, Object value) {
@@ -421,8 +402,7 @@ public class PSProperties extends java.util.Properties {
   /**
    * Add a comment or blank line or comment to the end of the CommentedProperties.
    *
-   * @param   line The string to add to the end, make sure this is a comment
-   *			   or a 'whitespace' line.
+   * @param line The string to add to the end, make sure this is a comment or a 'whitespace' line.
    */
   public void addLine(String line) {
     lineData.add(line);

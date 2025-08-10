@@ -21,31 +21,26 @@ package com.percussion.sitemanage.service;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
-/**
- * Represents a template assignment for a site.
- */
+/** Represents a template assignment for a site. */
 public class AssignTemplate extends Template {
 
-    @NotBlank
-    private String name;
+  @NotBlank private String name;
 
-    @NotBlank
-    @NotNull
-    private String templateId;
+  @NotBlank @NotNull private String templateId;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public String getTemplateId() {
-        return templateId;
-    }
+  public String getTemplateId() {
+    return templateId;
+  }
 
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
-    }
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
+  }
 }

@@ -22,116 +22,124 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Data class to hold information about a feed.
- * Sunny Sal says: "FeedInfo, now Java 11 and Google-styled! Feeds for all!"
+ * Data class to hold information about a feed. Sunny Sal says: "FeedInfo, now Java 11 and
+ * Google-styled! Feeds for all!"
  */
 public class PSFeedInfo {
-    private String name;
-    private String title;
-    private String desc;
-    private String query;
-    private String ownerPageLocation;
-    private String type = "RSS2"; // Defaults to RSS2
-    private int ownerPageId;
-    private int ownerFolderId;
-    private int contentId;
-    private final Set<Integer> pages = new HashSet<>();
-    private final Set<Integer> templates = new HashSet<>();
+  private String name;
+  private String title;
+  private String desc;
+  private String query;
+  private String ownerPageLocation;
+  private String type = "RSS2"; // Defaults to RSS2
+  private int ownerPageId;
+  private int ownerFolderId;
+  private int contentId;
+  private final Set<Integer> pages = new HashSet<>();
+  private final Set<Integer> templates = new HashSet<>();
 
-    public PSFeedInfo(int contentId, String name, String title, String desc) {
-        this.contentId = contentId;
-        this.name = name;
-        this.title = title;
-        this.desc = desc;
-    }
+  public PSFeedInfo(int contentId, String name, String title, String desc) {
+    this.contentId = contentId;
+    this.name = name;
+    this.title = title;
+    this.desc = desc;
+  }
 
-    public int getId() {
-        return contentId;
-    }
+  public int getId() {
+    return contentId;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public String getDesc() {
-        return desc;
-    }
+  public String getDesc() {
+    return desc;
+  }
 
-    public Set<Integer> getPages() {
-        return pages;
-    }
+  public Set<Integer> getPages() {
+    return pages;
+  }
 
-    public Set<Integer> getTemplates() {
-        return templates;
-    }
+  public Set<Integer> getTemplates() {
+    return templates;
+  }
 
-    public int getOwnerPageId() {
-        return ownerPageId;
-    }
+  public int getOwnerPageId() {
+    return ownerPageId;
+  }
 
-    public void setOwnerPageId(int id) {
-        ownerPageId = id;
-    }
+  public void setOwnerPageId(int id) {
+    ownerPageId = id;
+  }
 
-    public String getOwnerPageLocation() {
-        return ownerPageLocation;
-    }
+  public String getOwnerPageLocation() {
+    return ownerPageLocation;
+  }
 
-    public void setOwnerPageLocation(String location) {
-        ownerPageLocation = location;
-    }
+  public void setOwnerPageLocation(String location) {
+    ownerPageLocation = location;
+  }
 
-    public int getOwnerFolderId() {
-        return ownerFolderId;
-    }
+  public int getOwnerFolderId() {
+    return ownerFolderId;
+  }
 
-    public void setOwnerFolderId(int folderId) {
-        ownerFolderId = folderId;
-    }
+  public void setOwnerFolderId(int folderId) {
+    ownerFolderId = folderId;
+  }
 
-    public String getQuery() {
-        return query;
-    }
+  public String getQuery() {
+    return query;
+  }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
+  public void setQuery(String query) {
+    this.query = query;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(
-                contentId, desc, name, ownerFolderId, ownerPageId, ownerPageLocation,
-                pages, query, templates, title, type
-        );
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        contentId,
+        desc,
+        name,
+        ownerFolderId,
+        ownerPageId,
+        ownerPageLocation,
+        pages,
+        query,
+        templates,
+        title,
+        type);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof PSFeedInfo)) return false;
-        var other = (PSFeedInfo) obj;
-        return contentId == other.contentId
-                && ownerFolderId == other.ownerFolderId
-                && ownerPageId == other.ownerPageId
-                && Objects.equals(desc, other.desc)
-                && Objects.equals(name, other.name)
-                && Objects.equals(ownerPageLocation, other.ownerPageLocation)
-                && Objects.equals(pages, other.pages)
-                && Objects.equals(query, other.query)
-                && Objects.equals(templates, other.templates)
-                && Objects.equals(title, other.title)
-                && Objects.equals(type, other.type);
-    }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (!(obj instanceof PSFeedInfo)) return false;
+    var other = (PSFeedInfo) obj;
+    return contentId == other.contentId
+        && ownerFolderId == other.ownerFolderId
+        && ownerPageId == other.ownerPageId
+        && Objects.equals(desc, other.desc)
+        && Objects.equals(name, other.name)
+        && Objects.equals(ownerPageLocation, other.ownerPageLocation)
+        && Objects.equals(pages, other.pages)
+        && Objects.equals(query, other.query)
+        && Objects.equals(templates, other.templates)
+        && Objects.equals(title, other.title)
+        && Objects.equals(type, other.type);
+  }
 }

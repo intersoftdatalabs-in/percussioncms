@@ -47,25 +47,20 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 /**
- * PSXMLFileUpdate is a task that uses the ISMP XSL class to apply an XSL file
- * to an XML file at install time.  The XSL file is bundled with the source tree
- * and it may contain one token to be replaced when processing.  This class uses
- * the ISMP XSL processor that is used for command builds.
- * It bundles this processor into the installer so that this bean will work
- * with any version of Java.
- * The stylesheets processed by this class are supplied the following parameters:
- * <p>
- * 1> majorVersion - major version of the Rhythmyx being upgraded, will be
- * <code>-1</code> for a new install
- * 2> minorVersion - minor version of the Rhythmyx being upgraded, will be
- * <code>-1</code> for a new install
- * 3> buildNumber - build number of the Rhythmyx being upgraded, will be
- * <code>-1</code> for a new install
- * <p>
+ * PSXMLFileUpdate is a task that uses the ISMP XSL class to apply an XSL file to an XML file at
+ * install time. The XSL file is bundled with the source tree and it may contain one token to be
+ * replaced when processing. This class uses the ISMP XSL processor that is used for command builds.
+ * It bundles this processor into the installer so that this bean will work with any version of
+ * Java. The stylesheets processed by this class are supplied the following parameters:
  *
- * <br>
- * Example Usage:
- * <br>
+ * <p>1> majorVersion - major version of the Rhythmyx being upgraded, will be <code>-1</code> for a
+ * new install 2> minorVersion - minor version of the Rhythmyx being upgraded, will be <code>-1
+ * </code> for a new install 3> buildNumber - build number of the Rhythmyx being upgraded, will be
+ * <code>-1</code> for a new install
+ *
+ * <p><br>
+ * Example Usage: <br>
+ *
  * <pre>
  *
  * First set the taskdef:
@@ -86,7 +81,6 @@ import org.xml.sax.InputSource;
  *  </code>
  *
  * </pre>
- *
  */
 public class PSXMLFileUpdate extends PSAction implements EntityResolver {
 
@@ -95,10 +89,9 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
    ***************************************************************************/
 
   /**
-   * Implementation of the <code>EntityResolver</code> interface method.
-   * The default Xerces implementation resolves enitity relative to the
-   * directory from which Installshield is running. This method is overriden
-   * to resolve entity relative to the Rhythmyx root directory.
+   * Implementation of the <code>EntityResolver</code> interface method. The default Xerces
+   * implementation resolves enitity relative to the directory from which Installshield is running.
+   * This method is overriden to resolve entity relative to the Rhythmyx root directory.
    *
    * @see org.xml.sax.EntityResolver
    */
@@ -208,15 +201,13 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   /**
    * Helper method to transform an Xml file using the specified XSL file.
    *
-   * @param srcXmlFile the path of the Xml file to which the XSL should be
-   * applied, assumed not <code>null</code> and non-empty
-   * @param destXmlFile the path of the Xml file to which the transformed Xml
-   * document should be serialized, assumed not <code>null</code> and non-empty
-   * @param xslResource the path of the resource which the XSL file
-   * is stored, assumed not <code>null</code> and non-empty
-   * @param rxDir the absolute installation directory, assumed not
-   * <code>null</code> and non-empty
-   *
+   * @param srcXmlFile the path of the Xml file to which the XSL should be applied, assumed not
+   *     <code>null</code> and non-empty
+   * @param destXmlFile the path of the Xml file to which the transformed Xml document should be
+   *     serialized, assumed not <code>null</code> and non-empty
+   * @param xslResource the path of the resource which the XSL file is stored, assumed not <code>
+   *     null</code> and non-empty
+   * @param rxDir the absolute installation directory, assumed not <code>null</code> and non-empty
    * @throws Exception if any error occurs
    */
   private void applyXSL(String srcXmlFile, String destXmlFile, String xslResource, String rxDir)
@@ -244,20 +235,18 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   }
 
   /**
-   * Sets the XSL transformation parameters. The following three paramaters
-   * are currently set:
+   * Sets the XSL transformation parameters. The following three paramaters are currently set:
+   *
+   * <p>1> majorVersion - major version of the Rhythmyx being upgraded, will be <code>-1</code> for
+   * a new install 2> minorVersion - minor version of the Rhythmyx being upgraded, will be <code>-1
+   * </code> for a new install 3> buildNumber - build number of the Rhythmyx being upgraded, will be
+   * <code>-1</code> for a new install
+   *
    * <p>
-   * 1> majorVersion - major version of the Rhythmyx being upgraded, will be
-   * <code>-1</code> for a new install
-   * 2> minorVersion - minor version of the Rhythmyx being upgraded, will be
-   * <code>-1</code> for a new install
-   * 3> buildNumber - build number of the Rhythmyx being upgraded, will be
-   * <code>-1</code> for a new install
-   * <p>
-   * @param rxRootDir the Rhythmyx root directory, assumed not
-   * <code>null</code> and non-empty.
-   * @param transformer the XSL transformer for which the parameters should be
-   * set, assumed not <code>null</code>
+   *
+   * @param rxRootDir the Rhythmyx root directory, assumed not <code>null</code> and non-empty.
+   * @param transformer the XSL transformer for which the parameters should be set, assumed not
+   *     <code>null</code>
    */
   private void setTransformParams(String rxRootDir, Transformer transformer) {
     int majorVersion = -1;
@@ -314,15 +303,12 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   }
 
   /**
-   * Helper method to resolve all occurrences of the token in the XSL file
-   * stream and return the path of the file with resolved file contents.
+   * Helper method to resolve all occurrences of the token in the XSL file stream and return the
+   * path of the file with resolved file contents.
    *
-   * @param file the path of the XSL whose contents need to be resolved before
-   * applying it to the XML file, assumed not <code>null</code> and non-empty
-   *
-   * @return the path of the file with resolved file contents,
-   * never <code>null</code> or empty
-   *
+   * @param file the path of the XSL whose contents need to be resolved before applying it to the
+   *     XML file, assumed not <code>null</code> and non-empty
+   * @return the path of the file with resolved file contents, never <code>null</code> or empty
    * @throws Exception if any error occurs
    */
   private String resolveFile(String file) throws Exception {
@@ -352,16 +338,13 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   }
 
   /**
-   * Returns the Document Type Declaration of the Xml document obtained by
-   * parsing the Xml file represented by <code>xmlFilePath</code>.
+   * Returns the Document Type Declaration of the Xml document obtained by parsing the Xml file
+   * represented by <code>xmlFilePath</code>.
    *
-   * @param xmlFilePath the path of the Xml file, assumed not <code>null</code>
-   * and non-empty
-   *
-   * @return Document Type Declaration (see DocumentType) associated with the
-   * document obtained by parsing the specified Xml file, may be
-   * <code>null</code>, never empty if not-<code>null</code>
-   *
+   * @param xmlFilePath the path of the Xml file, assumed not <code>null</code> and non-empty
+   * @return Document Type Declaration (see DocumentType) associated with the document obtained by
+   *     parsing the specified Xml file, may be <code>null</code>, never empty if not-<code>null
+   *     </code>
    * @throws Exception if any error occurs
    */
   private String getDocType(String xmlFilePath) throws Exception {
@@ -412,14 +395,12 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   }
 
   /**
-   * Sets the Document Type Declaration of the Xml document obtained by
-   * parsing the Xml file represented by <code>xmlFilePath</code>.
+   * Sets the Document Type Declaration of the Xml document obtained by parsing the Xml file
+   * represented by <code>xmlFilePath</code>.
    *
-   * @param xmlFilePath the path of the Xml file, assumed not <code>null</code>
-   * and non-empty
-   * @param docType the Document Type Declaration to set in the Xml document,
-   * may be <code>null</code> or empty.
-   *
+   * @param xmlFilePath the path of the Xml file, assumed not <code>null</code> and non-empty
+   * @param docType the Document Type Declaration to set in the Xml document, may be <code>null
+   *     </code> or empty.
    * @throws Exception if any error occurs
    */
   private void setDocType(String xmlFilePath, String docType) throws Exception {
@@ -482,91 +463,83 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
   /**
    * Returns the path of the XML File on the target machine to update.
    *
-   * @return relative or absolute path of the XML File on the target machine
-   * to update. May be <code>null</code> or empty.
+   * @return relative or absolute path of the XML File on the target machine to update. May be
+   *     <code>null</code> or empty.
    */
   public String getXmlFile() {
     return m_xmlFile;
   }
 
   /**
-   * Sets the path of the XML File on the target machine to update. It can be
-   * relative or absolute path, and can use string resolvers.
+   * Sets the path of the XML File on the target machine to update. It can be relative or absolute
+   * path, and can use string resolvers.
    *
-   * @param xmlFile the path of the XML File on the target machine to update,
-   * if <code>null</code> or empty, an error is logged during the build process.
+   * @param xmlFile the path of the XML File on the target machine to update, if <code>null</code>
+   *     or empty, an error is logged during the build process.
    */
   public void setXmlFile(String xmlFile) {
     this.m_xmlFile = xmlFile;
   }
 
   /**
-   * Returns the path of the  XSL File to bundle into the installer and apply
-   * at install time.
+   * Returns the path of the XSL File to bundle into the installer and apply at install time.
    *
-   * @return the path of the  XSL File to bundle into the installer and apply
-   * at install time, if <code>null</code> or empty, an error is logged during
-   * the build process.
+   * @return the path of the XSL File to bundle into the installer and apply at install time, if
+   *     <code>null</code> or empty, an error is logged during the build process.
    */
   public String getXslFile() {
     return m_xslFile;
   }
 
   /**
-   * Sets the path of the  XSL File to bundle into the installer and apply
-   * at install time.
+   * Sets the path of the XSL File to bundle into the installer and apply at install time.
    *
-   * @param xslFile the path of the  XSL File to bundle into the installer and
-   * apply at install time, if <code>null</code> or empty, an error is logged
-   * during the build process.
+   * @param xslFile the path of the XSL File to bundle into the installer and apply at install time,
+   *     if <code>null</code> or empty, an error is logged during the build process.
    */
   public void setXslFile(String xslFile) {
     this.m_xslFile = xslFile;
   }
 
   /**
-   * Returns whether or not a backup of the Xml file should be created before
-   * applying the XSL file.
+   * Returns whether or not a backup of the Xml file should be created before applying the XSL file.
    *
-   * @return <code>true</code> if the backup of the Xml file should be created
-   * before applying the XSL file, <code>false</code> if no backup of the Xml
-   * file should be created.
+   * @return <code>true</code> if the backup of the Xml file should be created before applying the
+   *     XSL file, <code>false</code> if no backup of the Xml file should be created.
    */
   public boolean isBackupXMLFile() {
     return m_backupXmlFile;
   }
 
   /**
-   * Sets whether or not a backup of the Xml file should be created before
-   * applying the XSL file.
+   * Sets whether or not a backup of the Xml file should be created before applying the XSL file.
    *
-   * @param backupXmlFile <code>true</code> if the backup of the Xml file
-   * should be created before applying the XSL file, <code>false</code> if no
-   * backup of the Xml file should be created.
+   * @param backupXmlFile <code>true</code> if the backup of the Xml file should be created before
+   *     applying the XSL file, <code>false</code> if no backup of the Xml file should be created.
    */
   public void setBackupXMLFile(boolean backupXmlFile) {
     this.m_backupXmlFile = backupXmlFile;
   }
 
   /**
-   * Returns whether the contents of the XSL file should be resolved using
-   * Installshield string resolver methods before appling it to the XML file.
+   * Returns whether the contents of the XSL file should be resolved using Installshield string
+   * resolver methods before appling it to the XML file.
    *
-   * @return <code>true</code> if the contents of the XSL file should be
-   * resolved using Installshield string resolver methods before applying it
-   * to the XML file, otherwise <code>false</code>
+   * @return <code>true</code> if the contents of the XSL file should be resolved using
+   *     Installshield string resolver methods before applying it to the XML file, otherwise <code>
+   *     false</code>
    */
   public boolean isResolveXslFileContents() {
     return m_resolveXslFileContents;
   }
 
   /**
-   * Sets whether the contents of the XSL file should be resolved using
-   * Installshield string resolver methods before appling it to the XML file.
+   * Sets whether the contents of the XSL file should be resolved using Installshield string
+   * resolver methods before appling it to the XML file.
    *
-   * @param resolveXslFileContents <code>true</code> if the contents of the
-   * XSL file should be resolved using Installshield string resolver methods
-   * before applying it to the XML file, otherwise <code>false</code>
+   * @param resolveXslFileContents <code>true</code> if the contents of the XSL file should be
+   *     resolved using Installshield string resolver methods before applying it to the XML file,
+   *     otherwise <code>false</code>
    */
   public void setResolveXslFileContents(boolean resolveXslFileContents) {
     this.m_resolveXslFileContents = resolveXslFileContents;
@@ -613,43 +586,36 @@ public class PSXMLFileUpdate extends PSAction implements EntityResolver {
    ***************************************************************************/
 
   /**
-   * The relative path of the XML File on the target machine to update.
-   * Modified using <code>setXmlFile()</code> method. If <code>null</code> or
-   * empty, an error is logged during the build process.
+   * The relative path of the XML File on the target machine to update. Modified using <code>
+   * setXmlFile()</code> method. If <code>null</code> or empty, an error is logged during the build
+   * process.
    */
   private String m_xmlFile = "";
 
   /**
-   * The XSL File to bundle into the installer and apply at install time.
-   * The file can contain one replacement token which is resolved at install
-   * time.  Modified using <code>setXslFile()</code> method. If
-   * <code>null</code> or empty, an error is logged during the build process.
+   * The XSL File to bundle into the installer and apply at install time. The file can contain one
+   * replacement token which is resolved at install time. Modified using <code>setXslFile()</code>
+   * method. If <code>null</code> or empty, an error is logged during the build process.
    */
   private String m_xslFile = "";
 
   /**
-   * Whether or not a backup of the Xml file should be created before applying
-   * the XSL file. If <code>true</code> then a backup of the Xml file is
-   * created, otherwise no backup file is created. Modified using
-   * <code>setBackupXMLFile()</code> method.
+   * Whether or not a backup of the Xml file should be created before applying the XSL file. If
+   * <code>true</code> then a backup of the Xml file is created, otherwise no backup file is
+   * created. Modified using <code>setBackupXMLFile()</code> method.
    */
   private boolean m_backupXmlFile = true;
 
   /**
-   * Whether the contents of the XSL file should be resolved using
-   * Installshield string resolver methods before applying it to the XML file.
-   * If <code>true</code> the contents of the XSL file are resolved otherwise
-   * not. Modified using <code>setResolveXslFileContents()</code> method.
+   * Whether the contents of the XSL file should be resolved using Installshield string resolver
+   * methods before applying it to the XML file. If <code>true</code> the contents of the XSL file
+   * are resolved otherwise not. Modified using <code>setResolveXslFileContents()</code> method.
    */
   private boolean m_resolveXslFileContents = false;
 
-  /**
-   * The XSL file token which needs to be resolved.
-   */
+  /** The XSL file token which needs to be resolved. */
   private String m_token;
 
-  /**
-   * The value which should replace the XSL file token.
-   */
+  /** The value which should replace the XSL file token. */
   private String m_value;
 }

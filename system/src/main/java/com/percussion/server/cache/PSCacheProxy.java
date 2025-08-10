@@ -26,27 +26,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class provides access to various operations against the Rhythmyx
- * server's cache subsystem.  Currently there are two types of caching:
- * Assembler and Resource.  Assembler caching handles pages that are returned
- * from queries to DataSets that are specified by Content Variant registrations.
- * Resource caching handles pages cached based on settings within the DataSet.
- * Methods are provided to flush particular sets of pages cached by either type,
- * all pages cached by either type, all pages returned by an application, all
- * pages cached for a particular session, or the entire cache, regardless of
- * page type.
+ * This class provides access to various operations against the Rhythmyx server's cache subsystem.
+ * Currently there are two types of caching: Assembler and Resource. Assembler caching handles pages
+ * that are returned from queries to DataSets that are specified by Content Variant registrations.
+ * Resource caching handles pages cached based on settings within the DataSet. Methods are provided
+ * to flush particular sets of pages cached by either type, all pages cached by either type, all
+ * pages returned by an application, all pages cached for a particular session, or the entire cache,
+ * regardless of page type.
  */
 public class PSCacheProxy {
   /**
-   * Flushes all cached pages returned by the specified application, without
-   * considering the cache type.  If the application does not exist, or no
-   * pages are cached for this app, this method has no effect.
+   * Flushes all cached pages returned by the specified application, without considering the cache
+   * type. If the application does not exist, or no pages are cached for this app, this method has
+   * no effect.
    *
-   * @param appName The name of the application for which pages are to be
-   * flushed, may not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>appName</code> is
-   * <code>null</code> or empty.
+   * @param appName The name of the application for which pages are to be flushed, may not be <code>
+   *     null</code> or empty.
+   * @throws IllegalArgumentException if <code>appName</code> is <code>null</code> or empty.
    * @throws PSCacheException if there are any other errors.
    */
   public static void flushApplication(String appName) throws PSCacheException {
@@ -57,18 +53,14 @@ public class PSCacheProxy {
   }
 
   /**
-   * Flushes all pages cached for the specified session, without
-   * considering the cache type.  Pages with content that is specific to a
-   * particular user's session will be cached for that session, while others
-   * are cached without regard to session.  If the specified session does not
-   * exist, or if no pages are cached for this session, this method has no
-   * effect.
+   * Flushes all pages cached for the specified session, without considering the cache type. Pages
+   * with content that is specific to a particular user's session will be cached for that session,
+   * while others are cached without regard to session. If the specified session does not exist, or
+   * if no pages are cached for this session, this method has no effect.
    *
-   * @param sessionId The id of the session for which cached pages should be
-   * flushed.  May not be <code>null</code> or empty.
-   *
-   * @throws IllegalArgumentException if <code>sessionId</code> is
-   * <code>null</code> or empty.
+   * @param sessionId The id of the session for which cached pages should be flushed. May not be
+   *     <code>null</code> or empty.
+   * @throws IllegalArgumentException if <code>sessionId</code> is <code>null</code> or empty.
    * @throws PSCacheException if there are any other errors.
    */
   public static void flushSession(String sessionId) throws PSCacheException {
@@ -79,32 +71,28 @@ public class PSCacheProxy {
   }
 
   /**
-   * Flushes all cached Assembler type pages that meet the specified criteria.
-   * If <code>null</code> is supplied for any parameter, it is not considered
-   * to be part of the search criteria.  However, if <code>revision</code> is
-   * not <code>null</code>, then <code>contentId</code> must be supplied. For
-   * example, to flush all assembly pages cached that were requested using
+   * Flushes all cached Assembler type pages that meet the specified criteria. If <code>null</code>
+   * is supplied for any parameter, it is not considered to be part of the search criteria. However,
+   * if <code>revision</code> is not <code>null</code>, then <code>contentId</code> must be
+   * supplied. For example, to flush all assembly pages cached that were requested using
    * sys_variant=301:
+   *
    * <pre><code>
    *    PSCacheProxy.flushAssemblers(null, null, null, 301);
    * </code></pre>
    *
-   * Pass <code>null</code> for all arguments to flush all Assembler pages. If
-   * there are no matching pages in the cache, this method has no effect.
+   * Pass <code>null</code> for all arguments to flush all Assembler pages. If there are no matching
+   * pages in the cache, this method has no effect.
    *
-   * @param appName The name of the application for which the pages are cached,
-   * may be <code>null</code>, never empty.
-   * @param contentId The content id of the item for which the pages are
-   * cached, may be <code>null</code>.
-   * @param revision The revision of the item  for which the pages are
-   * cached, may be <code>null</code>.  Must be <code>null</code> if
-   * <code>contentId</code> is <code>null</code>.
-   * @param variantId The variant id for which the pages are cached, may be
-   * <code>null</code>.
-   *
-   * @throws PSCacheException if <code>revision</code> is supplied but
-   * <code>contentId</code> is <code>null</code>, if any other parameter is
-   * invalid, or if there are any other errors.
+   * @param appName The name of the application for which the pages are cached, may be <code>null
+   *     </code>, never empty.
+   * @param contentId The content id of the item for which the pages are cached, may be <code>null
+   *     </code>.
+   * @param revision The revision of the item for which the pages are cached, may be <code>null
+   *     </code>. Must be <code>null</code> if <code>contentId</code> is <code>null</code>.
+   * @param variantId The variant id for which the pages are cached, may be <code>null</code>.
+   * @throws PSCacheException if <code>revision</code> is supplied but <code>contentId</code> is
+   *     <code>null</code>, if any other parameter is invalid, or if there are any other errors.
    */
   public static void flushAssemblers(
       String appName, Integer contentId, Integer revision, Integer variantId)
@@ -141,24 +129,23 @@ public class PSCacheProxy {
   }
 
   /**
-   * Flushes all cached Resource type pages that meet the specified criteria.
-   * If <code>null</code> is supplied for any parameter, it is not considered
-   * to be part of the search criteria.  For example, to flush all pages cached
-   * by a DataSet named "foo", even if requested from different applications:
+   * Flushes all cached Resource type pages that meet the specified criteria. If <code>null</code>
+   * is supplied for any parameter, it is not considered to be part of the search criteria. For
+   * example, to flush all pages cached by a DataSet named "foo", even if requested from different
+   * applications:
+   *
    * <pre><code>
    *    PSCacheProxy.flushResources(null, "foo");
    * </code></pre>
    *
-   * Pass <code>null</code> for all arguments to flush all Resource pages. If
-   * there are no matching pages in the cache, this method has no effect.
+   * Pass <code>null</code> for all arguments to flush all Resource pages. If there are no matching
+   * pages in the cache, this method has no effect.
    *
-   * @param appName The name of the application for which the pages are cached,
-   * may be <code>null</code>, never empty.
-   * @param dataSetName The name of the DataSet for which pages are cached,
-   * may be <code>null</code>, never empty.
-   *
-   * @throws PSCacheException if any param is invalid or if there are any
-   * other errors.
+   * @param appName The name of the application for which the pages are cached, may be <code>null
+   *     </code>, never empty.
+   * @param dataSetName The name of the DataSet for which pages are cached, may be <code>null</code>
+   *     , never empty.
+   * @throws PSCacheException if any param is invalid or if there are any other errors.
    */
   public static void flushResources(String appName, String dataSetName) throws PSCacheException {
     PSCacheManager mgr = PSCacheManager.getInstance();
@@ -210,9 +197,7 @@ public class PSCacheProxy {
     PSCacheManager.getInstance().resetFolderCache();
   }
 
-  /**
-   * Flush hibernate's second level cache
-   */
+  /** Flush hibernate's second level cache */
   public static void flushHibernateCache() {
     IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
     mgr.flushSecondLevelCache();

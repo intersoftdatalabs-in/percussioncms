@@ -23,13 +23,13 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
 /**
- * Fails build if finds files from directory one which do not match the
- * equivalently named files from directory two.
+ * Fails build if finds files from directory one which do not match the equivalently named files
+ * from directory two.
  */
 public class PSCompareFiles extends Task {
   /**
-   * This directory contains files which will be scanned and compared
-   * against those found in the directory specified by {@link #m_dir2}.
+   * This directory contains files which will be scanned and compared against those found in the
+   * directory specified by {@link #m_dir2}.
    *
    * @param dir the first directory of files to be compared.
    */
@@ -38,8 +38,8 @@ public class PSCompareFiles extends Task {
   }
 
   /**
-   * This directory contains files which will be scanned and compared
-   * against those found in the directory specified by {@link #m_dir1}.
+   * This directory contains files which will be scanned and compared against those found in the
+   * directory specified by {@link #m_dir1}.
    *
    * @param dir the second directory of files to be compared.
    */
@@ -48,11 +48,11 @@ public class PSCompareFiles extends Task {
   }
 
   /**
-   * Executes the task.  For each file under the first directory it walks the
-   * list of files under the second directory in search of a file with the
-   * same name.  If one is found, the two files are compared based on size.  If
-   * the files do not match, the file name is logged and a build exception is
-   * thrown.
+   * Executes the task. For each file under the first directory it walks the list of files under the
+   * second directory in search of a file with the same name. If one is found, the two files are
+   * compared based on size. If the files do not match, the file name is logged and a build
+   * exception is thrown.
+   *
    * @see org.apache.tools.ant.Task#execute()
    */
   @Override
@@ -115,15 +115,9 @@ public class PSCompareFiles extends Task {
     }
   }
 
-  /**
-   * The first directory of files.  This directory forms the base of the
-   * comparison.
-   */
+  /** The first directory of files. This directory forms the base of the comparison. */
   private File m_dir1;
 
-  /**
-   * The second directory of files.  This directory is compared to the first
-   * directory.
-   */
+  /** The second directory of files. This directory is compared to the first directory. */
   private File m_dir2;
 }

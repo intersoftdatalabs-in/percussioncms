@@ -26,17 +26,15 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * PSJndiProviderMetaData is an abstract base class meant to be
- * extended by meta data classes which correspond to directory
- * providers that extend PSJndiProvider.
+ * PSJndiProviderMetaData is an abstract base class meant to be extended by meta data classes which
+ * correspond to directory providers that extend PSJndiProvider.
  */
 abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
   /**
-   * Constructs a meta data object for the specified provider
-   * instance.
+   * Constructs a meta data object for the specified provider instance.
    *
-   * @param   inst The provider instance. Can be <CODE>null</CODE>,
-   * in which case not all of the information will be available.
+   * @param inst The provider instance. Can be <CODE>null</CODE>, in which case not all of the
+   *     information will be available.
    */
   protected PSJndiProviderMetaData(PSJndiProvider inst) {
     super();
@@ -46,28 +44,28 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Gets the name of this security provider.
    *
-   * @return   the provider's name
+   * @return the provider's name
    */
   public abstract String getName();
 
   /**
    * Get the full name of this security provider.
    *
-   * @return   the provider's full name
+   * @return the provider's full name
    */
   public abstract String getFullName();
 
   /**
    * Get the descritpion of this security provider.
    *
-   * @return   the provider's description
+   * @return the provider's description
    */
   public abstract String getDescription();
 
   /**
    * Get the connection properties required for logging into this provider.
    *
-   * @return   The connection properties (may be null).
+   * @return The connection properties (may be null).
    */
   public Properties getConnectionProperties() {
     Properties props = null;
@@ -80,13 +78,14 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
 
   /**
    * An empty result set is returned as this feature is not supported.
-   * <p>
-   * The result set contains:
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>SERVER_NAME</B> String => domain or server name</LI>
+   *   <LI><B>SERVER_NAME</B> String => domain or server name
    * </OL>
    *
-   * @return   an empty result set
+   * @return an empty result set
    */
   public ResultSet getServers() throws SQLException {
     ArrayList serverNameCol = new ArrayList(1);
@@ -98,16 +97,17 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
 
   /**
    * Get the types of objects available through this provider.
-   * <p>
-   * The result set contains:
-   * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the object type name</LI>
-   * </OL>
-   * Will always include {@link IPSSecurityProviderMetaData#OBJECT_TYPE_USER}
-   * and will include {@link IPSSecurityProviderMetaData#OBJECT_TYPE_GROUP} if
-   * there is at least one group provider.
    *
-   * @return   a result set containing one object type per row
+   * <p>The result set contains:
+   *
+   * <OL>
+   *   <LI><B>OBJECT_TYPE</B> String => the object type name
+   * </OL>
+   *
+   * Will always include {@link IPSSecurityProviderMetaData#OBJECT_TYPE_USER} and will include
+   * {@link IPSSecurityProviderMetaData#OBJECT_TYPE_GROUP} if there is at least one group provider.
+   *
+   * @return a result set containing one object type per row
    */
   public ResultSet getObjectTypes() {
     List objectTypeCol = getSupportedTypes();
@@ -125,20 +125,19 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
 
   /**
    * Get the attributes associated with objects of the specified type.
-   * <p>
-   * The result set contains:
+   *
+   * <p>The result set contains:
+   *
    * <OL>
-   * <LI><B>OBJECT_TYPE</B> String => the type of object</LI>
-   * <LI><B>ATTRIBUTE_NAME</B> String => the attribute name</LI>
-   * <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute
-   *     (may be <code>null</code>)</LI>
+   *   <LI><B>OBJECT_TYPE</B> String => the type of object
+   *   <LI><B>ATTRIBUTE_NAME</B> String => the attribute name
+   *   <LI><B>ATTRIBUTE_DESC</B> String => the description of the attribute (may be <code>null
+   *       </code>)
    * </OL>
    *
-   * @param   objectTypes    the type(s) of objects to retrieve or
-   *                             <code>null</code> to retrieve all objects
-   *
-   * @return   @return an empty result set, as this provider cannot enumerate
-   * its attributes.
+   * @param objectTypes the type(s) of objects to retrieve or <code>null</code> to retrieve all
+   *     objects
+   * @return @return an empty result set, as this provider cannot enumerate its attributes.
    */
   public ResultSet getAttributes(String[] objectTypes) throws SQLException {
     // there is no way to get the "standard" or required attributes for an
@@ -148,21 +147,19 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
   }
 
   /**
-   * Are calls to {@link #getServers <code>getServers</code>}
-   * supported?
+   * Are calls to {@link #getServers <code>getServers</code>} supported?
    *
-   * @return   <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetServers() {
     return false; // this is not supported
   }
 
   /**
-   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>}
-   * supported?
+   * Are calls to {@link #getObjectTypes <code>getObjectTypes</code>} supported?
    *
-   * @return <code>true</code> if this provider can enumerate the types
-   * of objects it supports; <code>false</code> otherwisew
+   * @return <code>true</code> if this provider can enumerate the types of objects it supports;
+   *     <code>false</code> otherwisew
    */
   public boolean supportsGetObjectTypes() {
     return true; // this is supported
@@ -171,17 +168,16 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Are calls to <code>getObjects()</code> supported?
    *
-   * @return   <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetObjects() {
     return true; // this is supported
   }
 
   /**
-   * Are calls to {@link #getAttributes <code>getAttributes</code>}
-   * supported?
+   * Are calls to {@link #getAttributes <code>getAttributes</code>} supported?
    *
-   * @return   <code>true</code> if so
+   * @return <code>true</code> if so
    */
   public boolean supportsGetAttributes() {
     return false; // for now, this is not supported
@@ -190,10 +186,9 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
   /**
    * Returns a list of supported types as Strings.
    *
-   * @return The list, never <code>null</code> or emtpy. Will always include
-   * {@link IPSSecurityProviderMetaData#OBJECT_TYPE_USER} and will include
-   * {@link IPSSecurityProviderMetaData#OBJECT_TYPE_GROUP} if there is at least
-   * one group provider.
+   * @return The list, never <code>null</code> or emtpy. Will always include {@link
+   *     IPSSecurityProviderMetaData#OBJECT_TYPE_USER} and will include {@link
+   *     IPSSecurityProviderMetaData#OBJECT_TYPE_GROUP} if there is at least one group provider.
    */
   protected List getSupportedTypes() {
     List objectTypes = new ArrayList(2);
@@ -203,7 +198,9 @@ abstract class PSJndiProviderMetaData extends PSSecurityProviderMetaData {
     return objectTypes;
   }
 
-  /** The instance associated with this meta data, or <CODE>null</CODE> if
-   * this metadata has no instance. */
+  /**
+   * The instance associated with this meta data, or <CODE>null</CODE> if this metadata has no
+   * instance.
+   */
   protected PSJndiProvider m_instance = null;
 }

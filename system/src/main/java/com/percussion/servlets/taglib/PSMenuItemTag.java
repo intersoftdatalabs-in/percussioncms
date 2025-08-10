@@ -25,42 +25,27 @@ import org.apache.myfaces.shared_impl.taglib.UIComponentTagUtils;
  * The tag that implements the actual menu item for the CSS menu implementation.
  *
  * @author dougrand
- *
  */
 public class PSMenuItemTag extends PSJSFBaseTag {
-  /**
-   * An optional action for the component.
-   */
+  /** An optional action for the component. */
   private String m_action;
 
-  /**
-   * An optional url for the component.
-   */
+  /** An optional url for the component. */
   private String m_url;
 
-  /**
-   * The shown string for the link.
-   */
+  /** The shown string for the link. */
   private String m_value;
 
-  /**
-   * An optional tooltip to show for the item.
-   */
+  /** An optional tooltip to show for the item. */
   private String m_title;
 
-  /**
-   * Causes the JSF submittal to skip the validation phase.
-   */
+  /** Causes the JSF submittal to skip the validation phase. */
   private String m_immediate;
 
-  /**
-   * An optional to call a JavaScript when click at the component.
-   */
+  /** An optional to call a JavaScript when click at the component. */
   private String m_onclick;
 
-  /**
-   * Switches rendering on or off for the component.
-   */
+  /** Switches rendering on or off for the component. */
   private String m_rendered;
 
   @Override
@@ -93,6 +78,7 @@ public class PSMenuItemTag extends PSJSFBaseTag {
 
   /**
    * Get the onclick property.
+   *
    * @return the onclick property value, may be <code>null</code> or empty.
    */
   public String getOnclick() {
@@ -101,6 +87,7 @@ public class PSMenuItemTag extends PSJSFBaseTag {
 
   /**
    * Set the onclick attribute.
+   *
    * @param onclick the new onclick value, may be <code>null</code> or empty.
    */
   public void setOnclick(String onclick) {

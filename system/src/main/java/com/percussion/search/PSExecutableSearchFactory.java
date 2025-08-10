@@ -26,37 +26,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Factory class used to create instances of {@link IPSExecutableSearch}.
- */
+/** Factory class used to create instances of {@link IPSExecutableSearch}. */
 public class PSExecutableSearchFactory {
-  /**
-   * Private ctor to enforce static use of class.
-   */
+  /** Private ctor to enforce static use of class. */
   private PSExecutableSearchFactory() {}
 
   /**
-   * Create an executable search with a search object and a list of result
-   * column names.
+   * Create an executable search with a search object and a list of result column names.
    *
-   * @param context the context used to execute the search request against the
-   * Rhythmyx server, it may not be <code>null</code>.  Must be an instance
-   * of a {@link PSRequest}, {@link com.percussion.server.IPSRequestContext
-   * IPSRequestContext}, or {@link IPSRemoteRequester}.
+   * @param context the context used to execute the search request against the Rhythmyx server, it
+   *     may not be <code>null</code>. Must be an instance of a {@link PSRequest}, {@link
+   *     com.percussion.server.IPSRequestContext IPSRequestContext}, or {@link IPSRemoteRequester}.
+   * @param columnNames the names of the columns to include in the search results as <code>String
+   *     </code> objects, may not be <code>null</code>, may be empty. Additional system columns will
+   *     be added to the results automatically, at least the following system columns will be
+   *     returned, although others may be added as well:
+   *     <ul>
+   *       <li>sys_contentid
+   *       <li>sys_title
+   *     </ul>
    *
-   * @param columnNames the names of the columns to include in the search
-   * results as <code>String</code> objects, may not be <code>null</code>,
-   * may be empty.  Additional system columns will be added to the results
-   * automatically, at least the following system columns will be returned,
-   * although others may be added as well:
-   * <ul>
-   * <li>sys_contentid</li>
-   * <li>sys_title</li>
-   * </ul>
-   *
-   * @param search the search object that defines the criteria, and result
-   * columns, may not be <code>null</code>.
-   *
+   * @param search the search object that defines the criteria, and result columns, may not be
+   *     <code>null</code>.
    * @return The executable search, never <code>null</code>.
    */
   public static IPSExecutableSearch createExecutableSearch(
@@ -87,14 +78,12 @@ public class PSExecutableSearchFactory {
   }
 
   /**
-   * Construct an executable search with the supplied list of content ids as
-   * search criteria.  Same as
-   * {@link #createExecutableSearch(Object, Collection, PSSearch)}, except that
-   * instead of a search object, a list of content ids is supplied.  Only that
-   * parameter is described below.
+   * Construct an executable search with the supplied list of content ids as search criteria. Same
+   * as {@link #createExecutableSearch(Object, Collection, PSSearch)}, except that instead of a
+   * search object, a list of content ids is supplied. Only that parameter is described below.
    *
-   * @param contentIds the list of content ids to search on as
-   * <code>Integer</code> objects, may not be <code>null</code> or empty.
+   * @param contentIds the list of content ids to search on as <code>Integer</code> objects, may not
+   *     be <code>null</code> or empty.
    */
   public static IPSExecutableSearch createExecutableSearch(
       Object context, Collection columnNames, Collection contentIds) {

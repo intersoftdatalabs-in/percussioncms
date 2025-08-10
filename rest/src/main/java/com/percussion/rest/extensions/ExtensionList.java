@@ -21,24 +21,20 @@ package com.percussion.rest.extensions;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * List wrapper for Extension objects.
- * Sunny Sal: "List bana, extensions dikhana!"
- */
+/** List wrapper for Extension objects. Sunny Sal: "List bana, extensions dikhana!" */
 @XmlRootElement(name = "ExtensionList")
 @ArraySchema(schema = @Schema(implementation = Extension.class))
 public class ExtensionList extends ArrayList<Extension> {
 
-    public ExtensionList(Collection<? extends Extension> c) {
-        super(c);
-    }
+  public ExtensionList(Collection<? extends Extension> c) {
+    super(c);
+  }
 
-    public ExtensionList() {
-        super();
-    }
+  public ExtensionList() {
+    super();
+  }
 }

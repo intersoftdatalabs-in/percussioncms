@@ -100,9 +100,7 @@ public class PSContentTypesContext implements IPSContentTypesContext {
     }
   }
 
-  /**
-   * static constant string that represents the qualified table name.
-   */
+  /** static constant string that represents the qualified table name. */
   private static String TABLE_CTC = PSConnectionMgr.getQualifiedIdentifier("CONTENTTYPES");
 
   private static final String QRYSTRING =

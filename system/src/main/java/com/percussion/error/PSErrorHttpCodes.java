@@ -24,23 +24,19 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-/**
- *   A mapping from PSLogError-derived objects to HTTP error codes
- */
+/** A mapping from PSLogError-derived objects to HTTP error codes */
 // REFACTORED: CP-JAVA11
 public class PSErrorHttpCodes {
 
   /**
-   *   Get the HTTP code for the given error, or if this error
-   *   does not specifically have an error code, then get the error
-   *   code for its most immediate superclass. A valid HTTP
-   *   code is guaranteed to be returned.
+   * Get the HTTP code for the given error, or if this error does not specifically have an error
+   * code, then get the error code for its most immediate superclass. A valid HTTP code is
+   * guaranteed to be returned.
    *
-   *   @param   A PSLogError whose HTTP code code you want to get,
-   *   or <CODE>null</CODE> to get the default HTTP code.
-   *
-   *   @param err
-   * @return   A valid HTTP error code (e.g, <CODE>404</CODE> for not found)
+   * @param A PSLogError whose HTTP code code you want to get, or <CODE>null</CODE> to get the
+   *     default HTTP code.
+   * @param err
+   * @return A valid HTTP error code (e.g, <CODE>404</CODE> for not found)
    */
   public static synchronized int getHttpCode(PSLogInformation err, Locale loc) {
     if (!ms_areCodesLoaded) initErrorHttpCodeMaps(loc);
@@ -58,13 +54,11 @@ public class PSErrorHttpCodes {
   }
 
   /**
-   * This method is used to get the error page map hash table for a
-   * locale. If the page maps are not already loaded for the locale,
-   * they will be.
+   * This method is used to get the error page map hash table for a locale. If the page maps are not
+   * already loaded for the locale, they will be.
    *
-   * @param      loc         the locale
-   *
-   * @param                  a hash table containing the error page maps
+   * @param loc the locale
+   * @param a hash table containing the error page maps
    */
   private static void initErrorHttpCodeMaps(Locale loc)
       throws MissingResourceException, NumberFormatException {

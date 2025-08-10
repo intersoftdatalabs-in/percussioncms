@@ -36,45 +36,41 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class allows one to specify filtering criteria when querying for
- * relationships by the implementer of the interface {@link
- * com.percussion.cms.objectstore.IPSRelationshipProcessor}. The aim is to be
- * able to specify the filtering conditions easily. The following rules apply
- * when using the filter conditions.
+ * This class allows one to specify filtering criteria when querying for relationships by the
+ * implementer of the interface {@link com.percussion.cms.objectstore.IPSRelationshipProcessor}. The
+ * aim is to be able to specify the filtering conditions easily. The following rules apply when
+ * using the filter conditions.
+ *
  * <p>
+ *
  * <ol>
- * <li> All specified conditions will be ANDed except for relationship name,
- * type, and category. These 3 properties are OR'd together before they are
- * AND'ed with the other properties. For example, if category and a property
- * name-value is set, the results include the relationships that match the
- * category and the property value. If the <em>translation<em> category and the
- * <em>Active Assembly Mandatory<em> translation name are both specified, any
- * relationship that is either AA mandatory or has a category of translation
- * will be returned.</li>
- * <li> The order of using filter parameters (if specified) will be as follows:
- * </li>
- * <ol>
- * <li>relationship id</li>
- * <li>relationship name</li>
- * <li>relationship owner</li>
- * <li>relationship dependent</li>
- * <li>item contenttypeid</li>
- * <li>item objecttypeid</li>
- * <li>relationship category</li>
- * <li>relationship type</li>
- * <li>relationship properties</li>
+ *   <li>All specified conditions will be ANDed except for relationship name, type, and category.
+ *       These 3 properties are OR'd together before they are AND'ed with the other properties. For
+ *       example, if category and a property name-value is set, the results include the
+ *       relationships that match the category and the property value. If the <em>translation<em>
+ *       category and the <em>Active Assembly Mandatory<em> translation name are both specified, any
+ *       relationship that is either AA mandatory or has a category of translation will be returned.
+ *   <li>The order of using filter parameters (if specified) will be as follows:
+ *       <ol>
+ *         <li>relationship id
+ *         <li>relationship name
+ *         <li>relationship owner
+ *         <li>relationship dependent
+ *         <li>item contenttypeid
+ *         <li>item objecttypeid
+ *         <li>relationship category
+ *         <li>relationship type
+ *         <li>relationship properties
+ *       </ol>
  * </ol>
- * </li>
- * </ol>
+ *
  * <p>
  *
  * @author RammohanVangapalli
  */
 public class PSRelationshipFilter {
 
-  /**
-   * Default constructor
-   */
+  /** Default constructor */
   public PSRelationshipFilter() {}
 
   /**
@@ -87,11 +83,10 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Constructs an instance from a specified filter. The new instance is a
-   * shallow copy of the specified one.
+   * Constructs an instance from a specified filter. The new instance is a shallow copy of the
+   * specified one.
    *
-   * @param other the to be shallow copied filter; it may not be
-   *    <code>null</code>.
+   * @param other the to be shallow copied filter; it may not be <code>null</code>.
    */
   public PSRelationshipFilter(PSRelationshipFilter other) {
     if (other == null) throw new IllegalArgumentException("other may not be null.");
@@ -116,8 +111,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the relationship category filter.
    *
-   * @return the name of the relationship category by which to filter,
-   *    <code>null</code> or empty if not filtered by relationship category.
+   * @return the name of the relationship category by which to filter, <code>null</code> or empty if
+   *     not filtered by relationship category.
    * @see #setCategory(String)
    */
   public String getCategory() {
@@ -126,18 +121,16 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the relationship category filter.
-   * <p>
-   * Note: if the category is {@link #FILTER_CATEGORY_FOLDER}, then the
-   * name will be set to {@link #FILTER_NAME_FOLDER_CONTENT}, since there
-   * is only one relationship type in folder category.
-   * <p>
-   * The category is OR'd with the name(s) and type(s) before AND'ing with the
-   * other properties.
    *
-   * @param category the relationship category to be filtered by,
-   *    <code>null</code> or empty to turn the relationship category filter
-   *    off. Must be one of the <code>FILTER_CATEGORY_XXX</code> values
-   *    defined in this class if not <code>null</code> or empty.
+   * <p>Note: if the category is {@link #FILTER_CATEGORY_FOLDER}, then the name will be set to
+   * {@link #FILTER_NAME_FOLDER_CONTENT}, since there is only one relationship type in folder
+   * category.
+   *
+   * <p>The category is OR'd with the name(s) and type(s) before AND'ing with the other properties.
+   *
+   * @param category the relationship category to be filtered by, <code>null</code> or empty to turn
+   *     the relationship category filter off. Must be one of the <code>FILTER_CATEGORY_XXX</code>
+   *     values defined in this class if not <code>null</code> or empty.
    */
   public void setCategory(String category) {
     if (category != null) {
@@ -159,8 +152,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the relationship type filter.
    *
-   * @return the name of the relationship type by which to filter,
-   *    <code>null</code> or empty if not filtered by relationship type.
+   * @return the name of the relationship type by which to filter, <code>null</code> or empty if not
+   *     filtered by relationship type.
    * @see #setType(String)
    */
   public String getType() {
@@ -169,14 +162,13 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the relationship type filter.
-   * <p>
-   * The type is OR'd with the name(s) and category(ies) before AND'ing with
-   * the other properties.
    *
-   * @param type the relationship type to be filtered by, <code>null</code>
-   * or empty to turn the relationship type filter off. Must be one of the
-   * <code>FILTER_TYPE_XXX</code> values defined in this class if not
-   * <code>null</code> or empty.
+   * <p>The type is OR'd with the name(s) and category(ies) before AND'ing with the other
+   * properties.
+   *
+   * @param type the relationship type to be filtered by, <code>null</code> or empty to turn the
+   *     relationship type filter off. Must be one of the <code>FILTER_TYPE_XXX</code> values
+   *     defined in this class if not <code>null</code> or empty.
    */
   public void setType(String type) {
     if (type != null) {
@@ -194,12 +186,11 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Accessor for the relationship name filter.
-   * Note, this is used in conjunction with {@link #setName(String)}.
+   * Accessor for the relationship name filter. Note, this is used in conjunction with {@link
+   * #setName(String)}.
    *
-   * @return one relationship name by which to filter, <code>null</code>
-   *   if not filtered by relationship name.
-   *
+   * @return one relationship name by which to filter, <code>null</code> if not filtered by
+   *     relationship name.
    * @see #setName(String)
    */
   public String getName() {
@@ -218,14 +209,13 @@ public class PSRelationshipFilter {
 
   /**
    * Limit the retrieved relationships to the supplied relationship names.
-   * <p>
-   * The name(s) are OR'd with the category(ies) and type(s) before AND'ing
-   * with the other properties.
    *
-   * @param names the relationship names to be filtered by. Filter by name is
-   * off if it is empty or <code>null</code>. All white space characters
-   * will be stripped from the names since the space character is not allowed
-   * in the relationship name
+   * <p>The name(s) are OR'd with the category(ies) and type(s) before AND'ing with the other
+   * properties.
+   *
+   * @param names the relationship names to be filtered by. Filter by name is off if it is empty or
+   *     <code>null</code>. All white space characters will be stripped from the names since the
+   *     space character is not allowed in the relationship name
    */
   public void setNames(Collection<String> names) {
     m_names.clear();
@@ -238,15 +228,14 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Setter for the relationship name filter. This is used when filtered by
-   * only one relationship name.
+   * Setter for the relationship name filter. This is used when filtered by only one relationship
+   * name.
    *
-   * @param name the relationship name to be filtered by, <code>null</code>
-   *    or empty to turn the relationship name filter off. Any name is
-   *    allowed because the user can create his (or her) own relationships and
-   *    may want to filter by the relationship name. However, all white space
-   *    characters will be stripped from the name since the space character is
-   *    not allowed in the relationship name.
+   * @param name the relationship name to be filtered by, <code>null</code> or empty to turn the
+   *     relationship name filter off. Any name is allowed because the user can create his (or her)
+   *     own relationships and may want to filter by the relationship name. However, all white space
+   *     characters will be stripped from the name since the space character is not allowed in the
+   *     relationship name.
    */
   public void setName(String name) {
     m_names.clear();
@@ -257,7 +246,6 @@ public class PSRelationshipFilter {
    * Strips all white space characters from the supplied relationship name.
    *
    * @param name the relationship name, assumed not <code>null</code>
-   *
    * @return the relationship name without white space characters.
    */
   private String stripSpaceChars(String name) {
@@ -272,9 +260,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the relationship property filter.
    *
-   * @return all relationship properties to be filtered by, never
-   *    <code>null</code>, may be empty if not filtered for any relationship
-   *    property.
+   * @return all relationship properties to be filtered by, never <code>null</code>, may be empty if
+   *     not filtered for any relationship property.
    * @see #setProperty(String, String)
    */
   public Map<String, String> getProperties() {
@@ -282,12 +269,12 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Set a relationship property value by which to filter. Properties that do
-   * exist will be overridden, otherwise the new property is added.
+   * Set a relationship property value by which to filter. Properties that do exist will be
+   * overridden, otherwise the new property is added.
    *
    * @param name the property name, must not be <code>null</code> or empty.
-   * @param value the property value to be filtered by. The filter for the
-   *    property is turned off if the value is <code>null</code> or empty.
+   * @param value the property value to be filtered by. The filter for the property is turned off if
+   *     the value is <code>null</code> or empty.
    */
   public void setProperty(String name, String value) {
     if (name == null || name.trim().length() == 0)
@@ -299,10 +286,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the relationship dependent locator filter.
    *
-   * @return may be <code>null</code> if not filtered by the relationshp
-   *    dependent. It is the first element of the dependent list if there are
-   *    more than one.
-   *
+   * @return may be <code>null</code> if not filtered by the relationshp dependent. It is the first
+   *     element of the dependent list if there are more than one.
    * @see #setDependent(PSLocator)
    */
   public PSLocator getDependent() {
@@ -313,9 +298,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for getting a list of dependent locators of the filter.
    *
-   * @return a list of dependent locators. It may be <code>null</code> if not
-   *    filtered by the relationshp dependent.
-   *
+   * @return a list of dependent locators. It may be <code>null</code> if not filtered by the
+   *     relationshp dependent.
    * @see #setDependents(Collection)
    */
   public List<PSLocator> getDependents() {
@@ -325,8 +309,8 @@ public class PSRelationshipFilter {
   /**
    * Set the relationship dependent locator to filter by.
    *
-   * @param locator the relationship dependent locator to filter by,
-   *    <code>null</code> to turn this filter off.
+   * @param locator the relationship dependent locator to filter by, <code>null</code> to turn this
+   *     filter off.
    */
   public void setDependent(PSLocator locator) {
     if (locator == null) {
@@ -341,8 +325,8 @@ public class PSRelationshipFilter {
   /**
    * Set the relationship to filter by more than one dependents.
    *
-   * @param locators the relationship dependent locators to filter by,
-   *    <code>null</code> or empty to turn this filter off.
+   * @param locators the relationship dependent locators to filter by, <code>null</code> or empty to
+   *     turn this filter off.
    */
   public void setDependents(Collection<PSLocator> locators) {
     if (locators == null || locators.isEmpty()) {
@@ -354,11 +338,10 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Set the relationship dependent id (disregard dependent revision) to
-   * filter by.
+   * Set the relationship dependent id (disregard dependent revision) to filter by.
    *
-   * @param dependentId the relationship dependent id to filter by,
-   *    <code>-1</code> to turn this filter off.
+   * @param dependentId the relationship dependent id to filter by, <code>-1</code> to turn this
+   *     filter off.
    */
   public void setDependentId(int dependentId) {
     if (dependentId == -1) {
@@ -373,8 +356,8 @@ public class PSRelationshipFilter {
   /**
    * Set the dependent ids (disregard dependent revision) for the filter.
    *
-   * @param dependentIds the relationship dependent ids to filter by,
-   *    <code>null</code> or empty to turn this filter off.
+   * @param dependentIds the relationship dependent ids to filter by, <code>null</code> or empty to
+   *     turn this filter off.
    */
   public void setDependentIds(Collection<Integer> dependentIds) {
     if (dependentIds == null || dependentIds.isEmpty()) {
@@ -390,8 +373,7 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the relationship owner locator filter.
    *
-   * @return may be <code>null</code> if not filtered by the relationship
-   *    owner.
+   * @return may be <code>null</code> if not filtered by the relationship owner.
    * @see #setOwner(PSLocator)
    */
   public PSLocator getOwner() {
@@ -401,8 +383,8 @@ public class PSRelationshipFilter {
   /**
    * Set the relationship owner locator to filter by.
    *
-   * @param locator the relationship owner locator to filter by,
-   *    <code>null</code> to turn this filter off.
+   * @param locator the relationship owner locator to filter by, <code>null</code> to turn this
+   *     filter off.
    */
   public void setOwner(PSLocator locator) {
     m_owner = locator;
@@ -411,8 +393,7 @@ public class PSRelationshipFilter {
   /**
    * Set the relationship owner id (disregard owner revision) to filter by.
    *
-   * @param ownerId the relationship owner id to filter by
-   *    <code>-1</code> to turn this filter off.
+   * @param ownerId the relationship owner id to filter by <code>-1</code> to turn this filter off.
    */
   public void setOwnerId(int ownerId) {
     if (ownerId == -1) m_owner = null;
@@ -432,8 +413,8 @@ public class PSRelationshipFilter {
   /**
    * Setter for the relationship id to be filtered by.
    *
-   * @param rid the relationship id to filter by, -1 to turn this filter off.
-   *    Values lower as -1 will be set to -1.
+   * @param rid the relationship id to filter by, -1 to turn this filter off. Values lower as -1
+   *     will be set to -1.
    */
   public void setRelationshipId(int rid) {
     m_rid = (rid >= 0) ? rid : -1;
@@ -442,8 +423,7 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the owner contenttype id to be filtered by.
    *
-   * @return the owner contenttype id to filter by, -1 if this filter is
-   *    turned off.
+   * @return the owner contenttype id to filter by, -1 if this filter is turned off.
    * @see #setOwnerContentTypeId(long)
    */
   public long getOwnerContentTypeId() {
@@ -452,12 +432,11 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the owner contenttype id to be filtered by.
-   * <p>
-   * Note, this must not be used in conjunction with
-   * {@link #setDependentContentTypeId(long)}.
    *
-   * @param id the owner contenttype id to filter by, -1 to turn this filter
-   *    off. Values lower as -1 will be set to -1.
+   * <p>Note, this must not be used in conjunction with {@link #setDependentContentTypeId(long)}.
+   *
+   * @param id the owner contenttype id to filter by, -1 to turn this filter off. Values lower as -1
+   *     will be set to -1.
    */
   public void setOwnerContentTypeId(long id) {
     if (getDependentContentTypeId() != -1)
@@ -470,10 +449,8 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the dependent contenttype id to be filtered by.
    *
-   * @return the dependent contenttype id to filter by, -1 if this filter is
-   *    turned off. It is the first content type id if there are more than
-   *    one content type ids.
-   *
+   * @return the dependent contenttype id to filter by, -1 if this filter is turned off. It is the
+   *     first content type id if there are more than one content type ids.
    * @see #setDependentContentTypeId(long)
    */
   public long getDependentContentTypeId() {
@@ -484,9 +461,8 @@ public class PSRelationshipFilter {
   /**
    * Gets the dependent contenttype ids of the filter.
    *
-   * @return the dependent contenttype ids. It may be <code>null</code> if
-   *    this filter is turned off.
-   *
+   * @return the dependent contenttype ids. It may be <code>null</code> if this filter is turned
+   *     off.
    * @see #setDependentContentTypeIds(Collection)
    */
   public List<Long> getDependentContentTypeIds() {
@@ -495,13 +471,13 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the dependent contenttype id to be filtered by.
-   * <p>
-   * Note, this must not be used in conjunction with neither
-   * {@link #setOwnerContentTypeId(long)} nor
-   * {@link #limitToEditOrCurrentOwnerRevision(boolean) limitToEditOrCurrentOwnerRevision(true)}.
    *
-   * @param id the dependent contenttype id to filter by, -1 to turn this
-   *           filter off. Values lower than -1 is the same as -1.
+   * <p>Note, this must not be used in conjunction with neither {@link #setOwnerContentTypeId(long)}
+   * nor {@link #limitToEditOrCurrentOwnerRevision(boolean)
+   * limitToEditOrCurrentOwnerRevision(true)}.
+   *
+   * @param id the dependent contenttype id to filter by, -1 to turn this filter off. Values lower
+   *     than -1 is the same as -1.
    */
   public void setDependentContentTypeId(long id) {
     if (id <= -1) {
@@ -515,13 +491,13 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the dependent contenttype ids to be filtered by.
-   * <p>
-   * Note, this must not be used in conjunction with neither
-   * {@link #setOwnerContentTypeId(long)} nor
-   * {@link #limitToEditOrCurrentOwnerRevision(boolean) limitToEditOrCurrentOwnerRevision(true)}.
    *
-   * @param ids the dependent contenttype ids to filter by, <code>null</code>
-   *       to turn this filter off.
+   * <p>Note, this must not be used in conjunction with neither {@link #setOwnerContentTypeId(long)}
+   * nor {@link #limitToEditOrCurrentOwnerRevision(boolean)
+   * limitToEditOrCurrentOwnerRevision(true)}.
+   *
+   * @param ids the dependent contenttype ids to filter by, <code>null</code> to turn this filter
+   *     off.
    */
   public void setDependentContentTypeIds(Collection<Long> ids) {
     if (getOwnerContentTypeId() != -1)
@@ -546,8 +522,7 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the owner objecttype to be filtered by.
    *
-   * @return the owner objecttype to filter by, -1 if this filter is
-   *    turned off.
+   * @return the owner objecttype to filter by, -1 if this filter is turned off.
    * @see #setOwnerObjectType(int)
    */
   public int getOwnerObjectType() {
@@ -556,12 +531,11 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the owner objecttype to be filtered by.
-   * <p>
-   * Note, this must not be used in conjunction with
-   * {@link #setDependentObjectType(int)}.
    *
-   * @param type the owner objecttype to filter by, -1 to turn this filter
-   *    off. Values lower as -1 will be set to -1.
+   * <p>Note, this must not be used in conjunction with {@link #setDependentObjectType(int)}.
+   *
+   * @param type the owner objecttype to filter by, -1 to turn this filter off. Values lower as -1
+   *     will be set to -1.
    */
   public void setOwnerObjectType(int type) {
     if (getDependentObjectType() != -1)
@@ -574,8 +548,7 @@ public class PSRelationshipFilter {
   /**
    * Accessor for the dependent objecttype to be filtered by.
    *
-   * @return the dependent objecttype to filter by, -1 if this filter is
-   *    turned off.
+   * @return the dependent objecttype to filter by, -1 if this filter is turned off.
    * @see #setDependentObjectType(int)
    */
   public int getDependentObjectType() {
@@ -584,13 +557,12 @@ public class PSRelationshipFilter {
 
   /**
    * Setter for the dependent objecttype to be filtered by.
-   * <p>
-   * Note, this must not be used in conjunction with neither
-   * {@link #setOwnerObjectType(int)} nor
+   *
+   * <p>Note, this must not be used in conjunction with neither {@link #setOwnerObjectType(int)} nor
    * {@link #limitToEditOrCurrentOwnerRevision(boolean) limitToEditOrCurrentOwnerRevision(true)}.
    *
-   * @param type the dependent objecttype to filter by, -1 to turn this filter
-   *    off. Values lower as -1 will be set to -1.
+   * @param type the dependent objecttype to filter by, -1 to turn this filter off. Values lower as
+   *     -1 will be set to -1.
    */
   public void setDependentObjectType(int type) {
     if (getOwnerObjectType() != -1)
@@ -609,9 +581,8 @@ public class PSRelationshipFilter {
   /**
    * Enable or disable community filtering for the relationships/components.
    *
-   * @param enableCommunityFiltering <code>true</code> to enable and
-   *    <code>false</code> to disable. Community filtering is enabled by
-   *    default.
+   * @param enableCommunityFiltering <code>true</code> to enable and <code>false</code> to disable.
+   *     Community filtering is enabled by default.
    */
   public void setCommunityFiltering(boolean enableCommunityFiltering) {
     m_filterByCommunity = enableCommunityFiltering;
@@ -620,20 +591,17 @@ public class PSRelationshipFilter {
   /**
    * Does this filter by community?
    *
-   * @return <code>true</code> if community filtering is enabled,
-   *    <code>false</code> otherwise.
+   * @return <code>true</code> if community filtering is enabled, <code>false</code> otherwise.
    */
   public boolean isCommunityFilteringEnabled() {
     return m_filterByCommunity;
   }
 
   /**
-   * Does this filter only specify properties? If so, the processor can
-   * optimize and do that search only up front instead of querying the entire
-   * relationships table and then filtering the results
+   * Does this filter only specify properties? If so, the processor can optimize and do that search
+   * only up front instead of querying the entire relationships table and then filtering the results
    *
-   * @return <code>true</code> if there are no non-default values other than
-   *         the properties.
+   * @return <code>true</code> if there are no non-default values other than the properties.
    */
   public boolean isPurePropertiesFilter() {
     return getProperties().size() > 0
@@ -653,9 +621,8 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Setter for using owner revision to be filtered by. This setting can only
-   * take effect when the owner locator is also provided (via
-   * {@link #setOwner(PSLocator)}).
+   * Setter for using owner revision to be filtered by. This setting can only take effect when the
+   * owner locator is also provided (via {@link #setOwner(PSLocator)}).
    *
    * @param limitToOwnerRev <code>true</code> if is filtered by the owner revision.
    */
@@ -664,23 +631,22 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Setter for using the public revision of the owner to be filtered by. This
-   * is typically used in conjunction with {@link #setDependent(PSLocator)}.
+   * Setter for using the public revision of the owner to be filtered by. This is typically used in
+   * conjunction with {@link #setDependent(PSLocator)}.
    *
-   * @param limitToPublicOwnerRev <code>true</code> if is filtered by the
-   *   public revision of the owner.
+   * @param limitToPublicOwnerRev <code>true</code> if is filtered by the public revision of the
+   *     owner.
    */
   public void limitToPublicOwnerRevision(boolean limitToPublicOwnerRev) {
     m_limitToPublicOwnerRevision = limitToPublicOwnerRev;
   }
 
   /**
-   * Indicates whether it is filtered by the public revision of the owner. This
-   * is typically used in conjunction with {@link #setDependent(PSLocator)}.
+   * Indicates whether it is filtered by the public revision of the owner. This is typically used in
+   * conjunction with {@link #setDependent(PSLocator)}.
    *
-   * @return <code>true</code> if is filtered by the public revision of the
-   *   owner; otherwise return <code>false</code>. Default to
-   *   <code>false</code>.
+   * @return <code>true</code> if is filtered by the public revision of the owner; otherwise return
+   *     <code>false</code>. Default to <code>false</code>.
    */
   public boolean getLimitToPublicOwnerRevision() {
     return m_limitToPublicOwnerRevision;
@@ -689,9 +655,7 @@ public class PSRelationshipFilter {
   /**
    * Gets the owner revision filtered by.
    *
-   * @return <code>true</code> if is filtered by the owner revision. Defaults
-   *    to <code>false</code>.
-   *
+   * @return <code>true</code> if is filtered by the owner revision. Defaults to <code>false</code>.
    * @see #limitToOwnerRevision(boolean)
    */
   public boolean getLimitToOwnerRevision() {
@@ -699,18 +663,16 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * The relationships are limited to the Edit Revision (if it exists) or
-   * the Current Revision (if Edit Revision does not exist) of the owner.
-   * This is typically used in conjunction with {@link #setDependent(PSLocator)}.
-   * <p>
-   * Note, this must not be used in conjunction with
-   * {@link #setDependentContentTypeId(long)} or
+   * The relationships are limited to the Edit Revision (if it exists) or the Current Revision (if
+   * Edit Revision does not exist) of the owner. This is typically used in conjunction with {@link
+   * #setDependent(PSLocator)}.
+   *
+   * <p>Note, this must not be used in conjunction with {@link #setDependentContentTypeId(long)} or
    * {@link #setDependentObjectType(int)}
    *
-   * @param limitToEditCurrOwnerRev <code>true</code> if the owner revision of the
-   *    relationships are limited by Edit or Current revision as described
-   *    above; otherwise the retrieved relationships may contain multiple
-   *    owner revisions for a particular (dependent) item.
+   * @param limitToEditCurrOwnerRev <code>true</code> if the owner revision of the relationships are
+   *     limited by Edit or Current revision as described above; otherwise the retrieved
+   *     relationships may contain multiple owner revisions for a particular (dependent) item.
    */
   public void limitToEditOrCurrentOwnerRevision(boolean limitToEditCurrOwnerRev) {
     if (limitToEditCurrOwnerRev && m_dependentContentTypeIds != null)
@@ -726,19 +688,16 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * The relationships are limited to the Tip Revision of the owner.
-   * This will pick up relationship changes on currently checked out items
-   * but can be used to treat a relationship as if it were revisionless.
-   * This is typically used in conjunction with {@link #setDependent(PSLocator)}.
-   * <p>
-   * Note, this must not be used in conjunction with
-   * {@link #setDependentContentTypeId(long)} or
+   * The relationships are limited to the Tip Revision of the owner. This will pick up relationship
+   * changes on currently checked out items but can be used to treat a relationship as if it were
+   * revisionless. This is typically used in conjunction with {@link #setDependent(PSLocator)}.
+   *
+   * <p>Note, this must not be used in conjunction with {@link #setDependentContentTypeId(long)} or
    * {@link #setDependentObjectType(int)}
    *
-   * @param limitToTipOwnerRevision <code>true</code> if the owner revision of the
-   *    relationships are limited by the Tip revision as described
-   *    above; otherwise the retrieved relationships may contain multiple
-   *    owner revisions for a particular (dependent) item.
+   * @param limitToTipOwnerRevision <code>true</code> if the owner revision of the relationships are
+   *     limited by the Tip revision as described above; otherwise the retrieved relationships may
+   *     contain multiple owner revisions for a particular (dependent) item.
    */
   public void limitToTipOwnerRevision(boolean limitToTipOwnerRevision) {
     if (limitToTipOwnerRevision && m_dependentContentTypeIds != null)
@@ -754,16 +713,12 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Gets the filtered by Edit or Current revision of the owner of the
-   * retrieved relationships.
+   * Gets the filtered by Edit or Current revision of the owner of the retrieved relationships.
    *
-   * @return <code>true</code> if the owner revision of the relationships are
-   *    filtered by (or limited to) the Edit Revision (if it exists) or
-   *    the Current Revision (if Edit Revision does not exist) of the owner;
-   *    otherwise the retrieved relationships may contain multiple owner
-   *    revisions for a particular (dependent) item.
-   *    Defaults to <code>false</code>.
-   *
+   * @return <code>true</code> if the owner revision of the relationships are filtered by (or
+   *     limited to) the Edit Revision (if it exists) or the Current Revision (if Edit Revision does
+   *     not exist) of the owner; otherwise the retrieved relationships may contain multiple owner
+   *     revisions for a particular (dependent) item. Defaults to <code>false</code>.
    * @see #limitToEditOrCurrentOwnerRevision(boolean)
    */
   public boolean getLimitToEditOrCurrentOwnerRevision() {
@@ -771,16 +726,12 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Gets the filtered by Edit or Current revision of the owner of the
-   * retrieved relationships.
+   * Gets the filtered by Edit or Current revision of the owner of the retrieved relationships.
    *
-   * @return <code>true</code> if the owner revision of the relationships are
-   *    filtered by (or limited to) the Edit Revision (if it exists) or
-   *    the Current Revision (if Edit Revision does not exist) of the owner;
-   *    otherwise the retrieved relationships may contain multiple owner
-   *    revisions for a particular (dependent) item.
-   *    Defaults to <code>false</code>.
-   *
+   * @return <code>true</code> if the owner revision of the relationships are filtered by (or
+   *     limited to) the Edit Revision (if it exists) or the Current Revision (if Edit Revision does
+   *     not exist) of the owner; otherwise the retrieved relationships may contain multiple owner
+   *     revisions for a particular (dependent) item. Defaults to <code>false</code>.
    * @see #limitToEditOrCurrentOwnerRevision(boolean)
    */
   public boolean getLimitToTipOwnerRevision() {
@@ -793,11 +744,11 @@ public class PSRelationshipFilter {
   private boolean m_limitToCrossSiteLinks = false;
 
   /**
-   * Determines whether to filter on cross site links, where
-   * the relationships with none null value of site and/or folder IDs.
+   * Determines whether to filter on cross site links, where the relationships with none null value
+   * of site and/or folder IDs.
    *
-   * @return <code>true</code> if the returned relationships
-   * contains none <code>null</code> values of site and/or folder IDs.
+   * @return <code>true</code> if the returned relationships contains none <code>null</code> values
+   *     of site and/or folder IDs.
    */
   public boolean getLimitToCrossSiteLinks() {
     return m_limitToCrossSiteLinks;
@@ -806,19 +757,18 @@ public class PSRelationshipFilter {
   /**
    * Sets to filter on cross site links.
    *
-   * @param isLimitToCrossSite it is <code>true</code> if does filter
-   * on cross site links, where relationships have none null site
-   * and/or folder IDs.
+   * @param isLimitToCrossSite it is <code>true</code> if does filter on cross site links, where
+   *     relationships have none null site and/or folder IDs.
    */
   public void setLimitToCrossSiteLinks(boolean isLimitToCrossSite) {
     m_limitToCrossSiteLinks = isLimitToCrossSite;
   }
 
   /**
-   * Restores the filter values from XML. See {@link #toXml(Document)}
-   * for DTD details.
-   * @param elem the Element node that represents the
-   * <code>PSRelationshipFilter</code> object, cannot be <code>null</code>.
+   * Restores the filter values from XML. See {@link #toXml(Document)} for DTD details.
+   *
+   * @param elem the Element node that represents the <code>PSRelationshipFilter</code> object,
+   *     cannot be <code>null</code>.
    */
   public void fromXml(Element elem) {
     if (elem == null) throw new IllegalArgumentException("Element cannot be null.");
@@ -937,18 +887,15 @@ public class PSRelationshipFilter {
     }
   }
 
-  /**
-   * Reset the dependents list. This method must be called before modifying
-   * the dependents list.
-   */
+  /** Reset the dependents list. This method must be called before modifying the dependents list. */
   private void resetDependents() {
     if (m_dependents == null) m_dependents = new ArrayList<>();
     else m_dependents.clear();
   }
 
   /**
-   * Reset the dependent content type id list. This method must be called
-   * before modifying the dependent content type id list.
+   * Reset the dependent content type id list. This method must be called before modifying the
+   * dependent content type id list.
    */
   private void resetDependentContentTypeIds() {
     if (m_dependentContentTypeIds == null) m_dependentContentTypeIds = new ArrayList<>();
@@ -956,9 +903,7 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * Serializes this object into XML form as specified in the following
-   * DTD:
-   * <code>
+   * Serializes this object into XML form as specified in the following DTD: <code>
    * <pre>
    * &lt;!ELEMENT PSXRelationshipFilter (Owner?, Dependents?, Properties?, TypeSet?)&gt;
    * &lt;!ATTLIST PSXRelationshipFilter
@@ -994,9 +939,7 @@ public class PSRelationshipFilter {
    * </pre>
    * </code>
    *
-   * @param doc the XML document to be appended to, cannot
-   * be <code>null</code>
-   *
+   * @param doc the XML document to be appended to, cannot be <code>null</code>
    * @return the XML element that represents a <code>
    * PSRelationshipFilter</code>. Never <code>null</code>.
    */
@@ -1120,149 +1063,126 @@ public class PSRelationshipFilter {
   }
 
   /**
-   * A list of relationship names to be filtered by. It may be empty, but
-   * never <code>null</code>. Filter by names is off by default.
+   * A list of relationship names to be filtered by. It may be empty, but never <code>null</code>.
+   * Filter by names is off by default.
    */
   private Set<String> m_names = new HashSet<>();
 
   /**
-   * The relationship type filter, turned off by default. Use
-   * {@link #setType(String)} to set a filter.
+   * The relationship type filter, turned off by default. Use {@link #setType(String)} to set a
+   * filter.
    */
   private String m_type = null;
 
   /**
-   * The relationship category filter, turned off by default. Use
-   * {@link #setCategory(String)} to set a filter.
+   * The relationship category filter, turned off by default. Use {@link #setCategory(String)} to
+   * set a filter.
    */
   private String m_category = null;
 
   /**
-   * The relationship properties filter, turned off by default. Use
-   * {@link #setProperty(String, String)} to set a filter.
+   * The relationship properties filter, turned off by default. Use {@link #setProperty(String,
+   * String)} to set a filter.
    */
   private Map<String, String> m_properties = new HashMap<>();
 
   /**
-   * The relationship owner filter, turned off by default. Use
-   * {@link #setOwner(PSLocator)} to set a filter.
+   * The relationship owner filter, turned off by default. Use {@link #setOwner(PSLocator)} to set a
+   * filter.
    */
   private PSLocator m_owner = null;
 
   /**
-   * The relationship dependent filter, turned off by default. Use
-   * {@link #setDependent(PSLocator)} to set a filter.
+   * The relationship dependent filter, turned off by default. Use {@link #setDependent(PSLocator)}
+   * to set a filter.
    */
   private List<PSLocator> m_dependents = null;
 
   /**
-   * The relationship id filter, turned off by default. Use
-   * {@link #setRelationshipId(int)} to set a filter.
+   * The relationship id filter, turned off by default. Use {@link #setRelationshipId(int)} to set a
+   * filter.
    */
   private int m_rid = -1;
 
   /**
-   * The relationship community filter, turned on by default. Use
-   * {@link #setCommunityFiltering(boolean)} to set enable or disable the
-   * filter.
+   * The relationship community filter, turned on by default. Use {@link
+   * #setCommunityFiltering(boolean)} to set enable or disable the filter.
    */
   private boolean m_filterByCommunity = true;
 
-  /**
-   * The owner contenttype id filter, turned off by default.
-   */
+  /** The owner contenttype id filter, turned off by default. */
   private long m_ownercontenttypeid = -1;
 
   /**
-   * The dependent contenttype id(s) filter, turned off by default. Use
-   * {@link #setDependentContentTypeIds(Collection)} to set a filter.
+   * The dependent contenttype id(s) filter, turned off by default. Use {@link
+   * #setDependentContentTypeIds(Collection)} to set a filter.
    */
   private List<Long> m_dependentContentTypeIds = null;
 
   /**
-   * The owner objecttype filter, turned off by default. Use
-   * {@link #setOwnerObjectType(int)} to set a filter.
+   * The owner objecttype filter, turned off by default. Use {@link #setOwnerObjectType(int)} to set
+   * a filter.
    */
   private int m_ownerobjecttype = -1;
 
   /**
-   * The dependent objecttype filter, turned off by default. Use
-   * {@link #setDependentObjectType(int)} to set a filter.
+   * The dependent objecttype filter, turned off by default. Use {@link
+   * #setDependentObjectType(int)} to set a filter.
    */
   private int m_dependentobjecttype = -1;
 
   /**
-   * Indicates whether the retrieved relationships are limited to the Edit
-   * Revision (if it exists) or the Current Revision (if the Edit Revision not
-   * exists) of the owner. Defaults to <code>false</code>.
+   * Indicates whether the retrieved relationships are limited to the Edit Revision (if it exists)
+   * or the Current Revision (if the Edit Revision not exists) of the owner. Defaults to <code>false
+   * </code>.
    */
   private boolean m_limitToEditOrCurrentOwnerRevision = false;
 
   /**
-   * Indicates whether the retrieved relationships are limited to the Tip
-   * Revision
-   *  Defaults to <code>false</code>.
+   * Indicates whether the retrieved relationships are limited to the Tip Revision Defaults to
+   * <code>false</code>.
    */
   private boolean m_limitToTipOwnerRevision = false;
 
   /**
-   * Indicates whether it is filtered by the public revision of the owner.
-   * <code>true</code> if it is. Default to <code>false</code>.
+   * Indicates whether it is filtered by the public revision of the owner. <code>true</code> if it
+   * is. Default to <code>false</code>.
    */
   private boolean m_limitToPublicOwnerRevision = false;
 
   /**
-   * The owner revision filter, turned off by default.
-   * The relationships will be filtered by the owner revision if it is
-   * <code>true</code>. The owner revision is provided via {@link #m_owner}.
+   * The owner revision filter, turned off by default. The relationships will be filtered by the
+   * owner revision if it is <code>true</code>. The owner revision is provided via {@link #m_owner}.
    */
   private boolean m_limitToOwnerRevision = false;
 
-  /**
-   * Constant to filter by category 'Active Assembly'.
-   */
+  /** Constant to filter by category 'Active Assembly'. */
   public static final String FILTER_CATEGORY_ACTIVE_ASSEMBLY =
       PSRelationshipConfig.CATEGORY_ACTIVE_ASSEMBLY;
 
-  /**
-   * Constant to filter by category 'Folder Content'.
-   */
+  /** Constant to filter by category 'Folder Content'. */
   public static final String FILTER_CATEGORY_FOLDER = PSRelationshipConfig.CATEGORY_FOLDER;
 
-  /**
-   * Constant to filter by category 'Promotable Version'.
-   */
+  /** Constant to filter by category 'Promotable Version'. */
   public static final String FILTER_CATEGORY_PROMOTABLE = PSRelationshipConfig.CATEGORY_PROMOTABLE;
 
-  /**
-   * Constant to filter by category 'Translation'.
-   */
+  /** Constant to filter by category 'Translation'. */
   public static final String FILTER_CATEGORY_TRANSLATION =
       PSRelationshipConfig.CATEGORY_TRANSLATION;
 
-  /**
-   * Constant to filter by category 'New Copy'.
-   */
+  /** Constant to filter by category 'New Copy'. */
   public static final String FILTER_CATEGORY_COPY = PSRelationshipConfig.CATEGORY_COPY;
 
-  /**
-   * Constant to filter by category 'Generic'.
-   */
+  /** Constant to filter by category 'Generic'. */
   public static final String FILTER_CATEGORY_GENERIC = PSRelationshipConfig.CATEGORY_GENERIC;
 
-  /**
-   * Constant to filter by category 'Widget'.
-   */
+  /** Constant to filter by category 'Widget'. */
   public static final String FILTER_CATEGORY_WIDGET = PSRelationshipConfig.CATEGORY_WIDGET;
 
-  /**
-   * Constant to filter by category 'Recycled'.
-   */
+  /** Constant to filter by category 'Recycled'. */
   public static final String FILTER_CATEGORY_RECYCLED = PSRelationshipConfig.CATEGORY_RECYCLED;
 
-  /**
-   * An array of all known relationship category filters.
-   */
+  /** An array of all known relationship category filters. */
   public static final String[] FILTERS_BY_CATEGORY = {
     FILTER_CATEGORY_ACTIVE_ASSEMBLY,
     FILTER_CATEGORY_FOLDER,
@@ -1274,64 +1194,42 @@ public class PSRelationshipFilter {
     FILTER_CATEGORY_RECYCLED
   };
 
-  /**
-   * Constant to filter by relationship type 'Active Assembly'.
-   */
+  /** Constant to filter by relationship type 'Active Assembly'. */
   public static final String FILTER_NAME_ACTIVE_ASSEMBLY =
       PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY;
 
-  /**
-   * Constant to filter by relationship type 'Active Assembly - Mandatory'.
-   */
+  /** Constant to filter by relationship type 'Active Assembly - Mandatory'. */
   public static final String FILTER_NAME_ACTIVE_ASSEMBLY_MANDATORY =
       PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY_MANDATORY;
 
-  /**
-   * Constant to filter by relationship type 'New Copy'.
-   */
+  /** Constant to filter by relationship type 'New Copy'. */
   public static final String FILTER_NAME_NEW_COPY = PSRelationshipConfig.TYPE_NEW_COPY;
 
-  /**
-   * Constant to filter by relationship type 'Promotable Version'.
-   */
+  /** Constant to filter by relationship type 'Promotable Version'. */
   public static final String FILTER_NAME_PROMOTABLE_VERSION =
       PSRelationshipConfig.TYPE_PROMOTABLE_VERSION;
 
-  /**
-   * Constant to filter by relationship type 'Folder Content'.
-   */
+  /** Constant to filter by relationship type 'Folder Content'. */
   public static final String FILTER_NAME_FOLDER_CONTENT = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
 
-  /**
-   * Constant to filter by relationship type 'Translation'.
-   */
+  /** Constant to filter by relationship type 'Translation'. */
   public static final String FILTER_NAME_TRANSLATION = PSRelationshipConfig.TYPE_TRANSLATION;
 
-  /**
-   * Constant to filter by relationship type 'Translation - Mandatory'.
-   */
+  /** Constant to filter by relationship type 'Translation - Mandatory'. */
   public static final String FILTER_NAME_TRANSLATION_MANDATORY =
       PSRelationshipConfig.TYPE_TRANSLATION_MANDATORY;
 
-  /**
-   * Constant to filter by relationship type 'Widget-Assembly'.
-   */
+  /** Constant to filter by relationship type 'Widget-Assembly'. */
   public static final String FILTER_NAME_WIDGET_ASSEMBLY =
       PSRelationshipConfig.TYPE_WIDGET_ASSEMBLY;
 
-  /**
-   * Constant to filter by relationship type 'Widget-Content'.
-   */
+  /** Constant to filter by relationship type 'Widget-Content'. */
   public static final String FILTER_NAME_WIDGET_CONTENT = PSRelationshipConfig.TYPE_WIDGET_CONTENT;
 
-  /**
-   * Constant to filter by relationship type 'LocalContent'.
-   */
+  /** Constant to filter by relationship type 'LocalContent'. */
   public static final String FILTER_NAME_LOCAL_CONTENT = PSRelationshipConfig.TYPE_LOCAL_CONTENT;
 
-  /**
-   * An array of all known system relationship name filters.
-   */
+  /** An array of all known system relationship name filters. */
   public static final String[] FILTERS_BY_NAME = {
     FILTER_NAME_ACTIVE_ASSEMBLY,
     FILTER_NAME_ACTIVE_ASSEMBLY_MANDATORY,
@@ -1345,19 +1243,13 @@ public class PSRelationshipFilter {
     FILTER_NAME_TRANSLATION_MANDATORY
   };
 
-  /**
-   * Constant to filter out system relationships.
-   */
+  /** Constant to filter out system relationships. */
   public static final String FILTER_TYPE_SYSTEM = "system"; // PSRelationshipConfig.TYPE_ENUM[0];
 
-  /**
-   * Constant to filter out user relationships.
-   */
+  /** Constant to filter out user relationships. */
   public static final String FILTER_TYPE_USER = "user"; // PSRelationshipConfig.TYPE_ENUM[1];
 
-  /**
-   * An array of all known system relationship type filters.
-   */
+  /** An array of all known system relationship type filters. */
   public static final String[] FILTERS_BY_TYPE = {FILTER_TYPE_SYSTEM, FILTER_TYPE_USER};
 
   @Override
@@ -1402,7 +1294,7 @@ public class PSRelationshipFilter {
   /** the XML node name */
   public static final String XML_NODE_NAME = "PSXRelationshipFilter";
 
-  /** XML Attributes used to serialize this object **/
+  /** XML Attributes used to serialize this object * */
   protected static final String XML_ATTR_TYPE = "type";
 
   protected static final String XML_ATTR_CATEGORY = "category";
@@ -1414,7 +1306,7 @@ public class PSRelationshipFilter {
   protected static final String XML_ATTR_CONTENT_TYPE_ID = "contenttypeid";
   protected static final String XML_ATTR_OBJECT_TYPE = "objecttype";
 
-  /** XML Elements used to serialize this object **/
+  /** XML Elements used to serialize this object * */
   protected static final String XML_ELEM_PROPERTIES = "Properties";
 
   protected static final String XML_ELEM_PROPERTY = "Property";

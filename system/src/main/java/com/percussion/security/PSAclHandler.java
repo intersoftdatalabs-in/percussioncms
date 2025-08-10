@@ -33,11 +33,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The PSAclHandler class uses the defined security providers to
- * verify user credentials and determine the appropriate access level
- * for the user.
+ * The PSAclHandler class uses the defined security providers to verify user credentials and
+ * determine the appropriate access level for the user.
  *
- * @author  Tas Giakouminakis
+ * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
@@ -45,9 +44,7 @@ public class PSAclHandler {
   /**
    * Construct an ACL handler.
    *
-   * @param acl The ACL defining the behavior to enforce.  May not be
-   * <code>null</code>.
-   *
+   * @param acl The ACL defining the behavior to enforce. May not be <code>null</code>.
    * @throws IllegalArgumentException if acl is <code>null</code>.
    */
   public PSAclHandler(PSAcl acl) {
@@ -87,19 +84,15 @@ public class PSAclHandler {
   }
 
   /**
-   * Get the access level for the specified user's security token. If
-   * the user does not have access, an exception is thrown.
+   * Get the access level for the specified user's security token. If the user does not have access,
+   * an exception is thrown.
    *
    * @param tok The user's security token.
-   *
    * @return the user's access level
-   *
-   * @throws PSAuthenticationRequiredException if we have not yet tried to
-   * authenticate the user, or if they are attempting anonymous access and it
-   * is not permitted.
-   *
-   * @throws PSAuthorizationException if the user has logged in but was
-   * denied access to the application
+   * @throws PSAuthenticationRequiredException if we have not yet tried to authenticate the user, or
+   *     if they are attempting anonymous access and it is not permitted.
+   * @throws PSAuthorizationException if the user has logged in but was denied access to the
+   *     application
    */
   public int getUserAccessLevel(PSSecurityToken tok)
       throws PSAuthenticationRequiredException, PSAuthorizationException {
@@ -113,20 +106,15 @@ public class PSAclHandler {
   }
 
   /**
-   * Get the access level for the specified user session. If
-   * the user does not have access, an exception is thrown.
+   * Get the access level for the specified user session. If the user does not have access, an
+   * exception is thrown.
    *
    * @param sess The user session
-   *
-   * @return  the user's access level
-   *
-   * @exception PSAuthenticationRequiredException
-   *                             if the user has not logged in and
-   *                             anonymous access is not permitted
-   *
-   * @exception PSAuthorizationException
-   *                             if the user has logged in but was
-   *                             denied access to the application
+   * @return the user's access level
+   * @exception PSAuthenticationRequiredException if the user has not logged in and anonymous access
+   *     is not permitted
+   * @exception PSAuthorizationException if the user has logged in but was denied access to the
+   *     application
    */
   public int getUserAccessLevel(PSUserSession sess, String resourType, String resourName)
       throws PSAuthenticationRequiredException, PSAuthorizationException {
@@ -255,26 +243,20 @@ public class PSAclHandler {
   }
 
   /**
-   * Get the access level for the user making the specified request. If the
-   * user does not have access, an exception is thrown.
+   * Get the access level for the user making the specified request. If the user does not have
+   * access, an exception is thrown.
    *
    * @param req The request to check, never <code>null</code>.
-   *
-   * @return The user's access level. An OR'd collection of access flags which
-   * are defined in the {@link PSAclEntry} class. Which flags are present is
-   * dependent upon the context of the handler.
-   *
-   * @throws PSAuthenticationRequiredException If the user has not logged in
-   * and anonymous access is not permitted.
-   *
+   * @return The user's access level. An OR'd collection of access flags which are defined in the
+   *     {@link PSAclEntry} class. Which flags are present is dependent upon the context of the
+   *     handler.
+   * @throws PSAuthenticationRequiredException If the user has not logged in and anonymous access is
+   *     not permitted.
    * @throws PSAuthenticationFailedException If authentication fails. A
-   * PSAuthenticationFailedExException will be thrown instead of
-   * PSAuthenticationFailedException if the server allows detailed info about
-   * the security providers.
-   *
-   * @throws PSAuthorizationException If the user has logged in but was denied
-   * access to the application.
-   *
+   *     PSAuthenticationFailedExException will be thrown instead of PSAuthenticationFailedException
+   *     if the server allows detailed info about the security providers.
+   * @throws PSAuthorizationException If the user has logged in but was denied access to the
+   *     application.
    * @throws IllegalArgumentException If req is <code>null</code>.
    */
   public int getUserAccessLevel(PSRequest req)
@@ -304,15 +286,11 @@ public class PSAclHandler {
   /**
    * Gets the Acl entries matching the specified criteria.
    *
-   * @param type The type of Acl entry to locate.  Must be one of the
-   * <code>PSAclEntry.ACE_TYPE_xxx</code> value.
-   *
-   * @return An Iterator over <code>0</code> or more <code>PSEntry</code>
-   * objects.  The specific type of entry will be determined by the type of Acl
-   * entry requested.  Never <code>null</code>.
-   *
-   * @throws IllegalArgumentException if <code>type</code> does not represent a
-   * valid type.
+   * @param type The type of Acl entry to locate. Must be one of the <code>PSAclEntry.ACE_TYPE_xxx
+   *     </code> value.
+   * @return An Iterator over <code>0</code> or more <code>PSEntry</code> objects. The specific type
+   *     of entry will be determined by the type of Acl entry requested. Never <code>null</code>.
+   * @throws IllegalArgumentException if <code>type</code> does not represent a valid type.
    */
   public Iterator<PSEntry> getAclEntries(int type) {
     Map<String, ? extends PSEntry> entryMap = null;
@@ -339,9 +317,8 @@ public class PSAclHandler {
   /**
    * Find the minimum array element.
    *
-   * @param array    the array to be checked
-   *
-   * @return  the minimum array element
+   * @param array the array to be checked
+   * @return the minimum array element
    */
   private int findMinLevel(int[] array) {
     int min = array[0];
@@ -354,9 +331,8 @@ public class PSAclHandler {
   /**
    * Find the maximum array element.
    *
-   * @param array      the array to be checked
-   *
-   * @return  the maximum array element
+   * @param array the array to be checked
+   * @return the maximum array element
    */
   private int findMaxLevel(int[] array) {
     int max = array[0];
@@ -369,7 +345,7 @@ public class PSAclHandler {
   /**
    * Add ACL user entry into the hash, map PSAclEntry to PSUserEntry.
    *
-   ** @param  entry          a PSAclEntry object
+   * <p>* @param entry a PSAclEntry object
    */
   private void addUserEntry(PSAclEntry entry) {
     String name = entry.getName();
@@ -385,7 +361,7 @@ public class PSAclHandler {
   /**
    * Add ACL group entry into the hash, map PSAclEntry to PSGroupEntry.
    *
-   * @param entry          a PSAclEntry object
+   * @param entry a PSAclEntry object
    */
   private void addGroupEntry(PSAclEntry entry) {
     String name = entry.getName();
@@ -401,7 +377,7 @@ public class PSAclHandler {
   /**
    * Add ACL role entry into the hash, map PSAclEntry to PSRoleEntry.
    *
-   * @param entry          a PSAclEntry object
+   * @param entry a PSAclEntry object
    */
   private void addRoleEntry(PSAclEntry entry) {
     String name = entry.getName();
@@ -415,10 +391,7 @@ public class PSAclHandler {
     m_aclRoleEntries.put(hashKey, roleEntry);
   }
 
-  /**
-   * The hashmaps have keys = provider/providerInstance/entryName
-   *              values = acl entries
-   */
+  /** The hashmaps have keys = provider/providerInstance/entryName values = acl entries */
   private Map<String, PSUserEntry> m_aclUserEntries = null;
 
   private Map<String, PSGroupEntry> m_aclGroupEntries = null;

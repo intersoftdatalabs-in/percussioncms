@@ -24,10 +24,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Resolves the id values for the passed in site and site folder.
- *
- */
+/** Resolves the id values for the passed in site and site folder. */
 public class PSResolveSiteFoldersAction extends PSAAActionBase {
 
   /* (non-Javadoc)
@@ -57,9 +54,7 @@ public class PSResolveSiteFoldersAction extends PSAAActionBase {
     return new PSActionResponse(result.toString(), PSActionResponse.RESPONSE_TYPE_JSON);
   }
 
-  /**
-   * Parameter names of this action.
-   */
+  /** Parameter names of this action. */
   public static String FOLDER_PATH = "folderPath";
 
   public static String SITE_NAME = "siteName";

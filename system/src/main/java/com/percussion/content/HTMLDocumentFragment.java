@@ -26,9 +26,7 @@ public class HTMLDocumentFragment extends HTMLNode implements DocumentFragment {
     return Node.DOCUMENT_FRAGMENT_NODE;
   }
 
-  /**
-   * Method introduced later in DOM level 2. Not implemented.
-   */
+  /** Method introduced later in DOM level 2. Not implemented. */
   @Override
   public String getLocalName() {
     // TODO: implement
